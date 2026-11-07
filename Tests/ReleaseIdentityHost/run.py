@@ -41,20 +41,26 @@ def bundle_files(app):
             for p in app.rglob("*") if p.is_file()}
 
 
-def make_bundle(root, binary, nonce, version):
+def make_bundle(root, binary, nonce, version, *, automation=False):
     app = root / ("v" + version) / "Fixture.app"
     contents = app / "Contents"
     (contents / "MacOS").mkdir(parents=True)
     shutil.copy2(binary, contents / "MacOS/Fixture")
-    (contents / "Info.plist").write_bytes(plistlib.dumps({
+    info = {
         "CFBundleIdentifier": "org.riftlet.release-identity-host." + nonce,
         "CFBundleName": "Riftlet CI " + nonce, "CFBundleDisplayName": "Riftlet CI " + nonce,
         "CFBundleExecutable": "Fixture", "CFBundlePackageType": "APPL",
         "CFBundleVersion": version, "CFBundleShortVersionString": version + ".0",
         "LSUIElement": True, "FixtureNonce": nonce,
         "NSDownloadsFolderUsageDescription": "Read the disposable Downloads marker for " + nonce,
-    }))
-    checked(["/usr/bin/codesign", "--force", "--sign", "-", "--timestamp=none", app], "FIXTURE_SIGN_FAILED")
+    }
+    signing = ["/usr/bin/codesign", "--force", "--sign", "-", "--timestamp=none"]
+    if automation:
+        del info["NSDownloadsFolderUsageDescription"]
+        info["NSAppleEventsUsageDescription"] = "Check Automation permission in this isolated test account."
+        signing.extend(["--options", "runtime", "--entitlements", REPO / "packaging/release/Entitlements.plist"])
+    (contents / "Info.plist").write_bytes(plistlib.dumps(info))
+    checked([*signing, app], "FIXTURE_SIGN_FAILED")
     return app
 
 
@@ -119,7 +125,9 @@ def launch(root, app, nonce, phase, action, observer):
     while process.poll() is None and not path.exists() and time.monotonic() - started < 8:
         time.sleep(0.1)
     pid, facts = receipt(path)
-    if pid and not facts.get("completed") and pid in owned_processes(executable):
+    if action is None:
+        result["ui"] = {"state": "NOT_APPLICABLE_PASSIVE_ONLY"}
+    elif pid and not facts.get("completed") and pid in owned_processes(executable):
         try:
             seen = command([observer, nonce, str(pid), action, path], timeout=8)
             result["ui"] = json.loads(seen.stdout) if seen.returncode == 0 else {"state": "OBSERVER_UNAVAILABLE"}

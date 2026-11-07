@@ -28,11 +28,15 @@
 
 ## 恢复授权与登录项
 
+新候选会在选择窗口中显示 macOS 当前的截图目录。找不到这个位置时，按 ⇧⌘5，在「选项」里查看截图存储位置。选错目录时可以留在窗口重新选；点「取消」会保留原有设置。若选择期间改变了系统截图位置，回到 Riftlet 点「重新检查」，再打开选择窗口。选择目录不等于授予 Chrome 自动化；已能读取该目录的 Mac 也可能完全不弹系统授权框。
+
 修正对应权限后，回到 Riftlet 使用「重新检查」，再用一张新、不敏感的截图确认当前功能。若系统要求重启 App，先保存设置和反馈草稿，正常退出再打开。不要清除历史或 UNKNOWN 来恢复权限。
 
 “已请求登录启动、等待系统批准”不等于已经启用；“macOS 暂未找到此应用的登录项”也不能解释成成功。当前代码回读系统状态，不保存一个虚假的已启用值。登录启动的实际系统兼容性正在本轮专项验证；没有成功回读和真实登录启动证据时，以手动启动为可用方式。不要自行添加 LaunchAgent 替代它。
 
 **English navigation:** Settings → `权限与帮助` contains the folder, Chrome and screen-recording actions. `检查 Chrome 权限…` checks or requests Automation; the Chrome menu setting is separate. `重新检查` refreshes status after a change. `登录后启动 Riftlet` is optional; pending approval is not enabled, and “not found” is not success. Follow the operating system’s prompt, preserving local records.
+
+**If the folder or Chrome is unavailable:** In the candidate, choose the exact path shown in the folder picker. Press Shift–Command–5 → Options to find where macOS saves screenshots. Choosing another folder will be declined; Cancel keeps the previous choice. A Mac that can already read the folder may show no permission prompt. For a denied Chrome request, open System Settings → Privacy & Security → Automation → Riftlet → Google Chrome. In Chrome, check View → Developer → Allow JavaScript from Apple Events separately, then choose `重新检查` in Riftlet. If there is no editable chat, bring your intended ChatGPT draft to the front in Chrome. The screenshot stays on your Mac.
 
 ## 私人维护包升级后又显示“无法访问截图位置”
 

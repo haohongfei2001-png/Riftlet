@@ -51,6 +51,37 @@ final class FirstUseTests: XCTestCase {
         XCTAssertTrue(SourceAccessSelection.matches(selected: actual, actualSource: URL(fileURLWithPath: actual.path, isDirectory: false)))
         XCTAssertFalse(SourceAccessSelection.matches(selected: actual.deletingLastPathComponent(), actualSource: actual))
         XCTAssertFalse(SourceAccessSelection.matches(selected: URL(string: "https://example.org")!, actualSource: actual))
+        XCTAssertThrowsError(try SourceAccessSelection.validate(selected: actual, actualSource: nil))
+    }
+
+    @MainActor func testWrongFolderPreservesTheSelectedScreenshotBookmarkAcrossRelaunch() throws {
+        let manager = FileManager.default
+        let folder = manager.temporaryDirectory.appendingPathComponent("RiftletFolder-\(UUID())", isDirectory: true)
+        let screenshots = folder.appendingPathComponent("Screenshots", isDirectory: true)
+        let other = folder.appendingPathComponent("Other", isDirectory: true)
+        try manager.createDirectory(at: screenshots, withIntermediateDirectories: true)
+        defer { try? manager.removeItem(at: folder) }
+        try manager.createDirectory(at: other, withIntermediateDirectories: false)
+        let suite = "Riftlet.FirstUseFolder.\(UUID())"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let access = ScreenshotFolderAccess(defaults: defaults, modeName: "fixture")
+        defer { access.stop() }
+        try access.accept(screenshots, actualSource: screenshots)
+        let key = "Riftlet.sourceAccess.v1.fixture"
+        let bookmark = try XCTUnwrap(defaults.data(forKey: key))
+        XCTAssertThrowsError(try access.accept(other, actualSource: screenshots)) { error in
+            XCTAssertEqual(error as? SourceAccessError, .differentFolder)
+        }
+        access.stop()
+        let restored = ScreenshotFolderAccess(defaults: defaults, modeName: "fixture")
+        defer { restored.stop() }
+        restored.restore(for: screenshots)
+        XCTAssertEqual(defaults.data(forKey: key), bookmark)
+        var stale = false
+        let resolved = try URL(resolvingBookmarkData: bookmark, options: [.withSecurityScope, .withoutUI, .withoutMounting],
+                               relativeTo: nil, bookmarkDataIsStale: &stale)
+        XCTAssertTrue(SourceAccessSelection.matches(selected: resolved, actualSource: screenshots))
     }
 
     func testCaptureDiagnosticsRemainDistinctFromAttachmentPermission() {

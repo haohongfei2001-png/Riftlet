@@ -16,7 +16,7 @@ public enum SetupStorageState: Equatable, Sendable {
 /// Closed, local-only explanations. The presentation never displays an Error's
 /// description, file contents, browser identity, URL, or arbitrary remote text.
 public enum SetupIssue: Equatable, Sendable {
-    case sourceAccess, unsupportedFormat, unsupportedSize, invalidImage
+    case sourceAccess, wrongScreenshotFolder, unsupportedFormat, unsupportedSize, invalidImage
     case insufficientSpace, privateWriteFailed, storageUnavailable
     case unsupportedBrowser, targetUnavailable, permissionDenied, imageUnavailable
     case initializationFailed, configurationUnavailable
@@ -36,6 +36,8 @@ public enum SetupIssue: Equatable, Sendable {
             return "截图已保存在本机，但超过当前附件通路可处理的像素上限。本图未上传，原文件与私有副本保留。"
         case .sourceAccess:
             return "无法读取截图保存位置。请确认文件夹仍存在，在系统设置「隐私与安全性 → 文件与文件夹」中检查 Riftlet，或允许访问当前截图位置；原截图没有被删除。"
+        case .wrongScreenshotFolder:
+            return "所选文件夹与当前系统截图位置不同。点“重新检查”，确认路径后再选择截图文件夹。"
         case .unsupportedFormat:
             return "这张截图的格式暂不支持，未收录。原文件保留，可在下方查看当前支持的格式。"
         case .unsupportedSize:
@@ -49,9 +51,9 @@ public enum SetupIssue: Equatable, Sendable {
         case .storageUnavailable:
             return "暂时无法检查私有存储，不能确认保存状态。已有记录与系统原图保留。"
         case .unsupportedBrowser:
-            return "当前浏览器不在已支持范围内。截图保留，不会自动切换窗口或寻找其他聊天。"
+            return "请用 Google Chrome 打开要附加图片的 ChatGPT 草稿。截图仍在本机。"
         case .targetUnavailable:
-            return "当前没有唯一、可验证的 ChatGPT 附件目标。截图保留，不会上传到其他窗口。"
+            return "未能连接到可附加图片的聊天。请在 Chrome 前台显示要用的 ChatGPT 草稿，确认其中有添加附件的入口。截图仍在本机。"
         case .permissionDenied:
             return "Chrome 自动化访问被拒绝。请在系统设置的「隐私与安全性 → 自动化」中检查 Riftlet，再重新检查。"
         case .imageUnavailable:
@@ -187,13 +189,14 @@ public struct SetupPresentation: Equatable, Sendable {
     }
 
     public var sourceText: String {
+        if snapshot.issue == .wrongScreenshotFolder { return SetupIssue.wrongScreenshotFolder.text }
         switch snapshot.source {
         case .checking: return "正在检查系统截图保存位置。"
         case .notChecked: return "尚未检查截图位置的访问状态；暂停收录时不会据此判断权限被拒绝。"
         case .notApplicable: return "此模式不读取系统截图文件夹。"
         case .accessible: return "截图位置可读取。"
-        case .unavailable: return "截图位置目前不可访问；请检查文件夹与访问权限。"
-        case .notConfigured: return "尚未找到可用的文件夹。请在系统截图工具栏的「选项」中确认保存位置。"
+        case .unavailable: return "截图位置目前不可访问。按 ⇧⌘5，在“选项”中确认保存位置。允许 Riftlet 读取这个文件夹后，点“重新检查”。"
+        case .notConfigured: return "尚未找到截图文件夹。按 ⇧⌘5，在“选项”中确认截图存储在文件夹，再点“重新检查”。"
         }
     }
 
@@ -229,6 +232,10 @@ public struct SetupPresentation: Equatable, Sendable {
     }
 
     public var attachmentText: String {
+        if let issue = snapshot.issue, hasAutomationCapability,
+           issue == .unsupportedBrowser || issue == .targetUnavailable {
+            return issue.text
+        }
         switch snapshot.attachment {
         case .productionDisabled:
             return "此工程版本尚未启用真实截图附加。截图可以在本机收录与查看；授权不会开启尚未验收的能力。"
@@ -249,19 +256,22 @@ public struct SetupPresentation: Equatable, Sendable {
 
     /// Disabled production and offline modes must not suggest that TCC is the
     /// reason they cannot upload, even if a stale permission observation exists.
-    public var permissionText: String? {
+    public var automationStatusText: String? {
         guard hasAutomationCapability else { return nil }
-        let main: String
         switch snapshot.permission {
         case .notNeeded: return nil
-        case .notChecked: main = "尚未检查 Chrome 自动化权限。只有主动操作时才会请求。"
-        case .notRequested: main = "需要 Chrome 自动化访问；可按下方按钮请求 macOS 授权。"
-        case .granted: main = "macOS 已允许 Chrome 自动化访问；这不代表页面附件能力已经通过验证。"
-        case .denied: main = "Chrome 自动化访问被拒绝。可打开系统设置恢复，再重新检查。"
-        case .notRunning: main = "Chrome 尚未运行。请自行打开 Chrome，再重新检查；Riftlet 不会替你切换窗口。"
-        case .browserUnavailable: main = "没有找到受支持的 Chrome 应用。"
-        case .unavailable: main = "暂时无法确定 Chrome 自动化权限。请重新检查；未据此输入附件。"
+        case .notChecked: return "尚未检查 Chrome 自动化权限。只有你点“检查 Chrome 权限…”，Riftlet 才会申请访问。"
+        case .notRequested: return "点击“检查 Chrome 权限…”，允许 Riftlet 在你点截图时把图片交给 Chrome。"
+        case .granted: return "macOS 已允许 Riftlet 与 Chrome 通信。"
+        case .denied: return "Chrome 自动化访问被拒绝。打开“系统设置 → 隐私与安全性 → 自动化”，在 Riftlet 下允许 Google Chrome，再回到这里点“重新检查”。"
+        case .notRunning: return "Chrome 尚未运行。请打开 Google Chrome，再点“重新检查”。"
+        case .browserUnavailable: return "没有找到受支持的 Google Chrome 应用。"
+        case .unavailable: return "暂时无法确认 Chrome 自动化权限。打开 Google Chrome 后，点“重新检查”。"
         }
+    }
+
+    public var permissionText: String? {
+        guard let main = automationStatusText else { return nil }
         guard let detail = Self.displayText(snapshot.permissionDetail, limit: 700) else { return main }
         return main + "\n" + detail
     }

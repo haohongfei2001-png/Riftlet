@@ -75,7 +75,7 @@ python3 -B scripts/release-tool.py preflight
 
 python3 -B scripts/release-tool.py build \
   --source '<reviewed-full-40-character-commit>' \
-  --version '0.1.0' --build '1' --arch arm64 --arch x86_64 \
+  --version '0.1.0' --build '1' --label 'Release rehearsal' --arch arm64 --arch x86_64 \
   --workspace '/absolute/new/release-workspace'
 ```
 

@@ -85,7 +85,7 @@ enum RiftletMain {
 }
 
 @MainActor
-private final class ApplicationController: NSObject, NSApplicationDelegate, NSMenuItemValidation {
+private final class ApplicationController: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSOpenSavePanelDelegate {
     private lazy var feedback = FeedbackHost(modeDirectory: mode.directoryName, isolatedRoot: reviewEnvironment?.root)
     private var statusItem: NSStatusItem?
     private var statusLine: NSMenuItem?
@@ -124,6 +124,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private lazy var captureLocation = reviewEnvironment?.captureLocation ?? SystemCaptureLocationProvider()
     private lazy var firstUse = FirstUsePreferences(defaults: reviewEnvironment?.defaults ?? .standard, modeName: mode.directoryName)
     private lazy var folderAccess = ScreenshotFolderAccess(defaults: reviewEnvironment?.defaults ?? .standard, modeName: mode.directoryName)
+    private var folderShownInPicker: URL?
     private var permissionGate: AutomationPermissionGate { .init(requiresChrome: mode.usesWebAdapter) }
     private var hideItem: NSMenuItem?
     private var pauseItem: NSMenuItem?
@@ -828,7 +829,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     }
                     captureStatus = await capture.statusSnapshot()
                     acceptCaptureStatus(preferenceIssue: nil)
-                    if setupIssue == .sourceAccess, captureStatus?.sourceAccessible == true { setupIssue = nil }
+                    if setupIssue == .wrongScreenshotFolder || (setupIssue == .sourceAccess && captureStatus?.sourceAccessible == true) {
+                        setupIssue = nil
+                    }
                 } catch { receiveCaptureDiagnostic(.classify(error, context: .source)) }
             }
             let permission = await inspectAutomationPermission(reason: "setupRecheck")
@@ -851,15 +854,18 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func chooseSourceAccess() {
-        guard mode.collectsSystemScreenshots, !captureControlBusy, let source = detectedSource else { return }
+        guard mode.collectsSystemScreenshots, !captureControlBusy, folderShownInPicker == nil, let source = detectedSource else { return }
         let panel = NSOpenPanel()
+        panel.delegate = self
         panel.title = "允许 Riftlet 读取系统截图位置"
-        panel.message = "请选择下方显示的系统截图文件夹。只授予读取权限，不更改系统保存位置，也不导入其他文件夹。"
+        panel.message = "请选择 macOS 保存截图的文件夹：\n" + source.path
         panel.prompt = "允许读取"
         panel.canChooseFiles = false; panel.canChooseDirectories = true
         panel.canCreateDirectories = false; panel.allowsMultipleSelection = false
         panel.directoryURL = source
+        folderShownInPicker = source
         panel.begin { [weak self] response in
+            self?.folderShownInPicker = nil
             guard response == .OK, let selected = panel.url else { return }
             Task { @MainActor [weak self] in
                 guard let self else { return }
@@ -867,9 +873,15 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     let actual = try await self.captureLocation.currentDirectory()
                     try self.folderAccess.accept(selected, actualSource: actual)
                     self.recheckSetup()
+                } catch SourceAccessError.differentFolder {
+                    self.setupIssue = .wrongScreenshotFolder; self.updateSetup()
                 } catch { self.setupIssue = .sourceAccess; self.updateSetup() }
             }
         }
+    }
+
+    func panel(_ sender: Any, validate url: URL) throws {
+        try SourceAccessSelection.validate(selected: url, actualSource: folderShownInPicker)
     }
 
     private func requestAutomationPermission() {
@@ -1505,6 +1517,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         case .restorePreferredDisplay:
             rift?.restorePreferredDisplay(); screenshotEntry?.configure(); updateSetup()
         case .checkStorage: checkStorage()
+        case .revealDataFolder:
+            if initialized, let root { NSWorkspace.shared.activateFileViewerSelecting([root]) }
         case .reloadConfiguration: reload(); updateSetup()
         case .openConfiguration: openGeometry()
         case .showLatest: showLatest()

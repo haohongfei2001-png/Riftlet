@@ -110,7 +110,7 @@ public enum SettingsProductAction: Sendable {
     case capture, openHistory, openFeedback, clearVisible
     case recheck, openSource, chooseSourceAccess, requestAutomation
     case openFilePrivacy, openScreenRecordingPrivacy
-    case restorePreferredDisplay, checkStorage, reloadConfiguration, openConfiguration
+    case restorePreferredDisplay, checkStorage, revealDataFolder, reloadConfiguration, openConfiguration
     case showLatest, showOldest, quit
 }
 public typealias SettingsProductActionHandler = @MainActor (SettingsProductAction) async -> Void

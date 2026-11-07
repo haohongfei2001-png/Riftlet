@@ -74,19 +74,31 @@ final class SetupPresentationTests: XCTestCase {
     }
 
     func testAutomationRecoveryIsActionableOnlyForTheCurrentCapability() {
+        let unchecked = SetupPresentation(snapshot: .init(attachment: .available, permission: .notChecked))
+        XCTAssertTrue(unchecked.automationStatusText?.contains("只有你点") == true)
+        XCTAssertFalse(unchecked.automationStatusText?.contains("macOS 会") == true)
         let denied = SetupPresentation(snapshot: .init(attachment: .syntheticWeb, permission: .denied))
         XCTAssertTrue(denied.canRequestPermission)
         XCTAssertEqual(denied.permissionActionTitle, "打开自动化设置…")
-        XCTAssertTrue(denied.permissionText?.contains("被拒绝") == true)
+        XCTAssertTrue(denied.permissionText?.contains("系统设置 → 隐私与安全性 → 自动化") == true)
+        XCTAssertTrue(denied.permissionText?.contains("Riftlet 下允许 Google Chrome") == true)
         let granted = SetupPresentation(snapshot: .init(attachment: .syntheticWeb, permission: .granted,
             permissionDetail: "还需在 Chrome 菜单中检查 Apple Events JavaScript 设置。"))
         XCTAssertFalse(granted.canRequestPermission)
-        XCTAssertTrue(granted.permissionText?.contains("不代表页面附件能力") == true)
+        XCTAssertEqual(granted.automationStatusText, "macOS 已允许 Riftlet 与 Chrome 通信。")
         XCTAssertTrue(granted.permissionText?.contains("Apple Events JavaScript") == true)
         for state in [SetupPermissionState.notRunning, .browserUnavailable] {
             XCTAssertFalse(SetupPresentation(snapshot: .init(attachment: .syntheticWeb, permission: state)).canRequestPermission)
         }
         XCTAssertFalse(SetupPresentation(snapshot: .init(attachment: .offlineSimulation, permission: .notRequested)).canRequestPermission)
+    }
+
+    func testAttachmentHelpReportsAnObservedMissingChatOnlyWhenThisModeConnects() {
+        let target = SetupPresentation(snapshot: .init(attachment: .available, issue: .targetUnavailable))
+        XCTAssertEqual(target.attachmentText, SetupIssue.targetUnavailable.text)
+        XCTAssertTrue(target.attachmentText.contains("Chrome 前台"))
+        let local = SetupPresentation(snapshot: .init(attachment: .productionDisabled, issue: .targetUnavailable))
+        XCTAssertFalse(local.attachmentText.contains("Chrome 前台"))
     }
 
     func testSupportScopeComesFromHostAndLocalStringsAreBounded() {

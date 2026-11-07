@@ -25,6 +25,12 @@ enum SourceAccessSelection {
         selected.standardizedFileURL.resolvingSymlinksInPath().path ==
         actualSource.standardizedFileURL.resolvingSymlinksInPath().path
     }
+
+    static func validate(selected: URL, actualSource: URL?) throws {
+        guard let actualSource, matches(selected: selected, actualSource: actualSource) else {
+            throw SourceAccessError.differentFolder
+        }
+    }
 }
 
 @MainActor
@@ -52,9 +58,7 @@ final class ScreenshotFolderAccess {
     }
 
     func accept(_ selected: URL, actualSource: URL) throws {
-        guard SourceAccessSelection.matches(selected: selected, actualSource: actualSource) else {
-            throw SourceAccessError.differentFolder
-        }
+        try SourceAccessSelection.validate(selected: selected, actualSource: actualSource)
         stop()
         if selected.startAccessingSecurityScopedResource() { activeURL = selected }
         try save(selected)
@@ -69,4 +73,8 @@ final class ScreenshotFolderAccess {
     }
 }
 
-enum SourceAccessError: Error { case differentFolder }
+enum SourceAccessError: LocalizedError {
+    case differentFolder
+    var errorDescription: String? { "所选文件夹与当前系统截图位置不同。" }
+    var recoverySuggestion: String? { "请选择窗口中显示的截图文件夹。可以按 ⇧⌘5，在“选项”中确认保存位置。" }
+}

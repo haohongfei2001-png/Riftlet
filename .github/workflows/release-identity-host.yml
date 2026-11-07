@@ -27,10 +27,10 @@ jobs:
           set -euo pipefail
           mkdir -p test-results
           previous=2e779f646ac4874344fac94f79103e8ddf9b02c8
-          # Each source revision is part of the build receipt. Tests run from the PR merge.
-          base="${{ github.event.pull_request.base.sha || github.sha }}"
+          # Test the same candidate tree whose workflow and host drivers we checked out.
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           python3 -B scripts/release-tool.py build --source "$previous" --version 0.3.0 --build 3 --label "Beta 3" --arch arm64 --workspace "$RUNNER_TEMP/baseline"
-          python3 -B scripts/release-tool.py build --source "$base" --version 0.3.2 --build 5 --label "Identity Rehearsal" --arch arm64 --workspace "$RUNNER_TEMP/next"
+          python3 -B scripts/release-tool.py build --source "$GITHUB_SHA" --version 0.3.2 --build 5 --label "Identity Rehearsal" --arch arm64 --workspace "$RUNNER_TEMP/next"
           ditto "$RUNNER_TEMP/baseline/Riftlet-Release/Riftlet.app" "$RUNNER_TEMP/Old.app"
           ditto "$RUNNER_TEMP/next/Riftlet-Release/Riftlet.app" "$RUNNER_TEMP/New.app"
           codesign --force --sign - --timestamp=none "$RUNNER_TEMP/Old.app"
@@ -42,6 +42,12 @@ jobs:
       - name: Observe permissions and bookmarks with a separate App identity
         if: ${{ !cancelled() }}
         run: python3 -B Tests/ReleaseIdentityHost/run.py --output test-results/release-identity-host.json
+      - name: Observe first Automation decisions on a disposable Chrome profile
+        if: ${{ !cancelled() }}
+        run: python3 -B Tests/ReleaseIdentityHost/automation.py --output test-results/automation-consent.json
+      - name: Exercise candidate settings and restart in an isolated profile
+        if: ${{ !cancelled() }}
+        run: bash scripts/run-settings-review.sh "$RUNNER_TEMP/New.app" "$PWD/test-results/settings-review"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: ${{ !cancelled() }}
         with:
@@ -49,5 +55,7 @@ jobs:
           path: |
             test-results/ordinary-upgrade.json
             test-results/release-identity-host.json
+            test-results/automation-consent.json
+            test-results/settings-review/*runner-result.json
           if-no-files-found: error
           retention-days: 14

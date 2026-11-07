@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "sourceBaseline": "05abf6c2404055b0135e77585a10a47deea33a95",
-  "scope": "Public DMG tooling adds an explicit single-executable layout check and accepted App ticket verification/recovery. The existing source, signing, notarization, manual-update and consumer privacy statements continue to apply. The other 33 bound source inputs are unchanged.",
+  "sourceBaseline": "3f1340d73a438011fe6ab1aa1e2e4d1f72d185cf",
+  "scope": "Consumer first use, folder access, history, storage and direct-download guidance. Existing attachment, release, DMG and credential-tool sources are inherited from the reviewed main 4908dc79eb2e8af5ea3d53cfb81a719c7fdf5c9d. The changed runtime bindings cover consumer text, folder selection, history text fitting and settings actions. Checkpoint hashes below bind the current guide to the exercised sources.",
   "files": [
     {
       "path": "Sources/RiftletApp/OrdinaryCaptureConfiguration.swift",
-      "sha256": "0f0d2ce1d98e83854a2deb97073dc065872d560ddd0726c6ac20e698ceba58a9",
-      "sourceBlob": "59f7de2e88df21b40092f3b1b5fe4217d7f7b628"
+      "sha256": "4cb78053707d9a58b68d1cec9c36ae086f33592cdbe53b526a0ba63af742b453",
+      "sourceBlob": "8beee947c990c6678c4d1367a8d44992ddc115bc"
     },
     {
       "path": "Sources/RiftletApp/ApplicationMode.swift",
@@ -15,8 +15,8 @@
     },
     {
       "path": "Sources/RiftletApp/RiftletMain.swift",
-      "sha256": "f4e1eb5e60b8d18fa84026aebdb448d2f4ac41193607c54d4d76e158934103ef",
-      "sourceBlob": "88e1b96763e94247705fb7f72b68947970126e0f"
+      "sha256": "99773c1a66b74c836334992470b06fd8119160dcb37390b30c4d8420caae8b35",
+      "sourceBlob": "8a575031613a9d9246813d884983f3261fd24713"
     },
     {
       "path": "Sources/RiftletApp/AutomationPermission.swift",
@@ -45,8 +45,8 @@
     },
     {
       "path": "Sources/RiftletApp/ProductStatus.swift",
-      "sha256": "aeb84906b092470eb178396409fde59572d644800462549c0f5583b54e38665c",
-      "sourceBlob": "2ccc99c25cf13950ffe948efd0c8e849263b0fe8"
+      "sha256": "13691bcab01dbd92835427151dd6b47c011c88be04ffb6b4a706b5678c950796",
+      "sourceBlob": "d827b0b277cae93ae7424f4a56484bf5b70fa234"
     },
     {
       "path": "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js",
@@ -95,18 +95,18 @@
     },
     {
       "path": "Sources/RiftletUI/RiftHistoryController.swift",
-      "sha256": "27099e8ceb5873bdf571b3a85ed4459fd0062249e52fe89840f8cf2137259875",
-      "sourceBlob": "39e764e4c3e24d3a3266c47fc3d64341b7f92141"
+      "sha256": "170a31fb1258ce99c33888e8001b619ee59a2c049f419fa93593c15bf53e6db6",
+      "sourceBlob": "a1bdcc21a39c5f8959b6554bf72b168dfb6a11dd"
     },
     {
       "path": "Sources/RiftletUI/RiftSettingsCenterPages.swift",
-      "sha256": "a298f7a364c209694a38108a6afd1c9b92a10de6862c77e0dbae72fc746363dd",
-      "sourceBlob": "684fe6e990ab944af5d1c6f860e6a3f97474f1a0"
+      "sha256": "48911b97762727846d74e7e8826dd3480fcf9c758ddd5293dc9829702b2788af",
+      "sourceBlob": "63595f5ee4afba1137504272f2a92b9c37b949ef"
     },
     {
       "path": "Sources/RiftletUI/RiftSettingsCenterRendering.swift",
-      "sha256": "6eb5face38085dec1a0a53583745d17fbb899131117e69c35d55bc532fc8791a",
-      "sourceBlob": "79b22df8d695f9cef594d6d8cca8cdb2cdb797b7"
+      "sha256": "96fe6bf8ddbc80582076b634b36cacd952239d5ee4cea4f2de039ff5dc84a84b",
+      "sourceBlob": "91fcbc5eeafe92121ded358f2ab595470a6e0fe2"
     },
     {
       "path": "Sources/RiftletCapture/CaptureService.swift",
@@ -172,16 +172,63 @@
       "path": "Package.swift",
       "sha256": "a721e4e172f087dbb012b81b69494252df1424ef804f28d12330ebf4a9f3dbee",
       "sourceBlob": "d3cdd0d51ad937b1afb243cd866cf0071f408d49"
+    },
+    {
+      "path": "Sources/RiftletApp/FirstUsePreferences.swift",
+      "sha256": "c3065006bad515e2024236aad24e745c964fa7cc24868599735365ae25bfa2aa",
+      "sourceBlob": "df0b33d088419ed9feab58ee6758f20f7dafe047"
+    },
+    {
+      "path": "Sources/RiftletUI/SetupPresentation.swift",
+      "sha256": "64471caa73c78c902d920bdfa01bea4b2125967f9372f63ebe87043457cc604e",
+      "sourceBlob": "4563bbd783ddaf49ae5facd3338657bf6863bf2d"
+    },
+    {
+      "path": "Sources/RiftletUI/RiftOnboardingController.swift",
+      "sha256": "7e02bad35b7183aea1053ddc9aca64b39e60a195929f90809c6c3276620d5dbe",
+      "sourceBlob": "081c37a8e1a01db88049fec6f7a34193cabc49eb"
+    },
+    {
+      "path": "Sources/RiftletUI/RiftControlCenterPresentation.swift",
+      "sha256": "8fda4be1ccadf8a1ec0dc6653b9723f4ed982badcd8369f85dc04c6cabfa6465",
+      "sourceBlob": "efcad07b87988de8da2e77d4350c46fc84eb174f"
+    },
+    {
+      "path": "Sources/RiftletUI/SettingsProductPresentation.swift",
+      "sha256": "f49dbb0d0c62ab747e3443ee47ff95d7af8a6a5cf4e6561b8597ac67c8e1bf5f",
+      "sourceBlob": "cfc3d64cfd1a0acf40db34478028e2bf62a2e73f"
+    },
+    {
+      "path": "scripts/release-macos.py",
+      "sha256": "067622218ee2e99f4ea3bee96a5cf2ff1f13afa8f05aa439edc247060b83e761",
+      "sourceBlob": "3cf599b3e1c89799bfa8b3eac47aeb6fd6d13e29"
+    },
+    {
+      "path": "scripts/release-dmg.py",
+      "sha256": "fad73dfa4a79ef3ff001a9a37bd6b5221ff062f06fc091ec404656cc97306aed",
+      "sourceBlob": "3ea755fd528e7729a19f63a4934f27af0ad89ef5"
+    },
+    {
+      "path": "scripts/configure-notary-profile.py",
+      "sha256": "e95fdf7542a2051227d237d351f6c1895a85c6759d0c96419756670251c08512",
+      "sourceBlob": "b05e263cd3212d101f1bf5b0d594639dfe8bf07d"
+    },
+    {
+      "path": "scripts/developer-id-request.swift",
+      "sha256": "38b34aaa148f2417af0f4b9858d23ba6d1412ca75c1a6d05778713ced07f40a6",
+      "sourceBlob": "f2502a5e263c3ae1219e4eafcd06f4d8dde664c8"
     }
   ],
   "previousSourceBinding": {
-    "path": "source-bindings-03.json",
-    "sha256": "934b8dfe8d9f492b8be6fe1573ef55a6c9f3a8b286ea7381597a8721bc8a6261",
-    "sourceBaseline": "5bd15e153fd92165b66f1f9d655eecfbf193e9dd"
+    "path": "source-bindings-05.json",
+    "sha256": "34bf85c01f5b519364d9b61798a1b7e87a3747498195a11547c1ce904f08a8e5",
+    "sourceBaseline": "05abf6c2404055b0135e77585a10a47deea33a95",
+    "archivedAt": "4908dc79eb2e8af5ea3d53cfb81a719c7fdf5c9d"
   },
-  "inheritanceAudit": "capture-inheritance-audit.json",
+  "inheritanceAudit": "../../consumer-readiness-20261107/README.md",
   "previousInheritanceAudits": [
     "release-inheritance-audit.json",
-    "icon-inheritance-audit.json"
+    "icon-inheritance-audit.json",
+    "capture-inheritance-audit.json"
   ]
 }

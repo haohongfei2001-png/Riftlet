@@ -59,6 +59,17 @@ private final class HistoryPreviewImageView: NSImageView {
     }
 }
 
+/// Wrap the action hint inside its detail column when AppKit measures the window.
+private final class HistoryActionNote: NSTextField {
+    override func setFrameSize(_ newSize: NSSize) {
+        super.setFrameSize(newSize)
+        let textWidth = alignmentRect(forFrame: bounds).width
+        if textWidth > 0, preferredMaxLayoutWidth != textWidth {
+            preferredMaxLayoutWidth = textWidth
+        }
+    }
+}
+
 /// Explicitly opened local history, with one bounded metadata page and reused
 /// downsampled thumbnails. No adapter, upload, clipboard or deletion capability.
 @MainActor
@@ -120,7 +131,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     private let originalButton = NSButton(title: "查看原图", target: nil, action: nil)
     private let newerButton = NSButton(title: "上一页", target: nil, action: nil)
     private let olderButton = NSButton(title: "下一页", target: nil, action: nil)
-    private let actionNote = RiftVisualStyle.label("放回裂缝不会立即上传。移出队列不会删除本地原图或聊天附件。", role: "secondary")
+    private let actionNote = HistoryActionNote(wrappingLabelWithString: "")
     private var entries: [RiftHistoryEntry] = []
     private var displayed: [RiftHistoryEntry] = []
     private var pageOffset = 0
@@ -246,7 +257,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
             button.widthAnchor.constraint(equalToConstant: 128).isActive = true
             filterButtons.append(button); nav.addArrangedSubview(button)
         }
-        nav.addArrangedSubview(RiftVisualStyle.label("原图始终保留", role: "secondary"))
+        nav.addArrangedSubview(RiftVisualStyle.label("收起不会删除图片", role: "secondary"))
         nav.translatesAutoresizingMaskIntoConstraints = false; sidebar.addSubview(nav)
         NSLayoutConstraint.activate([nav.leadingAnchor.constraint(equalTo: sidebar.leadingAnchor, constant: 12),
             nav.topAnchor.constraint(equalTo: sidebar.topAnchor, constant: 24)])
@@ -322,7 +333,8 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         detailMetadata.font = RiftVisualStyle.secondaryFont; detailMetadata.textColor = RiftVisualStyle.secondary
         detailMetadata.isSelectable = true
         detailState.font = RiftVisualStyle.bodyFont; detailState.textColor = RiftVisualStyle.ink
-        for field in [detailTitle, detailMetadata, detailState] {
+        actionNote.font = RiftVisualStyle.secondaryFont; actionNote.textColor = RiftVisualStyle.secondary
+        for field in [detailTitle, detailMetadata, detailState, actionNote] {
             field.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
             RiftVisualStyle.applyTextStyle(field)
         }
@@ -427,7 +439,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         removeButton.isHidden = !removeButton.isEnabled
         revealButton.isHidden = selectedEntry == nil
         let notes = [restoreButton.isEnabled ? "放回裂缝不会立即上传。" : nil,
-                     removeButton.isEnabled ? "移出队列不会删除本地原图或聊天附件。" : nil].compactMap { $0 }
+                     removeButton.isEnabled ? "移出队列不会删除私有副本、系统原图或聊天附件。" : nil].compactMap { $0 }
         actionNote.stringValue = notes.joined()
         RiftVisualStyle.applyTextStyle(actionNote)
         actionNote.isHidden = notes.isEmpty

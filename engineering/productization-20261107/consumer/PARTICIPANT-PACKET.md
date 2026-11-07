@@ -8,8 +8,8 @@
 
 1. 按[安装与权限](../../../docs/consumer/INSTALL-AND-PERMISSIONS.md)打开 App，逐项配置你要用的功能。记下是否独立完成；需要协助也如实记录。
 2. 用 macOS 截一张自己制作的无隐私样例，确认文件保存和边缘微图出现。
-3. 在 Chrome 打开自己新建的 ChatGPT 草稿，可以写一句无隐私测试文字。点一次微图，检查新图片是否进入正确草稿、测试文字是否保持。**不发送测试消息。** 微图收起与网页最后完成状态分开记录。
-4. 再截一张不同样例并点击一次，检查两张都在，没有重复、替换或意外发送。无需反复制造很多图片。
+3. 只打开本次新建的专用 Chrome ChatGPT 草稿。写一句无隐私测试文字，用网页原有附件入口放一张无隐私样图作为基线。点第一张边缘微图一次，观察是否新增了对应附件、文字与原有附件是否仍在。**不发送测试消息。** 只记结果，不记聊天文字、附件内容或链接。
+4. 再截一张不同样例并点击一次，检查基线图片、第一张和第二张均在原草稿，没有重复、替换或意外发送。两次都分别记录“微图因附加而收起”“新增预览”和“网页最终完成、报错或仍不确定”。手动收起和归档仅改变本地显示。
 5. 从历史分别使用「当前视图」和「图像网格」找回记录、打开原图；切换显示方式不是重传。体验暂停和隐藏的区别，最后恢复自己希望的状态。
 6. 退出并重新打开一次，检查自己保存的设置和历史仍在。遇到保存失败保留草稿，使用对应重试；不要清除 App 数据。
 
@@ -34,5 +34,21 @@
 原因（可跳过）：
 是否愿意为解决这个需求付费、为什么（可跳过，不是购买承诺）：
 ```
+
+## 不署名选择卡（可选）
+
+仅在组织者已说明收取方式和关联边界时使用。请勿填写姓名、代号、设备、日期、版本、自由文字或截图。每行可选一项，也可留空。与带代号的一分钟回访分开收取。
+
+| 问题 | 选择 |
+| --- | --- |
+| 第一次用系统截图到草稿 | 自己完成 / 需要协助 / 未完成 / 没有尝试 |
+| 有截图提问需求时更愿意用哪种方式 | Riftlet / 原先的方式 / 都可以 / 还不确定 |
+| 哪步最需要改善 | 安装与权限 / 找到边缘微图 / 确认草稿附件 / 找回图片 / 没有意见 |
+
+没有已核查的匿名回收条件时，可以不交这张卡。不要通过可辨认身份的私信来投“匿名票”。混合计数后，组织者无法找回某个人的答卷。
+
+## 退出与撤回
+
+可随时通过随包说明中的私有联系办法退出并停止回访。若还需要撤回 App 反馈，在对应记录中使用取消或删除申请，并查看服务状态。停止使用时正常退出并移除 App，本机数据、原截图与已交给 ChatGPT 的附件仍由你保管。组织者停发某个包时，请按该次说明停止相关操作，无需清库或提交私人材料。
 
 **English essentials:** Participation and diagnostic sharing are optional. Use only your own non-sensitive sample images in a new ChatGPT draft; do not send a test message. Record whether the correct card appears, whether text/existing attachments remain, and whether the webpage finally completes the upload as separate outcomes. Do not retry an uncertain image, clear local data or bypass macOS protections to finish the task. The follow-up asks about real need, voluntary reuse, recovery and reasons for keeping or uninstalling the App; it is not automatic usage tracking.
