@@ -1,0 +1,107 @@
+{
+  "schema": 1,
+  "tool": "system iconutil converts ICNS to actual PNGs; standard PNG CRC/filter decode comparison",
+  "slots": [
+    {
+      "slot": "icon_128x128.png",
+      "pixels": 128,
+      "nativeDecodedPixelsMatchExactly": true,
+      "differingChannelValues": 0,
+      "maximumChannelDelta": 0,
+      "maxPremultipliedNumeratorDelta": 0,
+      "sourcePNG_SHA256": "b892c04041c145b4389ba7163939d67aba8335f0dfdb9a054edd696d3aad77d7",
+      "decodedPNG_SHA256": "43177121f6c29c9267bf0c8853b9a7813ba93d008b0a55dcd1eba22474813b68"
+    },
+    {
+      "slot": "icon_128x128@2x.png",
+      "pixels": 256,
+      "nativeDecodedPixelsMatchExactly": true,
+      "differingChannelValues": 0,
+      "maximumChannelDelta": 0,
+      "maxPremultipliedNumeratorDelta": 0,
+      "sourcePNG_SHA256": "a09f95afa9a394985c12f1d81536bad8c5b10aac60206743eafdf109c7362a17",
+      "decodedPNG_SHA256": "7323951cd96d63e89dd2ae8aba52d2c36178732b92cae7636480993d132cb676"
+    },
+    {
+      "slot": "icon_16x16.png",
+      "pixels": 16,
+      "nativeDecodedPixelsMatchExactly": false,
+      "differingChannelValues": 81,
+      "maximumChannelDelta": 223,
+      "maxPremultipliedNumeratorDelta": 13125,
+      "sourcePNG_SHA256": "3e5c8b74be67a9435aa7dfa550558c9c9156d7a2927e2ed6907f10c6b0b490a8",
+      "decodedPNG_SHA256": "333364c46a519e82fc79190e59fbc709610fb36a1f7435cf3f33187a977323e9"
+    },
+    {
+      "slot": "icon_16x16@2x.png",
+      "pixels": 32,
+      "nativeDecodedPixelsMatchExactly": true,
+      "differingChannelValues": 0,
+      "maximumChannelDelta": 0,
+      "maxPremultipliedNumeratorDelta": 0,
+      "sourcePNG_SHA256": "a922604c6777db97f27f4966ea30e6237c9bfdd57594949d36ef20b43947f709",
+      "decodedPNG_SHA256": "8d52861442905fc2ecfbe9fd1181b8abe38373ac7b3f00638b0861f319531f9f"
+    },
+    {
+      "slot": "icon_256x256.png",
+      "pixels": 256,
+      "nativeDecodedPixelsMatchExactly": true,
+      "differingChannelValues": 0,
+      "maximumChannelDelta": 0,
+      "maxPremultipliedNumeratorDelta": 0,
+      "sourcePNG_SHA256": "a09f95afa9a394985c12f1d81536bad8c5b10aac60206743eafdf109c7362a17",
+      "decodedPNG_SHA256": "7323951cd96d63e89dd2ae8aba52d2c36178732b92cae7636480993d132cb676"
+    },
+    {
+      "slot": "icon_256x256@2x.png",
+      "pixels": 512,
+      "nativeDecodedPixelsMatchExactly": true,
+      "differingChannelValues": 0,
+      "maximumChannelDelta": 0,
+      "maxPremultipliedNumeratorDelta": 0,
+      "sourcePNG_SHA256": "2a8a9ec696bde2060be02dde3c73c317772e9ec009b20079153d2d4992013a2a",
+      "decodedPNG_SHA256": "514c489938c857e6b4b0fc45df7c22c8c5c36ea231c5987573f7b0e50834f058"
+    },
+    {
+      "slot": "icon_32x32.png",
+      "pixels": 32,
+      "nativeDecodedPixelsMatchExactly": false,
+      "differingChannelValues": 132,
+      "maximumChannelDelta": 223,
+      "maxPremultipliedNumeratorDelta": 14560,
+      "sourcePNG_SHA256": "a922604c6777db97f27f4966ea30e6237c9bfdd57594949d36ef20b43947f709",
+      "decodedPNG_SHA256": "248d2b893ec6bb9e31ba5e0c81e80c63df144f20ba9e068c1fddb8b118ae6711"
+    },
+    {
+      "slot": "icon_32x32@2x.png",
+      "pixels": 64,
+      "nativeDecodedPixelsMatchExactly": true,
+      "differingChannelValues": 0,
+      "maximumChannelDelta": 0,
+      "maxPremultipliedNumeratorDelta": 0,
+      "sourcePNG_SHA256": "29bc71ec9692f17beb9808ca774f284ec90dcf6713391b5f93eee386c9b0003e",
+      "decodedPNG_SHA256": "e95e340d689e0213c1277643b7836f892af47a7dc6bf940530aa074782695fbf"
+    },
+    {
+      "slot": "icon_512x512.png",
+      "pixels": 512,
+      "nativeDecodedPixelsMatchExactly": true,
+      "differingChannelValues": 0,
+      "maximumChannelDelta": 0,
+      "maxPremultipliedNumeratorDelta": 0,
+      "sourcePNG_SHA256": "2a8a9ec696bde2060be02dde3c73c317772e9ec009b20079153d2d4992013a2a",
+      "decodedPNG_SHA256": "514c489938c857e6b4b0fc45df7c22c8c5c36ea231c5987573f7b0e50834f058"
+    },
+    {
+      "slot": "icon_512x512@2x.png",
+      "pixels": 1024,
+      "nativeDecodedPixelsMatchExactly": true,
+      "differingChannelValues": 0,
+      "maximumChannelDelta": 0,
+      "maxPremultipliedNumeratorDelta": 0,
+      "sourcePNG_SHA256": "6b33fafa75caef2f76463db5f9540878d0c4b790adb456881694b0be7f32515f",
+      "decodedPNG_SHA256": "c456288352b86114d205bd479c9c0b6bde61856ff00e7a23b0e07c370ccc540b"
+    }
+  ],
+  "scope": "Headless native ICNS decode; not Finder/Dock/installed App acceptance"
+}

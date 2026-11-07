@@ -15,7 +15,11 @@ npm ci --prefix scripts/icon-generator --ignore-scripts --no-audit --no-fund
 node scripts/icon-generator/generate.cjs /absolute/new/icon-output
 ```
 
-输出目录必须不存在，保留每张 PNG、工具日志及生成清单。系统 `iconutil` 将标准 16、32、128、256、512 point 各 1×/2× 共十张图组成 `Riftlet.icns`，最高 1024px。检查输出后才显式复制到 `Resources/Riftlet.icns`；生成器不覆盖源码或 App。精确原稿、生成器、lockfile、iconutil、十张 PNG 和 ICNS 散列见 [generation.json](generation.json)。同一环境已实际重复生成两次，ICNS 字节一致；不泛称不同版本 iconutil 的容器编码也逐字节相同。
+输出目录必须不存在，保留每张 PNG、工具日志及生成清单。标准 16、32、128、256、512 point 各 1×/2× 共十张图组成 `Riftlet.icns`，最高 1024px。八个 PNG 槽直接保留原 PNG 字节；16/32pt 1× 原生 `ic04/ic05` 槽按 ARGB 格式存入同次 resvg 渲染的原始预乘像素，只使用无损 literal 编码，不重新绘制或调整颜色。检查输出后才显式复制到 `Resources/Riftlet.icns`；生成器不覆盖源码或 App。
+
+生成器必须调用系统 `iconutil` 解码实际 ICNS 的全部十个槽，再逐 RGBA 字节与原始 PNG 比较；缺槽、尺寸或任何像素差异都报失败。精确原稿、生成器、lockfile、iconutil、十张 PNG 和 ICNS 散列见 [generation.json](generation.json)。同环境的重复生成另有记录，不泛称任意工具链版本渲染结果相同。
+
+保留的第一轮工具失败：本机 `iconutil` 直接编码时，把小 PNG 的非预乘 RGB 写入 ARGB 槽，解码后两个小槽半透明边缘变亮；八个 PNG 槽仍逐字节一致。16px 有 81 个 RGBA 通道值不同，32px 有 132 个，最大通道差 223。随后 `icp4/icp5` PNG 试验也未通过本机原生解码，未作为最终资源。最终改为直接保存原始预乘像素，实际十槽解码与原 PNG **全部像素完全相等**。原 SVG、首包与失败证据均保留；首包构建成功不代表该轮视觉验证通过。
 
 ## 两条构建路径
 

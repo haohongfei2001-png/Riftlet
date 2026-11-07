@@ -64,6 +64,10 @@ class BundleVerificationTests(unittest.TestCase):
         self.assertEqual(hashlib.sha256((REPOSITORY / "website-assets/riftlet.svg").read_bytes()).hexdigest(), original_sha)
         self.assertEqual(manifest["sourceSHA256"], original_sha)
         self.assertEqual(hashlib.sha256((REPOSITORY / "Resources/Riftlet.icns").read_bytes()).hexdigest(), manifest["icon"]["sha256"])
+        self.assertEqual(hashlib.sha256((REPOSITORY / "scripts/icon-generator/generate.cjs").read_bytes()).hexdigest(), manifest["renderer"]["generatorSHA256"])
+        self.assertEqual(hashlib.sha256((REPOSITORY / "scripts/icon-generator/package-lock.json").read_bytes()).hexdigest(), manifest["renderer"]["lockSHA256"])
+        self.assertEqual(manifest["nativeDecodedSlots"], 10)
+        self.assertTrue(manifest["allNativeDecodedRGBABytesEqual"])
         self.assertEqual({(r["logicalSize"], r["scale"]) for r in manifest["slots"]},
                          {(size, scale) for size in (16, 32, 128, 256, 512) for scale in (1, 2)})
 

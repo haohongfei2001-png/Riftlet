@@ -71,8 +71,8 @@ def verify_icon_data(info, data):
         require(length > 8 and offset + length <= len(data) and kind not in entries, "invalid_icon_entry")
         entries[kind] = data[offset + 8:offset + length]
         offset += length
-    require(set(ICON_SLOTS) <= set(entries), "missing_icon_representation")
     for kind, pixels in ICON_SLOTS.items():
+        require(kind in entries, "missing_icon_representation")
         image = entries[kind]
         if kind in {b"ic04", b"ic05"}:
             require(image.startswith(b"ARGB") and len(image) > 4, "invalid_icon_representation")
