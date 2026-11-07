@@ -69,7 +69,7 @@
       "exitCode": 0,
       "buildSeconds": 39.92,
       "logSHA256": "d4f6064b424e4182ae4794cdef6ea01fc4593627579a81712eb66950550311d1",
-      "warnings": "CLT/framework search path and native build-system deprecation warnings retained in original log"
+      "warnings": "Original log retains pkg-config/sqlite3 lookup warnings, weak-capture and Sendable diagnostics in unchanged Capture/UI sources, and native build-system deprecation; not a warning-free build"
     },
     "selfCheck": {
       "result": "PASS",
