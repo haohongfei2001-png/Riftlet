@@ -120,7 +120,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     private let originalButton = NSButton(title: "查看原图", target: nil, action: nil)
     private let newerButton = NSButton(title: "上一页", target: nil, action: nil)
     private let olderButton = NSButton(title: "下一页", target: nil, action: nil)
-    private let actionNote = RiftVisualStyle.label("放回裂缝不会立即上传。移出队列不会删除本地原图或聊天附件。", role: "secondary")
+    private let actionNote = RiftVisualStyle.label("", role: "secondary")
     private var entries: [RiftHistoryEntry] = []
     private var displayed: [RiftHistoryEntry] = []
     private var pageOffset = 0
@@ -427,7 +427,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         removeButton.isHidden = !removeButton.isEnabled
         revealButton.isHidden = selectedEntry == nil
         let notes = [restoreButton.isEnabled ? "放回裂缝不会立即上传。" : nil,
-                     removeButton.isEnabled ? "移出队列不会删除本地原图或聊天附件。" : nil].compactMap { $0 }
+                     removeButton.isEnabled ? "移出队列不会删除私有副本、系统原图或聊天附件。" : nil].compactMap { $0 }
         actionNote.stringValue = notes.joined()
         RiftVisualStyle.applyTextStyle(actionNote)
         actionNote.isHidden = notes.isEmpty
