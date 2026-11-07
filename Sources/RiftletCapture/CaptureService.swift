@@ -315,7 +315,7 @@ public actor CaptureService {
             // await between enumeration/filtering and recording the complete candidate set.
             if await permitsRead?(departure.directory) != false {
                 guard running, generation == nextGeneration, rebindRequest == request else { return }
-                _ = try? finishDeparture(request)
+                finishDeparture(request)
             }
             try await saveHandoffs()
             try await rescan()
@@ -441,24 +441,19 @@ public actor CaptureService {
         if needsRetry, generation == token { scheduleRetry() }
     }
 
-    private func candidateFiles(in directory: URL, onUnreadable: (() -> Void)? = nil) throws -> [(URL, FileSignature)] {
+    private func candidateFiles(in directory: URL) throws -> [(URL, FileSignature)] {
         let urls = try FileManager.default.contentsOfDirectory(at: directory,
             includingPropertiesForKeys: [.isRegularFileKey, .isSymbolicLinkKey], options: [.skipsHiddenFiles])
         var candidates: [(URL, FileSignature)] = []
         for url in urls {
             // The encoding is validated from bytes later. This only bounds metadata work.
-            guard ["png", "jpg", "jpeg", "heic", "heif", "tif", "tiff", "pdf", "gif", "bmp"].contains(url.pathExtension.lowercased()) else { continue }
+            guard CaptureSource.mayBeImage(url) else { continue }
             do {
                 let signature = try FileSignature.read(at: url)
                 candidates.append((url, signature))
             } catch CaptureError.notRegularFile { continue }
             catch CaptureError.io(_, let code) where code == ELOOP { continue } // symlinks are never candidates
-            catch {
-                // A retired source has no future watcher event to repair a silently skipped
-                // file. Keep its durable directory intent until the complete snapshot works.
-                onUnreadable?()
-                continue
-            }
+            catch { continue }
         }
         candidates.sort {
             if $0.1.createdAt != $1.1.createdAt { return $0.1.createdAt < $1.1.createdAt }
@@ -475,7 +470,7 @@ public actor CaptureService {
     }
 
     @discardableResult
-    private func finishDeparture(_ id: UUID) throws -> Bool {
+    private func finishDeparture(_ id: UUID) -> Bool {
         guard var departure = departingSources[id] else { return false }
         var changed = false
         // On interrupted handoff, conservatively retain screenshots through this recovery
@@ -498,10 +493,10 @@ public actor CaptureService {
             departingSources[id] = departure
             changed = true
         }
-        guard departure.directoryIdentity?.matchesDirectory(departure.directory) == true else { return changed }
-        var complete = true
-        let candidates = try candidateFiles(in: departure.directory, onUnreadable: { complete = false })
-        for (url, signature) in candidates {
+        guard let identity = departure.directoryIdentity,
+              let directory = RetiredCaptureDirectory(url: departure.directory, identity: identity) else { return changed }
+        let snapshot = directory.candidates()
+        for (url, signature) in snapshot.files {
             guard signature.createdAt >= departure.collectionBeganAt,
                   signature.createdAt <= cutoff, !departure.baselineKeys.contains(signature.sourceKey) else { continue }
             let previous = departure.knownCandidates.first { $0.signature.sourceKey == signature.sourceKey }
@@ -515,7 +510,7 @@ public actor CaptureService {
                 stableSince: stableSince)
             if pending != next { pendingHandoffs[signature.sourceKey] = next; changed = true }
         }
-        if complete { departingSources.removeValue(forKey: id); changed = true }
+        if snapshot.complete { departingSources.removeValue(forKey: id); changed = true }
         return changed
     }
 
@@ -528,8 +523,7 @@ public actor CaptureService {
             guard departure.directory != sourceDirectory || departure.retiredAt != nil else { continue }
             guard await permitsRead?(departure.directory) != false else { continue }
             guard running, generation == token else { return }
-            do { if try finishDeparture(id) { changed = true } }
-            catch { /* Keep the durable directory intent; access/next event can recover it. */ }
+            if finishDeparture(id) { changed = true }
         }
         if changed { try await saveHandoffs() }
     }

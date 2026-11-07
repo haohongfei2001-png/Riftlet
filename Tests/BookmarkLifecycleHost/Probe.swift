@@ -67,7 +67,7 @@ private final class Probe: NSObject, NSApplicationDelegate {
     }
 
     func emit(_ stage: String) {
-        let msg: Facts = ["token": nonce, "pid": getpid(), "stage": stage, "facts": facts]
+        let msg: Facts = ["token": nonce, "pid": getpid(), "role": role, "phase": phase, "stage": stage, "facts": facts]
         guard var bytes = try? JSONSerialization.data(withJSONObject: msg, options: [.sortedKeys]) else { exit(66) }
         bytes.append(10)
         FileHandle.standardOutput.write(bytes)

@@ -102,7 +102,8 @@ private func observe() -> [String: Any] {
         let data = try? String(contentsOfFile: args[6], encoding: .utf8)
         if let line = data?.split(separator: "\n").last,
            let event = try? JSONSerialization.jsonObject(with: Data(line.utf8)) as? [String: Any],
-           event["token"] as? String == token, event["pid"] as? Int32 == pid, event["stage"] as? String == expectedStage {
+           event["token"] as? String == token, event["pid"] as? Int32 == pid,
+           event["role"] as? String == kind, event["stage"] as? String == expectedStage {
             for host in NSWorkspace.shared.runningApplications {
                 let id = host.bundleIdentifier?.lowercased() ?? ""
                 let sys = host.bundleURL?.resolvingSymlinksInPath().path.hasPrefix("/System/") == true

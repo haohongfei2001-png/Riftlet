@@ -51,6 +51,10 @@ struct FileSignature: Codable, Equatable, Sendable {
     static func read(descriptor: Int32) throws -> FileSignature {
         var value = stat()
         guard fstat(descriptor, &value) == 0 else { throw CaptureError.io("stat-source", errno) }
+        return try read(metadata: value)
+    }
+
+    static func read(metadata value: stat) throws -> FileSignature {
         guard value.st_mode & mode_t(S_IFMT) == mode_t(S_IFREG) else { throw CaptureError.notRegularFile }
         return FileSignature(device: UInt64(value.st_dev), inode: UInt64(value.st_ino),
                              birthSeconds: Int64(value.st_birthtimespec.tv_sec),
@@ -62,6 +66,10 @@ struct FileSignature: Codable, Equatable, Sendable {
 }
 
 public enum CaptureSource {
+    static func mayBeImage(_ url: URL) -> Bool {
+        ["png", "jpg", "jpeg", "heic", "heif", "tif", "tiff", "pdf", "gif", "bmp"].contains(url.pathExtension.lowercased())
+    }
+
     /// Read-only. Does not write preferences or restart the system screenshot UI.
     public static func defaultDirectory() -> URL {
         if let path = UserDefaults(suiteName: "com.apple.screencapture")?.string(forKey: "location"),

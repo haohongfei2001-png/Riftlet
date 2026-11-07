@@ -106,6 +106,17 @@ def events(file, token):
     return result
 
 
+def launch_events(file, token, role, phase, expected_pid):
+    rows = events(file, token)
+    if not rows:
+        return rows
+    pid = rows[0]["pid"] if expected_pid is None else expected_pid
+    if (rows[0].get("stage") != "launched" or any(row["pid"] != pid or row.get("role") != role
+            or row.get("phase") != phase or not isinstance(row.get("facts"), dict) for row in rows)):
+        raise Stop("UNVERIFIED_OUTPUT_IDENTITY")
+    return rows
+
+
 def png(seed):
     def chunk(kind, value):
         return struct.pack(">I",len(value)) + kind + value + struct.pack(">I",zlib.crc32(kind + value))
@@ -181,8 +192,14 @@ class Lab:
             deadline = time.monotonic() + 22
             injected = False
             observed = False
+            pid = None
+            def accept_done(row):
+                result.update(state="FINISHED", facts=row["facts"], sampledOwnedProcess=observed,
+                              distinctPID=pid not in self.pids[:-1] if observed else pid not in self.pids)
+                if not observed:
+                    self.pids.append(pid)
             while time.monotonic() < deadline:
-                rows = events(out,self.token)
+                rows = launch_events(out,self.token,role,phase,pid)
                 if rows:
                     pid = rows[0]["pid"]
                     if not observed and pid in owned(exe):
@@ -190,14 +207,9 @@ class Lab:
                         self.pids.append(pid)
                     # Fast phases can exit between launch and PID inspection. The emitter is an inherited
                     # stdout of this exact verified LS app and attests its own role/path at startup.
-                    if rows[0]["stage"] != "launched" or any(x["pid"] != pid for x in rows):
-                        raise Stop("UNVERIFIED_OUTPUT_IDENTITY")
                     last = rows[-1]
                     if last["stage"] == "done":
-                        result.update(state="FINISHED", facts=last["facts"], sampledOwnedProcess=observed,
-                                      distinctPID=pid not in self.pids[:-1] if observed else pid not in self.pids)
-                        if not observed:
-                            self.pids.append(pid)
+                        accept_done(last)
                         break
                     if action and result["action"] == "NOT_RUN" and observed:
                         expected_stage = {"select":"showingPanel","settings":"recovering"}.get(action, "reading" if role.startswith("doc") else "requesting")
@@ -214,8 +226,15 @@ class Lab:
                         on_watch()
                         injected = True
                 if process.poll() is not None:
-                    if rows and rows[-1]["stage"] != "done":
-                        result.update(state="EXIT_WITHOUT_RESULT", facts=rows[-1]["facts"])
+                    # open -W has joined the writer. An AX action may have completed
+                    # while the observer held the loop, so inspect the final receipt.
+                    final = launch_events(out,self.token,role,phase,pid)
+                    result["receiptReadAfterExit"] = True
+                    if final and final[-1]["stage"] == "done":
+                        pid = final[0]["pid"]
+                        accept_done(final[-1])
+                    elif final:
+                        result.update(state="UNKNOWN_NO_TERMINAL_RECEIPT", facts=final[-1]["facts"])
                     break
                 time.sleep(0.11)
             else:
@@ -429,18 +448,16 @@ def main():
         report["scopedFiles"]={"fixtureBinary":sha(binary.read_bytes()), "observer":sha((root/"observer").read_bytes()),
             "folderOwner":sha((REPO/"Sources/RiftletApp/FirstUsePreferences.swift").read_bytes()), "captureService":sha((REPO/"Sources/RiftletCapture/CaptureService.swift").read_bytes())}
         lab=Lab(root,neutral,token,binary)
-        for name,method in [("bookmark",bookmark),("documents",lambda l,r: permission(l,r,True)),("automationTestPair",automation)]:
-            result={"state":"STARTED","phases":{}}
-            if name=="bookmark":
-                result.update(initialGrantObserved=False,firstImport=False,secondImport=False)
-            else:
-                result.update(allow="NOT_RUN",deny="NOT_RUN",deniedInFreshProcess=False,recovery="NOT_RUN")
-            report["protocols"][name]=result
-            try:
-                method(lab,result)
-            except (Stop,identity.HarnessFailure,subprocess.TimeoutExpired,OSError,ValueError) as error:
-                result.update(state="STOPPED",cause=str(error) if isinstance(error,(Stop,identity.HarnessFailure)) else type(error).__name__)
-        report["state"]="ALL_SCOPED_PROTOCOLS_COMPLETE" if all(x["state"]=="COMPLETED_SCOPED" for x in report["protocols"].values()) else "PARTIAL_OR_UNAVAILABLE"
+        # The previous run already observed these two separate consent protocols.
+        # This focused successor only repeats the bookmark sequence with fixed receipt handling.
+        report["omittedProtocols"] = ["documents", "automationTestPair"]
+        result = {"state": "STARTED", "phases": {}, "initialGrantObserved": False, "firstImport": False, "secondImport": False}
+        report["protocols"]["bookmark"] = result
+        try:
+            bookmark(lab, result)
+        except (Stop, identity.HarnessFailure, subprocess.TimeoutExpired, OSError, ValueError) as error:
+            result.update(state="STOPPED", cause=str(error) if isinstance(error, (Stop, identity.HarnessFailure)) else type(error).__name__)
+        report["state"] = "COMPLETED_SCOPED_BOOKMARK" if result["state"] == "COMPLETED_SCOPED" else "PARTIAL_OR_UNAVAILABLE"
     except Exception as error:
         report.update(state="HARNESS_STOPPED",cause=str(error) if isinstance(error,Stop) else type(error).__name__)
         code=1

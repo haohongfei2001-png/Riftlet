@@ -1,4 +1,4 @@
-name: Scoped folder and consent experiment
+name: Scoped folder reselection confirmation
 on:
   workflow_dispatch:
 
@@ -7,7 +7,7 @@ permissions:
 
 jobs:
   scoped:
-    name: Bookmarks and independent first permission decisions
+    name: Verify explicit folder reselection and next-process capture
     runs-on: macos-15
     timeout-minutes: 16
     steps:
@@ -15,12 +15,12 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - name: Run disposable folder and permission protocols
-        run: python3 -B Tests/BookmarkLifecycleHost/run.py --product 2fbb0661d1aeb3126fea3537ece6625c16649124 --output test-results/scoped-folder-consent.json
+      - name: Read the terminal receipt for the sandboxed folder picker
+        run: python3 -B Tests/BookmarkLifecycleHost/run.py --product 558b62f54963cb48790597c94f8e4e85eeda7dd6 --output test-results/bookmark-reselection.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: ${{ !cancelled() }}
         with:
-          name: scoped-folder-consent-${{ github.sha }}-${{ github.run_attempt }}
-          path: test-results/scoped-folder-consent.json
+          name: bookmark-reselection-${{ github.sha }}-${{ github.run_attempt }}
+          path: test-results/bookmark-reselection.json
           if-no-files-found: error
           retention-days: 7
