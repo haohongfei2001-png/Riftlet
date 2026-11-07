@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "source": "website-assets/riftlet.svg",
+  "sourceSHA256": "f31d71318e1aaef2464bbcc25c5a105fa6959d10006eb7c64d30aac42fbb3e90",
+  "transformation": "Unmodified full SVG rasterized at each required size; no crop, padding, color or shape edits",
+  "renderer": {
+    "package": "@resvg/resvg-js",
+    "version": "2.6.2",
+    "lockSHA256": "156e242388ddcc5d8d8056823c0cee416f899377e081dde76e06381b26e69edd",
+    "generatorSHA256": "71c73bee6f8b840f99e04fee7035d441315ec89176a983e2bff1ba99cdd82f3c"
+  },
+  "container": {
+    "tool": "/usr/bin/iconutil",
+    "toolSHA256": "431277db7e48d6fd93879ca719e4054d82f491acba5dcbca0b219fb37ef0e0b6",
+    "platform": "darwin",
+    "architecture": "arm64",
+    "node": "v26.8.2"
+  },
+  "slots": [
+    {
+      "filename": "icon_16x16.png",
+      "logicalSize": 16,
+      "scale": 1,
+      "pixels": 16,
+      "sha256": "3e5c8b74be67a9435aa7dfa550558c9c9156d7a2927e2ed6907f10c6b0b490a8"
+    },
+    {
+      "filename": "icon_16x16@2x.png",
+      "logicalSize": 16,
+      "scale": 2,
+      "pixels": 32,
+      "sha256": "a922604c6777db97f27f4966ea30e6237c9bfdd57594949d36ef20b43947f709"
+    },
+    {
+      "filename": "icon_32x32.png",
+      "logicalSize": 32,
+      "scale": 1,
+      "pixels": 32,
+      "sha256": "a922604c6777db97f27f4966ea30e6237c9bfdd57594949d36ef20b43947f709"
+    },
+    {
+      "filename": "icon_32x32@2x.png",
+      "logicalSize": 32,
+      "scale": 2,
+      "pixels": 64,
+      "sha256": "29bc71ec9692f17beb9808ca774f284ec90dcf6713391b5f93eee386c9b0003e"
+    },
+    {
+      "filename": "icon_128x128.png",
+      "logicalSize": 128,
+      "scale": 1,
+      "pixels": 128,
+      "sha256": "b892c04041c145b4389ba7163939d67aba8335f0dfdb9a054edd696d3aad77d7"
+    },
+    {
+      "filename": "icon_128x128@2x.png",
+      "logicalSize": 128,
+      "scale": 2,
+      "pixels": 256,
+      "sha256": "a09f95afa9a394985c12f1d81536bad8c5b10aac60206743eafdf109c7362a17"
+    },
+    {
+      "filename": "icon_256x256.png",
+      "logicalSize": 256,
+      "scale": 1,
+      "pixels": 256,
+      "sha256": "a09f95afa9a394985c12f1d81536bad8c5b10aac60206743eafdf109c7362a17"
+    },
+    {
+      "filename": "icon_256x256@2x.png",
+      "logicalSize": 256,
+      "scale": 2,
+      "pixels": 512,
+      "sha256": "2a8a9ec696bde2060be02dde3c73c317772e9ec009b20079153d2d4992013a2a"
+    },
+    {
+      "filename": "icon_512x512.png",
+      "logicalSize": 512,
+      "scale": 1,
+      "pixels": 512,
+      "sha256": "2a8a9ec696bde2060be02dde3c73c317772e9ec009b20079153d2d4992013a2a"
+    },
+    {
+      "filename": "icon_512x512@2x.png",
+      "logicalSize": 512,
+      "scale": 2,
+      "pixels": 1024,
+      "sha256": "6b33fafa75caef2f76463db5f9540878d0c4b790adb456881694b0be7f32515f"
+    }
+  ],
+  "icon": {
+    "filename": "Riftlet.icns",
+    "sha256": "21a79529c1369ae9bd18c595083e3539239f372adbdcece475834199d29ce403",
+    "bytes": 82911
+  },
+  "runtimeDependencyAdded": false
+}

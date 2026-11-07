@@ -35,6 +35,9 @@ fi
 mkdir -p "$riftlet_app/Contents/MacOS" "$riftlet_app/Contents/Resources"
 cp "$riftlet_bin_dir/Riftlet" "$riftlet_app/Contents/MacOS/Riftlet"
 cp Resources/Info.plist "$riftlet_app/Contents/Info.plist"
+if [[ -e Resources/Riftlet.icns || -L Resources/Riftlet.icns ]]; then
+  cp Resources/Riftlet.icns "$riftlet_app/Contents/Resources/Riftlet.icns"
+fi
 if [[ "$riftlet_channel" == ordinary-acceptance ]]; then
   python3 -B - "$riftlet_app/Contents/Info.plist" <<'PYPLIST'
 import importlib.util, pathlib, plistlib, sys

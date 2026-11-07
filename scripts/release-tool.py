@@ -361,6 +361,10 @@ def verify_package(package, expected_manifest=None, native_team=None):
     require(digest(package / "INSTALL-zh-CN.txt") == receipt["preparationInputs"]["packaging/release/INSTALL-zh-CN.txt"], "install_notes_receipt_mismatch")
     info = plistlib.loads((app / "Contents/Info.plist").read_bytes())
     validate_release_info(info, receipt)
+    try:
+        BUNDLE.verify_app_icon(app, info)
+    except BUNDLE.VerificationError as error:
+        require(False, str(error))
     require(sha((app / "Contents/Info.plist").read_bytes()) == receipt.get("infoPlistSHA256"), "plist_receipt_mismatch")
     binary = app / "Contents/MacOS/Riftlet"
     require(binary.stat().st_mode & stat.S_IXUSR, "binary_not_executable")
@@ -474,6 +478,8 @@ def build_candidate(args):
     (app / "Contents/Resources").mkdir()
     shutil.copy2(bin_dir / "Riftlet", app / "Contents/MacOS/Riftlet")
     shutil.copy2(source_dir / "Resources/Info.plist", app / "Contents/Info.plist")
+    if (source_dir / "Resources" / BUNDLE.ICON_NAME).exists():
+        shutil.copy2(source_dir / "Resources" / BUNDLE.ICON_NAME, app / "Contents/Resources" / BUNDLE.ICON_NAME)
     shutil.copytree(source_dir / "ThirdPartyNotices", app / "Contents/Resources/ThirdPartyNotices")
     shutil.copytree(bin_dir / "Riftlet_RiftletAdapters.bundle", app / "Contents/Resources/Riftlet_RiftletAdapters.bundle")
     # Preserve the old verifier's development contract before staging-only changes.
@@ -754,7 +760,13 @@ def verify_archive(path, expected_sha, expected_manifest=None):
         validate_receipt(receipt)
         require(receipt == manifest.get("build"), "archive_build_mismatch")
         plist_bytes = archive.read(PAYLOAD + "/" + APP + "/Contents/Info.plist")
-        validate_release_info(plistlib.loads(plist_bytes), receipt)
+        info = plistlib.loads(plist_bytes)
+        validate_release_info(info, receipt)
+        icon_name = APP + "/Contents/Resources/" + BUNDLE.ICON_NAME
+        try:
+            BUNDLE.verify_icon_data(info, archive.read(rows[icon_name]) if icon_name in rows else None)
+        except BUNDLE.VerificationError as error:
+            require(False, str(error))
         require(sha(plist_bytes) == receipt["infoPlistSHA256"], "archive_plist_receipt_mismatch")
         require(sha(archive.read(PAYLOAD + "/INSTALL-zh-CN.txt")) == receipt["preparationInputs"]["packaging/release/INSTALL-zh-CN.txt"], "archive_install_notes_mismatch")
         binary_name = APP + "/Contents/MacOS/Riftlet"

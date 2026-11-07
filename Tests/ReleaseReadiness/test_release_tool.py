@@ -55,6 +55,7 @@ class ReleaseTest(unittest.TestCase):
         self.app = self.package / R.APP
         (self.app / "Contents/MacOS").mkdir(parents=True)
         (self.app / "Contents/Resources").mkdir()
+        shutil.copy2(ROOT / "Resources/Riftlet.icns", self.app / "Contents/Resources/Riftlet.icns")
         binary = self.app / "Contents/MacOS/Riftlet"
         binary.write_bytes(thin()); binary.chmod(0o755)
         info = plistlib.loads((ROOT / "Resources/Info.plist").read_bytes())
@@ -85,6 +86,29 @@ class ReleaseTest(unittest.TestCase):
 
     def tearDown(self):
         self.temporary.cleanup()
+
+    def test_icon_is_manifest_bound_and_verified_in_package_and_archive(self):
+        icon = self.app / "Contents/Resources/Riftlet.icns"
+        key = R.APP + "/Contents/Resources/Riftlet.icns"
+        self.assertEqual(self.manifest["files"][key]["sha256"], R.digest(ROOT / "Resources/Riftlet.icns"))
+        R.verify_package(self.package)
+        archive = self.archive()
+        R.verify_archive(archive, R.digest(archive), R.digest(self.package / R.MANIFEST))
+        icon.unlink()
+        self.save()  # Even a self-consistent manifest cannot omit a declared icon.
+        self.error("missing_or_invalid_app_icon", R.verify_package, self.package)
+        archive = self.archive()
+        self.error("missing_or_invalid_app_icon", R.verify_archive, archive, R.digest(archive))
+
+    def test_old_iconless_receipt_keeps_original_contract(self):
+        path = self.app / "Contents/Info.plist"
+        info = plistlib.loads(path.read_bytes()); del info["CFBundleIconFile"]
+        path.write_bytes(plistlib.dumps(info))
+        (self.app / "Contents/Resources/Riftlet.icns").unlink()
+        self.receipt["infoPlistSHA256"] = R.digest(path)
+        R.write_json(self.app / R.RECEIPT, self.receipt); self.save()
+        R.verify_package(self.package)
+        archive = self.archive(); R.verify_archive(archive, R.digest(archive))
 
     def save(self):
         R.save_manifest(self.package, self.manifest)

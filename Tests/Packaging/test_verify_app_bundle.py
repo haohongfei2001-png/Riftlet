@@ -1,6 +1,7 @@
 """Synthetic layout tests; no executable is run or signed by this suite."""
 
 import importlib.util
+import hashlib
 import json
 import os
 import subprocess
@@ -34,6 +35,7 @@ class BundleVerificationTests(unittest.TestCase):
         self.resources = self.contents / "Resources"
         self.bundle = self.resources / "Riftlet_RiftletAdapters.bundle"
         self.bundle.mkdir(parents=True)
+        shutil.copy2(REPOSITORY / "Resources/Riftlet.icns", self.resources / "Riftlet.icns")
         for name in VERIFY.RESOURCE_NAMES:
             shutil.copy2(REPOSITORY / "Sources/RiftletAdapters/Resources" / name, self.bundle / name)
         shutil.copytree(REPOSITORY / "ThirdPartyNotices", self.resources / "ThirdPartyNotices")
@@ -55,6 +57,47 @@ class BundleVerificationTests(unittest.TestCase):
         self.assertEqual(result["channel"], "development")
         self.assertFalse(result["developer_id_signed"])
         self.assertFalse(result["notarized"])
+
+    def test_committed_icon_preserves_original_svg_and_generation_identity(self):
+        manifest = json.loads((REPOSITORY / "engineering/productization-20261107/icon/generation.json").read_text())
+        original_sha = "f31d71318e1aaef2464bbcc25c5a105fa6959d10006eb7c64d30aac42fbb3e90"
+        self.assertEqual(hashlib.sha256((REPOSITORY / "website-assets/riftlet.svg").read_bytes()).hexdigest(), original_sha)
+        self.assertEqual(manifest["sourceSHA256"], original_sha)
+        self.assertEqual(hashlib.sha256((REPOSITORY / "Resources/Riftlet.icns").read_bytes()).hexdigest(), manifest["icon"]["sha256"])
+        self.assertEqual({(r["logicalSize"], r["scale"]) for r in manifest["slots"]},
+                         {(size, scale) for size in (16, 32, 128, 256, 512) for scale in (1, 2)})
+
+    def test_declared_icon_is_complete_and_exact_source_bytes(self):
+        VERIFY.verify_bundle(self.app, REPOSITORY)
+        icon = self.resources / "Riftlet.icns"
+        original = icon.read_bytes()
+        icon.unlink()
+        self.assert_rejected("missing_or_invalid_app_icon")
+        icon.write_bytes(original)
+        self.alter_plist("CFBundleIconFile", "../Riftlet.icns")
+        self.assert_rejected("invalid_CFBundleIconFile")
+
+    def test_icon_missing_representation_and_source_drift_are_rejected(self):
+        import struct
+        icon = self.resources / "Riftlet.icns"
+        original = icon.read_bytes()
+        first_length = struct.unpack_from(">I", original, 12)[0]
+        trimmed = original[8 + first_length:]
+        icon.write_bytes(b"icns" + struct.pack(">I", len(trimmed) + 8) + trimmed)
+        self.assert_rejected("missing_icon_representation")
+        # Change only metadata in an otherwise structurally valid container;
+        # source identity must reject it even when all representations exist.
+        icon.write_bytes(original[:-1] + bytes([original[-1] ^ 1]))
+        self.assert_rejected("icon_differs_from_source", REPOSITORY)
+
+    def test_historical_undeclared_iconless_bundle_remains_valid(self):
+        self.alter_plist("CFBundleIconFile", None)
+        self.assert_rejected("undeclared_app_icon")
+        (self.resources / "Riftlet.icns").unlink()
+        VERIFY.verify_bundle(self.app)
+        # It is historical, not a bundle built from today's icon-declaring source.
+        with self.assertRaises(VERIFY.VerificationError):
+            VERIFY.verify_bundle(self.app, REPOSITORY)
 
     def test_internal_ordinary_channel_is_explicit_and_exact(self):
         info = plistlib.loads(self.plist.read_bytes())
