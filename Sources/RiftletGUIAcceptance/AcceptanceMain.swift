@@ -121,6 +121,7 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
     private var visualEntry: ScreenshotEntryController?
     private var nativeEvidence: NativeVisualEvidence?
     private var nativeEvidenceTask: Task<Void, Never>?
+    private var failureExitCode: Int32 = EXIT_SUCCESS
     private var visualArrival: Bool {
         CommandLine.arguments.contains("--visual-magnet") || CommandLine.arguments.contains("--visual-missing-source")
     }
@@ -196,6 +197,7 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
             if nativeEvidence != nil { startNativeEvidence() }
         } catch {
             fputs("GUI acceptance setup failed: \(error)\n", stderr)
+            failureExitCode = EXIT_FAILURE
             NSApp.terminate(nil)
         }
     }
@@ -221,6 +223,9 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
         observers.forEach { NotificationCenter.default.removeObserver($0) }
         rift?.close()
         if let mediaRoot { try? FileManager.default.removeItem(at: mediaRoot) }
+        // AppKit's normal termination exits successfully. Preserve its cleanup
+        // path, then report an earlier setup/export failure to the caller.
+        if failureExitCode != EXIT_SUCCESS { Darwin.exit(failureExitCode) }
     }
 
     private func buildWindow() {
@@ -532,6 +537,7 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
                 let diagnostic = evidence.failureDiagnostic(for: error)
                 try? evidence.finish(failure: diagnostic)
                 fputs("NATIVE_EVIDENCE_EXPORT_FAIL case=\(diagnostic.failureCase) stage=\(diagnostic.stage.rawValue)\n", stderr)
+                self.failureExitCode = EXIT_FAILURE
                 NSApp.terminate(nil)
             }
         }
