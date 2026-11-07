@@ -1,6 +1,7 @@
 """Offline release identity/state tests. All Apple signing/network calls are mocked."""
 import argparse
 import contextlib
+from concurrent.futures import ThreadPoolExecutor
 import importlib.util
 import io
 import json
@@ -11,7 +12,9 @@ import shutil
 import stat
 import struct
 import subprocess
+import sys
 import tempfile
+from threading import Barrier
 import unittest
 from unittest.mock import patch
 import zipfile
@@ -292,12 +295,26 @@ class ReleaseTest(unittest.TestCase):
         del self.receipt["sourceVersion"]
         self.error("invalid_source_version", R.validate_receipt, self.receipt)
 
+    def app_archive(self, output):
+        with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            for path in [self.app, *sorted(self.app.rglob("*"))]:
+                archive.write(path, path.relative_to(self.package))
+
+    def extract_fixture_zip(self, archive, output):
+        # Isolated fixture for platform-neutral stage tests. Real ditto/xattrs
+        # are exercised separately on macOS.
+        with zipfile.ZipFile(archive) as zipped:
+            zipped.extractall(output)
+            for member in zipped.infolist():
+                (Path(output) / member.filename).chmod(stat.S_IMODE(member.external_attr >> 16))
+
     def review_native(self, *, corrupt_mount=False, fail_detach=False, change_source=False, wrong_archive=None):
         calls = []
         def native(args, **kwargs):
             calls.append([str(x) for x in args])
             if args[0] == "/usr/bin/ditto":
                 if "-c" in args: shutil.copyfile(wrong_archive or self.archive(), args[-1])
+                elif "-x" in args: self.extract_fixture_zip(args[-2], args[-1])
                 else: shutil.copytree(args[-2], args[-1])
                 return result()
             self.assertEqual(args[0], "/usr/bin/hdiutil")
@@ -420,6 +437,31 @@ class ReleaseTest(unittest.TestCase):
         with patch.object(R, "run", side_effect=AssertionError("read only verification")):
             self.assertEqual(R.verify_archive(archive, R.digest(archive))["status"], "OFFLINE_ARCHIVE_IDENTITY_MATCH")
 
+    @unittest.skipUnless(sys.platform == "darwin", "requires native macOS metadata transport")
+    def test_zip_dropping_appledouble_is_rejected_before_review_or_distribution(self):
+        record = self.app / R.RECEIPT
+        subprocess.run(["/usr/bin/xattr", "-w", "org.riftlet.release-test", "owned fixture", str(record)], check=True)
+        self.save()
+        pin = R.digest(self.package / R.MANIFEST)
+        complete = self.root / "complete.zip"; stripped = self.root / "stripped.zip"
+        subprocess.run(["/usr/bin/ditto", "-c", "-k", "--sequesterRsrc", "--keepParent",
+                        str(self.package), str(complete)], check=True)
+        with zipfile.ZipFile(complete) as src, zipfile.ZipFile(stripped, "w") as out:
+            self.assertTrue(any(name.endswith("/._release-build.json") for name in src.namelist()))
+            for item in src.infolist():
+                if not item.filename.startswith("__MACOSX/"):
+                    out.writestr(item, src.read(item))
+        self.assertEqual(R.verify_archive(stripped, R.digest(stripped), pin)["recordedStage"], "PREPARED")
+        self.assertEqual(R.verify_distribution_zip(complete, pin, self.workspace), R.digest(complete))
+        real_run = R.run
+        def transport(args, **kwargs):
+            if args[0] == "/usr/bin/ditto" and "-c" in args:
+                shutil.copyfile(stripped, args[-1]); return result()
+            return real_run(args, **kwargs)
+        with patch.object(R, "run", side_effect=transport):
+            self.error("payload_inventory_mismatch", R.package_review, self.review_args())
+        self.assertFalse((self.workspace / "review-distribution/review-artifacts.json").exists())
+
     def test_archive_rejects_path_aliases_and_traversal(self):
         for name in ("../outside", "/Riftlet-Release/outside", "Riftlet-Release/a/../b", "Riftlet-Release//alias", "Riftlet-Release/./alias", "Riftlet-Release\\alias"):
             with self.subTest(name=name):
@@ -526,7 +568,10 @@ class ReleaseTest(unittest.TestCase):
         self.stage("SIGNED"); calls = []
         def native(args, **kwargs):
             calls.append(args)
-            if args[0] == "/usr/bin/ditto": Path(args[-1]).write_bytes(b"upload"); return result()
+            if args[0] == "/usr/bin/ditto":
+                if "-c" in args: self.app_archive(args[-1])
+                else: self.extract_fixture_zip(args[-2], args[-1])
+                return result()
             if "submit" in args: raise subprocess.TimeoutExpired(args, 180, output=b"response lost")
             raise AssertionError(args)
         with patch.object(R.platform, "system", return_value="Darwin"), patch.object(R, "verify_signature", return_value=signature()), patch.object(R, "run", side_effect=native):
@@ -535,7 +580,75 @@ class ReleaseTest(unittest.TestCase):
         self.assertEqual(sum("submit" in c for c in calls), 1)
         value = R.verify_package(self.package)
         self.assertEqual(value["stage"], "NOTARY_SUBMISSION_UNKNOWN")
-        self.assertEqual(value["notarization"]["uploadSHA256"], R.sha(b"upload"))
+        self.assertEqual(value["notarization"]["uploadSHA256"], R.digest(self.workspace / "notary-upload.zip"))
+
+    def test_notary_refuses_other_app_then_accepts_correct_explicit_attempt_in_same_workspace(self):
+        self.stage("SIGNED")
+        binary = self.app / "Contents/MacOS/Riftlet"
+        original = binary.read_bytes()
+        binary.write_bytes(original + b"other candidate")
+        wrong = self.root / "other-app.zip"
+        self.app_archive(wrong)
+        binary.write_bytes(original)
+        before = (self.package / R.MANIFEST).read_bytes()
+        archived_inputs, submitted = [], []
+        def transport(args, **kwargs):
+            if args[0] == "/usr/bin/ditto":
+                if "-c" in args:
+                    if not archived_inputs: shutil.copyfile(wrong, args[-1])
+                    else: self.app_archive(args[-1])
+                    archived_inputs.append(Path(args[-1]))
+                else: self.extract_fixture_zip(args[-2], args[-1])
+                return result()
+            self.assertIn("submit", args)
+            submitted.append(R.digest(Path(args[args.index("submit") + 1])))
+            return result(R.encoded({"id": JOB}))
+        with patch.object(R.platform, "system", return_value="Darwin"), \
+                patch.object(R, "verify_signature", return_value=signature()), patch.object(R, "run", side_effect=transport):
+            self.error("notary_archive_app_inventory_mismatch", R.notary_submit, self.args())
+            self.assertEqual((self.package / R.MANIFEST).read_bytes(), before)
+            self.assertEqual(submitted, [])
+            self.assertFalse((self.workspace / "notary-upload.zip").exists())
+            self.assertFalse((self.workspace / "notary-submit.json").exists())
+            self.assertEqual(R.notary_submit(self.args())["status"], "NOTARY_IN_PROGRESS")
+            self.error("submit_requires_signed_once", R.notary_submit, self.args())
+        self.assertEqual(R.digest(archived_inputs[0]), R.digest(wrong))
+        self.assertNotEqual(archived_inputs[0].parent, archived_inputs[1].parent)
+        self.assertEqual(submitted, [R.digest(archived_inputs[1])])
+        self.assertEqual(submitted[0], R.digest(self.workspace / "notary-upload.zip"))
+        self.assertEqual(submitted[0], R.verify_package(self.package)["notarization"]["uploadSHA256"])
+
+    def test_concurrent_notary_preparations_claim_once_without_overwriting(self):
+        self.stage("SIGNED")
+        both_prepared = Barrier(2)
+        submitted = []
+        verify = R.verify_notary_upload
+        def synchronized(candidate, value, workspace):
+            pin = verify(candidate, value, workspace)
+            both_prepared.wait(timeout=5)
+            return pin
+        def transport(args, **kwargs):
+            if args[0] == "/usr/bin/ditto":
+                if "-c" in args: self.app_archive(args[-1])
+                else: self.extract_fixture_zip(args[-2], args[-1])
+                return result()
+            self.assertIn("submit", args)
+            submitted.append(R.digest(Path(args[args.index("submit") + 1])))
+            return result(R.encoded({"id": JOB}))
+        def submit():
+            try: return R.notary_submit(self.args())["status"]
+            except R.ReleaseError as error: return error.code
+        with patch.object(R.platform, "system", return_value="Darwin"), patch.object(R, "verify_signature", return_value=signature()), \
+                patch.object(R, "verify_notary_upload", side_effect=synchronized), patch.object(R, "run", side_effect=transport), \
+                ThreadPoolExecutor(max_workers=2) as pool:
+            jobs = [pool.submit(submit) for _ in range(2)]
+            self.assertCountEqual([job.result(timeout=10) for job in jobs], ["NOTARY_IN_PROGRESS", "notary_archive_already_exists"])
+        canonical = self.workspace / "notary-upload.zip"
+        self.assertEqual(submitted, [R.digest(canonical)])
+        attempts = list(self.workspace.glob("notary-prepare-*/candidate.zip"))
+        self.assertEqual(len(attempts), 2)
+        self.assertEqual(sum(candidate.samefile(canonical) for candidate in attempts), 1)
+        self.assertEqual(R.verify_package(self.package)["stage"], "NOTARY_IN_PROGRESS")
 
     def test_unknown_submission_requires_original_id_without_any_network(self):
         self.stage("NOTARY_SUBMISSION_UNKNOWN")
@@ -581,12 +694,21 @@ class ReleaseTest(unittest.TestCase):
             self.assertEqual(R.staple_candidate(self.args())["status"], "STAPLED")
         self.assertTrue(R.verify_package(self.package)["notarization"]["stapled"])
 
+    def distribution_native(self, fixture_zip):
+        def native(args, **kwargs):
+            if args[0] == "/usr/bin/ditto":
+                if "-c" in args: shutil.copyfile(fixture_zip, args[-1])
+                else: self.extract_fixture_zip(args[-2], args[-1])
+                return result()
+            self.assertEqual(args[:4], ["xcrun", "stapler", "validate", "-v"])
+            self.assertNotEqual(Path(args[-1]), self.app)
+            return result()
+        return native
+
     def test_distribution_pins_final_archive_and_refuses_overwrite(self):
         self.stage("STAPLED")
         fixture_zip = self.archive()
-        def native(args, **kwargs):
-            self.assertEqual(args[0], "/usr/bin/ditto")
-            shutil.copyfile(fixture_zip, args[-1]); return result()
+        native = self.distribution_native(fixture_zip)
         with patch.object(R.platform, "system", return_value="Darwin"), patch.object(R, "verify_signature", return_value=signature()), patch.object(R, "run", side_effect=native):
             value = R.package_candidate(self.args())
             self.error("distribution_already_exists", R.package_candidate, self.args())
@@ -595,6 +717,40 @@ class ReleaseTest(unittest.TestCase):
         self.assertEqual(value["status"], "PACKAGED_NOT_PUBLISHED")
         self.assertEqual(artifact["gatekeeper"], "NOT_RUN")
         self.assertEqual(artifact["publicReleaseApproval"], "NOT_GRANTED_BY_TOOL")
+
+    def test_formal_archive_replaced_during_final_source_check_has_no_receipt(self):
+        self.stage("STAPLED")
+        native = self.distribution_native(self.archive())
+        verify = R.verify_package
+        damaged = b"damaged after ZIP verification"
+        def check(package, expected_manifest=None, native_team=None):
+            value = verify(package, expected_manifest, native_team)
+            if package == self.package and expected_manifest is not None:
+                archive, = (self.workspace / "distribution").glob("*.zip")
+                archive.write_bytes(damaged)
+            return value
+        with patch.object(R.platform, "system", return_value="Darwin"), patch.object(R, "verify_signature", return_value=signature()), \
+                patch.object(R, "run", side_effect=native), patch.object(R, "verify_package", side_effect=check):
+            self.error("archive_changed_after_verification", R.package_candidate, self.args())
+        archive, = (self.workspace / "distribution").glob("*.zip")
+        self.assertEqual(archive.read_bytes(), damaged)
+        self.assertFalse((archive.parent / "release-artifact.json").exists())
+
+    def test_formal_distribution_requires_ticket_on_delivered_app(self):
+        self.stage("STAPLED")
+        zipped = self.archive()
+        def native(args, **kwargs):
+            if args[0] == "/usr/bin/ditto":
+                if "-c" in args: shutil.copyfile(zipped, args[-1])
+                else: self.extract_fixture_zip(args[-2], args[-1])
+                return result()
+            self.assertEqual(args[:4], ["xcrun", "stapler", "validate", "-v"])
+            self.assertNotEqual(Path(args[-1]), self.app)
+            raise R.ReleaseError("synthetic_extracted_ticket_invalid")
+        with patch.object(R.platform, "system", return_value="Darwin"), \
+                patch.object(R, "verify_signature", return_value=signature()), patch.object(R, "run", side_effect=native):
+            self.error("synthetic_extracted_ticket_invalid", R.package_candidate, self.args())
+        self.assertFalse((self.workspace / "distribution/release-artifact.json").exists())
 
     def test_formal_distribution_also_rejects_another_valid_candidate_archive(self):
         self.stage("STAPLED")

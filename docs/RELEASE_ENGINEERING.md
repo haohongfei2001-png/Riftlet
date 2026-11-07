@@ -4,6 +4,8 @@
 
 工具：[`scripts/release-tool.py`](../scripts/release-tool.py)。权限文件：[`packaging/release/Entitlements.plist`](../packaging/release/Entitlements.plist)。离线回归：[`Tests/ReleaseReadiness/test_release_tool.py`](../Tests/ReleaseReadiness/test_release_tool.py)。源审查与合并仍遵循 [`MAINLINE_GOVERNANCE.md`](MAINLINE_GOVERNANCE.md)，发行准备不改写原始工程证据。
 
+个人 ad-hoc 安装首次更换签名，以及同一 Developer ID 后续版本的升级，使用[身份过渡与授权验证流程](release/IDENTITY_TRANSITION.md)。
+
 ## 现有能力与缺口
 
 | 项目 | 现有实现 | 本工作包 / 仍需条件 |
