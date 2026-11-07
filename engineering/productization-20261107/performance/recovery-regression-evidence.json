@@ -1,0 +1,32 @@
+{
+  "scope": "Native Swift assertions using unchanged test method bodies; not XCTest or GUI",
+  "productCaptureCheckpoint": "b1fa4329d66dcd632291c4d8bb7b18b5ec5ffbbc",
+  "testFixtureSuccessor": "7121c9f9f5860ddebe1ead36b4509fd0084d27ee",
+  "testSourceSHA256": "fbf275c1bbb5c1fd32331b782ae43e27c923396313fab4252e9e6f7637e88b25",
+  "original": {
+    "passed": 6,
+    "failed": 2,
+    "processExit": 1,
+    "cause": [
+      "ImageIO returned a CGImage for a damaged compressed stream so the assumed pixel-only failure did not exist on this OS.",
+      "The synthetic oversized header failed format validation before the dimension precondition."
+    ]
+  },
+  "successor": {
+    "passed": 9,
+    "failed": 0,
+    "skipped": 0,
+    "processExit": 0,
+    "changes": "Actually truncated orphan/staging bytes with matching hash are rejected; a valid uncommitted copy is accepted once then recovered idempotently; valid 50001-by-1 image triggers the intended limit."
+  },
+  "notCovered": [
+    "metadata-readable stream failing only pixel decode (no reliable bounded fixture found)",
+    "XCTest execution locally (Command Line Tools do not contain XCTest; no test ran in failed swift test attempt)"
+  ],
+  "privateEvidencePins": {
+    "performance/recovery-native-cases-02/native-result.json": "ee5a9ee763d56088b557078ed181f05377426f3dbcf2913e11c3bc2d56762742",
+    "performance/recovery-native-cases-02/author-execution-index.json": "fe413e2174011b652a37ca1165f75489ece4e8f79210949c9910c735cc61727b",
+    "review/final-recovery-native-regression-independent.json": "20e825c06d8badb4480121dd4ab8f97194c49005de35a1335436e4f90b439998",
+    "performance/recovery-candidate-tests-01/build-identity.json": "45f7478003d6b76b60a211d20c5f9146643ebbea072048423be97bd8b6fc19e4"
+  }
+}

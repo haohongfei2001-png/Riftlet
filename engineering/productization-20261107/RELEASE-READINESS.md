@@ -1,6 +1,6 @@
 # Release readiness — separate admission levels
 
-This is an engineering preparation checkpoint, not permission to publish a download or invite participants. The exact installed personal build remains0.3.0(3), source2e779f6, ARM64 binaryfe5b09c…; no replacement was needed for documentation, packaging-tool and diagnostic-helper changes.
+This is an engineering preparation checkpoint, not permission to publish a download or invite participants. The exact installed personal build remains0.3.0(3), source2e779f6, ARM64 binaryfe5b09c…; the distinct 0.3.1(4) candidate adds the measured recovery fix and must pass the documented review, isolation and backup gates before replacement.
 
 | Level | Current result | Remaining evidence |
 |---|---|---|
