@@ -89,7 +89,7 @@ jobs:
       - name: Exercise round-two fault harness offline
         run: |
           set -o pipefail
-          node engineering/evidence/2026-10-27-real-mac-round2/network-fault.test.cjs 2>&1 | tee test-results/round2-network-fault-fixture.log
+          node Tests/OfflineFaultHarness/round-two-network.test.cjs 2>&1 | tee test-results/round2-network-fault-fixture.log
       - name: Exercise round-three diagnostic probe offline
         run: |
           set -o pipefail
@@ -124,7 +124,13 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p test-results
-          swift test --parallel 2>&1 | tee test-results/swift-test.log
+          # ArrivalModesTests observes a short live WindowServer transition.
+          # Run every other case in parallel and this whole class once in isolation.
+          motion='^RiftletUITests\.ArrivalModesTests/'
+          swift test --parallel --skip "$motion" 2>&1 | tee test-results/swift-test.log
+          swift test --skip-build --no-parallel --filter "$motion" 2>&1 | tee test-results/arrival-modes-serial.log
+          swift test list --skip-build > test-results/discovered-tests.txt
+          python3 -B scripts/verify-native-test-partitions.py test-results | tee test-results/native-test-partitions.json
       - name: Verify offline storage, release and process lifecycle readiness
         run: |
           set -o pipefail

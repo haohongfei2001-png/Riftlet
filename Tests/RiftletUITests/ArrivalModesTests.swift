@@ -11,6 +11,7 @@ import RiftletCore
 /// Rendered state is supplied as a fixture; it does not manufacture a receipt.
 final class ArrivalModesTests: XCTestCase {
     private enum WaitFailure: Error { case deadline }
+    @MainActor private var flightBoundaries: [RiftArrivalBoundary] = []
 
     @MainActor private func environment(motion: Bool = false) throws -> (URL, NSScreen, RiftConfiguration) {
         _ = NSApplication.shared
@@ -96,13 +97,26 @@ final class ArrivalModesTests: XCTestCase {
 
     @MainActor private func beginFlight(_ panel: RiftPanelController, record: AssetRecord, screen: NSScreen,
                                        records: [AssetRecord]? = nil) async throws {
-        let token = try XCTUnwrap(panel.noteCaptureReady(record.id, uptime: ProcessInfo.processInfo.systemUptime))
+        flightBoundaries.removeAll(keepingCapacity: true)
+        let ready = ProcessInfo.processInfo.systemUptime
+        let token = try XCTUnwrap(panel.noteCaptureReady(record.id, uptime: ready))
         panel.resolveArrivalSource(try source(screen), assetID: record.id, token: token)
         panel.render(records ?? [record])
         // Availability does not wait for asynchronous image decoding or flight.
         XCTAssertTrue(panel.diagnosticSnapshot.rows.contains { $0.assetID == record.id })
         XCTAssertFalse(panel.diagnosticSnapshot.isTransitioning)
-        try await eventually("A valid generated image/source did not start native flight within the bounded window") {
+        try await eventually("Did not observe the generated asset in native flight", diagnostics: {
+            let trace = self.flightBoundaries.filter { $0.assetID == record.id }.map { event in
+                let ms = String(format: "%.1f", (event.uptime - ready) * 1000)
+                return "\(event.phase.rawValue)@\(ms)ms(\(event.reason ?? "none"))"
+            }
+            let snapshot = panel.arrivalDiagnostic
+            let active = snapshot.activeAssetID?.uuidString ?? "none"
+            let pending = snapshot.pendingAssetID?.uuidString ?? "none"
+            let elapsed = String(format: "%.1f", (ProcessInfo.processInfo.systemUptime - ready) * 1000)
+            return "asset=\(record.id) readyUptime=\(ready) elapsed=\(elapsed)ms "
+                + "boundaries=[\(trace.joined(separator: ", "))] active=\(active) pending=\(pending) mode=\(snapshot.effectiveMode.rawValue)"
+        }) {
             panel.arrivalDiagnostic.activeAssetID == record.id
         }
     }
@@ -290,7 +304,8 @@ final class ArrivalModesTests: XCTestCase {
         let record = try generated(directory: root)
         var selected: [UUID] = [], pressed: [UUID] = []
         let panel = RiftPanelController(mediaDirectory: root, configuration: configuration, arrivalMode: .magnet,
-            reduceMotionOverride: { false }, onPress: { id, _ in pressed.append(id) }, onSelect: { selected.append($0) })
+            reduceMotionOverride: { false }, onPress: { id, _ in pressed.append(id) },
+            onArrivalBoundary: { self.flightBoundaries.append($0) }, onSelect: { selected.append($0) })
         defer { panel.close() }
         try await beginFlight(panel, record: record, screen: screen)
         let original = try row(panel, id: record.id)
@@ -321,7 +336,8 @@ final class ArrivalModesTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at: root) }
         let record = try generated(directory: root)
         let panel = RiftPanelController(mediaDirectory: root, configuration: configuration, arrivalMode: .magnet,
-            reduceMotionOverride: { false }, onSelect: { _ in })
+            reduceMotionOverride: { false },
+            onArrivalBoundary: { self.flightBoundaries.append($0) }, onSelect: { _ in })
         defer { panel.close() }
         try await beginFlight(panel, record: record, screen: screen)
         panel.setArrivalMode(.none)
@@ -341,7 +357,8 @@ final class ArrivalModesTests: XCTestCase {
         let record = try generated(directory: root)
         var reduceMotion = false
         let panel = RiftPanelController(mediaDirectory: root, configuration: configuration, arrivalMode: .magnet,
-            reduceMotionOverride: { reduceMotion }, onSelect: { _ in })
+            reduceMotionOverride: { reduceMotion },
+            onArrivalBoundary: { self.flightBoundaries.append($0) }, onSelect: { _ in })
         defer { panel.close() }
         try await beginFlight(panel, record: record, screen: screen)
         reduceMotion = true
@@ -359,7 +376,8 @@ final class ArrivalModesTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at: root) }
         let records = try (1...count).map { try generated($0, directory: root) }
         let panel = RiftPanelController(mediaDirectory: root, configuration: configuration, arrivalMode: .magnet,
-            reduceMotionOverride: { false }, onSelect: { _ in })
+            reduceMotionOverride: { false },
+            onArrivalBoundary: { self.flightBoundaries.append($0) }, onSelect: { _ in })
         defer { panel.close() }
         try await beginFlight(panel, record: records[0], screen: screen)
         for index in 1..<count {
@@ -449,7 +467,8 @@ final class ArrivalModesTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at: root) }
         let record = try generated(directory: root)
         let panel = RiftPanelController(mediaDirectory: root, configuration: configuration, arrivalMode: .magnet,
-            reduceMotionOverride: { false }, onSelect: { _ in })
+            reduceMotionOverride: { false },
+            onArrivalBoundary: { self.flightBoundaries.append($0) }, onSelect: { _ in })
         defer { panel.close() }
         try await beginFlight(panel, record: record, screen: screen)
         panel.setUserHidden(true)
@@ -514,6 +533,7 @@ final class ArrivalModesTests: XCTestCase {
         var completionReasons: [String?] = []
         let panel = RiftPanelController(mediaDirectory: root, configuration: configuration, arrivalMode: .magnet,
             reduceMotionOverride: { false }, onArrivalBoundary: { event in
+                self.flightBoundaries.append(event)
                 guard event.assetID == record.id else { return }
                 if event.phase == .decorationEnded { completionReasons.append(event.reason) }
                 guard event.phase == .imageDecoded else { return }
@@ -639,7 +659,8 @@ final class ArrivalModesTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at: root) }
         let first = try generated(1, directory: root), second = try generated(2, directory: root)
         let panel = RiftPanelController(mediaDirectory: root, configuration: configuration, arrivalMode: .magnet,
-            reduceMotionOverride: { false }, onSelect: { _ in })
+            reduceMotionOverride: { false },
+            onArrivalBoundary: { self.flightBoundaries.append($0) }, onSelect: { _ in })
         defer { panel.close() }
         panel.render([first])
         let firstPosition = try row(panel, id: first.id).0.frame
@@ -661,7 +682,8 @@ final class ArrivalModesTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at: root) }
         let record = try generated(directory: root)
         let panel = RiftPanelController(mediaDirectory: root, configuration: configuration, arrivalMode: .magnet,
-            reduceMotionOverride: { false }, onSelect: { _ in })
+            reduceMotionOverride: { false },
+            onArrivalBoundary: { self.flightBoundaries.append($0) }, onSelect: { _ in })
         defer { panel.close() }
         try await beginFlight(panel, record: record, screen: screen)
         panel.render([state(record, status: .pending, visibility: .archived, reason: .automaticArchive)])
