@@ -1,6 +1,8 @@
 # 高分辨率收录、缓存、预览与持续运行
 
-本专项补充旧 `NativeSoak.swift` 的 64×40 小图证据，不替换旧工具或改写原始结果。新增 [原生执行程序](../../../Tests/Readiness/NativeHighResolutionSoak.swift) 和 [有界 runner](../../../scripts/run-high-resolution-soak.sh)；产品 Core、Capture、UI 源码保持基线 `2e779f6` 不变。
+本专项补充旧 `NativeSoak.swift` 的 64×40 小图证据，不替换旧工具或改写原始结果。新增 [原生执行程序](../../../Tests/Readiness/NativeHighResolutionSoak.swift) 和 [有界 runner](../../../scripts/run-high-resolution-soak.sh)。下文原始短跑和一小时运行使用的是 `2e779f6` 的 Core、Capture、UI 产品源码；这是这些历史结果的执行来源，并非宣称后续产品源码始终不变。
+
+小时运行暴露的恢复长尾已完成有限归因与候选 `b1fa432` 对照：仅对 journal、已提交记录、完整 SHA 一致的媒体省去重复像素解码，保留当前元数据校验并补路径 identity 复核。固定 340 条合成历史的实际恢复从 11.76 秒降至 158ms，全部数据不变量保持。完整边界和原始失败见 [恢复成本与修复对照](RECOVERY-COST.md)；这不是完整 App 启动或 UI 延迟验收，也没有重跑或改写原一小时记录。
 
 ## 实际执行范围
 
