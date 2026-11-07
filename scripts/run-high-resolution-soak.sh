@@ -51,16 +51,18 @@ import hashlib,json,shutil,subprocess,sys
 old,new=map(Path,sys.argv[1:])
 identity=json.loads((old/'build-identity.json').read_text())
 def sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()
-files=[p for area in ['RiftletCore','RiftletCapture','RiftletUI'] for p in Path('Sources',area).rglob('*') if p.is_file()]
-files += [Path('Tests/Readiness/NativeHighResolutionSoak.swift'), Path('Package.swift')]
-files += [p for p in Path('Sources/CSQLite').rglob('*') if p.is_file()]
-current={str(p):sha(p) for p in sorted(files)}
+def source_inputs():
+ files=[p for area in ['RiftletCore','RiftletCapture','RiftletUI'] for p in Path('Sources',area).rglob('*') if p.is_file()]
+ files += [Path('Tests/Readiness/NativeHighResolutionSoak.swift'), Path('Package.swift')]
+ files += [p for p in Path('Sources/CSQLite').rglob('*') if p.is_file()]
+ return {str(p):sha(p) for p in sorted(files)}
+current=source_inputs()
 assert current==json.loads((new/'source-inputs-before.json').read_text()), 'Source inputs changed during preparation'
 assert current==identity['sourceFiles'], 'Prepared native modules do not match current source bytes'
 binary=old/'high-resolution-soak'
 assert not binary.is_symlink() and sha(binary)==identity['binarySHA256'], 'Prepared runner hash mismatch'
 shutil.copy2(binary,new/'high-resolution-soak')
-assert {str(p):sha(p) for p in sorted(files)}==current, 'Source inputs changed during reuse'
+assert source_inputs()==current, 'Source inputs changed during reuse'
 identity['sourceInputsVerifiedBeforeAndAfterReuse']=True
 identity['reusedPreparedIdentitySHA256']=sha(old/'build-identity.json')
 identity['executingScriptSHA256']=sha(Path('scripts/run-high-resolution-soak.sh'))

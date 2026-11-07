@@ -59,3 +59,5 @@ RIFTLET_HIRES_CONCURRENT_WORK='Concurrent GUI/release checks; hardware not isola
 独立审查发现最初 wrapper 的输入清单漏了 `Package.swift` 和 CSQLite 的两个文件，且只在构建后取 hash。正在执行的一小时脚本保持冻结，原始 manifest 没有回填；独立的只读旁证确认遗漏三项与基线 Git 对象和当前字节相同，原 61 项也仍匹配。
 
 原 shell 完整退出后才应用已审查的修正：现在构建和复用均覆盖 `Package.swift`、整个 CSQLite 目录及已有模块/harness，构建前后必须逐项相同才发布身份。7 个受控 guard 用例验证稳定输入放行、编译中漂移及遗漏/新增依赖拒绝；其中 Swift/native 可执行体明确为 stub，只验证真实 shell/Python 绑定逻辑。新 wrapper 不是这次小时运行的执行版本，两种身份在证据中分别保留；没有为这一工具修正重复长测。
+
+最终复核又发现复用后的检查只重算原文件列表，漏掉“复制二进制期间新出现一个依赖文件”。[后继证据](source-binding-reuse-followup.json) 保留旧修正版在新增用例中的 7 PASS / 1 FAIL；当前版本在复用末尾重新枚举完整输入集合，8 个受控用例全部通过。实际小时运行不受该后续工具竞态影响，没有重跑或改写它的来源记录。
