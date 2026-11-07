@@ -44,11 +44,11 @@ final class RecoveryValidationTests: XCTestCase {
         func close() { try? FileManager.default.removeItem(at: root) }
     }
 
-    private static func validPNG() throws -> Data {
-        let context = try XCTUnwrap(CGContext(data: nil, width: 24, height: 14, bitsPerComponent: 8,
+    private static func validPNG(width: Int = 24, height: Int = 14) throws -> Data {
+        let context = try XCTUnwrap(CGContext(data: nil, width: width, height: height, bitsPerComponent: 8,
             bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
         context.setFillColor(CGColor(red: 0.2, green: 0.7, blue: 0.4, alpha: 1))
-        context.fill(CGRect(x: 0, y: 0, width: 24, height: 14))
+        context.fill(CGRect(x: 0, y: 0, width: CGFloat(width), height: CGFloat(height)))
         let data = NSMutableData()
         let encoder = try XCTUnwrap(CGImageDestinationCreateWithData(data, UTType.png.identifier as CFString, 1, nil))
         CGImageDestinationAddImage(encoder, try XCTUnwrap(context.makeImage()), nil)
@@ -204,10 +204,10 @@ final class RecoveryValidationTests: XCTestCase {
         }
     }
 
-    func testUncommittedMediaAndStagingStillRequireRealPixelDecode() async throws {
+    func testUncommittedDamagedMediaAndStagingCannotAdoptEvenWithMatchingHash() async throws {
         for location in ["media", "staging"] {
             let f = try Fixture(); defer { f.close() }
-            let bytes = Self.decodeInvalidPNG()
+            let bytes = Data(f.bytes.prefix(16))
             let id = UUID(), fileName = id.uuidString.lowercased() + ".png"
             let image = ImportedAsset(id: id, sourceKey: "isolated-forged-" + id.uuidString, fileName: fileName,
                 sha256: SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined(), byteCount: Int64(bytes.count),
@@ -217,12 +217,9 @@ final class RecoveryValidationTests: XCTestCase {
             }
             let candidate = f.storage.appendingPathComponent(location + "/" + (location == "media" ? fileName : id.uuidString.lowercased() + ".part"))
             try bytes.write(to: candidate, options: .withoutOverwriting)
-            // A complete readable header is intentionally insufficient for an uncommitted copy.
-            let metadata = try ValidatedImage.inspectPreviouslyValidated(candidate, byteCount: Int64(bytes.count))
-            XCTAssertEqual(metadata.width, 24); XCTAssertEqual(metadata.height, 14)
-            XCTAssertThrowsError(try ValidatedImage.inspect(candidate, byteCount: Int64(bytes.count))) {
-                XCTAssertEqual($0 as? CaptureError, .incompleteImage)
-            }
+            // This is actual incomplete-image rejection, not evidence of a pixel-only
+            // decode failure after metadata succeeds; ImageIO tolerates some broken streams.
+            XCTAssertThrowsError(try ValidatedImage.inspect(candidate, byteCount: Int64(bytes.count)))
             try JSONEncoder().encode(Manifest(version: 1, image: image)).write(to: f.journal(image), options: .withoutOverwriting)
             let report = try await f.importer.recover()
             let assets = try await f.store.assets(includeUsed: true)
@@ -231,6 +228,37 @@ final class RecoveryValidationTests: XCTestCase {
             XCTAssertTrue(assets.isEmpty, location)
             XCTAssertEqual(try Data(contentsOf: candidate), bytes, location)
             XCTAssertEqual(try Data(contentsOf: f.source), f.bytes, location)
+        }
+    }
+
+    func testValidUncommittedMediaAndStagingAreDecodedAndAdoptedOnce() async throws {
+        for location in ["media", "staging"] {
+            let f = try Fixture(); defer { f.close() }
+            let id = UUID(), fileName = id.uuidString.lowercased() + ".png"
+            let image = ImportedAsset(id: id, sourceKey: "isolated-orphan-" + id.uuidString, fileName: fileName,
+                sha256: SHA256.hash(data: f.bytes).map { String(format: "%02x", $0) }.joined(), byteCount: Int64(f.bytes.count),
+                pixelWidth: 24, pixelHeight: 14, mediaType: "image/png", origin: .synthetic)
+            for directory in ["media", "staging", "journal"] {
+                try FileManager.default.createDirectory(at: f.storage.appendingPathComponent(directory), withIntermediateDirectories: true)
+            }
+            let candidate = f.storage.appendingPathComponent(location + "/" + (location == "media" ? fileName : id.uuidString.lowercased() + ".part"))
+            try f.bytes.write(to: candidate, options: .withoutOverwriting)
+            let decoded = try ValidatedImage.inspect(candidate, byteCount: Int64(f.bytes.count))
+            XCTAssertEqual(decoded.width, image.pixelWidth); XCTAssertEqual(decoded.height, image.pixelHeight)
+            XCTAssertEqual(decoded.mimeType, image.mediaType)
+            try JSONEncoder().encode(Manifest(version: 1, image: image)).write(to: f.journal(image), options: .withoutOverwriting)
+            let first = try await f.importer.recover()
+            let again = try await f.importer.recover()
+            let assets = try await f.store.assets(includeUsed: true)
+            XCTAssertEqual(first.adopted, 1, location)
+            XCTAssertTrue(first.invalid.isEmpty && first.missing.isEmpty, location)
+            XCTAssertEqual(again.adopted, 0, location)
+            XCTAssertTrue(again.invalid.isEmpty && again.missing.isEmpty, location)
+            XCTAssertEqual(assets.map(\.image), [image], location)
+            XCTAssertEqual(try Data(contentsOf: f.media(image)), f.bytes, location)
+            XCTAssertEqual(try Data(contentsOf: f.source), f.bytes, location)
+            let stages = try FileManager.default.contentsOfDirectory(at: f.storage.appendingPathComponent("staging"), includingPropertiesForKeys: nil)
+            XCTAssertTrue(stages.isEmpty, location)
         }
     }
 
@@ -250,7 +278,9 @@ final class RecoveryValidationTests: XCTestCase {
             XCTAssertThrowsError(try read(pdf, Int64(Data(contentsOf: pdf).count))) { XCTAssertEqual($0 as? CaptureError, .unsupportedImage) }
         }
         let oversized = f.root.appendingPathComponent("oversized-header.png")
-        let oversizedBytes = Self.decodeInvalidPNG(width: UInt32(ScreenshotImportLimits.dimension + 1))
+        // A valid image with only one scanline exercises our dimension limit,
+        // rather than an unrelated parser refusal of an invalid huge header.
+        let oversizedBytes = try Self.validPNG(width: ScreenshotImportLimits.dimension + 1, height: 1)
         try oversizedBytes.write(to: oversized)
         for read in [ValidatedImage.inspect, ValidatedImage.inspectPreviouslyValidated] {
             XCTAssertThrowsError(try read(oversized, Int64(oversizedBytes.count))) { XCTAssertEqual($0 as? CaptureError, .imageTooLarge) }
@@ -267,24 +297,4 @@ final class RecoveryValidationTests: XCTestCase {
         }
     }
 
-    /// Valid PNG structure/CRC and dimensions, but a reserved DEFLATE block type.
-    /// The test explicitly proves metadata success and pixel-decode failure on the actual ImageIO implementation.
-    private static func decodeInvalidPNG(width: UInt32 = 24) -> Data {
-        func uint32(_ value: UInt32) -> Data {
-            Data([UInt8(truncatingIfNeeded: value >> 24), UInt8(truncatingIfNeeded: value >> 16),
-                  UInt8(truncatingIfNeeded: value >> 8), UInt8(truncatingIfNeeded: value)])
-        }
-        func chunk(_ type: String, _ payload: Data) -> Data {
-            let content = Data(type.utf8) + payload
-            var crc: UInt32 = 0xffffffff
-            for byte in content {
-                crc ^= UInt32(byte)
-                for _ in 0..<8 { crc = (crc >> 1) ^ ((crc & 1) == 1 ? 0xedb88320 : 0) }
-            }
-            return uint32(UInt32(payload.count)) + content + uint32(crc ^ 0xffffffff)
-        }
-        let header = uint32(width) + uint32(14) + Data([8, 6, 0, 0, 0])
-        return Data([137, 80, 78, 71, 13, 10, 26, 10]) + chunk("IHDR", header)
-            + chunk("IDAT", Data([0x78, 0x9c, 0x07, 0, 0, 0, 0])) + chunk("IEND", Data())
-    }
 }
