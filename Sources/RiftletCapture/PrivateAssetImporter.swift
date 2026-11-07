@@ -212,8 +212,7 @@ public actor PrivateAssetImporter {
                     // Active copies get byte-integrity validation after restart; already-used
                     // history needs no decode work and is never automatically deleted.
                     if existing.status == .used { continue }
-                    guard try PrivateFiles.hashFile(candidate) == asset.sha256 else { throw CaptureError.invalidManifest }
-                    _ = try ValidatedImage.inspect(candidate, byteCount: current.size)
+                    try PrivateFiles.verifyPreviouslyValidatedMedia(candidate, asset: asset, signature: current)
                     if existing.status == .missing { try await store.restoreMissingAsset(asset.id) }
                     continue
                 }
@@ -276,6 +275,22 @@ public actor PrivateAssetImporter {
 }
 
 enum PrivateFiles {
+    /// The caller has matched the complete durable journal to an existing DB row.
+    /// Hash every byte, retain today's metadata policy and bind the final path to
+    /// the same file. Re-decoding those already validated pixels is redundant.
+    static func verifyPreviouslyValidatedMedia(_ url: URL, asset: ImportedAsset,
+                                              signature: FileSignature,
+                                              afterHash: (() throws -> Void)? = nil) throws {
+        guard signature.size == asset.byteCount,
+              try hashFile(url) == asset.sha256 else { throw CaptureError.invalidManifest }
+        // Internal deterministic file-replacement seam; ordinary recovery passes nil.
+        try afterHash?()
+        let image = try ValidatedImage.inspectPreviouslyValidated(url, byteCount: signature.size)
+        guard image.width == asset.pixelWidth, image.height == asset.pixelHeight,
+              image.mimeType == asset.mediaType else { throw CaptureError.invalidManifest }
+        guard try privateSignature(at: url) == signature else { throw CaptureError.unstableFile }
+    }
+
     static func privateSignature(at url: URL) throws -> FileSignature {
         do { return try FileSignature.read(at: url) }
         catch CaptureError.io(_, let code) { throw CaptureError.io("inspect-private-copy", code) }

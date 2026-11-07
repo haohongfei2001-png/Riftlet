@@ -104,6 +104,17 @@ struct ValidatedImage: Sendable {
     static let maximumPixels = ScreenshotImportLimits.pixels
 
     static func inspect(_ url: URL, byteCount: Int64) throws -> ValidatedImage {
+        try inspect(url, byteCount: byteCount, decodePixels: true)
+    }
+
+    /// Only for committed media whose journal, stored asset and full content hash
+    /// still match the bytes validated before their original durable import.
+    /// Current format, frame, size and completeness policy is always rechecked.
+    static func inspectPreviouslyValidated(_ url: URL, byteCount: Int64) throws -> ValidatedImage {
+        try inspect(url, byteCount: byteCount, decodePixels: false)
+    }
+
+    private static func inspect(_ url: URL, byteCount: Int64, decodePixels: Bool) throws -> ValidatedImage {
         guard byteCount > 0, byteCount <= maximumBytes else { throw CaptureError.imageTooLarge }
         let options = [kCGImageSourceShouldCache: false] as CFDictionary
         guard let source = CGImageSourceCreateWithURL(url as CFURL, options) else {
@@ -130,15 +141,17 @@ struct ValidatedImage: Sendable {
         }
         guard width > 0, height > 0, width <= ScreenshotImportLimits.dimension, height <= ScreenshotImportLimits.dimension,
               Int64(width) * Int64(height) <= maximumPixels else { throw CaptureError.imageTooLarge }
-        // Force a real bounded decode, not only a file-header/status check. No full-size bitmap.
-        let thumbnailOptions: [CFString: Any] = [
-            kCGImageSourceCreateThumbnailFromImageAlways: true,
-            kCGImageSourceCreateThumbnailWithTransform: true,
-            kCGImageSourceThumbnailMaxPixelSize: 64,
-            kCGImageSourceShouldCacheImmediately: true
-        ]
-        guard let decoded = CGImageSourceCreateThumbnailAtIndex(source, 0, thumbnailOptions as CFDictionary),
-              decoded.width > 0, decoded.height > 0 else { throw CaptureError.incompleteImage }
+        if decodePixels {
+            // New imports and unfinished journals always force a real bounded decode.
+            let thumbnailOptions: [CFString: Any] = [
+                kCGImageSourceCreateThumbnailFromImageAlways: true,
+                kCGImageSourceCreateThumbnailWithTransform: true,
+                kCGImageSourceThumbnailMaxPixelSize: 64,
+                kCGImageSourceShouldCacheImmediately: true
+            ]
+            guard let decoded = CGImageSourceCreateThumbnailAtIndex(source, 0, thumbnailOptions as CFDictionary),
+                  decoded.width > 0, decoded.height > 0 else { throw CaptureError.incompleteImage }
+        }
         return ValidatedImage(width: width, height: height, mimeType: mime, fileExtension: ext.lowercased())
     }
 
