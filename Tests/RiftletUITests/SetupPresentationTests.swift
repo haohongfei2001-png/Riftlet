@@ -93,6 +93,14 @@ final class SetupPresentationTests: XCTestCase {
         XCTAssertFalse(SetupPresentation(snapshot: .init(attachment: .offlineSimulation, permission: .notRequested)).canRequestPermission)
     }
 
+    func testUnconfirmedBookmarkOffersSelectionEvenWhenTheFolderWasReadable() {
+        let p = SetupPresentation(snapshot: .init(sourceLocation: "/fixture", source: .accessible,
+                                                  issue: .screenshotFolderNeedsSelection))
+        XCTAssertTrue(p.needsSourceAccess)
+        XCTAssertEqual(p.sourceText, SetupIssue.screenshotFolderNeedsSelection.text)
+        XCTAssertFalse(p.sourceText.contains("权限被拒"))
+    }
+
     func testAttachmentHelpReportsAnObservedMissingChatOnlyWhenThisModeConnects() {
         let target = SetupPresentation(snapshot: .init(attachment: .available, issue: .targetUnavailable))
         XCTAssertEqual(target.attachmentText, SetupIssue.targetUnavailable.text)

@@ -11,7 +11,7 @@
 | 数据 | 现有实现 | 工具处理 |
 | --- | --- | --- |
 | `instance.lock` | [ApplicationInstanceOwnership](../Sources/RiftletApp/ApplicationInstanceOwnership.swift) 在启动数据库和 sidecar 前获取模式目录的独占 `flock`，直到进程退出 | 只读打开已存在的锁文件，非阻塞获取同一独占锁。锁被占用就退出，不停 App、不等待、不创建源锁文件 |
-| `queue.sqlite` 及 `-wal/-shm/-journal` | [SQLiteDatabase](../Sources/RiftletCore/SQLiteDatabase.swift)：WAL、`synchronous=FULL`；v1→v2→v3 及 v3 additive dispatch-slot migration | 全部按原始字节保存；SQLite 只打开临时副本。报告完整表行数、schema/行内容摘要、UNKNOWN sequence，绝不调用正式迁移器 |
+| `queue.sqlite` 及 `-wal/-shm/-journal` | [SQLiteDatabase](../Sources/RiftletCore/SQLiteDatabase.swift)：WAL、`synchronous=FULL`；保留 v1 至 v3 的迁移和派发槽，普通截图库在同一事务内升至 v4 | 全部按原始字节保存；SQLite 只打开临时副本。报告完整表行数、schema/行内容摘要、UNKNOWN sequence，绝不调用正式迁移器 |
 | `assets/operations/checkpoints/metadata/compensations/upload_starts` 和其他表 | [QueueStore](../Sources/RiftletCore/QueueStore.swift) 保留历史、偏好、原操作与观察记录 | 不筛选状态，不只备份可见队列；包括 `sqlite_sequence`、未知表和未知列。所有行均参与逻辑摘要 |
 | `media/`、`staging/`、`journal/` | [PrivateAssetImporter](../Sources/RiftletCapture/PrivateAssetImporter.swift)：持久 staging→manifest→media rename→DB insert；未完成导入不等于垃圾 | 全保留。检查每条已知图片元数据的文件名、长度、SHA-256；journal UUID 文件名大小写按原恢复契约接受；合法待恢复 staging 和无主片段分别提示，不提升、不采用、不删除 |
 | `captures/`、配置 JSON、诊断及未知目录/文件 | 截图原始输出、独立设置与诊断 | 全部普通文件和空目录进入清单。配置只检查 JSON 可读性；不改默认、不解释未实现的字段、不清诊断 |

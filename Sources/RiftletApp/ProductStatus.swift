@@ -67,6 +67,9 @@ enum ProductStatus {
         case .privateWriteFailed: return .privateWriteFailed
         case .recoveryRequired: return .storageUnavailable
         case .missingPrivateCopy: return .imageUnavailable
+        case .sourceVolumeUnidentified: return .sourceVolumeUnidentified
+        case .fileVolumeUnidentified: return .fileVolumeUnidentified
+        case .historicalSourceUnconfirmed: return .historicalSourceUnconfirmed
         }
     }
 

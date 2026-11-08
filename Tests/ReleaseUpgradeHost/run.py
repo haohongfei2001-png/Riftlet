@@ -7,11 +7,13 @@ import json
 import os
 from pathlib import Path
 import plistlib
+import shutil
 import sqlite3
 import struct
 import subprocess
 import tempfile
 import time
+import uuid
 import zlib
 
 
@@ -33,7 +35,7 @@ def wait_for(probe, description):
     raise RuntimeError("Timeout observing " + description)
 
 
-def collect_fixture(source, seed, asset_root):
+def write_fixture(source, seed):
     # A deterministic PNG with the actual macOS screenshot metadata boolean.
     # This exercises collection with a generated fixture, not a physical shortcut.
     def chunk(kind, payload):
@@ -48,7 +50,12 @@ def collect_fixture(source, seed, asset_root):
     call("xattr", "-wx", "com.apple.metadata:kMDItemIsScreenCapture",
          plistlib.dumps(True, fmt=plistlib.FMT_BINARY).hex(), temp)
     temp.rename(dest)
+    return dest
+
+
+def wait_for_capture(dest, asset_root):
     digest = sha(dest)
+
     def committed():
         database = asset_root / "queue.sqlite"
         with sqlite3.connect(database.as_uri() + "?mode=ro", uri=True) as db:
@@ -69,14 +76,67 @@ def collect_fixture(source, seed, asset_root):
     return digest
 
 
+def collect_fixture(source, seed, asset_root):
+    return wait_for_capture(write_fixture(source, seed), asset_root)
+
+
 def snapshot(asset_root):
     with sqlite3.connect((asset_root / "queue.sqlite").as_uri() + "?mode=ro", uri=True) as db:
         assert db.execute("PRAGMA quick_check").fetchall() == [("ok",)]
-        assets = db.execute("SELECT * FROM assets ORDER BY sequence").fetchall()
-        counts = {t: db.execute(f"SELECT count(*) FROM {t}").fetchone()[0] for t in ("operations", "upload_starts")}
-    return {"assets": assets, **counts,
+        version = db.execute("PRAGMA user_version").fetchone()[0]
+        logical_hash = hashlib.sha256("\n".join(db.iterdump()).encode()).hexdigest()
+        cursor = db.execute("SELECT * FROM assets ORDER BY sequence")
+        columns = [c[0] for c in cursor.description]
+        assets = [dict(zip(columns, row)) for row in cursor]
+        operations = db.execute("SELECT * FROM operations ORDER BY id").fetchall()
+        starts = db.execute("SELECT * FROM upload_starts ORDER BY operation_id").fetchall()
+    return {"schema": version, "logicalSHA256": logical_hash, "assets": assets, "operations": len(operations), "operationRows": operations,
+            "upload_starts": len(starts), "startRows": starts,
             "media": {f.name: sha(f) for f in sorted((asset_root / "media").iterdir()) if f.is_file()},
             "journals": {f.name: sha(f) for f in sorted((asset_root / "journal").iterdir()) if f.is_file()}}
+
+def checked_growth(root, before, after, witness):
+    """Require a single new capture and exact preservation of all earlier assets and operations."""
+    prior = {a["id"]: a for a in before["assets"]}
+    current = {a["id"]: a for a in after["assets"]}
+    assert all(current.get(uid) == record for uid, record in prior.items())
+    assert before["operationRows"] == after["operationRows"] and before["startRows"] == after["startRows"]
+    assert before["operations"] == 1 and before["upload_starts"] == 0
+    added = [a for uid, a in current.items() if uid not in prior]
+    witness_digest = sha(witness)
+    assert before["schema"] == after["schema"] == 4
+    new_media, new_journals, witnessed_keys = set(), set(), []
+    for a in added:
+        image = json.loads(a["image_json"])
+        name = a["file_name"]
+        assert name == Path(name).name and image["fileName"] == name and image["sourceKey"] == a["source_key"]
+        assert uuid.UUID(image["id"]) == uuid.UUID(a["id"])
+        assert a["status"] == "pending" and a["visibility"] == "visible" and a["active_operation_id"] is None
+        journal_name = str(uuid.UUID(a["id"])) + ".json"
+        journal = json.loads((root / "journal" / journal_name).read_text())
+        assert journal["image"] == image and image["sha256"] == after["media"][name]
+        assert (root / "media" / name).stat().st_size == image["byteCount"]
+        new_media.add(name)
+        new_journals.add(journal_name)
+        assert image["sha256"] == witness_digest
+        witnessed_keys.append(a["source_key"])
+    assert len(added) == len(witnessed_keys) == 1
+    identity = witnessed_keys[0].split(":")
+    assert len(identity) == 5 and identity[0] == "volume" and identity[2] == str(witness.stat().st_ino)
+    uuid.UUID(identity[1])
+    for key, names in (("media", new_media), ("journals", new_journals)):
+        assert before[key].items() <= after[key].items()
+        assert set(after[key]) - set(before[key]) == names and len(names) == len(added)
+
+
+
+def move_idle_root(root, destination, process, app):
+    assert call(process, "pid", app, check=False).returncode == 2 and not os.path.lexists(destination)
+    with ExitStack() as held:
+        for path in (root / "instance.lock", root / "Feedback-v01/feedback.lock"):
+            lock = held.enter_context(path.open("rb"))
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        root.rename(destination)
 
 
 def safe_context():
@@ -108,7 +168,7 @@ def exercise(old, new, report):
     # runs separately using Downloads; this ordinary flow uses an unprotected folder.
     previous = call("defaults", "read", "com.apple.screencapture", "location", check=False)
 
-    def run_version(expected, version, build, expected_folder=source):
+    def launch(expected, version, build):
         call("codesign", "--verify", "--deep", "--strict", "--all-architectures", app)
         info = plistlib.loads((app / "Contents/Info.plist").read_bytes())
         assert (info["CFBundleIdentifier"], info["CFBundleShortVersionString"], info["CFBundleVersion"]) == ("com.riftlet.app", version, build)
@@ -117,7 +177,10 @@ def exercise(old, new, report):
         def pid():
             result = call(process, "pid", app, check=False)
             return int(result.stdout) if result.returncode == 0 else None
-        current = wait_for(pid, "LaunchServices application identity")
+        return wait_for(pid, "LaunchServices application identity")
+
+    def run_version(expected, version, build, expected_folder=source):
+        current = launch(expected, version, build)
         wait_for(lambda: call("lsof", "-nP", "-a", "-p", current, "-Ffn", expected_folder, check=False).returncode == 0,
                  "the ordinary collector holding the expected source folder")
         return current
@@ -194,6 +257,24 @@ def exercise(old, new, report):
         report["firstOrdinaryLaunchAndImport"] = {"scope": "Legacy baseline with fresh fixture data on the same hosted account",
             "assetCount": 1, "sourceAndPrivateMediaSHA256": first,
             "firstUsePresentationRecorded": True, "onboardingWindowAX": first_window}
+        # Use the released Core for both the pre-upgrade UNKNOWN and the downgrade probe.
+        legacy = scratch / "beta3-source"
+        old_source = json.loads((app / "Contents/Resources/release-build.json").read_text())["source"]["commit"]
+        assert old_source == "2e779f646ac4874344fac94f79103e8ddf9b02c8"
+        call("git", "-C", repository, "worktree", "add", "--detach", legacy, old_source)
+        fixture_package = legacy / "Tests/ReleaseUpgradeHost/UnknownFixture"
+        shutil.copytree(host_tools / "UnknownFixture", fixture_package)
+        fixture = ["swift", "run", "--package-path", fixture_package,
+                   "--scratch-path", scratch / "legacy-fixture-build", "SeedUnknown"]
+        detached = scratch / "legacy-data"
+        move_idle_root(root, detached, process, app)
+        call(*fixture, "seed", detached, first, timeout=180)
+        baseline = snapshot(detached)
+        assert baseline["schema"] == 3 and baseline["operations"] == 1 and baseline["assets"][0]["status"] == "unknown"
+        backup = scratch / "pre-upgrade-copy"
+        call("ditto", detached, backup)
+        assert snapshot(backup) == baseline
+        detached.rename(root)
         damaged = scratch / "Damaged.app"
         call("ditto", new, damaged)
         with (damaged / "Contents/Resources/release-build.json").open("ab") as f:
@@ -215,17 +296,56 @@ def exercise(old, new, report):
         assert set(upgraded["media"].values()) == {first, second} and len(upgraded["journals"]) == 2
         for key in ("media", "journals"):
             assert baseline[key].items() <= upgraded[key].items()
-        assert not (upgraded["operations"] or upgraded["upload_starts"])
+        assert upgraded["schema"] == 4 and upgraded["operationRows"] == baseline["operationRows"]
+        assert upgraded["upload_starts"] == baseline["upload_starts"] == 0
+        latest = scratch / "latest-upgraded-data"
+        move_idle_root(root, latest, process, app)
+        call("ditto", latest, root)
+        assert snapshot(root) == snapshot(latest) == upgraded
         new_copy = scratch / "Riftlet-upgrade.app"
         app.rename(new_copy)
         old_copy.rename(app)
-        run_version(old_hash, "0.3.0", "3")
+        # Beta 3 normalizes the database mode immediately before reading its format.
+        # This disposable, owner-only root makes that change observable in the App process.
+        queue = root / "queue.sqlite"
+        assert root.stat().st_mode & 0o077 == 0 and queue.stat().st_mode & 0o777 == 0o600
+        queue.chmod(0o640)
+        old_pid = launch(old_hash, "0.3.0", "3")
+        # Verify this exact process owns the ordinary root while the new arrival is present.
+        wait_for(lambda: call("lsof", "-nP", "-a", "-p", old_pid, root / "instance.lock",
+                              check=False).returncode == 0, "old application taking the instance lock")
+        wait_for(lambda: queue.stat().st_mode & 0o777 == 0o600, "Beta 3 opening this queue")
+        pending_witness = write_fixture(source, 211)
+        time.sleep(9)  # The old collector's scheduled retries span 8.3 seconds.
+        assert call(process, "pid", app).stdout.strip() == str(old_pid).encode()
+        assert call("lsof", "-nP", "-a", "-p", old_pid, source, check=False).returncode == 1
         stop()
-        assert snapshot(root) == upgraded
-        report["normalLaunches"] = ["freshHardenedAdHocCandidate", "adHocBaseline", "hardenedAdHocUpdate", "restoredAdHocBaseline"]
-        report["rollback"] = {"databaseRestored": False, "preservedAssetCount": 2, "mediaAndJournalsEach": 2,
-                              "attachmentOperations": 0, "starts": 0, "allAssetColumnsMediaAndJournalsMatchAfterUpgrade": True}
-        report["executableSHA256"] = {"old": old_hash, "new": new_hash, "restored": sha(app / "Contents/MacOS/Riftlet")}
+        assert snapshot(root) == snapshot(latest) == upgraded
+        call(*fixture, "reject", latest, second)
+        assert snapshot(latest) == upgraded
+        report["appOnlyRollback"] = {"status": "OLD_READER_BLOCKED_AT_SCHEMA_4", "originalQueueAndFilesPreserved": True,
+                                     "ordinaryAppOpenedQueue": True, "legacyCoreRefusal": "Unsupported schema version 4",
+                                     "knownDuplicateCount": 0, "originalUnknownRetained": True,
+                                     "sourceFolderOpenedByOldAppAtObservation": False, "testArrivalCollectedByOldApp": False}
+        # Relaunch the compatible application on the very data the old App tried to open.
+        app.rename(scratch / "Riftlet-tested-old.app")
+        new_copy.rename(app)
+        run_version(new_hash, "0.3.2", "5")
+        third = wait_for_capture(pending_witness, root)
+        after_recovery = snapshot(root)
+        checked_growth(root, upgraded, after_recovery, pending_witness)
+        fourth = collect_fixture(source, 230, root)
+        stop()
+        assert len({first, second, third, fourth}) == 4
+        checked_growth(root, after_recovery, snapshot(root), source / "Screenshot-identity-230.png")
+        assert snapshot(backup) == baseline and snapshot(latest) == upgraded
+        report["forwardRecovery"] = {"status": "PASS", "reusedLatestDataAfterOldAttempt": True,
+                                     "arrivalDuringDowngradeCollectedOnce": True, "nextCaptureCollectedOnce": True,
+                                     "preUpgradeBackupAndLatestCopyPreserved": True, "retainedAssets": 2,
+                                     "retainedPreUpgradeUnknownOperations": 1, "finalAssets": 4, "starts": 0}
+        report["normalLaunches"] = ["freshCandidate", "adHocBaseline", "candidateUpgrade",
+                                    "oldAppOnCurrentDataCopy", "candidateOnSameDataCopy"]
+        report["executableSHA256"] = {"old": old_hash, "new": new_hash, "final": sha(app / "Contents/MacOS/Riftlet")}
     finally:
         result = call(process, "pid", app, check=False)
         if result.returncode == 0:
@@ -248,7 +368,7 @@ def main():
               "liveChatGPT": "NOT_RUN", "developerIDTransition": "NOT_RUN", "protectedFolderConsent": "separate probe"}
     try:
         exercise(args.old, args.new, result)
-        result["status"] = "PASS"
+        result["status"] = "OLD_READER_BLOCKED_FORWARD_RECOVERY_VERIFIED"
     finally:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(json.dumps(result, indent=2) + "\n")

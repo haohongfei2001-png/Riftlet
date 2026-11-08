@@ -84,6 +84,48 @@ final class FirstUseTests: XCTestCase {
         XCTAssertTrue(SourceAccessSelection.matches(selected: resolved, actualSource: screenshots))
     }
 
+    @MainActor func testRecreatedFolderCannotRenewAnOldBookmarkWithoutANewSelection() throws {
+        let manager = FileManager.default
+        let root = manager.temporaryDirectory.appendingPathComponent("RiftletBookmark-\(UUID())", isDirectory: true)
+        let selected = root.appendingPathComponent("Shots", isDirectory: true)
+        let moved = root.appendingPathComponent("Moved", isDirectory: true)
+        let unrelated = root.appendingPathComponent("Other", isDirectory: true)
+        try manager.createDirectory(at: selected, withIntermediateDirectories: true)
+        defer { try? manager.removeItem(at: root) }
+        try manager.createDirectory(at: unrelated, withIntermediateDirectories: false)
+        let suite = "Riftlet.RecreatedBookmark.\(UUID())"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let access = ScreenshotFolderAccess(defaults: defaults, modeName: "fixture")
+        defer { access.stop() }
+        let key = "Riftlet.sourceAccess.v1.fixture"
+        XCTAssertEqual(access.restore(for: selected), .noApplicableBookmark)
+        try access.accept(selected, actualSource: selected)
+        let original = try XCTUnwrap(defaults.data(forKey: key))
+        XCTAssertEqual(access.restore(for: selected), .matchingBookmark)
+        XCTAssertTrue(access.permitsRead(of: selected))
+        access.stop()
+        try manager.moveItem(at: selected, to: moved)
+        try manager.createDirectory(at: selected, withIntermediateDirectories: false)
+        XCTAssertEqual(access.restore(for: unrelated), .noApplicableBookmark)
+        XCTAssertTrue(access.permitsRead(of: unrelated))
+        XCTAssertFalse(access.permitsRead(of: selected))
+        XCTAssertEqual(access.restore(for: selected), .needsSelection)
+        XCTAssertEqual(try manager.contentsOfDirectory(atPath: selected.path), [])
+        XCTAssertEqual(defaults.data(forKey: key), original)
+        try access.accept(selected, actualSource: selected)
+        XCTAssertEqual(access.restore(for: selected), .matchingBookmark)
+        XCTAssertTrue(access.permitsRead(of: selected))
+        XCTAssertNotEqual(defaults.data(forKey: key), original)
+        let invalid = Data([0x01, 0x02, 0x03])
+        defaults.set(invalid, forKey: key)
+        XCTAssertEqual(access.restore(for: selected), .needsSelection)
+        XCTAssertEqual(defaults.data(forKey: key), invalid)
+        defaults.set("unrecognized fixture value", forKey: key)
+        XCTAssertEqual(access.restore(for: selected), .needsSelection)
+        XCTAssertEqual(defaults.string(forKey: key), "unrecognized fixture value")
+    }
+
     func testCaptureDiagnosticsRemainDistinctFromAttachmentPermission() {
         XCTAssertEqual(ProductStatus.issue(.init(code: .insufficientStorage)), .insufficientSpace)
         XCTAssertEqual(ProductStatus.issue(.init(code: .privateWriteFailed)), .privateWriteFailed)

@@ -211,13 +211,38 @@ db.execute('UPDATE spill SET payload=?',(b'uncommitted'*2000,)); os._exit(0)
         self.assertEqual(fingerprint(self.source), before)
         self.assertEqual(fingerprint(self.bundle / "data"), before)
 
-    def test_v1_v2_and_future_schema_are_preserved_without_migration(self):
-        for version in (1, 2, 99):
+    def test_historical_current_and_future_queue_formats_survive_backup_and_restore(self):
+        for version in (1, 2, 3, 4, 99):
             source = make_root(self.work / ("legacy-" + str(version)), version)
-            result = storage.backup(source, self.work / ("backup-" + str(version)))
+            before = fingerprint(source)
+            bundle = self.work / ("backup-" + str(version))
+            result = storage.backup(source, bundle)
             self.assertEqual(result["health"]["databases"]["queue.sqlite"]["userVersion"], version)
             self.assertEqual(result["health"]["databases"]["queue.sqlite"]["unknownOperationSequences"], [1, 8, 14])
             self.assertFalse(result["health"]["migrationPerformed"])
+            warnings = {item["code"] for item in result["health"]["warnings"]}
+            self.assertEqual("queue-schema-not-understood" in warnings, version == 99)
+            restored = self.work / ("restored-" + str(version))
+            recovered = storage.restore(bundle, restored, result["manifestSHA256"])
+            after = fingerprint(restored)
+            self.assertEqual(json.loads(after.pop(recovered["receipt"]))["health"], result["health"])
+            self.assertEqual(after, before)
+            self.assertEqual(fingerprint(source), before)
+
+    def test_old_inspector_backup_of_v4_preserves_original_warning_and_rechecks_all_health_facts(self):
+        source = make_root(self.work / "new-queue", 4)
+        storage.backup(source, self.bundle)
+
+        def original_inspection(manifest):
+            del manifest["knownQueueVersion"]
+            manifest["health"]["warnings"].append({"code": "queue-schema-not-understood", "userVersion": 4})
+
+        self.alter_manifest(original_inspection)
+        self.assertEqual(storage.restore(self.bundle, self.restored)["byteIntegrity"], "verified")
+        self.alter_manifest(lambda m: m["health"]["databases"]["queue.sqlite"].update(unknownOperationSequences=[]))
+        with self.assertRaises(storage.StorageError) as error:
+            storage.verify(self.bundle)
+        self.assertEqual(error.exception.code, "health-checksum")
 
     def test_pending_and_unowned_staging_are_retained_not_adopted(self):
         payload = b"durable synthetic stage"

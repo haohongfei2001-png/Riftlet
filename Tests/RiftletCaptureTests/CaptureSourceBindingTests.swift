@@ -2,6 +2,7 @@ import XCTest
 import Foundation
 import ImageIO
 import CoreGraphics
+import CryptoKit
 import UniformTypeIdentifiers
 import Darwin
 @testable import RiftletCapture
@@ -49,6 +50,23 @@ private actor CaptureLifecycleGate {
         released = true
         releaseWaiter?.resume(); releaseWaiter = nil
     }
+}
+
+private func observedDirectory(_ url: URL) throws -> WatchedFileIdentity {
+    let fd = Darwin.open(url.path, O_EVTONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
+    guard fd >= 0 else { throw CocoaError(.fileReadUnknown) }
+    defer { Darwin.close(fd) }
+    var info = stat()
+    guard fstat(fd, &info) == 0 else { throw CocoaError(.fileReadUnknown) }
+    return WatchedFileIdentity(info, descriptor: fd)
+}
+
+private actor ConfirmedDirectory {
+    private var identity: WatchedFileIdentity?
+    func confirm(_ url: URL) throws {
+        identity = try observedDirectory(url)
+    }
+    func allows(_ url: URL) -> Bool { identity?.matchesDirectory(url) ?? true }
 }
 
 final class CaptureSourceBindingTests: XCTestCase {
@@ -172,6 +190,180 @@ final class CaptureSourceBindingTests: XCTestCase {
         await restarted.stop()
     }
 
+    func testReadableUnconfirmedSourceStopsTheWatcherAndCanResumeOnAConfirmedSource() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let provider = TestLocationProvider(f.first)
+        let service = CaptureService(store: f.store, privateRoot: f.privateRoot, sourceDirectory: f.first)
+        let binding = CaptureSourceBinding(service: service, provider: provider,
+            permitsSource: { $0.standardizedFileURL.path != f.second.standardizedFileURL.path })
+        try await binding.start()
+        await provider.change(to: f.second)
+        let blocked = await service.statusSnapshot()
+        XCTAssertFalse(blocked.isRunning)
+        let recordCount = try await f.store.assets(includeUsed: true).count
+        XCTAssertEqual(recordCount, 0)
+        await provider.change(to: f.first)
+        let resumed = await service.statusSnapshot()
+        XCTAssertTrue(resumed.isRunning)
+        XCTAssertTrue(resumed.sourceAccessible)
+        await binding.stop()
+    }
+
+    func testLiveReplacementCannotImportBeforeReselectionAndAnUnselectedSourceCanRecover() async throws {
+        for hasSelection in [true, false] {
+            let f = try Fixture(); defer { f.close() }
+            let selection = ConfirmedDirectory()
+            if hasSelection { try await selection.confirm(f.first) }
+            let bytes = try png()
+            let original = f.first.appendingPathComponent("original.png")
+            try bytes.write(to: original); try mark(original)
+            let changed = expectation(description: "Owner receives the automatic source status")
+            changed.assertForOverFulfill = false
+            let imported = expectation(description: "An authorized replacement imports once")
+            let service = CaptureService(store: f.store, privateRoot: f.privateRoot, sourceDirectory: f.first,
+                                         permitsRead: { await selection.allows($0) }, onChange: { changed.fulfill() },
+                                         onImported: { _, _ in imported.fulfill() })
+            try await service.start()
+            let staged = f.second.appendingPathComponent("replacement.png")
+            try bytes.write(to: staged); try mark(staged)
+            // A single exchange leaves no later parent event to rescue a stale source.
+            XCTAssertEqual(renamex_np(f.first.path, f.second.path, UInt32(RENAME_SWAP)), 0)
+            let image = f.first.appendingPathComponent("replacement.png")
+            await fulfillment(of: [changed], timeout: 4)
+            if hasSelection {
+                let status = await service.statusSnapshot()
+                XCTAssertFalse(status.isRunning); XCTAssertFalse(status.sourceAccessible)
+                let before = try await f.store.assets(includeUsed: true)
+                XCTAssertTrue(before.isEmpty)
+                try await selection.confirm(f.first)
+                try await service.recheck()
+            }
+            await fulfillment(of: [imported], timeout: 4)
+            let after = try await f.store.assets(includeUsed: true)
+            XCTAssertEqual(after.map(\.image.sourceKey), [try FileSignature.read(at: image).sourceKey])
+            XCTAssertEqual(try Data(contentsOf: f.second.appendingPathComponent("original.png")), bytes)
+            XCTAssertEqual(try Data(contentsOf: image), bytes)
+            await service.stop()
+        }
+    }
+
+    func testLegacyDepartureWithoutDirectoryIdentityKeepsIntentAndOnlyRecoversKnownFile() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let known = f.first.appendingPathComponent("known.png")
+        let unknown = f.first.appendingPathComponent("not-in-checkpoint.png")
+        for file in [known, unknown] { try png().write(to: file); try mark(file) }
+        let signature = try FileSignature.read(at: known)
+        let signatureJSON = try JSONSerialization.jsonObject(with: JSONEncoder().encode(signature))
+        let knownJSON: [String: Any] = ["url": known.absoluteString, "signature": signatureJSON,
+            "firstSeenAt": Date(timeIntervalSinceNow: -2).timeIntervalSinceReferenceDate,
+            "stableSince": Date(timeIntervalSinceNow: -2).timeIntervalSinceReferenceDate]
+        let departure: [String: Any] = ["id": UUID().uuidString, "directory": f.first.absoluteString,
+            "baselineKeys": [], "collectionBeganAt": Date(timeIntervalSinceNow: -30).timeIntervalSinceReferenceDate,
+            "knownCandidates": [knownJSON], "retiredAt": Date().timeIntervalSinceReferenceDate]
+        let key = "capture-pending-handoffs-v1"
+        let bytes = try JSONSerialization.data(withJSONObject: ["version": 2, "candidates": [], "departures": [departure]])
+        try await f.store.saveCheckpoint(bytes, for: key)
+        let service = CaptureService(store: f.store, privateRoot: f.privateRoot, sourceDirectory: f.second)
+        try await service.start(); try await service.rescan()
+        let rows = try await f.store.assets(includeUsed: true)
+        XCTAssertEqual(rows.map(\.image.sourceKey), [signature.sourceKey])
+        let raw = try await f.store.checkpoint(for: key)
+        let persisted = try XCTUnwrap(try JSONSerialization.jsonObject(with: XCTUnwrap(raw)) as? [String: Any])
+        let remaining = try XCTUnwrap(persisted["departures"] as? [[String: Any]])
+        XCTAssertEqual(remaining.map { $0["id"] as? String }, [departure["id"] as? String])
+        XCTAssertEqual(try Data(contentsOf: unknown), try Data(contentsOf: known))
+        await service.stop()
+    }
+
+    func testLegacyBaselineAndUnwitnessedHandoffDoNotBlockANeighborAfterRestart() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let old = f.first.appendingPathComponent("before-installation.png")
+        let pending = f.first.appendingPathComponent("unconfirmed-pending.png")
+        let neighbor = f.first.appendingPathComponent("unrelated-new.png")
+        let bytes = try png()
+        try bytes.write(to: old); try mark(old)
+        let epoch = Date()
+        for url in [pending, neighbor] { try bytes.write(to: url); try mark(url) }
+
+        let beforeInstall = try FileSignature.read(at: old)
+        XCTAssertLessThan(beforeInstall.createdAt, epoch)
+        let earlierKey = "\(beforeInstall.device + 1):\(beforeInstall.fileID)"
+        let directoryHash = SHA256.hash(data: Data(f.first.standardizedFileURL.path.utf8))
+            .map { String(format: "%02x", $0) }.joined()
+        let baseline = try JSONSerialization.data(withJSONObject: ["version": 1, "baselineSourceKeys": [earlierKey]])
+        try await f.store.saveCheckpoint(baseline, for: "capture-source-v1:" + directoryHash)
+        let epochData = try JSONSerialization.data(withJSONObject: ["version": 1, "beganAt": epoch.timeIntervalSinceReferenceDate])
+        try await f.store.saveCheckpoint(epochData, for: "capture-collection-epoch-v1")
+
+        let pendingSignature = try FileSignature.read(at: pending)
+        var oldFields = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(pendingSignature)) as? [String: Any])
+        oldFields.removeValue(forKey: "volumeUUID")
+        oldFields["device"] = pendingSignature.device + 1
+        let intent: [String: Any] = ["url": pending.absoluteString, "signature": oldFields,
+            "firstSeenAt": epoch.timeIntervalSinceReferenceDate, "stableSince": epoch.timeIntervalSinceReferenceDate]
+        let handoff = try JSONSerialization.data(withJSONObject: [intent])
+        try await f.store.saveCheckpoint(handoff, for: "capture-pending-handoffs-v1")
+        let clock = SourceTestClock()
+        for run in 0..<2 {
+            let service = CaptureService(store: f.store, privateRoot: f.privateRoot,
+                                         sourceDirectory: f.first, now: { clock.read() })
+            try await service.start()
+            clock.advance()
+            try await service.rescan()
+            let rows = try await f.store.assets(includeUsed: true)
+            XCTAssertEqual(rows.map(\.image.sourceKey), [try FileSignature.read(at: neighbor).sourceKey])
+            let retained = try await f.store.checkpoint(for: "capture-pending-handoffs-v1")
+            XCTAssertEqual(retained, handoff)
+            let status = await service.statusSnapshot()
+            XCTAssertEqual(status.latestDiagnostic?.code, .historicalSourceUnconfirmed)
+            if run == 1 {
+                try FileManager.default.moveItem(at: pending, to: f.second.appendingPathComponent("preserved.png"))
+                try await service.rescan()
+                let cleared = await service.statusSnapshot()
+                XCTAssertNil(cleared.latestDiagnostic)
+                let originalIntent = try await f.store.checkpoint(for: "capture-pending-handoffs-v1")
+                XCTAssertEqual(originalIntent, handoff)
+            }
+            await service.stop()
+        }
+    }
+
+    func testRetiredSnapshotEnumeratesTheOpenedDirectoryWhenItsNameIsReplaced() throws {
+        let f = try Fixture(); defer { f.close() }
+        let identity = try observedDirectory(f.first)
+        let opened = try XCTUnwrap(RetiredCaptureDirectory(url: f.first, identity: identity))
+        // A late original, an unrelated file at the same name, and a link out.
+        let late = f.first.appendingPathComponent("late.png")
+        let decoy = f.second.appendingPathComponent("late.png")
+        let hidden = f.first.appendingPathComponent(".hidden.png")
+        let invisible = f.first.appendingPathComponent("invisible.png")
+        for file in [late, decoy, hidden, invisible] { try png().write(to: file); try mark(file) }
+        var finderInfo = [UInt8](repeating: 0, count: 32)
+        finderInfo[8] = 0x40
+        XCTAssertEqual(finderInfo.withUnsafeBytes { setxattr(invisible.path, "com.apple.FinderInfo", $0.baseAddress, $0.count, 0, 0) }, 0)
+        let original = try FileSignature.read(at: late)
+        let unrelated = try FileSignature.read(at: decoy)
+        try FileManager.default.createSymbolicLink(at: f.first.appendingPathComponent("linked.png"), withDestinationURL: decoy)
+        let moved = f.root.appendingPathComponent("moved", isDirectory: true)
+        try FileManager.default.moveItem(at: f.first, to: moved)
+        try FileManager.default.moveItem(at: f.second, to: f.first)
+        XCTAssertNil(RetiredCaptureDirectory(url: f.first, identity: identity))
+        let result = opened.candidates()
+        XCTAssertTrue(result.complete)
+        XCTAssertEqual(result.files.map { $0.1.sourceKey }, [original.sourceKey])
+        XCTAssertNotEqual(original.sourceKey, unrelated.sourceKey)
+        let file = try XCTUnwrap(result.files.first)
+        XCTAssertEqual(try FileSignature.read(at: file.0).sourceKey, original.sourceKey)
+
+        let anotherLate = moved.appendingPathComponent("after-first-scan.png")
+        let anotherDecoy = f.first.appendingPathComponent("after-first-scan.png")
+        for image in [anotherLate, anotherDecoy] { try png().write(to: image); try mark(image) }
+        let repeated = opened.candidates()
+        XCTAssertTrue(repeated.complete)
+        XCTAssertEqual(Set(repeated.files.map { $0.1.sourceKey }),
+                       Set([original.sourceKey, try FileSignature.read(at: anotherLate).sourceKey]))
+    }
+
     func testFailedSwitchPreservesLastWorkingSource() async throws {
         let f = try Fixture(); defer { f.close() }
         let clock = SourceTestClock()
@@ -263,6 +455,77 @@ final class CaptureSourceBindingTests: XCTestCase {
         try preference(prefs, location: f.second.path)
         let restored = try await provider.currentDirectory()
         XCTAssertEqual(restored, f.second)
+    }
+
+    func testMissingOrEmptyRawLocationConsultsOnlyTheSuppliedDomain() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let prefs = f.root.appendingPathComponent("raw.plist")
+        let domain = f.root.appendingPathComponent("separate-domain").path
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: domain))
+        defaults.set(f.second.path, forKey: "location")
+        let provider = SystemCaptureLocationProvider(preferencesFile: prefs, fallbackDirectory: f.first,
+                                                     preferencesDomain: domain)
+        let rawOnly = SystemCaptureLocationProvider(preferencesFile: prefs, fallbackDirectory: f.first)
+        let missing = try await provider.currentDirectory()
+        let isolated = try await rawOnly.currentDirectory()
+        XCTAssertEqual(missing, f.second)
+        XCTAssertEqual(isolated, f.first)
+
+        for domainOnDisk in [[String: String](), ["location": ""]] {
+            try PropertyListSerialization.data(fromPropertyList: domainOnDisk, format: .binary, options: 0).write(to: prefs)
+            let selected = try await provider.currentDirectory()
+            XCTAssertEqual(selected, f.second)
+        }
+        try preference(prefs, location: f.privateRoot.path)
+        let published = try await provider.currentDirectory()
+        XCTAssertEqual(published, f.privateRoot)
+        try preference(prefs, location: "relative")
+        do { _ = try await provider.currentDirectory(); XCTFail("An invalid raw value must stay an error") }
+        catch { XCTAssertEqual(error as? CaptureError, .invalidLocationPreference) }
+        try FileManager.default.removeItem(at: prefs)
+        defaults.set("relative", forKey: "location")
+        do { _ = try await provider.currentDirectory(); XCTFail("An invalid domain value must stay an error") }
+        catch { XCTAssertEqual(error as? CaptureError, .invalidLocationPreference) }
+        defaults.removeObject(forKey: "location")
+        let reset = try await provider.currentDirectory()
+        XCTAssertEqual(reset, f.first)
+    }
+
+    func testDomainResetRebindsWhenTheRawFileHasNoFurtherEvent() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let rawParent = f.root.appendingPathComponent("watched-preferences", isDirectory: true)
+        try FileManager.default.createDirectory(at: rawParent, withIntermediateDirectories: false)
+        let prefs = rawParent.appendingPathComponent("raw.plist")
+        let domain = "com.riftlet.tests.capture-location.\(UUID().uuidString)"
+        func updateDomain(_ arguments: [String]) throws {
+            let command = Process()
+            command.executableURL = URL(fileURLWithPath: "/usr/bin/defaults")
+            command.arguments = arguments
+            try command.run()
+            command.waitUntilExit()
+            XCTAssertEqual(command.terminationStatus, 0)
+        }
+        // The system writes its own named domain before the product first reads it.
+        try updateDomain(["write", domain, "location", "-string", f.second.path])
+        defer { UserDefaults(suiteName: domain)?.removePersistentDomain(forName: domain) }
+        let provider = SystemCaptureLocationProvider(preferencesFile: prefs, fallbackDirectory: f.first,
+                                                     preferencesDomain: domain)
+        let imported = expectation(description: "A new screenshot is read from the genuine default after reset")
+        imported.assertForOverFulfill = false
+        let store = f.store
+        let service = CaptureService(store: store, privateRoot: f.privateRoot, sourceDirectory: f.first,
+            onChange: { if (try? await store.assets().count) == 1 { imported.fulfill() } })
+        let binding = CaptureSourceBinding(service: service, provider: provider)
+        try await binding.start()
+        let original = await service.currentSourceDirectory()
+        XCTAssertEqual(original, f.second)
+        let image = f.first.appendingPathComponent("new-at-default.png")
+        try png().write(to: image); try mark(image)
+        try updateDomain(["delete", domain, "location"])
+        await fulfillment(of: [imported], timeout: 4)
+        let reset = await service.currentSourceDirectory()
+        XCTAssertEqual(reset, f.first)
+        await binding.stop()
     }
 
     func testUnrelatedPreferenceChangeDoesNotNotify() async throws {

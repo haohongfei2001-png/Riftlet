@@ -24,6 +24,23 @@ public enum CaptureError: Error, Equatable, Sendable {
     case importInProgress
     case invalidLocationPreference
     case insufficientStorage
+    case sourceVolumeUnidentified
+    case historicalSourceUnconfirmed
+}
+
+/// Read from the very same open file/directory being identified. A mount's
+/// st_dev is useful for live descriptor checks but may change after a reboot.
+enum CaptureVolume {
+    static func identifier(of descriptor: Int32) -> UUID? {
+        var request = attrlist()
+        request.bitmapcount = UInt16(ATTR_BIT_MAP_COUNT)
+        request.volattr = attrgroup_t(ATTR_VOL_INFO) | attrgroup_t(ATTR_VOL_UUID)
+        var reply: (UInt32, uuid_t) = (0, (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
+        let size = MemoryLayout.size(ofValue: reply)
+        guard fgetattrlist(descriptor, &request, &reply, size, 0) == 0, reply.0 == size,
+              withUnsafeBytes(of: reply.1, { $0.contains { $0 != 0 } }) else { return nil }
+        return UUID(uuid: reply.1)
+    }
 }
 
 struct FileSignature: Codable, Equatable, Sendable {
@@ -34,34 +51,64 @@ struct FileSignature: Codable, Equatable, Sendable {
     let modificationSeconds: Int64
     let modificationNanoseconds: Int64
     let size: Int64
+    let volumeUUID: UUID? // absent in pre-volume handoff checkpoints
 
-    var sourceKey: String { "\(device):\(inode):\(birthSeconds):\(birthNanoseconds)" }
+    var fileID: String { "\(inode):\(birthSeconds):\(birthNanoseconds)" }
+    var sourceKey: String {
+        if let volumeUUID { return "volume:\(volumeUUID.uuidString.lowercased()):\(fileID)" }
+        // Decode and retain old intents. The importer requires a volume UUID
+        // before recording any new occurrence.
+        return "\(device):\(fileID)"
+    }
+    static func legacyFileID(_ key: String) -> String? {
+        let parts = key.split(separator: ":", omittingEmptySubsequences: false)
+        guard parts.count == 4, UInt64(parts[0]) != nil, UInt64(parts[1]) != nil,
+              Int64(parts[2]) != nil, let ns = Int64(parts[3]), (0..<1_000_000_000).contains(ns) else { return nil }
+        return parts.dropFirst().joined(separator: ":")
+    }
     var createdAt: Date {
         Date(timeIntervalSince1970: Double(birthSeconds) + Double(birthNanoseconds) / 1_000_000_000)
     }
 
     static func read(at url: URL) throws -> FileSignature {
+        try observe(at: url).signature
+    }
+
+    static func observe(at url: URL) throws -> (signature: FileSignature, changedAt: Duration) {
         // Reject a FIFO/device via fstat without waiting for a writer before validation.
         let fd = Darwin.open(url.path, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
         guard fd >= 0 else { throw CaptureError.io("open-source", errno) }
         defer { Darwin.close(fd) }
-        return try read(descriptor: fd)
+        return try observe(descriptor: fd)
     }
 
     static func read(descriptor: Int32) throws -> FileSignature {
+        try observe(descriptor: descriptor).signature
+    }
+
+    private static func observe(descriptor: Int32) throws -> (signature: FileSignature, changedAt: Duration) {
         var value = stat()
         guard fstat(descriptor, &value) == 0 else { throw CaptureError.io("stat-source", errno) }
+        let changedAt = Duration.seconds(value.st_ctimespec.tv_sec) + .nanoseconds(value.st_ctimespec.tv_nsec)
+        return (try read(metadata: value, volumeUUID: CaptureVolume.identifier(of: descriptor)), changedAt)
+    }
+
+    static func read(metadata value: stat, volumeUUID: UUID?) throws -> FileSignature {
         guard value.st_mode & mode_t(S_IFMT) == mode_t(S_IFREG) else { throw CaptureError.notRegularFile }
-        return FileSignature(device: UInt64(value.st_dev), inode: UInt64(value.st_ino),
+        return FileSignature(device: UInt64(UInt32(bitPattern: value.st_dev)), inode: UInt64(value.st_ino),
                              birthSeconds: Int64(value.st_birthtimespec.tv_sec),
                              birthNanoseconds: Int64(value.st_birthtimespec.tv_nsec),
                              modificationSeconds: Int64(value.st_mtimespec.tv_sec),
                              modificationNanoseconds: Int64(value.st_mtimespec.tv_nsec),
-                             size: Int64(value.st_size))
+                             size: Int64(value.st_size), volumeUUID: volumeUUID)
     }
 }
 
 public enum CaptureSource {
+    static func mayBeImage(_ url: URL) -> Bool {
+        ["png", "jpg", "jpeg", "heic", "heif", "tif", "tiff", "pdf", "gif", "bmp"].contains(url.pathExtension.lowercased())
+    }
+
     /// Read-only. Does not write preferences or restart the system screenshot UI.
     public static func defaultDirectory() -> URL {
         if let path = UserDefaults(suiteName: "com.apple.screencapture")?.string(forKey: "location"),

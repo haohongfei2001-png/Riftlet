@@ -45,6 +45,10 @@ public actor PrivateAssetImporter {
     private let journalDirectory: URL
     private var importing = Set<String>()
     private var journaledSources = Set<String>()
+    // Pre-volume assets and journals contain no original URL or volume UUID.
+    // Their evidence can hold a possible duplicate, never identify a new file as an old asset.
+    private var earlierFileIDs = Set<String>()
+    private var loadedEarlierEvidence = false
     private let fault: ImportFaultHook?
     private let capacityCheck: ImportCapacityCheck
 
@@ -96,18 +100,21 @@ public actor PrivateAssetImporter {
                           origin: AssetOrigin = .systemScreenshot,
                           firstSeenAt: Date) async throws -> AssetRecord {
         guard await store.mode != .simulation || origin == .synthetic else { throw RiftletError.modeMismatch }
+        guard signature.volumeUUID != nil else { throw CaptureError.sourceVolumeUnidentified }
         guard !importing.contains(signature.sourceKey) else { throw CaptureError.importInProgress }
         importing.insert(signature.sourceKey)
         defer { importing.remove(signature.sourceKey) }
         if let existing = try await store.asset(sourceKey: signature.sourceKey) {
+            guard try FileSignature.read(at: url) == signature else { throw CaptureError.unstableFile }
             journaledSources.remove(signature.sourceKey)
             return existing
         }
-        // An earlier IO/SQL failure may already own a durable private copy. Reconcile it
-        // before allocating another UUID/file for the same source event.
-        if journaledSources.contains(signature.sourceKey) {
+        // Recover a prior durable copy before allocating another. Direct importer
+        // callers also need the same legacy evidence index that service startup loads.
+        if !loadedEarlierEvidence || journaledSources.contains(signature.sourceKey) {
             _ = try await recover()
             if let existing = try await store.asset(sourceKey: signature.sourceKey) {
+                guard try FileSignature.read(at: url) == signature else { throw CaptureError.unstableFile }
                 journaledSources.remove(signature.sourceKey)
                 return existing
             }
@@ -120,6 +127,9 @@ public actor PrivateAssetImporter {
         if origin == .systemScreenshot, try !CaptureSource.isScreenshot(descriptor: descriptor) {
             throw CaptureError.notScreenshot
         }
+        // An original can be edited in place while retaining its inode and birth
+        // time. Neither different bytes nor an old mount number proves a new file.
+        guard !earlierFileIDs.contains(signature.fileID) else { throw CaptureError.historicalSourceUnconfirmed }
         guard signature.size > 0, signature.size <= ValidatedImage.maximumBytes else { throw CaptureError.imageTooLarge }
         try capacityCheck(stagingDirectory, signature.size)
 
@@ -198,6 +208,7 @@ public actor PrivateAssetImporter {
                       asset.fileName.hasPrefix(asset.id.uuidString.lowercased() + ".") else {
                     throw CaptureError.invalidManifest
                 }
+                rememberEarlierEvidence(asset)
                 let mediaURL = mediaDirectory.appendingPathComponent(asset.fileName)
                 let stageURL = stagingDirectory.appendingPathComponent(asset.id.uuidString.lowercased() + ".part")
                 let candidate = FileManager.default.fileExists(atPath: mediaURL.path) ? mediaURL : stageURL
@@ -253,6 +264,7 @@ public actor PrivateAssetImporter {
             }
         }
         for record in try await store.assets(includeUsed: true) {
+            rememberEarlierEvidence(record.image)
             guard Self.isValidBasename(record.image.fileName) else { continue }
             let file = mediaDirectory.appendingPathComponent(record.image.fileName)
             if !FileManager.default.fileExists(atPath: file.path) {
@@ -260,7 +272,13 @@ public actor PrivateAssetImporter {
                 if !report.missing.contains(record.id) { report.missing.append(record.id) }
             }
         }
+        loadedEarlierEvidence = true
         return report
+    }
+
+    private func rememberEarlierEvidence(_ image: ImportedAsset) {
+        guard let fileID = FileSignature.legacyFileID(image.sourceKey) else { return }
+        earlierFileIDs.insert(fileID)
     }
 
     private func ensureDirectories() throws {

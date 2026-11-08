@@ -6,7 +6,7 @@ final class SQLiteDatabase {
     private var handle: OpaquePointer?
     private let transient = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
 
-    init(url: URL) throws {
+    init(url: URL, mode: StoreMode? = nil) throws {
         let fm = FileManager.default
         try fm.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true,
                                attributes: [.posixPermissions: 0o700])
@@ -23,25 +23,46 @@ final class SQLiteDatabase {
         try execute("PRAGMA foreign_keys = ON")
         try Self.enableWAL(handle: handle)
         try execute("PRAGMA synchronous = FULL")
-        let version = try rows("PRAGMA user_version").first?[0] ?? "0"
-        guard ["0", "1", "2", "3"].contains(version) else {
-            throw RiftletError.database("Unsupported schema version \(version); database preserved")
-        }
-        if version != "3" {
-            // All pending migrations commit together. A v3 failure must not
-            // leave a v1 store half-upgraded or rewrite its receipt history.
-            try transaction {
-                if version == "0" { try migrate() }
-                if version == "0" || version == "1" { try migrateCompensation() }
-                try migrateVisibility()
-                try migrateDispatchSlots()
+        // Read the version after acquiring the writer slot. Another opener may
+        // have completed the entire migration while this connection was waiting.
+        try transaction {
+            guard let version = try rows("PRAGMA user_version").first?.first ?? nil else {
+                throw RiftletError.database("Missing queue format version")
             }
-        }
-        if version == "3", !(try rows("PRAGMA table_info(operations)")).contains(where: { $0[1] == "dispatch_exclusive" }) {
-            try transaction { try migrateDispatchSlots() }
-        }
-        guard try rows("PRAGMA quick_check").first?.first == "ok" else {
-            throw RiftletError.database("Integrity check failed; database preserved")
+            switch version {
+            case "0":
+                try migrate()
+                fallthrough
+            case "1":
+                try migrateCompensation()
+                fallthrough
+            case "2":
+                try migrateVisibility()
+                fallthrough
+            case "3":
+                try migrateDispatchSlots()
+            case "4":
+                break
+            default:
+                throw RiftletError.database("Unsupported schema version \(version); database preserved")
+            }
+            if let mode {
+                let storedMode = try rows("SELECT value FROM metadata WHERE key='mode'").first?.first ?? nil
+                if let storedMode {
+                    guard storedMode == mode.rawValue else { throw RiftletError.modeMismatch }
+                } else {
+                    try execute("INSERT INTO metadata(key,value) VALUES('mode',?)", [mode.rawValue])
+                }
+                // Older collectors cannot interpret volume-qualified source keys.
+                // Commit this format boundary before the production store can
+                // hand out an importer, recover a journal, or write a checkpoint.
+                if mode == .production && version != "4" {
+                    try execute("PRAGMA user_version = 4")
+                }
+            }
+            guard try rows("PRAGMA quick_check").first?.first == "ok" else {
+                throw RiftletError.database("Integrity check failed; database preserved")
+            }
         }
     }
 

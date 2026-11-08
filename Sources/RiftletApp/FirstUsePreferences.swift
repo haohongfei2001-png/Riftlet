@@ -35,6 +35,7 @@ enum SourceAccessSelection {
 
 @MainActor
 final class ScreenshotFolderAccess {
+    enum Restoration { case noApplicableBookmark, matchingBookmark, needsSelection }
     private var activeURL: URL?
     private let defaults: UserDefaults
     private let key: String
@@ -43,18 +44,41 @@ final class ScreenshotFolderAccess {
         self.defaults = defaults; key = "Riftlet.sourceAccess.v1.\(modeName)"
     }
 
-    func restore(for source: URL) {
+    @discardableResult
+    func restore(for source: URL) -> Restoration {
         stop()
-        guard let data = defaults.data(forKey: key) else { return }
+        return inspect(source, activate: true)
+    }
+
+    // Watch callbacks may outlive the directory that was originally selected.
+    // Revalidate before reading, without dropping the active security scope.
+    func permitsRead(of source: URL) -> Bool {
+        inspect(source, activate: false) != .needsSelection
+    }
+
+    private func inspect(_ source: URL, activate: Bool) -> Restoration {
+        guard let stored = defaults.object(forKey: key) else { return .noApplicableBookmark }
+        guard let data = stored as? Data else { return .needsSelection }
+        let savedPath = NSURL.resourceValues(forKeys: [.pathKey], fromBookmarkData: data)?[.pathKey] as? String
+        let wasSelectedPath = savedPath.map {
+            SourceAccessSelection.matches(selected: URL(fileURLWithPath: $0, isDirectory: true), actualSource: source)
+        }
         var stale = false
         guard let url = try? URL(resolvingBookmarkData: data,
                                 options: [.withSecurityScope, .withoutUI, .withoutMounting],
-                                relativeTo: nil, bookmarkDataIsStale: &stale),
-              SourceAccessSelection.matches(selected: url, actualSource: source) else { return }
+                                relativeTo: nil, bookmarkDataIsStale: &stale) else {
+            return wasSelectedPath == false ? .noApplicableBookmark : .needsSelection
+        }
+        guard SourceAccessSelection.matches(selected: url, actualSource: source) else {
+            return wasSelectedPath == true ? .needsSelection : .noApplicableBookmark
+        }
+        // A stale bookmark can resolve to a new directory at the same path.
+        // Only the user's selection can replace the previously saved bytes.
+        guard !stale else { return .needsSelection }
         // A false result is not a permission verdict (e.g. an unsandboxed app
         // may already have access). The collector performs the real read check.
-        if url.startAccessingSecurityScopedResource() { activeURL = url }
-        if stale { try? save(url) }
+        if activate && url.startAccessingSecurityScopedResource() { activeURL = url }
+        return .matchingBookmark
     }
 
     func accept(_ selected: URL, actualSource: URL) throws {

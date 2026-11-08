@@ -6,7 +6,37 @@
 import Foundation
 import Darwin
 
+struct WatchedFileIdentity: Codable, Equatable, Sendable {
+    let device: dev_t
+    let inode: ino_t
+    let birthSeconds: Int
+    let birthNanoseconds: Int
+    let volumeUUID: UUID?
+
+    init(_ info: stat, descriptor: Int32) {
+        device = info.st_dev; inode = info.st_ino
+        birthSeconds = info.st_birthtimespec.tv_sec; birthNanoseconds = info.st_birthtimespec.tv_nsec
+        volumeUUID = CaptureVolume.identifier(of: descriptor)
+    }
+
+    func matches(_ info: stat, descriptor: Int32) -> Bool {
+        guard let volumeUUID, info.st_mode & mode_t(S_IFMT) == mode_t(S_IFDIR),
+              info.st_ino == inode, info.st_birthtimespec.tv_sec == birthSeconds,
+              info.st_birthtimespec.tv_nsec == birthNanoseconds else { return false }
+        return volumeUUID == CaptureVolume.identifier(of: descriptor)
+    }
+
+    func matchesDirectory(_ url: URL) -> Bool {
+        let fd = Darwin.open(url.path, O_EVTONLY | O_NOFOLLOW | O_DIRECTORY | O_CLOEXEC)
+        guard fd >= 0 else { return false }
+        defer { Darwin.close(fd) }
+        var info = stat()
+        return fstat(fd, &info) == 0 && matches(info, descriptor: fd)
+    }
+}
+
 final class FolderWatcher: @unchecked Sendable {
+    typealias OpenedWatch = (identity: WatchedFileIdentity, localAPFSVolume: UUID?)
     private let url: URL
     private let queue = DispatchQueue(label: "com.riftlet.capture.folder", qos: .utility)
     private let onDirty: @Sendable () -> Void
@@ -22,8 +52,9 @@ final class FolderWatcher: @unchecked Sendable {
         self.onDirty = onDirty; self.onLost = onLost
     }
 
-    func start() async throws {
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+    @discardableResult
+    func start() async throws -> OpenedWatch {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<OpenedWatch, Error>) in
             queue.async {
                 guard !self.cancelled, self.source == nil else {
                     continuation.resume(throwing: CaptureError.io("watcher-already-started", EINVAL)); return
@@ -44,8 +75,22 @@ final class FolderWatcher: @unchecked Sendable {
                 live.setCancelHandler { Darwin.close(fd) }
                 self.source = live
                 live.resume()
-                continuation.resume()
+                let identity = WatchedFileIdentity(info, descriptor: fd)
+                let localVolume = self.expectsDirectory ? Self.localAPFSVolume(fd, volume: identity.volumeUUID) : nil
+                continuation.resume(returning: (identity, localVolume))
             }
+        }
+    }
+
+    static func localAPFSVolume(_ descriptor: Int32, volume: UUID?) -> UUID? {
+        var filesystem = statfs()
+        guard let volume, fstatfs(descriptor, &filesystem) == 0, isLocalAPFS(filesystem) else { return nil }
+        return volume
+    }
+
+    static func isLocalAPFS(_ filesystem: statfs) -> Bool {
+        filesystem.f_flags & UInt32(MNT_LOCAL) != 0 && withUnsafeBytes(of: filesystem.f_fstypename) {
+            $0.starts(with: "apfs\0".utf8)
         }
     }
 

@@ -124,6 +124,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private lazy var captureLocation = reviewEnvironment?.captureLocation ?? SystemCaptureLocationProvider()
     private lazy var firstUse = FirstUsePreferences(defaults: reviewEnvironment?.defaults ?? .standard, modeName: mode.directoryName)
     private lazy var folderAccess = ScreenshotFolderAccess(defaults: reviewEnvironment?.defaults ?? .standard, modeName: mode.directoryName)
+    private var folderNeedingSelection: URL?
     private var folderShownInPicker: URL?
     private var permissionGate: AutomationPermissionGate { .init(requiresChrome: mode.usesWebAdapter) }
     private var hideItem: NSMenuItem?
@@ -523,9 +524,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         } else {
             do {
                 detectedSource = try await captureLocation.currentDirectory()
-                if let detectedSource { folderAccess.restore(for: detectedSource) }
+                if let detectedSource { _ = restoreCaptureFolder(detectedSource) }
             } catch { receiveCaptureDiagnostic(.classify(error, context: .locationPreference)) }
             let service = CaptureService(store: store, privateRoot: root, sourceDirectory: detectedSource ?? reviewEnvironment?.source ?? CaptureSource.defaultDirectory(),
+                                         permitsRead: { [weak self] url in await self?.permitsCaptureRead(url) ?? false },
                                          onChange: { [weak self] in await self?.refresh() },
                                          onImported: { [weak self] record, observation in
                                              Task { @MainActor [weak self] in
@@ -546,6 +548,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                                          onDiagnostic: { [weak self] value in await self?.receiveCaptureDiagnostic(value) })
             capture = service
             let binding = CaptureSourceBinding(service: service, provider: captureLocation,
+                permitsSource: { [weak self] source in await self?.restoreCaptureFolder(source) ?? false },
                 onDiagnostic: { [weak self] value in await self?.receiveCaptureDiagnostic(value) })
             sourceBinding = binding
             if !captureIsPaused {
@@ -743,10 +746,13 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func updateSetup() {
+        let needsSelection = folderNeedingSelection.flatMap { blocked in
+            detectedSource.map { SourceAccessSelection.matches(selected: blocked, actualSource: $0) }
+        } == true
         let issue: SetupIssue? = visibilitySettingFailed ? .visibilityPreferenceUnsaved
             : (collectionSettingFailed ? .collectionPreferenceUnsaved
                 : (screenshotEntry?.preferenceSaveFailed == true ? .screenshotPreferenceUnsaved
-                    : (captureDiagnostic.map(ProductStatus.issue) ?? setupIssue)))
+                    : (needsSelection ? .screenshotFolderNeedsSelection : (captureDiagnostic.map(ProductStatus.issue) ?? setupIssue))))
         let attachment = mode.attachmentState
         let source = ProductStatus.sourceState(detectedSource: detectedSource, observation: captureStatus,
             systemCollection: mode.collectsSystemScreenshots, paused: captureIsPaused, initialized: initialized)
@@ -809,6 +815,20 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         if settingsHost?.showOnboarding() == true { firstUse.recordPresentation() }
     }
 
+    private func restoreCaptureFolder(_ source: URL) -> Bool {
+        let needsSelection = folderAccess.restore(for: source) == .needsSelection
+        folderNeedingSelection = needsSelection ? source : nil
+        return !needsSelection
+    }
+
+    private func permitsCaptureRead(_ source: URL) -> Bool {
+        let allowed = folderAccess.permitsRead(of: source)
+        if !allowed, let detectedSource, SourceAccessSelection.matches(selected: source, actualSource: detectedSource) {
+            folderNeedingSelection = source
+        }
+        return allowed
+    }
+
     @objc private func recheckSetup() {
         guard initialized, !requestingPermission, !collectionChangePending,
               let token = captureControl.begin(.recheck) else { return }
@@ -819,13 +839,15 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 do {
                     do { detectedSource = try await captureLocation.currentDirectory() }
                     catch { detectedSource = nil; throw error }
-                    if let detectedSource { folderAccess.restore(for: detectedSource) }
+                    let permitted = detectedSource.map(restoreCaptureFolder) ?? false
                     // Recheck cannot undo Pause. A failed first start may be
                     // stopped; start is idempotent and handles that recovery.
-                    if !captureIsPaused {
+                    if !permitted {
+                        await capture.stop()
+                    } else if !captureIsPaused {
                         try await binding.start()
                         await binding.refresh()
-                        try await capture.recheck()
+                        if folderNeedingSelection == nil { try await capture.recheck() }
                     }
                     captureStatus = await capture.statusSnapshot()
                     acceptCaptureStatus(preferenceIssue: nil)

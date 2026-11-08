@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "sourceBaseline": "3f1340d73a438011fe6ab1aa1e2e4d1f72d185cf",
-  "scope": "Consumer first use, folder access, history, storage and direct-download guidance. Existing attachment, release, DMG and credential-tool sources are inherited from the reviewed main 4908dc79eb2e8af5ea3d53cfb81a719c7fdf5c9d. The changed runtime bindings cover consumer text, folder selection, history text fitting and settings actions. Checkpoint hashes below bind the current guide to the exercised sources.",
+  "sourceBaseline": "bbb246713a720b0e16c1764852619a2a8d1f1ff3",
+  "scope": "Consumer first use, capture location and recovery, history, storage and direct download. This checkpoint binds the effective screenshot preference, selected directory and watcher, persistent volume identity, per-file historical protection and the messages shown in Settings and the control center. The production queue migration and verification of backups made by earlier readers are also bound.",
   "files": [
     {
       "path": "Sources/RiftletApp/OrdinaryCaptureConfiguration.swift",
@@ -15,8 +15,8 @@
     },
     {
       "path": "Sources/RiftletApp/RiftletMain.swift",
-      "sha256": "99773c1a66b74c836334992470b06fd8119160dcb37390b30c4d8420caae8b35",
-      "sourceBlob": "8a575031613a9d9246813d884983f3261fd24713"
+      "sha256": "9978a350992c60591af036dd177866f93942aa4b6952925ccfb1acc44d2fb886",
+      "sourceBlob": "fd9f5116fbeb9f30aeab4a6a957e670a0a17ac90"
     },
     {
       "path": "Sources/RiftletApp/AutomationPermission.swift",
@@ -45,8 +45,8 @@
     },
     {
       "path": "Sources/RiftletApp/ProductStatus.swift",
-      "sha256": "13691bcab01dbd92835427151dd6b47c011c88be04ffb6b4a706b5678c950796",
-      "sourceBlob": "d827b0b277cae93ae7424f4a56484bf5b70fa234"
+      "sha256": "1781ea13f29dc3ac1527d3182a01f8d9644751c0dc089227b63e72b847ad5b93",
+      "sourceBlob": "362e4c5cb437cd9c4f1e88ad7126bd7b335e95f5"
     },
     {
       "path": "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js",
@@ -75,8 +75,8 @@
     },
     {
       "path": "Sources/RiftletCore/QueueStore.swift",
-      "sha256": "9709e0b3069e62ec3ea454d5f278d66155fc00c615ad8c0ab49800e66267f27a",
-      "sourceBlob": "e44e6e699961b8c1fc761880e9843ccf3e19699b"
+      "sha256": "249607aed955359549e4d76d22b2b8ac604c26e2ebf80facb6e1a486d0ae43d2",
+      "sourceBlob": "bfe9ea51ef8052598a9c484d3296f2a3f99cbcfb"
     },
     {
       "path": "Sources/RiftletCore/ReceiptPolicy.swift",
@@ -110,18 +110,18 @@
     },
     {
       "path": "Sources/RiftletCapture/CaptureService.swift",
-      "sha256": "42eaf464c9f2fd986f23687cc4e1793e1fdf86db4b9a936f9620b97c22c533f2",
-      "sourceBlob": "1fd9f9074c176d2c3d7329fdcb8e8bd4a1ba7735"
+      "sha256": "235540e77e10170b551d0b9dc11cce3e18d727dc11c669ea695a23a382d9963e",
+      "sourceBlob": "a058a0c10d611384583a279769027fa4fceb011c"
     },
     {
       "path": "Sources/RiftletCapture/CaptureSourceBinding.swift",
-      "sha256": "bc3bddccc4e1614026fed4066ac990ac3d91f348c1667a5d5af452e019653905",
-      "sourceBlob": "0e91fbe564272f3f611d1e6f6f141b89f9b5e30a"
+      "sha256": "7c0ee4188816ce57b4c6179968374263158ac5088ace8e6c09a8783a7f817b1a",
+      "sourceBlob": "2330645c7fcca44b6165d9074bdc46d96ca5a819"
     },
     {
       "path": "Sources/RiftletCapture/PrivateAssetImporter.swift",
-      "sha256": "178678bde1eb781f94b74ff881e39875008eee7bdb048d8ae01a3732f8a73ff2",
-      "sourceBlob": "9d057eda128657a7c4705e1569bb789c0e360a34"
+      "sha256": "10f3f7bbc299b8fcca5c83da0983ff73fb743dcbebc54741cb5e0c6aedfbb897",
+      "sourceBlob": "13b6dbe9a9d66f1130d213918c529df14ba29a79"
     },
     {
       "path": "Sources/RiftletCapture/InteractiveScreenshotSystemCapture.swift",
@@ -165,8 +165,8 @@
     },
     {
       "path": "scripts/storage-recovery.py",
-      "sha256": "52abdd9bbb8c51cd10faf32ecc2f934509e60cb5e2f31a5f3444ec77151edb83",
-      "sourceBlob": "f146c039a4b693a79bee6a35ec10586c247d0ec0"
+      "sha256": "5743f31554affd694c2c111f0b45b2f58a6e5672bd05977127c27dbddf1947ef",
+      "sourceBlob": "d1aa6942a8df239d1987bf76a7d539211010675e"
     },
     {
       "path": "Package.swift",
@@ -175,13 +175,13 @@
     },
     {
       "path": "Sources/RiftletApp/FirstUsePreferences.swift",
-      "sha256": "c3065006bad515e2024236aad24e745c964fa7cc24868599735365ae25bfa2aa",
-      "sourceBlob": "df0b33d088419ed9feab58ee6758f20f7dafe047"
+      "sha256": "01fd511cf4e1994e7a04dfd7644c80d1d1a93243be54a8428fb3747d7fb4eee6",
+      "sourceBlob": "aa544a83024b536b8839463abfe795085ad8ed97"
     },
     {
       "path": "Sources/RiftletUI/SetupPresentation.swift",
-      "sha256": "64471caa73c78c902d920bdfa01bea4b2125967f9372f63ebe87043457cc604e",
-      "sourceBlob": "4563bbd783ddaf49ae5facd3338657bf6863bf2d"
+      "sha256": "a75e4bdfbb45922deae012ba059e7bdaf0e83d21382e1dc76dca9ef3c9925909",
+      "sourceBlob": "60a8dfe73b498c3664603c35ed9ff560006b0167"
     },
     {
       "path": "Sources/RiftletUI/RiftOnboardingController.swift",
@@ -190,8 +190,8 @@
     },
     {
       "path": "Sources/RiftletUI/RiftControlCenterPresentation.swift",
-      "sha256": "8fda4be1ccadf8a1ec0dc6653b9723f4ed982badcd8369f85dc04c6cabfa6465",
-      "sourceBlob": "efcad07b87988de8da2e77d4350c46fc84eb174f"
+      "sha256": "a400031eab9c4ab8f8a3faef982443a81cf162146b9dd82540eba09d9075201a",
+      "sourceBlob": "d375bd4ab0a8d67e5e794facb8c0816f77191066"
     },
     {
       "path": "Sources/RiftletUI/SettingsProductPresentation.swift",
@@ -217,13 +217,38 @@
       "path": "scripts/developer-id-request.swift",
       "sha256": "38b34aaa148f2417af0f4b9858d23ba6d1412ca75c1a6d05778713ced07f40a6",
       "sourceBlob": "f2502a5e263c3ae1219e4eafcd06f4d8dde664c8"
+    },
+    {
+      "path": "Sources/RiftletCapture/CaptureDiagnostics.swift",
+      "sha256": "78ed7ebf23eb3cb5436b349f56278de8036ce18eab8a40a08eac5464a502c9f1",
+      "sourceBlob": "5ec4ed6014eaf6e8745abac436858d74997909c6"
+    },
+    {
+      "path": "Sources/RiftletCapture/FileValidation.swift",
+      "sha256": "37ce01f1710b2141cef1c63e783c7cc1e228ffba7e723fc4f55ea639966309be",
+      "sourceBlob": "4e2f07a0221fbd6b85b45ea6ec4200cfd7b36826"
+    },
+    {
+      "path": "Sources/RiftletCapture/FolderWatcher.swift",
+      "sha256": "4047d539b5d0326ba18447907b07e7091aea2f5a1fcad9ef4516431c3f4af000",
+      "sourceBlob": "eafa50d6a6bb983984d9e29f95161272e2844aca"
+    },
+    {
+      "path": "Sources/RiftletCapture/RetiredCaptureDirectory.swift",
+      "sha256": "f859d2b77b5d97f52aa22abf87559b72e244c883d3f771ffb33b9a6f25dd01f2",
+      "sourceBlob": "30b5c898cef4df4e114054d1e3fb57b0303881a0"
+    },
+    {
+      "path": "Sources/RiftletCore/SQLiteDatabase.swift",
+      "sha256": "9f4ad90c2299b85a9c62b1a85349e05d04d116f2835147347d37a212ab20588b",
+      "sourceBlob": "a76a4bc307608768938f1fb9b683e858f8dbc96a"
     }
   ],
   "previousSourceBinding": {
-    "path": "source-bindings-05.json",
-    "sha256": "34bf85c01f5b519364d9b61798a1b7e87a3747498195a11547c1ce904f08a8e5",
-    "sourceBaseline": "05abf6c2404055b0135e77585a10a47deea33a95",
-    "archivedAt": "4908dc79eb2e8af5ea3d53cfb81a719c7fdf5c9d"
+    "path": "source-bindings-06.json",
+    "sha256": "6b36c868955497c3b84ee30e0a4b66b5cd6b9b98bfb74027e72c4ba59ac98022",
+    "sourceBaseline": "3f1340d73a438011fe6ab1aa1e2e4d1f72d185cf",
+    "archivedAt": "15b739823101a0994653cc8a28f935a80e21540e"
   },
   "inheritanceAudit": "../../consumer-readiness-20261107/README.md",
   "previousInheritanceAudits": [

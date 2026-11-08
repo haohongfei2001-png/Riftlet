@@ -1,6 +1,7 @@
 import XCTest
 import Foundation
 import ImageIO
+import CryptoKit
 import CoreGraphics
 import UniformTypeIdentifiers
 import Darwin
@@ -28,14 +29,15 @@ final class CaptureTests: XCTestCase {
         func close() { try? FileManager.default.removeItem(at: root) }
     }
 
-    func makePNG(at url: URL, red: CGFloat = 0.3) throws {
+    func makePNG(at url: URL, red: CGFloat = 0.3, description: String? = nil) throws {
         let context = try XCTUnwrap(CGContext(data: nil, width: 32, height: 18, bitsPerComponent: 8,
             bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
         context.setFillColor(CGColor(red: red, green: 0.4, blue: 0.6, alpha: 1))
         context.fill(CGRect(x: 0, y: 0, width: 32, height: 18))
         let image = try XCTUnwrap(context.makeImage())
         let destination = try XCTUnwrap(CGImageDestinationCreateWithURL(url as CFURL, UTType.png.identifier as CFString, 1, nil))
-        CGImageDestinationAddImage(destination, image, nil)
+        let properties = description.map { [kCGImagePropertyPNGDictionary: [kCGImagePropertyPNGDescription: $0]] as CFDictionary }
+        CGImageDestinationAddImage(destination, image, properties)
         XCTAssertTrue(CGImageDestinationFinalize(destination))
     }
 
@@ -82,6 +84,134 @@ final class CaptureTests: XCTestCase {
         XCTAssertEqual(all.count, 2)
     }
 
+    // Seed an existing v1 private journal and media as written by the old importer.
+    // Its original filename and volume were never part of that record.
+    private func journal(_ source: URL, key: String, in fixture: Fixture) throws -> ImportedAsset {
+        struct Manifest: Encodable { let version = 1; let image: ImportedAsset }
+        let bytes = try Data(contentsOf: source)
+        let id = UUID()
+        let name = id.uuidString.lowercased() + ".png"
+        let image = ImportedAsset(id: id, sourceKey: key, fileName: name,
+            sha256: SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined(),
+            byteCount: Int64(bytes.count), pixelWidth: 32, pixelHeight: 18, mediaType: "image/png")
+        for (folder, file, data) in [("media", name, bytes),
+            ("journal", id.uuidString.lowercased() + ".json", try JSONEncoder().encode(Manifest(image: image)))] {
+            let directory = fixture.privateRoot.appendingPathComponent(folder)
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            let url = directory.appendingPathComponent(file)
+            try data.write(to: url)
+            try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
+        }
+        return image
+    }
+
+    func testMountNumberChangesDoNotChangeAnOccurrenceAndVolumesRemainDistinct() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let url = f.source.appendingPathComponent("capture.png")
+        try makePNG(at: url); try markScreenshot(url)
+        let signature = try FileSignature.read(at: url)
+        let volume = try XCTUnwrap(url.resourceValues(forKeys: [.volumeUUIDStringKey]).volumeUUIDString)
+        XCTAssertEqual(signature.sourceKey, "volume:\(volume.lowercased()):\(signature.fileID)")
+        var fields = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(signature)) as? [String: Any])
+        fields["device"] = signature.device + 1
+        func decoded() throws -> FileSignature {
+            try JSONDecoder().decode(FileSignature.self, from: JSONSerialization.data(withJSONObject: fields))
+        }
+        let remounted = try decoded()
+        XCTAssertNotEqual(remounted, signature)
+        XCTAssertEqual(remounted.sourceKey, signature.sourceKey)
+        // An unrelated disk with exactly the same file identity, name and bytes.
+        fields["volumeUUID"] = UUID().uuidString
+        let other = try decoded()
+        let previous = try journal(url, key: other.sourceKey, in: f)
+        let record = try await f.importer.importFile(at: url)
+        XCTAssertNotEqual(record.id, previous.id)
+        XCTAssertNotEqual(record.image.sourceKey, previous.sourceKey)
+        XCTAssertEqual(record.image.sha256, previous.sha256)
+        let reopened = PrivateAssetImporter(privateRoot: f.privateRoot, store: f.store)
+        let again = try await reopened.importFile(at: url)
+        XCTAssertEqual(again.id, record.id)
+
+        fields.removeValue(forKey: "volumeUUID")
+        let unwitnessed = try decoded()
+        XCTAssertEqual(FileSignature.legacyFileID(unwitnessed.sourceKey), signature.fileID)
+        do {
+            _ = try await reopened.importStableFile(at: url, signature: unwitnessed, firstSeenAt: Date())
+            XCTFail("A new import requires a persistent volume identifier")
+        } catch CaptureError.sourceVolumeUnidentified {}
+        let rows = try await f.store.assets(includeUsed: true)
+        XCTAssertEqual(Set(rows.map(\.id)), [record.id, previous.id])
+    }
+
+    func testSameNameReplacementWithTheSameBytesCreatesANewOccurrence() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let path = f.source.appendingPathComponent("capture.png")
+        let moved = f.source.appendingPathComponent("retained-original.png")
+        try makePNG(at: path); try markScreenshot(path)
+        let first = try await f.importer.importFile(at: path)
+        try FileManager.default.moveItem(at: path, to: moved)
+        try Data(contentsOf: moved).write(to: path); try markScreenshot(path)
+        let next = try await f.importer.importFile(at: path)
+        let original = try await f.importer.importFile(at: moved)
+        XCTAssertEqual(first.id, original.id)
+        XCTAssertNotEqual(first.id, next.id)
+        XCTAssertEqual(first.image.sha256, next.image.sha256)
+    }
+
+    func testLegacyOriginalEditedInPlaceRemainsUnconfirmedAndPreservesUnknown() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let url = f.source.appendingPathComponent("possibly-old.png")
+        let neighbor = f.source.appendingPathComponent("new-same-pixels.png")
+        try makePNG(at: url, description: "capture-A"); try markScreenshot(url)
+        let original = try Data(contentsOf: url)
+        let signature = try FileSignature.read(at: url)
+        let legacy = try journal(url, key: "\(signature.device + 1):\(signature.fileID)", in: f)
+        let recovered = try await f.importer.recover()
+        XCTAssertEqual(recovered.adopted, 1)
+        let target = TargetLease(adapterID: "local-test", surface: .webChat, applicationID: "fixture-browser",
+            sessionID: "fixture-session", windowID: "w", documentID: "d", composerID: "c", draftGeneration: "g")
+        let operation = try await f.store.prepare(assetID: legacy.id, target: target)
+        _ = try await f.store.markDispatchIntent(operation.id)
+        try await f.store.markUnknown(operation.id, reason: "fixture-unknown")
+        let before = try await f.store.asset(id: legacy.id)
+        let evidence = try await f.store.operation(id: operation.id)
+        XCTAssertEqual(before?.status, .unknown)
+        // Keep the file open while changing bytes first at the same length, then at
+        // another length. Its inode and birth time stay exactly the same in both cases.
+        let writer = try FileHandle(forWritingTo: url)
+        defer { try? writer.close() }
+        for (index, description) in ["capture-A", "capture-B", "a longer edited description"].enumerated() {
+            if index > 0 {
+                let fixture = f.root.appendingPathComponent("edit-\(index).png")
+                try makePNG(at: fixture, description: description)
+                let edited = try Data(contentsOf: fixture)
+                XCTAssertNotEqual(edited, original)
+                XCTAssertEqual(edited.count == original.count, index == 1)
+                try writer.truncate(atOffset: 0)
+                try writer.seek(toOffset: 0)
+                try writer.write(contentsOf: edited)
+                try writer.synchronize()
+            }
+            XCTAssertEqual(try FileSignature.read(at: url).sourceKey, signature.sourceKey)
+            do {
+                _ = try await f.importer.importFile(at: url)
+                XCTFail("Changed bytes cannot prove that this is a different source occurrence")
+            } catch CaptureError.historicalSourceUnconfirmed {}
+        }
+        try Data(contentsOf: url).write(to: neighbor); try markScreenshot(neighbor)
+        let new = try await f.importer.importFile(at: neighbor)
+        let after = try await f.store.asset(id: legacy.id)
+        let retained = try await f.store.operation(id: operation.id)
+        let rows = try await f.store.assets(includeUsed: true)
+        XCTAssertEqual(before, after)
+        XCTAssertEqual(evidence, retained)
+        XCTAssertNotEqual(new.image.sha256, legacy.sha256)
+        XCTAssertEqual(Set(rows.map(\.id)), [legacy.id, new.id])
+        for folder in ["media", "journal"] {
+            XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: f.privateRoot.appendingPathComponent(folder).path).count, 2)
+        }
+    }
+
     func testMissingFalseAndNumericMetadataAreNotAccepted() async throws {
         let f = try Fixture(); defer { f.close() }
         let source = f.source.appendingPathComponent("截图.png")
@@ -98,6 +228,66 @@ final class CaptureTests: XCTestCase {
         _ = try await f.importer.importFile(at: source)
         let all = try await f.store.assets()
         XCTAssertEqual(all.count, 1)
+    }
+
+    func testHeldLegacyScreenshotRechecksMetadataChangesAndClearsItsWarning() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let initial = CaptureService(store: f.store, privateRoot: f.privateRoot, sourceDirectory: f.source)
+        try await initial.start()
+        await initial.stop()
+        let file = f.source.appendingPathComponent("previous.png")
+        try makePNG(at: file); try markScreenshot(file)
+        let signature = try FileSignature.read(at: file)
+        let legacy = try journal(file, key: "\(signature.device):\(signature.fileID)", in: f)
+        let service = CaptureService(store: f.store, privateRoot: f.privateRoot, sourceDirectory: f.source)
+        try await service.start()
+        func waitForDiagnostic(_ code: CaptureDiagnosticCode?) async throws {
+            for _ in 0..<30 {
+                try await service.rescan()
+                if await service.statusSnapshot().latestDiagnostic?.code == code { return }
+                try await Task.sleep(nanoseconds: 20_000_000)
+            }
+            XCTFail("The collector did not publish the expected historical-source state")
+        }
+        try await waitForDiagnostic(.historicalSourceUnconfirmed)
+        try markScreenshot(file, value: false)
+        try await waitForDiagnostic(nil)
+        try markScreenshot(file)
+        try await waitForDiagnostic(.historicalSourceUnconfirmed)
+        // The same file remains in the new directory, but rebind discards the
+        // active observations. This exercises a full check even on local APFS.
+        let next = f.root.appendingPathComponent("next-source", isDirectory: true)
+        try FileManager.default.createDirectory(at: next, withIntermediateDirectories: false)
+        try FileManager.default.linkItem(at: file, to: next.appendingPathComponent(file.lastPathComponent))
+        let notScreenshot = try PropertyListSerialization.data(fromPropertyList: false, format: .binary, options: 0)
+        await service.setLifecycleProbe { point in
+            if point == .watcherRetired {
+                let result = notScreenshot.withUnsafeBytes {
+                    setxattr(file.path, CaptureSource.metadataName, $0.baseAddress, $0.count, 0, 0)
+                }
+                XCTAssertEqual(result, 0)
+            }
+        }
+        try await service.setSourceDirectory(next)
+        try await waitForDiagnostic(nil)
+        XCTAssertEqual(try FileSignature.read(at: file).sourceKey, signature.sourceKey)
+        let rows = try await f.store.assets(includeUsed: true)
+        XCTAssertEqual(rows.map(\.id), [legacy.id])
+        await service.stop()
+    }
+
+    func testHistoricalHoldCachingRequiresLocalAPFS() {
+        func filesystem(_ name: String, local: Bool) -> statfs {
+            var result = statfs()
+            if local { result.f_flags = UInt32(MNT_LOCAL) }
+            withUnsafeMutableBytes(of: &result.f_fstypename) { $0.copyBytes(from: name.utf8) }
+            return result
+        }
+        XCTAssertTrue(FolderWatcher.isLocalAPFS(filesystem("apfs", local: true)))
+        XCTAssertFalse(FolderWatcher.isLocalAPFS(filesystem("apfs", local: false)))
+        XCTAssertFalse(FolderWatcher.isLocalAPFS(filesystem("exfat", local: true)))
+        XCTAssertFalse(FolderWatcher.isLocalAPFS(filesystem("", local: true)))
+        XCTAssertNil(FolderWatcher.localAPFSVolume(-1, volume: UUID()))
     }
 
     func testTruncatedAndChangingFilesDoNotEnterQueue() async throws {

@@ -52,11 +52,26 @@ public struct RiftControlCenterPresentation {
             detail = "新截图暂不能安全保存；已有图片保留。"
             symbol = "exclamationmark.circle"
             recoveryTitle = "查看本机存储"; recoveryPage = .history
+        } else if setup.issue == .screenshotFolderNeedsSelection {
+            state = .attention; title = "需要重新选择截图文件夹"
+            detail = "此前的文件夹选择已无法确认，已有截图保留。"
+            symbol = "folder.badge.questionmark"
+            recoveryTitle = "查看截图位置"; recoveryPage = .help
         } else if setup.source == .unavailable || setup.source == .notConfigured || setup.issue == .sourceAccess {
             state = .attention; title = "无法访问截图位置"
             detail = "已有图片保留；请检查当前系统截图位置。"
             symbol = "folder.badge.questionmark"
             recoveryTitle = "检查截图位置"; recoveryPage = .help
+        } else if !owner.collectionPaused, setup.issue == .sourceVolumeUnidentified {
+            state = .attention; title = "当前截图位置无法收录"
+            detail = SetupIssue.sourceVolumeUnidentified.text
+            symbol = "folder.badge.questionmark"
+            recoveryTitle = "检查截图位置"; recoveryPage = .capture
+        } else if !owner.collectionPaused, let issue = setup.issue, [.fileVolumeUnidentified, .historicalSourceUnconfirmed].contains(issue) {
+            state = .attention; title = "部分截图暂缓收录"
+            detail = issue.text
+            symbol = "clock"
+            recoveryTitle = "查看收录说明"; recoveryPage = .capture
         } else if usesAutomation && (setup.permission == .denied || setup.issue == .permissionDenied) {
             state = .attention; title = "Chrome 自动化需要允许"
             detail = "这只影响主动附加；截图收录按当前设置进行。"

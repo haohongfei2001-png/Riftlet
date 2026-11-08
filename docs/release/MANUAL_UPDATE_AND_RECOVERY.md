@@ -1,6 +1,6 @@
 # Manual update and recovery audit
 
-Riftlet currently uses an explicitly reviewed App-only replacement, not an automatic updater. This document records the working safety boundary from the personal Beta 3 upgrade and complements [RELEASE_ENGINEERING.md](../RELEASE_ENGINEERING.md). No new installer, background update service, Sparkle feed, permission gate, or data migration is added by this increment.
+Riftlet currently uses an explicitly reviewed App-only replacement, not an automatic updater. This document records the working safety boundary from the personal Beta 3 upgrade and complements [RELEASE_ENGINEERING.md](../RELEASE_ENGINEERING.md). The queue format transition and recovery steps are described below.
 
 ## Before replacing an App
 
@@ -52,6 +52,10 @@ Seven isolated fault fixtures already cover success, post-exchange validation, p
 After a verified successful receipt, start only one exact installed executable. Confirm version/architecture, normal startup, history/settings persistence and source access without replaying external uploads. Keep the previous App and a fresh verified data snapshot until the new version has adequate normal-use evidence.
 
 Before a later rollback: normally quit, preserve a **new current-data backup**, verify the old App's exact retained identity and confirm it can read the current schema and state semantics. Replace only the App under fresh ownership. Do not restore the pre-upgrade database over newer history merely to make old software run. A schema number alone is not proof of compatibility. If compatibility is not established, retain both versions and use a forward fix.
+
+The volume-aware App upgrades its ordinary screenshot queue to v4 on first open, before collection starts. Beta 3 supports queue versions through v3. Its queue initializer rejects v4 before opening the collector or recovering imports. Keep Beta 3 closed on current data. Its independent Feedback service and first-use preferences can start before its queue check.
+
+If the update fails before the new App first opens the queue, the retained old App can still use its proven v3 data. After migration, quit the old process, retain both Apps and a consistent copy of the **latest** data, then open the same data with the verified v4-capable App or a compatible repair. Keep the pre-upgrade backup as separate historical data. Replacing only the database file or lowering its version discards this protection and can separate the queue from media, WAL and import journals. Earlier private previews that stored volume identities in v3 must first be opened by the fixed App; Beta 3 can duplicate captures if opened on those unprotected previews.
 
 Uninstalling the executable is separate from erasing personal history. Move the stopped App to Trash only when requested; keep its data, original screenshots and rollback backup. No uninstall or recovery step here authorizes deletion of media, UNKNOWN, Feedback state, Keychain items or system permissions.
 
