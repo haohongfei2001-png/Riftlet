@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "sourceBaseline": "5fc8ebe946ab9c14a8c98f0495b9a64f90873727",
-  "scope": "Consumer first use, capture location and recovery, history, storage and direct download. This checkpoint binds the effective screenshot preference, selected directory and watcher, persistent volume identity, per-file historical protection and the messages shown in Settings and the control center.",
+  "sourceBaseline": "bbb246713a720b0e16c1764852619a2a8d1f1ff3",
+  "scope": "Consumer first use, capture location and recovery, history, storage and direct download. This checkpoint binds the effective screenshot preference, selected directory and watcher, persistent volume identity, per-file historical protection and the messages shown in Settings and the control center. The production queue migration and verification of backups made by earlier readers are also bound.",
   "files": [
     {
       "path": "Sources/RiftletApp/OrdinaryCaptureConfiguration.swift",
@@ -75,8 +75,8 @@
     },
     {
       "path": "Sources/RiftletCore/QueueStore.swift",
-      "sha256": "9709e0b3069e62ec3ea454d5f278d66155fc00c615ad8c0ab49800e66267f27a",
-      "sourceBlob": "e44e6e699961b8c1fc761880e9843ccf3e19699b"
+      "sha256": "249607aed955359549e4d76d22b2b8ac604c26e2ebf80facb6e1a486d0ae43d2",
+      "sourceBlob": "bfe9ea51ef8052598a9c484d3296f2a3f99cbcfb"
     },
     {
       "path": "Sources/RiftletCore/ReceiptPolicy.swift",
@@ -165,8 +165,8 @@
     },
     {
       "path": "scripts/storage-recovery.py",
-      "sha256": "52abdd9bbb8c51cd10faf32ecc2f934509e60cb5e2f31a5f3444ec77151edb83",
-      "sourceBlob": "f146c039a4b693a79bee6a35ec10586c247d0ec0"
+      "sha256": "5743f31554affd694c2c111f0b45b2f58a6e5672bd05977127c27dbddf1947ef",
+      "sourceBlob": "d1aa6942a8df239d1987bf76a7d539211010675e"
     },
     {
       "path": "Package.swift",
@@ -237,6 +237,11 @@
       "path": "Sources/RiftletCapture/RetiredCaptureDirectory.swift",
       "sha256": "f859d2b77b5d97f52aa22abf87559b72e244c883d3f771ffb33b9a6f25dd01f2",
       "sourceBlob": "30b5c898cef4df4e114054d1e3fb57b0303881a0"
+    },
+    {
+      "path": "Sources/RiftletCore/SQLiteDatabase.swift",
+      "sha256": "9f4ad90c2299b85a9c62b1a85349e05d04d116f2835147347d37a212ab20588b",
+      "sourceBlob": "a76a4bc307608768938f1fb9b683e858f8dbc96a"
     }
   ],
   "previousSourceBinding": {
