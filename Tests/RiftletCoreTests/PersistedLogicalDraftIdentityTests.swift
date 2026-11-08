@@ -154,7 +154,7 @@ final class PersistedLogicalDraftIdentityTests: XCTestCase {
         XCTAssertEqual(try sql.rows("SELECT target_json FROM operations WHERE id=?", [op.id.uuidString]), [[frozenTargetJSON]])
         XCTAssertEqual(try sql.rows("SELECT image_json FROM assets WHERE id=?", [image.id.uuidString]), beforeImage)
         XCTAssertEqual(try sql.rows("SELECT COUNT(*) FROM operations WHERE asset_id=?", [image.id.uuidString]), [["1"]])
-        XCTAssertEqual(try sql.rows("PRAGMA user_version"), [["3"]])
+        XCTAssertEqual(try sql.rows("PRAGMA user_version"), [["4"]])
         XCTAssertEqual(try sql.rows("PRAGMA quick_check"), [["ok"]])
     }
 

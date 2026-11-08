@@ -23,6 +23,7 @@ import uuid
 
 
 FORMAT = "riftlet-offline-storage-v1"
+CURRENT_QUEUE_VERSION = 4
 CHUNK = 1024 * 1024
 NOFOLLOW = os.O_NOFOLLOW | os.O_CLOEXEC | os.O_NONBLOCK
 HEX = re.compile(r"^[0-9a-f]{64}$")
@@ -273,7 +274,7 @@ def row_hash(row):
     return digest.digest()
 
 
-def inspect(tree, inventory):
+def inspect(tree, inventory, known_queue_version=CURRENT_QUEUE_VERSION):
     """Health is distinct from byte integrity; no repair/adoption is performed."""
     indexed = {entry["path"]: entry for entry in inventory}
     errors, warnings, databases, images = [], [], {}, {}
@@ -333,7 +334,7 @@ def inspect(tree, inventory):
                 if foreign:
                     issue("sqlite-foreign-keys", relative, count=foreign)
                 if relative == "queue.sqlite":
-                    if version not in (1, 2, 3):
+                    if not 1 <= version <= known_queue_version:
                         warnings.append({"code": "queue-schema-not-understood", "userVersion": version})
                     if "operations" in tables:
                         result["unknownOperationSequences"] = [x[0] for x in connection.execute("SELECT sequence FROM operations WHERE phase='unknown' ORDER BY sequence")]
@@ -428,7 +429,7 @@ def backup(source, destination, detached=False):
                     report = inspect(data, inventory)
                 source_still_same(tree, inventory, identities)
                 manifest = {"format": FORMAT, "completedAt": now(), "captureSHA256": sha(encoded(capture)),
-                            "entries": inventory, "health": report,
+                            "entries": inventory, "health": report, "knownQueueVersion": CURRENT_QUEUE_VERSION,
                             "exclusions": ["Original screenshots outside this directory", "UserDefaults and source-access bookmarks",
                                            "Keychain credentials", "macOS permissions", "Other mode roots or external native clipboard journal"],
                             "metadataScope": "Regular-file bytes and empty directories; private output modes. No ACL/xattr or filesystem snapshot claim."}
@@ -481,20 +482,25 @@ def verified_bundle(bundle, expected=None):
         require(HEX.fullmatch(expected) and expected == digest, "manifest-checksum", "Manifest does not match the external expected digest")
     manifest = json.loads(body)
     require(isinstance(manifest, dict) and manifest.get("format") == FORMAT, "invalid-manifest", "Unsupported backup format")
+    # Original backups include the v3 inspector's warnings in their exact
+    # health checksum, even if that tool backed up a newer queue.
+    known_queue_version = manifest.get("knownQueueVersion", 3)
+    require(type(known_queue_version) is int and known_queue_version in (3, 4),
+            "invalid-manifest", "Unsupported queue inspection version")
     require(manifest.get("captureSHA256") == sha(bundle.read("capture.json")), "capture-checksum", "Capture provenance differs")
     validate_entries(manifest.get("entries"))
     with Tree(bundle.path / "data") as data:
         actual, identities = data.snapshot()
         require(actual == manifest["entries"], "data-checksum", "Backup data bytes or inventory differ")
-        report = inspect(data, actual)
+        report = inspect(data, actual, known_queue_version)
         source_still_same(data, actual, identities)
         require(report == manifest.get("health"), "health-checksum", "Logical database or media health differs from the capture")
-    return digest, manifest
+    return digest, manifest, known_queue_version
 
 
 def verify(source, expected=None):
     with Tree(source) as bundle:
-        digest, manifest = verified_bundle(bundle, expected)
+        digest, manifest, _ = verified_bundle(bundle, expected)
         return {"command": "verify", "byteIntegrity": "verified", "manifestSHA256": digest, "health": manifest["health"],
                 "authenticity": "external-digest-matched" if expected else "self-checksum-only"}
 
@@ -502,14 +508,14 @@ def verify(source, expected=None):
 def restore(source, destination, expected=None):
     separated(source, destination)
     with Tree(source) as bundle:
-        digest, manifest = verified_bundle(bundle, expected)  # Reject before making a destination.
+        digest, manifest, known_queue_version = verified_bundle(bundle, expected)  # Reject before making a destination.
         with Tree(destination, create=True) as output, Tree(bundle.path / "data") as data:
             try:
                 inventory, identities = data.snapshot(output)
                 require(inventory == manifest["entries"], "data-checksum", "Bundle changed during restore")
                 restored, _ = output.snapshot()
                 require(restored == inventory, "restore-checksum", "Restored bytes differ")
-                report = inspect(output, restored)
+                report = inspect(output, restored, known_queue_version)
                 require(report == manifest["health"], "restore-health", "Restored logical health differs")
                 source_still_same(data, inventory, identities)
                 receipt = {"format": FORMAT, "restoredAt": now(), "manifestSHA256": digest,

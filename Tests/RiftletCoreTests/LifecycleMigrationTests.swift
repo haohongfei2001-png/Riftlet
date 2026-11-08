@@ -125,7 +125,7 @@ final class LifecycleMigrationTests: XCTestCase {
         let one = try await firstOpen.value
         _ = try await secondOpen.value // concurrent migration rechecks after BEGIN
         _ = try QueueStore(databaseURL: databaseURL) // extension is idempotent
-        XCTAssertEqual(try legacy.sql.rows("PRAGMA user_version"), [["3"]])
+        XCTAssertEqual(try legacy.sql.rows("PRAGMA user_version"), [["4"]])
         XCTAssertEqual(try legacy.sql.rows("SELECT sequence,id,asset_id,attempt,target_key,target_json,phase,created_at,updated_at,receipt_json,reason FROM operations ORDER BY sequence"), before)
         XCTAssertEqual(try legacy.sql.rows("SELECT DISTINCT dispatch_exclusive FROM operations"), [["1"]])
         let old = try await one.operation(id: legacy.operationIDs[1])!
@@ -147,6 +147,36 @@ final class LifecycleMigrationTests: XCTestCase {
         XCTAssertEqual(try legacy.sql.rows("PRAGMA user_version"), [["3"]])
     }
 
+    func testWrongModeCannotUpgradeOrPartiallyExtendAnOlderProductionQueue() throws {
+        let legacy = try makeFrozenVersionThree()
+        let rows = try legacy.sql.rows("SELECT * FROM operations ORDER BY sequence")
+        let schema = try legacy.sql.rows("SELECT type,name,sql FROM sqlite_master ORDER BY name")
+        XCTAssertThrowsError(try QueueStore(databaseURL: databaseURL, mode: .simulation)) {
+            XCTAssertEqual($0 as? RiftletError, .modeMismatch)
+        }
+        XCTAssertEqual(try legacy.sql.rows("PRAGMA user_version"), [["3"]])
+        XCTAssertEqual(try legacy.sql.rows("SELECT * FROM operations ORDER BY sequence"), rows)
+        XCTAssertEqual(try legacy.sql.rows("SELECT type,name,sql FROM sqlite_master ORDER BY name"), schema)
+    }
+
+    func testFormatBoundaryIsDurableBeforeTheFirstCaptureAndSimulationKeepsItsFormat() throws {
+        let simulationURL = directory.appendingPathComponent("simulation.sqlite")
+        _ = try QueueStore(databaseURL: simulationURL, mode: .simulation)
+        let simulation = try RawLifecycleSQLite(simulationURL)
+        XCTAssertEqual(try simulation.rows("PRAGMA user_version"), [["3"]])
+        XCTAssertThrowsError(try QueueStore(databaseURL: simulationURL)) {
+            XCTAssertEqual($0 as? RiftletError, .modeMismatch)
+        }
+        XCTAssertEqual(try simulation.rows("PRAGMA user_version"), [["3"]])
+
+        _ = try QueueStore(databaseURL: databaseURL)
+        let production = try RawLifecycleSQLite(databaseURL)
+        XCTAssertEqual(try production.rows("PRAGMA user_version"), [["4"]])
+        XCTAssertEqual(try production.rows("SELECT COUNT(*) FROM assets"), [["0"]])
+        _ = try QueueStore(databaseURL: databaseURL)
+        XCTAssertEqual(try production.rows("PRAGMA user_version"), [["4"]])
+    }
+
     func testFrozenVersionTwoMigratesVisibilityWithoutInventingStartOrRewritingFacts() async throws {
         let legacy = try makeLegacy(version: 2)
         let beforeOperations = try legacy.sql.rows("SELECT sequence,id,asset_id,attempt,target_key,target_json,phase,created_at,updated_at,receipt_json,reason FROM operations ORDER BY sequence")
@@ -158,7 +188,7 @@ final class LifecycleMigrationTests: XCTestCase {
         XCTAssertEqual(all.map(\.id), legacy.images.map(\.id))
         XCTAssertEqual(all.map(\.visibility), [.swallowed, .visible, .visible, .swallowed])
         XCTAssertEqual(all.map(\.status), [.used, .unknown, .pending, .unknown])
-        XCTAssertEqual(try legacy.sql.rows("PRAGMA user_version"), [["3"]])
+        XCTAssertEqual(try legacy.sql.rows("PRAGMA user_version"), [["4"]])
         XCTAssertEqual(try legacy.sql.rows("SELECT sequence,id,asset_id,attempt,target_key,target_json,phase,created_at,updated_at,receipt_json,reason FROM operations ORDER BY sequence"), beforeOperations)
         XCTAssertEqual(try legacy.sql.rows("SELECT * FROM compensations"), beforeCompensations)
         XCTAssertEqual(try legacy.sql.rows("SELECT sequence,id,source_key,file_name,sort_at,image_json,status,active_operation_id FROM assets ORDER BY sequence"), beforeAssets)
@@ -176,7 +206,7 @@ final class LifecycleMigrationTests: XCTestCase {
         let store = try QueueStore(databaseURL: databaseURL)
         let all = try await store.assets(includeUsed: true)
         XCTAssertEqual(all.map(\.visibility), [.swallowed, .visible, .visible])
-        XCTAssertEqual(try legacy.sql.rows("PRAGMA user_version"), [["3"]])
+        XCTAssertEqual(try legacy.sql.rows("PRAGMA user_version"), [["4"]])
         XCTAssertEqual(try legacy.sql.rows("SELECT sequence,id,asset_id,attempt,target_key,target_json,phase,created_at,updated_at,receipt_json,reason FROM operations ORDER BY sequence"), before)
         XCTAssertTrue(try legacy.sql.rows("SELECT * FROM compensations").isEmpty)
         let reopened = try QueueStore(databaseURL: databaseURL)
