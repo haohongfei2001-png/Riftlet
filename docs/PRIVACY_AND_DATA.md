@@ -57,7 +57,7 @@ Riftlet 在本机收录截图文件并保存私有副本，记录队列、历史
 
 ### 旧版本、备份与重导入
 
-当前[原生数据库](../Sources/RiftletCore/SQLiteDatabase.swift)接受至 v3。[原生恢复](../Sources/RiftletCapture/PrivateAssetImporter.swift)会重新检查 journal、media 和 staging。[队列](../Sources/RiftletCore/QueueStore.swift)按来源标识去重。Beta 3 历史记录的[来源标识](../Sources/RiftletCapture/FileValidation.swift)只有设备号、inode 和出生时间，缺少原卷 UUID。拟议的删除标记须保留原始来源身份，并在改名、重扫、卷重新挂载及旧日志恢复时生效。证据不足时，单独保全可能属于同一原文件的候选。能证明是另一来源的独立截图，即使字节相同，也照常收录。
+Personal Beta 3 接受至 v3。新版[普通截图队列](../Sources/RiftletCore/SQLiteDatabase.swift)使用 v4。[原生恢复](../Sources/RiftletCapture/PrivateAssetImporter.swift)会重新检查 journal、media 和 staging。[队列](../Sources/RiftletCore/QueueStore.swift)按来源标识去重。Beta 3 历史记录的[来源标识](../Sources/RiftletCapture/FileValidation.swift)只有设备号、inode 和出生时间，缺少原卷 UUID。拟议的删除标记须保留原始来源身份，并在改名、重扫、卷重新挂载及旧日志恢复时生效。证据不足时，单独保全可能属于同一原文件的候选。能证明是另一来源的独立截图，即使字节相同，也照常收录。
 
 普通截图库 v4 用于保护卷来源标识。今后引入删除语义时，需要能让现有 v4 读取器也拒绝的新版本边界。只在 v3 下增加一个旧客户端不读的字段或表不足以保护数据。回退前先备份最新状态，在独立副本上验证旧版拒绝不兼容的数据、保留原行和媒体，并且未进入导入恢复。以兼容版本继续使用当前历史；恢复删除前备份应是用户另行选择的恢复动作。不得为了运行旧 App 将旧数据库覆写到现用历史。
 
