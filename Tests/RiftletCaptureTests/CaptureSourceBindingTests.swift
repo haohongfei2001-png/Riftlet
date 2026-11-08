@@ -456,6 +456,72 @@ final class CaptureSourceBindingTests: XCTestCase {
         XCTAssertEqual(restored, f.second)
     }
 
+    func testMissingOrEmptyRawLocationConsultsOnlyTheSuppliedDomain() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let prefs = f.root.appendingPathComponent("raw.plist")
+        let domain = f.root.appendingPathComponent("separate-domain").path
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: domain))
+        defaults.set(f.second.path, forKey: "location")
+        let provider = SystemCaptureLocationProvider(preferencesFile: prefs, fallbackDirectory: f.first,
+                                                     preferencesDomain: domain)
+        let rawOnly = SystemCaptureLocationProvider(preferencesFile: prefs, fallbackDirectory: f.first)
+        let missing = try await provider.currentDirectory()
+        let isolated = try await rawOnly.currentDirectory()
+        XCTAssertEqual(missing, f.second)
+        XCTAssertEqual(isolated, f.first)
+
+        for domainOnDisk in [[String: String](), ["location": ""]] {
+            try PropertyListSerialization.data(fromPropertyList: domainOnDisk, format: .binary, options: 0).write(to: prefs)
+            let selected = try await provider.currentDirectory()
+            XCTAssertEqual(selected, f.second)
+        }
+        try preference(prefs, location: f.privateRoot.path)
+        let published = try await provider.currentDirectory()
+        XCTAssertEqual(published, f.privateRoot)
+        try preference(prefs, location: "relative")
+        do { _ = try await provider.currentDirectory(); XCTFail("An invalid raw value must stay an error") }
+        catch { XCTAssertEqual(error as? CaptureError, .invalidLocationPreference) }
+        try FileManager.default.removeItem(at: prefs)
+        defaults.set("relative", forKey: "location")
+        do { _ = try await provider.currentDirectory(); XCTFail("An invalid domain value must stay an error") }
+        catch { XCTAssertEqual(error as? CaptureError, .invalidLocationPreference) }
+        defaults.removeObject(forKey: "location")
+        let reset = try await provider.currentDirectory()
+        XCTAssertEqual(reset, f.first)
+    }
+
+    func testDomainResetRebindsWhenTheRawFileHasNoFurtherEvent() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let rawParent = f.root.appendingPathComponent("watched-preferences", isDirectory: true)
+        try FileManager.default.createDirectory(at: rawParent, withIntermediateDirectories: false)
+        let prefs = rawParent.appendingPathComponent("raw.plist")
+        let domain = f.root.appendingPathComponent("separate-domain").path
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: domain))
+        defaults.set(f.second.path, forKey: "location")
+        let provider = SystemCaptureLocationProvider(preferencesFile: prefs, fallbackDirectory: f.first,
+                                                     preferencesDomain: domain)
+        let imported = expectation(description: "A new screenshot is read from the genuine default after reset")
+        imported.assertForOverFulfill = false
+        let store = f.store
+        let service = CaptureService(store: store, privateRoot: f.privateRoot, sourceDirectory: f.first,
+            onChange: { if (try? await store.assets().count) == 1 { imported.fulfill() } })
+        let binding = CaptureSourceBinding(service: service, provider: provider)
+        try await binding.start()
+        let original = await service.currentSourceDirectory()
+        XCTAssertEqual(original, f.second)
+        let image = f.first.appendingPathComponent("new-at-default.png")
+        try png().write(to: image); try mark(image)
+        let resetDomain = Process()
+        resetDomain.executableURL = URL(fileURLWithPath: "/usr/bin/defaults")
+        resetDomain.arguments = ["delete", domain, "location"]
+        try resetDomain.run(); resetDomain.waitUntilExit()
+        XCTAssertEqual(resetDomain.terminationStatus, 0)
+        await fulfillment(of: [imported], timeout: 4)
+        let reset = await service.currentSourceDirectory()
+        XCTAssertEqual(reset, f.first)
+        await binding.stop()
+    }
+
     func testUnrelatedPreferenceChangeDoesNotNotify() async throws {
         let f = try Fixture(); defer { f.close() }
         let prefs = f.root.appendingPathComponent("preferences.plist")

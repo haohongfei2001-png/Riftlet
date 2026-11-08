@@ -1,5 +1,6 @@
 import Foundation
 import AppKit
+import CoreFoundation
 import Darwin
 
 /// A source of the system/user-selected screenshot directory. Tests provide an in-memory
@@ -28,12 +29,36 @@ struct CapturePreferenceObservation {
     }
 }
 
-/// Watches both the preference file and its parent: in-place writes and atomic replacement
-/// are separate filesystem events. Only this one domain is parsed; no preference is written.
+/// Defaults KVO also delivers changes from other processes. A domain reset can arrive
+/// after the raw file has already disappeared, with no further file event to wake the collector.
+private final class LocationDefaultsObserver: NSObject {
+    private let defaults: UserDefaults
+    private let changed: @Sendable () -> Void
+
+    init?(domain: String, changed: @escaping @Sendable () -> Void) {
+        guard let defaults = UserDefaults(suiteName: domain) else { return nil }
+        self.defaults = defaults
+        self.changed = changed
+        super.init()
+        defaults.addObserver(self, forKeyPath: "location", options: [], context: nil)
+    }
+
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?,
+                               change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
+        changed()
+    }
+
+    deinit { defaults.removeObserver(self, forKeyPath: "location") }
+}
+
+/// Watches the preference file and its parent for both in-place writes and atomic replacement.
+/// Only the native provider also consults the screenshot domain. No preference is written.
 /// Actual Screenshot.app preference propagation remains a real-Mac acceptance case.
 public actor SystemCaptureLocationProvider: CaptureLocationProviding {
     private let preferencesFile: URL
     private let fallbackDirectory: URL
+    private let preferencesDomain: String?
+    private var defaultsObserver: LocationDefaultsObserver?
     private var parentWatcher: FolderWatcher?
     private var fileWatcher: FolderWatcher?
     private var wakeObserver: NSObjectProtocol?
@@ -44,12 +69,19 @@ public actor SystemCaptureLocationProvider: CaptureLocationProviding {
     private var parentLocation: URL?
     private var parentRevision = UUID()
 
-    public init(preferencesFile: URL = FileManager.default.homeDirectoryForCurrentUser
-                    .appendingPathComponent("Library/Preferences/com.apple.screencapture.plist"),
+    public init(preferencesFile: URL? = nil,
                 fallbackDirectory: URL = FileManager.default.homeDirectoryForCurrentUser
                     .appendingPathComponent("Desktop", isDirectory: true)) {
+        let systemFile = FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent("Library/Preferences/com.apple.screencapture.plist")
+        self.init(preferencesFile: preferencesFile ?? systemFile, fallbackDirectory: fallbackDirectory,
+                  preferencesDomain: preferencesFile == nil ? "com.apple.screencapture" : nil)
+    }
+
+    init(preferencesFile: URL, fallbackDirectory: URL, preferencesDomain: String?) {
         self.preferencesFile = preferencesFile.standardizedFileURL
         self.fallbackDirectory = fallbackDirectory.standardizedFileURL
+        self.preferencesDomain = preferencesDomain
     }
 
     public func currentDirectory() throws -> URL {
@@ -64,9 +96,9 @@ public actor SystemCaptureLocationProvider: CaptureLocationProviding {
         let descriptor = Darwin.open(preferencesFile.path, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
         guard descriptor >= 0 else {
             let code = errno
-            // fileExists also returns false on denied parent traversal. Only an
-            // actual absent preference permits the system's default location.
-            if code == ENOENT { return (fallbackDirectory, nil) }
+            // A new setting may already be visible in CFPreferences before this file exists.
+            // Denied traversal and other read errors must never redirect collection.
+            if code == ENOENT { return (try directoryWhenLocationIsAbsent(), nil) }
             throw CaptureError.io("read-location-preference", code)
         }
         let handle = FileHandle(fileDescriptor: descriptor, closeOnDealloc: true)
@@ -79,12 +111,28 @@ public actor SystemCaptureLocationProvider: CaptureLocationProviding {
               signature == (try FileSignature.read(at: preferencesFile)),
               let values = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil),
               let domain = values as? [String: Any] else { throw CaptureError.invalidLocationPreference }
-        guard let value = domain["location"] else { return (fallbackDirectory, signature) }
+        let directory = try directory(for: domain["location"]) ?? directoryWhenLocationIsAbsent()
+        return (directory, signature)
+    }
+
+    private func directoryWhenLocationIsAbsent() throws -> URL {
+        guard let preferencesDomain else { return fallbackDirectory }
+        // The App search list also includes global and registration defaults. Only the
+        // current user's exact screenshot domain can supply the missing location.
+        let domain = preferencesDomain as CFString
+        let key = "location" as CFString
+        let value = CFPreferencesCopyValue(key, domain, kCFPreferencesCurrentUser, kCFPreferencesCurrentHost)
+            ?? CFPreferencesCopyValue(key, domain, kCFPreferencesCurrentUser, kCFPreferencesAnyHost)
+        return try directory(for: value) ?? fallbackDirectory
+    }
+
+    private func directory(for value: Any?) throws -> URL? {
+        guard let value else { return nil }
         guard let path = value as? String else { throw CaptureError.invalidLocationPreference }
-        guard !path.isEmpty else { return (fallbackDirectory, signature) }
+        guard !path.isEmpty else { return nil }
         let expanded = (path as NSString).expandingTildeInPath
         guard (expanded as NSString).isAbsolutePath, !expanded.utf8.contains(0) else { throw CaptureError.invalidLocationPreference }
-        return (URL(fileURLWithPath: expanded, isDirectory: true).standardizedFileURL, signature)
+        return URL(fileURLWithPath: expanded, isDirectory: true).standardizedFileURL
     }
 
     public func start(onChange: @escaping @Sendable () async -> Void) async throws {
@@ -95,6 +143,12 @@ public actor SystemCaptureLocationProvider: CaptureLocationProviding {
         self.onChange = onChange
         observation = CapturePreferenceObservation(signature: try? FileSignature.read(at: preferencesFile))
         do {
+            if let preferencesDomain {
+                defaultsObserver = LocationDefaultsObserver(domain: preferencesDomain) { [weak self] in
+                    guard let provider = self else { return }
+                    Task { await provider.signal(token: token, fileLost: false, force: true) }
+                }
+            }
             try await attachParentIfNeeded(token: token)
             guard running, generation == token else { return }
             await attachFileIfNeeded(token: token)
@@ -113,6 +167,7 @@ public actor SystemCaptureLocationProvider: CaptureLocationProviding {
     public func stop() {
         running = false
         generation = UUID()
+        defaultsObserver = nil
         parentWatcher?.cancel(); parentWatcher = nil
         parentLocation = nil; parentRevision = UUID()
         fileWatcher?.cancel(); fileWatcher = nil
