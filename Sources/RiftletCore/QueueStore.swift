@@ -9,13 +9,7 @@ public actor QueueStore {
 
     public init(databaseURL: URL, mode: StoreMode = .production) throws {
         self.mode = mode
-        let db = try SQLiteDatabase(url: databaseURL)
-        try db.transaction {
-            let storedMode = try db.rows("SELECT value FROM metadata WHERE key='mode'").first?.first ?? nil
-            if let storedMode, storedMode != mode.rawValue { throw RiftletError.modeMismatch }
-            try db.execute("INSERT OR IGNORE INTO metadata(key,value) VALUES('mode',?)", [mode.rawValue])
-        }
-        self.database = db
+        self.database = try SQLiteDatabase(url: databaseURL, mode: mode)
     }
 
     @discardableResult

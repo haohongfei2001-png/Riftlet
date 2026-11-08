@@ -217,7 +217,7 @@ final class LateFailureCompensationTests: XCTestCase {
         let legacy = try restoreLegacyOperationsSchema()
         let oldRows = try legacy.rows("SELECT sequence,id,asset_id,attempt,target_key,target_json,phase,created_at,updated_at,receipt_json,reason FROM operations ORDER BY sequence")
         let reopened = try store()
-        XCTAssertEqual(try legacy.rows("PRAGMA user_version").first?.first, "3")
+        XCTAssertEqual(try legacy.rows("PRAGMA user_version").first?.first, "4")
         XCTAssertEqual(try legacy.rows("SELECT sequence,id,asset_id,attempt,target_key,target_json,phase,created_at,updated_at,receipt_json,reason FROM operations ORDER BY sequence"), oldRows)
         let after = try await reopened.assets(includeUsed: true)
         let saved = try await reopened.receipt(for: success.id)
