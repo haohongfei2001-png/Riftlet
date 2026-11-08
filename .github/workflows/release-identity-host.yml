@@ -37,7 +37,7 @@ jobs:
           codesign --force --sign - --options runtime --timestamp=none --entitlements packaging/release/Entitlements.plist "$RUNNER_TEMP/New.app"
           codesign --verify --deep --strict --all-architectures "$RUNNER_TEMP/Old.app"
           codesign --verify --deep --strict --all-architectures "$RUNNER_TEMP/New.app"
-      - name: Exercise first ordinary launch, two imports and App-only rollback
+      - name: Exercise first launch, old-reader compatibility and forward recovery
         run: python3 -B Tests/ReleaseUpgradeHost/run.py --old "$RUNNER_TEMP/Old.app" --new "$RUNNER_TEMP/New.app" --output test-results/ordinary-upgrade.json
       - name: Observe permissions and bookmarks with a separate App identity
         if: ${{ !cancelled() }}
