@@ -305,10 +305,16 @@ def exercise(old, new, report):
         new_copy = scratch / "Riftlet-upgrade.app"
         app.rename(new_copy)
         old_copy.rename(app)
+        # Beta 3 normalizes the database mode immediately before reading its format.
+        # This disposable, owner-only root makes that change observable in the App process.
+        queue = root / "queue.sqlite"
+        assert root.stat().st_mode & 0o077 == 0 and queue.stat().st_mode & 0o777 == 0o600
+        queue.chmod(0o640)
         old_pid = launch(old_hash, "0.3.0", "3")
         # Verify this exact process owns the ordinary root while the new arrival is present.
         wait_for(lambda: call("lsof", "-nP", "-a", "-p", old_pid, root / "instance.lock",
                               check=False).returncode == 0, "old application taking the instance lock")
+        wait_for(lambda: queue.stat().st_mode & 0o777 == 0o600, "Beta 3 opening this queue")
         pending_witness = write_fixture(source, 211)
         time.sleep(9)  # The old collector's scheduled retries span 8.3 seconds.
         assert call(process, "pid", app).stdout.strip() == str(old_pid).encode()
@@ -318,6 +324,7 @@ def exercise(old, new, report):
         call(*fixture, "reject", latest, second)
         assert snapshot(latest) == upgraded
         report["appOnlyRollback"] = {"status": "OLD_READER_BLOCKED_AT_SCHEMA_4", "originalQueueAndFilesPreserved": True,
+                                     "ordinaryAppOpenedQueue": True, "legacyCoreRefusal": "Unsupported schema version 4",
                                      "knownDuplicateCount": 0, "originalUnknownRetained": True,
                                      "sourceFolderOpenedByOldAppAtObservation": False, "testArrivalCollectedByOldApp": False}
         # Relaunch the compatible application on the very data the old App tried to open.
