@@ -18,6 +18,7 @@ public enum SetupStorageState: Equatable, Sendable {
 public enum SetupIssue: Equatable, Sendable {
     case sourceAccess, wrongScreenshotFolder, screenshotFolderNeedsSelection, unsupportedFormat, unsupportedSize, invalidImage
     case insufficientSpace, privateWriteFailed, storageUnavailable
+    case sourceVolumeUnidentified, historicalSourceUnconfirmed
     case unsupportedBrowser, targetUnavailable, permissionDenied, imageUnavailable
     case initializationFailed, configurationUnavailable
     case visibilityPreferenceUnsaved, collectionPreferenceUnsaved
@@ -36,6 +37,10 @@ public enum SetupIssue: Equatable, Sendable {
             return "截图已保存在本机，但超过当前附件通路可处理的像素上限。本图未上传，原文件与私有副本保留。"
         case .sourceAccess:
             return "无法读取截图保存位置。请确认文件夹仍存在，在系统设置「隐私与安全性 → 文件与文件夹」中检查 Riftlet，或允许访问当前截图位置；原截图没有被删除。"
+        case .sourceVolumeUnidentified:
+            return "无法确认截图所在的磁盘，暂未收录。请在系统截图的“选项”中选择本机的截图文件夹。"
+        case .historicalSourceUnconfirmed:
+            return "一张截图可能已由旧版收录，暂未重复添加。原图和已有历史都已保留，其他新截图仍可收录。"
         case .wrongScreenshotFolder:
             return "所选文件夹与当前系统截图位置不同。点“重新检查”，确认路径后再选择截图文件夹。"
         case .screenshotFolderNeedsSelection:

@@ -11,15 +11,27 @@ struct WatchedFileIdentity: Codable, Equatable, Sendable {
     let inode: ino_t
     let birthSeconds: Int
     let birthNanoseconds: Int
+    let volumeUUID: UUID?
 
-    init(_ info: stat) {
+    init(_ info: stat, descriptor: Int32) {
         device = info.st_dev; inode = info.st_ino
         birthSeconds = info.st_birthtimespec.tv_sec; birthNanoseconds = info.st_birthtimespec.tv_nsec
+        volumeUUID = CaptureVolume.identifier(of: descriptor)
+    }
+
+    func matches(_ info: stat, descriptor: Int32) -> Bool {
+        guard let volumeUUID, info.st_mode & mode_t(S_IFMT) == mode_t(S_IFDIR),
+              info.st_ino == inode, info.st_birthtimespec.tv_sec == birthSeconds,
+              info.st_birthtimespec.tv_nsec == birthNanoseconds else { return false }
+        return volumeUUID == CaptureVolume.identifier(of: descriptor)
     }
 
     func matchesDirectory(_ url: URL) -> Bool {
+        let fd = Darwin.open(url.path, O_EVTONLY | O_NOFOLLOW | O_DIRECTORY | O_CLOEXEC)
+        guard fd >= 0 else { return false }
+        defer { Darwin.close(fd) }
         var info = stat()
-        return lstat(url.path, &info) == 0 && info.st_mode & mode_t(S_IFMT) == mode_t(S_IFDIR) && self == Self(info)
+        return fstat(fd, &info) == 0 && matches(info, descriptor: fd)
     }
 }
 
@@ -62,7 +74,7 @@ final class FolderWatcher: @unchecked Sendable {
                 live.setCancelHandler { Darwin.close(fd) }
                 self.source = live
                 live.resume()
-                continuation.resume(returning: WatchedFileIdentity(info))
+                continuation.resume(returning: WatchedFileIdentity(info, descriptor: fd))
             }
         }
     }

@@ -7,6 +7,7 @@ import RiftletCore
 public enum CaptureDiagnosticCode: String, Equatable, Sendable {
     case sourceUnavailable, sourcePreferenceUnreadable, unsupportedFormat, imageTooLarge
     case insufficientStorage, privateWriteFailed, recoveryRequired, missingPrivateCopy
+    case sourceVolumeUnidentified, historicalSourceUnconfirmed
 }
 
 public enum CaptureDiagnosticContext: Sendable { case source, locationPreference, privateStorage }
@@ -19,6 +20,10 @@ public struct CaptureDiagnostic: Equatable, Sendable {
         switch code {
         case .sourceUnavailable:
             return "无法读取系统截图文件夹。请检查文件夹访问权限或恢复该位置，再重新检查；已有截图仍保留。"
+        case .sourceVolumeUnidentified:
+            return "无法确认截图所在的磁盘，暂未收录。请在系统截图的“选项”中选择本机的截图文件夹。"
+        case .historicalSourceUnconfirmed:
+            return "一张截图可能已由旧版收录，暂未重复添加。原图和已有历史都已保留，其他新截图仍可收录。"
         case .sourcePreferenceUnreadable:
             return "暂时无法读取系统截图保存位置。请在系统截图工具的“选项”中检查位置，再重新检查。"
         case .unsupportedFormat:
@@ -44,6 +49,8 @@ public struct CaptureDiagnostic: Equatable, Sendable {
             case .imageTooLarge: return .init(code: .imageTooLarge)
             case .invalidLocationPreference: return .init(code: .sourcePreferenceUnreadable)
             case .invalidManifest: return .init(code: .recoveryRequired)
+            case .sourceVolumeUnidentified: return .init(code: .sourceVolumeUnidentified)
+            case .historicalSourceUnconfirmed: return .init(code: .historicalSourceUnconfirmed)
             case .privatePathUnsafe: return .init(code: .privateWriteFailed)
             case .io(let operation, let code):
                 if code == ENOSPC || code == EDQUOT { return .init(code: .insufficientStorage) }

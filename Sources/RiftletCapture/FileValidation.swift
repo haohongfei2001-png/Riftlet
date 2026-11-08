@@ -24,6 +24,23 @@ public enum CaptureError: Error, Equatable, Sendable {
     case importInProgress
     case invalidLocationPreference
     case insufficientStorage
+    case sourceVolumeUnidentified
+    case historicalSourceUnconfirmed
+}
+
+/// Read from the very same open file/directory being identified. A mount's
+/// st_dev is useful for live descriptor checks but may change after a reboot.
+enum CaptureVolume {
+    static func identifier(of descriptor: Int32) -> UUID? {
+        var request = attrlist()
+        request.bitmapcount = UInt16(ATTR_BIT_MAP_COUNT)
+        request.volattr = attrgroup_t(ATTR_VOL_INFO) | attrgroup_t(ATTR_VOL_UUID)
+        var reply: (UInt32, uuid_t) = (0, (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
+        let size = MemoryLayout.size(ofValue: reply)
+        guard fgetattrlist(descriptor, &request, &reply, size, 0) == 0, reply.0 == size,
+              withUnsafeBytes(of: reply.1, { $0.contains { $0 != 0 } }) else { return nil }
+        return UUID(uuid: reply.1)
+    }
 }
 
 struct FileSignature: Codable, Equatable, Sendable {
@@ -34,8 +51,21 @@ struct FileSignature: Codable, Equatable, Sendable {
     let modificationSeconds: Int64
     let modificationNanoseconds: Int64
     let size: Int64
+    let volumeUUID: UUID? // absent in pre-volume handoff checkpoints
 
-    var sourceKey: String { "\(device):\(inode):\(birthSeconds):\(birthNanoseconds)" }
+    var fileID: String { "\(inode):\(birthSeconds):\(birthNanoseconds)" }
+    var sourceKey: String {
+        if let volumeUUID { return "volume:\(volumeUUID.uuidString.lowercased()):\(fileID)" }
+        // Decode and retain old intents. The importer requires a volume UUID
+        // before recording any new occurrence.
+        return "\(device):\(fileID)"
+    }
+    static func legacyFileID(_ key: String) -> String? {
+        let parts = key.split(separator: ":", omittingEmptySubsequences: false)
+        guard parts.count == 4, UInt64(parts[0]) != nil, UInt64(parts[1]) != nil,
+              Int64(parts[2]) != nil, let ns = Int64(parts[3]), (0..<1_000_000_000).contains(ns) else { return nil }
+        return parts.dropFirst().joined(separator: ":")
+    }
     var createdAt: Date {
         Date(timeIntervalSince1970: Double(birthSeconds) + Double(birthNanoseconds) / 1_000_000_000)
     }
@@ -51,17 +81,17 @@ struct FileSignature: Codable, Equatable, Sendable {
     static func read(descriptor: Int32) throws -> FileSignature {
         var value = stat()
         guard fstat(descriptor, &value) == 0 else { throw CaptureError.io("stat-source", errno) }
-        return try read(metadata: value)
+        return try read(metadata: value, volumeUUID: CaptureVolume.identifier(of: descriptor))
     }
 
-    static func read(metadata value: stat) throws -> FileSignature {
+    static func read(metadata value: stat, volumeUUID: UUID?) throws -> FileSignature {
         guard value.st_mode & mode_t(S_IFMT) == mode_t(S_IFREG) else { throw CaptureError.notRegularFile }
-        return FileSignature(device: UInt64(value.st_dev), inode: UInt64(value.st_ino),
+        return FileSignature(device: UInt64(UInt32(bitPattern: value.st_dev)), inode: UInt64(value.st_ino),
                              birthSeconds: Int64(value.st_birthtimespec.tv_sec),
                              birthNanoseconds: Int64(value.st_birthtimespec.tv_nsec),
                              modificationSeconds: Int64(value.st_mtimespec.tv_sec),
                              modificationNanoseconds: Int64(value.st_mtimespec.tv_nsec),
-                             size: Int64(value.st_size))
+                             size: Int64(value.st_size), volumeUUID: volumeUUID)
     }
 }
 

@@ -2,6 +2,7 @@ import XCTest
 import Foundation
 import ImageIO
 import CoreGraphics
+import CryptoKit
 import UniformTypeIdentifiers
 import Darwin
 @testable import RiftletCapture
@@ -51,12 +52,19 @@ private actor CaptureLifecycleGate {
     }
 }
 
+private func observedDirectory(_ url: URL) throws -> WatchedFileIdentity {
+    let fd = Darwin.open(url.path, O_EVTONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
+    guard fd >= 0 else { throw CocoaError(.fileReadUnknown) }
+    defer { Darwin.close(fd) }
+    var info = stat()
+    guard fstat(fd, &info) == 0 else { throw CocoaError(.fileReadUnknown) }
+    return WatchedFileIdentity(info, descriptor: fd)
+}
+
 private actor ConfirmedDirectory {
     private var identity: WatchedFileIdentity?
     func confirm(_ url: URL) throws {
-        var info = stat()
-        guard lstat(url.path, &info) == 0 else { throw CocoaError(.fileReadUnknown) }
-        identity = WatchedFileIdentity(info)
+        identity = try observedDirectory(url)
     }
     func allows(_ url: URL) -> Bool { identity?.matchesDirectory(url) ?? true }
 }
@@ -266,11 +274,54 @@ final class CaptureSourceBindingTests: XCTestCase {
         await service.stop()
     }
 
+    func testLegacyBaselineAndUnwitnessedHandoffDoNotBlockANeighborAfterRestart() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let old = f.first.appendingPathComponent("before-installation.png")
+        let pending = f.first.appendingPathComponent("unconfirmed-pending.png")
+        let neighbor = f.first.appendingPathComponent("unrelated-new.png")
+        let bytes = try png()
+        try bytes.write(to: old); try mark(old)
+        let epoch = Date()
+        for url in [pending, neighbor] { try bytes.write(to: url); try mark(url) }
+
+        let beforeInstall = try FileSignature.read(at: old)
+        XCTAssertLessThan(beforeInstall.createdAt, epoch)
+        let earlierKey = "\(beforeInstall.device + 1):\(beforeInstall.fileID)"
+        let directoryHash = SHA256.hash(data: Data(f.first.standardizedFileURL.path.utf8))
+            .map { String(format: "%02x", $0) }.joined()
+        let baseline = try JSONSerialization.data(withJSONObject: ["version": 1, "baselineSourceKeys": [earlierKey]])
+        try await f.store.saveCheckpoint(baseline, for: "capture-source-v1:" + directoryHash)
+        let epochData = try JSONSerialization.data(withJSONObject: ["version": 1, "beganAt": epoch.timeIntervalSinceReferenceDate])
+        try await f.store.saveCheckpoint(epochData, for: "capture-collection-epoch-v1")
+
+        let pendingSignature = try FileSignature.read(at: pending)
+        var oldFields = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(pendingSignature)) as? [String: Any])
+        oldFields.removeValue(forKey: "volumeUUID")
+        oldFields["device"] = pendingSignature.device + 1
+        let intent: [String: Any] = ["url": pending.absoluteString, "signature": oldFields,
+            "firstSeenAt": epoch.timeIntervalSinceReferenceDate, "stableSince": epoch.timeIntervalSinceReferenceDate]
+        let handoff = try JSONSerialization.data(withJSONObject: [intent])
+        try await f.store.saveCheckpoint(handoff, for: "capture-pending-handoffs-v1")
+        let clock = SourceTestClock()
+        for _ in 0..<2 {
+            let service = CaptureService(store: f.store, privateRoot: f.privateRoot,
+                                         sourceDirectory: f.first, now: { clock.read() })
+            try await service.start()
+            clock.advance()
+            try await service.rescan()
+            let rows = try await f.store.assets(includeUsed: true)
+            XCTAssertEqual(rows.map(\.image.sourceKey), [try FileSignature.read(at: neighbor).sourceKey])
+            let retained = try await f.store.checkpoint(for: "capture-pending-handoffs-v1")
+            XCTAssertEqual(retained, handoff)
+            let status = await service.statusSnapshot()
+            XCTAssertEqual(status.latestDiagnostic?.code, .historicalSourceUnconfirmed)
+            await service.stop()
+        }
+    }
+
     func testRetiredSnapshotEnumeratesTheOpenedDirectoryWhenItsNameIsReplaced() throws {
         let f = try Fixture(); defer { f.close() }
-        var info = stat()
-        XCTAssertEqual(lstat(f.first.path, &info), 0)
-        let identity = WatchedFileIdentity(info)
+        let identity = try observedDirectory(f.first)
         let opened = try XCTUnwrap(RetiredCaptureDirectory(url: f.first, identity: identity))
         // A late original, an unrelated file at the same name, and a link out.
         let late = f.first.appendingPathComponent("late.png")
