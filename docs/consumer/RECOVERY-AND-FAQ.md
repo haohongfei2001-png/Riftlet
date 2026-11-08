@@ -41,6 +41,10 @@
 
 回退 App 只在旧版本确实兼容当前数据时进行；不能用版本号或“数据库格式一样”推断安全。旧包不兼容时应修正新版，不能把旧数据库覆盖回去丢掉新记录。恢复工具只写新的隔离目录，不会自动接管或重置生产目录。所有备份都可能含私人图片和反馈，应私密保管，不随反馈上传。
 
+新版首次打开截图库后，Personal Beta 3（0.3.0）无法继续使用这份历史。如果换回 Beta 3 后收录停止，请正常退出它，保留最新的完整数据目录，再打开支持这份历史的新版或修复版。升级前的备份仅包含备份时已有的截图和操作。
+
+After the new App first opens your screenshot library, Personal Beta 3 (0.3.0) can no longer use it. If collection stops after switching back, quit Beta 3, keep the complete current data folder, and reopen it with the compatible App. A backup made before the upgrade contains only the history that existed at that time.
+
 ## 如何停止使用或卸载？
 
 先在通用设置关闭登录启动并查看系统实际状态（如果该功能曾成功启用），再正常退出。移除 App 即停止它后续的运行；截图来源文件、私有数据目录、偏好、钥匙串反馈凭证和自行保留的备份可能仍在。当前没有一键永久抹除截图数据功能，本指南也不新增清理脚本。
