@@ -12,7 +12,7 @@ final class RetiredCaptureDirectory {
         let fd = Darwin.open(url.path, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
         guard fd >= 0 else { return nil }
         var info = stat()
-        guard fstat(fd, &info) == 0, identity == WatchedFileIdentity(info) else {
+        guard fstat(fd, &info) == 0, identity.matches(info, descriptor: fd) else {
             Darwin.close(fd)
             return nil
         }
@@ -56,7 +56,8 @@ final class RetiredCaptureDirectory {
                     do {
                         var info = stat()
                         guard fstat(child, &info) == 0 else { complete = false; return }
-                        let signature = try FileSignature.read(metadata: info)
+                        let signature = try FileSignature.read(metadata: info, volumeUUID: CaptureVolume.identifier(of: child))
+                        guard signature.volumeUUID != nil else { complete = false; return }
                         guard info.st_flags & UInt32(UF_HIDDEN) == 0 else { return }
                         guard let invisible = Self.finderInvisible(child) else { complete = false; return }
                         guard !invisible else { return }
