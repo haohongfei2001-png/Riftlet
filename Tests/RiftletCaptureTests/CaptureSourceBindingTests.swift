@@ -303,7 +303,7 @@ final class CaptureSourceBindingTests: XCTestCase {
         let handoff = try JSONSerialization.data(withJSONObject: [intent])
         try await f.store.saveCheckpoint(handoff, for: "capture-pending-handoffs-v1")
         let clock = SourceTestClock()
-        for _ in 0..<2 {
+        for run in 0..<2 {
             let service = CaptureService(store: f.store, privateRoot: f.privateRoot,
                                          sourceDirectory: f.first, now: { clock.read() })
             try await service.start()
@@ -315,6 +315,14 @@ final class CaptureSourceBindingTests: XCTestCase {
             XCTAssertEqual(retained, handoff)
             let status = await service.statusSnapshot()
             XCTAssertEqual(status.latestDiagnostic?.code, .historicalSourceUnconfirmed)
+            if run == 1 {
+                try FileManager.default.moveItem(at: pending, to: f.second.appendingPathComponent("preserved.png"))
+                try await service.rescan()
+                let cleared = await service.statusSnapshot()
+                XCTAssertNil(cleared.latestDiagnostic)
+                let originalIntent = try await f.store.checkpoint(for: "capture-pending-handoffs-v1")
+                XCTAssertEqual(originalIntent, handoff)
+            }
             await service.stop()
         }
     }

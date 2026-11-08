@@ -62,6 +62,16 @@ public struct RiftControlCenterPresentation {
             detail = "已有图片保留；请检查当前系统截图位置。"
             symbol = "folder.badge.questionmark"
             recoveryTitle = "检查截图位置"; recoveryPage = .help
+        } else if !owner.collectionPaused, setup.issue == .sourceVolumeUnidentified {
+            state = .attention; title = "当前截图位置无法收录"
+            detail = SetupIssue.sourceVolumeUnidentified.text
+            symbol = "folder.badge.questionmark"
+            recoveryTitle = "检查截图位置"; recoveryPage = .capture
+        } else if !owner.collectionPaused, let issue = setup.issue, [.fileVolumeUnidentified, .historicalSourceUnconfirmed].contains(issue) {
+            state = .attention; title = "部分截图暂缓收录"
+            detail = issue.text
+            symbol = "clock"
+            recoveryTitle = "查看收录说明"; recoveryPage = .capture
         } else if usesAutomation && (setup.permission == .denied || setup.issue == .permissionDenied) {
             state = .attention; title = "Chrome 自动化需要允许"
             detail = "这只影响主动附加；截图收录按当前设置进行。"

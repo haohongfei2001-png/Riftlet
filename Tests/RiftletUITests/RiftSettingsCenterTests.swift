@@ -121,6 +121,32 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertFalse(titles.contains("收录新截图")); XCTAssertFalse(titles.contains("显示边缘微图"))
     }
 
+    @MainActor func testControlCenterAndBothSettingsPagesExplainVolumeAndIndividualCaptureProblems() throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        for issue in [SetupIssue.sourceVolumeUnidentified, .fileVolumeUnidentified, .historicalSourceUnconfirmed] {
+            h.revision += 1
+            let setup = SetupSnapshot(sourceLocation: "/synthetic/screenshots", source: .accessible,
+                                      collection: .collecting, issue: issue)
+            let snapshot = SettingsProductSnapshot(revision: h.revision, setup: setup, state: h.model.snapshot)
+            h.controller.update(snapshot)
+            let status = RiftControlCenterPresentation(snapshot)
+            XCTAssertEqual(status.state, .attention)
+            XCTAssertEqual(status.recoveryPage, .capture)
+            XCTAssertEqual(status.detail, issue.text)
+            if issue == .sourceVolumeUnidentified {
+                XCTAssertEqual(status.title, "当前截图位置无法收录")
+                XCTAssertTrue(status.detail.contains("选择其他保存位置"))
+            } else {
+                XCTAssertEqual(status.title, "部分截图暂缓收录")
+                XCTAssertTrue(status.detail.contains("其他新截图仍可收录"))
+            }
+            for page in ["capture", "help"] {
+                XCTAssertEqual(h.controller.labels["source." + page]?.stringValue, issue.text)
+            }
+            XCTAssertEqual(SetupPresentation(snapshot: setup).collectionText, issue.text)
+        }
+    }
+
     @MainActor func testFirstShowRestoresV2ContentSizeAndLaterShowsKeepUserResize() throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
         let window = h.controller.window

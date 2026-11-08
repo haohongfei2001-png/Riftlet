@@ -18,7 +18,7 @@ public enum SetupStorageState: Equatable, Sendable {
 public enum SetupIssue: Equatable, Sendable {
     case sourceAccess, wrongScreenshotFolder, screenshotFolderNeedsSelection, unsupportedFormat, unsupportedSize, invalidImage
     case insufficientSpace, privateWriteFailed, storageUnavailable
-    case sourceVolumeUnidentified, historicalSourceUnconfirmed
+    case sourceVolumeUnidentified, fileVolumeUnidentified, historicalSourceUnconfirmed
     case unsupportedBrowser, targetUnavailable, permissionDenied, imageUnavailable
     case initializationFailed, configurationUnavailable
     case visibilityPreferenceUnsaved, collectionPreferenceUnsaved
@@ -38,9 +38,11 @@ public enum SetupIssue: Equatable, Sendable {
         case .sourceAccess:
             return "无法读取截图保存位置。请确认文件夹仍存在，在系统设置「隐私与安全性 → 文件与文件夹」中检查 Riftlet，或允许访问当前截图位置；原截图没有被删除。"
         case .sourceVolumeUnidentified:
-            return "无法确认截图所在的磁盘，暂未收录。请在系统截图的“选项”中选择本机的截图文件夹。"
+            return CaptureDiagnostic(code: .sourceVolumeUnidentified).userMessage
+        case .fileVolumeUnidentified:
+            return CaptureDiagnostic(code: .fileVolumeUnidentified).userMessage
         case .historicalSourceUnconfirmed:
-            return "一张截图可能已由旧版收录，暂未重复添加。原图和已有历史都已保留，其他新截图仍可收录。"
+            return CaptureDiagnostic(code: .historicalSourceUnconfirmed).userMessage
         case .wrongScreenshotFolder:
             return "所选文件夹与当前系统截图位置不同。点“重新检查”，确认路径后再选择截图文件夹。"
         case .screenshotFolderNeedsSelection:
@@ -196,8 +198,10 @@ public struct SetupPresentation: Equatable, Sendable {
     }
 
     public var sourceText: String {
-        if snapshot.issue == .screenshotFolderNeedsSelection { return SetupIssue.screenshotFolderNeedsSelection.text }
-        if snapshot.issue == .wrongScreenshotFolder { return SetupIssue.wrongScreenshotFolder.text }
+        if let issue = snapshot.issue,
+           [.screenshotFolderNeedsSelection, .wrongScreenshotFolder, .sourceVolumeUnidentified, .fileVolumeUnidentified, .historicalSourceUnconfirmed].contains(issue) {
+            return issue.text
+        }
         switch snapshot.source {
         case .checking: return "正在检查系统截图保存位置。"
         case .notChecked: return "尚未检查截图位置的访问状态；暂停收录时不会据此判断权限被拒绝。"
@@ -220,7 +224,11 @@ public struct SetupPresentation: Equatable, Sendable {
     public var collectionText: String {
         switch snapshot.collection {
         case .starting: return "收录正在准备；尚不能确认新截图已保存。"
-        case .collecting: return "正在收录新截图，并保留本机私有副本。"
+        case .collecting:
+            if let issue = snapshot.issue, [.sourceVolumeUnidentified, .fileVolumeUnidentified, .historicalSourceUnconfirmed].contains(issue) {
+                return issue.text
+            }
+            return "正在收录新截图，并保留本机私有副本。"
         case .waitingForSource: return "收录开关已开启；当前保存位置尚未确认可读，请检查来源。已有图片保留。"
         case .paused: return "收录已暂停；已有截图保留。隐藏裂缝不会自动暂停收录。"
         case .stopped: return "当前未收录新截图；已有截图保留。"

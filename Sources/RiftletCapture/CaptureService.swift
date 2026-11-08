@@ -415,11 +415,24 @@ public actor CaptureService {
         var importedCount = 0
         let currentKeys = Set(candidates.map { $0.1.sourceKey })
         observations = observations.filter { currentKeys.contains($0.key) }
+        if let watchedIdentity, watchedIdentity.volumeUUID == nil {
+            if latestDiagnostic?.code != .sourceVolumeUnidentified { await reportDiagnostic(.init(code: .sourceVolumeUnidentified)) }
+            return
+        }
+        // A new source or a removed ambiguous file can resolve these diagnostics
+        // without importing that item. Leave other recovery errors intact.
+        var sourceIssueCleared = false
+        if let code = latestDiagnostic?.code, [.sourceVolumeUnidentified, .fileVolumeUnidentified, .historicalSourceUnconfirmed].contains(code),
+           diagnosticSourceKey.map({ !currentKeys.contains($0) }) ?? true {
+            clearDiagnostic()
+            reportedIssues.remove(code.rawValue)
+            sourceIssueCleared = true
+        }
         for (url, signature) in candidates {
             guard running, generation == token else { return }
             guard baseline?.excludes(signature, collectionBeganAt: installationStart) != true else { continue }
             guard signature.volumeUUID != nil else {
-                await reportDiagnostic(.init(code: .sourceVolumeUnidentified), sourceKey: signature.sourceKey)
+                await reportDiagnostic(.init(code: .fileVolumeUnidentified), sourceKey: signature.sourceKey)
                 continue
             }
             let alreadyStored = try await store.containsSource(key: signature.sourceKey)
@@ -477,7 +490,7 @@ public actor CaptureService {
                 await reportDiagnostic(.classify(error, context: .privateStorage), sourceKey: signature.sourceKey)
             }
         }
-        if imported { await onChange() }
+        if imported || sourceIssueCleared { await onChange() }
         if needsRetry, generation == token { scheduleRetry() }
     }
 
