@@ -9,17 +9,27 @@ enum FixtureFailure: Error { case invalidLocation, unexpectedContents }
         guard args.count == 4, let temp = ProcessInfo.processInfo.environment["RUNNER_TEMP"] else {
             throw FixtureFailure.invalidLocation
         }
-        let directory = URL(fileURLWithPath: args[1], isDirectory: true).resolvingSymlinksInPath()
+        let action = args[1]
+        let directory = URL(fileURLWithPath: args[2], isDirectory: true).resolvingSymlinksInPath()
         let scratch = directory.deletingLastPathComponent()
-        guard directory.lastPathComponent == "latest-upgraded-data",
+        let locations = ["seed": "legacy-data", "reject": "latest-upgraded-data"]
+        guard locations[action] == directory.lastPathComponent,
               scratch.lastPathComponent.hasPrefix("riftlet-upgrade-"),
               scratch.deletingLastPathComponent().path == URL(fileURLWithPath: temp, isDirectory: true).resolvingSymlinksInPath().path
         else { throw FixtureFailure.invalidLocation }
-        let store = try QueueStore(databaseURL: directory.appendingPathComponent("queue.sqlite"))
+        let database = directory.appendingPathComponent("queue.sqlite")
+        if action == "reject" {
+            do {
+                _ = try QueueStore(databaseURL: database)
+                throw FixtureFailure.unexpectedContents
+            } catch RiftletError.database(let reason) where reason == "Unsupported schema version 4; database preserved" {
+                return
+            }
+        }
+        let store = try QueueStore(databaseURL: database)
         let assets = try await store.assets(includeUsed: true)
-        guard args[2] != args[3], assets.count == 2, Set(assets.map { $0.image.sha256 }) == Set(args[2...3]),
-              assets.allSatisfy({ $0.status == .pending && $0.activeOperationID == nil }),
-              let candidate = assets.first(where: { $0.image.sha256 == args[3] })
+        guard assets.count == 1, let candidate = assets.first, candidate.image.sha256 == args[3],
+              candidate.status == .pending, candidate.activeOperationID == nil
         else { throw FixtureFailure.unexpectedContents }
         let target = TargetLease(adapterID: "offline-fixture", surface: .webChat, applicationID: "fixture.invalid",
                                  sessionID: "local", windowID: "test", documentID: "test", composerID: "test", draftGeneration: "1")
