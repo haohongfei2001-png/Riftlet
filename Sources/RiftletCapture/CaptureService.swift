@@ -646,6 +646,7 @@ public actor CaptureService {
             stop()
             let failure = CocoaError(.fileReadNoPermission)
             await reportDiagnostic(.classify(failure, context: .source))
+            await onChange()
             throw failure
         }
         return true
@@ -670,8 +671,6 @@ public actor CaptureService {
         if lost {
             watcher?.cancel(); watcher = nil
             sourceAccessible = false
-            await reportDiagnostic(.init(code: .sourceUnavailable))
-            guard running, generation == token else { return }
             let parent = FolderWatcher(url: sourceDirectory.deletingLastPathComponent(),
                 onDirty: { [weak self] in
                     guard let service = self else { return }
@@ -685,11 +684,16 @@ public actor CaptureService {
                 try await parent.start()
                 guard running, generation == token else { parent.cancel(); return }
                 parentWatcher?.cancel(); parentWatcher = parent
+                // An exchange can finish before the parent watch is armed.
+                // Validate the current path now; later changes reach the parent.
+                await wake(generation: token)
             }
             catch {
                 guard running, generation == token else { return }
                 await reportDiagnostic(.init(code: .sourceUnavailable))
             }
+            // A missing or unreadable path leaves the parent watching for recovery.
+            if running, generation == token, !sourceAccessible { await onChange() }
             return
         }
         do { try await rescan() }
@@ -701,6 +705,7 @@ public actor CaptureService {
 
     private func wake(generation token: UUID) async {
         guard running, generation == token else { return }
+        let wasAccessible = sourceAccessible
         retryIndex = 0
         do {
             // Reopen on wake, including when a prior directory descriptor became stale.
@@ -712,6 +717,7 @@ public actor CaptureService {
             sourceAccessible = false
             await reportDiagnostic(.classify(error, context: .source))
         }
+        if running, generation == token, wasAccessible != sourceAccessible { await onChange() }
     }
 
     private func refreshAfterWake() async {

@@ -214,33 +214,34 @@ final class CaptureSourceBindingTests: XCTestCase {
             let f = try Fixture(); defer { f.close() }
             let selection = ConfirmedDirectory()
             if hasSelection { try await selection.confirm(f.first) }
-            let service = CaptureService(store: f.store, privateRoot: f.privateRoot, sourceDirectory: f.first,
-                                         permitsRead: { await selection.allows($0) })
-            try await service.start()
-            try FileManager.default.moveItem(at: f.first, to: f.root.appendingPathComponent("moved"))
-            try FileManager.default.createDirectory(at: f.first, withIntermediateDirectories: false)
-            let image = f.first.appendingPathComponent("replacement.png")
             let bytes = try png()
-            try bytes.write(to: image); try mark(image)
-            // Both passive vnode events and explicit scans use the access boundary.
-            for _ in 0..<5 {
-                try? await service.rescan()
-                try await Task.sleep(nanoseconds: 150_000_000)
-            }
-            let before = try await f.store.assets(includeUsed: true)
-            XCTAssertEqual(before.count, hasSelection ? 0 : 1)
+            let original = f.first.appendingPathComponent("original.png")
+            try bytes.write(to: original); try mark(original)
+            let changed = expectation(description: "Owner receives the automatic source status")
+            changed.assertForOverFulfill = false
+            let imported = expectation(description: "An authorized replacement imports once")
+            let service = CaptureService(store: f.store, privateRoot: f.privateRoot, sourceDirectory: f.first,
+                                         permitsRead: { await selection.allows($0) }, onChange: { changed.fulfill() },
+                                         onImported: { _, _ in imported.fulfill() })
+            try await service.start()
+            let staged = f.second.appendingPathComponent("replacement.png")
+            try bytes.write(to: staged); try mark(staged)
+            // A single exchange leaves no later parent event to rescue a stale source.
+            XCTAssertEqual(renamex_np(f.first.path, f.second.path, UInt32(RENAME_SWAP)), 0)
+            let image = f.first.appendingPathComponent("replacement.png")
+            await fulfillment(of: [changed], timeout: 4)
             if hasSelection {
                 let status = await service.statusSnapshot()
                 XCTAssertFalse(status.isRunning); XCTAssertFalse(status.sourceAccessible)
+                let before = try await f.store.assets(includeUsed: true)
+                XCTAssertTrue(before.isEmpty)
                 try await selection.confirm(f.first)
                 try await service.recheck()
-                for _ in 0..<4 {
-                    try await service.rescan()
-                    try await Task.sleep(nanoseconds: 150_000_000)
-                }
-                let after = try await f.store.assets(includeUsed: true)
-                XCTAssertEqual(after.map(\.image.sourceKey), [try FileSignature.read(at: image).sourceKey])
             }
+            await fulfillment(of: [imported], timeout: 4)
+            let after = try await f.store.assets(includeUsed: true)
+            XCTAssertEqual(after.map(\.image.sourceKey), [try FileSignature.read(at: image).sourceKey])
+            XCTAssertEqual(try Data(contentsOf: f.second.appendingPathComponent("original.png")), bytes)
             XCTAssertEqual(try Data(contentsOf: image), bytes)
             await service.stop()
         }
