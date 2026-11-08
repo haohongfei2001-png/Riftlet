@@ -496,9 +496,18 @@ final class CaptureSourceBindingTests: XCTestCase {
         let rawParent = f.root.appendingPathComponent("watched-preferences", isDirectory: true)
         try FileManager.default.createDirectory(at: rawParent, withIntermediateDirectories: false)
         let prefs = rawParent.appendingPathComponent("raw.plist")
-        let domain = f.root.appendingPathComponent("separate-domain").path
-        let defaults = try XCTUnwrap(UserDefaults(suiteName: domain))
-        defaults.set(f.second.path, forKey: "location")
+        let domain = "com.riftlet.tests.capture-location.\(UUID().uuidString)"
+        func updateDomain(_ arguments: [String]) throws {
+            let command = Process()
+            command.executableURL = URL(fileURLWithPath: "/usr/bin/defaults")
+            command.arguments = arguments
+            try command.run()
+            command.waitUntilExit()
+            XCTAssertEqual(command.terminationStatus, 0)
+        }
+        // The system writes its own named domain before the product first reads it.
+        try updateDomain(["write", domain, "location", "-string", f.second.path])
+        defer { UserDefaults(suiteName: domain)?.removePersistentDomain(forName: domain) }
         let provider = SystemCaptureLocationProvider(preferencesFile: prefs, fallbackDirectory: f.first,
                                                      preferencesDomain: domain)
         let imported = expectation(description: "A new screenshot is read from the genuine default after reset")
@@ -512,11 +521,7 @@ final class CaptureSourceBindingTests: XCTestCase {
         XCTAssertEqual(original, f.second)
         let image = f.first.appendingPathComponent("new-at-default.png")
         try png().write(to: image); try mark(image)
-        let resetDomain = Process()
-        resetDomain.executableURL = URL(fileURLWithPath: "/usr/bin/defaults")
-        resetDomain.arguments = ["delete", domain, "location"]
-        try resetDomain.run(); resetDomain.waitUntilExit()
-        XCTAssertEqual(resetDomain.terminationStatus, 0)
+        try updateDomain(["delete", domain, "location"])
         await fulfillment(of: [imported], timeout: 4)
         let reset = await service.currentSourceDirectory()
         XCTAssertEqual(reset, f.first)
