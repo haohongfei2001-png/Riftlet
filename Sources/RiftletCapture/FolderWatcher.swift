@@ -36,6 +36,7 @@ struct WatchedFileIdentity: Codable, Equatable, Sendable {
 }
 
 final class FolderWatcher: @unchecked Sendable {
+    typealias OpenedWatch = (identity: WatchedFileIdentity, localAPFSVolume: UUID?)
     private let url: URL
     private let queue = DispatchQueue(label: "com.riftlet.capture.folder", qos: .utility)
     private let onDirty: @Sendable () -> Void
@@ -52,8 +53,8 @@ final class FolderWatcher: @unchecked Sendable {
     }
 
     @discardableResult
-    func start() async throws -> WatchedFileIdentity {
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<WatchedFileIdentity, Error>) in
+    func start() async throws -> OpenedWatch {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<OpenedWatch, Error>) in
             queue.async {
                 guard !self.cancelled, self.source == nil else {
                     continuation.resume(throwing: CaptureError.io("watcher-already-started", EINVAL)); return
@@ -74,8 +75,22 @@ final class FolderWatcher: @unchecked Sendable {
                 live.setCancelHandler { Darwin.close(fd) }
                 self.source = live
                 live.resume()
-                continuation.resume(returning: WatchedFileIdentity(info, descriptor: fd))
+                let identity = WatchedFileIdentity(info, descriptor: fd)
+                let localVolume = self.expectsDirectory ? Self.localAPFSVolume(fd, volume: identity.volumeUUID) : nil
+                continuation.resume(returning: (identity, localVolume))
             }
+        }
+    }
+
+    static func localAPFSVolume(_ descriptor: Int32, volume: UUID?) -> UUID? {
+        var filesystem = statfs()
+        guard let volume, fstatfs(descriptor, &filesystem) == 0, isLocalAPFS(filesystem) else { return nil }
+        return volume
+    }
+
+    static func isLocalAPFS(_ filesystem: statfs) -> Bool {
+        filesystem.f_flags & UInt32(MNT_LOCAL) != 0 && withUnsafeBytes(of: filesystem.f_fstypename) {
+            $0.starts(with: "apfs\0".utf8)
         }
     }
 

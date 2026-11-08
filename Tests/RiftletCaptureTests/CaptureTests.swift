@@ -260,6 +260,20 @@ final class CaptureTests: XCTestCase {
         await service.stop()
     }
 
+    func testHistoricalHoldCachingRequiresLocalAPFS() {
+        func filesystem(_ name: String, local: Bool) -> statfs {
+            var result = statfs()
+            if local { result.f_flags = UInt32(MNT_LOCAL) }
+            withUnsafeMutableBytes(of: &result.f_fstypename) { $0.copyBytes(from: name.utf8) }
+            return result
+        }
+        XCTAssertTrue(FolderWatcher.isLocalAPFS(filesystem("apfs", local: true)))
+        XCTAssertFalse(FolderWatcher.isLocalAPFS(filesystem("apfs", local: false)))
+        XCTAssertFalse(FolderWatcher.isLocalAPFS(filesystem("exfat", local: true)))
+        XCTAssertFalse(FolderWatcher.isLocalAPFS(filesystem("", local: true)))
+        XCTAssertNil(FolderWatcher.localAPFSVolume(-1, volume: UUID()))
+    }
+
     func testTruncatedAndChangingFilesDoNotEnterQueue() async throws {
         let f = try Fixture(); defer { f.close() }
         let complete = f.source.appendingPathComponent("complete.png")
