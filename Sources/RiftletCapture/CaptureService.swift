@@ -30,6 +30,7 @@ private struct Observation {
     var signature: FileSignature
     let firstSeenAt: Date
     var stableSince: Date
+    var historicalHold: (generation: UUID, directory: WatchedFileIdentity?, changedAt: Duration)?
 }
 
 private struct PendingSourceCapture: Codable, Equatable, Sendable {
@@ -389,7 +390,8 @@ public actor CaptureService {
         let token = generation
         guard try await confirmCurrentSource(generation: token) else { return }
         let key = checkpointKey
-        let candidates: [(URL, FileSignature)]
+        let observedDirectory = watchedIdentity
+        let candidates: [(URL, FileSignature, Duration)]
         do { candidates = try candidateFiles(in: sourceDirectory) }
         catch {
             sourceAccessible = false
@@ -428,7 +430,7 @@ public actor CaptureService {
             reportedIssues.remove(code.rawValue)
             sourceIssueCleared = true
         }
-        for (url, signature) in candidates {
+        for (url, signature, changedAt) in candidates {
             guard running, generation == token else { return }
             guard baseline?.excludes(signature, collectionBeganAt: installationStart) != true else { continue }
             guard signature.volumeUUID != nil else {
@@ -446,6 +448,21 @@ public actor CaptureService {
             // ordinary images could permanently starve a later genuine screenshot.
             if importedCount >= 128 { needsRetry = true; break }
             if let previous = observations[signature.sourceKey] {
+                if let hold = previous.historicalHold {
+                    // Only a completed negative decision is reusable. Even xattr
+                    // changes invalidate it without changing file size or mtime.
+                    if previous.signature == signature, hold.generation == token,
+                       hold.directory == observedDirectory, hold.changedAt == changedAt {
+                        await reportDiagnostic(.init(code: .historicalSourceUnconfirmed), sourceKey: signature.sourceKey)
+                        continue
+                    }
+                    observations[signature.sourceKey]?.historicalHold = nil
+                    if diagnosticSourceKey == signature.sourceKey, latestDiagnostic?.code == .historicalSourceUnconfirmed {
+                        clearDiagnostic()
+                        reportedIssues.remove(CaptureDiagnosticCode.historicalSourceUnconfirmed.rawValue)
+                        sourceIssueCleared = true
+                    }
+                }
                 if previous.signature != signature {
                     observations[signature.sourceKey] = Observation(url: url, signature: signature,
                         firstSeenAt: previous.firstSeenAt, stableSince: now)
@@ -476,6 +493,7 @@ public actor CaptureService {
               catch CaptureError.importInProgress { needsRetry = true }
               catch CaptureError.historicalSourceUnconfirmed {
                 guard running, generation == token else { return }
+                observations[signature.sourceKey]?.historicalHold = (token, observedDirectory, changedAt)
                 await reportDiagnostic(.init(code: .historicalSourceUnconfirmed), sourceKey: signature.sourceKey)
             } catch CaptureError.unsupportedImage {
                 guard running, generation == token else { return }
@@ -494,16 +512,16 @@ public actor CaptureService {
         if needsRetry, generation == token { scheduleRetry() }
     }
 
-    private func candidateFiles(in directory: URL) throws -> [(URL, FileSignature)] {
+    private func candidateFiles(in directory: URL) throws -> [(URL, FileSignature, Duration)] {
         let urls = try FileManager.default.contentsOfDirectory(at: directory,
             includingPropertiesForKeys: [.isRegularFileKey, .isSymbolicLinkKey], options: [.skipsHiddenFiles])
-        var candidates: [(URL, FileSignature)] = []
+        var candidates: [(URL, FileSignature, Duration)] = []
         for url in urls {
             // The encoding is validated from bytes later. This only bounds metadata work.
             guard CaptureSource.mayBeImage(url) else { continue }
             do {
-                let signature = try FileSignature.read(at: url)
-                candidates.append((url, signature))
+                let observation = try FileSignature.observe(at: url)
+                candidates.append((url, observation.signature, observation.changedAt))
             } catch CaptureError.notRegularFile { continue }
             catch CaptureError.io(_, let code) where code == ELOOP { continue } // symlinks are never candidates
             catch { continue }
