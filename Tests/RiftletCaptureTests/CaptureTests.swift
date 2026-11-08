@@ -254,6 +254,22 @@ final class CaptureTests: XCTestCase {
         try await waitForDiagnostic(nil)
         try markScreenshot(file)
         try await waitForDiagnostic(.historicalSourceUnconfirmed)
+        // The same file remains in the new directory, but rebind discards the
+        // active observations. This exercises a full check even on local APFS.
+        let next = f.root.appendingPathComponent("next-source", isDirectory: true)
+        try FileManager.default.createDirectory(at: next, withIntermediateDirectories: false)
+        try FileManager.default.linkItem(at: file, to: next.appendingPathComponent(file.lastPathComponent))
+        let notScreenshot = try PropertyListSerialization.data(fromPropertyList: false, format: .binary, options: 0)
+        await service.setLifecycleProbe { point in
+            if point == .watcherRetired {
+                let result = notScreenshot.withUnsafeBytes {
+                    setxattr(file.path, CaptureSource.metadataName, $0.baseAddress, $0.count, 0, 0)
+                }
+                XCTAssertEqual(result, 0)
+            }
+        }
+        try await service.setSourceDirectory(next)
+        try await waitForDiagnostic(nil)
         XCTAssertEqual(try FileSignature.read(at: file).sourceKey, signature.sourceKey)
         let rows = try await f.store.assets(includeUsed: true)
         XCTAssertEqual(rows.map(\.id), [legacy.id])

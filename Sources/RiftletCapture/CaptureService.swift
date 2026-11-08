@@ -459,11 +459,7 @@ public actor CaptureService {
                         continue
                     }
                     observations[signature.sourceKey]?.historicalHold = nil
-                    if diagnosticSourceKey == signature.sourceKey, latestDiagnostic?.code == .historicalSourceUnconfirmed {
-                        clearDiagnostic()
-                        reportedIssues.remove(CaptureDiagnosticCode.historicalSourceUnconfirmed.rawValue)
-                        sourceIssueCleared = true
-                    }
+                    if clearHistoricalDiagnostic(for: signature.sourceKey) { sourceIssueCleared = true }
                 }
                 if previous.signature != signature {
                     observations[signature.sourceKey] = Observation(url: url, signature: signature,
@@ -489,6 +485,8 @@ public actor CaptureService {
                 if diagnosticSourceKey == signature.sourceKey { clearDiagnostic() }
             } catch CaptureError.notScreenshot {
                 // Present false metadata is not collected and does not keep a timer alive.
+                guard running, generation == token else { return }
+                if clearHistoricalDiagnostic(for: signature.sourceKey) { sourceIssueCleared = true }
             } catch CaptureError.metadataPending { needsRetry = true }
               catch CaptureError.unstableFile { needsRetry = true }
               catch CaptureError.incompleteImage { needsRetry = true }
@@ -778,6 +776,13 @@ public actor CaptureService {
         latestDiagnostic = nil
         diagnosticSourceKey = nil
         diagnosticRevision = UUID()
+    }
+
+    private func clearHistoricalDiagnostic(for key: String) -> Bool {
+        guard diagnosticSourceKey == key, latestDiagnostic?.code == .historicalSourceUnconfirmed else { return false }
+        clearDiagnostic()
+        reportedIssues.remove(CaptureDiagnosticCode.historicalSourceUnconfirmed.rawValue)
+        return true
     }
 
     private func reportDiagnostic(_ diagnostic: CaptureDiagnostic, sourceKey: String? = nil) async {
