@@ -158,11 +158,12 @@ final class CaptureTests: XCTestCase {
         XCTAssertEqual(first.image.sha256, next.image.sha256)
     }
 
-    func testLegacyJournalHoldsOnlyTheAmbiguousFileAndPreservesHistory() async throws {
+    func testLegacyOriginalEditedInPlaceRemainsUnconfirmedAndPreservesUnknown() async throws {
         let f = try Fixture(); defer { f.close() }
         let url = f.source.appendingPathComponent("possibly-old.png")
         let neighbor = f.source.appendingPathComponent("new-same-pixels.png")
-        try makePNG(at: url); try markScreenshot(url)
+        try makePNG(at: url, description: "capture-A"); try markScreenshot(url)
+        let original = try Data(contentsOf: url)
         let signature = try FileSignature.read(at: url)
         let legacy = try journal(url, key: "\(signature.device + 1):\(signature.fileID)", in: f)
         let recovered = try await f.importer.recover()
@@ -175,10 +176,26 @@ final class CaptureTests: XCTestCase {
         let before = try await f.store.asset(id: legacy.id)
         let evidence = try await f.store.operation(id: operation.id)
         XCTAssertEqual(before?.status, .unknown)
-        for _ in 0..<2 {
+        // Keep the file open while changing bytes first at the same length, then at
+        // another length. Its inode and birth time stay exactly the same in both cases.
+        let writer = try FileHandle(forWritingTo: url)
+        defer { try? writer.close() }
+        for (index, description) in ["capture-A", "capture-B", "a longer edited description"].enumerated() {
+            if index > 0 {
+                let fixture = f.root.appendingPathComponent("edit-\(index).png")
+                try makePNG(at: fixture, description: description)
+                let edited = try Data(contentsOf: fixture)
+                XCTAssertNotEqual(edited, original)
+                XCTAssertEqual(edited.count == original.count, index == 1)
+                try writer.truncate(atOffset: 0)
+                try writer.seek(toOffset: 0)
+                try writer.write(contentsOf: edited)
+                try writer.synchronize()
+            }
+            XCTAssertEqual(try FileSignature.read(at: url).sourceKey, signature.sourceKey)
             do {
                 _ = try await f.importer.importFile(at: url)
-                XCTFail("An old mount number cannot bind this file to its historical volume")
+                XCTFail("Changed bytes cannot prove that this is a different source occurrence")
             } catch CaptureError.historicalSourceUnconfirmed {}
         }
         try Data(contentsOf: url).write(to: neighbor); try markScreenshot(neighbor)
@@ -188,26 +205,11 @@ final class CaptureTests: XCTestCase {
         let rows = try await f.store.assets(includeUsed: true)
         XCTAssertEqual(before, after)
         XCTAssertEqual(evidence, retained)
-        XCTAssertEqual(new.image.sha256, legacy.sha256)
+        XCTAssertNotEqual(new.image.sha256, legacy.sha256)
         XCTAssertEqual(Set(rows.map(\.id)), [legacy.id, new.id])
         for folder in ["media", "journal"] {
             XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: f.privateRoot.appendingPathComponent(folder).path).count, 2)
         }
-    }
-
-    func testLegacyCollisionWithDifferentBytesImportsANewOccurrence() async throws {
-        let f = try Fixture(); defer { f.close() }
-        let current = f.source.appendingPathComponent("current.png")
-        let oldBytes = f.root.appendingPathComponent("historical-fixture.png")
-        try makePNG(at: current, description: "capture-A"); try markScreenshot(current)
-        try makePNG(at: oldBytes, description: "capture-B")
-        let signature = try FileSignature.read(at: current)
-        let previous = try journal(oldBytes, key: "\(signature.device + 1):\(signature.fileID)", in: f)
-        XCTAssertEqual(previous.byteCount, signature.size)
-        let new = try await f.importer.importFile(at: current)
-        XCTAssertNotEqual(new.image.sha256, previous.sha256)
-        let rows = try await f.store.assets(includeUsed: true)
-        XCTAssertEqual(Set(rows.map(\.id)), [previous.id, new.id])
     }
 
     func testMissingFalseAndNumericMetadataAreNotAccepted() async throws {

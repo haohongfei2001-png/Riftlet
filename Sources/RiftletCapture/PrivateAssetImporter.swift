@@ -47,9 +47,8 @@ public actor PrivateAssetImporter {
     private var journaledSources = Set<String>()
     // Pre-volume assets and journals contain no original URL or volume UUID.
     // Their evidence can hold a possible duplicate, never identify a new file as an old asset.
-    private var earlierHashes: [String: [Int64: Set<String>]] = [:]
+    private var earlierFileIDs = Set<String>()
     private var loadedEarlierEvidence = false
-    private var heldSignatures: [String: FileSignature] = [:]
     private let fault: ImportFaultHook?
     private let capacityCheck: ImportCapacityCheck
 
@@ -128,17 +127,10 @@ public actor PrivateAssetImporter {
         if origin == .systemScreenshot, try !CaptureSource.isScreenshot(descriptor: descriptor) {
             throw CaptureError.notScreenshot
         }
+        // An original can be edited in place while retaining its inode and birth
+        // time. Neither different bytes nor an old mount number proves a new file.
+        guard !earlierFileIDs.contains(signature.fileID) else { throw CaptureError.historicalSourceUnconfirmed }
         guard signature.size > 0, signature.size <= ValidatedImage.maximumBytes else { throw CaptureError.imageTooLarge }
-        if let candidates = earlierHashes[signature.fileID]?[signature.size] {
-            if heldSignatures[signature.sourceKey] == signature { throw CaptureError.historicalSourceUnconfirmed }
-            let hash = try PrivateFiles.hashDescriptor(descriptor, size: signature.size, operation: "read-source")
-            guard try FileSignature.read(descriptor: descriptor) == signature,
-                  try FileSignature.read(at: url) == signature else { throw CaptureError.unstableFile }
-            if candidates.contains(hash) {
-                heldSignatures[signature.sourceKey] = signature
-                throw CaptureError.historicalSourceUnconfirmed
-            }
-        }
         try capacityCheck(stagingDirectory, signature.size)
 
         let id = UUID()
@@ -286,7 +278,7 @@ public actor PrivateAssetImporter {
 
     private func rememberEarlierEvidence(_ image: ImportedAsset) {
         guard let fileID = FileSignature.legacyFileID(image.sourceKey) else { return }
-        earlierHashes[fileID, default: [:]][image.byteCount, default: []].insert(image.sha256)
+        earlierFileIDs.insert(fileID)
     }
 
     private func ensureDirectories() throws {
@@ -372,30 +364,24 @@ enum PrivateFiles {
         guard descriptor >= 0 else { throw CaptureError.io("open-private-copy", errno) }
         defer { Darwin.close(descriptor) }
         let initial = try privateSignature(descriptor: descriptor)
-        let result = try hashDescriptor(descriptor, size: initial.size, operation: "hash-private-copy")
-        guard try privateSignature(descriptor: descriptor) == initial else { throw CaptureError.unstableFile }
-        return result
-    }
-
-    static func hashDescriptor(_ descriptor: Int32, size: Int64, operation: String) throws -> String {
-        guard size <= ValidatedImage.maximumBytes else {
+        guard initial.size <= ValidatedImage.maximumBytes else {
             throw CaptureError.imageTooLarge
         }
         var hash = SHA256()
         var buffer = [UInt8](repeating: 0, count: 64 * 1024)
         var total: Int64 = 0
         while true {
-            let count = buffer.withUnsafeMutableBytes { Darwin.pread(descriptor, $0.baseAddress, $0.count, off_t(total)) }
+            let count = buffer.withUnsafeMutableBytes { Darwin.read(descriptor, $0.baseAddress, $0.count) }
             if count < 0 {
                 if errno == EINTR { continue }
-                throw CaptureError.io(operation, errno)
+                throw CaptureError.io("hash-private-copy", errno)
             }
             if count == 0 { break }
             total += Int64(count)
             guard total <= ValidatedImage.maximumBytes else { throw CaptureError.imageTooLarge }
             hash.update(data: Data(buffer.prefix(count)))
         }
-        guard total == size else { throw CaptureError.unstableFile }
+        guard try privateSignature(descriptor: descriptor) == initial else { throw CaptureError.unstableFile }
         return hash.finalize().map { String(format: "%02x", $0) }.joined()
     }
 
