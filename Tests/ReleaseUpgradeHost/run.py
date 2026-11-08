@@ -12,6 +12,7 @@ import struct
 import subprocess
 import tempfile
 import time
+import uuid
 import zlib
 
 
@@ -72,11 +73,76 @@ def collect_fixture(source, seed, asset_root):
 def snapshot(asset_root):
     with sqlite3.connect((asset_root / "queue.sqlite").as_uri() + "?mode=ro", uri=True) as db:
         assert db.execute("PRAGMA quick_check").fetchall() == [("ok",)]
-        assets = db.execute("SELECT * FROM assets ORDER BY sequence").fetchall()
-        counts = {t: db.execute(f"SELECT count(*) FROM {t}").fetchone()[0] for t in ("operations", "upload_starts")}
-    return {"assets": assets, **counts,
+        cursor = db.execute("SELECT * FROM assets ORDER BY sequence")
+        columns = [c[0] for c in cursor.description]
+        assets = [dict(zip(columns, row)) for row in cursor]
+        operations = db.execute("SELECT * FROM operations ORDER BY id").fetchall()
+        starts = db.execute("SELECT * FROM upload_starts ORDER BY operation_id").fetchall()
+    return {"assets": assets, "operations": len(operations), "operationRows": operations,
+            "upload_starts": len(starts), "startRows": starts,
             "media": {f.name: sha(f) for f in sorted((asset_root / "media").iterdir()) if f.is_file()},
             "journals": {f.name: sha(f) for f in sorted((asset_root / "journal").iterdir()) if f.is_file()}}
+
+def checked_growth(root, before, after, witness, *, possible_duplicate=None):
+    """Accept only a new witness and, on the expendable old-reader copy, the exact known duplicate."""
+    prior = {a["id"]: a for a in before["assets"]}
+    current = {a["id"]: a for a in after["assets"]}
+    assert all(current.get(uid) == record for uid, record in prior.items())
+    assert before["operationRows"] == after["operationRows"] and before["startRows"] == after["startRows"]
+    assert before["operations"] == 1 and before["upload_starts"] == 0
+    added = [a for uid, a in current.items() if uid not in prior]
+    witness_digest = sha(witness)
+    duplicate = None
+    new_media, new_journals, witnessed_keys = set(), set(), []
+    for a in added:
+        image = json.loads(a["image_json"])
+        name = a["file_name"]
+        assert name == Path(name).name and image["fileName"] == name and image["sourceKey"] == a["source_key"]
+        assert uuid.UUID(image["id"]) == uuid.UUID(a["id"])
+        assert a["status"] == "pending" and a["visibility"] == "visible" and a["active_operation_id"] is None
+        journal_name = str(uuid.UUID(a["id"])) + ".json"
+        journal = json.loads((root / "journal" / journal_name).read_text())
+        assert journal["image"] == image and image["sha256"] == after["media"][name]
+        assert (root / "media" / name).stat().st_size == image["byteCount"]
+        new_media.add(name)
+        new_journals.add(journal_name)
+        if image["sha256"] == witness_digest:
+            witnessed_keys.append(a["source_key"])
+            continue
+        assert possible_duplicate is not None and duplicate is None
+        original_path, original_asset = possible_duplicate
+        assert original_asset["status"] == "unknown" and original_asset["active_operation_id"]
+        parts = original_asset["source_key"].split(":")
+        assert len(parts) == 5 and parts[0] == "volume"
+        uuid.UUID(parts[1])
+        identity = original_path.stat()
+        assert str(identity.st_ino) == parts[2]
+        assert a["source_key"] == ":".join([str(identity.st_dev), *parts[2:]])
+        assert image["sha256"] == sha(original_path) == json.loads(original_asset["image_json"])["sha256"]
+        duplicate = a["id"]
+    assert len(witnessed_keys) == 1
+    assert len(added) == 1 + int(duplicate is not None)
+    witness_stat = witness.stat()
+    identity = witnessed_keys[0].split(":")
+    if len(identity) == 5:
+        assert identity[0] == "volume"
+        uuid.UUID(identity[1])
+        assert identity[2] == str(witness_stat.st_ino)
+    else:
+        assert len(identity) == 4 and identity[:2] == [str(witness_stat.st_dev), str(witness_stat.st_ino)]
+    for key, names in (("media", new_media), ("journals", new_journals)):
+        assert before[key].items() <= after[key].items()
+        assert set(after[key]) - set(before[key]) == names and len(names) == len(added)
+    return "INCOMPATIBLE" if duplicate else "COMPATIBLE"
+
+
+def move_idle_root(root, destination, process, app):
+    assert call(process, "pid", app, check=False).returncode == 2 and not os.path.lexists(destination)
+    with ExitStack() as held:
+        for path in (root / "instance.lock", root / "Feedback-v01/feedback.lock"):
+            lock = held.enter_context(path.open("rb"))
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        root.rename(destination)
 
 
 def safe_context():
@@ -216,16 +282,56 @@ def exercise(old, new, report):
         for key in ("media", "journals"):
             assert baseline[key].items() <= upgraded[key].items()
         assert not (upgraded["operations"] or upgraded["upload_starts"])
+        latest = scratch / "latest-upgraded-data"
+        move_idle_root(root, latest, process, app)
+        call("swift", "run", "--package-path", host_tools / "UnknownFixture",
+             "--scratch-path", scratch / "fixture-build", "SeedUnknown", latest, first, second, timeout=180)
+        frozen = snapshot(latest)
+        prior = next(a for a in frozen["assets"] if json.loads(a["image_json"])["sha256"] == second)
+        assert (prior["status"], frozen["operations"], frozen["upload_starts"]) == ("unknown", 1, 0)
+        assert upgraded["assets"][0] == frozen["assets"][0] and len(frozen["assets"]) == 2
+        for key in ("media", "journals"):
+            assert frozen[key] == upgraded[key]
+        assert not os.path.lexists(root)
+        call("ditto", latest, root)
+        assert snapshot(root) == frozen
         new_copy = scratch / "Riftlet-upgrade.app"
         app.rename(new_copy)
         old_copy.rename(app)
         run_version(old_hash, "0.3.0", "3")
+        third = collect_fixture(source, 211, root)
+        # The old collector has five bounded retries totaling 8.3 s. Keep it alive
+        # past this window in addition to observing a committed independent witness.
+        time.sleep(9)
         stop()
-        assert snapshot(root) == upgraded
-        report["normalLaunches"] = ["freshHardenedAdHocCandidate", "adHocBaseline", "hardenedAdHocUpdate", "restoredAdHocBaseline"]
-        report["rollback"] = {"databaseRestored": False, "preservedAssetCount": 2, "mediaAndJournalsEach": 2,
-                              "attachmentOperations": 0, "starts": 0, "allAssetColumnsMediaAndJournalsMatchAfterUpgrade": True}
-        report["executableSHA256"] = {"old": old_hash, "new": new_hash, "restored": sha(app / "Contents/MacOS/Riftlet")}
+        rejected_copy = scratch / "old-app-probe-data"
+        earlier_shot, candidate_shot = (source / f"Screenshot-identity-{n}.png" for n in (24, 159))
+        old_witness = source / "Screenshot-identity-211.png"
+        assert len({first, second, third}) == 3 and (sha(earlier_shot), sha(candidate_shot)) == (first, second)
+        old_result = checked_growth(root, frozen, snapshot(root), old_witness, possible_duplicate=(candidate_shot, prior))
+        report["appOnlyRollback"] = {"compatibility": old_result, "testedExpendableCopy": True,
+                                     "witnessCollected": True, "originalAssetsAndUnknownPreserved": True,
+                                     "knownDuplicateCount": int(old_result == "INCOMPATIBLE")}
+        move_idle_root(root, rejected_copy, process, app)
+        assert snapshot(latest) == frozen
+        # Keep the synthetic old-reader witness separate; it never belonged to the reserved latest data.
+        old_witness.rename(scratch / old_witness.name)
+        parked_old = scratch / "Riftlet-old-probe.app"
+        app.rename(parked_old)
+        new_copy.rename(app)
+        latest.rename(root)
+        assert snapshot(root) == frozen
+        run_version(new_hash, "0.3.2", "5")
+        fourth = collect_fixture(source, 230, root)
+        stop()
+        assert len({first, second, third, fourth}) == 4 and (sha(earlier_shot), sha(candidate_shot)) == (first, second)
+        assert checked_growth(root, frozen, snapshot(root), source / "Screenshot-identity-230.png") == "COMPATIBLE"
+        report["forwardRecovery"] = {"status": "PASS", "usedLatestDataNeverOpenedByOldApp": True,
+                                     "witnessCollected": True, "retainedAssets": 2, "retainedUnknownOperations": 1,
+                                     "finalAssets": 3, "starts": 0}
+        report["normalLaunches"] = ["freshHardenedAdHocCandidate", "adHocBaseline", "hardenedAdHocUpdate",
+                                    "oldAppOnIndependentCopy", "candidateOnReservedLatestData"]
+        report["executableSHA256"] = {"old": old_hash, "new": new_hash, "final": sha(app / "Contents/MacOS/Riftlet")}
     finally:
         result = call(process, "pid", app, check=False)
         if result.returncode == 0:
@@ -248,7 +354,8 @@ def main():
               "liveChatGPT": "NOT_RUN", "developerIDTransition": "NOT_RUN", "protectedFolderConsent": "separate probe"}
     try:
         exercise(args.old, args.new, result)
-        result["status"] = "PASS"
+        result["status"] = ("APP_ONLY_INCOMPATIBLE_FORWARD_VERIFIED"
+                            if result["appOnlyRollback"]["compatibility"] == "INCOMPATIBLE" else "PASS")
     finally:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(json.dumps(result, indent=2) + "\n")
