@@ -53,6 +53,8 @@ After a verified successful receipt, start only one exact installed executable. 
 
 Before a later rollback: normally quit, preserve a **new current-data backup**, verify the old App's exact retained identity and confirm it can read the current schema and state semantics. Replace only the App under fresh ownership. Do not restore the pre-upgrade database over newer history merely to make old software run. A schema number alone is not proof of compatibility. If compatibility is not established, retain both versions and use a forward fix.
 
+The volume-aware collector records new captures with a volume UUID. In an isolated downgrade, the earlier device-number reader opened that same v3 history and created a second visible asset for an unchanged screenshot whose original asset had an UNKNOWN operation. Once the new collector has written a volume-based source key, keep the latest data and use a compatible forward fix. Evaluate an old reader only on a separate copy. A pre-upgrade backup omits screenshots and operations created since the upgrade.
+
 Uninstalling the executable is separate from erasing personal history. Move the stopped App to Trash only when requested; keep its data, original screenshots and rollback backup. No uninstall or recovery step here authorizes deletion of media, UNKNOWN, Feedback state, Keychain items or system permissions.
 
 The retained personal Beta packages are ad-hoc and their local upgrade evidence does not establish Developer ID identity continuity, Gatekeeper or a notarized old→new update. Those specific checks remain blocked until genuine credentials and the corresponding signed artifacts exist.
