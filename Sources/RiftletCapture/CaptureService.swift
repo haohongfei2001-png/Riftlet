@@ -87,7 +87,8 @@ public actor CaptureService {
     private var diagnosticRevision = UUID()
     private let now: @Sendable () -> Date
     private var watcher: FolderWatcher?
-    private var watchedIdentity: WatchedFileIdentity?
+    private var watchedSource: FolderWatcher.OpenedWatch?
+    private var watchedIdentity: WatchedFileIdentity? { watchedSource?.identity }
     private var parentWatcher: FolderWatcher?
     private var wakeObserver: NSObjectProtocol?
     private var retryTask: Task<Void, Never>?
@@ -222,7 +223,7 @@ public actor CaptureService {
         scanningGeneration = nil
         departuresInProgress.removeAll()
         watcher?.cancel(); watcher = nil
-        watchedIdentity = nil
+        watchedSource = nil
         parentWatcher?.cancel(); parentWatcher = nil
         retryTask?.cancel(); retryTask = nil
         if let wakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(wakeObserver) }
@@ -292,7 +293,7 @@ public actor CaptureService {
         let nextGeneration = UUID()
         let next = makeWatcher(directory: destination, token: nextGeneration)
         do {
-            let nextIdentity = try await next.start()
+            let nextSource = try await next.start()
             guard running, generation == originalGeneration, rebindRequest == request else { next.cancel(); return }
             var nextBaseline: SourceBaseline?
             if let data = try await store.checkpoint(for: Self.checkpointKey(for: destination)) {
@@ -321,7 +322,7 @@ public actor CaptureService {
             let oldWatcher = watcher
             generation = nextGeneration
             watcher = next
-            watchedIdentity = nextIdentity
+            watchedSource = nextSource
             parentWatcher?.cancel(); parentWatcher = nil
             retryTask?.cancel(); retryTask = nil
             sourceDirectory = destination
@@ -391,6 +392,7 @@ public actor CaptureService {
         guard try await confirmCurrentSource(generation: token) else { return }
         let key = checkpointKey
         let observedDirectory = watchedIdentity
+        let localAPFSVolume = watchedSource?.localAPFSVolume
         let candidates: [(URL, FileSignature, Duration)]
         do { candidates = try candidateFiles(in: sourceDirectory) }
         catch {
@@ -433,7 +435,7 @@ public actor CaptureService {
         for (url, signature, changedAt) in candidates {
             guard running, generation == token else { return }
             guard baseline?.excludes(signature, collectionBeganAt: installationStart) != true else { continue }
-            guard signature.volumeUUID != nil else {
+            guard let volume = signature.volumeUUID else {
                 await reportDiagnostic(.init(code: .fileVolumeUnidentified), sourceKey: signature.sourceKey)
                 continue
             }
@@ -451,7 +453,7 @@ public actor CaptureService {
                 if let hold = previous.historicalHold {
                     // Only a completed negative decision is reusable. Even xattr
                     // changes invalidate it without changing file size or mtime.
-                    if previous.signature == signature, hold.generation == token,
+                    if volume == localAPFSVolume, previous.signature == signature, hold.generation == token,
                        hold.directory == observedDirectory, hold.changedAt == changedAt {
                         await reportDiagnostic(.init(code: .historicalSourceUnconfirmed), sourceKey: signature.sourceKey)
                         continue
@@ -493,7 +495,10 @@ public actor CaptureService {
               catch CaptureError.importInProgress { needsRetry = true }
               catch CaptureError.historicalSourceUnconfirmed {
                 guard running, generation == token else { return }
-                observations[signature.sourceKey]?.historicalHold = (token, observedDirectory, changedAt)
+                // Other filesystems can store xattrs separately from the source inode.
+                if volume == localAPFSVolume {
+                    observations[signature.sourceKey]?.historicalHold = (token, observedDirectory, changedAt)
+                }
                 await reportDiagnostic(.init(code: .historicalSourceUnconfirmed), sourceKey: signature.sourceKey)
             } catch CaptureError.unsupportedImage {
                 guard running, generation == token else { return }
@@ -648,10 +653,10 @@ public actor CaptureService {
         let token = generation
         guard try await confirmCurrentSource(generation: token) else { return }
         let next = makeWatcher(directory: sourceDirectory, token: token)
-        let identity = try await next.start()
+        let source = try await next.start()
         guard running, generation == token else { next.cancel(); return }
         watcher?.cancel(); watcher = next
-        watchedIdentity = identity
+        watchedSource = source
         parentWatcher?.cancel(); parentWatcher = nil
     }
 
