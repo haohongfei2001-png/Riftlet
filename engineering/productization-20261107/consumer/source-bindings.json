@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "sourceBaseline": "e35b3601f202c81845b20e10f280a74b2564bc29",
+  "sourceBaseline": "5fc8ebe946ab9c14a8c98f0495b9a64f90873727",
   "scope": "Consumer first use, capture location and recovery, history, storage and direct download. This checkpoint binds the effective screenshot preference, selected directory and watcher, persistent volume identity, per-file historical protection and the messages shown in Settings and the control center.",
   "files": [
     {
@@ -110,8 +110,8 @@
     },
     {
       "path": "Sources/RiftletCapture/CaptureService.swift",
-      "sha256": "4f6c12a56490533391d02ef8180796b93e217374c21e7ebb16fc8b15dde9bc19",
-      "sourceBlob": "7d9169f3c33688725f239097e685ad8caf22a9bc"
+      "sha256": "235540e77e10170b551d0b9dc11cce3e18d727dc11c669ea695a23a382d9963e",
+      "sourceBlob": "a058a0c10d611384583a279769027fa4fceb011c"
     },
     {
       "path": "Sources/RiftletCapture/CaptureSourceBinding.swift",
