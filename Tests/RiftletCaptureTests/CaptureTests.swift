@@ -230,6 +230,36 @@ final class CaptureTests: XCTestCase {
         XCTAssertEqual(all.count, 1)
     }
 
+    func testHeldLegacyScreenshotRechecksMetadataChangesAndClearsItsWarning() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let initial = CaptureService(store: f.store, privateRoot: f.privateRoot, sourceDirectory: f.source)
+        try await initial.start()
+        await initial.stop()
+        let file = f.source.appendingPathComponent("previous.png")
+        try makePNG(at: file); try markScreenshot(file)
+        let signature = try FileSignature.read(at: file)
+        let legacy = try journal(file, key: "\(signature.device):\(signature.fileID)", in: f)
+        let service = CaptureService(store: f.store, privateRoot: f.privateRoot, sourceDirectory: f.source)
+        try await service.start()
+        func waitForDiagnostic(_ code: CaptureDiagnosticCode?) async throws {
+            for _ in 0..<30 {
+                try await service.rescan()
+                if await service.statusSnapshot().latestDiagnostic?.code == code { return }
+                try await Task.sleep(nanoseconds: 20_000_000)
+            }
+            XCTFail("The collector did not publish the expected historical-source state")
+        }
+        try await waitForDiagnostic(.historicalSourceUnconfirmed)
+        try markScreenshot(file, value: false)
+        try await waitForDiagnostic(nil)
+        try markScreenshot(file)
+        try await waitForDiagnostic(.historicalSourceUnconfirmed)
+        XCTAssertEqual(try FileSignature.read(at: file).sourceKey, signature.sourceKey)
+        let rows = try await f.store.assets(includeUsed: true)
+        XCTAssertEqual(rows.map(\.id), [legacy.id])
+        await service.stop()
+    }
+
     func testTruncatedAndChangingFilesDoNotEnterQueue() async throws {
         let f = try Fixture(); defer { f.close() }
         let complete = f.source.appendingPathComponent("complete.png")

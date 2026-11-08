@@ -71,17 +71,26 @@ struct FileSignature: Codable, Equatable, Sendable {
     }
 
     static func read(at url: URL) throws -> FileSignature {
+        try observe(at: url).signature
+    }
+
+    static func observe(at url: URL) throws -> (signature: FileSignature, changedAt: Duration) {
         // Reject a FIFO/device via fstat without waiting for a writer before validation.
         let fd = Darwin.open(url.path, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
         guard fd >= 0 else { throw CaptureError.io("open-source", errno) }
         defer { Darwin.close(fd) }
-        return try read(descriptor: fd)
+        return try observe(descriptor: fd)
     }
 
     static func read(descriptor: Int32) throws -> FileSignature {
+        try observe(descriptor: descriptor).signature
+    }
+
+    private static func observe(descriptor: Int32) throws -> (signature: FileSignature, changedAt: Duration) {
         var value = stat()
         guard fstat(descriptor, &value) == 0 else { throw CaptureError.io("stat-source", errno) }
-        return try read(metadata: value, volumeUUID: CaptureVolume.identifier(of: descriptor))
+        let changedAt = Duration.seconds(value.st_ctimespec.tv_sec) + .nanoseconds(value.st_ctimespec.tv_nsec)
+        return (try read(metadata: value, volumeUUID: CaptureVolume.identifier(of: descriptor)), changedAt)
     }
 
     static func read(metadata value: stat, volumeUUID: UUID?) throws -> FileSignature {
