@@ -92,6 +92,9 @@ private final class RiftRowView: NSView, NSMenuDelegate {
     private var ornament: RiftThumbnailDecoration!
     private var visualHovered = false
     private var visualPressed = false
+    var isSlidingAtTrayEdge = false {
+        didSet { if oldValue != isSlidingAtTrayEdge { setAccessibilityHidden(isSlidingAtTrayEdge) } }
+    }
     var isPage: Bool { configuration.desktopForm == .edgefolio || configuration.desktopForm == .pocket }
     var imageHitFrame: CGRect { isPage ? CGRect(origin: .zero, size: geometry.frame.size) : (geometry.trayCardFrame ?? geometry.imageClipFrame) }
     var imageOffset: CGFloat = 0
@@ -352,7 +355,9 @@ private final class RiftRowView: NSView, NSMenuDelegate {
               event.window?.convertPoint(toScreen: event.locationInWindow))
     }
     override func scrollWheel(with event: NSEvent) { onScroll?(event) }
-    override func accessibilityPerformPress() -> Bool { onAccessiblePress?() ?? false }
+    override func accessibilityPerformPress() -> Bool {
+        !isSlidingAtTrayEdge && (onAccessiblePress?() ?? false)
+    }
 }
 
 /// Native input islands. The original row remains the sole drawing and AX
@@ -446,6 +451,17 @@ private struct RowWindow {
     func setVisualFrame(_ frame: CGRect) {
         panel.setFrame(frame.insetBy(dx: -4, dy: -4), display: true)
         view.bounds = CGRect(x: -4, y: -4, width: frame.width + 8, height: frame.height + 8)
+    }
+
+    /// Crop the real panel; the image keeps its original scale as it crosses
+    /// the viewport. Input is computed separately from these visible pixels.
+    func setClippedVisualFrame(_ frame: CGRect, inside clip: CGRect) -> CGRect {
+        let visible = frame.insetBy(dx: -4, dy: -4).intersection(clip)
+        guard visible.height >= 1, !visible.isEmpty else { orderOut(); return .zero }
+        panel.setFrame(visible, display: true)
+        view.bounds = CGRect(x: visible.minX - frame.minX, y: visible.minY - frame.minY,
+                             width: visible.width, height: visible.height)
+        return visible
     }
 
     func syncInputFrames() {
@@ -548,9 +564,11 @@ public final class RiftPanelController {
     private var pocketAnchor: UUID?
     private var pocketHoverTask: DispatchWorkItem?
     private var pocketMotionMonitors: [Any] = []
-    // Only the open menu uses a newest-first preview of arrivals. Queue records keep their durable order.
-    private var trayArrivalIDs: [UUID] = []
-    private var trayExpanded = false
+    private var trayMenu: RiftTrayMenuState?
+    private var trayExpanded: Bool { trayMenu != nil }
+    // Keep the original bitmap and UUID for the return trip. Its input islands
+    // and accessibility action are unavailable while the card is displaced.
+    private var displacedTrayRow: RowWindow?
     private var trayDismissMonitors: [Any] = []
     private var trayCaptureEnabled = false
     private var trayDefaultMode: ScreenshotMode = .window
@@ -845,7 +863,7 @@ public final class RiftPanelController {
         guard !closed, enabled != trayCaptureEnabled || defaultMode != trayDefaultMode else { return }
         trayCaptureEnabled = enabled
         trayDefaultMode = defaultMode
-        if !enabled { dismissTrayTracking(); trayExpanded = false; trayArrivalIDs.removeAll() }
+        if !enabled { finishQueueTransition(allowShift: false); dismissTrayTracking(); trayMenu = nil }
         if configuration.desktopForm == .tray { render(pendingRefillRecords ?? deferredRecords ?? lastRecords) }
     }
 
@@ -855,13 +873,15 @@ public final class RiftPanelController {
         finishQueueTransition(allowShift: false)
         // Finishing a swallow can close its input windows and start guarded refill.
         guard pendingRefillRecords == nil, !transitioning else { return }
-        trayArrivalIDs.removeAll()
-        trayExpanded = expanded
+        guard let openingLayout = pagerLayout else { return }
+        let previousMenu = trayMenu
+        trayMenu = expanded ? RiftTrayMenuState(openingLayout: openingLayout) : nil
+        let displacedID = (trayMenu ?? previousMenu)?.displacedID
         // Releasing key ownership may temporarily order out the opening's
         // panel. Preserve only this visible frame for the close animation.
         let beforeClose = !expanded && formSurface.isVisible ? pagerLayout?.surfaceFrame : nil
         if !expanded { dismissTrayTracking() }
-        apply(lastRecords, animateShift: true, previousTrayFrame: beforeClose)
+        apply(lastRecords, animateShift: true, previousTrayFrame: beforeClose, displacedID: displacedID)
         if expanded {
             formSurface.permitsKeyboardFocus = true
             formSurface.makeKey()
@@ -939,7 +959,8 @@ public final class RiftPanelController {
     }
 
     private var allPresentationPanels: [NSPanel] {
-        [decoration, formSurface, peek.presentationPanel] + rowWindows.values.flatMap { [$0.panel, $0.imageInput, $0.numberInput] }
+        [decoration, formSurface, peek.presentationPanel] + rowWindows.values.flatMap(\.panels)
+            + (displacedTrayRow?.panels ?? [])
     }
 
     /// The displayed version is captured before an asynchronous store call. A
@@ -1113,11 +1134,7 @@ public final class RiftPanelController {
             let arrivals = records.reversed().filter {
                 !known.contains($0.id) && $0.visibility == .visible && $0.visibilityReason == .capture
             }.map(\.id)
-            if !arrivals.isEmpty {
-                // A repeated render while interaction is held can include the same new snapshot.
-                let ids = Set(arrivals)
-                trayArrivalIDs = Array((arrivals + trayArrivalIDs.filter { !ids.contains($0) }).prefix(2))
-            }
+            trayMenu?.receiveCaptures(arrivals)
         }
         if transitioning && records.contains(where: {
             $0.visibility == .visible && $0.visibilityReason == .capture && !known.contains($0.id)
@@ -1189,10 +1206,7 @@ public final class RiftPanelController {
                 recentlySwallowedOnPage.removeAll { $0 == visible[index].id }
                 viewportAnchor = nil
                 firstVisibleIndex = index
-                if trayExpanded {
-                    let id = visible[index].id
-                    trayArrivalIDs = Array(([id] + trayArrivalIDs.filter { $0 != id }).prefix(2))
-                }
+                trayMenu?.prioritize([visible[index].id])
             }
         }
         if swallowed.isEmpty, pendingRefillRecords != nil, !committingRefill { return }
@@ -1263,7 +1277,7 @@ public final class RiftPanelController {
         case .tray:
             return RiftTrayLayout.make(records: records, visibleFrame: frame, configuration: configuration,
                                        firstVisibleIndex: firstVisibleIndex, backingScale: scale,
-                                       captureEnabled: trayCaptureEnabled, expanded: trayExpanded, arrivalIDs: trayArrivalIDs,
+                                       captureEnabled: trayCaptureEnabled, menu: trayMenu,
                                        displayFrame: screen.frame)
         case .edgefolio, .pocket:
             return RiftFolioLayout.make(records: records, visibleFrame: frame, configuration: configuration,
@@ -1277,10 +1291,25 @@ public final class RiftPanelController {
     }
 
     private func presentRow(_ row: RowWindow) {
+        guard !row.view.isSlidingAtTrayEdge else { return }
         present(row.panel)
         present(row.imageInput)
         if row.view.isPage || row.view.geometry.numberFrame.isEmpty { row.numberInput.orderOut(nil) }
         else { present(row.numberInput) }
+    }
+
+    private func presentClippedTrayRow(_ row: RowWindow, frame: CGRect, clip: CGRect, acceptsInput: Bool) {
+        let visible = row.setClippedVisualFrame(frame, inside: clip)
+        guard !visible.isEmpty else { return }
+        present(row.panel)
+        row.numberInput.orderOut(nil)
+        let hit = row.panel.convertToScreen(row.view.convert(row.view.imageHitFrame, to: nil)).intersection(visible)
+        if acceptsInput && !hit.isEmpty {
+            row.imageInput.setFrame(hit, display: true)
+            present(row.imageInput)
+        } else {
+            row.imageInput.orderOut(nil)
+        }
     }
 
     private func restoreStackOrder(_ layout: RiftLayoutResult) {
@@ -1341,7 +1370,8 @@ public final class RiftPanelController {
         present(formSurface)
     }
 
-    private func apply(_ records: [AssetRecord], animateShift: Bool = false, previousTrayFrame: CGRect? = nil) {
+    private func apply(_ records: [AssetRecord], animateShift: Bool = false,
+                       previousTrayFrame: CGRect? = nil, displacedID: UUID? = nil) {
         guard !closed else { return }
         guard !userHidden else { lastRecords = records; return }
         guard let screen else {
@@ -1367,14 +1397,33 @@ public final class RiftPanelController {
                   row.panel.frame.insetBy(dx: 4, dy: 4) != geometry.frame else { return nil }
             return (geometry.assetID, row.panel.frame.insetBy(dx: 4, dy: 4))
         })
-        let shouldShift = !movingFrames.isEmpty
-        // The compact tray and the two-row tray share a bottom edge. Move the
-        // glass edge in the same transaction as the UUID-bound row windows so
-        // a returning image cannot float above an already collapsed panel.
-        let resizeTray = shouldShift && configuration.desktopForm == .tray
-            && previousSurface.origin == layout.surfaceFrame.origin
-            && previousSurface.width == layout.surfaceFrame.width
-            && previousSurface.height != layout.surfaceFrame.height
+        // The menu takes the leading card's place without removing the asset.
+        // Its original row draws the clipped exit; no input can follow it out.
+        let visibleIDs = Set(layout.rows.map(\.assetID))
+        var slideSlot: CGRect?
+        if let id = displacedID, trayExpanded, !visibleIDs.contains(id),
+           let removed = rowWindows[id] {
+            flight.cancel(assetID: id)
+            rowWindows.removeValue(forKey: id)
+            displacedTrayRow?.close()
+            displacedTrayRow = removed
+            removed.view.isSlidingAtTrayEdge = true
+            removed.orderOut()
+            slideSlot = removed.view.geometry.frame
+        } else if !trayExpanded, let id = displacedID, rowWindows[id] == nil {
+            slideSlot = layout.rows.first { $0.assetID == id }?.frame
+        }
+        let slidesAtTop = animateShift && shiftTime > 0 && slideSlot != nil
+        let openingMenu = trayExpanded
+        // With an initially empty menu there is no previous row window to move.
+        // Reveal the arriving upper row at the growing glass edge.
+        let sameTrayWidthAndAnchor = configuration.desktopForm == .tray
+            && previousSurface.origin == layout.surfaceFrame.origin && previousSurface.width == layout.surfaceFrame.width
+        let growsAboveMenu = sameTrayWidthAndAnchor && animateShift && shiftTime > 0 && trayExpanded && trayMenu?.receivedCapture == true
+            && pagerLayout?.rows.isEmpty == true && !layout.rows.isEmpty && !previousSurface.isEmpty
+            && previousSurface.height < layout.surfaceFrame.height
+        let shouldShift = !movingFrames.isEmpty || slidesAtTop || growsAboveMenu
+        let resizeTray = shouldShift && sameTrayWidthAndAnchor && previousSurface.height != layout.surfaceFrame.height
         if resizeTray { setFormFrame(previousSurface) }
         firstVisibleIndex = layout.firstVisibleIndex
         pageCapacity = layout.capacity
@@ -1384,7 +1433,6 @@ public final class RiftPanelController {
            layout.rows.first(where: { $0.assetID == flyingID }) != old.view.geometry {
             cancelDecorations(reason: .geometryChanged)
         }
-        let visibleIDs = Set(layout.rows.map(\.assetID))
         if let previewID = peek.assetID {
             let old = rowWindows[previewID]?.view
             let next = layout.rows.first { $0.assetID == previewID }
@@ -1402,18 +1450,26 @@ public final class RiftPanelController {
             rowWindows.removeValue(forKey: id)?.close()
         }
         let byID = Dictionary(records.map { ($0.id, $0) }, uniquingKeysWith: { _, latest in latest })
+        if let parked = displacedTrayRow, !visibleIDs.contains(parked.view.record.id),
+           !trayExpanded || byID[parked.view.record.id]?.visibility != .visible {
+            parked.close(); displacedTrayRow = nil
+        }
         let token = generation
         for geometry in layout.rows {
             guard let record = byID[geometry.assetID] else { continue }
             let window: RowWindow
             let isNew: Bool
             if let existing = rowWindows[record.id] { window = existing; isNew = false }
-            else {
+            else if let parked = displacedTrayRow, parked.view.record.id == record.id {
+                window = parked; isNew = false
+                displacedTrayRow = nil; rowWindows[record.id] = window
+            } else {
                 window = RowWindow(record: record, geometry: geometry, configuration: configuration)
                 rowWindows[record.id] = window
                 wire(window, id: record.id)
                 isNew = true
             }
+            window.view.isSlidingAtTrayEdge = growsAboveMenu || (slidesAtTop && !openingMenu && record.id == displacedID)
             let oldStatus = window.view.record.status
             if window.view.record.visibilityRevision != record.visibilityRevision
                 || window.view.record.activeOperationID != record.activeOperationID {
@@ -1493,6 +1549,7 @@ public final class RiftPanelController {
         refreshHoverFromPointer()
         onGeometryChange?()
         if shouldShift {
+            let slidingRow = slidesAtTop ? (openingMenu ? displacedTrayRow : displacedID.flatMap { rowWindows[$0] }) : nil
             setTransitioning(true)
             queueTransitionEpoch &+= 1
             let transition = queueTransitionEpoch
@@ -1500,12 +1557,16 @@ public final class RiftPanelController {
             finishQueueAnimation = { [weak self] _ in
                 guard let self, !self.closed, self.generation == token else { return }
                 if resizeTray { self.setFormFrame(layout.surfaceFrame) }
+                if openingMenu { slidingRow?.orderOut() }
                 for geometry in layout.rows {
                     guard let row = self.rowWindows[geometry.assetID] else { continue }
+                    let restoreInput = row.view.isSlidingAtTrayEdge
+                    row.view.isSlidingAtTrayEdge = false
                     row.view.updateGeometry(geometry)
                     row.view.ordinal = geometry.ordinal; row.view.updateDescription()
                     row.setVisualFrame(geometry.frame)
                     row.syncInputFrames()
+                    if restoreInput { self.presentRow(row) }
                 }
                 self.setTransitioning(false)
                 self.refreshHoverFromPointer()
@@ -1516,10 +1577,25 @@ public final class RiftPanelController {
                 guard !self.closed, self.generation == token, self.queueTransitionEpoch == transition else { return }
                 let t = min(1, max(0, (ProcessInfo.processInfo.systemUptime - began) / shiftTime))
                 let eased = 1 - pow(1 - t, 3)
+                if let slidingRow, let slideSlot {
+                    let outside = openingMenu ? eased : 1 - eased
+                    let bounds = slideSlot.insetBy(dx: -4, dy: -4)
+                    self.presentClippedTrayRow(slidingRow, frame: slideSlot.offsetBy(dx: 0, dy: bounds.height * outside),
+                                               clip: bounds, acceptsInput: !openingMenu)
+                }
                 if resizeTray {
                     var surface = previousSurface
                     surface.size.height += (layout.surfaceFrame.height - previousSurface.height) * eased
                     self.setFormFrame(surface)
+                    if growsAboveMenu {
+                        for geometry in layout.rows {
+                            guard let row = self.rowWindows[geometry.assetID] else { continue }
+                            let bounds = geometry.frame.insetBy(dx: -4, dy: -4)
+                            let height = max(0, bounds.height - (layout.surfaceFrame.height - surface.height))
+                            let revealed = CGRect(origin: bounds.origin, size: CGSize(width: bounds.width, height: height))
+                            self.presentClippedTrayRow(row, frame: geometry.frame, clip: revealed, acceptsInput: true)
+                        }
+                    }
                 }
                 for geometry in layout.rows {
                     guard let start = movingFrames[geometry.assetID], let row = self.rowWindows[geometry.assetID] else { continue }
@@ -1828,10 +1904,17 @@ public final class RiftPanelController {
 
     private func page(_ direction: Int) {
         guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting, pendingRefillRecords == nil else { return }
-        let next = RiftLayout.pageStart(from: firstVisibleIndex, direction: direction,
+        // Opening at the camera can temporarily advance the drawn cards by one
+        // slot. Wheel navigation starts at the card the user actually sees.
+        var start = firstVisibleIndex
+        if let menu = trayMenu, menu.usesOpeningPage, menu.priorityIDs.isEmpty,
+           menu.displacedID != nil, let first = pagerLayout?.rows.first {
+            start = first.ordinal - 1
+        }
+        let next = RiftLayout.pageStart(from: start, direction: direction,
             totalCount: pagerLayout?.totalCount ?? 0, capacity: pageCapacity)
-        guard next != firstVisibleIndex || !trayArrivalIDs.isEmpty else { return }
-        trayArrivalIDs.removeAll()
+        guard next != start || trayMenu?.priorityIDs.isEmpty == false else { return }
+        trayMenu?.userPaged()
         recentlySwallowedOnPage.removeAll()
         cancelDecorations()
         viewportAnchor = nil; firstVisibleIndex = next
@@ -1877,6 +1960,7 @@ public final class RiftPanelController {
         guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting, pendingRefillRecords == nil else { return }
         cancelDecorations()
         recentlySwallowedOnPage.removeAll()
+        trayMenu?.userPaged()
         viewportAnchor = nil
         firstVisibleIndex = lastRecords.filter { $0.visibility == .visible }.count
         apply(lastRecords)
@@ -1888,7 +1972,10 @@ public final class RiftPanelController {
         guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting, pendingRefillRecords == nil,
               let index = lastRecords.filter({ $0.visibility == .visible }).firstIndex(where: { $0.id == assetID }) else { return }
         guard rowWindows[assetID] == nil else { return }
-        if trayExpanded { setTrayExpanded(false) }
+        if trayExpanded {
+            setTrayExpanded(false)
+            finishQueueTransition(allowShift: false)
+        }
         cancelDecorations()
         recentlySwallowedOnPage.removeAll()
         viewportAnchor = nil
@@ -1901,6 +1988,7 @@ public final class RiftPanelController {
         cancelDecorations()
         recentlySwallowedOnPage.removeAll()
         viewportAnchor = nil
+        trayMenu?.userPaged()
         firstVisibleIndex = 0; apply(lastRecords)
     }
 
@@ -1936,11 +2024,14 @@ public final class RiftPanelController {
         return records.contains { $0.visibility == .archived && previousVisible.contains($0.id) }
     }
 
-    private func resetWindows() {
+    private func resetWindows(preservingTrayMenu: Bool = false) {
         cancelDecorations(reason: userHidden ? .hidden : .geometryChanged)
         pocketHoverTask?.cancel(); pocketHoverTask = nil; stopPocketTracking()
-        pocketAnchor = nil; trayExpanded = false; trayArrivalIDs.removeAll(); dismissTrayTracking()
-        formSurface.orderOut(nil)
+        pocketAnchor = nil
+        if !preservingTrayMenu || !trayExpanded {
+            trayMenu = nil; dismissTrayTracking(); formSurface.orderOut(nil)
+        }
+        displacedTrayRow?.close(); displacedTrayRow = nil
         finishQueueAnimation = nil; queueTransitionEpoch &+= 1
         generation &+= 1; transitioning = false
         let held = interaction.heldID
@@ -1966,7 +2057,7 @@ public final class RiftPanelController {
         let pending = deferredRecords
         let displayed = lastRecords
         let protectedArchive = pending.map { containsNewArchive($0) && interaction.snapshot.blocksAutomaticArchive } ?? false
-        resetWindows()
+        resetWindows(preservingTrayMenu: !userHidden && configuration.desktopForm == .tray)
         if protectedArchive && !userHidden { lastRecords = displayed }
         if !userHidden { apply(lastRecords) }
         // A wake/display event must not bypass an archive already deferred for
@@ -1985,6 +2076,7 @@ public final class RiftPanelController {
         observers.forEach { $0.0.removeObserver($0.1) }; observers.removeAll()
         refillTimer?.invalidate(); refillTimer = nil; pendingRefillRecords = nil
         rowWindows.values.forEach { $0.close() }; rowWindows.removeAll()
+        displacedTrayRow?.close(); displacedTrayRow = nil
         pocketHoverTask?.cancel(); stopPocketTracking(); dismissTrayTracking(); formSurface.close()
         decoration.close(); pager.close(); peek.close(); cache.clear()
     }

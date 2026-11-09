@@ -137,6 +137,46 @@ final class PresentationBoundaryTests: XCTestCase {
         XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [b.id])
     }
 
+    @MainActor func testOnlyConfirmedFailureRevealsSoleSwallowedUUIDAboveEmptyTrayMenu() throws {
+        var selections: [UUID] = []
+        var boundaries: [RiftPresentationBoundary] = []
+        let panel = try controller(onBoundary: { boundaries.append($0) }, onSelect: { selections.append($0) })
+        defer { panel.close() }
+        var config = panel.configuration
+        config.desktopForm = .tray
+        config.swallowDuration = 0
+        config.shiftDuration = 0
+        try panel.updateConfiguration(config)
+        panel.setTrayCapture(enabled: true, defaultMode: .window)
+        let a = record(), operation = UUID()
+        let historical = record(2, status: .unknown, operationID: UUID(), visibility: .swallowed,
+                                revision: 1, reason: .uploadStarted)
+        panel.render([a, historical])
+        let started = record(image: a.image, status: .transferring, operationID: operation,
+                             visibility: .swallowed, revision: 1, reason: .uploadStarted)
+        panel.render([started, historical])
+        advanceQuietEdgeRefill(panel)
+        panel.setTrayExpanded(true)
+        let surface = try XCTUnwrap(NSApp.windows.first { $0.isVisible && $0.contentView is RiftTraySurfaceView })
+        let compact = surface.frame
+        let uncertain = record(image: a.image, status: .unknown, operationID: operation,
+                               visibility: .swallowed, revision: 1, reason: .uploadStarted)
+        panel.render([uncertain, historical])
+        XCTAssertTrue(panel.diagnosticSnapshot.rows.isEmpty)
+        XCTAssertEqual(surface.frame, compact)
+        let returned = record(image: a.image, status: .failed, operationID: operation,
+                              revision: 2, reason: .safeFailure)
+        panel.render([returned, historical])
+        advanceQuietEdgeRefill(panel)
+        XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [a.id])
+        XCTAssertGreaterThan(surface.frame.height, compact.height)
+        XCTAssertEqual(boundaries.map(\.phase), [.swallowScheduled, .swallowActualStart, .swallowClose])
+        XCTAssertTrue(boundaries.allSatisfy { $0.assetID == a.id && $0.operationID == operation })
+        XCTAssertTrue(selections.isEmpty)
+        XCTAssertTrue(try rowView(a.id, in: panel).accessibilityPerformPress())
+        XCTAssertEqual(selections, [a.id])
+    }
+
     @MainActor func testSwitchFormsRetainsAcceptedSelectionUntilItsOwnerFinishes() throws {
         var selected: [UUID] = []
         let panel = try controller(holdsSelection: true, onSelect: { selected.append($0) })

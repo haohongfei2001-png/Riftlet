@@ -1641,7 +1641,15 @@ extension SettingsReviewDriver {
             backing.orderFrontRegardless()
             defer { backing.close() }
             self.host.onboarding.closeForTeardown()
-            var identities = Set<UUID>()
+            @MainActor func captureState(_ name: String, expanded: Bool, lines: Int, expectedIDs: [UUID]) async throws {
+                await self.settle(500)
+                let rows = panel.diagnosticSnapshot.rows
+                try self.require(rows.map(\.assetID) == expectedIDs, "incorrectReviewUUIDs-" + name)
+                let key = try self.checkReferenceTray(name, rows: rows, lines: lines, expanded: expanded,
+                                                       left: settings.configuration.placement?.side == .left)
+                try self.desktopCapture(name, screen: screen, rows: rows, backdrop: backing, referenceKey: key)
+            }
+            var identities: [UUID] = []
             for count in 0...10 {
                 if count > 0 {
                     let bytes = try input("card-\(count).png")
@@ -1653,23 +1661,33 @@ extension SettingsReviewDriver {
                 }
                 guard [0, 1, 2, 3, 4, 10].contains(count) else { continue }
                 let assets = try await self.store.assets(includeUsed: true)
-                let current = Set(assets.map(\.id))
-                try self.require(current.count == count && identities.isSubset(of: current) &&
+                let current = assets.map(\.id)
+                try self.require(current.count == count && Set(current).count == count && current.starts(with: identities) &&
                                  assets.allSatisfy { $0.activeOperationID == nil }, "referenceIdentityChanged")
                 identities = current
-                panel.showLatest()
-                for expanded in [false, true] {
-                    panel.setTrayExpanded(expanded)
-                    await self.settle(500)
-                    let name = "reference-" + String(count) + (expanded ? "-open" : "-closed")
-                    let page = assets.suffix(3).prefix(expanded ? 2 : 3).map(\.id)
-                    let rows = panel.diagnosticSnapshot.rows
-                    try self.require(rows.map(\.assetID) == page, "incorrectReviewUUIDs-" + name)
-                    let key = try self.checkReferenceTray(name, rows: rows, count: count, expanded: expanded,
-                                                          left: settings.configuration.placement?.side == .left)
-                    try self.desktopCapture(name, screen: screen, rows: rows, backdrop: backing, referenceKey: key)
+                let page = Array(current.suffix(3))
+                let lines = count < 2 ? 1 : 2
+                if count == 1 {
+                    // Keep the empty menu open across the actual source-file import.
+                    try await captureState("reference-1-arrived-open", expanded: true, lines: 2, expectedIDs: page)
+                    panel.setTrayExpanded(false)
                 }
-                panel.setTrayExpanded(false)
+                try await self.wait { !panel.diagnosticSnapshot.isTransitioning }
+                panel.showLatest()
+                let label = "reference-" + String(count)
+                try await captureState(label + "-closed", expanded: false, lines: lines, expectedIDs: page)
+                panel.setTrayExpanded(true)
+                let upper = count < 2 ? [] : Array(page.suffix(2))
+                try await captureState(label + "-open", expanded: true, lines: lines, expectedIDs: upper)
+                if count > 0 {
+                    panel.setTrayExpanded(false)
+                    if count == 1 || count == 3 {
+                        try await captureState(label + "-reclosed", expanded: false, lines: lines, expectedIDs: page)
+                    }
+                }
+                let stored = try await self.store.assets(includeUsed: true)
+                try self.require(stored.map(\.id) == current &&
+                    stored.allSatisfy { $0.visibility == .visible && $0.activeOperationID == nil }, "menuChangedReferenceQueue-" + label)
             }
             self.artifacts.append(["kind": "referenceFixtureScope", "menu": "programmatic AppKit",
                                    "backdrop": "provided fixture in review UUID", "assets": identities.count])
@@ -1685,7 +1703,7 @@ extension SettingsReviewDriver {
             abs(layer.frame.width - actual.width) <= 1 && abs(layer.frame.height - actual.height) <= 1
     }
 
-    private func checkReferenceTray(_ name: String, rows: [RiftDiagnosticRow], count: Int,
+    private func checkReferenceTray(_ name: String, rows: [RiftDiagnosticRow], lines: Int,
                                     expanded: Bool, left: Bool) throws -> CGRect {
         func buttons(in view: NSView) -> [NSButton] {
             guard !view.isHidden else { return [] }
@@ -1716,11 +1734,13 @@ extension SettingsReviewDriver {
             let strip = keyFrames.reduce(CGRect.null) { $0.union($1) }
             try require(strip.width > window.frame.width * 0.9 && rows.allSatisfy { $0.imageInputFrame.minY >= strip.maxY },
                         "reviewMenuSharesRow-" + name)
+            try require(zip(rows, rows.dropFirst()).allSatisfy { first, next in
+                first.frame.midX < next.frame.midX && abs(first.frame.midY - next.frame.midY) <= 1
+            }, "reviewUpperRowOutOfOrder-" + name)
         } else {
             try require(names == ["展开截图方式"], "trayCameraNotRestored-" + name)
         }
-        let twoRows = count >= 2 || (expanded && count > 0)
-        let designRatio = (twoRows ? 212.0 : 115.0) / 246.0
+        let designRatio = (lines == 2 ? 212.0 : 115.0) / 246.0
         try require(abs(quartz.height - quartz.width * designRatio) <= 2, "reviewRowCount-" + name)
         for row in rows {
             guard let window = NSApp.window(withWindowNumber: row.windowNumber),
@@ -1729,7 +1749,7 @@ extension SettingsReviewDriver {
         artifacts.append(["kind": "referenceTrayControls", "name": name, "surface": rect(quartz),
                           "windowNumber": window.windowNumber, "controlLabels": names,
                           "keyScreenFrames": keyFrames.map(rect), "rowIDs": rows.map { $0.assetID.uuidString },
-                          "geometryRows": twoRows ? 2 : 1])
+                          "geometryRows": lines])
         return keyFrames[expanded && !left ? keyFrames.count - 1 : 0]
     }
 

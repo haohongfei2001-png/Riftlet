@@ -1,15 +1,49 @@
 import Foundation
 import RiftletCore
 
+/// A menu belongs to the viewport from which its camera was opened. A later
+/// capture can create an upper row even when that same UUID would have been
+/// pushed out had it already existed at opening.
+struct RiftTrayMenuState {
+    let openingRows: [UUID]
+    let displacedID: UUID?
+    private(set) var receivedCapture = false
+    private(set) var usesOpeningPage = true
+    private(set) var priorityIDs: [UUID] = []
+
+    init(openingLayout: RiftLayoutResult) {
+        openingRows = openingLayout.rows.map(\.assetID)
+        let cameraReplacesImage = !openingLayout.captureSlot.isEmpty && !openingRows.count.isMultiple(of: 2)
+        displacedID = cameraReplacesImage ? openingRows.first : nil
+    }
+
+    mutating func receiveCaptures(_ ids: [UUID]) {
+        guard !ids.isEmpty else { return }
+        receivedCapture = true
+        prioritize(ids)
+    }
+
+    mutating func prioritize(_ ids: [UUID]) {
+        var seen = Set<UUID>()
+        priorityIDs = Array((ids + priorityIDs).filter { seen.insert($0).inserted }.prefix(2))
+    }
+
+    mutating func userPaged() {
+        usesOpeningPage = false
+        priorityIDs.removeAll()
+    }
+}
+
 /// A viewport over the existing queue. Capture occupies the position immediately
 /// after the last asset and has no asset identity of its own.
 enum RiftTrayLayout {
     static func make(records: [AssetRecord], visibleFrame: CGRect,
                      configuration c: RiftConfiguration, firstVisibleIndex: Int,
-                     backingScale: Double, captureEnabled: Bool, expanded: Bool,
-                     arrivalIDs: [UUID] = [], displayFrame: CGRect? = nil) -> RiftLayoutResult {
+                     backingScale: Double, captureEnabled: Bool, menu: RiftTrayMenuState? = nil,
+                     displayFrame: CGRect? = nil) -> RiftLayoutResult {
         let active = records.filter { $0.visibility == .visible }
-        let menuOpen = expanded && captureEnabled
+        let menu = captureEnabled ? menu : nil
+        let menuOpen = menu != nil
         let capacity = min(menuOpen ? 2 : 4, c.visibleCountPreference)
         let first = min(max(firstVisibleIndex, 0), max(0, active.count - min(capacity, captureEnabled ? 3 : 4)))
         var result = RiftLayoutResult(rows: [], lineFrame: .zero, firstVisibleIndex: first,
@@ -24,7 +58,11 @@ enum RiftTrayLayout {
         let width = min(visibleFrame.width, max(112, snap(display.width * 246 / 1672)))
         let unit = width / 246
         let verticalUnit = min(unit, visibleFrame.height / 212)
-        let twoRows = active.count >= 2 || (menuOpen && !active.isEmpty)
+        // An explicitly revealed safe failure can be the sole visible row too.
+        // Its existing UUID is not a new capture and never changes that latch.
+        let twoRows = active.count >= 2 || (active.count == 1 && menu.map {
+            $0.receivedCapture || $0.openingRows.count >= 2 || $0.priorityIDs.contains(active[0].id)
+        } == true)
         let maximumHeight = min(visibleFrame.height, snap(212 * verticalUnit))
         let height = twoRows ? maximumHeight : min(maximumHeight, snap(115 * verticalUnit))
         let inset = min(c.outerInset, max(0, visibleFrame.width - width))
@@ -54,17 +92,24 @@ enum RiftTrayLayout {
         // Presentation priority exists only while the capture menu is open.
         // Keep true queue indices for labels, AX identity and hit-test routing.
         var items: [Int] = []
-        if menuOpen {
-            for id in arrivalIDs {
+        if let menu, twoRows {
+            for id in menu.priorityIDs {
                 guard items.count < capacity else { break }
                 if let i = active.firstIndex(where: { $0.id == id }), !items.contains(i) {
                     items.append(i)
                 }
             }
         }
-        for i in first..<active.count {
-            guard items.count < capacity else { break }
-            if !items.contains(i) { items.append(i) }
+        if !menuOpen || twoRows {
+            // Only the opening's leading card is displaced. The cursor still
+            // points at its original page so closing restores the same slots.
+            let skipLeading = menu?.usesOpeningPage == true && menu?.openingRows.count == 3
+                && first < active.count && active[first].id == menu?.displacedID
+            let start = skipLeading ? first + 1 : first
+            for i in start..<active.count {
+                guard items.count < capacity else { break }
+                if !items.contains(i) { items.append(i) }
+            }
         }
         let showButton = captureEnabled && !menuOpen && first + items.count == active.count && items.count < 4
         func cell(_ index: Int) -> CGRect {
