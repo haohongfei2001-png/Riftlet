@@ -4,7 +4,7 @@
 
 ## 设计依据与差异
 
-- 截图托盘采用 [PR 51 的原始参考图与队列规格](https://github.com/haohongfei2001-png/Riftlet/tree/051cb1a2d1057cba25f3d756d2499d4564cbe320/design/third-form-screenshot-tray)。原图 SHA-256 为 `65b61d4d7a62e9221b45b8c0c9afff3626b904a242de0d321d9bda5d56887e0b`。菜单保留四个位置，分别连接窗口、区域、全屏和更多选项。默认截图方式靠屏幕外缘，左右镜像。第四个位置的能力差异待用户最终核对。菜单展开期间，新到图片优先进入另一行，数字身份和持久队列顺序保持一致。
+- 截图托盘采用 [PR 51 的原始参考图与队列规格](https://github.com/haohongfei2001-png/Riftlet/tree/051cb1a2d1057cba25f3d756d2499d4564cbe320/design/third-form-screenshot-tray)。原图 SHA-256 为 `65b61d4d7a62e9221b45b8c0c9afff3626b904a242de0d321d9bda5d56887e0b`。截图菜单占满一行。屏幕外侧的键使用默认截图方式，其余三键按设置顺序排列，左右镜像。可绑定窗口、区域、全屏，可以重复或留空。自动配置使用另外两种实际截图方式并留空一位。菜单展开期间，新到图片优先进入另一行，数字身份和持久队列顺序保持一致。
 - 折页及口袋采用 [PR 52 的设计规范与原型](https://github.com/haohongfei2001-png/Riftlet/tree/8d65462a0bcf6d9baa60469ffc95d253e3e146c5/design/fourth-fifth-desktop-forms)。两者共享 behindWindow 模式的 NSVisualEffectView 底座。叠放页的点击目标绑定截图 UUID。口袋按首次悬停的页锚定展开位置，指针离开组合后收拢。
 - 风铃在两份设计 PR 中被命名。已检索历史分支、原型和决定，尚缺可核实的几何、视觉或交互基准。选择器保留禁用项，进度为 **缺设计依据**。历史值仍可完整往返保存。
 
@@ -12,4 +12,4 @@
 
 桌面用例通过普通 Riftlet 可执行文件的 `--settings-review <UUID>` 隔离入口运行。独立偏好、数据库和合成图片与该 UUID 对应。首次运行使用 `--settings-review-run --desktop-forms-review`，再以同一 UUID 执行 `--settings-review-restart-check --desktop-forms-review`。Software-GUI 事件、WindowServer 实际窗口、布局断言和真实 ChatGPT 草稿分别报告。正式验收不涉及宿主生产截图和私人聊天。
 
-新包使用私有候选编号 0.3.4 (9)。0.3.3 (6) 的签名、公证和安装验收证据属于另一条发行流程。
+原生托盘视觉修正使用私有候选编号 0.3.4 (10)。[参考图、比例和原生对照](TRAY-REFERENCE-REVIEW.md) 记录本轮结果。0.3.4 (9) 的原生验证属于上一轮。0.3.3 (6) 的签名、公证和安装验收证据属于另一条发行流程。

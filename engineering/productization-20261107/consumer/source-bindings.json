@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "sourceBaseline": "55eed1ba7563a9ab2adae6dc99567e4d8dc6735a",
+  "sourceBaseline": "f4b50dbd97cdb90ed18230776c0d16598a027137",
   "scope": "Consumer first use, capture location and recovery, history, storage and direct download. This checkpoint binds the effective screenshot preference, selected directory and watcher, persistent volume identity, per-file historical protection and the messages shown in Settings and the control center. The production queue migration and verification of backups made by earlier readers are also bound.",
   "files": [
     {
@@ -15,8 +15,8 @@
     },
     {
       "path": "Sources/RiftletApp/RiftletMain.swift",
-      "sha256": "548e23f01bb34b84487dc9921d6dd1893c9d1613fcef72b5437adc20b58385fc",
-      "sourceBlob": "526269633df18155e5b64b1f8ae81d09d6d819b2"
+      "sha256": "dbecff4caa8495ccf58c25208c3aa4d20f26ed992b7d699f1604bacf2046d131",
+      "sourceBlob": "0378d8bd4847b90f81a74e8ed731cce826b32853"
     },
     {
       "path": "Sources/RiftletApp/AutomationPermission.swift",
@@ -30,8 +30,8 @@
     },
     {
       "path": "Sources/RiftletApp/ScreenshotEntryHost.swift",
-      "sha256": "9f4baad76d308cbc2ead4ba4a09e89692a45207a6a74669754d73196fa41a0c6",
-      "sourceBlob": "fc9466b159458d21dde13b4e52d102f30fcadc0e"
+      "sha256": "02b42fdbbb9bcea489616557183b5cc5536ae54b27367c4238fc22e6910627da",
+      "sourceBlob": "1f38049e72676767fa0577be99f20be7e8ce2189"
     },
     {
       "path": "Sources/RiftletApp/FeedbackHost.swift",
@@ -100,13 +100,13 @@
     },
     {
       "path": "Sources/RiftletUI/RiftSettingsCenterPages.swift",
-      "sha256": "bda52acf5cd5433f9c050ffd1560cab825d9f1af6964f25655f079a3cc0b75c0",
-      "sourceBlob": "d91ecec5c421c9cc654a616b5cdedf51a43fcfb0"
+      "sha256": "96c1cf415ff6e351e31816f207d7d8af29d18786543882a2b15c8847bccfd538",
+      "sourceBlob": "829feaa2be913e296f409212c0223d8af6c3747e"
     },
     {
       "path": "Sources/RiftletUI/RiftSettingsCenterRendering.swift",
-      "sha256": "11e19785ffe2a3b77731b8107b7a095eac9a777437b61d69c50fd23699a1ad36",
-      "sourceBlob": "7b83fedc180de165ea682fcdd49f0a0097829cd7"
+      "sha256": "f5b32e3df0a88573a6d2c1e61e1360f330d6196d6e5b8149bec9720588d85661",
+      "sourceBlob": "dae6b81ec45039c4898aff66a08f89604b61c6e3"
     },
     {
       "path": "Sources/RiftletCapture/CaptureService.swift",
