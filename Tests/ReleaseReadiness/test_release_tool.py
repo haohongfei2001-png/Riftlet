@@ -554,6 +554,7 @@ class ReleaseTest(unittest.TestCase):
         self.assertEqual(len(commands), 5); self.assertIn("--all-architectures", commands[0])
         self.assertIn("--deep", commands[0])
         requirement = commands[0][commands[0].index("-R") + 1]
+        self.assertTrue(requirement.startswith("=anchor apple generic"))
         self.assertIn("certificate leaf[subject.OU]", requirement)
         self.assertIn("certificate leaf[field.1.2.840.113635.100.6.1.13] exists", requirement)
         self.assertIn("certificate 1[field.1.2.840.113635.100.6.2.6] exists", requirement)

@@ -488,7 +488,7 @@ def verify_signature(app, team, arches):
     requirement = ('anchor apple generic and identifier "com.riftlet.app" and certificate leaf[subject.OU] = "'
                    + team + '" and certificate 1[field.1.2.840.113635.100.6.2.6] exists and '
                    'certificate leaf[field.1.2.840.113635.100.6.1.13] exists')
-    run(["/usr/bin/codesign", "--verify", "--deep", "--strict", "--all-architectures", "-R", requirement, app])
+    run(["/usr/bin/codesign", "--verify", "--deep", "--strict", "--all-architectures", "-R", "=" + requirement, app])
     result = {"teamID": team, "hardenedRuntime": True, "entitlements": ENTITLEMENTS, "architectures": {}}
     for arch in arches:
         detail = run(["/usr/bin/codesign", "-d", "--verbose=4", "--arch", arch, app]).stderr.decode()
