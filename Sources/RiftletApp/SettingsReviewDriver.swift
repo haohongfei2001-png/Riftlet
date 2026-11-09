@@ -21,6 +21,7 @@ final class SettingsReviewDriver {
     private var historyStyleReview: Bool { CommandLine.arguments.contains("--history-style-review") }
     private var historyFixtureIDs: [UUID] = []
     private var historyReadOnlyBaseline: [AssetRecord] = []
+    private let desktopPanel: RiftPanelController?
     private let statusItem: NSStatusItem
     private let onRefresh: @MainActor () async -> Void
     private let onHistory: @MainActor () -> Void
@@ -44,7 +45,8 @@ final class SettingsReviewDriver {
     init(environment: SettingsReviewEnvironment, host: SettingsProductHost, store: QueueStore,
          statusItem: NSStatusItem, onRefresh: @escaping @MainActor () async -> Void,
          onHistory: @escaping @MainActor () -> Void, onRecheck: @escaping @MainActor () -> Bool,
-         history: RiftHistoryController? = nil) {
+         history: RiftHistoryController? = nil, panel: RiftPanelController? = nil) {
+        self.desktopPanel = panel
         self.environment = environment; self.host = host; self.store = store
         self.statusItem = statusItem; self.onRefresh = onRefresh; self.onHistory = onHistory
         self.onRecheck = onRecheck; self.historyController = history
@@ -73,6 +75,9 @@ final class SettingsReviewDriver {
             return nil
         }
 
+        if CommandLine.arguments.contains("--desktop-forms-review") {
+            return await desktopRun()
+        }
         await runCase("environment-and-default-window") {
             try await self.wait { self.host.snapshot.capabilities.initialized }
             try self.validateEnvironment()
@@ -138,6 +143,9 @@ final class SettingsReviewDriver {
             return nil
         }
 
+        if CommandLine.arguments.contains("--desktop-forms-review") {
+            return await desktopRestart(output)
+        }
         var checks: [[String: Any]] = []
         var prior: [String: Any]?
         let executableSHA = Bundle.main.executableURL.flatMap { try? Data(contentsOf: $0) }.map(digest)
@@ -1559,7 +1567,7 @@ final class SettingsReviewDriver {
             "processPID": ProcessInfo.processInfo.processIdentifier,
             "frontmostPIDAtStart": beganPID as Any? ?? NSNull(),
             "executableSHA256": executable.map(digest) as Any? ?? NSNull(),
-            "reviewMode": historyStyleReview ? "historyStyle" : "settings",
+            "reviewMode": CommandLine.arguments.contains("--desktop-forms-review") ? "desktopForms" : historyStyleReview ? "historyStyle" : "settings",
             "inputMethod": historyStyleReview ? "PROGRAMMATIC_NATIVE_CONTROLS: NSControl actions, native selection/accessibility action and NSTextView insertion; not CGEvent or hardware" : "Native NSControl actions and NSTextView insertion; no physical pointer or OS IME claim",
             "scope": "UUID-isolated real host/model/SQLite/collector and AppKit windows in the same App binary",
             "notRun": ["realChatGPTAttachment", "physicalPointer", "OSInputMethod", "VoiceOver", "realLoginRegistration", "realTCCPrompt", "multiDisplayHotplug"],
@@ -1567,5 +1575,292 @@ final class SettingsReviewDriver {
             "cases": cases, "frames": frames, "artifacts": artifacts, "restorationFailures": restorationFailures]
         try JSONSerialization.data(withJSONObject: report, options: [.prettyPrinted, .sortedKeys])
             .write(to: directory.appendingPathComponent("report.json"), options: .atomic)
+    }
+}
+
+extension SettingsReviewDriver {
+    private func chooseDesktopForm(_ form: RiftDesktopForm) async throws {
+        host.show(page: .display)
+        guard form.isAvailable, let index = RiftDesktopForm.allCases.firstIndex(of: form) else {
+            throw Failure.controlUnavailable(form.rawValue)
+        }
+        try select("settings.center.desktopForm", index: index)
+        try await wait { self.host.snapshot.state.owner.settings.configuration.desktopForm == form }
+        await onRefresh()
+        await settle(220)
+    }
+
+    private func desktopRun() async -> URL? {
+        guard let panel = desktopPanel, let screen = NSScreen.main else { return nil }
+        host.onboarding.closeForTeardown()
+        await runCase("isolated-review-controls") {
+            try self.require(self.initialAssetIDs.isEmpty, "requiresFreshIsolatedReviewUUID")
+            self.host.show(page: .general)
+            try await self.setToggle("settings.center.paused", false)
+            self.host.show(page: .display)
+            guard let control = try self.control("settings.center.desktopForm") as? NSPopUpButton else {
+                throw Failure.controlUnavailable("desktopForm")
+            }
+            try self.require(control.itemArray.count == 5 && control.item(at: 1)?.isEnabled == false, "formAvailability")
+            await self.capture("settings-form-selection", window: self.host.center.window)
+        }
+        guard cases.last?["status"] as? String == "PASS" else { return directory.appendingPathComponent("report.json") }
+        let variants = RiftDesktopForm.allCases.filter(\.isAvailable)
+        var expected = Set<UUID>()
+        for count in 0...10 {
+            if count > 0 {
+                let dims = [(720,420),(360,720),(80,960),(900,80)]
+                let size = dims[(count - 1) % dims.count]
+                await runCase("collect-fixture-" + String(count)) {
+                    let hash = try self.createFixture("form-" + String(count), width:size.0, height:size.1)
+                    try await self.wait(timeout: 10) { try await self.store.assets(includeUsed:true).contains { $0.image.sha256 == hash } }
+                    let all = try await self.store.assets(includeUsed:true)
+                    expected = Set(all.map(\.id)); try self.require(expected.count == count, "fixtureCount")
+                    await self.onRefresh()
+                }
+            }
+            guard [0,1,2,3,4,5,10].contains(count) else { continue }
+            for form in variants {
+                let name = form.rawValue + "-" + String(count)
+                await runCase(name) {
+                    try await self.chooseDesktopForm(form)
+                    let snapshot = panel.diagnosticSnapshot
+                    let seen = Set(snapshot.rows.map(\.assetID))
+                    try self.require(seen.isSubset(of: expected) && seen.count == snapshot.rows.count, "visibleForeignOrDuplicateUUID")
+                    try self.require(count == 0 ? seen.isEmpty : !seen.isEmpty, "unexpectedEmptyRows")
+                    let assets = try await self.store.assets(includeUsed:true)
+                    try self.require(Set(assets.map(\.id)) == expected && assets.allSatisfy { $0.activeOperationID == nil }, "queueIdentityChanged")
+                    try self.desktopCapture(name, screen: screen, rows: snapshot.rows)
+                }
+            }
+        }
+        for style in [SettingsAppearanceChoice.light, .dark] {
+            for placement in [RiftPlacement.leftMiddle,.rightMiddle] {
+                await runCase(style.rawValue + "-" + placement.rawValue) {
+                    try await self.appearance(style)
+                    self.host.show(page: .display)
+                    try self.click("settings.center.placement." + placement.rawValue)
+                    try await self.wait { self.host.snapshot.state.owner.settings.configuration.placement == placement }
+                    for form in variants {
+                        try await self.chooseDesktopForm(form)
+                        try self.desktopCapture([style.rawValue,placement.rawValue,form.rawValue].joined(separator:"-"),
+                                                screen: screen, rows: panel.diagnosticSnapshot.rows)
+                    }
+                }
+            }
+        }
+        await runCase("pocket-native-pointer-and-geometry") {
+            try await self.chooseDesktopForm(.pocket)
+            guard let original = CGEvent(source:nil)?.location, let display = NSScreen.screens.first,
+                  let row = panel.diagnosticSnapshot.rows.first else { throw Failure.assertion("pointerUnavailable") }
+            defer { CGWarpMouseCursorPosition(original) }
+            let point = CGPoint(x:row.imageInputFrame.midX, y:row.imageInputFrame.maxY - 2)
+            let quartz = CGPoint(x:point.x,y:display.frame.maxY-point.y)
+            let initial = panel.diagnosticSnapshot.rows
+            CGEvent(mouseEventSource:nil,mouseType:.mouseMoved,mouseCursorPosition:quartz,mouseButton:.left)?.post(tap:.cghidEventTap)
+            for frame in 0..<16 {
+                await self.settle(28)
+                try self.desktopCapture(String(format:"pocket-motion-%02d",frame),screen:screen,rows:panel.diagnosticSnapshot.rows)
+            }
+            let opened = panel.diagnosticSnapshot.rows
+            try self.require(initial.map(\.assetID)==opened.map(\.assetID),"hoverAlteredUUID")
+            try self.require(opened != initial,"hoverDidNotExpand")
+            try self.require(opened.last(where:{$0.imageInputFrame.contains(point)})?.assetID == row.assetID,"hoverRetargeted")
+        }
+        await runCase("tray-native-wheel") {
+            try await self.chooseDesktopForm(.tray)
+            panel.showOldest()
+            await self.settle(350)
+            let before = panel.diagnosticSnapshot.rows
+            guard let row = before.first, let display=NSScreen.screens.first else { throw Failure.assertion("wheelTargetMissing") }
+            let whereAt = CGPoint(x:row.imageInputFrame.midX,y:display.frame.maxY-row.imageInputFrame.midY)
+            guard let wheel=CGEvent(scrollWheelEvent2Source:nil,units:.pixel,wheelCount:1,wheel1:-80,wheel2:0,wheel3:0) else { throw Failure.assertion("wheelUnavailable") }
+            guard let old = CGEvent(source:nil)?.location else {throw Failure.assertion("pointerUnavailable")}
+            defer { CGWarpMouseCursorPosition(old) }
+            CGEvent(mouseEventSource:nil,mouseType:.mouseMoved,mouseCursorPosition:whereAt,mouseButton:.left)?.post(tap:.cghidEventTap)
+            await self.settle(150)
+            let hitWindow = NSWindow.windowNumber(at: NSEvent.mouseLocation, belowWindowWithWindowNumber: 0)
+            try self.require(NSApp.windows.contains { $0.windowNumber == hitWindow }, "wheelWindowNotOwned")
+            var delivered = [Double]()
+            let monitor = NSEvent.addLocalMonitorForEvents(matching:.scrollWheel) { event in
+                delivered.append(event.scrollingDeltaY); return event
+            }
+            defer {
+                if let monitor { NSEvent.removeMonitor(monitor) }
+                self.artifacts.append(["kind":"trayWheel","deltas":delivered,"before":before.map(\.ordinal),
+                                       "after":panel.diagnosticSnapshot.rows.map(\.ordinal)])
+            }
+            wheel.location=whereAt; wheel.post(tap:.cghidEventTap)
+            try await self.wait { panel.diagnosticSnapshot.rows.map(\.assetID) != before.map(\.assetID) }
+            try self.desktopCapture("tray-after-wheel",screen:screen,rows:panel.diagnosticSnapshot.rows)
+        }
+        await runCase("tray-owned-button-and-escape") {
+            try await self.chooseDesktopForm(.tray)
+            panel.showLatest()
+            await self.settle(260)
+            func buttons(_ view:NSView)->[NSButton] {
+                guard !view.isHidden else {return []}
+                return (view as? NSButton).map { [$0] } ?? view.subviews.flatMap(buttons)
+            }
+            let visible = NSApp.windows.filter { $0.level == .floating && $0.isVisible }.compactMap(\.contentView).flatMap(buttons)
+            guard let camera = visible.first(where: {$0.toolTip=="展开截图方式"}), let tray=camera.window,
+                  let contents=tray.contentView else {throw Failure.assertion("visibleTrayCameraUnavailable")}
+            guard let display = NSScreen.screens.first, let original = CGEvent(source:nil)?.location else {
+                throw Failure.assertion("pointerUnavailable")
+            }
+            defer { CGWarpMouseCursorPosition(original) }
+            let frame = tray.convertToScreen(camera.convert(camera.bounds, to:nil))
+            let point = CGPoint(x:frame.midX,y:frame.midY)
+            let quartz = CGPoint(x:point.x,y:display.frame.maxY-point.y)
+            CGWarpMouseCursorPosition(quartz)
+            await self.settle(120)
+            try self.require(NSWindow.windowNumber(at:point,belowWindowWithWindowNumber:0)==tray.windowNumber,
+                             "trayCameraObscured")
+            for type in [CGEventType.leftMouseDown,.leftMouseUp] {
+                let event = CGEvent(mouseEventSource:nil,mouseType:type,mouseCursorPosition:quartz,mouseButton:.left)
+                event?.setIntegerValueField(.mouseEventClickState,value:1)
+                event?.post(tap:.cghidEventTap)
+                await self.settle(50)
+            }
+            try await self.wait { buttons(contents).filter { $0.toolTip != nil }.count == 4 }
+            let arranged = buttons(contents).sorted { $0.frame.minX < $1.frame.minX }
+            try self.require(Set(arranged.map{$0.frame.midY}).count == 1,"menuNotSingleRow")
+            try self.desktopCapture("tray-expanded-menu",screen:screen,rows:panel.diagnosticSnapshot.rows)
+            guard let event=NSEvent.keyEvent(with:.keyDown,location:.zero,modifierFlags:[],timestamp:ProcessInfo.processInfo.systemUptime,
+                     windowNumber:tray.windowNumber,context:nil,characters:"\u{1b}",charactersIgnoringModifiers:"\u{1b}",isARepeat:false,keyCode:53)
+            else {throw Failure.assertion("escapeUnavailable")}
+            NSApp.postEvent(event,atStart:false)
+            try await self.wait { !camera.isHidden }
+            try self.desktopCapture("tray-closed-menu",screen:screen,rows:panel.diagnosticSnapshot.rows)
+        }
+        await runCase("material-white-and-patterned-backdrop") {
+            for style in [SettingsAppearanceChoice.light,.dark] {
+                try await self.appearance(style)
+                for form in [RiftDesktopForm.edgefolio,.pocket] {
+                    try await self.chooseDesktopForm(form)
+                    let rows = panel.diagnosticSnapshot.rows
+                    guard let r=rows.first else {throw Failure.assertion("rowsMissing")}
+                    let rect=rows.reduce(r.frame){ $0.union($1.frame) }.insetBy(dx:-25,dy:-20)
+                    let backing=NSPanel(contentRect:rect,styleMask:[.borderless,.nonactivatingPanel],backing:.buffered,defer:false)
+                    backing.ignoresMouseEvents=true; backing.isReleasedWhenClosed=false
+                    backing.level = NSWindow.Level(rawValue:NSWindow.Level.floating.rawValue - 1)
+                    defer {backing.close()}
+                    backing.backgroundColor = .white; backing.orderFrontRegardless()
+                    await self.settle(180)
+                    let prefix = style.rawValue+"-"+form.rawValue
+                    try self.desktopCapture(prefix+"-white",screen:screen,rows:rows,backdrop:backing)
+                    let pattern=NSImage(size:NSSize(width:90,height:70), flipped:false){ area in
+                        NSColor.systemBrown.setFill(); area.fill()
+                        NSColor.systemBlue.setFill(); NSBezierPath(ovalIn: NSRect(x:6,y:3,width:65,height:54)).fill()
+                        NSColor.systemYellow.setFill(); NSBezierPath(roundedRect:NSRect(x:42,y:28,width:35,height:12),xRadius:4,yRadius:4).fill()
+                        return true
+                    }
+                    backing.backgroundColor=NSColor(patternImage:pattern)
+                    await self.settle(180)
+                    try self.desktopCapture(prefix+"-pattern",screen:screen,rows:rows,backdrop:backing)
+                }
+            }
+        }
+        await runCase("violet-restart-and-material-switch") {
+            try await self.chooseDesktopForm(.tray)
+            try self.select("settings.center.trayTheme",index:1)
+            try await self.wait { self.host.snapshot.state.owner.settings.configuration.trayTheme == .violetGlass }
+            await self.settle(180)
+            try self.desktopCapture("tray-violet",screen:screen,rows:panel.diagnosticSnapshot.rows)
+            panel.setTrayExpanded(true)
+            try await self.chooseDesktopForm(.edgefolio)
+            try self.require(panel.diagnosticSnapshot.rows.allSatisfy { expected.contains($0.assetID) }, "inFlightSwitchChangedUUID")
+        }
+        await runCase("physical-connected-displays") {
+            for (index,display) in NSScreen.screens.enumerated() {
+                self.host.show(page:.display)
+                guard let popup = try self.control("settings.center.display") as? NSPopUpButton,
+                      let id = display.deviceDescription[.init("NSScreenNumber")] as? NSNumber,
+                      let item = popup.itemArray.firstIndex(where:{ ($0.representedObject as? NSNumber)?.uint32Value == id.uint32Value })
+                else { throw Failure.assertion("physicalDisplayMenuMissing") }
+                try self.select("settings.center.display",index:item)
+                try await self.wait { panel.preferredScreen?.frame == display.frame }
+                for form in variants {
+                    try await self.chooseDesktopForm(form)
+                    let rows = panel.diagnosticSnapshot.rows
+                    try self.require(!rows.isEmpty && rows.allSatisfy{display.frame.intersects($0.frame)}, "wrongDisplay")
+                    try self.desktopCapture("display-\(index)-"+form.rawValue,screen:display,rows:rows)
+                }
+            }
+        }
+        await runCase("native-high-contrast-appearance-override") {
+            let saved = NSApp.appearance
+            defer {NSApp.appearance = saved}
+            for (index, look) in [NSAppearance.Name.accessibilityHighContrastAqua,.accessibilityHighContrastDarkAqua].enumerated() {
+                NSApp.appearance = NSAppearance(named:look)
+                for form in variants {
+                    try await self.chooseDesktopForm(form)
+                    try self.desktopCapture("native-contrast-\(index)-"+form.rawValue,screen:panel.preferredScreen ?? screen,rows:panel.diagnosticSnapshot.rows)
+                }
+            }
+            self.artifacts.append(["kind":"contrastOverride","scope":"NSApp.appearance only",
+                                   "systemIncreaseContrast":NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast])
+        }
+        await runCase("pocket-restart-baseline") {
+            try await self.chooseDesktopForm(.pocket)
+            let rows = try await self.store.assets(includeUsed:true)
+            let digest = try self.assetRowsDigest(rows)
+            let identity: [String:Any] = ["pid": ProcessInfo.processInfo.processIdentifier, "digest":digest,
+                "executable":self.digest(try Data(contentsOf: Bundle.main.executableURL!))]
+            let file = self.directory.appendingPathComponent("restart-baseline.json")
+            try JSONSerialization.data(withJSONObject: identity).write(to:file)
+        }
+        try? saveReport(completed:true)
+        return directory.appendingPathComponent("report.json")
+    }
+
+    private func desktopCapture(_ name:String, screen:NSScreen, rows:[RiftDiagnosticRow], backdrop:NSWindow? = nil) throws {
+        // Include only this process's visible floating windows. No user windows or desktop pixels.
+        let ordered = CGWindowListCopyWindowInfo([.optionOnScreenOnly,.excludeDesktopElements], kCGNullWindowID) as? [[String:Any]] ?? []
+        let ours = Set(NSApp.windows.filter { $0.isVisible && ($0.level == .floating || $0 === backdrop) }.map(\.windowNumber))
+        let entries = ordered.filter {
+            ($0[kCGWindowOwnerPID as String] as? NSNumber)?.int32Value == getpid() &&
+            ours.contains(($0[kCGWindowNumber as String] as? NSNumber)?.intValue ?? -1)
+        }
+        guard !entries.isEmpty else {
+            try require(rows.isEmpty,"visibleRowsMissingInWindowServer")
+            frames.append(["name":name,"status":"EMPTY","rowCount":0]); return
+        }
+        guard let ids = CFArrayCreateMutable(nil,0,nil) else {throw Failure.encoding}
+        for e in entries {
+            let id = (e[kCGWindowNumber as String] as! NSNumber).uintValue
+            CFArrayAppendValue(ids,UnsafeRawPointer(bitPattern:id))
+        }
+        guard let image = CGImage(windowListFromArrayScreenBounds:.null,windowArray:ids,
+                                  imageOption:[.boundsIgnoreFraming,.bestResolution]) else { throw Failure.assertion("ownedWindowCaptureFailed") }
+        let quartzBounds = entries.compactMap { e -> CGRect? in
+            guard let raw = e[kCGWindowBounds as String] as? [String:Any] else { return nil }
+            return CGRect(dictionaryRepresentation:raw as CFDictionary)
+        }.reduce(CGRect.null){$0.union($1)}
+        let bytes = try png(image)
+        try bytes.write(to:directory.appendingPathComponent(name+".png"),options:.withoutOverwriting)
+        frames.append(["name":name,"status":"RECORDED_NATIVE_WINDOWSERVER","method":"owned floating windows only",
+                       "pixels":[image.width,image.height],"quartzBounds":rect(quartzBounds),"uptime":ProcessInfo.processInfo.systemUptime,"screenCount":NSScreen.screens.count,
+                       "backingScale":screen.backingScaleFactor,"sha256":digest(bytes),
+                       "rowIDs":rows.map { $0.assetID.uuidString },"frames":rows.map { rect($0.frame) },
+                       "inputFrames":rows.map { rect($0.imageInputFrame) }])
+    }
+
+    private func desktopRestart(_ output: URL) async -> URL? {
+        do {
+            let parent = output.deletingLastPathComponent().deletingLastPathComponent()
+            let urls = try FileManager.default.contentsOfDirectory(at:parent,includingPropertiesForKeys:nil)
+            let baseline = urls.filter { $0.lastPathComponent.hasPrefix("run-") }.map { $0.appendingPathComponent("restart-baseline.json") }
+            guard baseline.count == 1, let data = try JSONSerialization.jsonObject(with:Data(contentsOf:baseline[0])) as? [String:Any] else {throw Failure.assertion("missingBaseline")}
+            let current = try await store.assets(includeUsed:true)
+            try require(data["pid"] as? Int != Int(getpid()),"sameProcess")
+            try require(data["executable"] as? String == digest(try Data(contentsOf:Bundle.main.executableURL!)), "differentExecutable")
+            try require(try assetRowsDigest(current) == data["digest"] as? String, "assetRecordsChanged")
+            try require(host.snapshot.state.owner.settings.configuration.desktopForm == .pocket, "preferenceLostOnRestart")
+            try JSONSerialization.data(withJSONObject:["status":"PASS","form":"pocket","assetCount":current.count,"pid":getpid()]).write(to:output)
+        } catch {
+            try? JSONSerialization.data(withJSONObject:["status":"FAIL","reason":code(error)]).write(to:output)
+        }
+        return output
     }
 }

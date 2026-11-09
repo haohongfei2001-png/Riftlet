@@ -226,7 +226,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                             guard let self, self.mode == .settingsReview else { return false }
                             self.recheckSetup()
                             return self.captureControl.action == .recheck
-                        }, history: history)
+                        }, history: history, panel: rift)
                     let report = CommandLine.arguments.contains("--settings-review-restart-check")
                         ? await driver.verifyRestart() : await driver.run()
                     if let report { print("RIFTLET_SETTINGS_REVIEW_REPORT=" + report.path) }
