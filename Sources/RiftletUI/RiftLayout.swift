@@ -28,6 +28,10 @@ public struct RiftLayoutResult: Equatable, Sendable {
     public let firstVisibleIndex: Int
     public let capacity: Int
     public let totalCount: Int
+    /// Screen-space material and capture controls. Empty rectangles have no window.
+    public var surfaceFrame: CGRect = .zero
+    public var captureSlot: CGRect = .zero
+    public var captureMenuFrame: CGRect = .zero
     public var pagerFrame: CGRect = .zero
     public var earlierArrowFrame: CGRect = .zero
     public var laterArrowFrame: CGRect = .zero

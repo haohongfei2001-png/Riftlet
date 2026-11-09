@@ -117,6 +117,48 @@ final class PresentationBoundaryTests: XCTestCase {
         XCTAssertEqual(selected, 1, "Reprojection never replays the user's selection")
     }
 
+    @MainActor func testTrayMenuCannotRecreateASwallowedInputWindow() throws {
+        var seen: [RiftPresentationBoundary] = []
+        let panel = try controller(onBoundary: { seen.append($0) })
+        defer { panel.close() }
+        var config = panel.requestedConfiguration
+        config.desktopForm = .tray
+        try panel.updateConfiguration(config)
+        panel.setTrayCapture(enabled: true, defaultMode: .window)
+        let a = record(), b = record(2), operation = UUID()
+        panel.render([a, b])
+        panel.render([record(image: a.image, status: .transferring, operationID: operation,
+                             visibility: .swallowed, revision: 1, reason: .uploadStarted), b])
+        panel.setTrayExpanded(true)
+        XCTAssertEqual(seen.map(\.phase), [.swallowScheduled, .swallowActualStart, .swallowClose])
+        XCTAssertTrue(seen.allSatisfy { $0.assetID == a.id && $0.operationID == operation })
+        XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [b.id])
+        advanceQuietEdgeRefill(panel)
+        XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [b.id])
+    }
+
+    @MainActor func testSwitchFormsRetainsAcceptedSelectionUntilItsOwnerFinishes() throws {
+        var selected: [UUID] = []
+        let panel = try controller(holdsSelection: true, onSelect: { selected.append($0) })
+        defer { panel.close() }
+        let a = record(revision: 7), b = record(2)
+        var config = panel.requestedConfiguration
+        config.desktopForm = .edgefolio
+        try panel.updateConfiguration(config)
+        panel.render([a, b])
+        let original = try rowView(a.id, in: panel)
+        XCTAssertTrue(original.accessibilityPerformPress())
+        config.desktopForm = .pocket
+        try panel.updateConfiguration(config)
+        XCTAssertEqual(panel.selectionRevision(for: a.id), 7)
+        XCTAssertEqual(selected, [a.id])
+        panel.finishSelection(a.id)
+        XCTAssertEqual(panel.configuration.desktopForm, .pocket)
+        XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [a.id, b.id])
+        XCTAssertFalse(original.accessibilityPerformPress())
+        XCTAssertEqual(selected, [a.id])
+    }
+
     @MainActor func testOriginalStartIdentitySurvivesDeferredReadyAndClosesOnlyOnce() async throws {
         var boundaries: [RiftPresentationBoundary] = []
         let panel = try controller(onBoundary: { boundaries.append($0) })

@@ -839,7 +839,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
     }
 
     /// Explicit settings access exposes the existing choices without starting capture.
-    public func showPreferences() { showOptions(requiresExpanded: false) }
+    public func showPreferences(from anchor: NSView? = nil) { showOptions(requiresExpanded: false, anchor: anchor) }
 
     public func closePreferences() {
         let activeMenu = menu
@@ -848,7 +848,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
         if menuIsOpen { menuIsOpen = false; onMenuVisibility?(false) }
     }
 
-    private func showOptions(requiresExpanded: Bool = true) {
+    private func showOptions(requiresExpanded: Bool = true, anchor: NSView? = nil) {
         guard !closed, isEnabled, !isHidden, !isCaptureSuppressed,
               (!requiresExpanded || session.isExpanded), !isBusy, !menuIsOpen else { return }
         let menu = NSMenu(title: "截图选项")
@@ -880,7 +880,9 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
         let edit = NSMenuItem(title: "截图后编辑", action: #selector(toggleEditing(_:)), keyEquivalent: "")
         edit.target = self; edit.state = options.editAfter ? .on : .off; menu.addItem(edit)
         self.menu = menu
-        if session.isExpanded {
+        if let anchor, anchor.window?.isVisible == true {
+            menu.popUp(positioning: nil, at: CGPoint(x: anchor.bounds.minX, y: anchor.bounds.minY), in: anchor)
+        } else if session.isExpanded {
             let view = inputs[ScreenshotEntrySlot.more.rawValue].view
             menu.popUp(positioning: nil, at: CGPoint(x: -menu.size.width - 6, y: view.bounds.maxY), in: view)
         } else {
