@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "sourceBaseline": "bbb246713a720b0e16c1764852619a2a8d1f1ff3",
+  "sourceBaseline": "44a84b9485789e0229c7f7f5e47b0ed5bebf10df",
   "scope": "Consumer first use, capture location and recovery, history, storage and direct download. This checkpoint binds the effective screenshot preference, selected directory and watcher, persistent volume identity, per-file historical protection and the messages shown in Settings and the control center. The production queue migration and verification of backups made by earlier readers are also bound.",
   "files": [
     {
@@ -45,8 +45,8 @@
     },
     {
       "path": "Sources/RiftletApp/ProductStatus.swift",
-      "sha256": "1781ea13f29dc3ac1527d3182a01f8d9644751c0dc089227b63e72b847ad5b93",
-      "sourceBlob": "362e4c5cb437cd9c4f1e88ad7126bd7b335e95f5"
+      "sha256": "1a51a00df723e5f01bebfb2b1afd5f09d3321551cd5cffcc3dfedca73e351841",
+      "sourceBlob": "027a07e265a31ad1c9f3f00529231813a0d3cc0f"
     },
     {
       "path": "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js",
@@ -180,8 +180,8 @@
     },
     {
       "path": "Sources/RiftletUI/SetupPresentation.swift",
-      "sha256": "a75e4bdfbb45922deae012ba059e7bdaf0e83d21382e1dc76dca9ef3c9925909",
-      "sourceBlob": "60a8dfe73b498c3664603c35ed9ff560006b0167"
+      "sha256": "87e13653f1da5e0b420b4928bb84d6d884529bb278e3c54a89ea1c606da6e299",
+      "sourceBlob": "8b0345617da66ff64773c00ef3659c432f1c8878"
     },
     {
       "path": "Sources/RiftletUI/RiftOnboardingController.swift",
@@ -190,8 +190,8 @@
     },
     {
       "path": "Sources/RiftletUI/RiftControlCenterPresentation.swift",
-      "sha256": "a400031eab9c4ab8f8a3faef982443a81cf162146b9dd82540eba09d9075201a",
-      "sourceBlob": "d375bd4ab0a8d67e5e794facb8c0816f77191066"
+      "sha256": "036968da3177c13ae3997baec5fca56bd44ad9c8ebdcf42b544bb3a92524816b",
+      "sourceBlob": "ac1f88a7f3db5c738df7f2bca47066ab80329a78"
     },
     {
       "path": "Sources/RiftletUI/SettingsProductPresentation.swift",
