@@ -33,6 +33,8 @@ public enum SettingsField: String, CaseIterable, Hashable, Sendable {
     case numberFontSize, numberGap, leftPadding, minimumHitWidth, minimumHitHeight, visibleCountPreference
     case pressDuration, swallowDuration, shiftDuration, returnDuration
 
+    fileprivate var isCustomTrayTint: Bool { self == .trayTintHue || self == .trayTintStrength }
+
     public var page: SettingsDraftPage {
         switch self {
         case .pressDuration, .swallowDuration, .shiftDuration, .returnDuration: return .motion
@@ -284,15 +286,25 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
     }
 
     public var snapshot: SettingsStateSnapshot {
-        .init(revision: revision, owner: owner, layoutText: layoutText,
-              configurationDraft: configurationDraft,
-              archiveText: archiveText, domains: domains)
+        var visibleDomains = domains
+        // A retained tint draft is editable again when its controls return.
+        // Present its current validation only while it belongs to this form and theme.
+        if case .invalidNumber(let field) = visibleDomains[.layout]?.validationFailure, field.isCustomTrayTint {
+            visibleDomains[.layout]?.validationFailure = nil
+        }
+        let draft: RiftConfiguration?
+        do { draft = try configuration(for: .layout(layoutPatch())) }
+        catch {
+            draft = nil
+            if case SettingsValidationFailure.invalidNumber(let field) = error, field.isCustomTrayTint {
+                visibleDomains[.layout]?.validationFailure = .invalidNumber(field)
+            }
+        }
+        return .init(revision: revision, owner: owner, layoutText: layoutText,
+                     configurationDraft: draft, archiveText: archiveText, domains: visibleDomains)
     }
 
-    public var configurationDraft: RiftConfiguration? {
-        do { return try configuration(for: .layout(layoutPatch())) }
-        catch { return nil }
-    }
+    public var configurationDraft: RiftConfiguration? { snapshot.configurationDraft }
 
     public func text(for field: SettingsField) -> String {
         layoutText[field] ?? format(field.value(in: owner.settings.configuration) * field.scale)
@@ -337,10 +349,7 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         case .restoreDefaults(let page):
             let defaults = RiftConfiguration()
             revision += 1
-            for field in SettingsField.allCases where field.page == page && applicable(field) {
-                if field == .trayTintHue || field == .trayTintStrength {
-                    guard owner.settings.configuration.desktopForm == .tray, owner.settings.configuration.trayTheme == .custom else { continue }
-                }
+            for field in SettingsField.allCases where field.page == page && includedInLayoutDraft(field) {
                 if field == .trayOcclusion && owner.settings.configuration.desktopForm != .tray { continue }
                 layoutText[field] = format(field.value(in: defaults) * field.scale)
                 layoutEditVersions[field] = revision
@@ -395,8 +404,16 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         field != .firstCenterFromTop || owner.settings.configuration.placement == nil
     }
 
+    private func includedInLayoutDraft(_ field: SettingsField) -> Bool {
+        if field.isCustomTrayTint {
+            let configuration = owner.settings.configuration
+            return configuration.desktopForm == .tray && configuration.trayTheme == .custom
+        }
+        return applicable(field)
+    }
+
     private func layoutPatch() throws -> [SettingsField: Double] {
-        try Dictionary(uniqueKeysWithValues: layoutText.filter { applicable($0.key) }.map { field, text in
+        try Dictionary(uniqueKeysWithValues: layoutText.filter { includedInLayoutDraft($0.key) }.map { field, text in
             guard let value = parse(text) else { throw SettingsValidationFailure.invalidNumber(field) }
             return (field, value / field.scale)
         })
@@ -416,10 +433,14 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         do {
             if layoutText.isEmpty, let pending = prepareRetry(.layout) { return pending }
             let patch = try layoutPatch()
+            let prepared = prepare(.layout(patch))
             if !hasLayoutDraft && domains[.layout]?.pending == nil {
-                discard(.layout); return nil
+                clearSubmittedText(prepared)
+                domains[.layout]?.validationFailure = nil
+                revision += 1
+                return nil
             }
-            return prepare(.layout(patch))
+            return patch.isEmpty ? nil : prepared
         } catch let error as SettingsValidationFailure { invalid(.layout, error, into: &result) }
         catch { invalid(.layout, .invalidConfiguration, into: &result) }
         return nil

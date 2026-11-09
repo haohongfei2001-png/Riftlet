@@ -210,6 +210,41 @@ final class SettingsStateModelTests: XCTestCase {
         XCTAssertEqual(persisted.trayOcclusion, 0)
     }
 
+    @MainActor func testHiddenInvalidTrayTintSurvivesUnrelatedSaveAndNoOpApply() async throws {
+        let owner = Owner()
+        let model = try model(owner)
+        _ = await model.perform(.selectDesktopForm(.tray))
+        _ = await model.perform(.selectTrayTheme(.custom))
+        model.setDraftText("101", for: .trayTintStrength)
+        _ = await model.perform(.applyLayout)
+        XCTAssertEqual(model.snapshot.domains[.layout]?.validationFailure, .invalidNumber(.trayTintStrength))
+
+        _ = await model.perform(.selectTrayTheme(.system))
+        XCTAssertNil(model.snapshot.domains[.layout]?.validationFailure)
+        model.setDraftText("22", for: .outerInset)
+        let saved = await model.perform(.applyLayout)
+        XCTAssertEqual(saved.confirmed, [.layout])
+        XCTAssertEqual(owner.value.settings.configuration.outerInset, 22)
+        XCTAssertEqual(owner.value.settings.configuration.trayTintStrength, 0.65)
+        let writes = owner.requests.count
+        _ = await model.perform(.applyLayout)
+        XCTAssertEqual(owner.requests.count, writes)
+
+        // The same controls are also hidden outside the screenshot tray.
+        _ = await model.perform(.selectDesktopForm(.pocket))
+        _ = await model.perform(.selectTrayTheme(.custom))
+        XCTAssertNil(model.snapshot.domains[.layout]?.validationFailure)
+        _ = await model.perform(.applyLayout)
+        _ = await model.perform(.selectDesktopForm(.tray))
+        XCTAssertEqual(model.text(for: .trayTintStrength), "101")
+        XCTAssertEqual(model.snapshot.domains[.layout]?.validationFailure, .invalidNumber(.trayTintStrength))
+        model.setDraftText("85", for: .trayTintStrength)
+        let corrected = await model.perform(.applyLayout)
+        XCTAssertEqual(corrected.confirmed, [.layout])
+        XCTAssertEqual(owner.value.settings.configuration.trayTintStrength, 0.85)
+        XCTAssertEqual(owner.value.settings.configuration.outerInset, 22)
+    }
+
     func testUnsupportedTintValuesSurviveUnrelatedSavesAndLegacyKeysStayAbsent() throws {
         let source = Data(#"{"trayTheme":"custom","trayTintHue":{"schema":3},"trayTintStrength":-1}"#.utf8)
         var configuration = try JSONDecoder().decode(RiftConfiguration.self, from: source)
