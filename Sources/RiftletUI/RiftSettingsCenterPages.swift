@@ -129,8 +129,12 @@ extension RiftSettingsCenterController {
             guard RiftTrayTheme.allCases.indices.contains(control.indexOfSelectedItem) else { return }
             self?.dispatch(.settings(.selectTrayTheme(RiftTrayTheme.allCases[control.indexOfSelectedItem])))
         }
+        trayTintSettings = SettingsNativeStyle.stack([
+            numericRow(.trayTintHue, title: "玻璃色调", unit: "°", range: 0...360, step: 1),
+            numericRow(.trayTintStrength, title: "色彩强度", unit: "%", range: 0...100, step: 1)
+        ], spacing: 8)
         traySettings = SettingsNativeStyle.stack([
-            row("托盘材质", control: theme), domainError(.trayTheme),
+            row("托盘材质", control: theme), domainError(.trayTheme), trayTintSettings!,
             numericRow(.trayOcclusion, title: "托盘截图遮挡", unit: "%", range: 0...90),
             disclosure("截图菜单常用键", id: "tray.favorites", content: trayFavoriteSettings())
         ], spacing: 8)
@@ -452,7 +456,13 @@ extension RiftSettingsCenterController {
                 model.setDraftText(text, for: key)
                 refreshDraftPresentation()
             }
-            if step != nil { slider.numberOfTickMarks = Int(range.upperBound - range.lowerBound) + 1; slider.allowsTickMarkValuesOnly = true }
+            if let step {
+                let tickCount = Int((range.upperBound - range.lowerBound) / step) + 1
+                if tickCount <= 10 {
+                    slider.numberOfTickMarks = tickCount
+                    slider.allowsTickMarkValuesOnly = true
+                }
+            }
             slider.isContinuous = true
             slider.widthAnchor.constraint(greaterThanOrEqualToConstant: 85).isActive = true
             slider.widthAnchor.constraint(lessThanOrEqualToConstant: 160).isActive = true

@@ -78,6 +78,10 @@ final class ScreenshotEntryHost {
             else { self.startCapture(mode: mode) }
             self.updateCapturePresentation()
         }
+        rift.onTrayCancel = { [weak self] owner in
+            guard let self, self.capture.activeSessionID == owner else { return }
+            self.cancel()
+        }
         entry.onGeometryChange = { [weak self] in
             guard let self else { return }
             self.rift.setExtraPreviewExclusions(self.entry.inputFrames)
@@ -117,8 +121,10 @@ final class ScreenshotEntryHost {
     }
 
     private func updateCapturePresentation() {
-        entry.setCapturePresentation(!closed && isEnabled && !userHidden && !cancelling
-            ? capture.presentationSnapshot : nil)
+        let visible = !closed && isEnabled && !userHidden && !cancelling
+        entry.setCapturePresentation(visible ? capture.presentationSnapshot : nil)
+        // The selection session already exists before a target or countdown does.
+        rift.setTrayCaptureSession(visible ? capture.activeSessionID : nil)
     }
 
     func configure() {
@@ -150,13 +156,11 @@ final class ScreenshotEntryHost {
             return
         }
         guard isEnabled, !closed, !userHidden, !cancelling else { return }
-        rift.setCaptureSessionActive(true)
         capture.start(mode: mode, options: entry.options)
         // Permission refusal/no display never creates a capture session. Return
         // to a truthful retryable entry instead of displaying an inactive X.
         if !capture.isActive {
             entry.setExpanded(false)
-            rift.setCaptureSessionActive(false)
         }
     }
 
@@ -282,7 +286,7 @@ final class ScreenshotEntryHost {
     func cancel() {
         guard !closed, !cancelling else { return }
         cancelling = true
-        entry.setCapturePresentation(nil)
+        updateCapturePresentation()
         capture.cancel()
         setExposureSuppressed(false)
         editor?.keepOriginalAndClose(); editor = nil
@@ -290,7 +294,7 @@ final class ScreenshotEntryHost {
         menuOpen = false
         entry.setCaptureSuppressed(false); entry.setBusy(false)
         entry.setExpanded(false)
-        rift.setCaptureSuppressed(false); rift.setCaptureSessionActive(false)
+        rift.setCaptureSuppressed(false)
         rift.setTrayExpanded(false)
         cancelling = false
     }
@@ -304,6 +308,7 @@ final class ScreenshotEntryHost {
         screenObserver = nil
         windowCloseObserver = nil
         rift.onTrayCapture = nil
+        rift.onTrayCancel = nil
         rift.onGeometryChange = nil
         entry.onGeometryChange = nil
         entry.close()

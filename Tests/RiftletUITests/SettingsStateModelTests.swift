@@ -177,6 +177,52 @@ final class SettingsStateModelTests: XCTestCase {
         }
     }
 
+    @MainActor func testCustomTintValidatesSavesAndReopensWithoutLosingPresetOrOtherSettings() async throws {
+        let owner = Owner()
+        let model = try model(owner)
+        _ = await model.perform(.selectDesktopForm(.tray))
+        _ = await model.perform(.selectTrayTheme(.custom))
+        model.setDraftText("145", for: .trayTintHue)
+        model.setDraftText("101", for: .trayTintStrength)
+        _ = await model.perform(.applyLayout)
+        XCTAssertEqual(owner.value.settings.configuration.trayTintHue, 255)
+        XCTAssertTrue(model.hasLayoutDraft)
+
+        model.setDraftText("42", for: .trayTintStrength)
+        owner.failures.insert(.layout)
+        let failed = await model.perform(.applyLayout)
+        XCTAssertEqual(failed.failed, [.layout])
+        _ = await model.perform(.selectTrayTheme(.system))
+        XCTAssertEqual(model.text(for: .trayTintHue), "145")
+        XCTAssertEqual(model.text(for: .trayTintStrength), "42")
+        XCTAssertTrue(model.snapshot.domains[.layout]?.saveFailure != nil)
+        _ = await model.perform(.selectTrayTheme(.custom))
+        owner.failures.remove(.layout)
+        let retried = await model.perform(.retry(.layout))
+        XCTAssertEqual(retried.confirmed, [.layout])
+
+        _ = await model.perform(.selectTrayTheme(.violetGlass))
+        XCTAssertEqual(owner.value.settings.configuration.trayColors, .violetGlass)
+        _ = await model.perform(.selectTrayTheme(.custom))
+        let data = try JSONEncoder().encode(owner.value.settings.configuration)
+        let persisted = try JSONDecoder().decode(RiftConfiguration.self, from: data)
+        XCTAssertEqual(persisted.trayColors, .custom(hue: 145, strength: 0.42))
+        XCTAssertEqual(persisted.trayOcclusion, 0)
+    }
+
+    func testUnsupportedTintValuesSurviveUnrelatedSavesAndLegacyKeysStayAbsent() throws {
+        let source = Data(#"{"trayTheme":"custom","trayTintHue":{"schema":3},"trayTintStrength":-1}"#.utf8)
+        var configuration = try JSONDecoder().decode(RiftConfiguration.self, from: source)
+        XCTAssertEqual(configuration.trayColors, .custom(hue: 255, strength: 0.65))
+        configuration.outerInset = 13
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(configuration)) as? NSDictionary)
+        XCTAssertEqual(json["trayTintHue"] as? NSDictionary, ["schema": 3])
+        XCTAssertEqual(json["trayTintStrength"] as? Int, -1)
+        let legacy = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(RiftConfiguration())) as? NSDictionary)
+        XCTAssertNil(legacy["trayTintHue"])
+        XCTAssertNil(legacy["trayTintStrength"])
+    }
+
     func testTrayFavoritesKeepSlotIdentityAndOnlyAutomaticKeysFollowTheDefault() throws {
         var config = try JSONDecoder().decode(RiftConfiguration.self, from: Data("{}".utf8))
         XCTAssertEqual(config.trayFavoriteModes(defaultMode: .window), [.region, .fullScreen, nil])

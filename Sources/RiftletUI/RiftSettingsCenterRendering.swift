@@ -117,6 +117,7 @@ extension RiftSettingsCenterController {
         (controls["trayTheme"] as? NSPopUpButton)?.selectItem(withTitle: configuration.trayTheme.title)
         enable("desktopForm", product.capabilities.canEditPreferences && !configurationBusy)
         enable("trayTheme", product.capabilities.canEditPreferences && !configurationBusy)
+        trayTintSettings?.isHidden = configuration.trayTheme != .custom
         traySettings?.isHidden = configuration.desktopForm != .tray
         let defaultMode = settings.defaultCaptureMode
         let defaultTitle = RiftTrayFavoriteChoice.mode(defaultMode).menuTitle
@@ -204,6 +205,9 @@ extension RiftSettingsCenterController {
                 if let value = number(model.text(for: field)), value.isFinite { slider.doubleValue = min(slider.maxValue, max(slider.minValue, value)) }
                 slider.isEnabled = editable
             }
+        }
+        if let hue = number(model.text(for: .trayTintHue)), (0...360).contains(hue) {
+            numericSliders[.trayTintHue]?.trackFillColor = NSColor(hue: hue / 360, saturation: 0.7, brightness: 0.8, alpha: 1)
         }
         if archiveField.currentEditor() == nil {
             let value = model.archiveDraftText

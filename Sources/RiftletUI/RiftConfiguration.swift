@@ -19,8 +19,19 @@ public enum RiftDesktopForm: String, CaseIterable, Sendable {
 }
 
 public enum RiftTrayTheme: String, CaseIterable, Sendable {
-    case system, violetGlass
-    public var title: String { self == .system ? "系统玻璃" : "紫蓝玻璃" }
+    case system, violetGlass, custom
+    public var title: String {
+        switch self {
+        case .system: return "系统玻璃"
+        case .violetGlass: return "紫蓝玻璃"
+        case .custom: return "自定义玻璃"
+        }
+    }
+}
+
+/// Rendering consumes only the active theme. Dormant custom settings survive preset switches.
+enum RiftTrayColors: Equatable {
+    case system, violetGlass, custom(hue: Double, strength: Double)
 }
 
 /// In order from the desktop interior towards the dedicated default capture key.
@@ -51,6 +62,18 @@ private enum PresentationValue: Equatable, Sendable, Codable {
         else if let n = try? c.decode(Decimal.self) { self = .number(n) }
         else if let a = try? c.decode([Self].self) { self = .array(a) }
         else { self = .object(try c.decode([String: Self].self)) }
+    }
+
+    func number(in range: ClosedRange<Double>) -> Double? {
+        guard case .number(let raw) = self, let value = Double(NSDecimalNumber(decimal: raw).stringValue),
+              range.contains(value) else { return nil }
+        return value
+    }
+
+    static func number(_ value: Double, in range: ClosedRange<Double>) -> Self? {
+        guard range.contains(value), let number = Decimal(string: String(value), locale: Locale(identifier: "en_US_POSIX"))
+        else { return nil }
+        return .number(number)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -104,6 +127,8 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
 
     private var storedForm: PresentationValue?
     private var storedTrayTheme: PresentationValue?
+    private var storedTrayTintHue: PresentationValue?
+    private var storedTrayTintStrength: PresentationValue?
     private var storedTrayOcclusion: PresentationValue?
     private var storedTrayFavorite1: PresentationValue?
     private var storedTrayFavorite2: PresentationValue?
@@ -163,16 +188,30 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
         set { storedTrayTheme = .text(newValue.rawValue) }
     }
 
+    public var trayTintHue: Double {
+        get { storedTrayTintHue?.number(in: 0...360) ?? 255 }
+        set { if let value = PresentationValue.number(newValue, in: 0...360) { storedTrayTintHue = value } }
+    }
+
+    public var trayTintStrength: Double {
+        get { storedTrayTintStrength?.number(in: 0...1) ?? 0.65 }
+        set { if let value = PresentationValue.number(newValue, in: 0...1) { storedTrayTintStrength = value } }
+    }
+
+    var trayColors: RiftTrayColors {
+        switch trayTheme {
+        case .system: return .system
+        case .violetGlass: return .violetGlass
+        case .custom: return .custom(hue: trayTintHue, strength: trayTintStrength)
+        }
+    }
+
     public var trayOcclusion: Double {
         get {
-            guard case .number(let raw) = storedTrayOcclusion else { return 0 }
-            guard let value = Double(NSDecimalNumber(decimal: raw).stringValue) else { return 0 }
-            return (0...0.9).contains(value) ? value : 0
+            storedTrayOcclusion?.number(in: 0...0.9) ?? 0
         }
         set {
-            guard (0...0.9).contains(newValue),
-                  let value = Decimal(string: String(newValue), locale: Locale(identifier: "en_US_POSIX")) else { return }
-            storedTrayOcclusion = .number(value)
+            if let value = PresentationValue.number(newValue, in: 0...0.9) { storedTrayOcclusion = value }
         }
     }
 
@@ -181,6 +220,7 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
 
     private enum CodingKeys: String, CodingKey { case fitWidth, fitHeight, hiddenFraction, rowPitch, lineWidth, lineExtension, emptyTraceLength, outerInset, firstCenterFromTop, screenPadding, numberFontSize, numberGap, leftPadding, minimumHitWidth, minimumHitHeight, arrivalDuration, pressDuration, inwardDistance, swallowDuration, shiftDuration, returnDuration, reducedMotionDuration, preferredDisplayID, visibleCountPreference, placement, placementSource, preferredDisplayUUID
         case storedForm = "desktopForm", storedTrayTheme = "trayTheme", storedTrayOcclusion = "trayOcclusion"
+        case storedTrayTintHue = "trayTintHue", storedTrayTintStrength = "trayTintStrength"
         case storedTrayFavorite1 = "trayFavorite1", storedTrayFavorite2 = "trayFavorite2", storedTrayFavorite3 = "trayFavorite3"
     }
 
@@ -189,6 +229,8 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         if values.contains(.storedForm) { storedForm = try values.decode(PresentationValue.self, forKey: .storedForm) }
         if values.contains(.storedTrayTheme) { storedTrayTheme = try values.decode(PresentationValue.self, forKey: .storedTrayTheme) }
+        if values.contains(.storedTrayTintHue) { storedTrayTintHue = try values.decode(PresentationValue.self, forKey: .storedTrayTintHue) }
+        if values.contains(.storedTrayTintStrength) { storedTrayTintStrength = try values.decode(PresentationValue.self, forKey: .storedTrayTintStrength) }
         if values.contains(.storedTrayOcclusion) { storedTrayOcclusion = try values.decode(PresentationValue.self, forKey: .storedTrayOcclusion) }
         if values.contains(.storedTrayFavorite1) { storedTrayFavorite1 = try values.decode(PresentationValue.self, forKey: .storedTrayFavorite1) }
         if values.contains(.storedTrayFavorite2) { storedTrayFavorite2 = try values.decode(PresentationValue.self, forKey: .storedTrayFavorite2) }

@@ -1,6 +1,34 @@
 import AppKit
 import QuartzCore
 
+extension RiftTrayColors {
+    /// Retint a sampled violet surface in linear sRGB at its original luminance.
+    /// This keeps glass alpha, key contrast and thumbnail image content independent.
+    func tint(_ sampled: NSColor) -> NSColor {
+        guard case .custom(let hue, let strength) = self,
+              let source = sampled.usingColorSpace(.sRGB) else { return sampled }
+        let saturation = min(1, source.saturationComponent * 1.6) * strength
+        guard let target = NSColor(hue: hue / 360, saturation: saturation, brightness: 1, alpha: 1)
+            .usingColorSpace(.sRGB) else { return sampled }
+
+        func linear(_ channel: CGFloat) -> CGFloat {
+            channel <= 0.04045 ? channel / 12.92 : pow((channel + 0.055) / 1.055, 2.4)
+        }
+        func luminance(_ rgb: NSColor) -> CGFloat {
+            0.2126 * linear(rgb.redComponent) + 0.7152 * linear(rgb.greenComponent) + 0.0722 * linear(rgb.blueComponent)
+        }
+        let from = luminance(target)
+        let to = luminance(source)
+        func channel(_ srgb: CGFloat) -> CGFloat {
+            let value = linear(srgb)
+            let adjusted = to <= from ? value * to / from : value + (1 - value) * (to - from) / (1 - from)
+            return adjusted <= 0.0031308 ? 12.92 * adjusted : 1.055 * pow(adjusted, 1 / 2.4) - 0.055
+        }
+        return NSColor(srgbRed: channel(target.redComponent), green: channel(target.greenComponent),
+                       blue: channel(target.blueComponent), alpha: sampled.alphaComponent)
+    }
+}
+
 /// Ratios measured from the 246-pixel-wide tray in the PR #51 reference.
 /// A source pixel becomes one ratio unit; it is not assumed to be a point.
 struct RiftTrayGlassPalette {
@@ -12,13 +40,14 @@ struct RiftTrayGlassPalette {
     var keyRim: NSColor
     var blurOpacity: CGFloat
 
-    init(violet: Bool, appearance: NSAppearance, clearGlass: Bool) {
+    init(colors: RiftTrayColors, appearance: NSAppearance, clearGlass: Bool) {
         let dark = appearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
         let contrast = NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast ||
             appearance.bestMatch(from: [.aqua, .darkAqua, .accessibilityHighContrastAqua, .accessibilityHighContrastDarkAqua])
                 .map { $0 == .accessibilityHighContrastAqua || $0 == .accessibilityHighContrastDarkAqua } == true
         let opaque = NSWorkspace.shared.accessibilityDisplayShouldReduceTransparency
         let glassAlpha: CGFloat = opaque ? 1 : contrast ? 0.86 : (clearGlass ? 0.53 : 0.68)
+        let violet = colors != .system
         let keyAlpha: CGFloat = opaque || contrast ? 1 : (violet && !dark ? 0.94 : 0.78)
         if violet {
             // Milky glass acquires most of its blue from the live desktop.
@@ -32,6 +61,10 @@ struct RiftTrayGlassPalette {
                        : NSColor(srgbRed: 0.600, green: 0.477, blue: 0.980, alpha: 1)
             keyFoot = dark ? NSColor(srgbRed: 0.28, green: 0.25, blue: 0.43, alpha: keyAlpha)
                            : NSColor(srgbRed: 0.820, green: 0.761, blue: 1, alpha: opaque ? 1 : 0.67)
+            material = colors.tint(material)
+            key = colors.tint(key)
+            ink = colors.tint(ink)
+            keyFoot = colors.tint(keyFoot)
         } else {
             material = NSColor.windowBackgroundColor.withAlphaComponent(glassAlpha)
             key = NSColor.controlBackgroundColor.withAlphaComponent(keyAlpha)
@@ -143,7 +176,7 @@ final class RiftTrayCastShadow: NSView {
     private let caster = CALayer()
     private let exterior = CAShapeLayer()
     private var appliedSize = CGSize.zero
-    private var appliedViolet: Bool?
+    private var appliedColors: RiftTrayColors?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -157,13 +190,13 @@ final class RiftTrayCastShadow: NSView {
     required init?(coder: NSCoder) { nil }
     override func hitTest(_ point: NSPoint) -> NSView? { nil }
 
-    func configure(for surface: CGRect, violet: Bool) -> CGRect {
+    func configure(for surface: CGRect, colors: RiftTrayColors) -> CGRect {
         let unit = surface.width / 246
         let margin = ceil(42 * unit)
         let outer = surface.insetBy(dx: -margin, dy: -margin)
-        guard surface.size != appliedSize || violet != appliedViolet else { return outer }
+        guard surface.size != appliedSize || colors != appliedColors else { return outer }
         appliedSize = surface.size
-        appliedViolet = violet
+        appliedColors = colors
         let local = CGRect(origin: CGPoint(x: margin, y: margin), size: surface.size)
         let radius = min(local.height / 2, 24 * unit)
         let shape = CGPath(roundedRect: local, cornerWidth: radius, cornerHeight: radius, transform: nil)
@@ -177,7 +210,7 @@ final class RiftTrayCastShadow: NSView {
         exterior.path = outside
         caster.frame = bounds
         caster.shadowPath = shape
-        caster.shadowColor = violet ? NSColor(srgbRed: 0.05, green: 0.06, blue: 0.15, alpha: 1).cgColor : NSColor.black.cgColor
+        caster.shadowColor = colors == .system ? NSColor.black.cgColor : colors.tint(NSColor(srgbRed: 0.05, green: 0.06, blue: 0.15, alpha: 1)).cgColor
         caster.shadowRadius = 11 * unit
         caster.shadowOffset = CGSize(width: 0, height: -10.5 * unit)
         caster.shadowOpacity = 0.20

@@ -25,6 +25,7 @@ public final class InteractiveScreenshotController {
     public var onCaptureVisibilityChanged: ((_ isHidden: Bool) -> Void)?
 
     public var isActive: Bool { session.isActive }
+    public var activeSessionID: UUID? { session.isActive ? session.id : nil }
     public private(set) var isEnabled: Bool
     public var isCapturing: Bool { session.pending != nil }
     public var currentMode: ScreenshotMode { session.mode }

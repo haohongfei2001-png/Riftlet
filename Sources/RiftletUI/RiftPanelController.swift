@@ -214,7 +214,7 @@ private final class RiftRowView: NSView, NSMenuDelegate {
         ornament.update(view: self, imageClip: imageClip, rect: geometry.imageClipFrame,
                         left: configuration.placement?.side == .left, hidden: configuration.desktopForm == .microSlit && configuration.hiddenFraction > 0,
                         hovered: visualHovered, pressed: visualPressed, trayCard: geometry.trayCardFrame,
-                        violet: configuration.trayTheme == .violetGlass)
+                        colors: configuration.trayColors)
         if arrivalImageOwner != nil { ornament.lip.isHidden = true }
     }
     override func viewDidChangeBackingProperties() {
@@ -573,6 +573,8 @@ public final class RiftPanelController {
     private var trayCaptureEnabled = false
     private var trayDefaultMode: ScreenshotMode = .window
     public var onTrayCapture: ((ScreenshotMode) -> Void)?
+    public var onTrayCancel: ((UUID) -> Void)?
+    private var trayCaptureSessionID: UUID?
     private let pager = RiftPager()
     private var pagerLayout: RiftLayoutResult?
     private let peek = RiftPeek()
@@ -913,8 +915,13 @@ public final class RiftPanelController {
         }
         if let monitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown, .keyDown], handler: { [weak self] event in
             if event.type == .keyDown {
-                if let self, event.keyCode == 53, self.trayExpanded, !self.captureSessionActive,
+                if let self, event.keyCode == 53, self.trayExpanded,
                    event.window === self.formSurface || (event.window == nil && NSApp.keyWindow === self.formSurface) {
+                    if let owner = self.trayCaptureSessionID {
+                        self.onTrayCancel?(owner)
+                        return nil
+                    }
+                    guard !self.captureSessionActive else { return event }
                     self.setTrayExpanded(false)
                     return self.trayExpanded ? event : nil
                 }
@@ -927,6 +934,13 @@ public final class RiftPanelController {
     }
 
     public func setCaptureHeaderAnchor(_ anchor: CGPoint?) { /* R2 camera never extends the slit. */ }
+
+    public func setTrayCaptureSession(_ id: UUID?) {
+        guard !closed, trayCaptureSessionID != id else { return }
+        trayCaptureSessionID = id
+        setCaptureSessionActive(id != nil)
+        (formSurface.contentView as? RiftTraySurfaceView)?.setCaptureSession(id, reduceMotion: reduceMotion)
+    }
 
     public func setCaptureSessionActive(_ active: Bool) {
         guard !closed else { return }
@@ -1338,7 +1352,7 @@ public final class RiftPanelController {
     private func setFormFrame(_ frame: CGRect) {
         formSurface.setFrame(frame, display: true)
         if let shadow = decoration.contentView as? RiftTrayCastShadow {
-            decoration.setFrame(shadow.configure(for: frame, violet: configuration.trayTheme == .violetGlass), display: true)
+            decoration.setFrame(shadow.configure(for: frame, colors: configuration.trayColors), display: true)
         }
     }
 
@@ -1372,9 +1386,11 @@ public final class RiftPanelController {
                     self.setTrayExpanded(!self.trayExpanded)
                 }
                 view.onCapture = { [weak self] in self?.onTrayCapture?($0) }
+                view.onCancelCapture = { [weak self] in self?.onTrayCancel?($0) }
                 view.onScroll = { [weak self] in self?.scroll($0) }
             }
-            view.update(layout: layout, violet: configuration.trayTheme == .violetGlass, defaultMode: trayDefaultMode,
+            view.setCaptureSession(trayCaptureSessionID, reduceMotion: reduceMotion)
+            view.update(layout: layout, colors: configuration.trayColors, defaultMode: trayDefaultMode,
                         favoriteModes: configuration.trayFavoriteModes(defaultMode: trayDefaultMode),
                         reduceMotion: reduceMotion)
             formSurface.ignoresMouseEvents = false

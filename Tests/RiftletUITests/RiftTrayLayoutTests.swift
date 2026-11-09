@@ -5,6 +5,44 @@ import XCTest
 @testable import RiftletUI
 
 final class RiftTrayLayoutTests: XCTestCase {
+    @MainActor func testTintChangesOnlyGlassDecorationAndKeepsPresetOpacityAndContrast() throws {
+        let source = NSColor(srgbRed: 0.600, green: 0.477, blue: 0.980, alpha: 0.53)
+        XCTAssertTrue(RiftTrayColors.violetGlass.tint(source) === source)
+        XCTAssertTrue(RiftTrayColors.system.tint(source) === source)
+        let gray = try XCTUnwrap(RiftTrayColors.custom(hue: 120, strength: 0).tint(source).usingColorSpace(.sRGB))
+        XCTAssertEqual(gray.redComponent, gray.greenComponent, accuracy: 0.0001)
+        XCTAssertEqual(gray.greenComponent, gray.blueComponent, accuracy: 0.0001)
+        let half = RiftTrayColors.custom(hue: 120, strength: 0.5).tint(source)
+        let full = RiftTrayColors.custom(hue: 120, strength: 1).tint(source)
+        XCTAssertGreaterThan(half.greenComponent, half.redComponent)
+        XCTAssertGreaterThan(full.greenComponent - full.redComponent, half.greenComponent - half.redComponent)
+        XCTAssertEqual(full.alphaComponent, source.alphaComponent)
+        func luminance(_ color: NSColor) -> CGFloat {
+            func linear(_ x: CGFloat) -> CGFloat { x <= 0.04045 ? x / 12.92 : pow((x + 0.055) / 1.055, 2.4) }
+            return linear(color.redComponent) * 0.2126 + linear(color.greenComponent) * 0.7152 + linear(color.blueComponent) * 0.0722
+        }
+        for color in [gray, half, full] { XCTAssertEqual(luminance(color), luminance(source), accuracy: 0.0001) }
+        XCTAssertGreaterThan(RiftTrayColors.custom(hue: 0, strength: 1).tint(source).redComponent, full.redComponent)
+
+        for style in [NSAppearance.Name.aqua, .darkAqua, .accessibilityHighContrastAqua, .accessibilityHighContrastDarkAqua] {
+            let appearance = try XCTUnwrap(NSAppearance(named: style))
+            for clear in [true, false] {
+                let preset = RiftTrayGlassPalette(colors: .violetGlass, appearance: appearance, clearGlass: clear)
+                let custom = RiftTrayGlassPalette(colors: .custom(hue: 180, strength: 1), appearance: appearance, clearGlass: clear)
+                XCTAssertEqual(custom.blurOpacity, preset.blurOpacity)
+                XCTAssertEqual(custom.material.alphaComponent, preset.material.alphaComponent)
+                XCTAssertEqual(custom.key.alphaComponent, preset.key.alphaComponent)
+                XCTAssertEqual(custom.keyFoot.alphaComponent, preset.keyFoot.alphaComponent)
+                XCTAssertEqual(custom.rim, preset.rim)
+                XCTAssertEqual(custom.keyRim, preset.keyRim)
+                // Some macOS versions resolve an explicit contrast name to Aqua when the system setting is off.
+                if preset.ink == .labelColor {
+                    XCTAssertEqual(custom.ink, .labelColor)
+                }
+            }
+        }
+    }
+
     private let display = CGRect(x: -1280, y: 40, width: 1280, height: 800)
     private func assets(_ count: Int) -> [AssetRecord] {
         let sizes = [(1200, 800), (9, 12), (5, 4000), (12000, 4)]
@@ -182,11 +220,11 @@ final class RiftTrayLayoutTests: XCTestCase {
             for mode in ScreenshotMode.allCases {
                 let automatic = configuration.trayFavoriteModes(defaultMode: mode)
                 for choices: [ScreenshotMode?] in [automatic, [.region, .window, .region]] {
-                    surface.update(layout: closed, violet: true, defaultMode: mode, favoriteModes: choices, reduceMotion: true)
+                    surface.update(layout: closed, colors: .violetGlass, defaultMode: mode, favoriteModes: choices, reduceMotion: true)
                     let camera = try XCTUnwrap(surface.subviews.compactMap { $0 as? NSButton }.first { !$0.isHidden })
                     XCTAssertEqual(camera.accessibilityLabel(), "展开截图方式")
                     XCTAssertEqual(camera.frame, closed.captureSlot.offsetBy(dx: -closed.surfaceFrame.minX, dy: -closed.surfaceFrame.minY))
-                    surface.update(layout: open, violet: true, defaultMode: mode, favoriteModes: choices, reduceMotion: true)
+                    surface.update(layout: open, colors: .violetGlass, defaultMode: mode, favoriteModes: choices, reduceMotion: true)
                     let buttons = surface.subviews.compactMap { $0 as? NSButton }.filter { !$0.isHidden }
                         .sorted { $0.frame.minX < $1.frame.minX }
                     XCTAssertEqual(buttons.count, 4)

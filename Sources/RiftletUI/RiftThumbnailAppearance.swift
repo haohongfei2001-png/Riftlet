@@ -48,7 +48,7 @@ import QuartzCore
         for s in [outer, inner] { s.fillColor = nil }
     }
     func update(view: NSView, imageClip: CALayer, rect: CGRect, left: Bool, hidden: Bool,
-                hovered: Bool, pressed: Bool, trayCard: CGRect? = nil, violet: Bool = false) {
+                hovered: Bool, pressed: Bool, trayCard: CGRect? = nil, colors: RiftTrayColors = .system) {
         let scale = max(1, view.window?.backingScaleFactor ?? 1), pixel = 1 / scale
         let dark = view.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
         let contrast = NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast
@@ -101,11 +101,12 @@ import QuartzCore
         if trayCard != nil {
             // The reference thumbnail is a complete image on a thin glass card.
             // Keep the pixels rectangular and give only the backing round corners.
+            let violet = colors != .system
             let backing: UInt32 = violet ? (dark ? 0x73718A : 0xEAE8FD) : (dark ? 0x64636B : 0xF4F4F7)
-            matte.fillColor = RiftThumbnailAppearance.color(backing).cgColor
+            matte.fillColor = colors.tint(RiftThumbnailAppearance.color(backing)).cgColor
             primary.fillColor = matte.fillColor; tight.fillColor = matte.fillColor
             primary.shadowRadius = pressed ? 1 : min(3, radius / 3)
-            primary.shadowColor = RiftThumbnailAppearance.color(violet ? 0x333056 : 0x292A30).cgColor
+            primary.shadowColor = colors.tint(RiftThumbnailAppearance.color(violet ? 0x333056 : 0x292A30)).cgColor
             primary.shadowOpacity = dark ? 0.22 : 0.15
             primary.shadowOffset = CGSize(width: 0, height: pressed ? -0.5 : -1.5)
             outer.strokeColor = RiftThumbnailAppearance.color(contrast ? (dark ? 0xFFFFFF : 0x353542) : 0xFFFFFF,

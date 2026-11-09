@@ -13,7 +13,8 @@ import RiftletAdapters
 @MainActor
 private final class HostPermissionFixture: InteractiveScreenshotPermissionChecking {
     var checks = 0, requests = 0
-    func hasAccess() -> Bool { checks += 1; return true }
+    var granted = true
+    func hasAccess() -> Bool { checks += 1; return granted }
     func requestAccess() -> Bool { requests += 1; return false }
 }
 
@@ -301,6 +302,80 @@ final class BuiltInScreenshotHostTests: XCTestCase {
         XCTAssertNil(host.entry.capturePresentation)
         host.close()
         XCTAssertNil(host.entry.capturePresentation)
+    }
+
+    @MainActor
+    func testTrayDefaultCoverCancelsItsOwnSessionAndPendingCountdown() async throws {
+        let root = try prepare()
+        defer { try? FileManager.default.removeItem(at: root) }
+        try ScreenshotEntryPreferences(defaultMode: .region).save(to: root.appendingPathComponent("capture-entry-settings.json"))
+        let store = try QueueStore(databaseURL: root.appendingPathComponent("queue.sqlite"))
+        var config = RiftConfiguration()
+        config.desktopForm = .tray
+        let rift = RiftPanelController(mediaDirectory: root.appendingPathComponent("media"), configuration: config,
+            reduceMotionOverride: { true }, onSelect: { _ in XCTFail("Cancel selected a screenshot") })
+        let permission = HostPermissionFixture(), capturer = HostCaptureFixture()
+        let (capture, target) = engine(root: root, permission: permission, capturer: capturer)
+        var issues: [String] = []
+        let host = try ScreenshotEntryHost(root: root, store: store, rift: rift,
+            onChange: { XCTFail("Cancel imported a capture") }, onIssue: { issues.append($0) }, captureController: capture)
+        defer { host.close(); rift.close() }
+        rift.render([])
+        let view = try XCTUnwrap(NSApp.windows.first { $0.isVisible && $0.contentView?.accessibilityLabel() == "截图托盘" }?.contentView)
+        let buttons = view.subviews.compactMap { $0 as? NSButton }
+        let camera = try XCTUnwrap(buttons.first { !$0.isHidden })
+        camera.performClick(nil)
+        XCTAssertFalse(capture.isActive)
+        XCTAssertEqual(camera.accessibilityLabel(), "默认截图，区域截图")
+        permission.granted = false
+        camera.performClick(nil)
+        XCTAssertEqual(issues, [InteractiveScreenshotError.screenRecordingPermissionRequired.localizedDescription])
+        XCTAssertNil(capture.activeSessionID)
+        XCTAssertEqual(camera.accessibilityLabel(), "默认截图，区域截图")
+
+        permission.granted = true
+        camera.performClick(nil)
+        let owner = try XCTUnwrap(capture.activeSessionID)
+        XCTAssertEqual(capture.state, .selecting(.region))
+        XCTAssertNil(capture.presentationSnapshot, "Cancel must already work before a target is selected")
+        XCTAssertEqual(camera.accessibilityLabel(), "取消当前截图")
+        XCTAssertEqual(buttons.filter { !$0.isHidden }.count, 4)
+        XCTAssertEqual(camera.frame.maxX, buttons.map(\.frame.maxX).max())
+        let countdown = expectation(description: "real session entered countdown")
+        let publish = capture.onStateChange
+        capture.onStateChange = { state in
+            publish?(state)
+            if state == .countdown(5) { countdown.fulfill() }
+        }
+        capture.updateOptions(.init(delay: 5))
+        capture.submitSelection(target)
+        await fulfillment(of: [countdown], timeout: 2)
+        let confirmed = try XCTUnwrap(capture.presentationSnapshot)
+        let favorite = try XCTUnwrap(buttons.first { $0.accessibilityLabel()?.contains("窗口截图") == true })
+        favorite.performClick(nil)
+        XCTAssertEqual(capture.presentationSnapshot?.requestID, confirmed.requestID)
+        XCTAssertEqual(capture.currentMode, .window)
+        XCTAssertEqual(capture.activeSessionID, owner)
+        XCTAssertEqual(camera.accessibilityLabel(), "取消当前截图")
+        XCTAssertTrue(camera.accessibilityPerformPress())
+        XCTAssertNil(capture.activeSessionID)
+        XCTAssertEqual(capture.state, .idle)
+        XCTAssertEqual(capturer.cancellations, 1)
+        XCTAssertEqual(camera.accessibilityLabel(), "展开截图方式")
+        XCTAssertEqual(buttons.filter { !$0.isHidden }.count, 1)
+
+        camera.performClick(nil)
+        camera.performClick(nil)
+        let next = try XCTUnwrap(capture.activeSessionID)
+        XCTAssertNotEqual(next, owner)
+        rift.onTrayCancel?(owner)
+        XCTAssertEqual(capture.activeSessionID, next, "A stale control cannot cancel a replacement session")
+        view.cancelOperation(nil)
+        XCTAssertFalse(capture.isActive)
+        XCTAssertEqual(capturer.cancellations, 2)
+        XCTAssertTrue(capturer.requests.isEmpty)
+        let records = try await store.assets(includeUsed: true)
+        XCTAssertTrue(records.isEmpty)
     }
 
     func testUnsupportedSourceHasHonestLocalOnlyFeedback() {

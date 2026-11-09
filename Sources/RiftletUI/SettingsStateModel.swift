@@ -29,7 +29,7 @@ public enum SettingsDraftPage: Equatable, Sendable { case display, motion }
 /// Only currently effective numeric settings are editable. Codable compatibility
 /// fields and display identity never enter this patch vocabulary.
 public enum SettingsField: String, CaseIterable, Hashable, Sendable {
-    case fitWidth, fitHeight, hiddenFraction, trayOcclusion, rowPitch, outerInset, firstCenterFromTop
+    case fitWidth, fitHeight, hiddenFraction, trayOcclusion, trayTintHue, trayTintStrength, rowPitch, outerInset, firstCenterFromTop
     case numberFontSize, numberGap, leftPadding, minimumHitWidth, minimumHitHeight, visibleCountPreference
     case pressDuration, swallowDuration, shiftDuration, returnDuration
 
@@ -42,7 +42,7 @@ public enum SettingsField: String, CaseIterable, Hashable, Sendable {
 
     /// Text is shown in percent / milliseconds; RiftConfiguration retains its units.
     fileprivate var scale: Double {
-        if self == .hiddenFraction || self == .trayOcclusion { return 100 }
+        if self == .hiddenFraction || self == .trayOcclusion || self == .trayTintStrength { return 100 }
         return page == .motion ? 1000 : 1
     }
 
@@ -50,6 +50,8 @@ public enum SettingsField: String, CaseIterable, Hashable, Sendable {
         switch self {
         case .fitWidth: return c.fitWidth
         case .fitHeight: return c.fitHeight
+        case .trayTintHue: return c.trayTintHue
+        case .trayTintStrength: return c.trayTintStrength
         case .trayOcclusion: return c.trayOcclusion
         case .hiddenFraction: return c.hiddenFraction
         case .rowPitch: return c.rowPitch
@@ -73,6 +75,12 @@ public enum SettingsField: String, CaseIterable, Hashable, Sendable {
         switch self {
         case .fitWidth: c.fitWidth = value
         case .fitHeight: c.fitHeight = value
+        case .trayTintHue:
+            guard (0...360).contains(value) else { throw SettingsValidationFailure.invalidNumber(self) }
+            c.trayTintHue = value
+        case .trayTintStrength:
+            guard (0...1).contains(value) else { throw SettingsValidationFailure.invalidNumber(self) }
+            c.trayTintStrength = value
         case .trayOcclusion:
             guard (0...0.9).contains(value) else { throw SettingsValidationFailure.invalidNumber(self) }
             c.trayOcclusion = value
@@ -330,6 +338,9 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
             let defaults = RiftConfiguration()
             revision += 1
             for field in SettingsField.allCases where field.page == page && applicable(field) {
+                if field == .trayTintHue || field == .trayTintStrength {
+                    guard owner.settings.configuration.desktopForm == .tray, owner.settings.configuration.trayTheme == .custom else { continue }
+                }
                 if field == .trayOcclusion && owner.settings.configuration.desktopForm != .tray { continue }
                 layoutText[field] = format(field.value(in: defaults) * field.scale)
                 layoutEditVersions[field] = revision

@@ -3,7 +3,7 @@ import QuartzCore
 import RiftletCapture
 
 private enum TrayAction: Equatable {
-    case expand, capture(ScreenshotMode), unassigned
+    case expand, capture(ScreenshotMode), cancel(UUID), unassigned
 }
 
 private extension ScreenshotMode {
@@ -35,6 +35,9 @@ private final class TrayButton: NSButton {
     private var unit: CGFloat = 1
     private var symbol = ""
     private var isRetiring = false
+    private var cancelCover: CALayer?
+    private let coverPlate = CALayer()
+    private let coverMark = CAShapeLayer()
 
     override init(frame: NSRect) {
         super.init(frame: frame)
@@ -62,8 +65,14 @@ private final class TrayButton: NSButton {
         super.mouseDown(with: event)
     }
 
+    override func accessibilityPerformPress() -> Bool {
+        guard canAct, window?.isVisible == true, let action else { return false }
+        return sendAction(action, to: target)
+    }
+
     func assign(_ action: TrayAction, title: String, symbol: String) {
         if assignment != action || toolTip != title { revision += 1 }
+        if case .cancel = assignment, assignment != action { removeCancelCover() }
         assignment = action
         isRetiring = false
         isEnabled = action != .unassigned
@@ -80,7 +89,66 @@ private final class TrayButton: NSButton {
     func apply(_ palette: RiftTrayGlassPalette, unit: CGFloat) {
         self.palette = palette
         self.unit = unit
+        updateCancelCoverGeometry()
         needsDisplay = true
+    }
+
+    /// A clipped layer slides over the assigned key. AppKit keeps the original
+    /// button, its hit area and keyboard focus throughout the capture session.
+    func showCancelCover(reduceMotion: Bool) {
+        if cancelCover != nil {
+            if reduceMotion { coverPlate.removeAllAnimations() }
+            return
+        }
+        guard let layer else { return }
+        let clip = CALayer()
+        clip.masksToBounds = true
+        cancelCover = clip
+        layer.addSublayer(clip)
+        clip.addSublayer(coverPlate)
+        coverPlate.addSublayer(coverMark)
+        updateCancelCoverGeometry()
+        if !reduceMotion, clip.bounds.width > 0 {
+            let slide = CABasicAnimation(keyPath: "transform.translation.x")
+            slide.fromValue = -clip.bounds.width
+            slide.toValue = 0
+            slide.duration = 0.18
+            slide.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+            coverPlate.add(slide, forKey: "rift.tray.cancel.slide")
+        }
+    }
+
+    private func updateCancelCoverGeometry() {
+        guard let clip = cancelCover, let palette else { return }
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        let inset = max(1, 2 * unit)
+        clip.frame = bounds.insetBy(dx: inset, dy: inset)
+        clip.cornerRadius = max(0, radius - inset)
+        coverPlate.frame = clip.bounds
+        coverPlate.cornerRadius = clip.cornerRadius
+        coverPlate.backgroundColor = palette.key.withAlphaComponent(1).cgColor
+        coverPlate.borderColor = palette.keyRim.cgColor
+        coverPlate.borderWidth = 1 / max(1, window?.backingScaleFactor ?? 1)
+        let center = CGPoint(x: clip.bounds.midX, y: clip.bounds.midY)
+        let arm = min(clip.bounds.width, clip.bounds.height) * 0.16
+        let cross = CGMutablePath()
+        cross.move(to: CGPoint(x: center.x - arm, y: center.y - arm))
+        cross.addLine(to: CGPoint(x: center.x + arm, y: center.y + arm))
+        cross.move(to: CGPoint(x: center.x + arm, y: center.y - arm))
+        cross.addLine(to: CGPoint(x: center.x - arm, y: center.y + arm))
+        coverMark.frame = clip.bounds
+        coverMark.path = cross
+        coverMark.strokeColor = palette.ink.cgColor
+        coverMark.lineWidth = max(1.5, 2.4 * unit)
+        coverMark.lineCap = .round
+        CATransaction.commit()
+    }
+
+    private func removeCancelCover() {
+        coverPlate.removeAllAnimations()
+        cancelCover?.removeFromSuperlayer()
+        cancelCover = nil
     }
 
     private var radius: CGFloat { min(unit * 12, min(bounds.width, bounds.height) / 2) }
@@ -163,6 +231,7 @@ private final class TrayButton: NSButton {
 
     override func layout() {
         super.layout()
+        updateCancelCoverGeometry()
         guard let layer else { return }
         CATransaction.begin()
         CATransaction.setDisableActions(true)
@@ -236,6 +305,7 @@ private final class TrayButton: NSButton {
     }
 
     func hide() {
+        removeCancelCover()
         revision += 1
         layer?.removeAnimation(forKey: Self.motionKey)
         isHidden = true
@@ -253,13 +323,16 @@ private final class TrayButton: NSButton {
 final class RiftTraySurfaceView: NSView {
     var onToggle: (() -> Void)?
     var onCapture: ((ScreenshotMode) -> Void)?
+    var onCancelCapture: ((UUID) -> Void)?
     var onScroll: ((NSEvent) -> Void)?
 
     private let glass = RiftTrayGlass(frame: .zero)
     private let captureKey = TrayButton(frame: .zero)
     private let favorites = (0..<3).map { _ in TrayButton(frame: .zero) }
     private var showingMenu = false
-    private var violet = false
+    private var sessionID: UUID?
+    private var defaultMode: ScreenshotMode = .window
+    private var colors = RiftTrayColors.system
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -287,7 +360,7 @@ final class RiftTraySurfaceView: NSView {
 
     private func applyPalette() {
         effectiveAppearance.performAsCurrentDrawingAppearance {
-            let palette = RiftTrayGlassPalette(violet: violet, appearance: effectiveAppearance, clearGlass: glass.usesClearGlass)
+            let palette = RiftTrayGlassPalette(colors: colors, appearance: effectiveAppearance, clearGlass: glass.usesClearGlass)
             glass.apply(palette)
             for button in favorites + [captureKey] {
                 button.apply(palette, unit: bounds.width / 246)
@@ -295,10 +368,25 @@ final class RiftTraySurfaceView: NSView {
         }
     }
 
-    func update(layout: RiftLayoutResult, violet: Bool, defaultMode: ScreenshotMode, favoriteModes: [ScreenshotMode?],
+    func setCaptureSession(_ id: UUID?, reduceMotion: Bool) {
+        sessionID = id
+        if showingMenu { assignDefaultKey(reduceMotion: reduceMotion) }
+    }
+
+    private func assignDefaultKey(reduceMotion: Bool) {
+        if let sessionID {
+            captureKey.assign(.cancel(sessionID), title: "取消当前截图", symbol: defaultMode.traySymbol)
+            captureKey.showCancelCover(reduceMotion: reduceMotion)
+        } else {
+            captureKey.assign(.capture(defaultMode), title: "默认截图，" + defaultMode.trayName, symbol: defaultMode.traySymbol)
+        }
+    }
+
+    func update(layout: RiftLayoutResult, colors: RiftTrayColors, defaultMode: ScreenshotMode, favoriteModes: [ScreenshotMode?],
                 reduceMotion: Bool) {
-        self.violet = violet
+        self.colors = colors
         applyPalette()
+        self.defaultMode = defaultMode
         let wasOpen = showingMenu
         showingMenu = !layout.captureMenuFrame.isEmpty
         let oldCapture = captureKey.visibleScreenFrame
@@ -307,7 +395,7 @@ final class RiftTraySurfaceView: NSView {
             let menu = layout.captureMenuFrame
             let gap = min(4 * surface.width / 246, menu.width / 32)
             let width = (menu.width - 3 * gap) / 4
-            captureKey.assign(.capture(defaultMode), title: "默认截图，" + defaultMode.trayName, symbol: defaultMode.traySymbol)
+            assignDefaultKey(reduceMotion: reduceMotion)
             for (i, button) in favorites.enumerated() {
                 let mode = favoriteModes.indices.contains(i) ? favoriteModes[i] : nil
                 button.assign(mode.map(TrayAction.capture) ?? .unassigned,
@@ -347,10 +435,14 @@ final class RiftTraySurfaceView: NSView {
         switch button.assignment {
         case .expand: onToggle?()
         case .capture(let mode): onCapture?(mode)
+        case .cancel(let owner): onCancelCapture?(owner)
         case .unassigned: break
         }
     }
 
-    override func cancelOperation(_ sender: Any?) { if showingMenu { onToggle?() } }
+    override func cancelOperation(_ sender: Any?) {
+        guard showingMenu else { return }
+        if let sessionID { onCancelCapture?(sessionID) } else { onToggle?() }
+    }
     override func scrollWheel(with event: NSEvent) { onScroll?(event) }
 }

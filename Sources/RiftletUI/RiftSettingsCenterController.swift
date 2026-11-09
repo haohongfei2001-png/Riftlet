@@ -36,6 +36,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     var archiveField: NSTextField!
     var archiveCustomRow: NSView!
     var traySettings: NSView!
+    var trayTintSettings: NSView!
     var legacyFieldRow: NSView!
     let geometryPreview = RiftSettingsCenterPreview(kind: .geometry)
     let arrivalPreview = RiftSettingsCenterPreview(kind: .arrival)
