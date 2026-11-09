@@ -147,6 +147,26 @@ final class RiftSettingsCenterTests: XCTestCase {
         }
     }
 
+    @MainActor func testChromeJavaScriptRefusalShowsRecoveryAndKeepsMacAutomationGranted() throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        var snapshot = h.controller.product
+        snapshot.setup = .init(source: .accessible, collection: .collecting, attachment: .available,
+                               permission: .granted, issue: .chromeJavaScriptDisabled)
+        h.controller.update(snapshot)
+        let attachment = try XCTUnwrap(h.controller.labels["attachment"])
+        let automation = try XCTUnwrap(h.controller.labels["automation"])
+        let expected = "Chrome 尚未允许通过 Apple 事件执行 JavaScript。截图已保留，尚未附加。请在 Chrome 的『视图 → 开发者』中启用『允许来自 Apple 事件的 JavaScript』。"
+        XCTAssertEqual(attachment.stringValue, expected)
+        XCTAssertEqual(RiftControlCenterPresentation(snapshot).detail, expected)
+        XCTAssertEqual(automation.stringValue, "macOS 已允许 Riftlet 与 Chrome 通信。")
+        XCTAssertTrue(h.actions.isEmpty)
+
+        snapshot.setup = .init(attachment: .productionDisabled, issue: .chromeJavaScriptDisabled)
+        h.controller.update(snapshot)
+        XCTAssertFalse(attachment.stringValue.contains("JavaScript"))
+        XCTAssertNil(SetupPresentation(snapshot: snapshot.setup).issueText)
+    }
+
     @MainActor func testFirstShowRestoresV2ContentSizeAndLaterShowsKeepUserResize() throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
         let window = h.controller.window

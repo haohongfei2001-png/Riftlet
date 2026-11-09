@@ -19,11 +19,15 @@ public enum SetupIssue: Equatable, Sendable {
     case sourceAccess, wrongScreenshotFolder, screenshotFolderNeedsSelection, unsupportedFormat, unsupportedSize, invalidImage
     case insufficientSpace, privateWriteFailed, storageUnavailable
     case sourceVolumeUnidentified, fileVolumeUnidentified, historicalSourceUnconfirmed
-    case unsupportedBrowser, targetUnavailable, permissionDenied, imageUnavailable
+    case unsupportedBrowser, targetUnavailable, permissionDenied, chromeJavaScriptDisabled, imageUnavailable
     case initializationFailed, configurationUnavailable
     case visibilityPreferenceUnsaved, collectionPreferenceUnsaved
     case screenshotPreferenceUnsaved
     case attachmentFormat, attachmentBytes, attachmentPixels, attachmentSource
+
+    var isAttachmentConnectionIssue: Bool {
+        self == .unsupportedBrowser || self == .targetUnavailable || self == .chromeJavaScriptDisabled
+    }
 
     public var text: String {
         switch self {
@@ -65,6 +69,8 @@ public enum SetupIssue: Equatable, Sendable {
             return "未能连接到可附加图片的聊天。请在 Chrome 前台显示要用的 ChatGPT 草稿，确认其中有添加附件的入口。截图仍在本机。"
         case .permissionDenied:
             return "Chrome 自动化访问被拒绝。请在系统设置的「隐私与安全性 → 自动化」中检查 Riftlet，再重新检查。"
+        case .chromeJavaScriptDisabled:
+            return "Chrome 尚未允许通过 Apple 事件执行 JavaScript。截图已保留，尚未附加。请在 Chrome 的『视图 → 开发者』中启用『允许来自 Apple 事件的 JavaScript』。"
         case .imageUnavailable:
             return "这张截图的私有副本暂不可用。没有重新附加，也没有删除系统原图。"
         case .initializationFailed:
@@ -249,8 +255,7 @@ public struct SetupPresentation: Equatable, Sendable {
     }
 
     public var attachmentText: String {
-        if let issue = snapshot.issue, hasAutomationCapability,
-           issue == .unsupportedBrowser || issue == .targetUnavailable {
+        if let issue = snapshot.issue, hasAutomationCapability, issue.isAttachmentConnectionIssue {
             return issue.text
         }
         switch snapshot.attachment {
@@ -312,11 +317,8 @@ public struct SetupPresentation: Equatable, Sendable {
 
     public var issueText: String? {
         guard let issue = snapshot.issue else { return nil }
-        if !hasAutomationCapability {
-            switch issue {
-            case .permissionDenied, .unsupportedBrowser, .targetUnavailable: return nil
-            default: break
-            }
+        if !hasAutomationCapability && (issue == .permissionDenied || issue.isAttachmentConnectionIssue) {
+            return nil
         }
         return issue.text
     }

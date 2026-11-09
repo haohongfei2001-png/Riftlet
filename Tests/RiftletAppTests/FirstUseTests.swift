@@ -155,6 +155,18 @@ final class FirstUseTests: XCTestCase {
         XCTAssertTrue(view.riftText.contains("隐藏"))
     }
 
+    func testOnlyChromeJavaScriptRejectionGetsTheScriptPermissionMessage() {
+        let disabled = WebAdapterError.nativeEventFailed(12)
+        XCTAssertEqual(ProductStatus.clickIssue(disabled, frontmostBundleID: "com.google.Chrome", webAcceptance: true),
+                       .chromeJavaScriptDisabled)
+        XCTAssertNil(ProductStatus.clickFeedback(disabled), "A generic target message must not override the setup issue")
+        XCTAssertNil(ProductStatus.clickIssue(disabled, frontmostBundleID: "com.google.Chrome", webAcceptance: false))
+        for error: Error in [WebAdapterError.nativeEventFailed(-1712), URLError(.notConnectedToInternet)] {
+            XCTAssertEqual(ProductStatus.clickIssue(error, frontmostBundleID: "com.google.Chrome", webAcceptance: true),
+                           .targetUnavailable)
+        }
+    }
+
     func testClickFeedbackCannotBlamePermissionForDisabledProduction() {
         XCTAssertNil(ProductStatus.clickIssue(WebAdapterError.disabled, frontmostBundleID: "com.apple.Safari", webAcceptance: false))
         XCTAssertEqual(ProductStatus.clickIssue(WebAdapterError.browserNotFrontmost, frontmostBundleID: "com.apple.Safari", webAcceptance: true), .unsupportedBrowser)

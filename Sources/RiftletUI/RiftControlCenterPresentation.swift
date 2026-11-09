@@ -93,7 +93,7 @@ public struct RiftControlCenterPresentation {
                 detail = setup.visibleCount == 0 ? "仅收录审核示例，不会上传。" : "\(setup.visibleCount) 张审核示例在边缘，不会上传。"
             } else if !usesAutomation {
                 detail = setup.visibleCount == 0 ? "新截图会保存在本机，可从截图历史查看。" : "\(setup.visibleCount) 张截图在边缘，可从截图历史查看。"
-            } else if let issue = setup.issue, issue == .unsupportedBrowser || issue == .targetUnavailable {
+            } else if let issue = setup.issue, issue.isAttachmentConnectionIssue {
                 detail = issue.text
             } else {
                 detail = setup.visibleCount == 0 ? "截图后，点一下边缘微图。" : "\(setup.visibleCount) 张截图在边缘，打开要用的 Chrome 聊天草稿后点选。"
