@@ -4,6 +4,24 @@ import RiftletCapture
 /// Presentation state only. No file, window, capture, browser or upload access.
 public enum SettingsDomain: String, CaseIterable, Sendable {
     case collection, visibility, entry, captureMode, arrival, layout, placement, display, desktopForm, trayTheme, archive
+    case trayFavorite1, trayFavorite2, trayFavorite3
+
+    var writesConfiguration: Bool {
+        switch self {
+        case .layout, .placement, .display, .desktopForm, .trayTheme, .trayFavorite1, .trayFavorite2, .trayFavorite3: return true
+        default: return false
+        }
+    }
+}
+
+extension RiftTrayFavoriteSlot {
+    var settingsDomain: SettingsDomain {
+        switch self {
+        case .first: return .trayFavorite1
+        case .second: return .trayFavorite2
+        case .third: return .trayFavorite3
+        }
+    }
 }
 
 public enum SettingsDraftPage: Equatable, Sendable { case display, motion }
@@ -91,6 +109,7 @@ public enum SettingsIntent: Equatable, Sendable {
     case collectionPaused(Bool), hidden(Bool), entryEnabled(Bool)
     case captureMode(ScreenshotMode), arrival(ArrivalMotionMode)
     case desktopForm(RiftDesktopForm), trayTheme(RiftTrayTheme)
+    case trayFavorite(RiftTrayFavoriteSlot, RiftTrayFavoriteChoice)
     case layout([SettingsField: Double]), placement(RiftPlacement)
     case display(SettingsDisplayPreference), archiveHours(Double?)
 
@@ -103,6 +122,7 @@ public enum SettingsIntent: Equatable, Sendable {
         case .arrival: return .arrival
         case .desktopForm: return .desktopForm
         case .trayTheme: return .trayTheme
+        case .trayFavorite(let slot, _): return slot.settingsDomain
         case .layout: return .layout
         case .placement: return .placement
         case .display: return .display
@@ -114,6 +134,7 @@ public enum SettingsIntent: Equatable, Sendable {
 public enum SettingsConfirmedValue: Equatable, Sendable {
     case boolean(Bool), captureMode(ScreenshotMode), arrival(ArrivalMotionMode)
     case desktopForm(RiftDesktopForm), trayTheme(RiftTrayTheme)
+    case trayFavorite(RiftTrayFavoriteChoice)
     case configuration(RiftConfiguration), placement(RiftPlacement?)
     case display(id: UInt32?, uuid: String?), archiveHours(Double?)
 }
@@ -161,7 +182,7 @@ public struct SettingsSaveRequest: Equatable, Sendable {
     public let intent: SettingsIntent
     public let ownerRevision: UInt64
     /// A validated full configuration, patched from the latest owner snapshot.
-    /// Non-nil only for layout, explicit placement and display preference saves.
+    /// Non-nil for preferences owned by the layout configuration file.
     public let configuration: RiftConfiguration?
 }
 
@@ -190,6 +211,7 @@ public enum SettingsCommand: Sendable {
     case setCollectionPaused(Bool), setHidden(Bool), setEntryEnabled(Bool)
     case setCaptureMode(ScreenshotMode), setArrival(ArrivalMotionMode)
     case selectDesktopForm(RiftDesktopForm), selectTrayTheme(RiftTrayTheme)
+    case selectTrayFavorite(RiftTrayFavoriteSlot, RiftTrayFavoriteChoice)
     case selectPlacement(RiftPlacement), selectDisplay(UInt32?), retry(SettingsDomain)
 }
 
@@ -339,6 +361,9 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
             guard value.isAvailable else { return result }
             await save(prepare(.desktopForm(value)), into: &result)
         case .selectTrayTheme(let value): await save(prepare(.trayTheme(value)), into: &result)
+        case .selectTrayFavorite(let slot, let choice):
+            guard choice != .unsupported else { return result }
+            await save(prepare(.trayFavorite(slot, choice)), into: &result)
         case .selectPlacement(let value): await save(prepare(.placement(value)), into: &result)
         case .selectDisplay(let requested):
             let displays = owner.settings.displays
@@ -412,6 +437,7 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
             }
         case .desktopForm(let value): candidate.desktopForm = value
         case .trayTheme(let value): candidate.trayTheme = value
+        case .trayFavorite(let slot, let choice): candidate.setTrayFavorite(choice, for: slot)
         case .placement(let placement): candidate.placement = placement; candidate.placementSource = .user
         case .display(let display):
             candidate.preferredDisplayID = display.id; candidate.preferredDisplayUUID = display.uuid
@@ -432,7 +458,7 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         let domain = intent.domain
         // These commands persist the same full configuration. Other
         // owners remain independent, including pause, hide and archive.
-        let writer: SettingsDomain = [.layout, .placement, .display, .desktopForm, .trayTheme].contains(domain) ? .layout : domain
+        let writer: SettingsDomain = domain.writesConfiguration ? .layout : domain
         guard !writes.contains(writer) else { result.busy.append(domain); return nil }
         let configuration: RiftConfiguration?
         do { configuration = try self.configuration(for: intent) }
@@ -512,6 +538,7 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
             return patch.allSatisfy { $0.key.value(in: value.settings.configuration) == $0.value }
         case .desktopForm(let target): return value.settings.configuration.desktopForm == target
         case .trayTheme(let target): return value.settings.configuration.trayTheme == target
+        case .trayFavorite(let slot, let choice): return value.settings.configuration.trayFavorite(slot) == choice
         case .placement(let target):
             return value.settings.configuration.placement == target && value.settings.configuration.placementSource == .user
         case .display(let target):
@@ -529,6 +556,9 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         case .arrival: return .arrival(value.settings.arrivalMode)
         case .desktopForm: return .desktopForm(value.settings.configuration.desktopForm)
         case .trayTheme: return .trayTheme(value.settings.configuration.trayTheme)
+        case .trayFavorite1: return .trayFavorite(value.settings.configuration.trayFavorite(.first))
+        case .trayFavorite2: return .trayFavorite(value.settings.configuration.trayFavorite(.second))
+        case .trayFavorite3: return .trayFavorite(value.settings.configuration.trayFavorite(.third))
         case .layout: return .configuration(value.settings.configuration)
         case .placement: return .placement(value.settings.configuration.placement)
         case .display: return .display(id: value.settings.configuration.preferredDisplayID, uuid: value.settings.configuration.preferredDisplayUUID)

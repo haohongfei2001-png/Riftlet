@@ -1,6 +1,20 @@
 import AppKit
 import RiftletCapture
 
+extension RiftTrayFavoriteChoice {
+    static let menuChoices: [Self] = [.automatic, .empty] + ScreenshotMode.allCases.map(Self.mode) + [.unsupported]
+    var menuTitle: String {
+        switch self {
+        case .automatic: return "自动"
+        case .empty: return "留空"
+        case .mode(.window): return "窗口"
+        case .mode(.region): return "区域"
+        case .mode(.fullScreen): return "全屏"
+        case .unsupported: return "当前版本不支持"
+        }
+    }
+}
+
 @MainActor
 extension RiftSettingsCenterController {
     func buildPages() {
@@ -117,7 +131,8 @@ extension RiftSettingsCenterController {
         }
         traySettings = SettingsNativeStyle.stack([
             row("托盘材质", control: theme), domainError(.trayTheme),
-            numericRow(.trayOcclusion, title: "托盘截图遮挡", unit: "%", range: 0...90)
+            numericRow(.trayOcclusion, title: "托盘截图遮挡", unit: "%", range: 0...90),
+            disclosure("截图菜单常用键", id: "tray.favorites", content: trayFavoriteSettings())
         ], spacing: 8)
         let basic = card([
             row("桌面形态", control: form), domainError(.desktopForm), traySettings!,
@@ -147,6 +162,24 @@ extension RiftSettingsCenterController {
         return [basic, card([disclosure("详细自定义", id: "display.details", content: detailed),
                             disclosure("精细参数", id: "display.fine", content: fine)]),
                 layoutSaveArea(for: .display)]
+    }
+
+    private func trayFavoriteSettings() -> NSView {
+        var rows: [NSView] = [namedLabel("tray.favorites.detail", role: "caption")]
+        let choices = RiftTrayFavoriteChoice.menuChoices
+        for slot in RiftTrayFavoriteSlot.allCases {
+            let title = "常用键 \(slot.rawValue)"
+            let control = popup(title, id: slot.settingsDomain.rawValue, titles: choices.map(\.menuTitle)) { [weak self] popup in
+                let index = popup.indexOfSelectedItem
+                guard choices.indices.contains(index), choices[index] != .unsupported else { return }
+                self?.dispatch(.settings(.selectTrayFavorite(slot, choices[index])))
+            }
+            control.autoenablesItems = false
+            control.lastItem?.isEnabled = false
+            rows.append(row(title, control: control))
+            rows.append(domainError(slot.settingsDomain))
+        }
+        return SettingsNativeStyle.stack(rows, spacing: 8)
     }
 
     func captureContent() -> [NSView] {

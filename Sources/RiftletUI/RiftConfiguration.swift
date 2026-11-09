@@ -1,4 +1,5 @@
 import Foundation
+import RiftletCapture
 
 public enum RiftDesktopForm: String, CaseIterable, Sendable {
     case microSlit, windChime, tray, edgefolio, pocket
@@ -20,6 +21,21 @@ public enum RiftDesktopForm: String, CaseIterable, Sendable {
 public enum RiftTrayTheme: String, CaseIterable, Sendable {
     case system, violetGlass
     public var title: String { self == .system ? "系统玻璃" : "紫蓝玻璃" }
+}
+
+/// In order from the desktop interior towards the dedicated default capture key.
+public enum RiftTrayFavoriteSlot: Int, CaseIterable, Sendable {
+    case first = 1, second, third
+
+    func automaticMode(defaultMode: ScreenshotMode) -> ScreenshotMode? {
+        let alternatives = ScreenshotMode.allCases.filter { $0 != defaultMode }
+        let index = rawValue - 1
+        return alternatives.indices.contains(index) ? alternatives[index] : nil
+    }
+}
+
+public enum RiftTrayFavoriteChoice: Equatable, Sendable {
+    case automatic, empty, mode(ScreenshotMode), unsupported
 }
 
 /// Keep values from newer presentation schemas verbatim in the configuration
@@ -89,6 +105,46 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
     private var storedForm: PresentationValue?
     private var storedTrayTheme: PresentationValue?
     private var storedTrayOcclusion: PresentationValue?
+    private var storedTrayFavorite1: PresentationValue?
+    private var storedTrayFavorite2: PresentationValue?
+    private var storedTrayFavorite3: PresentationValue?
+
+    private static func favoriteKey(_ slot: RiftTrayFavoriteSlot) -> WritableKeyPath<Self, PresentationValue?> {
+        switch slot {
+        case .first: return \.storedTrayFavorite1
+        case .second: return \.storedTrayFavorite2
+        case .third: return \.storedTrayFavorite3
+        }
+    }
+
+    public func trayFavorite(_ slot: RiftTrayFavoriteSlot) -> RiftTrayFavoriteChoice {
+        switch self[keyPath: Self.favoriteKey(slot)] {
+        case nil: return .automatic
+        case .null: return .empty
+        case .text(let raw): return ScreenshotMode(rawValue: raw).map(RiftTrayFavoriteChoice.mode) ?? .unsupported
+        default: return .unsupported
+        }
+    }
+
+    public mutating func setTrayFavorite(_ choice: RiftTrayFavoriteChoice, for slot: RiftTrayFavoriteSlot) {
+        let key = Self.favoriteKey(slot)
+        switch choice {
+        case .automatic: self[keyPath: key] = nil
+        case .empty: self[keyPath: key] = .null
+        case .mode(let mode): self[keyPath: key] = .text(mode.rawValue)
+        case .unsupported: break
+        }
+    }
+
+    public func trayFavoriteModes(defaultMode: ScreenshotMode) -> [ScreenshotMode?] {
+        RiftTrayFavoriteSlot.allCases.map { slot in
+            switch trayFavorite(slot) {
+            case .automatic: return slot.automaticMode(defaultMode: defaultMode)
+            case .mode(let mode): return mode
+            case .empty, .unsupported: return nil
+            }
+        }
+    }
 
     public var desktopForm: RiftDesktopForm {
         get {
@@ -125,6 +181,7 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
 
     private enum CodingKeys: String, CodingKey { case fitWidth, fitHeight, hiddenFraction, rowPitch, lineWidth, lineExtension, emptyTraceLength, outerInset, firstCenterFromTop, screenPadding, numberFontSize, numberGap, leftPadding, minimumHitWidth, minimumHitHeight, arrivalDuration, pressDuration, inwardDistance, swallowDuration, shiftDuration, returnDuration, reducedMotionDuration, preferredDisplayID, visibleCountPreference, placement, placementSource, preferredDisplayUUID
         case storedForm = "desktopForm", storedTrayTheme = "trayTheme", storedTrayOcclusion = "trayOcclusion"
+        case storedTrayFavorite1 = "trayFavorite1", storedTrayFavorite2 = "trayFavorite2", storedTrayFavorite3 = "trayFavorite3"
     }
 
     public init(from decoder: Decoder) throws {
@@ -133,6 +190,9 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
         if values.contains(.storedForm) { storedForm = try values.decode(PresentationValue.self, forKey: .storedForm) }
         if values.contains(.storedTrayTheme) { storedTrayTheme = try values.decode(PresentationValue.self, forKey: .storedTrayTheme) }
         if values.contains(.storedTrayOcclusion) { storedTrayOcclusion = try values.decode(PresentationValue.self, forKey: .storedTrayOcclusion) }
+        if values.contains(.storedTrayFavorite1) { storedTrayFavorite1 = try values.decode(PresentationValue.self, forKey: .storedTrayFavorite1) }
+        if values.contains(.storedTrayFavorite2) { storedTrayFavorite2 = try values.decode(PresentationValue.self, forKey: .storedTrayFavorite2) }
+        if values.contains(.storedTrayFavorite3) { storedTrayFavorite3 = try values.decode(PresentationValue.self, forKey: .storedTrayFavorite3) }
         fitWidth = try values.decodeIfPresent(Double.self, forKey: .fitWidth) ?? 72
         fitHeight = try values.decodeIfPresent(Double.self, forKey: .fitHeight) ?? 56
         hiddenFraction = try values.decodeIfPresent(Double.self, forKey: .hiddenFraction) ?? 0.25

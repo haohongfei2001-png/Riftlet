@@ -371,7 +371,7 @@ private final class HostSettingsAdapter: SettingsPersistenceAdapter {
         case .captureMode(let value): if !failed { settings.defaultCaptureMode = value }
         case .arrival(let value): if !failed { settings.arrivalMode = value; settings.hasArrivalSelection = true }
         case .archiveHours(let value): if !failed { settings.archiveAfterHours = value }
-        case .layout, .placement, .display, .desktopForm, .trayTheme:
+        case .layout, .placement, .display, .desktopForm, .trayTheme, .trayFavorite:
             if !failed, let config = request.configuration { settings.configuration = config; settings.preferredDisplayID = config.preferredDisplayID }
         }
         owner = .init(revision: owner.revision + 1, settings: settings, collectionPaused: paused, isHidden: hidden,

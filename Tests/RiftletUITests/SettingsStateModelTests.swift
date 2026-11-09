@@ -68,7 +68,7 @@ final class SettingsStateModelTests: XCTestCase {
                 case .arrival(let mode):
                     if !failed { next.settings.arrivalMode = mode; next.settings.hasArrivalSelection = true }
                 case .archiveHours(let hours): if !failed { next.settings.archiveAfterHours = hours }
-                case .layout, .placement, .display, .desktopForm, .trayTheme:
+                case .layout, .placement, .display, .desktopForm, .trayTheme, .trayFavorite:
                     if !failed, let configuration = request.configuration {
                         next.settings.configuration = configuration
                         next.settings.preferredDisplayID = configuration.preferredDisplayID
@@ -175,6 +175,55 @@ final class SettingsStateModelTests: XCTestCase {
             XCTAssertEqual(decoded.hiddenFraction, 0.25)
             XCTAssertNil(decoded.placement)
         }
+    }
+
+    func testTrayFavoritesKeepSlotIdentityAndOnlyAutomaticKeysFollowTheDefault() throws {
+        var config = try JSONDecoder().decode(RiftConfiguration.self, from: Data("{}".utf8))
+        XCTAssertEqual(config.trayFavoriteModes(defaultMode: .window), [.region, .fullScreen, nil])
+        XCTAssertEqual(config.trayFavoriteModes(defaultMode: .region), [.window, .fullScreen, nil])
+        XCTAssertEqual(config.trayFavoriteModes(defaultMode: .fullScreen), [.window, .region, nil])
+
+        config.setTrayFavorite(.mode(.window), for: .third)
+        config.setTrayFavorite(.empty, for: .second)
+        let reopened = try JSONDecoder().decode(RiftConfiguration.self, from: JSONEncoder().encode(config))
+        XCTAssertEqual(reopened.trayFavorite(.second), .empty)
+        XCTAssertEqual(reopened.trayFavoriteModes(defaultMode: .window), [.region, nil, .window])
+        XCTAssertEqual(reopened.trayFavoriteModes(defaultMode: .region), [.window, nil, .window])
+        config.setTrayFavorite(.automatic, for: .second)
+        XCTAssertEqual(config.trayFavoriteModes(defaultMode: .region), [.window, .fullScreen, .window])
+    }
+
+    func testUnknownFavoriteDoesNotCaptureAndSurvivesEditsToOtherKeys() throws {
+        let source = Data(#"{"trayFavorite1":{"later":[2,"key"]},"trayFavorite2":"future","trayFavorite3":"region"}"#.utf8)
+        var config = try JSONDecoder().decode(RiftConfiguration.self, from: source)
+        XCTAssertEqual(config.trayFavorite(.first), .unsupported)
+        XCTAssertEqual(config.trayFavoriteModes(defaultMode: .window), [nil, nil, .region])
+        config.setTrayFavorite(.mode(.fullScreen), for: .third)
+        let saved = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(config)) as? NSDictionary)
+        let old = try XCTUnwrap(JSONSerialization.jsonObject(with: source) as? NSDictionary)
+        XCTAssertEqual(saved["trayFavorite1"] as? NSObject, old["trayFavorite1"] as? NSObject)
+        XCTAssertEqual(saved["trayFavorite2"] as? String, "future")
+        XCTAssertEqual(saved["trayFavorite3"] as? String, "fullScreen")
+    }
+
+    @MainActor func testFavoriteRetryPreservesDraftOtherKeysAndNewDefault() async throws {
+        let owner = Owner()
+        let model = try model(owner)
+        model.setDraftText("87.250", for: .fitWidth)
+        owner.failures.insert(.trayFavorite1)
+        let failed = await model.perform(.selectTrayFavorite(.first, .mode(.region)))
+        XCTAssertEqual(failed.failed, [.trayFavorite1])
+        _ = await model.perform(.selectTrayFavorite(.third, .mode(.fullScreen)))
+        _ = await model.perform(.setCaptureMode(.fullScreen))
+        XCTAssertEqual(model.snapshot.domains[.trayFavorite1]?.pending, .trayFavorite(.first, .mode(.region)))
+        owner.failures.remove(.trayFavorite1)
+        let retry = await model.perform(.retry(.trayFavorite1))
+        XCTAssertEqual(retry.confirmed, [.trayFavorite1])
+        let config = owner.value.settings.configuration
+        XCTAssertEqual(config.trayFavorite(.first), .mode(.region))
+        XCTAssertEqual(config.trayFavoriteModes(defaultMode: owner.value.settings.defaultCaptureMode), [.region, .region, .fullScreen])
+        XCTAssertEqual(model.text(for: .fitWidth), "87.250")
+        XCTAssertTrue(model.hasLayoutDraft)
     }
 
     private func personalized() throws -> RiftConfiguration {
@@ -474,7 +523,9 @@ final class SettingsStateModelTests: XCTestCase {
         await model.perform(.edit(.fitHeight, "70"))
         let duplicate = await model.perform(.retry(.layout))
         let overlappingFile = await model.perform(.selectDisplay(2))
+        let overlappingFavorite = await model.perform(.selectTrayFavorite(.second, .mode(.region)))
         XCTAssertEqual(duplicate.busy, [.layout]); XCTAssertEqual(overlappingFile.busy, [.display])
+        XCTAssertEqual(overlappingFavorite.busy, [.trayFavorite2])
         XCTAssertEqual(owner.requests.count, 1, "Same config writer is not queued or replayed")
         let hidden = await model.perform(.setHidden(true))
         await model.perform(.editArchive("3"))

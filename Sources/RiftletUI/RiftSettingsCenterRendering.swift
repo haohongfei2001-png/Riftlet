@@ -118,6 +118,21 @@ extension RiftSettingsCenterController {
         enable("desktopForm", product.capabilities.canEditPreferences && !configurationBusy)
         enable("trayTheme", product.capabilities.canEditPreferences && !configurationBusy)
         traySettings?.isHidden = configuration.desktopForm != .tray
+        let defaultMode = settings.defaultCaptureMode
+        let defaultTitle = RiftTrayFavoriteChoice.mode(defaultMode).menuTitle
+        text("tray.favorites.detail", "常用键从屏幕内侧向边缘排列。最外侧使用“截图”页的默认方式（\(defaultTitle)）。")
+        let choices = RiftTrayFavoriteChoice.menuChoices
+        for slot in RiftTrayFavoriteSlot.allCases {
+            let id = slot.settingsDomain.rawValue
+            guard let control = controls[id] as? NSPopUpButton else { continue }
+            let choice = configuration.trayFavorite(slot)
+            let automatic = slot.automaticMode(defaultMode: defaultMode).map(RiftTrayFavoriteChoice.mode) ?? .empty
+            let title = "自动（\(automatic.menuTitle)）"
+            if control.item(at: 0)?.title != title { control.item(at: 0)?.title = title }
+            control.lastItem?.isHidden = choice != .unsupported
+            if let index = choices.firstIndex(of: choice) { select(id, index: index) }
+            enable(id, product.capabilities.canEditPreferences && !configurationBusy)
+        }
         guard let popup = controls["display"] as? NSPopUpButton else { return }
         // Concrete UUID/ID resolution is already performed by the owner; the
         // view never converts a temporary fallback into a preference.
@@ -249,7 +264,7 @@ extension RiftSettingsCenterController {
         case .visibility: canSave = product.capabilities.canChangeVisibility
         default: canSave = product.capabilities.canEditPreferences
         }
-        retryButtons[domain]?.isEnabled = canSave && !busy(domain) && (![SettingsDomain.layout, .placement, .display, .desktopForm, .trayTheme].contains(domain) || !configurationBusy)
+        retryButtons[domain]?.isEnabled = canSave && !busy(domain) && (!domain.writesConfiguration || !configurationBusy)
     }
     func errorText(_ domain: SettingsDomain) -> String? {
         guard let state = model.snapshot.domains[domain] else { return nil }
@@ -272,6 +287,7 @@ extension RiftSettingsCenterController {
         case .arrival: target = "入缝偏好"
         case .desktopForm: target = "桌面形态"
         case .trayTheme: target = "托盘材质"
+        case .trayFavorite(let slot, let choice): target = "常用键 \(slot.rawValue) · \(choice.menuTitle)"
         case .layout: target = "参数更改"
         case .placement: target = "边缘位置"
         case .display: target = "显示器偏好"
@@ -280,7 +296,7 @@ extension RiftSettingsCenterController {
         }
         return "“\(target)”的保存结果尚未确认。控件显示当前有效状态；重试会保存同一个选择，其他设置成功不会清除此提示。"
     }
-    var configurationBusy: Bool { [SettingsDomain.layout, .placement, .display, .desktopForm, .trayTheme].contains { busy($0) } }
+    var configurationBusy: Bool { SettingsDomain.allCases.contains { $0.writesConfiguration && busy($0) } }
     func busy(_ domain: SettingsDomain) -> Bool { model.snapshot.domains[domain]?.isSaving == true }
     func text(_ id: String, _ value: String) { if labels[id]?.stringValue != value { labels[id]?.stringValue = value } }
     func enable(_ id: String, _ enabled: Bool) { controls[id]?.isEnabled = enabled }

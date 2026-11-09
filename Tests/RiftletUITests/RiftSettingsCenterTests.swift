@@ -298,6 +298,32 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertEqual(field.stringValue, "83.2500", "Blurred drafts retain formatting, too")
     }
 
+    @MainActor func testTrayFavoritePickersKeepOrderAndUpdateAutomaticLabelsOnOwnerRefresh() async throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        var settings = h.owner.settings
+        settings.configuration.desktopForm = .tray
+        settings.defaultCaptureMode = .window
+        h.receive(settings)
+        h.controller.show(page: .display)
+        try click(h, "disclosure.tray.favorites")
+        let first: NSPopUpButton = try control(h, "trayFavorite1")
+        let third: NSPopUpButton = try control(h, "trayFavorite3")
+        XCTAssertEqual(first.titleOfSelectedItem, "自动（区域）")
+        XCTAssertEqual(third.titleOfSelectedItem, "自动（留空）")
+        XCTAssertEqual(third.accessibilityLabel(), "常用键 3")
+        XCTAssertFalse(third.itemTitles.contains("更多"))
+        let custom = try XCTUnwrap(RiftTrayFavoriteChoice.menuChoices.firstIndex(of: .mode(.window)))
+        try await changeAndWait(h, "trayFavorite3", index: custom)
+        XCTAssertEqual(h.owner.settings.configuration.trayFavorite(.third), .mode(.window))
+        settings = h.owner.settings
+        settings.defaultCaptureMode = .region
+        h.receive(settings)
+        XCTAssertTrue(h.controller.controls["trayFavorite1"] === first)
+        XCTAssertTrue(h.controller.controls["trayFavorite3"] === third)
+        XCTAssertEqual(first.titleOfSelectedItem, "自动（窗口）")
+        XCTAssertEqual(third.titleOfSelectedItem, "窗口")
+    }
+
     @MainActor func testExplicitDefaultsAndDiscardRetireOldEditorBeforeReplacingDraft() async throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
         h.controller.show(page: .display); try click(h, "disclosure.display.details")
@@ -999,7 +1025,7 @@ private final class SettingsCenterTestHost {
         case .captureMode(let mode): if !failure { settings.defaultCaptureMode = mode; settings.capturePreferencesSaveFailed = false }
         case .arrival(let mode): if !failure { settings.arrivalMode = mode; settings.hasArrivalSelection = true }
         case .archiveHours(let value): if !failure { settings.archiveAfterHours = value }
-        case .layout, .placement, .display, .desktopForm, .trayTheme:
+        case .layout, .placement, .display, .desktopForm, .trayTheme, .trayFavorite:
             if !failure, let configuration = request.configuration { settings.configuration = configuration; settings.preferredDisplayID = configuration.preferredDisplayID }
         }
         owner = SettingsOwnerSnapshot(revision: owner.revision + 1, settings: settings, collectionPaused: paused, isHidden: hidden,
