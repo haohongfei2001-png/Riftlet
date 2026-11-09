@@ -102,7 +102,25 @@ extension RiftSettingsCenterController {
         let placement = SettingsNativeStyle.stack([selector, preview], vertical: false, spacing: 18)
         placement.alignment = .top
         placement.distribution = .fill
+        let form = popup("桌面形态", id: "desktopForm", titles: RiftDesktopForm.allCases.map { $0.title }) { [weak self] control in
+            guard RiftDesktopForm.allCases.indices.contains(control.indexOfSelectedItem) else { return }
+            self?.dispatch(.settings(.selectDesktopForm(RiftDesktopForm.allCases[control.indexOfSelectedItem])))
+        }
+        form.autoenablesItems = false
+        for (index, candidate) in RiftDesktopForm.allCases.enumerated() where !candidate.isAvailable {
+            form.item(at: index)?.title = candidate.title + "（待确认）"
+            form.item(at: index)?.isEnabled = false
+        }
+        let theme = popup("托盘材质", id: "trayTheme", titles: RiftTrayTheme.allCases.map { $0.title }) { [weak self] control in
+            guard RiftTrayTheme.allCases.indices.contains(control.indexOfSelectedItem) else { return }
+            self?.dispatch(.settings(.selectTrayTheme(RiftTrayTheme.allCases[control.indexOfSelectedItem])))
+        }
+        traySettings = SettingsNativeStyle.stack([
+            row("托盘材质", control: theme), domainError(.trayTheme),
+            numericRow(.trayOcclusion, title: "托盘截图遮挡", unit: "%", range: 0...90)
+        ], spacing: 8)
         let basic = card([
+            row("桌面形态", control: form), domainError(.desktopForm), traySettings!,
             row("显示器", detail: "断开时临时回退，保留原选择。", control: display),
             namedLabel("display.detail", role: "secondary"), domainError(.display),
             makeButton("回到已选显示器", id: "display.restore") { [weak self] in self?.dispatch(.restorePreferredDisplay) },
@@ -335,7 +353,7 @@ extension RiftSettingsCenterController {
         return label
     }
     func buttonRow(_ views: [NSView]) -> NSStackView { SettingsNativeStyle.stack(views, vertical: false, spacing: 9) }
-    func row(_ title: String, detail: String, control: NSView) -> NSStackView {
+    func row(_ title: String, detail: String = "", control: NSView) -> NSStackView {
         var copyViews = [SettingsNativeStyle.label(title, role: "rowTitle")]
         if !detail.isEmpty { copyViews.append(SettingsNativeStyle.label(detail, role: "caption")) }
         let copy = SettingsNativeStyle.stack(copyViews, spacing: 3)

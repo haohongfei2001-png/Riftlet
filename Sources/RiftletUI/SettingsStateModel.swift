@@ -3,7 +3,7 @@ import RiftletCapture
 
 /// Presentation state only. No file, window, capture, browser or upload access.
 public enum SettingsDomain: String, CaseIterable, Sendable {
-    case collection, visibility, entry, captureMode, arrival, layout, placement, display, archive
+    case collection, visibility, entry, captureMode, arrival, layout, placement, display, desktopForm, trayTheme, archive
 }
 
 public enum SettingsDraftPage: Equatable, Sendable { case display, motion }
@@ -11,7 +11,7 @@ public enum SettingsDraftPage: Equatable, Sendable { case display, motion }
 /// Only currently effective numeric settings are editable. Codable compatibility
 /// fields and display identity never enter this patch vocabulary.
 public enum SettingsField: String, CaseIterable, Hashable, Sendable {
-    case fitWidth, fitHeight, hiddenFraction, rowPitch, outerInset, firstCenterFromTop
+    case fitWidth, fitHeight, hiddenFraction, trayOcclusion, rowPitch, outerInset, firstCenterFromTop
     case numberFontSize, numberGap, leftPadding, minimumHitWidth, minimumHitHeight, visibleCountPreference
     case pressDuration, swallowDuration, shiftDuration, returnDuration
 
@@ -24,7 +24,7 @@ public enum SettingsField: String, CaseIterable, Hashable, Sendable {
 
     /// Text is shown in percent / milliseconds; RiftConfiguration retains its units.
     fileprivate var scale: Double {
-        if self == .hiddenFraction { return 100 }
+        if self == .hiddenFraction || self == .trayOcclusion { return 100 }
         return page == .motion ? 1000 : 1
     }
 
@@ -32,6 +32,7 @@ public enum SettingsField: String, CaseIterable, Hashable, Sendable {
         switch self {
         case .fitWidth: return c.fitWidth
         case .fitHeight: return c.fitHeight
+        case .trayOcclusion: return c.trayOcclusion
         case .hiddenFraction: return c.hiddenFraction
         case .rowPitch: return c.rowPitch
         case .outerInset: return c.outerInset
@@ -54,6 +55,9 @@ public enum SettingsField: String, CaseIterable, Hashable, Sendable {
         switch self {
         case .fitWidth: c.fitWidth = value
         case .fitHeight: c.fitHeight = value
+        case .trayOcclusion:
+            guard (0...0.9).contains(value) else { throw SettingsValidationFailure.invalidNumber(self) }
+            c.trayOcclusion = value
         case .hiddenFraction: c.hiddenFraction = value
         case .rowPitch: c.rowPitch = value
         case .outerInset: c.outerInset = value
@@ -86,6 +90,7 @@ public struct SettingsDisplayPreference: Equatable, Sendable {
 public enum SettingsIntent: Equatable, Sendable {
     case collectionPaused(Bool), hidden(Bool), entryEnabled(Bool)
     case captureMode(ScreenshotMode), arrival(ArrivalMotionMode)
+    case desktopForm(RiftDesktopForm), trayTheme(RiftTrayTheme)
     case layout([SettingsField: Double]), placement(RiftPlacement)
     case display(SettingsDisplayPreference), archiveHours(Double?)
 
@@ -96,6 +101,8 @@ public enum SettingsIntent: Equatable, Sendable {
         case .entryEnabled: return .entry
         case .captureMode: return .captureMode
         case .arrival: return .arrival
+        case .desktopForm: return .desktopForm
+        case .trayTheme: return .trayTheme
         case .layout: return .layout
         case .placement: return .placement
         case .display: return .display
@@ -106,6 +113,7 @@ public enum SettingsIntent: Equatable, Sendable {
 
 public enum SettingsConfirmedValue: Equatable, Sendable {
     case boolean(Bool), captureMode(ScreenshotMode), arrival(ArrivalMotionMode)
+    case desktopForm(RiftDesktopForm), trayTheme(RiftTrayTheme)
     case configuration(RiftConfiguration), placement(RiftPlacement?)
     case display(id: UInt32?, uuid: String?), archiveHours(Double?)
 }
@@ -181,6 +189,7 @@ public enum SettingsCommand: Sendable {
     case discardLayout, discardArchive, discardDrafts, applyLayout, applyArchive, applyDrafts
     case setCollectionPaused(Bool), setHidden(Bool), setEntryEnabled(Bool)
     case setCaptureMode(ScreenshotMode), setArrival(ArrivalMotionMode)
+    case selectDesktopForm(RiftDesktopForm), selectTrayTheme(RiftTrayTheme)
     case selectPlacement(RiftPlacement), selectDisplay(UInt32?), retry(SettingsDomain)
 }
 
@@ -299,6 +308,7 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
             let defaults = RiftConfiguration()
             revision += 1
             for field in SettingsField.allCases where field.page == page && applicable(field) {
+                if field == .trayOcclusion && owner.settings.configuration.desktopForm != .tray { continue }
                 layoutText[field] = format(field.value(in: defaults) * field.scale)
                 layoutEditVersions[field] = revision
             }
@@ -325,6 +335,10 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         case .setEntryEnabled(let value): await save(prepare(.entryEnabled(value)), into: &result)
         case .setCaptureMode(let value): await save(prepare(.captureMode(value)), into: &result)
         case .setArrival(let value): await save(prepare(.arrival(value)), into: &result)
+        case .selectDesktopForm(let value):
+            guard value.isAvailable else { return result }
+            await save(prepare(.desktopForm(value)), into: &result)
+        case .selectTrayTheme(let value): await save(prepare(.trayTheme(value)), into: &result)
         case .selectPlacement(let value): await save(prepare(.placement(value)), into: &result)
         case .selectDisplay(let requested):
             let displays = owner.settings.displays
@@ -396,6 +410,8 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
                 guard applicable(field) else { throw SettingsValidationFailure.inactiveLegacyField }
                 try field.put(value, into: &candidate)
             }
+        case .desktopForm(let value): candidate.desktopForm = value
+        case .trayTheme(let value): candidate.trayTheme = value
         case .placement(let placement): candidate.placement = placement; candidate.placementSource = .user
         case .display(let display):
             candidate.preferredDisplayID = display.id; candidate.preferredDisplayUUID = display.uuid
@@ -414,9 +430,9 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
     private func begin(_ prepared: PreparedSave, into result: inout SettingsSubmission) -> SaveWork? {
         let intent = prepared.intent
         let domain = intent.domain
-        // These three commands persist the same full configuration. Other
+        // These commands persist the same full configuration. Other
         // owners remain independent, including pause, hide and archive.
-        let writer: SettingsDomain = [.layout, .placement, .display].contains(domain) ? .layout : domain
+        let writer: SettingsDomain = [.layout, .placement, .display, .desktopForm, .trayTheme].contains(domain) ? .layout : domain
         guard !writes.contains(writer) else { result.busy.append(domain); return nil }
         let configuration: RiftConfiguration?
         do { configuration = try self.configuration(for: intent) }
@@ -494,6 +510,8 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
             // Confirm the requested fields. A concurrent owner observation may
             // legitimately change untouched fields before a rebased write.
             return patch.allSatisfy { $0.key.value(in: value.settings.configuration) == $0.value }
+        case .desktopForm(let target): return value.settings.configuration.desktopForm == target
+        case .trayTheme(let target): return value.settings.configuration.trayTheme == target
         case .placement(let target):
             return value.settings.configuration.placement == target && value.settings.configuration.placementSource == .user
         case .display(let target):
@@ -509,6 +527,8 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         case .entry: return .boolean(value.settings.entryEnabled)
         case .captureMode: return .captureMode(value.settings.defaultCaptureMode)
         case .arrival: return .arrival(value.settings.arrivalMode)
+        case .desktopForm: return .desktopForm(value.settings.configuration.desktopForm)
+        case .trayTheme: return .trayTheme(value.settings.configuration.trayTheme)
         case .layout: return .configuration(value.settings.configuration)
         case .placement: return .placement(value.settings.configuration.placement)
         case .display: return .display(id: value.settings.configuration.preferredDisplayID, uuid: value.settings.configuration.preferredDisplayUUID)

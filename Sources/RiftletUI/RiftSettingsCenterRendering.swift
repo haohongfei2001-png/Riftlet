@@ -112,6 +112,12 @@ extension RiftSettingsCenterController {
     func renderDisplay() {
         let owner = model.snapshot.owner
         let settings = owner.settings
+        let configuration = settings.configuration
+        (controls["desktopForm"] as? NSPopUpButton)?.selectItem(withTitle: configuration.desktopForm.title)
+        (controls["trayTheme"] as? NSPopUpButton)?.selectItem(withTitle: configuration.trayTheme.title)
+        enable("desktopForm", product.capabilities.canEditPreferences && !configurationBusy)
+        enable("trayTheme", product.capabilities.canEditPreferences && !configurationBusy)
+        traySettings?.isHidden = configuration.desktopForm != .tray
         guard let popup = controls["display"] as? NSPopUpButton else { return }
         // Concrete UUID/ID resolution is already performed by the owner; the
         // view never converts a temporary fallback into a preference.
@@ -243,7 +249,7 @@ extension RiftSettingsCenterController {
         case .visibility: canSave = product.capabilities.canChangeVisibility
         default: canSave = product.capabilities.canEditPreferences
         }
-        retryButtons[domain]?.isEnabled = canSave && !busy(domain) && (![SettingsDomain.layout, .placement, .display].contains(domain) || !configurationBusy)
+        retryButtons[domain]?.isEnabled = canSave && !busy(domain) && (![SettingsDomain.layout, .placement, .display, .desktopForm, .trayTheme].contains(domain) || !configurationBusy)
     }
     func errorText(_ domain: SettingsDomain) -> String? {
         guard let state = model.snapshot.domains[domain] else { return nil }
@@ -264,6 +270,8 @@ extension RiftSettingsCenterController {
         case .entryEnabled(let enabled): target = enabled ? "启用内置截图" : "关闭内置截图"
         case .captureMode: target = "默认截图方式"
         case .arrival: target = "入缝偏好"
+        case .desktopForm: target = "桌面形态"
+        case .trayTheme: target = "托盘材质"
         case .layout: target = "参数更改"
         case .placement: target = "边缘位置"
         case .display: target = "显示器偏好"
@@ -272,7 +280,7 @@ extension RiftSettingsCenterController {
         }
         return "“\(target)”的保存结果尚未确认。控件显示当前有效状态；重试会保存同一个选择，其他设置成功不会清除此提示。"
     }
-    var configurationBusy: Bool { [SettingsDomain.layout, .placement, .display].contains { busy($0) } }
+    var configurationBusy: Bool { [SettingsDomain.layout, .placement, .display, .desktopForm, .trayTheme].contains { busy($0) } }
     func busy(_ domain: SettingsDomain) -> Bool { model.snapshot.domains[domain]?.isSaving == true }
     func text(_ id: String, _ value: String) { if labels[id]?.stringValue != value { labels[id]?.stringValue = value } }
     func enable(_ id: String, _ enabled: Bool) { controls[id]?.isEnabled = enabled }

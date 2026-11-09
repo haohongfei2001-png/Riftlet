@@ -68,7 +68,7 @@ final class SettingsStateModelTests: XCTestCase {
                 case .arrival(let mode):
                     if !failed { next.settings.arrivalMode = mode; next.settings.hasArrivalSelection = true }
                 case .archiveHours(let hours): if !failed { next.settings.archiveAfterHours = hours }
-                case .layout, .placement, .display:
+                case .layout, .placement, .display, .desktopForm, .trayTheme:
                     if !failed, let configuration = request.configuration {
                         next.settings.configuration = configuration
                         next.settings.preferredDisplayID = configuration.preferredDisplayID
@@ -120,6 +120,63 @@ final class SettingsStateModelTests: XCTestCase {
         XCTAssertEqual(model.archiveDraftText, "8")
         XCTAssertTrue(owner.requests.isEmpty)
     }
+    @MainActor func testPresentationPersistsImmediatelyWithoutConsumingLayoutDrafts() async throws {
+        let owner = Owner()
+        let model = try model(owner)
+        model.setDraftText("87", for: .fitWidth)
+        let changed = await model.perform(.selectDesktopForm(.tray))
+        XCTAssertEqual(changed.confirmed, [.desktopForm])
+        XCTAssertEqual(owner.value.settings.configuration.desktopForm, .tray)
+        XCTAssertTrue(model.hasLayoutDraft)
+        owner.failures.insert(.trayTheme)
+        let failed = await model.perform(.selectTrayTheme(.violetGlass))
+        XCTAssertEqual(failed.failed, [.trayTheme])
+        _ = await model.perform(.selectDesktopForm(.pocket))
+        XCTAssertNotNil(model.snapshot.domains[.trayTheme]?.saveFailure)
+        owner.failures.remove(.trayTheme)
+        let retry = await model.perform(.retry(.trayTheme))
+        XCTAssertEqual(retry.confirmed, [.trayTheme])
+        XCTAssertEqual(owner.value.settings.configuration.desktopForm, .pocket)
+        XCTAssertEqual(owner.value.settings.configuration.trayTheme, .violetGlass)
+        _ = await model.perform(.applyLayout)
+        XCTAssertEqual(owner.value.settings.configuration.fitWidth, 87)
+        XCTAssertEqual(owner.value.settings.configuration.desktopForm, .pocket)
+    }
+
+    func testPresentationFallbackPreservesFutureAndUnavailableSelections() throws {
+        for raw in [#""future-form""#, #""windChime""#, #"{"version":3,"names":["x"]}"#, "null"] {
+            let source = Data("{\"desktopForm\":\(raw),\"trayTheme\":\"future-glass\",\"trayOcclusion\":1.6,\"emptyTraceLength\":33}".utf8)
+            var value = try JSONDecoder().decode(RiftConfiguration.self, from: source)
+            XCTAssertEqual(value.desktopForm, .microSlit)
+            XCTAssertEqual(value.trayTheme, .system)
+            XCTAssertEqual(value.trayOcclusion, 0)
+            value.outerInset = 19
+            let saved = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(value)) as? NSDictionary)
+            let original = try XCTUnwrap(JSONSerialization.jsonObject(with: source) as? NSDictionary)
+            for key in ["desktopForm", "trayTheme", "trayOcclusion", "emptyTraceLength"] {
+                XCTAssertEqual(saved[key] as? NSObject, original[key] as? NSObject)
+            }
+        }
+    }
+
+    func testPresentationSettingsRoundTripAndPreserveLegacyDefaults() throws {
+        var config = try JSONDecoder().decode(RiftConfiguration.self, from: Data("{}".utf8))
+        XCTAssertEqual(config.desktopForm, .microSlit)
+        XCTAssertEqual(config.hiddenFraction, 0.25)
+        XCTAssertEqual(config.trayOcclusion, 0)
+        config.trayTheme = .violetGlass
+        config.trayOcclusion = 0.29
+        for form in RiftDesktopForm.allCases where form.isAvailable {
+            config.desktopForm = form
+            let decoded = try JSONDecoder().decode(RiftConfiguration.self, from: JSONEncoder().encode(config))
+            XCTAssertEqual(decoded.desktopForm, form)
+            XCTAssertEqual(decoded.trayTheme, .violetGlass)
+            XCTAssertEqual(decoded.trayOcclusion, 0.29)
+            XCTAssertEqual(decoded.hiddenFraction, 0.25)
+            XCTAssertNil(decoded.placement)
+        }
+    }
+
     private func personalized() throws -> RiftConfiguration {
         // Real legacy Codable path; no alternate migration implementation.
         try JSONDecoder().decode(RiftConfiguration.self, from: Data(#"{"lineWidth":1.25,"lineExtension":13.5,"emptyTraceLength":37,"screenPadding":23,"arrivalDuration":0.33,"inwardDistance":2.75,"reducedMotionDuration":0.19,"preferredDisplayID":2,"preferredDisplayUUID":"02000000-0000-0000-0000-000000000002"}"#.utf8))

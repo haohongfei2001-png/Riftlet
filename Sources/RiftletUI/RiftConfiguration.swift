@@ -1,5 +1,55 @@
 import Foundation
 
+public enum RiftDesktopForm: String, CaseIterable, Sendable {
+    case microSlit, windChime, tray, edgefolio, pocket
+
+    public var title: String {
+        switch self {
+        case .microSlit: return "微缝"
+        case .windChime: return "风铃"
+        case .tray: return "截图托盘"
+        case .edgefolio: return "折页 Edgefolio"
+        case .pocket: return "口袋 Pocket"
+        }
+    }
+
+    // The design index names wind chime; there is no approved renderer specification.
+    public var isAvailable: Bool { self != .windChime }
+}
+
+public enum RiftTrayTheme: String, CaseIterable, Sendable {
+    case system, violetGlass
+    public var title: String { self == .system ? "系统玻璃" : "紫蓝玻璃" }
+}
+
+/// Keep values from newer presentation schemas verbatim in the configuration
+/// model, including objects, until the user explicitly replaces that field.
+private enum PresentationValue: Equatable, Sendable, Codable {
+    case text(String), number(Decimal), flag(Bool), object([String: Self]), array([Self]), null
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.singleValueContainer()
+        if c.decodeNil() { self = .null }
+        else if let s = try? c.decode(String.self) { self = .text(s) }
+        else if let b = try? c.decode(Bool.self) { self = .flag(b) }
+        else if let n = try? c.decode(Decimal.self) { self = .number(n) }
+        else if let a = try? c.decode([Self].self) { self = .array(a) }
+        else { self = .object(try c.decode([String: Self].self)) }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.singleValueContainer()
+        switch self {
+        case .text(let s): try c.encode(s)
+        case .number(let n): try c.encode(n)
+        case .flag(let b): try c.encode(b)
+        case .array(let a): try c.encode(a)
+        case .object(let o): try c.encode(o)
+        case .null: try c.encodeNil()
+        }
+    }
+}
+
 /// «薄界» implementation candidate; exact visual values await founder review.
 /// All dimensions are logical points and may be changed without touching capture or transfer code.
 public struct RiftConfiguration: Codable, Equatable, Sendable {
@@ -36,14 +86,53 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
     public var placementSource: RiftPlacementSource = .initialRecommendation
     public var preferredDisplayUUID: String? = nil
 
+    private var storedForm: PresentationValue?
+    private var storedTrayTheme: PresentationValue?
+    private var storedTrayOcclusion: PresentationValue?
+
+    public var desktopForm: RiftDesktopForm {
+        get {
+            guard case .text(let raw) = storedForm, let form = RiftDesktopForm(rawValue: raw),
+                  form.isAvailable else { return .microSlit }
+            return form
+        }
+        set { storedForm = .text(newValue.rawValue) }
+    }
+
+    public var trayTheme: RiftTrayTheme {
+        get {
+            guard case .text(let raw) = storedTrayTheme else { return .system }
+            return RiftTrayTheme(rawValue: raw) ?? .system
+        }
+        set { storedTrayTheme = .text(newValue.rawValue) }
+    }
+
+    public var trayOcclusion: Double {
+        get {
+            guard case .number(let raw) = storedTrayOcclusion else { return 0 }
+            guard let value = Double(NSDecimalNumber(decimal: raw).stringValue) else { return 0 }
+            return (0...0.9).contains(value) ? value : 0
+        }
+        set {
+            guard (0...0.9).contains(newValue),
+                  let value = Decimal(string: String(newValue), locale: Locale(identifier: "en_US_POSIX")) else { return }
+            storedTrayOcclusion = .number(value)
+        }
+    }
+
     public init() {}
 
 
-    private enum CodingKeys: String, CodingKey { case fitWidth, fitHeight, hiddenFraction, rowPitch, lineWidth, lineExtension, emptyTraceLength, outerInset, firstCenterFromTop, screenPadding, numberFontSize, numberGap, leftPadding, minimumHitWidth, minimumHitHeight, arrivalDuration, pressDuration, inwardDistance, swallowDuration, shiftDuration, returnDuration, reducedMotionDuration, preferredDisplayID, visibleCountPreference, placement, placementSource, preferredDisplayUUID }
+    private enum CodingKeys: String, CodingKey { case fitWidth, fitHeight, hiddenFraction, rowPitch, lineWidth, lineExtension, emptyTraceLength, outerInset, firstCenterFromTop, screenPadding, numberFontSize, numberGap, leftPadding, minimumHitWidth, minimumHitHeight, arrivalDuration, pressDuration, inwardDistance, swallowDuration, shiftDuration, returnDuration, reducedMotionDuration, preferredDisplayID, visibleCountPreference, placement, placementSource, preferredDisplayUUID
+        case storedForm = "desktopForm", storedTrayTheme = "trayTheme", storedTrayOcclusion = "trayOcclusion"
+    }
 
     public init(from decoder: Decoder) throws {
         self.init()
         let values = try decoder.container(keyedBy: CodingKeys.self)
+        if values.contains(.storedForm) { storedForm = try values.decode(PresentationValue.self, forKey: .storedForm) }
+        if values.contains(.storedTrayTheme) { storedTrayTheme = try values.decode(PresentationValue.self, forKey: .storedTrayTheme) }
+        if values.contains(.storedTrayOcclusion) { storedTrayOcclusion = try values.decode(PresentationValue.self, forKey: .storedTrayOcclusion) }
         fitWidth = try values.decodeIfPresent(Double.self, forKey: .fitWidth) ?? 72
         fitHeight = try values.decodeIfPresent(Double.self, forKey: .fitHeight) ?? 56
         hiddenFraction = try values.decodeIfPresent(Double.self, forKey: .hiddenFraction) ?? 0.25

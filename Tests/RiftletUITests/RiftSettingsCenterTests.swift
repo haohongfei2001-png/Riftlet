@@ -999,7 +999,7 @@ private final class SettingsCenterTestHost {
         case .captureMode(let mode): if !failure { settings.defaultCaptureMode = mode; settings.capturePreferencesSaveFailed = false }
         case .arrival(let mode): if !failure { settings.arrivalMode = mode; settings.hasArrivalSelection = true }
         case .archiveHours(let value): if !failure { settings.archiveAfterHours = value }
-        case .layout, .placement, .display:
+        case .layout, .placement, .display, .desktopForm, .trayTheme:
             if !failure, let configuration = request.configuration { settings.configuration = configuration; settings.preferredDisplayID = configuration.preferredDisplayID }
         }
         owner = SettingsOwnerSnapshot(revision: owner.revision + 1, settings: settings, collectionPaused: paused, isHidden: hidden,
