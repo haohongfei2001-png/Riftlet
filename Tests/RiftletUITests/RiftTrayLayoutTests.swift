@@ -160,26 +160,48 @@ final class RiftTrayLayoutTests: XCTestCase {
         }
     }
 
-    @MainActor func testFourAccessibleControlsRouteRealModesWithDefaultAtOuterEdge() {
+    @MainActor func testFourAccessibleControlsRouteFavoritesThenDefaultFromLeftToRightOnBothEdges() throws {
         let records = assets(2)
-        let v = layout(records, menu: .init(openingLayout: layout(records)))
-        let surface = RiftTraySurfaceView(frame:CGRect(origin:.zero,size:v.surfaceFrame.size))
-        var pressed: [ScreenshotMode] = []
-        surface.onCapture = { pressed.append($0) }
-        for side in [RiftSide.left, .right] {
+        func label(_ mode: ScreenshotMode?) -> String {
+            switch mode {
+            case .window: return "窗口截图"
+            case .region: return "区域截图"
+            case .fullScreen: return "全屏截图"
+            case nil: return "未设置"
+            }
+        }
+        for placement in [RiftPlacement.leftMiddle, .rightMiddle] {
+            var configuration = RiftConfiguration()
+            configuration.placement = placement
+            let closed = layout(records, configuration: configuration)
+            XCTAssertEqual(closed.surfaceFrame.midX < display.midX, placement == .leftMiddle)
+            let open = layout(records, menu: .init(openingLayout: closed), configuration: configuration)
+            let surface = RiftTraySurfaceView(frame: CGRect(origin: .zero, size: closed.surfaceFrame.size))
+            var pressed: [ScreenshotMode] = []
+            surface.onCapture = { pressed.append($0) }
             for mode in ScreenshotMode.allCases {
-                let automatic = RiftConfiguration().trayFavoriteModes(defaultMode: mode)
+                let automatic = configuration.trayFavoriteModes(defaultMode: mode)
                 for choices: [ScreenshotMode?] in [automatic, [.region, .window, .region]] {
-                    surface.update(layout: v, violet: true, defaultMode: mode,
-                                   favoriteModes: choices, reduceMotion: true, side: side)
+                    surface.update(layout: closed, violet: true, defaultMode: mode, favoriteModes: choices, reduceMotion: true)
+                    let camera = try XCTUnwrap(surface.subviews.compactMap { $0 as? NSButton }.first { !$0.isHidden })
+                    XCTAssertEqual(camera.accessibilityLabel(), "展开截图方式")
+                    XCTAssertEqual(camera.frame, closed.captureSlot.offsetBy(dx: -closed.surfaceFrame.minX, dy: -closed.surfaceFrame.minY))
+                    surface.update(layout: open, violet: true, defaultMode: mode, favoriteModes: choices, reduceMotion: true)
                     let buttons = surface.subviews.compactMap { $0 as? NSButton }.filter { !$0.isHidden }
                         .sorted { $0.frame.minX < $1.frame.minX }
                     XCTAssertEqual(buttons.count, 4)
-                    XCTAssertEqual(buttons.compactMap { $0.accessibilityLabel() }.count, 4)
-                    let innerToOuter = side == .left ? Array(buttons.reversed()) : buttons
-                    XCTAssertEqual(innerToOuter.map(\.isEnabled), (choices + [mode]).map { $0 != nil })
+                    let favoriteLabels = choices.enumerated().map { "常用截图 \($0.offset + 1)，" + label($0.element) }
+                    let expected = favoriteLabels + ["默认截图，" + label(mode)]
+                    XCTAssertEqual(buttons.compactMap { $0.accessibilityLabel() }, expected)
+                    XCTAssertTrue(buttons.last === camera)
+                    XCTAssertTrue(zip(buttons, buttons.dropFirst()).allSatisfy { $0.frame.maxX <= $1.frame.minX && $0.frame.minY == $1.frame.minY })
+                    XCTAssertEqual(buttons.map(\.isEnabled), (choices + [mode]).map { $0 != nil })
+                    let enabled = buttons.filter(\.isEnabled)
+                    for (index, button) in enabled.enumerated() {
+                        XCTAssertTrue(button.nextKeyView === enabled[(index + 1) % enabled.count])
+                    }
                     pressed.removeAll()
-                    for button in innerToOuter { button.performClick(nil) }
+                    for button in buttons { button.performClick(nil) }
                     XCTAssertEqual(pressed, choices.compactMap { $0 } + [mode])
                 }
             }

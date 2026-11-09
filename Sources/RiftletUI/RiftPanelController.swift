@@ -585,6 +585,7 @@ public final class RiftPanelController {
     }
     private var feedbackStates: [UUID: FeedbackState] = [:]
     private var rowWindows: [UUID: RowWindow] = [:]
+    private var hasReceivedQueueSnapshot = false
     private var lastRecords: [AssetRecord] = []
     private var deferredRecords: [AssetRecord]?
     private var pendingRefillRecords: [AssetRecord]?
@@ -864,7 +865,9 @@ public final class RiftPanelController {
         trayCaptureEnabled = enabled
         trayDefaultMode = defaultMode
         if !enabled { finishQueueTransition(allowShift: false); dismissTrayTracking(); trayMenu = nil }
-        if configuration.desktopForm == .tray { render(pendingRefillRecords ?? deferredRecords ?? lastRecords) }
+        if configuration.desktopForm == .tray, hasReceivedQueueSnapshot {
+            render(pendingRefillRecords ?? deferredRecords ?? lastRecords)
+        }
     }
 
     public func setTrayExpanded(_ expanded: Bool) {
@@ -929,7 +932,7 @@ public final class RiftPanelController {
         guard !closed else { return }
         captureSessionActive = active
         for panel in allPresentationPanels {
-            panel.level = active ? NSWindow.Level(rawValue: NSWindow.Level.statusBar.rawValue + 1) : .floating
+            panel.level = presentationLevel(for: panel)
         }
         updatePager()
     }
@@ -955,7 +958,7 @@ public final class RiftPanelController {
 
     private func updatePager() {
         guard let pagerLayout else { pager.hide(); return }
-        pager.update(pagerLayout, hidden: captureSuppressed || userHidden || closed, level: decoration.level)
+        pager.update(pagerLayout, hidden: captureSuppressed || userHidden || closed, level: presentationLevel)
     }
 
     private var allPresentationPanels: [NSPanel] {
@@ -1085,9 +1088,22 @@ public final class RiftPanelController {
         if !hidden { apply(lastRecords) }
     }
 
+    private var presentationLevel: NSWindow.Level {
+        captureSessionActive ? NSWindow.Level(rawValue: NSWindow.Level.statusBar.rawValue + 1) : .floating
+    }
+
+    private func presentationLevel(for panel: NSPanel) -> NSWindow.Level {
+        // AppKit raises the clicked/key window within its level. Keep the tray
+        // glass behind the cards even while its menu owns keyboard focus.
+        if configuration.desktopForm == .tray, !captureSessionActive, panel === formSurface || panel === decoration {
+            return NSWindow.Level(rawValue: NSWindow.Level.floating.rawValue - 1)
+        }
+        return presentationLevel
+    }
+
     private func present(_ panel: NSPanel) {
         guard !closed, !userHidden, !captureSuppressed else { panel.orderOut(nil); return }
-        panel.level = captureSessionActive ? NSWindow.Level(rawValue: NSWindow.Level.statusBar.rawValue + 1) : .floating
+        panel.level = presentationLevel(for: panel)
         panel.orderFrontRegardless()
     }
 
@@ -1114,6 +1130,7 @@ public final class RiftPanelController {
     /// their final backend result remains unresolved. READY never triggers UI exit.
     public func render(_ records: [AssetRecord]) {
         guard !closed else { return }
+        hasReceivedQueueSnapshot = true
         if userHidden { lastRecords = records; deferredRecords = nil; return }
         if pendingRefillRecords != nil { pendingRefillRecords = records }
         let includesArchive = containsNewArchive(records)
@@ -1359,7 +1376,7 @@ public final class RiftPanelController {
             }
             view.update(layout: layout, violet: configuration.trayTheme == .violetGlass, defaultMode: trayDefaultMode,
                         favoriteModes: configuration.trayFavoriteModes(defaultMode: trayDefaultMode),
-                        reduceMotion: reduceMotion, side: configuration.placement?.side ?? .right)
+                        reduceMotion: reduceMotion)
             formSurface.ignoresMouseEvents = false
         } else {
             let base = (formSurface.contentView as? RiftFolioBaseView) ?? RiftFolioBaseView(frame: .zero)
@@ -1373,6 +1390,9 @@ public final class RiftPanelController {
     private func apply(_ records: [AssetRecord], animateShift: Bool = false,
                        previousTrayFrame: CGRect? = nil, displacedID: UUID? = nil) {
         guard !closed else { return }
+        // The camera occupies the slot after the stored images. A configuration
+        // or display callback before the first snapshot cannot place it yet.
+        guard configuration.desktopForm != .tray || hasReceivedQueueSnapshot else { return }
         guard !userHidden else { lastRecords = records; return }
         guard let screen else {
             cancelDecorations(reason: .geometryChanged)

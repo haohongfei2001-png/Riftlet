@@ -1634,7 +1634,7 @@ extension SettingsReviewDriver {
             backing.isReleasedWhenClosed = false
             backing.ignoresMouseEvents = true
             backing.hasShadow = false
-            backing.level = NSWindow.Level(rawValue: NSWindow.Level.floating.rawValue - 1)
+            backing.level = NSWindow.Level(rawValue: NSWindow.Level.floating.rawValue - 2)
             let imageView = NSImageView(image: wallpaper)
             imageView.imageScaling = .scaleAxesIndependently
             backing.contentView = imageView
@@ -1645,8 +1645,7 @@ extension SettingsReviewDriver {
                 await self.settle(500)
                 let rows = panel.diagnosticSnapshot.rows
                 try self.require(rows.map(\.assetID) == expectedIDs, "incorrectReviewUUIDs-" + name)
-                let key = try self.checkReferenceTray(name, rows: rows, lines: lines, expanded: expanded,
-                                                       left: settings.configuration.placement?.side == .left)
+                let key = try self.checkReferenceTray(name, rows: rows, lines: lines, expanded: expanded)
                 try self.desktopCapture(name, screen: screen, rows: rows, backdrop: backing, referenceKey: key)
             }
             var identities: [UUID] = []
@@ -1704,7 +1703,7 @@ extension SettingsReviewDriver {
     }
 
     private func checkReferenceTray(_ name: String, rows: [RiftDiagnosticRow], lines: Int,
-                                    expanded: Bool, left: Bool) throws -> CGRect {
+                                    expanded: Bool) throws -> CGRect {
         func buttons(in view: NSView) -> [NSButton] {
             guard !view.isHidden else { return [] }
             if let button = view as? NSButton, button.toolTip != nil { return [button] }
@@ -1725,9 +1724,10 @@ extension SettingsReviewDriver {
         // position and size of these keys need to settle before reading their geometry.
         try require(keys.allSatisfy(trayKeyHasSettled), "reviewKeyStillMoving-" + name)
         let keyFrames = keys.map { window.convertToScreen($0.convert($0.bounds, to: nil)) }
+        try require(keys.compactMap { $0.accessibilityLabel() } == names, "wrongReviewAccessibilityLabels-" + name)
         if expanded {
-            let outer = left ? names.first : names.last
-            try require(outer?.hasPrefix("默认截图") == true && names.filter { $0.hasPrefix("常用截图") }.count == 3,
+            let roles = ["常用截图 1，", "常用截图 2，", "常用截图 3，", "默认截图，"]
+            try require(zip(names, roles).allSatisfy { $0.hasPrefix($1) },
                         "wrongReviewActionRoles-" + name)
             try require(zip(keyFrames, keyFrames.dropFirst()).allSatisfy { $0.maxX <= $1.minX && $0.minY == $1.minY },
                         "overlappingReviewMenu-" + name)
@@ -1750,7 +1750,7 @@ extension SettingsReviewDriver {
                           "windowNumber": window.windowNumber, "controlLabels": names,
                           "keyScreenFrames": keyFrames.map(rect), "rowIDs": rows.map { $0.assetID.uuidString },
                           "geometryRows": lines])
-        return keyFrames[expanded && !left ? keyFrames.count - 1 : 0]
+        return keyFrames[keyFrames.count - 1]
     }
 
     private func desktopRun() async -> URL? {
@@ -1919,7 +1919,7 @@ extension SettingsReviewDriver {
                     let rect=rows.reduce(r.frame){ $0.union($1.frame) }.insetBy(dx:-25,dy:-20)
                     let backing=NSPanel(contentRect:rect,styleMask:[.borderless,.nonactivatingPanel],backing:.buffered,defer:false)
                     backing.ignoresMouseEvents=true; backing.isReleasedWhenClosed=false
-                    backing.level = NSWindow.Level(rawValue:NSWindow.Level.floating.rawValue - 1)
+                    backing.level = NSWindow.Level(rawValue:NSWindow.Level.floating.rawValue - 2)
                     defer {backing.close()}
                     backing.backgroundColor = .white; backing.orderFrontRegardless()
                     await self.settle(180)

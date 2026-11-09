@@ -1,5 +1,6 @@
 import AppKit
 import XCTest
+import RiftletCapture
 import RiftletCore
 @testable import RiftletUI
 
@@ -135,6 +136,87 @@ final class PresentationBoundaryTests: XCTestCase {
         XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [b.id])
         advanceQuietEdgeRefill(panel)
         XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [b.id])
+    }
+
+    @MainActor private func coldTray() throws -> RiftPanelController {
+        _ = NSApplication.shared
+        guard !NSScreen.screens.isEmpty else { throw XCTSkip("WindowServer required for the cold tray") }
+        var configuration = RiftConfiguration()
+        configuration.desktopForm = .tray
+        configuration.shiftDuration = 0
+        return RiftPanelController(mediaDirectory: FileManager.default.temporaryDirectory, configuration: configuration,
+                                   reduceMotionOverride: { false }, onSelect: { _ in XCTFail("Opening the camera selected a screenshot") })
+    }
+
+    @MainActor private func visibleTrayWindow() -> NSWindow? {
+        NSApp.windows.first { $0.isVisible && $0.contentView is RiftTraySurfaceView }
+    }
+
+    @MainActor func testColdTrayPublishesOneActionableCameraAtTheFirstQueueSnapshot() throws {
+        for count in [0, 1, 3] {
+            let panel = try coldTray()
+            defer { panel.close() }
+            panel.onTrayCapture = { _ in XCTFail("Opening the menu invoked a capture mode") }
+            panel.setTrayCapture(enabled: true, defaultMode: .window)
+            XCTAssertNil(visibleTrayWindow(), "Configuration precedes the first real queue snapshot")
+
+            let records = (0..<count).map { record(Int64($0 + 1)) }
+            panel.render(records)
+            let glass = try XCTUnwrap(visibleTrayWindow())
+            let view = try XCTUnwrap(glass.contentView)
+            let buttons = view.subviews.compactMap { $0 as? NSButton }
+            let first = buttons.filter { !$0.isHidden }
+            XCTAssertEqual(first.compactMap { $0.accessibilityLabel() }, ["展开截图方式"])
+            let camera = try XCTUnwrap(first.first)
+            XCTAssertTrue(camera.isEnabled)
+            XCTAssertNil(camera.layer?.animation(forKey: "rift.tray.morph"), "The first visible camera must already accept its action")
+            XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), records.map(\.id))
+            let original = glass.frame
+            XCTAssertTrue(NSApp.sendAction(try XCTUnwrap(camera.action), to: camera.target, from: camera))
+            XCTAssertEqual(buttons.filter { !$0.isHidden }.count, 4)
+            XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), records.dropFirst().map(\.id))
+            XCTAssertEqual(glass.frame, original)
+            if count == 0 {
+                let arrived = record()
+                panel.render([arrived])
+                XCTAssertGreaterThan(glass.frame.height, original.height)
+                XCTAssertEqual(buttons.filter { !$0.isHidden }.count, 4)
+                XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [arrived.id])
+                panel.setTrayExpanded(false)
+                XCTAssertEqual(glass.frame, original)
+                XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [arrived.id])
+            }
+        }
+    }
+
+    @MainActor func testTrayCardAndHitWindowsStayAboveGlassAndRestoreLevelsAfterScreenCapture() throws {
+        let panel = try coldTray()
+        defer { panel.close() }
+        let records = [record(), record(2), record(3)]
+        panel.setTrayCapture(enabled: true, defaultMode: .window)
+        panel.render(records)
+        let glass = try XCTUnwrap(visibleTrayWindow())
+        let shadow = try XCTUnwrap(NSApp.windows.first { $0.isVisible && $0.contentView is RiftTrayCastShadow })
+        let rows = panel.diagnosticSnapshot.rows
+        XCTAssertEqual(rows.map(\.assetID), records.map(\.id))
+        let cardWindows = try rows.flatMap { row in
+            [try XCTUnwrap(NSApp.window(withWindowNumber: row.windowNumber)),
+             try XCTUnwrap(NSApp.window(withWindowNumber: row.imageInputWindowNumber))]
+        }
+        XCTAssertEqual(glass.level.rawValue, NSWindow.Level.floating.rawValue - 1)
+        XCTAssertEqual(shadow.level, glass.level)
+        XCTAssertTrue(cardWindows.allSatisfy { $0.isVisible && $0.level == .floating })
+        let windows = [glass, shadow] + cardWindows
+        let previousLevels = windows.map(\.level)
+        panel.setCaptureSessionActive(true)
+        panel.render(records)
+        let captureLevel = InteractiveScreenshotController.controlsWindowLevel
+        XCTAssertEqual(captureLevel.rawValue, NSWindow.Level.statusBar.rawValue + 1)
+        XCTAssertTrue(windows.allSatisfy { $0.isVisible && $0.level == captureLevel })
+        panel.setCaptureSessionActive(false)
+        XCTAssertEqual(windows.map(\.level), previousLevels)
+        panel.render(records)
+        XCTAssertEqual(windows.map(\.level), previousLevels)
     }
 
     @MainActor func testOnlyConfirmedFailureRevealsSoleSwallowedUUIDAboveEmptyTrayMenu() throws {

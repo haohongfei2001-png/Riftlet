@@ -296,7 +296,7 @@ final class RiftTraySurfaceView: NSView {
     }
 
     func update(layout: RiftLayoutResult, violet: Bool, defaultMode: ScreenshotMode, favoriteModes: [ScreenshotMode?],
-                reduceMotion: Bool, side: RiftSide) {
+                reduceMotion: Bool) {
         self.violet = violet
         applyPalette()
         let wasOpen = showingMenu
@@ -313,8 +313,7 @@ final class RiftTraySurfaceView: NSView {
                 button.assign(mode.map(TrayAction.capture) ?? .unassigned,
                               title: "常用截图 \(i + 1)，" + (mode?.trayName ?? "未设置"), symbol: mode?.traySymbol ?? "minus")
             }
-            var order = favorites + [captureKey]
-            if side == .left { order.reverse() }
+            let order = favorites + [captureKey]
             for (i, button) in order.enumerated() {
                 let target = CGRect(x: menu.minX + CGFloat(i) * (width + gap), y: menu.minY, width: width, height: menu.height)
                 let source: CGRect? = !wasOpen ? (button.visibleScreenFrame ?? oldCapture) :
