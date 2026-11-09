@@ -87,6 +87,7 @@ enum ProductStatus {
         if let web = error as? WebAdapterError {
             if web == .invalidPrivateFile { return .imageUnavailable }
             if web == .nativeEventFailed(-1743) { return .permissionDenied }
+            if web == .nativeEventFailed(12) { return .chromeJavaScriptDisabled }
         }
         if let frontmostBundleID,
            ["com.apple.Safari", "org.mozilla.firefox", "com.microsoft.edgemac", "com.brave.Browser"]
