@@ -1702,6 +1702,10 @@ extension SettingsReviewDriver {
             abs(layer.frame.width - actual.width) <= 1 && abs(layer.frame.height - actual.height) <= 1
     }
 
+    private func isDesktopPresentationWindow(_ window: NSWindow) -> Bool {
+        window.isVisible && (window.level == .floating || window.level.rawValue == NSWindow.Level.floating.rawValue - 1)
+    }
+
     private func checkReferenceTray(_ name: String, rows: [RiftDiagnosticRow], lines: Int,
                                     expanded: Bool) throws -> CGRect {
         func buttons(in view: NSView) -> [NSButton] {
@@ -1709,7 +1713,7 @@ extension SettingsReviewDriver {
             if let button = view as? NSButton, button.toolTip != nil { return [button] }
             return view.subviews.flatMap { buttons(in: $0) }
         }
-        let controls = NSApp.windows.filter { $0.isVisible && $0.level == .floating }
+        let controls = NSApp.windows.filter(isDesktopPresentationWindow)
             .compactMap(\.contentView).flatMap { buttons(in: $0) }
         let keys = controls.sorted { $0.frame.minX < $1.frame.minX }
         let names = keys.compactMap(\.toolTip)
@@ -1865,7 +1869,7 @@ extension SettingsReviewDriver {
                 guard !view.isHidden else {return []}
                 return (view as? NSButton).map { [$0] } ?? view.subviews.flatMap(buttons)
             }
-            let visible = NSApp.windows.filter { $0.level == .floating && $0.isVisible }.compactMap(\.contentView).flatMap(buttons)
+            let visible = NSApp.windows.filter(isDesktopPresentationWindow).compactMap(\.contentView).flatMap(buttons)
             guard let camera = visible.first(where: {$0.toolTip=="展开截图方式"}), let tray=camera.window,
                   let contents=tray.contentView else {throw Failure.assertion("visibleTrayCameraUnavailable")}
             guard let display = NSScreen.screens.first, let original = CGEvent(source:nil)?.location else {
@@ -1994,7 +1998,7 @@ extension SettingsReviewDriver {
                                 backdrop:NSWindow? = nil, referenceKey: CGRect? = nil) throws {
         // Include only this process's visible floating windows. No user windows or desktop pixels.
         let ordered = CGWindowListCopyWindowInfo([.optionOnScreenOnly,.excludeDesktopElements], kCGNullWindowID) as? [[String:Any]] ?? []
-        let ours = Set(NSApp.windows.filter { $0.isVisible && ($0.level == .floating || $0 === backdrop) }.map(\.windowNumber))
+        let ours = Set(NSApp.windows.filter { isDesktopPresentationWindow($0) || ($0.isVisible && $0 === backdrop) }.map(\.windowNumber))
         let entries = ordered.filter {
             ($0[kCGWindowOwnerPID as String] as? NSNumber)?.int32Value == getpid() &&
             ours.contains(($0[kCGWindowNumber as String] as? NSNumber)?.intValue ?? -1)
