@@ -1,6 +1,6 @@
-# Design — currently open
+# Riftlet design references
 
-No selected high-fidelity UI, finished prototype or approved visual system exists yet.
+For the screenshot tray, use the [final interaction specification](third-form-screenshot-tray/README.md) and the [user-selected original visual reference](third-form-screenshot-tray/assets/user-selected-reference-2026-11-07.png). Both files are retained byte for byte from [PR #51, revision 90f0ce4](https://github.com/haohongfei2001-png/Riftlet/tree/90f0ce4139c792e370f3700d5a868c014080e02d/design/third-form-screenshot-tray). The PNG defines appearance; the revised text defines behavior. [Native verification](../engineering/native-desktop-forms/README.md) records which behaviors have actually been observed.
 
 Next step: [Riftlet's design brief](../docs/DESIGN_BRIEF.md), grounded in [the actual product constraints](../docs/PRODUCT.md). Distinguish mockups, engineering candidates, observed platform behavior and user-approved final design. Do not add invented real-app screenshots.
 
