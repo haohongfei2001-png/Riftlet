@@ -21,21 +21,27 @@ final class RiftTrayLayoutTests: XCTestCase {
                             firstVisibleIndex: first, backingScale: scale, captureEnabled: capture, expanded: expanded, arrivalIDs: arrivals)
     }
     func testCountMatrixStableBoundsQueueOrderAndMenuExclusion() {
-        let fixed = layout([]).surfaceFrame
-        XCTAssertEqual(fixed.width, display.width / 8)
+        let compact = layout([]).surfaceFrame
+        let full = layout(assets(3)).surfaceFrame
+        XCTAssertEqual(full.width, display.width * 246 / 1672, accuracy: 0.5)
+        XCTAssertEqual(compact.width, full.width)
+        XCTAssertEqual(full.height / full.width, 212 / 246.0, accuracy: 0.005)
+        XCTAssertEqual(compact.height / full.width, 115 / 246.0, accuracy: 0.005)
+        XCTAssertEqual(compact.minY, full.minY)
         for count in [0,1,2,3,4,5,10] {
             let records = assets(count)
             for enabled in [true,false] {
                 for expanded in [true,false] {
                     let v = layout(records, capture: enabled, expanded: expanded)
                     if count == 0 && !enabled { XCTAssertTrue(v.surfaceFrame.isEmpty); continue }
-                    XCTAssertEqual(v.surfaceFrame, fixed)
                     let open = enabled && expanded
+                    let needsTwoRows = count >= 2 || (open && count == 1)
+                    XCTAssertEqual(v.surfaceFrame, needsTwoRows ? full : compact)
                     XCTAssertEqual(v.rows.map(\.assetID), Array(records.prefix(open ? 2 : 3)).map(\.id))
                     XCTAssertEqual(!v.captureMenuFrame.isEmpty,open)
                     XCTAssertEqual(!v.captureSlot.isEmpty,enabled && !expanded && count <= 3)
                     for r in v.rows {
-                        XCTAssertTrue(fixed.contains(r.frame))
+                        XCTAssertTrue(v.surfaceFrame.contains(r.frame))
                         XCTAssertFalse(r.frame.intersects(v.captureMenuFrame))
                         XCTAssertFalse(r.frame.intersects(v.captureSlot))
                     }
@@ -44,6 +50,43 @@ final class RiftTrayLayoutTests: XCTestCase {
                         XCTAssertGreaterThan(v.captureMenuFrame.width,2 * first.frame.width)
                     }
                 }
+            }
+        }
+    }
+
+    func testReferenceGeometryAndSingleImageFillMotionAtBothScales() throws {
+        let records = assets(3)
+        var c = RiftConfiguration()
+        c.placement = .rightMiddle
+        c.outerInset = 16
+        let frame = CGRect(x: 0, y: 0, width: 1672, height: 910)
+        for scale in [1.0, 2.0] {
+            func measure(_ count: Int, open: Bool = false) -> RiftLayoutResult {
+                RiftTrayLayout.make(records: Array(records.prefix(count)), visibleFrame: frame,
+                                    configuration: c, firstVisibleIndex: 0, backingScale: scale,
+                                    captureEnabled: true, expanded: open,
+                                    displayFrame: CGRect(x: 0, y: 0, width: 1672, height: 941))
+            }
+            let full = measure(3)
+            XCTAssertEqual(full.surfaceFrame.minX, 1410)
+            XCTAssertEqual(full.surfaceFrame.minY, 308.5, accuracy: 0.5)
+            XCTAssertEqual(full.surfaceFrame.size, CGSize(width: 246, height: 212))
+            XCTAssertEqual(full.rows[0].frame.width, 113.5, accuracy: 0.5)
+            XCTAssertEqual(full.rows[0].frame.height, 80)
+            XCTAssertEqual(full.rows[0].frame.minX - full.surfaceFrame.minX, 7)
+            XCTAssertEqual(full.rows[1].frame.minX - full.rows[0].frame.maxX, 5, accuracy: 1)
+            XCTAssertEqual(full.rows[0].frame.minY - full.rows[2].frame.maxY, 17, accuracy: 1)
+            let single = measure(1), open = measure(1, open: true)
+            XCTAssertEqual(single.surfaceFrame.height, 115)
+            XCTAssertEqual(open.rows[0].assetID, single.rows[0].assetID)
+            XCTAssertEqual(open.rows[0].frame.minY - single.rows[0].frame.minY, 97, accuracy: 1)
+            XCTAssertEqual(open.captureMenuFrame.width, 232)
+            XCTAssertEqual(measure(0, open: true).surfaceFrame, single.surfaceFrame)
+            for row in full.rows {
+                let card = try XCTUnwrap(row.trayCardFrame)
+                XCTAssertTrue(card.insetBy(dx: -0.001, dy: -0.001).contains(row.imageFrame))
+                let slot = CGRect(origin: .zero, size: row.frame.size).insetBy(dx: -0.001, dy: -0.001)
+                XCTAssertTrue(slot.contains(card))
             }
         }
     }
@@ -99,27 +142,63 @@ final class RiftTrayLayoutTests: XCTestCase {
         let records = assets(2)
         let v = layout(records, expanded:true)
         let surface = RiftTraySurfaceView(frame:CGRect(origin:.zero,size:v.surfaceFrame.size))
-        var pressed: [ScreenshotMode] = [], more = 0
+        var pressed: [ScreenshotMode] = []
         surface.onCapture = { pressed.append($0) }
-        surface.onMore = { _ in more += 1 }
         for side in [RiftSide.left, .right] {
             for mode in ScreenshotMode.allCases {
-                surface.update(layout:v,violet:true,defaultMode:mode,reduceMotion:true,side:side)
-                let buttons = surface.subviews.compactMap { $0 as? NSButton }.filter { !$0.isHidden }
-                    .sorted { $0.frame.minX < $1.frame.minX }
-                XCTAssertEqual(buttons.count,4)
-                XCTAssertEqual(buttons.compactMap { $0.accessibilityLabel() }.count,4)
-                let innerToOuter = side == .left ? Array(buttons.reversed()) : buttons
-                pressed.removeAll()
-                more = 0
-                innerToOuter.first?.performClick(nil)
-                XCTAssertEqual(more,1)
-                for b in innerToOuter.dropFirst() { b.performClick(nil) }
-                XCTAssertEqual(pressed.count,3)
-                XCTAssertEqual(Set(pressed),Set(ScreenshotMode.allCases))
-                XCTAssertEqual(pressed.last,mode)
+                let automatic = RiftConfiguration().trayFavoriteModes(defaultMode: mode)
+                for choices: [ScreenshotMode?] in [automatic, [.region, .window, .region]] {
+                    surface.update(layout: v, violet: true, defaultMode: mode,
+                                   favoriteModes: choices, reduceMotion: true, side: side)
+                    let buttons = surface.subviews.compactMap { $0 as? NSButton }.filter { !$0.isHidden }
+                        .sorted { $0.frame.minX < $1.frame.minX }
+                    XCTAssertEqual(buttons.count, 4)
+                    XCTAssertEqual(buttons.compactMap { $0.accessibilityLabel() }.count, 4)
+                    let innerToOuter = side == .left ? Array(buttons.reversed()) : buttons
+                    XCTAssertEqual(innerToOuter.map(\.isEnabled), (choices + [mode]).map { $0 != nil })
+                    pressed.removeAll()
+                    for button in innerToOuter { button.performClick(nil) }
+                    XCTAssertEqual(pressed, choices.compactMap { $0 } + [mode])
+                }
             }
         }
+    }
+
+    @MainActor func testCollapseMovesGlassWithTheOriginalScreenshot() throws {
+        _ = NSApplication.shared
+        guard !NSScreen.screens.isEmpty else { throw XCTSkip("WindowServer required") }
+        var c = RiftConfiguration()
+        c.desktopForm = .tray
+        c.shiftDuration = 0.65
+        let panel = RiftPanelController(mediaDirectory: FileManager.default.temporaryDirectory,
+                                        configuration: c, reduceMotionOverride: { false }, onSelect: { _ in })
+        defer { panel.close() }
+        let one = assets(1)
+        panel.setTrayCapture(enabled: true, defaultMode: .window)
+        panel.render(one)
+        let window = try XCTUnwrap(NSApp.windows.first { $0.isVisible && $0.contentView is RiftTraySurfaceView })
+        let compactHeight = window.frame.height
+        panel.setTrayExpanded(true)
+        let deadline = Date().addingTimeInterval(2)
+        while panel.diagnosticSnapshot.isTransitioning && Date() < deadline {
+            RunLoop.current.run(until: Date().addingTimeInterval(0.01))
+        }
+        let fullHeight = window.frame.height
+        XCTAssertGreaterThan(fullHeight, compactHeight)
+        panel.setTrayExpanded(false)
+        var intermediate = false
+        let closeDeadline = Date().addingTimeInterval(2)
+        while panel.diagnosticSnapshot.isTransitioning && Date() < closeDeadline {
+            if window.frame.height > compactHeight + 1 && window.frame.height < fullHeight - 1 {
+                let row = try XCTUnwrap(panel.diagnosticSnapshot.rows.first)
+                XCTAssertEqual(row.assetID, one[0].id)
+                XCTAssertTrue(window.frame.insetBy(dx: -1, dy: -1).contains(row.imageInputFrame))
+                intermediate = true
+                break
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.01))
+        }
+        XCTAssertTrue(intermediate, "Glass must follow the moving row before reaching its compact height")
     }
 
     func testExpandedArrivalsRetainTrueOrdinalsAndCloseRestoresViewport() {

@@ -14,11 +14,13 @@ public struct RiftRowLayout: Equatable, Sendable {
     public let imageClipFrame: CGRect
     public let numberFrame: CGRect
     public var numberIsPad: Bool = false
+    /// The visible glass backing belongs to this screenshot, including after occlusion.
+    var trayCardFrame: CGRect? = nil
 
     /// Selection eligibility only; rejecting padding does not forward an event
     /// through this row's rectangular native window to another application.
     func containsSelectionPoint(_ localPoint: CGPoint) -> Bool {
-        imageClipFrame.contains(localPoint) || numberFrame.contains(localPoint)
+        (trayCardFrame ?? imageClipFrame).contains(localPoint) || numberFrame.contains(localPoint)
     }
 }
 

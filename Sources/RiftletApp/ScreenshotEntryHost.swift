@@ -78,7 +78,6 @@ final class ScreenshotEntryHost {
             else { self.startCapture(mode: mode) }
             self.updateCapturePresentation()
         }
-        rift.onTrayOptions = { [weak self] anchor in self?.entry.showPreferences(from: anchor) }
         entry.onGeometryChange = { [weak self] in
             guard let self else { return }
             self.rift.setExtraPreviewExclusions(self.entry.inputFrames)
@@ -304,7 +303,7 @@ final class ScreenshotEntryHost {
         if let windowCloseObserver { NotificationCenter.default.removeObserver(windowCloseObserver) }
         screenObserver = nil
         windowCloseObserver = nil
-        rift.onTrayCapture = nil; rift.onTrayOptions = nil
+        rift.onTrayCapture = nil
         rift.onGeometryChange = nil
         entry.onGeometryChange = nil
         entry.close()

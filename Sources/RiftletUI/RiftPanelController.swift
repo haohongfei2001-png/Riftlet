@@ -93,7 +93,7 @@ private final class RiftRowView: NSView, NSMenuDelegate {
     private var visualHovered = false
     private var visualPressed = false
     var isPage: Bool { configuration.desktopForm == .edgefolio || configuration.desktopForm == .pocket }
-    var imageHitFrame: CGRect { isPage ? CGRect(origin: .zero, size: geometry.frame.size) : geometry.imageClipFrame }
+    var imageHitFrame: CGRect { isPage ? CGRect(origin: .zero, size: geometry.frame.size) : (geometry.trayCardFrame ?? geometry.imageClipFrame) }
     var imageOffset: CGFloat = 0
     var requestedPixelSize: Int = 0
     var reportedImageReady = false
@@ -210,7 +210,8 @@ private final class RiftRowView: NSView, NSMenuDelegate {
         guard ornament != nil else { return }
         ornament.update(view: self, imageClip: imageClip, rect: geometry.imageClipFrame,
                         left: configuration.placement?.side == .left, hidden: configuration.desktopForm == .microSlit && configuration.hiddenFraction > 0,
-                        hovered: visualHovered, pressed: visualPressed)
+                        hovered: visualHovered, pressed: visualPressed, trayCard: geometry.trayCardFrame,
+                        violet: configuration.trayTheme == .violetGlass)
         if arrivalImageOwner != nil { ornament.lip.isHidden = true }
     }
     override func viewDidChangeBackingProperties() {
@@ -554,7 +555,6 @@ public final class RiftPanelController {
     private var trayCaptureEnabled = false
     private var trayDefaultMode: ScreenshotMode = .window
     public var onTrayCapture: ((ScreenshotMode) -> Void)?
-    public var onTrayOptions: ((NSView) -> Void)?
     private let pager = RiftPager()
     private var pagerLayout: RiftLayoutResult?
     private let peek = RiftPeek()
@@ -590,12 +590,16 @@ public final class RiftPanelController {
         if rowWindows.isEmpty && (configuration.desktopForm != .tray || !trayCaptureEnabled) {
             formSurface.orderOut(nil)
         }
-        let frames = rowWindows.values.map { row in
-            row.view.geometry.imageFrame.offsetBy(dx: row.view.geometry.frame.minX, dy: row.view.geometry.frame.minY)
+        if decoration.contentView is RiftTrayCastShadow {
+            if !formSurface.isVisible { decoration.orderOut(nil) }
+        } else {
+            let frames = rowWindows.values.map { row in
+                row.view.geometry.imageFrame.offsetBy(dx: row.view.geometry.frame.minX, dy: row.view.geometry.frame.minY)
+            }
+            if let top = frames.map(\.maxY).max(), let bottom = frames.map(\.minY).min(), let old = pagerLayout?.lineFrame {
+                decoration.setFrame(CGRect(x:old.minX,y:bottom,width:old.width,height:top-bottom),display:true)
+            } else { decoration.orderOut(nil) }
         }
-        if let top = frames.map(\.maxY).max(), let bottom = frames.map(\.minY).min(), let old = pagerLayout?.lineFrame {
-            decoration.setFrame(CGRect(x:old.minX,y:bottom,width:old.width,height:top-bottom),display:true)
-        } else { decoration.orderOut(nil) }
         pendingRefillRecords = records
         refillNotBefore = ProcessInfo.processInfo.systemUptime + NSEvent.doubleClickInterval
         refillOutsideSince = nil
@@ -665,7 +669,7 @@ public final class RiftPanelController {
                 numberInputWindowNumber: row.numberInput.windowNumber,
                 imageInputFrame: row.imageInput.frame, numberInputFrame: row.numberInput.frame)
         }.sorted { $0.ordinal < $1.ordinal }
-        return RiftDiagnosticSnapshot(rows: rows, lineFrame: decoration.isVisible ? decoration.frame : .zero,
+        return RiftDiagnosticSnapshot(rows: rows, lineFrame: decoration.isVisible && decoration.contentView is RiftLineView ? decoration.frame : .zero,
                                       isHolding: gate.isHolding, isTransitioning: transitioning)
     }
 
@@ -853,8 +857,11 @@ public final class RiftPanelController {
         guard pendingRefillRecords == nil, !transitioning else { return }
         trayArrivalIDs.removeAll()
         trayExpanded = expanded
+        // Releasing key ownership may temporarily order out the opening's
+        // panel. Preserve only this visible frame for the close animation.
+        let beforeClose = !expanded && formSurface.isVisible ? pagerLayout?.surfaceFrame : nil
         if !expanded { dismissTrayTracking() }
-        apply(lastRecords, animateShift: true)
+        apply(lastRecords, animateShift: true, previousTrayFrame: beforeClose)
         if expanded {
             formSurface.permitsKeyboardFocus = true
             formSurface.makeKey()
@@ -866,8 +873,13 @@ public final class RiftPanelController {
     private func dismissTrayTracking() {
         trayDismissMonitors.forEach(NSEvent.removeMonitor)
         trayDismissMonitors.removeAll()
-        if formSurface.isKeyWindow { formSurface.resignKey() }
         formSurface.permitsKeyboardFocus = false
+        // Ask AppKit to release the key window. Calling resignKey() directly
+        // leaves NSApp.keyWindow pointing at a panel whose isKeyWindow is false
+        // on the next opening. The collapsed tray is presented by apply().
+        if NSApp.keyWindow === formSurface || formSurface.isKeyWindow {
+            formSurface.orderOut(nil)
+        }
     }
 
     private func observeTrayDismissal() {
@@ -878,9 +890,10 @@ public final class RiftPanelController {
         }
         if let monitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown, .keyDown], handler: { [weak self] event in
             if event.type == .keyDown {
-                if event.keyCode == 53, self?.formSurface.isKeyWindow == true, self?.captureSessionActive == false {
-                    self?.setTrayExpanded(false)
-                    return nil
+                if let self, event.keyCode == 53, self.trayExpanded, !self.captureSessionActive,
+                   event.window === self.formSurface || (event.window == nil && NSApp.keyWindow === self.formSurface) {
+                    self.setTrayExpanded(false)
+                    return self.trayExpanded ? event : nil
                 }
             } else { clickOutside() }
             return event
@@ -913,7 +926,7 @@ public final class RiftPanelController {
             // transition; re-applying it here would reverse that animation.
 
             if let layout = pagerLayout { updateFormSurface(layout); restoreStackOrder(layout) }
-            if !rowWindows.isEmpty && !decoration.frame.isEmpty { present(decoration) }
+            if decoration.contentView is RiftLineView && !rowWindows.isEmpty && !decoration.frame.isEmpty { present(decoration) }
         }
         updatePager()
         refreshHoverFromPointer()
@@ -1183,7 +1196,13 @@ public final class RiftPanelController {
             }
         }
         if swallowed.isEmpty, pendingRefillRecords != nil, !committingRefill { return }
-        guard !swallowed.isEmpty else { apply(records, animateShift: committingRefill); return }
+        guard !swallowed.isEmpty else {
+            let trayArrival = configuration.desktopForm == .tray && records.contains {
+                !known.contains($0.id) && $0.visibility == .visible && $0.visibilityReason == .capture
+            }
+            apply(records, animateShift: committingRefill || trayArrival)
+            return
+        }
         cancelDecorations()
         let token = generation
         let swallowTime = duration(configuration.swallowDuration)
@@ -1244,7 +1263,8 @@ public final class RiftPanelController {
         case .tray:
             return RiftTrayLayout.make(records: records, visibleFrame: frame, configuration: configuration,
                                        firstVisibleIndex: firstVisibleIndex, backingScale: scale,
-                                       captureEnabled: trayCaptureEnabled, expanded: trayExpanded, arrivalIDs: trayArrivalIDs)
+                                       captureEnabled: trayCaptureEnabled, expanded: trayExpanded, arrivalIDs: trayArrivalIDs,
+                                       displayFrame: screen.frame)
         case .edgefolio, .pocket:
             return RiftFolioLayout.make(records: records, visibleFrame: frame, configuration: configuration,
                                         firstVisibleIndex: firstVisibleIndex, backingScale: scale,
@@ -1269,10 +1289,33 @@ public final class RiftPanelController {
         }
     }
 
+    private func setFormFrame(_ frame: CGRect) {
+        formSurface.setFrame(frame, display: true)
+        if let shadow = decoration.contentView as? RiftTrayCastShadow {
+            decoration.setFrame(shadow.configure(for: frame, violet: configuration.trayTheme == .violetGlass), display: true)
+        }
+    }
+
     private func updateFormSurface(_ layout: RiftLayoutResult) {
-        guard !layout.surfaceFrame.isEmpty else { formSurface.orderOut(nil); return }
-        formSurface.setFrame(layout.surfaceFrame, display: true)
-        if configuration.desktopForm == .tray {
+        let tray = configuration.desktopForm == .tray
+        if !tray && decoration.contentView is RiftTrayCastShadow {
+            decoration.orderOut(nil)
+            decoration.contentView = RiftLineView(frame: .zero)
+        }
+        guard !layout.surfaceFrame.isEmpty else {
+            formSurface.orderOut(nil)
+            if tray { decoration.orderOut(nil) }
+            return
+        }
+        // The existing mouse-transparent seam panel carries the tray's cast
+        // shadow. Its transparent margins must never become an input island.
+        if tray && !(decoration.contentView is RiftTrayCastShadow) {
+            decoration.contentView = RiftTrayCastShadow(frame: .zero)
+        }
+        if formSurface.hasShadow != tray { formSurface.hasShadow = tray }
+        setFormFrame(layout.surfaceFrame)
+        if tray {
+            present(decoration)
             let view: RiftTraySurfaceView
             if let current = formSurface.contentView as? RiftTraySurfaceView { view = current }
             else {
@@ -1283,10 +1326,10 @@ public final class RiftPanelController {
                     self.setTrayExpanded(!self.trayExpanded)
                 }
                 view.onCapture = { [weak self] in self?.onTrayCapture?($0) }
-                view.onMore = { [weak self] in self?.onTrayOptions?($0) }
                 view.onScroll = { [weak self] in self?.scroll($0) }
             }
             view.update(layout: layout, violet: configuration.trayTheme == .violetGlass, defaultMode: trayDefaultMode,
+                        favoriteModes: configuration.trayFavoriteModes(defaultMode: trayDefaultMode),
                         reduceMotion: reduceMotion, side: configuration.placement?.side ?? .right)
             formSurface.ignoresMouseEvents = false
         } else {
@@ -1298,7 +1341,7 @@ public final class RiftPanelController {
         present(formSurface)
     }
 
-    private func apply(_ records: [AssetRecord], animateShift: Bool = false) {
+    private func apply(_ records: [AssetRecord], animateShift: Bool = false, previousTrayFrame: CGRect? = nil) {
         guard !closed else { return }
         guard !userHidden else { lastRecords = records; return }
         guard let screen else {
@@ -1313,6 +1356,9 @@ public final class RiftPanelController {
                 current: active.map(\.id), fallback: firstVisibleIndex)
         }
         let layout = desktopLayout(records, screen: screen)
+        // Compare two layout frames. AppKit can report a 282.5 pt model as
+        // a 283 pt window, even on Retina; a mixed comparison skips the resize.
+        let previousSurface = previousTrayFrame ?? (formSurface.isVisible ? pagerLayout?.surfaceFrame : nil) ?? .zero
         updateFormSurface(layout)
         if !trayExpanded { viewportAnchor = layout.rows.first?.assetID }
         let shiftTime = reduceMotion ? 0 : configuration.shiftDuration
@@ -1322,6 +1368,14 @@ public final class RiftPanelController {
             return (geometry.assetID, row.panel.frame.insetBy(dx: 4, dy: 4))
         })
         let shouldShift = !movingFrames.isEmpty
+        // The compact tray and the two-row tray share a bottom edge. Move the
+        // glass edge in the same transaction as the UUID-bound row windows so
+        // a returning image cannot float above an already collapsed panel.
+        let resizeTray = shouldShift && configuration.desktopForm == .tray
+            && previousSurface.origin == layout.surfaceFrame.origin
+            && previousSurface.width == layout.surfaceFrame.width
+            && previousSurface.height != layout.surfaceFrame.height
+        if resizeTray { setFormFrame(previousSurface) }
         firstVisibleIndex = layout.firstVisibleIndex
         pageCapacity = layout.capacity
         visibleRange = firstVisibleIndex..<(firstVisibleIndex + layout.rows.count)
@@ -1424,14 +1478,16 @@ public final class RiftPanelController {
                 else if isNew, self.arrivalCandidate?.assetID == record.id { self.arrivalCandidate = nil }
             }
         }
-        let lineFrame = layout.lineFrame
-        decoration.setFrame(lineFrame, display: true)
-        decoration.contentView?.frame = CGRect(origin: .zero, size: lineFrame.size)
-        (decoration.contentView as? RiftLineView)?.excludedContactBands = layout.rows.map { row in
-            CGRect(x: 0, y: row.frame.minY + row.imageClipFrame.minY - lineFrame.minY, width: lineFrame.width, height: row.imageClipFrame.height)
+        if let line = decoration.contentView as? RiftLineView {
+            let lineFrame = layout.lineFrame
+            decoration.setFrame(lineFrame, display: true)
+            decoration.contentView?.frame = CGRect(origin: .zero, size: lineFrame.size)
+            line.excludedContactBands = layout.rows.map { row in
+                CGRect(x: 0, y: row.frame.minY + row.imageClipFrame.minY - lineFrame.minY, width: lineFrame.width, height: row.imageClipFrame.height)
+            }
+            if !layout.rows.isEmpty && !layout.lineFrame.isEmpty { present(decoration) }
+            else { decoration.orderOut(nil) }
         }
-        if !layout.rows.isEmpty && !layout.lineFrame.isEmpty { present(decoration) }
-        else { decoration.orderOut(nil) }
         pagerLayout = layout; updatePager()
         lastRecords = records
         refreshHoverFromPointer()
@@ -1443,6 +1499,7 @@ public final class RiftPanelController {
             let began = ProcessInfo.processInfo.systemUptime
             finishQueueAnimation = { [weak self] _ in
                 guard let self, !self.closed, self.generation == token else { return }
+                if resizeTray { self.setFormFrame(layout.surfaceFrame) }
                 for geometry in layout.rows {
                     guard let row = self.rowWindows[geometry.assetID] else { continue }
                     row.view.updateGeometry(geometry)
@@ -1459,6 +1516,11 @@ public final class RiftPanelController {
                 guard !self.closed, self.generation == token, self.queueTransitionEpoch == transition else { return }
                 let t = min(1, max(0, (ProcessInfo.processInfo.systemUptime - began) / shiftTime))
                 let eased = 1 - pow(1 - t, 3)
+                if resizeTray {
+                    var surface = previousSurface
+                    surface.size.height += (layout.surfaceFrame.height - previousSurface.height) * eased
+                    self.setFormFrame(surface)
+                }
                 for geometry in layout.rows {
                     guard let start = movingFrames[geometry.assetID], let row = self.rowWindows[geometry.assetID] else { continue }
                     // Keep the old local width/ordinal and the fixed plane
@@ -1768,7 +1830,8 @@ public final class RiftPanelController {
         guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting, pendingRefillRecords == nil else { return }
         let next = RiftLayout.pageStart(from: firstVisibleIndex, direction: direction,
             totalCount: pagerLayout?.totalCount ?? 0, capacity: pageCapacity)
-        guard next != firstVisibleIndex else { return }
+        guard next != firstVisibleIndex || !trayArrivalIDs.isEmpty else { return }
+        trayArrivalIDs.removeAll()
         recentlySwallowedOnPage.removeAll()
         cancelDecorations()
         viewportAnchor = nil; firstVisibleIndex = next

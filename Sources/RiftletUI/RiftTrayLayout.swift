@@ -7,7 +7,7 @@ enum RiftTrayLayout {
     static func make(records: [AssetRecord], visibleFrame: CGRect,
                      configuration c: RiftConfiguration, firstVisibleIndex: Int,
                      backingScale: Double, captureEnabled: Bool, expanded: Bool,
-                     arrivalIDs: [UUID] = []) -> RiftLayoutResult {
+                     arrivalIDs: [UUID] = [], displayFrame: CGRect? = nil) -> RiftLayoutResult {
         let active = records.filter { $0.visibility == .visible }
         let menuOpen = expanded && captureEnabled
         let capacity = min(menuOpen ? 2 : 4, c.visibleCountPreference)
@@ -16,27 +16,41 @@ enum RiftTrayLayout {
                                       capacity: capacity, totalCount: active.count)
         guard visibleFrame.width > 0, visibleFrame.height > 0, captureEnabled || !active.isEmpty else { return result }
 
-        // Allow enough room for four compact controls on a small display.
-        let width = min(visibleFrame.width, max(128, visibleFrame.width / 8))
-        let height = min(visibleFrame.height, width * 0.84)
+        // Ratios measured in the 1672 × 941 design image. Convert them once to
+        // screen points, then snap shared edges to the actual display's pixels.
+        let px = backingScale.isFinite ? max(1, backingScale) : 1
+        func snap(_ points: CGFloat) -> CGFloat { (points * px).rounded() / px }
+        let display = displayFrame ?? visibleFrame
+        let width = min(visibleFrame.width, max(112, snap(display.width * 246 / 1672)))
+        let unit = width / 246
+        let verticalUnit = min(unit, visibleFrame.height / 212)
+        let twoRows = active.count >= 2 || (menuOpen && !active.isEmpty)
+        let maximumHeight = min(visibleFrame.height, snap(212 * verticalUnit))
+        let height = twoRows ? maximumHeight : min(maximumHeight, snap(115 * verticalUnit))
         let inset = min(c.outerInset, max(0, visibleFrame.width - width))
         let x = c.placement?.side == .left ? visibleFrame.minX + inset : visibleFrame.maxX - inset - width
-        let padY = min(c.screenPadding, max(0, visibleFrame.height - height))
-        let y: CGFloat
+        let padY = min(c.screenPadding, max(0, visibleFrame.height - maximumHeight))
+        let bottom: CGFloat
         switch c.placement?.vertical {
-        case .top: y = visibleFrame.maxY - padY - height
-        case .bottom: y = visibleFrame.minY + padY
-        case .middle, nil: y = visibleFrame.midY - height / 2
+        case .top: bottom = visibleFrame.maxY - padY - maximumHeight
+        case .bottom: bottom = visibleFrame.minY + padY
+        case .middle, nil:
+            // In the full 941-pixel display the tray center is 56 px below
+            // center. The Dock changes the usable frame; only use it to clamp.
+            bottom = display.midY - maximumHeight / 2 - 56 * verticalUnit
         }
-        let px = backingScale.isFinite ? max(1, backingScale) : 1
-        func pixel(_ v: CGFloat) -> CGFloat { (v * px).rounded() / px }
-        let surface = CGRect(x: min(visibleFrame.maxX-width,max(visibleFrame.minX,pixel(x))),
-                             y: min(visibleFrame.maxY-height,max(visibleFrame.minY,pixel(y))), width: width, height: height)
-        let pad = min(8, width * 0.035, height * 0.05)
-        let gap = pad
-        let inner = surface.insetBy(dx: pad, dy: pad)
-        let cellWidth = (inner.width - gap) / 2
-        let cellHeight = (inner.height - gap) / 2
+        // The compact state retains the bottom row. Opening lifts the images,
+        // while scrolling a long queue never changes the outer rectangle.
+        let surface = CGRect(x: min(visibleFrame.maxX-width, max(visibleFrame.minX,snap(x))),
+                             y: min(visibleFrame.maxY-maximumHeight, max(visibleFrame.minY,snap(bottom))),
+                             width: width, height: height)
+        let innerLeft = snap(surface.minX + 7 * unit)
+        let innerRight = snap(surface.maxX - 7 * unit)
+        let columnEnd = snap(surface.midX - 2.5 * unit)
+        let columnStart = snap(surface.midX + 2.5 * unit)
+        let rowBottom = snap(surface.minY + 18 * verticalUnit)
+        let rowHeight = snap(80 * verticalUnit)
+        let topBottom = snap(surface.minY + 115 * verticalUnit)
         // Presentation priority exists only while the capture menu is open.
         // Keep true queue indices for labels, AX identity and hit-test routing.
         var items: [Int] = []
@@ -53,32 +67,41 @@ enum RiftTrayLayout {
             if !items.contains(i) { items.append(i) }
         }
         let showButton = captureEnabled && !menuOpen && first + items.count == active.count && items.count < 4
-        let useTop = menuOpen || items.count + (showButton ? 1 : 0) > 2
         func cell(_ index: Int) -> CGRect {
-            CGRect(x: inner.minX + CGFloat(index % 2) * (cellWidth + gap),
-                   y: index < 2 && useTop ? inner.maxY - cellHeight : inner.minY,
-                   width: cellWidth, height: cellHeight)
+            let left = index.isMultiple(of: 2)
+            return CGRect(x: left ? innerLeft : columnStart,
+                          y: twoRows && index < 2 ? topBottom : rowBottom,
+                          width: left ? columnEnd - innerLeft : innerRight - columnStart,
+                          height: rowHeight)
         }
         let rows = items.enumerated().map { index, queueIndex -> RiftRowLayout in
             let record = active[queueIndex]
             let slot = cell(index)
             let w = CGFloat(record.image.pixelWidth), h = CGFloat(record.image.pixelHeight)
-            let ratio = w > 0 && h > 0 ? max(0, min(1 / px, slot.width / w, slot.height / h)) : 0
+            // Leave the whole bitmap inside the rounded glass sheet. Its corner
+            // and foot belong to the backing, including for tiny and tall images.
+            let rim = min(2.75 * unit, slot.width / 8, slot.height / 8)
+            let foot = min(0.75 * unit, slot.height / 10)
+            let maxW = slot.width - 2 * rim, maxH = slot.height - 2 * rim - foot
+            let ratio = w > 0 && h > 0 ? max(0, min(1 / px, maxW / w, maxH / h)) : 0
             let size = CGSize(width: w * ratio, height: h * ratio)
-            let image = CGRect(x: (slot.width - size.width) / 2, y: (slot.height - size.height) / 2,
+            let image = CGRect(x: (slot.width - size.width) / 2, y: (slot.height - size.height + foot) / 2,
                                width: size.width, height: size.height)
             let obscured = image.width * c.trayOcclusion
             let clip = CGRect(x: image.minX + (c.placement?.side == .left ? obscured : 0), y: image.minY,
                               width: image.width - obscured, height: image.height)
-            return RiftRowLayout(assetID: record.id, ordinal: queueIndex + 1, frame: slot,
-                                 imageFrame: image, imageClipFrame: clip, numberFrame: .zero)
+            var row = RiftRowLayout(assetID: record.id, ordinal: queueIndex + 1, frame: slot,
+                                    imageFrame: image, imageClipFrame: clip, numberFrame: .zero)
+            row.trayCardFrame = CGRect(x: clip.minX - rim, y: clip.minY - rim - foot,
+                                       width: clip.width + 2 * rim, height: clip.height + 2 * rim + foot)
+            return row
         }
         result = RiftLayoutResult(rows: rows, lineFrame: .zero, firstVisibleIndex: first,
                                   capacity: capacity, totalCount: active.count + (captureEnabled && !showButton && !menuOpen ? 1 : 0))
         result.surfaceFrame = surface
         if showButton { result.captureSlot = cell(items.count) }
         if menuOpen {
-            result.captureMenuFrame = CGRect(x: inner.minX, y: inner.minY, width: inner.width, height: cellHeight)
+            result.captureMenuFrame = CGRect(x: innerLeft, y: rowBottom, width: innerRight - innerLeft, height: rowHeight)
         }
         return result
     }

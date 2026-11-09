@@ -76,6 +76,10 @@ final class SettingsReviewDriver {
         }
 
         if CommandLine.arguments.contains("--desktop-forms-review") {
+            let inputs = environment.root.appendingPathComponent("reference-inputs", isDirectory: true)
+            if FileManager.default.fileExists(atPath: inputs.path) {
+                return await referenceTrayRun(inputs: inputs)
+            }
             return await desktopRun()
         }
         await runCase("environment-and-default-window") {
@@ -1470,14 +1474,18 @@ final class SettingsReviewDriver {
         }
         guard let image = context.makeImage() else { throw Failure.encoding }
         let data = try png(image)
-        try data.write(to: file, options: .withoutOverwriting)
-        let marker = try PropertyListSerialization.data(fromPropertyList: true, format: .binary, options: 0)
-        let result = marker.withUnsafeBytes { setxattr(file.path, "com.apple.metadata:kMDItemIsScreenCapture", $0.baseAddress, $0.count, 0, 0) }
-        try require(result == 0, "fixtureMetadataWriteFailed")
+        try writeReviewScreenshot(data, to: file)
         artifacts.append(["kind": "syntheticCollectorInput", "file": "fixture-source/" + name,
                           "sha256": digest(data), "pixels": [width, height], "systemScreenshot": false,
                           "testMetadataExplicitlyAdded": true])
         return digest(data)
+    }
+
+    private func writeReviewScreenshot(_ data: Data, to file: URL) throws {
+        try data.write(to: file, options: .withoutOverwriting)
+        let marker = try PropertyListSerialization.data(fromPropertyList: true, format: .binary, options: 0)
+        let result = marker.withUnsafeBytes { setxattr(file.path, "com.apple.metadata:kMDItemIsScreenCapture", $0.baseAddress, $0.count, 0, 0) }
+        try require(result == 0, "fixtureMetadataWriteFailed")
     }
 
     private func capture(_ name: String, window: NSWindow?, verifyPresentation: Bool = true) async {
@@ -1588,6 +1596,141 @@ extension SettingsReviewDriver {
         try await wait { self.host.snapshot.state.owner.settings.configuration.desktopForm == form }
         await onRefresh()
         await settle(220)
+    }
+
+    /// Optional image fixtures are supplied outside the bundle, in this review UUID only.
+    /// Capturing our own backdrop and floating windows works on a 1× guest without granting
+    /// screen recording or including other applications. Input delivery is tested separately.
+    private func referenceTrayRun(inputs: URL) async -> URL? {
+        guard let panel = desktopPanel, let screen = panel.preferredScreen ?? NSScreen.main else { return nil }
+        func input(_ name: String) throws -> Data {
+            let url = inputs.appendingPathComponent(name)
+            guard url.resolvingSymlinksInPath().standardizedFileURL.path == url.standardizedFileURL.path else {
+                throw Failure.unsafeEnvironment
+            }
+            let meta = try url.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey])
+            guard meta.isRegularFile == true, let size = meta.fileSize, (1...4_194_304).contains(size) else {
+                throw Failure.unsafeEnvironment
+            }
+            return try Data(contentsOf: url)
+        }
+        await runCase("reference-inputs-and-tray-states") {
+            try self.require(self.initialAssetIDs.isEmpty, "requiresFreshIsolatedReviewUUID")
+            let settings = self.host.snapshot.state.owner.settings
+            try self.require(settings.configuration.desktopForm == .tray && settings.entryEnabled, "trayEntryNotEnabled")
+            try self.require(settings.configuration.visibleCountPreference == 3, "expectedThreeThumbnailPreference")
+            struct Scene: Decodable { let x, y, width, height: Double }
+            let scene = try JSONDecoder().decode(Scene.self, from: input("scene.json"))
+            let relative = CGRect(x: scene.x, y: scene.y, width: scene.width, height: scene.height)
+            try self.require(relative.width > 0 && relative.height > 0 && relative.width <= 0.4 &&
+                             CGRect(x: 0, y: 0, width: 1, height: 1).contains(relative), "invalidReviewBackdrop")
+            guard let wallpaper = NSImage(data: try input("wallpaper.png")) else { throw Failure.encoding }
+            let viewport = screen.frame
+            let area = CGRect(x: viewport.minX + relative.minX * viewport.width,
+                              y: viewport.maxY - relative.maxY * viewport.height,
+                              width: relative.width * viewport.width, height: relative.height * viewport.height)
+            let backing = NSPanel(contentRect: area, styleMask: [.nonactivatingPanel, .borderless],
+                                  backing: .buffered, defer: false)
+            backing.isReleasedWhenClosed = false
+            backing.ignoresMouseEvents = true
+            backing.hasShadow = false
+            backing.level = NSWindow.Level(rawValue: NSWindow.Level.floating.rawValue - 1)
+            let imageView = NSImageView(image: wallpaper)
+            imageView.imageScaling = .scaleAxesIndependently
+            backing.contentView = imageView
+            backing.orderFrontRegardless()
+            defer { backing.close() }
+            self.host.onboarding.closeForTeardown()
+            var identities = Set<UUID>()
+            for count in 0...10 {
+                if count > 0 {
+                    let bytes = try input("card-\(count).png")
+                    let source = self.environment.source.appendingPathComponent("reference-card-\(count).png")
+                    try self.writeReviewScreenshot(bytes, to: source)
+                    let hash = self.digest(bytes)
+                    try await self.wait(timeout: 10) { try await self.store.assets(includeUsed: true).contains { $0.image.sha256 == hash } }
+                    await self.onRefresh()
+                }
+                guard [0, 1, 2, 3, 4, 10].contains(count) else { continue }
+                let assets = try await self.store.assets(includeUsed: true)
+                let current = Set(assets.map(\.id))
+                try self.require(current.count == count && identities.isSubset(of: current) &&
+                                 assets.allSatisfy { $0.activeOperationID == nil }, "referenceIdentityChanged")
+                identities = current
+                panel.showLatest()
+                for expanded in [false, true] {
+                    panel.setTrayExpanded(expanded)
+                    await self.settle(500)
+                    let name = "reference-" + String(count) + (expanded ? "-open" : "-closed")
+                    let page = assets.suffix(3).prefix(expanded ? 2 : 3).map(\.id)
+                    let rows = panel.diagnosticSnapshot.rows
+                    try self.require(rows.map(\.assetID) == page, "incorrectReviewUUIDs-" + name)
+                    let key = try self.checkReferenceTray(name, rows: rows, count: count, expanded: expanded,
+                                                          left: settings.configuration.placement?.side == .left)
+                    try self.desktopCapture(name, screen: screen, rows: rows, backdrop: backing, referenceKey: key)
+                }
+                panel.setTrayExpanded(false)
+            }
+            self.artifacts.append(["kind": "referenceFixtureScope", "menu": "programmatic AppKit",
+                                   "backdrop": "provided fixture in review UUID", "assets": identities.count])
+        }
+        try? saveReport(completed: true)
+        return directory.appendingPathComponent("report.json")
+    }
+
+    private func trayKeyHasSettled(_ key: NSButton) -> Bool {
+        guard let layer = key.layer else { return false }
+        let actual = layer.presentation()?.frame ?? layer.frame
+        return abs(layer.frame.midX - actual.midX) <= 1 && abs(layer.frame.midY - actual.midY) <= 1 &&
+            abs(layer.frame.width - actual.width) <= 1 && abs(layer.frame.height - actual.height) <= 1
+    }
+
+    private func checkReferenceTray(_ name: String, rows: [RiftDiagnosticRow], count: Int,
+                                    expanded: Bool, left: Bool) throws -> CGRect {
+        func buttons(in view: NSView) -> [NSButton] {
+            guard !view.isHidden else { return [] }
+            if let button = view as? NSButton, button.toolTip != nil { return [button] }
+            return view.subviews.flatMap { buttons(in: $0) }
+        }
+        let controls = NSApp.windows.filter { $0.isVisible && $0.level == .floating }
+            .compactMap(\.contentView).flatMap { buttons(in: $0) }
+        let keys = controls.sorted { $0.frame.minX < $1.frame.minX }
+        let names = keys.compactMap(\.toolTip)
+        artifacts.append(["kind": "observedReferenceControls", "name": name, "labels": names,
+                          "windowNumbers": keys.map { $0.window?.windowNumber ?? -1 },
+                          "activeLayerAnimations": keys.map { $0.layer?.animationKeys() ?? [] }])
+        guard let window = keys.first?.window, let quartz = ownedWindowServerBounds(window),
+              keys.allSatisfy({ $0.window === window }), names.count == (expanded ? 4 : 1) else {
+            throw Failure.assertion("trayControlsNotOnScreen-" + name)
+        }
+        // AppKit may keep native focus/highlight animations alive. Only the actual
+        // position and size of these keys need to settle before reading their geometry.
+        try require(keys.allSatisfy(trayKeyHasSettled), "reviewKeyStillMoving-" + name)
+        let keyFrames = keys.map { window.convertToScreen($0.convert($0.bounds, to: nil)) }
+        if expanded {
+            let outer = left ? names.first : names.last
+            try require(outer?.hasPrefix("默认截图") == true && names.filter { $0.hasPrefix("常用截图") }.count == 3,
+                        "wrongReviewActionRoles-" + name)
+            try require(zip(keyFrames, keyFrames.dropFirst()).allSatisfy { $0.maxX <= $1.minX && $0.minY == $1.minY },
+                        "overlappingReviewMenu-" + name)
+            let strip = keyFrames.reduce(CGRect.null) { $0.union($1) }
+            try require(strip.width > window.frame.width * 0.9 && rows.allSatisfy { $0.imageInputFrame.minY >= strip.maxY },
+                        "reviewMenuSharesRow-" + name)
+        } else {
+            try require(names == ["展开截图方式"], "trayCameraNotRestored-" + name)
+        }
+        let twoRows = count >= 2 || (expanded && count > 0)
+        let designRatio = (twoRows ? 212.0 : 115.0) / 246.0
+        try require(abs(quartz.height - quartz.width * designRatio) <= 2, "reviewRowCount-" + name)
+        for row in rows {
+            guard let window = NSApp.window(withWindowNumber: row.windowNumber),
+                  ownedWindowServerBounds(window) != nil else { throw Failure.assertion("reviewRowNotOnScreen-" + name) }
+        }
+        artifacts.append(["kind": "referenceTrayControls", "name": name, "surface": rect(quartz),
+                          "windowNumber": window.windowNumber, "controlLabels": names,
+                          "keyScreenFrames": keyFrames.map(rect), "rowIDs": rows.map { $0.assetID.uuidString },
+                          "geometryRows": twoRows ? 2 : 1])
+        return keyFrames[expanded && !left ? keyFrames.count - 1 : 0]
     }
 
     private func desktopRun() async -> URL? {
@@ -1709,29 +1852,42 @@ extension SettingsReviewDriver {
                 throw Failure.assertion("pointerUnavailable")
             }
             defer { CGWarpMouseCursorPosition(original) }
-            let frame = tray.convertToScreen(camera.convert(camera.bounds, to:nil))
-            let point = CGPoint(x:frame.midX,y:frame.midY)
-            let quartz = CGPoint(x:point.x,y:display.frame.maxY-point.y)
-            CGWarpMouseCursorPosition(quartz)
-            await self.settle(120)
-            try self.require(NSWindow.windowNumber(at:point,belowWindowWithWindowNumber:0)==tray.windowNumber,
-                             "trayCameraObscured")
-            for type in [CGEventType.leftMouseDown,.leftMouseUp] {
-                let event = CGEvent(mouseEventSource:nil,mouseType:type,mouseCursorPosition:quartz,mouseButton:.left)
-                event?.setIntegerValueField(.mouseEventClickState,value:1)
-                event?.post(tap:.cghidEventTap)
-                await self.settle(50)
+            // Snapshot the settled controls. The default key reuses the camera
+            // object, so its mere visibility cannot prove either end state.
+            func stableKeys() -> [NSButton] {
+                let visible = buttons(contents).filter { $0.toolTip != nil }
+                return visible.allSatisfy(self.trayKeyHasSettled) ? visible : []
             }
-            try await self.wait { buttons(contents).filter { $0.toolTip != nil }.count == 4 }
-            let arranged = buttons(contents).sorted { $0.frame.minX < $1.frame.minX }
-            try self.require(Set(arranged.map{$0.frame.midY}).count == 1,"menuNotSingleRow")
-            try self.desktopCapture("tray-expanded-menu",screen:screen,rows:panel.diagnosticSnapshot.rows)
-            guard let event=NSEvent.keyEvent(with:.keyDown,location:.zero,modifierFlags:[],timestamp:ProcessInfo.processInfo.systemUptime,
-                     windowNumber:tray.windowNumber,context:nil,characters:"\u{1b}",charactersIgnoringModifiers:"\u{1b}",isARepeat:false,keyCode:53)
-            else {throw Failure.assertion("escapeUnavailable")}
-            NSApp.postEvent(event,atStart:false)
-            try await self.wait { !camera.isHidden }
-            try self.desktopCapture("tray-closed-menu",screen:screen,rows:panel.diagnosticSnapshot.rows)
+            for cycle in 1...2 {
+                let frame = tray.convertToScreen(camera.convert(camera.bounds, to:nil))
+                let point = CGPoint(x:frame.midX,y:frame.midY)
+                let quartz = CGPoint(x:point.x,y:display.frame.maxY-point.y)
+                CGWarpMouseCursorPosition(quartz)
+                await self.settle(120)
+                try self.require(NSWindow.windowNumber(at:point,belowWindowWithWindowNumber:0)==tray.windowNumber,
+                                 "trayCameraObscured")
+                for type in [CGEventType.leftMouseDown,.leftMouseUp] {
+                    let event = CGEvent(mouseEventSource:nil,mouseType:type,mouseCursorPosition:quartz,mouseButton:.left)
+                    event?.setIntegerValueField(.mouseEventClickState,value:1)
+                    event?.post(tap:.cghidEventTap)
+                    await self.settle(50)
+                }
+                try await self.wait { stableKeys().count == 4 }
+                let arranged = stableKeys().sorted { $0.frame.minX < $1.frame.minX }
+                try self.require(Set(arranged.map { $0.frame.midY }).count == 1 &&
+                                 zip(arranged, arranged.dropFirst()).allSatisfy { $0.frame.maxX <= $1.frame.minX },
+                                 "menuNotSingleRow")
+                try self.desktopCapture((cycle == 1 ? "tray-expanded-menu" : "tray-expanded-again"),screen:screen,rows:panel.diagnosticSnapshot.rows)
+                guard let event=NSEvent.keyEvent(with:.keyDown,location:.zero,modifierFlags:[],timestamp:ProcessInfo.processInfo.systemUptime,
+                         windowNumber:tray.windowNumber,context:nil,characters:"\u{1b}",charactersIgnoringModifiers:"\u{1b}",isARepeat:false,keyCode:53)
+                else {throw Failure.assertion("escapeUnavailable")}
+                NSApp.postEvent(event,atStart:false)
+                try await self.wait {
+                    let keys = stableKeys()
+                    return keys.count == 1 && keys.first === camera && camera.toolTip == "展开截图方式"
+                }
+                try self.desktopCapture((cycle == 1 ? "tray-closed-menu" : "tray-closed-again"),screen:screen,rows:panel.diagnosticSnapshot.rows)
+            }
         }
         await runCase("material-white-and-patterned-backdrop") {
             for style in [SettingsAppearanceChoice.light,.dark] {
@@ -1814,7 +1970,8 @@ extension SettingsReviewDriver {
         return directory.appendingPathComponent("report.json")
     }
 
-    private func desktopCapture(_ name:String, screen:NSScreen, rows:[RiftDiagnosticRow], backdrop:NSWindow? = nil) throws {
+    private func desktopCapture(_ name:String, screen:NSScreen, rows:[RiftDiagnosticRow],
+                                backdrop:NSWindow? = nil, referenceKey: CGRect? = nil) throws {
         // Include only this process's visible floating windows. No user windows or desktop pixels.
         let ordered = CGWindowListCopyWindowInfo([.optionOnScreenOnly,.excludeDesktopElements], kCGNullWindowID) as? [[String:Any]] ?? []
         let ours = Set(NSApp.windows.filter { $0.isVisible && ($0.level == .floating || $0 === backdrop) }.map(\.windowNumber))
@@ -1844,6 +2001,49 @@ extension SettingsReviewDriver {
                        "backingScale":screen.backingScaleFactor,"sha256":digest(bytes),
                        "rowIDs":rows.map { $0.assetID.uuidString },"frames":rows.map { rect($0.frame) },
                        "inputFrames":rows.map { rect($0.imageInputFrame) }])
+        if let key = referenceKey, let backdrop {
+            try verifyRenderedKey(name, key: key, sample: image, sampleBounds: quartzBounds, backdrop: backdrop)
+        }
+    }
+
+    /// A sleeping or locked WindowServer can return a transparent image with a valid
+    /// window number. Verify the saved key pixels differ from the underlying fixture.
+    private func verifyRenderedKey(_ name: String, key: CGRect, sample: CGImage,
+                                   sampleBounds: CGRect, backdrop: NSWindow) throws {
+        guard let primary = NSScreen.screens.first, let ids = CFArrayCreateMutable(nil, 0, nil) else {
+            throw Failure.assertion("referenceDisplayUnavailable")
+        }
+        let box = key.insetBy(dx: key.width * 0.15, dy: key.height * 0.15)
+        let quartz = CGRect(x: box.minX, y: primary.frame.maxY - box.maxY, width: box.width, height: box.height)
+        let sx = CGFloat(sample.width) / sampleBounds.width, sy = CGFloat(sample.height) / sampleBounds.height
+        let region = CGRect(x: (quartz.minX - sampleBounds.minX) * sx, y: (quartz.minY - sampleBounds.minY) * sy,
+                            width: quartz.width * sx, height: quartz.height * sy)
+        CFArrayAppendValue(ids, UnsafeRawPointer(bitPattern: backdrop.windowNumber))
+        guard let foreground = sample.cropping(to: region),
+              let background = CGImage(windowListFromArrayScreenBounds: quartz, windowArray: ids,
+                                       imageOption: [.boundsIgnoreFraming, .bestResolution]) else {
+            throw Failure.assertion("referencePixelsUnavailable-" + name)
+        }
+        func grid(_ source: CGImage) throws -> [UInt8] {
+            var bytes = [UInt8](repeating: 0, count: 16 * 16 * 4)
+            try bytes.withUnsafeMutableBytes { buffer in
+                guard let space = CGColorSpace(name: CGColorSpace.sRGB),
+                      let context = CGContext(data: buffer.baseAddress, width: 16, height: 16,
+                                              bitsPerComponent: 8, bytesPerRow: 16 * 4, space: space,
+                                              bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { throw Failure.encoding }
+                context.draw(source, in: CGRect(x: 0, y: 0, width: 16, height: 16))
+            }
+            return bytes
+        }
+        let actual = try grid(foreground), under = try grid(background)
+        var opaque = 0, difference = 0
+        for index in stride(from: 0, to: actual.count, by: 4) where actual[index + 3] > 245 && under[index + 3] > 245 {
+            opaque += 1
+            for channel in 0..<3 { difference += abs(Int(actual[index + channel]) - Int(under[index + channel])) }
+        }
+        let delta = Double(difference) / Double(max(1, 3 * opaque))
+        artifacts.append(["kind": "referenceKeyPixels", "name": name, "opaquePairs": opaque, "meanRGBDelta": delta])
+        try require(opaque >= 240 && delta > 5, "missingRenderedKeyPixels-" + name)
     }
 
     private func desktopRestart(_ output: URL) async -> URL? {
