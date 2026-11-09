@@ -515,6 +515,9 @@ public final class RiftPanelController {
     }
     private var deferredConfiguration: RiftConfiguration?
     private var viewportAnchor: UUID?
+    /// Only a swallow seen on this page may reveal a later confirmed return.
+    /// Initial hidden history, or an explicitly abandoned page, cannot steal the viewport.
+    private var recentlySwallowedOnPage: [UUID] = []
     private var wheelGestureUsed = false
     private var lastWheelTime: TimeInterval = 0
     public var onGeometryChange: (() -> Void)?
@@ -1120,6 +1123,11 @@ public final class RiftPanelController {
             $0.visibility == .swallowed && $0.visibilityReason == .uploadStarted
                 && rowWindows[$0.id]?.view.record.visibility == .visible
         }
+        if !swallowed.isEmpty {
+            let leaving = swallowed.map(\.id)
+            let ids = Set(leaving)
+            recentlySwallowedOnPage = Array((leaving + recentlySwallowedOnPage.filter { !ids.contains($0) }).prefix(max(1, pageCapacity)))
+        }
         if swallowed.isEmpty, !committingRefill {
             let visible = Set(records.filter { $0.visibility == .visible }.map(\.id))
             let removed = rowWindows.keys.filter { !visible.contains($0) }
@@ -1141,6 +1149,7 @@ public final class RiftPanelController {
                 return
             }
             if configuration.desktopForm != .tray {
+                recentlySwallowedOnPage.removeAll()
                 viewportAnchor = nil
                 firstVisibleIndex = records.filter { $0.visibility == .visible }.count
             }
@@ -1152,8 +1161,8 @@ public final class RiftPanelController {
             let previous = Dictionary(lastRecords.map { ($0.id, $0) }, uniquingKeysWith: { _, last in last })
             let visible = records.filter { $0.visibility == .visible }
             if let index = visible.firstIndex(where: { record in
-                guard record.status == .failed, record.visibilityReason == .safeFailure,
-                      rowWindows[record.id] == nil else { return false }
+                guard recentlySwallowedOnPage.contains(record.id), record.status == .failed,
+                      record.visibilityReason == .safeFailure, rowWindows[record.id] == nil else { return false }
                 return previous[record.id]?.visibility != .visible
                     || previous[record.id]?.visibilityRevision != record.visibilityRevision
             }) {
@@ -1164,6 +1173,7 @@ public final class RiftPanelController {
                         return
                     }
                 }
+                recentlySwallowedOnPage.removeAll { $0 == visible[index].id }
                 viewportAnchor = nil
                 firstVisibleIndex = index
                 if trayExpanded {
@@ -1759,6 +1769,7 @@ public final class RiftPanelController {
         let next = RiftLayout.pageStart(from: firstVisibleIndex, direction: direction,
             totalCount: pagerLayout?.totalCount ?? 0, capacity: pageCapacity)
         guard next != firstVisibleIndex else { return }
+        recentlySwallowedOnPage.removeAll()
         cancelDecorations()
         viewportAnchor = nil; firstVisibleIndex = next
         apply(lastRecords)
@@ -1802,6 +1813,7 @@ public final class RiftPanelController {
     public func showLatest() {
         guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting, pendingRefillRecords == nil else { return }
         cancelDecorations()
+        recentlySwallowedOnPage.removeAll()
         viewportAnchor = nil
         firstVisibleIndex = lastRecords.filter { $0.visibility == .visible }.count
         apply(lastRecords)
@@ -1815,6 +1827,7 @@ public final class RiftPanelController {
         guard rowWindows[assetID] == nil else { return }
         if trayExpanded { setTrayExpanded(false) }
         cancelDecorations()
+        recentlySwallowedOnPage.removeAll()
         viewportAnchor = nil
         firstVisibleIndex = index
         apply(lastRecords)
@@ -1823,6 +1836,7 @@ public final class RiftPanelController {
     public func showOldest() {
         guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting, pendingRefillRecords == nil else { return }
         cancelDecorations()
+        recentlySwallowedOnPage.removeAll()
         viewportAnchor = nil
         firstVisibleIndex = 0; apply(lastRecords)
     }

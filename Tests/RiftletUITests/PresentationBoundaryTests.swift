@@ -185,6 +185,27 @@ final class PresentationBoundaryTests: XCTestCase {
         }
     }
 
+    @MainActor func testExplicitPagingAfterSwallowKeepsItsPageOnLaterFailure() throws {
+        let panel = try controller()
+        defer { panel.close() }
+        var config = panel.configuration
+        config.swallowDuration = 0
+        config.shiftDuration = 0
+        try panel.updateConfiguration(config)
+        let first = record(), rest = (2...10).map { record(Int64($0)) }
+        panel.render([first] + rest)
+        let op = UUID()
+        panel.render([record(image: first.image, status: .transferring, operationID: op,
+                             visibility: .swallowed, revision: 1, reason: .uploadStarted)] + rest)
+        advanceQuietEdgeRefill(panel)
+        panel.showLatest()
+        let page = panel.diagnosticSnapshot.rows.map(\.assetID)
+        XCTAssertFalse(page.contains(first.id))
+        panel.render([record(image: first.image, status: .failed, operationID: op,
+                             revision: 2, reason: .safeFailure)] + rest)
+        XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), page)
+    }
+
     @MainActor func testOriginalStartIdentitySurvivesDeferredReadyAndClosesOnlyOnce() async throws {
         var boundaries: [RiftPresentationBoundary] = []
         let panel = try controller(onBoundary: { boundaries.append($0) })

@@ -12,4 +12,4 @@
 
 桌面用例通过普通 Riftlet 可执行文件的 `--settings-review <UUID>` 隔离入口运行。独立偏好、数据库和合成图片与该 UUID 对应。首次运行使用 `--settings-review-run --desktop-forms-review`，再以同一 UUID 执行 `--settings-review-restart-check --desktop-forms-review`。Software-GUI 事件、WindowServer 实际窗口、布局断言和真实 ChatGPT 草稿分别报告。正式验收不涉及宿主生产截图和私人聊天。
 
-新包使用私有候选编号 0.3.4 (8)。0.3.3 (6) 的签名、公证和安装验收证据属于另一条发行流程。
+新包使用私有候选编号 0.3.4 (9)。0.3.3 (6) 的签名、公证和安装验收证据属于另一条发行流程。
