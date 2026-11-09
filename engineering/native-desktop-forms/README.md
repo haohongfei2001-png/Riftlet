@@ -10,6 +10,8 @@
 
 ## 验收范围
 
+[可调颜色与默认键取消滑盖](TRAY-COLOR-AND-CANCEL.md)记录 build 13 的变化、原生验证方法和真实附件验收边界。
+
 [最终复核记录](FINAL-TRAY-ACCEPTANCE.md)包含玻璃裁切的原生分层对照、展开时被玻璃盖住的真实故障帧，以及冷启动按下事件到达按钮后的故障定位。
 
 桌面用例通过普通 Riftlet 可执行文件的 `--settings-review <UUID>` 隔离入口运行。独立偏好、数据库和合成图片与该 UUID 对应。首次运行使用 `--settings-review-run --desktop-forms-review`，再以同一 UUID 执行 `--settings-review-restart-check --desktop-forms-review`。Software-GUI 事件、WindowServer 实际窗口、布局断言和真实 ChatGPT 草稿分别报告。正式验收不涉及宿主生产截图和私人聊天。
