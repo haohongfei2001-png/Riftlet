@@ -1145,6 +1145,33 @@ public final class RiftPanelController {
                 firstVisibleIndex = records.filter { $0.visibility == .visible }.count
             }
         }
+        // A conclusive failure can restore an older UUID before the surviving
+        // viewport anchor. Ordinary refreshes may have dropped its hidden row.
+        // Reveal it once, after the same pointer/refill boundary used for arrivals.
+        if swallowed.isEmpty, !lastRecords.isEmpty {
+            let previous = Dictionary(lastRecords.map { ($0.id, $0) }, uniquingKeysWith: { _, last in last })
+            let visible = records.filter { $0.visibility == .visible }
+            if let index = visible.firstIndex(where: { record in
+                guard record.status == .failed, record.visibilityReason == .safeFailure,
+                      rowWindows[record.id] == nil else { return false }
+                return previous[record.id]?.visibility != .visible
+                    || previous[record.id]?.visibilityRevision != record.visibilityRevision
+            }) {
+                if !committingRefill {
+                    refreshHoverFromPointer()
+                    if pendingRefillRecords != nil || detailPresented || peek.assetID != nil || interaction.snapshot.blocksAutomaticArchive {
+                        if pendingRefillRecords == nil { deferRefill(records) }
+                        return
+                    }
+                }
+                viewportAnchor = nil
+                firstVisibleIndex = index
+                if trayExpanded {
+                    let id = visible[index].id
+                    trayArrivalIDs = Array(([id] + trayArrivalIDs.filter { $0 != id }).prefix(2))
+                }
+            }
+        }
         if swallowed.isEmpty, pendingRefillRecords != nil, !committingRefill { return }
         guard !swallowed.isEmpty else { apply(records, animateShift: committingRefill); return }
         cancelDecorations()

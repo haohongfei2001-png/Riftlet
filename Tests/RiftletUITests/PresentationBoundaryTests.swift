@@ -159,6 +159,32 @@ final class PresentationBoundaryTests: XCTestCase {
         XCTAssertEqual(selected, [a.id])
     }
 
+    @MainActor func testOlderReturnedAssetIsReachableAfterCompactionInAllForms() throws {
+        for form in RiftDesktopForm.allCases where form.isAvailable {
+            var selections: [UUID] = []
+            let panel = try controller(onSelect: { selections.append($0) })
+            defer { panel.close() }
+            var config = panel.configuration
+            config.desktopForm = form
+            config.swallowDuration = 0
+            config.shiftDuration = 0
+            try panel.updateConfiguration(config)
+            let first = record(), rest = (2...5).map { record(Int64($0)) }
+            panel.render([first] + rest)
+            let op = UUID()
+            panel.render([record(image: first.image, status: .transferring, operationID: op,
+                                 visibility: .swallowed, revision: 1, reason: .uploadStarted)] + rest)
+            advanceQuietEdgeRefill(panel)
+            panel.render(rest)  // Normal host snapshots can omit a retired UUID.
+            panel.render([record(image: first.image, status: .failed, operationID: op,
+                                 revision: 2, reason: .safeFailure)] + rest)
+            advanceQuietEdgeRefill(panel)
+            XCTAssertTrue(selections.isEmpty)
+            XCTAssertTrue(try rowView(first.id, in: panel).accessibilityPerformPress())
+            XCTAssertEqual(selections, [first.id])
+        }
+    }
+
     @MainActor func testOriginalStartIdentitySurvivesDeferredReadyAndClosesOnlyOnce() async throws {
         var boundaries: [RiftPresentationBoundary] = []
         let panel = try controller(onBoundary: { boundaries.append($0) })

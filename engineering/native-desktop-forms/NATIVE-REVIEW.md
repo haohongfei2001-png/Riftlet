@@ -20,3 +20,9 @@
 用同一隔离 App 可执行文件，先运行 `Riftlet --settings-review <新UUID> --settings-review-run --desktop-forms-review`，待退出后运行 `Riftlet --settings-review <同一UUID> --settings-review-restart-check --desktop-forms-review`。请使用有 WindowServer 的登录桌面。程序将结果写入该 UUID 的 settings-review 专有数据根下的 evidence 子目录。检查 report.json 的逐项状态和 restart-report.json。无图形桌面或事件投递受限时保留失败。
 
 准备工作树的第三次调试包 SHA-256 为 `9a07ce1b2af033552662c7ca02dd09fe8db5e672b59aeee315d04631679a5ab0`。正式发布候选的源码及包身份需要单独记录。
+
+### 五张队列的失败返回回归
+
+初版 0.3.4 (7) 的单独生命周期探针发现，在五张队列中吞噬首张并完成补位后，已获明确失败证据的原截图恢复为可见，但面板仍锚定第二张。四种形态均可通过翻页找回同一 UUID。两张队列没有复现。已有视觉矩阵不覆盖此序列。
+
+共享面板现识别新出现的 safeFailure 可见修订。在保留按压、选择和指针补位保护的前提下，它把恢复的 UUID 带回视口。翻页、显示和点击继续使用原有记录。后继私有候选使用 0.3.4 (8)。旧包及其失败证据独立保留。
