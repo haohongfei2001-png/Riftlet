@@ -51,7 +51,7 @@ enum RiftTrayLayout {
         guard visibleFrame.width > 0, visibleFrame.height > 0, captureEnabled || !active.isEmpty else { return result }
 
         // The target display sets the width. The 246-unit reference supplies the interior ratios.
-        let px = backingScale.isFinite ? max(1, backingScale) : 1
+        let px = CGFloat(backingScale.isFinite ? max(1, backingScale) : 1)
         func snap(_ points: CGFloat) -> CGFloat { (points * px).rounded() / px }
         let display = displayFrame ?? visibleFrame
         let width = min(visibleFrame.width, max(1 / px, snap(display.width / 8)))
@@ -129,8 +129,9 @@ enum RiftTrayLayout {
             let maxW = slot.width - 2 * rim, maxH = slot.height - 2 * rim - foot
             let ratio = w > 0 && h > 0 ? max(0, min(1 / px, maxW / w, maxH / h)) : 0
             let size = CGSize(width: w * ratio, height: h * ratio)
-            let image = CGRect(x: (slot.width - size.width) / 2, y: (slot.height - size.height + foot) / 2,
-                               width: size.width, height: size.height)
+            let origin = CGPoint(x: (slot.width - size.width) / CGFloat(2),
+                                 y: (slot.height - size.height + foot) / CGFloat(2))
+            let image = CGRect(origin: origin, size: size)
             let obscured = image.width * c.trayOcclusion
             let clip = CGRect(x: image.minX + (c.placement?.side == .left ? obscured : 0), y: image.minY,
                               width: image.width - obscured, height: image.height)
