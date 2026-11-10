@@ -1,0 +1,519 @@
+{
+  "stage": "visual review before production UI integration",
+  "productCommit": "5995131894d5c7c5877cb22b854b2a9f4cd121a3",
+  "previewCommit": "18e4fc303d95530cee99f27a11cec2cf40160412",
+  "previewExecutableSHA256": "862187a7a9706737017421970e1730abd37e1d665e993c20eb6a99a494cb315e",
+  "formsAssertions": [
+    "PASS testCountMatrixStableBoundsQueueOrderAndMenuExclusion",
+    "PASS testTrayUsesFullTargetDisplayOnBothSidesAndBackingScales",
+    "PASS testReferenceGeometryAndSingleImageFillMotionAtBothScales",
+    "PASS testFourthImageAndLastButtonAreBothReachableWithoutChangingIDs",
+    "PASS testFitOcclusionEdgesAndSmallImage",
+    "PASS testExpandedArrivalsRetainQueueOrdinalsAndManualPagingReleasesTheirPriority",
+    "PASS testExplicitRecoveryCanRevealItsOwnUUIDInAnEmptyMenuWithoutBecomingACapture",
+    "PASS testRetiredFormsResolveToTrayWithoutRewritingOriginalValue",
+    "PASS testPresentationFallbackPreservesFutureAndUnavailableSelections"
+  ],
+  "desktop": [
+    {
+      "scene": "tray",
+      "side": "right",
+      "display": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "scale": 2,
+      "assetCount": 3,
+      "binary": "65dd5030fcc8b11b6dbcc5807d7545bfeb7434e5824d58483eea44522f0fe1a4",
+      "surface": [
+        1661,
+        491,
+        240,
+        207
+      ],
+      "widthFraction": 0.125,
+      "menuButtons": [
+        "常用截图 1，区域截图",
+        "常用截图 2，全屏截图",
+        "常用截图 3，未设置",
+        "默认截图，窗口截图"
+      ],
+      "images": {
+        "expanded-3.png": "8224e2ad4573b311f6ffbf9110da7fa7d03ad4882f8e720ca39caad78d6ec2f2",
+        "closed-3.png": "ffd8332cdd8c67d20302f8a7d7ba59f1992dd7d219559e2d32c3da0e280863e4"
+      }
+    },
+    {
+      "scene": "tray",
+      "side": "left",
+      "display": [
+        -800,
+        -200,
+        800,
+        1280
+      ],
+      "scale": 2,
+      "assetCount": 3,
+      "binary": "65dd5030fcc8b11b6dbcc5807d7545bfeb7434e5824d58483eea44522f0fe1a4",
+      "surface": [
+        -782,
+        620,
+        100,
+        86
+      ],
+      "widthFraction": 0.125,
+      "menuButtons": [
+        "常用截图 1，区域截图",
+        "常用截图 2，全屏截图",
+        "常用截图 3，未设置",
+        "默认截图，窗口截图"
+      ],
+      "images": {
+        "expanded-3.png": "912fa343574f8ef1d10ed7da12cc12640f6137676ca0f66ac270954fbfd9ac17",
+        "closed-3.png": "da9cc0bcbff2a2c90f56f7b14b0ea0d508138bc755b8f7915f4f62693f7c1664"
+      }
+    },
+    {
+      "scene": "microSlit",
+      "side": "right",
+      "display": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "scale": 2,
+      "assetCount": 3,
+      "binary": "65dd5030fcc8b11b6dbcc5807d7545bfeb7434e5824d58483eea44522f0fe1a4",
+      "images": {
+        "closed-3.png": "f2b2e3f13d0d9039384910f69e6537006f63fe5254f755c2f1b49ef82f747d9b"
+      }
+    }
+  ],
+  "nativeAppearances": [
+    {
+      "file": "light-settings-0.png",
+      "scene": "settings-0",
+      "style": "light",
+      "width": 814,
+      "height": 580,
+      "pixels": [
+        1628,
+        1160
+      ],
+      "sha256": "f034d60276a9e1a85c52324664d1729f9c2152f78528ba57400c4ff922340a89"
+    },
+    {
+      "file": "light-settings-1.png",
+      "scene": "settings-1",
+      "style": "light",
+      "width": 814,
+      "height": 580,
+      "pixels": [
+        1628,
+        1160
+      ],
+      "sha256": "9b19ea938958fb6d5e1de2f096b419e36a9d668a9c3519c190869da763d90b7f"
+    },
+    {
+      "file": "light-settings-2.png",
+      "scene": "settings-2",
+      "style": "light",
+      "width": 814,
+      "height": 580,
+      "pixels": [
+        1628,
+        1160
+      ],
+      "sha256": "3f189caeea64b047627af392dcb30423058d3fe7264825f6215b8ee5760c6445"
+    },
+    {
+      "file": "light-settings-3.png",
+      "scene": "settings-3",
+      "style": "light",
+      "width": 814,
+      "height": 580,
+      "pixels": [
+        1628,
+        1160
+      ],
+      "sha256": "e29fd83ca7737b5edb16c02ddfc8afd3f634d2ce036166460c83eb8c7521741b"
+    },
+    {
+      "file": "light-save-error.png",
+      "scene": "save-error",
+      "style": "light",
+      "width": 814,
+      "height": 580,
+      "pixels": [
+        1628,
+        1160
+      ],
+      "sha256": "05358a3572dd82d694dd6fb74af8775b7fe134fa2adda78ba030cd978c168c8c"
+    },
+    {
+      "file": "light-intro-capture.png",
+      "scene": "intro-capture",
+      "style": "light",
+      "width": 584,
+      "height": 453,
+      "pixels": [
+        1168,
+        906
+      ],
+      "sha256": "fb2d3dfdfe8a4d26477743e5c995735421fbb772db09f1e473920ba5a84954a9"
+    },
+    {
+      "file": "light-intro-connect.png",
+      "scene": "intro-connect",
+      "style": "light",
+      "width": 584,
+      "height": 449,
+      "pixels": [
+        1168,
+        898
+      ],
+      "sha256": "f470d94d8c362468b4c34f3f4c1d7d5333b2c2a641e83267c40aa8e7806f0ed5"
+    },
+    {
+      "file": "light-intro-place.png",
+      "scene": "intro-place",
+      "style": "light",
+      "width": 584,
+      "height": 449,
+      "pixels": [
+        1168,
+        898
+      ],
+      "sha256": "1e36c73cc70181d81ba80955aa2cc6e98dc34e706541bdae1244c2f58d765d33"
+    },
+    {
+      "file": "light-history-list.png",
+      "scene": "history-list",
+      "style": "light",
+      "width": 808,
+      "height": 492,
+      "pixels": [
+        1616,
+        984
+      ],
+      "sha256": "b5857a96f48de2b7ae56e8d9c2cd7b4c2f36ee879b56f3f7fc3f3b8117cd01f8"
+    },
+    {
+      "file": "light-history-grid.png",
+      "scene": "history-grid",
+      "style": "light",
+      "width": 808,
+      "height": 492,
+      "pixels": [
+        1616,
+        984
+      ],
+      "sha256": "c6718443ff59db87deb963f2420e49151817b19cc45c77a7c4b4eef0f91d23bf"
+    },
+    {
+      "file": "light-history-unknown.png",
+      "scene": "history-unknown",
+      "style": "light",
+      "width": 808,
+      "height": 492,
+      "pixels": [
+        1616,
+        984
+      ],
+      "sha256": "9daa5ff10d666de01e421665932c93b6554743cc2e0b4996274383fd887a9614"
+    },
+    {
+      "file": "light-control.png",
+      "scene": "control",
+      "style": "light",
+      "width": 320,
+      "height": 213,
+      "pixels": [
+        640,
+        426
+      ],
+      "sha256": "a2bc4aa6a80b67d18beb545c61c04f7f77c888695dee6c5e492d2409e7e25829"
+    },
+    {
+      "file": "light-control-paused.png",
+      "scene": "control-paused",
+      "style": "light",
+      "width": 320,
+      "height": 213,
+      "pixels": [
+        640,
+        426
+      ],
+      "sha256": "cbbfe484ca4f637a8602f16df6f37f4415190446969241f787d229d7b36bc4b0"
+    },
+    {
+      "file": "light-control-hidden.png",
+      "scene": "control-hidden",
+      "style": "light",
+      "width": 320,
+      "height": 213,
+      "pixels": [
+        640,
+        426
+      ],
+      "sha256": "011e265ad4c638285e51a52522e97585f7455b18f6effc5c8e8657d29ec4ee0a"
+    },
+    {
+      "file": "light-control-both.png",
+      "scene": "control-both",
+      "style": "light",
+      "width": 320,
+      "height": 213,
+      "pixels": [
+        640,
+        426
+      ],
+      "sha256": "4f4793db8c69e6c7b45e0a22e5536c6b6b38b39113e8b67dad71e2269f807903"
+    },
+    {
+      "file": "light-permission.png",
+      "scene": "permission",
+      "style": "light",
+      "width": 554,
+      "height": 256,
+      "pixels": [
+        1108,
+        512
+      ],
+      "sha256": "4fdb82ba401eecce5e4d7d52469665838e237707ccfc76b171c1353a9bb06ef1"
+    },
+    {
+      "file": "light-feedback.png",
+      "scene": "feedback",
+      "style": "light",
+      "width": 506,
+      "height": 351,
+      "pixels": [
+        1012,
+        702
+      ],
+      "sha256": "c181920ea0c67ee8e35e250309e5ad3aea3edf920e5ca89aa34711d0eb3005fe"
+    },
+    {
+      "file": "dark-settings-0.png",
+      "scene": "settings-0",
+      "style": "dark",
+      "width": 814,
+      "height": 580,
+      "pixels": [
+        1628,
+        1160
+      ],
+      "sha256": "15c35ad28cf8d803718dc2a8dfffd38ea1f6ce1b2525c12279b3dd414756f68d"
+    },
+    {
+      "file": "dark-settings-1.png",
+      "scene": "settings-1",
+      "style": "dark",
+      "width": 814,
+      "height": 580,
+      "pixels": [
+        1628,
+        1160
+      ],
+      "sha256": "730b9c4b7c7d7f0f7a37bdcb011a49ae1c7ac3dc2a5be3538bf383aa7d419e56"
+    },
+    {
+      "file": "dark-settings-2.png",
+      "scene": "settings-2",
+      "style": "dark",
+      "width": 814,
+      "height": 580,
+      "pixels": [
+        1628,
+        1160
+      ],
+      "sha256": "18a947427893e529657e9da64abb74954e094c5591850e0242c1bf4b5c87569f"
+    },
+    {
+      "file": "dark-settings-3.png",
+      "scene": "settings-3",
+      "style": "dark",
+      "width": 814,
+      "height": 580,
+      "pixels": [
+        1628,
+        1160
+      ],
+      "sha256": "f15266c2ac7b5c546603376b5f96b5fb7785185f93de7b466004eeb60acb9f17"
+    },
+    {
+      "file": "dark-save-error.png",
+      "scene": "save-error",
+      "style": "dark",
+      "width": 814,
+      "height": 580,
+      "pixels": [
+        1628,
+        1160
+      ],
+      "sha256": "2419acde95f6c26fc5cabdc628e4ab32f59c04a700503b22148aa606a268d859"
+    },
+    {
+      "file": "dark-intro-capture.png",
+      "scene": "intro-capture",
+      "style": "dark",
+      "width": 584,
+      "height": 453,
+      "pixels": [
+        1168,
+        906
+      ],
+      "sha256": "a4451059e8f09a6b15b2c0823e2dae91e71e46ac5583f00b87527feb54b2aaf3"
+    },
+    {
+      "file": "dark-intro-connect.png",
+      "scene": "intro-connect",
+      "style": "dark",
+      "width": 584,
+      "height": 449,
+      "pixels": [
+        1168,
+        898
+      ],
+      "sha256": "710e43897ad5511161a2340364d99264d7fb4598481f32b7e8680fbc76c7f98f"
+    },
+    {
+      "file": "dark-intro-place.png",
+      "scene": "intro-place",
+      "style": "dark",
+      "width": 584,
+      "height": 449,
+      "pixels": [
+        1168,
+        898
+      ],
+      "sha256": "42f62521a75ac7bd4b5b5e98490ad2b0fc9b050032411baa13c81a607fad31ed"
+    },
+    {
+      "file": "dark-history-list.png",
+      "scene": "history-list",
+      "style": "dark",
+      "width": 808,
+      "height": 492,
+      "pixels": [
+        1616,
+        984
+      ],
+      "sha256": "41cbb116cf163cbd6d7250b4586604d23254d834836043f82e19b0908eb0ed55"
+    },
+    {
+      "file": "dark-history-grid.png",
+      "scene": "history-grid",
+      "style": "dark",
+      "width": 808,
+      "height": 492,
+      "pixels": [
+        1616,
+        984
+      ],
+      "sha256": "f5f5ad30a327be7b97ed5b516f3841f907c254d77ae4b44c6e1b66a42b549c48"
+    },
+    {
+      "file": "dark-history-unknown.png",
+      "scene": "history-unknown",
+      "style": "dark",
+      "width": 808,
+      "height": 492,
+      "pixels": [
+        1616,
+        984
+      ],
+      "sha256": "23cb7bddad143cd533af1998438c6dfedd52f88f9f5e1d53f44eb764c2349351"
+    },
+    {
+      "file": "dark-control.png",
+      "scene": "control",
+      "style": "dark",
+      "width": 320,
+      "height": 213,
+      "pixels": [
+        640,
+        426
+      ],
+      "sha256": "589877ee3bfbba332d5fe7826be9d182e56b425abe4ee632abb6e3ae0899c7a8"
+    },
+    {
+      "file": "dark-control-paused.png",
+      "scene": "control-paused",
+      "style": "dark",
+      "width": 320,
+      "height": 213,
+      "pixels": [
+        640,
+        426
+      ],
+      "sha256": "cce90e6c7a5d090d887918f8ade487c80e932f3f3081216430814c42a81c8ad0"
+    },
+    {
+      "file": "dark-control-hidden.png",
+      "scene": "control-hidden",
+      "style": "dark",
+      "width": 320,
+      "height": 213,
+      "pixels": [
+        640,
+        426
+      ],
+      "sha256": "31497d324e7dc60ae8eb6780df42452e5cd4aaa59ca302f2b21bfc56cc631dfe"
+    },
+    {
+      "file": "dark-control-both.png",
+      "scene": "control-both",
+      "style": "dark",
+      "width": 320,
+      "height": 213,
+      "pixels": [
+        640,
+        426
+      ],
+      "sha256": "baff151f85b2cc905aadebc4e73f4cebaa4a5f4298bf4f8dfc943fbd9ae050d7"
+    },
+    {
+      "file": "dark-permission.png",
+      "scene": "permission",
+      "style": "dark",
+      "width": 554,
+      "height": 256,
+      "pixels": [
+        1108,
+        512
+      ],
+      "sha256": "6716745f7cce94b6b7fda3457e6678a152e3c5218a91ffab2773a50993a4db3a"
+    },
+    {
+      "file": "dark-feedback.png",
+      "scene": "feedback",
+      "style": "dark",
+      "width": 506,
+      "height": 351,
+      "pixels": [
+        1012,
+        702
+      ],
+      "sha256": "dfaf4d2599bb4367d728114dc4bd4d6dd0e540ef107247f4c3b8c75dff7376b2"
+    }
+  ],
+  "isolatedPreferences": {
+    "mechanism": "macOS Accessibility AXPress, process exit, new process, AX readback and private JSON",
+    "result": "PASS",
+    "presses": 9,
+    "reads": 24
+  },
+  "productionData": "before/after media (100), journal (100), DB + WAL, configuration (4) and installed executable matched byte for byte",
+  "windChime": "UNIMPLEMENTED_NO_APPROVED_REFERENCE",
+  "realChatGPT": "NOT_RUN",
+  "fiveFormalChecks": "NOT_RUN_FOR_STACKED_PR",
+  "independentReviews": {
+    "independent-product-5995131": "5be08b99d068a99fd302fe52a8890b4cd44ed5fcc91d1ef1b6a846a930d6c792",
+    "independent-ui-18e4fc3": "6214b063d675539087ebec7a4b2f3ceb4b7cdf4fd6777276d0aa0f60d9778e04"
+  }
+}
