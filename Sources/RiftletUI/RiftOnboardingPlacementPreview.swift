@@ -1,130 +1,105 @@
 import AppKit
 
-/// Static, synthetic three-card placement illustration. No image file, queue,
-/// source directory, or upload capability is available to this view.
+/// First-use illustration drawn from the bundled, public design sample.
+/// Reading it never opens a screen, capture folder, queue or browser.
 @MainActor
 final class RiftOnboardingPlacementPreview: NSView {
+    private let workflow: Bool
+    private static let example = Bundle.main.url(forResource: "glass-study", withExtension: "png")
+        .flatMap { NSImage(contentsOf: $0) }
     var configuration = RiftConfiguration() { didSet { needsDisplay = true } }
-    override init(frame frameRect: NSRect) {
-        super.init(frame: frameRect)
-        heightAnchor.constraint(equalToConstant: 151).isActive = true
-        setAccessibilityElement(false)
-    }
-    required init?(coder: NSCoder) { nil }
-    override var isFlipped: Bool { true }
-    override func hitTest(_ point: NSPoint) -> NSView? { nil }
-    override func draw(_ dirtyRect: NSRect) {
-        super.draw(dirtyRect)
-        let desk = bounds.insetBy(dx: 1, dy: 1)
-        let background = NSBezierPath(roundedRect: desk, xRadius: 9, yRadius: 9)
-        SettingsNativeStyle.color(.sidebar).setFill(); background.fill()
-        SettingsNativeStyle.color(.border).setStroke(); background.lineWidth = 1; background.stroke()
-        let placement = configuration.placement
-        let left = placement?.side == .left
-        let firstY: CGFloat
-        switch placement?.vertical {
-        case .top: firstY = 21
-        case .bottom: firstY = bounds.height - 91
-        case .middle, nil: firstY = 40
-        }
-        let x = left ? 12.0 : bounds.width - 68
-        for index in 0..<3 {
-            let card = NSRect(x: x, y: firstY + CGFloat(index * 26), width: 56, height: 22)
-            let shape = NSBezierPath(roundedRect: card, xRadius: 3, yRadius: 3)
-            SettingsNativeStyle.color(.surface).setFill(); shape.fill()
-            SettingsNativeStyle.color(.border).setStroke(); shape.stroke()
-            SettingsNativeStyle.color(.accent).withAlphaComponent(0.3).setFill()
-            NSRect(x: card.minX + 7, y: card.minY + 6, width: 28, height: 3).fill()
-            SettingsNativeStyle.color(.border).setFill()
-            NSRect(x: card.minX + 7, y: card.minY + 13, width: 39, height: 2).fill()
-            let number = NSAttributedString(string: "\(index + 1)", attributes: [
-                .font: NSFont.monospacedDigitSystemFont(ofSize: 9, weight: .regular),
-                .foregroundColor: SettingsNativeStyle.color(.secondary)])
-            number.draw(at: NSPoint(x: left ? card.maxX + 5 : card.minX - 11, y: card.midY - 6))
-        }
-        let label = NSAttributedString(string: "位置示意 · 不读取截图", attributes: [
-            .font: NSFont.systemFont(ofSize: 11), .foregroundColor: SettingsNativeStyle.color(.secondary)])
-        label.draw(at: NSPoint(x: (bounds.width - label.size().width) / 2, y: bounds.height - 23))
-    }
-    override func viewDidChangeEffectiveAppearance() { super.viewDidChangeEffectiveAppearance(); needsDisplay = true }
-}
+    var entryEnabled = true { didSet { needsDisplay = true } }
 
-/// The introductory diagram teaches the normal product flow, not the current
-/// permission state. The adjacent native capability label carries that state.
-@MainActor
-final class RiftOnboardingWorkflowPreview: NSView {
-    override init(frame frameRect: NSRect) {
-        super.init(frame: frameRect)
-        heightAnchor.constraint(equalToConstant: 156).isActive = true
-        setAccessibilityElement(false)
+    init(workflow: Bool = false) {
+        self.workflow = workflow
+        super.init(frame: .zero)
+        heightAnchor.constraint(equalToConstant: workflow ? 155 : 103).isActive = true
+        setAccessibilityElement(true)
+        setAccessibilityRole(.image)
+        setAccessibilityLabel(workflow ? "截图进入当前聊天草稿的示意" : "桌面边缘位置预览")
     }
     required init?(coder: NSCoder) { nil }
-    override var isFlipped: Bool { true }
     override func hitTest(_ point: NSPoint) -> NSView? { nil }
 
     override func draw(_ dirtyRect: NSRect) {
-        super.draw(dirtyRect)
-        let gap: CGFloat = 26
-        let width = max(0, (bounds.width - gap * 2) / 3)
-        let names = ["1  照常截图", "2  点击边缘微图", "3  进入聊天附件"]
-        for index in 0..<3 {
-            let box = NSRect(x: CGFloat(index) * (width + gap), y: 4, width: width, height: 112)
-            fill(box, role: .sidebar, radius: 8)
-            let paper: NSRect
-            switch index {
-            case 0:
-                paper = NSRect(x: box.midX - 35, y: box.midY - 28, width: 70, height: 56)
-                fill(paper, role: .surface, radius: 5)
-                lines(in: paper.insetBy(dx: 10, dy: 12))
-            case 1:
-                let edge = NSBezierPath()
-                edge.move(to: NSPoint(x: box.maxX - 18, y: box.minY + 18))
-                edge.line(to: NSPoint(x: box.maxX - 18, y: box.maxY - 18))
-                SettingsNativeStyle.color(.secondary).setStroke(); edge.lineWidth = 1; edge.stroke()
-                paper = NSRect(x: box.maxX - 72, y: box.midY - 18, width: 54, height: 36)
-                fill(paper, role: .surface, radius: 4)
-                lines(in: paper.insetBy(dx: 8, dy: 8))
-                let point = NSBezierPath(ovalIn: NSRect(x: paper.minX - 5, y: paper.maxY - 4, width: 8, height: 8))
-                SettingsNativeStyle.color(.accent).setFill(); point.fill()
-            default:
-                text("ChatGPT", at: NSPoint(x: box.minX + 12, y: box.minY + 13), size: 11)
-                paper = NSRect(x: box.minX + 12, y: box.minY + 39, width: max(0, width - 24), height: 49)
-                fill(paper, role: .surface, radius: 6)
-                let attachment = NSRect(x: paper.minX + 7, y: paper.minY + 7, width: 31, height: 25)
-                fill(attachment, role: .selection, radius: 3)
-                lines(in: attachment.insetBy(dx: 5, dy: 6))
-            }
-            let caption = NSAttributedString(string: names[index], attributes: [
-                .font: NSFont.systemFont(ofSize: 11, weight: .medium),
-                .foregroundColor: SettingsNativeStyle.color(.ink)])
-            caption.draw(at: NSPoint(x: box.midX - caption.size().width / 2, y: 126))
-            if index < 2 {
-                let x = box.maxX + 7, y = box.midY
-                let arrow = NSBezierPath()
-                arrow.move(to: NSPoint(x: x, y: y)); arrow.line(to: NSPoint(x: x + 12, y: y))
-                arrow.move(to: NSPoint(x: x + 8, y: y - 4)); arrow.line(to: NSPoint(x: x + 12, y: y))
-                arrow.line(to: NSPoint(x: x + 8, y: y + 4))
-                SettingsNativeStyle.color(.secondary).setStroke(); arrow.lineWidth = 1.5; arrow.stroke()
-            }
+        let rect = bounds.insetBy(dx: 1, dy: 1)
+        guard rect.width > 20, rect.height > 20 else { return }
+        let outline = NSBezierPath(roundedRect: rect, xRadius: 14, yRadius: 14)
+        NSGraphicsContext.saveGraphicsState()
+        defer { NSGraphicsContext.restoreGraphicsState() }
+        outline.addClip()
+        let dark = effectiveAppearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
+        let c1 = dark ? NSColor(srgbRed: 0.10, green: 0.21, blue: 0.22, alpha: 1) : NSColor(srgbRed: 0.76, green: 0.89, blue: 0.86, alpha: 1)
+        let c2 = dark ? NSColor(srgbRed: 0.22, green: 0.25, blue: 0.34, alpha: 1) : NSColor(srgbRed: 0.85, green: 0.86, blue: 0.94, alpha: 1)
+        NSGradient(starting: c1, ending: c2)?.draw(in: rect, angle: 15)
+        for i in 0..<4 {
+            let x = rect.width * CGFloat(i - 1) * 0.24
+            let curve = NSBezierPath()
+            curve.move(to: CGPoint(x: x, y: 0))
+            curve.curve(to: CGPoint(x: x + rect.width * 0.72, y: rect.height),
+                        controlPoint1: CGPoint(x: x + rect.width * 0.13, y: rect.height * 0.24),
+                        controlPoint2: CGPoint(x: x + rect.width * 0.66, y: rect.height * 0.30))
+            NSColor.white.withAlphaComponent(0.30).setStroke()
+            curve.lineWidth = 1.2
+            curve.stroke()
+        }
+        let browserWidth = rect.width * 0.61
+        let browser = CGRect(x: (rect.width - browserWidth) / 2, y: rect.height * 0.15, width: browserWidth, height: rect.height * 0.69)
+        let chrome = NSBezierPath(roundedRect: browser, xRadius: 7, yRadius: 7)
+        NSColor.windowBackgroundColor.setFill()
+        chrome.fill()
+        NSColor.separatorColor.setStroke()
+        chrome.stroke()
+        for i in 0..<3 {
+            NSColor.tertiaryLabelColor.setFill()
+            NSBezierPath(ovalIn: CGRect(x: browser.minX + 9 + CGFloat(i) * 7, y: browser.maxY - 11, width: 4, height: 4)).fill()
+        }
+        let composer = browser.insetBy(dx: 12, dy: 11)
+        let entry = CGRect(x: composer.minX, y: composer.minY, width: composer.width, height: min(34, composer.height * 0.52))
+        let bubble = NSBezierPath(roundedRect: entry, xRadius: 6, yRadius: 6)
+        NSColor.controlBackgroundColor.setFill()
+        bubble.fill()
+        NSColor.separatorColor.setStroke()
+        bubble.stroke()
+        let words: [NSAttributedString.Key: Any] = [.font: NSFont.systemFont(ofSize: 9), .foregroundColor: NSColor.secondaryLabelColor]
+        ("ChatGPT" as NSString).draw(at: CGPoint(x: composer.minX + 19, y: browser.maxY - 14), withAttributes: words)
+        if workflow, let image = Self.example {
+            image.draw(in: CGRect(x: entry.minX + 5, y: entry.minY + 4, width: min(34, entry.height), height: entry.height - 8))
+        } else {
+            ("给 ChatGPT 发送消息" as NSString).draw(at: CGPoint(x: entry.minX + 8, y: entry.midY - 6), withAttributes: words)
+        }
+        guard let placement = workflow ? RiftPlacement.rightMiddle : configuration.placement else { return }
+        let tray = workflow || configuration.desktopForm == .tray
+        let width = tray ? rect.width / 8 : 34.0
+        let height = tray ? width * 0.53 : 23.0
+        let y: CGFloat
+        switch placement.vertical {
+        case .top: y = rect.maxY - height - 8
+        case .middle: y = rect.midY - height / 2
+        case .bottom: y = rect.minY + 8
+        }
+        let frame = CGRect(x: placement.side == .right ? rect.maxX - width - 3 : rect.minX + 3,
+                           y: y, width: width, height: height)
+        let shape = NSBezierPath(roundedRect: frame, xRadius: 4, yRadius: 4)
+        NSColor.white.withAlphaComponent(0.82).setFill(); shape.fill()
+        NSColor.separatorColor.setStroke(); shape.stroke()
+        let slot = frame.insetBy(dx: 3, dy: 3)
+        let photo = CGRect(x: slot.minX, y: slot.minY,
+                           width: tray && entryEnabled ? slot.width * 0.49 : slot.width, height: slot.height)
+        if let image = Self.example {
+            let scale = min(photo.width / image.size.width, photo.height / image.size.height)
+            let size = CGSize(width: image.size.width * scale, height: image.size.height * scale)
+            image.draw(in: CGRect(x: photo.midX - size.width / 2, y: photo.midY - size.height / 2,
+                                  width: size.width, height: size.height))
+        }
+        if tray && entryEnabled {
+            let icon = NSImage(systemSymbolName: "camera", accessibilityDescription: nil)
+            icon?.draw(in: CGRect(x: slot.midX + 3, y: slot.midY - 4, width: 11, height: 8))
         }
     }
 
-    private func fill(_ rect: NSRect, role: SettingsColorRole, radius: CGFloat) {
-        let path = NSBezierPath(roundedRect: rect, xRadius: radius, yRadius: radius)
-        SettingsNativeStyle.color(role).setFill(); path.fill()
-        SettingsNativeStyle.color(.border).setStroke(); path.lineWidth = 0.5; path.stroke()
+    override func viewDidChangeEffectiveAppearance() {
+        super.viewDidChangeEffectiveAppearance()
+        needsDisplay = true
     }
-    private func lines(in rect: NSRect) {
-        SettingsNativeStyle.color(.accent).withAlphaComponent(0.35).setFill()
-        NSRect(x: rect.minX, y: rect.minY, width: rect.width * 0.7, height: 3).fill()
-        SettingsNativeStyle.color(.border).setFill()
-        NSRect(x: rect.minX, y: rect.minY + 8, width: rect.width, height: 2).fill()
-        NSRect(x: rect.minX, y: rect.minY + 14, width: rect.width * 0.8, height: 2).fill()
-    }
-    private func text(_ value: String, at point: NSPoint, size: CGFloat) {
-        NSAttributedString(string: value, attributes: [
-            .font: NSFont.systemFont(ofSize: size, weight: .medium),
-            .foregroundColor: SettingsNativeStyle.color(.secondary)]).draw(at: point)
-    }
-    override func viewDidChangeEffectiveAppearance() { super.viewDidChangeEffectiveAppearance(); needsDisplay = true }
 }

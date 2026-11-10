@@ -17,7 +17,7 @@ Riftlet keeps new screenshots at the edge of your Mac screen. Click a thumbnail 
 
 ## 当前交付范围
 
-尚无公开安装包或报名入口。当前个人 Beta 3 与下一版的源码是两件事：本次改进的首次引导、目录恢复提示、Finder 数据文件夹入口尚未装入个人 Beta 3。[安装与权限](INSTALL-AND-PERMISSIONS.md)和[本地数据说明](PRIVACY.md)可在此阅读。
+本指南中的菜单路径对应新版候选。设置分为「外观与布局」「截图」「使用与历史」「权限与帮助」四页。仍在使用 Personal Beta 3 的用户会看到旧版界面。尚无公开安装包或报名入口。[安装与权限](INSTALL-AND-PERMISSIONS.md)和[本地数据说明](PRIVACY.md)可在此阅读。
 
 个人 Beta 3 指南最初核对的运行时源码为 `2e779f646ac4874344fac94f79103e8ddf9b02c8`，后续发行工具 `d46d47682d9ebe6df2928cebb69411ff8746604c` 增加版本标签和私有评审 ZIP/DMG。个人安装与历史双样式已按该版本验收。当前个人包使用 ad-hoc 签名，公开下载仍待正式签名、公证和干净 Mac 安装验收。
 
@@ -25,4 +25,4 @@ Riftlet keeps new screenshots at the edge of your Mac screen. Click a thumbnail 
 
 **阅读本文不表示已有公开下载或正在招募测试者。** 10–20 人测试方案已准备，尚未发送邀请。发布身份、支持渠道和安装包以获准交付的版本清单为准。
 
-The first-run, folder recovery and Finder changes are in the candidate source; the installed Personal Beta 3 still uses its previous interface. The personal build is ad-hoc signed. No public download or signup is open, and the current two-image ChatGPT test has not run.
+Menu paths in these guides refer to the four-page settings candidate. Personal Beta 3 has the previous interface. The personal build is ad-hoc signed. No public download or signup is open, and the current two-image ChatGPT test has not run.

@@ -46,10 +46,11 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     public init(engine: FeedbackEngine?, diagnostics: FeedbackDiagnostics, appVersion: String, demo: Bool = false) {
         self.engine = engine; self.diagnostics = diagnostics; self.appVersion = appVersion; self.demo = demo
         if let engine { persistDraft = { value in try await engine.store.saveDraft(value) } }
-        let window = RiftVisualStyle.window(outerSize: NSSize(width: 600, height: 540),
-            minimum: NSSize(width: 560, height: 500), title: demo ? "反馈与建议 — 离线合成演示" : "反馈与建议")
+        let window = RiftVisualStyle.window(outerSize: NSSize(width: 506, height: 464),
+            minimum: NSSize(width: 450, height: 386), title: demo ? "反馈与建议 — 离线合成演示" : "反馈与建议")
         super.init(window: window)
         window.delegate = self; window.isReleasedWhenClosed = false
+        window.backgroundColor = .windowBackgroundColor
         build()
         loading = Task { [weak self] in await self?.load() }
     }
@@ -58,19 +59,21 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
 
     private func build() {
         guard let content = window?.contentView else { return }
-        let stack = RiftVisualStyle.documentStack([], spacing: 12)
+        let stack = RiftVisualStyle.documentStack([], spacing: 8)
         stack.edgeInsets = NSEdgeInsets(top: 24, left: 24, bottom: 16, right: 24)
         let scroller = RiftVisualStyle.topAlignedScrollView()
         scroller.documentView = stack
         stack.translatesAutoresizingMaskIntoConstraints = false
-        let heading = RiftVisualStyle.label("哪里不顺手？", role: "title")
-        let introduction = RiftVisualStyle.label("也欢迎告诉我，你希望它怎样工作。", role: "secondary")
+        let heading = RiftVisualStyle.label("使用反馈", role: "title")
+        heading.font = .systemFont(ofSize: 24, weight: .semibold)
+        heading.textColor = .labelColor
+        let introduction = RiftVisualStyle.label("你遇到了什么问题，或有什么建议？", role: "secondary")
         kind.addItems(withTitles: ["遇到问题", "改进建议"]); kind.target = self; kind.action = #selector(changedKind)
         kind.setAccessibilityLabel("反馈类型"); kind.font = RiftVisualStyle.bodyFont
         let scroll = NSScrollView(); scroll.hasVerticalScroller = true; scroll.borderType = .bezelBorder
-        scroll.documentView = text; scroll.backgroundColor = RiftVisualStyle.surface
+        scroll.documentView = text; scroll.backgroundColor = .textBackgroundColor
         text.isRichText = false; text.importsGraphics = false; text.isAutomaticQuoteSubstitutionEnabled = false
-        text.font = RiftVisualStyle.bodyFont; text.textColor = RiftVisualStyle.ink; text.backgroundColor = RiftVisualStyle.surface
+        text.font = RiftVisualStyle.bodyFont; text.textColor = .textColor; text.backgroundColor = .textBackgroundColor
         text.insertionPointColor = RiftVisualStyle.accent
         text.isVerticallyResizable = true; text.isHorizontallyResizable = false
         text.autoresizingMask = [.width]; text.textContainer?.widthTracksTextView = true
@@ -78,7 +81,7 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         let paragraph = NSMutableParagraphStyle(); paragraph.minimumLineHeight = 18; paragraph.maximumLineHeight = 18
         text.defaultParagraphStyle = paragraph
         text.setAccessibilityLabel("发生了什么？你原本希望怎样？")
-        scroll.heightAnchor.constraint(equalToConstant: 150).isActive = true
+        scroll.heightAnchor.constraint(equalToConstant: 104).isActive = true
         characterCount.font = RiftVisualStyle.secondaryFont; characterCount.textColor = RiftVisualStyle.secondary
         characterCount.identifier = NSUserInterfaceItemIdentifier("feedback.characterCount")
         characterCount.toolTip = "组合符号和 emoji 可能包含多个字符，按组成字符计数；发送限制与这里的计数一致。正文最多 16 KiB。"
@@ -109,8 +112,9 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         for button in [retrySave, copyText] { RiftVisualStyle.style(button); recoveryActions.addArrangedSubview(button) }
         recoveryActions.spacing = 8; recoveryActions.isHidden = true
         // Neither button is the Return default: Return and IME stay in the editor.
-        let actions = NSStackView(views: [close, send]); actions.spacing = 8
-        let footer = RiftVisualStyle.vertical([service, status, recoveryActions, actions], spacing: 8)
+        let actions = NSStackView(views: [NSView(), close, send]); actions.spacing = 8
+        let divider = NSBox(); divider.boxType = .separator
+        let footer = RiftVisualStyle.vertical([divider, service, status, recoveryActions, actions], spacing: 5)
         recordsDisclosure.setButtonType(.onOff); recordsDisclosure.bezelStyle = .inline
         recordsDisclosure.identifier = NSUserInterfaceItemIdentifier("feedback.recordsDisclosure")
         recordsDisclosure.font = RiftVisualStyle.bodyFont; recordsDisclosure.contentTintColor = RiftVisualStyle.ink
@@ -121,12 +125,14 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         recordsBody.orientation = .vertical; recordsBody.alignment = .leading; recordsBody.spacing = 8
         rebuildRecords()
         recordsBody.isHidden = true
-        for view in [heading, introduction, kind, scroll, characterCount, diagnosticsRow, privacy, recordsDisclosure, recordsBody] {
+        let headline = NSStackView(views: [heading, NSView(), kind])
+        headline.alignment = .centerY
+        for view in [headline, introduction, scroll, characterCount, diagnosticsRow, privacy, recordsDisclosure, recordsBody] {
             stack.addArrangedSubview(view)
-            if view !== kind && view !== recordsDisclosure { view.widthAnchor.constraint(equalTo: stack.widthAnchor, constant: -48).isActive = true }
+            if view !== recordsDisclosure { view.widthAnchor.constraint(equalTo: stack.widthAnchor, constant: -48).isActive = true }
         }
         for view in [scroller, footer] { view.translatesAutoresizingMaskIntoConstraints = false; content.addSubview(view) }
-        for label in [service, status] { label.widthAnchor.constraint(equalTo: footer.widthAnchor).isActive = true }
+        for view in [divider, service, status, actions] { view.widthAnchor.constraint(equalTo: footer.widthAnchor).isActive = true }
         NSLayoutConstraint.activate([
             scroller.leadingAnchor.constraint(equalTo: content.leadingAnchor), scroller.trailingAnchor.constraint(equalTo: content.trailingAnchor),
             scroller.topAnchor.constraint(equalTo: content.topAnchor), scroller.bottomAnchor.constraint(equalTo: footer.topAnchor, constant: -12),
@@ -179,7 +185,7 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     }
     public func show() {
         if let window {
-            let size = hasPresented ? window.frame.size : NSSize(width: 600, height: 540)
+            let size = hasPresented ? window.frame.size : NSSize(width: 506, height: 464)
             if !hasPresented { window.center() }
             RiftVisualStyle.restoreWindowSize(window, size: size, constrainOrigin: !hasPresented)
             showWindow(nil)

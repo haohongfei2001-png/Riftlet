@@ -119,9 +119,34 @@ final class RiftControlCenterControllerTests: XCTestCase {
         value.appearance.unreadable = true
         let projection = RiftControlCenterPresentation(value)
         XCTAssertEqual(projection.state, .attention)
-        XCTAssertEqual(projection.recoveryPage, .general)
+        XCTAssertEqual(projection.recoveryPage, .display)
         XCTAssertTrue(projection.title.contains("确认保存"))
         XCTAssertFalse(projection.detail.contains("回滚"))
+    }
+
+    @MainActor func testSaveRecoveryOpensThePageThatOwnsTheFailedSetting() async throws {
+        var value = fixture()
+        let model = try SettingsStateModel(owner: value.state.owner,
+            adapter: SettingsPersistenceClosures { _ in .unconfirmed(nil, .writeUnconfirmed) })
+        _ = await model.perform(.setCollectionPaused(true))
+        value.state = model.snapshot
+        XCTAssertEqual(RiftControlCenterPresentation(value).recoveryPage, .history)
+        _ = await model.perform(.setEntryEnabled(false))
+        value.state = model.snapshot
+        XCTAssertEqual(RiftControlCenterPresentation(value).recoveryPage, .capture)
+        _ = await model.perform(.selectPlacement(.rightBottom))
+        value.state = model.snapshot
+        XCTAssertEqual(RiftControlCenterPresentation(value).recoveryPage, .display)
+        XCTAssertEqual(Set(value.state.domains.compactMap { $0.value.saveFailure == nil ? nil : $0.key }),
+                       [.collection, .entry, .placement], "Routing cannot clear another pending retry")
+        for (issue, page): (SetupIssue, SettingsPage) in [(.screenshotPreferenceUnsaved, .capture),
+                (.collectionPreferenceUnsaved, .history), (.visibilityPreferenceUnsaved, .history),
+                (.configurationUnavailable, .help)] {
+            XCTAssertEqual(RiftControlCenterPresentation(fixture(issue: issue)).recoveryPage, page)
+        }
+        var login = fixture()
+        login.login.notConfirmed = true
+        XCTAssertEqual(RiftControlCenterPresentation(login).recoveryPage, .history)
     }
 
     @MainActor func testCaptureHintRetainsDisabledEntryReasonWhenVisibilityAlsoBlocksCapture() {

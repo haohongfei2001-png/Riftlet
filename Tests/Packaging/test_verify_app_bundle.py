@@ -36,6 +36,8 @@ class BundleVerificationTests(unittest.TestCase):
         self.bundle = self.resources / "Riftlet_RiftletAdapters.bundle"
         self.bundle.mkdir(parents=True)
         shutil.copy2(REPOSITORY / "Resources/Riftlet.icns", self.resources / "Riftlet.icns")
+        for name in VERIFY.PRESENTATION_NAMES:
+            shutil.copy2(REPOSITORY / "Resources/Presentation" / name, self.resources / name)
         for name in VERIFY.RESOURCE_NAMES:
             shutil.copy2(REPOSITORY / "Sources/RiftletAdapters/Resources" / name, self.bundle / name)
         shutil.copytree(REPOSITORY / "ThirdPartyNotices", self.resources / "ThirdPartyNotices")
@@ -70,6 +72,13 @@ class BundleVerificationTests(unittest.TestCase):
         self.assertTrue(manifest["allNativeDecodedRGBABytesEqual"])
         self.assertEqual({(r["logicalSize"], r["scale"]) for r in manifest["slots"]},
                          {(size, scale) for size in (16, 32, 128, 256, 512) for scale in (1, 2)})
+
+    def test_product_preview_art_matches_approved_assets_and_cannot_be_substituted(self):
+        for name in VERIFY.PRESENTATION_NAMES:
+            self.assertEqual((self.resources / name).read_bytes(), (REPOSITORY / "website-assets" / name).read_bytes())
+        (self.resources / "reading.svg").write_bytes(b"not the reviewed art")
+        with self.assertRaisesRegex(VERIFY.VerificationError, "^presentation_differs_from_source_reading[.]svg$"):
+            VERIFY.verify_bundle(self.app, REPOSITORY)
 
     def test_declared_icon_is_complete_and_exact_source_bytes(self):
         VERIFY.verify_bundle(self.app, REPOSITORY)

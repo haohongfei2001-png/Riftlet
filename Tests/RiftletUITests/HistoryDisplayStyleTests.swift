@@ -171,13 +171,13 @@ final class HistoryDisplayStyleTests: XCTestCase {
         let controller = RiftHistoryController(mediaDirectory: try directory(), onRestore: { _ in }, onRemove: { _ in },
             onReveal: { _ in }, onDisplayStyleChanged: { requested.append($0) })
         defer { controller.close() }
-        let selector: NSPopUpButton = try find("history.displayStyle", in: controller.window)
-        selector.selectItem(at: 1); try invoke(selector)
+        let selector: NSSegmentedControl = try find("history.displayStyle", in: controller.window)
+        selector.selectedSegment = 1; try invoke(selector)
         XCTAssertEqual(requested, [.imageGrid])
         XCTAssertEqual(controller.displayStyle, .current, "Only the shared owner may project an accepted choice")
-        XCTAssertEqual(selector.indexOfSelectedItem, 0)
+        XCTAssertEqual(selector.selectedSegment, 0)
         controller.updateDisplayStyle(.imageGrid)
-        XCTAssertEqual(selector.indexOfSelectedItem, 1)
+        XCTAssertEqual(selector.selectedSegment, 1)
         XCTAssertEqual(requested, [.imageGrid], "Projection must not emit another user choice")
     }
 
@@ -194,7 +194,8 @@ final class HistoryDisplayStyleTests: XCTestCase {
         owner = controller; defer { controller.close() }
         controller.update(entries: [selected, RiftHistoryEntry(record: AssetRecord(image: other, sequence: 1))], pageOffset: 200, hasEarlier: true)
         controller.show()
-        let filter: NSButton = try find("history.filter.3", in: controller.window); try invoke(filter)
+        let filter: NSPopUpButton = try find("history.grid.filter", in: controller.window)
+        filter.selectItem(at: 3); try invoke(filter)
         let search: NSSearchField = try find("history.search", in: controller.window)
         search.stringValue = image.id.uuidString.prefix(8).description
         controller.controlTextDidChange(Notification(name: NSControl.textDidChangeNotification, object: search))
@@ -205,9 +206,9 @@ final class HistoryDisplayStyleTests: XCTestCase {
         let bitmap = try XCTUnwrap(detail.image)
         let count: NSTextField = try find("history.count", in: controller.window)
         let beforeCount = count.stringValue
-        let selector: NSPopUpButton = try find("history.displayStyle", in: controller.window)
+        let selector: NSSegmentedControl = try find("history.displayStyle", in: controller.window)
         XCTAssertTrue(controller.window.makeFirstResponder(table))
-        selector.selectItem(at: 1); try invoke(selector)
+        selector.selectedSegment = 1; try invoke(selector)
         let grid: NSCollectionView = try find("history.grid", in: controller.window)
         XCTAssertTrue(controller.window.firstResponder === grid)
         XCTAssertEqual(controller.selectedRecordID, image.id)
@@ -219,7 +220,7 @@ final class HistoryDisplayStyleTests: XCTestCase {
         let restore: NSButton = try find("history.restore", in: controller.window); try invoke(restore)
         let reveal: NSButton = try find("history.reveal", in: controller.window); try invoke(reveal)
         XCTAssertEqual(restored, [image.id]); XCTAssertEqual(revealed, [image.id]); XCTAssertEqual(paging, 0)
-        selector.selectItem(at: 0); try invoke(selector)
+        selector.selectedSegment = 0; try invoke(selector)
         XCTAssertTrue(controller.window.firstResponder === table)
         XCTAssertEqual(table.selectedRow, 0); XCTAssertEqual(controller.selectedRecordID, image.id)
         XCTAssertTrue(detail.image === bitmap); XCTAssertEqual(count.stringValue, beforeCount)

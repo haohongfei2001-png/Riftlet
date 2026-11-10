@@ -52,6 +52,11 @@ final class RiftSettingsCenterTests: XCTestCase {
         }
     }
     @MainActor private func change(_ host: SettingsCenterTestHost, _ id: String, index: Int) throws {
+        if let control = host.controller.controls[id] as? NSSegmentedControl {
+            control.selectedSegment = index
+            XCTAssertTrue(control.sendAction(control.action,to:control.target))
+            return
+        }
         let popup: NSPopUpButton = try control(host, id)
         popup.selectItem(at: index)
         _ = popup.sendAction(popup.action, to: popup.target)
@@ -86,16 +91,23 @@ final class RiftSettingsCenterTests: XCTestCase {
         }
     }
 
-    @MainActor func testSixPagesShareOneWindowAndViewingNeverPersists() throws {
+    @MainActor func testFourPagesAndLegacyDeepLinksShareOneWindowAndViewingNeverPersists() throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
         let window = h.controller.window
         XCTAssertFalse(h.controller.isVisible)
+        XCTAssertEqual(SettingsPage.allCases, [.display, .capture, .history, .help])
+        XCTAssertEqual(h.controller.navigation.count, 4)
         for page in SettingsPage.allCases {
             h.controller.show(page: page)
             XCTAssertTrue(h.controller.window === window)
             XCTAssertEqual(h.controller.selectedPage, page)
             XCTAssertTrue(h.controller.scroll.documentView === h.controller.pages[page])
         }
+        h.controller.show(page:.motion)
+        XCTAssertEqual(h.controller.selectedPage,.display)
+        XCTAssertFalse(try XCTUnwrap(h.controller.disclosures["display.advanced"]?.content).isHidden)
+        h.controller.show(page:.general)
+        XCTAssertEqual(h.controller.selectedPage,.history)
         h.publish()
         XCTAssertTrue(h.actions.isEmpty)
         XCTAssertTrue(h.requests.isEmpty)
@@ -103,21 +115,21 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertFalse(h.controller.isVisible, "Background updates do not open a closed settings window")
     }
 
-    @MainActor func testNativeSwitchesKeepV2TitlesAccessibilityAndBooleanDirection() throws {
+    @MainActor func testNativeSwitchesMatchPositiveLabelsAndEffectiveState() throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
-        let expected = [("paused", "暂停收录"), ("hidden", "隐藏裂缝"), ("login", "登录后启动 Riftlet"), ("entry", "启用内置截图")]
+        let expected = [("paused", "收录系统截图"), ("hidden", "显示桌面截图"), ("login", "登录时启动 Riftlet"), ("entry", "显示内置截图入口")]
         for (id, label) in expected {
             let toggle: NSSwitch = try control(h, id)
             XCTAssertEqual(toggle.identifier?.rawValue, "settings.center." + id)
             XCTAssertEqual(toggle.accessibilityLabel(), label)
         }
         let paused: NSSwitch = try control(h, "paused"), hidden: NSSwitch = try control(h, "hidden"), entry: NSSwitch = try control(h, "entry")
-        XCTAssertEqual(paused.state, .off); XCTAssertEqual(hidden.state, .off); XCTAssertEqual(entry.state, .on)
+        XCTAssertEqual(paused.state, .on); XCTAssertEqual(hidden.state, .on); XCTAssertEqual(entry.state, .on)
         func labels(in view: NSView) -> [String] {
             (view as? NSTextField).map { [$0.stringValue] } ?? view.subviews.flatMap { labels(in: $0) }
         }
-        let titles = labels(in: try XCTUnwrap(h.controller.pages[.general]))
-        XCTAssertTrue(titles.contains("暂停收录")); XCTAssertTrue(titles.contains("隐藏裂缝"))
+        let titles = labels(in: try XCTUnwrap(h.controller.pages[.history]))
+        XCTAssertTrue(titles.contains("收录系统截图")); XCTAssertTrue(titles.contains("显示桌面截图"))
         XCTAssertFalse(titles.contains("收录新截图")); XCTAssertFalse(titles.contains("显示边缘微图"))
     }
 
@@ -172,7 +184,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         let window = h.controller.window
         let visible = try XCTUnwrap((window.screen ?? NSScreen.main)?.visibleFrame)
         let available = window.contentRect(forFrameRect: visible).size
-        let expected = NSSize(width: min(960, available.width), height: min(684, available.height))
+        let expected = NSSize(width: min(814, available.width), height: min(580, available.height))
         h.controller.show()
         window.contentView?.layoutSubtreeIfNeeded()
         let actual = window.contentRect(forFrameRect: window.frame).size
@@ -182,7 +194,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertLessThanOrEqual(window.frame.maxX, visible.maxX + 0.5)
         XCTAssertGreaterThanOrEqual(window.frame.minY, visible.minY - 0.5)
         XCTAssertLessThanOrEqual(window.frame.maxY, visible.maxY + 0.5)
-        let smaller = NSSize(width: max(760, expected.width - 40), height: max(540, expected.height - 30))
+        let smaller = NSSize(width: max(716, expected.width - 40), height: max(450, expected.height - 30))
         window.setContentSize(smaller)
         let resized = window.frame.size
         h.publish(); h.controller.show(page: .capture)
@@ -205,7 +217,8 @@ final class RiftSettingsCenterTests: XCTestCase {
         h.controller.show(page: .display)
         let caption = try XCTUnwrap(h.controller.labels["layoutPreview.detail"])
         let document = try XCTUnwrap(h.controller.pages[.display])
-        for size in [NSSize(width: 960, height: 684), NSSize(width: 760, height: 540)] {
+        try click(h, "disclosure.display.advanced")
+        for size in [SettingsNativeStyle.settingsSize, SettingsNativeStyle.settingsMinimumSize] {
             h.controller.window.setContentSize(size)
             for placement in RiftPlacement.allCases {
                 for count in [1, 3, 10] {
@@ -226,19 +239,13 @@ final class RiftSettingsCenterTests: XCTestCase {
                 }
             }
             let visible = h.controller.scroll.contentView.documentVisibleRect
+            let picker: NSPopUpButton = try control(h, "placement")
+            let rect = picker.convert(picker.bounds, to: document)
             let drawingRect = h.controller.geometryPreview.convert(h.controller.geometryPreview.bounds, to: document)
-            for placement in RiftPlacement.allCases {
-                let button: NSButton = try control(h, "placement.\(placement.rawValue)")
-                let rect = button.convert(button.bounds, to: document)
-                XCTAssertGreaterThanOrEqual(rect.width, 62)
-                XCTAssertGreaterThanOrEqual(rect.height, 32)
-                XCTAssertTrue(visible.contains(rect), "All six choices must remain reachable without scrolling the basic group")
-                XCTAssertLessThanOrEqual(rect.maxX + 8, drawingRect.minX, "The selector belongs beside its preview")
-            }
-            if size.width == 960 {
-                let details = try XCTUnwrap(h.controller.disclosures["display.details"]?.button)
-                XCTAssertTrue(visible.contains(details.convert(details.bounds, to: document)), "Detailed customization must be discoverable on the initial standard-size page")
-            }
+            XCTAssertTrue(visible.contains(rect), "Placement must be operable in the initial viewport")
+            XCTAssertFalse(rect.intersects(drawingRect))
+            XCTAssertEqual(picker.itemArray.filter { !$0.isHidden }.map(\.title), RiftPlacement.allCases.map(\.title))
+            XCTAssertEqual(picker.accessibilityLabel(), "屏幕边缘")
         }
         XCTAssertTrue(h.requests.isEmpty)
     }
@@ -249,25 +256,21 @@ final class RiftSettingsCenterTests: XCTestCase {
         func assertSelection(_ expected: RiftPlacement) throws {
             XCTAssertEqual(h.controller.geometryPreview.configuration.placement, expected)
             XCTAssertTrue(h.controller.geometryPreview.geometrySummary.hasPrefix(expected.title + " · "))
-            for placement in RiftPlacement.allCases {
-                let button: NSButton = try control(h, "placement.\(placement.rawValue)")
-                let selected = placement == expected
-                XCTAssertEqual(button.state, selected ? .on : .off)
-                XCTAssertEqual(button.image != nil, selected, "Selection must be visible without depending on bezel color")
-                XCTAssertEqual(button.bezelColor != nil, selected)
-                XCTAssertEqual(button.imagePosition, .imageLeading)
-                XCTAssertEqual(button.accessibilityLabel(), placement.title)
-            }
+            let picker: NSPopUpButton = try control(h,"placement")
+            let index = try XCTUnwrap(RiftPlacement.allCases.firstIndex(of: expected))
+            XCTAssertEqual(picker.selectedItem?.identifier?.rawValue, "settings.center.placement." + expected.rawValue)
+            XCTAssertEqual(picker.indexOfSelectedItem, index)
+            XCTAssertEqual(picker.titleOfSelectedItem,expected.title)
         }
-        for placement in RiftPlacement.allCases {
-            try await clickAndWait(h, "placement.\(placement.rawValue)")
+        for (index, placement) in RiftPlacement.allCases.enumerated() {
+            try await changeAndWait(h, "placement", index:index)
             XCTAssertEqual(h.owner.settings.configuration.placement, placement)
             try assertSelection(placement)
         }
         let confirmed = try XCTUnwrap(h.owner.settings.configuration.placement)
         let pending: RiftPlacement = confirmed == .leftMiddle ? .rightMiddle : .leftMiddle
         h.failures = [.placement]
-        try await clickAndWait(h, "placement.\(pending.rawValue)")
+        try await changeAndWait(h, "placement", index: try XCTUnwrap(RiftPlacement.allCases.firstIndex(of: pending)))
         try assertSelection(confirmed)
         XCTAssertTrue(h.model.snapshot.domains[.placement]!.hasIssue)
         h.failures = []
@@ -279,7 +282,7 @@ final class RiftSettingsCenterTests: XCTestCase {
     @MainActor func testNativeFieldsKeepIdentityRawTextAndSelectionAcrossOwnerRefresh() throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
         h.controller.show(page: .display)
-        try click(h, "disclosure.display.details")
+        try click(h, "disclosure.display.advanced"); try click(h, "disclosure.display.details")
         let field = try XCTUnwrap(h.controller.numericFields[.fitWidth])
         let editor = try enter(h, field: field, text: "83.2500")
         editor.setSelectedRange(NSRange(location: 2, length: 3))
@@ -305,6 +308,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         settings.defaultCaptureMode = .window
         h.receive(settings)
         h.controller.show(page: .display)
+        h.controller.show(page:.capture)
         try click(h, "disclosure.tray.favorites")
         let first: NSPopUpButton = try control(h, "trayFavorite1")
         let third: NSPopUpButton = try control(h, "trayFavorite3")
@@ -326,7 +330,7 @@ final class RiftSettingsCenterTests: XCTestCase {
 
     @MainActor func testExplicitDefaultsAndDiscardRetireOldEditorBeforeReplacingDraft() async throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
-        h.controller.show(page: .display); try click(h, "disclosure.display.details")
+        h.controller.show(page: .display); try click(h, "disclosure.display.advanced"); try click(h, "disclosure.display.details")
         let width = try XCTUnwrap(h.controller.numericFields[.fitWidth])
         _ = try enter(h, field: width, text: "89")
         try await clickAndWait(h, "layout.defaults.display")
@@ -763,7 +767,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         h.controller.show()
         try await clickAndWait(h, "paused")
         let pause: NSSwitch = try control(h, "paused")
-        XCTAssertEqual(pause.state, .on)
+        XCTAssertEqual(pause.state, .off)
         XCTAssertEqual(h.model.snapshot.domains[.collection]?.pending, .collectionPaused(false))
         XCTAssertTrue(h.controller.errorLabels[.collection]!.stringValue.contains("继续收录"))
         h.failures = []; try await clickAndWait(h, "retry.collection")
@@ -812,6 +816,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         h.receive(next); h.controller.show(page: .display)
         let display: NSPopUpButton = try control(h, "display")
         XCTAssertEqual(display.numberOfItems, 2)
+        XCTAssertEqual(display.itemTitles, ["External display · 1", "External display · 2"])
         XCTAssertEqual(display.itemArray.compactMap { ($0.representedObject as? NSNumber)?.uint32Value }, [1, 2])
         try await changeAndWait(h, "display", index: 1)
         XCTAssertEqual(h.owner.settings.configuration.preferredDisplayID, 2)
@@ -951,7 +956,7 @@ final class RiftSettingsCenterTests: XCTestCase {
     @MainActor func testResizeRetainsFieldsAndScrollableDocument() throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
         h.controller.show(page: .display)
-        try click(h, "disclosure.display.details"); try click(h, "disclosure.display.fine")
+        try click(h, "disclosure.display.advanced"); try click(h, "disclosure.display.details"); try click(h, "disclosure.display.fine")
         let field = try XCTUnwrap(h.controller.numericFields[.minimumHitHeight])
         let size = SettingsNativeStyle.settingsMinimumSize
         h.controller.window.setContentSize(size)
@@ -959,7 +964,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertTrue(h.controller.numericFields[.minimumHitHeight] === field)
         XCTAssertTrue(h.controller.scroll.hasVerticalScroller)
         XCTAssertGreaterThan(h.controller.pages[.display]!.frame.height, h.controller.scroll.contentView.bounds.height)
-        XCTAssertEqual(h.controller.scroll.scrollerStyle, .legacy)
+        XCTAssertEqual(h.controller.scroll.scrollerStyle, .overlay)
         XCTAssertNotNil(field.accessibilityLabel())
         XCTAssertFalse(field.accessibilityLabel()!.isEmpty)
     }

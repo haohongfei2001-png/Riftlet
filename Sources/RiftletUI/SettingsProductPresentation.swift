@@ -4,24 +4,33 @@ import RiftletCapture
 /// Shared native navigation. This is presentation routing, not another preference store.
 public enum SettingsPage: String, CaseIterable, Sendable {
     case general, display, capture, motion, history, help
+    /// The two historical routes remain valid deep links into these four pages.
+    public static let allCases: [SettingsPage] = [.display, .capture, .history, .help]
+    public var destination: SettingsPage {
+        switch self { case .general: return .history; case .motion: return .display; default: return self }
+    }
     public var title: String {
         switch self {
-        case .general: return "通用"
-        case .display: return "位置与显示"
+        case .motion, .display: return "外观与布局"
         case .capture: return "截图"
-        case .motion: return "动效"
-        case .history: return "历史与存储"
+        case .general, .history: return "使用与历史"
         case .help: return "权限与帮助"
         }
     }
     public var symbol: String {
         switch self {
-        case .general: return "slider.horizontal.3"
-        case .display: return "display"
-        case .capture: return "camera.viewfinder"
-        case .motion: return "sparkles"
-        case .history: return "clock.arrow.circlepath"
-        case .help: return "questionmark.circle"
+        case .motion, .display: return "rectangle.3.group"
+        case .capture: return "camera"
+        case .general, .history: return "clock.arrow.circlepath"
+        case .help: return "hand.raised"
+        }
+    }
+    var subtitle: String {
+        switch self {
+        case .display, .motion: return "让截图停在顺手的屏幕边缘。"
+        case .capture: return "选择收录位置，以及如何开始截图。"
+        case .general, .history: return "管理截图收录，随时找回本机上的图片。"
+        case .help: return "按需要的功能检查访问权限。"
         }
     }
 }

@@ -35,7 +35,7 @@ final class FeedbackVisualCandidateTests: XCTestCase {
         let disclosure = try XCTUnwrap(buttons.first { $0.title.hasPrefix("本机反馈记录") })
         let send = try XCTUnwrap(buttons.first { $0.title == "保存待发送" })
         XCTAssertTrue(send.keyEquivalent.isEmpty, "Return must remain a text/IME operation")
-        XCTAssertEqual(controller.window?.frame.size, NSSize(width: 600, height: 540))
+        XCTAssertEqual(controller.window?.frame.size, NSSize(width: 506, height: 464))
         editor.string = "selection and local draft stay in the same editor"
         editor.setSelectedRange(NSRange(location: 2, length: 9))
         let before = controller.draftForTesting

@@ -15,7 +15,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
     private var busy: Set<SettingsDomain> = []
     private var controls: [String: NSView] = [:]
     private var pages: [NSView] = []
-    private let progress = SettingsNativeStyle.stack([], vertical: false, spacing: 18)
+    private let progress = SettingsNativeStyle.stack([], vertical: false, spacing: 9)
     private let content = RiftVisualStyle.documentStack([], spacing: 16)
     private let scroll = RiftVisualStyle.topAlignedScrollView()
     private let next = SettingsNativeStyle.button("继续")
@@ -36,7 +36,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
     private var displayRefreshPending = false
     private var displaySignature: [RiftSettingsDisplay] = []
     private var representedPreferredDisplayID: UInt32?
-    private let placementPreview = RiftOnboardingPlacementPreview(frame: .zero)
+    private let placementPreview = RiftOnboardingPlacementPreview()
     private var placements: [RiftPlacement: NSButton] = [:]
     private let placementHint = SettingsNativeStyle.label("", role: "caption")
     private let placementError = SettingsNativeStyle.label("", role: "secondary")
@@ -46,7 +46,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
     public init(onAction: @escaping SettingsProductActionHandler) {
         self.onAction = onAction
         window = RiftVisualStyle.window(outerSize: SettingsNativeStyle.onboardingSize,
-            minimum: NSSize(width: 560, height: 480), title: "开始使用 Riftlet")
+            minimum: NSSize(width: 520, height: 416), title: "开始使用 Riftlet")
         super.init()
         window.identifier = Self.windowIdentifier
         window.delegate = self
@@ -112,8 +112,17 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         scroll.translatesAutoresizingMaskIntoConstraints = false
         content.translatesAutoresizingMaskIntoConstraints = false
         root.addSubview(progress); root.addSubview(scroll)
-        for (index, title) in ["认识 Riftlet", "连接工具", "选择位置"].enumerated() {
-            let label = SettingsNativeStyle.label("\(index + 1)  \(title)", role: "caption")
+        for (index, title) in ["截图", "连接", "位置"].enumerated() {
+            if index > 0 {
+                let separator = NSImageView()
+                separator.image = NSImage(systemSymbolName: "chevron.right", accessibilityDescription: nil)?
+                    .withSymbolConfiguration(.init(pointSize: 9, weight: .regular))
+                separator.contentTintColor = .tertiaryLabelColor
+                separator.setAccessibilityElement(false)
+                progress.addArrangedSubview(separator)
+            }
+            let label = SettingsNativeStyle.label(title, role: "caption")
+            label.tag = index
             label.identifier = .init("onboarding.progress.\(index)")
             progress.addArrangedSubview(label)
         }
@@ -134,29 +143,25 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         }
         NSLayoutConstraint.activate([
             progress.topAnchor.constraint(equalTo: root.topAnchor, constant: 24),
-            progress.leadingAnchor.constraint(equalTo: root.leadingAnchor, constant: 38),
-            progress.trailingAnchor.constraint(lessThanOrEqualTo: root.trailingAnchor, constant: -38),
-            scroll.leadingAnchor.constraint(equalTo: root.leadingAnchor, constant: 38),
-            scroll.trailingAnchor.constraint(equalTo: root.trailingAnchor, constant: -38),
-            scroll.topAnchor.constraint(equalTo: progress.bottomAnchor, constant: 24),
+            progress.leadingAnchor.constraint(equalTo: root.leadingAnchor, constant: 26),
+            progress.trailingAnchor.constraint(lessThanOrEqualTo: root.trailingAnchor, constant: -26),
+            scroll.leadingAnchor.constraint(equalTo: root.leadingAnchor, constant: 26),
+            scroll.trailingAnchor.constraint(equalTo: root.trailingAnchor, constant: -26),
+            scroll.topAnchor.constraint(equalTo: progress.bottomAnchor, constant: 13),
             scroll.bottomAnchor.constraint(equalTo: footer.topAnchor, constant: -16),
             content.widthAnchor.constraint(equalTo: scroll.contentView.widthAnchor),
             content.leadingAnchor.constraint(equalTo: scroll.contentView.leadingAnchor),
             content.topAnchor.constraint(equalTo: scroll.contentView.topAnchor),
-            footer.leadingAnchor.constraint(equalTo: root.leadingAnchor, constant: 38),
-            footer.trailingAnchor.constraint(equalTo: root.trailingAnchor, constant: -38),
+            footer.leadingAnchor.constraint(equalTo: root.leadingAnchor, constant: 26),
+            footer.trailingAnchor.constraint(equalTo: root.trailingAnchor, constant: -26),
             footer.bottomAnchor.constraint(equalTo: root.bottomAnchor, constant: -22)
         ])
         introDescription.identifier = .init("onboarding.introDescription")
         introCapability.identifier = .init("onboarding.capability")
         controls["onboarding.introDescription"] = introDescription
         controls["onboarding.capability"] = introCapability
-        let intro = page([introTitle, introDescription, RiftOnboardingWorkflowPreview(frame: .zero),
-                          introCapability,
-                          card("沿用你的习惯", [
-                            SettingsNativeStyle.label("点菜单栏的 Riftlet 图标，可以打开设置和截图历史。"),
-                            SettingsNativeStyle.label("只附加图片，何时发送仍由你决定。"),
-                            SettingsNativeStyle.label("系统原图和本机历史都会保留。")])])
+        introTitle.font = .systemFont(ofSize: 28, weight: .semibold)
+        let intro = page([introTitle, introDescription, RiftOnboardingPlacementPreview(workflow: true), introCapability])
         sourceAccess.identifier = .init("onboarding.sourceAccess")
         sourceAccess.target = self; sourceAccess.action = #selector(actionPressed(_:))
         controls["onboarding.sourceAccess"] = sourceAccess
@@ -167,47 +172,41 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         automationDetail.identifier = .init("onboarding.automationStatus")
         scriptDetail.identifier = .init("onboarding.scriptStatus")
         let connections = page([
-            SettingsNativeStyle.label("连接截图与 ChatGPT。", role: "title"),
-            SettingsNativeStyle.label("每项连接都由你主动允许，也可以稍后完成。", role: "secondary"),
-            card("系统截图位置", [sourceDetail, sourcePath, sourceAccess]),
-            card("附加到 Chrome 中的 ChatGPT", [automationDetail, automation]),
-            card("Chrome JavaScript 选项", [scriptDetail]),
+            SettingsNativeStyle.label("连接截图与草稿", role: "title"),
+            SettingsNativeStyle.label("截图文件夹提供原图。通过 Chrome 附加时，需要自动化访问。", role: "secondary"),
+            section("截图文件夹", symbol: "folder", views: [sourceDetail, sourcePath, sourceAccess]),
+            section("Chrome 自动化", symbol: "macwindow", views: [automationDetail, automation]),
+            scriptDetail,
             permissionHint, actionButton("重新检查连接", id: "onboarding.recheck")
         ])
-        display.identifier = .init("onboarding.display"); display.setAccessibilityLabel("裂缝所在显示器")
+        display.identifier = .init("onboarding.display"); display.setAccessibilityLabel("所在显示器")
         display.target = self; display.action = #selector(displayChanged)
         display.menu?.delegate = self
         display.menu?.autoenablesItems = false
         display.font = .systemFont(ofSize: 13)
         display.heightAnchor.constraint(greaterThanOrEqualToConstant: 32).isActive = true
         controls["onboarding.display"] = display
-        let grid = SettingsNativeStyle.stack([], spacing: 6)
-        for pair: [RiftPlacement] in [[.leftTop, .rightTop], [.leftMiddle, .rightMiddle], [.leftBottom, .rightBottom]] {
-            let row = SettingsNativeStyle.stack([], vertical: false, spacing: 6)
-            for placement in pair {
-                let button = SettingsNativeStyle.button(placement.title)
-                button.setButtonType(.pushOnPushOff)
-                button.identifier = .init("onboarding.placement." + placement.rawValue)
-                button.target = self; button.action = #selector(placementChanged(_:))
-                button.setAccessibilityLabel("裂缝位置：" + placement.title)
-                button.widthAnchor.constraint(equalToConstant: 62).isActive = true
-                button.heightAnchor.constraint(greaterThanOrEqualToConstant: 32).isActive = true
-                placements[placement] = button; controls[button.identifier!.rawValue] = button
-                row.addArrangedSubview(button)
-            }
-            grid.addArrangedSubview(row)
+        let choices = SettingsNativeStyle.stack([], vertical: false, spacing: 1)
+        choices.distribution = .fillEqually
+        for placement in RiftPlacement.allCases {
+            let button = SettingsNativeStyle.button(placement.title)
+            button.setButtonType(.pushOnPushOff); button.bezelStyle = .roundRect
+            button.identifier = .init("onboarding.placement." + placement.rawValue)
+            button.target = self; button.action = #selector(placementChanged(_:))
+            button.setAccessibilityLabel("桌面位置：" + placement.title)
+            button.heightAnchor.constraint(greaterThanOrEqualToConstant: 24).isActive = true
+            placements[placement] = button; controls[button.identifier!.rawValue] = button
+            choices.addArrangedSubview(button)
         }
         let displayRetry = actionButton("重试显示器选择", id: "onboarding.retryDisplay")
         let placementRetry = actionButton("重试位置选择", id: "onboarding.retryPlacement")
-        let positionChoice = SettingsNativeStyle.stack([placementPreview, grid], vertical: false, spacing: 16)
-        grid.widthAnchor.constraint(equalToConstant: 130).isActive = true
-        placementPreview.widthAnchor.constraint(equalTo: positionChoice.widthAnchor, constant: -146).isActive = true
+        let displayRow = SettingsNativeStyle.stack([SettingsNativeStyle.label("所在显示器", role: "rowTitle"), display, NSView()],
+                                                  vertical: false, spacing: 8)
         let placementPage = page([
-            SettingsNativeStyle.label("放在顺手的位置。", role: "title"),
-            SettingsNativeStyle.label("推荐从左侧开始；已有位置会保留，只有选择后才更改。", role: "secondary"),
-            card("所在显示器", [display, displayError, displayRetry]),
-            card("裂缝位置", [positionChoice, placementHint, placementError, placementRetry]),
-            finishHint
+            SettingsNativeStyle.label("选一个顺手的位置", role: "title"),
+            SettingsNativeStyle.label("新截图会从所选的屏幕边缘出现。之后可以在设置中调整。", role: "secondary"),
+            placementPreview, choices, displayRow,
+            displayError, displayRetry, placementError, placementRetry, placementHint, finishHint
         ])
         pages = [intro, connections, placementPage]
         for page in pages {
@@ -224,18 +223,19 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         return value
     }
 
-    private func card(_ title: String, _ views: [NSView]) -> NSView {
-        let card = SettingsNativeStyle.card()
-        let stack = SettingsNativeStyle.stack([SettingsNativeStyle.label(title, role: "rowTitle")] + views, spacing: 8)
-        stack.translatesAutoresizingMaskIntoConstraints = false; card.addSubview(stack)
-        for view in stack.arrangedSubviews { view.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true }
-        NSLayoutConstraint.activate([
-            stack.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 15),
-            stack.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -15),
-            stack.topAnchor.constraint(equalTo: card.topAnchor, constant: 12),
-            stack.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -12)
-        ])
-        return card
+    private func section(_ title: String, symbol: String, views: [NSView]) -> NSView {
+        let icon = NSImageView()
+        icon.image = NSImage(systemSymbolName: symbol, accessibilityDescription: nil)
+        icon.contentTintColor = SettingsNativeStyle.color(.accentInk)
+        icon.setAccessibilityElement(false)
+        let header = SettingsNativeStyle.stack([icon, SettingsNativeStyle.label(title, role: "heading"), NSView()],
+                                             vertical: false, spacing: 8)
+        let line = NSBox(); line.boxType = .separator
+        let stack = SettingsNativeStyle.stack([line, header] + views, spacing: 5)
+        for child in stack.arrangedSubviews where !(child is NSButton) {
+            child.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true
+        }
+        return stack
     }
 
     private func actionButton(_ title: String, id: String) -> NSButton {
@@ -252,8 +252,8 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         defer { if let preservedFrame { layout(keeping: preservedFrame) } }
         let presentation = SetupPresentation(snapshot: snapshot.setup)
         if snapshot.setup.attachment == .available || snapshot.reviewEnvironment {
-            introTitle.stringValue = "照常截图。\n从边缘点选。"
-            introDescription.stringValue = "照常截图，例如按 ⇧⌘4 选择区域。让要用的 ChatGPT 草稿显示在 Chrome 前台，再点屏幕边缘的微图。"
+            introTitle.stringValue = "从一张截图开始"
+            introDescription.stringValue = "照常按 ⇧⌘4 截图。将目标 ChatGPT 草稿留在 Chrome 前台，点一下屏幕边缘的微图即可附加。"
         } else {
             introTitle.stringValue = presentation.firstUseTitle
             introDescription.stringValue = presentation.firstUseDescription
@@ -286,9 +286,11 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
             button.contentTintColor = button.state == .on ? SettingsNativeStyle.color(.accentInk) : SettingsNativeStyle.color(.ink)
         }
         placementPreview.configuration = settings.configuration
+        placementPreview.entryEnabled = settings.entryEnabled
         placementHint.stringValue = settings.configuration.placement == nil
             ? "当前保留旧版绝对位置；主动选择后才调整。空队列不显示裂缝。"
-            : "空队列时裂缝会完全消失。预览仅为合成示意。"
+            : ""
+        placementHint.isHidden = placementHint.stringValue.isEmpty && !settings.displayRestoreAvailable
         if settings.displayRestoreAvailable {
             placementHint.stringValue += " 当前暂用可用显示器，已选屏幕的偏好仍保留。"
         }
@@ -372,8 +374,9 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         let preservedFrame = hasPresented ? window.frame : nil
         defer { if let preservedFrame { layout(keeping: preservedFrame) } }
         for (index, page) in pages.enumerated() { page.isHidden = index != currentStep }
-        for (index, view) in progress.arrangedSubviews.enumerated() {
+        for view in progress.arrangedSubviews {
             guard let label = view as? NSTextField else { continue }
+            let index = label.tag
             label.textColor = SettingsNativeStyle.color(index == currentStep ? .accentInk : .secondary)
             label.font = .systemFont(ofSize: 11, weight: index == currentStep ? .semibold : .regular)
         }

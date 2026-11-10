@@ -48,6 +48,7 @@ path = pathlib.Path(sys.argv[1])
 path.write_bytes(plistlib.dumps(module.ordinary_acceptance_plist(plistlib.loads(path.read_bytes()))))
 PYPLIST
 fi
+cp Resources/Presentation/{glass-study.png,reading.svg,error.svg,riftlet.svg} "$riftlet_app/Contents/Resources/"
 cp -R ThirdPartyNotices "$riftlet_app/Contents/Resources/"
 # The page loader resolves this app resource before SwiftPM's build-tree fallback.
 # Keep the reviewed page program in its generated bundle, never an external path.

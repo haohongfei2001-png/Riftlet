@@ -805,7 +805,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     // panel: clicking its controls would otherwise create a screenshot.
     @objc private func showSetup() {
         guard !NSApp.windows.contains(where: { $0.attachedSheet != nil }) else { return }
-        showSettingsPage(.general)
+        showSettingsPage(.display)
     }
     private func showSettingsPage(_ page: SettingsPage) {
         screenshotEntry?.cancel(); updateSetup(); settingsHost?.show(page: page)

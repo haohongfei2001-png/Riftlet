@@ -60,7 +60,7 @@ def image_signature(image, team, log):
     req = ('anchor apple generic and identifier "' + DMG_ID + '" and certificate leaf[subject.OU] = "' +
            team + '" and certificate 1[field.1.2.840.113635.100.6.2.6] exists and '
            'certificate leaf[field.1.2.840.113635.100.6.1.13] exists')
-    R.run(["/usr/bin/codesign", "--verify", "--strict", "-R", req, image], log=log / "dmg-signature-check.log")
+    R.run(["/usr/bin/codesign", "--verify", "--strict", "-R", "=" + req, image], log=log / "dmg-signature-check.log")
     text = R.run(["/usr/bin/codesign", "-d", "--verbose=4", image],
                  log=log / "dmg-signature-details.log").stderr.decode()
     def field(key):

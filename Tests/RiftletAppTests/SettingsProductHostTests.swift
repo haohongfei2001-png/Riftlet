@@ -66,8 +66,8 @@ final class SettingsProductHostTests: XCTestCase {
         let f = try fixture(); defer { f.close() }
         let preference = f.host.historyDisplay
         preference.onChange = { [weak host = f.host] _ in host?.refreshHistoryDisplayStyle() }
-        let popup = try XCTUnwrap(f.host.center.controls["history.displayStyle"] as? NSPopUpButton)
-        XCTAssertEqual(popup.indexOfSelectedItem, 0)
+        let segments = try XCTUnwrap(f.host.center.controls["history.displayStyle"] as? NSSegmentedControl)
+        XCTAssertEqual(segments.selectedSegment, 0)
         f.host.model.setDraftText("88.1250", for: .fitWidth)
         let draft = f.host.model.snapshot
         let configurationFiles = try FileManager.default.contentsOfDirectory(atPath: f.root.path)
@@ -75,13 +75,13 @@ final class SettingsProductHostTests: XCTestCase {
         XCTAssertEqual(preference.selection, .imageGrid)
         XCTAssertEqual(f.host.snapshot.historyDisplayStyle, .imageGrid)
         XCTAssertEqual(f.host.center.product.historyDisplayStyle, .imageGrid)
-        XCTAssertEqual(popup.indexOfSelectedItem, 1)
-        XCTAssertTrue(f.host.center.controls["history.displayStyle"] === popup)
+        XCTAssertEqual(segments.selectedSegment, 1)
+        XCTAssertTrue(f.host.center.controls["history.displayStyle"] === segments)
         XCTAssertEqual(f.host.model.snapshot, draft)
         // This is the same owner callback the history-window selector uses.
         preference.select(.current)
         XCTAssertEqual(f.host.center.product.historyDisplayStyle, .current)
-        XCTAssertEqual(popup.indexOfSelectedItem, 0)
+        XCTAssertEqual(segments.selectedSegment, 0)
         XCTAssertEqual(f.host.model.snapshot, draft)
         XCTAssertTrue(f.adapter.requests.isEmpty)
         XCTAssertTrue(f.actions.isEmpty)
