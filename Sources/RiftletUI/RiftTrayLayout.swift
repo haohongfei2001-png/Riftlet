@@ -50,12 +50,11 @@ enum RiftTrayLayout {
                                       capacity: capacity, totalCount: active.count)
         guard visibleFrame.width > 0, visibleFrame.height > 0, captureEnabled || !active.isEmpty else { return result }
 
-        // Ratios measured in the 1672 × 941 design image. Convert them once to
-        // screen points, then snap shared edges to the actual display's pixels.
+        // The target display sets the width. The 246-unit reference supplies the interior ratios.
         let px = backingScale.isFinite ? max(1, backingScale) : 1
         func snap(_ points: CGFloat) -> CGFloat { (points * px).rounded() / px }
         let display = displayFrame ?? visibleFrame
-        let width = min(visibleFrame.width, max(112, snap(display.width * 246 / 1672)))
+        let width = min(visibleFrame.width, max(1 / px, snap(display.width / 8)))
         let unit = width / 246
         let verticalUnit = min(unit, visibleFrame.height / 212)
         // An explicitly revealed safe failure can be the sole visible row too.

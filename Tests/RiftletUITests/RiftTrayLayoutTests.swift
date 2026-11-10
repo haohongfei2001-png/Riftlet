@@ -61,7 +61,7 @@ final class RiftTrayLayoutTests: XCTestCase {
     func testCountMatrixStableBoundsQueueOrderAndMenuExclusion() {
         let compact = layout([]).surfaceFrame
         let full = layout(assets(3)).surfaceFrame
-        XCTAssertEqual(full.width, display.width * 246 / 1672, accuracy: 0.5)
+        XCTAssertEqual(full.width, display.width / 8, accuracy: 0.5)
         XCTAssertEqual(compact.width, full.width)
         XCTAssertEqual(full.height / full.width, 212 / 246.0, accuracy: 0.005)
         XCTAssertEqual(compact.height / full.width, 115 / 246.0, accuracy: 0.005)
@@ -104,21 +104,43 @@ final class RiftTrayLayoutTests: XCTestCase {
         }
     }
 
+    func testTrayUsesFullTargetDisplayOnBothSidesAndBackingScales() {
+        let records = assets(3)
+        for width: CGFloat in [768, 1441, 1920, 2560] {
+            let display = CGRect(x: -width, y: 300, width: width, height: 900)
+            let visible = display.insetBy(dx: 35, dy: 20)
+            for scale: CGFloat in [1, 2] {
+                for placement in [RiftPlacement.leftMiddle, .rightMiddle] {
+                    var configuration = RiftConfiguration()
+                    configuration.placement = placement
+                    let layout = RiftTrayLayout.make(records: records, visibleFrame: visible,
+                        configuration: configuration, firstVisibleIndex: 0, backingScale: scale,
+                        captureEnabled: true, menu: nil, displayFrame: display)
+                    XCTAssertEqual(layout.surfaceFrame.width, width / 8, accuracy: 0.5 / scale)
+                    XCTAssertTrue(visible.contains(layout.surfaceFrame))
+                    XCTAssertEqual(layout.rows.count, 3)
+                    XCTAssertTrue(layout.surfaceFrame.contains(layout.captureSlot))
+                }
+            }
+        }
+    }
+
     func testReferenceGeometryAndSingleImageFillMotionAtBothScales() throws {
         let records = assets(3)
         var c = RiftConfiguration()
         c.placement = .rightMiddle
         c.outerInset = 16
-        let frame = CGRect(x: 0, y: 0, width: 1672, height: 910)
+        // At 1968 pt the native one-eighth rule reproduces the reference’s 246-unit interior.
+        let frame = CGRect(x: 0, y: 0, width: 1968, height: 910)
         for scale in [1.0, 2.0] {
             func measure(_ count: Int, menu: RiftTrayMenuState? = nil) -> RiftLayoutResult {
                 RiftTrayLayout.make(records: Array(records.prefix(count)), visibleFrame: frame,
                                     configuration: c, firstVisibleIndex: 0, backingScale: scale,
                                     captureEnabled: true, menu: menu,
-                                    displayFrame: CGRect(x: 0, y: 0, width: 1672, height: 941))
+                                    displayFrame: CGRect(x: 0, y: 0, width: 1968, height: 941))
             }
             let full = measure(3)
-            XCTAssertEqual(full.surfaceFrame.minX, 1410)
+            XCTAssertEqual(full.surfaceFrame.minX, 1706)
             XCTAssertEqual(full.surfaceFrame.minY, 308.5, accuracy: 0.5)
             XCTAssertEqual(full.surfaceFrame.size, CGSize(width: 246, height: 212))
             XCTAssertEqual(full.rows[0].frame.width, 113.5, accuracy: 0.5)

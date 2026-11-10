@@ -265,17 +265,17 @@ final class PresentationBoundaryTests: XCTestCase {
         defer { panel.close() }
         let a = record(revision: 7), b = record(2)
         var config = panel.requestedConfiguration
-        config.desktopForm = .edgefolio
+        config.desktopForm = .microSlit
         try panel.updateConfiguration(config)
         panel.render([a, b])
         let original = try rowView(a.id, in: panel)
         XCTAssertTrue(original.accessibilityPerformPress())
-        config.desktopForm = .pocket
+        config.desktopForm = .tray
         try panel.updateConfiguration(config)
         XCTAssertEqual(panel.selectionRevision(for: a.id), 7)
         XCTAssertEqual(selected, [a.id])
         panel.finishSelection(a.id)
-        XCTAssertEqual(panel.configuration.desktopForm, .pocket)
+        XCTAssertEqual(panel.configuration.desktopForm, .tray)
         XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [a.id, b.id])
         XCTAssertFalse(original.accessibilityPerformPress())
         XCTAssertEqual(selected, [a.id])

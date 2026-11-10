@@ -1768,7 +1768,7 @@ extension SettingsReviewDriver {
             guard let control = try self.control("settings.center.desktopForm") as? NSPopUpButton else {
                 throw Failure.controlUnavailable("desktopForm")
             }
-            try self.require(control.itemArray.count == 5 && control.item(at: 1)?.isEnabled == false, "formAvailability")
+            try self.require(control.itemArray.count == 3 && control.item(at: 1)?.isEnabled == false, "formAvailability")
             await self.capture("settings-form-selection", window: self.host.center.window)
         }
         guard cases.last?["status"] as? String == "PASS" else { return directory.appendingPathComponent("report.json") }
@@ -1815,24 +1815,6 @@ extension SettingsReviewDriver {
                     }
                 }
             }
-        }
-        await runCase("pocket-native-pointer-and-geometry") {
-            try await self.chooseDesktopForm(.pocket)
-            guard let original = CGEvent(source:nil)?.location, let display = NSScreen.screens.first,
-                  let row = panel.diagnosticSnapshot.rows.first else { throw Failure.assertion("pointerUnavailable") }
-            defer { CGWarpMouseCursorPosition(original) }
-            let point = CGPoint(x:row.imageInputFrame.midX, y:row.imageInputFrame.maxY - 2)
-            let quartz = CGPoint(x:point.x,y:display.frame.maxY-point.y)
-            let initial = panel.diagnosticSnapshot.rows
-            CGEvent(mouseEventSource:nil,mouseType:.mouseMoved,mouseCursorPosition:quartz,mouseButton:.left)?.post(tap:.cghidEventTap)
-            for frame in 0..<16 {
-                await self.settle(28)
-                try self.desktopCapture(String(format:"pocket-motion-%02d",frame),screen:screen,rows:panel.diagnosticSnapshot.rows)
-            }
-            let opened = panel.diagnosticSnapshot.rows
-            try self.require(initial.map(\.assetID)==opened.map(\.assetID),"hoverAlteredUUID")
-            try self.require(opened != initial,"hoverDidNotExpand")
-            try self.require(opened.last(where:{$0.imageInputFrame.contains(point)})?.assetID == row.assetID,"hoverRetargeted")
         }
         await runCase("tray-native-wheel") {
             try await self.chooseDesktopForm(.tray)
@@ -1913,34 +1895,6 @@ extension SettingsReviewDriver {
                 try self.desktopCapture((cycle == 1 ? "tray-closed-menu" : "tray-closed-again"),screen:screen,rows:panel.diagnosticSnapshot.rows)
             }
         }
-        await runCase("material-white-and-patterned-backdrop") {
-            for style in [SettingsAppearanceChoice.light,.dark] {
-                try await self.appearance(style)
-                for form in [RiftDesktopForm.edgefolio,.pocket] {
-                    try await self.chooseDesktopForm(form)
-                    let rows = panel.diagnosticSnapshot.rows
-                    guard let r=rows.first else {throw Failure.assertion("rowsMissing")}
-                    let rect=rows.reduce(r.frame){ $0.union($1.frame) }.insetBy(dx:-25,dy:-20)
-                    let backing=NSPanel(contentRect:rect,styleMask:[.borderless,.nonactivatingPanel],backing:.buffered,defer:false)
-                    backing.ignoresMouseEvents=true; backing.isReleasedWhenClosed=false
-                    backing.level = NSWindow.Level(rawValue:NSWindow.Level.floating.rawValue - 2)
-                    defer {backing.close()}
-                    backing.backgroundColor = .white; backing.orderFrontRegardless()
-                    await self.settle(180)
-                    let prefix = style.rawValue+"-"+form.rawValue
-                    try self.desktopCapture(prefix+"-white",screen:screen,rows:rows,backdrop:backing)
-                    let pattern=NSImage(size:NSSize(width:90,height:70), flipped:false){ area in
-                        NSColor.systemBrown.setFill(); area.fill()
-                        NSColor.systemBlue.setFill(); NSBezierPath(ovalIn: NSRect(x:6,y:3,width:65,height:54)).fill()
-                        NSColor.systemYellow.setFill(); NSBezierPath(roundedRect:NSRect(x:42,y:28,width:35,height:12),xRadius:4,yRadius:4).fill()
-                        return true
-                    }
-                    backing.backgroundColor=NSColor(patternImage:pattern)
-                    await self.settle(180)
-                    try self.desktopCapture(prefix+"-pattern",screen:screen,rows:rows,backdrop:backing)
-                }
-            }
-        }
         await runCase("violet-restart-and-material-switch") {
             try await self.chooseDesktopForm(.tray)
             try self.select("settings.center.trayTheme",index:1)
@@ -1948,7 +1902,7 @@ extension SettingsReviewDriver {
             await self.settle(180)
             try self.desktopCapture("tray-violet",screen:screen,rows:panel.diagnosticSnapshot.rows)
             panel.setTrayExpanded(true)
-            try await self.chooseDesktopForm(.edgefolio)
+            try await self.chooseDesktopForm(.microSlit)
             try self.require(panel.diagnosticSnapshot.rows.allSatisfy { expected.contains($0.assetID) }, "inFlightSwitchChangedUUID")
         }
         await runCase("physical-connected-displays") {
@@ -1981,8 +1935,8 @@ extension SettingsReviewDriver {
             self.artifacts.append(["kind":"contrastOverride","scope":"NSApp.appearance only",
                                    "systemIncreaseContrast":NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast])
         }
-        await runCase("pocket-restart-baseline") {
-            try await self.chooseDesktopForm(.pocket)
+        await runCase("tray-restart-baseline") {
+            try await self.chooseDesktopForm(.tray)
             let rows = try await self.store.assets(includeUsed:true)
             let digest = try self.assetRowsDigest(rows)
             let identity: [String:Any] = ["pid": ProcessInfo.processInfo.processIdentifier, "digest":digest,
@@ -2080,8 +2034,8 @@ extension SettingsReviewDriver {
             try require(data["pid"] as? Int != Int(getpid()),"sameProcess")
             try require(data["executable"] as? String == digest(try Data(contentsOf:Bundle.main.executableURL!)), "differentExecutable")
             try require(try assetRowsDigest(current) == data["digest"] as? String, "assetRecordsChanged")
-            try require(host.snapshot.state.owner.settings.configuration.desktopForm == .pocket, "preferenceLostOnRestart")
-            try JSONSerialization.data(withJSONObject:["status":"PASS","form":"pocket","assetCount":current.count,"pid":getpid()]).write(to:output)
+            try require(host.snapshot.state.owner.settings.configuration.desktopForm == .tray, "preferenceLostOnRestart")
+            try JSONSerialization.data(withJSONObject:["status":"PASS","form":"tray","assetCount":current.count,"pid":getpid()]).write(to:output)
         } catch {
             try? JSONSerialization.data(withJSONObject:["status":"FAIL","reason":code(error)]).write(to:output)
         }

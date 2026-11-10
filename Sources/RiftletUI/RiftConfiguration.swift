@@ -2,15 +2,13 @@ import Foundation
 import RiftletCapture
 
 public enum RiftDesktopForm: String, CaseIterable, Sendable {
-    case microSlit, windChime, tray, edgefolio, pocket
+    case tray, windChime, microSlit
 
     public var title: String {
         switch self {
         case .microSlit: return "微缝"
         case .windChime: return "风铃"
         case .tray: return "截图托盘"
-        case .edgefolio: return "折页 Edgefolio"
-        case .pocket: return "口袋 Pocket"
         }
     }
 
@@ -173,7 +171,10 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
 
     public var desktopForm: RiftDesktopForm {
         get {
-            guard case .text(let raw) = storedForm, let form = RiftDesktopForm(rawValue: raw),
+            guard case .text(let raw) = storedForm else { return .microSlit }
+            // Resolve retired candidates without changing the preference on unrelated saves.
+            if raw == "edgefolio" || raw == "pocket" { return .tray }
+            guard let form = RiftDesktopForm(rawValue: raw),
                   form.isAvailable else { return .microSlit }
             return form
         }

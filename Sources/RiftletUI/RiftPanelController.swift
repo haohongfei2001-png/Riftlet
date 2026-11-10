@@ -95,8 +95,7 @@ private final class RiftRowView: NSView, NSMenuDelegate {
     var isSlidingAtTrayEdge = false {
         didSet { if oldValue != isSlidingAtTrayEdge { setAccessibilityHidden(isSlidingAtTrayEdge) } }
     }
-    var isPage: Bool { configuration.desktopForm == .edgefolio || configuration.desktopForm == .pocket }
-    var imageHitFrame: CGRect { isPage ? CGRect(origin: .zero, size: geometry.frame.size) : (geometry.trayCardFrame ?? geometry.imageClipFrame) }
+    var imageHitFrame: CGRect { geometry.trayCardFrame ?? geometry.imageClipFrame }
     var imageOffset: CGFloat = 0
     var requestedPixelSize: Int = 0
     var reportedImageReady = false
@@ -277,10 +276,6 @@ private final class RiftRowView: NSView, NSMenuDelegate {
 
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
-        if isPage {
-            RiftFolioPage.draw(in: CGRect(origin: .zero, size: geometry.frame.size),
-                               appearance: effectiveAppearance, hovered: visualHovered, pressed: visualPressed)
-        }
         guard !geometry.numberFrame.isEmpty else { return }
         let font = NSFont.monospacedDigitSystemFont(ofSize: configuration.numberFontSize, weight: .regular)
         let dark = effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
@@ -561,9 +556,6 @@ public final class RiftPanelController {
     private var pointerApproach = RiftPointerApproachState()
     private let decoration: RiftPanel
     private let formSurface = RiftPanel(frame: .zero, decorative: true)
-    private var pocketAnchor: UUID?
-    private var pocketHoverTask: DispatchWorkItem?
-    private var pocketMotionMonitors: [Any] = []
     private var trayMenu: RiftTrayMenuState?
     private var trayExpanded: Bool { trayMenu != nil }
     // Keep the original bitmap and UUID for the return trip. Its input islands
@@ -1310,10 +1302,6 @@ public final class RiftPanelController {
                                        firstVisibleIndex: firstVisibleIndex, backingScale: scale,
                                        captureEnabled: trayCaptureEnabled, menu: trayMenu,
                                        displayFrame: screen.frame)
-        case .edgefolio, .pocket:
-            return RiftFolioLayout.make(records: records, visibleFrame: frame, configuration: configuration,
-                                        firstVisibleIndex: firstVisibleIndex, backingScale: scale,
-                                        expanded: pocketAnchor != nil, anchoredID: pocketAnchor)
         case .microSlit, .windChime:
             return RiftLayout.make(records: records, visibleFrame: frame, configuration: configuration,
                                    firstVisibleIndex: firstVisibleIndex, backingScale: scale,
@@ -1325,7 +1313,7 @@ public final class RiftPanelController {
         guard !row.view.isSlidingAtTrayEdge else { return }
         present(row.panel)
         present(row.imageInput)
-        if row.view.isPage || row.view.geometry.numberFrame.isEmpty { row.numberInput.orderOut(nil) }
+        if row.view.geometry.numberFrame.isEmpty { row.numberInput.orderOut(nil) }
         else { present(row.numberInput) }
     }
 
@@ -1362,44 +1350,37 @@ public final class RiftPanelController {
             decoration.orderOut(nil)
             decoration.contentView = RiftLineView(frame: .zero)
         }
-        guard !layout.surfaceFrame.isEmpty else {
+        guard tray, !layout.surfaceFrame.isEmpty else {
             formSurface.orderOut(nil)
             if tray { decoration.orderOut(nil) }
             return
         }
         // The existing mouse-transparent seam panel carries the tray's cast
         // shadow. Its transparent margins must never become an input island.
-        if tray && !(decoration.contentView is RiftTrayCastShadow) {
+        if !(decoration.contentView is RiftTrayCastShadow) {
             decoration.contentView = RiftTrayCastShadow(frame: .zero)
         }
-        if formSurface.hasShadow != tray { formSurface.hasShadow = tray }
+        formSurface.hasShadow = true
         setFormFrame(layout.surfaceFrame)
-        if tray {
-            present(decoration)
-            let view: RiftTraySurfaceView
-            if let current = formSurface.contentView as? RiftTraySurfaceView { view = current }
-            else {
-                view = RiftTraySurfaceView(frame: CGRect(origin: .zero, size: layout.surfaceFrame.size))
-                formSurface.contentView = view
-                view.onToggle = { [weak self] in
-                    guard let self else { return }
-                    self.setTrayExpanded(!self.trayExpanded)
-                }
-                view.onCapture = { [weak self] in self?.onTrayCapture?($0) }
-                view.onCancelCapture = { [weak self] in self?.onTrayCancel?($0) }
-                view.onScroll = { [weak self] in self?.scroll($0) }
+        present(decoration)
+        let view: RiftTraySurfaceView
+        if let current = formSurface.contentView as? RiftTraySurfaceView { view = current }
+        else {
+            view = RiftTraySurfaceView(frame: CGRect(origin: .zero, size: layout.surfaceFrame.size))
+            formSurface.contentView = view
+            view.onToggle = { [weak self] in
+                guard let self else { return }
+                self.setTrayExpanded(!self.trayExpanded)
             }
-            view.setCaptureSession(trayCaptureSessionID, reduceMotion: reduceMotion)
-            view.update(layout: layout, colors: configuration.trayColors, defaultMode: trayDefaultMode,
-                        favoriteModes: configuration.trayFavoriteModes(defaultMode: trayDefaultMode),
-                        reduceMotion: reduceMotion)
-            formSurface.ignoresMouseEvents = false
-        } else {
-            let base = (formSurface.contentView as? RiftFolioBaseView) ?? RiftFolioBaseView(frame: .zero)
-            if formSurface.contentView !== base { formSurface.contentView = base }
-            base.edge = configuration.placement?.side ?? .right
-            formSurface.ignoresMouseEvents = true
+            view.onCapture = { [weak self] in self?.onTrayCapture?($0) }
+            view.onCancelCapture = { [weak self] in self?.onTrayCancel?($0) }
+            view.onScroll = { [weak self] in self?.scroll($0) }
         }
+        view.setCaptureSession(trayCaptureSessionID, reduceMotion: reduceMotion)
+        view.update(layout: layout, colors: configuration.trayColors, defaultMode: trayDefaultMode,
+                    favoriteModes: configuration.trayFavoriteModes(defaultMode: trayDefaultMode),
+                    reduceMotion: reduceMotion)
+        formSurface.ignoresMouseEvents = false
         present(formSurface)
     }
 
@@ -1713,54 +1694,8 @@ public final class RiftPanelController {
                 $0.isVisible && $0.frame.contains(point)
             }) ? id : nil
         })
-        if configuration.desktopForm == .pocket, hoveredIDs.count > 1,
-           let top = pagerLayout?.rows.last(where: { hoveredIDs.contains($0.assetID) }) {
-            hoveredIDs = [top.assetID]
-        }
         pointerApproach.update(hovered: hoveredIDs)
         mutateInteraction { $0.setHovered(hoveredIDs) }
-    }
-
-    private func stopPocketTracking() {
-        pocketMotionMonitors.forEach(NSEvent.removeMonitor)
-        pocketMotionMonitors.removeAll()
-    }
-
-    private func watchPocketDeparture() {
-        guard pocketMotionMonitors.isEmpty else { return }
-        let moved = { [weak self] in
-            guard let self, self.pocketAnchor != nil, self.pocketHoverTask == nil,
-                  let layout = self.pagerLayout else { return }
-            let footprint = layout.rows.reduce(layout.surfaceFrame) { $0.union($1.frame) }
-            if !footprint.insetBy(dx: -3, dy: -3).contains(NSEvent.mouseLocation) { self.trackPocketHover() }
-        }
-        if let monitor = NSEvent.addLocalMonitorForEvents(matching: .mouseMoved, handler: { event in moved(); return event }) {
-            pocketMotionMonitors.append(monitor)
-        }
-        if let monitor = NSEvent.addGlobalMonitorForEvents(matching: .mouseMoved, handler: { _ in moved() }) {
-            pocketMotionMonitors.append(monitor)
-        }
-    }
-
-    private func trackPocketHover() {
-        pocketHoverTask?.cancel()
-        let work = DispatchWorkItem { [weak self] in
-            self?.pocketHoverTask = nil
-            guard let self, self.configuration.desktopForm == .pocket, !self.gate.isHolding,
-                  !self.interaction.snapshot.isSelecting, !self.transitioning, !self.closed,
-                  !self.captureSuppressed, !self.userHidden, self.pendingRefillRecords == nil,
-                  let layout = self.pagerLayout else { return }
-            let point = NSEvent.mouseLocation
-            let hit = layout.rows.reversed().first { self.rowWindows[$0.assetID]?.imageInput.frame.contains(point) == true }
-            let envelope = layout.rows.reduce(layout.surfaceFrame) { $0.union($1.frame) }
-            if self.pocketAnchor != nil, envelope.insetBy(dx: -3, dy: -3).contains(point) { return }
-            guard self.pocketAnchor != hit?.assetID else { return }
-            self.pocketAnchor = hit?.assetID
-            if hit == nil { self.stopPocketTracking() } else { self.watchPocketDeparture() }
-            self.apply(self.lastRecords, animateShift: !self.reduceMotion)
-        }
-        pocketHoverTask = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + (pocketAnchor == nil ? 0.09 : 0.18), execute: work)
     }
 
     private func returnPress(_ id: UUID) {
@@ -1777,9 +1712,7 @@ public final class RiftPanelController {
             // already inside the other. Event-driven only; no polling timer.
             self.refreshHoverFromPointer()
             view?.setVisualState(hovered: self.hoveredIDs.contains(id))
-            if self.configuration.desktopForm == .pocket {
-                self.trackPocketHover()
-            } else if self.hoveredIDs.contains(id) { self.schedulePeek(id) }
+            if self.hoveredIDs.contains(id) { self.schedulePeek(id) }
             else if self.peek.assetID == id { self.peek.leave() }
             self.flushDeferred()
         }
@@ -2062,8 +1995,6 @@ public final class RiftPanelController {
 
     private func resetWindows(preservingTrayMenu: Bool = false) {
         cancelDecorations(reason: userHidden ? .hidden : .geometryChanged)
-        pocketHoverTask?.cancel(); pocketHoverTask = nil; stopPocketTracking()
-        pocketAnchor = nil
         if !preservingTrayMenu || !trayExpanded {
             trayMenu = nil; dismissTrayTracking(); formSurface.orderOut(nil)
         }
@@ -2113,7 +2044,7 @@ public final class RiftPanelController {
         refillTimer?.invalidate(); refillTimer = nil; pendingRefillRecords = nil
         rowWindows.values.forEach { $0.close() }; rowWindows.removeAll()
         displacedTrayRow?.close(); displacedTrayRow = nil
-        pocketHoverTask?.cancel(); stopPocketTracking(); dismissTrayTracking(); formSurface.close()
+        dismissTrayTracking(); formSurface.close()
         decoration.close(); pager.close(); peek.close(); cache.clear()
     }
 

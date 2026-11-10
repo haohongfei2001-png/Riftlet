@@ -131,16 +131,29 @@ final class SettingsStateModelTests: XCTestCase {
         owner.failures.insert(.trayTheme)
         let failed = await model.perform(.selectTrayTheme(.violetGlass))
         XCTAssertEqual(failed.failed, [.trayTheme])
-        _ = await model.perform(.selectDesktopForm(.pocket))
+        _ = await model.perform(.selectDesktopForm(.microSlit))
         XCTAssertNotNil(model.snapshot.domains[.trayTheme]?.saveFailure)
         owner.failures.remove(.trayTheme)
         let retry = await model.perform(.retry(.trayTheme))
         XCTAssertEqual(retry.confirmed, [.trayTheme])
-        XCTAssertEqual(owner.value.settings.configuration.desktopForm, .pocket)
+        XCTAssertEqual(owner.value.settings.configuration.desktopForm, .microSlit)
         XCTAssertEqual(owner.value.settings.configuration.trayTheme, .violetGlass)
         _ = await model.perform(.applyLayout)
         XCTAssertEqual(owner.value.settings.configuration.fitWidth, 87)
-        XCTAssertEqual(owner.value.settings.configuration.desktopForm, .pocket)
+        XCTAssertEqual(owner.value.settings.configuration.desktopForm, .microSlit)
+    }
+
+    func testRetiredFormsResolveToTrayWithoutRewritingOriginalValue() throws {
+        XCTAssertEqual(RiftDesktopForm.allCases, [.tray, .windChime, .microSlit])
+        for raw in ["edgefolio", "pocket", "microSlit"] {
+            let data = try JSONSerialization.data(withJSONObject: ["desktopForm": raw, "rowPitch": 60])
+            var configuration = try JSONDecoder().decode(RiftConfiguration.self, from: data)
+            XCTAssertEqual(configuration.desktopForm, raw == "microSlit" ? .microSlit : .tray)
+            configuration.outerInset = 19
+            let json = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(configuration)) as? [String: Any])
+            XCTAssertEqual(json["desktopForm"] as? String, raw)
+            XCTAssertEqual(json["outerInset"] as? Int, 19)
+        }
     }
 
     func testPresentationFallbackPreservesFutureAndUnavailableSelections() throws {
@@ -231,7 +244,7 @@ final class SettingsStateModelTests: XCTestCase {
         XCTAssertEqual(owner.requests.count, writes)
 
         // The same controls are also hidden outside the screenshot tray.
-        _ = await model.perform(.selectDesktopForm(.pocket))
+        _ = await model.perform(.selectDesktopForm(.microSlit))
         _ = await model.perform(.selectTrayTheme(.custom))
         XCTAssertNil(model.snapshot.domains[.layout]?.validationFailure)
         _ = await model.perform(.applyLayout)
