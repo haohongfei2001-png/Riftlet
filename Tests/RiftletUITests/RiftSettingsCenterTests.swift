@@ -960,11 +960,28 @@ final class RiftSettingsCenterTests: XCTestCase {
         let field = try XCTUnwrap(h.controller.numericFields[.minimumHitHeight])
         let size = SettingsNativeStyle.settingsMinimumSize
         h.controller.window.setContentSize(size)
-        h.controller.window.contentView?.layoutSubtreeIfNeeded()
-        XCTAssertTrue(h.controller.numericFields[.minimumHitHeight] === field)
-        XCTAssertTrue(h.controller.scroll.hasVerticalScroller)
-        XCTAssertGreaterThan(h.controller.pages[.display]!.frame.height, h.controller.scroll.contentView.bounds.height)
-        XCTAssertEqual(h.controller.scroll.scrollerStyle, .overlay)
+        let scroll = h.controller.scroll
+        let document = try XCTUnwrap(scroll.documentView)
+        XCTAssertTrue(scroll.hasVerticalScroller)
+        XCTAssertFalse(scroll.hasHorizontalScroller)
+        for style in [NSScroller.Style.legacy, .overlay] {
+            // AppKit can change the effective style with system preferences or
+            // the pointing device. The form must fit the resulting viewport.
+            scroll.scrollerStyle = style
+            scroll.tile()
+            h.controller.window.contentView?.layoutSubtreeIfNeeded()
+            let clip = scroll.contentView
+            XCTAssertEqual(document.bounds.width, clip.bounds.width, accuracy: 1)
+            XCTAssertGreaterThan(document.bounds.height, clip.bounds.height)
+            clip.scroll(to: .zero)
+            scroll.reflectScrolledClipView(clip)
+            XCTAssertFalse(clip.bounds.contains(field.convert(field.bounds, to: clip)))
+            field.scrollToVisible(field.bounds)
+            XCTAssertGreaterThan(clip.bounds.minY, 0)
+            XCTAssertTrue(clip.bounds.insetBy(dx: -0.5, dy: -0.5).contains(field.convert(field.bounds, to: clip)),
+                          "The advanced field must be fully reachable with the available scroll width")
+            XCTAssertTrue(h.controller.numericFields[.minimumHitHeight] === field)
+        }
         XCTAssertNotNil(field.accessibilityLabel())
         XCTAssertFalse(field.accessibilityLabel()!.isEmpty)
     }
