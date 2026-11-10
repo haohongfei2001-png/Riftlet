@@ -1,0 +1,68 @@
+{
+  "productCommit": "4c01daf92a8d92e14836fb67f67947dc8b3a1c77",
+  "artifactVersion": "0.3.5 (14)",
+  "settings": {
+    "status": "PASS_SCOPED_NATIVE_REVIEW",
+    "restart": "PASS_SCOPED_NATIVE_RESTART",
+    "tested": [
+      "environment-and-default-window",
+      "real-collector-synthetic-fixture",
+      "accepted-collection-during-recheck",
+      "four-pages-light-and-dark",
+      "orthogonal-pause-hidden-sqlite",
+      "archive-editor-first-save-discard",
+      "configuration-editor-refresh-defaults",
+      "close-sheet-continue-discard",
+      "independent-write-failures-and-retry",
+      "motion-explicit-play-and-navigation-stop",
+      "three-step-guidance-light-and-dark",
+      "resizing-and-reopen",
+      "history-real-records",
+      "original-media-and-no-upload-operations"
+    ],
+    "windowFrames": 33
+  },
+  "history": {
+    "status": "PASS_SCOPED_NATIVE_REVIEW",
+    "restart": "PASS_SCOPED_NATIVE_RESTART",
+    "tested": [
+      "environment-and-default-window",
+      "history-default-and-three-collector-assets",
+      "history-two-window-style-search-filter-uuid",
+      "history-original-200-percent-survives-renderer-change",
+      "history-both-renderers-light-dark-minimum",
+      "history-one-asset-remove-and-restore",
+      "history-final-integrity-and-persisted-style"
+    ],
+    "windowFrames": 19
+  },
+  "scope": "Production controllers in the same executable, explicit isolated settings-review mode. Locally tested before final independent review; not evidence of live attachment or TCC continuity.",
+  "dataRecovery": {
+    "verified": true,
+    "kind": "actual QueueStore modules, production mode on an explicitly detached copy, not TCC or actual replacement",
+    "versionBefore": 3,
+    "versionAfter": 4,
+    "counts": {
+      "assets": 101,
+      "checkpoints": 106,
+      "compensations": 0,
+      "metadata": 4,
+      "operations": 44,
+      "sqlite_sequence": 2,
+      "upload_starts": 18
+    },
+    "media": 101,
+    "allV3RowsAndPreferencesRetained": true,
+    "latestV4CheckpointRetainedBy033RecoveryAndNewCore": true,
+    "foreignKeyErrors": 0,
+    "integrity": "ok"
+  },
+  "installedPersonalUpgrade": "WITHHELD",
+  "browser": {
+    "isolatedChrome": "One new temporary tab request and one reconnection to its URL timed out. Neither identity nor composer was observed.",
+    "first": "NOT_RUN",
+    "second": "NOT_RUN",
+    "fileDispatchCount": 0
+  },
+  "guest": "Private VM successfully cloned; standard user Aqua session unavailable at login window. No TCC claim."
+}

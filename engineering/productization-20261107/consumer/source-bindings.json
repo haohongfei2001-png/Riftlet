@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "sourceBaseline": "2739cac539107c2f65d5709831acdeed06df9cf3",
+  "sourceBaseline": "4c01daf92a8d92e14836fb67f67947dc8b3a1c77",
   "scope": "Consumer first use, capture location and recovery, history, storage and direct download. This checkpoint binds the effective screenshot preference, selected directory and watcher, persistent volume identity, per-file historical protection and the messages shown in Settings and the control center. The production queue migration and verification of backups made by earlier readers are also bound.",
   "files": [
     {
@@ -15,8 +15,8 @@
     },
     {
       "path": "Sources/RiftletApp/RiftletMain.swift",
-      "sha256": "dbecff4caa8495ccf58c25208c3aa4d20f26ed992b7d699f1604bacf2046d131",
-      "sourceBlob": "0378d8bd4847b90f81a74e8ed731cce826b32853"
+      "sha256": "a9757ee11432ddd37c456e076975bc41260d4c063d0f8966d2cfd25e80eac0d8",
+      "sourceBlob": "be126d6628e916d07c0f4458a9760eacb163e6a8"
     },
     {
       "path": "Sources/RiftletApp/AutomationPermission.swift",
@@ -95,18 +95,18 @@
     },
     {
       "path": "Sources/RiftletUI/RiftHistoryController.swift",
-      "sha256": "170a31fb1258ce99c33888e8001b619ee59a2c049f419fa93593c15bf53e6db6",
-      "sourceBlob": "a1bdcc21a39c5f8959b6554bf72b168dfb6a11dd"
+      "sha256": "ff9391bf580a5de1d51e108b091c000a523d5d8bbaba87545fb7de682ba79520",
+      "sourceBlob": "ba83cfbfcb39465b5d6a34684790276c1e69f66b"
     },
     {
       "path": "Sources/RiftletUI/RiftSettingsCenterPages.swift",
-      "sha256": "6ef0e01f12cdcb309cc53f5d08848c2ea6eb9e77a24b88a66cfb336eb975d3fe",
-      "sourceBlob": "02032f3f32607665490360726e8e15a0e9868989"
+      "sha256": "ca256968a2b523e78a5e0c71fc39b606340bd02c4faaeb594f61d0ab2491c794",
+      "sourceBlob": "07242c1a76008dc22357f1f97c75c01f18f08533"
     },
     {
       "path": "Sources/RiftletUI/RiftSettingsCenterRendering.swift",
-      "sha256": "520b71d94b7d6d9554a2f075c94f27fc9a09304c1202eb2fb5f30327a3f11282",
-      "sourceBlob": "5f7598c4e570875180138b14983240c27299e035"
+      "sha256": "620b9f5a12c2262341d33a1b926ec6b3f97cb79f4154f85a295a3b83dc632916",
+      "sourceBlob": "8f5aee435284d5707d93004bfe2eeaaf32f76c59"
     },
     {
       "path": "Sources/RiftletCapture/CaptureService.swift",
@@ -155,13 +155,13 @@
     },
     {
       "path": "Sources/RiftletFeedbackUI/FeedbackWindowController.swift",
-      "sha256": "ab768526432b4f00a016d156517b2aeefc8b80a74273d3ed9c07d4338893c5ec",
-      "sourceBlob": "1838795a735d4574e4f3c28d7d88e269a28b4eec"
+      "sha256": "d049c08c6ceac4461b80965519de378f23ebc1fa05ad404826bde10aa33f0f89",
+      "sourceBlob": "ee3f8a542626ae7a209fbf18bd70b5592c3ec2a4"
     },
     {
       "path": "scripts/release-tool.py",
-      "sha256": "0df964f79889b3080709110576b733a69488d4e03e729b687c461d63eb69b06c",
-      "sourceBlob": "9665076f82fed93c46f70628c4e6841078f78bbd"
+      "sha256": "c48db41fc4f91d7430ce71d430f63e351ab10b2b9e645e4a54e694dd34c6c337",
+      "sourceBlob": "8d0ff948ddb8a598cf29e422aa6e4aef4020c9b3"
     },
     {
       "path": "scripts/storage-recovery.py",
@@ -185,18 +185,18 @@
     },
     {
       "path": "Sources/RiftletUI/RiftOnboardingController.swift",
-      "sha256": "7e02bad35b7183aea1053ddc9aca64b39e60a195929f90809c6c3276620d5dbe",
-      "sourceBlob": "081c37a8e1a01db88049fec6f7a34193cabc49eb"
+      "sha256": "89c10bfde995d466b9ea4095a2d7321677d9f17b5554afb519c372bf4c2f6eaa",
+      "sourceBlob": "d89cc41a557c6f849fd2b198fcaec55f9d582803"
     },
     {
       "path": "Sources/RiftletUI/RiftControlCenterPresentation.swift",
-      "sha256": "036968da3177c13ae3997baec5fca56bd44ad9c8ebdcf42b544bb3a92524816b",
-      "sourceBlob": "ac1f88a7f3db5c738df7f2bca47066ab80329a78"
+      "sha256": "22ee0cdbf1bc5e3e74288ee663ed13569f2a305feef22104862c7ad61741c271",
+      "sourceBlob": "f24b5acf24dffe601eed7a4914518c47224bd85b"
     },
     {
       "path": "Sources/RiftletUI/SettingsProductPresentation.swift",
-      "sha256": "f49dbb0d0c62ab747e3443ee47ff95d7af8a6a5cf4e6561b8597ac67c8e1bf5f",
-      "sourceBlob": "cfc3d64cfd1a0acf40db34478028e2bf62a2e73f"
+      "sha256": "52b5d5b9b4eff8fbb747212b23ba66548a5d17e2cbd5c69acbf6db565c8d7676",
+      "sourceBlob": "3546dc6e021ce6b3a2c25e812cea294e63c9d3ee"
     },
     {
       "path": "scripts/release-macos.py",
@@ -205,8 +205,8 @@
     },
     {
       "path": "scripts/release-dmg.py",
-      "sha256": "fad73dfa4a79ef3ff001a9a37bd6b5221ff062f06fc091ec404656cc97306aed",
-      "sourceBlob": "3ea755fd528e7729a19f63a4934f27af0ad89ef5"
+      "sha256": "98a3db8fd6e10359598adfcf64063ab884ac831b8e281c8addb6da31fd3dec89",
+      "sourceBlob": "dfa3d00315081a3c31c776245f0ae86e5fb354ba"
     },
     {
       "path": "scripts/configure-notary-profile.py",
