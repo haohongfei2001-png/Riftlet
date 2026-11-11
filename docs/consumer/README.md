@@ -1,28 +1,14 @@
-# Riftlet 使用指南 / User guide
+# 开始使用 Riftlet
 
-Riftlet 把新截图放在 Mac 屏幕边缘。打开 Chrome 中准备使用的 ChatGPT 草稿，点一下微图，即可把图片交给该草稿；聊天开始接收时，微图收起。消息仍由你检查并发送。
+Riftlet 在桌面边缘呈现新截图。把要用的 ChatGPT 草稿放到 Chrome 前台，点一下微图，就能在该草稿中附加这张图片。消息由你发送。
 
-Riftlet keeps new screenshots at the edge of your Mac screen. Click a thumbnail to attach it to the ChatGPT draft you are using in Chrome. The thumbnail retracts when the draft starts accepting the image. You review and send the message yourself.
+本指南适用于 **Riftlet 0.3.5 (18)**，支持 macOS 13 及以上的 Apple 芯片和 Intel Mac。首批四人私测材料已准备，当前没有公开下载。
 
-## 从这里开始
-
-| 你想做什么 | 指南 |
+| 想做什么 | 从这里开始 |
 | --- | --- |
-| 完成第一次截图附加 | [中文快速开始](QUICK-START.zh-CN.md) · [English quick start](QUICK-START.en.md) |
-| 安装、理解权限或恢复授权 | [安装与权限 / Installation and permissions](INSTALL-AND-PERMISSIONS.md) |
-| 确认系统、浏览器和图片范围 | [支持范围 / Support matrix](SUPPORT-MATRIX.md) |
-| 找回图片、处理不确定结果、更新或卸载 | [恢复与常见问题 / Recovery and FAQ](RECOVERY-AND-FAQ.md) |
-| 了解本地数据、页面访问及联网 | [隐私说明 / Privacy](PRIVACY.md) |
-| 报告问题而不泄露截图或聊天 | [反馈模板 / Feedback template](FEEDBACK-TEMPLATE.md) |
-
-## 当前交付范围
-
-本指南中的菜单路径对应新版候选。设置分为「外观与布局」「截图」「使用与历史」「权限与帮助」四页。仍在使用 Personal Beta 3 的用户会看到旧版界面。尚无公开安装包或报名入口。[安装与权限](INSTALL-AND-PERMISSIONS.md)和[本地数据说明](PRIVACY.md)可在此阅读。
-
-个人 Beta 3 指南最初核对的运行时源码为 `2e779f646ac4874344fac94f79103e8ddf9b02c8`，后续发行工具 `d46d47682d9ebe6df2928cebb69411ff8746604c` 增加版本标签和私有评审 ZIP/DMG。个人安装与历史双样式已按该版本验收。当前个人包使用 ad-hoc 签名，公开下载仍待正式签名、公证和干净 Mac 安装验收。
-
-本次检查没有取得可操作的专用 Chrome 草稿。真实双图附加状态为 **REAL_ACCEPTANCE_NOT_RUN**。[当前验收记录](../../engineering/consumer-readiness-20261107/README.md) · [早期消费者资料与封闭测试准备](../../engineering/productization-20261107/consumer/README.md)
-
-**阅读本文不表示已有公开下载或正在招募测试者。** 10–20 人测试方案已准备，尚未发送邀请。发布身份、支持渠道和安装包以获准交付的版本清单为准。
-
-Menu paths in these guides refer to the four-page settings candidate. Personal Beta 3 has the previous interface. The personal build is ad-hoc signed. No public download or signup is open, and the current two-image ChatGPT test has not run.
+| 安装、识别正确的包、授予或恢复权限 | [安装与权限](INSTALL-AND-PERMISSIONS.md) |
+| 第一次截图、附加和找回图片 | [中文快速开始](QUICK-START.zh-CN.md) · [English quick start](QUICK-START.en.md) |
+| 了解支持的截图、浏览器、三种外观及验证范围 | [支持范围](SUPPORT-MATRIX.md) |
+| 解决问题、更新、回退或卸载 | [恢复与常见问题](RECOVERY-AND-FAQ.md) |
+| 了解本地数据与反馈隐私 | [隐私与数据](PRIVACY.md) |
+| 私下报告问题 | [反馈说明](FEEDBACK-TEMPLATE.md) |

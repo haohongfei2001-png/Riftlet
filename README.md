@@ -2,9 +2,9 @@
 
 macOS 正常截图，图片停在桌面边缘；点一下微图，附加到当前 Chrome 的 ChatGPT 草稿。页面开始接收图片后微图收起，可以继续附加下一张。Riftlet 不发送聊天消息。
 
-当前个人安装基线为 **Personal Beta 3 · 0.3.0（3）· ARM64**，来自已合并 PR #45 的 main `2e779f646ac4874344fac94f79103e8ddf9b02c8`。该版本已完成安全升级和历史双样式验收。后续文档、发行工具或 CI 工件不自动替代这个已验证安装包。
+当前个人安装和私测准备采用 **Riftlet 0.3.5 (18)**，同一个 App 提供截图托盘、风铃和微缝。对应正式 main `b2983a60725ec733cb2f4a799bd615cb21f20dd4`。通用 DMG 支持 Apple 芯片和 Intel，App 与 DMG 均已通过 Developer ID 签名和 Apple 公证。
 
-**尚未公开发行，也未达到陌生用户自行下载安装的准入条件。** 本轮当前版本 ChatGPT 真实附加验证受浏览器工具访问限制，不能由旧版本成功记录或合成测试替代；本机没有可用 Developer ID Application 身份，公开发行签名、公证和干净设备验收仍待完成。
+**首批四人私测处于准备阶段。** 当前构建的真实 ChatGPT 连续双图附加仍为 `NOT_RUN`，独立测试浏览器缺少可核实的授权草稿。维护者继续承担该项验收。
 
 ## 使用与支持
 
@@ -21,12 +21,12 @@ macOS 正常截图，图片停在桌面边缘；点一下微图，附加到当�
 
 ## 发行与验证
 
-- [本轮产品化进展与证据](engineering/productization-20261107/STATUS.md)
+- [2026-11-07 产品化进展与证据（历史）](engineering/productization-20261107/STATUS.md)
 - [个人包与正式发行包的区别、当前构建命令](docs/release/PERSONAL_BETA_PACKAGING.md)
 - [手动更新与完整回退](docs/release/MANUAL_UPDATE_AND_RECOVERY.md)
 - [离线备份与恢复工具](docs/STORAGE_RECOVERY.md)
-- [三层 Beta 准入](engineering/productization-20261107/RELEASE-READINESS.md)
-- [封闭 Beta 方案](engineering/productization-20261107/consumer/CLOSED-BETA-PLAN.md)：本轮未邀请外部人员、未公开下载、未添加遥测。
+- [2026-11-07 三层 Beta 准入记录（历史）](engineering/productization-20261107/RELEASE-READINESS.md)
+- [首批四人私测发放清单](engineering/productization-20261107/consumer/CLOSED-BETA-PLAN.md)：本轮未邀请外部人员、未公开下载、未添加遥测。
 
 开发要求 macOS 13+；完整 XCTest 需要含 XCTest 的 Xcode 环境。以下开发构建使用 ad-hoc 签名，不是已公证的公开安装包：
 

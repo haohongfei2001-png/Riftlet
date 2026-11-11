@@ -1,27 +1,18 @@
-# 支持范围 / Support matrix
+# 这一版支持什么
 
-审计基线：main `2e779f6`，2026-11-07。**实现了某条路径、受控测试通过、真实平台验收通过是三件不同的事。** 此表没有新增真实 ChatGPT 验收；当前服务复验受工具策略限制，后续正式交付应附该版本的实际结果。
+适用包为 Riftlet 0.3.5 (18)。下表描述可用范围，以及本构建仍缺的真实使用证据。
 
-| 范围 | 当前能力 | 验证边界与限制 |
-| --- | --- | --- |
-| macOS | 部署目标 macOS 13+ | 不是每个 macOS 版本都经过实机验收；以具体包说明为准 |
-| Apple silicon | 已有个人 ARM64 安装及原生交互、数据升级证据 | 不等于陌生用户干净下载、Gatekeeper 和首次授权全部通过 |
-| Intel | 有 Intel 构建及 macOS CI | 未据此声称真实 Intel 硬件验收；架构包不可互相假定 |
-| Google Chrome + ChatGPT 网页 | 点击时的可编辑新聊天或已有聊天，使用当前附件入口 | 页面、账号功能、语言和聊天模式可能变化；不承诺所有模式。首次冷连接可能把原 Chrome 窗口前置 |
-| 已有文件输入 / 动态附件菜单 | 代码支持直接输入及打开属于当前草稿的附件菜单 | 旧真实五张连续和冷双图证据属于其记录版本；动态菜单有受控测试，不冒充当前服务自然触发的证明 |
-| 非 Chrome 浏览器、ChatGPT Mac、其他 AI 服务 | 无本轮支持承诺 | 不建议用另一个浏览器的成功推定 Chrome 路径，反之亦然 |
-| 临时聊天、Projects、组织工作区、特殊编辑器 | 不仅凭 URL 判断可用；仍需当前可用草稿和附件入口 | 未逐一做本轮真实服务认证；不能承诺特殊账号或只读页面可附加 |
-| 系统截图文件 | 新保存的单帧 PNG、JPEG、HEIC/HEIF、TIFF | 收录上限 128 MiB、1.6 亿像素、单边 50,000 像素；这些是本地保护上限，不是 ChatGPT 上传额度承诺 |
-| 输入的图像 | PNG/JPEG 按原文件交给网页；其余支持格式通常生成等分辨率 PNG | 派生 PNG 超预算时只尝试一次原文件；网页是否接收由其格式能力决定。保留原始截图；HDR 显示效果无完整保证 |
-| 仅剪贴板截图、PDF、动图、多页图像 | 不在当前文件收录范围 | 不是剪贴板管理器或任意文件上传器 |
-| 内置截图 | 窗口、区域、全屏，按次选项与可选编辑 | 需要对应屏幕权限；取消不应产生新的收录记录。不能保证所有系统截图都排除 Riftlet 自身 |
-| 本地历史 | 默认「列表」，可切换「图像网格」；同一查询、筛选、分页、选择、预览和恢复资格 | 原生界面及同包重启有独立证据；双样式不会赋予 UNKNOWN 重传资格 |
-| 视觉与辅助功能 | 原生控件、浅深色、减少动态效果及提高对比度的相应实现 | 指定版本有受控/原生证据；完整物理 IME、持续 VoiceOver、多屏热拔及睡眠唤醒不能由这些结果代替 |
-| 登录启动 | 系统 SMAppService 状态回读和明确用户动作 | 尚有本轮系统兼容性专项；“待批准”“未找到”均不是已验证成功 |
-| 外部分发 | 当前个人包为 ad-hoc | Developer ID、公证、stapling、干净 Gatekeeper 下载链及外部首用未完成，不是公开 Beta |
+| 场景 | 范围 |
+| --- | --- |
+| Mac 安装 | macOS 13 及以上。通用 DMG 含 arm64 与 x86_64。Developer ID 签名，App 与 DMG 均经过 Apple 公证。发放采用私有渠道，更新采用手动替换。 |
+| 系统截图 | 从 macOS 实际截图保存目录收录新生成的截图文件。普通下载图片、剪贴板截图和屏幕录像不属于此入口。 |
+| 图片格式 | 识别带系统截图标识的单帧 PNG、JPEG、HEIC、HEIF、TIFF。超大、损坏或不受支持的文件会被跳过；系统原件保留。 |
+| 内置截图 | 经屏幕录制授权后可截窗口、区域、全屏。「更多」进入其他操作。 |
+| 桌面与历史 | 截图托盘、风铃、微缝使用同一队列；切换即时生效，选择会保留。历史默认列表，可切换图像网格。两种视图共享搜索、筛选、分页、预览与恢复。 |
+| 网页附加 | 支持 Google Chrome 前台当前可编辑的 ChatGPT 草稿。仅对明确点击的微图发起附加。其他浏览器、桌面 ChatGPT、只读页面不在本次范围。 |
+| 接收与发送 | 页面开始接收对应图片时收起微图。网络上传进度、最终附件及消息发送由 ChatGPT 展示或执行；结果待核实的图片不自动重传。 |
+| 反馈 | 自愿通过 App 私下提交文字；诊断默认关闭，可在发送前预览。 |
 
-页面加载、网络和 ChatGPT 自身的限额/错误仍由 ChatGPT 处理。微图收起仅说明草稿开始接收，并不消除这些限制。若结果不明，保留本地记录并检查原聊天；不要用相同图片反复试探。
+**本版实际验收边界。** 正式 Mac 已验证从 build 16 更新到 18、签名及截图文件收录。此前版本有真实 ChatGPT 连续附加记录；本构建的独立测试浏览器未能建立可读取的空白草稿，双图连续附加为 **NOT_RUN**。已通过的原生检查、签名和历史记录不能回答本次双图是否实际进入同一草稿。该项由维护者补验。
 
-**English:** The supported product target is Google Chrome with an editable ChatGPT web draft. Local format limits are not service upload limits. Safari, Edge, Firefox, ChatGPT for Mac and other services are outside the current support commitment. Apple silicon installation evidence and Intel CI are distinct. Accessibility features and controlled tests are not a full assistive-technology certification. This table is source-based and version-scoped, not a promise that every account, page variant or operating-system version works.
-
-证据归属见[源码与文案审计](../../engineering/productization-20261107/consumer/SOURCE-AUDIT.md)；历史双样式的既有结果见[原交付记录](../../engineering/history-dual-style-20261107/README.md)。
+[安装与权限](INSTALL-AND-PERMISSIONS.md) · [故障恢复](RECOVERY-AND-FAQ.md) · [私下反馈](FEEDBACK-TEMPLATE.md)
