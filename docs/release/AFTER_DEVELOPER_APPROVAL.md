@@ -1,6 +1,6 @@
 # 开发者账号获批后的发行接管清单
 
-正式工具已随 [PR #49](https://github.com/haohongfei2001-png/Riftlet/pull/49) 合入 `4908dc7`，包括 SwiftPM 构建、钥匙串证书请求和双层公证的 DMG 流程。个人安装仍为 ARM64 的 0.3.0 (3)。截至本次复核，本机尚无可用 Developer ID Application 身份。以下操作在签名机和隔离测试 Mac 上执行，成功结果随包记录，官网上线另行批准。[正式发行手册](DIRECT_DOWNLOAD.md)
+正式工具已随 [PR #49](https://github.com/haohongfei2001-png/Riftlet/pull/49) 合入 `4908dc7`，包括 SwiftPM 构建、钥匙串证书请求和双层公证的 DMG 流程。当时的个人版本为 ARM64 的 0.3.0 (3)，签名机尚未配置可用的 Developer ID Application 身份。后续个人安装 0.3.5 (18) 已使用团队 `ZB9D4T66QB` 的 Developer ID，App 和 DMG 均有各自的 Apple 公证记录。私测候选 0.3.5 (19) 需要以自己的产物完成下列验证。签名机可复用已验证的身份和公证配置；只有重建签名环境时才需办理证书接入。官网上线另行批准。[正式发行手册](DIRECT_DOWNLOAD.md)
 
 ### 1. 用既有请求接入证书和公证
 
@@ -51,6 +51,7 @@ python3 -B scripts/release-macos.py --source "$SOURCE" \
 ### 3. 干净测试 Mac 正常安装、授权及回退
 
 1. 从受限分发位置，用普通浏览器下载最终 DMG。以独立交付记录的 SHA-256 验证下载，保留 quarantine。在未运行过该候选的 Mac 或干净 VM 快照上，离线挂载、用 Finder 拖到 Applications，再正常打开。记录 Gatekeeper、首次向导和首张无隐私测试截图的实际收录。命令行预检可用 `spctl -a -t open -vvv --context context:primary-signature "$DMG"`；对安装的 App，macOS 14 及以上可用 `syspolicy_check distribution "$APP"`，macOS 13 使用 `spctl -a -t exec -vvv "$APP"`。[Apple 的干净机器测试方法](https://developer.apple.com/forums/thread/130560)
+   共享安装还须用同一台隔离 Mac 的另一个非安装者账户检查同一份 `/Applications/Riftlet.app` 的目录遍历、资源读取和主程序执行，再从该账户正常打开，记录首次引导。保留先前 build 18 的权限失败，分别记录文件权限检查与图形登录启动。
 2. 在隔离账户分别试 **ad-hoc → 首次 Developer ID** 和 **同团队已公证 A → B**。保留旧 App、最新的一致数据备份、测试目录书签和受保护目录中的测试图片。用 `swift scripts/check-update-identity.swift --installed "$OLD_APP" --candidate "$APP"` 记录指定代码要求。正常退出和核对所有权后只替换 App。
 3. 在新进程内验证受保护目录实际读取、原书签、首张收录、Chrome 自动化与 JavaScript、可选录屏和测试反馈凭据。实际出现系统提示时观察拒绝和恢复，记录从 Riftlet 选择正确截图目录并重启后的读取。即使身份要求匹配，也要实际测权限连续性；没有弹窗就记录未观察。用合法接口在专用 Chrome 草稿验证连续两张截图、旧正文和旧附件、真实 START 与不自动发送。[换签与权限验证](IDENTITY_TRANSITION.md)
 4. 演练损坏更新被拒和安装失败回退。保留含更新后新资产及操作的快照，确认旧 App 能读取当前状态后只换回 App；核对原图、私有媒体、日志、UNKNOWN、反馈、偏好、目录恢复和再次收录。兼容性未确认时保留两份 App，用向前修复保住新历史。[手动更新与回退](MANUAL_UPDATE_AND_RECOVERY.md)

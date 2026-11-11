@@ -54,6 +54,7 @@ def verify_app_tree(app, manifest):
     # extra file by the same name in the actual App is not a release manifest.
     require(not os.path.lexists(app / R.MANIFEST) and R.inventory(app) == expected,
             "dmg_app_inventory_mismatch")
+    R.verify_app_modes(manifest["files"])
 
 
 def image_signature(image, team, log):
@@ -81,6 +82,10 @@ def build_image(app, manifest, image, attempt):
     R.run(["/usr/bin/ditto", "--rsrc", "--extattr", app, source / R.APP], log=attempt / "copy.log")
     verify_app_tree(source / R.APP, manifest)
     (source / "Applications").symlink_to("/Applications")
+    # The source directory becomes the mounted volume root. Its parent is the
+    # private attempt directory; do not change any workspace or submission modes.
+    source.chmod(0o755)
+    os.lchmod(source / "Applications", 0o755)
     R.run(["/usr/bin/hdiutil", "create", "-format", "UDZO", "-fs", "HFS+", "-volname", "Riftlet",
            "-srcfolder", source, image], timeout=300, log=attempt / "image-create.log")
 
@@ -94,10 +99,12 @@ def inspect_image(image, manifest, attempt):
         points = [e["mount-point"] for e in plistlib.loads(reply.stdout)["system-entities"] if e.get("mount-point")]
         require(points == [str(mount)] and os.path.ismount(mount)
                 and os.statvfs(mount).f_flag & os.ST_RDONLY, "dmg_wrong_or_writable_mount")
+        require(stat.S_IMODE(mount.stat().st_mode) == 0o755, "dmg_volume_root_mode_mismatch")
         entries = {p.name for p in mount.iterdir()}
         require(entries == {R.APP, "Applications"}, "dmg_unexpected_root_entries")
         link = mount / "Applications"
         require(link.is_symlink() and os.readlink(link) == "/Applications", "dmg_applications_link_mismatch")
+        require(stat.S_IMODE(link.lstat().st_mode) == 0o755, "dmg_applications_link_mode_mismatch")
         app = mount / R.APP
         verify_app_tree(app, manifest)
         signature = manifest["signature"]

@@ -1,43 +1,24 @@
-# 安装与权限 / Installation and permissions
+# 安装与权限
 
-## 安装前 / Before installing
+**本指南为尚未发放的私测候选 Riftlet 0.3.5 (19) 准备**，目标系统为 macOS 13 及以上的 Apple 芯片和 Intel Mac。正式收到私有包后，核对文件名 `Riftlet-0.3.5-19-universal.dmg` 和离线随包的 `SHA256SUMS.txt`；DMG 的 SHA-256 还应与发放方通过独立渠道提供的摘要完全一致。由维护者先验证本构建的 Developer ID Application 签名、Team ID `ZB9D4T66QB`、App 和 DMG 的 Apple 公证票据与 Gatekeeper，再交付此包。
 
-当前个人 Beta 3 是 ad-hoc 签名包，尚未完成 Developer ID、公证及面向陌生用户的 Gatekeeper 安装验收。本资料不是公开下载通行证。Apple 用 Developer ID 和公证帮助验证分发来源及检查恶意软件；公证也不是 App Review。见 [Developer ID](https://developer.apple.com/developer-id/) 和[公证说明](https://developer.apple.com/documentation/security/notarizing-macos-software-before-distribution)。
+如果手中是 build 18，请保留原有个人安装。该版本在共享「应用程序」目录中只允许安装者读取和执行，其他非特权账户可能打不开。遇到此情况，请保留现状并联系发放方取得经验证的修复包；无需更改系统授权、App 文件权限或截图库。
 
-拿到获准测试包后，按该次交付清单确认版本、架构、SHA-256、签名状态和来源；文件名或散列本身不能证明来源可信。退出旧版，再按交付说明把 App 放在指定的 Applications 位置。不要同时运行指向同一数据目录的两个版本。升级已有数据前先按[更新与回退](RECOVERY-AND-FAQ.md)完成备份。
+1. 打开 DMG，将 **Riftlet.app** 拖入 **Applications（应用程序）**。已有 Riftlet 时先按[更新说明](RECOVERY-AND-FAQ.md)保留数据和上一版，替换原安装位置的 App。
+2. 推出磁盘映像，从安装位置打开 Riftlet。首次出现 macOS 下载应用确认时核对应用名，选择「打开」。如果系统提示已损坏或无法验证开发者，停止安装，通过发放渠道核对文件。
+3. 跟随「开始使用 Riftlet」三步引导。之后可单击菜单栏 Riftlet 图标打开控制中心，或在「设置 → 权限与帮助 → 查看引导…」重新查看。
 
-标有 `REVIEW-NOT-NOTARIZED` 或 `REVIEW_ONLY` 的 ZIP/DMG 是私有评审材料。包内文件与候选清单匹配，只说明内容身份已核验，不代表安装、公证、Gatekeeper 或数据兼容性已通过。即使版本号和“Beta 3”标签相同，也应核对该次交付清单；这些标签不能替代精确包身份。
+## 按实际使用的功能授权
 
-如果 macOS 阻止打开，保留系统提示并联系包的提供者，不要关闭 Gatekeeper、移除 quarantine 或重置整套隐私权限。Apple 的[安全打开 App 说明](https://support.apple.com/en-nz/102445)解释了不同提示；尚未验证的测试包不能用终端绕过步骤包装成“下载即用”。
+| 想用的功能 | 去哪里操作 | 怎样确认 |
+| --- | --- | --- |
+| 收录 macOS 截图 | 按 ⇧⌘5，在「选项」核对保存文件夹。在 Riftlet「设置 → 截图」查看「截图保存位置」。若被拒绝，点「允许访问此位置…」，选中同一文件夹。也可在系统设置「隐私与安全性 → 文件与文件夹」检查 Riftlet。 | 新截一张保存为文件的图，看看桌面微图或「截图历史」中是否出现。原图仍在系统截图目录。「权限与帮助 → 重新检查」可更新状态。 |
+| 点微图附加到 ChatGPT | 把目标 Google Chrome 草稿带到前台。在「设置 → 权限与帮助 → Chrome 自动化」点「查看」，再点「检查 Chrome 权限…」，在系统提示中允许 Riftlet 控制 Google Chrome。已拒绝时，在「隐私与安全性 → 自动化 → Riftlet」开启 Google Chrome。Chrome 的「显示/视图 → 开发者」菜单还需勾选「允许来自 Apple 事件的 JavaScript」（Allow JavaScript from Apple Events）。 | 回到可编辑的目标草稿；以其中实际出现本张图片为准。Chrome 未运行或在后台时，「暂不可用」本身不能判定先前的授权已丢失。 |
+| 使用 Riftlet 内置截图 | 在「设置 → 截图」开启「显示截图入口」。首次使用窗口、区域或全屏截图时，按系统提示为 Riftlet 允许「屏幕录制」或「屏幕与系统音频录制」。若系统要求，正常退出后重新打开。 | 从桌面入口截一张，再到历史查看。只使用 macOS 截图并让 Riftlet 收录文件时，无需授予这项录屏权限。 |
+| 登录时启动 | 在「设置 → 使用与历史」开启「登录时启动 Riftlet」。若提示「待批准」，点「打开登录项设置…」，在系统设置的「通用 → 登录项」或「登录项与扩展」内确认。 | 重新查看登录项状态；日常也可从应用程序手动打开。 |
 
-**English:** Verify the approved delivery manifest, architecture, hash and signing status. Quit the old App and preserve its data before updating. A hash alone does not establish trust. A `REVIEW-NOT-NOTARIZED` ZIP/DMG is private review material; matching contents or version labels do not prove installation, Gatekeeper or data compatibility. If macOS blocks the App, report the exact alert to the maintainer; do not disable Gatekeeper or strip quarantine. The current personal package is not a notarized public installer.
+日常使用以上功能无需授予「完全磁盘访问权限」或「辅助功能」。从历史 ad-hoc 个人版首次切换为 Developer ID 版本时，macOS 可能再次请求目录或自动化授权。按上表逐项验证实际功能，保留原有截图和历史。私测采用手动更新。
 
-## 只为正在使用的功能授权
+macOS 设置名称随系统版本变化。系统权限可参考 [Apple 文件与文件夹说明](https://support.apple.com/en-au/guide/mac-help/mchld5a35146/mac) 和 [Apple 录屏权限说明](https://support.apple.com/en-kw/guide/mac-help/mchld6aa7d23/mac)。Chrome 的开关位置可参考 [Chromium 的 AppleScript 说明](https://www.chromium.org/developers/applescript/)。
 
-| 功能 | 为什么需要 | 在哪里处理 | 拒绝或关闭后 |
-| --- | --- | --- | --- |
-| 收录系统截图文件 | 读取实际截图保存目录中的新截图，建立本地副本 | Riftlet「设置 → 截图 → 允许访问此位置…」；必要时系统「隐私与安全性 → 文件与文件夹」 | 该目录不可读取时不收录；原文件不删除 |
-| 把图片交给 Chrome 的 ChatGPT | Apple Events 向选定 Chrome 进程请求页面连接 | 正常打开 Chrome，在「设置 → 权限与帮助」中点「Chrome 自动化」旁的「查看」，再点「检查 Chrome 权限…」；系统「隐私与安全性 → 自动化 → Riftlet → Google Chrome」 | 不执行该浏览器附加；已有本地图片保留 |
-| Chrome 页面 JavaScript | 找到当前草稿和附件入口，交给网页文件控件 | Chrome 菜单 **View / 视图（或显示）→ Developer / 开发者 → Allow JavaScript from Apple Events / 允许来自 Apple 事件的 JavaScript** | 仅给 macOS 自动化授权仍不足以连接页面 |
-| Riftlet 内置截图 | 按你发起的窗口、区域或全屏截图请求读取屏幕 | 首次使用内置截图时按系统提示；系统「隐私与安全性 → 屏幕录制」或「屏幕与系统音频录制」 | 内置截图不可用；不因此阻止系统截图文件收录 |
-| 登录后启动 | 可选的 macOS 登录项 | 「设置 → 使用与历史 → 登录时启动 Riftlet」；如待批准，使用「打开登录项设置…」 | 可继续手动打开 App |
-
-系统分类名称随 macOS 版本变化。文件访问和自动化是不同权限，屏幕录制也不授权 Chrome。Apple 分别说明了[文件与文件夹](https://support.apple.com/en-au/guide/mac-help/mchld5a35146/mac)、[自动化](https://support.apple.com/en-ie/guide/mac-help/mchl07817563/27/mac/27)和[屏幕录制](https://support.apple.com/en-kw/guide/mac-help/mchld6aa7d23/mac)设置。Chrome 的菜单位置来自 [Chromium 官方说明](https://www.chromium.org/developers/applescript/)。Riftlet 不代改 Chrome 的该选项。
-
-当前普通收录和附件路径不要求先授予完全磁盘访问、麦克风、摄像头或全局键盘记录权限。现有辅助功能授权可用于 Chrome 活动变化提示，但它不是首次附加的强制前置；本指南不会要求为此开启所有系统权限。内置截图使用静态屏幕捕获，不录制系统音频。
-
-## 恢复授权与登录项
-
-新候选会在选择窗口中显示 macOS 当前的截图目录。找不到这个位置时，按 ⇧⌘5，在「选项」里查看截图存储位置。选错目录时可以留在窗口重新选；点「取消」会保留原有设置。若选择期间改变了系统截图位置，回到 Riftlet 点「重新检查」，再打开选择窗口。选择目录不等于授予 Chrome 自动化；已能读取该目录的 Mac 也可能完全不弹系统授权框。
-
-修正对应权限后，回到 Riftlet 使用「重新检查」，再用一张新、不敏感的截图确认当前功能。若系统要求重启 App，先保存设置和反馈草稿，正常退出再打开。不要清除历史或 UNKNOWN 来恢复权限。
-
-“已请求登录启动、等待系统批准”不等于已经启用；“macOS 暂未找到此应用的登录项”也不能解释成成功。当前代码回读系统状态，不保存一个虚假的已启用值。登录启动的实际系统兼容性正在本轮专项验证；没有成功回读和真实登录启动证据时，以手动启动为可用方式。不要自行添加 LaunchAgent 替代它。
-
-**English navigation:** In Settings → `权限与帮助`, choose `查看` beside the screenshot folder, Chrome automation or screen recording to see its status and recovery actions. `检查 Chrome 权限…` checks or requests Automation; the Chrome menu setting is separate. `重新检查` refreshes status after a change. Settings → `使用与历史` → `登录时启动 Riftlet` is optional; pending approval is not enabled, and “not found” is not success. Follow the operating system’s prompt, preserving local records.
-
-**If the folder or Chrome is unavailable:** In the candidate, choose the exact path shown in the folder picker. Press Shift–Command–5 → Options to find where macOS saves screenshots. Choosing another folder will be declined; Cancel keeps the previous choice. A Mac that can already read the folder may show no permission prompt. For a denied Chrome request, open System Settings → Privacy & Security → Automation → Riftlet → Google Chrome. In Chrome, check View → Developer → Allow JavaScript from Apple Events separately, then choose `重新检查` in Riftlet. If there is no editable chat, bring your intended ChatGPT draft to the front in Chrome. The screenshot stays on your Mac.
-
-## 私人维护包升级后又显示“无法访问截图位置”
-
-同一个 App 名称、同一个安装位置，并不保证新版继承旧版对“下载”等目录的授权。未经 Developer ID 签名的个人构建尤其如此。不要反复重装或删除历史。保留旧 App 与最新数据备份，从「设置 → 截图 → 截图保存位置」查看当前来源，在系统提供正常授权的条件下使用“重新检查”。若仍然无法收录，正常退出并保留最新完整数据。仅在旧 App 可读取该数据库时回退；v4 历史需使用相容的新版或修复版。参见[更新与回退](RECOVERY-AND-FAQ.md)。无需关闭 Gatekeeper、重置隐私授权或授予完全磁盘访问权限。
+**English.** Build 19 is the planned private candidate. Once issued, verify its DMG against the included `SHA256SUMS.txt` and the maintainer’s separately supplied digest. Build 18 has a shared-install file-permission defect. Existing personal users can keep their copy. Open the verified DMG, drag Riftlet.app into Applications, eject the image and launch the installed copy. Grant access to the actual macOS screenshot folder. Google Chrome attachment also uses Automation and Chrome’s **Allow JavaScript from Apple Events** setting. Screen Recording is for Riftlet’s own capture tools. [English quick start](QUICK-START.en.md)

@@ -35,6 +35,7 @@ PAYLOAD = "Riftlet-Release"
 MANIFEST = "release-manifest.json"
 APP = "Riftlet.app"
 RECEIPT = "Contents/Resources/release-build.json"
+SHARED_APP_MODES = "directories-and-main-0755-files-0644"
 BUILD_INPUTS = ("Package.swift", "Sources", "Tests", "Resources", "ThirdPartyNotices")
 ARCHES = {0x01000007: "x86_64", 0x0100000C: "arm64"}
 ENTITLEMENTS = {"com.apple.security.automation.apple-events": True}
@@ -247,9 +248,33 @@ def inventory(root):
     return result
 
 
+def app_modes(files):
+    for name, row in files.items():
+        if name == APP or name.startswith(APP + "/"):
+            mode = 0o755 if row["kind"] == "directory" or name == APP + "/Contents/MacOS/Riftlet" else 0o644
+            yield name, row["mode"], mode
+
+
+def verify_app_modes(files):
+    for name, current, expected in app_modes(files):
+        require(current == expected, "distribution_app_mode_mismatch:" + name)
+
+
+def normalize_staged_app(package):
+    # inventory validates every entry (including links) before the first chmod.
+    # Check nested code independently before clearing execute bits on resources.
+    files = inventory(package)
+    verify_code_layout(package / APP)
+    for name, current, expected in app_modes(files):
+        if current != expected:
+            (package / name).chmod(expected)
+
+
 def validate_receipt(receipt):
     require(isinstance(receipt, dict) and type(receipt.get("schemaVersion")) is int and receipt["schemaVersion"] == SCHEMA, "invalid_build_receipt")
     version_values(receipt.get("version"), receipt.get("build"))
+    if "sharedAppModes" in receipt:
+        require(receipt["sharedAppModes"] == SHARED_APP_MODES, "unknown_app_modes")
     # Existing schema-1 receipts remain verifiable; new builds always bind all
     # three version fields. Do not rewrite old preparation evidence.
     if "versionLabel" in receipt or "sourceVersion" in receipt:
@@ -327,6 +352,10 @@ def validate_manifest(value):
         if row["kind"] == "file":
             require(type(row.get("size")) is int and row["size"] >= 0 and hash_value(row.get("sha256")), "invalid_inventory_file")
 
+    # Old manifests remain usable for inspecting and rolling back to their exact bytes.
+    if value["build"].get("sharedAppModes") and stage != "SIGN_FAILED":
+        verify_app_modes(files)
+
 
 def validate_release_info(info, receipt):
     require(isinstance(info, dict), "invalid_info_plist")
@@ -382,7 +411,7 @@ def verify_accepted_app_log(workspace, value):
             "accepted_app_log_artifact_mismatch")
 
 
-def check_staple_inventory(original, current):
+def check_staple_inventory(original, current, *, native_ticket_rewrite=False):
     if original == current:
         return
     require({k: v for k, v in original.items() if k != TICKET_CARRIER}
@@ -392,7 +421,12 @@ def check_staple_inventory(original, current):
             "invalid_ticket_carrier")
     if TICKET_CARRIER in original:
         prior = original[TICKET_CARRIER]
-        require(carrier["mode"] == prior["mode"] and carrier["xattrs"] == prior["xattrs"],
+        # Under the private release umask, Apple's stapler can replace an existing
+        # readable ticket with a new 0600 file. Only that transition is resumable;
+        # signature, Apple ticket, accepted submission and all other entries are verified.
+        same_mode = carrier["mode"] == prior["mode"]
+        rewritten = native_ticket_rewrite and (prior["mode"], carrier["mode"]) == (0o644, 0o600)
+        require((same_mode or rewritten) and carrier["xattrs"] == prior["xattrs"],
                 "ticket_carrier_metadata_changed")
 
 
@@ -418,7 +452,7 @@ def _verify_package(package, expected_manifest, native_team, *, staple_resume):
     recovering = staple_resume and value["stage"] in {"NOTARIZED", "STAPLE_FAILED"}
     if recovering:
         verify_accepted_app_log(package.parent, value)
-        check_staple_inventory(value["files"], current)
+        check_staple_inventory(value["files"], current, native_ticket_rewrite=bool(value["build"].get("sharedAppModes")))
         native_team = native_team or value["signature"]["teamID"]
     else:
         require(value["files"] == current, "payload_inventory_mismatch")
@@ -580,7 +614,9 @@ def build_candidate(args):
                "infoPlistSHA256": digest(app / "Contents/Info.plist"), "dataCompatibility": "NOT_ASSERTED",
                "preparationInputs": {key: digest(ROOT / key) for key in PREPARATION_INPUTS},
                "swiftVersion": run(["swift", "--version"]).stdout.decode().strip()}
+    receipt["sharedAppModes"] = SHARED_APP_MODES
     write_json(app / RECEIPT, receipt)
+    normalize_staged_app(package)
     shutil.copy2(ROOT / "packaging/release/INSTALL-zh-CN.txt", package / "INSTALL-zh-CN.txt")
     manifest = {"schemaVersion": SCHEMA, "kind": KIND, "stage": "PREPARED", "build": receipt,
                 "sourceAdmission": "INDEPENDENT_REVIEW_REQUIRED", "signature": None, "notarization": None}
@@ -608,6 +644,9 @@ def sign_candidate(args):
     try:
         run(["/usr/bin/codesign", "--force", "--sign", args.identity, "--options", "runtime", "--timestamp",
              "--entitlements", entitlements, package / APP], timeout=180, log=workspace / "sign.log")
+        if value["build"].get("sharedAppModes"):
+            # codesign can create or replace the signature resources under the private umask.
+            normalize_staged_app(package)
         value["signature"] = verify_signature(package / APP, args.team, value["build"]["architectures"])
         value["stage"] = "SIGNED"
     except Exception:
@@ -716,8 +755,9 @@ def staple_candidate(args):
     value = load_package_for_resume(package)
     require(value["stage"] in {"NOTARIZED", "STAPLE_FAILED"}, "staple_requires_accepted_job")
     recorded = value["files"]
+    shared = bool(value["build"].get("sharedAppModes"))
     actual = inventory(package)
-    check_staple_inventory(recorded, actual)
+    check_staple_inventory(recorded, actual, native_ticket_rewrite=shared)
     attempt = Path(tempfile.mkdtemp(prefix="app-staple-", dir=workspace))
     original_manifest = (package / MANIFEST).read_bytes()
     require(decode_json(original_manifest) == value, "app_manifest_changed_before_stapling")
@@ -729,7 +769,13 @@ def staple_candidate(args):
         if recorded == actual:
             run(["xcrun", "stapler", "staple", "-v", package / APP], log=attempt / "staple.log")
         validated = inventory(package)
-        check_staple_inventory(recorded, validated)
+        check_staple_inventory(recorded, validated, native_ticket_rewrite=shared)
+        if shared:
+            if TICKET_CARRIER in validated and validated[TICKET_CARRIER]["mode"] != 0o644:
+                (package / TICKET_CARRIER).chmod(0o644)
+                validated = inventory(package)
+                check_staple_inventory(recorded, validated)
+            verify_app_modes(validated)
         run(["xcrun", "stapler", "validate", "-v", package / APP], log=attempt / "staple-validate.log")
         require(verify_signature(package / APP, value["signature"]["teamID"], value["build"]["architectures"]) == value["signature"], "staple_changed_code_identity")
         verify_accepted_app_log(workspace, value)
@@ -737,7 +783,10 @@ def staple_candidate(args):
         require(final == validated, "payload_changed_after_staple_validation")
     except Exception:
         failed = inventory(package)
-        check_staple_inventory(recorded, failed)
+        check_staple_inventory(recorded, failed, native_ticket_rewrite=shared)
+        # Never pin an unreadable ticket left by an interrupted write or replacement.
+        if shared and failed.get(TICKET_CARRIER, {}).get("mode", 0o644) != 0o644:
+            failed = recorded
         value.update(stage="STAPLE_FAILED", files=failed)
         write_json(package / MANIFEST, value)
         raise
