@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
   "reviewedBase": "b2983a60725ec733cb2f4a799bd615cb21f20dd4",
-  "reviewedSource": "87fd4402c32ce3efdd2364d44e65799e303c778f",
-  "reviewedTree": "26af164069e7e2b0fb6799bf0aa019b735b96dce",
+  "reviewedSource": "14aa6b8375818b12f990588de10c6afdcb1c5c83",
+  "reviewedTree": "7e1fa627b1b219669d7fb773d565c4b662f4799e",
   "authorRole": "integration_lead",
   "reviews": [
     {
       "reviewer": "independent_integration_reviewer",
-      "source": "87fd4402c32ce3efdd2364d44e65799e303c778f",
-      "tree": "26af164069e7e2b0fb6799bf0aa019b735b96dce",
+      "source": "14aa6b8375818b12f990588de10c6afdcb1c5c83",
+      "tree": "7e1fa627b1b219669d7fb773d565c4b662f4799e",
       "result": "PASS",
-      "sha256": "36d8151522c4702dd4ff6c9a0dfb8eea1418cb9589cb1b476d029e8e8adf96a7",
-      "report": "{\n  \"reviewer\": \"independent_integration_reviewer\",\n  \"reviewedSource\": \"87fd4402c32ce3efdd2364d44e65799e303c778f\",\n  \"reviewedBase\": \"b2983a60725ec733cb2f4a799bd615cb21f20dd4\",\n  \"reviewedTree\": \"26af164069e7e2b0fb6799bf0aa019b735b96dce\",\n  \"result\": \"PASS\",\n  \"checks\": [\n    \"All 12 changed files are documentation. The admitted product, artifact and deployment inputs are unchanged. All 50 relative guide links resolve in the reviewed Git tree.\",\n    \"The stated build, universal architectures, Developer ID team and signed DMG digest match the verified 0.3.5 (18) package. The App and DMG have accepted notarization records.\",\n    \"Installation, function-specific grants, two-minute archive default, one-to-ten-minute range, manual updates, complete latest-v4-data recovery, uninstall and feedback privacy agree with the native implementation.\",\n    \"Original finding R1 is resolved. History labels alone cannot prove START. The FAQ now separates actual acceptance and thumbnail withdrawal from preserved UNKNOWN and automatic retry.\",\n    \"The independent Chrome dual-image trial remains NOT_RUN for this build. Four-person private preparation, outstanding contact/consent, and the unmerged Draft website PR #53 remain explicit.\"\n  ],\n  \"openFindings\": []\n}\n"
+      "sha256": "0d5df8e38dfd65cfd988ca81086d160b9f59ddded8d303525a13963906823610",
+      "report": "{\n  \"reviewer\": \"independent_integration_reviewer\",\n  \"reviewedBase\": \"b2983a60725ec733cb2f4a799bd615cb21f20dd4\",\n  \"reviewedSource\": \"14aa6b8375818b12f990588de10c6afdcb1c5c83\",\n  \"reviewedTree\": \"7e1fa627b1b219669d7fb773d565c4b662f4799e\",\n  \"result\": \"PASS\",\n  \"checks\": [\n    \"The staged App and the HFS+ image root use shared distribution modes. Private parent directories, notarization inputs, release locks and existing workspaces retain their protections. Suspicious links, hard links and unexpected nested executables are checked before changing staged App modes.\",\n    \"The earlier recorded-ticket finding is resolved. For the marked modern build, recovery accepts the single regular Apple ticket transitioning from 0644 to 0600, preserves the other inventory and ticket attributes, restores 0644, then requires native ticket validation, unchanged code identity and the original accepted log. An interrupted replacement resumes by validation without a repeated submission. Legacy receipts keep their prior checks.\",\n    \"Thirteen independent inventory comparisons exercised the expected replacement and rejection of altered resources, unexpected ticket modes, changed attributes, absent or empty carriers and the legacy mode transition. Native release-related unittest suites passed 91 of 91 checks, including real read-only DMG creation, inspection and detach. That fixture substitutes signatures and Apple services and does not confer release acceptance on a new artifact.\",\n    \"Mounted verification compares the complete App tree, App and volume modes and Applications link. The outer DMG and embedded App retain independent code signature, ticket and Gatekeeper checks and separately bound original notary jobs.\",\n    \"The main product Sources, Resources, package manifest, entitlements, third-party notices and Actions workflow files are unchanged from the base. The confirmed build-18 failure is restricted to distribution permissions. No screenshot, media, database, browser, attachment, START or UNKNOWN code changed.\",\n    \"All 53 relative destinations in changed guides resolve. The documentation keeps the installed build 18 distinct from prospective private build 19, requires new independent artifact and consumer checks, and retains the unexecuted real ChatGPT trial. No publication, invitation or account consent follows from this source review.\"\n  ],\n  \"openFindings\": []\n}\n"
     }
   ],
   "productionAdmission": {
