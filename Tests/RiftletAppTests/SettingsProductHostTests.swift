@@ -385,7 +385,7 @@ private final class HostSettingsAdapter: SettingsPersistenceAdapter {
         case .captureMode(let value): if !failed { settings.defaultCaptureMode = value }
         case .arrival(let value): if !failed { settings.arrivalMode = value; settings.hasArrivalSelection = true }
         case .archiveMinutes(let value): if !failed { settings.archiveAfterMinutes = value }
-        case .layout, .placement, .display, .desktopForm, .trayTheme, .trayFavorite:
+        case .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFavorite:
             if !failed, let config = request.configuration { settings.configuration = config; settings.preferredDisplayID = config.preferredDisplayID }
         }
         owner = .init(revision: owner.revision + 1, settings: settings, collectionPaused: paused, isHidden: hidden,

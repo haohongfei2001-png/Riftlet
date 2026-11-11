@@ -47,6 +47,44 @@ final class MagnetFlightPresenterTests: XCTestCase {
         XCTAssertGreaterThan(bounds.width,0)
     }
 
+    @MainActor func testWindChimePaperAndPixelsKeepTheirPoseBehindTheStationaryScreenEdge() throws {
+        let (plan, image, scale) = try fixture()
+        let presenter = MagnetFlightPresenter()
+        defer { presenter.close() }
+        for degrees: CGFloat in [2, -1, 0] {
+            XCTAssertTrue(presenter.start(assetID: UUID(), image: image, plan: plan, backingScale: scale,
+                                          windChimeDegrees: degrees) { _ in })
+            let number = try XCTUnwrap(presenter.diagnostics.windowNumber)
+            let window = try XCTUnwrap(NSApp.window(withWindowNumber: number))
+            let root = try XCTUnwrap(window.contentView?.layer)
+            let mask = try XCTUnwrap(root.mask as? CAShapeLayer)
+            XCTAssertTrue(mask.affineTransform().isIdentity)
+            XCTAssertEqual(try XCTUnwrap(mask.path).boundingBoxOfPath.maxX + window.frame.minX,
+                           plan.clippingEdgeX, accuracy: 0.001)
+            let paper = try XCTUnwrap(root.sublayers?.first)
+            let radians = degrees * .pi / 180
+            XCTAssertEqual(paper.affineTransform().b, sin(radians), accuracy: 0.00001)
+            XCTAssertEqual(paper.backgroundColor, NSColor.white.cgColor)
+            XCTAssertEqual(paper.cornerRadius, 4)
+            XCTAssertGreaterThan(paper.shadowOpacity, 0)
+            let pixels = try XCTUnwrap(paper.sublayers?.first)
+            XCTAssertNotNil(pixels.contents)
+            XCTAssertEqual(pixels.frame, paper.bounds.insetBy(dx: 1.5, dy: 1.5))
+            XCTAssertNotNil(pixels.animation(forKey: "riftlet.magnet.pixels"))
+            let motion = try XCTUnwrap(paper.animation(forKey: "riftlet.magnet.flight") as? CAAnimationGroup)
+            let positions = try XCTUnwrap(motion.animations?.first as? CAKeyframeAnimation)
+            let bounds = try XCTUnwrap(motion.animations?.last as? CAKeyframeAnimation)
+            let p = plan.parameters
+            let instant = p.formationDuration + p.chargeDuration + p.attractionDuration
+            let turn = try XCTUnwrap(plan.keyframeTimes.firstIndex(of: instant))
+            let center = try XCTUnwrap((positions.values?[turn] as? NSValue)?.pointValue)
+            let size = try XCTUnwrap((bounds.values?[turn] as? NSValue)?.rectValue.size)
+            let half = (abs(cos(radians)) * size.width + abs(sin(radians)) * size.height) / 2
+            XCTAssertGreaterThan(center.x + window.frame.minX - half, plan.clippingEdgeX)
+            presenter.cancel()
+        }
+    }
+
     @MainActor func testDecorationOwnsOneMouseTransparentNonactivatingWindowAndReleasesSynchronously() throws {
         let (plan, image, scale) = try fixture()
         let presenter = MagnetFlightPresenter()

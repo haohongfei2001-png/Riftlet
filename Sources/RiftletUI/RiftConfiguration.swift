@@ -12,8 +12,18 @@ public enum RiftDesktopForm: String, CaseIterable, Sendable {
         }
     }
 
-    // The design index names wind chime; there is no approved renderer specification.
-    public var isAvailable: Bool { self != .windChime }
+    public var isAvailable: Bool { true }
+}
+
+public enum RiftWindChimeArrangement: String, CaseIterable, Sendable {
+    case aligned, staggered
+
+    public var title: String {
+        switch self {
+        case .aligned: return "整齐"
+        case .staggered: return "错落"
+        }
+    }
 }
 
 public enum RiftTrayTheme: String, CaseIterable, Sendable {
@@ -124,6 +134,8 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
     public var preferredDisplayUUID: String? = nil
 
     private var storedForm: PresentationValue?
+    private var storedWindChimeLineInset: PresentationValue?
+    private var storedWindChimeArrangement: PresentationValue?
     private var storedTrayTheme: PresentationValue?
     private var storedTrayTintHue: PresentationValue?
     private var storedTrayTintStrength: PresentationValue?
@@ -174,11 +186,33 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
             guard case .text(let raw) = storedForm else { return .microSlit }
             // Resolve retired candidates without changing the preference on unrelated saves.
             if raw == "edgefolio" || raw == "pocket" { return .tray }
-            guard let form = RiftDesktopForm(rawValue: raw),
-                  form.isAvailable else { return .microSlit }
-            return form
+            return RiftDesktopForm(rawValue: raw) ?? .microSlit
         }
-        set { storedForm = .text(newValue.rawValue) }
+        set {
+            // R1 stored only the selected form. Preserve its aligned appearance on later switches.
+            if storedWindChimeArrangement == nil, newValue != desktopForm,
+               desktopForm == .windChime || newValue == .windChime {
+                storedWindChimeArrangement = .text(windChimeArrangement.rawValue)
+            }
+            storedForm = .text(newValue.rawValue)
+        }
+    }
+
+    public var windChimeArrangement: RiftWindChimeArrangement {
+        get {
+            if storedWindChimeArrangement == nil, desktopForm == .windChime { return .aligned }
+            guard case .text(let raw) = storedWindChimeArrangement else { return .staggered }
+            return RiftWindChimeArrangement(rawValue: raw) ?? .staggered
+        }
+        set { storedWindChimeArrangement = .text(newValue.rawValue) }
+    }
+
+    /// Wind chime measures its cord from the actual display edge, independently of the slit inset.
+    public var windChimeLineInset: Double {
+        get { storedWindChimeLineInset?.number(in: 0...256) ?? 18 }
+        set {
+            if let value = PresentationValue.number(newValue, in: 0...256) { storedWindChimeLineInset = value }
+        }
     }
 
     public var trayTheme: RiftTrayTheme {
@@ -220,6 +254,7 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
 
 
     private enum CodingKeys: String, CodingKey { case fitWidth, fitHeight, hiddenFraction, rowPitch, lineWidth, lineExtension, emptyTraceLength, outerInset, firstCenterFromTop, screenPadding, numberFontSize, numberGap, leftPadding, minimumHitWidth, minimumHitHeight, arrivalDuration, pressDuration, inwardDistance, swallowDuration, shiftDuration, returnDuration, reducedMotionDuration, preferredDisplayID, visibleCountPreference, placement, placementSource, preferredDisplayUUID
+        case storedWindChimeArrangement = "windChimeArrangement", storedWindChimeLineInset = "windChimeLineInset"
         case storedForm = "desktopForm", storedTrayTheme = "trayTheme", storedTrayOcclusion = "trayOcclusion"
         case storedTrayTintHue = "trayTintHue", storedTrayTintStrength = "trayTintStrength"
         case storedTrayFavorite1 = "trayFavorite1", storedTrayFavorite2 = "trayFavorite2", storedTrayFavorite3 = "trayFavorite3"
@@ -229,6 +264,12 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
         self.init()
         let values = try decoder.container(keyedBy: CodingKeys.self)
         if values.contains(.storedForm) { storedForm = try values.decode(PresentationValue.self, forKey: .storedForm) }
+        if values.contains(.storedWindChimeLineInset) {
+            storedWindChimeLineInset = try values.decode(PresentationValue.self, forKey: .storedWindChimeLineInset)
+        }
+        if values.contains(.storedWindChimeArrangement) {
+            storedWindChimeArrangement = try values.decode(PresentationValue.self, forKey: .storedWindChimeArrangement)
+        }
         if values.contains(.storedTrayTheme) { storedTrayTheme = try values.decode(PresentationValue.self, forKey: .storedTrayTheme) }
         if values.contains(.storedTrayTintHue) { storedTrayTintHue = try values.decode(PresentationValue.self, forKey: .storedTrayTintHue) }
         if values.contains(.storedTrayTintStrength) { storedTrayTintStrength = try values.decode(PresentationValue.self, forKey: .storedTrayTintStrength) }

@@ -36,16 +36,64 @@ import QuartzCore
     let checker = CAShapeLayer()
     let outer = CAShapeLayer(), inner = CAShapeLayer(), contact = CAGradientLayer(), lip = CALayer()
     let primary = CAShapeLayer(), tight = CAShapeLayer()
-    init(parent: CALayer, imageClip: CALayer) {
+    private let windChimeCard: CALayer?
+    init(parent: CALayer, imageClip: CALayer, windChime: Bool = false) {
+        windChimeCard = windChime ? CALayer() : nil
         plane.masksToBounds = true
         parent.insertSublayer(plane, at: 0)
         plane.addSublayer(moving)
+        imageClip.removeFromSuperlayer()
+        if let card = windChimeCard {
+            moving.addSublayer(card)
+            card.addSublayer(imageClip)
+            return
+        }
         moving.addSublayer(primary); moving.addSublayer(tight); moving.addSublayer(matte); moving.addSublayer(checker)
         // Pixel content and ornaments move together behind a stationary clipping plane.
-        imageClip.removeFromSuperlayer(); moving.addSublayer(imageClip)
+        moving.addSublayer(imageClip)
         moving.addSublayer(outer); moving.addSublayer(inner)
         plane.addSublayer(contact); parent.addSublayer(lip)
         for s in [outer, inner] { s.fillColor = nil }
+    }
+
+    func updateWindChime(view: NSView, imageClip: CALayer, geometry: RiftWindChimeCard,
+                         left: Bool, hovered: Bool, pressed: Bool) {
+        guard let card = windChimeCard else { return }
+        let scale = max(1, view.window?.backingScaleFactor ?? 1)
+        let bounds = view.bounds
+        plane.frame = bounds
+        plane.bounds = bounds
+        var visible = bounds
+        if left {
+            visible.origin.x = max(bounds.minX, geometry.clippingEdge)
+            visible.size.width = max(0, bounds.maxX - visible.minX)
+        } else {
+            visible.size.width = max(0, min(bounds.maxX, geometry.clippingEdge) - bounds.minX)
+        }
+        let mask = CAShapeLayer()
+        mask.path = CGPath(rect: visible, transform: nil)
+        plane.mask = mask
+        // Translation on moving belongs to press/swallow. Rotation belongs to
+        // the paper and its shadow. Neither transform touches the number or peek.
+        moving.bounds = bounds
+        moving.position = CGPoint(x: bounds.midX, y: bounds.midY)
+        card.bounds = CGRect(origin: .zero, size: geometry.cardFrame.size)
+        card.position = CGPoint(x: geometry.cardFrame.midX, y: geometry.cardFrame.midY)
+        card.setAffineTransform(CGAffineTransform(rotationAngle: geometry.degrees * .pi / 180))
+        card.allowsEdgeAntialiasing = true
+        let radius = min(RiftWindChimeLayout.corner, card.bounds.width / 2, card.bounds.height / 2)
+        card.cornerRadius = radius
+        card.backgroundColor = NSColor.white.cgColor
+        card.shadowColor = NSColor.black.cgColor
+        card.shadowOpacity = pressed ? 0.08 : hovered ? 0.22 : 0.16
+        card.shadowOffset = CGSize(width: 0, height: -1)
+        card.shadowRadius = pressed ? 1 : 2
+        card.shadowPath = CGPath(roundedRect: card.bounds, cornerWidth: radius, cornerHeight: radius, transform: nil)
+        let border = RiftWindChimeLayout.border
+        imageClip.frame = card.bounds.insetBy(dx: border, dy: border)
+        imageClip.cornerRadius = max(0, radius - border)
+        imageClip.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        for layer in [plane, moving, card, imageClip] { layer.contentsScale = scale }
     }
     func update(view: NSView, imageClip: CALayer, rect: CGRect, left: Bool, hidden: Bool,
                 hovered: Bool, pressed: Bool, trayCard: CGRect? = nil, colors: RiftTrayColors = .system) {

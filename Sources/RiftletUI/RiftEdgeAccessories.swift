@@ -16,7 +16,17 @@ private final class EdgeDecorationPanel: NSPanel {
 
 final class RiftLineView: NSView {
     var excludedContactBands: [CGRect] = [] { didSet { needsDisplay = true } }
+    var showsWindChime = false { didSet { needsDisplay = true } }
     override func draw(_ rect: NSRect) {
+        if showsWindChime, bounds.height > 0 {
+            let color = RiftVisualStyle.edge
+            let clear = color.withAlphaComponent(0)
+            let bottom = min(1, RiftWindChimeLayout.bottomExtension / bounds.height)
+            let top = max(bottom, 1 - RiftWindChimeLayout.topExtension / bounds.height)
+            NSGradient(colorsAndLocations: (clear, 0), (color, bottom), (color, top), (clear, 1))?
+                .draw(in: bounds, angle: 90)
+            return
+        }
         RiftVisualStyle.edge.setFill()
         let path = NSBezierPath(rect: bounds)
         path.windingRule = .evenOdd

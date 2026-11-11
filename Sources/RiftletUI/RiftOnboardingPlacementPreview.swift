@@ -69,6 +69,10 @@ final class RiftOnboardingPlacementPreview: NSView {
             ("给 ChatGPT 发送消息" as NSString).draw(at: CGPoint(x: entry.minX + 8, y: entry.midY - 6), withAttributes: words)
         }
         guard let placement = workflow ? RiftPlacement.rightMiddle : configuration.placement else { return }
+        if !workflow, configuration.desktopForm == .windChime {
+            WindChimePlacementIllustration.draw(in: rect, configuration: configuration, flipped: isFlipped)
+            return
+        }
         let tray = workflow || configuration.desktopForm == .tray
         let width = tray ? rect.width / 8 : 34.0
         let height = tray ? width * 0.53 : 23.0

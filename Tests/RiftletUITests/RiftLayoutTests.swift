@@ -52,6 +52,102 @@ final class RiftLayoutTests: XCTestCase {
         XCTAssertEqual(RiftLayout.pageStart(from:2,direction:1,totalCount:8,capacity:3),5)
     }
 
+    func testWindChimeMirrorsThePaperAndClipsItAtThePhysicalDisplay() throws {
+        let content = records(3, width: 1600, height: 1000)
+        let display = CGRect(x: -1440, y: 80, width: 1440, height: 900)
+        let available = display.insetBy(dx: 36, dy: 28)
+        var c = RiftConfiguration()
+        c.desktopForm = .windChime
+        c.windChimeArrangement = .staggered
+        for left in [false, true] {
+            c.placement = left ? .leftMiddle : .rightMiddle
+            let layout = RiftWindChimeLayout.make(records: content, visibleFrame: available, configuration: c,
+                                                   backingScale: 2, displayFrame: display)
+            XCTAssertEqual(layout.rows.map(\.assetID), content.map(\.id))
+            XCTAssertEqual(layout.rows.compactMap { $0.windChime?.degrees }, left ? [-2, 1, -1] : [2, -1, 1])
+            XCTAssertEqual(layout.lineFrame.width, 0.5)
+            XCTAssertEqual(layout.rows[0].frame.midY - layout.rows[1].frame.midY, 66, accuracy: 1)
+            for row in layout.rows {
+                let card = try XCTUnwrap(row.windChime)
+                XCTAssertEqual(row.imageFrame.size, CGSize(width: 72, height: 45))
+                XCTAssertEqual(card.cardFrame.width, 75)
+                let crop = row.imageClipFrame.offsetBy(dx: row.frame.minX, dy: row.frame.minY)
+                XCTAssertEqual(left ? crop.minX : crop.maxX, left ? display.minX : display.maxX, accuracy: 0.001)
+                XCTAssertTrue(display.contains(crop))
+                XCTAssertTrue(crop.minX < layout.lineFrame.midX && crop.maxX > layout.lineFrame.midX)
+                XCTAssertTrue(row.containsSelectionPoint(CGPoint(x: row.numberFrame.midX, y: row.numberFrame.midY)))
+                XCTAssertFalse(row.containsSelectionPoint(CGPoint(x: left ? crop.minX - row.frame.minX - 1 : crop.maxX - row.frame.minX + 1,
+                                                                  y: row.imageClipFrame.midY)))
+                let corner = CGPoint(x: left ? row.imageClipFrame.maxX - 0.01 : row.imageClipFrame.minX + 0.01,
+                                     y: row.imageClipFrame.maxY - 0.01)
+                XCTAssertFalse(row.containsSelectionPoint(corner), "Empty corner outside the rotated white card")
+            }
+            let first = layout.rows[0], last = layout.rows[2]
+            XCTAssertEqual(layout.lineFrame.maxY - (first.frame.minY + first.imageClipFrame.maxY), 14, accuracy: 0.001)
+            XCTAssertEqual(last.frame.minY + last.imageClipFrame.minY - layout.lineFrame.minY, 28, accuracy: 0.001)
+        }
+    }
+
+    func testWindChimeKeepsAssetPoseAcrossPagingRefillAndAlignmentChanges() throws {
+        let content = records(7, width: 900, height: 1400)
+        var c = RiftConfiguration()
+        let area = CGRect(x: 0, y: 0, width: 1440, height: 900)
+        func layout(_ assets: [AssetRecord], _ first: Int = 0) -> RiftLayoutResult {
+            RiftWindChimeLayout.make(records: assets, visibleFrame: area, configuration: c, firstVisibleIndex: first)
+        }
+        let full = layout(content, 2)
+        XCTAssertEqual(full.rows.map(\.assetID), Array(content[2...4]).map(\.id))
+        let old = try XCTUnwrap(full.rows.first)
+        let new = try XCTUnwrap(layout(Array(content.dropFirst(2))).rows.first)
+        XCTAssertEqual(new.assetID, old.assetID)
+        XCTAssertNotEqual(new.ordinal, old.ordinal)
+        XCTAssertEqual(new.windChime?.degrees, old.windChime?.degrees)
+        XCTAssertEqual(new.frame.minX + new.imageFrame.midX, old.frame.minX + old.imageFrame.midX)
+        XCTAssertGreaterThanOrEqual(full.earlierArrowFrame.minY - full.lineFrame.maxY, 4)
+        XCTAssertGreaterThanOrEqual(full.lineFrame.minY - full.laterArrowFrame.maxY, 4)
+        c.windChimeArrangement = .aligned
+        for row in layout(content).rows { XCTAssertEqual(row.windChime?.degrees, 0) }
+        let tiny = layout(records(1, width: 3, height: 5))
+        XCTAssertEqual(tiny.rows.first?.imageFrame.size, CGSize(width: 3, height: 5))
+        XCTAssertTrue(try XCTUnwrap(tiny.rows.first).numberIsPad)
+        XCTAssertGreaterThanOrEqual(try XCTUnwrap(tiny.rows.first).numberFrame.width, 22)
+        XCTAssertEqual(tiny.lineFrame.height, 5 + 3 + 14 + 28, accuracy: 0.001)
+        XCTAssertTrue(layout([]).lineFrame.isEmpty)
+    }
+
+    func testWindChimeKeepsBothEdgesOnAFractionalLogicalDisplay() {
+        let area = CGRect(x: -13.35, y: 0, width: 2036.947, height: 900)
+        let content = records(3, width: 1600, height: 900)
+        var c = RiftConfiguration()
+        for placement: RiftPlacement in [.rightMiddle, .leftMiddle] {
+            c.placement = placement
+            let result = RiftWindChimeLayout.make(records: content, visibleFrame: area, configuration: c)
+            XCTAssertEqual(result.rows.map(\.assetID), content.map(\.id))
+            XCTAssertTrue(result.rows.allSatisfy { area.contains($0.frame) })
+        }
+    }
+
+    func testWindChimeLargeCardsKeepStringCameraAndPageArrowsOnScreen() {
+        let area = CGRect(x: 0, y: 0, width: 1440, height: 920)
+        let content = records(12, width: 900, height: 900)
+        for size: CGFloat in [128, 192, 256] {
+            var c = RiftConfiguration()
+            c.fitWidth = size; c.fitHeight = size
+            c.visibleCountPreference = 6
+            for placement: RiftPlacement in [.rightTop, .rightBottom, .leftTop, .leftBottom] {
+                c.placement = placement
+                let layout = RiftWindChimeLayout.make(records: content, visibleFrame: area, configuration: c, firstVisibleIndex: 2)
+                XCTAssertFalse(layout.rows.isEmpty)
+                XCTAssertTrue(area.contains(layout.earlierArrowFrame))
+                XCTAssertTrue(area.contains(layout.laterArrowFrame))
+                XCTAssertTrue(area.contains(layout.lineFrame))
+                XCTAssertGreaterThanOrEqual(layout.earlierArrowFrame.minY - layout.lineFrame.maxY, 4)
+                XCTAssertGreaterThanOrEqual(layout.lineFrame.minY - layout.laterArrowFrame.maxY, 4)
+                XCTAssertGreaterThanOrEqual(layout.cameraAnchor.y - 18 - layout.earlierArrowFrame.maxY, 4)
+            }
+        }
+    }
+
     func testPageMotionMovesOnlyVerticalGeometryAndRespectsReducedMotion() {
         let final = CGRect(x: -400, y: 200, width: 72, height: 56)
         let down = RiftPageTransition(direction: 1, reduceMotion: false)

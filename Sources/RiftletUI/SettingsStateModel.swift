@@ -3,12 +3,12 @@ import RiftletCapture
 
 /// Presentation state only. No file, window, capture, browser or upload access.
 public enum SettingsDomain: String, CaseIterable, Sendable {
-    case collection, visibility, entry, captureMode, arrival, layout, placement, display, desktopForm, trayTheme, archive
+    case collection, visibility, entry, captureMode, arrival, layout, placement, display, desktopForm, windChimeArrangement, trayTheme, archive
     case trayFavorite1, trayFavorite2, trayFavorite3
 
     var writesConfiguration: Bool {
         switch self {
-        case .layout, .placement, .display, .desktopForm, .trayTheme, .trayFavorite1, .trayFavorite2, .trayFavorite3: return true
+        case .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFavorite1, .trayFavorite2, .trayFavorite3: return true
         default: return false
         }
     }
@@ -29,7 +29,7 @@ public enum SettingsDraftPage: Equatable, Sendable { case display, motion }
 /// Only currently effective numeric settings are editable. Codable compatibility
 /// fields and display identity never enter this patch vocabulary.
 public enum SettingsField: String, CaseIterable, Hashable, Sendable {
-    case fitWidth, fitHeight, hiddenFraction, trayOcclusion, trayTintHue, trayTintStrength, rowPitch, outerInset, firstCenterFromTop
+    case fitWidth, fitHeight, hiddenFraction, trayOcclusion, trayTintHue, trayTintStrength, rowPitch, outerInset, windChimeLineInset, firstCenterFromTop
     case numberFontSize, numberGap, leftPadding, minimumHitWidth, minimumHitHeight, visibleCountPreference
     case pressDuration, swallowDuration, shiftDuration, returnDuration
 
@@ -57,6 +57,7 @@ public enum SettingsField: String, CaseIterable, Hashable, Sendable {
         case .trayOcclusion: return c.trayOcclusion
         case .hiddenFraction: return c.hiddenFraction
         case .rowPitch: return c.rowPitch
+        case .windChimeLineInset: return c.windChimeLineInset
         case .outerInset: return c.outerInset
         case .firstCenterFromTop: return c.firstCenterFromTop
         case .numberFontSize: return c.numberFontSize
@@ -88,6 +89,9 @@ public enum SettingsField: String, CaseIterable, Hashable, Sendable {
             c.trayOcclusion = value
         case .hiddenFraction: c.hiddenFraction = value
         case .rowPitch: c.rowPitch = value
+        case .windChimeLineInset:
+            guard (0...256).contains(value) else { throw SettingsValidationFailure.invalidNumber(self) }
+            c.windChimeLineInset = value
         case .outerInset: c.outerInset = value
         case .firstCenterFromTop: c.firstCenterFromTop = value
         case .numberFontSize: c.numberFontSize = value
@@ -118,7 +122,7 @@ public struct SettingsDisplayPreference: Equatable, Sendable {
 public enum SettingsIntent: Equatable, Sendable {
     case collectionPaused(Bool), hidden(Bool), entryEnabled(Bool)
     case captureMode(ScreenshotMode), arrival(ArrivalMotionMode)
-    case desktopForm(RiftDesktopForm), trayTheme(RiftTrayTheme)
+    case desktopForm(RiftDesktopForm), windChimeArrangement(RiftWindChimeArrangement), trayTheme(RiftTrayTheme)
     case trayFavorite(RiftTrayFavoriteSlot, RiftTrayFavoriteChoice)
     case layout([SettingsField: Double]), placement(RiftPlacement)
     case display(SettingsDisplayPreference), archiveMinutes(Double?)
@@ -131,6 +135,7 @@ public enum SettingsIntent: Equatable, Sendable {
         case .captureMode: return .captureMode
         case .arrival: return .arrival
         case .desktopForm: return .desktopForm
+        case .windChimeArrangement: return .windChimeArrangement
         case .trayTheme: return .trayTheme
         case .trayFavorite(let slot, _): return slot.settingsDomain
         case .layout: return .layout
@@ -143,7 +148,7 @@ public enum SettingsIntent: Equatable, Sendable {
 
 public enum SettingsConfirmedValue: Equatable, Sendable {
     case boolean(Bool), captureMode(ScreenshotMode), arrival(ArrivalMotionMode)
-    case desktopForm(RiftDesktopForm), trayTheme(RiftTrayTheme)
+    case desktopForm(RiftDesktopForm), windChimeArrangement(RiftWindChimeArrangement), trayTheme(RiftTrayTheme)
     case trayFavorite(RiftTrayFavoriteChoice)
     case configuration(RiftConfiguration), placement(RiftPlacement?)
     case display(id: UInt32?, uuid: String?), archiveMinutes(Double?)
@@ -220,7 +225,7 @@ public enum SettingsCommand: Sendable {
     case discardLayout, discardArchive, discardDrafts, applyLayout, applyArchive, applyDrafts
     case setCollectionPaused(Bool), setHidden(Bool), setEntryEnabled(Bool)
     case setCaptureMode(ScreenshotMode), setArrival(ArrivalMotionMode)
-    case selectDesktopForm(RiftDesktopForm), selectTrayTheme(RiftTrayTheme)
+    case selectDesktopForm(RiftDesktopForm), selectWindChimeArrangement(RiftWindChimeArrangement), selectTrayTheme(RiftTrayTheme)
     case selectTrayFavorite(RiftTrayFavoriteSlot, RiftTrayFavoriteChoice)
     case selectPlacement(RiftPlacement), selectDisplay(UInt32?), retry(SettingsDomain)
 }
@@ -297,7 +302,8 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         var visibleDomains = domains
         // A retained tint draft is editable again when its controls return.
         // Present its current validation only while it belongs to this form and theme.
-        if case .invalidNumber(let field) = visibleDomains[.layout]?.validationFailure, field.isCustomTrayTint {
+        if case .invalidNumber(let field) = visibleDomains[.layout]?.validationFailure,
+           field.isCustomTrayTint || !includedInLayoutDraft(field) {
             visibleDomains[.layout]?.validationFailure = nil
         }
         let draft: RiftConfiguration?
@@ -404,8 +410,8 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         case .setCaptureMode(let value): await save(prepare(.captureMode(value)), into: &result)
         case .setArrival(let value): await save(prepare(.arrival(value)), into: &result)
         case .selectDesktopForm(let value):
-            guard value.isAvailable else { return result }
             await save(prepare(.desktopForm(value)), into: &result)
+        case .selectWindChimeArrangement(let value): await save(prepare(.windChimeArrangement(value)), into: &result)
         case .selectTrayTheme(let value): await save(prepare(.trayTheme(value)), into: &result)
         case .selectTrayFavorite(let slot, let choice):
             guard choice != .unsupported else { return result }
@@ -431,8 +437,10 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
     }
 
     private func includedInLayoutDraft(_ field: SettingsField) -> Bool {
+        let configuration = owner.settings.configuration
+        if field == .windChimeLineInset { return configuration.desktopForm == .windChime }
+        if field == .outerInset || field == .hiddenFraction { return configuration.desktopForm != .windChime }
         if field.isCustomTrayTint {
-            let configuration = owner.settings.configuration
             return configuration.desktopForm == .tray && configuration.trayTheme == .custom
         }
         return applicable(field)
@@ -494,6 +502,7 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
                 try field.put(value, into: &candidate)
             }
         case .desktopForm(let value): candidate.desktopForm = value
+        case .windChimeArrangement(let value): candidate.windChimeArrangement = value
         case .trayTheme(let value): candidate.trayTheme = value
         case .trayFavorite(let slot, let choice): candidate.setTrayFavorite(choice, for: slot)
         case .placement(let placement): candidate.placement = placement; candidate.placementSource = .user
@@ -595,6 +604,7 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
             // legitimately change untouched fields before a rebased write.
             return patch.allSatisfy { $0.key.value(in: value.settings.configuration) == $0.value }
         case .desktopForm(let target): return value.settings.configuration.desktopForm == target
+        case .windChimeArrangement(let target): return value.settings.configuration.windChimeArrangement == target
         case .trayTheme(let target): return value.settings.configuration.trayTheme == target
         case .trayFavorite(let slot, let choice): return value.settings.configuration.trayFavorite(slot) == choice
         case .placement(let target):
@@ -613,6 +623,7 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         case .captureMode: return .captureMode(value.settings.defaultCaptureMode)
         case .arrival: return .arrival(value.settings.arrivalMode)
         case .desktopForm: return .desktopForm(value.settings.configuration.desktopForm)
+        case .windChimeArrangement: return .windChimeArrangement(value.settings.configuration.windChimeArrangement)
         case .trayTheme: return .trayTheme(value.settings.configuration.trayTheme)
         case .trayFavorite1: return .trayFavorite(value.settings.configuration.trayFavorite(.first))
         case .trayFavorite2: return .trayFavorite(value.settings.configuration.trayFavorite(.second))

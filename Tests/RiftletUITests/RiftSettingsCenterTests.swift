@@ -301,6 +301,63 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertEqual(field.stringValue, "83.2500", "Blurred drafts retain formatting, too")
     }
 
+    @MainActor func testWindChimeArrangementControlTracksFormAndOwner() async throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        h.controller.show(page: .display)
+        let form: NSSegmentedControl = try control(h, "desktopForm")
+        let arrangement: NSSegmentedControl = try control(h, "windChimeArrangement")
+        XCTAssertTrue(form.isEnabled(forSegment: 1))
+        XCTAssertTrue(h.controller.windChimeSettings.isHidden)
+        try await changeAndWait(h, "desktopForm", index: 1)
+        XCTAssertFalse(h.controller.windChimeSettings.isHidden)
+        XCTAssertTrue(h.controller.commonEdgeSettings.isHidden)
+        XCTAssertFalse(h.controller.windChimeLineSetting.isHidden)
+        XCTAssertTrue(h.controller.geometryPreview.geometrySummary.hasSuffix("风铃 · 错落"))
+        XCTAssertEqual(h.controller.numericFields[.windChimeLineInset]?.stringValue, "18")
+        XCTAssertEqual(arrangement.accessibilityLabel(), "风铃排列")
+        XCTAssertEqual(arrangement.label(forSegment: arrangement.selectedSegment), "错落")
+        try await changeAndWait(h, "windChimeArrangement", index: 0)
+        XCTAssertEqual(h.owner.settings.configuration.windChimeArrangement, .aligned)
+        XCTAssertTrue(h.controller.geometryPreview.geometrySummary.hasSuffix("风铃 · 整齐"))
+        var updated = h.owner.settings
+        updated.configuration.windChimeArrangement = .staggered
+        h.receive(updated)
+        XCTAssertEqual(arrangement.selectedSegment, 1)
+        try await changeAndWait(h, "desktopForm", index: 0)
+        XCTAssertTrue(h.controller.windChimeSettings.isHidden)
+        XCTAssertEqual(h.owner.settings.configuration.windChimeArrangement, .staggered)
+    }
+
+    @MainActor func testSettingsAndFirstUseDrawDistinctWindChimeArrangementsAtFractionalScale() throws {
+        // The native sample views project a fractional number of display points.
+        // A right-edge drawing once lost every row when its window bounds rounded outwards.
+        let settings = RiftSettingsCenterPreview(kind: .geometry)
+        settings.frame = CGRect(x: 0, y: 0, width: 524, height: 115)
+        let onboarding = RiftOnboardingPlacementPreview()
+        onboarding.frame = CGRect(x: 0, y: 0, width: 466, height: 103)
+        func raster(_ view: NSView) throws -> Data {
+            view.layoutSubtreeIfNeeded()
+            let bitmap = try XCTUnwrap(view.bitmapImageRepForCachingDisplay(in: view.bounds))
+            view.cacheDisplay(in: view.bounds, to: bitmap)
+            return try XCTUnwrap(bitmap.representation(using: .png, properties: [:]))
+        }
+        for side in [RiftPlacement.leftMiddle, .rightMiddle] {
+            var config = RiftConfiguration()
+            config.desktopForm = .windChime
+            config.placement = side
+            config.windChimeArrangement = .aligned
+            settings.update(configuration: config, mode: .none, reduceMotion: false)
+            onboarding.configuration = config
+            let alignedSettings = try raster(settings)
+            let alignedOnboarding = try raster(onboarding)
+            config.windChimeArrangement = .staggered
+            settings.update(configuration: config, mode: .none, reduceMotion: false)
+            onboarding.configuration = config
+            XCTAssertNotEqual(try raster(settings), alignedSettings, "Settings sample must visibly change: \(side)")
+            XCTAssertNotEqual(try raster(onboarding), alignedOnboarding, "First-use sample must visibly change: \(side)")
+        }
+    }
+
     @MainActor func testTrayFavoritePickersKeepOrderAndUpdateAutomaticLabelsOnOwnerRefresh() async throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
         var settings = h.owner.settings
@@ -1071,7 +1128,7 @@ private final class SettingsCenterTestHost {
         case .captureMode(let mode): if !failure { settings.defaultCaptureMode = mode; settings.capturePreferencesSaveFailed = false }
         case .arrival(let mode): if !failure { settings.arrivalMode = mode; settings.hasArrivalSelection = true }
         case .archiveMinutes(let value): if !failure { settings.archiveAfterMinutes = value }
-        case .layout, .placement, .display, .desktopForm, .trayTheme, .trayFavorite:
+        case .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFavorite:
             if !failure, let configuration = request.configuration { settings.configuration = configuration; settings.preferredDisplayID = configuration.preferredDisplayID }
         }
         owner = SettingsOwnerSnapshot(revision: owner.revision + 1, settings: settings, collectionPaused: paused, isHidden: hidden,

@@ -39,6 +39,9 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     var archiveCustomRow: NSView!
     var captureOptions: NSView!
     var trayFavorites: NSView!
+    var commonEdgeSettings: NSView!
+    var windChimeLineSetting: NSView!
+    var windChimeSettings: NSView!
     var traySettings: NSView!
     var trayTintSettings: NSView!
     var legacyFieldRow: NSView!

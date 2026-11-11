@@ -39,13 +39,13 @@ extension RiftSettingsCenterController {
         geometryPreview.heightAnchor.constraint(equalToConstant: 115).isActive = true
         let forms = RiftDesktopForm.allCases
         let form = segmented("桌面形态", id: "desktopForm", titles: forms.map(\.title)) { [weak self] index in
-            guard forms[index].isAvailable else { return }
             self?.dispatch(.settings(.selectDesktopForm(forms[index])))
         }
-        for (i, candidate) in forms.enumerated() where !candidate.isAvailable {
-            form.setEnabled(false, forSegment: i)
-            form.setToolTip("风铃设计待确认", forSegment: i)
+        let arrangements = RiftWindChimeArrangement.allCases
+        let arrangement = segmented("风铃排列", id: "windChimeArrangement", titles: arrangements.map(\.title)) { [weak self] index in
+            self?.dispatch(.settings(.selectWindChimeArrangement(arrangements[index])))
         }
+        windChimeSettings = row("风铃排列", control: arrangement)
         let placement = popup("屏幕边缘", id: "placement", titles: RiftPlacement.allCases.map(\.title)) { [weak self] popup in
             guard RiftPlacement.allCases.indices.contains(popup.indexOfSelectedItem) else { return }
             self?.dispatch(.settings(.selectPlacement(RiftPlacement.allCases[popup.indexOfSelectedItem])))
@@ -77,12 +77,17 @@ extension RiftSettingsCenterController {
             guard SettingsAppearanceChoice.allCases.indices.contains(popup.indexOfSelectedItem) else { return }
             self?.dispatch(.appearance(SettingsAppearanceChoice.allCases[popup.indexOfSelectedItem]))
         }
-        let detailed = group([
+        commonEdgeSettings = group([
             numericRow(.hiddenFraction, title: "藏入边缘", unit: "%", range: 0...90),
-            numericRow(.outerInset, title: "边缘内缩", unit: "pt", range: 0...256),
+            numericRow(.outerInset, title: "边缘内缩", unit: "pt", range: 0...256)
+        ])
+        windChimeLineSetting = numericRow(.windChimeLineInset, title: "连线距边", unit: "pt", range: 0...256)
+        let detailed = group([
+            commonEdgeSettings!, windChimeLineSetting!,
             numericRow(.fitWidth, title: "缩略图最大宽度", unit: "pt"),
             numericRow(.fitHeight, title: "缩略图最大高度", unit: "pt"),
             numericRow(.rowPitch, title: "排列间距", unit: "pt"),
+            namedLabel("windChime.pitch", role: "caption"),
             numericRow(.numberFontSize, title: "编号字号", unit: "pt")
         ])
         legacyFieldRow = numericRow(.firstCenterFromTop, title: "旧版距顶部位置", unit: "pt")
@@ -100,7 +105,8 @@ extension RiftSettingsCenterController {
         ] + motionContent() + [namedLabel("accessibility", role:"caption")])
         return [
             geometryPreview,
-            row("桌面形态", detail: "风铃设计待确认。", control: form), domainError(.desktopForm),
+            row("桌面形态", control: form), domainError(.desktopForm),
+            windChimeSettings!, domainError(.windChimeArrangement),
             row("屏幕边缘", control: placement), domainError(.placement),
             row("显示器", control: display), namedLabel("display.detail", role: "caption"), domainError(.display),
             makeButton("回到已选显示器", id: "display.restore") { [weak self] in self?.dispatch(.restorePreferredDisplay) },

@@ -1,4 +1,5 @@
 import AppKit
+import RiftletCore
 import QuartzCore
 
 /// Drawn fixtures only. No image URL, filesystem, capture, queue or upload owner.
@@ -24,6 +25,9 @@ final class RiftSettingsCenterPreview: NSView {
         let title = configuration.placement?.title ?? "旧版位置"
         let countText = configuration.visibleCountPreference > count
             ? "\(configuration.visibleCountPreference) 张（示意前 \(count) 张）" : "\(count) 张"
+        if configuration.desktopForm == .windChime {
+            return title + " · " + countText + " · 风铃 · " + configuration.windChimeArrangement.title
+        }
         return title + " · " + countText
     }
 
@@ -53,7 +57,7 @@ final class RiftSettingsCenterPreview: NSView {
         let changed = self.configuration != configuration || self.mode != mode || self.reduceMotion != reduceMotion
         self.configuration = configuration; self.mode = mode; self.reduceMotion = reduceMotion
         if let drawing = desktopIllustration {
-            drawing.showsTray = configuration.desktopForm == .tray
+            drawing.configuration = configuration
             drawing.visible = configuration.visibleCountPreference
             drawing.includesEntry = entryEnabled
             drawing.placement = RiftPlacement.allCases.firstIndex(of: configuration.placement ?? .rightMiddle) ?? 4
@@ -138,7 +142,8 @@ final class RiftSettingsCenterPreview: NSView {
 /// Schematic display preview in Settings. Geometry is expressed in display points.
 @MainActor
 private final class RiftSettingsDesktopIllustration: NSView {
-    var showsTray = true
+    var configuration = RiftConfiguration()
+    private var showsTray: Bool { configuration.desktopForm == .tray }
     var placement = 4
     var visible = 3
     var hue: CGFloat = 0.71
@@ -174,6 +179,11 @@ private final class RiftSettingsDesktopIllustration: NSView {
         wave(0.85, CGPoint(x: 0.32,y: -0.52), CGPoint(x: 0.59,y: 1.65), 0.22, rgb(0.50,0.74,0.77))
         wave(0.67, CGPoint(x: 0.43,y: 1.39), CGPoint(x: 0.56,y: -0.52), 0.66, rgb(0.42,0.62,0.73))
         wave(0.93, CGPoint(x: 0.39,y: 1.25), CGPoint(x: 0.67,y: 0.34), 0.86, rgb(0.29,0.52,0.64))
+        if configuration.desktopForm == .windChime {
+            WindChimePlacementIllustration.draw(in: rect, configuration: configuration, flipped: isFlipped)
+            NSColor.separatorColor.setStroke(); clip.lineWidth = 1; clip.stroke()
+            return
+        }
         let sideWidth = showsTray ? w / 8 : w * 0.065
         let total = min(4, visible + (includesEntry && showsTray ? 1 : 0))
         let sideHeight = showsTray ? sideWidth * (total > 2 ? 212.0/246 : 115.0/246) : sideWidth * 1.75
@@ -226,5 +236,72 @@ private final class RiftSettingsDesktopIllustration: NSView {
         path.line(to:CGPoint(x:rect.maxX,y:rect.minY+rect.height*0.23))
         path.line(to:CGPoint(x:rect.maxX,y:rect.maxY));path.close()
         NSColor.black.withAlphaComponent(0.18).setFill();path.fill()
+    }
+}
+
+/// Both settings and onboarding project the desktop renderer’s layout with bundled
+/// sample images. There is no media store, screenshot source or input window here.
+@MainActor
+enum WindChimePlacementIllustration {
+    private static let samples = [("glass-study", "png"), ("reading", "svg"), ("error", "svg"), ("glass-study", "png")]
+    private static let images = samples.map { name, ext in
+        Bundle.main.url(forResource: name, withExtension: ext).flatMap(NSImage.init(contentsOf:))
+    }
+    private static let records: [AssetRecord] = samples.indices.map { index in
+        let size = images[index]?.size ?? NSSize(width: 160, height: 110)
+        let image = ImportedAsset(sourceKey: "illustration-\(index)", fileName: samples[index].0,
+            sha256: "", byteCount: 0, pixelWidth: Int(size.width), pixelHeight: Int(size.height),
+            mediaType: "image/png", origin: .synthetic)
+        return AssetRecord(image: image, sequence: Int64(index + 1), status: .pending, activeOperationID: nil)
+    }
+
+    static func draw(in rect: CGRect, configuration: RiftConfiguration, flipped: Bool) {
+        guard rect.width > 0, rect.height > 0, let context = NSGraphicsContext.current?.cgContext else { return }
+        var sample = configuration
+        sample.visibleCountPreference = min(records.count, configuration.visibleCountPreference)
+        // Show up to four details at a legible scale within each short landscape schematic.
+        let scale = rect.height / 444
+        let display = CGRect(origin: .zero, size: CGSize(width: rect.width / scale, height: rect.height / scale))
+        let layout = RiftWindChimeLayout.make(records: records, visibleFrame: display, configuration: sample)
+        NSGraphicsContext.saveGraphicsState()
+        defer { NSGraphicsContext.restoreGraphicsState() }
+        context.clip(to: rect)
+        context.translateBy(x: rect.minX, y: flipped ? rect.maxY : rect.minY)
+        context.scaleBy(x: scale, y: flipped ? -scale : scale)
+        NSGraphicsContext.current = NSGraphicsContext(cgContext: context, flipped: false)
+        let line = layout.lineFrame
+        if !line.isEmpty {
+            NSGradient(colors: [.clear, .secondaryLabelColor, .secondaryLabelColor, .clear],
+                       atLocations: [0, 0.14, 0.93, 1], colorSpace: .deviceRGB)?
+                .draw(in: line, angle: 90)
+        }
+        for row in layout.rows {
+            guard let card = row.windChime else { continue }
+            NSGraphicsContext.saveGraphicsState()
+            context.translateBy(x: row.frame.minX, y: row.frame.minY)
+            context.saveGState()
+            context.concatenate(card.rotation)
+            let outline = NSBezierPath(roundedRect: card.cardFrame, xRadius: RiftWindChimeLayout.corner,
+                                       yRadius: RiftWindChimeLayout.corner)
+            context.setShadow(offset: CGSize(width: 0, height: -1), blur: 3,
+                              color: NSColor.black.withAlphaComponent(0.22).cgColor)
+            NSColor.white.setFill()
+            outline.fill()
+            context.setShadow(offset: .zero, blur: 0)
+            let innerRadius = max(0, RiftWindChimeLayout.corner - RiftWindChimeLayout.border)
+            NSBezierPath(roundedRect: row.imageFrame, xRadius: innerRadius, yRadius: innerRadius).addClip()
+            if let image = images[row.ordinal - 1] {
+                image.draw(in: row.imageFrame, from: .zero, operation: .sourceOver, fraction: 1)
+            } else {
+                NSColor.systemGray.setFill()
+                row.imageFrame.fill()
+            }
+            context.restoreGState()
+            (String(row.ordinal) as NSString).draw(in: row.numberFrame, withAttributes: [
+                .font: NSFont.monospacedDigitSystemFont(ofSize: sample.numberFontSize, weight: .regular),
+                .foregroundColor: NSColor.labelColor
+            ])
+            NSGraphicsContext.restoreGraphicsState()
+        }
     }
 }

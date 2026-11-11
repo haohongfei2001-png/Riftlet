@@ -68,7 +68,7 @@ final class SettingsStateModelTests: XCTestCase {
                 case .arrival(let mode):
                     if !failed { next.settings.arrivalMode = mode; next.settings.hasArrivalSelection = true }
                 case .archiveMinutes(let minutes): if !failed { next.settings.archiveAfterMinutes = minutes }
-                case .layout, .placement, .display, .desktopForm, .trayTheme, .trayFavorite:
+                case .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFavorite:
                     if !failed, let configuration = request.configuration {
                         next.settings.configuration = configuration
                         next.settings.preferredDisplayID = configuration.preferredDisplayID
@@ -156,8 +156,8 @@ final class SettingsStateModelTests: XCTestCase {
         }
     }
 
-    func testPresentationFallbackPreservesFutureAndUnavailableSelections() throws {
-        for raw in [#""future-form""#, #""windChime""#, #"{"version":3,"names":["x"]}"#, "null"] {
+    func testPresentationFallbackPreservesUnrecognizedSelections() throws {
+        for raw in [#""future-form""#, #"{"version":3,"names":["x"]}"#, "null"] {
             let source = Data("{\"desktopForm\":\(raw),\"trayTheme\":\"future-glass\",\"trayOcclusion\":1.6,\"emptyTraceLength\":33}".utf8)
             var value = try JSONDecoder().decode(RiftConfiguration.self, from: source)
             XCTAssertEqual(value.desktopForm, .microSlit)
@@ -170,6 +170,87 @@ final class SettingsStateModelTests: XCTestCase {
                 XCTAssertEqual(saved[key] as? NSObject, original[key] as? NSObject)
             }
         }
+    }
+
+    func testStoredWindChimeIsRestoredAndUnknownArrangementSurvivesUnrelatedSaves() throws {
+        let legacy = try JSONDecoder().decode(RiftConfiguration.self, from: Data(#"{"desktopForm":"windChime"}"#.utf8))
+        XCTAssertEqual(legacy.desktopForm, .windChime)
+        XCTAssertEqual(legacy.windChimeArrangement, .aligned)
+        var switched = legacy
+        switched.desktopForm = .microSlit
+        switched = try JSONDecoder().decode(RiftConfiguration.self, from: JSONEncoder().encode(switched))
+        switched.desktopForm = .windChime
+        XCTAssertEqual(switched.windChimeArrangement, .aligned)
+        var fresh = RiftConfiguration()
+        fresh.desktopForm = .windChime
+        XCTAssertEqual(fresh.windChimeArrangement, .staggered)
+        XCTAssertEqual(fresh.windChimeLineInset, 18)
+        let original = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(legacy)) as? NSDictionary)
+        XCTAssertNil(original["windChimeArrangement"])
+        for raw in [#""future""#, #"{"axis":[1,2]}"#, "null"] {
+            let source = Data("{\"desktopForm\":\"windChime\",\"windChimeArrangement\":\(raw)}".utf8)
+            var config = try JSONDecoder().decode(RiftConfiguration.self, from: source)
+            XCTAssertEqual(config.windChimeArrangement, .staggered)
+            config.desktopForm = .tray
+            let saved = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(config)) as? NSDictionary)
+            let input = try XCTUnwrap(JSONSerialization.jsonObject(with: source) as? NSDictionary)
+            XCTAssertEqual(saved["windChimeArrangement"] as? NSObject, input["windChimeArrangement"] as? NSObject)
+            config.windChimeArrangement = .aligned
+            let reopened = try JSONDecoder().decode(RiftConfiguration.self, from: JSONEncoder().encode(config))
+            XCTAssertEqual(reopened.windChimeArrangement, .aligned)
+            XCTAssertEqual(reopened.desktopForm, .tray)
+        }
+    }
+
+    @MainActor func testWindChimeArrangementRetryRebasesWithoutSwitchingFormOrApplyingDraft() async throws {
+        let owner = Owner()
+        let model = try model(owner)
+        _ = await model.perform(.selectDesktopForm(.windChime))
+        model.setDraftText("88", for: .fitWidth)
+        owner.failures.insert(.windChimeArrangement)
+        let failed = await model.perform(.selectWindChimeArrangement(.aligned))
+        XCTAssertEqual(failed.failed, [.windChimeArrangement])
+        XCTAssertEqual(owner.value.settings.configuration.windChimeArrangement, .staggered)
+        _ = await model.perform(.selectDesktopForm(.microSlit))
+        XCTAssertEqual(model.snapshot.domains[.windChimeArrangement]?.pending, .windChimeArrangement(.aligned))
+        owner.failures.remove(.windChimeArrangement)
+        let retry = await model.perform(.retry(.windChimeArrangement))
+        XCTAssertEqual(retry.confirmed, [.windChimeArrangement])
+        XCTAssertEqual(owner.value.settings.configuration.desktopForm, .microSlit)
+        XCTAssertEqual(owner.value.settings.configuration.windChimeArrangement, .aligned)
+        XCTAssertEqual(owner.value.settings.configuration.fitWidth, 72)
+        XCTAssertEqual(model.text(for: .fitWidth), "88")
+    }
+
+    @MainActor func testWindChimeLineInsetRetainsSeparateDraftAndRetriedTarget() async throws {
+        let owner = Owner()
+        let model = try model(owner)
+        model.setDraftText("24", for: .outerInset)
+        _ = await model.perform(.selectDesktopForm(.windChime))
+        XCTAssertEqual(model.text(for: .windChimeLineInset), "18")
+        model.setDraftText("29", for: .windChimeLineInset)
+        XCTAssertEqual(model.configurationDraft?.windChimeLineInset, 29)
+        XCTAssertEqual(model.configurationDraft?.outerInset, 6)
+        owner.failures.insert(.layout)
+        let failed = await model.perform(.applyLayout)
+        XCTAssertEqual(failed.failed, [.layout])
+        _ = await model.perform(.selectDesktopForm(.microSlit))
+        owner.failures.remove(.layout)
+        let retried = await model.perform(.retry(.layout))
+        XCTAssertEqual(retried.confirmed, [.layout])
+        XCTAssertEqual(owner.value.settings.configuration.windChimeLineInset, 29)
+        XCTAssertEqual(owner.value.settings.configuration.outerInset, 6)
+        XCTAssertEqual(model.text(for: .outerInset), "24")
+        _ = await model.perform(.applyLayout)
+        XCTAssertEqual(owner.value.settings.configuration.outerInset, 24)
+        _ = await model.perform(.selectDesktopForm(.windChime))
+        _ = await model.perform(.restoreDefaults(.display))
+        _ = await model.perform(.applyLayout)
+        XCTAssertEqual(owner.value.settings.configuration.windChimeLineInset, 18)
+        XCTAssertEqual(owner.value.settings.configuration.outerInset, 24)
+        let disk = try JSONEncoder().encode(owner.value.settings.configuration)
+        let reopened = try JSONDecoder().decode(RiftConfiguration.self, from: disk)
+        XCTAssertEqual(reopened, owner.value.settings.configuration)
     }
 
     func testPresentationSettingsRoundTripAndPreserveLegacyDefaults() throws {

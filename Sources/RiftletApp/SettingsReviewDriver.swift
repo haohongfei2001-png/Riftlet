@@ -1801,7 +1801,7 @@ extension SettingsReviewDriver {
             guard let control = try self.control("settings.center.desktopForm") as? NSSegmentedControl else {
                 throw Failure.controlUnavailable("desktopForm")
             }
-            try self.require(control.segmentCount == 3 && !control.isEnabled(forSegment: 1), "formAvailability")
+            try self.require(control.segmentCount == 3 && (0..<control.segmentCount).allSatisfy { control.isEnabled(forSegment: $0) }, "formAvailability")
             await self.capture("settings-form-selection", window: self.host.center.window)
         }
         guard cases.last?["status"] as? String == "PASS" else { return directory.appendingPathComponent("report.json") }

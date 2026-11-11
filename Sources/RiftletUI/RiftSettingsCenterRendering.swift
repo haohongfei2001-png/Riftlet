@@ -148,6 +148,13 @@ extension RiftSettingsCenterController {
         let settings = owner.settings
         let configuration = settings.configuration
         select("desktopForm", index: RiftDesktopForm.allCases.firstIndex(of: configuration.desktopForm) ?? 0)
+        let windChime = configuration.desktopForm == .windChime
+        windChimeSettings?.isHidden = !windChime
+        commonEdgeSettings?.isHidden = windChime
+        windChimeLineSetting?.isHidden = !windChime
+        labels["windChime.pitch"]?.isHidden = !windChime
+        select("windChimeArrangement", index: RiftWindChimeArrangement.allCases.firstIndex(of: configuration.windChimeArrangement)!)
+        enable("windChimeArrangement", product.capabilities.canEditPreferences && !configurationBusy)
         (controls["trayTheme"] as? NSPopUpButton)?.selectItem(withTitle: configuration.trayTheme.title)
         enable("desktopForm", product.capabilities.canEditPreferences && !configurationBusy)
         enable("trayTheme", product.capabilities.canEditPreferences && !configurationBusy)
@@ -283,6 +290,10 @@ extension RiftSettingsCenterController {
         renderError(.layout); renderError(.archive)
         let previewConfig = state.configurationDraft ?? state.owner.settings.configuration
         let valid = state.configurationDraft != nil
+        if previewConfig.desktopForm == .windChime {
+            let pitch = RiftWindChimeLayout.rowPitch(configuration: previewConfig)
+            text("windChime.pitch", "风铃在基础间距上增加 6 pt，并为缩略图和点击区域留出空间。当前行距为 " + pitch.formatted() + " pt。")
+        }
         geometryPreview.update(configuration: previewConfig, mode: state.owner.settings.arrivalMode, reduceMotion: product.accessibility.reduceMotion, entryEnabled: state.owner.settings.entryEnabled)
         arrivalPreview.update(configuration: previewConfig, mode: state.owner.settings.arrivalMode, reduceMotion: product.accessibility.reduceMotion)
         swallowPreview.update(configuration: previewConfig, mode: state.owner.settings.arrivalMode, reduceMotion: product.accessibility.reduceMotion)
@@ -330,6 +341,7 @@ extension RiftSettingsCenterController {
         case .captureMode: target = "默认截图方式"
         case .arrival: target = "入缝偏好"
         case .desktopForm: target = "桌面形态"
+        case .windChimeArrangement(let arrangement): target = "风铃排列 · " + arrangement.title
         case .trayTheme: target = "托盘材质"
         case .trayFavorite(let slot, let choice): target = "常用键 \(slot.rawValue) · \(choice.menuTitle)"
         case .layout: target = "参数更改"
