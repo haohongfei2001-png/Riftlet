@@ -203,8 +203,9 @@ extension RiftSettingsCenterController {
         }
         let choices = Self.archivePresetMinutes
         let preset = popup("自动归档时限", id: "archive.preset", titles: ["关闭"] + choices.map { "\($0) 分钟" } + ["自定义…"]) { [weak self] popup in
-            guard let self, finishEditingForReplacement() else { return }
+            // Ending the previous editor can synchronously refresh this popup.
             let index = popup.indexOfSelectedItem
+            guard let self, finishEditingForReplacement() else { return }
             archiveCustom = index == choices.count + 1
             if index == 0 {
                 model.setArchiveDraftText(nil)

@@ -10,7 +10,7 @@ final class UnifiedSettingsTests: XCTestCase {
         guard !NSScreen.screens.isEmpty else { throw XCTSkip("WindowServer unavailable; physical settings acceptance NOT_RUN") }
     }
     @MainActor private func control<T: NSView>(_ id: String, as type: T.Type = T.self) throws -> T {
-        let window = try XCTUnwrap(NSApp.windows.first { $0.identifier == RiftSetupController.windowIdentifier })
+        let window = try XCTUnwrap(NSApp.windows.first { $0.isVisible && $0.identifier == RiftSetupController.windowIdentifier })
         func visit(_ view: NSView) -> T? {
             if view.identifier?.rawValue == id { return view as? T }
             for child in view.subviews { if let found = visit(child) { return found } }
