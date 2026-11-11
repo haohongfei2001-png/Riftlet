@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "sourceBaseline": "328f167981024d27eec4dbe03327f185636e03f6",
+  "sourceBaseline": "ec9382f7981b2971f037168cdd8de3f2af791c9a",
   "scope": "Consumer first use, capture location and recovery, history, storage and direct download. This checkpoint binds the effective screenshot preference, selected directory and watcher, persistent volume identity, per-file historical protection and the messages shown in Settings and the control center. The production queue migration and verification of backups made by earlier readers are also bound. The three desktop forms, wind chime arrangements, native hit regions, form preferences and their regression tests are bound to the same product source.",
   "files": [
     {
@@ -315,8 +315,8 @@
     },
     {
       "path": "Sources/RiftletUI/RiftWindChimeLayout.swift",
-      "sha256": "c14d4b7339d686e5bfbfb22419486d06c61c8bf913c5930e788074791b99954a",
-      "sourceBlob": "435cdedf0e18806e43c25d410e04a2664d0e3003"
+      "sha256": "4a0d4c3423ae6c4e9c6de43fcff896badfd7c35beb23597193cb468fc778cf92",
+      "sourceBlob": "f48cb801845fe0087f5d97d7236496df3bd3aea6"
     },
     {
       "path": "Tests/RiftletAppTests/SettingsProductHostTests.swift",
