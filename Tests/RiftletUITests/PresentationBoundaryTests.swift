@@ -1,5 +1,6 @@
 import AppKit
 import XCTest
+import RiftletCapture
 import RiftletCore
 @testable import RiftletUI
 
@@ -115,6 +116,216 @@ final class PresentationBoundaryTests: XCTestCase {
         panel.setFeedback(text, for: asset.id, owner: .operation(operation), visibilityRevision: 3, timing: .waiting)
         XCTAssertEqual(view.accessibilityHelp(), text)
         XCTAssertEqual(selected, 1, "Reprojection never replays the user's selection")
+    }
+
+    @MainActor func testTrayMenuCannotRecreateASwallowedInputWindow() throws {
+        var seen: [RiftPresentationBoundary] = []
+        let panel = try controller(onBoundary: { seen.append($0) })
+        defer { panel.close() }
+        var config = panel.requestedConfiguration
+        config.desktopForm = .tray
+        try panel.updateConfiguration(config)
+        panel.setTrayCapture(enabled: true, defaultMode: .window)
+        let a = record(), b = record(2), operation = UUID()
+        panel.render([a, b])
+        panel.render([record(image: a.image, status: .transferring, operationID: operation,
+                             visibility: .swallowed, revision: 1, reason: .uploadStarted), b])
+        panel.setTrayExpanded(true)
+        XCTAssertEqual(seen.map(\.phase), [.swallowScheduled, .swallowActualStart, .swallowClose])
+        XCTAssertTrue(seen.allSatisfy { $0.assetID == a.id && $0.operationID == operation })
+        XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [b.id])
+        advanceQuietEdgeRefill(panel)
+        XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [b.id])
+    }
+
+    @MainActor private func coldTray() throws -> RiftPanelController {
+        _ = NSApplication.shared
+        guard !NSScreen.screens.isEmpty else { throw XCTSkip("WindowServer required for the cold tray") }
+        var configuration = RiftConfiguration()
+        configuration.desktopForm = .tray
+        configuration.shiftDuration = 0
+        return RiftPanelController(mediaDirectory: FileManager.default.temporaryDirectory, configuration: configuration,
+                                   reduceMotionOverride: { false }, onSelect: { _ in XCTFail("Opening the camera selected a screenshot") })
+    }
+
+    @MainActor private func visibleTrayWindow() -> NSWindow? {
+        NSApp.windows.first { $0.isVisible && $0.contentView is RiftTraySurfaceView }
+    }
+
+    @MainActor func testColdTrayPublishesOneActionableCameraAtTheFirstQueueSnapshot() throws {
+        for count in [0, 1, 3] {
+            let panel = try coldTray()
+            defer { panel.close() }
+            panel.onTrayCapture = { _ in XCTFail("Opening the menu invoked a capture mode") }
+            panel.setTrayCapture(enabled: true, defaultMode: .window)
+            XCTAssertNil(visibleTrayWindow(), "Configuration precedes the first real queue snapshot")
+
+            let records = (0..<count).map { record(Int64($0 + 1)) }
+            panel.render(records)
+            let glass = try XCTUnwrap(visibleTrayWindow())
+            let view = try XCTUnwrap(glass.contentView)
+            let buttons = view.subviews.compactMap { $0 as? NSButton }
+            let first = buttons.filter { !$0.isHidden }
+            XCTAssertEqual(first.compactMap { $0.accessibilityLabel() }, ["展开截图方式"])
+            let camera = try XCTUnwrap(first.first)
+            XCTAssertTrue(camera.isEnabled)
+            XCTAssertNil(camera.layer?.animation(forKey: "rift.tray.morph"), "The first visible camera must already accept its action")
+            XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), records.map(\.id))
+            let original = glass.frame
+            XCTAssertTrue(NSApp.sendAction(try XCTUnwrap(camera.action), to: camera.target, from: camera))
+            XCTAssertEqual(buttons.filter { !$0.isHidden }.count, 4)
+            XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), records.dropFirst().map(\.id))
+            XCTAssertEqual(glass.frame, original)
+            if count == 0 {
+                let arrived = record()
+                panel.render([arrived])
+                XCTAssertGreaterThan(glass.frame.height, original.height)
+                XCTAssertEqual(buttons.filter { !$0.isHidden }.count, 4)
+                XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [arrived.id])
+                panel.setTrayExpanded(false)
+                XCTAssertEqual(glass.frame, original)
+                XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [arrived.id])
+            }
+        }
+    }
+
+    @MainActor func testTrayCardAndHitWindowsStayAboveGlassAndRestoreLevelsAfterScreenCapture() throws {
+        let panel = try coldTray()
+        defer { panel.close() }
+        let records = [record(), record(2), record(3)]
+        panel.setTrayCapture(enabled: true, defaultMode: .window)
+        panel.render(records)
+        let glass = try XCTUnwrap(visibleTrayWindow())
+        let shadow = try XCTUnwrap(NSApp.windows.first { $0.isVisible && $0.contentView is RiftTrayCastShadow })
+        let rows = panel.diagnosticSnapshot.rows
+        XCTAssertEqual(rows.map(\.assetID), records.map(\.id))
+        let cardWindows = try rows.flatMap { row in
+            [try XCTUnwrap(NSApp.window(withWindowNumber: row.windowNumber)),
+             try XCTUnwrap(NSApp.window(withWindowNumber: row.imageInputWindowNumber))]
+        }
+        XCTAssertEqual(glass.level.rawValue, NSWindow.Level.floating.rawValue - 1)
+        XCTAssertEqual(shadow.level, glass.level)
+        XCTAssertTrue(cardWindows.allSatisfy { $0.isVisible && $0.level == .floating })
+        let windows = [glass, shadow] + cardWindows
+        let previousLevels = windows.map(\.level)
+        panel.setCaptureSessionActive(true)
+        panel.render(records)
+        let captureLevel = InteractiveScreenshotController.controlsWindowLevel
+        XCTAssertEqual(captureLevel.rawValue, NSWindow.Level.statusBar.rawValue + 1)
+        XCTAssertTrue(windows.allSatisfy { $0.isVisible && $0.level == captureLevel })
+        panel.setCaptureSessionActive(false)
+        XCTAssertEqual(windows.map(\.level), previousLevels)
+        panel.render(records)
+        XCTAssertEqual(windows.map(\.level), previousLevels)
+    }
+
+    @MainActor func testOnlyConfirmedFailureRevealsSoleSwallowedUUIDAboveEmptyTrayMenu() throws {
+        var selections: [UUID] = []
+        var boundaries: [RiftPresentationBoundary] = []
+        let panel = try controller(onBoundary: { boundaries.append($0) }, onSelect: { selections.append($0) })
+        defer { panel.close() }
+        var config = panel.configuration
+        config.desktopForm = .tray
+        config.swallowDuration = 0
+        config.shiftDuration = 0
+        try panel.updateConfiguration(config)
+        panel.setTrayCapture(enabled: true, defaultMode: .window)
+        let a = record(), operation = UUID()
+        let historical = record(2, status: .unknown, operationID: UUID(), visibility: .swallowed,
+                                revision: 1, reason: .uploadStarted)
+        panel.render([a, historical])
+        let started = record(image: a.image, status: .transferring, operationID: operation,
+                             visibility: .swallowed, revision: 1, reason: .uploadStarted)
+        panel.render([started, historical])
+        advanceQuietEdgeRefill(panel)
+        panel.setTrayExpanded(true)
+        let surface = try XCTUnwrap(NSApp.windows.first { $0.isVisible && $0.contentView is RiftTraySurfaceView })
+        let compact = surface.frame
+        let uncertain = record(image: a.image, status: .unknown, operationID: operation,
+                               visibility: .swallowed, revision: 1, reason: .uploadStarted)
+        panel.render([uncertain, historical])
+        XCTAssertTrue(panel.diagnosticSnapshot.rows.isEmpty)
+        XCTAssertEqual(surface.frame, compact)
+        let returned = record(image: a.image, status: .failed, operationID: operation,
+                              revision: 2, reason: .safeFailure)
+        panel.render([returned, historical])
+        advanceQuietEdgeRefill(panel)
+        XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [a.id])
+        XCTAssertGreaterThan(surface.frame.height, compact.height)
+        XCTAssertEqual(boundaries.map(\.phase), [.swallowScheduled, .swallowActualStart, .swallowClose])
+        XCTAssertTrue(boundaries.allSatisfy { $0.assetID == a.id && $0.operationID == operation })
+        XCTAssertTrue(selections.isEmpty)
+        XCTAssertTrue(try rowView(a.id, in: panel).accessibilityPerformPress())
+        XCTAssertEqual(selections, [a.id])
+    }
+
+    @MainActor func testSwitchFormsRetainsAcceptedSelectionUntilItsOwnerFinishes() throws {
+        var selected: [UUID] = []
+        let panel = try controller(holdsSelection: true, onSelect: { selected.append($0) })
+        defer { panel.close() }
+        let a = record(revision: 7), b = record(2)
+        var config = panel.requestedConfiguration
+        config.desktopForm = .microSlit
+        try panel.updateConfiguration(config)
+        panel.render([a, b])
+        let original = try rowView(a.id, in: panel)
+        XCTAssertTrue(original.accessibilityPerformPress())
+        config.desktopForm = .tray
+        try panel.updateConfiguration(config)
+        XCTAssertEqual(panel.selectionRevision(for: a.id), 7)
+        XCTAssertEqual(selected, [a.id])
+        panel.finishSelection(a.id)
+        XCTAssertEqual(panel.configuration.desktopForm, .tray)
+        XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [a.id, b.id])
+        XCTAssertFalse(original.accessibilityPerformPress())
+        XCTAssertEqual(selected, [a.id])
+    }
+
+    @MainActor func testOlderReturnedAssetIsReachableAfterCompactionInAllForms() throws {
+        for form in RiftDesktopForm.allCases where form.isAvailable {
+            var selections: [UUID] = []
+            let panel = try controller(onSelect: { selections.append($0) })
+            defer { panel.close() }
+            var config = panel.configuration
+            config.desktopForm = form
+            config.swallowDuration = 0
+            config.shiftDuration = 0
+            try panel.updateConfiguration(config)
+            let first = record(), rest = (2...5).map { record(Int64($0)) }
+            panel.render([first] + rest)
+            let op = UUID()
+            panel.render([record(image: first.image, status: .transferring, operationID: op,
+                                 visibility: .swallowed, revision: 1, reason: .uploadStarted)] + rest)
+            advanceQuietEdgeRefill(panel)
+            panel.render(rest)  // Normal host snapshots can omit a retired UUID.
+            panel.render([record(image: first.image, status: .failed, operationID: op,
+                                 revision: 2, reason: .safeFailure)] + rest)
+            advanceQuietEdgeRefill(panel)
+            XCTAssertTrue(selections.isEmpty)
+            XCTAssertTrue(try rowView(first.id, in: panel).accessibilityPerformPress())
+            XCTAssertEqual(selections, [first.id])
+        }
+    }
+
+    @MainActor func testExplicitPagingAfterSwallowKeepsItsPageOnLaterFailure() throws {
+        let panel = try controller()
+        defer { panel.close() }
+        var config = panel.configuration
+        config.swallowDuration = 0
+        config.shiftDuration = 0
+        try panel.updateConfiguration(config)
+        let first = record(), rest = (2...10).map { record(Int64($0)) }
+        panel.render([first] + rest)
+        let op = UUID()
+        panel.render([record(image: first.image, status: .transferring, operationID: op,
+                             visibility: .swallowed, revision: 1, reason: .uploadStarted)] + rest)
+        advanceQuietEdgeRefill(panel)
+        panel.showLatest()
+        let page = panel.diagnosticSnapshot.rows.map(\.assetID)
+        XCTAssertFalse(page.contains(first.id))
+        panel.render([record(image: first.image, status: .failed, operationID: op,
+                             revision: 2, reason: .safeFailure)] + rest)
+        XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), page)
     }
 
     @MainActor func testOriginalStartIdentitySurvivesDeferredReadyAndClosesOnlyOnce() async throws {

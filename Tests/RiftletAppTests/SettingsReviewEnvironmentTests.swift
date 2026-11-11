@@ -110,6 +110,18 @@ final class SettingsReviewEnvironmentTests: XCTestCase {
         }
     }
 
+    func testDesktopReviewNeedsOneIsolatedReviewAction() {
+        let id = UUID().uuidString
+        let form = "--desktop-forms-review"
+        XCTAssertThrowsError(try ApplicationMode.resolve([form]))
+        XCTAssertThrowsError(try ApplicationMode.resolve(["--settings-review", id, form]))
+        let run = ["--settings-review", id, "--settings-review-run", form]
+        XCTAssertThrowsError(try ApplicationMode.resolve(run + ["--history-style-review"]))
+        #if !RIFTLET_ORDINARY_ACCEPTANCE
+        XCTAssertEqual(try ApplicationMode.resolve(run), .settingsReview)
+        #endif
+    }
+
     func testIdentityPreparationDoesNotChangeFixturesBeforeWholeAppLockIsWon() throws {
         let base = try temporaryRoot(); defer { try? FileManager.default.removeItem(at: base) }
         let environment = SettingsReviewEnvironment(identifier: UUID(), applicationSupport: base)

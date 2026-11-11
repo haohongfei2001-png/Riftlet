@@ -1,4 +1,5 @@
 import AppKit
+import RiftletCapture
 import XCTest
 @testable import RiftletUI
 
@@ -9,7 +10,7 @@ final class UnifiedSettingsTests: XCTestCase {
         guard !NSScreen.screens.isEmpty else { throw XCTSkip("WindowServer unavailable; physical settings acceptance NOT_RUN") }
     }
     @MainActor private func control<T: NSView>(_ id: String, as type: T.Type = T.self) throws -> T {
-        let window = try XCTUnwrap(NSApp.windows.first { $0.identifier == RiftSetupController.windowIdentifier })
+        let window = try XCTUnwrap(NSApp.windows.first { $0.isVisible && $0.identifier == RiftSetupController.windowIdentifier })
         func visit(_ view: NSView) -> T? {
             if view.identifier?.rawValue == id { return view as? T }
             for child in view.subviews { if let found = visit(child) { return found } }
@@ -22,7 +23,7 @@ final class UnifiedSettingsTests: XCTestCase {
     @MainActor func testAllPreferencePagesStayInOneWindowAndRefreshDoesNotSave() throws {
         try prepare()
         var changes: [RiftSettingsChange] = []
-        var value = RiftSettingsSnapshot(entryAvailable: true, archiveAfterHours: 24)
+        var value = RiftSettingsSnapshot(entryAvailable: true, archiveAfterMinutes: 5)
         let controller = RiftSetupController(onRecheck: {}, onOpenSource: {}, onPermission: {}, onDismiss: {}, onSettingsChange: { change in
             changes.append(change)
             if case .defaultCaptureMode(let mode) = change { value.defaultCaptureMode = mode }
@@ -97,21 +98,26 @@ final class UnifiedSettingsTests: XCTestCase {
     @MainActor func testArchiveRejectsPartialNumbersAndPreservesExplicitDisable() throws {
         try prepare()
         var changes: [RiftSettingsChange] = []
-        var value = RiftSettingsSnapshot(archiveAfterHours: 24)
+        var value = RiftSettingsSnapshot(archiveAfterMinutes: 5)
         let controller = RiftSetupController(onRecheck: {}, onOpenSource: {}, onPermission: {}, onDismiss: {}, onSettingsChange: { change in
             changes.append(change)
-            if case .archiveAfterHours(let hours) = change { value.archiveAfterHours = hours }
+            if case .archiveAfterMinutes(let minutes) = change { value.archiveAfterMinutes = minutes }
             return value
         })
         defer { controller.close() }
         controller.updateSettings(value); controller.show(section: .privacy)
-        let hours: NSTextField = try control("settings.archiveHours")
+        let minutes: NSTextField = try control("settings.archiveMinutes")
         let save: NSButton = try control("settings.archiveSave")
-        for invalid in ["1abc", "-1", "nan", "infinity", "1.2.3", ""] { hours.stringValue = invalid; save.performClick(nil) }
+        for invalid in ["0", "0.99", "10.01", "1abc", "-1", "nan", "infinity", "1.2.3", ""] { minutes.stringValue = invalid; save.performClick(nil) }
         XCTAssertTrue(changes.isEmpty)
-        hours.stringValue = "0"; save.performClick(nil)
-        hours.stringValue = "1.5"; save.performClick(nil)
-        XCTAssertEqual(changes, [.archiveAfterHours(nil), .archiveAfterHours(1.5)])
+        let enabled: NSButton = try control("settings.archiveEnabled")
+        enabled.performClick(nil)
+        XCTAssertNil(value.archiveAfterMinutes)
+        XCTAssertFalse(minutes.isEnabled)
+        enabled.performClick(nil)
+        XCTAssertEqual(value.archiveAfterMinutes, QueueArchivePolicy.defaultMinutes)
+        minutes.stringValue = "1.5"; save.performClick(nil)
+        XCTAssertEqual(changes, [.archiveAfterMinutes(nil), .archiveAfterMinutes(2), .archiveAfterMinutes(1.5)])
     }
 
     @MainActor func testUnavailableEntryCannotInvokePreferenceActionAndDisconnectedDisplayIsRetained() throws {
@@ -137,32 +143,32 @@ final class UnifiedSettingsTests: XCTestCase {
     @MainActor func testReturnInArchiveFieldSavesWithoutDismissingSettings() async throws {
         try prepare()
         var dismissed = 0, changes: [RiftSettingsChange] = []
-        var value = RiftSettingsSnapshot(archiveAfterHours: 24)
+        var value = RiftSettingsSnapshot(archiveAfterMinutes: 5)
         let controller = RiftSetupController(onRecheck: {}, onOpenSource: {}, onPermission: {}, onDismiss: { dismissed += 1 }, onSettingsChange: { change in
             changes.append(change)
-            if case .archiveAfterHours(let hours) = change { value.archiveAfterHours = hours.map { ($0 * 3600) / 3600 } }
+            if case .archiveAfterMinutes(let minutes) = change { value.archiveAfterMinutes = minutes.map { ($0 * 60) / 60 } }
             return value
         })
         defer { controller.close() }
         controller.updateSettings(value); controller.show(section: .privacy)
-        let hours: NSTextField = try control("settings.archiveHours")
-        hours.stringValue = "2"
-        XCTAssertTrue(try XCTUnwrap(hours.window).makeFirstResponder(hours))
-        let editor = try XCTUnwrap(hours.currentEditor() as? NSTextView)
+        let minutes: NSTextField = try control("settings.archiveMinutes")
+        minutes.stringValue = "2"
+        XCTAssertTrue(try XCTUnwrap(minutes.window).makeFirstResponder(minutes))
+        let editor = try XCTUnwrap(minutes.currentEditor() as? NSTextView)
         editor.insertNewline(nil)
         await Task.yield()
-        XCTAssertEqual(changes, [.archiveAfterHours(2)])
+        XCTAssertEqual(changes, [.archiveAfterMinutes(2)])
         XCTAssertEqual(dismissed, 0)
         XCTAssertTrue(controller.isVisible)
         let save: NSButton = try control("settings.archiveSave")
-        XCTAssertTrue(try XCTUnwrap(hours.window).makeFirstResponder(hours))
-        let nextEditor = try XCTUnwrap(hours.currentEditor() as? NSTextView)
-        nextEditor.string = "0.011"
-        XCTAssertTrue(try XCTUnwrap(hours.window).makeFirstResponder(nil))
+        XCTAssertTrue(try XCTUnwrap(minutes.window).makeFirstResponder(minutes))
+        let nextEditor = try XCTUnwrap(minutes.currentEditor() as? NSTextView)
+        nextEditor.string = "1.077"
+        XCTAssertTrue(try XCTUnwrap(minutes.window).makeFirstResponder(nil))
         await Task.yield()
-        XCTAssertEqual(changes, [.archiveAfterHours(2)], "Leaving the field is not a save command")
+        XCTAssertEqual(changes, [.archiveAfterMinutes(2)], "Leaving the field is not a save command")
         save.performClick(nil); save.performClick(nil)
-        XCTAssertEqual(changes, [.archiveAfterHours(2), .archiveAfterHours(0.011)], "An already-saved fractional value cannot cause duplicate durable writes")
+        XCTAssertEqual(changes, [.archiveAfterMinutes(2), .archiveAfterMinutes(1.077)], "An already-saved fractional value cannot cause duplicate durable writes")
         XCTAssertTrue(controller.isVisible)
     }
 

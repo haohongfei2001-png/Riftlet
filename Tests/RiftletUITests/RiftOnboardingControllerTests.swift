@@ -125,9 +125,9 @@ final class RiftOnboardingControllerTests: XCTestCase {
         controller.update(fixture(try model()))
         XCTAssertTrue(controller.show())
         controller.window.contentView?.layoutSubtreeIfNeeded()
-        if let visible = controller.window.screen?.visibleFrame, visible.width >= 652, visible.height >= 608 {
-            XCTAssertEqual(controller.window.frame.width, 652, accuracy: 1)
-            XCTAssertEqual(controller.window.frame.height, 608, accuracy: 1)
+        if let visible = controller.window.screen?.visibleFrame, visible.width >= 584, visible.height >= 453 {
+            XCTAssertEqual(controller.window.frame.width, 584, accuracy: 1)
+            XCTAssertEqual(controller.window.frame.height, 453, accuracy: 1)
         }
         let presented = controller.window.frame
         controller.update(fixture(try model(), revision: 2, source: .accessible, permission: .granted))
@@ -316,8 +316,8 @@ final class RiftOnboardingControllerTests: XCTestCase {
         next.performClick(nil)
         XCTAssertTrue(display === controller.control(identifier: "onboarding.display"))
         XCTAssertTrue(placement === controller.control(identifier: "onboarding.placement.leftTop"))
-        XCTAssertEqual(placement.accessibilityLabel(), "裂缝位置：左上")
-        XCTAssertEqual((display as? NSPopUpButton)?.accessibilityLabel(), "裂缝所在显示器")
+        XCTAssertEqual(placement.accessibilityLabel(), "桌面位置：左上")
+        XCTAssertEqual((display as? NSPopUpButton)?.accessibilityLabel(), "所在显示器")
         XCTAssertEqual(try button(controller, "onboarding.later").keyEquivalent, "\u{1b}")
     }
 

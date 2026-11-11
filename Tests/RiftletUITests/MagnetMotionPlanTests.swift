@@ -29,6 +29,24 @@ final class MagnetMotionPlanTests: XCTestCase {
         XCTAssertNil(MagnetMotionPlan(sourceRect:source.offsetBy(dx: -2000,dy:0),targetImageFrame:mirror(destination),clippingEdgeX:8,screenFrame:screen,leftSide:true))
     }
 
+    func testWindChimeCanRevealANarrowImageFullyInsideEitherEdge() throws {
+        let source = CGRect(x: 140, y: 100, width: 180, height: 120)
+        let final = CGRect(x: screen.maxX - 28, y: 220, width: 8, height: 56)
+        for left in [false, true] {
+            func onSide(_ rect: CGRect) -> CGRect {
+                guard left else { return rect }
+                return CGRect(x: screen.minX + screen.maxX - rect.maxX, y: rect.minY,
+                              width: rect.width, height: rect.height)
+            }
+            let edge = left ? screen.minX : screen.maxX
+            XCTAssertNil(MagnetMotionPlan(sourceRect: onSide(source), targetImageFrame: onSide(final),
+                                          clippingEdgeX: edge, screenFrame: screen, leftSide: left))
+            let plan = try XCTUnwrap(MagnetMotionPlan(sourceRect: onSide(source), targetImageFrame: onSide(final),
+                                     clippingEdgeX: edge, screenFrame: screen, leftSide: left, allowsFullyVisibleTarget: true))
+            XCTAssertEqual(plan.visibleFrame(at: plan.totalDuration), onSide(final))
+        }
+    }
+
     func testOneContinuousImageEndsAtExactLayoutWithFixedOcclusion() throws {
         let p = try plan()
         XCTAssertEqual(p.totalDuration, 0.560, accuracy: 0.000001)

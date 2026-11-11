@@ -4,11 +4,11 @@ import AppKit
 /// capture hit regions are deliberately outside this style.
 public enum SettingsColorRole: String, Sendable { case window, surface, sidebar, ink, secondary, border, selection, accent, accentInk, warning, warningBackground }
 @MainActor public enum SettingsNativeStyle {
-    public static let settingsSize = NSSize(width: 960, height: 684)
-    public static let settingsMinimumSize = NSSize(width: 760, height: 540)
-    public static let sidebarWidth: CGFloat = 184
-    public static let controlCenterWidth: CGFloat = 336
-    public static let onboardingSize = NSSize(width: 652, height: 608)
+    public static let settingsSize = NSSize(width: 814, height: 580)
+    public static let settingsMinimumSize = NSSize(width: 716, height: 450)
+    public static let sidebarWidth: CGFloat = 183
+    public static let controlCenterWidth: CGFloat = 294
+    public static let onboardingSize = NSSize(width: 584, height: 453)
     public static func color(_ role: SettingsColorRole) -> NSColor {
         return NSColor(name: NSColor.Name("Riftlet.Settings." + role.rawValue)) { appearance in
             // Decide each time this cached color resolves, using the appearance

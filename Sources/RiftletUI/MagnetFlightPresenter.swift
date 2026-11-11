@@ -38,8 +38,11 @@ public extension MagnetMotionPlan {
     /// Shared by the desktop decoration and the settings NSView preview. The
     /// caller supplies the image and fixed clip. No asset/queue operation exists.
     func makeLayerAnimation(relativeTo origin: CGPoint) -> CAAnimationGroup {
+        makeLayerAnimation(relativeTo: origin, frames: keyframeTimes.map { sample(at: $0).frame })
+    }
+
+    fileprivate func makeLayerAnimation(relativeTo origin: CGPoint, frames samples: [CGRect]) -> CAAnimationGroup {
         let times = keyframeTimes
-        let samples = times.map { sample(at: $0).frame }
         let positions = CAKeyframeAnimation(keyPath: "position")
         positions.values = samples.map {
             NSValue(point: CGPoint(x: $0.midX - origin.x, y: $0.midY - origin.y))
@@ -65,6 +68,27 @@ public extension MagnetMotionPlan {
         imageLayer.bounds = CGRect(origin: .zero, size: finalFrame.size)
         imageLayer.position = CGPoint(x: finalFrame.midX - origin.x,
                                       y: finalFrame.midY - origin.y)
+    }
+}
+
+private extension MagnetMotionPlan {
+    func windChimePixelFrames(radians: CGFloat) -> [CGRect] {
+        let paper = finalFrame.insetBy(dx: -RiftWindChimeLayout.border, dy: -RiftWindChimeLayout.border)
+        let rotatedWidth = abs(cos(radians)) * paper.width + abs(sin(radians)) * paper.height
+        // At turnaround the trailing shadow must clear the actual display edge
+        // before the same tilted paper starts to reveal its final position.
+        let extra = max(0, (rotatedWidth - finalFrame.width) / 2) + 8
+        let revealDistance = finalFrame.midX - occludedFrame.midX
+        return keyframeTimes.map { time in
+            let value = sample(at: time)
+            let fraction: CGFloat
+            switch value.stage {
+            case .attracting: fraction = CGFloat(value.travelProgress)
+            case .settling: fraction = (finalFrame.midX - value.frame.midX) / revealDistance
+            default: fraction = 0
+            }
+            return value.frame.offsetBy(dx: (leftSide ? -extra : extra) * fraction, dy: 0)
+        }
     }
 }
 
@@ -146,7 +170,7 @@ public final class MagnetFlightPresenter {
         let generation: UInt
         let panel: MagnetDecorationPanel
         let rootLayer: CALayer
-        let imageLayer: CALayer
+        let animatedLayer: CALayer
         let endDelegate: MagnetAnimationEnd
         let timeout: DispatchWorkItem
         let sampledFrameCount: Int
@@ -193,6 +217,7 @@ public final class MagnetFlightPresenter {
     @discardableResult
     public func start(assetID: UUID, image: CGImage, plan: MagnetMotionPlan,
                       backingScale: CGFloat, elapsedSinceAssetReady: TimeInterval = 0,
+                      windChimeDegrees: CGFloat? = nil,
                       onAnimationObservation: @escaping (MagnetAnimationObservation) -> Void = { _ in },
                       onCompletion: @escaping (MagnetFlightCompletion) -> Void) -> Bool {
         let invocationCA = CACurrentMediaTime()
@@ -202,15 +227,25 @@ public final class MagnetFlightPresenter {
         cancel(reason: .superseded)
         // A completion may synchronously start a newer flight. Do not overwrite
         // that reentrant owner or leave its native window orphaned.
+        guard windChimeDegrees?.isFinite != false else { return false }
+        let radians = windChimeDegrees.map { $0.truncatingRemainder(dividingBy: 360) * .pi / 180 }
+        var overlay = plan.overlayFrame
+        if let radians {
+            // Keep the rotated white paper and shadow inside their own decoration
+            // window. The stationary screen-edge mask below still clips it.
+            let size = max(plan.initialFrame.width, plan.initialFrame.height, plan.finalFrame.width, plan.finalFrame.height)
+            let margin = ceil(abs(sin(radians)) * size / 2 + RiftWindChimeLayout.border + 8)
+            overlay = overlay.insetBy(dx: -margin, dy: -margin).intersection(plan.screenFrame)
+        }
         guard generation == token, flight == nil,
               !isClosed, backingScale.isFinite, (1...4).contains(backingScale),
               elapsedSinceAssetReady.isFinite, elapsedSinceAssetReady >= 0,
               elapsedSinceAssetReady < plan.totalDuration,
               image.width > 0, image.height > 0,
               !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion,
-              plan.overlayFrame.width * plan.overlayFrame.height * backingScale * backingScale <= 32_000_000,
+              overlay.width * overlay.height * backingScale * backingScale <= 32_000_000,
               NSScreen.screens.contains(where: { $0.frame == plan.screenFrame }) else { return false }
-        let panel = MagnetDecorationPanel(frame: plan.overlayFrame)
+        let panel = MagnetDecorationPanel(frame: overlay)
         let view = MagnetDecorationView(frame: CGRect(origin: .zero, size: panel.frame.size))
         view.wantsLayer = true
         let root = CALayer()
@@ -239,14 +274,104 @@ public final class MagnetFlightPresenter {
         clipMask.path = CGPath(rect: clip, transform: nil)
         clipMask.fillColor = NSColor.black.cgColor
         root.mask = clipMask
+        let animatedLayer: CALayer
+        let animation: CAAnimationGroup
+        if let radians {
+            let paper = CALayer()
+            paper.contentsScale = backingScale
+            paper.backgroundColor = NSColor.white.cgColor
+            paper.cornerRadius = RiftWindChimeLayout.corner
+            paper.shadowColor = NSColor.black.cgColor
+            paper.shadowOffset = CGSize(width: 0, height: -1)
+            paper.shadowOpacity = 0.16
+            paper.shadowRadius = 2
+            paper.allowsEdgeAntialiasing = true
+            paper.setAffineTransform(CGAffineTransform(rotationAngle: radians))
+            root.addSublayer(paper)
+            paper.addSublayer(imageLayer)
+            let border = RiftWindChimeLayout.border
+            imageLayer.cornerRadius = max(0, paper.cornerRadius - border)
+            imageLayer.allowsEdgeAntialiasing = true
+            let frames = plan.windChimePixelFrames(radians: radians)
+            let paperFrames = frames.map { $0.insetBy(dx: -border, dy: -border) }
+            let localFrames = frames.map { CGRect(origin: CGPoint(x: border, y: border), size: $0.size) }
+            let last = localFrames[localFrames.count - 1]
+            imageLayer.bounds = CGRect(origin: .zero, size: last.size)
+            imageLayer.position = CGPoint(x: last.midX, y: last.midY)
+            let imageAnimation = plan.makeLayerAnimation(relativeTo: .zero, frames: localFrames)
+            imageAnimation.fillMode = .backwards
+            imageAnimation.beginTime = imageLayer.convertTime(assetReadyCA, from: nil)
+            imageLayer.add(imageAnimation, forKey: "riftlet.magnet.pixels")
+            animatedLayer = paper
+            animation = plan.makeLayerAnimation(relativeTo: panel.frame.origin, frames: paperFrames)
+        } else {
+            decorateStandardFlight(root: root, imageLayer: imageLayer, plan: plan,
+                                   origin: panel.frame.origin, backingScale: backingScale,
+                                   appearance: view.effectiveAppearance, assetReadyCA: assetReadyCA)
+            animatedLayer = imageLayer
+            animation = plan.makeLayerAnimation(relativeTo: panel.frame.origin)
+        }
+
+        let end = MagnetAnimationEnd(observe: onAnimationObservation) { [weak self] finished in
+            guard finished else { return }
+            self?.finish(generation: token, reason: .finished)
+        }
+        let timeout = DispatchWorkItem { [weak self] in
+            // A safety cleanup if a render-server completion is not delivered.
+            // Never infer success or resume a business operation from this timer.
+            DispatchQueue.main.async { [weak self] in
+                self?.finish(generation: token, reason: .timedOut)
+            }
+        }
+        // Before the render server activates this already-timed animation, its
+        // first sample must cover the final model pose. Keep the final model
+        // and normal removal so completion cannot flash back to the source.
+        animation.fillMode = .backwards
+        animation.delegate = end
+        let remaining = plan.totalDuration - (CACurrentMediaTime() - assetReadyCA)
+        guard remaining > 0 else { panel.close(); return false }
+        flight = Flight(assetID: assetID, generation: token, panel: panel,
+                        rootLayer: root, animatedLayer: animatedLayer, endDelegate: end,
+                        timeout: timeout, sampledFrameCount: plan.keyframeTimes.count,
+                        completion: onCompletion)
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        plan.applyFinalState(to: animatedLayer, relativeTo: panel.frame.origin)
+        if radians != nil {
+            animatedLayer.bounds = CGRect(origin: .zero, size: plan.finalFrame.insetBy(dx: -RiftWindChimeLayout.border, dy: -RiftWindChimeLayout.border).size)
+        }
+        // Asset readiness is the visual clock origin, not optional image decode.
+        animation.beginTime = animatedLayer.convertTime(assetReadyCA, from: nil)
+        animatedLayer.add(animation, forKey: "riftlet.magnet.flight")
+        CATransaction.commit()
+        // Publish the model and animation as one update before AppKit orders
+        // the new native window; orderFront may display its contents eagerly.
+        panel.orderFrontRegardless()
+        guard generation == token, flight?.generation == token, panel.isVisible else {
+            finish(generation: token, reason: .cancelled)
+            return false
+        }
+        // This is bounded resource cleanup, NOT the animation clock or a
+        // completion criterion. WindowServer/delegate delivery can lag the
+        // final rendered frame during capture/composition. Keep the original
+        // 560 ms trajectory and live input islands; allow 500 ms to deliver a
+        // genuine finished=true callback before reporting timedOut. A timeout
+        // never becomes finished and never changes upload/retry authority.
+        DispatchQueue.main.asyncAfter(deadline: .now() + max(0, plan.totalDuration - (CACurrentMediaTime() - assetReadyCA)) + 0.500, execute: timeout)
+        return true
+    }
+
+    private func decorateStandardFlight(root: CALayer, imageLayer: CALayer, plan: MagnetMotionPlan,
+                                        origin: CGPoint, backingScale: CGFloat, appearance: NSAppearance,
+                                        assetReadyCA: CFTimeInterval) {
         // Decorations consume the existing trajectory; they own no timer,
         // receipt, source rectangle or input window. Their explicit paths share
         // the root's original fixed half-plane with the unchanged pixel layer.
-        let dark = view.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        let dark = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
         let contrast = NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast
         let pixel = 1 / backingScale
         let outerWidth: CGFloat = contrast ? 1 : pixel
-        let sampled = plan.keyframeTimes.map { plan.sample(at: $0).frame.offsetBy(dx: -panel.frame.minX, dy: -panel.frame.minY) }
+        let sampled = plan.keyframeTimes.map { plan.sample(at: $0).frame.offsetBy(dx: -origin.x, dy: -origin.y) }
         func paths(inset: CGFloat) -> [CGPath] {
             sampled.map { frame in
                 let rect = frame.insetBy(dx: inset, dy: inset)
@@ -286,52 +411,6 @@ public final class MagnetFlightPresenter {
         root.addSublayer(outline); root.addSublayer(inner)
         decorate(outline, paths: paths(inset: outerWidth / 2))
         decorate(inner, paths: paths(inset: outerWidth + pixel / 2))
-
-        let end = MagnetAnimationEnd(observe: onAnimationObservation) { [weak self] finished in
-            guard finished else { return }
-            self?.finish(generation: token, reason: .finished)
-        }
-        let timeout = DispatchWorkItem { [weak self] in
-            // A safety cleanup if a render-server completion is not delivered.
-            // Never infer success or resume a business operation from this timer.
-            DispatchQueue.main.async { [weak self] in
-                self?.finish(generation: token, reason: .timedOut)
-            }
-        }
-        let animation = plan.makeLayerAnimation(relativeTo: panel.frame.origin)
-        // Before the render server activates this already-timed animation, its
-        // first sample must cover the final model pose. Keep the final model
-        // and normal removal so completion cannot flash back to the source.
-        animation.fillMode = .backwards
-        animation.delegate = end
-        let remaining = plan.totalDuration - (CACurrentMediaTime() - assetReadyCA)
-        guard remaining > 0 else { panel.close(); return false }
-        flight = Flight(assetID: assetID, generation: token, panel: panel,
-                        rootLayer: root, imageLayer: imageLayer, endDelegate: end,
-                        timeout: timeout, sampledFrameCount: plan.keyframeTimes.count,
-                        completion: onCompletion)
-        CATransaction.begin()
-        CATransaction.setDisableActions(true)
-        plan.applyFinalState(to: imageLayer, relativeTo: panel.frame.origin)
-        // Asset readiness is the visual clock origin, not optional image decode.
-        animation.beginTime = imageLayer.convertTime(assetReadyCA, from: nil)
-        imageLayer.add(animation, forKey: "riftlet.magnet.flight")
-        CATransaction.commit()
-        // Publish the model and animation as one update before AppKit orders
-        // the new native window; orderFront may display its contents eagerly.
-        panel.orderFrontRegardless()
-        guard generation == token, flight?.generation == token, panel.isVisible else {
-            finish(generation: token, reason: .cancelled)
-            return false
-        }
-        // This is bounded resource cleanup, NOT the animation clock or a
-        // completion criterion. WindowServer/delegate delivery can lag the
-        // final rendered frame during capture/composition. Keep the original
-        // 560 ms trajectory and live input islands; allow 500 ms to deliver a
-        // genuine finished=true callback before reporting timedOut. A timeout
-        // never becomes finished and never changes upload/retry authority.
-        DispatchQueue.main.asyncAfter(deadline: .now() + max(0, plan.totalDuration - (CACurrentMediaTime() - assetReadyCA)) + 0.500, execute: timeout)
-        return true
     }
 
     /// A mismatched old asset identity cannot cancel a replacement decoration.
@@ -356,9 +435,9 @@ public final class MagnetFlightPresenter {
         active.timeout.cancel()
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        active.imageLayer.removeAllAnimations()
-        active.imageLayer.contents = nil
-        active.imageLayer.removeFromSuperlayer()
+        active.animatedLayer.removeAllAnimations()
+        active.animatedLayer.contents = nil
+        active.animatedLayer.removeFromSuperlayer()
         active.rootLayer.mask = nil
         active.rootLayer.removeAllAnimations()
         active.panel.orderOut(nil)
@@ -383,7 +462,7 @@ public final class MagnetFlightPresenter {
         if let active = flight {
             active.timeout.cancel()
             let panel = active.panel
-            let imageLayer = active.imageLayer
+            let imageLayer = active.animatedLayer
             DispatchQueue.main.async {
                 imageLayer.removeAllAnimations()
                 imageLayer.contents = nil

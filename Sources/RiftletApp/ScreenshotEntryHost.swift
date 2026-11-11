@@ -71,6 +71,17 @@ final class ScreenshotEntryHost {
     }
 
     private func wireCallbacks() {
+        rift.onTrayCapture = { [weak self] mode in
+            guard let self, self.isEnabled, !self.closed, !self.userHidden, self.editor == nil else { return }
+            self.entry.setMode(mode)
+            if self.capture.isActive { self.capture.updateMode(mode) }
+            else { self.startCapture(mode: mode) }
+            self.updateCapturePresentation()
+        }
+        rift.onTrayCancel = { [weak self] owner in
+            guard let self, self.capture.activeSessionID == owner else { return }
+            self.cancel()
+        }
         entry.onGeometryChange = { [weak self] in
             guard let self else { return }
             self.rift.setExtraPreviewExclusions(self.entry.inputFrames)
@@ -110,12 +121,15 @@ final class ScreenshotEntryHost {
     }
 
     private func updateCapturePresentation() {
-        entry.setCapturePresentation(!closed && isEnabled && !userHidden && !cancelling
-            ? capture.presentationSnapshot : nil)
+        let visible = !closed && isEnabled && !userHidden && !cancelling
+        entry.setCapturePresentation(visible ? capture.presentationSnapshot : nil)
+        // The selection session already exists before a target or countdown does.
+        rift.setTrayCaptureSession(visible ? capture.activeSessionID : nil)
     }
 
     func configure() {
         guard !closed else { return }
+        rift.setTrayCapture(enabled: isEnabled, defaultMode: defaultMode)
         guard isEnabled else {
             rift.setCaptureHeaderAnchor(nil)
             entry.configure(screen: nil)
@@ -142,13 +156,11 @@ final class ScreenshotEntryHost {
             return
         }
         guard isEnabled, !closed, !userHidden, !cancelling else { return }
-        rift.setCaptureSessionActive(true)
         capture.start(mode: mode, options: entry.options)
         // Permission refusal/no display never creates a capture session. Return
         // to a truthful retryable entry instead of displaying an inactive X.
         if !capture.isActive {
             entry.setExpanded(false)
-            rift.setCaptureSessionActive(false)
         }
     }
 
@@ -167,6 +179,7 @@ final class ScreenshotEntryHost {
         var proposed = preferences; proposed.builtInScreenshotEnabled = enabled
         if !enabled {
             preferences.builtInScreenshotEnabled = false
+            rift.setTrayCapture(enabled: false, defaultMode: defaultMode)
             capture.setEnabled(false)
             cancel()
             entry.setEnabled(false)
@@ -194,6 +207,7 @@ final class ScreenshotEntryHost {
             try savePreferences(proposed, preferencesURL)
             preferences = proposed; preferenceSaveFailed = false
             entry.setDefaultMode(mode)
+            rift.setTrayCapture(enabled: isEnabled, defaultMode: mode)
         }
         catch {
             preferenceSaveFailed = true
@@ -272,7 +286,7 @@ final class ScreenshotEntryHost {
     func cancel() {
         guard !closed, !cancelling else { return }
         cancelling = true
-        entry.setCapturePresentation(nil)
+        updateCapturePresentation()
         capture.cancel()
         setExposureSuppressed(false)
         editor?.keepOriginalAndClose(); editor = nil
@@ -280,7 +294,8 @@ final class ScreenshotEntryHost {
         menuOpen = false
         entry.setCaptureSuppressed(false); entry.setBusy(false)
         entry.setExpanded(false)
-        rift.setCaptureSuppressed(false); rift.setCaptureSessionActive(false)
+        rift.setCaptureSuppressed(false)
+        rift.setTrayExpanded(false)
         cancelling = false
     }
 
@@ -292,6 +307,8 @@ final class ScreenshotEntryHost {
         if let windowCloseObserver { NotificationCenter.default.removeObserver(windowCloseObserver) }
         screenObserver = nil
         windowCloseObserver = nil
+        rift.onTrayCapture = nil
+        rift.onTrayCancel = nil
         rift.onGeometryChange = nil
         entry.onGeometryChange = nil
         entry.close()

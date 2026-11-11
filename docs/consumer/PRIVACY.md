@@ -22,7 +22,7 @@ Riftlet 的截图副本和历史保存在本机。**点击微图会把那张图�
 
 ## 图片保留与卸载
 
-在菜单栏打开「设置 → 历史与存储」。点「检查用量」可查看私有图片、内置截图、收录暂存及记录、队列数据库的逻辑大小。系统截图目录、反馈、偏好和其他备份另计。统计不完整时会显示已查到的部分。本次预览新增「在 Finder 中显示数据文件夹」。已安装的个人 Beta 3 可在 Finder 的「前往文件夹」中输入上文的普通数据目录。目录中的图片、历史和反馈可能包含私人内容。
+在菜单栏打开「设置 → 使用与历史」，展开「存储与恢复」。点「检查用量」可查看私有图片、内置截图、收录暂存及记录、队列数据库的逻辑大小。系统截图目录、反馈、偏好和其他备份另计。统计不完整时会显示已查到的部分。点击同组的「在 Finder 中显示」可打开本机数据文件夹。已安装的个人 Beta 3 可在 Finder 的「前往文件夹」中输入上文的普通数据目录。目录中的图片、历史和反馈可能包含私人内容。
 
 收起、归档、移出微图和清空可见队列只改变本地显示，不删除系统原图、Riftlet 私有副本或远端附件。结果待核实的记录保留，不自动重传。当前没有自动清理截图的保留期限或永久删除策略。
 
@@ -36,7 +36,7 @@ Feedback is optional. Pressing Send authorizes the queued report to be retried l
 
 Archiving or retracting a thumbnail does not delete its file. Uninstalling the App does not erase local data or already received feedback. No screenshot cloud library, Riftlet account or usage telemetry is introduced by this packet.
 
-In the candidate, Settings → `历史与存储` → `在 Finder 中显示数据文件夹` reveals this copy of Riftlet’s data folder. The storage estimate covers image copies, built-in captures, import staging and journals, and the queue database; external originals, feedback, preferences and backups are separate. There is no per-image permanent delete control. Keep the complete data folder together for backup or recovery.
+In the candidate, Settings → `使用与历史` → `存储与恢复` → `在 Finder 中显示` reveals this copy of Riftlet’s data folder. The storage estimate covers image copies, built-in captures, import staging and journals, and the queue database; external originals, feedback, preferences and backups are separate. There is no per-image permanent delete control. Keep the complete data folder together for backup or recovery.
 
 ## 对外发布前仍需补齐
 

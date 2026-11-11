@@ -80,12 +80,13 @@ public struct MagnetMotionPlan: Equatable, Sendable {
 
     public init?(sourceRect: CGRect, targetImageFrame: CGRect,
                  clippingEdgeX: CGFloat, screenFrame: CGRect,
-                 parameters: MagnetMotionParameters = .init(), leftSide: Bool = false) {
+                 parameters: MagnetMotionParameters = .init(), leftSide: Bool = false,
+                 allowsFullyVisibleTarget: Bool = false) {
         if leftSide {
             let axis = screenFrame.minX + screenFrame.maxX
             func reflect(_ r: CGRect) -> CGRect { CGRect(x: axis - r.maxX, y: r.minY, width: r.width, height: r.height) }
             guard let right = MagnetMotionPlan(sourceRect: reflect(sourceRect), targetImageFrame: reflect(targetImageFrame),
-                clippingEdgeX: axis - clippingEdgeX, screenFrame: screenFrame, parameters: parameters) else { return nil }
+                clippingEdgeX: axis - clippingEdgeX, screenFrame: screenFrame, parameters: parameters, allowsFullyVisibleTarget: allowsFullyVisibleTarget) else { return nil }
             self.leftSide = true; self.sourceRect = sourceRect; self.screenFrame = screenFrame
             self.clippingEdgeX = clippingEdgeX; self.initialFrame = reflect(right.initialFrame)
             self.smallFrame = reflect(right.smallFrame); self.finalFrame = targetImageFrame
@@ -102,7 +103,7 @@ public struct MagnetMotionPlan: Equatable, Sendable {
               clippingEdgeX.isFinite,
               clippingEdgeX > screenFrame.minX, clippingEdgeX <= screenFrame.maxX,
               targetImageFrame.minX < clippingEdgeX,
-              targetImageFrame.maxX >= clippingEdgeX,
+              (allowsFullyVisibleTarget || targetImageFrame.maxX >= clippingEdgeX),
               screenFrame.contains(sourceRect),
               targetImageFrame.minX >= screenFrame.minX,
               targetImageFrame.minY >= screenFrame.minY,

@@ -14,6 +14,28 @@ public struct RiftControlCenterPresentation {
     public let recoveryTitle: String?
     public let recoveryPage: SettingsPage?
 
+    /// Multiple failures remain independent. Offer the first affected page in
+    /// sidebar order; the next unconfirmed page becomes reachable after retry.
+    private static func saveRecoveryPage(_ snapshot: SettingsProductSnapshot) -> SettingsPage? {
+        var pages = Set<SettingsPage>()
+        for (domain, state) in snapshot.state.domains where state.saveFailure != nil {
+            switch domain {
+            case .arrival, .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme: pages.insert(.display)
+            case .entry, .captureMode, .trayFavorite1, .trayFavorite2, .trayFavorite3: pages.insert(.capture)
+            case .collection, .visibility, .archive: pages.insert(.history)
+            }
+        }
+        if snapshot.appearance.failure != nil || snapshot.appearance.unreadable { pages.insert(.display) }
+        if snapshot.login.errorCode != nil || snapshot.login.notConfirmed { pages.insert(.history) }
+        switch snapshot.setup.issue {
+        case .screenshotPreferenceUnsaved: pages.insert(.capture)
+        case .visibilityPreferenceUnsaved, .collectionPreferenceUnsaved: pages.insert(.history)
+        case .configurationUnavailable: pages.insert(.help) // Reload/open configuration.
+        default: break
+        }
+        return SettingsPage.allCases.first(where: pages.contains)
+    }
+
     public init(_ snapshot: SettingsProductSnapshot) {
         let setup = snapshot.setup
         let owner = snapshot.state.owner
@@ -33,14 +55,11 @@ public struct RiftControlCenterPresentation {
         } else {
             captureHint = "内置截图暂不可用；可在设置查看当前状态。"
         }
-        let hasSaveIssue = snapshot.state.hasSaveIssues || snapshot.appearance.failure != nil
-            || snapshot.appearance.unreadable || snapshot.login.errorCode != nil || snapshot.login.notConfirmed
-        if hasSaveIssue || [.visibilityPreferenceUnsaved, .collectionPreferenceUnsaved,
-                            .screenshotPreferenceUnsaved, .configurationUnavailable].contains(setup.issue) {
+        if let page = Self.saveRecoveryPage(snapshot) {
             state = .attention; title = "有设置尚未确认保存"
             detail = "当前运行状态如下。请到设置查看并重试。"
             symbol = "exclamationmark.circle"
-            recoveryTitle = "查看未保存的设置"; recoveryPage = .general
+            recoveryTitle = "查看未保存的设置"; recoveryPage = page
         } else if setup.issue == .initializationFailed {
             state = .attention; title = "Riftlet 未能完成启动"
             detail = "已有图片保留。请查看权限与帮助。"

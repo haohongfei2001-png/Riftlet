@@ -65,7 +65,7 @@ final class AcceptanceWindowScenes {
                     case .placement(let placement): self.settingsFixture.configuration.placement = placement
                     case .restorePreferredDisplay: self.settingsFixture.displayRestoreAvailable = false
                     case .preferredDisplay(let id): self.settingsFixture.preferredDisplayID = id
-                    case .archiveAfterHours(let hours): self.settingsFixture.archiveAfterHours = hours
+                    case .archiveAfterMinutes(let minutes): self.settingsFixture.archiveAfterMinutes = minutes
                     }
                     self.action("inMemorySettingsChange")
                     return self.settingsFixture

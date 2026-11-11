@@ -22,6 +22,7 @@ class VerificationError(Exception):
 
 RESOURCE_NAMES = ("chatgpt-web-20261027.js", "legacy-web-observe.js")
 ICON_NAME = "Riftlet.icns"
+PRESENTATION_NAMES = ("glass-study.png", "reading.svg", "error.svg", "riftlet.svg")
 ICON_SLOTS = {b"ic04": 16, b"ic05": 32, b"ic07": 128, b"ic08": 256,
               b"ic09": 512, b"ic10": 1024, b"ic11": 32, b"ic12": 64,
               b"ic13": 256, b"ic14": 512}
@@ -200,6 +201,12 @@ def verify_bundle(app, repository=None, channel="development"):
             require(info == ordinary_acceptance_plist(plistlib.loads(source_plist)), "plist_differs_from_source")
         else:
             require((contents / "Info.plist").read_bytes() == source_plist, "plist_differs_from_source")
+        presentation = repository / "Resources/Presentation"
+        if presentation.is_dir():
+            for name in PRESENTATION_NAMES:
+                require(read_nonempty(resources / name, "missing_presentation_" + name) ==
+                        read_nonempty(presentation / name, "missing_source_presentation_" + name),
+                        "presentation_differs_from_source_" + name)
         source_resources = repository / "Sources/RiftletAdapters/Resources"
         for name, data in packaged_resources.items():
             require(data == read_nonempty(source_resources / name, "missing_source_resource"),

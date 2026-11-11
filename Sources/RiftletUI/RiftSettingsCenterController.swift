@@ -8,8 +8,10 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     public static let windowIdentifier = NSUserInterfaceItemIdentifier("RiftletSettingsCenter")
     public let window: NSWindow
     public var isVisible: Bool { window.isVisible }
-    public private(set) var selectedPage: SettingsPage = .general
+    public private(set) var selectedPage: SettingsPage = .display
 
+    let pageHeading = NSTextField(labelWithString: "")
+    let pageSubtitle = NSTextField(labelWithString: "")
     let model: SettingsStateModel
     let onAction: SettingsProductActionHandler
     var product: SettingsProductSnapshot
@@ -35,6 +37,13 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     var archiveCustom = false
     var archiveField: NSTextField!
     var archiveCustomRow: NSView!
+    var captureOptions: NSView!
+    var trayFavorites: NSView!
+    var commonEdgeSettings: NSView!
+    var windChimeLineSetting: NSView!
+    var windChimeSettings: NSView!
+    var traySettings: NSView!
+    var trayTintSettings: NSView!
     var legacyFieldRow: NSView!
     let geometryPreview = RiftSettingsCenterPreview(kind: .geometry)
     let arrivalPreview = RiftSettingsCenterPreview(kind: .arrival)
@@ -52,10 +61,12 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
         self.model = model; self.onAction = onAction
         product = SettingsProductSnapshot(revision: 0, setup: .init(), state: model.snapshot)
         window = NSWindow(contentRect: NSRect(origin: .zero, size: SettingsNativeStyle.settingsSize),
-            styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
+            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView], backing: .buffered, defer: false)
         super.init()
         window.identifier = Self.windowIdentifier
         window.title = "Riftlet 设置"
+        window.titleVisibility = .hidden
+        window.titlebarAppearsTransparent = true
         window.isReleasedWhenClosed = false
         window.minSize = SettingsNativeStyle.settingsMinimumSize
         window.delegate = self
@@ -70,7 +81,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
         render()
     }
 
-    public func show(page: SettingsPage = .general) {
+    public func show(page: SettingsPage = .display) {
         navigate(to: page)
         if !hasPositioned {
             // Replacing contentView and establishing Auto Layout can change the
@@ -132,75 +143,116 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     }
 
     func buildWindow() {
-        let root = SettingsSurfaceView(role: .window)
-        let sidebar = SettingsSurfaceView(role: .sidebar)
-        let content = NSView()
-        let footer = SettingsSurfaceView(role: .window)
+        let root = NSView(frame: NSRect(origin: .zero, size: SettingsNativeStyle.settingsSize))
         window.contentView = root
-        [sidebar, content, footer, scroll, footerStatus].forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
-        root.addSubview(sidebar); root.addSubview(content)
-        content.addSubview(scroll); content.addSubview(footer); footer.addSubview(footerStatus)
-        scroll.autohidesScrollers = false
-        scroll.scrollerStyle = .legacy
-        scroll.identifier = .init("settings.center.scroll")
-        scroll.setAccessibilityLabel("设置页面")
-        let brand = SettingsNativeStyle.label("Riftlet", role: "heading")
-        let sidebarStack = SettingsNativeStyle.stack([brand], spacing: 7)
-        sidebarStack.translatesAutoresizingMaskIntoConstraints = false
-        sidebar.addSubview(sidebarStack)
+        let sidebar = NSVisualEffectView()
+        sidebar.material = .sidebar
+        sidebar.blendingMode = .behindWindow
+        sidebar.state = .active
+        let content = NSVisualEffectView()
+        content.material = .contentBackground
+        content.blendingMode = .withinWindow
+        content.state = .active
+        let divider = NSBox()
+        divider.boxType = .separator
+        let headerRule = NSBox()
+        headerRule.boxType = .separator
+        let logo = NSImageView()
+        if let url = Bundle.main.url(forResource: "riftlet", withExtension: "svg") {
+            logo.image = NSImage(contentsOf: url)
+        } else {
+            logo.image = NSApp.applicationIconImage
+        }
+        logo.imageScaling = .scaleProportionallyDown
+        logo.setAccessibilityElement(false)
+        logo.widthAnchor.constraint(equalToConstant: 22).isActive = true
+        logo.heightAnchor.constraint(equalToConstant: 22).isActive = true
+        let name = NSTextField(labelWithString: "Riftlet")
+        name.font = .systemFont(ofSize: 19, weight: .semibold)
+        let brand = SettingsNativeStyle.stack([logo,name], vertical: false, spacing: 8)
+        let caption = SettingsNativeStyle.label("设置", role: "caption")
+        let nav = SettingsNativeStyle.stack(spacing: 3)
         for page in SettingsPage.allCases {
             let button = makeButton(page.title, id: "nav.\(page.rawValue)") { [weak self] in self?.navigate(to: page) }
-            button.setButtonType(.toggle)
-            button.image = NSImage(systemSymbolName: page.symbol, accessibilityDescription: nil)
-            button.imagePosition = .imageLeading
-            button.alignment = .left
             button.bezelStyle = .regularSquare
             button.isBordered = false
+            button.alignment = .left
+            button.image = NSImage(systemSymbolName: page.symbol, accessibilityDescription: nil)
+            button.imagePosition = .imageLeading
+            button.imageHugsTitle = true
+            button.wantsLayer = true
+            button.layer?.cornerRadius = 7
+            button.font = .systemFont(ofSize: 13, weight: .medium)
             navigation[page] = button
-            sidebarStack.addArrangedSubview(button)
-            button.widthAnchor.constraint(equalTo: sidebarStack.widthAnchor).isActive = true
-            button.heightAnchor.constraint(greaterThanOrEqualToConstant: 36).isActive = true
+            nav.addArrangedSubview(button)
+            button.widthAnchor.constraint(equalTo: nav.widthAnchor).isActive = true
+            button.heightAnchor.constraint(equalToConstant: 35).isActive = true
         }
-        let note = SettingsNativeStyle.label("只附加图片\n不发送消息", role: "caption")
-        note.translatesAutoresizingMaskIntoConstraints = false; sidebar.addSubview(note)
-        let close = makeButton("关闭", id: "close") { [weak self] in self?.window.performClose(nil) }
-        close.translatesAutoresizingMaskIntoConstraints = false; footer.addSubview(close)
+        scroll.identifier = .init("settings.center.scroll")
+        scroll.setAccessibilityLabel("设置页面")
+        scroll.scrollerStyle = .overlay
+        scroll.autohidesScrollers = true
+        pageHeading.font = .systemFont(ofSize: 24, weight: .bold)
+        pageSubtitle.font = .systemFont(ofSize: 13)
+        pageSubtitle.textColor = .secondaryLabelColor
         footerStatus.identifier = .init("settings.center.footerStatus")
+        footerStatus.font = .systemFont(ofSize: 11)
+        footerStatus.maximumNumberOfLines = 2
+        footerStatus.alignment = .right
         footerStatus.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        for view in [sidebar,content,divider] { view.translatesAutoresizingMaskIntoConstraints = false; root.addSubview(view) }
+        for view in [brand,caption,nav] as [NSView] { view.translatesAutoresizingMaskIntoConstraints = false; sidebar.addSubview(view) }
+        for view in [pageHeading,pageSubtitle,headerRule,scroll,footerStatus] as [NSView] {
+            view.translatesAutoresizingMaskIntoConstraints = false; content.addSubview(view)
+        }
         NSLayoutConstraint.activate([
             sidebar.leadingAnchor.constraint(equalTo: root.leadingAnchor), sidebar.topAnchor.constraint(equalTo: root.topAnchor),
             sidebar.bottomAnchor.constraint(equalTo: root.bottomAnchor), sidebar.widthAnchor.constraint(equalToConstant: SettingsNativeStyle.sidebarWidth),
-            sidebarStack.leadingAnchor.constraint(equalTo: sidebar.leadingAnchor, constant: 18),
-            sidebarStack.trailingAnchor.constraint(equalTo: sidebar.trailingAnchor, constant: -14),
-            sidebarStack.topAnchor.constraint(equalTo: sidebar.topAnchor, constant: 22),
-            note.leadingAnchor.constraint(equalTo: sidebarStack.leadingAnchor), note.trailingAnchor.constraint(equalTo: sidebarStack.trailingAnchor),
-            note.bottomAnchor.constraint(equalTo: sidebar.bottomAnchor, constant: -20),
+            divider.leadingAnchor.constraint(equalTo: sidebar.trailingAnchor), divider.topAnchor.constraint(equalTo: root.topAnchor),
+            divider.bottomAnchor.constraint(equalTo: root.bottomAnchor), divider.widthAnchor.constraint(equalToConstant: 1),
+            brand.leadingAnchor.constraint(equalTo: sidebar.leadingAnchor, constant: 21), brand.topAnchor.constraint(equalTo: sidebar.topAnchor, constant: 48),
+            caption.leadingAnchor.constraint(equalTo: brand.leadingAnchor), caption.topAnchor.constraint(equalTo: brand.bottomAnchor, constant: 24),
+            nav.leadingAnchor.constraint(equalTo: sidebar.leadingAnchor, constant: 14), nav.trailingAnchor.constraint(equalTo: sidebar.trailingAnchor, constant: -14),
+            nav.topAnchor.constraint(equalTo: caption.bottomAnchor, constant: 6),
             content.leadingAnchor.constraint(equalTo: sidebar.trailingAnchor), content.trailingAnchor.constraint(equalTo: root.trailingAnchor),
             content.topAnchor.constraint(equalTo: root.topAnchor), content.bottomAnchor.constraint(equalTo: root.bottomAnchor),
+            pageHeading.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 30), pageHeading.topAnchor.constraint(equalTo: content.topAnchor, constant: 38),
+            pageSubtitle.leadingAnchor.constraint(equalTo: pageHeading.leadingAnchor), pageSubtitle.topAnchor.constraint(equalTo: pageHeading.bottomAnchor, constant: 4),
+            headerRule.leadingAnchor.constraint(equalTo: pageHeading.leadingAnchor), headerRule.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -30),
+            headerRule.topAnchor.constraint(equalTo: pageSubtitle.bottomAnchor, constant: 17), headerRule.heightAnchor.constraint(equalToConstant: 1),
             scroll.leadingAnchor.constraint(equalTo: content.leadingAnchor), scroll.trailingAnchor.constraint(equalTo: content.trailingAnchor),
-            scroll.topAnchor.constraint(equalTo: content.topAnchor), scroll.bottomAnchor.constraint(equalTo: footer.topAnchor),
-            footer.leadingAnchor.constraint(equalTo: content.leadingAnchor), footer.trailingAnchor.constraint(equalTo: content.trailingAnchor),
-            footer.bottomAnchor.constraint(equalTo: content.bottomAnchor), footer.heightAnchor.constraint(equalToConstant: 53),
-            close.trailingAnchor.constraint(equalTo: footer.trailingAnchor, constant: -26), close.centerYAnchor.constraint(equalTo: footer.centerYAnchor),
-            close.widthAnchor.constraint(greaterThanOrEqualToConstant: 72),
-            footerStatus.leadingAnchor.constraint(equalTo: footer.leadingAnchor, constant: 31),
-            footerStatus.trailingAnchor.constraint(lessThanOrEqualTo: close.leadingAnchor, constant: -12),
-            footerStatus.centerYAnchor.constraint(equalTo: footer.centerYAnchor)
+            scroll.topAnchor.constraint(equalTo: headerRule.bottomAnchor), scroll.bottomAnchor.constraint(equalTo: content.bottomAnchor),
+            footerStatus.trailingAnchor.constraint(equalTo: headerRule.trailingAnchor), footerStatus.leadingAnchor.constraint(greaterThanOrEqualTo: pageHeading.trailingAnchor, constant: 12),
+            footerStatus.centerYAnchor.constraint(equalTo: pageHeading.centerYAnchor)
         ])
         buildPages()
-        mountPage(.general)
-        window.initialFirstResponder = navigation[.general]
+        mountPage(.display)
+        window.initialFirstResponder = navigation[.display]
     }
 
     func navigate(to page: SettingsPage) {
-        guard page != selectedPage || scroll.documentView == nil else { return }
+        let destination = page.destination
+        if page == .motion, let advanced = disclosures["display.advanced"], advanced.content.isHidden {
+            advanced.button.performClick(nil)
+        }
+        if destination == selectedPage, scroll.documentView != nil {
+            if page == .motion { scrollToMotion() }
+            return
+        }
         flushEditor()
         window.makeFirstResponder(nil)
         stopPreviews()
-        selectedPage = page
-        mountPage(page)
+        selectedPage = destination
+        mountPage(destination)
         render()
+        if page == .motion { scrollToMotion() }
         window.recalculateKeyViewLoop()
+    }
+
+    private func scrollToMotion() {
+        window.contentView?.layoutSubtreeIfNeeded()
+        guard let view = controls["arrival"] else { return }
+        view.scrollToVisible(view.bounds)
     }
 
     func mountPage(_ page: SettingsPage) {
@@ -213,6 +265,8 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
         NSLayoutConstraint.activate(pagePositionConstraints)
         pageWidthConstraints[page]?.isActive = true
         scroll.contentView.scroll(to: .zero); scroll.reflectScrolledClipView(scroll.contentView)
+        pageHeading.stringValue = page.title
+        pageSubtitle.stringValue = page.subtitle
         window.title = "Riftlet — \(page.title)"
     }
 

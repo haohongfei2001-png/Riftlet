@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="270" viewBox="0 0 400 270" role="img" aria-labelledby="title desc">
+<title id="title">A synthetic JavaScript error</title><desc id="desc">The empty response has no items value. Calling items.map throws a TypeError.</desc>
+<rect width="400" height="270" rx="12" fill="#23322F"/>
+<text x="26" y="34" fill="#96B6A9" font-family="system-ui, sans-serif" font-size="12" letter-spacing="1.2">app.js</text>
+<g font-family="ui-monospace, Menlo, Consolas, monospace" font-size="20" fill="#F2F2E7">
+<text x="26" y="82"><tspan fill="#91D2B8">const</tspan> response = {};</text>
+<text x="26" y="117"><tspan fill="#91D2B8">const</tspan> items =</text>
+<text x="50" y="148">response.items;</text>
+<rect x="18" y="164" width="364" height="37" rx="5" fill="#E9AB8F" fill-opacity=".1"/>
+<path d="M19 169v27" stroke="#EDA58D" stroke-width="2"/>
+<text x="26" y="190">items.map(x =&gt; x.id);</text>
+</g>
+<path d="M26 216H374" stroke="#536059" stroke-opacity=".6"/>
+<text x="26" y="245" fill="#F3B79B" font-family="system-ui, sans-serif" font-size="20">TypeError: items is undefined</text>
+</svg>

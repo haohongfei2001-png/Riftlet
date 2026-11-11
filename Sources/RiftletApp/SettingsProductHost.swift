@@ -115,7 +115,7 @@ final class SettingsProductHost {
         center?.update(value); control?.update(value); onboarding?.update(value)
     }
 
-    func show(page: SettingsPage = .general) {
+    func show(page: SettingsPage = .display) {
         guard !isPreparingForTermination else { return }
         control.close(); login.refresh(); onRefresh(); center.show(page: page)
     }

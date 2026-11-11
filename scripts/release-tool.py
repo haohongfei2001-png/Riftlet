@@ -488,7 +488,7 @@ def verify_signature(app, team, arches):
     requirement = ('anchor apple generic and identifier "com.riftlet.app" and certificate leaf[subject.OU] = "'
                    + team + '" and certificate 1[field.1.2.840.113635.100.6.2.6] exists and '
                    'certificate leaf[field.1.2.840.113635.100.6.1.13] exists')
-    run(["/usr/bin/codesign", "--verify", "--deep", "--strict", "--all-architectures", "-R", requirement, app])
+    run(["/usr/bin/codesign", "--verify", "--deep", "--strict", "--all-architectures", "-R", "=" + requirement, app])
     result = {"teamID": team, "hardenedRuntime": True, "entitlements": ENTITLEMENTS, "architectures": {}}
     for arch in arches:
         detail = run(["/usr/bin/codesign", "-d", "--verbose=4", "--arch", arch, app]).stderr.decode()
@@ -558,6 +558,10 @@ def build_candidate(args):
     shutil.copy2(source_dir / "Resources/Info.plist", app / "Contents/Info.plist")
     if (source_dir / "Resources" / BUNDLE.ICON_NAME).exists():
         shutil.copy2(source_dir / "Resources" / BUNDLE.ICON_NAME, app / "Contents/Resources" / BUNDLE.ICON_NAME)
+    # The source export may be a pre-consolidation release. Preserve its original resources.
+    if (source_dir / "Resources/Presentation").is_dir():
+        for name in BUNDLE.PRESENTATION_NAMES:
+            shutil.copy2(source_dir / "Resources/Presentation" / name, app / "Contents/Resources" / name)
     shutil.copytree(source_dir / "ThirdPartyNotices", app / "Contents/Resources/ThirdPartyNotices")
     shutil.copytree(bin_dir / "Riftlet_RiftletAdapters.bundle", app / "Contents/Resources/Riftlet_RiftletAdapters.bundle")
     # Preserve the old verifier's development contract before staging-only changes.

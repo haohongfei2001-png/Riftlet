@@ -271,6 +271,36 @@ final class QuietEdgeInteractionTests: XCTestCase {
         XCTAssertFalse(panel.diagnosticSnapshot.isHolding)
     }
 
+    @MainActor func testWindChimeTransparentCornerRejectsMenuAndOriginalMouseRelease() throws {
+        var selected: [UUID] = []
+        let panel = try controller(onSelect: { selected.append($0) })
+        defer { panel.close() }
+        var config = panel.configuration
+        config.desktopForm = .windChime
+        config.windChimeArrangement = .staggered
+        config.placement = .rightMiddle
+        try panel.updateConfiguration(config)
+        let input = records(1)
+        panel.render(input)
+        let row = try XCTUnwrap(panel.diagnosticSnapshot.rows.first)
+        let native = try window(row.imageInputWindowNumber)
+        let view = try XCTUnwrap(native.contentView)
+        let image = row.imageClipFrame
+        let corner = CGPoint(x: image.minX + 0.25, y: image.maxY - 0.25)
+        let center = CGPoint(x: image.midX, y: image.midY)
+        let t = ProcessInfo.processInfo.systemUptime
+        XCTAssertNil(view.menu(for: try event(.rightMouseDown, window: native, point: corner, time: t)))
+        XCTAssertNotNil(view.menu(for: try event(.rightMouseDown, window: native, point: center, time: t)))
+        view.mouseDown(with: try event(.leftMouseDown, window: native, point: center, time: t + 1))
+        XCTAssertTrue(panel.diagnosticSnapshot.isHolding)
+        view.mouseUp(with: try event(.leftMouseUp, window: native, point: corner, time: t + 1.05))
+        XCTAssertFalse(panel.diagnosticSnapshot.isHolding)
+        XCTAssertTrue(selected.isEmpty)
+        view.mouseDown(with: try event(.leftMouseDown, window: native, point: center, time: t + 2))
+        view.mouseUp(with: try event(.leftMouseUp, window: native, point: center, time: t + 2.05))
+        XCTAssertEqual(selected, [input[0].id])
+    }
+
     @MainActor func testDigitBoundaryReflowKeepsFixedClippingPlaneUntilOrdinalHandoff() async throws {
         let panel = try controller(); defer { panel.close() }
         let input = records(10); panel.render(input); panel.showLatest()

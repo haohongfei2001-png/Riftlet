@@ -27,12 +27,12 @@ final class SettingsStateModelTests: XCTestCase {
         var requests: [SettingsSaveRequest] = []
         var beforeReturn: (@MainActor (SettingsSaveRequest, SettingsOwnerSnapshot) async -> Void)?
 
-        init(configuration: RiftConfiguration = .init(), archive: Double? = 24) {
+        init(configuration: RiftConfiguration = .init(), archive: Double? = QueueArchivePolicy.defaultMinutes) {
             value = SettingsOwnerSnapshot(revision: 1,
                 settings: RiftSettingsSnapshot(entryAvailable: true, displays: [
                     .init(id: 1, name: "Synthetic A", uuid: Self.a),
                     .init(id: 2, name: "Synthetic B", uuid: Self.b)
-                ], archiveAfterHours: archive, configuration: configuration),
+                ], archiveAfterMinutes: archive, configuration: configuration),
                 collectionPaused: false, isHidden: false, mainDisplayID: 1, effectiveDisplayID: 1)
         }
         static let a = "01000000-0000-0000-0000-000000000001"
@@ -48,7 +48,7 @@ final class SettingsStateModelTests: XCTestCase {
         var known: [SettingsDomain: SettingsConfirmedValue] {
             [.collection: .boolean(value.collectionPaused), .visibility: .boolean(value.isHidden),
              .entry: .boolean(value.settings.entryEnabled), .layout: .configuration(value.settings.configuration),
-             .archive: .archiveHours(value.settings.archiveAfterHours)]
+             .archive: .archiveMinutes(value.settings.archiveAfterMinutes)]
         }
 
         func save(_ request: SettingsSaveRequest) async -> SettingsSaveOutcome {
@@ -67,8 +67,8 @@ final class SettingsStateModelTests: XCTestCase {
                     next.settings.capturePreferencesSaveFailed = failed
                 case .arrival(let mode):
                     if !failed { next.settings.arrivalMode = mode; next.settings.hasArrivalSelection = true }
-                case .archiveHours(let hours): if !failed { next.settings.archiveAfterHours = hours }
-                case .layout, .placement, .display:
+                case .archiveMinutes(let minutes): if !failed { next.settings.archiveAfterMinutes = minutes }
+                case .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFavorite:
                     if !failed, let configuration = request.configuration {
                         next.settings.configuration = configuration
                         next.settings.preferredDisplayID = configuration.preferredDisplayID
@@ -92,7 +92,7 @@ final class SettingsStateModelTests: XCTestCase {
         let model = try SettingsStateModel(owner: owner.value, decimalSeparator: ",", adapter: owner)
         XCTAssertEqual(model.text(for: .visibleCountPreference), "3")
         XCTAssertEqual(model.text(for: .fitWidth), "72,125")
-        XCTAssertEqual(model.archiveDraftText, "24")
+        XCTAssertEqual(model.archiveDraftText, "2")
         XCTAssertTrue(owner.requests.isEmpty)
     }
 
@@ -105,7 +105,7 @@ final class SettingsStateModelTests: XCTestCase {
         owner.advance { value in
             value.settings.configuration.visibleCountPreference = 4
             value.settings.configuration.fitWidth = 84
-            value.settings.archiveAfterHours = 8
+            value.settings.archiveAfterMinutes = 8
         }
         XCTAssertTrue(model.receive(owner.value))
         XCTAssertEqual(model.text(for: .visibleCountPreference), "3,0")
@@ -120,6 +120,287 @@ final class SettingsStateModelTests: XCTestCase {
         XCTAssertEqual(model.archiveDraftText, "8")
         XCTAssertTrue(owner.requests.isEmpty)
     }
+    @MainActor func testPresentationPersistsImmediatelyWithoutConsumingLayoutDrafts() async throws {
+        let owner = Owner()
+        let model = try model(owner)
+        model.setDraftText("87", for: .fitWidth)
+        let changed = await model.perform(.selectDesktopForm(.tray))
+        XCTAssertEqual(changed.confirmed, [.desktopForm])
+        XCTAssertEqual(owner.value.settings.configuration.desktopForm, .tray)
+        XCTAssertTrue(model.hasLayoutDraft)
+        owner.failures.insert(.trayTheme)
+        let failed = await model.perform(.selectTrayTheme(.violetGlass))
+        XCTAssertEqual(failed.failed, [.trayTheme])
+        _ = await model.perform(.selectDesktopForm(.microSlit))
+        XCTAssertNotNil(model.snapshot.domains[.trayTheme]?.saveFailure)
+        owner.failures.remove(.trayTheme)
+        let retry = await model.perform(.retry(.trayTheme))
+        XCTAssertEqual(retry.confirmed, [.trayTheme])
+        XCTAssertEqual(owner.value.settings.configuration.desktopForm, .microSlit)
+        XCTAssertEqual(owner.value.settings.configuration.trayTheme, .violetGlass)
+        _ = await model.perform(.applyLayout)
+        XCTAssertEqual(owner.value.settings.configuration.fitWidth, 87)
+        XCTAssertEqual(owner.value.settings.configuration.desktopForm, .microSlit)
+    }
+
+    func testRetiredFormsResolveToTrayWithoutRewritingOriginalValue() throws {
+        XCTAssertEqual(RiftDesktopForm.allCases, [.tray, .windChime, .microSlit])
+        for raw in ["edgefolio", "pocket", "microSlit"] {
+            let data = try JSONSerialization.data(withJSONObject: ["desktopForm": raw, "rowPitch": 60])
+            var configuration = try JSONDecoder().decode(RiftConfiguration.self, from: data)
+            XCTAssertEqual(configuration.desktopForm, raw == "microSlit" ? .microSlit : .tray)
+            configuration.outerInset = 19
+            let json = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(configuration)) as? [String: Any])
+            XCTAssertEqual(json["desktopForm"] as? String, raw)
+            XCTAssertEqual(json["outerInset"] as? Int, 19)
+        }
+    }
+
+    func testPresentationFallbackPreservesUnrecognizedSelections() throws {
+        for raw in [#""future-form""#, #"{"version":3,"names":["x"]}"#, "null"] {
+            let source = Data("{\"desktopForm\":\(raw),\"trayTheme\":\"future-glass\",\"trayOcclusion\":1.6,\"emptyTraceLength\":33}".utf8)
+            var value = try JSONDecoder().decode(RiftConfiguration.self, from: source)
+            XCTAssertEqual(value.desktopForm, .microSlit)
+            XCTAssertEqual(value.trayTheme, .system)
+            XCTAssertEqual(value.trayOcclusion, 0)
+            value.outerInset = 19
+            let saved = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(value)) as? NSDictionary)
+            let original = try XCTUnwrap(JSONSerialization.jsonObject(with: source) as? NSDictionary)
+            for key in ["desktopForm", "trayTheme", "trayOcclusion", "emptyTraceLength"] {
+                XCTAssertEqual(saved[key] as? NSObject, original[key] as? NSObject)
+            }
+        }
+    }
+
+    func testStoredWindChimeIsRestoredAndUnknownArrangementSurvivesUnrelatedSaves() throws {
+        let legacy = try JSONDecoder().decode(RiftConfiguration.self, from: Data(#"{"desktopForm":"windChime"}"#.utf8))
+        XCTAssertEqual(legacy.desktopForm, .windChime)
+        XCTAssertEqual(legacy.windChimeArrangement, .aligned)
+        var switched = legacy
+        switched.desktopForm = .microSlit
+        switched = try JSONDecoder().decode(RiftConfiguration.self, from: JSONEncoder().encode(switched))
+        switched.desktopForm = .windChime
+        XCTAssertEqual(switched.windChimeArrangement, .aligned)
+        var fresh = RiftConfiguration()
+        fresh.desktopForm = .windChime
+        XCTAssertEqual(fresh.windChimeArrangement, .staggered)
+        XCTAssertEqual(fresh.windChimeLineInset, 18)
+        let original = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(legacy)) as? NSDictionary)
+        XCTAssertNil(original["windChimeArrangement"])
+        for raw in [#""future""#, #"{"axis":[1,2]}"#, "null"] {
+            let source = Data("{\"desktopForm\":\"windChime\",\"windChimeArrangement\":\(raw)}".utf8)
+            var config = try JSONDecoder().decode(RiftConfiguration.self, from: source)
+            XCTAssertEqual(config.windChimeArrangement, .staggered)
+            config.desktopForm = .tray
+            let saved = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(config)) as? NSDictionary)
+            let input = try XCTUnwrap(JSONSerialization.jsonObject(with: source) as? NSDictionary)
+            XCTAssertEqual(saved["windChimeArrangement"] as? NSObject, input["windChimeArrangement"] as? NSObject)
+            config.windChimeArrangement = .aligned
+            let reopened = try JSONDecoder().decode(RiftConfiguration.self, from: JSONEncoder().encode(config))
+            XCTAssertEqual(reopened.windChimeArrangement, .aligned)
+            XCTAssertEqual(reopened.desktopForm, .tray)
+        }
+    }
+
+    @MainActor func testWindChimeArrangementRetryRebasesWithoutSwitchingFormOrApplyingDraft() async throws {
+        let owner = Owner()
+        let model = try model(owner)
+        _ = await model.perform(.selectDesktopForm(.windChime))
+        model.setDraftText("88", for: .fitWidth)
+        owner.failures.insert(.windChimeArrangement)
+        let failed = await model.perform(.selectWindChimeArrangement(.aligned))
+        XCTAssertEqual(failed.failed, [.windChimeArrangement])
+        XCTAssertEqual(owner.value.settings.configuration.windChimeArrangement, .staggered)
+        _ = await model.perform(.selectDesktopForm(.microSlit))
+        XCTAssertEqual(model.snapshot.domains[.windChimeArrangement]?.pending, .windChimeArrangement(.aligned))
+        owner.failures.remove(.windChimeArrangement)
+        let retry = await model.perform(.retry(.windChimeArrangement))
+        XCTAssertEqual(retry.confirmed, [.windChimeArrangement])
+        XCTAssertEqual(owner.value.settings.configuration.desktopForm, .microSlit)
+        XCTAssertEqual(owner.value.settings.configuration.windChimeArrangement, .aligned)
+        XCTAssertEqual(owner.value.settings.configuration.fitWidth, 72)
+        XCTAssertEqual(model.text(for: .fitWidth), "88")
+    }
+
+    @MainActor func testWindChimeLineInsetRetainsSeparateDraftAndRetriedTarget() async throws {
+        let owner = Owner()
+        let model = try model(owner)
+        model.setDraftText("24", for: .outerInset)
+        _ = await model.perform(.selectDesktopForm(.windChime))
+        XCTAssertEqual(model.text(for: .windChimeLineInset), "18")
+        model.setDraftText("29", for: .windChimeLineInset)
+        XCTAssertEqual(model.configurationDraft?.windChimeLineInset, 29)
+        XCTAssertEqual(model.configurationDraft?.outerInset, 6)
+        owner.failures.insert(.layout)
+        let failed = await model.perform(.applyLayout)
+        XCTAssertEqual(failed.failed, [.layout])
+        _ = await model.perform(.selectDesktopForm(.microSlit))
+        owner.failures.remove(.layout)
+        let retried = await model.perform(.retry(.layout))
+        XCTAssertEqual(retried.confirmed, [.layout])
+        XCTAssertEqual(owner.value.settings.configuration.windChimeLineInset, 29)
+        XCTAssertEqual(owner.value.settings.configuration.outerInset, 6)
+        XCTAssertEqual(model.text(for: .outerInset), "24")
+        _ = await model.perform(.applyLayout)
+        XCTAssertEqual(owner.value.settings.configuration.outerInset, 24)
+        _ = await model.perform(.selectDesktopForm(.windChime))
+        _ = await model.perform(.restoreDefaults(.display))
+        _ = await model.perform(.applyLayout)
+        XCTAssertEqual(owner.value.settings.configuration.windChimeLineInset, 18)
+        XCTAssertEqual(owner.value.settings.configuration.outerInset, 24)
+        let disk = try JSONEncoder().encode(owner.value.settings.configuration)
+        let reopened = try JSONDecoder().decode(RiftConfiguration.self, from: disk)
+        XCTAssertEqual(reopened, owner.value.settings.configuration)
+    }
+
+    func testPresentationSettingsRoundTripAndPreserveLegacyDefaults() throws {
+        var config = try JSONDecoder().decode(RiftConfiguration.self, from: Data("{}".utf8))
+        XCTAssertEqual(config.desktopForm, .microSlit)
+        XCTAssertEqual(config.hiddenFraction, 0.25)
+        XCTAssertEqual(config.trayOcclusion, 0)
+        config.trayTheme = .violetGlass
+        config.trayOcclusion = 0.29
+        for form in RiftDesktopForm.allCases where form.isAvailable {
+            config.desktopForm = form
+            let decoded = try JSONDecoder().decode(RiftConfiguration.self, from: JSONEncoder().encode(config))
+            XCTAssertEqual(decoded.desktopForm, form)
+            XCTAssertEqual(decoded.trayTheme, .violetGlass)
+            XCTAssertEqual(decoded.trayOcclusion, 0.29)
+            XCTAssertEqual(decoded.hiddenFraction, 0.25)
+            XCTAssertNil(decoded.placement)
+        }
+    }
+
+    @MainActor func testCustomTintValidatesSavesAndReopensWithoutLosingPresetOrOtherSettings() async throws {
+        let owner = Owner()
+        let model = try model(owner)
+        _ = await model.perform(.selectDesktopForm(.tray))
+        _ = await model.perform(.selectTrayTheme(.custom))
+        model.setDraftText("145", for: .trayTintHue)
+        model.setDraftText("101", for: .trayTintStrength)
+        _ = await model.perform(.applyLayout)
+        XCTAssertEqual(owner.value.settings.configuration.trayTintHue, 255)
+        XCTAssertTrue(model.hasLayoutDraft)
+
+        model.setDraftText("42", for: .trayTintStrength)
+        owner.failures.insert(.layout)
+        let failed = await model.perform(.applyLayout)
+        XCTAssertEqual(failed.failed, [.layout])
+        _ = await model.perform(.selectTrayTheme(.system))
+        XCTAssertEqual(model.text(for: .trayTintHue), "145")
+        XCTAssertEqual(model.text(for: .trayTintStrength), "42")
+        XCTAssertTrue(model.snapshot.domains[.layout]?.saveFailure != nil)
+        _ = await model.perform(.selectTrayTheme(.custom))
+        owner.failures.remove(.layout)
+        let retried = await model.perform(.retry(.layout))
+        XCTAssertEqual(retried.confirmed, [.layout])
+
+        _ = await model.perform(.selectTrayTheme(.violetGlass))
+        XCTAssertEqual(owner.value.settings.configuration.trayColors, .violetGlass)
+        _ = await model.perform(.selectTrayTheme(.custom))
+        let data = try JSONEncoder().encode(owner.value.settings.configuration)
+        let persisted = try JSONDecoder().decode(RiftConfiguration.self, from: data)
+        XCTAssertEqual(persisted.trayColors, .custom(hue: 145, strength: 0.42))
+        XCTAssertEqual(persisted.trayOcclusion, 0)
+    }
+
+    @MainActor func testHiddenInvalidTrayTintSurvivesUnrelatedSaveAndNoOpApply() async throws {
+        let owner = Owner()
+        let model = try model(owner)
+        _ = await model.perform(.selectDesktopForm(.tray))
+        _ = await model.perform(.selectTrayTheme(.custom))
+        model.setDraftText("101", for: .trayTintStrength)
+        _ = await model.perform(.applyLayout)
+        XCTAssertEqual(model.snapshot.domains[.layout]?.validationFailure, .invalidNumber(.trayTintStrength))
+
+        _ = await model.perform(.selectTrayTheme(.system))
+        XCTAssertNil(model.snapshot.domains[.layout]?.validationFailure)
+        model.setDraftText("22", for: .outerInset)
+        let saved = await model.perform(.applyLayout)
+        XCTAssertEqual(saved.confirmed, [.layout])
+        XCTAssertEqual(owner.value.settings.configuration.outerInset, 22)
+        XCTAssertEqual(owner.value.settings.configuration.trayTintStrength, 0.65)
+        let writes = owner.requests.count
+        _ = await model.perform(.applyLayout)
+        XCTAssertEqual(owner.requests.count, writes)
+
+        // The same controls are also hidden outside the screenshot tray.
+        _ = await model.perform(.selectDesktopForm(.microSlit))
+        _ = await model.perform(.selectTrayTheme(.custom))
+        XCTAssertNil(model.snapshot.domains[.layout]?.validationFailure)
+        _ = await model.perform(.applyLayout)
+        _ = await model.perform(.selectDesktopForm(.tray))
+        XCTAssertEqual(model.text(for: .trayTintStrength), "101")
+        XCTAssertEqual(model.snapshot.domains[.layout]?.validationFailure, .invalidNumber(.trayTintStrength))
+        model.setDraftText("85", for: .trayTintStrength)
+        let corrected = await model.perform(.applyLayout)
+        XCTAssertEqual(corrected.confirmed, [.layout])
+        XCTAssertEqual(owner.value.settings.configuration.trayTintStrength, 0.85)
+        XCTAssertEqual(owner.value.settings.configuration.outerInset, 22)
+    }
+
+    func testUnsupportedTintValuesSurviveUnrelatedSavesAndLegacyKeysStayAbsent() throws {
+        let source = Data(#"{"trayTheme":"custom","trayTintHue":{"schema":3},"trayTintStrength":-1}"#.utf8)
+        var configuration = try JSONDecoder().decode(RiftConfiguration.self, from: source)
+        XCTAssertEqual(configuration.trayColors, .custom(hue: 255, strength: 0.65))
+        configuration.outerInset = 13
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(configuration)) as? NSDictionary)
+        XCTAssertEqual(json["trayTintHue"] as? NSDictionary, ["schema": 3])
+        XCTAssertEqual(json["trayTintStrength"] as? Int, -1)
+        let legacy = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(RiftConfiguration())) as? NSDictionary)
+        XCTAssertNil(legacy["trayTintHue"])
+        XCTAssertNil(legacy["trayTintStrength"])
+    }
+
+    func testTrayFavoritesKeepSlotIdentityAndOnlyAutomaticKeysFollowTheDefault() throws {
+        var config = try JSONDecoder().decode(RiftConfiguration.self, from: Data("{}".utf8))
+        XCTAssertEqual(config.trayFavoriteModes(defaultMode: .window), [.region, .fullScreen, nil])
+        XCTAssertEqual(config.trayFavoriteModes(defaultMode: .region), [.window, .fullScreen, nil])
+        XCTAssertEqual(config.trayFavoriteModes(defaultMode: .fullScreen), [.window, .region, nil])
+
+        config.setTrayFavorite(.mode(.window), for: .third)
+        config.setTrayFavorite(.empty, for: .second)
+        let reopened = try JSONDecoder().decode(RiftConfiguration.self, from: JSONEncoder().encode(config))
+        XCTAssertEqual(reopened.trayFavorite(.second), .empty)
+        XCTAssertEqual(reopened.trayFavoriteModes(defaultMode: .window), [.region, nil, .window])
+        XCTAssertEqual(reopened.trayFavoriteModes(defaultMode: .region), [.window, nil, .window])
+        config.setTrayFavorite(.automatic, for: .second)
+        XCTAssertEqual(config.trayFavoriteModes(defaultMode: .region), [.window, .fullScreen, .window])
+    }
+
+    func testUnknownFavoriteDoesNotCaptureAndSurvivesEditsToOtherKeys() throws {
+        let source = Data(#"{"trayFavorite1":{"later":[2,"key"]},"trayFavorite2":"future","trayFavorite3":"region"}"#.utf8)
+        var config = try JSONDecoder().decode(RiftConfiguration.self, from: source)
+        XCTAssertEqual(config.trayFavorite(.first), .unsupported)
+        XCTAssertEqual(config.trayFavoriteModes(defaultMode: .window), [nil, nil, .region])
+        config.setTrayFavorite(.mode(.fullScreen), for: .third)
+        let saved = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(config)) as? NSDictionary)
+        let old = try XCTUnwrap(JSONSerialization.jsonObject(with: source) as? NSDictionary)
+        XCTAssertEqual(saved["trayFavorite1"] as? NSObject, old["trayFavorite1"] as? NSObject)
+        XCTAssertEqual(saved["trayFavorite2"] as? String, "future")
+        XCTAssertEqual(saved["trayFavorite3"] as? String, "fullScreen")
+    }
+
+    @MainActor func testFavoriteRetryPreservesDraftOtherKeysAndNewDefault() async throws {
+        let owner = Owner()
+        let model = try model(owner)
+        model.setDraftText("87.250", for: .fitWidth)
+        owner.failures.insert(.trayFavorite1)
+        let failed = await model.perform(.selectTrayFavorite(.first, .mode(.region)))
+        XCTAssertEqual(failed.failed, [.trayFavorite1])
+        _ = await model.perform(.selectTrayFavorite(.third, .mode(.fullScreen)))
+        _ = await model.perform(.setCaptureMode(.fullScreen))
+        XCTAssertEqual(model.snapshot.domains[.trayFavorite1]?.pending, .trayFavorite(.first, .mode(.region)))
+        owner.failures.remove(.trayFavorite1)
+        let retry = await model.perform(.retry(.trayFavorite1))
+        XCTAssertEqual(retry.confirmed, [.trayFavorite1])
+        let config = owner.value.settings.configuration
+        XCTAssertEqual(config.trayFavorite(.first), .mode(.region))
+        XCTAssertEqual(config.trayFavoriteModes(defaultMode: owner.value.settings.defaultCaptureMode), [.region, .region, .fullScreen])
+        XCTAssertEqual(model.text(for: .fitWidth), "87.250")
+        XCTAssertTrue(model.hasLayoutDraft)
+    }
+
     private func personalized() throws -> RiftConfiguration {
         // Real legacy Codable path; no alternate migration implementation.
         try JSONDecoder().decode(RiftConfiguration.self, from: Data(#"{"lineWidth":1.25,"lineExtension":13.5,"emptyTraceLength":37,"screenPadding":23,"arrivalDuration":0.33,"inwardDistance":2.75,"reducedMotionDuration":0.19,"preferredDisplayID":2,"preferredDisplayUUID":"02000000-0000-0000-0000-000000000002"}"#.utf8))
@@ -238,14 +519,14 @@ final class SettingsStateModelTests: XCTestCase {
         XCTAssertEqual(first.confirmed, [.layout]); XCTAssertEqual(first.failed, [.archive])
         XCTAssertFalse(model.hasLayoutDraft); XCTAssertTrue(model.hasArchiveDraft)
         XCTAssertEqual(model.snapshot.owner.settings.configuration.fitWidth, 96)
-        XCTAssertEqual(model.snapshot.owner.settings.archiveAfterHours, 24)
+        XCTAssertEqual(model.snapshot.owner.settings.archiveAfterMinutes, 2)
         owner.failures = []
         let retried = await model.perform(.applyDrafts)
         XCTAssertEqual(retried.confirmed, [.archive])
         XCTAssertEqual(owner.requests.filter { $0.intent.domain == .layout }.count, 1)
         XCTAssertEqual(owner.requests.filter { $0.intent.domain == .archive }.count, 2)
         XCTAssertEqual(owner.requests.last?.intent.domain, .archive)
-        XCTAssertEqual(model.snapshot.owner.settings.archiveAfterHours, 2.5)
+        XCTAssertEqual(model.snapshot.owner.settings.archiveAfterMinutes, 2.5)
         XCTAssertFalse(model.hasArchiveDraft); XCTAssertFalse(model.snapshot.hasSaveIssues)
     }
 
@@ -331,16 +612,21 @@ final class SettingsStateModelTests: XCTestCase {
         await model.perform(.edit(.visibleCountPreference, "3.5")); await model.perform(.applyLayout)
         XCTAssertTrue(owner.requests.isEmpty)
         await model.perform(.discardDrafts)
-        for text in ["", "-1", "Infinity", "1e309", "1abc"] {
+        for text in ["", "-1", "0", "0.99", "10.01", "Infinity", "1e309", "1abc"] {
             await model.perform(.editArchive(text)); await model.perform(.applyArchive)
             XCTAssertEqual(model.archiveDraftText, text)
         }
         XCTAssertTrue(owner.requests.isEmpty)
-        await model.perform(.editArchive("0")); await model.perform(.applyArchive)
-        XCTAssertNil(owner.value.settings.archiveAfterHours)
+        XCTAssertEqual(owner.value.settings.archiveAfterMinutes, QueueArchivePolicy.defaultMinutes)
+        await model.perform(.editArchive(nil)); await model.perform(.applyArchive)
+        XCTAssertNil(owner.value.settings.archiveAfterMinutes)
         XCTAssertNil(model.snapshot.archiveText); XCTAssertFalse(model.hasArchiveDraft)
         await model.perform(.applyArchive)
         XCTAssertEqual(owner.requests.count, 1, "Already saved disabled archive is not written again")
+        for text in ["1", "10"] {
+            await model.perform(.editArchive(text)); await model.perform(.applyArchive)
+            XCTAssertEqual(owner.value.settings.archiveAfterMinutes, Double(text))
+        }
     }
 
     @MainActor func testLocaleUnitsFractionalArchiveAndExplicitNoneSelection() async throws {
@@ -349,9 +635,12 @@ final class SettingsStateModelTests: XCTestCase {
         await model.perform(.edit(.hiddenFraction, "12,5")); await model.perform(.edit(.swallowDuration, "40")); await model.perform(.applyLayout)
         XCTAssertEqual(owner.value.settings.configuration.hiddenFraction, 0.125)
         XCTAssertEqual(owner.value.settings.configuration.swallowDuration, 0.04)
-        await model.perform(.editArchive("0,011")); await model.perform(.applyArchive); await model.perform(.applyArchive)
+        await model.perform(.editArchive("1,077")); await model.perform(.applyArchive); await model.perform(.applyArchive)
         XCTAssertEqual(owner.requests.filter { $0.intent.domain == .archive }.count, 1)
-        XCTAssertEqual(owner.value.settings.archiveAfterHours, (0.011 * 3600) / 3600)
+        XCTAssertNotEqual(1.077, (1.077 * 60) / 60, "This fixture must exercise a real floating-point round trip")
+        XCTAssertEqual(owner.value.settings.archiveAfterMinutes, (1.077 * 60) / 60)
+        XCTAssertEqual(model.archiveDraftText, "1,077")
+        XCTAssertFalse(model.hasArchiveDraft)
         XCTAssertFalse(owner.value.settings.hasArrivalSelection)
         await model.perform(.setArrival(.none))
         XCTAssertTrue(owner.value.settings.hasArrivalSelection, "Fallback none is not an already-saved explicit none")
@@ -417,7 +706,9 @@ final class SettingsStateModelTests: XCTestCase {
         await model.perform(.edit(.fitHeight, "70"))
         let duplicate = await model.perform(.retry(.layout))
         let overlappingFile = await model.perform(.selectDisplay(2))
+        let overlappingFavorite = await model.perform(.selectTrayFavorite(.second, .mode(.region)))
         XCTAssertEqual(duplicate.busy, [.layout]); XCTAssertEqual(overlappingFile.busy, [.display])
+        XCTAssertEqual(overlappingFavorite.busy, [.trayFavorite2])
         XCTAssertEqual(owner.requests.count, 1, "Same config writer is not queued or replayed")
         let hidden = await model.perform(.setHidden(true))
         await model.perform(.editArchive("3"))
@@ -429,7 +720,7 @@ final class SettingsStateModelTests: XCTestCase {
         let result = await saving.value
         XCTAssertEqual(result.confirmed, [.layout]); XCTAssertTrue(result.failed.isEmpty)
         XCTAssertEqual(model.snapshot.owner.revision, latestRevision, "An earlier receipt cannot restore an old cross-domain snapshot")
-        XCTAssertTrue(model.snapshot.owner.isHidden); XCTAssertEqual(model.snapshot.owner.settings.archiveAfterHours, 3)
+        XCTAssertTrue(model.snapshot.owner.isHidden); XCTAssertEqual(model.snapshot.owner.settings.archiveAfterMinutes, 3)
         XCTAssertEqual(model.text(for: .fitWidth), "96.000", "Equal numeric value does not permit clearing a newer edit")
         XCTAssertEqual(model.text(for: .fitHeight), "70")
         XCTAssertEqual(model.configurationDraft?.fitHeight, 70)
@@ -485,12 +776,12 @@ final class SettingsStateModelTests: XCTestCase {
         gate.release(); archiveGate.release()
         let result = await saving.value
         XCTAssertEqual(result.confirmed, [.layout, .archive])
-        XCTAssertEqual(owner.requests.last { $0.intent.domain == .archive }?.intent, .archiveHours(2.5))
-        XCTAssertEqual(model.snapshot.owner.settings.archiveAfterHours, 2.5)
+        XCTAssertEqual(owner.requests.last { $0.intent.domain == .archive }?.intent, .archiveMinutes(2.5))
+        XCTAssertEqual(model.snapshot.owner.settings.archiveAfterMinutes, 2.5)
         XCTAssertEqual(model.archiveDraftText, "4.125")
         XCTAssertTrue(model.hasArchiveDraft)
         await model.perform(.applyArchive)
-        XCTAssertEqual(owner.requests.last?.intent, .archiveHours(4.125))
+        XCTAssertEqual(owner.requests.last?.intent, .archiveMinutes(4.125))
         XCTAssertFalse(model.hasArchiveDraft)
     }
 
@@ -573,7 +864,7 @@ final class SettingsStateModelTests: XCTestCase {
         let archivePublished = expectation(description: "Archive receipt published while layout still saving")
         var fulfilled = false
         model.onChange = { snapshot in
-            if !fulfilled, snapshot.domains[.archive]?.lastConfirmed == .archiveHours(2.5),
+            if !fulfilled, snapshot.domains[.archive]?.lastConfirmed == .archiveMinutes(2.5),
                snapshot.domains[.layout]?.isSaving == true {
                 fulfilled = true; archivePublished.fulfill()
             }

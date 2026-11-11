@@ -14,11 +14,18 @@ public struct RiftRowLayout: Equatable, Sendable {
     public let imageClipFrame: CGRect
     public let numberFrame: CGRect
     public var numberIsPad: Bool = false
+    /// The visible glass backing belongs to this screenshot, including after occlusion.
+    var trayCardFrame: CGRect? = nil
+    var windChime: RiftWindChimeCard? = nil
 
     /// Selection eligibility only; rejecting padding does not forward an event
     /// through this row's rectangular native window to another application.
     func containsSelectionPoint(_ localPoint: CGPoint) -> Bool {
-        imageClipFrame.contains(localPoint) || numberFrame.contains(localPoint)
+        if numberFrame.contains(localPoint) { return true }
+        if let windChime {
+            return imageClipFrame.contains(localPoint) && windChime.contains(localPoint)
+        }
+        return (trayCardFrame ?? imageClipFrame).contains(localPoint)
     }
 }
 
@@ -28,6 +35,10 @@ public struct RiftLayoutResult: Equatable, Sendable {
     public let firstVisibleIndex: Int
     public let capacity: Int
     public let totalCount: Int
+    /// Screen-space material and capture controls. Empty rectangles have no window.
+    public var surfaceFrame: CGRect = .zero
+    public var captureSlot: CGRect = .zero
+    public var captureMenuFrame: CGRect = .zero
     public var pagerFrame: CGRect = .zero
     public var earlierArrowFrame: CGRect = .zero
     public var laterArrowFrame: CGRect = .zero
@@ -74,19 +85,25 @@ public enum RiftLayout {
         let fitted = fit(pixelWidth: record.image.pixelWidth,
                          pixelHeight: record.image.pixelHeight, configuration: c)
         let exposed = Double(fitted.width) * (1 - c.hiddenFraction)
+        let number = numberMetrics(ordinal: ordinal, exposed: exposed, height: fitted.height, configuration: c)
+        return RowMetrics(record: record, ordinal: ordinal, fitted: fitted, exposed: exposed,
+                          numberWidth: number.size.width, numberHeight: number.size.height, numberIsPad: number.pad,
+                          width: max(c.minimumHitWidth, exposed + c.numberGap + number.size.width + c.leftPadding),
+                          height: max(c.minimumHitHeight, Double(fitted.height)))
+    }
+
+    static func numberMetrics(ordinal: Int, exposed: CGFloat, height: CGFloat,
+                              configuration c: RiftConfiguration) -> (size: CGSize, pad: Bool) {
         #if canImport(AppKit)
         let measured = ceil((String(ordinal) as NSString).size(withAttributes: [
             .font: NSFont.monospacedDigitSystemFont(ofSize: c.numberFontSize, weight: .regular)]).width)
         #else
         let measured = Double(String(ordinal).count) * c.numberFontSize * 0.65
         #endif
-        let pad = exposed < 24 || fitted.height < 20
+        let pad = exposed < 24 || height < 20
         let numberWidth = pad ? max(22, measured + 8) : measured
         let numberHeight = pad ? 24.0 : c.numberFontSize + 2
-        return RowMetrics(record: record, ordinal: ordinal, fitted: fitted, exposed: exposed,
-                          numberWidth: numberWidth, numberHeight: numberHeight, numberIsPad: pad,
-                          width: max(c.minimumHitWidth, exposed + c.numberGap + numberWidth + c.leftPadding),
-                          height: max(c.minimumHitHeight, Double(fitted.height)))
+        return (CGSize(width: numberWidth, height: numberHeight), pad)
     }
 
     public static func fit(pixelWidth: Int, pixelHeight: Int, configuration c: RiftConfiguration) -> CGSize {

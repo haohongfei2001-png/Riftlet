@@ -3,7 +3,25 @@ import RiftletCapture
 
 /// Presentation state only. No file, window, capture, browser or upload access.
 public enum SettingsDomain: String, CaseIterable, Sendable {
-    case collection, visibility, entry, captureMode, arrival, layout, placement, display, archive
+    case collection, visibility, entry, captureMode, arrival, layout, placement, display, desktopForm, windChimeArrangement, trayTheme, archive
+    case trayFavorite1, trayFavorite2, trayFavorite3
+
+    var writesConfiguration: Bool {
+        switch self {
+        case .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFavorite1, .trayFavorite2, .trayFavorite3: return true
+        default: return false
+        }
+    }
+}
+
+extension RiftTrayFavoriteSlot {
+    var settingsDomain: SettingsDomain {
+        switch self {
+        case .first: return .trayFavorite1
+        case .second: return .trayFavorite2
+        case .third: return .trayFavorite3
+        }
+    }
 }
 
 public enum SettingsDraftPage: Equatable, Sendable { case display, motion }
@@ -11,9 +29,11 @@ public enum SettingsDraftPage: Equatable, Sendable { case display, motion }
 /// Only currently effective numeric settings are editable. Codable compatibility
 /// fields and display identity never enter this patch vocabulary.
 public enum SettingsField: String, CaseIterable, Hashable, Sendable {
-    case fitWidth, fitHeight, hiddenFraction, rowPitch, outerInset, firstCenterFromTop
+    case fitWidth, fitHeight, hiddenFraction, trayOcclusion, trayTintHue, trayTintStrength, rowPitch, outerInset, windChimeLineInset, firstCenterFromTop
     case numberFontSize, numberGap, leftPadding, minimumHitWidth, minimumHitHeight, visibleCountPreference
     case pressDuration, swallowDuration, shiftDuration, returnDuration
+
+    fileprivate var isCustomTrayTint: Bool { self == .trayTintHue || self == .trayTintStrength }
 
     public var page: SettingsDraftPage {
         switch self {
@@ -24,7 +44,7 @@ public enum SettingsField: String, CaseIterable, Hashable, Sendable {
 
     /// Text is shown in percent / milliseconds; RiftConfiguration retains its units.
     fileprivate var scale: Double {
-        if self == .hiddenFraction { return 100 }
+        if self == .hiddenFraction || self == .trayOcclusion || self == .trayTintStrength { return 100 }
         return page == .motion ? 1000 : 1
     }
 
@@ -32,8 +52,12 @@ public enum SettingsField: String, CaseIterable, Hashable, Sendable {
         switch self {
         case .fitWidth: return c.fitWidth
         case .fitHeight: return c.fitHeight
+        case .trayTintHue: return c.trayTintHue
+        case .trayTintStrength: return c.trayTintStrength
+        case .trayOcclusion: return c.trayOcclusion
         case .hiddenFraction: return c.hiddenFraction
         case .rowPitch: return c.rowPitch
+        case .windChimeLineInset: return c.windChimeLineInset
         case .outerInset: return c.outerInset
         case .firstCenterFromTop: return c.firstCenterFromTop
         case .numberFontSize: return c.numberFontSize
@@ -54,8 +78,20 @@ public enum SettingsField: String, CaseIterable, Hashable, Sendable {
         switch self {
         case .fitWidth: c.fitWidth = value
         case .fitHeight: c.fitHeight = value
+        case .trayTintHue:
+            guard (0...360).contains(value) else { throw SettingsValidationFailure.invalidNumber(self) }
+            c.trayTintHue = value
+        case .trayTintStrength:
+            guard (0...1).contains(value) else { throw SettingsValidationFailure.invalidNumber(self) }
+            c.trayTintStrength = value
+        case .trayOcclusion:
+            guard (0...0.9).contains(value) else { throw SettingsValidationFailure.invalidNumber(self) }
+            c.trayOcclusion = value
         case .hiddenFraction: c.hiddenFraction = value
         case .rowPitch: c.rowPitch = value
+        case .windChimeLineInset:
+            guard (0...256).contains(value) else { throw SettingsValidationFailure.invalidNumber(self) }
+            c.windChimeLineInset = value
         case .outerInset: c.outerInset = value
         case .firstCenterFromTop: c.firstCenterFromTop = value
         case .numberFontSize: c.numberFontSize = value
@@ -86,8 +122,10 @@ public struct SettingsDisplayPreference: Equatable, Sendable {
 public enum SettingsIntent: Equatable, Sendable {
     case collectionPaused(Bool), hidden(Bool), entryEnabled(Bool)
     case captureMode(ScreenshotMode), arrival(ArrivalMotionMode)
+    case desktopForm(RiftDesktopForm), windChimeArrangement(RiftWindChimeArrangement), trayTheme(RiftTrayTheme)
+    case trayFavorite(RiftTrayFavoriteSlot, RiftTrayFavoriteChoice)
     case layout([SettingsField: Double]), placement(RiftPlacement)
-    case display(SettingsDisplayPreference), archiveHours(Double?)
+    case display(SettingsDisplayPreference), archiveMinutes(Double?)
 
     public var domain: SettingsDomain {
         switch self {
@@ -96,18 +134,24 @@ public enum SettingsIntent: Equatable, Sendable {
         case .entryEnabled: return .entry
         case .captureMode: return .captureMode
         case .arrival: return .arrival
+        case .desktopForm: return .desktopForm
+        case .windChimeArrangement: return .windChimeArrangement
+        case .trayTheme: return .trayTheme
+        case .trayFavorite(let slot, _): return slot.settingsDomain
         case .layout: return .layout
         case .placement: return .placement
         case .display: return .display
-        case .archiveHours: return .archive
+        case .archiveMinutes: return .archive
         }
     }
 }
 
 public enum SettingsConfirmedValue: Equatable, Sendable {
     case boolean(Bool), captureMode(ScreenshotMode), arrival(ArrivalMotionMode)
+    case desktopForm(RiftDesktopForm), windChimeArrangement(RiftWindChimeArrangement), trayTheme(RiftTrayTheme)
+    case trayFavorite(RiftTrayFavoriteChoice)
     case configuration(RiftConfiguration), placement(RiftPlacement?)
-    case display(id: UInt32?, uuid: String?), archiveHours(Double?)
+    case display(id: UInt32?, uuid: String?), archiveMinutes(Double?)
 }
 
 public enum SettingsSaveFailure: Equatable, Sendable {
@@ -153,7 +197,7 @@ public struct SettingsSaveRequest: Equatable, Sendable {
     public let intent: SettingsIntent
     public let ownerRevision: UInt64
     /// A validated full configuration, patched from the latest owner snapshot.
-    /// Non-nil only for layout, explicit placement and display preference saves.
+    /// Non-nil for preferences owned by the layout configuration file.
     public let configuration: RiftConfiguration?
 }
 
@@ -177,10 +221,12 @@ public enum SettingsSaveOutcome: Sendable {
 }
 
 public enum SettingsCommand: Sendable {
-    case edit(SettingsField, String), editArchive(String), restoreDefaults(SettingsDraftPage)
+    case edit(SettingsField, String), editArchive(String?), restoreDefaults(SettingsDraftPage)
     case discardLayout, discardArchive, discardDrafts, applyLayout, applyArchive, applyDrafts
     case setCollectionPaused(Bool), setHidden(Bool), setEntryEnabled(Bool)
     case setCaptureMode(ScreenshotMode), setArrival(ArrivalMotionMode)
+    case selectDesktopForm(RiftDesktopForm), selectWindChimeArrangement(RiftWindChimeArrangement), selectTrayTheme(RiftTrayTheme)
+    case selectTrayFavorite(RiftTrayFavoriteSlot, RiftTrayFavoriteChoice)
     case selectPlacement(RiftPlacement), selectDisplay(UInt32?), retry(SettingsDomain)
 }
 
@@ -210,7 +256,15 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
     private var owner: SettingsOwnerSnapshot
     private var revision: UInt64 = 0
     private var layoutText: [SettingsField: String] = [:]
-    private var archiveText: String?
+    /// A disabled draft has no numeric input. Empty or zero text remains a user edit to validate.
+    private enum ArchiveDraft {
+        case disabled, minutes(String)
+        var text: String? {
+            if case .minutes(let text) = self { return text }
+            return nil
+        }
+    }
+    private var archiveDraft: ArchiveDraft?
     private var domains: [SettingsDomain: SettingsDomainState]
     private var layoutEditVersions: [SettingsField: UInt64] = [:]
     private var archiveEditVersion: UInt64?
@@ -245,20 +299,48 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
     }
 
     public var snapshot: SettingsStateSnapshot {
-        .init(revision: revision, owner: owner, layoutText: layoutText,
-              configurationDraft: configurationDraft,
-              archiveText: archiveText, domains: domains)
+        var visibleDomains = domains
+        // A retained tint draft is editable again when its controls return.
+        // Present its current validation only while it belongs to this form and theme.
+        if case .invalidNumber(let field) = visibleDomains[.layout]?.validationFailure,
+           field.isCustomTrayTint || !includedInLayoutDraft(field) {
+            visibleDomains[.layout]?.validationFailure = nil
+        }
+        let draft: RiftConfiguration?
+        do { draft = try configuration(for: .layout(layoutPatch())) }
+        catch {
+            draft = nil
+            if case SettingsValidationFailure.invalidNumber(let field) = error, field.isCustomTrayTint {
+                visibleDomains[.layout]?.validationFailure = .invalidNumber(field)
+            }
+        }
+        return .init(revision: revision, owner: owner, layoutText: layoutText,
+                     configurationDraft: draft, archiveText: archiveDraft?.text, domains: visibleDomains)
     }
 
-    public var configurationDraft: RiftConfiguration? {
-        do { return try configuration(for: .layout(layoutPatch())) }
-        catch { return nil }
-    }
+    public var configurationDraft: RiftConfiguration? { snapshot.configurationDraft }
 
     public func text(for field: SettingsField) -> String {
         layoutText[field] ?? format(field.value(in: owner.settings.configuration) * field.scale)
     }
-    public var archiveDraftText: String { archiveText ?? format(owner.settings.archiveAfterHours ?? 0) }
+    public var archiveDraftText: String {
+        archiveDraft?.text ?? Self.archiveMinutesText(owner.settings.archiveAfterMinutes ?? QueueArchivePolicy.defaultMinutes,
+                                                decimalSeparator: decimalSeparator)
+    }
+    static func archiveMinutesText(_ minutes: Double, decimalSeparator: String) -> String {
+        // Seconds can round-trip 1.077 minutes to 1.0770000000000002. Use the
+        // shorter spelling only when it identifies the same persisted duration.
+        let short = String(format: "%.15g", locale: Locale(identifier:"en_US_POSIX"), minutes)
+        let text = Double(short).map { ($0 * 60) / 60 == minutes } == true ? short : String(minutes)
+        return text.replacingOccurrences(of: ".", with: decimalSeparator)
+    }
+    public var archiveIsDisabled: Bool {
+        switch archiveDraft {
+        case .disabled?: return true
+        case .minutes?: return false
+        case nil: return owner.settings.archiveAfterMinutes == nil
+        }
+    }
 
     /// Reading an owner refresh neither saves nor clears an unresolved error.
     /// Dirty text remains byte-for-byte; all untouched values read the new owner.
@@ -272,8 +354,8 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         return patch.contains { $0.value != $0.key.value(in: owner.settings.configuration) }
     }
     public var hasArchiveDraft: Bool {
-        guard let archiveText else { return false }
-        do { return try parseArchive(archiveText) != owner.settings.archiveAfterHours }
+        guard let archiveDraft else { return false }
+        do { return try parseArchive(archiveDraft) != owner.settings.archiveAfterMinutes }
         catch { return true }
     }
 
@@ -282,8 +364,9 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         layoutText[field] = text; revision += 1; layoutEditVersions[field] = revision
         onChange?(snapshot)
     }
-    public func setArchiveDraftText(_ text: String) {
-        archiveText = text; revision += 1; archiveEditVersion = revision
+    public func setArchiveDraftText(_ text: String?) {
+        archiveDraft = text.map(ArchiveDraft.minutes) ?? .disabled
+        revision += 1; archiveEditVersion = revision
         onChange?(snapshot)
     }
 
@@ -298,7 +381,8 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         case .restoreDefaults(let page):
             let defaults = RiftConfiguration()
             revision += 1
-            for field in SettingsField.allCases where field.page == page && applicable(field) {
+            for field in SettingsField.allCases where field.page == page && includedInLayoutDraft(field) {
+                if field == .trayOcclusion && owner.settings.configuration.desktopForm != .tray { continue }
                 layoutText[field] = format(field.value(in: defaults) * field.scale)
                 layoutEditVersions[field] = revision
             }
@@ -325,6 +409,13 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         case .setEntryEnabled(let value): await save(prepare(.entryEnabled(value)), into: &result)
         case .setCaptureMode(let value): await save(prepare(.captureMode(value)), into: &result)
         case .setArrival(let value): await save(prepare(.arrival(value)), into: &result)
+        case .selectDesktopForm(let value):
+            await save(prepare(.desktopForm(value)), into: &result)
+        case .selectWindChimeArrangement(let value): await save(prepare(.windChimeArrangement(value)), into: &result)
+        case .selectTrayTheme(let value): await save(prepare(.trayTheme(value)), into: &result)
+        case .selectTrayFavorite(let slot, let choice):
+            guard choice != .unsupported else { return result }
+            await save(prepare(.trayFavorite(slot, choice)), into: &result)
         case .selectPlacement(let value): await save(prepare(.placement(value)), into: &result)
         case .selectDisplay(let requested):
             let displays = owner.settings.displays
@@ -345,8 +436,18 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         field != .firstCenterFromTop || owner.settings.configuration.placement == nil
     }
 
+    private func includedInLayoutDraft(_ field: SettingsField) -> Bool {
+        let configuration = owner.settings.configuration
+        if field == .windChimeLineInset { return configuration.desktopForm == .windChime }
+        if field == .outerInset || field == .hiddenFraction { return configuration.desktopForm != .windChime }
+        if field.isCustomTrayTint {
+            return configuration.desktopForm == .tray && configuration.trayTheme == .custom
+        }
+        return applicable(field)
+    }
+
     private func layoutPatch() throws -> [SettingsField: Double] {
-        try Dictionary(uniqueKeysWithValues: layoutText.filter { applicable($0.key) }.map { field, text in
+        try Dictionary(uniqueKeysWithValues: layoutText.filter { includedInLayoutDraft($0.key) }.map { field, text in
             guard let value = parse(text) else { throw SettingsValidationFailure.invalidNumber(field) }
             return (field, value / field.scale)
         })
@@ -366,10 +467,14 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         do {
             if layoutText.isEmpty, let pending = prepareRetry(.layout) { return pending }
             let patch = try layoutPatch()
+            let prepared = prepare(.layout(patch))
             if !hasLayoutDraft && domains[.layout]?.pending == nil {
-                discard(.layout); return nil
+                clearSubmittedText(prepared)
+                domains[.layout]?.validationFailure = nil
+                revision += 1
+                return nil
             }
-            return prepare(.layout(patch))
+            return patch.isEmpty ? nil : prepared
         } catch let error as SettingsValidationFailure { invalid(.layout, error, into: &result) }
         catch { invalid(.layout, .invalidConfiguration, into: &result) }
         return nil
@@ -378,12 +483,12 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
     private func prepareArchive(into result: inout SettingsSubmission) -> PreparedSave? {
         guard !writes.contains(.archive) else { result.busy.append(.archive); return nil }
         do {
-            guard let archiveText else { return prepareRetry(.archive) }
-            let hours = try parseArchive(archiveText)
-            if hours == owner.settings.archiveAfterHours && domains[.archive]?.pending == nil {
+            guard let archiveDraft else { return prepareRetry(.archive) }
+            let minutes = try parseArchive(archiveDraft)
+            if minutes == owner.settings.archiveAfterMinutes && domains[.archive]?.pending == nil {
                 discard(.archive); return nil
             }
-            return prepare(.archiveHours(hours))
+            return prepare(.archiveMinutes(minutes))
         } catch { invalid(.archive, .invalidArchive, into: &result) }
         return nil
     }
@@ -396,6 +501,10 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
                 guard applicable(field) else { throw SettingsValidationFailure.inactiveLegacyField }
                 try field.put(value, into: &candidate)
             }
+        case .desktopForm(let value): candidate.desktopForm = value
+        case .windChimeArrangement(let value): candidate.windChimeArrangement = value
+        case .trayTheme(let value): candidate.trayTheme = value
+        case .trayFavorite(let slot, let choice): candidate.setTrayFavorite(choice, for: slot)
         case .placement(let placement): candidate.placement = placement; candidate.placementSource = .user
         case .display(let display):
             candidate.preferredDisplayID = display.id; candidate.preferredDisplayUUID = display.uuid
@@ -414,9 +523,9 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
     private func begin(_ prepared: PreparedSave, into result: inout SettingsSubmission) -> SaveWork? {
         let intent = prepared.intent
         let domain = intent.domain
-        // These three commands persist the same full configuration. Other
+        // These commands persist the same full configuration. Other
         // owners remain independent, including pause, hide and archive.
-        let writer: SettingsDomain = [.layout, .placement, .display].contains(domain) ? .layout : domain
+        let writer: SettingsDomain = domain.writesConfiguration ? .layout : domain
         guard !writes.contains(writer) else { result.busy.append(domain); return nil }
         let configuration: RiftConfiguration?
         do { configuration = try self.configuration(for: intent) }
@@ -489,11 +598,15 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         case .entryEnabled(let target): return value.settings.entryEnabled == target && !value.settings.capturePreferencesSaveFailed
         case .captureMode(let target): return value.settings.defaultCaptureMode == target && !value.settings.capturePreferencesSaveFailed
         case .arrival(let target): return value.settings.arrivalMode == target && value.settings.hasArrivalSelection
-        case .archiveHours(let target): return value.settings.archiveAfterHours == target
+        case .archiveMinutes(let target): return value.settings.archiveAfterMinutes == target
         case .layout(let patch):
             // Confirm the requested fields. A concurrent owner observation may
             // legitimately change untouched fields before a rebased write.
             return patch.allSatisfy { $0.key.value(in: value.settings.configuration) == $0.value }
+        case .desktopForm(let target): return value.settings.configuration.desktopForm == target
+        case .windChimeArrangement(let target): return value.settings.configuration.windChimeArrangement == target
+        case .trayTheme(let target): return value.settings.configuration.trayTheme == target
+        case .trayFavorite(let slot, let choice): return value.settings.configuration.trayFavorite(slot) == choice
         case .placement(let target):
             return value.settings.configuration.placement == target && value.settings.configuration.placementSource == .user
         case .display(let target):
@@ -509,10 +622,16 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         case .entry: return .boolean(value.settings.entryEnabled)
         case .captureMode: return .captureMode(value.settings.defaultCaptureMode)
         case .arrival: return .arrival(value.settings.arrivalMode)
+        case .desktopForm: return .desktopForm(value.settings.configuration.desktopForm)
+        case .windChimeArrangement: return .windChimeArrangement(value.settings.configuration.windChimeArrangement)
+        case .trayTheme: return .trayTheme(value.settings.configuration.trayTheme)
+        case .trayFavorite1: return .trayFavorite(value.settings.configuration.trayFavorite(.first))
+        case .trayFavorite2: return .trayFavorite(value.settings.configuration.trayFavorite(.second))
+        case .trayFavorite3: return .trayFavorite(value.settings.configuration.trayFavorite(.third))
         case .layout: return .configuration(value.settings.configuration)
         case .placement: return .placement(value.settings.configuration.placement)
         case .display: return .display(id: value.settings.configuration.preferredDisplayID, uuid: value.settings.configuration.preferredDisplayUUID)
-        case .archive: return .archiveHours(value.settings.archiveAfterHours)
+        case .archive: return .archiveMinutes(value.settings.archiveAfterMinutes)
         }
     }
 
@@ -526,9 +645,9 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
                     layoutEditVersions.removeValue(forKey: field)
                 }
             }
-        case .archiveHours(let value):
-            if archiveEditVersion == prepared.textVersions.archive, let text = archiveText {
-                do { if try parseArchive(text) == value { archiveText = nil; archiveEditVersion = nil } }
+        case .archiveMinutes(let value):
+            if archiveEditVersion == prepared.textVersions.archive, let draft = archiveDraft {
+                do { if try parseArchive(draft) == value { archiveDraft = nil; archiveEditVersion = nil } }
                 catch { /* A newer invalid draft is still the user's text. */ }
             }
         default: break
@@ -537,7 +656,7 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
 
     private func discard(_ domain: SettingsDomain) {
         if domain == .layout { layoutText = [:]; layoutEditVersions = [:] }
-        if domain == .archive { archiveText = nil; archiveEditVersion = nil }
+        if domain == .archive { archiveDraft = nil; archiveEditVersion = nil }
         // Discarding text cannot cancel a write that the owner is already doing.
         // Its eventual result still needs to be surfaced.
         guard domains[domain]?.isSaving != true else { revision += 1; return }
@@ -559,12 +678,13 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
               let number = Double(text), number.isFinite else { return nil }
         return number
     }
-    private func parseArchive(_ raw: String) throws -> Double? {
-        guard let hours = parse(raw), hours >= 0, (hours * 3600).isFinite else {
+    private func parseArchive(_ draft: ArchiveDraft) throws -> Double? {
+        guard case .minutes(let raw) = draft else { return nil }
+        guard let minutes = parse(raw), QueueArchivePolicy.minutesRange.contains(minutes) else {
             throw SettingsValidationFailure.invalidArchive
         }
-        // Match the existing lifecycle owner's seconds-to-hours round trip.
-        return hours == 0 ? nil : (hours * 3600) / 3600
+        // The owner exposes minutes converted back from its durable seconds.
+        return (minutes * 60) / 60
     }
     private func format(_ value: Double) -> String {
         let text = String(value)
@@ -575,8 +695,8 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
     }
     private static func validate(_ owner: SettingsOwnerSnapshot) throws {
         try owner.settings.configuration.validate()
-        if let hours = owner.settings.archiveAfterHours {
-            guard hours.isFinite, hours >= 0, (hours * 3600).isFinite else { throw SettingsValidationFailure.invalidArchive }
+        if let minutes = owner.settings.archiveAfterMinutes {
+            guard QueueArchivePolicy.minutesRange.contains(minutes) else { throw SettingsValidationFailure.invalidArchive }
         }
     }
 }

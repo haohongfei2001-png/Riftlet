@@ -19,20 +19,34 @@ final class SettingsProductHostTests: XCTestCase {
     @MainActor func testThreeNativeSurfacesReadOneModelWithoutSavingOrShowing() throws {
         let f = try fixture(); defer { f.close() }
         var settings = f.adapter.owner.settings
+        XCTAssertEqual(settings.archiveAfterMinutes, 2)
+        let archivePreset = try XCTUnwrap(f.host.center.controls["archive.preset"] as? NSPopUpButton)
+        XCTAssertEqual(archivePreset.indexOfSelectedItem, 2)
         settings.configuration.placement = .rightBottom
         settings.configuration.preferredDisplayID = 2; settings.preferredDisplayID = 2
-        f.update(settings: settings, paused: true, hidden: true)
-        XCTAssertEqual(f.host.snapshot.state, f.host.model.snapshot)
-        XCTAssertEqual(f.host.center.product.state, f.host.model.snapshot)
-        let centerPause = try XCTUnwrap(f.host.center.controls["paused"] as? NSSwitch)
-        let controlPause = try XCTUnwrap(f.host.control.control(identifier: "control.pause") as? NSSwitch)
-        let centerHide = try XCTUnwrap(f.host.center.controls["hidden"] as? NSSwitch)
-        let controlHide = try XCTUnwrap(f.host.control.control(identifier: "control.hide") as? NSSwitch)
-        XCTAssertEqual(centerPause.state, .on); XCTAssertEqual(controlPause.state, .on)
-        XCTAssertEqual(centerHide.state, .on); XCTAssertEqual(controlHide.state, .on)
-        let centerPosition = try XCTUnwrap(f.host.center.controls["placement.rightBottom"] as? NSButton)
+        let collect = try XCTUnwrap(f.host.center.controls["paused"] as? NSSwitch)
+        let pause = try XCTUnwrap(f.host.control.control(identifier: "control.pause") as? NSSwitch)
+        let showImages = try XCTUnwrap(f.host.center.controls["hidden"] as? NSSwitch)
+        let hideImages = try XCTUnwrap(f.host.control.control(identifier: "control.hide") as? NSSwitch)
+        XCTAssertEqual(collect.accessibilityLabel(), "收录系统截图")
+        XCTAssertEqual(pause.accessibilityLabel(), "暂停收录")
+        XCTAssertEqual(showImages.accessibilityLabel(), "显示桌面截图")
+        XCTAssertEqual(hideImages.accessibilityLabel(), "隐藏桌面截图")
+        for (paused, hidden) in [(true, true), (false, true), (true, false), (false, false)] {
+            f.update(settings: settings, paused: paused, hidden: hidden)
+            XCTAssertEqual(f.host.snapshot.state, f.host.model.snapshot)
+            XCTAssertEqual(f.host.center.product.state, f.host.model.snapshot)
+            XCTAssertEqual(f.host.model.snapshot.owner.collectionPaused, paused)
+            XCTAssertEqual(f.host.model.snapshot.owner.isHidden, hidden)
+            XCTAssertEqual(collect.state, paused ? .off : .on)
+            XCTAssertEqual(pause.state, paused ? .on : .off)
+            XCTAssertEqual(showImages.state, hidden ? .off : .on)
+            XCTAssertEqual(hideImages.state, hidden ? .on : .off)
+        }
+        let centerPosition = try XCTUnwrap(f.host.center.controls["placement"] as? NSPopUpButton)
         let guidePosition = try XCTUnwrap(f.host.onboarding.control(identifier: "onboarding.placement.rightBottom") as? NSButton)
-        XCTAssertEqual(centerPosition.state, .on); XCTAssertEqual(guidePosition.state, .on)
+        XCTAssertEqual(centerPosition.selectedItem?.identifier?.rawValue, "settings.center.placement.rightBottom")
+        XCTAssertEqual(guidePosition.state, .on)
         let centerDisplay = try XCTUnwrap(f.host.center.controls["display"] as? NSPopUpButton)
         let guideDisplay = try XCTUnwrap(f.host.onboarding.control(identifier: "onboarding.display") as? NSPopUpButton)
         XCTAssertEqual(centerDisplay.titleOfSelectedItem, "Synthetic second")
@@ -66,8 +80,8 @@ final class SettingsProductHostTests: XCTestCase {
         let f = try fixture(); defer { f.close() }
         let preference = f.host.historyDisplay
         preference.onChange = { [weak host = f.host] _ in host?.refreshHistoryDisplayStyle() }
-        let popup = try XCTUnwrap(f.host.center.controls["history.displayStyle"] as? NSPopUpButton)
-        XCTAssertEqual(popup.indexOfSelectedItem, 0)
+        let segments = try XCTUnwrap(f.host.center.controls["history.displayStyle"] as? NSSegmentedControl)
+        XCTAssertEqual(segments.selectedSegment, 0)
         f.host.model.setDraftText("88.1250", for: .fitWidth)
         let draft = f.host.model.snapshot
         let configurationFiles = try FileManager.default.contentsOfDirectory(atPath: f.root.path)
@@ -75,13 +89,13 @@ final class SettingsProductHostTests: XCTestCase {
         XCTAssertEqual(preference.selection, .imageGrid)
         XCTAssertEqual(f.host.snapshot.historyDisplayStyle, .imageGrid)
         XCTAssertEqual(f.host.center.product.historyDisplayStyle, .imageGrid)
-        XCTAssertEqual(popup.indexOfSelectedItem, 1)
-        XCTAssertTrue(f.host.center.controls["history.displayStyle"] === popup)
+        XCTAssertEqual(segments.selectedSegment, 1)
+        XCTAssertTrue(f.host.center.controls["history.displayStyle"] === segments)
         XCTAssertEqual(f.host.model.snapshot, draft)
         // This is the same owner callback the history-window selector uses.
         preference.select(.current)
         XCTAssertEqual(f.host.center.product.historyDisplayStyle, .current)
-        XCTAssertEqual(popup.indexOfSelectedItem, 0)
+        XCTAssertEqual(segments.selectedSegment, 0)
         XCTAssertEqual(f.host.model.snapshot, draft)
         XCTAssertTrue(f.adapter.requests.isEmpty)
         XCTAssertTrue(f.actions.isEmpty)
@@ -356,7 +370,7 @@ private final class HostSettingsAdapter: SettingsPersistenceAdapter {
         var config = RiftConfiguration(); config.preferredDisplayID = 1
         owner = .init(revision: 1, settings: .init(entryAvailable: true,
             displays: [.init(id: 1, name: "Synthetic first"), .init(id: 2, name: "Synthetic second")],
-            preferredDisplayID: 1, archiveAfterHours: 24, configuration: config),
+            preferredDisplayID: 1, configuration: config),
             collectionPaused: false, isHidden: false, mainDisplayID: 1, effectiveDisplayID: 1)
     }
     func save(_ request: SettingsSaveRequest) async -> SettingsSaveOutcome {
@@ -370,8 +384,8 @@ private final class HostSettingsAdapter: SettingsPersistenceAdapter {
         case .entryEnabled(let value): if !value || !failed { settings.entryEnabled = value }; settings.capturePreferencesSaveFailed = failed
         case .captureMode(let value): if !failed { settings.defaultCaptureMode = value }
         case .arrival(let value): if !failed { settings.arrivalMode = value; settings.hasArrivalSelection = true }
-        case .archiveHours(let value): if !failed { settings.archiveAfterHours = value }
-        case .layout, .placement, .display:
+        case .archiveMinutes(let value): if !failed { settings.archiveAfterMinutes = value }
+        case .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFavorite:
             if !failed, let config = request.configuration { settings.configuration = config; settings.preferredDisplayID = config.preferredDisplayID }
         }
         owner = .init(revision: owner.revision + 1, settings: settings, collectionPaused: paused, isHidden: hidden,

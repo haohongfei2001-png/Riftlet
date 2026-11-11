@@ -29,6 +29,8 @@ class InternalBetaPackagingTests(unittest.TestCase):
         shutil.copy2(REPOSITORY / "Resources/Info.plist", self.contents / "Info.plist")
         (self.contents / "Resources").mkdir()
         shutil.copy2(REPOSITORY / "Resources/Riftlet.icns", self.contents / "Resources/Riftlet.icns")
+        for name in VERIFY.BUNDLE.PRESENTATION_NAMES:
+            shutil.copy2(REPOSITORY / "Resources/Presentation" / name, self.contents / "Resources" / name)
         bundle = self.contents / "Resources/Riftlet_RiftletAdapters.bundle"
         bundle.mkdir(parents=True)
         for name in VERIFY.BUNDLE.RESOURCE_NAMES:
