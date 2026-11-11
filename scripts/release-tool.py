@@ -35,6 +35,7 @@ PAYLOAD = "Riftlet-Release"
 MANIFEST = "release-manifest.json"
 APP = "Riftlet.app"
 RECEIPT = "Contents/Resources/release-build.json"
+SHARED_APP_MODES = "directories-and-main-0755-files-0644"
 BUILD_INPUTS = ("Package.swift", "Sources", "Tests", "Resources", "ThirdPartyNotices")
 ARCHES = {0x01000007: "x86_64", 0x0100000C: "arm64"}
 ENTITLEMENTS = {"com.apple.security.automation.apple-events": True}
@@ -247,9 +248,33 @@ def inventory(root):
     return result
 
 
+def app_modes(files):
+    for name, row in files.items():
+        if name == APP or name.startswith(APP + "/"):
+            mode = 0o755 if row["kind"] == "directory" or name == APP + "/Contents/MacOS/Riftlet" else 0o644
+            yield name, row["mode"], mode
+
+
+def verify_app_modes(files):
+    for name, current, expected in app_modes(files):
+        require(current == expected, "distribution_app_mode_mismatch:" + name)
+
+
+def normalize_staged_app(package):
+    # inventory validates every entry (including links) before the first chmod.
+    # Check nested code independently before clearing execute bits on resources.
+    files = inventory(package)
+    verify_code_layout(package / APP)
+    for name, current, expected in app_modes(files):
+        if current != expected:
+            (package / name).chmod(expected)
+
+
 def validate_receipt(receipt):
     require(isinstance(receipt, dict) and type(receipt.get("schemaVersion")) is int and receipt["schemaVersion"] == SCHEMA, "invalid_build_receipt")
     version_values(receipt.get("version"), receipt.get("build"))
+    if "sharedAppModes" in receipt:
+        require(receipt["sharedAppModes"] == SHARED_APP_MODES, "unknown_app_modes")
     # Existing schema-1 receipts remain verifiable; new builds always bind all
     # three version fields. Do not rewrite old preparation evidence.
     if "versionLabel" in receipt or "sourceVersion" in receipt:
@@ -326,6 +351,10 @@ def validate_manifest(value):
         require(isinstance(row.get("xattrs"), dict) and all(isinstance(k, str) and hash_value(v) for k, v in row["xattrs"].items()), "invalid_inventory_xattrs")
         if row["kind"] == "file":
             require(type(row.get("size")) is int and row["size"] >= 0 and hash_value(row.get("sha256")), "invalid_inventory_file")
+
+    # Old manifests remain usable for inspecting and rolling back to their exact bytes.
+    if value["build"].get("sharedAppModes") and stage != "SIGN_FAILED":
+        verify_app_modes(files)
 
 
 def validate_release_info(info, receipt):
@@ -580,7 +609,9 @@ def build_candidate(args):
                "infoPlistSHA256": digest(app / "Contents/Info.plist"), "dataCompatibility": "NOT_ASSERTED",
                "preparationInputs": {key: digest(ROOT / key) for key in PREPARATION_INPUTS},
                "swiftVersion": run(["swift", "--version"]).stdout.decode().strip()}
+    receipt["sharedAppModes"] = SHARED_APP_MODES
     write_json(app / RECEIPT, receipt)
+    normalize_staged_app(package)
     shutil.copy2(ROOT / "packaging/release/INSTALL-zh-CN.txt", package / "INSTALL-zh-CN.txt")
     manifest = {"schemaVersion": SCHEMA, "kind": KIND, "stage": "PREPARED", "build": receipt,
                 "sourceAdmission": "INDEPENDENT_REVIEW_REQUIRED", "signature": None, "notarization": None}
@@ -608,6 +639,9 @@ def sign_candidate(args):
     try:
         run(["/usr/bin/codesign", "--force", "--sign", args.identity, "--options", "runtime", "--timestamp",
              "--entitlements", entitlements, package / APP], timeout=180, log=workspace / "sign.log")
+        if value["build"].get("sharedAppModes"):
+            # codesign can create or replace the signature resources under the private umask.
+            normalize_staged_app(package)
         value["signature"] = verify_signature(package / APP, args.team, value["build"]["architectures"])
         value["stage"] = "SIGNED"
     except Exception:
@@ -730,6 +764,15 @@ def staple_candidate(args):
             run(["xcrun", "stapler", "staple", "-v", package / APP], log=attempt / "staple.log")
         validated = inventory(package)
         check_staple_inventory(recorded, validated)
+        if value["build"].get("sharedAppModes") and TICKET_CARRIER not in recorded and TICKET_CARRIER in validated:
+            # Only a newly introduced, validated regular ticket may be made readable.
+            # This also covers a process interrupted between stapler and its manifest update.
+            if validated[TICKET_CARRIER]["mode"] != 0o644:
+                (package / TICKET_CARRIER).chmod(0o644)
+                validated = inventory(package)
+                check_staple_inventory(recorded, validated)
+        if value["build"].get("sharedAppModes"):
+            verify_app_modes(validated)
         run(["xcrun", "stapler", "validate", "-v", package / APP], log=attempt / "staple-validate.log")
         require(verify_signature(package / APP, value["signature"]["teamID"], value["build"]["architectures"]) == value["signature"], "staple_changed_code_identity")
         verify_accepted_app_log(workspace, value)
@@ -738,6 +781,11 @@ def staple_candidate(args):
     except Exception:
         failed = inventory(package)
         check_staple_inventory(recorded, failed)
+        # Retain the accepted input if an interrupted native write left an unreadable
+        # new ticket. Resume can validate that single carrier without adopting it.
+        if (value["build"].get("sharedAppModes") and TICKET_CARRIER not in recorded
+                and failed.get(TICKET_CARRIER, {}).get("mode", 0o644) != 0o644):
+            failed = recorded
         value.update(stage="STAPLE_FAILED", files=failed)
         write_json(package / MANIFEST, value)
         raise

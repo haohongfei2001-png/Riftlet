@@ -1,6 +1,8 @@
 # 安装与权限
 
-**本包为 Riftlet 0.3.5 (18)，适用于 macOS 13 及以上的 Apple 芯片和 Intel Mac。** 请通过发放方的私有渠道取得 `Riftlet-0.3.5-18-universal.dmg`。维护者已核验 Developer ID Application 签名、Apple 公证票据与 Gatekeeper。Team ID 为 `ZB9D4T66QB`。需要核对下载时，此 DMG 的 SHA-256 为 `7b3c85796167d1f5fc9f5e456f7d2349281632f0ae28cbbb574af74c0c313c51`。
+**本指南为尚未发放的私测候选 Riftlet 0.3.5 (19) 准备**，目标系统为 macOS 13 及以上的 Apple 芯片和 Intel Mac。正式收到私有包后，核对文件名 `Riftlet-0.3.5-19-universal.dmg` 和离线随包的 `SHA256SUMS.txt`；DMG 的 SHA-256 还应与发放方通过独立渠道提供的摘要完全一致。由维护者先验证本构建的 Developer ID Application 签名、Team ID `ZB9D4T66QB`、App 和 DMG 的 Apple 公证票据与 Gatekeeper，再交付此包。
+
+如果手中是 build 18，请保留原有个人安装。该版本在共享「应用程序」目录中只允许安装者读取和执行，其他非特权账户可能打不开。遇到此情况，请保留现状并联系发放方取得经验证的修复包；无需更改系统授权、App 文件权限或截图库。
 
 1. 打开 DMG，将 **Riftlet.app** 拖入 **Applications（应用程序）**。已有 Riftlet 时先按[更新说明](RECOVERY-AND-FAQ.md)保留数据和上一版，替换原安装位置的 App。
 2. 推出磁盘映像，从安装位置打开 Riftlet。首次出现 macOS 下载应用确认时核对应用名，选择「打开」。如果系统提示已损坏或无法验证开发者，停止安装，通过发放渠道核对文件。
@@ -19,4 +21,4 @@
 
 macOS 设置名称随系统版本变化。系统权限可参考 [Apple 文件与文件夹说明](https://support.apple.com/en-au/guide/mac-help/mchld5a35146/mac) 和 [Apple 录屏权限说明](https://support.apple.com/en-kw/guide/mac-help/mchld6aa7d23/mac)。Chrome 的开关位置可参考 [Chromium 的 AppleScript 说明](https://www.chromium.org/developers/applescript/)。
 
-**English.** Open the named DMG, drag Riftlet.app into Applications, eject the image and launch the installed copy. Grant access to the actual macOS screenshot folder. Google Chrome attachment also uses Automation and Chrome’s **Allow JavaScript from Apple Events** setting. Screen Recording is for Riftlet’s own capture tools. [English quick start](QUICK-START.en.md)
+**English.** Build 19 is the planned private candidate. Once issued, verify its DMG against the included `SHA256SUMS.txt` and the maintainer’s separately supplied digest. Build 18 has a shared-install file-permission defect. Existing personal users can keep their copy. Open the verified DMG, drag Riftlet.app into Applications, eject the image and launch the installed copy. Grant access to the actual macOS screenshot folder. Google Chrome attachment also uses Automation and Chrome’s **Allow JavaScript from Apple Events** setting. Screen Recording is for Riftlet’s own capture tools. [English quick start](QUICK-START.en.md)

@@ -159,6 +159,83 @@ class ReleaseTest(unittest.TestCase):
                 out.writestr(info, data)
         return archive
 
+    def prepare_shared_app(self):
+        self.receipt["sharedAppModes"] = R.SHARED_APP_MODES
+        R.write_json(self.app / R.RECEIPT, self.receipt)
+        R.normalize_staged_app(self.package)
+        self.save()
+
+    def test_shared_app_repairs_only_distributed_modes_and_legacy_evidence_stays_readable(self):
+        info = self.app / "Contents/Info.plist"
+        binary = self.app / "Contents/MacOS/Riftlet"
+        for path in (self.workspace, self.package, self.app, binary.parent, binary):
+            path.chmod(0o700)
+        info.chmod(0o664)
+        self.save()
+        R.verify_package(self.package)
+        self.assertEqual(self.app.stat().st_mode & 0o777, 0o700)
+        self.prepare_shared_app()
+        R.verify_package(self.package)
+        self.assertEqual([p.stat().st_mode & 0o777 for p in (self.workspace, self.package)], [0o700, 0o700])
+        self.assertEqual([p.stat().st_mode & 0o777 for p in (self.app, binary.parent, binary, info)],
+                         [0o755, 0o755, 0o755, 0o644])
+        info.chmod(0o664)
+        self.save()
+        self.error("distribution_app_mode_mismatch:Riftlet.app/Contents/Info.plist", R.verify_package, self.package)
+        archive = self.archive()
+        self.error("distribution_app_mode_mismatch:Riftlet.app/Contents/Info.plist",
+                   R.verify_archive, archive, R.digest(archive))
+
+    def test_shared_app_rejects_links_and_unreviewed_code_before_any_chmod(self):
+        outer = self.workspace / "private-marker"
+        outer.write_bytes(b"fixture")
+        outer.chmod(0o600)
+        nested = self.app / "Contents/Resources/unreviewed"
+        self.app.chmod(0o700)
+        os.link(outer, nested)
+        self.error("hard_linked_payload_entry", R.normalize_staged_app, self.package)
+        self.assertEqual(outer.stat().st_mode & 0o777, 0o600)
+        self.assertEqual(self.app.stat().st_mode & 0o777, 0o700)
+        nested.unlink()
+        nested.symlink_to(outer)
+        self.error("unsafe_payload_entry", R.normalize_staged_app, self.package)
+        nested.unlink()
+        nested.write_bytes(b"executable resource")
+        nested.chmod(0o700)
+        self.error("unreviewed_nested_code:Contents/Resources/unreviewed", R.normalize_staged_app, self.package)
+        self.assertEqual(nested.stat().st_mode & 0o777, 0o700)
+
+    def test_private_umask_signer_and_interrupted_stapler_outputs_are_shareable(self):
+        self.prepare_shared_app()
+        code = self.app / "Contents/_CodeSignature"
+        def signer(cmd, **kwargs):
+            code.mkdir(mode=0o700)
+            (code / "CodeResources").write_bytes(b"synthetic signed resources")
+            (code / "CodeResources").chmod(0o600)
+            return result()
+        with patch.object(R.platform, "system", return_value="Darwin"), patch.object(R, "identity_available"), \
+             patch.object(R, "verify_signature", return_value=signature()), patch.object(R, "run", side_effect=signer):
+            self.assertEqual(R.sign_candidate(self.args())["status"], "SIGNED")
+        self.assertEqual((code.stat().st_mode & 0o777, (code / "CodeResources").stat().st_mode & 0o777),
+                         (0o755, 0o644))
+        self.stage("NOTARIZED")
+        ticket = self.app / "Contents/CodeResources"
+        def first(cmd, **kwargs):
+            self.assertEqual(cmd[2], "staple")
+            ticket.write_bytes(b"simulated new ticket")
+            ticket.chmod(0o600)
+            raise R.ReleaseError("interrupted_native_ticket_write")
+        with patch.object(R.platform, "system", return_value="Darwin"), patch.object(R, "verify_signature", return_value=signature()):
+            with patch.object(R, "run", side_effect=first):
+                self.error("interrupted_native_ticket_write", R.staple_candidate, self.args())
+            failed = R.load_package_for_resume(self.package)
+            self.assertNotIn(R.TICKET_CARRIER, failed["files"])
+            with patch.object(R, "run", return_value=result()) as client:
+                self.assertEqual(R.staple_candidate(self.args())["status"], "STAPLED")
+            self.assertEqual([c.args[0][2] for c in client.call_args_list], ["validate"])
+        self.assertEqual(ticket.stat().st_mode & 0o777, 0o644)
+        self.assertEqual(R.verify_package(self.package)["files"][R.TICKET_CARRIER]["mode"], 0o644)
+
     def test_prepared_full_inventory_and_pin_match(self):
         self.assertEqual(R.verify_package(self.package, R.digest(self.package / R.MANIFEST))["stage"], "PREPARED")
 

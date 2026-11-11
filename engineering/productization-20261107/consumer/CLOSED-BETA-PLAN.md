@@ -1,12 +1,13 @@
 # 首批四人私测发放清单
 
-适用产品为 **Riftlet 0.3.5 (18)**。当前为私有发放准备，**0 邀请、0 发放**。本次只准备首批四人的材料与支持方式。发放责任人可把[参与者入口](PARTICIPANT-PACKET.md)与当前 DMG 一起私下提供，无需发送工程日志或历史候选。
+唯一私测候选为 **Riftlet 0.3.5 (19)**。当前为私有发放准备，**0 邀请、0 发放**。个人机器保留 build 18，其共享安装权限失败已经复现。下列条件满足并取得发放授权后，把[参与者入口](PARTICIPANT-PACKET.md)与核准的 build 19 DMG 一起私下提供给首批四人。
 
 ## 发放前由维护者完成
 
-- [ ] 逐字比对待交付 DMG 文件名与 SHA-256，确认 App 与 DMG 的 Developer ID、公证票据及 Gatekeeper 回执均对应同一构建。当前用户说明已附可比对的散列。[安装与权限](../../../docs/consumer/INSTALL-AND-PERMISSIONS.md)
+- [ ] 用最终 `Riftlet-0.3.5-19-universal.dmg` 生成离线 `SHA256SUMS.txt`，通过独立私有渠道提供相同摘要。核对 App 与 DMG 的 Developer ID、各自的 Apple Accepted 回执、装订票据及 Gatekeeper 均对应 build 19。[安装与权限](../../../docs/consumer/INSTALL-AND-PERMISSIONS.md)
+- [ ] 在复现 build 18 失败的隔离 Mac 上，用普通安装者安装 build 19 到 `/Applications`。以先前失败的同一非特权主体重验 App 目录可遍历、资源可读、主程序可读且可执行；另用非安装者的普通图形登录会话从同一路径打开，观察首次引导。分别保留系统权限检查和实际启动结果。
 - [ ] 保存带下载隔离属性的安装、首次打开、截图目录授权/拒绝/恢复、实际截图收录与更新恢复的验收范围。对每项区分实机结果和隔离测试；把仍未验证的环境列入包内说明。
-- [ ] 维护者在有正式授权的独立 Chrome 草稿完成本构建的两张真实截图连续附加。核对每张图片、目标、START、微图及草稿原内容，无自动发送。当前 **NOT_RUN**，原因是测试浏览器无法建立可独立核实的空白草稿。参与者无须代做这项验收。
+- [ ] 维护者在有正式授权的独立 Chrome 草稿完成本构建的两张真实截图连续附加。核对每张图片、目标、START、微图及草稿原内容，无自动发送。build 19 当前 **NOT_RUN**。上次已授权的测试浏览器无法建立可独立核实的空白草稿。参与者无须代做这项验收。
 - [ ] 发放者附上可用于首次安装失败、退出私测或隐私请求的**实际私有联系方式**，确认应用内反馈可用。告知反馈自愿、可选诊断及删除渠道，核实部署备份的保留范围；无需为参与者开通公开工单，也不要收取私人图片。[隐私与数据](../../../docs/consumer/PRIVACY.md)
 - [ ] 取得本次私有发放授权和收件人的自愿参与意愿。私下发送一个版本；没有公开下载或招募页。为每个收到包的人保留同一份更新、回退与卸载说明。[恢复与常见问题](../../../docs/consumer/RECOVERY-AND-FAQ.md)
 
@@ -16,4 +17,6 @@
 
 若需要统计，只使用自愿反馈及已经确认的私有发放记录。分别写明发出、收到回应、成功安装及报告问题的人数，以相应人数为分母。未知记 `unknown`；无回应不能计成功，也不采集使用遥测。
 
-[2026-11-07 的原方案](https://github.com/haohongfei2001-png/Riftlet/blob/b2983a60725ec733cb2f4a799bd615cb21f20dd4/engineering/productization-20261107/consumer/CLOSED-BETA-PLAN.md)记录了当时 10–20 人的规划和 `PUBLIC_BETA_BLOCKED_OWNER_CREDENTIALS`。本构建已有真实 Developer ID 与 Apple 公证；当前批准范围仍限材料准备。
+[2026-11-07 的原方案](https://github.com/haohongfei2001-png/Riftlet/blob/b2983a60725ec733cb2f4a799bd615cb21f20dd4/engineering/productization-20261107/consumer/CLOSED-BETA-PLAN.md)记录了当时 10–20 人的规划和 `PUBLIC_BETA_BLOCKED_OWNER_CREDENTIALS`。随后的个人 build 18 已取得 Developer ID 签名及 Apple 公证。当前 build 19 的提交、回执与跨账户验证按上列要求单独核对，批准范围仍限准备工作。
+
+维护者复核打包权限时，运行 `python3 -m unittest discover -s Tests/ReleaseReadiness`，并在隔离 Mac 复验原来的第二账户。此目录的历史校验工具固定了旧版发行脚本的字节；修正权限后，旧清单中的 `scripts/release-tool.py` 和 `scripts/release-dmg.py` 不再匹配。旧记录保留，当前版本以独立源码审查、实际包和原故障复验为准。

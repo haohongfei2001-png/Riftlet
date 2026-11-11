@@ -236,9 +236,17 @@ class NativeImageTests(unittest.TestCase):
             package = root / "pkg"; app = package / R.APP
             (app / "Contents/Resources/empty").mkdir(parents=True)
             item = app / "Contents/Resources/fixture"; item.write_bytes(b"synthetic only")
+            app.chmod(0o700)
+            old_manifest = {"files": R.inventory(package)}
+            with self.assertRaises(R.ReleaseError) as blocked:
+                D.verify_app_tree(app, old_manifest)
+            self.assertIn("distribution_app_mode_mismatch", blocked.exception.code)
+            R.normalize_staged_app(package)
             manifest = {"files": R.inventory(package), "signature": {"teamID": TEAM}, "build": {"architectures": ["arm64"]}}
             image = root / "unsigned-fixture.dmg"
             D.build_image(app, manifest, image, root)
+            self.assertEqual(root.stat().st_mode & 0o777, 0o700)
+            self.assertEqual((root / "image-source").stat().st_mode & 0o777, 0o755)
             raw = R.run; calls = []
             def run(args, **kwargs):
                 calls.append(tuple(str(v) for v in args))
