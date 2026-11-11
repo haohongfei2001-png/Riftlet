@@ -155,6 +155,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private let interactionFence = QueueInteractionFence()
     private var archiveTask: Task<Void, Never>?
     private var archiveWakeObserver: NSObjectProtocol?
+    private var oldestArchiveCandidate: Date?
     private var archiveNotBefore: TimeInterval = 0
     private var archiveClock: (wall: Date, uptime: TimeInterval)?
     private var completionWatch: Task<Void, Never>?
@@ -1111,6 +1112,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             guard let store else { break }
             do {
                 let active = try await store.assets()
+                // A wake-up hint only: QueueStore still decides atomically whether
+                // the row can leave, using its current interaction time and fence.
+                oldestArchiveCandidate = active.lazy.filter {
+                    $0.visibility == .visible && ($0.status == .pending || $0.status == .failed)
+                }.map(\.lastInteractionAt).min()
                 var snapshot = active
                 let activeIDs = Set(active.map(\.id))
                 // Include windows still visible during a deferred animation or
@@ -1311,7 +1317,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         pauseItem?.title = captureIsPaused ? "继续收录截图" : "暂停收录（保留已有图片）"
         pauseItem?.isEnabled = canChangeCollection
         if let interval = lifecycleSettings.archiveAfterSeconds {
-            archiveItem?.title = String(format: "闲置归档：%.2g 小时…", interval / 3600)
+            archiveItem?.title = String(format: "闲置归档：%g 分钟…", interval / 60)
         } else { archiveItem?.title = "闲置归档：已关闭…" }
         updateSetup()
     }
@@ -1383,11 +1389,22 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             }
         archiveTask = Task { [weak self] in
             while !Task.isCancelled {
-                do { try await Task.sleep(nanoseconds: 30_000_000_000) } catch { return }
+                guard let delay = self?.archiveCheckDelay() else { return }
+                do { try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000)) } catch { return }
                 guard let self else { return }
                 await self.archiveIdleImages()
             }
         }
+    }
+
+    private func archiveCheckDelay() -> TimeInterval {
+        guard let oldestArchiveCandidate, let interval = lifecycleSettings.archiveAfterSeconds else { return 30 }
+        let due = oldestArchiveCandidate.addingTimeInterval(interval).timeIntervalSinceNow
+        let grace = archiveNotBefore - ProcessInfo.processInfo.systemUptime
+        // Do not spin for a thumbnail under the pointer, or overshoot a new
+        // two-minute deadline by the old fixed thirty-second polling interval.
+        let retry: TimeInterval = interactionFence.snapshot().blocked ? 2 : 1
+        return min(30, max(retry, due, grace))
     }
 
     private func archiveIdleImages() async {
@@ -1399,7 +1416,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         }
         archiveClock = (now, uptime)
         let state = interactionFence.snapshot()
-        guard uptime >= archiveNotBefore, !state.blocked else { return }
+        guard uptime >= archiveNotBefore, !state.blocked, let oldestArchiveCandidate,
+              oldestArchiveCandidate <= now.addingTimeInterval(-interval) else { return }
         do {
             // Small atomic batches after a quiet interval avoid wake-time mass
             // disappearance. Core and UI both check the interaction boundary.
@@ -1489,7 +1507,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             case .entryEnabled(let target): _ = try applySettings(.entryEnabled(target))
             case .captureMode(let target): _ = try applySettings(.defaultCaptureMode(target))
             case .arrival(let target): _ = try applySettings(.arrivalMode(target))
-            case .archiveHours(let target): _ = try applySettings(.archiveAfterHours(target))
+            case .archiveMinutes(let target): _ = try applySettings(.archiveAfterMinutes(target))
             case .layout, .placement, .display, .desktopForm, .trayTheme, .trayFavorite:
                 guard let configuration = request.configuration, rift != nil else { throw CocoaError(.fileWriteUnknown) }
                 if case .display(let selected) = request.intent {
@@ -1581,7 +1599,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             arrivalMode: arrivalPreferences?.mode ?? .provisionalFallback,
             hasArrivalSelection: arrivalPreferences?.selectedMode != nil,
             displays: displays, preferredDisplayID: rift?.configuration.preferredDisplayID,
-            archiveAfterHours: lifecycleSettings.archiveAfterSeconds.map { $0 / 3600 },
+            archiveAfterMinutes: lifecycleSettings.archiveAfterSeconds.map { $0 / 60 },
             configuration: rift?.requestedConfiguration ?? .init(), displayRestoreAvailable: rift?.displayRestoreAvailable ?? false)
     }
 
@@ -1623,9 +1641,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             try persistRiftConfiguration(config, root: root)
         case .restorePreferredDisplay:
             rift?.restorePreferredDisplay(); screenshotEntry?.configure()
-        case .archiveAfterHours(let hours):
+        case .archiveAfterMinutes(let minutes):
             var value = lifecycleSettings
-            value.archiveAfterSeconds = hours.map { $0 * 3600 }
+            value.archiveAfterSeconds = minutes.map { $0 * 60 }
             try value.validate()
             try JSONEncoder().encode(value).write(to: root.appendingPathComponent("lifecycle-settings.json"), options: .atomic)
             lifecycleSettings = value; archiveNotBefore = ProcessInfo.processInfo.systemUptime + 30

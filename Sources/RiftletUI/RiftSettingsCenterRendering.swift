@@ -245,19 +245,21 @@ extension RiftSettingsCenterController {
             if archiveField.stringValue != value { archiveField.stringValue = value }
             archiveField.isEnabled = editable
         }
-        let archiveValues: [Double] = [0, 1, 8, 24, 72]
-        let preset = number(model.archiveDraftText).flatMap { archiveValues.firstIndex(of: $0) }
-        let showCustom = archiveCustom || preset == nil
+        let choices = Self.archivePresetMinutes.map(Double.init)
+        let preset = number(model.archiveDraftText).flatMap { choices.firstIndex(of: $0) }
+        let showCustom = !model.archiveIsDisabled && (archiveCustom || preset == nil)
         archiveCustomRow.isHidden = !showCustom
-        select("archive.preset", index: showCustom ? 5 : preset ?? 0)
+        select("archive.preset", index: model.archiveIsDisabled ? 0 : showCustom ? choices.count + 1 : (preset ?? 0) + 1)
         enable("archive.preset", editable)
         let archiveIssue = state.domains[.archive]?.hasIssue == true
         text("archive.detail", busy(.archive) ? "正在保存这次归档时限…" : model.hasArchiveDraft ? "归档时限尚未应用；选择预设也需要点击保存。" : archiveIssue ? "归档时限还有未确认的保存结果。" : "当前归档时限已读取。")
         labels["archive.detail"]?.isHidden = !busy(.archive) && !model.hasArchiveDraft && !archiveIssue
-        enable("archive.save", editable && !busy(.archive) && (model.hasArchiveDraft || archiveIssue))
+        // A field editor can contain newer text than its last change notification.
+        // Keep Save reachable while custom input is visible so its action can flush that text.
+        enable("archive.save", editable && !busy(.archive) && (model.hasArchiveDraft || archiveIssue || showCustom))
         enable("archive.discard", !busy(.archive) && (model.hasArchiveDraft || archiveIssue || state.archiveText != nil))
         let showArchiveActions = busy(.archive) || model.hasArchiveDraft || archiveIssue || state.archiveText != nil
-        hide("archive.save", !showArchiveActions)
+        hide("archive.save", !showArchiveActions && !showCustom)
         hide("archive.discard", !showArchiveActions)
         let layoutIssue = state.domains[.layout]?.hasIssue == true
         let layoutText = busy(.layout) ? "正在保存这次参数；新的编辑会继续保留在草稿中。"
@@ -312,7 +314,7 @@ extension RiftSettingsCenterController {
         guard let state = model.snapshot.domains[domain] else { return nil }
         if let validation = state.validationFailure {
             switch validation {
-            case .invalidArchive: return "请输入完整、有限且不小于 0 的小时数；0 表示不自动归档。"
+            case .invalidArchive: return "请输入 1–10 之间的分钟数，支持小数。如需停用，请选择“关闭”。"
             case .invalidNumber(let field): return "“\(fieldTitle(field))”不是有效数值。请完成输入后再应用。"
             case .invalidConfiguration: return "参数超出有效范围。尺寸应大于 0；藏入比例为 0–90%，时长为 0–3000 ms。草稿已保留。"
             case .displayUnavailable: return "所选显示器当前不可用，未保存新的显示器偏好。"
@@ -333,7 +335,7 @@ extension RiftSettingsCenterController {
         case .layout: target = "参数更改"
         case .placement: target = "边缘位置"
         case .display: target = "显示器偏好"
-        case .archiveHours: target = "归档时限"
+        case .archiveMinutes: target = "归档时限"
         case nil: target = "这项选择"
         }
         return "“\(target)”的保存结果尚未确认。控件显示当前有效状态；重试会保存同一个选择，其他设置成功不会清除此提示。"

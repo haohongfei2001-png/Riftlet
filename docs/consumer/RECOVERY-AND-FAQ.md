@@ -41,6 +41,10 @@
 
 回退 App 只在旧版本确实兼容当前数据时进行；不能用版本号或“数据库格式一样”推断安全。旧包不兼容时应修正新版，不能把旧数据库覆盖回去丢掉新记录。恢复工具只写新的隔离目录，不会自动接管或重置生产目录。所有备份都可能含私人图片和反馈，应私密保管，不随反馈上传。
 
+升级会保留已经关闭的自动归档，也会保留 1 至 10 分钟内的原时限。旧版其他正时限（例如 24 小时）会采用新的 2 分钟默认值。可在「设置 → 使用与历史」调整。
+
+An upgrade keeps automatic archiving off if you had disabled it. Existing intervals from 1 to 10 minutes are preserved. Other positive intervals, such as 24 hours, use the new 2-minute default. You can change it in Settings → `使用与历史`.
+
 新版首次打开截图库后，Personal Beta 3（0.3.0）无法继续使用这份历史。如果换回 Beta 3 后收录停止，请正常退出它，保留最新的完整数据目录，再打开支持这份历史的新版或修复版。升级前的备份仅包含备份时已有的截图和操作。
 
 After the new App first opens your screenshot library, Personal Beta 3 (0.3.0) can no longer use it. If collection stops after switching back, quit Beta 3, keep the complete current data folder, and reopen it with the compatible App. A backup made before the upgrade contains only the history that existed at that time.

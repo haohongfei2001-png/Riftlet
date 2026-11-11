@@ -27,12 +27,12 @@ final class SettingsStateModelTests: XCTestCase {
         var requests: [SettingsSaveRequest] = []
         var beforeReturn: (@MainActor (SettingsSaveRequest, SettingsOwnerSnapshot) async -> Void)?
 
-        init(configuration: RiftConfiguration = .init(), archive: Double? = 24) {
+        init(configuration: RiftConfiguration = .init(), archive: Double? = QueueArchivePolicy.defaultMinutes) {
             value = SettingsOwnerSnapshot(revision: 1,
                 settings: RiftSettingsSnapshot(entryAvailable: true, displays: [
                     .init(id: 1, name: "Synthetic A", uuid: Self.a),
                     .init(id: 2, name: "Synthetic B", uuid: Self.b)
-                ], archiveAfterHours: archive, configuration: configuration),
+                ], archiveAfterMinutes: archive, configuration: configuration),
                 collectionPaused: false, isHidden: false, mainDisplayID: 1, effectiveDisplayID: 1)
         }
         static let a = "01000000-0000-0000-0000-000000000001"
@@ -48,7 +48,7 @@ final class SettingsStateModelTests: XCTestCase {
         var known: [SettingsDomain: SettingsConfirmedValue] {
             [.collection: .boolean(value.collectionPaused), .visibility: .boolean(value.isHidden),
              .entry: .boolean(value.settings.entryEnabled), .layout: .configuration(value.settings.configuration),
-             .archive: .archiveHours(value.settings.archiveAfterHours)]
+             .archive: .archiveMinutes(value.settings.archiveAfterMinutes)]
         }
 
         func save(_ request: SettingsSaveRequest) async -> SettingsSaveOutcome {
@@ -67,7 +67,7 @@ final class SettingsStateModelTests: XCTestCase {
                     next.settings.capturePreferencesSaveFailed = failed
                 case .arrival(let mode):
                     if !failed { next.settings.arrivalMode = mode; next.settings.hasArrivalSelection = true }
-                case .archiveHours(let hours): if !failed { next.settings.archiveAfterHours = hours }
+                case .archiveMinutes(let minutes): if !failed { next.settings.archiveAfterMinutes = minutes }
                 case .layout, .placement, .display, .desktopForm, .trayTheme, .trayFavorite:
                     if !failed, let configuration = request.configuration {
                         next.settings.configuration = configuration
@@ -92,7 +92,7 @@ final class SettingsStateModelTests: XCTestCase {
         let model = try SettingsStateModel(owner: owner.value, decimalSeparator: ",", adapter: owner)
         XCTAssertEqual(model.text(for: .visibleCountPreference), "3")
         XCTAssertEqual(model.text(for: .fitWidth), "72,125")
-        XCTAssertEqual(model.archiveDraftText, "24")
+        XCTAssertEqual(model.archiveDraftText, "2")
         XCTAssertTrue(owner.requests.isEmpty)
     }
 
@@ -105,7 +105,7 @@ final class SettingsStateModelTests: XCTestCase {
         owner.advance { value in
             value.settings.configuration.visibleCountPreference = 4
             value.settings.configuration.fitWidth = 84
-            value.settings.archiveAfterHours = 8
+            value.settings.archiveAfterMinutes = 8
         }
         XCTAssertTrue(model.receive(owner.value))
         XCTAssertEqual(model.text(for: .visibleCountPreference), "3,0")
@@ -438,14 +438,14 @@ final class SettingsStateModelTests: XCTestCase {
         XCTAssertEqual(first.confirmed, [.layout]); XCTAssertEqual(first.failed, [.archive])
         XCTAssertFalse(model.hasLayoutDraft); XCTAssertTrue(model.hasArchiveDraft)
         XCTAssertEqual(model.snapshot.owner.settings.configuration.fitWidth, 96)
-        XCTAssertEqual(model.snapshot.owner.settings.archiveAfterHours, 24)
+        XCTAssertEqual(model.snapshot.owner.settings.archiveAfterMinutes, 2)
         owner.failures = []
         let retried = await model.perform(.applyDrafts)
         XCTAssertEqual(retried.confirmed, [.archive])
         XCTAssertEqual(owner.requests.filter { $0.intent.domain == .layout }.count, 1)
         XCTAssertEqual(owner.requests.filter { $0.intent.domain == .archive }.count, 2)
         XCTAssertEqual(owner.requests.last?.intent.domain, .archive)
-        XCTAssertEqual(model.snapshot.owner.settings.archiveAfterHours, 2.5)
+        XCTAssertEqual(model.snapshot.owner.settings.archiveAfterMinutes, 2.5)
         XCTAssertFalse(model.hasArchiveDraft); XCTAssertFalse(model.snapshot.hasSaveIssues)
     }
 
@@ -531,16 +531,21 @@ final class SettingsStateModelTests: XCTestCase {
         await model.perform(.edit(.visibleCountPreference, "3.5")); await model.perform(.applyLayout)
         XCTAssertTrue(owner.requests.isEmpty)
         await model.perform(.discardDrafts)
-        for text in ["", "-1", "Infinity", "1e309", "1abc"] {
+        for text in ["", "-1", "0", "0.99", "10.01", "Infinity", "1e309", "1abc"] {
             await model.perform(.editArchive(text)); await model.perform(.applyArchive)
             XCTAssertEqual(model.archiveDraftText, text)
         }
         XCTAssertTrue(owner.requests.isEmpty)
-        await model.perform(.editArchive("0")); await model.perform(.applyArchive)
-        XCTAssertNil(owner.value.settings.archiveAfterHours)
+        XCTAssertEqual(owner.value.settings.archiveAfterMinutes, QueueArchivePolicy.defaultMinutes)
+        await model.perform(.editArchive(nil)); await model.perform(.applyArchive)
+        XCTAssertNil(owner.value.settings.archiveAfterMinutes)
         XCTAssertNil(model.snapshot.archiveText); XCTAssertFalse(model.hasArchiveDraft)
         await model.perform(.applyArchive)
         XCTAssertEqual(owner.requests.count, 1, "Already saved disabled archive is not written again")
+        for text in ["1", "10"] {
+            await model.perform(.editArchive(text)); await model.perform(.applyArchive)
+            XCTAssertEqual(owner.value.settings.archiveAfterMinutes, Double(text))
+        }
     }
 
     @MainActor func testLocaleUnitsFractionalArchiveAndExplicitNoneSelection() async throws {
@@ -549,9 +554,12 @@ final class SettingsStateModelTests: XCTestCase {
         await model.perform(.edit(.hiddenFraction, "12,5")); await model.perform(.edit(.swallowDuration, "40")); await model.perform(.applyLayout)
         XCTAssertEqual(owner.value.settings.configuration.hiddenFraction, 0.125)
         XCTAssertEqual(owner.value.settings.configuration.swallowDuration, 0.04)
-        await model.perform(.editArchive("0,011")); await model.perform(.applyArchive); await model.perform(.applyArchive)
+        await model.perform(.editArchive("1,077")); await model.perform(.applyArchive); await model.perform(.applyArchive)
         XCTAssertEqual(owner.requests.filter { $0.intent.domain == .archive }.count, 1)
-        XCTAssertEqual(owner.value.settings.archiveAfterHours, (0.011 * 3600) / 3600)
+        XCTAssertNotEqual(1.077, (1.077 * 60) / 60, "This fixture must exercise a real floating-point round trip")
+        XCTAssertEqual(owner.value.settings.archiveAfterMinutes, (1.077 * 60) / 60)
+        XCTAssertEqual(model.archiveDraftText, "1,077")
+        XCTAssertFalse(model.hasArchiveDraft)
         XCTAssertFalse(owner.value.settings.hasArrivalSelection)
         await model.perform(.setArrival(.none))
         XCTAssertTrue(owner.value.settings.hasArrivalSelection, "Fallback none is not an already-saved explicit none")
@@ -631,7 +639,7 @@ final class SettingsStateModelTests: XCTestCase {
         let result = await saving.value
         XCTAssertEqual(result.confirmed, [.layout]); XCTAssertTrue(result.failed.isEmpty)
         XCTAssertEqual(model.snapshot.owner.revision, latestRevision, "An earlier receipt cannot restore an old cross-domain snapshot")
-        XCTAssertTrue(model.snapshot.owner.isHidden); XCTAssertEqual(model.snapshot.owner.settings.archiveAfterHours, 3)
+        XCTAssertTrue(model.snapshot.owner.isHidden); XCTAssertEqual(model.snapshot.owner.settings.archiveAfterMinutes, 3)
         XCTAssertEqual(model.text(for: .fitWidth), "96.000", "Equal numeric value does not permit clearing a newer edit")
         XCTAssertEqual(model.text(for: .fitHeight), "70")
         XCTAssertEqual(model.configurationDraft?.fitHeight, 70)
@@ -687,12 +695,12 @@ final class SettingsStateModelTests: XCTestCase {
         gate.release(); archiveGate.release()
         let result = await saving.value
         XCTAssertEqual(result.confirmed, [.layout, .archive])
-        XCTAssertEqual(owner.requests.last { $0.intent.domain == .archive }?.intent, .archiveHours(2.5))
-        XCTAssertEqual(model.snapshot.owner.settings.archiveAfterHours, 2.5)
+        XCTAssertEqual(owner.requests.last { $0.intent.domain == .archive }?.intent, .archiveMinutes(2.5))
+        XCTAssertEqual(model.snapshot.owner.settings.archiveAfterMinutes, 2.5)
         XCTAssertEqual(model.archiveDraftText, "4.125")
         XCTAssertTrue(model.hasArchiveDraft)
         await model.perform(.applyArchive)
-        XCTAssertEqual(owner.requests.last?.intent, .archiveHours(4.125))
+        XCTAssertEqual(owner.requests.last?.intent, .archiveMinutes(4.125))
         XCTAssertFalse(model.hasArchiveDraft)
     }
 
@@ -775,7 +783,7 @@ final class SettingsStateModelTests: XCTestCase {
         let archivePublished = expectation(description: "Archive receipt published while layout still saving")
         var fulfilled = false
         model.onChange = { snapshot in
-            if !fulfilled, snapshot.domains[.archive]?.lastConfirmed == .archiveHours(2.5),
+            if !fulfilled, snapshot.domains[.archive]?.lastConfirmed == .archiveMinutes(2.5),
                snapshot.domains[.layout]?.isSaving == true {
                 fulfilled = true; archivePublished.fulfill()
             }

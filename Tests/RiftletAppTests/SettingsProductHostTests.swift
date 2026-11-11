@@ -19,6 +19,9 @@ final class SettingsProductHostTests: XCTestCase {
     @MainActor func testThreeNativeSurfacesReadOneModelWithoutSavingOrShowing() throws {
         let f = try fixture(); defer { f.close() }
         var settings = f.adapter.owner.settings
+        XCTAssertEqual(settings.archiveAfterMinutes, 2)
+        let archivePreset = try XCTUnwrap(f.host.center.controls["archive.preset"] as? NSPopUpButton)
+        XCTAssertEqual(archivePreset.indexOfSelectedItem, 2)
         settings.configuration.placement = .rightBottom
         settings.configuration.preferredDisplayID = 2; settings.preferredDisplayID = 2
         let collect = try XCTUnwrap(f.host.center.controls["paused"] as? NSSwitch)
@@ -367,7 +370,7 @@ private final class HostSettingsAdapter: SettingsPersistenceAdapter {
         var config = RiftConfiguration(); config.preferredDisplayID = 1
         owner = .init(revision: 1, settings: .init(entryAvailable: true,
             displays: [.init(id: 1, name: "Synthetic first"), .init(id: 2, name: "Synthetic second")],
-            preferredDisplayID: 1, archiveAfterHours: 24, configuration: config),
+            preferredDisplayID: 1, configuration: config),
             collectionPaused: false, isHidden: false, mainDisplayID: 1, effectiveDisplayID: 1)
     }
     func save(_ request: SettingsSaveRequest) async -> SettingsSaveOutcome {
@@ -381,7 +384,7 @@ private final class HostSettingsAdapter: SettingsPersistenceAdapter {
         case .entryEnabled(let value): if !value || !failed { settings.entryEnabled = value }; settings.capturePreferencesSaveFailed = failed
         case .captureMode(let value): if !failed { settings.defaultCaptureMode = value }
         case .arrival(let value): if !failed { settings.arrivalMode = value; settings.hasArrivalSelection = true }
-        case .archiveHours(let value): if !failed { settings.archiveAfterHours = value }
+        case .archiveMinutes(let value): if !failed { settings.archiveAfterMinutes = value }
         case .layout, .placement, .display, .desktopForm, .trayTheme, .trayFavorite:
             if !failed, let config = request.configuration { settings.configuration = config; settings.preferredDisplayID = config.preferredDisplayID }
         }

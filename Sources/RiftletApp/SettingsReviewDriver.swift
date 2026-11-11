@@ -14,6 +14,10 @@ import UniformTypeIdentifiers
 @MainActor
 final class SettingsReviewDriver {
     private enum Failure: Error { case unsafeEnvironment, assertion(String), controlUnavailable(String), encoding, restoreFailed }
+    // Read the written number independently of the product decoder's legacy-interval fallback.
+    private struct ArchiveDocument: Decodable {
+        let archiveAfterSeconds: Double?
+    }
     private let environment: SettingsReviewEnvironment
     private let host: SettingsProductHost
     private let store: QueueStore
@@ -201,9 +205,10 @@ final class SettingsReviewDriver {
             let configuration = try JSONDecoder().decode(RiftConfiguration.self, from: documentBytes["rift-configuration.json"]!)
             try configuration.validate()
             try self.require(configuration == settings.configuration, "restartedConfigurationMismatch")
-            let lifecycle = try JSONDecoder().decode(LifecycleSettings.self, from: documentBytes["lifecycle-settings.json"]!)
-            try lifecycle.validate()
-            try self.require(lifecycle.archiveAfterSeconds.map { $0 / 3600 } == settings.archiveAfterHours, "restartedArchiveMismatch")
+            let lifecycleBytes = documentBytes["lifecycle-settings.json"]!
+            try JSONDecoder().decode(LifecycleSettings.self, from: lifecycleBytes).validate()
+            let stored = try JSONDecoder().decode(ArchiveDocument.self, from: lifecycleBytes)
+            try self.require(stored.archiveAfterSeconds.map { $0 / 60 } == settings.archiveAfterMinutes, "restartedArchiveMismatch")
             let arrival = ArrivalMotionPreferences(url: self.environment.root.appendingPathComponent("arrival-motion-settings.json"))
             try self.require(arrival.loadState == .selected && arrival.mode == settings.arrivalMode && settings.hasArrivalSelection,
                              "restartedArrivalMismatch")
@@ -214,7 +219,7 @@ final class SettingsReviewDriver {
             try self.require(appearance?["version"] as? Int == 1 && appearance?["appearance"] as? String == self.host.appearance.selection.rawValue
                              && self.host.appearance.loadState == .selected && self.host.appearance.appliedSelection == self.host.appearance.selection
                              && self.host.appearance.failure == nil, "restartedAppearanceMismatch")
-            return ["allConfigurationFieldsEqual": true, "archiveHours": settings.archiveAfterHours as Any? ?? NSNull(),
+            return ["allConfigurationFieldsEqual": true, "archiveMinutes": settings.archiveAfterMinutes as Any? ?? NSNull(),
                     "arrival": arrival.mode.rawValue, "entryEnabled": settings.entryEnabled,
                     "captureMode": entry.defaultMode.rawValue, "appearance": self.host.appearance.selection.rawValue,
                     "jsonSHA256": documentBytes.mapValues(self.digest)]
@@ -575,8 +580,19 @@ final class SettingsReviewDriver {
 
     private func archiveEditing() async throws {
         host.show(page: .history)
+        // Each selection is saved through the native control and read from the real seconds-based document.
+        let presets: [(index: Int, minutes: Double?)] = [(3, 5), (4, 10), (0, nil), (1, 1), (2, 2)]
+        for (index, minutes) in presets {
+            try select("settings.center.archive.preset", index: index)
+            if host.snapshot.state.owner.settings.archiveAfterMinutes != minutes {
+                try click("settings.center.archive.save")
+                try await wait { self.host.snapshot.state.owner.settings.archiveAfterMinutes == minutes && !self.host.model.hasArchiveDraft }
+            }
+            try require(try read(ArchiveDocument.self, "lifecycle-settings.json").archiveAfterSeconds == minutes.map { $0 * 60 },
+                        "archivePresetSecondsMismatch")
+        }
         try select("settings.center.archive.preset", index: 5)
-        let (field, editor) = try edit("settings.center.archive.hours", text: "1.5")
+        let (field, editor) = try edit("settings.center.archive.minutes", text: "1.5")
         let originalSelection = NSRange(location: 1, length: 1)
         editor.setSelectedRange(originalSelection)
         let text = editor.string
@@ -584,15 +600,15 @@ final class SettingsReviewDriver {
         try require(field.currentEditor() === editor && editor.string == text && editor.selectedRange() == originalSelection,
                     "archiveEditorChangedOnRefresh")
         try click("settings.center.archive.save")
-        try await wait { self.host.snapshot.state.owner.settings.archiveAfterHours == 1.5 && !self.host.model.hasArchiveDraft }
-        try require(try read(LifecycleSettings.self, "lifecycle-settings.json").archiveAfterSeconds == 5_400,
+        try await wait { self.host.snapshot.state.owner.settings.archiveAfterMinutes == 1.5 && !self.host.model.hasArchiveDraft }
+        try require(try read(ArchiveDocument.self, "lifecycle-settings.json").archiveAfterSeconds == 90,
                     "archiveJSONMismatch")
-        _ = try edit("settings.center.archive.hours", text: "2.5")
+        _ = try edit("settings.center.archive.minutes", text: "2.5")
         try click("settings.center.archive.discard")
         try await wait { !self.host.model.hasArchiveDraft }
-        host.show(page: .general); host.show(page: .history)
+        host.show(page: .display); host.show(page: .history)
         await onRefresh()
-        try require(!host.model.hasArchiveDraft && host.snapshot.state.owner.settings.archiveAfterHours == 1.5,
+        try require(!host.model.hasArchiveDraft && host.snapshot.state.owner.settings.archiveAfterMinutes == 1.5,
                     "discardedArchiveReappeared")
         await capture("archive-first-activation-save", window: host.center.window)
     }
@@ -635,7 +651,7 @@ final class SettingsReviewDriver {
     private func closeEditing() async throws {
         host.show(page: .history)
         try select("settings.center.archive.preset", index: 5)
-        let (_, editor) = try edit("settings.center.archive.hours", text: "3.5")
+        let (_, editor) = try edit("settings.center.archive.minutes", text: "3.5")
         let selection = NSRange(location: 1, length: 1); editor.setSelectedRange(selection)
         let text = editor.string
         host.center.window.performClose(nil)
@@ -645,14 +661,14 @@ final class SettingsReviewDriver {
         try click("settings.center.close.continue", window: sheet)
         try await wait { self.host.center.window.attachedSheet == nil }
         await settle(60)
-        let field = try control("settings.center.archive.hours") as! NSTextField
+        let field = try control("settings.center.archive.minutes") as! NSTextField
         let restored = field.currentEditor() as? NSTextView
         try require(restored?.string == text && restored?.selectedRange() == selection, "continueDidNotRestoreEditor")
         host.center.window.performClose(nil)
         try await wait { self.host.center.window.attachedSheet != nil }
         try click("settings.center.close.discard", window: host.center.window.attachedSheet!)
         try await wait { !self.host.center.isVisible && !self.host.model.hasArchiveDraft }
-        try require(try read(LifecycleSettings.self, "lifecycle-settings.json").archiveAfterSeconds == 5_400,
+        try require(try read(ArchiveDocument.self, "lifecycle-settings.json").archiveAfterSeconds == 90,
                     "closeDiscardChangedSavedArchive")
         host.show(page: .history)
     }
@@ -692,9 +708,9 @@ final class SettingsReviewDriver {
         try await closeControl()
         host.show(page: .history)
         try select("settings.center.archive.preset", index: 5)
-        _ = try edit("settings.center.archive.hours", text: "1.75")
+        _ = try edit("settings.center.archive.minutes", text: "1.75")
         try click("settings.center.archive.save")
-        try await wait { self.host.snapshot.state.owner.settings.archiveAfterHours == 1.75 }
+        try await wait { self.host.snapshot.state.owner.settings.archiveAfterMinutes == 1.75 }
         try require(host.snapshot.appearance.failure != nil && host.snapshot.state.domains[.layout]?.saveFailure != nil,
                     "unrelatedSaveClearedErrors")
         host.show(page: .display); try click("settings.center.appearance.retry")

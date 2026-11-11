@@ -192,6 +192,8 @@ extension RiftSettingsCenterController {
         ]), layoutSaveArea(for: .motion)]
     }
 
+    static var archivePresetMinutes: [Int] { [1, Int(QueueArchivePolicy.defaultMinutes), 5, 10] }
+
     func historyContent() -> [NSView] {
         let collection = nativeSwitch("收录系统截图", id: "paused") { [weak self] in self?.dispatch(.settings(.setCollectionPaused(!$0))) }
         let visibility = nativeSwitch("显示桌面截图", id: "hidden") { [weak self] in self?.dispatch(.settings(.setHidden(!$0))) }
@@ -199,17 +201,24 @@ extension RiftSettingsCenterController {
         let displayStyle = segmented("历史样式", id: "history.displayStyle", titles: ["列表","图像网格"]) { [weak self] in
             self?.dispatch(.historyDisplayStyle(HistoryDisplayStyle.allCases[$0]))
         }
-        let preset = popup("自动归档时限", id: "archive.preset", titles: ["不自动归档", "1 小时", "8 小时", "24 小时", "72 小时", "自定义…"]) { [weak self] popup in
-            guard let self else { return }
-            let values = ["0", "1", "8", "24", "72"]
-            archiveCustom = popup.indexOfSelectedItem == 5
-            if values.indices.contains(popup.indexOfSelectedItem) { model.setArchiveDraftText(values[popup.indexOfSelectedItem]) }
+        let choices = Self.archivePresetMinutes
+        let preset = popup("自动归档时限", id: "archive.preset", titles: ["关闭"] + choices.map { "\($0) 分钟" } + ["自定义…"]) { [weak self] popup in
+            guard let self, finishEditingForReplacement() else { return }
+            let index = popup.indexOfSelectedItem
+            archiveCustom = index == choices.count + 1
+            if index == 0 {
+                model.setArchiveDraftText(nil)
+            } else if choices.indices.contains(index - 1) {
+                model.setArchiveDraftText(String(choices[index - 1]))
+            } else if archiveCustom && model.archiveIsDisabled {
+                model.setArchiveDraftText(String(QueueArchivePolicy.defaultMinutes))
+            }
             refreshDraftPresentation()
             window.recalculateKeyViewLoop()
             if archiveCustom { window.makeFirstResponder(archiveField) }
         }
-        archiveField = textField(id: "archive.hours", accessibility: "自定义归档小时数")
-        archiveCustomRow = row("自定义时限", detail: "支持小数小时，0 表示不自动归档。", control: buttonRow([archiveField, SettingsNativeStyle.label("小时", role: "secondary")]))
+        archiveField = textField(id: "archive.minutes", accessibility: "自定义归档分钟数")
+        archiveCustomRow = row("自定义时限", detail: "可输入 1–10 分钟，支持小数。", control: buttonRow([archiveField, SettingsNativeStyle.label("分钟", role: "secondary")]))
         let archive = group([
             row("闲置后归档", control:preset),
             archiveCustomRow, namedLabel("archive.detail", role: "secondary"), domainError(.archive),

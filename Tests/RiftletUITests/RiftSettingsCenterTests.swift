@@ -347,7 +347,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         _ = try enter(h, field: h.controller.archiveField, text: "2.5")
         try await clickAndWait(h, "archive.discard")
         XCTAssertNil(h.controller.archiveField.currentEditor())
-        XCTAssertEqual(Double(h.model.archiveDraftText), 24)
+        XCTAssertEqual(Double(h.model.archiveDraftText), 2)
         XCTAssertEqual(h.controller.archiveField.stringValue, h.model.archiveDraftText)
         h.controller.show(page: .general)
         XCTAssertFalse(h.model.hasArchiveDraft)
@@ -364,7 +364,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertTrue(editor.hasMarkedText())
         try await clickAndWait(h, "archive.discard")
         XCTAssertNil(field.currentEditor())
-        XCTAssertEqual(Double(h.model.archiveDraftText), 24)
+        XCTAssertEqual(Double(h.model.archiveDraftText), 2)
         XCTAssertEqual(field.stringValue, h.model.archiveDraftText)
         XCTAssertFalse(h.model.hasArchiveDraft)
         XCTAssertTrue(h.requests.isEmpty)
@@ -397,21 +397,45 @@ final class RiftSettingsCenterTests: XCTestCase {
         // has not yet been delivered when the first Save action arrives.
         editor.string = "1.5"
         try await clickAndWait(h, "archive.save")
-        XCTAssertEqual(h.requests.map(\.intent), [.archiveHours(1.5)])
-        XCTAssertEqual(h.owner.settings.archiveAfterHours, 1.5)
+        XCTAssertEqual(h.requests.map(\.intent), [.archiveMinutes(1.5)])
+        XCTAssertEqual(h.owner.settings.archiveAfterMinutes, 1.5)
         XCTAssertTrue(h.controller.isVisible)
     }
 
-    @MainActor func testArchivePresetIsDraftAndZeroDisablesOnlyOnSave() async throws {
+    @MainActor func testArchiveDisableIsSeparateFromCustomZeroAndRequiresSave() async throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
         h.controller.show(page: .history)
-        try change(h, "archive.preset", index: 0)
+        let preset: NSPopUpButton = try control(h, "archive.preset")
+        XCTAssertEqual(preset.itemTitles, ["关闭","1 分钟","2 分钟","5 分钟","10 分钟","自定义…"])
+        XCTAssertEqual(preset.indexOfSelectedItem, 2)
+        try change(h, "archive.preset", index: 5)
+        let minutes = try XCTUnwrap(h.controller.archiveField)
+        XCTAssertEqual(minutes.identifier?.rawValue, "settings.center.archive.minutes")
+        _ = try enter(h, field: minutes, text: "0")
+        try await clickAndWait(h, "archive.save")
+        XCTAssertEqual(h.model.snapshot.domains[.archive]?.validationFailure, .invalidArchive)
+        XCTAssertFalse(h.model.archiveIsDisabled)
         XCTAssertTrue(h.requests.isEmpty)
-        XCTAssertEqual(h.owner.settings.archiveAfterHours, 24)
+        try change(h, "archive.preset", index: 0)
+        XCTAssertTrue(h.model.archiveIsDisabled)
+        XCTAssertTrue(h.requests.isEmpty)
+        XCTAssertEqual(h.owner.settings.archiveAfterMinutes, 2)
         XCTAssertTrue(h.model.hasArchiveDraft)
         try await clickAndWait(h, "archive.save")
-        XCTAssertEqual(h.requests.map(\.intent), [.archiveHours(nil)])
-        XCTAssertNil(h.owner.settings.archiveAfterHours)
+        XCTAssertEqual(h.requests.map(\.intent), [.archiveMinutes(nil)])
+        XCTAssertNil(h.owner.settings.archiveAfterMinutes)
+        XCTAssertFalse(h.model.hasArchiveDraft)
+        h.controller.window.performClose(nil)
+        XCTAssertNil(h.controller.pendingCloseAlert)
+        XCTAssertFalse(h.controller.isVisible)
+        h.controller.show(page:.history)
+        XCTAssertEqual(preset.indexOfSelectedItem, 0)
+        try change(h, "archive.preset", index: 5)
+        XCTAssertTrue(h.model.hasArchiveDraft)
+        try await clickAndWait(h, "archive.save")
+        XCTAssertEqual(h.owner.settings.archiveAfterMinutes, QueueArchivePolicy.defaultMinutes)
+        h.controller.window.performClose(nil)
+        XCTAssertNil(h.controller.pendingCloseAlert)
     }
 
     @MainActor func testFirstClosePromptsForCurrentDraftAndContinuePreservesIt() async throws {
@@ -509,7 +533,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         try change(h, "archive.preset", index: 1)
         h.controller.window.performClose(nil)
         try await answerClose(h, .alertThirdButtonReturn)
-        XCTAssertEqual(h.owner.settings.archiveAfterHours, 1)
+        XCTAssertEqual(h.owner.settings.archiveAfterMinutes, 1)
         XCTAssertFalse(h.controller.isVisible)
         XCTAssertEqual(h.requests.count, 1)
     }
@@ -608,7 +632,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertTrue(answers.isEmpty, "A snapshot refresh must not approve Quit")
         h.resumeSave()
         try await waitFor("successful termination decision") { answers == [true] }
-        XCTAssertEqual(h.owner.settings.archiveAfterHours, 8)
+        XCTAssertEqual(h.owner.settings.archiveAfterMinutes, 8)
         XCTAssertFalse(h.controller.isVisible)
         XCTAssertNil(h.controller.pendingCloseAlert)
         h.publish(); h.controller.closeForTeardown()
@@ -651,7 +675,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertEqual(answers, [true])
         XCTAssertFalse(h.controller.isVisible)
         XCTAssertFalse(h.model.hasArchiveDraft)
-        XCTAssertEqual(h.owner.settings.archiveAfterHours, 24)
+        XCTAssertEqual(h.owner.settings.archiveAfterMinutes, 2)
         XCTAssertEqual(h.requests.count, 1)
     }
 
@@ -696,7 +720,7 @@ final class RiftSettingsCenterTests: XCTestCase {
             XCTAssertEqual(answers, [false])
             XCTAssertEqual(h.controller.isVisible, !teardown)
             XCTAssertNil(h.controller.pendingCloseAlert)
-            XCTAssertEqual(h.owner.settings.archiveAfterHours, 8, "Cancelling Quit does not undo an already started owner write")
+            XCTAssertEqual(h.owner.settings.archiveAfterMinutes, 8, "Cancelling Quit does not undo an already started owner write")
             XCTAssertEqual(h.requests.count, 1)
         }
     }
@@ -1008,7 +1032,7 @@ private final class SettingsCenterTestHost {
         var configuration = RiftConfiguration(); configuration.preferredDisplayID = 1
         let settings = RiftSettingsSnapshot(entryAvailable: true,
             displays: [.init(id: 1, name: "First screen"), .init(id: 2, name: "Second screen")], preferredDisplayID: 1,
-            archiveAfterHours: 24, configuration: configuration)
+            archiveAfterMinutes: QueueArchivePolicy.defaultMinutes, configuration: configuration)
         owner = .init(revision: 1, settings: settings, collectionPaused: false, isHidden: false, mainDisplayID: 1, effectiveDisplayID: 1)
         model = try SettingsStateModel(owner: owner, decimalSeparator: ".", adapter: SettingsPersistenceClosures { [weak self] request in
             guard let self else { return .unconfirmed(nil, .ownerUnavailable) }
@@ -1046,7 +1070,7 @@ private final class SettingsCenterTestHost {
         case .entryEnabled(let value): if !value || !failure { settings.entryEnabled = value }; settings.capturePreferencesSaveFailed = failure
         case .captureMode(let mode): if !failure { settings.defaultCaptureMode = mode; settings.capturePreferencesSaveFailed = false }
         case .arrival(let mode): if !failure { settings.arrivalMode = mode; settings.hasArrivalSelection = true }
-        case .archiveHours(let value): if !failure { settings.archiveAfterHours = value }
+        case .archiveMinutes(let value): if !failure { settings.archiveAfterMinutes = value }
         case .layout, .placement, .display, .desktopForm, .trayTheme, .trayFavorite:
             if !failure, let configuration = request.configuration { settings.configuration = configuration; settings.preferredDisplayID = configuration.preferredDisplayID }
         }

@@ -22,26 +22,26 @@ public struct RiftSettingsSnapshot: Equatable, Sendable {
     public var preferredDisplayID: UInt32?
     public var configuration: RiftConfiguration
     public var displayRestoreAvailable: Bool
-    public var archiveAfterHours: Double?
+    public var archiveAfterMinutes: Double?
 
     public init(entryAvailable: Bool = false, entryEnabled: Bool = true,
                 capturePreferencesSaveFailed: Bool = false,
                 defaultCaptureMode: ScreenshotMode = .window, arrivalMode: ArrivalMotionMode = .none,
                 hasArrivalSelection: Bool = false, displays: [RiftSettingsDisplay] = [],
-                preferredDisplayID: UInt32? = nil, archiveAfterHours: Double? = nil,
+                preferredDisplayID: UInt32? = nil, archiveAfterMinutes: Double? = QueueArchivePolicy.defaultMinutes,
                 configuration: RiftConfiguration = .init(), displayRestoreAvailable: Bool = false) {
         self.entryAvailable = entryAvailable; self.entryEnabled = entryEnabled
         self.capturePreferencesSaveFailed = capturePreferencesSaveFailed
         self.defaultCaptureMode = defaultCaptureMode; self.arrivalMode = arrivalMode
         self.hasArrivalSelection = hasArrivalSelection; self.displays = displays
-        self.preferredDisplayID = preferredDisplayID; self.archiveAfterHours = archiveAfterHours
+        self.preferredDisplayID = preferredDisplayID; self.archiveAfterMinutes = archiveAfterMinutes
         self.configuration = configuration; self.displayRestoreAvailable = displayRestoreAvailable
     }
 }
 
 public enum RiftSettingsChange: Equatable, Sendable {
     case entryEnabled(Bool), defaultCaptureMode(ScreenshotMode), arrivalMode(ArrivalMotionMode)
-    case preferredDisplay(UInt32?), archiveAfterHours(Double?)
+    case preferredDisplay(UInt32?), archiveAfterMinutes(Double?)
     case geometry(hiddenFraction: Double, outerInset: Double, visibleCount: Int)
     case placement(RiftPlacement), restorePreferredDisplay
 }
@@ -66,7 +66,8 @@ final class RiftSettingsForm: NSObject {
     private let geometrySave = NSButton(title: "保存布局", target: nil, action: nil)
     private let restoreDisplay = NSButton(title: "回到已选显示器", target: nil, action: nil)
     private var placementButtons: [NSButton] = []
-    private let hours = NSTextField(string: "0")
+    private let archiveEnabled = NSButton(checkboxWithTitle: "开启闲置归档", target: nil, action: nil)
+    private let minutes = NSTextField(string: "")
     private let archiveSave = NSButton(title: "保存", target: nil, action: nil)
     private let preview = ArrivalPreviewView(frame: .zero)
     private let motionHint = RiftVisualStyle.label("", role: "secondary")
@@ -117,12 +118,15 @@ final class RiftSettingsForm: NSObject {
             button.setAccessibilityLabel("裂缝位置：" + placement.title); return button
         }
         entry.font = RiftVisualStyle.bodyFont
-        hours.font = RiftVisualStyle.bodyFont; hours.alignment = .right
-        hours.target = self; hours.action = #selector(saveArchive)
+        archiveEnabled.identifier = .init("settings.archiveEnabled")
+        archiveEnabled.setAccessibilityLabel("开启闲置归档")
+        archiveEnabled.target = self; archiveEnabled.action = #selector(toggleArchive)
+        minutes.font = RiftVisualStyle.bodyFont; minutes.alignment = .right
+        minutes.target = self; minutes.action = #selector(saveArchive)
         // Save is deliberate: Return or the Save button, never a focus change.
-        hours.cell?.sendsActionOnEndEditing = false
-        hours.identifier = .init("settings.archiveHours"); hours.setAccessibilityLabel("闲置归档小时数，0 表示关闭")
-        hours.widthAnchor.constraint(equalToConstant: 68).isActive = true
+        minutes.cell?.sendsActionOnEndEditing = false
+        minutes.identifier = .init("settings.archiveMinutes"); minutes.setAccessibilityLabel("闲置归档分钟数，1 到 10，可输入小数")
+        minutes.widthAnchor.constraint(equalToConstant: 68).isActive = true
         archiveSave.target = self; archiveSave.action = #selector(saveArchive)
         archiveSave.identifier = .init("settings.archiveSave"); RiftVisualStyle.style(archiveSave)
         message.identifier = .init("settings.saveStatus"); message.isHidden = true
@@ -178,9 +182,15 @@ final class RiftSettingsForm: NSObject {
         if value.capturePreferencesSaveFailed {
             entryHint.stringValue = Self.captureSaveFailureMessage(value)
         }
-        if hours.currentEditor() == nil { hours.stringValue = value.archiveAfterHours.map { String(format: "%.6g", $0) } ?? "0" }
-        if hours.isEnabled != enabled { hours.isEnabled = enabled }
-        archiveSave.isEnabled = enabled
+        let active = value.archiveAfterMinutes != nil
+        archiveEnabled.state = active ? .on : .off
+        archiveEnabled.isEnabled = enabled
+        if minutes.currentEditor() == nil {
+            minutes.stringValue = SettingsStateModel.archiveMinutesText(value.archiveAfterMinutes ?? QueueArchivePolicy.defaultMinutes,
+                                                                     decimalSeparator: Locale.current.decimalSeparator ?? ".")
+        }
+        minutes.isEnabled = enabled && active
+        archiveSave.isEnabled = enabled && active
         for field in [displayHint, entryHint] { RiftVisualStyle.applyTextStyle(field) }
         refreshMotion(play: false, redraw: old.arrivalMode != value.arrivalMode)
     }
@@ -204,9 +214,9 @@ final class RiftSettingsForm: NSObject {
                 RiftVisualStyle.label("常驻数量只改变当前显示，不限制截图收录。新图不会自动翻页。", role: "secondary")]),
                 card([row("入缝动效", arrivalMode), preview, previewActions, motionHint]), message]
         case .privacy:
-            let input = NSStackView(views: [hours, RiftVisualStyle.label("小时"), archiveSave]); input.spacing = 8
-            return [card([row("闲置后归档", input),
-                RiftVisualStyle.label("输入 0 关闭。只收起长时间未用的截图，保留原件和本地历史；不会移除聊天附件。", role: "secondary")]), message]
+            let input = NSStackView(views: [minutes, RiftVisualStyle.label("分钟"), archiveSave]); input.spacing = 8
+            return [card([archiveEnabled, row("闲置后归档", input),
+                RiftVisualStyle.label("可设置 1–10 分钟，支持小数。归档后仍可在本地历史中查看截图。", role: "secondary")]), message]
         default: return []
         }
     }
@@ -307,28 +317,27 @@ final class RiftSettingsForm: NSObject {
         }
         apply(.geometry(hiddenFraction:h / 100,outerInset:d,visibleCount:Int(n)))
     }
+    @objc private func toggleArchive() {
+        guard archiveEnabled.isEnabled else { return }
+        let requested: Double? = archiveEnabled.state == .on ? QueueArchivePolicy.defaultMinutes : nil
+        apply(.archiveAfterMinutes(requested))
+    }
+
     @objc private func saveArchive() {
-        guard hours.isEnabled else { return }
-        let text = hours.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard minutes.isEnabled else { return }
+        let text = minutes.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
         let separator = Locale.current.decimalSeparator ?? "."
         let normalized = separator == "." ? text : text.replacingOccurrences(of: separator, with: ".")
-        // Parse the whole field; NumberFormatter's prefix parsing would accept
-        // a typo such as 1abc and silently save one hour.
         guard normalized.range(of: #"^(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)$"#, options: .regularExpression) != nil,
-              let value = Double(normalized), value.isFinite, value >= 0, (value * 3600).isFinite else {
-            message.stringValue = "请输入有效的非负小时数；0 表示关闭。"; message.textColor = .systemOrange
+              let value = Double(normalized), QueueArchivePolicy.minutesRange.contains(value) else {
+            message.stringValue = "请输入 1–10 之间的分钟数，支持小数。"; message.textColor = .systemOrange
             message.isHidden = false; RiftVisualStyle.applyTextStyle(message); return
         }
-        let requested: Double? = value == 0 ? nil : value
-        let persistedHours = requested.map { ($0 * 3600) / 3600 }
-        // AppKit can finish editing while an action refreshes its controls.
-        // Match the host's seconds-to-hours round trip, including fractional
-        // values, so repeated delivery cannot cause another durable write.
-        guard persistedHours != snapshot.archiveAfterHours else {
+        guard (value * 60) / 60 != snapshot.archiveAfterMinutes else {
             message.stringValue = "已保存"; message.textColor = RiftVisualStyle.secondary; message.isHidden = false
             RiftVisualStyle.applyTextStyle(message); return
         }
-        apply(.archiveAfterHours(requested))
+        apply(.archiveAfterMinutes(value))
     }
     @objc private func replay() {
         preview.recordDiagnostic("replay.action.enter")
