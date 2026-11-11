@@ -236,6 +236,30 @@ class ReleaseTest(unittest.TestCase):
         self.assertEqual(ticket.stat().st_mode & 0o777, 0o644)
         self.assertEqual(R.verify_package(self.package)["files"][R.TICKET_CARRIER]["mode"], 0o644)
 
+    def test_stapler_may_rewrite_an_already_recorded_ticket_under_the_private_umask(self):
+        self.prepare_shared_app()
+        ticket = self.app / "Contents/CodeResources"
+        ticket.write_bytes(b"previously recorded fixture ticket")
+        ticket.chmod(0o644)
+        self.stage("STAPLE_FAILED")
+        def rewrite(cmd, **kwargs):
+            self.assertEqual(cmd[2], "staple")
+            ticket.unlink()
+            ticket.write_bytes(b"replacement fixture from the same Apple job")
+            ticket.chmod(0o600)
+            raise R.ReleaseError("interrupted_after_replacement")
+        with patch.object(R.platform, "system", return_value="Darwin"), patch.object(R, "verify_signature", return_value=signature()):
+            with patch.object(R, "run", side_effect=rewrite):
+                self.error("interrupted_after_replacement", R.staple_candidate, self.args())
+            self.assertEqual(R.load_package_for_resume(self.package)["files"][R.TICKET_CARRIER]["mode"], 0o644)
+            ticket.chmod(0o666)
+            self.error("ticket_carrier_metadata_changed", R.load_package_for_resume, self.package)
+            ticket.chmod(0o600)
+            with patch.object(R, "run", return_value=result()) as client:
+                self.assertEqual(R.staple_candidate(self.args())["status"], "STAPLED")
+            self.assertEqual([c.args[0][2] for c in client.call_args_list], ["validate"])
+        self.assertEqual(ticket.stat().st_mode & 0o777, 0o644)
+
     def test_prepared_full_inventory_and_pin_match(self):
         self.assertEqual(R.verify_package(self.package, R.digest(self.package / R.MANIFEST))["stage"], "PREPARED")
 

@@ -411,7 +411,7 @@ def verify_accepted_app_log(workspace, value):
             "accepted_app_log_artifact_mismatch")
 
 
-def check_staple_inventory(original, current):
+def check_staple_inventory(original, current, *, native_ticket_rewrite=False):
     if original == current:
         return
     require({k: v for k, v in original.items() if k != TICKET_CARRIER}
@@ -421,7 +421,12 @@ def check_staple_inventory(original, current):
             "invalid_ticket_carrier")
     if TICKET_CARRIER in original:
         prior = original[TICKET_CARRIER]
-        require(carrier["mode"] == prior["mode"] and carrier["xattrs"] == prior["xattrs"],
+        # Under the private release umask, Apple's stapler can replace an existing
+        # readable ticket with a new 0600 file. Only that transition is resumable;
+        # signature, Apple ticket, accepted submission and all other entries are verified.
+        same_mode = carrier["mode"] == prior["mode"]
+        rewritten = native_ticket_rewrite and (prior["mode"], carrier["mode"]) == (0o644, 0o600)
+        require((same_mode or rewritten) and carrier["xattrs"] == prior["xattrs"],
                 "ticket_carrier_metadata_changed")
 
 
@@ -447,7 +452,7 @@ def _verify_package(package, expected_manifest, native_team, *, staple_resume):
     recovering = staple_resume and value["stage"] in {"NOTARIZED", "STAPLE_FAILED"}
     if recovering:
         verify_accepted_app_log(package.parent, value)
-        check_staple_inventory(value["files"], current)
+        check_staple_inventory(value["files"], current, native_ticket_rewrite=bool(value["build"].get("sharedAppModes")))
         native_team = native_team or value["signature"]["teamID"]
     else:
         require(value["files"] == current, "payload_inventory_mismatch")
@@ -750,8 +755,9 @@ def staple_candidate(args):
     value = load_package_for_resume(package)
     require(value["stage"] in {"NOTARIZED", "STAPLE_FAILED"}, "staple_requires_accepted_job")
     recorded = value["files"]
+    shared = bool(value["build"].get("sharedAppModes"))
     actual = inventory(package)
-    check_staple_inventory(recorded, actual)
+    check_staple_inventory(recorded, actual, native_ticket_rewrite=shared)
     attempt = Path(tempfile.mkdtemp(prefix="app-staple-", dir=workspace))
     original_manifest = (package / MANIFEST).read_bytes()
     require(decode_json(original_manifest) == value, "app_manifest_changed_before_stapling")
@@ -763,15 +769,12 @@ def staple_candidate(args):
         if recorded == actual:
             run(["xcrun", "stapler", "staple", "-v", package / APP], log=attempt / "staple.log")
         validated = inventory(package)
-        check_staple_inventory(recorded, validated)
-        if value["build"].get("sharedAppModes") and TICKET_CARRIER not in recorded and TICKET_CARRIER in validated:
-            # Only a newly introduced, validated regular ticket may be made readable.
-            # This also covers a process interrupted between stapler and its manifest update.
-            if validated[TICKET_CARRIER]["mode"] != 0o644:
+        check_staple_inventory(recorded, validated, native_ticket_rewrite=shared)
+        if shared:
+            if TICKET_CARRIER in validated and validated[TICKET_CARRIER]["mode"] != 0o644:
                 (package / TICKET_CARRIER).chmod(0o644)
                 validated = inventory(package)
                 check_staple_inventory(recorded, validated)
-        if value["build"].get("sharedAppModes"):
             verify_app_modes(validated)
         run(["xcrun", "stapler", "validate", "-v", package / APP], log=attempt / "staple-validate.log")
         require(verify_signature(package / APP, value["signature"]["teamID"], value["build"]["architectures"]) == value["signature"], "staple_changed_code_identity")
@@ -780,11 +783,9 @@ def staple_candidate(args):
         require(final == validated, "payload_changed_after_staple_validation")
     except Exception:
         failed = inventory(package)
-        check_staple_inventory(recorded, failed)
-        # Retain the accepted input if an interrupted native write left an unreadable
-        # new ticket. Resume can validate that single carrier without adopting it.
-        if (value["build"].get("sharedAppModes") and TICKET_CARRIER not in recorded
-                and failed.get(TICKET_CARRIER, {}).get("mode", 0o644) != 0o644):
+        check_staple_inventory(recorded, failed, native_ticket_rewrite=shared)
+        # Never pin an unreadable ticket left by an interrupted write or replacement.
+        if shared and failed.get(TICKET_CARRIER, {}).get("mode", 0o644) != 0o644:
             failed = recorded
         value.update(stage="STAPLE_FAILED", files=failed)
         write_json(package / MANIFEST, value)
