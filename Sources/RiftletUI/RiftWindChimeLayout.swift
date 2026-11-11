@@ -52,7 +52,10 @@ enum RiftWindChimeLayout {
         spacing.outerInset = min(max(0, c.windChimeLineInset), max(0, area.width / 2))
         // Reserve paper, line, arrow and camera before choosing page capacity.
         // Large personal thumbnail sizes still leave every control on screen.
-        let halfPaper = ceil((c.fitHeight + 2 * border + (c.fitWidth + 2 * border) * sin(2 * .pi / 180)) / 2)
+        let paperHeight = CGFloat(c.fitHeight) + 2 * border
+        let paperWidth = CGFloat(c.fitWidth) + 2 * border
+        let maximumTilt: CGFloat = .pi / 90
+        let halfPaper: CGFloat = ceil((paperHeight + paperWidth * sin(maximumTilt)) / 2)
         let arrowHeight: CGFloat = 24, controlGap: CGFloat = 4
         let cameraOffset = max(94, halfPaper + topExtension + controlGap + arrowHeight + controlGap + 18)
         let topReserve = cameraOffset - 94
@@ -69,19 +72,19 @@ enum RiftWindChimeLayout {
         let distance = max(width / 2, spacing.outerInset)
         let spine = round((left ? edge + distance : edge - distance) * scale) / scale
         let byID = Dictionary(records.map { ($0.id, $0) }, uniquingKeysWith: { _, last in last })
-        let rows: [RiftRowLayout] = baseline.rows.compactMap { row in
+        let rows = baseline.rows.compactMap { (row: RiftRowLayout) -> RiftRowLayout? in
             guard let record = byID[row.assetID] else { return nil }
-            let fit = min(1, c.fitWidth / CGFloat(max(1, record.image.pixelWidth)),
-                             c.fitHeight / CGFloat(max(1, record.image.pixelHeight)))
+            let fit: CGFloat = min(1, CGFloat(c.fitWidth) / CGFloat(max(1, record.image.pixelWidth)),
+                                      CGFloat(c.fitHeight) / CGFloat(max(1, record.image.pixelHeight)))
             let size = CGSize(width: max(1, CGFloat(record.image.pixelWidth)) * fit,
                               height: max(1, CGFloat(record.image.pixelHeight)) * fit)
-            let pose = pose(ordinal: Int(clamping: record.sequence), left: left, arrangement: c.windChimeArrangement)
-            let inward = min(size.width / 2, max(-size.width / 2, pose.offset))
+            let paperPose = Self.pose(ordinal: Int(clamping: record.sequence), left: left, arrangement: c.windChimeArrangement)
+            let inward = min(size.width / 2, max(-size.width / 2, paperPose.offset))
             let x = spine + (left ? inward : -inward)
             let pixels = CGRect(x: x - size.width / 2, y: row.frame.midY - size.height / 2,
                                 width: size.width, height: size.height)
             let card = pixels.insetBy(dx: -border, dy: -border)
-            let shape = RiftWindChimeCard(cardFrame: card, degrees: pose.degrees, clippingEdge: edge)
+            let shape = RiftWindChimeCard(cardFrame: card, degrees: paperPose.degrees, clippingEdge: edge)
             let exposed = card.applying(shape.rotation).intersection(area)
             guard !exposed.isEmpty else { return nil }
             let label = RiftLayout.numberMetrics(ordinal: row.ordinal, exposed: exposed.width - 2 * border,
@@ -94,7 +97,7 @@ enum RiftWindChimeLayout {
             return RiftRowLayout(assetID: row.assetID, ordinal: row.ordinal, frame: bounds,
                                  imageFrame: local(pixels), imageClipFrame: local(exposed),
                                  numberFrame: local(number), numberIsPad: label.pad,
-                                 windChime: RiftWindChimeCard(cardFrame: local(card), degrees: pose.degrees,
+                                 windChime: RiftWindChimeCard(cardFrame: local(card), degrees: paperPose.degrees,
                                                               clippingEdge: edge - bounds.minX))
         }
         let lineX = min(area.maxX - width, max(area.minX, floor(spine * scale) / scale))
