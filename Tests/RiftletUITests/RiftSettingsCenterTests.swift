@@ -156,6 +156,9 @@ final class RiftSettingsCenterTests: XCTestCase {
                 XCTAssertEqual(h.controller.labels["source." + page]?.stringValue, issue.text)
             }
             XCTAssertEqual(SetupPresentation(snapshot: setup).collectionText, issue.text)
+            let historyStatus = try XCTUnwrap(h.controller.labels["status.detail"])
+            XCTAssertFalse(historyStatus.isHidden)
+            XCTAssertTrue(historyStatus.stringValue.contains(issue.text))
         }
     }
 
@@ -163,11 +166,13 @@ final class RiftSettingsCenterTests: XCTestCase {
         let h = try host(); defer { h.controller.closeForTeardown() }
         var snapshot = h.controller.product
         snapshot.setup = .init(source: .accessible, collection: .collecting, attachment: .available,
-                               permission: .granted, issue: .chromeJavaScriptDisabled)
+                               permission: .granted, permissionDetail: ChromeAttachmentSetup.instructions, issue: .chromeJavaScriptDisabled)
         h.controller.update(snapshot)
         let attachment = try XCTUnwrap(h.controller.labels["attachment"])
         let automation = try XCTUnwrap(h.controller.labels["automation"])
-        let expected = "Chrome 尚未允许通过 Apple 事件执行 JavaScript。截图已保留，尚未附加。请在 Chrome 的『视图 → 开发者』中启用『允许来自 Apple 事件的 JavaScript』。"
+        XCTAssertEqual(h.controller.labels["access.chrome"]?.stringValue, "需开启 JavaScript")
+        XCTAssertEqual(h.controller.labels["chrome.menu"]?.isHidden, true, "Recovery already contains the path")
+        let expected = "Chrome 拒绝了这次附加，截图仍在本机。" + ChromeAttachmentSetup.instructions
         XCTAssertEqual(attachment.stringValue, expected)
         XCTAssertEqual(RiftControlCenterPresentation(snapshot).detail, expected)
         XCTAssertEqual(automation.stringValue, "macOS 已允许 Riftlet 与 Chrome 通信。")
@@ -177,6 +182,54 @@ final class RiftSettingsCenterTests: XCTestCase {
         h.controller.update(snapshot)
         XCTAssertFalse(attachment.stringValue.contains("JavaScript"))
         XCTAssertNil(SetupPresentation(snapshot: snapshot.setup).issueText)
+    }
+
+    @MainActor func testAppearanceApplyFailureKeepsItsReasonAndRetryTarget() throws {
+        let h = try host()
+        defer { h.controller.closeForTeardown() }
+        var snapshot = h.controller.product
+        snapshot.appearance.available = true
+        snapshot.appearance.applied = .dark
+        snapshot.appearance.selection = .dark
+        snapshot.appearance.pending = .light
+        snapshot.appearance.failure = "暂时无法应用这个外观。"
+        h.controller.update(snapshot)
+        let reason = try XCTUnwrap(h.controller.labels["appearance.detail"])
+        let retry: NSButton = try control(h, "appearance.retry")
+        XCTAssertFalse(reason.isHidden)
+        XCTAssertEqual(reason.stringValue, snapshot.appearance.failure)
+        XCTAssertFalse(retry.isHidden)
+        XCTAssertTrue(retry.isEnabled)
+        XCTAssertEqual(h.controller.product.appearance.pending, .light)
+    }
+
+    @MainActor func testMotionAndHistoryNotesFollowSystemAndAttachmentState() throws {
+        let h = try host()
+        defer { h.controller.closeForTeardown() }
+        let motion = try XCTUnwrap(h.controller.labels["motion.detail"])
+        let history = try XCTUnwrap(h.controller.labels["history.detail"])
+        var snapshot = h.controller.product
+        snapshot.setup = .init(pendingCount: 0)
+        snapshot.accessibility.reduceMotion = false
+        h.controller.update(snapshot)
+        XCTAssertTrue(motion.isHidden)
+        XCTAssertTrue(history.isHidden)
+
+        snapshot.setup = .init(pendingCount: 2)
+        snapshot.accessibility.reduceMotion = true
+        h.controller.update(snapshot)
+        XCTAssertFalse(motion.isHidden)
+        XCTAssertTrue(motion.stringValue.contains("减少动态效果"))
+        XCTAssertFalse(history.isHidden)
+        XCTAssertTrue(history.stringValue.contains("2 张"))
+        XCTAssertTrue(history.stringValue.contains("不会自动重传"))
+
+        snapshot.setup = .init(pendingCount: 0)
+        snapshot.accessibility.reduceMotion = false
+        h.controller.update(snapshot)
+        XCTAssertTrue(motion.isHidden)
+        XCTAssertTrue(history.isHidden)
+        XCTAssertTrue(h.actions.isEmpty)
     }
 
     @MainActor func testFirstShowRestoresV2ContentSizeAndLaterShowsKeepUserResize() throws {

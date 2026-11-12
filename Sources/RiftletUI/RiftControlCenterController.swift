@@ -372,7 +372,7 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         addMenu(snapshot.state.owner.collectionPaused ? "继续收录" : "暂停收录",
                 .settings(.setCollectionPaused(!snapshot.state.owner.collectionPaused)),
                 enabled: pause.isEnabled)
-        addMenu(snapshot.state.owner.isHidden ? "显示裂缝" : "隐藏裂缝",
+        addMenu(snapshot.state.owner.isHidden ? "显示桌面截图" : "隐藏桌面截图",
                 .settings(.setHidden(!snapshot.state.owner.isHidden)), enabled: hide.isEnabled)
         addMenu("截图历史…", .openHistory, enabled: snapshot.capabilities.canOpenHistory)
         addMenu("定位最新截图", .showLatest, enabled: snapshot.setup.visibleCount > 0)
@@ -406,16 +406,38 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
     }
 
     private static func templateIcon() -> NSImage {
-        let image = NSImage(size: NSSize(width: 18, height: 21), flipped: true) { _ in
-            let transform = AffineTransform(scale: 0.64)
+        // The two foreground paths of website-assets/riftlet.svg, without the app icon’s tile.
+        // SVG coordinates run downwards. Center its 60 × 62 mark in the 18 pt menu image.
+        let image = NSImage(size: NSSize(width: 18, height: 18), flipped: true) { _ in
             let path = NSBezierPath()
-            path.move(to: NSPoint(x: 5, y: 5)); path.line(to: NSPoint(x: 16, y: 5))
-            path.curve(to: NSPoint(x: 24, y: 12), controlPoint1: NSPoint(x: 21, y: 5), controlPoint2: NSPoint(x: 24, y: 8))
-            path.curve(to: NSPoint(x: 16, y: 19), controlPoint1: NSPoint(x: 24, y: 16), controlPoint2: NSPoint(x: 21, y: 19))
-            for point in [NSPoint(x: 14, y: 19), NSPoint(x: 23, y: 28), NSPoint(x: 15, y: 28), NSPoint(x: 5, y: 18)] { path.line(to: point) }
-            path.close(); path.transform(using: transform)
-            NSColor.black.setFill(); path.fill()
-            NSColor.clear.setFill(); NSRect(x: 6 * 0.64, y: 2 * 0.64, width: 2 * 0.64, height: 28 * 0.64).fill(using: .copy)
+            path.move(to: NSPoint(x: 13, y: 9))
+            path.line(to: NSPoint(x: 34, y: 9))
+            path.line(to: NSPoint(x: 34, y: 71))
+            path.line(to: NSPoint(x: 13, y: 71))
+            path.curve(to: NSPoint(x: 4, y: 62),
+                       controlPoint1: NSPoint(x: 8, y: 71), controlPoint2: NSPoint(x: 4, y: 67))
+            path.line(to: NSPoint(x: 4, y: 18))
+            path.curve(to: NSPoint(x: 13, y: 9),
+                       controlPoint1: NSPoint(x: 4, y: 13), controlPoint2: NSPoint(x: 8, y: 9))
+            path.close()
+
+            path.move(to: NSPoint(x: 40, y: 9))
+            path.line(to: NSPoint(x: 45, y: 9))
+            path.curve(to: NSPoint(x: 64, y: 29),
+                       controlPoint1: NSPoint(x: 57, y: 9), controlPoint2: NSPoint(x: 64, y: 18))
+            path.curve(to: NSPoint(x: 47, y: 49),
+                       controlPoint1: NSPoint(x: 64, y: 39), controlPoint2: NSPoint(x: 57, y: 46))
+            path.line(to: NSPoint(x: 64, y: 71))
+            path.line(to: NSPoint(x: 48, y: 71))
+            path.line(to: NSPoint(x: 40, y: 59))
+            path.close()
+
+            var fit = AffineTransform(translationByX: 9, byY: 9)
+            fit.scale(0.25)
+            fit.translate(x: -34, y: -40)
+            path.transform(using: fit)
+            NSColor.black.setFill()
+            path.fill()
             return true
         }
         image.isTemplate = true

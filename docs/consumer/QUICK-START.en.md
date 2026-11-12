@@ -1,6 +1,7 @@
 # Take a screenshot and attach it
 
 1. Open the installed Riftlet app. Click its menu bar icon, choose Settings (设置), then Screenshots (截图). Check the screenshot folder (截图保存位置). If prompted, grant access to that same folder. [Installation and permissions](INSTALL-AND-PERMISSIONS.md)
+   **Before attaching for the first time**, allow Riftlet to control Chrome when macOS asks. Bring Google Chrome to the front and choose **View → Developer → Allow JavaScript from Apple Events** in the Mac menu bar. You can skip this for local screenshot collection and history. This Chrome setting lets apps with automation access execute page scripts. You can turn it off in the same menu.
 2. Press Shift–Command–4 and select a region. When macOS saves the image to a file, a thumbnail appears at the desktop edge. Holding Control copies to the clipboard only. You can also enable Riftlet’s own capture button in Screenshots.
 3. Bring the editable ChatGPT draft you intend to use to the front in Google Chrome. Click the new thumbnail once. Look for that exact image in the draft’s attachment area; existing text and attachments should remain in place.
 4. When the page begins receiving the image, Riftlet retracts its thumbnail. That is recorded as `START`. It does not certify a completed upload. You can click the next image while the first is uploading. Only you send the message. If the expected image is missing, check the page and Screenshot History (截图历史). An unconfirmed operation (结果待核实) is kept in history and never retried automatically.

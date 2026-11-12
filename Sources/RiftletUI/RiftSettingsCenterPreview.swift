@@ -42,7 +42,7 @@ final class RiftSettingsCenterPreview: NSView {
         tile.addSublayer(titleBand)
         lines.forEach { tile.addSublayer($0) }
         setAccessibilityElement(true); setAccessibilityRole(.image)
-        setAccessibilityLabel(kind == .geometry ? "布局示意，不是真实截图" : kind == .arrival ? "入缝动效示意图" : "快速吞噬示意图")
+        setAccessibilityLabel(kind == .geometry ? "截图布局示意图" : kind == .arrival ? "截图出现动效示意图" : "截图收起动效示意图")
         if kind == .geometry {
             clip.isHidden = true; edge.isHidden = true
             let drawing = RiftSettingsDesktopIllustration(frame: bounds)

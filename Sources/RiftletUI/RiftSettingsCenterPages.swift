@@ -94,8 +94,8 @@ extension RiftSettingsCenterController {
         let fine = group([
             numericRow(.numberGap, title: "编号间距", unit: "pt"),
             numericRow(.leftPadding, title: "行内留白", unit: "pt"),
-            numericRow(.minimumHitWidth, title: "最小行宽", unit: "pt"),
-            numericRow(.minimumHitHeight, title: "最小行高", unit: "pt"), legacyFieldRow!
+            numericRow(.minimumHitWidth, title: "点击区域最小宽度", unit: "pt"),
+            numericRow(.minimumHitHeight, title: "点击区域最小高度", unit: "pt"), legacyFieldRow!
         ])
         let advanced = group([
             namedLabel("layoutPreview.detail", role: "caption"),
@@ -171,7 +171,7 @@ extension RiftSettingsCenterController {
     }
 
     func motionContent() -> [NSView] {
-        let mode = popup("入缝动效", id: "arrival", titles: ArrivalMotionMode.allCases.map(\.title)) { [weak self] popup in
+        let mode = popup("截图出现动效", id: "arrival", titles: ArrivalMotionMode.allCases.map(\.title)) { [weak self] popup in
             guard ArrivalMotionMode.allCases.indices.contains(popup.indexOfSelectedItem) else { return }
             self?.dispatch(.settings(.setArrival(ArrivalMotionMode.allCases[popup.indexOfSelectedItem])))
         }
@@ -179,20 +179,20 @@ extension RiftSettingsCenterController {
         swallowPreview.identifier = .init("settings.center.swallowPreview")
         [arrivalPreview, swallowPreview].forEach { $0.heightAnchor.constraint(equalToConstant: 116).isActive = true }
         let fine = SettingsNativeStyle.stack([
-            numericRow(.pressDuration, title: "轻按反馈", unit: "ms"),
-            numericRow(.swallowDuration, title: "快速吞噬", unit: "ms"),
-            numericRow(.shiftDuration, title: "队列移位", unit: "ms"),
-            numericRow(.returnDuration, title: "失败回归", unit: "ms"),
-            SettingsNativeStyle.label("范围 0–3000 ms。这里只调整呈现时间，不修改附加、上传开始、完成或重试规则。", role: "caption")
+            numericRow(.pressDuration, title: "点击反馈", unit: "ms"),
+            numericRow(.swallowDuration, title: "接收后收起", unit: "ms"),
+            numericRow(.shiftDuration, title: "微图补位", unit: "ms"),
+            numericRow(.returnDuration, title: "附加失败后返回", unit: "ms"),
+            SettingsNativeStyle.label("每项可设为 0–3000 ms。", role: "caption")
         ], spacing: 13)
         return [group([
-            row("截图到达边缘时", detail: "选择立即保存。点击下方按钮预览。", control: mode), domainError(.arrival),
+            row("截图到达边缘时", control: mode), domainError(.arrival),
             namedLabel("motion.detail", role: "secondary"), arrivalPreview,
-            makeButton("预览入缝", id: "arrival.preview") { [weak self] in self?.playArrival() }
+            makeButton("预览出现动效", id: "arrival.preview") { [weak self] in self?.playArrival() }
         ]), group([
-            SettingsNativeStyle.label("上传开始后的快速吞噬", role: "heading"),
-            SettingsNativeStyle.label("独立于入缝偏好；预览只播放示意图，不读取或附加截图。", role: "secondary"),
-            swallowPreview, makeButton("预览吞噬", id: "swallow.preview") { [weak self] in self?.playSwallow() },
+            SettingsNativeStyle.label("ChatGPT 开始接收时", role: "heading"),
+            SettingsNativeStyle.label("预览使用示例图，不会附加到聊天。", role: "secondary"),
+            swallowPreview, makeButton("预览收起动效", id: "swallow.preview") { [weak self] in self?.playSwallow() },
             namedLabel("motion.effective", role: "caption"), disclosure("调整动效时长", id: "motion.fine", content: fine),
             makeButton("恢复动效默认值", id: "layout.defaults.motion") { [weak self] in self?.replaceDrafts(.restoreDefaults(.motion)) }
         ]), layoutSaveArea(for: .motion)]
@@ -227,7 +227,7 @@ extension RiftSettingsCenterController {
         archiveField = textField(id: "archive.minutes", accessibility: "自定义归档分钟数")
         archiveCustomRow = row("自定义时限", detail: "可输入 1–10 分钟，支持小数。", control: buttonRow([archiveField, SettingsNativeStyle.label("分钟", role: "secondary")]))
         let archive = group([
-            row("闲置后归档", control:preset),
+            row("闲置后归档", detail:"归档后可在截图历史中找回。", control:preset),
             archiveCustomRow, namedLabel("archive.detail", role: "secondary"), domainError(.archive),
             buttonRow([
                 makeButton("保存归档时限", id: "archive.save") { [weak self] in self?.flushEditor(); self?.dispatch(.settings(.applyArchive)) },
@@ -242,14 +242,14 @@ extension RiftSettingsCenterController {
             ]), namedLabel("history.detail", role: "caption")
         ])
         return [section("日常使用"),
-                row("收录系统截图", detail:"暂停收录后，已收录的截图仍可使用。", control:collection), domainError(.collection),
-                row("显示桌面截图", detail:"隐藏桌面截图时，仍按收录设置工作。", control:visibility), domainError(.visibility),
+                row("收录系统截图", detail:"关闭后，已有截图仍可使用。", control:collection), domainError(.collection),
+                row("显示桌面截图", detail:"隐藏微图仍可收录新截图。", control:visibility), domainError(.visibility),
                 namedLabel("status.title", role:"rowTitle"), namedLabel("status.detail", role:"caption"),
                 row("登录时启动 Riftlet", control:login), namedLabel("login.detail", role:"caption"),
                 buttonRow([makeButton("重试这次选择", id:"login.retry") { [weak self] in self?.dispatch(.retryLogin) },
                            makeButton("打开登录项设置…", id:"login.system") { [weak self] in self?.dispatch(.openLoginSettings) }]),
                 section("本机历史"),
-                row("浏览历史", detail:"预览、还原或移除已有截图。", control:makeButton("打开历史…", id:"history.open") { [weak self] in self?.dispatch(.openHistory) }),
+                row("截图历史", control:makeButton("打开历史…", id:"history.open") { [weak self] in self?.dispatch(.openHistory) }),
                 row("历史样式", control:displayStyle), archive, disclosure("存储与恢复",id:"restore-info",content:storage)]
     }
 
@@ -262,7 +262,8 @@ extension RiftSettingsCenterController {
             ])
         ])
         let chrome = group([
-            namedLabel("automation", role:"secondary"), namedLabel("attachment", role:"secondary"),
+            namedLabel("automation", role:"secondary"), namedLabel("chrome.menu", role:"secondary"),
+            namedLabel("attachment", role:"secondary"),
             makeButton("检查 Chrome 权限…", id:"automation.request") { [weak self] in self?.dispatch(.requestAutomation) }
         ])
         let screen = group([
@@ -282,7 +283,7 @@ extension RiftSettingsCenterController {
         recheck.bezelStyle = .inline
         return [section("访问权限", trailing: recheck),
             accessRow("截图文件夹", symbol:"folder", detail:"收录保存到系统截图目录的图片。", id:"folder", content:folder),
-            accessRow("Chrome 自动化", symbol:"globe", detail:"点击桌面截图时，附加到当前 ChatGPT 草稿。", id:"chrome", content:chrome),
+            accessRow("Chrome 一键附加", symbol:"globe", detail:"需要 macOS 自动化授权和 Chrome 菜单中的 JavaScript 开关。", id:"chrome", content:chrome),
             accessRow("屏幕录制", symbol:"rectangle.dashed", detail:"用于 Riftlet 的窗口、区域和全屏截图。", id:"screen", content:screen),
             section("使用帮助"),
             row("开始使用", detail:"从截取第一张图片到点击附加。", control:makeButton("查看引导…", id:"guide.help") { [weak self] in self?.dispatch(.openOnboarding) }),

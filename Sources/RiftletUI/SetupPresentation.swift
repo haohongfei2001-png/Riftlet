@@ -13,6 +13,12 @@ public enum SetupStorageState: Equatable, Sendable {
     case notMeasured, measuring, measured(bytes: UInt64, complete: Bool), insufficientSpace, writeFailed, unavailable
 }
 
+/// The menu belongs to Chrome. Its instructions never represent a permission observation.
+public enum ChromeAttachmentSetup {
+    public static let menuPath = "显示 → 开发者 → 允许 Apple 事件中的 JavaScript"
+    public static let instructions = "在 Chrome 菜单栏勾选“" + menuPath + "”。已获 Chrome 自动化权限的应用可执行网页脚本。"
+}
+
 /// Closed, local-only explanations. The presentation never displays an Error's
 /// description, file contents, browser identity, URL, or arbitrary remote text.
 public enum SetupIssue: Equatable, Sendable {
@@ -70,7 +76,7 @@ public enum SetupIssue: Equatable, Sendable {
         case .permissionDenied:
             return "Chrome 自动化访问被拒绝。请在系统设置的「隐私与安全性 → 自动化」中检查 Riftlet，再重新检查。"
         case .chromeJavaScriptDisabled:
-            return "Chrome 尚未允许通过 Apple 事件执行 JavaScript。截图已保留，尚未附加。请在 Chrome 的『视图 → 开发者』中启用『允许来自 Apple 事件的 JavaScript』。"
+            return "Chrome 拒绝了这次附加，截图仍在本机。" + ChromeAttachmentSetup.instructions
         case .imageUnavailable:
             return "这张截图的私有副本暂不可用。没有重新附加，也没有删除系统原图。"
         case .initializationFailed:
@@ -236,17 +242,17 @@ public struct SetupPresentation: Equatable, Sendable {
             }
             return "正在收录新截图，并保留本机私有副本。"
         case .waitingForSource: return "收录开关已开启；当前保存位置尚未确认可读，请检查来源。已有图片保留。"
-        case .paused: return "收录已暂停；已有截图保留。隐藏裂缝不会自动暂停收录。"
+        case .paused: return "收录已暂停；已有截图保留。隐藏桌面截图不会自动暂停收录。"
         case .stopped: return "当前未收录新截图；已有截图保留。"
         }
     }
 
     public var riftText: String {
         if snapshot.isHidden {
-            return "裂缝已隐藏（\(snapshot.visibleCount) 张待显示）。隐藏只影响显示，不删除图片，也不改变收录开关。"
+            return "桌面截图已隐藏（\(snapshot.visibleCount) 张待显示）。隐藏只影响显示，不删除图片，也不改变收录开关。"
         }
-        if snapshot.visibleCount == 0 { return "没有可见截图，因此屏幕上没有裂缝。" }
-        return "裂缝中有 \(snapshot.visibleCount) 张截图。"
+        if snapshot.visibleCount == 0 { return "没有可见截图。" }
+        return "桌面边缘有 \(snapshot.visibleCount) 张截图。"
     }
 
     public var pendingText: String? {
@@ -292,9 +298,14 @@ public struct SetupPresentation: Equatable, Sendable {
         }
     }
 
+    public var chromeScriptInstructions: String? {
+        guard hasAutomationCapability else { return nil }
+        return Self.displayText(snapshot.permissionDetail, limit: 700)
+    }
+
     public var permissionText: String? {
         guard let main = automationStatusText else { return nil }
-        guard let detail = Self.displayText(snapshot.permissionDetail, limit: 700) else { return main }
+        guard let detail = chromeScriptInstructions else { return main }
         return main + "\n" + detail
     }
 
@@ -333,7 +344,7 @@ public struct SetupPresentation: Equatable, Sendable {
         }
     }
     public var hasSourceLocation: Bool { Self.displayText(snapshot.sourceLocation, limit: 4_096) != nil }
-    public var hideActionTitle: String { snapshot.isHidden ? "显示裂缝" : "隐藏裂缝" }
+    public var hideActionTitle: String { snapshot.isHidden ? "显示桌面截图" : "隐藏桌面截图" }
     public var collectionActionTitle: String { snapshot.collection == .paused ? "继续收录" : "暂停收录" }
 
     private var hasAutomationCapability: Bool {

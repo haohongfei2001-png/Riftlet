@@ -9,9 +9,13 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     private let appVersion: String
     private let demo: Bool
     private var draft = FeedbackDraft()
+    // A fresh editor has no changes. Loading and successful storage operations
+    // replace this baseline, including the consent snapshot and feedback kind.
+    private var cleanDraft: FeedbackDraft? = FeedbackDraft()
     private var loaded = false
     private var busy = false
     private var autosave: Task<Void, Never>?
+    private var autosaveWriting: Task<Void, Never>?
     private var records: [FeedbackRecord] = []
     private let text = NSTextView()
     private let kind = NSPopUpButton()
@@ -178,7 +182,9 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
             return
         }
         do {
-            draft = try await engine.store.draft(); applyDraft(); loaded = true; controlsEnabled(true)
+            draft = try await engine.store.draft()
+            cleanDraft = draft
+            applyDraft(); loaded = true; controlsEnabled(true)
             status.stringValue = "草稿保存在这台 Mac；关闭不会发送。"
             await refreshRecords()
         } catch { loaded = true; controlsEnabled(true); failure() }
@@ -201,9 +207,10 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         recoveryActions.isHidden = true; retryClosesWindow = false
         updateCharacterCount()
     }
+    private var selectedKind: FeedbackKind { kind.indexOfSelectedItem == 0 ? .problem : .suggestion }
     private func nextDraft() -> FeedbackDraft {
         draft.revision += 1; draft.text = text.string
-        draft.kind = kind.indexOfSelectedItem == 0 ? .problem : .suggestion
+        draft.kind = selectedKind
         return draft
     }
     public func textDidChange(_ notification: Notification) { updateCharacterCount(); saveEdited() }
@@ -215,18 +222,38 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     }
     private func saveEdited() {
         guard loaded, !busy else { return }
-        let value = nextDraft(); autosave?.cancel()
+        let value = nextDraft()
+        autosave?.cancel()
         autosave = Task {
             do {
                 try await Task.sleep(nanoseconds: 120_000_000)
+                // A cancelled debounce must not forget an older write that the
+                // store has already accepted. Keep at most one active writer.
+                await autosaveWriting?.value
                 try Task.checkCancellation()
-                guard let persistDraft else { throw FeedbackFailure.storageUnavailable }
-                try await persistDraft(value)
-                if draft.revision == value.revision { draftSaved() }
-            } catch is CancellationError { return }
-            catch { if draft.revision == value.revision { draftSaveFailed(closeAttempt: false) } }
+                guard let persistDraft else {
+                    draftSaveFailed(closeAttempt: false)
+                    return
+                }
+                autosaveWriting = Task {
+                    do {
+                        try await persistDraft(value)
+                        cleanDraft = value
+                        if draft.revision == value.revision { draftSaved() }
+                    } catch {
+                        if draft.revision == value.revision { draftSaveFailed(closeAttempt: false) }
+                    }
+                }
+            } catch { return }
         }
     }
+    private func finishAutosave() async {
+        autosave?.cancel()
+        autosave = nil
+        await autosaveWriting?.value
+        autosaveWriting = nil
+    }
+
     private func failure() {
         status.stringValue = "未能可靠保存或处理反馈；文字仍在这里。请保留窗口或复制正文，不会报告发送成功。"
     }
@@ -253,7 +280,8 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         guard !text.hasMarkedText() else {
             status.stringValue = "请先完成当前文字输入，再保存并关闭。"; return false
         }
-        busy = true; controlsEnabled(false); autosave?.cancel()
+        busy = true; controlsEnabled(false)
+        await finishAutosave()
         status.stringValue = closeAttempt ? "正在保存草稿；保存完成后才能关闭。" : "正在保存草稿；不会发送。"
         var saved = false
         defer {
@@ -261,13 +289,23 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
             // No new editing may enter between this save and the final quit reply.
             if !lockOnSuccess || !saved { busy = false; controlsEnabled(true) }
         }
+        if let cleanDraft, cleanDraft.text == text.string, cleanDraft.kind == selectedKind,
+           cleanDraft.diagnostic == draft.diagnostic {
+            saved = true
+            return true
+        }
         guard let persistDraft else {
-            saved = text.string.isEmpty
-            if !saved { draftSaveFailed(closeAttempt: closeAttempt) }
-            return saved
+            draftSaveFailed(closeAttempt: closeAttempt)
+            return false
         }
         let value = nextDraft()
-        do { try await persistDraft(value); saved = true; draftSaved(); return true }
+        do {
+            try await persistDraft(value)
+            cleanDraft = value
+            saved = true
+            draftSaved()
+            return true
+        }
         catch { draftSaveFailed(closeAttempt: closeAttempt); return false }
     }
     public func windowShouldClose(_ sender: NSWindow) -> Bool {
@@ -319,10 +357,13 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     func submitCurrentDraft() async {
         guard loaded, !busy, let engine else { failure(); return }
         guard !text.hasMarkedText() else { return }
-        let value = nextDraft(); busy = true; controlsEnabled(false); autosave?.cancel()
+        let value = nextDraft(); busy = true; controlsEnabled(false)
+        await finishAutosave()
         do {
             let id = try await engine.enqueue(value, appVersion: appVersion)
-            draft = FeedbackDraft(revision: value.revision + 1); applyDraft()
+            draft = FeedbackDraft(revision: value.revision + 1)
+            cleanDraft = draft
+            applyDraft()
             status.stringValue = "已保存在本机，等待接收。编号 RF-\(id)"
             busy = false; controlsEnabled(true)
             await refreshRecords()
@@ -331,6 +372,8 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
                 status.stringValue = "\(demo ? "离线演示（非云端）：" : "")\(record.label)。编号 RF-\(id)"
             }
         } catch {
+            // Enqueue can persist the draft and then fail to create the report.
+            cleanDraft = try? await engine.store.draft()
             busy = false; controlsEnabled(true)
             switch error {
             case FeedbackFailure.invalidText:

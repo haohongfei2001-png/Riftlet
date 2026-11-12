@@ -25,7 +25,7 @@ final class RiftOnboardingControllerTests: XCTestCase {
         var value = SettingsProductSnapshot(revision: revision,
             setup: .init(sourceLocation: "/tmp/synthetic-only-screenshot-folder", source: source,
                          collection: .paused, isHidden: true, attachment: .available, permission: permission,
-                         permissionDetail: "在 Chrome 显示 → 开发者中允许来自 Apple Events 的 JavaScript。自动化与此选项分别确认。"),
+                         permissionDetail: ChromeAttachmentSetup.instructions),
             state: model.snapshot)
         value.capabilities.initialized = true
         value.capabilities.canChooseSource = true
@@ -91,6 +91,37 @@ final class RiftOnboardingControllerTests: XCTestCase {
         XCTAssertTrue(capability.stringValue.contains("隔离审核"))
         XCTAssertTrue(capability.stringValue.contains("不连接浏览器或上传"))
         XCTAssertFalse(controller.isVisible)
+    }
+
+    @MainActor func testChromeMenuPathIsVisibleBeforeFirstClickEvenWhenAutomationIsGranted() throws {
+        try prepareAppKit()
+        let controller = RiftOnboardingController { _ in XCTFail("Showing setup must not contact Chrome") }
+        defer { controller.closeForTeardown() }
+        let state = try model()
+        controller.update(fixture(state, source: .accessible, permission: .granted))
+        XCTAssertTrue(controller.show())
+        try button(controller, "onboarding.next").performClick(nil)
+        let instructions = try XCTUnwrap(controller.control(identifier: "onboarding.scriptStatus") as? NSTextField)
+        controller.window.contentView?.layoutSubtreeIfNeeded()
+        XCTAssertFalse(instructions.isHiddenOrHasHiddenAncestor)
+        XCTAssertTrue(instructions.stringValue.contains("显示 → 开发者 → 允许 Apple 事件中的 JavaScript"))
+        let viewport = try XCTUnwrap(instructions.enclosingScrollView?.contentView)
+        XCTAssertGreaterThan(instructions.bounds.height, 0)
+        let parent = try XCTUnwrap(instructions.superview)
+        let textRect = parent.convert(instructions.alignmentRect(forFrame: instructions.frame), to: viewport)
+        XCTAssertTrue(viewport.bounds.insetBy(dx: -1, dy: -1).contains(textRect))
+        var blocked = fixture(state, revision: 2)
+        blocked.setup = .init(source: .accessible, attachment: .available, permission: .granted,
+                              permissionDetail: ChromeAttachmentSetup.instructions, issue: .chromeJavaScriptDisabled)
+        controller.update(blocked)
+        try button(controller, "onboarding.next").performClick(nil)
+        let finish = try XCTUnwrap(controller.control(identifier: "onboarding.finishHint") as? NSTextField)
+        XCTAssertTrue(finish.stringValue.contains(ChromeAttachmentSetup.menuPath))
+        XCTAssertFalse(finish.stringValue.contains("点屏幕边缘的微图"))
+        var offline = fixture(state, revision: 3)
+        offline.setup = .init(attachment: .offlineSimulation, permissionDetail: ChromeAttachmentSetup.instructions)
+        controller.update(offline)
+        XCTAssertTrue(instructions.isHiddenOrHasHiddenAncestor)
     }
 
     @MainActor func testDefaultPlacementStepShowsAllSixChoicesWithoutScrolling() throws {

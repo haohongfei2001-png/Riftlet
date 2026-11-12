@@ -125,9 +125,9 @@ final class RiftSetupControllerTests: XCTestCase {
         defer { controller.close() }
         controller.update(snapshot: .init(collection: .paused, isHidden: true))
         let hide = try button("setup.hide"), pause = try button("setup.pause")
-        XCTAssertEqual(hide.title, "显示裂缝")
+        XCTAssertEqual(hide.title, "显示桌面截图")
         XCTAssertEqual(pause.title, "继续收录")
-        XCTAssertEqual(hide.accessibilityLabel(), "显示裂缝")
+        XCTAssertEqual(hide.accessibilityLabel(), "显示桌面截图")
         XCTAssertEqual(pause.accessibilityLabel(), "继续收录")
         XCTAssertEqual(try button("setup.done").keyEquivalent, "\r")
         hide.performClick(nil)

@@ -20,6 +20,50 @@ final class FeedbackCloseTests: XCTestCase {
         if let button = view as? NSButton, button.title.hasPrefix("附带最近") { return button }
         return view.subviews.compactMap { consent(in: $0) }.first
     }
+    @MainActor func testUnchangedDraftCanCloseWhenStorageBecomesUnwritable() async throws {
+        for initialText in ["", "already saved"] {
+            let (store, controller) = try fixture()
+            await controller.waitUntilLoaded()
+            if !initialText.isEmpty {
+                let text = try XCTUnwrap(editor(in: try XCTUnwrap(controller.window?.contentView)))
+                text.string = initialText
+                controller.textDidChange(Notification(name: NSText.didChangeNotification))
+                let saved = await controller.saveBeforeClosing()
+                XCTAssertTrue(saved)
+            }
+            let before = try await store.draft()
+            controller.persistDraft = { _ in throw FeedbackFailure.storageUnavailable }
+            let accepted = await controller.saveBeforeClosing(lockOnSuccess: true)
+            XCTAssertTrue(accepted)
+            XCTAssertFalse(controller.isEditingEnabled)
+            let after = try await store.draft()
+            XCTAssertEqual(after, before)
+        }
+    }
+
+    @MainActor func testDeletingSavedTextAndChangingConsentStillRequirePersistence() async throws {
+        let (store, controller) = try fixture()
+        await controller.waitUntilLoaded()
+        let content = try XCTUnwrap(controller.window?.contentView)
+        let text = try XCTUnwrap(editor(in: content))
+        text.string = "previously saved"
+        controller.textDidChange(Notification(name: NSText.didChangeNotification))
+        let saved = await controller.saveBeforeClosing()
+        XCTAssertTrue(saved)
+        controller.persistDraft = { _ in throw FeedbackFailure.storageUnavailable }
+        text.string = ""
+        controller.textDidChange(Notification(name: NSText.didChangeNotification))
+        let deleted = await controller.saveBeforeClosing()
+        XCTAssertFalse(deleted)
+        let durable = try await store.draft()
+        XCTAssertEqual(durable.text, "previously saved")
+        text.string = durable.text
+        try XCTUnwrap(consent(in: content)).performClick(nil)
+        let changedConsent = await controller.saveBeforeClosing()
+        XCTAssertFalse(changedConsent)
+        XCTAssertTrue(controller.diagnosticSelected)
+    }
+
     @MainActor func testEveryCloseAttemptFlushesEvenAfterPriorProgrammaticClose() async throws {
         let (store, controller) = try fixture(); await controller.waitUntilLoaded()
         let window = try XCTUnwrap(controller.window)

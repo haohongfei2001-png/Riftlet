@@ -93,6 +93,32 @@ final class FeedbackWindowTests: XCTestCase {
             await engine.stop()
         }
     }
+    @MainActor func testClosePreservesRevertedEditWhileEarlierAutosaveIsAlreadyWriting() async throws {
+        let (store, engine, _, controller) = try fixture(); await controller.waitUntilLoaded()
+        let editor = try editor(controller)
+        let gate = HeldDraftWrite()
+        let firstWritten = expectation(description: "intermediate edit finished writing")
+        controller.persistDraft = { value in
+            if !value.text.isEmpty { try await gate.save(value) }
+            try await store.saveDraft(value)
+            if !value.text.isEmpty { firstWritten.fulfill() }
+        }
+        editor.string = "intermediate"
+        controller.textDidChange(Notification(name: NSText.didChangeNotification))
+        _ = await gate.waitUntilEntered()
+        editor.string = ""
+        controller.textDidChange(Notification(name: NSText.didChangeNotification))
+        let closing = Task { @MainActor in await controller.saveBeforeClosing(lockOnSuccess: true) }
+        await Task.yield()
+        await gate.finish(failed: false)
+        let accepted = await closing.value
+        await fulfillment(of: [firstWritten], timeout: 3)
+        let durable = try await store.draft()
+        XCTAssertTrue(accepted)
+        XCTAssertEqual(durable.text, "")
+        XCTAssertFalse(controller.isEditingEnabled)
+        await engine.stop()
+    }
     @MainActor func testConsentFreezesExactPreviewAndFreshDraftResetsIt() async throws {
         let (store, engine, diagnostics, controller) = try fixture(); await controller.waitUntilLoaded()
         diagnostics.record(.queueUnknown); diagnostics.record(.visibilitySwallowed)

@@ -25,14 +25,6 @@ public enum SettingsPage: String, CaseIterable, Sendable {
         case .help: return "hand.raised"
         }
     }
-    var subtitle: String {
-        switch self {
-        case .display, .motion: return "让截图停在顺手的屏幕边缘。"
-        case .capture: return "选择收录位置，以及如何开始截图。"
-        case .general, .history: return "管理截图收录，随时找回本机上的图片。"
-        case .help: return "按需要的功能检查访问权限。"
-        }
-    }
 }
 
 public enum SettingsAppearanceChoice: String, CaseIterable, Sendable {

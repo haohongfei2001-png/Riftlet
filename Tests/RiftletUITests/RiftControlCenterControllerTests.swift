@@ -156,7 +156,7 @@ final class RiftControlCenterControllerTests: XCTestCase {
                     entryEnabled: false, entryAvailable: available))
                 XCTAssertFalse(closed.primaryEnabled)
                 XCTAssertTrue(closed.captureHint?.contains("已关闭") == true)
-                XCTAssertFalse(closed.captureHint?.contains("显示裂缝后，可以使用") == true)
+                XCTAssertFalse(closed.captureHint?.contains("显示桌面截图后，可以使用") == true)
             }
         }
         let unavailable = RiftControlCenterPresentation(fixture(hidden: true, entryAvailable: false))
@@ -175,6 +175,51 @@ final class RiftControlCenterControllerTests: XCTestCase {
         XCTAssertTrue(value.detail.contains("不会上传"))
         XCTAssertFalse(value.detail.contains("即可附加"))
         XCTAssertTrue(value.captureHint?.contains("隔离审核") == true)
+    }
+
+    @MainActor func testStatusItemUsesOfficialRiftletForegroundAsTemplate() throws {
+        try prepareAppKit()
+        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        defer { NSStatusBar.system.removeStatusItem(item) }
+        let controller = RiftControlCenterController(statusItem: item) { _ in }
+        defer { controller.close() }
+        let image = try XCTUnwrap(item.button?.image)
+        XCTAssertTrue(image.isTemplate)
+        XCTAssertEqual(image.size, NSSize(width: 18, height: 18))
+
+        let repo = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+            .deletingLastPathComponent().deletingLastPathComponent()
+        let svg = try XMLDocument(contentsOf: repo.appendingPathComponent("website-assets/riftlet.svg"))
+        let paths = try svg.nodes(forXPath: "//*[local-name()='g']/*[local-name()='path']")
+        XCTAssertEqual(paths.count, 2)
+        let artwork = paths.map(\.xmlString).joined()
+        let foreground = """
+            <svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="-2 4 72 72">
+              \(artwork)
+            </svg>
+            """
+        let reference = try XCTUnwrap(NSImage(data: Data(foreground.utf8)))
+        // Compare per-pixel coverage of the actual button image and canonical mark.
+        for scale in [1, 2] {
+            let side = 18 * scale
+            func alpha(_ source: NSImage) throws -> [UInt8] {
+                let context = try XCTUnwrap(CGContext(data: nil, width: side, height: side,
+                    bitsPerComponent: 8, bytesPerRow: side * 4, space: CGColorSpaceCreateDeviceRGB(),
+                    bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue))
+                NSGraphicsContext.saveGraphicsState()
+                defer { NSGraphicsContext.restoreGraphicsState() }
+                NSGraphicsContext.current = NSGraphicsContext(cgContext: context, flipped: false)
+                source.draw(in: NSRect(x: 0, y: 0, width: side, height: side),
+                            from: .zero, operation: .copy, fraction: 1)
+                let bytes = try XCTUnwrap(context.data).assumingMemoryBound(to: UInt8.self)
+                return (0..<(side * side)).map { bytes[$0 * 4 + 3] }
+            }
+            let expected = try alpha(reference)
+            let actual = try alpha(image)
+            XCTAssertGreaterThan(expected.filter { $0 > 127 }.count, side * side / 4)
+            let error = zip(expected, actual).reduce(0) { $0 + abs(Int($1.0) - Int($1.1)) }
+            XCTAssertLessThan(Double(error) / Double(255 * side * side), 0.025, "Scale \(scale)×")
+        }
     }
 
     @MainActor func testUpdateIsPassivePreservesControlsAndRejectsOldRevisions() throws {

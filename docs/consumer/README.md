@@ -2,7 +2,7 @@
 
 Riftlet 在桌面边缘呈现新截图。把要用的 ChatGPT 草稿放到 Chrome 前台，点一下微图，就能在该草稿中附加这张图片。消息由你发送。
 
-本指南适用于准备中的首批四人私测候选 **Riftlet 0.3.5 (19)**，目标系统为 macOS 13 及以上的 Apple 芯片和 Intel Mac。个人已安装的 build 18 在共享 Mac 的其他账户上存在启动权限问题，继续供原安装者使用。首批安装包尚未发放。
+本指南适用于 **Riftlet 0.3.5 (19)**，支持 macOS 13 及以上的 Apple 芯片和 Intel Mac。首次使用一键附加，请按下方指南分别设置 macOS 自动化和 Chrome 的 Apple 事件 JavaScript 开关。
 
 | 想做什么 | 从这里开始 |
 | --- | --- |

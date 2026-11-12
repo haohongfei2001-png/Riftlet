@@ -2,9 +2,9 @@
 
 macOS 正常截图，图片停在桌面边缘；点一下微图，附加到当前 Chrome 的 ChatGPT 草稿。页面开始接收图片后微图收起，可以继续附加下一张。Riftlet 不发送聊天消息。
 
-当前个人安装为 **Riftlet 0.3.5 (18)**，对应正式 main `b2983a60725ec733cb2f4a799bd615cb21f20dd4`。这个版本的通用 App 与 DMG 已签名、公证；在安装者的 Mac 账户中提供截图托盘、风铃和微缝。
+候选版本 **0.3.5 (19)** 支持 macOS 13 及以上的 Apple 芯片和 Intel Mac，App 和 DMG 均已通过 Apple 公证。build 19 修复了共享安装目录的读取与执行权限，已完成管理员账户首次安装。非管理员图形首开尚未完整验证。
 
-**首批四人私测候选为 0.3.5 (19)，尚未发放。** 在隔离 Mac 的共享「应用程序」中，build 18 的权限阻止了其他非特权账户读取和执行 Riftlet，已停止用它准备新分发。build 19 须以自己的安装包完成签名、公证和跨账户验收。真实 ChatGPT 连续双图附加仍为 `NOT_RUN`，维护者负责在可核实的独立草稿补验。
+一键附加需要 macOS 允许 Riftlet 控制 Chrome，并在 Chrome 的「显示 → 开发者」中勾选「允许 Apple 事件中的 JavaScript」。只用 Riftlet 收录和查看本地截图时可跳过。两张截图连续进入同一草稿的真实验收在 build 18 上通过；build 19 的附件实现与其一致。
 
 ## 使用与支持
 
@@ -26,7 +26,7 @@ macOS 正常截图，图片停在桌面边缘；点一下微图，附加到当�
 - [手动更新与完整回退](docs/release/MANUAL_UPDATE_AND_RECOVERY.md)
 - [离线备份与恢复工具](docs/STORAGE_RECOVERY.md)
 - [2026-11-07 三层 Beta 准入记录（历史）](engineering/productization-20261107/RELEASE-READINESS.md)
-- [首批四人私测发放清单](engineering/productization-20261107/consumer/CLOSED-BETA-PLAN.md)：本轮未邀请外部人员、未公开下载、未添加遥测。
+- [历史私测准备清单](engineering/productization-20261107/consumer/CLOSED-BETA-PLAN.md)（历史）
 
 开发要求 macOS 13+；完整 XCTest 需要含 XCTest 的 Xcode 环境。以下开发构建使用 ad-hoc 签名，不是已公证的公开安装包：
 
