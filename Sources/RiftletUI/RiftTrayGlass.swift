@@ -85,6 +85,7 @@ final class RiftTrayGlass: NSView {
     private let wash = CAGradientLayer()
     private let overlay = NSView()
     private var maskSize = CGSize.zero
+    var showsBodyStroke = true { didSet { if oldValue != showsBodyStroke { needsLayout = true } } }
 
     override init(frame: NSRect) {
         #if compiler(>=6.2)
@@ -149,7 +150,7 @@ final class RiftTrayGlass: NSView {
         CATransaction.setDisableActions(true)
         wash.frame = overlay.bounds
         wash.cornerRadius = radius
-        wash.borderWidth = max(1 / (window?.backingScaleFactor ?? 1), bounds.width / 328)
+        wash.borderWidth = showsBodyStroke ? max(1 / (window?.backingScaleFactor ?? 1), bounds.width / 328) : 0
         CATransaction.commit()
         if maskSize != bounds.size, !bounds.isEmpty {
             maskSize = bounds.size

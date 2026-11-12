@@ -1,12 +1,25 @@
 import AppKit
 
 /// WindowServer exposes window bounds in desktop points with a top-left origin.
-/// Saytile's current voice panel uses its whole window for the glass. Query
+/// The voice window bounds are the rail slot, not necessarily the card. Query
 /// only geometry: no AX events, screen capture or access to its preferences.
 enum SaytilePanelGeometry {
-    static let bundleID = "app.saytile.mac"
+    struct Window: Equatable {
+        let pid: pid_t
+        let number: UInt32
+        let frame: CGRect
+    }
 
-    @MainActor static func visibleFrame(on target: NSScreen) -> CGRect? {
+    static func companionID(for localID: String?) -> String? {
+        switch localID {
+        case "com.riftlet.app": return "app.saytile.mac"
+        case "com.riftlet.local-tray-preview": return "app.saytile.local-rail-preview"
+        default: return nil
+        }
+    }
+
+    @MainActor static func visibleWindow(on target: NSScreen) -> Window? {
+        guard let bundleID = companionID(for: Bundle.main.bundleIdentifier) else { return nil }
         let owners = Set(NSRunningApplication.runningApplications(withBundleIdentifier: bundleID)
             .filter { !$0.isTerminated }.map(\.processIdentifier))
         let screens = NSScreen.screens
@@ -14,14 +27,15 @@ enum SaytilePanelGeometry {
               let windows = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements],
                                                        kCGNullWindowID) as? [[String: Any]] else { return nil }
         let frames = screens.map(\.frame)
-        return voicePanel(in: windows, owners: owners, primaryTop: primary.frame.maxY,
+        return voiceWindow(in: windows, owners: owners, primaryTop: primary.frame.maxY,
                           displays: frames, target: target.frame)
     }
 
-    static func voicePanel(in windows: [[String: Any]], owners: Set<pid_t>, primaryTop: CGFloat,
-                           displays: [CGRect], target: CGRect) -> CGRect? {
+    static func voiceWindow(in windows: [[String: Any]], owners: Set<pid_t>, primaryTop: CGFloat,
+                           displays: [CGRect], target: CGRect) -> Window? {
         for info in windows {
-            guard let pid = info[kCGWindowOwnerPID as String] as? NSNumber, owners.contains(pid.int32Value),
+            guard let id = info[kCGWindowNumber as String] as? UInt32, id != 0,
+                  let pid = info[kCGWindowOwnerPID as String] as? NSNumber, owners.contains(pid.int32Value),
                   info[kCGWindowLayer as String] as? Int == NSWindow.Level.floating.rawValue,
                   (info[kCGWindowAlpha as String] as? CGFloat ?? 1) > 0,
                   let bounds = info[kCGWindowBounds as String] as? NSDictionary,
@@ -38,7 +52,7 @@ enum SaytilePanelGeometry {
                 return r.isEmpty ? 0 : r.width * r.height
             }
             guard area(on: target) > 0, displays.max(by: { area(on: $0) < area(on: $1) }) == target else { continue }
-            return frame
+            return Window(pid: pid.int32Value, number: id, frame: frame)
         }
         return nil
     }

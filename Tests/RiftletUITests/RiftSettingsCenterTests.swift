@@ -301,6 +301,44 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertEqual(field.stringValue, "83.2500", "Blurred drafts retain formatting, too")
     }
 
+    @MainActor func testPairedPreviewSwitchDrawsOneEnclosureOrTwoBareCardsWithoutSaving() throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        var settings = h.owner.settings
+        settings.configuration.desktopForm = .tray
+        h.receive(settings)
+        let preview = h.controller.geometryPreview
+        let selector: NSSegmentedControl = try control(h, "tray.borderPreview")
+        XCTAssertFalse(h.controller.trayBorderPreviewRow.isHidden)
+        XCTAssertEqual(selector.selectedSegment, 0)
+        let rect = CGRect(x: 0.5, y: 0.5, width: 523, height: 114)
+        let bordered = TrayPlacementIllustration.frames(in: rect, configuration: settings.configuration, twoRows: true,
+                                                         withSaytile: true, framed: true, flipped: true)
+        let outer = try XCTUnwrap(bordered.outer)
+        let card = try XCTUnwrap(bordered.saytile)
+        XCTAssertTrue(outer.contains(card) && outer.contains(bordered.tray))
+        XCTAssertLessThan(bordered.tray.width, outer.width)
+        XCTAssertEqual(bordered.tray.width, card.width, accuracy: 0.1)
+        XCTAssertEqual(bordered.tray.maxX, card.maxX, accuracy: 0.1)
+
+        try change(h, "tray.borderPreview", index: 1)
+        XCTAssertFalse(preview.previewSaytileBorder)
+        XCTAssertTrue(preview.geometrySummary.contains("无外框"))
+        let borderless = TrayPlacementIllustration.frames(in: rect, configuration: settings.configuration, twoRows: true,
+                                                           withSaytile: true, framed: false, flipped: false)
+        XCTAssertNil(borderless.outer)
+        let fullWidth = try XCTUnwrap(borderless.saytile)
+        XCTAssertGreaterThan(fullWidth.width, card.width)
+        XCTAssertEqual(fullWidth.width, borderless.tray.width, accuracy: 0.1)
+        XCTAssertEqual(fullWidth.maxX, borderless.tray.maxX, accuracy: 0.1)
+        h.publish()
+        XCTAssertEqual(selector.selectedSegment, 1)
+        XCTAssertFalse(h.model.hasLayoutDraft)
+        XCTAssertTrue(h.requests.isEmpty)
+        settings.configuration.trayFollowsSaytile = false
+        h.receive(settings)
+        XCTAssertTrue(h.controller.trayBorderPreviewRow.isHidden)
+    }
+
     @MainActor func testTrayControlsApplyScaleSignedOffsetsAndStandalonePlacement() async throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
         h.controller.show(page: .display)

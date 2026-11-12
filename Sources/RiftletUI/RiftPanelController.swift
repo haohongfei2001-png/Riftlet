@@ -594,7 +594,8 @@ public final class RiftPanelController {
     private let formSurface = RiftPanel(frame: .zero, decorative: true)
     private var saytileTimer: Timer?
     private var trackedTrayDisplay: CGRect?
-    private var saytileFrame: CGRect?
+    private let rail = SaytileRailSession()
+    private var saytileAnchor: SaytileTrayAnchor?
     private var trayMenu: RiftTrayMenuState?
     private var trayExpanded: Bool { trayMenu != nil }
     // Keep the original bitmap and UUID for the return trip. Its input islands
@@ -790,7 +791,8 @@ public final class RiftPanelController {
 
     private func stopSaytileTracking() {
         saytileTimer?.invalidate(); saytileTimer = nil
-        trackedTrayDisplay = nil; saytileFrame = nil
+        trackedTrayDisplay = nil; saytileAnchor = nil
+        rail.stop()
     }
 
     private func configureSaytileTimer() {
@@ -808,12 +810,16 @@ public final class RiftPanelController {
     }
 
     private func refreshSaytileFrame(on screen: NSScreen) {
-        guard !closed, !captureSuppressed, trackedTrayDisplay == screen.frame, !gate.isHolding, !transitioning,
+        guard !closed, !captureSuppressed, trackedTrayDisplay == screen.frame else { return }
+        // Keep the host alive during a capture menu, a hold or an animation, but
+        // never move the current click target until that interaction has settled.
+        rail.track(SaytilePanelGeometry.visibleWindow(on: screen), tray: formSurface)
+        guard !gate.isHolding, !transitioning,
               !interaction.snapshot.blocksAutomaticArchive, !captureSessionActive, !trayExpanded,
               !detailPresented, peek.assetID == nil, pendingRefillRecords == nil, deferredRecords == nil else { return }
-        let frame = SaytilePanelGeometry.visibleFrame(on: screen)
-        guard frame != saytileFrame else { return }
-        saytileFrame = frame
+        let next = rail.anchor
+        guard next != saytileAnchor else { return }
+        saytileAnchor = next
         apply(lastRecords)
     }
 
@@ -1020,6 +1026,7 @@ public final class RiftPanelController {
         guard !closed, suppressed != captureSuppressed else { return }
         captureSuppressed = suppressed
         if suppressed {
+            rail.detach()
             cancelDecorations(reason: .cancelled); pager.hide()
             allPresentationPanels.forEach { $0.orderOut(nil) }
         } else if !userHidden {
@@ -1389,7 +1396,8 @@ public final class RiftPanelController {
                                        firstVisibleIndex: firstVisibleIndex, backingScale: scale,
                                        captureEnabled: trayCaptureEnabled, menu: trayMenu,
                                        displayFrame: screen.frame,
-                                       saytileGlassFrame: trackedTrayDisplay == screen.frame ? saytileFrame : nil)
+                                       saytileGlassFrame: trackedTrayDisplay == screen.frame ? saytileAnchor?.bodyFrame : nil,
+                                       saytileOuterInset: trackedTrayDisplay == screen.frame ? saytileAnchor?.rim ?? 0 : 0)
         case .windChime:
             return RiftWindChimeLayout.make(records: records, visibleFrame: frame, configuration: configuration,
                                             firstVisibleIndex: firstVisibleIndex, backingScale: scale,
@@ -1431,7 +1439,9 @@ public final class RiftPanelController {
     }
 
     private func setFormFrame(_ frame: CGRect) {
+        let changed = frame != formSurface.frame
         formSurface.setFrame(frame, display: true)
+        if changed && formSurface.isVisible && !captureSuppressed { rail.pulse() }
         if let shadow = decoration.contentView as? RiftTrayCastShadow {
             decoration.setFrame(shadow.configure(for: frame, colors: configuration.trayColors), display: true)
         }
@@ -1469,6 +1479,7 @@ public final class RiftPanelController {
             view.onCancelCapture = { [weak self] in self?.onTrayCancel?($0) }
             view.onScroll = { [weak self] in self?.scroll($0) }
         }
+        view.showsBodyStroke = saytileAnchor?.framed != false
         view.setCaptureSession(trayCaptureSessionID, reduceMotion: reduceMotion)
         view.update(layout: layout, colors: configuration.trayColors, defaultMode: trayDefaultMode,
                     favoriteModes: configuration.trayFavoriteModes(defaultMode: trayDefaultMode),
@@ -1499,7 +1510,8 @@ public final class RiftPanelController {
             && (trayCaptureEnabled || records.contains { $0.visibility == .visible }) {
             if trackedTrayDisplay != screen.frame {
                 trackedTrayDisplay = screen.frame
-                saytileFrame = SaytilePanelGeometry.visibleFrame(on: screen)
+                rail.track(SaytilePanelGeometry.visibleWindow(on: screen), tray: formSurface)
+                saytileAnchor = rail.anchor
                 configureSaytileTimer()
             }
         } else if trackedTrayDisplay != nil {
@@ -2142,7 +2154,7 @@ public final class RiftPanelController {
         guard !closed else { return }
         cancelDecorations(reason: .closed); flight.close()
         finishQueueAnimation = nil; queueTransitionEpoch &+= 1
-        closed = true; saytileTimer?.invalidate(); saytileTimer = nil
+        closed = true; stopSaytileTracking()
         generation &+= 1; gate.cancel()
         pressRegions.removeAll(); shortAnimationTokens.removeAll()
         selectionVersions.removeAll(); hoveredIDs.removeAll(); pointerApproach.update(hovered: []); feedbackStates.removeAll()

@@ -327,6 +327,10 @@ final class RiftTraySurfaceView: NSView {
     var onScroll: ((NSEvent) -> Void)?
 
     private let glass = RiftTrayGlass(frame: .zero)
+    var showsBodyStroke: Bool {
+        get { glass.showsBodyStroke }
+        set { glass.showsBodyStroke = newValue }
+    }
     private let captureKey = TrayButton(frame: .zero)
     private let favorites = (0..<3).map { _ in TrayButton(frame: .zero) }
     private var showingMenu = false

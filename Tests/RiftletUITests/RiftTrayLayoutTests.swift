@@ -125,6 +125,54 @@ final class RiftTrayLayoutTests: XCTestCase {
         }
     }
 
+    func testBuild321VoiceCardIsTheTrayAnchorWithAndWithoutARail() {
+        let screen = CGRect(x: -1672, y: -200, width: 1672, height: 910)
+        let outer = CGRect(x: -325, y: 494, width: 325, height: 173)
+        let records = assets(3)
+        for framed in [true, false] {
+            let anchor = SaytileTrayAnchor(outerFrame: outer, framed: framed)
+            XCTAssertEqual(anchor.rim, framed ? 10 : 0)
+            XCTAssertEqual(anchor.bodyFrame.width, framed ? 305 : 325)
+            var c = RiftConfiguration()
+            func measure(_ count: Int) -> CGRect {
+                RiftTrayLayout.make(records: Array(records.prefix(count)), visibleFrame: screen,
+                                    configuration: c, firstVisibleIndex: 0, backingScale: 2, captureEnabled: true,
+                                    saytileGlassFrame: anchor.bodyFrame, saytileOuterInset: anchor.rim).surfaceFrame
+            }
+            for count in [0, 1, 2, 3] {
+                let tray = measure(count)
+                XCTAssertEqual(tray.width, anchor.bodyFrame.width)
+                XCTAssertEqual(tray.minX, anchor.bodyFrame.minX)
+                XCTAssertEqual(tray.maxY, anchor.bodyFrame.minY - c.trayCompanionGap)
+                XCTAssertTrue(screen.contains(anchor.bodyFrame.union(tray).insetBy(dx: -anchor.rim, dy: -anchor.rim)))
+            }
+            c.trayHorizontalOffset = 100
+            c.trayScalePercent = 120
+            let adjusted = measure(3)
+            XCTAssertEqual(adjusted.width, anchor.bodyFrame.width * 1.2, accuracy: 0.25)
+            XCTAssertEqual(adjusted.maxX + anchor.rim, screen.maxX)
+        }
+        XCTAssertEqual(SaytileTrayAnchor(outerFrame: CGRect(x: 0, y: 0, width: 650, height: 150), framed: true).rim, 15)
+        XCTAssertEqual(SaytileTrayAnchor(outerFrame: CGRect(x: 0, y: 0, width: 325, height: 24), framed: true).rim, 6)
+    }
+
+    func testSharedRailClearsDesktopBottomAndIsIgnoredWhenDetached() {
+        let screen = CGRect(x: -600, y: -300, width: 800, height: 800)
+        let outer = CGRect(x: -140, y: -110, width: 325, height: 173)
+        let anchor = SaytileTrayAnchor(outerFrame: outer, framed: true)
+        var c = RiftConfiguration()
+        func measure(inset: CGFloat) -> CGRect {
+            RiftTrayLayout.geometry(visibleFrame: screen, configuration: c, twoRows: true, backingScale: 2,
+                                    saytileGlassFrame: anchor.bodyFrame, saytileOuterInset: inset).frame
+        }
+        let tray = measure(inset: anchor.rim)
+        XCTAssertTrue(screen.contains(tray.insetBy(dx: -anchor.rim, dy: -anchor.rim)))
+        XCTAssertEqual(tray.minY, screen.minY + anchor.rim)
+        XCTAssertLessThanOrEqual(tray.maxY, anchor.bodyFrame.minY)
+        c.trayFollowsSaytile = false
+        XCTAssertEqual(measure(inset: anchor.rim), measure(inset: 0))
+    }
+
     func testCompanionKeepsOneAndTwoRowsRightAlignedBelowSaytileAtTheRequestedGap() {
         let screen = CGRect(x: -1672, y: -200, width: 1672, height: 910)
         let saytile = CGRect(x: -311, y: 500, width: 295, height: 145)

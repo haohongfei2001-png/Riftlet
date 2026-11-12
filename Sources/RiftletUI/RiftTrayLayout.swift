@@ -1,6 +1,21 @@
 import Foundation
 import RiftletCore
 
+/// The Saytile voice slot in screen coordinates. Its optional outer rail and
+/// its visible voice card have different bounds when the border is enabled.
+struct SaytileTrayAnchor: Equatable {
+    let outerFrame: CGRect
+    let framed: Bool
+
+    var rim: CGFloat {
+        guard framed, !outerFrame.isEmpty, !outerFrame.isInfinite else { return 0 }
+        // Saytile build 321, VoiceRailMetrics.cardFrame(in:).
+        return min(10 * min(1.5, outerFrame.width / 325), min(outerFrame.width, outerFrame.height) / 4)
+    }
+
+    var bodyFrame: CGRect { outerFrame.insetBy(dx: rim, dy: rim) }
+}
+
 /// A menu belongs to the viewport from which its camera was opened. A later
 /// capture can create an upper row even when that same UUID would have been
 /// pushed out had it already existed at opening.
@@ -39,7 +54,8 @@ struct RiftTrayMenuState {
 enum RiftTrayLayout {
     static func geometry(visibleFrame: CGRect, configuration c: RiftConfiguration, twoRows: Bool,
                          backingScale: Double, displayFrame: CGRect? = nil,
-                         saytileGlassFrame: CGRect? = nil) -> (frame: CGRect, verticalUnit: CGFloat) {
+                         saytileGlassFrame: CGRect? = nil,
+                         saytileOuterInset: CGFloat = 0) -> (frame: CGRect, verticalUnit: CGFloat) {
         guard visibleFrame.width > 0, visibleFrame.height > 0 else { return (.zero, 0) }
         let px = CGFloat(backingScale.isFinite ? max(1, backingScale) : 1)
         func snap(_ points: CGFloat) -> CGFloat { (points * px).rounded() / px }
@@ -49,20 +65,25 @@ enum RiftTrayLayout {
                   !visibleFrame.intersection(frame).isEmpty else { return nil }
             return frame
         }
+        // The caller supplies the visible card. Only reserve the shared border
+        // at the desktop edges; subtracting it from the card again would narrow the tray.
+        let margin = companion != nil && saytileOuterInset.isFinite
+            ? min(max(0, saytileOuterInset), min(visibleFrame.width, visibleFrame.height) / 4) : 0
+        let available = visibleFrame.insetBy(dx: margin, dy: margin)
         // Saytile's initialPanel measures its glass against the usable desktop.
         let defaultWidth = min(visibleFrame.width, max(20, visibleFrame.width / 8))
         let preferredWidth = (companion?.width ?? defaultWidth) * c.trayScalePercent / 100
-        let width = min(visibleFrame.width, max(1 / px, snap(preferredWidth)))
+        let width = min(available.width, max(1 / px, snap(preferredWidth)))
         let unit = width / 246
         // The paired, two-row glass in the desktop reference is 178 high by 295 wide.
         // Keep the same slots and fit each image inside the shorter cells.
         let rowScale = companion == nil ? unit : width * (178.0 / 295) / 212
-        let verticalUnit = min(rowScale, visibleFrame.height / 212)
-        let maximumHeight = min(visibleFrame.height, snap(212 * verticalUnit))
+        let verticalUnit = min(rowScale, available.height / 212)
+        let maximumHeight = min(available.height, snap(212 * verticalUnit))
         let height = twoRows ? maximumHeight : min(maximumHeight, snap(115 * verticalUnit))
         func frame(x: CGFloat, y: CGFloat) -> CGRect {
-            CGRect(x: min(visibleFrame.maxX - width, max(visibleFrame.minX, snap(x))),
-                   y: min(visibleFrame.maxY - height, max(visibleFrame.minY, snap(y))),
+            CGRect(x: min(available.maxX - width, max(available.minX, snap(x))),
+                   y: min(available.maxY - height, max(available.minY, snap(y))),
                    width: width, height: height)
         }
         let surface: CGRect
@@ -117,7 +138,8 @@ enum RiftTrayLayout {
     static func make(records: [AssetRecord], visibleFrame: CGRect,
                      configuration c: RiftConfiguration, firstVisibleIndex: Int,
                      backingScale: Double, captureEnabled: Bool, menu: RiftTrayMenuState? = nil,
-                     displayFrame: CGRect? = nil, saytileGlassFrame: CGRect? = nil) -> RiftLayoutResult {
+                     displayFrame: CGRect? = nil, saytileGlassFrame: CGRect? = nil,
+                     saytileOuterInset: CGFloat = 0) -> RiftLayoutResult {
         let active = records.filter { $0.visibility == .visible }
         let menu = captureEnabled ? menu : nil
         let menuOpen = menu != nil
@@ -134,7 +156,7 @@ enum RiftTrayLayout {
         } == true)
         let (surface, verticalUnit) = geometry(visibleFrame: visibleFrame, configuration: c, twoRows: twoRows,
                                                backingScale: backingScale, displayFrame: displayFrame,
-                                               saytileGlassFrame: saytileGlassFrame)
+                                               saytileGlassFrame: saytileGlassFrame, saytileOuterInset: saytileOuterInset)
         let px = CGFloat(backingScale.isFinite ? max(1, backingScale) : 1)
         func snap(_ points: CGFloat) -> CGFloat { (points * px).rounded() / px }
         let unit = surface.width / 246

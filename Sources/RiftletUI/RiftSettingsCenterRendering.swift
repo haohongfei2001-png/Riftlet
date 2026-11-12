@@ -159,6 +159,7 @@ extension RiftSettingsCenterController {
         enable("desktopForm", product.capabilities.canEditPreferences && !configurationBusy)
         check("trayFollowsSaytile", configuration.trayFollowsSaytile,
               enabled: product.capabilities.canEditPreferences && !configurationBusy)
+        trayBorderPreviewRow?.isHidden = configuration.desktopForm != .tray || !configuration.trayFollowsSaytile
         trayGapSetting?.isHidden = !configuration.trayFollowsSaytile
         enable("trayTheme", product.capabilities.canEditPreferences && !configurationBusy)
         trayTintSettings?.isHidden = configuration.trayTheme != .custom

@@ -20,6 +20,13 @@ final class RiftSettingsCenterPreview: NSView {
     private let edge = CALayer()
     private var drawnBounds = NSRect.zero
     var isAnimating: Bool { tile.animation(forKey: "settings.preview") != nil }
+    var previewSaytileBorder = true {
+        didSet {
+            desktopIllustration?.previewSaytileBorder = previewSaytileBorder
+            desktopIllustration?.needsDisplay = true
+            setAccessibilityValue(geometrySummary)
+        }
+    }
     var geometrySummary: String {
         let count = min(configuration.visibleCountPreference, 4)
         let title = configuration.placement?.title ?? "旧版位置"
@@ -29,7 +36,8 @@ final class RiftSettingsCenterPreview: NSView {
             return title + " · " + countText + " · 风铃 · " + configuration.windChimeArrangement.title
         }
         if configuration.desktopForm == .tray && configuration.trayFollowsSaytile {
-            return "同屏示意 · Saytile 下方 · " + countText
+            let border = previewSaytileBorder ? "共用外框" : "无外框"
+            return "同屏示意 · Saytile 下方 · " + border + " · " + countText
         }
         return title + " · " + countText
     }
@@ -152,6 +160,7 @@ private final class RiftSettingsDesktopIllustration: NSView {
     var hue: CGFloat = 0.71
     var saturation: CGFloat = 0.21
     var includesEntry = true
+    var previewSaytileBorder = true
     private static let thumbnails = [("glass-study","png"),("reading","svg"),("error","svg")].map { name,ext in
         Bundle.main.url(forResource:name,withExtension:ext).flatMap(NSImage.init(contentsOf:))
     }
@@ -193,7 +202,15 @@ private final class RiftSettingsDesktopIllustration: NSView {
         let tones:[NSColor] = [rgb(0.86,0.74,0.50),rgb(0.33,0.68,0.62),rgb(0.54,0.57,0.80),rgb(0.76,0.68,0.82)]
         if showsTray {
             let frames = TrayPlacementIllustration.frames(in: rect, configuration: configuration, twoRows: visible >= 2,
-                                                          withSaytile: configuration.trayFollowsSaytile, flipped: isFlipped)
+                                                          withSaytile: configuration.trayFollowsSaytile, framed: previewSaytileBorder, flipped: isFlipped)
+            if let rail = frames.outer {
+                let shape = NSBezierPath(roundedRect: rail, xRadius: rail.width * 28 / 325, yRadius: rail.width * 28 / 325)
+                NSColor.white.withAlphaComponent(0.27).setFill()
+                shape.fill()
+                NSColor.white.withAlphaComponent(0.55).setStroke()
+                shape.lineWidth = 0.5
+                shape.stroke()
+            }
             if let companion = frames.saytile {
                 fill(companion, radius: 4, color: .windowBackgroundColor.withAlphaComponent(0.90))
                 let inset = companion.width * 0.10
@@ -258,22 +275,27 @@ private final class RiftSettingsDesktopIllustration: NSView {
 /// Project the same point-based layout used by the desktop onto a schematic screen.
 enum TrayPlacementIllustration {
     static func frames(in rect: CGRect, configuration: RiftConfiguration, twoRows: Bool,
-                       withSaytile: Bool, flipped: Bool) -> (tray: CGRect, saytile: CGRect?) {
-        guard rect.width > 0, rect.height > 0 else { return (.zero, nil) }
+                       withSaytile: Bool, framed: Bool = true, flipped: Bool) -> (tray: CGRect, saytile: CGRect?, outer: CGRect?) {
+        guard rect.width > 0, rect.height > 0 else { return (.zero, nil, nil) }
         let scale = rect.width / 1440
         let desktop = CGRect(x: 0, y: 0, width: 1440, height: rect.height / scale)
         let width = desktop.width / 8
         let height = min(desktop.height * 0.225, width * 173 / 325)
-        let companion = withSaytile ? CGRect(x: desktop.maxX - width, y: desktop.maxY - height,
-                                              width: width, height: height) : nil
+        let slot = CGRect(x: desktop.maxX - width, y: desktop.maxY - height, width: width, height: height)
+        let anchor = withSaytile ? SaytileTrayAnchor(outerFrame: slot, framed: framed) : nil
         let geometry = RiftTrayLayout.geometry(visibleFrame: desktop, configuration: configuration, twoRows: twoRows,
-                                              backingScale: 2, saytileGlassFrame: companion)
+                                               backingScale: 2, saytileGlassFrame: anchor?.bodyFrame,
+                                               saytileOuterInset: anchor?.rim ?? 0)
+        let outer = anchor.flatMap { anchor -> CGRect? in
+            guard anchor.rim > 0 else { return nil }
+            return slot.union(geometry.frame.insetBy(dx: -anchor.rim, dy: -anchor.rim))
+        }
         func project(_ frame: CGRect) -> CGRect {
             CGRect(x: rect.minX + frame.minX * scale,
                    y: flipped ? rect.maxY - frame.maxY * scale : rect.minY + frame.minY * scale,
                    width: frame.width * scale, height: frame.height * scale)
         }
-        return (project(geometry.frame), companion.map(project))
+        return (project(geometry.frame), anchor.map { project($0.bodyFrame) }, outer.map(project))
     }
 }
 
