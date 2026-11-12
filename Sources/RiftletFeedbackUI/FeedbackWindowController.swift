@@ -13,6 +13,7 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     // replace this baseline, including the consent snapshot and feedback kind.
     private var cleanDraft: FeedbackDraft? = FeedbackDraft()
     private var loaded = false
+    private var draftReadFailed = false
     private var busy = false
     private var autosave: Task<Void, Never>?
     private var autosaveWriting: Task<Void, Never>?
@@ -184,12 +185,23 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         do {
             draft = try await engine.store.draft()
             cleanDraft = draft
+            draftReadFailed = false
             applyDraft(); loaded = true; controlsEnabled(true)
             status.stringValue = "草稿保存在这台 Mac；关闭不会发送。"
             await refreshRecords()
-        } catch { loaded = true; controlsEnabled(true); failure() }
+        } catch {
+            // A missing baseline cannot supply a revision for editing or submission.
+            loaded = true
+            draftReadFailed = true
+            controlsEnabled(false)
+            status.stringValue = "未能读取已有反馈草稿。可关闭窗口，重新打开时会再次读取。"
+        }
     }
     public func show() {
+        if draftReadFailed, loaded, !busy {
+            loaded = false
+            loading = Task { [weak self] in await self?.load() }
+        }
         if let window {
             let size = hasPresented ? window.frame.size : NSSize(width: 506, height: 464)
             if !hasPresented { window.center() }
@@ -216,12 +228,12 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     public func textDidChange(_ notification: Notification) { updateCharacterCount(); saveEdited() }
     @objc private func changedKind() { saveEdited() }
     @objc private func changedConsent() {
-        guard loaded, !busy else { return }
+        guard loaded, !busy, !draftReadFailed else { return }
         draft.diagnostic = consent.state == .on ? diagnostics.snapshot() : nil
         saveEdited()
     }
     private func saveEdited() {
-        guard loaded, !busy else { return }
+        guard loaded, !busy, !draftReadFailed else { return }
         let value = nextDraft()
         autosave?.cancel()
         autosave = Task {
@@ -282,15 +294,24 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         }
         busy = true; controlsEnabled(false)
         await finishAutosave()
-        status.stringValue = closeAttempt ? "正在保存草稿；保存完成后才能关闭。" : "正在保存草稿；不会发送。"
         var saved = false
         defer {
             // App termination still awaits outbox stop and clean-exit persistence.
             // No new editing may enter between this save and the final quit reply.
-            if !lockOnSuccess || !saved { busy = false; controlsEnabled(true) }
+            if !lockOnSuccess || !saved { busy = false; controlsEnabled(!draftReadFailed) }
+        }
+        if draftReadFailed {
+            // The editor never opened. Closing cannot discard an edit or alter the stored draft.
+            saved = true
+            return true
         }
         if let cleanDraft, cleanDraft.text == text.string, cleanDraft.kind == selectedKind,
            cleanDraft.diagnostic == draft.diagnostic {
+            if !recoveryActions.isHidden {
+                recoveryActions.isHidden = true
+                retryClosesWindow = false
+                status.stringValue = "当前没有待保存的更改。"
+            }
             saved = true
             return true
         }
@@ -298,6 +319,7 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
             draftSaveFailed(closeAttempt: closeAttempt)
             return false
         }
+        status.stringValue = closeAttempt ? "正在保存草稿；保存完成后才能关闭。" : "正在保存草稿；不会发送。"
         let value = nextDraft()
         do {
             try await persistDraft(value)
@@ -355,7 +377,7 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     }
     @objc private func submit() { Task { await submitCurrentDraft() } }
     func submitCurrentDraft() async {
-        guard loaded, !busy, let engine else { failure(); return }
+        guard loaded, !busy, !draftReadFailed, let engine else { failure(); return }
         guard !text.hasMarkedText() else { return }
         let value = nextDraft(); busy = true; controlsEnabled(false)
         await finishAutosave()
