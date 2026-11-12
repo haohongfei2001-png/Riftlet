@@ -136,6 +136,11 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
     private var storedForm: PresentationValue?
     private var storedWindChimeLineInset: PresentationValue?
     private var storedWindChimeArrangement: PresentationValue?
+    private var storedTrayScalePercent: PresentationValue?
+    private var storedTrayHorizontalOffset: PresentationValue?
+    private var storedTrayVerticalOffset: PresentationValue?
+    private var storedTrayCompanionGap: PresentationValue?
+    private var storedTrayFollowsSaytile: PresentationValue?
     private var storedTrayTheme: PresentationValue?
     private var storedTrayTintHue: PresentationValue?
     private var storedTrayTintStrength: PresentationValue?
@@ -215,6 +220,38 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
         }
     }
 
+    static let trayScaleRange: ClosedRange<Double> = 60...160
+    static let trayOffsetRange: ClosedRange<Double> = -256...256
+    static let trayGapRange: ClosedRange<Double> = 0...96
+
+    public var trayFollowsSaytile: Bool {
+        get {
+            guard case .flag(let enabled) = storedTrayFollowsSaytile else { return true }
+            return enabled
+        }
+        set { storedTrayFollowsSaytile = .flag(newValue) }
+    }
+
+    public var trayScalePercent: Double {
+        get { storedTrayScalePercent?.number(in: Self.trayScaleRange) ?? 100 }
+        set { if let value = PresentationValue.number(newValue, in: Self.trayScaleRange) { storedTrayScalePercent = value } }
+    }
+
+    public var trayHorizontalOffset: Double {
+        get { storedTrayHorizontalOffset?.number(in: Self.trayOffsetRange) ?? 0 }
+        set { if let value = PresentationValue.number(newValue, in: Self.trayOffsetRange) { storedTrayHorizontalOffset = value } }
+    }
+
+    public var trayVerticalOffset: Double {
+        get { storedTrayVerticalOffset?.number(in: Self.trayOffsetRange) ?? 0 }
+        set { if let value = PresentationValue.number(newValue, in: Self.trayOffsetRange) { storedTrayVerticalOffset = value } }
+    }
+
+    public var trayCompanionGap: Double {
+        get { storedTrayCompanionGap?.number(in: Self.trayGapRange) ?? 10 }
+        set { if let value = PresentationValue.number(newValue, in: Self.trayGapRange) { storedTrayCompanionGap = value } }
+    }
+
     public var trayTheme: RiftTrayTheme {
         get {
             guard case .text(let raw) = storedTrayTheme else { return .system }
@@ -256,6 +293,11 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
     private enum CodingKeys: String, CodingKey { case fitWidth, fitHeight, hiddenFraction, rowPitch, lineWidth, lineExtension, emptyTraceLength, outerInset, firstCenterFromTop, screenPadding, numberFontSize, numberGap, leftPadding, minimumHitWidth, minimumHitHeight, arrivalDuration, pressDuration, inwardDistance, swallowDuration, shiftDuration, returnDuration, reducedMotionDuration, preferredDisplayID, visibleCountPreference, placement, placementSource, preferredDisplayUUID
         case storedWindChimeArrangement = "windChimeArrangement", storedWindChimeLineInset = "windChimeLineInset"
         case storedForm = "desktopForm", storedTrayTheme = "trayTheme", storedTrayOcclusion = "trayOcclusion"
+        case storedTrayScalePercent = "trayScalePercent"
+        case storedTrayHorizontalOffset = "trayHorizontalOffset"
+        case storedTrayVerticalOffset = "trayVerticalOffset"
+        case storedTrayCompanionGap = "trayCompanionGap"
+        case storedTrayFollowsSaytile = "trayFollowsSaytile"
         case storedTrayTintHue = "trayTintHue", storedTrayTintStrength = "trayTintStrength"
         case storedTrayFavorite1 = "trayFavorite1", storedTrayFavorite2 = "trayFavorite2", storedTrayFavorite3 = "trayFavorite3"
     }
@@ -270,6 +312,11 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
         if values.contains(.storedWindChimeArrangement) {
             storedWindChimeArrangement = try values.decode(PresentationValue.self, forKey: .storedWindChimeArrangement)
         }
+        if values.contains(.storedTrayScalePercent) { storedTrayScalePercent = try values.decode(PresentationValue.self, forKey: .storedTrayScalePercent) }
+        if values.contains(.storedTrayHorizontalOffset) { storedTrayHorizontalOffset = try values.decode(PresentationValue.self, forKey: .storedTrayHorizontalOffset) }
+        if values.contains(.storedTrayVerticalOffset) { storedTrayVerticalOffset = try values.decode(PresentationValue.self, forKey: .storedTrayVerticalOffset) }
+        if values.contains(.storedTrayCompanionGap) { storedTrayCompanionGap = try values.decode(PresentationValue.self, forKey: .storedTrayCompanionGap) }
+        if values.contains(.storedTrayFollowsSaytile) { storedTrayFollowsSaytile = try values.decode(PresentationValue.self, forKey: .storedTrayFollowsSaytile) }
         if values.contains(.storedTrayTheme) { storedTrayTheme = try values.decode(PresentationValue.self, forKey: .storedTrayTheme) }
         if values.contains(.storedTrayTintHue) { storedTrayTintHue = try values.decode(PresentationValue.self, forKey: .storedTrayTintHue) }
         if values.contains(.storedTrayTintStrength) { storedTrayTintStrength = try values.decode(PresentationValue.self, forKey: .storedTrayTintStrength) }

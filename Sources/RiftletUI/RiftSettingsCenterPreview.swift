@@ -28,6 +28,9 @@ final class RiftSettingsCenterPreview: NSView {
         if configuration.desktopForm == .windChime {
             return title + " · " + countText + " · 风铃 · " + configuration.windChimeArrangement.title
         }
+        if configuration.desktopForm == .tray && configuration.trayFollowsSaytile {
+            return "同屏示意 · Saytile 下方 · " + countText
+        }
         return title + " · " + countText
     }
 
@@ -184,23 +187,32 @@ private final class RiftSettingsDesktopIllustration: NSView {
             NSColor.separatorColor.setStroke(); clip.lineWidth = 1; clip.stroke()
             return
         }
-        let sideWidth = showsTray ? w / 8 : w * 0.065
-        let total = min(4, visible + (includesEntry && showsTray ? 1 : 0))
-        let sideHeight = showsTray ? sideWidth * (total > 2 ? 212.0/246 : 115.0/246) : sideWidth * 1.75
-        let x = placement < 3 ? 9 : w - sideWidth - 9
-        let y: CGFloat
-        switch placement % 3 { case 0: y=8; case 2: y=h-sideHeight-8; default:y=(h-sideHeight)/2 }
         func fill(_ r: CGRect, radius: CGFloat, color: NSColor) {
             color.setFill(); NSBezierPath(roundedRect:r,xRadius:radius,yRadius:radius).fill()
         }
         let tones:[NSColor] = [rgb(0.86,0.74,0.50),rgb(0.33,0.68,0.62),rgb(0.54,0.57,0.80),rgb(0.76,0.68,0.82)]
         if showsTray {
-            let shell=CGRect(x:x,y:y,width:sideWidth,height:sideHeight)
+            let frames = TrayPlacementIllustration.frames(in: rect, configuration: configuration, twoRows: visible >= 2,
+                                                          withSaytile: configuration.trayFollowsSaytile, flipped: isFlipped)
+            if let companion = frames.saytile {
+                fill(companion, radius: 4, color: .windowBackgroundColor.withAlphaComponent(0.90))
+                let inset = companion.width * 0.10
+                for (line, fraction) in [0.76, 0.54].enumerated() {
+                    let bar = CGRect(x: companion.minX + inset, y: companion.minY + companion.height * (0.28 + CGFloat(line) * 0.23),
+                                     width: companion.width * fraction, height: max(1, companion.height * 0.07))
+                    fill(bar, radius: 1, color: .secondaryLabelColor)
+                }
+            }
+            let shell = frames.tray
             fill(shell,radius:5,color:NSColor(srgbRed:1,green:1,blue:1,alpha:0.75))
             fill(shell.insetBy(dx:1,dy:1),radius:4,color:NSColor(hue:hue,saturation:saturation,brightness:0.96,alpha:0.65))
-            let gap=sideWidth*0.025, cell=(sideWidth-3*gap)/2, ch=cell*0.70
+            let gap = shell.width * 0.035, cell = (shell.width - 3 * gap) / 2
+            let rows = visible >= 2 ? 2.0 : 1.0
+            let ch = (shell.height - (rows + 1) * gap) / rows
+            let total = min(4, visible + (includesEntry ? 1 : 0))
             for i in 0..<total {
-                let r=CGRect(x:x+gap+CGFloat(i%2)*(cell+gap),y:y+sideWidth*0.065+CGFloat(i/2)*(ch+gap*2),width:cell,height:ch)
+                let r = CGRect(x: shell.minX + gap + CGFloat(i % 2) * (cell + gap),
+                               y: shell.minY + gap + CGFloat(i / 2) * (ch + gap), width: cell, height: ch)
                 if includesEntry && i == min(visible,3) && visible < 4 {
                     fill(r,radius:2,color:.white.withAlphaComponent(0.72))
                     let sym=NSImage(systemSymbolName:"camera",accessibilityDescription:nil)
@@ -208,6 +220,10 @@ private final class RiftSettingsDesktopIllustration: NSView {
                 } else { drawThumbnail(r, tones[i], index:i) }
             }
         } else {
+            let sideWidth = w * 0.065, sideHeight = sideWidth * 1.75
+            let x = placement < 3 ? 9 : w - sideWidth - 9
+            let y: CGFloat
+            switch placement % 3 { case 0: y=8; case 2: y=h-sideHeight-8; default:y=(h-sideHeight)/2 }
             fill(CGRect(x:placement<3 ? x : x+sideWidth-1,y:y,width:1,height:sideHeight),radius:1,color:.white)
             let ch=sideWidth*0.48
             for i in 0..<min(3,visible) {
@@ -236,6 +252,28 @@ private final class RiftSettingsDesktopIllustration: NSView {
         path.line(to:CGPoint(x:rect.maxX,y:rect.minY+rect.height*0.23))
         path.line(to:CGPoint(x:rect.maxX,y:rect.maxY));path.close()
         NSColor.black.withAlphaComponent(0.18).setFill();path.fill()
+    }
+}
+
+/// Project the same point-based layout used by the desktop onto a schematic screen.
+enum TrayPlacementIllustration {
+    static func frames(in rect: CGRect, configuration: RiftConfiguration, twoRows: Bool,
+                       withSaytile: Bool, flipped: Bool) -> (tray: CGRect, saytile: CGRect?) {
+        guard rect.width > 0, rect.height > 0 else { return (.zero, nil) }
+        let scale = rect.width / 1440
+        let desktop = CGRect(x: 0, y: 0, width: 1440, height: rect.height / scale)
+        let width = desktop.width / 8
+        let height = min(desktop.height * 0.225, width * 173 / 325)
+        let companion = withSaytile ? CGRect(x: desktop.maxX - 14 - width, y: desktop.maxY - 14 - height,
+                                              width: width, height: height) : nil
+        let geometry = RiftTrayLayout.geometry(visibleFrame: desktop, configuration: configuration, twoRows: twoRows,
+                                              backingScale: 2, saytileGlassFrame: companion)
+        func project(_ frame: CGRect) -> CGRect {
+            CGRect(x: rect.minX + frame.minX * scale,
+                   y: flipped ? rect.maxY - frame.maxY * scale : rect.minY + frame.minY * scale,
+                   width: frame.width * scale, height: frame.height * scale)
+        }
+        return (project(geometry.frame), companion.map(project))
     }
 }
 

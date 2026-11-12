@@ -301,6 +301,34 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertEqual(field.stringValue, "83.2500", "Blurred drafts retain formatting, too")
     }
 
+    @MainActor func testTrayControlsApplyScaleSignedOffsetsAndStandalonePlacement() async throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        h.controller.show(page: .display)
+        try await changeAndWait(h, "desktopForm", index: 0)
+        XCTAssertFalse(h.controller.traySettings.isHidden)
+        let toggle: NSSwitch = try control(h, "trayFollowsSaytile")
+        XCTAssertEqual(toggle.state, .on)
+        XCTAssertFalse(h.controller.trayGapSetting.isHidden)
+        XCTAssertTrue(h.controller.geometryPreview.geometrySummary.contains("Saytile"))
+        try await clickAndWait(h, "trayFollowsSaytile")
+        XCTAssertEqual(toggle.state, .off)
+        XCTAssertTrue(h.controller.trayGapSetting.isHidden)
+        XCTAssertFalse(h.controller.geometryPreview.geometrySummary.contains("Saytile"))
+        try click(h, "disclosure.tray.offsets")
+        let size = try XCTUnwrap(h.controller.numericFields[.trayScalePercent])
+        let offset = try XCTUnwrap(h.controller.numericFields[.trayHorizontalOffset])
+        _ = try enter(h, field: size, text: "124")
+        _ = try enter(h, field: offset, text: "-24")
+        XCTAssertEqual(h.controller.geometryPreview.configuration.trayScalePercent, 124)
+        XCTAssertEqual(h.controller.geometryPreview.configuration.trayHorizontalOffset, -24)
+        try await clickAndWait(h, "layout.apply.display")
+        XCTAssertEqual(h.owner.settings.configuration.trayScalePercent, 124)
+        XCTAssertEqual(h.owner.settings.configuration.trayHorizontalOffset, -24)
+        XCTAssertFalse(h.owner.settings.configuration.trayFollowsSaytile)
+        try await changeAndWait(h, "desktopForm", index: 1)
+        XCTAssertTrue(h.controller.traySettings.isHidden)
+    }
+
     @MainActor func testWindChimeArrangementControlTracksFormAndOwner() async throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
         h.controller.show(page: .display)
@@ -1128,7 +1156,7 @@ private final class SettingsCenterTestHost {
         case .captureMode(let mode): if !failure { settings.defaultCaptureMode = mode; settings.capturePreferencesSaveFailed = false }
         case .arrival(let mode): if !failure { settings.arrivalMode = mode; settings.hasArrivalSelection = true }
         case .archiveMinutes(let value): if !failure { settings.archiveAfterMinutes = value }
-        case .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFavorite:
+        case .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFollowsSaytile, .trayFavorite:
             if !failure, let configuration = request.configuration { settings.configuration = configuration; settings.preferredDisplayID = configuration.preferredDisplayID }
         }
         owner = SettingsOwnerSnapshot(revision: owner.revision + 1, settings: settings, collectionPaused: paused, isHidden: hidden,

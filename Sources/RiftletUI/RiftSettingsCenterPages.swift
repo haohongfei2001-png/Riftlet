@@ -69,7 +69,24 @@ extension RiftSettingsCenterController {
             numericRow(.trayTintHue, title: "玻璃色调", unit: "°", range: 0...360, step: 1),
             numericRow(.trayTintStrength, title: "色彩强度", unit: "%", range: 0...100, step: 1)
         ])
+        let follow = nativeSwitch("排列在 Saytile 下方", id: "trayFollowsSaytile") { [weak self] enabled in
+            self?.dispatch(.settings(.setTrayFollowsSaytile(enabled)))
+        }
+        trayGapSetting = numericRow(.trayCompanionGap, title: "与 Saytile 间距", unit: "pt",
+                                    range: RiftConfiguration.trayGapRange, step: 1)
+        let offsets = group([
+            numericRow(.trayHorizontalOffset, title: "水平偏移（向右为正）", unit: "pt",
+                       range: RiftConfiguration.trayOffsetRange, step: 1),
+            numericRow(.trayVerticalOffset, title: "独立显示时垂直偏移（向下为正）", unit: "pt",
+                       range: RiftConfiguration.trayOffsetRange, step: 1)
+        ])
         traySettings = group([
+            row("排列在 Saytile 下方", detail: "同屏使用时，托盘贴齐 Saytile 的右边缘。", control: follow),
+            domainError(.trayFollowsSaytile),
+            numericRow(.trayScalePercent, title: "托盘大小", unit: "%", range: RiftConfiguration.trayScaleRange, step: 1,
+                       detail: "100% 时与同屏跟随的 Saytile 等宽。独立显示时为可用屏宽的 1/8。"),
+            trayGapSetting!,
+            disclosure("位置微调", id: "tray.offsets", content: offsets),
             row("托盘材质", control: theme), domainError(.trayTheme), trayTintSettings!,
             numericRow(.trayOcclusion, title: "缩略图遮挡", unit: "%", range: 0...90)
         ])
@@ -461,7 +478,7 @@ extension RiftSettingsCenterController {
         return stack
     }
     func numericRow(_ key: SettingsField, title: String, unit: String,
-                    range: ClosedRange<Double>? = nil, step: Double? = nil) -> NSView {
+                    range: ClosedRange<Double>? = nil, step: Double? = nil, detail: String = "") -> NSView {
         let field = textField(id: "field.\(key.rawValue)", accessibility: "\(title)（\(unit)）")
         numericFields[key] = field
         var valueControls: [NSView] = []
@@ -489,7 +506,7 @@ extension RiftSettingsCenterController {
             numericSliders[key] = slider; valueControls.append(slider)
         }
         valueControls.append(field); valueControls.append(SettingsNativeStyle.label(unit, role: "secondary"))
-        return row(title, detail: "", control: buttonRow(valueControls))
+        return row(title, detail: detail, control: buttonRow(valueControls))
     }
     func domainError(_ domain: SettingsDomain) -> NSView {
         let label = SettingsNativeStyle.label("", role: "secondary")
