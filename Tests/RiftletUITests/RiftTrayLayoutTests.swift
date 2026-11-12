@@ -215,6 +215,46 @@ final class RiftTrayLayoutTests: XCTestCase {
         XCTAssertTrue(screen.contains(surface(screen)))
     }
 
+    func testFirstArrivalRevealFollowsGrowingEdgeAndClearsMovingMenu() throws {
+        let records = assets(1)
+        let saytile = CGRect(x: -260, y: 640, width: 240, height: 110)
+        for paired in [true, false] {
+            func measure(_ assets: [AssetRecord], menu: RiftTrayMenuState? = nil) -> RiftLayoutResult {
+                RiftTrayLayout.make(records: assets, visibleFrame: display, configuration: .init(),
+                                    firstVisibleIndex: 0, backingScale: 2, captureEnabled: true, menu: menu,
+                                    saytileGlassFrame: paired ? saytile : nil)
+            }
+            var menu = RiftTrayMenuState(openingLayout: measure([]))
+            let initial = measure([], menu: menu)
+            menu.receiveCaptures([records[0].id])
+            let final = measure(records, menu: menu)
+            let start = initial.surfaceFrame, end = final.surfaceFrame
+            if paired { XCTAssertEqual(start.maxY, end.maxY) }
+            else { XCTAssertEqual(start.minY, end.minY) }
+            let bounds = try XCTUnwrap(final.rows.first).frame.insetBy(dx: -4, dy: -4)
+            var lastHeight: CGFloat = 0
+            for progress: CGFloat in [0, 0.25, 0.5, 0.75, 1] {
+                var surface = start
+                surface.origin.y += (end.minY - start.minY) * progress
+                surface.size.height += (end.height - start.height) * progress
+                let clip = RiftTrayLayout.arrivingRowClip(bounds: bounds, surface: surface, finalSurface: end)
+                let keys = final.captureMenuFrame.offsetBy(dx: 0, dy: surface.minY - end.minY)
+                if progress == 0 {
+                    XCTAssertTrue(clip.isEmpty)
+                    XCTAssertEqual(keys, initial.captureMenuFrame)
+                    continue
+                }
+                XCTAssertGreaterThan(clip.height, lastHeight)
+                lastHeight = clip.height
+                XCTAssertTrue(surface.contains(clip))
+                XCTAssertLessThanOrEqual(keys.maxY, clip.minY)
+                if paired { XCTAssertEqual(clip.maxY, bounds.maxY, accuracy: 0.001) }
+                else { XCTAssertEqual(clip.minY, bounds.minY, accuracy: 0.001) }
+                if progress == 1 { XCTAssertEqual(clip, bounds) }
+            }
+        }
+    }
+
     func testReferenceGeometryAndSingleImageFillMotionAtBothScales() throws {
         let records = assets(3)
         var c = RiftConfiguration()

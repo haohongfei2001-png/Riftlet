@@ -264,7 +264,7 @@ enum TrayPlacementIllustration {
         let desktop = CGRect(x: 0, y: 0, width: 1440, height: rect.height / scale)
         let width = desktop.width / 8
         let height = min(desktop.height * 0.225, width * 173 / 325)
-        let companion = withSaytile ? CGRect(x: desktop.maxX - 14 - width, y: desktop.maxY - 14 - height,
+        let companion = withSaytile ? CGRect(x: desktop.maxX - width, y: desktop.maxY - height,
                                               width: width, height: height) : nil
         let geometry = RiftTrayLayout.geometry(visibleFrame: desktop, configuration: configuration, twoRows: twoRows,
                                               backingScale: 2, saytileGlassFrame: companion)

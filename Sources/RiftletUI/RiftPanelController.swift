@@ -1714,8 +1714,8 @@ public final class RiftPanelController {
                         for geometry in layout.rows {
                             guard let row = self.rowWindows[geometry.assetID] else { continue }
                             let bounds = geometry.frame.insetBy(dx: -4, dy: -4)
-                            let height = max(0, bounds.height - (layout.surfaceFrame.height - surface.height))
-                            let revealed = CGRect(origin: bounds.origin, size: CGSize(width: bounds.width, height: height))
+                            let revealed = RiftTrayLayout.arrivingRowClip(bounds: bounds, surface: surface,
+                                                                        finalSurface: layout.surfaceFrame)
                             self.presentClippedTrayRow(row, frame: geometry.frame, clip: revealed, acceptsInput: true)
                         }
                     }

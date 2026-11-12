@@ -106,6 +106,14 @@ enum RiftTrayLayout {
         return (surface, verticalUnit)
     }
 
+    /// The row stays in its final screen slot while each glass edge moves toward its final position.
+    /// Keeping the final insets at both moving edges also keeps the lower menu out of the row's hits.
+    static func arrivingRowClip(bounds: CGRect, surface: CGRect, finalSurface: CGRect) -> CGRect {
+        let bottom = bounds.minY + max(0, surface.minY - finalSurface.minY)
+        let top = bounds.maxY + min(0, surface.maxY - finalSurface.maxY)
+        return CGRect(x: bounds.minX, y: bottom, width: bounds.width, height: max(0, top - bottom))
+    }
+
     static func make(records: [AssetRecord], visibleFrame: CGRect,
                      configuration c: RiftConfiguration, firstVisibleIndex: Int,
                      backingScale: Double, captureEnabled: Bool, menu: RiftTrayMenuState? = nil,

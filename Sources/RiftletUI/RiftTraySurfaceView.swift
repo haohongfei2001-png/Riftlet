@@ -267,7 +267,7 @@ private final class TrayButton: NSButton {
             toolTip = nil
             setAccessibilityHidden(true)
         }
-        guard let layer, !reduceMotion, let source, !source.isEmpty, !target.isEmpty,
+        guard let layer, !reduceMotion, let source, !source.isEmpty, !target.isEmpty, source != target || retiring,
               abs(source.midX - target.midX) <= surface.width,
               abs(source.midY - target.midY) <= max(surface.width, surface.height) else {
             if reduceMotion || changed || wasHidden { layer?.removeAnimation(forKey: Self.motionKey) }
@@ -382,6 +382,8 @@ final class RiftTraySurfaceView: NSView {
         }
     }
 
+    private var previousSurfaceOrigin: CGPoint?
+
     func update(layout: RiftLayoutResult, colors: RiftTrayColors, defaultMode: ScreenshotMode, favoriteModes: [ScreenshotMode?],
                 reduceMotion: Bool) {
         self.colors = colors
@@ -391,6 +393,13 @@ final class RiftTraySurfaceView: NSView {
         showingMenu = !layout.captureMenuFrame.isEmpty
         let oldCapture = captureKey.visibleScreenFrame
         let surface = layout.surfaceFrame
+        // The panel carries all four keys when the tray follows Saytile or grows down.
+        // Morph only the remaining movement inside the panel, also for a reversing key.
+        let oldOrigin = previousSurfaceOrigin ?? surface.origin
+        previousSurfaceOrigin = surface.origin
+        func inMovingPanel(_ oldFrame: CGRect?) -> CGRect? {
+            oldFrame?.offsetBy(dx: surface.minX - oldOrigin.x, dy: surface.minY - oldOrigin.y)
+        }
         if showingMenu {
             let menu = layout.captureMenuFrame
             let gap = min(4 * surface.width / 246, menu.width / 32)
@@ -406,7 +415,7 @@ final class RiftTraySurfaceView: NSView {
                 let target = CGRect(x: menu.minX + CGFloat(i) * (width + gap), y: menu.minY, width: width, height: menu.height)
                 let source: CGRect? = !wasOpen ? (button.visibleScreenFrame ?? oldCapture) :
                     (button.screenFrame != target ? button.visibleScreenFrame : nil)
-                button.move(to: target, in: surface, from: source, reduceMotion: reduceMotion)
+                button.move(to: target, in: surface, from: inMovingPanel(source), reduceMotion: reduceMotion)
             }
             let enabled = order.filter(\.isEnabled)
             for (i, button) in enabled.enumerated() { button.nextKeyView = enabled[(i + 1) % enabled.count] }
@@ -419,10 +428,10 @@ final class RiftTraySurfaceView: NSView {
         }
         captureKey.assign(.expand, title: "展开截图方式", symbol: "camera")
         let source = wasOpen || captureKey.screenFrame != slot ? oldCapture : nil
-        captureKey.move(to: slot, in: surface, from: source, reduceMotion: reduceMotion)
+        captureKey.move(to: slot, in: surface, from: inMovingPanel(source), reduceMotion: reduceMotion)
         for button in favorites {
             if wasOpen {
-                button.move(to: slot, in: surface, from: button.visibleScreenFrame,
+                button.move(to: slot, in: surface, from: inMovingPanel(button.visibleScreenFrame),
                             reduceMotion: reduceMotion, retiring: true)
             } else {
                 button.finishRetirementIfNeeded(reduceMotion: reduceMotion)
