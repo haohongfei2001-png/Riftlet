@@ -1649,6 +1649,8 @@ extension SettingsReviewDriver {
         }
         await runCase("reference-inputs-and-tray-states") {
             try self.require(self.initialAssetIDs.isEmpty, "requiresFreshIsolatedReviewUUID")
+            // The archived reference fixtures exercise the standalone tray.
+            await self.host.perform(.settings(.setTrayFollowsSaytile(false)))
             let settings = self.host.snapshot.state.owner.settings
             try self.require(settings.configuration.desktopForm == .tray && settings.entryEnabled, "trayEntryNotEnabled")
             try self.require(settings.configuration.visibleCountPreference == 3, "expectedThreeThumbnailPreference")

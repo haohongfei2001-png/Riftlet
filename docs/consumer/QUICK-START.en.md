@@ -8,3 +8,5 @@
 **Finding an earlier image.** Click the menu bar icon and open Screenshot History. An idle thumbnail archives after **2 minutes** by default. Under Settings → 使用与历史, set the timeout to **1–10 minutes** or turn it off. Select an eligible archived or removed item and choose 恢复到桌面 to bring its thumbnail back. Both the original system file and the private copy remain available.
 
 **Changing the desktop.** Settings → 外观与布局 lets you switch between the screenshot tray (截图托盘), wind chime (风铃), and micro slit (微缝). All three share one queue. Pausing collection and hiding thumbnails are separate controls. [Troubleshooting and recovery](RECOVERY-AND-FAQ.md)
+
+**Using Saytile alongside Riftlet**. A shared frame requires compatible versions of both apps. Open Saytile’s voice panel on the same display. By default the screenshot tray matches the width of the voice card and sits 10 pt below it. Turn on 显示边框 in Saytile to enclose both cards in a single frame. Turn it off to show the two cards on their own. Hiding the voice panel returns the tray to its own position. Select the screenshot tray under 外观与布局 to adjust its size, spacing, and offsets, or turn off following.

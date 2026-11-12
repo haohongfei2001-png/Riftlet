@@ -3,12 +3,12 @@ import RiftletCapture
 
 /// Presentation state only. No file, window, capture, browser or upload access.
 public enum SettingsDomain: String, CaseIterable, Sendable {
-    case collection, visibility, entry, captureMode, arrival, layout, placement, display, desktopForm, windChimeArrangement, trayTheme, archive
+    case collection, visibility, entry, captureMode, arrival, layout, placement, display, desktopForm, windChimeArrangement, trayTheme, trayFollowsSaytile, archive
     case trayFavorite1, trayFavorite2, trayFavorite3
 
     var writesConfiguration: Bool {
         switch self {
-        case .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFavorite1, .trayFavorite2, .trayFavorite3: return true
+        case .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFollowsSaytile, .trayFavorite1, .trayFavorite2, .trayFavorite3: return true
         default: return false
         }
     }
@@ -30,10 +30,19 @@ public enum SettingsDraftPage: Equatable, Sendable { case display, motion }
 /// fields and display identity never enter this patch vocabulary.
 public enum SettingsField: String, CaseIterable, Hashable, Sendable {
     case fitWidth, fitHeight, hiddenFraction, trayOcclusion, trayTintHue, trayTintStrength, rowPitch, outerInset, windChimeLineInset, firstCenterFromTop
+    case trayScalePercent, trayHorizontalOffset, trayVerticalOffset, trayCompanionGap
     case numberFontSize, numberGap, leftPadding, minimumHitWidth, minimumHitHeight, visibleCountPreference
     case pressDuration, swallowDuration, shiftDuration, returnDuration
 
     fileprivate var isCustomTrayTint: Bool { self == .trayTintHue || self == .trayTintStrength }
+
+    fileprivate var conditionalTrayField: Bool {
+        switch self {
+        case .trayTintHue, .trayTintStrength, .trayScalePercent, .trayHorizontalOffset,
+             .trayVerticalOffset, .trayCompanionGap: return true
+        default: return false
+        }
+    }
 
     public var page: SettingsDraftPage {
         switch self {
@@ -50,6 +59,10 @@ public enum SettingsField: String, CaseIterable, Hashable, Sendable {
 
     fileprivate func value(in c: RiftConfiguration) -> Double {
         switch self {
+        case .trayScalePercent: return c.trayScalePercent
+        case .trayHorizontalOffset: return c.trayHorizontalOffset
+        case .trayVerticalOffset: return c.trayVerticalOffset
+        case .trayCompanionGap: return c.trayCompanionGap
         case .fitWidth: return c.fitWidth
         case .fitHeight: return c.fitHeight
         case .trayTintHue: return c.trayTintHue
@@ -76,6 +89,18 @@ public enum SettingsField: String, CaseIterable, Hashable, Sendable {
     fileprivate func put(_ value: Double, into c: inout RiftConfiguration) throws {
         guard value.isFinite else { throw SettingsValidationFailure.invalidNumber(self) }
         switch self {
+        case .trayScalePercent:
+            guard RiftConfiguration.trayScaleRange.contains(value) else { throw SettingsValidationFailure.invalidNumber(self) }
+            c.trayScalePercent = value
+        case .trayHorizontalOffset:
+            guard RiftConfiguration.trayOffsetRange.contains(value) else { throw SettingsValidationFailure.invalidNumber(self) }
+            c.trayHorizontalOffset = value
+        case .trayVerticalOffset:
+            guard RiftConfiguration.trayOffsetRange.contains(value) else { throw SettingsValidationFailure.invalidNumber(self) }
+            c.trayVerticalOffset = value
+        case .trayCompanionGap:
+            guard RiftConfiguration.trayGapRange.contains(value) else { throw SettingsValidationFailure.invalidNumber(self) }
+            c.trayCompanionGap = value
         case .fitWidth: c.fitWidth = value
         case .fitHeight: c.fitHeight = value
         case .trayTintHue:
@@ -123,6 +148,7 @@ public enum SettingsIntent: Equatable, Sendable {
     case collectionPaused(Bool), hidden(Bool), entryEnabled(Bool)
     case captureMode(ScreenshotMode), arrival(ArrivalMotionMode)
     case desktopForm(RiftDesktopForm), windChimeArrangement(RiftWindChimeArrangement), trayTheme(RiftTrayTheme)
+    case trayFollowsSaytile(Bool)
     case trayFavorite(RiftTrayFavoriteSlot, RiftTrayFavoriteChoice)
     case layout([SettingsField: Double]), placement(RiftPlacement)
     case display(SettingsDisplayPreference), archiveMinutes(Double?)
@@ -137,6 +163,7 @@ public enum SettingsIntent: Equatable, Sendable {
         case .desktopForm: return .desktopForm
         case .windChimeArrangement: return .windChimeArrangement
         case .trayTheme: return .trayTheme
+        case .trayFollowsSaytile: return .trayFollowsSaytile
         case .trayFavorite(let slot, _): return slot.settingsDomain
         case .layout: return .layout
         case .placement: return .placement
@@ -226,6 +253,7 @@ public enum SettingsCommand: Sendable {
     case setCollectionPaused(Bool), setHidden(Bool), setEntryEnabled(Bool)
     case setCaptureMode(ScreenshotMode), setArrival(ArrivalMotionMode)
     case selectDesktopForm(RiftDesktopForm), selectWindChimeArrangement(RiftWindChimeArrangement), selectTrayTheme(RiftTrayTheme)
+    case setTrayFollowsSaytile(Bool)
     case selectTrayFavorite(RiftTrayFavoriteSlot, RiftTrayFavoriteChoice)
     case selectPlacement(RiftPlacement), selectDisplay(UInt32?), retry(SettingsDomain)
 }
@@ -300,17 +328,16 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
 
     public var snapshot: SettingsStateSnapshot {
         var visibleDomains = domains
-        // A retained tint draft is editable again when its controls return.
-        // Present its current validation only while it belongs to this form and theme.
+        // Retain drafts for hidden tray controls and surface their errors when shown again.
         if case .invalidNumber(let field) = visibleDomains[.layout]?.validationFailure,
-           field.isCustomTrayTint || !includedInLayoutDraft(field) {
+           field.conditionalTrayField || !includedInLayoutDraft(field) {
             visibleDomains[.layout]?.validationFailure = nil
         }
         let draft: RiftConfiguration?
         do { draft = try configuration(for: .layout(layoutPatch())) }
         catch {
             draft = nil
-            if case SettingsValidationFailure.invalidNumber(let field) = error, field.isCustomTrayTint {
+            if case SettingsValidationFailure.invalidNumber(let field) = error, field.conditionalTrayField {
                 visibleDomains[.layout]?.validationFailure = .invalidNumber(field)
             }
         }
@@ -413,6 +440,7 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
             await save(prepare(.desktopForm(value)), into: &result)
         case .selectWindChimeArrangement(let value): await save(prepare(.windChimeArrangement(value)), into: &result)
         case .selectTrayTheme(let value): await save(prepare(.trayTheme(value)), into: &result)
+        case .setTrayFollowsSaytile(let enabled): await save(prepare(.trayFollowsSaytile(enabled)), into: &result)
         case .selectTrayFavorite(let slot, let choice):
             guard choice != .unsupported else { return result }
             await save(prepare(.trayFavorite(slot, choice)), into: &result)
@@ -438,6 +466,13 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
 
     private func includedInLayoutDraft(_ field: SettingsField) -> Bool {
         let configuration = owner.settings.configuration
+        switch field {
+        case .trayScalePercent, .trayHorizontalOffset, .trayVerticalOffset:
+            return configuration.desktopForm == .tray
+        case .trayCompanionGap:
+            return configuration.desktopForm == .tray && configuration.trayFollowsSaytile
+        default: break
+        }
         if field == .windChimeLineInset { return configuration.desktopForm == .windChime }
         if field == .outerInset || field == .hiddenFraction { return configuration.desktopForm != .windChime }
         if field.isCustomTrayTint {
@@ -448,7 +483,7 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
 
     private func layoutPatch() throws -> [SettingsField: Double] {
         try Dictionary(uniqueKeysWithValues: layoutText.filter { includedInLayoutDraft($0.key) }.map { field, text in
-            guard let value = parse(text) else { throw SettingsValidationFailure.invalidNumber(field) }
+            guard let value = parse(text, field: field) else { throw SettingsValidationFailure.invalidNumber(field) }
             return (field, value / field.scale)
         })
     }
@@ -504,6 +539,7 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         case .desktopForm(let value): candidate.desktopForm = value
         case .windChimeArrangement(let value): candidate.windChimeArrangement = value
         case .trayTheme(let value): candidate.trayTheme = value
+        case .trayFollowsSaytile(let enabled): candidate.trayFollowsSaytile = enabled
         case .trayFavorite(let slot, let choice): candidate.setTrayFavorite(choice, for: slot)
         case .placement(let placement): candidate.placement = placement; candidate.placementSource = .user
         case .display(let display):
@@ -605,6 +641,7 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
             return patch.allSatisfy { $0.key.value(in: value.settings.configuration) == $0.value }
         case .desktopForm(let target): return value.settings.configuration.desktopForm == target
         case .windChimeArrangement(let target): return value.settings.configuration.windChimeArrangement == target
+        case .trayFollowsSaytile(let enabled): return value.settings.configuration.trayFollowsSaytile == enabled
         case .trayTheme(let target): return value.settings.configuration.trayTheme == target
         case .trayFavorite(let slot, let choice): return value.settings.configuration.trayFavorite(slot) == choice
         case .placement(let target):
@@ -624,6 +661,7 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         case .arrival: return .arrival(value.settings.arrivalMode)
         case .desktopForm: return .desktopForm(value.settings.configuration.desktopForm)
         case .windChimeArrangement: return .windChimeArrangement(value.settings.configuration.windChimeArrangement)
+        case .trayFollowsSaytile: return .boolean(value.settings.configuration.trayFollowsSaytile)
         case .trayTheme: return .trayTheme(value.settings.configuration.trayTheme)
         case .trayFavorite1: return .trayFavorite(value.settings.configuration.trayFavorite(.first))
         case .trayFavorite2: return .trayFavorite(value.settings.configuration.trayFavorite(.second))
@@ -640,7 +678,7 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         case .layout(let patch):
             for (field, value) in patch {
                 if layoutEditVersions[field] == prepared.textVersions.layout[field],
-                   let text = layoutText[field], parse(text).map({ $0 / field.scale }) == value {
+                   let text = layoutText[field], parse(text, field: field).map({ $0 / field.scale }) == value {
                     layoutText.removeValue(forKey: field)
                     layoutEditVersions.removeValue(forKey: field)
                 }
@@ -670,10 +708,12 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
     private func invalid(_ domain: SettingsDomain, _ failure: SettingsValidationFailure, into result: inout SettingsSubmission) {
         domains[domain]?.validationFailure = failure; revision += 1; result.failed.append(domain)
     }
-    private func parse(_ raw: String) -> Double? {
+    private func parse(_ raw: String, field: SettingsField? = nil) -> Double? {
         let text = raw.trimmingCharacters(in: .whitespacesAndNewlines)
             .replacingOccurrences(of: decimalSeparator, with: ".")
-        guard text.range(of: #"^(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?$"#,
+        let signedOffset = field == .trayHorizontalOffset || field == .trayVerticalOffset
+        guard signedOffset || !(text.hasPrefix("-") || text.hasPrefix("+")),
+              text.range(of: #"^[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?$"#,
                          options: .regularExpression) != nil,
               let number = Double(text), number.isFinite else { return nil }
         return number

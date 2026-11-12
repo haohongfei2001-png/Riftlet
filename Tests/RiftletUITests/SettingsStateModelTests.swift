@@ -68,7 +68,7 @@ final class SettingsStateModelTests: XCTestCase {
                 case .arrival(let mode):
                     if !failed { next.settings.arrivalMode = mode; next.settings.hasArrivalSelection = true }
                 case .archiveMinutes(let minutes): if !failed { next.settings.archiveAfterMinutes = minutes }
-                case .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFavorite:
+                case .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFollowsSaytile, .trayFavorite:
                     if !failed, let configuration = request.configuration {
                         next.settings.configuration = configuration
                         next.settings.preferredDisplayID = configuration.preferredDisplayID
@@ -269,6 +269,87 @@ final class SettingsStateModelTests: XCTestCase {
             XCTAssertEqual(decoded.hiddenFraction, 0.25)
             XCTAssertNil(decoded.placement)
         }
+    }
+
+    @MainActor func testTraySizeOffsetsAndFollowPersistAndRetryTheirOriginalIntent() async throws {
+        let owner = Owner()
+        let model = try model(owner)
+        await model.perform(.selectDesktopForm(.tray))
+        model.setDraftText("135", for: .trayScalePercent)
+        model.setDraftText("-28", for: .trayHorizontalOffset)
+        model.setDraftText("+43", for: .trayVerticalOffset)
+        model.setDraftText("16", for: .trayCompanionGap)
+        XCTAssertEqual(model.configurationDraft?.trayHorizontalOffset, -28)
+        XCTAssertEqual(owner.value.settings.configuration.trayScalePercent, 100)
+        let saved = await model.perform(.applyLayout)
+        XCTAssertEqual(saved.confirmed, [.layout])
+        XCTAssertTrue(model.snapshot.layoutText.isEmpty)
+
+        owner.failures.insert(.trayFollowsSaytile)
+        let failed = await model.perform(.setTrayFollowsSaytile(false))
+        XCTAssertEqual(failed.failed, [.trayFollowsSaytile])
+        XCTAssertTrue(owner.value.settings.configuration.trayFollowsSaytile)
+        await model.perform(.selectTrayTheme(.violetGlass))
+        XCTAssertNotNil(model.snapshot.domains[.trayFollowsSaytile]?.saveFailure)
+        owner.failures.remove(.trayFollowsSaytile)
+        let retried = await model.perform(.retry(.trayFollowsSaytile))
+        XCTAssertEqual(retried.confirmed, [.trayFollowsSaytile])
+
+        let data = try JSONEncoder().encode(owner.value.settings.configuration)
+        let reopened = try JSONDecoder().decode(RiftConfiguration.self, from: data)
+        XCTAssertFalse(reopened.trayFollowsSaytile)
+        XCTAssertEqual(reopened.trayScalePercent, 135)
+        XCTAssertEqual(reopened.trayHorizontalOffset, -28)
+        XCTAssertEqual(reopened.trayVerticalOffset, 43)
+        XCTAssertEqual(reopened.trayCompanionGap, 16)
+        XCTAssertEqual(reopened.trayTheme, .violetGlass)
+    }
+
+    @MainActor func testTrayBoundsAndHiddenCompanionGapDoNotBlockStandaloneEdits() async throws {
+        let owner = Owner()
+        let model = try model(owner)
+        await model.perform(.selectDesktopForm(.tray))
+        for (field, text) in [(SettingsField.trayScalePercent, "161"), (.trayHorizontalOffset, "-257"),
+                              (.trayVerticalOffset, "257"), (.trayCompanionGap, "97")] {
+            model.setDraftText(text, for: field)
+            let result = await model.perform(.applyLayout)
+            XCTAssertEqual(result.failed, [.layout])
+            XCTAssertEqual(model.snapshot.domains[.layout]?.validationFailure, .invalidNumber(field))
+            await model.perform(.discardLayout)
+        }
+        model.setDraftText("97", for: .trayCompanionGap)
+        await model.perform(.setTrayFollowsSaytile(false))
+        model.setDraftText("-8", for: .trayVerticalOffset)
+        let saved = await model.perform(.applyLayout)
+        XCTAssertEqual(saved.confirmed, [.layout])
+        XCTAssertEqual(owner.value.settings.configuration.trayCompanionGap, 10)
+        XCTAssertEqual(owner.value.settings.configuration.trayVerticalOffset, -8)
+        await model.perform(.setTrayFollowsSaytile(true))
+        XCTAssertEqual(model.snapshot.domains[.layout]?.validationFailure, .invalidNumber(.trayCompanionGap))
+        await model.perform(.restoreDefaults(.display))
+        await model.perform(.applyLayout)
+        XCTAssertEqual(owner.value.settings.configuration.trayVerticalOffset, 0)
+    }
+
+    func testLegacyAndUnknownTrayPlacementValuesRoundTrip() throws {
+        let expectedDefaults = RiftConfiguration()
+        XCTAssertTrue(expectedDefaults.trayFollowsSaytile)
+        XCTAssertEqual(expectedDefaults.trayScalePercent, 100)
+        XCTAssertEqual(expectedDefaults.trayCompanionGap, 10)
+        let input = #"{"trayScalePercent":"future","trayFollowsSaytile":{"version":2},"trayCompanionGap":-4,"trayHorizontalOffset":999}"#
+        var config = try JSONDecoder().decode(RiftConfiguration.self, from: Data(input.utf8))
+        XCTAssertTrue(config.trayFollowsSaytile)
+        XCTAssertEqual(config.trayHorizontalOffset, 0)
+        XCTAssertEqual(config.trayVerticalOffset, 0)
+        XCTAssertEqual(config.trayCompanionGap, 10)
+        XCTAssertEqual(config.trayScalePercent, 100)
+        config.outerInset = 21
+        let stored = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(config)) as? NSDictionary)
+        XCTAssertEqual(stored["trayFollowsSaytile"] as? NSDictionary, ["version": 2])
+        XCTAssertEqual(stored["trayScalePercent"] as? String, "future")
+        XCTAssertEqual(stored["trayCompanionGap"] as? Int, -4)
+        XCTAssertEqual(stored["trayHorizontalOffset"] as? Int, 999)
+        XCTAssertNil(stored["trayVerticalOffset"])
     }
 
     @MainActor func testCustomTintValidatesSavesAndReopensWithoutLosingPresetOrOtherSettings() async throws {

@@ -68,22 +68,29 @@ final class RiftOnboardingPlacementPreview: NSView {
         } else {
             ("给 ChatGPT 发送消息" as NSString).draw(at: CGPoint(x: entry.minX + 8, y: entry.midY - 6), withAttributes: words)
         }
-        guard let placement = workflow ? RiftPlacement.rightMiddle : configuration.placement else { return }
         if !workflow, configuration.desktopForm == .windChime {
             WindChimePlacementIllustration.draw(in: rect, configuration: configuration, flipped: isFlipped)
             return
         }
         let tray = workflow || configuration.desktopForm == .tray
-        let width = tray ? rect.width / 8 : 34.0
-        let height = tray ? width * 0.53 : 23.0
-        let y: CGFloat
-        switch placement.vertical {
-        case .top: y = rect.maxY - height - 8
-        case .middle: y = rect.midY - height / 2
-        case .bottom: y = rect.minY + 8
-        }
-        let frame = CGRect(x: placement.side == .right ? rect.maxX - width - 3 : rect.minX + 3,
+        let frame: CGRect
+        if tray {
+            var sample = configuration
+            if workflow { sample.placement = .rightMiddle }
+            frame = TrayPlacementIllustration.frames(in: rect, configuration: sample, twoRows: false,
+                                                     withSaytile: false, flipped: isFlipped).tray
+        } else {
+            guard let placement = configuration.placement else { return }
+            let width = 34.0, height = 23.0
+            let y: CGFloat
+            switch placement.vertical {
+            case .top: y = rect.maxY - height - 8
+            case .middle: y = rect.midY - height / 2
+            case .bottom: y = rect.minY + 8
+            }
+            frame = CGRect(x: placement.side == .right ? rect.maxX - width - 3 : rect.minX + 3,
                            y: y, width: width, height: height)
+        }
         let shape = NSBezierPath(roundedRect: frame, xRadius: 4, yRadius: 4)
         NSColor.white.withAlphaComponent(0.82).setFill(); shape.fill()
         NSColor.separatorColor.setStroke(); shape.stroke()

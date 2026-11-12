@@ -20,7 +20,7 @@ public struct RiftControlCenterPresentation {
         var pages = Set<SettingsPage>()
         for (domain, state) in snapshot.state.domains where state.saveFailure != nil {
             switch domain {
-            case .arrival, .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme: pages.insert(.display)
+            case .arrival, .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFollowsSaytile: pages.insert(.display)
             case .entry, .captureMode, .trayFavorite1, .trayFavorite2, .trayFavorite3: pages.insert(.capture)
             case .collection, .visibility, .archive: pages.insert(.history)
             }

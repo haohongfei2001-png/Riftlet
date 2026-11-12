@@ -157,6 +157,10 @@ extension RiftSettingsCenterController {
         enable("windChimeArrangement", product.capabilities.canEditPreferences && !configurationBusy)
         (controls["trayTheme"] as? NSPopUpButton)?.selectItem(withTitle: configuration.trayTheme.title)
         enable("desktopForm", product.capabilities.canEditPreferences && !configurationBusy)
+        check("trayFollowsSaytile", configuration.trayFollowsSaytile,
+              enabled: product.capabilities.canEditPreferences && !configurationBusy)
+        trayBorderPreviewRow?.isHidden = configuration.desktopForm != .tray || !configuration.trayFollowsSaytile
+        trayGapSetting?.isHidden = !configuration.trayFollowsSaytile
         enable("trayTheme", product.capabilities.canEditPreferences && !configurationBusy)
         trayTintSettings?.isHidden = configuration.trayTheme != .custom
         traySettings?.isHidden = configuration.desktopForm != .tray
@@ -342,6 +346,7 @@ extension RiftSettingsCenterController {
         case .arrival: target = "入缝偏好"
         case .desktopForm: target = "桌面形态"
         case .windChimeArrangement(let arrangement): target = "风铃排列 · " + arrangement.title
+        case .trayFollowsSaytile(let enabled): target = enabled ? "排列在 Saytile 下方" : "独立显示托盘"
         case .trayTheme: target = "托盘材质"
         case .trayFavorite(let slot, let choice): target = "常用键 \(slot.rawValue) · \(choice.menuTitle)"
         case .layout: target = "参数更改"

@@ -301,6 +301,72 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertEqual(field.stringValue, "83.2500", "Blurred drafts retain formatting, too")
     }
 
+    @MainActor func testPairedPreviewSwitchDrawsOneEnclosureOrTwoBareCardsWithoutSaving() throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        var settings = h.owner.settings
+        settings.configuration.desktopForm = .tray
+        h.receive(settings)
+        let preview = h.controller.geometryPreview
+        let selector: NSSegmentedControl = try control(h, "tray.borderPreview")
+        XCTAssertFalse(h.controller.trayBorderPreviewRow.isHidden)
+        XCTAssertEqual(selector.selectedSegment, 0)
+        let rect = CGRect(x: 0.5, y: 0.5, width: 523, height: 114)
+        let bordered = TrayPlacementIllustration.frames(in: rect, configuration: settings.configuration, twoRows: true,
+                                                         withSaytile: true, framed: true, flipped: true)
+        let outer = try XCTUnwrap(bordered.outer)
+        let card = try XCTUnwrap(bordered.saytile)
+        XCTAssertTrue(outer.contains(card) && outer.contains(bordered.tray))
+        XCTAssertLessThan(bordered.tray.width, outer.width)
+        XCTAssertEqual(bordered.tray.width, card.width, accuracy: 0.1)
+        XCTAssertEqual(bordered.tray.maxX, card.maxX, accuracy: 0.1)
+
+        try change(h, "tray.borderPreview", index: 1)
+        XCTAssertFalse(preview.previewSaytileBorder)
+        XCTAssertTrue(preview.geometrySummary.contains("无外框"))
+        let borderless = TrayPlacementIllustration.frames(in: rect, configuration: settings.configuration, twoRows: true,
+                                                           withSaytile: true, framed: false, flipped: false)
+        XCTAssertNil(borderless.outer)
+        let fullWidth = try XCTUnwrap(borderless.saytile)
+        XCTAssertGreaterThan(fullWidth.width, card.width)
+        XCTAssertEqual(fullWidth.width, borderless.tray.width, accuracy: 0.1)
+        XCTAssertEqual(fullWidth.maxX, borderless.tray.maxX, accuracy: 0.1)
+        h.publish()
+        XCTAssertEqual(selector.selectedSegment, 1)
+        XCTAssertFalse(h.model.hasLayoutDraft)
+        XCTAssertTrue(h.requests.isEmpty)
+        settings.configuration.trayFollowsSaytile = false
+        h.receive(settings)
+        XCTAssertTrue(h.controller.trayBorderPreviewRow.isHidden)
+    }
+
+    @MainActor func testTrayControlsApplyScaleSignedOffsetsAndStandalonePlacement() async throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        h.controller.show(page: .display)
+        try await changeAndWait(h, "desktopForm", index: 0)
+        XCTAssertFalse(h.controller.traySettings.isHidden)
+        let toggle: NSSwitch = try control(h, "trayFollowsSaytile")
+        XCTAssertEqual(toggle.state, .on)
+        XCTAssertFalse(h.controller.trayGapSetting.isHidden)
+        XCTAssertTrue(h.controller.geometryPreview.geometrySummary.contains("Saytile"))
+        try await clickAndWait(h, "trayFollowsSaytile")
+        XCTAssertEqual(toggle.state, .off)
+        XCTAssertTrue(h.controller.trayGapSetting.isHidden)
+        XCTAssertFalse(h.controller.geometryPreview.geometrySummary.contains("Saytile"))
+        try click(h, "disclosure.tray.offsets")
+        let size = try XCTUnwrap(h.controller.numericFields[.trayScalePercent])
+        let offset = try XCTUnwrap(h.controller.numericFields[.trayHorizontalOffset])
+        _ = try enter(h, field: size, text: "124")
+        _ = try enter(h, field: offset, text: "-24")
+        XCTAssertEqual(h.controller.geometryPreview.configuration.trayScalePercent, 124)
+        XCTAssertEqual(h.controller.geometryPreview.configuration.trayHorizontalOffset, -24)
+        try await clickAndWait(h, "layout.apply.display")
+        XCTAssertEqual(h.owner.settings.configuration.trayScalePercent, 124)
+        XCTAssertEqual(h.owner.settings.configuration.trayHorizontalOffset, -24)
+        XCTAssertFalse(h.owner.settings.configuration.trayFollowsSaytile)
+        try await changeAndWait(h, "desktopForm", index: 1)
+        XCTAssertTrue(h.controller.traySettings.isHidden)
+    }
+
     @MainActor func testWindChimeArrangementControlTracksFormAndOwner() async throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
         h.controller.show(page: .display)
@@ -1128,7 +1194,7 @@ private final class SettingsCenterTestHost {
         case .captureMode(let mode): if !failure { settings.defaultCaptureMode = mode; settings.capturePreferencesSaveFailed = false }
         case .arrival(let mode): if !failure { settings.arrivalMode = mode; settings.hasArrivalSelection = true }
         case .archiveMinutes(let value): if !failure { settings.archiveAfterMinutes = value }
-        case .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFavorite:
+        case .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFollowsSaytile, .trayFavorite:
             if !failure, let configuration = request.configuration { settings.configuration = configuration; settings.preferredDisplayID = configuration.preferredDisplayID }
         }
         owner = SettingsOwnerSnapshot(revision: owner.revision + 1, settings: settings, collectionPaused: paused, isHidden: hidden,

@@ -43,6 +43,8 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     var windChimeLineSetting: NSView!
     var windChimeSettings: NSView!
     var traySettings: NSView!
+    var trayGapSetting: NSView!
+    var trayBorderPreviewRow: NSView!
     var trayTintSettings: NSView!
     var legacyFieldRow: NSView!
     let geometryPreview = RiftSettingsCenterPreview(kind: .geometry)

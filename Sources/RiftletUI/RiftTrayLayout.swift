@@ -1,6 +1,21 @@
 import Foundation
 import RiftletCore
 
+/// The Saytile voice slot in screen coordinates. Its optional outer rail and
+/// its visible voice card have different bounds when the border is enabled.
+struct SaytileTrayAnchor: Equatable {
+    let outerFrame: CGRect
+    let framed: Bool
+
+    var rim: CGFloat {
+        guard framed, !outerFrame.isEmpty, !outerFrame.isInfinite else { return 0 }
+        // Saytile build 321, VoiceRailMetrics.cardFrame(in:).
+        return min(10 * min(1.5, outerFrame.width / 325), min(outerFrame.width, outerFrame.height) / 4)
+    }
+
+    var bodyFrame: CGRect { outerFrame.insetBy(dx: rim, dy: rim) }
+}
+
 /// A menu belongs to the viewport from which its camera was opened. A later
 /// capture can create an upper row even when that same UUID would have been
 /// pushed out had it already existed at opening.
@@ -37,10 +52,94 @@ struct RiftTrayMenuState {
 /// A viewport over the existing queue. Capture occupies the position immediately
 /// after the last asset and has no asset identity of its own.
 enum RiftTrayLayout {
+    static func geometry(visibleFrame: CGRect, configuration c: RiftConfiguration, twoRows: Bool,
+                         backingScale: Double, displayFrame: CGRect? = nil,
+                         saytileGlassFrame: CGRect? = nil,
+                         saytileOuterInset: CGFloat = 0) -> (frame: CGRect, verticalUnit: CGFloat) {
+        guard visibleFrame.width > 0, visibleFrame.height > 0 else { return (.zero, 0) }
+        let px = CGFloat(backingScale.isFinite ? max(1, backingScale) : 1)
+        func snap(_ points: CGFloat) -> CGFloat { (points * px).rounded() / px }
+        let display = displayFrame ?? visibleFrame
+        let companion = saytileGlassFrame.flatMap { frame -> CGRect? in
+            guard c.trayFollowsSaytile, !frame.isEmpty, !frame.isInfinite,
+                  !visibleFrame.intersection(frame).isEmpty else { return nil }
+            return frame
+        }
+        // The caller supplies the visible card. Only reserve the shared border
+        // at the desktop edges; subtracting it from the card again would narrow the tray.
+        let margin = companion != nil && saytileOuterInset.isFinite
+            ? min(max(0, saytileOuterInset), min(visibleFrame.width, visibleFrame.height) / 4) : 0
+        let available = visibleFrame.insetBy(dx: margin, dy: margin)
+        // Saytile's initialPanel measures its glass against the usable desktop.
+        let defaultWidth = min(visibleFrame.width, max(20, visibleFrame.width / 8))
+        let preferredWidth = (companion?.width ?? defaultWidth) * c.trayScalePercent / 100
+        let width = min(available.width, max(1 / px, snap(preferredWidth)))
+        let unit = width / 246
+        // The paired, two-row glass in the desktop reference is 178 high by 295 wide.
+        // Keep the same slots and fit each image inside the shorter cells.
+        let rowScale = companion == nil ? unit : width * (178.0 / 295) / 212
+        let verticalUnit = min(rowScale, available.height / 212)
+        let maximumHeight = min(available.height, snap(212 * verticalUnit))
+        let height = twoRows ? maximumHeight : min(maximumHeight, snap(115 * verticalUnit))
+        func frame(x: CGFloat, y: CGFloat) -> CGRect {
+            CGRect(x: min(available.maxX - width, max(available.minX, snap(x))),
+                   y: min(available.maxY - height, max(available.minY, snap(y))),
+                   width: width, height: height)
+        }
+        let surface: CGRect
+        if let companion {
+            let x = companion.maxX - width + c.trayHorizontalOffset
+            let gap = c.trayCompanionGap
+            // Round away from the companion. At zero gap, rounding to nearest
+            // can turn a fractional drag position into a spurious overlap.
+            let belowY = floor((companion.minY - gap) * px) / px - height
+            let below = frame(x: x, y: belowY)
+            if !below.intersects(companion) {
+                surface = below
+            } else {
+                // A dragged Saytile can reach the bottom edge. Try above and beside it.
+                // When both panels cannot fit, keep the tray usable with the least overlap.
+                let aboveY = ceil((companion.maxY + gap) * px) / px
+                let leftX = floor((companion.minX - gap) * px) / px - width
+                let rightX = ceil((companion.maxX + gap) * px) / px
+                let choices = [below, frame(x: x, y: aboveY),
+                               frame(x: leftX, y: belowY), frame(x: rightX, y: belowY)]
+                func overlap(_ candidate: CGRect) -> CGFloat {
+                    let shared = candidate.intersection(companion)
+                    return shared.isEmpty ? 0 : shared.width * shared.height
+                }
+                surface = choices.min { overlap($0) < overlap($1) } ?? below
+            }
+        } else {
+            let inset = min(c.outerInset, max(0, visibleFrame.width - width))
+            let x = c.placement?.side == .left ? visibleFrame.minX + inset : visibleFrame.maxX - inset - width
+            let padY = min(c.screenPadding, max(0, visibleFrame.height - maximumHeight))
+            let bottom: CGFloat
+            switch c.placement?.vertical {
+            case .top: bottom = visibleFrame.maxY - padY - maximumHeight
+            case .bottom: bottom = visibleFrame.minY + padY
+            case .middle, nil: bottom = display.midY - maximumHeight / 2 - 56 * verticalUnit
+            }
+            // Reserve space for both rows at the standalone anchor so the menu stays put on arrival.
+            let shiftedBottom = min(visibleFrame.maxY - maximumHeight, bottom - c.trayVerticalOffset)
+            surface = frame(x: x + c.trayHorizontalOffset, y: shiftedBottom)
+        }
+        return (surface, verticalUnit)
+    }
+
+    /// The row stays in its final screen slot while each glass edge moves toward its final position.
+    /// Keeping the final insets at both moving edges also keeps the lower menu out of the row's hits.
+    static func arrivingRowClip(bounds: CGRect, surface: CGRect, finalSurface: CGRect) -> CGRect {
+        let bottom = bounds.minY + max(0, surface.minY - finalSurface.minY)
+        let top = bounds.maxY + min(0, surface.maxY - finalSurface.maxY)
+        return CGRect(x: bounds.minX, y: bottom, width: bounds.width, height: max(0, top - bottom))
+    }
+
     static func make(records: [AssetRecord], visibleFrame: CGRect,
                      configuration c: RiftConfiguration, firstVisibleIndex: Int,
                      backingScale: Double, captureEnabled: Bool, menu: RiftTrayMenuState? = nil,
-                     displayFrame: CGRect? = nil) -> RiftLayoutResult {
+                     displayFrame: CGRect? = nil, saytileGlassFrame: CGRect? = nil,
+                     saytileOuterInset: CGFloat = 0) -> RiftLayoutResult {
         let active = records.filter { $0.visibility == .visible }
         let menu = captureEnabled ? menu : nil
         let menuOpen = menu != nil
@@ -50,37 +149,17 @@ enum RiftTrayLayout {
                                       capacity: capacity, totalCount: active.count)
         guard visibleFrame.width > 0, visibleFrame.height > 0, captureEnabled || !active.isEmpty else { return result }
 
-        // The target display sets the width. The 246-unit reference supplies the interior ratios.
-        let px = CGFloat(backingScale.isFinite ? max(1, backingScale) : 1)
-        func snap(_ points: CGFloat) -> CGFloat { (points * px).rounded() / px }
-        let display = displayFrame ?? visibleFrame
-        let width = min(visibleFrame.width, max(1 / px, snap(display.width / 8)))
-        let unit = width / 246
-        let verticalUnit = min(unit, visibleFrame.height / 212)
         // An explicitly revealed safe failure can be the sole visible row too.
         // Its existing UUID is not a new capture and never changes that latch.
         let twoRows = active.count >= 2 || (active.count == 1 && menu.map {
             $0.receivedCapture || $0.openingRows.count >= 2 || $0.priorityIDs.contains(active[0].id)
         } == true)
-        let maximumHeight = min(visibleFrame.height, snap(212 * verticalUnit))
-        let height = twoRows ? maximumHeight : min(maximumHeight, snap(115 * verticalUnit))
-        let inset = min(c.outerInset, max(0, visibleFrame.width - width))
-        let x = c.placement?.side == .left ? visibleFrame.minX + inset : visibleFrame.maxX - inset - width
-        let padY = min(c.screenPadding, max(0, visibleFrame.height - maximumHeight))
-        let bottom: CGFloat
-        switch c.placement?.vertical {
-        case .top: bottom = visibleFrame.maxY - padY - maximumHeight
-        case .bottom: bottom = visibleFrame.minY + padY
-        case .middle, nil:
-            // In the full 941-pixel display the tray center is 56 px below
-            // center. The Dock changes the usable frame; only use it to clamp.
-            bottom = display.midY - maximumHeight / 2 - 56 * verticalUnit
-        }
-        // The compact state retains the bottom row. Opening lifts the images,
-        // while scrolling a long queue never changes the outer rectangle.
-        let surface = CGRect(x: min(visibleFrame.maxX-width, max(visibleFrame.minX,snap(x))),
-                             y: min(visibleFrame.maxY-maximumHeight, max(visibleFrame.minY,snap(bottom))),
-                             width: width, height: height)
+        let (surface, verticalUnit) = geometry(visibleFrame: visibleFrame, configuration: c, twoRows: twoRows,
+                                               backingScale: backingScale, displayFrame: displayFrame,
+                                               saytileGlassFrame: saytileGlassFrame, saytileOuterInset: saytileOuterInset)
+        let px = CGFloat(backingScale.isFinite ? max(1, backingScale) : 1)
+        func snap(_ points: CGFloat) -> CGFloat { (points * px).rounded() / px }
+        let unit = surface.width / 246
         let innerLeft = snap(surface.minX + 7 * unit)
         let innerRight = snap(surface.maxX - 7 * unit)
         let columnEnd = snap(surface.midX - 2.5 * unit)

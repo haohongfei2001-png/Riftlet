@@ -1508,7 +1508,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             case .captureMode(let target): _ = try applySettings(.defaultCaptureMode(target))
             case .arrival(let target): _ = try applySettings(.arrivalMode(target))
             case .archiveMinutes(let target): _ = try applySettings(.archiveAfterMinutes(target))
-            case .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFavorite:
+            case .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFollowsSaytile, .trayFavorite:
                 guard let configuration = request.configuration, rift != nil else { throw CocoaError(.fileWriteUnknown) }
                 if case .display(let selected) = request.intent {
                     guard settingsSnapshot().displays.contains(where: { $0.id == selected.id && $0.uuid == selected.uuid }) else {

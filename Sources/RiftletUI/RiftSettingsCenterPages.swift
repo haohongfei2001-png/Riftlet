@@ -37,6 +37,12 @@ extension RiftSettingsCenterController {
     func displayContent() -> [NSView] {
         geometryPreview.identifier = .init("settings.center.layoutPreview")
         geometryPreview.heightAnchor.constraint(equalToConstant: 115).isActive = true
+        let borderPreview = segmented("示意图外框", id: "tray.borderPreview", titles: ["共用外框", "无外框"]) { [weak self] index in
+            self?.geometryPreview.previewSaytileBorder = index == 0
+            self?.refreshDraftPresentation()
+        }
+        borderPreview.selectedSegment = 0
+        trayBorderPreviewRow = row("示意图外框", control: borderPreview)
         let forms = RiftDesktopForm.allCases
         let form = segmented("桌面形态", id: "desktopForm", titles: forms.map(\.title)) { [weak self] index in
             self?.dispatch(.settings(.selectDesktopForm(forms[index])))
@@ -69,7 +75,24 @@ extension RiftSettingsCenterController {
             numericRow(.trayTintHue, title: "玻璃色调", unit: "°", range: 0...360, step: 1),
             numericRow(.trayTintStrength, title: "色彩强度", unit: "%", range: 0...100, step: 1)
         ])
+        let follow = nativeSwitch("排列在 Saytile 下方", id: "trayFollowsSaytile") { [weak self] enabled in
+            self?.dispatch(.settings(.setTrayFollowsSaytile(enabled)))
+        }
+        trayGapSetting = numericRow(.trayCompanionGap, title: "与 Saytile 间距", unit: "pt",
+                                    range: RiftConfiguration.trayGapRange, step: 1)
+        let offsets = group([
+            numericRow(.trayHorizontalOffset, title: "水平偏移（向右为正）", unit: "pt",
+                       range: RiftConfiguration.trayOffsetRange, step: 1),
+            numericRow(.trayVerticalOffset, title: "独立显示时垂直偏移（向下为正）", unit: "pt",
+                       range: RiftConfiguration.trayOffsetRange, step: 1)
+        ])
         traySettings = group([
+            row("排列在 Saytile 下方", detail: "与支持联动的 Saytile 同屏时，托盘与语音面板右侧对齐。Saytile 开启「显示边框」时两者共用外框。", control: follow),
+            domainError(.trayFollowsSaytile),
+            numericRow(.trayScalePercent, title: "托盘大小", unit: "%", range: RiftConfiguration.trayScaleRange, step: 1,
+                       detail: "100% 时与语音面板本体等宽。独立显示时为可用屏宽的 1/8。"),
+            trayGapSetting!,
+            disclosure("位置微调", id: "tray.offsets", content: offsets),
             row("托盘材质", control: theme), domainError(.trayTheme), trayTintSettings!,
             numericRow(.trayOcclusion, title: "缩略图遮挡", unit: "%", range: 0...90)
         ])
@@ -104,7 +127,7 @@ extension RiftSettingsCenterController {
             makeButton("恢复布局默认值", id: "layout.defaults.display") { [weak self] in self?.replaceDrafts(.restoreDefaults(.display)) }
         ] + motionContent() + [namedLabel("accessibility", role:"caption")])
         return [
-            geometryPreview,
+            geometryPreview, trayBorderPreviewRow!,
             row("桌面形态", control: form), domainError(.desktopForm),
             windChimeSettings!, domainError(.windChimeArrangement),
             row("屏幕边缘", control: placement), domainError(.placement),
@@ -461,7 +484,7 @@ extension RiftSettingsCenterController {
         return stack
     }
     func numericRow(_ key: SettingsField, title: String, unit: String,
-                    range: ClosedRange<Double>? = nil, step: Double? = nil) -> NSView {
+                    range: ClosedRange<Double>? = nil, step: Double? = nil, detail: String = "") -> NSView {
         let field = textField(id: "field.\(key.rawValue)", accessibility: "\(title)（\(unit)）")
         numericFields[key] = field
         var valueControls: [NSView] = []
@@ -489,7 +512,7 @@ extension RiftSettingsCenterController {
             numericSliders[key] = slider; valueControls.append(slider)
         }
         valueControls.append(field); valueControls.append(SettingsNativeStyle.label(unit, role: "secondary"))
-        return row(title, detail: "", control: buttonRow(valueControls))
+        return row(title, detail: detail, control: buttonRow(valueControls))
     }
     func domainError(_ domain: SettingsDomain) -> NSView {
         let label = SettingsNativeStyle.label("", role: "secondary")
