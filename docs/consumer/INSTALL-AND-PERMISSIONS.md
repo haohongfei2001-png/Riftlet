@@ -17,8 +17,8 @@
 | 使用 Riftlet 内置截图 | 在「设置 → 截图」开启「显示截图入口」。首次使用窗口、区域或全屏截图时，按系统提示为 Riftlet 允许「屏幕录制」或「屏幕与系统音频录制」。若系统要求，正常退出后重新打开。 | 从桌面入口截一张，再到历史查看。只使用 macOS 截图并让 Riftlet 收录文件时，无需授予这项录屏权限。 |
 | 登录时启动 | 在「设置 → 使用与历史」开启「登录时启动 Riftlet」。若提示「待批准」，点「打开登录项设置…」，在系统设置的「通用 → 登录项」或「登录项与扩展」内确认。 | 重新查看登录项状态；日常也可从应用程序手动打开。 |
 
-日常使用以上功能无需授予「完全磁盘访问权限」或「辅助功能」。从历史 ad-hoc 个人版首次切换为 Developer ID 版本时，macOS 可能再次请求目录或自动化授权。按上表逐项验证实际功能，保留原有截图和历史。私测采用手动更新。
+日常使用以上功能无需授予「完全磁盘访问权限」或「辅助功能」。从历史 ad-hoc 个人版首次切换为 Developer ID 版本时，macOS 可能再次请求目录或自动化授权。按上表逐项验证实际功能，保留原有截图和历史。当前版本采用手动更新。
 
 macOS 设置名称随系统版本变化。系统权限可参考 [Apple 文件与文件夹说明](https://support.apple.com/en-au/guide/mac-help/mchld5a35146/mac) 和 [Apple 录屏权限说明](https://support.apple.com/en-kw/guide/mac-help/mchld6aa7d23/mac)。Chrome 的开关位置可参考 [Chromium 的 AppleScript 说明](https://www.chromium.org/developers/applescript/)。
 
-**English.** Build 19 is the planned private candidate. Once issued, verify its DMG against the included `SHA256SUMS.txt` and the maintainer’s separately supplied digest. Build 18 has a shared-install file-permission defect. Existing personal users can keep their copy. Open the verified DMG, drag Riftlet.app into Applications, eject the image and launch the installed copy. Grant access to the actual macOS screenshot folder. Google Chrome attachment also uses Automation and Chrome’s **Allow JavaScript from Apple Events** setting. Screen Recording is for Riftlet’s own capture tools. [English quick start](QUICK-START.en.md)
+**English.** Riftlet 0.3.5 (19) is a universal macOS 13+ candidate. The app and disk image are notarized and passed Gatekeeper (Developer ID team `ZB9D4T66QB`). Verify the DMG against the SHA-256 at the top of this page. Updates are manual. Build 18 has a shared-install file-permission defect. Existing personal users can keep their copy. Open the verified DMG, drag Riftlet.app into Applications, eject the image and launch the installed copy. Grant access to the actual macOS screenshot folder. Google Chrome attachment also uses Automation and Chrome’s **Allow JavaScript from Apple Events** setting. Screen Recording is for Riftlet’s own capture tools. [English quick start](QUICK-START.en.md)
