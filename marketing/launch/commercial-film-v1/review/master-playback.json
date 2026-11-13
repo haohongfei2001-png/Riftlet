@@ -1,0 +1,43 @@
+{
+  "masterSHA256": "445c2fb227060e72028f26095398fa4f7c0d438ecc5ee1b11ba4c3c742ff36f7",
+  "player": "macOS AVPlayer, uninterrupted 1x run using host-clock AVPlayerItemVideoOutput",
+  "durationSeconds": 30.0,
+  "finalMediaTimeSeconds": 30.0,
+  "elapsedWallSeconds": 30.177957291714847,
+  "freshVideoOutputs": 895,
+  "presentedGlanceCount": 91,
+  "firstPresentedGlanceSeconds": 0.0,
+  "lastPresentedGlanceSeconds": 29.7,
+  "reachedEnd": true,
+  "playbackError": null,
+  "audioScope": "Muted local speaker during picture screening. Audio timeline and levels are verified independently.",
+  "editorialVerdict": "Pass for finished-film handoff. Product use and target are identifiable by 3s, two distinct captures remain trackable, the attachment is visible with text intact, and the icon, verbal signature and download destination hold to end.",
+  "scenesReviewed": [
+    {
+      "range": "0.0-2.8",
+      "observed": "Same Mac displays an orange cyclist and the ChatGPT draft. English names Chrome; the Chinese opening now states “思路不断。Mac 截图，一点就到 ChatGPT 草稿。” and is legible on the dark band."
+    },
+    {
+      "range": "2.8-11.0",
+      "observed": "Full orange cyclist selection and compact tray are followed by the blue-track selection. At about 7.6s this action is captioned “再截一张蓝色内道。” Only after the new blue image appears beside the orange image does “两张截图，都在手边。” appear (about 8.90s)."
+    },
+    {
+      "range": "11.0-15.0",
+      "observed": "Human fingertip insert cuts to the cursor crossing onto orange tile. Only orange disappears after a matching draft chip appears; blue tile remains."
+    },
+    {
+      "range": "15.0-21.5",
+      "observed": "Existing English question remains as “Look at the lean.” is typed manually. The black send button remains idle. The simplified Chinese subtitle translates the question."
+    },
+    {
+      "range": "21.5-24.9",
+      "observed": "Physical Mac composition returns. A blue source image and the still-chosen orange attachment remain spatially distinguishable."
+    },
+    {
+      "range": "24.9-30.0",
+      "observed": "White field, teal mark, Riftlet, paced English three-beat line, then URL and a Public Beta download indication end on a stable card."
+    }
+  ],
+  "evidenceScope": "Independent editorial visual screening of the finished file via native 1x playback with periodic presented-frame observations. No audience testing, download conversion, physical listening or live ChatGPT upload is inferred.",
+  "finalFrameObserved": "At 29.70s the image still shows the product mark and wordmark, Capture. Click. Continue., riftlet.com and macOS Public Beta download line. Player subsequently delivered EOS at media time 30.000s."
+}

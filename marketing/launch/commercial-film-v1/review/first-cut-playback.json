@@ -1,0 +1,15 @@
+{
+  "masterSHA256": "24f8b84427a90d313b9d6c99afdb192e1b972720abe79ae3ab90c82651724888",
+  "player": "Offline macOS AVPlayer, fresh movie item + 1x host-clock video output, muted local speakers",
+  "firstAttempt": "AVFoundation decoder refused in restricted shell with -11821 / -12911; same player opened the full master in approved host process.",
+  "presentation": {"durationSeconds":30,"finalMediaTime":30,"elapsedWallSeconds":30.189117249799892,"freshVideoOutputs":882,"timeStampedObservations":91,"ended":true,"error":null},
+  "observations": [
+    {"range":"0.0-2.8", "observed":"Orange cyclist contact sheet and current Chrome draft appear on the same Mac from first frame. Text promises continuity. Simultaneous English workflow subhead is untranslated in initial Simplified Chinese subtitle."},
+    {"range":"2.8-11.0", "observed":"Rectangular Mac selection and complete orange image, then compact tray with camera. Second blue selection precedes expanded tray with both images and camera below."},
+    {"range":"11.0-15.0", "observed":"Human fingertip insert cuts to the cursor crossing onto orange tile. Only orange disappears after a matching draft chip appears; blue tile remains."},
+    {"range":"15.0-21.5", "observed":"Existing question survives. New text is entered after its final question mark. The send button remains idle."},
+    {"range":"21.5-24.9", "observed":"Physical Mac composition returns. A blue source image and the still-chosen orange attachment remain spatially distinguishable."},
+    {"range":"24.9-30.0", "observed":"White field, teal mark, Riftlet, paced English three-beat line, then URL and a Public Beta download indication end on a stable card."}
+  ],
+  "scope":"Independent editorial review using host-clock presented images during the run and chronological observation strips; no research panel, human listening claim, or live ChatGPT acceptance."
+}
