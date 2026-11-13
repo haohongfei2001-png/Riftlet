@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "reviewedBase": "04c885ac86e7ff7b3b12d056699d912517721d60",
-  "reviewedSource": "1a5c3635468e7eaa55baa1b1a75d829c01f24208",
-  "reviewedTree": "279dac17a85b16be060351e0d88bd9de0826ee81",
-  "authorRole": "website_release_101_engineer",
+  "reviewedBase": "329cee1d062d29361f9bdc52b01b6814a21ec7e5",
+  "reviewedSource": "8bae4c15bf1c9a197a6430786dcc610b42e731f1",
+  "reviewedTree": "b0059d600748711d37b0a4186869d10f5c95566b",
+  "authorRole": "stable_feed_release_operator",
   "reviews": [
     {
-      "reviewer": "automated_website_release_qa",
-      "source": "1a5c3635468e7eaa55baa1b1a75d829c01f24208",
-      "tree": "279dac17a85b16be060351e0d88bd9de0826ee81",
+      "reviewer": "independent_native_and_public_site_release_reviewer",
+      "source": "8bae4c15bf1c9a197a6430786dcc610b42e731f1",
+      "tree": "b0059d600748711d37b0a4186869d10f5c95566b",
       "result": "PASS",
-      "sha256": "33faf682349bfef244122bf519d17d73d50807e5c86a7c23efbc1d17d332a52c",
-      "report": "{\"reviewer\":\"automated_website_release_qa\",\"reviewedBase\":\"04c885ac86e7ff7b3b12d056699d912517721d60\",\"reviewedSource\":\"1a5c3635468e7eaa55baa1b1a75d829c01f24208\",\"reviewedTree\":\"279dac17a85b16be060351e0d88bd9de0826ee81\",\"result\":\"PASS\",\"checks\":[\"Exact eight-file scope; no native App, Sparkle, update feed, site assets or Umami script changed.\",\"Both existing official DMG links and tracking events point to 1.0.1; release v1.0.1 is published and verified.\",\"Chinese and English SEO, hero, FAQ, release dialog, install/update/README and analytics test references were synchronized.\",\"Original 1.0.0 users are accurately directed to one manual replacement before in-app updates.\",\"Reviewed website-only checkpoint has exactly index.html and website/README.md; mainline policy pin present.\"],\"scope\":\"Automated code, source and content checks; no separate human review or live browser download claim.\"}"
+      "sha256": "cb659327fba9b79cc635f757ade569c86861b0d2d98547eaee7f9f6311a78447",
+      "report": "{\n  \"reviewer\": \"independent_native_and_public_site_release_reviewer\",\n  \"reviewedBase\": \"329cee1d062d29361f9bdc52b01b6814a21ec7e5\",\n  \"reviewedSource\": \"8bae4c15bf1c9a197a6430786dcc610b42e731f1\",\n  \"reviewedTree\": \"b0059d600748711d37b0a4186869d10f5c95566b\",\n  \"result\": \"PASS\",\n  \"checks\": [\n    \"Checked both parents of the combined G, the exact new main #75 base and all 13 changed blobs against the previously independently reviewed G. No homepage, tracker, CSS, GitHub workflow, source verifier, native code, bundled trust keys or product asset differs from #75. No extra website governance exception is introduced. This retains the anonymous public download and canonical read-only disk-image validation; opt-in authenticated GitHub metadata queries are fixed-repository GETs.\",\n    \"Checked the two 1.0.1 homepage download links, release links, bilingual 1.0.0 manual bootstrap, permissions and private feedback contact on the bytes now live from #75. Independently ran all six preserved analytics tests against this combined checkout. The update documentation covers daily checks and consent. The website and analytics privacy disclosures remain intact.\",\n    \"Independently verified codesign, notarized Gatekeeper and stapled tickets on both final universal App and final DMG. Verified archived Accepted receipts and the published immutable non-draft, non-prerelease GitHub entry. The public download receipt and API asset digest match the frozen 12,417,028-byte file, SHA-256 6443357f08a9dbda805cd5452695417ff8783f34fb7f2331eef08c719f7290a9.\",\n    \"Verified exactly one stable, noncritical 1.0.1/build 23 item with the versioned GitHub URL. Independently verified both complete signed XML and enclosure signatures with the shipped App public key and confirmed the immutable source feed SHA-256 4db8de3fed8ca0e81a62616152a54ae48077a08d7b4b3db8ce340a53b4164a21.\",\n    \"Production Pages byte-for-byte validation remains a post-deployment step. This report approves the exact source before deployment; it does not assert a completed deployment.\"\n  ]\n}\n"
     }
   ],
   "productionAdmission": {

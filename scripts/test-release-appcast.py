@@ -23,6 +23,13 @@ class StableFeedTests(unittest.TestCase):
         self.addCleanup(tmp.cleanup)
         self.root = Path(tmp.name)
 
+    def test_authenticated_metadata_is_read_only_and_scoped_to_the_release_repository(self):
+        with mock.patch.dict(os.environ, {'RIFTLET_APPCAST_GH_AUTH': '1'}), \
+                mock.patch.object(subprocess, 'check_output', return_value=b'{"immutable":true}') as cli:
+            self.assertEqual(m.git_api('/releases/tags/v1.0.1'), {'immutable': True})
+        cli.assert_called_once_with(['gh', 'api', '--hostname', 'github.com', '--method', 'GET',
+                                     'repos/' + m.REPO + '/releases/tags/v1.0.1'], timeout=40)
+
     def test_public_key_alone_verifies_signed_repository_feed(self):
         feed = m.ROOT / 'updates/stable.xml'
         m.verify(feed)

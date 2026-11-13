@@ -1,5 +1,7 @@
 # 独立发行准备流程
 
+下文保留早期离线发行工具的设计与当时验收结果。1.0.1 的正式发行、双层公证及应用内更新由[直接分发手册](release/DIRECT_DOWNLOAD.md)和[签名更新流程](release/IN_APP_UPDATES.md)说明。
+
 本工作包只建立可审阅的发行工具和离线身份校验。它不批准公开发行，不承认任何新 source gate，不改变 mainline admission，不安装或覆盖现有 App，也不连接 Sparkle。当前签名、公证、装订和真实下载首启仍是 **BLOCKED_CREDENTIALS / NOT_RUN**；本机测试与合成签名回执不能替代 Developer ID 或 Gatekeeper 验收。
 
 工具：[`scripts/release-tool.py`](../scripts/release-tool.py)。权限文件：[`packaging/release/Entitlements.plist`](../packaging/release/Entitlements.plist)。离线回归：[`Tests/ReleaseReadiness/test_release_tool.py`](../Tests/ReleaseReadiness/test_release_tool.py)。源审查与合并仍遵循 [`MAINLINE_GOVERNANCE.md`](MAINLINE_GOVERNANCE.md)，发行准备不改写原始工程证据。
