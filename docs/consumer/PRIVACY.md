@@ -15,6 +15,14 @@ Riftlet 的截图副本和历史保存在本机。**点击微图会把那张图�
 
 从 1.0.1 起，Riftlet 默认每天通过 HTTPS 从 riftlet.com 检查新版。选择下载时会连接 GitHub 的发行文件服务。更新请求不包含截图、聊天内容或反馈草稿。服务提供方可看到 IP 地址等连接信息。可在「设置 → 权限与帮助 → 关于与诊断」关闭「每天检查更新」，以后按需手动检查。
 
+## 官网访问统计（与 Mac App 分开）
+
+官网 `riftlet.com` 已启用 Umami Cloud 无 Cookie 网站访问分析，统计 ID 仅用于该网站。启用后，网站会向 Umami 发送页面访问、访问来源/推广参数及用户主动点击两个 DMG 下载按钮的事件。网站会尊重浏览器可用的 Do Not Track / Global Privacy Control 信号，并允许在浏览器中选择不参与统计。Umami 和网络基础设施可能处理访问设备的技术连接元数据；这不代表完全匿名。
+
+官网统计**不会读取、上传或分析 Mac 上的截图、剪贴板、ChatGPT 草稿、聊天内容或 Riftlet 本机数据**，不创建 Riftlet 账户，也不用于追踪用户身份。下载按钮点击不代表安装成功。未配置有效站点 ID 时不会加载 Umami 脚本或发送网站分析事件。现有 Mac App 没有后台使用率埋点。
+
+**Website analytics.** The public website uses cookie-free Umami Cloud analytics, for pageviews, referral/UTM campaigns and clicks on the two official DMG download links. The tracker respects available Do Not Track and Global Privacy Control signals. The provider and underlying network may process technical connection metadata; anonymity is not guaranteed. Website analytics do not read screenshots, clipboard, chats, or local app data. The script does not load on non-production hosts, or if tracking is disabled by the visitor.
+
 ## 反馈是什么时候联网的
 
 打开反馈窗口、编辑或关闭并保存草稿不会新提交报告。点「发送反馈」后，已授权的待发送项可在后台、网络恢复或下次启动时继续投递；这不会每次重新弹出确认。反馈的查询、取消/删除申请也可能联网。

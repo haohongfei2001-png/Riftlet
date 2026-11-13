@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
   "reviewedBase": "5da42a221fb3e6496585c127e6cf11b8e836840f",
-  "reviewedSource": "fb0fd549e0a1619fb7dd87ab5f1fffedc43dfd9b",
-  "reviewedTree": "df25a63244498bb1409c48b429d3a06613e985a6",
-  "authorRole": "stable_feed_release_operator",
+  "reviewedSource": "63e796a135dfe2aefc024012fdb95888f381da5c",
+  "reviewedTree": "6641fe3b21c3da7d62e838a970c660ee772ae184",
+  "authorRole": "riftlet_umami_integration_author",
   "reviews": [
     {
-      "reviewer": "independent_native_and_public_site_release_reviewer",
-      "source": "fb0fd549e0a1619fb7dd87ab5f1fffedc43dfd9b",
-      "tree": "df25a63244498bb1409c48b429d3a06613e985a6",
+      "reviewer": "automated_site_analytics_code_checker",
+      "source": "63e796a135dfe2aefc024012fdb95888f381da5c",
+      "tree": "6641fe3b21c3da7d62e838a970c660ee772ae184",
       "result": "PASS",
-      "sha256": "7e2bce8e1431a3713abd897742c80be6e72f6f58bde5059b2cff2587ff9a59e2",
-      "report": "{\n  \"reviewer\": \"independent_native_and_public_site_release_reviewer\",\n  \"reviewedBase\": \"5da42a221fb3e6496585c127e6cf11b8e836840f\",\n  \"reviewedSource\": \"fb0fd549e0a1619fb7dd87ab5f1fffedc43dfd9b\",\n  \"reviewedTree\": \"df25a63244498bb1409c48b429d3a06613e985a6\",\n  \"result\": \"PASS\",\n  \"checks\": [\n    \"Checked the actual base, two successive single-parent commits, exact source tree, homepage checkpoint paths and one explicit matching historical verifier entry. The rest of the delta is the three independently inspected documentation/homepage patches and the signed stable.xml. Reviewed the releasing tool\\u2019s opt-in authenticated fixed-repository read-only GitHub metadata call and ran its exact regression. The generator also resolves its temporary workspace before verifying the exact hdiutil read-only mount, now exercised against the public file. Public release asset download remains anonymous. No native code, bundled updater trust settings, product resources, web scripts, CSS or binaries changed.\",\n    \"Checked both versioned homepage download and release links, approved visual assets and scripts, English/Chinese and no-JavaScript content, Chrome and macOS compatibility, 1.0.0 manual bootstrap, later daily check and explicit install, private feedback/mailto and privacy guide. Existing headless browser evidence covers desktop/mobile Chinese and English and the fallback with five cases and zero runtime exceptions; its HTML and script match this reviewed tree.\",\n    \"Independently verified codesign, notarized Gatekeeper and stapled tickets on both final universal App and final DMG. Verified archived Accepted receipts and the published immutable non-draft, non-prerelease GitHub entry. The public download receipt and API asset digest match the frozen 12,417,028-byte file, SHA-256 6443357f08a9dbda805cd5452695417ff8783f34fb7f2331eef08c719f7290a9.\",\n    \"Verified exactly one stable, noncritical 1.0.1/build 23 item with the versioned GitHub URL. Independently verified both complete signed XML and enclosure signatures with the shipped App public key and confirmed the immutable source feed SHA-256 4db8de3fed8ca0e81a62616152a54ae48077a08d7b4b3db8ce340a53b4164a21.\",\n    \"Production Pages byte-for-byte validation remains a post-deployment step. This report approves the exact source before deployment; it does not assert a completed deployment.\"\n  ]\n}\n"
+      "sha256": "51eecb0fe419345bfa716370b3e6b6486bfd991be15ea5085cda3743229d5ab9",
+      "report": "{\"reviewer\":\"automated_site_analytics_code_checker\",\"reviewedBase\":\"5da42a221fb3e6496585c127e6cf11b8e836840f\",\"reviewedSource\":\"63e796a135dfe2aefc024012fdb95888f381da5c\",\"reviewedTree\":\"6641fe3b21c3da7d62e838a970c660ee772ae184\",\"result\":\"PASS\",\"checks\":[\"Exact main comparison: eight expected files, no native updater or DMG changes.\",\"Umami public site UUID and dynamic script configuration verified; no duplicate loader.\",\"Twelve privacy/origin runtime scenarios and both unchanged DMG links passed.\",\"Pinned two-file website checkpoint, matching policy source; syntax checks passed.\"],\"scope\":\"Automated static and code-path verification only; not independent human review or live Umami dashboard validation.\"}"
     }
   ],
   "productionAdmission": {
