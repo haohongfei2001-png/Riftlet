@@ -2,12 +2,14 @@
 
 一位图片编辑想问车手入弯时的倾角。他在 Mac 上截下照片，点选托盘里的骑手，再回到已经写了一半的 ChatGPT 草稿。
 
-| 语言 | 30 秒主片 · 1920 × 1080 | 15 秒竖版 · 1080 × 1920 | 可选同语字幕 |
-|---|---|---|---|
-| 简体中文 | [播放主片](films/zh-CN/riftlet-commercial.mp4) | [播放竖版](films/zh-CN/riftlet-vertical.mp4) | [主片 SRT](captions/zh-CN/riftlet-commercial.zh-CN.srt) · [竖版 SRT](captions/zh-CN/riftlet-vertical.zh-CN.srt) |
-| English | [Play the commercial](films/en/riftlet-commercial.mp4) | [Play the vertical cut](films/en/riftlet-vertical.mp4) | [Commercial SRT](captions/en/riftlet-commercial.en.srt) · [Vertical SRT](captions/en/riftlet-vertical.en.srt) |
+| 语言 | 30 秒主片 · 1920 × 1080 | 15 秒竖版 · 1080 × 1920 | 高清封面原图 | 可选同语字幕 |
+|---|---|---|---|---|
+| 简体中文 | [播放主片](films/zh-CN/riftlet-commercial.mp4) | [播放竖版](films/zh-CN/riftlet-vertical.mp4) | [横版封面](thumbnails/zh-CN/riftlet-commercial.jpg) · [竖版封面](thumbnails/zh-CN/riftlet-vertical.jpg) | [主片 SRT](captions/zh-CN/riftlet-commercial.zh-CN.srt) · [竖版 SRT](captions/zh-CN/riftlet-vertical.zh-CN.srt) |
+| English | [Play the commercial](films/en/riftlet-commercial.mp4) | [Play the vertical cut](films/en/riftlet-vertical.mp4) | [Landscape cover](thumbnails/en/riftlet-commercial.jpg) · [Portrait cover](thumbnails/en/riftlet-vertical.jpg) | [Commercial SRT](captions/en/riftlet-commercial.en.srt) · [Vertical SRT](captions/en/riftlet-vertical.en.srt) |
 
 两个语言版各有自己的广告标题、摄影校样、桌面菜单、草稿和下载文案。简体中文版保留产品与平台名称、网址和真实快捷键。英文版采用全英文界面和文案。同语 SRT 可单独启用。每种时长使用一套原创配乐与拟音，全片无旁白。
+
+四张封面均为嵌入 sRGB 配置的高清 JPEG，长宽与对应视频一致。封面的摄影原图、相机键和双图托盘直接取自本片制作工程。
 
 ## 制作工程
 
@@ -26,6 +28,7 @@ python -m pip install -r studio/requirements.txt
 python studio/sound/score.py originals/score-master.wav
 python studio/sound/short_score.py originals/score-vertical.wav
 python studio/subtitles.py
+python studio/thumbnails.py
 for lang in zh-CN en
 do
     python studio/film.py master --lang "$lang"
