@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "reviewedBase": "939e3af47ba18d4850311528130934c586cfcb76",
-  "reviewedSource": "867252b8bf8f7abd75a143712e934a43e707aeba",
-  "reviewedTree": "ddf6ec7de332186244d6570dce6afd1206a38b98",
-  "authorRole": "site_release_author",
+  "reviewedBase": "ff26fb466b157a7415d943e28cc901d296cdc16f",
+  "reviewedSource": "ecce4a06ddcd097140d1f08da44b389d57835813",
+  "reviewedTree": "f81be27c91e92475d5d291bc6501e8fca6d73b6b",
+  "authorRole": "website_hero_implementation_lead",
   "reviews": [
     {
-      "reviewer": "independent_public_release_reviewer",
-      "source": "867252b8bf8f7abd75a143712e934a43e707aeba",
-      "tree": "ddf6ec7de332186244d6570dce6afd1206a38b98",
+      "reviewer": "independent_mainline_website_policy_reviewer",
+      "source": "ecce4a06ddcd097140d1f08da44b389d57835813",
+      "tree": "f81be27c91e92475d5d291bc6501e8fca6d73b6b",
       "result": "PASS",
-      "sha256": "6f714d9d43cf93cf607ac1e7492728aa00d850e12ec1e72f7e9f37f5dae24ec5",
-      "report": "{\n  \"reviewer\": \"independent_public_release_reviewer\",\n  \"reviewedBase\": \"939e3af47ba18d4850311528130934c586cfcb76\",\n  \"reviewedSource\": \"867252b8bf8f7abd75a143712e934a43e707aeba\",\n  \"reviewedTree\": \"ddf6ec7de332186244d6570dce6afd1206a38b98\",\n  \"result\": \"PASS\",\n  \"checks\": [\n    \"Reviewed the complete five-commit source range and all ten changed paths. Runtime sources, workflow files, canonical logo, visual assets, CSS, JS and CNAME are identical to the approved base. The final fixed homepage blob is ff832e4a773a4fa28ce2a8d94149e57af5c7985a.\",\n    \"The homepage policy uses a fixed single-parent index-only commit a4aa78f6d86024c2b32b15799ad7eda680b643c9. Descendant trees must match its exact blob; the original foundation/base are checked against the prior approved page. Other website objects, source admission and historical checks remain fixed. Reviewed the 35 successful governance cases including tampered, reverted and redirected website candidates.\",\n    \"Authenticated GitHub draft 443682404 targets the runtime source 939e3af47ba18d4850311528130934c586cfcb76 and contains only the correct universal build 20 DMG, SHA256SUMS.txt and two release notes. Compared all four SHA-256 values. The downloaded DMG matches c4bdeeca1410cc42649c3e3b8437ddd704605013d90ed9553bdc242f2d74cc7a. The existing signing receipts independently record accepted DMG and embedded App, valid tickets, and the expected team and architectures.\",\n    \"Both language versions tell users to click the first-use Chrome permissions control and enable Allow JavaScript from Apple Events. The compatibility and consumer documentation distinguish prior build 18 direct ChatGPT evidence, administrator installation evidence, unverified non-administrator first use, local collection, private feedback submission and manual updates.\",\n    \"The homepage has two exact versioned download anchors. At four widths in English and Chinese the final headless browser record shows both download links, privacy policy and public alias, feedback, settings FAQ and install dialog; the download is also a static anchor.\",\n    \"Privacy requests can use the public alias from the homepage, installation help and privacy policy without disclosing anything in public issues. Reviewed the redacted delivery record: an external test reached the confirmed recipient, marked spam rather than inbox. Published text makes no inbox-delivery guarantee. Reviewed the transfer scan for new commits, changed objects, bundle and notes: no private destination or old local author commits in the transfer.\"\n  ],\n  \"findings\": [],\n  \"scope\": \"Non-author website and consumer documentation source review. Public download and deployed-page smoke tests require publication and are independent of this source PASS.\"\n}\n"
+      "sha256": "3333b3377701261e36a3bb27ad89fb7f1959d2e2b92965ac0838679dc9fff277",
+      "report": "{\"reviewer\":\"independent_mainline_website_policy_reviewer\",\"reviewedBase\":\"ff26fb466b157a7415d943e28cc901d296cdc16f\",\"reviewedSource\":\"ecce4a06ddcd097140d1f08da44b389d57835813\",\"reviewedTree\":\"f81be27c91e92475d5d291bc6501e8fca6d73b6b\",\"result\":\"PASS\",\"checks\":[\"Verified exact HEAD/tree and four-file delta; git diff --check passed.\",\"Verified strict base → index-only 7dccb141f4b67fc1e75feb31ab9beb57bd669421 → CSS-only 61e053122fcc472c0eaffb10f8e54464e4df0a4c chain and exact final website blobs.\",\"Reviewed primary DMG link, retained secondary #play-demo binding, and focused fixture assertions.\",\"Executed unchanged website-policy block against committed trees: passed; all 34 in-memory website-object corruptions and falsified hero base rejected.\",\"Historical pins, source equality, admission-only child and workflow/event enforcement remain unchanged; no expanded review exemption found.\",\"Python syntax checks passed. Incomplete test scope: full fixture suite and full verifier require filesystem writes and were not run; browser, download availability, CI and merge admission were not validated. No files modified.\"],\"findings\":[],\"scope\":\"independent source and mainline-policy review\"}"
     }
   ],
   "productionAdmission": {
