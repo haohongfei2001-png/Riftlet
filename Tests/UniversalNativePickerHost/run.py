@@ -1,4 +1,5 @@
 """Real, hidden WKWebView in a cooperating test host. Synthetic image bytes stay on loopback."""
+import argparse
 import hashlib
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
@@ -25,10 +26,9 @@ def pixel(rgb):
             + chunk(b'IDAT', zlib.compress(bytes((0, *rgb)))) + chunk(b'IEND', b''))
 
 
-def run():
+def webkit():
     if platform.system() != 'Darwin':
         raise SystemExit('NOT_RUN_MACOS_REQUIRED')
-    subprocess.run([sys.executable, '-B', '-m', 'unittest', 'discover', '-s', str(HERE), '-p', 'test_ax_result.py'], check=True)
     page = (HERE / 'draft.html').read_bytes()
     inputs = [pixel((90, 100, 110)), pixel((120, 130, 140))]
     prior = pixel((42, 72, 102))
@@ -114,9 +114,25 @@ def run():
             raise RuntimeError('Receiver did not confirm two independent ordered uploads')
         print(json.dumps(dict(scope='controlled-cooperating-WKWebView', macOS=platform.mac_ver()[0],
                               arch=platform.machine(), receiverEvents=events, sha256=received, priorPNGSHA256=served_prior[0],
-                              externalAX=external_ax_probe(HERE, inputs[0], prior, cache),
-                              **json.loads(result.stdout)), sort_keys=True))
+                              **json.loads(result.stdout)), sort_keys=True), flush=True)
+
+
+def external_ax():
+    if platform.system() != 'Darwin':
+        raise SystemExit('NOT_RUN_MACOS_REQUIRED')
+    subprocess.run([sys.executable, '-B', '-m', 'unittest', 'discover', '-s', str(HERE),
+                    '-p', 'test_ax_result.py'], check=True)
+    with tempfile.TemporaryDirectory(prefix='riftlet-ax-cache-') as directory:
+        cache = os.environ.get('CLANG_MODULE_CACHE_PATH', directory)
+        result = external_ax_probe(HERE, pixel((90, 100, 110)), pixel((42, 72, 102)), cache)
+    print(json.dumps({'scope': 'controlled-external-appkit', 'externalAX': result}, sort_keys=True), flush=True)
 
 
 if __name__ == '__main__':
-    run()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--only', choices=['webkit', 'external-ax'])
+    choice = parser.parse_args().only
+    if choice in (None, 'webkit'):
+        webkit()
+    if choice in (None, 'external-ax'):
+        external_ax()

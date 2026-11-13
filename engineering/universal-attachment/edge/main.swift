@@ -11,6 +11,7 @@ struct FixtureConfig: Decodable {
     let address: String
     let pid: pid_t
     let images: [FixtureImage]
+    let hostedWindow: Bool
 }
 enum FixtureError: Error { case malformed, documentChanged, unexpectedInput, unknown }
 
@@ -30,6 +31,23 @@ func runFixture(inputAttempted: inout Bool) throws {
     else { throw FixtureError.malformed }
     // Never address another Edge process (including a real profile) when headless Edge
     // has no foreground NSRunningApplication. No requesting consent or activating it.
+    if config.hostedWindow {
+        let env = ProcessInfo.processInfo.environment
+        guard env["GITHUB_ACTIONS"] == "true", env["RUNNER_ENVIRONMENT"] == "github-hosted" else {
+            throw FixtureError.malformed
+        }
+        // HTTP readiness may precede LaunchServices activation. Wait only for
+        // this child, before binding or sending any event; never switch targets.
+        let until = ProcessInfo.processInfo.systemUptime + 3
+        while NSWorkspace.shared.frontmostApplication?.processIdentifier != config.pid,
+              ProcessInfo.processInfo.systemUptime < until {
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.05))
+        }
+        if NSWorkspace.shared.frontmostApplication?.processIdentifier != config.pid {
+            print("NOT_RUN_HOSTED_WINDOW_NOT_FOREGROUND")
+            exit(77)
+        }
+    }
     guard NSWorkspace.shared.frontmostApplication?.processIdentifier == config.pid else {
         throw EdgeHostError.notFrontmost
     }

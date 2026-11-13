@@ -1,9 +1,12 @@
 """Two distinct external AX paths. Visible receivers run only on a disposable hosted Mac."""
+import ctypes
 import hashlib
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import os
 from pathlib import Path
 import plistlib
+import signal
+import shutil
 import subprocess
 import tempfile
 import threading
@@ -35,7 +38,16 @@ def classify(mode, state, events, acknowledged):
     raise ProbeFailure(f'{mode}: controlled binding, selection or action failed ({state})')
 
 
-def exercise(executable, nonce, directory, sample):
+def owned_receiver(pid, executable):
+    if pid <= 1:
+        return False
+    path = ctypes.create_string_buffer(4096)
+    proc = ctypes.CDLL('/usr/lib/libproc.dylib').proc_pidpath
+    proc.argtypes = [ctypes.c_int, ctypes.c_void_p, ctypes.c_uint32]
+    return proc(pid, path, len(path)) > 0 and os.path.realpath(path.value) == os.fsencode(executable.resolve())
+
+
+def exercise(executable, observer, nonce, directory, sample):
     events = []
     receipt = ('accepted-' + nonce).encode()
 
@@ -71,16 +83,26 @@ def exercise(executable, nonce, directory, sample):
         thread = threading.Thread(target=server.serve_forever, daemon=True)
         thread.start()
         try:
-            with subprocess.Popen([str(executable), '--receive', nonce, str(directory)],
-                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) as receiver:
+            # LaunchServices registers the regular app and presents its window.
+            # The separate plain executable has no competing foreground app identity.
+            receiver_pid = 0
+            command = ['/usr/bin/open', '-n', '-W', '--env', 'GITHUB_ACTIONS=true', '--env',
+                       'RUNNER_ENVIRONMENT=github-hosted', str(executable.parents[2]),
+                       '--args', '--receive', nonce, str(directory)]
+            with subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) as receiver:
                 try:
-                    until = time.monotonic() + 5
+                    until = time.monotonic() + 9
                     while receiver.poll() is None and not (directory / 'ready').exists() and time.monotonic() < until:
                         time.sleep(0.1)
                     if not (directory / 'ready').exists():
-                        raise ProbeFailure(f'{directory.name}: fixture failed to launch on the owned console')
+                        details = directory / 'startup-status'
+                        status = details.read_text() if details.is_file() else 'NO_REGISTERED_READY_RECEIPT'
+                        raise ProbeFailure(f'{directory.name}: fixture startup failed ({status})')
+                    receiver_pid = int((directory / 'ready').read_text())
+                    if not owned_receiver(receiver_pid, executable):
+                        raise ProbeFailure(f'{directory.name}: unexpected executable for the private receiver PID')
                     try:
-                        result = subprocess.run([str(executable), '--observe', nonce, str(receiver.pid), str(directory)],
+                        result = subprocess.run([str(observer), '--observe', nonce, str(receiver_pid), str(directory)],
                                                 check=False, capture_output=True, text=True, timeout=8)
                     except subprocess.TimeoutExpired as error:
                         raise ProbeFailure(f'{directory.name}: observer timed out') from error
@@ -88,7 +110,7 @@ def exercise(executable, nonce, directory, sample):
                         raise ProbeFailure(f'{directory.name}: AX observer exited with {result.returncode}')
                     state = result.stdout.strip()
                     if state == 'EXACT_FILE_SUBMIT_ATTEMPTED':
-                        receiver.wait(timeout=14)
+                        receiver.wait(timeout=20)
                         if receiver.returncode != 0:
                             raise ProbeFailure(f'{directory.name}: receiving draft exited with {receiver.returncode}')
                     received = directory / 'received'
@@ -99,8 +121,17 @@ def exercise(executable, nonce, directory, sample):
                             'sha256': hashlib.sha256(sample).hexdigest() if acknowledged else None,
                             'commercialService': 'NOT_RUN'}
                 finally:
+                    if owned_receiver(receiver_pid, executable):
+                        try:
+                            os.kill(receiver_pid, signal.SIGTERM)
+                        except ProcessLookupError:
+                            pass
                     if receiver.poll() is None:
-                        receiver.terminate()
+                        try:
+                            receiver.wait(timeout=2)
+                        except subprocess.TimeoutExpired:
+                            receiver.terminate()  # our /usr/bin/open launcher
+
         finally:
             server.shutdown()
             thread.join()
@@ -126,6 +157,12 @@ def probe(here, sample, prior, cache):
                           'AttachmentTransport.swift', 'AXPickerFileHandoff.swift')],
                         str(here / 'AXPickerHost.swift'), '-o', str(executable)], check=True, timeout=180)
         subprocess.run(['codesign', '--force', '--sign', '-', '--timestamp=none', str(contents.parent)], check=True)
+        # Do not invoke the observer through the receiver bundle. Two copies of
+        # that bundle identity cannot act as an unambiguous foreground binding.
+        observer = root / 'ax-observer'
+        shutil.copy2(executable, observer)
+        subprocess.run(['codesign', '--force', '--sign', '-', '--identifier', 'org.riftlet.fixtureobserver.' + nonce,
+                        '--timestamp=none', str(observer)], check=True)
         result = {}
         for mode in ['appkit-file-list', 'system-open-panel']:
             directory = root / mode
@@ -135,7 +172,7 @@ def probe(here, sample, prior, cache):
             if mode == 'appkit-file-list':
                 (directory / 'images/decoy.png').write_bytes(prior)
             try:
-                result[mode] = exercise(executable, nonce, directory, sample)
+                result[mode] = exercise(executable, observer, nonce, directory, sample)
             except (ProbeFailure, subprocess.TimeoutExpired) as error:
                 result[mode] = {'status': 'FAILED_CONTROLLED_VALIDATION', 'reason': str(error)}
             line = f"External AX {mode}: {result[mode]['status']}"

@@ -47,6 +47,9 @@ def run(mode, gui):
     if not APP.is_dir():
         print('NOT_RUN_EDGE_NOT_INSTALLED')
         return 77
+    if gui and (os.environ.get('GITHUB_ACTIONS') != 'true' or os.getuid() == 0 or os.stat('/dev/console').st_uid != os.getuid()):
+        print('NOT_RUN_NO_OWNED_CONSOLE')
+        return 77
     dictionary_check()
     info = plistlib.loads((APP / 'Contents/Info.plist').read_bytes())
     assert info['CFBundleIdentifier'] == 'com.microsoft.edgemac'
@@ -116,9 +119,12 @@ def run(mode, gui):
         directory = Path(temp)
         executable = directory / 'native'
         if mode == 'apple-events':
-            cmd = ['swiftc', '-module-cache-path', str(directory / 'modules')]
+            info_plist = HERE.parent / 'hosts/FixtureSender.plist'
+            cmd = ['swiftc', '-module-cache-path', str(directory / 'modules'),
+                   '-Xlinker', '-sectcreate', '-Xlinker', '__TEXT', '-Xlinker', '__info_plist', '-Xlinker', str(info_plist)]
             cmd.extend(str(ROOT / 'Sources/RiftletAdapters' / name) for name in NATIVE_SOURCES)
             subprocess.run(cmd + [HERE / 'main.swift', '-o', executable], check=True)
+            subprocess.run(['codesign', '--force', '--sign', '-', '--timestamp=none', executable], check=True)
         binary = APP / 'Contents/MacOS' / info['CFBundleExecutable']
         args = [str(binary), '--user-data-dir=' + str(directory / 'profile'), '--disable-extensions', '--no-first-run',
                 '--no-default-browser-check', '--disable-background-networking', '--disable-sync', '--no-proxy-server',
@@ -134,7 +140,8 @@ def run(mode, gui):
                 print('EDGE_FIXTURE_DID_NOT_LOAD', 'exit', process.poll())
                 return 1
             if mode == 'apple-events':
-                config = json.dumps({'address': url, 'pid': process.pid, 'images': page_config['images']})
+                config = json.dumps({'address': url, 'pid': process.pid, 'images': page_config['images'],
+                                     'hostedWindow': gui})
                 result = subprocess.run([executable, HERE / 'fixture-command.js'], input=config, text=True, timeout=30,
                                         stdout=subprocess.PIPE, check=False)
                 print(result.stdout.strip())

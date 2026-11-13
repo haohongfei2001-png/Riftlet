@@ -51,7 +51,7 @@ jobs:
         include:
           - runner: macos-15
             check: Native ARM64
-            timeout: 20
+            timeout: 25
           - runner: macos-15-intel
             check: Native Intel
             timeout: 30
@@ -59,6 +59,7 @@ jobs:
     timeout-minutes: ${{ matrix.timeout }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        id: checkout
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -67,30 +68,6 @@ jobs:
           swift --version
           sw_vers
           uname -m
-      - name: Exercise extension-free attachment candidates with isolated drafts
-        if: matrix.runner == 'macos-15'
-        run: |
-          set -euo pipefail
-          mkdir -p test-results
-          # A platform capability can be absent. Never report a skipped engine
-          # or denied system permission as a passed attachment.
-          probe() {
-            local label="$1" result=0
-            shift
-            "$@" 2>&1 | tee "test-results/universal-$label.log" || result=$?
-            case "$result" in
-              0) echo "$label completed (see scoped results)" >> "$GITHUB_STEP_SUMMARY" ;;
-              77) echo "$label NOT_RUN (see capability log)" >> "$GITHUB_STEP_SUMMARY" ;;
-              *) return "$result" ;;
-            esac
-          }
-          node --test Tests/WebPageProgram/click-document-witness.test.cjs | tee test-results/universal-chrome-pin.log
-          probe surfaces bash Tests/ConversationSurfaceHost/run.sh
-          python3 -B -m unittest discover -s Tests/UniversalNativePickerHost -v
-          python3 -B Tests/UniversalNativePickerHost/run.py | tee test-results/universal-native-picker.log
-          probe edge-engine python3 -B engineering/universal-attachment/edge/verify.py --mode headless
-          probe safari-events python3 -B engineering/universal-attachment/hosts/safari_fixture.py
-          probe edge-events python3 -B engineering/universal-attachment/edge/verify.py --mode apple-events --hosted-runner-window
       - name: Replay archived Web evidence offline
         run: |
           set -o pipefail
@@ -299,6 +276,43 @@ jobs:
         run: |
           set -o pipefail
           python3 -B scripts/verify-capture-probe-outcome.py test-results/capture-backend-probe.json 2>&1 | tee test-results/capture-output-contract.log
+      - name: Exercise extension-free attachment candidates with isolated drafts
+        if: ${{ !cancelled() && matrix.runner == 'macos-15' && steps.checkout.outcome == 'success' }}
+        run: |
+          set -euo pipefail
+          mkdir -p test-results
+          failed=0
+          probe() {
+            local label="$1" capability="$2"
+            local -a statuses
+            shift 2
+            set +e
+            "$@" 2>&1 | tee "test-results/universal-$label.log"
+            statuses=("${PIPESTATUS[@]}")
+            set -e
+            local result="${statuses[0]}"
+            if [[ "${statuses[1]}" != 0 ]]; then
+              echo "::error::$label evidence log could not be written"
+              failed=1
+            fi
+            if [[ "$result" == 0 ]]; then
+              echo "$label completed (see scoped evidence)" >> "$GITHUB_STEP_SUMMARY"
+            elif [[ "$result" == 77 && "$capability" == optional ]]; then
+              echo "$label NOT_RUN (see capability log)" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "::error::$label failed with exit code $result"
+              echo "$label FAILED ($result)" >> "$GITHUB_STEP_SUMMARY"
+              failed=1
+            fi
+          }
+          probe surfaces optional bash Tests/ConversationSurfaceHost/run.sh
+          probe ax-classifier required python3 -B -m unittest discover -s Tests/UniversalNativePickerHost -v
+          probe native-picker required python3 -B Tests/UniversalNativePickerHost/run.py --only webkit
+          probe external-ax required python3 -B Tests/UniversalNativePickerHost/run.py --only external-ax
+          probe edge-engine optional python3 -B engineering/universal-attachment/edge/verify.py --mode headless
+          probe safari-events optional python3 -B engineering/universal-attachment/hosts/safari_fixture.py
+          probe edge-events optional python3 -B engineering/universal-attachment/edge/verify.py --mode apple-events --hosted-runner-window
+          exit "$failed"
       - name: Archive evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

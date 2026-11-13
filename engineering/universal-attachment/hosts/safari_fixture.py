@@ -41,8 +41,11 @@ def exercise():
     with tempfile.TemporaryDirectory(prefix='riftlet-safari-') as temp, HTTPServer(('127.0.0.1', 0), Fixture) as server:
         binary = Path(temp) / 'safari-probe'
         cache = os.environ.get('CLANG_MODULE_CACHE_PATH', str(Path(temp) / 'modules'))
-        subprocess.run(['xcrun', 'swiftc', '-module-cache-path', cache, HERE / 'safari_fixture.swift', '-o', binary],
+        subprocess.run(['xcrun', 'swiftc', '-module-cache-path', cache,
+                        '-Xlinker', '-sectcreate', '-Xlinker', '__TEXT', '-Xlinker', '__info_plist', '-Xlinker', HERE / 'FixtureSender.plist',
+                        HERE / 'safari_fixture.swift', '-o', binary],
                        timeout=180, check=True)
+        subprocess.run(['codesign', '--force', '--sign', '-', '--timestamp=none', binary], check=True)
         threading.Thread(target=server.serve_forever, daemon=True).start()
         try:
             p = subprocess.run([binary, HERE / 'safari-fixture.applescript', f'http://127.0.0.1:{server.server_port}{path}'],

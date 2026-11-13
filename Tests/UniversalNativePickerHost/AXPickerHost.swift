@@ -13,6 +13,9 @@ private struct RunAX {
               ProcessInfo.processInfo.environment["RUNNER_ENVIRONMENT"] == "github-hosted",
               let uuid = UUID(uuidString: args[2]), args[2] == uuid.uuidString else { exit(64) }
         if args[1] == "--observe", args.count == 5, let pid = Int32(args[3]) {
+            let app = NSApplication.shared
+            if app.activationPolicy() != .prohibited { _ = app.setActivationPolicy(.prohibited) }
+            guard app.activationPolicy() == .prohibited else { print("OBSERVER_NOT_BACKGROUND_ONLY"); return }
             let observer = try Observer(pid: pid, nonce: args[2], root: URL(fileURLWithPath: args[4]))
             do { print(try observer.run()) }
             catch NativeMacAXError.accessibility(let code) { print("AX_ERROR_\(code)") }
@@ -44,6 +47,7 @@ private final class Receiver: NSObject, NSApplicationDelegate, NSOpenSavePanelDe
     let prior = NSImageView(frame: NSRect(x: 230, y: 160, width: 32, height: 32))
     var priorImage: NSImage?
     var completed = false
+    var announced = false
     var usesNativeFileList: Bool { root.lastPathComponent == "appkit-file-list" }
     var presses = 0
     init(nonce: String, root: URL) { self.nonce = nonce; self.root = root }
@@ -66,11 +70,29 @@ private final class Receiver: NSObject, NSApplicationDelegate, NSOpenSavePanelDe
         window.initialFirstResponder = entry
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
-        try? Data().write(to: root.appendingPathComponent("ready"))
-        DispatchQueue.main.asyncAfter(deadline: .now() + 12) {
+        publishWhenActive(deadline: ProcessInfo.processInfo.systemUptime + 6)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 18) {
             if !self.usesNativeFileList { self.panel.cancel(nil) }
             NSApp.terminate(nil)
         }
+    }
+    private func publishWhenActive(deadline: TimeInterval) {
+        guard !announced else { return }
+        let native = NSRunningApplication.current
+        let front = NSWorkspace.shared.frontmostApplication
+        let sameFront = front?.processIdentifier == getpid() && front?.bundleIdentifier == Bundle.main.bundleIdentifier
+        if sameFront && native.launchDate != nil && window.isKeyWindow && window.isVisible && NSApp.isActive {
+            announced = true
+            do { try Data(String(getpid()).utf8).write(to: root.appendingPathComponent("ready"), options: .atomic) }
+            catch { exit(1) }
+            return
+        }
+        if ProcessInfo.processInfo.systemUptime >= deadline {
+            let facts = "front=\(sameFront) launch=\(native.launchDate != nil) key=\(window.isKeyWindow) visible=\(window.isVisible) active=\(NSApp.isActive)"
+            try? Data(facts.utf8).write(to: root.appendingPathComponent("startup-status"), options: .atomic)
+            return
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) { self.publishWhenActive(deadline: deadline) }
     }
     @objc func attach() {
         presses += 1
@@ -110,6 +132,7 @@ private final class Receiver: NSObject, NSApplicationDelegate, NSOpenSavePanelDe
         accept.isEnabled = false
         accept.setAccessibilityIdentifier("submit-" + nonce)
         chooser.contentView?.addSubview(accept)
+        chooser.setAccessibilityChildren(choices + [accept])
         window.contentView?.addSubview(chooser)
     }
     @objc func choose(_ button: NSButton) {
@@ -186,7 +209,10 @@ private final class Observer {
         var raw: CFTypeRef?
         guard AXUIElementCopyAttributeValue(row.rawValue, kAXURLAttribute as CFString, &raw) == .success,
               let raw, CFGetTypeID(raw) == CFURLGetTypeID(), let value = raw as? URL else { return false }
-        return value == url
+        guard value.isFileURL, url.isFileURL, let parts = URLComponents(url: value, resolvingAgainstBaseURL: false),
+              [nil, "", "localhost"].contains(parts.host?.lowercased()), parts.user == nil, parts.password == nil,
+              parts.port == nil, parts.query == nil, parts.fragment == nil else { return false }
+        return value.standardizedFileURL.path == url.standardizedFileURL.path
     }
     func submitFileList(binding: AXPickerInspection, originalDraft: @escaping () throws -> Bool) throws -> String {
         let expected = root.appendingPathComponent("images/neutral.png")
@@ -232,17 +258,20 @@ private final class Observer {
     }
     func run() throws -> String {
         guard driver.isTrusted() else { return "NOT_RUN_NO_EXISTING_AX_TRUST" }
-        guard let identity = try driver.applicationIdentity(processID: pid),
-              identity.bundleID == "org.riftlet.axpicker." + nonce,
-              try driver.frontmostApplication() == identity else { return "NO_FRONTMOST_FIXTURE_IDENTITY" }
+        guard let actual = NSRunningApplication(processIdentifier: pid) else { return "RECEIVER_PROCESS_MISSING" }
+        guard actual.bundleIdentifier == "org.riftlet.axpicker." + nonce else { return "RECEIVER_BUNDLE_CHANGED" }
+        guard actual.launchDate != nil else { return "RECEIVER_LAUNCH_DATE_UNAVAILABLE" }
+        guard let identity = try driver.applicationIdentity(processID: pid) else { return "RECEIVER_VERSION_OR_IDENTITY_UNAVAILABLE" }
+        guard NSWorkspace.shared.frontmostApplication?.processIdentifier == pid else { return "FOREGROUND_CHANGED_AFTER_READY" }
+        guard try driver.frontmostApplication() == identity else { return "FOREGROUND_LAUNCH_MISMATCH" }
         let app = try driver.applicationElement(processID: pid)
         guard let window = try driver.elementAttribute(kAXFocusedWindowAttribute, of: app) else { return "NO_FROZEN_WINDOW" }
         let children = try descendants(window)
         func matches(_ node: MacAXElement, _ id: String) throws -> Bool {
             try driver.stringAttribute(kAXIdentifierAttribute, of: node) == id + "-" + nonce
         }
-        guard let entry = try unique(children.filter { try matches($0, "entry") }),
-              let editor = try unique(children.filter { try matches($0, "editor") }) else { return "NO_UNIQUE_DRAFT_ENTRY" }
+        guard let entry = try unique(children.filter { try matches($0, "entry") }) else { return "NO_UNIQUE_ATTACH_BUTTON" }
+        guard let editor = try unique(children.filter { try matches($0, "editor") }) else { return "NO_UNIQUE_DRAFT_EDITOR" }
         let binding = AXPickerInspection(driver: driver, process: identity, window: window, editor: editor, entry: entry)
         let draftMatches = { try matches(editor, "editor") && matches(entry, "entry") }
         guard try binding.originalDraftIsCurrent(draftMatches),

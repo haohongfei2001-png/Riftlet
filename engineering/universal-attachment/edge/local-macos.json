@@ -7,7 +7,10 @@
   "isolatedHeadlessRun": {
     "acknowledgements": 2,
     "correlatedRejections": 1,
-    "digests": ["611033f4cc0aa9e3348e69eba089499bc6287d57b53832079e64f42564a4e876", "c9b27a65dd17d8157b51d36d36b54305ec13cea89152ba0e24b5465eb3cbb0c7"],
+    "digests": [
+      "611033f4cc0aa9e3348e69eba089499bc6287d57b53832079e64f42564a4e876",
+      "c9b27a65dd17d8157b51d36d36b54305ec13cea89152ba0e24b5465eb3cbb0c7"
+    ],
     "duplicateRequests": 0,
     "lostReplies": 1,
     "mode": "headless",
@@ -16,5 +19,34 @@
   },
   "localAppleEventsFixture": "NOT_RUN_HEADLESS_PROCESS_NOT_FOREGROUND",
   "localAppleEventsFixtureExit": 77,
-  "commercialServiceAttachment": "NOT_RUN"
+  "commercialServiceAttachment": "NOT_RUN",
+  "signedSenderRerun": {
+    "observedUTC": "2026-11-13T19:43:56Z",
+    "fixtureCodeSHA256": {
+      "verify.py": "804508712a4c5746ffd4014eaa3434fa6c60a34aa8fd7ef4211219c07811dbc1",
+      "main.swift": "cec32af06c0f7145358f1bc1601e46da0d335ece5622798f34ee364c27a7795c",
+      "fixture-command.js": "499b17f9272c7d2476932d4b4c913f22eac40341f0a7f5c60f14bd5eefb1215e",
+      "../hosts/FixtureSender.plist": "b52326f2c9210a5b6e3eff25c122e8d14caf14136ae9d232b14c3ebc926839fb"
+    },
+    "headless": {
+      "exit": 0,
+      "acknowledgements": 2,
+      "correlatedRejections": 1,
+      "digests": [
+        "611033f4cc0aa9e3348e69eba089499bc6287d57b53832079e64f42564a4e876",
+        "c9b27a65dd17d8157b51d36d36b54305ec13cea89152ba0e24b5465eb3cbb0c7"
+      ],
+      "duplicateRequests": 0,
+      "lostReplies": 1,
+      "mode": "headless",
+      "scope": "local-fixture",
+      "verifiedBodies": 4
+    },
+    "appleEvents": {
+      "exit": 77,
+      "status": "NOT_RUN_HEADLESS_PROCESS_NOT_FOREGROUND",
+      "sender": "ad-hoc with embedded Apple Events usage description",
+      "eventDispatchReached": false
+    }
+  }
 }
