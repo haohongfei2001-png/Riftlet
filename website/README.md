@@ -15,6 +15,9 @@ The 2026-10-30 design release record remains historical and documents the origin
 - `index.html`: Chinese/English product homepage, current SEO/Open Graph/Twitter metadata, release links and synthetic interaction demo.
 - `website-v2.css`: approved responsive layout, local font definitions and reduced-motion styles.
 - `website-v2.js`: synthetic capture, edge queue, draft attachments, scenes, locale and release dialog.
+- `website-analytics.js`: optional, cookie-free Umami Cloud tracker bootstrap, restricted to the production domain. **Inactive until the real Umami site ID is configured.**
+- `website/test-analytics.cjs`: built-in Node regression covering fail-closed setup and the two download events.
+- `website/ANALYTICS.md`: account setup, privacy boundary, release counts and analytics verification.
 - `website-assets/`: approved artwork, logo, precise example SVGs, local fonts, OFL licenses and font source records.
 - `site.webmanifest`: existing browser manifest.
 - `favicon.svg`, `robots.txt`, `sitemap.xml`, `CNAME` and `.nojekyll`: retained production files.
@@ -30,6 +33,8 @@ The website's interactive demo is separate from the native app. It does not expa
 ## Demo boundaries
 
 The demo uses synthetic content only. It does not read the screen, clipboard or conversations, call external APIs, upload images, send messages or persist text. Deliberate GitHub links open the public project. Local static font and image requests are the only resources needed to render the page.
+
+Website analytics, when explicitly activated with a valid Umami Cloud website ID, are separate from the synthetic demo. They collect pageviews, campaign/referrer metadata and aggregate download-link clicks, not screenshot/ChatGPT content. The existing page and downloads work when Umami is offline or blocked.
 
 The illustrated handoff separates simulated upload-start evidence from final attachment readiness. A thumbnail clears after the synthetic positive start, while readiness arrives later. This is an illustration, not proof of native timing or failure handling. Existing draft text and the original example attachment are preserved. Empty queues hide the edge. The demo never sends a message.
 
