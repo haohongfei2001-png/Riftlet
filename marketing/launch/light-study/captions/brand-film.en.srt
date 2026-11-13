@@ -1,0 +1,35 @@
+1
+00:00:00,400 --> 00:00:03,700
+Light catches the polished edge of a glass prism.
+
+2
+00:00:04,800 --> 00:00:08,600
+Two rays cross on the paper.
+A screenshot frames their intersection.
+
+3
+00:00:09,500 --> 00:00:13,100
+The crop settles in Riftlet’s screenshot tray.
+
+4
+00:00:14,400 --> 00:00:19,300
+A second view joins the first.
+Both details are within reach.
+
+5
+00:00:20,600 --> 00:00:24,000
+An open ChatGPT draft in Chrome asks,
+“Where do the two lines meet?”
+
+6
+00:00:24,400 --> 00:00:29,100
+One click attaches the selected crop.
+The other stays in the tray.
+
+7
+00:00:29,700 --> 00:00:32,700
+The writer continues editing the draft.
+
+8
+00:00:33,500 --> 00:00:36,700
+Riftlet · Mac Public Beta · riftlet.com

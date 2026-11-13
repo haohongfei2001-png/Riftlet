@@ -1,0 +1,25 @@
+1
+00:00:00,200 --> 00:00:02,240
+Riftlet Public Beta 0.3.5 (20).
+System capture at left, native tray at right.
+
+2
+00:00:02,350 --> 00:00:06,000
+The low-water image arrives beside the camera key.
+
+3
+00:00:07,367 --> 00:00:10,700
+The high-water view joins it in the top row.
+
+4
+00:00:12,100 --> 00:00:15,420
+The camera control opens its native capture menu.
+
+5
+00:00:18,730 --> 00:00:20,500
+A test mouse input targets the first thumbnail.
+An accessibility press targets the second.
+
+6
+00:00:20,800 --> 00:00:23,850
+Both images remain. The recording ends on the Mac.
