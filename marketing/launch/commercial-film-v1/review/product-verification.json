@@ -1,0 +1,90 @@
+{
+  "verifiedDateLocal": "2026-11-14",
+  "mainAtInspection": "280be2f8422ccf6c0864f53b8f83e80552b2ec32",
+  "release": {
+    "tag": "v0.3.5-beta.1",
+    "sha": "939e3af47ba18d4850311528130934c586cfcb76",
+    "url": "https://github.com/haohongfei2001-png/Riftlet/releases/tag/v0.3.5-beta.1",
+    "prerelease": true,
+    "officialSiteHTTP": 200,
+    "officialSite": "https://riftlet.com/",
+    "siteLinksTo": "Riftlet-0.3.5-20-universal.dmg",
+    "dmgSHA256": "c4bdeeca1410cc42649c3e3b8437ddd704605013d90ed9553bdc242f2d74cc7a",
+    "verifiedFrom": "Existing locally cached DMG matched current GitHub release asset digest. A new read-only, nobrowse mount supplied the executable and web program.",
+    "bundle": "com.riftlet.app",
+    "version": "0.3.5",
+    "build": "20",
+    "architectures": [
+      "x86_64",
+      "arm64"
+    ],
+    "binarySHA256": "c518b55b62b8ee31a2bd5c45e83dfbc3538f3d6822ba9daa9bdd83c28ab32906",
+    "codesign": "codesign --verify --deep --strict returned 0; satisfies designated requirement",
+    "signature": "Developer ID Application, hardened runtime, stapled notarization ticket",
+    "webProgramSHA256": "0daf3f2763e340503b8c957c4ef35a619417c5e486ac48fccbcae3f657ff9a09",
+    "taggedSourceProgramMatchesPackage": true,
+    "officialLogoSHA256": "f31d71318e1aaef2464bbcc25c5a105fa6959d10006eb7c64d30aac42fbb3e90"
+  },
+  "freshPackagedExecutableChecks": {
+    "system": "macOS 27.0, arm64",
+    "directFromMountedDMG": true,
+    "openedNativeUI": false,
+    "commands": [
+      {
+        "argument": "--self-check",
+        "exit": 0,
+        "scope": "Generated fixture, private import, persisted upload-start visibility, delayed synthetic completion and restart; initial shell sandbox returned unsupportedImage, fresh normal host rerun passed."
+      },
+      {
+        "argument": "--system-screenshot-candidate-self-check",
+        "exit": 0,
+        "scope": "Generated PNG, two software inputs through a fake executor, two correlated STARTs and retained UNKNOWN, durable restart. Initial shell sandbox returned CaptureError code 7, normal host rerun passed."
+      },
+      {
+        "argument": "--web-acceptance-self-check",
+        "exit": 0,
+        "scope": "Validates bundled page program and synthetic policy with no browser."
+      },
+      {
+        "argument": "--first-use-self-check",
+        "exit": 0,
+        "scope": "Isolated presentation persistence and permission policy. No permission request, no GUI."
+      }
+    ]
+  },
+  "freshControlledChrome": {
+    "chromeVersion": "157.0.8103.51",
+    "nodeVersion": "26.8.2",
+    "driver": "Tagged Tests/WebPageProgram/chrome-input-resource.test.cjs with RIFTLET_REQUIRE_CHROME=1, RIFTLET_NATIVE_CASE=actual-marked-zh-composer-four-direct-fields and RIFTLET_WEB_SOURCE_OVERRIDE pointing directly to the mounted package resource. Launcher retained Chrome's sandbox by dropping the harness's --no-sandbox flag. The harness uses a fresh temporary profile, disables application networking, serves a loopback page and supplies an in-memory mock location to the adapter.",
+    "scope": "Actual headless Chrome and exact signed-bundle JavaScript. Generated PNGs and application-authored test cards, synthetic native target context and synthetic START witness. It did not exercise Apple Events or the live ChatGPT service.",
+    "initialAttempt": "Outer command sandbox aborted Chrome before browser startup and denied owned-process query. Host run of the same isolated test succeeded.",
+    "case": "actual-marked-zh-composer-four-direct-fields",
+    "exit": 0,
+    "tests": 1,
+    "passes": 1,
+    "failures": 0,
+    "skipped": 0,
+    "nativeChanges": 5,
+    "nativeSetters": 5,
+    "networkRequestsByTestApplication": 0,
+    "automaticSends": 0,
+    "observedControlledStarts": 5,
+    "originalFileListsVerified": 5,
+    "applicationIndependentTasksVerified": 5,
+    "wrongInputChanges": 0,
+    "wrongInputSetters": 0,
+    "textSelectionCardsPreserved": true,
+    "wrongTargetRefused": true,
+    "lostReplyRecoveredWithoutReplay": true
+  },
+  "priorEvidence": {
+    "priorBuild20NativeRecording": "Two genuine system window captures of public campaign art entered the tray. The shipped executable's review mode rendered native windows and used an isolated collector. Two byte-identical private copies; both pending, zero operations. Existing evidence only.",
+    "nativeRecordingReceiptSHA256": "41a368a28da0a3347024dc69efefcf2107ff044004ed5d284caa8937fde2fcee",
+    "nativeRecordingRGBFileSHA256": "10cf79340cf54522f5c9d5eb65d816428e2782bea54cd49125884138b97b2c25",
+    "build18ActualChatGPT": "The main branch support matrix attributes same-draft double attachment, initial text and prior attachment preserved, per-image START and retract, and zero sends to build 18."
+  },
+  "liveBuild20ChatGPT": {
+    "status": "NOT_RUN",
+    "reason": "Live ChatGPT acceptance is user-operated under the repository's browser access constraints. The session used no personal profile or private draft."
+  }
+}
