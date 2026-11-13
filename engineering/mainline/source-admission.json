@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "reviewedBase": "5da42a221fb3e6496585c127e6cf11b8e836840f",
-  "reviewedSource": "63e796a135dfe2aefc024012fdb95888f381da5c",
-  "reviewedTree": "6641fe3b21c3da7d62e838a970c660ee772ae184",
-  "authorRole": "riftlet_umami_integration_author",
+  "reviewedBase": "04c885ac86e7ff7b3b12d056699d912517721d60",
+  "reviewedSource": "1a5c3635468e7eaa55baa1b1a75d829c01f24208",
+  "reviewedTree": "279dac17a85b16be060351e0d88bd9de0826ee81",
+  "authorRole": "website_release_101_engineer",
   "reviews": [
     {
-      "reviewer": "automated_site_analytics_code_checker",
-      "source": "63e796a135dfe2aefc024012fdb95888f381da5c",
-      "tree": "6641fe3b21c3da7d62e838a970c660ee772ae184",
+      "reviewer": "automated_website_release_qa",
+      "source": "1a5c3635468e7eaa55baa1b1a75d829c01f24208",
+      "tree": "279dac17a85b16be060351e0d88bd9de0826ee81",
       "result": "PASS",
-      "sha256": "51eecb0fe419345bfa716370b3e6b6486bfd991be15ea5085cda3743229d5ab9",
-      "report": "{\"reviewer\":\"automated_site_analytics_code_checker\",\"reviewedBase\":\"5da42a221fb3e6496585c127e6cf11b8e836840f\",\"reviewedSource\":\"63e796a135dfe2aefc024012fdb95888f381da5c\",\"reviewedTree\":\"6641fe3b21c3da7d62e838a970c660ee772ae184\",\"result\":\"PASS\",\"checks\":[\"Exact main comparison: eight expected files, no native updater or DMG changes.\",\"Umami public site UUID and dynamic script configuration verified; no duplicate loader.\",\"Twelve privacy/origin runtime scenarios and both unchanged DMG links passed.\",\"Pinned two-file website checkpoint, matching policy source; syntax checks passed.\"],\"scope\":\"Automated static and code-path verification only; not independent human review or live Umami dashboard validation.\"}"
+      "sha256": "33faf682349bfef244122bf519d17d73d50807e5c86a7c23efbc1d17d332a52c",
+      "report": "{\"reviewer\":\"automated_website_release_qa\",\"reviewedBase\":\"04c885ac86e7ff7b3b12d056699d912517721d60\",\"reviewedSource\":\"1a5c3635468e7eaa55baa1b1a75d829c01f24208\",\"reviewedTree\":\"279dac17a85b16be060351e0d88bd9de0826ee81\",\"result\":\"PASS\",\"checks\":[\"Exact eight-file scope; no native App, Sparkle, update feed, site assets or Umami script changed.\",\"Both existing official DMG links and tracking events point to 1.0.1; release v1.0.1 is published and verified.\",\"Chinese and English SEO, hero, FAQ, release dialog, install/update/README and analytics test references were synchronized.\",\"Original 1.0.0 users are accurately directed to one manual replacement before in-app updates.\",\"Reviewed website-only checkpoint has exactly index.html and website/README.md; mainline policy pin present.\"],\"scope\":\"Automated code, source and content checks; no separate human review or live browser download claim.\"}"
     }
   ],
   "productionAdmission": {

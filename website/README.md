@@ -5,8 +5,8 @@ The official public homepage is served at https://riftlet.com/ from the reposito
 ## Current site state
 
 - **Design baseline:** 2026-10-30 v2. The approved typography, composition, palette, artwork, responsive layout and interaction remain the active design.
-- **Latest content update:** 2026-11-14. The bilingual homepage and installation dialog identify Riftlet 1.0.0, with direct links to its versioned disk image and release notes.
-- **Website source marker:** `riftlet-1.0.0` in the `riftlet-website-version` meta tag.
+- **Latest content update:** 2026-11-14. The bilingual homepage and installation dialog identify Riftlet 1.0.1, with direct links to its versioned disk image and release notes.
+- **Website source marker:** `riftlet-1.0.1` in the `riftlet-website-version` meta tag.
 
 The 2026-10-30 design release record remains historical and documents the original v2 publication. It is not the current native-app release status.
 
@@ -26,9 +26,9 @@ Old `site.*`, `website-product.*`, `website-hero.*` and `website-locale.js` file
 
 ## Native product availability and support boundary
 
-**Riftlet 1.0.0** is available from the homepage as `Riftlet-1.0.0.dmg`. The universal Mac package supports macOS 13 or later on Apple silicon and Intel. The current one-click attachment target is an editable ChatGPT draft in Google Chrome. A standard macOS user can install it in the Applications folder under their home directory. The app uses manual updates. Other browsers, the ChatGPT desktop app and read-only drafts are unsupported.
+**Riftlet 1.0.1** is available from the homepage as `Riftlet-1.0.1.dmg`. The universal Mac package supports macOS 13 or later on Apple silicon and Intel. The current one-click attachment target is an editable ChatGPT draft in Google Chrome. A standard macOS user can install it in the Applications folder under their home directory. Riftlet 1.0.1 includes in-app update checks for future releases. Existing 1.0.0 users need one manual App replacement first. Other browsers, the ChatGPT desktop app and read-only drafts are unsupported.
 
-The website's interactive demo is separate from the native app. It does not expand native support or claim real ChatGPT upload acceptance. Refer to the current [consumer support matrix](../docs/consumer/SUPPORT-MATRIX.md), [installation and permissions guide](../docs/consumer/INSTALL-AND-PERMISSIONS.md), and [release notes](https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.0) for the authoritative product details.
+The website's interactive demo is separate from the native app. It does not expand native support or claim real ChatGPT upload acceptance. Refer to the current [consumer support matrix](../docs/consumer/SUPPORT-MATRIX.md), [installation and permissions guide](../docs/consumer/INSTALL-AND-PERMISSIONS.md), and [release notes](https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.1) for the authoritative product details.
 
 ## Demo boundaries
 
