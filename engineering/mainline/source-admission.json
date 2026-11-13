@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "reviewedBase": "04c885ac86e7ff7b3b12d056699d912517721d60",
-  "reviewedSource": "1a5c3635468e7eaa55baa1b1a75d829c01f24208",
-  "reviewedTree": "279dac17a85b16be060351e0d88bd9de0826ee81",
-  "authorRole": "website_release_101_engineer",
+  "reviewedBase": "329cee1d062d29361f9bdc52b01b6814a21ec7e5",
+  "reviewedSource": "0cfb6c90a5bd6818d302e4538919ce4e2d4fbab9",
+  "reviewedTree": "c6619a329d4d6386690524856d5e5083168bbb6a",
+  "authorRole": "universal_attachment_integrator",
   "reviews": [
     {
-      "reviewer": "automated_website_release_qa",
-      "source": "1a5c3635468e7eaa55baa1b1a75d829c01f24208",
-      "tree": "279dac17a85b16be060351e0d88bd9de0826ee81",
+      "reviewer": "independent_attachment_engine_review",
+      "source": "0cfb6c90a5bd6818d302e4538919ce4e2d4fbab9",
+      "tree": "c6619a329d4d6386690524856d5e5083168bbb6a",
       "result": "PASS",
-      "sha256": "33faf682349bfef244122bf519d17d73d50807e5c86a7c23efbc1d17d332a52c",
-      "report": "{\"reviewer\":\"automated_website_release_qa\",\"reviewedBase\":\"04c885ac86e7ff7b3b12d056699d912517721d60\",\"reviewedSource\":\"1a5c3635468e7eaa55baa1b1a75d829c01f24208\",\"reviewedTree\":\"279dac17a85b16be060351e0d88bd9de0826ee81\",\"result\":\"PASS\",\"checks\":[\"Exact eight-file scope; no native App, Sparkle, update feed, site assets or Umami script changed.\",\"Both existing official DMG links and tracking events point to 1.0.1; release v1.0.1 is published and verified.\",\"Chinese and English SEO, hero, FAQ, release dialog, install/update/README and analytics test references were synchronized.\",\"Original 1.0.0 users are accurately directed to one manual replacement before in-app updates.\",\"Reviewed website-only checkpoint has exactly index.html and website/README.md; mainline policy pin present.\"],\"scope\":\"Automated code, source and content checks; no separate human review or live browser download claim.\"}"
+      "sha256": "e1ea244c0116c4383586817465db9a51d863a4f6d9c3b57ae4e4e8f8914d78b6",
+      "report": "{\n  \"reviewer\": \"independent_attachment_engine_review\",\n  \"reviewedBase\": \"329cee1d062d29361f9bdc52b01b6814a21ec7e5\",\n  \"reviewedSource\": \"0cfb6c90a5bd6818d302e4538919ce4e2d4fbab9\",\n  \"reviewedTree\": \"c6619a329d4d6386690524856d5e5083168bbb6a\",\n  \"result\": \"PASS\",\n  \"checks\": [\n    \"GitHub main resolved to B8 at review. Verified G8 is the two-parent merge of H7 then B8, the claimed tree and merge base agree, and the complete B8-to-G8 delta contains 83 paths. I checked object IDs and modes for all 82 paths exclusive to the admitted attachment branch. They equal H7. Of the 12 upstream paths added or changed since B7, 11 equal B8 exactly, including the upstream admission JSON, governance verifier, official 1.0.1 website download and analytics assets. The combined workflow equals H7 byte for byte after removing the two-line upstream analytics test step. Git diff --check passed and the worktree was clean.\",\n    \"Confirmed source, tests, Sparkle dependency/manifest, release resources, updater policy, attachment package verifier and fixture evidence remain identical to independently reviewed H7. The foreground Chrome click router keeps the updating/quit drain guards at mouse-down and selection submission, exact tab/document/editor target binding and once-only current-file input. Legacy v17 journal selection, immutable old UNKNOWN/START and original-nonce observation after ambiguity retain their reviewed behavior. Additional browser/native adapters and the custom owned AX chooser remain controlled experiments.\",\n    \"Ran the six website analytics regressions in the combined checkout. They passed and covered production host constraints, opt-out/Do Not Track/GPC, inactive unconfigured tracking and official DMG events. The existing required updater, native, attachment and source verifications remain present. The added website ownership pins in the verifier are exact B8 bytes.\",\n    \"Verified all 30 recorded attachment source hashes against G8 blobs and checked that the 32 distinct real commercial combinations have all measured dimensions NOT_RUN. The H6 hosted package and fixture summary still cites its actual source/head/merge and runs. Its receipt for an exact PNG in the cooperating AppKit draft remains separate from the system NSOpenPanel refusal and blocked Safari/Edge Apple Events. The five H7 jobs checked via GitHub runs 43516377679 and 43516377912 all concluded success. No H6/H7 event is presented as G8 CI.\"\n  ],\n  \"findings\": [\n    \"No blocking findings for the merged Draft PR source. The official release/download and website analytics changes were inherited from main; the attachment candidate retains separate provenance.\"\n  ],\n  \"scope\": \"Independent non-author source and integration review for this Draft PR. This record applies only to the declared base, source and tree. Exact H8 admission and hosted PR-merge checks require their own evidence. Commercial-service acceptance, ordinary installed-App clicks and latency, GitHub human approval, merge and release are outside this result.\"\n}\n"
     }
   ],
   "productionAdmission": {
