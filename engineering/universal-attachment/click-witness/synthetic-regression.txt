@@ -64,6 +64,11 @@ node --test Tests/WebPageProgram/acceptance-program.test.cjs
 ✔ an opaque draft replacement while the attachment entry awaits a picker retires before setter
 ✔ a late original START survives expired input permission, without authorizing a new begin
 ✔ late matching cards cannot prove an original START after editor reattachment or route ABA
+✔ a switch to another application or hidden tab prevents direct handoff without focusing the draft editor
+✔ a window switch during asynchronous picker discovery retires before the first setter
+✔ pending operations on one draft share one observer and the last START disconnects it
+✔ switching away and back before a pending setter permanently revokes that click
+✔ retained hidden, inert and overtaken original composers retire before their native input
 ✔ core regression: ordinary attachment button can upload PNG before Riftlet discovers an on-demand portalled input
 ✔ actual attachment entry chooses its responsible input among unrelated controls: hidden-external
 ✔ actual attachment entry chooses its responsible input among unrelated controls: showPicker
@@ -130,9 +135,9 @@ node --test Tests/WebPageProgram/acceptance-program.test.cjs
 ✔ an error beside a preview cannot bypass START rejection through the nested image
 ✔ an error on an older attachment cannot suppress the new independent attachment START
 ✔ an empty img src is still a placeholder and cannot start the attachment
-ℹ tests 131
+ℹ tests 136
 ℹ suites 0
-ℹ pass 131
+ℹ pass 136
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0

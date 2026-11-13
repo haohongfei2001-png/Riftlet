@@ -391,9 +391,9 @@
   ],
   "sourceSHA256": {
     "Sources/RiftletAdapters/ChromeClickDocumentWitness.swift": "379c012c30a82a0c55d47f32a4e64cdda2648b25ee1ee05125d68717ead3fa18",
-    "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js": "54f700899c24ccecb53fe24e4461ae2bc852dacf1e53e6074d89544a76f6e6fb",
+    "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js": "19e0870ae2e1e6fd0d7270079cb67cc8c1b97c558b352a45ee8235663bac1ed4",
     "Sources/RiftletAdapters/Resources/chatgpt-web-observe-v17.js": "0daf3f2763e340503b8c957c4ef35a619417c5e486ac48fccbcae3f657ff9a09",
-    "Tests/WebPageProgram/click-document-witness.test.cjs": "383eed101dfa744b6832beab5d3f02cb9fe73f3476e845dafb6be17fdf8ddb09",
+    "Tests/WebPageProgram/click-document-witness.test.cjs": "59e2903cb7ad7e01cf410fef0c9a1a2dbc0e1afb94f413a2af93d52ad256cbc9",
     "Tests/WebPageProgram/chrome-input-resource.test.cjs": "d083843c92957ee8738af865b8e320b401b0838543139213cc22d9169f3084aa"
   }
 }

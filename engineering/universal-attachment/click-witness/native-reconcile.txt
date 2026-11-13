@@ -1,0 +1,5 @@
+macOS 27.0 arm64, Apple Swift 6.4
+swift build --target RiftletAdapters --jobs 4 with a dedicated scratch directory: exit 0.
+The Command Line Tools installation lacks XCTest. A temporary command-line harness compiled against the built RiftletAdapters and RiftletCore objects, with equivalent terminating assertions, and ran the existing testOlderFencedRowsAndFirstJournalEntriesSurviveV18ReadOnlyReconciliation method body.
+PASS: 15 reopened v15/v16/v17 scope/source combinations, two exact original-program observations each.
+The first observation remained UNKNOWN; a settled invalidated observation stopped polling; no input, replacement registration, or retry occurred.

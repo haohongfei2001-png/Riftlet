@@ -221,7 +221,8 @@ function riftletWebAcceptance(command, native) {
     // window or tab switch during a queued/awaited attachment entry. This is
     // document focus, never keyboard focus of the draft editor itself.
     return sameDraft(binding) && (!binding.target.clickBindingID
-      || (document.visibilityState === 'visible' && document.hasFocus()));
+      || (document.visibilityState === 'visible' && document.hasFocus() && visible(binding.editor)
+        && !binding.editor.closest('[inert]') && !blocked(binding.form)));
   }
   const outsidePurpose = (node, binding) => {
     for (let at = node; at && at !== document.body && at !== binding.form; at = at.parentElement) {
@@ -996,6 +997,14 @@ function riftletWebAcceptance(command, native) {
   // object. Deliver to that same object, including its own event handlers.
   const execute = (input, invoked = false) => {
     if (!validDraft(op.binding)) return retire('targetInvalidBeforeInput', 'handoff', 'targetChanged');
+    // A SPA can retain the old editor and its file input while another visible
+    // composer takes over. Repeat the original resolver at actual handoff.
+    if (op.binding.target.clickBindingID) {
+      let current;
+      try { current = composer(); } catch { return retire('targetInvalidBeforeInput', 'handoff', 'targetChanged'); }
+      if (current.editor !== op.binding.editor || current.form !== op.binding.form)
+        return retire('targetInvalidBeforeInput', 'handoff', 'targetChanged');
+    }
     diag.inputSeen = true; diag.inputConnected = input.isConnected;
     if (!usableInput(input) || (!invoked && !input.isConnected))
       return retire('attachmentInputNotCreated', 'handoff', 'inputLost');

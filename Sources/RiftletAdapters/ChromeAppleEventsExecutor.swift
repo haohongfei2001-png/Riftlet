@@ -30,7 +30,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
     /// returning from the press. The subsequent task may only resolve that pin.
     public func targetForClick(program: WebPageProgram) throws -> Task<TargetLease, Error> {
         let requestID = UUID().uuidString
-        let budget = MainWorldReceiptReadBudget(deadlineUptime: ProcessInfo.processInfo.systemUptime + 1)
+        let budget = MainWorldReceiptReadBudget(deadlineUptime: ProcessInfo.processInfo.systemUptime + 1, clickSnapshot: true)
         let host = Self.host(trace: trace, requestID: requestID, readBudget: budget)
         let frozen = try host.freeze()
         let identity = frozen.process, route = frozen.route

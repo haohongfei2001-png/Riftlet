@@ -164,3 +164,19 @@ test('switching away and back before a pending setter permanently revokes that c
   const result = (await f.commit(op)).observation;
   assert.equal(result.preInputRetirement?.reason,'targetInvalidBeforeInput'); assert.equal(f.setters,0);
 });
+
+test('retained hidden, inert and overtaken original composers retire before their native input', async () => {
+  for (const replacement of ['hidden','inert','strictlyPreferred','ambiguous']) {
+    const {f,pin,capture}=witnessed(), op=f.bind({target:capture(pin())}); f.stage(op);
+    const next=f.body.append(new f.Node('form'));
+    next.append(new f.Node('div',{id:'prompt-textarea',contenteditable:'true'}));
+    next.append(new f.context.HTMLInputElement());
+    f.document.activeElement=f.body;
+    if (replacement==='hidden') { f.form.hidden=true; f.form.setAttribute('hidden',''); }
+    if (replacement==='inert') f.form.setAttribute('inert','');
+    if (replacement==='strictlyPreferred') next.setAttribute('data-composer-placement','bottom');
+    const result=(await f.commit(op)).observation;
+    assert.equal(result.preInputRetirement?.reason,'targetInvalidBeforeInput',replacement);
+    assert.equal(f.setters,0); assert.equal(f.changes,0); assert.equal(f.sends,0);
+  }
+});
