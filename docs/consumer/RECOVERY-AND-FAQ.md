@@ -1,6 +1,6 @@
 # 找回图片、排除故障与手动更新
 
-**共享 Mac 上只有安装者能打开 Riftlet。** build 18 在共享「应用程序」中有这个问题，build 19 已修复安装包的读取和执行权限。非管理员账户完整的图形首开仍待验证。核对版本和安装位置；无需重置截图库或修改系统安全设置。
+**非管理员账户如何安装？** 在 Finder 中打开个人主文件夹，把磁盘映像中的 Riftlet.app 拖入自己的 `Applications` 文件夹。从这个位置打开 App 并完成引导。同一台 Mac 上的每个账户各自授权截图文件夹与 Chrome。[安装与权限](INSTALL-AND-PERMISSIONS.md)
 
 **没看到新微图。** 单击菜单栏 Riftlet 图标，查看是否「暂停收录」或「隐藏桌面截图」。前者停止收录，后者只改变桌面显示。打开「截图历史」看是否已经归档，再到「设置 → 截图 → 在 Finder 中打开」确认系统截图已写入文件夹。剪贴板截图、仍在浮动预览中的截图，以及首次打开之前的旧文件都可能不会进入队列。若目录不可读，点「允许访问此位置…」选择当前系统截图目录，然后在「权限与帮助」点「重新检查」。恢复收录时，暂停期间保存并仍在目录里的合格截图可能被补收。[安装与权限](INSTALL-AND-PERMISSIONS.md)
 
@@ -16,7 +16,7 @@
 
 1. 当前采用**手动更新**。保留现有 App 和经验证的旧安装包，从 [Riftlet 版本页面](https://github.com/haohongfei2001-png/Riftlet/releases)取得新版本。从菜单栏右键选「退出 Riftlet」。在 Finder「前往文件夹」输入 `~/Library/Application Support/Riftlet/`，退出后备份整个文件夹，其中包括队列数据库及其附属文件、图片、副本、收录记录、配置及反馈。单独保留系统截图原件；维护者还需核对应用偏好、钥匙串与系统权限，这些不会被普通文件夹完整备份。
 2. 核对新 DMG 的版本、来源和校验值，再仅替换原安装位置的 Riftlet.app。启动后检查已有历史、设置、目录访问以及一张新截图。旧版关闭了自动归档或使用 1–10 分钟时限时，升级会保留该选择；其他旧正时限回到 2 分钟。
-3. 如果更新失败，正常退出，保存**最新**的完整数据、旧包和新包。请维护者先验证旧 App 确实兼容当前数据，再作 App 回退。**Personal Beta 3（0.3.0）读不了现行 v4 截图库**；这种情况应使用兼容 v4 的新版或修复版恢复。不得用升级前的数据库覆盖新历史。
+3. 如果更新失败，正常退出，保存**最新**的完整数据、旧包和新包。请维护者先验证旧 App 确实兼容当前数据，再作 App 回退。部分早期版本无法读取现在的截图库，遇到这种情况应使用与当前截图库兼容的新版恢复。不得用升级前的数据库覆盖新历史。
 4. 要卸载，可先关闭「设置 → 使用与历史 → 登录时启动 Riftlet」，正常退出，再把 App 移到废纸篓。原始截图、本地数据目录、偏好、反馈凭证和备份保留。已发送反馈如需撤回，先在反馈窗口申请删除并查看结果；卸载本身不会撤回反馈。
 
-**English.** Check History before retrying an uncertain attachment. For a manual update, quit Riftlet, keep the old app and a verified backup of the complete current library, check the new package and replace only the app in its existing location. For recovery, protect the **latest** library; Beta 3 cannot read the v4 queue. Uninstalling the app leaves the library, preferences, originals, backups and feedback credentials in place.
+**English.** Check History before retrying an uncertain attachment. For a manual update, quit Riftlet, keep the old app and a verified backup of the complete current library, check the new package and replace only the app in its existing location. For recovery, keep the **latest** library intact. Some older releases cannot read the current library format. Uninstalling the app leaves the library, preferences, originals, backups and feedback credentials in place.

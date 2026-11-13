@@ -105,10 +105,8 @@ final class SettingsProductHost {
         }
         // A read-only preflight; never presents the macOS permission dialog.
         result.screenRecording = CGPreflightScreenCaptureAccess() ? .granted : .notGranted
-        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "开发版本"
-        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
-        let label = Bundle.main.object(forInfoDictionaryKey: "RiftletVersionLabel") as? String
-        result.version = (label.map { $0 + " · " } ?? "") + (build.map { "\(version)（\($0)）" } ?? version)
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
+        result.version = version.map { "Riftlet " + $0 } ?? "Riftlet"
         result.reviewEnvironment = reviewEnvironment
         return result
     }
