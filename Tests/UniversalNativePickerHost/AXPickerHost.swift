@@ -57,6 +57,7 @@ private final class Receiver: NSObject, NSApplicationDelegate, NSOpenSavePanelDe
     var choices: [NSButton] = []
     var files: [URL] = []
     let accept = NSButton()
+    let selectionLabel = NSTextField(labelWithString: "No file selected")
     let prior = NSImageView(frame: NSRect(x: 230, y: 160, width: 32, height: 32))
     var priorImage: NSImage?
     var completed = false
@@ -157,13 +158,20 @@ private final class Receiver: NSObject, NSApplicationDelegate, NSOpenSavePanelDe
         accept.isEnabled = false
         accept.setAccessibilityIdentifier("submit-" + nonce)
         chooser.contentView?.addSubview(accept)
-        chooser.setAccessibilityChildren(choices + [accept])
+        selectionLabel.frame = NSRect(x: 4, y: 8, width: 180, height: 24)
+        selectionLabel.setAccessibilityElement(true)
+        selectionLabel.setAccessibilityIdentifier("unselected-" + nonce)
+        chooser.contentView?.addSubview(selectionLabel)
+        chooser.setAccessibilityChildren(choices + [accept, selectionLabel])
         window.contentView?.addSubview(chooser)
     }
     @objc func choose(_ button: NSButton) {
         guard selected == nil, let index = choices.firstIndex(of: button), files.indices.contains(index),
               button.state == .on else { exit(1) }
         selected = files[index]
+        guard let selected, let id = try? fileChoiceID(selected, nonce: nonce) else { exit(1) }
+        selectionLabel.stringValue = selected.lastPathComponent
+        selectionLabel.setAccessibilityIdentifier("selected-" + id)
         accept.isEnabled = true
     }
     @objc func commitChoice() {
@@ -285,27 +293,54 @@ private final class Observer {
             return "APPKIT_CHOICES_NODES_\(nodeCount)_RADIOS_\(choices.count)_EXPECTED_\(choice != nil)_DECOY_\(decoyFound)_SUBMIT_\(submit != nil)"
         }
         let handoff = AXPickerFileHandoff(binding: binding, choice: choice, submit: submit)
-        let input = AXPickerFileHandoff.Input(matchesDraft: originalDraft) { stage in
+        var lastRead = "NEW"
+        func confirms() throws -> Bool {
+            guard try findChooser() == chooser else { return false }
+            let list = try descendants(chooser)
+            let radios = try list.filter { try driver.stringAttribute(kAXRoleAttribute, of: $0) == kAXRadioButtonRole }
+            guard radios.count == 2, radios.contains(choice), let other = radios.first(where: { $0 != choice }),
+                  try driver.stringAttribute(kAXIdentifierAttribute, of: other) == decoyID else { lastRead = "ROW_SET_CHANGED"; return false }
+            func radioState(_ node: MacAXElement) -> Int? {
+                var value: CFTypeRef?
+                guard AXUIElementCopyAttributeValue(node.rawValue, kAXValueAttribute as CFString, &value) == .success,
+                      let number = value as? NSNumber, number == 0 || number == 1 else { return nil }
+                return number.intValue
+            }
+            let wanted = radioState(choice), unwanted = radioState(other)
+            guard wanted == 1, unwanted == 0 else {
+                lastRead = "WANTED_\(wanted ?? -1)_DECOY_\(unwanted ?? -1)"; return false
+            }
+            let receipts = try list.filter { try driver.stringAttribute(kAXIdentifierAttribute, of: $0) == "selected-" + expectedID }
+            guard receipts.count == 1 else { lastRead = "RECEIPTS_\(receipts.count)"; return false }
+            guard try driver.boolAttribute(kAXEnabledAttribute, of: submit) == true else { lastRead = "SUBMIT_DISABLED"; return false }
+            lastRead = "CONFIRMED"
+            return true
+        }
+        var input = AXPickerFileHandoff.Input(matchesDraft: originalDraft, matchesChoice: { stage in
             guard try findChooser() == chooser else { return false }
             let current = try self.descendants(chooser)
             let radios = try current.filter { try self.driver.stringAttribute(kAXRoleAttribute, of: $0) == kAXRadioButtonRole }
-            guard radios == choices, current.contains(submit),
+            guard radios.count == choices.count, choices.allSatisfy(radios.contains), current.contains(submit),
                   try self.driver.stringAttribute(kAXIdentifierAttribute, of: choice) == expectedID,
                   try fileChoiceID(expected, nonce: self.nonce) == expectedID else { return false }
             if stage == .beforeSelection { return true }
-            let selected = radios.filter { item in
-                var value: CFTypeRef?
-                return AXUIElementCopyAttributeValue(item.rawValue, kAXValueAttribute as CFString, &value) == .success
-                    && (value as? NSNumber)?.intValue == 1
-            }
-            return selected == [choice]
+            return try confirms()
+        })
+        input.selectionSettled = {
+            let until = ProcessInfo.processInfo.systemUptime + 2
+            repeat {
+                guard try binding.originalDraftIsCurrent(originalDraft) else { lastRead = "DRAFT_CHANGED"; return false }
+                if try confirms() { return true }
+                Thread.sleep(forTimeInterval: 0.035)
+            } while ProcessInfo.processInfo.systemUptime < until
+            return false
         }
         let result = try handoff.handOff(input)
         guard try handoff.handOff(input) == .refused else { throw NativeMacAXError.inputAlreadyAttempted }
         switch result {
         case .submitted: return "EXACT_FILE_SUBMIT_ATTEMPTED"
-        case .refused: return "APPKIT_SELECTION_REFUSED"
-        case .uncertain: return "APPKIT_SELECTION_UNKNOWN"
+        case .refused: return "APPKIT_REFUSED_\(handoff.lastStage.rawValue)_\(handoff.refusal?.rawValue ?? "duplicate")_\(lastRead)"
+        case .uncertain: return "APPKIT_UNKNOWN_\(handoff.lastStage.rawValue)_\(lastRead)"
         }
     }
     func run() throws -> String {

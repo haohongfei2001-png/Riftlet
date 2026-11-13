@@ -50,6 +50,37 @@ final class AXPickerInspectionTests: XCTestCase {
         XCTAssertEqual(driver.pressed, [driver.choice, driver.submit, driver.choice])
     }
 
+    @MainActor func testDisabledConfirmWithoutPressActionWaitsForOriginalSelectionPublication() throws {
+        let driver = PickerDriver()
+        driver.confirmEnabled = false
+        var selectionQueued = false
+        driver.onPress = { control in
+            if control == driver.choice { selectionQueued = true }
+            else { XCTAssertTrue(driver.confirmEnabled) }
+        }
+        let handoff = AXPickerFileHandoff(binding: driver.binding, choice: driver.choice, submit: driver.submit)
+        var input = AXPickerFileHandoff.Input(matchesDraft: { true }, matchesChoice: { stage in
+            stage == .beforeSelection || selectionQueued && driver.confirmEnabled
+        })
+        input.selectionSettled = {
+            // Model the next receiver event, after the selection AXPress has returned.
+            XCTAssertTrue(selectionQueued)
+            XCTAssertFalse(driver.confirmEnabled)
+            XCTAssertEqual(driver.pressed, [driver.choice])
+            driver.confirmEnabled = true
+            return true
+        }
+        XCTAssertEqual(try handoff.handOff(input), .submitted)
+        XCTAssertEqual(driver.pressed, [driver.choice, driver.submit])
+        XCTAssertEqual(try handoff.handOff(input), .refused)
+        driver.confirmEnabled = false
+        let lost = AXPickerFileHandoff(binding: driver.binding, choice: driver.choice, submit: driver.submit)
+        input.selectionSettled = { false }
+        XCTAssertEqual(try lost.handOff(input), .refused)
+        XCTAssertEqual(lost.refusal, .settlement)
+        XCTAssertEqual(driver.pressed, [driver.choice, driver.submit, driver.choice])
+    }
+
     @MainActor func testRejectsOtherWindowProcessReplacementAndUnownedPanelService() throws {
         let driver = PickerDriver()
         let inspection = driver.binding
@@ -82,6 +113,7 @@ private final class PickerDriver: MacAXDriver {
     var foreignSheet = false
     var generation: TimeInterval = 1
     var trusted = true
+    var confirmEnabled = true
     let choice = MacAXElement(AXUIElementCreateApplication(700007))
     let submit = MacAXElement(AXUIElementCreateApplication(700008))
     var presses = 0
@@ -113,7 +145,8 @@ private final class PickerDriver: MacAXDriver {
         return nil
     }
     func boolAttribute(_ attribute: String, of element: MacAXElement) -> Bool? {
-        if [choice, submit].contains(element), attribute == kAXEnabledAttribute { return true }
+        if element == submit && attribute == kAXEnabledAttribute { return confirmEnabled }
+        if element == choice && attribute == kAXEnabledAttribute { return true }
         return element == window && attribute == kAXMinimizedAttribute ? false : nil
     }
     func elementsAttribute(_ attribute: String, of element: MacAXElement, maximumCount: Int) -> [MacAXElement] {
@@ -121,6 +154,9 @@ private final class PickerDriver: MacAXDriver {
         if element == window && attribute == kAXChildrenAttribute { return duplicates ? [sheet, other] : [sheet] }
         return []
     }
-    func actionNames(of element: MacAXElement) -> [String] { [entry, choice, submit].contains(element) ? [kAXPressAction] : [] }
+    func actionNames(of element: MacAXElement) -> [String] {
+        if element == submit && !confirmEnabled { return [] }
+        return [entry, choice, submit].contains(element) ? [kAXPressAction] : []
+    }
     func press(_ element: MacAXElement) throws { presses += 1; pressed.append(element); try onPress?(element) }
 }
