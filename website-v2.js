@@ -158,7 +158,6 @@
   function translate() {
     const isEnglish = language === 'en';
     document.documentElement.lang = isEnglish ? 'en' : 'zh-CN';
-    document.title = 'Riftlet';
     translateNodes.forEach(el => { el.innerHTML = isEnglish ? el.dataset.en.replace(/<br>/g, '<br> ') : chineseContent.get(el); });
     const button = $('#language-toggle');
     button.textContent = isEnglish ? '中文' : 'EN';
