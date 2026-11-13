@@ -33,8 +33,11 @@ def font(which, size):
         return ImageFont.truetype(str(target), size)
     system = Path('/System/Library/Fonts')
     path, index = ('HelveticaNeue.ttc', {'sans':0,'medium':10,'bold':1}.get(which,0))
-    if which == 'zh': path = 'STHeiti Medium.ttc'
+    if which in ('zh','zh-light'):
+        path, index = ('STHeiti Medium.ttc' if which == 'zh' else 'STHeiti Light.ttc'), 1
+    if which == 'zh-serif': path, index = 'Supplemental/Songti.ttc', 6
     if which == 'mono': path = 'SFNSMono.ttf'
+    if which == 'keys': path = 'SFNS.ttf'
     return ImageFont.truetype(str(system/path), size, index=index)
 
 def txt(im, xy, string, size, style='sans', color=INK, anchor='la', stroke=0):
@@ -76,22 +79,42 @@ def viewport(im,cx,cy,wide,out,angle=0):
                   [uy,ux,cy-.5*w*uy-.5*h*ux]],dtype=np.float32)
     return Image.fromarray(cv2.warpAffine(np.asarray(im),mat,out,flags=cv2.INTER_CUBIC|cv2.WARP_INVERSE_MAP,borderMode=cv2.BORDER_REPLICATE))
 
-def sheet_picture(pic, blue=False):
+PROOF = {
+    'en': dict(masthead='P A C E', desk='PHOTO DESK     /     06', title='Track study',
+               captions=('THE BANKED TURN', 'THE INNER LINE'), series='VELODROME  /  SERIES 06',
+               stamp='STUDIO PROOF', category='CYCLING   /   CONTACT SHEET', filename='Track study.pdf'),
+    'zh-CN': dict(masthead='节  奏', desk='图片编辑部     /     06', title='赛道习作',
+                  captions=('压弯瞬间', '赛道内线'), series='自行车场  /  系列 06',
+                  stamp='工作室校样', category='场地自行车   /   摄影样张', filename='赛道习作.pdf'),
+}
+MENUS = {
+    'en': ('File     Edit     View     History     Bookmarks     Profiles     Tab     Window     Help',
+           'Sat Nov 14    10:24'),
+    'zh-CN': ('文件     编辑     视图     历史记录     书签     个人资料     标签页     窗口     帮助',
+              '11月14日 周六    10:24'),
+}
+
+def sheet_picture(pic, blue=False, lang='en'):
     # A designed photographic spread, displayed in a real-world working context.
     # Both photo rectangles have the exact same aspect as the screenshot bitmap.
     im=Image.new('RGB',(1312,1344),'#F3EFE6')
     d=ImageDraw.Draw(im)
-    txt(im,(64,51),'P A C E',43,'bold')
-    txt(im,(1248,67),'PHOTO DESK     /     06',19,'mono',anchor='ra')
+    copy=PROOF[lang]
+    zh=lang=='zh-CN'
+    mast='zh' if zh else 'bold'
+    notes='zh-light' if zh else 'mono'
+    title='zh-serif' if zh else 'serif'
+    txt(im,(64,51),copy['masthead'],43,mast)
+    txt(im,(1248,67),copy['desk'],19,notes,anchor='ra')
     d.line((64,122,1248,122),fill=INK,width=2)
-    txt(im,(58,146),'Track study',147,'serif')
+    txt(im,(58,146),copy['title'],134 if zh else 147,title)
     txt(im,(1246,239),'02' if blue else '01',50,'serif',anchor='ra')
     im.paste(fit(pic,(1184,790)),(64,345))
-    txt(im,(64,1160),'THE INNER LINE' if blue else 'THE BANKED TURN',27,'bold')
-    txt(im,(1248,1161),'VELODROME  /  SERIES 06',20,'mono',anchor='ra')
+    txt(im,(64,1160),copy['captions'][int(blue)],27,mast)
+    txt(im,(1248,1161),copy['series'],20,notes,anchor='ra')
     d.line((64,1248,1248,1248),fill='#908E85',width=2)
-    txt(im,(64,1277),'STUDIO PROOF',17,'mono')
-    txt(im,(1246,1277),'CYCLING   /   CONTACT SHEET',17,'mono',anchor='ra')
+    txt(im,(64,1277),copy['stamp'],17,notes)
+    txt(im,(1246,1277),copy['category'],17,notes,anchor='ra')
     return im
 
 def rounded(size,r):
@@ -116,10 +139,11 @@ class Set:
     world=(1440,875)
     chrome_xy=(593,172)
     tray_xy=(1223.27,370.18)
-    def __init__(self):
+    def __init__(self,lang='en'):
+        self.lang=lang
         self.a,self.b,self.desk=[Image.open(ART/(n+'.png')).convert('RGB') for n in ('banked','infield','workbench')]
         self.finger=Image.open(ART/'trackpad.png').convert('RGB')
-        self.sheets=[sheet_picture(self.a),sheet_picture(self.b,True)]
+        self.sheets=[sheet_picture(self.a,lang=lang),sheet_picture(self.b,True,lang=lang)]
         self.tray=Tray(ART/'banked.png',ART/'infield.png')
         # A matte-paper desktop with a broad, dark green sweep. Both windows
         # have a mild ambient and contact shadow, without synthetic light effects.
@@ -132,8 +156,10 @@ class Set:
         base=Image.fromarray(wall); menu=Image.new('RGB',(sw,49),'#D8DCD1')
         txt(menu,(29,7),'\uf8ff',27,'sans')
         txt(menu,(81,10),'Chrome',25,'bold')
-        txt(menu,(211,11),'File     Edit     View     History     Bookmarks     Profiles     Tab     Window     Help',24)
-        txt(menu,(sw-27,11),'Sat Nov 14    10:24',24,anchor='ra')
+        labels, clock=MENUS[lang]
+        ui='zh-light' if lang=='zh-CN' else 'sans'
+        txt(menu,(211,11),labels,24,ui)
+        txt(menu,(sw-27,11),clock,24,ui,anchor='ra')
         base.paste(menu,(0,0)); self.empty=base
         self.walls=[self.proof_window(i) for i in range(2)]
         self._tray_frames={}
@@ -146,7 +172,7 @@ class Set:
         d.rectangle((0,0,1136,63),fill='#EFECE5'); d.line((0,62,1135,62),fill='#C2BEB5',width=2)
         for x,c in zip((29,58,87),('#DA827D','#D9BB73','#83B990')):
             d.ellipse((x-9,23,x+9,41),fill=c)
-        txt(win,(550,19),'Track study.pdf',24,'medium',anchor='ma')
+        txt(win,(550,19),PROOF[self.lang]['filename'],24,'zh' if self.lang=='zh-CN' else 'medium',anchor='ma')
         # Both proofs keep the same margins. Switching pages does not change the draft.
         win.paste(self.sheets[idx].resize((1136,1164),Image.Resampling.LANCZOS),(0,95))
         win.putalpha(rounded(win.size,20))
@@ -155,7 +181,7 @@ class Set:
 
     def frame_world(self,t,cursor=True):
         im=self.walls[int(t>=7.19)].copy()
-        ch=draw_window(t,self.a,scale=2)
+        ch=draw_window(t,self.a,scale=2,lang=self.lang)
         window_paste(im,ch,tuple(v*2 for v in self.chrome_xy))
         plate=self.tray.render(t)
         # Bound the cache to the six stable product states; transition keys are ephemeral.

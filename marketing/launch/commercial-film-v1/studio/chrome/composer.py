@@ -1,6 +1,6 @@
 """Editable, offline Chrome / ChatGPT draft composite. All geometry is in points.
 
-draw_window(t, picture, scale=2) produces a transparent, rounded 640x560 window.
+draw_window(t, picture, scale=2, lang="en") produces a transparent, rounded 640x560 window.
 The image visible in the editable draft is sampled from the caller's picture.
 The Chrome / ChatGPT layout is reconstructed and does not control a browser.
 """
@@ -12,8 +12,14 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 WIDTH, HEIGHT = 640, 560
 ATTACH_TIME = 13.45
-QUESTION = "What stands out in this photo?"
-CONTINUATION = " Look at the lean."
+DRAFT = {
+    "en": ("What’s on your mind today?", "What stands out in this photo?", " Look at the lean."),
+    "zh-CN": ("今天想聊些什么？", "这张照片最吸引你的是什么？", "看看车手的倾角。"),
+}
+KEYSTROKES = {
+    "en": (17.80,17.95,18.07,18.22,18.34,18.60,18.76,18.89,19.08,19.24,19.37,19.50,19.71,19.88,20.05,20.19,20.42,20.65),
+    "zh-CN": (17.80,18.10,18.34,18.89,19.24,19.71,20.05,20.65),
+}
 TYPE_START, TYPE_END = 17.8, 20.65
 ROOT = Path(__file__).resolve().parent
 INK, MUTED, HAIR = "#1b1b1b", "#565656", "#DADADC"
@@ -26,7 +32,11 @@ _MATERIAL = None
 
 
 @lru_cache(maxsize=64)
-def _font(px, medium=False):
+def _font(px, medium=False, lang="en"):
+    if lang == "zh-CN":
+        weight = "Medium" if medium else "Light"
+        # Face 1 selects the Simplified Chinese glyph forms in this macOS collection.
+        return ImageFont.truetype(f"/System/Library/Fonts/STHeiti {weight}.ttc", px, index=1)
     for name in FONT_PATHS:
         if Path(name).is_file():
             return ImageFont.truetype(name, px, index=(10 if name.endswith(".ttc") and medium else 0))
@@ -51,8 +61,8 @@ class _Pen:
         pts = [tuple(self.p(pt)) for pt in points]
         self.d.line(pts, fill=fill, width=max(1, round(sw*self.s)), joint="curve")
 
-    def label(self, x, y, value, size, color=INK, medium=False, anchor="lm"):
-        f = _font(round(size*self.s), medium)
+    def label(self, x, y, value, size, color=INK, medium=False, anchor="lm", lang="en"):
+        f = _font(round(size*self.s), medium, lang)
         self.d.text(self.p((x, y)), value, font=f, fill=color, anchor=anchor)
         return self.d.textlength(value, font=f) / self.s
 
@@ -115,10 +125,11 @@ def _smooth(x):
     return a*a*(3-2*a)
 
 
-def _typed(t):
-    # A pause after the first word, with the last period landing at TYPE_END.
-    times=(17.80,17.95,18.07,18.22,18.34,18.60,18.76,18.89,19.08,19.24,19.37,19.50,19.71,19.88,20.05,20.19,20.42,20.65)
-    return CONTINUATION[:sum(t>=at for at in times)]
+def _typed(t, lang="en"):
+    # Each cut preserves the existing question and adds the localized phrase
+    # over the same sound cues. Its sentence-ending mark lands at TYPE_END.
+    continuation = DRAFT[lang][2]
+    return continuation[:sum(t >= at for at in KEYSTROKES[lang])]
 
 
 def _picture_tile(picture, size):
@@ -144,8 +155,9 @@ def _clip(scale):
     return mask
 
 
-def draw_window(t, picture, scale=2, *, attachment_time=ATTACH_TIME):
+def draw_window(t, picture, scale=2, *, attachment_time=ATTACH_TIME, lang="en"):
     """t is seconds on the 30-second master. Sibling source image stays untouched."""
+    heading, question, _ = DRAFT[lang]
     im = _base(scale).copy()
     q = _Pen(im,scale)
     reveal = 0.0 if t<attachment_time else .24 + .76*_smooth((t-attachment_time)/.14)
@@ -153,7 +165,7 @@ def draw_window(t, picture, scale=2, *, attachment_time=ATTACH_TIME):
     # elements move only as much as is required to make room for the picture.
     top = 282 - 25*reveal
     bottom = 375 + 50*reveal
-    q.label(320,234-25*reveal,"What’s on your mind today?",31.4,anchor="mm")
+    q.label(320,234-25*reveal,heading,31.4,anchor="mm",lang=lang)
     box=(42,top,598,bottom)
     q.rect((42,top+1.7,598,bottom+1.7),"#E8E8E8",26)
     q.rect(box,"#FFFFFF",26,"#DCDCDD",.9)
@@ -175,8 +187,8 @@ def draw_window(t, picture, scale=2, *, attachment_time=ATTACH_TIME):
             q.line([(113.8,top+17.7),(119,top+22.9)],"white",1.25)
             q.line([(119,top+17.7),(113.8,top+22.9)],"white",1.25)
     text_y=top+27+75*reveal
-    text=QUESTION+_typed(t)
-    length=q.label(61,text_y,text,19.2)
+    text=question+_typed(t,lang)
+    length=q.label(61,text_y,text,19.2,lang=lang)
     if (TYPE_START<=t<TYPE_END+.26) or (t%1.08<.55):
         q.line([(61+length+1,text_y-9),(61+length+1,text_y+10)],"#212121",1)
     y=bottom-23
