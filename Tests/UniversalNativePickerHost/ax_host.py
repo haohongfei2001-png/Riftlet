@@ -155,7 +155,7 @@ def probe(here, sample, prior, cache):
         subprocess.run(['xcrun', 'swiftc', '-parse-as-library', '-module-cache-path', cache,
                         *[str(adapters / source) for source in ('NativeMacAXDriver.swift', 'AXPickerInspection.swift',
                           'AttachmentTransport.swift', 'AXPickerFileHandoff.swift')],
-                        str(here / 'AXPickerHost.swift'), '-o', str(executable)], check=True, timeout=180)
+                        str(here / 'AXPickerActionButton.swift'), str(here / 'AXPickerHost.swift'), '-o', str(executable)], check=True, timeout=180)
         subprocess.run(['codesign', '--force', '--sign', '-', '--timestamp=none', str(contents.parent)], check=True)
         # Do not invoke the observer through the receiver bundle. Two copies of
         # that bundle identity cannot act as an unambiguous foreground binding.

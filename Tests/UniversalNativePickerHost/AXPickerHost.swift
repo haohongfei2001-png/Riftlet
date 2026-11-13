@@ -56,7 +56,7 @@ private final class Receiver: NSObject, NSApplicationDelegate, NSOpenSavePanelDe
     var selected: URL?
     var choices: [NSButton] = []
     var files: [URL] = []
-    let accept = NSButton()
+    let accept = AXPickerActionButton()
     let selectionLabel = NSTextField(labelWithString: "No file selected")
     let prior = NSImageView(frame: NSRect(x: 230, y: 160, width: 32, height: 32))
     var priorImage: NSImage?
@@ -139,7 +139,9 @@ private final class Receiver: NSObject, NSApplicationDelegate, NSOpenSavePanelDe
         for (index, name) in ["decoy.png", "neutral.png"].enumerated() {
             let url = file.deletingLastPathComponent().appendingPathComponent(name)
             guard let identifier = try? fileChoiceID(url, nonce: nonce) else { exit(1) }
-            let choice = NSButton(radioButtonWithTitle: name, target: self, action: #selector(choose(_:)))
+            let choice = AXPickerActionButton()
+            choice.title = name; choice.target = self; choice.action = #selector(choose(_:))
+            choice.setButtonType(.radio)
             choice.setAccessibilityElement(true)
             choice.setAccessibilityRole(.radioButton)
             choice.tag = index

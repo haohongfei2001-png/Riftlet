@@ -39,7 +39,7 @@
     "Sources/RiftletAdapters/NativePickerFileDelivery.swift": "0265a2fff431cfcf00f2dd06f6b933bb6fc488adaf50218a0ed46353b0d11eb6",
     "Sources/RiftletAdapters/NativePickerVerifiedFile.swift": "a20bbdd2c636665067725611523e94fe3a4481cd029fa112de2d997e619cf6c6",
     "Tests/UniversalNativePickerHost/Probe.swift": "3346d3edeaab81a0cbc3eba270dcf43f550e9c63d00526215b5b8d7f55aeedab",
-    "Tests/UniversalNativePickerHost/ax_host.py": "c258bb7ba357d30d2a8374805d07031c77adbdd24c5119f2863dbc0e2b6d4856",
+    "Tests/UniversalNativePickerHost/ax_host.py": "b71d80d59e26b94e4a80e8a475fb83839c9df17970d9dc7ee7443dce6cebe890",
     "Tests/UniversalNativePickerHost/draft.html": "4e740a9f1715bb8831afb7104d3fb3b2f84b9f6a8181394527d549275a3ed173",
     "Tests/UniversalNativePickerHost/run.py": "10a9dfdecdd8e6271199d98eaefeecafa1f414e2444bdf0f42cd7c28c0be0d21",
     "Tests/UniversalNativePickerHost/test_ax_result.py": "a7a34b4668a8903a64a76fdb2cdbba297195e254b58cd8a259b825da9e08b8a9"

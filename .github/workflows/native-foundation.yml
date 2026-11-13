@@ -308,6 +308,7 @@ jobs:
           probe surfaces optional bash Tests/ConversationSurfaceHost/run.sh
           probe ax-classifier required python3 -B -m unittest discover -s Tests/UniversalNativePickerHost -v
           probe native-picker required python3 -B Tests/UniversalNativePickerHost/run.py --only webkit
+          probe detached-ax optional python3 -B Tests/UniversalNativePickerHost/detached.py
           probe external-ax required python3 -B Tests/UniversalNativePickerHost/run.py --only external-ax
           probe edge-engine optional python3 -B engineering/universal-attachment/edge/verify.py --mode headless
           probe safari-events optional python3 -B engineering/universal-attachment/hosts/safari_fixture.py
