@@ -45,6 +45,6 @@ Settings → `使用与历史` → `存储与恢复` → `在 Finder 中显示` 
 
 接收服务对正文和可选诊断设有 90 天保留期，到期由定时任务清理。私有反馈中心中可能已有的副本单独处理，尚未确认的删除请求会继续保留。已完成删除或过期且从未投递的报告可留有不含正文的记录，服务按创建时间在一年后清理。可在 App 中对该条反馈申请删除，并查看服务确认。
 
-隐私请求请通过应用内「反馈与建议…」私下提交。App 无法打开时，可以公开报告安装故障；请只提供版本和报错类型。应用外的私密联系方式尚未公布，生产备份的残余保留期限尚未确认。[反馈说明](FEEDBACK-TEMPLATE.md)
+如需查询或删除已提交的反馈，或有其他隐私问题，可发邮件至 [privacy@riftlet.com](mailto:privacy@riftlet.com)，也可使用应用内「反馈与建议…」。如有报告编号，可在私信中提供。请勿附上截图、聊天内容、数据库或凭据。生产备份的残余保留期限尚未确认。[反馈说明](FEEDBACK-TEMPLATE.md)
 
-For privacy requests, use the private in-app feedback window. If the app will not open, only share a non-sensitive installation summary in public Issues. There is currently no published private contact outside the app.
+For a privacy question or to ask about a feedback report or its deletion, email [privacy@riftlet.com](mailto:privacy@riftlet.com) or use the private in-app feedback window. You can include the report ID if you have it. Keep screenshots, chat text, databases and credentials out of your email. The retention period for residual production backups is unconfirmed.

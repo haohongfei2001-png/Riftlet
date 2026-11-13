@@ -13,7 +13,7 @@ macOS 正常截图，图片停在桌面边缘；点一下微图，附加到当�
 - [消费者入口与当前限制](docs/consumer/README.md)
 - [中文快速开始](docs/consumer/QUICK-START.zh-CN.md) · [English quick start](docs/consumer/QUICK-START.en.md)
 - [安装与分步权限说明](docs/consumer/INSTALL-AND-PERMISSIONS.md)
-- [隐私、本地副本和卸载](docs/consumer/PRIVACY.md)
+- [隐私、本地副本和卸载](docs/consumer/PRIVACY.md) · [隐私邮箱](mailto:privacy@riftlet.com)
 - [失败恢复、历史和存储 FAQ](docs/consumer/RECOVERY-AND-FAQ.md)
 - [支持范围](docs/consumer/SUPPORT-MATRIX.md) · [反馈模板](docs/consumer/FEEDBACK-TEMPLATE.md)
 

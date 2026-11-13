@@ -28,3 +28,7 @@ c4bdeeca1410cc42649c3e3b8437ddd704605013d90ed9553bdc242f2d74cc7a
 macOS 设置名称随系统版本变化。系统权限可参考 [Apple 文件与文件夹说明](https://support.apple.com/en-au/guide/mac-help/mchld5a35146/mac) 和 [Apple 录屏权限说明](https://support.apple.com/en-kw/guide/mac-help/mchld6aa7d23/mac)。Chrome 的开关位置可参考 [Chromium 的 AppleScript 说明](https://www.chromium.org/developers/applescript/)。
 
 **English.** Riftlet 0.3.5 (20) Public Beta supports macOS 13+ on Apple silicon and Intel. Download from [riftlet.com](https://riftlet.com/) and verify the DMG against the checksum file linked above. Updates are manual. Back up your current library before replacing the installed app. Open the verified DMG, drag Riftlet.app into Applications, eject the image and launch the installed copy. Grant access to the actual macOS screenshot folder. Google Chrome attachment also uses Automation and Chrome’s **Allow JavaScript from Apple Events** setting. Screen Recording is for Riftlet’s own capture tools. [English quick start](QUICK-START.en.md)
+
+即使无法打开 Riftlet，也可将隐私请求发至 [privacy@riftlet.com](mailto:privacy@riftlet.com)。[隐私政策](PRIVACY.md)
+
+For a privacy request, including if the app will not open, email [privacy@riftlet.com](mailto:privacy@riftlet.com). [Privacy policy](PRIVACY.md)

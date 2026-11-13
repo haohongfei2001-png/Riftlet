@@ -78,7 +78,7 @@ POLICY = Policy(
     legacy_source="253ac8db92bfba9083d485b71b84c594223da217",
     legacy_gate_blob="e0dfa374e45badca36f01d9d6315ce667ee8d43f",
     website_source="fccd809e9d55e0b221e75e6dcd7c21f6d357ee74",
-    public_download_page="cf02b0f6f9d0631dd8b922028217bce5cfd3cd8f",
+    public_download_page="a4aa78f6d86024c2b32b15799ad7eda680b643c9",
 )
 
 
