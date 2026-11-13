@@ -84,6 +84,7 @@ POLICY = Policy(
         ("280be2f8422ccf6c0864f53b8f83e80552b2ec32", ("index.html", "website/README.md")),
         ("b8927bf7f7ba9396e43bd12fb5b0b9029e2ed697", ("index.html", "website-v2.js", "website/README.md")),
         ("2138d1d0301a7693035aa5386486acae37f48c61", ("website-v2.js",)),
+        ("86b71af9b7eab86b16a26e930b432c78d04d0875", ("index.html", "website/README.md")),
     ),
 )
 
