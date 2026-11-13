@@ -162,7 +162,7 @@ extension RiftSettingsCenterController {
             case .requiresApproval: detail = "等待系统批准。"
             }
         }
-        let error = login.errorCode.map { " macOS 返回错误 \($0)。" } ?? ""
+        let error = login.errorCode.map { " macOS 返回错误代码 \($0)。" } ?? ""
         text("login.detail", detail + error)
         labels["login.detail"]?.isHidden = login.available && !login.notConfirmed && !login.isBusy && login.errorCode == nil && (login.status == .notRegistered || login.status == .enabled)
         hide("login.retry", login.failedTarget == nil)
