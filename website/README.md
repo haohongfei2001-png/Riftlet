@@ -49,3 +49,9 @@ The release page must serve the verified DMG before activating its homepage link
 Check the two download links, installation dialog, permissions FAQ, manual update instructions, feedback link and privacy contact in both languages. Check the static download links with JavaScript disabled. Verify the deployed `riftlet-website-version` marker, follow a link from the live homepage, then compare the downloaded file against the independently recorded SHA-256.
 
 See [RELEASE_2026-10-30.md](RELEASE_2026-10-30.md) for the original v2 design release scope and asset provenance.
+
+## Search engine discovery
+
+- The homepage declares Riftlet as the macOS screenshot application with the official canonical URL and minimal schema.org `SoftwareApplication` structured data. The sitemap was updated with its actual 2026-11-14 modification date. Robots allow search crawling.
+- Bing and other IndexNow search engines can be notified using the public root ownership key file. See [SEARCH_INDEXING.md](SEARCH_INDEXING.md). IndexNow receipt is not an indexing guarantee.
+- Google Search Console ownership and URL inspection require an authorized Google-account property; the site itself can be deployed and verified without asking the owner to edit code. Do not claim Google indexing without Search Console evidence.
