@@ -11,6 +11,14 @@ Riftlet 的截图副本和历史保存在本机。**点击微图会把那张图�
 - 点击附加才把图片交给该网页。Riftlet 不自动发送聊天消息，不主动删除现有聊天附件，不上传整个截图目录。图片进入 ChatGPT 后由该服务处理，适用你自己的账号和服务设置。
 - 当前产品没有 Riftlet 账号、截图云同步或后台使用率埋点。日常收录不会将截图发送给维护者。
 
+## 官网访问统计（与 Mac App 分开）
+
+官网 `riftlet.com` 预留使用 Umami Cloud 的无 Cookie 网站访问分析，仅在站点配置有效统计 ID 后启用。启用后，网站会向 Umami 发送页面访问、访问来源/推广参数及用户主动点击两个 DMG 下载按钮的事件。网站会尊重浏览器可用的 Do Not Track / Global Privacy Control 信号，并允许在浏览器中选择不参与统计。Umami 和网络基础设施可能处理访问设备的技术连接元数据；这不代表完全匿名。
+
+官网统计**不会读取、上传或分析 Mac 上的截图、剪贴板、ChatGPT 草稿、聊天内容或 Riftlet 本机数据**，不创建 Riftlet 账户，也不用于追踪用户身份。下载按钮点击不代表安装成功。未配置有效站点 ID 时不会加载 Umami 脚本或发送网站分析事件。现有 Mac App 没有后台使用率埋点。
+
+**Website analytics.** The public website may use cookie-free Umami Cloud analytics only after a real website ID is configured, for pageviews, referral/UTM campaigns and clicks on the two official DMG download links. The tracker respects available Do Not Track and Global Privacy Control signals. The provider and underlying network may process technical connection metadata; anonymity is not guaranteed. Website analytics do not read screenshots, clipboard, chats, or local app data. Until configured, no Umami tracker is loaded.
+
 ## 反馈是什么时候联网的
 
 打开反馈窗口、编辑或关闭并保存草稿不会新提交报告。点「发送反馈」后，已授权的待发送项可在后台、网络恢复或下次启动时继续投递；这不会每次重新弹出确认。反馈的查询、取消/删除申请也可能联网。
