@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "reviewedBase": "5da42a221fb3e6496585c127e6cf11b8e836840f",
-  "reviewedSource": "63e796a135dfe2aefc024012fdb95888f381da5c",
-  "reviewedTree": "6641fe3b21c3da7d62e838a970c660ee772ae184",
-  "authorRole": "riftlet_umami_integration_author",
+  "reviewedBase": "04c885ac86e7ff7b3b12d056699d912517721d60",
+  "reviewedSource": "6eda16a173df6c2b5bbcd41b0077905e5dc13d36",
+  "reviewedTree": "02637a270e21230cec562051c9cea9ba0c87601c",
+  "authorRole": "stable_feed_release_operator",
   "reviews": [
     {
-      "reviewer": "automated_site_analytics_code_checker",
-      "source": "63e796a135dfe2aefc024012fdb95888f381da5c",
-      "tree": "6641fe3b21c3da7d62e838a970c660ee772ae184",
+      "reviewer": "independent_native_and_public_site_release_reviewer",
+      "source": "6eda16a173df6c2b5bbcd41b0077905e5dc13d36",
+      "tree": "02637a270e21230cec562051c9cea9ba0c87601c",
       "result": "PASS",
-      "sha256": "51eecb0fe419345bfa716370b3e6b6486bfd991be15ea5085cda3743229d5ab9",
-      "report": "{\"reviewer\":\"automated_site_analytics_code_checker\",\"reviewedBase\":\"5da42a221fb3e6496585c127e6cf11b8e836840f\",\"reviewedSource\":\"63e796a135dfe2aefc024012fdb95888f381da5c\",\"reviewedTree\":\"6641fe3b21c3da7d62e838a970c660ee772ae184\",\"result\":\"PASS\",\"checks\":[\"Exact main comparison: eight expected files, no native updater or DMG changes.\",\"Umami public site UUID and dynamic script configuration verified; no duplicate loader.\",\"Twelve privacy/origin runtime scenarios and both unchanged DMG links passed.\",\"Pinned two-file website checkpoint, matching policy source; syntax checks passed.\"],\"scope\":\"Automated static and code-path verification only; not independent human review or live Umami dashboard validation.\"}"
+      "sha256": "197f521867c141c15038f250fa4e23c367ea96cfb83310d38600a6d50b0c180d",
+      "report": "{\n  \"reviewer\": \"independent_native_and_public_site_release_reviewer\",\n  \"reviewedBase\": \"04c885ac86e7ff7b3b12d056699d912517721d60\",\n  \"reviewedSource\": \"6eda16a173df6c2b5bbcd41b0077905e5dc13d36\",\n  \"reviewedTree\": \"02637a270e21230cec562051c9cea9ba0c87601c\",\n  \"result\": \"PASS\",\n  \"checks\": [\n    \"Checked the actual base, source merge retaining previous PR history and the newly integrated main #73 website checkpoint, exact source tree, homepage checkpoint paths and one explicit matching historical verifier entry. The rest of the delta is the three independently inspected documentation/homepage patches and the signed stable.xml. Reviewed the releasing tool\\u2019s opt-in authenticated fixed-repository read-only GitHub metadata call and ran its exact regression. The generator also resolves its temporary workspace before verifying the exact hdiutil read-only mount, now exercised against the public file. Public release asset download remains anonymous. No native code, bundled updater trust settings, product resources, analytics or visual runtime scripts, CSS or binaries changed relative to #73. The only analytics test adjustment updates its expected download and event version to 1.0.1.\",\n    \"Checked both versioned homepage download and release links, approved visual assets and scripts, English/Chinese and no-JavaScript content, Chrome and macOS compatibility, 1.0.0 manual bootstrap, later daily check and explicit install, private feedback/mailto and privacy guide. Existing headless browser evidence covers desktop/mobile Chinese and English and the fallback with five cases and zero runtime exceptions; its previous copy is retained except the main #73 analytics loader and download attributes. Independently reran the six analytics tests against this exact combined tree and inspected preserved opt-out and privacy disclosures.\",\n    \"Independently verified codesign, notarized Gatekeeper and stapled tickets on both final universal App and final DMG. Verified archived Accepted receipts and the published immutable non-draft, non-prerelease GitHub entry. The public download receipt and API asset digest match the frozen 12,417,028-byte file, SHA-256 6443357f08a9dbda805cd5452695417ff8783f34fb7f2331eef08c719f7290a9.\",\n    \"Verified exactly one stable, noncritical 1.0.1/build 23 item with the versioned GitHub URL. Independently verified both complete signed XML and enclosure signatures with the shipped App public key and confirmed the immutable source feed SHA-256 4db8de3fed8ca0e81a62616152a54ae48077a08d7b4b3db8ce340a53b4164a21.\",\n    \"Production Pages byte-for-byte validation remains a post-deployment step. This report approves the exact source before deployment; it does not assert a completed deployment.\"\n  ]\n}\n"
     }
   ],
   "productionAdmission": {
