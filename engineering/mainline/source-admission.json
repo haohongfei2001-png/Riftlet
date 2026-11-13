@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "reviewedBase": "bc314340692b1db7246127e4b6fb9dd02a446568",
-  "reviewedSource": "f77dd62cd31fb611d6a3df89c587922871230d16",
-  "reviewedTree": "f955f563ee16b331e04d359e90d340a311e57370",
-  "authorRole": "consumer_release_engineer",
+  "reviewedBase": "427c5325590877eabebd0ce6b9e7e1ed030277d3",
+  "reviewedSource": "338cf90a092969bf3e2c11ee99edd8e7fe3ca124",
+  "reviewedTree": "60a0679c9b675b03f502deaf0c538a91c847f96a",
+  "authorRole": "riftlet_locale_source_editor",
   "reviews": [
     {
-      "reviewer": "independent_stable_website_source_reviewer",
-      "source": "f77dd62cd31fb611d6a3df89c587922871230d16",
-      "tree": "f955f563ee16b331e04d359e90d340a311e57370",
+      "reviewer": "automated_locale_static_reviewer",
+      "source": "338cf90a092969bf3e2c11ee99edd8e7fe3ca124",
+      "tree": "60a0679c9b675b03f502deaf0c538a91c847f96a",
       "result": "PASS",
-      "sha256": "c93945bf87fd142d54338674f923cad1b797bad73f8fbe1357b8a3895932b8b5",
-      "report": "{\n  \"reviewer\": \"independent_stable_website_source_reviewer\",\n  \"reviewedBase\": \"bc314340692b1db7246127e4b6fb9dd02a446568\",\n  \"reviewedSource\": \"f77dd62cd31fb611d6a3df89c587922871230d16\",\n  \"reviewedTree\": \"f955f563ee16b331e04d359e90d340a311e57370\",\n  \"result\": \"PASS\",\n  \"checks\": [\n    \"Independently verified the actual PR64 main merge base, its admitted native source and the exact parent chain of the two website commits. The new checkpoint changes only three reviewed Git objects (HTML, locale JS title handling, site README), byte- and mode-identical to separately reviewed 26020d57051afdd73c47c253eb262c094b01eed5. There are zero native source, packaging, CSS, artwork, font, DNS, workflow and domain changes.\",\n    \"Compared both root README versions: only the product download and release notes URLs change. The mainline site-policy update adds precisely one fixed single-parent checkpoint for the three actual changed paths, retains every prior lock and byte of the verifier, and the ordered path pins resolve to those Git objects. Existing stage, historical tree and source-admission checks remain in effect.\",\n    \"Parsed both natural-language and accessibility/translated HTML. The landing page, headers, install dialog, Open Graph and Twitter titles consistently identify Riftlet 1.0.0, without the former beta or parenthesized build labels. Two static DMG links go to the single versioned v1.0.0/Riftlet-1.0.0.dmg release asset, two release-note links go to the corresponding v1.0.0 tag, and private contact, consumer permissions, feedback and manual-update help remain discoverable. No unknown external download domain was introduced.\",\n    \"Inspected recorded bilingual headless browser results at 320/390/768/1440 px for the exact reviewed bytes, and checked original first-use and attachment evidence: fresh ordinary-account Finder/permissions/screenshot/history/restart was directly observed on 1.0 build 21. Build 22 changes the marketing version presentation and build metadata. Previous build 18 directly demonstrates two attachments; this website grants no new direct ChatGPT operation evidence.\",\n    \"Independently recomputed the actual signed build 22 DMG SHA256 as 094980ae3ae5fdee5524482ca9e7165c813e7cf4fcb401f8c3151302a3961be2 from the frozen bytes. The acceptance of the private artifact and source review are independent of GitHub asset public accessibility and actual Pages deployment. Those have their own live checks.\"\n  ],\n  \"findings\": [],\n  \"scope\": \"Non-author source admission of website and README activation only. This review is not an assertion that any pending production deployment has succeeded.\"\n}\n"
+      "sha256": "98154789f2227d16c8bf60a69f35977a15f940ca75cee29c2aeb86aee8d82f52",
+      "report": "{\"reviewer\":\"automated_locale_static_reviewer\",\"reviewedBase\":\"427c5325590877eabebd0ce6b9e7e1ed030277d3\",\"reviewedSource\":\"338cf90a092969bf3e2c11ee99edd8e7fe3ca124\",\"reviewedTree\":\"60a0679c9b675b03f502deaf0c538a91c847f96a\",\"result\":\"PASS\",\"checks\":[\"Compared the source to the exact main base; only website-v2.js and the mainline website checkpoint pin changed.\",\"Verified the locale JS reduces exactly to its previous bytes after removing preference initialization, persistence and initial translation.\",\"Ran 14 locale/override cases directly from the committed preferredLanguage function, plus blocked-storage and navigator.language fallback.\",\"Verified the policy change pins only the precise website-v2.js commit and preserves all historical gates and prior checkpoints.\",\"Kept existing demo, release downloads, CSS, translations, HTML and native product files unchanged.\"],\"scope\":\"Independent code-path automated static QA, not a separate human review and not live browser acceptance.\"}"
     }
   ],
   "productionAdmission": {
