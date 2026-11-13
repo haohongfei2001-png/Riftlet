@@ -20,3 +20,5 @@
 - 更早的个人 Beta 在空草稿中有软件鼠标点击的双图记录，也记录了另一提交的五图。该 PR 明确原截图、原始日志和测试聊天身份留在私有交付目录。公开仓库已有的动效影片分别是设计探索或旧原生窗口实验，未找到可用来展示 build 20 实际草稿接收的原片。[PR #41](https://github.com/haohongfei2001-png/Riftlet/pull/41) · [片源检索](../evidence/release.md)
 
 在本次发行版上，只有能确认归属的独立 Chrome 草稿、两次分别选中新图、原图分别出现在同一草稿、每张对应收起以及未发送消息，才能填写本轮真实连续附加。由正式二进制运行的隔离界面可证明原生呈现和本地收录；它的独立数据根没有浏览器权限。[隔离运行模式](https://github.com/haohongfei2001-png/Riftlet/blob/v0.3.5-beta.1/Sources/RiftletApp/SettingsReviewEnvironment.swift#L4-L16)
+
+**本轮实测。** 公开 build 20 的原生画面证实两张带 macOS 原生标记的独立截图按序进入托盘、相机键展开，以及第二张微图收到辅助功能按压。原图与收录副本的两组 SHA-256 均相等。真实草稿的两次接收仍为 NOT_RUN。[本轮拍摄记录](../video/capture-log.md) · [实际运行回执](../evidence/native-capture.json)
