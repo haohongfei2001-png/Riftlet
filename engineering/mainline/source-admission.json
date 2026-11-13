@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "reviewedBase": "427c5325590877eabebd0ce6b9e7e1ed030277d3",
-  "reviewedSource": "338cf90a092969bf3e2c11ee99edd8e7fe3ca124",
-  "reviewedTree": "60a0679c9b675b03f502deaf0c538a91c847f96a",
-  "authorRole": "riftlet_locale_source_editor",
+  "reviewedBase": "8a6482379323e3efb5b40ae576264d73ebb0cb32",
+  "reviewedSource": "ff3b9747ffbcb6982ce8822a1aed92b2bb29fced",
+  "reviewedTree": "843015519626ffba0566c5fb05a9e5e3a1d23944",
+  "authorRole": "website_analytics_source_editor",
   "reviews": [
     {
-      "reviewer": "automated_locale_static_reviewer",
-      "source": "338cf90a092969bf3e2c11ee99edd8e7fe3ca124",
-      "tree": "60a0679c9b675b03f502deaf0c538a91c847f96a",
+      "reviewer": "automated_site_analytics_regression_review",
+      "source": "ff3b9747ffbcb6982ce8822a1aed92b2bb29fced",
+      "tree": "843015519626ffba0566c5fb05a9e5e3a1d23944",
       "result": "PASS",
-      "sha256": "98154789f2227d16c8bf60a69f35977a15f940ca75cee29c2aeb86aee8d82f52",
-      "report": "{\"reviewer\":\"automated_locale_static_reviewer\",\"reviewedBase\":\"427c5325590877eabebd0ce6b9e7e1ed030277d3\",\"reviewedSource\":\"338cf90a092969bf3e2c11ee99edd8e7fe3ca124\",\"reviewedTree\":\"60a0679c9b675b03f502deaf0c538a91c847f96a\",\"result\":\"PASS\",\"checks\":[\"Compared the source to the exact main base; only website-v2.js and the mainline website checkpoint pin changed.\",\"Verified the locale JS reduces exactly to its previous bytes after removing preference initialization, persistence and initial translation.\",\"Ran 14 locale/override cases directly from the committed preferredLanguage function, plus blocked-storage and navigator.language fallback.\",\"Verified the policy change pins only the precise website-v2.js commit and preserves all historical gates and prior checkpoints.\",\"Kept existing demo, release downloads, CSS, translations, HTML and native product files unchanged.\"],\"scope\":\"Independent code-path automated static QA, not a separate human review and not live browser acceptance.\"}"
+      "sha256": "562e1fc0cb6284d112a84999c1d9c05744a333f1dee3504817faf79e636bc866",
+      "report": "{\"reviewer\":\"automated_site_analytics_regression_review\",\"reviewedBase\":\"8a6482379323e3efb5b40ae576264d73ebb0cb32\",\"reviewedSource\":\"ff3b9747ffbcb6982ce8822a1aed92b2bb29fced\",\"reviewedTree\":\"843015519626ffba0566c5fb05a9e5e3a1d23944\",\"result\":\"PASS\",\"checks\":[\"Reviewed exact eight-file change from current main; no native App code, download destinations, CSS, screenshots, images or private data changed.\",\"Production bootstrap is disabled without a real UUID, HTTPS riftlet.com origin, DNT/GPC opt-out; no tracking before owner activation.\",\"Validated 12 executable locale-independent privacy/origin scenarios and both original DMG links with different event placement metadata.\",\"Validated analytics bootstrap and Node regression test syntax with the JavaScript runtime; real Umami collection is NOT_RUN without owner site ID.\",\"Website policy pins only checkpoint 86b71af and preserves prior website stages; existing production admission flags remain unchanged.\",\"The only additional external resource after activation is Umami's published cloud script, loaded conditionally; no chat, screenshot or App data is read.\"],\"scope\":\"Automated source and static regression validation, not a separate human reviewer or live Umami dashboard acceptance; site ID not provisioned.\"}"
     }
   ],
   "productionAdmission": {
