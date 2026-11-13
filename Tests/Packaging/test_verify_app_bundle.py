@@ -11,6 +11,8 @@ import shutil
 import tempfile
 import unittest
 
+from sparkle_fixture import make_framework
+
 
 REPOSITORY = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location(
@@ -30,6 +32,7 @@ class BundleVerificationTests(unittest.TestCase):
         # Deliberately not a runnable program. Native execution belongs to CI.
         self.binary.write_bytes(b"\xcf\xfa\xed\xfeSYNTHETIC-NONEXECUTABLE-FIXTURE")
         self.binary.chmod(0o755)
+        make_framework(self.app, VERIFY.SPARKLE)
         self.plist = self.contents / "Info.plist"
         shutil.copy2(REPOSITORY / "Resources/Info.plist", self.plist)
         self.resources = self.contents / "Resources"
@@ -162,7 +165,7 @@ class BundleVerificationTests(unittest.TestCase):
         # Mock Swift and codesign only: this proves orchestration, not native compilation/signing.
         root = Path(self.temporary.name) / "repo"
         (root / "scripts").mkdir(parents=True)
-        for name in ("build-macos.sh", "build-ordinary-acceptance.sh", "verify-app-bundle.py"):
+        for name in ("build-macos.sh", "build-ordinary-acceptance.sh", "verify-app-bundle.py", "sparkle_bundle.py"):
             shutil.copy2(REPOSITORY / "scripts" / name, root / "scripts" / name)
         for name in ("Resources", "ThirdPartyNotices", "Sources/RiftletAdapters/Resources"):
             shutil.copytree(REPOSITORY / name, root / name)
@@ -173,6 +176,20 @@ class BundleVerificationTests(unittest.TestCase):
         fake_product.mkdir()
         shutil.copy2(self.binary, fake_product / "Riftlet")
         shutil.copytree(self.bundle, fake_product / self.bundle.name)
+        fixture = root / "mock-framework"
+        shutil.copytree(self.app / VERIFY.SPARKLE.FRAMEWORK, fixture, symlinks=True)
+        # Mock the external artifact, alongside the already mocked Swift compiler.
+        # Only the scratch package uses this fixture in place of SwiftPM's artifact.
+        helper = root / "scripts/sparkle_bundle.py"
+        helper.rename(root / "scripts/real_sparkle_bundle.py")
+        helper.write_text(
+            'import sys, shutil\nfrom pathlib import Path\n'
+            'sys.path.insert(0, str(Path(__file__).resolve().parent))\n'
+            'from real_sparkle_bundle import *\n'
+            'if __name__ == "__main__":\n'
+            '    dest = Path(sys.argv[2]) / FRAMEWORK\n'
+            '    dest.parent.mkdir()\n'
+            '    shutil.copytree(Path(__file__).resolve().parents[1] / "mock-framework", dest, symlinks=True)\n')
         commands = root / "commands"
         commands.mkdir()
         log = root / "commands.jsonl"
@@ -298,6 +315,17 @@ class BundleVerificationTests(unittest.TestCase):
         self.assert_rejected("missing_notice_Sukurini/NOTICE")
         notice.write_text("shortened copyright")
         self.assert_rejected("notices_differ_from_source", REPOSITORY)
+
+    def test_redirected_missing_sparkle_framework_and_helpers_are_rejected(self):
+        link = self.app / VERIFY.SPARKLE.FRAMEWORK / "Versions/Current"
+        link.unlink(); link.symlink_to("../../..")
+        self.assert_rejected("unsafe_bundle_entry")
+        link.unlink(); link.symlink_to("B")
+        target = self.app / VERIFY.SPARKLE.BASE / "Updater.app/Contents/MacOS/Updater"
+        target.unlink()
+        self.assert_rejected("missing_sparkle_executable")
+        shutil.rmtree(self.contents / "Frameworks")
+        self.assert_rejected("updater_framework_mismatch")
 
     def test_symlinked_resource_and_bundle_root_rejected(self):
         target = self.bundle / VERIFY.RESOURCE_NAMES[0]

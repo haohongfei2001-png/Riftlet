@@ -92,6 +92,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var storageLine: NSMenuItem?
     private var storageMeasurement: Task<Void, Never>?
     private var settingsHost: SettingsProductHost?
+    private var updater: ApplicationUpdater?
     private var settingsOwnerRevision: UInt64 = 0
     private var setupStorage: SetupStorageState = .notMeasured
     private var setupIssue: SetupIssue?
@@ -102,6 +103,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var detectedSource: URL?
     private var pendingResultCount = 0
     private var initialized = false
+    private var initializationTask: Task<Void, Never>?
     private var captureControl = CaptureControlGate()
     private var recheckTask: Task<Void, Never>?
     private var collectionChangePending = false
@@ -121,6 +123,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var terminating = false
     private var terminationPreparationPending = false
     private var terminationApproved = false
+    private var drainingForExit = false
     private var permissionResumer: PassivePermissionResume?
     private var permissionActivationObserver: NSObjectProtocol?
     private var permissionWakeObserver: NSObjectProtocol?
@@ -209,6 +212,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             NSApp.terminate(nil)
             return
         }
+        if mode == .capture, !OrdinaryCaptureConfiguration.isInternalAcceptance, Bundle.main.bundleURL.pathExtension == "app" {
+            updater = ApplicationUpdater { [weak self] in self?.updateSetup() }
+        }
         installMenu()
         _ = feedback // Independent sidecar initializes off the screenshot path.
         installSetup()
@@ -219,7 +225,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             updateSetup()
             if settingsHost?.showOnboarding() == true { firstUse.recordPresentation() }
         }
-        Task { [self] in
+        initializationTask = Task { [self] in
+            defer { initializationTask = nil }
             do {
                 try await start()
                 if mode == .settingsReview,
@@ -267,23 +274,62 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         terminationPreparationPending = true
         let afterSettings: @MainActor (Bool) -> Void = { [weak self] accepted in
             guard let self else { return }
-            guard accepted else { self.terminationPreparationPending = false; return }
+            guard accepted else {
+                self.terminationPreparationPending = false
+                self.screenshotEntry?.cancelExitPreparation()
+                return
+            }
             self.settingsHost?.beginTerminationPreparation()
             self.feedback.prepareTermination { [weak self] ready in
                 guard let self else { return }
-                self.terminationPreparationPending = false
-                guard ready else { self.settingsHost?.cancelTerminationPreparation(); return }
-                self.terminationApproved = true
-                DispatchQueue.main.async { sender.terminate(nil) }
+                guard ready else {
+                    self.terminationPreparationPending = false
+                    self.settingsHost?.cancelTerminationPreparation()
+                    self.screenshotEntry?.cancelExitPreparation()
+                    return
+                }
+                Task { @MainActor in
+                    await self.finishWorkForExit()
+                    self.terminationApproved = true
+                    self.terminationPreparationPending = false
+                    sender.terminate(nil)
+                }
             }
         }
-        if let center = settingsHost?.center { center.requestCloseForTermination(afterSettings) }
-        else { afterSettings(true) }
+        Task { @MainActor in
+            await initializationTask?.value
+            guard await screenshotEntry?.prepareForApplicationExit() != false else {
+                terminationPreparationPending = false
+                return
+            }
+            if let center = settingsHost?.center { center.requestCloseForTermination(afterSettings) }
+            else { afterSettings(true) }
+        }
         // AppKit's terminateLater modal loop does not run the MainActor tasks
         // used by our real feedback save/stop path in the native regression.
         // Keep the normal loop alive, then terminate once cleanup has succeeded.
         // Never force-exit or bypass an unsaved settings/feedback refusal.
         return .terminateCancel
+    }
+
+    // Enter only after every settings/feedback close decision was accepted.
+    // Sparkle sends an ordinary Quit Apple Event and waits for process exit.
+    // Keep the instance lock until the OS closes the old process's descriptors.
+    private func finishWorkForExit() async {
+        drainingForExit = true
+        await recheckTask?.value
+        await sourceBinding?.stop()
+        await capture?.finishForApplicationExit()
+        await screenshotEntry?.finishForApplicationExit()
+        await selectionSubmissions.finishSubmittedWork()
+        // This reflects only live calls in this process. Durable UNKNOWN or a
+        // remote upload already running never postpones installation.
+        while await transfer?.hasInFlightAttachmentWork == true {
+            try? await Task.sleep(nanoseconds: 100_000_000)
+        }
+        archiveTask?.cancel(); await archiveTask?.value
+        completionWatch?.cancel(); await completionWatch?.value
+        await originalRecoveryTask?.value
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -371,7 +417,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             holdsSelectionUntilFinished: true, interactionFence: interactionFence,
             onRemove: { [weak self] id in self?.removeVisible(id) },
             onOpenOriginal: { [weak self] id in self?.openOriginal(id) }) { [weak self] id in
-            guard let self else { return }
+            guard let self, !self.drainingForExit else { return }
             let press = self.frozenPress?.id == id ? self.frozenPress : nil
             let revision = self.rift?.selectionRevision(for: id)
             self.frozenPress = nil
@@ -768,6 +814,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     guard let self else { return .unconfirmed(nil, .ownerUnavailable) }
                     return await self.saveSettings(request)
                 }, historyDisplay: historyDisplayPreferences,
+                updaterPresentation: { [weak self] in self?.updater?.presentation },
                 onRefresh: { [weak self] in self?.updateSetup() },
                 onAction: { [weak self] in await self?.performSettingsAction($0) })
         } catch { setupIssue = .configurationUnavailable }
@@ -860,7 +907,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     @objc private func recheckSetup() {
-        guard initialized, !requestingPermission, !collectionChangePending,
+        guard !drainingForExit, initialized, !requestingPermission, !collectionChangePending,
               let token = captureControl.begin(.recheck) else { return }
         updateControlTitles()
         recheckTask = Task {
@@ -1106,7 +1153,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private func freezePress(_ id: UUID, timestamp: TimeInterval) {
         frozenPress?.target.cancel()
         frozenPress = nil
-        guard mode.usesWebAdapter, let router = clickRouter else { return }
+        guard !drainingForExit, mode.usesWebAdapter, let router = clickRouter else { return }
         let target: Task<TargetLease, Error>
         do {
             // Mouse-down freezes the receiver, selected tab and original editor.
@@ -1506,6 +1553,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         // Standard application shortcuts are active only while Riftlet owns
         // the foreground application. No global monitor or hotkey is added.
         let applicationMenu = NSMenu(title: "Riftlet")
+        if updater != nil { add(applicationMenu, "检查更新…", #selector(checkForUpdates)) }
         add(applicationMenu, "设置…", #selector(showSetup), key: ",")
         applicationMenu.addItem(.separator())
         add(applicationMenu, "退出 Riftlet", #selector(quit), key: "q")
@@ -1544,6 +1592,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         let item = NSMenuItem(title: title, action: action, keyEquivalent: key); item.target = self; menu.addItem(item)
     }
     func validateMenuItem(_ item: NSMenuItem) -> Bool {
+        if item.action == #selector(checkForUpdates) { return updater?.presentation.canCheck == true && !terminationPreparationPending }
         if item.action == #selector(showSetup) { return !NSApp.windows.contains { $0.attachedSheet != nil } }
         if item.action == #selector(beginScreenshot) { return screenshotEntry?.isEnabled == true && !userHidden }
         if item.action == #selector(toggleCollection) { return canChangeCollection }
@@ -1557,6 +1606,16 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     @objc private func beginScreenshot() { screenshotEntry?.beginFromMenu() }
     @objc private func showLatest() { rift?.showLatest() }
     @objc private func showOldest() { rift?.showOldest() }
+    @objc private func checkForUpdates() {
+        guard !terminationPreparationPending else { return }
+        settingsHost?.control.close()
+        let show: @MainActor () -> Void = { [weak self] in
+            guard let self, !self.terminationPreparationPending else { return }
+            self.updater?.check()
+        }
+        if let screenshotEntry { screenshotEntry.checkAfterCapture(show) }
+        else { show() }
+    }
     @objc private func quit() { NSApplication.shared.terminate(nil) }
     @objc private func showArrivalSettings() { showSettingsPage(.motion) }
 
@@ -1642,6 +1701,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         case .openConfiguration: openGeometry()
         case .showLatest: showLatest()
         case .showOldest: showOldest()
+        case .checkForUpdates: checkForUpdates()
+        case .automaticUpdateChecks(let enabled): updater?.setAutomaticChecks(enabled)
+        case .openDownloadWebsite: NSWorkspace.shared.open(URL(string: "https://riftlet.com/")!)
         case .quit: quit()
         case .settings, .appearance, .retryAppearance, .historyDisplayStyle, .loginEnabled, .retryLogin, .openLoginSettings:
             break // Owned by SettingsProductHost; never recursively dispatched.

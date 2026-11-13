@@ -233,6 +233,9 @@ def release(args):
                                                  for arch in receipt["architectures"]},
                   "appSubmissionID": receipt["appSubmissionID"], "dmgSubmissionID": receipt["submissionID"],
                   "receipt": str(path.parent / "dmg-receipt.json"), "published": False}
+        if manifest.get("build", {}).get("sparkleVersion"):
+            result["sparkleVersion"] = manifest["build"]["sparkleVersion"]
+            result["nestedCodeVerified"] = sorted(receipt["embeddedAppSignature"]["sparkle"])
         R.write_json(workspace / "website-release.json", result)
         return result
 

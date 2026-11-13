@@ -62,6 +62,8 @@ final class SelectionSubmissionQueue {
     func cancel(selectionIDs: Set<UUID>) {
         removePending { $0.selectionID.map(selectionIDs.contains) ?? false }
     }
+    func finishSubmittedWork() async { await consumer?.value }
+
     func stop() { removePending { _ in true }; consumer?.cancel() }
 
     private func removePending(where matches: (Entry) -> Bool) {

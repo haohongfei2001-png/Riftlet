@@ -151,6 +151,11 @@ public final class InteractiveScreenshotController {
         for panel in panels { panel.selectionView.mode = mode; panel.invalidateCursorRects(for: panel.selectionView) }
     }
 
+    public func finishPendingExposure() async {
+        setInteractionSuspended(true)
+        await captureTask?.value
+    }
+
     public func updateOptions(_ options: InteractiveScreenshotOptions) { session.updateOptions(options) }
 
     /// Menus and host editors own their keyboard/closing click while suspended.

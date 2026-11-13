@@ -2,6 +2,8 @@
 import importlib.util
 import json
 import os
+import plistlib
+import sys
 from pathlib import Path
 import shutil
 import subprocess
@@ -11,6 +13,9 @@ from unittest.mock import patch
 
 REPOSITORY = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location("beta_package", REPOSITORY / "scripts/verify-internal-beta-package.py")
+sys.path.insert(0, str(REPOSITORY / "Tests/Packaging"))
+from sparkle_fixture import make_framework
+
 VERIFY = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(VERIFY)
 
@@ -26,6 +31,12 @@ class InternalBetaPackagingTests(unittest.TestCase):
         self.binary.parent.mkdir(parents=True)
         self.binary.write_bytes(b"\xcf\xfa\xed\xfeSYNTHETIC-NONEXECUTABLE-FIXTURE")
         self.binary.chmod(0o755)
+        sparkle = VERIFY.BUNDLE.SPARKLE
+        make_framework(self.contents.parent, sparkle)
+        upstream_digest = sparkle.framework_digest(self.contents.parent / sparkle.FRAMEWORK)
+        pinned_fixture = patch.object(sparkle, "FRAMEWORK_DIGEST", upstream_digest)
+        pinned_fixture.start()
+        self.addCleanup(pinned_fixture.stop)
         shutil.copy2(REPOSITORY / "Resources/Info.plist", self.contents / "Info.plist")
         (self.contents / "Resources").mkdir()
         shutil.copy2(REPOSITORY / "Resources/Riftlet.icns", self.contents / "Resources/Riftlet.icns")
@@ -51,7 +62,7 @@ class InternalBetaPackagingTests(unittest.TestCase):
                          "dataDirectory": "Riftlet-System-Screenshot-Candidate",
                          "feedbackEndpointConfigured": False, "feedbackEndpoint": None,
                          "feedbackDelivery": "local-outbox-only",
-                         "buildInputObjects": {path: "e" * 40 for path in VERIFY.INPUTS},
+                         "buildInputObjects": {path: "e" * 40 for path in VERIFY.build_inputs(self.package)},
                          "sha256": VERIFY.package_hashes(self.package)}
         self.save_manifest()
         self.fake_bin = self.root / "fake-bin"
@@ -75,6 +86,29 @@ class InternalBetaPackagingTests(unittest.TestCase):
         self.assertEqual(result["launchArgument"], "--system-screenshot-candidate")
         self.assertEqual(result["ordinaryBuildInfo"], self.ordinary)
         self.assertFalse(self.calls.exists())
+
+    def test_updater_package_binds_framework_and_dependency_lock(self):
+        sparkle = VERIFY.BUNDLE.SPARKLE
+        framework = self.contents.parent / sparkle.FRAMEWORK
+        self.assertEqual(self.manifest["sha256"][framework.relative_to(self.package).as_posix()],
+                         sparkle.FRAMEWORK_DIGEST)
+        del self.manifest["buildInputObjects"]["Package.resolved"]
+        self.save_manifest()
+        with self.assertRaisesRegex(ValueError, "invalid_build_inputs"):
+            VERIFY.verify_package(self.package)
+        (framework / "Versions/B/Resources/addition").write_text("unexpected modification")
+        with self.assertRaisesRegex(ValueError, "sparkle_framework_content_mismatch"):
+            VERIFY.verify_package(self.package)
+
+    def test_previous_development_package_is_still_verifiable_offline(self):
+        shutil.rmtree(self.contents.parent / "Contents/Frameworks")
+        plist = self.contents / "Info.plist"
+        historical = {k: v for k, v in plistlib.loads(plist.read_bytes()).items() if not k.startswith("SU")}
+        plist.write_bytes(plistlib.dumps(historical))
+        self.manifest["sha256"] = VERIFY.package_hashes(self.package)
+        self.manifest["buildInputObjects"].pop("Package.resolved")
+        self.save_manifest()
+        VERIFY.verify_package(self.package)
 
     def test_missing_or_wrong_ordinary_capability_is_rejected_offline(self):
         wrong = [None, {}, {**self.ordinary, "releaseApproval": "PASS"},
@@ -258,9 +292,9 @@ class InternalBetaPackagingTests(unittest.TestCase):
         repository = self.root / "source-checkpoint"
         repository.mkdir()
         subprocess.run(["git", "init", "-q", str(repository)], check=True)
-        for path in VERIFY.INPUTS:
+        for path in VERIFY.build_inputs(self.package):
             target = repository / path
-            if path == "Package.swift":
+            if path in {"Package.swift", "Package.resolved"}:
                 target.write_text("// synthetic build identity\n")
             else:
                 target.mkdir(parents=True)

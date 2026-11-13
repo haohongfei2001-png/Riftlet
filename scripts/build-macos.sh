@@ -53,6 +53,7 @@ cp -R ThirdPartyNotices "$riftlet_app/Contents/Resources/"
 # The page loader resolves this app resource before SwiftPM's build-tree fallback.
 # Keep the reviewed page program in its generated bundle, never an external path.
 cp -R "$riftlet_bin_dir/Riftlet_RiftletAdapters.bundle" "$riftlet_app/Contents/Resources/"
+python3 -B scripts/sparkle_bundle.py "${riftlet_scratch:-.build}" "$riftlet_app"
 python3 -B scripts/verify-app-bundle.py "$riftlet_app" --repository . --channel "$riftlet_channel"
 codesign --force --sign - "$riftlet_app"
 codesign --verify --strict "$riftlet_app"

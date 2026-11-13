@@ -94,6 +94,9 @@ public actor CaptureService {
     private var retryTask: Task<Void, Never>?
     private var running = false
     private var initializing = false
+    private var stoppingForExit = false
+    private var activeLifecycleOperations = 0
+    private var exitWaiters: [CheckedContinuation<Void, Never>] = []
     private var generation = UUID()
     private var scanningGeneration: UUID?
     private var rebindRequest = UUID()
@@ -130,6 +133,9 @@ public actor CaptureService {
     }
 
     public func start() async throws {
+        guard !stoppingForExit else { return }
+        activeLifecycleOperations += 1
+        defer { finishLifecycleOperation() }
         guard !running else { return }
         let requestedGeneration = generation
         await lifecycleProbe?(.beforeModeRead)
@@ -230,6 +236,25 @@ public actor CaptureService {
         wakeObserver = nil
     }
 
+    /// The watcher may be inside an async importer or journal write when stop()
+    /// invalidates its generation. Wait for those frames before replacing the App.
+    public func finishForApplicationExit() async {
+        stoppingForExit = true
+        stop()
+        if activeLifecycleOperations > 0 {
+            await withCheckedContinuation { exitWaiters.append($0) }
+        }
+    }
+
+    private func finishLifecycleOperation() {
+        activeLifecycleOperations -= 1
+        if activeLifecycleOperations == 0 && !exitWaiters.isEmpty {
+            let waiters = exitWaiters
+            exitWaiters.removeAll()
+            for waiter in waiters { waiter.resume() }
+        }
+    }
+
     public func currentSourceDirectory() -> URL { sourceDirectory }
 
     public func statusSnapshot() -> CaptureStatusSnapshot {
@@ -273,6 +298,9 @@ public actor CaptureService {
     /// Rebind only to a directory already selected by the system/user. Prepare the new
     /// descriptor and checkpoint before releasing the old watch. No access is granted here.
     public func setSourceDirectory(_ directory: URL) async throws {
+        guard !stoppingForExit else { return }
+        activeLifecycleOperations += 1
+        defer { finishLifecycleOperation() }
         guard directory.isFileURL else { throw CaptureError.invalidLocationPreference }
         let destination = directory.standardizedFileURL
         if destination == sourceDirectory {
@@ -355,6 +383,9 @@ public actor CaptureService {
     }
 
     public func rescan() async throws {
+        guard !stoppingForExit else { return }
+        activeLifecycleOperations += 1
+        defer { finishLifecycleOperation() }
         guard running else { return }
         dirty = true
         guard !initializing else { return }
