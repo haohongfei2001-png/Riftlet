@@ -2,9 +2,11 @@
 
 macOS 正常截图，图片停在桌面边缘；点一下微图，附加到当前 Chrome 的 ChatGPT 草稿。页面开始接收图片后微图收起，可以继续附加下一张。Riftlet 不发送聊天消息。
 
-候选版本 **0.3.5 (19)** 支持 macOS 13 及以上的 Apple 芯片和 Intel Mac，App 和 DMG 均已通过 Apple 公证。build 19 修复了共享安装目录的读取与执行权限，已完成管理员账户首次安装。非管理员图形首开尚未完整验证。
+[下载 Mac Public Beta 0.3.5 (20)](https://github.com/haohongfei2001-png/Riftlet/releases/download/v0.3.5-beta.1/Riftlet-0.3.5-20-universal.dmg) · [版本说明](https://github.com/haohongfei2001-png/Riftlet/releases/tag/v0.3.5-beta.1)
 
-一键附加需要 macOS 允许 Riftlet 控制 Chrome，并在 Chrome 的「显示 → 开发者」中勾选「允许 Apple 事件中的 JavaScript」。只用 Riftlet 收录和查看本地截图时可跳过。两张截图连续进入同一草稿的真实验收在 build 18 上通过；build 19 的附件实现与其一致。
+支持 macOS 13 及以上的 Apple 芯片和 Intel Mac。当前采用手动更新，首次在非管理员账户中使用尚未完整验收。
+
+一键附加需要 macOS 允许 Riftlet 控制 Chrome，并在 Chrome 的「显示 → 开发者」中勾选「允许 Apple 事件中的 JavaScript」。只用 Riftlet 收录和查看本地截图时可跳过。两张截图连续进入同一草稿的真实验收在 build 18 上通过；build 20 沿用相同的截图队列、附加与接收逻辑。
 
 ## 使用与支持
 
@@ -38,4 +40,4 @@ build/Riftlet.app/Contents/MacOS/Riftlet --self-check
 
 正式产品源码来自 main，并遵守[独立源码审查与 mainline 准入](docs/MAINLINE_GOVERNANCE.md)。正式 Logo 与品牌色保持不变；桌面主体的重大视觉设计仍由正式设计方案决定。
 
-[本轮之前的 README 原文](docs/history/README-before-productization-20261107.md)以及带日期的工程记录保留历史事实，其中旧安装身份、旧构建命令和当时权限状态不代表当前状态。官网视觉成果继续保留，本轮不发布下载。请勿向公开仓库提交真实截图、私人聊天、诊断原始数据、凭据或浏览器 profile。
+[本轮之前的 README 原文](docs/history/README-before-productization-20261107.md)以及带日期的工程记录保留历史事实，其中旧安装身份、旧构建命令和当时权限状态不代表当前状态。公开下载入口位于 [riftlet.com](https://riftlet.com/)。请勿向公开仓库提交真实截图、私人聊天、诊断原始数据、凭据或浏览器 profile。

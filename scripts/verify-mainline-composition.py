@@ -67,6 +67,7 @@ class Policy:
     website_paths: tuple = WEBSITE_PATHS
     historical_gates: tuple = HISTORICAL_GATE_PATHS
     historical_prefixes: tuple = HISTORICAL_PREFIXES
+    public_download_page: str = ""
 
 
 POLICY = Policy(
@@ -77,6 +78,7 @@ POLICY = Policy(
     legacy_source="253ac8db92bfba9083d485b71b84c594223da217",
     legacy_gate_blob="e0dfa374e45badca36f01d9d6315ce667ee8d43f",
     website_source="fccd809e9d55e0b221e75e6dcd7c21f6d357ee74",
+    public_download_page="cf02b0f6f9d0631dd8b922028217bce5cfd3cd8f",
 )
 
 
@@ -333,11 +335,31 @@ def audit(repository, revision="HEAD", policy=POLICY, context=None):
         website = objects(repository, policy.website_source)
         if not policy.website_paths or len(set(policy.website_paths)) != len(policy.website_paths):
             raise AuditError("Website policy must contain distinct exact paths")
+        # The release changed only the homepage. Match old history to the
+        # original object, and descendants of the fixed homepage commit to its
+        # independently reviewed replacement. All other website pins stay fixed.
+        stages = [(policy.foundation, foundation), (base, base_tree), (source, approved),
+                  (candidate, candidate_tree), (actual_revision, actual)]
+        if policy.public_download_page:
+            page = fixed_commit(repository, policy.public_download_page)
+            page_parents = parents(repository, page)
+            if len(page_parents) != 1 or not ancestor(policy.foundation, page):
+                raise AuditError("Invalid public download page checkpoint")
+            if git(repository, "diff", "--name-only", "-z", page_parents[0], page) != b"index.html\0":
+                raise AuditError("Public download page checkpoint must change only index.html")
+            public_page = objects(repository, page).get("index.html")
+            if not regular(public_page) or "index.html" not in policy.website_paths:
+                raise AuditError("Missing fixed public download page object")
+            stages = [(ancestor(page, revision), tree) for revision, tree in stages]
+        else:
+            public_page = None
+            stages = [(False, tree) for _, tree in stages]
         for path in policy.website_paths:
             obj = website.get(path)
             if not regular(obj):
                 raise AuditError("Invalid fixed website object: " + path)
-            check("website:" + path, all(t.get(path) == obj for t in (foundation, base_tree, approved, candidate_tree, actual)))
+            check("website:" + path, all(tree.get(path) == (public_page if has_page and path == "index.html" else obj)
+                                         for has_page, tree in stages))
 
         if context is not None:
             event = context["event"]

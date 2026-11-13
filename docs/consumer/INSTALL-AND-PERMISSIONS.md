@@ -1,8 +1,8 @@
 # 安装与权限
 
-适用于 Riftlet 0.3.5 (19)，macOS 13 及以上的 Apple 芯片和 Intel Mac。正式候选为 `Riftlet-0.3.5-19-universal.dmg`，SHA-256 为 `e9c725a09413ccdde4c30c1d27e26a7921be5d83dbb4a83638bb95790e16fe8e`。App 和 DMG 均已通过 Apple 公证及 Gatekeeper；Developer ID Team 为 `ZB9D4T66QB`。
+适用于 Riftlet 0.3.5 (20) Public Beta，macOS 13 及以上的 Apple 芯片和 Intel Mac。请从 [riftlet.com](https://riftlet.com/) 下载 `Riftlet-0.3.5-20-universal.dmg`，并与[同一版本的校验文件](https://github.com/haohongfei2001-png/Riftlet/releases/download/v0.3.5-beta.1/SHA256SUMS.txt)比对 SHA-256。开发者签名的 Team ID 为 `ZB9D4T66QB`。
 
-如果手中是 build 18，请保留原有个人安装。该版本在共享「应用程序」目录中只允许安装者读取和执行，其他非特权账户可能打不开。遇到此情况，请保留现状并联系发放方取得经验证的修复包；无需更改系统授权、App 文件权限或截图库。
+从旧版本升级时，请先正常退出，备份当前完整的截图库，再替换原安装位置的 App。[手动更新与恢复](RECOVERY-AND-FAQ.md)
 
 1. 打开 DMG，将 **Riftlet.app** 拖入 **Applications（应用程序）**。已有 Riftlet 时先按[更新说明](RECOVERY-AND-FAQ.md)保留数据和上一版，替换原安装位置的 App。
 2. 推出磁盘映像，从安装位置打开 Riftlet。首次出现 macOS 下载应用确认时核对应用名，选择「打开」。如果系统提示已损坏或无法验证开发者，停止安装，通过发放渠道核对文件。
@@ -21,4 +21,4 @@
 
 macOS 设置名称随系统版本变化。系统权限可参考 [Apple 文件与文件夹说明](https://support.apple.com/en-au/guide/mac-help/mchld5a35146/mac) 和 [Apple 录屏权限说明](https://support.apple.com/en-kw/guide/mac-help/mchld6aa7d23/mac)。Chrome 的开关位置可参考 [Chromium 的 AppleScript 说明](https://www.chromium.org/developers/applescript/)。
 
-**English.** Riftlet 0.3.5 (19) is a universal macOS 13+ candidate. The app and disk image are notarized and passed Gatekeeper (Developer ID team `ZB9D4T66QB`). Verify the DMG against the SHA-256 at the top of this page. Updates are manual. Build 18 has a shared-install file-permission defect. Existing personal users can keep their copy. Open the verified DMG, drag Riftlet.app into Applications, eject the image and launch the installed copy. Grant access to the actual macOS screenshot folder. Google Chrome attachment also uses Automation and Chrome’s **Allow JavaScript from Apple Events** setting. Screen Recording is for Riftlet’s own capture tools. [English quick start](QUICK-START.en.md)
+**English.** Riftlet 0.3.5 (20) Public Beta supports macOS 13+ on Apple silicon and Intel. Download from [riftlet.com](https://riftlet.com/) and verify the DMG against the checksum file linked above. Updates are manual. Back up your current library before replacing the installed app. Open the verified DMG, drag Riftlet.app into Applications, eject the image and launch the installed copy. Grant access to the actual macOS screenshot folder. Google Chrome attachment also uses Automation and Chrome’s **Allow JavaScript from Apple Events** setting. Screen Recording is for Riftlet’s own capture tools. [English quick start](QUICK-START.en.md)
