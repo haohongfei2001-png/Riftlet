@@ -68,6 +68,8 @@ class Policy:
     historical_gates: tuple = HISTORICAL_GATE_PATHS
     historical_prefixes: tuple = HISTORICAL_PREFIXES
     public_download_page: str = ""
+    hero_cta_base: str = ""
+    hero_cta_checkpoint: str = ""
 
 
 POLICY = Policy(
@@ -79,6 +81,8 @@ POLICY = Policy(
     legacy_gate_blob="e0dfa374e45badca36f01d9d6315ce667ee8d43f",
     website_source="fccd809e9d55e0b221e75e6dcd7c21f6d357ee74",
     public_download_page="a4aa78f6d86024c2b32b15799ad7eda680b643c9",
+    hero_cta_base="ff26fb466b157a7415d943e28cc901d296cdc16f",
+    hero_cta_checkpoint="61e053122fcc472c0eaffb10f8e54464e4df0a4c",
 )
 
 
@@ -335,9 +339,10 @@ def audit(repository, revision="HEAD", policy=POLICY, context=None):
         website = objects(repository, policy.website_source)
         if not policy.website_paths or len(set(policy.website_paths)) != len(policy.website_paths):
             raise AuditError("Website policy must contain distinct exact paths")
-        # The release changed only the homepage. Match old history to the
-        # original object, and descendants of the fixed homepage commit to its
-        # independently reviewed replacement. All other website pins stay fixed.
+        # The public release pinned one explicit index-only replacement. The
+        # subsequent user-approved hero CTA is a separately pinned two-commit
+        # chain: index.html, then website-v2.css. No generic website edit is
+        # admitted; the previous historical snapshots remain immutable.
         stages = [(policy.foundation, foundation), (base, base_tree), (source, approved),
                   (candidate, candidate_tree), (actual_revision, actual)]
         if policy.public_download_page:
@@ -350,16 +355,48 @@ def audit(repository, revision="HEAD", policy=POLICY, context=None):
             public_page = objects(repository, page).get("index.html")
             if not regular(public_page) or "index.html" not in policy.website_paths:
                 raise AuditError("Missing fixed public download page object")
-            stages = [(ancestor(page, revision), tree) for revision, tree in stages]
         else:
+            page = None
             public_page = None
-            stages = [(False, tree) for _, tree in stages]
+
+        hero_site = {}
+        hero_checkpoint = None
+        if policy.hero_cta_checkpoint:
+            hero_checkpoint = fixed_commit(repository, policy.hero_cta_checkpoint)
+            style_parents = parents(repository, hero_checkpoint)
+            if len(style_parents) != 1:
+                raise AuditError("Hero CTA style checkpoint must be single-parent")
+            page_checkpoint = style_parents[0]
+            page_parents = parents(repository, page_checkpoint)
+            if not policy.hero_cta_base or page_parents != [policy.hero_cta_base]:
+                raise AuditError("Hero CTA page must descend from its exact reviewed base")
+            if page is not None and not ancestor(page, policy.hero_cta_base):
+                raise AuditError("Hero CTA base must contain the approved public download")
+            if git(repository, "diff", "--name-only", "-z", policy.hero_cta_base, page_checkpoint) != b"index.html\0":
+                raise AuditError("Hero CTA page checkpoint may change only index.html")
+            if git(repository, "diff", "--name-only", "-z", page_checkpoint, hero_checkpoint) != b"website-v2.css\0":
+                raise AuditError("Hero CTA style checkpoint may change only website-v2.css")
+            checkpoint_objects = objects(repository, hero_checkpoint)
+            for path in ("index.html", "website-v2.css"):
+                obj = checkpoint_objects.get(path)
+                if path not in policy.website_paths or not regular(obj):
+                    raise AuditError("Missing pinned hero CTA website object: " + path)
+                hero_site[path] = obj
+
+        stage_flags = [(ancestor(page, revision) if page is not None else False,
+                        ancestor(hero_checkpoint, revision) if hero_checkpoint is not None else False,
+                        tree) for revision, tree in stages]
         for path in policy.website_paths:
-            obj = website.get(path)
-            if not regular(obj):
+            original = website.get(path)
+            if not regular(original):
                 raise AuditError("Invalid fixed website object: " + path)
-            check("website:" + path, all(tree.get(path) == (public_page if has_page and path == "index.html" else obj)
-                                         for has_page, tree in stages))
+            correct = []
+            for has_public, has_hero, tree in stage_flags:
+                expected = (hero_site[path] if has_hero and path in hero_site
+                            else public_page if has_public and path == "index.html"
+                            else original)
+                correct.append(tree.get(path) == expected)
+            check("website:" + path, all(correct))
 
         if context is not None:
             event = context["event"]
