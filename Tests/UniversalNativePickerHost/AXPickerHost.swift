@@ -1,7 +1,19 @@
 import AppKit
 import ApplicationServices
 import Foundation
+import CryptoKit
 import UniformTypeIdentifiers
+
+/// File choices in this cooperating fixture have a declared accessibility
+/// identifier derived from their exact private URL and bytes. A generic radio
+/// button's AXURL can be omitted by AppKit, despite setAccessibilityURL().
+private func fileChoiceID(_ url: URL, nonce: String) throws -> String {
+    var hash = SHA256()
+    hash.update(data: Data(url.standardizedFileURL.path.utf8))
+    hash.update(data: Data([0]))
+    hash.update(data: try Data(contentsOf: url))
+    return "file-" + nonce + "-" + hash.finalize().map { String(format: "%02x", $0) }.joined()
+}
 
 /// Two processes on a disposable CI console. The receiver creates a real
 /// NSOpenPanel sheet; the observer can only act within the spawned fixture PID.
@@ -43,6 +55,7 @@ private final class Receiver: NSObject, NSApplicationDelegate, NSOpenSavePanelDe
     let chooser = NSBox()
     var selected: URL?
     var choices: [NSButton] = []
+    var files: [URL] = []
     let accept = NSButton()
     let prior = NSImageView(frame: NSRect(x: 230, y: 160, width: 32, height: 32))
     var priorImage: NSImage?
@@ -98,6 +111,11 @@ private final class Receiver: NSObject, NSApplicationDelegate, NSOpenSavePanelDe
         presses += 1
         guard presses == 1 else { exit(1) }
         if usesNativeFileList { showFileList(); return }
+        // Return from the AXPress handler before AppKit connects its remote
+        // open/save panel service. The original observer only reads thereafter.
+        DispatchQueue.main.async { self.showSystemPanel() }
+    }
+    private func showSystemPanel() {
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
         panel.allowedContentTypes = [.png]
@@ -118,14 +136,21 @@ private final class Receiver: NSObject, NSApplicationDelegate, NSOpenSavePanelDe
         chooser.setAccessibilityRole(.group)
         chooser.setAccessibilityIdentifier("chooser-" + nonce)
         for (index, name) in ["decoy.png", "neutral.png"].enumerated() {
+            let url = file.deletingLastPathComponent().appendingPathComponent(name)
+            guard let identifier = try? fileChoiceID(url, nonce: nonce) else { exit(1) }
             let choice = NSButton(radioButtonWithTitle: name, target: self, action: #selector(choose(_:)))
+            choice.setAccessibilityElement(true)
+            choice.setAccessibilityRole(.radioButton)
             choice.tag = index
+            files.append(url)
             choice.frame = NSRect(x: 8, y: CGFloat(78 - 29 * index), width: 170, height: 26)
-            choice.setAccessibilityIdentifier("choice-" + nonce + "-" + String(index))
+            choice.setAccessibilityIdentifier(identifier)
             choice.setAccessibilityURL(file.deletingLastPathComponent().appendingPathComponent(name))
             chooser.contentView?.addSubview(choice)
             choices.append(choice)
         }
+        accept.setAccessibilityElement(true)
+        accept.setAccessibilityRole(.button)
         accept.title = "Attach to this draft"
         accept.target = self; accept.action = #selector(commitChoice)
         accept.frame = NSRect(x: 195, y: 15, width: 165, height: 36)
@@ -136,8 +161,9 @@ private final class Receiver: NSObject, NSApplicationDelegate, NSOpenSavePanelDe
         window.contentView?.addSubview(chooser)
     }
     @objc func choose(_ button: NSButton) {
-        guard selected == nil, choices.contains(button), button.state == .on else { exit(1) }
-        selected = file.deletingLastPathComponent().appendingPathComponent(button.title)
+        guard selected == nil, let index = choices.firstIndex(of: button), files.indices.contains(index),
+              button.state == .on else { exit(1) }
+        selected = files[index]
         accept.isEnabled = true
     }
     @objc func commitChoice() {
@@ -187,7 +213,7 @@ private final class Observer {
     let nonce: String
     let root: URL
     init(pid: Int32, nonce: String, root: URL) throws {
-        driver = try NativeMacAXDriver(messagingTimeout: 0.1)
+        driver = try NativeMacAXDriver(messagingTimeout: 0.5)
         self.pid = pid; self.nonce = nonce; self.root = root
     }
 
@@ -230,16 +256,42 @@ private final class Observer {
             if chooser == nil { Thread.sleep(forTimeInterval: 0.10) }
         }
         guard let chooser else { return "APPKIT_CHOOSER_UNPROVEN" }
-        let nodes = try descendants(chooser)
-        let choices = try nodes.filter { try driver.stringAttribute(kAXRoleAttribute, of: $0) == kAXRadioButtonRole }
-        guard choices.count == 2, let choice = unique(choices.filter { exactFile($0, url: expected) }),
-              let submit = try unique(nodes.filter { try identifier($0, "submit") }) else { return "APPKIT_FILE_CHOICES_UNPROVEN" }
+        let expectedID = try fileChoiceID(expected, nonce: nonce)
+        let decoy = expected.deletingLastPathComponent().appendingPathComponent("decoy.png")
+        let decoyID = try fileChoiceID(decoy, nonce: nonce)
+        var choices: [MacAXElement] = []
+        var choice: MacAXElement?
+        var submit: MacAXElement?
+        var decoyFound = false
+        var nodeCount = 0
+        let ready = ProcessInfo.processInfo.systemUptime + 3
+        repeat {
+            do {
+                guard try findChooser() == chooser else { return "APPKIT_CHOOSER_CHANGED" }
+                let nodes = try descendants(chooser)
+                nodeCount = nodes.count
+                choices = try nodes.filter { try driver.stringAttribute(kAXRoleAttribute, of: $0) == kAXRadioButtonRole }
+                let pairs = try choices.map { ($0, try driver.stringAttribute(kAXIdentifierAttribute, of: $0)) }
+                choice = unique(pairs.filter { $0.1 == expectedID }.map(\.0))
+                decoyFound = pairs.filter { $0.1 == decoyID }.count == 1
+                submit = try unique(nodes.filter { try identifier($0, "submit") })
+                if choices.count == 2 && choice != nil && decoyFound && submit != nil { break }
+            } catch NativeMacAXError.accessibility(let code) where code == AXError.cannotComplete.rawValue {
+                // Read-only AX replies can lag a newly mounted AppKit view.
+            }
+            Thread.sleep(forTimeInterval: 0.08)
+        } while ProcessInfo.processInfo.systemUptime < ready
+        guard choices.count == 2, let choice, decoyFound, let submit else {
+            return "APPKIT_CHOICES_NODES_\(nodeCount)_RADIOS_\(choices.count)_EXPECTED_\(choice != nil)_DECOY_\(decoyFound)_SUBMIT_\(submit != nil)"
+        }
         let handoff = AXPickerFileHandoff(binding: binding, choice: choice, submit: submit)
         let input = AXPickerFileHandoff.Input(matchesDraft: originalDraft) { stage in
             guard try findChooser() == chooser else { return false }
             let current = try self.descendants(chooser)
             let radios = try current.filter { try self.driver.stringAttribute(kAXRoleAttribute, of: $0) == kAXRadioButtonRole }
-            guard radios == choices, current.contains(submit), self.exactFile(choice, url: expected) else { return false }
+            guard radios == choices, current.contains(submit),
+                  try self.driver.stringAttribute(kAXIdentifierAttribute, of: choice) == expectedID,
+                  try fileChoiceID(expected, nonce: self.nonce) == expectedID else { return false }
             if stage == .beforeSelection { return true }
             let selected = radios.filter { item in
                 var value: CFTypeRef?
@@ -278,19 +330,31 @@ private final class Observer {
               try binding.attachedSheet(draftMatches) == nil else { return "DRAFT_NOT_AVAILABLE" }
         // A known fixture opens precisely one sheet and owns a cancellation timer.
         // Never open an arbitrary app's panel to discover whether it can be controlled.
-        try driver.press(entry)
-        if root.lastPathComponent == "appkit-file-list" {
+        let systemPanel = root.lastPathComponent == "system-open-panel"
+        do { try driver.press(entry) }
+        catch NativeMacAXError.accessibility(let code) where systemPanel && code == AXError.cannotComplete.rawValue {
+            // The original press may have opened the panel. Never reissue it.
+            // Discover only its own parent's sheet until the bounded deadline.
+        }
+        if !systemPanel {
             return try submitFileList(binding: binding, originalDraft: draftMatches)
         }
         let until = ProcessInfo.processInfo.systemUptime + 3
         var sheet: MacAXElement?
         while sheet == nil && ProcessInfo.processInfo.systemUptime < until {
-            sheet = try binding.attachedSheet(draftMatches)
-            if sheet == nil { Thread.sleep(forTimeInterval: 0.15) }
+            do { sheet = try binding.attachedSheet(draftMatches) }
+            catch NativeMacAXError.accessibility(let code) where code == AXError.cannotComplete.rawValue {
+                // System open-panel XPC may temporarily block the host AX server.
+            }
+            if sheet == nil { Thread.sleep(forTimeInterval: 0.08) }
         }
         guard let sheet else { return "ENTRY_PRESSED_OWNED_SHEET_UNPROVEN" }
         let file = root.appendingPathComponent("images/neutral.png")
-        let nodes = try descendants(sheet)
+        let nodes: [MacAXElement]
+        do { nodes = try descendants(sheet) }
+        catch NativeMacAXError.accessibility(let code) where code == AXError.cannotComplete.rawValue {
+            return "SHEET_OWNED_FILE_ROW_UNPROVEN"
+        }
         guard let table = try unique(nodes.filter { node in
             let role = try driver.stringAttribute(kAXRoleAttribute, of: node)
             return [kAXTableRole, kAXOutlineRole].contains(role) &&

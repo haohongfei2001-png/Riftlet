@@ -36,10 +36,10 @@
 | Edge 独立无窗口实例 | 服务器核实四次请求的图像字节。两次 201、一次明确 422、一次服务端收图后丢失回执，重复请求为零。另一个操作可成功；保留原文、反向选区及原附件节点。 | 测试网页主动运行同一交付程序。本机未证明 Apple Events 已送达 Edge；更未证明 Edge × ChatGPT。 |
 | macOS 原生 WebKit | 两次实际文件选择代理回调、两个不同 PNG 的完整字节、两次草稿确认。未聚焦编辑器的文字、选区及第三张原有 PNG 均保留。拒绝同内容 inode 替换和重复交付。 | 自有非持久 WKWebView 的公开代理接口，窗口未显示；外部 Safari/原生 App 的代理由对应应用拥有。 |
 | 五个对话表面 | 在真实 WebKit 引擎上分别运行五种服务形态的受控 HTML，覆盖多文档、相同地址、导航离开再返回、编辑器重建、焦点、已有附件和歧义入口。 | 静态服务特征尚未在对应账号草稿上认证。 |
-| 外部 AX 与系统文件面板 | 托管 Mac 探针分别测试受控 AppKit 文件列表和真正的 NSOpenPanel。只有相同进程/窗口、唯一原草稿与可核验选中 URL 同时成立，才允许最终操作。 | 首轮托管 Mac 的两个探针均因无法核实接收进程的前台身份而停止，零文件提交。后续改用 LaunchServices 启动独立签名的测试宿主，并核实实际前台进程、启动时间和关键窗口；各次结果以对应 Actions 日志的 `externalAX` 字段为准。XPC 面板或无法证明的行必须单独记为未验证。 |
+| 外部 AX 与系统文件面板 | 托管 Mac 探针分别测试受控 AppKit 文件列表和真正的 NSOpenPanel。只有相同进程/窗口、唯一原草稿与可核验选中 URL 同时成立，才允许最终操作。 | 首轮托管 Mac 的两个探针均因无法核实接收进程的前台身份而停止，零文件提交。后续改用 LaunchServices 启动独立签名的测试宿主，并核实实际前台进程、启动时间和关键窗口；在 macOS 15.8.2 上，第二轮成功找到原草稿并按下附件入口，自有文件列表仍未证明文件选择，系统面板查询返回 `-25204`，两种路径均未提交图像。各次结果以对应 Actions 日志的 `externalAX` 字段为准。XPC 面板或无法证明的行必须单独记为未验证。 |
 | 系统剪贴板 | 继续使用独立命名板测试 NSPasteboard 的实际读写、完整多类型快照、所有者标记、changeCount 和外部复制后放弃恢复。 | 其他进程可能在检查与写入之间复制，AppKit 未提供跨进程原子比较与写入。一般剪贴板不作为普通点击备用路径。 |
 
-运行真实 macOS 检查使用 `bash Tests/ConversationSurfaceHost/run.sh`、`python3 -B Tests/UniversalNativePickerHost/run.py`、`python3 -B engineering/universal-attachment/edge/verify.py --mode headless`。Chrome/Swift/XCTest 随正式 Native ARM64/Intel 工作流运行。Safari 和 Edge 的前台实验只在临时托管 Mac 上执行。独立过程的 capability 拒绝均在日志中列出。脚本使用中性生成图片、临时文件夹、独立 Profile 或非持久数据，浏览器只接触自有测试页。[Edge 实验](../engineering/universal-attachment/edge/README.md) · [WebKit 日志](../engineering/universal-attachment/surface/run.json) · [原生文件交付](../Tests/UniversalNativePickerHost/README.md)
+运行真实 macOS 检查使用 `bash Tests/ConversationSurfaceHost/run.sh`、`python3 -B Tests/UniversalNativePickerHost/run.py`、`python3 -B engineering/universal-attachment/edge/verify.py --mode headless`。Chrome/Swift/XCTest 随正式 Native ARM64/Intel 工作流运行。Safari 和 Edge 的前台实验只在临时托管 Mac 上执行。托管 Mac 上，Safari 与 Edge 的 Apple Events 被动授权预检均返回 `-1744`（需要用户同意），因此没有向目标草稿执行脚本。macOS 15 的 WebKit 缺少该表面探针要求的 Navigation API，测试确认了拒绝；同机独立 WK 文件交付仍完成了两次接收。脚本使用中性生成图片、临时文件夹、独立 Profile 或非持久数据，浏览器只接触自有测试页。[Edge 实验](../engineering/universal-attachment/edge/README.md) · [WebKit 日志](../engineering/universal-attachment/surface/run.json) · [原生文件交付](../Tests/UniversalNativePickerHost/README.md)
 
 ## 权限及发行
 

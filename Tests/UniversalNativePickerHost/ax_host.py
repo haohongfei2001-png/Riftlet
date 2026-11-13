@@ -103,7 +103,7 @@ def exercise(executable, observer, nonce, directory, sample):
                         raise ProbeFailure(f'{directory.name}: unexpected executable for the private receiver PID')
                     try:
                         result = subprocess.run([str(observer), '--observe', nonce, str(receiver_pid), str(directory)],
-                                                check=False, capture_output=True, text=True, timeout=8)
+                                                check=False, capture_output=True, text=True, timeout=12)
                     except subprocess.TimeoutExpired as error:
                         raise ProbeFailure(f'{directory.name}: observer timed out') from error
                     if result.returncode:
