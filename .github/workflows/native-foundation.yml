@@ -67,6 +67,30 @@ jobs:
           swift --version
           sw_vers
           uname -m
+      - name: Exercise extension-free attachment candidates with isolated drafts
+        if: matrix.runner == 'macos-15'
+        run: |
+          set -euo pipefail
+          mkdir -p test-results
+          # A platform capability can be absent. Never report a skipped engine
+          # or denied system permission as a passed attachment.
+          probe() {
+            local label="$1" result=0
+            shift
+            "$@" 2>&1 | tee "test-results/universal-$label.log" || result=$?
+            case "$result" in
+              0) echo "$label completed (see scoped results)" >> "$GITHUB_STEP_SUMMARY" ;;
+              77) echo "$label NOT_RUN (see capability log)" >> "$GITHUB_STEP_SUMMARY" ;;
+              *) return "$result" ;;
+            esac
+          }
+          node --test Tests/WebPageProgram/click-document-witness.test.cjs | tee test-results/universal-chrome-pin.log
+          probe surfaces bash Tests/ConversationSurfaceHost/run.sh
+          python3 -B -m unittest discover -s Tests/UniversalNativePickerHost -v
+          python3 -B Tests/UniversalNativePickerHost/run.py | tee test-results/universal-native-picker.log
+          probe edge-engine python3 -B engineering/universal-attachment/edge/verify.py --mode headless
+          probe safari-events python3 -B engineering/universal-attachment/hosts/safari_fixture.py
+          probe edge-events python3 -B engineering/universal-attachment/edge/verify.py --mode apple-events --hosted-runner-window
       - name: Replay archived Web evidence offline
         run: |
           set -o pipefail

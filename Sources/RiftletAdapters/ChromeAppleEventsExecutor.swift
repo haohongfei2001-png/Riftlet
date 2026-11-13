@@ -10,75 +10,52 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
     private static let observationQueue = DispatchQueue(label: "com.riftlet.apple-events-observation", qos: .utility)
     private let relays = MainWorldRelayStore()
     private let trace: ChromeBridgeTrace
-    private var routes: [String: ChromeClickRoute] = [:]
-    private var lastForegroundChrome: ChromeProcessIdentity?
-    private var activationObserver: NSObjectProtocol?
-
+    // Exact live click routes. An expired route cannot be used for new input.
+    // Observation is addressed by the immutable TargetLease, even after expiry.
+    private var routes: [String: (value: ChromeClickRoute, captured: TimeInterval)] = [:]
     public init(traceEnabled: Bool = false, diagnosticTrace: BoundedDiagnosticTrace? = nil) {
         trace = ChromeBridgeTrace(sink: diagnosticTrace ?? BoundedDiagnosticTrace(enabled: traceEnabled))
-        if let application = NSWorkspace.shared.frontmostApplication,
-           application.bundleIdentifier == "com.google.Chrome" {
-            lastForegroundChrome = ChromeProcessIdentity.read(pid: application.processIdentifier)
-        }
-        activationObserver = NSWorkspace.shared.notificationCenter.addObserver(
-            forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { [weak self] note in
-                MainActor.assumeIsolated {
-                    guard let application = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
-                          application.bundleIdentifier == "com.google.Chrome" else { return }
-                    self?.lastForegroundChrome = ChromeProcessIdentity.read(pid: application.processIdentifier)
-                }
-            }
     }
 
-    deinit {
-        if let activationObserver { NSWorkspace.shared.notificationCenter.removeObserver(activationObserver) }
+    private nonisolated static func host(trace: ChromeBridgeTrace, requestID: String) -> ChromeApplicationHost {
+        ChromeApplicationHost(foreground: ChromeApplicationHost.currentForeground, selected: { pid in
+            try ChromePIDEvents(pid: pid, trace: trace, requestID: requestID).activeIdentity(check: "click_selection")
+        }, address: { pid, window, tab in
+            try ChromePIDEvents(pid: pid, trace: trace, requestID: requestID).url(window: window, tab: tab)
+        })
     }
 
-    /// Only native object IDs and the tab URL are read during mouse-down. This
-    /// fixes the destination before a queued task can observe a different chat.
-    /// JavaScript bootstrap, DOM discovery and receipt waiting run off the UI.
+    /// Freeze the native address and the document's original composer before
+    /// returning from the press. The subsequent task may only resolve that pin.
     public func targetForClick(program: WebPageProgram) throws -> Task<TargetLease, Error> {
-        let identity = try clickReceiver()
         let requestID = UUID().uuidString
+        let host = Self.host(trace: trace, requestID: requestID)
+        let frozen = try host.freeze()
+        let identity = frozen.process, route = frozen.route
+        let witness = ChromeClickDocumentWitness()
         let bridge = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: requestID)
-        let selected = try bridge.activeIdentity(check: "click_selection")
-        let route = try ChromeClickRoute(window: selected.window, tab: selected.tab,
-            url: bridge.url(window: selected.window, tab: selected.tab))
-        guard identity.isCurrent() else { throw WebAdapterError.invalidTarget }
+        let script = try witness.bindScript(address: route.address, program: program)
+        guard try bridge.execute(script, window: route.window, tab: route.tab,
+            receiptBudget: .init(deadlineUptime: ProcessInfo.processInfo.systemUptime + 1)) == "bound"
+        else { throw WebAdapterError.invalidTarget }
+        try host.revalidate(frozen)
         let relays = self.relays, trace = self.trace
         return Task { [weak self] in
             try Task.checkCancellation()
-            let bytes = try await Self.run(WebBridgeCommand(action: .captureTarget), program: program,
+            let bytes = try await Self.run(WebBridgeCommand(action: .captureTarget, clickWitnessID: witness.id), program: program,
                 identity: identity, route: route, relays: relays, trace: trace, requestID: requestID)
             try Task.checkCancellation()
             guard let target = try? JSONDecoder().decode(TargetLease.self, from: bytes),
                   target.adapterID == "chatgpt-web", target.surface == .webChat,
                   target.applicationID == "com.google.Chrome", target.sessionID == identity.session,
-                  target.windowID == route.window, target.tabID == route.tab,
+                  target.windowID == route.window, target.tabID == route.tab, target.clickBindingID == witness.id,
                   !target.documentID.isEmpty, !target.composerID.isEmpty, !target.draftGeneration.isEmpty,
                   let self else { throw WebAdapterError.invalidTarget }
-            self.routes[target.stableKey] = route
+            let now = ProcessInfo.processInfo.systemUptime
+            self.routes = self.routes.filter { now - $0.value.captured < 60 }
+            self.routes[target.stableKey] = (route, now)
             return target
         }
-    }
-
-    private func clickReceiver() throws -> ChromeProcessIdentity {
-        let applications = NSRunningApplication.runningApplications(withBundleIdentifier: "com.google.Chrome")
-        let running = Set(applications.filter { !$0.isTerminated }.map(\.processIdentifier))
-        let frontmost = NSWorkspace.shared.frontmostApplication
-        let frontmostPID = frontmost?.bundleIdentifier == "com.google.Chrome" ? frontmost?.processIdentifier : nil
-        if let frontmostPID {
-            guard let identity = ChromeProcessIdentity.read(pid: frontmostPID) else { throw WebAdapterError.invalidTarget }
-            return identity
-        }
-        let previous = lastForegroundChrome
-        guard let pid = ChromeReceiverSelection.choose(frontmost: nil, lastForeground: previous?.pid,
-                running: running),
-              let identity = ChromeProcessIdentity.read(pid: pid) else { throw WebAdapterError.invalidTarget }
-        // Retain the observed process lifetime. An exited Chrome or reused PID
-        // is different from never having observed a Chrome activation.
-        if let previous, identity != previous { throw WebAdapterError.invalidTarget }
-        return identity
     }
 
     private nonisolated static func contextJSON(session: String, window: String, tab: String) -> String {
@@ -101,7 +78,8 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
               }), let identity = ChromeProcessIdentity.read(pid: application.processIdentifier),
               let tab = target.tabID, let windowNumber = Int64(target.windowID), windowNumber > 0,
               let tabNumber = Int64(tab), tabNumber > 0 else { throw WebAdapterError.invalidTarget }
-        let route = routes[target.stableKey]
+        let saved = routes[target.stableKey]
+        let route = saved.flatMap { ProcessInfo.processInfo.systemUptime - $0.captured < 60 ? $0.value : nil }
         if ChromeCommandRouting.requiresSelectionCheck(command.action), route == nil {
             throw WebAdapterError.invalidTarget
         }
@@ -131,9 +109,8 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                             guard identity.isCurrent() else { throw WebAdapterError.invalidTarget }
                             guard ChromeCommandRouting.requiresSelectionCheck(command.action) else { return }
                             guard let route else { throw WebAdapterError.invalidTarget }
-                            let current = try ChromeClickRoute(window: route.window, tab: route.tab,
-                                url: bridge.url(window: route.window, tab: route.tab))
-                            guard current == route else { throw WebAdapterError.nativeSelectionChanged }
+                            try host(trace: trace, requestID: requestID)
+                                .revalidate(ChromeHostTarget(process: identity, route: route))
                         }
                         phase = "selection"
                         if command.action == .captureTarget { try checkSelection() }
@@ -251,37 +228,6 @@ private final class ChromeBridgeTrace: @unchecked Sendable {
         fields["captureRequestID"] = context.requestID.uuidString
         fields["armAttemptID"] = context.armAttemptID.uuidString
         fields["hostEpoch"] = context.hostEpoch.uuidString
-    }
-}
-
-/// Pure parser for the observed Chrome get-acTa result. Only a complete,
-/// absolute tab-ID -> window-ID -> null object chain is a one-read identity.
-/// Unsupported descriptor shapes return nil for the existing compatibility path.
-enum ChromeActiveTabDescriptor {
-    private static func code(_ text: String) -> UInt32 { text.utf8.reduce(0) { ($0 << 8) | UInt32($1) } }
-
-    static func identity(in descriptor: NSAppleEventDescriptor) -> (window: String, tab: String)? {
-        guard let tab = fixedObject(descriptor, kind: "CrTb"),
-              let window = fixedObject(tab.container, kind: "cwin"),
-              window.container.descriptorType == code("null"), window.container.data.isEmpty else { return nil }
-        return (window.id, tab.id)
-    }
-
-    private static func fixedObject(_ descriptor: NSAppleEventDescriptor, kind: String)
-        -> (id: String, container: NSAppleEventDescriptor)? {
-        let keys = Set([code("want"), code("form"), code("seld"), code("from")])
-        guard descriptor.descriptorType == code("obj "), descriptor.numberOfItems == 4,
-              Set((1...4).map { descriptor.keywordForDescriptor(at: $0) }) == keys,
-              let want = descriptor.forKeyword(code("want")), want.descriptorType == code("type"),
-              want.data.count == 4, want.typeCodeValue == code(kind),
-              let form = descriptor.forKeyword(code("form")), form.descriptorType == code("enum"),
-              form.data.count == 4, form.enumCodeValue == code("ID  "),
-              let selector = descriptor.forKeyword(code("seld")), selector.descriptorType == code("utxt"),
-              let text = selector.stringValue, !text.isEmpty, text.utf8.count <= 19,
-              text.utf8.allSatisfy({ (48...57).contains($0) }), text.first != "0",
-              let number = Int64(text), number > 0, String(number) == text,
-              let container = descriptor.forKeyword(code("from")) else { return nil }
-        return (text, container)
     }
 }
 

@@ -1,0 +1,20 @@
+{
+  "dateLocal": "2026-11-14",
+  "os": "macOS 27.0 (26A428) arm64",
+  "browser": "Microsoft Edge 156.0.4314.58",
+  "dictionarySHA256": "cd0453c2e166a0b664f8ea1d1ac04b53a54eed14835569b6104a7823dbb950f2",
+  "sandboxedHeadlessLaunch": "SIGABRT_BEFORE_FIXTURE_LOAD",
+  "isolatedHeadlessRun": {
+    "acknowledgements": 2,
+    "correlatedRejections": 1,
+    "digests": ["611033f4cc0aa9e3348e69eba089499bc6287d57b53832079e64f42564a4e876", "c9b27a65dd17d8157b51d36d36b54305ec13cea89152ba0e24b5465eb3cbb0c7"],
+    "duplicateRequests": 0,
+    "lostReplies": 1,
+    "mode": "headless",
+    "scope": "local-fixture",
+    "verifiedBodies": 4
+  },
+  "localAppleEventsFixture": "NOT_RUN_HEADLESS_PROCESS_NOT_FOREGROUND",
+  "localAppleEventsFixtureExit": 77,
+  "commercialServiceAttachment": "NOT_RUN"
+}

@@ -1,0 +1,139 @@
+node --test Tests/WebPageProgram/acceptance-program.test.cjs
+✔ installed-program study layout receives the PNG through the application: direct
+✔ installed-program study layout receives the PNG through the application: connected
+✔ installed-program study layout receives the PNG through the application: detached
+✔ installed-program study layout receives the PNG through the application: verb-menu
+✔ installed-program study layout receives the PNG through the application: noun-menu
+✔ installed-program study layout receives the PNG through the application: no-role
+✔ installed-program study layout receives the PNG through the application: await-existing
+✔ the application actually executes its attachment route: forced-noun
+✔ the application actually executes its attachment route: forced-no-role
+✔ the application actually executes its attachment route: nested
+✔ the application actually executes its attachment route: reused-open
+✔ the application actually executes its attachment route: reused-content
+✔ the application actually executes its attachment route: short-label
+✔ the application actually executes its attachment route: plain-action
+✔ the application actually executes its attachment route: pointer-open
+✔ the application actually executes its attachment route: renamed-action
+✔ the application actually executes its attachment route: label-default
+✔ the application actually executes its attachment route: detached-showPicker
+✔ the application actually executes its attachment route: focusable-menu
+✔ the application actually executes its attachment route: anchor-action
+✔ the application actually executes its attachment route: localized-opener
+✔ an independently usable direct composer input takes precedence over an inert attachment trigger
+✔ an input-only recipient accepts and clears the native selection before change
+✔ page still running the installed v15 program adopts new file input on the same document
+✔ normal application activation preserves its default-action boundary: implicit-submit
+✔ normal application activation preserves its default-action boundary: detached-stop
+✔ a detached picker invoked after native await receives its File even with an unused connected picker
+✔ a replaced input calls its successor before File delivery; only the successor receives it
+✔ pre-input failures carry the exact entry stage and only a fixed exception type
+✔ independent page activity cannot receive or redirect a pending attachment: uninvoked-mount
+✔ independent page activity cannot receive or redirect a pending attachment: unrelated-menu
+✔ independent page activity cannot receive or redirect a pending attachment: unlinked-detached
+✔ independent page activity cannot receive or redirect a pending attachment: competing-invocations
+✔ an executing attachment does not replace the application scheduling primitives
+✔ the current entry may directly invoke an input with a project-like DOM ID
+✔ modeled user interruption leaves the independent picker and cancels this entry
+✔ an independent composer reached during discovery gets its own input budget
+✔ two consecutive clicks receive Files on successive mounts in the actual controlled attachment panel
+✔ selected menu and independent empty form cannot hand off by timing alone: menu-new-vs-existing
+✔ selected menu and independent empty form cannot hand off by timing alone: menu-both-new
+✔ selected menu and independent empty form cannot hand off by timing alone: empty-form-only
+✔ selected menu and independent empty form cannot hand off by timing alone: empty-form-vs-detached
+✔ the composer attachment entry cannot be displaced by a labelled local subwidget
+✔ original PNG and a JPEG over 8 MiB each reach the actual receiver with their MIME, bytes and START
+✔ unfocused marked composer with the ordinary four Chinese file controls receives each PNG on its general attachment input
+✔ a wrapper textbox does not hide the actual nested editing host and its form-free sibling picker
+✔ two independent equally plausible composers do not write a file
+✔ a replaced editor in the same persisted chat and composer still accepts its clicked screenshot
+✔ ordinary clicks arriving together during async picker discovery are both delivered, in order, before either upload completes
+✔ an accepted preview in a reused slot can start, but renaming an unchanged old preview cannot
+✔ two real previews of the same exact submitted File require only one START
+✔ only the actually displayed editor wins a tie between distinct mounted composer forms
+✔ several editor representations of one marked composer share its same real attachment field
+✔ an error for the same submitted file in the second attachment view cannot appear as START
+✔ a focused independent search cannot borrow upload capability from another real composer: false
+✔ a focused independent search cannot borrow upload capability from another real composer: true
+✔ revalidation during a synchronous wrapper rebuild releases the original lock and preserves later clicks
+✔ two click-time editor witnesses survive independent capture, staging and input
+✔ same-route reload and editor replacement before capture cannot receive the click
+✔ a new closest composer around the same connected editor cannot capture the original click
+✔ a new composer using the original editor after begin retires before input
+✔ a same-route SPA round trip or detached and reinserted original invalidates the witness
+✔ an opaque draft replacement while the attachment entry awaits a picker retires before setter
+✔ a late original START survives expired input permission, without authorizing a new begin
+✔ late matching cards cannot prove an original START after editor reattachment or route ABA
+✔ core regression: ordinary attachment button can upload PNG before Riftlet discovers an on-demand portalled input
+✔ actual attachment entry chooses its responsible input among unrelated controls: hidden-external
+✔ actual attachment entry chooses its responsible input among unrelated controls: showPicker
+✔ actual attachment entry chooses its responsible input among unrelated controls: pointerdown-menu
+✔ actual attachment entry chooses its responsible input among unrelated controls: unusual-accept
+✔ route change during dynamic discovery retires without input into the new chat
+✔ a menu label activates its hidden portalled picker without opening the system chooser
+✔ several local file inputs are resolved by the actual attachment button invocation
+✔ unrelated picker cannot preempt the executable chat attachment entry: current-form
+✔ unrelated picker cannot preempt the executable chat attachment entry: sole-global-avatar
+✔ an unrelated asynchronous avatar click cannot steal a delayed chat attachment invocation
+✔ the selected entry retains its actual asynchronous picker invocation through queueMicrotask
+✔ the selected entry retains its actual asynchronous picker invocation through animationFrame
+✔ the selected entry retains its actual asynchronous picker invocation through nested
+✔ a same-realm native async attachment handler awaits then invokes its newly created picker: resolved-promise-click
+✔ a same-realm native async attachment handler awaits then invokes its newly created picker: timer-showPicker
+✔ textarea draft and backward noncollapsed selection survive automatic attachment menu input
+✔ an inert first local attachment entry falls through to a working local entry and ignores cloud providers
+✔ an external project upload entry and its aria-controls cannot preempt the current chat input
+✔ the activated entry can mount its input synchronously, or later in its own controlled portal
+✔ a bare asynchronous mount in an unlinked form cannot select a file recipient
+✔ readonly or disabled text editing does not disable an available chat attachment input
+✔ a late timer from the cancelled chat entry cannot open an OS chooser after navigation
+✔ a setter exception is uncertain and never causes a second attachment path
+✔ clicking 2 screenshots appends each exactly once while earlier uploads remain active
+✔ clicking 3 screenshots appends each exactly once while earlier uploads remain active
+✔ clicking 5 screenshots appends each exactly once while earlier uploads remain active
+✔ an operation without START stays observe-only and cannot block the next screenshot
+✔ a lost commit reply is recovered only by observing the original operation
+✔ START requires a current new accepted attachment, not setter, change, old card or filename placeholder
+✔ one synchronous input execution excludes reentrant setter/change without holding an upload lock
+✔ change-handler reentry cannot overwrite the executing FileList
+✔ rebuilding a hidden picker keeps both pre-captured clicks and delayed START on the same composer
+✔ rebuilding the picker inside change cannot evade the same-composer synchronous input mutex
+✔ a hidden portal picker linked by the chat attachment entry works without requiring editor focus
+✔ ambiguous or externally owned pickers bind the chat and retire only after actual discovery fails
+✔ accepted attachment starts immediately while change leaves its picker disabled
+✔ accepted attachment starts immediately while change leaves its picker removed
+✔ an unsubmitted operation never starts from a matching card with its picker disabled
+✔ an unsubmitted operation never starts from a matching card with its picker removed
+✔ a replacement in an untracked Home draft cannot start the original unconfirmed operation
+✔ usable composer accepts PNG at /
+✔ usable composer accepts PNG at /c/ordinary-thread
+✔ usable composer accepts PNG at /g/g-p-local-project/c/thread
+✔ usable composer accepts PNG at /g/g-p-local-project/project
+✔ usable composer accepts PNG at /a-valid-future-chat-path
+✔ a first click initializes its fixed target after Chrome loses focus without any prior page capture
+✔ a changed route cannot receive the screenshot pinned to the previous chat
+✔ a replacement Home editor cannot silently inherit an older captured target
+✔ multiple inputs do not invalidate the chat and discovery never picks an arbitrary tied input
+✔ a preferred current composer is independent of another unrelated editable region
+✔ disabled input permits discovery while non-ChatGPT host remains invalid
+✔ malformed PNG fails before native input and cannot hold the next screenshot
+✔ current File-derived preview starts even when the application omits visible filenames
+✔ new attachment can label the complete unique filename with surrounding text: aria-label
+✔ new attachment can label the complete unique filename with surrounding text: title
+✔ new attachment can label the complete unique filename with surrounding text: alt
+✔ new attachment can label the complete unique filename with surrounding text: text
+✔ filename substrings and unrelated previews cannot falsely consume a screenshot
+✔ staging and discarding an unsubmitted click never dispatch an input
+✔ an error attachment cannot masquerade as accepted START {"role":"alert"}
+✔ an error attachment cannot masquerade as accepted START {"data-state":"error"}
+✔ an error attachment cannot masquerade as accepted START {"data-state":"failed"}
+✔ an error beside a preview cannot bypass START rejection through the nested image
+✔ an error on an older attachment cannot suppress the new independent attachment START
+✔ an empty img src is still a placeholder and cannot start the attachment
+ℹ tests 131
+ℹ suites 0
+ℹ pass 131
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0

@@ -213,7 +213,10 @@ function browserFixture(options){
    const color='rgb('+(20+index*30)+',40,70)';canvas.getContext('2d').fillStyle=color;canvas.getContext('2d').fillRect(0,0,2,2);
    const png=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
    const bytes=new Uint8Array(await png.arrayBuffer()),sha=await hash(bytes);
-   const target=call({action:'captureTarget'}),id=crypto.randomUUID();
+   const clickWitnessID=crypto.randomUUID(), address=new URL(mockLocation.href);
+   check(call({action:'pinTarget',clickWitnessID,address:address.origin+address.pathname})==='bound','isolated click target captured without a picker');
+   const target=call({action:'captureTarget',clickWitnessID}),id=crypto.randomUUID();
+   check(target.clickBindingID===clickWitnessID,'captured document belongs to this click');
    const identity={operationID:id,assetID:crypto.randomUUID(),attempt:1,assetSHA256:sha,target},invocationID=crypto.randomUUID();
    const op={identity,target,name:'riftlet-'+id+'.png',sha,command:action=>({action,identity,target,invocationID})};
    call({...op.command('begin'),uploadName:op.name,mediaType:'image/png',byteCount:bytes.length});

@@ -90,7 +90,7 @@ enum ProductStatus {
             if web == .nativeEventFailed(12) { return .chromeJavaScriptDisabled }
         }
         if let frontmostBundleID,
-           ["com.apple.Safari", "org.mozilla.firefox", "com.microsoft.edgemac", "com.brave.Browser"]
+           ["com.apple.Safari", "org.mozilla.firefox", "com.microsoft.edgemac", "com.brave.Browser", "company.thebrowser.Browser"]
             .contains(frontmostBundleID) { return .unsupportedBrowser }
         return .targetUnavailable
     }

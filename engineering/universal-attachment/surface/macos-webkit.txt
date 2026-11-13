@@ -1,0 +1,11 @@
+PASS [simulated WebKit DOM] ChatGPT
+PASS [simulated WebKit DOM] Claude
+PASS [simulated WebKit DOM] Gemini
+PASS [simulated WebKit DOM] Perplexity
+PASS [simulated WebKit DOM] Poe
+PASS [simulated WebKit DOM] unfocused and ambiguous drafts
+PASS [simulated WebKit DOM] same-page navigation round trip
+PASS [simulated WebKit DOM] selection, text, attachment and editor changes
+PASS [simulated WebKit DOM] missing and duplicate attachment buttons
+PASS [simulated WebKit DOM] same route in another document
+PASS [simulated WebKit DOM] Chrome click witness across isolated and page content worlds

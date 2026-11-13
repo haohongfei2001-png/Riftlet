@@ -88,14 +88,18 @@ struct MainWorldCommandRelay: Sendable {
 final class MainWorldRelayStore: @unchecked Sendable {
     private let lock = NSLock()
     private var values: [String: MainWorldCommandRelay] = [:]
-    private var targetRelays: [String: MainWorldCommandRelay] = [:]
+    // Keep exact per-click relays through the input window. Long-lived read-only
+    // operations can rediscover their original page relay from its marker.
+    private var targetRelays: [String: (relay: MainWorldCommandRelay, captured: TimeInterval)] = [:]
     func bind(_ relay: MainWorldCommandRelay, to target: TargetLease) {
         lock.lock(); defer { lock.unlock() }
-        targetRelays[target.stableKey] = relay
+        let now = ProcessInfo.processInfo.systemUptime
+        targetRelays = targetRelays.filter { now - $0.value.captured < 60 }
+        targetRelays[target.stableKey] = (relay, now)
     }
     func bound(to target: TargetLease) -> MainWorldCommandRelay? {
         lock.lock(); defer { lock.unlock() }
-        return targetRelays[target.stableKey]
+        return targetRelays[target.stableKey]?.relay
     }
     func adopt(function: String, contextJSON: String, channel: String,
                legacyObservationSession: String?) -> MainWorldCommandRelay? {
