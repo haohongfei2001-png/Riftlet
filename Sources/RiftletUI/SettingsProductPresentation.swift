@@ -93,6 +93,7 @@ public struct SettingsProductSnapshot: Equatable, Sendable {
     public var accessibility: SettingsAccessibility = .init()
     public var screenRecording: SettingsScreenRecording = .notChecked
     public var version: String = ""
+    public var chromeConnection: OnboardingChromeConnection = .unchecked
     public var configurationDeferred = false
     public var reviewEnvironment = false
     public init(revision: UInt64, setup: SetupSnapshot, state: SettingsStateSnapshot) {
@@ -109,7 +110,7 @@ public enum SettingsProductAction: Sendable {
     case loginEnabled(Bool), retryLogin, openLoginSettings
     case openSettings(SettingsPage), openOnboarding, finishOnboarding
     case capture, openHistory, openFeedback, clearVisible
-    case recheck, openSource, chooseSourceAccess, requestAutomation
+    case recheck, openSource, chooseSourceAccess, requestAutomation, checkChromeConnection
     case openFilePrivacy, openScreenRecordingPrivacy
     case restorePreferredDisplay, checkStorage, revealDataFolder, reloadConfiguration, openConfiguration
     case showLatest, showOldest, quit

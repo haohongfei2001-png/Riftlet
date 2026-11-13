@@ -31,6 +31,7 @@ class MainlineCompositionTests(unittest.TestCase):
         self.git("config", "core.hooksPath", os.devnull)
         self.write("index.html", "approved website\n")
         self.write("CNAME", "fixture.invalid\n")
+        self.write("website/README.md", "original website guide\n")
         self.website = self.commit("website")
         self.write("Sources/Main.swift", "reviewed product\n")
         self.write("Tests/Product.swift", "reviewed regression\n")
@@ -44,7 +45,7 @@ class MainlineCompositionTests(unittest.TestCase):
             foundation=self.foundation, foundation_tree=self.tree(self.foundation),
             foundation_parents=(self.website, self.legacy), legacy_source=self.legacy,
             legacy_gate_blob=self.git("rev-parse", self.legacy + ":" + AUDIT.LEGACY_GATE_PATH),
-            website_source=self.website, website_paths=("index.html", "CNAME"),
+            website_source=self.website, website_paths=("index.html", "CNAME", "website/README.md"),
             historical_gates=(AUDIT.LEGACY_GATE_PATH,),
             historical_prefixes=("engineering/evidence/", "research/"),
         )
@@ -254,13 +255,26 @@ class MainlineCompositionTests(unittest.TestCase):
         self.git("checkout", "-q", "--detach", base)
         self.write("index.html", "approved download URL\n")
         checkpoint = self.commit("approved website release change")
-        policy = replace(self.policy, public_download_page=checkpoint)
+        policy = replace(self.policy, website_checkpoints=((checkpoint, ("index.html",)),))
         head = self.admit(checkpoint, self.review_record(checkpoint, base))
         published = self.merge(base, head)
         self.check(published, expected="PASS", policy=policy)
 
+        self.git("checkout", "-q", "--detach", published)
+        self.write("index.html", "approved download URL and support notes\n")
+        self.write("website/README.md", "updated website guide\n")
+        second = self.commit("clarify public download instructions")
+        policy = replace(policy, website_checkpoints=(*policy.website_checkpoints, (second, ("index.html", "website/README.md"))))
+        head = self.admit(second, self.review_record(second, published))
+        updated = self.merge(published, head)
+        self.check(updated, expected="PASS", policy=policy)
+        wrong_paths = replace(policy, website_checkpoints=((checkpoint, ("index.html",)), (second, ("index.html",))))
+        self.check(updated, expected="FAIL", policy=wrong_paths)
+        self.check(published, expected="PASS", policy=policy)
+
         for path, new_text in (("index.html", "approved website\n"),
                                ("index.html", "changed download URL\n"),
+                               ("website/README.md", "unapproved guide\n"),
                                ("CNAME", "another.invalid\n")):
             with self.subTest(path=path, text=new_text):
                 self.git("checkout", "-q", "--detach", published)

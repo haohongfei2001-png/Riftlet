@@ -110,6 +110,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         mode.collectsSystemScreenshots && initialized && !collectionChangePending && captureControl.acceptsCollectionIntent
     }
     private var requestingPermission = false
+    private var chromeConnection: OnboardingChromeConnection = .unchecked
+    private var checkedChrome: ChromeProcessIdentity?
+    private var chromeCheckID: UUID?
+    private var chromeTerminationObserver: NSObjectProtocol?
     private var automationPermission: AutomationPermissionState = .notNeeded
     private var permissionPublication = AutomationPermissionPublication()
     private var attachmentObservationStarted = false
@@ -210,7 +214,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         installSetup()
         // The first ordinary launch explains collection before its first source
         // read. Acceptance mode must not steal the test browser's focus.
-        if mode.collectsSystemScreenshots, firstUse.needsAutomaticPresentation {
+        if mode.collectsSystemScreenshots, firstUse.needsAutomaticPresentation,
+           mode != .settingsReview || !firstUse.hasPresented {
             updateSetup()
             if settingsHost?.showOnboarding() == true { firstUse.recordPresentation() }
         }
@@ -286,6 +291,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         guard let owner = instanceOwnership else { return }
         owner.keepUntilProcessExit()
         permissionResumer?.stop()
+        if let chromeTerminationObserver { NSWorkspace.shared.notificationCenter.removeObserver(chromeTerminationObserver) }
         if let permissionActivationObserver { NSWorkspace.shared.notificationCenter.removeObserver(permissionActivationObserver) }
         if let permissionWakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(permissionWakeObserver) }
         completionWatch?.cancel()
@@ -422,6 +428,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                         self.setupIssue = ProductStatus.clickIssue(error,
                             frontmostBundleID: NSWorkspace.shared.frontmostApplication?.bundleIdentifier, webAcceptance: true)
                         if self.setupIssue == .permissionDenied { self.applyAutomationPermission(.denied) }
+                        if self.setupIssue == .chromeJavaScriptDisabled {
+                            self.chromeCheckID = nil
+                            self.chromeConnection = .javaScriptDisabled
+                        }
                     }
                     var refusal = BoundedDiagnosticTrace.clickFailureFields(error)
                     refusal["event"] = "click_input_refused"
@@ -596,8 +606,22 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     guard let self,
                           let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
                           app.bundleIdentifier == "com.google.Chrome" else { return }
+                    if let checked = self.checkedChrome, checked.pid != app.processIdentifier {
+                        self.resetChromeConnection()
+                        self.updateSetup()
+                    }
                     self.lastForegroundSession = self.foregroundChromeSession
                     self.permissionResumer?.request()
+                }
+            }
+        chromeTerminationObserver = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didTerminateApplicationNotification, object: nil, queue: .main) { [weak self] note in
+                MainActor.assumeIsolated {
+                    guard let self, let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
+                          let checked = self.checkedChrome, app.processIdentifier == checked.pid,
+                          !checked.isCurrent() else { return }
+                    self.resetChromeConnection()
+                    self.updateSetup()
                 }
             }
         permissionWakeObserver = NSWorkspace.shared.notificationCenter.addObserver(
@@ -781,7 +805,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         capabilities.canEditPreferences = initialized
         capabilities.canOpenConfiguration = root != nil
         settingsHost?.update(owner: nextSettingsOwner(), setup: snapshot, capabilities: capabilities,
-            configurationDeferred: rift.map { $0.requestedConfiguration != $0.configuration } ?? false)
+            configurationDeferred: rift.map { $0.requestedConfiguration != $0.configuration } ?? false,
+            chromeConnection: chromeConnection)
         let presentation = SetupPresentation(snapshot: snapshot)
         let summary = presentation.issueText ?? (mode.collectsSystemScreenshots ? presentation.collectionText : presentation.attachmentText)
         statusLine?.title = summary
@@ -926,6 +951,47 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         }
     }
 
+    private func resetChromeConnection() {
+        chromeCheckID = nil
+        checkedChrome = nil
+        chromeConnection = .unchecked
+        if setupIssue == .chromeJavaScriptDisabled { setupIssue = nil }
+    }
+
+    private func checkChromeConnection() async {
+        guard mode == .capture, mode.usesWebAdapter, initialized, !terminating, chromeCheckID == nil else { return }
+        let (status, choice) = NativeAutomationPermissionChecker.selectBrowser(expectedSession: nil)
+        guard let process = choice?.process else {
+            applyAutomationPermission(status ?? .unavailable)
+            updateSetup()
+            return
+        }
+        let id = UUID()
+        chromeCheckID = id
+        checkedChrome = process
+        chromeConnection = .checking
+        updateSetup()
+        // Read only on an explicit setup action. A status grant covers this
+        // receiver only and never becomes a condition for ordinary thumbnail clicks.
+        let grant = await permissionGate.inspect(expectedSession: process.session)
+        guard chromeCheckID == id, !terminating else { return }
+        guard grant == .granted else { applyAutomationPermission(grant); updateSetup(); return }
+        let result = await ChromeSetupConnectionProbe.check(process)
+        guard chromeCheckID == id, !terminating else { return }
+        chromeCheckID = nil
+        guard process.isCurrent() else { resetChromeConnection(); updateSetup(); return }
+        switch result {
+        case .ready:
+            chromeConnection = .ready
+            if setupIssue == .chromeJavaScriptDisabled || setupIssue == .permissionDenied { setupIssue = nil }
+        case .permissionDenied: applyAutomationPermission(.denied)
+        case .javaScriptDisabled: chromeConnection = .javaScriptDisabled
+        case .noWindow: chromeConnection = .noWindow
+        case .unavailable: chromeConnection = .unavailable
+        }
+        updateSetup()
+    }
+
     @objc private func openFilePrivacySettings() { openPrivacySettings(automation: false) }
     private func openPrivacySettings(automation: Bool) {
         screenshotEntry?.cancel()
@@ -1006,6 +1072,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
 
     private func applyAutomationPermission(_ state: AutomationPermissionState) {
         automationPermission = state
+        if state != .granted { resetChromeConnection() }
         if mode.usesWebAdapter, state != .granted { feedback.diagnostics.record(.permissionUnavailable) }
         // Setup status cannot veto an explicit click. The actual addressed Apple
         // Event enforces OS permission and reports a concrete error if denied.
@@ -1531,7 +1598,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private func performSettingsAction(_ action: SettingsProductAction) async {
         if mode == .settingsReview {
             switch action {
-            case .capture, .chooseSourceAccess, .requestAutomation, .openFilePrivacy, .openScreenRecordingPrivacy:
+            case .capture, .chooseSourceAccess, .requestAutomation, .checkChromeConnection, .openFilePrivacy, .openScreenRecordingPrivacy:
                 showIssue("设置验收环境不申请系统授权、不抓取屏幕。")
                 return
             default: break
@@ -1548,6 +1615,15 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         case .openSource: openScreenshotSource()
         case .chooseSourceAccess: chooseSourceAccess()
         case .requestAutomation: requestAutomationPermission()
+        case .checkChromeConnection: await checkChromeConnection()
+        case .finishOnboarding:
+            guard let host = settingsHost, host.onboarding.isVisible, host.snapshot.onboardingReady else { return }
+            let session = host.onboarding.presentationID
+            await checkChromeConnection()
+            guard !terminationPreparationPending, host.onboarding.isVisible, host.onboarding.presentationID == session,
+                  host.snapshot.onboardingReady else { return }
+            firstUse.recordCompletion()
+            host.onboarding.closeForTeardown()
         case .openFilePrivacy: openFilePrivacySettings()
         case .openScreenRecordingPrivacy:
             screenshotEntry?.cancel()
@@ -1564,7 +1640,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         case .showLatest: showLatest()
         case .showOldest: showOldest()
         case .quit: quit()
-        case .settings, .appearance, .retryAppearance, .historyDisplayStyle, .loginEnabled, .retryLogin, .openLoginSettings, .finishOnboarding:
+        case .settings, .appearance, .retryAppearance, .historyDisplayStyle, .loginEnabled, .retryLogin, .openLoginSettings:
             break // Owned by SettingsProductHost; never recursively dispatched.
         }
     }

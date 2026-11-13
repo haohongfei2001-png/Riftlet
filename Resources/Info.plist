@@ -7,9 +7,9 @@
 <key>CFBundleDisplayName</key><string>Riftlet</string>
 <key>CFBundleIconFile</key><string>Riftlet.icns</string>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>0.3.5</string>
-<key>CFBundleVersion</key><string>16</string>
-<key>RiftletVersionLabel</key><string>Personal RC</string>
+<key>CFBundleShortVersionString</key><string>1.0.0</string>
+<key>CFBundleVersion</key><string>22</string>
+<key>RiftletVersionLabel</key><string>Riftlet</string>
 <key>LSMinimumSystemVersion</key><string>13.0</string>
 <key>LSUIElement</key><true/>
 <key>NSHighResolutionCapable</key><true/>
@@ -18,8 +18,8 @@
 <key>RiftletBuildChannel</key><string>development</string>
 <key>RiftletDeveloperIDSigned</key><false/>
 <key>RiftletNotarized</key><false/>
-<key>NSAppleEventsUsageDescription</key><string>Riftlet 仅在你点击微图后，使用 Google Chrome 向该次点击绑定的 ChatGPT 草稿附加受支持的截图。切换窗口不会改投其他聊天；不会自动发送消息或重新输入结果未知的图片。</string>
-<key>NSDesktopFolderUsageDescription</key><string>Riftlet 读取系统保存到桌面的新截图，并在本机保留私有副本；不会删除系统原截图。</string>
-<key>NSDocumentsFolderUsageDescription</key><string>当系统截图保存在文稿中时，Riftlet 读取新截图并在本机保留私有副本；不会删除系统原截图。</string>
-<key>NSDownloadsFolderUsageDescription</key><string>当系统截图保存在下载中时，Riftlet 读取新截图并在本机保留私有副本；不会删除系统原截图。</string>
+<key>NSAppleEventsUsageDescription</key><string>允许 Riftlet 检查与 Chrome 的连接，并在你点选截图时将它附加到当前 ChatGPT 草稿。消息由你发送。</string>
+<key>NSDesktopFolderUsageDescription</key><string>允许 Riftlet 读取保存在桌面中的新截图，在桌面边缘显示缩略图。原图会保留。</string>
+<key>NSDocumentsFolderUsageDescription</key><string>允许 Riftlet 读取保存在文稿中的新截图，在桌面边缘显示缩略图。原图会保留。</string>
+<key>NSDownloadsFolderUsageDescription</key><string>允许 Riftlet 读取保存在下载中的新截图，在桌面边缘显示缩略图。原图会保留。</string>
 </dict></plist>
