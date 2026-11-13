@@ -1,6 +1,36 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?><!-- sparkle-sign-warning:
+<?xml version="1.0" standalone="yes"?><!-- sparkle-sign-warning:
 IMPORTANT: This file was signed by Sparkle. Any modifications to this file requires re-signing this file with generate_appcast or sign_update! The signed signature will be embedded at the end of this file.
---><rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0"><channel><title>Riftlet</title><link>https://riftlet.com/</link><description>Riftlet stable updates</description></channel></rss><!-- sparkle-signatures:
-edSignature: Qmh6PLsFr6DJ+iYfi9Xg1K+2KvnVHunfgPzeHTzgWBm6KlfaYCE+yXLF6WQsQafJPGUtce59o8b4zPqh5ChlCg==
-length: 507
+--><rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>Riftlet</title>
+        <item>
+            <title>1.0.1</title>
+            <pubDate>Sat, 14 Nov 2026 05:59:36 +0800</pubDate>
+            <link>https://riftlet.com/</link>
+            <sparkle:version>23</sparkle:version>
+            <sparkle:shortVersionString>1.0.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <description sparkle:format="plain-text"><![CDATA[Riftlet 1.0.1 加入应用内更新。安装后，Riftlet 默认每天检查一次。你也可以从菜单栏或「设置 → 权限与帮助 → 关于与诊断」选择「检查更新…」，阅读更新说明，决定立即安装或稍后处理。选择安装后，Riftlet 会正常退出并重新打开。
+
+正在使用 1.0.0？请先退出 Riftlet，下载此次安装包，把 Riftlet 拖到原来的安装位置并选择「替换」。这一步只需进行一次。原有截图库、历史和设置保留。
+
+适用于 macOS 13 及以上版本，支持 Apple Silicon 和 Intel。截图附加适用于 Chrome 中可编辑的 ChatGPT 网页草稿，需要截图文件夹访问权限、macOS 的 Chrome 自动化授权，以及 Chrome「显示 → 开发者 → 允许来自 Apple 事件的 JavaScript」。Riftlet 只在点击微图时附加截图，由你发送消息。
+
+下载：https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.1/Riftlet-1.0.1.dmg
+隐私联系：privacy@riftlet.com
+
+Riftlet 1.0.1 adds in-app updates. After installation, Riftlet checks daily by default. Choose Check for Updates from the menu bar or Settings to read the release notes and install now or later. Riftlet quits normally and reopens when you choose to install.
+
+Using 1.0.0? Quit Riftlet, download this installer, drag Riftlet to its existing location and choose Replace. This first upgrade is manual. Your screenshot library, history and settings are preserved.
+
+Requires macOS 13 or later on Apple Silicon or Intel. Screenshot attachments work in an editable ChatGPT draft in Chrome. Allow access to your screenshot folder, grant macOS permission to automate Chrome, and enable View → Developer → Allow JavaScript from Apple Events in Chrome. Riftlet attaches a screenshot when you click its thumbnail. You send the message yourself.
+
+Download: https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.1/Riftlet-1.0.1.dmg
+Privacy contact: privacy@riftlet.com]]></description>
+            <enclosure url="https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.1/Riftlet-1.0.1.dmg" length="12417028" type="application/octet-stream" sparkle:edSignature="MdEpDj04U9rFDNoCAfBU8J+fDc3ZL1ewxDydJoTj98sCrQDqONznstki1HorqWCu+cyf186MYzMnXvdwjzRYCg=="></enclosure>
+        </item>
+    </channel>
+</rss><!-- sparkle-signatures:
+edSignature: HfMjUfUydypQ6CgyWbbwEE2JJuVz+gd+zDL7IbQW17urb1glOGOEh4cS2VX/UcJHEBeAsUNOQ73fIl1gG+goDw==
+length: 3162
 -->

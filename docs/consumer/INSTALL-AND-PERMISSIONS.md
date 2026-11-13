@@ -1,8 +1,8 @@
 # 安装与权限
 
-Riftlet 1.0.0 的安装包名为 `Riftlet-1.0.0.dmg`，支持 macOS 13 及以上的 Apple 芯片和 Intel Mac。请从 [riftlet.com](https://riftlet.com/) 下载磁盘映像。如需校验，请在[对应版本的发行记录](https://github.com/haohongfei2001-png/Riftlet/releases)查看文件名和 SHA-256。开发者团队 ID 为 `ZB9D4T66QB`。
+Riftlet 1.0.1 的安装包名为 `Riftlet-1.0.1.dmg`，支持 macOS 13 及以上的 Apple 芯片和 Intel Mac。请从 [riftlet.com](https://riftlet.com/) 下载磁盘映像。如需校验，请在[对应版本的发行记录](https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.1)查看文件名和 SHA-256。开发者团队 ID 为 `ZB9D4T66QB`。
 
-1. 打开下载的 DMG，将 **Riftlet.app** 拖入 **Applications（应用程序）**。如果无法写入共享的「应用程序」，可以在 Finder 的个人主文件夹中创建 `Applications` 文件夹，将 App 拖入那里。如果已经安装，请先正常退出，备份截图库，再替换原安装位置的 App。[手动更新与恢复](RECOVERY-AND-FAQ.md)
+1. 打开下载的 DMG，将 **Riftlet.app** 拖入 **Applications（应用程序）**。如果无法写入共享的「应用程序」，可以在 Finder 的个人主文件夹中创建 `Applications` 文件夹，将 App 拖入那里。如果正在从 1.0.0 升级，请先正常退出，备份截图库，再替换原安装位置的 App。[更新与恢复](RECOVERY-AND-FAQ.md)
 2. 推出磁盘映像，从安装位置打开 Riftlet。macOS 首次询问是否打开下载的应用时，核对应用名并点「打开」。若系统提示已损坏或无法验证开发者，请停止安装并核对下载来源。
 3. 在引导中依次设置截图文件夹、连接 Chrome，并选择缩略图在桌面出现的位置。以后可以从「设置 → 权限与帮助」重新打开引导。
 
@@ -15,7 +15,7 @@ Riftlet 1.0.0 的安装包名为 `Riftlet-1.0.0.dmg`，支持 macOS 13 及以上
 
 **曾拒绝权限时。** 截图文件夹可从引导或「设置 → 截图」重新选择。若 macOS 拒绝了 Chrome 自动化请求，可前往「系统设置 → 隐私与安全性 → 自动化」，在 Riftlet 下开启 Google Chrome，再回引导检查连接。Chrome 的 JavaScript 开关对所有获准控制 Chrome 的应用生效，可随时关闭。本地截图收录和历史仍然可用。正式签名版本替换早期个人开发版本时，macOS 可能会再次请求权限。
 
-**English.** Download the disk image from [riftlet.com](https://riftlet.com/). Open it, drag Riftlet.app into Applications (or the Applications folder in your home directory if you cannot write to the shared one), eject the disk image and open the installed app. If updating, quit the previous version and back up your library first. Follow setup to allow access to your screenshot folder, connect Google Chrome and choose a thumbnail position. For Chrome, allow the macOS Automation request and enable **View → Developer → Allow JavaScript from Apple Events**. Screen Recording is needed only for Riftlet’s built-in capture. [English quick start](QUICK-START.en.md)
+**English.** Download the disk image from [riftlet.com](https://riftlet.com/). Open it, drag Riftlet.app into Applications (or the Applications folder in your home directory if you cannot write to the shared one), eject the disk image and open the installed app. If upgrading from 1.0.0, quit Riftlet, back up your library and replace the app in its existing location. From 1.0.1, right-click the menu bar icon and choose 检查更新… to check for updates. Follow setup to allow access to your screenshot folder, connect Google Chrome and choose a thumbnail position. For Chrome, allow the macOS Automation request and enable **View → Developer → Allow JavaScript from Apple Events**. Screen Recording is needed only for Riftlet’s built-in capture. [English quick start](QUICK-START.en.md)
 
 [Apple 文件与文件夹权限](https://support.apple.com/en-au/guide/mac-help/mchld5a35146/mac) · [Apple 屏幕录制权限](https://support.apple.com/en-kw/guide/mac-help/mchld6aa7d23/mac) · [Chromium AppleScript 说明](https://www.chromium.org/developers/applescript/)
 

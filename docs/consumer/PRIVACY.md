@@ -11,6 +11,10 @@ Riftlet 的截图副本和历史保存在本机。**点击微图会把那张图�
 - 点击附加才把图片交给该网页。Riftlet 不自动发送聊天消息，不主动删除现有聊天附件，不上传整个截图目录。图片进入 ChatGPT 后由该服务处理，适用你自己的账号和服务设置。
 - 当前产品没有 Riftlet 账号、截图云同步或后台使用率埋点。日常收录不会将截图发送给维护者。
 
+## 检查更新时的网络访问
+
+从 1.0.1 起，Riftlet 默认每天通过 HTTPS 从 riftlet.com 检查新版。选择下载时会连接 GitHub 的发行文件服务。更新请求不包含截图、聊天内容或反馈草稿。服务提供方可看到 IP 地址等连接信息。可在「设置 → 权限与帮助 → 关于与诊断」关闭「每天检查更新」，以后按需手动检查。
+
 ## 反馈是什么时候联网的
 
 打开反馈窗口、编辑或关闭并保存草稿不会新提交报告。点「发送反馈」后，已授权的待发送项可在后台、网络恢复或下次启动时继续投递；这不会每次重新弹出确认。反馈的查询、取消/删除申请也可能联网。
@@ -34,6 +38,8 @@ Riftlet 的截图副本和历史保存在本机。**点击微图会把那张图�
 Screenshots and history are stored locally. A thumbnail click hands that image to the selected ChatGPT draft; ChatGPT then processes it under its own service/account settings. Riftlet inspects the current page’s editor, controls and attachment previews, and temporarily reads editor content/selection to preserve the draft. It does not export that text as feedback diagnostics.
 
 Chrome’s **Allow JavaScript from Apple Events** setting lets apps with Chrome automation access execute page scripts. Turning it off stops one-click attachment. Local collection and history remain available.
+
+Starting with 1.0.1, daily update checks contact riftlet.com over HTTPS. Choosing to download an update contacts GitHub’s release asset service. These requests carry no screenshots, chats or feedback drafts. Service providers can see connection information such as your IP address. Turn off 每天检查更新 under Settings → 权限与帮助 → 关于与诊断 to check only on demand.
 
 Feedback is optional. Pressing Send authorizes the queued report to be retried later, including after restart. Its text, category, report ID, version, time and any explicitly selected diagnostic snapshot go to the private feedback service. New drafts have diagnostics off; saved drafts retain your choice. Diagnostics use a closed list of counts/events, but free text is **not automatically redacted**. Do not include images, chats, credentials or raw databases. Local storage, receipt, delivery and deletion are different states.
 

@@ -1,4 +1,4 @@
-# 找回图片、排除故障与手动更新
+# 找回图片、排除故障与更新
 
 **非管理员账户如何安装？** 在 Finder 中打开个人主文件夹，把磁盘映像中的 Riftlet.app 拖入自己的 `Applications` 文件夹。从这个位置打开 App 并完成引导。同一台 Mac 上的每个账户各自授权截图文件夹与 Chrome。[安装与权限](INSTALL-AND-PERMISSIONS.md)
 
@@ -14,9 +14,11 @@
 
 ## 更新、回退与卸载
 
-1. 当前采用**手动更新**。保留现有 App 和经验证的旧安装包，从 [Riftlet 版本页面](https://github.com/haohongfei2001-png/Riftlet/releases)取得新版本。从菜单栏右键选「退出 Riftlet」。在 Finder「前往文件夹」输入 `~/Library/Application Support/Riftlet/`，退出后备份整个文件夹，其中包括队列数据库及其附属文件、图片、副本、收录记录、配置及反馈。单独保留系统截图原件；维护者还需核对应用偏好、钥匙串与系统权限，这些不会被普通文件夹完整备份。
+**从 1.0.1 起。** Riftlet 默认每天检查更新。要立即检查，右键点菜单栏 Riftlet 图标，选择「检查更新…」。有新版时可查看说明，选择安装或稍后处理。也可在「设置 → 权限与帮助 → 关于与诊断」关闭「每天检查更新」。安装会退出并重新打开 App。离线时仍可使用本机截图和历史。
+
+1. **从 1.0.0 升级，或手动安装。** 保留现有 App 和经验证的旧安装包，从 [Riftlet 版本页面](https://github.com/haohongfei2001-png/Riftlet/releases)取得新版本。从菜单栏右键选「退出 Riftlet」。在 Finder「前往文件夹」输入 `~/Library/Application Support/Riftlet/`，退出后备份整个文件夹，其中包括队列数据库及其附属文件、图片、副本、收录记录、配置及反馈。单独保留系统截图原件；维护者还需核对应用偏好、钥匙串与系统权限，这些不会被普通文件夹完整备份。
 2. 核对新 DMG 的版本、来源和校验值，再仅替换原安装位置的 Riftlet.app。启动后检查已有历史、设置、目录访问以及一张新截图。旧版关闭了自动归档或使用 1–10 分钟时限时，升级会保留该选择；其他旧正时限回到 2 分钟。
 3. 如果更新失败，正常退出，保存**最新**的完整数据、旧包和新包。请维护者先验证旧 App 确实兼容当前数据，再作 App 回退。部分早期版本无法读取现在的截图库，遇到这种情况应使用与当前截图库兼容的新版恢复。不得用升级前的数据库覆盖新历史。
 4. 要卸载，可先关闭「设置 → 使用与历史 → 登录时启动 Riftlet」，正常退出，再把 App 移到废纸篓。原始截图、本地数据目录、偏好、反馈凭证和备份保留。已发送反馈如需撤回，先在反馈窗口申请删除并查看结果；卸载本身不会撤回反馈。
 
-**English.** Check History before retrying an uncertain attachment. For a manual update, quit Riftlet, keep the old app and a verified backup of the complete current library, check the new package and replace only the app in its existing location. For recovery, keep the **latest** library intact. Some older releases cannot read the current library format. Uninstalling the app leaves the library, preferences, originals, backups and feedback credentials in place.
+**English.** Check History before retrying an uncertain attachment. From 1.0.1, Riftlet checks daily by default. Right-click its menu bar icon and choose 检查更新… (Check for Updates) to see release notes and decide when to install. To upgrade from 1.0.0, or install a DMG manually, quit Riftlet, keep the old app and a verified backup of the complete current library, check the new package and replace only the app in its existing location. For recovery, keep the **latest** library intact. Some older releases cannot read the current library format. Uninstalling the app leaves the library, preferences, originals, backups and feedback credentials in place.
