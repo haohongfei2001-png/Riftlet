@@ -25,7 +25,16 @@
   const translateNodes = $$('[data-en]');
   const chineseContent = new Map(translateNodes.map(el => [el, el.innerHTML]));
   const initialAria = new Map($$('[aria-label]').map(el => [el, el.getAttribute('aria-label')]));
-  let language = 'zh', scene = 'design', queue = [], serial = 0, busy = false;
+  const languageKey = 'riftlet.website.language';
+  function preferredLanguage() {
+    try {
+      const saved = window.localStorage.getItem(languageKey);
+      if (saved === 'zh' || saved === 'en') return saved;
+    } catch (_) { /* Private browsing or blocked storage: use browser language. */ }
+    const locale = (navigator.languages && navigator.languages[0]) || navigator.language || '';
+    return /^zh(?:$|-(?:cn|sg|hans)(?:-|$))/i.test(locale) ? 'zh' : 'en';
+  }
+  let language = preferredLanguage(), scene = 'design', queue = [], serial = 0, busy = false;
   let draftEdited = false, generation = 0, statusKey = 'idle', emptyDetail = false;
   const timers = new Map();
   const langIndex = () => language === 'zh' ? 0 : 1;
@@ -188,7 +197,11 @@
   $('#capture').addEventListener('click', () => capture());
   $('#restart').addEventListener('click', () => reset());
   draft.addEventListener('input', () => { draftEdited = true; });
-  $('#language-toggle').addEventListener('click', () => { language = language === 'zh' ? 'en' : 'zh'; translate(); });
+  $('#language-toggle').addEventListener('click', () => {
+    language = language === 'zh' ? 'en' : 'zh';
+    try { window.localStorage.setItem(languageKey, language); } catch (_) { /* Switching still works without storage. */ }
+    translate();
+  });
   $('#edge-full').addEventListener('click', () => setDetailEmpty(false));
   $('#edge-empty').addEventListener('click', () => setDetailEmpty(true));
   $$('.moment-card').forEach(button => button.addEventListener('click', () => {
@@ -205,6 +218,7 @@
   window.addEventListener('scroll', () => $('#site-header').classList.toggle('scrolled', window.scrollY > 20), { passive: true });
   document.addEventListener('visibilitychange', () => { if (document.hidden && busy) reset('paused'); });
   reset();
+  translate();
   if (!reduceMotion.matches) {
     document.fonts.ready.then(() => {
       $('#source-card').animate([{ opacity: .3, transform: 'translateY(12px) rotate(-5deg)' }, { opacity: 1, transform: 'translateY(0) rotate(-3deg)' }], { duration: 650, easing: 'cubic-bezier(.2,.75,.2,1)' });
