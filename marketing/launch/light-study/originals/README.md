@@ -1,0 +1,6 @@
+# Source artwork
+
+- The daylight and dark optical studies are original AI-assisted campaign illustrations. Both raster masters and their [built-in ImageGen prompts](prompts.json) are included. The glass, paper and lighting are artwork. All interface elements and typography were composited afterwards.
+- Detail A is the daylight crop around pixel (466, 752) of the 1672 × 941 original. The same pixels appear in the arrival, the first tray tile and the draft attachment. Detail B samples the darker bevel of the companion view.
+- The mark is an AppKit rasterization of the [website source SVG](../../../../website-assets/riftlet.svg). [RenderMark.swift](../studio/RenderMark.swift) rebuilds it. The [camera key](native-camera-key.png) is a 221 × 155 crop from release footage frame 0 at left 150, top 325. The [dual-thumbnail frame](native-tray-film-still.png) comes from 9.8 seconds into the same native take.
+- Handoff files use the project's [Instrument Serif](../../../../website-assets/fonts/Instrument-Serif-OFL.txt); body and Chinese copy use system fonts rendered to pixels. The [original score](../studio/score.py) synthesizes the instruments, shutter and keystrokes directly. The desk demo preserves its silent source.

@@ -1,0 +1,225 @@
+{
+  "version": "0.3.5 (20)",
+  "tag": "v0.3.5-beta.1",
+  "uuid": "ed2ab174-451e-46e9-8762-0fe440d927fa",
+  "releaseExecutableSHA256": "c518b55b62b8ee31a2bd5c45e83dfbc3538f3d6822ba9daa9bdd83c28ab32906",
+  "events": [
+    {
+      "name": "empty-tray",
+      "time": 0.1533,
+      "buttons": [
+        [
+          "展开截图方式",
+          "展开截图方式"
+        ]
+      ]
+    },
+    {
+      "name": "low-screenshot-command",
+      "time": 2.0052
+    },
+    {
+      "name": "low-system-image-saved",
+      "time": 2.1125,
+      "nativeScreenshotMarker": true
+    },
+    {
+      "name": "low-collector-observed",
+      "time": 2.3206,
+      "count": 1,
+      "status": "pending"
+    },
+    {
+      "name": "high-screenshot-command",
+      "time": 7.0033
+    },
+    {
+      "name": "high-system-image-saved",
+      "time": 7.1173,
+      "nativeScreenshotMarker": true
+    },
+    {
+      "name": "high-collector-observed",
+      "time": 7.3291,
+      "count": 2,
+      "status": "pending"
+    },
+    {
+      "name": "open-menu-request",
+      "time": 12.005
+    },
+    {
+      "name": "open-menu-observed",
+      "time": 12.1314,
+      "buttons": [
+        [
+          "默认截图，窗口截图",
+          "默认截图，窗口截图"
+        ],
+        [
+          "常用截图 3，未设置",
+          "常用截图 3，未设置"
+        ],
+        [
+          "常用截图 2，全屏截图",
+          "常用截图 2，全屏截图"
+        ],
+        [
+          "常用截图 1，区域截图",
+          "常用截图 1，区域截图"
+        ],
+        [
+          "截图 1，可附加",
+          "截图 1 · 可附加"
+        ],
+        [
+          "截图 2，可附加",
+          "截图 2 · 可附加"
+        ]
+      ]
+    },
+    {
+      "name": "menu-already-closed-observed",
+      "time": 15.6362,
+      "method": "native dismissal before our event; input not attributed"
+    },
+    {
+      "name": "thumbnail-press-request",
+      "time": 18.7357,
+      "originalLabel": "截图 1，可附加"
+    },
+    {
+      "name": "thumbnail-targeted-down-up-posted",
+      "time": 19.137,
+      "geometry": {
+        "screenPoint": [
+          1724.25,
+          547
+        ],
+        "accessibilityBounds": [
+          1665,
+          504,
+          118.5,
+          86
+        ],
+        "control": "截图 1，可附加",
+        "hitBounds": [
+          1671,
+          508,
+          106,
+          78
+        ],
+        "windowsAtPointOwnedByReview": 4,
+        "stageHeight": 1080
+      },
+      "buttons": [
+        [
+          "展开截图方式",
+          "展开截图方式"
+        ],
+        [
+          "截图 1，可附加",
+          "截图 1 · 可附加"
+        ],
+        [
+          "截图 2，可附加",
+          "截图 2 · 可附加"
+        ]
+      ]
+    },
+    {
+      "name": "second-thumbnail-accessibility-request",
+      "time": 20.0336,
+      "originalLabel": "截图 2，可附加"
+    },
+    {
+      "name": "second-thumbnail-accessibility-returned",
+      "time": 20.1359,
+      "buttons": [
+        [
+          "展开截图方式",
+          "展开截图方式"
+        ],
+        [
+          "截图 1，可附加",
+          "截图 1 · 可附加"
+        ],
+        [
+          "截图 2，可附加",
+          "截图 2 · 可附加"
+        ]
+      ]
+    },
+    {
+      "name": "after-press",
+      "time": 21.0319,
+      "buttons": [
+        [
+          "展开截图方式",
+          "展开截图方式"
+        ],
+        [
+          "截图 1，可附加",
+          "截图 1 · 可附加"
+        ],
+        [
+          "截图 2，可附加",
+          "截图 2 · 可附加"
+        ]
+      ],
+      "assets": [
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "name": "recording-complete",
+      "time": 24.0389
+    }
+  ],
+  "sourcePhotos": [
+    {
+      "name": "low",
+      "windowPixels": [
+        1200,
+        864
+      ],
+      "sha256": "e71d52a9f2c966ab6a8214f39729c68532e8de29a2d6257ce351b8c0f616a6ea",
+      "privateCopySHA256": "e71d52a9f2c966ab6a8214f39729c68532e8de29a2d6257ce351b8c0f616a6ea",
+      "deviceSource": "/usr/sbin/screencapture -x -o -l <owned plate window>",
+      "systemMarkerOriginallyPresent": true
+    },
+    {
+      "name": "high",
+      "windowPixels": [
+        1200,
+        864
+      ],
+      "sha256": "f0efac7df205d54b57d1da99a4267ec6ad62367f2932caaa4be82a13581788a9",
+      "privateCopySHA256": "f0efac7df205d54b57d1da99a4267ec6ad62367f2932caaa4be82a13581788a9",
+      "deviceSource": "/usr/sbin/screencapture -x -o -l <owned plate window>",
+      "systemMarkerOriginallyPresent": true
+    }
+  ],
+  "parameters": {
+    "form": "tray",
+    "placement": "rightMiddle",
+    "theme": "system",
+    "outerInset": 18,
+    "trayOcclusion": 0,
+    "captureEntry": true
+  },
+  "operations": 0,
+  "movie": {
+    "filename": "tray-native.mov",
+    "sha256": "9860c1cc99d745e102294b7cb6b51b278d1630e85334351d2a053e85af908aeb",
+    "width": 652,
+    "height": 608,
+    "frames": 720,
+    "timelineFps": 30,
+    "actualCaptureSeconds": 23.91806233325042,
+    "medianFrameInterval": 0.033301833318546414,
+    "maxFrameInterval": 0.05034299986436963,
+    "uniqueCapture": "one fresh PID-window-array sample per stored video frame; lossless RGB"
+  }
+}
