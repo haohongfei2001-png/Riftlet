@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "reviewedBase": "329cee1d062d29361f9bdc52b01b6814a21ec7e5",
-  "reviewedSource": "8bae4c15bf1c9a197a6430786dcc610b42e731f1",
-  "reviewedTree": "b0059d600748711d37b0a4186869d10f5c95566b",
-  "authorRole": "stable_feed_release_operator",
+  "reviewedBase": "4c205b0744875fcd3bc1e16a9b5d995e0174325c",
+  "reviewedSource": "059064a36a6693b66c3b7982578355366d6ddce2",
+  "reviewedTree": "0b79943af4fbfe713895b1f89f3783d0ebed03a7",
+  "authorRole": "riftlet_search_discovery_author",
   "reviews": [
     {
-      "reviewer": "independent_native_and_public_site_release_reviewer",
-      "source": "8bae4c15bf1c9a197a6430786dcc610b42e731f1",
-      "tree": "b0059d600748711d37b0a4186869d10f5c95566b",
+      "reviewer": "automated_search_indexing_source_checker",
+      "source": "059064a36a6693b66c3b7982578355366d6ddce2",
+      "tree": "0b79943af4fbfe713895b1f89f3783d0ebed03a7",
       "result": "PASS",
-      "sha256": "cb659327fba9b79cc635f757ade569c86861b0d2d98547eaee7f9f6311a78447",
-      "report": "{\n  \"reviewer\": \"independent_native_and_public_site_release_reviewer\",\n  \"reviewedBase\": \"329cee1d062d29361f9bdc52b01b6814a21ec7e5\",\n  \"reviewedSource\": \"8bae4c15bf1c9a197a6430786dcc610b42e731f1\",\n  \"reviewedTree\": \"b0059d600748711d37b0a4186869d10f5c95566b\",\n  \"result\": \"PASS\",\n  \"checks\": [\n    \"Checked both parents of the combined G, the exact new main #75 base and all 13 changed blobs against the previously independently reviewed G. No homepage, tracker, CSS, GitHub workflow, source verifier, native code, bundled trust keys or product asset differs from #75. No extra website governance exception is introduced. This retains the anonymous public download and canonical read-only disk-image validation; opt-in authenticated GitHub metadata queries are fixed-repository GETs.\",\n    \"Checked the two 1.0.1 homepage download links, release links, bilingual 1.0.0 manual bootstrap, permissions and private feedback contact on the bytes now live from #75. Independently ran all six preserved analytics tests against this combined checkout. The update documentation covers daily checks and consent. The website and analytics privacy disclosures remain intact.\",\n    \"Independently verified codesign, notarized Gatekeeper and stapled tickets on both final universal App and final DMG. Verified archived Accepted receipts and the published immutable non-draft, non-prerelease GitHub entry. The public download receipt and API asset digest match the frozen 12,417,028-byte file, SHA-256 6443357f08a9dbda805cd5452695417ff8783f34fb7f2331eef08c719f7290a9.\",\n    \"Verified exactly one stable, noncritical 1.0.1/build 23 item with the versioned GitHub URL. Independently verified both complete signed XML and enclosure signatures with the shipped App public key and confirmed the immutable source feed SHA-256 4db8de3fed8ca0e81a62616152a54ae48077a08d7b4b3db8ce340a53b4164a21.\",\n    \"Production Pages byte-for-byte validation remains a post-deployment step. This report approves the exact source before deployment; it does not assert a completed deployment.\"\n  ]\n}\n"
+      "sha256": "78364306cb8c4a8ecdf65c2af763e0cc2104ae8b2f3009e49cb89ce23acb7141",
+      "report": "{\"reviewer\":\"automated_search_indexing_source_checker\",\"reviewedBase\":\"4c205b0744875fcd3bc1e16a9b5d995e0174325c\",\"reviewedSource\":\"059064a36a6693b66c3b7982578355366d6ddce2\",\"reviewedTree\":\"0b79943af4fbfe713895b1f89f3783d0ebed03a7\",\"result\":\"PASS\",\"checks\":[\"Nine-file source change inspected; official 1.0.1 download links, Sparkle feed, Umami instrumentation and native application remain unchanged.\",\"Public root IndexNow ownership key matches the expected key bytes, with valid canonical HTTPS sitemap and 2026-11-14 lastmod.\",\"Minimal SoftwareApplication JSON-LD names Riftlet and restricts product scope to macOS/Chrome ChatGPT drafts; official website title updated.\",\"Three Node tests ran successfully on the connected Mac (3 pass, 0 fail); source and policy checkpoint verified.\"],\"scope\":\"Automated static and remote Mac file-based checks only. Google Search Console ownership and real IndexNow receipt are NOT_RUN until verification/deployment; indexing is never guaranteed.\"}"
     }
   ],
   "productionAdmission": {

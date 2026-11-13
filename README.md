@@ -1,5 +1,7 @@
 # Riftlet 1.0.1
 
+[官方网站 · Official website](https://riftlet.com/)
+
 Riftlet 把 Mac 上刚截的图放在桌面边缘。在 Google Chrome 打开要使用的 ChatGPT 对话，点一下缩略图，图片就会出现在草稿里。原有文字和附件会保留，消息由你发送。
 
 [下载 Riftlet 1.0.1](https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.1/Riftlet-1.0.1.dmg) · [版本说明](https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.1) · [English quick start](docs/consumer/QUICK-START.en.md)
