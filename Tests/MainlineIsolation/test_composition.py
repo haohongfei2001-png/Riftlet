@@ -31,6 +31,7 @@ class MainlineCompositionTests(unittest.TestCase):
         self.git("config", "core.hooksPath", os.devnull)
         self.write("index.html", "approved website\n")
         self.write("CNAME", "fixture.invalid\n")
+        self.write("website-v2.css", "approved website style\n")
         self.website = self.commit("website")
         self.write("Sources/Main.swift", "reviewed product\n")
         self.write("Tests/Product.swift", "reviewed regression\n")
@@ -44,7 +45,7 @@ class MainlineCompositionTests(unittest.TestCase):
             foundation=self.foundation, foundation_tree=self.tree(self.foundation),
             foundation_parents=(self.website, self.legacy), legacy_source=self.legacy,
             legacy_gate_blob=self.git("rev-parse", self.legacy + ":" + AUDIT.LEGACY_GATE_PATH),
-            website_source=self.website, website_paths=("index.html", "CNAME"),
+            website_source=self.website, website_paths=("index.html", "CNAME", "website-v2.css"),
             historical_gates=(AUDIT.LEGACY_GATE_PATH,),
             historical_prefixes=("engineering/evidence/", "research/"),
         )
@@ -270,6 +271,33 @@ class MainlineCompositionTests(unittest.TestCase):
                 report = self.check(policy=policy)
                 self.assertTrue(any(c["id"] == "website:" + path and c["result"] == "FAIL"
                                     for c in report["checks"]))
+
+    def testHeroCTARequiresExactTwoFileCheckpointAndPreservesOtherWebsitePins(self):
+        base = self.merge(self.foundation, self.head)
+        self.git("checkout", "-q", "--detach", base)
+        self.write("index.html", "approved primary download CTA\n")
+        page = self.commit("approved single-file hero CTA")
+        self.write("website-v2.css", "approved secondary demo style\n")
+        style = self.commit("approved single-file CTA style")
+        policy = replace(self.policy, hero_cta_base=base, hero_cta_checkpoint=style)
+        head = self.admit(style, self.review_record(style, base))
+        published = self.merge(base, head)
+        self.check(published, expected="PASS", policy=policy)
+
+        # A different page, style, CNAME or review base must not inherit admission.
+        for path, content in (("index.html", "unapproved page\n"),
+                              ("website-v2.css", "unapproved style\n"),
+                              ("CNAME", "other.invalid\n")):
+            with self.subTest(path=path):
+                self.git("checkout", "-q", "--detach", published)
+                self.write(path, content)
+                source = self.commit("attempted unapproved website rewrite")
+                self.admit(source, self.review_record(source, published))
+                report = self.check(policy=policy)
+                self.assertTrue(any(c["id"] == "website:" + path and c["result"] == "FAIL"
+                                    for c in report["checks"]))
+        self.check(published, expected="FAIL",
+                   policy=replace(policy, hero_cta_base=self.foundation))
 
     def testEvidenceAddedByEarlierMainPRBecomesImmutable(self):
         self.write("engineering/evidence/new-acceptance.json", '{"result":"NOT_RUN"}\n')
