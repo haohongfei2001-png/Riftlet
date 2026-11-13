@@ -2,6 +2,12 @@
 
 适用于 Riftlet 0.3.5 (20) Public Beta，macOS 13 及以上的 Apple 芯片和 Intel Mac。请从 [riftlet.com](https://riftlet.com/) 下载 `Riftlet-0.3.5-20-universal.dmg`，并与[同一版本的校验文件](https://github.com/haohongfei2001-png/Riftlet/releases/download/v0.3.5-beta.1/SHA256SUMS.txt)比对 SHA-256。开发者签名的 Team ID 为 `ZB9D4T66QB`。
 
+SHA-256 (`Riftlet-0.3.5-20-universal.dmg`, 11,244,473 bytes)
+
+```text
+c4bdeeca1410cc42649c3e3b8437ddd704605013d90ed9553bdc242f2d74cc7a
+```
+
 从旧版本升级时，请先正常退出，备份当前完整的截图库，再替换原安装位置的 App。[手动更新与恢复](RECOVERY-AND-FAQ.md)
 
 1. 打开 DMG，将 **Riftlet.app** 拖入 **Applications（应用程序）**。已有 Riftlet 时先按[更新说明](RECOVERY-AND-FAQ.md)保留数据和上一版，替换原安装位置的 App。
