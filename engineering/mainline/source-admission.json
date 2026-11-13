@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
   "reviewedBase": "04c885ac86e7ff7b3b12d056699d912517721d60",
-  "reviewedSource": "6eda16a173df6c2b5bbcd41b0077905e5dc13d36",
-  "reviewedTree": "02637a270e21230cec562051c9cea9ba0c87601c",
-  "authorRole": "stable_feed_release_operator",
+  "reviewedSource": "1a5c3635468e7eaa55baa1b1a75d829c01f24208",
+  "reviewedTree": "279dac17a85b16be060351e0d88bd9de0826ee81",
+  "authorRole": "website_release_101_engineer",
   "reviews": [
     {
-      "reviewer": "independent_native_and_public_site_release_reviewer",
-      "source": "6eda16a173df6c2b5bbcd41b0077905e5dc13d36",
-      "tree": "02637a270e21230cec562051c9cea9ba0c87601c",
+      "reviewer": "automated_website_release_qa",
+      "source": "1a5c3635468e7eaa55baa1b1a75d829c01f24208",
+      "tree": "279dac17a85b16be060351e0d88bd9de0826ee81",
       "result": "PASS",
-      "sha256": "197f521867c141c15038f250fa4e23c367ea96cfb83310d38600a6d50b0c180d",
-      "report": "{\n  \"reviewer\": \"independent_native_and_public_site_release_reviewer\",\n  \"reviewedBase\": \"04c885ac86e7ff7b3b12d056699d912517721d60\",\n  \"reviewedSource\": \"6eda16a173df6c2b5bbcd41b0077905e5dc13d36\",\n  \"reviewedTree\": \"02637a270e21230cec562051c9cea9ba0c87601c\",\n  \"result\": \"PASS\",\n  \"checks\": [\n    \"Checked the actual base, source merge retaining previous PR history and the newly integrated main #73 website checkpoint, exact source tree, homepage checkpoint paths and one explicit matching historical verifier entry. The rest of the delta is the three independently inspected documentation/homepage patches and the signed stable.xml. Reviewed the releasing tool\\u2019s opt-in authenticated fixed-repository read-only GitHub metadata call and ran its exact regression. The generator also resolves its temporary workspace before verifying the exact hdiutil read-only mount, now exercised against the public file. Public release asset download remains anonymous. No native code, bundled updater trust settings, product resources, analytics or visual runtime scripts, CSS or binaries changed relative to #73. The only analytics test adjustment updates its expected download and event version to 1.0.1.\",\n    \"Checked both versioned homepage download and release links, approved visual assets and scripts, English/Chinese and no-JavaScript content, Chrome and macOS compatibility, 1.0.0 manual bootstrap, later daily check and explicit install, private feedback/mailto and privacy guide. Existing headless browser evidence covers desktop/mobile Chinese and English and the fallback with five cases and zero runtime exceptions; its previous copy is retained except the main #73 analytics loader and download attributes. Independently reran the six analytics tests against this exact combined tree and inspected preserved opt-out and privacy disclosures.\",\n    \"Independently verified codesign, notarized Gatekeeper and stapled tickets on both final universal App and final DMG. Verified archived Accepted receipts and the published immutable non-draft, non-prerelease GitHub entry. The public download receipt and API asset digest match the frozen 12,417,028-byte file, SHA-256 6443357f08a9dbda805cd5452695417ff8783f34fb7f2331eef08c719f7290a9.\",\n    \"Verified exactly one stable, noncritical 1.0.1/build 23 item with the versioned GitHub URL. Independently verified both complete signed XML and enclosure signatures with the shipped App public key and confirmed the immutable source feed SHA-256 4db8de3fed8ca0e81a62616152a54ae48077a08d7b4b3db8ce340a53b4164a21.\",\n    \"Production Pages byte-for-byte validation remains a post-deployment step. This report approves the exact source before deployment; it does not assert a completed deployment.\"\n  ]\n}\n"
+      "sha256": "33faf682349bfef244122bf519d17d73d50807e5c86a7c23efbc1d17d332a52c",
+      "report": "{\"reviewer\":\"automated_website_release_qa\",\"reviewedBase\":\"04c885ac86e7ff7b3b12d056699d912517721d60\",\"reviewedSource\":\"1a5c3635468e7eaa55baa1b1a75d829c01f24208\",\"reviewedTree\":\"279dac17a85b16be060351e0d88bd9de0826ee81\",\"result\":\"PASS\",\"checks\":[\"Exact eight-file scope; no native App, Sparkle, update feed, site assets or Umami script changed.\",\"Both existing official DMG links and tracking events point to 1.0.1; release v1.0.1 is published and verified.\",\"Chinese and English SEO, hero, FAQ, release dialog, install/update/README and analytics test references were synchronized.\",\"Original 1.0.0 users are accurately directed to one manual replacement before in-app updates.\",\"Reviewed website-only checkpoint has exactly index.html and website/README.md; mainline policy pin present.\"],\"scope\":\"Automated code, source and content checks; no separate human review or live browser download claim.\"}"
     }
   ],
   "productionAdmission": {

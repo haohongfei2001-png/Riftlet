@@ -26,7 +26,7 @@ Old `site.*`, `website-product.*`, `website-hero.*` and `website-locale.js` file
 
 ## Native product availability and support boundary
 
-**Riftlet 1.0.1** is available from the homepage as `Riftlet-1.0.1.dmg`. The universal Mac package supports macOS 13 or later on Apple silicon and Intel. The current one-click attachment target is an editable ChatGPT draft in Google Chrome. A standard macOS user can install it in the Applications folder under their home directory. Users of 1.0.0 replace their app once using the disk image. Starting with 1.0.1, Riftlet checks daily by default and asks before installing. The menu bar also offers Check for Updates (检查更新…). Other browsers, the ChatGPT desktop app and read-only drafts are unsupported.
+**Riftlet 1.0.1** is available from the homepage as `Riftlet-1.0.1.dmg`. The universal Mac package supports macOS 13 or later on Apple silicon and Intel. The current one-click attachment target is an editable ChatGPT draft in Google Chrome. A standard macOS user can install it in the Applications folder under their home directory. Riftlet 1.0.1 includes in-app update checks for future releases. Existing 1.0.0 users need one manual App replacement first. Other browsers, the ChatGPT desktop app and read-only drafts are unsupported.
 
 The website's interactive demo is separate from the native app. It does not expand native support or claim real ChatGPT upload acceptance. Refer to the current [consumer support matrix](../docs/consumer/SUPPORT-MATRIX.md), [installation and permissions guide](../docs/consumer/INSTALL-AND-PERMISSIONS.md), and [release notes](https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.1) for the authoritative product details.
 
@@ -42,10 +42,10 @@ The illustrated handoff separates simulated upload-start evidence from final att
 
 Keep GitHub Pages on `main`, repository root, custom domain `riftlet.com`. Do not add a new hosting service or alter DNS to publish this static page. A website commit triggers the existing Pages build and deployment.
 
-Publish the verified, immutable GitHub release before merging the reviewed homepage links and signed stable feed into main together. If distribution needs to be suspended, update the links in a new reviewed commit and preserve the original release artifact.
+The release page must serve the verified DMG before activating its homepage links. If distribution needs to be suspended, update the links in a new reviewed commit and preserve the original release artifact.
 
 ## Verification
 
-Check the two download links, installation dialog, permissions FAQ, one-time upgrade from 1.0.0, in-app update instructions, feedback link and privacy contact in both languages. Check the static download links with JavaScript disabled. Verify the deployed `riftlet-website-version` marker, follow a link from the live homepage, then compare the downloaded file against the independently recorded SHA-256.
+Check the two download links, installation dialog, permissions FAQ, manual update instructions, feedback link and privacy contact in both languages. Check the static download links with JavaScript disabled. Verify the deployed `riftlet-website-version` marker, follow a link from the live homepage, then compare the downloaded file against the independently recorded SHA-256.
 
 See [RELEASE_2026-10-30.md](RELEASE_2026-10-30.md) for the original v2 design release scope and asset provenance.
