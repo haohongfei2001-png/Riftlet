@@ -289,8 +289,13 @@ def operate(args):
         except BlockingIOError: raise R.ReleaseError("dmg_operation_already_running") from None
         build = manifest["build"]
         arch = "universal" if len(build["architectures"]) > 1 else build["architectures"][0]
+        if build.get("distributionChannel") == "stable":
+            suffix = "" if arch == "universal" else "-" + arch
+            filename = f"Riftlet-{build['version']}{suffix}.dmg"
+        else:
+            filename = f"Riftlet-{build['version']}-{build['build']}-{arch}.dmg"
         identity = {"schema": 1, "manifestSHA256": args.manifest_sha256, "teamID": args.team,
-                    "name": f"Riftlet-{build['version']}-{build['build']}-{arch}.dmg",
+                    "name": filename,
                     "version": build["version"], "build": build["build"], "architectures": build["architectures"],
                     "source": build["source"]["commit"], "appSubmissionID": manifest["notarization"]["submissionID"]}
         if args.command == "create":

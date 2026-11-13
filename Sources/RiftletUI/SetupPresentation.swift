@@ -38,13 +38,13 @@ public enum SetupIssue: Equatable, Sendable {
     public var text: String {
         switch self {
         case .attachmentSource:
-            return "这张图片暂未开放自动附加。本次未上传，原图与本地历史保留；系统截图的既有流程不受影响。"
+            return "这张图片来自不支持一键附加的来源。请在 ChatGPT 中手动选择原图。"
         case .attachmentFormat:
-            return "截图已保存在本机。当前真实截图候选只接收原样、非交错的 8-bit RGBA PNG；本图未上传、未转换，原文件与私有副本保留。"
+            return "截图已保存在本机。此 PNG 格式暂不支持一键附加，请在 ChatGPT 中手动选择原图。"
         case .attachmentBytes:
-            return "截图已保存在本机，但超过当前附件通路可传输的大小。本图未上传，原文件与私有副本保留。"
+            return "截图已保存在本机。文件太大，无法一键附加。可以截取较小的区域，或在 ChatGPT 中手动选择原图。"
         case .attachmentPixels:
-            return "截图已保存在本机，但超过当前附件通路可处理的像素上限。本图未上传，原文件与私有副本保留。"
+            return "截图已保存在本机。图片尺寸过大，无法一键附加。可以截取较小的区域。"
         case .sourceAccess:
             return "无法读取截图保存位置。请确认文件夹仍存在，在系统设置「隐私与安全性 → 文件与文件夹」中检查 Riftlet，或允许访问当前截图位置；原截图没有被删除。"
         case .sourceVolumeUnidentified:
@@ -82,7 +82,7 @@ public enum SetupIssue: Equatable, Sendable {
         case .initializationFailed:
             return "Riftlet 未能完成启动。已有数据保留；请检查磁盘与文件访问权限，再重新打开应用。"
         case .configurationUnavailable:
-            return "部分本地设置暂不可用。已有截图与上传记录保留；未通过删除数据重置状态。"
+            return "部分设置无法读取。请在“权限与帮助”的“关于与诊断”中点“重新读取配置”。"
         case .visibilityPreferenceUnsaved:
             return "显示偏好未能保存；本次运行保持隐藏，重启可能恢复之前的设置。请检查磁盘可写后重新操作；图片仍保留。"
         case .collectionPreferenceUnsaved:
@@ -175,7 +175,7 @@ public struct SetupPresentation: Equatable, Sendable {
         case .systemScreenshotCandidate:
             return "截图自然地停在桌面边缘。内部候选只在目标与图片均通过核验后，附加到当前聊天草稿。"
         case .available:
-            return "截图自然地停在桌面边缘。需要时，点一下，进入当前受支持的聊天草稿。"
+            return "新截图出现在桌面边缘。打开 Chrome 中的 ChatGPT 对话，点一下截图就能附加。"
         case .unsupportedBrowser, .targetUnavailable:
             return "截图自然地停在桌面边缘。当前附加目标不可用，图片留在本机。"
         }
@@ -203,24 +203,30 @@ public struct SetupPresentation: Equatable, Sendable {
         case .systemScreenshotCandidate:
             return "仅在获准的内部验收中，使用新截图与受支持的 Chrome 普通已有对话。无需先聚焦发言框；目标和原样图片仍须通过核验。"
         case .available:
-            return "回到受支持的当前聊天草稿，用一张新的截图开始。只有唯一目标通过核验后才附加图片。"
+            return "在 Chrome 中打开要使用的 ChatGPT 对话，截一张图，再点桌面边缘的缩略图。"
         case .unsupportedBrowser, .targetUnavailable:
             return "先检查当前浏览器与聊天草稿。截图继续保留，不会切换到其他窗口或自动再次附加。"
         }
     }
 
-    public var sourceText: String {
-        if let issue = snapshot.issue,
-           [.screenshotFolderNeedsSelection, .wrongScreenshotFolder, .sourceVolumeUnidentified, .fileVolumeUnidentified, .historicalSourceUnconfirmed].contains(issue) {
-            return issue.text
+    var sourceIssue: SetupIssue? {
+        switch snapshot.issue {
+        case .screenshotFolderNeedsSelection, .wrongScreenshotFolder, .sourceVolumeUnidentified,
+             .fileVolumeUnidentified, .historicalSourceUnconfirmed:
+            return snapshot.issue
+        default: return nil
         }
+    }
+
+    public var sourceText: String {
+        if let sourceIssue { return sourceIssue.text }
         switch snapshot.source {
         case .checking: return "正在检查系统截图保存位置。"
-        case .notChecked: return "尚未检查截图位置的访问状态；暂停收录时不会据此判断权限被拒绝。"
+        case .notChecked: return "尚未检查截图文件夹的访问权限。"
         case .notApplicable: return "此模式不读取系统截图文件夹。"
         case .accessible: return "截图位置可读取。"
-        case .unavailable: return "截图位置目前不可访问。按 ⇧⌘5，在“选项”中确认保存位置。允许 Riftlet 读取这个文件夹后，点“重新检查”。"
-        case .notConfigured: return "尚未找到截图文件夹。按 ⇧⌘5，在“选项”中确认截图存储在文件夹，再点“重新检查”。"
+        case .unavailable: return "截图位置目前不可访问。请确认文件夹仍在原处，再点“允许访问此位置…”重新选择。"
+        case .notConfigured: return "尚未找到截图文件夹。打开 Mac 的“截屏”应用，在“选项”中将截图存储到文件夹，然后点“重新检查”。"
         }
     }
 
@@ -235,13 +241,13 @@ public struct SetupPresentation: Equatable, Sendable {
 
     public var collectionText: String {
         switch snapshot.collection {
-        case .starting: return "收录正在准备；尚不能确认新截图已保存。"
+        case .starting: return "正在准备收录新截图。"
         case .collecting:
             if let issue = snapshot.issue, [.sourceVolumeUnidentified, .fileVolumeUnidentified, .historicalSourceUnconfirmed].contains(issue) {
                 return issue.text
             }
-            return "正在收录新截图，并保留本机私有副本。"
-        case .waitingForSource: return "收录开关已开启；当前保存位置尚未确认可读，请检查来源。已有图片保留。"
+            return "正在收录新截图。"
+        case .waitingForSource: return "收录开关已开启。请确认 Riftlet 可以访问截图文件夹。"
         case .paused: return "收录已暂停；已有截图保留。隐藏桌面截图不会自动暂停收录。"
         case .stopped: return "当前未收录新截图；已有截图保留。"
         }
@@ -257,7 +263,7 @@ public struct SetupPresentation: Equatable, Sendable {
 
     public var pendingText: String? {
         guard snapshot.pendingCount > 0 else { return nil }
-        return "\(snapshot.pendingCount) 张结果待核实 · 图片仍保存在本机，不会自动再次附加。可在内部历史查看。"
+        return "\(snapshot.pendingCount) 张结果待核实 · 图片仍保存在本机，不会自动再次附加。可在截图历史中查看。"
     }
 
     public var attachmentText: String {
@@ -274,7 +280,7 @@ public struct SetupPresentation: Equatable, Sendable {
         case .offlineSimulation:
             return "当前是离线模拟，仅演示生成图片的显示与状态变化；没有连接 ChatGPT。"
         case .available:
-            return "仅向当前唯一、受支持的 ChatGPT 草稿附加图片；不会替你发送消息。"
+            return "在 Chrome 中打开要使用的 ChatGPT 对话，点击桌面边缘的截图即可附加。消息由你发送。"
         case .unsupportedBrowser:
             return "当前浏览器不受支持。截图保留，不会切换到其他浏览器或聊天。"
         case .targetUnavailable:
@@ -288,13 +294,13 @@ public struct SetupPresentation: Equatable, Sendable {
         guard hasAutomationCapability else { return nil }
         switch snapshot.permission {
         case .notNeeded: return nil
-        case .notChecked: return "尚未检查 Chrome 自动化权限。只有你点“检查 Chrome 权限…”，Riftlet 才会申请访问。"
-        case .notRequested: return "点击“检查 Chrome 权限…”，允许 Riftlet 在你点截图时把图片交给 Chrome。"
+        case .notChecked: return "尚未检查 Chrome 自动化权限。点“检查 Chrome 权限…”按 macOS 提示操作。"
+        case .notRequested: return "点“检查 Chrome 权限…”，在 macOS 提示中允许 Riftlet 控制 Chrome。"
         case .granted: return "macOS 已允许 Riftlet 与 Chrome 通信。"
         case .denied: return "Chrome 自动化访问被拒绝。打开“系统设置 → 隐私与安全性 → 自动化”，在 Riftlet 下允许 Google Chrome，再回到这里点“重新检查”。"
         case .notRunning: return "Chrome 尚未运行。请打开 Google Chrome，再点“重新检查”。"
         case .browserUnavailable: return "没有找到受支持的 Google Chrome 应用。"
-        case .unavailable: return "暂时无法确认 Chrome 自动化权限。打开 Google Chrome 后，点“重新检查”。"
+        case .unavailable: return "打开 Google Chrome，再点“重新检查”查看自动化权限。"
         }
     }
 

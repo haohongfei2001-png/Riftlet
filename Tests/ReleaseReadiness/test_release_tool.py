@@ -357,6 +357,22 @@ class ReleaseTest(unittest.TestCase):
         for build in ("0", "-1", "01", 2):
             with self.subTest(build=build): self.error("invalid_build", R.version_values, "0.2.0", build)
 
+    def test_stable_channel_must_match_reviewed_source_identity(self):
+        original = plistlib.loads((ROOT / "Resources/Info.plist").read_bytes())
+        version, build = original["CFBundleShortVersionString"], original["CFBundleVersion"]
+        info = dict(original)
+        source = R.stage_version(info, version, build, "Riftlet", stable=True)
+        self.assertEqual(info["RiftletBuildChannel"], "release")
+        with self.assertRaisesRegex(R.ReleaseError, "stable_version_differs_from_source"):
+            R.stage_version(dict(original), version, str(int(build) + 1), "Riftlet", stable=True)
+        receipt = dict(self.receipt, version=version, build=build, versionLabel="Riftlet",
+                       sourceVersion=source, distributionChannel="stable")
+        R.validate_receipt(receipt)
+        R.validate_release_info({k: v for k, v in info.items() if k not in
+                                 ("RiftletDeveloperIDSigned", "RiftletNotarized")}, receipt)
+        receipt["versionLabel"] = "Personal RC"
+        self.error("invalid_stable_release_identity", R.validate_receipt, receipt)
+
     def test_staging_explicit_version_label_preserves_source_identity_and_other_keys(self):
         original = plistlib.loads((ROOT / "Resources/Info.plist").read_bytes())
         info = dict(original)

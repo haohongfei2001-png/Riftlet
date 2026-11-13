@@ -1,12 +1,12 @@
 # 找回图片、排除故障与手动更新
 
-**共享 Mac 上只有安装者能打开 Riftlet。** build 18 在共享「应用程序」中有这个问题，build 19 已修复安装包的读取和执行权限。非管理员账户完整的图形首开仍待验证。核对版本和安装位置；无需重置截图库或修改系统安全设置。
+**非管理员账户如何安装？** 在 Finder 中打开个人主文件夹，把磁盘映像中的 Riftlet.app 拖入自己的 `Applications` 文件夹。从这个位置打开 App 并完成引导。同一台 Mac 上的每个账户各自授权截图文件夹与 Chrome。[安装与权限](INSTALL-AND-PERMISSIONS.md)
 
-**没看到新微图。** 单击菜单栏 Riftlet 图标，查看是否「暂停收录」或「隐藏桌面截图」。前者停止收录，后者只改变桌面显示。打开「截图历史」看是否已经归档，再到「设置 → 截图 → 打开位置」确认系统截图已写入文件夹。剪贴板截图、仍在浮动预览中的截图，以及首次打开之前的旧文件都可能不会进入队列。若目录不可读，点「允许访问此位置…」选择当前系统截图目录，然后在「权限与帮助」点「重新检查」。恢复收录时，暂停期间保存并仍在目录里的合格截图可能被补收。[安装与权限](INSTALL-AND-PERMISSIONS.md)
+**没看到新微图。** 单击菜单栏 Riftlet 图标，查看是否「暂停收录」或「隐藏桌面截图」。前者停止收录，后者只改变桌面显示。打开「截图历史」看是否已经归档，再到「设置 → 截图 → 在 Finder 中打开」确认系统截图已写入文件夹。剪贴板截图、仍在浮动预览中的截图，以及首次打开之前的旧文件都可能不会进入队列。若目录不可读，点「允许访问此位置…」选择当前系统截图目录，然后在「权限与帮助」点「重新检查」。恢复收录时，暂停期间保存并仍在目录里的合格截图可能被补收。[安装与权限](INSTALL-AND-PERMISSIONS.md)
 
-**找回原图或已归档的微图。** 从菜单栏打开「截图历史」，在当前页按时间或记录编号搜索；更早的记录可翻页。列表和图像网格显示同一段历史。选中记录后，「查看原图」或「在 Finder 中显示」可查看 Riftlet 保存的本地副本；macOS 保存的原文件在「设置 → 截图 → 打开位置」。可恢复的已归档或已移出图片会显示可用的「恢复到桌面」，恢复微图本身不会上传。闲置后自动归档仅影响可见队列，默认 2 分钟，可设 1–10 分钟或关闭。
+**找回原图或已归档的微图。** 从菜单栏打开「截图历史」，在当前页按时间或记录编号搜索；更早的记录可翻页。列表和图像网格显示同一段历史。选中记录后，「查看原图」或「在 Finder 中显示」可查看 Riftlet 保存的本地副本；macOS 保存的原文件在「设置 → 截图 → 在 Finder 中打开」。可恢复的已归档或已移出图片会显示可用的「恢复到桌面」，恢复微图本身不会上传。闲置后自动归档仅影响可见队列，默认 2 分钟，可设 1–10 分钟或关闭。
 
-**点过图片，草稿里没有。** 保留原聊天，先看附件区是否已经收到本图，再看历史状态。若明确提示本次未附加，可按提示修正权限或打开可编辑草稿。网页开始接收本张图片时，Riftlet 记录 `START` 并收起微图；之后历史仍可能显示「结果待核实」。单凭历史标签无法判断是否已有 `START`，上传进度和最终结果请看原草稿。不确定的操作（`UNKNOWN`）会保留，不会自动重传；不要为验证结果反复点击或清库。若出现错图、错投、重复、正文变化或图像丢失，停止对这张图的操作，私下报告发生时间和现象。[反馈说明](FEEDBACK-TEMPLATE.md)
+**点过图片，草稿里没有。** 先查看刚才那个聊天的附件区，再看「截图历史」。若提示未附加，请按提示检查权限并打开可编辑的草稿。缩略图收起表示网页已开始接收，上传进度请看草稿。若显示「结果待核实」，Riftlet 会保留记录。请先确认原聊天中是否已有这张图，以免重复添加。若发现错图、重复或文字变化，可私下反馈发生时间及现象。[反馈说明](FEEDBACK-TEMPLATE.md)
 
 **设置显示保存失败。** 暂停收录、隐藏桌面截图、关闭内置截图入口可以先停止当前行为，再保存。使用出错项目旁的重试维持该次选择，能否在重启后保留应看该项的保存结果。
 
@@ -16,7 +16,7 @@
 
 1. 当前采用**手动更新**。保留现有 App 和经验证的旧安装包，从 [Riftlet 版本页面](https://github.com/haohongfei2001-png/Riftlet/releases)取得新版本。从菜单栏右键选「退出 Riftlet」。在 Finder「前往文件夹」输入 `~/Library/Application Support/Riftlet/`，退出后备份整个文件夹，其中包括队列数据库及其附属文件、图片、副本、收录记录、配置及反馈。单独保留系统截图原件；维护者还需核对应用偏好、钥匙串与系统权限，这些不会被普通文件夹完整备份。
 2. 核对新 DMG 的版本、来源和校验值，再仅替换原安装位置的 Riftlet.app。启动后检查已有历史、设置、目录访问以及一张新截图。旧版关闭了自动归档或使用 1–10 分钟时限时，升级会保留该选择；其他旧正时限回到 2 分钟。
-3. 如果更新失败，正常退出，保存**最新**的完整数据、旧包和新包。请维护者先验证旧 App 确实兼容当前数据，再作 App 回退。**Personal Beta 3（0.3.0）读不了现行 v4 截图库**；这种情况应使用兼容 v4 的新版或修复版恢复。不得用升级前的数据库覆盖新历史。
+3. 如果更新失败，正常退出，保存**最新**的完整数据、旧包和新包。请维护者先验证旧 App 确实兼容当前数据，再作 App 回退。部分早期版本无法读取现在的截图库，遇到这种情况应使用与当前截图库兼容的新版恢复。不得用升级前的数据库覆盖新历史。
 4. 要卸载，可先关闭「设置 → 使用与历史 → 登录时启动 Riftlet」，正常退出，再把 App 移到废纸篓。原始截图、本地数据目录、偏好、反馈凭证和备份保留。已发送反馈如需撤回，先在反馈窗口申请删除并查看结果；卸载本身不会撤回反馈。
 
-**English.** Check History before retrying an uncertain attachment. For a manual update, quit Riftlet, keep the old app and a verified backup of the complete current library, check the new package and replace only the app in its existing location. For recovery, protect the **latest** library; Beta 3 cannot read the v4 queue. Uninstalling the app leaves the library, preferences, originals, backups and feedback credentials in place.
+**English.** Check History before retrying an uncertain attachment. For a manual update, quit Riftlet, keep the old app and a verified backup of the complete current library, check the new package and replace only the app in its existing location. For recovery, keep the **latest** library intact. Some older releases cannot read the current library format. Uninstalling the app leaves the library, preferences, originals, backups and feedback credentials in place.

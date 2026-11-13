@@ -43,6 +43,8 @@ enum FirstUseSelfCheck {
         let first = FirstUsePreferences(defaults: defaults, modeName: "isolated")
         guard first.needsAutomaticPresentation else { throw RiftletError.invalidTransition }
         first.recordPresentation()
+        guard first.needsAutomaticPresentation else { throw RiftletError.invalidTransition }
+        first.recordCompletion()
         guard !FirstUsePreferences(defaults: defaults, modeName: "isolated").needsAutomaticPresentation else {
             throw RiftletError.invalidTransition
         }

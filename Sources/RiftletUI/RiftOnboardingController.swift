@@ -1,5 +1,34 @@
 import AppKit
 
+/// The host measures this only after an explicit Chrome check.
+public enum OnboardingChromeConnection: Equatable, Sendable {
+    case unchecked, checking, ready, javaScriptDisabled, noWindow, unavailable
+}
+
+public extension SettingsProductSnapshot {
+    var onboardingReady: Bool { !reviewEnvironment && firstIncompleteOnboardingStep == nil }
+
+    fileprivate var firstIncompleteOnboardingStep: Int? {
+        guard capabilities.initialized, setup.source == .accessible, setup.collection == .collecting,
+              !state.owner.collectionPaused, !state.owner.isHidden, !setup.isHidden else { return 0 }
+        switch setup.issue {
+        case .initializationFailed, .sourceAccess, .wrongScreenshotFolder, .screenshotFolderNeedsSelection,
+             .insufficientSpace, .privateWriteFailed, .sourceVolumeUnidentified: return 0
+        default: break
+        }
+        switch setup.storage {
+        case .insufficientSpace, .writeFailed: return 0
+        default: break
+        }
+        guard setup.attachment == .available, setup.permission == .granted,
+              chromeConnection == .ready, setup.issue != .chromeJavaScriptDisabled else { return 1 }
+        for domain in [SettingsDomain.placement, .display] {
+            if let setting = state.domains[domain], setting.isSaving || setting.hasIssue { return 2 }
+        }
+        return nil
+    }
+}
+
 /// Three-step guidance uses the same host facts and explicit settings commands.
 /// Its only local state is navigation; it stores no permission/completion flags.
 @MainActor
@@ -7,11 +36,12 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
     public static let windowIdentifier = NSUserInterfaceItemIdentifier("RiftletOnboarding")
     public let window: NSWindow
     public private(set) var currentStep = 0
+    public private(set) var presentationID = UUID()
     public var isVisible: Bool { window.isVisible }
     private let onAction: SettingsProductActionHandler
     private var snapshot: SettingsProductSnapshot?
     private var hasPresented = false
-    private var finishedThisPresentation = false
+    private var finishing = false
     private var busy: Set<SettingsDomain> = []
     private var controls: [String: NSView] = [:]
     private var pages: [NSView] = []
@@ -21,15 +51,15 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
     private let next = SettingsNativeStyle.button("继续")
     private let back = SettingsNativeStyle.button("上一步")
     private let later = SettingsNativeStyle.button("稍后设置")
-    private let introTitle = SettingsNativeStyle.label("从截图到输入。\n点一下就够了。", role: "title")
+    private let introTitle = SettingsNativeStyle.label("让截图出现在桌面边缘", role: "title")
     private let introDescription = SettingsNativeStyle.label("")
     private let introCapability = SettingsNativeStyle.label("", role: "secondary")
     private let sourceDetail = SettingsNativeStyle.label("", role: "secondary")
     private let sourcePath = SettingsNativeStyle.label("", role: "caption")
     private let automationDetail = SettingsNativeStyle.label("", role: "secondary")
     private let scriptDetail = SettingsNativeStyle.label("")
-    private lazy var chromeMenuSection = section("在 Chrome 中开启一键附加", symbol: "menubar.rectangle", views: [scriptDetail])
-    private let permissionHint = SettingsNativeStyle.label("", role: "caption")
+    private let connectionStatus = SettingsNativeStyle.label("", role: "secondary")
+    private lazy var chromeMenuSection = section("在 Chrome 中开启一键附加", symbol: "menubar.rectangle", views: [scriptDetail, connectionStatus, actionButton("检查连接", id: "onboarding.checkChrome")])
     private let sourceAccess = SettingsNativeStyle.button("允许访问…")
     private let automation = SettingsNativeStyle.button("检查 Chrome 权限…")
     private let display = NSPopUpButton(frame: .zero, pullsDown: false)
@@ -63,14 +93,15 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         refreshFacts()
     }
 
-    /// Returning true is the host's boundary for the existing presented.v1 key.
+    /// The host records the first presentation separately from successful setup.
     /// This never writes a first-use/completion preference itself.
     @discardableResult
     public func show() -> Bool {
         guard snapshot != nil, let screen = window.screen ?? NSScreen.main ?? NSScreen.screens.first else { return false }
         let previousFrame = window.frame
         if !isVisible {
-            currentStep = 0; finishedThisPresentation = false
+            presentationID = UUID()
+            currentStep = 0; finishing = false
             refreshStep()
         }
         if !hasPresented {
@@ -113,7 +144,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         scroll.translatesAutoresizingMaskIntoConstraints = false
         content.translatesAutoresizingMaskIntoConstraints = false
         root.addSubview(progress); root.addSubview(scroll)
-        for (index, title) in ["截图", "连接", "位置"].enumerated() {
+        for (index, title) in ["截图文件夹", "连接 Chrome", "桌面位置"].enumerated() {
             if index > 0 {
                 let separator = NSImageView()
                 separator.image = NSImage(systemSymbolName: "chevron.right", accessibilityDescription: nil)?
@@ -162,7 +193,6 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         controls["onboarding.introDescription"] = introDescription
         controls["onboarding.capability"] = introCapability
         introTitle.font = .systemFont(ofSize: 28, weight: .semibold)
-        let intro = page([introTitle, introDescription, RiftOnboardingPlacementPreview(workflow: true), introCapability])
         sourceAccess.identifier = .init("onboarding.sourceAccess")
         sourceAccess.target = self; sourceAccess.action = #selector(actionPressed(_:))
         controls["onboarding.sourceAccess"] = sourceAccess
@@ -173,12 +203,23 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         automationDetail.identifier = .init("onboarding.automationStatus")
         scriptDetail.identifier = .init("onboarding.scriptStatus")
         controls["onboarding.scriptStatus"] = scriptDetail
+        controls["onboarding.sourceStatus"] = sourceDetail
+        controls["onboarding.automationStatus"] = automationDetail
+        controls["onboarding.connectionStatus"] = connectionStatus
+        let intro = page([
+            introTitle, introDescription,
+            section("截图保存位置", symbol: "folder", views: [
+                sourcePath, sourceDetail, sourceAccess,
+                actionButton("继续收录", id: "onboarding.resume"),
+                actionButton("显示桌面截图", id: "onboarding.unhide"),
+                actionButton("重新检查文件夹", id: "onboarding.recheck")
+            ]),
+            introCapability, RiftOnboardingPlacementPreview(workflow: true)
+        ])
         let connections = page([
-            SettingsNativeStyle.label("连接截图与草稿", role: "title"),
-            chromeMenuSection,
-            section("截图文件夹", symbol: "folder", views: [sourceDetail, sourcePath, sourceAccess]),
-            section("允许 Riftlet 控制 Chrome", symbol: "macwindow", views: [automationDetail, automation]),
-            permissionHint, actionButton("重新检查连接", id: "onboarding.recheck")
+            SettingsNativeStyle.label("把截图附加到 ChatGPT", role: "title"),
+            section("允许 Riftlet 连接 Chrome", symbol: "macwindow", views: [automationDetail, automation]),
+            chromeMenuSection
         ])
         display.identifier = .init("onboarding.display"); display.setAccessibilityLabel("所在显示器")
         display.target = self; display.action = #selector(displayChanged)
@@ -253,32 +294,44 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         let preservedFrame = hasPresented ? window.frame : nil
         defer { if let preservedFrame { layout(keeping: preservedFrame) } }
         let presentation = SetupPresentation(snapshot: snapshot.setup)
-        if snapshot.setup.attachment == .available || snapshot.reviewEnvironment {
-            introTitle.stringValue = "从一张截图开始"
-            introDescription.stringValue = "照常按 ⇧⌘4 截图。将目标 ChatGPT 草稿留在 Chrome 前台，点一下屏幕边缘的微图即可附加。"
-        } else {
-            introTitle.stringValue = presentation.firstUseTitle
-            introDescription.stringValue = presentation.firstUseDescription
-        }
+        let ordinary = snapshot.setup.attachment == .available || snapshot.reviewEnvironment
+        introTitle.stringValue = ordinary ? "让截图出现在桌面边缘" : presentation.firstUseTitle
+        introDescription.stringValue = ordinary
+            ? "Riftlet 会收录这个文件夹里的新截图。在 Chrome 打开 ChatGPT 对话后，点桌面边缘的缩略图即可附加。"
+            : presentation.firstUseDescription
         introCapability.stringValue = snapshot.reviewEnvironment
-            ? "当前为隔离审核：只演示本机流程，不连接浏览器或上传。"
-            : presentation.firstUseCapability
-        sourceDetail.stringValue = presentation.sourceText
+            ? "当前为隔离审核：不连接浏览器或上传。" : ""
+        introCapability.isHidden = introCapability.stringValue.isEmpty
+        sourceDetail.stringValue = sourceStatus(snapshot)
         sourcePath.stringValue = presentation.sourcePath
         sourcePath.isHidden = !presentation.hasSourceLocation
+        sourceAccess.title = "选择截图文件夹…"
+        sourceAccess.setAccessibilityLabel(sourceAccess.title)
         sourceAccess.isHidden = !presentation.needsSourceAccess
-        sourceAccess.isEnabled = snapshot.capabilities.canChooseSource && presentation.needsSourceAccess
-        automationDetail.stringValue = presentation.automationStatusText ?? "当前模式不需要 Chrome 自动化。"
+        sourceAccess.isEnabled = snapshot.capabilities.canChooseSource && !sourceAccess.isHidden
+        configureAction("onboarding.resume", visible: snapshot.state.owner.collectionPaused,
+                        enabled: snapshot.capabilities.canChangeCollection && !busy.contains(.collection))
+        configureAction("onboarding.unhide", visible: snapshot.state.owner.isHidden,
+                        enabled: snapshot.capabilities.canChangeVisibility && !busy.contains(.visibility))
+        configureAction("onboarding.recheck", visible: snapshot.firstIncompleteOnboardingStep == 0,
+                        enabled: snapshot.capabilities.canRecheck)
+        automationDetail.stringValue = presentation.automationStatusText ?? "此模式仅使用本机截图。"
         automation.title = presentation.permissionActionTitle
         automation.setAccessibilityLabel(automation.title)
-        automation.isEnabled = snapshot.capabilities.canRequestAutomation && presentation.canRequestPermission
-        automation.isHidden = snapshot.setup.permission == .notNeeded
+        automation.isHidden = snapshot.setup.permission == .notNeeded || snapshot.setup.permission == .granted
+        automation.isEnabled = !automation.isHidden && snapshot.capabilities.canRequestAutomation && presentation.canRequestPermission
+        if snapshot.setup.permission == .notRunning || snapshot.setup.permission == .browserUnavailable {
+            automation.title = "重新检查 Chrome"
+            automation.setAccessibilityLabel(automation.title)
+            automation.isEnabled = snapshot.capabilities.canRecheck
+        }
         scriptDetail.stringValue = presentation.chromeScriptInstructions ?? ""
         chromeMenuSection.isHidden = presentation.chromeScriptInstructions == nil
-        permissionHint.stringValue = snapshot.screenRecording == .granted
-            ? "Riftlet 内置截图已获屏幕录制权限。"
-            : "只用 ⇧⌘4 截图时，无需授予屏幕录制权限。"
-        (controls["onboarding.recheck"] as? NSButton)?.isEnabled = snapshot.capabilities.canRecheck
+        connectionStatus.stringValue = chromeStatus(snapshot.chromeConnection)
+        let chromeCheck = controls["onboarding.checkChrome"] as? NSButton
+        chromeCheck?.title = snapshot.chromeConnection == .unchecked ? "检查连接" : "重新检查连接"
+        if let chromeCheck { chromeCheck.setAccessibilityLabel(chromeCheck.title) }
+        chromeCheck?.isEnabled = snapshot.setup.permission == .granted && snapshot.chromeConnection != .checking
         let settings = snapshot.state.owner.settings
         refreshDisplay()
         for (placement, button) in placements {
@@ -298,20 +351,77 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         }
         updateError(.display, label: displayError, retryID: "onboarding.retryDisplay", name: "显示器")
         updateError(.placement, label: placementError, retryID: "onboarding.retryPlacement", name: "位置")
-        let ready = snapshot.setup.source == .accessible
-            && (snapshot.setup.permission == .granted || snapshot.setup.permission == .notNeeded)
         if snapshot.reviewEnvironment {
-            finishHint.stringValue = "完成后，可从菜单栏的 Riftlet 图标打开设置和截图历史。隔离审核不会连接浏览器或上传。"
-        } else if snapshot.setup.issue == .chromeJavaScriptDisabled, let instructions = presentation.chromeScriptInstructions {
-            finishHint.stringValue = "一键附加还差一步。" + instructions
-        } else if ready && snapshot.setup.attachment == .available {
-            finishHint.stringValue = "打开要用的 Chrome 聊天草稿，截一张图，再点屏幕边缘的微图。需要帮助时，从菜单栏打开 Riftlet 设置。"
+            finishHint.stringValue = "预览结束后，可以从菜单栏打开设置和历史。"
         } else {
-            finishHint.stringValue = "可以先开始。之后点菜单栏的 Riftlet 图标，打开“设置 → 权限与帮助”继续连接。"
+            switch snapshot.firstIncompleteOnboardingStep {
+            case 0: finishHint.stringValue = "请先完成截图文件夹设置，让新截图显示在桌面边缘。"
+            case 1: finishHint.stringValue = "请先完成 Chrome 连接设置。"
+            case 2: finishHint.stringValue = ""
+            default: finishHint.stringValue = "截一张图，在 Chrome 打开要使用的 ChatGPT 对话，点一下缩略图。图片会出现在输入框旁，由你决定何时发送。"
+            }
         }
-        if snapshot.state.owner.collectionPaused || snapshot.state.owner.isHidden {
-            finishHint.stringValue += " 当前暂停和隐藏设置会保留。"
+        finishHint.isHidden = finishHint.stringValue.isEmpty
+        refreshNext()
+        window.initialFirstResponder = firstAction
+    }
+
+    private var firstAction: NSButton {
+        let ids: [String]
+        switch currentStep {
+        case 0: ids = ["onboarding.resume", "onboarding.unhide", "onboarding.sourceAccess", "onboarding.recheck"]
+        case 1: ids = ["onboarding.automation", "onboarding.checkChrome"]
+        default: ids = []
         }
+        if !next.isEnabled {
+            for id in ids {
+                if let button = controls[id] as? NSButton, button.isEnabled && !button.isHiddenOrHasHiddenAncestor {
+                    return button
+                }
+            }
+        }
+        return next.isEnabled ? next : later
+    }
+
+    private func sourceStatus(_ snapshot: SettingsProductSnapshot) -> String {
+        switch snapshot.setup.issue {
+        case .sourceAccess: return "无法读取这个文件夹。请重新选择并允许访问。"
+        case .wrongScreenshotFolder, .screenshotFolderNeedsSelection: return "请在选择窗口中确认上面显示的截图文件夹。"
+        case .initializationFailed: return "Riftlet 未能启动收录。请检查可用磁盘空间，然后重新打开 Riftlet。"
+        case .insufficientSpace, .privateWriteFailed, .sourceVolumeUnidentified: return snapshot.setup.issue?.text ?? ""
+        default: break
+        }
+        switch snapshot.setup.storage {
+        case .insufficientSpace: return "磁盘空间不足。请腾出空间并重新检查。"
+        case .writeFailed: return "无法保存新截图。请检查磁盘是否可写，再重新检查。"
+        default: break
+        }
+        if snapshot.state.owner.collectionPaused { return "截图收录已暂停。继续收录后，新截图才会出现在桌面边缘。" }
+        if snapshot.state.owner.isHidden { return "桌面截图已隐藏。开启显示后，即可点击缩略图。" }
+        switch snapshot.setup.source {
+        case .accessible: return snapshot.setup.collection == .collecting ? "正在收录这个文件夹里的新截图。" : "正在准备收录。"
+        case .checking, .notChecked: return "正在检查截图保存位置。"
+        case .notApplicable: return "此模式不读取系统截图文件夹。"
+        case .notConfigured: return "在 Mac 的“截屏”应用中打开“选项”，将保存位置设为文件夹，然后重新检查。"
+        case .unavailable: return "选择这个文件夹，允许 Riftlet 读取新截图。"
+        }
+    }
+
+    private func chromeStatus(_ state: OnboardingChromeConnection) -> String {
+        switch state {
+        case .unchecked: return "开启后回到这里检查连接。"
+        case .checking: return "正在检查 Chrome 连接…"
+        case .ready: return "已连接 Chrome。"
+        case .javaScriptDisabled: return "Chrome 的这个选项尚未开启。勾选后重新检查。"
+        case .noWindow: return "请在 Chrome 打开一个普通网页，然后重新检查。"
+        case .unavailable: return "未能连接到 Chrome。请打开一个普通网页，然后重新检查。"
+        }
+    }
+
+    private func configureAction(_ id: String, visible: Bool, enabled: Bool) {
+        let button = controls[id] as? NSButton
+        button?.isHidden = !visible
+        button?.isEnabled = visible && enabled
     }
 
     private func updateError(_ domain: SettingsDomain, label: NSTextField, retryID: String, name: String) {
@@ -386,29 +496,72 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         }
         progress.setAccessibilityLabel("第 \(currentStep + 1) 步，共 3 步")
         back.isHidden = currentStep == 0
-        next.title = currentStep == 2 ? "开始使用" : "继续"
-        next.setAccessibilityLabel(next.title)
+        refreshNext()
         scroll.contentView.scroll(to: .zero); scroll.reflectScrolledClipView(scroll.contentView)
         window.recalculateKeyViewLoop()
+        window.initialFirstResponder = firstAction
+        if window.isKeyWindow { window.makeFirstResponder(firstAction) }
+    }
+
+    private func refreshNext() {
+        let incomplete = snapshot?.firstIncompleteOnboardingStep
+        let preview = snapshot?.reviewEnvironment == true
+        if currentStep < 2 {
+            next.title = !preview && currentStep == 1 && incomplete == 0 ? "设置截图文件夹" : "继续"
+            next.isEnabled = snapshot != nil && (preview || incomplete != currentStep)
+        } else {
+            switch (preview, incomplete) {
+            case (true, _): next.title = "结束预览"
+            case (false, 0): next.title = "设置截图文件夹"
+            case (false, 1): next.title = "连接 Chrome"
+            default: next.title = "开始使用"
+            }
+            let changingPosition = busy.contains(.placement) || busy.contains(.display)
+            next.isEnabled = !finishing && snapshot != nil && (preview || (!changingPosition && incomplete != 2))
+        }
+        next.setAccessibilityLabel(next.title)
     }
 
     @objc private func previousStep() { guard currentStep > 0 else { return }; currentStep -= 1; refreshStep() }
     @objc private func nextStep() {
-        if currentStep < 2 { currentStep += 1; refreshStep(); return }
-        guard !finishedThisPresentation else { return }
-        finishedThisPresentation = true
-        window.close()
-        Task { await onAction(.finishOnboarding) }
+        guard next.isEnabled, let snapshot else { return }
+        if currentStep < 2 {
+            if !snapshot.reviewEnvironment, let missing = snapshot.firstIncompleteOnboardingStep,
+               missing < currentStep { currentStep = missing } else { currentStep += 1 }
+            refreshStep(); return
+        }
+        if snapshot.reviewEnvironment { window.performClose(nil); return }
+        if let step = snapshot.firstIncompleteOnboardingStep {
+            currentStep = step; refreshStep(); return
+        }
+        guard snapshot.onboardingReady, !finishing, !busy.contains(.display), !busy.contains(.placement) else { return }
+        finishing = true; refreshNext()
+        let session = presentationID
+        Task {
+            guard session == presentationID, isVisible else { return }
+            await onAction(.finishOnboarding)
+            guard session == presentationID else { return }
+            finishing = false; refreshNext()
+        }
     }
     @objc private func deferSetup() { window.performClose(nil) }
 
     @objc private func actionPressed(_ sender: NSButton) {
-        guard sender.isEnabled, !sender.isHidden, let snapshot else { return }
+        guard sender.isEnabled, !sender.isHiddenOrHasHiddenAncestor, let snapshot else { return }
         switch sender.identifier?.rawValue {
         case "onboarding.sourceAccess":
             guard snapshot.capabilities.canChooseSource else { return }; send(.chooseSourceAccess)
+        case "onboarding.resume": send(.settings(.setCollectionPaused(false)), domain: .collection)
+        case "onboarding.unhide": send(.settings(.setHidden(false)), domain: .visibility)
         case "onboarding.automation":
-            guard snapshot.capabilities.canRequestAutomation else { return }; send(.requestAutomation)
+            if snapshot.setup.permission == .notRunning || snapshot.setup.permission == .browserUnavailable {
+                send(.recheck)
+            } else if snapshot.capabilities.canRequestAutomation {
+                send(.requestAutomation)
+            }
+        case "onboarding.checkChrome":
+            guard snapshot.setup.permission == .granted, snapshot.chromeConnection != .checking else { return }
+            send(.checkChromeConnection)
         case "onboarding.recheck":
             guard snapshot.capabilities.canRecheck else { return }; send(.recheck)
         case "onboarding.retryDisplay": send(.settings(.retry(.display)), domain: .display)

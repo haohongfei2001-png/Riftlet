@@ -47,7 +47,7 @@ public struct RiftControlCenterPresentation {
         } else if snapshot.reviewEnvironment {
             captureHint = "隔离审核不执行真实截图或上传。"
         } else if !owner.settings.entryEnabled {
-            captureHint = "内置截图已关闭；系统截图收录保持原设置。"
+            captureHint = "内置截图已关闭，可在设置的“截图”页开启。"
         } else if !owner.settings.entryAvailable {
             captureHint = "内置截图当前不可用；可在设置查看状态。"
         } else if owner.isHidden {
@@ -57,7 +57,7 @@ public struct RiftControlCenterPresentation {
         }
         if let page = Self.saveRecoveryPage(snapshot) {
             state = .attention; title = "有设置尚未确认保存"
-            detail = "当前运行状态如下。请到设置查看并重试。"
+            detail = "请打开未保存的设置并重试。"
             symbol = "exclamationmark.circle"
             recoveryTitle = "查看未保存的设置"; recoveryPage = page
         } else if setup.issue == .initializationFailed {
@@ -67,8 +67,8 @@ public struct RiftControlCenterPresentation {
             recoveryTitle = "查看启动问题"; recoveryPage = .help
         } else if setup.issue == .insufficientSpace || setup.issue == .privateWriteFailed
                     || setup.storage == .insufficientSpace || setup.storage == .writeFailed {
-            state = .attention; title = "私有存储需要处理"
-            detail = "新截图暂不能安全保存；已有图片保留。"
+            state = .attention; title = "无法保存新截图"
+            detail = "请检查可用磁盘空间和文件访问权限。"
             symbol = "exclamationmark.circle"
             recoveryTitle = "查看本机存储"; recoveryPage = .history
         } else if setup.issue == .screenshotFolderNeedsSelection {
@@ -92,9 +92,14 @@ public struct RiftControlCenterPresentation {
             symbol = "clock"
             recoveryTitle = "查看收录说明"; recoveryPage = .capture
         } else if usesAutomation && (setup.permission == .denied || setup.issue == .permissionDenied) {
-            state = .attention; title = "Chrome 自动化需要允许"
-            detail = "这只影响主动附加；截图收录按当前设置进行。"
+            state = .attention; title = "需要允许 Riftlet 控制 Chrome"
+            detail = "在系统设置中允许访问 Chrome，即可继续设置一键附加。"
             symbol = "exclamationmark.circle"
+            recoveryTitle = "检查 Chrome 连接"; recoveryPage = .help
+        } else if usesAutomation && (setup.issue == .chromeJavaScriptDisabled || snapshot.chromeConnection == .javaScriptDisabled) {
+            state = .attention; title = "需要开启 Chrome 的 JavaScript 选项"
+            detail = setup.issue == .chromeJavaScriptDisabled ? SetupIssue.chromeJavaScriptDisabled.text : ChromeAttachmentSetup.instructions
+            symbol = "globe"
             recoveryTitle = "检查 Chrome 连接"; recoveryPage = .help
         } else if owner.collectionPaused {
             state = .paused; title = "已暂停收录"
@@ -121,12 +126,12 @@ public struct RiftControlCenterPresentation {
             recoveryTitle = nil; recoveryPage = nil
         } else if !capabilities.initialized || setup.collection == .starting {
             state = .preparing; title = "正在准备截图收录"
-            detail = "尚未确认开始；已有图片保留。"
+            detail = "正在检查截图文件夹。"
             symbol = "clock"
             recoveryTitle = nil; recoveryPage = nil
         } else {
             state = .stopped; title = "当前未收录新截图"
-            detail = "已有图片保留，可在设置查看当前状态。"
+            detail = "可在设置中查看截图文件夹和收录开关。"
             symbol = "circle.dashed"
             recoveryTitle = nil; recoveryPage = nil
         }

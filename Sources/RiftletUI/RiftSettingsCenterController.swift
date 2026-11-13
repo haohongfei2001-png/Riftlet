@@ -26,6 +26,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     var errorRows: [SettingsDomain: NSStackView] = [:]
     var errorLabels: [SettingsDomain: NSTextField] = [:]
     var retryButtons: [SettingsDomain: NSButton] = [:]
+    var accessDetails: [String: (button: NSButton, content: NSView)] = [:]
     var disclosures: [String: (button: NSButton, content: NSView)] = [:]
     var pageWidthConstraints: [SettingsPage: NSLayoutConstraint] = [:]
     var pagePositionConstraints: [NSLayoutConstraint] = []
@@ -39,6 +40,8 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     var captureOptions: NSView!
     var trayFavorites: NSView!
     var commonEdgeSettings: NSView!
+    var slitInsetFraction: NSView!
+    var numberedThumbnailSettings: NSView!
     var windChimeLineSetting: NSView!
     var windChimeSettings: NSView!
     var traySettings: NSView!

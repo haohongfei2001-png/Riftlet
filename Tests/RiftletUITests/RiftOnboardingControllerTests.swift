@@ -7,7 +7,7 @@ final class RiftOnboardingControllerTests: XCTestCase {
     private static let externalDisplayUUID = "00000000-0000-4000-8000-000000000002"
     private static let disconnectedDisplayUUID = "00000000-0000-4000-8000-000000000099"
 
-    @MainActor private func model(revision: UInt64 = 1, paused: Bool = true, hidden: Bool = true,
+    @MainActor private func model(revision: UInt64 = 1, paused: Bool = false, hidden: Bool = false,
                                   configuration: RiftConfiguration = .init(),
                                   displays: [RiftSettingsDisplay]? = nil) throws -> SettingsStateModel {
         let settings = RiftSettingsSnapshot(entryAvailable: true, entryEnabled: false,
@@ -20,14 +20,19 @@ final class RiftOnboardingControllerTests: XCTestCase {
     }
 
     @MainActor private func fixture(_ model: SettingsStateModel, revision: UInt64 = 1,
-                                    source: SetupSourceState = .unavailable,
-                                    permission: SetupPermissionState = .notRequested) -> SettingsProductSnapshot {
+                                    source: SetupSourceState = .accessible,
+                                    permission: SetupPermissionState = .granted,
+                                    connection: OnboardingChromeConnection = .ready) -> SettingsProductSnapshot {
         var value = SettingsProductSnapshot(revision: revision,
             setup: .init(sourceLocation: "/tmp/synthetic-only-screenshot-folder", source: source,
-                         collection: .paused, isHidden: true, attachment: .available, permission: permission,
+                         collection: model.snapshot.owner.collectionPaused ? .paused : .collecting,
+                         isHidden: model.snapshot.owner.isHidden, attachment: .available, permission: permission,
                          permissionDetail: ChromeAttachmentSetup.instructions),
             state: model.snapshot)
+        value.chromeConnection = connection
         value.capabilities.initialized = true
+        value.capabilities.canChangeCollection = true
+        value.capabilities.canChangeVisibility = true
         value.capabilities.canChooseSource = true
         value.capabilities.canRequestAutomation = true
         value.capabilities.canEditPreferences = true
@@ -84,9 +89,9 @@ final class RiftOnboardingControllerTests: XCTestCase {
         controller.update(value)
         let description = try XCTUnwrap(controller.control(identifier: "onboarding.introDescription") as? NSTextField)
         let capability = try XCTUnwrap(controller.control(identifier: "onboarding.capability") as? NSTextField)
-        XCTAssertTrue(description.stringValue.contains("⇧⌘4"))
-        XCTAssertTrue(description.stringValue.contains("Chrome 前台"))
-        XCTAssertTrue(description.stringValue.contains("屏幕边缘的微图"))
+        XCTAssertFalse(description.stringValue.contains("⌘"))
+        XCTAssertTrue(description.stringValue.contains("Chrome"))
+        XCTAssertTrue(description.stringValue.contains("桌面边缘的缩略图"))
         XCTAssertTrue(description.stringValue.contains("ChatGPT"))
         XCTAssertTrue(capability.stringValue.contains("隔离审核"))
         XCTAssertTrue(capability.stringValue.contains("不连接浏览器或上传"))
@@ -110,14 +115,16 @@ final class RiftOnboardingControllerTests: XCTestCase {
         let parent = try XCTUnwrap(instructions.superview)
         let textRect = parent.convert(instructions.alignmentRect(forFrame: instructions.frame), to: viewport)
         XCTAssertTrue(viewport.bounds.insetBy(dx: -1, dy: -1).contains(textRect))
-        var blocked = fixture(state, revision: 2)
-        blocked.setup = .init(source: .accessible, attachment: .available, permission: .granted,
+        var blocked = fixture(state, revision: 2, connection: .javaScriptDisabled)
+        blocked.setup = .init(source: .accessible, collection: .collecting, attachment: .available, permission: .granted,
                               permissionDetail: ChromeAttachmentSetup.instructions, issue: .chromeJavaScriptDisabled)
         controller.update(blocked)
-        try button(controller, "onboarding.next").performClick(nil)
-        let finish = try XCTUnwrap(controller.control(identifier: "onboarding.finishHint") as? NSTextField)
-        XCTAssertTrue(finish.stringValue.contains(ChromeAttachmentSetup.menuPath))
-        XCTAssertFalse(finish.stringValue.contains("点屏幕边缘的微图"))
+        let next = try button(controller, "onboarding.next")
+        XCTAssertFalse(next.isEnabled)
+        next.performClick(nil)
+        XCTAssertEqual(controller.currentStep, 1)
+        let status = try XCTUnwrap(controller.control(identifier: "onboarding.connectionStatus") as? NSTextField)
+        XCTAssertTrue(status.stringValue.contains("尚未开启"))
         var offline = fixture(state, revision: 3)
         offline.setup = .init(attachment: .offlineSimulation, permissionDetail: ChromeAttachmentSetup.instructions)
         controller.update(offline)
@@ -177,33 +184,81 @@ final class RiftOnboardingControllerTests: XCTestCase {
         XCTAssertEqual(controller.window.frame.size, accepted)
     }
 
-    @MainActor func testAllThreeStepsAllowIncompleteConnectionsAndFinishHasNoCaptureOrToggle() async throws {
+    @MainActor func testFinishRequiresBothRealChecksAndRecoversAfterLosingFolderAccess() async throws {
         try prepareAppKit()
-        let state = try model()
         var actions: [String] = []
+        let state = try model()
         let controller = RiftOnboardingController { action in
             switch action {
             case .finishOnboarding: actions.append("finish")
-            default: actions.append("unexpected"); XCTFail("Finishing cannot authorize, capture, send, or unpause")
+            case .chooseSourceAccess: actions.append("folder")
+            case .checkChromeConnection: actions.append("chrome")
+            default: XCTFail("Navigation must not request consent or change settings")
             }
         }
         defer { controller.closeForTeardown() }
-        controller.update(fixture(state))
+        controller.update(fixture(state, source: .unavailable, permission: .notRequested, connection: .unchecked))
+        XCTAssertTrue(controller.show())
         let next = try button(controller, "onboarding.next")
-        next.performClick(nil); XCTAssertEqual(controller.currentStep, 1)
-        XCTAssertTrue(actions.isEmpty)
-        next.performClick(nil); XCTAssertEqual(controller.currentStep, 2)
+        XCTAssertFalse(next.isEnabled)
+        XCTAssertTrue(controller.window.initialFirstResponder === controller.control(identifier: "onboarding.sourceAccess"))
+        try button(controller, "onboarding.sourceAccess").performClick(nil)
+        await assertReceived { actions == ["folder"] }
+
+        controller.update(fixture(state, revision: 2, connection: .unchecked))
+        next.performClick(nil)
+        XCTAssertEqual(controller.currentStep, 1)
+        XCTAssertFalse(next.isEnabled, "macOS Automation alone does not establish Chrome's JavaScript setting")
+        let check = try button(controller, "onboarding.checkChrome")
+        XCTAssertTrue(controller.window.initialFirstResponder === check)
+        check.performClick(nil)
+        await assertReceived { actions == ["folder", "chrome"] }
+        for (offset, result) in [OnboardingChromeConnection.checking, .javaScriptDisabled, .noWindow, .unavailable].enumerated() {
+            controller.update(fixture(state, revision: UInt64(offset + 3), connection: result))
+            XCTAssertFalse(next.isEnabled)
+            XCTAssertEqual(check.isEnabled, result != .checking)
+        }
+        controller.update(fixture(state, revision: 8))
+        next.performClick(nil)
+        XCTAssertEqual(controller.currentStep, 2)
+        controller.update(fixture(state, revision: 9, source: .unavailable))
+        XCTAssertEqual(next.title, "设置截图文件夹")
+        next.performClick(nil)
+        XCTAssertEqual(controller.currentStep, 0)
+        XCTAssertEqual(actions, ["folder", "chrome"])
+
+        controller.update(fixture(state, revision: 10))
+        next.performClick(nil); next.performClick(nil)
         XCTAssertEqual(next.title, "开始使用")
+        next.performClick(nil); next.performClick(nil)
+        await assertReceived { actions == ["folder", "chrome", "finish"] }
+    }
+
+    @MainActor func testPausedAndHiddenRequireExplicitRecoveryAndDoNotAlterPreferences() async throws {
+        try prepareAppKit()
+        let paused = try model(paused: true, hidden: true)
+        let snapshot = fixture(paused)
+        XCTAssertFalse(snapshot.onboardingReady)
+        var actions: [String] = []
+        let controller = RiftOnboardingController { action in
+            switch action {
+            case .settings(.setCollectionPaused(false)): actions.append("resume")
+            case .settings(.setHidden(false)): actions.append("show")
+            default: XCTFail("Unexpected action")
+            }
+        }
+        defer { controller.closeForTeardown() }
+        controller.update(snapshot)
         XCTAssertTrue(actions.isEmpty)
-        next.performClick(nil)
-        await assertReceived { actions.count == 1 }
-        XCTAssertEqual(actions, ["finish"])
-        XCTAssertTrue(state.snapshot.owner.collectionPaused)
-        XCTAssertTrue(state.snapshot.owner.isHidden)
-        XCTAssertFalse(state.snapshot.owner.settings.entryEnabled)
-        next.performClick(nil)
-        await Task.yield()
-        XCTAssertEqual(actions, ["finish"], "A finished presentation cannot dispatch twice")
+        let next = try button(controller, "onboarding.next")
+        XCTAssertFalse(next.isEnabled)
+        try button(controller, "onboarding.resume").performClick(nil)
+        await assertReceived { actions == ["resume"] }
+        try button(controller, "onboarding.unhide").performClick(nil)
+        await assertReceived { actions == ["resume", "show"] }
+        XCTAssertTrue(paused.snapshot.owner.collectionPaused)
+        XCTAssertTrue(paused.snapshot.owner.isHidden)
+        XCTAssertFalse(next.isEnabled)
     }
 
     @MainActor func testLaterAndTeardownDoNotDispatchFinishOrAnyCommand() async throws {
@@ -229,19 +284,25 @@ final class RiftOnboardingControllerTests: XCTestCase {
         defer { controller.closeForTeardown() }
         let state = try model()
         controller.update(fixture(state, source: .accessible, permission: .granted))
-        try button(controller, "onboarding.next").performClick(nil)
         let source = try button(controller, "onboarding.sourceAccess")
         let automation = try button(controller, "onboarding.automation")
         XCTAssertTrue(source.isHidden)
         XCTAssertFalse(source.isEnabled)
+        let next = try button(controller, "onboarding.next")
+        next.performClick(nil)
+        XCTAssertTrue(automation.isHidden)
         XCTAssertFalse(automation.isEnabled)
         source.performClick(nil); automation.performClick(nil)
         await Task.yield()
         XCTAssertEqual(requested, 0)
-        controller.update(fixture(state, revision: 2))
-        XCTAssertFalse(source.isHidden); XCTAssertTrue(source.isEnabled)
+        controller.update(fixture(state, revision: 2, permission: .notRequested, connection: .unchecked))
         XCTAssertTrue(automation.isEnabled)
-        source.performClick(nil); automation.performClick(nil)
+        automation.performClick(nil)
+        await assertReceived { requested == 1 }
+        try button(controller, "onboarding.back").performClick(nil)
+        controller.update(fixture(state, revision: 3, source: .unavailable))
+        XCTAssertFalse(source.isHidden); XCTAssertTrue(source.isEnabled)
+        source.performClick(nil)
         await assertReceived { requested == 2 }
     }
 
@@ -282,7 +343,17 @@ final class RiftOnboardingControllerTests: XCTestCase {
 
     @MainActor func testUnconfirmedPlacementShowsSameTargetRetryAndOtherDomainRemainsUsable() async throws {
         try prepareAppKit()
-        let state = try model()
+        let original = try model().snapshot.owner
+        var attempts = 0
+        let state = try SettingsStateModel(owner: original, adapter: SettingsPersistenceClosures { request in
+            attempts += 1
+            guard attempts > 1, let configuration = request.configuration else {
+                return .unconfirmed(nil, .writeUnconfirmed)
+            }
+            var settings = original.settings
+            settings.configuration = configuration
+            return .confirmed(.init(revision: 2, settings: settings, collectionPaused: false, isHidden: false, mainDisplayID: 1))
+        })
         weak var observed: RiftOnboardingController?
         var commands: [String] = []
         var revision: UInt64 = 1
@@ -302,6 +373,8 @@ final class RiftOnboardingControllerTests: XCTestCase {
         controller.update(fixture(state))
         for _ in 0..<2 { try button(controller, "onboarding.next").performClick(nil) }
         try button(controller, "onboarding.placement.rightBottom").performClick(nil)
+        let finish = try button(controller, "onboarding.next")
+        XCTAssertFalse(finish.isEnabled, "Selection dispatch can precede the first saving snapshot")
         await assertReceived { state.snapshot.domains[.placement]?.saveFailure != nil }
         // The closure also publishes the receipt before returning to the view.
         await assertReceived { (controller.control(identifier: "onboarding.retryPlacement") as? NSButton)?.isEnabled == true }
@@ -309,10 +382,25 @@ final class RiftOnboardingControllerTests: XCTestCase {
         XCTAssertTrue(try XCTUnwrap(controller.control(identifier: "onboarding.display") as? NSPopUpButton).isEnabled)
         let retry = try button(controller, "onboarding.retryPlacement")
         XCTAssertFalse(retry.isHidden)
+        XCTAssertFalse(finish.isEnabled)
+        XCTAssertFalse(fixture(state).onboardingReady)
+        XCTAssertEqual(state.snapshot.domains[.placement]?.pending, .placement(.rightBottom))
         retry.performClick(nil)
         await assertReceived { commands.count == 2 }
         XCTAssertEqual(commands, ["rightBottom", "retry:placement"])
-        XCTAssertEqual(state.snapshot.domains[.placement]?.pending, .placement(.rightBottom))
+        await assertReceived { finish.isEnabled }
+        XCTAssertTrue(fixture(state).onboardingReady)
+        XCTAssertEqual(state.snapshot.owner.settings.configuration.placement, .rightBottom)
+    }
+
+    @MainActor func testDisplayWriteFailurePreventsFinishingButArchiveFailureDoesNot() async throws {
+        let state = try model()
+        _ = await state.perform(.editArchive("5"))
+        _ = await state.perform(.applyArchive)
+        XCTAssertTrue(fixture(state).onboardingReady)
+        _ = await state.perform(.selectDisplay(2))
+        XCTAssertNotNil(state.snapshot.domains[.display]?.saveFailure)
+        XCTAssertFalse(fixture(state).onboardingReady)
     }
 
     @MainActor func testDisconnectedSelectedDisplayAndOldSnapshotCannotChangePreference() throws {

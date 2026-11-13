@@ -16,6 +16,15 @@ final class SettingsProductHostTests: XCTestCase {
         return try HostFixture(rootExists: rootExists)
     }
 
+    @MainActor func testAboutShowsOnlyProductNameAndMarketingVersion() throws {
+        let fixture = try fixture()
+        defer { fixture.close() }
+        let shortVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
+        let expected = ["Riftlet", shortVersion].compactMap { $0 }.joined(separator: " ")
+        XCTAssertEqual(fixture.host.snapshot.version, expected)
+        XCTAssertEqual(fixture.host.center.labels["version"]?.stringValue, expected)
+    }
+
     @MainActor func testThreeNativeSurfacesReadOneModelWithoutSavingOrShowing() throws {
         let f = try fixture(); defer { f.close() }
         var settings = f.adapter.owner.settings

@@ -22,20 +22,17 @@
 
 ### 2. 固定输入，构建并生成正式 DMG
 
-从获准分发的正式 main 和通过的 CI 取得完整提交 `SOURCE`。登记该提交、树、版本 `VERSION`、递增的构建号 `BUILD`、显示标签 `LABEL` 和新私有绝对路径 `WS`。0.3.2 (5) 在既有记录中用于演练，其编号本身不代表一个获准的公开版本。
+正式版在源代码 `Resources/Info.plist` 维护产品版本、递增的构建号和 `Riftlet` 显示名。传入已审核的完整提交 SHA 和独立工作目录。两次运行使用同一工作目录，第二次会续用已准备的通用构建。
 
 ```sh
-python3 -B scripts/release-macos.py --prepare-only --source "$SOURCE" \
-  --version "$VERSION" --build "$BUILD" --label "$LABEL" --workspace "$WS"
+python3 -B scripts/release-macos.py --stable --source "$SOURCE" --workspace "$WS" --prepare-only
+python3 -B scripts/release-macos.py --stable --source "$SOURCE" --workspace "$WS" \
+  --team "$TEAM" --profile "$PROFILE"
 ```
 
-保存 `PREPARATION_VERIFIED`、此阶段 manifest 及其散列，核对源码和准备工具的输入、bundle ID、版本与实际 Mach-O 架构。默认构建 arm64 与 x86_64；若只为一种架构交付，两次运行都使用相同的 `--arch`。在同一工作区使用相同参数继续。
+默认同时包含 Apple Silicon 和 Intel。正式版 1.0.0 的通用下载名为 `Riftlet-1.0.0.dmg`，其中的应用为 `Riftlet.app`。构建号、架构、源提交和校验值记录在发行回执中。维护者可用 `--identity "$CERT_SHA1"` 选定特定的 Developer ID。取得最终 SHA-256 后，为该版本创建独立发行记录，附该 DMG、校验文件和说明。后续版本使用新的版本号和下载文件名。
 
-```sh
-python3 -B scripts/release-macos.py --source "$SOURCE" \
-  --version "$VERSION" --build "$BUILD" --label "$LABEL" --workspace "$WS" \
-  --identity "$CERT_SHA1" --team "$TEAM" --profile "$PROFILE"
-```
+历史 Beta 和单独评审的候选仍用原命令参数 `--version "$VERSION" --build "$BUILD" --label "$LABEL"`，并保留原归档名称。在已有工作区恢复时须使用创建该工作区时的参数。
 
 | 阶段 | 需要留存并核对的结果 |
 | --- | --- |

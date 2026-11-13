@@ -7,6 +7,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import plistlib
 from pathlib import Path
 import re
 import subprocess
@@ -52,6 +53,23 @@ def release_lock(workspace):
         os.close(fd)
 
 
+def select_build_version(args):
+    R.full_sha(args.source)
+    if args.stable:
+        R.require(all(value is None for value in (args.version, args.build, args.label)), "stable_uses_source_version")
+        raw = R.run(["git", "-C", R.ROOT, "show", args.source + ":Resources/Info.plist"]).stdout
+        info = plistlib.loads(raw)
+        args.version = info.get("CFBundleShortVersionString")
+        args.build = info.get("CFBundleVersion")
+        args.label = info.get("RiftletVersionLabel")
+        R.require(args.label == "Riftlet", "stable_version_differs_from_source")
+    else:
+        if args.label is None:
+            args.label = "Riftlet"
+    R.version_values(args.version, args.build)
+    R.version_label(args.label)
+
+
 def prepared_package(args, workspace):
     R.full_sha(args.source)
     R.version_values(args.version, args.build)
@@ -62,7 +80,8 @@ def prepared_package(args, workspace):
         # An interrupted compilation leaves its trace in an attempt directory.
         attempt = Path(tempfile.mkdtemp(prefix="." + workspace.name + "-build-", dir=workspace.parent))
         build = SimpleNamespace(source=args.source, version=args.version, build=args.build,
-                                label=args.label, arch=arches, repository=R.ROOT, workspace=attempt / "out")
+                                label=args.label, arch=arches, repository=R.ROOT, workspace=attempt / "out",
+                                stable=getattr(args, "stable", False))
         R.build_candidate(build)
         R.require(not os.path.lexists(workspace), "workspace_appeared_during_build")
         build.workspace.rename(workspace)
@@ -72,6 +91,8 @@ def prepared_package(args, workspace):
     b = value["build"]
     R.require((b["source"]["commit"], b["version"], b["build"], b.get("versionLabel"), b["architectures"])
               == (args.source, args.version, args.build, args.label, arches), "workspace_belongs_to_another_release")
+    R.require((b.get("distributionChannel") == "stable") == getattr(args, "stable", False),
+              "workspace_belongs_to_another_release")
     return package, value
 
 
@@ -220,9 +241,11 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--workspace", type=Path, required=True)
     parser.add_argument("--source", required=True, help="Full reviewed source commit SHA")
-    parser.add_argument("--version", required=True)
-    parser.add_argument("--build", required=True)
-    parser.add_argument("--label", default="Riftlet")
+    parser.add_argument("--stable", action="store_true",
+                        help="Build the formal product version and build number from the selected source Info.plist")
+    parser.add_argument("--version", help="Explicit version for a preview build")
+    parser.add_argument("--build", help="Explicit build number for a preview")
+    parser.add_argument("--label", help="Optional display label for a preview")
     parser.add_argument("--arch", action="append", choices=["arm64","x86_64"], help="Default: universal")
     parser.add_argument("--identity", help="Optional SHA-1 fingerprint of a valid Developer ID Application identity")
     parser.add_argument("--team", help="Optional Team ID to select between identities")
@@ -234,6 +257,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
     os.umask(0o077)
     try:
+        select_build_version(args)
         result = release(args)
     except R.ReleaseError as error:
         print(json.dumps({"status": error.status, "code": error.code, "workspace": str(args.workspace)}))

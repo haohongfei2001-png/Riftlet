@@ -182,6 +182,39 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
     }
 }
 
+/// Explicit setup check. The program evaluates a constant, with no DOM access,
+/// file input, navigation or attachment relay. No tab identifier leaves this call.
+public enum ChromeSetupConnectionProbe {
+    public enum Result: Equatable, Sendable {
+        case ready, javaScriptDisabled, permissionDenied, noWindow, unavailable
+    }
+
+    public static func check(_ process: ChromeProcessIdentity) async -> Result {
+        // A blocking Apple Event belongs off the main actor.
+        await Task.detached(priority: .userInitiated) {
+            guard process.isCurrent() else { return .unavailable }
+            let bridge = ChromePIDEvents(pid: process.pid,
+                trace: ChromeBridgeTrace(sink: BoundedDiagnosticTrace(enabled: false)), requestID: "setup")
+            return evaluate(read: {
+                let route = try bridge.activeIdentity(check: "setup")
+                guard process.isCurrent() else { throw WebAdapterError.invalidTarget }
+                return try bridge.execute("'Riftlet'", window: route.window, tab: route.tab,
+                    receiptBudget: .init(deadlineUptime: ProcessInfo.processInfo.systemUptime + 3))
+            }, stillCurrent: { process.isCurrent() })
+        }.value
+    }
+
+    static func evaluate(read: () throws -> String, stillCurrent: () -> Bool) -> Result {
+        let result: Result
+        do { result = try read() == "Riftlet" ? .ready : .unavailable }
+        catch WebAdapterError.nativeEventFailed(12) { result = .javaScriptDisabled }
+        catch WebAdapterError.nativeEventFailed(-1743) { result = .permissionDenied }
+        catch WebAdapterError.nativeEventFailed(-1728) { result = .noWindow }
+        catch { result = .unavailable }
+        return stillCurrent() ? result : .unavailable
+    }
+}
+
 /// MAIN owns application-created pickers and their prototypes. Chrome's isolated
 /// execute-JavaScript world can dispatch to an existing MAIN relay, but cannot
 /// replace that relay's installer. A cold javascript: bootstrap can raise the

@@ -157,15 +157,18 @@ def version_label(value):
             and all(character.isprintable() for character in value), "invalid_version_label")
 
 
-def stage_version(info, version, build, label):
+def stage_version(info, version, build, label, *, stable=False):
     version_values(version, build); version_label(label)
     keys = ("CFBundleShortVersionString", "CFBundleVersion", "RiftletVersionLabel")
     source = {key: info.get(key) for key in keys}
     version_values(source[keys[0]], source[keys[1]])
     if source[keys[2]] is not None:
         version_label(source[keys[2]])
+    if stable:
+        require((source[keys[0]], source[keys[1]], source[keys[2]]) == (version, build, "Riftlet")
+                and label == "Riftlet", "stable_version_differs_from_source")
     info.update(CFBundleShortVersionString=version, CFBundleVersion=build,
-                RiftletVersionLabel=label, RiftletBuildChannel="release-candidate")
+                RiftletVersionLabel=label, RiftletBuildChannel="release" if stable else "release-candidate")
     return source
 
 
@@ -285,6 +288,13 @@ def validate_receipt(receipt):
         version_values(source_version["CFBundleShortVersionString"], source_version["CFBundleVersion"])
         if source_version["RiftletVersionLabel"] is not None:
             version_label(source_version["RiftletVersionLabel"])
+    if "distributionChannel" in receipt:
+        require(receipt["distributionChannel"] == "stable"
+                and receipt.get("versionLabel") == "Riftlet"
+                and receipt.get("sourceVersion") == {
+                    "CFBundleShortVersionString": receipt["version"],
+                    "CFBundleVersion": receipt["build"],
+                    "RiftletVersionLabel": "Riftlet"}, "invalid_stable_release_identity")
     require(receipt.get("bundleIdentifier") == "com.riftlet.app", "wrong_bundle_identifier")
     source = receipt.get("source", {})
     require(isinstance(source, dict) and isinstance(source.get("inputs"), dict), "invalid_source_inputs")
@@ -363,7 +373,8 @@ def validate_release_info(info, receipt):
                 "CFBundleName": "Riftlet", "CFBundleDisplayName": "Riftlet", "CFBundlePackageType": "APPL",
                 "CFBundleShortVersionString": receipt["version"], "CFBundleVersion": receipt["build"],
                 "LSMinimumSystemVersion": "13.0", "LSUIElement": True, "NSHighResolutionCapable": True,
-                "LSApplicationCategoryType": "public.app-category.utilities", "RiftletBuildChannel": "release-candidate"}
+                "LSApplicationCategoryType": "public.app-category.utilities",
+                "RiftletBuildChannel": "release" if receipt.get("distributionChannel") == "stable" else "release-candidate"}
     for key, value in expected.items():
         require(type(info.get(key)) is type(value) and info[key] == value, "invalid_release_" + key)
     if "versionLabel" in receipt:
@@ -604,7 +615,8 @@ def build_candidate(args):
     ordinary = decode_json(run([app / "Contents/MacOS/Riftlet", "--ordinary-build-info"], timeout=10).stdout)
     BUNDLE.verify_ordinary_build_info(ordinary, "development")
     info = plistlib.loads((app / "Contents/Info.plist").read_bytes())
-    source_version = stage_version(info, args.version, args.build, args.label)
+    stable = getattr(args, "stable", False)
+    source_version = stage_version(info, args.version, args.build, args.label, stable=stable)
     info.pop("RiftletDeveloperIDSigned"); info.pop("RiftletNotarized")
     (app / "Contents/Info.plist").write_bytes(plistlib.dumps(info, sort_keys=True))
     receipt = {"schemaVersion": SCHEMA, "source": source, "version": args.version, "build": args.build,
@@ -614,6 +626,8 @@ def build_candidate(args):
                "infoPlistSHA256": digest(app / "Contents/Info.plist"), "dataCompatibility": "NOT_ASSERTED",
                "preparationInputs": {key: digest(ROOT / key) for key in PREPARATION_INPUTS},
                "swiftVersion": run(["swift", "--version"]).stdout.decode().strip()}
+    if stable:
+        receipt["distributionChannel"] = "stable"
     receipt["sharedAppModes"] = SHARED_APP_MODES
     write_json(app / RECEIPT, receipt)
     normalize_staged_app(package)
@@ -1062,6 +1076,7 @@ def parser():
     c = commands.add_parser("preflight"); credentials(c, True, True)
     c = commands.add_parser("build"); c.add_argument("--repository", type=Path, default=ROOT)
     c.add_argument("--source", required=True); c.add_argument("--version", required=True); c.add_argument("--build", required=True)
+    c.add_argument("--stable", action="store_true", help="Require version and build to match the product source")
     c.add_argument("--label", required=True, help="Explicit display label, e.g. Beta 3; never inherited from old source metadata")
     c.add_argument("--arch", action="append", choices=sorted(ARCHES.values()), required=True); c.add_argument("--workspace", type=Path, required=True)
     for command in ("sign", "notary-submit", "notary-status", "staple", "package"):
