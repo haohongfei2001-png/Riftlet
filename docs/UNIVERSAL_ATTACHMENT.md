@@ -1,6 +1,6 @@
 # 无扩展附件引擎 · 首轮工程交接
 
-任务开始时的正式产品是 0.3.5 (20)，远端基线为 `280be2f8422ccf6c0864f53b8f83e80552b2ec32`。开发期间主线合入 1.0.0 首次使用与连接检查，随后本分支同步了 `bc314340692b1db7246127e4b6fb9dd02a446568`。公开版和发行资源由各自的发行任务管理。在 build 18 上曾实测 Chrome 中的两张截图连续进入 ChatGPT 草稿，build 20 沿用那一版附件实现。本次修改了点击绑定，因此历史实测不能证明这个候选版本的首击、吞噬或速度。发布版本与候选版本都只需系统截图后点击微图，发送消息由用户决定。[已发布版本](https://github.com/haohongfei2001-png/Riftlet/releases/tag/v0.3.5-beta.1)
+任务开始时的正式产品是 0.3.5 (20)，远端基线为 `280be2f8422ccf6c0864f53b8f83e80552b2ec32`。开发期间主线合入 1.0.0 首次使用与连接检查，本分支先同步了 `bc314340692b1db7246127e4b6fb9dd02a446568`，又同步了正式下载入口的主线提交 `427c5325590877eabebd0ce6b9e7e1ed030277d3`。公开版和发行资源由各自的发行任务管理。在 build 18 上曾实测 Chrome 中的两张截图连续进入 ChatGPT 草稿，build 20 沿用那一版附件实现。本次修改了点击绑定，因此历史实测不能证明这个候选版本的首击、吞噬或速度。发布版本与候选版本都只需系统截图后点击微图，发送消息由用户决定。[已发布版本](https://github.com/haohongfei2001-png/Riftlet/releases/tag/v0.3.5-beta.1)
 
 ## 一次点击由谁负责
 
@@ -27,7 +27,7 @@
 | ChatGPT for Mac | NOT_RUN | 未发现 `com.openai.chat`；名为 ChatGPT 的现装应用实际为 `com.openai.codex` 26.1106.51428 (26605)，AX 核实后台进程拥有一个窗口。没有读取草稿内容或操作该窗口。 |
 | Claude Desktop | NOT_RUN | 未发现登记、运行或安装的 `com.anthropic.claudefordesktop`。 |
 
-内置浏览器未能建立专用 ChatGPT 测试草稿，访问 Claude 时报告 IAB 不可用。没有向商业服务发送测试消息，也没有使用个人浏览器会话绕过访问限制。已安装、已登录、允许自动化和能够证明目标草稿是不同事实。某服务的未执行不表示该产品无法支持。[宿主清单与复现命令](../engineering/universal-attachment/hosts/README.md) · [ChatGPT 标识应用的 AX 记录](../engineering/universal-attachment/native/installed-chatgpt-host.json)
+内置浏览器未能建立专用 ChatGPT 测试草稿，访问 Claude 和 Gemini 时报告 IAB 不可用，后者在导航前就已停止。没有向商业服务发送测试消息，也没有使用个人浏览器会话绕过访问限制。已安装、已登录、允许自动化和能够证明目标草稿是不同事实。某服务的未执行不表示该产品无法支持。[宿主清单与复现命令](../engineering/universal-attachment/hosts/README.md) · [ChatGPT 标识应用的 AX 记录](../engineering/universal-attachment/native/installed-chatgpt-host.json)
 
 ## 可复现的原型结果
 
