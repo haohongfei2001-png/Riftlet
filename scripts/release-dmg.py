@@ -55,6 +55,8 @@ def verify_app_tree(app, manifest):
     require(not os.path.lexists(app / R.MANIFEST) and R.inventory(app) == expected,
             "dmg_app_inventory_mismatch")
     R.verify_app_modes(manifest["files"])
+    if manifest.get("build", {}).get("sparkleVersion"):
+        R.verify_code_layout(app)
 
 
 def image_signature(image, team, log):
@@ -79,7 +81,7 @@ def image_signature(image, team, log):
 def build_image(app, manifest, image, attempt):
     source = attempt / "image-source"
     source.mkdir(mode=0o700)
-    R.run(["/usr/bin/ditto", "--rsrc", "--extattr", app, source / R.APP], log=attempt / "copy.log")
+    R.copy_distribution_tree("--rsrc", "--extattr", app, source / R.APP, log=attempt / "copy.log")
     verify_app_tree(source / R.APP, manifest)
     (source / "Applications").symlink_to("/Applications")
     # The source directory becomes the mounted volume root. Its parent is the

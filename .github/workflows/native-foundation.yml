@@ -146,6 +146,12 @@ jobs:
           python3 -B scripts/verify-arrival-integration.py 2>&1 | tee test-results/arrival-integration.log
           swift test --skip-build --filter 'ArrivalMotionPreferencesTests|CaptureArrivalObservationTests|ArrivalModesTests|MagnetMotionPlanTests|MagnetFlightPresenterTests|ScreenshotSourceGeometryTests' 2>&1 | tee test-results/arrival-native-detailed.log
           swiftc -typecheck scripts/arrival-source-probe.swift 2>&1 | tee test-results/arrival-probe-typecheck.log
+      - name: Verify signed stable feed and update publication rules offline
+        env:
+          RIFTLET_SPARKLE_TEST_BIN: ${{ github.workspace }}/.build/artifacts/sparkle/Sparkle/bin
+        run: |
+          python3 -B scripts/test-release-appcast.py
+          python3 -B scripts/release-appcast.py verify-transition
       - name: Verify packaging rejection paths offline
         run: |
           set -o pipefail

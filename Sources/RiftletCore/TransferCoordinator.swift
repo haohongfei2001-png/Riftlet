@@ -110,6 +110,12 @@ public actor TransferCoordinator {
     // Only this process's new file inputs may be observed. Existing database
     // operations are immutable history, never upgraded, retried or reconciled.
     private var currentFileInputs = Set<UUID>()
+    /// A prepared slot may survive a failed database transaction after the
+    /// last running call returned. Such a slot is durable state, not work to wait for.
+    public var hasInFlightAttachmentWork: Bool {
+        isDraining || !selecting.isEmpty || !activeAppends.isEmpty
+    }
+
     private var usesIndependentFileInput: Bool { adapter is any IndependentFileInputAdapter }
 
     public init(store: QueueStore, adapter: any AttachmentAdapter, mediaDirectory: URL,

@@ -80,7 +80,19 @@ def package_hashes(package):
         matches = list((app / "Contents/Resources/Riftlet_RiftletAdapters.bundle").rglob(name))
         require(len(matches) == 1, "ambiguous_adapter_resource")
         result[matches[0].relative_to(package).as_posix()] = digest(matches[0])
+    framework = app / BUNDLE.SPARKLE.FRAMEWORK
+    if framework.is_dir():
+        # The ad-hoc internal host embeds the unchanged, universal upstream
+        # distribution. This binds every file and canonical relative link.
+        BUNDLE.SPARKLE.verify_upstream(framework)
+        result[framework.relative_to(package).as_posix()] = BUNDLE.SPARKLE.FRAMEWORK_DIGEST
     return result
+
+
+def build_inputs(package):
+    if (package / "Riftlet.app" / BUNDLE.SPARKLE.FRAMEWORK).is_dir():
+        return (*INPUTS, "Package.resolved")
+    return INPUTS
 
 
 def read_ordinary_configuration(package):
@@ -102,11 +114,12 @@ def create_manifest(package, repository, source_head):
     # CI may check out a PR merge. Bind every relevant build/test input to the
     # delivered source head instead of labelling the synthetic merge as that head.
     objects = {}
-    for path in INPUTS:
+    inputs = build_inputs(package)
+    for path in inputs:
         value = git(repository, "rev-parse", checkout + ":" + path)
         require(value == git(repository, "rev-parse", head + ":" + path), "head_input_mismatch_" + path)
         objects[path] = value
-    subprocess.run(["git", "-C", str(repository), "diff", "--exit-code", "HEAD", "--", *INPUTS], check=True)
+    subprocess.run(["git", "-C", str(repository), "diff", "--exit-code", "HEAD", "--", *inputs], check=True)
     run = os.environ.get("GITHUB_RUN_ID")
     require(run is None or run.isdigit(), "invalid_ci_run")
     ordinary = read_ordinary_configuration(package)
@@ -127,9 +140,9 @@ def verify_package(package, repository=None):
     package = Path(package)
     require(package.is_dir() and not package.is_symlink(), "invalid_package_root")
     require({p.name for p in package.iterdir()} == {"Riftlet.app", ENTRY, README, "build-info.json"}, "unexpected_package_entry")
-    for path in package.rglob("*"):
-        mode = path.lstat().st_mode
-        require(stat.S_ISREG(mode) or stat.S_ISDIR(mode), "unsafe_package_entry")
+    # The App verifier audits all nested entries and the exact Sparkle links.
+    for name in (ENTRY, README, "build-info.json"):
+        require(stat.S_ISREG((package / name).lstat().st_mode), "unsafe_package_entry")
     BUNDLE.verify_bundle(package / "Riftlet.app", repository)
     require(bool((package / ENTRY).stat().st_mode & stat.S_IXUSR), "launcher_not_executable")
     require((package / ENTRY).read_bytes().startswith(b"#!/bin/bash\n"), "invalid_launcher")
@@ -151,7 +164,7 @@ def verify_package(package, repository=None):
     require(manifest.get("feedbackEndpointConfigured") is feedback["feedbackEndpointConfigured"]
             and manifest.get("feedbackDelivery") == feedback["feedbackDelivery"], "invalid_feedback_boundary")
     require(manifest.get("sha256") == package_hashes(package), "package_hash_mismatch")
-    require(isinstance(manifest.get("buildInputObjects"), dict) and set(manifest["buildInputObjects"]) == set(INPUTS)
+    require(isinstance(manifest.get("buildInputObjects"), dict) and set(manifest["buildInputObjects"]) == set(build_inputs(package))
             and all(re.fullmatch(r"[0-9a-f]{40}", v) for v in manifest["buildInputObjects"].values()), "invalid_build_inputs")
     if repository is not None:
         for path, value in manifest["buildInputObjects"].items():

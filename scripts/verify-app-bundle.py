@@ -7,6 +7,8 @@ The build separately runs codesign --verify and packaged executable self-checks.
 """
 
 import argparse
+import importlib.util
+import os
 from pathlib import Path
 import plistlib
 import re
@@ -14,6 +16,11 @@ import stat
 import struct
 import sys
 from xml.parsers.expat import ExpatError
+
+
+spec = importlib.util.spec_from_file_location("riftlet_sparkle", Path(__file__).with_name("sparkle_bundle.py"))
+SPARKLE = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(SPARKLE)
 
 
 class VerificationError(Exception):
@@ -122,17 +129,19 @@ def verify_bundle(app, repository=None, channel="development"):
     require(channel in {"development", "ordinary-acceptance"}, "invalid_expected_channel")
     app = Path(app)
     require(app.suffix == ".app" and app.is_dir() and not app.is_symlink(), "invalid_app_root")
-    # Reject links and special files so a packaged dependency cannot escape the
-    # bundle. No link is required by this deliberately small native application.
+    # Only the exact relative links in the versioned Sparkle framework are valid.
     for path in app.rglob("*"):
         info = path.lstat()
-        require(stat.S_ISDIR(info.st_mode) or stat.S_ISREG(info.st_mode), "unsafe_bundle_entry")
+        if stat.S_ISLNK(info.st_mode):
+            require(SPARKLE.LINKS.get(path.relative_to(app).as_posix()) == os.readlink(path), "unsafe_bundle_entry")
+        else:
+            require(stat.S_ISDIR(info.st_mode) or stat.S_ISREG(info.st_mode), "unsafe_bundle_entry")
 
     contents = app / "Contents"
     require(contents.is_dir(), "missing_contents")
     require(set(p.name for p in app.iterdir()) == {"Contents"}, "unexpected_bundle_root_entry")
     require(set(p.name for p in contents.iterdir()) <= {
-        "Info.plist", "MacOS", "Resources", "_CodeSignature"
+        "Info.plist", "MacOS", "Resources", "_CodeSignature", "Frameworks"
     }, "unexpected_contents_entry")
     try:
         info = plistlib.loads(read_nonempty(contents / "Info.plist", "missing_info_plist"))
@@ -168,6 +177,10 @@ def verify_bundle(app, repository=None, channel="development"):
     require(bool(binary.stat().st_mode & stat.S_IXUSR), "executable_not_executable")
     require(set(p.name for p in binary.parent.iterdir()) == {"Riftlet"}, "unexpected_executable")
 
+    uses_updater = "SUFeedURL" in info
+    require((contents / "Frameworks").exists() == uses_updater, "updater_framework_mismatch")
+    if uses_updater:
+        SPARKLE.validate_layout(app, require)
     resources = contents / "Resources"
     verify_app_icon(app, info, repository)
     resource_bundle = resources / "Riftlet_RiftletAdapters.bundle"
@@ -189,7 +202,8 @@ def verify_bundle(app, repository=None, channel="development"):
         packaged_resources[name] = data
 
     notices = resources / "ThirdPartyNotices"
-    for name in NOTICE_NAMES:
+    notices_required = NOTICE_NAMES + (("Sparkle/LICENSE",) if uses_updater else ())
+    for name in notices_required:
         read_nonempty(notices / name, "missing_notice_" + name)
 
     if repository is not None:

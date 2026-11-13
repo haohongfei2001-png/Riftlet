@@ -552,6 +552,35 @@ class ReleaseTest(unittest.TestCase):
         self.error("archive_manifest_pin_mismatch", R.verify_archive, archive, R.digest(archive), "0" * 64)
         self.error("trusted_manifest_pin_required", R.verify_archive, archive, R.digest(archive), "not-a-pin")
 
+    @unittest.skipUnless(sys.platform == "darwin", "native macOS ditto link creation modes")
+    def test_private_staging_preserves_distribution_symlink_modes_for_copy_and_extract(self):
+        source = self.root / "native-link-input" / R.APP
+        source.mkdir(parents=True)
+        (source / "target").write_text("resource")
+        link = source / "alias"
+        link.symlink_to("target")
+        os.lchmod(link, 0o755)
+        old = os.umask(0o077)
+        try:
+            staging = self.root / "private-attempt"
+            staging.mkdir()
+            copied = staging / "copied"
+            R.copy_distribution_tree("--rsrc", "--extattr", source, copied)
+            archive = staging / "transfer.zip"
+            R.run(["/usr/bin/ditto", "-c", "-k", "--sequesterRsrc", "--keepParent", source, archive])
+            roundtrip = staging / "roundtrip"
+            roundtrip.mkdir()
+            R.extract_checked_zip(archive, R.APP, roundtrip)
+            for copied_link in [copied / "alias", roundtrip / R.APP / "alias"]:
+                self.assertTrue(copied_link.is_symlink())
+                self.assertEqual(os.readlink(copied_link), "target")
+                self.assertEqual(stat.S_IMODE(copied_link.lstat().st_mode), 0o755)
+            self.assertEqual(stat.S_IMODE(staging.stat().st_mode), 0o700)
+            self.assertEqual(stat.S_IMODE(archive.stat().st_mode), 0o600)
+            self.assertEqual(stat.S_IMODE(roundtrip.stat().st_mode), 0o700)
+        finally:
+            os.umask(old)
+
     @unittest.skipUnless(Path("/usr/bin/ditto").exists(), "native macOS ditto only")
     def test_native_ditto_archive_matches_read_only_verifier(self):
         archive = self.root / "native-ditto.zip"
@@ -589,6 +618,52 @@ class ReleaseTest(unittest.TestCase):
             with self.subTest(name=name):
                 archive = self.archive([(zipfile.ZipInfo(name), b"bad")])
                 self.error("unsafe_archive_path", R.verify_archive, archive, R.digest(archive))
+
+    def test_framework_zip_accepts_only_pinned_links_and_no_files_below_aliases(self):
+        link = R.APP + "/" + R.SPARKLE.FRAMEWORK + "/Versions/Current"
+        alias = zipfile.ZipInfo(link)
+        alias.external_attr = (stat.S_IFLNK | 0o755) << 16
+        for payload, extra, error in [(b"B", None, None), (b"C", None, "unsafe_archive_entry"),
+                                      (b"B", link + "/Resources/extra", "archive_member_beneath_symlink")]:
+            with self.subTest(payload=payload, extra=extra):
+                buffer = io.BytesIO()
+                with zipfile.ZipFile(buffer, "w") as out:
+                    out.writestr(alias, payload)
+                    if extra: out.writestr(extra, b"test")
+                with zipfile.ZipFile(buffer) as archive:
+                    if error:
+                        self.error(error, R.checked_zip_members, archive, R.APP)
+                    else:
+                        self.assertEqual(set(R.checked_zip_members(archive, R.APP)), {link})
+
+    def test_release_requires_permanent_rejection_of_invalid_feed_signatures(self):
+        receipt = dict(self.receipt, sparkleVersion=R.SPARKLE.VERSION)
+        info = plistlib.loads((self.app / "Contents/Info.plist").read_bytes())
+        R.validate_release_info(info, receipt)
+        for invalid in [None, False, 60]:
+            with self.subTest(invalid=invalid):
+                damaged = dict(info)
+                if invalid is None:
+                    del damaged["SUSignedFeedFailureExpirationInterval"]
+                else:
+                    damaged["SUSignedFeedFailureExpirationInterval"] = invalid
+                self.error("invalid_updater_SUSignedFeedFailureExpirationInterval",
+                           R.validate_release_info, damaged, receipt)
+
+    def test_locked_sparkle_release_rejects_a_different_origin_or_revision(self):
+        url = R.SPARKLE.URL
+        declaration = [{"sourceControl": [{"identity": "sparkle", "location": {"remote": [{"urlString": url}]},
+                                           "requirement": {"exact": [R.SPARKLE.VERSION]}}]}]
+        lock = {"pins": [{"identity": "sparkle", "kind": "remoteSourceControl", "location": url,
+                          "state": {"version": R.SPARKLE.VERSION, "revision": R.SPARKLE.REVISION}}]}
+        R.SPARKLE.require_exact_dependency(declaration, lock)
+        lock["pins"][0]["state"]["revision"] = "a" * 40
+        with self.assertRaisesRegex(ValueError, "unexpected_release_dependency"):
+            R.SPARKLE.require_exact_dependency(declaration, lock)
+        lock["pins"][0]["state"]["revision"] = R.SPARKLE.REVISION
+        declaration[0]["sourceControl"][0]["location"]["remote"][0]["urlString"] = "https://example.invalid/Sparkle"
+        with self.assertRaisesRegex(ValueError, "unexpected_release_dependency"):
+            R.SPARKLE.require_exact_dependency(declaration, lock)
 
     def test_archive_rejects_symlink_and_case_duplicate(self):
         linked = zipfile.ZipInfo(R.PAYLOAD + "/link"); linked.external_attr = (stat.S_IFLNK | 0o777) << 16

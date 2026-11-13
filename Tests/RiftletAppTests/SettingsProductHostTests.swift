@@ -25,6 +25,49 @@ final class SettingsProductHostTests: XCTestCase {
         XCTAssertEqual(fixture.host.center.labels["version"]?.stringValue, expected)
     }
 
+    @MainActor func testUpdaterMenuSettingsAndReminderShareLiveState() async throws {
+        let f = try fixture(); defer { f.close() }
+        f.updater = .init(canCheck: true, automaticChecks: true, availableVersion: nil, failure: nil)
+        f.publish()
+        let check = try XCTUnwrap(f.host.center.controls["updates.check"] as? NSButton)
+        let toggle = try XCTUnwrap(f.host.center.controls["updates.automatic"] as? NSSwitch)
+        let website = try XCTUnwrap(f.host.center.controls["updates.website"] as? NSButton)
+        let reminder = try XCTUnwrap(f.host.control.control(identifier: "control.update") as? NSButton)
+        XCTAssertTrue(check.isEnabled)
+        XCTAssertEqual(toggle.state, .on)
+        XCTAssertEqual(check.title, "检查更新…")
+        XCTAssertTrue(reminder.isHidden)
+        let menu = f.host.control.contextMenu
+        let item = try XCTUnwrap(menu.item(withTitle: check.title))
+        let dispatched = (0..<4).map { expectation(description: "Update control dispatch " + String($0)) }
+        f.onActionRecorded = { index in
+            if dispatched.indices.contains(index) { dispatched[index].fulfill() }
+        }
+        XCTAssertTrue(NSApp.sendAction(try XCTUnwrap(item.action), to: item.target, from: item))
+        await fulfillment(of: [dispatched[0]], timeout: 3)
+        check.performClick(nil)
+        await fulfillment(of: [dispatched[1]], timeout: 3)
+        toggle.state = .off
+        XCTAssertTrue(NSApp.sendAction(try XCTUnwrap(toggle.action), to: toggle.target, from: toggle))
+        await fulfillment(of: [dispatched[2]], timeout: 3)
+        website.performClick(nil)
+        await fulfillment(of: [dispatched[3]], timeout: 3)
+        XCTAssertEqual(f.actions, ["check", "check", "disable", "website"])
+
+        f.updater = .init(canCheck: true, automaticChecks: false, availableVersion: "1.0.2", failure: nil)
+        f.publish()
+        XCTAssertEqual(check.title, "查看更新 1.0.2…")
+        XCTAssertEqual(toggle.state, .off)
+        XCTAssertFalse(reminder.isHidden)
+        XCTAssertNotNil(menu.item(withTitle: check.title))
+        f.updater = .init(canCheck: false, automaticChecks: nil, availableVersion: nil, failure: "网络连接中断")
+        f.publish()
+        XCTAssertFalse(check.isEnabled)
+        XCTAssertFalse(toggle.isEnabled)
+        XCTAssertTrue(website.isEnabled)
+        XCTAssertEqual(f.host.center.labels["updates.failure"]?.stringValue, "更新未完成。网络连接中断")
+    }
+
     @MainActor func testThreeNativeSurfacesReadOneModelWithoutSavingOrShowing() throws {
         let f = try fixture(); defer { f.close() }
         var settings = f.adapter.owner.settings
@@ -317,7 +360,9 @@ private final class HostFixture {
     let adapter: HostSettingsAdapter
     let loginService = HostLoginService()
     var host: SettingsProductHost!
-    var actions: [String] = []
+    var actions: [String] = [] { didSet { onActionRecorded?(actions.count - 1) } }
+    var onActionRecorded: ((Int) -> Void)?
+    var updater: SettingsUpdaterPresentation?
     var refreshCalls = 0
     var closed = false
     init(rootExists: Bool) throws {
@@ -332,9 +377,13 @@ private final class HostFixture {
         host = try SettingsProductHost(root: root, mode: .settingsReview, statusItem: item,
             owner: adapter.owner, adapter: adapter, login: login,
             historyDisplay: HistoryDisplayPreferences(defaults: UserDefaults(suiteName: defaultsSuite)!),
+            updaterPresentation: { [weak self] in self?.updater },
             onRefresh: { [weak self] in self?.refreshCalls += 1 },
             onAction: { [weak self] action in
                 switch action {
+                case .checkForUpdates: self?.actions.append("check")
+                case .automaticUpdateChecks(let enabled): self?.actions.append(enabled ? "enable" : "disable")
+                case .openDownloadWebsite: self?.actions.append("website")
                 case .clearVisible: self?.actions.append("clearVisible")
                 case .openHistory: self?.actions.append("openHistory")
                 case .recheck: self?.actions.append("recheck")

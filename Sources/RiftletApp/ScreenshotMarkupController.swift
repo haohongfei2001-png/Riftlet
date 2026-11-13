@@ -7,6 +7,12 @@ import UniformTypeIdentifiers
 @MainActor
 final class ScreenshotMarkupController: NSWindowController, NSWindowDelegate {
     var onFinish: ((Data?) -> Void)?
+    var persistEdits: ((Data) async -> Bool)?
+    private let hint = NSTextField(labelWithString: "拖动添加矩形标注")
+    private let done = NSButton(title: "完成", target: nil, action: nil)
+    private let original = NSButton(title: "保留原图", target: nil, action: nil)
+    private var retryBytes: Data?
+    private var saving = false
     private let canvas: ScreenshotMarkupCanvas
     private let undoButton = NSButton(title: "撤销", target: nil, action: nil)
     private var finished = false
@@ -26,10 +32,9 @@ final class ScreenshotMarkupController: NSWindowController, NSWindowDelegate {
         panel.delegate = self
         let content = NSView(); content.translatesAutoresizingMaskIntoConstraints = false
         panel.contentView = content
-        let hint = NSTextField(labelWithString: "拖动添加矩形标注")
         hint.textColor = .secondaryLabelColor
-        let original = NSButton(title: "保留原图", target: self, action: #selector(keepOriginal))
-        let done = NSButton(title: "完成", target: self, action: #selector(finishEditing))
+        original.target = self; original.action = #selector(keepOriginal)
+        done.target = self; done.action = #selector(finishEditing)
         done.keyEquivalent = "\r"
         undoButton.target = self; undoButton.action = #selector(undoMark)
         undoButton.keyEquivalent = "z"; undoButton.keyEquivalentModifierMask = .command
@@ -52,7 +57,7 @@ final class ScreenshotMarkupController: NSWindowController, NSWindowDelegate {
             actions.bottomAnchor.constraint(equalTo: content.bottomAnchor, constant: -14)
         ])
         canvas.onChange = { [weak self] hasMarks in self?.undoButton.isEnabled = hasMarks }
-        canvas.onEscape = { [weak self] in self?.keepOriginal() }
+        canvas.onEscape = { [weak self] in _ = self?.keepOriginalAndClose() }
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) is not used") }
@@ -74,18 +79,41 @@ final class ScreenshotMarkupController: NSWindowController, NSWindowDelegate {
     @objc private func undoMark() { canvas.undoMark() }
     @objc private func keepOriginal() { complete(nil) }
     @objc private func finishEditing() {
-        guard !canvas.marks.isEmpty else { complete(nil); return }
-        guard let data = canvas.encodedPNG() else { NSSound.beep(); return }
-        complete(data)
+        guard !saving, !finished else { return }
+        guard !canvas.marks.isEmpty || retryBytes != nil else { complete(nil); return }
+        guard let data = retryBytes ?? canvas.encodedPNG(), let persistEdits else {
+            hint.stringValue = "未能保存标注。请重试，或选择保留原图。"
+            return
+        }
+        retryBytes = data; saving = true; canvas.acceptsEdits = false
+        undoButton.isEnabled = false; original.isEnabled = false; done.isEnabled = false
+        hint.stringValue = "正在保存标注…"
+        Task { @MainActor in
+            let saved = await persistEdits(data)
+            saving = false
+            if saved { complete(data); return }
+            // Keep the exact attempted PNG and the canvas visible until a retry
+            // succeeds or the user explicitly chooses the unmodified original.
+            hint.stringValue = "标注未能保存。请检查可用空间，然后重试。"
+            done.title = "重试保存"; done.isEnabled = true; original.isEnabled = true
+        }
     }
 
-    /// Cancelling capture while annotating keeps the already captured original.
-    func keepOriginalAndClose() { complete(nil) }
+    func presentForPendingQuit() {
+        if !saving && retryBytes == nil { hint.stringValue = "完成标注或选择保留原图后，可以退出 Riftlet。" }
+        present()
+    }
 
-    func windowShouldClose(_ sender: NSWindow) -> Bool { complete(nil); return false }
+    /// An unrelated menu/close event cannot discard an unsuccessful save.
+    @discardableResult func keepOriginalAndClose() -> Bool {
+        guard !saving, retryBytes == nil else { return false }
+        complete(nil); return true
+    }
+
+    func windowShouldClose(_ sender: NSWindow) -> Bool { keepOriginalAndClose(); return false }
 
     private func complete(_ data: Data?) {
-        guard !finished else { return }
+        guard !finished, !saving else { return }
         finished = true
         window?.orderOut(nil)
         let callback = onFinish; onFinish = nil
@@ -103,6 +131,7 @@ private final class ScreenshotMarkupPanel: NSPanel {
 final class ScreenshotMarkupCanvas: NSView {
     let image: CGImage
     private(set) var marks: [CGRect] = []
+    var acceptsEdits = true
     private var start: CGPoint?
     private var draft: CGRect?
     var onChange: ((Bool) -> Void)?
@@ -143,7 +172,7 @@ final class ScreenshotMarkupCanvas: NSView {
     }
 
     override func mouseDown(with event: NSEvent) {
-        guard imageRect.contains(convert(event.locationInWindow, from: nil)) else { return }
+        guard acceptsEdits, imageRect.contains(convert(event.locationInWindow, from: nil)) else { return }
         window?.makeFirstResponder(self); start = normalized(event)
     }
     override func mouseDragged(with event: NSEvent) {

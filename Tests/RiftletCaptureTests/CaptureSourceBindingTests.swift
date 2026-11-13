@@ -653,6 +653,32 @@ final class CaptureSourceBindingTests: XCTestCase {
         await restarted.stop()
     }
 
+    func testSafeExitWaitsForActiveWatcherAndSealsItAgainstLateStart() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let service = CaptureService(store: f.store, privateRoot: f.privateRoot, sourceDirectory: f.first)
+        let gate = CaptureLifecycleGate()
+        await service.setLifecycleProbe { point in
+            if point == .beforeModeRead { await gate.pause() }
+        }
+        let starting = Task { try await service.start() }
+        await gate.waitUntilEntered()
+        let prematurelyFinished = expectation(description: "Quit cannot finish mid-start")
+        prematurelyFinished.isInverted = true
+        let waiting = Task {
+            await service.finishForApplicationExit()
+            prematurelyFinished.fulfill()
+        }
+        await fulfillment(of: [prematurelyFinished], timeout: 0.1)
+        await gate.release()
+        try await starting.value
+        await waiting.value
+        try await service.setSourceDirectory(f.second)
+        try await service.start()
+        let snapshot = await service.statusSnapshot()
+        XCTAssertFalse(snapshot.isRunning)
+        XCTAssertEqual(snapshot.sourceDirectory, f.first)
+    }
+
     func testStopInvalidatesStartSuspendedBeforeStoreModeRead() async throws {
         let f = try Fixture(); defer { f.close() }
         let clock = SourceTestClock()

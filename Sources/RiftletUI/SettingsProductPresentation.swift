@@ -70,6 +70,17 @@ public struct SettingsCapabilities: Equatable, Sendable {
     public var canOpenConfiguration = false
     public init() {}
 }
+public struct SettingsUpdaterPresentation: Equatable, Sendable {
+    public var canCheck: Bool
+    public var automaticChecks: Bool?
+    public var availableVersion: String?
+    public var failure: String?
+    public init(canCheck: Bool, automaticChecks: Bool?, availableVersion: String?, failure: String?) {
+        self.canCheck = canCheck; self.automaticChecks = automaticChecks
+        self.availableVersion = availableVersion; self.failure = failure
+    }
+    public var checkTitle: String { availableVersion.map { "查看更新 " + $0 + "…" } ?? "检查更新…" }
+}
 public struct SettingsAccessibility: Equatable, Sendable {
     public var reduceMotion = false
     public var reduceTransparency = false
@@ -93,6 +104,7 @@ public struct SettingsProductSnapshot: Equatable, Sendable {
     public var accessibility: SettingsAccessibility = .init()
     public var screenRecording: SettingsScreenRecording = .notChecked
     public var version: String = ""
+    public var updater: SettingsUpdaterPresentation?
     public var chromeConnection: OnboardingChromeConnection = .unchecked
     public var configurationDeferred = false
     public var reviewEnvironment = false
@@ -113,6 +125,7 @@ public enum SettingsProductAction: Sendable {
     case recheck, openSource, chooseSourceAccess, requestAutomation, checkChromeConnection
     case openFilePrivacy, openScreenRecordingPrivacy
     case restorePreferredDisplay, checkStorage, revealDataFolder, reloadConfiguration, openConfiguration
+    case checkForUpdates, automaticUpdateChecks(Bool), openDownloadWebsite
     case showLatest, showOldest, quit
 }
 public typealias SettingsProductActionHandler = @MainActor (SettingsProductAction) async -> Void
