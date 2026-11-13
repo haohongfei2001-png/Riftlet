@@ -22,6 +22,9 @@ public extension SettingsProductSnapshot {
         }
         guard setup.attachment == .available, setup.permission == .granted,
               chromeConnection == .ready, setup.issue != .chromeJavaScriptDisabled else { return 1 }
+        for domain in [SettingsDomain.placement, .display] {
+            if let setting = state.domains[domain], setting.isSaving || setting.hasIssue { return 2 }
+        }
         return nil
     }
 }
@@ -354,9 +357,11 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
             switch snapshot.firstIncompleteOnboardingStep {
             case 0: finishHint.stringValue = "请先完成截图文件夹设置，让新截图显示在桌面边缘。"
             case 1: finishHint.stringValue = "请先完成 Chrome 连接设置。"
+            case 2: finishHint.stringValue = ""
             default: finishHint.stringValue = "截一张图，在 Chrome 打开要使用的 ChatGPT 对话，点一下缩略图。图片会出现在输入框旁，由你决定何时发送。"
             }
         }
+        finishHint.isHidden = finishHint.stringValue.isEmpty
         refreshNext()
         window.initialFirstResponder = firstAction
     }
@@ -511,7 +516,8 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
             case (false, 1): next.title = "连接 Chrome"
             default: next.title = "开始使用"
             }
-            next.isEnabled = !finishing && snapshot != nil
+            let changingPosition = busy.contains(.placement) || busy.contains(.display)
+            next.isEnabled = !finishing && snapshot != nil && (preview || (!changingPosition && incomplete != 2))
         }
         next.setAccessibilityLabel(next.title)
     }
@@ -528,7 +534,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         if let step = snapshot.firstIncompleteOnboardingStep {
             currentStep = step; refreshStep(); return
         }
-        guard snapshot.onboardingReady, !finishing else { return }
+        guard snapshot.onboardingReady, !finishing, !busy.contains(.display), !busy.contains(.placement) else { return }
         finishing = true; refreshNext()
         let session = presentationID
         Task {

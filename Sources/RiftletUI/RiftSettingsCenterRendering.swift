@@ -118,8 +118,15 @@ extension RiftSettingsCenterController {
         enable("storage.check", product.capabilities.canCheckStorage && product.setup.storage != .measuring)
         enable("storage.reveal", product.capabilities.initialized)
         text("automation", presentation.automationStatusText ?? "当前模式不需要 Chrome 自动化访问。")
-        text("chrome.menu", presentation.chromeScriptInstructions ?? "")
-        labels["chrome.menu"]?.isHidden = presentation.chromeScriptInstructions == nil || product.setup.issue == .chromeJavaScriptDisabled || (canTestConnection && product.chromeConnection == .ready)
+        let scriptInstructions = presentation.chromeScriptInstructions
+            ?? (supportsConnectionCheck ? ChromeAttachmentSetup.instructions : nil)
+        text("chrome.menu", scriptInstructions ?? "")
+        labels["chrome.menu"]?.isHidden = scriptInstructions == nil || product.setup.issue == .chromeJavaScriptDisabled
+            || (canTestConnection && product.chromeConnection == .ready)
+        // A general invitation to click a screenshot would contradict a failed connection check.
+        let lastAttachmentProblem = product.setup.issue?.isAttachmentConnectionIssue == true
+        labels["attachment"]?.isHidden = supportsConnectionCheck && !lastAttachmentProblem
+            && (!canTestConnection || product.chromeConnection != .ready)
         text("attachment", presentation.attachmentText)
         (controls["automation.request"] as? NSButton)?.title = presentation.permissionActionTitle
         hide("automation.request", !presentation.canRequestPermission)

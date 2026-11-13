@@ -343,7 +343,17 @@ final class RiftOnboardingControllerTests: XCTestCase {
 
     @MainActor func testUnconfirmedPlacementShowsSameTargetRetryAndOtherDomainRemainsUsable() async throws {
         try prepareAppKit()
-        let state = try model()
+        let original = try model().snapshot.owner
+        var attempts = 0
+        let state = try SettingsStateModel(owner: original, adapter: SettingsPersistenceClosures { request in
+            attempts += 1
+            guard attempts > 1, let configuration = request.configuration else {
+                return .unconfirmed(nil, .writeUnconfirmed)
+            }
+            var settings = original.settings
+            settings.configuration = configuration
+            return .confirmed(.init(revision: 2, settings: settings, collectionPaused: false, isHidden: false, mainDisplayID: 1))
+        })
         weak var observed: RiftOnboardingController?
         var commands: [String] = []
         var revision: UInt64 = 1
@@ -363,6 +373,8 @@ final class RiftOnboardingControllerTests: XCTestCase {
         controller.update(fixture(state))
         for _ in 0..<2 { try button(controller, "onboarding.next").performClick(nil) }
         try button(controller, "onboarding.placement.rightBottom").performClick(nil)
+        let finish = try button(controller, "onboarding.next")
+        XCTAssertFalse(finish.isEnabled, "Selection dispatch can precede the first saving snapshot")
         await assertReceived { state.snapshot.domains[.placement]?.saveFailure != nil }
         // The closure also publishes the receipt before returning to the view.
         await assertReceived { (controller.control(identifier: "onboarding.retryPlacement") as? NSButton)?.isEnabled == true }
@@ -370,10 +382,25 @@ final class RiftOnboardingControllerTests: XCTestCase {
         XCTAssertTrue(try XCTUnwrap(controller.control(identifier: "onboarding.display") as? NSPopUpButton).isEnabled)
         let retry = try button(controller, "onboarding.retryPlacement")
         XCTAssertFalse(retry.isHidden)
+        XCTAssertFalse(finish.isEnabled)
+        XCTAssertFalse(fixture(state).onboardingReady)
+        XCTAssertEqual(state.snapshot.domains[.placement]?.pending, .placement(.rightBottom))
         retry.performClick(nil)
         await assertReceived { commands.count == 2 }
         XCTAssertEqual(commands, ["rightBottom", "retry:placement"])
-        XCTAssertEqual(state.snapshot.domains[.placement]?.pending, .placement(.rightBottom))
+        await assertReceived { finish.isEnabled }
+        XCTAssertTrue(fixture(state).onboardingReady)
+        XCTAssertEqual(state.snapshot.owner.settings.configuration.placement, .rightBottom)
+    }
+
+    @MainActor func testDisplayWriteFailurePreventsFinishingButArchiveFailureDoesNot() async throws {
+        let state = try model()
+        _ = await state.perform(.editArchive("5"))
+        _ = await state.perform(.applyArchive)
+        XCTAssertTrue(fixture(state).onboardingReady)
+        _ = await state.perform(.selectDisplay(2))
+        XCTAssertNotNil(state.snapshot.domains[.display]?.saveFailure)
+        XCTAssertFalse(fixture(state).onboardingReady)
     }
 
     @MainActor func testDisconnectedSelectedDisplayAndOldSnapshotCannotChangePreference() throws {

@@ -233,8 +233,15 @@ final class RiftSettingsCenterTests: XCTestCase {
         snapshot.chromeConnection = .checking
         h.controller.update(snapshot)
         XCTAssertFalse(check.isEnabled)
+        snapshot.chromeConnection = .javaScriptDisabled
+        snapshot.setup = .init(attachment: .available, permission: .granted)
+        h.controller.update(snapshot)
+        XCTAssertEqual(h.controller.labels["attachment"]?.isHidden, true)
+        XCTAssertEqual(h.controller.labels["chrome.menu"]?.isHidden, false)
+        XCTAssertTrue(h.controller.labels["chrome.menu"]?.stringValue.contains(ChromeAttachmentSetup.menuPath) == true)
         snapshot.chromeConnection = .ready
         h.controller.update(snapshot)
+        XCTAssertEqual(h.controller.labels["attachment"]?.isHidden, false)
         XCTAssertEqual(h.controller.labels["access.chrome"]?.stringValue, "已连接")
         snapshot.setup = .init(attachment: .available, permission: .denied)
         h.controller.update(snapshot)
