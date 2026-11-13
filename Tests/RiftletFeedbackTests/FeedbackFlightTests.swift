@@ -77,7 +77,17 @@ final class FeedbackFlightTests: XCTestCase {
         await engine.pump()
         let refresh = Task { try await engine.refresh(id: id) }
         await transport.waitForStatus(); try await engine.requestDeletion(id: id)
-        await engine.stop(); await transport.release(); try await refresh.value
+        await engine.stop()
+        let prematureQuit = expectation(description: "Quit waits for the in-flight receipt")
+        prematureQuit.isInverted = true
+        let quit = Task {
+            await engine.finishCurrentFlight()
+            prematureQuit.fulfill()
+        }
+        await fulfillment(of: [prematureQuit], timeout: 0.1)
+        await transport.release()
+        try await refresh.value
+        await quit.value
         let records = try await store.records(), deletes = await transport.deletions
         XCTAssertEqual(deletes, 0); XCTAssertEqual(records.first?.state, .deletionQueued)
     }

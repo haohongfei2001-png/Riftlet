@@ -2,7 +2,7 @@ import AppKit
 import ImageIO
 import UniformTypeIdentifiers
 import XCTest
-import RiftletCore
+@testable import RiftletCore
 import RiftletUI
 import RiftletAdapters
 @testable import RiftletCapture
@@ -68,6 +68,79 @@ final class BuiltInScreenshotHostTests: XCTestCase {
         XCTAssertTrue(CGImageDestinationFinalize(destination))
         return .init(sourceURL: url, data: try Data(contentsOf: url), pixelWidth: 24, pixelHeight: 12,
                      hasSystemScreenshotMetadata: true) // Deliberate counterfactual; must not grant system origin.
+    }
+
+    @MainActor
+    func testEditedScreenshotFailureVetoesQuitAndRetriesSameDerivativeOnce() async throws {
+        let root = try prepare(); defer { try? FileManager.default.removeItem(at: root) }
+        try ScreenshotEntryPreferences(defaultMode: .region).save(to: root.appendingPathComponent("capture-entry-settings.json"))
+        let path = root.appendingPathComponent("queue.sqlite")
+        let store = try QueueStore(databaseURL: path), db = try SQLiteDatabase(url: path)
+        let rift = RiftPanelController(mediaDirectory: root.appendingPathComponent("media"), onSelect: { _ in })
+        let (capture, _) = engine(root: root, permission: HostPermissionFixture(), capturer: HostCaptureFixture())
+        let host = try ScreenshotEntryHost(root: root, store: store, rift: rift,
+            onChange: {}, onIssue: { _ in }, captureController: capture)
+        defer { host.close(); rift.close() }
+        let file = try pngFile(root: root)
+        host.beginFromMenu()
+        capture.onCapture?(.init(sourceURL: file.sourceURL, pngData: file.data, mode: .region,
+            rect: .zero, displayID: 7, displayIDs: [7], windowID: nil, pixelWidth: 24, pixelHeight: 12,
+            options: .init(editAfter: true), hasSystemScreenshotMetadata: false))
+
+        let window = try XCTUnwrap(NSApp.windows.first { $0.isVisible && $0.title == "截图标注" })
+        let content = try XCTUnwrap(window.contentView)
+        content.layoutSubtreeIfNeeded()
+        func descendants(_ view: NSView) -> [NSView] { [view] + view.subviews.flatMap(descendants) }
+        let views = descendants(content)
+        let canvas = try XCTUnwrap(views.compactMap { $0 as? ScreenshotMarkupCanvas }.first)
+        let done = try XCTUnwrap(views.compactMap { $0 as? NSButton }.first { $0.title == "完成" })
+        func event(_ type: NSEvent.EventType, fraction: CGFloat) throws -> NSEvent {
+            let area = canvas.imageRect
+            let local = NSPoint(x: area.minX + fraction * area.width, y: area.minY + fraction * area.height)
+            return try XCTUnwrap(NSEvent.mouseEvent(with: type, location: canvas.convert(local, to: nil),
+                modifierFlags: [], timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: window.windowNumber,
+                context: nil, eventNumber: 1, clickCount: 1, pressure: 1))
+        }
+        canvas.mouseDown(with: try event(.leftMouseDown, fraction: 0.2))
+        canvas.mouseUp(with: try event(.leftMouseUp, fraction: 0.8))
+        XCTAssertEqual(canvas.marks.count, 1)
+        var checks = 0
+        host.checkAfterCapture { checks += 1 }; host.checkAfterCapture { checks += 1 }
+        let initialQuit = await host.prepareForApplicationExit()
+        XCTAssertFalse(initialQuit)
+        try db.execute("CREATE TRIGGER reject_markup BEFORE INSERT ON assets BEGIN SELECT RAISE(ABORT,'test'); END")
+        done.performClick(nil)
+        let failureDeadline = Date().addingTimeInterval(3)
+        while done.title != "重试保存" && Date() < failureDeadline { try await Task.sleep(nanoseconds: 5_000_000) }
+        XCTAssertEqual(done.title, "重试保存")
+        let captures = file.sourceURL.deletingLastPathComponent()
+        func derivatives() throws -> [URL] {
+            try FileManager.default.contentsOfDirectory(at: captures, includingPropertiesForKeys: nil)
+                .filter { $0.lastPathComponent.hasSuffix("-edited.png") }
+        }
+        let saved = try XCTUnwrap(derivatives().first)
+        let expected = try Data(contentsOf: saved)
+        XCTAssertNotEqual(expected, file.data)
+        let failedQuit = await host.prepareForApplicationExit()
+        XCTAssertFalse(failedQuit)
+        host.cancel() // ending the screenshot overlay must preserve an unsuccessful edit
+        XCTAssertTrue(window.isVisible); XCTAssertEqual(canvas.marks.count, 1)
+        XCTAssertEqual(checks, 0)
+        try db.execute("DROP TRIGGER reject_markup")
+        done.performClick(nil)
+        let successDeadline = Date().addingTimeInterval(3)
+        while window.isVisible && Date() < successDeadline { try await Task.sleep(nanoseconds: 5_000_000) }
+        XCTAssertFalse(window.isVisible)
+        XCTAssertEqual(checks, 1)
+        XCTAssertEqual(try derivatives(), [saved])
+        let records = try await store.assets()
+        XCTAssertEqual(records.count, 1)
+        let record = try XCTUnwrap(records.first)
+        XCTAssertEqual(try Data(contentsOf: root.appendingPathComponent("media").appendingPathComponent(record.image.fileName)), expected)
+        XCTAssertEqual(try Data(contentsOf: file.sourceURL), file.data)
+        let finalQuit = await host.prepareForApplicationExit()
+        XCTAssertTrue(finalQuit)
+        await host.finishForApplicationExit()
     }
 
     @MainActor

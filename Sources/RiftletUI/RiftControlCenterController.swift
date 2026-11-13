@@ -186,6 +186,9 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         recovery.isHidden = true
         buttons["control.recovery"] = recovery
         append(recovery)
+        let update = button("查看更新…", id: "control.update", symbol: "arrow.down.circle")
+        update.isHidden = true
+        append(update)
         captureHint.isHidden = true
         append(captureHint)
         append(separator())
@@ -195,7 +198,7 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         let history = button("截图历史", id: "control.history", symbol: "clock")
         let settings = button("设置", id: "control.settings", symbol: "gearshape")
         append(SettingsNativeStyle.stack([history, spacer(), settings], vertical: false, spacing: 8))
-        let controls: [NSView] = [capture, recovery, pause, hide, history, settings]
+        let controls: [NSView] = [capture, recovery, update, pause, hide, history, settings]
         for (a, b) in zip(controls, controls.dropFirst() + [capture]) { a.nextKeyView = b }
         body.view.setAccessibilityLabel("Riftlet 控制中心")
         body.view.frame.size = NSSize(width: SettingsNativeStyle.controlCenterWidth, height: 230)
@@ -261,6 +264,13 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         detail.stringValue = projection.detail
         symbol.image = NSImage(systemSymbolName: projection.symbol, accessibilityDescription: nil)
         symbol.contentTintColor = SettingsNativeStyle.color(projection.state == .attention ? .warning : .accent)
+        let update = snapshot.updater
+        buttons["control.update"]?.title = update?.checkTitle ?? "检查更新…"
+        buttons["control.update"]?.isHidden = update?.availableVersion == nil
+        buttons["control.update"]?.isEnabled = update?.canCheck == true
+        let hasUpdate = update?.availableVersion != nil
+        statusItem.button?.title = hasUpdate ? "•" : ""
+        statusItem.button?.imagePosition = hasUpdate ? .imageLeading : .imageOnly
         recovery.title = projection.recoveryTitle ?? ""
         recovery.setAccessibilityLabel(recovery.title)
         recovery.isHidden = projection.recoveryPage == nil
@@ -275,7 +285,7 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
             && snapshot.state.domains[.visibility]?.isSaving != true && !busy.contains("visibility")
         buttons["control.history"]?.isEnabled = snapshot.capabilities.canOpenHistory
         statusItem.button?.toolTip = projection.title + "\n" + projection.detail
-        statusItem.button?.setAccessibilityValue(projection.title)
+        statusItem.button?.setAccessibilityValue(hasUpdate ? projection.title + "，有新版本" : projection.title)
         popover.animates = !snapshot.accessibility.reduceMotion
         if interactionSuspended {
             pause.isEnabled = false; hide.isEnabled = false
@@ -355,6 +365,7 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         case "control.recovery":
             guard let page = RiftControlCenterPresentation(snapshot).recoveryPage else { return }
             action = .openSettings(page)
+        case "control.update": guard snapshot.updater?.canCheck == true else { return }; action = .checkForUpdates
         case "control.history": guard snapshot.capabilities.canOpenHistory else { return }; action = .openHistory
         default: return
         }
@@ -380,6 +391,9 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         addMenu("从边缘收起全部", .clearVisible, enabled: snapshot.capabilities.canClearVisible && snapshot.setup.visibleCount > 0)
         contextMenu.addItem(.separator())
         addMenu("设置…", .openSettings(.display), key: ",")
+        if let updater = snapshot.updater {
+            addMenu(updater.checkTitle, .checkForUpdates, enabled: updater.canCheck)
+        }
         addMenu("反馈与建议…", .openFeedback)
         addMenu("退出 Riftlet", .quit, key: "q")
     }

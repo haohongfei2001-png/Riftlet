@@ -162,5 +162,10 @@ public actor FeedbackEngine {
         try await store.forgetResolved(id: id)
     }
 
+    /// stop() prevents new sends. An accepted HTTP response can still be
+    /// writing its original ledger row when an update requests termination.
+    public func finishCurrentFlight() async {
+        while running { try? await Task.sleep(nanoseconds: 100_000_000) }
+    }
     public func stop() { stopped = true; pumpRequested = false; invalidateWake() }
 }

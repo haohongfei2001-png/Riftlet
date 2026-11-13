@@ -2,6 +2,32 @@ import XCTest
 @testable import RiftletApp
 
 final class SelectionSubmissionQueueTests: XCTestCase {
+    @MainActor func testSafeExitWaitsForBothAcceptedClicksWithoutResubmission() async {
+        let queue = SelectionSubmissionQueue()
+        var events: [String] = []
+        var release: CheckedContinuation<Void, Never>?
+        let entered = expectation(description: "First input is in flight")
+        let waiting = expectation(description: "Quit has started")
+        queue.enqueue(selectionID: UUID(), deadline: nil, cancelled: { XCTFail("Unexpected cancellation") }) { _ in
+            await withCheckedContinuation { release = $0; entered.fulfill() }
+            events.append("first")
+        }
+        queue.enqueue(selectionID: UUID(), deadline: nil, cancelled: { XCTFail("Unexpected cancellation") }) { _ in
+            events.append("second")
+        }
+        await fulfillment(of: [entered], timeout: 5)
+        let quit = Task { @MainActor in
+            waiting.fulfill()
+            await queue.finishSubmittedWork()
+            events.append("quit")
+        }
+        await fulfillment(of: [waiting], timeout: 5)
+        XCTAssertTrue(events.isEmpty)
+        release?.resume()
+        await quit.value
+        XCTAssertEqual(events, ["first", "second", "quit"])
+    }
+
     @MainActor func testSuspendedFirstPermissionCannotLetLaterSelectionOvertake() async {
         let queue = SelectionSubmissionQueue()
         XCTAssertFalse(queue.hasOutstandingSubmission)

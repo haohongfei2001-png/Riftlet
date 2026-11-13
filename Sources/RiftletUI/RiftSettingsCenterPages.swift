@@ -267,6 +267,14 @@ extension RiftSettingsCenterController {
         ])
         let about = group([
             namedLabel("version", role:"secondary"), namedLabel("support", role:"caption"),
+            row("每天检查更新", control: nativeSwitch("每天检查更新", id: "updates.automatic") { [weak self] enabled in
+                self?.dispatch(.automaticUpdateChecks(enabled))
+            }),
+            buttonRow([
+                makeButton("检查更新…", id: "updates.check") { [weak self] in self?.dispatch(.checkForUpdates) },
+                makeButton("从官网下载…", id: "updates.website") { [weak self] in self?.dispatch(.openDownloadWebsite) }
+            ]),
+            namedLabel("updates.failure", role: "caption"),
             namedLabel("diagnostics", role:"caption"),
             buttonRow([
                 makeButton("重新读取配置", id:"configuration.reload") { [weak self] in self?.dispatch(.reloadConfiguration) },

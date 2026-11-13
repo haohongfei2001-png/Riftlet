@@ -10,6 +10,9 @@ let package = Package(
         .executable(name: "RiftletFeedbackDemo", targets: ["RiftletFeedbackDemo"]),
         .executable(name: "RiftletGUIAcceptance", targets: ["RiftletGUIAcceptance"])
     ],
+    dependencies: [
+        .package(url: "https://github.com/sparkle-project/Sparkle.git", exact: "2.10.1")
+    ],
     targets: [
         .systemLibrary(name: "CSQLite", pkgConfig: "sqlite3"),
         .target(name: "RiftletFeedback", dependencies: ["CSQLite"]),
@@ -22,7 +25,12 @@ let package = Package(
         .target(name: "RiftletUI", dependencies: ["RiftletCore", "RiftletCapture"]),
         .target(name: "RiftletAdapters", dependencies: ["RiftletCore"], resources: [.process("Resources")]),
         .executableTarget(name: "RiftletGUIAcceptance", dependencies: ["RiftletUI", "RiftletCore", "RiftletFeedback", "RiftletFeedbackUI"]),
-        .executableTarget(name: "RiftletApp", dependencies: ["RiftletCore", "RiftletCapture", "RiftletUI", "RiftletAdapters", "RiftletFeedback", "RiftletFeedbackUI"]),
+        .executableTarget(
+            name: "RiftletApp",
+            dependencies: ["RiftletCore", "RiftletCapture", "RiftletUI", "RiftletAdapters",
+                           "RiftletFeedback", "RiftletFeedbackUI", .product(name: "Sparkle", package: "Sparkle")],
+            linkerSettings: [.unsafeFlags(["-Xlinker", "-rpath", "-Xlinker", "@executable_path/../Frameworks"])]
+        ),
         .testTarget(name: "RiftletCoreTests", dependencies: ["RiftletCore", "CSQLite"]),
         .testTarget(name: "RiftletCaptureTests", dependencies: ["RiftletCapture", "RiftletCore", "CSQLite"]),
         .testTarget(name: "RiftletUITests", dependencies: ["RiftletUI", "RiftletCore"]),

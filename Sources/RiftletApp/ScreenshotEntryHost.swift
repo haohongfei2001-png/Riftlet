@@ -28,6 +28,9 @@ final class ScreenshotEntryHost {
     private var editorID: UUID?
     private var cancelling = false
     private var closed = false
+    private var finishingForExit = false
+    private var deferredUpdateCheck: (@MainActor () -> Void)?
+    private var imports: [UUID: Task<Void, Never>] = [:]
     private var screenObserver: NSObjectProtocol?
     private var windowCloseObserver: NSObjectProtocol?
     private var otherSuppressedWindows: [NSWindow] = []
@@ -120,6 +123,20 @@ final class ScreenshotEntryHost {
         capture.onCapture = { [weak self] image in self?.received(image) }
     }
 
+    func checkAfterCapture(_ check: @escaping @MainActor () -> Void) {
+        if capture.isActive || editor != nil {
+            deferredUpdateCheck = check
+            onIssue("结束截图或标注后将检查更新。")
+        } else { check() }
+    }
+
+    private func resumeDeferredUpdateCheck() {
+        guard !capture.isActive, editor == nil, !cancelling, !closed, !finishingForExit else { return }
+        let check = deferredUpdateCheck
+        deferredUpdateCheck = nil
+        check?()
+    }
+
     private func updateCapturePresentation() {
         let visible = !closed && isEnabled && !userHidden && !cancelling
         entry.setCapturePresentation(visible ? capture.presentationSnapshot : nil)
@@ -150,6 +167,7 @@ final class ScreenshotEntryHost {
     }
 
     private func startCapture(mode: ScreenshotMode) {
+        guard !finishingForExit else { return }
         guard allowsSystemCapture else {
             entry.setExpanded(false)
             onIssue("设置验收环境不会抓取屏幕；当前仅验证原生界面与本地设置。")
@@ -219,7 +237,7 @@ final class ScreenshotEntryHost {
 
     private func updateSuspension() {
         guard !closed, isEnabled, !cancelling else { return }
-        capture.setInteractionSuspended(menuOpen || editor != nil)
+        capture.setInteractionSuspended(finishingForExit || menuOpen || editor != nil)
     }
 
     private func setExposureSuppressed(_ hidden: Bool) {
@@ -245,15 +263,30 @@ final class ScreenshotEntryHost {
             let owner = UUID(); editorID = owner
             self.editor = editor
             entry.setBusy(true); updateSuspension()
+            var derivative: URL?
+            editor.persistEdits = { [weak self] data in
+                guard let self else { return false }
+                do {
+                    if derivative == nil {
+                        derivative = try await self.importer.saveBuiltInMarkup(data, original: result.sourceURL,
+                            outputDirectory: self.outputDirectory)
+                    }
+                    guard let derivative else { return false }
+                    _ = try await self.importer.importBuiltInScreenshot(original: derivative, outputDirectory: self.outputDirectory)
+                    await self.onChange()
+                    return true
+                } catch { return false }
+            }
             editor.onFinish = { [weak self] editedData in
                 guard let self, !self.closed, self.editorID == owner else { return }
                 self.editorID = nil; self.editor = nil
                 self.entry.setBusy(false); self.updateSuspension()
-                self.collect(result, editedData: editedData)
+                if editedData == nil { self.collect(result) }
+                self.resumeDeferredUpdateCheck()
             }
             editor.present()
         } else {
-            collect(result, editedData: nil)
+            collect(result)
             if result.options.editAfter {
                 onIssue("这张截图已按原画质保留；当前轻量标注不支持它的颜色格式。")
             }
@@ -261,18 +294,20 @@ final class ScreenshotEntryHost {
         // Deliberately no setExpanded(false), cancel(), or mode/order mutation.
     }
 
-    private func collect(_ result: InteractiveScreenshotCapture, editedData: Data?) {
+    private func collect(_ result: InteractiveScreenshotCapture) {
         let importer = self.importer, directory = outputDirectory
         // A completed exposure owns a saved original. Its durable import may
         // finish after the feature is disabled; it never restarts capture or
         // changes a setting. Unfinished exposures are cancelled by the engine.
-        Task { [weak self] in
+        let id = UUID()
+        imports[id] = Task { [weak self] in
+            defer { self?.imports.removeValue(forKey: id) }
             do {
                 // Origin records who initiated the capture, not which encoder
                 // happened to write an xattr. Built-in originals and derivatives
                 // must never borrow the system-screenshot admission profile.
                 _ = try await importer.importBuiltInScreenshot(original: result.sourceURL,
-                    editedPNG: editedData, outputDirectory: directory)
+                    outputDirectory: directory)
                 guard let self, !self.closed else { return }
                 await self.onChange()
                 self.configure()
@@ -289,14 +324,33 @@ final class ScreenshotEntryHost {
         updateCapturePresentation()
         capture.cancel()
         setExposureSuppressed(false)
-        editor?.keepOriginalAndClose(); editor = nil
-        editorID = nil
+        editor?.keepOriginalAndClose()
         menuOpen = false
         entry.setCaptureSuppressed(false); entry.setBusy(false)
         entry.setExpanded(false)
         rift.setCaptureSuppressed(false)
         rift.setTrayExpanded(false)
         cancelling = false
+        resumeDeferredUpdateCheck()
+    }
+
+    func prepareForApplicationExit() async -> Bool {
+        finishingForExit = true
+        await capture.finishPendingExposure()
+        guard let editor else { return true }
+        editor.presentForPendingQuit()
+        cancelExitPreparation()
+        return false
+    }
+
+    func cancelExitPreparation() {
+        finishingForExit = false
+        updateSuspension()
+    }
+
+    func finishForApplicationExit() async {
+        for task in Array(imports.values) { await task.value }
+        close()
     }
 
     func close() {

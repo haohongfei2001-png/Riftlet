@@ -1,6 +1,6 @@
 # Manual update and recovery audit
 
-Riftlet currently uses an explicitly reviewed App-only replacement, not an automatic updater. This document records the working safety boundary from the personal Beta 3 upgrade and complements [RELEASE_ENGINEERING.md](../RELEASE_ENGINEERING.md). The queue format transition and recovery steps are described below.
+Riftlet 1.0.0 uses a manual App-only replacement. Use this procedure for its first upgrade and for recovery. Later updater-enabled releases also provide [in-app updates](IN_APP_UPDATES.md). This document records the working safety boundary from the personal Beta 3 upgrade and complements [RELEASE_ENGINEERING.md](../RELEASE_ENGINEERING.md). The queue format transition and recovery steps are described below.
 
 ## Before replacing an App
 

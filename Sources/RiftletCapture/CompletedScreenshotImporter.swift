@@ -10,25 +10,9 @@ extension PrivateAssetImporter {
     public func importBuiltInScreenshot(original: URL, editedPNG: Data? = nil,
                                         outputDirectory: URL,
                                         firstSeenAt: Date = Date()) async throws -> AssetRecord {
-        let source: URL
-        if let editedPNG {
-            guard !editedPNG.isEmpty, Int64(editedPNG.count) <= ValidatedImage.maximumBytes else {
-                throw CaptureError.imageTooLarge
-            }
-            let expected = privateRoot.appendingPathComponent("captures", isDirectory: true).standardizedFileURL
-            guard outputDirectory.standardizedFileURL == expected,
-                  original.deletingLastPathComponent().standardizedFileURL == expected else {
-                throw CaptureError.privatePathUnsafe
-            }
-            try PrivateFiles.ensurePrivateDirectory(expected)
-            // The system collector already ignores hidden directory entries.
-            // Keep owned originals/derivatives out of that independent route even
-            // if the user's system screenshot location overlaps this directory.
-            source = expected.appendingPathComponent("." + UUID().uuidString.lowercased() + "-edited.png")
-            try PrivateFiles.atomicPrivateWrite(editedPNG, to: source)
-        } else {
-            source = original
-        }
+        let source = try editedPNG.map {
+            try saveBuiltInMarkup($0, original: original, outputDirectory: outputDirectory)
+        } ?? original
         let record = try await importCompletedScreenshot(at: source, origin: .applicationScreenshot,
                                                         firstSeenAt: firstSeenAt)
         // Existing source-key records are immutable provenance. Never return a
@@ -36,6 +20,25 @@ extension PrivateAssetImporter {
         // and never retag historical records or their operations to repair it.
         guard record.image.origin == .applicationScreenshot else { throw RiftletError.modeMismatch }
         return record
+    }
+
+    /// Persist a derivative once so a retry after an import error reuses its source identity.
+    public func saveBuiltInMarkup(_ editedPNG: Data, original: URL, outputDirectory: URL) throws -> URL {
+        guard !editedPNG.isEmpty, Int64(editedPNG.count) <= ValidatedImage.maximumBytes else {
+            throw CaptureError.imageTooLarge
+        }
+        let expected = privateRoot.appendingPathComponent("captures", isDirectory: true).standardizedFileURL
+        guard outputDirectory.standardizedFileURL == expected,
+              original.deletingLastPathComponent().standardizedFileURL == expected else {
+            throw CaptureError.privatePathUnsafe
+        }
+        try PrivateFiles.ensurePrivateDirectory(expected)
+        // The system collector already ignores hidden directory entries.
+        // Keep owned originals/derivatives out of that independent route even
+        // if the user's system screenshot location overlaps this directory.
+        let source = expected.appendingPathComponent("." + UUID().uuidString.lowercased() + "-edited.png")
+        try PrivateFiles.atomicPrivateWrite(editedPNG, to: source)
+        return source
     }
 
     /// The owning capture process has exited (or the editor has atomically

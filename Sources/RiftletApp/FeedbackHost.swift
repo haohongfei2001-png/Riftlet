@@ -47,8 +47,11 @@ final class FeedbackHost {
     private func openUnavailable() {let controller=FeedbackWindowController(engine:nil,diagnostics:diagnostics,appVersion:version);window=controller;controller.show()}
     func prepareTermination(_ reply:@escaping(Bool)->Void) {
         Task {
+            await initialization?.value
             if let window, !(await window.saveBeforeClosing(lockOnSuccess:true)) {window.show();reply(false);return}
-            await engine?.stop();try? await engine?.store.markClean();reply(true)
+            await engine?.stop()
+            await engine?.finishCurrentFlight()
+            try? await engine?.store.markClean();reply(true)
         }
     }
     func capture(_ value:CaptureDiagnostic) {

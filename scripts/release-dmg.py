@@ -55,6 +55,8 @@ def verify_app_tree(app, manifest):
     require(not os.path.lexists(app / R.MANIFEST) and R.inventory(app) == expected,
             "dmg_app_inventory_mismatch")
     R.verify_app_modes(manifest["files"])
+    if manifest.get("build", {}).get("sparkleVersion"):
+        R.verify_code_layout(app)
 
 
 def image_signature(image, team, log):

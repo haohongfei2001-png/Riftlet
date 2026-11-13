@@ -135,6 +135,12 @@ extension RiftSettingsCenterController {
         enable("source.privacy", product.capabilities.initialized)
         enable("screen.privacy", settings.entryAvailable)
         text("version", product.version.isEmpty ? "版本信息尚未提供。" : product.version)
+        let updater = product.updater
+        check("updates.automatic", updater?.automaticChecks == true, enabled: updater?.automaticChecks != nil)
+        (controls["updates.check"] as? NSButton)?.title = updater?.checkTitle ?? "检查更新…"
+        enable("updates.check", updater?.canCheck == true)
+        text("updates.failure", updater?.failure.map { "更新未完成。" + $0 } ?? "")
+        labels["updates.failure"]?.isHidden = updater?.failure == nil
         text("support", presentation.supportText)
         text("diagnostics", "当前操作结束后会应用新的桌面布局。")
         labels["diagnostics"]?.isHidden = !product.configurationDeferred

@@ -371,6 +371,10 @@ final class AcceptedSelectionQueueTests: XCTestCase {
         do { try await coordinator.select(original); XCTFail("Injected transaction error disappeared") } catch {}
         let prepared = try await operation(b, s)
         XCTAssertEqual(prepared.phase, .prepared); XCTAssertFalse(original.isValid())
+        let exitWouldWait = await coordinator.hasInFlightAttachmentWork
+        XCTAssertFalse(exitWouldWait, "A failed, idle FIFO slot must not hold normal quit or updater installation")
+        let inputBeforeRecovery = await adapter.inputs()
+        XCTAssertTrue(inputBeforeRecovery.isEmpty, "Consulting quiescence must never dispatch a prepared operation")
         try db.execute("DROP TRIGGER fail_intent")
         // A new independent click wakes the old FIFO slot after the DB recovers.
         try await coordinator.select(token(c))

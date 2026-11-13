@@ -14,6 +14,7 @@ final class SettingsProductHost {
     let historyDisplay: HistoryDisplayPreferences
     private var setup = SetupSnapshot()
     private var capabilities = SettingsCapabilities()
+    private let updaterPresentation: @MainActor () -> SettingsUpdaterPresentation?
     private var deferred = false
     private var chromeConnection: OnboardingChromeConnection = .unchecked
     private var revision: UInt64 = 0
@@ -28,10 +29,12 @@ final class SettingsProductHost {
          owner: SettingsOwnerSnapshot, adapter: any SettingsPersistenceAdapter,
          login: LoginItemPreferences? = nil,
          historyDisplay: HistoryDisplayPreferences? = nil,
+         updaterPresentation: @escaping @MainActor () -> SettingsUpdaterPresentation? = { nil },
          onRefresh: @escaping @MainActor () -> Void,
          onAction: @escaping SettingsProductActionHandler) throws {
         model = try SettingsStateModel(owner: owner, adapter: adapter)
         reviewEnvironment = mode == .settingsReview || OrdinaryCaptureConfiguration.isInternalAcceptance
+        self.updaterPresentation = updaterPresentation
         self.onAction = onAction; self.onRefresh = onRefresh
         self.login = login ?? LoginItemPreferences.live(mode: mode)
         self.historyDisplay = historyDisplay ?? HistoryDisplayPreferences.make(mode: mode, root: root)
@@ -106,6 +109,7 @@ final class SettingsProductHost {
         // A read-only preflight; never presents the macOS permission dialog.
         result.screenRecording = CGPreflightScreenCaptureAccess() ? .granted : .notGranted
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
+        result.updater = updaterPresentation()
         result.version = version.map { "Riftlet " + $0 } ?? "Riftlet"
         result.reviewEnvironment = reviewEnvironment
         return result
