@@ -249,6 +249,28 @@ class MainlineCompositionTests(unittest.TestCase):
         report = self.check()
         self.assertTrue(any(c["id"] == "website:index.html" and c["result"] == "FAIL" for c in report["checks"]))
 
+    def testPublicHomepageUsesExactCheckpointWithoutUnlockingOtherWebsiteAssets(self):
+        base = self.merge(self.foundation, self.head)
+        self.git("checkout", "-q", "--detach", base)
+        self.write("index.html", "approved download URL\n")
+        checkpoint = self.commit("approved website release change")
+        policy = replace(self.policy, public_download_page=checkpoint)
+        head = self.admit(checkpoint, self.review_record(checkpoint, base))
+        published = self.merge(base, head)
+        self.check(published, expected="PASS", policy=policy)
+
+        for path, new_text in (("index.html", "approved website\n"),
+                               ("index.html", "changed download URL\n"),
+                               ("CNAME", "another.invalid\n")):
+            with self.subTest(path=path, text=new_text):
+                self.git("checkout", "-q", "--detach", published)
+                self.write(path, new_text)
+                source = self.commit("other homepage or unapproved website change")
+                self.admit(source, self.review_record(source, published))
+                report = self.check(policy=policy)
+                self.assertTrue(any(c["id"] == "website:" + path and c["result"] == "FAIL"
+                                    for c in report["checks"]))
+
     def testEvidenceAddedByEarlierMainPRBecomesImmutable(self):
         self.write("engineering/evidence/new-acceptance.json", '{"result":"NOT_RUN"}\n')
         source = self.commit("explicitly reviewed new evidence")
