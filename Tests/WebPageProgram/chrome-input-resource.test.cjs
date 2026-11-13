@@ -222,19 +222,24 @@ function browserFixture(options){
    call({...op.command('begin'),uploadName:op.name,mediaType:'image/png',byteCount:bytes.length});
    call({...op.command('chunk'),chunkIndex:0,chunkBase64:btoa(String.fromCharCode(...bytes))});return op;
   }
-  for(let index=0;index<options.count;index++)ops.push(await operation(index));
-  const busyProbe=await operation(50);
-  let otherTab;
   if(options.switchTabs){
+   const stale=await operation(52);
    // Capture/stage operations in A, then switch the isolated Chromium browser
    // to a second real loopback document. A is the already-addressed JS realm.
-   otherTab=window.open('/other-draft','_blank');
+   const otherTab=window.open('/other-draft','_blank');
    check(!!otherTab,'headless Chrome opened tab B');
    await wait(()=>otherTab.document.getElementById('other-input'));
    otherTab.focus();
    await wait(()=>otherTab.document.hasFocus()&&!document.hasFocus());
    report.originalTabInBackground=true;
+   const stopped=(await call({...stale.command('commit'),chunkIndex:1})).observation;
+   check(stopped.preInputRetirement?.reason==='targetInvalidBeforeInput' && !stopped.uploadStart
+    && setters===0 && changes===0 && otherTab.changed===0,'frozen background tab retired before file input');
+   report.backgroundRetired=true;report.backgroundTabAInputs=changes;report.tabBInputs=otherTab.changed;
+   otherTab.close(); await wait(()=>document.hasFocus());
   }
+  for(let index=0;index<options.count;index++)ops.push(await operation(index));
+  const busyProbe=await operation(50);
   if(options.unavailablePicker){
    const unsubmitted=await operation(51),card=document.createElement('div');card.setAttribute('role','button');card.title=unsubmitted.name;
    const image=document.createElement('img');image.alt=unsubmitted.name;image.src=priorImage.src;card.append(image);form.append(card);
@@ -289,13 +294,6 @@ function browserFixture(options){
    check(await hash(await task.file.arrayBuffer())===ops[index].sha,'accepted File bytes remain unchanged after later inputs');
    check(task.list instanceof FileList,'application observed actual native FileList');
    if(options.retained)check(task.list.length===1&&task.list[0]===task.file,'retained prior FileList independent from replacement');
-  }
-  if(otherTab){
-   check(otherTab.document.hasFocus()&&!document.hasFocus(),'input to A did not seize focus from B');
-   check(otherTab.changed===0&&otherTab.document.getElementById('other-input').files.length===0,
-    'tab B received no File');
-   report.fixedTabAInputs=changes;report.tabBInputs=otherTab.changed;
-   otherTab.close();
   }
   if(handoff){
    check(handoff.counts.linkDefaultAllowed===0&&handoff.counts.closeClicks===0&&handoff.counts.cloudClicks===0&&handoff.counts.chooserDefaultAllowed===0,'unrelated cloud and native chooser were untouched');

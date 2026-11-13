@@ -37,7 +37,11 @@ func main() -> Int32 {
     guard sameProcess() else { print("NOT_RUN_SAFARI_PROCESS_CHANGED"); return 77 }
     let receiver = NSAppleEventDescriptor(processIdentifier: original.processIdentifier)
     let permission = AEDeterminePermissionToAutomateTarget(receiver.aeDesc, typeWildCard, typeWildCard, false)
-    guard permission == noErr else { print("NOT_RUN_SAFARI_AUTOMATION_OSSTATUS_\(permission)"); return 77 }
+    let denied = [OSStatus(errAEEventNotPermitted), OSStatus(errAEEventWouldRequireUserConsent)]
+    guard permission == noErr else {
+        print("SAFARI_PREFLIGHT_OSSTATUS_\(permission)")
+        return denied.contains(permission) ? 77 : 1
+    }
     guard let src = try? String(contentsOfFile: CommandLine.arguments[1], encoding: .utf8),
           let script = NSAppleScript(source: src) else { return 1 }
     let command = NSAppleEventDescriptor(eventClass: UInt32(kASAppleScriptSuite), eventID: UInt32(kASSubroutineEvent),
@@ -51,7 +55,7 @@ func main() -> Int32 {
     if let failure {
         let code = failure[NSAppleScript.errorNumber] as? Int ?? -1
         print("SAFARI_SCRIPT_OSSTATUS_\(code)")
-        return [Int(errAEEventNotPermitted), Int(errAEEventWouldRequireUserConsent), -1712].contains(code) ? 77 : 1
+        return denied.contains(OSStatus(exactly: code) ?? -1) ? 77 : 1
     }
     guard sameProcess() else { print("SAFARI_PROCESS_CHANGED"); return 1 }
     if let result = result.stringValue, result.hasPrefix("javascript-unavailable:"),

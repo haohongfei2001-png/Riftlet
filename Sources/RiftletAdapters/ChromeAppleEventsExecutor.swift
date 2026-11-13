@@ -17,11 +17,12 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         trace = ChromeBridgeTrace(sink: diagnosticTrace ?? BoundedDiagnosticTrace(enabled: traceEnabled))
     }
 
-    private nonisolated static func host(trace: ChromeBridgeTrace, requestID: String) -> ChromeApplicationHost {
+    private nonisolated static func host(trace: ChromeBridgeTrace, requestID: String,
+        readBudget: MainWorldReceiptReadBudget? = nil) -> ChromeApplicationHost {
         ChromeApplicationHost(foreground: ChromeApplicationHost.currentForeground, selected: { pid in
-            try ChromePIDEvents(pid: pid, trace: trace, requestID: requestID).activeIdentity(check: "click_selection")
+            try ChromePIDEvents(pid: pid, trace: trace, requestID: requestID, selectionBudget: readBudget).activeIdentity(check: "click_selection")
         }, address: { pid, window, tab in
-            try ChromePIDEvents(pid: pid, trace: trace, requestID: requestID).url(window: window, tab: tab)
+            try ChromePIDEvents(pid: pid, trace: trace, requestID: requestID, selectionBudget: readBudget).url(window: window, tab: tab)
         })
     }
 
@@ -29,14 +30,15 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
     /// returning from the press. The subsequent task may only resolve that pin.
     public func targetForClick(program: WebPageProgram) throws -> Task<TargetLease, Error> {
         let requestID = UUID().uuidString
-        let host = Self.host(trace: trace, requestID: requestID)
+        let budget = MainWorldReceiptReadBudget(deadlineUptime: ProcessInfo.processInfo.systemUptime + 1)
+        let host = Self.host(trace: trace, requestID: requestID, readBudget: budget)
         let frozen = try host.freeze()
         let identity = frozen.process, route = frozen.route
         let witness = ChromeClickDocumentWitness()
         let bridge = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: requestID)
         let script = try witness.bindScript(address: route.address, program: program)
         guard try bridge.execute(script, window: route.window, tab: route.tab,
-            receiptBudget: .init(deadlineUptime: ProcessInfo.processInfo.systemUptime + 1)) == "bound"
+            receiptBudget: budget) == "bound"
         else { throw WebAdapterError.invalidTarget }
         try host.revalidate(frozen)
         let relays = self.relays, trace = self.trace
@@ -232,8 +234,8 @@ private final class ChromeBridgeTrace: @unchecked Sendable {
 }
 
 /// Codes come from Chrome's installed scripting.sdef (Standard/Chromium suites),
-/// not undocumented browser internals. Submission and identity reads retain the
-/// five-second per-event timeout; receipt reads use their remaining command
+/// not undocumented browser internals. Synchronous click reads share one deadline.
+/// Other submissions use five seconds per event; receipt reads use their command
 /// budget (eight seconds for attachment discovery, one for other commands).
 /// This never activates or sends a ChatGPT message. The URL setter
 /// receives only a void JavaScript expression, not a navigation URL.
@@ -241,6 +243,7 @@ private struct ChromePIDEvents {
     let pid: pid_t
     let trace: ChromeBridgeTrace
     let requestID: String
+    var selectionBudget: MainWorldReceiptReadBudget? = nil
     private func code(_ text: String) -> UInt32 { text.utf8.reduce(0) { ($0 << 8) | UInt32($1) } }
 
     private func object(_ kind: String, form: String, key: NSAppleEventDescriptor,
@@ -292,7 +295,7 @@ private struct ChromePIDEvents {
     }
 
     private func get(_ object: NSAppleEventDescriptor) throws -> NSAppleEventDescriptor {
-        try send("core", "getd", direct: object)
+        try send("core", "getd", direct: object, receiptBudget: selectionBudget)
     }
 
     private func identifier(_ object: NSAppleEventDescriptor) throws -> String {

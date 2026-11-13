@@ -19,7 +19,7 @@
     "Tests/ConversationSurfaceHost/ConversationSurfaceHost.swift": "9081bdd442c0104c350e89cd098daa4bc9d3e9f3ac403f41fd94a7f65cca9167",
     "Tests/ConversationSurfaceHost/run.sh": "183d4cd6037334337692bebe5bb8f1f382aadf8ee5436d7b56af6affef147510",
     "Tests/RiftletAdaptersTests/ConversationSurfaceAdapterTests.swift": "56cf3a493de6cfc5b5dd2c9b38daf6b3cc32a26682ed9d5ced24c4439fa14d8e",
-    "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js": "fd34cc6c09d513df94b4952429a095a250cf8f3299f020f8a4b4d644e2a456a5"
+    "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js": "54f700899c24ccecb53fe24e4461ae2bc852dacf1e53e6074d89544a76f6e6fb"
   },
   "log": "macos-webkit.txt",
   "localSwiftPMXCTest": "NOT_RUN: standalone Command Line Tools could not import XCTest while building the existing RiftletFeedbackTests. The WebKit host compiled and ran directly with swiftc.",

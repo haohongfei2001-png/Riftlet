@@ -30,6 +30,8 @@
       "originalFileListsVerified": 2,
       "networkRequests": 0,
       "automaticSends": 0,
+      "backgroundRetired": true,
+      "backgroundTabAInputs": 0,
       "tabBInputs": 0,
       "wrongInputChanges": 0,
       "wrongInputSetters": 0,
@@ -389,9 +391,9 @@
   ],
   "sourceSHA256": {
     "Sources/RiftletAdapters/ChromeClickDocumentWitness.swift": "379c012c30a82a0c55d47f32a4e64cdda2648b25ee1ee05125d68717ead3fa18",
-    "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js": "fd34cc6c09d513df94b4952429a095a250cf8f3299f020f8a4b4d644e2a456a5",
+    "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js": "54f700899c24ccecb53fe24e4461ae2bc852dacf1e53e6074d89544a76f6e6fb",
     "Sources/RiftletAdapters/Resources/chatgpt-web-observe-v17.js": "0daf3f2763e340503b8c957c4ef35a619417c5e486ac48fccbcae3f657ff9a09",
-    "Tests/WebPageProgram/click-document-witness.test.cjs": "d2a21d78fd42f1aa023dff5a9eba1bc1e8ab516bc5c25fe87fe26523b0ae5028",
-    "Tests/WebPageProgram/chrome-input-resource.test.cjs": "56750537719e8e84152a580ac924d05c13ee81763695184a55c4e78a93c7bc26"
+    "Tests/WebPageProgram/click-document-witness.test.cjs": "383eed101dfa744b6832beab5d3f02cb9fe73f3476e845dafb6be17fdf8ddb09",
+    "Tests/WebPageProgram/chrome-input-resource.test.cjs": "d083843c92957ee8738af865b8e320b401b0838543139213cc22d9169f3084aa"
   }
 }

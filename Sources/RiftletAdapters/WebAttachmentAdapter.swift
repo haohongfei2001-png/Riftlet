@@ -438,11 +438,11 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         if request.operation.phase == .succeeded {
             return try await normalize(data, for: request)
         }
-        return try await observeCompletion(initial: data, identity: identity, request: request)
+        return try await observeCompletion(initial: data, identity: identity, request: request, observer: priorProgram)
     }
 
     private func observeCompletion(initial: Data, identity: ObservationIdentity,
-                                   request: TransferRequest, liveAppend: Bool = false,
+                                   request: TransferRequest, liveAppend: Bool = false, observer: WebPageProgram? = nil,
                                    inputConfirmed: (@Sendable (TransferReceipt) async -> Void)? = nil) async throws -> TransferReceipt {
         let deadline = ProcessInfo.processInfo.systemUptime + polling.timeout
         var response = initial
@@ -496,7 +496,8 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
             guard ProcessInfo.processInfo.systemUptime < deadline else { return receipt }
             // Observation after an uncertain result can never cause a second
             // input. There is deliberately no commit/begin fallback here.
-            response = try await perform(.init(action: .observe, target: identity.target, identity: identity))
+            response = try await perform(.init(action: .observe, target: identity.target, identity: identity),
+                                         observer: observer)
         }
     }
 

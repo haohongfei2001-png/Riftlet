@@ -92,17 +92,24 @@ final class ProductScreenshotScopeTests: XCTestCase {
             try await store.markUnknown(request.operation.id, reason: "existing v15 observation")
             let reopened = try QueueStore(databaseURL: database)
             let original = try await refreshed(request, store: reopened)
-            let bridge = V15ReadOnlyBridge(response: try JSONEncoder().encode(current))
+            // The first response keeps polling. The second ends the loop without
+            // granting START, success or retry. Both reads must use the original
+            // relay version, including across the reopened SQLite connection.
+            let terminal = AttachmentObservationEnvelope(provenance: prior.provenance, observation:
+                .init(identity: identity, state: .invalidated, belongsToOriginalDraft: false))
+            let bridge = OriginalReadOnlyBridge(first: try JSONEncoder().encode(prior),
+                                                later: try JSONEncoder().encode(terminal))
             let client = WebAttachmentAdapter(mediaDirectory: root, executor: bridge, program: program,
                 mode: scope.isProduct ? .ordinaryProduct : scope == .candidate ? .systemScreenshotCandidate : .ordinarySystemScreenshot,
-                profile: scope.isProduct ? OrdinaryProductScreenshotScope.systemProfile : scope.legacyProfile, polling: .disabled,
+                profile: scope.isProduct ? OrdinaryProductScreenshotScope.systemProfile : scope.legacyProfile,
+                polling: .init(timeout: 3, interval: 0.01),
                 candidateJournal: scope.isProduct ? nil : SystemScreenshotObservationJournal(store: reopened, scope: scope),
                 candidateAdmission: scope.isProduct ? nil : SystemScreenshotCandidateAdmission(store: reopened, scope: scope),
                 productStore: scope.isProduct ? reopened : nil, productOrigins: scope.isProduct ? [scope.origin] : [])
             let receipt = try await client.reconcile(original)
             XCTAssertEqual(receipt.outcome, .unknown); XCTAssertEqual(receipt.profileID, scope.admittedProfile.profileID)
-            let actions = await bridge.actions; XCTAssertEqual(actions, [.observe])
-            let readPrograms = await bridge.programIDs; XCTAssertEqual(readPrograms, [ChatGPTWebPageProgram.priorScreenshotSource])
+            let actions = await bridge.actions; XCTAssertEqual(actions, [.observe, .observe])
+            let readPrograms = await bridge.programIDs; XCTAssertEqual(readPrograms, Array(repeating: ChatGPTWebPageProgram.priorScreenshotSource, count: 2))
             for name in Set([key, fence]) { let saved = try await reopened.checkpoint(for: name); XCTAssertEqual(saved, bytes) }
             let savedJournal = try await reopened.checkpoint(for: journalKey), saved = try await reopened.operation(id: request.operation.id)
             XCTAssertEqual(savedJournal, priorJournal); XCTAssertEqual(saved, original.operation)
@@ -302,15 +309,16 @@ final class ProductScreenshotScopeTests: XCTestCase {
     }
 }
 
-private actor V15ReadOnlyBridge: WebBridgeExecutor {
-    let response: Data
+private actor OriginalReadOnlyBridge: WebBridgeExecutor {
+    let first: Data
+    let later: Data
     private(set) var actions: [WebBridgeAction] = []
     private(set) var programIDs: [String] = []
-    init(response: Data) { self.response = response }
+    init(first: Data, later: Data) { self.first = first; self.later = later }
     func execute(_ command: WebBridgeCommand, program: WebPageProgram) async throws -> Data {
         actions.append(command.action)
         programIDs.append(program.sourceID)
         guard command.action == .observe else { throw WebAdapterError.invalidRequest }
-        return response
+        return actions.count == 1 ? first : later
     }
 }

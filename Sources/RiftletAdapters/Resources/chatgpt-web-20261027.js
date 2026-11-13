@@ -217,7 +217,11 @@ function riftletWebAcceptance(command, native) {
     // The original editor is the destination. Opening its menu can move focus
     // or add search textboxes; reranking editors here would reject that very
     // interaction or switch to the menu's textbox.
-    return sameDraft(binding);
+    // An authenticated pinned click cannot write its old tab after an app,
+    // window or tab switch during a queued/awaited attachment entry. This is
+    // document focus, never keyboard focus of the draft editor itself.
+    return sameDraft(binding) && (!binding.target.clickBindingID
+      || (document.visibilityState === 'visible' && document.hasFocus()));
   }
   const outsidePurpose = (node, binding) => {
     for (let at = node; at && at !== document.body && at !== binding.form; at = at.parentElement) {
@@ -563,7 +567,7 @@ function riftletWebAcceptance(command, native) {
       const wasOpen = control.getAttribute('aria-expanded'), priorRoots = surfaces.roots.size;
       const advanced = () => {
         scan();
-        return interrupted || !sameDraft(binding) || !control.isConnected || captured.size > 0
+        return interrupted || !validDraft(binding) || !control.isConnected || captured.size > 0
           || surfaces.roots.size > priorRoots || control.getAttribute('aria-expanded') !== wasOpen;
       };
       // These are programmatic, untrusted events. Pointer-triggered primitives
@@ -588,7 +592,7 @@ function riftletWebAcceptance(command, native) {
           const compat = pointer('pointerdown', 1);
           if (compat && control.isConnected) mouse('mousedown', 1);
           await Promise.resolve();
-          if (interrupted || !sameDraft(binding) || !control.isConnected) return captured.size > 0;
+          if (interrupted || !validDraft(binding) || !control.isConnected) return captured.size > 0;
           const handledOnDown = advanced();
           pointer('pointerup', 0);
           if (compat && control.isConnected) mouse('mouseup', 0);
@@ -611,7 +615,7 @@ function riftletWebAcceptance(command, native) {
       for (const entry of entries) surfaces.linked(entry, false);
       while (true) {
         const ended = Date.now() >= deadline;
-        const valid = sameDraft(binding);
+        const valid = validDraft(binding);
         if (interrupted || !valid) {
           // An entry already started by this operation may finish its own
           // asynchronous picker call after navigation. Cancel just its chooser
@@ -670,7 +674,7 @@ function riftletWebAcceptance(command, native) {
         await waitForChange();
       }
       if (interrupted) return retire('attachmentEntryFailed', diag.stage, 'userInterrupted');
-      if (!sameDraft(binding)) return retire('targetInvalidBeforeInput', diag.stage, 'targetChanged');
+      if (!validDraft(binding)) return retire('targetInvalidBeforeInput', diag.stage, 'targetChanged');
       if (captured.size) return retire('attachmentInputNotCreated', 'picker', 'pickerRejected');
       if (diag.menuActivations) return retire('attachmentInputNotCreated', 'picker', 'pickerNotInvoked');
       if (surfaces.roots.size) return retire('attachmentInputNotCreated', 'menu', menuLocated ? 'menuActionNotRun' : 'menuActionMissing');
@@ -685,7 +689,7 @@ function riftletWebAcceptance(command, native) {
       document.removeEventListener('pointerdown', userInteraction, true);
       document.removeEventListener('keydown', userInteraction, true);
       for (const restore of restores.reverse()) restore();
-      if (!interrupted && sameDraft(binding)) {
+      if (!interrupted && validDraft(binding)) {
         for (const root of [...surfaces.opened].reverse()) if (visible(root)) {
           const target = root.contains(document.activeElement) ? document.activeElement : root;
           target.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', code: 'Escape', bubbles: true, cancelable: true}));
@@ -719,16 +723,21 @@ function riftletWebAcceptance(command, native) {
       observer.disconnect();
       navigation.removeEventListener('currententrychange', dispose);
       globalThis.removeEventListener('pagehide', dispose);
+      globalThis.removeEventListener('blur', dispose);
+      document.removeEventListener('visibilitychange', visibilityChanged);
       parts.editor.removeEventListener(editorEvent, handle);
       parts.form.removeEventListener(formEvent, handle);
     };
     const observer = new MutationObserver(records => {
       if (removed(records)) dispose();
     });
+    const visibilityChanged = () => { if (document.visibilityState !== 'visible') dispose(); };
     const timer = setTimeout(dispose, 60000);
     observer.observe(document, {subtree: true, childList: true});
     navigation.addEventListener('currententrychange', dispose);
     globalThis.addEventListener('pagehide', dispose);
+    globalThis.addEventListener('blur', dispose);
+    document.addEventListener('visibilitychange', visibilityChanged);
     parts.editor.addEventListener(editorEvent, handle);
     parts.form.addEventListener(formEvent, handle);
     return 'bound';
@@ -755,46 +764,60 @@ function riftletWebAcceptance(command, native) {
   const previewValue = node => node.tagName === 'IMG' ? (node.getAttribute('src') || '').trim() : true;
   const previewsOf = node => node.matches(previewSelector)
     ? [node] : [...node.querySelectorAll(previewSelector)];
-  function retainObservation(current) {
-    // Observing the original operation never needs a fresh input permit.
-    // The main world has verified both original DOM references at handoff.
-    // A single monotonic detach epoch per editor supports slow START even
-    // after the isolated-world click listener expires.
-    const root = document.documentElement, address = location.href;
-    const navigationID = navigation.currentEntry.id;
-    let monitor = registry.observationMonitor;
-    if (!monitor) {
-      const epochs = new WeakMap();
-      // Each witnessed conversation boundary invalidates old observations,
-      // including history.back() to the same NavigationHistoryEntry.
-      let navigationEpoch = 0;
-      const navigated = () => { navigationEpoch++; };
-      navigation.addEventListener('currententrychange', navigated);
-      globalThis.addEventListener('pagehide', navigated);
-      const reconcile = records => {
-        for (const record of records) for (const removed of record.removedNodes) {
-          if (removed.nodeType !== 1) continue;
-          const nodes = [removed, ...removed.querySelectorAll('*')];
-          for (const node of nodes) if (epochs.has(node)) epochs.set(node, epochs.get(node) + 1);
-        }
-      };
-      const observer = new MutationObserver(reconcile);
-      observer.observe(document, {subtree: true, childList: true});
-      monitor = registry.observationMonitor = {epochs, navigationEpoch: () => navigationEpoch,
-        flush: () => reconcile(observer.takeRecords())};
-    }
-    monitor.flush();
-    const epoch = node => {
-      if (!monitor.epochs.has(node)) monitor.epochs.set(node, 0);
-      return monitor.epochs.get(node);
+  // One document observer covers only the actual draft pairs with pending
+  // observations. Removing a transcript subtree never enumerates its contents.
+  function observationMonitor() {
+    if (registry.observationMonitor) return registry.observationMonitor;
+    const drafts = new Set();
+    const remove = draft => {
+      if (!drafts.delete(draft) || drafts.size) return;
+      observer.disconnect();
+      navigation.removeEventListener('currententrychange', navigated);
+      globalThis.removeEventListener('pagehide', navigated);
+      registry.observationMonitor = null;
     };
-    const formEpoch = epoch(current.form), editorEpoch = epoch(current.editor), navigationEpoch = monitor.navigationEpoch();
+    const navigated = () => { for (const draft of drafts) remove(draft); };
+    const reconcile = records => {
+      for (const record of records) for (const removed of record.removedNodes) {
+        for (const draft of drafts) if (removed.contains(draft.editor) || removed.contains(draft.form)) remove(draft);
+        if (!drafts.size) return;
+      }
+    };
+    const observer = new MutationObserver(reconcile);
+    observer.observe(document, {subtree: true, childList: true});
+    navigation.addEventListener('currententrychange', navigated);
+    globalThis.addEventListener('pagehide', navigated);
+    registry.observationMonitor = {drafts, remove, flush: () => reconcile(observer.takeRecords())};
+    return registry.observationMonitor;
+  }
+  function retainObservation(current) {
+    // Flush outstanding changes before adding the just-verified binding.
+    registry.observationMonitor?.flush();
+    const monitor = observationMonitor(), root = document.documentElement, address = location.href;
+    const navigationID = navigation.currentEntry.id;
+    let draft;
+    for (const item of monitor.drafts) if (item.form === current.form && item.editor === current.editor) {
+      draft = item; break;
+    }
+    if (!draft) {
+      draft = {form: current.form, editor: current.editor, users: 0};
+      monitor.drafts.add(draft);
+    }
+    draft.users++;
+    current.endObservation = () => {
+      if (!current.endObservation) return;
+      current.endObservation = null;
+      current.readOriginal = () => false;
+      if (--draft.users === 0) monitor.remove(draft);
+    };
     current.readOriginal = () => {
       monitor.flush();
-      return document.documentElement === root && location.href === address && navigation.currentEntry?.id === navigationID
-        && current.form.isConnected && current.editor.isConnected && current.form.contains(current.editor)
-        && (current.editor.closest(composerSurface) || current.editor.closest('form') || current.form) === current.form
-        && monitor.navigationEpoch() === navigationEpoch && epoch(current.form) === formEpoch && epoch(current.editor) === editorEpoch;
+      const valid = monitor.drafts.has(draft) && document.documentElement === root
+        && location.href === address && navigation.currentEntry?.id === navigationID
+        && draft.form.isConnected && draft.editor.isConnected && draft.form.contains(draft.editor)
+        && (draft.editor.closest(composerSurface) || draft.editor.closest('form') || draft.form) === draft.form;
+      if (!valid) { monitor.remove(draft); current.endObservation?.(); }
+      return valid;
     };
   }
   function sample(op) {
@@ -830,6 +853,7 @@ function riftletWebAcceptance(command, native) {
       inputSequence: op.inputSequence, startSequence: tick(), previousProgress: 0, currentProgress: 0,
       inputObservedAtMS: op.inputTime, startObservedAtMS: Math.max(op.inputTime, performance.now())};
     // This handoff is finished. No load/progress/COMPLETE watcher owns resources.
+    op.binding.endObservation?.();
     op.baseline.clear(); op.previewBaseline = null; op.urls.clear();
   }
   function observe(op) {
@@ -997,6 +1021,7 @@ function riftletWebAcceptance(command, native) {
       // The native setter or a receiver can have taken effect. Never switch
       // paths after entering it, including after a dropped native receipt.
       diag.exceptionType = exceptionName(error); diag.cause = 'deliveryUncertain';
+      op.binding.endObservation?.(); // No returned change can yield a positive START.
     } finally {
       registry.busy.delete(writingForm); registry.writingInputs.delete(input);
     }

@@ -18,7 +18,7 @@ func quoted(_ value: String) throws -> String {
     String(decoding: try JSONEncoder().encode(value), as: UTF8.self)
 }
 
-func runFixture() throws {
+func runFixture(inputAttempted: inout Bool) throws {
     let config = try JSONDecoder().decode(FixtureConfig.self, from: FileHandle.standardInput.readDataToEndOfFile())
     guard CommandLine.arguments.count == 2, config.pid > 0,
           let url = URLComponents(string: config.address), url.scheme == "http", url.host == "127.0.0.1",
@@ -44,6 +44,7 @@ func runFixture() throws {
         }
         guard try call("capture") == "bound" else { throw FixtureError.documentChanged }
         // Once entered, a native timeout or rejected reply exits without another input.
+        inputAttempted = true
         guard try call("commit") == "input-entered" else { throw FixtureError.unexpectedInput }
         let until = ProcessInfo.processInfo.systemUptime + 3
         var observed = false
@@ -56,7 +57,11 @@ func runFixture() throws {
     print("CONTROLLED_AE_INPUT_OBSERVED")
 }
 
-do { try runFixture() }
-catch EdgeHostError.notFrontmost { print("NOT_RUN_HEADLESS_PROCESS_NOT_FOREGROUND"); exit(77) }
-catch EdgeHostError.automation(let code) { print("EDGE_AUTOMATION_OSSTATUS_\(code)"); exit(77) }
+var inputAttempted = false
+do { try runFixture(inputAttempted: &inputAttempted) }
+catch EdgeHostError.notFrontmost where !inputAttempted { print("NOT_RUN_HEADLESS_PROCESS_NOT_FOREGROUND"); exit(77) }
+catch EdgeHostError.automation(let code) {
+    print("EDGE_AUTOMATION_OSSTATUS_\(code)")
+    exit(!inputAttempted && [OSStatus(errAEEventNotPermitted), OSStatus(errAEEventWouldRequireUserConsent)].contains(code) ? 77 : 1)
+}
 catch { print("EDGE_NATIVE_ROUTE_OR_RECEIPT_UNVERIFIED"); exit(1) }
