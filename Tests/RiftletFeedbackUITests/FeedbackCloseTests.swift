@@ -20,6 +20,103 @@ final class FeedbackCloseTests: XCTestCase {
         if let button = view as? NSButton, button.title.hasPrefix("附带最近") { return button }
         return view.subviews.compactMap { consent(in: $0) }.first
     }
+    @MainActor func testUnchangedDraftCanCloseWhenStorageBecomesUnwritable() async throws {
+        for initialText in ["", "already saved"] {
+            let (store, controller) = try fixture()
+            await controller.waitUntilLoaded()
+            if !initialText.isEmpty {
+                let text = try XCTUnwrap(editor(in: try XCTUnwrap(controller.window?.contentView)))
+                text.string = initialText
+                controller.textDidChange(Notification(name: NSText.didChangeNotification))
+                let saved = await controller.saveBeforeClosing()
+                XCTAssertTrue(saved)
+            }
+            let before = try await store.draft()
+            controller.persistDraft = { _ in throw FeedbackFailure.storageUnavailable }
+            let accepted = await controller.saveBeforeClosing(lockOnSuccess: true)
+            XCTAssertTrue(accepted)
+            XCTAssertFalse(controller.isEditingEnabled)
+            let after = try await store.draft()
+            XCTAssertEqual(after, before)
+        }
+    }
+
+    @MainActor func testRevertedFailedEditCanCloseAndReopenWithNoStaleProgress() async throws {
+        let (_, controller) = try fixture()
+        await controller.waitUntilLoaded()
+        let window = try XCTUnwrap(controller.window)
+        let text = try XCTUnwrap(editor(in: try XCTUnwrap(window.contentView)))
+        controller.persistDraft = { _ in throw FeedbackFailure.storageUnavailable }
+        text.string = "temporary edit"
+        controller.textDidChange(Notification(name: NSText.didChangeNotification))
+        let failed = await controller.saveBeforeClosing()
+        XCTAssertFalse(failed)
+        text.string = ""
+        controller.textDidChange(Notification(name: NSText.didChangeNotification))
+        let closed = await controller.saveBeforeClosing()
+        XCTAssertTrue(closed)
+        controller.showWindow(nil)
+        defer { window.close() }
+        XCTAssertTrue(controller.isEditingEnabled)
+        XCTAssertTrue(controller.statusText.contains("没有待保存"))
+    }
+
+    @MainActor func testUnreadableExistingDraftCannotBeOverwrittenAndReopensAfterRepair() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("feedback-read-" + UUID().uuidString)
+        addTeardownBlock { try? FileManager.default.removeItem(at: root) }
+        let store = try FeedbackStore(directory: root)
+        let original = FeedbackDraft(text: "saved before read failure", revision: 19)
+        try await store.saveDraft(original)
+        func renameDraft(_ from: String, _ to: String) throws {
+            let sqlite = Process()
+            sqlite.executableURL = URL(fileURLWithPath: "/usr/bin/sqlite3")
+            sqlite.arguments = [root.appendingPathComponent("feedback.sqlite").path, "ALTER TABLE \(from) RENAME TO \(to)"]
+            try sqlite.run(); sqlite.waitUntilExit()
+            XCTAssertEqual(sqlite.terminationStatus, 0)
+        }
+        try renameDraft("draft", "unavailable_draft")
+        _ = NSApplication.shared
+        let engine = FeedbackEngine(store: store, secrets: MemoryFeedbackSecrets(), transport: DisabledFeedbackTransport())
+        let controller = FeedbackWindowController(engine: engine, diagnostics: FeedbackDiagnostics(), appVersion: "0.3.5")
+        await controller.waitUntilLoaded()
+        XCTAssertFalse(controller.isEditingEnabled)
+        let closed = await controller.saveBeforeClosing()
+        XCTAssertTrue(closed)
+        XCTAssertFalse(controller.isEditingEnabled)
+        try renameDraft("unavailable_draft", "draft")
+        controller.show()
+        defer { controller.window?.close() }
+        await controller.waitUntilLoaded()
+        XCTAssertTrue(controller.isEditingEnabled)
+        XCTAssertEqual(controller.currentText, original.text)
+        let durable = try await store.draft()
+        XCTAssertEqual(durable, original)
+        await engine.stop()
+    }
+
+    @MainActor func testDeletingSavedTextAndChangingConsentStillRequirePersistence() async throws {
+        let (store, controller) = try fixture()
+        await controller.waitUntilLoaded()
+        let content = try XCTUnwrap(controller.window?.contentView)
+        let text = try XCTUnwrap(editor(in: content))
+        text.string = "previously saved"
+        controller.textDidChange(Notification(name: NSText.didChangeNotification))
+        let saved = await controller.saveBeforeClosing()
+        XCTAssertTrue(saved)
+        controller.persistDraft = { _ in throw FeedbackFailure.storageUnavailable }
+        text.string = ""
+        controller.textDidChange(Notification(name: NSText.didChangeNotification))
+        let deleted = await controller.saveBeforeClosing()
+        XCTAssertFalse(deleted)
+        let durable = try await store.draft()
+        XCTAssertEqual(durable.text, "previously saved")
+        text.string = durable.text
+        try XCTUnwrap(consent(in: content)).performClick(nil)
+        let changedConsent = await controller.saveBeforeClosing()
+        XCTAssertFalse(changedConsent)
+        XCTAssertTrue(controller.diagnosticSelected)
+    }
+
     @MainActor func testEveryCloseAttemptFlushesEvenAfterPriorProgrammaticClose() async throws {
         let (store, controller) = try fixture(); await controller.waitUntilLoaded()
         let window = try XCTUnwrap(controller.window)

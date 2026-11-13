@@ -60,7 +60,7 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
     private let sourceButton = NSButton(title: "查看截图位置", target: nil, action: nil)
     private let accessButton = NSButton(title: "允许访问截图位置…", target: nil, action: nil)
     private let permissionButton = NSButton(title: "检查 Chrome 权限…", target: nil, action: nil)
-    private let hideButton = NSButton(title: "隐藏裂缝", target: nil, action: nil)
+    private let hideButton = NSButton(title: "隐藏桌面截图", target: nil, action: nil)
     private let pauseButton = NSButton(title: "暂停收录", target: nil, action: nil)
     private let historyButton = NSButton(title: "内部历史", target: nil, action: nil)
     private let doneButton = NSButton(title: "完成", target: nil, action: nil)

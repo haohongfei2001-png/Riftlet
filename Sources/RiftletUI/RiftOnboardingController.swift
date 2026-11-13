@@ -27,7 +27,8 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
     private let sourceDetail = SettingsNativeStyle.label("", role: "secondary")
     private let sourcePath = SettingsNativeStyle.label("", role: "caption")
     private let automationDetail = SettingsNativeStyle.label("", role: "secondary")
-    private let scriptDetail = SettingsNativeStyle.label("", role: "secondary")
+    private let scriptDetail = SettingsNativeStyle.label("")
+    private lazy var chromeMenuSection = section("在 Chrome 中开启一键附加", symbol: "menubar.rectangle", views: [scriptDetail])
     private let permissionHint = SettingsNativeStyle.label("", role: "caption")
     private let sourceAccess = SettingsNativeStyle.button("允许访问…")
     private let automation = SettingsNativeStyle.button("检查 Chrome 权限…")
@@ -171,12 +172,12 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         sourceDetail.identifier = .init("onboarding.sourceStatus")
         automationDetail.identifier = .init("onboarding.automationStatus")
         scriptDetail.identifier = .init("onboarding.scriptStatus")
+        controls["onboarding.scriptStatus"] = scriptDetail
         let connections = page([
             SettingsNativeStyle.label("连接截图与草稿", role: "title"),
-            SettingsNativeStyle.label("截图文件夹提供原图。通过 Chrome 附加时，需要自动化访问。", role: "secondary"),
+            chromeMenuSection,
             section("截图文件夹", symbol: "folder", views: [sourceDetail, sourcePath, sourceAccess]),
-            section("Chrome 自动化", symbol: "macwindow", views: [automationDetail, automation]),
-            scriptDetail,
+            section("允许 Riftlet 控制 Chrome", symbol: "macwindow", views: [automationDetail, automation]),
             permissionHint, actionButton("重新检查连接", id: "onboarding.recheck")
         ])
         display.identifier = .init("onboarding.display"); display.setAccessibilityLabel("所在显示器")
@@ -202,6 +203,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         let placementRetry = actionButton("重试位置选择", id: "onboarding.retryPlacement")
         let displayRow = SettingsNativeStyle.stack([SettingsNativeStyle.label("所在显示器", role: "rowTitle"), display, NSView()],
                                                   vertical: false, spacing: 8)
+        controls["onboarding.finishHint"] = finishHint
         let placementPage = page([
             SettingsNativeStyle.label("选一个顺手的位置", role: "title"),
             SettingsNativeStyle.label("新截图会从所选的屏幕边缘出现。之后可以在设置中调整。", role: "secondary"),
@@ -271,11 +273,11 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         automation.setAccessibilityLabel(automation.title)
         automation.isEnabled = snapshot.capabilities.canRequestAutomation && presentation.canRequestPermission
         automation.isHidden = snapshot.setup.permission == .notNeeded
-        scriptDetail.stringValue = snapshot.setup.permissionDetail
-            ?? "当前模式不使用 Chrome 页面脚本；系统自动化许可也不代表页面脚本选项已开启。"
+        scriptDetail.stringValue = presentation.chromeScriptInstructions ?? ""
+        chromeMenuSection.isHidden = presentation.chromeScriptInstructions == nil
         permissionHint.stringValue = snapshot.screenRecording == .granted
-            ? "内置截图已允许屏幕录制。普通系统截图与主动附加仍分别使用上方能力。"
-            : "内置截图的屏幕录制权限在使用时按需请求，不是普通系统截图的前置条件。"
+            ? "Riftlet 内置截图已获屏幕录制权限。"
+            : "只用 ⇧⌘4 截图时，无需授予屏幕录制权限。"
         (controls["onboarding.recheck"] as? NSButton)?.isEnabled = snapshot.capabilities.canRecheck
         let settings = snapshot.state.owner.settings
         refreshDisplay()
@@ -288,7 +290,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         placementPreview.configuration = settings.configuration
         placementPreview.entryEnabled = settings.entryEnabled
         placementHint.stringValue = settings.configuration.placement == nil
-            ? "当前保留旧版绝对位置；主动选择后才调整。空队列不显示裂缝。"
+            ? "沿用之前的桌面位置。选择一个位置即可更改。"
             : ""
         placementHint.isHidden = placementHint.stringValue.isEmpty && !settings.displayRestoreAvailable
         if settings.displayRestoreAvailable {
@@ -300,6 +302,8 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
             && (snapshot.setup.permission == .granted || snapshot.setup.permission == .notNeeded)
         if snapshot.reviewEnvironment {
             finishHint.stringValue = "完成后，可从菜单栏的 Riftlet 图标打开设置和截图历史。隔离审核不会连接浏览器或上传。"
+        } else if snapshot.setup.issue == .chromeJavaScriptDisabled, let instructions = presentation.chromeScriptInstructions {
+            finishHint.stringValue = "一键附加还差一步。" + instructions
         } else if ready && snapshot.setup.attachment == .available {
             finishHint.stringValue = "打开要用的 Chrome 聊天草稿，截一张图，再点屏幕边缘的微图。需要帮助时，从菜单栏打开 Riftlet 设置。"
         } else {

@@ -42,7 +42,7 @@ enum ProductStatus {
     本地收录：系统保存的新截图，单帧 PNG / JPEG / HEIC / HEIF / TIFF；最多 128 MiB、1.6 亿像素、单边 50,000 像素。原始字节不转换；HDR 显示效果尚未验收。剪贴板截图、PDF、动图不在收录范围。
     需要 macOS 13 或更高版本。各版本的实测范围见版本说明。
     \(attachmentScope)
-    截图可能包含 Riftlet。需要时可先隐藏裂缝，收录仍可继续。公开下载状态和版本说明见 Riftlet 官网。
+    截图可能包含 Riftlet。需要时可先隐藏桌面截图，收录仍可继续。公开下载状态和版本说明见 Riftlet 官网。
     """
     }
 
@@ -195,6 +195,4 @@ enum ProductStatus {
         }
         return nil
     }
-
-    static let chromeJavaScriptHelp = "在 Chrome 的“显示”（View，部分版本译为“视图”）菜单打开“开发者”，勾选“允许来自 Apple 事件的 JavaScript”。这是 Chrome 自己的设置。"
 }

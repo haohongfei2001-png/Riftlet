@@ -51,7 +51,7 @@ public struct RiftControlCenterPresentation {
         } else if !owner.settings.entryAvailable {
             captureHint = "内置截图当前不可用；可在设置查看状态。"
         } else if owner.isHidden {
-            captureHint = "裂缝已隐藏；内置截图暂不可用。"
+            captureHint = "桌面截图已隐藏；内置截图暂不可用。"
         } else {
             captureHint = "内置截图暂不可用；可在设置查看当前状态。"
         }
@@ -98,11 +98,11 @@ public struct RiftControlCenterPresentation {
             recoveryTitle = "检查 Chrome 连接"; recoveryPage = .help
         } else if owner.collectionPaused {
             state = .paused; title = "已暂停收录"
-            detail = owner.isHidden ? "已有截图保留；裂缝也已隐藏。" : "已有截图保留，仍可按需使用。"
+            detail = owner.isHidden ? "已有截图保留；桌面截图也已隐藏。" : "已有截图保留，仍可按需使用。"
             symbol = "pause.circle"
             recoveryTitle = nil; recoveryPage = nil
         } else if owner.isHidden {
-            state = .hidden; title = "裂缝已隐藏"
+            state = .hidden; title = "桌面截图已隐藏"
             detail = setup.collection == .collecting ? "仍在收录新的截图。" : "只影响边缘显示；收录按当前运行状态进行。"
             symbol = "eye.slash"
             recoveryTitle = nil; recoveryPage = nil

@@ -762,7 +762,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         let snapshot = SetupSnapshot(sourceLocation: detectedSource?.path, source: source, collection: collection,
             isHidden: userHidden, visibleCount: visibleIDs.count, pendingCount: pendingResultCount,
             attachment: attachment, permission: ProductStatus.permission(automationPermission),
-            permissionDetail: mode.usesWebAdapter ? ProductStatus.chromeJavaScriptHelp : nil,
+            permissionDetail: mode.usesWebAdapter ? ChromeAttachmentSetup.instructions : nil,
             storage: setupStorage, issue: issue, supportDescription: ProductStatus.supportDescription,
             isChecking: captureControlBusy || requestingPermission || !initialized,
             builtInScreenshotEnabled: screenshotEntry?.isEnabled,
@@ -1313,7 +1313,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func updateControlTitles() {
-        hideItem?.title = userHidden ? "显示裂缝" : "隐藏裂缝"
+        hideItem?.title = userHidden ? "显示桌面截图" : "隐藏桌面截图"
         pauseItem?.title = captureIsPaused ? "继续收录截图" : "暂停收录（保留已有图片）"
         pauseItem?.isEnabled = canChangeCollection
         if let interval = lifecycleSettings.archiveAfterSeconds {

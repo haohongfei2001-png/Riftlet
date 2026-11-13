@@ -7,6 +7,7 @@ Riftlet 的截图副本和历史保存在本机。**点击微图会把那张图�
 - 系统截图原文件留在 macOS 的保存位置。Riftlet 在自己的数据目录保存私有副本、缩略图/必要派生文件、历史和操作记录。内置截图及编辑结果也可能分别占用空间。
 - 普通数据目录为 `~/Library/Application Support/Riftlet/`。设置还包括系统偏好中的来源授权、引导和历史视图偏好；反馈访问凭证存储在 macOS 钥匙串。App 数据目录不是整个系统偏好、钥匙串或权限的完整备份。
 - 为确定目标并保留原稿，页面程序在当前 ChatGPT 页面内检查编辑器、相关控件、附件预览及选区，并可临时读取编辑器值来判断是否被改动。它不是“不接触任何页面内容”。这些临时文本不会作为反馈诊断导出；不能把本地数据库、观察记录或原始诊断文件当成匿名材料。
+- Chrome 的「允许 Apple 事件中的 JavaScript」开关适用于已获准控制 Chrome 的应用。关闭它会停用 Riftlet 的一键附加，本地收录和历史仍可使用。
 - 点击附加才把图片交给该网页。Riftlet 不自动发送聊天消息，不主动删除现有聊天附件，不上传整个截图目录。图片进入 ChatGPT 后由该服务处理，适用你自己的账号和服务设置。
 - 当前产品没有 Riftlet 账号、截图云同步或后台使用率埋点。日常收录本身不把截图发送到维护者；本轮测试方案也不新增遥测。
 
@@ -32,6 +33,8 @@ Riftlet 的截图副本和历史保存在本机。**点击微图会把那张图�
 
 Screenshots and history are stored locally. A thumbnail click hands that image to the selected ChatGPT draft; ChatGPT then processes it under its own service/account settings. Riftlet inspects the current page’s editor, controls and attachment previews, and temporarily reads editor content/selection to preserve the draft. It does not export that text as feedback diagnostics.
 
+Chrome’s **Allow JavaScript from Apple Events** setting lets apps with Chrome automation access execute page scripts. Turning it off stops one-click attachment. Local collection and history remain available.
+
 Feedback is optional. Pressing Send authorizes the queued report to be retried later, including after restart. Its text, category, report ID, version, time and any explicitly selected diagnostic snapshot go to the private feedback service. New drafts have diagnostics off; saved drafts retain your choice. Diagnostics use a closed list of counts/events, but free text is **not automatically redacted**. Do not include images, chats, credentials or raw databases. Local storage, receipt, delivery and deletion are different states.
 
 Archiving or retracting a thumbnail does not delete its file. Uninstalling the App does not erase local data or already received feedback. No screenshot cloud library, Riftlet account or usage telemetry is introduced by this packet.
@@ -42,4 +45,6 @@ Settings → `使用与历史` → `存储与恢复` → `在 Finder 中显示` 
 
 接收服务对正文和可选诊断设有 90 天保留期，到期由定时任务清理。私有反馈中心中可能已有的副本单独处理，尚未确认的删除请求会继续保留。已完成删除或过期且从未投递的报告可留有不含正文的记录，服务按创建时间在一年后清理。可在 App 中对该条反馈申请删除，并查看服务确认。
 
-首批私测发放方将随包提供实际私有联系方式，用于 App 无法打开、退出私测或提出隐私请求。生产备份的残余保留范围由发放方在发放前确认。
+隐私请求请通过应用内「反馈与建议…」私下提交。App 无法打开时，可以公开报告安装故障；请只提供版本和报错类型。应用外的私密联系方式尚未公布，生产备份的残余保留期限尚未确认。[反馈说明](FEEDBACK-TEMPLATE.md)
+
+For privacy requests, use the private in-app feedback window. If the app will not open, only share a non-sensitive installation summary in public Issues. There is currently no published private contact outside the app.

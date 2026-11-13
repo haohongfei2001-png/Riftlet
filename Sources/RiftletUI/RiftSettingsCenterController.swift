@@ -11,7 +11,6 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     public private(set) var selectedPage: SettingsPage = .display
 
     let pageHeading = NSTextField(labelWithString: "")
-    let pageSubtitle = NSTextField(labelWithString: "")
     let model: SettingsStateModel
     let onAction: SettingsProductActionHandler
     var product: SettingsProductSnapshot
@@ -193,8 +192,6 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
         scroll.scrollerStyle = .overlay
         scroll.autohidesScrollers = true
         pageHeading.font = .systemFont(ofSize: 24, weight: .bold)
-        pageSubtitle.font = .systemFont(ofSize: 13)
-        pageSubtitle.textColor = .secondaryLabelColor
         footerStatus.identifier = .init("settings.center.footerStatus")
         footerStatus.font = .systemFont(ofSize: 11)
         footerStatus.maximumNumberOfLines = 2
@@ -202,7 +199,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
         footerStatus.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         for view in [sidebar,content,divider] { view.translatesAutoresizingMaskIntoConstraints = false; root.addSubview(view) }
         for view in [brand,caption,nav] as [NSView] { view.translatesAutoresizingMaskIntoConstraints = false; sidebar.addSubview(view) }
-        for view in [pageHeading,pageSubtitle,headerRule,scroll,footerStatus] as [NSView] {
+        for view in [pageHeading,headerRule,scroll,footerStatus] as [NSView] {
             view.translatesAutoresizingMaskIntoConstraints = false; content.addSubview(view)
         }
         NSLayoutConstraint.activate([
@@ -217,9 +214,8 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
             content.leadingAnchor.constraint(equalTo: sidebar.trailingAnchor), content.trailingAnchor.constraint(equalTo: root.trailingAnchor),
             content.topAnchor.constraint(equalTo: root.topAnchor), content.bottomAnchor.constraint(equalTo: root.bottomAnchor),
             pageHeading.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 30), pageHeading.topAnchor.constraint(equalTo: content.topAnchor, constant: 38),
-            pageSubtitle.leadingAnchor.constraint(equalTo: pageHeading.leadingAnchor), pageSubtitle.topAnchor.constraint(equalTo: pageHeading.bottomAnchor, constant: 4),
             headerRule.leadingAnchor.constraint(equalTo: pageHeading.leadingAnchor), headerRule.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -30),
-            headerRule.topAnchor.constraint(equalTo: pageSubtitle.bottomAnchor, constant: 17), headerRule.heightAnchor.constraint(equalToConstant: 1),
+            headerRule.topAnchor.constraint(equalTo: pageHeading.bottomAnchor, constant: 17), headerRule.heightAnchor.constraint(equalToConstant: 1),
             scroll.leadingAnchor.constraint(equalTo: content.leadingAnchor), scroll.trailingAnchor.constraint(equalTo: content.trailingAnchor),
             scroll.topAnchor.constraint(equalTo: headerRule.bottomAnchor), scroll.bottomAnchor.constraint(equalTo: content.bottomAnchor),
             footerStatus.trailingAnchor.constraint(equalTo: headerRule.trailingAnchor), footerStatus.leadingAnchor.constraint(greaterThanOrEqualTo: pageHeading.trailingAnchor, constant: 12),
@@ -266,7 +262,6 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
         pageWidthConstraints[page]?.isActive = true
         scroll.contentView.scroll(to: .zero); scroll.reflectScrolledClipView(scroll.contentView)
         pageHeading.stringValue = page.title
-        pageSubtitle.stringValue = page.subtitle
         window.title = "Riftlet — \(page.title)"
     }
 
@@ -387,7 +382,6 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
         }
         let alert = NSAlert()
         alert.messageText = "要保存更改后再关闭吗？"
-        alert.informativeText = "位置、动效参数与归档时限还有未确认的更改。已生效的即时开关不受影响。"
         alert.alertStyle = .informational
         for (name, id) in [("继续编辑", "continue"), ("不保存", "discard"), ("应用并关闭", "apply")] {
             let button = alert.addButton(withTitle: name)
@@ -469,9 +463,9 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
         alert.buttons[1].isEnabled = !busy
         alert.buttons[2].isEnabled = !busy && product.capabilities.canEditPreferences
         alert.informativeText = busy
-            ? "正在保存已有更改。请继续编辑或等待保存结束；关闭窗口不会取消已经开始的写入。"
-            : failed ? "更改尚未保存。可以重试“应用并关闭”，或继续编辑处理。未保存的草稿仍保留。"
-            : "位置、动效参数与归档时限还有未确认的更改。已生效的即时开关不受影响。"
+            ? "正在保存更改。你可以继续编辑，或在保存结束后关闭。"
+            : failed ? "更改尚未保存，草稿已保留。你可以继续编辑或重试“应用并关闭”。"
+            : "选择“不保存”会放弃尚未应用的更改。已生效的设置会保留。"
     }
     private var persistenceBusy: Bool {
         // Appearance writes are synchronous on MainActor. Login registration
