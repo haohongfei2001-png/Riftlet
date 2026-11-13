@@ -102,7 +102,7 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         } else if engine == nil {
             service.stringValue = "本地反馈存储暂不可用；当前不会上传。"
         } else if engine?.configured == true {
-            service.stringValue = "反馈服务已配置；只有提交后才投递，云端接收状态以对应记录为准。"
+            service.stringValue = "点“发送反馈”后，可在下方查看发送状态。"
         } else {
             service.stringValue = "接收服务尚未配置。可保存待发送；当前不会上传。"
         }
@@ -494,7 +494,7 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     @objc private func deleteRecord(_ sender: FeedbackRecordButton) {
         guard let record = record(for: sender), let engine else { return }
         confirmRecordAction(title: sender.title == "取消待发送" ? "取消这条待发送反馈？" : "申请删除这条反馈？",
-            message: "只处理反馈 RF-\(record.id.prefix(8))。确认时仍未尝试发送的记录仅取消本机投递；已尝试发送的记录会申请云端删除，包括需要维护者处理的私有维护副本。本机正文暂时保留，不改变其他反馈或任何截图。",
+            message: "反馈 RF-\(record.id.prefix(8)) 如果还没发出，将取消发送。如果已经尝试发送，Riftlet 会申请删除云端记录及其维护副本。本机仍保留这条反馈。",
             button: sender.title) { [weak self] in
                 do { try await engine.requestDeletion(id: record.id); await self?.refreshRecords() }
                 catch { self?.failure() }

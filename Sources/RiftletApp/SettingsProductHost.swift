@@ -15,6 +15,7 @@ final class SettingsProductHost {
     private var setup = SetupSnapshot()
     private var capabilities = SettingsCapabilities()
     private var deferred = false
+    private var chromeConnection: OnboardingChromeConnection = .unchecked
     private var revision: UInt64 = 0
     private let onAction: SettingsProductActionHandler
     private let onRefresh: @MainActor () -> Void
@@ -59,13 +60,16 @@ final class SettingsProductHost {
     var isVisible: Bool { center.isVisible || onboarding.isVisible }
 
     func update(owner: SettingsOwnerSnapshot, setup: SetupSnapshot,
-                capabilities: SettingsCapabilities, configurationDeferred: Bool) {
+                capabilities: SettingsCapabilities, configurationDeferred: Bool,
+                chromeConnection: OnboardingChromeConnection = .unchecked) {
+        self.chromeConnection = chromeConnection
         self.setup = setup; self.capabilities = capabilities; deferred = configurationDeferred
         if !model.receive(owner) { publish() }
     }
 
     var snapshot: SettingsProductSnapshot {
         var result = SettingsProductSnapshot(revision: revision, setup: setup, state: model.snapshot)
+        result.chromeConnection = chromeConnection
         result.capabilities = capabilities
         result.configurationDeferred = deferred
         result.historyDisplayStyle = historyDisplay.selection
@@ -159,7 +163,9 @@ final class SettingsProductHost {
         case .retryLogin:
             if let target = snapshot.login.failedTarget { _ = await login.setEnabled(target); publish() }
         case .openLoginSettings: control.close(); _ = login.openSystemSettings()
-        case .finishOnboarding: onboarding.closeForTeardown()
+        case .finishOnboarding:
+            guard onboarding.isVisible, snapshot.onboardingReady else { return }
+            await onAction(action)
         default: await onAction(action)
         }
     }

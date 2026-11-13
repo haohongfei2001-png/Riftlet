@@ -184,6 +184,65 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertNil(SetupPresentation(snapshot: snapshot.setup).issueText)
     }
 
+    @MainActor func testCaptureLocationLinkOpensDetailsAndOnlyOffersAccessWhenNeeded() throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        var snapshot = h.controller.product
+        snapshot.setup = .init(sourceLocation: "/fixture/shots", source: .accessible, issue: .imageUnavailable)
+        h.controller.update(snapshot)
+        h.controller.show(page: .capture)
+        let captureAccess: NSButton = try control(h, "source.access.capture")
+        let helpAccess: NSButton = try control(h, "source.access.help")
+        XCTAssertTrue(captureAccess.isHidden)
+        XCTAssertTrue(helpAccess.isHidden)
+        try click(h, "permissions.capture")
+        XCTAssertEqual(h.controller.selectedPage, .help)
+        let folder = try XCTUnwrap(h.controller.accessDetails["folder"])
+        XCTAssertFalse(folder.content.isHidden)
+        XCTAssertEqual(folder.button.accessibilityValue() as? String, "已展开")
+        snapshot.setup = .init(sourceLocation: "/fixture/shots", source: .accessible, issue: .screenshotFolderNeedsSelection)
+        h.controller.update(snapshot)
+        XCTAssertFalse(helpAccess.isHidden)
+        XCTAssertTrue(helpAccess.isEnabled)
+        XCTAssertEqual(h.controller.labels["access.folder"]?.stringValue, "需重新选择")
+        let recheck: NSButton = try control(h, "source.recheck.capture")
+        XCTAssertFalse(recheck.isHidden)
+        XCTAssertTrue(recheck.isEnabled)
+        XCTAssertTrue(h.actions.isEmpty)
+    }
+
+    @MainActor func testChromeCheckUsesCurrentPermissionAndRequiresExplicitAction() async throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        var snapshot = h.controller.product
+        snapshot.setup = .init(attachment: .available, permission: .granted,
+                               permissionDetail: ChromeAttachmentSetup.instructions)
+        snapshot.capabilities.canRequestAutomation = true
+        h.controller.update(snapshot)
+        h.controller.show(page: .help)
+        let check: NSButton = try control(h, "chrome.check")
+        let grant: NSButton = try control(h, "automation.request")
+        XCTAssertTrue(grant.isHidden)
+        XCTAssertFalse(check.isHidden)
+        XCTAssertTrue(check.isEnabled)
+        XCTAssertEqual(h.controller.labels["access.chrome"]?.stringValue, "待检查连接")
+        XCTAssertTrue(h.actions.isEmpty)
+        try click(h, "access.chrome")
+        try await clickAndWait(h, "chrome.check")
+        XCTAssertEqual(h.actions, ["checkChromeConnection"])
+
+        snapshot.revision = h.controller.product.revision
+        snapshot.chromeConnection = .checking
+        h.controller.update(snapshot)
+        XCTAssertFalse(check.isEnabled)
+        snapshot.chromeConnection = .ready
+        h.controller.update(snapshot)
+        XCTAssertEqual(h.controller.labels["access.chrome"]?.stringValue, "已连接")
+        snapshot.setup = .init(attachment: .available, permission: .denied)
+        h.controller.update(snapshot)
+        XCTAssertEqual(h.controller.labels["access.chrome"]?.stringValue, "需要授权")
+        XCTAssertTrue(check.isHidden)
+        XCTAssertFalse(grant.isHidden)
+    }
+
     @MainActor func testAppearanceApplyFailureKeepsItsReasonAndRetryTarget() throws {
         let h = try host()
         defer { h.controller.closeForTeardown() }
@@ -352,6 +411,26 @@ final class RiftSettingsCenterTests: XCTestCase {
         h.controller.window.makeFirstResponder(h.controller.navigation[.display])
         h.publish()
         XCTAssertEqual(field.stringValue, "83.2500", "Blurred drafts retain formatting, too")
+    }
+
+    @MainActor func testTrayShowsItsInsetButHidesControlsForNumberedThumbnails() throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        h.controller.show(page: .display)
+        let original = try XCTUnwrap(h.controller.numericFields[.fitWidth])
+        var settings = h.owner.settings
+        settings.configuration.desktopForm = .tray
+        h.receive(settings)
+        XCTAssertFalse(h.controller.commonEdgeSettings.isHidden)
+        XCTAssertTrue(h.controller.slitInsetFraction.isHidden)
+        XCTAssertTrue(h.controller.numberedThumbnailSettings.isHidden)
+        XCTAssertEqual(h.controller.disclosures["display.fine"]?.button.superview?.isHidden, true)
+        settings.configuration.desktopForm = .microSlit
+        h.receive(settings)
+        XCTAssertFalse(h.controller.slitInsetFraction.isHidden)
+        XCTAssertFalse(h.controller.numberedThumbnailSettings.isHidden)
+        XCTAssertEqual(h.controller.disclosures["display.fine"]?.button.superview?.isHidden, false)
+        XCTAssertTrue(h.controller.numericFields[.fitWidth] === original)
+        XCTAssertTrue(h.requests.isEmpty)
     }
 
     @MainActor func testWindChimeArrangementControlTracksFormAndOwner() async throws {
@@ -1155,6 +1234,7 @@ private final class SettingsCenterTestHost {
             if case .settings(let command) = action { _ = await model.perform(command) }
             else {
                 switch action {
+                case .checkChromeConnection: actions.append("checkChromeConnection")
                 case .clearVisible: actions.append("clearVisible")
                 case .revealDataFolder: actions.append("revealDataFolder")
                 case .loginEnabled(let value): actions.append("login:\(value)")

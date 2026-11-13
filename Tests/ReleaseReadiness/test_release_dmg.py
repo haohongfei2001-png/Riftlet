@@ -135,6 +135,20 @@ class OuterImageTests(unittest.TestCase):
         self.assertTrue(any("context:primary-signature" in c for c in self.calls))
         self.assertEqual(R.read_json(self.folder / "state.json")["stage"], "VERIFIED_STAPLED_DMG")
 
+    def test_universal_stable_filename_preserves_build_and_arches_in_receipt(self):
+        self.manifest["build"].update(distributionChannel="stable", version="1.0.0", build="21",
+                                      architectures=["arm64", "x86_64"])
+        self.accepted()
+        receipt = self.op("finish")
+        self.assertEqual(receipt["archive"], "Riftlet-1.0.0.dmg")
+        self.assertEqual((receipt["version"], receipt["build"], receipt["architectures"]),
+                         ("1.0.0", "21", ["arm64", "x86_64"]))
+        self.assertEqual(self.op("finish"), receipt)
+
+    def test_stable_single_arch_artifact_identifies_the_architecture(self):
+        self.manifest["build"].update(distributionChannel="stable", version="1.0.0", build="21")
+        self.assertEqual(self.op("create")["name"], "Riftlet-1.0.0-arm64.dmg")
+
     def test_unknown_only_reconciles_original_dmg_hash_never_app_job_or_second_submit(self):
         self.op("create"); self.uncertain = True
         self.refuse("dmg_submission_uncertain_query_original_job", self.op, "submit")

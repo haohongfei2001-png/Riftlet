@@ -1,11 +1,12 @@
-# Take a screenshot and attach it
+# Take your first screenshot and attach it
 
-1. Open the installed Riftlet app. Click its menu bar icon, choose Settings (设置), then Screenshots (截图). Check the screenshot folder (截图保存位置). If prompted, grant access to that same folder. [Installation and permissions](INSTALL-AND-PERMISSIONS.md)
-   **Before attaching for the first time**, allow Riftlet to control Chrome when macOS asks. Bring Google Chrome to the front and choose **View → Developer → Allow JavaScript from Apple Events** in the Mac menu bar. You can skip this for local screenshot collection and history. This Chrome setting lets apps with automation access execute page scripts. You can turn it off in the same menu.
-2. Press Shift–Command–4 and select a region. When macOS saves the image to a file, a thumbnail appears at the desktop edge. Holding Control copies to the clipboard only. You can also enable Riftlet’s own capture button in Screenshots.
-3. Bring the editable ChatGPT draft you intend to use to the front in Google Chrome. Click the new thumbnail once. Look for that exact image in the draft’s attachment area; existing text and attachments should remain in place.
-4. When the page begins receiving the image, Riftlet retracts its thumbnail. That is recorded as `START`. It does not certify a completed upload. You can click the next image while the first is uploading. Only you send the message. If the expected image is missing, check the page and Screenshot History (截图历史). An unconfirmed operation (结果待核实) is kept in history and never retried automatically.
+1. Open Riftlet from Applications. In the setup window, confirm the folder where your Mac saves screenshots. If prompted, select that folder to grant access.
+2. Open an editable ChatGPT draft in Google Chrome. Return to setup and allow Riftlet to control Chrome when macOS asks. In Chrome’s menu bar, select **View → Developer → Allow JavaScript from Apple Events**, then check the connection in Riftlet. This setting allows apps with Chrome automation permission to run page scripts. For local screenshot history alone, choose **Set up later** (稍后设置).
+3. Choose where thumbnails appear and finish setup. Use the Mac’s Screenshot app to capture a window, an area or the whole screen. Save the image as a file. Its thumbnail appears at the edge of the desktop.
+4. Bring your intended ChatGPT draft to the front in Chrome and click the thumbnail once. The image appears beside the message box alongside your existing text and attachments. The thumbnail retracts when ChatGPT starts receiving the image. You can click another screenshot while the first uploads. Check progress in the draft and send the message yourself.
 
-**Finding an earlier image.** Click the menu bar icon and open Screenshot History. An idle thumbnail archives after **2 minutes** by default. Under Settings → 使用与历史, set the timeout to **1–10 minutes** or turn it off. Select an eligible archived or removed item and choose 恢复到桌面 to bring its thumbnail back. Both the original system file and the private copy remain available.
+**Find an earlier screenshot.** Click the Riftlet menu bar icon and open Screenshot History (截图历史). By default, idle thumbnails are archived after two minutes. Select an archived image and choose Restore to Desktop (恢复到桌面). Your original file is preserved. Change the timeout to 1–10 minutes or disable automatic archiving under Settings → 使用与历史.
 
-**Changing the desktop.** Settings → 外观与布局 lets you switch between the screenshot tray (截图托盘), wind chime (风铃), and micro slit (微缝). All three share one queue. Pausing collection and hiding thumbnails are separate controls. [Troubleshooting and recovery](RECOVERY-AND-FAQ.md)
+**Change the desktop appearance.** Under Settings → 外观与布局, choose the screenshot tray, wind chime or micro slit. Each uses the same history. Pause collection to stop collecting new screenshots. Hide desktop screenshots to hide thumbnails while collection continues.
+
+[Installation and permissions](INSTALL-AND-PERMISSIONS.md) · [Troubleshooting and recovery](RECOVERY-AND-FAQ.md)

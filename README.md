@@ -6,11 +6,11 @@ macOS 正常截图，图片停在桌面边缘；点一下微图，附加到当�
 
 支持 macOS 13 及以上的 Apple 芯片和 Intel Mac。当前采用手动更新，首次在非管理员账户中使用尚未完整验收。
 
-一键附加需要 macOS 允许 Riftlet 控制 Chrome，并在 Chrome 的「显示 → 开发者」中勾选「允许 Apple 事件中的 JavaScript」。只用 Riftlet 收录和查看本地截图时可跳过。两张截图连续进入同一草稿的真实验收在 build 18 上通过；build 20 沿用相同的截图队列、附加与接收逻辑。
+一键附加需要 macOS 允许 Riftlet 控制 Chrome，并在 Chrome 的「显示 → 开发者」中勾选「允许 Apple 事件中的 JavaScript」。只用 Riftlet 收录和查看本地截图时可跳过。
 
 ## 使用与支持
 
-- [消费者入口与当前限制](docs/consumer/README.md)
+- [使用指南与支持范围](docs/consumer/README.md)
 - [中文快速开始](docs/consumer/QUICK-START.zh-CN.md) · [English quick start](docs/consumer/QUICK-START.en.md)
 - [安装与分步权限说明](docs/consumer/INSTALL-AND-PERMISSIONS.md)
 - [隐私、本地副本和卸载](docs/consumer/PRIVACY.md) · [隐私邮箱](mailto:privacy@riftlet.com)

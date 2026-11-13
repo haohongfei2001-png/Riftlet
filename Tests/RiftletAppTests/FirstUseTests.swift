@@ -30,17 +30,31 @@ final class FirstUseTests: XCTestCase {
             systemCollection: false, paused: false, initialized: true), .notApplicable)
     }
 
-    func testPresentationPersistsButIsIsolatedFromDevelopmentModes() throws {
+    func testIncompleteSetupResumesAndCompletionIsIsolatedFromDevelopmentModes() throws {
         let suite = "Riftlet.FirstUseTests.\(UUID())"
         let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
         defer { defaults.removePersistentDomain(forName: suite) }
         let capture = FirstUsePreferences(defaults: defaults, modeName: "Riftlet")
         XCTAssertTrue(capture.needsAutomaticPresentation)
         capture.recordPresentation()
+        XCTAssertTrue(FirstUsePreferences(defaults: defaults, modeName: "Riftlet").needsAutomaticPresentation)
+        capture.recordCompletion()
+        capture.recordPresentation() // Opening help later preserves completion.
         XCTAssertFalse(FirstUsePreferences(defaults: defaults, modeName: "Riftlet").needsAutomaticPresentation)
         XCTAssertTrue(FirstUsePreferences(defaults: defaults, modeName: "Riftlet-Simulation").needsAutomaticPresentation)
-        XCTAssertEqual(defaults.persistentDomain(forName: suite)?.count, 1,
+        XCTAssertEqual(defaults.persistentDomain(forName: suite)?.count, 2,
                        "First-use presentation must not record permission, visibility, or upload admission")
+    }
+
+    func testUpgradingPreservesLegacyOnboardingChoice() throws {
+        let suite = "Riftlet.LegacyFirstUse.\(UUID())"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        defaults.set(true, forKey: "Riftlet.firstUse.presented.v1.Riftlet")
+        let prefs = FirstUsePreferences(defaults: defaults, modeName: "Riftlet")
+        XCTAssertFalse(prefs.needsAutomaticPresentation)
+        prefs.recordPresentation()
+        XCTAssertFalse(prefs.needsAutomaticPresentation)
     }
 
     func testFolderGrantCannotRedirectScreenshotSource() throws {

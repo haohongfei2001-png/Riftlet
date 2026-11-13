@@ -3,18 +3,33 @@ import Foundation
 /// Presentation only. Never stores permission, upload admission or queue state.
 struct FirstUsePreferences {
     private let defaults: UserDefaults
-    private let key: String
+    private let presentedKey: String
+    private let progressKey: String
 
     init(defaults: UserDefaults = .standard, modeName: String) {
         self.defaults = defaults
-        key = "Riftlet.firstUse.presented.v1.\(modeName)"
+        presentedKey = "Riftlet.firstUse.presented.v1.\(modeName)"
+        progressKey = "Riftlet.firstUse.setup.v2.\(modeName)"
     }
 
-    var needsAutomaticPresentation: Bool { !defaults.bool(forKey: key) }
+    var hasPresented: Bool { defaults.bool(forKey: presentedKey) }
+
+    var needsAutomaticPresentation: Bool {
+        if let progress = defaults.string(forKey: progressKey) { return progress != "completed" }
+        // Existing installations already chose how they use Riftlet.
+        return !defaults.bool(forKey: presentedKey)
+    }
 
     /// Mark when the window is actually presented, not on a background refresh.
     /// Closing it is not consent to any system permission or external input.
-    func recordPresentation() { defaults.set(true, forKey: key) }
+    func recordPresentation() {
+        if defaults.object(forKey: progressKey) == nil && !defaults.bool(forKey: presentedKey) {
+            defaults.set("started", forKey: progressKey)
+        }
+        defaults.set(true, forKey: presentedKey)
+    }
+
+    func recordCompletion() { defaults.set("completed", forKey: progressKey) }
 }
 
 /// A user-selected folder grants access only to the system's actual screenshot
@@ -100,5 +115,5 @@ final class ScreenshotFolderAccess {
 enum SourceAccessError: LocalizedError {
     case differentFolder
     var errorDescription: String? { "所选文件夹与当前系统截图位置不同。" }
-    var recoverySuggestion: String? { "请选择窗口中显示的截图文件夹。可以按 ⇧⌘5，在“选项”中确认保存位置。" }
+    var recoverySuggestion: String? { "请选择窗口中显示的截图文件夹。可以在 macOS「截屏」的「选项」中查看保存位置。" }
 }

@@ -254,9 +254,17 @@ class MainlineCompositionTests(unittest.TestCase):
         self.git("checkout", "-q", "--detach", base)
         self.write("index.html", "approved download URL\n")
         checkpoint = self.commit("approved website release change")
-        policy = replace(self.policy, public_download_page=checkpoint)
+        policy = replace(self.policy, public_download_pages=(checkpoint,))
         head = self.admit(checkpoint, self.review_record(checkpoint, base))
         published = self.merge(base, head)
+        self.check(published, expected="PASS", policy=policy)
+
+        self.git("checkout", "-q", "--detach", published)
+        self.write("index.html", "approved download URL and support notes\n")
+        second = self.commit("clarify public download instructions")
+        policy = replace(policy, public_download_pages=(checkpoint, second))
+        head = self.admit(second, self.review_record(second, published))
+        self.check(self.merge(published, head), expected="PASS", policy=policy)
         self.check(published, expected="PASS", policy=policy)
 
         for path, new_text in (("index.html", "approved website\n"),

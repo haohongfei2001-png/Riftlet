@@ -233,7 +233,7 @@ final class SettingsReviewDriver {
         await check("existing-first-use-not-presented-again") {
             let firstUse = FirstUsePreferences(defaults: self.environment.defaults,
                 modeName: SettingsReviewEnvironment.directoryName(for: self.environment.identifier))
-            try self.require(!firstUse.needsAutomaticPresentation && !self.host.onboarding.isVisible,
+            try self.require(firstUse.hasPresented && !self.host.onboarding.isVisible,
                              "firstUsePresentedAgain")
             return ["existingPresentedPreference": true, "onboardingVisible": false,
                     "settingsVisible": self.host.center.isVisible, "controlVisible": self.host.control.isShown]

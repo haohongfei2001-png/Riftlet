@@ -54,7 +54,8 @@ extension RiftSettingsCenterController {
         for suffix in ["capture", "help"] {
             text("source.\(suffix)", presentation.sourceText)
             text("sourcePath.\(suffix)", presentation.sourcePath)
-            enable("source.access.\(suffix)", product.capabilities.canChooseSource && presentation.hasSourceLocation)
+            hide("source.access.\(suffix)", !presentation.needsSourceAccess)
+            enable("source.access.\(suffix)", product.capabilities.canChooseSource && presentation.needsSourceAccess)
             text("screen.\(suffix)", screenRecordingText)
         }
         let folderState: String
@@ -64,8 +65,12 @@ extension RiftSettingsCenterController {
         case .checking: folderState = "检查中"
         default: folderState = "尚未检查"
         }
-        text("access.folder", folderState)
-        labels["source.capture"]?.isHidden = product.setup.source == .accessible && product.setup.issue == nil
+        text("access.folder", product.setup.issue == .screenshotFolderNeedsSelection ? "需重新选择" : folderState)
+        let readableFolder = product.setup.source == .accessible && presentation.sourceIssue == nil
+        labels["source.capture"]?.isHidden = readableFolder
+        hide("source.recheck.capture", readableFolder || product.setup.source == .notApplicable)
+        enable("source.recheck.capture", product.capabilities.canRecheck && !product.setup.isChecking)
+        let supportsConnectionCheck = product.setup.attachment == .available
         var chromeState: String
         switch product.setup.permission {
         case .granted: chromeState = "已允许自动化"
@@ -74,8 +79,23 @@ extension RiftSettingsCenterController {
         case .notRunning, .browserUnavailable, .unavailable: chromeState = "暂不可用"
         default: chromeState = "使用时检查"
         }
-        if product.setup.issue == .chromeJavaScriptDisabled { chromeState = "需开启 JavaScript" }
+        if supportsConnectionCheck && product.setup.permission == .granted {
+            switch product.chromeConnection {
+            case .unchecked:
+                chromeState = product.setup.issue == .chromeJavaScriptDisabled ? "需开启 JavaScript" : "待检查连接"
+            case .checking: chromeState = "检查中"
+            case .ready: chromeState = "已连接"
+            case .javaScriptDisabled: chromeState = "需开启 JavaScript"
+            case .noWindow: chromeState = "请打开 Chrome 窗口"
+            case .unavailable: chromeState = "连接未成功"
+            }
+        }
         text("access.chrome", chromeState)
+        let canTestConnection = supportsConnectionCheck && product.setup.permission == .granted
+        hide("chrome.check", !canTestConnection)
+        enable("chrome.check", canTestConnection && product.capabilities.canRequestAutomation
+               && !product.reviewEnvironment && product.chromeConnection != .checking && !product.setup.isChecking)
+        (controls["chrome.check"] as? NSButton)?.title = product.chromeConnection == .checking ? "正在检查连接…" : "检查 Chrome 连接"
         switch product.screenRecording {
         case .granted: text("access.screen","已允许")
         case .notGranted: text("access.screen","需要授权")
@@ -83,7 +103,6 @@ extension RiftSettingsCenterController {
         case .unavailable: text("access.screen","暂不可用")
         }
         enable("source.open.capture", presentation.hasSourceLocation)
-        hide("source.access.capture", product.setup.source == .accessible && product.setup.issue == nil)
         select("arrival", index: ArrivalMotionMode.allCases.firstIndex(of: settings.arrivalMode) ?? 0)
         enable("arrival", product.capabilities.canEditPreferences && !busy(.arrival))
         text("motion.detail", "已开启系统“减少动态效果”。截图将直接显示，动效选择会保留。")
@@ -100,10 +119,11 @@ extension RiftSettingsCenterController {
         enable("storage.reveal", product.capabilities.initialized)
         text("automation", presentation.automationStatusText ?? "当前模式不需要 Chrome 自动化访问。")
         text("chrome.menu", presentation.chromeScriptInstructions ?? "")
-        labels["chrome.menu"]?.isHidden = presentation.chromeScriptInstructions == nil || product.setup.issue == .chromeJavaScriptDisabled
+        labels["chrome.menu"]?.isHidden = presentation.chromeScriptInstructions == nil || product.setup.issue == .chromeJavaScriptDisabled || (canTestConnection && product.chromeConnection == .ready)
         text("attachment", presentation.attachmentText)
         (controls["automation.request"] as? NSButton)?.title = presentation.permissionActionTitle
-        enable("automation.request", product.capabilities.canRequestAutomation && presentation.canRequestPermission)
+        hide("automation.request", !presentation.canRequestPermission)
+        enable("automation.request", product.capabilities.canRequestAutomation && presentation.canRequestPermission && !product.setup.isChecking)
         enable("recheck", product.capabilities.canRecheck && !product.setup.isChecking)
         enable("source.privacy", product.capabilities.initialized)
         enable("screen.privacy", settings.entryAvailable)
@@ -125,17 +145,17 @@ extension RiftSettingsCenterController {
         if login.isBusy { detail = "正在等待 macOS 更新登录项状态…" }
         else if !login.available { detail = "此运行环境不更改系统登录项。" }
         else if login.status == .requiresApproval { detail = "开启请求已提交，等待你在系统设置中允许；尚未获准登录启动。" }
-        else if login.notConfirmed { detail = "这次选择尚未确认，开关显示 macOS 当前实际状态。可以重试同一个选择。" }
+        else if login.notConfirmed { detail = "更改尚未确认。可重试或在系统设置中查看登录项。" }
         else {
             switch login.status {
             case .enabled: detail = "macOS 已允许 Riftlet 在登录后启动。"
             case .notRegistered: detail = "未注册登录启动。"
             case .notFound: detail = "macOS 暂未找到此应用的登录项。可以尝试开启。"
-            case .unknown, nil: detail = "登录项状态暂时无法确认，不会据此注册或取消。"
+            case .unknown, nil: detail = "暂时无法读取登录项状态。"
             case .requiresApproval: detail = "等待系统批准。"
             }
         }
-        let error = login.errorCode.map { " 本次系统操作返回异常（代码 \($0)）；当前状态以系统结果为准。" } ?? ""
+        let error = login.errorCode.map { " macOS 返回错误 \($0)。" } ?? ""
         text("login.detail", detail + error)
         labels["login.detail"]?.isHidden = login.available && !login.notConfirmed && !login.isBusy && login.errorCode == nil && (login.status == .notRegistered || login.status == .enabled)
         hide("login.retry", login.failedTarget == nil)
@@ -151,7 +171,11 @@ extension RiftSettingsCenterController {
         select("desktopForm", index: RiftDesktopForm.allCases.firstIndex(of: configuration.desktopForm) ?? 0)
         let windChime = configuration.desktopForm == .windChime
         windChimeSettings?.isHidden = !windChime
+        let tray = configuration.desktopForm == .tray
         commonEdgeSettings?.isHidden = windChime
+        slitInsetFraction?.isHidden = configuration.desktopForm != .microSlit
+        numberedThumbnailSettings?.isHidden = tray
+        disclosures["display.fine"]?.button.superview?.isHidden = tray
         windChimeLineSetting?.isHidden = !windChime
         labels["windChime.pitch"]?.isHidden = !windChime
         select("windChimeArrangement", index: RiftWindChimeArrangement.allCases.firstIndex(of: configuration.windChimeArrangement)!)
@@ -298,12 +322,12 @@ extension RiftSettingsCenterController {
         geometryPreview.update(configuration: previewConfig, mode: state.owner.settings.arrivalMode, reduceMotion: product.accessibility.reduceMotion, entryEnabled: state.owner.settings.entryEnabled)
         arrivalPreview.update(configuration: previewConfig, mode: state.owner.settings.arrivalMode, reduceMotion: product.accessibility.reduceMotion)
         swallowPreview.update(configuration: previewConfig, mode: state.owner.settings.arrivalMode, reduceMotion: product.accessibility.reduceMotion)
-        let previewNote = !valid ? "输入尚未有效，示意图暂用当前生效参数。" : model.hasLayoutDraft ? "草稿示意 · 尚未应用" : "布局示意 · 不读取真实截图"
-        text("layoutPreview.detail", geometryPreview.geometrySummary + "\n" + previewNote)
+        let previewNote = !valid ? "请检查尚未应用的数值。" : model.hasLayoutDraft ? "正在预览未应用的更改" : nil
+        text("layoutPreview.detail", [geometryPreview.geometrySummary, previewNote].compactMap { $0 }.joined(separator: "\n"))
         let duration = product.accessibility.reduceMotion ? min(0.08, previewConfig.swallowDuration) : previewConfig.swallowDuration
         text("motion.effective", "预览收起时长 \(formatMilliseconds(duration)) ms" + (model.hasLayoutDraft ? "（使用待应用的参数）" : "") + (product.accessibility.reduceMotion ? "（已按系统设置减少动态效果）。" : "。"))
         let issues = state.domains.values.filter(\.hasIssue).count + (product.appearance.failure == nil ? 0 : 1) + (product.login.notConfirmed ? 1 : 0)
-        footerStatus.stringValue = model.hasLayoutDraft || model.hasArchiveDraft ? "有尚未应用的更改" : issues > 0 ? "\(issues) 项设置结果待确认；可在对应页面重试" : ""
+        footerStatus.stringValue = model.hasLayoutDraft || model.hasArchiveDraft ? "有尚未应用的更改" : issues > 0 ? "\(issues) 项设置尚未保存，请打开相应页面重试" : ""
         refreshCloseButtons()
     }
 

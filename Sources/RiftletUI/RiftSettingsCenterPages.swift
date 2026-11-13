@@ -77,19 +77,20 @@ extension RiftSettingsCenterController {
             guard SettingsAppearanceChoice.allCases.indices.contains(popup.indexOfSelectedItem) else { return }
             self?.dispatch(.appearance(SettingsAppearanceChoice.allCases[popup.indexOfSelectedItem]))
         }
+        slitInsetFraction = numericRow(.hiddenFraction, title: "藏入边缘", unit: "%", range: 0...90)
         commonEdgeSettings = group([
-            numericRow(.hiddenFraction, title: "藏入边缘", unit: "%", range: 0...90),
+            slitInsetFraction!,
             numericRow(.outerInset, title: "边缘内缩", unit: "pt", range: 0...256)
         ])
         windChimeLineSetting = numericRow(.windChimeLineInset, title: "连线距边", unit: "pt", range: 0...256)
-        let detailed = group([
-            commonEdgeSettings!, windChimeLineSetting!,
+        numberedThumbnailSettings = group([
             numericRow(.fitWidth, title: "缩略图最大宽度", unit: "pt"),
             numericRow(.fitHeight, title: "缩略图最大高度", unit: "pt"),
             numericRow(.rowPitch, title: "排列间距", unit: "pt"),
             namedLabel("windChime.pitch", role: "caption"),
             numericRow(.numberFontSize, title: "编号字号", unit: "pt")
         ])
+        let detailed = group([commonEdgeSettings!, windChimeLineSetting!, numberedThumbnailSettings!])
         legacyFieldRow = numericRow(.firstCenterFromTop, title: "旧版距顶部位置", unit: "pt")
         let fine = group([
             numericRow(.numberGap, title: "编号间距", unit: "pt"),
@@ -136,16 +137,6 @@ extension RiftSettingsCenterController {
     }
 
     func captureContent() -> [NSView] {
-        let shortcuts = NSStackView()
-        shortcuts.distribution = .fillEqually
-        for (keys, title) in [("⇧ ⌘ 3","全屏"),("⇧ ⌘ 4","区域"),("⇧ ⌘ 5","截图工具栏")] {
-            let keyLabel = NSTextField(labelWithString: keys)
-            keyLabel.font = .monospacedSystemFont(ofSize: 18, weight: .medium)
-            let column = SettingsNativeStyle.stack([keyLabel,SettingsNativeStyle.label(title, role: "caption")], spacing: 5)
-            column.alignment = .centerX
-            shortcuts.addArrangedSubview(column)
-        }
-        shortcuts.heightAnchor.constraint(equalToConstant: 64).isActive = true
         let entry = nativeSwitch("显示内置截图入口", id: "entry") { [weak self] in self?.dispatch(.settings(.setEntryEnabled($0))) }
         let modes: [ScreenshotMode] = [.window, .region, .fullScreen]
         let mode = segmented("默认截图方式", id: "captureMode", titles: ["窗口","区域","全屏"]) { [weak self] in
@@ -159,12 +150,15 @@ extension RiftSettingsCenterController {
                 makeButton("开始内置截图…", id: "capture.start") { [weak self] in self?.dispatch(.capture) }
             ]))
         ])
-        return [section("macOS 系统截图"), shortcuts,
-                row("截图保存位置", control: buttonRow([
-                    makeButton("打开位置", id: "source.open.capture") { [weak self] in self?.dispatch(.openSource) },
-                    makeButton("查看访问状态", id: "permissions.capture") { [weak self] in self?.navigate(to: .help) }
+        return [section("系统截图"),
+                row("截图文件夹", detail: "Riftlet 从这里收录新截图。", control: buttonRow([
+                    makeButton("在 Finder 中打开", id: "source.open.capture") { [weak self] in self?.dispatch(.openSource) },
+                    makeButton("查看访问状态", id: "permissions.capture") { [weak self] in self?.showFolderAccessDetails() }
                 ])), namedLabel("sourcePath.capture", role:"caption"), namedLabel("source.capture", role:"caption"),
-                makeButton("允许访问此位置…", id: "source.access.capture") { [weak self] in self?.dispatch(.chooseSourceAccess) },
+                buttonRow([
+                    makeButton("允许访问此位置…", id: "source.access.capture") { [weak self] in self?.dispatch(.chooseSourceAccess) },
+                    makeButton("重新检查", id: "source.recheck.capture") { [weak self] in self?.dispatch(.recheck) }
+                ]),
                 section("Riftlet 内置截图"),
                 row("显示截图入口", detail:"在桌面边缘开始窗口、区域或全屏截图。", control: entry),
                 domainError(.entry), captureOptions!]
@@ -264,7 +258,8 @@ extension RiftSettingsCenterController {
         let chrome = group([
             namedLabel("automation", role:"secondary"), namedLabel("chrome.menu", role:"secondary"),
             namedLabel("attachment", role:"secondary"),
-            makeButton("检查 Chrome 权限…", id:"automation.request") { [weak self] in self?.dispatch(.requestAutomation) }
+            makeButton("检查 Chrome 权限…", id:"automation.request") { [weak self] in self?.dispatch(.requestAutomation) },
+            makeButton("检查 Chrome 连接", id:"chrome.check") { [weak self] in self?.dispatch(.checkChromeConnection) }
         ])
         let screen = group([
             namedLabel("screen.help", role:"secondary"),
@@ -275,8 +270,7 @@ extension RiftSettingsCenterController {
             namedLabel("diagnostics", role:"caption"),
             buttonRow([
                 makeButton("重新读取配置", id:"configuration.reload") { [weak self] in self?.dispatch(.reloadConfiguration) },
-                makeButton("打开配置文件…", id:"configuration.open") { [weak self] in self?.dispatch(.openConfiguration) },
-                makeButton("反馈与建议…", id:"feedback.help") { [weak self] in self?.dispatch(.openFeedback) }
+                makeButton("打开配置文件…", id:"configuration.open") { [weak self] in self?.dispatch(.openConfiguration) }
             ])
         ])
         let recheck = makeButton("重新检查", id:"recheck") { [weak self] in self?.dispatch(.recheck) }
@@ -284,9 +278,10 @@ extension RiftSettingsCenterController {
         return [section("访问权限", trailing: recheck),
             accessRow("截图文件夹", symbol:"folder", detail:"收录保存到系统截图目录的图片。", id:"folder", content:folder),
             accessRow("Chrome 一键附加", symbol:"globe", detail:"需要 macOS 自动化授权和 Chrome 菜单中的 JavaScript 开关。", id:"chrome", content:chrome),
-            accessRow("屏幕录制", symbol:"rectangle.dashed", detail:"用于 Riftlet 的窗口、区域和全屏截图。", id:"screen", content:screen),
+            accessRow("屏幕录制", symbol:"rectangle.dashed", detail:"仅在使用 Riftlet 内置截图时需要。", id:"screen", content:screen),
             section("使用帮助"),
             row("开始使用", detail:"从截取第一张图片到点击附加。", control:makeButton("查看引导…", id:"guide.help") { [weak self] in self?.dispatch(.openOnboarding) }),
+            makeButton("反馈与建议…", id:"feedback.help") { [weak self] in self?.dispatch(.openFeedback) },
             disclosure("关于与诊断", id:"diagnostics", content:about)]
     }
 
@@ -296,17 +291,31 @@ extension RiftSettingsCenterController {
         image.widthAnchor.constraint(equalToConstant: 19).isActive = true
         let state = namedLabel("access." + id, role:"caption")
         let button = makeButton("查看",id:"access." + id) { [weak self, weak content] in
-            guard let content else { return }
-            content.isHidden.toggle()
-            (self?.controls["access." + id] as? NSButton)?.title = content.isHidden ? "查看":"收起"
-            self?.window.recalculateKeyViewLoop()
+            guard let self, let content else { return }
+            setAccessDetails(id: id, expanded: content.isHidden)
         }
         button.bezelStyle = .inline
-        button.setAccessibilityLabel("查看" + title + "详情")
+        button.setAccessibilityLabel(title + "详情")
+        button.setAccessibilityValue("已折叠")
+        accessDetails[id] = (button, content)
         let line = row(title,detail:detail,control:buttonRow([state,button]))
         let combined = SettingsNativeStyle.stack([image,line], vertical:false, spacing:12)
         content.isHidden = true
         return group([combined,content])
+    }
+
+    private func showFolderAccessDetails() {
+        navigate(to: .help)
+        setAccessDetails(id: "folder", expanded: true)
+        if let folder = accessDetails["folder"]?.button { window.makeFirstResponder(folder) }
+    }
+
+    private func setAccessDetails(id: String, expanded: Bool) {
+        guard let detail = accessDetails[id] else { return }
+        detail.content.isHidden = !expanded
+        detail.button.title = expanded ? "收起" : "查看"
+        detail.button.setAccessibilityValue(expanded ? "已展开" : "已折叠")
+        window.recalculateKeyViewLoop()
     }
 
     func layoutSaveArea(for page: SettingsDraftPage) -> NSView {

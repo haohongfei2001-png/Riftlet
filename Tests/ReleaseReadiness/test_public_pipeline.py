@@ -1,4 +1,6 @@
+import argparse
 import importlib.util
+import plistlib
 from pathlib import Path
 import sys
 import tempfile
@@ -12,6 +14,16 @@ SPEC.loader.exec_module(P)
 
 
 class PublicReleasePipelineTests(unittest.TestCase):
+    def test_stable_uses_only_reviewed_commit_product_identity(self):
+        args = argparse.Namespace(source="b" * 40, stable=True, version=None, build=None, label=None)
+        product = {"CFBundleShortVersionString": "1.0.0", "CFBundleVersion": "21", "RiftletVersionLabel": "Riftlet"}
+        with patch.object(P.R, "run", return_value=SimpleNamespace(stdout=plistlib.dumps(product))) as read:
+            P.select_build_version(args)
+            self.assertEqual(read.call_args.args[0][-1], args.source + ":Resources/Info.plist")
+            self.assertEqual((args.version, args.build, args.label), ("1.0.0", "21", "Riftlet"))
+            with self.assertRaisesRegex(P.R.ReleaseError, "stable_uses_source_version"):
+                P.select_build_version(args)
+
     def test_identity_discovery_requires_a_unique_valid_developer_id(self):
         output = ('  1) ' + 'A'*40 + ' "Apple Development: Example (A234567890)"\n'
                   '  2) ' + 'B'*40 + ' "Developer ID Application: First (B234567890)"\n'

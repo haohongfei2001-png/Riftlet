@@ -105,6 +105,18 @@ final class RiftControlCenterControllerTests: XCTestCase {
         XCTAssertFalse(waiting.detail.contains("仍在收录"))
     }
 
+    @MainActor func testConnectionCheckRefusalLeadsToHelpWithoutPausingCollection() {
+        var snapshot = fixture()
+        snapshot.chromeConnection = .javaScriptDisabled
+        let failure = RiftControlCenterPresentation(snapshot)
+        XCTAssertEqual(failure.state, .attention)
+        XCTAssertEqual(failure.recoveryPage, .help)
+        XCTAssertTrue(failure.detail.contains(ChromeAttachmentSetup.menuPath))
+        XCTAssertFalse(snapshot.state.owner.collectionPaused)
+        snapshot.chromeConnection = .ready
+        XCTAssertEqual(RiftControlCenterPresentation(snapshot).state, .collecting)
+    }
+
     @MainActor func testLocalCollectionModesPointToHistoryWithoutInvitingChromeInput() {
         for mode in [SetupAttachmentState.productionDisabled, .offlineSimulation] {
             let projection = RiftControlCenterPresentation(fixture(issue: .targetUnavailable, attachment: mode))
