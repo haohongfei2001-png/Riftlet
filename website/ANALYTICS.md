@@ -9,7 +9,7 @@ The production HTML carries the ID once, and `website-analytics.js` loads the of
 ## Metrics / 指标
 
 - **Visitors, views, referrers and UTM campaigns**: https://cloud.umami.is/ → Riftlet website dashboard, under the owner's account. Visitors are estimates, not identifiable users.
-- **Download click events**: Umami `download_dmg` with properties `placement=header` or `placement=primary`, and `version=1.0.0`. Event properties are strings; the two hyperlinks still point directly to the unchanged official DMG file.
+- **Download click events**: Umami `download_dmg` with properties `placement=header` or `placement=primary`, and `version=1.0.1`. Event properties are strings; the two hyperlinks still point directly to the unchanged official DMG file.
 - **Actual GitHub release requests**: `download_count` of the corresponding `.dmg` asset at https://github.com/haohongfei2001-png/Riftlet/releases. GitHub requests include local and repeated verification downloads; they do not equal unique users, successful installations or active users.
 - **App installs, activation and retention**: not measured; do not infer any of these values from website downloads.
 
