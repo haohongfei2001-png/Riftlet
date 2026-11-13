@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare a reviewed stable feed. All remote operations are anonymous and read-only."""
+"""Prepare a reviewed stable feed. Downloads are public and anonymous; optional gh authentication applies only to read-only GitHub metadata."""
 import argparse
 import base64
 import hashlib
@@ -54,6 +54,12 @@ def sha(path):
 
 
 def git_api(endpoint):
+    if os.environ.get('RIFTLET_APPCAST_GH_AUTH') == '1':
+        # Use gh's credential store for this fixed public repository. No token
+        # is exposed to the release script or sent to the download host.
+        return json.loads(subprocess.check_output([
+            'gh', 'api', '--hostname', 'github.com', '--method', 'GET', 'repos/' + REPO + endpoint
+        ], timeout=40))
     request = urllib.request.Request(API + endpoint, headers={'Accept': 'application/vnd.github+json'})
     with urllib.request.urlopen(request, timeout=40) as reply:
         return json.load(reply)
@@ -312,7 +318,8 @@ def main():
     check(not os.path.lexists(args.output), 'refusing to overwrite an existing feed')
     check_host_key(args.tools)
     with tempfile.TemporaryDirectory(prefix='riftlet-appcast-') as name:
-        tmp = Path(name)
+        # hdiutil reports the canonical /private/var mountpoint on macOS.
+        tmp = Path(name).resolve(strict=True)
         if args.mode == 'bootstrap':
             check(not (ROOT / 'updates/stable.xml').exists(), 'initial stable feed already exists in the checkout')
             feed = tmp / 'stable.xml'

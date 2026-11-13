@@ -9,4 +9,6 @@
 
 **Change the desktop appearance.** Under Settings → 外观与布局, choose the screenshot tray, wind chime or micro slit. Each uses the same history. Pause collection to stop collecting new screenshots. Hide desktop screenshots to hide thumbnails while collection continues.
 
+**Update Riftlet.** If you still use 1.0.0, quit the app, back up your library and replace the installed app once with 1.0.1 from the [official download](https://riftlet.com/). From 1.0.1, Riftlet checks daily by default. Right-click its menu bar icon and choose 检查更新… (Check for Updates) to look now. You choose when to install.
+
 [Installation and permissions](INSTALL-AND-PERMISSIONS.md) · [Troubleshooting and recovery](RECOVERY-AND-FAQ.md)
