@@ -125,11 +125,11 @@ def fresh_workspace(path):
     return path
 
 
-def run(args, *, cwd=None, timeout=120, input=None, log=None):
+def run(args, *, cwd=None, timeout=120, input=None, log=None, umask=-1):
     # Argument arrays only. Never shell-expand identity, paths or profile names.
     try:
         result = subprocess.run([str(a) for a in args], cwd=cwd, input=input,
-                                capture_output=True, timeout=timeout, check=False)
+                                capture_output=True, timeout=timeout, check=False, umask=umask)
     except subprocess.TimeoutExpired as error:
         if log:
             Path(log).write_bytes((error.stdout or b"") + (error.stderr or b"") + b"\nTIMEOUT\n")
@@ -138,6 +138,13 @@ def run(args, *, cwd=None, timeout=120, input=None, log=None):
         Path(log).write_bytes(result.stdout + result.stderr)
     require(result.returncode == 0, "command_failed_" + Path(str(args[0])).name)
     return result
+
+
+def copy_distribution_tree(*args, log=None):
+    # On macOS ditto applies the process umask when restoring symlinks. The
+    # caller owns a private staging parent; only this child gets distribution
+    # creation modes. ZIPs, logs and all other release files stay private.
+    return run(["/usr/bin/ditto", *args], log=log, umask=0o022)
 
 
 def git(repository, *args):
@@ -978,8 +985,8 @@ def package_review(args):
     image_root = workspace / "review-image-source"
     require(not image_root.exists(), "review_image_source_already_exists")
     image_root.mkdir(mode=0o700)
-    run(["/usr/bin/ditto", "--rsrc", "--extattr", package, image_root / PAYLOAD],
-        log=workspace / "review-dmg-copy.log")
+    copy_distribution_tree("--rsrc", "--extattr", package, image_root / PAYLOAD,
+                           log=workspace / "review-dmg-copy.log")
     verify_package(image_root / PAYLOAD, args.manifest_sha256)
     (image_root / "REVIEW-ONLY.txt").write_bytes(REVIEW_NOTICE)
     image = distribution / (stem + ".dmg")
@@ -1041,7 +1048,7 @@ def checked_zip_members(archive, root):
 
 
 def extract_checked_zip(archive, root, destination):
-    run(["/usr/bin/ditto", "-x", "-k", "--rsrc", "--extattr", archive, destination])
+    copy_distribution_tree("-x", "-k", "--rsrc", "--extattr", archive, destination)
     require({p.name for p in destination.iterdir()} == {root}, "extracted_archive_root_mismatch")
 
 

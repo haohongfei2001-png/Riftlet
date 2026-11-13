@@ -19,6 +19,14 @@ A separate Apple Silicon macOS virtual machine ran the AppKit menu-bar app under
 
 A ZIP SHA-256 was `be8683263b26c394c299ac7b389b9e929fec776ffd8073e28697006d95ec364c`. B ZIP SHA-256 was `296e4fb2c96dc2a0e532f53ddc001e003d49de38708d452c106f3ea2eb47d32b`. These identify the exercise only.
 
+## Shared Applications and fresh captures
+
+The same isolated administrator account also updated A in a dedicated folder under /Applications. The signed downgrade (0.0.99) was not offered. A then downloaded a signed 7,049,608-byte DMG, displayed the release notes and installation confirmation, and relaunched B at A’s original path. Its SHA-256 was `35237f660231c81b0ded5ac52567d7790c7b2eef02d4d2d64b0224f6cb698264`. The loopback server recorded a complete response for B.dmg. This exercised a user-writable shared location. An authorization challenge for a different standard account remains untested.
+
+Desktop access was approved through the normal folder chooser. Real system screenshots taken before and after updating were collected, growing the synthetic library from two to three to four assets and media. The existing folder bookmark, settings, feedback and original operation were preserved. One previously visible asset reached its normal auto-archive time; applying just that state transition explains the entire difference in the asset-table hash. SQLite integrity remained intact.
+
+The test Mac ran arm64 macOS 27.2. Chrome was installed but had no profile, running process, or authorized ChatGPT test draft. Post-update live ChatGPT attachment is **NOT_RUN**.
+
 ## Reproduce in a disposable Mac account
 
 1. Build the App with `bash scripts/build-macos.sh`. Use the resulting app under the build directory and the official tool binaries documented in [the release guide](IN_APP_UPDATES.md). Use a dedicated VM with Finder, synthetic screenshots, a known history database, and no production account or data.

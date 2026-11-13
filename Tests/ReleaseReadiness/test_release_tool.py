@@ -552,6 +552,35 @@ class ReleaseTest(unittest.TestCase):
         self.error("archive_manifest_pin_mismatch", R.verify_archive, archive, R.digest(archive), "0" * 64)
         self.error("trusted_manifest_pin_required", R.verify_archive, archive, R.digest(archive), "not-a-pin")
 
+    @unittest.skipUnless(sys.platform == "darwin", "native macOS ditto link creation modes")
+    def test_private_staging_preserves_distribution_symlink_modes_for_copy_and_extract(self):
+        source = self.root / "native-link-input" / R.APP
+        source.mkdir(parents=True)
+        (source / "target").write_text("resource")
+        link = source / "alias"
+        link.symlink_to("target")
+        os.lchmod(link, 0o755)
+        old = os.umask(0o077)
+        try:
+            staging = self.root / "private-attempt"
+            staging.mkdir()
+            copied = staging / "copied"
+            R.copy_distribution_tree("--rsrc", "--extattr", source, copied)
+            archive = staging / "transfer.zip"
+            R.run(["/usr/bin/ditto", "-c", "-k", "--sequesterRsrc", "--keepParent", source, archive])
+            roundtrip = staging / "roundtrip"
+            roundtrip.mkdir()
+            R.extract_checked_zip(archive, R.APP, roundtrip)
+            for copied_link in [copied / "alias", roundtrip / R.APP / "alias"]:
+                self.assertTrue(copied_link.is_symlink())
+                self.assertEqual(os.readlink(copied_link), "target")
+                self.assertEqual(stat.S_IMODE(copied_link.lstat().st_mode), 0o755)
+            self.assertEqual(stat.S_IMODE(staging.stat().st_mode), 0o700)
+            self.assertEqual(stat.S_IMODE(archive.stat().st_mode), 0o600)
+            self.assertEqual(stat.S_IMODE(roundtrip.stat().st_mode), 0o700)
+        finally:
+            os.umask(old)
+
     @unittest.skipUnless(Path("/usr/bin/ditto").exists(), "native macOS ditto only")
     def test_native_ditto_archive_matches_read_only_verifier(self):
         archive = self.root / "native-ditto.zip"
