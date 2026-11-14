@@ -15,6 +15,8 @@ final class SettingsProductHost {
     private var setup = SetupSnapshot()
     private var capabilities = SettingsCapabilities()
     private let updaterPresentation: @MainActor () -> SettingsUpdaterPresentation?
+    private var recoveryDomains: Set<SettingsPreferenceDomain> = []
+    private var recoveryFailure: SettingsPreferenceDomain?
     private var deferred = false
     private var chromeConnection: OnboardingChromeConnection = .unchecked
     private var revision: UInt64 = 0
@@ -30,6 +32,7 @@ final class SettingsProductHost {
          login: LoginItemPreferences? = nil,
          historyDisplay: HistoryDisplayPreferences? = nil,
          updaterPresentation: @escaping @MainActor () -> SettingsUpdaterPresentation? = { nil },
+         onDeferOnboarding: @escaping @MainActor () -> Void = {},
          onRefresh: @escaping @MainActor () -> Void,
          onAction: @escaping SettingsProductActionHandler) throws {
         model = try SettingsStateModel(owner: owner, adapter: adapter)
@@ -45,7 +48,7 @@ final class SettingsProductHost {
         try? appearance.applyAcceptedSelection()
         center = RiftSettingsCenterController(model: model, onAction: { [weak self] in await self?.perform($0) })
         control = RiftControlCenterController(statusItem: statusItem, onAction: { [weak self] in await self?.perform($0) })
-        onboarding = RiftOnboardingController(onAction: { [weak self] in await self?.perform($0) })
+        onboarding = RiftOnboardingController(onDefer: onDeferOnboarding, onAction: { [weak self] in await self?.perform($0) })
         model.onChange = { [weak self] _ in self?.publish() }
         self.login.onChange = { [weak self] _ in self?.publish() }
         accessibilityObserver = NSWorkspace.shared.notificationCenter.addObserver(
@@ -64,7 +67,10 @@ final class SettingsProductHost {
 
     func update(owner: SettingsOwnerSnapshot, setup: SetupSnapshot,
                 capabilities: SettingsCapabilities, configurationDeferred: Bool,
-                chromeConnection: OnboardingChromeConnection = .unchecked) {
+                chromeConnection: OnboardingChromeConnection = .unchecked,
+                recoveryDomains: Set<SettingsPreferenceDomain> = [], recoveryFailure: SettingsPreferenceDomain? = nil) {
+        self.recoveryDomains = recoveryDomains
+        self.recoveryFailure = recoveryFailure
         self.chromeConnection = chromeConnection
         self.setup = setup; self.capabilities = capabilities; deferred = configurationDeferred
         if !model.receive(owner) { publish() }
@@ -77,6 +83,8 @@ final class SettingsProductHost {
         result.configurationDeferred = deferred
         result.historyDisplayStyle = historyDisplay.selection
         let workspace = NSWorkspace.shared
+        result.preferenceRecovery = recoveryDomains
+        result.preferenceRecoveryFailure = recoveryFailure
         result.accessibility = .init(reduceMotion: workspace.accessibilityDisplayShouldReduceMotion,
             reduceTransparency: workspace.accessibilityDisplayShouldReduceTransparency,
             increaseContrast: workspace.accessibilityDisplayShouldIncreaseContrast)
@@ -84,11 +92,11 @@ final class SettingsProductHost {
         result.appearance.applied = appearance.appliedSelection.flatMap { .init(rawValue: $0.rawValue) }
         result.appearance.pending = appearance.pendingSelection.flatMap { .init(rawValue: $0.rawValue) }
         result.appearance.unreadable = appearance.loadState == .unreadable
-        result.appearance.failure = appearance.failure.map { $0 == .preparationFailed ? "暂时无法应用这个外观。" : "外观未能保存，请重试。" }
+        result.appearance.failure = appearance.failure.map { $0 == .preparationFailed ? ProductCopy.text("暂时无法应用这个外观。", "This appearance could not be applied.") : ProductCopy.text("外观未能保存，请重试。", "The appearance could not be saved. Try again.") }
         result.appearance.available = true
         let fact = login.snapshot
         result.login.available = fact.availability == .available
-        if !result.login.available { result.login.unavailableReason = "此运行环境不更改系统登录项。请在正式安装的 Riftlet 中设置。" }
+        if !result.login.available { result.login.unavailableReason = ProductCopy.text("此运行环境不更改系统登录项。请在正式安装的 Riftlet 中设置。", "Use the installed app to change the login item.") }
         result.login.status = fact.status.map {
             switch $0 {
             case .enabled: return .enabled
@@ -121,7 +129,7 @@ final class SettingsProductHost {
         center?.update(value); control?.update(value); onboarding?.update(value)
     }
 
-    func show(page: SettingsPage = .display) {
+    func show(page: SettingsPage = .general) {
         guard !isPreparingForTermination else { return }
         control.close(); login.refresh(); onRefresh(); center.show(page: page)
     }

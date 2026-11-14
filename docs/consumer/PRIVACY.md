@@ -13,7 +13,7 @@ Riftlet 的截图副本和历史保存在本机。**点击微图会把那张图�
 
 ## 检查更新时的网络访问
 
-从 1.0.1 起，Riftlet 默认每天通过 HTTPS 从 riftlet.com 检查新版。选择下载时会连接 GitHub 的发行文件服务。更新请求不包含截图、聊天内容或反馈草稿。服务提供方可看到 IP 地址等连接信息。可在「设置 → 权限与帮助 → 关于与诊断」关闭「每天检查更新」，以后按需手动检查。
+从 1.0.1 起，Riftlet 默认每天通过 HTTPS 从 riftlet.com 检查新版。选择下载时会连接 GitHub 的发行文件服务。更新请求不包含截图、聊天内容或反馈草稿。服务提供方可看到 IP 地址等连接信息。可在设置中关闭「每天检查更新」，以后按需手动检查。[各版本的设置入口](README.md#设置入口)
 
 ## 官网访问统计（与 Mac App 分开）
 
@@ -35,7 +35,9 @@ Riftlet 的截图副本和历史保存在本机。**点击微图会把那张图�
 
 ## 图片保留与卸载
 
-在菜单栏打开「设置 → 使用与历史」，展开「存储与恢复」。点「检查用量」可查看私有图片、内置截图、收录暂存及记录、队列数据库的逻辑大小。系统截图目录、反馈、偏好和其他备份另计。统计不完整时会显示已查到的部分。点击同组的「在 Finder 中显示」可打开本机数据文件夹。也可在 Finder 的「前往文件夹」中输入上文的数据目录。目录中的图片、历史和反馈可能包含私人内容。
+从菜单栏打开设置，点「检查用量」可查看私有图片、内置截图、收录暂存及记录、队列数据库的逻辑大小。系统截图目录、反馈、偏好和其他备份另计。统计不完整时会显示已查到的部分。使用设置中的 Finder 数据目录按钮可打开本机数据文件夹。[各版本的入口](README.md#设置入口)
+
+也可在 Finder 的「前往文件夹」中输入上文的数据目录。目录中的图片、历史和反馈可能包含私人内容。
 
 收起、归档、移出微图和清空可见队列只改变本地显示，不删除系统原图、Riftlet 私有副本或远端附件。结果待核实的记录保留，不自动重传。当前没有自动清理截图的保留期限或永久删除策略。
 
@@ -47,13 +49,13 @@ Screenshots and history are stored locally. A thumbnail click hands that image t
 
 Chrome’s **Allow JavaScript from Apple Events** setting lets apps with Chrome automation access execute page scripts. Turning it off stops one-click attachment. Local collection and history remain available.
 
-Starting with 1.0.1, daily update checks contact riftlet.com over HTTPS. Choosing to download an update contacts GitHub’s release asset service. These requests carry no screenshots, chats or feedback drafts. Service providers can see connection information such as your IP address. Turn off 每天检查更新 under Settings → 权限与帮助 → 关于与诊断 to check only on demand.
+Starting with 1.0.1, daily update checks contact riftlet.com over HTTPS. Choosing to download an update contacts GitHub’s release asset service. These requests carry no screenshots, chats or feedback drafts. Service providers can see connection information such as your IP address. To check only on demand, turn off 每天检查更新 (Check daily for updates). In 1.0.1, open 权限与帮助 → 关于与诊断. In the four-page candidate, open General and turn off the daily check.
 
 Feedback is optional. Pressing Send authorizes the queued report to be retried later, including after restart. Its text, category, report ID, version, time and any explicitly selected diagnostic snapshot go to the private feedback service. New drafts have diagnostics off; saved drafts retain your choice. Diagnostics use a closed list of counts/events, but free text is **not automatically redacted**. Do not include images, chats, credentials or raw databases. Local storage, receipt, delivery and deletion are different states.
 
 Archiving or retracting a thumbnail does not delete its file. Uninstalling the App does not erase local data or already received feedback. Riftlet has no screenshot cloud library, account system or usage telemetry.
 
-Settings → `使用与历史` → `存储与恢复` → `在 Finder 中显示` reveals this copy of Riftlet’s data folder. The storage estimate covers image copies, built-in captures, import staging and journals, and the queue database; external originals, feedback, preferences and backups are separate. There is no per-image permanent delete control. Keep the complete data folder together for backup or recovery.
+In 1.0.1, Settings → 使用与历史 → 存储与恢复 → 在 Finder 中显示 opens the local data folder. In the four-page candidate, open Help and expand Diagnostics to reveal the data folder in Finder. The storage estimate covers image copies, built-in captures, import staging and journals, and the queue database; external originals, feedback, preferences and backups are separate. There is no per-image permanent delete control. Keep the complete data folder together for backup or recovery.
 
 ## 反馈保留和联系
 

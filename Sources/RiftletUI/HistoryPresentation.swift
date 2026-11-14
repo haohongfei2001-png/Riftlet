@@ -8,14 +8,21 @@ public struct RiftHistoryEntry: Identifiable, Equatable, Sendable {
     public let record: AssetRecord
     public let operation: TransferOperation?
     public let lastReceipt: TransferReceipt?
+    public let attachmentState: HistoryAttachmentState
     public let canRestore: Bool
     public let detail: String?
 
     public init(record: AssetRecord, operation: TransferOperation? = nil,
-                lastReceipt: TransferReceipt? = nil, canRestore: Bool = false,
+                lastReceipt: TransferReceipt? = nil, startReceipt: TransferReceipt? = nil, canRestore: Bool = false,
                 detail: String? = nil) {
         self.record = record; self.operation = operation; self.lastReceipt = lastReceipt
+        attachmentState = HistoryAttachmentState(record: record, operation: operation, receipt: lastReceipt, startReceipt: startReceipt)
         self.canRestore = canRestore; self.detail = detail.map { String($0.prefix(512)) }
+    }
+
+    public init(snapshot: QueueHistoryRecord) {
+        self.init(record: snapshot.record, operation: snapshot.operation, lastReceipt: snapshot.receipt,
+                  startReceipt: snapshot.startReceipt, canRestore: snapshot.canRestore, detail: snapshot.reason)
     }
 
     private var currentOperation: TransferOperation? {
@@ -24,25 +31,8 @@ public struct RiftHistoryEntry: Identifiable, Equatable, Sendable {
         return operation
     }
 
-    /// Pre-input cancellations also use QueueStatus.failed. They must not be
-    /// described as a proved remote upload failure in the history interface.
-    public var isConfirmedFailure: Bool {
-        guard record.status == .pending || record.status == .failed || record.status == .missing,
-              let operation = currentOperation, operation.phase == .failed,
-              let receipt = lastReceipt,
-              receipt.operationID == operation.id, receipt.assetID == record.id,
-              receipt.attempt == operation.attempt, receipt.target == operation.target,
-              receipt.assetSHA256 == record.image.sha256,
-              receipt.outcome == .definitiveFailure, receipt.hasError,
-              receipt.safeToRetry, receipt.belongsToOriginalDraft,
-              !receipt.isUploading, !receipt.positiveReady else { return false }
-        return true
-    }
-
-    public var needsVerification: Bool {
-        record.status == .unknown || record.status == .transferring
-            || (currentOperation.map { $0.phase.isUnresolved } ?? false)
-    }
+    public var isConfirmedFailure: Bool { attachmentState == .confirmedFailure }
+    public var needsVerification: Bool { attachmentState.needsVerification }
 
     public var canRestoreToRift: Bool {
         guard canRestore,
@@ -58,16 +48,22 @@ public struct RiftHistoryEntry: Identifiable, Equatable, Sendable {
 }
 
 public enum RiftHistoryFilter: String, CaseIterable, Sendable {
-    case all, needsVerification, swallowed, archived, failed, removed
+    case all, needsVerification, swallowed, archived, failed, removed, handedOff, attached
 
-    public var title: String {
+    static let menuFilters: [Self] = [.all, .needsVerification, .attached, .archived, .failed, .removed, .handedOff]
+
+    public var title: String { title(copy: .current) }
+
+    public func title(copy: ProductCopy) -> String {
         switch self {
-        case .all: return "All"
-        case .needsVerification: return "Needs review"
-        case .swallowed: return "Swallowed"
-        case .archived: return "Archived"
-        case .failed: return "Failed"
-        case .removed: return "Removed"
+        case .all: return copy.text("全部截图", "All Screenshots")
+        case .needsVerification: return copy.text("待核实", "Needs Review")
+        case .swallowed: return copy.text("已收起", "Hidden")
+        case .attached: return copy.text("已附加", "Attached")
+        case .handedOff: return copy.text("已交给 ChatGPT", "Handed to ChatGPT")
+        case .archived: return copy.text("已归档", "Archived")
+        case .failed: return copy.text("明确失败", "Confirmed Failure")
+        case .removed: return copy.text("已移除", "Removed")
         }
     }
 
@@ -76,6 +72,8 @@ public enum RiftHistoryFilter: String, CaseIterable, Sendable {
         case .all: return true
         case .needsVerification: return entry.needsVerification
         case .swallowed: return entry.record.visibility == .swallowed
+        case .attached: return entry.record.status != .missing && entry.attachmentState == .attached
+        case .handedOff: return entry.record.status != .missing && entry.attachmentState == .handedOff
         case .archived: return entry.record.visibility == .archived
         case .failed: return entry.isConfirmedFailure
         case .removed: return entry.record.visibility == .removed
@@ -90,18 +88,62 @@ public enum HistoryPresentation {
     public static func stateText(for entry: RiftHistoryEntry) -> String {
         let state: String
         if entry.record.status == .missing { state = "Private copy unavailable" }
-        else if entry.isConfirmedFailure { state = "Upload failed · ready to try again" }
-        else if entry.needsVerification {
-            state = entry.record.status == .transferring ? "Checking attachment" : "Needs review · kept locally"
-        } else if entry.record.status == .used { state = "Attached" }
-        else if entry.record.status == .failed { state = "Not attached · ready to try again" }
-        else { state = "Ready" }
+        else {
+            switch entry.attachmentState {
+            case .handedOff: state = "Handed to ChatGPT"
+            case .attached: state = "Attached"
+            case .confirmedFailure: state = "Upload failed · ready to try again"
+            case .notAttached: state = "Not attached · ready to try again"
+            case .needsReview: state = "Needs review · kept locally"
+            case .checkDraft: state = "Needs review · check original draft"
+            case .preparing: state = "Preparing"
+            case .available: state = "Ready"
+            }
+        }
 
         switch entry.record.visibility {
         case .visible: return state
         case .swallowed: return "Swallowed · \(state)"
         case .archived: return "Archived · \(state)"
         case .removed: return "Removed from rift · \(state)"
+        }
+    }
+
+    public static func localizedState(for entry: RiftHistoryEntry, copy: ProductCopy = .current) -> String {
+        if entry.record.status == .missing { return copy.text("本地副本不可用", "Local copy unavailable") }
+        switch entry.attachmentState {
+        case .handedOff: return copy.text("已交给 ChatGPT", "Handed to ChatGPT")
+        case .attached: return copy.text("已附加", "Attached")
+        case .needsReview: return copy.text("结果待核实", "Needs review")
+        case .checkDraft: return copy.text("需要检查原对话", "Check the original conversation")
+        case .confirmedFailure: return copy.text("已确认失败 · 图片保留", "Failed · image kept")
+        case .preparing: return copy.text("准备附加", "Preparing attachment")
+        case .notAttached: return copy.text("未附加 · 图片保留", "Not attached · image kept")
+        case .available:
+            switch entry.record.visibility {
+            case .archived: return copy.text("已归档", "Archived")
+            case .removed: return copy.text("已移出裂缝", "Removed from desktop")
+            default: return copy.text("待附加", "Ready to attach")
+            }
+        }
+    }
+
+    public static func detailText(for entry: RiftHistoryEntry, copy: ProductCopy = .current) -> String {
+        if entry.record.status == .missing {
+            switch entry.attachmentState {
+            case .handedOff: return copy.text("这张截图已交给 ChatGPT。上传结果见原对话。", "This screenshot was handed to ChatGPT. Check the original conversation for the upload result.")
+            case .attached: return copy.text("这张截图已附加。", "This screenshot was attached.")
+            case .checkDraft, .needsReview: return copy.text("请到原对话核对附件。", "Check the attachment in the original conversation.")
+            default: return copy.text("请检查本地截图文件。", "Check the local screenshot file.")
+            }
+        }
+        switch entry.attachmentState {
+        case .handedOff: return copy.text("上传结果见原对话。", "Check the original conversation for the upload result.")
+        case .checkDraft: return copy.text("原附件报告异常，请到原对话核对。", "The attachment reported a problem. Check the original conversation.")
+        case .needsReview: return copy.text("请到原对话核对附件。Riftlet 不会自动重传。", "Check the attachment in the original conversation. Riftlet will not upload it again automatically.")
+        case .attached: return copy.text("原始系统截图仍然保留。", "The original system screenshot is still saved.")
+        case .confirmedFailure, .notAttached: return copy.text("图片仍保存在本机。", "The image is still saved on this Mac.")
+        case .preparing, .available: return ""
         }
     }
 
@@ -122,7 +164,8 @@ public enum HistoryPresentation {
             guard !query.isEmpty else { return true }
             let asset = entry.record.image
             let text = [entry.id.uuidString, asset.fileName, String(entry.record.sequence),
-                        formatter.string(from: captureDate(for: entry)), stateText(for: entry),
+                        formatter.string(from: captureDate(for: entry)), stateText(for: entry), localizedState(for: entry, copy: .simplifiedChinese),
+                        localizedState(for: entry, copy: .english),
                         "\(asset.pixelWidth)×\(asset.pixelHeight)", entry.detail ?? ""].joined(separator: " ")
             return text.range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
         }.sorted { lhs, rhs in

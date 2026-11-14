@@ -1,5 +1,6 @@
 import AppKit
 import XCTest
+@testable import RiftletLegacySettingsFixtures
 @testable import RiftletUI
 
 /// AppKit control actions; no browser, capture or durable user data.

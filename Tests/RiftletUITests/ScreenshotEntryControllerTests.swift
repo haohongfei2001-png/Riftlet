@@ -6,6 +6,42 @@ import RiftletCapture
 /// Direct AppKit callback/geometry checks. They do not claim physical input,
 /// compositor appearance, active-draft preservation or capture exclusion.
 final class ScreenshotEntryControllerTests: XCTestCase {
+    func testScreenshotEntryCopyPreservesModesAndFrozenCaptureInBothLanguages() {
+        let english = ScreenshotEntryCopy(language: .english)
+        let chinese = ScreenshotEntryCopy(language: .simplifiedChinese)
+        XCTAssertEqual([english.name(.window), english.name(.region), english.name(.fullScreen)],
+                       ["Window", "Region", "Full Screen"])
+        XCTAssertEqual([chinese.name(.window), chinese.name(.region), chinese.name(.fullScreen)],
+                       ["窗口", "区域", "全屏"])
+        XCTAssertEqual(english.countdown(.window, seconds: 5), "Window selected · Capturing in 5 seconds")
+        XCTAssertEqual(english.countdown(.window, seconds: 1), "Window selected · Capturing in 1 second")
+        XCTAssertEqual(english.delayLabel(1), "1 second")
+        XCTAssertEqual(chinese.countdown(.window, seconds: 5), "已选窗口 · 5 秒后拍摄")
+        XCTAssertEqual(english.nextChanged(.fullScreen, current: .region),
+                       "Next capture: Full Screen. This capture remains Region.")
+        XCTAssertEqual(chinese.nextChanged(.fullScreen, current: .region), "下一张改为全屏，本次仍为已选区域。")
+        XCTAssertEqual(english.capturing(.region), "Capturing selected Region")
+        XCTAssertEqual(chinese.capturing(.region), "正在拍摄已选区域")
+        XCTAssertEqual(english.next(.window), "Next: Window")
+        XCTAssertEqual(chinese.next(.window), "下一张：窗口")
+    }
+
+    func testScreenshotEntryMenuAndAccessibilityCopySnapshots() {
+        for (language, expected) in [
+            (ProductCopy.english, ["Screenshot Options", "Default Capture Mode", "Show Pointer", "Delay",
+                "Edit After Capture", "End Capture", "More Screenshot Options", "None", "5 seconds", "10 seconds",
+                "Screenshot, default: Window", "Capture Region", "Press Escape or End Capture to exit."]),
+            (.simplifiedChinese, ["截图选项", "默认截图方式", "显示指针", "延时", "截图后编辑", "结束截图", "更多截图选项",
+                "无", "5 秒", "10 秒", "截图，默认窗口", "截取区域", "按 Escape 或结束截图退出。"])
+        ] {
+            let copy = ScreenshotEntryCopy(language: language)
+            XCTAssertEqual([copy.options, copy.defaultMode, copy.pointer, copy.delay, copy.editAfter, copy.end,
+                copy.more, copy.delayLabel(0), copy.delayLabel(5), copy.delayLabel(10), copy.collapsed(.window),
+                copy.capture(.region), copy.escape], expected)
+            XCTAssertTrue(copy.announcement(copy.capturing(.window)).hasSuffix(copy.escape))
+        }
+    }
+
     @MainActor private func controller(defaultMode: ScreenshotMode = .window) throws -> ScreenshotEntryController {
         _ = NSApplication.shared
         let screen = try XCTUnwrap(NSScreen.screens.first, "Native UI checks require an AppKit screen")

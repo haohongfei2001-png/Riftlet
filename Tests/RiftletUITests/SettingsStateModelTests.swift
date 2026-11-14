@@ -127,7 +127,8 @@ final class SettingsStateModelTests: XCTestCase {
         let changed = await model.perform(.selectDesktopForm(.tray))
         XCTAssertEqual(changed.confirmed, [.desktopForm])
         XCTAssertEqual(owner.value.settings.configuration.desktopForm, .tray)
-        XCTAssertTrue(model.hasLayoutDraft)
+        XCTAssertFalse(model.hasLayoutDraft, "A dormant micro-slit field cannot block quitting the tray")
+        XCTAssertEqual(model.text(for: .fitWidth), "87")
         owner.failures.insert(.trayTheme)
         let failed = await model.perform(.selectTrayTheme(.violetGlass))
         XCTAssertEqual(failed.failed, [.trayTheme])
@@ -141,6 +142,65 @@ final class SettingsStateModelTests: XCTestCase {
         _ = await model.perform(.applyLayout)
         XCTAssertEqual(owner.value.settings.configuration.fitWidth, 87)
         XCTAssertEqual(owner.value.settings.configuration.desktopForm, .microSlit)
+    }
+
+    @MainActor func testInvalidInactiveFieldsRetainTheirBytesAndNeverJoinAnotherFormsWrite() async throws {
+        let owner = Owner()
+        let state = try model(owner)
+        let slitFields: [SettingsField] = [.fitWidth, .fitHeight, .rowPitch, .numberFontSize, .numberGap,
+            .leftPadding, .minimumHitWidth, .minimumHitHeight, .hiddenFraction]
+        for field in slitFields { state.setDraftText("unfinished", for: field) }
+        _ = await state.perform(.selectDesktopForm(.tray))
+        XCTAssertFalse(state.hasLayoutDraft)
+        let save = await state.perform(.commitField(.trayOcclusion, "32"))
+        XCTAssertEqual(save.confirmed, [.layout])
+        XCTAssertEqual(owner.value.settings.configuration.trayOcclusion, 0.32)
+        for field in slitFields { XCTAssertEqual(state.text(for: field), "unfinished") }
+        _ = await state.perform(.selectDesktopForm(.microSlit))
+        XCTAssertTrue(state.hasLayoutDraft)
+        XCTAssertNotNil(state.snapshot.domains[.layout]?.validationFailure)
+    }
+
+    @MainActor func testOutOfRangeSlitPercentageStopsBlockingWhenTrayHidesIt() async throws {
+        let owner = Owner()
+        let state = try model(owner)
+        state.setDraftText("98", for: .hiddenFraction)
+        _ = await state.perform(.commitField(.hiddenFraction, "98"))
+        XCTAssertEqual(state.snapshot.domains[.layout]?.validationFailure, .invalidNumber(.hiddenFraction))
+        XCTAssertTrue(owner.requests.isEmpty)
+        _ = await state.perform(.selectDesktopForm(.tray))
+        XCTAssertFalse(state.hasLayoutDraft)
+        XCTAssertTrue(state.snapshot.domains[.layout]?.hasIssue == false)
+        XCTAssertEqual(state.text(for: .hiddenFraction), "98")
+        _ = await state.perform(.selectDesktopForm(.microSlit))
+        XCTAssertTrue(state.hasLayoutDraft)
+        XCTAssertEqual(state.snapshot.domains[.layout]?.validationFailure, .invalidNumber(.hiddenFraction))
+        XCTAssertEqual(owner.value.settings.configuration.hiddenFraction, 0.25)
+    }
+
+    @MainActor func testLegacyTrayCapacityIsNeverNormalizedByViewingOrAnotherFieldWrite() async throws {
+        var configuration = RiftConfiguration()
+        configuration.visibleCountPreference = 10
+        configuration.desktopForm = .tray
+        let owner = Owner(configuration: configuration)
+        let state = try model(owner)
+        let rejected = await state.perform(.commitField(.visibleCountPreference, "5"))
+        XCTAssertEqual(rejected.failed, [.layout])
+        XCTAssertTrue(owner.requests.isEmpty)
+        _ = await state.perform(.commitField(.outerInset, "21"))
+        XCTAssertEqual(owner.value.settings.configuration.visibleCountPreference, 10)
+        _ = await state.perform(.commitField(.visibleCountPreference, "4", maximumCount: 4))
+        XCTAssertEqual(owner.value.settings.configuration.visibleCountPreference, 4)
+        _ = await state.perform(.selectDesktopForm(.windChime))
+        await state.perform(.edit(.visibleCountPreference, "9"))
+        let attempts = owner.requests.count
+        let closing = await state.perform(.applyDrafts(maximumCount: 7))
+        XCTAssertEqual(closing.failed, [.layout])
+        XCTAssertEqual(owner.requests.count, attempts)
+        XCTAssertEqual(owner.value.settings.configuration.visibleCountPreference, 4)
+        let bounded = await state.perform(.commitField(.visibleCountPreference, "9", maximumCount: 7))
+        XCTAssertEqual(bounded.failed, [.layout])
+        XCTAssertEqual(owner.value.settings.configuration.visibleCountPreference, 4)
     }
 
     func testRetiredFormsResolveToTrayWithoutRewritingOriginalValue() throws {
@@ -511,17 +571,62 @@ final class SettingsStateModelTests: XCTestCase {
         XCTAssertTrue(model.snapshot.owner.settings.displayRestoreAvailable)
     }
 
+    @MainActor func testLaterCountSaveKeepsFailedInsetTargetAndRetryPreservesNewerInsetEdit() async throws {
+        let owner = Owner()
+        let model = try model(owner)
+        owner.failures = [.layout]
+        model.setDraftText("12", for: .outerInset)
+        _ = await model.perform(.commitField(.outerInset, "12"))
+        owner.failures = []
+        model.setDraftText("2", for: .visibleCountPreference)
+        _ = await model.perform(.commitField(.visibleCountPreference, "2"))
+        XCTAssertEqual(owner.value.settings.configuration.outerInset, 6)
+        XCTAssertEqual(owner.value.settings.configuration.visibleCountPreference, 2)
+        XCTAssertEqual(model.snapshot.domains[.layout]?.pending, .layout([.outerInset: 12]))
+        XCTAssertEqual(model.snapshot.domains[.layout]?.saveFailure, .writeUnconfirmed)
+        XCTAssertNil(model.snapshot.layoutText[.visibleCountPreference])
+        XCTAssertEqual(model.text(for: .outerInset), "12")
+
+        model.setDraftText("16.0", for: .outerInset)
+        _ = await model.perform(.retry(.layout))
+        XCTAssertEqual(owner.requests.last?.intent, .layout([.outerInset: 12]))
+        XCTAssertEqual(owner.value.settings.configuration.outerInset, 12)
+        XCTAssertEqual(model.text(for: .outerInset), "16.0")
+        XCTAssertNil(model.snapshot.domains[.layout]?.pending)
+        XCTAssertNil(model.snapshot.domains[.layout]?.saveFailure)
+    }
+
+    @MainActor func testTwoFailedLayoutFieldsRetainOnlyTheLatestExplicitTargetPerField() async throws {
+        let owner = Owner()
+        let model = try model(owner)
+        owner.failures = [.layout]
+        for (key, text) in [(SettingsField.outerInset, "12"), (.visibleCountPreference, "2"), (.outerInset, "15")] {
+            model.setDraftText(text, for: key)
+            _ = await model.perform(.commitField(key, text))
+        }
+        XCTAssertEqual(model.snapshot.domains[.layout]?.pending, .layout([.outerInset: 15, .visibleCountPreference: 2]))
+        model.setDraftText("17", for: .outerInset)
+        owner.failures = []
+        _ = await model.perform(.retry(.layout))
+        XCTAssertEqual(owner.requests.last?.intent, .layout([.outerInset: 15, .visibleCountPreference: 2]))
+        XCTAssertEqual(owner.value.settings.configuration.outerInset, 15)
+        XCTAssertEqual(owner.value.settings.configuration.visibleCountPreference, 2)
+        XCTAssertEqual(model.text(for: .outerInset), "17")
+        XCTAssertNil(model.snapshot.layoutText[.visibleCountPreference])
+        XCTAssertNil(model.snapshot.domains[.layout]?.saveFailure)
+    }
+
     @MainActor func testApplyBothDraftsRetainsPartialSuccessAndDoesNotWriteSuccessfulDomainAgain() async throws {
         let owner = Owner(); let model = try model(owner)
         await model.perform(.edit(.fitWidth, "96")); await model.perform(.editArchive("2.5"))
         owner.failures = [.archive]
-        let first = await model.perform(.applyDrafts)
+        let first = await model.perform(.applyDrafts())
         XCTAssertEqual(first.confirmed, [.layout]); XCTAssertEqual(first.failed, [.archive])
         XCTAssertFalse(model.hasLayoutDraft); XCTAssertTrue(model.hasArchiveDraft)
         XCTAssertEqual(model.snapshot.owner.settings.configuration.fitWidth, 96)
         XCTAssertEqual(model.snapshot.owner.settings.archiveAfterMinutes, 2)
         owner.failures = []
-        let retried = await model.perform(.applyDrafts)
+        let retried = await model.perform(.applyDrafts())
         XCTAssertEqual(retried.confirmed, [.archive])
         XCTAssertEqual(owner.requests.filter { $0.intent.domain == .layout }.count, 1)
         XCTAssertEqual(owner.requests.filter { $0.intent.domain == .archive }.count, 2)
@@ -552,7 +657,7 @@ final class SettingsStateModelTests: XCTestCase {
         let owner = Owner(); let model = try model(owner)
         owner.failures = [.collection, .layout, .archive]
         await model.perform(.setCollectionPaused(true)); await model.perform(.edit(.fitWidth, "96"))
-        await model.perform(.editArchive("3")); await model.perform(.applyDrafts)
+        await model.perform(.editArchive("3")); await model.perform(.applyDrafts())
         let control = model.snapshot.domains[.collection]
         await model.perform(.discardLayout)
         XCTAssertNil(model.snapshot.domains[.layout]?.saveFailure)
@@ -765,7 +870,7 @@ final class SettingsStateModelTests: XCTestCase {
         }
         defer { gate.release(); archiveGate.release(); owner.beforeReturn = nil }
         await model.perform(.edit(.fitWidth, "96")); await model.perform(.editArchive("2.5"))
-        let saving = Task { await model.perform(.applyDrafts) }
+        let saving = Task { await model.perform(.applyDrafts()) }
         await fulfillment(of: [gate.entered, archiveGate.entered], timeout: 5)
         guard gate.isSuspended, archiveGate.isSuspended else { return }
         XCTAssertTrue(model.snapshot.domains[.layout]!.isSaving)
@@ -872,7 +977,7 @@ final class SettingsStateModelTests: XCTestCase {
         model.setDraftText("81.625", for: .fitWidth)
         model.setArchiveDraftText("2.5")
         owner.beforeReturn = { request, _ in if request.intent.domain == .layout { await gate.suspend() } }
-        let pending = Task { @MainActor in await model.perform(.applyDrafts) }
+        let pending = Task { @MainActor in await model.perform(.applyDrafts()) }
         await fulfillment(of: [gate.entered, archivePublished], timeout: 5)
         XCTAssertFalse(model.hasArchiveDraft)
         XCTAssertTrue(model.snapshot.domains[.layout]?.isSaving == true)

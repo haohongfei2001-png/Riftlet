@@ -161,7 +161,7 @@ final class HistoryPreviewTests: XCTestCase {
             sha256: String(repeating: "0", count: 64), byteCount: 1,
             pixelWidth: 10, pixelHeight: 10, mediaType: "image/png", firstSeenAt: asset.firstSeenAt.addingTimeInterval(-1), origin: .synthetic)
         var actions = 0
-        let controller = RiftHistoryController(mediaDirectory: directory,
+        let controller = RiftHistoryController(copy: .simplifiedChinese, mediaDirectory: directory,
             onRestore: { _ in actions += 1 }, onRemove: { _ in actions += 1 }, onReveal: { _ in actions += 1 })
         defer { controller.close() }
         controller.update(entries: [RiftHistoryEntry(record: AssetRecord(image: asset, sequence: 2)),
@@ -190,7 +190,7 @@ final class HistoryPreviewTests: XCTestCase {
         let (directory, asset) = try fixture(width: 1280, height: 720)
         let original = try Data(contentsOf: directory.appendingPathComponent(asset.fileName))
         var actions = 0
-        let controller = RiftHistoryController(mediaDirectory: directory,
+        let controller = RiftHistoryController(copy: .simplifiedChinese, mediaDirectory: directory,
             onRestore: { _ in actions += 1 }, onRemove: { _ in actions += 1 }, onReveal: { _ in actions += 1 })
         defer { controller.close() }
         controller.update(entries: [RiftHistoryEntry(record: AssetRecord(image: asset, sequence: 1))])
@@ -246,7 +246,7 @@ final class HistoryPreviewTests: XCTestCase {
         // contains another valid image, so the old thumbnail cache can show B.
         try bytesB.write(to: directory.appendingPathComponent(assetA.fileName), options: .atomic)
         var actions = 0
-        let controller = RiftHistoryController(mediaDirectory: directory,
+        let controller = RiftHistoryController(copy: .simplifiedChinese, mediaDirectory: directory,
             onRestore: { _ in actions += 1 }, onRemove: { _ in actions += 1 }, onReveal: { _ in actions += 1 })
         defer { controller.close() }
         controller.update(entries: [RiftHistoryEntry(record: AssetRecord(image: assetA, sequence: 1))])
@@ -291,7 +291,7 @@ final class HistoryPreviewTests: XCTestCase {
         guard !NSScreen.screens.isEmpty else { throw XCTSkip("AppKit display unavailable") }
         let (directory,asset) = try fixture(width:1280,height:720)
         var fence:[Bool]=[]; var actions=0
-        let controller=RiftHistoryController(mediaDirectory:directory,onRestore:{_ in actions += 1},onRemove:{_ in actions += 1},onReveal:{_ in actions += 1})
+        let controller=RiftHistoryController(copy: .simplifiedChinese, mediaDirectory:directory,onRestore:{_ in actions += 1},onRemove:{_ in actions += 1},onReveal:{_ in actions += 1})
         defer {controller.close()}
         controller.onPreviewVisibilityChanged={fence.append($0)}
         controller.update(entries:[])

@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 1,
+  "auditPR": 100,
+  "implementationPR": 101,
+  "base": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",
+  "stable": "1.0.1 (23)",
+  "overallAcceptance": "NOT_ACCEPTED",
+  "R1": {
+    "issues": [
+      78,
+      79,
+      80,
+      81,
+      82,
+      84
+    ],
+    "reviewedSource": "22088d01e65ccc7f6f7be52d612e9df1107935a5",
+    "pullRequestHead": "1021c57333c889deec92fbd4232f17792c5604be",
+    "formalCI": "5/5 PASS on this head only",
+    "controlled": {
+      "nodeCases": 126,
+      "chromeCases": 31,
+      "unownedFileWrites": 0,
+      "storageCases": 26
+    },
+    "native": "One real system screenshot in an isolated signed Mac candidate. Clicking while automation permission was pending returned a target read error after 134 ms; failure logged at 162 ms; thumbnail retained, no new operation or START. Separately tested prepared recovery after killing the process and four restarts with damaged preferences.",
+    "realChatGPT": "NOT_RUN: isolated Chrome could not connect. Neither image was submitted."
+  },
+  "R2": {
+    "issues": [
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      98
+    ],
+    "nativeCheckpointSHA256": "cf0784d14fb30ef23820e5e218d536911072567f31deea0dd5ea640cb535326c",
+    "settingsCases": {
+      "environment-and-default-window": "PASS",
+      "real-collector-synthetic-fixture": "PASS",
+      "accepted-collection-during-recheck": "PASS",
+      "four-pages-light-and-dark": "PASS",
+      "orthogonal-pause-hidden-sqlite": "PASS",
+      "archive-editor-return-and-blur": "PASS",
+      "configuration-editor-refresh-defaults": "PASS",
+      "close-sheet-continue-discard": "PASS",
+      "independent-write-failures-and-retry": "PASS",
+      "motion-selection-in-advanced-appearance": "PASS",
+      "three-step-guidance-light-and-dark": "PASS",
+      "resizing-and-reopen": "PASS",
+      "history-real-records": "PASS",
+      "original-media-and-no-upload-operations": "PASS"
+    },
+    "windowServerFrames": 33,
+    "scope": "Intermediate native QA package. Full service, installer, hardware pointer, system IME and VoiceOver speech not established.",
+    "formalCIAtCheckpoint": "5/5 PASS on ad4c76b; see PR for final combined jobs",
+    "framesReview": "32/33 intermediate frames contained visible pixels. The old sheet capture was fully transparent. Frozen Developer ID candidate: a real virtual keyboard and mouse on the guest produced a new visible close-confirmation frame (PNG SHA256 c5c5ad0879ae95c0d91cc32575f716fc9a4c2aae588431579d68c5c5b28e8268)."
+  },
+  "followup": {
+    "83": "Remote main was not protected. No account, ruleset or billing changes.",
+    "92": "Partial current settings and history GUI coverage; full hardware and accessibility matrix open.",
+    "93": "See history-performance.json: paired full QA app measurement and one-pass recovery fix on b948286. Separate ordinary-recovery invariants preserve existing assets, operations, START, journals and original PNG bytes.",
+    "94": "Four historical fixture types isolated from the product in e8e4aec. Shipping App and acceptance helper built, zero legacy fixture symbols in App. Product and fixture native acceptance are separate.",
+    "95": "Read-only private-copy usage. Occupied space is not an estimate of reclaimable space. No deletion.",
+    "96": "Five native permission purposes available in Chinese and English. Full core UI English and VO not established.",
+    "97": "Reuse PR 77. Public 1.0.1 to the next signed release through Sparkle is not yet tested.",
+    "99": "Default Chinese and English image descriptions and both language switches passed in offline headless Chromium."
+  },
+  "followUpVerification": {
+    "reviewedSettingsAndRecovery": {
+      "source": "bf11b35d2beec58cb305a0dd7e83d6d0ad47a2a7",
+      "admission": "26b81ceba0f90b464e2654009b3ff0271789c10c",
+      "nativeOnboarding": "18 named native program checks in an isolated macOS 27.2 guest. Three English guide views and the Simplified Chinese start view captured. Permission states supplied by a fixture. Corrected an inconsistent denied/ready test fixture and verified its replacement frame.",
+      "unavailableSettings": "In a private build with a settings host initialization error injected, clicked the status item and then Quit. The process exited and both instance and feedback locks were available. No production failure was injected.",
+      "formalCI": "5/5 on 26b81ce, Native 43550046383 and Feedback 43550046399"
+    },
+    "systemIME": {
+      "source": "6cd0d62373d92fe88ecc885a9f88558f3dcffb14",
+      "binarySHA256": "1e956ff5dbd41c6fa60f490291ffe128c26cb5d89feaed6e5e209625db0c21ef",
+      "tests": "7 scoped tests of Apple Simplified Pinyin through the virtual keyboard. The marked text and native candidate list survived a real screenshot import. Cancel, invalid candidate confirmation, correction and persistence tested. Original archive preference bytes restored.",
+      "scope": "Isolated Mac only. ABC restored as the sole effective input source. The disabled system input method retained one remembered inactive submode flag."
+    },
+    "websiteUpdater": {
+      "installedVersion": "1.0.1 (23)",
+      "binarySHA256": "5cd47c71fc8043158eda8b5725e22e3dcd60b628dbd5ad248dd7b1f6a132cf05",
+      "environment": "isolated macOS 27.2 arm64 GUI, retained Safari download and Finder-installed bundle",
+      "productionNoUpdate": "PASS",
+      "rejectWrongFeedSignatureBeforeDownload": "PASS",
+      "normalRestartAndData": "PASS: six media hashes, bookmark, feedback and one UNKNOWN retained. One legitimate idle archive.",
+      "higherBuildInstallation": "NOT_RUN"
+    },
+    "issue95": {
+      "selectionStudy": "Of 10,000 synthetic v4 assets, all 3,330 removed thumbnails had UNKNOWN. The pending archived records without operations are only an initial read-only filter.",
+      "reclaimableBytes": null,
+      "permanentDeletionImplemented": false
+    },
+    "realChatGPT": "NOT_RUN. The dedicated QA browser timed out before an editable draft. Zero file submissions. Resumption requires a reachable authorized QA draft and the exact proposed release package.",
+    "bilingualDailyUse": {
+      "sourceComponents": {
+        "controlAndMenus": "247e8f6",
+        "dynamicSourceAndPermissionStates": "aa3bc1a",
+        "settings": "6e9d13d",
+        "history": "db08ab9",
+        "gridResizing": "346863f",
+        "trayAndThumbnail": "5695489",
+        "captureStatusAndUpdaterErrors": "5187ce7"
+      },
+      "settings": "16 isolated AppKit controller cases (12 English, 4 Chinese). The four pages use stable identifiers and the original preference owner.",
+      "controlAndSetup": "20 native control and setup projection cases passed in both process languages. No live browser handoff in this test.",
+      "history": "4 native controller cases with synthetic records. Both renderers kept the stored record UUID, existing actions and bilingual search.",
+      "grid": "Independent native reproduction of a stale document/viewport width and flow-layout warnings. Final resizing checks ran 16 changes through 1000, 680, 808 and 680 points across English and Chinese. Selected UUID retained and no flow-layout warnings in that run.",
+      "captureAndStatus": "12 program-level cases covered capture menu and countdown copy, attachment uncertainty and update-denial messages. The download and attachment operations were not executed by these tests.",
+      "limits": "WindowServer screenshots use controlled local records. Some system notification banners obscure the right margin. Physical VoiceOver speech, macOS 13 hardware, live ChatGPT and next-version installation via the official public feed remain separate."
+    },
+    "unpublishedPrivacyRepair": {
+      "reason": "GitHub rejected all new commits with GH007 before publication. Corrected unpushed commit identities to the account noreply address, retaining every tree, ordered-parent shape, message and date. Original local objects and test reports preserved. Existing remote commits were not rewritten.",
+      "originalSource": "ad83c153590ab938bc1fdf28f09018a57df3e169",
+      "equivalentSource": "5094949d113cf75c41325412791b4b44e19e3aff",
+      "originalEvidenceScope": "All tests retain the SHA actually executed. EquivalentSource has the exact original source tree. This follow-up changes only this progress record before renewed independent review.",
+      "commitMap": {
+        "247e8f63d691d715ff5814bb73cd3d81bf1ad1a1": "458246b1ccf6622a18017cc624cf11b7ce0285ba",
+        "aa3bc1af513d7a533ca9154a52b873282f00a56a": "313b3034065178adfa785f2ae7505ac565954d6e",
+        "925b3b73112bda5a8ab53693db17f30d3c8f7e56": "8ce76d00fa882f1960ab9ff37a6a247068ba7535",
+        "db08ab9b676ce8776136772a686a7648daa9f931": "db08ab9b676ce8776136772a686a7648daa9f931",
+        "54c74c444182c043e54b9fa757b78191d270e9b9": "29819164079e072e58de9300ec2f616d327589f6",
+        "6e9d13d25c2b73a504e562a1a2fb2f5842e0c99a": "6e9d13d25c2b73a504e562a1a2fb2f5842e0c99a",
+        "d575bcc94c8fb025edd92d83ec0f8237942eece0": "941e0ae0f9adadb0505da0b269295d07b9dc9545",
+        "e931532a8a3dc0491a2dcc1e7b047232de79b3dc": "c365c9e1397150a0eaf5fd6b05ba4c4ff2e86b2e",
+        "267f05379034f511cc33f48026a2e5ad01ed7147": "bd979d228bab7e13935df96153e934438602a237",
+        "346863fe651dc1668e55ea390866c12b8f4024ae": "346863fe651dc1668e55ea390866c12b8f4024ae",
+        "b200d3fdd4107566c6d5cfaccdaa1313946fede8": "101c249e78f32eca7d4f11ef54a897a215ddc35a",
+        "569548995f927058a09f20240b3359b4187cce8f": "84f96bb1e1b86a467942417d9cb6a9e97e31c3a7",
+        "5187ce7e1ffcc1c42d58d362af485119fecfaa6d": "f96fd3cbad0b7b0e92bafe787f3867e2881b9f9a",
+        "9c38920927700499e345e6160bfcc6946fde4f82": "563bf52ab8fc5ccb4a6de8df2f3a6cd1bfdd2830",
+        "ad83c153590ab938bc1fdf28f09018a57df3e169": "5094949d113cf75c41325412791b4b44e19e3aff"
+      }
+    },
+    "combinedSignedNative": {
+      "source": "ad83c153590ab938bc1fdf28f09018a57df3e169",
+      "binarySHA256": "737099bc4bb35e1427aa83b3ca730c400432ddc8fe955c771496b017c376f027",
+      "identity": "Private 1.0.2 (24) universal QA. Developer ID Team ZB9D4T66QB; not notarized or published.",
+      "firstRun": "Original 7 PASS / 7 FAIL retained. Independent diagnosis confirmed locked QA session, loginwindow frontmost and zero status actions dispatched. The missing history fixture was never created.",
+      "recovery": "An ordinary virtual Escape ended the locked state. Fresh session facts and a visible desktop confirmed recovery. No TCC or lock policy was changed, and no password was entered.",
+      "secondRun": "Same binary, new UUID-scoped data root, 14/14 named native AppKit and real local persistence cases PASS, then normal process exit. 33 owned-window frames recorded.",
+      "restart": "Same binary and same QA data root in a new process. Restart report retains individual persisted-setting, history, media and lifecycle checks.",
+      "scope": "Controlled native actions in actual signed App, real local capture collector with synthetic PNG fixtures. Not physical mouse, real ChatGPT, public installation, notarization or actual update."
+    },
+    "bilingualCIRound": {
+      "head": "57df864a0810ad5a5385b7aac66fe48c536a39a2",
+      "ARM64": "Build succeeded. Three tests had seven language-related assertion failures. Full job log retained.",
+      "fix": "Tray test locates the localized label. Historical Chinese-only semantic fixture explicitly selects Chinese. Onboarding maps either known Chrome recipe into its own chosen language while preserving custom sanitized details. Added a bilingual regression; prior assertions remain.",
+      "nativeCopyCases": "21 named setup/control test methods in each supported process language passed after the correction.",
+      "remainingCI": "Requires the following independently admitted head."
+    },
+    "packagedSelfCheckCorrection": {
+      "failedHead": "1d4374ca867853bc9809bbd7e5143f82a389aae1",
+      "ci": "Three PASS, ARM64 FAIL in Run packaged executable with synthetic data, Intel canceled after same failure was confirmed. Both architecture unit/integration test steps passed.",
+      "reproduction": "Same signed 55fc106 executable: --first-use-self-check exits 1 under AppleLanguages(en), exits 0 under (zh-Hans). Source fixture selected system language but asserted three Chinese phrases.",
+      "change": "The CLI-only fixture explicitly selects Simplified Chinese. All original assertions remain. Ordinary first-use presentation and its language selection are unchanged.",
+      "next": "Rebuild exact current source and run all four packaged CLI self-checks in both process languages, then independent review, admission and formal CI."
+    },
+    "auditDocumentationReuse": {
+      "origin": "PR #100 independently reviewed source 67fb373d04b7ca6162314e3b4072932be43f0794",
+      "preserved": "34 of 39 document/evidence paths retained byte-identically, including all five original instruction archives. Five active entry/status paths updated to PR #101 and current scoped evidence.",
+      "status": "Current issue queue now records implementation and remaining acceptance instead of directing new work to old PR #41. PR #77 remains independent."
+    },
+    "actualPrivateSparkleUpgrade": {
+      "source": "31258e2a72fb7acf9e31f974f76b5a100dbb950d",
+      "from": "Original website 1.0.1 (23), exact original binary via Finder",
+      "to": "Private Developer ID notarized 1.0.2 (24)",
+      "result": "PASS for actual signed-loopback-feed download, install, relaunch, normal restart, history preview and fresh system screenshot collection",
+      "data": "Seven assets and all rows/media/settings/bookmark/feedback equal before and after update; real new screenshot becomes eighth asset. Later only that new screenshot idle-archives under existing two-minute policy. One UNKNOWN and zero START retained.",
+      "receipt": "engineering/quality/2026-11-14/actual-private-sparkle-update.json",
+      "scope": "Isolated ARM64 macOS 27.2 only. Public feed and personal installation unchanged. Actual Chrome permission and ChatGPT still NOT_RUN. Same run exposed an English popover title width defect, corrected separately."
+    },
+    "englishPopoverAndSupplementalVisuals": {
+      "observedIn": "Developer ID notarized source31258e2 private24 after actual Sparkle upgrade",
+      "popover": "English header available width70pt caused within-word wrapping in294pt popover. Preserved failure frame. Minimal fix retains title, button, action, width and material, placing screenshot action in its own row. Real AppKit geometry cases cover five states in each language and the original action hit area.",
+      "supplementalCI": "Headfea620b formal result3PASS2FAIL. Unit/integration and all four packaged selfchecks passed on both architectures; supplemental screenshot helper still awaited Chinese text under English. Four expected labels localized with ProductCopy. All original readiness/identity/pixel/geometry/timing assertions retained.",
+      "supplementalNative": "Same helper and original validators passed six cases in each process language on actual guest WindowServer;12/12. Receipt retained privately.",
+      "next": "Independent combined-source review and fresh formal CI. Previous source-bound update success is retained independently from this localized UI correction."
+    },
+    "systemButtonAlignmentRegression": {
+      "failedHead": "a073ab0f3bb96f4fbe49ec01376dfbd5c189b245",
+      "formalCI": "3 PASS / 2 FAIL. Both architectures failed only the five states of new header test at the same outer-frame margin assertion. Full raw logs retained.",
+      "cause": "On macOS15 standard NSButton alignment insets place its complete outer hit frame at10pt while its alignment rectangle is at the intended17pt margin. The added test treated both as the same geometry.",
+      "correction": "Verify the visual alignment rectangle against content margins and the full hit frame against popover bounds. Retain original full-word/intrinsic-size/non-overlap/edge-hit/action checks.",
+      "shippingSource": "No product-source or resource change. The signed notarized624e1b5 App and native frames retain their exact identities."
+    }
+  }
+}

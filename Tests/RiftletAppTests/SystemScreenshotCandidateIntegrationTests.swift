@@ -117,7 +117,7 @@ final class SystemScreenshotCandidateIntegrationTests: XCTestCase {
 
     func testCandidateFeedbackDistinguishesSavedButUnsupportedFromCaptureFailure() {
         let presentation = SetupPresentation(snapshot: .init(attachment: .systemScreenshotCandidate,
-            permission: .notRequested, issue: .attachmentFormat))
+            permission: .notRequested, issue: .attachmentFormat), copy: .simplifiedChinese)
         XCTAssertTrue(presentation.canRequestPermission)
         XCTAssertTrue(presentation.attachmentText.contains("真实上传开始后快速吞噬"))
         XCTAssertTrue(presentation.attachmentText.contains("独立完成证明"))

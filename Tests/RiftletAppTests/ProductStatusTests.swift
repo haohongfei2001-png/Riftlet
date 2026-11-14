@@ -1,9 +1,44 @@
 import XCTest
 @testable import RiftletApp
 import RiftletCore
+import RiftletUI
 import RiftletAdapters
 
 final class ProductStatusTests: XCTestCase {
+    func testAttachmentFeedbackEnglishNeverClaimsUncertainInputWasNotUploaded() {
+        for value in ProductStatus.AttachmentFeedback.allCases {
+            let english = value.text(in: .english)
+            let chinese = value.text(in: .simplifiedChinese)
+            XCTAssertFalse(english.isEmpty)
+            XCTAssertNil(english.range(of: "[\\p{Han}]", options: .regularExpression))
+            XCTAssertNotEqual(english, chinese)
+            XCTAssertFalse(english.contains("UNKNOWN"))
+            XCTAssertFalse(english.contains("ACK"))
+        }
+        XCTAssertEqual(ProductStatus.AttachmentFeedback.waiting.text(in: .english),
+                       "Queued for attachment; this image has not been uploaded yet.")
+        XCTAssertEqual(ProductStatus.AttachmentFeedback.resultUnconfirmed.text(in: .english),
+                       "The attachment result is unconfirmed. Its history is kept; Riftlet will not attach it again automatically.")
+        XCTAssertEqual(ProductStatus.AttachmentFeedback.resultUnconfirmed.text(in: .simplifiedChinese),
+                       "附加结果暂不能确认，图片记录已保留；不会自动再次附加。")
+        for value in [ProductStatus.AttachmentFeedback.preparing, .resultUnconfirmed] {
+            XCTAssertFalse(value.text(in: .english).contains("not uploaded"))
+            XCTAssertFalse(value.text(in: .english).contains("has not been uploaded"))
+        }
+        XCTAssertEqual(ProductStatus.AttachmentFeedback.targetUnavailable.text(in: .english),
+                       SetupIssue.targetUnavailable.text(in: .english))
+        XCTAssertEqual(ProductStatus.operationFeedback("Unrecognized PRIVATE_SENTINEL").text(in: .english),
+                       ProductStatus.AttachmentFeedback.resultUnconfirmed.text(in: .english))
+    }
+
+    func testEnglishProductHelpDistinguishesReceiptFromSendingAndPreservesUncertainHistory() {
+        let text = ProductStatus.supportDescription(for: .unifiedProduct, copy: .english)
+        for description in ["editable new or existing", "starts receiving", "You choose when to send",
+                            "never automatically resubmits", "128 MiB", "macOS 13"] {
+            XCTAssertTrue(text.contains(description), description)
+        }
+    }
+
     func testPreparedCancellationReasonsHaveSpecificFeedback() {
         let cases: [(String, ProductStatus.AttachmentFeedback)] = [
             ("Accepted selection expired before input", .expiredBeforeInput),
@@ -49,10 +84,10 @@ final class ProductStatusTests: XCTestCase {
         for reason in reasons {
             let feedback = ProductStatus.operationFeedback(reason)
             XCTAssertEqual(feedback, .resultUnconfirmed)
-            XCTAssertFalse(feedback.text.contains("未上传"))
-            XCTAssertFalse(feedback.text.contains("PRIVATE_SENTINEL"))
-            XCTAssertFalse(feedback.text.contains("失败"))
-            XCTAssertTrue(feedback.text.contains("不会自动再次附加"))
+            XCTAssertFalse(feedback.text(in: .simplifiedChinese).contains("未上传"))
+            XCTAssertFalse(feedback.text(in: .simplifiedChinese).contains("PRIVATE_SENTINEL"))
+            XCTAssertFalse(feedback.text(in: .simplifiedChinese).contains("失败"))
+            XCTAssertTrue(feedback.text(in: .simplifiedChinese).contains("不会自动再次附加"))
         }
     }
 
@@ -71,16 +106,16 @@ final class ProductStatusTests: XCTestCase {
     }
 
     func testWaitingIsPresentationOnlyAndNeverInferredFromGenericReason() {
-        XCTAssertTrue(ProductStatus.AttachmentFeedback.waiting.text.contains("尚未上传"))
-        XCTAssertFalse(ProductStatus.AttachmentFeedback.preparing.text.contains("未上传"),
+        XCTAssertTrue(ProductStatus.AttachmentFeedback.waiting.text(in: .simplifiedChinese).contains("尚未上传"))
+        XCTAssertFalse(ProductStatus.AttachmentFeedback.preparing.text(in: .simplifiedChinese).contains("未上传"),
                        "A prepared snapshot can advance to input before the next UI refresh")
         XCTAssertEqual(ProductStatus.operationFeedback("waiting"), .resultUnconfirmed)
         XCTAssertEqual(ProductStatus.operationFeedback("targetBusy"), .resultUnconfirmed)
         XCTAssertNil(ProductStatus.clickFeedback(RiftletError.targetBusy))
         for feedback in ProductStatus.AttachmentFeedback.allCases {
-            XCTAssertFalse(feedback.text.contains("重试"))
-            XCTAssertFalse(feedback.text.contains("ACK"))
-            XCTAssertFalse(feedback.text.contains("UNKNOWN"))
+            XCTAssertFalse(feedback.text(in: .simplifiedChinese).contains("重试"))
+            XCTAssertFalse(feedback.text(in: .simplifiedChinese).contains("ACK"))
+            XCTAssertFalse(feedback.text(in: .simplifiedChinese).contains("UNKNOWN"))
         }
     }
 
@@ -96,7 +131,7 @@ final class ProductStatusTests: XCTestCase {
     }
 
     func testUnifiedProductDoesNotDirectUserToAnotherProductOrClaimRealPageCertification() {
-        let text = ProductStatus.supportDescription(for: .unifiedProduct)
+        let text = ProductStatus.supportDescription(for: .unifiedProduct, copy: .simplifiedChinese)
         for scope in ["新聊天", "已有聊天", "系统和内置截图", "不会自动再次附加",
                       "PNG、JPEG 按原文件附加", "相同分辨率的 PNG"] {
             XCTAssertTrue(text.contains(scope), scope)

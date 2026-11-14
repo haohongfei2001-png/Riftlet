@@ -35,6 +35,10 @@ fi
 mkdir -p "$riftlet_app/Contents/MacOS" "$riftlet_app/Contents/Resources"
 cp "$riftlet_bin_dir/Riftlet" "$riftlet_app/Contents/MacOS/Riftlet"
 cp Resources/Info.plist "$riftlet_app/Contents/Info.plist"
+# The internal acceptance channel has its own Automation purpose string.
+if [[ "$riftlet_channel" == development ]]; then
+  cp -R Resources/{en,zh-Hans}.lproj "$riftlet_app/Contents/Resources/"
+fi
 if [[ -e Resources/Riftlet.icns || -L Resources/Riftlet.icns ]]; then
   cp Resources/Riftlet.icns "$riftlet_app/Contents/Resources/Riftlet.icns"
 fi

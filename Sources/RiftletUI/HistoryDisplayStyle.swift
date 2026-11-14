@@ -5,10 +5,12 @@ public enum HistoryDisplayStyle: String, CaseIterable, Sendable {
     case current
     case imageGrid
 
-    public var title: String {
+    public var title: String { title(copy: .current) }
+
+    public func title(copy: ProductCopy) -> String {
         switch self {
-        case .current: return "当前视图"
-        case .imageGrid: return "图像网格"
+        case .current: return copy.text("当前视图", "List")
+        case .imageGrid: return copy.text("图像网格", "Image Grid")
         }
     }
 }

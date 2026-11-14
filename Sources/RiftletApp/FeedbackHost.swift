@@ -76,13 +76,14 @@ final class FeedbackHost {
         let keys = Set(counts.keys).union(lastAssetCounts.keys); lastAssetCounts=counts
         for fact in keys.sorted(by:{$0.rawValue<$1.rawValue}){diagnostics.record(fact,count:counts[fact] ?? 0)}
     }
-    func operations(_ operations:[TransferOperation]) {
+    func operations(phaseCounts: [OperationPhase: Int], successfulCount: Int) {
         var counts:[FeedbackFact:Int]=[:]
-        for operation in operations {
+        for (phase, count) in phaseCounts {
             let fact:FeedbackFact
-            switch operation.phase {case .prepared:fact = .phasePrepared;case .dispatchIntent:fact = .phaseDispatchIntent;case .inputTriggered:fact = .phaseInputTriggered;case .attachmentPresent:fact = .phaseAttachmentPresent;case .unknown:fact = .phaseUnknown;case .compensated:fact = .phaseCompensated;case .failed:fact = .phaseFailed;case .succeeded:fact = .phaseSucceeded}
-            counts[fact,default:0]+=1
+            switch phase {case .prepared:fact = .phasePrepared;case .dispatchIntent:fact = .phaseDispatchIntent;case .inputTriggered:fact = .phaseInputTriggered;case .attachmentPresent:fact = .phaseAttachmentPresent;case .unknown:fact = .phaseUnknown;case .compensated:fact = .phaseCompensated;case .failed:fact = .phaseFailed;case .succeeded:fact = .phaseSucceeded}
+            counts[fact] = count
         }
+        if successfulCount > 0 { counts[.phaseSucceeded] = successfulCount }
         guard counts != lastPhaseCounts else{return}
         let keys = Set(counts.keys).union(lastPhaseCounts.keys); lastPhaseCounts=counts
         for fact in keys.sorted(by:{$0.rawValue<$1.rawValue}){diagnostics.record(fact,count:counts[fact] ?? 0)}

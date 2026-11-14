@@ -5,31 +5,31 @@ import RiftletCapture
 public enum SettingsPage: String, CaseIterable, Sendable {
     case general, display, capture, motion, history, help
     /// The two historical routes remain valid deep links into these four pages.
-    public static let allCases: [SettingsPage] = [.display, .capture, .history, .help]
+    public static let allCases: [SettingsPage] = [.general, .display, .capture, .help]
     public var destination: SettingsPage {
-        switch self { case .general: return .history; case .motion: return .display; default: return self }
+        switch self { case .history: return .capture; case .motion: return .display; default: return self }
     }
     public var title: String {
         switch self {
-        case .motion, .display: return "外观与布局"
-        case .capture: return "截图"
-        case .general, .history: return "使用与历史"
-        case .help: return "权限与帮助"
+        case .motion, .display: return ProductCopy.text("桌面", "Desktop")
+        case .capture, .history: return ProductCopy.text("截图", "Screenshots")
+        case .general: return ProductCopy.text("通用", "General")
+        case .help: return ProductCopy.text("帮助", "Help")
         }
     }
     public var symbol: String {
         switch self {
         case .motion, .display: return "rectangle.3.group"
-        case .capture: return "camera"
-        case .general, .history: return "clock.arrow.circlepath"
-        case .help: return "hand.raised"
+        case .capture, .history: return "camera"
+        case .general: return "gearshape"
+        case .help: return "questionmark.circle"
         }
     }
 }
 
 public enum SettingsAppearanceChoice: String, CaseIterable, Sendable {
     case system, light, dark
-    public var title: String { self == .system ? "跟随系统" : self == .light ? "浅色" : "深色" }
+    public var title: String { self == .system ? ProductCopy.text("跟随系统", "System") : self == .light ? ProductCopy.text("浅色", "Light") : ProductCopy.text("深色", "Dark") }
 }
 public struct SettingsAppearancePresentation: Equatable, Sendable {
     public var selection: SettingsAppearanceChoice = .system
@@ -79,7 +79,10 @@ public struct SettingsUpdaterPresentation: Equatable, Sendable {
         self.canCheck = canCheck; self.automaticChecks = automaticChecks
         self.availableVersion = availableVersion; self.failure = failure
     }
-    public var checkTitle: String { availableVersion.map { "查看更新 " + $0 + "…" } ?? "检查更新…" }
+    public var checkTitle: String {
+        guard let version = availableVersion else { return ProductCopy.text("检查更新…", "Check for Updates…") }
+        return ProductCopy.text("查看更新 \(version)…", "View Update \(version)…")
+    }
 }
 public struct SettingsAccessibility: Equatable, Sendable {
     public var reduceMotion = false
@@ -93,6 +96,8 @@ public enum SettingsScreenRecording: Equatable, Sendable { case notChecked, gran
 
 /// Main composes one coherent projection for all native surfaces. No source/target,
 /// upload or persistence authority is carried into a view.
+public enum SettingsPreferenceDomain: String, CaseIterable, Sendable { case layout, archive }
+
 public struct SettingsProductSnapshot: Equatable, Sendable {
     public var revision: UInt64
     public var setup: SetupSnapshot
@@ -106,6 +111,8 @@ public struct SettingsProductSnapshot: Equatable, Sendable {
     public var version: String = ""
     public var updater: SettingsUpdaterPresentation?
     public var chromeConnection: OnboardingChromeConnection = .unchecked
+    public var preferenceRecovery: Set<SettingsPreferenceDomain> = []
+    public var preferenceRecoveryFailure: SettingsPreferenceDomain?
     public var configurationDeferred = false
     public var reviewEnvironment = false
     public init(revision: UInt64, setup: SetupSnapshot, state: SettingsStateSnapshot) {
@@ -125,6 +132,7 @@ public enum SettingsProductAction: Sendable {
     case recheck, openSource, chooseSourceAccess, requestAutomation, checkChromeConnection
     case openFilePrivacy, openScreenRecordingPrivacy
     case restorePreferredDisplay, checkStorage, revealDataFolder, reloadConfiguration, openConfiguration
+    case restorePreference(SettingsPreferenceDomain)
     case checkForUpdates, automaticUpdateChecks(Bool), openDownloadWebsite
     case showLatest, showOldest, quit
 }

@@ -1,0 +1,251 @@
+{
+  "issue": 93,
+  "baseline": "ad4c76b702cb5bcee5d1304b53f4f27bc4fda89c",
+  "fixed": "b948286b5f128e5288e1eb081d7499ac54535d6a",
+  "environment": "One isolated arm64 Mac GUI guest. Developer-ID control is unmodified; A/B uses instrumented private ad hoc QA App processes, release build, same resources and fixture archives, real AppKit, CaptureService, SQLite and filesystem watcher. No browser, production data, or release activity. Samples are descriptive; filesystem cache not flushed.",
+  "fixtures": {
+    "kind": "Same synthetic valid 240x100 RGB PNG bytes in per-UUID private files, ordinary private journals and v4 DB. Ten visible items; remaining rows alternate archived pending, hidden START and hidden unknown. One marked PNG written to source after watcher ready.",
+    "png_bytes": 24836,
+    "png_sha256": "35d99e5ee64e73345c4331d2dfd3da8251562640922bc2bbd2a93e776e617d05",
+    "archive_sha256": {
+      "200": "7fbb2d3eed972979630f49078749fa558caf19d942c569b689efd4011125f49c",
+      "2000": "2e6c15905d10bc2861617fd41da75fb58e4a62aef176f3481b78ac7d0e4824f0",
+      "10000": "c0e30ea39716fbe4ab80f8d82d2b38b8e20bc7828282a3150cf967257adbfde7"
+    }
+  },
+  "clock": "ProcessInfo.systemUptime. Ready includes first full refresh, 10 visible assets and collecting status. Five subsequent refreshes, then first displayed history page and one new file observed through watcher.",
+  "instrumented_executable_sha256": {
+    "before": "fdd4f882b2d10c3911413a6bdcf039cf669aa01d81d3bfcebf3debad9f7c8a5e",
+    "after": "67b9b56f1123689e00cdf75fa7bc3c61c32ebd1a531da9dac405c49549c60990"
+  },
+  "comparison": {
+    "200": {
+      "before": {
+        "usable_after_delegate_ms": 474.102,
+        "visible_at_ready": 10,
+        "watcher_running": true,
+        "recovery_ms": [
+          48.963,
+          41.437
+        ],
+        "hashed_png_bytes_per_recovery": [
+          4967200,
+          4967200
+        ],
+        "ordinary_refresh_samples_ms": [
+          13.657,
+          6.503,
+          8.885,
+          5.494,
+          8.791
+        ],
+        "ordinary_refresh_median_ms": 8.791,
+        "ratio_of_ordinary_refreshes_requiring_target_decode": 1.0,
+        "history_visible": true,
+        "first_visible_history_page_ms": 48.447,
+        "new_capture_visible_ms": 311.467,
+        "final_visible": 11,
+        "max_rss_bytes": 152125440
+      },
+      "after": {
+        "usable_after_delegate_ms": 436.971,
+        "visible_at_ready": 10,
+        "watcher_running": true,
+        "recovery_ms": [
+          52.626
+        ],
+        "hashed_png_bytes_per_recovery": [
+          4967200
+        ],
+        "ordinary_refresh_samples_ms": [
+          12.52,
+          10.116,
+          6.375,
+          12.033,
+          13.133
+        ],
+        "ordinary_refresh_median_ms": 12.033,
+        "ratio_of_ordinary_refreshes_requiring_target_decode": 0.0,
+        "history_visible": true,
+        "first_visible_history_page_ms": 94.323,
+        "new_capture_visible_ms": 314.251,
+        "final_visible": 11,
+        "max_rss_bytes": 151994368
+      }
+    },
+    "2000": {
+      "before": {
+        "usable_after_delegate_ms": 1385.633,
+        "visible_at_ready": 10,
+        "watcher_running": true,
+        "recovery_ms": [
+          428.334,
+          458.825
+        ],
+        "hashed_png_bytes_per_recovery": [
+          49672000,
+          49672000
+        ],
+        "ordinary_refresh_samples_ms": [
+          22.648,
+          16.121,
+          16.822,
+          16.025,
+          14.656
+        ],
+        "ordinary_refresh_median_ms": 16.121,
+        "ratio_of_ordinary_refreshes_requiring_target_decode": 1.0,
+        "history_visible": true,
+        "first_visible_history_page_ms": 55.393,
+        "new_capture_visible_ms": 338.222,
+        "final_visible": 11,
+        "max_rss_bytes": 165167104
+      },
+      "after": {
+        "usable_after_delegate_ms": 930.397,
+        "visible_at_ready": 10,
+        "watcher_running": true,
+        "recovery_ms": [
+          450.031
+        ],
+        "hashed_png_bytes_per_recovery": [
+          49672000
+        ],
+        "ordinary_refresh_samples_ms": [
+          16.177,
+          6.467,
+          10.765,
+          6.417,
+          10.366
+        ],
+        "ordinary_refresh_median_ms": 10.366,
+        "ratio_of_ordinary_refreshes_requiring_target_decode": 0.0,
+        "history_visible": true,
+        "first_visible_history_page_ms": 57.218,
+        "new_capture_visible_ms": 321.324,
+        "final_visible": 11,
+        "max_rss_bytes": 164200448
+      }
+    },
+    "10000": {
+      "before": {
+        "usable_after_delegate_ms": 6975.336,
+        "visible_at_ready": 10,
+        "watcher_running": true,
+        "recovery_ms": [
+          2921.577,
+          2952.364
+        ],
+        "hashed_png_bytes_per_recovery": [
+          248360000,
+          248360000
+        ],
+        "ordinary_refresh_samples_ms": [
+          75.073,
+          59.254,
+          74.785,
+          60.93,
+          63.716
+        ],
+        "ordinary_refresh_median_ms": 63.716,
+        "ratio_of_ordinary_refreshes_requiring_target_decode": 1.0,
+        "history_visible": true,
+        "first_visible_history_page_ms": 92.893,
+        "new_capture_visible_ms": 433.916,
+        "final_visible": 11,
+        "max_rss_bytes": 209436672
+      },
+      "after": {
+        "usable_after_delegate_ms": 3642.971,
+        "visible_at_ready": 10,
+        "watcher_running": true,
+        "recovery_ms": [
+          2747.293
+        ],
+        "hashed_png_bytes_per_recovery": [
+          248360000
+        ],
+        "ordinary_refresh_samples_ms": [
+          17.479,
+          11.069,
+          15.655,
+          11.75,
+          9.881
+        ],
+        "ordinary_refresh_median_ms": 11.75,
+        "ratio_of_ordinary_refreshes_requiring_target_decode": 0.0,
+        "history_visible": true,
+        "first_visible_history_page_ms": 39.737,
+        "new_capture_visible_ms": 314.829,
+        "final_visible": 11,
+        "max_rss_bytes": 205815808
+      }
+    }
+  },
+  "preservation": {
+    "scope": "Dedicated fourth run selected the real independent-input startup recovery branch. Performance pairs use identical settings-review local recovery on both sides. Browser input is not exercised.",
+    "original_assets": 10000,
+    "original_operations": 6660,
+    "original_starts": 3330,
+    "after_counts": [
+      10001,
+      6660,
+      3330,
+      0
+    ],
+    "after_counts_order": [
+      "assets",
+      "operations",
+      "upload_starts",
+      "missing_assets"
+    ],
+    "before_digest": {
+      "assets": 10000,
+      "originalRows": "56f2af3e552914064c4d63fdf01d5216e7c493981904b4140ee29f4a3abb62e5",
+      "media": "8d6a143ba91375b25b1bbb9ad5e4bc54a696f8f902495ac8d1a5257b7cf58134",
+      "journal": "af2ca8e05b19321903fe65d058fc2e77fc1ff73362d7bb6a6d2880114af48cd2"
+    },
+    "result": "PASS exact original assets, operations, immutable STARTs, all journals and all original PNG bytes",
+    "full_app": {
+      "usable_after_delegate_ms": 2712.329,
+      "visible_at_ready": 10,
+      "watcher_running": true,
+      "recovery_ms": [
+        2040.001
+      ],
+      "hashed_png_bytes_per_recovery": [
+        248360000
+      ],
+      "ordinary_refresh_samples_ms": [
+        18.841,
+        13.82,
+        14.021,
+        11.855,
+        16.524
+      ],
+      "ordinary_refresh_median_ms": 14.021,
+      "ratio_of_ordinary_refreshes_requiring_target_decode": 0.0,
+      "history_visible": true,
+      "first_visible_history_page_ms": 70.454,
+      "new_capture_visible_ms": 319.373,
+      "final_visible": 11,
+      "max_rss_bytes": 205832192
+    }
+  },
+  "unmodified_signed_control": {
+    "source": "4d07c9800c223cb47add36fec59fb49cb2372ca6",
+    "same_product_tree_as_baseline": true,
+    "executable_sha256": "6eb9df3483bff3fcf487b79c009f5c1d80af8263d7998c873cd9d374060db323",
+    "scope": "Settings-review mode with 10,000 generated rows; times are external wall clock from observer start after spawning unchanged executable. Unlike A/B callback timers, this includes window/runloop, DB locks and ordinary polling. Do not compare timings across protocols.",
+    "collection_baseline_checkpoint_seconds": 37.885289,
+    "first_new_asset_in_sqlite_seconds": 38.931087,
+    "rss_KiB_at_observation": 180912,
+    "normal_appkit_quit": true
+  },
+  "targeted_macos_results": [
+    "PASS - SQL phase counts and original visible preparation identities agree with prior operation reads",
+    "PASS - recovery validates equal-size changed bytes again after a paused launch and subsequent stop",
+    "PASS - refused synthetic provenance prevents starting watcher and collection checkpoint creation; original rows untouched"
+  ],
+  "scope": "This evidence covers startup, ordinary refresh, first history window, a real filesystem event and per-record/byte preservation. It does not establish public package signing, Intel runtime performance, Chrome attachment, or a timing SLA."
+}

@@ -174,6 +174,108 @@ final class InteractionLifecycleTests: XCTestCase {
         }
     }
 
+    func testHistoryUsesOnlyCurrentAdmittedStartAndNeverGrantsRetry() async throws {
+        let db = try store(), asset = try image()
+        let op = try await prepare(db, asset, dispatched: false)
+        func check(_ expected: HistoryAttachmentState, hasStart: Bool,
+                   file: StaticString = #filePath, line: UInt = #line) async throws {
+            let page = try await db.historySnapshot()
+            let current = try XCTUnwrap(page.first, file: file, line: line)
+            let count = try await db.pendingAttachmentReviewCount()
+            XCTAssertEqual(current.attachmentState, expected, file: file, line: line)
+            XCTAssertEqual(current.startReceipt != nil, hasStart, file: file, line: line)
+            XCTAssertEqual(count, expected.needsVerification ? 1 : 0, file: file, line: line)
+            XCTAssertFalse(current.canRestore, file: file, line: line)
+        }
+        try await check(.preparing, hasStart: false)
+        try await db.markDispatchIntent(op.id)
+        _ = try await db.apply(receipt(op, asset, outcome: .unknown), policy: admitted)
+        try await check(.needsReview, hasStart: false)
+        _ = try await begin(db, asset, op: op)
+        try await check(.handedOff, hasStart: true)
+        _ = try await db.apply(receipt(op, asset, outcome: .unknown), policy: admitted)
+        try await check(.handedOff, hasStart: true)
+        _ = try await db.apply(receipt(op, asset, outcome: .unknown, error: true), policy: admitted)
+        try await check(.checkDraft, hasStart: true)
+        _ = try await db.apply(receipt(op, asset, outcome: .verifiedReady), policy: admitted)
+        try await check(.attached, hasStart: true)
+        _ = try await db.apply(receipt(op, asset, outcome: .unknown, error: true), policy: admitted)
+        try await check(.checkDraft, hasStart: true)
+        _ = try await db.apply(receipt(op, asset, outcome: .definitiveFailure), policy: admitted)
+        try await check(.confirmedFailure, hasStart: true)
+
+        let next = try await db.prepare(assetID: asset.id, target: target("second-attempt"))
+        try await db.markDispatchIntent(next.id)
+        _ = try await db.apply(receipt(next, asset, outcome: .unknown), policy: admitted)
+        try await check(.needsReview, hasStart: false)
+        let reopened = try store()
+        let oldStart = try await reopened.uploadStartReceipt(for: op.id)
+        let current = try await reopened.historySnapshot()
+        XCTAssertEqual(oldStart?.operationID, op.id)
+        XCTAssertEqual(current.first?.operation?.id, next.id)
+        XCTAssertEqual(current.first?.attachmentState, .needsReview)
+    }
+
+    func testReviewCountTracksOtherStoreConnectionsAndUnrelatedPreferences() async throws {
+        let db = try store(), observer = try store(), asset = try image()
+        let initial = try await observer.pendingAttachmentReviewCount()
+        XCTAssertEqual(initial, 0)
+        let op = try await prepare(db, asset)
+        _ = try await db.apply(receipt(op, asset, outcome: .unknown), policy: admitted)
+        let unknown = try await observer.pendingAttachmentReviewCount()
+        XCTAssertEqual(unknown, 1)
+        _ = try await begin(db, asset, op: op)
+        let handedOff = try await observer.pendingAttachmentReviewCount()
+        XCTAssertEqual(handedOff, 0)
+        try await observer.setUserHidden(true)
+        let afterPreference = try await observer.pendingAttachmentReviewCount()
+        XCTAssertEqual(afterPreference, 0)
+        _ = try await observer.apply(receipt(op, asset, outcome: .unknown, error: true), policy: admitted)
+        let lateError = try await observer.pendingAttachmentReviewCount()
+        XCTAssertEqual(lateError, 1)
+    }
+
+    func testMissingMediaWithStartRetainsBothFactsAndCurrentIdentityIsExact() async throws {
+        let db = try store(), asset = try image(), other = try image()
+        let op = try await prepare(db, asset)
+        _ = try await begin(db, asset, op: op)
+        try await db.markMissingAsset(asset.id)
+        let page = try await db.historySnapshot()
+        let row = try XCTUnwrap(page.first)
+        XCTAssertEqual(row.record.status, .missing)
+        XCTAssertEqual(row.attachmentState, .handedOff)
+        XCTAssertFalse(row.canRestore)
+        let count = try await db.pendingAttachmentReviewCount()
+        XCTAssertEqual(count, 0)
+
+        let sibling = try await prepare(db, other, dispatched: false)
+        for invalid in [receipt(sibling, asset, outcome: .uploadStarted, start: evidence()),
+                        receipt(op, asset, outcome: .uploadStarted, start: evidence(), assetID: other.id),
+                        receipt(op, asset, outcome: .uploadStarted, start: evidence(), attempt: op.attempt + 1),
+                        receipt(op, asset, outcome: .uploadStarted, start: evidence(), hash: String(repeating: "b", count: 64)),
+                        receipt(op, asset, outcome: .uploadStarted, start: evidence(), target: target("stale"))] {
+            XCTAssertEqual(HistoryAttachmentState(record: row.record, operation: row.operation,
+                                                  receipt: row.receipt, startReceipt: invalid), .needsReview)
+        }
+    }
+
+    func testDesktopPhaseCountsAndPreparedIDsMatchOriginalOperations() async throws {
+        let db = try store(), first = try image(), second = try image()
+        let waiting = try await prepare(db, first, dispatched: false)
+        let old = try await prepare(db, second, dispatched: true)
+        _ = try await db.apply(receipt(old, second, outcome: .unknown), policy: admitted)
+        let original = try await db.unresolvedOperations()
+        let counts = try await db.unresolvedPhaseCounts()
+        let visible = try await db.visiblePreparedOperations()
+        XCTAssertEqual(counts, Dictionary(grouping: original, by: \.phase).mapValues(\.count))
+        XCTAssertEqual(visible, [first.id: waiting.id])
+        try await db.removeFromQueue(first.id)
+        let after = try await db.visiblePreparedOperations()
+        let afterCounts = try await db.unresolvedPhaseCounts()
+        XCTAssertTrue(after.isEmpty)
+        XCTAssertEqual(afterCounts, [.unknown: 1])
+    }
+
     func testAdmittedStartHidesBeforeSuccessAndPersistsItsOwnEvidence() async throws {
         let db = try store(), asset = try image()
         let op = try await prepare(db, asset)

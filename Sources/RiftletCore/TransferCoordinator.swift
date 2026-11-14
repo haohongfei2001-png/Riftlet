@@ -326,8 +326,8 @@ public actor TransferCoordinator {
         acceptedSelections.removeAll(); operationSelections.removeAll(); expiryTasks.removeAll()
         waiting.removeAll(); skippedTickets.removeAll(); drainTicket = nextTicket
         if usesIndependentFileInput {
-            // A relaunch is not a new observation. Preserve every old operation,
-            // receipt, timestamp and UNKNOWN exactly as stored.
+            // Only local preparations can be released. A new click chooses its own target.
+            try await store.recoverUndispatchedPreparations()
             currentFileInputs.removeAll()
             await onChange()
             return

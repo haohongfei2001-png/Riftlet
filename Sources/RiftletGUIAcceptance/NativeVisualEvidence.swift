@@ -266,9 +266,11 @@ final class NativeVisualEvidence {
         raiseSupplementalWindow(preview)
         supplementalStage = "historyDecode"
         let missing = name == "history-preview-missing"
+        let missingStatus = ProductCopy.text("无法加载清晰预览，图片记录仍保留", "Couldn’t load the detailed preview. The image record is still saved.")
+        let loadedStatus = ProductCopy.text("已按窗口显示", "Fit to window")
         try await waitForSupplement {
-            missing ? status.stringValue == "无法加载清晰预览，图片记录仍保留"
-                : image.image != nil && status.stringValue == "已按窗口显示"
+            missing ? status.stringValue == missingStatus
+                : image.image != nil && status.stringValue == loadedStatus
         }
         supplementalStage = "historyDisplay"
         // A decoder completion can set NSImage and footer text before either is
@@ -278,8 +280,8 @@ final class NativeVisualEvidence {
         let commitStart = ProcessInfo.processInfo.systemUptime
         try await Task.sleep(nanoseconds: 50_000_000)
         try await waitForSupplement {
-            let outcome = missing ? image.image == nil && status.stringValue == "无法加载清晰预览，图片记录仍保留"
-                : image.image != nil && status.stringValue == "已按窗口显示"
+            let outcome = missing ? image.image == nil && status.stringValue == missingStatus
+                : image.image != nil && status.stringValue == loadedStatus
             return outcome && preview.isVisible && preview.alphaValue >= 0.99
                 && [content, image, status].allSatisfy {
                     $0.window === preview && !$0.isHiddenOrHasHiddenAncestor && $0.alphaValue >= 0.99
@@ -460,7 +462,8 @@ final class NativeVisualEvidence {
               !content.isHiddenOrHasHiddenAncestor, content.alphaValue >= 0.99, usableRect(content.bounds),
               let backdrop, let rift = supplementalRift,
               usableRect(backdrop.frame), backdrop.frame.contains(window.frame) else { return nil }
-        let expected = "已选区域 · 3 秒后拍摄\n下一张：全屏"
+        let expected = ProductCopy.text("已选区域 · 3 秒后拍摄\n下一张：全屏",
+            "Region selected · Capturing in 3 seconds\nNext: Full Screen")
         let labels = descendants(content).compactMap { $0 as? NSTextField }.filter { $0.stringValue == expected }
         guard snapshot.captureStatusText == expected, labels.count == 1, let label = labels.first,
               label.window === window, label.superview === content,

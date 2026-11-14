@@ -6,9 +6,9 @@ public enum RiftDesktopForm: String, CaseIterable, Sendable {
 
     public var title: String {
         switch self {
-        case .microSlit: return "微缝"
-        case .windChime: return "风铃"
-        case .tray: return "截图托盘"
+        case .microSlit: return ProductCopy.text("微缝", "Micro Slit")
+        case .windChime: return ProductCopy.text("风铃", "Wind Chime")
+        case .tray: return ProductCopy.text("截图托盘", "Screenshot Tray")
         }
     }
 
@@ -20,8 +20,8 @@ public enum RiftWindChimeArrangement: String, CaseIterable, Sendable {
 
     public var title: String {
         switch self {
-        case .aligned: return "整齐"
-        case .staggered: return "错落"
+        case .aligned: return ProductCopy.text("整齐", "Aligned")
+        case .staggered: return ProductCopy.text("错落", "Staggered")
         }
     }
 }
@@ -30,9 +30,9 @@ public enum RiftTrayTheme: String, CaseIterable, Sendable {
     case system, violetGlass, custom
     public var title: String {
         switch self {
-        case .system: return "系统玻璃"
-        case .violetGlass: return "紫蓝玻璃"
-        case .custom: return "自定义玻璃"
+        case .system: return ProductCopy.text("系统玻璃", "System Glass")
+        case .violetGlass: return ProductCopy.text("紫蓝玻璃", "Violet Glass")
+        case .custom: return ProductCopy.text("自定义玻璃", "Custom Glass")
         }
     }
 }
@@ -342,8 +342,9 @@ public enum RiftPlacement: String, Codable, CaseIterable, Sendable {
         if rawValue.hasSuffix("Bottom") { return .bottom }
         return .middle
     }
-    public var title: String {
-        switch self { case .leftTop: return "左上"; case .leftMiddle: return "左中"; case .leftBottom: return "左下"
-        case .rightTop: return "右上"; case .rightMiddle: return "右中"; case .rightBottom: return "右下" }
+    public var title: String { title(in: .current) }
+    public func title(in copy: ProductCopy) -> String {
+        switch self { case .leftTop: return copy.text("左上", "Top Left"); case .leftMiddle: return copy.text("左中", "Middle Left"); case .leftBottom: return copy.text("左下", "Bottom Left")
+        case .rightTop: return copy.text("右上", "Top Right"); case .rightMiddle: return copy.text("右中", "Middle Right"); case .rightBottom: return copy.text("右下", "Bottom Right") }
     }
 }

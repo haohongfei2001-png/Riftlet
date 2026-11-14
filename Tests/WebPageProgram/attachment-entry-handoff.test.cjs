@@ -52,19 +52,19 @@ async function verifyHandoff(f, app, op) {
   return got[0];
 }
 
-// Exactly the seven layouts from the prior installed-program study. Some have
-// an unambiguous direct composer input in addition to an executable menu.
+// The unlinked async layouts from the installed-program study have separate
+// rejection cases below. These layouts have an attributable picker.
 for (const name of ['direct', 'connected', 'detached', 'verb-menu', 'noun-menu',
-  'no-role', 'await-existing']) {
+  'no-role']) {
   test('installed-program study layout receives the PNG through the application: ' + name, async () => {
     const f = fixture(), app = mount(f, name), op = f.bind();
     const result = await verifyHandoff(f, app, op);
-    if (name === 'detached' || name === 'await-existing') {
+    if (name === 'detached') {
       assert.equal(app.counts.entry, 1);
       assert.equal(app.counts.pickerCalls, 1);
       assert.equal(app.counts.pickerClicks, 1);
       assert.equal(app.counts.chooserDefaultAllowed, 0);
-      assert.equal(result.connected, name !== 'detached', 'a detached input is used in place');
+      assert.equal(result.connected, false, 'a detached input is used in place');
     }
   });
 }
@@ -156,14 +156,76 @@ for (const name of ['implicit-submit', 'detached-stop']) {
   });
 }
 
-test('a detached picker invoked after native await receives its File even with an unused connected picker', async () => {
-  const f = fixture(), app = mount(f, 'await-detached-with-rival');
-  const delivered = await verifyHandoff(f, app, f.bind());
-  assert.equal(delivered.connected, false);
-  assert.equal(app.counts.pickerCalls, 1);
-  assert.equal(app.rival.isConnected, true);
-  assert.equal(app.rival.setterCount, 0);
-  assert.equal(app.rival.changeCount, 0);
+for (const name of ['await-existing', 'await-detached-with-rival']) {
+  test('an async invocation without an entry relationship cannot receive the file: ' + name, async () => {
+    const f = fixture(), app = mount(f, name), op = f.bind();
+    const text = f.editor.textContent;
+    f.stage(op);
+    const {observation, entryDiagnostics} = await f.commit(op);
+    assert.equal(app.counts.pickerCalls, 1);
+    assert.equal(observation.preInputRetirement.reason, 'attachmentInputNotCreated');
+    assert.equal(observation.preInputRetirement.inputCount, 0);
+    assert.equal(observation.uploadStart, undefined);
+    assert.equal(entryDiagnostics.setterEntered, false);
+    assert.equal(f.setters, 0);
+    assert.equal(f.changes, 0);
+    assert.equal(app.input.files.length, 0);
+    assert.equal(app.rival?.files.length || 0, 0);
+    assert.ok(f.form.contains(f.oldCard));
+    assert.equal(f.editor.textContent, text);
+    assert.equal(f.sends, 0);
+    assert.equal(f.chooserOpens, 0);
+  });
+}
+
+test('an inert entry retires with zero writes despite one unrelated page picker call', async () => {
+  const f = fixture(), app = mount(f, 'inert-entry'), op = f.bind();
+  const text = f.editor.textContent;
+  f.stage(op);
+  const pending = f.commit(op);
+  await f.waitFor(() => app.counts.entry === 1, 'inert entry');
+  app.input.click();
+  const {observation, entryDiagnostics} = await pending;
+  assert.equal(observation.preInputRetirement.reason, 'attachmentInputNotCreated');
+  assert.equal(observation.preInputRetirement.inputCount, 0);
+  assert.equal(observation.uploadStart, undefined);
+  assert.equal(entryDiagnostics.setterEntered, false);
+  assert.equal(entryDiagnostics.changeReturned, false);
+  assert.equal(app.input.setterCount, 0);
+  assert.equal(app.input.changeCount, 0);
+  assert.equal(app.input.files.length, 0);
+  assert.equal(f.editor.textContent, text);
+  assert.ok(f.form.contains(f.oldCard));
+  assert.equal(f.sends, 0);
+});
+
+test('an explicitly linked picker that becomes ready after retirement stays empty', async () => {
+  const f = fixture(), app = mount(f, 'inert-entry'), op = f.bind();
+  f.stage(op);
+  const {observation} = await f.commit(op);
+  assert.equal(observation.preInputRetirement.inputCount, 0);
+  app.input.setAttribute('id', 'late-file');
+  f.form.querySelector('[data-testid="composer-plus-button"]').setAttribute('aria-controls', app.input.id);
+  assert.equal(f.observe(op).state, 'invalidated');
+  assert.equal(app.input.files.length, 0);
+  assert.equal(f.setters, 0);
+  assert.equal(f.changes, 0);
+});
+
+test('a picker with a separate labelled owner receives no screenshot even during entry activation', async () => {
+  const f = fixture(), input = f.body.append(f.input);
+  input.setAttribute('id', 'existing-picker');
+  const other = f.body.append(new f.Node('label', {for: input.id}));
+  other.textContent = 'Import preferences';
+  const entry = f.form.append(new f.Node('button', {'aria-label': 'Add files', type: 'button'}));
+  entry.addEventListener('click', () => input.click());
+  const op = f.bind(); f.stage(op);
+  const receipt = await f.commit(op);
+  assert.equal(receipt.observation.preInputRetirement.inputCount, 0);
+  assert.equal(receipt.observation.uploadStart, undefined);
+  assert.equal(input.files.length, 0);
+  assert.equal(input.setterCount, 0);
+  assert.equal(input.changeCount, 0);
 });
 
 test('a replaced input calls its successor before File delivery; only the successor receives it', async () => {
@@ -257,8 +319,15 @@ for (const kind of ['uninvoked-mount', 'unrelated-menu', 'unlinked-detached', 'c
       } else foreign.click();
     });
     let invocation;
-    const realInvocation = async () => { await pendingChange; await pause(45); input.click(); };
-    entryButton(f, f.form).addEventListener('click', () => { invocation = realInvocation(); });
+    const entry = entryButton(f, f.form);
+    const realInvocation = async () => {
+      await pendingChange; await pause(45);
+      if (kind === 'uninvoked-mount' || kind === 'unrelated-menu') {
+        input.setAttribute('id', 'draft-upload'); entry.setAttribute('aria-controls', input.id);
+      }
+      input.click();
+    };
+    entry.addEventListener('click', () => { invocation = realInvocation(); });
     const op = f.bind(); f.stage(op);
     const {observation} = await f.commit(op);
     await invocation;
@@ -352,7 +421,12 @@ test('an independent composer reached during discovery gets its own input budget
     const card = form.append(new f.Node('div', {role:'button', 'data-file-name':name}));
     card.append(new f.Node('img', {alt:name, src:'blob:local-draft-b'}));
   });
-  entryButton(f, form).addEventListener('click', () => setTimeout(() => input.click(), 25));
+  const entry = entryButton(f, form);
+  entry.addEventListener('click', () => setTimeout(() => {
+    input.setAttribute('id', 'second-draft-upload');
+    entry.setAttribute('aria-controls', input.id);
+    input.click();
+  }, 25));
   const b = f.bind(); f.stage(b);
   const [retired, accepted] = await Promise.all([first, f.commit(b)]);
   assert.equal(retired.observation.preInputRetirement.reason, 'targetInvalidBeforeInput');
@@ -424,20 +498,15 @@ for (const kind of ['menu-new-vs-existing', 'menu-both-new', 'empty-form-only', 
     await appWork;
     assert.equal(foreign.setterCount, 0, 'another page task never receives the screenshot');
     assert.equal(foreign.changeCount, 0);
-    if (kind === 'empty-form-vs-detached') {
-      assert.equal(observation.state, 'uploadStarted');
-      assert.equal(real.setterCount, 1);
-      assert.equal(real.changeCount, 1);
-      assert.deepEqual(Buffer.from(await real.files[0].arrayBuffer()), op.bytes);
-    } else {
-      assert.equal(observation.state, 'invalidated');
-      assert.equal(observation.preInputRetirement.reason,
-        kind === 'empty-form-only' ? 'attachmentInputNotCreated' : 'attachmentInputAmbiguous');
-      assert.equal(observation.preInputRetirement.inputCount, 0);
-      assert.equal(observation.uploadStart, undefined);
-      assert.equal(f.setters, 0);
-      assert.equal(f.changes, 0);
-    }
+    assert.equal(observation.state, 'invalidated');
+    const ambiguous = kind === 'menu-new-vs-existing' || kind === 'menu-both-new';
+    assert.equal(observation.preInputRetirement.reason, ambiguous ? 'attachmentInputAmbiguous' : 'attachmentInputNotCreated');
+    assert.equal(observation.preInputRetirement.inputCount, 0);
+    assert.equal(observation.uploadStart, undefined);
+    assert.equal(f.setters, 0);
+    assert.equal(f.changes, 0);
+    assert.equal(real.files.length, 0);
+    assert.equal(foreign.files.length, 0);
   });
 }
 
