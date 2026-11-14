@@ -20,7 +20,7 @@ extension RiftSettingsCenterController {
             let key = "recovery." + domain.rawValue
             let description = domain == .layout ? ProductCopy.text("布局设置无法读取，当前使用可用布局。", "Layout settings couldn’t be read. An available layout is in use.") : ProductCopy.text("归档设置无法读取，自动归档已暂停。", "Archive settings couldn’t be read. Automatic archiving is paused.")
             let detail = product.preferenceRecoveryFailure == domain ? ProductCopy.text("恢复未完成，请重试。", "Recovery didn’t finish. Try again.") : ProductCopy.text("恢复时会保留原文件副本。", "Recovery keeps a copy of the original file.")
-            text(key, description + detail)
+            text(key, description + ProductCopy.text("", " ") + detail)
             enable(key + ".restore", product.capabilities.canEditPreferences)
         }
         renderLogin()

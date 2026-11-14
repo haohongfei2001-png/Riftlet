@@ -60,12 +60,12 @@ final class SettingsProductHostTests: XCTestCase {
         XCTAssertEqual(toggle.state, .off)
         XCTAssertFalse(reminder.isHidden)
         XCTAssertNotNil(menu.item(withTitle: check.title))
-        f.updater = .init(canCheck: false, automaticChecks: nil, availableVersion: nil, failure: "网络连接中断")
+        f.updater = .init(canCheck: false, automaticChecks: nil, availableVersion: nil, failure: "QA-51")
         f.publish()
         XCTAssertFalse(check.isEnabled)
         XCTAssertFalse(toggle.isEnabled)
         XCTAssertTrue(website.isEnabled)
-        XCTAssertEqual(f.host.center.labels["updates.failure"]?.stringValue, "更新未完成。网络连接中断")
+        XCTAssertEqual(f.host.center.labels["updates.failure"]?.stringValue, ProductCopy.text("更新未完成。QA-51", "The update didn’t finish. QA-51"))
     }
 
     @MainActor func testThreeNativeSurfacesReadOneModelWithoutSavingOrShowing() throws {
@@ -80,8 +80,8 @@ final class SettingsProductHostTests: XCTestCase {
         let pause = try XCTUnwrap(f.host.control.control(identifier: "control.pause") as? NSSwitch)
         XCTAssertNil(f.host.center.controls["hidden"])
         let hideImages = try XCTUnwrap(f.host.control.control(identifier: "control.hide") as? NSSwitch)
-        XCTAssertEqual(pause.accessibilityLabel(), "暂停收录")
-        XCTAssertEqual(hideImages.accessibilityLabel(), "隐藏桌面截图")
+        XCTAssertEqual(pause.accessibilityLabel(), ProductCopy.text("暂停收录", "Pause Collection"))
+        XCTAssertEqual(hideImages.accessibilityLabel(), ProductCopy.text("隐藏桌面截图", "Hide Desktop Screenshots"))
         for (paused, hidden) in [(true, true), (false, true), (true, false), (false, false)] {
             f.update(settings: settings, paused: paused, hidden: hidden)
             XCTAssertEqual(f.host.snapshot.state, f.host.model.snapshot)
@@ -201,7 +201,7 @@ final class SettingsProductHostTests: XCTestCase {
             XCTAssertEqual(state.errorCode, 51)
             XCTAssertNil(state.failedTarget, "An already registered request must not be registered again")
             XCTAssertFalse(state.notConfirmed)
-            XCTAssertTrue(f.host.center.labels["login.detail"]!.stringValue.contains("代码 51"))
+            XCTAssertTrue(f.host.center.labels["login.detail"]!.stringValue.contains(ProductCopy.text("代码 51", "error code 51")))
             await f.host.perform(.retryLogin)
             XCTAssertEqual(f.loginService.registerCalls, 1)
             XCTAssertEqual(f.loginService.openSettingsCalls, 0)
@@ -262,7 +262,7 @@ final class SettingsProductHostTests: XCTestCase {
         f.update(settings: settings, effectiveDisplay: 2)
         XCTAssertEqual(f.host.model.text(for: .outerInset), "88.1250")
         let popup = try XCTUnwrap(f.host.center.controls["display"] as? NSPopUpButton)
-        XCTAssertEqual(popup.titleOfSelectedItem, "已选显示器（未连接）")
+        XCTAssertEqual(popup.titleOfSelectedItem, ProductCopy.text("已选显示器（未连接）", "Preferred Display (Disconnected)"))
         await f.host.perform(.settings(.commitField(.outerInset, "88.1250")))
         let actual = f.host.snapshot.state.owner.settings.configuration
         XCTAssertEqual(actual.outerInset, 88.125)
