@@ -58,6 +58,17 @@ if ["productPID", "quitProduct"].contains(args[1]) {
     exit(0)
 }
 let mouseProbe = ["mouseReady", "mouseClick"].contains(args[1])
+if mouseProbe || args[1] == "neutralAX" {
+    // NSWindow.windowNumber(at:) returned zero for every owned point in an
+    // uninitialized command-line observer. Establish AppKit's WindowServer
+    // connection while keeping this helper unable to become the active app.
+    let observer = NSApplication.shared
+    if observer.activationPolicy() != .prohibited { _ = observer.setActivationPolicy(.prohibited) }
+    guard observer.activationPolicy() == .prohibited else {
+        print(mouseProbe ? "eventDeliveryUnconfirmed" : "AX_ATTRIBUTES_UNAVAILABLE")
+        exit(mouseProbe ? 24 : 0)
+    }
+}
 let expectedCount = mouseProbe ? 12 : (args[1] == "neutralAX" ? 11 : 10)
 guard args.count == expectedCount, let expectedWindow = CGWindowID(args[7]), let edgePID = Int32(args[2]),
       let productPID = Int32(args[3]), let row = Int(args[6]), (0...2).contains(row)

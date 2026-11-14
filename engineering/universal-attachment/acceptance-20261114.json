@@ -372,6 +372,141 @@
             "EDGE_AUTOMATION_OSSTATUS_-1744"
           ]
         }
+      },
+      {
+        "reviewedSource": "9545f99d45385a4cc86fa0025bafb8932a0af419",
+        "reviewedSourceTree": "49f02882235336aff0874a7ec777cab2fe060dc9",
+        "admissionHead": "70a5381ebf03988908bde5816e502efbfb961d26",
+        "base": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",
+        "testedMerge": "a4abc5bd2bfc6a8e4ab38f260e47eb4ead33166b",
+        "nativeRun": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43549646907",
+        "arm64Job": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43549646907/job/132308988982",
+        "arm64JobConclusion": "success",
+        "artifact": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43549646907/artifacts/14096006398",
+        "artifactSHA256": "9acd2d28e860f787cdf590d69494eab8cc546cb02c690b6f0937350f63685ba9",
+        "ordinaryJSONSHA256": "010a32144348d7a8f58da10de9db14a998edc04571815653cd89c9fe48af1fd7",
+        "ordinaryAppResult": {
+          "appWatcherReady": true,
+          "appleEventsTabIdentity": "NOT_MEASURED_IN_MOUSE_PROBE",
+          "build": "23",
+          "commercialService": "NOT_RUN",
+          "confirmedDistinctRefusals": 0,
+          "controlledEdgePicker": {
+            "commercialService": "NOT_RUN",
+            "expectedPNG_SHA256": "67357897cbd7b4677b2b74fd3476f9855fbfa123b48e2b7d371d7b9b28765165",
+            "receiverEvents": [],
+            "scope": "owned-loopback-edge-native-tab-and-ax-picker",
+            "status": "EDGE_AUTOMATION_OSSTATUS_-1744"
+          },
+          "edgeActivation": "ALREADY_FRONTMOST",
+          "edgeActivationExit": 0,
+          "edgeIdentityExit": 0,
+          "edgeIdentityObservation": "OWN_PID_BUNDLE_EXECUTABLE_AND_KERNEL_BIRTH_CONFIRMED",
+          "edgeLaunch": "OWN_NORMAL_TAB_CHILD_CREATED",
+          "generatedScreenshotFiles": 2,
+          "lastNativeAction": "window",
+          "lastNativeExit": 0,
+          "lastWindowObservation": "NEUTRAL_DOCUMENT_TITLE_NOT_VISIBLE",
+          "mouseDispatchCalls": 0,
+          "neutralAX": "AX_ATTRIBUTES_UNAVAILABLE",
+          "osScreenshotMarkersVerified": 2,
+          "physicalClicks": false,
+          "pressAttempts": 0,
+          "productExecutableSHA256": "153f76d7ce13bb7be1eaaa46b5a4389f56ef134c0c75f474c0617283e0ea5c2d",
+          "result": "PARTIAL_NATIVE_THUMBNAIL_MOUSE_TARGET_UNVERIFIED",
+          "rounds": [
+            {
+              "action": "NOT_RUN",
+              "actualReceiver": "none",
+              "captureSequence": 1,
+              "preflight": "firstMouseReceiverMismatch",
+              "rejection": "UNCONFIRMED",
+              "retained": "UNCONFIRMED"
+            }
+          ],
+          "scope": "ordinary-packaged-app-native-mouse-edge-loopback",
+          "stage": "original_mouse_thumbnail_1",
+          "systemRegionCaptureAttempts": 0,
+          "testedMerge": "a4abc5bd2bfc6a8e4ab38f260e47eb4ead33166b",
+          "version": "1.0.1",
+          "windowCapturesWithoutMarker": 0
+        },
+        "interpretation": "Five required CI jobs passed. The ordinary App imported two distinct OS-marked captures. The hit map listed both assets and WindowServer owner bounds were validated for the first target, but the first NSWindow mouse receiver query returned none. No mouse down was posted and the second row was not attempted. The owned loopback page confirmed its original baseline before a separate neutral Edge picker probe refused at native Automation preflight with -1744 before file input. External AppKit handoff and two hidden WebKit transfers completed with independent body and original-draft receipts. Commercial service trials remain NOT_RUN.",
+        "independentFixtureResults": {
+          "universal-external-ax.log": {
+            "externalAX": {
+              "appkit-file-list": {
+                "commercialService": "NOT_RUN",
+                "draftTextSelectionPriorPNGPreserved": true,
+                "observerStage": "confirmOriginalFile",
+                "originalDraftAcknowledged": true,
+                "receiverEvents": [
+                  "firstBodyByte",
+                  "expectedCompleteBody"
+                ],
+                "sha256": "b66e803d64b39903b44a26160923bb6ecb3f717dcf7900fe62afdb5fd1e4bac8",
+                "status": "VERIFIED_EXTERNAL_FIXTURE_HANDOFF",
+                "transport": "EdgeConversationPicker-controlled-AppKit"
+              },
+              "system-open-panel": {
+                "commercialService": "NOT_RUN",
+                "draftTextSelectionPriorPNGPreserved": false,
+                "observerStage": "systemSheetEntry",
+                "originalDraftAcknowledged": false,
+                "receiverEvents": [],
+                "sha256": null,
+                "status": "ENTRY_PRESSED_OWNED_SHEET_UNPROVEN",
+                "transport": "external-owned-system-sheet-probe"
+              }
+            },
+            "scope": "controlled-external-appkit"
+          },
+          "universal-native-picker.log": {
+            "arch": "arm64",
+            "axTrustedForProbeProcess": true,
+            "draftAcknowledgements": 2,
+            "duplicateHandoffsRefused": 2,
+            "editorUnfocused": true,
+            "filesReleased": 2,
+            "macOS": "15.8.2",
+            "openPanelCallbacks": 2,
+            "previousAttachmentsTextSelectionPreserved": true,
+            "priorPNGSHA256": "6a8b5aa1b92b7d78773491354e7bd702ac6503b8d9bed07cb402777bf2fc82e3",
+            "receiverEvents": [
+              "body-start-0",
+              "body-complete-0",
+              "body-start-1",
+              "body-complete-1"
+            ],
+            "sameBytesPathReplacementRefused": true,
+            "scope": "controlled-cooperating-WKWebView",
+            "sha256": [
+              "b66e803d64b39903b44a26160923bb6ecb3f717dcf7900fe62afdb5fd1e4bac8",
+              "91f31ca0451554dbfb9411e80591bab9318a9a2e3805b20efd28568594aba95b"
+            ],
+            "windowNeverOrdered": true
+          },
+          "universal-edge-engine.log": {
+            "acknowledgements": 2,
+            "correlatedRejections": 1,
+            "digests": [
+              "611033f4cc0aa9e3348e69eba089499bc6287d57b53832079e64f42564a4e876",
+              "c9b27a65dd17d8157b51d36d36b54305ec13cea89152ba0e24b5465eb3cbb0c7"
+            ],
+            "duplicateRequests": 0,
+            "lostReplies": 1,
+            "mode": "headless",
+            "scope": "local-fixture",
+            "verifiedBodies": 4
+          },
+          "universal-safari-events.log": [
+            "SAFARI_PREFLIGHT_OSSTATUS_-1744",
+            "neutralDocumentResponses 0 attachments 0"
+          ],
+          "universal-edge-events.log": [
+            "EDGE_AUTOMATION_OSSTATUS_-1744"
+          ]
+        }
       }
     ]
   },
