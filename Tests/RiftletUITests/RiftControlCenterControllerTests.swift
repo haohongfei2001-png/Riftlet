@@ -252,6 +252,66 @@ final class RiftControlCenterControllerTests: XCTestCase {
         }
     }
 
+    @MainActor func testHeaderKeepsWholeWordsAndFullCaptureTargetAtFixedPopoverWidth() async throws {
+        try prepareAppKit()
+        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        item.isVisible = false // Layout only: never expose a test icon or popover.
+        defer { NSStatusBar.system.removeStatusItem(item) }
+        var captures = 0
+        let controller = RiftControlCenterController(statusItem: item) { action in
+            if case .capture = action { captures += 1 } else { XCTFail("Header issued another action") }
+        }
+        defer { controller.close() }
+        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: SettingsNativeStyle.controlCenterWidth, height: 600),
+                              styleMask: .borderless, backing: .buffered, defer: false)
+        window.isReleasedWhenClosed = false
+        window.contentView = controller.contentView
+        defer { window.close() }
+        func descendants(_ view: NSView) -> [NSView] { [view] + view.subviews.flatMap(descendants) }
+        let title = try XCTUnwrap(descendants(controller.contentView).first { $0.identifier?.rawValue == "control.status" } as? NSTextField)
+        let capture = try XCTUnwrap(controller.control(identifier: "control.capture") as? NSButton)
+        let states = [fixture(), fixture(revision: 2, paused: true, collection: .paused),
+                      fixture(revision: 3, hidden: true), fixture(revision: 4, source: .unavailable),
+                      fixture(revision: 5, issue: .chromeJavaScriptDisabled)]
+        for state in states {
+            controller.update(state)
+            controller.contentView.layoutSubtreeIfNeeded()
+            let font = try XCTUnwrap(title.font)
+            // Measure actual localized words with the real heading font. A
+            // word may wrap as a unit, but never split because the action stole its width.
+            let words = title.stringValue.split(whereSeparator: \.isWhitespace)
+            let requiredWordWidth = words.map { (String($0) as NSString).size(withAttributes: [.font: font]).width }.max() ?? 0
+            if ProductCopy.current == .english {
+                XCTAssertGreaterThanOrEqual(title.bounds.width + 1, requiredWordWidth + 4, title.stringValue)
+            }
+            if state.revision == 1 {
+                let full = (title.stringValue as NSString).size(withAttributes: [.font: font])
+                XCTAssertGreaterThanOrEqual(title.bounds.width + 1, full.width + 4, "Ordinary collecting status fits without splitting words")
+            }
+            XCTAssertGreaterThanOrEqual(capture.bounds.width + 1, capture.intrinsicContentSize.width)
+            XCTAssertGreaterThanOrEqual(capture.bounds.height + 1, capture.intrinsicContentSize.height)
+            let titleRect = title.convert(title.bounds, to: controller.contentView)
+            let captureRect = capture.convert(capture.bounds, to: controller.contentView)
+            XCTAssertFalse(titleRect.intersects(captureRect))
+            XCTAssertGreaterThanOrEqual(captureRect.minX, 17)
+            XCTAssertLessThanOrEqual(captureRect.maxX, SettingsNativeStyle.controlCenterWidth - 17)
+            XCTAssertEqual(capture.accessibilityLabel(), capture.title)
+            XCTAssertEqual(controller.contentView.bounds.width, SettingsNativeStyle.controlCenterWidth)
+            XCTAssertFalse(window.isVisible)
+            XCTAssertFalse(controller.isShown)
+        }
+        controller.update(fixture(revision: 6))
+        controller.contentView.layoutSubtreeIfNeeded()
+        let parent = try XCTUnwrap(capture.superview)
+        for point in [CGPoint(x: 2, y: capture.bounds.midY), CGPoint(x: capture.bounds.maxX - 2, y: capture.bounds.midY)] {
+            let hit = capture.hitTest(capture.convert(point, to: parent))
+            XCTAssertTrue(hit === capture || hit?.isDescendant(of: capture) == true)
+        }
+        capture.performClick(nil)
+        await assertReceived { captures == 1 }
+        XCTAssertEqual(captures, 1)
+    }
+
     @MainActor func testUpdateIsPassivePreservesControlsAndRejectsOldRevisions() throws {
         try prepareAppKit()
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)

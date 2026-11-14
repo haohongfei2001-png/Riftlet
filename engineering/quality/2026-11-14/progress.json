@@ -165,6 +165,22 @@
       "origin": "PR #100 independently reviewed source 67fb373d04b7ca6162314e3b4072932be43f0794",
       "preserved": "34 of 39 document/evidence paths retained byte-identically, including all five original instruction archives. Five active entry/status paths updated to PR #101 and current scoped evidence.",
       "status": "Current issue queue now records implementation and remaining acceptance instead of directing new work to old PR #41. PR #77 remains independent."
+    },
+    "actualPrivateSparkleUpgrade": {
+      "source": "31258e2a72fb7acf9e31f974f76b5a100dbb950d",
+      "from": "Original website 1.0.1 (23), exact original binary via Finder",
+      "to": "Private Developer ID notarized 1.0.2 (24)",
+      "result": "PASS for actual signed-loopback-feed download, install, relaunch, normal restart, history preview and fresh system screenshot collection",
+      "data": "Seven assets and all rows/media/settings/bookmark/feedback equal before and after update; real new screenshot becomes eighth asset. Later only that new screenshot idle-archives under existing two-minute policy. One UNKNOWN and zero START retained.",
+      "receipt": "engineering/quality/2026-11-14/actual-private-sparkle-update.json",
+      "scope": "Isolated ARM64 macOS 27.2 only. Public feed and personal installation unchanged. Actual Chrome permission and ChatGPT still NOT_RUN. Same run exposed an English popover title width defect, corrected separately."
+    },
+    "englishPopoverAndSupplementalVisuals": {
+      "observedIn": "Developer ID notarized source31258e2 private24 after actual Sparkle upgrade",
+      "popover": "English header available width70pt caused within-word wrapping in294pt popover. Preserved failure frame. Minimal fix retains title, button, action, width and material, placing screenshot action in its own row. Real AppKit geometry cases cover five states in each language and the original action hit area.",
+      "supplementalCI": "Headfea620b formal result3PASS2FAIL. Unit/integration and all four packaged selfchecks passed on both architectures; supplemental screenshot helper still awaited Chinese text under English. Four expected labels localized with ProductCopy. All original readiness/identity/pixel/geometry/timing assertions retained.",
+      "supplementalNative": "Same helper and original validators passed six cases in each process language on actual guest WindowServer;12/12. Receipt retained privately.",
+      "next": "Independent combined-source review and fresh formal CI. Previous source-bound update success is retained independently from this localized UI correction."
     }
   }
 }

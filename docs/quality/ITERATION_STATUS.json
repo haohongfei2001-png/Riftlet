@@ -338,14 +338,14 @@
     {
       "id": "QA-REL-002",
       "priority": "P2",
-      "state": "PRIVATE_SIGNED_UPDATE_ACCEPTANCE_IN_PROGRESS",
+      "state": "PRIVATE_REAL_UPDATE_PASS_REMAINING_INSTALLATION_MATRIX_OPEN",
       "round": 4,
       "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/97",
       "issueNumber": 97,
       "implementationCommit": null,
       "acceptedBy": null,
-      "evidenceRef": "engineering/quality/2026-11-14/progress.json#followUpVerification.websiteUpdater",
-      "scope": "Official-download 1.0.1 no-update and wrong-feed-signature rejection passed. Same-identity private 1.0.2 (24) notarization and stable public-key match verified while preparing the private signed feed; actual 23-to-24 install/restart/data readback pending. Public stable remaining 23 is not a blocker. PR #77 is separate, not integrated."
+      "evidenceRef": "engineering/quality/2026-11-14/actual-private-sparkle-update.json",
+      "scope": "Original website1.0.1 (23) actually updated through Sparkle using a private signed loopback feed to notarized source31258e2 1.0.2 (24). Seven assets/media, one UNKNOWN, operations/checkpoints, settings/bookmark and feedback preserved exactly. New system screenshot collected after update, original retained, history preview and normal restart passed. ARM64 macOS27.2 guest only. Public feed unchanged. Chrome and other hardware/first-install matrix remain open. PR77 separate."
     },
     {
       "id": "QA-SET-005",
@@ -410,5 +410,10 @@
       "source": "67fb373d04b7ca6162314e3b4072932be43f0794",
       "scope": "Original audit/evidence bytes retained; this is not a wholesale merge or reuse of its admission record."
     }
-  ]
+  ],
+  "actualPrivateUpdateEvidence": {
+    "source": "31258e2a72fb7acf9e31f974f76b5a100dbb950d",
+    "receipt": "engineering/quality/2026-11-14/actual-private-sparkle-update.json",
+    "scope": "Real private signed-feed installation and post-update data/capture checks; currentNativeEvidence above retains its earlier source and scope."
+  }
 }

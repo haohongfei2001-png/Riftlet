@@ -179,8 +179,12 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         capture.imagePosition = .imageLeading
         capture.setContentCompressionResistancePriority(.required, for: .horizontal)
         buttons["control.capture"] = capture
-        append(SettingsNativeStyle.stack([symbol, title, spacer(), capture], vertical: false, spacing: 7))
+        // The fixed-width popover must fit complete status words even when the
+        // capture action has a longer localized title. Keep that same button
+        // on its own action row instead of compressing the status beside it.
+        append(SettingsNativeStyle.stack([symbol, title, spacer()], vertical: false, spacing: 7))
         append(detail)
+        append(SettingsNativeStyle.stack([capture, spacer()], vertical: false, spacing: 7))
         recovery.identifier = .init("control.recovery")
         recovery.target = self; recovery.action = #selector(buttonPressed(_:))
         recovery.isHidden = true
