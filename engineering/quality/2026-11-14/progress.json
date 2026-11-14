@@ -136,6 +136,23 @@
         "9c38920927700499e345e6160bfcc6946fde4f82": "563bf52ab8fc5ccb4a6de8df2f3a6cd1bfdd2830",
         "ad83c153590ab938bc1fdf28f09018a57df3e169": "5094949d113cf75c41325412791b4b44e19e3aff"
       }
+    },
+    "combinedSignedNative": {
+      "source": "ad83c153590ab938bc1fdf28f09018a57df3e169",
+      "binarySHA256": "737099bc4bb35e1427aa83b3ca730c400432ddc8fe955c771496b017c376f027",
+      "identity": "Private 1.0.2 (24) universal QA. Developer ID Team ZB9D4T66QB; not notarized or published.",
+      "firstRun": "Original 7 PASS / 7 FAIL retained. Independent diagnosis confirmed locked QA session, loginwindow frontmost and zero status actions dispatched. The missing history fixture was never created.",
+      "recovery": "An ordinary virtual Escape ended the locked state. Fresh session facts and a visible desktop confirmed recovery. No TCC or lock policy was changed, and no password was entered.",
+      "secondRun": "Same binary, new UUID-scoped data root, 14/14 named native AppKit and real local persistence cases PASS, then normal process exit. 33 owned-window frames recorded.",
+      "restart": "Same binary and same QA data root in a new process. Restart report retains individual persisted-setting, history, media and lifecycle checks.",
+      "scope": "Controlled native actions in actual signed App, real local capture collector with synthetic PNG fixtures. Not physical mouse, real ChatGPT, public installation, notarization or actual update."
+    },
+    "bilingualCIRound": {
+      "head": "57df864a0810ad5a5385b7aac66fe48c536a39a2",
+      "ARM64": "Build succeeded. Three tests had seven language-related assertion failures. Full job log retained.",
+      "fix": "Tray test locates the localized label. Historical Chinese-only semantic fixture explicitly selects Chinese. Onboarding maps either known Chrome recipe into its own chosen language while preserving custom sanitized details. Added a bilingual regression; prior assertions remain.",
+      "nativeCopyCases": "21 named setup/control test methods in each supported process language passed after the correction.",
+      "remainingCI": "Requires the following independently admitted head."
     }
   }
 }

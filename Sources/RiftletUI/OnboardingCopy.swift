@@ -208,8 +208,9 @@ extension ProductCopy {
         guard let instructions = presentation.chromeScriptInstructions else { return "" }
         // Only the host's known Chrome recipe is localized. Custom details have
         // already gone through the presentation’s sanitization and size limit.
-        guard self == .english, instructions == ChromeAttachmentSetup.instructions else { return instructions }
-        return "In Chrome’s menu bar, choose View → Developer → Allow JavaScript from Apple Events. Apps with permission to control Chrome can then run webpage scripts."
+        guard instructions == ChromeAttachmentSetup.instructions(in: .english)
+                || instructions == ChromeAttachmentSetup.instructions(in: .simplifiedChinese) else { return instructions }
+        return ChromeAttachmentSetup.instructions(in: self)
     }
 }
 

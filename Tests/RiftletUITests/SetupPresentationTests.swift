@@ -2,6 +2,24 @@ import XCTest
 @testable import RiftletUI
 
 final class SetupPresentationTests: XCTestCase {
+    func testOnboardingChromeRecipeUsesRequestedLanguageAndPreservesCustomDetails() {
+        for input: ProductCopy in [.english, .simplifiedChinese] {
+            let snapshot = SetupSnapshot(attachment: .available,
+                permissionDetail: ChromeAttachmentSetup.instructions(in: input))
+            let presentation = SetupPresentation(snapshot: snapshot, copy: input)
+            for output: ProductCopy in [.english, .simplifiedChinese] {
+                XCTAssertEqual(output.chromeInstructions(presentation),
+                    ChromeAttachmentSetup.instructions(in: output))
+            }
+        }
+        let custom = SetupPresentation(snapshot: .init(attachment: .available,
+            permissionDetail: "Custom local detail"))
+        XCTAssertEqual(ProductCopy.english.chromeInstructions(custom), "Custom local detail")
+        XCTAssertEqual(ProductCopy.simplifiedChinese.chromeInstructions(custom), "Custom local detail")
+        XCTAssertEqual(ProductCopy.english.chromeInstructions(
+            SetupPresentation(snapshot: .init(attachment: .productionDisabled))), "")
+    }
+
     func testEnglishStorageReportDistinguishesOccupiedSpaceFromReclaimableSpace() {
         let model = SetupPresentation(snapshot: .init(storage: .measured(bytes: 4096, complete: false, screenshotCopies: 2048)), copy: .english)
         XCTAssertTrue(model.storageText.contains("at least"))

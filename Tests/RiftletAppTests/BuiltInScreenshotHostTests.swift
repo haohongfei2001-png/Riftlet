@@ -394,7 +394,7 @@ final class BuiltInScreenshotHostTests: XCTestCase {
             onChange: { XCTFail("Cancel imported a capture") }, onIssue: { issues.append($0) }, captureController: capture)
         defer { host.close(); rift.close() }
         rift.render([])
-        let view = try XCTUnwrap(NSApp.windows.first { $0.isVisible && $0.contentView?.accessibilityLabel() == "截图托盘" }?.contentView)
+        let view = try XCTUnwrap(NSApp.windows.first { $0.isVisible && $0.contentView?.accessibilityLabel() == ProductCopy.text("截图托盘", "Screenshot Tray") }?.contentView)
         let buttons = view.subviews.compactMap { $0 as? NSButton }
         let camera = try XCTUnwrap(buttons.first { !$0.isHidden })
         camera.performClick(nil)
