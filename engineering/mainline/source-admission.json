@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "reviewedBase": "4c205b0744875fcd3bc1e16a9b5d995e0174325c",
-  "reviewedSource": "059064a36a6693b66c3b7982578355366d6ddce2",
-  "reviewedTree": "0b79943af4fbfe713895b1f89f3783d0ebed03a7",
-  "authorRole": "riftlet_search_discovery_author",
+  "reviewedBase": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",
+  "reviewedSource": "3302c918b849ce8274678c3bed3b43955947faad",
+  "reviewedTree": "c96c2892288d42299c4902d758ced493df54c7c7",
+  "authorRole": "installer_guidance_implementer",
   "reviews": [
     {
-      "reviewer": "automated_search_indexing_source_checker",
-      "source": "059064a36a6693b66c3b7982578355366d6ddce2",
-      "tree": "0b79943af4fbfe713895b1f89f3783d0ebed03a7",
+      "reviewer": "independent_macos_installer_guidance_reviewer",
+      "source": "3302c918b849ce8274678c3bed3b43955947faad",
+      "tree": "c96c2892288d42299c4902d758ced493df54c7c7",
       "result": "PASS",
-      "sha256": "78364306cb8c4a8ecdf65c2af763e0cc2104ae8b2f3009e49cb89ce23acb7141",
-      "report": "{\"reviewer\":\"automated_search_indexing_source_checker\",\"reviewedBase\":\"4c205b0744875fcd3bc1e16a9b5d995e0174325c\",\"reviewedSource\":\"059064a36a6693b66c3b7982578355366d6ddce2\",\"reviewedTree\":\"0b79943af4fbfe713895b1f89f3783d0ebed03a7\",\"result\":\"PASS\",\"checks\":[\"Nine-file source change inspected; official 1.0.1 download links, Sparkle feed, Umami instrumentation and native application remain unchanged.\",\"Public root IndexNow ownership key matches the expected key bytes, with valid canonical HTTPS sitemap and 2026-11-14 lastmod.\",\"Minimal SoftwareApplication JSON-LD names Riftlet and restricts product scope to macOS/Chrome ChatGPT drafts; official website title updated.\",\"Three Node tests ran successfully on the connected Mac (3 pass, 0 fail); source and policy checkpoint verified.\"],\"scope\":\"Automated static and remote Mac file-based checks only. Google Search Console ownership and real IndexNow receipt are NOT_RUN until verification/deployment; indexing is never guaranteed.\"}"
+      "sha256": "6194167fcce77ad2269a3ddee24001ffe3d9ad8f1a5d6a9fbcf30fa2613cf9f1",
+      "report": "{\n  \"reviewer\": \"independent_macos_installer_guidance_reviewer\",\n  \"reviewedBase\": \"44f745a15ecb3682a9da0bda17f17a5d9fc1f07e\",\n  \"reviewedSource\": \"3302c918b849ce8274678c3bed3b43955947faad\",\n  \"reviewedTree\": \"c96c2892288d42299c4902d758ced493df54c7c7\",\n  \"result\": \"PASS\",\n  \"checks\": [\n    \"Verified the exact parent, tree, four changed paths and clean diff. The changes do not alter the updater, signing keys, feed, release versions, packaging scripts, capture, queue or transfer code.\",\n    \"Checked the read-only volume flag, file-system volume name, root app path, Disk Arbitration disk-image model and Applications link against the actual HFS+ UDZO release builder. Missing metadata and unrecognized mounts fall through to normal startup. The matcher purposefully does not guess the origin of translocated apps.\",\n    \"Traced activation and both alert actions in ordinary capture. Only a lock-owning release app on a recognized installer volume activates the alert. Successful Finder selection exits before feedback, capture and Sparkle start, through the normal ownership-nil termination guard. Continue records the build only after that explicit action. A failed reveal allows startup. The OS releases the single-instance descriptor at exit.\",\n    \"Reran eleven filesystem checks in the standalone native harness. Verified that the isolated GUI evidence for the final matcher blob shows the installer alert and Finder reveal/exit on a mounted read-only QA disk image. The test package is ad hoc ARM64. These checks do not certify notarization, Gatekeeper, official-update installation or quarantined translocation behavior.\",\n    \"Checked the release runbook for the official 1.0.1/23 Finder-installed origin, genuine Sparkle consent and relaunch, UUIDs and original/private image hashes, persisted operations, settings, bookmark and permission behavior before/after. It reports permission retention separately from initial grants and does not claim a later production upgrade has already run.\"\n  ]\n}\n"
     }
   ],
   "productionAdmission": {
