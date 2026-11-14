@@ -92,11 +92,11 @@ final class SettingsProductHost {
         result.appearance.applied = appearance.appliedSelection.flatMap { .init(rawValue: $0.rawValue) }
         result.appearance.pending = appearance.pendingSelection.flatMap { .init(rawValue: $0.rawValue) }
         result.appearance.unreadable = appearance.loadState == .unreadable
-        result.appearance.failure = appearance.failure.map { $0 == .preparationFailed ? "暂时无法应用这个外观。" : "外观未能保存，请重试。" }
+        result.appearance.failure = appearance.failure.map { $0 == .preparationFailed ? ProductCopy.text("暂时无法应用这个外观。", "This appearance could not be applied.") : ProductCopy.text("外观未能保存，请重试。", "The appearance could not be saved. Try again.") }
         result.appearance.available = true
         let fact = login.snapshot
         result.login.available = fact.availability == .available
-        if !result.login.available { result.login.unavailableReason = "此运行环境不更改系统登录项。请在正式安装的 Riftlet 中设置。" }
+        if !result.login.available { result.login.unavailableReason = ProductCopy.text("此运行环境不更改系统登录项。请在正式安装的 Riftlet 中设置。", "Use the installed app to change the login item.") }
         result.login.status = fact.status.map {
             switch $0 {
             case .enabled: return .enabled

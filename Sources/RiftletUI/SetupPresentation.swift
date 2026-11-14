@@ -175,7 +175,11 @@ public struct SetupSnapshot: Equatable, Sendable {
 
 public struct SetupPresentation: Equatable, Sendable {
     public let snapshot: SetupSnapshot
-    public init(snapshot: SetupSnapshot) { self.snapshot = snapshot }
+    private let copy: ProductCopy
+    public init(snapshot: SetupSnapshot, copy: ProductCopy = .current) {
+        self.snapshot = snapshot
+        self.copy = copy
+    }
 
     /// First-use guidance follows the host's actual capability. It never turns
     /// a permission grant or an illustration into a promise of upload access.
@@ -256,14 +260,14 @@ public struct SetupPresentation: Equatable, Sendable {
     }
 
     public var sourceText: String {
-        if let sourceIssue { return sourceIssue.text }
+        if let sourceIssue { return sourceIssue.text(in: copy) }
         switch snapshot.source {
-        case .checking: return "正在检查系统截图保存位置。"
-        case .notChecked: return "尚未检查截图文件夹的访问权限。"
-        case .notApplicable: return "此模式不读取系统截图文件夹。"
-        case .accessible: return "截图位置可读取。"
-        case .unavailable: return "截图位置目前不可访问。请确认文件夹仍在原处，再点“允许访问此位置…”重新选择。"
-        case .notConfigured: return "尚未找到截图文件夹。打开 Mac 的“截屏”应用，在“选项”中将截图存储到文件夹，然后点“重新检查”。"
+        case .checking: return copy.text("正在检查系统截图保存位置。", "Checking where your Mac saves screenshots.")
+        case .notChecked: return copy.text("尚未检查截图文件夹的访问权限。", "Screenshot folder access has not been checked.")
+        case .notApplicable: return copy.text("此模式不读取系统截图文件夹。", "This mode does not read the screenshot folder.")
+        case .accessible: return copy.text("截图位置可读取。", "Riftlet can read this folder.")
+        case .unavailable: return copy.text("截图位置目前不可访问。请确认文件夹仍在原处，再点“允许访问此位置…”重新选择。", "Check that the folder still exists, then allow access to the screenshot folder again.")
+        case .notConfigured: return copy.text("尚未找到截图文件夹。打开 Mac 的“截屏”应用，在“选项”中将截图存储到文件夹，然后点“重新检查”。", "In the Mac Screenshot app, open Options, choose a folder under Save to, then check again.")
         }
     }
 
@@ -273,55 +277,55 @@ public struct SetupPresentation: Equatable, Sendable {
     }
 
     public var sourcePath: String {
-        Self.displayText(snapshot.sourceLocation, limit: 4_096) ?? "尚未确定位置"
+        Self.displayText(snapshot.sourceLocation, limit: 4_096) ?? copy.text("尚未确定位置", "Location not available")
     }
 
     public var collectionText: String {
         switch snapshot.collection {
-        case .starting: return "正在准备收录新截图。"
+        case .starting: return copy.text("正在准备收录新截图。", "Preparing to collect new screenshots.")
         case .collecting:
             if let issue = snapshot.issue, [.sourceVolumeUnidentified, .fileVolumeUnidentified, .historicalSourceUnconfirmed].contains(issue) {
-                return issue.text
+                return issue.text(in: copy)
             }
-            return "正在收录新截图。"
-        case .waitingForSource: return "收录开关已开启。请确认 Riftlet 可以访问截图文件夹。"
-        case .paused: return "收录已暂停；已有截图保留。隐藏桌面截图不会自动暂停收录。"
-        case .stopped: return "当前未收录新截图；已有截图保留。"
+            return copy.text("正在收录新截图。", "Collecting new screenshots.")
+        case .waitingForSource: return copy.text("收录开关已开启。请确认 Riftlet 可以访问截图文件夹。", "Collection is on. Allow Riftlet to read your screenshot folder.")
+        case .paused: return copy.text("收录已暂停；已有截图保留。隐藏桌面截图不会自动暂停收录。", "Collection is paused. Existing screenshots are safe. Hiding desktop thumbnails does not pause collection.")
+        case .stopped: return copy.text("当前未收录新截图；已有截图保留。", "New screenshots are not being collected. Existing screenshots are safe.")
         }
     }
 
     public var riftText: String {
         if snapshot.isHidden {
-            return "桌面截图已隐藏（\(snapshot.visibleCount) 张待显示）。隐藏只影响显示，不删除图片，也不改变收录开关。"
+            return copy.text("桌面截图已隐藏（\(snapshot.visibleCount) 张待显示）。隐藏只影响显示，不删除图片，也不改变收录开关。", "Desktop screenshots are hidden (\(snapshot.visibleCount) waiting). Hiding thumbnails keeps your images and collection setting.")
         }
-        if snapshot.visibleCount == 0 { return "没有可见截图。" }
-        return "桌面边缘有 \(snapshot.visibleCount) 张截图。"
+        if snapshot.visibleCount == 0 { return copy.text("没有可见截图。", "No screenshots on the desktop.") }
+        return copy.text("桌面边缘有 \(snapshot.visibleCount) 张截图。", "Screenshots at the desktop edge: \(snapshot.visibleCount).")
     }
 
     public var pendingText: String? {
         guard snapshot.pendingCount > 0 else { return nil }
-        return "\(snapshot.pendingCount) 张结果待核实 · 图片仍保存在本机，不会自动再次附加。可在截图历史中查看。"
+        return copy.text("\(snapshot.pendingCount) 张结果待核实 · 图片仍保存在本机，不会自动再次附加。可在截图历史中查看。", "Results to check: \(snapshot.pendingCount). Your images are saved locally. Review the original draft before trying again.")
     }
 
     public var attachmentText: String {
         if let issue = snapshot.issue, hasAutomationCapability, issue.isAttachmentConnectionIssue {
-            return issue.text
+            return issue.text(in: copy)
         }
         switch snapshot.attachment {
         case .productionDisabled:
-            return "此工程版本尚未启用真实截图附加。截图可以在本机收录与查看；授权不会开启尚未验收的能力。"
+            return copy.text("此工程版本尚未启用真实截图附加。截图可以在本机收录与查看；授权不会开启尚未验收的能力。", "One-click attachments are disabled in this build. Local collection and history are available.")
         case .syntheticWeb:
-            return "当前是独立 Web 验收模式，仅允许生成的测试图片。不会收录或上传真实截图，也不会发送聊天消息。"
+            return copy.text("当前是独立 Web 验收模式，仅允许生成的测试图片。不会收录或上传真实截图，也不会发送聊天消息。", "This web test uses only generated images. It never imports real screenshots or sends messages.")
         case .systemScreenshotCandidate:
-            return "真实截图内部候选：仅支持 Chrome 中文 ChatGPT 普通已有聊天中的原样 8-bit RGBA PNG。新操作在真实上传开始后快速吞噬，独立完成证明到达后在后台记录成功。旧待核实操作保持原状；安全失败与重试未开放，不重传、不发送消息。普通模式仍未启用上传。"
+            return copy.text("真实截图内部候选：仅支持 Chrome 中文 ChatGPT 普通已有聊天中的原样 8-bit RGBA PNG。新操作在真实上传开始后快速吞噬，独立完成证明到达后在后台记录成功。旧待核实操作保持原状；安全失败与重试未开放，不重传、不发送消息。普通模式仍未启用上传。", "Restricted internal mode: only new operations using original 8-bit RGBA PNGs in existing Chinese ChatGPT conversations in Chrome are eligible. A verified start retracts the thumbnail. Completion is recorded separately. Earlier uncertain results stay unchanged. No automatic retry or send.")
         case .offlineSimulation:
-            return "当前是离线模拟，仅演示生成图片的显示与状态变化；没有连接 ChatGPT。"
+            return copy.text("当前是离线模拟，仅演示生成图片的显示与状态变化；没有连接 ChatGPT。", "This offline preview uses generated images and does not connect to ChatGPT.")
         case .available:
-            return "在 Chrome 中打开要使用的 ChatGPT 对话，点击桌面边缘的截图即可附加。消息由你发送。"
+            return copy.text("在 Chrome 中打开要使用的 ChatGPT 对话，点击桌面边缘的截图即可附加。消息由你发送。", "Open your intended ChatGPT conversation in Chrome, then click the screenshot at the desktop edge. You decide when to send.")
         case .unsupportedBrowser:
-            return "当前浏览器不受支持。截图保留，不会切换到其他浏览器或聊天。"
+            return copy.text("当前浏览器不受支持。截图保留，不会切换到其他浏览器或聊天。", "This browser is not supported. Your screenshot is saved locally. Riftlet will not switch browsers or chats.")
         case .targetUnavailable:
-            return "当前 ChatGPT 草稿或附件入口不可用。截图保留，不会切换目标。"
+            return copy.text("当前 ChatGPT 草稿或附件入口不可用。截图保留，不会切换目标。", "The current draft or attachment control is unavailable. Your screenshot is saved locally.")
         }
     }
 
@@ -331,13 +335,13 @@ public struct SetupPresentation: Equatable, Sendable {
         guard hasAutomationCapability else { return nil }
         switch snapshot.permission {
         case .notNeeded: return nil
-        case .notChecked: return "尚未检查 Chrome 自动化权限。点“检查 Chrome 权限…”按 macOS 提示操作。"
-        case .notRequested: return "点“检查 Chrome 权限…”，在 macOS 提示中允许 Riftlet 控制 Chrome。"
-        case .granted: return "macOS 已允许 Riftlet 与 Chrome 通信。"
-        case .denied: return "Chrome 自动化访问被拒绝。打开“系统设置 → 隐私与安全性 → 自动化”，在 Riftlet 下允许 Google Chrome，再回到这里点“重新检查”。"
-        case .notRunning: return "Chrome 尚未运行。请打开 Google Chrome，再点“重新检查”。"
-        case .browserUnavailable: return "没有找到受支持的 Google Chrome 应用。"
-        case .unavailable: return "打开 Google Chrome，再点“重新检查”查看自动化权限。"
+        case .notChecked: return copy.text("尚未检查 Chrome 自动化权限。点“检查 Chrome 权限…”按 macOS 提示操作。", "Choose Check Chrome Access and follow the macOS prompt.")
+        case .notRequested: return copy.text("点“检查 Chrome 权限…”，在 macOS 提示中允许 Riftlet 控制 Chrome。", "Choose Check Chrome Access, then allow Riftlet to control Chrome in the macOS prompt.")
+        case .granted: return copy.text("macOS 已允许 Riftlet 与 Chrome 通信。", "macOS allows Riftlet to communicate with Chrome.")
+        case .denied: return copy.text("Chrome 自动化访问被拒绝。打开“系统设置 → 隐私与安全性 → 自动化”，在 Riftlet 下允许 Google Chrome，再回到这里点“重新检查”。", "Open System Settings → Privacy & Security → Automation. Under Riftlet, enable Google Chrome, then return and check again.")
+        case .notRunning: return copy.text("Chrome 尚未运行。请打开 Google Chrome，再点“重新检查”。", "Open Google Chrome, then check again.")
+        case .browserUnavailable: return copy.text("没有找到受支持的 Google Chrome 应用。", "A supported Google Chrome installation could not be found.")
+        case .unavailable: return copy.text("打开 Google Chrome，再点“重新检查”查看自动化权限。", "Open Google Chrome, then check its automation permission again.")
         }
     }
 
@@ -352,24 +356,30 @@ public struct SetupPresentation: Equatable, Sendable {
         return main + "\n" + detail
     }
 
-    public var supportText: String { Self.displayText(snapshot.supportDescription, limit: 1_200) ?? "支持范围尚未声明；不会自动启用附件能力。" }
+    public var supportText: String { Self.displayText(snapshot.supportDescription, limit: 1_200) ?? copy.text("支持范围尚未声明；不会自动启用附件能力。", "Support information is unavailable. Attachment access has not been enabled.") }
 
     public var storageText: String {
         switch snapshot.storage {
-        case .notMeasured: return "私有存储用量尚未检查。隐藏、移除与归档都不等于删除图片。"
-        case .measuring: return "正在检查私有存储用量；不会读取图片内容或删除文件。"
+        case .notMeasured: return copy.text("私有存储用量尚未检查。隐藏、移除与归档都不等于删除图片。", "Local storage has not been measured. Hiding, removing or archiving a thumbnail keeps its image.")
+        case .measuring: return copy.text("正在检查私有存储用量；不会读取图片内容或删除文件。", "Checking local storage usage without reading image contents or deleting files.")
         case .measured(let bytes, let complete, let screenshotCopies):
-            let value = bytes <= UInt64(Int64.max)
-                ? ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file)
-                : "\(bytes) 字节"
-            let copies = screenshotCopies.map { bytes in
-                let value = bytes <= UInt64(Int64.max) ? ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file) : "\(bytes) 字节"
-                return "其中，截图副本和内置截图占 \(value)。"
+            func formatted(_ count: UInt64) -> String {
+                guard count <= UInt64(Int64.max) else { return copy.text("\(count) 字节", "\(count) bytes") }
+                return ByteCountFormatter.string(fromByteCount: Int64(count), countStyle: .file)
+            }
+            let size = formatted(bytes)
+            let copies = screenshotCopies.map {
+                let amount = formatted($0)
+                return copy.text("其中，截图副本和内置截图占 \(amount)。", " Screenshot copies and built-in captures use \(amount).")
             } ?? ""
-            return "私有存储\(complete ? "约" : "已统计至少") \(value)（文件逻辑大小）。\(complete ? "" : "部分项目暂无法统计。")\(copies)归档不会删除图片；以上用量不代表可释放磁盘空间。"
-        case .insufficientSpace: return SetupIssue.insufficientSpace.text
-        case .writeFailed: return SetupIssue.privateWriteFailed.text
-        case .unavailable: return "私有存储用量暂无法确认；已有数据保留。"
+            let total = complete
+                ? copy.text("私有存储约 \(size)（文件逻辑大小）。", "Local library: about \(size) in logical file sizes.")
+                : copy.text("私有存储已统计至少 \(size)（文件逻辑大小）。部分项目暂无法统计。", "Local library: at least \(size) in logical file sizes. Some files could not be measured.")
+            return total + copies + copy.text("归档不会删除图片；以上用量不代表可释放磁盘空间。",
+                                             " Archiving keeps the image files. These sizes do not measure reclaimable disk space.")
+        case .insufficientSpace: return SetupIssue.insufficientSpace.text(in: copy)
+        case .writeFailed: return SetupIssue.privateWriteFailed.text(in: copy)
+        case .unavailable: return copy.text("私有存储用量暂无法确认；已有数据保留。", "Storage usage is unavailable. Existing data is saved.")
         }
     }
 
@@ -378,10 +388,10 @@ public struct SetupPresentation: Equatable, Sendable {
         if !hasAutomationCapability && (issue == .permissionDenied || issue.isAttachmentConnectionIssue) {
             return nil
         }
-        return issue.text
+        return issue.text(in: copy)
     }
     public var permissionActionTitle: String {
-        snapshot.permission == .denied ? "打开自动化设置…" : "检查 Chrome 权限…"
+        snapshot.permission == .denied ? copy.text("打开自动化设置…", "Open Automation Settings…") : copy.text("检查 Chrome 权限…", "Check Chrome Access…")
     }
     public var canRequestPermission: Bool {
         guard hasAutomationCapability else { return false }
@@ -391,8 +401,8 @@ public struct SetupPresentation: Equatable, Sendable {
         }
     }
     public var hasSourceLocation: Bool { Self.displayText(snapshot.sourceLocation, limit: 4_096) != nil }
-    public var hideActionTitle: String { snapshot.isHidden ? "显示桌面截图" : "隐藏桌面截图" }
-    public var collectionActionTitle: String { snapshot.collection == .paused ? "继续收录" : "暂停收录" }
+    public var hideActionTitle: String { snapshot.isHidden ? copy.text("显示桌面截图", "Show Desktop Screenshots") : copy.text("隐藏桌面截图", "Hide Desktop Screenshots") }
+    public var collectionActionTitle: String { snapshot.collection == .paused ? copy.text("继续收录", "Resume Collection") : copy.text("暂停收录", "Pause Collection") }
 
     private var hasAutomationCapability: Bool {
         snapshot.attachment == .syntheticWeb || snapshot.attachment == .systemScreenshotCandidate || snapshot.attachment == .available

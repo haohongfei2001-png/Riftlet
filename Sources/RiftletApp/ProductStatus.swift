@@ -29,7 +29,15 @@ enum ProductStatus {
 
     static let supportDescription = supportDescription(for: OrdinaryCaptureConfiguration.admission)
 
-    static func supportDescription(for admission: OrdinaryAttachmentAdmission) -> String {
+    static func supportDescription(for admission: OrdinaryAttachmentAdmission, copy: ProductCopy = .current) -> String {
+        if copy == .english && admission.usesUnifiedProduct {
+            return """
+            Riftlet collects single-frame PNG, JPEG, HEIC, HEIF and TIFF screenshots saved by macOS. Limits are 128 MiB, 160 million pixels and 50,000 pixels per side. Clipboard-only images, animated images and PDFs are excluded. Originals are preserved. HDR display has not been verified.
+            Open an editable new or existing ChatGPT draft in Chrome. Click a desktop thumbnail to add its screenshot. When the draft starts receiving it, you can click the next one. You choose when to send. PNG and JPEG are attached as saved. Other supported formats usually become a full-resolution PNG; if it is too large, the original format is offered to the page instead.
+            Check the original draft for an uncertain attachment. Riftlet keeps it in history and never automatically resubmits it. ChatGPT attachment availability can vary by page, account and chat mode.
+            Requires macOS 13 or later. Release notes list tested environments. To keep Riftlet out of a screenshot, you can hide desktop thumbnails while collection continues.
+            """
+        }
         let attachmentScope = admission.usesUnifiedProduct ? """
         \(admission.supportText)
         结果不明的图片保留在历史里，不会自动再次附加。页面、账号功能和聊天模式都可能影响附件是否可用。

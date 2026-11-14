@@ -4,6 +4,14 @@ import RiftletCore
 import RiftletAdapters
 
 final class ProductStatusTests: XCTestCase {
+    func testEnglishProductHelpDistinguishesReceiptFromSendingAndPreservesUncertainHistory() {
+        let text = ProductStatus.supportDescription(for: .unifiedProduct, copy: .english)
+        for description in ["editable new or existing", "starts receiving", "You choose when to send",
+                            "never automatically resubmits", "128 MiB", "macOS 13"] {
+            XCTAssertTrue(text.contains(description), description)
+        }
+    }
+
     func testPreparedCancellationReasonsHaveSpecificFeedback() {
         let cases: [(String, ProductStatus.AttachmentFeedback)] = [
             ("Accepted selection expired before input", .expiredBeforeInput),
@@ -96,7 +104,7 @@ final class ProductStatusTests: XCTestCase {
     }
 
     func testUnifiedProductDoesNotDirectUserToAnotherProductOrClaimRealPageCertification() {
-        let text = ProductStatus.supportDescription(for: .unifiedProduct)
+        let text = ProductStatus.supportDescription(for: .unifiedProduct, copy: .simplifiedChinese)
         for scope in ["新聊天", "已有聊天", "系统和内置截图", "不会自动再次附加",
                       "PNG、JPEG 按原文件附加", "相同分辨率的 PNG"] {
             XCTAssertTrue(text.contains(scope), scope)
