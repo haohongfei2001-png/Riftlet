@@ -1,0 +1,60 @@
+import JavaScriptCore
+import XCTest
+@testable import RiftletAdapters
+
+/// Two JavaScriptCore realms with a shared synthetic DOM object. These execute
+/// the real witness source, but do not claim Edge's native execute world passed.
+final class EdgeExecutionWorldWitnessTests: XCTestCase {
+    private func realms() throws -> (JSContext, JSContext) {
+        let machine = JSVirtualMachine()
+        let main = try XCTUnwrap(JSContext(virtualMachine: machine))
+        let isolated = try XCTUnwrap(JSContext(virtualMachine: machine))
+        let root = try XCTUnwrap(main.evaluateScript("""
+            (()=>{const attributes=new Map();return {
+              setAttribute:(key,value)=>attributes.set(key,value),
+              getAttribute:key=>attributes.get(key)||null,
+              removeAttribute:key=>attributes.delete(key)};})()
+            """))
+        for realm in [main, isolated] {
+            realm.setObject(root, forKeyedSubscript: "sharedRoot" as NSString)
+            _ = try evaluate("""
+                globalThis.document={documentElement:sharedRoot};
+                globalThis.navigation={currentEntry:{id:'original-entry'}};
+                globalThis.location={href:'https://chatgpt.com/c/neutral'};
+                globalThis.self=globalThis;globalThis.top=globalThis;
+                globalThis.setTimeout=()=>0;
+                'ready'
+                """, in: realm)
+        }
+        return (main, isolated)
+    }
+    private func evaluate(_ source: String, in context: JSContext) throws -> String {
+        let result = context.evaluateScript(source)
+        XCTAssertNil(context.exception)
+        return try XCTUnwrap(result?.toString())
+    }
+
+    func testActualWitnessScriptRequiresSeparateExecutionRealms() throws {
+        let (main, isolated) = try realms(), witness = EdgeExecutionWorldWitness()
+        XCTAssertEqual(try evaluate(witness.prepare, in: isolated), "prepared")
+        XCTAssertEqual(try evaluate(witness.prepare, in: isolated), "refused")
+        _ = try evaluate(witness.bootstrap, in: main)
+        XCTAssertEqual(try evaluate(witness.confirm, in: isolated), "verified")
+        XCTAssertEqual(try evaluate(witness.validate, in: isolated), "verified")
+        let (same, _) = try realms(), sameWorldWitness = EdgeExecutionWorldWitness()
+        XCTAssertEqual(try evaluate(sameWorldWitness.prepare, in: same), "prepared")
+        _ = try evaluate(sameWorldWitness.bootstrap, in: same)
+        XCTAssertEqual(try evaluate(sameWorldWitness.confirm, in: same), "refused")
+    }
+
+    func testActualWitnessRejectsReplacementRootAndNavigation() throws {
+        for replacement in ["document.documentElement={};", "navigation.currentEntry={id:'replacement-entry'};"] {
+            let (main, isolated) = try realms(), witness = EdgeExecutionWorldWitness()
+            XCTAssertEqual(try evaluate(witness.prepare, in: isolated), "prepared")
+            _ = try evaluate(witness.bootstrap, in: main)
+            XCTAssertEqual(try evaluate(witness.confirm, in: isolated), "verified")
+            _ = try evaluate(replacement, in: isolated)
+            XCTAssertEqual(try evaluate(witness.validate, in: isolated), "refused")
+        }
+    }
+}

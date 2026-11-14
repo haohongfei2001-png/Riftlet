@@ -127,6 +127,18 @@ struct MainWorldReceiptReadBudget: Sendable {
         maximumEventDuration = clickSnapshot ? 1 : 0.25
     }
 
+    /// All synchronous native identity and original-document reads share the
+    /// same short mouse-down deadline, including compatibility fallbacks.
+    static func clickSnapshot(start: TimeInterval = ProcessInfo.processInfo.systemUptime) -> Self {
+        Self(deadlineUptime: start + 0.15, clickSnapshot: true)
+    }
+
+    func checkReturn(at uptime: TimeInterval = ProcessInfo.processInfo.systemUptime) throws {
+        guard uptime.isFinite, uptime >= 0, uptime < deadlineUptime else {
+            throw WebAdapterError.nativeEventFailed(-1712)
+        }
+    }
+
     func timeout(at uptime: TimeInterval) throws -> TimeInterval {
         guard uptime.isFinite, uptime >= 0, deadlineUptime.isFinite,
               deadlineUptime > uptime else { throw WebAdapterError.invalidReply }

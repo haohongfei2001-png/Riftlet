@@ -47,11 +47,12 @@ struct ApplicationAttachmentComposition {
             guard ordinary.allowsInput else { return Self(adapter: UnavailableAdapter(), policy: .init()) }
             if ordinary.usesUnifiedProduct {
                 return Self(adapter: WebAttachmentAdapter(mediaDirectory: media,
-                    executor: executor ?? ChromeAppleEventsExecutor(traceEnabled: traceEnabled, diagnosticTrace: diagnosticTrace),
+                    executor: executor ?? ApplicationWebExecutor(traceEnabled: traceEnabled, diagnosticTrace: diagnosticTrace),
                     program: try ChatGPTWebPageProgram.load(), mode: .ordinaryProduct,
                     profile: ordinary.observationProfile, polling: polling,
                     productStore: store, productOrigins: ordinary.productOrigins,
-                    onInputTransportFinished: onInputTransportFinished, diagnosticTrace: diagnosticTrace), policy: ordinary.receiptPolicy)
+                    onInputTransportFinished: onInputTransportFinished, diagnosticTrace: diagnosticTrace,
+                    applicationIDs: ApplicationWebExecutor.applicationIDs), policy: ordinary.receiptPolicy)
             }
             return Self(adapter: WebAttachmentAdapter(mediaDirectory: media,
                 executor: executor ?? ChromeAppleEventsExecutor(traceEnabled: traceEnabled, diagnosticTrace: diagnosticTrace),

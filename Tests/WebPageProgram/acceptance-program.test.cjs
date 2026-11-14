@@ -9,6 +9,7 @@ require('./attachment-entry-handoff.test.cjs');
 require('./original-image-transport.test.cjs');
 require('./ordinary-composer.test.cjs');
 require('./click-document-witness.test.cjs');
+require('./edge-input.test.cjs');
 
 function accepted(f,op) {
  const observation=f.observe(op);

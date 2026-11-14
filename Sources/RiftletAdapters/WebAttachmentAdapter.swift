@@ -113,6 +113,7 @@ public enum WebAdapterError: Error, Equatable, Sendable {
 /// operations; historical operations retain their observation-only profiles.
 public actor WebAttachmentAdapter: IndependentFileInputAdapter {
     public nonisolated let id: String
+    public nonisolated let applicationIDs: Set<String>
     private let mediaDirectory: URL
     private nonisolated let executor: any WebBridgeExecutor
     private nonisolated let program: WebPageProgram?
@@ -151,8 +152,10 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
                 candidateAdmission: SystemScreenshotCandidateAdmission? = nil,
                 productStore: QueueStore? = nil, productOrigins: Set<AssetOrigin> = [],
                 onInputTransportFinished: (@Sendable () async -> Void)? = nil,
-                diagnosticTrace: BoundedDiagnosticTrace? = nil) {
+                diagnosticTrace: BoundedDiagnosticTrace? = nil,
+                applicationIDs: Set<String> = ["com.google.Chrome"]) {
         id = profile.adapterID; self.mediaDirectory = mediaDirectory.standardizedFileURL
+        self.applicationIDs = applicationIDs.intersection(["com.google.Chrome", "com.microsoft.edgemac"])
         self.executor = executor; self.program = program; self.mode = mode
         if mode == .ordinarySystemScreenshot || mode == .ordinaryProduct {
             normalizer = ObservationNormalizer(profile: profile, developmentScope: .ordinarySystemScreenshot)
@@ -564,6 +567,13 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
 
     private func normalize(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest,
                            liveAppend: Bool = false) async throws -> TransferReceipt {
+        // Host input capability is separate from service evidence admission.
+        // No Edge-specific START, completion or failure profile has real signed-in
+        // calibration yet. Never borrow Chrome's accepted-preview profile.
+        if request.operation.target.applicationID == "com.microsoft.edgemac",
+           ![.inputTriggered, .unknown, .invalidated].contains(envelope.observation.state) {
+            throw WebAdapterError.invalidReply
+        }
         var scopedNormalizer = normalizer
         var originalScope: SystemScreenshotAdmissionScope?
         let binding = binding(for: request.asset)
@@ -644,7 +654,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
     private func check(_ target: TargetLease) throws {
         guard target.adapterID == id, target.surface == normalizer.profile.surface,
               target.surface == .webChat || target.surface == .webWork,
-              target.applicationID == "com.google.Chrome",
+              applicationIDs.contains(target.applicationID),
               !target.sessionID.isEmpty, !target.windowID.isEmpty, target.tabID?.isEmpty == false,
               !target.documentID.isEmpty, !target.composerID.isEmpty, !target.draftGeneration.isEmpty else {
             throw WebAdapterError.invalidTarget

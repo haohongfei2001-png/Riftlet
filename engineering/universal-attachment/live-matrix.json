@@ -180,7 +180,7 @@
       "host": "Microsoft Edge",
       "service": "ChatGPT",
       "result": "NOT_RUN",
-      "reason": "ORDINARY_EDGE_CLICK_ROUTE_NOT_REGISTERED",
+      "reason": "BLOCKED_LOGIN",
       "application": "NOT_RUN",
       "windowAndDraft": "NOT_RUN",
       "entry": "NOT_RUN",
@@ -191,14 +191,20 @@
       "failureAndUnknown": "NOT_RUN",
       "consecutiveImages": "NOT_RUN",
       "additionalUserSteps": "NOT_RUN",
-      "relatedEvidence": "edge-loopback",
-      "controlledLoopbackEvidence": "acceptance-20261114.json#/supplementalHostCheck/attempts/8"
+      "relatedEvidence": "edge-double-image-20261114/isolated-login.json",
+      "controlledLoopbackEvidence": "edge-double-image-20261114/phase1-hosted-original.json",
+      "codeStatus": "ORDINARY_EDGE_INPUT_ROUTE_IMPLEMENTED_UPLOAD_EVIDENCE_NOT_CALIBRATED",
+      "receiptScope": "Two tagged software mouse chains and per-asset pre-input refusals verified in the diagnostic checkpoint; original overall hosted result remains failed.",
+      "historicalEvidence": [
+        "edge-loopback",
+        "acceptance-20261114.json#/supplementalHostCheck/attempts/8"
+      ]
     },
     {
       "host": "Microsoft Edge",
       "service": "Claude",
       "result": "NOT_RUN",
-      "reason": "ORDINARY_EDGE_CLICK_ROUTE_NOT_REGISTERED",
+      "reason": "ORDINARY_SERVICE_ATTACHMENT_ROUTE_NOT_REGISTERED",
       "application": "NOT_RUN",
       "windowAndDraft": "NOT_RUN",
       "entry": "NOT_RUN",
@@ -215,7 +221,7 @@
       "host": "Microsoft Edge",
       "service": "Gemini",
       "result": "NOT_RUN",
-      "reason": "ORDINARY_EDGE_CLICK_ROUTE_NOT_REGISTERED",
+      "reason": "ORDINARY_SERVICE_ATTACHMENT_ROUTE_NOT_REGISTERED",
       "application": "NOT_RUN",
       "windowAndDraft": "NOT_RUN",
       "entry": "NOT_RUN",
@@ -232,7 +238,7 @@
       "host": "Microsoft Edge",
       "service": "Perplexity",
       "result": "NOT_RUN",
-      "reason": "ORDINARY_EDGE_CLICK_ROUTE_NOT_REGISTERED",
+      "reason": "ORDINARY_SERVICE_ATTACHMENT_ROUTE_NOT_REGISTERED",
       "application": "NOT_RUN",
       "windowAndDraft": "NOT_RUN",
       "entry": "NOT_RUN",
@@ -249,7 +255,7 @@
       "host": "Microsoft Edge",
       "service": "Poe",
       "result": "NOT_RUN",
-      "reason": "ORDINARY_EDGE_CLICK_ROUTE_NOT_REGISTERED",
+      "reason": "ORDINARY_SERVICE_ATTACHMENT_ROUTE_NOT_REGISTERED",
       "application": "NOT_RUN",
       "windowAndDraft": "NOT_RUN",
       "entry": "NOT_RUN",
@@ -551,5 +557,6 @@
       "additionalUserSteps": "NOT_RUN",
       "relatedEvidence": "inventory-only"
     }
-  ]
+  ],
+  "edgeSpecialistFollowup": "edge-double-image-20261114/isolated-login.json"
 }

@@ -1,0 +1,5 @@
+pair=1 defaultCGNumber=0 nativeNumber=0 tagPreserved=true
+pair=1 explicitCGNumber=101 nativeNumber=101 tagPreserved=true
+pair=2 defaultCGNumber=0 nativeNumber=0 tagPreserved=true
+pair=2 explicitCGNumber=102 nativeNumber=102 tagPreserved=true
+ALLOCATION_ONLY_NO_POST_NO_UI

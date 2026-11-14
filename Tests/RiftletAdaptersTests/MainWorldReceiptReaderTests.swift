@@ -13,10 +13,13 @@ final class MainWorldReceiptReaderTests: XCTestCase {
     }
 
     func testClickSnapshotUsesOneRemainingBudgetAcrossNonRepeatingEvents() throws {
-        let budget = MainWorldReceiptReadBudget(deadlineUptime: 11, clickSnapshot: true)
-        XCTAssertEqual(try budget.timeout(at: 10), 1)
-        XCTAssertEqual(try budget.timeout(at: 10.5), 0.5)
-        XCTAssertThrowsError(try budget.timeout(at: 11))
+        let budget = MainWorldReceiptReadBudget.clickSnapshot(start: 10)
+        XCTAssertEqual(try budget.timeout(at: 10), 0.15, accuracy: 0.000_001)
+        XCTAssertEqual(try budget.timeout(at: 10.08), 0.07, accuracy: 0.000_001)
+        XCTAssertThrowsError(try budget.timeout(at: 10.149))
+        XCTAssertNoThrow(try budget.checkReturn(at: 10.149))
+        XCTAssertThrowsError(try budget.checkReturn(at: 10.15))
+        XCTAssertThrowsError(try budget.checkReturn(at: .nan))
     }
 
     func testImmediateReplyPreservesReceiveTimeWithoutPolling() throws {

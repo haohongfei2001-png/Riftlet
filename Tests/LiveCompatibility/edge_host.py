@@ -6,6 +6,7 @@ from contextlib import ExitStack
 import hashlib
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
+import math
 import os
 from pathlib import Path
 import plistlib
@@ -30,6 +31,10 @@ sys.path.insert(0, str(REPO / "Tests/UniversalNativePickerHost"))
 from edge_neutral_picker import PIXEL, probe_neutral_picker
 
 ROOT = Path.home() / "Library/Application Support/Riftlet"
+RESOLVE_REFUSALS = {"browserNotFrontmost": "FOREGROUND_HOST_UNAVAILABLE",
+                    "nativeEventFailed(-1744)": "SYSTEM_AUTOMATION_CONSENT_REQUIRED",
+                    "nativeEventFailed(-1743)": "SYSTEM_AUTOMATION_DENIED",
+                    "nativeEventFailed(12)": "SYSTEM_AUTOMATION_UNAVAILABLE"}
 
 
 def command(*args, check=True, timeout=15):
@@ -180,22 +185,62 @@ def original_mouse_refusals(evidence, sent):
     refusals = [r for r in evidence if r.get("event") == "click_input_refused"]
     if not sent or len(selections) != len(sent) or len(refusals) != len(sent):
         return False
+    if any(len(item) != 4 for item in sent) or any(len({item[index] for item in sent}) != len(sent) for index in (0, 2, 3)):
+        return False
     session = selections[0].get("diagnosticSessionDigest")
     if not session or len({r.get("eventNumber") for r in selections}) != len(sent):
         return False
     last_sequence = -1
-    for (asset, window, tag), click, refusal in zip(sent, selections, refusals):
+    for (asset, window, tag, event_number), click, refusal in zip(sent, selections, refusals):
         if not (click.get("source") == "mouse" and click.get("targetRequested") is True
                 and click.get("assetIDDigest") == refusal.get("assetIDDigest") == asset
                 and click.get("windowNumber") == window and click.get("clickCount") == 1
-                and type(click.get("eventNumber")) is int and click.get("mouseProbeTag") == tag
+                and type(event_number) is int and 0 < event_number < (1 << 31)
+                and type(click.get("eventNumber")) is int and click.get("eventNumber") == event_number
+                and click.get("mouseProbeTag") == tag
                 and click.get("diagnosticSessionDigest") == refusal.get("diagnosticSessionDigest") == session
                 and last_sequence < click["diagnosticSequence"] < refusal["diagnosticSequence"]
-                and refusal.get("phase") == "resolveSelection" and refusal.get("error") == "browserNotFrontmost"
+                and refusal.get("phase") == "resolveSelection" and refusal.get("error") in RESOLVE_REFUSALS
                 and refusal.get("critical") is True):
             return False
         last_sequence = refusal["diagnosticSequence"]
     return True
+
+
+def original_permission_refusal(evidence, sent):
+    return original_mouse_refusals(evidence, sent) and any(
+        r.get("event") == "click_input_refused" and r.get("error") in RESOLVE_REFUSALS
+        and r.get("error") != "browserNotFrontmost" for r in evidence)
+
+
+def explicit_consent_result(evidence, sent):
+    """The asynchronous OS request must finish before another software click."""
+    if not original_mouse_refusals(evidence, sent):
+        return None
+    refusal = [r for r in evidence if r.get("event") == "click_input_refused"][-1]
+    if refusal.get("error") != "nativeEventFailed(-1744)":
+        return "NOT_REQUESTED_BY_THIS_REFUSAL"
+    replies = [r for r in evidence if r.get("event") == "edge_automation_permission"
+               and r.get("purpose") == "explicitClickConsent"
+               and r.get("diagnosticSessionDigest") == refusal.get("diagnosticSessionDigest")
+               and type(r.get("diagnosticSequence")) is int
+               and r["diagnosticSequence"] > refusal["diagnosticSequence"]]
+    if not replies:
+        return None
+    if len(replies) != 1 or replies[0].get("result") not in {
+            "granted", "notRequested", "denied", "receiverChanged", "unavailable"}:
+        raise RuntimeError("invalid_original_consent_result")
+    return replies[0]["result"]
+
+
+def mouse_receiver(data):
+    value = json.loads(data)
+    if (not isinstance(value, dict) or set(value) != {"ordinal", "window", "x", "y"}
+            or type(value["ordinal"]) is not int or value["ordinal"] not in (1, 2)
+            or type(value["window"]) is not int or value["window"] <= 0
+            or any(type(value[k]) not in (int, float) or not math.isfinite(value[k]) for k in ("x", "y"))):
+        raise RuntimeError("invalid_mouse_window_receipt")
+    return value
 
 
 def summarize_mouse_receipts(evidence, sent):
@@ -204,10 +249,13 @@ def summarize_mouse_receipts(evidence, sent):
     refused = [r for r in evidence if r.get("event") == "click_input_refused"]
     resolved = [r for r in evidence if r.get("event") == "click_target_resolved"]
     allowed_reasons = {"browserNotFrontmost", "invalidTarget", "targetChanged", "automationDenied",
-                       "automationUnavailable", "javaScriptDisabled", "timeout", "cancelled"}
+                       "automationUnavailable", "javaScriptDisabled", "timeout", "cancelled", *RESOLVE_REFUSALS}
     result = dict(selectionCount=len(selected), refusalCount=len(refused), targetResolvedCount=len(resolved),
-                  targetRequestedCount=sum(r.get("event") == "click_target_requested" for r in evidence), dispatches=[])
-    for asset, window, tag in sent:
+                  targetRequestedCount=sum(r.get("event") == "click_target_requested" for r in evidence), dispatches=[],
+                  nativeEventNumbersDistinct=bool(selected) and all(type(r.get("eventNumber")) is int for r in selected)
+                      and len({r.get("eventNumber") for r in selected}) == len(selected),
+                  originalReceiptMatcherPassed=original_mouse_refusals(evidence, sent))
+    for asset, window, tag, event_number in sent:
         clicks = [r for r in selected if r.get("assetIDDigest") == asset]
         failures = [r for r in refused if r.get("assetIDDigest") == asset]
         native = [r for r in evidence if r.get("event") == "mouse_dispatch_boundary" and r.get("mouseProbeTag") == tag]
@@ -238,6 +286,7 @@ def summarize_mouse_receipts(evidence, sent):
             oneClickCountMatched=any(r.get("clickCount") == 1 for r in clicks),
             targetRequestedMatched=any(r.get("targetRequested") is True for r in clicks),
             nativeEventNumberPresent=any(type(r.get("eventNumber")) is int for r in clicks),
+            sentEventNumberMatched=any(type(r.get("eventNumber")) is int and r.get("eventNumber") == event_number for r in clicks),
             sequencePresent=bool(clicks) and all(type(r.get("diagnosticSequence")) is int for r in clicks + failures),
             sameSession=bool(clicks and failures) and all(c.get("diagnosticSessionDigest") and
                 c.get("diagnosticSessionDigest") == r.get("diagnosticSessionDigest") for c in clicks for r in failures),
@@ -684,7 +733,52 @@ def exercise(app, report):
             report["stage"] = "ordinary_import"
             rows = wait_for(imported, "two_capture_imports_unproven", 25)
             asset_digests = [hashlib.sha256(rows[d][0].lower().encode()).hexdigest() for d, _ in captures]
+            report["captures"] = []
+            for sequence, (digest_value, path) in enumerate(captures, 1):
+                if digest(path) != digest_value or digest(ROOT / "media" / rows[digest_value][1]) != digest_value:
+                    raise RuntimeError("original_image_bytes_changed")
+                report["captures"].append(dict(captureSequence=sequence, sourceSHA256=digest_value,
+                    assetIDDigest=asset_digests[sequence - 1], originalPrivateSHA256Matched=True))
             sent = []
+            def no_input_after_refusal():
+                if (read_assets(dbfile) != rows or any(v[2:] != ("pending", "visible") for v in rows.values())
+                        or draft.document_requests != 1 or draft.file_changes or draft.post_requests
+                        or draft.picker_enabled or draft.picker_events
+                        or any(r.get("event") == "click_target_resolved" for r in events(recent))):
+                    raise RuntimeError("unexpected_file_action_or_target_change")
+                with sqlite3.connect(dbfile.as_uri() + "?mode=ro", uri=True) as db:
+                    counts = {table: db.execute("SELECT count(*) FROM " + table).fetchone()[0]
+                              for table in ("operations", "upload_starts")}
+                if any(counts.values()):
+                    raise RuntimeError("unexpected_ordinary_operation_after_refusal")
+                for digest_value, path in captures:
+                    if digest(path) != digest_value or digest(ROOT / "media" / rows[digest_value][1]) != digest_value:
+                        raise RuntimeError("original_image_bytes_changed")
+                return counts
+
+            def stop_for_consent(reason):
+                evidence = events(recent)
+                if not original_permission_refusal(evidence, sent):
+                    raise RuntimeError("system_consent_without_original_refusal")
+                counts = no_input_after_refusal()
+                for sequence in range(len(report["rounds"]) + 1, 3):
+                    report["rounds"].append(dict(captureSequence=sequence, action="NOT_RUN",
+                        sourceSHA256=captures[sequence - 1][0], assetIDDigest=asset_digests[sequence - 1],
+                        rejection="NOT_RUN_SYSTEM_AUTOMATION_CONSENT", retained="BOTH_ORIGINAL_ASSETS_VISIBLE_PENDING"))
+                for item in report["rounds"]:
+                    if item.get("action") in {"NOT_RUN", "VETO_BEFORE_MOUSE_DOWN"}:
+                        item.update(rejection="NOT_RUN_SYSTEM_AUTOMATION_CONSENT", retained="BOTH_ORIGINAL_ASSETS_VISIBLE_PENDING")
+                report.update(result="NOT_RUN_SYSTEM_AUTOMATION_CONSENT", automationConsent=reason,
+                    mouseReceiptObservation=summarize_mouse_receipts(evidence, sent),
+                    retainedVisibleAssets=2, originalPrivateSHA256Matches=2,
+                    operations=counts["operations"], starts=counts["upload_starts"],
+                    fixtureFileChanges=draft.file_changes, fixturePostRequests=draft.post_requests,
+                    fixtureDocumentGETs=draft.document_requests,
+                    controlledEdgePicker={"status": "NOT_RUN_SYSTEM_AUTOMATION_CONSENT", "commercialService": "NOT_RUN"})
+                # The first real action/receipt remains in rounds. 77 describes
+                # a known OS prerequisite, never a successful two-click run.
+                return 77
+
             def finish_with_picker():
                 # Only intentional ordinary exits can reach this side probe.
                 # A timeout/lost reply after dispatch instead unwinds directly.
@@ -737,13 +831,17 @@ def exercise(app, report):
 
             for n, expected_asset in enumerate(asset_digests, 1):
                 report["stage"] = f"original_mouse_thumbnail_{n}"
-                round_result = dict(captureSequence=n, action="NOT_RUN", rejection="UNCONFIRMED", retained="UNCONFIRMED")
+                round_result = dict(captureSequence=n, sourceSHA256=captures[n - 1][0], assetIDDigest=expected_asset,
+                                    action="NOT_RUN", rejection="UNCONFIRMED", retained="UNCONFIRMED")
                 report["rounds"].append(round_result)
                 tag = secrets.randbelow((1 << 48) - 1) + 1
-                while any(previous_tag == tag for _, _, previous_tag in sent):
+                while any(previous_tag == tag for _, _, previous_tag, _ in sent):
                     tag = secrets.randbelow((1 << 48) - 1) + 1
+                event_number = secrets.randbelow((1 << 31) - 1) + 1
+                while any(previous_number == event_number for _, _, _, previous_number in sent):
+                    event_number = secrets.randbelow((1 << 31) - 1) + 1
                 def mouse_target(action):
-                    result = ui(action, 0, window, expected_asset, tag)
+                    result = ui(action, 0, window, expected_asset, tag, event_number)
                     state = result.stdout.decode().strip()
                     if result.returncode == 24:
                         if state in {"firstReceiver originalFrontEdge", "firstReceiver otherRiftletWindow",
@@ -760,13 +858,15 @@ def exercise(app, report):
                         round_result["preflight"] = state
                         return None
                     result.check_returncode()
-                    if not re.fullmatch(r"[12] [1-9]\d*", state):
-                        raise RuntimeError("invalid_mouse_window_receipt")
+                    receipt = mouse_receiver(state)
                     round_result.update(preflight="verified", actualReceiver="originalRiftletInput")
-                    return tuple(map(int, state.split()))
+                    return receipt
                 try:
                     wait_for(lambda: mouse_target("mouseReady"), "mapped_target_not_demonstrated")
                 except ObservationTimeout:
+                    if (round_result.get("preflight") in {"foregroundChanged", "firstMouseReceiverMismatch"}
+                            and original_permission_refusal(events(recent), sent)):
+                        return stop_for_consent("NEXT_ORIGINAL_MOUSE_TARGET_UNAVAILABLE_AFTER_PERMISSION_REFUSAL")
                     report["result"] = "PARTIAL_NATIVE_THUMBNAIL_MOUSE_TARGET_UNVERIFIED"
                     return finish_with_picker()
                 # Exactly one call may post down/up per asset. Missing replies never permit another call.
@@ -775,12 +875,16 @@ def exercise(app, report):
                 response = mouse_target("mouseClick")
                 if response is None:
                     round_result["action"] = "VETO_BEFORE_MOUSE_DOWN"
+                    if (round_result.get("preflight") in {"foregroundChanged", "firstMouseReceiverMismatch", "targetChangedBeforeDown"}
+                            and original_permission_refusal(events(recent), sent)):
+                        return stop_for_consent("NEXT_ORIGINAL_MOUSE_TARGET_CHANGED_AFTER_PERMISSION_REFUSAL")
                     report["result"] = "PARTIAL_NATIVE_MOUSE_TARGET_CHANGED_BEFORE_DOWN"
                     return finish_with_picker()
-                ordinal, expected_input_window = response
-                sent.append((expected_asset, expected_input_window, tag))
+                ordinal, expected_input_window = response["ordinal"], response["window"]
+                sent.append((expected_asset, expected_input_window, tag, event_number))
                 report["pressAttempts"] += 1
-                round_result.update(ordinal=ordinal, action="ONE_GLOBAL_MOUSE_DOWN_UP_POSTED")
+                round_result.update(ordinal=ordinal, action="ONE_GLOBAL_MOUSE_DOWN_UP_POSTED",
+                                    inputWindow=expected_input_window, clickPoint={k: response[k] for k in ("x", "y")})
                 try:
                     wait_for(lambda: original_mouse_refusals(events(recent), sent), "original_mouse_selection_or_refusal_unconfirmed")
                 except Exception:
@@ -791,14 +895,42 @@ def exercise(app, report):
                     except Exception:
                         report["mouseFailureObservation"] = "READ_UNAVAILABLE"
                     raise
-                if selected_window() != window:
-                    raise RuntimeError("original_edge_changed_after_mouse_receipt")
                 round_result["mouseProbeTagMatched"] = True
-                round_result["originalEdgeWindowAfterReceipt"] = True
+                round_result["sentEventNumberMatched"] = True
                 report["confirmedDistinctRefusals"] = n
                 round_result["rejection"] = "ORIGINAL_MOUSE_WINDOW_AND_ASSET_PRODUCT_REFUSAL"
+                evidence = events(recent)
+                refusals = [r for r in evidence if r.get("event") == "click_input_refused"]
+                round_result["refusalClass"] = RESOLVE_REFUSALS[refusals[-1]["error"]]
+                no_input_after_refusal()
+                round_result["retained"] = "BOTH_ORIGINAL_ASSETS_VISIBLE_PENDING"
+                round_result["originalPrivateSHA256Matched"] = True
+                round_result["originalEdgeWindowAfterReceipt"] = selected_window() == window
+                if not round_result["originalEdgeWindowAfterReceipt"]:
+                    if original_permission_refusal(evidence, sent):
+                        return stop_for_consent("ORIGINAL_EDGE_FOCUS_UNAVAILABLE_AFTER_PERMISSION_REFUSAL")
+                    raise RuntimeError("original_edge_changed_after_mouse_receipt")
+                if refusals[-1]["error"] == "nativeEventFailed(-1744)":
+                    def consent_settled():
+                        if selected_window() != window:
+                            return "ORIGINAL_EDGE_FOCUS_UNAVAILABLE_DURING_CONSENT"
+                        return explicit_consent_result(events(recent), sent)
+                    try:
+                        consent = wait_for(consent_settled, "original_system_consent_result_unconfirmed")
+                    except ObservationTimeout:
+                        return stop_for_consent("ORIGINAL_SYSTEM_CONSENT_RESULT_UNCONFIRMED")
+                    if consent == "ORIGINAL_EDGE_FOCUS_UNAVAILABLE_DURING_CONSENT":
+                        return stop_for_consent(consent)
+                    if consent in {"notRequested", "receiverChanged", "unavailable"}:
+                        return stop_for_consent("SYSTEM_CONSENT_RETURNED_" + consent.upper())
+                    report["automationConsent"] = consent
                 draft.phase = n + 1
-                wait_for(lambda: draft.phase in draft.observed, "original_neutral_document_state_unconfirmed")
+                try:
+                    wait_for(lambda: draft.phase in draft.observed, "original_neutral_document_state_unconfirmed")
+                except ObservationTimeout:
+                    if original_permission_refusal(events(recent), sent) and selected_window() != window:
+                        return stop_for_consent("ORIGINAL_EDGE_FOCUS_UNAVAILABLE_BEFORE_DRAFT_RECHECK")
+                    raise
                 if draft.document_requests != 1 or draft.file_changes or draft.post_requests:
                     raise RuntimeError("neutral_document_replaced_or_changed")
                 after_round = read_assets(dbfile)
@@ -815,7 +947,11 @@ def exercise(app, report):
             with sqlite3.connect(dbfile.as_uri() + "?mode=ro", uri=True) as db:
                 counts = {table: db.execute("SELECT count(*) FROM " + table).fetchone()[0]
                           for table in ("operations", "upload_starts")}
-            if draft.document_requests != 1 or any(counts.values()) or draft.file_changes or draft.post_requests or selected_window() != window:
+            if draft.document_requests != 1 or any(counts.values()) or draft.file_changes or draft.post_requests:
+                raise RuntimeError("unexpected_file_action_or_target_change")
+            if selected_window() != window:
+                if original_permission_refusal(events(recent), sent):
+                    return stop_for_consent("ORIGINAL_EDGE_FOCUS_UNAVAILABLE_AT_FINAL_RECHECK")
                 raise RuntimeError("unexpected_file_action_or_target_change")
             report["mouseReceiptObservation"] = summarize_mouse_receipts(events(recent), sent)
             report.update(result="VERIFIED_TWO_APP_REJECTIONS_CONTROLLED_EDGE", retainedVisibleAssets=2,

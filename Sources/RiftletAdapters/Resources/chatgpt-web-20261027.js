@@ -793,6 +793,11 @@ function riftletWebAcceptance(command, native) {
     };
   }
   function sample(op) {
+    // Edge's real upload states have not yet been calibrated in an authorized
+    // commercial draft. Its input may proceed, but Chrome's preview handoff
+    // must not become Edge START/completion evidence. Keep observing the same
+    // operation and never authorize another input from an uncertain result.
+    if (native.applicationID === 'com.microsoft.edgemac') return;
     // The app may disable or remove its picker after accepting this file.
     // Observing that handoff needs the original draft, not another input slot.
     if (op.start || !op.changeReturned || !sameDraft(op.binding, true)) return;
@@ -853,7 +858,7 @@ function riftletWebAcceptance(command, native) {
     return result;
   }
   if (command.action === 'captureTarget') {
-    if (native.applicationID !== 'com.google.Chrome' || !native.sessionID
+    if (!['com.google.Chrome', 'com.microsoft.edgemac'].includes(native.applicationID) || !native.sessionID
         || !native.windowID || !native.tabID) fail('NATIVE_CONTEXT_REQUIRED');
     const parts = composer();
     if (command.clickWitnessID != null) {

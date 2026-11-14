@@ -9,7 +9,7 @@ const source=fs.readFileSync(process.env.RIFTLET_PAGE_PROGRAM_SOURCE||path.join(
 const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLttAAAAABJRU5ErkJggg==','base64');
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 const native={applicationID:'com.google.Chrome',sessionID:'synthetic-local-session',windowID:'17',tabID:'19'};
-function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focused=true,visible=true,programSource=source,editorTag='div'}={}) {
+function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focused=true,visible=true,programSource=source,editorTag='div',nativeContext=native}={}) {
  const observers=[],events=new Map();
  function queueMutation(record){
   for(const observer of observers){
@@ -134,7 +134,7 @@ function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focu
   fetch:()=>{throw Error('network forbidden');}});
  vm.runInContext('globalThis.top=globalThis;globalThis.window=globalThis',context);
  const program=vm.runInContext('('+programSource+')',context);
- const call=command=>program(command,native);
+ const call=command=>program(command,nativeContext);
  const notify=()=>queueMutation({type:'childList',target:form,addedNodes:[],removedNodes:[]});
  function addCard(name,{placeholder=false,progress=true}={}) {
   const card=form.append(new Node('div',{'data-file-name':name,title:name,'aria-label':name,role:'button'}));

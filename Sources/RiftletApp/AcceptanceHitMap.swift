@@ -21,7 +21,7 @@ import RiftletUI
     private var sampler: Task<Void, Never>?
 
     init?(panel: RiftPanelController, directory: URL, arguments: [String], buildChannel: String?) {
-        guard buildChannel == "development", arguments.contains("--acceptance-trace"),
+        guard ["development", "isolated-product-acceptance"].contains(buildChannel ?? ""), arguments.contains("--acceptance-trace"),
               arguments.contains("--acceptance-hit-map") else { return nil }
         do {
             try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true,

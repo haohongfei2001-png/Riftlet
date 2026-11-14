@@ -4,6 +4,20 @@ import RiftletCore
 import RiftletAdapters
 
 final class ProductStatusTests: XCTestCase {
+    func testEdgeFeedbackDoesNotTurnAnUncertainSubmissionIntoNoInput() throws {
+        for code in [-1744, -1743, 12, -1712] as [Int32] {
+            let failure = WebAdapterError.nativeEventFailed(code)
+            let before = try XCTUnwrap(ProductStatus.edgeClickFeedback(failure,
+                applicationID: "com.microsoft.edgemac", beforeInput: true))
+            XCTAssertTrue(before.contains("Microsoft Edge"))
+            let uncertain = try XCTUnwrap(ProductStatus.edgeClickFeedback(failure,
+                applicationID: "com.microsoft.edgemac", beforeInput: false))
+            XCTAssertTrue(uncertain.contains("结果尚未确认"))
+            XCTAssertFalse(uncertain.contains("本次未附加"))
+            XCTAssertNil(ProductStatus.edgeClickFeedback(failure, applicationID: "com.google.Chrome", beforeInput: true))
+        }
+    }
+
     func testPreparedCancellationReasonsHaveSpecificFeedback() {
         let cases: [(String, ProductStatus.AttachmentFeedback)] = [
             ("Accepted selection expired before input", .expiredBeforeInput),

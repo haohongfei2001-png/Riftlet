@@ -12,6 +12,93 @@ spec.loader.exec_module(helper)
 
 
 class IndependentPickerTests(unittest.TestCase):
+    def mouse_pair(self, asset, window, tag, event_number, sequence):
+        return [dict(event="selection_boundary", source="mouse", targetRequested=True, assetIDDigest=asset,
+                     windowNumber=window, clickCount=1, eventNumber=event_number, mouseProbeTag=tag,
+                     diagnosticSessionDigest="owned-session", diagnosticSequence=sequence),
+                dict(event="click_input_refused", assetIDDigest=asset, diagnosticSessionDigest="owned-session",
+                     diagnosticSequence=sequence + 1, phase="resolveSelection", error="browserNotFrontmost", critical=True)]
+
+    def test_default_duplicate_event_number_does_not_mean_product_receipt_was_missing(self):
+        sent = [("first-owned", 20, 100001, 101), ("second-owned", 21, 100002, 102)]
+        evidence = self.mouse_pair(*sent[0][:3], 0, 1) + self.mouse_pair(*sent[1][:3], 0, 3)
+        summary = helper.summarize_mouse_receipts(evidence, sent)
+        self.assertEqual((summary["selectionCount"], summary["refusalCount"]), (2, 2))
+        self.assertTrue(all(r["combinedIdentityMatched"] and r["criticalRefusal"] and r["refusalAfterSelection"]
+                            for r in summary["dispatches"]))
+        self.assertFalse(summary["nativeEventNumbersDistinct"])
+        self.assertFalse(summary["originalReceiptMatcherPassed"])
+        self.assertTrue(all(not r["sentEventNumberMatched"] for r in summary["dispatches"]))
+        self.assertFalse(helper.original_mouse_refusals(evidence, sent))
+
+    def test_explicit_pair_numbers_match_original_receipts_and_do_not_relax_other_identity(self):
+        sent = [("first-owned", 20, 100001, 101), ("second-owned", 21, 100002, 102)]
+        evidence = self.mouse_pair(*sent[0], 1) + self.mouse_pair(*sent[1], 3)
+        self.assertTrue(helper.original_mouse_refusals(evidence, sent))
+        summary = helper.summarize_mouse_receipts(evidence, sent)
+        self.assertTrue(summary["nativeEventNumbersDistinct"] and summary["originalReceiptMatcherPassed"])
+        self.assertTrue(all(r["sentEventNumberMatched"] for r in summary["dispatches"]))
+        for key, value in (("eventNumber", 103), ("mouseProbeTag", 100003), ("windowNumber", 22),
+                           ("assetIDDigest", "different-owned"), ("diagnosticSequence", 1)):
+            changed = [dict(r) for r in evidence]
+            changed[2][key] = value
+            self.assertFalse(helper.original_mouse_refusals(changed, sent), key)
+        repeated_sent = [sent[0], (sent[1][0], sent[1][1], sent[0][2], sent[1][3])]
+        repeated_evidence = self.mouse_pair(*repeated_sent[0], 1) + self.mouse_pair(*repeated_sent[1], 3)
+        self.assertFalse(helper.original_mouse_refusals(repeated_evidence, repeated_sent))
+        report = dict(pressAttempts=2, confirmedDistinctRefusals=1, mouseDispatchCalls=2,
+                      result="FAILED_CONTROLLED_CHECK", rounds=[dict(action="ONE_GLOBAL_MOUSE_DOWN_UP_POSTED")] * 2)
+        self.assertFalse(helper.picker_after_mouse_safe(report, sent, evidence))
+
+    def test_only_closed_original_resolve_selection_permission_refusals_are_accepted(self):
+        sent = [("first-owned", 20, 100001, 101)]
+        for error in ("nativeEventFailed(-1744)", "nativeEventFailed(-1743)", "nativeEventFailed(12)"):
+            evidence = self.mouse_pair(*sent[0], 1)
+            evidence[1]["error"] = error
+            self.assertTrue(helper.original_mouse_refusals(evidence, sent))
+            self.assertTrue(helper.original_permission_refusal(evidence, sent))
+            summary = helper.summarize_mouse_receipts(evidence, sent)
+            self.assertEqual(summary["dispatches"][0]["refusalStatuses"], [error])
+            for key, wrong in (("phase", "submitSelection"), ("assetIDDigest", "other-owned"), ("critical", False)):
+                changed = [dict(r) for r in evidence]
+                changed[1][key] = wrong
+                self.assertFalse(helper.original_permission_refusal(changed, sent))
+        for error in ("nativeEventFailed(-1712)", "nativeEventFailed(-600)", "nativeEventFailed(0)", "private-message"):
+            evidence = self.mouse_pair(*sent[0], 1)
+            evidence[1]["error"] = error
+            self.assertFalse(helper.original_mouse_refusals(evidence, sent))
+            self.assertFalse(helper.original_permission_refusal(evidence, sent))
+
+    def test_pending_consent_cannot_complete_second_round_or_enable_candidate(self):
+        sent = [("first-owned", 20, 100001, 101)]
+        evidence = self.mouse_pair(*sent[0], 1)
+        evidence[1]["error"] = "nativeEventFailed(-1744)"
+        self.assertIsNone(helper.explicit_consent_result(evidence, sent))
+        reply = dict(event="edge_automation_permission", purpose="explicitClickConsent", result="denied",
+                     diagnosticSessionDigest="owned-session", diagnosticSequence=3)
+        for changes in ({"diagnosticSessionDigest": "other-session"}, {"diagnosticSequence": 1}, {"purpose": "background"}):
+            self.assertIsNone(helper.explicit_consent_result(evidence + [dict(reply, **changes)], sent))
+        self.assertEqual(helper.explicit_consent_result(evidence + [reply], sent), "denied")
+        self.assertFalse(helper.original_mouse_refusals(evidence + [reply], sent + [("second-owned", 21, 100002, 102)]))
+        report = dict(pressAttempts=1, confirmedDistinctRefusals=1, mouseDispatchCalls=1,
+                      result="NOT_RUN_SYSTEM_AUTOMATION_CONSENT",
+                      rounds=[dict(action="ONE_GLOBAL_MOUSE_DOWN_UP_POSTED", retained="BOTH_ORIGINAL_ASSETS_VISIBLE_PENDING"),
+                              dict(action="NOT_RUN", rejection="NOT_RUN_SYSTEM_AUTOMATION_CONSENT")])
+        self.assertFalse(helper.picker_after_mouse_safe(report, sent, evidence + [reply]))
+        # Two separately matched permission refusals remain two host refusals,
+        # never successful attachment or permission evidence.
+        second = ("second-owned", 21, 100002, 102)
+        second_evidence = self.mouse_pair(*second, 4)
+        second_evidence[1]["error"] = "nativeEventFailed(-1743)"
+        self.assertTrue(helper.original_mouse_refusals(evidence + [reply] + second_evidence, sent + [second]))
+
+    def test_actual_receiver_coordinates_are_bounded_typed_metadata(self):
+        expected = dict(ordinal=2, window=51, x=100.5, y=201.25)
+        self.assertEqual(helper.mouse_receiver(json.dumps(expected)), expected)
+        for changes in ({"window": True}, {"ordinal": 3}, {"x": float("nan")}, {"y": "private-path"}, {"extra": 1}):
+            with self.assertRaises(RuntimeError):
+                helper.mouse_receiver(json.dumps(dict(expected, **changes)))
+
     def test_safe_first_preflight_and_pre_down_veto(self):
         base = {"pressAttempts": 0, "confirmedDistinctRefusals": 0, "mouseDispatchCalls": 0,
                 "result": "PARTIAL_NATIVE_THUMBNAIL_MOUSE_TARGET_UNVERIFIED", "rounds": [{"action": "NOT_RUN"}]}
@@ -32,7 +119,7 @@ class IndependentPickerTests(unittest.TestCase):
         refused = dict(event="click_input_refused", assetIDDigest=asset, diagnosticSessionDigest="s",
                        diagnosticSequence=2, phase="resolveSelection", error="browserNotFrontmost", critical=True)
         evidence = [selected, refused]
-        sent = [(asset, window, tag)]
+        sent = [(asset, window, tag, 12)]
         report = {"pressAttempts": 1, "confirmedDistinctRefusals": 1, "mouseDispatchCalls": 1,
                   "result": "PARTIAL_NATIVE_THUMBNAIL_MOUSE_TARGET_UNVERIFIED",
                   "rounds": [{"action": "ONE_GLOBAL_MOUSE_DOWN_UP_POSTED", "retained": "BOTH_ORIGINAL_ASSETS_VISIBLE_PENDING"},
@@ -51,7 +138,7 @@ class IndependentPickerTests(unittest.TestCase):
         refusal = dict(event="click_input_refused", assetIDDigest=asset, diagnosticSequence=9,
             diagnosticSessionDigest="private-session", critical=True, phase="resolveSelection", error="browserNotFrontmost")
         evidence = [selection, refusal, dict(event="click_target_resolved", assetIDDigest=other)]
-        value = helper.summarize_mouse_receipts(evidence, [(asset, window, tag)])
+        value = helper.summarize_mouse_receipts(evidence, [(asset, window, tag, 12)])
         row = value["dispatches"][0]
         self.assertEqual((value["selectionCount"], value["refusalCount"], value["targetResolvedCount"]), (1, 1, 1))
         self.assertTrue(row["assetMatched"] and row["tagMatched"] and row["sameSession"] and row["refusalAfterSelection"])
@@ -59,10 +146,10 @@ class IndependentPickerTests(unittest.TestCase):
         self.assertEqual(row["refusalStatuses"], ["browserNotFrontmost"])
         for secret in (asset, other, str(tag), str(window), "private-session"):
             self.assertNotIn(secret, json.dumps(value))
-        self.assertFalse(helper.original_mouse_refusals(evidence, [(asset, window, tag)]))
+        self.assertFalse(helper.original_mouse_refusals(evidence, [(asset, window, tag, 12)]))
 
     def test_missing_or_unexpected_failure_records_cannot_become_evidence(self):
-        sent = [("private-asset", 19, 382920)]
+        sent = [("private-asset", 19, 382920, 13)]
         missing = helper.summarize_mouse_receipts([], sent)
         self.assertEqual(missing["selectionCount"], 0)
         self.assertFalse(missing["dispatches"][0]["criticalRefusal"])
@@ -78,7 +165,7 @@ class IndependentPickerTests(unittest.TestCase):
             draft = helper.Draft("private-title")
             draft.post_requests = 1
             draft.picker_events = ["firstBodyByte", "exactCompleteBody"]
-            result = helper.observe_mouse_failure(Path(directory) / "missing.jsonl", [("private-asset", 7, 91)],
+            result = helper.observe_mouse_failure(Path(directory) / "missing.jsonl", [("private-asset", 7, 91, 14)],
                 Path(directory) / "missing.sqlite", {}, unavailable, lambda: True, draft)
         self.assertEqual(result["originalProductAlive"], "READ_UNAVAILABLE")
         self.assertIs(result["originalEdgeFrontWindow"], True)
@@ -88,7 +175,7 @@ class IndependentPickerTests(unittest.TestCase):
         self.assertNotIn("private", json.dumps(result))
         report = dict(pressAttempts=1, mouseDispatchCalls=1, confirmedDistinctRefusals=0, result="FAILED_CONTROLLED_CHECK",
             rounds=[dict(action="ONE_GLOBAL_MOUSE_DOWN_UP_POSTED")])
-        self.assertFalse(helper.picker_after_mouse_safe(report, [("private-asset", 7, 91)], []))
+        self.assertFalse(helper.picker_after_mouse_safe(report, [("private-asset", 7, 91, 14)], []))
 
 
     def test_failed_dispatch_observes_original_queue_and_upload_counts_read_only(self):
@@ -101,7 +188,7 @@ class IndependentPickerTests(unittest.TestCase):
                     json.dumps(dict(origin="systemScreenshot", sha256="private-hash"))))
                 db.execute("INSERT INTO operations VALUES(1)")
             before = helper.read_assets(dbfile)
-            result = helper.observe_mouse_failure(Path(directory) / "missing.jsonl", [("private-id", 1, 2)],
+            result = helper.observe_mouse_failure(Path(directory) / "missing.jsonl", [("private-id", 1, 2, 15)],
                 dbfile, before, lambda: True, lambda: False, helper.Draft("private-title"))
             self.assertEqual(helper.read_assets(dbfile), before)
         self.assertEqual(result["queue"], dict(assetCount=1, originalAssetCount=1, originalRowsPresent=True,

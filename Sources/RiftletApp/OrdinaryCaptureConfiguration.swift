@@ -142,7 +142,15 @@ enum OrdinaryCaptureConfiguration {
     // One product implementation; the compiler-only acceptance harness retains
     // its isolated root and historical scope. Neither path asserts release or
     // real-page certification from build success or candidate F/H evidence.
-    #if RIFTLET_ORDINARY_ACCEPTANCE
+    #if RIFTLET_ISOLATED_PRODUCT_ACCEPTANCE
+    // Same source-owned ordinary product policy and entry, in a separate
+    // compiler-only harness. No argument or preference can select this root.
+    // isInternalAcceptance also disables login-item registration and updates.
+    static let isInternalAcceptance = true
+    static let admission = OrdinaryAttachmentAdmission.unifiedProduct
+    static let dataDirectoryName = "Riftlet-Isolated-Product-Acceptance"
+    static let menuTitle = "Riftlet PRODUCT TEST"
+    #elseif RIFTLET_ORDINARY_ACCEPTANCE
     static let isInternalAcceptance = true
     static let admission = OrdinaryAttachmentAdmission.internalAcceptance(currentDrafts: true)
     static let dataDirectoryName = "Riftlet-Ordinary-Acceptance"

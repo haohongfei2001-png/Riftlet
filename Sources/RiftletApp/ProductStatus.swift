@@ -96,6 +96,25 @@ enum ProductStatus {
     }
 
     /// Presentation only. No case grants input, retry, admission or a new target.
+    static func edgeClickFeedback(_ error: Error, applicationID: String?, beforeInput: Bool) -> String? {
+        guard applicationID == "com.microsoft.edgemac", error is WebAdapterError else { return nil }
+        guard beforeInput else { return "本次 Edge 附加结果尚未确认；图片记录保留，不会自动再次附加。" }
+        switch error as? WebAdapterError {
+        case .nativeEventFailed(-1744)?:
+            return "首次连接需要允许 Riftlet 自动化 Microsoft Edge；图片保留，本次未附加。"
+        case .nativeEventFailed(-1743)?:
+            return "Microsoft Edge 自动化权限未获准；请在系统设置的自动化权限中检查 Riftlet。图片保留。"
+        case .nativeEventFailed(12)?:
+            return "Microsoft Edge 尚未允许 Apple 事件中的 JavaScript；图片保留，本次未附加。"
+        case .nativeEventFailed(-1712)?:
+            return "Microsoft Edge 未及时响应，原目标尚未确认；图片保留，不会自动再次附加。"
+        case .invalidTarget?, .browserNotFrontmost?, .nativeSelectionChanged?, .pageRejected(.clickPinRefused)?:
+            return "未能核实点击时的 Microsoft Edge 草稿；图片保留，本次未附加。"
+        default: return nil
+        }
+    }
+
+    /// Presentation only. No case grants input, retry, admission or a new target.
     enum AttachmentFeedback: Equatable, CaseIterable {
         case waiting, preparing, cancelledBeforeInput, expiredBeforeInput, targetChangedBeforeInput
         case targetValidationUnavailableBeforeInput, noClickTimeTarget, targetUnavailable

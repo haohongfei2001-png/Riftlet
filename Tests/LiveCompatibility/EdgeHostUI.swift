@@ -69,7 +69,7 @@ if mouseProbe || args[1] == "neutralAX" {
         exit(mouseProbe ? 24 : 0)
     }
 }
-let expectedCount = mouseProbe ? 12 : (args[1] == "neutralAX" ? 11 : 10)
+let expectedCount = mouseProbe ? 13 : (args[1] == "neutralAX" ? 11 : 10)
 guard args.count == expectedCount, let expectedWindow = CGWindowID(args[7]), let edgePID = Int32(args[2]),
       let productPID = Int32(args[3]), let row = Int(args[6]), (0...2).contains(row)
       else { exit(64) }
@@ -267,7 +267,8 @@ case "region":
     print([region.minX, region.minY, region.width, region.height].map { String(Int($0)) }.joined(separator: ","))
 case "mouseReady", "mouseClick":
     guard args[10].range(of: #"^[0-9a-f]{64}$"#, options: .regularExpression) != nil,
-          let tag = Int64(args[11]), tag > 0, tag < (1 << 48) else { exit(64) }
+          let tag = Int64(args[11]), tag > 0, tag < (1 << 48),
+          let eventNumber = Int64(args[12]), eventNumber > 0, eventNumber <= Int32.max else { exit(64) }
     do {
         let first = try mouseTarget()
         if args[1] == "mouseClick" {
@@ -280,13 +281,20 @@ case "mouseReady", "mouseClick":
                 event.flags = []
                 event.setIntegerValueField(.mouseEventClickState, value: 1)
                 event.setIntegerValueField(.eventSourceUserData, value: tag)
+                // CGEvent allocation defaults to number zero. Assign this
+                // software pair explicitly; the original product receipt must
+                // preserve this value as well as the independent 48-bit tag.
+                event.setIntegerValueField(.mouseEventNumber, value: eventNumber)
             }
             guard try mouseTarget() == first else { throw MouseUnavailable.targetChangedBeforeDown }
             // No fallbacks/retries past this boundary, including an indeterminate reply.
             down.post(tap: .cghidEventTap)
             up.post(tap: .cghidEventTap)
         }
-        print("\(first.row.ordinal) \(first.row.windowNumber)")
+        let receipt: [String: Any] = ["ordinal": first.row.ordinal, "window": first.row.windowNumber,
+                                     "x": first.point.x, "y": first.point.y]
+        let encoded = try JSONSerialization.data(withJSONObject: receipt, options: [.sortedKeys])
+        print(String(decoding: encoded, as: UTF8.self))
     } catch let receiver as FirstMouseReceiver {
         print("firstReceiver " + receiver.rawValue)
         exit(24)

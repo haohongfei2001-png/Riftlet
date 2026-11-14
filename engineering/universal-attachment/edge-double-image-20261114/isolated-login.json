@@ -1,0 +1,23 @@
+{
+  "officialBundleCopied": true,
+  "finderMetadataRemovedFromOwnedCopy": true,
+  "quarantinePreserved": true,
+  "deepSignatureVerificationExit": 0,
+  "profileInitiallyEmpty": true,
+  "normalLaunchServicesEntry": true,
+  "loadedURL": "https://chatgpt.com/",
+  "chatgptLoginState": "SIGNED_OUT",
+  "commercialBlocker": "BLOCKED_LOGIN",
+  "loginEvidence": [
+    "Login and Sign up buttons present",
+    "Page explains that login is required to upload files"
+  ],
+  "dedicatedSignedInDraftEstablished": false,
+  "messagesSent": 0,
+  "fileInputs": 0,
+  "copiedCookiesOrTokens": false,
+  "sourceCheckpoint": "c9127d52d8febd1a5a567a8d95e2d98b77c65ab8",
+  "edgeVersion": "156.0.4314.58",
+  "edgeExecutableSHA256": "39253ce4e2b5243b02385299a6211af56ca6f1e70b986177e0a01d3879b5efef",
+  "method": "Native accessibility of a distinct copied Microsoft-signed Edge App launched via LaunchServices into a fresh separate Profile; no personal tabs or credentials."
+}
