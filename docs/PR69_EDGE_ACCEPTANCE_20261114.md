@@ -10,6 +10,8 @@
 
 本轮继续现有 Draft PR #69，基线为 `315978ed843ea7a0b4cc8b22fc19adcfba48c955`，main 为 `44f745a15ecb3682a9da0bda17f17a5d9fc1f07e`。没有合并 PR、改动公开安装包、更新源或用户生产数据。
 
+2026-11-15 托管复核：源码 `ea2e9a2`／头 `fb07937` 的两个原生作业均完成单元与集成测试，但内部 Beta 有效测试夹具漏复制产品本地化权限文件，三个子项先报 `permission_localizations_differ_from_source`，因此两架构作业均失败；原日志保留。仅补齐夹具的两行复制后，本地内部 Beta 19 项和产品打包 27 项全部通过，未改校验器或断言。普通 App 的第一张实际系统截图已完整匹配 App／窗口／inputDown／onDown／release／原资产拒绝，发送和接收事件编号均为 8610；拒绝为 `-1744`。随后原 Edge 前台不可用，第二张未投递，明确记为 `NOT_RUN_SYSTEM_AUTOMATION_CONSENT`。原图两张均保留，操作、START、文件输入与 POST 均为零；不代表双图或商业上传成功。[原始回执和失败／修复索引](../engineering/universal-attachment/edge-double-image-20261114/main-integration-hosted-index.json)
+
 ## 当前结论
 
 **商业双图验收仍未完成。** 已在实际 macOS 上用独立微软签名 Edge 副本和新空 Profile 打开 ChatGPT；页面显示登录按钮，并说明上传文件需要登录。已登录的专用草稿尚未建立，结果为 `BLOCKED_LOGIN / NOT_RUN`。未发送消息，商业文件输入、START 和完成均为零。所有商业矩阵格继续保留未执行状态。[现场脱敏记录](../engineering/universal-attachment/edge-double-image-20261114/isolated-login.json)

@@ -199,7 +199,8 @@
         "edge-loopback",
         "acceptance-20261114.json#/supplementalHostCheck/attempts/8"
       ],
-      "latestMouseDiagnostic": "edge-double-image-20261114/phase2-hosted-original.json"
+      "latestMouseDiagnostic": "edge-double-image-20261114/main-integration-hosted-original.json",
+      "latestMouseDiagnosticScope": "Source ea2e9a2: first ordinary App callback chain and exact event number verified; -1744 refusal. Second click NOT_RUN_SYSTEM_AUTOMATION_CONSENT after original Edge focus unavailable. No input, START or commercial completion."
     },
     {
       "host": "Microsoft Edge",

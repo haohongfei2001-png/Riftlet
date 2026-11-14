@@ -1,0 +1,68 @@
+{
+  "source": "ea2e9a2fc08f39b2f64e638ac2a7db60772fafd2",
+  "admissionHead": "fb07937adcd35219d25814e35b3b294577102f05",
+  "testedMerge": "00cb769922208667d292b5f006c167cb63416e2f",
+  "nativeRun": 43614845098,
+  "arm64Job": 132507540381,
+  "intelJob": 132507540385,
+  "feedbackRun": 43614845082,
+  "overall": "3 checks passed; ARM64 and Intel failed packaging rejection suite",
+  "failure": "Both architectures: internal Beta valid fixture omitted actual development permission localizations; source verifier reported permission_localizations_differ_from_source in three subcases. Native unit/integration steps passed. Original failures preserved.",
+  "fix": "Copy Resources/*.lproj into InternalBeta fixture, matching actual development packaging. Only two fixture lines; no verifier, expected error, assertion, runtime, permission or CI gate changed.",
+  "localFixValidation": {
+    "internalBeta": "19/19 PASS",
+    "packaging": "27/27 PASS",
+    "files": {
+      "internal-beta-packaging-fixed.txt": "9f44285e24ba0fb6878e62e44de2f3021dcddef1d4fe4ae93a0bd66fb31d3977",
+      "packaging-after-fixture.txt": "218eb3a82add18cc4fccb844501330d39b452d11c85f523739935ad907821366"
+    }
+  },
+  "artifacts": {
+    "arm": {
+      "artifactID": 14122266938,
+      "artifactSHA256": "08728acad8b538f81c3aaba374fa04a30f37e8d9f51fb325f7e81fb1feef4f53",
+      "failureLog": "internal-beta-packaging-failure-arm.txt",
+      "failureLogSHA256": "efb9fccc7bbbb66eabd75bbd37c2fff0c7af3b8c4c86b6a4401a6f9898f558f6"
+    },
+    "intel": {
+      "artifactID": 14122477309,
+      "artifactSHA256": "efc2b32cb8881198da81e3acf199c2752861d43866f4aaafa30a8f3264e7ea0f",
+      "failureLog": "internal-beta-packaging-failure-intel.txt",
+      "failureLogSHA256": "ec9bfde9970d10a4db9d083af57ad5cad4812b380f3342e9d4848265e61204d9"
+    }
+  },
+  "ordinaryProductExecutableSHA256": "df0933830eed8092d525fbd4667ddf711e5414d2a7e8c2b440e656cc9884c4c4",
+  "ordinaryReceiptSHA256": "c61466bb7ce87cc30a1ebdbbb9596103e2fda16a7ba8dffd447648f7b1dba2c1",
+  "ordinaryMouseResult": "NOT_RUN_SYSTEM_AUTOMATION_CONSENT",
+  "firstClick": {
+    "sentEventNumber": 8610,
+    "receivedEventNumbers": [
+      8610
+    ],
+    "originalAssetWindowTagSessionAndSequenceMatched": true,
+    "fullProductCallbackChain": true,
+    "refusal": "nativeEventFailed(-1744)"
+  },
+  "secondClick": "NOT_RUN: original Edge focus unavailable during consent; no second mouse dispatch",
+  "originalPNGsRetained": 2,
+  "operations": 0,
+  "starts": 0,
+  "fixtureFileChanges": 0,
+  "fixturePOSTs": 0,
+  "commercial": "BLOCKED_LOGIN / NOT_RUN; START=0; completion=0",
+  "old315978MissingSecondReceipt": "UNKNOWN; this first-click evidence does not resolve the older missing second receipt",
+  "rawJobLogs": {
+    "ARM64": {
+      "bytes": 983774,
+      "sha256": "9b0b6921d90e29e52bcfc0e37be336a6f6c9f6b822f3fcd0e8d9a29718bcd4ba"
+    },
+    "Intel": {
+      "bytes": 885835,
+      "sha256": "00d78f1e96c6bab942b5071e7fa0c08571f894265278004b336f9791f58d0778"
+    },
+    "Feedback": {
+      "bytes": 368370,
+      "sha256": "83ed1a19b8db32b20dcd0cbf33645b1c3c772f1038993cfd2172005fc9df544f"
+    }
+  }
+}
