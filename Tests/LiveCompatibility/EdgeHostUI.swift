@@ -18,75 +18,57 @@ if args[1] == "preflight" {
     exit(0)
 }
 let edgeBundle = URL(fileURLWithPath: "/Applications/Microsoft Edge.app").resolvingSymlinksInPath().standardizedFileURL
-func birth(_ app: NSRunningApplication) -> Int64? {
-    app.launchDate.map { Int64($0.timeIntervalSince1970 * 1_000_000) }
+func edgeIdentity(_ pid: pid_t) -> (String?, String) {
+    guard let first = KernelProcessBirth.read(pid: pid) else { return (nil, "KERNEL_BIRTH_UNAVAILABLE") }
+    guard let app = NSRunningApplication(processIdentifier: pid), !app.isTerminated
+        else { return (nil, "OWN_CHILD_NOT_REGISTERED") }
+    guard app.bundleIdentifier == "com.microsoft.edgemac" else { return (nil, "BUNDLE_ID_NOT_CONFIRMED") }
+    guard app.bundleURL?.resolvingSymlinksInPath().standardizedFileURL.path == edgeBundle.path
+        else { return (nil, "BUNDLE_PATH_NOT_CONFIRMED") }
+    guard let actual = app.executableURL?.resolvingSymlinksInPath().standardizedFileURL.path,
+          let expected = Bundle(url: edgeBundle)?.executableURL?.resolvingSymlinksInPath().standardizedFileURL.path,
+          actual == expected else { return (nil, "EXECUTABLE_PATH_NOT_CONFIRMED") }
+    guard KernelProcessBirth.read(pid: pid) == first else { return (nil, "CHILD_BIRTH_CHANGED") }
+    return ("\(first.seconds):\(first.microseconds)", "VERIFIED")
 }
-func verifiedEdge(_ app: NSRunningApplication) -> Bool {
-    guard let executable = app.executableURL?.resolvingSymlinksInPath().standardizedFileURL,
-          let expected = Bundle(url: edgeBundle)?.executableURL?.resolvingSymlinksInPath().standardizedFileURL
-          else { return false }
-    return !app.isTerminated && app.bundleIdentifier == "com.microsoft.edgemac"
-        && app.bundleURL?.resolvingSymlinksInPath().standardizedFileURL.path == edgeBundle.path
-        && executable.path == expected.path
+if args[1] == "edgeVacant" {
+    guard args.count == 2 else { exit(64) }
+    exit(NSRunningApplication.runningApplications(withBundleIdentifier: "com.microsoft.edgemac")
+        .allSatisfy(\.isTerminated) ? 0 : 18)
 }
-if args[1] == "launchEdge" {
-    guard args.count == 4, let runner = env["RUNNER_TEMP"],
-          let link = URLComponents(string: args[3]), link.scheme == "http", link.host == "127.0.0.1",
-          link.port != nil, link.query == nil, link.fragment == nil, link.user == nil, link.password == nil,
-          link.path.range(of: #"^/RiftletNeutral[a-f0-9]{32}$"#, options: .regularExpression) != nil else { exit(64) }
-    let profile = URL(fileURLWithPath: args[2]).resolvingSymlinksInPath().standardizedFileURL
-    let scratch = profile.deletingLastPathComponent()
-    guard profile.lastPathComponent == "edge", !FileManager.default.fileExists(atPath: profile.path),
-          scratch.lastPathComponent.hasPrefix("riftlet-edge-host-"),
-          scratch.deletingLastPathComponent().standardizedFileURL.path
-            == URL(fileURLWithPath: runner).resolvingSymlinksInPath().standardizedFileURL.path,
-          NSRunningApplication.runningApplications(withBundleIdentifier: "com.microsoft.edgemac").isEmpty else { exit(18) }
-    let config = NSWorkspace.OpenConfiguration()
-    config.createsNewApplicationInstance = true
-    config.activates = true
-    config.arguments = ["--user-data-dir=" + profile.path, "--disable-extensions", "--no-first-run",
-        "--no-default-browser-check", "--no-proxy-server", "--disable-background-networking", "--disable-sync",
-        "--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1", "--app=" + args[3]]
-    NSWorkspace.shared.openApplication(at: edgeBundle, configuration: config) { launched, error in
-        if let error = error as NSError? { print(error.code); exit(19) }
-        guard let launched, verifiedEdge(launched), let stamp = birth(launched) else { exit(20) }
-        print("\(launched.processIdentifier) \(stamp)")
-        exit(0)
-    }
-    RunLoop.main.run(until: Date(timeIntervalSinceNow: 18))
-    exit(21)
-}
-if args[1] == "quitEdge" {
-    guard args.count == 4, let pid = Int32(args[2]), let stamp = Int64(args[3]) else { exit(64) }
-    guard let app = NSRunningApplication(processIdentifier: pid), !app.isTerminated else { exit(0) }
-    guard verifiedEdge(app), birth(app) == stamp else { exit(11) }
-    guard app.terminate() else { exit(22) }
-    let deadline = Date(timeIntervalSinceNow: 8)
-    while !app.isTerminated && Date() < deadline {
-        RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))
-    }
-    exit(app.isTerminated ? 0 : 23)
+if args[1] == "edgeIdentity" {
+    guard args.count == 3, let pid = Int32(args[2]), pid > 0 else { exit(64) }
+    let result = edgeIdentity(pid)
+    guard let stamp = result.0 else { print(result.1); exit(17) }
+    print(stamp); exit(0)
 }
 if ["productPID", "quitProduct"].contains(args[1]) {
-    guard args.count == 3 else { exit(64) }
+    guard args.count == (args[1] == "productPID" ? 3 : 4) else { exit(64) }
     let url = URL(fileURLWithPath: args[2]).resolvingSymlinksInPath().standardizedFileURL
     let matches = NSRunningApplication.runningApplications(withBundleIdentifier: "com.riftlet.app")
-        .filter { !$0.isTerminated && $0.bundleURL?.resolvingSymlinksInPath().standardizedFileURL == url }
-    guard matches.count == 1, let product = matches.first else { exit(2) }
+        .filter { !$0.isTerminated && $0.bundleURL?.resolvingSymlinksInPath().standardizedFileURL.path == url.path }
+    guard matches.count == 1, let product = matches.first, let born = KernelProcessBirth.read(pid: product.processIdentifier),
+          let actual = product.executableURL?.resolvingSymlinksInPath().path,
+          actual == Bundle(url: url)?.executableURL?.resolvingSymlinksInPath().path else { exit(2) }
+    let stamp = "\(born.seconds):\(born.microseconds)"
     if args[1] == "quitProduct" {
-        guard product.terminate() else { exit(1) }
+        guard stamp == args[3], product.terminate() else { exit(1) }
     }
-    print(product.processIdentifier)
+    print("\(product.processIdentifier) \(stamp)")
     exit(0)
 }
-guard args.count == 9, let expectedWindow = CGWindowID(args[7]), let edgePID = Int32(args[2]),
-      let productPID = Int32(args[3]), let stamp = Int64(args[8]), let row = Int(args[6]), (0...2).contains(row)
+guard args.count == 10, let expectedWindow = CGWindowID(args[7]), let edgePID = Int32(args[2]),
+      let productPID = Int32(args[3]), let row = Int(args[6]), (0...2).contains(row)
       else { exit(64) }
 guard let edge = NSRunningApplication(processIdentifier: edgePID), !edge.isTerminated else { exit(10) }
-guard verifiedEdge(edge), birth(edge) == stamp else { exit(11) }
+guard edgeIdentity(edgePID).0 == args[8] else { exit(11) }
 guard let app = NSRunningApplication(processIdentifier: productPID), !app.isTerminated else { exit(12) }
-guard app.bundleIdentifier == "com.riftlet.app", app.launchDate != nil,
-      app.bundleURL?.resolvingSymlinksInPath().path == args[4] else { exit(13) }
+let productBundle = URL(fileURLWithPath: args[4]).resolvingSymlinksInPath().standardizedFileURL
+guard app.bundleIdentifier == "com.riftlet.app", let born = KernelProcessBirth.read(pid: productPID),
+      args[9] == "\(born.seconds):\(born.microseconds)",
+      app.bundleURL?.resolvingSymlinksInPath().standardizedFileURL.path == productBundle.path,
+      let actual = app.executableURL?.resolvingSymlinksInPath().standardizedFileURL.path,
+      actual == Bundle(url: productBundle)?.executableURL?.resolvingSymlinksInPath().standardizedFileURL.path else { exit(13) }
 
 func ownedWindow(requireFront: Bool = true, status: inout String) -> CGWindowID? {
     if requireFront && NSWorkspace.shared.frontmostApplication?.processIdentifier != edgePID {

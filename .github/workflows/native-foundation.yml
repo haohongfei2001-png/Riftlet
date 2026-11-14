@@ -207,9 +207,7 @@ jobs:
           set -o pipefail
           bash scripts/build-macos.sh 2>&1 | tee test-results/build.log
       - name: Check two ordinary Riftlet actions with an isolated Edge window
-        id: ordinary_edge
         if: matrix.runner == 'macos-15'
-        continue-on-error: true
         run: |
           set -euo pipefail
           log=test-results/ordinary-edge-host.json
@@ -339,9 +337,6 @@ jobs:
           probe safari-events optional python3 -B engineering/universal-attachment/hosts/safari_fixture.py
           probe edge-events optional python3 -B engineering/universal-attachment/edge/verify.py --mode apple-events --hosted-runner-window
           exit "$failed"
-      - name: Require the ordinary Edge host probe to finish without a test error
-        if: always() && steps.ordinary_edge.outcome == 'failure'
-        run: exit 1
       - name: Archive evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import plistlib
 import re
+import signal
 import sqlite3
 import stat
 import subprocess
@@ -125,6 +126,24 @@ def sole_new_png(source, previous):
         if output.suffix.lower() == ".png":
             return output
     return None
+
+
+def stop_edge_group(process):
+    # start_new_session makes this living child both the only session leader and group leader.
+    if process.poll() is not None:
+        return
+    try:
+        if os.getpgid(process.pid) != process.pid or os.getsid(process.pid) != process.pid:
+            raise RuntimeError("edge_group_ownership_changed")
+        os.killpg(process.pid, signal.SIGTERM)
+        try:
+            process.wait(timeout=8)
+        except subprocess.TimeoutExpired:
+            if process.poll() is None and os.getpgid(process.pid) == os.getsid(process.pid) == process.pid:
+                os.killpg(process.pid, signal.SIGKILL)
+            process.wait(timeout=5)
+    except ProcessLookupError:
+        process.wait(timeout=5)
 
 
 def events(path):
@@ -243,7 +262,9 @@ def exercise(app, report):
     with tempfile.TemporaryDirectory(prefix="riftlet-edge-host-", dir=temp_root) as directory, ExitStack() as cleanup:
         root = Path(directory).resolve()
         helper = root / "ui"
-        command("swiftc", HERE / "EdgeHostUI.swift", "-o", helper, timeout=120)
+        main_source = root / "main.swift"
+        main_source.write_bytes((HERE / "EdgeHostUI.swift").read_bytes())
+        command("swiftc", main_source, REPO / "Sources/RiftletAdapters/ChromeProcessIdentity.swift", "-o", helper, timeout=120)
         check = command(helper, "preflight", check=False)
         if check.returncode == 77:
             reason = check.stdout.decode().strip()
@@ -264,14 +285,19 @@ def exercise(app, report):
         command("defaults", "write", "com.apple.screencapture", "location", "-string", source)
         # Ordinary LaunchServices entry. This flag only enables the existing bounded diagnostics.
         command("/usr/bin/open", "-n", "-g", app, "--args", "--acceptance-trace")
-        def product_pid():
+        def product_identity():
             result = command(helper, "productPID", app, check=False)
-            return int(result.stdout) if result.returncode == 0 else None
-        product = wait_for(product_pid, "ordinary_bundle_launch_unconfirmed")
+            if result.returncode == 2:
+                return None
+            result.check_returncode()
+            if not re.fullmatch(rb"[1-9]\d* [1-9]\d*:[0-9]{1,6}\s*", result.stdout):
+                raise RuntimeError("invalid_product_kernel_identity")
+            return tuple(result.stdout.decode().split())
+        product, product_birth = wait_for(product_identity, "ordinary_bundle_launch_unconfirmed")
         def quit_product():
-            if product_pid() == product:
-                command(helper, "quitProduct", app)
-                wait_for(lambda: product_pid() is None, "product_exit_unconfirmed")
+            if product_identity() == (product, product_birth):
+                command(helper, "quitProduct", app, product_birth)
+                wait_for(lambda: product_identity() is None, "product_exit_unconfirmed")
         cleanup.callback(quit_product)
         recent = ROOT / "diagnostics/acceptance-recent.jsonl"
         wait_for(lambda: command("lsof", "-nP", "-a", "-p", product, "-Ffn", source, check=False).returncode == 0,
@@ -284,26 +310,65 @@ def exercise(app, report):
             threading.Thread(target=server.serve_forever, daemon=True).start()
             session.callback(server.shutdown)
             url = f"http://127.0.0.1:{server.server_port}/{title}"
-            report["stage"] = "edge_launchservices"
-            launched = command(helper, "launchEdge", root / "edge", url, check=False, timeout=22)
-            report["edgeLaunchExit"] = launched.returncode
-            if launched.returncode == 19:
-                if re.fullmatch(rb"-?\d+\s*", launched.stdout):
-                    report["launchServicesErrorCode"] = int(launched.stdout)
-                report["result"] = "PARTIAL_EDGE_LAUNCHSERVICES_ERROR"
+            report["stage"] = "edge_normal_tab_launch"
+            profile = root / "edge"
+            edge_info = plistlib.loads((EDGE / "Contents/Info.plist").read_bytes())
+            executable = EDGE / "Contents/MacOS/Microsoft Edge"
+            if (root.parent != Path(temp_root).resolve() or not root.name.startswith("riftlet-edge-host-")
+                    or os.path.lexists(profile) or edge_info.get("CFBundleIdentifier") != "com.microsoft.edgemac"
+                    or edge_info.get("CFBundleExecutable") != executable.name or not executable.is_file()
+                    or not re.fullmatch(r"http://127\.0\.0\.1:[0-9]+/RiftletNeutral[a-f0-9]{32}", url)):
+                raise RuntimeError("invalid_isolated_edge_launch")
+            vacant = command(helper, "edgeVacant", check=False)
+            if vacant.returncode == 18:
+                report["result"] = "PARTIAL_EDGE_ALREADY_RUNNING_BEFORE_LAUNCH"
                 return 0
-            if launched.returncode == 21:
-                report["result"] = "PARTIAL_EDGE_LAUNCHSERVICES_REPLY_TIMEOUT"
+            vacant.check_returncode()
+            edge = subprocess.Popen([executable, "--user-data-dir=" + str(profile), "--disable-extensions", "--no-first-run",
+                "--no-default-browser-check", "--disable-background-networking", "--disable-sync", "--no-proxy-server",
+                "--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1", url],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+            session.callback(stop_edge_group, edge)
+            edge_pid = edge.pid
+            report["edgeLaunch"] = "OWN_NORMAL_TAB_CHILD_CREATED"
+            def await_child(fact, timeout_reason):
+                deadline = time.monotonic() + 16
+                while time.monotonic() < deadline:
+                    code = edge.poll()
+                    if code is not None:
+                        report.update(result="PARTIAL_OWN_EDGE_CHILD_EXITED", edgeChildExit=code)
+                        return None
+                    result = fact()
+                    if result:
+                        return result
+                    time.sleep(0.15)
+                report["result"] = timeout_reason
+                return None
+            report["stage"] = "original_edge_document_get"
+            if not await_child(lambda: draft.document_requests >= 1, "PARTIAL_OWN_LOOPBACK_DOCUMENT_NOT_REQUESTED"):
                 return 0
-            if launched.returncode != 0:
-                raise RuntimeError({18: "edge_launch_isolation_unconfirmed", 20: "launched_edge_identity_mismatch",
-                                    64: "invalid_helper_arguments"}.get(launched.returncode, "edge_native_launch_failed"))
-            if not re.fullmatch(rb"[1-9]\d* [1-9]\d*\s*", launched.stdout):
-                raise RuntimeError("invalid_native_edge_launch_identity")
-            edge_pid, edge_birth = launched.stdout.decode().split()
-            session.callback(command, helper, "quitEdge", edge_pid, edge_birth)
+            if draft.document_requests != 1:
+                raise RuntimeError("original_neutral_edge_document_unavailable")
+            report["stage"] = "original_edge_process_identity"
+            def child_identity():
+                probe = command(helper, "edgeIdentity", edge_pid, check=False)
+                report["edgeIdentityExit"] = probe.returncode
+                state = probe.stdout.decode().strip()
+                if probe.returncode == 17 and state in {"KERNEL_BIRTH_UNAVAILABLE", "OWN_CHILD_NOT_REGISTERED",
+                        "BUNDLE_ID_NOT_CONFIRMED", "BUNDLE_PATH_NOT_CONFIRMED", "EXECUTABLE_PATH_NOT_CONFIRMED",
+                        "CHILD_BIRTH_CHANGED"}:
+                    report["edgeIdentityObservation"] = state
+                    return None
+                probe.check_returncode()
+                if not re.fullmatch(r"[1-9]\d*:[0-9]{1,6}", state):
+                    raise RuntimeError("invalid_kernel_edge_identity")
+                report["edgeIdentityObservation"] = "OWN_PID_BUNDLE_EXECUTABLE_AND_KERNEL_BIRTH_CONFIRMED"
+                return state
+            edge_birth = await_child(child_identity, "PARTIAL_NATIVE_IDENTITY_OF_OWN_CHILD_UNVERIFIED")
+            if not edge_birth:
+                return 0
             def ui(action, row=0, expected_window=0):
-                result = command(helper, action, edge_pid, product, app, title, row, expected_window, edge_birth, check=False)
+                result = command(helper, action, edge_pid, product, app, title, row, expected_window, edge_birth, product_birth, check=False)
                 report["lastNativeAction"] = action
                 report["lastNativeExit"] = result.returncode
                 failures = {10: "original_edge_process_exited", 11: "original_edge_identity_changed",
@@ -312,10 +377,6 @@ def exercise(app, report):
                 if result.returncode in failures:
                     raise RuntimeError(failures[result.returncode])
                 return result
-            report["stage"] = "original_edge_document_get"
-            wait_for(lambda: draft.document_requests >= 1, "neutral_document_get_unobserved")
-            if draft.document_requests != 1:
-                raise RuntimeError("original_neutral_edge_document_unavailable")
             def selected_window(action="window"):
                 value = ui(action)
                 if value.returncode in (2, 14):

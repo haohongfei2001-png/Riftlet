@@ -162,6 +162,44 @@
             "verifiedBodies": 4
           }
         }
+      },
+      {
+        "reviewedSource": "8baa20610f2eca6cea49a940595b9efcc2ce4957",
+        "reviewedSourceTree": "e274f26a130453cfd99b4ad5a734fc133c37da14",
+        "admissionHead": "3f309797c72f2a20e1c25f338b64bfc820988297",
+        "base": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",
+        "testedMerge": "61307d1ec779ae58e05df96598e870002f57d765",
+        "nativeRun": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43536218071",
+        "nativeRunConclusion": "failure",
+        "arm64Job": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43536218071/job/132265745736",
+        "arm64JobConclusion": "success",
+        "sourceAdmissionJob": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43536218071/job/132265745478",
+        "sourceAdmissionJobConclusion": "failure",
+        "sourceAdmissionFinding": "WorkflowContractTests.testRequiredNamesArchitecturesAndFullExecutionArePreserved rejected continue-on-error in the workflow.",
+        "testSource": "https://github.com/haohongfei2001-png/Riftlet/blob/61307d1ec779ae58e05df96598e870002f57d765/Tests/LiveCompatibility/EdgeHostUI.swift#L50-L57",
+        "artifact": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43536218071/artifacts/14090822439",
+        "artifactSHA256": "b5286f25d648ec9d2b4da5f332dcc282af8874eeb7fe81284764fa1cc1da48f7",
+        "ordinaryAppResult": {
+          "appWatcherReady": true,
+          "build": "23",
+          "commercialService": "NOT_RUN",
+          "confirmedDistinctRefusals": 0,
+          "edgeLaunchExit": 21,
+          "generatedScreenshotFiles": 0,
+          "osScreenshotMarkersVerified": 0,
+          "physicalClicks": false,
+          "pressAttempts": 0,
+          "productExecutableSHA256": "c9fe11db07b9f2d025afe2fba5104d8f079c131283d98ac951be218b2ed406da",
+          "result": "PARTIAL_EDGE_LAUNCHSERVICES_REPLY_TIMEOUT",
+          "rounds": [],
+          "scope": "ordinary-packaged-app-accessibility-press-edge-loopback",
+          "stage": "edge_launchservices",
+          "systemRegionCaptureAttempts": 0,
+          "testedMerge": "61307d1ec779ae58e05df96598e870002f57d765",
+          "version": "1.0.1",
+          "windowCapturesWithoutMarker": 0
+        },
+        "interpretation": "The App watcher opened the test capture directory. The probe exited 21 after its 18-second wait for the LaunchServices reply. The run ended before the test obtained an Edge process identity or window. It recorded zero generated screenshots and zero press attempts."
       }
     ]
   },
