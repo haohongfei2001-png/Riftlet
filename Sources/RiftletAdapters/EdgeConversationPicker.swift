@@ -39,21 +39,29 @@ final class EdgeConversationPicker: AttachmentTransport {
 
     private init(binding: AXPickerInspection, originalDraft: @escaping () throws -> Bool,
                  directory: URL, file: URL, bytes: Int64, sha256: String) throws {
+        let pinned = try Self.pinPNG(directory: directory, file: file, bytes: bytes, sha256: sha256)
+        guard try binding.originalDraftIsCurrent(originalDraft) else { throw NativeMacAXError.targetChanged }
+        self.binding = binding
+        self.originalDraft = originalDraft
+        self.file = file.standardizedFileURL
+        self.verified = pinned
+    }
+
+    static func pinPNG(directory: URL, file: URL, bytes: Int64, sha256: String) throws -> NativeMacVerifiedFile {
         let original = file.standardizedFileURL
         guard directory.isFileURL, original.isFileURL, original.pathExtension.lowercased() == "png",
               directory.resolvingSymlinksInPath().path == directory.standardizedFileURL.path,
               original.resolvingSymlinksInPath().path == original.path,
-              file.path == original.path,
+              // Foundation also spells Darwin's system /private/var mount /var.
+              // Accept that exact spelling pair only. Arbitrary aliased leaves
+              // and directories still have to pass resolution and fd rechecks.
+              (file.path == original.path || original.path.hasPrefix("/var/") && file.path == "/private" + original.path),
               sha256.count == 64, sha256.utf8.allSatisfy({ (48...57).contains($0) || (97...102).contains($0) })
         else { throw NativeMacAXError.invalidPrivateFile }
         let pinned = try NativeMacVerifiedFile(fileURL: original, mediaDirectory: directory.standardizedFileURL,
                                                name: original.lastPathComponent, byteCount: bytes, sha256: sha256)
         try pinned.verifyBytes(expectedPrefix: Data([137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82]))
-        guard try binding.originalDraftIsCurrent(originalDraft) else { throw NativeMacAXError.targetChanged }
-        self.binding = binding
-        self.originalDraft = originalDraft
-        self.file = original
-        self.verified = pinned
+        return pinned
     }
 
     #if DEBUG || RIFTLET_CONTROLLED_PICKER

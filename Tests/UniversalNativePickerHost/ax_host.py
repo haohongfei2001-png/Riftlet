@@ -1,6 +1,8 @@
 """Two distinct external AX paths. Visible receivers run only on a disposable hosted Mac."""
 import ctypes
 import hashlib
+import json
+import re
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import os
 from pathlib import Path
@@ -16,6 +18,10 @@ from uuid import uuid4
 
 class ProbeFailure(RuntimeError):
     """An observed failure, independent of whether the platform is supported."""
+    def __init__(self, reason, *, stage=None, observer=None):
+        super().__init__(reason)
+        self.stage = stage
+        self.observer = observer
 
 
 def classify(mode, state, events, acknowledged):
@@ -108,15 +114,25 @@ def exercise(executable, observer, nonce, directory, sample):
                         raise ProbeFailure(f'{directory.name}: observer timed out') from error
                     if result.returncode:
                         raise ProbeFailure(f'{directory.name}: AX observer exited with {result.returncode}')
-                    state = result.stdout.strip()
+                    try:
+                        diagnostic = json.loads(result.stdout)
+                        state, stage = diagnostic['status'], diagnostic['stage']
+                        if (not isinstance(state, str) or not re.fullmatch(r'[a-zA-Z0-9_-]{1,100}', state)
+                                or not isinstance(stage, str) or not re.fullmatch(r'[a-zA-Z]{1,50}', stage)):
+                            raise ValueError('unexpected diagnostic')
+                    except (ValueError, TypeError, KeyError) as error:
+                        raise ProbeFailure(f'{directory.name}: invalid structured observer result') from error
                     if state == 'EXACT_FILE_SUBMIT_ATTEMPTED':
                         receiver.wait(timeout=20)
                         if receiver.returncode != 0:
                             raise ProbeFailure(f'{directory.name}: receiving draft exited with {receiver.returncode}')
                     received = directory / 'received'
                     acknowledged = received.is_file() and received.read_bytes() == sample
-                    status = classify(directory.name, state, list(events), acknowledged)
-                    return {'status': status, 'receiverEvents': list(events), 'originalDraftAcknowledged': acknowledged,
+                    try:
+                        status = classify(directory.name, state, list(events), acknowledged)
+                    except ProbeFailure as error:
+                        raise ProbeFailure(str(error), stage=stage, observer=state) from error
+                    return {'status': status, 'observerStage': stage, 'receiverEvents': list(events), 'originalDraftAcknowledged': acknowledged,
                             'draftTextSelectionPriorPNGPreserved': acknowledged,
                             'sha256': hashlib.sha256(sample).hexdigest() if acknowledged else None,
                             'transport': ('EdgeConversationPicker-controlled-AppKit' if directory.name == 'appkit-file-list'
@@ -158,8 +174,14 @@ def probe(here, sample, prior, cache):
                         *[str(adapters / source) for source in ('NativeMacAXDriver.swift', 'AXPickerInspection.swift',
                           'NativePickerVerifiedFile.swift', 'EdgeConversationPicker.swift',
                           'AttachmentTransport.swift', 'AXPickerFileHandoff.swift')],
-                        str(here / 'AXPickerActionButton.swift'), str(here / 'AXPickerHost.swift'), '-o', str(executable)], check=True, timeout=180)
+                        str(here / 'AXPickerActionButton.swift'), str(here / 'PickerFileIdentity.swift'),
+                        str(here / 'AXPickerHost.swift'), '-o', str(executable)], check=True, timeout=180)
         subprocess.run(['codesign', '--force', '--sign', '-', '--timestamp=none', str(contents.parent)], check=True)
+        file_check = json.loads(subprocess.run([str(executable), '--check-file-identity'], capture_output=True,
+                                               text=True, check=True, timeout=10).stdout)
+        if file_check != {'physicalTemporaryPathPinned': True, 'leafSymlinkRefused': True, 'parentSymlinkRefused': True}:
+            raise ProbeFailure('controlled PNG file identity regression')
+        print(json.dumps({'controlledFilePin': file_check}, sort_keys=True), flush=True)
         # Do not invoke the observer through the receiver bundle. Two copies of
         # that bundle identity cannot act as an unambiguous foreground binding.
         observer = root / 'ax-observer'
@@ -178,6 +200,9 @@ def probe(here, sample, prior, cache):
                 result[mode] = exercise(executable, observer, nonce, directory, sample)
             except (ProbeFailure, subprocess.TimeoutExpired) as error:
                 result[mode] = {'status': 'FAILED_CONTROLLED_VALIDATION', 'reason': str(error)}
+                if isinstance(error, ProbeFailure) and error.stage is not None:
+                    result[mode].update(observerStage=error.stage, observerStatus=error.observer)
+            print(json.dumps({'mode': mode, **result[mode]}, sort_keys=True), flush=True)
             line = f"External AX {mode}: {result[mode]['status']}"
             print(line, flush=True)
             if summary := os.environ.get('GITHUB_STEP_SUMMARY'):

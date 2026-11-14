@@ -260,6 +260,13 @@
         "testedMerge": "9b5bde9802b26512009e76c07c64c6f4bdf00181",
         "nativeRun": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43547223095",
         "feedbackJob": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43547223154/job/132301243645",
+        "arm64Job": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43547223095/job/132301243460",
+        "arm64JobConclusion": "failure",
+        "ordinaryClickStep": "skipped",
+        "artifact": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43547223095/artifacts/14094224422",
+        "artifactSHA256": "ad035c1147fc6ec44d02a28faff565cd42707612e616d40c9ae28ef4b9e4795f",
+        "independentAppKitFileList": "FAILED_CONTROLLED_VALIDATION (AX_ATTRIBUTE_OR_BINDING_UNAVAILABLE); the file-list branch did not prove delivery. The aggregate failure did not identify the original throw.",
+        "independentSystemPanel": "ENTRY_PRESSED_OWNED_SHEET_UNPROVEN",
         "observedCompilerError": "cannot find 'kAXDOMIdentifierAttribute' in scope",
         "ordinaryAppResult": {
           "result": "NOT_RUN_BUILD_FAILED",

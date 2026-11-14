@@ -21,17 +21,28 @@ private func fileChoiceID(_ url: URL, nonce: String) throws -> String {
 private struct RunAX {
     @MainActor static func main() throws {
         let args = CommandLine.arguments
+        // Exercises the exact file-pin code with Darwin's portable temporary
+        // directory spelling; no AX API, window, account, or product data.
+        if args.count == 2, args[1] == "--check-file-identity" {
+            let result = try checkPrivatePickerFile()
+            print(String(decoding: try JSONEncoder().encode(result), as: UTF8.self))
+            return
+        }
         guard args.count >= 3, ProcessInfo.processInfo.environment["GITHUB_ACTIONS"] == "true",
               ProcessInfo.processInfo.environment["RUNNER_ENVIRONMENT"] == "github-hosted",
               let uuid = UUID(uuidString: args[2]), args[2] == uuid.uuidString else { exit(64) }
         if args[1] == "--observe", args.count == 5, let pid = Int32(args[3]) {
             let app = NSApplication.shared
             if app.activationPolicy() != .prohibited { _ = app.setActivationPolicy(.prohibited) }
-            guard app.activationPolicy() == .prohibited else { print("OBSERVER_NOT_BACKGROUND_ONLY"); return }
+            guard app.activationPolicy() == .prohibited else { print(#"{"status":"OBSERVER_NOT_BACKGROUND_ONLY","stage":"activationPolicy"}"#); return }
             let observer = try Observer(pid: pid, nonce: args[2], root: URL(fileURLWithPath: args[4]))
-            do { print(try observer.run()) }
-            catch NativeMacAXError.accessibility(let code) { print("AX_ERROR_\(code)") }
-            catch { print("AX_ATTRIBUTE_OR_BINDING_UNAVAILABLE") }
+            let status: String
+            do { status = try observer.run() }
+            catch NativeMacAXError.accessibility(let code) { status = "AX_ERROR_\(code)" }
+            catch let error as NativeMacAXError { status = "AX_" + String(describing: error) }
+            catch { status = "FIXTURE_READ_OR_BINDING_ERROR" }
+            let facts = ["status": status, "stage": observer.stage]
+            print(String(decoding: try JSONEncoder().encode(facts), as: UTF8.self))
             return
         }
         guard args[1] == "--receive", args.count == 4,
@@ -220,6 +231,7 @@ private final class Receiver: NSObject, NSApplicationDelegate, NSOpenSavePanelDe
 
 @MainActor
 private final class Observer {
+    private(set) var stage = "receiverIdentity"
     let driver: NativeMacAXDriver
     let pid: Int32
     let nonce: String
@@ -253,6 +265,7 @@ private final class Observer {
         return value.standardizedFileURL.path == url.standardizedFileURL.path
     }
     func fileListControls(expected: URL, binding: AXPickerInspection, originalDraft: @escaping () throws -> Bool) throws -> EdgeConversationPicker.Controls? {
+        stage = "openedChooser"
         func identifier(_ node: MacAXElement, _ id: String) throws -> Bool {
             try driver.stringAttribute(kAXIdentifierAttribute, of: node) == id + "-" + nonce
         }
@@ -267,6 +280,7 @@ private final class Observer {
             if chooser == nil { Thread.sleep(forTimeInterval: 0.10) }
         }
         guard let chooser else { return nil }
+        stage = "fileChoiceIDs"
         let expectedID = try fileChoiceID(expected, nonce: nonce)
         let decoy = expected.deletingLastPathComponent().appendingPathComponent("decoy.png")
         let decoyID = try fileChoiceID(decoy, nonce: nonce)
@@ -274,6 +288,7 @@ private final class Observer {
         var choice: MacAXElement?
         var submit: MacAXElement?
         var decoyFound = false
+        stage = "fileRows"
         let ready = ProcessInfo.processInfo.systemUptime + 3
         repeat {
             do {
@@ -319,9 +334,11 @@ private final class Observer {
             guard radios.count == choices.count, choices.allSatisfy(radios.contains), current.contains(submit),
                   try self.driver.stringAttribute(kAXIdentifierAttribute, of: choice) == expectedID,
                   try fileChoiceID(expected, nonce: self.nonce) == expectedID else { return false }
+            self.stage = stage == .beforeSelection ? "originalFileSelection" : "confirmOriginalFile"
             if stage == .beforeSelection { return true }
             return try confirms()
         }, selectionSettled: {
+            self.stage = "selectedFileReadback"
             let until = ProcessInfo.processInfo.systemUptime + 2
             repeat {
                 guard try binding.originalDraftIsCurrent(originalDraft) else { return false }
@@ -359,6 +376,7 @@ private final class Observer {
         guard try driver.frontmostApplication() == identity else { return "FOREGROUND_LAUNCH_MISMATCH" }
         let app = try driver.applicationElement(processID: pid)
         guard let window = try driver.elementAttribute(kAXFocusedWindowAttribute, of: app) else { return "NO_FROZEN_WINDOW" }
+        stage = "originalControls"
         let children = try descendants(window)
         func matches(_ node: MacAXElement, _ id: String) throws -> Bool {
             try driver.stringAttribute(kAXIdentifierAttribute, of: node) == id + "-" + nonce
@@ -372,12 +390,14 @@ private final class Observer {
             return try self.unique(current.filter { try matches($0, "editor") }) == editor
                 && self.unique(current.filter { try matches($0, "entry") }) == entry
         }
+        stage = "originalWindowAndDraft"
         guard try binding.originalDraftIsCurrent(draftMatches),
               try binding.attachedSheet(draftMatches) == nil else { return "DRAFT_NOT_AVAILABLE" }
         // A known fixture opens precisely one sheet and owns a cancellation timer.
         // Never open an arbitrary app's panel to discover whether it can be controlled.
         let systemPanel = root.lastPathComponent == "system-open-panel"
         if !systemPanel {
+            stage = "nativeTextRangePrior"
             guard let prior, let fixtureID = UUID(uuidString: nonce),
                   let baseline = try fixtureDraft(editor: editor, prior: prior) else { return "NO_NATIVE_DRAFT_STATE" }
             let snapshotUnchanged = {
@@ -386,22 +406,27 @@ private final class Observer {
                 else { return false }
                 return try self.fixtureDraft(editor: editor, prior: prior) == baseline
             }
+            stage = "readExpectedPNG"
             let file = root.appendingPathComponent("images/neutral.png")
             let bytes = try Data(contentsOf: file)
             let hash = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
+            stage = "pinFileAndNativeDraft"
             let picker = try EdgeConversationPicker.controlled(fixtureID: fixtureID, binding: binding,
                 originalDraft: snapshotUnchanged, directory: file.deletingLastPathComponent(), file: file,
                 bytes: Int64(bytes.count), sha256: hash)
             let input = EdgeConversationPicker.Input(chooserIsAbsent: {
-                try binding.attachedSheet(snapshotUnchanged) == nil &&
+                self.stage = "preEntryChooserAbsence"
+                return try binding.attachedSheet(snapshotUnchanged) == nil &&
                     !self.descendants(window).contains(where: { try matches($0, "chooser") })
             }, findOpenedControls: { file in
                 try self.fileListControls(expected: file, binding: binding, originalDraft: snapshotUnchanged).map(EdgeConversationPicker.OpenedChooser.fileList)
             })
+            stage = "beforeEntry"
             let result = try picker.handOff(input)
             guard try picker.handOff(input) == .alreadyAttempted else { return "RIFTLET_PICKER_DUPLICATE_NOT_REFUSED" }
             return result == .inputAttempted ? "EXACT_FILE_SUBMIT_ATTEMPTED" : "RIFTLET_PICKER_\(result)"
         }
+        stage = "systemSheetEntry"
         do { try driver.press(entry) }
         catch NativeMacAXError.accessibility(let code) where systemPanel && code == AXError.cannotComplete.rawValue {
             // The original press may have opened the panel. Never reissue it.
