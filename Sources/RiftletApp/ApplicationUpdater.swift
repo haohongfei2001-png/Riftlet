@@ -89,16 +89,23 @@ final class ApplicationUpdater: NSObject, SPUUpdaterDelegate, @preconcurrency SP
               let oldBuild = number(build[...]), let newBuild = number(candidateBuild[...]) else { return false }
         return old.lexicographicallyPrecedes(new) && newBuild > oldBuild
     }
+    nonisolated static func validationError(signatureInvalid: Bool, copy: ProductCopy = .current) -> NSError {
+        NSError(domain: "com.riftlet.update", code: signatureInvalid ? 2 : 1, userInfo: [
+            NSLocalizedDescriptionKey: signatureInvalid
+                ? copy.text("无法验证更新清单的签名。请前往 riftlet.com 查看正式版本。",
+                            "The update feed signature could not be verified. Visit riftlet.com for official releases.")
+                : copy.text("这个版本不能用于升级当前的 Riftlet。请前往 riftlet.com 查看正式版本。",
+                            "This version cannot upgrade your current Riftlet installation. Visit riftlet.com for official releases.")])
+    }
+
     func updater(_ updater: SPUUpdater, shouldProceedWithUpdate updateItem: SUAppcastItem, updateCheck: SPUUpdateCheck) throws {
         guard updateItem.signingValidationStatus == .succeeded else {
-            throw NSError(domain: "com.riftlet.update", code: 2, userInfo: [
-                NSLocalizedDescriptionKey: "无法验证更新清单的签名。请前往 riftlet.com 查看正式版本。"])
+            throw Self.validationError(signatureInvalid: true)
         }
         guard let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String,
               let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String,
               Self.isUpgrade(from: version, build: build, to: updateItem.displayVersionString, build: updateItem.versionString)
-        else { throw NSError(domain: "com.riftlet.update", code: 1, userInfo: [
-            NSLocalizedDescriptionKey: "这个版本不能用于升级当前的 Riftlet。请前往 riftlet.com 查看正式版本。"]) }
+        else { throw Self.validationError(signatureInvalid: false) }
     }
 
     func updater(_ updater: SPUUpdater, didFinishUpdateCycleFor updateCheck: SPUUpdateCheck, error: Error?) {
