@@ -198,6 +198,72 @@ def original_mouse_refusals(evidence, sent):
     return True
 
 
+def summarize_mouse_receipts(evidence, sent):
+    """Only fixed categories, counts and comparisons leave the private trace."""
+    selected = [r for r in evidence if r.get("event") == "selection_boundary"]
+    refused = [r for r in evidence if r.get("event") == "click_input_refused"]
+    resolved = [r for r in evidence if r.get("event") == "click_target_resolved"]
+    allowed_reasons = {"browserNotFrontmost", "invalidTarget", "targetChanged", "automationDenied",
+                       "automationUnavailable", "javaScriptDisabled", "timeout", "cancelled"}
+    result = dict(selectionCount=len(selected), refusalCount=len(refused), targetResolvedCount=len(resolved),
+                  targetRequestedCount=sum(r.get("event") == "click_target_requested" for r in evidence), dispatches=[])
+    for asset, window, tag in sent:
+        clicks = [r for r in selected if r.get("assetIDDigest") == asset]
+        failures = [r for r in refused if r.get("assetIDDigest") == asset]
+        result["dispatches"].append(dict(
+            selectionForOriginalAsset=len(clicks), refusalForOriginalAsset=len(failures),
+            targetResolvedForOriginalAsset=sum(r.get("assetIDDigest") == asset for r in resolved),
+            assetMatched=bool(clicks), tagMatched=any(r.get("mouseProbeTag") == tag for r in selected),
+            windowMatched=any(r.get("windowNumber") == window for r in selected),
+            combinedIdentityMatched=any(r.get("mouseProbeTag") == tag and r.get("windowNumber") == window for r in clicks),
+            mouseSourceMatched=any(r.get("source") == "mouse" for r in clicks),
+            oneClickCountMatched=any(r.get("clickCount") == 1 for r in clicks),
+            targetRequestedMatched=any(r.get("targetRequested") is True for r in clicks),
+            nativeEventNumberPresent=any(type(r.get("eventNumber")) is int for r in clicks),
+            sequencePresent=bool(clicks) and all(type(r.get("diagnosticSequence")) is int for r in clicks + failures),
+            sameSession=bool(clicks and failures) and all(c.get("diagnosticSessionDigest") and
+                c.get("diagnosticSessionDigest") == r.get("diagnosticSessionDigest") for c in clicks for r in failures),
+            refusalAfterSelection=bool(clicks and failures) and all(
+                type(c.get("diagnosticSequence")) is int and type(r.get("diagnosticSequence")) is int and
+                c["diagnosticSequence"] < r["diagnosticSequence"] for c in clicks for r in failures),
+            criticalRefusal=bool(failures) and all(r.get("critical") is True for r in failures),
+            originalResolutionRefusal=bool(failures) and all(r.get("phase") == "resolveSelection" for r in failures),
+            refusalStatuses=sorted({r.get("error") if r.get("error") in allowed_reasons else "OTHER" for r in failures})))
+    return result
+
+
+def observe_mouse_failure(recent, sent, dbfile, imported_rows, product_probe, edge_probe, draft):
+    """Observe a failed dispatch once, leaving retry and candidate state untouched."""
+    output = {}
+    for label, probe in (
+        ("receipts", lambda: summarize_mouse_receipts(events(recent), sent)),
+        ("originalProductAlive", product_probe),
+        ("originalEdgeFrontWindow", edge_probe),
+    ):
+        try:
+            output[label] = probe()
+        except Exception:
+            output[label] = "READ_UNAVAILABLE"
+    try:
+        current = read_assets(dbfile)
+        output["queue"] = dict(assetCount=len(current), originalAssetCount=len(imported_rows),
+            originalRowsPresent=all(d in current and current[d][:2] == row[:2] for d, row in imported_rows.items()),
+            originalRowsPendingVisible=all(d in current and current[d][2:] == ("pending", "visible") for d in imported_rows),
+            unchangedFromImport=current == imported_rows)
+        with sqlite3.connect(dbfile.as_uri() + "?mode=ro", uri=True) as db:
+            output["queue"].update({table: db.execute("SELECT count(*) FROM " + table).fetchone()[0]
+                                     for table in ("operations", "upload_starts")})
+    except Exception:
+        output["queue"] = "READ_UNAVAILABLE"
+    with draft.lock:
+        output["fixture"] = dict(documentGETs=draft.document_requests, fileChanges=draft.file_changes,
+            postRequests=draft.post_requests, receiverEvents=len(draft.picker_events),
+            receiverStarts=draft.picker_events.count("firstBodyByte"),
+            receiverCompletes=draft.picker_events.count("exactCompleteBody"),
+            candidateEnabled=draft.picker_enabled)
+    return output
+
+
 def picker_after_mouse_safe(report, sent, evidence):
     completed = len(sent)
     if completed != report["pressAttempts"] or completed != report["confirmedDistinctRefusals"]:
@@ -697,7 +763,16 @@ def exercise(app, report):
                 sent.append((expected_asset, expected_input_window, tag))
                 report["pressAttempts"] += 1
                 round_result.update(ordinal=ordinal, action="ONE_GLOBAL_MOUSE_DOWN_UP_POSTED")
-                wait_for(lambda: original_mouse_refusals(events(recent), sent), "original_mouse_selection_or_refusal_unconfirmed")
+                try:
+                    wait_for(lambda: original_mouse_refusals(events(recent), sent), "original_mouse_selection_or_refusal_unconfirmed")
+                except Exception:
+                    try:
+                        report["mouseFailureObservation"] = observe_mouse_failure(
+                            recent, sent, dbfile, rows, lambda: product_identity() == (product, product_birth),
+                            lambda: selected_window() == window, draft)
+                    except Exception:
+                        report["mouseFailureObservation"] = "READ_UNAVAILABLE"
+                    raise
                 if selected_window() != window:
                     raise RuntimeError("original_edge_changed_after_mouse_receipt")
                 round_result["mouseProbeTagMatched"] = True

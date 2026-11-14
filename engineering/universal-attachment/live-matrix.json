@@ -192,7 +192,7 @@
       "consecutiveImages": "NOT_RUN",
       "additionalUserSteps": "NOT_RUN",
       "relatedEvidence": "edge-loopback",
-      "controlledLoopbackEvidence": "acceptance-20261114.json#/supplementalHostCheck/attempts/6"
+      "controlledLoopbackEvidence": "acceptance-20261114.json#/supplementalHostCheck/attempts/7"
     },
     {
       "host": "Microsoft Edge",
