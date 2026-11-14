@@ -103,6 +103,40 @@ class ReleaseTest(unittest.TestCase):
         archive = self.archive()
         self.error("missing_or_invalid_app_icon", R.verify_archive, archive, R.digest(archive))
 
+    def test_packaged_permission_languages_cover_each_prompt_and_preserve_historical_receipts(self):
+        info = plistlib.loads((self.app / "Contents/Info.plist").read_bytes())
+        destination = self.app / "Contents/Resources"
+        self.assertTrue(R.copy_permission_localizations(ROOT / "Resources", destination, info))
+        self.receipt["permissionLanguages"] = list(R.PERMISSION_LANGUAGES)
+        R.write_json(self.app / R.RECEIPT, self.receipt)
+        self.save()
+        R.verify_package(self.package)
+        archive = self.archive()
+        R.verify_archive(archive, R.digest(archive))
+        for language in R.PERMISSION_LANGUAGES:
+            relative = Path(language + ".lproj/InfoPlist.strings")
+            actual = plistlib.loads((destination / relative).read_bytes())
+            self.assertEqual(actual, plistlib.loads((ROOT / "Resources" / relative).read_bytes()))
+            self.assertEqual(set(actual), set(R.PERMISSION_KEYS))
+            for key, text in actual.items():
+                if language == "en":
+                    self.assertTrue(text.isascii(), key)
+                    self.assertNotEqual(text, info[key])
+                else:
+                    self.assertEqual(text, info[key])
+        missing = destination / "en.lproj/InfoPlist.strings"
+        data = missing.read_bytes()
+        missing.unlink()
+        self.save()
+        self.error("missing_localized_permissions", R.verify_package, self.package)
+        archive = self.archive()
+        self.error("missing_localized_permissions", R.verify_archive, archive, R.digest(archive))
+        wrong = plistlib.loads(data)
+        del wrong["NSDownloadsFolderUsageDescription"]
+        missing.write_bytes(plistlib.dumps(wrong))
+        self.save()
+        self.error("invalid_localized_permissions", R.verify_package, self.package)
+
     def test_old_iconless_receipt_keeps_original_contract(self):
         path = self.app / "Contents/Info.plist"
         info = plistlib.loads(path.read_bytes()); del info["CFBundleIconFile"]

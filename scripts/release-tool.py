@@ -299,6 +299,8 @@ def normalize_staged_app(package):
 def validate_receipt(receipt):
     require(isinstance(receipt, dict) and type(receipt.get("schemaVersion")) is int and receipt["schemaVersion"] == SCHEMA, "invalid_build_receipt")
     version_values(receipt.get("version"), receipt.get("build"))
+    if "permissionLanguages" in receipt:
+        require(receipt["permissionLanguages"] == list(PERMISSION_LANGUAGES), "invalid_permission_languages")
     if "sharedAppModes" in receipt:
         require(receipt["sharedAppModes"] == SHARED_APP_MODES, "unknown_app_modes")
     # Existing schema-1 receipts remain verifiable; new builds always bind all
@@ -410,6 +412,36 @@ def validate_manifest(value):
         verify_app_modes(files)
 
 
+PERMISSION_LANGUAGES = ("en", "zh-Hans")
+PERMISSION_KEYS = (*BUNDLE.USAGE_KEYS, "NSScreenCaptureUsageDescription")
+
+
+def localized_permissions(data, language, info):
+    require(data, "missing_localized_permissions")
+    try:
+        values = plistlib.loads(data)
+    except (ValueError, plistlib.InvalidFileException):
+        raise ReleaseError("invalid_localized_permissions") from None
+    require(isinstance(values, dict) and set(values) == set(PERMISSION_KEYS)
+            and all(isinstance(v, str) and 10 <= len(v.strip()) <= 512 for v in values.values()),
+            "invalid_localized_permissions")
+    if language == "zh-Hans":
+        require(all(values[k] == info[k] for k in PERMISSION_KEYS), "localized_purpose_fallback_mismatch")
+
+
+def copy_permission_localizations(source_resources, destination, info):
+    # Earlier source checkpoints did not ship localized purpose strings.
+    if not any((source_resources / (language + ".lproj")).exists() for language in PERMISSION_LANGUAGES):
+        return False
+    for language in PERMISSION_LANGUAGES:
+        relative = Path(language + ".lproj") / "InfoPlist.strings"
+        source = source_resources / relative
+        localized_permissions(source.read_bytes() if source.is_file() else None, language, info)
+        (destination / relative.parent).mkdir()
+        shutil.copy2(source, destination / relative)
+    return True
+
+
 def validate_release_info(info, receipt):
     require(isinstance(info, dict), "invalid_info_plist")
     expected = {"CFBundleExecutable": "Riftlet", "CFBundleIdentifier": "com.riftlet.app",
@@ -435,7 +467,7 @@ def validate_release_info(info, receipt):
     if "versionLabel" in receipt:
         require(info.get("RiftletVersionLabel") == receipt["versionLabel"], "invalid_release_RiftletVersionLabel")
     require("RiftletDeveloperIDSigned" not in info and "RiftletNotarized" not in info, "plist_cannot_claim_signing_status")
-    for key in (*BUNDLE.USAGE_KEYS, "NSScreenCaptureUsageDescription"):
+    for key in PERMISSION_KEYS:
         require(isinstance(info.get(key), str) and 10 <= len(info[key].strip()) <= 512, "invalid_usage_description")
 
 
@@ -539,6 +571,9 @@ def _verify_package(package, expected_manifest, native_team, *, staple_resume):
     require(digest(package / "INSTALL-zh-CN.txt") == receipt["preparationInputs"]["packaging/release/INSTALL-zh-CN.txt"], "install_notes_receipt_mismatch")
     info = plistlib.loads((app / "Contents/Info.plist").read_bytes())
     validate_release_info(info, receipt)
+    for language in receipt.get("permissionLanguages", []):
+        path = app / "Contents/Resources" / (language + ".lproj") / "InfoPlist.strings"
+        localized_permissions(path.read_bytes() if path.is_file() else None, language, info)
     try:
         BUNDLE.verify_app_icon(app, info)
     except BUNDLE.VerificationError as error:
@@ -686,6 +721,8 @@ def build_candidate(args):
     (app / "Contents/Resources").mkdir()
     shutil.copy2(bin_dir / "Riftlet", app / "Contents/MacOS/Riftlet")
     shutil.copy2(source_dir / "Resources/Info.plist", app / "Contents/Info.plist")
+    has_permission_localizations = copy_permission_localizations(source_dir / "Resources", app / "Contents/Resources",
+                                                              plistlib.loads((app / "Contents/Info.plist").read_bytes()))
     if (source_dir / "Resources" / BUNDLE.ICON_NAME).exists():
         shutil.copy2(source_dir / "Resources" / BUNDLE.ICON_NAME, app / "Contents/Resources" / BUNDLE.ICON_NAME)
     # The source export may be a pre-consolidation release. Preserve its original resources.
@@ -717,6 +754,8 @@ def build_candidate(args):
     if uses_updater:
         receipt["sparkleVersion"] = SPARKLE.VERSION
         receipt["preparationInputs"]["scripts/sparkle_bundle.py"] = digest(ROOT / "scripts/sparkle_bundle.py")
+    if has_permission_localizations:
+        receipt["permissionLanguages"] = list(PERMISSION_LANGUAGES)
     if stable:
         receipt["distributionChannel"] = "stable"
     receipt["sharedAppModes"] = SHARED_APP_MODES
@@ -1116,6 +1155,9 @@ def verify_archive(path, expected_sha, expected_manifest=None):
         plist_bytes = archive.read(PAYLOAD + "/" + APP + "/Contents/Info.plist")
         info = plistlib.loads(plist_bytes)
         validate_release_info(info, receipt)
+        for language in receipt.get("permissionLanguages", []):
+            name = APP + "/Contents/Resources/" + language + ".lproj/InfoPlist.strings"
+            localized_permissions(archive.read(rows[name]) if name in rows else None, language, info)
         icon_name = APP + "/Contents/Resources/" + BUNDLE.ICON_NAME
         try:
             BUNDLE.verify_icon_data(info, archive.read(rows[icon_name]) if icon_name in rows else None)
