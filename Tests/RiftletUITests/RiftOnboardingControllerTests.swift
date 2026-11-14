@@ -523,7 +523,7 @@ final class RiftOnboardingControllerTests: XCTestCase {
         source.performClick(nil)
         await assertReceived { actions == ["folder"] }
 
-        controller.update(fixture(state, revision: 2, permission: .denied))
+        controller.update(fixture(state, revision: 2, permission: .denied, connection: .unchecked))
         next.performClick(nil)
         let automation = try button(controller, "onboarding.automation")
         let status = try XCTUnwrap(controller.control(identifier: "onboarding.automationStatus") as? NSTextField)
@@ -531,6 +531,8 @@ final class RiftOnboardingControllerTests: XCTestCase {
         XCTAssertTrue(status.stringValue.contains("Privacy & Security → Automation"))
         XCTAssertTrue(instructions.stringValue.contains("View → Developer → Allow JavaScript from Apple Events"))
         XCTAssertEqual(automation.accessibilityLabel(), "Open Automation Settings…")
+        XCTAssertEqual((controller.control(identifier: "onboarding.connectionStatus") as? NSTextField)?.stringValue,
+                       "Once enabled, come back here to check the connection.")
         XCTAssertFalse(next.isEnabled)
         automation.performClick(nil)
         await assertReceived { actions == ["folder", "automation"] }
