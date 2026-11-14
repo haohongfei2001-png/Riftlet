@@ -1,0 +1,68 @@
+{
+  "date": "2026-11-14",
+  "timeZone": "Asia/Shanghai",
+  "sourceCommitInspected": "d50e1a26a2b75ea24cf92edde5a5a9ce6a02256a",
+  "scope": "Ordinary Riftlet microimage clicks into dedicated, signed-in, unsent commercial drafts.",
+  "commercialResult": "NOT_RUN",
+  "commercialMicroimageClicks": 0,
+  "commercialFileInputs": 0,
+  "messagesSent": 0,
+  "ordinaryApp": {
+    "candidateSourceInfoPlist": { "version": "1.0.1", "build": "23" },
+    "registeredLocalBundles": [
+      { "version": "0.3.5", "build": "20", "running": false },
+      { "version": "0.3.5", "build": "18", "running": false },
+      { "version": "0.1.0", "build": "1", "historicalAcceptanceBundles": 4, "running": false }
+    ],
+    "runningLocalBundleVerifiedAtCandidateCommit": false,
+    "registeredOrdinaryRouteAtCandidateCommit": "Google Chrome × ChatGPT",
+    "edgeInspection": "Read-only. The ordinary App registers a single WebAttachmentAdapter with applicationID com.google.Chrome. It has no Edge file handoff.",
+    "sourceFiles": [
+      "Sources/RiftletApp/RiftletMain.swift",
+      "Sources/RiftletAdapters/ConversationClickRouter.swift",
+      "Sources/RiftletAdapters/EdgeConversationInspection.swift"
+    ]
+  },
+  "environmentChecks": {
+    "accessibleDeviceDirectory": { "listedMacs": 1, "localMacs": 1, "dedicatedSignedInSessionVerified": false },
+    "hiddenBrowser": [
+      { "action": "Open ChatGPT in a new hidden in-app tab", "elapsedSecondsApprox": 34.5, "outcome": "TIMEOUT_KERNEL_RESET", "signedInDraftVerified": false },
+      { "action": "Read available in-app browser surfaces after reset", "elapsedSecondsApprox": 30, "outcome": "TIMEOUT_KERNEL_RESET", "signedInDraftVerified": false }
+    ],
+    "launchServices": {
+      "registered": [
+        { "host": "Microsoft Edge", "version": "156.0.4314.58", "runningInstances": 1 },
+        { "host": "Google Chrome", "version": "157.0.8103.51", "runningInstances": 3 },
+        { "host": "Safari", "version": "27.0", "runningInstances": 0 }
+      ],
+      "noMatchingRegistration": ["Firefox", "Brave", "Arc", "ChatGPT for Mac (com.openai.chat)", "Claude Desktop (com.anthropic.claudefordesktop)"]
+    }
+  },
+  "edgeChatGPT": {
+    "firstMissingCapability": "ORDINARY_EDGE_CLICK_ROUTE_NOT_REGISTERED",
+    "isolatedSignedInEdgeChatGPTDraft": "UNVERIFIED",
+    "stageReached": "Prerequisite inspection before any commercial microimage click.",
+    "images": [
+      { "image": 1, "microimageClick": "NOT_RUN", "originalClickTimeDraft": "NOT_RUN", "specifiedImageReceived": "NOT_RUN", "textSelectionPriorAttachmentsPreserved": "NOT_RUN", "uploadStart": "NOT_RUN", "finalSuccess": "NOT_RUN" },
+      { "image": 2, "microimageClick": "NOT_RUN", "originalClickTimeDraft": "NOT_RUN", "specifiedImageReceived": "NOT_RUN", "textSelectionPriorAttachmentsPreserved": "NOT_RUN", "uploadStart": "NOT_RUN", "finalSuccess": "NOT_RUN" }
+    ],
+    "prerequisitesForBothImages": [
+      "Verify the exact ordinary Riftlet build and an Edge write route through its real microimage click entry.",
+      "Verify an isolated, authorized, signed-in Edge ChatGPT session with a dedicated unsent draft, neutral existing text, a selection and a pre-existing attachment.",
+      "For each distinct image, bind the click-time process, window, tab, document and editor; preserve the baseline and the first new attachment across the second click.",
+      "For each image, capture separate original-draft evidence for actual upload start and final completion. An input event or thumbnail alone proves neither."
+    ]
+  },
+  "otherCombinations": {
+    "ChromeChatGPT": "An ordinary route exists. This round did not establish a dedicated signed-in draft or identify a running local App at the candidate commit.",
+    "otherInstalledWebTargets": "The ordinary click route for these combinations was absent at the inspected source. Login and network availability for individual services were not established.",
+    "nativeAndOtherBrowsers": "LaunchServices metadata was available. No commercial attachment trial ran for these targets."
+  },
+  "supplementalHostCheck": {
+    "command": "python3 -B Tests/LiveCompatibility/edge_host.py --app build/Riftlet.app",
+    "environment": "Disposable GitHub-hosted macOS console, ordinary packaged App and separate Edge profile.",
+    "target": "Owned loopback page with a neutral draft and image. This host check does not log in to a commercial account.",
+    "resultSource": "The PR Native ARM64 job archives the actual observed stages in test-results/ordinary-edge-host.json."
+  },
+  "priorEvidence": "The previous matrix at sourceCommitInspected preserves its original reasons and relatedEvidence values, including two real Chrome images on build 18. Loopback bytes, hosted AX fixtures and service-shaped DOMs remain separately scoped."
+}

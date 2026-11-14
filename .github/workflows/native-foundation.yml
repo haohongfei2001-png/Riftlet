@@ -204,6 +204,19 @@ jobs:
         run: |
           set -o pipefail
           bash scripts/build-macos.sh 2>&1 | tee test-results/build.log
+      - name: Check two ordinary Riftlet actions with an isolated Edge window
+        if: matrix.runner == 'macos-15'
+        run: |
+          set -euo pipefail
+          log=test-results/ordinary-edge-host.json
+          result=0
+          python3 -B Tests/LiveCompatibility/edge_host.py --app build/Riftlet.app > "$log" || result=$?
+          cat "$log"
+          case "$result" in
+            0) echo "Ordinary App / Edge host: see recorded stage and observed actions." >> "$GITHUB_STEP_SUMMARY" ;;
+            77) echo "Ordinary App / Edge host: NOT_RUN (see capability record)." >> "$GITHUB_STEP_SUMMARY" ;;
+            *) exit "$result" ;;
+          esac
       - name: Run packaged executable with synthetic data
         run: |
           set -o pipefail
