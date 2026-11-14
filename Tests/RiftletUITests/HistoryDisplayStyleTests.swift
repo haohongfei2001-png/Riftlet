@@ -165,6 +165,28 @@ final class HistoryDisplayStyleTests: XCTestCase {
     }
 
     @MainActor
+    func testWideDocumentCannotProduceItemsWiderThanItsNewViewport() throws {
+        try display()
+        let dir = try directory(), image = try asset(in: dir)
+        let renderer = HistoryGridRenderer(copy: .english, directory: dir,
+            onSelection: { _ in XCTFail("Layout cannot change selection") },
+            onPreview: { XCTFail("Layout cannot open a preview") }, stateText: { _ in "Ready" }, mayLoad: { false })
+        defer { renderer.clear() }
+        renderer.scrollView.scrollerStyle = .overlay
+        renderer.scrollView.frame = NSRect(x: 0, y: 0, width: 112, height: 400)
+        renderer.scrollView.tile()
+        renderer.update(entries: [.init(record: AssetRecord(image: image, sequence: 1))], selection: image.id)
+        renderer.collection.setFrameSize(NSSize(width: 533, height: 400))
+        let layout = try XCTUnwrap(renderer.collection.collectionViewLayout)
+        XCTAssertEqual(renderer.scrollView.contentView.bounds.width, 112, accuracy: 1)
+        XCTAssertEqual(renderer.collection.bounds.width, 533, accuracy: 1)
+        let insets = renderer.collectionView(renderer.collection, layout: layout, insetForSectionAt: 0)
+        let item = renderer.collectionView(renderer.collection, layout: layout, sizeForItemAt: IndexPath(item: 0, section: 0))
+        XCTAssertGreaterThan(item.width, 0)
+        XCTAssertLessThanOrEqual(insets.left + item.width + insets.right, renderer.scrollView.contentView.bounds.width)
+    }
+
+    @MainActor
     func testUserSelectorRequestsOwnerProjectionWithoutAnIndependentPreference() throws {
         try display()
         var requested: [HistoryDisplayStyle] = []
@@ -344,6 +366,47 @@ final class HistoryDisplayStyleTests: XCTestCase {
             XCTAssertEqual(detail.imageScaling, .scaleProportionallyUpOrDown)
             XCTAssertTrue(detail.image === bitmap, "Style changes must retain the already decoded detail")
             XCTAssertEqual(controller.selectedRecordID, image.id)
+        }
+    }
+
+    @MainActor
+    func testBilingualHistoryWidthsStayStableAfterInitialLayoutAndRepeatedResizing() async throws {
+        try display()
+        let dir = try directory(), image = try asset(in: dir, width: 1200, height: 750)
+        for copy in [ProductCopy.simplifiedChinese, .english] {
+            let controller = RiftHistoryController(copy: copy, mediaDirectory: dir,
+                onRestore: { _ in }, onRemove: { _ in }, onReveal: { _ in })
+            defer { controller.close() }
+            controller.update(entries: [.init(record: AssetRecord(image: image, sequence: 1))])
+            controller.show()
+            let table: NSTableView = try find("history.current.table", in: controller.window)
+            table.selectRowIndexes(IndexSet(integer: 0), byExtendingSelection: false)
+            controller.tableViewSelectionDidChange(Notification(name: NSTableView.selectionDidChangeNotification, object: table))
+            let detail: NSImageView = try find("history.detail.image", in: controller.window)
+            try await waitUntil { detail.image != nil }
+            for style in [HistoryDisplayStyle.imageGrid, .current] {
+                controller.updateDisplayStyle(style)
+                for width: CGFloat in [1000, 680, 808, 680] {
+                    controller.window.setFrame(NSRect(origin: controller.window.frame.origin,
+                                                       size: NSSize(width: width, height: 480)), display: true)
+                    controller.window.contentView?.layoutSubtreeIfNeeded()
+                    try await Task.sleep(nanoseconds: 50_000_000)
+                    controller.window.contentView?.layoutSubtreeIfNeeded()
+                    XCTAssertEqual(controller.window.frame.width, width, accuracy: 1)
+                    XCTAssertEqual(controller.window.frame.height, 480, accuracy: 1)
+                    XCTAssertLessThanOrEqual(try XCTUnwrap(controller.window.contentView).fittingSize.width, width + 1)
+                    XCTAssertEqual(controller.selectedRecordID, image.id)
+                    if style == .imageGrid {
+                        let collection: NSCollectionView = try find("history.grid", in: controller.window)
+                        let clip = try XCTUnwrap(collection.enclosingScrollView?.contentView)
+                        let item = try XCTUnwrap(collection.layoutAttributesForItem(at: IndexPath(item: 0, section: 0)))
+                        XCTAssertGreaterThan(item.frame.width, 0)
+                        XCTAssertGreaterThanOrEqual(item.frame.minX, 0)
+                        XCTAssertLessThanOrEqual(item.frame.maxX, min(collection.bounds.width, clip.bounds.width) + 1)
+                    }
+                    print("HISTORY_SETTLED", copy, style.rawValue, "requested", width, "actual", controller.window.frame.size)
+                }
+            }
         }
     }
 
