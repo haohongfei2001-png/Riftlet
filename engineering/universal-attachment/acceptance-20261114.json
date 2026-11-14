@@ -275,6 +275,103 @@
           "commercialService": "NOT_RUN"
         },
         "interpretation": "The hosted build stopped before packaging. The Feedback compiler log identifies the older SDK symbol failure in EdgeNativeDraftProbe. No ordinary mouse action was possible in this attempt."
+      },
+      {
+        "reviewedSource": "27d7dbcb68a6018c8fe63249f644e2b25399953c",
+        "reviewedSourceTree": "d53a3e5049ff973a1cfd2d9a80ccd824d490fb18",
+        "admissionHead": "d6e6853ea2dc803cbbc463ad43519399fcf9df0c",
+        "base": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",
+        "testedMerge": "c83122b234dca39f1ec414437174421e192f8bb8",
+        "nativeRun": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43548258467",
+        "arm64Job": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43548258467/job/132304515597",
+        "arm64JobConclusion": "failure",
+        "artifact": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43548258467/artifacts/14095228024",
+        "artifactSHA256": "e9fcacce7b3ab25ff429f0aeadaaa4adf591dab6edb88d9ea041180efc9465b1",
+        "ordinaryAppResult": {
+          "result": "NOT_RUN_PRIOR_TEST_FAILURE",
+          "scope": "ordinary-packaged-app-native-mouse-edge-loopback",
+          "pressAttempts": 0,
+          "commercialService": "NOT_RUN"
+        },
+        "interpretation": "The SDK compile passed. DispatchLifecycleTests read dispatchIntent while awaiting unknown for B, and the package and ordinary mouse steps were skipped. Independent external receiver and WK runs continued.",
+        "independentFixtureResults": {
+          "universal-native-picker.log": {
+            "arch": "arm64",
+            "axTrustedForProbeProcess": true,
+            "draftAcknowledgements": 2,
+            "duplicateHandoffsRefused": 2,
+            "editorUnfocused": true,
+            "filesReleased": 2,
+            "macOS": "15.8.2",
+            "openPanelCallbacks": 2,
+            "previousAttachmentsTextSelectionPreserved": true,
+            "priorPNGSHA256": "6a8b5aa1b92b7d78773491354e7bd702ac6503b8d9bed07cb402777bf2fc82e3",
+            "receiverEvents": [
+              "body-start-0",
+              "body-complete-0",
+              "body-start-1",
+              "body-complete-1"
+            ],
+            "sameBytesPathReplacementRefused": true,
+            "scope": "controlled-cooperating-WKWebView",
+            "sha256": [
+              "b66e803d64b39903b44a26160923bb6ecb3f717dcf7900fe62afdb5fd1e4bac8",
+              "91f31ca0451554dbfb9411e80591bab9318a9a2e3805b20efd28568594aba95b"
+            ],
+            "windowNeverOrdered": true
+          },
+          "universal-external-ax.log": {
+            "externalAX": {
+              "appkit-file-list": {
+                "commercialService": "NOT_RUN",
+                "draftTextSelectionPriorPNGPreserved": true,
+                "observerStage": "confirmOriginalFile",
+                "originalDraftAcknowledged": true,
+                "receiverEvents": [
+                  "firstBodyByte",
+                  "expectedCompleteBody"
+                ],
+                "sha256": "b66e803d64b39903b44a26160923bb6ecb3f717dcf7900fe62afdb5fd1e4bac8",
+                "status": "VERIFIED_EXTERNAL_FIXTURE_HANDOFF",
+                "transport": "EdgeConversationPicker-controlled-AppKit"
+              },
+              "system-open-panel": {
+                "commercialService": "NOT_RUN",
+                "draftTextSelectionPriorPNGPreserved": false,
+                "observerStage": "systemSheetEntry",
+                "originalDraftAcknowledged": false,
+                "receiverEvents": [],
+                "sha256": null,
+                "status": "ENTRY_PRESSED_OWNED_SHEET_UNPROVEN",
+                "transport": "external-owned-system-sheet-probe"
+              }
+            },
+            "scope": "controlled-external-appkit"
+          },
+          "universal-edge-engine.log": {
+            "acknowledgements": 2,
+            "correlatedRejections": 1,
+            "digests": [
+              "611033f4cc0aa9e3348e69eba089499bc6287d57b53832079e64f42564a4e876",
+              "c9b27a65dd17d8157b51d36d36b54305ec13cea89152ba0e24b5465eb3cbb0c7"
+            ],
+            "duplicateRequests": 0,
+            "lostReplies": 1,
+            "mode": "headless",
+            "scope": "local-fixture",
+            "verifiedBodies": 4
+          },
+          "universal-safari-events.log": "neutralDocumentResponses 0 attachments 0",
+          "universal-edge-events.log": "EDGE_AUTOMATION_OSSTATUS_-1744"
+        },
+        "automationPreflights": {
+          "universal-safari-events.log": [
+            "SAFARI_PREFLIGHT_OSSTATUS_-1744"
+          ],
+          "universal-edge-events.log": [
+            "EDGE_AUTOMATION_OSSTATUS_-1744"
+          ]
+        }
       }
     ]
   },

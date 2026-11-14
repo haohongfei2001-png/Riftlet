@@ -203,11 +203,15 @@ jobs:
           set -o pipefail
           swift test --skip-build --filter MagnetFlightPresenterTests 2>&1 | tee test-results/magnet-strict-completion.log
       - name: Package native application
+        id: development_package
+        # Keep the ARM64 fixture measurable when an unrelated earlier suite fails.
+        # Every failing test retains its own outcome and still fails the job.
+        if: ${{ !cancelled() && steps.checkout.outcome == 'success' && (success() || matrix.runner == 'macos-15') }}
         run: |
           set -o pipefail
           bash scripts/build-macos.sh 2>&1 | tee test-results/build.log
       - name: Check two ordinary Riftlet actions with an isolated Edge window
-        if: matrix.runner == 'macos-15'
+        if: ${{ !cancelled() && matrix.runner == 'macos-15' && steps.development_package.outcome == 'success' }}
         run: |
           set -euo pipefail
           log=test-results/ordinary-edge-host.json
