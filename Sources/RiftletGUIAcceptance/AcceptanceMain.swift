@@ -57,7 +57,9 @@ enum AcceptanceMain {
             --export-native-evidence /new/absolute/directory --evidence-source SHA --evidence-checkout SHA
               Requires --visual-clean. Capture only this helper's WindowServer windows,
               at original pixels, then exit. No other app or display capture; no TCC request.
-              --visual-settings-section 0...4 and --visual-onboarding-page 0...2 select pages.
+              setup, settings and motion show historical fixtures; use scripts/run-settings-review.sh
+              with the candidate App for its current settings, control center and onboarding.
+              --visual-settings-section 0...4 and --visual-onboarding-page 0...2 select fixture pages.
               --visual-local-onboarding uses the actual production-disabled local collection presentation.
               --visual-last-page and --visual-preview-index 1...16 select fixture views.
               --visual-history-state archived|unknown selects a synthetic history row.

@@ -1,4 +1,5 @@
 import AppKit
+import RiftletUI
 import QuartzCore
 
 /// Native settings preview. It owns no asset, queue, adapter or screenshot file.

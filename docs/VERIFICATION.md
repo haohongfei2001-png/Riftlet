@@ -286,3 +286,15 @@ The follow-up authorization was recorded in AGENTS, decision entries P12/P13 and
 This increment changes documentation and the PR template only. Native sources, tests, resources, licenses, `Package.swift`, build scripts and the native workflow are unchanged relative to the tested source head above. The macOS run was read back as completed/success at that exact SHA; that existing evidence is not relabeled as a new validation. No extra manual native run is needed for the documentation, but the existing PR-wide path trigger may automatically run CI again; any such result belongs to its own SHA/run and is not predeclared passed. New plan packets marked READY are not claimed implemented.
 
 Validation for this increment: authored `git diff --check`, relative Markdown target checks, conflict-marker/whitespace checks, non-author execution-plan review and a separate actual-reuse/license audit. The audit confirmed the two adaptations, independently implemented Tendedero-informed panels, reference-only Oracle/Maccy status and license packaging. Main was observed at `6dfba79f9ccef295cc0234580a3adc99f0757e09`; its additional website-only change was inspected and left untouched.
+
+### Current settings and historical GUI fixtures
+
+Run `scripts/run-settings-review.sh /absolute/path/to/Riftlet.app` to exercise the packaged app’s four-page settings window, control center and onboarding on an isolated review data root. The product route is `RiftletApp → SettingsProductHost → RiftSettingsCenterController / RiftControlCenterController / RiftOnboardingController`.
+
+The `RiftletGUIAcceptance --visual-window setup|settings|motion` scenes exercise historical controls over synthetic data. Their window records identify them as `historicalSettingsFixture`. Keep earlier screenshots and tests tied to the commit at which they ran.
+
+| Module | Consumers | Scope |
+| --- | --- | --- |
+| `RiftletUI` | Product app, acceptance helper, UI tests | Current native UI and rendering, shared `SetupPresentation`, `RiftSettingsSnapshot`, `RiftSettingsDisplay` and the `RiftSettingsChange` values used by the real settings owner |
+| `RiftletLegacySettingsFixtures` | Acceptance helper and UI tests only | Previous setup window and embedded form, first-use illustration, standalone arrival-motion window and preview |
+| `RiftletGUIAcceptance` | Separate executable | Historical settings/motion scenes, shared history and Feedback windows, and other synthetic desktop fixtures |

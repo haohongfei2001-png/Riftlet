@@ -1,4 +1,5 @@
 import AppKit
+import RiftletUI
 
 /// Static native counterpart of the approved first-use paper → edge sketch.
 /// It is decorative, contains no real screenshot and confers no input ability.
