@@ -35,7 +35,7 @@ private final class HistoryImageCell: NSTableCellView {
         super.init(frame: frameRect)
         preview.imageScaling = .scaleProportionallyUpOrDown
         preview.translatesAutoresizingMaskIntoConstraints = false
-        preview.setAccessibilityLabel("截图预览")
+        preview.setAccessibilityLabel(ProductCopy.text("截图预览", "Screenshot preview"))
         addSubview(preview)
         NSLayoutConstraint.activate([
             preview.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
@@ -75,6 +75,7 @@ private final class HistoryActionNote: NSTextField {
 @MainActor
 public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTableViewDelegate,
                                            NSSearchFieldDelegate, NSWindowDelegate {
+    private let copy: ProductCopy
     private let historyWindow: NSWindow
     private let cache: ThumbnailCache
     private let mediaDirectory: URL
@@ -87,18 +88,18 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     public private(set) var displayStyle: HistoryDisplayStyle
     public private(set) var selectedRecordID: UUID?
     private var suppressSelection = false
-    private let styleSelector = NSSegmentedControl(images: [
-        NSImage(systemSymbolName: "list.bullet", accessibilityDescription: "列表")!,
-        NSImage(systemSymbolName: "square.grid.2x2", accessibilityDescription: "图像网格")!
+    private lazy var styleSelector = NSSegmentedControl(images: [
+        NSImage(systemSymbolName: "list.bullet", accessibilityDescription: copy.text("列表", "List"))!,
+        NSImage(systemSymbolName: "square.grid.2x2", accessibilityDescription: copy.text("图像网格", "Image Grid"))!
     ], trackingMode: .selectOne, target: nil, action: nil)
     private let gridFilter = NSPopUpButton()
-    private let gridTitle = NSTextField(labelWithString: "截图历史")
+    private lazy var gridTitle = NSTextField(labelWithString: copy.text("截图历史", "Screenshot History"))
     private var tableScroll: NSScrollView!
     private var detailScroll: NSScrollView!
     private var listWidths: [NSLayoutConstraint] = []
-    private lazy var grid = HistoryGridRenderer(directory: mediaDirectory,
+    private lazy var grid = HistoryGridRenderer(copy: copy, directory: mediaDirectory,
         onSelection: { [weak self] in self?.selectRecord($0) },
-        onPreview: { [weak self] in self?.previewSelected() }, stateText: Self.stateText,
+        onPreview: { [weak self] in self?.previewSelected() }, stateText: { [copy] in HistoryPresentation.localizedState(for: $0, copy: copy) },
         mayLoad: { [weak self] in
             self?.historyWindow.isVisible == true && self?.displayStyle == .imageGrid
         })
@@ -107,9 +108,9 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     private let table = HistoryTableView()
     private let detailImage = HistoryPreviewImageView()
     private let imageBackdrop = NSVisualEffectView()
-    private let detailTitle = NSTextField(wrappingLabelWithString: "选择一张截图")
+    private lazy var detailTitle = NSTextField(wrappingLabelWithString: copy.text("选择一张截图", "Select a screenshot"))
     private let detailMetadata = NSTextField(wrappingLabelWithString: "")
-    private let detailState = NSTextField(wrappingLabelWithString: "原图与本地记录始终保留。")
+    private lazy var detailState = NSTextField(wrappingLabelWithString: copy.text("原图与本地记录始终保留。", "Original images and local records are kept."))
     private var detailID: UUID?
     private var detailAsset: ImportedAsset?
     private var detailGeneration: UInt = 0
@@ -126,12 +127,12 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     private var previewResize: DispatchWorkItem?
     private var previewFileObserver: HistoryPreviewFileObserver?
     private let countLabel = NSTextField(labelWithString: "")
-    private let restoreButton = NSButton(title: "恢复到桌面", target: nil, action: nil)
-    private let removeButton = NSButton(title: "移出可见队列", target: nil, action: nil)
-    private let revealButton = NSButton(title: "在 Finder 中显示", target: nil, action: nil)
-    private let originalButton = NSButton(title: "查看原图", target: nil, action: nil)
-    private let newerButton = NSButton(title: "上一页", target: nil, action: nil)
-    private let olderButton = NSButton(title: "下一页", target: nil, action: nil)
+    private lazy var restoreButton = NSButton(title: copy.text("恢复到桌面", "Restore to Desktop"), target: nil, action: nil)
+    private lazy var removeButton = NSButton(title: copy.text("移出可见队列", "Remove from Queue"), target: nil, action: nil)
+    private lazy var revealButton = NSButton(title: copy.text("在 Finder 中显示", "Show in Finder"), target: nil, action: nil)
+    private lazy var originalButton = NSButton(title: copy.text("查看原图", "View Original"), target: nil, action: nil)
+    private lazy var newerButton = NSButton(title: copy.text("上一页", "Previous Page"), target: nil, action: nil)
+    private lazy var olderButton = NSButton(title: copy.text("下一页", "Next Page"), target: nil, action: nil)
     private let actionNote = HistoryActionNote(wrappingLabelWithString: "")
     private var entries: [RiftHistoryEntry] = []
     private var displayed: [RiftHistoryEntry] = []
@@ -142,20 +143,21 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     public var isVisible: Bool { historyWindow.isVisible }
     public var window: NSWindow { historyWindow }
 
-    public init(mediaDirectory: URL, onRestore: @escaping (UUID) -> Void,
+    public init(copy: ProductCopy = .current, mediaDirectory: URL, onRestore: @escaping (UUID) -> Void,
                 onRemove: @escaping (UUID) -> Void, onReveal: @escaping (UUID) -> Void,
                 onNextPage: (() -> Void)? = nil, onPreviousPage: (() -> Void)? = nil,
                 displayStyle: HistoryDisplayStyle = .current,
                 onDisplayStyleChanged: @escaping (HistoryDisplayStyle) -> Void = { _ in }) {
+        self.copy = copy
         self.cache = ThumbnailCache(directory: mediaDirectory)
         self.mediaDirectory = mediaDirectory
         self.onRestore = onRestore; self.onRemove = onRemove; self.onReveal = onReveal
         self.onNextPage = onNextPage; self.onPreviousPage = onPreviousPage
         self.displayStyle = displayStyle; self.onDisplayStyleChanged = onDisplayStyleChanged
         historyWindow = RiftVisualStyle.window(outerSize: NSSize(width: 808, height: 492),
-            minimum: NSSize(width: 680, height: 480), title: "Riftlet — 截图历史")
+            minimum: NSSize(width: 680, height: 480), title: copy.text("Riftlet — 截图历史", "Riftlet — Screenshot History"))
         super.init()
-        historyWindow.title = "截图历史"
+        historyWindow.title = copy.text("截图历史", "Screenshot History")
         historyWindow.titleVisibility = .hidden
         historyWindow.identifier = .init("RiftletHistory")
         historyWindow.isReleasedWhenClosed = false
@@ -240,7 +242,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
 
     private func configureContent() {
         guard let content = historyWindow.contentView else { return }
-        search.placeholderString = "搜索本页"; search.setAccessibilityLabel("搜索当前历史页")
+        search.placeholderString = copy.text("搜索本页", "Search this page"); search.setAccessibilityLabel(copy.text("搜索当前历史页", "Search the current history page"))
         search.delegate = self; search.sendsSearchStringImmediately = true
         let list = NSVisualEffectView()
         list.material = .sidebar
@@ -257,7 +259,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         table.dataSource = self; table.delegate = self; table.target = self
         table.doubleAction = #selector(previewSelected)
         table.onPreview = { [weak self] in self?.previewSelected() }
-        table.setAccessibilityLabel("本机截图记录；空格查看预览")
+        table.setAccessibilityLabel(copy.text("本机截图记录；空格查看预览", "Local screenshot history. Press Space to preview."))
         let scroll = NSScrollView(); scroll.hasVerticalScroller = true; scroll.autohidesScrollers = true
         tableScroll = scroll
         scroll.drawsBackground = false; scroll.documentView = table
@@ -277,16 +279,16 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         countLabel.font = RiftVisualStyle.secondaryFont; countLabel.textColor = RiftVisualStyle.secondary
         styleSelector.identifier = .init("history.displayStyle")
         for (index, style) in HistoryDisplayStyle.allCases.enumerated() {
-            styleSelector.setToolTip(style.title, forSegment: index)
+            styleSelector.setToolTip(style.title(copy: copy), forSegment: index)
             styleSelector.setImageScaling(.scaleProportionallyDown, forSegment: index)
         }
         styleSelector.segmentStyle = .rounded
         styleSelector.target = self; styleSelector.action = #selector(styleChanged(_:))
-        styleSelector.setAccessibilityLabel("历史显示方式")
+        styleSelector.setAccessibilityLabel(copy.text("历史显示方式", "History display style"))
         gridFilter.identifier = .init("history.grid.filter")
-        gridFilter.addItems(withTitles: RiftHistoryFilter.menuFilters.map(\.title))
+        gridFilter.addItems(withTitles: RiftHistoryFilter.menuFilters.map { $0.title(copy: copy) })
         gridFilter.target = self; gridFilter.action = #selector(gridFilterChanged(_:))
-        gridFilter.setAccessibilityLabel("筛选当前历史页")
+        gridFilter.setAccessibilityLabel(copy.text("筛选当前历史页", "Filter the current history page"))
         gridTitle.font = .systemFont(ofSize: 23, weight: .semibold); gridTitle.textColor = .labelColor
         let heading = NSStackView(views: [gridTitle, NSView(), search, gridFilter, styleSelector])
         heading.alignment = .centerY; heading.spacing = 8
@@ -305,8 +307,8 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         newerButton.title = ""; olderButton.title = ""
         newerButton.image = NSImage(systemSymbolName: "chevron.left", accessibilityDescription: nil)
         olderButton.image = NSImage(systemSymbolName: "chevron.right", accessibilityDescription: nil)
-        newerButton.setAccessibilityLabel("上一页"); olderButton.setAccessibilityLabel("下一页")
-        newerButton.toolTip = "上一页"; olderButton.toolTip = "下一页"
+        newerButton.setAccessibilityLabel(copy.text("上一页", "Previous Page")); olderButton.setAccessibilityLabel(copy.text("下一页", "Next Page"))
+        newerButton.toolTip = copy.text("上一页", "Previous Page"); olderButton.toolTip = copy.text("下一页", "Next Page")
         NSLayoutConstraint.activate([countLabel.leadingAnchor.constraint(equalTo: list.leadingAnchor, constant: 14),
             countLabel.centerYAnchor.constraint(equalTo: paging.centerYAnchor),
             countLabel.trailingAnchor.constraint(lessThanOrEqualTo: paging.leadingAnchor, constant: -4),
@@ -323,7 +325,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         }
         detailImage.imageScaling = .scaleProportionallyUpOrDown
         detailImage.identifier = .init("history.detail.image")
-        detailImage.setAccessibilityLabel("完整比例截图预览")
+        detailImage.setAccessibilityLabel(copy.text("完整比例截图预览", "Screenshot preview with original proportions"))
         detailImage.heightAnchor.constraint(equalToConstant: 200).isActive = true
         let surface = imageBackdrop
         surface.material = .underWindowBackground
@@ -409,7 +411,8 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         } else { table.deselectAll(nil) }
         suppressSelection = false
         grid.update(entries: displayed, selection: selectedRecordID)
-        countLabel.stringValue = "\(displayed.count) / \(entries.count) 张 · 第 \(pageOffset / HistoryPresentation.pageSize + 1) 页"
+        countLabel.stringValue = copy.text("\(displayed.count) / \(entries.count) 张 · 第 \(pageOffset / HistoryPresentation.pageSize + 1) 页",
+            "\(displayed.count) / \(entries.count) · Page \(pageOffset / HistoryPresentation.pageSize + 1)")
         updateActions()
     }
 
@@ -422,9 +425,9 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         restoreButton.isHidden = !restoreButton.isEnabled
         removeButton.isHidden = !removeButton.isEnabled
         revealButton.isHidden = selectedEntry == nil
-        let notes = [restoreButton.isEnabled ? "恢复到桌面后，可再次点选。" : nil,
-                     removeButton.isEnabled ? "移出队列不会删除私有副本、系统原图或聊天附件。" : nil].compactMap { $0 }
-        actionNote.stringValue = notes.joined()
+        let notes = [restoreButton.isEnabled ? copy.text("恢复到桌面后，可再次点选。", "Restore it to the desktop to click it again.") : nil,
+                     removeButton.isEnabled ? copy.text("移出队列不会删除私有副本、系统原图或聊天附件。", "Removing it from the queue keeps its local copy, original screenshot and chat attachment.") : nil].compactMap { $0 }
+        actionNote.stringValue = notes.joined(separator: copy.text("", " "))
         RiftVisualStyle.applyTextStyle(actionNote)
         actionNote.isHidden = notes.isEmpty
         newerButton.isEnabled = pageOffset > 0 && onPreviousPage != nil
@@ -432,16 +435,16 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         updateDetail()
     }
 
-    private static func stateText(_ entry: RiftHistoryEntry) -> String {
-        HistoryPresentation.localizedState(for: entry)
+    private func stateText(_ entry: RiftHistoryEntry) -> String {
+        HistoryPresentation.localizedState(for: entry, copy: copy)
     }
     private func updateDetail() {
         detailGeneration &+= 1
         let generation = detailGeneration
         guard let entry = selectedEntry else {
             previewWindow?.close()
-            detailID = nil; detailAsset = nil; detailImage.image = nil; imageBackdrop.isHidden = true; detailTitle.stringValue = "截图会留在这里"
-            detailMetadata.stringValue = ""; detailState.stringValue = "选择一张截图，查看原比例预览与本地状态。"
+            detailID = nil; detailAsset = nil; detailImage.image = nil; imageBackdrop.isHidden = true; detailTitle.stringValue = copy.text("截图会留在这里", "Your screenshots stay here")
+            detailMetadata.stringValue = ""; detailState.stringValue = copy.text("选择一张截图，查看原比例预览与本地状态。", "Select a screenshot to preview it and see its local status.")
             for field in [detailTitle, detailMetadata, detailState] { RiftVisualStyle.applyTextStyle(field) }
             return
         }
@@ -449,11 +452,11 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         detailID = entry.id; detailAsset = entry.record.image
         if !sameBitmap { detailImage.image = nil }
         imageBackdrop.isHidden = false
-        detailTitle.stringValue = Self.captureTitle(entry)
-        detailMetadata.stringValue = "\(entry.record.image.pixelWidth) × \(entry.record.image.pixelHeight)　·　\(Self.stateText(entry))"
+        detailTitle.stringValue = captureTitle(entry)
+        detailMetadata.stringValue = "\(entry.record.image.pixelWidth) × \(entry.record.image.pixelHeight)　·　\(stateText(entry))"
         detailMetadata.toolTip = entry.id.uuidString
-        detailState.stringValue = HistoryPresentation.detailText(for: entry)
-        detailImage.setAccessibilityLabel(Self.previewDescription(entry))
+        detailState.stringValue = HistoryPresentation.detailText(for: entry, copy: copy)
+        detailImage.setAccessibilityLabel(previewDescription(entry))
         for field in [detailTitle, detailMetadata, detailState] { RiftVisualStyle.applyTextStyle(field) }
         if !sameBitmap { cache.image(for: entry.record.image, maxPixelSize: Int(320 * historyWindow.backingScaleFactor)) { [weak self] image in
             guard let self, self.detailID == entry.id, self.detailGeneration == generation,
@@ -487,12 +490,12 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         panel.minSize = NSSize(width: 360, height: 280); panel.delegate = self
         let view = HistoryPreviewImageView(); view.identifier = .init("history.preview.image")
         view.imageScaling = .scaleProportionallyDown
-        let status = RiftVisualStyle.label("正在加载预览…", role: "secondary")
+        let status = RiftVisualStyle.label(copy.text("正在加载预览…", "Loading preview…"), role: "secondary")
         status.identifier = .init("history.preview.status")
-        let reveal = NSButton(title: "在 Finder 中显示", target: self, action: #selector(revealPreview))
+        let reveal = NSButton(title: copy.text("在 Finder 中显示", "Show in Finder"), target: self, action: #selector(revealPreview))
         RiftVisualStyle.style(reveal)
-        let zoom = NSSegmentedControl(labels: ["适合", "100%", "200%"], trackingMode: .selectOne, target: self, action: #selector(changePreviewZoom(_:)))
-        zoom.selectedSegment = 0; zoom.identifier = .init("history.preview.zoom"); zoom.setAccessibilityLabel("原图缩放：适合、100% 逻辑尺寸、200%")
+        let zoom = NSSegmentedControl(labels: [copy.text("适合", "Fit"), "100%", "200%"], trackingMode: .selectOne, target: self, action: #selector(changePreviewZoom(_:)))
+        zoom.selectedSegment = 0; zoom.identifier = .init("history.preview.zoom"); zoom.setAccessibilityLabel(copy.text("原图缩放：适合、100% 逻辑尺寸、200%", "Original image zoom: Fit, 100% logical size, 200%"))
         // A status transition must not resize the image viewport. Keep status
         // on its own fixed single-line row; its full value remains accessible.
         status.maximumNumberOfLines = 1; status.lineBreakMode = .byTruncatingTail
@@ -533,19 +536,20 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         observePreviewFile(); requestPreview(clearImage: true)
     }
 
-    private static func captureTitle(_ entry: RiftHistoryEntry) -> String {
+    private func captureTitle(_ entry: RiftHistoryEntry) -> String {
         let formatter = DateFormatter(); formatter.dateStyle = .medium; formatter.timeStyle = .medium
-        return "截图 · " + formatter.string(from: HistoryPresentation.captureDate(for: entry))
+        return copy.text("截图 · ", "Screenshot · ") + formatter.string(from: HistoryPresentation.captureDate(for: entry))
     }
 
-    private static func previewDescription(_ entry: RiftHistoryEntry) -> String {
-        "\(captureTitle(entry))，\(entry.record.image.pixelWidth) × \(entry.record.image.pixelHeight)，\(stateText(entry))，编号 \(entry.id.uuidString.prefix(8))。Escape 或空格关闭预览。"
+    private func previewDescription(_ entry: RiftHistoryEntry) -> String {
+        copy.text("\(captureTitle(entry))，\(entry.record.image.pixelWidth) × \(entry.record.image.pixelHeight)，\(stateText(entry))，编号 \(entry.id.uuidString.prefix(8))。Escape 或空格关闭预览。",
+            "\(captureTitle(entry)), \(entry.record.image.pixelWidth) × \(entry.record.image.pixelHeight), \(stateText(entry)), ID \(entry.id.uuidString.prefix(8)). Press Escape or Space to close the preview.")
     }
 
     private func updatePreviewIdentity() {
         guard let entry = previewEntry else { return }
-        previewWindow?.title = Self.captureTitle(entry) + " · " + String(entry.id.uuidString.prefix(8))
-        previewImage?.setAccessibilityLabel(Self.previewDescription(entry))
+        previewWindow?.title = captureTitle(entry) + " · " + String(entry.id.uuidString.prefix(8))
+        previewImage?.setAccessibilityLabel(previewDescription(entry))
     }
 
     private func observePreviewFile() {
@@ -579,7 +583,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
             view.image = nil; previewVerifiedAsset = nil
             view.imageScaling = .scaleProportionallyDown
         }
-        previewStatus?.stringValue = view.image == nil ? "正在加载预览…" : "正在加载清晰预览…"
+        previewStatus?.stringValue = view.image == nil ? copy.text("正在加载预览…", "Loading preview…") : copy.text("正在加载清晰预览…", "Loading detailed preview…")
         let load = DispatchWorkItem { [weak self, weak panel] in
             guard let self, let panel, self.previewWindow === panel, self.previewEpoch == epoch,
                   self.previewEntry?.record.image == entry.record.image, panel.isVisible else { return }
@@ -603,10 +607,10 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
                             size: loaded.displaySize(backing: panel.backingScaleFactor))
                         self.previewVerifiedAsset = entry.record.image
                         self.previewImage?.imageScaling = self.previewZoom == nil ? .scaleProportionallyDown : .scaleProportionallyUpOrDown
-                        self.previewStatus?.stringValue = self.previewZoom == nil ? "已按窗口显示" : "原件校验预览 · 显示解码受内存上限保护"
+                        self.previewStatus?.stringValue = self.previewZoom == nil ? self.copy.text("已按窗口显示", "Fit to window") : self.copy.text("原件校验预览 · 显示解码受内存上限保护", "Verified original preview · memory use is limited")
                     default:
                         self.previewImage?.image = nil; self.previewVerifiedAsset = nil
-                        self.previewStatus?.stringValue = "无法加载清晰预览，图片记录仍保留"
+                        self.previewStatus?.stringValue = self.copy.text("无法加载清晰预览，图片记录仍保留", "Couldn’t load the detailed preview. The image record is still saved.")
                     }
                 }
         }
@@ -663,7 +667,8 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         if column.identifier.rawValue == "preview" {
             let cell = (tableView.makeView(withIdentifier: column.identifier, owner: self) as? HistoryImageCell)
                 ?? HistoryImageCell(frame: .zero)
-            cell.identifier = column.identifier; cell.representedID = entry.id; cell.preview.image = nil
+            cell.identifier = column.identifier; cell.preview.setAccessibilityLabel(copy.text("截图预览", "Screenshot preview"))
+            cell.representedID = entry.id; cell.preview.image = nil
             let scale = historyWindow.backingScaleFactor
             cache.image(for: entry.record.image, maxPixelSize: Int(76 * scale)) { [weak cell] image in
                 guard let cell, cell.representedID == entry.id else { return }
@@ -677,8 +682,8 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         let formatter = DateFormatter()
         formatter.setLocalizedDateFormatFromTemplate(Calendar.current.isDate(HistoryPresentation.captureDate(for: entry), equalTo: Date(), toGranularity: .year) ? "MMMd HHmm" : "yyMMdd HHmm")
         cell.title.stringValue = formatter.string(from: HistoryPresentation.captureDate(for: entry))
-        cell.subtitle.stringValue = Self.stateText(entry)
-        cell.toolTip = HistoryPresentation.dateText(for: entry) + " · " + Self.stateText(entry)
+        cell.subtitle.stringValue = stateText(entry)
+        cell.toolTip = HistoryPresentation.dateText(for: entry) + " · " + stateText(entry)
         return cell
     }
 

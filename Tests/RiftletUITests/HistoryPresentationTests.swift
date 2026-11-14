@@ -66,8 +66,8 @@ final class HistoryPresentationTests: XCTestCase {
             uploadStartEvidence: .init(profileID: "simulation-upload-start-v1", signal: .correlatedProgress, evidenceID: "original"))
         let entry = RiftHistoryEntry(record: record, operation: op, startReceipt: start)
         let pending = RiftHistoryEntry(record: record, operation: op, lastReceipt: start)
-        XCTAssertEqual(HistoryPresentation.localizedState(for: entry), "已交给 ChatGPT")
-        XCTAssertEqual(HistoryPresentation.detailText(for: entry), "上传结果见原对话。")
+        XCTAssertEqual(HistoryPresentation.localizedState(for: entry, copy: .simplifiedChinese), "已交给 ChatGPT")
+        XCTAssertEqual(HistoryPresentation.detailText(for: entry, copy: .simplifiedChinese), "上传结果见原对话。")
         XCTAssertTrue(RiftHistoryFilter.handedOff.includes(entry))
         XCTAssertFalse(RiftHistoryFilter.attached.includes(entry))
         XCTAssertFalse(RiftHistoryFilter.needsVerification.includes(entry))
@@ -77,8 +77,8 @@ final class HistoryPresentationTests: XCTestCase {
         }
         let missing = asset(status: .missing, visibility: .swallowed, operationID: op.id, id: record.id)
         let missingEntry = RiftHistoryEntry(record: missing, operation: op, startReceipt: start)
-        XCTAssertEqual(HistoryPresentation.localizedState(for: missingEntry), "本地副本不可用")
-        XCTAssertTrue(HistoryPresentation.detailText(for: missingEntry).contains("已交给"))
+        XCTAssertEqual(HistoryPresentation.localizedState(for: missingEntry, copy: .simplifiedChinese), "本地副本不可用")
+        XCTAssertTrue(HistoryPresentation.detailText(for: missingEntry, copy: .simplifiedChinese).contains("已交给"))
         XCTAssertFalse(RiftHistoryFilter.handedOff.includes(missingEntry))
         XCTAssertFalse(missingEntry.canRestoreToRift)
     }
@@ -150,6 +150,25 @@ final class HistoryPresentationTests: XCTestCase {
         let result = HistoryPresentation.matching([first, latest, second])
         XCTAssertEqual(result.map(\.id), [latest.id, second.id, first.id])
         XCTAssertEqual(result.map(\.record.sequence), [3, 2, 1])
+    }
+
+    func testBothLanguagesPreserveUnknownAndMissingSemanticsAndSearchIdentity() {
+        let unknown = RiftHistoryEntry(record: asset(status: .unknown, visibility: .swallowed))
+        let missing = RiftHistoryEntry(record: asset(status: .missing))
+        for copy in [ProductCopy.simplifiedChinese, .english] {
+            XCTAssertEqual(HistoryPresentation.localizedState(for: unknown, copy: copy),
+                           copy.text("结果待核实", "Needs review"))
+            XCTAssertEqual(HistoryPresentation.localizedState(for: missing, copy: copy),
+                           copy.text("本地副本不可用", "Local copy unavailable"))
+            XCTAssertEqual(HistoryPresentation.detailText(for: unknown, copy: copy),
+                           copy.text("请到原对话核对附件。Riftlet 不会自动重传。",
+                                     "Check the attachment in the original conversation. Riftlet will not upload it again automatically."))
+            XCTAssertFalse(unknown.canRestoreToRift)
+            XCTAssertEqual(RiftHistoryFilter.needsVerification.title(copy: copy), copy.text("待核实", "Needs Review"))
+        }
+        for query in ["结果待核实", "Needs review", unknown.id.uuidString] {
+            XCTAssertEqual(HistoryPresentation.matching([unknown, missing], query: query).map(\.id), [unknown.id])
+        }
     }
 
     func testLocalPageSearchSupportsDateImageIdentityAndState() {

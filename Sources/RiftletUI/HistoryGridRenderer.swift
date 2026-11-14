@@ -45,14 +45,15 @@ struct HistoryGridSection {
     let title: String
     let entries: [RiftHistoryEntry]
 
-    static func make(_ entries: [RiftHistoryEntry], now: Date = Date(), calendar: Calendar = .current) -> [Self] {
+    static func make(_ entries: [RiftHistoryEntry], now: Date = Date(), calendar: Calendar = .current,
+                     copy: ProductCopy = .current) -> [Self] {
         let today = calendar.startOfDay(for: now)
         let yesterday = calendar.date(byAdding: .day, value: -1, to: today) ?? today
         let groups = Dictionary(grouping: entries) { entry in
             let date = HistoryPresentation.captureDate(for: entry)
             return calendar.isDate(date, inSameDayAs: today) ? 0 : calendar.isDate(date, inSameDayAs: yesterday) ? 1 : 2
         }
-        return ["今天", "昨天", "更早"].enumerated().compactMap { index, title in
+        return [copy.text("今天", "Today"), copy.text("昨天", "Yesterday"), copy.text("更早", "Earlier")].enumerated().compactMap { index, title in
             guard let values = groups[index], !values.isEmpty else { return nil }
             return Self(title: title, entries: values)
         }
@@ -164,6 +165,7 @@ final class HistoryGridThumbnailLoader {
 final class HistoryGridRenderer: NSObject, NSCollectionViewDataSource, NSCollectionViewDelegateFlowLayout {
     let scrollView = NSScrollView()
     let collection = HistoryGridCollectionView()
+    private let copy: ProductCopy
     private let layout = NSCollectionViewFlowLayout()
     private var sections: [HistoryGridSection] = []
     private var suppressSelection = false
@@ -175,10 +177,11 @@ final class HistoryGridRenderer: NSObject, NSCollectionViewDataSource, NSCollect
     private let stateText: (RiftHistoryEntry) -> String
     private let mayLoad: () -> Bool
     private var thumbnails: HistoryGridThumbnailLoader!
-    private let empty = NSTextField(wrappingLabelWithString: "本页没有符合条件的截图")
+    private lazy var empty = NSTextField(wrappingLabelWithString: copy.text("本页没有符合条件的截图", "No matching screenshots on this page"))
 
-    init(directory: URL, onSelection: @escaping (UUID?) -> Void, onPreview: @escaping () -> Void,
+    init(copy: ProductCopy = .current, directory: URL, onSelection: @escaping (UUID?) -> Void, onPreview: @escaping () -> Void,
          stateText: @escaping (RiftHistoryEntry) -> String, mayLoad: @escaping () -> Bool) {
+        self.copy = copy
         self.onSelection = onSelection; self.onPreview = onPreview
         self.stateText = stateText; self.mayLoad = mayLoad
         super.init()
@@ -199,7 +202,7 @@ final class HistoryGridRenderer: NSObject, NSCollectionViewDataSource, NSCollect
         collection.register(HistoryGridItem.self, forItemWithIdentifier: .init("history.grid.item"))
         collection.register(HistoryGridHeader.self, forSupplementaryViewOfKind: NSCollectionView.elementKindSectionHeader,
                             withIdentifier: .init("history.grid.header"))
-        collection.setAccessibilityLabel("按截图时间分组的本机图像；空格查看原图")
+        collection.setAccessibilityLabel(copy.text("按截图时间分组的本机图像；空格查看原图", "Local images grouped by capture date. Press Space to view the original."))
         scrollView.documentView = collection; scrollView.hasVerticalScroller = true
         scrollView.autohidesScrollers = true; scrollView.drawsBackground = false
         scrollView.contentView.postsBoundsChangedNotifications = true
@@ -216,7 +219,7 @@ final class HistoryGridRenderer: NSObject, NSCollectionViewDataSource, NSCollect
     deinit { NotificationCenter.default.removeObserver(self) }
 
     func update(entries: [RiftHistoryEntry], selection: UUID?) {
-        sections = HistoryGridSection.make(entries); selectedID = selection
+        sections = HistoryGridSection.make(entries, copy: copy); selectedID = selection
         thumbnails.pageChanged()
         suppressSelection = true; collection.reloadData(); restoreSelection(); suppressSelection = false
         empty.isHidden = !entries.isEmpty
@@ -317,7 +320,7 @@ final class HistoryGridRenderer: NSObject, NSCollectionViewDataSource, NSCollect
     func collectionView(_ collectionView: NSCollectionView, itemForRepresentedObjectAt indexPath: IndexPath) -> NSCollectionViewItem {
         let item = collectionView.makeItem(withIdentifier: .init("history.grid.item"), for: indexPath)
         if let cell = item as? HistoryGridItem, let value = entry(indexPath) {
-            cell.configure(entry: value, state: stateText(value), onSelection: { [weak self] selected in
+            cell.configure(entry: value, state: stateText(value), copy: copy, onSelection: { [weak self] selected in
                 self?.selectFromAccessibility(value.id, selected: selected) ?? false
             })
             cell.setImage(thumbnails.loadedImage(for: value.record.image), asset: value.record.image,
@@ -422,7 +425,8 @@ private final class HistoryGridItem: NSCollectionViewItem {
     private let image = NSImageView()
     private let time = NSTextField(labelWithString: "")
     private let state = NSTextField(labelWithString: "")
-    private let placeholder = NSTextField(labelWithString: "预览不可用")
+    private var copy: ProductCopy = .current
+    private let placeholder = NSTextField(labelWithString: "")
     private var representedAsset: ImportedAsset?
     private var imageIdentity: HistoryPreviewFileIdentity?
     private var imageURL: URL?
@@ -460,16 +464,18 @@ private final class HistoryGridItem: NSCollectionViewItem {
             state.topAnchor.constraint(equalTo: time.bottomAnchor, constant: 2)])
     }
 
-    func configure(entry: RiftHistoryEntry, state: String, onSelection: @escaping (Bool) -> Bool) {
+    func configure(entry: RiftHistoryEntry, state: String, copy: ProductCopy = .current, onSelection: @escaping (Bool) -> Bool) {
         _ = view
         let format = DateFormatter(); format.dateFormat = "HH:mm"
         time.stringValue = format.string(from: HistoryPresentation.captureDate(for: entry))
+        self.copy = copy
         self.state.stringValue = state
         view.identifier = .init("history.grid.item." + entry.id.uuidString)
         view.toolTip = HistoryPresentation.dateText(for: entry) + " · " + state
         itemView.setAccessibilityIdentifier(view.identifier?.rawValue)
-        itemView.setAccessibilityLabel("\(HistoryPresentation.dateText(for: entry))，\(entry.record.image.pixelWidth) × \(entry.record.image.pixelHeight)，\(state)，编号 \(entry.id.uuidString.prefix(8))")
-        itemView.setAccessibilityHelp("选择截图；按空格查看原图。")
+        itemView.setAccessibilityLabel(copy.text("\(HistoryPresentation.dateText(for: entry))，\(entry.record.image.pixelWidth) × \(entry.record.image.pixelHeight)，\(state)，编号 \(entry.id.uuidString.prefix(8))",
+            "\(HistoryPresentation.dateText(for: entry)), \(entry.record.image.pixelWidth) × \(entry.record.image.pixelHeight), \(state), ID \(entry.id.uuidString.prefix(8))"))
+        itemView.setAccessibilityHelp(copy.text("选择截图；按空格查看原图。", "Select a screenshot. Press Space to view the original."))
         itemView.selected = isSelected; itemView.onSelection = onSelection
     }
 
@@ -483,7 +489,7 @@ private final class HistoryGridItem: NSCollectionViewItem {
         // A visible cell may keep its own verified display bitmap after LRU
         // eviction. Reuse/replacement cannot put those pixels under another ID.
         placeholder.isHidden = image.image != nil
-        placeholder.stringValue = unavailable ? "预览不可用" : "正在加载预览…"
+        placeholder.stringValue = unavailable ? copy.text("预览不可用", "Preview unavailable") : copy.text("正在加载预览…", "Loading preview…")
     }
 }
 

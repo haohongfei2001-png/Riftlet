@@ -74,7 +74,7 @@ final class HistoryDisplayStyleTests: XCTestCase {
     func testDefaultUsesOriginalTableAndPassiveProjectionDoesNotPresentOrDispatch() throws {
         try display()
         var commands = 0, choices: [HistoryDisplayStyle] = []
-        let controller = RiftHistoryController(mediaDirectory: try directory(), onRestore: { _ in commands += 1 },
+        let controller = RiftHistoryController(copy: .simplifiedChinese, mediaDirectory: try directory(), onRestore: { _ in commands += 1 },
             onRemove: { _ in commands += 1 }, onReveal: { _ in commands += 1 },
             onNextPage: { commands += 1 }, onPreviousPage: { commands += 1 },
             onDisplayStyleChanged: { choices.append($0) })
@@ -101,7 +101,7 @@ final class HistoryDisplayStyleTests: XCTestCase {
             RiftHistoryEntry(record: AssetRecord(image: $0.element, sequence: Int64(3 - $0.offset)))
         }
         var selections: [UUID?] = []
-        let renderer = HistoryGridRenderer(directory: dir, onSelection: { selections.append($0) },
+        let renderer = HistoryGridRenderer(copy: .simplifiedChinese, directory: dir, onSelection: { selections.append($0) },
             onPreview: { XCTFail("Geometry must not open an original") }, stateText: { _ in "待附加" }, mayLoad: { false })
         defer { renderer.clear() }
         // Keep the fixture's exact clip widths independent of the user's
@@ -168,7 +168,7 @@ final class HistoryDisplayStyleTests: XCTestCase {
     func testUserSelectorRequestsOwnerProjectionWithoutAnIndependentPreference() throws {
         try display()
         var requested: [HistoryDisplayStyle] = []
-        let controller = RiftHistoryController(mediaDirectory: try directory(), onRestore: { _ in }, onRemove: { _ in },
+        let controller = RiftHistoryController(copy: .simplifiedChinese, mediaDirectory: try directory(), onRestore: { _ in }, onRemove: { _ in },
             onReveal: { _ in }, onDisplayStyleChanged: { requested.append($0) })
         defer { controller.close() }
         let selector: NSSegmentedControl = try find("history.displayStyle", in: controller.window)
@@ -188,7 +188,7 @@ final class HistoryDisplayStyleTests: XCTestCase {
         let selected = RiftHistoryEntry(record: AssetRecord(image: image, sequence: 2, visibility: .archived), canRestore: true)
         var restored: [UUID] = [], revealed: [UUID] = [], paging = 0
         weak var owner: RiftHistoryController?
-        let controller = RiftHistoryController(mediaDirectory: dir, onRestore: { restored.append($0) }, onRemove: { _ in XCTFail("Unexpected remove") },
+        let controller = RiftHistoryController(copy: .simplifiedChinese, mediaDirectory: dir, onRestore: { restored.append($0) }, onRemove: { _ in XCTFail("Unexpected remove") },
             onReveal: { revealed.append($0) }, onNextPage: { paging += 1 }, onPreviousPage: { paging += 1 },
             onDisplayStyleChanged: { owner?.updateDisplayStyle($0) })
         owner = controller; defer { controller.close() }
@@ -238,7 +238,7 @@ final class HistoryDisplayStyleTests: XCTestCase {
         try display()
         let dir = try directory(), selected = try asset(in: dir), newer = try asset(in: dir, date: Date().addingTimeInterval(10))
         var revealed: [UUID] = []
-        let controller = RiftHistoryController(mediaDirectory: dir, onRestore: { _ in }, onRemove: { _ in }, onReveal: { revealed.append($0) })
+        let controller = RiftHistoryController(copy: .simplifiedChinese, mediaDirectory: dir, onRestore: { _ in }, onRemove: { _ in }, onReveal: { revealed.append($0) })
         defer { controller.close() }
         let original = RiftHistoryEntry(record: AssetRecord(image: selected, sequence: 1))
         controller.update(entries: [original]); controller.show()
@@ -261,7 +261,7 @@ final class HistoryDisplayStyleTests: XCTestCase {
     func testOriginalWindowIdentityBitmapAndZoomSurviveBothStyleChanges() async throws {
         try display()
         let dir = try directory(), image = try asset(in: dir, width: 120, height: 240)
-        let controller = RiftHistoryController(mediaDirectory: dir, onRestore: { _ in }, onRemove: { _ in }, onReveal: { _ in })
+        let controller = RiftHistoryController(copy: .simplifiedChinese, mediaDirectory: dir, onRestore: { _ in }, onRemove: { _ in }, onReveal: { _ in })
         defer { controller.close() }
         controller.update(entries: [RiftHistoryEntry(record: AssetRecord(image: image, sequence: 1))]); controller.show()
         let table: NSTableView = try find("history.current.table", in: controller.window)
@@ -284,7 +284,7 @@ final class HistoryDisplayStyleTests: XCTestCase {
         try display()
         let dir = try directory(), original = try asset(in: dir, width: 120, height: 240)
         let other = try asset(in: dir, date: Date().addingTimeInterval(-10), width: 240, height: 120)
-        let controller = RiftHistoryController(mediaDirectory: dir, onRestore: { _ in }, onRemove: { _ in }, onReveal: { _ in })
+        let controller = RiftHistoryController(copy: .simplifiedChinese, mediaDirectory: dir, onRestore: { _ in }, onRemove: { _ in }, onReveal: { _ in })
         defer { controller.close() }
         controller.update(entries: [original, other].enumerated().map {
             RiftHistoryEntry(record: AssetRecord(image: $0.element, sequence: Int64(2 - $0.offset)))
@@ -318,7 +318,7 @@ final class HistoryDisplayStyleTests: XCTestCase {
     func testLoadedLargeDetailDoesNotGrowMinimumWindowAcrossBothStyles() async throws {
         try display()
         let dir = try directory(), image = try asset(in: dir, width: 1200, height: 750)
-        let controller = RiftHistoryController(mediaDirectory: dir, onRestore: { _ in }, onRemove: { _ in }, onReveal: { _ in })
+        let controller = RiftHistoryController(copy: .simplifiedChinese, mediaDirectory: dir, onRestore: { _ in }, onRemove: { _ in }, onReveal: { _ in })
         defer { controller.close() }
         controller.update(entries: [RiftHistoryEntry(record: AssetRecord(image: image, sequence: 1))])
         controller.show()
@@ -351,7 +351,7 @@ final class HistoryDisplayStyleTests: XCTestCase {
     func testGridNativeDeselectThenSelectKeepsOriginalWindowAndMapsUUIDBackToTable() async throws {
         try display()
         let dir = try directory(), newer = try asset(in: dir), older = try asset(in: dir, date: Date().addingTimeInterval(-10))
-        let controller = RiftHistoryController(mediaDirectory: dir, onRestore: { _ in }, onRemove: { _ in },
+        let controller = RiftHistoryController(copy: .simplifiedChinese, mediaDirectory: dir, onRestore: { _ in }, onRemove: { _ in },
             onReveal: { _ in }, displayStyle: .imageGrid)
         defer { controller.close() }
         controller.update(entries: [newer, older].enumerated().map {
@@ -396,7 +396,7 @@ final class HistoryDisplayStyleTests: XCTestCase {
         try display()
         let dir = try directory(), newer = try asset(in: dir), older = try asset(in: dir, date: Date().addingTimeInterval(-10))
         var revealed: [UUID] = []
-        let controller = RiftHistoryController(mediaDirectory: dir, onRestore: { _ in XCTFail("AX selection must not restore") },
+        let controller = RiftHistoryController(copy: .simplifiedChinese, mediaDirectory: dir, onRestore: { _ in XCTFail("AX selection must not restore") },
             onRemove: { _ in XCTFail("AX selection must not remove") }, onReveal: { revealed.append($0) }, displayStyle: .imageGrid)
         defer { controller.close() }
         controller.update(entries: [newer, older].enumerated().map {
@@ -448,10 +448,65 @@ final class HistoryDisplayStyleTests: XCTestCase {
             RiftHistoryEntry(record: AssetRecord(image: try asset(in: dir, date: date), sequence: Int64(index + 1)))
         }
         let shared = HistoryPresentation.matching(entries)
-        let groups = HistoryGridSection.make(shared, now: now, calendar: calendar)
+        let groups = HistoryGridSection.make(shared, now: now, calendar: calendar, copy: .simplifiedChinese)
         XCTAssertEqual(groups.map(\.title), ["今天", "昨天", "更早"])
+        let english = HistoryGridSection.make(shared, now: now, calendar: calendar, copy: .english)
+        XCTAssertEqual(english.map(\.title), ["Today", "Yesterday", "Earlier"])
+        XCTAssertEqual(english.flatMap(\.entries).map(\.id), shared.map(\.id))
         XCTAssertEqual(groups.flatMap(\.entries).map(\.id), shared.map(\.id))
         XCTAssertTrue(HistoryGridSection.make([], now: now, calendar: calendar).isEmpty)
+    }
+
+    @MainActor
+    func testBothLanguagesKeepSearchSelectionPreviewAndActionUUIDsAcrossRenderers() throws {
+        try display()
+        let dir = try directory(), image = try asset(in: dir)
+        let record = AssetRecord(image: image, sequence: 7, status: .pending, visibility: .archived)
+        let entry = RiftHistoryEntry(record: record, canRestore: true)
+        for copy in [ProductCopy.simplifiedChinese, .english] {
+            var restored: [UUID] = [], removed: [UUID] = [], revealed: [UUID] = []
+            let controller = RiftHistoryController(copy: copy, mediaDirectory: dir,
+                onRestore: { restored.append($0) }, onRemove: { removed.append($0) }, onReveal: { revealed.append($0) })
+            defer { controller.close() }
+            controller.update(entries: [entry], pageOffset: 200)
+            controller.show()
+            XCTAssertEqual(controller.window.title, copy.text("截图历史", "Screenshot History"))
+            let search: NSSearchField = try find("history.search", in: controller.window)
+            XCTAssertEqual(search.placeholderString, copy.text("搜索本页", "Search this page"))
+            search.stringValue = image.id.uuidString
+            controller.controlTextDidChange(Notification(name: NSControl.textDidChangeNotification, object: search))
+            let table: NSTableView = try find("history.current.table", in: controller.window)
+            table.selectRowIndexes(IndexSet(integer: 0), byExtendingSelection: false)
+            controller.tableViewSelectionDidChange(Notification(name: NSTableView.selectionDidChangeNotification, object: table))
+            XCTAssertEqual(controller.selectedRecordID, image.id)
+            let restore: NSButton = try find("history.restore", in: controller.window)
+            XCTAssertEqual(restore.title, copy.text("恢复到桌面", "Restore to Desktop"))
+            restore.performClick(nil)
+            let reveal: NSButton = try find("history.reveal", in: controller.window)
+            XCTAssertEqual(reveal.title, copy.text("在 Finder 中显示", "Show in Finder"))
+            reveal.performClick(nil)
+            let original: NSButton = try find("history.original", in: controller.window)
+            original.performClick(nil)
+            let preview = try XCTUnwrap(NSApp.windows.first { $0.isVisible && $0.identifier?.rawValue == "RiftletHistoryPreview" })
+            XCTAssertTrue(preview.title.hasPrefix(copy.text("截图 · ", "Screenshot · ")))
+            XCTAssertTrue(preview.title.contains(String(image.id.uuidString.prefix(8))))
+            preview.close()
+            controller.updateDisplayStyle(.imageGrid)
+            XCTAssertEqual(controller.selectedRecordID, image.id)
+            XCTAssertEqual(search.stringValue, image.id.uuidString)
+            let filter: NSPopUpButton = try find("history.grid.filter", in: controller.window)
+            XCTAssertEqual(filter.itemTitles, RiftHistoryFilter.menuFilters.map { $0.title(copy: copy) })
+            let count: NSTextField = try find("history.count", in: controller.window)
+            XCTAssertEqual(count.stringValue, copy.text("1 / 1 张 · 第 2 页", "1 / 1 · Page 2"))
+            controller.updateDisplayStyle(.current)
+            XCTAssertEqual(controller.selectedRecordID, image.id)
+            let visible = AssetRecord(image: image, sequence: record.sequence, status: .pending, visibility: .visible)
+            controller.update(entries: [.init(record: visible)])
+            let remove: NSButton = try find("history.remove", in: controller.window)
+            XCTAssertEqual(remove.title, copy.text("移出可见队列", "Remove from Queue"))
+            remove.performClick(nil)
+            XCTAssertEqual(restored, [image.id]); XCTAssertEqual(revealed, [image.id]); XCTAssertEqual(removed, [image.id])
+        }
     }
 
     @MainActor
