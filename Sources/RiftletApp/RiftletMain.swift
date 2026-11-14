@@ -201,6 +201,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 try environment.prepare(); reviewEnvironment = environment
             }
             let owner = try ApplicationInstanceOwnership(root: reviewEnvironment?.root ?? base.appendingPathComponent(mode.directoryName, isDirectory: true))
+            if InstallerDiskImage.revealForInstallationIfRequested(mode: mode) {
+                owner.keepUntilProcessExit()
+                NSApp.terminate(nil)
+                return
+            }
             try reviewEnvironment?.prepareFixtures()
             instanceOwnership = owner; root = owner.root
             if mode.usesWebAdapter, CommandLine.arguments.contains("--acceptance-trace") {
