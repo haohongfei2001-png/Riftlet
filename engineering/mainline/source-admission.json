@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "reviewedBase": "4c205b0744875fcd3bc1e16a9b5d995e0174325c",
-  "reviewedSource": "059064a36a6693b66c3b7982578355366d6ddce2",
-  "reviewedTree": "0b79943af4fbfe713895b1f89f3783d0ebed03a7",
-  "authorRole": "riftlet_search_discovery_author",
+  "reviewedBase": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",
+  "reviewedSource": "2f7588d4fb1a9e71138406828c6253e3c3e274b3",
+  "reviewedTree": "61cc75a922f7b200a0e789a8c76ce52e40028124",
+  "authorRole": "universal_attachment_integrator",
   "reviews": [
     {
-      "reviewer": "automated_search_indexing_source_checker",
-      "source": "059064a36a6693b66c3b7982578355366d6ddce2",
-      "tree": "0b79943af4fbfe713895b1f89f3783d0ebed03a7",
+      "reviewer": "independent_compatibility_review",
+      "source": "2f7588d4fb1a9e71138406828c6253e3c3e274b3",
+      "tree": "61cc75a922f7b200a0e789a8c76ce52e40028124",
       "result": "PASS",
-      "sha256": "78364306cb8c4a8ecdf65c2af763e0cc2104ae8b2f3009e49cb89ce23acb7141",
-      "report": "{\"reviewer\":\"automated_search_indexing_source_checker\",\"reviewedBase\":\"4c205b0744875fcd3bc1e16a9b5d995e0174325c\",\"reviewedSource\":\"059064a36a6693b66c3b7982578355366d6ddce2\",\"reviewedTree\":\"0b79943af4fbfe713895b1f89f3783d0ebed03a7\",\"result\":\"PASS\",\"checks\":[\"Nine-file source change inspected; official 1.0.1 download links, Sparkle feed, Umami instrumentation and native application remain unchanged.\",\"Public root IndexNow ownership key matches the expected key bytes, with valid canonical HTTPS sitemap and 2026-11-14 lastmod.\",\"Minimal SoftwareApplication JSON-LD names Riftlet and restricts product scope to macOS/Chrome ChatGPT drafts; official website title updated.\",\"Three Node tests ran successfully on the connected Mac (3 pass, 0 fail); source and policy checkpoint verified.\"],\"scope\":\"Automated static and remote Mac file-based checks only. Google Search Console ownership and real IndexNow receipt are NOT_RUN until verification/deployment; indexing is never guaranteed.\"}"
+      "sha256": "3cf58b68510059f7a06bb0a44786d276bc72bb6244fde8ca1f4258b98ac67267",
+      "report": "{\n  \"reviewer\": \"independent_compatibility_review\",\n  \"reviewedBase\": \"44f745a15ecb3682a9da0bda17f17a5d9fc1f07e\",\n  \"reviewedSource\": \"2f7588d4fb1a9e71138406828c6253e3c3e274b3\",\n  \"reviewedTree\": \"61cc75a922f7b200a0e789a8c76ce52e40028124\",\n  \"result\": \"PASS\",\n  \"checks\": [\n    \"Verified current remote base and exact Git tree, ancestry, clean working copy and git diff --check. Compared the full change relative to B with the prior audited attachment head d50e1a26, validated its embedded review digest and the integrated search-indexing main baseline. There is no product Sources, Resources or Package.swift delta from the prior attachment candidate. B and G contain the exact same admission file; it does not admit G.\",\n    \"Traced ordinary Riftlet composition and foreground click dispatch: only Chrome is registered and nonmatching hosts refuse before attachment. The Edge service inspector is read-only; five service patterns have no additional registered writer. Ordinary app-level attachmentAccepted releases its observer, so it cannot independently establish network upload completion.\",\n    \"Validated 32 unique commercial combinations and all ten dimensions per combination against the old matrix. All outcomes remain NOT_RUN, with separate scoped blockers. The acceptance record points to the inspected previous HEAD and records zero commercial actions, no validated signed-in draft, and per-image NOT_RUN for start and completion. Reported tool and device preflight observations are distinguished from real service results.\",\n    \"Reviewed the controlled native ARM step, fresh hosted-console and ordinary bundle guards, separate Edge profile, network restriction, original foreground owned window ID, uniquely matched product AX button, pre-mutation capability handling, no retry after entering AXPress and comparison of each hashed operation trace identity. Reviewed two system-capture hashes, read-only SQLite checks, distinct per-image rejection sequence, retained originals and neutral document/textarea/selection/existing image/empty-input validation. A second main-document GET is rejected; both partial AX outcomes remain distinct from verified two-action rejection.\",\n    \"Parsed workflow YAML and Python, independently verified fixture document GET 200 then 410 without using a browser, checked candidate Info.plist against recorded values, and ran the local preflight which returned 77 before GUI/captures with zero actions. Compared approved production admission map and protected real-data/permissions boundaries. The hosted package run is intentionally independent from this source review.\"\n  ],\n  \"scope\": \"Non-author engineering source review. The ordinary packaged-app Edge harness addresses only its owned loopback page and can verify rejection; a new hosted run, bridge, signed-in commercial acceptance, true network start/completion, installed App acceptance, physical clicks, remote approving review, main merge and release require their own evidence.\"\n}\n"
     }
   ],
   "productionAdmission": {
