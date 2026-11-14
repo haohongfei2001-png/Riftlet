@@ -293,8 +293,15 @@ final class RiftControlCenterControllerTests: XCTestCase {
             let titleRect = title.convert(title.bounds, to: controller.contentView)
             let captureRect = capture.convert(capture.bounds, to: controller.contentView)
             XCTAssertFalse(titleRect.intersects(captureRect))
-            XCTAssertGreaterThanOrEqual(captureRect.minX, 17)
-            XCTAssertLessThanOrEqual(captureRect.maxX, SettingsNativeStyle.controlCenterWidth - 17)
+            // Stack layout uses the button's alignment rect. Some macOS
+            // versions extend its rounded bezel/hit frame beyond that rect.
+            let captureParent = try XCTUnwrap(capture.superview)
+            let captureAlignmentRect = captureParent.convert(capture.alignmentRect(forFrame: capture.frame),
+                                                             to: controller.contentView)
+            XCTAssertGreaterThanOrEqual(captureAlignmentRect.minX, 17)
+            XCTAssertLessThanOrEqual(captureAlignmentRect.maxX, SettingsNativeStyle.controlCenterWidth - 17)
+            XCTAssertGreaterThanOrEqual(captureRect.minX, 0)
+            XCTAssertLessThanOrEqual(captureRect.maxX, SettingsNativeStyle.controlCenterWidth)
             XCTAssertEqual(capture.accessibilityLabel(), capture.title)
             XCTAssertEqual(controller.contentView.bounds.width, SettingsNativeStyle.controlCenterWidth)
             XCTAssertFalse(window.isVisible)

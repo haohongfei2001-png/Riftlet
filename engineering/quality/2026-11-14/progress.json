@@ -181,6 +181,13 @@
       "supplementalCI": "Headfea620b formal result3PASS2FAIL. Unit/integration and all four packaged selfchecks passed on both architectures; supplemental screenshot helper still awaited Chinese text under English. Four expected labels localized with ProductCopy. All original readiness/identity/pixel/geometry/timing assertions retained.",
       "supplementalNative": "Same helper and original validators passed six cases in each process language on actual guest WindowServer;12/12. Receipt retained privately.",
       "next": "Independent combined-source review and fresh formal CI. Previous source-bound update success is retained independently from this localized UI correction."
+    },
+    "systemButtonAlignmentRegression": {
+      "failedHead": "a073ab0f3bb96f4fbe49ec01376dfbd5c189b245",
+      "formalCI": "3 PASS / 2 FAIL. Both architectures failed only the five states of new header test at the same outer-frame margin assertion. Full raw logs retained.",
+      "cause": "On macOS15 standard NSButton alignment insets place its complete outer hit frame at10pt while its alignment rectangle is at the intended17pt margin. The added test treated both as the same geometry.",
+      "correction": "Verify the visual alignment rectangle against content margins and the full hit frame against popover bounds. Retain original full-word/intrinsic-size/non-overlap/edge-hit/action checks.",
+      "shippingSource": "No product-source or resource change. The signed notarized624e1b5 App and native frames retain their exact identities."
     }
   }
 }
