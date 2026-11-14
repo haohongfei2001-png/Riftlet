@@ -10,7 +10,7 @@
 - 当前 JS：`Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js`，SHA-256 `0daf3f2763e340503b8c957c4ef35a619417c5e486ac48fccbcae3f657ff9a09`。
 - 已执行：Node v24.22.1，现有 `attachment-entry-handoff.test.cjs` + `ordinary-composer.test.cjs` 共 56 测试通过；另以生产 JS 和仓库的合成 DOM fixture 两次复现 QA-ATT-001。
 - 未执行：本机无 Swift/macOS，未运行原生 AppKit、Apple Events、TCC、真实 ChatGPT。尝试独立 Linux Chromium/loopback 实证，Chromium 启动即被环境拒绝 `socket() ... Operation not permitted`，没有进入测试；不算原生通过。
-- 原生受控脚本已准备，可在可用 Mac/Chromium 中复跑；此脚本也不能代替真实 ChatGPT。
+- 本次随 Git 交付的可复跑反例是 `evidence/attachment-foreign-picker-repro.cjs`。Chromium 启动尝试仅保留受阻记录，实验脚本未作为验收工具交付；后续仍需另行完成真浏览器与真实 ChatGPT 验收。
 
 ## Findings
 
@@ -33,10 +33,10 @@
 4. Riftlet 发起当前截图 commit。
 5. 约 3 秒后，无关 input 收到本图 FileList 和 change。
 
-复现脚本：`attachment-foreign-picker-repro.cjs`。命令：
+复现脚本：`docs/quality/evidence/attachment-foreign-picker-repro.cjs`。从仓库根执行（清除生产脚本覆盖变量）：
 
 ```sh
-node attachment-foreign-picker-repro.cjs /absolute/path/to/Riftlet
+env -u RIFTLET_PAGE_PROGRAM_SOURCE node docs/quality/evidence/attachment-foreign-picker-repro.cjs "$PWD"
 ```
 
 实际结果：`entryClicks=1`、`foreignSetters=1`、`foreignChanges=1`、`foreignReceivedCurrentFile=true`、`state=inputTriggered`；无 ChatGPT、网络或私人图片。脚本当前是缺陷见证，退出 0 表示仍复现；修复的回归测试必须反向断言 0 setter/change。
@@ -67,7 +67,8 @@ node attachment-foreign-picker-repro.cjs /absolute/path/to/Riftlet
 - `Sources/RiftletCore/QueueStore.swift:221–239`：prepare 原子持久化 `phase=prepared`，asset 改为 `transferring`。
 - `Sources/RiftletApp/RiftletMain.swift:556–568`：正式 Web adapter 属于 IndependentFileInputAdapter，启动完全跳过 `recoverInterruptedOperations()`，仍记录 local_recovery_complete。
 - `Sources/RiftletCore/TransferCoordinator.swift:323–335`：其 recover 同样直接返回，不收尾 prepared。
-- `Sources/RiftletCore/TransferCoordinator.swift:238–269`：用户再次点击该资产时将 prepared 视为原 unresolved；仅 unknown/compensated 会尝试 reconcile，prepared 只刷新并返回，没有重新排入等待队列。
+- `Sources/RiftletUI/RiftPanelController.swift:1815`：正常原生 onDown 先拒绝 transferring 资产，因此重新点击通常连Core也不到。
+- `Sources/RiftletCore/TransferCoordinator.swift:238–269`：即便直接调用Core选择该资产，也将 prepared 视为原 unresolved；仅 unknown/compensated 会尝试 reconcile，prepared 只刷新并返回，没有重新排入等待队列。
 - `Sources/RiftletApp/RiftletMain.swift:1294–1311`：仍为残留 prepared 显示“附加处理中，结果尚待确认；请保留当前聊天草稿。”
 - 现有 `QueueStore.swift:732–733` 已有 prepared→failed 的安全本地恢复，但是正式 Web 启动不调用。
 
@@ -88,6 +89,8 @@ node attachment-foreign-picker-repro.cjs /absolute/path/to/Riftlet
 - 真实 App 在连续两图及强退/重开下复验，不再永久显示 preparing。
 
 影响：存在 prepared 操作时异常退出的用户；成本小至中等；主要风险是误把已入外部副作用的操作当可重试。第一轮修复。
+
+附加恢复约束：prepared若同时media missing，不得在收尾时清除missing或变成虚假可点击；本地文件恢复仍须通过原UUID/hash校验。
 
 ### QA-ATT-003 · P2 · 正常接收后的历史和设置永久显示“待核实”
 
@@ -118,6 +121,10 @@ node attachment-foreign-picker-repro.cjs /absolute/path/to/Riftlet
 
 影响：每次正常附加都出现；成本小至中等；第二轮信息架构和第三轮历史精修可合并实施。
 
+**START身份与展示优先级**：必须在现有historySnapshot事务中投影当前active operation对应的不可变START；匹配activeOperationID、assetID、attempt、target与assetSHA256。现有QueueHistoryRecord/RiftHistoryEntry仅带lastReceipt，不能用swallowed、任意旧START或单个成功布尔值替代。媒体缺失、当前关联的后发错误/compensated优先呈现异常；其他旧attempt有START不能覆盖当前未知。当前匹配START仅有“上传终态未知”仍可呈现交接事实，不用笼统UNKNOWN重新吞掉这条正面证据。
+
+最小验收组合：当前START无异常→已交给ChatGPT/不计待核实；当前无START输入不明→待确认/不可重传；START后当前关联错误→检查原对话/保留待核实；已准入READY→已附加；准入安全失败→按原Core判定是否可重试；旧attempt START＋当前未知→当前待确认；媒体缺失＋历史START→缺媒体优先并保留交接事实。列表/网格/筛选/搜索/设置计数共用只读投影，不改变任何恢复或重试权限。详见[独立复核状态矩阵](https://github.com/haohongfei2001-png/Riftlet/blob/quality/riftlet-1.0-audit-20261114/docs/quality/evidence/interaction-independent-review.md)。
+
 ### QA-ATT-004 · P1 · 点击回调在主线程同步等待 Chrome Apple Event
 
 **结论：线程与超时代码确认；没有本轮原生卡顿计时，不能声称所有用户每次卡 5 秒。**
@@ -144,6 +151,8 @@ node attachment-foreign-picker-repro.cjs /absolute/path/to/Riftlet
 - 记录原生主线程延迟与实际target，不仅验证函数使用了async关键字。
 
 影响：Chrome忙、恢复/退出、自动化事件慢时；成本中等；回归风险高于状态文案，必须保持 click-time binding。建议第一轮或与 QA-ATT-001 同轮但独立提交。
+
+拒绝把activeIdentity原样移到延后的Task：其front window/active tab是执行时动态对象，可能读到点击后的目标。应先在短且有界的点击预算内取得绝对window/tab身份，再异步查询固定身份URL/DOM；或用可证明点击时归属的原生异步协议。记录整组主线程预算及冷首击/切tab证据，不以async关键字作为验收。
 
 ## 仍有效的机制
 

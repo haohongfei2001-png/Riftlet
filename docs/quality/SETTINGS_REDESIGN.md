@@ -94,7 +94,7 @@
 
 ### QA-SET-007｜P2｜面向英文官网的首用/权限/设置仍全部硬编码中文
 
-**位置**：`RiftSettingsCenterPages.swift`、`RiftOnboardingController.swift`、`RiftControlCenterController.swift`、`Resources/Info.plist` 的四种权限用途字符串；`Resources/` 未含对应本地化资源；`docs/consumer/QUICK-START.en.md` 通过括号中文帮助用户寻找控件。
+**位置**：`RiftSettingsCenterPages.swift`、`RiftOnboardingController.swift`、`RiftControlCenterController.swift`、`Resources/Info.plist` 的五项权限用途字符串；`Resources/` 未含对应本地化资源；`docs/consumer/QUICK-START.en.md` 通过括号中文帮助用户寻找控件。
 
 **证据与范围**：源码确认没有这些核心流程的英文资源，不是宣称系统无法显示中文或每个用户都受阻。英文官网已经提供英文发现/下载路径，进入 App 后切换语言造成认知断层。
 

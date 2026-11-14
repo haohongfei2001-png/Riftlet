@@ -275,7 +275,15 @@
     "checked": "2026-11-14",
     "branchProtected": false,
     "rulesets": [],
-    "scope": "Read through GitHub connector; no change requested or applied by this audit."
+    "scope": "Read through GitHub connector; no change requested or applied by this audit.",
+    "protectionEnabled": false,
+    "requiredStatusChecks": {
+      "enforcement_level": "off",
+      "contexts": [],
+      "checks": []
+    },
+    "branchEndpoint": "https://api.github.com/repos/haohongfei2001-png/Riftlet/branches/main",
+    "rulesetsEndpoint": "https://api.github.com/repos/haohongfei2001-png/Riftlet/rulesets"
   },
   "environment": {
     "system": "Linux x86_64",
