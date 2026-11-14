@@ -1,11 +1,13 @@
 # Take your first screenshot and attach it
 
-The app interface is primarily in Simplified Chinese. This guide describes the upcoming native settings update. The website’s current 1.0.1 download uses the earlier settings layout. In the candidate, the macOS permission requests for screenshots, folders and Chrome include English and Simplified Chinese descriptions.
+This guide covers the English first-use candidate. Setup and its folder picker follow your Mac’s preferred language (English or Chinese). macOS permission requests also have English and Simplified Chinese descriptions. The four settings pages, menu bar controls and screenshot history still use Simplified Chinese. The website’s 1.0.1 download uses the earlier interface.
 
-1. Open Riftlet from Applications. In setup, check the displayed screenshot folder. If access is needed, choose **授权读取系统截图文件夹…** (Allow access to the system screenshot folder) and select the folder shown.
-2. Open an editable ChatGPT draft in Google Chrome. Return to setup and allow Riftlet to control Chrome when macOS asks. In Chrome’s menu bar, select **View → Developer → Allow JavaScript from Apple Events**, then check the connection in Riftlet. This setting allows apps with Chrome automation permission to run page scripts. For local screenshot history alone, choose **稍后设置** (Set up later).
-3. Finish setup and use the Mac’s Screenshot app to capture a window, an area or the whole screen. Save the image as a file. Its thumbnail appears at the edge of the desktop.
+1. Open Riftlet from Applications. In setup, check the displayed screenshot folder. If access is needed, choose **Allow Screenshot Folder Access…** (授权读取系统截图文件夹…) and select the folder shown.
+2. Open an editable ChatGPT draft in Google Chrome. Return to setup and allow Riftlet to control Chrome when macOS asks. In Chrome’s menu bar, select **View → Developer → Allow JavaScript from Apple Events**, then choose **Check Connection** in Riftlet. In Chinese Chrome the same menu is **显示 → 开发者 → 允许 Apple 事件中的 JavaScript**. This setting allows apps with Chrome automation permission to run page scripts. For local screenshot history alone, choose **Set Up Later** (稍后设置).
+3. Choose your preferred desktop position, select **Get Started** (开始使用), and use the Mac’s Screenshot app to capture a window, an area or the whole screen. Save the image as a file. Its thumbnail appears at the edge of the desktop.
 4. Bring your intended ChatGPT draft to the front in Chrome and click the thumbnail once. The image appears beside the message box alongside your existing text and attachments. The thumbnail retracts when ChatGPT starts receiving the image. You can click another screenshot while the first uploads. Check progress in the draft and send the message yourself.
+
+If macOS denied Chrome access, choose **Open Automation Settings…**, then **System Settings → Privacy & Security → Automation** (系统设置 → 隐私与安全性 → 自动化). Turn on Google Chrome under Riftlet and return to setup. For a folder denial, select the displayed screenshot folder again. Its save location is shown in **Screenshot → Options → Save to** (截屏 → 选项 → 存储到).
 
 Open **设置…** (Settings) from the Riftlet menu bar icon.
 

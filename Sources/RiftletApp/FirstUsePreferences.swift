@@ -1,4 +1,5 @@
 import Foundation
+import RiftletUI
 
 /// Presentation only. Never stores permission, upload admission or queue state.
 struct FirstUsePreferences {
@@ -119,6 +120,6 @@ final class ScreenshotFolderAccess {
 
 enum SourceAccessError: LocalizedError {
     case differentFolder
-    var errorDescription: String? { "所选文件夹与当前系统截图位置不同。" }
-    var recoverySuggestion: String? { "请选择窗口中显示的截图文件夹。可以在 macOS「截屏」的「选项」中查看保存位置。" }
+    var errorDescription: String? { ScreenshotFolderPickerCopy.wrongFolder }
+    var recoverySuggestion: String? { ScreenshotFolderPickerCopy.recoverySuggestion }
 }

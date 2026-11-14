@@ -959,9 +959,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         guard mode.collectsSystemScreenshots, !captureControlBusy, folderShownInPicker == nil, let source = detectedSource else { return }
         let panel = NSOpenPanel()
         panel.delegate = self
-        panel.title = "允许 Riftlet 读取系统截图位置"
-        panel.message = "请确认允许 Riftlet 读取当前系统截图文件夹：\n" + source.path
-        panel.prompt = "允许读取"
+        ScreenshotFolderPickerCopy.configure(panel, folder: source)
         panel.canChooseFiles = false; panel.canChooseDirectories = true
         panel.canCreateDirectories = false; panel.allowsMultipleSelection = false
         panel.directoryURL = source
