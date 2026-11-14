@@ -191,7 +191,8 @@
       "failureAndUnknown": "NOT_RUN",
       "consecutiveImages": "NOT_RUN",
       "additionalUserSteps": "NOT_RUN",
-      "relatedEvidence": "edge-loopback"
+      "relatedEvidence": "edge-loopback",
+      "controlledLoopbackEvidence": "acceptance-20261114.json#/supplementalHostCheck/attempts/2"
     },
     {
       "host": "Microsoft Edge",

@@ -200,6 +200,56 @@
           "windowCapturesWithoutMarker": 0
         },
         "interpretation": "The App watcher opened the test capture directory. The probe exited 21 after its 18-second wait for the LaunchServices reply. The run ended before the test obtained an Edge process identity or window. It recorded zero generated screenshots and zero press attempts."
+      },
+      {
+        "reviewedSource": "7cd93b36405408ac56198ffbfaefc9b39c4a1084",
+        "reviewedSourceTree": "c8bd1696773168b5b01ae56b9cda5e03a4204c23",
+        "admissionHead": "d8b262684fb5524b074d7e41ecd609b638fc85ae",
+        "base": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",
+        "testedMerge": "fc8af664203db58cff20106f401556171b6b2da0",
+        "nativeRun": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43538960359",
+        "arm64Job": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43538960359/job/132274735333",
+        "arm64JobConclusion": "success",
+        "testSource": "https://github.com/haohongfei2001-png/Riftlet/blob/fc8af664203db58cff20106f401556171b6b2da0/Tests/LiveCompatibility/edge_host.py#L471-L509",
+        "artifact": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43538960359/artifacts/14090814986",
+        "artifactSHA256": "e825b76d09aa9830b15da86c6503dc55f76952baf00795b402ffd47377d0eab3",
+        "ordinaryAppResult": {
+          "appWatcherReady": true,
+          "build": "23",
+          "commercialService": "NOT_RUN",
+          "confirmedDistinctRefusals": 0,
+          "edgeActivation": "ALREADY_FRONTMOST",
+          "edgeActivationExit": 0,
+          "edgeIdentityExit": 0,
+          "edgeIdentityObservation": "OWN_PID_BUNDLE_EXECUTABLE_AND_KERNEL_BIRTH_CONFIRMED",
+          "edgeLaunch": "OWN_NORMAL_TAB_CHILD_CREATED",
+          "generatedScreenshotFiles": 2,
+          "lastNativeAction": "window",
+          "lastNativeExit": 0,
+          "lastWindowObservation": "NEUTRAL_DOCUMENT_TITLE_NOT_VISIBLE",
+          "osScreenshotMarkersVerified": 2,
+          "physicalClicks": false,
+          "pressAttempts": 0,
+          "productExecutableSHA256": "d6c744f51383075cfe793d0bddf6488667b41c85916fb1b71667d2a59bc30f4a",
+          "result": "PARTIAL_PRODUCT_ROW_NOT_EXPOSED_TO_AX",
+          "rounds": [
+            {
+              "action": "NOT_RUN",
+              "ordinal": 1,
+              "rejection": "UNCONFIRMED",
+              "retained": "UNCONFIRMED"
+            }
+          ],
+          "scope": "ordinary-packaged-app-accessibility-press-edge-loopback",
+          "stage": "original_thumbnail_1",
+          "systemRegionCaptureAttempts": 0,
+          "testedMerge": "fc8af664203db58cff20106f401556171b6b2da0",
+          "version": "1.0.1",
+          "windowCapturesWithoutMarker": 0
+        },
+        "captureImportEvidence": "Reaching original_thumbnail_1 required two distinct PNG hashes and exactly two systemScreenshot rows in the ordinary App database matching those hashes. Both files carried the macOS screenshot marker. The test stopped before its separate post-click private-media readback.",
+        "actionEvidence": "The original neutral Edge window was frontmost. During the bounded external Accessibility check the probe could not identify the first thumbnail as an actionable row. It rechecked the original window and stopped before any AXPress. It never reached the second thumbnail.",
+        "commercialEvidence": "This run exercised a loopback draft. Neither image was clicked. Draft preservation after a click, attachment input, product refusal, upload start and completion were unobserved."
       }
     ]
   },
