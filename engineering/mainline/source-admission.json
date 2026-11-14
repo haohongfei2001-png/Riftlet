@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "reviewedBase": "4c205b0744875fcd3bc1e16a9b5d995e0174325c",
-  "reviewedSource": "059064a36a6693b66c3b7982578355366d6ddce2",
-  "reviewedTree": "0b79943af4fbfe713895b1f89f3783d0ebed03a7",
-  "authorRole": "riftlet_search_discovery_author",
+  "reviewedBase": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",
+  "reviewedSource": "22088d01e65ccc7f6f7be52d612e9df1107935a5",
+  "reviewedTree": "e375d621e14fc1aa2e13183f40d543d5d81b5d3f",
+  "authorRole": "quality_r1_integration",
   "reviews": [
     {
-      "reviewer": "automated_search_indexing_source_checker",
-      "source": "059064a36a6693b66c3b7982578355366d6ddce2",
-      "tree": "0b79943af4fbfe713895b1f89f3783d0ebed03a7",
+      "reviewer": "independent_quality_r1",
+      "source": "22088d01e65ccc7f6f7be52d612e9df1107935a5",
+      "tree": "e375d621e14fc1aa2e13183f40d543d5d81b5d3f",
       "result": "PASS",
-      "sha256": "78364306cb8c4a8ecdf65c2af763e0cc2104ae8b2f3009e49cb89ce23acb7141",
-      "report": "{\"reviewer\":\"automated_search_indexing_source_checker\",\"reviewedBase\":\"4c205b0744875fcd3bc1e16a9b5d995e0174325c\",\"reviewedSource\":\"059064a36a6693b66c3b7982578355366d6ddce2\",\"reviewedTree\":\"0b79943af4fbfe713895b1f89f3783d0ebed03a7\",\"result\":\"PASS\",\"checks\":[\"Nine-file source change inspected; official 1.0.1 download links, Sparkle feed, Umami instrumentation and native application remain unchanged.\",\"Public root IndexNow ownership key matches the expected key bytes, with valid canonical HTTPS sitemap and 2026-11-14 lastmod.\",\"Minimal SoftwareApplication JSON-LD names Riftlet and restricts product scope to macOS/Chrome ChatGPT drafts; official website title updated.\",\"Three Node tests ran successfully on the connected Mac (3 pass, 0 fail); source and policy checkpoint verified.\"],\"scope\":\"Automated static and remote Mac file-based checks only. Google Search Console ownership and real IndexNow receipt are NOT_RUN until verification/deployment; indexing is never guaranteed.\"}"
+      "sha256": "c928ef4c8b1d19ccdc8abd8240bbb6985f6d845d6b649b4c80b073bc814c72c8",
+      "report": "{\"reviewer\":\"independent_quality_r1\",\"reviewedBase\":\"44f745a15ecb3682a9da0bda17f17a5d9fc1f07e\",\"reviewedSource\":\"22088d01e65ccc7f6f7be52d612e9df1107935a5\",\"reviewedTree\":\"e375d621e14fc1aa2e13183f40d543d5d81b5d3f\",\"result\":\"PASS\",\"checks\":[\"Inspected all 21 changed files and the correction following initial source rejection. Verified Git objects, parent chain, cumulative diff and git diff --check.\",\"#78: unowned asynchronous picker cannot be promoted at timeout. Timely observed application attachment actions retain direct, linked and synchronous handoff; separate owner and late handoff are rejected. Independently reran three positive entry/consecutive tests, 3/3. Examined controlled headless-Chrome 31/31 and Node 126/126 receipts, not a real ChatGPT acceptance.\",\"#79: only active, exclusively prepared operations with no outbound intent, dispatch marker, receipt, START or compensation can be released. Missing remains missing; original UNKNOWN and START retain their identity; new input requires a new click. Native isolated recovery checks passed, and a separate killed-process recovery receipt records zero external intents.\",\"#80: verified per-domain safe startup fallback, stopped archiving on invalid archive settings, exact-original backup and explicit recovery via Settings. Checked isolated instrumented App receipt for both recoveries and next launch; the GUI driver activated real AppKit controls, not physical user events.\",\"#81: all synchronous selection and route reads share one monotonic 150 ms deadline with sub-tick rejection; slow replies cannot bind a later target; subsequent DOM work remains asynchronous. Real service latency is outside this source review.\",\"#84: at initial checkpoint previously missing used-history bytes were accepted by matching size alone. The reviewed follow-up explicitly hashes them against the matching journal/DB on targeted recheck. Independently ran corrected native recovery scenarios on macOS using temporary synthetic data: wrong bytes/missing journal rejected, original media and immutable operation/receipt preserved, archived files and symlinks handled. Independent storage tests 26/26.\",\"Source review only. Formal CI, actual signed candidate, real ChatGPT attachment and public Sparkle upgrade each require separate evidence.\"]}\n"
     }
   ],
   "productionAdmission": {
