@@ -54,13 +54,15 @@
       "original-media-and-no-upload-operations": "PASS"
     },
     "windowServerFrames": 33,
-    "scope": "Intermediate native QA package. Full service, installer, hardware pointer, system IME and VoiceOver speech not established."
+    "scope": "Intermediate native QA package. Full service, installer, hardware pointer, system IME and VoiceOver speech not established.",
+    "formalCIAtCheckpoint": "5/5 PASS on ad4c76b; see PR for final combined jobs",
+    "framesReview": "32/33 intermediate frames contained visible pixels. The old sheet capture was fully transparent. Frozen Developer ID candidate: a real virtual keyboard and mouse on the guest produced a new visible close-confirmation frame (PNG SHA256 c5c5ad0879ae95c0d91cc32575f716fc9a4c2aae588431579d68c5c5b28e8268)."
   },
   "followup": {
     "83": "Remote main was not protected. No account, ruleset or billing changes.",
     "92": "Partial current settings and history GUI coverage; full hardware and accessibility matrix open.",
-    "93": "2,000-row START count measured; not an end-to-end startup benchmark.",
-    "94": "Drivers now exercise the real settings and history host; legacy surface remains.",
+    "93": "See history-performance.json: paired full QA app measurement and one-pass recovery fix on b948286. Separate ordinary-recovery invariants preserve existing assets, operations, START, journals and original PNG bytes.",
+    "94": "Four historical fixture types isolated from the product in e8e4aec. Shipping App and acceptance helper built, zero legacy fixture symbols in App. Product and fixture native acceptance are separate.",
     "95": "Read-only private-copy usage. Occupied space is not an estimate of reclaimable space. No deletion.",
     "96": "Five native permission purposes available in Chinese and English. Full core UI English and VO not established.",
     "97": "Reuse PR 77. Public 1.0.1 to the next signed release through Sparkle is not yet tested.",
