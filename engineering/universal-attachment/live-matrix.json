@@ -180,7 +180,7 @@
       "host": "Microsoft Edge",
       "service": "ChatGPT",
       "result": "NOT_RUN",
-      "reason": "BLOCKED_LOGIN",
+      "reason": "SIGNED_IN_DRAFT_PREPARED_ORDINARY_APP_DOUBLE_INPUT_PENDING",
       "application": "NOT_RUN",
       "windowAndDraft": "NOT_RUN",
       "entry": "NOT_RUN",
@@ -200,7 +200,10 @@
         "acceptance-20261114.json#/supplementalHostCheck/attempts/8"
       ],
       "latestMouseDiagnostic": "edge-double-image-20261114/main-integration-hosted-original.json",
-      "latestMouseDiagnosticScope": "Source ea2e9a2: first ordinary App callback chain and exact event number verified; -1744 refusal. Second click NOT_RUN_SYSTEM_AUTOMATION_CONSENT after original Edge focus unavailable. No input, START or commercial completion."
+      "latestMouseDiagnosticScope": "Source ea2e9a2: first ordinary App callback chain and exact event number verified; -1744 refusal. Second click NOT_RUN_SYSTEM_AUTOMATION_CONSENT after original Edge focus unavailable. No input, START or commercial completion.",
+      "latestPreparation": "edge-double-image-20261115/preparation.json",
+      "login": "SIGNED_IN_ISOLATED_PROFILE",
+      "setupOnlyEvidence": "Neutral text and baseline system screenshot present in one new unsent draft through official service UI; not an ordinary Riftlet input, START or completion result."
     },
     {
       "host": "Microsoft Edge",
@@ -562,5 +565,6 @@
   ],
   "edgeSpecialistFollowup": "edge-double-image-20261114/isolated-login.json",
   "latestMainIntegration": "edge-double-image-20261114/main-integration.json",
-  "inheritedScopedChromeEvidence": "../../engineering/quality/2026-11-14/actual-chatgpt-attachment.json (source 624e1b5; START only; not this PR head or final completion)"
+  "inheritedScopedChromeEvidence": "../../engineering/quality/2026-11-14/actual-chatgpt-attachment.json (source 624e1b5; START only; not this PR head or final completion)",
+  "latestPreparationRecord": "edge-double-image-20261115/preparation.json"
 }

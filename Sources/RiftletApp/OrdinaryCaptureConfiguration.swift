@@ -1,6 +1,7 @@
 import Foundation
 import RiftletCore
 import RiftletAdapters
+import RiftletCapture
 
 /// Source-owned review references, never decoded from settings, arguments,
 /// page JSON or an old operation. Valid syntax alone is not review approval.
@@ -139,6 +140,21 @@ struct OrdinaryAttachmentAdmission {
 }
 
 enum OrdinaryCaptureConfiguration {
+    static func captureLocation(root: URL) -> any CaptureLocationProviding {
+        #if RIFTLET_ISOLATED_PRODUCT_ACCEPTANCE
+        return IsolatedProductCaptureLocation(root: root)
+        #else
+        return SystemCaptureLocationProvider()
+        #endif
+    }
+    static func initialCaptureSource(root: URL, systemDefault: () -> URL = CaptureSource.defaultDirectory) -> URL {
+        #if RIFTLET_ISOLATED_PRODUCT_ACCEPTANCE
+        // A rejected private source must not even read the global preference.
+        return IsolatedProductCaptureLocation.directory(in: root)
+        #else
+        return systemDefault()
+        #endif
+    }
     // One product implementation; the compiler-only acceptance harness retains
     // its isolated root and historical scope. Neither path asserts release or
     // real-page certification from build success or candidate F/H evidence.

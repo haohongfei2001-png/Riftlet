@@ -128,7 +128,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var permissionActivationObserver: NSObjectProtocol?
     private var permissionWakeObserver: NSObjectProtocol?
     private var reviewEnvironment: SettingsReviewEnvironment?
-    private lazy var captureLocation = reviewEnvironment?.captureLocation ?? SystemCaptureLocationProvider()
+    private lazy var captureLocation: any CaptureLocationProviding = reviewEnvironment?.captureLocation
+        ?? OrdinaryCaptureConfiguration.captureLocation(root: root)
     private lazy var firstUse = FirstUsePreferences(defaults: reviewEnvironment?.defaults ?? .standard, modeName: mode.directoryName)
     private lazy var folderAccess = ScreenshotFolderAccess(defaults: reviewEnvironment?.defaults ?? .standard, modeName: mode.directoryName)
     private var folderNeedingSelection: URL?
@@ -576,7 +577,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 detectedSource = try await captureLocation.currentDirectory()
                 if let detectedSource { _ = restoreCaptureFolder(detectedSource) }
             } catch { receiveCaptureDiagnostic(.classify(error, context: .locationPreference)) }
-            let service = CaptureService(store: store, privateRoot: root, sourceDirectory: detectedSource ?? reviewEnvironment?.source ?? CaptureSource.defaultDirectory(),
+            let service = CaptureService(store: store, privateRoot: root, sourceDirectory: detectedSource ?? reviewEnvironment?.source ?? OrdinaryCaptureConfiguration.initialCaptureSource(root: root),
                                          permitsRead: { [weak self] url in await self?.permitsCaptureRead(url) ?? false },
                                          onChange: { [weak self] in await self?.refresh() },
                                          onImported: { [weak self] record, observation in
@@ -976,6 +977,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func permitsCaptureRead(_ source: URL) -> Bool {
+        #if RIFTLET_ISOLATED_PRODUCT_ACCEPTANCE
+        guard IsolatedProductCaptureLocation.permitsRead(source, root: root) else { return false }
+        #endif
         let allowed = folderAccess.permitsRead(of: source)
         if !allowed, let detectedSource, SourceAccessSelection.matches(selected: source, actualSource: detectedSource) {
             folderNeedingSelection = source

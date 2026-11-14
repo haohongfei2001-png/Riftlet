@@ -1,5 +1,7 @@
 # 无扩展附件引擎 · 首轮工程交接
 
+2026-11-15 真实续验：隔离 Edge 已登录，新建未发送草稿中已准备中性文字与一张基线系统截图。ChatGPT 提示文件已加入聊天、资料库存储不足；未清理资料库或发送消息。普通 Riftlet 双图输入、START 和完成仍未执行，不能以基线附件出现替代验收。隔离构建现固定使用私有 `capture-source`，失败时不回退系统目录，读前重验目录身份及权限；正式产品仍使用系统截图目录。[准备与隔离修复记录](../engineering/universal-attachment/edge-double-image-20261115/preparation.json)
+
 最新基线更新至 main `b5a412f6`（已合入 PR #101／#102）。隔离组合包源码 `78309aaf` 的正常启动、严格验签与退出已验证；随后主线的官网／更新源变更未改变 App 构建输入。商业 Edge 双图仍为 `BLOCKED_LOGIN / NOT_RUN`，没有 START 或完成。详见 [精确包与入口回执](../engineering/universal-attachment/edge-double-image-20261114/merged-package-and-entry.json)。
 
 > 2026-11-14 主线后续：PR #101 已合入实际 main `5b73c755`；PR #69 正常整合质量修复并保留 Edge 原目标绑定。当前验收范围及旧包边界以 [专项交接](PR69_EDGE_ACCEPTANCE_20261114.md) 为准，商业 Edge 双图仍未完成。
