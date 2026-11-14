@@ -1,0 +1,44 @@
+<!doctype html><meta charset="utf-8"><title>Neutral local draft</title>
+<main id="draft"><textarea>Keep this draft.</textarea><ol><li><img src="/prior.png" alt="Existing neutral PNG"></li></ol><input type="file" accept="image/png"></main>
+<script>
+'use strict';
+const draft = document.querySelector('main');
+const editor = draft.querySelector('textarea');
+const attachments = draft.querySelector('ol');
+const existing = attachments.firstElementChild;
+const priorImage = existing.firstElementChild;
+const picker = draft.querySelector('input[type=file]');
+editor.setSelectionRange(5, 9);
+const accepted = [];
+let pending;
+function intact() {
+    return document.querySelectorAll('main').length === 1 && draft === document.querySelector('main') &&
+        draft.querySelector('input[type=file]') === picker && draft.querySelector('textarea') === editor &&
+        draft.querySelector('ol') === attachments && document.activeElement !== editor &&
+        editor.value === 'Keep this draft.' && editor.selectionStart === 5 && editor.selectionEnd === 9 &&
+        attachments.children.length === accepted.length + 1 && attachments.children[0] === existing &&
+        existing.firstElementChild === priorImage && priorImage.getAttribute('src') === '/prior.png' &&
+        priorImage.complete && priorImage.naturalWidth === 1 && priorImage.naturalHeight === 1 &&
+        accepted.every((item, index) => attachments.children[index + 1] === item);
+}
+window.pick = (ticket, index) => {
+    if (!intact() || pending || index !== accepted.length) return false;
+    pending = {ticket, index};
+    picker.click();
+    return true;
+};
+picker.addEventListener('change', async () => {
+    const operation = pending;
+    pending = undefined;
+    if (!operation || !intact() || picker.files.length !== 1) return;
+    const file = picker.files[0];
+    if (file.name !== `neutral-${operation.index}.png` || file.type !== 'image/png') return;
+    const response = await fetch(`/receive/${operation.index}`, {method:'POST', body:file, redirect:'error'});
+    if (!response.ok || (await response.text()) !== `received-${operation.index}` || !intact()) return;
+    const item = document.createElement('li');
+    item.textContent = file.name;
+    attachments.append(item);
+    accepted.push(item);
+    webkit.messageHandlers.fixture.postMessage({...operation, state:'receipt', intact:intact()});
+});
+</script>

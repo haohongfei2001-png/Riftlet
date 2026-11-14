@@ -1,0 +1,156 @@
+{
+  "hosts": [
+    {
+      "bundleID": "com.google.Chrome",
+      "bundles": [
+        {
+          "build": "8103.51",
+          "declaredScripting": {
+            "declaresChromiumActiveTab": true,
+            "declaresChromiumExecuteJavaScript": true,
+            "declaresChromiumWindowAndTabIDs": true,
+            "declaresSafariCurrentTab": false,
+            "declaresSafariDoJavaScript": false,
+            "declaresSafariTabID": false,
+            "declaresSafariTabIndex": false,
+            "sha256": "cd0453c2e166a0b664f8ea1d1ac04b53a54eed14835569b6104a7823dbb950f2",
+            "status": "inspected-declared-sdef"
+          },
+          "version": "157.0.8103.51"
+        },
+        {
+          "build": "8103.51",
+          "declaredScripting": {
+            "declaresChromiumActiveTab": true,
+            "declaresChromiumExecuteJavaScript": true,
+            "declaresChromiumWindowAndTabIDs": true,
+            "declaresSafariCurrentTab": false,
+            "declaresSafariDoJavaScript": false,
+            "declaresSafariTabID": false,
+            "declaresSafariTabIndex": false,
+            "sha256": "cd0453c2e166a0b664f8ea1d1ac04b53a54eed14835569b6104a7823dbb950f2",
+            "status": "inspected-declared-sdef"
+          },
+          "version": "157.0.8103.51"
+        }
+      ],
+      "name": "Google Chrome",
+      "registeredURLCount": 2,
+      "runningCount": 3
+    },
+    {
+      "bundleID": "com.apple.Safari",
+      "bundles": [
+        {
+          "build": "22625.1.29.11.27",
+          "declaredScripting": {
+            "declaresChromiumActiveTab": false,
+            "declaresChromiumExecuteJavaScript": false,
+            "declaresChromiumWindowAndTabIDs": false,
+            "declaresSafariCurrentTab": true,
+            "declaresSafariDoJavaScript": true,
+            "declaresSafariTabID": false,
+            "declaresSafariTabIndex": true,
+            "sha256": "a0a05c6e4a37f30e78545c3e715d57facd6217864b252bcd07fbfd579a62b049",
+            "status": "inspected-declared-sdef"
+          },
+          "version": "27.0"
+        },
+        {
+          "build": "22625.1.29.11.27",
+          "declaredScripting": {
+            "declaresChromiumActiveTab": false,
+            "declaresChromiumExecuteJavaScript": false,
+            "declaresChromiumWindowAndTabIDs": false,
+            "declaresSafariCurrentTab": true,
+            "declaresSafariDoJavaScript": true,
+            "declaresSafariTabID": false,
+            "declaresSafariTabIndex": true,
+            "sha256": "a0a05c6e4a37f30e78545c3e715d57facd6217864b252bcd07fbfd579a62b049",
+            "status": "inspected-declared-sdef"
+          },
+          "version": "27.0"
+        }
+      ],
+      "name": "Safari",
+      "registeredURLCount": 1,
+      "runningCount": 0
+    },
+    {
+      "bundleID": "com.microsoft.edgemac",
+      "bundles": [
+        {
+          "build": "156.0.4314.58",
+          "declaredScripting": {
+            "declaresChromiumActiveTab": true,
+            "declaresChromiumExecuteJavaScript": true,
+            "declaresChromiumWindowAndTabIDs": true,
+            "declaresSafariCurrentTab": false,
+            "declaresSafariDoJavaScript": false,
+            "declaresSafariTabID": false,
+            "declaresSafariTabIndex": false,
+            "sha256": "cd0453c2e166a0b664f8ea1d1ac04b53a54eed14835569b6104a7823dbb950f2",
+            "status": "inspected-declared-sdef"
+          },
+          "version": "156.0.4314.58"
+        }
+      ],
+      "name": "Microsoft Edge",
+      "registeredURLCount": 1,
+      "runningCount": 1
+    },
+    {
+      "bundleID": "org.mozilla.firefox",
+      "bundles": [],
+      "name": "Firefox",
+      "registeredURLCount": 0,
+      "runningCount": 0
+    },
+    {
+      "bundleID": "com.brave.Browser",
+      "bundles": [],
+      "name": "Brave",
+      "registeredURLCount": 0,
+      "runningCount": 0
+    },
+    {
+      "bundleID": "company.thebrowser.Browser",
+      "bundles": [],
+      "name": "Arc",
+      "registeredURLCount": 0,
+      "runningCount": 0
+    },
+    {
+      "bundleID": "com.openai.chat",
+      "bundles": [],
+      "name": "ChatGPT for Mac",
+      "registeredURLCount": 0,
+      "runningCount": 0
+    },
+    {
+      "bundleID": "com.anthropic.claudefordesktop",
+      "bundles": [],
+      "name": "Claude Desktop",
+      "registeredURLCount": 0,
+      "runningCount": 0
+    },
+    {
+      "bundleID": "com.openai.codex",
+      "bundles": [
+        {
+          "build": "26605",
+          "declaredScripting": {
+            "status": "no-readable-declared-sdef"
+          },
+          "version": "26.1106.51428"
+        }
+      ],
+      "name": "ChatGPT-labelled Codex bundle",
+      "registeredURLCount": 1,
+      "runningCount": 1
+    }
+  ],
+  "observedUTC": "2026-11-13T19:08:52Z",
+  "os": "Version 27.0 (Build 26A428)",
+  "workspaceHasForegroundIdentity": true
+}

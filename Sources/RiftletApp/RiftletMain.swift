@@ -169,9 +169,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var originalRecoveryIDs: [UUID]?
     private var originalRecoveryTask: Task<Void, Never>?
     private var startupCompletedIDs = Set<UUID>()
-    private var clickAdapter: WebAttachmentAdapter?
+    private var clickRouter: ConversationClickRouter?
     private var lastForegroundSession: String?
     private var diagnosticTrace: BoundedDiagnosticTrace?
+    private var acceptanceHitMap: AcceptanceHitMap?
     private var visibilityTrace = AcceptanceTraceDeduplicator<UUID, [String]>()
     private var readyTrace = AcceptanceTraceDeduplicator<UUID, [String]>()
     private var frozenPress: (id: UUID, eventUptime: TimeInterval, target: Task<TargetLease, Error>)?
@@ -334,6 +335,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
 
     func applicationWillTerminate(_ notification: Notification) {
         terminating = true
+        acceptanceHitMap?.stop()
         guard let owner = instanceOwnership else { return }
         owner.keepUntilProcessExit()
         permissionResumer?.stop()
@@ -518,6 +520,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         }
         rift?.setUserHidden(userHidden)
         if let rift {
+            if mode == .capture, diagnosticTrace != nil {
+                acceptanceHitMap = AcceptanceHitMap(panel: rift, directory: root.appendingPathComponent("diagnostics"),
+                    arguments: CommandLine.arguments, buildChannel: Bundle.main.object(forInfoDictionaryKey: "RiftletBuildChannel") as? String)
+            }
             arrivalCapture = ArrivalCaptureBridge(panel: rift,
                 allowsMetadata: ArrivalSourceProfile.allowsMetadata(arguments: CommandLine.arguments))
         }
@@ -552,7 +558,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 await self?.validateAcceptedSelection(selection) ?? false
             })
         self.transfer = transfer
-        clickAdapter = mode.usesWebAdapter ? adapter as? WebAttachmentAdapter : nil
+        if mode.usesWebAdapter, let clickAdapter = adapter as? any ConversationClickAdapter {
+            clickRouter = ConversationClickRouter(adapters: [clickAdapter])
+        } else {
+            clickRouter = nil
+        }
         // Durable crash recovery remains local even when Automation is denied.
         // No page observation is attempted until a passive check says allowed.
         if adapter is any IndependentFileInputAdapter {
@@ -1149,12 +1159,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private func freezePress(_ id: UUID, timestamp: TimeInterval) {
         frozenPress?.target.cancel()
         frozenPress = nil
-        guard !drainingForExit, mode.usesWebAdapter, let web = clickAdapter else { return }
+        guard !drainingForExit, mode.usesWebAdapter, let router = clickRouter else { return }
         let target: Task<TargetLease, Error>
         do {
-            // Only native window/tab IDs and the route are read synchronously.
-            // DOM discovery and first-use page initialization run off the UI.
-            target = try web.targetForClick()
+            // Mouse-down freezes the receiver, selected tab and original editor.
+            target = try router.targetForClick()
         } catch {
             target = Task { throw error }
         }
@@ -1188,6 +1197,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             "callbackUptime": ProcessInfo.processInfo.systemUptime,
             "targetRequested": frozenPress?.id == boundary.assetID]
         if let number = boundary.eventNumber { fields["eventNumber"] = number }
+        if acceptanceHitMap != nil {
+            if let window = boundary.windowNumber { fields["windowNumber"] = window }
+            if let clicks = boundary.clickCount { fields["clickCount"] = clicks }
+            if let tag = boundary.mouseProbeTag, tag > 0, tag < (1 << 48) { fields["mouseProbeTag"] = tag }
+        }
         recordAcceptance(fields)
     }
 
@@ -1284,7 +1298,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 visibleIDs = activeIDs
                 pendingResultCount = Set(unresolved.filter { $0.phase != .prepared }.map(\.assetID)).count
                 acceptCaptureStatus(preferenceIssue: preferenceIssue)
-                if clickAdapter == nil {
+                if clickRouter == nil {
                     watchedCompletions.formUnion(successful.map(\.id))
                 }
                 rift?.render(snapshot)

@@ -538,20 +538,61 @@ final class SystemScreenshotCandidateAdmissionTests: XCTestCase {
         let extraField = try JSONSerialization.data(withJSONObject: extended, options: [.sortedKeys])
         let whitespace = Data((" \n" + String(decoding: canonical, as: UTF8.self)).utf8)
         let duplicateKey = Data(("{\"version\":1," + String(decoding: canonical.dropFirst(), as: UTF8.self)).utf8)
-        let bridge = AdmissionTestBridge(states: [.attached, .attached, .attached])
+        let bridge = AdmissionTestBridge(states: [.attached])
         let client = try adapter(store, bridge)
+        let mediaBefore = try Data(contentsOf: request.fileURL)
+        let assetBefore = try await store.asset(id: request.asset.id)
         for malformed in [extraField, whitespace, duplicateKey] {
             try await store.saveCheckpoint(malformed, for: SystemScreenshotCandidateAdmission.checkpointKey(for: request))
             await assertInvalidRequest { try await admission.admits(request) }
             await assertInvalidRequest { try await client.reconcile(request) }
             await assertInvalidRequest { try await client.append(request) }
+            // With two possible resident programs, a malformed checkpoint cannot
+            // identify an original version. Even an .observe must not guess.
+            let actions = await bridge.actions
+            XCTAssertTrue(actions.isEmpty)
             let retained = try await checkpoint(store, request)
-            XCTAssertEqual(retained, malformed, "A bad registration must not be repaired or replaced during observation")
+            XCTAssertEqual(retained, malformed)
+            let operation = try await store.operation(id: request.operation.id)
+            let asset = try await store.asset(id: request.asset.id)
+            XCTAssertEqual(operation, request.operation)
+            XCTAssertEqual(asset, assetBefore)
+            XCTAssertEqual(try Data(contentsOf: request.fileURL), mediaBefore)
+            let start = try await store.uploadStartReceipt(for: request.operation.id)
+            XCTAssertNil(start)
+            for slot in SystemScreenshotObservationJournal.Slot.allCases {
+                let observation = try await store.checkpoint(for: SystemScreenshotObservationJournal.checkpointKey(request, slot: slot))
+                XCTAssertNil(observation)
+            }
         }
-        let actions = await bridge.actions
-        XCTAssertEqual(actions, [.observe, .observe, .observe])
-        let start = try await store.uploadStartReceipt(for: request.operation.id)
-        XCTAssertNil(start)
+    }
+
+    func testCanonicalV17AndV18RegistrationsSelectTheirOriginalObserver() async throws {
+        for source in [ChatGPTWebPageProgram.priorScreenshotSource, ChatGPTWebPageProgram.sourceID] {
+            let (store, request, database) = try await fixture()
+            let admission = SystemScreenshotCandidateAdmission(store: store)
+            try await admission.enroll(request)
+            let recorded = try await checkpoint(store, request)
+            var marker = try XCTUnwrap(recorded)
+            if source == ChatGPTWebPageProgram.priorScreenshotSource {
+                // Recreate the historical canonical encoding for this isolated
+                // fixture. The real v18 registration stays untouched in its case.
+                var fields = try XCTUnwrap(try JSONSerialization.jsonObject(with: marker) as? [String: Any])
+                fields["sourceID"] = source
+                marker = try JSONSerialization.data(withJSONObject: fields, options: [.sortedKeys])
+                try await store.saveCheckpoint(marker, for: SystemScreenshotCandidateAdmission.checkpointKey(for: request))
+            }
+            let reopened = try QueueStore(databaseURL: database)
+            let bridge = AdmissionTestBridge(states: [.unknown])
+            let receipt = try await adapter(reopened, bridge).reconcile(request)
+            XCTAssertEqual(receipt.outcome, .unknown)
+            let actions = await bridge.actions, programs = await bridge.programIDs, identities = await bridge.identities
+            XCTAssertEqual(actions, [.observe])
+            XCTAssertEqual(programs, [source])
+            XCTAssertEqual(identities, [identity(request)])
+            let retained = try await checkpoint(reopened, request)
+            XCTAssertEqual(retained, marker)
+        }
     }
 
     func testUnsupportedHomeLocalUnknownDraftWorkAndNonChromeTargetsRefuseBeforeInput() async throws {
@@ -686,6 +727,7 @@ final class SystemScreenshotCandidateAdmissionTests: XCTestCase {
 }
 
 private actor AdmissionTestBridge: WebBridgeExecutor {
+    private(set) var programIDs: [String] = []
     private(set) var actions: [WebBridgeAction] = []
     private(set) var identities: [ObservationIdentity] = []
     private(set) var received = Data()
@@ -704,6 +746,7 @@ private actor AdmissionTestBridge: WebBridgeExecutor {
 
     func execute(_ command: WebBridgeCommand, program: WebPageProgram) async throws -> Data {
         actions.append(command.action)
+        programIDs.append(program.sourceID)
         if let identity = command.identity { identities.append(identity) }
         switch command.action {
         case .pinTarget: throw WebAdapterError.invalidRequest

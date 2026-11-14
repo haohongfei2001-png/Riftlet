@@ -18,3 +18,5 @@ Riftlet 支持 macOS 和 Google Chrome 中可编辑的 ChatGPT 网页。ChatGPT 
 **连续附加。** 较早版本已在真实 ChatGPT 草稿连续附加两张截图，保留原正文和附件。Riftlet 1.0.0 沿用该附加流程。1.0.0 验收时，独立测试 Mac 连接 ChatGPT 超时，该次未完成真实网页双图复测。
 
 [安装与权限](INSTALL-AND-PERMISSIONS.md) · [故障恢复](RECOVERY-AND-FAQ.md) · [私下反馈](FEEDBACK-TEMPLATE.md)
+
+开发中的无扩展连接实验已在专用测试宿主运行。Edge、Safari、其他 AI 网站与原生对话应用的实际支持状态随各自验证记录更新。[开发分支验证矩阵](../UNIVERSAL_ATTACHMENT.md)

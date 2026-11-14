@@ -9,7 +9,8 @@ import RiftletCore
 public enum ChatGPTWebPageProgram {
     static let priorEntrySource = "chatgpt-web-attachment-entry-20261105-v15"
     static let priorHandoffSource = "chatgpt-web-attachment-handoff-20261105-v16"
-    public static let sourceID = "chatgpt-web-screenshot-handoff-20261105-v17"
+    static let priorScreenshotSource = "chatgpt-web-screenshot-handoff-20261105-v17"
+    public static let sourceID = "chatgpt-web-click-document-witness-20261114-v18"
     /// Candidate mapping only; ReceiptPolicy start registries remain separate.
     public static let acceptanceUploadStartProfileID = "chatgpt-web-zh-progress-start-development-20261027-v1"
     public static let acceptanceProfile = ObservationProfile(
@@ -18,6 +19,16 @@ public enum ChatGPTWebPageProgram {
         completionSignal: .attached, uploadStartProfileID: acceptanceUploadStartProfileID)
 
     public static func load() throws -> WebPageProgram {
+        try load(resource: "chatgpt-web-20261027", id: sourceID)
+    }
+
+    // The exact unchanged v17 function is necessary to rediscover its installed
+    // relay marker after a native restart. Only original reconciliation uses it.
+    static func loadPriorScreenshotObservation() throws -> WebPageProgram {
+        try load(resource: "chatgpt-web-observe-v17", id: priorScreenshotSource)
+    }
+
+    private static func load(resource: String, id: String) throws -> WebPageProgram {
         let resources: Bundle
         if Bundle.main.bundleURL.pathExtension == "app" {
             guard let url = Bundle.main.resourceURL?.appendingPathComponent("Riftlet_RiftletAdapters.bundle"),
@@ -26,13 +37,13 @@ public enum ChatGPTWebPageProgram {
         } else {
             resources = Bundle.module
         }
-        guard let url = resources.url(forResource: "chatgpt-web-20261027", withExtension: "js"),
+        guard let url = resources.url(forResource: resource, withExtension: "js"),
               let source = try? String(contentsOf: url, encoding: .utf8), !source.isEmpty,
               source.utf8.count <= 128 * 1024 else { throw WebAdapterError.programUnavailable }
         // Ordinary input never executes historical observers. Their registries
         // cannot veto a new handoff; the separate legacy reader remains available
         // only to explicit historical tooling.
-        return WebPageProgram(sourceID: sourceID, functionSource: source,
+        return WebPageProgram(sourceID: id, functionSource: source,
                               maximumChunkBytes: 256 * 1024, inputDiscoveryTimeout: 3)
     }
 }

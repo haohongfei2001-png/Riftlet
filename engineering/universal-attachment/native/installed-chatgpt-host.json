@@ -1,0 +1,18 @@
+{
+  "axFocusedWindowStatus": 0,
+  "axTrustedForProbeProcess": true,
+  "axWindowCount": 1,
+  "axWindowCountStatus": 0,
+  "build": "26605",
+  "bundleID": "com.openai.codex",
+  "focusedWindowBoundToSampledProcess": true,
+  "foregroundAtSample": false,
+  "input": "NOT_RUN",
+  "installed": true,
+  "launchIdentityAvailable": true,
+  "runningInstancesOfInstalledBundle": 1,
+  "scope": "Read-only AXWindow count and focused-window owner. The app was in the background, and no test draft could be identified from permitted metadata. No input or activation.",
+  "sourceSHA256": "041f41afa0ded2fe95d1fa23feeb71fabf33bb1817cca7c6f38a914378e49a28",
+  "surface": "NOT_RUN",
+  "version": "26.1106.51428"
+}

@@ -53,12 +53,13 @@ final class ProductScreenshotScopeTests: XCTestCase {
         do { _ = try await body(); XCTFail("Unqualified source/operation accepted", file: file, line: line) } catch {}
     }
 
-    func testOlderFencedRowsAndFirstJournalEntriesSurviveV17ReadOnlyReconciliation() async throws {
+    func testOlderFencedRowsAndFirstJournalEntriesSurviveV18ReadOnlyReconciliation() async throws {
         let program = try ChatGPTWebPageProgram.load()
-        XCTAssertEqual(program.sourceID, "chatgpt-web-screenshot-handoff-20261105-v17")
+        XCTAssertEqual(program.sourceID, "chatgpt-web-click-document-witness-20261114-v18")
         let scopes: [SystemScreenshotAdmissionScope] = [.candidate, .ordinary, .ordinaryCurrentDraftInternal, .productSystem, .productApplication]
         let versions = [("chatgpt-web-attachment-entry-20261105-v15", "attachment-entry-20261105-v15"),
-                        ("chatgpt-web-attachment-handoff-20261105-v16", "attachment-handoff-20261105-v16")]
+                        ("chatgpt-web-attachment-handoff-20261105-v16", "attachment-handoff-20261105-v16"),
+                        ("chatgpt-web-screenshot-handoff-20261105-v17", "screenshot-handoff-20261105-v17")]
         for (scope, (source, evidence)) in scopes.flatMap({ scope in versions.map { (scope, $0) } }) {
             let (store, request, database) = try await fixture(origin: scope.origin)
             let identity = envelope(request).observation.identity
@@ -81,7 +82,7 @@ final class ProductScreenshotScopeTests: XCTestCase {
             let prior = AttachmentObservationEnvelope(provenance: .init(source: .integratedDevelopment,
                 evidenceID: evidence), observation: item)
             let current = AttachmentObservationEnvelope(provenance: .init(source: .integratedDevelopment,
-                evidenceID: "screenshot-handoff-20261105-v17"), observation: item)
+                evidenceID: "click-document-witness-20261114-v18"), observation: item)
             let journal = SystemScreenshotObservationJournal(store: store, scope: scope)
             try await journal.record(prior, for: request)
             let journalKey = SystemScreenshotObservationJournal.checkpointKey(request, slot: .unknown, scope: scope)
@@ -91,16 +92,24 @@ final class ProductScreenshotScopeTests: XCTestCase {
             try await store.markUnknown(request.operation.id, reason: "existing v15 observation")
             let reopened = try QueueStore(databaseURL: database)
             let original = try await refreshed(request, store: reopened)
-            let bridge = V15ReadOnlyBridge(response: try JSONEncoder().encode(current))
+            // The first response keeps polling. The second ends the loop without
+            // granting START, success or retry. Both reads must use the original
+            // relay version, including across the reopened SQLite connection.
+            let terminal = AttachmentObservationEnvelope(provenance: prior.provenance, observation:
+                .init(identity: identity, state: .invalidated, belongsToOriginalDraft: false))
+            let bridge = OriginalReadOnlyBridge(first: try JSONEncoder().encode(prior),
+                                                later: try JSONEncoder().encode(terminal))
             let client = WebAttachmentAdapter(mediaDirectory: root, executor: bridge, program: program,
                 mode: scope.isProduct ? .ordinaryProduct : scope == .candidate ? .systemScreenshotCandidate : .ordinarySystemScreenshot,
-                profile: scope.isProduct ? OrdinaryProductScreenshotScope.systemProfile : scope.legacyProfile, polling: .disabled,
+                profile: scope.isProduct ? OrdinaryProductScreenshotScope.systemProfile : scope.legacyProfile,
+                polling: .init(timeout: 3, interval: 0.01),
                 candidateJournal: scope.isProduct ? nil : SystemScreenshotObservationJournal(store: reopened, scope: scope),
                 candidateAdmission: scope.isProduct ? nil : SystemScreenshotCandidateAdmission(store: reopened, scope: scope),
                 productStore: scope.isProduct ? reopened : nil, productOrigins: scope.isProduct ? [scope.origin] : [])
             let receipt = try await client.reconcile(original)
             XCTAssertEqual(receipt.outcome, .unknown); XCTAssertEqual(receipt.profileID, scope.admittedProfile.profileID)
-            let actions = await bridge.actions; XCTAssertEqual(actions, [.observe])
+            let actions = await bridge.actions; XCTAssertEqual(actions, [.observe, .observe])
+            let readPrograms = await bridge.programIDs; XCTAssertEqual(readPrograms, Array(repeating: ChatGPTWebPageProgram.priorScreenshotSource, count: 2))
             for name in Set([key, fence]) { let saved = try await reopened.checkpoint(for: name); XCTAssertEqual(saved, bytes) }
             let savedJournal = try await reopened.checkpoint(for: journalKey), saved = try await reopened.operation(id: request.operation.id)
             XCTAssertEqual(savedJournal, priorJournal); XCTAssertEqual(saved, original.operation)
@@ -151,7 +160,7 @@ final class ProductScreenshotScopeTests: XCTestCase {
                 let saved = try await store.checkpoint(for: key), bytes = try XCTUnwrap(saved)
                 let object = try XCTUnwrap(JSONSerialization.jsonObject(with: bytes) as? [String: Any])
                 XCTAssertEqual(object["version"] as? Int, 2)
-                XCTAssertEqual(object["sourceID"] as? String, "chatgpt-web-screenshot-handoff-20261105-v17")
+                XCTAssertEqual(object["sourceID"] as? String, "chatgpt-web-click-document-witness-20261114-v18")
                 XCTAssertEqual(object["assetOrigin"] as? String, scope.origin.rawValue)
                 let fence = try await store.checkpoint(for: SystemScreenshotCandidateAdmission.checkpointKey(for: request))
                 XCTAssertEqual(fence, bytes)
@@ -300,13 +309,16 @@ final class ProductScreenshotScopeTests: XCTestCase {
     }
 }
 
-private actor V15ReadOnlyBridge: WebBridgeExecutor {
-    let response: Data
+private actor OriginalReadOnlyBridge: WebBridgeExecutor {
+    let first: Data
+    let later: Data
     private(set) var actions: [WebBridgeAction] = []
-    init(response: Data) { self.response = response }
+    private(set) var programIDs: [String] = []
+    init(first: Data, later: Data) { self.first = first; self.later = later }
     func execute(_ command: WebBridgeCommand, program: WebPageProgram) async throws -> Data {
         actions.append(command.action)
+        programIDs.append(program.sourceID)
         guard command.action == .observe else { throw WebAdapterError.invalidRequest }
-        return response
+        return actions.count == 1 ? first : later
     }
 }

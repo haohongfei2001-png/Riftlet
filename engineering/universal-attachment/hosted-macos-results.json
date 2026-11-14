@@ -1,0 +1,98 @@
+{
+  "scope": "Controlled fixtures only; commercial service acceptance NOT_RUN",
+  "base": "8a6482379323e3efb5b40ae576264d73ebb0cb32",
+  "source": "6f1d82007ad413a65b5571b8f2fd59045b115fd0",
+  "head": "d5a41629351ccf12e96d162edcbca7c94312c2a3",
+  "githubMerge": "8ee53de7be45b8e58247aa539ff56dd084561690",
+  "nativeRun": 43510994423,
+  "feedbackRun": 43510994336,
+  "jobs": {
+    "arm64": {
+      "job": 132180892980,
+      "conclusion": "success",
+      "evidenceArchiveSHA256": "316cdeec57f3f8d87b67a187a11824fbc90aa34f1deb990bcfa872d0f06a5707",
+      "developmentZipSHA256": "84affa9ef2697a33029aebbf0c7be07bd2948071d63f07f297c1118a0df743c3",
+      "internalBetaZipSHA256": "ff02c73b8f800cf848f901fafa00a8193911433f5ce806f2c20a524db16c9bc0",
+      "webKit": {
+        "arch": "arm64",
+        "axTrustedForProbeProcess": true,
+        "draftAcknowledgements": 2,
+        "duplicateHandoffsRefused": 2,
+        "editorUnfocused": true,
+        "filesReleased": 2,
+        "macOS": "15.8.2",
+        "openPanelCallbacks": 2,
+        "previousAttachmentsTextSelectionPreserved": true,
+        "priorPNGSHA256": "6a8b5aa1b92b7d78773491354e7bd702ac6503b8d9bed07cb402777bf2fc82e3",
+        "receiverEvents": [
+          "body-start-0",
+          "body-complete-0",
+          "body-start-1",
+          "body-complete-1"
+        ],
+        "sameBytesPathReplacementRefused": true,
+        "scope": "controlled-cooperating-WKWebView",
+        "sha256": [
+          "b66e803d64b39903b44a26160923bb6ecb3f717dcf7900fe62afdb5fd1e4bac8",
+          "91f31ca0451554dbfb9411e80591bab9318a9a2e3805b20efd28568594aba95b"
+        ],
+        "windowNeverOrdered": true
+      },
+      "externalAX": {
+        "externalAX": {
+          "appkit-file-list": {
+            "commercialService": "NOT_RUN",
+            "draftTextSelectionPriorPNGPreserved": true,
+            "originalDraftAcknowledged": true,
+            "receiverEvents": [
+              "firstBodyByte",
+              "expectedCompleteBody"
+            ],
+            "sha256": "b66e803d64b39903b44a26160923bb6ecb3f717dcf7900fe62afdb5fd1e4bac8",
+            "status": "VERIFIED_EXTERNAL_FIXTURE_HANDOFF"
+          },
+          "system-open-panel": {
+            "commercialService": "NOT_RUN",
+            "draftTextSelectionPriorPNGPreserved": false,
+            "originalDraftAcknowledged": false,
+            "receiverEvents": [],
+            "sha256": null,
+            "status": "ENTRY_PRESSED_OWNED_SHEET_UNPROVEN"
+          }
+        },
+        "scope": "controlled-external-appkit"
+      },
+      "detachedAX": {
+        "exactReceiverHandlerReceipt": true,
+        "expectedPNGBytes": 69,
+        "expectedPNGSHA256": "b66e803d64b39903b44a26160923bb6ecb3f717dcf7900fe62afdb5fd1e4bac8",
+        "externalService": "NOT_RUN",
+        "observer": "DETACHED_SELECTION_AND_SUBMIT_AXPRESS_ONCE",
+        "scope": "detached-AX-selection-and-confirmation"
+      },
+      "headlessEdge": {
+        "acknowledgements": 2,
+        "correlatedRejections": 1,
+        "digests": [
+          "611033f4cc0aa9e3348e69eba089499bc6287d57b53832079e64f42564a4e876",
+          "c9b27a65dd17d8157b51d36d36b54305ec13cea89152ba0e24b5465eb3cbb0c7"
+        ],
+        "duplicateRequests": 0,
+        "lostReplies": 1,
+        "mode": "headless",
+        "scope": "local-fixture",
+        "verifiedBodies": 4
+      },
+      "safariEvents": "SAFARI_PREFLIGHT_OSSTATUS_-1744",
+      "edgeEvents": "EDGE_AUTOMATION_OSSTATUS_-1744",
+      "surfaceProbe": "NOT_RUN [WebKit Navigation API unavailable; refusal verified] ChatGPT"
+    },
+    "intel": {
+      "job": 132180893461,
+      "conclusion": "success",
+      "evidenceArchiveSHA256": "8edb7ec613707c0fa3271418b6a7c0a565f36291900fb814da4671c992484ced",
+      "developmentZipSHA256": "e26ff0cf45101f08731452feff4abd2ff0948118deff97bfd6c1b6f856565af8",
+      "internalBetaZipSHA256": "7488269e48908a76d2bd684165cfb0a50287d2d0c0f55a4677ef9cde7e202499"
+    }
+  }
+}

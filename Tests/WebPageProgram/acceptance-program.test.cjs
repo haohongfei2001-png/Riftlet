@@ -8,6 +8,7 @@ const {fixture,png}=require('./independent-input-fixture.cjs');
 require('./attachment-entry-handoff.test.cjs');
 require('./original-image-transport.test.cjs');
 require('./ordinary-composer.test.cjs');
+require('./click-document-witness.test.cjs');
 
 function accepted(f,op) {
  const observation=f.observe(op);

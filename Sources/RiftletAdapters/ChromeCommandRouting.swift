@@ -35,13 +35,3 @@ struct ChromeClickRoute: Equatable, Sendable {
         self.window = window; self.tab = tab; self.address = address
     }
 }
-
-/// Uses actual application activity. A visible Chrome window does not identify
-/// the last used process: the user's chat may be minimized or on another Space.
-enum ChromeReceiverSelection {
-    static func choose(frontmost: Int32?, lastForeground: Int32?, running: Set<Int32>) -> Int32? {
-        if let frontmost, running.contains(frontmost) { return frontmost }
-        if let lastForeground { return running.contains(lastForeground) ? lastForeground : nil }
-        return running.count == 1 ? running.first : nil
-    }
-}
