@@ -113,6 +113,29 @@
       "grid": "Independent native reproduction of a stale document/viewport width and flow-layout warnings. Final resizing checks ran 16 changes through 1000, 680, 808 and 680 points across English and Chinese. Selected UUID retained and no flow-layout warnings in that run.",
       "captureAndStatus": "12 program-level cases covered capture menu and countdown copy, attachment uncertainty and update-denial messages. The download and attachment operations were not executed by these tests.",
       "limits": "WindowServer screenshots use controlled local records. Some system notification banners obscure the right margin. Physical VoiceOver speech, macOS 13 hardware, live ChatGPT and next-version installation via the official public feed remain separate."
+    },
+    "unpublishedPrivacyRepair": {
+      "reason": "GitHub rejected all new commits with GH007 before publication. Corrected unpushed commit identities to the account noreply address, retaining every tree, ordered-parent shape, message and date. Original local objects and test reports preserved. Existing remote commits were not rewritten.",
+      "originalSource": "ad83c153590ab938bc1fdf28f09018a57df3e169",
+      "equivalentSource": "5094949d113cf75c41325412791b4b44e19e3aff",
+      "originalEvidenceScope": "All tests retain the SHA actually executed. EquivalentSource has the exact original source tree. This follow-up changes only this progress record before renewed independent review.",
+      "commitMap": {
+        "247e8f63d691d715ff5814bb73cd3d81bf1ad1a1": "458246b1ccf6622a18017cc624cf11b7ce0285ba",
+        "aa3bc1af513d7a533ca9154a52b873282f00a56a": "313b3034065178adfa785f2ae7505ac565954d6e",
+        "925b3b73112bda5a8ab53693db17f30d3c8f7e56": "8ce76d00fa882f1960ab9ff37a6a247068ba7535",
+        "db08ab9b676ce8776136772a686a7648daa9f931": "db08ab9b676ce8776136772a686a7648daa9f931",
+        "54c74c444182c043e54b9fa757b78191d270e9b9": "29819164079e072e58de9300ec2f616d327589f6",
+        "6e9d13d25c2b73a504e562a1a2fb2f5842e0c99a": "6e9d13d25c2b73a504e562a1a2fb2f5842e0c99a",
+        "d575bcc94c8fb025edd92d83ec0f8237942eece0": "941e0ae0f9adadb0505da0b269295d07b9dc9545",
+        "e931532a8a3dc0491a2dcc1e7b047232de79b3dc": "c365c9e1397150a0eaf5fd6b05ba4c4ff2e86b2e",
+        "267f05379034f511cc33f48026a2e5ad01ed7147": "bd979d228bab7e13935df96153e934438602a237",
+        "346863fe651dc1668e55ea390866c12b8f4024ae": "346863fe651dc1668e55ea390866c12b8f4024ae",
+        "b200d3fdd4107566c6d5cfaccdaa1313946fede8": "101c249e78f32eca7d4f11ef54a897a215ddc35a",
+        "569548995f927058a09f20240b3359b4187cce8f": "84f96bb1e1b86a467942417d9cb6a9e97e31c3a7",
+        "5187ce7e1ffcc1c42d58d362af485119fecfaa6d": "f96fd3cbad0b7b0e92bafe787f3867e2881b9f9a",
+        "9c38920927700499e345e6160bfcc6946fde4f82": "563bf52ab8fc5ccb4a6de8df2f3a6cd1bfdd2830",
+        "ad83c153590ab938bc1fdf28f09018a57df3e169": "5094949d113cf75c41325412791b4b44e19e3aff"
+      }
     }
   }
 }
