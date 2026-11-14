@@ -16,7 +16,7 @@ final class SettingsProductHostTests: XCTestCase {
         return try HostFixture(rootExists: rootExists)
     }
 
-    @MainActor func testAboutShowsOnlyProductNameAndMarketingVersion() throws {
+    @MainActor func testGeneralShowsOnlyProductNameAndMarketingVersion() throws {
         let fixture = try fixture()
         defer { fixture.close() }
         let shortVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
@@ -76,13 +76,11 @@ final class SettingsProductHostTests: XCTestCase {
         XCTAssertEqual(archivePreset.indexOfSelectedItem, 2)
         settings.configuration.placement = .rightBottom
         settings.configuration.preferredDisplayID = 2; settings.preferredDisplayID = 2
-        let collect = try XCTUnwrap(f.host.center.controls["paused"] as? NSSwitch)
+        XCTAssertNil(f.host.center.controls["paused"])
         let pause = try XCTUnwrap(f.host.control.control(identifier: "control.pause") as? NSSwitch)
-        let showImages = try XCTUnwrap(f.host.center.controls["hidden"] as? NSSwitch)
+        XCTAssertNil(f.host.center.controls["hidden"])
         let hideImages = try XCTUnwrap(f.host.control.control(identifier: "control.hide") as? NSSwitch)
-        XCTAssertEqual(collect.accessibilityLabel(), "收录系统截图")
         XCTAssertEqual(pause.accessibilityLabel(), "暂停收录")
-        XCTAssertEqual(showImages.accessibilityLabel(), "显示桌面截图")
         XCTAssertEqual(hideImages.accessibilityLabel(), "隐藏桌面截图")
         for (paused, hidden) in [(true, true), (false, true), (true, false), (false, false)] {
             f.update(settings: settings, paused: paused, hidden: hidden)
@@ -90,9 +88,7 @@ final class SettingsProductHostTests: XCTestCase {
             XCTAssertEqual(f.host.center.product.state, f.host.model.snapshot)
             XCTAssertEqual(f.host.model.snapshot.owner.collectionPaused, paused)
             XCTAssertEqual(f.host.model.snapshot.owner.isHidden, hidden)
-            XCTAssertEqual(collect.state, paused ? .off : .on)
             XCTAssertEqual(pause.state, paused ? .on : .off)
-            XCTAssertEqual(showImages.state, hidden ? .off : .on)
             XCTAssertEqual(hideImages.state, hidden ? .on : .off)
         }
         let centerPosition = try XCTUnwrap(f.host.center.controls["placement"] as? NSPopUpButton)
@@ -131,24 +127,35 @@ final class SettingsProductHostTests: XCTestCase {
     @MainActor func testHistoryStyleSharesPreferenceAndPreservesDraftAndAllSettingsDomains() async throws {
         let f = try fixture(); defer { f.close() }
         let preference = f.host.historyDisplay
-        preference.onChange = { [weak host = f.host] _ in host?.refreshHistoryDisplayStyle() }
-        let segments = try XCTUnwrap(f.host.center.controls["history.displayStyle"] as? NSSegmentedControl)
+        let history = RiftHistoryController(mediaDirectory: f.root, onRestore: { _ in }, onRemove: { _ in },
+            onReveal: { _ in }, displayStyle: preference.selection, onDisplayStyleChanged: { preference.select($0) })
+        preference.onChange = { [weak host = f.host, weak history] style in
+            history?.updateDisplayStyle(style)
+            host?.refreshHistoryDisplayStyle()
+        }
+        func selector(in view: NSView?) -> NSSegmentedControl? {
+            guard let view else { return nil }
+            if view.identifier?.rawValue == "history.displayStyle" { return view as? NSSegmentedControl }
+            return view.subviews.lazy.compactMap { selector(in: $0) }.first
+        }
+        let segments = try XCTUnwrap(selector(in: history.window.contentView))
+        let action = try XCTUnwrap(segments.action)
         XCTAssertEqual(segments.selectedSegment, 0)
-        f.host.model.setDraftText("88.1250", for: .fitWidth)
+        XCTAssertNil(f.host.center.controls["history.displayStyle"])
+        XCTAssertNotNil(f.host.center.controls["history.open"])
+        f.host.model.setDraftText("88.1250", for: .outerInset)
         let draft = f.host.model.snapshot
         let configurationFiles = try FileManager.default.contentsOfDirectory(atPath: f.root.path)
-        await f.host.perform(.historyDisplayStyle(.imageGrid))
-        XCTAssertEqual(preference.selection, .imageGrid)
-        XCTAssertEqual(f.host.snapshot.historyDisplayStyle, .imageGrid)
-        XCTAssertEqual(f.host.center.product.historyDisplayStyle, .imageGrid)
-        XCTAssertEqual(segments.selectedSegment, 1)
-        XCTAssertTrue(f.host.center.controls["history.displayStyle"] === segments)
-        XCTAssertEqual(f.host.model.snapshot, draft)
-        // This is the same owner callback the history-window selector uses.
-        preference.select(.current)
-        XCTAssertEqual(f.host.center.product.historyDisplayStyle, .current)
-        XCTAssertEqual(segments.selectedSegment, 0)
-        XCTAssertEqual(f.host.model.snapshot, draft)
+        for (index, style) in HistoryDisplayStyle.allCases.enumerated() {
+            segments.selectedSegment = index
+            XCTAssertTrue(NSApp.sendAction(action, to: segments.target, from: segments))
+            XCTAssertEqual(history.displayStyle, style)
+            XCTAssertEqual(preference.selection, style)
+            XCTAssertEqual(f.host.snapshot.historyDisplayStyle, style)
+            XCTAssertEqual(f.host.center.product.historyDisplayStyle, style)
+            XCTAssertEqual(segments.selectedSegment, index)
+            XCTAssertEqual(f.host.model.snapshot, draft)
+        }
         XCTAssertTrue(f.adapter.requests.isEmpty)
         XCTAssertTrue(f.actions.isEmpty)
         XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: f.root.path), configurationFiles)
@@ -224,39 +231,41 @@ final class SettingsProductHostTests: XCTestCase {
     @MainActor func testBusyChangePublishesBeforeAwaitAndCrossDomainCanFinish() async throws {
         let f = try fixture(); defer { f.close() }
         let gate = HostSaveGate(); f.adapter.gate = gate; f.adapter.delayed = .layout
-        f.host.model.setDraftText("81", for: .fitWidth)
-        let task = Task { @MainActor in await f.host.perform(.settings(.applyLayout)) }
+        f.host.model.setDraftText("81", for: .outerInset)
+        let task = Task { @MainActor in await f.host.perform(.settings(.commitField(.outerInset, "81"))) }
         await fulfillment(of: [gate.entered], timeout: 2)
         XCTAssertTrue(f.host.snapshot.state.domains[.layout]!.isSaving)
-        let apply = try XCTUnwrap(f.host.center.controls["layout.apply.display"] as? NSButton)
-        XCTAssertFalse(apply.isEnabled)
+        let slider = try XCTUnwrap(f.host.center.controls["slider.outerInset"] as? NSSlider)
+        XCTAssertFalse(slider.isContinuous)
+        await f.host.perform(.settings(.commitField(.outerInset, "81")))
+        XCTAssertEqual(f.adapter.requests.filter { $0.intent.domain == .layout }.count, 1)
         let pause = try XCTUnwrap(f.host.control.control(identifier: "control.pause") as? NSSwitch)
         XCTAssertTrue(pause.isEnabled)
-        f.host.model.setDraftText("92", for: .fitWidth)
+        f.host.model.setDraftText("92", for: .outerInset)
         await f.host.perform(.settings(.setHidden(true)))
         XCTAssertTrue(f.host.snapshot.state.owner.isHidden)
         XCTAssertTrue(f.host.snapshot.state.domains[.layout]!.isSaving)
         gate.release(); await task.value
         XCTAssertFalse(f.host.snapshot.state.domains[.layout]!.isSaving)
-        XCTAssertEqual(f.host.model.text(for: .fitWidth), "92")
+        XCTAssertEqual(f.host.model.text(for: .outerInset), "92")
         XCTAssertTrue(f.host.model.hasLayoutDraft)
         XCTAssertEqual(f.adapter.requests.filter { $0.intent.domain == .layout }.count, 1)
     }
 
     @MainActor func testOwnerRefreshDuringDraftKeepsUntouchedDisplayMetadataAndCompatibility() async throws {
         let f = try fixture(); defer { f.close() }
-        f.host.model.setDraftText("88.1250", for: .fitWidth)
+        f.host.model.setDraftText("88.1250", for: .outerInset)
         var settings = f.adapter.owner.settings
         settings.displays = [.init(id: 2, name: "Synthetic second")]
         settings.configuration.lineWidth = 1.5; settings.configuration.screenPadding = 29
         settings.configuration.numberGap = 13
         f.update(settings: settings, effectiveDisplay: 2)
-        XCTAssertEqual(f.host.model.text(for: .fitWidth), "88.1250")
+        XCTAssertEqual(f.host.model.text(for: .outerInset), "88.1250")
         let popup = try XCTUnwrap(f.host.center.controls["display"] as? NSPopUpButton)
         XCTAssertEqual(popup.titleOfSelectedItem, "已选显示器（未连接）")
-        await f.host.perform(.settings(.applyLayout))
+        await f.host.perform(.settings(.commitField(.outerInset, "88.1250")))
         let actual = f.host.snapshot.state.owner.settings.configuration
-        XCTAssertEqual(actual.fitWidth, 88.125)
+        XCTAssertEqual(actual.outerInset, 88.125)
         XCTAssertEqual(actual.preferredDisplayID, 1)
         XCTAssertEqual(actual.lineWidth, 1.5); XCTAssertEqual(actual.screenPadding, 29); XCTAssertEqual(actual.numberGap, 13)
         XCTAssertEqual(f.adapter.requests.count, 1)
@@ -277,10 +286,10 @@ final class SettingsProductHostTests: XCTestCase {
 
     @MainActor func testClosingHostDetachesPublishCallbacksWithoutApplyingDrafts() throws {
         let f = try fixture(); defer { f.close() }
-        f.host.model.setDraftText("95", for: .fitWidth)
+        f.host.model.setDraftText("95", for: .outerInset)
         let last = f.host.center.product.revision
         f.host.close()
-        f.host.model.setDraftText("96", for: .fitWidth)
+        f.host.model.setDraftText("96", for: .outerInset)
         XCTAssertNil(f.host.model.onChange)
         XCTAssertNil(f.host.login.onChange)
         XCTAssertEqual(f.host.center.product.revision, last)
