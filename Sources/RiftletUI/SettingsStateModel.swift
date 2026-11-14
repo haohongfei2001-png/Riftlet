@@ -33,6 +33,7 @@ public enum SettingsField: String, CaseIterable, Hashable, Sendable {
     case numberFontSize, numberGap, leftPadding, minimumHitWidth, minimumHitHeight, visibleCountPreference
     case pressDuration, swallowDuration, shiftDuration, returnDuration
 
+    static let publicNumbers: [Self] = [.visibleCountPreference, .outerInset, .hiddenFraction, .windChimeLineInset, .trayOcclusion, .trayTintHue, .trayTintStrength]
     fileprivate var isCustomTrayTint: Bool { self == .trayTintHue || self == .trayTintStrength }
 
     public var page: SettingsDraftPage {
@@ -221,6 +222,7 @@ public enum SettingsSaveOutcome: Sendable {
 }
 
 public enum SettingsCommand: Sendable {
+    case commitField(SettingsField, String, maximumCount: Int? = nil), commitArchive(String?), restoreVisibleDefaults
     case edit(SettingsField, String), editArchive(String?), restoreDefaults(SettingsDraftPage)
     case discardLayout, discardArchive, discardDrafts, applyLayout, applyArchive, applyDrafts
     case setCollectionPaused(Bool), setHidden(Bool), setEntryEnabled(Bool)
@@ -300,18 +302,14 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
 
     public var snapshot: SettingsStateSnapshot {
         var visibleDomains = domains
-        // A retained tint draft is editable again when its controls return.
-        // Present its current validation only while it belongs to this form and theme.
         if case .invalidNumber(let field) = visibleDomains[.layout]?.validationFailure,
-           field.isCustomTrayTint || !includedInLayoutDraft(field) {
-            visibleDomains[.layout]?.validationFailure = nil
-        }
+           !includedInLayoutDraft(field) { visibleDomains[.layout]?.validationFailure = nil }
         let draft: RiftConfiguration?
         do { draft = try configuration(for: .layout(layoutPatch())) }
         catch {
             draft = nil
-            if case SettingsValidationFailure.invalidNumber(let field) = error, field.isCustomTrayTint {
-                visibleDomains[.layout]?.validationFailure = .invalidNumber(field)
+            if let validation = error as? SettingsValidationFailure {
+                visibleDomains[.layout]?.validationFailure = validation
             }
         }
         return .init(revision: revision, owner: owner, layoutText: layoutText,
@@ -322,6 +320,9 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
 
     public func text(for field: SettingsField) -> String {
         layoutText[field] ?? format(field.value(in: owner.settings.configuration) * field.scale)
+    }
+    func effectiveText(for field: SettingsField) -> String {
+        format(field.value(in: owner.settings.configuration) * field.scale)
     }
     public var archiveDraftText: String {
         archiveDraft?.text ?? Self.archiveMinutesText(owner.settings.archiveAfterMinutes ?? QueueArchivePolicy.defaultMinutes,
@@ -374,6 +375,25 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         defer { onChange?(snapshot) }
         var result = SettingsSubmission()
         switch command {
+        case .commitField(let field, let text, let maximumCount):
+            guard includedInLayoutDraft(field) else { return result }
+            guard let value = parse(text) else { invalid(.layout, .invalidNumber(field), into: &result); return result }
+            if field == .visibleCountPreference, let maximumCount, value > Double(maximumCount) {
+                invalid(.layout, .invalidNumber(field), into: &result); return result
+            }
+            await save(prepare(.layout([field: value / field.scale])), into: &result)
+        case .commitArchive(let text):
+            do {
+                let target = try parseArchive(text.map(ArchiveDraft.minutes) ?? .disabled)
+                await save(prepare(.archiveMinutes(target)), into: &result)
+            } catch { invalid(.archive, .invalidArchive, into: &result) }
+        case .restoreVisibleDefaults:
+            let defaults = RiftConfiguration()
+            let patch = Dictionary(uniqueKeysWithValues: SettingsField.publicNumbers.filter(includedInLayoutDraft).map {
+                ($0, $0.value(in: defaults))
+            })
+            for field in patch.keys { layoutText.removeValue(forKey: field); layoutEditVersions.removeValue(forKey: field) }
+            await save(prepare(.layout(patch)), into: &result)
         case .edit(let field, let text):
             setDraftText(text, for: field)
         case .editArchive(let text):
@@ -438,12 +458,17 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
 
     private func includedInLayoutDraft(_ field: SettingsField) -> Bool {
         let configuration = owner.settings.configuration
-        if field == .windChimeLineInset { return configuration.desktopForm == .windChime }
-        if field == .outerInset || field == .hiddenFraction { return configuration.desktopForm != .windChime }
-        if field.isCustomTrayTint {
-            return configuration.desktopForm == .tray && configuration.trayTheme == .custom
+        switch field {
+        case .windChimeLineInset: return configuration.desktopForm == .windChime
+        case .hiddenFraction: return configuration.desktopForm == .microSlit
+        case .outerInset: return configuration.desktopForm != .windChime
+        case .trayOcclusion: return configuration.desktopForm == .tray
+        case .trayTintHue, .trayTintStrength: return configuration.desktopForm == .tray && configuration.trayTheme == .custom
+        case .fitWidth, .fitHeight, .rowPitch, .numberFontSize, .numberGap, .leftPadding, .minimumHitWidth, .minimumHitHeight:
+            return configuration.desktopForm != .tray
+        case .firstCenterFromTop: return configuration.placement == nil && configuration.desktopForm != .tray
+        default: return true
         }
-        return applicable(field)
     }
 
     private func layoutPatch() throws -> [SettingsField: Double] {
@@ -499,6 +524,9 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         case .layout(let patch):
             for (field, value) in patch {
                 guard applicable(field) else { throw SettingsValidationFailure.inactiveLegacyField }
+                if field == .visibleCountPreference && candidate.desktopForm == .tray && value > 4 {
+                    throw SettingsValidationFailure.invalidNumber(field)
+                }
                 try field.put(value, into: &candidate)
             }
         case .desktopForm(let value): candidate.desktopForm = value

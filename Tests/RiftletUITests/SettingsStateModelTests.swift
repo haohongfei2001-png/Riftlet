@@ -127,7 +127,8 @@ final class SettingsStateModelTests: XCTestCase {
         let changed = await model.perform(.selectDesktopForm(.tray))
         XCTAssertEqual(changed.confirmed, [.desktopForm])
         XCTAssertEqual(owner.value.settings.configuration.desktopForm, .tray)
-        XCTAssertTrue(model.hasLayoutDraft)
+        XCTAssertFalse(model.hasLayoutDraft, "A dormant micro-slit field cannot block quitting the tray")
+        XCTAssertEqual(model.text(for: .fitWidth), "87")
         owner.failures.insert(.trayTheme)
         let failed = await model.perform(.selectTrayTheme(.violetGlass))
         XCTAssertEqual(failed.failed, [.trayTheme])
@@ -141,6 +142,42 @@ final class SettingsStateModelTests: XCTestCase {
         _ = await model.perform(.applyLayout)
         XCTAssertEqual(owner.value.settings.configuration.fitWidth, 87)
         XCTAssertEqual(owner.value.settings.configuration.desktopForm, .microSlit)
+    }
+
+    @MainActor func testInvalidInactiveFieldsRetainTheirBytesAndNeverJoinAnotherFormsWrite() async throws {
+        let owner = Owner()
+        let state = try model(owner)
+        let slitFields: [SettingsField] = [.fitWidth, .fitHeight, .rowPitch, .numberFontSize, .numberGap,
+            .leftPadding, .minimumHitWidth, .minimumHitHeight, .hiddenFraction]
+        for field in slitFields { state.setDraftText("unfinished", for: field) }
+        _ = await state.perform(.selectDesktopForm(.tray))
+        XCTAssertFalse(state.hasLayoutDraft)
+        let save = await state.perform(.commitField(.trayOcclusion, "32"))
+        XCTAssertEqual(save.confirmed, [.layout])
+        XCTAssertEqual(owner.value.settings.configuration.trayOcclusion, 0.32)
+        for field in slitFields { XCTAssertEqual(state.text(for: field), "unfinished") }
+        _ = await state.perform(.selectDesktopForm(.microSlit))
+        XCTAssertTrue(state.hasLayoutDraft)
+        XCTAssertNotNil(state.snapshot.domains[.layout]?.validationFailure)
+    }
+
+    @MainActor func testLegacyTrayCapacityIsNeverNormalizedByViewingOrAnotherFieldWrite() async throws {
+        var configuration = RiftConfiguration()
+        configuration.visibleCountPreference = 10
+        configuration.desktopForm = .tray
+        let owner = Owner(configuration: configuration)
+        let state = try model(owner)
+        let rejected = await state.perform(.commitField(.visibleCountPreference, "5"))
+        XCTAssertEqual(rejected.failed, [.layout])
+        XCTAssertTrue(owner.requests.isEmpty)
+        _ = await state.perform(.commitField(.outerInset, "21"))
+        XCTAssertEqual(owner.value.settings.configuration.visibleCountPreference, 10)
+        _ = await state.perform(.commitField(.visibleCountPreference, "4", maximumCount: 4))
+        XCTAssertEqual(owner.value.settings.configuration.visibleCountPreference, 4)
+        _ = await state.perform(.selectDesktopForm(.windChime))
+        let bounded = await state.perform(.commitField(.visibleCountPreference, "9", maximumCount: 7))
+        XCTAssertEqual(bounded.failed, [.layout])
+        XCTAssertEqual(owner.value.settings.configuration.visibleCountPreference, 4)
     }
 
     func testRetiredFormsResolveToTrayWithoutRewritingOriginalValue() throws {

@@ -5,24 +5,24 @@ import RiftletCapture
 public enum SettingsPage: String, CaseIterable, Sendable {
     case general, display, capture, motion, history, help
     /// The two historical routes remain valid deep links into these four pages.
-    public static let allCases: [SettingsPage] = [.display, .capture, .history, .help]
+    public static let allCases: [SettingsPage] = [.general, .display, .capture, .help]
     public var destination: SettingsPage {
-        switch self { case .general: return .history; case .motion: return .display; default: return self }
+        switch self { case .history: return .capture; case .motion: return .display; default: return self }
     }
     public var title: String {
         switch self {
-        case .motion, .display: return "外观与布局"
-        case .capture: return "截图"
-        case .general, .history: return "使用与历史"
-        case .help: return "权限与帮助"
+        case .motion, .display: return "桌面"
+        case .capture, .history: return "截图"
+        case .general: return "通用"
+        case .help: return "帮助"
         }
     }
     public var symbol: String {
         switch self {
         case .motion, .display: return "rectangle.3.group"
-        case .capture: return "camera"
-        case .general, .history: return "clock.arrow.circlepath"
-        case .help: return "hand.raised"
+        case .capture, .history: return "camera"
+        case .general: return "gearshape"
+        case .help: return "questionmark.circle"
         }
     }
 }

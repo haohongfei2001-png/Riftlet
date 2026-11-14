@@ -20,16 +20,16 @@ extension RiftSettingsCenterController {
     func buildPages() {
         makePage(.display, views: displayContent())
         makePage(.capture, views: captureContent())
-        makePage(.history, views: historyContent())
+        makePage(.general, views: generalContent())
         makePage(.help, views: helpContent())
     }
 
     private func makePage(_ page: SettingsPage, views: [NSView]) {
         let document = RiftVisualStyle.documentStack(views, spacing: 0)
         document.identifier = .init("settings.center.page.\(page.rawValue)")
-        document.edgeInsets = NSEdgeInsets(top: 15, left: 30, bottom: 22, right: 30)
+        document.edgeInsets = NSEdgeInsets(top: 15, left: 24, bottom: 22, right: 24)
         document.translatesAutoresizingMaskIntoConstraints = false
-        for view in views { view.widthAnchor.constraint(equalTo: document.widthAnchor, constant: -60).isActive = true }
+        for view in views { view.widthAnchor.constraint(equalTo: document.widthAnchor, constant: -48).isActive = true }
         pageWidthConstraints[page] = document.widthAnchor.constraint(equalTo: scroll.contentView.widthAnchor)
         pages[page] = document
     }
@@ -47,7 +47,7 @@ extension RiftSettingsCenterController {
 
     func displayContent() -> [NSView] {
         geometryPreview.identifier = .init("settings.center.layoutPreview")
-        geometryPreview.heightAnchor.constraint(equalToConstant: 115).isActive = true
+        geometryPreview.heightAnchor.constraint(equalToConstant: 92).isActive = true
         let forms = RiftDesktopForm.allCases
         let form = segmented("桌面形态", id: "desktopForm", titles: forms.map(\.title)) { [weak self] index in
             self?.dispatch(.settings(.selectDesktopForm(forms[index])))
@@ -80,52 +80,32 @@ extension RiftSettingsCenterController {
             numericRow(.trayTintHue, title: "玻璃色调", unit: "°", range: 0...360, step: 1),
             numericRow(.trayTintStrength, title: "色彩强度", unit: "%", range: 0...100, step: 1)
         ])
-        traySettings = group([
-            row("托盘材质", control: theme), domainError(.trayTheme), trayTintSettings!,
-            numericRow(.trayOcclusion, title: "缩略图遮挡", unit: "%", range: 0...90)
-        ])
-        let appearance = popup("窗口外观", id: "appearance", titles: SettingsAppearanceChoice.allCases.map(\.title)) { [weak self] popup in
-            guard SettingsAppearanceChoice.allCases.indices.contains(popup.indexOfSelectedItem) else { return }
-            self?.dispatch(.appearance(SettingsAppearanceChoice.allCases[popup.indexOfSelectedItem]))
-        }
+        traySettings = group([row("托盘材质", control: theme), domainError(.trayTheme), trayTintSettings!])
+        trayOcclusionRow = numericRow(.trayOcclusion, title: "缩略图遮挡", unit: "%", range: 0...90)
         slitInsetFraction = numericRow(.hiddenFraction, title: "藏入边缘", unit: "%", range: 0...90)
-        commonEdgeSettings = group([
-            slitInsetFraction!,
-            numericRow(.outerInset, title: "边缘内缩", unit: "pt", range: 0...256)
-        ])
+        commonEdgeSettings = group([slitInsetFraction!, numericRow(.outerInset, title: "边缘内缩", unit: "pt", range: 0...256)])
         windChimeLineSetting = numericRow(.windChimeLineInset, title: "连线距边", unit: "pt", range: 0...256)
-        numberedThumbnailSettings = group([
-            numericRow(.fitWidth, title: "缩略图最大宽度", unit: "pt"),
-            numericRow(.fitHeight, title: "缩略图最大高度", unit: "pt"),
-            numericRow(.rowPitch, title: "排列间距", unit: "pt"),
-            namedLabel("windChime.pitch", role: "caption"),
-            numericRow(.numberFontSize, title: "编号字号", unit: "pt")
-        ])
-        let detailed = group([commonEdgeSettings!, windChimeLineSetting!, numberedThumbnailSettings!])
-        legacyFieldRow = numericRow(.firstCenterFromTop, title: "旧版距顶部位置", unit: "pt")
-        let fine = group([
-            numericRow(.numberGap, title: "编号间距", unit: "pt"),
-            numericRow(.leftPadding, title: "行内留白", unit: "pt"),
-            numericRow(.minimumHitWidth, title: "点击区域最小宽度", unit: "pt"),
-            numericRow(.minimumHitHeight, title: "点击区域最小高度", unit: "pt"), legacyFieldRow!
-        ])
+        let arrival = popup("出现动效", id: "arrival", titles: ArrivalMotionMode.allCases.map(\.title)) { [weak self] popup in
+            guard ArrivalMotionMode.allCases.indices.contains(popup.indexOfSelectedItem) else { return }
+            self?.dispatch(.settings(.setArrival(ArrivalMotionMode.allCases[popup.indexOfSelectedItem])))
+        }
         let advanced = group([
-            namedLabel("layoutPreview.detail", role: "caption"),
-            disclosure("详细自定义", id: "display.details", content: detailed),
-            disclosure("精细参数", id: "display.fine", content: fine),
-            makeButton("恢复布局默认值", id: "layout.defaults.display") { [weak self] in self?.replaceDrafts(.restoreDefaults(.display)) }
-        ] + motionContent() + [namedLabel("accessibility", role:"caption")])
+            numericRow(.visibleCountPreference, title: "每页截图上限", unit: "张", range: 1...10, step: 1),
+            commonEdgeSettings!, windChimeLineSetting!, trayOcclusionRow!,
+            row("出现动效", control: arrival), domainError(.arrival), namedLabel("motion.detail", role: "caption"),
+            makeButton("恢复本形态的默认数值", id: "layout.defaults.display") { [weak self] in
+                self?.restoreVisibleDefaults()
+            }
+        ])
         return [
-            preferenceRecoveryRow(.layout), geometryPreview,
-            row("桌面形态", control: form), domainError(.desktopForm),
-            windChimeSettings!, domainError(.windChimeArrangement),
+            preferenceRecoveryRow(.layout), row("桌面形态", control: form), domainError(.desktopForm),
             row("屏幕边缘", control: placement), domainError(.placement),
             row("显示器", control: display), namedLabel("display.detail", role: "caption"), domainError(.display),
             makeButton("回到已选显示器", id: "display.restore") { [weak self] in self?.dispatch(.restorePreferredDisplay) },
-            traySettings!, numericRow(.visibleCountPreference, title: "可见截图", unit: "张", range: 1...10, step: 1),
-            row("窗口外观", control: appearance), namedLabel("appearance.detail", role: "caption"),
-            makeButton("重试保存外观", id: "appearance.retry") { [weak self] in self?.dispatch(.retryAppearance) },
-            disclosure("高级布局与动效", id: "display.advanced", content: advanced), layoutSaveArea(for: .display)
+            geometryPreview, namedLabel("layoutPreview.detail", role: "caption"),
+            windChimeSettings!, domainError(.windChimeArrangement), traySettings!,
+            disclosure("高级外观", id: "display.advanced", content: advanced), domainError(.layout),
+            namedLabel("diagnostics", role: "caption")
         ]
     }
 
@@ -156,207 +136,86 @@ extension RiftSettingsCenterController {
         trayFavorites = disclosure("自定义三个常用键", id: "tray.favorites", content: trayFavoriteSettings())
         captureOptions = group([
             row("默认截图方式", control: mode), domainError(.captureMode), trayFavorites!,
-            disclosure("截图权限与操作", id: "capture.session", content: group([
-                namedLabel("screen.capture", role: "caption"),
-                makeButton("开始内置截图…", id: "capture.start") { [weak self] in self?.dispatch(.capture) }
-            ]))
+            namedLabel("screen.capture", role: "caption"),
+            makeButton("屏幕录制设置…", id: "screen.privacy") { [weak self] in self?.dispatch(.openScreenRecordingPrivacy) }
         ])
-        return [section("系统截图"),
-                row("截图文件夹", detail: "Riftlet 从这里收录新截图。", control: buttonRow([
-                    makeButton("在 Finder 中打开", id: "source.open.capture") { [weak self] in self?.dispatch(.openSource) },
-                    makeButton("查看访问状态", id: "permissions.capture") { [weak self] in self?.showFolderAccessDetails() }
-                ])), namedLabel("sourcePath.capture", role:"caption"), namedLabel("source.capture", role:"caption"),
-                buttonRow([
-                    makeButton("允许访问此位置…", id: "source.access.capture") { [weak self] in self?.dispatch(.chooseSourceAccess) },
-                    makeButton("重新检查", id: "source.recheck.capture") { [weak self] in self?.dispatch(.recheck) }
-                ]),
-                section("Riftlet 内置截图"),
-                row("显示截图入口", detail:"在桌面边缘开始窗口、区域或全屏截图。", control: entry),
-                domainError(.entry), captureOptions!]
-    }
-
-    func motionContent() -> [NSView] {
-        let mode = popup("截图出现动效", id: "arrival", titles: ArrivalMotionMode.allCases.map(\.title)) { [weak self] popup in
-            guard ArrivalMotionMode.allCases.indices.contains(popup.indexOfSelectedItem) else { return }
-            self?.dispatch(.settings(.setArrival(ArrivalMotionMode.allCases[popup.indexOfSelectedItem])))
-        }
-        arrivalPreview.identifier = .init("settings.center.arrivalPreview")
-        swallowPreview.identifier = .init("settings.center.swallowPreview")
-        [arrivalPreview, swallowPreview].forEach { $0.heightAnchor.constraint(equalToConstant: 116).isActive = true }
-        let fine = SettingsNativeStyle.stack([
-            numericRow(.pressDuration, title: "点击反馈", unit: "ms"),
-            numericRow(.swallowDuration, title: "接收后收起", unit: "ms"),
-            numericRow(.shiftDuration, title: "微图补位", unit: "ms"),
-            numericRow(.returnDuration, title: "附加失败后返回", unit: "ms"),
-            SettingsNativeStyle.label("每项可设为 0–3000 ms。", role: "caption")
-        ], spacing: 13)
-        return [group([
-            row("截图到达边缘时", control: mode), domainError(.arrival),
-            namedLabel("motion.detail", role: "secondary"), arrivalPreview,
-            makeButton("预览出现动效", id: "arrival.preview") { [weak self] in self?.playArrival() }
-        ]), group([
-            SettingsNativeStyle.label("ChatGPT 开始接收时", role: "heading"),
-            SettingsNativeStyle.label("预览使用示例图，不会附加到聊天。", role: "secondary"),
-            swallowPreview, makeButton("预览收起动效", id: "swallow.preview") { [weak self] in self?.playSwallow() },
-            namedLabel("motion.effective", role: "caption"), disclosure("调整动效时长", id: "motion.fine", content: fine),
-            makeButton("恢复动效默认值", id: "layout.defaults.motion") { [weak self] in self?.replaceDrafts(.restoreDefaults(.motion)) }
-        ]), layoutSaveArea(for: .motion)]
+        return [
+            section("系统截图"), row("截图文件夹", control: makeButton("在 Finder 中打开", id: "source.open.capture") { [weak self] in self?.dispatch(.openSource) }),
+            namedLabel("sourcePath.capture", role:"caption"), namedLabel("source.capture", role:"caption"),
+            buttonRow([
+                makeButton("允许访问截图文件夹…", id: "source.access.capture") { [weak self] in self?.dispatch(.chooseSourceAccess) },
+                makeButton("重新检查", id: "source.recheck.capture") { [weak self] in self?.dispatch(.recheck) }
+            ]),
+            domainError(.collection), domainError(.visibility),
+            row("显示内置截图入口", control: entry), domainError(.entry), captureOptions!,
+            section("归档与本机存储"), preferenceRecoveryRow(.archive), archiveSettings(),
+            row("本机存储", control: makeButton("检查用量", id: "storage.check") { [weak self] in self?.dispatch(.checkStorage) }),
+            namedLabel("storage", role:"caption"),
+            makeButton("打开截图历史…", id:"history.open") { [weak self] in self?.dispatch(.openHistory) },
+            namedLabel("history.detail", role:"caption")
+        ]
     }
 
     static var archivePresetMinutes: [Int] { [1, Int(QueueArchivePolicy.defaultMinutes), 5, 10] }
 
-    func historyContent() -> [NSView] {
-        let collection = nativeSwitch("收录系统截图", id: "paused") { [weak self] in self?.dispatch(.settings(.setCollectionPaused(!$0))) }
-        let visibility = nativeSwitch("显示桌面截图", id: "hidden") { [weak self] in self?.dispatch(.settings(.setHidden(!$0))) }
-        let login = nativeSwitch("登录时启动 Riftlet", id: "login") { [weak self] in self?.dispatch(.loginEnabled($0)) }
-        let displayStyle = segmented("历史样式", id: "history.displayStyle", titles: ["列表","图像网格"]) { [weak self] in
-            self?.dispatch(.historyDisplayStyle(HistoryDisplayStyle.allCases[$0]))
-        }
+    private func archiveSettings() -> NSView {
         let choices = Self.archivePresetMinutes
         let preset = popup("自动归档时限", id: "archive.preset", titles: ["关闭"] + choices.map { "\($0) 分钟" } + ["自定义…"]) { [weak self] popup in
             // Ending the previous editor can synchronously refresh this popup.
             let index = popup.indexOfSelectedItem
             guard let self, finishEditingForReplacement() else { return }
             archiveCustom = index == choices.count + 1
-            if index == 0 {
-                model.setArchiveDraftText(nil)
-            } else if choices.indices.contains(index - 1) {
-                model.setArchiveDraftText(String(choices[index - 1]))
-            } else if archiveCustom && model.archiveIsDisabled {
-                model.setArchiveDraftText(String(QueueArchivePolicy.defaultMinutes))
+            if archiveCustom {
+                if model.archiveIsDisabled { model.setArchiveDraftText(String(QueueArchivePolicy.defaultMinutes)) }
+            } else {
+                let text = choices.indices.contains(index - 1) ? String(choices[index - 1]) : nil
+                model.setArchiveDraftText(text)
+                dispatch(.settings(.commitArchive(text)))
             }
             refreshDraftPresentation()
             window.recalculateKeyViewLoop()
             if archiveCustom { window.makeFirstResponder(archiveField) }
         }
         archiveField = textField(id: "archive.minutes", accessibility: "自定义归档分钟数")
-        archiveCustomRow = row("自定义时限", detail: "可输入 1–10 分钟，支持小数。", control: buttonRow([archiveField, SettingsNativeStyle.label("分钟", role: "secondary")]))
-        let archive = group([
-            row("闲置后归档", detail:"归档后可在截图历史中找回。", control:preset),
-            archiveCustomRow, namedLabel("archive.detail", role: "secondary"), domainError(.archive),
-            buttonRow([
-                makeButton("保存归档时限", id: "archive.save") { [weak self] in self?.flushEditor(); self?.dispatch(.settings(.applyArchive)) },
-                makeButton("放弃更改", id: "archive.discard") { [weak self] in self?.replaceDrafts(.discardArchive) }
-            ])
+        archiveCustomRow = row("自定义时限", detail: "1–10 分钟，可用小数。", control: buttonRow([archiveField, SettingsNativeStyle.label("分钟", role: "secondary")]))
+        return group([
+            row("闲置后归档", detail:"归档后可在截图历史中找回。", control:preset), archiveCustomRow, domainError(.archive)
         ])
-        let storage = group([
-            namedLabel("storage", role: "secondary"), buttonRow([
-                makeButton("检查用量", id: "storage.check") { [weak self] in self?.dispatch(.checkStorage) },
-                makeButton("在 Finder 中显示", id: "storage.reveal") { [weak self] in self?.dispatch(.revealDataFolder) },
-                makeButton("收起全部微图…", id: "history.clear") { [weak self] in self?.dispatch(.clearVisible) }
-            ]), namedLabel("history.detail", role: "caption")
-        ])
-        return [section("日常使用"),
-                row("收录系统截图", detail:"关闭后，已有截图仍可使用。", control:collection), domainError(.collection),
-                row("显示桌面截图", detail:"隐藏微图仍可收录新截图。", control:visibility), domainError(.visibility),
-                namedLabel("status.title", role:"rowTitle"), namedLabel("status.detail", role:"caption"),
-                row("登录时启动 Riftlet", control:login), namedLabel("login.detail", role:"caption"),
-                buttonRow([makeButton("重试这次选择", id:"login.retry") { [weak self] in self?.dispatch(.retryLogin) },
-                           makeButton("打开登录项设置…", id:"login.system") { [weak self] in self?.dispatch(.openLoginSettings) }]),
-                section("本机历史"),
-                row("截图历史", control:makeButton("打开历史…", id:"history.open") { [weak self] in self?.dispatch(.openHistory) }),
-                row("历史样式", control:displayStyle), preferenceRecoveryRow(.archive), archive, disclosure("存储与恢复",id:"restore-info",content:storage)]
+    }
+
+    func generalContent() -> [NSView] {
+        let login = nativeSwitch("登录时启动 Riftlet", id: "login") { [weak self] in self?.dispatch(.loginEnabled($0)) }
+        let appearance = popup("窗口外观", id: "appearance", titles: SettingsAppearanceChoice.allCases.map(\.title)) { [weak self] popup in
+            guard SettingsAppearanceChoice.allCases.indices.contains(popup.indexOfSelectedItem) else { return }
+            self?.dispatch(.appearance(SettingsAppearanceChoice.allCases[popup.indexOfSelectedItem]))
+        }
+        return [
+            row("登录时启动 Riftlet", control:login), namedLabel("login.detail", role:"caption"),
+            buttonRow([makeButton("重试", id:"login.retry") { [weak self] in self?.dispatch(.retryLogin) },
+                       makeButton("打开登录项设置…", id:"login.system") { [weak self] in self?.dispatch(.openLoginSettings) }]),
+            row("窗口外观", control: appearance), namedLabel("appearance.detail", role: "caption"),
+            makeButton("重试保存外观", id: "appearance.retry") { [weak self] in self?.dispatch(.retryAppearance) },
+            section("软件更新"), row("当前版本", control: namedLabel("version", role:"secondary")),
+            makeButton("检查更新…", id: "updates.check") { [weak self] in self?.dispatch(.checkForUpdates) },
+            row("每天检查更新", control: nativeSwitch("每天检查更新", id: "updates.automatic") { [weak self] enabled in self?.dispatch(.automaticUpdateChecks(enabled)) }),
+            namedLabel("updates.failure", role: "caption"),
+            makeButton("从官网下载…", id: "updates.website") { [weak self] in self?.dispatch(.openDownloadWebsite) }
+        ]
     }
 
     func helpContent() -> [NSView] {
-        let folder = group([
-            namedLabel("source.help", role:"secondary"), namedLabel("sourcePath.help", role:"caption"),
-            buttonRow([
-                makeButton("允许访问此位置…", id:"source.access.help") { [weak self] in self?.dispatch(.chooseSourceAccess) },
-                makeButton("文件访问设置…", id:"source.privacy") { [weak self] in self?.dispatch(.openFilePrivacy) }
-            ])
-        ])
-        let chrome = group([
-            namedLabel("automation", role:"secondary"), namedLabel("chrome.menu", role:"secondary"),
-            namedLabel("attachment", role:"secondary"),
+        [
+            section("Chrome 连接"), namedLabel("access.chrome", role: "rowTitle"), namedLabel("automation", role: "secondary"),
+            namedLabel("chrome.menu", role: "caption"), namedLabel("attachment", role: "caption"),
             makeButton("检查 Chrome 权限…", id:"automation.request") { [weak self] in self?.dispatch(.requestAutomation) },
-            makeButton("检查 Chrome 连接", id:"chrome.check") { [weak self] in self?.dispatch(.checkChromeConnection) }
-        ])
-        let screen = group([
-            namedLabel("screen.help", role:"secondary"),
-            makeButton("屏幕录制设置…", id:"screen.privacy") { [weak self] in self?.dispatch(.openScreenRecordingPrivacy) }
-        ])
-        let about = group([
-            namedLabel("version", role:"secondary"), namedLabel("support", role:"caption"),
-            row("每天检查更新", control: nativeSwitch("每天检查更新", id: "updates.automatic") { [weak self] enabled in
-                self?.dispatch(.automaticUpdateChecks(enabled))
-            }),
-            buttonRow([
-                makeButton("检查更新…", id: "updates.check") { [weak self] in self?.dispatch(.checkForUpdates) },
-                makeButton("从官网下载…", id: "updates.website") { [weak self] in self?.dispatch(.openDownloadWebsite) }
-            ]),
-            namedLabel("updates.failure", role: "caption"),
-            namedLabel("diagnostics", role:"caption"),
-            buttonRow([
-                makeButton("重新读取配置", id:"configuration.reload") { [weak self] in self?.dispatch(.reloadConfiguration) },
-                makeButton("打开配置文件…", id:"configuration.open") { [weak self] in self?.dispatch(.openConfiguration) }
-            ])
-        ])
-        let recheck = makeButton("重新检查", id:"recheck") { [weak self] in self?.dispatch(.recheck) }
-        recheck.bezelStyle = .inline
-        return [section("访问权限", trailing: recheck),
-            accessRow("截图文件夹", symbol:"folder", detail:"收录保存到系统截图目录的图片。", id:"folder", content:folder),
-            accessRow("Chrome 一键附加", symbol:"globe", detail:"需要 macOS 自动化授权和 Chrome 菜单中的 JavaScript 开关。", id:"chrome", content:chrome),
-            accessRow("屏幕录制", symbol:"rectangle.dashed", detail:"仅在使用 Riftlet 内置截图时需要。", id:"screen", content:screen),
-            section("使用帮助"),
-            row("开始使用", detail:"从截取第一张图片到点击附加。", control:makeButton("查看引导…", id:"guide.help") { [weak self] in self?.dispatch(.openOnboarding) }),
+            makeButton("检查 Chrome 连接", id:"chrome.check") { [weak self] in self?.dispatch(.checkChromeConnection) },
+            section("使用帮助"), SettingsNativeStyle.label("截一张图，点桌面边缘的缩略图，即可将图片加入当前 Chrome 的 ChatGPT 草稿。确认后由你发送。", role: "secondary"),
+            makeButton("重新查看引导…", id:"guide.help") { [weak self] in self?.dispatch(.openOnboarding) },
             makeButton("反馈与建议…", id:"feedback.help") { [weak self] in self?.dispatch(.openFeedback) },
-            disclosure("关于与诊断", id:"diagnostics", content:about)]
-    }
-
-    private func accessRow(_ title:String, symbol:String, detail:String, id:String, content:NSView) -> NSView {
-        let image = NSImageView(image:NSImage(systemSymbolName:symbol,accessibilityDescription:nil) ?? NSImage())
-        image.contentTintColor = SettingsNativeStyle.color(.accentInk)
-        image.widthAnchor.constraint(equalToConstant: 19).isActive = true
-        let state = namedLabel("access." + id, role:"caption")
-        let button = makeButton("查看",id:"access." + id) { [weak self, weak content] in
-            guard let self, let content else { return }
-            setAccessDetails(id: id, expanded: content.isHidden)
-        }
-        button.bezelStyle = .inline
-        button.setAccessibilityLabel(title + "详情")
-        button.setAccessibilityValue("已折叠")
-        accessDetails[id] = (button, content)
-        let line = row(title,detail:detail,control:buttonRow([state,button]))
-        let combined = SettingsNativeStyle.stack([image,line], vertical:false, spacing:12)
-        content.isHidden = true
-        return group([combined,content])
-    }
-
-    private func showFolderAccessDetails() {
-        navigate(to: .help)
-        setAccessDetails(id: "folder", expanded: true)
-        if let folder = accessDetails["folder"]?.button { window.makeFirstResponder(folder) }
-    }
-
-    private func setAccessDetails(id: String, expanded: Bool) {
-        guard let detail = accessDetails[id] else { return }
-        detail.content.isHidden = !expanded
-        detail.button.title = expanded ? "收起" : "查看"
-        detail.button.setAccessibilityValue(expanded ? "已展开" : "已折叠")
-        window.recalculateKeyViewLoop()
-    }
-
-    func layoutSaveArea(for page: SettingsDraftPage) -> NSView {
-        let suffix = page == .display ? "display" : "motion"
-        return group([
-            namedLabel("layout.detail.\(suffix)", role: "secondary"),
-            // Both pages project the same domain without sharing a view parent.
-            page == .display ? domainError(.layout) : alternateLayoutError(),
-            buttonRow([
-                makeButton("放弃参数更改", id: "layout.discard.\(suffix)") { [weak self] in self?.replaceDrafts(.discardLayout) },
-                makeButton("应用参数", id: "layout.apply.\(suffix)") { [weak self] in self?.flushEditor(); self?.dispatch(.settings(.applyLayout)) }
-            ])
-        ])
-    }
-
-    func alternateLayoutError() -> NSView {
-        let label = namedLabel("layout.error.motion", role: "secondary")
-        label.textColor = SettingsNativeStyle.color(.warning)
-        let retry = makeButton("重试保存这次参数", id: "layout.retry.motion") { [weak self] in self?.dispatch(.settings(.retry(.layout))) }
-        let stack = SettingsNativeStyle.stack([label, retry], spacing: 7)
-        stack.identifier = .init("settings.center.layout.error.motion")
-        return stack
+            disclosure("诊断", id:"diagnostics", content: group([namedLabel("support", role:"caption"),
+                makeButton("在 Finder 中显示数据目录…", id:"storage.reveal") { [weak self] in self?.dispatch(.revealDataFolder) }
+            ]))
+        ]
     }
 }
 
@@ -503,7 +362,7 @@ extension RiftSettingsCenterController {
                 let value = step.map { (slider.doubleValue / $0).rounded() * $0 } ?? slider.doubleValue
                 let text = value.rounded() == value ? String(Int(value)) : String(value)
                 model.setDraftText(text, for: key)
-                refreshDraftPresentation()
+                dispatch(.settings(.commitField(key, text)))
             }
             if let step {
                 let tickCount = Int((range.upperBound - range.lowerBound) / step) + 1
@@ -512,7 +371,7 @@ extension RiftSettingsCenterController {
                     slider.allowsTickMarkValuesOnly = true
                 }
             }
-            slider.isContinuous = true
+            slider.isContinuous = false
             slider.widthAnchor.constraint(greaterThanOrEqualToConstant: 85).isActive = true
             slider.widthAnchor.constraint(lessThanOrEqualToConstant: 160).isActive = true
             numericSliders[key] = slider; valueControls.append(slider)
