@@ -621,7 +621,7 @@ final class ArrivalModesTests: XCTestCase {
         controller.show()
         let content = try XCTUnwrap(controller.window?.contentView)
         let choice = try XCTUnwrap(content.subviews.compactMap { $0 as? NSPopUpButton }.first)
-        XCTAssertEqual(choice.itemTitles, ["无", "磁力吸引"])
+        XCTAssertEqual(choice.itemTitles, [ProductCopy.text("无", "None"), ProductCopy.text("磁力吸引", "Magnet")])
         let preview = try XCTUnwrap(content.subviews.first { $0.accessibilityRole() == .image })
         let image = try XCTUnwrap(preview.layer?.sublayers?.first?.sublayers?.first)
         XCTAssertTrue(image.animationKeys()?.isEmpty ?? true)

@@ -12,7 +12,7 @@ final class ArrivalMotionPreferencesTests: XCTestCase {
 
     func testFormalChoiceSetContainsOnlyNoneAndMagnet() throws {
         XCTAssertEqual(ArrivalMotionMode.allCases.map(\.rawValue), ["none", "magnet"])
-        XCTAssertEqual(ArrivalMotionMode.allCases.map(\.title), ["无", "磁力吸引"])
+        XCTAssertEqual(ArrivalMotionMode.allCases.map(\.title), [ProductCopy.text("无", "None"), ProductCopy.text("磁力吸引", "Magnet")])
         XCTAssertNil(ArrivalMotionMode(rawValue: "quantum"))
         XCTAssertEqual(ArrivalMotionMode.provisionalFallback, .none)
     }

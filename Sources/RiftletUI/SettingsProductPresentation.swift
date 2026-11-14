@@ -11,10 +11,10 @@ public enum SettingsPage: String, CaseIterable, Sendable {
     }
     public var title: String {
         switch self {
-        case .motion, .display: return "桌面"
-        case .capture, .history: return "截图"
-        case .general: return "通用"
-        case .help: return "帮助"
+        case .motion, .display: return ProductCopy.text("桌面", "Desktop")
+        case .capture, .history: return ProductCopy.text("截图", "Screenshots")
+        case .general: return ProductCopy.text("通用", "General")
+        case .help: return ProductCopy.text("帮助", "Help")
         }
     }
     public var symbol: String {
@@ -29,7 +29,7 @@ public enum SettingsPage: String, CaseIterable, Sendable {
 
 public enum SettingsAppearanceChoice: String, CaseIterable, Sendable {
     case system, light, dark
-    public var title: String { self == .system ? "跟随系统" : self == .light ? "浅色" : "深色" }
+    public var title: String { self == .system ? ProductCopy.text("跟随系统", "System") : self == .light ? ProductCopy.text("浅色", "Light") : ProductCopy.text("深色", "Dark") }
 }
 public struct SettingsAppearancePresentation: Equatable, Sendable {
     public var selection: SettingsAppearanceChoice = .system

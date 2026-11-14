@@ -13,21 +13,21 @@ extension RiftSettingsCenterController {
             button.effectiveAppearance.performAsCurrentDrawingAppearance {
                 button.layer?.backgroundColor = page == selectedPage ? SettingsNativeStyle.color(.accentInk).withAlphaComponent(0.13).cgColor : NSColor.clear.cgColor
             }
-            button.setAccessibilityValue(page == selectedPage ? "已选中" : "")
+            button.setAccessibilityValue(page == selectedPage ? ProductCopy.text("已选中", "Selected") : "")
         }
         for (domain, row) in preferenceRecoveryRows {
             row.isHidden = !product.preferenceRecovery.contains(domain)
             let key = "recovery." + domain.rawValue
-            let description = domain == .layout ? "布局设置无法读取，当前使用可用布局。" : "归档设置无法读取，自动归档已暂停。"
-            let detail = product.preferenceRecoveryFailure == domain ? "恢复未完成，请重试。" : "恢复时会保留原文件副本。"
+            let description = domain == .layout ? ProductCopy.text("布局设置无法读取，当前使用可用布局。", "Layout settings couldn’t be read. An available layout is in use.") : ProductCopy.text("归档设置无法读取，自动归档已暂停。", "Archive settings couldn’t be read. Automatic archiving is paused.")
+            let detail = product.preferenceRecoveryFailure == domain ? ProductCopy.text("恢复未完成，请重试。", "Recovery didn’t finish. Try again.") : ProductCopy.text("恢复时会保留原文件副本。", "Recovery keeps a copy of the original file.")
             text(key, description + detail)
             enable(key + ".restore", product.capabilities.canEditPreferences)
         }
         renderLogin()
         select("appearance", index: SettingsAppearanceChoice.allCases.firstIndex(of: product.appearance.selection) ?? 0)
         enable("appearance", product.appearance.available)
-        text("appearance.detail", product.appearance.failure ?? (product.appearance.unreadable ? "暂时无法读取外观偏好。当前显示不代表偏好已保存。"
-             : product.appearance.applied == nil ? "外观尚未应用。" : "当前外观已应用。"))
+        text("appearance.detail", product.appearance.failure ?? (product.appearance.unreadable ? ProductCopy.text("暂时无法读取外观偏好。当前显示不代表偏好已保存。", "Appearance preferences couldn’t be read. The current appearance may differ from your saved choice.")
+             : product.appearance.applied == nil ? ProductCopy.text("外观尚未应用。", "Appearance hasn’t been applied yet.") : ProductCopy.text("当前外观已应用。", "The current appearance has been applied.")))
         labels["appearance.detail"]?.isHidden = product.appearance.failure == nil && !product.appearance.unreadable && product.appearance.applied != nil
         hide("appearance.retry", product.appearance.failure == nil)
         enable("appearance.retry", product.appearance.available && product.appearance.pending != nil)
@@ -52,21 +52,21 @@ extension RiftSettingsCenterController {
         let supportsConnectionCheck = product.setup.attachment == .available
         var chromeState: String
         switch product.setup.permission {
-        case .granted: chromeState = "已允许自动化"
-        case .denied: chromeState = "需要授权"
-        case .notNeeded: chromeState = "无需授权"
-        case .notRunning, .browserUnavailable, .unavailable: chromeState = "暂不可用"
-        default: chromeState = "使用时检查"
+        case .granted: chromeState = ProductCopy.text("已允许自动化", "Automation Allowed")
+        case .denied: chromeState = ProductCopy.text("需要授权", "Access Needed")
+        case .notNeeded: chromeState = ProductCopy.text("无需授权", "No Access Needed")
+        case .notRunning, .browserUnavailable, .unavailable: chromeState = ProductCopy.text("暂不可用", "Unavailable")
+        default: chromeState = ProductCopy.text("使用时检查", "Checked When Used")
         }
         if supportsConnectionCheck && product.setup.permission == .granted {
             switch product.chromeConnection {
             case .unchecked:
-                chromeState = product.setup.issue == .chromeJavaScriptDisabled ? "需开启 JavaScript" : "待检查连接"
-            case .checking: chromeState = "检查中"
-            case .ready: chromeState = "已连接"
-            case .javaScriptDisabled: chromeState = "需开启 JavaScript"
-            case .noWindow: chromeState = "请打开 Chrome 窗口"
-            case .unavailable: chromeState = "连接未成功"
+                chromeState = product.setup.issue == .chromeJavaScriptDisabled ? ProductCopy.text("需开启 JavaScript", "Enable JavaScript") : ProductCopy.text("待检查连接", "Connection Not Checked")
+            case .checking: chromeState = ProductCopy.text("检查中", "Checking")
+            case .ready: chromeState = ProductCopy.text("已连接", "Connected")
+            case .javaScriptDisabled: chromeState = ProductCopy.text("需开启 JavaScript", "Enable JavaScript")
+            case .noWindow: chromeState = ProductCopy.text("请打开 Chrome 窗口", "Open a Chrome Window")
+            case .unavailable: chromeState = ProductCopy.text("连接未成功", "Connection Failed")
             }
         }
         text("access.chrome", chromeState)
@@ -74,21 +74,21 @@ extension RiftSettingsCenterController {
         hide("chrome.check", !canTestConnection)
         enable("chrome.check", canTestConnection && product.capabilities.canRequestAutomation
                && !product.reviewEnvironment && product.chromeConnection != .checking && !product.setup.isChecking)
-        (controls["chrome.check"] as? NSButton)?.title = product.chromeConnection == .checking ? "正在检查连接…" : "检查 Chrome 连接"
+        buttonTitle("chrome.check", product.chromeConnection == .checking ? ProductCopy.text("正在检查连接…", "Checking Connection…") : ProductCopy.text("检查 Chrome 连接", "Check Chrome Connection"))
         enable("source.open.capture", presentation.hasSourceLocation)
         select("arrival", index: ArrivalMotionMode.allCases.firstIndex(of: settings.arrivalMode) ?? 0)
         enable("arrival", product.capabilities.canEditPreferences && !busy(.arrival))
-        text("motion.detail", "已开启系统“减少动态效果”。截图将直接显示，动效选择会保留。")
+        text("motion.detail", ProductCopy.text("已开启系统“减少动态效果”。截图将直接显示，动效选择会保留。", "Reduce Motion is on in macOS. Screenshots appear immediately. Your motion preference is kept."))
         labels["motion.detail"]?.isHidden = !product.accessibility.reduceMotion
         let count = product.setup.pendingCount
-        text("history.detail", "有 \(count) 张截图的附加结果待核实。请查看原草稿，Riftlet 不会自动重传。")
+        text("history.detail", ProductCopy.text("有 \(count) 张截图的附加结果待核实。请查看原草稿，Riftlet 不会自动重传。", "\(count) screenshot attachments are awaiting confirmation. Check their original drafts. Riftlet won’t retry them automatically."))
         labels["history.detail"]?.isHidden = count == 0
         enable("history.open", product.capabilities.canOpenHistory)
-        text("storage", product.setup.storage == .notMeasured ? "尚未检查本地存储用量。" : presentation.storageText)
+        text("storage", product.setup.storage == .notMeasured ? ProductCopy.text("尚未检查本地存储用量。", "Local storage usage hasn’t been checked yet.") : presentation.storageText)
         enable("storage.recheckMedia", product.capabilities.canRecheck && !product.setup.isChecking)
         enable("storage.check", product.capabilities.canCheckStorage && product.setup.storage != .measuring)
         enable("storage.reveal", product.capabilities.initialized)
-        text("automation", presentation.automationStatusText ?? "当前模式不需要 Chrome 自动化访问。")
+        text("automation", presentation.automationStatusText ?? ProductCopy.text("当前模式不需要 Chrome 自动化访问。", "This mode doesn’t need access to control Chrome."))
         let scriptInstructions = presentation.chromeScriptInstructions
             ?? (canTestConnection && [.unchecked, .javaScriptDisabled].contains(product.chromeConnection) ? ChromeAttachmentSetup.instructions : nil)
         text("chrome.menu", scriptInstructions ?? "")
@@ -98,19 +98,19 @@ extension RiftSettingsCenterController {
         let lastAttachmentProblem = product.setup.issue?.isAttachmentConnectionIssue == true
         labels["attachment"]?.isHidden = supportsConnectionCheck && !lastAttachmentProblem
         text("attachment", presentation.attachmentText)
-        (controls["automation.request"] as? NSButton)?.title = presentation.permissionActionTitle
+        buttonTitle("automation.request", presentation.permissionActionTitle)
         hide("automation.request", !presentation.canRequestPermission)
         enable("automation.request", product.capabilities.canRequestAutomation && presentation.canRequestPermission && !product.setup.isChecking)
         enable("screen.privacy", settings.entryAvailable)
-        text("version", product.version.isEmpty ? "版本信息尚未提供。" : product.version)
+        text("version", product.version.isEmpty ? ProductCopy.text("版本信息尚未提供。", "Version information isn’t available.") : product.version)
         let updater = product.updater
         check("updates.automatic", updater?.automaticChecks == true, enabled: updater?.automaticChecks != nil)
-        (controls["updates.check"] as? NSButton)?.title = updater?.checkTitle ?? "检查更新…"
+        buttonTitle("updates.check", updater?.checkTitle ?? ProductCopy.text("检查更新…", "Check for Updates…"))
         enable("updates.check", updater?.canCheck == true)
-        text("updates.failure", updater?.failure.map { "更新未完成。" + $0 } ?? "")
+        text("updates.failure", updater?.failure.map { ProductCopy.text("更新未完成。", "The update didn’t finish. ") + $0 } ?? "")
         labels["updates.failure"]?.isHidden = updater?.failure == nil
         text("support", presentation.supportText)
-        text("diagnostics", "当前操作结束后会应用新的桌面布局。")
+        text("diagnostics", ProductCopy.text("当前操作结束后会应用新的桌面布局。", "The new desktop layout will apply when the current action finishes."))
         labels["diagnostics"]?.isHidden = !product.configurationDeferred
         hide("updates.website", updater?.failure == nil)
         for domain in SettingsDomain.allCases { renderError(domain) }
@@ -122,20 +122,20 @@ extension RiftSettingsCenterController {
         let login = product.login
         check("login", login.switchValue, enabled: login.available && !login.isBusy && login.status != .unknown && login.status != nil)
         let detail: String
-        if login.isBusy { detail = "正在等待 macOS 更新登录项状态…" }
-        else if !login.available { detail = "此运行环境不更改系统登录项。" }
-        else if login.status == .requiresApproval { detail = "开启请求已提交，等待你在系统设置中允许；尚未获准登录启动。" }
-        else if login.notConfirmed { detail = "更改尚未确认。可重试或在系统设置中查看登录项。" }
+        if login.isBusy { detail = ProductCopy.text("正在等待 macOS 更新登录项状态…", "Waiting for macOS to update the login item…") }
+        else if !login.available { detail = ProductCopy.text("此运行环境不更改系统登录项。", "This environment doesn’t change login items.") }
+        else if login.status == .requiresApproval { detail = ProductCopy.text("开启请求已提交，等待你在系统设置中允许；尚未获准登录启动。", "The request was submitted. Allow Riftlet in System Settings to enable launch at login.") }
+        else if login.notConfirmed { detail = ProductCopy.text("更改尚未确认。可重试或在系统设置中查看登录项。", "The change isn’t confirmed. Try again or check Login Items in System Settings.") }
         else {
             switch login.status {
-            case .enabled: detail = "macOS 已允许 Riftlet 在登录后启动。"
-            case .notRegistered: detail = "未注册登录启动。"
-            case .notFound: detail = "macOS 暂未找到此应用的登录项。可以尝试开启。"
-            case .unknown, nil: detail = "暂时无法读取登录项状态。"
-            case .requiresApproval: detail = "等待系统批准。"
+            case .enabled: detail = ProductCopy.text("macOS 已允许 Riftlet 在登录后启动。", "macOS allows Riftlet to launch at login.")
+            case .notRegistered: detail = ProductCopy.text("未注册登录启动。", "Launch at login is off.")
+            case .notFound: detail = ProductCopy.text("macOS 暂未找到此应用的登录项。可以尝试开启。", "macOS hasn’t found this app’s login item. You can try enabling it.")
+            case .unknown, nil: detail = ProductCopy.text("暂时无法读取登录项状态。", "The login item status couldn’t be read.")
+            case .requiresApproval: detail = ProductCopy.text("等待系统批准。", "Waiting for system approval.")
             }
         }
-        let error = login.errorCode.map { " macOS 返回错误代码 \($0)。" } ?? ""
+        let error = login.errorCode.map { ProductCopy.text(" macOS 返回错误代码 \($0)。", " macOS returned error code \($0).") } ?? ""
         text("login.detail", detail + error)
         labels["login.detail"]?.isHidden = login.available && !login.notConfirmed && !login.isBusy && login.errorCode == nil && (login.status == .notRegistered || login.status == .enabled)
         hide("login.retry", login.failedTarget == nil)
@@ -165,14 +165,14 @@ extension RiftSettingsCenterController {
         traySettings?.isHidden = configuration.desktopForm != .tray
         let defaultMode = settings.defaultCaptureMode
         let defaultTitle = RiftTrayFavoriteChoice.mode(defaultMode).menuTitle
-        text("tray.favorites.detail", "常用键从屏幕内侧向边缘排列。最外侧使用“截图”页的默认方式（\(defaultTitle)）。")
+        text("tray.favorites.detail", ProductCopy.text("常用键从屏幕内侧向边缘排列。最外侧使用“截图”页的默认方式（\(defaultTitle)）。", "Favorites run from the inside of the screen toward its edge. The outermost button uses the default capture mode (\(defaultTitle))."))
         let choices = RiftTrayFavoriteChoice.menuChoices
         for slot in RiftTrayFavoriteSlot.allCases {
             let id = slot.settingsDomain.rawValue
             guard let control = controls[id] as? NSPopUpButton else { continue }
             let choice = configuration.trayFavorite(slot)
             let automatic = slot.automaticMode(defaultMode: defaultMode).map(RiftTrayFavoriteChoice.mode) ?? .empty
-            let title = "自动（\(automatic.menuTitle)）"
+            let title = ProductCopy.text("自动（\(automatic.menuTitle)）", "Automatic (\(automatic.menuTitle))")
             if control.item(at: 0)?.title != title { control.item(at: 0)?.title = title }
             control.lastItem?.isHidden = choice != .unsupported
             if let index = choices.firstIndex(of: choice) { select(id, index: index) }
@@ -188,10 +188,10 @@ extension RiftSettingsCenterController {
             if displayItems != settings.displays || displaySelection != selected || popup.numberOfItems == 0 {
                 popup.removeAllItems()
                 if selected == nil {
-                    popup.addItem(withTitle: "尚未选择显示器")
+                    popup.addItem(withTitle: ProductCopy.text("尚未选择显示器", "No Display Selected"))
                     popup.lastItem?.isEnabled = false
                 } else if !settings.displays.contains(where: { $0.id == selected }) {
-                    popup.addItem(withTitle: "已选显示器（未连接）")
+                    popup.addItem(withTitle: ProductCopy.text("已选显示器（未连接）", "Preferred Display (Disconnected)"))
                     popup.lastItem?.representedObject = NSNumber(value: selected!)
                     popup.lastItem?.isEnabled = false
                 }
@@ -215,9 +215,11 @@ extension RiftSettingsCenterController {
         enable("display", product.capabilities.canEditPreferences && !settings.displays.isEmpty && !configurationBusy)
         let current = owner.effectiveDisplayID.flatMap { id in settings.displays.first(where: { $0.id == id })?.name }
         if let selected, owner.effectiveDisplayID != selected {
-            text("display.detail", "已保留所选显示器。当前临时显示在\(current.map { "“\($0)”" } ?? "可用屏幕")，不会自动修改偏好。")
-        } else if let current { text("display.detail", "当前显示在“\(current)”。") }
-        else { text("display.detail", "暂时无法确认截图显示在哪个屏幕。") }
+            let screenName = current.map { "“\($0)”" } ?? ProductCopy.text("可用屏幕", "an available display")
+            text("display.detail", ProductCopy.text("已保留所选显示器。当前临时显示在\(screenName)，不会自动修改偏好。",
+                 "Your preferred display is saved. Screenshots are temporarily shown on \(screenName)."))
+        } else if let current { text("display.detail", ProductCopy.text("当前显示在“\(current)”。", "Currently shown on “\(current)”.")) }
+        else { text("display.detail", ProductCopy.text("暂时无法确认截图显示在哪个屏幕。", "The current display couldn’t be determined.")) }
         // The normal popup already names the active selected display. Retain
         // the full extra explanation whenever that equality is not confirmed.
         labels["display.detail"]?.isHidden = selected != nil && selected == owner.effectiveDisplayID && current != nil
@@ -293,7 +295,7 @@ extension RiftSettingsCenterController {
         var previewConfig = config
         previewConfig.visibleCountPreference = min(limit, config.visibleCountPreference)
         geometryPreview.update(configuration: previewConfig, entryEnabled: state.owner.settings.entryEnabled)
-        text("layoutPreview.detail", "预览 · " + geometryPreview.geometrySummary)
+        text("layoutPreview.detail", ProductCopy.text("预览 · ", "Preview · ") + geometryPreview.geometrySummary)
         refreshCloseButtons()
     }
 
@@ -316,36 +318,41 @@ extension RiftSettingsCenterController {
         guard let state = model.snapshot.domains[domain] else { return nil }
         if let validation = state.validationFailure {
             switch validation {
-            case .invalidArchive: return "请输入 1–10 之间的分钟数，支持小数。如需停用，请选择“关闭”。"
-            case .invalidNumber(let field): return "“\(fieldTitle(field))”不是有效数值。请修改后按回车。"
-            case .invalidConfiguration: return "该值超出允许范围，请输入有效数值。"
-            case .displayUnavailable: return "所选显示器当前不可用，未保存新的显示器偏好。"
-            case .inactiveLegacyField: return "已选择六点位置，旧版距顶部参数不再生效。请放弃这项旧参数草稿后重试。"
+            case .invalidArchive: return ProductCopy.text("请输入 1–10 之间的分钟数，支持小数。如需停用，请选择“关闭”。", "Enter a time from 1 to 10 minutes. Decimals are allowed. Choose Off to disable archiving.")
+            case .invalidNumber(let field): return ProductCopy.text("“\(fieldTitle(field))”不是有效数值。请修改后按回车。", "Enter a valid value for “\(fieldTitle(field))”, then press Return.")
+            case .invalidConfiguration: return ProductCopy.text("该值超出允许范围，请输入有效数值。", "This value is out of range. Enter a valid number.")
+            case .displayUnavailable: return ProductCopy.text("所选显示器当前不可用，未保存新的显示器偏好。", "The selected display is unavailable. Your display preference hasn’t changed.")
+            case .inactiveLegacyField: return ProductCopy.text("已选择六点位置，旧版距顶部参数不再生效。请放弃这项旧参数草稿后重试。", "A preset position is selected, so the previous top offset no longer applies. Discard that edit and try again.")
             }
         }
         guard state.saveFailure != nil else { return nil }
         let target: String
         switch state.pending {
-        case .collectionPaused(let paused): target = paused ? "暂停收录" : "继续收录"
-        case .hidden(let hidden): target = hidden ? "隐藏桌面微图" : "显示桌面微图"
-        case .entryEnabled(let enabled): target = enabled ? "启用内置截图" : "关闭内置截图"
-        case .captureMode: target = "默认截图方式"
-        case .arrival: target = "截图出现动效"
-        case .desktopForm: target = "桌面形态"
-        case .windChimeArrangement(let arrangement): target = "风铃排列 · " + arrangement.title
-        case .trayTheme: target = "托盘材质"
-        case .trayFavorite(let slot, let choice): target = "常用键 \(slot.rawValue) · \(choice.menuTitle)"
-        case .layout: target = "参数更改"
-        case .placement: target = "边缘位置"
-        case .display: target = "显示器偏好"
-        case .archiveMinutes: target = "归档时限"
-        case nil: target = "这项选择"
+        case .collectionPaused(let paused): target = paused ? ProductCopy.text("暂停收录", "Pause Collection") : ProductCopy.text("继续收录", "Resume Collection")
+        case .hidden(let hidden): target = hidden ? ProductCopy.text("隐藏桌面微图", "Hide Desktop Thumbnails") : ProductCopy.text("显示桌面微图", "Show Desktop Thumbnails")
+        case .entryEnabled(let enabled): target = enabled ? ProductCopy.text("启用内置截图", "Enable Built-in Capture") : ProductCopy.text("关闭内置截图", "Disable Built-in Capture")
+        case .captureMode: target = ProductCopy.text("默认截图方式", "Default Capture Mode")
+        case .arrival: target = ProductCopy.text("截图出现动效", "Screenshot Arrival Motion")
+        case .desktopForm: target = ProductCopy.text("桌面形态", "Desktop Form")
+        case .windChimeArrangement(let arrangement): target = ProductCopy.text("风铃排列 · ", "Wind Chime Layout · ") + arrangement.title
+        case .trayTheme: target = ProductCopy.text("托盘材质", "Tray Material")
+        case .trayFavorite(let slot, let choice): target = ProductCopy.text("常用键 \(slot.rawValue) · \(choice.menuTitle)", "Favorite \(slot.rawValue) · \(choice.menuTitle)")
+        case .layout: target = ProductCopy.text("参数更改", "Layout Changes")
+        case .placement: target = ProductCopy.text("边缘位置", "Edge Position")
+        case .display: target = ProductCopy.text("显示器偏好", "Preferred Display")
+        case .archiveMinutes: target = ProductCopy.text("归档时限", "Archive Time")
+        case nil: target = ProductCopy.text("这项选择", "This Choice")
         }
-        return "“\(target)”未能保存，请重试。"
+        return ProductCopy.text("“\(target)”未能保存，请重试。", "Couldn’t save “\(target)”. Try again.")
     }
     var configurationBusy: Bool { SettingsDomain.allCases.contains { $0.writesConfiguration && busy($0) } }
     func busy(_ domain: SettingsDomain) -> Bool { model.snapshot.domains[domain]?.isSaving == true }
     func text(_ id: String, _ value: String) { if labels[id]?.stringValue != value { labels[id]?.stringValue = value } }
+    func buttonTitle(_ id: String, _ value: String) {
+        guard let button = controls[id] as? NSButton else { return }
+        button.title = value
+        button.setAccessibilityLabel(value)
+    }
     func enable(_ id: String, _ enabled: Bool) { controls[id]?.isEnabled = enabled }
     func hide(_ id: String, _ hidden: Bool) { controls[id]?.isHidden = hidden }
     func check(_ id: String, _ on: Bool, enabled: Bool) {
@@ -369,10 +376,10 @@ extension RiftSettingsCenterController {
     }
     var screenRecordingText: String {
         switch product.screenRecording {
-        case .notChecked: return "尚未检查屏幕录制权限；仅在使用内置截图时需要。"
-        case .granted: return "屏幕录制权限已允许。"
-        case .notGranted: return "屏幕录制权限尚未允许，可在系统设置中开启。"
-        case .unavailable: return "当前环境无法确认内置截图权限。"
+        case .notChecked: return ProductCopy.text("尚未检查屏幕录制权限；仅在使用内置截图时需要。", "Screen Recording access hasn’t been checked. It is needed only for built-in capture.")
+        case .granted: return ProductCopy.text("屏幕录制权限已允许。", "Screen Recording access is allowed.")
+        case .notGranted: return ProductCopy.text("屏幕录制权限尚未允许，可在系统设置中开启。", "Allow Screen Recording access in System Settings to use built-in capture.")
+        case .unavailable: return ProductCopy.text("当前环境无法确认内置截图权限。", "Built-in capture access couldn’t be checked in this environment.")
         }
     }
 }

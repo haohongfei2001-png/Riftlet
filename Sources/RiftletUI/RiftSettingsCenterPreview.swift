@@ -9,11 +9,11 @@ final class RiftSettingsCenterPreview: NSView {
     private let drawing = RiftSettingsDesktopIllustration(frame: .zero)
     var geometrySummary: String {
         let count = min(configuration.visibleCountPreference, 4)
-        let title = configuration.placement?.title ?? "旧版位置"
+        let title = configuration.placement?.title ?? ProductCopy.text("旧版位置", "Previous Position")
         let countText = configuration.visibleCountPreference > count
-            ? "\(configuration.visibleCountPreference) 张（示意前 \(count) 张）" : "\(count) 张"
+            ? ProductCopy.text("\(configuration.visibleCountPreference) 张（示意前 \(count) 张）", "\(configuration.visibleCountPreference) images (showing the first \(count))") : ProductCopy.text("\(count) 张", "\(count) images")
         if configuration.desktopForm == .windChime {
-            return title + " · " + countText + " · 风铃 · " + configuration.windChimeArrangement.title
+            return title + " · " + countText + ProductCopy.text(" · 风铃 · ", " · Wind Chime · ") + configuration.windChimeArrangement.title
         }
         return title + " · " + countText
     }
@@ -26,7 +26,7 @@ final class RiftSettingsCenterPreview: NSView {
         addSubview(drawing)
         setAccessibilityElement(true)
         setAccessibilityRole(.image)
-        setAccessibilityLabel("截图布局预览")
+        setAccessibilityLabel(ProductCopy.text("截图布局预览", "Screenshot layout preview"))
     }
     required init?(coder: NSCoder) { nil }
     func update(configuration: RiftConfiguration, entryEnabled: Bool = false) {

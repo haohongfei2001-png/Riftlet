@@ -135,19 +135,11 @@ extension ProductCopy {
     var pickerButton: String { text("允许读取", "Allow Access") }
 
     func positionLabel(_ value: RiftPlacement) -> String {
-        text("桌面位置：" + value.title, "Desktop position: " + placement(value))
+        text("桌面位置：" + value.title(in: .simplifiedChinese), "Desktop position: " + placement(value))
     }
 
     func placement(_ value: RiftPlacement) -> String {
-        guard self == .english else { return value.title }
-        switch value {
-        case .leftTop: return "Top left"
-        case .leftMiddle: return "Mid-left"
-        case .leftBottom: return "Bottom left"
-        case .rightTop: return "Top right"
-        case .rightMiddle: return "Mid-right"
-        case .rightBottom: return "Bottom right"
-        }
+        value.title(in: self == .english ? .english : .simplifiedChinese)
     }
 
     func saveError(display: Bool) -> String {
