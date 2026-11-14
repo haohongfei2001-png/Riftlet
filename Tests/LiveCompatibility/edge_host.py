@@ -98,14 +98,17 @@ class Draft:
                     <main><textarea>Neutral unsent draft</textarea><img width=16 height=16
                     src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==">
                     <input type=file></main><script>
-                    const field=document.querySelector('textarea'), prior=document.querySelector('img');
+                    const field=document.querySelector('textarea'), prior=document.querySelector('img'),
+                    priorSource=prior.src, input=document.querySelector('input');
                     field.setSelectionRange(2,7); const ping=s=>fetch(location.pathname+'/'+s);
-                    document.querySelector('input').onchange=()=>ping('change');
+                    input.onchange=()=>ping('change');
                     let old=-1; async function report(){try{const n=+(await(await ping('phase')).text());
                     if(n!==old){old=n;document.body.style.background=['#93bfd1','#f6e3a2','#98c7ac','#d8e9b9'][n];
                     await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
                     const ok=field.value==='Neutral unsent draft'&&field.selectionStart===2&&field.selectionEnd===7&&
-                       document.querySelector('img')===prior&&prior.complete&&prior.naturalWidth===1;
+                       document.querySelector('textarea')===field&&document.querySelectorAll('img').length===1&&
+                       document.querySelector('img')===prior&&prior.src===priorSource&&prior.complete&&prior.naturalWidth===1&&
+                       document.querySelector('input')===input&&input.files.length===0;
                     if(!ok) old=-1; else await ping('seen/'+n);}}finally{setTimeout(report,120);}}report();
                     </script>""".replace("TITLE", draft.title)
                     self.reply(200, html.encode(), "text/html")
@@ -133,7 +136,7 @@ def read_assets(dbfile):
         result = {}
         for ident, name, status, visibility, image in db.execute("SELECT id,file_name,status,visibility,image_json FROM assets"):
             image = json.loads(image)
-            if Path(name).name != name or image["origin"] != "systemScreenshot":
+            if Path(name).name != name or image["origin"] != "systemScreenshot" or image["sha256"] in result:
                 raise RuntimeError("unexpected_asset")
             result[image["sha256"]] = (ident, name, status, visibility)
         return result
