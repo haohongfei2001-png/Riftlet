@@ -342,6 +342,35 @@ public actor QueueStore {
         try database.rows("SELECT id,asset_id,attempt,target_json,phase,created_at,updated_at FROM operations WHERE phase NOT IN ('failed','succeeded') ORDER BY sequence").map(decodeOperation)
     }
 
+    /// Read lightweight facts for the desktop. Old attachment targets are needed
+    /// by the coordinator on restart, never to render a queue badge.
+    public func unresolvedPhaseCounts() throws -> [OperationPhase: Int] {
+        let rows = try database.rows("""
+            SELECT phase,COUNT(*) FROM operations WHERE phase NOT IN ('failed','succeeded') GROUP BY phase
+            """)
+        var counts: [OperationPhase: Int] = [:]
+        for row in rows {
+            guard let phase = row[0].flatMap(OperationPhase.init(rawValue:)), let count = row[1].flatMap(Int.init)
+            else { throw RiftletError.database("Invalid operation phase count") }
+            counts[phase] = count
+        }
+        return counts
+    }
+
+    public func visiblePreparedOperations() throws -> [UUID: UUID] {
+        let rows = try database.rows("""
+            SELECT a.id,o.id FROM assets a JOIN operations o ON o.id=a.active_operation_id AND o.asset_id=a.id
+            WHERE a.visibility='visible' AND o.phase='prepared'
+            """)
+        var prepared: [UUID: UUID] = [:]
+        for row in rows {
+            guard let asset = row[0].flatMap(UUID.init(uuidString:)), let operation = row[1].flatMap(UUID.init(uuidString:))
+            else { throw RiftletError.database("Invalid prepared operation identity") }
+            prepared[asset] = operation
+        }
+        return prepared
+    }
+
     /// A bounded restart observation set; old receipt history is never replayed.
     public func successfulOperations(limit: Int = 64) throws -> [TransferOperation] {
         try database.rows("""

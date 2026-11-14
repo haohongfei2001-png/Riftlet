@@ -111,6 +111,58 @@ final class RecoveryValidationTests: XCTestCase {
         }
     }
 
+    func testStartupCheckWithoutSourceAndRechecksAfterStopUseOriginalHash() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let record = try await f.importImage()
+        let media = f.media(record.image)
+        let input = f.root.appendingPathComponent("empty-source", isDirectory: true)
+        try FileManager.default.createDirectory(at: input, withIntermediateDirectories: true)
+        let service = CaptureService(store: f.store, privateRoot: f.storage, sourceDirectory: input)
+
+        // An already paused or denied first launch still reports corrupt private media.
+        var incorrect = f.bytes
+        incorrect[incorrect.count / 2] ^= 0x01
+        try incorrect.write(to: media)
+        try await service.prepareApplicationStartup(validate: {})
+        await service.finishApplicationStartup()
+        let missing = try await f.store.asset(id: record.id)
+        XCTAssertEqual(missing?.status, .missing)
+        XCTAssertEqual(try Data(contentsOf: media), incorrect)
+
+        // A later source start must not reuse the earlier result after a file change.
+        try f.bytes.write(to: media, options: .atomic)
+        try await service.start()
+        let restored = try await f.store.asset(id: record.id)
+        XCTAssertEqual(restored?.status, .pending)
+        await service.stop()
+        try incorrect.write(to: media, options: .atomic)
+        try await service.start()
+        let replaced = try await f.store.asset(id: record.id)
+        XCTAssertEqual(replaced?.status, .missing)
+        await service.stop()
+    }
+
+    func testRefusedStartupValidationLeavesWatcherAndCollectionCheckpointsUntouched() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let imported = try await f.importImage()
+        let service = CaptureService(store: f.store, privateRoot: f.storage, sourceDirectory: f.root)
+        let before = try await f.store.assets(includeUsed: true)
+        do {
+            try await service.prepareApplicationStartup {
+                let all = try await f.store.assets(includeUsed: true)
+                if all.contains(where: { $0.image.origin == .synthetic }) { throw RiftletError.modeMismatch }
+            }
+            XCTFail("Unexpected provenance admission")
+        } catch RiftletError.modeMismatch {}
+        let status = await service.statusSnapshot()
+        let epoch = try await f.store.checkpoint(for: "capture-collection-epoch-v1")
+        let after = try await f.store.assets(includeUsed: true)
+        XCTAssertFalse(status.isRunning)
+        XCTAssertNil(epoch)
+        XCTAssertEqual(after, before)
+        XCTAssertEqual(try Data(contentsOf: f.media(imported.image)), f.bytes)
+    }
+
     func testExplicitRecheckRestoresOnlyExactPrivateMediaWithoutRestartingCollection() async throws {
         let f = try Fixture(); defer { f.close() }
         let imported = try await f.importImage()

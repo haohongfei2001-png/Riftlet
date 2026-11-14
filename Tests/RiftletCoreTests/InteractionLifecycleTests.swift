@@ -259,6 +259,23 @@ final class InteractionLifecycleTests: XCTestCase {
         }
     }
 
+    func testDesktopPhaseCountsAndPreparedIDsMatchOriginalOperations() async throws {
+        let db = try store(), first = try image(), second = try image()
+        let waiting = try await prepare(db, first, dispatched: false)
+        let old = try await prepare(db, second, dispatched: true)
+        _ = try await db.apply(receipt(old, second, outcome: .unknown), policy: admitted)
+        let original = try await db.unresolvedOperations()
+        let counts = try await db.unresolvedPhaseCounts()
+        let visible = try await db.visiblePreparedOperations()
+        XCTAssertEqual(counts, Dictionary(grouping: original, by: \.phase).mapValues(\.count))
+        XCTAssertEqual(visible, [first.id: waiting.id])
+        try await db.removeFromQueue(first.id)
+        let after = try await db.visiblePreparedOperations()
+        let afterCounts = try await db.unresolvedPhaseCounts()
+        XCTAssertTrue(after.isEmpty)
+        XCTAssertEqual(afterCounts, [.unknown: 1])
+    }
+
     func testAdmittedStartHidesBeforeSuccessAndPersistsItsOwnEvidence() async throws {
         let db = try store(), asset = try image()
         let op = try await prepare(db, asset)

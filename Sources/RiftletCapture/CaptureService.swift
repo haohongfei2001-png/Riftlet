@@ -80,6 +80,7 @@ public actor CaptureService {
     private let onDiagnostic: @Sendable (CaptureDiagnostic) async -> Void
     private var sourceAccessible = false
     private var latestDiagnostic: CaptureDiagnostic?
+    private var startupRecovery: (generation: UUID, report: CaptureRecoveryReport)?
     private var privateRecoveryDiagnostic: CaptureDiagnosticCode?
     // A failed preference switch leaves the last working source active. A scan
     // of that old source must not erase the unresolved requested-location error.
@@ -133,6 +134,20 @@ public actor CaptureService {
         self.now = now
     }
 
+    /// Verify private media and provenance before subscribing to source events.
+    /// Reuse is scoped to the caller's immediate, same-generation startup only.
+    public func prepareApplicationStartup(validate: @Sendable () async throws -> Void) async throws {
+        startupRecovery = nil
+        let token = generation
+        let report = try await importer.recover()
+        try await validate()
+        guard token == generation, !running, !stoppingForExit else { throw CancellationError() }
+        startupRecovery = (token, report)
+        await reportRecovery(report)
+    }
+
+    public func finishApplicationStartup() { startupRecovery = nil }
+
     public func start() async throws {
         guard !stoppingForExit else { return }
         activeLifecycleOperations += 1
@@ -142,6 +157,8 @@ public actor CaptureService {
         await lifecycleProbe?(.beforeModeRead)
         guard await store.mode == .production else { throw RiftletError.modeMismatch }
         guard !running, generation == requestedGeneration else { return }
+        let priorRecovery = startupRecovery
+        startupRecovery = nil
         running = true
         initializing = true
         installationStart = now()
@@ -161,7 +178,12 @@ public actor CaptureService {
                 try await store.saveCheckpoint(try JSONEncoder().encode(epoch), for: Self.epochCheckpoint)
             }
             guard running, generation == token else { return }
-            let report = try await importer.recover()
+            let report: CaptureRecoveryReport
+            if let priorRecovery, priorRecovery.generation == requestedGeneration {
+                report = priorRecovery.report
+            } else {
+                report = try await importer.recover()
+            }
             guard running, generation == token else { return }
             if let data = try await store.checkpoint(for: Self.handoffCheckpoint) {
                 guard running, generation == token else { return }
@@ -217,6 +239,7 @@ public actor CaptureService {
     }
 
     public func stop() {
+        startupRecovery = nil
         running = false
         sourceAccessible = false
         initializing = false
@@ -338,6 +361,7 @@ public actor CaptureService {
             return
         }
         guard running else {
+            startupRecovery = nil
             sourceDirectory = destination
             sourceAccessible = false
             baseline = nil; observations.removeAll()

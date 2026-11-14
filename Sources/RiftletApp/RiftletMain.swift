@@ -376,10 +376,6 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         // Journal recovery may add records. Validate the isolated synthetic store
         // after recovery as well, before any real adapter is constructed.
         if mode.generatesSyntheticImages { try await seedSyntheticImages(store: store) }
-        if mode == .systemScreenshotCandidate || (mode == .capture && mode.usesWebAdapter) {
-            _ = try await PrivateAssetImporter(privateRoot: root, store: store).recover()
-            try await SystemScreenshotCandidateConfiguration.validateStore(store)
-        }
         var defaultLayout = RiftConfiguration()
         if let screen = NSScreen.screens.first,
            let id = (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value {
@@ -525,6 +521,41 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             self?.settingsHost?.refreshHistoryDisplayStyle()
         }
         history?.onPreviewVisibilityChanged = { [weak self] visible in self?.rift?.setDetailPresented(visible) }
+        let startupCapture: CaptureService?
+        if mode.collectsSystemScreenshots {
+            do {
+                detectedSource = try await captureLocation.currentDirectory()
+                if let detectedSource { _ = restoreCaptureFolder(detectedSource) }
+            } catch { receiveCaptureDiagnostic(.classify(error, context: .locationPreference)) }
+            let service = CaptureService(store: store, privateRoot: root, sourceDirectory: detectedSource ?? reviewEnvironment?.source ?? CaptureSource.defaultDirectory(),
+                                         permitsRead: { [weak self] url in await self?.permitsCaptureRead(url) ?? false },
+                                         onChange: { [weak self] in await self?.refresh() },
+                                         onImported: { [weak self] record, observation in
+                                             Task { @MainActor [weak self] in
+                                                 guard let self, !self.terminating else { return }
+                                                 // A committed new screenshot is an observation
+                                                 // demand, never a click or input authorization.
+                                                 // Start prebinding before preview work and the
+                                                 // later multi-read refresh/source lookup.
+                                                 self.recordArrivalTrace(["event": "captureDurableObserved",
+                                                    "assetID": record.id.uuidString, "uptime": observation.readyUptime,
+                                                    "firstSeenWallTime": record.image.firstSeenAt.timeIntervalSince1970])
+                                                 self.arrivalCapture?.imported(record, observation: observation)
+                                                 // Publish each committed asset without awaiting source metadata
+                                                 // or the rest of a multi-file collector scan.
+                                                 await self.refresh()
+                                             }
+                                         },
+                                         onDiagnostic: { [weak self] value in await self?.receiveCaptureDiagnostic(value) })
+            if mode == .systemScreenshotCandidate || (mode == .capture && mode.usesWebAdapter) {
+                try await service.prepareApplicationStartup {
+                    try await SystemScreenshotCandidateConfiguration.validateStore(store)
+                }
+            }
+            startupCapture = service
+        } else {
+            startupCapture = nil
+        }
         let composition = try ApplicationAttachmentComposition.make(mode: mode, root: root, store: store,
             traceEnabled: CommandLine.arguments.contains("--acceptance-trace"),
             diagnosticTrace: diagnosticTrace,
@@ -566,34 +597,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         // Original read-only observers perform their own receiver-bound checks;
         // an ambiguous foreground must not suppress recovery after restart.
         try await startAttachmentObservationIfPermitted()
-        if !mode.collectsSystemScreenshots {
-            statusLine?.title = simulation ? "SIMULATION · synthetic images only · no ChatGPT input"
-                : "WEB ACCEPTANCE · generated images · real Chrome input"
-        } else {
-            do {
-                detectedSource = try await captureLocation.currentDirectory()
-                if let detectedSource { _ = restoreCaptureFolder(detectedSource) }
-            } catch { receiveCaptureDiagnostic(.classify(error, context: .locationPreference)) }
-            let service = CaptureService(store: store, privateRoot: root, sourceDirectory: detectedSource ?? reviewEnvironment?.source ?? CaptureSource.defaultDirectory(),
-                                         permitsRead: { [weak self] url in await self?.permitsCaptureRead(url) ?? false },
-                                         onChange: { [weak self] in await self?.refresh() },
-                                         onImported: { [weak self] record, observation in
-                                             Task { @MainActor [weak self] in
-                                                 guard let self, !self.terminating else { return }
-                                                 // A committed new screenshot is an observation
-                                                 // demand, never a click or input authorization.
-                                                 // Start prebinding before preview work and the
-                                                 // later multi-read refresh/source lookup.
-                                                 self.recordArrivalTrace(["event": "captureDurableObserved",
-                                                    "assetID": record.id.uuidString, "uptime": observation.readyUptime,
-                                                    "firstSeenWallTime": record.image.firstSeenAt.timeIntervalSince1970])
-                                                 self.arrivalCapture?.imported(record, observation: observation)
-                                                 // Publish each committed asset without awaiting source metadata
-                                                 // or the rest of a multi-file collector scan.
-                                                 await self.refresh()
-                                             }
-                                         },
-                                         onDiagnostic: { [weak self] value in await self?.receiveCaptureDiagnostic(value) })
+        if let service = startupCapture {
             capture = service
             let binding = CaptureSourceBinding(service: service, provider: captureLocation,
                 permitsSource: { [weak self] source in await self?.restoreCaptureFolder(source) ?? false },
@@ -603,7 +607,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 do { try await binding.start() }
                 catch { receiveCaptureDiagnostic(.classify(error, context: .source)) }
             }
+            await service.finishApplicationStartup()
             captureStatus = await service.statusSnapshot()
+        } else {
+            statusLine?.title = simulation ? "SIMULATION · synthetic images only · no ChatGPT input"
+                : "WEB ACCEPTANCE · generated images · real Chrome input"
         }
         updateControlTitles()
         startArchiveScheduler()
@@ -1239,11 +1247,12 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     if let retired = try await store.asset(id: id) { snapshot.append(retired) }
                 }
                 let successful = mode.usesWebAdapter ? try await store.successfulOperations() : []
-                let unresolved = try await store.unresolvedOperations()
+                let unresolvedPhaseCounts = try await store.unresolvedPhaseCounts()
+                let visiblePreparations = try await store.visiblePreparedOperations()
                 // An unreadable legacy receipt must not suppress fresh thumbnails.
                 // Keep the conservative unresolved count if only the badge projection fails.
                 let reviewCount = (try? await store.pendingAttachmentReviewCount())
-                    ?? Set(unresolved.filter { $0.phase != .prepared }.map(\.assetID)).count
+                    ?? unresolvedPhaseCounts.filter { $0.key != .prepared }.values.reduce(0, +)
                 var cancelledPreparedFeedback: [UUID: (operationID: UUID, revision: Int64, text: String)] = [:]
                 for (id, operationID) in preparedFeedbackOperations {
                     guard let record = snapshot.first(where: {
@@ -1294,11 +1303,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 screenshotEntry?.configure()
                 // The last observed phase may advance to input before another
                 // refresh. Use neutral text, never claim ongoing no-input status.
-                let prepared = Dictionary(uniqueKeysWithValues: unresolved.filter { operation in
-                    operation.phase == .prepared && snapshot.contains {
-                        $0.id == operation.assetID && $0.activeOperationID == operation.id && $0.visibility == .visible
-                    }
-                }.map { ($0.assetID, $0.id) })
+                let prepared = visiblePreparations.filter { activeIDs.contains($0.key) }
                 for (id, operationID) in preparedFeedbackOperations where prepared[id] != operationID {
                     rift?.clearFeedback(matching: ProductStatus.AttachmentFeedback.preparing.text, for: id,
                         owner: .operation(operationID))
@@ -1314,7 +1319,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 }
                 preparedFeedbackOperations = prepared
                 feedback.assets(snapshot) // Sampled local counts, not operation-level statistics.
-                feedback.operations(successful + unresolved)
+                feedback.operations(phaseCounts: unresolvedPhaseCounts, successfulCount: successful.count)
                 if interactionFence.snapshot().blocked { feedback.diagnostics.record(.uiProjectionDeferred) }
                 switch mode {
                 case .capture:
