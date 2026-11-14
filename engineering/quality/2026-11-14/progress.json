@@ -73,7 +73,8 @@
       "source": "bf11b35d2beec58cb305a0dd7e83d6d0ad47a2a7",
       "admission": "26b81ceba0f90b464e2654009b3ff0271789c10c",
       "nativeOnboarding": "18 named native program checks in an isolated macOS 27.2 guest. Three English guide views and the Simplified Chinese start view captured. Permission states supplied by a fixture. Corrected an inconsistent denied/ready test fixture and verified its replacement frame.",
-      "unavailableSettings": "In a private build with a settings host initialization error injected, clicked the status item and then Quit. The process exited and both instance and feedback locks were available. No production failure was injected."
+      "unavailableSettings": "In a private build with a settings host initialization error injected, clicked the status item and then Quit. The process exited and both instance and feedback locks were available. No production failure was injected.",
+      "formalCI": "5/5 on 26b81ce, Native 43550046383 and Feedback 43550046399"
     },
     "systemIME": {
       "source": "6cd0d62373d92fe88ecc885a9f88558f3dcffb14",
@@ -95,6 +96,23 @@
       "reclaimableBytes": null,
       "permanentDeletionImplemented": false
     },
-    "realChatGPT": "NOT_RUN. The dedicated QA browser timed out before an editable draft. Zero file submissions. Resumption requires a reachable authorized QA draft and the exact proposed release package."
+    "realChatGPT": "NOT_RUN. The dedicated QA browser timed out before an editable draft. Zero file submissions. Resumption requires a reachable authorized QA draft and the exact proposed release package.",
+    "bilingualDailyUse": {
+      "sourceComponents": {
+        "controlAndMenus": "247e8f6",
+        "dynamicSourceAndPermissionStates": "aa3bc1a",
+        "settings": "6e9d13d",
+        "history": "db08ab9",
+        "gridResizing": "346863f",
+        "trayAndThumbnail": "5695489",
+        "captureStatusAndUpdaterErrors": "5187ce7"
+      },
+      "settings": "16 isolated AppKit controller cases (12 English, 4 Chinese). The four pages use stable identifiers and the original preference owner.",
+      "controlAndSetup": "20 native control and setup projection cases passed in both process languages. No live browser handoff in this test.",
+      "history": "4 native controller cases with synthetic records. Both renderers kept the stored record UUID, existing actions and bilingual search.",
+      "grid": "Independent native reproduction of a stale document/viewport width and flow-layout warnings. Final resizing checks ran 16 changes through 1000, 680, 808 and 680 points across English and Chinese. Selected UUID retained and no flow-layout warnings in that run.",
+      "captureAndStatus": "12 program-level cases covered capture menu and countdown copy, attachment uncertainty and update-denial messages. The download and attachment operations were not executed by these tests.",
+      "limits": "WindowServer screenshots use controlled local records. Some system notification banners obscure the right margin. Physical VoiceOver speech, macOS 13 hardware, live ChatGPT and next-version installation via the official public feed remain separate."
+    }
   }
 }
