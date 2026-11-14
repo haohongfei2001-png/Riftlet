@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "updatedAt": "2026-11-14",
   "baseline": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",
-  "stableRelease": "v1.0.1",
-  "stableBuild": 23,
-  "phase": "FINAL_ACCEPTANCE_AND_STABLE_RELEASE_PREPARATION",
+  "stableRelease": "v1.0.2",
+  "stableBuild": 24,
+  "phase": "GITHUB_RELEASE_PUBLISHED_SITE_AND_FEED_PENDING",
   "currentRound": 4,
-  "productEngineeringState": "ACTIVE_PR_101",
-  "overallAcceptance": "SCOPED_PRODUCT_PATHS_VERIFIED_RELEASE_PENDING",
+  "productEngineeringState": "MERGED_PR_101",
+  "overallAcceptance": "SCOPED_FORMAL_UPGRADE_VERIFIED_PUBLIC_CHANNEL_PENDING",
   "applicationSourceChangedByThisDelivery": true,
   "counts": {
     "P0": 1,
@@ -17,7 +17,7 @@
   },
   "executors": {
     "audit": "PR #100 dated audit and independent source review preserved unchanged",
-    "engineering": "Codex integration lead and independent implementation/review agents are active on PR #101",
+    "engineering": "PR101 product implementation merged; release lead owns remaining channel publication and verified deployment, no new product work packet.",
     "nativeAcceptance": "Authorized isolated ARM64 macOS27.2 GUI executed scoped AppKit, persistence, IME, actual Sparkle installation and source624 real ChatGPT attachment. Full hardware, accessibility and unexecuted permission cases retain their scope."
   },
   "rounds": [
@@ -63,7 +63,7 @@
     {
       "round": 4,
       "goal": "Measured engineering simplification and upgrade/protection coverage",
-      "state": "PRIVATE_REAL_UPDATE_PASS_FINAL_STABLE_RELEASE_PENDING",
+      "state": "FORMAL_REAL_UPDATE_PASS_REMAINING_MATRIX_OPEN",
       "issues": [
         "QA-DAT-002",
         "QA-SET-008",
@@ -74,20 +74,20 @@
     {
       "round": 5,
       "goal": "Residual defects only and final release acceptance; merge into R4 when unnecessary",
-      "state": "FINAL_RELEASE_PREPARATION_NO_NEW_PRODUCT_ROUND",
+      "state": "PUBLIC_CHANNEL_CLOSEOUT_NO_NEW_PRODUCT_ROUND",
       "issues": []
     }
   ],
   "nextAction": {
-    "owner": "Codex integration lead and independent reviewers",
-    "action": "Independently verify the source624 real ChatGPT receipt and targeted tab-switch boundary. Prepare1.0.2/build24 source metadata on PR101, new G/H admission and exact-head CI, then main integration and formal stable App/DMG/feed/public-download acceptance. Preserve original312 real-update package identity and all prior failures.",
+    "owner": "Codex release lead and independent reviewers",
+    "action": "Complete actual main merge CI and approved publication if pending; then verify signed public stable feed, website deployment and exact public DMG download. Preserve personal installation and all earlier source-bound evidence. Do not repeat implemented product work or infer full hardware/accessibility acceptance.",
     "acceptanceGaps": [
-      "QA-REL-001",
-      "QA-REL-002",
+      "QA-GOV-002",
       "QA-VIS-001",
-      "QA-GOV-002"
+      "REMAINING_INSTALLATION_AND_HARDWARE_MATRIX",
+      "PUBLIC_CHANNEL_DEPLOYMENT"
     ],
-    "documentationIncrement": "Current entry points record scoped source624 live attachment and source312 private Sparkle update, retaining the original audit tables and earlier network timeout."
+    "documentationIncrement": "Current entry points record merged PR101 and the final formal DMG real Sparkle installation; old audit and failed attempts remain unchanged."
   },
   "capabilityGaps": [
     {
@@ -437,6 +437,26 @@
         "scope": "Dedicated QA Chrome could not reach a stable editable draft. Neither image submitted; no product FAIL inferred from the timeout."
       },
       "scope": "Earlier network timeout before editor with zero submissions remains a valid NOT_RUN result for that attempt. Later real-service evidence is appended separately."
+    },
+    {
+      "checkpoint": "5b73c755ec1eb6d1aa2ef5b9390da6200b6108b9",
+      "previousEntryStatus": {
+        "phase": "FINAL_ACCEPTANCE_AND_STABLE_RELEASE_PREPARATION",
+        "productEngineeringState": "ACTIVE_PR_101",
+        "overallAcceptance": "SCOPED_PRODUCT_PATHS_VERIFIED_RELEASE_PENDING",
+        "nextAction": {
+          "owner": "Codex integration lead and independent reviewers",
+          "action": "Independently verify the source624 real ChatGPT receipt and targeted tab-switch boundary. Prepare1.0.2/build24 source metadata on PR101, new G/H admission and exact-head CI, then main integration and formal stable App/DMG/feed/public-download acceptance. Preserve original312 real-update package identity and all prior failures.",
+          "acceptanceGaps": [
+            "QA-REL-001",
+            "QA-REL-002",
+            "QA-VIS-001",
+            "QA-GOV-002"
+          ],
+          "documentationIncrement": "Current entry points record scoped source624 live attachment and source312 private Sparkle update, retaining the original audit tables and earlier network timeout."
+        }
+      },
+      "scope": "Preserved entry state before final formal package and qa84 upgrade closeout."
     }
   ],
   "actualLiveAttachmentEvidence": {
@@ -465,5 +485,27 @@
     "productDifference": "Sources/RiftletUI/RiftControlCenterController.swift header layout",
     "acceptanceToolDifference": "Sources/RiftletGUIAcceptance/NativeVisualEvidence.swift language matching",
     "unchangedScope": "Updater, Chrome attachment execution, data lifecycle and resources identical between these source checkpoints. Each binary retains its own receipt and signature. Formalstableidentityandpublicfeedvalidation remain separate."
+  },
+  "currentRelease": {
+    "mainMerge": "5b73c755ec1eb6d1aa2ef5b9390da6200b6108b9",
+    "reviewedProductSource": "876c7e829abeef865e442f9e46eaae495d1a9e09",
+    "version": "1.0.2",
+    "build": 24,
+    "mainCI": "PASS_5_OF_5",
+    "publicPublished": true,
+    "githubRelease": "https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.2",
+    "websiteDeployment": "PENDING_ACTUAL_DEPLOYMENT_AND_READBACK",
+    "publicStableFeed": "PENDING_ACTUAL_DEPLOYMENT_AND_SIGNATURE_VERIFICATION",
+    "publicDownloadAcceptance": "PENDING_REAL_PUBLIC_DOWNLOAD",
+    "publicFeedUpgradeAcceptance": "PENDING_QA85_REAL_PUBLIC_FEED_UPGRADE",
+    "formalDMGSHA256": "374fbe7b5a49938bf7d67c38a52a018941b672c382abdace63efbb4f73393931",
+    "installedTestBinarySHA256": "8828f3c0a982fb3fa761f8c99991f5a0640307f0f1d0bf242002390184f4aab1",
+    "actualFormalUpgradeEvidence": "engineering/quality/2026-11-14/actual-formal-sparkle-update.json",
+    "scope": "Scoped real ARM64 native upgrade via private signed loopback feed plus source-bound earlier live attachment; qa85 public-feed upgrade is pending. Not all acceptance-matrix cells PASS."
+  },
+  "actualFormalUpdateEvidence": "engineering/quality/2026-11-14/actual-formal-sparkle-update.json",
+  "finalPublicationReceipt": {
+    "url": "https://github.com/haohongfei2001-png/Riftlet/pull/101#issuecomment-6879797338",
+    "scope": "This file is the reviewed pre-website-deployment checkpoint; final public-channel and actual-update observations are appended to the linked durable PR receipt."
   }
 }
