@@ -149,6 +149,43 @@ final class RecoveryValidationTests: XCTestCase {
         await service.stop()
     }
 
+    func testExplicitRecheckOfUsedHistoryRequiresOriginalJournalAndMatchingBytes() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let imported = try await f.importImage(), originalTarget = target()
+        let op = try await f.store.prepare(assetID: imported.id, target: originalTarget)
+        try await f.store.markDispatchIntent(op.id)
+        let receipt = TransferReceipt(operationID: op.id, assetID: imported.id, attempt: op.attempt,
+            assetSHA256: imported.image.sha256, target: originalTarget, outcome: .verifiedReady,
+            profileID: "used-recheck", attachmentID: "synthetic-receipt", positiveReady: true,
+            belongsToOriginalDraft: true)
+        let used = try await f.store.apply(receipt, policy: .init(admittedProfiles: ["used-recheck": .webChat]))
+        XCTAssertEqual(used.status, .used)
+        let savedOperation = try await f.store.operation(id: op.id)
+        let media = f.media(imported.image), journal = f.journal(imported.image)
+        let savedJournal = try Data(contentsOf: journal)
+        try FileManager.default.removeItem(at: media)
+        let startup = try await f.importer.recover()
+        XCTAssertEqual(startup.missing, [imported.id])
+        var wrong = f.bytes
+        wrong[wrong.count / 2] ^= 1
+        try wrong.write(to: media)
+        let wrongBytes = try await f.importer.recheckPrivateMedia()
+        XCTAssertEqual(wrongBytes.invalid, [imported.id])
+        try f.bytes.write(to: media)
+        try FileManager.default.removeItem(at: journal)
+        let withoutJournal = try await f.importer.recheckPrivateMedia()
+        XCTAssertEqual(withoutJournal.missing, [imported.id])
+        try savedJournal.write(to: journal)
+        let restored = try await f.importer.recheckPrivateMedia()
+        XCTAssertTrue(restored.invalid.isEmpty && restored.missing.isEmpty)
+        let after = try await f.store.asset(id: imported.id)
+        let operationAfter = try await f.store.operation(id: op.id)
+        let receiptAfter = try await f.store.receipt(for: op.id)
+        XCTAssertEqual(after, used)
+        XCTAssertEqual(operationAfter, savedOperation)
+        XCTAssertEqual(receiptAfter, receipt)
+    }
+
     func testMissingOriginalMediaRestoresUnknownWithoutChangingItsOperation() async throws {
         let f = try Fixture(); defer { f.close() }
         let imported = try await f.importImage()

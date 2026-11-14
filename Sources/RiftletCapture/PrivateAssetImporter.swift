@@ -226,14 +226,14 @@ public actor PrivateAssetImporter {
             }
             return url
         }
-        var report = try await recoverManifests(manifests)
+        var report = try await recoverManifests(manifests, verifyUsedMedia: true)
         report.missing.append(contentsOf: missingManifests)
         outstandingRecoveryIDs.subtract(ids)
         outstandingRecoveryIDs.formUnion(report.missing + report.invalid)
         return report
     }
 
-    private func recoverManifests(_ manifests: [URL]) async throws -> CaptureRecoveryReport {
+    private func recoverManifests(_ manifests: [URL], verifyUsedMedia: Bool = false) async throws -> CaptureRecoveryReport {
         var report = CaptureRecoveryReport()
         for url in manifests where url.pathExtension == "json" {
             do {
@@ -259,9 +259,9 @@ public actor PrivateAssetImporter {
                 if let existing, candidate == mediaURL {
                     let current = try PrivateFiles.privateSignature(at: candidate)
                     guard current.size == asset.byteCount else { throw CaptureError.invalidManifest }
-                    // Active copies get byte-integrity validation after restart; already-used
-                    // history needs no decode work and is never automatically deleted.
-                    if existing.status == .used { continue }
+                    // Skip routine hashing of used history at startup. A previously reported
+                    // missing or invalid file must match its original bytes before clearing the issue.
+                    if existing.status == .used && !verifyUsedMedia { continue }
                     try PrivateFiles.verifyPreviouslyValidatedMedia(candidate, asset: asset, signature: current)
                     if existing.status == .missing { try await store.restoreMissingAsset(asset.id) }
                     continue
