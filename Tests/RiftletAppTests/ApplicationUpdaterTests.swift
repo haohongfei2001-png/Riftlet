@@ -1,7 +1,26 @@
 import XCTest
+import RiftletUI
 @testable import RiftletApp
 
 final class ApplicationUpdaterTests: XCTestCase {
+    func testValidationErrorsKeepIdentityAndOfferOfficialRecoveryInBothLanguages() {
+        for (language, descriptions) in [
+            (ProductCopy.english, [
+                "This version cannot upgrade your current Riftlet installation. Visit riftlet.com for official releases.",
+                "The update feed signature could not be verified. Visit riftlet.com for official releases."]),
+            (.simplifiedChinese, [
+                "这个版本不能用于升级当前的 Riftlet。请前往 riftlet.com 查看正式版本。",
+                "无法验证更新清单的签名。请前往 riftlet.com 查看正式版本。"])
+        ] {
+            for invalid in [false, true] {
+                let error = ApplicationUpdater.validationError(signatureInvalid: invalid, copy: language)
+                XCTAssertEqual(error.domain, "com.riftlet.update")
+                XCTAssertEqual(error.code, invalid ? 2 : 1)
+                XCTAssertEqual(error.localizedDescription, descriptions[invalid ? 1 : 0])
+            }
+        }
+    }
+
     func testBothPublicVersionAndBuildAdvanceForAnUpgrade() {
         for (oldVersion, oldBuild, newVersion, newBuild, expected) in [
             ("1.0.0", "22", "1.0.1", "23", true),

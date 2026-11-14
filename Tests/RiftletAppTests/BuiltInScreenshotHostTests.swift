@@ -281,7 +281,7 @@ final class BuiltInScreenshotHostTests: XCTestCase {
         let frozen = try XCTUnwrap(host.entry.capturePresentation)
         XCTAssertEqual(frozen.confirmedMode, .region)
         XCTAssertEqual(frozen.remainingSeconds, 5)
-        XCTAssertEqual(host.entry.diagnosticSnapshot.captureStatusText, "已选区域 · 5 秒后拍摄")
+        XCTAssertEqual(host.entry.diagnosticSnapshot.captureStatusText, ProductCopy.text("已选区域 · 5 秒后拍摄", "Region selected · Capturing in 5 seconds"))
 
         for mode in [ScreenshotMode.window, .fullScreen] {
             host.entry.setMode(mode); host.entry.onMode?(mode)
@@ -292,7 +292,7 @@ final class BuiltInScreenshotHostTests: XCTestCase {
             XCTAssertEqual(current.nextMode, mode)
             XCTAssertEqual(host.entry.diagnosticSnapshot.controls.map(\.mode), originalSlots)
         }
-        XCTAssertEqual(host.entry.diagnosticSnapshot.captureStatusText, "已选区域 · 5 秒后拍摄\n下一张：全屏")
+        XCTAssertEqual(host.entry.diagnosticSnapshot.captureStatusText, ProductCopy.text("已选区域 · 5 秒后拍摄\n下一张：全屏", "Region selected · Capturing in 5 seconds\nNext: Full Screen"))
         host.entry.setOptions(.init(delay: 0, showPointer: true))
         host.entry.onOptions?(host.entry.options)
         capture.submitSelection(target) // A second complete gesture cannot create another pending request.
@@ -308,7 +308,7 @@ final class BuiltInScreenshotHostTests: XCTestCase {
         XCTAssertFalse(visual.controls.contains { $0.frame.intersects(visual.captureStatusFrame) })
         let cancel = try XCTUnwrap(visual.controls.first(where: \.isCancel))
         let cancelView = try XCTUnwrap(NSApp.windows.first { $0.windowNumber == cancel.windowNumber }?.contentView)
-        XCTAssertEqual(cancelView.accessibilityLabel(), "结束截图")
+        XCTAssertEqual(cancelView.accessibilityLabel(), ProductCopy.text("结束截图", "End Capture"))
         capture.onCaptureVisibilityChanged?(true)
         XCTAssertFalse(statusWindow.isVisible)
         capture.onCaptureVisibilityChanged?(false)
@@ -319,7 +319,7 @@ final class BuiltInScreenshotHostTests: XCTestCase {
         XCTAssertEqual(capturer.requests[0].id, frozen.requestID)
         XCTAssertEqual(capturer.requests[0].mode, .region)
         XCTAssertEqual(capturer.requests[0].options, .init(delay: 5))
-        XCTAssertEqual(host.entry.diagnosticSnapshot.captureStatusText, "正在拍摄已选区域\n下一张：全屏")
+        XCTAssertEqual(host.entry.diagnosticSnapshot.captureStatusText, ProductCopy.text("正在拍摄已选区域\n下一张：全屏", "Capturing selected Region\nNext: Full Screen"))
         capturer.complete(try pngFile(root: root))
         await fulfillment(of: [imported], timeout: 3)
         XCTAssertNil(host.entry.capturePresentation)
@@ -333,7 +333,7 @@ final class BuiltInScreenshotHostTests: XCTestCase {
         XCTAssertEqual(capturer.requests.count, 2)
         XCTAssertEqual(capturer.requests[1].mode, .fullScreen)
         XCTAssertEqual(capturer.requests[1].options, .init(delay: 0, showPointer: true))
-        XCTAssertFalse(host.entry.diagnosticSnapshot.captureStatusText?.contains("0 秒") ?? true)
+        XCTAssertFalse(host.entry.diagnosticSnapshot.captureStatusText?.contains(ProductCopy.text("0 秒", "0 seconds")) ?? true)
         host.cancel(); host.beginFromMenu()
         XCTAssertNil(host.entry.capturePresentation)
         capturer.complete(try pngFile(root: root)) // Cancelled old completion cannot revive its text or import.
