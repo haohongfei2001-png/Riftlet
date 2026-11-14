@@ -1,6 +1,6 @@
 # 官网直接分发
 
-Riftlet 使用 SwiftPM 构建普通 App，通过 Developer ID Application 在 Mac App Store 以外分发。正式 bundle ID 是 `com.riftlet.app`。每个版本的主程序、资源、历史和截图目录使用既有产品布局。1.0.0 用户先从官网下载 1.0.1，退出旧版后在 Finder 中替换原位置的 App 一次。1.0.1 起使用 Sparkle 验证签名更新，默认每天检查，由用户选择安装。每版的正式 DMG 仍可从官网下载。[应用内更新与签名 feed 发布](IN_APP_UPDATES.md)
+Riftlet 使用 SwiftPM 构建普通 App，通过 Developer ID Application 在 Mac App Store 以外分发。正式 bundle ID 是 `com.riftlet.app`。每个版本的主程序、资源、历史和截图目录使用既有产品布局。1.0.0 用户先从官网下载当前 1.0.2，退出旧版后在 Finder 中替换原位置的 App 一次。1.0.1 起使用 Sparkle 验证签名更新，默认每天检查，由用户选择安装。每版的正式 DMG 仍可从官网下载。[应用内更新与签名 feed 发布](IN_APP_UPDATES.md)
 
 ## 首次配置签名机
 
@@ -30,13 +30,13 @@ python3 -B scripts/configure-notary-profile.py --profile Riftlet-Notary --team "
 
 ## 每次发行
 
-选择独立审查通过的源码提交和递增的 build number，使用一个新的私有工作区。下例使用仓库核实后的当前 main 构建 0.3.2 (5)。该版本号只有在正式产物获准发布后才用于官网。
+选择独立审查通过的源码提交和递增的 build number，使用一个新的私有工作区。下例使用仓库核实后的当前 main 和源码中的正式版本、构建号生成 stable 包。
 
 ```bash
 release_sha="$(git rev-parse origin/main)"
 python3 -B scripts/release-macos.py \
-  --source "$release_sha" --version 0.3.2 --build 5 \
-  --workspace "$HOME/Library/Application Support/Riftlet Release/0.3.2-5" \
+  --source "$release_sha" --stable \
+  --workspace "$HOME/Library/Application Support/Riftlet Release/1.0.2-24-stable" \
   --profile Riftlet-Notary
 ```
 
