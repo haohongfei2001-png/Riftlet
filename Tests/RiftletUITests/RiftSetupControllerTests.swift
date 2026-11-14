@@ -1,5 +1,6 @@
 import AppKit
 import XCTest
+@testable import RiftletLegacySettingsFixtures
 @testable import RiftletUI
 
 final class RiftSetupControllerTests: XCTestCase {

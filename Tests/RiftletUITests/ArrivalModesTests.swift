@@ -1,5 +1,6 @@
 import AppKit
 import XCTest
+@testable import RiftletLegacySettingsFixtures
 import ImageIO
 import UniformTypeIdentifiers
 import CryptoKit

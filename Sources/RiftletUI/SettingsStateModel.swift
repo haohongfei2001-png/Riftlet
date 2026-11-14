@@ -335,7 +335,7 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         archiveDraft?.text ?? Self.archiveMinutesText(owner.settings.archiveAfterMinutes ?? QueueArchivePolicy.defaultMinutes,
                                                 decimalSeparator: decimalSeparator)
     }
-    static func archiveMinutesText(_ minutes: Double, decimalSeparator: String) -> String {
+    package static func archiveMinutesText(_ minutes: Double, decimalSeparator: String) -> String {
         // Seconds can round-trip 1.077 minutes to 1.0770000000000002. Use the
         // shorter spelling only when it identifies the same persisted duration.
         let short = String(format: "%.15g", locale: Locale(identifier:"en_US_POSIX"), minutes)
