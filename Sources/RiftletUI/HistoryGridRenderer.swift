@@ -336,9 +336,8 @@ final class HistoryGridRenderer: NSObject, NSCollectionViewDataSource, NSCollect
     }
     func collectionView(_ collectionView: NSCollectionView, layout collectionViewLayout: NSCollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> NSSize {
-        // Flow layout validates against the collection's current bounds. The
-        // enclosing clip width may already have changed while this document
-        // view still has its previous width during a resize/style transition.
+        // During a resize, the viewport and document can update in either
+        // order. Every item must fit both of their current widths.
         let insets = sectionInsets(for: collectionView)
         let available = max(0, layoutWidth(for: collectionView) - insets.left - insets.right)
         let columns = max(1, Int((available + 16) / 156))
@@ -348,8 +347,11 @@ final class HistoryGridRenderer: NSObject, NSCollectionViewDataSource, NSCollect
                         insetForSectionAt section: Int) -> NSEdgeInsets { sectionInsets(for: collectionView) }
 
     private func layoutWidth(for collectionView: NSCollectionView) -> CGFloat {
-        let content = collectionView.enclosingScrollView?.contentInsets ?? NSEdgeInsetsZero
-        return max(0, collectionView.bounds.width - max(0, content.left) - max(0, content.right))
+        let scroll = collectionView.enclosingScrollView
+        let content = scroll?.contentInsets ?? NSEdgeInsetsZero
+        let viewport = scroll?.contentView.bounds.width ?? collectionView.bounds.width
+        let width = min(collectionView.bounds.width, viewport)
+        return max(0, width - max(0, content.left) - max(0, content.right))
     }
 
     private func sectionInsets(for collectionView: NSCollectionView) -> NSEdgeInsets {
@@ -377,6 +379,12 @@ final class HistoryGridRenderer: NSObject, NSCollectionViewDataSource, NSCollect
 @MainActor
 final class HistoryGridCollectionView: NSCollectionView {
     var onPreview: (() -> Void)?
+
+    override func setFrameSize(_ newSize: NSSize) {
+        // Drop cached item widths before AppKit lays out the narrower document.
+        if newSize.width != frame.width { collectionViewLayout?.invalidateLayout() }
+        super.setFrameSize(newSize)
+    }
     override func keyDown(with event: NSEvent) {
         if event.keyCode == 49, event.modifierFlags.intersection(.deviceIndependentFlagsMask).isEmpty {
             onPreview?(); return
