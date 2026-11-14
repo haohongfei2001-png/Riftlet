@@ -4,10 +4,10 @@
   "baseline": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",
   "stableRelease": "v1.0.1",
   "stableBuild": 23,
-  "phase": "IMPLEMENTATION_AND_SCOPED_NATIVE_VERIFICATION",
+  "phase": "FINAL_ACCEPTANCE_AND_STABLE_RELEASE_PREPARATION",
   "currentRound": 4,
   "productEngineeringState": "ACTIVE_PR_101",
-  "overallAcceptance": "NOT_ACCEPTED",
+  "overallAcceptance": "SCOPED_PRODUCT_PATHS_VERIFIED_RELEASE_PENDING",
   "applicationSourceChangedByThisDelivery": true,
   "counts": {
     "P0": 1,
@@ -18,13 +18,13 @@
   "executors": {
     "audit": "PR #100 dated audit and independent source review preserved unchanged",
     "engineering": "Codex integration lead and independent implementation/review agents are active on PR #101",
-    "nativeAcceptance": "Authorized isolated macOS 27.2 ARM64 GUI executed scoped AppKit, persistence, IME and updater checks; real service and hardware gaps remain explicit"
+    "nativeAcceptance": "Authorized isolated ARM64 macOS27.2 GUI executed scoped AppKit, persistence, IME, actual Sparkle installation and source624 real ChatGPT attachment. Full hardware, accessibility and unexecuted permission cases retain their scope."
   },
   "rounds": [
     {
       "round": 1,
       "goal": "Correct destination, startup/prepared recovery, responsiveness, real current-package attachment",
-      "state": "IMPLEMENTED_SCOPED_VERIFICATION_REAL_CHATGPT_BLOCKED",
+      "state": "IMPLEMENTED_REAL_CHATGPT_SCOPED_PASS",
       "issues": [
         "QA-ATT-001",
         "QA-ATT-002",
@@ -63,7 +63,7 @@
     {
       "round": 4,
       "goal": "Measured engineering simplification and upgrade/protection coverage",
-      "state": "PERFORMANCE_AND_LEGACY_ISOLATION_VERIFIED_PRIVATE_UPDATE_IN_PROGRESS",
+      "state": "PRIVATE_REAL_UPDATE_PASS_FINAL_STABLE_RELEASE_PENDING",
       "issues": [
         "QA-DAT-002",
         "QA-SET-008",
@@ -74,26 +74,26 @@
     {
       "round": 5,
       "goal": "Residual defects only and final release acceptance; merge into R4 when unnecessary",
-      "state": "FINAL_ACCEPTANCE_PENDING_NO_NEW_ROUND_REQUIRED",
+      "state": "FINAL_RELEASE_PREPARATION_NO_NEW_PRODUCT_ROUND",
       "issues": []
     }
   ],
   "nextAction": {
     "owner": "Codex integration lead and independent reviewers",
-    "action": "Complete independent source admission and formal CI for the localized popover/header and supplemental visual-helper corrections. Actual original23-to-notarized-private24 Sparkle installation, data, history, new system capture and restart passed on source31258e2; keep that exact package scope. Retain real-service, permission and hardware gaps without repeating unchanged tests.",
+    "action": "Independently verify the source624 real ChatGPT receipt and targeted tab-switch boundary. Prepare1.0.2/build24 source metadata on PR101, new G/H admission and exact-head CI, then main integration and formal stable App/DMG/feed/public-download acceptance. Preserve original312 real-update package identity and all prior failures.",
     "acceptanceGaps": [
       "QA-REL-001",
       "QA-REL-002",
       "QA-VIS-001",
       "QA-GOV-002"
     ],
-    "documentationIncrement": "Reviewed PR100 audit documents reused in PR101; current entry points record the completed private upgrade and preserve all original dated evidence."
+    "documentationIncrement": "Current entry points record scoped source624 live attachment and source312 private Sparkle update, retaining the original audit tables and earlier network timeout."
   },
   "capabilityGaps": [
     {
       "id": "QA-REL-001",
-      "scope": "Dedicated authorized QA Chrome timed out before a readable editable ChatGPT draft; zero submissions. Requires a reachable draft and the exact candidate. Do not repeat the same unavailable route.",
-      "status": "BLOCKED_NETWORK_REAL_ATTACHMENT_NOT_RUN"
+      "scope": "Source624 private notarized candidate on ARM64 macOS27.2 AppleVZ/Chrome156 attached three distinct real system screenshots to one dedicated anonymous ChatGPT draft. Per-image START and visible attachments/retraction observed; third GUI double-click produced one operation. positiveReady=false. Independent evidence review and targeted tab-switch result remain recorded by the new receipt; this does not promote every live matrix cell.",
+      "status": "SCOPED_REAL_ATTACHMENT_PASS"
     },
     {
       "id": "QA-GOV-002",
@@ -110,14 +110,14 @@
     {
       "id": "QA-ATT-001",
       "priority": "P0",
-      "state": "IMPLEMENTED_CONTROLLED_VERIFIED",
+      "state": "IMPLEMENTED_CONTROLLED_AND_SCOPED_LIVE_VERIFIED",
       "round": 1,
       "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/78",
       "issueNumber": 78,
       "implementationCommit": "22088d01e65ccc7f6f7be52d612e9df1107935a5",
       "acceptedBy": null,
       "evidenceRef": "engineering/quality/2026-11-14/progress.json#R1",
-      "scope": "126 Node and 31 controlled Chrome cases; zero unowned file writes. Current-candidate real ChatGPT acceptance belongs to #82."
+      "scope": "126 Node and31 controlled Chrome cases retained with zero unowned file writes. Source624 real anonymous ChatGPT three-image path passed; only actually observed picker branches are covered by the live receipt. Whole-Issue closure awaits independent evidence review."
     },
     {
       "id": "QA-ATT-002",
@@ -158,14 +158,14 @@
     {
       "id": "QA-REL-001",
       "priority": "P1",
-      "state": "BLOCKED_NETWORK_REAL_ATTACHMENT_NOT_RUN",
+      "state": "SCOPED_LIVE_PASS",
       "round": 1,
       "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/82",
       "issueNumber": 82,
       "implementationCommit": null,
       "acceptedBy": null,
-      "evidenceRef": "engineering/quality/2026-11-14/progress.json#followUpVerification.realChatGPT",
-      "scope": "Dedicated QA Chrome could not reach a stable editable draft. Neither image submitted; no product FAIL inferred from the timeout."
+      "evidenceRef": "engineering/quality/2026-11-14/actual-chatgpt-attachment.json",
+      "scope": "Three distinct system screenshots each attached once in one dedicated anonymous ChatGPT draft on private notarized624, macOS27.2 ARM64 AppleVZ/Chrome156. Third GUI double-click generated one operation. START, attachment visibility and retraction are observed. positiveReady=false; final server-ready is not claimed. Independent review and the targeted tab-switch boundary are recorded separately; old network NOT_RUN remains in verificationHistory."
     },
     {
       "id": "QA-GOV-002",
@@ -345,7 +345,7 @@
       "implementationCommit": null,
       "acceptedBy": null,
       "evidenceRef": "engineering/quality/2026-11-14/actual-private-sparkle-update.json",
-      "scope": "Original website1.0.1 (23) actually updated through Sparkle using a private signed loopback feed to notarized source31258e2 1.0.2 (24). Seven assets/media, one UNKNOWN, operations/checkpoints, settings/bookmark and feedback preserved exactly. New system screenshot collected after update, original retained, history preview and normal restart passed. ARM64 macOS27.2 guest only. Public feed unchanged. Chrome and other hardware/first-install matrix remain open. PR77 separate."
+      "scope": "Original website1.0.1 (23) actually updated through Sparkle using a private signed loopback feed to notarized source31258e2 1.0.2 (24). Seven assets/media, one UNKNOWN, operations/checkpoints, settings/bookmark and feedback preserved exactly. New system screenshot collected after update, original retained, history preview and normal restart passed. ARM64 macOS27.2 guest only. Public feed unchanged. Chrome and other hardware/first-install matrix remain open. PR77 separate. Later source624 live attachment is separate evidence. It does not establish Chrome authorization continuity during the source312 update."
     },
     {
       "id": "QA-SET-005",
@@ -376,8 +376,8 @@
   "implementationPR": "https://github.com/haohongfei2001-png/Riftlet/pull/101",
   "progressRecord": "engineering/quality/2026-11-14/progress.json",
   "auditSource": "67fb373d04b7ca6162314e3b4072932be43f0794",
-  "implementationCheckpoint": "1d4374ca867853bc9809bbd7e5143f82a389aae1",
-  "checkpointScope": "Last admitted implementation head before this documentation increment and ongoing private upgrade work; read the actual PR head before integration.",
+  "implementationCheckpoint": "2048b32a7e7daf70c23f91576e335298a742c864",
+  "checkpointScope": "Current previously admittedH2048 with5/5CI. This document increment and forthcomingstableversionmetadata need their actualnewG/Hreview; do not represent2048 as the latercommit.",
   "countsBasis": "Original dated audit severity counts, not the number of currently unfixed defects. Issue closure is separate from this implementation state.",
   "implementationCommitMeaning": "A source checkpoint carrying the change, not necessarily its isolated author commit. acceptedBy is left null because whole-Issue final acceptance and closure are not implied by scoped tests.",
   "currentNativeEvidence": {
@@ -415,5 +415,55 @@
     "source": "31258e2a72fb7acf9e31f974f76b5a100dbb950d",
     "receipt": "engineering/quality/2026-11-14/actual-private-sparkle-update.json",
     "scope": "Real private signed-feed installation and post-update data/capture checks; currentNativeEvidence above retains its earlier source and scope."
+  },
+  "verificationHistory": [
+    {
+      "checkpoint": "2048b32a7e7daf70c23f91576e335298a742c864",
+      "realChatGPTCapabilityGap": {
+        "id": "QA-REL-001",
+        "scope": "Dedicated authorized QA Chrome timed out before a readable editable ChatGPT draft; zero submissions. Requires a reachable draft and the exact candidate. Do not repeat the same unavailable route.",
+        "status": "BLOCKED_NETWORK_REAL_ATTACHMENT_NOT_RUN"
+      },
+      "realChatGPTFinding": {
+        "id": "QA-REL-001",
+        "priority": "P1",
+        "state": "BLOCKED_NETWORK_REAL_ATTACHMENT_NOT_RUN",
+        "round": 1,
+        "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/82",
+        "issueNumber": 82,
+        "implementationCommit": null,
+        "acceptedBy": null,
+        "evidenceRef": "engineering/quality/2026-11-14/progress.json#followUpVerification.realChatGPT",
+        "scope": "Dedicated QA Chrome could not reach a stable editable draft. Neither image submitted; no product FAIL inferred from the timeout."
+      },
+      "scope": "Earlier network timeout before editor with zero submissions remains a valid NOT_RUN result for that attempt. Later real-service evidence is appended separately."
+    }
+  ],
+  "actualLiveAttachmentEvidence": {
+    "source": "624e1b5edc55aac2afb3ca588c5384b644736500",
+    "version": "1.0.2",
+    "build": 24,
+    "channel": "private QA notarized candidate",
+    "binarySHA256": "758d71579b2642beaa58985796c81bd55df01d8d2bf8cb9cb88dc49d830d74e1",
+    "receipt": "engineering/quality/2026-11-14/actual-chatgpt-attachment.json",
+    "environment": "ARM64 macOS27.2 AppleVZ, Chrome156, dedicated anonymous ChatGPT draft",
+    "scope": "Three distinct real system screenshots, each once; third real GUI double-click single operation. Matching START, visible attachments and thumbnail retraction. Original8 assets/media, UNKNOWN, preferences, bookmark and feedback preserved per independently checked snapshots.",
+    "positiveReady": false,
+    "serverFinalReady": "NOT_ASSERTED",
+    "independentReview": "PASS_SCOPED_THREE_ATTACHMENTS_AND_SAFE_PREINPUT_FAILURE",
+    "targetSwitchBoundary": "PASS for safe pre-input failure during real new-tab sequence, zero setter/change/START; original draft preserved. Anonymous login branch also occurred; not sole-cause proof of tab switching.",
+    "limits": [
+      "Actual anonymous draft only, not all account or webpage variants",
+      "Controlled GUI events, not physical mouse hardware",
+      "No expansion to all race/slow-response/permission cases",
+      "No claim that every release matrix item passed"
+    ]
+  },
+  "sourceEvidenceCompatibility": {
+    "actualUpdateSource": "31258e2a72fb7acf9e31f974f76b5a100dbb950d",
+    "actualAttachmentSource": "624e1b5edc55aac2afb3ca588c5384b644736500",
+    "productDifference": "Sources/RiftletUI/RiftControlCenterController.swift header layout",
+    "acceptanceToolDifference": "Sources/RiftletGUIAcceptance/NativeVisualEvidence.swift language matching",
+    "unchangedScope": "Updater, Chrome attachment execution, data lifecycle and resources identical between these source checkpoints. Each binary retains its own receipt and signature. Formalstableidentityandpublicfeedvalidation remain separate."
   }
 }

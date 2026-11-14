@@ -4,7 +4,7 @@
   "implementationPR": 101,
   "base": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",
   "stable": "1.0.1 (23)",
-  "overallAcceptance": "NOT_ACCEPTED",
+  "overallAcceptance": "SCOPED_LIVE_ATTACHMENT_PASS_FORMAL_STABLE_RELEASE_PENDING",
   "R1": {
     "issues": [
       78,
@@ -188,6 +188,24 @@
       "cause": "On macOS15 standard NSButton alignment insets place its complete outer hit frame at10pt while its alignment rectangle is at the intended17pt margin. The added test treated both as the same geometry.",
       "correction": "Verify the visual alignment rectangle against content margins and the full hit frame against popover bounds. Retain original full-word/intrinsic-size/non-overlap/edge-hit/action checks.",
       "shippingSource": "No product-source or resource change. The signed notarized624e1b5 App and native frames retain their exact identities."
+    },
+    "actualLiveChatGPT": {
+      "receipt": "engineering/quality/2026-11-14/actual-chatgpt-attachment.json",
+      "source": "624e1b5edc55aac2afb3ca588c5384b644736500",
+      "result": "PASS_SCOPED_REAL_ATTACHMENT_AND_TARGET_REJECTION",
+      "scope": "3 distinct actual system screenshots via real signed App, anonymous Chrome draft. Original text/attachment retained; 3 unique START and swallow. Third double-click produced one operation. Separate new-tab race stopped before setter with zero START. Not server final-ready. Anonymous login branch also appeared during target-switch sequence; do not isolate tab change as sole cause.",
+      "independentReview": {
+        "pathPrivate": "live-attachment-independent-review.json",
+        "sha256": "cd390ab756ed961708b3a375fe3f5405471622b46d5c5101b731c3eeab7d0f9f",
+        "result": "PASS_SCOPED_REAL_COMPOSER_ACCEPTANCE",
+        "targetBoundaryReview": "PASS_SCOPED_SAFE_PREINPUT_FAILURE",
+        "supplementalReport": {
+          "pathPrivate": "live-attachment-independent-review-final.json",
+          "sha256": "b6fbca7f4e88fdbf538714a2dfe15c0787f53b74ad9547b43806e200930c1526",
+          "result": "PASS_SCOPED_THREE_ATTACHMENTS_AND_SAFE_PREINPUT_FAILURE"
+        }
+      },
+      "historicalEvidence": "Earlier network NOT_RUN records remain unchanged. Formal stable pack and public feed still pending."
     }
   }
 }

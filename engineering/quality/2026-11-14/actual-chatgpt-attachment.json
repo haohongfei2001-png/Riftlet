@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "recordedAtUTC": "2026-11-14T13:38:33.989914+00:00",
+  "result": "PASS_SCOPED_REAL_ATTACHMENT_AND_TARGET_REJECTION",
+  "source": "624e1b5edc55aac2afb3ca588c5384b644736500",
+  "version": "1.0.2",
+  "build": 24,
+  "channel": "private QA candidate, not a public stable release",
+  "binarySHA256": "758d71579b2642beaa58985796c81bd55df01d8d2bf8cb9cb88dc49d830d74e1",
+  "appNotarizationSubmissionID": "159529ee-943d-4948-bcbc-74748cac73ae",
+  "environment": {
+    "macOS": "27.2",
+    "architecture": "arm64",
+    "machine": "Apple Virtualization macOS guest with normal logged-in Finder desktop",
+    "Chrome": "156.0.8078.80",
+    "surface": "real ChatGPT anonymous dedicated incognito draft at https://chatgpt.com/",
+    "input": "actual VZ keyboard/mouse events; not physical hardware or programmatically invoked product methods",
+    "capture": "ordinary system Screenshot.app capture UI, original PNG files imported by ordinary watcher",
+    "network": "existing host proxy via authenticated SSH loopback forwarding, restricted to dedicated QA Chrome; no TLS/security bypass",
+    "permissions": "normal macOS Chrome Automation Allow and normal Chrome Allow JavaScript from Apple Events menu in isolated account; existing folder grant retained",
+    "mode": "ordinary signed App with diagnostic --acceptance-trace, no injected product state"
+  },
+  "draft": {
+    "testBodySHA256": "4ca7eaf6b1378b0212d54932cbc6a4cd83ae991cf2a8e30c913003afa45192e7",
+    "bodyVisuallyPreserved": true,
+    "baselineAttachmentCount": 1,
+    "finalAttachmentCount": 4,
+    "originalAttachmentVisuallyPreserved": true,
+    "newAttachmentCount": 3,
+    "newAttachmentsVisuallyDistinct": true,
+    "messagesSentObserved": 0,
+    "sendActionUsed": false,
+    "sameDraftForAllThree": true
+  },
+  "perImage": [
+    {
+      "order": 1,
+      "color": "orange",
+      "assetIDDigest": "1e66d68eece07bc2f31f7a07a801916b4a144b0b7c2885173cfbfaf177b3ba58",
+      "assetSHA256": "c036ae699d86b1f3215700c20f705ed90210597ccda199ba36d85a97bf6c427a",
+      "operationIDDigest": "f350fc8e28bfb60ba1626671e3c967959bc1e9db3baef50050b7132b2370dcfc",
+      "attempt": 1,
+      "operationCount": 1,
+      "STARTCount": 1,
+      "attachmentIdentityDigest": "51397f5687c5d1d42371dd1e434f0f218b2f32a5c8338e618dc3033a34d2e8d0",
+      "targetIdentityDigest": "27cf337ede91b2ccdc1e590efb42aec2292587c3b11e294752961d450de48d45",
+      "startedAtGuestEpoch": 1794662517.915185,
+      "entry": {
+        "entryActivations": 1,
+        "menuActivations": 1,
+        "pickerClicks": 1,
+        "setterEntered": true,
+        "changeReturned": true,
+        "startObserved": true
+      },
+      "visibility": "swallowed",
+      "visibilityReason": "uploadStarted",
+      "positiveReady": false,
+      "swallowCallbacks": [
+        "swallowScheduled",
+        "swallowActualStart",
+        "swallowClose"
+      ]
+    },
+    {
+      "order": 2,
+      "color": "green",
+      "assetIDDigest": "65662fe4bc705fe2f805e5a96cb6efae99798e58bf5f46f813ca6ab9cb85a674",
+      "assetSHA256": "32ce8cfd553b077ab895941a9bedcd82e5518e7507d2e4332f609a94c2e82582",
+      "operationIDDigest": "7f480b88af30abc24ef04b425f4cda53a54dabc022d1aaf5ac228074458b041e",
+      "attempt": 1,
+      "operationCount": 1,
+      "STARTCount": 1,
+      "attachmentIdentityDigest": "d1975d9971bbb0866ddfab87aa1c74bd8c4e5f8f7c0d0218c2a1c26edd4e0cfa",
+      "targetIdentityDigest": "27cf337ede91b2ccdc1e590efb42aec2292587c3b11e294752961d450de48d45",
+      "startedAtGuestEpoch": 1794662662.01196,
+      "entry": {
+        "entryActivations": 1,
+        "menuActivations": 1,
+        "pickerClicks": 1,
+        "setterEntered": true,
+        "changeReturned": true,
+        "startObserved": true
+      },
+      "visibility": "swallowed",
+      "visibilityReason": "uploadStarted",
+      "positiveReady": false,
+      "swallowCallbacks": [
+        "swallowScheduled",
+        "swallowActualStart",
+        "swallowClose"
+      ]
+    },
+    {
+      "order": 3,
+      "color": "blue",
+      "assetIDDigest": "dffb5e31cdda8cd756b59ae780268f16687e501a76d34a890ff44b9cc51504d8",
+      "assetSHA256": "b71eabacc7d2a6f21aaa5aa70f0fdfe5419884de69b2353c9bc60f2009646eeb",
+      "operationIDDigest": "383357522693263c895b56aef455b038659ad9d179e4b0163a26c051c160b7e9",
+      "attempt": 1,
+      "operationCount": 1,
+      "STARTCount": 1,
+      "attachmentIdentityDigest": "66f8e8dbbfe794186d674ca639986b60df06a4457428c826d5c8818f0b16ab10",
+      "targetIdentityDigest": "27cf337ede91b2ccdc1e590efb42aec2292587c3b11e294752961d450de48d45",
+      "startedAtGuestEpoch": 1794662859.210355,
+      "entry": {
+        "entryActivations": 1,
+        "menuActivations": 1,
+        "pickerClicks": 1,
+        "setterEntered": true,
+        "changeReturned": true,
+        "startObserved": true
+      },
+      "visibility": "swallowed",
+      "visibilityReason": "uploadStarted",
+      "positiveReady": false,
+      "swallowCallbacks": [
+        "swallowScheduled",
+        "swallowActualStart",
+        "swallowClose"
+      ]
+    }
+  ],
+  "clickScope": {
+    "first": "first native attachment in this App process with no earlier relay, Chrome already open and permissions configured",
+    "second": "clicked without refocusing editor; first image still present",
+    "third": "first blue image auto-archived under unchanged 2-minute policy, explicitly restored via History and GUI double-clicked, one operation/attachment only",
+    "spacingSeconds": [
+      144.097,
+      197.198
+    ],
+    "notConcurrentStress": true
+  },
+  "targetSwitch": {
+    "result": "PASS_SAFE_PRE_INPUT_REJECTION",
+    "action": "fourth real screenshot clicked, immediately followed by real Chrome new-tab click",
+    "operationIDDigest": "51b0c9048c543b7546b0e6ff7d823c876e607ca72861556deb0afa011fdb7323",
+    "frozenTargetIdentityDigest": "27cf337ede91b2ccdc1e590efb42aec2292587c3b11e294752961d450de48d45",
+    "phase": "failed",
+    "reason": "Verified pre-input rejection: pageRetiredBeforeFileInput: attachmentInputNotCreated",
+    "setterEntered": false,
+    "changeReturned": false,
+    "STARTCount": 0,
+    "visibility": "visible",
+    "reissued": false,
+    "originalDraftAfterReturn": "same body and original plus three accepted thumbnails; anonymous login prompt dismissed with Escape; fourth image not present",
+    "scope": "safe pre-input failure during one real tab-switch sequence with an anonymous-service login prompt; does not isolate tab switching as the sole cause or prove all race branches"
+  },
+  "dataProtection": {
+    "beforeAssets": 8,
+    "afterAssets": 12,
+    "beforeOperations": 1,
+    "afterOperations": 5,
+    "beforeSTART": 0,
+    "afterSTART": 3,
+    "originalAssetsRowsUnchanged": true,
+    "originalMediaHashesUnchanged": true,
+    "originalUNKNOWNUnchanged": true,
+    "originalSettingsBookmarkFeedbackUnchanged": true,
+    "productionHostTouched": false
+  },
+  "independentReview": {
+    "pathPrivate": "live-attachment-independent-review.json",
+    "sha256": "cd390ab756ed961708b3a375fe3f5405471622b46d5c5101b731c3eeab7d0f9f",
+    "result": "PASS_SCOPED_REAL_COMPOSER_ACCEPTANCE",
+    "targetBoundaryReview": "PASS_SCOPED_SAFE_PREINPUT_FAILURE",
+    "supplementalReport": {
+      "pathPrivate": "live-attachment-independent-review-final.json",
+      "sha256": "b6fbca7f4e88fdbf538714a2dfe15c0787f53b74ad9547b43806e200930c1526",
+      "result": "PASS_SCOPED_THREE_ATTACHMENTS_AND_SAFE_PREINPUT_FAILURE"
+    }
+  },
+  "limitations": [
+    "positiveReady=false retained; page acceptance and visible attachments do not prove final server-ready state or send.",
+    "Anonymous Chrome156/macOS27.2 ARM64 guest scope only; no claim for every account, macOS13, physical Intel or VoiceOver.",
+    "Third-click screencapture video was unusable (single frame,0.145s); it is preserved as failed evidence and excluded. Still images and native trace show before/after and callback timing, not frame-level animation duration.",
+    "Existing earlier network NOT_RUN evidence remains historical.",
+    "Formalstable build/signing/notary/publicfeed and publicinstallation remain separate from this private candidate."
+  ],
+  "evidenceHashes": {
+    "after-race-assets.json": "4d71015ed7e0d22df8d77a8cbb5bdd0a1be4bebabc9182210f0acb73f63238df",
+    "after-race-diagnostics.jsonl": "5a1e9c5bc3ce3c7f456c21ab82a22dfd83d1c0b3f7a0db7ae3cf2e093b833228",
+    "after-race-operations.json": "abcd351d28c181eac91fcf6a53efbb20dc9eb0fb212b03161e91bd92bef729df",
+    "after-race-snapshot.json": "ccf69ee1f4cc42fab8f2806edb6e61684458da9d22df90aabf630d8cd1c5e98d",
+    "after-race-starts.json": "5c3e7c4c2470ce42203e9e8f5cd7738375b5f73cc6b76833d27df90e90d3942a",
+    "after-race.sqlite": "ca4bdbcc6f6b1a5c1c486db751fdd48fff045b8c2382ca66924afffa08319ae1",
+    "after-three-assets.json": "e74169601e1d459b769e17ac7b660803a6bec75dcb10032e6ca9d36591baeae5",
+    "after-three-diagnostics.jsonl": "9868084168a19f19658677c902a99122d94771926c294d26a46619cc662a5708",
+    "after-three-operations.json": "70d13d3d92b8dc5f66d91413ed1d5e266f2d4f4f57ed8d1d80df40b58cd06c37",
+    "after-three-snapshot.json": "11b2d973aaac118af93a9930d7c28eff6d9f38f1569bb5ac4fa6be190cbe689f",
+    "after-three-starts.json": "5c3e7c4c2470ce42203e9e8f5cd7738375b5f73cc6b76833d27df90e90d3942a",
+    "after-three.sqlite": "401c9845a77923ed191a5b3862357a379c8276051536c72815dbf24b4b53b4c2",
+    "after-three.sqlite-shm": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+    "after-three.sqlite-wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "qa83-before-first-click.png": "5d31928c5dbb0e15820c182451ef3629e72c7719a3cde380c6af01b7c60164c2",
+    "qa83-first-click-result.png": "78f0bdb8ac8a0c20bdfcdee4a9dd97b808085396d70776659d9dbe62d9d82000",
+    "qa83-before-second-click.png": "f64c9f5f6508b13f98a53a00d5aa369178863cef9cfccd760a7b22f8ff28c05e",
+    "qa83-second-click-result.png": "80be299b78c239f9e50435014ebe2ac0f835f406f1bdd331a17b271c048087b1",
+    "qa83-blue-selected.png": "38fe85c7ab3c4b7237f29bc55d6a7b86e2187ac4410879b885c4af47fe4bb173",
+    "qa83-before-third-click.png": "fcb410d7da9e6b6e18adf3b7ea140bb2d31867d279aa858ae8b1b5db49160a31",
+    "qa83-third-click-result.png": "12714c65d9f136efbd38a2c0c4c7f3fe92e63467b5c89160aa20b208abaf1add",
+    "qa83-before-target-race.png": "7c51b23306b3ccbc68f48cd984916f20e4804c7794bc5d05bbefc11a2f2cbbb3",
+    "qa83-target-race-result.png": "4730f39502aae832c2ca1cf6e8b5157a9922e86e28ae9d19960a5d91cedaa67c",
+    "qa83-final-draft-preserved.png": "2d750b44569873164a16da5ad0289dbb46fc067e2c969214cebbbb8045aa5b54"
+  }
+}
