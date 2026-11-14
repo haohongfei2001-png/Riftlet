@@ -3,6 +3,7 @@ import CryptoKit
 import XCTest
 @testable import RiftletAdapters
 
+#if DEBUG || RIFTLET_CONTROLLED_PICKER
 final class EdgeConversationPickerTests: XCTestCase {
     private struct Draft: Equatable {
         var document = UUID()
@@ -140,3 +141,4 @@ final class EdgeConversationPickerTests: XCTestCase {
         XCTAssertTrue(f.driver.pressed.isEmpty)
     }
 }
+#endif
