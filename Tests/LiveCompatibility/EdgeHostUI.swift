@@ -5,6 +5,33 @@ import Foundation
 // Operate only the two processes launched by this test, on a disposable hosted console.
 let args = CommandLine.arguments
 let env = ProcessInfo.processInfo.environment
+func validProbeEventNumber(_ value: Int64) -> Bool { (1...Int64(Int16.max)).contains(value) }
+func mouseNumberSurvivesNativeBridge(_ event: CGEvent, expected: Int64) -> Bool {
+    validProbeEventNumber(expected) && event.getIntegerValueField(.mouseEventNumber) == expected
+        && NSEvent(cgEvent: event)?.eventNumber == Int(expected)
+}
+// This one command only allocates local events: no post, window, AX or TCC request.
+// It is usable outside a hosted runner to validate every number the sender uses.
+if args.count == 2, args[1] == "mouseNumberSelfCheck" {
+    guard let source = CGEventSource(stateID: .privateState) else { print("EVENT_SOURCE_UNAVAILABLE"); exit(77) }
+    for number in Int64(1)...Int64(Int16.max) {
+        let valid = autoreleasepool {
+            for type in [CGEventType.leftMouseDown, .leftMouseUp] {
+                guard let event = CGEvent(mouseEventSource: source, mouseType: type,
+                    mouseCursorPosition: .zero, mouseButton: .left) else { return false }
+                event.setIntegerValueField(.mouseEventNumber, value: number)
+                if !mouseNumberSurvivesNativeBridge(event, expected: number) { return false }
+            }
+            return true
+        }
+        guard valid else { print("LOSSLESS_RANGE_FAILED"); exit(1) }
+    }
+    for number in [Int64.min, -1, 0, 32768, 65535, 65536, 0x12345678, Int64(Int32.max)] {
+        guard !validProbeEventNumber(number) else { print("OUTSIDE_RANGE_ACCEPTED"); exit(1) }
+    }
+    print("MOUSE_NUMBER_RANGE_VERIFIED positiveValues=32767 eventTypes=2 rejectedBounds=8 noPost=true")
+    exit(0)
+}
 guard env["GITHUB_ACTIONS"] == "true", env["RUNNER_ENVIRONMENT"] == "github-hosted",
       env["GITHUB_REPOSITORY"] == "haohongfei2001-png/Riftlet", args.count >= 2 else { exit(77) }
 if args[1] == "preflight" {
@@ -162,7 +189,7 @@ enum MouseUnavailable: String, Error {
     case mapRowsZero, mapRowsOne, mapRowsMoreThanTwo
     case foregroundChanged, ambiguousAsset, overlappingAssets, invalidGeometry
     case ownerUnconfirmed, eventDeliveryUnconfirmed, postPermissionUnavailable, otherInputActive
-    case targetChangedBeforeDown, eventAllocationFailed
+    case targetChangedBeforeDown, eventAllocationFailed, eventNumberRoundTripMismatch
 }
 
 enum FirstMouseReceiver: String, Error {
@@ -268,7 +295,7 @@ case "region":
 case "mouseReady", "mouseClick":
     guard args[10].range(of: #"^[0-9a-f]{64}$"#, options: .regularExpression) != nil,
           let tag = Int64(args[11]), tag > 0, tag < (1 << 48),
-          let eventNumber = Int64(args[12]), eventNumber > 0, eventNumber <= Int32.max else { exit(64) }
+          let eventNumber = Int64(args[12]), validProbeEventNumber(eventNumber) else { exit(64) }
     do {
         let first = try mouseTarget()
         if args[1] == "mouseClick" {
@@ -285,6 +312,9 @@ case "mouseReady", "mouseClick":
                 // software pair explicitly; the original product receipt must
                 // preserve this value as well as the independent 48-bit tag.
                 event.setIntegerValueField(.mouseEventNumber, value: eventNumber)
+                guard mouseNumberSurvivesNativeBridge(event, expected: eventNumber) else {
+                    throw MouseUnavailable.eventNumberRoundTripMismatch
+                }
             }
             guard try mouseTarget() == first else { throw MouseUnavailable.targetChangedBeforeDown }
             // No fallbacks/retries past this boundary, including an indeterminate reply.

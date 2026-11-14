@@ -35,6 +35,7 @@ RESOLVE_REFUSALS = {"browserNotFrontmost": "FOREGROUND_HOST_UNAVAILABLE",
                     "nativeEventFailed(-1744)": "SYSTEM_AUTOMATION_CONSENT_REQUIRED",
                     "nativeEventFailed(-1743)": "SYSTEM_AUTOMATION_DENIED",
                     "nativeEventFailed(12)": "SYSTEM_AUTOMATION_UNAVAILABLE"}
+MOUSE_EVENT_NUMBER_MAX = (1 << 15) - 1
 
 
 def command(*args, check=True, timeout=15):
@@ -195,7 +196,7 @@ def original_mouse_refusals(evidence, sent):
         if not (click.get("source") == "mouse" and click.get("targetRequested") is True
                 and click.get("assetIDDigest") == refusal.get("assetIDDigest") == asset
                 and click.get("windowNumber") == window and click.get("clickCount") == 1
-                and type(event_number) is int and 0 < event_number < (1 << 31)
+                and type(event_number) is int and 0 < event_number <= MOUSE_EVENT_NUMBER_MAX
                 and type(click.get("eventNumber")) is int and click.get("eventNumber") == event_number
                 and click.get("mouseProbeTag") == tag
                 and click.get("diagnosticSessionDigest") == refusal.get("diagnosticSessionDigest") == session
@@ -205,6 +206,13 @@ def original_mouse_refusals(evidence, sent):
             return False
         last_sequence = refusal["diagnosticSequence"]
     return True
+
+
+def next_mouse_event_number(sent):
+    number = secrets.randbelow(MOUSE_EVENT_NUMBER_MAX) + 1
+    while any(previous == number for _, _, _, previous in sent):
+        number = secrets.randbelow(MOUSE_EVENT_NUMBER_MAX) + 1
+    return number
 
 
 def original_permission_refusal(evidence, sent):
@@ -286,6 +294,8 @@ def summarize_mouse_receipts(evidence, sent):
             oneClickCountMatched=any(r.get("clickCount") == 1 for r in clicks),
             targetRequestedMatched=any(r.get("targetRequested") is True for r in clicks),
             nativeEventNumberPresent=any(type(r.get("eventNumber")) is int for r in clicks),
+            sentEventNumber=event_number,
+            receivedEventNumbers=sorted({r["eventNumber"] for r in clicks if type(r.get("eventNumber")) is int}),
             sentEventNumberMatched=any(type(r.get("eventNumber")) is int and r.get("eventNumber") == event_number for r in clicks),
             sequencePresent=bool(clicks) and all(type(r.get("diagnosticSequence")) is int for r in clicks + failures),
             sameSession=bool(clicks and failures) and all(c.get("diagnosticSessionDigest") and
@@ -514,6 +524,14 @@ def exercise(app, report):
         adapters = REPO / "Sources/RiftletAdapters"
         command("swiftc", main_source, *(adapters / (name + ".swift") for name in AX_HOST_SOURCES),
                 "-o", helper, timeout=120)
+        number_check = command(helper, "mouseNumberSelfCheck", check=False)
+        if number_check.returncode == 77 and number_check.stdout.decode().strip() == "EVENT_SOURCE_UNAVAILABLE":
+            report["result"] = "NOT_RUN_EVENT_SOURCE_UNAVAILABLE"
+            return 77
+        number_check.check_returncode()
+        if number_check.stdout.decode().strip() != "MOUSE_NUMBER_RANGE_VERIFIED positiveValues=32767 eventTypes=2 rejectedBounds=8 noPost=true":
+            raise RuntimeError("mouse_event_number_self_check_invalid")
+        report["mouseEventNumberRange"] = "ALL_POSITIVE_SIGNED_16_BIT_VALUES_ROUNDTRIP_WITHOUT_POST"
         check = command(helper, "preflight", check=False)
         if check.returncode == 77:
             reason = check.stdout.decode().strip()
@@ -837,13 +855,13 @@ def exercise(app, report):
                 tag = secrets.randbelow((1 << 48) - 1) + 1
                 while any(previous_tag == tag for _, _, previous_tag, _ in sent):
                     tag = secrets.randbelow((1 << 48) - 1) + 1
-                event_number = secrets.randbelow((1 << 31) - 1) + 1
-                while any(previous_number == event_number for _, _, _, previous_number in sent):
-                    event_number = secrets.randbelow((1 << 31) - 1) + 1
+                event_number = next_mouse_event_number(sent)
                 def mouse_target(action):
                     result = ui(action, 0, window, expected_asset, tag, event_number)
                     state = result.stdout.decode().strip()
                     if result.returncode == 24:
+                        if state == "eventNumberRoundTripMismatch":
+                            raise RuntimeError("mouse_event_number_roundtrip_mismatch_before_post")
                         if state in {"firstReceiver originalFrontEdge", "firstReceiver otherRiftletWindow",
                                      "firstReceiver none", "firstReceiver other"}:
                             round_result["actualReceiver"] = state.split()[1]
@@ -884,7 +902,8 @@ def exercise(app, report):
                 sent.append((expected_asset, expected_input_window, tag, event_number))
                 report["pressAttempts"] += 1
                 round_result.update(ordinal=ordinal, action="ONE_GLOBAL_MOUSE_DOWN_UP_POSTED",
-                                    inputWindow=expected_input_window, clickPoint={k: response[k] for k in ("x", "y")})
+                                    inputWindow=expected_input_window, sentEventNumber=event_number,
+                                    clickPoint={k: response[k] for k in ("x", "y")})
                 try:
                     wait_for(lambda: original_mouse_refusals(events(recent), sent), "original_mouse_selection_or_refusal_unconfirmed")
                 except Exception:

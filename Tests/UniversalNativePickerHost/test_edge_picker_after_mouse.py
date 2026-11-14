@@ -4,6 +4,7 @@ import unittest
 import json
 import tempfile
 import sqlite3
+from unittest.mock import patch
 
 helper_path = Path(__file__).resolve().parents[1] / "LiveCompatibility/edge_host.py"
 spec = importlib.util.spec_from_file_location("isolated_edge_host", helper_path)
@@ -30,6 +31,28 @@ class IndependentPickerTests(unittest.TestCase):
         self.assertFalse(summary["originalReceiptMatcherPassed"])
         self.assertTrue(all(not r["sentEventNumberMatched"] for r in summary["dispatches"]))
         self.assertFalse(helper.original_mouse_refusals(evidence, sent))
+
+    def test_sender_uses_lossless_signed_16_bit_range_and_distinct_numbers(self):
+        with patch.object(helper.secrets, "randbelow", side_effect=[0, 0, 32766]) as random:
+            first = helper.next_mouse_event_number([])
+            second = helper.next_mouse_event_number([("first-owned", 20, 100001, first)])
+        self.assertEqual((first, second), (1, 32767))
+        self.assertEqual([call.args for call in random.call_args_list], [(32767,), (32767,), (32767,)])
+        for number in (1, 32767):
+            sent = [("owned", 20, 100001, number)]
+            self.assertTrue(helper.original_mouse_refusals(self.mouse_pair(*sent[0], 1), sent))
+        for number in (-32768, -1, 0, 32768, 65535, 65536, 0x12345678, 2147483647):
+            sent = [("owned", 20, 100001, number)]
+            self.assertFalse(helper.original_mouse_refusals(self.mouse_pair(*sent[0], 1), sent))
+
+    def test_receipt_exports_actual_test_number_without_accepting_its_narrowed_value(self):
+        sent = [("owned", 20, 100001, 32767)]
+        evidence = self.mouse_pair("owned", 20, 100001, -1, 1)
+        summary = helper.summarize_mouse_receipts(evidence, sent)
+        self.assertEqual(summary["dispatches"][0]["sentEventNumber"], 32767)
+        self.assertEqual(summary["dispatches"][0]["receivedEventNumbers"], [-1])
+        self.assertFalse(summary["dispatches"][0]["sentEventNumberMatched"])
+        self.assertFalse(summary["originalReceiptMatcherPassed"])
 
     def test_explicit_pair_numbers_match_original_receipts_and_do_not_relax_other_identity(self):
         sent = [("first-owned", 20, 100001, 101), ("second-owned", 21, 100002, 102)]

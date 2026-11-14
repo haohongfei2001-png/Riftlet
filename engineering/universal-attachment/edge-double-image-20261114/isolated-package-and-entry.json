@@ -1,0 +1,64 @@
+{
+  "sourceCommit": "f3ecfaf5c67c78a7b24c50417e8a4239ce636697",
+  "sourceTree": "509bdc838dd3232e778ff54228c86c5b916b63a6",
+  "sourceArchiveSHA256": "7bef11c65ce51f062f49fc9481f492c36d3271694bda88014a5f7057d8540e8d",
+  "verifiedSourceBlobsAndModesAfterBuild": 1643,
+  "executableSHA256": "b652348afc4ada6f993f63b59fb7c66e59d6cfdf87c4f54e9c4554ae4ef91745",
+  "architectures": [
+    "arm64"
+  ],
+  "bundleIdentifier": "com.riftlet.isolated-product-acceptance",
+  "version": "1.0.1",
+  "build": "23",
+  "strictCodeSign": "PASS",
+  "bundleVerifier": "PASS",
+  "nativeBuildInfo": {
+    "builtInUpload": true,
+    "completion": true,
+    "continuation": true,
+    "dataDirectory": "Riftlet-Isolated-Product-Acceptance",
+    "input": true,
+    "internalAcceptance": true,
+    "mode": "capture",
+    "safeRetry": false,
+    "start": true
+  },
+  "metadataRemoved": [],
+  "quarantineRemoved": false,
+  "generatedAppAttributeNamesPresent": false,
+  "appOrBrowserLaunched": false,
+  "scope": "fixed-source-isolated-product-package-only",
+  "notarized": false,
+  "gatekeeper": "NOT_RUN",
+  "rawLocalReceiptSHA256": "37c0e03e41ad37431bc9a6693683b868bf17a43751e313b6b559db0553e547bc",
+  "subsequentOrdinaryEntry": {
+    "sourceCheckpoint": "f3ecfaf5c67c78a7b24c50417e8a4239ce636697",
+    "PRHead": "3230ddc8c42cfc518880668001827c5b5ed09dfe",
+    "normalLaunchServicesEntry": true,
+    "sameOriginalBundle": true,
+    "sameExecutable": true,
+    "appTookFocus": false,
+    "dataDirectory": "Riftlet-Isolated-Product-Acceptance",
+    "dataRootPreviouslyAbsent": true,
+    "preseededByRealQueueStore": "capture_paused=true; assets=0; firstUse.presented=true in isolated bundle defaults",
+    "ordinaryCapturePolicy": true,
+    "eventTypes": [
+      "local_recovery_complete",
+      "permission_check",
+      "selection_authority_cancelled"
+    ],
+    "countsAfterLaunch": {
+      "assets": 0,
+      "operations": 0,
+      "upload_starts": 0
+    },
+    "capturePaused": true,
+    "normalTerminationRequested": true,
+    "scope": "Signed package ordinary entry with preseeded paused collector; NOT screenshot/GUI/commercial upload acceptance",
+    "executableSHA256": "b652348afc4ada6f993f63b59fb7c66e59d6cfdf87c4f54e9c4554ae4ef91745",
+    "packageReceiptSHA256": "37c0e03e41ad37431bc9a6693683b868bf17a43751e313b6b559db0553e547bc",
+    "normalTerminationObserved": true
+  },
+  "subsequentOrdinaryEntryRawSHA256": "993d4ba7e939bb28ceae63763974adb11884caed216622c61d13adc17a70ace0",
+  "note": "Package-only original receipt is retained by digest. Subsequent real paused ordinary launch/normal exit is a separate scope, not commercial upload or first-use UX acceptance."
+}

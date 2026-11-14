@@ -1,0 +1,1 @@
+MOUSE_NUMBER_RANGE_VERIFIED positiveValues=32767 eventTypes=2 rejectedBounds=8 noPost=true

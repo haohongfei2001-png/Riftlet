@@ -51,3 +51,16 @@
 ## 直接续工条件
 
 独立工程继续提交、审查并运行 CI；无需账号权限的工作不因登录缺失而等待。商业验收需要账号持有人在已准备的隔离 Edge Profile 完成登录，并由系统为实际隔离 Riftlet App 授权。之后先采集原草稿的实际上传进展和完成证据，标定独立 Edge profile，再从普通微图入口用两张新系统截图执行全流程。保持原文、非空选区、原附件及未发送状态；未知结果只观察原操作。全部最终条件满足前保留 Draft，不合并、不发行。
+
+## 第二次托管诊断：事件编号与权限边界分开
+
+源码 `f3ecfaf5`、准入头 `3230ddc8`、测试合并 `b9bf6be3` 的 ARM64 运行再次失败。首张真实系统截图的 application、window、inputDown、onDown、gate、release、原资产选择与明确拒绝均已取得，标签和窗口完全匹配；唯一未满足的鼠标身份项是 `sentEventNumberMatched=false`。原始报告未导出实际发送和接收值，保留该证据缺口。[原始 JSON](../engineering/universal-attachment/edge-double-image-20261114/phase2-hosted-original.json) · [原始产物与源码索引](../engineering/universal-attachment/edge-double-image-20261114/phase2-index.json)
+
+独立公开 API 实验直接复现：`.mouseEventNumber` 在 CGEvent 设置后读取时已按有符号 16 位收窄，`32768 → -32768`、`65536 → 0`，NSEvent 读到相同值。此前随机正 31 位编号并不安全。探针已改为只生成实测无损的 `1...32767`，并在投递前对 CGEvent 和 NSEvent 回读都验证严格相等；编号、原窗口、资产、标签及顺序断言全部保留。同一原生 helper 对完整 32767 个正数的 down/up 共 65534 个事件读回验证通过，8 个越界值被拒绝，Python 13 项回归通过。该实验只分配事件，没有投递或操作 UI。[可执行实验与输出](../engineering/universal-attachment/edge-double-image-20261114/mouse-number-boundaries.swift)
+
+首张拒绝为 `nativeEventFailed(-1744)`，已进入 Edge 原生路由；这是系统授权预检要求用户同意，并非 Edge 没有注册路由。原 Edge 窗口之后失去前台身份，没有发出第二张点击。授权请求是否获准、实际标签/文档/草稿身份均未确认。两条原队列保持 pending/visible，操作、文件输入、上传开始与完成仍为零。该授权边界和事件编号缺陷是两个独立结果；更早 `315978ed` 的第二张缺回执仍未追认解释或修复。
+
+
+隔离产品签名包另在固定源码 `f3ecfaf5` 的干净导出中完成：ARM64 可执行 SHA256 为 `b652348afc4ada6f993f63b59fb7c66e59d6cfdf87c4f54e9c4554ae4ef91745`，严格签名、资源核对和原生策略身份通过。首次目录中的编译后签名因 Finder/资源元数据被拒绝；该产物已由脚本清理，元数据写入者没有证据。固定源码的 1643 个文件及模式逐项核对后，在临时目录原样构建成功，没有删除任何 quarantine 或其他扩展属性。
+
+同一隔离包随后通过 LaunchServices 后台启动；预先用真实 QueueStore 建立全新测试库并暂停收录，只设置隔离 bundle 的已呈现引导标记。运行进程的 bundle 和可执行路径均匹配，未抢占焦点，资产/操作/START 始终为零，正常退出后进程数为零。该项仅为包的真实普通入口/退出验证，不代表截图、首次使用 UI 或商业附件验收。[签名与入口分离记录](../engineering/universal-attachment/edge-double-image-20261114/isolated-package-and-entry.json)
