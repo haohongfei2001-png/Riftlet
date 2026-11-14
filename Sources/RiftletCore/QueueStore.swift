@@ -48,6 +48,13 @@ public actor QueueStore {
         return try database.rows("SELECT \(assetColumns) FROM assets \(filter) ORDER BY sort_at,sequence").map(decodeAsset)
     }
 
+    public func missingAssetIDs() throws -> Set<UUID> {
+        try Set(database.rows("SELECT id FROM assets WHERE status='missing'").map { row in
+            guard let id = row[0].flatMap(UUID.init(uuidString:)) else { throw RiftletError.database("Invalid missing asset ID") }
+            return id
+        })
+    }
+
     public func asset(id: UUID) throws -> AssetRecord? {
         try database.rows("SELECT \(assetColumns) FROM assets WHERE id=?", [id.uuidString]).first.map(decodeAsset)
     }
@@ -718,6 +725,26 @@ public actor QueueStore {
                     // ownership comes only from the separately admitted immutable
                     // checkpoint above, never an unadmitted continuation payload.
                 }
+            }
+        }
+    }
+
+    /// Run under the new process's instance lock, before accepting any selections.
+    public func recoverUndispatchedPreparations() throws {
+        try database.transaction {
+            let rows = try database.rows("""
+                SELECT o.id,o.asset_id,o.attempt,o.target_json,o.phase,o.created_at,o.updated_at
+                FROM operations o JOIN assets a ON a.id=o.asset_id AND a.active_operation_id=o.id
+                WHERE o.phase='prepared' AND o.receipt_json IS NULL AND o.dispatch_exclusive=1
+                AND a.status IN ('transferring','missing')
+                AND NOT EXISTS (SELECT 1 FROM upload_starts WHERE operation_id=o.id)
+                AND NOT EXISTS (SELECT 1 FROM compensations WHERE operation_id=o.id)
+                AND NOT EXISTS (SELECT 1 FROM checkpoints WHERE key IN
+                    ('transfer-dispatch-call-v1:' || o.id,'transfer-no-input-v1:' || o.id))
+                """)
+            for row in rows {
+                try update(decodeOperation(row), phase: .failed, status: .failed,
+                           reason: "Restart before dispatch intent; no input occurred")
             }
         }
     }

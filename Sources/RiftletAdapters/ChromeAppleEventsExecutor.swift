@@ -38,12 +38,14 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
     /// fixes the destination before a queued task can observe a different chat.
     /// JavaScript bootstrap, DOM discovery and receipt waiting run off the UI.
     public func targetForClick(program: WebPageProgram) throws -> Task<TargetLease, Error> {
+        let clickDeadline = ChromeClickDeadline()
         let identity = try clickReceiver()
         let requestID = UUID().uuidString
-        let bridge = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: requestID)
+        let bridge = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: requestID, clickDeadline: clickDeadline)
         let selected = try bridge.activeIdentity(check: "click_selection")
         let route = try ChromeClickRoute(window: selected.window, tab: selected.tab,
             url: bridge.url(window: selected.window, tab: selected.tab))
+        try clickDeadline.checkReturn()
         guard identity.isCurrent() else { throw WebAdapterError.invalidTarget }
         let relays = self.relays, trace = self.trace
         return Task { [weak self] in
@@ -318,9 +320,28 @@ enum ChromeActiveTabDescriptor {
     }
 }
 
+/// Mouse-down fixes the URL as well as the window and tab, since Chrome can
+/// navigate to another draft in the same tab. All of these read-only Apple
+/// Events, including the compatibility path, share one short deadline.
+struct ChromeClickDeadline {
+    private let end: TimeInterval
+    init(start: TimeInterval = ProcessInfo.processInfo.systemUptime) { end = start + 0.15 }
+
+    func timeout(at now: TimeInterval = ProcessInfo.processInfo.systemUptime) throws -> TimeInterval {
+        let remaining = end - now
+        // Never pass a zero or sub-tick timeout to the Apple Event Manager.
+        guard remaining >= 1.0 / 60.0 else { throw WebAdapterError.nativeEventFailed(-1712) }
+        return remaining
+    }
+
+    func checkReturn(at now: TimeInterval = ProcessInfo.processInfo.systemUptime) throws {
+        guard now < end else { throw WebAdapterError.nativeEventFailed(-1712) }
+    }
+}
+
 /// Codes come from Chrome's installed scripting.sdef (Standard/Chromium suites),
-/// not undocumented browser internals. Submission and identity reads retain the
-/// five-second per-event timeout; receipt reads use their remaining command
+/// not undocumented browser internals. Mouse-down reads use the common click
+/// deadline. Background submissions use five seconds; receipts use their command
 /// budget (eight seconds for attachment discovery, one for other commands).
 /// This never activates or sends a ChatGPT message. The URL setter
 /// receives only a void JavaScript expression, not a navigation URL.
@@ -328,6 +349,7 @@ private struct ChromePIDEvents {
     let pid: pid_t
     let trace: ChromeBridgeTrace
     let requestID: String
+    var clickDeadline: ChromeClickDeadline? = nil
     private func code(_ text: String) -> UInt32 { text.utf8.reduce(0) { ($0 << 8) | UInt32($1) } }
 
     private func object(_ kind: String, form: String, key: NSAppleEventDescriptor,
@@ -356,6 +378,8 @@ private struct ChromePIDEvents {
         let timeout: TimeInterval
         if let receiptBudget {
             timeout = try receiptBudget.timeout(at: ProcessInfo.processInfo.systemUptime)
+        } else if let clickDeadline {
+            timeout = try clickDeadline.timeout()
         } else { timeout = 5 }
         let reply: NSAppleEventDescriptor
         do { reply = try request.sendEvent(options: [.waitForReply], timeout: timeout) }

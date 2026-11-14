@@ -15,6 +15,8 @@ final class SettingsProductHost {
     private var setup = SetupSnapshot()
     private var capabilities = SettingsCapabilities()
     private let updaterPresentation: @MainActor () -> SettingsUpdaterPresentation?
+    private var recoveryDomains: Set<SettingsPreferenceDomain> = []
+    private var recoveryFailure: SettingsPreferenceDomain?
     private var deferred = false
     private var chromeConnection: OnboardingChromeConnection = .unchecked
     private var revision: UInt64 = 0
@@ -64,7 +66,10 @@ final class SettingsProductHost {
 
     func update(owner: SettingsOwnerSnapshot, setup: SetupSnapshot,
                 capabilities: SettingsCapabilities, configurationDeferred: Bool,
-                chromeConnection: OnboardingChromeConnection = .unchecked) {
+                chromeConnection: OnboardingChromeConnection = .unchecked,
+                recoveryDomains: Set<SettingsPreferenceDomain> = [], recoveryFailure: SettingsPreferenceDomain? = nil) {
+        self.recoveryDomains = recoveryDomains
+        self.recoveryFailure = recoveryFailure
         self.chromeConnection = chromeConnection
         self.setup = setup; self.capabilities = capabilities; deferred = configurationDeferred
         if !model.receive(owner) { publish() }
@@ -77,6 +82,8 @@ final class SettingsProductHost {
         result.configurationDeferred = deferred
         result.historyDisplayStyle = historyDisplay.selection
         let workspace = NSWorkspace.shared
+        result.preferenceRecovery = recoveryDomains
+        result.preferenceRecoveryFailure = recoveryFailure
         result.accessibility = .init(reduceMotion: workspace.accessibilityDisplayShouldReduceMotion,
             reduceTransparency: workspace.accessibilityDisplayShouldReduceTransparency,
             increaseContrast: workspace.accessibilityDisplayShouldIncreaseContrast)

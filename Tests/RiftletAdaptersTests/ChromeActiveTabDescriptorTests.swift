@@ -3,6 +3,15 @@ import XCTest
 @testable import RiftletAdapters
 
 final class ChromeActiveTabDescriptorTests: XCTestCase {
+    func testClickIdentityFallbackAndURLShareTheMouseDownDeadline() throws {
+        let deadline = ChromeClickDeadline(start: 10)
+        XCTAssertEqual(try deadline.timeout(at: 10), 0.15, accuracy: 0.000_001)
+        XCTAssertEqual(try deadline.timeout(at: 10.100), 0.05, accuracy: 0.000_001)
+        XCTAssertThrowsError(try deadline.timeout(at: 10.149))
+        XCTAssertNoThrow(try deadline.checkReturn(at: 10.149))
+        XCTAssertThrowsError(try deadline.checkReturn(at: 10.151))
+    }
+
     private func code(_ text: String) -> UInt32 { text.utf8.reduce(0) { ($0 << 8) | UInt32($1) } }
 
     private func object(_ kind: String, form: String = "ID  ", key: NSAppleEventDescriptor,

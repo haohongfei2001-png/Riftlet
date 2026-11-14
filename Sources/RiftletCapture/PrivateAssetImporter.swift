@@ -45,6 +45,7 @@ public actor PrivateAssetImporter {
     private let journalDirectory: URL
     private var importing = Set<String>()
     private var journaledSources = Set<String>()
+    private var outstandingRecoveryIDs = Set<UUID>()
     // Pre-volume assets and journals contain no original URL or volume UUID.
     // Their evidence can hold a possible duplicate, never identify a new file as an old asset.
     private var earlierFileIDs = Set<String>()
@@ -180,7 +181,10 @@ public actor PrivateAssetImporter {
         } catch {
             // A renamed journal owns staging even if its directory fsync subsequently fails.
             // Deleting that stage would break recovery from an otherwise valid journal.
-            if hasManifest { journaledSources.insert(signature.sourceKey) }
+            if hasManifest {
+                journaledSources.insert(signature.sourceKey)
+                outstandingRecoveryIDs.insert(id)
+            }
             if error is SimulatedImportInterruption { simulatedAbruptExit = true }
             throw error
         }
@@ -191,18 +195,53 @@ public actor PrivateAssetImporter {
     @discardableResult
     public func recover() async throws -> CaptureRecoveryReport {
         try ensureDirectories()
-        var report = CaptureRecoveryReport()
         let manifests = try FileManager.default.contentsOfDirectory(at: journalDirectory,
             includingPropertiesForKeys: [.isRegularFileKey, .isSymbolicLinkKey], options: [.skipsHiddenFiles])
+        var report = try await recoverManifests(manifests)
+        for record in try await store.assets(includeUsed: true) {
+            rememberEarlierEvidence(record.image)
+            guard Self.isValidBasename(record.image.fileName) else { continue }
+            let file = mediaDirectory.appendingPathComponent(record.image.fileName)
+            if !FileManager.default.fileExists(atPath: file.path) {
+                if record.status != .used { try await store.markMissingAsset(record.id) }
+                if !report.missing.contains(record.id) { report.missing.append(record.id) }
+            }
+        }
+        outstandingRecoveryIDs.formUnion(report.missing + report.invalid)
+        loadedEarlierEvidence = true
+        return report
+    }
+
+    /// Retry only missing database records and journals already reported by this importer.
+    func recheckPrivateMedia() async throws -> CaptureRecoveryReport {
+        let ids = try await store.missingAssetIDs().union(outstandingRecoveryIDs)
+        guard !ids.isEmpty else { return CaptureRecoveryReport() }
+        try ensureDirectories()
+        var missingManifests = [UUID]()
+        let manifests = ids.compactMap { id -> URL? in
+            let url = journalDirectory.appendingPathComponent(id.uuidString.lowercased() + ".json")
+            guard FileManager.default.fileExists(atPath: url.path) else {
+                missingManifests.append(id)
+                return nil
+            }
+            return url
+        }
+        var report = try await recoverManifests(manifests)
+        report.missing.append(contentsOf: missingManifests)
+        outstandingRecoveryIDs.subtract(ids)
+        outstandingRecoveryIDs.formUnion(report.missing + report.invalid)
+        return report
+    }
+
+    private func recoverManifests(_ manifests: [URL]) async throws -> CaptureRecoveryReport {
+        var report = CaptureRecoveryReport()
         for url in manifests where url.pathExtension == "json" {
-            var parsedID: UUID?
             do {
                 let attrs = try url.resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey, .fileSizeKey])
                 guard attrs.isRegularFile == true, attrs.isSymbolicLink != true,
                       (attrs.fileSize ?? 0) <= 32_768 else { throw CaptureError.invalidManifest }
                 let manifest = try JSONDecoder().decode(ImportManifest.self, from: Data(contentsOf: url))
                 let asset = manifest.image
-                parsedID = asset.id
                 guard manifest.version == 1, Self.isValidBasename(asset.fileName),
                       url.deletingPathExtension().lastPathComponent.lowercased() == asset.id.uuidString.lowercased(),
                       asset.fileName.hasPrefix(asset.id.uuidString.lowercased() + ".") else {
@@ -216,8 +255,8 @@ public actor PrivateAssetImporter {
                     report.missing.append(asset.id); continue
                 }
                 let existing = try await store.asset(id: asset.id)
+                if let existing, existing.image != asset { throw CaptureError.invalidManifest }
                 if let existing, candidate == mediaURL {
-                    guard existing.image == asset else { throw CaptureError.invalidManifest }
                     let current = try PrivateFiles.privateSignature(at: candidate)
                     guard current.size == asset.byteCount else { throw CaptureError.invalidManifest }
                     // Active copies get byte-integrity validation after restart; already-used
@@ -240,8 +279,12 @@ public actor PrivateAssetImporter {
                     }
                     try PrivateFiles.promote(stageURL, to: mediaURL, probe: probe)
                 }
-                _ = try await store.importAsset(asset)
-                report.adopted += 1
+                if let existing {
+                    if existing.status == .missing { try await store.restoreMissingAsset(asset.id) }
+                } else {
+                    _ = try await store.importAsset(asset)
+                    report.adopted += 1
+                }
             } catch let error as RiftletError {
                 // Database/disk failures must be visible to the caller, not mislabeled as
                 // an invalid image and silently skipped.
@@ -250,12 +293,12 @@ public actor PrivateAssetImporter {
                 // A valid journal still owns its copy when storage is temporarily
                 // unavailable. Do not turn IO failure into "invalid" and let a caller
                 // allocate another private identity on every collection retry.
-                if let capture = error as? CaptureError, case .io = capture { throw capture }
+                if let capture = error as? CaptureError, case let .io(_, code) = capture, code != ELOOP { throw capture }
                 let native = error as NSError
                 if !(error is DecodingError),
                    native.domain == NSCocoaErrorDomain || native.domain == NSPOSIXErrorDomain { throw error }
                 // One damaged journal entry cannot prevent unrelated valid captures recovering.
-                if let id = parsedID ?? UUID(uuidString: url.deletingPathExtension().lastPathComponent) {
+                if let id = UUID(uuidString: url.deletingPathExtension().lastPathComponent) {
                     report.invalid.append(id)
                     if let existing = try await store.asset(id: id), existing.status != .used {
                         try await store.markMissingAsset(id)
@@ -263,16 +306,6 @@ public actor PrivateAssetImporter {
                 }
             }
         }
-        for record in try await store.assets(includeUsed: true) {
-            rememberEarlierEvidence(record.image)
-            guard Self.isValidBasename(record.image.fileName) else { continue }
-            let file = mediaDirectory.appendingPathComponent(record.image.fileName)
-            if !FileManager.default.fileExists(atPath: file.path) {
-                if record.status != .used { try await store.markMissingAsset(record.id) }
-                if !report.missing.contains(record.id) { report.missing.append(record.id) }
-            }
-        }
-        loadedEarlierEvidence = true
         return report
     }
 

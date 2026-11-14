@@ -23,6 +23,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     var numericFields: [SettingsField: NSTextField] = [:]
     var numericSliders: [SettingsField: NSSlider] = [:]
     var handlers: [ObjectIdentifier: () -> Void] = [:]
+    var preferenceRecoveryRows: [SettingsPreferenceDomain: NSView] = [:]
     var errorRows: [SettingsDomain: NSStackView] = [:]
     var errorLabels: [SettingsDomain: NSTextField] = [:]
     var retryButtons: [SettingsDomain: NSButton] = [:]

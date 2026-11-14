@@ -93,6 +93,8 @@ public enum SettingsScreenRecording: Equatable, Sendable { case notChecked, gran
 
 /// Main composes one coherent projection for all native surfaces. No source/target,
 /// upload or persistence authority is carried into a view.
+public enum SettingsPreferenceDomain: String, CaseIterable, Sendable { case layout, archive }
+
 public struct SettingsProductSnapshot: Equatable, Sendable {
     public var revision: UInt64
     public var setup: SetupSnapshot
@@ -106,6 +108,8 @@ public struct SettingsProductSnapshot: Equatable, Sendable {
     public var version: String = ""
     public var updater: SettingsUpdaterPresentation?
     public var chromeConnection: OnboardingChromeConnection = .unchecked
+    public var preferenceRecovery: Set<SettingsPreferenceDomain> = []
+    public var preferenceRecoveryFailure: SettingsPreferenceDomain?
     public var configurationDeferred = false
     public var reviewEnvironment = false
     public init(revision: UInt64, setup: SetupSnapshot, state: SettingsStateSnapshot) {
@@ -125,6 +129,7 @@ public enum SettingsProductAction: Sendable {
     case recheck, openSource, chooseSourceAccess, requestAutomation, checkChromeConnection
     case openFilePrivacy, openScreenRecordingPrivacy
     case restorePreferredDisplay, checkStorage, revealDataFolder, reloadConfiguration, openConfiguration
+    case restorePreference(SettingsPreferenceDomain)
     case checkForUpdates, automaticUpdateChecks(Bool), openDownloadWebsite
     case showLatest, showOldest, quit
 }

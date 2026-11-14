@@ -111,6 +111,44 @@ final class RecoveryValidationTests: XCTestCase {
         }
     }
 
+    func testExplicitRecheckRestoresOnlyExactPrivateMediaWithoutRestartingCollection() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let imported = try await f.importImage()
+        _ = try await setState("archived", record: imported, store: f.store)
+        let before = try await f.store.asset(id: imported.id)
+        let media = f.media(imported.image), preserved = f.root.appendingPathComponent("original.png")
+        try FileManager.default.moveItem(at: media, to: preserved)
+        let service = CaptureService(store: f.store, privateRoot: f.storage, sourceDirectory: f.root)
+        try await service.start()
+        let missing = try await f.store.asset(id: imported.id)
+        XCTAssertEqual(missing?.status, .missing)
+
+        var altered = f.bytes
+        altered[altered.count / 2] ^= 0xff
+        try altered.write(to: media)
+        let wrongHash = await service.recheckPrivateMedia()
+        XCTAssertFalse(wrongHash)
+        try Data(f.bytes.dropLast()).write(to: media)
+        let wrongSize = await service.recheckPrivateMedia()
+        XCTAssertFalse(wrongSize)
+        try FileManager.default.removeItem(at: media)
+        try FileManager.default.createSymbolicLink(at: media, withDestinationURL: preserved)
+        let link = await service.recheckPrivateMedia()
+        XCTAssertFalse(link)
+        let stillMissing = try await f.store.asset(id: imported.id)
+        XCTAssertEqual(stillMissing, missing)
+        try FileManager.default.removeItem(at: media)
+        try FileManager.default.moveItem(at: preserved, to: media)
+        let correct = await service.recheckPrivateMedia()
+        let after = try await f.store.asset(id: imported.id)
+        let snapshot = await service.statusSnapshot()
+        XCTAssertTrue(correct)
+        XCTAssertEqual(after, before)
+        XCTAssertNil(snapshot.latestDiagnostic)
+        XCTAssertTrue(snapshot.isRunning)
+        await service.stop()
+    }
+
     func testMissingOriginalMediaRestoresUnknownWithoutChangingItsOperation() async throws {
         let f = try Fixture(); defer { f.close() }
         let imported = try await f.importImage()

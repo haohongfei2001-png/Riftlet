@@ -159,6 +159,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var captureIsPaused = false
     private var changingHidden = false
     private var lifecycleSettings = LifecycleSettings()
+    private var recoverablePreferences: RecoverablePreferences?
     private let interactionFence = QueueInteractionFence()
     private var archiveTask: Task<Void, Never>?
     private var archiveWakeObserver: NSObjectProtocol?
@@ -380,28 +381,18 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             _ = try await PrivateAssetImporter(privateRoot: root, store: store).recover()
             try await SystemScreenshotCandidateConfiguration.validateStore(store)
         }
-        let configurationURL = root.appendingPathComponent("rift-configuration.json")
-        var configuration: RiftConfiguration
-        if FileManager.default.fileExists(atPath: configurationURL.path) {
-            configuration = try JSONDecoder().decode(RiftConfiguration.self, from: Data(contentsOf: configurationURL))
-        } else {
-            configuration = RiftConfiguration()
-            if let screen = NSScreen.screens.first,
-               let id = (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value {
-                configuration.preferredDisplayID = id
-                if let uuid = CGDisplayCreateUUIDFromDisplayID(id)?.takeRetainedValue() {
-                    configuration.preferredDisplayUUID = CFUUIDCreateString(nil, uuid) as String
-                }
+        var defaultLayout = RiftConfiguration()
+        if let screen = NSScreen.screens.first,
+           let id = (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value {
+            defaultLayout.preferredDisplayID = id
+            if let uuid = CGDisplayCreateUUIDFromDisplayID(id)?.takeRetainedValue() {
+                defaultLayout.preferredDisplayUUID = CFUUIDCreateString(nil, uuid) as String
             }
-            let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-            try encoder.encode(configuration).write(to: configurationURL, options: [.atomic])
         }
-        try configuration.validate()
-        let lifecycleURL = root.appendingPathComponent("lifecycle-settings.json")
-        if FileManager.default.fileExists(atPath: lifecycleURL.path) {
-            lifecycleSettings = try JSONDecoder().decode(LifecycleSettings.self, from: Data(contentsOf: lifecycleURL))
-        } else { try JSONEncoder().encode(lifecycleSettings).write(to: lifecycleURL, options: .atomic) }
-        try lifecycleSettings.validate()
+        let preferences = RecoverablePreferences(root: root, defaultLayout: defaultLayout)
+        recoverablePreferences = preferences
+        lifecycleSettings = preferences.lifecycle
+        let configuration = preferences.layout
         arrivalPreferences = ArrivalMotionPreferences(url: root.appendingPathComponent("arrival-motion-settings.json"))
         rift = RiftPanelController(mediaDirectory: root.appendingPathComponent("media"), configuration: configuration,
             arrivalMode: arrivalPreferences?.mode ?? .provisionalFallback,
@@ -556,8 +547,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         // Durable crash recovery remains local even when Automation is denied.
         // No page observation is attempted until a passive check says allowed.
         if adapter is any IndependentFileInputAdapter {
-            // Earlier operations are history, never a new input permission or
-            // restart upload job. Preserve their SQLite rows and media exactly.
+            // Startup may release a preparation proven never to have dispatched.
+            // It never submits or observes an independent input.
+            try await store.recoverUndispatchedPreparations()
             originalRecoveryIDs = nil
             startupCompletedIDs = []
         } else {
@@ -853,7 +845,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         capabilities.canOpenConfiguration = root != nil
         settingsHost?.update(owner: nextSettingsOwner(), setup: snapshot, capabilities: capabilities,
             configurationDeferred: rift.map { $0.requestedConfiguration != $0.configuration } ?? false,
-            chromeConnection: chromeConnection)
+            chromeConnection: chromeConnection, recoveryDomains: recoverablePreferences?.recoveryDomains ?? [],
+            recoveryFailure: recoverablePreferences?.recoveryFailure)
         let presentation = SetupPresentation(snapshot: snapshot)
         let summary = presentation.issueText ?? (mode.collectsSystemScreenshots ? presentation.collectionText : presentation.attachmentText)
         statusLine?.title = summary
@@ -902,12 +895,18 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         return allowed
     }
 
-    @objc private func recheckSetup() {
+    @objc private func recheckSetup() { beginSetupRecheck(checkPrivateMedia: false) }
+
+    private func beginSetupRecheck(checkPrivateMedia: Bool) {
         guard !drainingForExit, initialized, !requestingPermission, !collectionChangePending,
               let token = captureControl.begin(.recheck) else { return }
         updateControlTitles()
         recheckTask = Task {
             defer { captureControl.finish(token); recheckTask = nil; updateControlTitles() }
+            if checkPrivateMedia, let capture, await capture.recheckPrivateMedia(),
+               let code = captureDiagnostic?.code, [.missingPrivateCopy, .recoveryRequired].contains(code) {
+                captureDiagnostic = nil
+            }
             if mode.collectsSystemScreenshots, let capture, let binding = sourceBinding {
                 do {
                     do { detectedSource = try await captureLocation.currentDirectory() }
@@ -1625,7 +1624,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func saveSettings(_ request: SettingsSaveRequest) async -> SettingsSaveOutcome {
-        guard initialized, let root else { return .unconfirmed(nextSettingsOwner(), .ownerUnavailable) }
+        guard initialized, recoverablePreferences != nil else { return .unconfirmed(nextSettingsOwner(), .ownerUnavailable) }
         do {
             switch request.intent {
             case .collectionPaused(let target): try await setCollectionPaused(target)
@@ -1641,7 +1640,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                         return .unconfirmed(nextSettingsOwner(), .ownerUnavailable)
                     }
                 }
-                try persistRiftConfiguration(configuration, root: root, displayChanged: request.intent.domain == .display)
+                try persistRiftConfiguration(configuration, displayChanged: request.intent.domain == .display)
                 updateControlTitles()
             }
             if [.entry, .captureMode].contains(request.intent.domain), screenshotEntry?.preferenceSaveFailed == true {
@@ -1670,7 +1669,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         case .openHistory: showHistory()
         case .openFeedback: showFeedback()
         case .clearVisible: confirmClearVisible()
-        case .recheck: recheckSetup()
+        case .recheck: beginSetupRecheck(checkPrivateMedia: true)
         case .openSource: openScreenshotSource()
         case .chooseSourceAccess: chooseSourceAccess()
         case .requestAutomation: requestAutomationPermission()
@@ -1694,6 +1693,20 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         case .checkStorage: checkStorage()
         case .revealDataFolder:
             if initialized, let root { NSWorkspace.shared.activateFileViewerSelecting([root]) }
+        case .restorePreference(let domain):
+            guard let preferences = recoverablePreferences else { return }
+            do {
+                try preferences.restore(domain)
+                switch domain {
+                case .layout:
+                    try rift?.updateConfiguration(preferences.layout)
+                    screenshotEntry?.configure()
+                case .archive:
+                    lifecycleSettings = preferences.lifecycle
+                    archiveNotBefore = ProcessInfo.processInfo.systemUptime + 30
+                }
+            } catch { /* The settings row reads the domain's recovery result. */ }
+            updateControlTitles()
         case .reloadConfiguration: reload(); updateSetup()
         case .openConfiguration: openGeometry()
         case .showLatest: showLatest()
@@ -1742,7 +1755,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func applySettings(_ change: RiftSettingsChange) throws -> RiftSettingsSnapshot {
-        guard initialized, let root else { throw CocoaError(.fileWriteUnknown) }
+        guard initialized, let preferences = recoverablePreferences else { throw CocoaError(.fileWriteUnknown) }
         switch change {
         case .entryEnabled(let enabled):
             guard let screenshotEntry else { throw CocoaError(.fileWriteUnknown) }
@@ -1763,37 +1776,32 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             }
             configuration.placementSource = .user
             try configuration.validate()
-            let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-            try encoder.encode(configuration).write(to: root.appendingPathComponent("rift-configuration.json"), options: .atomic)
-            cancelSelections(reason: "displayPreferenceChanged"); frozenPress = nil
-            screenshotEntry?.cancel(); arrivalCapture?.cancel()
-            try rift.updateConfiguration(configuration); screenshotEntry?.configure()
+            try persistRiftConfiguration(configuration, displayChanged: true)
         case .geometry(let fraction, let inset, let count):
             guard let rift else { throw CocoaError(.fileWriteUnknown) }
             var config = rift.requestedConfiguration
             config.hiddenFraction = fraction; config.outerInset = inset; config.visibleCountPreference = count
-            try persistRiftConfiguration(config, root: root)
+            try persistRiftConfiguration(config)
         case .placement(let placement):
             guard let rift else { throw CocoaError(.fileWriteUnknown) }
             var config = rift.requestedConfiguration; config.placement = placement; config.placementSource = .user
-            try persistRiftConfiguration(config, root: root)
+            try persistRiftConfiguration(config)
         case .restorePreferredDisplay:
             rift?.restorePreferredDisplay(); screenshotEntry?.configure()
         case .archiveAfterMinutes(let minutes):
             var value = lifecycleSettings
             value.archiveAfterSeconds = minutes.map { $0 * 60 }
             try value.validate()
-            try JSONEncoder().encode(value).write(to: root.appendingPathComponent("lifecycle-settings.json"), options: .atomic)
+            try preferences.saveLifecycle(value)
             lifecycleSettings = value; archiveNotBefore = ProcessInfo.processInfo.systemUptime + 30
         }
         updateControlTitles()
         return settingsSnapshot()
     }
 
-    private func persistRiftConfiguration(_ config: RiftConfiguration, root: URL, displayChanged: Bool = false) throws {
-        try config.validate()
-        let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        try encoder.encode(config).write(to: root.appendingPathComponent("rift-configuration.json"), options: .atomic)
+    private func persistRiftConfiguration(_ config: RiftConfiguration, displayChanged: Bool = false) throws {
+        guard let preferences = recoverablePreferences else { throw CocoaError(.fileWriteUnknown) }
+        try preferences.saveLayout(config)
         if displayChanged {
             cancelSelections(reason: "displayPreferenceChanged"); frozenPress = nil
             screenshotEntry?.cancel()
@@ -1851,11 +1859,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     @objc private func reload() {
         // Source changes use the one gated first-use recheck entry. Geometry
         // reload must not start an untracked task that can outlive Pause.
-        guard let root else { return }
+        guard let preferences = recoverablePreferences else { return }
         do {
-            let config = try JSONDecoder().decode(RiftConfiguration.self, from: Data(contentsOf: root.appendingPathComponent("rift-configuration.json")))
-            try rift?.updateConfiguration(config)
-        } catch { setupIssue = .configurationUnavailable; updateSetup() }
+            try preferences.reloadLayout()
+            try rift?.updateConfiguration(preferences.layout)
+        } catch { updateSetup() }
     }
 }
 

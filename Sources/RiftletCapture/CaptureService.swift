@@ -80,6 +80,7 @@ public actor CaptureService {
     private let onDiagnostic: @Sendable (CaptureDiagnostic) async -> Void
     private var sourceAccessible = false
     private var latestDiagnostic: CaptureDiagnostic?
+    private var privateRecoveryDiagnostic: CaptureDiagnosticCode?
     // A failed preference switch leaves the last working source active. A scan
     // of that old source must not erase the unresolved requested-location error.
     private var locationDiagnostic: CaptureDiagnostic?
@@ -189,12 +190,8 @@ public actor CaptureService {
                     guard running, generation == token else { return }
                 }
             }
-            if !report.missing.isEmpty { await reportDiagnostic(.init(code: .missingPrivateCopy)) }
+            await reportRecovery(report)
             guard running, generation == token else { return }
-            if !report.invalid.isEmpty { await reportDiagnostic(.init(code: .recoveryRequired)) }
-            guard running, generation == token else { return }
-            if report.missing.isEmpty && report.invalid.isEmpty, let code = latestDiagnostic?.code,
-               [.missingPrivateCopy, .recoveryRequired].contains(code) { clearDiagnostic() }
             let key = checkpointKey
             if let data = try await store.checkpoint(for: key) {
                 guard running, generation == token else { return }
@@ -260,6 +257,39 @@ public actor CaptureService {
     public func statusSnapshot() -> CaptureStatusSnapshot {
         CaptureStatusSnapshot(sourceDirectory: sourceDirectory, isRunning: running,
                               sourceAccessible: sourceAccessible, latestDiagnostic: locationDiagnostic ?? latestDiagnostic)
+    }
+
+    /// Rechecking private copies does not require access to the system screenshot folder.
+    @discardableResult
+    public func recheckPrivateMedia() async -> Bool {
+        guard !stoppingForExit else { return false }
+        activeLifecycleOperations += 1
+        defer { finishLifecycleOperation() }
+        let token = generation
+        do {
+            let report = try await importer.recheckPrivateMedia()
+            guard generation == token else { return false }
+            await reportRecovery(report)
+            return report.missing.isEmpty && report.invalid.isEmpty
+        } catch {
+            guard generation == token else { return false }
+            let diagnostic = CaptureDiagnostic.classify(error, context: .privateStorage)
+            privateRecoveryDiagnostic = diagnostic.code
+            await reportDiagnostic(diagnostic)
+            return false
+        }
+    }
+
+    private func reportRecovery(_ report: CaptureRecoveryReport) async {
+        if !report.invalid.isEmpty || !report.missing.isEmpty {
+            let code: CaptureDiagnosticCode = report.invalid.isEmpty ? .missingPrivateCopy : .recoveryRequired
+            privateRecoveryDiagnostic = code
+            await reportDiagnostic(.init(code: code))
+        } else if let code = privateRecoveryDiagnostic {
+            if latestDiagnostic?.code == code { clearDiagnostic() }
+            privateRecoveryDiagnostic = nil
+            reportedIssues.remove(code.rawValue)
+        }
     }
 
     /// An explicit setup/menu recheck reopens the watch, so a revoked/regranted directory

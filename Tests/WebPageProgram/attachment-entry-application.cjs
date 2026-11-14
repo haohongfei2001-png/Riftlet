@@ -35,6 +35,11 @@ function mountAttachmentEntryCase(name, form, input) {
     entry.addEventListener('click', () => { counts.entry++; });
     return app;
   }
+  if (name === 'inert-entry') {
+    entry.addEventListener('click', () => { counts.entry++; });
+    append(append(document.body, element('section')), input);
+    return app;
+  }
   if (name.startsWith('detached') || name === 'await-detached-with-rival') input.remove();
   if (name === 'await-detached-with-rival') {
     // The independent connected picker only exists; the application never

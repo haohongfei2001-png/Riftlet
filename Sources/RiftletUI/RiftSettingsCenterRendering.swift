@@ -15,6 +15,14 @@ extension RiftSettingsCenterController {
             }
             button.setAccessibilityValue(page == selectedPage ? "已选中" : "")
         }
+        for (domain, row) in preferenceRecoveryRows {
+            row.isHidden = !product.preferenceRecovery.contains(domain)
+            let key = "recovery." + domain.rawValue
+            let description = domain == .layout ? "布局设置无法读取，当前使用可用布局。" : "归档设置无法读取，自动归档已暂停。"
+            let detail = product.preferenceRecoveryFailure == domain ? "恢复未完成，请重试。" : "恢复时会保留原文件副本。"
+            text(key, description + detail)
+            enable(key + ".restore", product.capabilities.canEditPreferences)
+        }
         let collectionIssue = product.setup.issue.map {
             [.sourceVolumeUnidentified, .fileVolumeUnidentified, .historicalSourceUnconfirmed].contains($0)
         } ?? false

@@ -34,6 +34,17 @@ extension RiftSettingsCenterController {
         pages[page] = document
     }
 
+    func preferenceRecoveryRow(_ domain: SettingsPreferenceDomain) -> NSView {
+        let key = "recovery." + domain.rawValue
+        let button = makeButton(domain == .layout ? "恢复默认布局" : "恢复默认归档时限", id: key + ".restore") { [weak self] in
+            self?.dispatch(.restorePreference(domain))
+        }
+        let stack = SettingsNativeStyle.stack([namedLabel(key, role: "caption"), button], spacing: 4)
+        stack.isHidden = true
+        preferenceRecoveryRows[domain] = stack
+        return stack
+    }
+
     func displayContent() -> [NSView] {
         geometryPreview.identifier = .init("settings.center.layoutPreview")
         geometryPreview.heightAnchor.constraint(equalToConstant: 115).isActive = true
@@ -105,7 +116,7 @@ extension RiftSettingsCenterController {
             makeButton("恢复布局默认值", id: "layout.defaults.display") { [weak self] in self?.replaceDrafts(.restoreDefaults(.display)) }
         ] + motionContent() + [namedLabel("accessibility", role:"caption")])
         return [
-            geometryPreview,
+            preferenceRecoveryRow(.layout), geometryPreview,
             row("桌面形态", control: form), domainError(.desktopForm),
             windChimeSettings!, domainError(.windChimeArrangement),
             row("屏幕边缘", control: placement), domainError(.placement),
@@ -244,7 +255,7 @@ extension RiftSettingsCenterController {
                            makeButton("打开登录项设置…", id:"login.system") { [weak self] in self?.dispatch(.openLoginSettings) }]),
                 section("本机历史"),
                 row("截图历史", control:makeButton("打开历史…", id:"history.open") { [weak self] in self?.dispatch(.openHistory) }),
-                row("历史样式", control:displayStyle), archive, disclosure("存储与恢复",id:"restore-info",content:storage)]
+                row("历史样式", control:displayStyle), preferenceRecoveryRow(.archive), archive, disclosure("存储与恢复",id:"restore-info",content:storage)]
     }
 
     func helpContent() -> [NSView] {
