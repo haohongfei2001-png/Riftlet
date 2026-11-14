@@ -559,5 +559,7 @@
       "relatedEvidence": "inventory-only"
     }
   ],
-  "edgeSpecialistFollowup": "edge-double-image-20261114/isolated-login.json"
+  "edgeSpecialistFollowup": "edge-double-image-20261114/isolated-login.json",
+  "latestMainIntegration": "edge-double-image-20261114/main-integration.json",
+  "inheritedScopedChromeEvidence": "../../engineering/quality/2026-11-14/actual-chatgpt-attachment.json (source 624e1b5; START only; not this PR head or final completion)"
 }

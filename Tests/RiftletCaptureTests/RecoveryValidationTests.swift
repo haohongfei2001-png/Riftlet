@@ -111,6 +111,133 @@ final class RecoveryValidationTests: XCTestCase {
         }
     }
 
+    func testStartupCheckWithoutSourceAndRechecksAfterStopUseOriginalHash() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let record = try await f.importImage()
+        let media = f.media(record.image)
+        let input = f.root.appendingPathComponent("empty-source", isDirectory: true)
+        try FileManager.default.createDirectory(at: input, withIntermediateDirectories: true)
+        let service = CaptureService(store: f.store, privateRoot: f.storage, sourceDirectory: input)
+
+        // An already paused or denied first launch still reports corrupt private media.
+        var incorrect = f.bytes
+        incorrect[incorrect.count / 2] ^= 0x01
+        try incorrect.write(to: media)
+        try await service.prepareApplicationStartup(validate: {})
+        await service.finishApplicationStartup()
+        let missing = try await f.store.asset(id: record.id)
+        XCTAssertEqual(missing?.status, .missing)
+        XCTAssertEqual(try Data(contentsOf: media), incorrect)
+
+        // A later source start must not reuse the earlier result after a file change.
+        try f.bytes.write(to: media, options: .atomic)
+        try await service.start()
+        let restored = try await f.store.asset(id: record.id)
+        XCTAssertEqual(restored?.status, .pending)
+        await service.stop()
+        try incorrect.write(to: media, options: .atomic)
+        try await service.start()
+        let replaced = try await f.store.asset(id: record.id)
+        XCTAssertEqual(replaced?.status, .missing)
+        await service.stop()
+    }
+
+    func testRefusedStartupValidationLeavesWatcherAndCollectionCheckpointsUntouched() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let imported = try await f.importImage()
+        let service = CaptureService(store: f.store, privateRoot: f.storage, sourceDirectory: f.root)
+        let before = try await f.store.assets(includeUsed: true)
+        do {
+            try await service.prepareApplicationStartup {
+                let all = try await f.store.assets(includeUsed: true)
+                if all.contains(where: { $0.image.origin == .synthetic }) { throw RiftletError.modeMismatch }
+            }
+            XCTFail("Unexpected provenance admission")
+        } catch RiftletError.modeMismatch {}
+        let status = await service.statusSnapshot()
+        let epoch = try await f.store.checkpoint(for: "capture-collection-epoch-v1")
+        let after = try await f.store.assets(includeUsed: true)
+        XCTAssertFalse(status.isRunning)
+        XCTAssertNil(epoch)
+        XCTAssertEqual(after, before)
+        XCTAssertEqual(try Data(contentsOf: f.media(imported.image)), f.bytes)
+    }
+
+    func testExplicitRecheckRestoresOnlyExactPrivateMediaWithoutRestartingCollection() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let imported = try await f.importImage()
+        _ = try await setState("archived", record: imported, store: f.store)
+        let before = try await f.store.asset(id: imported.id)
+        let media = f.media(imported.image), preserved = f.root.appendingPathComponent("original.png")
+        try FileManager.default.moveItem(at: media, to: preserved)
+        let service = CaptureService(store: f.store, privateRoot: f.storage, sourceDirectory: f.root)
+        try await service.start()
+        let missing = try await f.store.asset(id: imported.id)
+        XCTAssertEqual(missing?.status, .missing)
+
+        var altered = f.bytes
+        altered[altered.count / 2] ^= 0xff
+        try altered.write(to: media)
+        let wrongHash = await service.recheckPrivateMedia()
+        XCTAssertFalse(wrongHash)
+        try Data(f.bytes.dropLast()).write(to: media)
+        let wrongSize = await service.recheckPrivateMedia()
+        XCTAssertFalse(wrongSize)
+        try FileManager.default.removeItem(at: media)
+        try FileManager.default.createSymbolicLink(at: media, withDestinationURL: preserved)
+        let link = await service.recheckPrivateMedia()
+        XCTAssertFalse(link)
+        let stillMissing = try await f.store.asset(id: imported.id)
+        XCTAssertEqual(stillMissing, missing)
+        try FileManager.default.removeItem(at: media)
+        try FileManager.default.moveItem(at: preserved, to: media)
+        let correct = await service.recheckPrivateMedia()
+        let after = try await f.store.asset(id: imported.id)
+        let snapshot = await service.statusSnapshot()
+        XCTAssertTrue(correct)
+        XCTAssertEqual(after, before)
+        XCTAssertNil(snapshot.latestDiagnostic)
+        XCTAssertTrue(snapshot.isRunning)
+        await service.stop()
+    }
+
+    func testExplicitRecheckOfUsedHistoryRequiresOriginalJournalAndMatchingBytes() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let imported = try await f.importImage(), originalTarget = target()
+        let op = try await f.store.prepare(assetID: imported.id, target: originalTarget)
+        try await f.store.markDispatchIntent(op.id)
+        let receipt = TransferReceipt(operationID: op.id, assetID: imported.id, attempt: op.attempt,
+            assetSHA256: imported.image.sha256, target: originalTarget, outcome: .verifiedReady,
+            profileID: "used-recheck", attachmentID: "synthetic-receipt", positiveReady: true,
+            belongsToOriginalDraft: true)
+        let used = try await f.store.apply(receipt, policy: .init(admittedProfiles: ["used-recheck": .webChat]))
+        XCTAssertEqual(used.status, .used)
+        let savedOperation = try await f.store.operation(id: op.id)
+        let media = f.media(imported.image), journal = f.journal(imported.image)
+        let savedJournal = try Data(contentsOf: journal)
+        try FileManager.default.removeItem(at: media)
+        let startup = try await f.importer.recover()
+        XCTAssertEqual(startup.missing, [imported.id])
+        var wrong = f.bytes
+        wrong[wrong.count / 2] ^= 1
+        try wrong.write(to: media)
+        let wrongBytes = try await f.importer.recheckPrivateMedia()
+        XCTAssertEqual(wrongBytes.invalid, [imported.id])
+        try f.bytes.write(to: media)
+        try FileManager.default.removeItem(at: journal)
+        let withoutJournal = try await f.importer.recheckPrivateMedia()
+        XCTAssertEqual(withoutJournal.missing, [imported.id])
+        try savedJournal.write(to: journal)
+        let restored = try await f.importer.recheckPrivateMedia()
+        XCTAssertTrue(restored.invalid.isEmpty && restored.missing.isEmpty)
+        let after = try await f.store.asset(id: imported.id)
+        let operationAfter = try await f.store.operation(id: op.id)
+        let receiptAfter = try await f.store.receipt(for: op.id)
+        XCTAssertEqual(after, used)
+        XCTAssertEqual(operationAfter, savedOperation)
+        XCTAssertEqual(receiptAfter, receipt)
+    }
+
     func testMissingOriginalMediaRestoresUnknownWithoutChangingItsOperation() async throws {
         let f = try Fixture(); defer { f.close() }
         let imported = try await f.importImage()

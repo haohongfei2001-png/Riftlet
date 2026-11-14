@@ -1,6 +1,7 @@
 import AppKit
 import RiftletCapture
 import XCTest
+@testable import RiftletLegacySettingsFixtures
 @testable import RiftletUI
 
 /// Software AppKit only; no screenshot, permission, browser or durable user data.

@@ -4,19 +4,21 @@ import AppKit
 /// Reading it never opens a screen, capture folder, queue or browser.
 @MainActor
 final class RiftOnboardingPlacementPreview: NSView {
+    private let copy: OnboardingCopy
     private let workflow: Bool
     private static let example = Bundle.main.url(forResource: "glass-study", withExtension: "png")
         .flatMap { NSImage(contentsOf: $0) }
     var configuration = RiftConfiguration() { didSet { needsDisplay = true } }
     var entryEnabled = true { didSet { needsDisplay = true } }
 
-    init(workflow: Bool = false) {
+    init(workflow: Bool = false, copy: OnboardingCopy = .current) {
+        self.copy = copy
         self.workflow = workflow
         super.init(frame: .zero)
         heightAnchor.constraint(equalToConstant: workflow ? 155 : 103).isActive = true
         setAccessibilityElement(true)
         setAccessibilityRole(.image)
-        setAccessibilityLabel(workflow ? "截图进入当前聊天草稿的示意" : "桌面边缘位置预览")
+        setAccessibilityLabel(workflow ? copy.illustrationLabel : copy.placementPreviewLabel)
     }
     required init?(coder: NSCoder) { nil }
     override func hitTest(_ point: NSPoint) -> NSView? { nil }
@@ -66,7 +68,7 @@ final class RiftOnboardingPlacementPreview: NSView {
         if workflow, let image = Self.example {
             image.draw(in: CGRect(x: entry.minX + 5, y: entry.minY + 4, width: min(34, entry.height), height: entry.height - 8))
         } else {
-            ("给 ChatGPT 发送消息" as NSString).draw(at: CGPoint(x: entry.minX + 8, y: entry.midY - 6), withAttributes: words)
+            (copy.composerPlaceholder as NSString).draw(at: CGPoint(x: entry.minX + 8, y: entry.midY - 6), withAttributes: words)
         }
         guard let placement = workflow ? RiftPlacement.rightMiddle : configuration.placement else { return }
         if !workflow, configuration.desktopForm == .windChime {

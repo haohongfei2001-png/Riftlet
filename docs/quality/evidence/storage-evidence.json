@@ -1,0 +1,32 @@
+{
+  "baseline": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",
+  "environment": "Linux x86_64; no Swift executable; no macOS GUI",
+  "source_sha256": {
+    "Sources/RiftletApp/RiftletMain.swift": "100b7733a5438344b6c59930f13cc205214321b4b27230adbc7f0969eb0d9015",
+    "Sources/RiftletApp/LifecycleSettings.swift": "a99d4331f184771b0a45d6e69834b7b250f0ad8e242b353667323a4c987ccfc3",
+    "Sources/RiftletUI/RiftConfiguration.swift": "8ed7e2d54df02ab8c5518ec902438f50f60939b581d7d7834201450879e2ca1f",
+    "Sources/RiftletCapture/CaptureService.swift": "2ade0fe29f703ba4976d79c21b057184f1caac659bca17589bb02d7ffc30bbf3",
+    "Sources/RiftletCapture/PrivateAssetImporter.swift": "10f3f7bbc299b8fcca5c83da0983ff73fb743dcbebc54741cb5e0c6aedfbb897",
+    "Sources/RiftletCore/QueueStore.swift": "249607aed955359549e4d76d22b2b8ac604c26e2ebf80facb6e1a486d0ae43d2",
+    "Tests/StorageReadiness/test_storage_recovery.py": "5da94e52801dd3d4b8585135e923a2b88eccd08db29545ec90b37dc2cbb084d1"
+  },
+  "executed": [
+    {
+      "command": "python3 -B -m unittest discover -s Tests/StorageReadiness -p 'test_*.py' -v",
+      "tests": 26,
+      "result": "PASS",
+      "scope": "Offline backup/health/restore Python tool on synthetic local filesystem and SQLite",
+      "excludes": [
+        "Native app startup",
+        "Native import/recovery Swift",
+        "ChatGPT attachments",
+        "Power-loss hardware behavior"
+      ]
+    }
+  ],
+  "not_run": [
+    "Damaged-settings native launch reproduction",
+    "Large-history macOS launch profiling",
+    "Restored private media native Recheck reproduction"
+  ]
+}

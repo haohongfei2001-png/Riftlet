@@ -224,10 +224,10 @@ final class RiftTrayLayoutTests: XCTestCase {
         let records = assets(2)
         func label(_ mode: ScreenshotMode?) -> String {
             switch mode {
-            case .window: return "窗口截图"
-            case .region: return "区域截图"
-            case .fullScreen: return "全屏截图"
-            case nil: return "未设置"
+            case .window: return ProductCopy.text("窗口截图", "Window Screenshot")
+            case .region: return ProductCopy.text("区域截图", "Region Screenshot")
+            case .fullScreen: return ProductCopy.text("全屏截图", "Full Screen Screenshot")
+            case nil: return ProductCopy.text("未设置", "Not Set")
             }
         }
         for placement in [RiftPlacement.leftMiddle, .rightMiddle] {
@@ -244,14 +244,14 @@ final class RiftTrayLayoutTests: XCTestCase {
                 for choices: [ScreenshotMode?] in [automatic, [.region, .window, .region]] {
                     surface.update(layout: closed, colors: .violetGlass, defaultMode: mode, favoriteModes: choices, reduceMotion: true)
                     let camera = try XCTUnwrap(surface.subviews.compactMap { $0 as? NSButton }.first { !$0.isHidden })
-                    XCTAssertEqual(camera.accessibilityLabel(), "展开截图方式")
+                    XCTAssertEqual(camera.accessibilityLabel(), ProductCopy.text("展开截图方式", "Show Capture Modes"))
                     XCTAssertEqual(camera.frame, closed.captureSlot.offsetBy(dx: -closed.surfaceFrame.minX, dy: -closed.surfaceFrame.minY))
                     surface.update(layout: open, colors: .violetGlass, defaultMode: mode, favoriteModes: choices, reduceMotion: true)
                     let buttons = surface.subviews.compactMap { $0 as? NSButton }.filter { !$0.isHidden }
                         .sorted { $0.frame.minX < $1.frame.minX }
                     XCTAssertEqual(buttons.count, 4)
-                    let favoriteLabels = choices.enumerated().map { "常用截图 \($0.offset + 1)，" + label($0.element) }
-                    let expected = favoriteLabels + ["默认截图，" + label(mode)]
+                    let favoriteLabels = choices.enumerated().map { ProductCopy.text("常用截图 \($0.offset + 1)，", "Favorite \($0.offset + 1), ") + label($0.element) }
+                    let expected = favoriteLabels + [ProductCopy.text("默认截图，", "Default Capture, ") + label(mode)]
                     XCTAssertEqual(buttons.compactMap { $0.accessibilityLabel() }, expected)
                     XCTAssertTrue(buttons.last === camera)
                     XCTAssertTrue(zip(buttons, buttons.dropFirst()).allSatisfy { $0.frame.maxX <= $1.frame.minX && $0.frame.minY == $1.frame.minY })

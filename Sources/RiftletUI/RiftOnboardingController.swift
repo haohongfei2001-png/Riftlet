@@ -38,6 +38,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
     public private(set) var currentStep = 0
     public private(set) var presentationID = UUID()
     public var isVisible: Bool { window.isVisible }
+    private let onDefer: @MainActor () -> Void
     private let onAction: SettingsProductActionHandler
     private var snapshot: SettingsProductSnapshot?
     private var hasPresented = false
@@ -48,10 +49,10 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
     private let progress = SettingsNativeStyle.stack([], vertical: false, spacing: 9)
     private let content = RiftVisualStyle.documentStack([], spacing: 16)
     private let scroll = RiftVisualStyle.topAlignedScrollView()
-    private let next = SettingsNativeStyle.button("继续")
-    private let back = SettingsNativeStyle.button("上一步")
-    private let later = SettingsNativeStyle.button("稍后设置")
-    private let introTitle = SettingsNativeStyle.label("让截图出现在桌面边缘", role: "title")
+    private lazy var next = SettingsNativeStyle.button(copy.continueButton)
+    private lazy var back = SettingsNativeStyle.button(copy.back)
+    private lazy var later = SettingsNativeStyle.button(copy.later)
+    private lazy var introTitle = SettingsNativeStyle.label(copy.headline, role: "title")
     private let introDescription = SettingsNativeStyle.label("")
     private let introCapability = SettingsNativeStyle.label("", role: "secondary")
     private let sourceDetail = SettingsNativeStyle.label("", role: "secondary")
@@ -59,25 +60,33 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
     private let automationDetail = SettingsNativeStyle.label("", role: "secondary")
     private let scriptDetail = SettingsNativeStyle.label("")
     private let connectionStatus = SettingsNativeStyle.label("", role: "secondary")
-    private lazy var chromeMenuSection = section("在 Chrome 中开启一键附加", symbol: "menubar.rectangle", views: [scriptDetail, connectionStatus, actionButton("检查连接", id: "onboarding.checkChrome")])
-    private let sourceAccess = SettingsNativeStyle.button("允许访问…")
-    private let automation = SettingsNativeStyle.button("检查 Chrome 权限…")
+    private lazy var chromeMenuSection = section(copy.chromeMenuHeading, symbol: "menubar.rectangle", views: [scriptDetail, connectionStatus, actionButton(copy.checkConnection, id: "onboarding.checkChrome")])
+    private lazy var sourceAccess = SettingsNativeStyle.button(copy.allowAccess)
+    private lazy var automation = SettingsNativeStyle.button(copy.checkPermission)
     private let display = NSPopUpButton(frame: .zero, pullsDown: false)
     private var displayMenuTracking = false
     private var displayRefreshPending = false
     private var displaySignature: [RiftSettingsDisplay] = []
     private var representedPreferredDisplayID: UInt32?
-    private let placementPreview = RiftOnboardingPlacementPreview()
+    private lazy var placementPreview = RiftOnboardingPlacementPreview(copy: copy)
     private var placements: [RiftPlacement: NSButton] = [:]
     private let placementHint = SettingsNativeStyle.label("", role: "caption")
     private let placementError = SettingsNativeStyle.label("", role: "secondary")
     private let displayError = SettingsNativeStyle.label("", role: "secondary")
     private let finishHint = SettingsNativeStyle.label("", role: "secondary")
 
-    public init(onAction: @escaping SettingsProductActionHandler) {
+    private let copy: OnboardingCopy
+
+    public convenience init(onDefer: @escaping @MainActor () -> Void = {}, onAction: @escaping SettingsProductActionHandler) {
+        self.init(copy: .current, onDefer: onDefer, onAction: onAction)
+    }
+
+    init(copy: OnboardingCopy, onDefer: @escaping @MainActor () -> Void = {}, onAction: @escaping SettingsProductActionHandler) {
+        self.copy = copy
+        self.onDefer = onDefer
         self.onAction = onAction
         window = RiftVisualStyle.window(outerSize: SettingsNativeStyle.onboardingSize,
-            minimum: NSSize(width: 520, height: 416), title: "开始使用 Riftlet")
+            minimum: NSSize(width: 520, height: 416), title: copy.title)
         super.init()
         window.identifier = Self.windowIdentifier
         window.delegate = self
@@ -144,7 +153,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         scroll.translatesAutoresizingMaskIntoConstraints = false
         content.translatesAutoresizingMaskIntoConstraints = false
         root.addSubview(progress); root.addSubview(scroll)
-        for (index, title) in ["截图文件夹", "连接 Chrome", "桌面位置"].enumerated() {
+        for (index, title) in [copy.stepFolder, copy.stepChrome, copy.stepPosition].enumerated() {
             if index > 0 {
                 let separator = NSImageView()
                 separator.image = NSImage(systemSymbolName: "chevron.right", accessibilityDescription: nil)?
@@ -159,7 +168,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
             progress.addArrangedSubview(label)
         }
         scroll.documentView = content
-        scroll.setAccessibilityLabel("Riftlet 使用引导内容")
+        scroll.setAccessibilityLabel(copy.scrollLabel)
         next.identifier = .init("onboarding.next"); next.target = self; next.action = #selector(nextStep)
         next.keyEquivalent = "\r"; next.bezelColor = SettingsNativeStyle.color(.accent)
         back.identifier = .init("onboarding.back"); back.target = self; back.action = #selector(previousStep)
@@ -208,20 +217,20 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         controls["onboarding.connectionStatus"] = connectionStatus
         let intro = page([
             introTitle, introDescription,
-            section("截图保存位置", symbol: "folder", views: [
+            section(copy.folderHeading, symbol: "folder", views: [
                 sourcePath, sourceDetail, sourceAccess,
-                actionButton("继续收录", id: "onboarding.resume"),
-                actionButton("显示桌面截图", id: "onboarding.unhide"),
-                actionButton("重新检查文件夹", id: "onboarding.recheck")
+                actionButton(copy.resume, id: "onboarding.resume"),
+                actionButton(copy.unhide, id: "onboarding.unhide"),
+                actionButton(copy.recheckFolder, id: "onboarding.recheck")
             ]),
-            introCapability, RiftOnboardingPlacementPreview(workflow: true)
+            introCapability, RiftOnboardingPlacementPreview(workflow: true, copy: copy)
         ])
         let connections = page([
-            SettingsNativeStyle.label("把截图附加到 ChatGPT", role: "title"),
-            section("允许 Riftlet 连接 Chrome", symbol: "macwindow", views: [automationDetail, automation]),
+            SettingsNativeStyle.label(copy.chromeHeading, role: "title"),
+            section(copy.automationHeading, symbol: "macwindow", views: [automationDetail, automation]),
             chromeMenuSection
         ])
-        display.identifier = .init("onboarding.display"); display.setAccessibilityLabel("所在显示器")
+        display.identifier = .init("onboarding.display"); display.setAccessibilityLabel(copy.display)
         display.target = self; display.action = #selector(displayChanged)
         display.menu?.delegate = self
         display.menu?.autoenablesItems = false
@@ -231,23 +240,23 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         let choices = SettingsNativeStyle.stack([], vertical: false, spacing: 1)
         choices.distribution = .fillEqually
         for placement in RiftPlacement.allCases {
-            let button = SettingsNativeStyle.button(placement.title)
+            let button = SettingsNativeStyle.button(copy.placement(placement))
             button.setButtonType(.pushOnPushOff); button.bezelStyle = .roundRect
             button.identifier = .init("onboarding.placement." + placement.rawValue)
             button.target = self; button.action = #selector(placementChanged(_:))
-            button.setAccessibilityLabel("桌面位置：" + placement.title)
+            button.setAccessibilityLabel(copy.positionLabel(placement))
             button.heightAnchor.constraint(greaterThanOrEqualToConstant: 24).isActive = true
             placements[placement] = button; controls[button.identifier!.rawValue] = button
             choices.addArrangedSubview(button)
         }
-        let displayRetry = actionButton("重试显示器选择", id: "onboarding.retryDisplay")
-        let placementRetry = actionButton("重试位置选择", id: "onboarding.retryPlacement")
-        let displayRow = SettingsNativeStyle.stack([SettingsNativeStyle.label("所在显示器", role: "rowTitle"), display, NSView()],
+        let displayRetry = actionButton(copy.retryDisplay, id: "onboarding.retryDisplay")
+        let placementRetry = actionButton(copy.retryPosition, id: "onboarding.retryPlacement")
+        let displayRow = SettingsNativeStyle.stack([SettingsNativeStyle.label(copy.display, role: "rowTitle"), display, NSView()],
                                                   vertical: false, spacing: 8)
         controls["onboarding.finishHint"] = finishHint
         let placementPage = page([
-            SettingsNativeStyle.label("选一个顺手的位置", role: "title"),
-            SettingsNativeStyle.label("新截图会从所选的屏幕边缘出现。之后可以在设置中调整。", role: "secondary"),
+            SettingsNativeStyle.label(copy.positionHeading, role: "title"),
+            SettingsNativeStyle.label(copy.positionDetail, role: "secondary"),
             placementPreview, choices, displayRow,
             displayError, displayRetry, placementError, placementRetry, placementHint, finishHint
         ])
@@ -257,7 +266,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
             page.widthAnchor.constraint(equalTo: content.widthAnchor).isActive = true
         }
         window.initialFirstResponder = next
-        root.setAccessibilityLabel("开始使用 Riftlet，三步引导")
+        root.setAccessibilityLabel(copy.rootLabel)
     }
 
     private func page(_ views: [NSView]) -> NSView {
@@ -295,17 +304,17 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         defer { if let preservedFrame { layout(keeping: preservedFrame) } }
         let presentation = SetupPresentation(snapshot: snapshot.setup)
         let ordinary = snapshot.setup.attachment == .available || snapshot.reviewEnvironment
-        introTitle.stringValue = ordinary ? "让截图出现在桌面边缘" : presentation.firstUseTitle
+        introTitle.stringValue = ordinary ? copy.headline : copy.introduction(presentation).title
         introDescription.stringValue = ordinary
-            ? "Riftlet 会收录这个文件夹里的新截图。在 Chrome 打开 ChatGPT 对话后，点桌面边缘的缩略图即可附加。"
-            : presentation.firstUseDescription
+            ? copy.introDetail
+            : copy.introduction(presentation).detail
         introCapability.stringValue = snapshot.reviewEnvironment
-            ? "当前为隔离审核：不连接浏览器或上传。" : ""
+            ? copy.reviewDetail : ""
         introCapability.isHidden = introCapability.stringValue.isEmpty
         sourceDetail.stringValue = sourceStatus(snapshot)
         sourcePath.stringValue = presentation.sourcePath
         sourcePath.isHidden = !presentation.hasSourceLocation
-        sourceAccess.title = "选择截图文件夹…"
+        sourceAccess.title = copy.authorizeFolder
         sourceAccess.setAccessibilityLabel(sourceAccess.title)
         sourceAccess.isHidden = !presentation.needsSourceAccess
         sourceAccess.isEnabled = snapshot.capabilities.canChooseSource && !sourceAccess.isHidden
@@ -315,21 +324,21 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
                         enabled: snapshot.capabilities.canChangeVisibility && !busy.contains(.visibility))
         configureAction("onboarding.recheck", visible: snapshot.firstIncompleteOnboardingStep == 0,
                         enabled: snapshot.capabilities.canRecheck)
-        automationDetail.stringValue = presentation.automationStatusText ?? "此模式仅使用本机截图。"
-        automation.title = presentation.permissionActionTitle
+        automationDetail.stringValue = copy.automationStatus(presentation)
+        automation.title = copy.permissionAction(presentation)
         automation.setAccessibilityLabel(automation.title)
         automation.isHidden = snapshot.setup.permission == .notNeeded || snapshot.setup.permission == .granted
         automation.isEnabled = !automation.isHidden && snapshot.capabilities.canRequestAutomation && presentation.canRequestPermission
         if snapshot.setup.permission == .notRunning || snapshot.setup.permission == .browserUnavailable {
-            automation.title = "重新检查 Chrome"
+            automation.title = copy.recheckChrome
             automation.setAccessibilityLabel(automation.title)
             automation.isEnabled = snapshot.capabilities.canRecheck
         }
-        scriptDetail.stringValue = presentation.chromeScriptInstructions ?? ""
+        scriptDetail.stringValue = copy.chromeInstructions(presentation)
         chromeMenuSection.isHidden = presentation.chromeScriptInstructions == nil
         connectionStatus.stringValue = chromeStatus(snapshot.chromeConnection)
         let chromeCheck = controls["onboarding.checkChrome"] as? NSButton
-        chromeCheck?.title = snapshot.chromeConnection == .unchecked ? "检查连接" : "重新检查连接"
+        chromeCheck?.title = snapshot.chromeConnection == .unchecked ? copy.checkConnection : copy.recheckConnection
         if let chromeCheck { chromeCheck.setAccessibilityLabel(chromeCheck.title) }
         chromeCheck?.isEnabled = snapshot.setup.permission == .granted && snapshot.chromeConnection != .checking
         let settings = snapshot.state.owner.settings
@@ -343,22 +352,22 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         placementPreview.configuration = settings.configuration
         placementPreview.entryEnabled = settings.entryEnabled
         placementHint.stringValue = settings.configuration.placement == nil
-            ? "沿用之前的桌面位置。选择一个位置即可更改。"
+            ? copy.legacyPosition
             : ""
         placementHint.isHidden = placementHint.stringValue.isEmpty && !settings.displayRestoreAvailable
         if settings.displayRestoreAvailable {
-            placementHint.stringValue += " 当前暂用可用显示器，已选屏幕的偏好仍保留。"
+            placementHint.stringValue += copy.fallbackDisplay
         }
-        updateError(.display, label: displayError, retryID: "onboarding.retryDisplay", name: "显示器")
-        updateError(.placement, label: placementError, retryID: "onboarding.retryPlacement", name: "位置")
+        updateError(.display, label: displayError, retryID: "onboarding.retryDisplay")
+        updateError(.placement, label: placementError, retryID: "onboarding.retryPlacement")
         if snapshot.reviewEnvironment {
-            finishHint.stringValue = "预览结束后，可以从菜单栏打开设置和历史。"
+            finishHint.stringValue = copy.previewFinish
         } else {
             switch snapshot.firstIncompleteOnboardingStep {
-            case 0: finishHint.stringValue = "请先完成截图文件夹设置，让新截图显示在桌面边缘。"
-            case 1: finishHint.stringValue = "请先完成 Chrome 连接设置。"
+            case 0: finishHint.stringValue = copy.finishFolder
+            case 1: finishHint.stringValue = copy.finishChrome
             case 2: finishHint.stringValue = ""
-            default: finishHint.stringValue = "截一张图，在 Chrome 打开要使用的 ChatGPT 对话，点一下缩略图。图片会出现在输入框旁，由你决定何时发送。"
+            default: finishHint.stringValue = copy.finishReady
             }
         }
         finishHint.isHidden = finishHint.stringValue.isEmpty
@@ -385,36 +394,36 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
 
     private func sourceStatus(_ snapshot: SettingsProductSnapshot) -> String {
         switch snapshot.setup.issue {
-        case .sourceAccess: return "无法读取这个文件夹。请重新选择并允许访问。"
-        case .wrongScreenshotFolder, .screenshotFolderNeedsSelection: return "请在选择窗口中确认上面显示的截图文件夹。"
-        case .initializationFailed: return "Riftlet 未能启动收录。请检查可用磁盘空间，然后重新打开 Riftlet。"
-        case .insufficientSpace, .privateWriteFailed, .sourceVolumeUnidentified: return snapshot.setup.issue?.text ?? ""
+        case .sourceAccess: return copy.folderUnreadable
+        case .wrongScreenshotFolder, .screenshotFolderNeedsSelection: return copy.wrongFolder
+        case .initializationFailed: return copy.startupFailed
+        case .insufficientSpace, .privateWriteFailed, .sourceVolumeUnidentified: return copy.storageIssue(snapshot.setup.issue)
         default: break
         }
         switch snapshot.setup.storage {
-        case .insufficientSpace: return "磁盘空间不足。请腾出空间并重新检查。"
-        case .writeFailed: return "无法保存新截图。请检查磁盘是否可写，再重新检查。"
+        case .insufficientSpace: return copy.lowSpace
+        case .writeFailed: return copy.writeFailed
         default: break
         }
-        if snapshot.state.owner.collectionPaused { return "截图收录已暂停。继续收录后，新截图才会出现在桌面边缘。" }
-        if snapshot.state.owner.isHidden { return "桌面截图已隐藏。开启显示后，即可点击缩略图。" }
+        if snapshot.state.owner.collectionPaused { return copy.paused }
+        if snapshot.state.owner.isHidden { return copy.hidden }
         switch snapshot.setup.source {
-        case .accessible: return snapshot.setup.collection == .collecting ? "正在收录这个文件夹里的新截图。" : "正在准备收录。"
-        case .checking, .notChecked: return "正在检查截图保存位置。"
-        case .notApplicable: return "此模式不读取系统截图文件夹。"
-        case .notConfigured: return "在 Mac 的“截屏”应用中打开“选项”，将保存位置设为文件夹，然后重新检查。"
-        case .unavailable: return "选择这个文件夹，允许 Riftlet 读取新截图。"
+        case .accessible: return snapshot.setup.collection == .collecting ? copy.collecting : copy.starting
+        case .checking, .notChecked: return copy.checkingFolder
+        case .notApplicable: return copy.unusedFolder
+        case .notConfigured: return copy.configureFolder
+        case .unavailable: return copy.chooseFolder
         }
     }
 
     private func chromeStatus(_ state: OnboardingChromeConnection) -> String {
         switch state {
-        case .unchecked: return "开启后回到这里检查连接。"
-        case .checking: return "正在检查 Chrome 连接…"
-        case .ready: return "已连接 Chrome。"
-        case .javaScriptDisabled: return "Chrome 的这个选项尚未开启。勾选后重新检查。"
-        case .noWindow: return "请在 Chrome 打开一个普通网页，然后重新检查。"
-        case .unavailable: return "未能连接到 Chrome。请打开一个普通网页，然后重新检查。"
+        case .unchecked: return copy.unchecked
+        case .checking: return copy.checking
+        case .ready: return copy.connected
+        case .javaScriptDisabled: return copy.jsDisabled
+        case .noWindow: return copy.noWindow
+        case .unavailable: return copy.unavailable
         }
     }
 
@@ -424,11 +433,11 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         button?.isEnabled = visible && enabled
     }
 
-    private func updateError(_ domain: SettingsDomain, label: NSTextField, retryID: String, name: String) {
+    private func updateError(_ domain: SettingsDomain, label: NSTextField, retryID: String) {
         guard let snapshot else { return }
         let state = snapshot.state.domains[domain]
         let failed = state?.hasIssue == true
-        label.stringValue = failed ? "\(name)未能保存，仍保留原选择。可以重试这次选择。" : ""
+        label.stringValue = failed ? copy.saveError(display: domain == .display) : ""
         label.textColor = SettingsNativeStyle.color(.warning)
         label.isHidden = !failed
         let retry = controls[retryID] as? NSButton
@@ -445,7 +454,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         if displaySignature != settings.displays || representedPreferredDisplayID != preferred || display.numberOfItems == 0 {
             displaySignature = settings.displays; representedPreferredDisplayID = preferred
             display.removeAllItems()
-            let primary = NSMenuItem(title: "使用主显示器", action: nil, keyEquivalent: "")
+            let primary = NSMenuItem(title: copy.primaryDisplay, action: nil, keyEquivalent: "")
             primary.representedObject = NSNull(); display.menu?.addItem(primary)
             for screen in settings.displays {
                 // addItem(withTitle:) deduplicates equal titles. Each physical
@@ -455,7 +464,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
                 display.menu?.addItem(item)
             }
             if let preferred, !settings.displays.contains(where: { $0.id == preferred }) {
-                let item = NSMenuItem(title: "已选显示器（未连接）", action: nil, keyEquivalent: "")
+                let item = NSMenuItem(title: copy.disconnectedDisplay, action: nil, keyEquivalent: "")
                 item.representedObject = NSNumber(value: preferred); item.isEnabled = false
                 display.menu?.addItem(item)
             }
@@ -494,7 +503,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
             label.textColor = SettingsNativeStyle.color(index == currentStep ? .accentInk : .secondary)
             label.font = .systemFont(ofSize: 11, weight: index == currentStep ? .semibold : .regular)
         }
-        progress.setAccessibilityLabel("第 \(currentStep + 1) 步，共 3 步")
+        progress.setAccessibilityLabel(copy.progress(step: currentStep + 1))
         back.isHidden = currentStep == 0
         refreshNext()
         scroll.contentView.scroll(to: .zero); scroll.reflectScrolledClipView(scroll.contentView)
@@ -507,14 +516,14 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         let incomplete = snapshot?.firstIncompleteOnboardingStep
         let preview = snapshot?.reviewEnvironment == true
         if currentStep < 2 {
-            next.title = !preview && currentStep == 1 && incomplete == 0 ? "设置截图文件夹" : "继续"
+            next.title = !preview && currentStep == 1 && incomplete == 0 ? copy.setUpFolder : copy.continueButton
             next.isEnabled = snapshot != nil && (preview || incomplete != currentStep)
         } else {
             switch (preview, incomplete) {
-            case (true, _): next.title = "结束预览"
-            case (false, 0): next.title = "设置截图文件夹"
-            case (false, 1): next.title = "连接 Chrome"
-            default: next.title = "开始使用"
+            case (true, _): next.title = copy.endPreview
+            case (false, 0): next.title = copy.setUpFolder
+            case (false, 1): next.title = copy.stepChrome
+            default: next.title = copy.getStarted
             }
             let changingPosition = busy.contains(.placement) || busy.contains(.display)
             next.isEnabled = !finishing && snapshot != nil && (preview || (!changingPosition && incomplete != 2))
@@ -544,7 +553,10 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
             finishing = false; refreshNext()
         }
     }
-    @objc private func deferSetup() { window.performClose(nil) }
+    @objc private func deferSetup() {
+        onDefer()
+        window.performClose(nil)
+    }
 
     @objc private func actionPressed(_ sender: NSButton) {
         guard sender.isEnabled, !sender.isHiddenOrHasHiddenAncestor, let snapshot else { return }

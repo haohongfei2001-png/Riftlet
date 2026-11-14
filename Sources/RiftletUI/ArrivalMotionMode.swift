@@ -12,8 +12,8 @@ public enum ArrivalMotionMode: String, CaseIterable, Codable, Sendable {
 
     public var title: String {
         switch self {
-        case .none: return "无"
-        case .magnet: return "磁力吸引"
+        case .none: return ProductCopy.text("无", "None")
+        case .magnet: return ProductCopy.text("磁力吸引", "Magnet")
         }
     }
 

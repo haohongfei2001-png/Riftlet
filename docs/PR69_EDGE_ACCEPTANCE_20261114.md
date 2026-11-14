@@ -1,5 +1,11 @@
 # PR #69 · Edge × ChatGPT 双图专项
 
+最新主线整合：工作期间 PR #101 已正式合入 main `5b73c755ec1eb6d1aa2ef5b9390da6200b6108b9`（质量分支最终头 `c428881a`，版本元数据 1.0.2／24）。PR #69 的 `464132a` 因新主线冲突没有生成 CI 测试合并；不是一次绿色运行。现以普通双父合并整合实际 main，保留已发布工程方向和全部 P0 恢复、偏好、媒体、历史、设置及本地化修复。以下第一、二阶段记录保持各自原基线和失败身份。
+
+当前组合保留一套 CaptureService 启动恢复和 TransferCoordinator/router；只在能证明尚未 dispatch 时恢复 prepared，旧 UNKNOWN/START/媒体不变。Chrome 采用主线 150 ms 总预算与最小 tick，叠加原文档/编辑器见证。系统权限说明两种语言均包含 Edge；验收 channel 保留自己的用途文案，禁止被产品本地化覆盖。[逐项主线整合记录](../engineering/universal-attachment/edge-double-image-20261114/main-integration.json)
+
+主线带来的真实 Chrome 三图记录只证明匿名专用草稿中的 START 与附件可见（`positiveReady=false`），不能升级为 Edge 或最终上传完成。本任务仍要求隔离已登录 Edge 草稿，商业双图状态保持未完成。旧隔离 1.0.1 包的验证保留原源码/字节，不能充当本次 1.0.2 组合包验收。
+
 本轮继续现有 Draft PR #69，基线为 `315978ed843ea7a0b4cc8b22fc19adcfba48c955`，main 为 `44f745a15ecb3682a9da0bda17f17a5d9fc1f07e`。没有合并 PR、改动公开安装包、更新源或用户生产数据。
 
 ## 当前结论

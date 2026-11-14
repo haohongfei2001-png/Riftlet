@@ -1,4 +1,5 @@
 import AppKit
+import RiftletUI
 import RiftletCapture
 
 /// The lightweight, explicitly opened first-use/status surface. This class has

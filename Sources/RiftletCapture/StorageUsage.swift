@@ -60,6 +60,20 @@ public struct StorageUsageSnapshot: Codable, Equatable, Sendable {
         }
         return total
     }
+    /// Logical bytes for copied images and built-in captures only. A missing
+    /// directory counts as zero; an incomplete scan has no reliable subtotal.
+    public var screenshotCopyBytes: UInt64? {
+        var total: UInt64 = 0
+        for kind in [StorageUsageArea.media, .captures] {
+            guard let area = areas.first(where: { $0.area == kind }), area.isComplete,
+                  let bytes = area.logicalBytes else { return nil }
+            let sum = total.addingReportingOverflow(bytes)
+            guard !sum.overflow else { return nil }
+            total = sum.partialValue
+        }
+        return total
+    }
+
     /// Complete means this bounded enumeration encountered no skipped/unknown entry.
     /// The live filesystem may change during or after observation; this is not an atomic
     /// snapshot, a disk-free-space guarantee or an estimate of space deletion would free.

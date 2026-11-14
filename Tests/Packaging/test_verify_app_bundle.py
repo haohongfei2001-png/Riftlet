@@ -38,6 +38,8 @@ class BundleVerificationTests(unittest.TestCase):
         self.resources = self.contents / "Resources"
         self.bundle = self.resources / "Riftlet_RiftletAdapters.bundle"
         self.bundle.mkdir(parents=True)
+        for source in (REPOSITORY / "Resources").glob("*.lproj"):
+            shutil.copytree(source, self.resources / source.name)
         shutil.copy2(REPOSITORY / "Resources/Riftlet.icns", self.resources / "Riftlet.icns")
         for name in VERIFY.PRESENTATION_NAMES:
             shutil.copy2(REPOSITORY / "Resources/Presentation" / name, self.resources / name)
@@ -53,6 +55,10 @@ class BundleVerificationTests(unittest.TestCase):
             info[key] = value
         self.plist.write_bytes(plistlib.dumps(info))
 
+    def remove_product_permission_localizations(self):
+        for folder in self.resources.glob("*.lproj"):
+            shutil.rmtree(folder)
+
     def assert_rejected(self, code, repository=None):
         with self.assertRaisesRegex(VERIFY.VerificationError, "^" + code + "$"):
             VERIFY.verify_bundle(self.app, repository)
@@ -62,6 +68,23 @@ class BundleVerificationTests(unittest.TestCase):
         self.assertEqual(result["channel"], "development")
         self.assertFalse(result["developer_id_signed"])
         self.assertFalse(result["notarized"])
+
+    def test_localized_permission_text_cannot_mask_edge_or_override_internal_channel(self):
+        for language in ("en", "zh-Hans"):
+            path = self.resources / (language + ".lproj") / "InfoPlist.strings"
+            original = path.read_bytes()
+            info = plistlib.loads(original)
+            self.assertIn("Microsoft Edge", info["NSAppleEventsUsageDescription"])
+            path.write_bytes(original.replace(b"Microsoft Edge", b"Chrome"))
+            self.assert_rejected("permission_localization_differs_from_source_" + language + "[.]lproj", REPOSITORY)
+            path.write_bytes(original)
+        (self.resources / "en.lproj/InfoPlist.strings").unlink()
+        self.assert_rejected("permission_localizations_differ_from_source", REPOSITORY)
+        for channel, convert in (("ordinary-acceptance", VERIFY.ordinary_acceptance_plist),
+                                 ("isolated-product-acceptance", VERIFY.isolated_product_acceptance_plist)):
+            self.plist.write_bytes(plistlib.dumps(convert(plistlib.loads((REPOSITORY / "Resources/Info.plist").read_bytes()))))
+            with self.assertRaisesRegex(VERIFY.VerificationError, "^unexpected_internal_permission_localization$"):
+                VERIFY.verify_bundle(self.app, REPOSITORY, channel)
 
     def test_committed_icon_preserves_original_svg_and_generation_identity(self):
         manifest = json.loads((REPOSITORY / "engineering/productization-20261107/icon/generation.json").read_text())
@@ -117,6 +140,7 @@ class BundleVerificationTests(unittest.TestCase):
 
     def test_internal_ordinary_channel_is_explicit_and_exact(self):
         info = plistlib.loads(self.plist.read_bytes())
+        self.remove_product_permission_localizations()
         self.plist.write_bytes(plistlib.dumps(VERIFY.ordinary_acceptance_plist(info)))
         with self.assertRaises(VERIFY.VerificationError):
             VERIFY.verify_bundle(self.app, REPOSITORY)
@@ -132,6 +156,7 @@ class BundleVerificationTests(unittest.TestCase):
     def test_ordinary_channel_does_not_accept_product_bundle_or_weaken_resources(self):
         with self.assertRaisesRegex(VERIFY.VerificationError, "^invalid_CFBundleIdentifier$"):
             VERIFY.verify_bundle(self.app, REPOSITORY, "ordinary-acceptance")
+        self.remove_product_permission_localizations()
         self.plist.write_bytes(plistlib.dumps(VERIFY.ordinary_acceptance_plist(plistlib.loads(self.plist.read_bytes()))))
         (self.bundle / VERIFY.RESOURCE_NAMES[0]).write_text("// changed")
         with self.assertRaisesRegex(VERIFY.VerificationError, "^resource_differs_from_source_"):
@@ -271,6 +296,7 @@ class BundleVerificationTests(unittest.TestCase):
                     VERIFY.verify_ordinary_build_info({**valid, key: value}, "isolated-product-acceptance")
 
     def test_isolated_product_channel_is_exact_and_does_not_weaken_resources(self):
+        self.remove_product_permission_localizations()
         source = plistlib.loads(self.plist.read_bytes())
         for convert in (lambda value: value, VERIFY.ordinary_acceptance_plist):
             self.plist.write_bytes(plistlib.dumps(convert(source)))

@@ -203,6 +203,11 @@ def verify_bundle(app, repository=None, channel="development"):
     if uses_updater:
         SPARKLE.validate_layout(app, require)
     resources = contents / "Resources"
+    localized_usage = {p.parent.name: p for p in resources.glob("*.lproj/InfoPlist.strings")}
+    # An internal channel has its own permission explanation in Info.plist.
+    # A localized override must never silently replace that explanation.
+    if channel != "development":
+        require(not localized_usage, "unexpected_internal_permission_localization")
     verify_app_icon(app, info, repository)
     resource_bundle = resources / "Riftlet_RiftletAdapters.bundle"
     require(resource_bundle.is_dir(), "missing_adapter_bundle")
@@ -238,6 +243,12 @@ def verify_bundle(app, repository=None, channel="development"):
             require(info == isolated_product_acceptance_plist(plistlib.loads(source_plist)), "plist_differs_from_source")
         else:
             require((contents / "Info.plist").read_bytes() == source_plist, "plist_differs_from_source")
+            source_localized = {p.parent.name: p for p in (repository / "Resources").glob("*.lproj/InfoPlist.strings")}
+            require(set(localized_usage) == set(source_localized), "permission_localizations_differ_from_source")
+            for language, source in source_localized.items():
+                require(read_nonempty(localized_usage[language], "empty_permission_localization") ==
+                        read_nonempty(source, "missing_source_permission_localization"),
+                        "permission_localization_differs_from_source_" + language)
         presentation = repository / "Resources/Presentation"
         if presentation.is_dir():
             for name in PRESENTATION_NAMES:

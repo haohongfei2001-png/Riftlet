@@ -17,9 +17,9 @@ private extension ScreenshotMode {
 
     var trayName: String {
         switch self {
-        case .window: return "窗口截图"
-        case .region: return "区域截图"
-        case .fullScreen: return "全屏截图"
+        case .window: return ProductCopy.text("窗口截图", "Window Screenshot")
+        case .region: return ProductCopy.text("区域截图", "Region Screenshot")
+        case .fullScreen: return ProductCopy.text("全屏截图", "Full Screen Screenshot")
         }
     }
 }
@@ -344,7 +344,7 @@ final class RiftTraySurfaceView: NSView {
             addSubview(button)
         }
         setAccessibilityRole(.group)
-        setAccessibilityLabel("截图托盘")
+        setAccessibilityLabel(ProductCopy.text("截图托盘", "Screenshot Tray"))
     }
     required init?(coder: NSCoder) { nil }
 
@@ -375,10 +375,12 @@ final class RiftTraySurfaceView: NSView {
 
     private func assignDefaultKey(reduceMotion: Bool) {
         if let sessionID {
-            captureKey.assign(.cancel(sessionID), title: "取消当前截图", symbol: defaultMode.traySymbol)
+            captureKey.identifier = .init("tray.capture.cancel")
+            captureKey.assign(.cancel(sessionID), title: ProductCopy.text("取消当前截图", "Cancel Current Capture"), symbol: defaultMode.traySymbol)
             captureKey.showCancelCover(reduceMotion: reduceMotion)
         } else {
-            captureKey.assign(.capture(defaultMode), title: "默认截图，" + defaultMode.trayName, symbol: defaultMode.traySymbol)
+            captureKey.identifier = .init("tray.capture.default")
+            captureKey.assign(.capture(defaultMode), title: ProductCopy.text("默认截图，", "Default Capture, ") + defaultMode.trayName, symbol: defaultMode.traySymbol)
         }
     }
 
@@ -398,8 +400,9 @@ final class RiftTraySurfaceView: NSView {
             assignDefaultKey(reduceMotion: reduceMotion)
             for (i, button) in favorites.enumerated() {
                 let mode = favoriteModes.indices.contains(i) ? favoriteModes[i] : nil
+                button.identifier = .init("tray.capture.favorite." + String(i + 1))
                 button.assign(mode.map(TrayAction.capture) ?? .unassigned,
-                              title: "常用截图 \(i + 1)，" + (mode?.trayName ?? "未设置"), symbol: mode?.traySymbol ?? "minus")
+                              title: ProductCopy.text("常用截图 \(i + 1)，", "Favorite \(i + 1), ") + (mode?.trayName ?? ProductCopy.text("未设置", "Not Set")), symbol: mode?.traySymbol ?? "minus")
             }
             let order = favorites + [captureKey]
             for (i, button) in order.enumerated() {
@@ -417,7 +420,8 @@ final class RiftTraySurfaceView: NSView {
             for button in favorites + [captureKey] { button.hide() }
             return
         }
-        captureKey.assign(.expand, title: "展开截图方式", symbol: "camera")
+        captureKey.identifier = .init("tray.capture.expand")
+        captureKey.assign(.expand, title: ProductCopy.text("展开截图方式", "Show Capture Modes"), symbol: "camera")
         let source = wasOpen || captureKey.screenFrame != slot ? oldCapture : nil
         captureKey.move(to: slot, in: surface, from: source, reduceMotion: reduceMotion)
         for button in favorites {

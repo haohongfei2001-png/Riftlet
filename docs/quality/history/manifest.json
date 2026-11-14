@@ -1,0 +1,32 @@
+[
+  {
+    "originalPath": "AGENTS.md",
+    "baseline": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",
+    "archivePath": "docs/quality/history/AGENTS.before-20261114.md",
+    "sha256": "e072cbf50e452f854249314efd481305126424c560cde521a083560a41058d6e"
+  },
+  {
+    "originalPath": "docs/MAINLINE_GOVERNANCE.md",
+    "baseline": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",
+    "archivePath": "docs/quality/history/docs_MAINLINE_GOVERNANCE.before-20261114.md",
+    "sha256": "6d5d440e3f462c39ba56a85c399ca0793d5fe16e687831f21dd0bec7e7112fc3"
+  },
+  {
+    "originalPath": "docs/PRODUCT.md",
+    "baseline": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",
+    "archivePath": "docs/quality/history/docs_PRODUCT.before-20261114.md",
+    "sha256": "4051c2522daecce83c11d25d5983934cfed609b3de674a0d53d5c714d2f2ee4c"
+  },
+  {
+    "originalPath": "docs/DECISIONS.md",
+    "baseline": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",
+    "archivePath": "docs/quality/history/docs_DECISIONS.before-20261114.md",
+    "sha256": "5d2346573b50b6453b65bc4c254b385437093290e1ecb8ea6ae1ffde04e46d8e"
+  },
+  {
+    "originalPath": "docs/EXECUTION_BOARD.md",
+    "baseline": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",
+    "archivePath": "docs/quality/history/docs_EXECUTION_BOARD.before-20261114.md",
+    "sha256": "a765ace4dc75433841b1bf4a2389d3f6673dbca7dd22f1b7d719a674cdc6fe6b"
+  }
+]

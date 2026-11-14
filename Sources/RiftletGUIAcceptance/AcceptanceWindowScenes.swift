@@ -1,10 +1,11 @@
 import AppKit
 import RiftletCore
+import RiftletLegacySettingsFixtures
 import RiftletUI
 import RiftletFeedback
 import RiftletFeedbackUI
 
-/// Existing product windows over helper-only data. The helper has no queue
+/// Historical settings/motion fixtures and shared native windows over helper-only data. The helper has no queue
 /// store, capture service, browser or network-capable feedback transport.
 @MainActor
 final class AcceptanceWindowScenes {
@@ -280,6 +281,7 @@ final class AcceptanceWindowScenes {
         }
         record("visual_window_shown", ["name": name, "syntheticOnly": true, "networkEnabled": false,
             "fixtureLayerIsolation": true,
+            "surfaceSource": ["setup", "settings", "motion"].contains(name) ? "historicalSettingsFixture" : "sharedNativeWindow",
             "windows": windows.map { window in
                 ["number": window.windowNumber, "x": window.frame.minX, "y": window.frame.minY,
                  "width": window.frame.width, "height": window.frame.height,

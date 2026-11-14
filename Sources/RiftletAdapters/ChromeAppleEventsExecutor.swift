@@ -18,30 +18,30 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
     }
 
     private nonisolated static func host(trace: ChromeBridgeTrace, requestID: String,
-        readBudget: MainWorldReceiptReadBudget? = nil) -> ChromeApplicationHost {
+        clickDeadline: ChromeClickDeadline? = nil) -> ChromeApplicationHost {
         ChromeApplicationHost(foreground: ChromeApplicationHost.currentForeground, selected: { pid in
-            try ChromePIDEvents(pid: pid, trace: trace, requestID: requestID, selectionBudget: readBudget).activeIdentity(check: "click_selection")
+            try ChromePIDEvents(pid: pid, trace: trace, requestID: requestID, clickDeadline: clickDeadline).activeIdentity(check: "click_selection")
         }, address: { pid, window, tab in
-            try ChromePIDEvents(pid: pid, trace: trace, requestID: requestID, selectionBudget: readBudget).url(window: window, tab: tab)
+            try ChromePIDEvents(pid: pid, trace: trace, requestID: requestID, clickDeadline: clickDeadline).url(window: window, tab: tab)
         })
     }
 
     /// Freeze the native address and the document's original composer before
     /// returning from the press. The subsequent task may only resolve that pin.
     public func targetForClick(program: WebPageProgram) throws -> Task<TargetLease, Error> {
+        let clickDeadline = ChromeClickDeadline()
         let requestID = UUID().uuidString
-        let budget = MainWorldReceiptReadBudget.clickSnapshot()
-        let host = Self.host(trace: trace, requestID: requestID, readBudget: budget)
+        let host = Self.host(trace: trace, requestID: requestID, clickDeadline: clickDeadline)
         let frozen = try host.freeze()
         let identity = frozen.process, route = frozen.route
         let witness = ChromeClickDocumentWitness()
-        let bridge = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: requestID)
+        let bridge = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: requestID,
+            clickDeadline: clickDeadline)
         let script = try witness.bindScript(address: route.address, program: program)
-        guard try bridge.execute(script, window: route.window, tab: route.tab,
-            receiptBudget: budget) == "bound"
+        guard try bridge.execute(script, window: route.window, tab: route.tab) == "bound"
         else { throw WebAdapterError.invalidTarget }
         try host.revalidate(frozen)
-        try budget.checkReturn()
+        try clickDeadline.checkReturn()
         let relays = self.relays, trace = self.trace
         return Task { [weak self] in
             try Task.checkCancellation()
@@ -267,9 +267,28 @@ private final class ChromeBridgeTrace: @unchecked Sendable {
     }
 }
 
+/// Mouse-down fixes the URL as well as the window and tab, since Chrome can
+/// navigate to another draft in the same tab. All of these read-only Apple
+/// Events, including the compatibility path, share one short deadline.
+struct ChromeClickDeadline {
+    private let end: TimeInterval
+    init(start: TimeInterval = ProcessInfo.processInfo.systemUptime) { end = start + 0.15 }
+
+    func timeout(at now: TimeInterval = ProcessInfo.processInfo.systemUptime) throws -> TimeInterval {
+        let remaining = end - now
+        // Never pass a zero or sub-tick timeout to the Apple Event Manager.
+        guard remaining >= 1.0 / 60.0 else { throw WebAdapterError.nativeEventFailed(-1712) }
+        return remaining
+    }
+
+    func checkReturn(at now: TimeInterval = ProcessInfo.processInfo.systemUptime) throws {
+        guard now < end else { throw WebAdapterError.nativeEventFailed(-1712) }
+    }
+}
+
 /// Codes come from Chrome's installed scripting.sdef (Standard/Chromium suites),
-/// not undocumented browser internals. Synchronous click reads share one deadline.
-/// Other submissions use five seconds per event; receipt reads use their command
+/// not undocumented browser internals. Mouse-down reads use the common click
+/// deadline. Background submissions use five seconds; receipts use their command
 /// budget (eight seconds for attachment discovery, one for other commands).
 /// This never activates or sends a ChatGPT message. The URL setter
 /// receives only a void JavaScript expression, not a navigation URL.
@@ -277,7 +296,7 @@ private struct ChromePIDEvents {
     let pid: pid_t
     let trace: ChromeBridgeTrace
     let requestID: String
-    var selectionBudget: MainWorldReceiptReadBudget? = nil
+    var clickDeadline: ChromeClickDeadline? = nil
     private func code(_ text: String) -> UInt32 { text.utf8.reduce(0) { ($0 << 8) | UInt32($1) } }
 
     private func object(_ kind: String, form: String, key: NSAppleEventDescriptor,
@@ -303,10 +322,8 @@ private struct ChromePIDEvents {
         request.setParam(direct, forKeyword: code("----"))
         if let javascript { request.setParam(.init(string: javascript), forKeyword: code("JvSc")) }
         if let value { request.setParam(.init(string: value), forKeyword: code("data")) }
-        let timeout: TimeInterval
-        if let receiptBudget {
-            timeout = try receiptBudget.timeout(at: ProcessInfo.processInfo.systemUptime)
-        } else { timeout = 5 }
+        var timeout = try receiptBudget?.timeout(at: ProcessInfo.processInfo.systemUptime) ?? 5
+        if let clickDeadline { timeout = min(timeout, try clickDeadline.timeout()) }
         let reply: NSAppleEventDescriptor
         do { reply = try request.sendEvent(options: [.waitForReply], timeout: timeout) }
         catch {
@@ -318,6 +335,9 @@ private struct ChromePIDEvents {
                   let status = Int32(exactly: native.code) else { throw WebAdapterError.nativeExecutionFailed }
             throw WebAdapterError.nativeEventFailed(status)
         }
+        // A successful reply after the original press budget is not a valid
+        // click snapshot. Never admit it to a later asynchronous capture.
+        try clickDeadline?.checkReturn()
         if let error = reply.paramDescriptor(forKeyword: code("errn")), error.int32Value != 0 {
             throw WebAdapterError.nativeEventFailed(error.int32Value)
         }
@@ -329,7 +349,7 @@ private struct ChromePIDEvents {
     }
 
     private func get(_ object: NSAppleEventDescriptor) throws -> NSAppleEventDescriptor {
-        try send("core", "getd", direct: object, receiptBudget: selectionBudget)
+        try send("core", "getd", direct: object)
     }
 
     private func identifier(_ object: NSAppleEventDescriptor) throws -> String {
@@ -371,7 +391,7 @@ private struct ChromePIDEvents {
     }
 
     func execute(_ source: String, window: String, tab: String,
-                 receiptBudget: MainWorldReceiptReadBudget) throws -> String {
+                 receiptBudget: MainWorldReceiptReadBudget? = nil) throws -> String {
         let windowObject = try object("cwin", form: "ID  ", key: .init(string: window))
         let tabObject = try object("CrTb", form: "ID  ", key: .init(string: tab), container: windowObject)
         guard let result = try send("CrSu", "ExJa", direct: tabObject, javascript: source,

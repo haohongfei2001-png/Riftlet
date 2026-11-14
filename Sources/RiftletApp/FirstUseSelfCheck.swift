@@ -50,7 +50,7 @@ enum FirstUseSelfCheck {
         }
         let presentation = SetupPresentation(snapshot: .init(source: .notChecked, collection: .paused,
             isHidden: true, pendingCount: 1, attachment: .productionDisabled, permission: .denied,
-            supportDescription: ProductStatus.supportDescription))
+            supportDescription: ProductStatus.supportDescription), copy: .simplifiedChinese)
         guard !presentation.canRequestPermission, presentation.permissionText == nil,
               presentation.pendingText?.contains("待核实") == true,
               presentation.riftText.contains("隐藏"), presentation.collectionText.contains("暂停"),

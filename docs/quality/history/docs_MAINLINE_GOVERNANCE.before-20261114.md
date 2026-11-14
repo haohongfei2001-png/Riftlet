@@ -1,0 +1,242 @@
+# Current application — retained native selection repair, 2026-11-03
+
+The user's new P1 repair explicitly separates an idle picker retaining its
+previous File from an executing input. A one-use reservation may qualify a
+settled original selection only with original normal call return, one input,
+verified original bytes, correlated START and intact original attachment/draft.
+Hot update may re-verify the current immutable File's bytes read-only when the
+old observer released its payload; pending qualification grants no input token.
+All facts and the exact current native selection are rechecked before input.
+No prior File is replayed or cleared, no old UNKNOWN is rewritten, no timeout
+releases uncertain execution, and no START/completion/retry profile changes.
+The existing G/H protocol and five formal checks remain unchanged. Source and
+controlled application results do not claim current-user ChatGPT acceptance.
+
+# Previous application — legacy UNKNOWN input resource, 2026-11-03
+
+The current user authorizes the current-resource path for the next explicit
+click, independently of the older attachment journal. A one-use B-bound native
+empty-picker reservation and atomic final recheck may grant input without
+rewriting A's START/UNKNOWN or requiring A's later-version request fields.
+Current pending page commits remain exclusive; native call execution and final
+attachment state are stored separately. Existing request-owned continuation
+remains available. This is implementation authorization, not current ChatGPT
+acceptance: archived append evidence, controlled tests and unavailable real
+page acceptance retain their separate scopes. The unchanged G/H protocol below
+still governs this same Draft PR; no main merge or public release is requested.
+
+# Current application — independent attachment lifecycle, 2026-11-03
+
+The current user authorizes a short development PR fixing independent screenshot
+lifecycles and same-draft continuation. The source now enables narrowly typed
+browser input continuation for new ordinary product operations: the original
+File must have been consumed by its sole observed request before START, change
+must have returned, and the operation must own its attachment. These are local
+browser identities, not invented platform/server task IDs. The source policy's
+`webContinuation` is therefore true; safe retry remains false. Existing unknown
+operations are not promoted or replayed. Missing input isolation produces an
+immediate pre-input refusal instead of parking the queue until selection expiry.
+Source review/CI does not establish current ChatGPT persisted-thread acceptance.
+The user requests a reviewed merge candidate; this does not authorize a public
+release or direct main push. The unchanged G/H and actual-merge checks below apply.
+
+# Previous application — unified product implementation, 2026-11-02
+
+The user's unified-product development instruction authorizes implementation of
+the ordinary entry point from main `a4463cddd3bce637dbe0a33c90713bc42370ed8f`.
+The current source policy therefore records actual compiled capabilities:
+ordinary input/start/completion and the explicitly typed built-in PNG source are
+enabled in this development source. This is not a release decision or proof that
+an inaccessible real ChatGPT page has passed acceptance. Input still requires
+original dispatch registration, source/file checks and the original pinned
+target; start and completion still require their separate exact observations.
+Legacy input-only registrations are not promoted. Safe retry after external
+input and Web continuation remain disabled until their missing platform facts
+can be produced and independently verified.
+
+The six `productionAdmission` fields in the source record must match the actual
+compiled implementation; they are not substitutes for a real-platform release
+review. The new G, its full source/policy delta, and H require the same non-author
+review and actual-merge CI below. Historical reports and admission records remain
+attached to their old source. No main merge or public release is authorized by
+this implementation work. See the exact implementation/evidence boundaries in
+`engineering/evidence/2026-11-02-unified-product/README.md`.
+
+# Previous application of this protocol — R2.1 and UI freeze
+
+On 2026-10-31 the user authorized final R2.1 integration from actual main
+`749f3ae81b8a75a9462506bfeb3d3cf2796ed154`, using the unchanged protocol below.
+The earlier migration's PR #24 exclusion is now superseded for this completed
+handoff. The four UI files and necessary regressions/native fixtures are reviewed
+as one combined increment; old baselines do not replace current main. Follow
+[R2.1 integration and final device acceptance](R21_UI_FREEZE_AND_MAC_ACCEPTANCE.md).
+After its successful standard merge, functional visual iteration in this phase
+is frozen except for blocking acceptance defects or new explicit user direction.
+Production boundaries, immutable history/site objects, independent review and
+all actual-merge/main-push checks below remain mandatory. The checked-in main
+protection request is still not evidence of remote enforcement.
+
+# Riftlet mainline governance
+
+## Official source and scope
+
+The user authorized PR #1's standard merge into `main` on 2026-10-31. The actual
+merge is `58f894af0f5d9bb0250c1e41750528232696b60c`, with ordered parents
+`fccd809e9d55e0b221e75e6dcd7c21f6d357ee74` and
+`253ac8db92bfba9083d485b71b84c594223da217`. Its tree is
+`d7a16bf0d5550c3d54972d6fd4ac7c74133167eb`, identical to the previously reviewed,
+tested and packaged PR merge `a589d1bddcb387fd45e71522265a811d4caacdc3`.
+
+`main` is the official product source. The old long-lived PR #1 branch is retained
+as history, not a second official baseline. Use short-lived PR branches from the
+actual latest main; preserve both parents with standard merge commits. No squash,
+rebase, force push, direct source push to main, or review bypass is authorized by
+this governance work. Independent engineering review is not a GitHub human
+APPROVED review; identify which evidence actually exists.
+
+The original governance change only governed Git and CI. It did not change any runtime product file,
+upload profile, user data, screenshot, UNKNOWN record, or Feedback service.
+At that checkpoint, ordinary production input/start/completion, built-in screenshot upload, safe-retry
+and Web continuation remained closed. Existing restricted candidate scope stays
+unchanged. Native builds remain development/ad-hoc CI artifacts, not a public
+release, notarized installer or real-device acceptance.
+
+## Evidence-preserving source admission
+
+`scripts/verify-final-product-composition.py` and the inherited historical gates
+remain byte-for-byte unchanged. The new `scripts/verify-mainline-composition.py`
+executes the old final gate's fixed blob at both the original PR #1 source and the
+actual mainline foundation. Historical results remain attached to those sources.
+The old gate deliberately still rejects later mainline source; do not edit it to
+make a newer tree pass.
+
+The successor gate freezes the foundation identity, tree and ordered parents,
+all 34 approved website/configuration objects, all existing `engineering/evidence/`
+and `research/` objects, and eight historical gate files. It also preserves evidence
+already present in the reviewed main base, so evidence added in one accepted PR
+cannot be rewritten by the next. New evidence may be added in an explicitly
+reviewed source checkpoint; correct an old result in a new record instead of
+rewriting the original result. Website changes require their own explicit policy
+review, not an automatic allowance based on the current contents of main.
+
+Each formal PR uses the following sequence:
+
+1. Read the actual current main commit **B**, start a short-lived branch from it,
+   and make the necessary source/test/documentation changes. Do not overwrite
+   another developer's branch. Resolve integration before review.
+2. Commit a complete source checkpoint **G**. The existing regular file
+   `engineering/mainline/source-admission.json` must already be present. Its old or
+   pending contents do not admit the new source. No source SHA is trusted merely
+   because it is HEAD or because a build passed.
+3. Have a non-author reviewer inspect G, the combined changes from B, relevant
+   evidence and tests. Preserve the exact report as UTF-8 JSON. Reports must
+   identify `reviewedSource`, `reviewedTree`, `reviewer`, and `result: "PASS"`.
+4. Create **H**, a direct single-parent child of G that changes only the admission
+   JSON. Record exact B/G/tree, the source author role, distinct reviewer roles,
+   complete raw JSON report strings and their SHA-256 hashes. Preserve every
+   production boundary field. Missing, stale, duplicate, malformed, oversized or
+   mismatched review records fail closed. No policy/source CLI override exists.
+5. Run the formal Native and Feedback workflows on the actual GitHub PR merge.
+   The ordered parents must be exactly `[B, H]`; the complete merge tree and
+   admission blob must equal H. Every other file/object/mode must equal G.
+   The Actions event's repository, SHA, PR ref, base and head must agree with the
+   actual commit graph. Actual checkout bytes/modes and unexpected inputs are
+   checked directly, independent of Git ignore rules or index flags. Only Git
+   metadata and `test-results/` / `feedback-results/` report roots are omitted from the untracked
+   inventory. This is the pre-build source job, not a claim that a later test
+   cannot write files in its separate execution runner. `.swiftpm` configuration
+   and build directories are not exempt; use a clean source-job checkout.
+6. Inspect the actual checks and artifacts, complete independent review of the
+   admission-only delta, then perform a standard merge. If main advanced, integrate
+   its current state into a new G and repeat exact review/admission; do not reuse
+   a stale B. A source fix after review also requires a new G and reviewed record.
+7. Verify the real main merge and its push CI. The push must identify the same
+   ordered parents, `before == B`, and `after == checkout`. Single-parent direct
+   main pushes, forced/deleted main updates and additional parents are rejected
+   by source CI. These checks detect invalid changes; branch protection is needed
+   to prevent such pushes from reaching the remote ref in the first place.
+
+The JSON and verifier live in the repository. Their matching hashes establish
+exact source agreement and record consistency, not cryptographic reviewer
+identity. An author could otherwise edit both policy and claims. Independent
+review of workflow/policy changes and remotely enforced PR protection are the
+external trust boundary. Never describe this source check alone as protection
+against an administrator or writer replacing the workflow itself.
+
+## Long-term CI
+
+Both existing workflows run on every main push and every main-target PR without
+path filters, including documentation-only changes. Existing specialist push
+patterns are retained. PR #24 and other active branches are not edited or
+retargeted by this migration. Existing specialist-only step conditions remain
+at their original scope.
+
+| Required check name | Execution |
+|---|---|
+| Native source admission | New exact mainline audit, old pinned audits, existing isolation suites and new rejection fixtures |
+| Native ARM64 | Existing complete Native pipeline on `macos-15` |
+| Native Intel | Existing complete Native pipeline on `macos-15-intel` |
+| Feedback source admission | Same mainline and historical source audit |
+| Feedback native and service | Existing native/UI, service faults, repeated Close regressions and offline demo |
+
+Both Native architectures still execute the complete Swift suite, packaging,
+binary policy checks, native visual/R2 evidence and existing archived evidence
+fixtures. Feedback service tests remain offline/synthetic, not native cloud E2E.
+The workflows use fixed action commits, `contents: read`, no persisted checkout
+credentials, and the actual PR merge checkout; no `pull_request_target`, secret
+access, new skip, `continue-on-error` or test-count shortcut is introduced.
+
+Local source inspection is `python3 -B scripts/verify-mainline-composition.py H`.
+Formal jobs add `--github-event`; a missing event fails instead of silently
+falling back to local mode. The in-process custom policy seam is only for
+disposable Git fixtures in `Tests/MainlineIsolation`, not a CLI approval route.
+
+## Remote main protection
+
+`engineering/mainline/branch-protection.request.json` is the concrete desired
+GitHub REST request body, **not evidence that protection has been applied**.
+It requires the five unique check names from GitHub Actions app ID 15368, a
+current base, one real non-author approving GitHub review, stale-review dismissal,
+latest-push approval, conversation resolution and administrator enforcement.
+Force pushes/deletion are disabled; linear-history enforcement is false so
+standard two-parent merges remain possible. There is no bypass allowlist.
+
+During migration the branch endpoint reported `protected: false`, no repository
+rulesets were listed, and the protection endpoint returned HTTP 403
+`Resource not accessible by integration`. The connected GitHub App does not
+provide Administration access. Repository owner metadata is not that permission.
+The missing capability is **repository Administration: write** (and a supported
+configuration surface). The final delivery records whether this subsequently
+changed. Do not claim remote enforcement from the checked-in JSON.
+
+With authorized admin access, apply this body to the main branch protection
+endpoint and read the result back. Before applying, verify the five check names
+and GitHub Actions app ID against the actual completed governance runs and
+ensure a real eligible non-author GitHub reviewer can approve future PRs.
+Do not fabricate a second identity, self-approve an author's PR, dismiss a
+blocking review or temporarily disable protection to merge.
+
+## Active specialist work and final device acceptance
+
+PR #23 is already an ancestor of the formal source; do not merge it again.
+PR #24 remains an independent Draft R2.1 development task and is not admitted by
+this migration. Preserve its branch and work. Once its owner reaches a handoff,
+integrate the then-current main into a new reviewed checkpoint using the protocol
+above, inspect all overlap, then target main deliberately. Historical research
+branches do not all need to be merged.
+
+The last product verification remains the exact R2 final delivery: Native
+41182699411, Feedback 41182699399, source253/checkouta589 and the two original ZIP
+hashes. Governance PR and main runs produce their own manifests and artifacts;
+use their actual `sourceHeadSHA`, `checkoutSHA`, tree, run ID, architecture and
+binary/ZIP hashes. Runtime source equality is not a claim of binary byte equality
+or a newly completed physical test.
+
+Outstanding acceptance is unchanged: final ordinary App startup/second instance/
+exit/crash recovery; actual system capture and pointer/target preservation;
+existing-chat and Home/local focused/unfocused first-click flow; original
+selection-preservation failure; multi-monitor/Spaces/VoiceOver; native Feedback
+to independently verified cloud delivery. Use only new isolated operations,
+preserve old UNKNOWN/media/data, and defer only the exact physical action or new
+permission that is unavailable. Do not open production admission to complete
+Git governance. The original final PR #1 checklist remains the starting point.
