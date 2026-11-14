@@ -424,7 +424,7 @@ final class BuiltInScreenshotHostTests: XCTestCase {
         capture.submitSelection(target)
         await fulfillment(of: [countdown], timeout: 2)
         let confirmed = try XCTUnwrap(capture.presentationSnapshot)
-        let favorite = try XCTUnwrap(buttons.first { $0.accessibilityLabel()?.contains("窗口截图") == true })
+        let favorite = try XCTUnwrap(buttons.first { $0.accessibilityLabel()?.contains(ProductCopy.text("窗口截图", "Window Screenshot")) == true })
         favorite.performClick(nil)
         XCTAssertEqual(capture.presentationSnapshot?.requestID, confirmed.requestID)
         XCTAssertEqual(capture.currentMode, .window)
