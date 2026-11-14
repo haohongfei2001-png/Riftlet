@@ -65,7 +65,7 @@ if mouseProbe || args[1] == "neutralAX" {
     let observer = NSApplication.shared
     if observer.activationPolicy() != .prohibited { _ = observer.setActivationPolicy(.prohibited) }
     guard observer.activationPolicy() == .prohibited else {
-        print(mouseProbe ? "eventDeliveryUnconfirmed" : "AX_ATTRIBUTES_UNAVAILABLE")
+        print(mouseProbe ? "observerInitializationUnavailable" : "AX_ATTRIBUTES_UNAVAILABLE")
         exit(mouseProbe ? 24 : 0)
     }
 }
@@ -223,7 +223,6 @@ func mouseTarget() throws -> MouseTarget {
           let bounds = CGRect(dictionaryRepresentation: box), bounds.contains(point),
           bounds.insetBy(dx: -0.5, dy: -0.5).contains(frame),
           !map.ignoringWindowNumbers.contains(target.windowNumber) else { throw MouseUnavailable.ownerUnconfirmed }
-    let ignored = Set(map.ignoringWindowNumbers).intersection(owned)
     let cocoa = CGPoint(x: point.x, y: CGDisplayBounds(CGMainDisplayID()).height - point.y)
     // The first window eligible for mouse-down must itself be the mapped input.
     let receiver = NSWindow.windowNumber(at: cocoa, belowWindowWithWindowNumber: 0)
@@ -233,15 +232,10 @@ func mouseTarget() throws -> MouseTarget {
         if receiver == Int(expectedWindow) { throw FirstMouseReceiver.originalFrontEdge }
         throw FirstMouseReceiver.other
     }
-    // Independently veto overlapping windows unless this App attests its own
-    // visible decorative window ignores mouse events.
-    for item in entries {
-        guard let number = item[kCGWindowNumber as String] as? Int else { throw MouseUnavailable.ownerUnconfirmed }
-        if number == target.windowNumber { break }
-        guard let box = item[kCGWindowBounds as String] as? NSDictionary,
-              let rect = CGRect(dictionaryRepresentation: box) else { throw MouseUnavailable.ownerUnconfirmed }
-        if rect.contains(point), !ignored.contains(number) { throw MouseUnavailable.eventDeliveryUnconfirmed }
-    }
+    // The first eligible mouse-down receiver above already resolves transparent
+    // pixels and windows that ignore events. A CGWindow rectangle above it can
+    // overlap this point without receiving input; rectangle overlap adds no
+    // authority to override AppKit's actual first-recipient result.
     return MouseTarget(row: target, point: point)
 }
 

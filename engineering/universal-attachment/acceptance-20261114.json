@@ -507,6 +507,140 @@
             "EDGE_AUTOMATION_OSSTATUS_-1744"
           ]
         }
+      },
+      {
+        "reviewedSource": "7360bac8c69e8f2200ff445732b703f225a059c5",
+        "reviewedSourceTree": "24cbd09823878e2ae761bc0638d4344be275681a",
+        "admissionHead": "451e2b6be8598f04805bf747accad768ab6ac385",
+        "base": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",
+        "testedMerge": "81a09b7c565f2402c3bff3ca2c30f4f51083d928",
+        "nativeRun": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43552457406",
+        "arm64Job": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43552457406/job/132317752051",
+        "arm64JobConclusion": "success",
+        "artifact": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43552457406/artifacts/14097765269",
+        "artifactSHA256": "6a1474819fd684edf70d06caf78c13efec6626ff46b2fb1247135d9a0340dc50",
+        "ordinaryJSONSHA256": "d2e8216a38f78e25a1b71ff654507a7afc07e712551f63ccd291007b7cd3520e",
+        "ordinaryAppResult": {
+          "appWatcherReady": true,
+          "appleEventsTabIdentity": "NOT_MEASURED_IN_MOUSE_PROBE",
+          "build": "23",
+          "commercialService": "NOT_RUN",
+          "confirmedDistinctRefusals": 0,
+          "controlledEdgePicker": {
+            "commercialService": "NOT_RUN",
+            "expectedPNG_SHA256": "67357897cbd7b4677b2b74fd3476f9855fbfa123b48e2b7d371d7b9b28765165",
+            "receiverEvents": [],
+            "scope": "owned-loopback-edge-native-tab-and-ax-picker",
+            "status": "EDGE_AUTOMATION_OSSTATUS_-1744"
+          },
+          "edgeActivation": "ALREADY_FRONTMOST",
+          "edgeActivationExit": 0,
+          "edgeIdentityExit": 0,
+          "edgeIdentityObservation": "OWN_PID_BUNDLE_EXECUTABLE_AND_KERNEL_BIRTH_CONFIRMED",
+          "edgeLaunch": "OWN_NORMAL_TAB_CHILD_CREATED",
+          "generatedScreenshotFiles": 2,
+          "lastNativeAction": "window",
+          "lastNativeExit": 0,
+          "lastWindowObservation": "NEUTRAL_DOCUMENT_TITLE_NOT_VISIBLE",
+          "mouseDispatchCalls": 0,
+          "neutralAX": "document",
+          "osScreenshotMarkersVerified": 2,
+          "physicalClicks": false,
+          "pressAttempts": 0,
+          "productExecutableSHA256": "778b152cdc7fb81ef9efc86dc83211d58aa185a7e37ab3276178ca816c213363",
+          "result": "PARTIAL_NATIVE_THUMBNAIL_MOUSE_TARGET_UNVERIFIED",
+          "rounds": [
+            {
+              "action": "NOT_RUN",
+              "captureSequence": 1,
+              "preflight": "eventDeliveryUnconfirmed",
+              "rejection": "UNCONFIRMED",
+              "retained": "UNCONFIRMED"
+            }
+          ],
+          "scope": "ordinary-packaged-app-native-mouse-edge-loopback",
+          "stage": "original_mouse_thumbnail_1",
+          "systemRegionCaptureAttempts": 0,
+          "testedMerge": "81a09b7c565f2402c3bff3ca2c30f4f51083d928",
+          "version": "1.0.1",
+          "windowCapturesWithoutMarker": 0
+        },
+        "interpretation": "The first mouse target did not pass the external probe. Its recorded eventDeliveryUnconfirmed can originate from the prohibited-activation check or a rectangle-overlap veto after the first eligible mouse recipient was matched. No mouse down or second-row attempt occurred. The read-only AX draft probe separately returned document, and the controlled picker returned Automation -1744 before any input. The owned neutral receiver saw zero file traffic. External AppKit and two independent hidden WebKit uploads completed with original-draft and body receipts. Commercial trials remain NOT_RUN.",
+        "independentFixtureResults": {
+          "universal-external-ax.log": {
+            "externalAX": {
+              "appkit-file-list": {
+                "commercialService": "NOT_RUN",
+                "draftTextSelectionPriorPNGPreserved": true,
+                "observerStage": "confirmOriginalFile",
+                "originalDraftAcknowledged": true,
+                "receiverEvents": [
+                  "firstBodyByte",
+                  "expectedCompleteBody"
+                ],
+                "sha256": "b66e803d64b39903b44a26160923bb6ecb3f717dcf7900fe62afdb5fd1e4bac8",
+                "status": "VERIFIED_EXTERNAL_FIXTURE_HANDOFF",
+                "transport": "EdgeConversationPicker-controlled-AppKit"
+              },
+              "system-open-panel": {
+                "commercialService": "NOT_RUN",
+                "draftTextSelectionPriorPNGPreserved": false,
+                "observerStage": "systemSheetEntry",
+                "originalDraftAcknowledged": false,
+                "receiverEvents": [],
+                "sha256": null,
+                "status": "ENTRY_PRESSED_OWNED_SHEET_UNPROVEN",
+                "transport": "external-owned-system-sheet-probe"
+              }
+            },
+            "scope": "controlled-external-appkit"
+          },
+          "universal-native-picker.log": {
+            "arch": "arm64",
+            "axTrustedForProbeProcess": true,
+            "draftAcknowledgements": 2,
+            "duplicateHandoffsRefused": 2,
+            "editorUnfocused": true,
+            "filesReleased": 2,
+            "macOS": "15.8.2",
+            "openPanelCallbacks": 2,
+            "previousAttachmentsTextSelectionPreserved": true,
+            "priorPNGSHA256": "6a8b5aa1b92b7d78773491354e7bd702ac6503b8d9bed07cb402777bf2fc82e3",
+            "receiverEvents": [
+              "body-start-0",
+              "body-complete-0",
+              "body-start-1",
+              "body-complete-1"
+            ],
+            "sameBytesPathReplacementRefused": true,
+            "scope": "controlled-cooperating-WKWebView",
+            "sha256": [
+              "b66e803d64b39903b44a26160923bb6ecb3f717dcf7900fe62afdb5fd1e4bac8",
+              "91f31ca0451554dbfb9411e80591bab9318a9a2e3805b20efd28568594aba95b"
+            ],
+            "windowNeverOrdered": true
+          },
+          "universal-edge-engine.log": {
+            "acknowledgements": 2,
+            "correlatedRejections": 1,
+            "digests": [
+              "611033f4cc0aa9e3348e69eba089499bc6287d57b53832079e64f42564a4e876",
+              "c9b27a65dd17d8157b51d36d36b54305ec13cea89152ba0e24b5465eb3cbb0c7"
+            ],
+            "duplicateRequests": 0,
+            "lostReplies": 1,
+            "mode": "headless",
+            "scope": "local-fixture",
+            "verifiedBodies": 4
+          },
+          "universal-safari-events.log": [
+            "SAFARI_PREFLIGHT_OSSTATUS_-1744",
+            "neutralDocumentResponses 0 attachments 0"
+          ],
+          "universal-edge-events.log": [
+            "EDGE_AUTOMATION_OSSTATUS_-1744"
+          ]
+        }
       }
     ]
   },

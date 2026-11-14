@@ -671,7 +671,7 @@ def exercise(app, report):
                                 "foregroundChanged", "ambiguousAsset", "overlappingAssets",
                                 "invalidGeometry", "ownerUnconfirmed", "eventDeliveryUnconfirmed",
                                 "postPermissionUnavailable", "otherInputActive", "targetChangedBeforeDown",
-                                "eventAllocationFailed", "firstMouseReceiverMismatch"}:
+                                "eventAllocationFailed", "firstMouseReceiverMismatch", "observerInitializationUnavailable"}:
                             raise RuntimeError("unknown_mouse_probe_status")
                         round_result["preflight"] = state
                         return None
