@@ -79,7 +79,10 @@ public struct SettingsUpdaterPresentation: Equatable, Sendable {
         self.canCheck = canCheck; self.automaticChecks = automaticChecks
         self.availableVersion = availableVersion; self.failure = failure
     }
-    public var checkTitle: String { availableVersion.map { "查看更新 " + $0 + "…" } ?? "检查更新…" }
+    public var checkTitle: String {
+        guard let version = availableVersion else { return ProductCopy.text("检查更新…", "Check for Updates…") }
+        return ProductCopy.text("查看更新 \(version)…", "View Update \(version)…")
+    }
 }
 public struct SettingsAccessibility: Equatable, Sendable {
     public var reduceMotion = false

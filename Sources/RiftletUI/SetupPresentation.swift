@@ -15,8 +15,18 @@ public enum SetupStorageState: Equatable, Sendable {
 
 /// The menu belongs to Chrome. Its instructions never represent a permission observation.
 public enum ChromeAttachmentSetup {
-    public static let menuPath = "显示 → 开发者 → 允许 Apple 事件中的 JavaScript"
-    public static let instructions = "在 Chrome 菜单栏勾选“" + menuPath + "”。已获 Chrome 自动化权限的应用可执行网页脚本。"
+    public static var menuPath: String { menuPath(in: .current) }
+    public static var instructions: String { instructions(in: .current) }
+
+    static func menuPath(in copy: ProductCopy) -> String {
+        copy.text("显示 → 开发者 → 允许 Apple 事件中的 JavaScript", "View → Developer → Allow JavaScript from Apple Events")
+    }
+
+    static func instructions(in copy: ProductCopy) -> String {
+        let path = menuPath(in: copy)
+        return copy.text("在 Chrome 菜单栏勾选“\(path)”。已获 Chrome 自动化权限的应用可执行网页脚本。",
+                         "In Chrome, enable \(path). Apps allowed to control Chrome can then run scripts on webpages.")
+    }
 }
 
 /// Closed, local-only explanations. The presentation never displays an Error's
@@ -35,60 +45,87 @@ public enum SetupIssue: Equatable, Sendable {
         self == .unsupportedBrowser || self == .targetUnavailable || self == .chromeJavaScriptDisabled
     }
 
-    public var text: String {
+    public var text: String { text(in: .current) }
+
+    public func text(in copy: ProductCopy) -> String {
         switch self {
         case .attachmentSource:
-            return "这张图片来自不支持一键附加的来源。请在 ChatGPT 中手动选择原图。"
+            return copy.text("这张图片来自不支持一键附加的来源。请在 ChatGPT 中手动选择原图。",
+                             "Use the original file in ChatGPT to attach this type of image.")
         case .attachmentFormat:
-            return "截图已保存在本机。此 PNG 格式暂不支持一键附加，请在 ChatGPT 中手动选择原图。"
+            return copy.text("截图已保存在本机。此 PNG 格式暂不支持一键附加，请在 ChatGPT 中手动选择原图。",
+                             "This PNG format cannot be attached in one click. Select the original file in ChatGPT. Your screenshot is saved locally.")
         case .attachmentBytes:
-            return "截图已保存在本机。文件太大，无法一键附加。可以截取较小的区域，或在 ChatGPT 中手动选择原图。"
+            return copy.text("截图已保存在本机。文件太大，无法一键附加。可以截取较小的区域，或在 ChatGPT 中手动选择原图。",
+                             "This file is too large to attach in one click. Capture a smaller area or select the original file in ChatGPT.")
         case .attachmentPixels:
-            return "截图已保存在本机。图片尺寸过大，无法一键附加。可以截取较小的区域。"
+            return copy.text("截图已保存在本机。图片尺寸过大，无法一键附加。可以截取较小的区域。",
+                             "This image is too large to attach in one click. Try capturing a smaller area. Your screenshot is saved locally.")
         case .sourceAccess:
-            return "无法读取截图保存位置。请确认文件夹仍存在，在系统设置「隐私与安全性 → 文件与文件夹」中检查 Riftlet，或允许访问当前截图位置；原截图没有被删除。"
+            return copy.text("无法读取截图保存位置。请确认文件夹仍存在，在系统设置「隐私与安全性 → 文件与文件夹」中检查 Riftlet，或允许访问当前截图位置；原截图没有被删除。",
+                             "Check the screenshot folder and allow Riftlet to read it in System Settings → Privacy & Security → Files and Folders. Your original screenshots are safe.")
         case .sourceVolumeUnidentified:
-            return CaptureDiagnostic(code: .sourceVolumeUnidentified).userMessage
+            return copy.text(CaptureDiagnostic(code: .sourceVolumeUnidentified).userMessage,
+                             "Riftlet cannot identify the screenshot disk. In the Mac Screenshot app, choose another save location in Options, then check again.")
         case .fileVolumeUnidentified:
-            return CaptureDiagnostic(code: .fileVolumeUnidentified).userMessage
+            return copy.text(CaptureDiagnostic(code: .fileVolumeUnidentified).userMessage,
+                             "Riftlet could not identify the disk for this screenshot. The original is safe. Other new screenshots can still be collected.")
         case .historicalSourceUnconfirmed:
-            return CaptureDiagnostic(code: .historicalSourceUnconfirmed).userMessage
+            return copy.text(CaptureDiagnostic(code: .historicalSourceUnconfirmed).userMessage,
+                             "This screenshot may already be in your history. The original and its history are safe. Other new screenshots can still be collected.")
         case .wrongScreenshotFolder:
-            return "所选文件夹与当前系统截图位置不同。请确认当前系统截图位置，然后授权读取该文件夹。"
+            return copy.text("所选文件夹与当前系统截图位置不同。请确认当前系统截图位置，然后授权读取该文件夹。",
+                             "Choose the folder where your Mac saves screenshots.")
         case .screenshotFolderNeedsSelection:
-            return "此前选择的截图文件夹已无法确认。请重新选择下方的系统截图文件夹，确认后再继续收录。已有截图保留。"
+            return copy.text("此前选择的截图文件夹已无法确认。请重新选择下方的系统截图文件夹，确认后再继续收录。已有截图保留。",
+                             "Select your current screenshot folder again to resume collection. Existing screenshots are saved.")
         case .unsupportedFormat:
-            return "这张截图的格式暂不支持，未收录。原文件保留，可在下方查看当前支持的格式。"
+            return copy.text("这张截图的格式暂不支持，未收录。原文件保留，可在下方查看当前支持的格式。",
+                             "Riftlet could not import this image format. The original file is still available.")
         case .unsupportedSize:
-            return "这张截图超过当前文件或像素上限，未收录。原文件保留，其他符合要求的截图仍可收录。"
+            return copy.text("这张截图超过当前文件或像素上限，未收录。原文件保留，其他符合要求的截图仍可收录。",
+                             "This screenshot exceeds the file or image size limit. Other supported screenshots can still be collected.")
         case .invalidImage:
-            return "图片尚未完整写入或无法完整解码，暂未收录。原文件保留；可重新检查截图来源。"
+            return copy.text("图片尚未完整写入或无法完整解码，暂未收录。原文件保留；可重新检查截图来源。",
+                             "The file is incomplete or unreadable. Check the original screenshot and try checking the folder again.")
         case .insufficientSpace:
-            return "私有存储空间不足，新的截图暂不能安全保存。请释放磁盘空间后重新检查；已有记录与系统原图保留。"
+            return copy.text("私有存储空间不足，新的截图暂不能安全保存。请释放磁盘空间后重新检查；已有记录与系统原图保留。",
+                             "Free up disk space, then check again. Your existing history and original files are safe.")
         case .privateWriteFailed:
-            return "无法写入 Riftlet 私有存储。请检查磁盘和访问权限后重新检查；不要删除已有数据来恢复。"
+            return copy.text("无法写入 Riftlet 私有存储。请检查磁盘和访问权限后重新检查；不要删除已有数据来恢复。",
+                             "Riftlet could not save this screenshot. Check available disk space and file permissions, then try again.")
         case .storageUnavailable:
-            return "暂时无法检查私有存储，不能确认保存状态。已有记录与系统原图保留。"
+            return copy.text("暂时无法检查私有存储，不能确认保存状态。已有记录与系统原图保留。",
+                             "Riftlet could not check local storage. Existing history and original files are safe.")
         case .unsupportedBrowser:
-            return "请用 Google Chrome 打开要附加图片的 ChatGPT 草稿。截图仍在本机。"
+            return copy.text("请用 Google Chrome 打开要附加图片的 ChatGPT 草稿。截图仍在本机。",
+                             "Open the ChatGPT draft you want in Google Chrome. Your screenshot is saved locally.")
         case .targetUnavailable:
-            return "未能连接到可附加图片的聊天。请在 Chrome 前台显示要用的 ChatGPT 草稿，确认其中有添加附件的入口。截图仍在本机。"
+            return copy.text("未能连接到可附加图片的聊天。请在 Chrome 前台显示要用的 ChatGPT 草稿，确认其中有添加附件的入口。截图仍在本机。",
+                             "Bring your intended ChatGPT draft to the front in Chrome and check that attachments are available. The screenshot is still on your Mac.")
         case .permissionDenied:
-            return "Chrome 自动化访问被拒绝。请在系统设置的「隐私与安全性 → 自动化」中检查 Riftlet，再重新检查。"
+            return copy.text("Chrome 自动化访问被拒绝。请在系统设置的「隐私与安全性 → 自动化」中检查 Riftlet，再重新检查。",
+                             "Allow Riftlet to control Chrome in System Settings → Privacy & Security → Automation, then check again.")
         case .chromeJavaScriptDisabled:
-            return "Chrome 拒绝了这次附加，截图仍在本机。" + ChromeAttachmentSetup.instructions
+            return copy.text("Chrome 拒绝了这次附加，截图仍在本机。", "Chrome declined the attachment. The screenshot is saved on your Mac. ") + ChromeAttachmentSetup.instructions(in: copy)
         case .imageUnavailable:
-            return "这张截图的私有副本暂不可用。没有重新附加，也没有删除系统原图。"
+            return copy.text("这张截图的私有副本暂不可用。没有重新附加，也没有删除系统原图。",
+                             "The local copy is unavailable. The original screenshot is safe and Riftlet has not attached it again.")
         case .initializationFailed:
-            return "Riftlet 未能完成启动。已有数据保留；请检查磁盘与文件访问权限，再重新打开应用。"
+            return copy.text("Riftlet 未能完成启动。已有数据保留；请检查磁盘与文件访问权限，再重新打开应用。",
+                             "Check disk space and file permissions, then quit and reopen Riftlet. Your existing data has been kept.")
         case .configurationUnavailable:
-            return "未能打开设置。请退出并重新打开 Riftlet。"
+            return copy.text("未能打开设置。请退出并重新打开 Riftlet。",
+                             "Quit and reopen Riftlet to open Settings.")
         case .visibilityPreferenceUnsaved:
-            return "显示偏好未能保存；本次运行保持隐藏，重启可能恢复之前的设置。请检查磁盘可写后重新操作；图片仍保留。"
+            return copy.text("显示偏好未能保存；本次运行保持隐藏，重启可能恢复之前的设置。请检查磁盘可写后重新操作；图片仍保留。",
+                             "Desktop screenshots are hidden for now. Check that the disk is writable and try saving again to keep this choice after restart.")
         case .collectionPreferenceUnsaved:
-            return "收录开关未能保存；本次运行仍暂停收录，重启可能恢复之前的设置。请检查磁盘可写后重新操作；已有图片仍保留。"
+            return copy.text("收录开关未能保存；本次运行仍暂停收录，重启可能恢复之前的设置。请检查磁盘可写后重新操作；已有图片仍保留。",
+                             "Collection is paused for now. Check that the disk is writable and try saving again to keep this choice after restart. Your screenshots are safe.")
         case .screenshotPreferenceUnsaved:
-            return "内置截图设置未能保存；重启可能恢复之前的设置。请检查磁盘可写后重试；系统截图收录和已有图片仍保留。"
+            return copy.text("内置截图设置未能保存；重启可能恢复之前的设置。请检查磁盘可写后重试；系统截图收录和已有图片仍保留。",
+                             "The built-in capture preference could not be saved. Check disk access and try again. System screenshot collection and existing images are unaffected.")
         }
     }
 }

@@ -73,53 +73,53 @@ final class RiftControlCenterControllerTests: XCTestCase {
     }
 
     @MainActor func testFourStateProjectionPreservesFixedCaptureActionAndIndependentFacts() {
-        let normal = RiftControlCenterPresentation(fixture())
+        let normal = RiftControlCenterPresentation(fixture(), copy: .simplifiedChinese)
         XCTAssertEqual(normal.state, .collecting)
         XCTAssertEqual(normal.primaryTitle, "截图…")
-        let paused = RiftControlCenterPresentation(fixture(paused: true, hidden: true, collection: .paused))
+        let paused = RiftControlCenterPresentation(fixture(paused: true, hidden: true, collection: .paused), copy: .simplifiedChinese)
         XCTAssertEqual(paused.state, .paused)
         XCTAssertTrue(paused.detail.contains("也已隐藏"))
         XCTAssertEqual(paused.primaryTitle, "截图…")
         XCTAssertFalse(paused.primaryEnabled)
-        let hidden = RiftControlCenterPresentation(fixture(hidden: true))
+        let hidden = RiftControlCenterPresentation(fixture(hidden: true), copy: .simplifiedChinese)
         XCTAssertEqual(hidden.state, .hidden)
         XCTAssertTrue(hidden.detail.contains("仍在收录"))
-        let fault = RiftControlCenterPresentation(fixture(paused: true, hidden: true, source: .unavailable, collection: .paused))
+        let fault = RiftControlCenterPresentation(fixture(paused: true, hidden: true, source: .unavailable, collection: .paused), copy: .simplifiedChinese)
         XCTAssertEqual(fault.state, .attention)
         XCTAssertEqual(fault.recoveryPage, .capture)
     }
 
     @MainActor func testTransientAttachmentContextIsNotPersistentAttentionOrFalseRunning() {
         for issue in [SetupIssue.targetUnavailable, .unsupportedBrowser, .unsupportedFormat, .imageUnavailable] {
-            let projection = RiftControlCenterPresentation(fixture(issue: issue))
+            let projection = RiftControlCenterPresentation(fixture(issue: issue), copy: .simplifiedChinese)
             XCTAssertEqual(projection.state, .collecting)
             if issue == .targetUnavailable || issue == .unsupportedBrowser {
-                XCTAssertEqual(projection.detail, issue.text)
+                XCTAssertEqual(projection.detail, issue.text(in: .simplifiedChinese))
                 XCTAssertNil(projection.recoveryPage)
             }
         }
-        let stopped = RiftControlCenterPresentation(fixture(collection: .stopped))
+        let stopped = RiftControlCenterPresentation(fixture(collection: .stopped), copy: .simplifiedChinese)
         XCTAssertEqual(stopped.state, .stopped)
         XCTAssertFalse(stopped.title.contains("正在收录"))
-        let waiting = RiftControlCenterPresentation(fixture(hidden: true, source: .notChecked, collection: .waitingForSource))
+        let waiting = RiftControlCenterPresentation(fixture(hidden: true, source: .notChecked, collection: .waitingForSource), copy: .simplifiedChinese)
         XCTAssertFalse(waiting.detail.contains("仍在收录"))
     }
 
     @MainActor func testConnectionCheckRefusalLeadsToHelpWithoutPausingCollection() {
         var snapshot = fixture()
         snapshot.chromeConnection = .javaScriptDisabled
-        let failure = RiftControlCenterPresentation(snapshot)
+        let failure = RiftControlCenterPresentation(snapshot, copy: .simplifiedChinese)
         XCTAssertEqual(failure.state, .attention)
         XCTAssertEqual(failure.recoveryPage, .help)
-        XCTAssertTrue(failure.detail.contains(ChromeAttachmentSetup.menuPath))
+        XCTAssertTrue(failure.detail.contains("显示 → 开发者 → 允许 Apple 事件中的 JavaScript"))
         XCTAssertFalse(snapshot.state.owner.collectionPaused)
         snapshot.chromeConnection = .ready
-        XCTAssertEqual(RiftControlCenterPresentation(snapshot).state, .collecting)
+        XCTAssertEqual(RiftControlCenterPresentation(snapshot, copy: .simplifiedChinese).state, .collecting)
     }
 
     @MainActor func testLocalCollectionModesPointToHistoryWithoutInvitingChromeInput() {
         for mode in [SetupAttachmentState.productionDisabled, .offlineSimulation] {
-            let projection = RiftControlCenterPresentation(fixture(issue: .targetUnavailable, attachment: mode))
+            let projection = RiftControlCenterPresentation(fixture(issue: .targetUnavailable, attachment: mode), copy: .simplifiedChinese)
             XCTAssertEqual(projection.state, .collecting)
             XCTAssertTrue(projection.detail.contains("截图历史"))
             XCTAssertFalse(projection.detail.contains("Chrome"))
@@ -129,17 +129,27 @@ final class RiftControlCenterControllerTests: XCTestCase {
     @MainActor func testSaveIssueProjectsCompactRecoveryWithoutClaimingRollback() {
         var value = fixture(paused: true, hidden: true)
         value.appearance.unreadable = true
-        let projection = RiftControlCenterPresentation(value)
+        let projection = RiftControlCenterPresentation(value, copy: .simplifiedChinese)
         XCTAssertEqual(projection.state, .attention)
         XCTAssertEqual(projection.recoveryPage, .general)
         XCTAssertTrue(projection.title.contains("确认保存"))
         XCTAssertFalse(projection.detail.contains("回滚"))
     }
 
+    @MainActor func testEnglishControlCenterDistinguishesVisibilityFromCollectionAndKeepsRecoveryAction() {
+        let hidden = RiftControlCenterPresentation(fixture(hidden: true), copy: .english)
+        XCTAssertEqual(hidden.title, "Desktop Screenshots Hidden")
+        XCTAssertEqual(hidden.detail, "New screenshots are still being collected.")
+        let denied = RiftControlCenterPresentation(fixture(issue: .permissionDenied), copy: .english)
+        XCTAssertEqual(denied.recoveryPage, .help)
+        XCTAssertEqual(denied.recoveryTitle, "Check Chrome Connection")
+        XCTAssertEqual(denied.primaryTitle, "Take Screenshot…")
+    }
+
     @MainActor func testUnavailableSettingsOffersRecoveryOutsideTheFailedWindow() {
-        let projection = RiftControlCenterPresentation(fixture(issue: .configurationUnavailable))
+        let projection = RiftControlCenterPresentation(fixture(issue: .configurationUnavailable), copy: .simplifiedChinese)
         XCTAssertEqual(projection.state, .attention)
-        XCTAssertEqual(projection.detail, SetupIssue.configurationUnavailable.text)
+        XCTAssertEqual(projection.detail, SetupIssue.configurationUnavailable.text(in: .simplifiedChinese))
         XCTAssertTrue(projection.detail.contains("重新打开 Riftlet"))
         XCTAssertNil(projection.recoveryPage)
         XCTAssertNil(projection.recoveryTitle)
@@ -151,43 +161,43 @@ final class RiftControlCenterControllerTests: XCTestCase {
             adapter: SettingsPersistenceClosures { _ in .unconfirmed(nil, .writeUnconfirmed) })
         _ = await model.perform(.setCollectionPaused(true))
         value.state = model.snapshot
-        XCTAssertEqual(RiftControlCenterPresentation(value).recoveryPage, .capture)
+        XCTAssertEqual(RiftControlCenterPresentation(value, copy: .simplifiedChinese).recoveryPage, .capture)
         _ = await model.perform(.setEntryEnabled(false))
         value.state = model.snapshot
-        XCTAssertEqual(RiftControlCenterPresentation(value).recoveryPage, .capture)
+        XCTAssertEqual(RiftControlCenterPresentation(value, copy: .simplifiedChinese).recoveryPage, .capture)
         _ = await model.perform(.selectPlacement(.rightBottom))
         value.state = model.snapshot
-        XCTAssertEqual(RiftControlCenterPresentation(value).recoveryPage, .display)
+        XCTAssertEqual(RiftControlCenterPresentation(value, copy: .simplifiedChinese).recoveryPage, .display)
         XCTAssertEqual(Set(value.state.domains.compactMap { $0.value.saveFailure == nil ? nil : $0.key }),
                        [.collection, .entry, .placement], "Routing cannot clear another pending retry")
         for (issue, page): (SetupIssue, SettingsPage) in [(.screenshotPreferenceUnsaved, .capture),
                 (.collectionPreferenceUnsaved, .capture), (.visibilityPreferenceUnsaved, .capture)] {
-            XCTAssertEqual(RiftControlCenterPresentation(fixture(issue: issue)).recoveryPage, page)
+            XCTAssertEqual(RiftControlCenterPresentation(fixture(issue: issue), copy: .simplifiedChinese).recoveryPage, page)
         }
         var login = fixture()
         login.login.notConfirmed = true
-        XCTAssertEqual(RiftControlCenterPresentation(login).recoveryPage, .general)
+        XCTAssertEqual(RiftControlCenterPresentation(login, copy: .simplifiedChinese).recoveryPage, .general)
     }
 
     @MainActor func testCaptureHintRetainsDisabledEntryReasonWhenVisibilityAlsoBlocksCapture() {
         for hidden in [false, true] {
             for available in [false, true] {
                 let closed = RiftControlCenterPresentation(fixture(hidden: hidden,
-                    entryEnabled: false, entryAvailable: available))
+                    entryEnabled: false, entryAvailable: available), copy: .simplifiedChinese)
                 XCTAssertFalse(closed.primaryEnabled)
                 XCTAssertTrue(closed.captureHint?.contains("已关闭") == true)
                 XCTAssertFalse(closed.captureHint?.contains("显示桌面截图后，可以使用") == true)
             }
         }
-        let unavailable = RiftControlCenterPresentation(fixture(hidden: true, entryAvailable: false))
+        let unavailable = RiftControlCenterPresentation(fixture(hidden: true, entryAvailable: false), copy: .simplifiedChinese)
         XCTAssertTrue(unavailable.captureHint?.contains("当前不可用") == true)
-        let hidden = RiftControlCenterPresentation(fixture(hidden: true))
+        let hidden = RiftControlCenterPresentation(fixture(hidden: true), copy: .simplifiedChinese)
         XCTAssertTrue(hidden.captureHint?.contains("暂不可用") == true)
-        XCTAssertNil(RiftControlCenterPresentation(fixture()).captureHint)
+        XCTAssertNil(RiftControlCenterPresentation(fixture(), copy: .simplifiedChinese).captureHint)
     }
 
     @MainActor func testReviewStatusExplainsLocalExamplesWithoutPromisingAttachmentOrCapture() {
-        let value = RiftControlCenterPresentation(fixture(hidden: false, entryEnabled: false, review: true))
+        let value = RiftControlCenterPresentation(fixture(hidden: false, entryEnabled: false, review: true), copy: .simplifiedChinese)
         XCTAssertEqual(value.state, .collecting)
         XCTAssertEqual(value.primaryTitle, "截图…")
         XCTAssertFalse(value.primaryEnabled)
@@ -307,14 +317,14 @@ final class RiftControlCenterControllerTests: XCTestCase {
         }
         defer { controller.close() }
         controller.update(fixture())
-        let originalPause = try XCTUnwrap(controller.contextMenu.items.first { $0.title == "暂停收录" })
+        let originalPause = try XCTUnwrap(controller.contextMenu.items.first { $0.title == ProductCopy.text("暂停收录", "Pause Collection") })
         controller.update(fixture(revision: 2, paused: true, collection: .paused))
-        XCTAssertNotNil(controller.contextMenu.items.first { $0.title == "继续收录" })
+        XCTAssertNotNil(controller.contextMenu.items.first { $0.title == ProductCopy.text("继续收录", "Resume Collection") })
         XCTAssertTrue(NSApp.sendAction(try XCTUnwrap(originalPause.action), to: originalPause.target, from: originalPause))
         await assertReceived { values.count == 1 }
         XCTAssertEqual(values, [true], "An already displayed command must not invert a newer owner state")
-        XCTAssertNotNil(controller.contextMenu.items.first { $0.title == "定位最早截图" })
-        XCTAssertEqual(controller.contextMenu.items.first { $0.title == "设置…" }?.keyEquivalent, ",")
+        XCTAssertNotNil(controller.contextMenu.items.first { $0.title == ProductCopy.text("定位最早截图", "Locate Oldest Screenshot") })
+        XCTAssertEqual(controller.contextMenu.items.first { $0.title == ProductCopy.text("设置…", "Settings…") }?.keyEquivalent, ",")
     }
 
     @MainActor func testUnavailableCaptureCannotDispatchButHistoryRemainsAvailable() async throws {
@@ -608,7 +618,7 @@ final class RiftControlCenterControllerTests: XCTestCase {
         let status = try XCTUnwrap(item.button)
         let pause = try XCTUnwrap(controller.control(identifier: "control.pause") as? NSSwitch)
         let settings = try XCTUnwrap(controller.control(identifier: "control.settings") as? NSButton)
-        let staleMenu = try XCTUnwrap(controller.contextMenu.items.first { $0.title == "暂停收录" })
+        let staleMenu = try XCTUnwrap(controller.contextMenu.items.first { $0.title == ProductCopy.text("暂停收录", "Pause Collection") })
         controller.setInteractionSuspended(true)
         controller.update(fixture(revision: 2, paused: true, hidden: true, collection: .paused))
         XCTAssertFalse(status.isEnabled); XCTAssertFalse(pause.isEnabled); XCTAssertFalse(settings.isEnabled)

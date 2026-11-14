@@ -35,7 +35,7 @@ final class SettingsProductHostTests: XCTestCase {
         let reminder = try XCTUnwrap(f.host.control.control(identifier: "control.update") as? NSButton)
         XCTAssertTrue(check.isEnabled)
         XCTAssertEqual(toggle.state, .on)
-        XCTAssertEqual(check.title, "检查更新…")
+        XCTAssertEqual(check.title, ProductCopy.text("检查更新…", "Check for Updates…"))
         XCTAssertTrue(reminder.isHidden)
         let menu = f.host.control.contextMenu
         let item = try XCTUnwrap(menu.item(withTitle: check.title))
@@ -56,7 +56,7 @@ final class SettingsProductHostTests: XCTestCase {
 
         f.updater = .init(canCheck: true, automaticChecks: false, availableVersion: "1.0.2", failure: nil)
         f.publish()
-        XCTAssertEqual(check.title, "查看更新 1.0.2…")
+        XCTAssertEqual(check.title, ProductCopy.text("查看更新 1.0.2…", "View Update 1.0.2…"))
         XCTAssertEqual(toggle.state, .off)
         XCTAssertFalse(reminder.isHidden)
         XCTAssertNotNil(menu.item(withTitle: check.title))

@@ -821,7 +821,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             menu.addItem(withTitle: SetupIssue.configurationUnavailable.text,
                          action: nil, keyEquivalent: "").isEnabled = false
             menu.addItem(.separator())
-            add(menu, "退出 Riftlet", #selector(quit), key: "q")
+            add(menu, ProductCopy.text("退出 Riftlet", "Quit Riftlet"), #selector(quit), key: "q")
             statusItem.menu = menu
         }
         updateSetup()
@@ -1563,10 +1563,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         // Standard application shortcuts are active only while Riftlet owns
         // the foreground application. No global monitor or hotkey is added.
         let applicationMenu = NSMenu(title: "Riftlet")
-        if updater != nil { add(applicationMenu, "检查更新…", #selector(checkForUpdates)) }
-        add(applicationMenu, "设置…", #selector(showSetup), key: ",")
+        if updater != nil { add(applicationMenu, ProductCopy.text("检查更新…", "Check for Updates…"), #selector(checkForUpdates)) }
+        add(applicationMenu, ProductCopy.text("设置…", "Settings…"), #selector(showSetup), key: ",")
         applicationMenu.addItem(.separator())
-        add(applicationMenu, "退出 Riftlet", #selector(quit), key: "q")
+        add(applicationMenu, ProductCopy.text("退出 Riftlet", "Quit Riftlet"), #selector(quit), key: "q")
         let applicationItem = NSMenuItem(title: "Riftlet", action: nil, keyEquivalent: "")
         applicationItem.submenu = applicationMenu
         let mainMenu = NSApp.mainMenu ?? NSMenu()
@@ -1574,25 +1574,25 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         // Preserve any existing responder menus; a menu-bar-only launch has
         // none, so supply the standard editing routes for text windows.
         if !mainMenu.items.contains(where: { $0.submenu?.items.contains(where: { $0.action == #selector(NSText.copy(_:)) }) == true }) {
-            let editMenu = NSMenu(title: "编辑")
+            let editMenu = NSMenu(title: ProductCopy.text("编辑", "Edit"))
             let editing: [(String, Selector, String)] = [
-                ("撤销", Selector(("undo:")), "z"), ("重做", Selector(("redo:")), "Z"),
-                ("剪切", #selector(NSText.cut(_:)), "x"), ("复制", #selector(NSText.copy(_:)), "c"),
-                ("粘贴", #selector(NSText.paste(_:)), "v"), ("全选", #selector(NSText.selectAll(_:)), "a")
+                (ProductCopy.text("撤销", "Undo"), Selector(("undo:")), "z"), (ProductCopy.text("重做", "Redo"), Selector(("redo:")), "Z"),
+                (ProductCopy.text("剪切", "Cut"), #selector(NSText.cut(_:)), "x"), (ProductCopy.text("复制", "Copy"), #selector(NSText.copy(_:)), "c"),
+                (ProductCopy.text("粘贴", "Paste"), #selector(NSText.paste(_:)), "v"), (ProductCopy.text("全选", "Select All"), #selector(NSText.selectAll(_:)), "a")
             ]
             for (title, action, key) in editing {
                 // nil target dispatches to the current responder, not App state.
                 editMenu.addItem(NSMenuItem(title: title, action: action, keyEquivalent: key))
             }
-            let editItem = NSMenuItem(title: "编辑", action: nil, keyEquivalent: "")
+            let editItem = NSMenuItem(title: ProductCopy.text("编辑", "Edit"), action: nil, keyEquivalent: "")
             editItem.submenu = editMenu; mainMenu.addItem(editItem)
         }
         if !mainMenu.items.contains(where: { $0.submenu?.items.contains(where: { $0.action == #selector(NSWindow.performClose(_:)) }) == true }) {
-            let windowMenu = NSMenu(title: "窗口")
+            let windowMenu = NSMenu(title: ProductCopy.text("窗口", "Window"))
             // The native responder chain reaches the current window delegate,
             // including the settings draft confirmation. No global shortcut.
-            windowMenu.addItem(NSMenuItem(title: "关闭窗口", action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w"))
-            let windowItem = NSMenuItem(title: "窗口", action: nil, keyEquivalent: "")
+            windowMenu.addItem(NSMenuItem(title: ProductCopy.text("关闭窗口", "Close Window"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w"))
+            let windowItem = NSMenuItem(title: ProductCopy.text("窗口", "Window"), action: nil, keyEquivalent: "")
             windowItem.submenu = windowMenu; mainMenu.addItem(windowItem)
         }
         NSApp.mainMenu = mainMenu

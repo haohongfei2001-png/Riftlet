@@ -104,9 +104,9 @@ final class SetupPresentationTests: XCTestCase {
     func testAttachmentHelpReportsAnObservedMissingChatOnlyWhenThisModeConnects() {
         let target = SetupPresentation(snapshot: .init(attachment: .available, issue: .targetUnavailable))
         XCTAssertEqual(target.attachmentText, SetupIssue.targetUnavailable.text)
-        XCTAssertTrue(target.attachmentText.contains("Chrome 前台"))
+        XCTAssertTrue(target.attachmentText.contains(ProductCopy.text("Chrome 前台", "front in Chrome")))
         let local = SetupPresentation(snapshot: .init(attachment: .productionDisabled, issue: .targetUnavailable))
-        XCTAssertFalse(local.attachmentText.contains("Chrome 前台"))
+        XCTAssertFalse(local.attachmentText.contains(ProductCopy.text("Chrome 前台", "front in Chrome")))
     }
 
     func testSupportScopeComesFromHostAndLocalStringsAreBounded() {
@@ -126,8 +126,8 @@ final class SetupPresentationTests: XCTestCase {
 
     func testStorageAndFormatFailuresKeepTheirDistinctRecoveryMeaning() {
         XCTAssertNotEqual(SetupIssue.unsupportedFormat.text, SetupIssue.unsupportedSize.text)
-        XCTAssertTrue(SetupIssue.insufficientSpace.text.contains("释放磁盘空间"))
-        XCTAssertTrue(SetupIssue.privateWriteFailed.text.contains("访问权限"))
+        XCTAssertTrue(SetupIssue.insufficientSpace.text.contains(ProductCopy.text("释放磁盘空间", "Free up disk space")))
+        XCTAssertTrue(SetupIssue.privateWriteFailed.text.contains(ProductCopy.text("访问权限", "file permissions")))
         let partial = SetupPresentation(snapshot: .init(storage: .measured(bytes: 1_024, complete: false)))
         XCTAssertTrue(partial.storageText.contains("已统计至少"))
         XCTAssertTrue(partial.storageText.contains("不代表可释放"))
@@ -137,6 +137,6 @@ final class SetupPresentationTests: XCTestCase {
             issue: .sourceAccess))
         XCTAssertTrue(stopped.sourceText.contains("不可访问"))
         XCTAssertTrue(stopped.collectionText.contains("当前未收录"))
-        XCTAssertTrue(stopped.issueText?.contains("原截图没有被删除") == true)
+        XCTAssertTrue(stopped.issueText?.contains(ProductCopy.text("原截图没有被删除", "original screenshots are safe")) == true)
     }
 }

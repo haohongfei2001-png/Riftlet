@@ -1,27 +1,8 @@
 import AppKit
 
-/// Only the three-step guide and its system folder picker use this copy. File
-/// paths, display names, command identifiers and host facts stay untouched.
-enum OnboardingCopy {
-    case english, simplifiedChinese
+typealias OnboardingCopy = ProductCopy
 
-    static let current = preferred(for: Locale.preferredLanguages)
-
-    static func preferred(for languages: [String]) -> Self {
-        for identifier in languages {
-            switch Locale(identifier: identifier).language.languageCode?.identifier {
-            case "en": return .english
-            case "zh": return .simplifiedChinese
-            default: continue
-            }
-        }
-        return .simplifiedChinese
-    }
-
-    private func text(_ chinese: String, _ english: String) -> String {
-        self == .english ? english : chinese
-    }
-
+extension ProductCopy {
     var continueButton: String { text("继续", "Continue") }
     var back: String { text("上一步", "Back") }
     var later: String { text("稍后设置", "Set Up Later") }

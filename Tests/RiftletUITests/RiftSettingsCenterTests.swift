@@ -148,11 +148,11 @@ final class RiftSettingsCenterTests: XCTestCase {
             XCTAssertEqual(status.recoveryPage, .capture)
             XCTAssertEqual(status.detail, issue.text)
             if issue == .sourceVolumeUnidentified {
-                XCTAssertEqual(status.title, "当前截图位置无法收录")
-                XCTAssertTrue(status.detail.contains("选择其他保存位置"))
+                XCTAssertEqual(status.title, ProductCopy.text("当前截图位置无法收录", "Can’t Collect from This Location"))
+                XCTAssertTrue(status.detail.contains(ProductCopy.text("选择其他保存位置", "choose another save location")))
             } else {
-                XCTAssertEqual(status.title, "部分截图暂缓收录")
-                XCTAssertTrue(status.detail.contains("其他新截图仍可收录"))
+                XCTAssertEqual(status.title, ProductCopy.text("部分截图暂缓收录", "Some Screenshots Are on Hold"))
+                XCTAssertTrue(status.detail.contains(ProductCopy.text("其他新截图仍可收录", "Other new screenshots can still be collected")))
             }
             XCTAssertEqual(h.controller.labels["source.capture"]?.stringValue, issue.text)
             XCTAssertNil(h.controller.labels["source.help"])
@@ -171,7 +171,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         let automation = try XCTUnwrap(h.controller.labels["automation"])
         XCTAssertEqual(h.controller.labels["access.chrome"]?.stringValue, "需开启 JavaScript")
         XCTAssertEqual(h.controller.labels["chrome.menu"]?.isHidden, true, "Recovery already contains the path")
-        let expected = "Chrome 拒绝了这次附加，截图仍在本机。" + ChromeAttachmentSetup.instructions
+        let expected = ProductCopy.text("Chrome 拒绝了这次附加，截图仍在本机。", "Chrome declined the attachment. The screenshot is saved on your Mac. ") + ChromeAttachmentSetup.instructions
         XCTAssertEqual(attachment.stringValue, expected)
         XCTAssertEqual(RiftControlCenterPresentation(snapshot).detail, expected)
         XCTAssertEqual(automation.stringValue, "macOS 已允许 Riftlet 与 Chrome 通信。")
