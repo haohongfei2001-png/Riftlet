@@ -1,0 +1,22 @@
+{
+  "checkedAt": "2026-11-14T00:10:35.829793+00:00",
+  "baseline": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",
+  "feed": {
+    "httpStatus": 200,
+    "bytes": 3306,
+    "matchesMain": true,
+    "sha256": "4db8de3fed8ca0e81a62616152a54ae48077a08d7b4b3db8ce340a53b4164a21",
+    "ed25519Verified": true,
+    "signedLength": 3162
+  },
+  "website": {
+    "httpStatus": 200,
+    "matchesMain": true
+  },
+  "dmg": {
+    "bytes": 12417028,
+    "sha256": "6443357f08a9dbda805cd5452695417ff8783f34fb7f2331eef08c719f7290a9",
+    "matchesPublishedDigest": true,
+    "ed25519Verified": true
+  }
+}

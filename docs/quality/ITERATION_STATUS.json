@@ -1,0 +1,414 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-11-14",
+  "baseline": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",
+  "stableRelease": "v1.0.1",
+  "stableBuild": 23,
+  "phase": "IMPLEMENTATION_AND_SCOPED_NATIVE_VERIFICATION",
+  "currentRound": 4,
+  "productEngineeringState": "ACTIVE_PR_101",
+  "overallAcceptance": "NOT_ACCEPTED",
+  "applicationSourceChangedByThisDelivery": true,
+  "counts": {
+    "P0": 1,
+    "P1": 4,
+    "P2": 15,
+    "P3": 2
+  },
+  "executors": {
+    "audit": "PR #100 dated audit and independent source review preserved unchanged",
+    "engineering": "Codex integration lead and independent implementation/review agents are active on PR #101",
+    "nativeAcceptance": "Authorized isolated macOS 27.2 ARM64 GUI executed scoped AppKit, persistence, IME and updater checks; real service and hardware gaps remain explicit"
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "goal": "Correct destination, startup/prepared recovery, responsiveness, real current-package attachment",
+      "state": "IMPLEMENTED_SCOPED_VERIFICATION_REAL_CHATGPT_BLOCKED",
+      "issues": [
+        "QA-ATT-001",
+        "QA-ATT-002",
+        "QA-ATT-004",
+        "QA-DAT-001",
+        "QA-DAT-004",
+        "QA-REL-001",
+        "QA-GOV-001"
+      ]
+    },
+    {
+      "round": 2,
+      "goal": "Settings, first use, permissions and truthful handoff status",
+      "state": "IMPLEMENTED_SCOPED_NATIVE_VERIFIED",
+      "issues": [
+        "QA-SET-001",
+        "QA-SET-002",
+        "QA-SET-003",
+        "QA-SET-004",
+        "QA-SET-005",
+        "QA-SET-006",
+        "QA-ATT-003"
+      ]
+    },
+    {
+      "round": 3,
+      "goal": "Native polish, accessibility, language and safe storage design",
+      "state": "BILINGUAL_IMPLEMENTED_VISUAL_PARTIAL_CLEANUP_DESIGN_PENDING",
+      "issues": [
+        "QA-VIS-001",
+        "QA-SET-007",
+        "QA-DAT-003",
+        "QA-WEB-001"
+      ]
+    },
+    {
+      "round": 4,
+      "goal": "Measured engineering simplification and upgrade/protection coverage",
+      "state": "PERFORMANCE_AND_LEGACY_ISOLATION_VERIFIED_PRIVATE_UPDATE_IN_PROGRESS",
+      "issues": [
+        "QA-DAT-002",
+        "QA-SET-008",
+        "QA-GOV-002",
+        "QA-REL-002"
+      ]
+    },
+    {
+      "round": 5,
+      "goal": "Residual defects only and final release acceptance; merge into R4 when unnecessary",
+      "state": "FINAL_ACCEPTANCE_PENDING_NO_NEW_ROUND_REQUIRED",
+      "issues": []
+    }
+  ],
+  "nextAction": {
+    "owner": "Codex integration lead and independent reviewers",
+    "action": "Finish the authorized isolated official-download 1.0.1 (23) to private signed/notarized 1.0.2 (24) Sparkle installation and data/permission readback; review the current combined source and documentation; retain exact real-service and hardware gaps without repeating unchanged coverage",
+    "acceptanceGaps": [
+      "QA-REL-001",
+      "QA-REL-002",
+      "QA-VIS-001",
+      "QA-GOV-002"
+    ],
+    "documentationIncrement": "Reuse the reviewed PR #100 documents in PR #101 and independently review active-entry changes before admission."
+  },
+  "capabilityGaps": [
+    {
+      "id": "QA-REL-001",
+      "scope": "Dedicated authorized QA Chrome timed out before a readable editable ChatGPT draft; zero submissions. Requires a reachable draft and the exact candidate. Do not repeat the same unavailable route.",
+      "status": "BLOCKED_NETWORK_REAL_ATTACHMENT_NOT_RUN"
+    },
+    {
+      "id": "QA-GOV-002",
+      "scope": "Observed main unprotected and no active rulesets; needs supported repository administration plus a real independent GitHub approval identity. No account or billing change authorized by this record.",
+      "status": "BLOCKED_GOVERNANCE_CAPABILITY"
+    },
+    {
+      "id": "QA-VIS-001",
+      "scope": "Full VoiceOver audible reading, physical display/hardware coverage and unexecuted IME boundaries are not proved by AX trees or controller tests. Guest has no audio device.",
+      "status": "PARTIAL_NATIVE_COVERAGE"
+    }
+  ],
+  "findings": [
+    {
+      "id": "QA-ATT-001",
+      "priority": "P0",
+      "state": "IMPLEMENTED_CONTROLLED_VERIFIED",
+      "round": 1,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/78",
+      "issueNumber": 78,
+      "implementationCommit": "22088d01e65ccc7f6f7be52d612e9df1107935a5",
+      "acceptedBy": null,
+      "evidenceRef": "engineering/quality/2026-11-14/progress.json#R1",
+      "scope": "126 Node and 31 controlled Chrome cases; zero unowned file writes. Current-candidate real ChatGPT acceptance belongs to #82."
+    },
+    {
+      "id": "QA-ATT-002",
+      "priority": "P1",
+      "state": "IMPLEMENTED_SCOPED_NATIVE_VERIFIED",
+      "round": 1,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/79",
+      "issueNumber": 79,
+      "implementationCommit": "22088d01e65ccc7f6f7be52d612e9df1107935a5",
+      "acceptedBy": null,
+      "evidenceRef": "engineering/quality/2026-11-14/progress.json#R1",
+      "scope": "Prepared recovery exercised after isolated process termination; dispatch/UNKNOWN/START identities retained."
+    },
+    {
+      "id": "QA-DAT-001",
+      "priority": "P1",
+      "state": "IMPLEMENTED_SCOPED_NATIVE_VERIFIED",
+      "round": 1,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/80",
+      "issueNumber": 80,
+      "implementationCommit": "22088d01e65ccc7f6f7be52d612e9df1107935a5",
+      "acceptedBy": null,
+      "evidenceRef": "engineering/quality/2026-11-14/progress.json#R1",
+      "scope": "Damaged noncritical preferences and restarts verified without replacing the original bytes or the library."
+    },
+    {
+      "id": "QA-ATT-004",
+      "priority": "P1",
+      "state": "IMPLEMENTED_SCOPED_VERIFIED",
+      "round": 1,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/81",
+      "issueNumber": 81,
+      "implementationCommit": "22088d01e65ccc7f6f7be52d612e9df1107935a5",
+      "acceptedBy": null,
+      "evidenceRef": "engineering/quality/2026-11-14/progress.json#R1",
+      "scope": "Bounded click-time identity work and asynchronous follow-up verified. Pending permission failed in 134 ms; an already-authorized unresponsive real Chrome is not established by that run."
+    },
+    {
+      "id": "QA-REL-001",
+      "priority": "P1",
+      "state": "BLOCKED_NETWORK_REAL_ATTACHMENT_NOT_RUN",
+      "round": 1,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/82",
+      "issueNumber": 82,
+      "implementationCommit": null,
+      "acceptedBy": null,
+      "evidenceRef": "engineering/quality/2026-11-14/progress.json#followUpVerification.realChatGPT",
+      "scope": "Dedicated QA Chrome could not reach a stable editable draft. Neither image submitted; no product FAIL inferred from the timeout."
+    },
+    {
+      "id": "QA-GOV-002",
+      "priority": "P2",
+      "state": "BLOCKED_GOVERNANCE_CAPABILITY",
+      "round": 4,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/83",
+      "issueNumber": 83,
+      "implementationCommit": null,
+      "acceptedBy": null,
+      "evidenceRef": "engineering/quality/2026-11-14/progress.json#followup.83",
+      "scope": "Remote protection was absent; no ruleset/account/billing changes made. A checked-in request is not enforcement."
+    },
+    {
+      "id": "QA-DAT-004",
+      "priority": "P2",
+      "state": "IMPLEMENTED_SCOPED_NATIVE_VERIFIED",
+      "round": 1,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/84",
+      "issueNumber": 84,
+      "implementationCommit": "621df14f17323e609e02575283e6077ee9875fc9",
+      "acceptedBy": null,
+      "evidenceRef": "engineering/quality/2026-11-14/progress.json#R1",
+      "scope": "Explicit local-file recheck validates original UUID and content, including hidden history; no attachment or START created."
+    },
+    {
+      "id": "QA-SET-002",
+      "priority": "P2",
+      "state": "IMPLEMENTED_SCOPED_NATIVE_VERIFIED",
+      "round": 2,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/85",
+      "issueNumber": 85,
+      "implementationCommit": "621df14f17323e609e02575283e6077ee9875fc9",
+      "acceptedBy": null,
+      "evidenceRef": "engineering/quality/2026-11-14/progress.json#R2",
+      "scope": "Inactive-field errors remain field scoped; effective settings can save without erasing unrelated failures or valid old values."
+    },
+    {
+      "id": "QA-SET-003",
+      "priority": "P2",
+      "state": "IMPLEMENTED_SCOPED_NATIVE_VERIFIED",
+      "round": 2,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/86",
+      "issueNumber": 86,
+      "implementationCommit": "621df14f17323e609e02575283e6077ee9875fc9",
+      "acceptedBy": null,
+      "evidenceRef": "engineering/quality/2026-11-14/progress.json#R2",
+      "scope": "Later setup state survives normal restart; it does not grant permissions or mark setup completed."
+    },
+    {
+      "id": "QA-SET-004",
+      "priority": "P2",
+      "state": "IMPLEMENTED_SCOPED_NATIVE_VERIFIED",
+      "round": 2,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/87",
+      "issueNumber": 87,
+      "implementationCommit": "621df14f17323e609e02575283e6077ee9875fc9",
+      "acceptedBy": null,
+      "evidenceRef": "engineering/quality/2026-11-14/progress.json#R2",
+      "scope": "Actual tray capacity matches the active display/layout, with old preferences preserved and focus-safe text edits."
+    },
+    {
+      "id": "QA-SET-001",
+      "priority": "P2",
+      "state": "IMPLEMENTED_SCOPED_NATIVE_VERIFIED",
+      "round": 2,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/88",
+      "issueNumber": 88,
+      "implementationCommit": "55fc106d79ba25558be538b9d9910dac1cd5d1f6",
+      "acceptedBy": null,
+      "evidenceRef": "engineering/quality/2026-11-14/progress.json#R2",
+      "scope": "Four settings pages, shared state and save behavior exercised in current-host native cases. Full physical IME/VoiceOver coverage is separate."
+    },
+    {
+      "id": "QA-SET-006",
+      "priority": "P2",
+      "state": "IMPLEMENTED_SCOPED_NATIVE_VERIFIED",
+      "round": 2,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/89",
+      "issueNumber": 89,
+      "implementationCommit": "55fc106d79ba25558be538b9d9910dac1cd5d1f6",
+      "acceptedBy": null,
+      "evidenceRef": "engineering/quality/2026-11-14/progress.json#R2",
+      "scope": "Version and update entry are in General; this UI result is not installation acceptance."
+    },
+    {
+      "id": "QA-ATT-003",
+      "priority": "P2",
+      "state": "IMPLEMENTED_SCOPED_NATIVE_VERIFIED",
+      "round": 2,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/90",
+      "issueNumber": 90,
+      "implementationCommit": "55fc106d79ba25558be538b9d9910dac1cd5d1f6",
+      "acceptedBy": null,
+      "evidenceRef": "engineering/quality/2026-11-14/progress.json#R2",
+      "scope": "List/grid projection uses the corresponding durable START and keeps error precedence; no retry or upload status semantics changed."
+    },
+    {
+      "id": "QA-GOV-001",
+      "priority": "P2",
+      "state": "DOCUMENT_REUSE_REVIEW_PENDING",
+      "round": 1,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/91",
+      "issueNumber": 91,
+      "implementationCommit": "67fb373d04b7ca6162314e3b4072932be43f0794",
+      "acceptedBy": null,
+      "evidenceRef": "https://github.com/haohongfei2001-png/Riftlet/pull/101",
+      "scope": "Reviewed audit documents and exact historical evidence restored into PR #101; current entry/status changes need independent review and main integration before closure."
+    },
+    {
+      "id": "QA-VIS-001",
+      "priority": "P2",
+      "state": "PARTIAL_NATIVE_AND_INHERITED_COVERAGE",
+      "round": 3,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/92",
+      "issueNumber": 92,
+      "implementationCommit": "55fc106d79ba25558be538b9d9910dac1cd5d1f6",
+      "acceptedBy": null,
+      "evidenceRef": "engineering/quality/2026-11-14/progress.json#followUpVerification.systemIME",
+      "scope": "Current settings/history frames and seven true system Pinyin cases are scoped. Inherit unchanged three-form geometry from reviewed build 18 only within its recorded scene/count/scale; hardware and complete VoiceOver remain unverified."
+    },
+    {
+      "id": "QA-DAT-002",
+      "priority": "P2",
+      "state": "IMPLEMENTED_MEASURED_NATIVE_VERIFIED",
+      "round": 4,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/93",
+      "issueNumber": 93,
+      "implementationCommit": "b948286b5f128e5288e1eb081d7499ac54535d6a",
+      "acceptedBy": null,
+      "evidenceRef": "engineering/quality/2026-11-14/progress.json#followup.93",
+      "scope": "Paired complete-QA-App startup and refresh measurements at 200/2000/10000 records; one full startup validation and aggregate operation counts. Preserve measured small-library regression and all data invariants."
+    },
+    {
+      "id": "QA-SET-008",
+      "priority": "P2",
+      "state": "IMPLEMENTED_PRODUCT_ISOLATION_VERIFIED",
+      "round": 4,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/94",
+      "issueNumber": 94,
+      "implementationCommit": "e8e4aec",
+      "acceptedBy": null,
+      "evidenceRef": "engineering/quality/2026-11-14/progress.json#followup.94",
+      "scope": "Four historical fixture types moved to a separate fixture target; zero such symbols in the built App. Old fixture tests remain."
+    },
+    {
+      "id": "QA-DAT-003",
+      "priority": "P2",
+      "state": "READ_ONLY_USAGE_IMPLEMENTED_CLEANUP_DESIGN_PENDING",
+      "round": 3,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/95",
+      "issueNumber": 95,
+      "implementationCommit": "621df14f17323e609e02575283e6077ee9875fc9",
+      "acceptedBy": null,
+      "evidenceRef": "engineering/quality/2026-11-14/progress.json#followUpVerification.issue95",
+      "scope": "Occupied private-copy bytes are available, reclaimable bytes remain unknown. All 3330 removed records in the study had UNKNOWN. Define and independently review deletion/tombstone/backup/crash semantics before any future cleanup; no permanent deletion in this increment."
+    },
+    {
+      "id": "QA-SET-007",
+      "priority": "P2",
+      "state": "IMPLEMENTED_SCOPED_BILINGUAL_VERIFIED",
+      "round": 3,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/96",
+      "issueNumber": 96,
+      "implementationCommit": "55fc106d79ba25558be538b9d9910dac1cd5d1f6",
+      "acceptedBy": null,
+      "evidenceRef": "engineering/quality/2026-11-14/progress.json#followUpVerification.bilingualDailyUse",
+      "scope": "Core settings, guide, control center, history, tray and status copy tested in both languages. Not a claim that every string or full VoiceOver speech has been verified."
+    },
+    {
+      "id": "QA-REL-002",
+      "priority": "P2",
+      "state": "PRIVATE_SIGNED_UPDATE_ACCEPTANCE_IN_PROGRESS",
+      "round": 4,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/97",
+      "issueNumber": 97,
+      "implementationCommit": null,
+      "acceptedBy": null,
+      "evidenceRef": "engineering/quality/2026-11-14/progress.json#followUpVerification.websiteUpdater",
+      "scope": "Official-download 1.0.1 no-update and wrong-feed-signature rejection passed. Same-identity private 1.0.2 (24) notarization and stable public-key match verified while preparing the private signed feed; actual 23-to-24 install/restart/data readback pending. Public stable remaining 23 is not a blocker. PR #77 is separate, not integrated."
+    },
+    {
+      "id": "QA-SET-005",
+      "priority": "P3",
+      "state": "IMPLEMENTED_SCOPED_NATIVE_VERIFIED",
+      "round": 2,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/98",
+      "issueNumber": 98,
+      "implementationCommit": "621df14f17323e609e02575283e6077ee9875fc9",
+      "acceptedBy": null,
+      "evidenceRef": "engineering/quality/2026-11-14/progress.json#R2",
+      "scope": "Directory access copy matches the actual folder permission action rather than promising to move the macOS screenshot directory."
+    },
+    {
+      "id": "QA-WEB-001",
+      "priority": "P3",
+      "state": "IMPLEMENTED_HEADLESS_VERIFIED_DEPLOYMENT_PENDING",
+      "round": 3,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/99",
+      "issueNumber": 99,
+      "implementationCommit": "3feac804fcecf378c9ec9a3a45d9b808f3de23f4",
+      "acceptedBy": null,
+      "evidenceRef": "engineering/quality/2026-11-14/progress.json#followup.99",
+      "scope": "Chinese and English image alt text and language switching verified offline in headless Chromium; not yet a claim about deployed website bytes."
+    }
+  ],
+  "applicationSourceChangedByThisDeliveryScope": "PR #101 implements product fixes. The present documentation reuse adds no runtime changes and does not publish an App.",
+  "implementationPR": "https://github.com/haohongfei2001-png/Riftlet/pull/101",
+  "progressRecord": "engineering/quality/2026-11-14/progress.json",
+  "auditSource": "67fb373d04b7ca6162314e3b4072932be43f0794",
+  "implementationCheckpoint": "1d4374ca867853bc9809bbd7e5143f82a389aae1",
+  "checkpointScope": "Last admitted implementation head before this documentation increment and ongoing private upgrade work; read the actual PR head before integration.",
+  "countsBasis": "Original dated audit severity counts, not the number of currently unfixed defects. Issue closure is separate from this implementation state.",
+  "implementationCommitMeaning": "A source checkpoint carrying the change, not necessarily its isolated author commit. acceptedBy is left null because whole-Issue final acceptance and closure are not implied by scoped tests.",
+  "currentNativeEvidence": {
+    "source": "55fc106d79ba25558be538b9d9910dac1cd5d1f6",
+    "binarySHA256": "ecdabb5f6d6b412c8a8f8ded16afae458e99e0cbf9215d729e0c7cde1f2c7e5a",
+    "scope": "Private universal Developer ID QA App on isolated ARM64 macOS 27.2; 14 scoped native cases plus six same-root restart checks. Three synthetic media, zero operations and zero START. 33 owned-window frames: 32 have visible pixels; transparent close-sheet frame is not visual PASS. Earlier real-IME and visible close-sheet evidence retain their own source identities.",
+    "limits": [
+      "No real ChatGPT result from this run",
+      "No physical mouse, real TCC authorization or complete VoiceOver acceptance implied",
+      "No successful update installation implied",
+      "Not a published release or acceptance of all 22 issues"
+    ]
+  },
+  "inheritedDesktopEvidence": {
+    "source": "7ff8df098919af86e94cdf69972fadb1a8c0dc35",
+    "version": "0.3.5 (18)",
+    "scope": "Controlled native AXPress and WindowServer scenes for tray/microSlit/windChime, aligned/staggered windChime and restart recovery; three synthetic assets, right-middle, 1920x1080, scale 2. Five PNG hashes rechecked.",
+    "sourceCompatibility": "RiftWindChimeLayout, RiftLayout, RiftTrayLayout and RiftThumbnailAppearance unchanged through checkpoint 1d4374c; Panel and TraySurface differences are localization and stable accessibility identifiers.",
+    "limits": "Not all screenshot counts, hardware displays or full accessibility. Older pre-windChime preview receipts are not current three-form evidence."
+  },
+  "separatePullRequests": [
+    {
+      "number": 77,
+      "state": "SEPARATE_DRAFT_NOT_INTEGRATED",
+      "scope": "DMG installation prompt and its own validation; do not attribute to PR #101"
+    },
+    {
+      "number": 100,
+      "state": "REVIEWED_DOCUMENT_SOURCE_REUSED",
+      "source": "67fb373d04b7ca6162314e3b4072932be43f0794",
+      "scope": "Original audit/evidence bytes retained; this is not a wholesale merge or reuse of its admission record."
+    }
+  ]
+}

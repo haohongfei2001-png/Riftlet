@@ -153,6 +153,18 @@
       "fix": "Tray test locates the localized label. Historical Chinese-only semantic fixture explicitly selects Chinese. Onboarding maps either known Chrome recipe into its own chosen language while preserving custom sanitized details. Added a bilingual regression; prior assertions remain.",
       "nativeCopyCases": "21 named setup/control test methods in each supported process language passed after the correction.",
       "remainingCI": "Requires the following independently admitted head."
+    },
+    "packagedSelfCheckCorrection": {
+      "failedHead": "1d4374ca867853bc9809bbd7e5143f82a389aae1",
+      "ci": "Three PASS, ARM64 FAIL in Run packaged executable with synthetic data, Intel canceled after same failure was confirmed. Both architecture unit/integration test steps passed.",
+      "reproduction": "Same signed 55fc106 executable: --first-use-self-check exits 1 under AppleLanguages(en), exits 0 under (zh-Hans). Source fixture selected system language but asserted three Chinese phrases.",
+      "change": "The CLI-only fixture explicitly selects Simplified Chinese. All original assertions remain. Ordinary first-use presentation and its language selection are unchanged.",
+      "next": "Rebuild exact current source and run all four packaged CLI self-checks in both process languages, then independent review, admission and formal CI."
+    },
+    "auditDocumentationReuse": {
+      "origin": "PR #100 independently reviewed source 67fb373d04b7ca6162314e3b4072932be43f0794",
+      "preserved": "34 of 39 document/evidence paths retained byte-identically, including all five original instruction archives. Five active entry/status paths updated to PR #101 and current scoped evidence.",
+      "status": "Current issue queue now records implementation and remaining acceptance instead of directing new work to old PR #41. PR #77 remains independent."
     }
   }
 }
