@@ -80,14 +80,14 @@
   ],
   "nextAction": {
     "owner": "Codex integration lead and independent reviewers",
-    "action": "Finish the authorized isolated official-download 1.0.1 (23) to private signed/notarized 1.0.2 (24) Sparkle installation and data/permission readback; review the current combined source and documentation; retain exact real-service and hardware gaps without repeating unchanged coverage",
+    "action": "Complete independent source admission and formal CI for the localized popover/header and supplemental visual-helper corrections. Actual original23-to-notarized-private24 Sparkle installation, data, history, new system capture and restart passed on source31258e2; keep that exact package scope. Retain real-service, permission and hardware gaps without repeating unchanged tests.",
     "acceptanceGaps": [
       "QA-REL-001",
       "QA-REL-002",
       "QA-VIS-001",
       "QA-GOV-002"
     ],
-    "documentationIncrement": "Reuse the reviewed PR #100 documents in PR #101 and independently review active-entry changes before admission."
+    "documentationIncrement": "Reviewed PR100 audit documents reused in PR101; current entry points record the completed private upgrade and preserve all original dated evidence."
   },
   "capabilityGaps": [
     {
