@@ -1,0 +1,8 @@
+{
+  "status": "BLOCKED_BEFORE_BROWSER_START",
+  "scope": "Attempted real Chromium primitives in synthetic loopback application; not macOS or live ChatGPT",
+  "productExecutionOccurred": false,
+  "error": "Chromium process_singleton_posix.cc:297 socket() failed: Operation not permitted (1)",
+  "assertion": "No native test result, no live ChatGPT result",
+  "script": "attachment-foreign-picker-native.cjs"
+}

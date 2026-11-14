@@ -1,0 +1,26 @@
+{
+  "date": "2026-11-14",
+  "timezone": "Asia/Shanghai",
+  "url": "https://riftlet.com/",
+  "scope": "Cloud Browser public-site UI only; no native Riftlet or live ChatGPT attachment",
+  "observed": {
+    "initialLanguage": "English",
+    "switchToChinese": true,
+    "version": "1.0.1",
+    "bothDownloadLinks": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.1/Riftlet-1.0.1.dmg",
+    "syntheticDemoPreservedTypedText": true,
+    "syntheticDemoKeptExistingNotesAndAddedImage": true,
+    "installationDialogExplainsManual1_0_0Upgrade": true,
+    "screenshotsVisuallyInspected": true
+  },
+  "finding": "QA-WEB-001: English page retains Chinese alternative text on several secondary images.",
+  "notRun": [
+    "mobile viewport",
+    "native DMG Finder installation",
+    "VoiceOver on macOS"
+  ],
+  "environmentLimitations": [
+    "Local Chromium launch denied socket() before test; not a website failure.",
+    "Connected local Browser has no originating context; public UI inspected in sanctioned Cloud Browser."
+  ]
+}

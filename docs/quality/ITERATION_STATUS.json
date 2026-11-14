@@ -1,0 +1,326 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-11-14",
+  "baseline": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",
+  "stableRelease": "v1.0.1",
+  "stableBuild": 23,
+  "phase": "INITIAL_AUDIT_AND_HANDOFF",
+  "currentRound": 1,
+  "productEngineeringState": "AWAITING_CODEX_EXECUTOR",
+  "overallAcceptance": "NOT_ACCEPTED",
+  "applicationSourceChangedByThisDelivery": false,
+  "counts": {
+    "P0": 1,
+    "P1": 4,
+    "P2": 15,
+    "P3": 2
+  },
+  "executors": {
+    "audit": "root plus three independent domain audit agents completed first audit",
+    "engineering": "GitHub packets prepared; no callable remote Codex coding-task launcher available in this session",
+    "nativeAcceptance": "requires authorized macOS/Chrome executor; current Linux cannot run AppKit or real signed app"
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "goal": "Correct destination, startup/prepared recovery, responsiveness, real current-package attachment",
+      "state": "AUDIT_COMPLETE_IMPLEMENTATION_PENDING",
+      "issues": [
+        "QA-ATT-001",
+        "QA-ATT-002",
+        "QA-ATT-004",
+        "QA-DAT-001",
+        "QA-DAT-004",
+        "QA-REL-001",
+        "QA-GOV-001"
+      ]
+    },
+    {
+      "round": 2,
+      "goal": "Settings, first use, permissions and truthful handoff status",
+      "state": "DESIGN_READY",
+      "issues": [
+        "QA-SET-001",
+        "QA-SET-002",
+        "QA-SET-003",
+        "QA-SET-004",
+        "QA-SET-005",
+        "QA-SET-006",
+        "QA-ATT-003"
+      ]
+    },
+    {
+      "round": 3,
+      "goal": "Native polish, accessibility, language and safe storage design",
+      "state": "SPECIFIED_NOT_IMPLEMENTED",
+      "issues": [
+        "QA-VIS-001",
+        "QA-SET-007",
+        "QA-DAT-003",
+        "QA-WEB-001"
+      ]
+    },
+    {
+      "round": 4,
+      "goal": "Measured engineering simplification and upgrade/protection coverage",
+      "state": "QUEUED_CAN_PARALLELIZE",
+      "issues": [
+        "QA-DAT-002",
+        "QA-SET-008",
+        "QA-GOV-002",
+        "QA-REL-002"
+      ]
+    },
+    {
+      "round": 5,
+      "goal": "Residual defects only and final release acceptance; merge into R4 when unnecessary",
+      "state": "CONDITIONAL",
+      "issues": []
+    }
+  ],
+  "nextAction": {
+    "owner": "Codex implementation executor and integration lead",
+    "action": "Claim existing R1 issues; reproduce QA-ATT-001; parallelize scoped preference/recovery work; prepare current-package native acceptance",
+    "blockingProductIds": [
+      "QA-ATT-001",
+      "QA-ATT-002",
+      "QA-ATT-004",
+      "QA-DAT-001",
+      "QA-REL-001"
+    ]
+  },
+  "capabilityGaps": [
+    {
+      "id": "QA-REL-001",
+      "scope": "Native macOS app and real ChatGPT current-candidate acceptance",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "QA-GOV-002",
+      "scope": "No exposed writable repository administration endpoint; actual main unprotected",
+      "status": "BLOCKED_CAPABILITY"
+    }
+  ],
+  "findings": [
+    {
+      "id": "QA-ATT-001",
+      "priority": "P0",
+      "state": "OPEN",
+      "round": 1,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/78",
+      "issueNumber": 78,
+      "implementationCommit": null,
+      "acceptedBy": null
+    },
+    {
+      "id": "QA-ATT-002",
+      "priority": "P1",
+      "state": "OPEN",
+      "round": 1,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/79",
+      "issueNumber": 79,
+      "implementationCommit": null,
+      "acceptedBy": null
+    },
+    {
+      "id": "QA-DAT-001",
+      "priority": "P1",
+      "state": "OPEN",
+      "round": 1,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/80",
+      "issueNumber": 80,
+      "implementationCommit": null,
+      "acceptedBy": null
+    },
+    {
+      "id": "QA-ATT-004",
+      "priority": "P1",
+      "state": "OPEN",
+      "round": 1,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/81",
+      "issueNumber": 81,
+      "implementationCommit": null,
+      "acceptedBy": null
+    },
+    {
+      "id": "QA-REL-001",
+      "priority": "P1",
+      "state": "OPEN",
+      "round": 1,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/82",
+      "issueNumber": 82,
+      "implementationCommit": null,
+      "acceptedBy": null
+    },
+    {
+      "id": "QA-GOV-002",
+      "priority": "P2",
+      "state": "OPEN",
+      "round": 4,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/83",
+      "issueNumber": 83,
+      "implementationCommit": null,
+      "acceptedBy": null
+    },
+    {
+      "id": "QA-DAT-004",
+      "priority": "P2",
+      "state": "OPEN",
+      "round": 1,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/84",
+      "issueNumber": 84,
+      "implementationCommit": null,
+      "acceptedBy": null
+    },
+    {
+      "id": "QA-SET-002",
+      "priority": "P2",
+      "state": "OPEN",
+      "round": 2,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/85",
+      "issueNumber": 85,
+      "implementationCommit": null,
+      "acceptedBy": null
+    },
+    {
+      "id": "QA-SET-003",
+      "priority": "P2",
+      "state": "OPEN",
+      "round": 2,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/86",
+      "issueNumber": 86,
+      "implementationCommit": null,
+      "acceptedBy": null
+    },
+    {
+      "id": "QA-SET-004",
+      "priority": "P2",
+      "state": "OPEN",
+      "round": 2,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/87",
+      "issueNumber": 87,
+      "implementationCommit": null,
+      "acceptedBy": null
+    },
+    {
+      "id": "QA-SET-001",
+      "priority": "P2",
+      "state": "OPEN",
+      "round": 2,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/88",
+      "issueNumber": 88,
+      "implementationCommit": null,
+      "acceptedBy": null
+    },
+    {
+      "id": "QA-SET-006",
+      "priority": "P2",
+      "state": "OPEN",
+      "round": 2,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/89",
+      "issueNumber": 89,
+      "implementationCommit": null,
+      "acceptedBy": null
+    },
+    {
+      "id": "QA-ATT-003",
+      "priority": "P2",
+      "state": "OPEN",
+      "round": 2,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/90",
+      "issueNumber": 90,
+      "implementationCommit": null,
+      "acceptedBy": null
+    },
+    {
+      "id": "QA-GOV-001",
+      "priority": "P2",
+      "state": "DOCUMENT_FIX_PREPARED",
+      "round": 1,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/91",
+      "issueNumber": 91,
+      "implementationCommit": null,
+      "acceptedBy": null
+    },
+    {
+      "id": "QA-VIS-001",
+      "priority": "P2",
+      "state": "OPEN",
+      "round": 3,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/92",
+      "issueNumber": 92,
+      "implementationCommit": null,
+      "acceptedBy": null
+    },
+    {
+      "id": "QA-DAT-002",
+      "priority": "P2",
+      "state": "OPEN",
+      "round": 4,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/93",
+      "issueNumber": 93,
+      "implementationCommit": null,
+      "acceptedBy": null
+    },
+    {
+      "id": "QA-SET-008",
+      "priority": "P2",
+      "state": "OPEN",
+      "round": 4,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/94",
+      "issueNumber": 94,
+      "implementationCommit": null,
+      "acceptedBy": null
+    },
+    {
+      "id": "QA-DAT-003",
+      "priority": "P2",
+      "state": "OPEN",
+      "round": 3,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/95",
+      "issueNumber": 95,
+      "implementationCommit": null,
+      "acceptedBy": null
+    },
+    {
+      "id": "QA-SET-007",
+      "priority": "P2",
+      "state": "OPEN",
+      "round": 3,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/96",
+      "issueNumber": 96,
+      "implementationCommit": null,
+      "acceptedBy": null
+    },
+    {
+      "id": "QA-REL-002",
+      "priority": "P2",
+      "state": "OPEN",
+      "round": 4,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/97",
+      "issueNumber": 97,
+      "implementationCommit": null,
+      "acceptedBy": null
+    },
+    {
+      "id": "QA-SET-005",
+      "priority": "P3",
+      "state": "OPEN",
+      "round": 2,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/98",
+      "issueNumber": 98,
+      "implementationCommit": null,
+      "acceptedBy": null
+    },
+    {
+      "id": "QA-WEB-001",
+      "priority": "P3",
+      "state": "OPEN",
+      "round": 3,
+      "issue": "https://github.com/haohongfei2001-png/Riftlet/issues/99",
+      "issueNumber": 99,
+      "implementationCommit": null,
+      "acceptedBy": null
+    }
+  ]
+}
