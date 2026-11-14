@@ -85,6 +85,7 @@ extension RiftSettingsCenterController {
         labels["history.detail"]?.isHidden = count == 0
         enable("history.open", product.capabilities.canOpenHistory)
         text("storage", product.setup.storage == .notMeasured ? "尚未检查本地存储用量。" : presentation.storageText)
+        enable("storage.recheckMedia", product.capabilities.canRecheck && !product.setup.isChecking)
         enable("storage.check", product.capabilities.canCheckStorage && product.setup.storage != .measuring)
         enable("storage.reveal", product.capabilities.initialized)
         text("automation", presentation.automationStatusText ?? "当前模式不需要 Chrome 自动化访问。")
@@ -256,6 +257,7 @@ extension RiftSettingsCenterController {
                 value = String(min(state.owner.settings.configuration.visibleCountPreference, limit))
             }
             if view.currentEditor() == nil {
+                displayedEditorValues[ObjectIdentifier(view)] = value
                 if view.stringValue != value { view.stringValue = value }
                 view.isEnabled = editable && (field != .visibleCountPreference || limit > 0)
             }
@@ -275,6 +277,7 @@ extension RiftSettingsCenterController {
         let archiveValue = archiveFailed ? SettingsStateModel.archiveMinutesText(minutes ?? QueueArchivePolicy.defaultMinutes,
                 decimalSeparator: Locale.current.decimalSeparator ?? ".") : model.archiveDraftText
         if archiveField.currentEditor() == nil {
+            displayedEditorValues[ObjectIdentifier(archiveField)] = archiveValue
             if archiveField.stringValue != archiveValue { archiveField.stringValue = archiveValue }
             archiveField.isEnabled = editable
         }

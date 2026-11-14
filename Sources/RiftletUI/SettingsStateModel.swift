@@ -224,7 +224,7 @@ public enum SettingsSaveOutcome: Sendable {
 public enum SettingsCommand: Sendable {
     case commitField(SettingsField, String, maximumCount: Int? = nil), commitArchive(String?), restoreVisibleDefaults
     case edit(SettingsField, String), editArchive(String?), restoreDefaults(SettingsDraftPage)
-    case discardLayout, discardArchive, discardDrafts, applyLayout, applyArchive, applyDrafts
+    case discardLayout, discardArchive, discardDrafts, applyLayout, applyArchive, applyDrafts(maximumCount: Int? = nil)
     case setCollectionPaused(Bool), setHidden(Bool), setEntryEnabled(Bool)
     case setCaptureMode(ScreenshotMode), setArrival(ArrivalMotionMode)
     case selectDesktopForm(RiftDesktopForm), selectWindChimeArrangement(RiftWindChimeArrangement), selectTrayTheme(RiftTrayTheme)
@@ -272,6 +272,13 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
     private var archiveEditVersion: UInt64?
     private var pendingTextVersions: [SettingsDomain: TextVersions] = [:]
     private var writes: Set<SettingsDomain> = []
+    // A receipt for one numeric field cannot confirm another field in the same file.
+    private struct FailedLayoutField {
+        let value: Double
+        let editVersion: UInt64?
+        let failure: SettingsSaveFailure
+    }
+    private var failedLayoutFields: [SettingsField: FailedLayoutField] = [:]
 
     private struct TextVersions: Sendable {
         var layout: [SettingsField: UInt64] = [:]
@@ -413,11 +420,11 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
             if let prepared = prepareLayout(into: &result) { await save(prepared, into: &result) }
         case .applyArchive:
             if let prepared = prepareArchive(into: &result) { await save(prepared, into: &result) }
-        case .applyDrafts:
+        case .applyDrafts(let maximumCount):
             // Separate owners are not a transaction. Keep each actual result;
             // reserve both requests before either await. Neither is a queued
             // command that could overwrite a newer explicit save after waiting.
-            let layout = prepareLayout(into: &result).flatMap { begin($0, into: &result) }
+            let layout = prepareLayout(into: &result, maximumCount: maximumCount).flatMap { begin($0, into: &result) }
             let archive = prepareArchive(into: &result).flatMap { begin($0, into: &result) }
             async let layoutResult = finish(layout)
             async let archiveResult = finish(archive)
@@ -487,11 +494,14 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         return PreparedSave(intent: intent, textVersions: pendingTextVersions[domain] ?? TextVersions())
     }
 
-    private func prepareLayout(into result: inout SettingsSubmission) -> PreparedSave? {
+    private func prepareLayout(into result: inout SettingsSubmission, maximumCount: Int? = nil) -> PreparedSave? {
         guard !writes.contains(.layout) else { result.busy.append(.layout); return nil }
         do {
             if layoutText.isEmpty, let pending = prepareRetry(.layout) { return pending }
             let patch = try layoutPatch()
+            if let count = patch[.visibleCountPreference], let maximumCount, count > Double(maximumCount) {
+                throw SettingsValidationFailure.invalidNumber(.visibleCountPreference)
+            }
             let prepared = prepare(.layout(patch))
             if !hasLayoutDraft && domains[.layout]?.pending == nil {
                 clearSubmittedText(prepared)
@@ -528,7 +538,12 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
                     throw SettingsValidationFailure.invalidNumber(field)
                 }
                 try field.put(value, into: &candidate)
+                // The owner snapshot was valid. Associate a rejected change with its
+                // field so switching forms can put only that error back in its draft.
+                do { try candidate.validate() }
+                catch { throw SettingsValidationFailure.invalidNumber(field) }
             }
+            return candidate
         case .desktopForm(let value): candidate.desktopForm = value
         case .windChimeArrangement(let value): candidate.windChimeArrangement = value
         case .trayTheme(let value): candidate.trayTheme = value
@@ -579,7 +594,24 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         let request = work.request
         let intent = prepared.intent
         let domain = intent.domain
-        defer { writes.remove(work.writer); onChange?(snapshot) }
+        defer {
+            if case .layout(let patch) = intent {
+                if let failure = result.failed.isEmpty ? nil : domains[.layout]?.saveFailure {
+                    for (field, value) in patch {
+                        failedLayoutFields[field] = .init(value: value, editVersion: prepared.textVersions.layout[field], failure: failure)
+                    }
+                } else if !result.confirmed.isEmpty {
+                    for field in patch.keys { failedLayoutFields.removeValue(forKey: field) }
+                }
+                if !failedLayoutFields.isEmpty {
+                    domains[.layout]?.pending = .layout(failedLayoutFields.mapValues(\.value))
+                    domains[.layout]?.saveFailure = failedLayoutFields.values.first?.failure
+                    pendingTextVersions[.layout] = TextVersions(layout: failedLayoutFields.compactMapValues(\.editVersion))
+                }
+            }
+            writes.remove(work.writer)
+            onChange?(snapshot)
+        }
         let outcome = await adapter.save(request)
         domains[domain]?.isSaving = false
         let observed: SettingsOwnerSnapshot?
@@ -688,6 +720,7 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         // Discarding text cannot cancel a write that the owner is already doing.
         // Its eventual result still needs to be surfaced.
         guard domains[domain]?.isSaving != true else { revision += 1; return }
+        if domain == .layout { failedLayoutFields.removeAll() }
         pendingTextVersions.removeValue(forKey: domain)
         domains[domain]?.pending = nil; domains[domain]?.saveFailure = nil
         domains[domain]?.validationFailure = nil; revision += 1

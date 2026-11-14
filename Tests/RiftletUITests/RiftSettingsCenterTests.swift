@@ -191,6 +191,10 @@ final class RiftSettingsCenterTests: XCTestCase {
         h.controller.show(page: .capture)
         let captureAccess: NSButton = try control(h, "source.access.capture")
         XCTAssertTrue(captureAccess.isHidden)
+        let verifyMedia: NSButton = try control(h, "storage.recheckMedia")
+        XCTAssertFalse(verifyMedia.isHiddenOrHasHiddenAncestor, "A working screenshot folder must not hide private-copy recovery")
+        XCTAssertTrue(verifyMedia.isEnabled)
+
         XCTAssertNil(h.controller.controls["source.access.help"])
         snapshot.setup = .init(sourceLocation: "/fixture/shots", source: .accessible, issue: .screenshotFolderNeedsSelection)
         h.controller.update(snapshot)
@@ -390,6 +394,28 @@ final class RiftSettingsCenterTests: XCTestCase {
         try await clickAndWait(h, "retry.placement")
         try assertSelection(pending)
         XCTAssertFalse(h.model.snapshot.domains[.placement]!.hasIssue)
+    }
+
+    @MainActor func testReturnCanSaveTheOriginalNumberAgainWithoutLeavingTheField() async throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        h.controller.show(page: .display)
+        try click(h, "disclosure.display.advanced")
+        let field = try XCTUnwrap(h.controller.numericFields[.outerInset])
+        let original = field.stringValue
+        let initial = h.owner.settings.configuration.outerInset
+        let next = initial == 12 ? "14" : "12"
+        let editor = try enter(h, field: field, text: next)
+        try await actionAndWait(h) {
+            XCTAssertTrue(h.controller.control(field, textView: editor, doCommandBy: #selector(NSResponder.insertNewline(_:))))
+        }
+        XCTAssertNotEqual(h.owner.settings.configuration.outerInset, initial)
+        XCTAssertTrue(field.currentEditor() === editor)
+        editor.string = original
+        h.controller.controlTextDidChange(Notification(name: NSControl.textDidChangeNotification, object: field))
+        try await actionAndWait(h) {
+            XCTAssertTrue(h.controller.control(field, textView: editor, doCommandBy: #selector(NSResponder.insertNewline(_:))))
+        }
+        XCTAssertEqual(h.owner.settings.configuration.outerInset, initial)
     }
 
     @MainActor func testNativeFieldsKeepIdentityRawTextAndSelectionAcrossOwnerRefresh() throws {

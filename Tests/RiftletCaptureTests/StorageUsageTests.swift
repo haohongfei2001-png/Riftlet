@@ -42,6 +42,7 @@ final class StorageUsageTests: XCTestCase {
         XCTAssertTrue(result.isComplete)
         XCTAssertEqual(result.regularFileCount, 7)
         XCTAssertEqual(result.logicalBytes, 75)
+        XCTAssertEqual(result.screenshotCopyBytes, 18)
         XCTAssertEqual(try area(.media, in: result).logicalBytes, 18)
         XCTAssertEqual(try area(.database, in: result).regularFileCount, 3)
         XCTAssertEqual(try Data(contentsOf: original), Data(repeating: 0x61, count: 11))

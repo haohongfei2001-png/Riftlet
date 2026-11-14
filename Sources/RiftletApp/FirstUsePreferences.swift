@@ -15,7 +15,7 @@ struct FirstUsePreferences {
     var hasPresented: Bool { defaults.bool(forKey: presentedKey) }
 
     var needsAutomaticPresentation: Bool {
-        if let progress = defaults.string(forKey: progressKey) { return progress != "completed" }
+        if let progress = defaults.string(forKey: progressKey) { return progress != "completed" && progress != "deferred" }
         // Existing installations already chose how they use Riftlet.
         return !defaults.bool(forKey: presentedKey)
     }
@@ -27,6 +27,11 @@ struct FirstUsePreferences {
             defaults.set("started", forKey: progressKey)
         }
         defaults.set(true, forKey: presentedKey)
+    }
+
+    func deferPresentation() {
+        guard needsAutomaticPresentation else { return }
+        defaults.set("deferred", forKey: progressKey)
     }
 
     func recordCompletion() { defaults.set("completed", forKey: progressKey) }

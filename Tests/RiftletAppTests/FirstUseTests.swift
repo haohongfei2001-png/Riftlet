@@ -46,6 +46,21 @@ final class FirstUseTests: XCTestCase {
                        "First-use presentation must not record permission, visibility, or upload admission")
     }
 
+    func testExplicitDeferralSurvivesReopeningHelpAndRelaunch() throws {
+        let suite = "Riftlet.DeferredFirstUse.\(UUID())"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let first = FirstUsePreferences(defaults: defaults, modeName: "Riftlet")
+        first.recordPresentation()
+        XCTAssertTrue(first.needsAutomaticPresentation)
+        first.deferPresentation()
+        let relaunched = FirstUsePreferences(defaults: defaults, modeName: "Riftlet")
+        XCTAssertFalse(relaunched.needsAutomaticPresentation)
+        relaunched.recordPresentation()
+        XCTAssertFalse(relaunched.needsAutomaticPresentation)
+        XCTAssertTrue(FirstUsePreferences(defaults: defaults, modeName: "Riftlet-Simulation").needsAutomaticPresentation)
+    }
+
     func testUpgradingPreservesLegacyOnboardingChoice() throws {
         let suite = "Riftlet.LegacyFirstUse.\(UUID())"
         let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))

@@ -360,7 +360,7 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         guard !interactionSuspended, sender.isEnabled, let snapshot else { return }
         let action: SettingsProductAction
         switch sender.identifier?.rawValue {
-        case "control.settings": action = .openSettings(.display)
+        case "control.settings": action = .openSettings(.general)
         case "control.capture": guard snapshot.capabilities.canCapture else { return }; action = .capture
         case "control.recovery":
             guard let page = RiftControlCenterPresentation(snapshot).recoveryPage else { return }
@@ -390,7 +390,7 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         addMenu("定位最早截图", .showOldest, enabled: snapshot.setup.visibleCount > 0)
         addMenu("从边缘收起全部", .clearVisible, enabled: snapshot.capabilities.canClearVisible && snapshot.setup.visibleCount > 0)
         contextMenu.addItem(.separator())
-        addMenu("设置…", .openSettings(.display), key: ",")
+        addMenu("设置…", .openSettings(.general), key: ",")
         if let updater = snapshot.updater {
             addMenu(updater.checkTitle, .checkForUpdates, enabled: updater.canCheck)
         }

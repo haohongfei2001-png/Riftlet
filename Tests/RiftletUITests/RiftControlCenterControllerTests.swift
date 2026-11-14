@@ -86,7 +86,7 @@ final class RiftControlCenterControllerTests: XCTestCase {
         XCTAssertTrue(hidden.detail.contains("仍在收录"))
         let fault = RiftControlCenterPresentation(fixture(paused: true, hidden: true, source: .unavailable, collection: .paused))
         XCTAssertEqual(fault.state, .attention)
-        XCTAssertEqual(fault.recoveryPage, .help)
+        XCTAssertEqual(fault.recoveryPage, .capture)
     }
 
     @MainActor func testTransientAttachmentContextIsNotPersistentAttentionOrFalseRunning() {
@@ -131,7 +131,7 @@ final class RiftControlCenterControllerTests: XCTestCase {
         value.appearance.unreadable = true
         let projection = RiftControlCenterPresentation(value)
         XCTAssertEqual(projection.state, .attention)
-        XCTAssertEqual(projection.recoveryPage, .display)
+        XCTAssertEqual(projection.recoveryPage, .general)
         XCTAssertTrue(projection.title.contains("确认保存"))
         XCTAssertFalse(projection.detail.contains("回滚"))
     }
@@ -142,7 +142,7 @@ final class RiftControlCenterControllerTests: XCTestCase {
             adapter: SettingsPersistenceClosures { _ in .unconfirmed(nil, .writeUnconfirmed) })
         _ = await model.perform(.setCollectionPaused(true))
         value.state = model.snapshot
-        XCTAssertEqual(RiftControlCenterPresentation(value).recoveryPage, .history)
+        XCTAssertEqual(RiftControlCenterPresentation(value).recoveryPage, .capture)
         _ = await model.perform(.setEntryEnabled(false))
         value.state = model.snapshot
         XCTAssertEqual(RiftControlCenterPresentation(value).recoveryPage, .capture)
@@ -152,13 +152,13 @@ final class RiftControlCenterControllerTests: XCTestCase {
         XCTAssertEqual(Set(value.state.domains.compactMap { $0.value.saveFailure == nil ? nil : $0.key }),
                        [.collection, .entry, .placement], "Routing cannot clear another pending retry")
         for (issue, page): (SetupIssue, SettingsPage) in [(.screenshotPreferenceUnsaved, .capture),
-                (.collectionPreferenceUnsaved, .history), (.visibilityPreferenceUnsaved, .history),
+                (.collectionPreferenceUnsaved, .capture), (.visibilityPreferenceUnsaved, .capture),
                 (.configurationUnavailable, .help)] {
             XCTAssertEqual(RiftControlCenterPresentation(fixture(issue: issue)).recoveryPage, page)
         }
         var login = fixture()
         login.login.notConfirmed = true
-        XCTAssertEqual(RiftControlCenterPresentation(login).recoveryPage, .history)
+        XCTAssertEqual(RiftControlCenterPresentation(login).recoveryPage, .general)
     }
 
     @MainActor func testCaptureHintRetainsDisabledEntryReasonWhenVisibilityAlsoBlocksCapture() {

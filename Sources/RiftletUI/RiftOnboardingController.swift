@@ -38,6 +38,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
     public private(set) var currentStep = 0
     public private(set) var presentationID = UUID()
     public var isVisible: Bool { window.isVisible }
+    private let onDefer: @MainActor () -> Void
     private let onAction: SettingsProductActionHandler
     private var snapshot: SettingsProductSnapshot?
     private var hasPresented = false
@@ -74,7 +75,8 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
     private let displayError = SettingsNativeStyle.label("", role: "secondary")
     private let finishHint = SettingsNativeStyle.label("", role: "secondary")
 
-    public init(onAction: @escaping SettingsProductActionHandler) {
+    public init(onDefer: @escaping @MainActor () -> Void = {}, onAction: @escaping SettingsProductActionHandler) {
+        self.onDefer = onDefer
         self.onAction = onAction
         window = RiftVisualStyle.window(outerSize: SettingsNativeStyle.onboardingSize,
             minimum: NSSize(width: 520, height: 416), title: "开始使用 Riftlet")
@@ -305,7 +307,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         sourceDetail.stringValue = sourceStatus(snapshot)
         sourcePath.stringValue = presentation.sourcePath
         sourcePath.isHidden = !presentation.hasSourceLocation
-        sourceAccess.title = "选择截图文件夹…"
+        sourceAccess.title = "授权读取系统截图文件夹…"
         sourceAccess.setAccessibilityLabel(sourceAccess.title)
         sourceAccess.isHidden = !presentation.needsSourceAccess
         sourceAccess.isEnabled = snapshot.capabilities.canChooseSource && !sourceAccess.isHidden
@@ -544,7 +546,10 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
             finishing = false; refreshNext()
         }
     }
-    @objc private func deferSetup() { window.performClose(nil) }
+    @objc private func deferSetup() {
+        onDefer()
+        window.performClose(nil)
+    }
 
     @objc private func actionPressed(_ sender: NSButton) {
         guard sender.isEnabled, !sender.isHiddenOrHasHiddenAncestor, let snapshot else { return }

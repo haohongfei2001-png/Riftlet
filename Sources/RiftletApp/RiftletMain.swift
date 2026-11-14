@@ -235,7 +235,6 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                    let environment = reviewEnvironment, let settingsHost, let store, let statusItem {
                     let driver = SettingsReviewDriver(environment: environment, host: settingsHost, store: store,
                         statusItem: statusItem, onRefresh: { [weak self] in await self?.refresh() },
-                        onHistory: { [weak self] in self?.showHistory() },
                         onRecheck: { [weak self] in
                             guard let self, self.mode == .settingsReview else { return false }
                             self.recheckSetup()
@@ -803,6 +802,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     return await self.saveSettings(request)
                 }, historyDisplay: historyDisplayPreferences,
                 updaterPresentation: { [weak self] in self?.updater?.presentation },
+                onDeferOnboarding: { [weak self] in self?.firstUse.deferPresentation() },
                 onRefresh: { [weak self] in self?.updateSetup() },
                 onAction: { [weak self] in await self?.performSettingsAction($0) })
         } catch { setupIssue = .configurationUnavailable }
@@ -871,7 +871,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     // panel: clicking its controls would otherwise create a screenshot.
     @objc private func showSetup() {
         guard !NSApp.windows.contains(where: { $0.attachedSheet != nil }) else { return }
-        showSettingsPage(.display)
+        showSettingsPage(.general)
     }
     private func showSettingsPage(_ page: SettingsPage) {
         screenshotEntry?.cancel(); updateSetup(); settingsHost?.show(page: page)
@@ -952,7 +952,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         let panel = NSOpenPanel()
         panel.delegate = self
         panel.title = "允许 Riftlet 读取系统截图位置"
-        panel.message = "请选择 macOS 保存截图的文件夹：\n" + source.path
+        panel.message = "请确认允许 Riftlet 读取当前系统截图文件夹：\n" + source.path
         panel.prompt = "允许读取"
         panel.canChooseFiles = false; panel.canChooseDirectories = true
         panel.canCreateDirectories = false; panel.allowsMultipleSelection = false
@@ -1240,6 +1240,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 }
                 let successful = mode.usesWebAdapter ? try await store.successfulOperations() : []
                 let unresolved = try await store.unresolvedOperations()
+                // An unreadable legacy receipt must not suppress fresh thumbnails.
+                // Keep the conservative unresolved count if only the badge projection fails.
+                let reviewCount = (try? await store.pendingAttachmentReviewCount())
+                    ?? Set(unresolved.filter { $0.phase != .prepared }.map(\.assetID)).count
                 var cancelledPreparedFeedback: [UUID: (operationID: UUID, revision: Int64, text: String)] = [:]
                 for (id, operationID) in preparedFeedbackOperations {
                     guard let record = snapshot.first(where: {
@@ -1281,7 +1285,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     }
                 }
                 visibleIDs = activeIDs
-                pendingResultCount = Set(unresolved.filter { $0.phase != .prepared }.map(\.assetID)).count
+                pendingResultCount = reviewCount
                 acceptCaptureStatus(preferenceIssue: preferenceIssue)
                 if clickAdapter == nil {
                     watchedCompletions.formUnion(successful.map(\.id))
@@ -1353,10 +1357,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         do {
             let page = try await store.historySnapshot(limit: 201, offset: offset)
             guard historyGeneration == generation, historyOffset == offset else { return }
-            let entries = page.prefix(200).map {
-                RiftHistoryEntry(record: $0.record, operation: $0.operation, lastReceipt: $0.receipt,
-                                 canRestore: $0.canRestore, detail: $0.reason)
-            }
+            let entries = page.prefix(200).map(RiftHistoryEntry.init(snapshot:))
             history.update(entries: entries, pageOffset: offset, hasEarlier: page.count > 200)
         } catch { showIssue("Local history could not be read; data preserved.") }
     }
@@ -1848,7 +1849,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 let scope = usage.isComplete ? "" : " · 部分统计"
                 self?.storageLine?.title = "私有存储：\(size) · \(usage.regularFileCount) 个文件\(scope)"
                 self?.storageLine?.toolTip = "文件逻辑大小包括已用图片、恢复记录与数据库；没有删除文件。"
-                if let bytes = usage.logicalBytes { self?.setupStorage = .measured(bytes: bytes, complete: usage.isComplete) }
+                if let bytes = usage.logicalBytes { self?.setupStorage = .measured(bytes: bytes, complete: usage.isComplete, screenshotCopies: usage.screenshotCopyBytes) }
                 else { self?.setupStorage = .unavailable }
             } catch {
                 self?.storageLine?.title = "私有存储暂不可读；已有文件保留"

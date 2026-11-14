@@ -22,14 +22,14 @@ public struct RiftControlCenterPresentation {
             switch domain {
             case .arrival, .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme: pages.insert(.display)
             case .entry, .captureMode, .trayFavorite1, .trayFavorite2, .trayFavorite3: pages.insert(.capture)
-            case .collection, .visibility, .archive: pages.insert(.history)
+            case .collection, .visibility, .archive: pages.insert(.capture)
             }
         }
-        if snapshot.appearance.failure != nil || snapshot.appearance.unreadable { pages.insert(.display) }
-        if snapshot.login.errorCode != nil || snapshot.login.notConfirmed { pages.insert(.history) }
+        if snapshot.appearance.failure != nil || snapshot.appearance.unreadable { pages.insert(.general) }
+        if snapshot.login.errorCode != nil || snapshot.login.notConfirmed { pages.insert(.general) }
         switch snapshot.setup.issue {
         case .screenshotPreferenceUnsaved: pages.insert(.capture)
-        case .visibilityPreferenceUnsaved, .collectionPreferenceUnsaved: pages.insert(.history)
+        case .visibilityPreferenceUnsaved, .collectionPreferenceUnsaved: pages.insert(.capture)
         case .configurationUnavailable: pages.insert(.help) // Reload/open configuration.
         default: break
         }
@@ -70,17 +70,17 @@ public struct RiftControlCenterPresentation {
             state = .attention; title = "无法保存新截图"
             detail = "请检查可用磁盘空间和文件访问权限。"
             symbol = "exclamationmark.circle"
-            recoveryTitle = "查看本机存储"; recoveryPage = .history
+            recoveryTitle = "查看本机存储"; recoveryPage = .capture
         } else if setup.issue == .screenshotFolderNeedsSelection {
             state = .attention; title = "需要重新选择截图文件夹"
             detail = "此前的文件夹选择已无法确认，已有截图保留。"
             symbol = "folder.badge.questionmark"
-            recoveryTitle = "查看截图位置"; recoveryPage = .help
+            recoveryTitle = "查看截图位置"; recoveryPage = .capture
         } else if setup.source == .unavailable || setup.source == .notConfigured || setup.issue == .sourceAccess {
             state = .attention; title = "无法访问截图位置"
             detail = "已有图片保留；请检查当前系统截图位置。"
             symbol = "folder.badge.questionmark"
-            recoveryTitle = "检查截图位置"; recoveryPage = .help
+            recoveryTitle = "检查截图位置"; recoveryPage = .capture
         } else if !owner.collectionPaused, setup.issue == .sourceVolumeUnidentified {
             state = .attention; title = "当前截图位置无法收录"
             detail = SetupIssue.sourceVolumeUnidentified.text

@@ -54,7 +54,9 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     private var queuedSaveIDs: [SettingsDomain: UUID] = [:]
     private var submittingCloseEdit = false
     private var replacingEditor = false
-    private var initialEditorValues: [ObjectIdentifier: String] = [:]
+    // Last value actually displayed or submitted. AppKit can deliver end-editing
+    // on a focus-only visit without ever sending a begin-editing notification.
+    var displayedEditorValues: [ObjectIdentifier: String] = [:]
     private var markedFields = Set<ObjectIdentifier>()
     private var allowClose = false
     private var hasPositioned = false
@@ -308,9 +310,6 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
         handlers[ObjectIdentifier(sender)]?()
     }
 
-    public func controlTextDidBeginEditing(_ obj: Notification) {
-        if let field = obj.object as? NSTextField { initialEditorValues[ObjectIdentifier(field)] = field.stringValue }
-    }
     public func controlTextDidChange(_ obj: Notification) {
         guard let field = obj.object as? NSTextField else { return }
         if let editor = field.currentEditor() as? NSTextView, editor.hasMarkedText() {
@@ -323,8 +322,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     }
     public func controlTextDidEndEditing(_ obj: Notification) {
         guard let field = obj.object as? NSTextField else { return }
-        defer { initialEditorValues[ObjectIdentifier(field)] = nil }
-        guard !allowClose, !replacingEditor, pendingCloseAlert == nil,
+        guard !allowClose, !submittingCloseEdit, !replacingEditor, pendingCloseAlert == nil,
               markedFields.remove(ObjectIdentifier(field)) == nil,
               (field.currentEditor() as? NSTextView)?.hasMarkedText() != true else { return }
         commitEditor(field)
@@ -339,8 +337,9 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
 
     private func commitEditor(_ field: NSTextField) {
         let text = (field.currentEditor() as? NSTextView)?.string ?? field.stringValue
-        guard text != initialEditorValues[ObjectIdentifier(field)] || (field === archiveField && model.hasArchiveDraft) else { return }
+        guard text != displayedEditorValues[ObjectIdentifier(field)] else { return }
         record(field)
+        displayedEditorValues[ObjectIdentifier(field)] = text
         if field === archiveField, model.hasArchiveDraft {
             dispatch(.settings(.commitArchive(model.archiveDraftText)))
         } else if let key = numericFields.first(where: { $0.value === field })?.key,
@@ -364,8 +363,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     func record(_ field: NSTextField) {
         guard (field.currentEditor() as? NSTextView)?.hasMarkedText() != true else { return }
         let text = (field.currentEditor() as? NSTextView)?.string ?? field.stringValue
-        if text == initialEditorValues[ObjectIdentifier(field)] && field === numericFields[.visibleCountPreference]
-            && model.snapshot.layoutText[.visibleCountPreference] == nil { return }
+        if text == displayedEditorValues[ObjectIdentifier(field)] { return }
         if field === archiveField {
             if model.archiveDraftText != text { model.setArchiveDraftText(text) }
         } else if let key = numericFields.first(where: { $0.value === field })?.key,
@@ -437,6 +435,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
             termination?(false)
             return true
         }
+        guard editor.string != displayedEditorValues[ObjectIdentifier(field)] else { return false }
         record(field)
         let command: SettingsCommand
         if field === archiveField, model.hasArchiveDraft {
@@ -446,6 +445,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
                   let text = model.snapshot.layoutText[key], number(text) != nil {
             command = .commitField(key, text, maximumCount: countCapacity(model.snapshot.owner))
         } else { return false }
+        displayedEditorValues[ObjectIdentifier(field)] = editor.string
         submittingCloseEdit = true
         dispatch(.settings(command))
         let write = queuedSaves[field === archiveField ? .archive : .layout]
@@ -544,7 +544,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
         refreshCloseButtons()
         Task { @MainActor [weak self, weak alert] in
             guard let self, let alert, pendingCloseAlert === alert, window.attachedSheet === alert.window else { return }
-            await onAction(.settings(index == 1 ? .discardDrafts : .applyDrafts))
+            await onAction(.settings(index == 1 ? .discardDrafts : .applyDrafts(maximumCount: countCapacity(model.snapshot.owner))))
             // A continued edit, teardown, or newer sheet cannot be approved by
             // a receipt for the earlier decision. The owner write still stands.
             guard pendingCloseAlert === alert, window.attachedSheet === alert.window else { return }

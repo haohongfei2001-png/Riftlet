@@ -151,6 +151,7 @@ extension RiftSettingsCenterController {
             section("归档与本机存储"), preferenceRecoveryRow(.archive), archiveSettings(),
             row("本机存储", control: makeButton("检查用量", id: "storage.check") { [weak self] in self?.dispatch(.checkStorage) }),
             namedLabel("storage", role:"caption"),
+            makeButton("重新检查本地截图副本", id:"storage.recheckMedia") { [weak self] in self?.dispatch(.recheck) },
             makeButton("打开截图历史…", id:"history.open") { [weak self] in self?.dispatch(.openHistory) },
             namedLabel("history.detail", role:"caption")
         ]

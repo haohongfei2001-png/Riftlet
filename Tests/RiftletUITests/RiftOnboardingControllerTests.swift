@@ -261,16 +261,18 @@ final class RiftOnboardingControllerTests: XCTestCase {
         XCTAssertFalse(next.isEnabled)
     }
 
-    @MainActor func testLaterAndTeardownDoNotDispatchFinishOrAnyCommand() async throws {
+    @MainActor func testOnlyLaterRecordsDeferralWithoutDispatchingAProductCommand() async throws {
         try prepareAppKit()
         var actions = 0
-        let controller = RiftOnboardingController { _ in actions += 1 }
+        var deferrals = 0
+        let controller = RiftOnboardingController(onDefer: { deferrals += 1 }) { _ in actions += 1 }
         controller.update(fixture(try model()))
         try button(controller, "onboarding.next").performClick(nil)
         try button(controller, "onboarding.later").performClick(nil)
         controller.closeForTeardown()
         await Task.yield()
         XCTAssertEqual(actions, 0)
+        XCTAssertEqual(deferrals, 1)
         XCTAssertFalse(controller.isVisible)
     }
 

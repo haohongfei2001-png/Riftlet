@@ -32,6 +32,7 @@ final class SettingsProductHost {
          login: LoginItemPreferences? = nil,
          historyDisplay: HistoryDisplayPreferences? = nil,
          updaterPresentation: @escaping @MainActor () -> SettingsUpdaterPresentation? = { nil },
+         onDeferOnboarding: @escaping @MainActor () -> Void = {},
          onRefresh: @escaping @MainActor () -> Void,
          onAction: @escaping SettingsProductActionHandler) throws {
         model = try SettingsStateModel(owner: owner, adapter: adapter)
@@ -47,7 +48,7 @@ final class SettingsProductHost {
         try? appearance.applyAcceptedSelection()
         center = RiftSettingsCenterController(model: model, onAction: { [weak self] in await self?.perform($0) })
         control = RiftControlCenterController(statusItem: statusItem, onAction: { [weak self] in await self?.perform($0) })
-        onboarding = RiftOnboardingController(onAction: { [weak self] in await self?.perform($0) })
+        onboarding = RiftOnboardingController(onDefer: onDeferOnboarding, onAction: { [weak self] in await self?.perform($0) })
         model.onChange = { [weak self] _ in self?.publish() }
         self.login.onChange = { [weak self] _ in self?.publish() }
         accessibilityObserver = NSWorkspace.shared.notificationCenter.addObserver(
@@ -128,7 +129,7 @@ final class SettingsProductHost {
         center?.update(value); control?.update(value); onboarding?.update(value)
     }
 
-    func show(page: SettingsPage = .display) {
+    func show(page: SettingsPage = .general) {
         guard !isPreparingForTermination else { return }
         control.close(); login.refresh(); onRefresh(); center.show(page: page)
     }

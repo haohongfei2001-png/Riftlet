@@ -10,7 +10,7 @@ public enum SetupPermissionState: Equatable, Sendable {
     case notNeeded, notChecked, notRequested, granted, denied, notRunning, browserUnavailable, unavailable
 }
 public enum SetupStorageState: Equatable, Sendable {
-    case notMeasured, measuring, measured(bytes: UInt64, complete: Bool), insufficientSpace, writeFailed, unavailable
+    case notMeasured, measuring, measured(bytes: UInt64, complete: Bool, screenshotCopies: UInt64? = nil), insufficientSpace, writeFailed, unavailable
 }
 
 /// The menu belongs to Chrome. Its instructions never represent a permission observation.
@@ -54,7 +54,7 @@ public enum SetupIssue: Equatable, Sendable {
         case .historicalSourceUnconfirmed:
             return CaptureDiagnostic(code: .historicalSourceUnconfirmed).userMessage
         case .wrongScreenshotFolder:
-            return "所选文件夹与当前系统截图位置不同。点“重新检查”，确认路径后再选择截图文件夹。"
+            return "所选文件夹与当前系统截图位置不同。请确认当前系统截图位置，然后授权读取该文件夹。"
         case .screenshotFolderNeedsSelection:
             return "此前选择的截图文件夹已无法确认。请重新选择下方的系统截图文件夹，确认后再继续收录。已有截图保留。"
         case .unsupportedFormat:
@@ -321,11 +321,15 @@ public struct SetupPresentation: Equatable, Sendable {
         switch snapshot.storage {
         case .notMeasured: return "私有存储用量尚未检查。隐藏、移除与归档都不等于删除图片。"
         case .measuring: return "正在检查私有存储用量；不会读取图片内容或删除文件。"
-        case .measured(let bytes, let complete):
+        case .measured(let bytes, let complete, let screenshotCopies):
             let value = bytes <= UInt64(Int64.max)
                 ? ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file)
                 : "\(bytes) 字节"
-            return "私有存储\(complete ? "约" : "已统计至少") \(value)（文件逻辑大小）。\(complete ? "" : "部分项目暂无法统计。")不代表可释放磁盘空间。"
+            let copies = screenshotCopies.map { bytes in
+                let value = bytes <= UInt64(Int64.max) ? ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file) : "\(bytes) 字节"
+                return "其中，截图副本和内置截图占 \(value)。"
+            } ?? ""
+            return "私有存储\(complete ? "约" : "已统计至少") \(value)（文件逻辑大小）。\(complete ? "" : "部分项目暂无法统计。")\(copies)归档不会删除图片；以上用量不代表可释放磁盘空间。"
         case .insufficientSpace: return SetupIssue.insufficientSpace.text
         case .writeFailed: return SetupIssue.privateWriteFailed.text
         case .unavailable: return "私有存储用量暂无法确认；已有数据保留。"
