@@ -28,6 +28,25 @@ public struct RiftSelectionBoundary: Equatable, Sendable {
     }
 }
 
+/// Opt-in receipt for the path traversed by one tagged native mouse event.
+/// Observers do not choose a row, change event delivery, or grant a selection.
+public struct RiftMouseDispatchBoundary {
+    public enum Stage: String { case windowEvent, inputDown, inputUp, onDown, gate, release }
+    public enum Status: String {
+        case received, outsideBounds, originalRowUnavailable, ownerMismatch, stateRejected
+        case accepted, blocked, releaseWithoutHold, cancelled, selected
+    }
+    public let assetID: UUID
+    public let stage: Stage
+    public let status: Status
+    public let eventUptime: TimeInterval
+    public let eventNumber: Int
+    public let windowNumber: Int
+    public let clickCount: Int
+    public let mouseProbeTag: Int64
+    public let isMouseDown: Bool
+}
+
 /// Read-only native geometry for the standalone acceptance helper. Rectangles
 /// are in screen points; observing this value never changes input or layout.
 public struct RiftDiagnosticRow: Equatable, Sendable {
@@ -70,6 +89,12 @@ public struct RiftArrivalDiagnostic: Sendable {
 /// Minimal native AppKit structure informed by Tendedero's LinePanel, implemented here
 /// without its private CGS calls, pointer polling, capacity eviction or artwork.
 private final class RiftPanel: NSPanel {
+    var observeMouseEvent: ((NSEvent) -> Void)?
+    override func sendEvent(_ event: NSEvent) {
+        if event.type == .leftMouseDown || event.type == .leftMouseUp { observeMouseEvent?(event) }
+        super.sendEvent(event)
+    }
+
     var permitsKeyboardFocus = false
     override var canBecomeKey: Bool { permitsKeyboardFocus }
     override var canBecomeMain: Bool { false }
@@ -110,8 +135,9 @@ private final class RiftRowView: NSView, NSMenuDelegate {
     var requestedPixelSize: Int = 0
     var reportedImageReady = false
     private var arrivalImageOwner: UUID?
+    var onMouseDispatch: ((NSEvent, RiftMouseDispatchBoundary.Stage, RiftMouseDispatchBoundary.Status) -> Void)?
     var onDown: ((NSEvent) -> Bool)?
-    var onUp: ((Bool, CGPoint?) -> Void)?
+    var onUp: ((Bool, CGPoint?, NSEvent) -> Void)?
     var onScroll: ((NSEvent) -> Void)?
     var onAccessiblePress: (() -> Bool)?
     var onPreview: (() -> Bool)?
@@ -363,7 +389,7 @@ private final class RiftRowView: NSView, NSMenuDelegate {
     }
     override func mouseUp(with event: NSEvent) {
         onUp?(geometry.containsSelectionPoint(convert(event.locationInWindow, from: nil)),
-              event.window?.convertPoint(toScreen: event.locationInWindow))
+              event.window?.convertPoint(toScreen: event.locationInWindow), event)
     }
     override func scrollWheel(with event: NSEvent) { onScroll?(event) }
     override func accessibilityPerformPress() -> Bool {
@@ -399,14 +425,21 @@ private final class RiftInputView: NSView {
     }
 
     override func mouseDown(with event: NSEvent) {
-        guard bounds.contains(convert(event.locationInWindow, from: nil)), isInsideOriginalRow(event) else { return }
+        rowView?.onMouseDispatch?(event, .inputDown, .received)
+        guard bounds.contains(convert(event.locationInWindow, from: nil)) else {
+            rowView?.onMouseDispatch?(event, .inputDown, .outsideBounds); return
+        }
+        guard isInsideOriginalRow(event) else {
+            rowView?.onMouseDispatch?(event, .inputDown, .originalRowUnavailable); return
+        }
         _ = rowView?.onDown?(event)
     }
     override func mouseUp(with event: NSEvent) {
+        rowView?.onMouseDispatch?(event, .inputUp, .received)
         // AppKit routes release to the original down window even outside its
         // bounds. Test the union of this original asset's two regions, never a
         // replacement row under the release point.
-        rowView?.onUp?(isInsideOriginalRow(event), event.window?.convertPoint(toScreen: event.locationInWindow))
+        rowView?.onUp?(isInsideOriginalRow(event), event.window?.convertPoint(toScreen: event.locationInWindow), event)
     }
     override func scrollWheel(with event: NSEvent) {
         if rowView?.geometry.windChime == nil || isInsideOriginalRow(event) { rowView?.onScroll?(event) }
@@ -739,6 +772,7 @@ public final class RiftPanelController {
 
     /// Only the explicit acceptance sampler requests the Quartz event's correlation field.
     public var readsAcceptanceMouseTag = false
+    public var onMouseDispatchBoundary: ((RiftMouseDispatchBoundary) -> Void)?
 
     /// Opt-in mouse acceptance reads this on the main thread. Use the live input
     /// island and the same geometry predicate as mouseDown, including clipped cards.
@@ -1804,6 +1838,19 @@ public final class RiftPanelController {
     }
 
     private func wire(_ window: RowWindow, id: UUID) {
+        window.view.onMouseDispatch = { [weak self] event, stage, status in
+            guard let self, self.readsAcceptanceMouseTag, let observer = self.onMouseDispatchBoundary,
+                  let tag = event.cgEvent?.getIntegerValueField(.eventSourceUserData),
+                  tag > 0, tag < (1 << 48) else { return }
+            observer(RiftMouseDispatchBoundary(assetID: id, stage: stage, status: status,
+                eventUptime: event.timestamp, eventNumber: event.eventNumber, windowNumber: event.windowNumber,
+                clickCount: event.clickCount, mouseProbeTag: tag, isMouseDown: event.type == .leftMouseDown))
+        }
+        for input in [window.imageInput, window.numberInput] {
+            input.observeMouseEvent = { [weak view = window.view] event in
+                view?.onMouseDispatch?(event, .windowEvent, .received)
+            }
+        }
         window.view.onHover = { [weak self, weak view = window.view] inside in
             guard let self, !self.userHidden, !self.closed else { return }
             // Use both input islands so an exit from one cannot clear a hover
@@ -1841,8 +1888,11 @@ public final class RiftPanelController {
         }
         let inputWindowNumbers: Set<Int> = [window.imageInput.windowNumber, window.numberInput.windowNumber]
         window.view.onDown = { [weak self, weak view = window.view] event in
+            view?.onMouseDispatch?(event, .onDown, .received)
             guard let self, let view, let eventWindow = event.window,
-                  inputWindowNumbers.contains(eventWindow.windowNumber) else { return false }
+                  inputWindowNumbers.contains(eventWindow.windowNumber) else {
+                view?.onMouseDispatch?(event, .onDown, .ownerMismatch); return false
+            }
             self.peek.cancel()
             let point = eventWindow.convertPoint(toScreen: event.locationInWindow)
             let originalRegions = self.rowWindows[id]?.hitRegion
@@ -1856,6 +1906,7 @@ public final class RiftPanelController {
             let accepted = self.gate.begin(assetID: id, screenPoint: point, timestamp: event.timestamp,
                                           clickCount: event.clickCount, doubleClickInterval: NSEvent.doubleClickInterval,
                                           acceptsSelection: accepts)
+            view.onMouseDispatch?(event, .gate, accepted ? .accepted : (accepts ? .blocked : .stateRejected))
             if accepted {
                 self.selectionVersions[id] = view.record.visibilityRevision
                 self.pressRegions[id] = originalRegions
@@ -1873,14 +1924,17 @@ public final class RiftPanelController {
             }
             return accepted
         }
-        window.view.onUp = { [weak self, weak view = window.view] inside, releasePoint in
+        window.view.onUp = { [weak self, weak view = window.view] inside, releasePoint, event in
             guard let self, let view, !self.closed, self.rowWindows[id]?.view === view,
-                  self.interaction.heldID == id else { return }
+                  self.interaction.heldID == id else {
+                view?.onMouseDispatch?(event, .release, .releaseWithoutHold); return
+            }
             let held = self.interaction.heldID
             let originalInside = releasePoint.map { point in
                 self.pressRegions[id]?.contains(point) ?? false
             } ?? false
             let selected = self.gate.end(inside: inside || originalInside)
+            view.onMouseDispatch?(event, .release, selected == nil ? .cancelled : .selected)
             self.pressRegions.removeValue(forKey: id)
             self.mutateInteraction { $0.releasePointer(accepted: selected != nil) }
             if let held, selected == nil {

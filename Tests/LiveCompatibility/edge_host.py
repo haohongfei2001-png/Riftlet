@@ -210,7 +210,25 @@ def summarize_mouse_receipts(evidence, sent):
     for asset, window, tag in sent:
         clicks = [r for r in selected if r.get("assetIDDigest") == asset]
         failures = [r for r in refused if r.get("assetIDDigest") == asset]
+        native = [r for r in evidence if r.get("event") == "mouse_dispatch_boundary" and r.get("mouseProbeTag") == tag]
+        original_native = [r for r in native if r.get("assetIDDigest") == asset and r.get("windowNumber") == window]
+        application = [r for r in evidence if r.get("event") == "mouse_application_event" and r.get("mouseProbeTag") == tag]
+        stages = {}
+        legal_statuses = {"received", "outsideBounds", "originalRowUnavailable", "ownerMismatch", "stateRejected",
+                          "accepted", "blocked", "releaseWithoutHold", "cancelled", "selected"}
+        for phase in ("windowEvent", "inputDown", "inputUp", "onDown", "gate", "release"):
+            observed = [r for r in original_native if r.get("phase") == phase]
+            stages[phase] = dict(down=sum(r.get("mouseDown") is True for r in observed),
+                                up=sum(r.get("mouseDown") is False for r in observed),
+                                statuses=sorted({r.get("status") if r.get("status") in legal_statuses else "OTHER"
+                                                 for r in observed}))
         result["dispatches"].append(dict(
+            applicationDownCount=sum(r.get("mouseDown") is True for r in application),
+            applicationUpCount=sum(r.get("mouseDown") is False for r in application),
+            applicationOriginalWindowCount=sum(r.get("windowNumber") == window for r in application),
+            nativeWrongAssetCount=sum(r.get("assetIDDigest") != asset for r in native),
+            nativeWrongWindowCount=sum(r.get("windowNumber") != window for r in native),
+            nativeStages=stages,
             selectionForOriginalAsset=len(clicks), refusalForOriginalAsset=len(failures),
             targetResolvedForOriginalAsset=sum(r.get("assetIDDigest") == asset for r in resolved),
             assetMatched=bool(clicks), tagMatched=any(r.get("mouseProbeTag") == tag for r in selected),
@@ -799,6 +817,7 @@ def exercise(app, report):
                           for table in ("operations", "upload_starts")}
             if draft.document_requests != 1 or any(counts.values()) or draft.file_changes or draft.post_requests or selected_window() != window:
                 raise RuntimeError("unexpected_file_action_or_target_change")
+            report["mouseReceiptObservation"] = summarize_mouse_receipts(events(recent), sent)
             report.update(result="VERIFIED_TWO_APP_REJECTIONS_CONTROLLED_EDGE", retainedVisibleAssets=2,
                           originalPrivateSHA256Matches=2, operations=counts["operations"], starts=counts["upload_starts"],
                           fixtureFileChanges=draft.file_changes, fixturePostRequests=draft.post_requests,

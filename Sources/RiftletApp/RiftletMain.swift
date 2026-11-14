@@ -173,6 +173,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var lastForegroundSession: String?
     private var diagnosticTrace: BoundedDiagnosticTrace?
     private var acceptanceHitMap: AcceptanceHitMap?
+    private var acceptanceMouseEventMonitor: Any?
     private var visibilityTrace = AcceptanceTraceDeduplicator<UUID, [String]>()
     private var readyTrace = AcceptanceTraceDeduplicator<UUID, [String]>()
     private var frozenPress: (id: UUID, eventUptime: TimeInterval, target: Task<TargetLease, Error>)?
@@ -336,6 +337,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     func applicationWillTerminate(_ notification: Notification) {
         terminating = true
         acceptanceHitMap?.stop()
+        if let acceptanceMouseEventMonitor { NSEvent.removeMonitor(acceptanceMouseEventMonitor) }
         guard let owner = instanceOwnership else { return }
         owner.keepUntilProcessExit()
         permissionResumer?.stop()
@@ -523,6 +525,27 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             if mode == .capture, diagnosticTrace != nil {
                 acceptanceHitMap = AcceptanceHitMap(panel: rift, directory: root.appendingPathComponent("diagnostics"),
                     arguments: CommandLine.arguments, buildChannel: Bundle.main.object(forInfoDictionaryKey: "RiftletBuildChannel") as? String)
+                if acceptanceHitMap != nil {
+                    rift.onMouseDispatchBoundary = { [weak self] boundary in
+                        self?.recordAcceptance(["event": "mouse_dispatch_boundary",
+                            "assetID": boundary.assetID.uuidString, "phase": boundary.stage.rawValue,
+                            "status": boundary.status.rawValue, "eventUptime": boundary.eventUptime,
+                            "eventNumber": boundary.eventNumber, "windowNumber": boundary.windowNumber,
+                            "clickCount": boundary.clickCount, "mouseProbeTag": boundary.mouseProbeTag,
+                            "mouseDown": boundary.isMouseDown])
+                    }
+                    acceptanceMouseEventMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .leftMouseUp]) { [weak self] event in
+                        if let tag = event.cgEvent?.getIntegerValueField(.eventSourceUserData),
+                           tag > 0, tag < (1 << 48) {
+                            self?.recordAcceptance(["event": "mouse_application_event",
+                                "phase": event.type == .leftMouseDown ? "down" : "up",
+                                "eventUptime": event.timestamp, "eventNumber": event.eventNumber,
+                                "windowNumber": event.windowNumber, "clickCount": event.clickCount,
+                                "mouseProbeTag": tag, "mouseDown": event.type == .leftMouseDown])
+                        }
+                        return event
+                    }
+                }
             }
             arrivalCapture = ArrivalCaptureBridge(panel: rift,
                 allowsMetadata: ArrivalSourceProfile.allowsMetadata(arguments: CommandLine.arguments))

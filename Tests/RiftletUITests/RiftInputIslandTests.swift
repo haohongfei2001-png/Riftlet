@@ -3,6 +3,27 @@ import XCTest
 import RiftletCore
 @testable import RiftletUI
 
+// Supplies a trace tag without changing the existing test event's AppKit
+// identity. This exercises view callbacks, not WindowServer delivery.
+private final class TaggedInputEvent: NSEvent {
+    let original: NSEvent
+    let tag: Int64
+    init(_ original: NSEvent, tag: Int64) { self.original = original; self.tag = tag; super.init() }
+    required init?(coder: NSCoder) { fatalError("init(coder:) is not used") }
+    override var type: NSEvent.EventType { original.type }
+    override var timestamp: TimeInterval { original.timestamp }
+    override var window: NSWindow? { original.window }
+    override var windowNumber: Int { original.windowNumber }
+    override var locationInWindow: NSPoint { original.locationInWindow }
+    override var eventNumber: Int { original.eventNumber }
+    override var clickCount: Int { original.clickCount }
+    override var cgEvent: CGEvent? {
+        let value = original.cgEvent
+        value?.setIntegerValueField(.eventSourceUserData, value: tag)
+        return value
+    }
+}
+
 /// Direct native callback/geometry tests; not WindowServer click routing proof.
 final class RiftInputIslandTests: XCTestCase {
     private func record(_ sequence: Int64 = 1) -> AssetRecord {
@@ -12,7 +33,7 @@ final class RiftInputIslandTests: XCTestCase {
             pixelWidth: 360, pixelHeight: 220, mediaType: "image/png", origin: .synthetic), sequence: sequence)
     }
 
-    @MainActor private func controller(onPress: @escaping (UUID, TimeInterval) -> Void = { _, _ in },
+    @MainActor private func controller(holdsSelectionUntilFinished: Bool = false, onPress: @escaping (UUID, TimeInterval) -> Void = { _, _ in },
                                       onBoundary: @escaping (RiftSelectionBoundary) -> Void = { _ in },
                                       onSelect: @escaping (UUID) -> Void = { _ in }) throws -> RiftPanelController {
         _ = NSApplication.shared
@@ -23,7 +44,7 @@ final class RiftInputIslandTests: XCTestCase {
         configuration.returnDuration = 0.01
         return RiftPanelController(mediaDirectory: FileManager.default.temporaryDirectory,
             configuration: configuration, arrivalMode: .magnet, onPress: onPress,
-            onSelectionBoundary: onBoundary, onSelect: onSelect)
+            onSelectionBoundary: onBoundary, holdsSelectionUntilFinished: holdsSelectionUntilFinished, onSelect: onSelect)
     }
 
     @MainActor private func window(_ number: Int) throws -> NSWindow {
@@ -167,4 +188,60 @@ final class RiftInputIslandTests: XCTestCase {
         XCTAssertTrue(oldWindows.allSatisfy { !$0.isVisible }, "Reflow retires every old input window")
         XCTAssertEqual(panel.diagnosticSnapshot.rows.first?.assetID, other.id)
     }
+
+    @MainActor func testTaggedWindowDispatchTracksBothRowsAcrossRefusalFeedbackAndRefresh() throws {
+        var selected: [UUID] = [], boundaries: [RiftMouseDispatchBoundary] = []
+        let panel = try controller(holdsSelectionUntilFinished: true, onSelect: { selected.append($0) })
+        defer { panel.close() }
+        panel.readsAcceptanceMouseTag = true
+        panel.onMouseDispatchBoundary = { boundaries.append($0) }
+        let records = [record(), record(2)]
+        panel.render(records)
+        let inputWindows = Dictionary(uniqueKeysWithValues: panel.diagnosticSnapshot.rows.map { ($0.assetID, $0.imageInputWindowNumber) })
+        for (index, asset) in records.enumerated() {
+            let row = try XCTUnwrap(panel.diagnosticSnapshot.rows.first { $0.assetID == asset.id })
+            let target = try window(row.imageInputWindowNumber)
+            let point = CGPoint(x: row.imageClipFrame.midX, y: row.imageClipFrame.midY)
+            let down = TaggedInputEvent(try event(.leftMouseDown, window: target, screen: point,
+                time: 10 + Double(index) / 10), tag: Int64(index + 1))
+            let up = TaggedInputEvent(try event(.leftMouseUp, window: target, screen: point,
+                time: down.timestamp + 0.01), tag: down.tag)
+            target.sendEvent(down); target.sendEvent(up)
+            let traced = boundaries.filter { $0.assetID == asset.id }
+            XCTAssertEqual(traced.map { $0.stage }, [.windowEvent, .inputDown, .onDown, .gate, .windowEvent, .inputUp, .release])
+            XCTAssertEqual(traced.map { $0.status }, [.received, .received, .received, .accepted, .received, .received, .selected])
+            XCTAssertTrue(traced.allSatisfy { $0.mouseProbeTag == down.tag && $0.windowNumber == target.windowNumber })
+            XCTAssertEqual(traced.map { $0.isMouseDown }, [true, true, true, true, false, false, false])
+            panel.setFeedback("当前浏览器不可用，图片保留。", for: asset.id)
+            panel.finishSelection(asset.id)
+            panel.render(records)
+            XCTAssertTrue(panel.diagnosticSnapshot.rows.allSatisfy { inputWindows[$0.assetID] == $0.imageInputWindowNumber })
+        }
+        XCTAssertEqual(selected, records.map(\.id))
+    }
+
+    @MainActor func testMouseDiagnosticsDistinguishGeometryAndGateRefusalAndRequireOptInTag() throws {
+        var selected: [UUID] = [], boundaries: [RiftMouseDispatchBoundary] = []
+        let panel = try controller(onSelect: { selected.append($0) })
+        defer { panel.close() }
+        panel.onMouseDispatchBoundary = { boundaries.append($0) }
+        let asset = record(); panel.render([asset])
+        let row = try XCTUnwrap(panel.diagnosticSnapshot.rows.first)
+        let target = try window(row.imageInputWindowNumber), view = try XCTUnwrap(target.contentView)
+        let point = CGPoint(x: row.imageClipFrame.midX, y: row.imageClipFrame.midY)
+        let double = try event(.leftMouseDown, window: target, screen: point, time: 12, count: 2)
+        view.mouseDown(with: TaggedInputEvent(double, tag: 1))
+        XCTAssertTrue(boundaries.isEmpty, "The observer alone does not enable acceptance event reads")
+        panel.readsAcceptanceMouseTag = true
+        view.mouseDown(with: double)
+        XCTAssertTrue(boundaries.isEmpty, "Untagged native events have no acceptance trace")
+        view.mouseDown(with: TaggedInputEvent(double, tag: 2))
+        XCTAssertEqual(boundaries.map { $0.status }, [.received, .received, .blocked])
+        boundaries.removeAll()
+        let outside = CGPoint(x: target.frame.minX - 20, y: target.frame.minY - 20)
+        view.mouseDown(with: TaggedInputEvent(try event(.leftMouseDown, window: target, screen: outside, time: 14), tag: 3))
+        XCTAssertEqual(boundaries.map { $0.status }, [.received, .outsideBounds])
+        XCTAssertTrue(selected.isEmpty)
+    }
+
 }
