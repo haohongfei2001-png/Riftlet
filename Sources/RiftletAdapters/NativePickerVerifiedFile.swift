@@ -37,7 +37,7 @@ final class NativeMacVerifiedFile {
 
     deinit { close(descriptor); close(directoryDescriptor) }
 
-    func verifyBytes() throws {
+    func verifyBytes(expectedPrefix: Data = Data()) throws {
         var hasher = SHA256()
         var total: Int64 = 0
         var buffer = Data(count: 64 * 1024)
@@ -49,11 +49,16 @@ final class NativeMacVerifiedFile {
             }
             guard count >= 0 else { throw NativeMacAXError.invalidPrivateFile }
             if count == 0 { break }
+            let remaining = expectedPrefix.count - min(expectedPrefix.count, Int(total))
+            let checked = min(remaining, count)
+            if checked > 0, !buffer.prefix(checked).elementsEqual(expectedPrefix.dropFirst(Int(total)).prefix(checked)) {
+                throw NativeMacAXError.invalidPrivateFile
+            }
             total += Int64(count)
             guard total <= original.st_size else { throw NativeMacAXError.invalidPrivateFile }
             hasher.update(data: buffer.prefix(count))
         }
-        guard total == original.st_size,
+        guard total == original.st_size, total >= Int64(expectedPrefix.count),
               hasher.finalize().map({ String(format: "%02x", $0) }).joined() == expectedHash else {
             throw NativeMacAXError.invalidPrivateFile
         }

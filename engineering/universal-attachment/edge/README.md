@@ -15,6 +15,12 @@ The second command compiles the Swift sender and addresses only the process star
 
 A headless browser normally has no native foreground window. For the full native route, `--hosted-runner-window` enables an isolated foreground window only on a disposable GitHub-hosted macOS runner. Exit 77 identifies an unavailable prerequisite. An empty profile can also lack permission to execute JavaScript through Apple Events. The verifier leaves all permission settings intact.
 
+## Packaged App and native picker
+
+The ARM64 hosted job runs `Tests/LiveCompatibility/edge_host.py` against the packaged development App. It imports two macOS screenshots, verifies their hashes and resolves each row against the App’s private hit map and WindowServer’s first mouse recipient. Each software mouse event carries a unique tag. A confirmed App action requires the same tag, asset, input window and click count at the ordinary selection callback. The neutral draft independently reports its text, selection and prior image. See the [stage-by-stage ledger](../acceptance-20261114.json).
+
+The controlled native picker uses the separately compiled `RIFTLET_CONTROLLED_EDGE` executable. It binds the exact native Edge tab and AX draft before pressing its attachment button. It can confirm only a selected row for the generated PNG in a sheet attached to the original window. A missing consent, unprovable sheet or missing exact row stops that step. The test receiver reports first body byte, complete matching PNG and the original draft's acknowledgement separately. Production entitlements and ordinary Edge routing have no changes in this experiment.
+
 ## Local observations, 2026-11-14 (Asia/Shanghai)
 
 | Check | Actual observation |

@@ -10,11 +10,12 @@ import os
 from pathlib import Path
 import plistlib
 import re
+import sys
+import secrets
 import signal
 import sqlite3
 import stat
 import subprocess
-import sys
 import tempfile
 import threading
 import time
@@ -23,6 +24,11 @@ import uuid
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
 EDGE = Path("/Applications/Microsoft Edge.app")
+AX_HOST_SOURCES = ("ChromeProcessIdentity", "NativeMacAXDriver", "EdgeNativeDraftProbe", "EdgeApplicationHost",
+                   "ChromeActiveTabDescriptor", "ApplicationHostAdapter", "ConversationSurfaceAdapter")
+sys.path.insert(0, str(REPO / "Tests/UniversalNativePickerHost"))
+from edge_neutral_picker import PIXEL, probe_neutral_picker
+
 ROOT = Path.home() / "Library/Application Support/Riftlet"
 
 
@@ -152,6 +158,72 @@ def events(path):
     return [json.loads(line) for line in path.read_bytes().splitlines() if line]
 
 
+def inspect_neutral_ax(helper, edge_pid, product_pid, app, title, window, edge_birth, product_birth, url):
+    # Independent read-only measurement. AX cannot supply the browser's actual tab identifier.
+    try:
+        result = command(helper, "neutralAX", edge_pid, product_pid, app, title, 0, window, edge_birth,
+                         product_birth, url, check=False, timeout=8)
+    except subprocess.TimeoutExpired:
+        return "NATIVE_READ_TIMED_OUT"
+    if result.returncode in (10, 11, 12, 13):
+        return "ORIGINAL_PROCESS_UNAVAILABLE"
+    result.check_returncode()
+    outcome = result.stdout.decode().strip()
+    if outcome not in {"ORIGINAL_AX_DOCUMENT_EDITOR_TEXT_RANGE", "permission", "process", "window",
+                       "document", "editor", "selection", "budget", "address", "AX_ATTRIBUTES_UNAVAILABLE"}:
+        raise RuntimeError("invalid_neutral_ax_observation")
+    return outcome
+
+
+def original_mouse_refusals(evidence, sent):
+    selections = [r for r in evidence if r.get("event") == "selection_boundary"]
+    refusals = [r for r in evidence if r.get("event") == "click_input_refused"]
+    if not sent or len(selections) != len(sent) or len(refusals) != len(sent):
+        return False
+    session = selections[0].get("diagnosticSessionDigest")
+    if not session or len({r.get("eventNumber") for r in selections}) != len(sent):
+        return False
+    last_sequence = -1
+    for (asset, window, tag), click, refusal in zip(sent, selections, refusals):
+        if not (click.get("source") == "mouse" and click.get("targetRequested") is True
+                and click.get("assetIDDigest") == refusal.get("assetIDDigest") == asset
+                and click.get("windowNumber") == window and click.get("clickCount") == 1
+                and type(click.get("eventNumber")) is int and click.get("mouseProbeTag") == tag
+                and click.get("diagnosticSessionDigest") == refusal.get("diagnosticSessionDigest") == session
+                and last_sequence < click["diagnosticSequence"] < refusal["diagnosticSequence"]
+                and refusal.get("phase") == "resolveSelection" and refusal.get("error") == "browserNotFrontmost"
+                and refusal.get("critical") is True):
+            return False
+        last_sequence = refusal["diagnosticSequence"]
+    return True
+
+
+def picker_after_mouse_safe(report, sent, evidence):
+    completed = len(sent)
+    if completed != report["pressAttempts"] or completed != report["confirmedDistinctRefusals"]:
+        return False
+    if any(row.get("event") == "click_target_resolved" for row in evidence):
+        return False
+    if completed:
+        if not original_mouse_refusals(evidence, sent):
+            return False
+    elif any(row.get("event") in ("selection_boundary", "click_input_refused") for row in evidence):
+        return False
+    if any(r.get("action") != "ONE_GLOBAL_MOUSE_DOWN_UP_POSTED"
+           or r.get("retained") != "BOTH_ORIGINAL_ASSETS_VISIBLE_PENDING" for r in report["rounds"][:completed]):
+        return False
+    remaining = report["rounds"][completed:]
+    if report["result"] == "VERIFIED_TWO_APP_REJECTIONS_CONTROLLED_EDGE":
+        return completed == 2 and not remaining and report["mouseDispatchCalls"] == completed
+    if completed > 1 or len(remaining) != 1:
+        return False
+    last = remaining[0].get("action")
+    return ((report["result"] == "PARTIAL_NATIVE_THUMBNAIL_MOUSE_TARGET_UNVERIFIED"
+             and last == "NOT_RUN" and report["mouseDispatchCalls"] == completed) or
+            (report["result"] == "PARTIAL_NATIVE_MOUSE_TARGET_CHANGED_BEFORE_DOWN"
+             and last == "VETO_BEFORE_MOUSE_DOWN" and report["mouseDispatchCalls"] == completed + 1))
+
+
 class Draft:
     """Only neutral localhost content. No external resources and no message action."""
     def __init__(self, title):
@@ -161,6 +233,9 @@ class Draft:
         self.file_changes = 0
         self.post_requests = 0
         self.document_requests = 0
+        self.picker_enabled = False
+        self.picker_events = []
+        self.picker_reply = secrets.token_hex(16)
         self.lock = threading.Lock()
 
     def handler(self):
@@ -187,15 +262,31 @@ class Draft:
                         self.reply(410)
                         return
                     html = """<!doctype html><meta charset=utf-8><title>TITLE</title>
-                    <main><textarea>Neutral unsent draft</textarea><img width=16 height=16
+                    <main><textarea id="riftlet-neutral-editor">Neutral unsent draft</textarea><img id="riftlet-neutral-prior" alt="Neutral prior attachment" width=16 height=16
                     src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==">
-                    <input type=file></main><script>
+                    <button type=button id="riftlet-neutral-attachment" onclick="this.nextElementSibling.click()">Attach PNG</button>
+                    <input type=file hidden></main><script>
                     const field=document.querySelector('textarea'), prior=document.querySelector('img'),
                     priorSource=prior.src, input=document.querySelector('input');
                     field.setSelectionRange(2,7); const ping=s=>fetch(location.pathname+'/'+s);
-                    input.onchange=()=>ping('change');
+                    input.onchange=async()=>{
+                      await ping('change');
+                      const original=input.files.length===1 && input.files[0].name==='neutral.png';
+                      if(!original || (await(await ping('picker-enabled')).text())!=='yes') return;
+                      const resp=await fetch(location.pathname+'/picker-file',{method:'POST',body:input.files[0]});
+                      if(resp.status!==201) return;
+                      const ticket=await resp.text();
+                      if(field.value==='Neutral unsent draft' && field.selectionStart===2 && field.selectionEnd===7 &&
+                         document.querySelector('textarea')===field && document.querySelector('img')===prior &&
+                         prior.src===priorSource && prior.complete && document.querySelectorAll('img').length===1 &&
+                         document.querySelector('input')===input && input.files.length===1) {
+                         const image=new Image(); image.src=URL.createObjectURL(input.files[0]); await image.decode();
+                         document.querySelector('main').append(image);
+                         if(image.isConnected && image.naturalWidth===1 && image.naturalHeight===1) await ping('picker-ack/'+ticket);
+                      }
+                    };
                     let old=-1; async function report(){try{const n=+(await(await ping('phase')).text());
-                    if(n!==old){old=n;document.body.style.background=['#93bfd1','#f6e3a2','#98c7ac','#d8e9b9'][n];
+                    if(n!==old){old=n;document.body.style.background=['#93bfd1','#f6e3a2','#98c7ac','#d8e9b9','#a4c6db'][n];
                     await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
                     const ok=field.value==='Neutral unsent draft'&&field.selectionStart===2&&field.selectionEnd===7&&
                        document.querySelector('textarea')===field&&document.querySelectorAll('img').length===1&&
@@ -204,9 +295,15 @@ class Draft:
                     if(!ok) old=-1; else await ping('seen/'+n);}}finally{setTimeout(report,120);}}report();
                     </script>""".replace("TITLE", draft.title)
                     self.reply(200, html.encode(), "text/html")
+                elif self.path == prefix + "/picker-enabled":
+                    self.reply(200, b"yes" if draft.picker_enabled else b"no")
+                elif self.path == prefix + "/picker-ack/" + draft.picker_reply and draft.picker_enabled:
+                    with draft.lock:
+                        draft.picker_events.append("originalDraftAcknowledged")
+                    self.reply(200)
                 elif self.path == prefix + "/phase":
                     self.reply(200, str(draft.phase).encode())
-                elif self.path in [prefix + "/seen/" + str(i) for i in range(4)]:
+                elif self.path in [prefix + "/seen/" + str(i) for i in range(5)]:
                     draft.observed.add(int(self.path[-1]))
                     self.reply(200)
                 elif self.path == prefix + "/change":
@@ -217,7 +314,24 @@ class Draft:
 
             def do_POST(self):
                 draft.post_requests += 1
-                self.reply(405)
+                if (not draft.picker_enabled or self.path != "/" + draft.title + "/picker-file"
+                        or self.headers.get("Content-Type") != "image/png"
+                        or self.headers.get("Content-Length") != str(len(PIXEL))):
+                    self.reply(405)
+                    return
+                self.connection.settimeout(3)
+                with draft.lock:
+                    if draft.picker_events or self.rfile.read(1) != PIXEL[:1]:
+                        draft.picker_events.append("unexpectedOrDuplicate")
+                        self.reply(400)
+                        return
+                    draft.picker_events.append("firstBodyByte")
+                    if self.rfile.read(len(PIXEL) - 1) != PIXEL[1:]:
+                        draft.picker_events.append("wrongCompleteBody")
+                        self.reply(400)
+                        return
+                    draft.picker_events.append("exactCompleteBody")
+                self.reply(201, draft.picker_reply.encode())
         return Handler
 
 
@@ -264,11 +378,13 @@ def exercise(app, report):
         helper = root / "ui"
         main_source = root / "main.swift"
         main_source.write_bytes((HERE / "EdgeHostUI.swift").read_bytes())
-        command("swiftc", main_source, REPO / "Sources/RiftletAdapters/ChromeProcessIdentity.swift", "-o", helper, timeout=120)
+        adapters = REPO / "Sources/RiftletAdapters"
+        command("swiftc", main_source, *(adapters / (name + ".swift") for name in AX_HOST_SOURCES),
+                "-o", helper, timeout=120)
         check = command(helper, "preflight", check=False)
         if check.returncode == 77:
             reason = check.stdout.decode().strip()
-            if reason not in {"MISSING_EXISTING_AX_OR_SCREEN_PERMISSION", "AN_EXISTING_HOST_IS_RUNNING"}:
+            if reason not in {"SCREEN_CAPTURE_PERMISSION_UNAVAILABLE", "AN_EXISTING_HOST_IS_RUNNING"}:
                 raise RuntimeError("unclassified_platform_refusal")
             report["result"] = "NOT_RUN_" + reason
             return 77
@@ -284,7 +400,7 @@ def exercise(app, report):
             cleanup.callback(command, "defaults", "delete", "com.apple.screencapture", "location")
         command("defaults", "write", "com.apple.screencapture", "location", "-string", source)
         # Ordinary LaunchServices entry. This flag only enables the existing bounded diagnostics.
-        command("/usr/bin/open", "-n", "-g", app, "--args", "--acceptance-trace")
+        command("/usr/bin/open", "-n", "-g", app, "--args", "--acceptance-trace", "--acceptance-hit-map")
         def product_identity():
             result = command(helper, "productPID", app, check=False)
             if result.returncode == 2:
@@ -367,8 +483,8 @@ def exercise(app, report):
             edge_birth = await_child(child_identity, "PARTIAL_NATIVE_IDENTITY_OF_OWN_CHILD_UNVERIFIED")
             if not edge_birth:
                 return 0
-            def ui(action, row=0, expected_window=0):
-                result = command(helper, action, edge_pid, product, app, title, row, expected_window, edge_birth, product_birth, check=False)
+            def ui(action, row=0, expected_window=0, *extra):
+                result = command(helper, action, edge_pid, product, app, title, row, expected_window, edge_birth, product_birth, *extra, check=False)
                 report["lastNativeAction"] = action
                 report["lastNativeExit"] = result.returncode
                 failures = {10: "original_edge_process_exited", 11: "original_edge_identity_changed",
@@ -415,6 +531,8 @@ def exercise(app, report):
                 return 0
             report["stage"] = "original_visible_document_paint"
             wait_for(lambda: 0 in draft.observed, "original_neutral_frame_unconfirmed")
+            report["neutralAX"] = inspect_neutral_ax(helper, edge_pid, product, app, title, window,
+                                                     edge_birth, product_birth, url)
             captures = []
             dbfile = ROOT / "queue.sqlite"
             region_mode = False
@@ -481,54 +599,111 @@ def exercise(app, report):
                 return items if len(items) == 2 and all(d in items for d, _ in captures) else None
             report["stage"] = "ordinary_import"
             rows = wait_for(imported, "two_capture_imports_unproven", 25)
-            asset_digests = {hashlib.sha256(v[0].lower().encode()).hexdigest() for v in rows.values()}
-            def present(n):
-                value = ui("ready", n, window)
-                if value.returncode in (0, 5):
-                    return "ready" if value.returncode == 0 else "action_unavailable"
-                if value.returncode != 2:
-                    raise RuntimeError("native_row_probe_failed")
-                return None
-            def facts():
-                evidence = events(recent)
-                clicked = [r for r in evidence if r.get("event") == "selection_boundary"
-                           and r.get("source") == "accessibility" and r.get("targetRequested") is True]
-                refused = [r for r in evidence if r.get("event") == "click_input_refused"
-                           and r.get("error") == "browserNotFrontmost" and r.get("phase") == "resolveSelection"]
-                return clicked, refused
-            for n in (1, 2):
-                report["stage"] = f"original_thumbnail_{n}"
-                round_result = dict(ordinal=n, action="NOT_RUN", rejection="UNCONFIRMED", retained="UNCONFIRMED")
-                report["rounds"].append(round_result)
+            asset_digests = [hashlib.sha256(rows[d][0].lower().encode()).hexdigest() for d, _ in captures]
+            sent = []
+            def finish_with_picker():
+                # Only intentional ordinary exits can reach this side probe.
+                # A timeout/lost reply after dispatch instead unwinds directly.
+                candidate = {"status": "NOT_RUN_ORDINARY_INPUT_UNCERTAIN", "commercialService": "NOT_RUN"}
+                report["controlledEdgePicker"] = candidate
+                if not picker_after_mouse_safe(report, sent, events(recent)):
+                    return 0
+                if (edge.poll() is not None or selected_window() != window or draft.document_requests != 1
+                        or draft.file_changes or draft.post_requests or draft.picker_enabled or draft.picker_events
+                        or read_assets(dbfile) != rows or any(row[2:] != ("pending", "visible") for row in rows.values())):
+                    candidate["status"] = "NOT_RUN_ORIGINAL_BASELINE_UNPROVEN"
+                    return 0
+                with sqlite3.connect(dbfile.as_uri() + "?mode=ro", uri=True) as db:
+                    if any(db.execute("SELECT count(*) FROM " + table).fetchone()[0]
+                           for table in ("operations", "upload_starts")):
+                        candidate["status"] = "NOT_RUN_EXISTING_ORDINARY_OPERATION"
+                        return 0
+                # Phase 4 has never been requested by either ordinary mouse round.
+                # It demands a new original-node/text/selection/prior/empty-input witness.
+                if 4 in draft.observed:
+                    raise RuntimeError("picker_baseline_generation_reused")
+                draft.phase = 4
                 try:
-                    capability = wait_for(lambda: present(n), "exact_thumbnail_not_accessible")
+                    wait_for(lambda: 4 in draft.observed, "picker_baseline_missing", 3)
                 except ObservationTimeout:
-                    if selected_window() != window:
-                        raise RuntimeError("original_edge_window_changed")
-                    report["result"] = "PARTIAL_PRODUCT_ROW_NOT_EXPOSED_TO_AX"
+                    candidate["status"] = "NOT_RUN_ORIGINAL_BASELINE_UNPROVEN"
                     return 0
-                if capability == "action_unavailable":
-                    report["result"] = "PARTIAL_PRODUCT_ROW_LACKS_PUBLISHED_AXPRESS"
+                if (selected_window() != window or draft.document_requests != 1 or draft.file_changes
+                        or draft.post_requests or edge.poll() is not None):
+                    candidate["status"] = "NOT_RUN_ORIGINAL_BASELINE_UNPROVEN"
                     return 0
-                if selected_window() != window:
-                    raise RuntimeError("original_edge_window_changed")
+                draft.picker_enabled = True
+                try:
+                    candidate = probe_neutral_picker(root, edge_pid, edge_birth, url)
+                    report["controlledEdgePicker"] = candidate
+                    expected = ["firstBodyByte", "exactCompleteBody", "originalDraftAcknowledged"]
+                    if candidate["status"] == "EXACT_FILE_SUBMIT_ATTEMPTED":
+                        wait_for(lambda: draft.picker_events == expected, "picker_receipt_unconfirmed", 4)
+                        if draft.file_changes != 1 or draft.post_requests != 1 or draft.document_requests != 1:
+                            raise RuntimeError("controlled_picker_delivery_count")
+                    elif draft.picker_events or draft.file_changes or draft.post_requests:
+                        raise RuntimeError("unconfirmed_picker_changed_original_draft")
+                    return 0
+                except Exception as error:
+                    candidate["testError"] = type(error).__name__
+                    return 1
+                finally:
+                    candidate["receiverEvents"] = list(draft.picker_events)
+                    draft.picker_enabled = False
+
+            for n, expected_asset in enumerate(asset_digests, 1):
+                report["stage"] = f"original_mouse_thumbnail_{n}"
+                round_result = dict(captureSequence=n, action="NOT_RUN", rejection="UNCONFIRMED", retained="UNCONFIRMED")
+                report["rounds"].append(round_result)
+                tag = secrets.randbelow((1 << 48) - 1) + 1
+                while any(previous_tag == tag for _, _, previous_tag in sent):
+                    tag = secrets.randbelow((1 << 48) - 1) + 1
+                def mouse_target(action):
+                    result = ui(action, 0, window, expected_asset, tag)
+                    state = result.stdout.decode().strip()
+                    if result.returncode == 24:
+                        if state in {"firstReceiver originalFrontEdge", "firstReceiver otherRiftletWindow",
+                                     "firstReceiver none", "firstReceiver other"}:
+                            round_result["actualReceiver"] = state.split()[1]
+                            state = "firstMouseReceiverMismatch"
+                        if state not in {"mapAbsent", "mapUnreadable", "mapNotOwnedRegularFile", "mapInvalidPayload",
+                                "mapProcessMismatch", "mapStale", "mapRowsZero", "mapRowsOne", "mapRowsMoreThanTwo",
+                                "foregroundChanged", "ambiguousAsset", "overlappingAssets",
+                                "invalidGeometry", "ownerUnconfirmed", "eventDeliveryUnconfirmed",
+                                "postPermissionUnavailable", "otherInputActive", "targetChangedBeforeDown",
+                                "eventAllocationFailed", "firstMouseReceiverMismatch"}:
+                            raise RuntimeError("unknown_mouse_probe_status")
+                        round_result["preflight"] = state
+                        return None
+                    result.check_returncode()
+                    if not re.fullmatch(r"[12] [1-9]\d*", state):
+                        raise RuntimeError("invalid_mouse_window_receipt")
+                    round_result.update(preflight="verified", actualReceiver="originalRiftletInput")
+                    return tuple(map(int, state.split()))
+                try:
+                    wait_for(lambda: mouse_target("mouseReady"), "mapped_target_not_demonstrated")
+                except ObservationTimeout:
+                    report["result"] = "PARTIAL_NATIVE_THUMBNAIL_MOUSE_TARGET_UNVERIFIED"
+                    return finish_with_picker()
+                # Exactly one call may post down/up per asset. Missing replies never permit another call.
+                round_result["action"] = "DISPATCH_ENTERED"
+                report["mouseDispatchCalls"] += 1
+                response = mouse_target("mouseClick")
+                if response is None:
+                    round_result["action"] = "VETO_BEFORE_MOUSE_DOWN"
+                    report["result"] = "PARTIAL_NATIVE_MOUSE_TARGET_CHANGED_BEFORE_DOWN"
+                    return finish_with_picker()
+                ordinal, expected_input_window = response
+                sent.append((expected_asset, expected_input_window, tag))
                 report["pressAttempts"] += 1
-                round_result["action"] = "REQUESTED_ONCE"
-                result = ui("press", n, window)
-                if result.returncode:
-                    raise RuntimeError({2: "original_target_no_longer_available", 3: "axpress_reply_uncertain",
-                                        4: "foreground_changed_after_axpress"}.get(result.returncode, "ui_action_failed"))
-                def current_result():
-                    clicked, refused = facts()
-                    ids = [r["assetIDDigest"] for r in clicked]
-                    return (len(clicked) == len(refused) == n and len(set(ids)) == n and set(ids) <= asset_digests
-                            and all(c["assetIDDigest"] == r["assetIDDigest"] and
-                                    c["diagnosticSessionDigest"] == r["diagnosticSessionDigest"] and
-                                    c["diagnosticSequence"] < r["diagnosticSequence"] and r.get("critical") is True
-                                    for c, r in zip(clicked, refused)))
-                wait_for(current_result, "selection_or_original_refusal_unconfirmed")
+                round_result.update(ordinal=ordinal, action="ONE_GLOBAL_MOUSE_DOWN_UP_POSTED")
+                wait_for(lambda: original_mouse_refusals(events(recent), sent), "original_mouse_selection_or_refusal_unconfirmed")
+                if selected_window() != window:
+                    raise RuntimeError("original_edge_changed_after_mouse_receipt")
+                round_result["mouseProbeTagMatched"] = True
+                round_result["originalEdgeWindowAfterReceipt"] = True
                 report["confirmedDistinctRefusals"] = n
-                round_result["rejection"] = "MATCHING_PRODUCT_REFUSAL"
+                round_result["rejection"] = "ORIGINAL_MOUSE_WINDOW_AND_ASSET_PRODUCT_REFUSAL"
                 draft.phase = n + 1
                 wait_for(lambda: draft.phase in draft.observed, "original_neutral_document_state_unconfirmed")
                 if draft.document_requests != 1 or draft.file_changes or draft.post_requests:
@@ -554,16 +729,18 @@ def exercise(app, report):
                           fixtureFileChanges=draft.file_changes, fixturePostRequests=draft.post_requests,
                           neutralTextSelectionAndPriorImageRetained=True, fixtureDocumentGETs=draft.document_requests,
                           stage="complete")
-            return 0
+            return finish_with_picker()
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--app", type=Path, required=True)
     args = parser.parse_args()
-    report = dict(scope="ordinary-packaged-app-accessibility-press-edge-loopback", commercialService="NOT_RUN",
+    report = dict(scope="ordinary-packaged-app-native-mouse-edge-loopback", commercialService="NOT_RUN",
                   physicalClicks=False, rounds=[], generatedScreenshotFiles=0, osScreenshotMarkersVerified=0,
-                  windowCapturesWithoutMarker=0, systemRegionCaptureAttempts=0,
+                  controlledEdgePicker={"status": "NOT_RUN_NO_SAFE_ORDINARY_EXIT", "commercialService": "NOT_RUN"},
+                  neutralAX="NOT_RUN", appleEventsTabIdentity="NOT_MEASURED_IN_MOUSE_PROBE",
+                  windowCapturesWithoutMarker=0, systemRegionCaptureAttempts=0, mouseDispatchCalls=0,
                   pressAttempts=0, confirmedDistinctRefusals=0)
     try:
         code = exercise(args.app.resolve(), report)

@@ -34,7 +34,8 @@
     },
     "hiddenBrowser": [
       { "action": "Open ChatGPT in a new hidden in-app tab", "elapsedSecondsApprox": 34.5, "outcome": "TIMEOUT_KERNEL_RESET", "signedInDraftVerified": false },
-      { "action": "Read available in-app browser surfaces after reset", "elapsedSecondsApprox": 30, "outcome": "TIMEOUT_KERNEL_RESET", "signedInDraftVerified": false }
+      { "action": "Read available in-app browser surfaces after reset", "elapsedSecondsApprox": 30, "outcome": "TIMEOUT_KERNEL_RESET", "signedInDraftVerified": false },
+      { "action": "Open a new hidden ChatGPT tab during the mouse and native-picker follow-up", "elapsedSecondsApprox": 37.1, "outcome": "TIMEOUT_KERNEL_RESET", "signedInDraftVerified": false }
     ],
     "launchServices": {
       "registered": [

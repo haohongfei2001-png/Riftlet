@@ -172,6 +172,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var clickRouter: ConversationClickRouter?
     private var lastForegroundSession: String?
     private var diagnosticTrace: BoundedDiagnosticTrace?
+    private var acceptanceHitMap: AcceptanceHitMap?
     private var visibilityTrace = AcceptanceTraceDeduplicator<UUID, [String]>()
     private var readyTrace = AcceptanceTraceDeduplicator<UUID, [String]>()
     private var frozenPress: (id: UUID, eventUptime: TimeInterval, target: Task<TargetLease, Error>)?
@@ -334,6 +335,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
 
     func applicationWillTerminate(_ notification: Notification) {
         terminating = true
+        acceptanceHitMap?.stop()
         guard let owner = instanceOwnership else { return }
         owner.keepUntilProcessExit()
         permissionResumer?.stop()
@@ -518,6 +520,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         }
         rift?.setUserHidden(userHidden)
         if let rift {
+            if mode == .capture, diagnosticTrace != nil {
+                acceptanceHitMap = AcceptanceHitMap(panel: rift, directory: root.appendingPathComponent("diagnostics"),
+                    arguments: CommandLine.arguments, buildChannel: Bundle.main.object(forInfoDictionaryKey: "RiftletBuildChannel") as? String)
+            }
             arrivalCapture = ArrivalCaptureBridge(panel: rift,
                 allowsMetadata: ArrivalSourceProfile.allowsMetadata(arguments: CommandLine.arguments))
         }
@@ -1191,6 +1197,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             "callbackUptime": ProcessInfo.processInfo.systemUptime,
             "targetRequested": frozenPress?.id == boundary.assetID]
         if let number = boundary.eventNumber { fields["eventNumber"] = number }
+        if acceptanceHitMap != nil {
+            if let window = boundary.windowNumber { fields["windowNumber"] = window }
+            if let clicks = boundary.clickCount { fields["clickCount"] = clicks }
+            if let tag = boundary.mouseProbeTag, tag > 0, tag < (1 << 48) { fields["mouseProbeTag"] = tag }
+        }
         recordAcceptance(fields)
     }
 

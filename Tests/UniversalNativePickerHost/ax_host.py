@@ -119,7 +119,8 @@ def exercise(executable, observer, nonce, directory, sample):
                     return {'status': status, 'receiverEvents': list(events), 'originalDraftAcknowledged': acknowledged,
                             'draftTextSelectionPriorPNGPreserved': acknowledged,
                             'sha256': hashlib.sha256(sample).hexdigest() if acknowledged else None,
-                            'commercialService': 'NOT_RUN'}
+                            'transport': ('EdgeConversationPicker-controlled-AppKit' if directory.name == 'appkit-file-list'
+                                          else 'external-owned-system-sheet-probe'), 'commercialService': 'NOT_RUN'}
                 finally:
                     if owned_receiver(receiver_pid, executable):
                         try:
@@ -153,7 +154,9 @@ def probe(here, sample, prior, cache):
             CFBundleIdentifier='org.riftlet.axpicker.' + nonce, CFBundleExecutable=executable.name,
             CFBundlePackageType='APPL', CFBundleShortVersionString='1', CFBundleVersion='1')))
         subprocess.run(['xcrun', 'swiftc', '-parse-as-library', '-module-cache-path', cache,
+                        '-D', 'RIFTLET_CONTROLLED_PICKER',
                         *[str(adapters / source) for source in ('NativeMacAXDriver.swift', 'AXPickerInspection.swift',
+                          'NativePickerVerifiedFile.swift', 'EdgeConversationPicker.swift',
                           'AttachmentTransport.swift', 'AXPickerFileHandoff.swift')],
                         str(here / 'AXPickerActionButton.swift'), str(here / 'AXPickerHost.swift'), '-o', str(executable)], check=True, timeout=180)
         subprocess.run(['codesign', '--force', '--sign', '-', '--timestamp=none', str(contents.parent)], check=True)

@@ -8,8 +8,8 @@ let env = ProcessInfo.processInfo.environment
 guard env["GITHUB_ACTIONS"] == "true", env["RUNNER_ENVIRONMENT"] == "github-hosted",
       env["GITHUB_REPOSITORY"] == "haohongfei2001-png/Riftlet", args.count >= 2 else { exit(77) }
 if args[1] == "preflight" {
-    guard AXIsProcessTrusted(), CGPreflightScreenCaptureAccess() else {
-        print("MISSING_EXISTING_AX_OR_SCREEN_PERMISSION")
+    guard CGPreflightScreenCaptureAccess() else {
+        print("SCREEN_CAPTURE_PERMISSION_UNAVAILABLE")
         exit(77)
     }
     guard ["com.riftlet.app", "com.microsoft.edgemac"].allSatisfy({
@@ -57,7 +57,9 @@ if ["productPID", "quitProduct"].contains(args[1]) {
     print("\(product.processIdentifier) \(stamp)")
     exit(0)
 }
-guard args.count == 10, let expectedWindow = CGWindowID(args[7]), let edgePID = Int32(args[2]),
+let mouseProbe = ["mouseReady", "mouseClick"].contains(args[1])
+let expectedCount = mouseProbe ? 12 : (args[1] == "neutralAX" ? 11 : 10)
+guard args.count == expectedCount, let expectedWindow = CGWindowID(args[7]), let edgePID = Int32(args[2]),
       let productPID = Int32(args[3]), let row = Int(args[6]), (0...2).contains(row)
       else { exit(64) }
 guard let edge = NSRunningApplication(processIdentifier: edgePID), !edge.isTerminated else { exit(10) }
@@ -125,40 +127,122 @@ func unobscuredContentRegion() -> CGRect? {
     return nil
 }
 
-func attribute(_ node: AXUIElement, _ name: String) -> AnyObject? {
-    var result: CFTypeRef?
-    guard AXUIElementCopyAttributeValue(node, name as CFString, &result) == .success else { return nil }
-    return result
-}
-func array(_ node: AXUIElement, _ name: String) -> [AXUIElement] {
-    (attribute(node, name) as? [AXUIElement]) ?? []
+struct MappedRow: Decodable, Equatable {
+    let assetIDDigest: String
+    let ordinal, windowNumber: Int
+    let x, y, width, height: Double
+    var frame: CGRect { CGRect(x: x, y: y, width: width, height: height) }
 }
 
-func pendingRow(_ number: Int) -> AXUIElement? {
-    let application = AXUIElementCreateApplication(productPID)
-    var queue = array(application, kAXWindowsAttribute)
-    queue.append(contentsOf: array(application, kAXChildrenAttribute))
-    var seen: [AXUIElement] = []
-    var matches: [AXUIElement] = []
-    while let node = queue.popLast() {
-        if seen.contains(where: { CFEqual($0, node) }) { continue }
-        guard seen.count < 768 else { return nil }
-        seen.append(node)
-        var pid: pid_t = -1
-        guard AXUIElementGetPid(node, &pid) == .success, pid == productPID else { continue }
-        if attribute(node, kAXRoleAttribute) as? String == kAXButtonRole,
-           [kAXDescriptionAttribute, kAXTitleAttribute].contains(where: {
-               attribute(node, $0) as? String == "截图 \(number)，可附加"
-           }), attribute(node, kAXEnabledAttribute) as? Bool != false {
-            matches.append(node)
-        }
-        queue.append(contentsOf: array(node, kAXChildrenAttribute))
+struct HitMap: Decodable {
+    let pid: Int32
+    let uptime: Double
+    let rows: [MappedRow]
+    let ignoringWindowNumbers: [Int]
+}
+
+struct MouseTarget: Equatable {
+    let row: MappedRow
+    let point: CGPoint
+}
+
+enum MouseUnavailable: String, Error {
+    case mapAbsent, mapUnreadable, mapNotOwnedRegularFile, mapInvalidPayload, mapProcessMismatch, mapStale
+    case mapRowsZero, mapRowsOne, mapRowsMoreThanTwo
+    case foregroundChanged, ambiguousAsset, overlappingAssets, invalidGeometry
+    case ownerUnconfirmed, eventDeliveryUnconfirmed, postPermissionUnavailable, otherInputActive
+    case targetChangedBeforeDown, eventAllocationFailed
+}
+
+enum FirstMouseReceiver: String, Error {
+    case originalFrontEdge, otherRiftletWindow, none, other
+}
+
+func mouseTarget() throws -> MouseTarget {
+    guard expectedWindow != 0, ownedWindow() == expectedWindow,
+          edgeIdentity(edgePID).0 == args[8], KernelProcessBirth.read(pid: productPID) == born
+        else { throw MouseUnavailable.foregroundChanged }
+    guard CGPreflightPostEventAccess() else { throw MouseUnavailable.postPermissionUnavailable }
+    guard !CGEventSource.buttonState(.combinedSessionState, button: .left),
+          !CGEventSource.buttonState(.combinedSessionState, button: .right),
+          CGEventSource.flagsState(.combinedSessionState)
+            .intersection([.maskShift, .maskControl, .maskAlternate, .maskCommand]).isEmpty
+        else { throw MouseUnavailable.otherInputActive }
+    let url = FileManager.default.homeDirectoryForCurrentUser
+        .appendingPathComponent("Library/Application Support/Riftlet/diagnostics/acceptance-hit-map.json")
+    let fd = open(url.path, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
+    guard fd >= 0 else { throw errno == ENOENT ? MouseUnavailable.mapAbsent : MouseUnavailable.mapUnreadable }
+    let handle = FileHandle(fileDescriptor: fd, closeOnDealloc: true)
+    defer { try? handle.close() }
+    var info = stat()
+    guard fstat(fd, &info) == 0, info.st_uid == getuid(), (info.st_mode & S_IFMT) == S_IFREG
+        else { throw MouseUnavailable.mapNotOwnedRegularFile }
+    guard info.st_size > 0, info.st_size < 65536, let data = try? handle.read(upToCount: 65536),
+          let map = try? JSONDecoder().decode(HitMap.self, from: data) else { throw MouseUnavailable.mapInvalidPayload }
+    guard map.pid == productPID else { throw MouseUnavailable.mapProcessMismatch }
+    guard map.uptime > 0, (0...2).contains(ProcessInfo.processInfo.systemUptime - map.uptime)
+        else { throw MouseUnavailable.mapStale }
+    switch map.rows.count {
+    case 0: throw MouseUnavailable.mapRowsZero
+    case 1: throw MouseUnavailable.mapRowsOne
+    case 2: break
+    default: throw MouseUnavailable.mapRowsMoreThanTwo
     }
-    guard matches.count == 1 else { return nil }
-    return matches[0]
+    let rows = map.rows.filter { $0.assetIDDigest == args[10] }
+    guard rows.count == 1, let target = rows.first, (1...2).contains(target.ordinal),
+          target.windowNumber > 0, Set(map.rows.map(\.assetIDDigest)).count == 2,
+          Set(map.rows.map(\.ordinal)) == [1, 2] else { throw MouseUnavailable.ambiguousAsset }
+    let frame = target.frame
+    guard [target.x, target.y, target.width, target.height].allSatisfy(\.isFinite),
+          target.width > 0, target.height > 0 else { throw MouseUnavailable.invalidGeometry }
+    let point = CGPoint(x: frame.midX, y: frame.midY)
+    guard !map.rows.contains(where: { $0.assetIDDigest != target.assetIDDigest && $0.frame.contains(point) })
+        else { throw MouseUnavailable.overlappingAssets }
+    guard let entries = CGWindowListCopyWindowInfo(.optionOnScreenOnly, 0) as? [[String: Any]] else {
+        throw MouseUnavailable.ownerUnconfirmed
+    }
+    var owned = Set<Int>()
+    for entry in entries {
+        guard let number = entry[kCGWindowNumber as String] as? Int,
+              let pid = entry[kCGWindowOwnerPID as String] as? Int32, pid == productPID else { continue }
+        owned.insert(number)
+    }
+    guard let entry = entries.first(where: { ($0[kCGWindowNumber as String] as? Int) == target.windowNumber }),
+          owned.contains(target.windowNumber), let box = entry[kCGWindowBounds as String] as? NSDictionary,
+          let bounds = CGRect(dictionaryRepresentation: box), bounds.contains(point),
+          bounds.insetBy(dx: -0.5, dy: -0.5).contains(frame),
+          !map.ignoringWindowNumbers.contains(target.windowNumber) else { throw MouseUnavailable.ownerUnconfirmed }
+    let ignored = Set(map.ignoringWindowNumbers).intersection(owned)
+    let cocoa = CGPoint(x: point.x, y: CGDisplayBounds(CGMainDisplayID()).height - point.y)
+    // The first window eligible for mouse-down must itself be the mapped input.
+    let receiver = NSWindow.windowNumber(at: cocoa, belowWindowWithWindowNumber: 0)
+    if receiver != target.windowNumber {
+        if receiver <= 0 { throw FirstMouseReceiver.none }
+        if owned.contains(receiver) { throw FirstMouseReceiver.otherRiftletWindow }
+        if receiver == Int(expectedWindow) { throw FirstMouseReceiver.originalFrontEdge }
+        throw FirstMouseReceiver.other
+    }
+    // Independently veto overlapping windows unless this App attests its own
+    // visible decorative window ignores mouse events.
+    for item in entries {
+        guard let number = item[kCGWindowNumber as String] as? Int else { throw MouseUnavailable.ownerUnconfirmed }
+        if number == target.windowNumber { break }
+        guard let box = item[kCGWindowBounds as String] as? NSDictionary,
+              let rect = CGRect(dictionaryRepresentation: box) else { throw MouseUnavailable.ownerUnconfirmed }
+        if rect.contains(point), !ignored.contains(number) { throw MouseUnavailable.eventDeliveryUnconfirmed }
+    }
+    return MouseTarget(row: target, point: point)
 }
 
 switch args[1] {
+case "neutralAX":
+    guard let link = URL(string: args[10]), link.path == "/" + args[5] else { exit(64) }
+    guard expectedWindow != 0, ownedWindow() == expectedWindow else { print("window"); exit(0) }
+    let outcome = try MainActor.assumeIsolated {
+        let probe = EdgeNativeDraftProbe(driver: try NativeMacAXDriver(messagingTimeout: 0.1))
+        return probe.inspectNeutral(pid: edgePID, expectedBirth: args[8], address: link)
+    }
+    print(ownedWindow() == expectedWindow ? outcome : "window")
 case "unfocusedWindow":
     var status = ""
     guard let id = ownedWindow(requireFront: false, status: &status) else { print(status); exit(14) }
@@ -176,15 +260,34 @@ case "window":
 case "region":
     guard let region = unobscuredContentRegion() else { exit(2) }
     print([region.minX, region.minY, region.width, region.height].map { String(Int($0)) }.joined(separator: ","))
-case "ready", "press":
-    guard expectedWindow != 0, ownedWindow() == expectedWindow, AXIsProcessTrusted(), row > 0, let button = pendingRow(row) else { exit(2) }
-    var actions: CFArray?
-    guard AXUIElementCopyActionNames(button, &actions) == .success,
-          (actions as? [String])?.contains(kAXPressAction) == true else { exit(5) }
-    guard args[1] == "press" else { exit(0) }
-    guard ownedWindow() == expectedWindow else { exit(2) }
-    // Never retry after entering AXUIElementPerformAction, including a missing reply.
-    guard AXUIElementPerformAction(button, kAXPressAction as CFString) == .success else { exit(3) }
-    guard ownedWindow() == expectedWindow else { exit(4) }
+case "mouseReady", "mouseClick":
+    guard args[10].range(of: #"^[0-9a-f]{64}$"#, options: .regularExpression) != nil,
+          let tag = Int64(args[11]), tag > 0, tag < (1 << 48) else { exit(64) }
+    do {
+        let first = try mouseTarget()
+        if args[1] == "mouseClick" {
+            guard let source = CGEventSource(stateID: .privateState),
+                  let down = CGEvent(mouseEventSource: source, mouseType: .leftMouseDown,
+                    mouseCursorPosition: first.point, mouseButton: .left),
+                  let up = CGEvent(mouseEventSource: source, mouseType: .leftMouseUp,
+                    mouseCursorPosition: first.point, mouseButton: .left) else { throw MouseUnavailable.eventAllocationFailed }
+            for event in [down, up] {
+                event.flags = []
+                event.setIntegerValueField(.mouseEventClickState, value: 1)
+                event.setIntegerValueField(.eventSourceUserData, value: tag)
+            }
+            guard try mouseTarget() == first else { throw MouseUnavailable.targetChangedBeforeDown }
+            // No fallbacks/retries past this boundary, including an indeterminate reply.
+            down.post(tap: .cghidEventTap)
+            up.post(tap: .cghidEventTap)
+        }
+        print("\(first.row.ordinal) \(first.row.windowNumber)")
+    } catch let receiver as FirstMouseReceiver {
+        print("firstReceiver " + receiver.rawValue)
+        exit(24)
+    } catch let error as MouseUnavailable {
+        print(error.rawValue)
+        exit(24) // All cases are before mouse-down.
+    }
 default: exit(64)
 }

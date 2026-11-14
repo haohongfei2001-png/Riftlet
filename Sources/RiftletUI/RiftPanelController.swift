@@ -18,11 +18,13 @@ public struct RiftSelectionBoundary: Equatable, Sendable {
     public let eventNumber: Int?
     public let windowNumber: Int?
     public let clickCount: Int?
+    public let mouseProbeTag: Int64?
 
     public init(assetID: UUID, source: RiftSelectionSource, eventUptime: TimeInterval,
-                eventNumber: Int? = nil, windowNumber: Int? = nil, clickCount: Int? = nil) {
+                eventNumber: Int? = nil, windowNumber: Int? = nil, clickCount: Int? = nil, mouseProbeTag: Int64? = nil) {
         self.assetID = assetID; self.source = source; self.eventUptime = eventUptime
         self.eventNumber = eventNumber; self.windowNumber = windowNumber; self.clickCount = clickCount
+        self.mouseProbeTag = mouseProbeTag
     }
 }
 
@@ -47,6 +49,14 @@ public struct RiftDiagnosticSnapshot: Sendable {
     public let lineFrame: CGRect
     public let isHolding: Bool
     public let isTransitioning: Bool
+}
+
+/// A small, currently selectable part of the rendered image, in AppKit screen points.
+public struct RiftThumbnailHitRegion {
+    public let assetID: UUID
+    public let ordinal: Int
+    public let windowNumber: Int
+    public let frame: CGRect
 }
 
 public struct RiftArrivalDiagnostic: Sendable {
@@ -725,6 +735,35 @@ public final class RiftPanelController {
         }.sorted { $0.ordinal < $1.ordinal }
         return RiftDiagnosticSnapshot(rows: rows, lineFrame: decoration.isVisible && decoration.contentView is RiftLineView ? decoration.frame : .zero,
                                       isHolding: gate.isHolding, isTransitioning: transitioning)
+    }
+
+    /// Only the explicit acceptance sampler requests the Quartz event's correlation field.
+    public var readsAcceptanceMouseTag = false
+
+    /// Opt-in mouse acceptance reads this on the main thread. Use the live input
+    /// island and the same geometry predicate as mouseDown, including clipped cards.
+    public var diagnosticThumbnailHitRegions: [RiftThumbnailHitRegion] {
+        guard !closed, !userHidden, !captureSuppressed, !gate.isHolding, !transitioning else { return [] }
+        return rowWindows.compactMap { id, row in
+            let view = row.view, input = row.imageInput
+            guard selectionVersions[id] == nil, view.record.id == id, view.record.visibility == .visible,
+                  view.record.status == .pending, view.reportedImageReady, !view.imageLayer.isHidden,
+                  !view.isSlidingAtTrayEdge, row.panel.isVisible, row.panel.alphaValue == 1,
+                  input.isVisible, input.alphaValue == 1, !input.ignoresMouseEvents, input.windowNumber > 0,
+                  let screen = input.screen else { return nil }
+            let image = row.panel.convertToScreen(view.convert(view.geometry.imageClipFrame, to: nil))
+            let visible = image.intersection(input.frame).intersection(row.panel.frame).intersection(screen.frame)
+            guard visible.width >= 2, visible.height >= 2 else { return nil }
+            let region = CGRect(x: visible.midX - 1, y: visible.midY - 1, width: 2, height: 2)
+            for x in [region.minX, region.maxX] {
+                for y in [region.minY, region.maxY] {
+                    let point = row.panel.convertPoint(fromScreen: CGPoint(x: x, y: y))
+                    guard view.geometry.containsSelectionPoint(view.convert(point, from: nil)) else { return nil }
+                }
+            }
+            return RiftThumbnailHitRegion(assetID: id, ordinal: view.ordinal,
+                                          windowNumber: input.windowNumber, frame: region)
+        }.sorted { $0.ordinal < $1.ordinal }
     }
 
     public init(mediaDirectory: URL, configuration: RiftConfiguration = .init(),
@@ -1826,7 +1865,8 @@ public final class RiftPanelController {
                 self.onPress(id, event.timestamp)
                 self.onSelectionBoundary(RiftSelectionBoundary(assetID: id, source: .mouse,
                     eventUptime: event.timestamp, eventNumber: event.eventNumber,
-                    windowNumber: event.windowNumber, clickCount: event.clickCount))
+                    windowNumber: event.windowNumber, clickCount: event.clickCount,
+                    mouseProbeTag: self.readsAcceptanceMouseTag ? event.cgEvent?.getIntegerValueField(.eventSourceUserData) : nil))
                 let time = self.duration(self.configuration.pressDuration)
                 self.trackAnimation(time)
                 view.setVisualState(pressed: true)

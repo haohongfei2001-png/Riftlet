@@ -74,6 +74,8 @@ private final class Receiver: NSObject, NSApplicationDelegate, NSOpenSavePanelDe
         let old = NSImage(contentsOf: root.appendingPathComponent("prior.png"))
         guard let old else { exit(1) }
         priorImage = old
+        prior.setAccessibilityElement(true)
+        prior.setAccessibilityIdentifier("prior-" + nonce)
         prior.image = old
         window.contentView?.addSubview(prior)
         let entry = NSButton(title: "Attach", target: self, action: #selector(attach))
@@ -250,8 +252,7 @@ private final class Observer {
               parts.port == nil, parts.query == nil, parts.fragment == nil else { return false }
         return value.standardizedFileURL.path == url.standardizedFileURL.path
     }
-    func submitFileList(binding: AXPickerInspection, originalDraft: @escaping () throws -> Bool) throws -> String {
-        let expected = root.appendingPathComponent("images/neutral.png")
+    func fileListControls(expected: URL, binding: AXPickerInspection, originalDraft: @escaping () throws -> Bool) throws -> EdgeConversationPicker.Controls? {
         func identifier(_ node: MacAXElement, _ id: String) throws -> Bool {
             try driver.stringAttribute(kAXIdentifierAttribute, of: node) == id + "-" + nonce
         }
@@ -265,7 +266,7 @@ private final class Observer {
             chooser = try findChooser()
             if chooser == nil { Thread.sleep(forTimeInterval: 0.10) }
         }
-        guard let chooser else { return "APPKIT_CHOOSER_UNPROVEN" }
+        guard let chooser else { return nil }
         let expectedID = try fileChoiceID(expected, nonce: nonce)
         let decoy = expected.deletingLastPathComponent().appendingPathComponent("decoy.png")
         let decoyID = try fileChoiceID(decoy, nonce: nonce)
@@ -273,13 +274,11 @@ private final class Observer {
         var choice: MacAXElement?
         var submit: MacAXElement?
         var decoyFound = false
-        var nodeCount = 0
         let ready = ProcessInfo.processInfo.systemUptime + 3
         repeat {
             do {
-                guard try findChooser() == chooser else { return "APPKIT_CHOOSER_CHANGED" }
+                guard try findChooser() == chooser else { return nil }
                 let nodes = try descendants(chooser)
-                nodeCount = nodes.count
                 choices = try nodes.filter { try driver.stringAttribute(kAXRoleAttribute, of: $0) == kAXRadioButtonRole }
                 let pairs = try choices.map { ($0, try driver.stringAttribute(kAXIdentifierAttribute, of: $0)) }
                 choice = unique(pairs.filter { $0.1 == expectedID }.map(\.0))
@@ -291,17 +290,13 @@ private final class Observer {
             }
             Thread.sleep(forTimeInterval: 0.08)
         } while ProcessInfo.processInfo.systemUptime < ready
-        guard choices.count == 2, let choice, decoyFound, let submit else {
-            return "APPKIT_CHOICES_NODES_\(nodeCount)_RADIOS_\(choices.count)_EXPECTED_\(choice != nil)_DECOY_\(decoyFound)_SUBMIT_\(submit != nil)"
-        }
-        let handoff = AXPickerFileHandoff(binding: binding, choice: choice, submit: submit)
-        var lastRead = "NEW"
+        guard choices.count == 2, let choice, decoyFound, let submit else { return nil }
         func confirms() throws -> Bool {
             guard try findChooser() == chooser else { return false }
             let list = try descendants(chooser)
             let radios = try list.filter { try driver.stringAttribute(kAXRoleAttribute, of: $0) == kAXRadioButtonRole }
             guard radios.count == 2, radios.contains(choice), let other = radios.first(where: { $0 != choice }),
-                  try driver.stringAttribute(kAXIdentifierAttribute, of: other) == decoyID else { lastRead = "ROW_SET_CHANGED"; return false }
+                  try driver.stringAttribute(kAXIdentifierAttribute, of: other) == decoyID else { return false }
             func radioState(_ node: MacAXElement) -> Int? {
                 var value: CFTypeRef?
                 guard AXUIElementCopyAttributeValue(node.rawValue, kAXValueAttribute as CFString, &value) == .success,
@@ -310,15 +305,14 @@ private final class Observer {
             }
             let wanted = radioState(choice), unwanted = radioState(other)
             guard wanted == 1, unwanted == 0 else {
-                lastRead = "WANTED_\(wanted ?? -1)_DECOY_\(unwanted ?? -1)"; return false
+                return false
             }
             let receipts = try list.filter { try driver.stringAttribute(kAXIdentifierAttribute, of: $0) == "selected-" + expectedID }
-            guard receipts.count == 1 else { lastRead = "RECEIPTS_\(receipts.count)"; return false }
-            guard try driver.boolAttribute(kAXEnabledAttribute, of: submit) == true else { lastRead = "SUBMIT_DISABLED"; return false }
-            lastRead = "CONFIRMED"
+            guard receipts.count == 1 else { return false }
+            guard try driver.boolAttribute(kAXEnabledAttribute, of: submit) == true else { return false }
             return true
         }
-        var input = AXPickerFileHandoff.Input(matchesDraft: originalDraft, matchesChoice: { stage in
+        return EdgeConversationPicker.Controls(choice: choice, submit: submit, matchesFile: { stage in
             guard try findChooser() == chooser else { return false }
             let current = try self.descendants(chooser)
             let radios = try current.filter { try self.driver.stringAttribute(kAXRoleAttribute, of: $0) == kAXRadioButtonRole }
@@ -327,24 +321,34 @@ private final class Observer {
                   try fileChoiceID(expected, nonce: self.nonce) == expectedID else { return false }
             if stage == .beforeSelection { return true }
             return try confirms()
-        })
-        input.selectionSettled = {
+        }, selectionSettled: {
             let until = ProcessInfo.processInfo.systemUptime + 2
             repeat {
-                guard try binding.originalDraftIsCurrent(originalDraft) else { lastRead = "DRAFT_CHANGED"; return false }
+                guard try binding.originalDraftIsCurrent(originalDraft) else { return false }
                 if try confirms() { return true }
                 Thread.sleep(forTimeInterval: 0.035)
             } while ProcessInfo.processInfo.systemUptime < until
             return false
-        }
-        let result = try handoff.handOff(input)
-        guard try handoff.handOff(input) == .refused else { throw NativeMacAXError.inputAlreadyAttempted }
-        switch result {
-        case .submitted: return "EXACT_FILE_SUBMIT_ATTEMPTED"
-        case .refused: return "APPKIT_REFUSED_\(handoff.lastStage.rawValue)_\(handoff.refusal?.rawValue ?? "duplicate")_\(lastRead)"
-        case .uncertain: return "APPKIT_UNKNOWN_\(handoff.lastStage.rawValue)_\(lastRead)"
-        }
+        })
     }
+    private struct DraftState: Equatable {
+        let text: String
+        let location: Int
+        let length: Int
+        let prior: MacAXElement
+    }
+
+    private func fixtureDraft(editor: MacAXElement, prior: MacAXElement) throws -> DraftState? {
+        var value: CFTypeRef?
+        var range = CFRange()
+        guard let text = try driver.stringAttribute(kAXValueAttribute, of: editor),
+              AXUIElementCopyAttributeValue(editor.rawValue, kAXSelectedTextRangeAttribute as CFString, &value) == .success,
+              let value, CFGetTypeID(value) == AXValueGetTypeID(),
+              AXValueGetValue(value as! AXValue, .cfRange, &range), range.location == 1, range.length == 4,
+              text == "Neutral existing draft." else { return nil }
+        return DraftState(text: text, location: range.location, length: range.length, prior: prior)
+    }
+
     func run() throws -> String {
         guard driver.isTrusted() else { return "NOT_RUN_NO_EXISTING_AX_TRUST" }
         guard let actual = NSRunningApplication(processIdentifier: pid) else { return "RECEIVER_PROCESS_MISSING" }
@@ -362,19 +366,46 @@ private final class Observer {
         guard let entry = try unique(children.filter { try matches($0, "entry") }) else { return "NO_UNIQUE_ATTACH_BUTTON" }
         guard let editor = try unique(children.filter { try matches($0, "editor") }) else { return "NO_UNIQUE_DRAFT_EDITOR" }
         let binding = AXPickerInspection(driver: driver, process: identity, window: window, editor: editor, entry: entry)
-        let draftMatches = { try matches(editor, "editor") && matches(entry, "entry") }
+        let prior = try unique(children.filter { try matches($0, "prior") })
+        let draftMatches = {
+            let current = try self.descendants(window)
+            return try self.unique(current.filter { try matches($0, "editor") }) == editor
+                && self.unique(current.filter { try matches($0, "entry") }) == entry
+        }
         guard try binding.originalDraftIsCurrent(draftMatches),
               try binding.attachedSheet(draftMatches) == nil else { return "DRAFT_NOT_AVAILABLE" }
         // A known fixture opens precisely one sheet and owns a cancellation timer.
         // Never open an arbitrary app's panel to discover whether it can be controlled.
         let systemPanel = root.lastPathComponent == "system-open-panel"
+        if !systemPanel {
+            guard let prior, let fixtureID = UUID(uuidString: nonce),
+                  let baseline = try fixtureDraft(editor: editor, prior: prior) else { return "NO_NATIVE_DRAFT_STATE" }
+            let snapshotUnchanged = {
+                guard try draftMatches(),
+                      try self.unique(self.descendants(window).filter { try matches($0, "prior") }) == prior
+                else { return false }
+                return try self.fixtureDraft(editor: editor, prior: prior) == baseline
+            }
+            let file = root.appendingPathComponent("images/neutral.png")
+            let bytes = try Data(contentsOf: file)
+            let hash = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
+            let picker = try EdgeConversationPicker.controlled(fixtureID: fixtureID, binding: binding,
+                originalDraft: snapshotUnchanged, directory: file.deletingLastPathComponent(), file: file,
+                bytes: Int64(bytes.count), sha256: hash)
+            let input = EdgeConversationPicker.Input(chooserIsAbsent: {
+                try binding.attachedSheet(snapshotUnchanged) == nil &&
+                    !self.descendants(window).contains(where: { try matches($0, "chooser") })
+            }, findOpenedControls: { file in
+                try self.fileListControls(expected: file, binding: binding, originalDraft: snapshotUnchanged).map(EdgeConversationPicker.OpenedChooser.fileList)
+            })
+            let result = try picker.handOff(input)
+            guard try picker.handOff(input) == .alreadyAttempted else { return "RIFTLET_PICKER_DUPLICATE_NOT_REFUSED" }
+            return result == .inputAttempted ? "EXACT_FILE_SUBMIT_ATTEMPTED" : "RIFTLET_PICKER_\(result)"
+        }
         do { try driver.press(entry) }
         catch NativeMacAXError.accessibility(let code) where systemPanel && code == AXError.cannotComplete.rawValue {
             // The original press may have opened the panel. Never reissue it.
             // Discover only its own parent's sheet until the bounded deadline.
-        }
-        if !systemPanel {
-            return try submitFileList(binding: binding, originalDraft: draftMatches)
         }
         let until = ProcessInfo.processInfo.systemUptime + 3
         var sheet: MacAXElement?

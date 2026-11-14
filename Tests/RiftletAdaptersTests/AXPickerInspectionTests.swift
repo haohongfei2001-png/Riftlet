@@ -100,7 +100,7 @@ final class AXPickerInspectionTests: XCTestCase {
 }
 
 @MainActor
-private final class PickerDriver: MacAXDriver {
+final class PickerDriver: MacAXDriver {
     // Opaque local handles. The fake never messages these PIDs or actual apps.
     let app = MacAXElement(AXUIElementCreateApplication(700001))
     let window = MacAXElement(AXUIElementCreateApplication(700002))
@@ -111,6 +111,7 @@ private final class PickerDriver: MacAXDriver {
     var duplicates = false
     var elsewhere = false
     var foreignSheet = false
+    var bundleID = "org.riftlet.fixture"
     var generation: TimeInterval = 1
     var trusted = true
     var confirmEnabled = true
@@ -122,7 +123,7 @@ private final class PickerDriver: MacAXDriver {
 
     var identity: MacAXApplicationIdentity {
         .init(processID: 1000, launchedAt: Date(timeIntervalSince1970: generation),
-              bundleID: "org.riftlet.fixture", version: "1", build: "1")
+              bundleID: bundleID, version: "1", build: "1")
     }
     var binding: AXPickerInspection { .init(driver: self, process: identity, window: window, editor: editor, entry: entry) }
     func isTrusted() -> Bool { trusted }
@@ -146,7 +147,7 @@ private final class PickerDriver: MacAXDriver {
     }
     func boolAttribute(_ attribute: String, of element: MacAXElement) -> Bool? {
         if element == submit && attribute == kAXEnabledAttribute { return confirmEnabled }
-        if element == choice && attribute == kAXEnabledAttribute { return true }
+        if [entry, choice].contains(element) && attribute == kAXEnabledAttribute { return true }
         return element == window && attribute == kAXMinimizedAttribute ? false : nil
     }
     func elementsAttribute(_ attribute: String, of element: MacAXElement, maximumCount: Int) -> [MacAXElement] {
