@@ -26,6 +26,9 @@ struct EdgeNativeDraftProbe {
         }
     }
 
+    // AXWebConstants.h spells this public attribute "AXDOMIdentifier". Older
+    // SDKs omit the symbol; receivers without the attribute still refuse.
+    private static let domIdentifierAttribute = "AXDOMIdentifier"
     private let driver: any MacAXDriver
     init(driver: any MacAXDriver) { self.driver = driver }
 
@@ -113,11 +116,11 @@ struct EdgeNativeDraftProbe {
                 inside = true
             }
             if inside && role == kAXTextAreaRole,
-               try driver.stringAttribute(kAXDOMIdentifierAttribute, of: node) == editorID {
+               try driver.stringAttribute(Self.domIdentifierAttribute, of: node) == editorID {
                 editors.append(node)
             }
             if inside && controlledChooser && role == kAXButtonRole,
-               try driver.stringAttribute(kAXDOMIdentifierAttribute, of: node) == "riftlet-neutral-attachment" {
+               try driver.stringAttribute(Self.domIdentifierAttribute, of: node) == "riftlet-neutral-attachment" {
                 entries.append(node)
             }
             if inside && controlledChooser && role == kAXImageRole { images.append(node) }
@@ -139,7 +142,7 @@ struct EdgeNativeDraftProbe {
         else { throw Unavailable.selection }
         if controlledChooser {
             guard entries.count == 1, images.count == 1,
-                  try driver.stringAttribute(kAXDOMIdentifierAttribute, of: images[0]) == "riftlet-neutral-prior",
+                  try driver.stringAttribute(Self.domIdentifierAttribute, of: images[0]) == "riftlet-neutral-prior",
                   try driver.elementAttribute(kAXWindowAttribute, of: entries[0]) == window,
                   try driver.elementAttribute(kAXWindowAttribute, of: images[0]) == window
             else { throw Unavailable.document }

@@ -251,8 +251,69 @@
         "captureImportEvidence": "Reaching original_thumbnail_1 required two distinct PNG hashes and exactly two systemScreenshot rows in the ordinary App database matching those hashes. Both files carried the macOS screenshot marker. The test stopped before its separate post-click private-media readback.",
         "actionEvidence": "The original neutral Edge window was frontmost. During the bounded external Accessibility check the probe could not identify the first thumbnail as an actionable row. It rechecked the original window and stopped before any AXPress. It never reached the second thumbnail.",
         "commercialEvidence": "This run exercised a loopback draft. Neither image was clicked. Draft preservation after a click, attachment input, product refusal, upload start and completion were unobserved."
+      },
+      {
+        "reviewedSource": "b43793db150f0f730d2c227a40559057fbab0fa4",
+        "reviewedSourceTree": "9e2663d05cbaf6a1a1642d2ab09c52c5c003f766",
+        "admissionHead": "71a87243d77ea411062bf2a3b39e065f9de42514",
+        "base": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",
+        "testedMerge": "9b5bde9802b26512009e76c07c64c6f4bdf00181",
+        "nativeRun": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43547223095",
+        "feedbackJob": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43547223154/job/132301243645",
+        "observedCompilerError": "cannot find 'kAXDOMIdentifierAttribute' in scope",
+        "ordinaryAppResult": {
+          "result": "NOT_RUN_BUILD_FAILED",
+          "scope": "ordinary-packaged-app-native-mouse-edge-loopback",
+          "pressAttempts": 0,
+          "commercialService": "NOT_RUN"
+        },
+        "interpretation": "The hosted build stopped before packaging. The Feedback compiler log identifies the older SDK symbol failure in EdgeNativeDraftProbe. No ordinary mouse action was possible in this attempt."
       }
     ]
+  },
+  "localMouseFollowupFixtures": {
+    "reviewedSource": "b43793db150f0f730d2c227a40559057fbab0fa4",
+    "admissionHead": "71a87243d77ea411062bf2a3b39e065f9de42514",
+    "macOS": "27.0 (26A428)",
+    "webkit": {
+      "arch": "arm64",
+      "axTrustedForProbeProcess": true,
+      "draftAcknowledgements": 2,
+      "duplicateHandoffsRefused": 2,
+      "editorUnfocused": true,
+      "filesReleased": 2,
+      "macOS": "27.0",
+      "openPanelCallbacks": 2,
+      "previousAttachmentsTextSelectionPreserved": true,
+      "priorPNGSHA256": "6a8b5aa1b92b7d78773491354e7bd702ac6503b8d9bed07cb402777bf2fc82e3",
+      "receiverEvents": [
+        "body-start-0",
+        "body-complete-0",
+        "body-start-1",
+        "body-complete-1"
+      ],
+      "sameBytesPathReplacementRefused": true,
+      "scope": "controlled-cooperating-WKWebView",
+      "sha256": [
+        "b66e803d64b39903b44a26160923bb6ecb3f717dcf7900fe62afdb5fd1e4bac8",
+        "91f31ca0451554dbfb9411e80591bab9318a9a2e3805b20efd28568594aba95b"
+      ],
+      "windowNeverOrdered": true
+    },
+    "conversationSurfaceHost": [
+      "PASS [simulated WebKit DOM] ChatGPT",
+      "PASS [simulated WebKit DOM] Claude",
+      "PASS [simulated WebKit DOM] Gemini",
+      "PASS [simulated WebKit DOM] Perplexity",
+      "PASS [simulated WebKit DOM] Poe",
+      "PASS [simulated WebKit DOM] unfocused and ambiguous drafts",
+      "PASS [simulated WebKit DOM] same-page navigation round trip",
+      "PASS [simulated WebKit DOM] selection, text, attachment and editor changes",
+      "PASS [simulated WebKit DOM] missing and duplicate attachment buttons",
+      "PASS [simulated WebKit DOM] same route in another document",
+      "PASS [simulated WebKit DOM] Chrome click witness across isolated and page content worlds"
+    ],
+    "commercialService": "NOT_RUN"
   },
   "priorEvidence": "The previous matrix at sourceCommitInspected preserves its original reasons and relatedEvidence values, including two real Chrome images on build 18. Loopback bytes, hosted AX fixtures and service-shaped DOMs remain separately scoped."
 }
