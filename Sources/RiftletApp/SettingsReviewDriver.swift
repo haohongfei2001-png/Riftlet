@@ -1790,8 +1790,8 @@ extension SettingsReviewDriver {
         let keyFrames = keys.map { window.convertToScreen($0.convert($0.bounds, to: nil)) }
         try require(keys.compactMap { $0.accessibilityLabel() } == names, "wrongReviewAccessibilityLabels-" + name)
         if expanded {
-            let roles = ["常用截图 1，", "常用截图 2，", "常用截图 3，", "默认截图，"]
-            try require(zip(names, roles).allSatisfy { $0.hasPrefix($1) },
+            let roles = ["tray.capture.favorite.1", "tray.capture.favorite.2", "tray.capture.favorite.3", "tray.capture.default"]
+            try require(keys.map { $0.identifier?.rawValue } == roles,
                         "wrongReviewActionRoles-" + name)
             try require(zip(keyFrames, keyFrames.dropFirst()).allSatisfy { $0.maxX <= $1.minX && $0.minY == $1.minY },
                         "overlappingReviewMenu-" + name)
@@ -1802,7 +1802,7 @@ extension SettingsReviewDriver {
                 first.frame.midX < next.frame.midX && abs(first.frame.midY - next.frame.midY) <= 1
             }, "reviewUpperRowOutOfOrder-" + name)
         } else {
-            try require(names == ["展开截图方式"], "trayCameraNotRestored-" + name)
+            try require(keys.first?.identifier?.rawValue == "tray.capture.expand", "trayCameraNotRestored-" + name)
         }
         let designRatio = (lines == 2 ? 212.0 : 115.0) / 246.0
         try require(abs(quartz.height - quartz.width * designRatio) <= 2, "reviewRowCount-" + name)
@@ -1913,7 +1913,7 @@ extension SettingsReviewDriver {
                 return (view as? NSButton).map { [$0] } ?? view.subviews.flatMap(buttons)
             }
             let visible = NSApp.windows.filter(isDesktopPresentationWindow).compactMap(\.contentView).flatMap(buttons)
-            guard let camera = visible.first(where: {$0.toolTip=="展开截图方式"}), let tray=camera.window,
+            guard let camera = visible.first(where: {$0.identifier?.rawValue == "tray.capture.expand"}), let tray=camera.window,
                   let contents=tray.contentView else {throw Failure.assertion("visibleTrayCameraUnavailable")}
             guard let display = NSScreen.screens.first, let original = CGEvent(source:nil)?.location else {
                 throw Failure.assertion("pointerUnavailable")
@@ -1951,7 +1951,7 @@ extension SettingsReviewDriver {
                 NSApp.postEvent(event,atStart:false)
                 try await self.wait {
                     let keys = stableKeys()
-                    return keys.count == 1 && keys.first === camera && camera.toolTip == "展开截图方式"
+                    return keys.count == 1 && keys.first === camera && camera.identifier?.rawValue == "tray.capture.expand"
                 }
                 try self.desktopCapture((cycle == 1 ? "tray-closed-menu" : "tray-closed-again"),screen:screen,rows:panel.diagnosticSnapshot.rows)
             }

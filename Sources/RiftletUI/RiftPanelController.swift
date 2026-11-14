@@ -133,9 +133,9 @@ private final class RiftRowView: NSView, NSMenuDelegate {
         updateGeometry(geometry)
         setAccessibilityElement(true)
         setAccessibilityRole(.button)
-        setAccessibilityCustomActions([NSAccessibilityCustomAction(name: "预览完整截图", handler: { [weak self] in
+        setAccessibilityCustomActions([NSAccessibilityCustomAction(name: ProductCopy.text("预览完整截图", "Preview Full Screenshot"), handler: { [weak self] in
             self?.onPreview?() ?? false
-        }), NSAccessibilityCustomAction(name: "查看原图", handler: { [weak self] in
+        }), NSAccessibilityCustomAction(name: ProductCopy.text("查看原图", "View Original"), handler: { [weak self] in
             guard let action = self?.onOpenOriginal else { return false }; action(); return true
         })])
         updateDescription()
@@ -172,9 +172,9 @@ private final class RiftRowView: NSView, NSMenuDelegate {
     override func menu(for event: NSEvent) -> NSMenu? {
         guard record.visibility == .visible else { return nil }
         let menu = NSMenu()
-        let original = NSMenuItem(title: "查看原图", action: #selector(openOriginal(_:)), keyEquivalent: "")
+        let original = NSMenuItem(title: ProductCopy.text("查看原图", "View Original"), action: #selector(openOriginal(_:)), keyEquivalent: "")
         original.target = self; menu.addItem(original)
-        let remove = NSMenuItem(title: "从裂缝移除", action: #selector(removeFromRift(_:)), keyEquivalent: "")
+        let remove = NSMenuItem(title: ProductCopy.text("从裂缝移除", "Remove from Desktop"), action: #selector(removeFromRift(_:)), keyEquivalent: "")
         remove.target = self; menu.addItem(remove); menu.delegate = self
         return menu
     }
@@ -265,15 +265,15 @@ private final class RiftRowView: NSView, NSMenuDelegate {
     func updateDescription() {
         let suffix: String
         switch record.status {
-        case .pending: suffix = "可附加"
-        case .transferring: suffix = "附加处理中"
-        case .unknown: suffix = "结果待核对，图片已保留"
-        case .failed: suffix = record.visibilityReason == .safeFailure ? "上传失败，可重新选择" : "未附加，图片已保留"
-        case .missing: suffix = "本机图片不可用"
-        case .used: suffix = "已核对完成"
+        case .pending: suffix = ProductCopy.text("可附加", "Available to attach")
+        case .transferring: suffix = ProductCopy.text("附加处理中", "Attachment in progress")
+        case .unknown: suffix = ProductCopy.text("结果待核对，图片已保留", "Outcome unconfirmed, image kept")
+        case .failed: suffix = record.visibilityReason == .safeFailure ? ProductCopy.text("上传失败，可重新选择", "Upload failed, available to select again") : ProductCopy.text("未附加，图片已保留", "Not attached, image kept")
+        case .missing: suffix = ProductCopy.text("本机图片不可用", "Local image unavailable")
+        case .used: suffix = ProductCopy.text("已核对完成", "Completion verified")
         }
-        setAccessibilityLabel("截图 \(ordinal)，\(feedback ?? suffix)")
-        let help = feedback ?? "截图 \(ordinal) · \(suffix)"
+        setAccessibilityLabel(ProductCopy.text("截图 \(ordinal)，\(feedback ?? suffix)", "Screenshot \(ordinal), \(feedback ?? suffix)"))
+        let help = feedback ?? ProductCopy.text("截图 \(ordinal) · \(suffix)", "Screenshot \(ordinal) · \(suffix)")
         // Full preview already describes the hovered image. Reserve tooltip
         // surfaces for actual light feedback rather than covering that preview.
         toolTip = feedback
