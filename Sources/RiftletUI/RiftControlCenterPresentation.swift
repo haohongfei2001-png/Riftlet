@@ -30,7 +30,6 @@ public struct RiftControlCenterPresentation {
         switch snapshot.setup.issue {
         case .screenshotPreferenceUnsaved: pages.insert(.capture)
         case .visibilityPreferenceUnsaved, .collectionPreferenceUnsaved: pages.insert(.capture)
-        case .configurationUnavailable: pages.insert(.help) // Reload/open configuration.
         default: break
         }
         return SettingsPage.allCases.first(where: pages.contains)
@@ -60,9 +59,14 @@ public struct RiftControlCenterPresentation {
             detail = "请打开未保存的设置并重试。"
             symbol = "exclamationmark.circle"
             recoveryTitle = "查看未保存的设置"; recoveryPage = page
+        } else if setup.issue == .configurationUnavailable {
+            state = .attention; title = "设置暂不可用"
+            detail = SetupIssue.configurationUnavailable.text
+            symbol = "exclamationmark.circle"
+            recoveryTitle = nil; recoveryPage = nil
         } else if setup.issue == .initializationFailed {
             state = .attention; title = "Riftlet 未能完成启动"
-            detail = "已有图片保留。请查看权限与帮助。"
+            detail = SetupIssue.initializationFailed.text
             symbol = "exclamationmark.circle"
             recoveryTitle = "查看启动问题"; recoveryPage = .help
         } else if setup.issue == .insufficientSpace || setup.issue == .privateWriteFailed

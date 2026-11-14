@@ -82,7 +82,7 @@ public enum SetupIssue: Equatable, Sendable {
         case .initializationFailed:
             return "Riftlet 未能完成启动。已有数据保留；请检查磁盘与文件访问权限，再重新打开应用。"
         case .configurationUnavailable:
-            return "部分设置无法读取。请在“权限与帮助”的“关于与诊断”中点“重新读取配置”。"
+            return "未能打开设置。请退出并重新打开 Riftlet。"
         case .visibilityPreferenceUnsaved:
             return "显示偏好未能保存；本次运行保持隐藏，重启可能恢复之前的设置。请检查磁盘可写后重新操作；图片仍保留。"
         case .collectionPreferenceUnsaved:

@@ -136,6 +136,15 @@ final class RiftControlCenterControllerTests: XCTestCase {
         XCTAssertFalse(projection.detail.contains("回滚"))
     }
 
+    @MainActor func testUnavailableSettingsOffersRecoveryOutsideTheFailedWindow() {
+        let projection = RiftControlCenterPresentation(fixture(issue: .configurationUnavailable))
+        XCTAssertEqual(projection.state, .attention)
+        XCTAssertEqual(projection.detail, SetupIssue.configurationUnavailable.text)
+        XCTAssertTrue(projection.detail.contains("重新打开 Riftlet"))
+        XCTAssertNil(projection.recoveryPage)
+        XCTAssertNil(projection.recoveryTitle)
+    }
+
     @MainActor func testSaveRecoveryOpensThePageThatOwnsTheFailedSetting() async throws {
         var value = fixture()
         let model = try SettingsStateModel(owner: value.state.owner,
@@ -152,8 +161,7 @@ final class RiftControlCenterControllerTests: XCTestCase {
         XCTAssertEqual(Set(value.state.domains.compactMap { $0.value.saveFailure == nil ? nil : $0.key }),
                        [.collection, .entry, .placement], "Routing cannot clear another pending retry")
         for (issue, page): (SetupIssue, SettingsPage) in [(.screenshotPreferenceUnsaved, .capture),
-                (.collectionPreferenceUnsaved, .capture), (.visibilityPreferenceUnsaved, .capture),
-                (.configurationUnavailable, .help)] {
+                (.collectionPreferenceUnsaved, .capture), (.visibilityPreferenceUnsaved, .capture)] {
             XCTAssertEqual(RiftControlCenterPresentation(fixture(issue: issue)).recoveryPage, page)
         }
         var login = fixture()

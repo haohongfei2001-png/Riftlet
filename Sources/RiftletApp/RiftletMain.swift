@@ -813,7 +813,17 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 onDeferOnboarding: { [weak self] in self?.firstUse.deferPresentation() },
                 onRefresh: { [weak self] in self?.updateSetup() },
                 onAction: { [weak self] in await self?.performSettingsAction($0) })
-        } catch { setupIssue = .configurationUnavailable }
+        } catch {
+            setupIssue = .configurationUnavailable
+            // The usual status-item actions belong to the host that failed to initialize.
+            let menu = NSMenu()
+            menu.autoenablesItems = false
+            menu.addItem(withTitle: SetupIssue.configurationUnavailable.text,
+                         action: nil, keyEquivalent: "").isEnabled = false
+            menu.addItem(.separator())
+            add(menu, "退出 Riftlet", #selector(quit), key: "q")
+            statusItem.menu = menu
+        }
         updateSetup()
     }
 
