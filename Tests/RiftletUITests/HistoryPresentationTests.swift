@@ -57,6 +57,32 @@ final class HistoryPresentationTests: XCTestCase {
         XCTAssertFalse(HistoryPresentation.stateText(for: hiddenUnknown).contains("Attached"))
     }
 
+    func testStartIsSearchableInBothLanguagesAndSeparateFromAttachedAndReview() throws {
+        let record = asset(status: .unknown, visibility: .swallowed, operationID: UUID())
+        let op = try operation(for: record, phase: .unknown)
+        let start = TransferReceipt(operationID: op.id, assetID: record.id, attempt: op.attempt,
+            assetSHA256: record.image.sha256, target: op.target, outcome: .uploadStarted, profileID: "simulation-v1",
+            attachmentID: "original", belongsToOriginalDraft: true, isUploading: true,
+            uploadStartEvidence: .init(profileID: "simulation-upload-start-v1", signal: .correlatedProgress, evidenceID: "original"))
+        let entry = RiftHistoryEntry(record: record, operation: op, startReceipt: start)
+        let pending = RiftHistoryEntry(record: record, operation: op, lastReceipt: start)
+        XCTAssertEqual(HistoryPresentation.localizedState(for: entry), "已交给 ChatGPT")
+        XCTAssertEqual(HistoryPresentation.detailText(for: entry), "上传结果见原对话。")
+        XCTAssertTrue(RiftHistoryFilter.handedOff.includes(entry))
+        XCTAssertFalse(RiftHistoryFilter.attached.includes(entry))
+        XCTAssertFalse(RiftHistoryFilter.needsVerification.includes(entry))
+        XCTAssertTrue(RiftHistoryFilter.needsVerification.includes(pending))
+        for query in ["已交给", "handed to"] {
+            XCTAssertEqual(HistoryPresentation.matching([entry, pending], query: query), [entry])
+        }
+        let missing = asset(status: .missing, visibility: .swallowed, operationID: op.id, id: record.id)
+        let missingEntry = RiftHistoryEntry(record: missing, operation: op, startReceipt: start)
+        XCTAssertEqual(HistoryPresentation.localizedState(for: missingEntry), "本地副本不可用")
+        XCTAssertTrue(HistoryPresentation.detailText(for: missingEntry).contains("已交给"))
+        XCTAssertFalse(RiftHistoryFilter.handedOff.includes(missingEntry))
+        XCTAssertFalse(missingEntry.canRestoreToRift)
+    }
+
     func testPreInputCancellationIsNotPresentedAsRemoteUploadFailure() throws {
         let record = asset(status: .failed, operationID: UUID())
         let op = try operation(for: record, phase: .failed)

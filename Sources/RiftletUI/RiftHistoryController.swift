@@ -284,7 +284,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         styleSelector.target = self; styleSelector.action = #selector(styleChanged(_:))
         styleSelector.setAccessibilityLabel("历史显示方式")
         gridFilter.identifier = .init("history.grid.filter")
-        gridFilter.addItems(withTitles: ["全部截图", "待核实", "已附加", "已归档", "明确失败", "已移除"])
+        gridFilter.addItems(withTitles: RiftHistoryFilter.menuFilters.map(\.title))
         gridFilter.target = self; gridFilter.action = #selector(gridFilterChanged(_:))
         gridFilter.setAccessibilityLabel("筛选当前历史页")
         gridTitle.font = .systemFont(ofSize: 23, weight: .semibold); gridTitle.textColor = .labelColor
@@ -398,20 +398,8 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
 
     private func refresh() {
         let selectedID = selectedRecordID
-        let filtered = entries.filter { entry in
-            switch filterIndex {
-            case 1: return entry.needsVerification
-            case 2: return entry.record.status == .used
-            case 3: return entry.record.visibility == .archived
-            case 4: return entry.isConfirmedFailure
-            case 5: return entry.record.visibility == .removed
-            default: return true
-            }
-        }
-        let query = search.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
-        displayed = HistoryPresentation.matching(filtered).filter { entry in
-            query.isEmpty || !HistoryPresentation.matching([entry], query: query).isEmpty || Self.stateText(entry).localizedCaseInsensitiveContains(query)
-        }
+        let filter = RiftHistoryFilter.menuFilters[filterIndex]
+        displayed = HistoryPresentation.matching(entries, filter: filter, query: search.stringValue)
         gridFilter.selectItem(at: filterIndex)
         selectedRecordID = selectedID.flatMap { id in displayed.contains(where: { $0.id == id }) ? id : nil }
         suppressSelection = true
@@ -445,14 +433,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     }
 
     private static func stateText(_ entry: RiftHistoryEntry) -> String {
-        if entry.needsVerification { return "结果待核实 · 不会再次附加" }
-        if entry.record.status == .used { return "已附加" }
-        if entry.isConfirmedFailure { return "已确认失败 · 图片保留" }
-        if entry.record.status == .missing { return "本地副本不可用" }
-        if entry.record.visibility == .archived { return "已归档" }
-        if entry.record.visibility == .removed { return "已移出裂缝" }
-        if entry.record.status == .failed { return "未附加 · 图片保留" }
-        return "待附加"
+        HistoryPresentation.localizedState(for: entry)
     }
     private func updateDetail() {
         detailGeneration &+= 1
@@ -471,10 +452,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         detailTitle.stringValue = Self.captureTitle(entry)
         detailMetadata.stringValue = "\(entry.record.image.pixelWidth) × \(entry.record.image.pixelHeight)　·　\(Self.stateText(entry))"
         detailMetadata.toolTip = entry.id.uuidString
-        let explanation = entry.needsVerification ? "尚不能确认这次附加的结果。原图和本地记录均保留，不会自动再次附加。" :
-            entry.record.status == .used ? "后台已取得独立完成证明。原始系统截图仍然保留。" :
-            entry.record.status == .failed && !entry.isConfirmedFailure ? "本次未附加不代表已证明远端上传失败；不会自动重传。" : "附加、归档或移除后，本地记录仍保留。可用操作会随记录状态更新。"
-        detailState.stringValue = explanation
+        detailState.stringValue = HistoryPresentation.detailText(for: entry)
         detailImage.setAccessibilityLabel(Self.previewDescription(entry))
         for field in [detailTitle, detailMetadata, detailState] { RiftVisualStyle.applyTextStyle(field) }
         if !sameBitmap { cache.image(for: entry.record.image, maxPixelSize: Int(320 * historyWindow.backingScaleFactor)) { [weak self] image in
@@ -658,7 +636,11 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         sender.selectedSegment = displayStyle == .current ? 0 : 1
         if requested != displayStyle { onDisplayStyleChanged(requested) }
     }
-    @objc private func gridFilterChanged(_ sender: NSPopUpButton) { filterIndex = sender.indexOfSelectedItem; refresh() }
+    @objc private func gridFilterChanged(_ sender: NSPopUpButton) {
+        guard RiftHistoryFilter.menuFilters.indices.contains(sender.indexOfSelectedItem) else { return }
+        filterIndex = sender.indexOfSelectedItem
+        refresh()
+    }
     public func controlTextDidChange(_ obj: Notification) { refresh() }
     public func tableViewSelectionDidChange(_ notification: Notification) {
         guard !suppressSelection, displayStyle == .current else { return }

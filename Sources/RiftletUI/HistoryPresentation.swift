@@ -8,14 +8,21 @@ public struct RiftHistoryEntry: Identifiable, Equatable, Sendable {
     public let record: AssetRecord
     public let operation: TransferOperation?
     public let lastReceipt: TransferReceipt?
+    public let attachmentState: HistoryAttachmentState
     public let canRestore: Bool
     public let detail: String?
 
     public init(record: AssetRecord, operation: TransferOperation? = nil,
-                lastReceipt: TransferReceipt? = nil, canRestore: Bool = false,
+                lastReceipt: TransferReceipt? = nil, startReceipt: TransferReceipt? = nil, canRestore: Bool = false,
                 detail: String? = nil) {
         self.record = record; self.operation = operation; self.lastReceipt = lastReceipt
+        attachmentState = HistoryAttachmentState(record: record, operation: operation, receipt: lastReceipt, startReceipt: startReceipt)
         self.canRestore = canRestore; self.detail = detail.map { String($0.prefix(512)) }
+    }
+
+    public init(snapshot: QueueHistoryRecord) {
+        self.init(record: snapshot.record, operation: snapshot.operation, lastReceipt: snapshot.receipt,
+                  startReceipt: snapshot.startReceipt, canRestore: snapshot.canRestore, detail: snapshot.reason)
     }
 
     private var currentOperation: TransferOperation? {
@@ -24,25 +31,8 @@ public struct RiftHistoryEntry: Identifiable, Equatable, Sendable {
         return operation
     }
 
-    /// Pre-input cancellations also use QueueStatus.failed. They must not be
-    /// described as a proved remote upload failure in the history interface.
-    public var isConfirmedFailure: Bool {
-        guard record.status == .pending || record.status == .failed || record.status == .missing,
-              let operation = currentOperation, operation.phase == .failed,
-              let receipt = lastReceipt,
-              receipt.operationID == operation.id, receipt.assetID == record.id,
-              receipt.attempt == operation.attempt, receipt.target == operation.target,
-              receipt.assetSHA256 == record.image.sha256,
-              receipt.outcome == .definitiveFailure, receipt.hasError,
-              receipt.safeToRetry, receipt.belongsToOriginalDraft,
-              !receipt.isUploading, !receipt.positiveReady else { return false }
-        return true
-    }
-
-    public var needsVerification: Bool {
-        record.status == .unknown || record.status == .transferring
-            || (currentOperation.map { $0.phase.isUnresolved } ?? false)
-    }
+    public var isConfirmedFailure: Bool { attachmentState == .confirmedFailure }
+    public var needsVerification: Bool { attachmentState.needsVerification }
 
     public var canRestoreToRift: Bool {
         guard canRestore,
@@ -58,16 +48,20 @@ public struct RiftHistoryEntry: Identifiable, Equatable, Sendable {
 }
 
 public enum RiftHistoryFilter: String, CaseIterable, Sendable {
-    case all, needsVerification, swallowed, archived, failed, removed
+    case all, needsVerification, swallowed, archived, failed, removed, handedOff, attached
+
+    static let menuFilters: [Self] = [.all, .needsVerification, .attached, .archived, .failed, .removed, .handedOff]
 
     public var title: String {
         switch self {
-        case .all: return "All"
-        case .needsVerification: return "Needs review"
-        case .swallowed: return "Swallowed"
-        case .archived: return "Archived"
-        case .failed: return "Failed"
-        case .removed: return "Removed"
+        case .all: return "全部截图"
+        case .needsVerification: return "待核实"
+        case .swallowed: return "已收起"
+        case .attached: return "已附加"
+        case .handedOff: return "已交给 ChatGPT"
+        case .archived: return "已归档"
+        case .failed: return "明确失败"
+        case .removed: return "已移除"
         }
     }
 
@@ -76,6 +70,8 @@ public enum RiftHistoryFilter: String, CaseIterable, Sendable {
         case .all: return true
         case .needsVerification: return entry.needsVerification
         case .swallowed: return entry.record.visibility == .swallowed
+        case .attached: return entry.record.status != .missing && entry.attachmentState == .attached
+        case .handedOff: return entry.record.status != .missing && entry.attachmentState == .handedOff
         case .archived: return entry.record.visibility == .archived
         case .failed: return entry.isConfirmedFailure
         case .removed: return entry.record.visibility == .removed
@@ -90,18 +86,62 @@ public enum HistoryPresentation {
     public static func stateText(for entry: RiftHistoryEntry) -> String {
         let state: String
         if entry.record.status == .missing { state = "Private copy unavailable" }
-        else if entry.isConfirmedFailure { state = "Upload failed · ready to try again" }
-        else if entry.needsVerification {
-            state = entry.record.status == .transferring ? "Checking attachment" : "Needs review · kept locally"
-        } else if entry.record.status == .used { state = "Attached" }
-        else if entry.record.status == .failed { state = "Not attached · ready to try again" }
-        else { state = "Ready" }
+        else {
+            switch entry.attachmentState {
+            case .handedOff: state = "Handed to ChatGPT"
+            case .attached: state = "Attached"
+            case .confirmedFailure: state = "Upload failed · ready to try again"
+            case .notAttached: state = "Not attached · ready to try again"
+            case .needsReview: state = "Needs review · kept locally"
+            case .checkDraft: state = "Needs review · check original draft"
+            case .preparing: state = "Preparing"
+            case .available: state = "Ready"
+            }
+        }
 
         switch entry.record.visibility {
         case .visible: return state
         case .swallowed: return "Swallowed · \(state)"
         case .archived: return "Archived · \(state)"
         case .removed: return "Removed from rift · \(state)"
+        }
+    }
+
+    public static func localizedState(for entry: RiftHistoryEntry) -> String {
+        if entry.record.status == .missing { return "本地副本不可用" }
+        switch entry.attachmentState {
+        case .handedOff: return "已交给 ChatGPT"
+        case .attached: return "已附加"
+        case .needsReview: return "结果待核实"
+        case .checkDraft: return "需要检查原对话"
+        case .confirmedFailure: return "已确认失败 · 图片保留"
+        case .preparing: return "准备附加"
+        case .notAttached: return "未附加 · 图片保留"
+        case .available:
+            switch entry.record.visibility {
+            case .archived: return "已归档"
+            case .removed: return "已移出裂缝"
+            default: return "待附加"
+            }
+        }
+    }
+
+    public static func detailText(for entry: RiftHistoryEntry) -> String {
+        if entry.record.status == .missing {
+            switch entry.attachmentState {
+            case .handedOff: return "这张截图已交给 ChatGPT。上传结果见原对话。"
+            case .attached: return "这张截图已附加。"
+            case .checkDraft, .needsReview: return "请到原对话核对附件。"
+            default: return "请检查本地截图文件。"
+            }
+        }
+        switch entry.attachmentState {
+        case .handedOff: return "上传结果见原对话。"
+        case .checkDraft: return "原附件报告异常，请到原对话核对。"
+        case .needsReview: return "请到原对话核对附件。Riftlet 不会自动重传。"
+        case .attached: return "原始系统截图仍然保留。"
+        case .confirmedFailure, .notAttached: return "图片仍保存在本机。"
+        case .preparing, .available: return ""
         }
     }
 
@@ -122,7 +162,7 @@ public enum HistoryPresentation {
             guard !query.isEmpty else { return true }
             let asset = entry.record.image
             let text = [entry.id.uuidString, asset.fileName, String(entry.record.sequence),
-                        formatter.string(from: captureDate(for: entry)), stateText(for: entry),
+                        formatter.string(from: captureDate(for: entry)), stateText(for: entry), localizedState(for: entry),
                         "\(asset.pixelWidth)×\(asset.pixelHeight)", entry.detail ?? ""].joined(separator: " ")
             return text.range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
         }.sorted { lhs, rhs in
