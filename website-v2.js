@@ -23,6 +23,7 @@
   const stage = $('#demo-stage'), shots = $('#edge-shots'), edge = $('#edge-zone');
   const draft = $('#draft'), attachments = $('#attachments');
   const translateNodes = $$('[data-en]');
+  const imageDescriptions = $$('img[data-alt-en]').map(image => ({ image, zh: image.alt, en: image.dataset.altEn }));
   const chineseContent = new Map(translateNodes.map(el => [el, el.innerHTML]));
   const initialAria = new Map($$('[aria-label]').map(el => [el, el.getAttribute('aria-label')]));
   const languageKey = 'riftlet.website.language';
@@ -168,6 +169,7 @@
     const isEnglish = language === 'en';
     document.documentElement.lang = isEnglish ? 'en' : 'zh-CN';
     translateNodes.forEach(el => { el.innerHTML = isEnglish ? el.dataset.en.replace(/<br>/g, '<br> ') : chineseContent.get(el); });
+    imageDescriptions.forEach(({ image, zh, en }) => { image.alt = isEnglish ? en : zh; });
     const button = $('#language-toggle');
     button.textContent = isEnglish ? '中文' : 'EN';
     button.setAttribute('aria-label', isEnglish ? '切换至中文' : 'Switch to English');
