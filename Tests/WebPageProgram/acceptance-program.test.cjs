@@ -24,13 +24,17 @@ function accepted(f,op) {
 // The controlled application owns this interaction. Riftlet only invokes its
 // ordinary attachment entry and supplies a real File through the picked input.
 // It does not create an input/card or announce acceptance on the application's behalf.
-function attachmentApplication(f,{dynamic=false,menu=false,pointerOnly=false,delay=0,method='click',externalForm=false,moveSelection=false,acceptAttribute='image/x-png',scheduler='timeout'}={}) {
+function attachmentApplication(f,{dynamic=false,menu=false,pointerOnly=false,delay=0,method='click',externalForm=false,moveSelection=false,acceptAttribute='image/x-png',scheduler='timeout',linksPicker=false}={}) {
  f.input.remove();
  const destination=externalForm?f.body.append(new f.Node('form',{'data-purpose':'portal-root'})):f.body;
  let picker=dynamic?null:destination.append(f.input),entryCount=0,uploadCount=0;
  const prepare=()=>{
   if(!picker){picker=destination.append(new f.context.HTMLInputElement());picker.rendered=false;}
   picker.setAttribute('accept',acceptAttribute);
+  if (linksPicker) {
+   picker.setAttribute('id','selected-local-picker');
+   action.setAttribute('aria-controls',picker.id);
+  }
   picker.applicationAccept=true;
   if(method!=='none')picker[method]();
  };
@@ -43,12 +47,14 @@ function attachmentApplication(f,{dynamic=false,menu=false,pointerOnly=false,del
   else prepare();
  };
  const entry=f.form.append(new f.Node('button',menu?{'aria-haspopup':'menu',type:'button'}:{'aria-label':'Attach files',type:'button'}));
+ let action=entry;
  entry.textContent=menu?'+':'Attach files';
  entry.addEventListener(pointerOnly?'pointerdown':'click',()=>{
   entryCount++;
   if(!menu){upload();return;}
   const popup=f.body.append(new f.Node('div',{role:'menu'}));
   const choice=popup.append(new f.Node('button',{role:'menuitem',type:'button'}));choice.textContent='Upload from computer';
+  action=choice;
   choice.addEventListener('click',upload);
   popup.addEventListener('keydown',event=>{if(event.key==='Escape')popup.remove();});
   if(moveSelection){choice.focus();f.selection.setBaseAndExtent(choice,0,choice,0);}
@@ -64,7 +70,7 @@ test('core regression: ordinary attachment button can upload PNG before Riftlet 
  transfer.items.add(manualFile);normal.picker.files=transfer.files;normal.picker.dispatchEvent(new manual.context.Event('change',{bubbles:true}));
  assert.ok(manual.form.querySelectorAll('[data-file-name]').some(card=>card.getAttribute('data-file-name')===manualFile.name),'the same application accepts normal PNG input');
 
- const f=fixture(),app=attachmentApplication(f,{dynamic:true,menu:true,externalForm:true,delay:35,moveSelection:true});
+ const f=fixture(),app=attachmentApplication(f,{dynamic:true,menu:true,externalForm:true,delay:35,moveSelection:true,linksPicker:true});
  const text=f.editor.textContent,anchor=f.selection.anchorNode,focus=f.selection.focusNode;
  for(let index=0;index<5;index++){
   const op=f.bind();f.stage(op);const receipt=(await f.commit(op)).observation;
@@ -138,7 +144,7 @@ for(const decoyLocation of ['current-form','sole-global-avatar'])test('unrelated
 });
 
 test('an unrelated asynchronous avatar click cannot steal a delayed chat attachment invocation',async()=>{
- const f=fixture(),app=attachmentApplication(f,{dynamic:true,externalForm:true,delay:100});
+ const f=fixture(),app=attachmentApplication(f,{dynamic:true,externalForm:true,delay:100,linksPicker:true});
  const external=f.body.append(new f.Node('form',{'data-purpose':'account-settings'}));
  const avatar=external.append(new f.context.HTMLInputElement()),other=external.append(new f.context.HTMLInputElement());
  avatar.applicationAccept=false;other.applicationAccept=false;
@@ -157,7 +163,7 @@ test('an unrelated asynchronous avatar click cannot steal a delayed chat attachm
 });
 
 for(const scheduler of ['queueMicrotask','animationFrame','nested'])test('the selected entry retains its actual asynchronous picker invocation through '+scheduler,async()=>{
- const f=fixture(),app=attachmentApplication(f,{dynamic:true,externalForm:true,scheduler,delay:30,method:'showPicker'});
+ const f=fixture(),app=attachmentApplication(f,{dynamic:true,externalForm:true,linksPicker:true,scheduler,delay:30,method:'showPicker'});
  const op=f.bind();f.stage(op);await f.commit(op);accepted(f,op);
  assert.equal(app.entryCount,1);assert.equal(app.picker.files[0].name,op.name);
  assert.equal(app.picker.setterCount,1);assert.equal(f.changes,1);assert.equal(app.picker.chooserOpens,0);
@@ -174,6 +180,7 @@ for(const mode of ['resolved-promise-click','timer-showPicker'])test('a same-rea
   ${mode==='resolved-promise-click'?'await Promise.resolve();':'await new Promise(resolve=>setTimeout(resolve,35));'}
   const picker=new HTMLInputElement();
   picker.setAttribute('id','async-created-picker');
+  this.setAttribute('aria-controls',picker.id);
   document.body.append(picker);
   picker.${mode==='resolved-promise-click'?'click':'showPicker'}();
  })`,f.context);
@@ -256,7 +263,7 @@ test('readonly or disabled text editing does not disable an available chat attac
 });
 
 test('a late timer from the cancelled chat entry cannot open an OS chooser after navigation',async()=>{
- const f=fixture(),app=attachmentApplication(f,{dynamic:true,externalForm:true,delay:100});
+ const f=fixture(),app=attachmentApplication(f,{dynamic:true,externalForm:true,delay:100,linksPicker:true});
  const op=f.bind();f.stage(op);const pending=f.commit(op);
  f.setRoute('https://chatgpt.com/c/new-destination');
  const result=(await pending).observation;

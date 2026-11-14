@@ -59,7 +59,7 @@ final class OrdinaryCaptureConfigurationTests: XCTestCase {
         XCTAssertTrue(ordinary.receiptPolicy.platformCompletionProfiles.isEmpty)
         XCTAssertTrue(ordinary.receiptPolicy.terminationProfiles.isEmpty)
         XCTAssertFalse(SystemScreenshotCandidateConfiguration.completedAttachmentProfiles.isEmpty)
-        XCTAssertTrue(ProductStatus.supportDescription.contains("新聊天及已有聊天"))
+        XCTAssertTrue(ProductStatus.supportDescription(for: .unifiedProduct, copy: .simplifiedChinese).contains("新聊天及已有聊天"))
         XCTAssertEqual(ApplicationMode.capture.directoryName, "Riftlet")
         XCTAssertEqual(ApplicationMode.systemScreenshotCandidate.directoryName, "Riftlet-System-Screenshot-Candidate")
         #endif

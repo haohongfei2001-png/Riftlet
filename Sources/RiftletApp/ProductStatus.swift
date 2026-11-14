@@ -29,7 +29,15 @@ enum ProductStatus {
 
     static let supportDescription = supportDescription(for: OrdinaryCaptureConfiguration.admission)
 
-    static func supportDescription(for admission: OrdinaryAttachmentAdmission) -> String {
+    static func supportDescription(for admission: OrdinaryAttachmentAdmission, copy: ProductCopy = .current) -> String {
+        if copy == .english && admission.usesUnifiedProduct {
+            return """
+            Riftlet collects single-frame PNG, JPEG, HEIC, HEIF and TIFF screenshots saved by macOS. Limits are 128 MiB, 160 million pixels and 50,000 pixels per side. Clipboard-only images, animated images and PDFs are excluded. Originals are preserved. HDR display has not been verified.
+            Open an editable new or existing ChatGPT draft in Chrome. Click a desktop thumbnail to add its screenshot. When the draft starts receiving it, you can click the next one. You choose when to send. PNG and JPEG are attached as saved. Other supported formats usually become a full-resolution PNG; if it is too large, the original format is offered to the page instead.
+            Check the original draft for an uncertain attachment. Riftlet keeps it in history and never automatically resubmits it. ChatGPT attachment availability can vary by page, account and chat mode.
+            Requires macOS 13 or later. Release notes list tested environments. To keep Riftlet out of a screenshot, you can hide desktop thumbnails while collection continues.
+            """
+        }
         let attachmentScope = admission.usesUnifiedProduct ? """
         \(admission.supportText)
         结果不明的图片保留在历史里，不会自动再次附加。页面、账号功能和聊天模式都可能影响附件是否可用。
@@ -106,34 +114,56 @@ enum ProductStatus {
         case attachmentEntryUnavailable, attachmentInputNotCreated, attachmentInputAmbiguous, attachmentEntryFailed
 
         var text: String {
+            text(in: .current)
+        }
+
+        func text(in copy: ProductCopy) -> String {
             switch self {
-            case .waiting: return "已接收，正在等待附加；本次尚未上传。"
-            case .preparing: return "附加处理中，结果尚待确认；请保留当前聊天草稿。"
-            case .cancelledBeforeInput: return "此次附加已取消，图片保留；本次未上传。"
-            case .expiredBeforeInput: return "等待已超时，此次附加已取消；图片保留，本次未上传。"
-            case .targetChangedBeforeInput: return "原聊天草稿已变化，此次附加已取消；图片保留，本次未上传。"
-            case .targetValidationUnavailableBeforeInput: return "暂时无法核实原聊天草稿；图片保留，本次未上传。"
-            case .noClickTimeTarget: return "这次点击没有找到可用的聊天草稿，本次未上传。请把要用的 ChatGPT 草稿切到 Chrome 前台，再点边缘截图。"
-            case .targetUnavailable: return SetupIssue.targetUnavailable.text
-            case .unresolvedDraftBeforeInput: return "原草稿中还有一张图片的附加结果待核实；本次未上传，图片保留。"
+            case .waiting: return copy.text("已接收，正在等待附加；本次尚未上传。",
+                    "Queued for attachment; this image has not been uploaded yet.")
+            case .preparing: return copy.text("附加处理中，结果尚待确认；请保留当前聊天草稿。",
+                    "Attachment in progress; the result is not yet confirmed. Keep the current chat draft open.")
+            case .cancelledBeforeInput: return copy.text("此次附加已取消，图片保留；本次未上传。",
+                    "Attachment cancelled. The image is kept and was not uploaded.")
+            case .expiredBeforeInput: return copy.text("等待已超时，此次附加已取消；图片保留，本次未上传。",
+                    "The wait timed out and the attachment was cancelled. The image is kept and was not uploaded.")
+            case .targetChangedBeforeInput: return copy.text("原聊天草稿已变化，此次附加已取消；图片保留，本次未上传。",
+                    "The original chat draft changed. Attachment cancelled; the image is kept and was not uploaded.")
+            case .targetValidationUnavailableBeforeInput: return copy.text("暂时无法核实原聊天草稿；图片保留，本次未上传。",
+                    "The original chat draft could not be verified. The image is kept and was not uploaded.")
+            case .noClickTimeTarget: return copy.text("这次点击没有找到可用的聊天草稿，本次未上传。请把要用的 ChatGPT 草稿切到 Chrome 前台，再点边缘截图。",
+                    "No available chat draft was found for this click; the image was not uploaded. Bring your ChatGPT draft to the front in Chrome, then click the desktop screenshot.")
+            case .targetUnavailable: return SetupIssue.targetUnavailable.text(in: copy)
+            case .unresolvedDraftBeforeInput: return copy.text("原草稿中还有一张图片的附加结果待核实；本次未上传，图片保留。",
+                    "Another attachment in the original draft is still unconfirmed. This image was not uploaded and is kept.")
             case .independentAttachmentUnavailableBeforeInput:
-                return "暂不能确认当前页面能保留原附件并继续追加；本次未上传，图片保留。"
+                return copy.text("暂不能确认当前页面能保留原附件并继续追加；本次未上传，图片保留。",
+                    "The page could not be confirmed to support another attachment while preserving existing ones. This image was not uploaded and is kept.")
             case .inputResourceUnavailableBeforeInput:
-                return "当前页面的附件入口尚不能安全接收下一张图片；本次未上传，图片保留。"
+                return copy.text("当前页面的附件入口尚不能安全接收下一张图片；本次未上传，图片保留。",
+                    "The page cannot safely receive the next image yet. This image was not uploaded and is kept.")
             case .inputExecutingBeforeInput:
-                return "上一张的文件输入仍在执行；本次尚未附加，图片保留。"
+                return copy.text("上一张的文件输入仍在执行；本次尚未附加，图片保留。",
+                    "The previous file is still being handed to the page. This image has not been attached and is kept.")
             case .filePreparationFailedBeforeInput:
-                return "当前图片未能交给浏览器；本次尚未附加，图片保留。"
+                return copy.text("当前图片未能交给浏览器；本次尚未附加，图片保留。",
+                    "The image could not be handed to the browser. It has not been attached and is kept.")
             case .attachmentEntryUnavailable:
-                return "未找到当前聊天可执行的附件入口；本次未附加，图片保留。"
+                return copy.text("未找到当前聊天可执行的附件入口；本次未附加，图片保留。",
+                    "No usable attachment entry was found in this chat. The image was not attached and is kept.")
             case .attachmentInputNotCreated:
-                return "已执行附件入口，但页面未提供文件输入；本次未附加，图片保留。"
+                return copy.text("已执行附件入口，但页面未提供文件输入；本次未附加，图片保留。",
+                    "The attachment entry opened, but the page provided no file input. The image was not attached and is kept.")
             case .attachmentInputAmbiguous:
-                return "附件入口未能确定当前聊天使用的文件控件；本次未附加，图片保留。"
+                return copy.text("附件入口未能确定当前聊天使用的文件控件；本次未附加，图片保留。",
+                    "The file input for this chat could not be identified. The image was not attached and is kept.")
             case .attachmentEntryFailed:
-                return "执行当前聊天的附件入口时失败；本次未附加，图片保留。"
-            case .imageMissingBeforeInput: return "找不到这张图片的本地副本；本次未上传。"
-            case .resultUnconfirmed: return "附加结果暂不能确认，图片记录已保留；不会自动再次附加。"
+                return copy.text("执行当前聊天的附件入口时失败；本次未附加，图片保留。",
+                    "The attachment entry in this chat could not be opened. The image was not attached and is kept.")
+            case .imageMissingBeforeInput: return copy.text("找不到这张图片的本地副本；本次未上传。",
+                    "The local copy of this image could not be found. It was not uploaded.")
+            case .resultUnconfirmed: return copy.text("附加结果暂不能确认，图片记录已保留；不会自动再次附加。",
+                    "The attachment result is unconfirmed. Its history is kept; Riftlet will not attach it again automatically.")
             }
         }
     }

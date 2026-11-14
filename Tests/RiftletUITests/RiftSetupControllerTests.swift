@@ -1,5 +1,6 @@
 import AppKit
 import XCTest
+@testable import RiftletLegacySettingsFixtures
 @testable import RiftletUI
 
 final class RiftSetupControllerTests: XCTestCase {
@@ -105,7 +106,7 @@ final class RiftSetupControllerTests: XCTestCase {
                                           permission: .denied))
         XCTAssertFalse(permission.isHidden)
         XCTAssertTrue(permission.isEnabled)
-        XCTAssertEqual(permission.title, "打开自动化设置…")
+        XCTAssertEqual(permission.title, ProductCopy.text("打开自动化设置…", "Open Automation Settings…"))
         permission.performClick(nil)
         try button("setup.source").performClick(nil)
         XCTAssertEqual(requests, 1)
@@ -125,10 +126,10 @@ final class RiftSetupControllerTests: XCTestCase {
         defer { controller.close() }
         controller.update(snapshot: .init(collection: .paused, isHidden: true))
         let hide = try button("setup.hide"), pause = try button("setup.pause")
-        XCTAssertEqual(hide.title, "显示桌面截图")
-        XCTAssertEqual(pause.title, "继续收录")
-        XCTAssertEqual(hide.accessibilityLabel(), "显示桌面截图")
-        XCTAssertEqual(pause.accessibilityLabel(), "继续收录")
+        XCTAssertEqual(hide.title, ProductCopy.text("显示桌面截图", "Show Desktop Screenshots"))
+        XCTAssertEqual(pause.title, ProductCopy.text("继续收录", "Resume Collection"))
+        XCTAssertEqual(hide.accessibilityLabel(), ProductCopy.text("显示桌面截图", "Show Desktop Screenshots"))
+        XCTAssertEqual(pause.accessibilityLabel(), ProductCopy.text("继续收录", "Resume Collection"))
         XCTAssertEqual(try button("setup.done").keyEquivalent, "\r")
         hide.performClick(nil)
         XCTAssertEqual(hidden, 1)

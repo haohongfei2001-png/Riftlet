@@ -1,0 +1,26 @@
+{
+  "scope": "synthetic DOM fixture, current production JS; not live ChatGPT",
+  "scenario": "inert composer entry plus sole unrelated asynchronous picker invocation",
+  "elapsedMS": 3004,
+  "entryClicks": 1,
+  "foreignSetters": 1,
+  "foreignChanges": 1,
+  "foreignReceivedCurrentFile": true,
+  "state": "inputTriggered",
+  "diagnostics": {
+    "version": 1,
+    "entryCandidates": 1,
+    "entryActivations": 1,
+    "openedContainers": 0,
+    "menuActivations": 0,
+    "pickerClicks": 1,
+    "pickerShows": 0,
+    "inputSeen": true,
+    "inputConnected": true,
+    "setterEntered": true,
+    "changeReturned": true,
+    "stage": "observation",
+    "cause": "none",
+    "exceptionType": "none"
+  }
+}

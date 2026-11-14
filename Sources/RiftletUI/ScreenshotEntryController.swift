@@ -2,6 +2,51 @@ import AppKit
 import QuartzCore
 import RiftletCapture
 
+/// Display-only copy. Capture modes, timing and menu actions keep their existing identities.
+struct ScreenshotEntryCopy {
+    let language: ProductCopy
+    func name(_ mode: ScreenshotMode) -> String {
+        switch mode {
+        case .window: return language.text("窗口", "Window")
+        case .region: return language.text("区域", "Region")
+        case .fullScreen: return language.text("全屏", "Full Screen")
+        }
+    }
+    var options: String { language.text("截图选项", "Screenshot Options") }
+    var defaultMode: String { language.text("默认截图方式", "Default Capture Mode") }
+    var pointer: String { language.text("显示指针", "Show Pointer") }
+    var delay: String { language.text("延时", "Delay") }
+    var editAfter: String { language.text("截图后编辑", "Edit After Capture") }
+    var end: String { language.text("结束截图", "End Capture") }
+    var more: String { language.text("更多截图选项", "More Screenshot Options") }
+    var escape: String { language.text("按 Escape 或结束截图退出。", "Press Escape or End Capture to exit.") }
+    func delayLabel(_ seconds: Int) -> String {
+        seconds == 0 ? language.text("无", "None") : language.text("\(seconds) 秒", "\(seconds) \(seconds == 1 ? "second" : "seconds")")
+    }
+    func collapsed(_ mode: ScreenshotMode) -> String {
+        language.text("截图，默认\(name(mode))", "Screenshot, default: \(name(mode))")
+    }
+    func capture(_ mode: ScreenshotMode) -> String {
+        language.text("截取\(name(mode))", "Capture \(name(mode))")
+    }
+    func countdown(_ mode: ScreenshotMode, seconds: Int) -> String {
+        language.text("已选\(name(mode)) · \(seconds) 秒后拍摄", "\(name(mode)) selected · Capturing in \(seconds) \(seconds == 1 ? "second" : "seconds")")
+    }
+    func capturing(_ mode: ScreenshotMode) -> String {
+        language.text("正在拍摄已选\(name(mode))", "Capturing selected \(name(mode))")
+    }
+    func next(_ mode: ScreenshotMode) -> String {
+        language.text("下一张：\(name(mode))", "Next: \(name(mode))")
+    }
+    func nextChanged(_ next: ScreenshotMode, current: ScreenshotMode) -> String {
+        language.text("下一张改为\(name(next))，本次仍为已选\(name(current))。",
+                      "Next capture: \(name(next)). This capture remains \(name(current)).")
+    }
+    func announcement(_ text: String) -> String {
+        text + language.text("。", ". ") + escape
+    }
+}
+
 public struct ScreenshotEntryControlSnapshot: Sendable {
     public let slot: ScreenshotEntrySlot
     public let mode: ScreenshotMode?
@@ -297,6 +342,7 @@ private final class ScreenshotEntryRailView: NSView {
 /// geometry and editing. A completed screenshot never closes this rail.
 @MainActor
 public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
+    private let copy = ScreenshotEntryCopy(language: .current)
     public var onGeometryChange: (() -> Void)?
     public var onBegin: ((ScreenshotMode) -> Void)?
     public var onMode: ((ScreenshotMode) -> Void)?
@@ -597,13 +643,13 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
         capturePresentation = accepted
         let text: String?
         if let accepted, let seconds = accepted.remainingSeconds {
-            text = "已选\(Self.name(accepted.confirmedMode)) · \(seconds) 秒后拍摄"
+            text = copy.countdown(accepted.confirmedMode, seconds: seconds)
         } else if let accepted, case .capturing = accepted.state {
-            text = "正在拍摄已选\(Self.name(accepted.confirmedMode))"
+            text = copy.capturing(accepted.confirmedMode)
         } else { text = nil }
         captureStatusText = text.map { firstLine in
             guard let accepted, accepted.nextMode != accepted.confirmedMode else { return firstLine }
-            return firstLine + "\n下一张：\(Self.name(accepted.nextMode))"
+            return firstLine + "\n" + copy.next(accepted.nextMode)
         }
         updateControls()
         updateCaptureStatusVisibility()
@@ -612,10 +658,10 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
             if announcedRequestID != accepted.requestID {
                 announcedRequestID = accepted.requestID
                 lastAnnouncedNextMode = accepted.nextMode
-                announcement = text + "。按 Escape 或结束截图退出。"
+                announcement = copy.announcement(text)
             } else if lastAnnouncedNextMode != accepted.nextMode {
                 lastAnnouncedNextMode = accepted.nextMode
-                announcement = "下一张改为\(Self.name(accepted.nextMode))，本次仍为已选\(Self.name(accepted.confirmedMode))。"
+                announcement = copy.nextChanged(accepted.nextMode, current: accepted.confirmedMode)
             } else { announcement = nil }
             if let announcement {
                 NSAccessibility.post(element: inputs[session.activeSlot.rawValue].view,
@@ -716,12 +762,12 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
             let active = session.isExpanded && slot == session.activeSlot
             input.view.isEnabled = isEnabled && (session.isExpanded || slot == .anchor) && (!isBusy || active)
             let label: String
-            if !session.isExpanded { label = "截图，默认\(Self.name(session.defaultMode))" }
-            else if active { label = "结束截图" }
-            else if slot == .more { label = "更多截图选项" }
-            else { label = "截取\(Self.name(session.modes[slot.rawValue]))" }
+            if !session.isExpanded { label = copy.collapsed(session.defaultMode) }
+            else if active { label = copy.end }
+            else if slot == .more { label = copy.more }
+            else { label = copy.capture(session.modes[slot.rawValue]) }
             input.view.setAccessibilityLabel(label)
-            input.view.setAccessibilityHelp(active ? (captureStatusText ?? "按 Escape 或结束截图退出。") : nil)
+            input.view.setAccessibilityHelp(active ? (captureStatusText ?? copy.escape) : nil)
             input.view.toolTip = label
         }
     }
@@ -834,10 +880,6 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
 
     private func stopFrames() { frameTimer?.invalidate(); frameTimer = nil }
 
-    private static func name(_ mode: ScreenshotMode) -> String {
-        switch mode { case .window: return "窗口"; case .region: return "区域"; case .fullScreen: return "全屏" }
-    }
-
     /// Explicit settings access exposes the existing choices without starting capture.
     public func showPreferences() { showOptions(requiresExpanded: false) }
 
@@ -851,33 +893,33 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
     private func showOptions(requiresExpanded: Bool = true) {
         guard !closed, isEnabled, !isHidden, !isCaptureSuppressed,
               (!requiresExpanded || session.isExpanded), !isBusy, !menuIsOpen else { return }
-        let menu = NSMenu(title: "截图选项")
+        let menu = NSMenu(title: copy.options)
         menu.autoenablesItems = false; menu.delegate = self
-        let defaults = NSMenu(title: "默认截图方式")
+        let defaults = NSMenu(title: copy.defaultMode)
         defaults.autoenablesItems = false
         for mode in [ScreenshotMode.window, .region, .fullScreen] {
-            let item = NSMenuItem(title: Self.name(mode), action: #selector(changeDefault(_:)), keyEquivalent: "")
+            let item = NSMenuItem(title: copy.name(mode), action: #selector(changeDefault(_:)), keyEquivalent: "")
             item.target = self; item.representedObject = mode.rawValue
             item.state = mode == session.defaultMode ? .on : .off
             defaults.addItem(item)
         }
-        let defaultItem = NSMenuItem(title: "默认截图方式", action: nil, keyEquivalent: "")
+        let defaultItem = NSMenuItem(title: copy.defaultMode, action: nil, keyEquivalent: "")
         defaultItem.submenu = defaults; menu.addItem(defaultItem)
         menu.addItem(.separator())
-        let pointer = NSMenuItem(title: "显示指针", action: #selector(togglePointer(_:)), keyEquivalent: "")
+        let pointer = NSMenuItem(title: copy.pointer, action: #selector(togglePointer(_:)), keyEquivalent: "")
         pointer.target = self; pointer.state = options.showPointer ? .on : .off; menu.addItem(pointer)
-        let delays = NSMenu(title: "延时")
+        let delays = NSMenu(title: copy.delay)
         delays.autoenablesItems = false
         for seconds in [0, 5, 10] {
-            let item = NSMenuItem(title: seconds == 0 ? "无" : "\(seconds) 秒",
+            let item = NSMenuItem(title: copy.delayLabel(seconds),
                                  action: #selector(changeDelay(_:)), keyEquivalent: "")
             item.target = self; item.tag = seconds
             item.state = options.delay == TimeInterval(seconds) ? .on : .off
             delays.addItem(item)
         }
-        let delay = NSMenuItem(title: "延时", action: nil, keyEquivalent: "")
+        let delay = NSMenuItem(title: copy.delay, action: nil, keyEquivalent: "")
         delay.submenu = delays; menu.addItem(delay)
-        let edit = NSMenuItem(title: "截图后编辑", action: #selector(toggleEditing(_:)), keyEquivalent: "")
+        let edit = NSMenuItem(title: copy.editAfter, action: #selector(toggleEditing(_:)), keyEquivalent: "")
         edit.target = self; edit.state = options.editAfter ? .on : .off; menu.addItem(edit)
         self.menu = menu
         if session.isExpanded {

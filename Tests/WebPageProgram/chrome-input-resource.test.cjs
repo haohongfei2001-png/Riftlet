@@ -30,7 +30,7 @@ function browserFixture(options){
  const check=(ok,label)=>{if(!ok)throw Error(label);};
  const wait=async fn=>{for(let i=0;i<300;i++){if(fn())return;await new Promise(r=>setTimeout(r,10));}throw Error('bounded observation wait expired');};
  const hash=async bytes=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),n=>n.toString(16).padStart(2,'0')).join('');
- try{
+ async function run(){
   check(location.protocol==='http:'&&location.hostname==='127.0.0.1','fixture must stay on loopback');
   await stage('initializing');
   const form=document.querySelector('[data-harness-composer]'),editor=document.querySelector('#prompt-textarea');
@@ -189,6 +189,10 @@ function browserFixture(options){
        if(!menu.isConnected)return;
        const created=document.createElement('input');created.type='file';created.hidden=true;
        created.accept='IMAGE/PNG; charset=binary,.PNG,image/x-png';
+       if(!options.menuOwnsInput){
+        created.id='picker-'+menuSelections;
+        item.setAttribute('aria-controls',created.id);
+       }
        input=created;createdPickers++;created.addEventListener('change',changed);
        created.addEventListener('click',event=>{pickerClicks++;if(!event.defaultPrevented)missingChooserCancellation++;});
        if(options.nativeAwait){
@@ -240,6 +244,24 @@ function browserFixture(options){
    noInputStartRejected=observed.state==='unknown'&&!observed.uploadStart&&setters===0&&changes===0;
    check(noInputStartRejected,'matching attachment without actual input never starts');
    restorePicker();card.remove();call(unsubmitted.command('discard'));
+  }
+  if(options.expectUnowned){
+   if(foreignAction)setTimeout(foreignAction,0);
+   const pending=call({...ops[0].command('commit'),chunkIndex:1});
+   if(options.handoff==='inert-entry'){
+    await wait(()=>handoff.counts.entry===1);
+    input.click();
+   }
+   const receipt=await pending;
+   check(receipt.observation.preInputRetirement?.inputCount===0&&!receipt.observation.uploadStart,'retired before any file input');
+   check(!receipt.entryDiagnostics.setterEntered&&!receipt.entryDiagnostics.changeReturned,'no native input attempted');
+   check(setters===0&&changes===0&&wrongInputChanges===0&&wrongInputSetters===0,'no receiver was written');
+   check(input.files instanceof FileList&&input.files.length===0&&decoys.every(node=>node.files.length===0),'all native file lists empty');
+   check(handoff.counts.pickerClicks===1&&handoff.counts.chooserDefaultAllowed===0,'actual anonymous picker call was observed');
+   check(editor.textContent===text&&selection.anchorNode===anchor&&selection.focusNode===focus&&selection.anchorOffset===anchorOffset&&selection.focusOffset===focusOffset&&form.contains(priorCard),'draft and original attachment preserved');
+   check(sends===0&&applicationNetworkRequests===0,'no send or upload');
+   if(foreignAction)check(foreignCalls===2&&unmodifiedForeignDefaults===2,'independent foreign file controls retained their defaults');
+   return {passed:true,preInputRetirement:receipt.observation.preInputRetirement.reason,nativeChanges:changes,nativeSetters:setters,emptyFileLists:true,networkRequests:applicationNetworkRequests,automaticSends:sends};
   }
   for(let index=0;index<ops.length;index++){
    await stage('input-'+(index+1));const op=ops[index];
@@ -322,10 +344,7 @@ function browserFixture(options){
   if(options.liveComposerShape)check(!report.unneededMenuOpens&&wrongInputSetters===0,'used the general direct attachment input');
   check(wrongInputSetters===0&&wrongInputChanges===0&&decoys.every(picker=>picker.files.length===0),'unrelated file controls receive no setter/change and remain untouched');
   if(options.entryMode){
-   // Only the picker inside the actual opened menu is known to be its own.
-   // Opaque external invocations arbitrate within the existing discovery budget.
-   if(options.menuOwnsInput)check(inputExecutionMS.every(ms=>ms<2200),'owned menu picker waited for deadline: '+JSON.stringify(inputExecutionMS));
-   else check(inputExecutionMS.every(ms=>ms<4400),'opaque async discovery did not settle within its bounded window: '+JSON.stringify(inputExecutionMS));
+   check(inputExecutionMS.every(ms=>ms<2200),'linked menu picker waited for deadline: '+JSON.stringify(inputExecutionMS));
    check(entryPointerDowns===options.count&&menuSelections===options.count&&createdPickers===options.count,'each click autonomously opens its menu and receives a new dynamic picker');
    check(pickerCalls===options.count&&pickerErrors===0,'the actual input.click/showPicker path completes automatically');
    check(options.entryMode!=='click'||pickerClicks===options.count,'normal application input click handlers still run');
@@ -346,7 +365,8 @@ function browserFixture(options){
    selectionCollapsedByApplication:!!options.collapseSelectionInChange,
    startBeforePickerRestored,noInputStartRejected,
    firstSyntheticUploadState:tasks[0].state,harnessTransport:'loopback-only'});
- }catch(error){report.error=String(error?.stack||error);}
+ }
+ try{Object.assign(report,await run());}catch(error){report.error=String(error?.stack||error);}
  document.querySelector('#result').textContent=JSON.stringify(report);
  const response=await harnessFetch('/result',{method:'POST',body:JSON.stringify(report)});
  const next=await response.text();
@@ -376,9 +396,9 @@ const originalScenarios=[
 // Chrome process and temporary profile, including a separate real tab for A→B.
 const handoffScenarios=['direct','connected','detached','verb-menu','noun-menu','no-role','await-existing',
  'forced-noun','forced-no-role','reused-open','reused-content','nested','short-label','plain-action','pointer-open','detached-showPicker',
- 'renamed-action','ready-direct','implicit-submit','detached-stop','focusable-menu','anchor-action','localized-opener','await-detached-with-rival','owned-async-mount','visible-empty-panel'].map(handoff=>({handoff,name:'handoff-'+handoff,count:handoff==='detached'?5:2,
+ 'renamed-action','ready-direct','implicit-submit','detached-stop','focusable-menu','anchor-action','localized-opener','await-detached-with-rival','owned-async-mount','visible-empty-panel','inert-entry'].map(handoff=>({handoff,name:'handoff-'+handoff,count:handoff==='detached'?5:2,
    retained:true,route:'https://chatgpt.com/c/ordinary-thread',resident:handoff==='detached',
-   foreignPickers:handoff==='await-existing',switchTabs:handoff==='direct'}));
+   expectUnowned:['await-existing','await-detached-with-rival','inert-entry'].includes(handoff),foreignPickers:handoff==='await-existing',switchTabs:handoff==='direct'}));
 const groups=[...originalScenarios.map(scenario=>[scenario]),handoffScenarios];
 for(const unfiltered of groups){
  const group=unfiltered.filter(options=>!process.env.RIFTLET_NATIVE_CASE||JSON.stringify(options).includes(process.env.RIFTLET_NATIVE_CASE));
@@ -437,7 +457,13 @@ for(const unfiltered of groups){
     for(const [index,report] of reports.entries()){
      const options=group[index];
      try{
-      assert.equal(report.passed,true,JSON.stringify(report));assert.equal(report.nativeChanges,options.count);assert.equal(report.nativeSetters,options.count);assert.equal(report.networkRequests,0);
+      assert.equal(report.passed,true,JSON.stringify(report));
+      if(options.expectUnowned){
+       assert.equal(report.preInputRetirement,'attachmentInputNotCreated');assert.equal(report.nativeChanges,0);assert.equal(report.nativeSetters,0);
+       assert.equal(report.emptyFileLists,true);assert.equal(report.networkRequests,0);assert.equal(report.automaticSends,0);
+       console.log(JSON.stringify({scenario:options.name,...report}));continue;
+      }
+      assert.equal(report.nativeChanges,options.count);assert.equal(report.nativeSetters,options.count);assert.equal(report.networkRequests,0);
       assert.equal(report.applicationIndependentTasksVerified,options.count);assert.equal(report.automaticSends,0);
       assert.equal(report.originalFileListsVerified,options.count);assert.equal(report.observedStarts,options.count);
       assert.equal(report.reentrantInputRefused,true);assert.equal(report.wrongTargetRefused,true);

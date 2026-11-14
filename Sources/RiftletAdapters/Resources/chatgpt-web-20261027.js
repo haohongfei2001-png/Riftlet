@@ -263,8 +263,7 @@ function riftletWebAcceptance(command, native) {
     const named = candidates.filter(node => attachmentWords.test(description(node)) || /^\s*\+\s*$/.test(node.textContent || ''));
     return named.length ? named : candidates;
   }
-  function otherOwner(input, binding, ownControls) {
-    if (outsidePurpose(input, binding) || foreignPurpose.test(description(input))) return true;
+  function hasSeparateOwner(input, binding, ownControls) {
     if (input.form && input.form !== binding.form && editorNodes().some(editor => input.form.contains(editor))) return true;
     // Another labelled/controlled application task is positive contrary
     // evidence. A portal, an unlabelled input or a separate plain form is not.
@@ -276,6 +275,10 @@ function riftletWebAcceptance(command, native) {
         if (controlledElements(control).includes(input)) labels.push(control);
     }
     return labels.some(label => !ownControls(label));
+  }
+  function otherOwner(input, binding, ownControls) {
+    return outsidePurpose(input, binding) || foreignPurpose.test(description(input))
+      || hasSeparateOwner(input, binding, ownControls);
   }
   function directInput(binding, entries, available = document.querySelectorAll('input[type="file"]')) {
     const own = node => entries.includes(node);
@@ -346,29 +349,14 @@ function riftletWebAcceptance(command, native) {
       if (!roots.has(node) && created && !beforeOpen.has(node)) opened.add(node);
       roots.add(node);
     };
-    const anchored = (root, control) => {
-      const r = root.getBoundingClientRect(), c = control.getBoundingClientRect();
-      if (!r.width || !r.height || !c.width || !c.height) return false;
-      // Portalled popovers typically share one axis with their invoker and
-      // abut it on the other. Layout is one hint alongside DOM and focus.
-      const acrossX = r.left < c.right && c.left < r.right;
-      const acrossY = r.top < c.bottom && c.top < r.bottom;
-      return (acrossX && Math.min(Math.abs(r.top - c.bottom), Math.abs(c.top - r.bottom)) <= 32)
-        || (acrossY && Math.min(Math.abs(r.left - c.right), Math.abs(c.left - r.right)) <= 32);
-    };
     const linked = (control, created) => {
       const named = control.id ? [...document.querySelectorAll('[aria-labelledby]')]
         .filter(node => referenced(node, ['aria-labelledby']).includes(control)) : [];
       for (const node of [...controlledElements(control), ...named]) add(node, created);
-      if (control.getAttribute('aria-expanded') !== 'true' && control.getAttribute('data-state') !== 'open') return;
-      const candidates = [...document.querySelectorAll(surfaceSelector)].filter(node => node !== control && eligible(node) && visible(node));
-      const nearby = candidates.filter(node => node.parentElement === control.parentElement
-        || node.contains(document.activeElement) || anchored(node, control));
-      if (nearby.length === 1) add(nearby[0], created);
-      const sibling = control.nextElementSibling;
-      if (sibling && controls(sibling).length && fileWords.test(description(sibling))) add(sibling, created);
     };
-    const changed = (node, fromControl, expanded, invoked) => {
+    // Synchronous changes made by the opener may introduce an unlabelled portal.
+    // Later changes can only populate a surface already bound to this action.
+    const changed = (node, invoked) => {
       if (!eligible(node) || invoked.has(node) || roots.has(node) || !visible(node)) return;
       let root = node.closest(surfaceSelector);
       if (!eligible(root)) {
@@ -379,29 +367,18 @@ function riftletWebAcceptance(command, native) {
           root = node.parentElement;
       }
       if (!eligible(root) || [...roots].some(known => known === root || known.contains(root))) return;
-      const nearTrigger = [...invoked].some(control => root.parentElement === control.parentElement
-        && root.parentElement !== document.body);
-      // Only synchronous control effects are automatically ours. Later page
-      // mutations need a relationship with the opener, the focused popover
-      // or its open transition. A timer changing an unrelated panel is common.
-      const besideOpener = [...invoked].some(control => control.isConnected && anchored(root, control));
-      const fileAction = controls(root).some(control => !nonFileAction.test(description(control))
-        && !cloudFileWords.test(description(control)) && (relatedInputs(control).length || fileWords.test(description(control))))
-        || fileWords.test((root.textContent || '').slice(0, 320));
-      if (fromControl || nearTrigger || root.contains(document.activeElement)
-        || (besideOpener && (fileAction || (expanded && root.matches(surfaceSelector))))) add(root, true);
+      add(root, true);
     };
     const scan = (invoked, mutations, fromControl = false) => {
-      const expanded = [...invoked].some(item => item.getAttribute('aria-expanded') === 'true');
       for (const item of invoked) linked(item, true);
-      for (const node of mutations) changed(node, fromControl, expanded, invoked);
+      if (fromControl) for (const node of mutations) changed(node, invoked);
       mutations.clear();
       const current = new Map();
       for (const node of controls(document)) {
         if (!eligible(node) || !visible(node)) continue;
         const name = description(node);
         current.set(node, name);
-        if (!invoked.has(node) && (!before.has(node) || before.get(node) !== name)) changed(node, fromControl, expanded, invoked);
+        if (fromControl && (!before.has(node) || before.get(node) !== name)) changed(node, invoked);
       }
       before.clear();
       for (const [node, name] of current) before.set(node, name);
@@ -500,7 +477,8 @@ function riftletWebAcceptance(command, native) {
       if (!(input instanceof HTMLInputElement) || input.type !== 'file' || !invoked.size || handlingForeignEvent) return false;
       const owned = insideControl || surfaces.contains(input) || syncMounted.has(input)
         || [...invoked].some(control => relatedInputs(control).includes(input));
-      if (!owned && otherOwner(input, binding, own)) return false;
+      if (hasSeparateOwner(input, binding, own)
+        || (!owned && (outsidePurpose(input, binding) || foreignPurpose.test(description(input))))) return false;
       if (method === 'showPicker') diag.pickerShows++;
       else diag.pickerClicks++;
       diag.inputSeen = true; diag.inputConnected = input.isConnected;
@@ -618,20 +596,13 @@ function riftletWebAcceptance(command, native) {
         // A click handler may replace the field. Prefer its current invocation
         // over the now-unmounted old one; originally detached objects work too.
         const current = picked.filter(([input, fact]) => !fact.wasConnected || input.isConnected);
-        const live = current.length ? current : picked;
-        const tied = live.filter(([, fact]) => fact.tied);
-        const choices = tied.length ? tied : live;
-        if (choices.length > 1) return retire('attachmentInputAmbiguous', 'picker', 'ambiguous');
-        if (choices.length === 1) {
-          const [input] = choices[0];
-          // An arbitrary renderer can create/call another picker later, even
-          // if there were no file inputs at click time. Without an observable
-          // connection to our action, arbitrate actual invocations within the
-          // original deadline. Never use attachment to the DOM as a tiebreak.
-          if (tied.length || ended) return execute(input, true);
-          await waitForChange(); continue;
+        const tied = current.filter(([input, fact]) => fact.tied && !hasSeparateOwner(input, binding, own));
+        if (tied.length > 1) return retire('attachmentInputAmbiguous', 'picker', 'ambiguous');
+        if (ended) {
+          if (current.length > 1) return retire('attachmentInputAmbiguous', 'picker', 'ambiguous');
+          break;
         }
-        if (ended) break;
+        if (tied.length === 1) return execute(tied[0][0], true);
         entries = entryControls(binding);
         diag.entryCandidates = Math.max(diag.entryCandidates, entries.length);
         const local = directInput(binding, entries);
@@ -859,7 +830,7 @@ function riftletWebAcceptance(command, native) {
     diag.inputSeen = true; diag.inputConnected = input.isConnected;
     if (!usableInput(input) || (!invoked && !input.isConnected))
       return retire('attachmentInputNotCreated', 'handoff', 'inputLost');
-    if (!invoked && op.discoveryDeadline && Date.now() >= op.discoveryDeadline)
+    if (op.discoveryDeadline && Date.now() >= op.discoveryDeadline)
       return retire('attachmentInputNotCreated', 'handoff', 'timeout');
     op.binding.input = input;
     op.previewBaseline = new WeakMap([...document.querySelectorAll(previewSelector)].map(node => [node, previewValue(node)]));

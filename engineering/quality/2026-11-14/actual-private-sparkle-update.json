@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "result": "PASS",
+  "evidenceLevel": "ACTUAL_MACOS_GUI_SPARKLE_INSTALL_ON_ISOLATED_APPLEVZ",
+  "source": "31258e2a72fb7acf9e31f974f76b5a100dbb950d",
+  "testedAtUTC": "2026-11-14T05:10:57.689811+00:00",
+  "environment": {
+    "platform": "AppleVZ ARM64 macOS 27.2",
+    "account": "riftconsumer",
+    "data": "Independent QA data; no host production data"
+  },
+  "from": {
+    "version": "1.0.1",
+    "build": 23,
+    "source": "Original public website Safari download, Finder-installed bundle, copied via actual Finder Copy/Paste into writable QA Applications folder before this update",
+    "binarySHA256": "5cd47c71fc8043158eda8b5725e22e3dcd60b628dbd5ad248dd7b1f6a132cf05",
+    "quarantine": "retained",
+    "dmgSHA256": "6443357f08a9dbda805cd5452695417ff8783f34fb7f2331eef08c719f7290a9"
+  },
+  "to": {
+    "version": "1.0.2",
+    "build": 24,
+    "distribution": "private QA, not released",
+    "binarySHA256": "b837fdf673fa89579c062ad6b16cd2ed2ac97a9afa9c05a4e9d891758a6c7198",
+    "appNotarization": "6373a528-bf2d-4e86-bc19-0e5fb8068eba",
+    "zipSHA256": "716ef8fdb5731336ff8326cf4433e3c3fd753abd25ca6ffaea73733bf0aa409c",
+    "zipBytes": 10485337,
+    "bundleID": "com.riftlet.app",
+    "teamID": "ZB9D4T66QB"
+  },
+  "feed": {
+    "type": "Signed private loopback feed with existing stable Ed25519 key",
+    "url": "http://127.0.0.1:48092/stable.xml",
+    "sha256": "ddbca4b9c396924fc09c35c75a4d3ee305eb8424a5b64c0ceadac9f6858c05ed",
+    "override": "Official SUFeedURL command-line argument for original23 process only",
+    "publicFeedChanged": false,
+    "persistentOverride": false,
+    "serverStoppedNormally": true
+  },
+  "guiSteps": [
+    "Original23 Settings > Help > About > Check for Updates",
+    "Actual Sparkle 1.0.1 to1.0.2 offer",
+    "Install Update button",
+    "Actual download and ready-to-install UI",
+    "Install and Relaunch button",
+    "Exact24 binary installed at same path and new process",
+    "General settings shows Riftlet1.0.2",
+    "History7/7 and old screenshot preview",
+    "Real Screenshot.app region capture after update",
+    "History8/8 and new thumbnail",
+    "Normal quit, stop private feed, normal24 restart, normalquit"
+  ],
+  "data": {
+    "exactPrePostSnapshot": true,
+    "exactPrePostAssetRows": true,
+    "exactPrePostOperationRows": true,
+    "preExistingAssets": 7,
+    "preExistingMedia": 7,
+    "operations": 1,
+    "unknown": 1,
+    "checkpoints": 3,
+    "starts": 0,
+    "settingsJSONUnchanged": true,
+    "bookmarkUnchanged": true,
+    "feedbackDraftUnchanged": true,
+    "beforeAfterRestartExact": true,
+    "laterIdleArchive": [
+      {
+        "uuid": "D03AFB99-427A-49B4-B4C4-AEEBF61A9C71",
+        "fields": {
+          "visibility": [
+            "visible",
+            "archived"
+          ],
+          "visibility_revision": [
+            0,
+            1
+          ],
+          "visibility_reason": [
+            "capture",
+            "automaticArchive"
+          ]
+        }
+      }
+    ],
+    "quickCheck": "ok",
+    "bothSystemOriginalsPreserved": true
+  },
+  "newSystemScreenshots": [
+    {
+      "phase": "before update23",
+      "uuid": "7681497C-0B9F-4708-B675-7674603CB142",
+      "sha256": "fad56424c7abc39ae0969c336aac57fc4d931d38ff2ae6ca4fc14f5ccc5a5d16"
+    },
+    {
+      "phase": "after update24",
+      "uuid": "D03AFB99-427A-49B4-B4C4-AEEBF61A9C71",
+      "sha256": "508fe2ddeaf0e3d4770326a6665af96ebd1a0277392a160ec17cc885bf462228"
+    }
+  ],
+  "permissions": {
+    "screenshotDirectory": "PASS: same bookmark bytes, actual new Screenshot.app image collected without reauthorization",
+    "ChromeAutomation": "NOT_RUN: prior state use-time-check, live ChatGPT unavailable",
+    "screenRecording": "Prior not-authorized state retained; no grant requested",
+    "loginItem": "NOT_RUN for launch-at-login; no registration changes performed"
+  },
+  "limitations": [
+    "Private signed loopback feed, not public new-version distribution",
+    "Only current ARM64 virtual Mac; no physical Intel/macOS13 run",
+    "Current real ChatGPT remains NOT_RUN; zero upload during update test",
+    "No host personal installation modified",
+    "Observed English popover header wraps into partial words; saved as genuine UI failure for separate minimal correction",
+    "No general privacy/permission-migration claim beyond actual screenshot directory evidence"
+  ],
+  "executionCorrections": [
+    "Finder Cmd modifier injection ineffective, used actual Edit menu Copy/Paste",
+    "Prebackup SQLite readback altered onlySHM cache; final25-file backup verified before querying separate validation clone",
+    "ShellURL glob preflight corrected before checkingupdates",
+    "Ruby2.6 receipt filter_map/filename encoding incompatibility corrected; original image hashes verified"
+  ],
+  "privateReceiptSHA256": "ccc49a44896b6f76830f7fbdd3cb0390520e81ed4bd57a2d59b8e5886d6047a4",
+  "evidenceFilesSHA256": {
+    "actual-update-unified.log": "01d2a8981932e60d79ea2e5ff1f4b34a0ee0f570442083f14fdc22fbf732ab2b",
+    "after-capture23-last-asset.json": "06f1a4c90523ec8ae7a65493ab9cd403ea392d0b6c61a7c366b171aaaf7d3a8a",
+    "after-capture23-snapshot.json": "77dfa0256843fd336491bebfba2b121b38a736ba7c5a5a12e1230ed0208c60c8",
+    "after-capture24-assets.json": "0a6bfd798ec28b4fcea47858b65fead05cf806c8675443369be47eb9d5149d90",
+    "after-capture24-last-asset.json": "b9edbc40b147b9c2d4b492d96cc03a672c5b8080e5c335fc1ea1f01d209ce560",
+    "after-capture24-snapshot.json": "a0a4705c65894ea4c4bcd21bdd55e13a10c7757bad8156161caffc8a05dc6bc4",
+    "backup-byte-check.json": "851191988d3fa6388393dcdbd4e57b80e27598134aaeb7c761d9295b84a65fdc",
+    "backup-clone-health.txt": "65835134cadab469f6bed2c1654f73fa01b9c4f08dbd61ef8083ad97120cb1c1",
+    "backup-path": "7016a765f0921858382557998e6bee97f005efc65b3f3070a91b3e2d675468f9",
+    "backup-validation-path": "7e0e330f3d40137ff1b311f3541dc94fd4df6a06da2b05c7ef87f51fcc803f60",
+    "before-normal-restart24-snapshot.json": "a0a4705c65894ea4c4bcd21bdd55e13a10c7757bad8156161caffc8a05dc6bc4",
+    "before-snapshot.json": "f5b393442016a70beb866c5b8823673bad3c34f41345c62d033823edd8d896f2",
+    "final-after-normal-quit24-snapshot.json": "b2266dee62bf5ebce437fb0c8ebd53a846bf42de047b2d7410f6b5b52ad988df",
+    "final-assets.json": "5e1d52db64f72f8df7db4e82e1d317fea765b1cbb2945a87d52011a9bcab2497",
+    "install-path": "bbf7fd59eabd3c29e1e5be6494bb85340d87bf2636dcd55b926246b6ae1bccff",
+    "latest-backup-path": "5737c243d95152107b6176e3facc8e4c41b71a10700af8b4b287197df34941b0",
+    "normal-restart24-assets.json": "0a6bfd798ec28b4fcea47858b65fead05cf806c8675443369be47eb9d5149d90",
+    "normal-restart24-process.txt": "e96a5db0100aa5ae64b8002cbc0c135d1b32b9ba9007596c31fde9ccdb1c2664",
+    "normal-restart24-snapshot.json": "a0a4705c65894ea4c4bcd21bdd55e13a10c7757bad8156161caffc8a05dc6bc4",
+    "original-system-screenshots.json": "34fb801a99abcb73fde46f0246c6a90998b7a5d2365aea31d4fe3310a4ff8520",
+    "persistent-feed-override.txt": "9023953ce2d40ec7f8d93b38c92bb7d1853457b306582d5cce1b905e904ba5d8",
+    "post-install-assets.json": "283043d97de69044e34e65fb4869305731f0cf5692c03b6a36528382c396ca53",
+    "post-install-operations.json": "ae4dbefd9af962647b61b249a7073967189bf6e8a88291f35347871fe1d74fa4",
+    "post-install-process.txt": "496eac552049daef4f941358e20735fb166decc91e5cda03277af1a3cb3080b3",
+    "post-install-snapshot.json": "458b8a4287012f0c01462f4a22685cdbcb691fa5db09773e89adf449b7a0694b",
+    "pre-install-assets.json": "283043d97de69044e34e65fb4869305731f0cf5692c03b6a36528382c396ca53",
+    "pre-install-operations.json": "ae4dbefd9af962647b61b249a7073967189bf6e8a88291f35347871fe1d74fa4",
+    "pre-install-snapshot.json": "458b8a4287012f0c01462f4a22685cdbcb691fa5db09773e89adf449b7a0694b",
+    "server-after-update.log": "13edf157c232049bba7e1e34be8ede28fcfaac8f54b10c118829b2464c23ec10",
+    "server-dir": "29c51aa53d020f5cc8ad9056057e8bd466177e8a7ab8477c1b536e3448bf31ed",
+    "server-final.log": "4b1033539f8ca2fe5240866e073ab0e4df194c0f44b8d1ce91847625ac79a0a0",
+    "verified-backup-path": "9af2ad4be6473d564b76f47ac8ba963f8dfd65e06998e06827ec91e6b0cf6e42"
+  },
+  "evidenceFilesScope": "Private isolated QA records retained locally. Public JSON contains hashes and test facts only."
+}

@@ -46,6 +46,21 @@ final class FirstUseTests: XCTestCase {
                        "First-use presentation must not record permission, visibility, or upload admission")
     }
 
+    func testExplicitDeferralSurvivesReopeningHelpAndRelaunch() throws {
+        let suite = "Riftlet.DeferredFirstUse.\(UUID())"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let first = FirstUsePreferences(defaults: defaults, modeName: "Riftlet")
+        first.recordPresentation()
+        XCTAssertTrue(first.needsAutomaticPresentation)
+        first.deferPresentation()
+        let relaunched = FirstUsePreferences(defaults: defaults, modeName: "Riftlet")
+        XCTAssertFalse(relaunched.needsAutomaticPresentation)
+        relaunched.recordPresentation()
+        XCTAssertFalse(relaunched.needsAutomaticPresentation)
+        XCTAssertTrue(FirstUsePreferences(defaults: defaults, modeName: "Riftlet-Simulation").needsAutomaticPresentation)
+    }
+
     func testUpgradingPreservesLegacyOnboardingChoice() throws {
         let suite = "Riftlet.LegacyFirstUse.\(UUID())"
         let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
@@ -148,12 +163,12 @@ final class FirstUseTests: XCTestCase {
         XCTAssertEqual(ProductStatus.issue(.init(code: .imageTooLarge)), .unsupportedSize)
         XCTAssertEqual(ProductStatus.issue(.init(code: .missingPrivateCopy)), .imageUnavailable)
         let view = SetupPresentation(snapshot: .init(attachment: .productionDisabled,
-            permission: ProductStatus.permission(.denied), supportDescription: ProductStatus.supportDescription))
+            permission: ProductStatus.permission(.denied), supportDescription: ProductStatus.supportDescription), copy: .simplifiedChinese)
         XCTAssertNil(view.permissionText)
         XCTAssertFalse(view.canRequestPermission)
         XCTAssertTrue(view.attachmentText.contains("尚未启用"))
         for issue in [SetupIssue.visibilityPreferenceUnsaved, .collectionPreferenceUnsaved] {
-            let failure = SetupPresentation(snapshot: .init(collection: .paused, isHidden: true, issue: issue))
+            let failure = SetupPresentation(snapshot: .init(collection: .paused, isHidden: true, issue: issue), copy: .simplifiedChinese)
             XCTAssertTrue(failure.issueText?.contains("未能保存") == true)
             XCTAssertTrue(failure.issueText?.contains("重启可能恢复之前") == true)
             XCTAssertNil(failure.permissionText)
@@ -162,7 +177,7 @@ final class FirstUseTests: XCTestCase {
 
     func testUnknownPresentationCannotBecomeFailureOrRetryPermission() {
         let view = SetupPresentation(snapshot: .init(isHidden: true, visibleCount: 0, pendingCount: 2,
-            attachment: .syntheticWeb, permission: .granted))
+            attachment: .syntheticWeb, permission: .granted), copy: .simplifiedChinese)
         XCTAssertTrue(try! XCTUnwrap(view.pendingText).contains("待核实"))
         XCTAssertTrue(try! XCTUnwrap(view.pendingText).contains("不会自动再次附加"))
         XCTAssertFalse(try! XCTUnwrap(view.pendingText).contains("失败"))

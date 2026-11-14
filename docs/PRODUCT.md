@@ -1,54 +1,34 @@
-# Riftlet — user-approved product specification
+# Riftlet 当前产品约束
 
-**Latest product contract (2026-10-27):** [fast swallow, ephemeral rift, archive and failure revival](INTERACTION_CONTRACT_2026-10-27.md). This supersedes the historical READY-only swallow / visible UNKNOWN requirements below; this document has been updated to reflect the latest user decision.
+更新：2026-11-14。当前质量重整以正式发行 1.0.1（23）和审计 main 为基线；未来工作重新读取真实发行状态。本页区分产品边界与待修缺陷，不把当前实现自动当成正确设计。
 
-**Phase (2026-10-27):** formal engineering authorized; foundation implementation in progress. Exact appearance and attachment admission remain unfrozen. This phase update supersedes the old research-only restriction without changing the product contract below.
+## 核心路径
 
-## Product
-An independent macOS tool that automatically collects the result of the **existing system screenshot**, places a tiny thumbnail at the screen edge, and transfers it to the currently intended ChatGPT composer on **one click**. It appends an **unsent attachment**, not a message.
+用户照常用 macOS 截图，Riftlet 收录实际截图文件，在桌面边缘显示微图。用户点击一张微图，该图附加到点击当下正确的 Chrome ChatGPT 可编辑草稿。原有文字、选区和附件保留，用户自己发送消息。日常操作不增加拖拽、粘贴、对话选择或二次确认。
 
-## Required everyday operation
-**Exactly two user actions:** (1) take the normal macOS screenshot; (2) click the screenshot in the rift. The product must not require a separate keyboard shortcut, drag/drop, paste, file picker, extension button, conversation chooser or repeated confirmation. **Optional press-and-drag is only being considered, not approved, and must never slow normal one-click attachment.** One-time installation/permissions are outside the everyday two-step cycle.
+点击时冻结真实目标；后续异步工作只验证并使用该目标。不能改选后来的活跃聊天、任意文件输入框或猜测目标。没有可用入口时保持图片可见并给必要的短反馈。setter/change每次操作至多一次；可能已输入后的不确定结果保留原身份，只观察，不盲目重传。
 
-## Rift layout and behavior
-- Extremely thin **vertical spatial rift** on a screen edge, with screenshots appearing partially swallowed/protruding. **With zero visible screenshots, the rift is entirely absent (no persistent line).** A new screenshot emerges from the rift when it arrives.
-- **Roughly coin-sized** thumbnail; preserve original aspect ratio. Show only image and minimal numeric label; naming/dates belong to a separate optional application window.
-- **Oldest currently visible screenshot at top**, next screenshots below. On positive evidence of upload *starting*, the clicked image rapidly swallows into the rift and leaves the visible queue; lower items shift up. Do not wait for confirmed READY or upload completion to animate.
-- Normally **2–3** pending screenshots; sometimes 4–8, rarely more than 10. Do not optimize around indefinite screenshot accumulation.
-- A newly captured screenshot should remain easily accessible even in an atypically longer queue.
-- No requirement to hover-expand before clicking, and no large traditional shelf or toolbar.
-- The visible rift is a **short-lived working queue**, not permanent storage. A screenshot may be used, removed individually, removed in bulk, or automatically archived after a long idle period. These actions remove it from the visible queue without deleting the original system screenshot. An archive interval and permanent private-copy deletion rules remain unapproved.
-- Consumed, uncertain and archived screenshots remain discoverable in a minimal internal local history rather than occupying the rift. A screenshot already inserted into the draft stays swallowed unless that upload is actually classified as failed; users who wish to find it again look in the original macOS screenshots or Riftlet's internal history.
-- Single/bulk clear affects Riftlet visible queue only; **never remove existing attachments from ChatGPT's draft**.
+当前文件被正面证明开始接收（START）后快速收起微图。START、服务端完成、发送是不同事实。普通文件交接在START结束，上传进度和发送由ChatGPT负责；正常交接应显示“已交给 ChatGPT”，真正不确定的输入单独保留。已证实失败和历史补偿仍如实呈现，不能伪造失败/完成来开放重试。完整裁决及迁移条件见[当前设计裁决](quality/DECISIONS.md)。
 
-## Result states (must not be conflated)
-| Event / result | Product response |
-| --- | --- |
-| Click dispatched; upload start not yet evidenced | Immediate, very light press feedback. No false swallow while merely queued, performing preflight, or displaying a placeholder. |
-| **Actual upload started** for the clicked asset in its original target, backed by positive evidence | **Very fast swallow and complete disappearance during the animation.** Remove from **visible queue** immediately; keep file and operation in internal local storage. Do **not** wait for verified READY or 100%. |
-| Exact attachment later verified ready/successful | Record durable success in the background. **No success Toast/notification.** The user checks the attachment in the ChatGPT draft before deciding to send. |
-| **Explicit or extremely high-confidence actual upload failure** | **Must rebirth as a normal, immediately clickable screenshot**, with ordinary later click/remove/idle-archive lifecycle. User clicks again to start a fresh attempt, never an automatic retry. Improve failure classification/eligibility evidence instead of showing unclickable reborn thumbnails. |
-| **UNKNOWN after started upload** (navigation, timeout, lost reply, crash) | Stay swallowed in internal history/pending verification, **not** indefinitely visible or permanently blocking distinct later screenshots. Only reconcile the original operation; no blind re-upload. |
-| **No available composer, no supported attachment entry, no valid current target, or input did not begin** | Thumbnail **does not swallow or disappear** after the click; never silently choose another window. |
-| Long-unused visible screenshot | Archive automatically, leaving the original system screenshot untouched. Exact idle duration remains undecided. |
+## 已发布范围与默认
 
-The only target is the **currently active, unambiguously identified supported ChatGPT window/draft at the instant of the click**; no pinned target, last-used target or intelligent guess. Freeze the click-time identity before asynchronous transfer; later window/tab changes must not redirect it. Preserve previously typed text and existing attachments.
+| 范围 | 当前行为 |
+|---|---|
+| 系统/架构 | 声明支持macOS13+、Apple Silicon与Intel；实际覆盖与缺口逐格见验收矩阵 |
+| 浏览器 | Chrome中可编辑的ChatGPT网页；其他宿主/服务候选不算正式支持 |
+| 桌面 | 微缝、风铃、截图托盘共享队列；托盘仍两行两列、翻页及既定截图键布局 |
+| 队列 | 常见2–3张，偶尔十余张；定位是短期工作队列，历史负责找回 |
+| 归档 | 闲置默认2分钟；保留用户关闭及1–10分钟内的合法已有值；交互期间不归档 |
+| 历史 | 列表/图像网格、筛选/分页、预览与可恢复项；移出/归档不删除系统原件或私有媒体 |
+| 截图入口 | 保留已发布的内置截图及标注；权限仅为相应功能申请，不因此替代系统截图日常路径 |
+| 首用 | 截图目录访问、Chrome自动化及Chrome JavaScript设置；本地收录/历史可单独使用 |
+| 更新 | 1.0.1起Sparkle签名更新，默认每天检查，安装由用户选择；1.0.0→1.0.1需一次手动替换 |
+| 反馈 | 用户自愿提交文字，诊断默认关闭，送至私有反馈系统；无账户或截图云同步 |
 
-**Swallowed visibility is not proof of successful attachment.** Actual upload start, eventual completion and safe retry are separate state/evidence decisions. On uncertain results after start, keep the asset internally and continue observation without a permanent visible queue lock. Only strong evidence of actual failure permits rebirth; **once reborn it must be clickable**. A timeout or lost observer alone does not establish failure. Optimize near-consecutive screenshot clicks only where stability and user experience are preserved. See the latest [interaction contract](INTERACTION_CONTRACT_2026-10-27.md).
+当前有效偏好继续保留；本轮不擅改发布默认形态、品牌色、托盘尺寸或现有两种出现动效选项。设置减法不等于删旧配置。私有副本永久清理仍需先完成单独语义/迁移审查，不默认自动清理。
 
-## First target and scope
-First discussed destinations: ChatGPT **web and macOS app** (new desktop and Classic may need separate verification). Support for other AI apps, arbitrary app input and generic clipboard collection is **possible future work**, not a fixed launch promise.
+## 质量方向
 
-No standalone screenshot engine, OCR, image editor, AI tagging, cloud sync, broad file management or automated message sending in the initial concept.
+更少公开参数、更自然默认、一个设置实现、当前真实状态、清楚的恢复动作。不要以复杂验证话术补偿难用交互。目标准确、一次性输入、原始数据与发行身份保护必须保留。已有未修P0/P1和证据缺口见[问题台账](quality/ISSUE_REGISTER.md)，本页不代表这些能力已经最终验收。
 
-## Release usability addendum (2026-10-27)
-
-**User-approved product behavior:** If a supported **foreground ChatGPT draft has a valid usable composer and attachment entry**, a screenshot must attach after **one Riftlet click even if the text cursor is not inside the composer**. Browser/window focus, actual draft/composer identity and editor text selection are separate concerns. No valid composer/no attachment entry still means **no upload and no swallow**. Preserve unsent text, existing attachments and selection; do not silently force focus changes or pick a background chat.
-
-Invalid operations give an unobtrusive press/reset response and on-demand tooltip/menu cause. Successful normal operations get **no success Toast**; the user checks the attachment in the ChatGPT draft. Never hijack an ongoing mouse click to auto-archive a visible item: defer until hover/press/motion/selection completes; reborn failed screenshots follow the same lifecycle.
-
-**Screenshot self-inclusion:** Minimize edge-thumbnail pollution of normal macOS system screenshots, but assess **platform API and timing feasibility first**. Neither `NSWindow.SharingType.none` nor an `SCContentFilter` controlled by a separate capture client is evidence that Apple's system Screenshot.app will omit Riftlet. Do not promise universal exclusion or replace the user's ordinary screenshot flow without independent evidence.
-
-**Public-release baseline:** first-run permission/onboarding, accurately labeled supported surfaces, independent pause-collection vs hide-rift controls, lightweight local history, common screenshot format/quality protection, privacy/storage controls, a native UI that respects display/accessibility, user-text feedback plus privacy-preserving diagnostics, safe app update/recovery and small-scale real-user acceptance. This is a lean release-quality requirement, not authorization to build a general screenshot editor or AI cloud app.
-
-See [RELEASE_UX_REQUIREMENTS_2026-10-27.md](RELEASE_UX_REQUIREMENTS_2026-10-27.md) and the focused [Pro feasibility brief](PRO_FEASIBILITY_REVIEW_BRIEF_2026-10-27.md). This approval is not a claim that current code supports these cases.
+原2026-10-27产品文档完整保存在[历史快照](quality/history/docs_PRODUCT.before-20261114.md)。

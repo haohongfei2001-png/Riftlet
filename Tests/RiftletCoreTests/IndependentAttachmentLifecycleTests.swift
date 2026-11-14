@@ -75,6 +75,90 @@ final class IndependentAttachmentLifecycleTests: XCTestCase {
         return try XCTUnwrap(observed)
     }
 
+    func testRelaunchReleasesOnlyUndispatchedPreparationAndNewClickUsesItsOwnTarget() async throws {
+        let path = directory.appendingPathComponent("restart.sqlite")
+        let first = try QueueStore(databaseURL: path)
+        let a = try await asset(first), missing = try await asset(first), dispatched = try await asset(first)
+        let prepared = try await first.prepare(assetID: a.id, target: target())
+        let preparedMissing = try await first.prepare(assetID: missing.id, target: target())
+        try await first.markMissingAsset(missing.id)
+        let sent = try await first.prepare(assetID: dispatched.id, target: target())
+        let invocation = try await first.markIndependentFileInputIntent(sent.id, ownerID: UUID())
+        let originalDispatch = try await first.operation(id: sent.id)
+        let ambiguous = try await asset(first)
+        let ambiguousOp = try await first.prepare(assetID: ambiguous.id, target: target())
+        let witnessKey = "transfer-dispatch-call-v1:" + ambiguousOp.id.uuidString
+        try await first.saveCheckpoint(Data([1]), for: witnessKey)
+
+        let reopened = try QueueStore(databaseURL: path), adapter = IndependentLifecycleAdapter()
+        let owner = coordinator(reopened, adapter)
+        try await owner.recover()
+        let recovered = try await reopened.operation(id: prepared.id)
+        let missingPhase = try await reopened.operation(id: preparedMissing.id)?.phase
+        let missingState = try await reopened.asset(id: missing.id)?.status
+        let dispatchAfter = try await reopened.operation(id: sent.id)
+        let callAfter = try await reopened.dispatchInvocationID(for: sent.id)
+        let ambiguousAfter = try await reopened.operation(id: ambiguousOp.id)
+        let witness = try await reopened.checkpoint(for: witnessKey)
+        let beforeClick = await adapter.inputs()
+        XCTAssertEqual(recovered?.phase, .failed)
+        XCTAssertEqual(missingPhase, .failed)
+        XCTAssertEqual(missingState, .missing)
+        XCTAssertEqual(dispatchAfter, originalDispatch)
+        XCTAssertEqual(callAfter, invocation)
+        XCTAssertEqual(ambiguousAfter, ambiguousOp)
+        XCTAssertEqual(witness, Data([1]))
+        XCTAssertTrue(beforeClick.isEmpty)
+
+        try await owner.recover()
+        let secondRecovery = try await reopened.operation(id: prepared.id)
+        XCTAssertEqual(secondRecovery, recovered)
+        let newTarget = target(draft: 2, document: "new-document")
+        try await owner.select(try await selection(a, reopened, target: newTarget))
+        let newOp = try await operation(a, reopened)
+        _ = try await returnedDispatchCall(newOp.id, reopened)
+        let afterClick = await adapter.inputs()
+        XCTAssertEqual(afterClick, [a.id])
+        XCTAssertNotEqual(newOp.id, prepared.id)
+        XCTAssertEqual(newOp.attempt, 2)
+        XCTAssertEqual(newOp.target, newTarget)
+    }
+
+    func testRestartLeavesOriginalStartedUnknownAndCompensatedRowsByteIdentical() async throws {
+        let path = directory.appendingPathComponent("history.sqlite")
+        let oldStore = try QueueStore(databaseURL: path), oldAdapter = IndependentLifecycleAdapter()
+        let oldOwner = coordinator(oldStore, oldAdapter)
+        let database = try SQLiteDatabase(url: path)
+        for state in ["started", "unknown", "compensated"] {
+            let a = try await asset(oldStore)
+            try await oldOwner.select(try await selection(a, oldStore))
+            let op = try await operation(a, oldStore)
+            _ = try await returnedDispatchCall(op.id, oldStore)
+            if state == "unknown" {
+                try await oldStore.markUnknown(op.id, reason: "Original unresolved input")
+            } else if state == "compensated" {
+                let requests = await oldAdapter.requests(for: a.id)
+                let request = try XCTUnwrap(requests.last)
+                _ = try await oldStore.apply(IndependentLifecycleAdapter.receipt(request, state: .complete), policy: policy)
+                _ = try await oldStore.apply(IndependentLifecycleAdapter.receipt(request, state: .compensated), policy: policy)
+            }
+        }
+        func rows() throws -> [[String?]] {
+            try ["assets", "operations", "checkpoints", "upload_starts", "compensations"].flatMap {
+                try database.rows("SELECT * FROM " + $0 + " ORDER BY rowid")
+            }
+        }
+        let before = try rows()
+        XCTAssertEqual(try database.rows("SELECT phase FROM operations ORDER BY sequence").compactMap { $0[0] },
+                       ["inputTriggered", "unknown", "compensated"])
+        XCTAssertEqual(try database.rows("SELECT operation_id FROM upload_starts").count, 3)
+        let reopened = try QueueStore(databaseURL: path), adapter = IndependentLifecycleAdapter()
+        try await coordinator(reopened, adapter).recover()
+        XCTAssertEqual(try rows(), before)
+        let inputs = await adapter.inputs()
+        XCTAssertTrue(inputs.isEmpty)
+    }
+
     func testLateReceiptsCannotBorrowSiblingPinAttachmentOrInvocation() async throws {
         let store = try store(), adapter = IndependentLifecycleAdapter(), coordinator = coordinator(store, adapter)
         let a = try await asset(store), b = try await asset(store)

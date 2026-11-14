@@ -6,7 +6,7 @@ public enum SettingsColorRole: String, Sendable { case window, surface, sidebar,
 @MainActor public enum SettingsNativeStyle {
     public static let settingsSize = NSSize(width: 814, height: 580)
     public static let settingsMinimumSize = NSSize(width: 716, height: 450)
-    public static let sidebarWidth: CGFloat = 183
+    public static let sidebarWidth: CGFloat = 172
     public static let controlCenterWidth: CGFloat = 294
     public static let onboardingSize = NSSize(width: 584, height: 453)
     public static func color(_ role: SettingsColorRole) -> NSColor {

@@ -19,11 +19,11 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
     private var pressBeganWhileShown = false
     private var interactionSuspended = false
     private var busy: Set<String> = []
-    private let title = SettingsNativeStyle.label("正在准备截图收录", role: "heading")
-    private let detail = SettingsNativeStyle.label("正在读取当前状态。", role: "caption")
+    private let title = SettingsNativeStyle.label(ProductCopy.text("正在准备截图收录", "Preparing screenshot collection"), role: "heading")
+    private let detail = SettingsNativeStyle.label(ProductCopy.text("正在读取当前状态。", "Checking status…"), role: "caption")
     private let symbol = NSImageView()
     private let recovery = SettingsNativeStyle.button("")
-    private let capture = SettingsNativeStyle.button("截图…")
+    private let capture = SettingsNativeStyle.button(ProductCopy.text("截图…", "Take Screenshot…"))
     private let captureHint = SettingsNativeStyle.label("", role: "caption")
     private let pause = NSSwitch()
     private let hide = NSSwitch()
@@ -65,7 +65,7 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
             button.image = Self.templateIcon()
             button.imagePosition = .imageOnly
             button.setAccessibilityLabel("Riftlet")
-            button.setAccessibilityValue("正在准备截图收录")
+            button.setAccessibilityValue(ProductCopy.text("正在准备截图收录", "Preparing screenshot collection"))
             button.target = self; button.action = #selector(statusPressed(_:))
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
         }
@@ -179,28 +179,32 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         capture.imagePosition = .imageLeading
         capture.setContentCompressionResistancePriority(.required, for: .horizontal)
         buttons["control.capture"] = capture
-        append(SettingsNativeStyle.stack([symbol, title, spacer(), capture], vertical: false, spacing: 7))
+        // The fixed-width popover must fit complete status words even when the
+        // capture action has a longer localized title. Keep that same button
+        // on its own action row instead of compressing the status beside it.
+        append(SettingsNativeStyle.stack([symbol, title, spacer()], vertical: false, spacing: 7))
         append(detail)
+        append(SettingsNativeStyle.stack([capture, spacer()], vertical: false, spacing: 7))
         recovery.identifier = .init("control.recovery")
         recovery.target = self; recovery.action = #selector(buttonPressed(_:))
         recovery.isHidden = true
         buttons["control.recovery"] = recovery
         append(recovery)
-        let update = button("查看更新…", id: "control.update", symbol: "arrow.down.circle")
+        let update = button(ProductCopy.text("查看更新…", "View Update…"), id: "control.update", symbol: "arrow.down.circle")
         update.isHidden = true
         append(update)
         captureHint.isHidden = true
         append(captureHint)
         append(separator())
-        append(toggleRow("暂停收录", symbol: "pause", control: pause, id: "control.pause"))
-        append(toggleRow("隐藏桌面截图", symbol: "eye.slash", control: hide, id: "control.hide"))
+        append(toggleRow(ProductCopy.text("暂停收录", "Pause Collection"), symbol: "pause", control: pause, id: "control.pause"))
+        append(toggleRow(ProductCopy.text("隐藏桌面截图", "Hide Desktop Screenshots"), symbol: "eye.slash", control: hide, id: "control.hide"))
         append(separator())
-        let history = button("截图历史", id: "control.history", symbol: "clock")
-        let settings = button("设置", id: "control.settings", symbol: "gearshape")
+        let history = button(ProductCopy.text("截图历史", "Screenshot History"), id: "control.history", symbol: "clock")
+        let settings = button(ProductCopy.text("设置", "Settings"), id: "control.settings", symbol: "gearshape")
         append(SettingsNativeStyle.stack([history, spacer(), settings], vertical: false, spacing: 8))
         let controls: [NSView] = [capture, recovery, update, pause, hide, history, settings]
         for (a, b) in zip(controls, controls.dropFirst() + [capture]) { a.nextKeyView = b }
-        body.view.setAccessibilityLabel("Riftlet 控制中心")
+        body.view.setAccessibilityLabel(ProductCopy.text("Riftlet 控制中心", "Riftlet Control Center"))
         body.view.frame.size = NSSize(width: SettingsNativeStyle.controlCenterWidth, height: 230)
     }
 
@@ -265,7 +269,7 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         symbol.image = NSImage(systemSymbolName: projection.symbol, accessibilityDescription: nil)
         symbol.contentTintColor = SettingsNativeStyle.color(projection.state == .attention ? .warning : .accent)
         let update = snapshot.updater
-        buttons["control.update"]?.title = update?.checkTitle ?? "检查更新…"
+        buttons["control.update"]?.title = update?.checkTitle ?? ProductCopy.text("检查更新…", "Check for Updates…")
         buttons["control.update"]?.isHidden = update?.availableVersion == nil
         buttons["control.update"]?.isEnabled = update?.canCheck == true
         let hasUpdate = update?.availableVersion != nil
@@ -285,7 +289,7 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
             && snapshot.state.domains[.visibility]?.isSaving != true && !busy.contains("visibility")
         buttons["control.history"]?.isEnabled = snapshot.capabilities.canOpenHistory
         statusItem.button?.toolTip = projection.title + "\n" + projection.detail
-        statusItem.button?.setAccessibilityValue(hasUpdate ? projection.title + "，有新版本" : projection.title)
+        statusItem.button?.setAccessibilityValue(hasUpdate ? projection.title + ProductCopy.text("，有新版本", ", update available") : projection.title)
         popover.animates = !snapshot.accessibility.reduceMotion
         if interactionSuspended {
             pause.isEnabled = false; hide.isEnabled = false
@@ -360,7 +364,7 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         guard !interactionSuspended, sender.isEnabled, let snapshot else { return }
         let action: SettingsProductAction
         switch sender.identifier?.rawValue {
-        case "control.settings": action = .openSettings(.display)
+        case "control.settings": action = .openSettings(.general)
         case "control.capture": guard snapshot.capabilities.canCapture else { return }; action = .capture
         case "control.recovery":
             guard let page = RiftControlCenterPresentation(snapshot).recoveryPage else { return }
@@ -378,24 +382,24 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         guard let snapshot else { return }
         let heading = NSMenuItem(title: RiftControlCenterPresentation(snapshot).title, action: nil, keyEquivalent: "")
         heading.isEnabled = false; contextMenu.addItem(heading)
-        addMenu("截图…", .capture, enabled: snapshot.capabilities.canCapture)
+        addMenu(ProductCopy.text("截图…", "Take Screenshot…"), .capture, enabled: snapshot.capabilities.canCapture)
         contextMenu.addItem(.separator())
-        addMenu(snapshot.state.owner.collectionPaused ? "继续收录" : "暂停收录",
+        addMenu(snapshot.state.owner.collectionPaused ? ProductCopy.text("继续收录", "Resume Collection") : ProductCopy.text("暂停收录", "Pause Collection"),
                 .settings(.setCollectionPaused(!snapshot.state.owner.collectionPaused)),
                 enabled: pause.isEnabled)
-        addMenu(snapshot.state.owner.isHidden ? "显示桌面截图" : "隐藏桌面截图",
+        addMenu(snapshot.state.owner.isHidden ? ProductCopy.text("显示桌面截图", "Show Desktop Screenshots") : ProductCopy.text("隐藏桌面截图", "Hide Desktop Screenshots"),
                 .settings(.setHidden(!snapshot.state.owner.isHidden)), enabled: hide.isEnabled)
-        addMenu("截图历史…", .openHistory, enabled: snapshot.capabilities.canOpenHistory)
-        addMenu("定位最新截图", .showLatest, enabled: snapshot.setup.visibleCount > 0)
-        addMenu("定位最早截图", .showOldest, enabled: snapshot.setup.visibleCount > 0)
-        addMenu("从边缘收起全部", .clearVisible, enabled: snapshot.capabilities.canClearVisible && snapshot.setup.visibleCount > 0)
+        addMenu(ProductCopy.text("截图历史…", "Screenshot History…"), .openHistory, enabled: snapshot.capabilities.canOpenHistory)
+        addMenu(ProductCopy.text("定位最新截图", "Locate Newest Screenshot"), .showLatest, enabled: snapshot.setup.visibleCount > 0)
+        addMenu(ProductCopy.text("定位最早截图", "Locate Oldest Screenshot"), .showOldest, enabled: snapshot.setup.visibleCount > 0)
+        addMenu(ProductCopy.text("从边缘收起全部", "Remove All from Desktop"), .clearVisible, enabled: snapshot.capabilities.canClearVisible && snapshot.setup.visibleCount > 0)
         contextMenu.addItem(.separator())
-        addMenu("设置…", .openSettings(.display), key: ",")
+        addMenu(ProductCopy.text("设置…", "Settings…"), .openSettings(.general), key: ",")
         if let updater = snapshot.updater {
             addMenu(updater.checkTitle, .checkForUpdates, enabled: updater.canCheck)
         }
-        addMenu("反馈与建议…", .openFeedback)
-        addMenu("退出 Riftlet", .quit, key: "q")
+        addMenu(ProductCopy.text("反馈与建议…", "Feedback…"), .openFeedback)
+        addMenu(ProductCopy.text("退出 Riftlet", "Quit Riftlet"), .quit, key: "q")
     }
 
     private func addMenu(_ title: String, _ action: SettingsProductAction, enabled: Bool = true, key: String = "") {

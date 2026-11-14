@@ -1,0 +1,294 @@
+{
+  "audit_date": "2026-11-14",
+  "timezone": "Asia/Shanghai",
+  "baseline": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",
+  "releases": [
+    {
+      "tag": "v1.0.1",
+      "target": "5da42a221fb3e6496585c127e6cf11b8e836840f",
+      "published_at": "2026-11-13T21:56:56Z",
+      "draft": false,
+      "prerelease": false,
+      "immutable": true,
+      "url": "https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.1",
+      "assets": [
+        {
+          "name": "Riftlet-1.0.1.dmg",
+          "bytes": 12417028,
+          "digest": "sha256:6443357f08a9dbda805cd5452695417ff8783f34fb7f2331eef08c719f7290a9",
+          "url": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.1/Riftlet-1.0.1.dmg"
+        },
+        {
+          "name": "Riftlet-1.0.1.en.md",
+          "bytes": 974,
+          "digest": "sha256:fbadf6ccadb9433e9d87f8018a2af24cd8b0e615aab9110dfbae79214238a50f",
+          "url": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.1/Riftlet-1.0.1.en.md"
+        },
+        {
+          "name": "Riftlet-1.0.1.zh-CN.md",
+          "bytes": 1012,
+          "digest": "sha256:8854eb26fe89cfbe9c017ba6cc33aa1acd6189918acd04627f65f017c9fbca72",
+          "url": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.1/Riftlet-1.0.1.zh-CN.md"
+        },
+        {
+          "name": "SHA256SUMS.txt",
+          "bytes": 84,
+          "digest": "sha256:af87b99c29724a12ccf125df50f0ddc8f2985aa7f899a8ef26e9e8248c2b62c9",
+          "url": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.1/SHA256SUMS.txt"
+        }
+      ]
+    },
+    {
+      "tag": "v1.0.0",
+      "target": "bc314340692b1db7246127e4b6fb9dd02a446568",
+      "published_at": "2026-11-13T19:48:37Z",
+      "draft": false,
+      "prerelease": false,
+      "immutable": false,
+      "url": "https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.0",
+      "assets": [
+        {
+          "name": "Riftlet-1.0.0.dmg",
+          "bytes": 11288698,
+          "digest": "sha256:094980ae3ae5fdee5524482ca9e7165c813e7cf4fcb401f8c3151302a3961be2",
+          "url": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.0/Riftlet-1.0.0.dmg"
+        },
+        {
+          "name": "Riftlet-1.0.0.en.md",
+          "bytes": 2805,
+          "digest": "sha256:dd94bad9aff1f14185bb85fb7de8cdd6d4fe28d2d7fdb7eed657ae11f8ad20cc",
+          "url": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.0/Riftlet-1.0.0.en.md"
+        },
+        {
+          "name": "Riftlet-1.0.0.zh-CN.md",
+          "bytes": 2566,
+          "digest": "sha256:0c3b4267b7ca0705c384706e05e9982604fff65ef3a17a8fdc20bf1e1bde461c",
+          "url": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.0/Riftlet-1.0.0.zh-CN.md"
+        },
+        {
+          "name": "SHA256SUMS.txt",
+          "bytes": 84,
+          "digest": "sha256:4ddb11e3fb81453eeb380e0257ed066219283e10459a179b879f9dae17e50be3",
+          "url": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.0/SHA256SUMS.txt"
+        }
+      ]
+    },
+    {
+      "tag": "v0.3.5-beta.1",
+      "target": "939e3af47ba18d4850311528130934c586cfcb76",
+      "published_at": "2026-11-13T02:09:32Z",
+      "draft": false,
+      "prerelease": true,
+      "immutable": false,
+      "url": "https://github.com/haohongfei2001-png/Riftlet/releases/tag/v0.3.5-beta.1",
+      "assets": [
+        {
+          "name": "Release-Notes.en.md",
+          "bytes": 3098,
+          "digest": "sha256:e237b5c8d26de21e9c6a3554727cb77cf62f4ed3734a18eae3a5e8cecde69473",
+          "url": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v0.3.5-beta.1/Release-Notes.en.md"
+        },
+        {
+          "name": "Release-Notes.zh-CN.md",
+          "bytes": 2866,
+          "digest": "sha256:a6f8aba3ce99c895141a51af27908dfff90d7522aa639054535f0e42bc97d572",
+          "url": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v0.3.5-beta.1/Release-Notes.zh-CN.md"
+        },
+        {
+          "name": "Riftlet-0.3.5-20-universal.dmg",
+          "bytes": 11244473,
+          "digest": "sha256:c4bdeeca1410cc42649c3e3b8437ddd704605013d90ed9553bdc242f2d74cc7a",
+          "url": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v0.3.5-beta.1/Riftlet-0.3.5-20-universal.dmg"
+        },
+        {
+          "name": "SHA256SUMS.txt",
+          "bytes": 97,
+          "digest": "sha256:e053449c36de59055a5632038fafe16377cca2e323246412ffe0f18785c4d02a",
+          "url": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v0.3.5-beta.1/SHA256SUMS.txt"
+        }
+      ]
+    }
+  ],
+  "recentPRs": [
+    {
+      "number": 76,
+      "title": "Make Riftlet discoverable: IndexNow ownership, sitemap and software identity",
+      "state": "closed",
+      "merged": true,
+      "head": "52a56a50eb335d437431a1a0943d1eca6bd42072",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/pull/76"
+    },
+    {
+      "number": 75,
+      "title": "Set riftlet.com default download to Riftlet 1.0.1",
+      "state": "closed",
+      "merged": true,
+      "head": "2325d722044ea8e9578a7d6cde0aeccd5a102942",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/pull/75"
+    },
+    {
+      "number": 74,
+      "title": "Publish Riftlet 1.0.1 download and signed stable feed",
+      "state": "closed",
+      "merged": true,
+      "head": "eadebd69da24ed18ec0ad323dd5d805f777ec0db",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/pull/74"
+    },
+    {
+      "number": 73,
+      "title": "Activate Riftlet Umami Cloud website analytics",
+      "state": "closed",
+      "merged": true,
+      "head": "d8ce216842dae56ef92a4afc35e1fd5114db5689",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/pull/73"
+    },
+    {
+      "number": 72,
+      "title": "Prepare privacy-first website analytics and DMG download click events",
+      "state": "closed",
+      "merged": false,
+      "head": "66c4e2b18eed55869449706d0d168649ff5995e5",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/pull/72"
+    },
+    {
+      "number": 71,
+      "title": "Add signed in-app updates for Riftlet 1.0.1",
+      "state": "closed",
+      "merged": true,
+      "head": "f282afaa9f63347690b82669d75eec32d39d36ec",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/pull/71"
+    },
+    {
+      "number": 70,
+      "title": "Auto-select Riftlet website language from browser preferences",
+      "state": "closed",
+      "merged": true,
+      "head": "dbeadb14ab73628a9dcd0994c6833744cc6d87a1",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/pull/70"
+    },
+    {
+      "number": 69,
+      "title": "Prototype an extension-free macOS conversation attachment engine",
+      "state": "open",
+      "merged": false,
+      "head": "d50e1a26a2b75ea24cf92edde5a5a9ce6a02256a",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/pull/69"
+    },
+    {
+      "number": 68,
+      "title": "Activate the official Riftlet 1.0.0 download",
+      "state": "closed",
+      "merged": true,
+      "head": "03afad1450589c2a17788e0f34025acfcfc3bae4",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/pull/68"
+    },
+    {
+      "number": 67,
+      "title": "Riftlet commercial film · 中文版与 English edition",
+      "state": "open",
+      "merged": false,
+      "head": "63b998e8009775776257dca94195c8e70f481246",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/pull/67"
+    },
+    {
+      "number": 66,
+      "title": "Marketing: deliver the first bilingual Riftlet Launch Kit",
+      "state": "open",
+      "merged": false,
+      "head": "352dd33ab5f3acf3350ce32e4c614fa30c42b5c4",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/pull/66"
+    },
+    {
+      "number": 65,
+      "title": "Light study · Riftlet brand film, Public Beta demo and launch assets",
+      "state": "open",
+      "merged": false,
+      "head": "c5beadc83d627ab740d0c2101939bb1ff06df00b",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/pull/65"
+    },
+    {
+      "number": 64,
+      "title": "Release Riftlet 1.0.0 with verified first-use setup",
+      "state": "closed",
+      "merged": true,
+      "head": "b65de5f276bdde24de805a91bf1bd694be52cad1",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/pull/64"
+    },
+    {
+      "number": 63,
+      "title": "Website: make Mac Beta download the primary hero action",
+      "state": "open",
+      "merged": false,
+      "head": "735234d0b4e74438fd97ffe5a9c8deee174fd665",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/pull/63"
+    },
+    {
+      "number": 62,
+      "title": "Open the build 20 Public Beta download on riftlet.com",
+      "state": "closed",
+      "merged": true,
+      "head": "981ab7d29e07ca740b36a359b6c066ba58d1ec69",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/pull/62"
+    },
+    {
+      "number": 61,
+      "title": "Consumer audit before Public Beta: native branding, Chrome setup and feedback recovery",
+      "state": "closed",
+      "merged": true,
+      "head": "b28de6388430946b5fbee42b1962db516a44fbe9",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/pull/61"
+    },
+    {
+      "number": 60,
+      "title": "Align Riftlet and Saytile content cards with a single optional outer frame",
+      "state": "open",
+      "merged": false,
+      "head": "87c3103c05634b28f2f7f0bb644ec803cb2ac2fb",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/pull/60"
+    },
+    {
+      "number": 59,
+      "title": "Fix shared Mac installs and verify permissions through DMG notarization",
+      "state": "closed",
+      "merged": true,
+      "head": "f677c5d475b415231799f45886aeb01821719ff9",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/pull/59"
+    },
+    {
+      "number": 58,
+      "title": "Unify the native Riftlet app with the tray, R2 wind chime and micro slit",
+      "state": "closed",
+      "merged": true,
+      "head": "0ee74d756daa553db865f67d0d1697e7e6861f67",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/pull/58"
+    },
+    {
+      "number": 57,
+      "title": "Integrate native screenshot tray, Edgefolio and Pocket",
+      "state": "closed",
+      "merged": false,
+      "head": "555ddc26a25af4a5f89d3120258e4b45490f1e63",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/pull/57"
+    }
+  ],
+  "remoteProtection": {
+    "checked": "2026-11-14",
+    "branchProtected": false,
+    "rulesets": [],
+    "scope": "Read through GitHub connector; no change requested or applied by this audit.",
+    "protectionEnabled": false,
+    "requiredStatusChecks": {
+      "enforcement_level": "off",
+      "contexts": [],
+      "checks": []
+    },
+    "branchEndpoint": "https://api.github.com/repos/haohongfei2001-png/Riftlet/branches/main",
+    "rulesetsEndpoint": "https://api.github.com/repos/haohongfei2001-png/Riftlet/rulesets"
+  },
+  "environment": {
+    "system": "Linux x86_64",
+    "swiftAvailable": false,
+    "nativeMacOSApp": "NOT_RUN",
+    "codexTaskExecutor": "No callable coding-task launcher discovered; GitHub handoff is not proof of a running Codex task."
+  }
+}

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSScreenCaptureUsageDescription</key>
+	<string>When you take a screenshot with Riftlet, it captures the window, area, or screen you choose and saves the image on this Mac.</string>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>Allow Riftlet to check its connection to Chrome and attach a screenshot to your current ChatGPT draft when you click its thumbnail. You send the message yourself.</string>
+	<key>NSDesktopFolderUsageDescription</key>
+	<string>Allow Riftlet to read new screenshots saved in your Desktop folder and show their thumbnails at the edge of your desktop. Your original files are kept.</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>Allow Riftlet to read new screenshots saved in your Documents folder and show their thumbnails at the edge of your desktop. Your original files are kept.</string>
+	<key>NSDownloadsFolderUsageDescription</key>
+	<string>Allow Riftlet to read new screenshots saved in your Downloads folder and show their thumbnails at the edge of your desktop. Your original files are kept.</string>
+</dict>
+</plist>

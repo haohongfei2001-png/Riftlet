@@ -5,149 +5,42 @@ import QuartzCore
 /// Drawn fixtures only. No image URL, filesystem, capture, queue or upload owner.
 @MainActor
 final class RiftSettingsCenterPreview: NSView {
-    enum Kind { case geometry, arrival, swallow }
-    let kind: Kind
-    private(set) var playCount = 0
-    private(set) var lastDuration: Double = 0
     private(set) var configuration = RiftConfiguration()
-    private var mode = ArrivalMotionMode.none
-    private var reduceMotion = false
-    private var desktopIllustration: RiftSettingsDesktopIllustration?
-    private let clip = CALayer()
-    private let tile = CALayer()
-    private let titleBand = CALayer()
-    private let lines = (0..<3).map { _ in CALayer() }
-    private let edge = CALayer()
-    private var drawnBounds = NSRect.zero
-    var isAnimating: Bool { tile.animation(forKey: "settings.preview") != nil }
+    private let drawing = RiftSettingsDesktopIllustration(frame: .zero)
     var geometrySummary: String {
         let count = min(configuration.visibleCountPreference, 4)
-        let title = configuration.placement?.title ?? "旧版位置"
+        let title = configuration.placement?.title ?? ProductCopy.text("旧版位置", "Previous Position")
         let countText = configuration.visibleCountPreference > count
-            ? "\(configuration.visibleCountPreference) 张（示意前 \(count) 张）" : "\(count) 张"
+            ? ProductCopy.text("\(configuration.visibleCountPreference) 张（示意前 \(count) 张）", "\(configuration.visibleCountPreference) images (showing the first \(count))") : ProductCopy.text("\(count) 张", "\(count) images")
         if configuration.desktopForm == .windChime {
-            return title + " · " + countText + " · 风铃 · " + configuration.windChimeArrangement.title
+            return title + " · " + countText + ProductCopy.text(" · 风铃 · ", " · Wind Chime · ") + configuration.windChimeArrangement.title
         }
         return title + " · " + countText
     }
 
-    init(kind: Kind) {
-        self.kind = kind
+    init() {
         super.init(frame: .zero)
-        wantsLayer = true
-        layer?.cornerRadius = 7; layer?.masksToBounds = true
-        layer?.addSublayer(clip); layer?.addSublayer(edge)
-        clip.masksToBounds = true; clip.addSublayer(tile)
-        tile.cornerRadius = 4; tile.masksToBounds = true
-        tile.addSublayer(titleBand)
-        lines.forEach { tile.addSublayer($0) }
-        setAccessibilityElement(true); setAccessibilityRole(.image)
-        setAccessibilityLabel(kind == .geometry ? "截图布局示意图" : kind == .arrival ? "截图出现动效示意图" : "截图收起动效示意图")
-        if kind == .geometry {
-            clip.isHidden = true; edge.isHidden = true
-            let drawing = RiftSettingsDesktopIllustration(frame: bounds)
-            drawing.autoresizingMask = [.width, .height]
-            drawing.setAccessibilityElement(false)
-            addSubview(drawing)
-            desktopIllustration = drawing
-        }
+        drawing.frame = bounds
+        drawing.autoresizingMask = [.width, .height]
+        drawing.setAccessibilityElement(false)
+        addSubview(drawing)
+        setAccessibilityElement(true)
+        setAccessibilityRole(.image)
+        setAccessibilityLabel(ProductCopy.text("截图布局预览", "Screenshot layout preview"))
     }
     required init?(coder: NSCoder) { nil }
-    func update(configuration: RiftConfiguration, mode: ArrivalMotionMode, reduceMotion: Bool, entryEnabled: Bool = false) {
-        let changed = self.configuration != configuration || self.mode != mode || self.reduceMotion != reduceMotion
-        self.configuration = configuration; self.mode = mode; self.reduceMotion = reduceMotion
-        if let drawing = desktopIllustration {
-            drawing.configuration = configuration
-            drawing.visible = configuration.visibleCountPreference
-            drawing.includesEntry = entryEnabled
-            drawing.placement = RiftPlacement.allCases.firstIndex(of: configuration.placement ?? .rightMiddle) ?? 4
-            drawing.hue = configuration.trayTheme == .custom ? configuration.trayTintHue / 360 : 0.71
-            switch configuration.trayTheme {
-            case .system: drawing.saturation = 0.02
-            case .violetGlass: drawing.saturation = 0.21
-            case .custom: drawing.saturation = configuration.trayTintStrength * 0.30
-            }
-            drawing.needsDisplay = true
-            setAccessibilityValue(geometrySummary)
-        }
-        // An unrelated status refresh must neither restart nor stop a preview.
-        if changed { stop(); positionLayers() }
-        needsDisplay = true
+    func update(configuration: RiftConfiguration, entryEnabled: Bool = false) {
+        self.configuration = configuration
+        drawing.configuration = configuration
+        drawing.includesEntry = entryEnabled
+        drawing.needsDisplay = true
+        setAccessibilityValue(geometrySummary)
     }
-    override func viewDidChangeEffectiveAppearance() { super.viewDidChangeEffectiveAppearance(); colors(); needsDisplay = true }
-    override func layout() {
-        super.layout()
-        if bounds != drawnBounds { stop(); positionLayers() }
-    }
-    private func colors() {
-        effectiveAppearance.performAsCurrentDrawingAppearance {
-            CATransaction.begin(); CATransaction.setDisableActions(true)
-            layer?.backgroundColor = SettingsNativeStyle.color(.window).cgColor
-            layer?.borderColor = SettingsNativeStyle.color(.border).cgColor
-            layer?.borderWidth = 1
-            tile.backgroundColor = SettingsNativeStyle.color(.surface).cgColor
-            tile.borderColor = SettingsNativeStyle.color(.border).cgColor; tile.borderWidth = 1
-            titleBand.backgroundColor = SettingsNativeStyle.color(.accent).withAlphaComponent(0.7).cgColor
-            lines.forEach { $0.backgroundColor = SettingsNativeStyle.color(.secondary).withAlphaComponent(0.4).cgColor }
-            edge.backgroundColor = SettingsNativeStyle.color(.secondary).withAlphaComponent(0.5).cgColor
-            CATransaction.commit()
-        }
-    }
-    private func positionLayers() {
-        drawnBounds = bounds
-        guard kind != .geometry else { colors(); return }
-        let seam = bounds.maxX - 26
-        let target = CGRect(x: seam - 56, y: bounds.midY - 25, width: 74, height: 50)
-        CATransaction.begin(); CATransaction.setDisableActions(true)
-        clip.frame = CGRect(x: 0, y: 0, width: max(0, seam), height: bounds.height)
-        tile.frame = target
-        edge.frame = CGRect(x: seam - 0.5, y: bounds.midY - 35, width: 1, height: 70)
-        titleBand.frame = CGRect(x: 0, y: 39, width: 74, height: 11)
-        for (index, line) in lines.enumerated() { line.frame = CGRect(x: 9, y: 10 + index * 8, width: 45 - index * 6, height: 3) }
-        CATransaction.commit()
-        colors()
-    }
-    func play() {
-        guard kind != .geometry, window?.isVisible == true, bounds.width > 100 else { return }
-        stop(); positionLayers(); playCount += 1
-        if kind == .arrival {
-            guard mode.effective(reduceMotion: reduceMotion) == .magnet else { lastDuration = 0; return }
-            let target = tile.frame
-            guard let plan = MagnetMotionPlan(sourceRect: CGRect(x: 24, y: bounds.midY - 42, width: 135, height: 84),
-                    targetImageFrame: target, clippingEdgeX: clip.frame.maxX, screenFrame: bounds) else { return }
-            CATransaction.begin(); CATransaction.setDisableActions(true)
-            plan.applyFinalState(to: tile, relativeTo: .zero)
-            let animation = plan.makeLayerAnimation(relativeTo: .zero)
-            lastDuration = plan.totalDuration
-            tile.add(animation, forKey: "settings.preview")
-            CATransaction.commit()
-        } else {
-            let duration = reduceMotion ? min(0.08, configuration.swallowDuration) : configuration.swallowDuration
-            lastDuration = duration
-            guard duration > 0 else { return }
-            let movement = CABasicAnimation(keyPath: "position.x")
-            movement.fromValue = tile.position.x
-            movement.toValue = tile.position.x + 90
-            movement.duration = duration
-            movement.timingFunction = CAMediaTimingFunction(name: .easeIn)
-            // Presentation-only motion returns to its model position on finish,
-            // ready for another explicit preview; it never changes a queue item.
-            tile.add(movement, forKey: "settings.preview")
-        }
-    }
-    func stop() { tile.removeAllAnimations() }
-
 }
 
-/// Schematic display preview in Settings. Geometry is expressed in display points.
 @MainActor
 private final class RiftSettingsDesktopIllustration: NSView {
     var configuration = RiftConfiguration()
-    private var showsTray: Bool { configuration.desktopForm == .tray }
-    var placement = 4
-    var visible = 3
-    var hue: CGFloat = 0.71
-    var saturation: CGFloat = 0.21
     var includesEntry = true
     private static let thumbnails = [("glass-study","png"),("reading","svg"),("error","svg")].map { name,ext in
         Bundle.main.url(forResource:name,withExtension:ext).flatMap(NSImage.init(contentsOf:))
@@ -184,35 +77,52 @@ private final class RiftSettingsDesktopIllustration: NSView {
             NSColor.separatorColor.setStroke(); clip.lineWidth = 1; clip.stroke()
             return
         }
-        let sideWidth = showsTray ? w / 8 : w * 0.065
-        let total = min(4, visible + (includesEntry && showsTray ? 1 : 0))
-        let sideHeight = showsTray ? sideWidth * (total > 2 ? 212.0/246 : 115.0/246) : sideWidth * 1.75
-        let x = placement < 3 ? 9 : w - sideWidth - 9
-        let y: CGFloat
-        switch placement % 3 { case 0: y=8; case 2: y=h-sideHeight-8; default:y=(h-sideHeight)/2 }
-        func fill(_ r: CGRect, radius: CGFloat, color: NSColor) {
-            color.setFill(); NSBezierPath(roundedRect:r,xRadius:radius,yRadius:radius).fill()
+        let records = Array(WindChimePlacementIllustration.records.prefix(configuration.visibleCountPreference))
+        let scale = rect.height / 480
+        let desktop = CGRect(origin: .zero, size: CGSize(width: rect.width / scale, height: rect.height / scale))
+        let layout: RiftLayoutResult
+        switch configuration.desktopForm {
+        case .tray:
+            layout = RiftTrayLayout.make(records: records, visibleFrame: desktop, configuration: configuration,
+                firstVisibleIndex: 0, backingScale: 1, captureEnabled: includesEntry)
+        case .microSlit:
+            layout = RiftLayout.make(records: records, visibleFrame: desktop, configuration: configuration)
+        case .windChime: return
         }
-        let tones:[NSColor] = [rgb(0.86,0.74,0.50),rgb(0.33,0.68,0.62),rgb(0.54,0.57,0.80),rgb(0.76,0.68,0.82)]
-        if showsTray {
-            let shell=CGRect(x:x,y:y,width:sideWidth,height:sideHeight)
-            fill(shell,radius:5,color:NSColor(srgbRed:1,green:1,blue:1,alpha:0.75))
-            fill(shell.insetBy(dx:1,dy:1),radius:4,color:NSColor(hue:hue,saturation:saturation,brightness:0.96,alpha:0.65))
-            let gap=sideWidth*0.025, cell=(sideWidth-3*gap)/2, ch=cell*0.70
-            for i in 0..<total {
-                let r=CGRect(x:x+gap+CGFloat(i%2)*(cell+gap),y:y+sideWidth*0.065+CGFloat(i/2)*(ch+gap*2),width:cell,height:ch)
-                if includesEntry && i == min(visible,3) && visible < 4 {
-                    fill(r,radius:2,color:.white.withAlphaComponent(0.72))
-                    let sym=NSImage(systemSymbolName:"camera",accessibilityDescription:nil)
-                    sym?.draw(in:r.insetBy(dx:cell*0.22,dy:ch*0.15))
-                } else { drawThumbnail(r, tones[i], index:i) }
+        func placed(_ frame: CGRect) -> CGRect {
+            CGRect(x: rect.minX + frame.minX * scale, y: rect.maxY - frame.maxY * scale,
+                   width: frame.width * scale, height: frame.height * scale)
+        }
+        if !layout.surfaceFrame.isEmpty {
+            let shell = NSBezierPath(roundedRect: placed(layout.surfaceFrame), xRadius: 4, yRadius: 4)
+            switch configuration.trayTheme {
+            case .system: NSColor.windowBackgroundColor.withAlphaComponent(0.8).setFill()
+            case .violetGlass: NSColor(hue: 0.71, saturation: 0.21, brightness: 0.96, alpha: 0.75).setFill()
+            case .custom: NSColor(hue: configuration.trayTintHue / 360, saturation: configuration.trayTintStrength * 0.30,
+                                  brightness: 0.96, alpha: 0.75).setFill()
             }
-        } else {
-            fill(CGRect(x:placement<3 ? x : x+sideWidth-1,y:y,width:1,height:sideHeight),radius:1,color:.white)
-            let ch=sideWidth*0.48
-            for i in 0..<min(3,visible) {
-                drawThumbnail(CGRect(x:x+2,y:y+CGFloat(i)*(ch+3),width:sideWidth-4,height:ch),tones[i],index:i)
+            shell.fill()
+        }
+        if !layout.lineFrame.isEmpty {
+            NSColor.secondaryLabelColor.setFill()
+            placed(layout.lineFrame).fill()
+        }
+        for (index, row) in layout.rows.enumerated() {
+            NSGraphicsContext.saveGraphicsState()
+            placed(row.imageClipFrame.offsetBy(dx: row.frame.minX, dy: row.frame.minY)).clip()
+            drawThumbnail(placed(row.imageFrame.offsetBy(dx: row.frame.minX, dy: row.frame.minY)),
+                          rgb(0.33,0.68,0.62), index: index)
+            NSGraphicsContext.restoreGraphicsState()
+            if !row.numberFrame.isEmpty {
+                let number = placed(row.numberFrame.offsetBy(dx: row.frame.minX, dy: row.frame.minY))
+                ("\(row.ordinal)" as NSString).draw(in: number, withAttributes: [.font: NSFont.systemFont(ofSize: max(1, configuration.numberFontSize * scale)), .foregroundColor: NSColor.labelColor])
             }
+        }
+        if !layout.captureSlot.isEmpty {
+            let slot = placed(layout.captureSlot)
+            NSColor.windowBackgroundColor.setFill()
+            NSBezierPath(roundedRect: slot, xRadius: 2, yRadius: 2).fill()
+            NSImage(systemSymbolName: "camera", accessibilityDescription: nil)?.draw(in: slot.insetBy(dx: slot.width * 0.22, dy: slot.height * 0.15))
         }
         NSColor.separatorColor.setStroke(); clip.lineWidth=1;clip.stroke()
     }
@@ -247,7 +157,7 @@ enum WindChimePlacementIllustration {
     private static let images = samples.map { name, ext in
         Bundle.main.url(forResource: name, withExtension: ext).flatMap(NSImage.init(contentsOf:))
     }
-    private static let records: [AssetRecord] = samples.indices.map { index in
+    fileprivate static let records: [AssetRecord] = samples.indices.map { index in
         let size = images[index]?.size ?? NSSize(width: 160, height: 110)
         let image = ImportedAsset(sourceKey: "illustration-\(index)", fileName: samples[index].0,
             sha256: "", byteCount: 0, pixelWidth: Int(size.width), pixelHeight: Int(size.height),

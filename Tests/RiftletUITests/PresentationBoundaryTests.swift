@@ -166,7 +166,7 @@ final class PresentationBoundaryTests: XCTestCase {
             let view = try XCTUnwrap(glass.contentView)
             let buttons = view.subviews.compactMap { $0 as? NSButton }
             let first = buttons.filter { !$0.isHidden }
-            XCTAssertEqual(first.compactMap { $0.accessibilityLabel() }, ["展开截图方式"])
+            XCTAssertEqual(first.compactMap { $0.accessibilityLabel() }, [ProductCopy.text("展开截图方式", "Show Capture Modes")])
             let camera = try XCTUnwrap(first.first)
             XCTAssertTrue(camera.isEnabled)
             XCTAssertNil(camera.layer?.animation(forKey: "rift.tray.morph"), "The first visible camera must already accept its action")
