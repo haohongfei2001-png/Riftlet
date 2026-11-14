@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "auditPR": 100,
+  "implementationPR": 101,
+  "base": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",
+  "stable": "1.0.1 (23)",
+  "overallAcceptance": "NOT_ACCEPTED",
+  "R1": {
+    "issues": [
+      78,
+      79,
+      80,
+      81,
+      82,
+      84
+    ],
+    "reviewedSource": "22088d01e65ccc7f6f7be52d612e9df1107935a5",
+    "pullRequestHead": "1021c57333c889deec92fbd4232f17792c5604be",
+    "formalCI": "5/5 PASS on this head only",
+    "controlled": {
+      "nodeCases": 126,
+      "chromeCases": 31,
+      "unownedFileWrites": 0,
+      "storageCases": 26
+    },
+    "native": "One real system screenshot in an isolated signed Mac candidate. Clicking while automation permission was pending returned a target read error after 134 ms; failure logged at 162 ms; thumbnail retained, no new operation or START. Separately tested prepared recovery after killing the process and four restarts with damaged preferences.",
+    "realChatGPT": "NOT_RUN: isolated Chrome could not connect. Neither image was submitted."
+  },
+  "R2": {
+    "issues": [
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      98
+    ],
+    "nativeCheckpointSHA256": "cf0784d14fb30ef23820e5e218d536911072567f31deea0dd5ea640cb535326c",
+    "settingsCases": {
+      "environment-and-default-window": "PASS",
+      "real-collector-synthetic-fixture": "PASS",
+      "accepted-collection-during-recheck": "PASS",
+      "four-pages-light-and-dark": "PASS",
+      "orthogonal-pause-hidden-sqlite": "PASS",
+      "archive-editor-return-and-blur": "PASS",
+      "configuration-editor-refresh-defaults": "PASS",
+      "close-sheet-continue-discard": "PASS",
+      "independent-write-failures-and-retry": "PASS",
+      "motion-selection-in-advanced-appearance": "PASS",
+      "three-step-guidance-light-and-dark": "PASS",
+      "resizing-and-reopen": "PASS",
+      "history-real-records": "PASS",
+      "original-media-and-no-upload-operations": "PASS"
+    },
+    "windowServerFrames": 33,
+    "scope": "Intermediate native QA package. Full service, installer, hardware pointer, system IME and VoiceOver speech not established."
+  },
+  "followup": {
+    "83": "Remote main was not protected. No account, ruleset or billing changes.",
+    "92": "Partial current settings and history GUI coverage; full hardware and accessibility matrix open.",
+    "93": "2,000-row START count measured; not an end-to-end startup benchmark.",
+    "94": "Drivers now exercise the real settings and history host; legacy surface remains.",
+    "95": "Read-only private-copy usage. Occupied space is not an estimate of reclaimable space. No deletion.",
+    "96": "Five native permission purposes available in Chinese and English. Full core UI English and VO not established.",
+    "97": "Reuse PR 77. Public 1.0.1 to the next signed release through Sparkle is not yet tested.",
+    "99": "Default Chinese and English image descriptions and both language switches passed in offline headless Chromium."
+  }
+}
