@@ -658,7 +658,7 @@ final class SettingsReviewDriver {
         try click("settings.center.layout.defaults.display")
         try await wait { self.host.center.window.attachedSheet != nil }
         guard let sheet = host.center.window.attachedSheet,
-              let confirm = allViews(sheet.contentView).compactMap({ $0 as? NSButton }).first(where: { $0.title == "恢复默认数值" }) else {
+              let confirm = find("settings.center.defaults.confirm", in: sheet.contentView) as? NSButton else {
             throw Failure.controlUnavailable("restoreDefaultsConfirmation")
         }
         confirm.performClick(nil)
@@ -975,7 +975,7 @@ final class SettingsReviewDriver {
         let frame = history.window.frame
         guard let count = find("history.count", in: history.window.contentView) as? NSTextField else { throw Failure.controlUnavailable("history.count") }
         let page = count.stringValue
-        try require(page.contains("第 1 页"), "historyFirstPageNotPresented")
+        try require(page.contains(ProductCopy.text("第 1 页", "Page 1")), "historyFirstPageNotPresented")
         for key in ["history.previous", "history.next"] {
             try require((find(key, in: history.window.contentView) as? NSControl)?.isEnabled == false, "historyUnexpectedPaginationEnabled")
         }

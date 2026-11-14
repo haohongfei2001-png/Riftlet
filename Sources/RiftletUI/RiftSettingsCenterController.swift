@@ -354,7 +354,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
         alert.messageText = ProductCopy.text("恢复当前形态的默认数值？", "Restore defaults for this desktop form?")
         alert.informativeText = ProductCopy.text("将恢复每页上限及当前形态适用的边距、遮挡或自定义色调。形态、位置、显示器和出现动效会保留。", "This resets the page limit and this form’s insets, overlap and custom tint. Your desktop form, position, display and arrival motion are kept.")
         alert.addButton(withTitle: ProductCopy.text("取消", "Cancel"))
-        alert.addButton(withTitle: ProductCopy.text("恢复默认数值", "Restore Defaults"))
+        alert.addButton(withTitle: ProductCopy.text("恢复默认数值", "Restore Defaults")).identifier = .init("settings.center.defaults.confirm")
         alert.beginSheetModal(for: window) { [weak self] response in
             if response == .alertSecondButtonReturn { self?.dispatch(.settings(.restoreVisibleDefaults)) }
         }
