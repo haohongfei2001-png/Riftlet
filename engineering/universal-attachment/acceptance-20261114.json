@@ -25,6 +25,13 @@
   },
   "environmentChecks": {
     "accessibleDeviceDirectory": { "listedMacs": 1, "localMacs": 1, "dedicatedSignedInSessionVerified": false },
+    "accessibleRepositoryInfrastructure": {
+      "githubEnvironments": ["github-pages"],
+      "repositorySelfHostedRunners": 0,
+      "repositoryActionsVariableNames": [],
+      "matchingRepositoryQASecretNames": 0,
+      "inspectionScope": "Repository metadata and names only. No externally authenticated browser session was established by this check."
+    },
     "hiddenBrowser": [
       { "action": "Open ChatGPT in a new hidden in-app tab", "elapsedSecondsApprox": 34.5, "outcome": "TIMEOUT_KERNEL_RESET", "signedInDraftVerified": false },
       { "action": "Read available in-app browser surfaces after reset", "elapsedSecondsApprox": 30, "outcome": "TIMEOUT_KERNEL_RESET", "signedInDraftVerified": false }
@@ -61,8 +68,102 @@
   "supplementalHostCheck": {
     "command": "python3 -B Tests/LiveCompatibility/edge_host.py --app build/Riftlet.app",
     "environment": "Disposable GitHub-hosted macOS console, ordinary packaged App and separate Edge profile.",
-    "target": "Owned loopback page with a neutral draft and image. This host check does not log in to a commercial account.",
-    "resultSource": "The PR Native ARM64 job archives the actual observed stages in test-results/ordinary-edge-host.json."
+    "target": "Owned loopback page with a neutral draft and image. No commercial account was used.",
+    "attempts": [
+      {
+        "reviewedSource": "2f7588d4fb1a9e71138406828c6253e3c3e274b3",
+        "reviewedSourceTree": "61cc75a922f7b200a0e789a8c76ce52e40028124",
+        "admissionHead": "90327aa0eb1a72b93ceadc362658ace2da76c49f",
+        "base": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",
+        "testedMerge": "a5cacb1680de80e778e4ee1d316134c187acfa2a",
+        "nativeRun": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43532598787",
+        "arm64Job": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43532598787/job/132253725120",
+        "arm64JobConclusion": "failure",
+        "testSource": "https://github.com/haohongfei2001-png/Riftlet/blob/a5cacb1680de80e778e4ee1d316134c187acfa2a/Tests/LiveCompatibility/edge_host.py",
+        "artifact": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43532598787/artifacts/14089023520",
+        "artifactSHA256": "325650fa6d5898fb2d604ce0f5ecc5e0654b1caec08d8e8795ddaabdbf1ef09b",
+        "ordinaryAppResult": {
+          "actualSystemCaptures": 0,
+          "appWatcherReady": true,
+          "build": "23",
+          "commercialService": "NOT_RUN",
+          "confirmedDistinctRefusals": 0,
+          "physicalClicks": false,
+          "pressAttempts": 0,
+          "productExecutableSHA256": "e365c1bde72bf686e6f7cfeb2fd654ad9f34ab6271d6aa48d0363eeacbae7dde",
+          "reason": "CalledProcessError",
+          "result": "FAILED_CONTROLLED_CHECK",
+          "rounds": [],
+          "scope": "ordinary-packaged-app-accessibility-press-edge-loopback",
+          "stage": "edge_loopback_window",
+          "testedMerge": "a5cacb1680de80e778e4ee1d316134c187acfa2a",
+          "version": "1.0.1"
+        },
+        "interpretation": "The ordinary App held the specified capture directory. The next stage ended with CalledProcessError. The archived result did not identify the failing child or its exit status. It recorded zero captures and zero press attempts.",
+        "relatedFixtureResults": {
+          "universal-edge-events.log": ["EDGE_DICTIONARY_MATCH 156.0.4314.58", "EDGE_AUTOMATION_OSSTATUS_-1744"],
+          "universal-safari-events.log": ["SAFARI_PREFLIGHT_OSSTATUS_-1744", "neutralDocumentResponses 0 attachments 0"],
+          "universal-surfaces.log": "NOT_RUN [WebKit Navigation API unavailable; refusal verified] ChatGPT",
+          "universal-native-picker.log": {
+            "scope": "controlled-cooperating-WKWebView",
+            "macOS": "15.8.2",
+            "arch": "arm64",
+            "openPanelCallbacks": 2,
+            "draftAcknowledgements": 2,
+            "sha256": [
+              "b66e803d64b39903b44a26160923bb6ecb3f717dcf7900fe62afdb5fd1e4bac8",
+              "91f31ca0451554dbfb9411e80591bab9318a9a2e3805b20efd28568594aba95b"
+            ],
+            "previousAttachmentsTextSelectionPreserved": true,
+            "receiverEvents": [
+              "body-start-0",
+              "body-complete-0",
+              "body-start-1",
+              "body-complete-1"
+            ]
+          },
+          "universal-external-ax.log": {
+            "appkit-file-list": {
+              "status": "VERIFIED_EXTERNAL_FIXTURE_HANDOFF",
+              "originalDraftAcknowledged": true,
+              "draftTextSelectionPriorPNGPreserved": true,
+              "receiverEvents": [
+                "firstBodyByte",
+                "expectedCompleteBody"
+              ],
+              "sha256": "b66e803d64b39903b44a26160923bb6ecb3f717dcf7900fe62afdb5fd1e4bac8"
+            },
+            "system-open-panel": {
+              "status": "ENTRY_PRESSED_OWNED_SHEET_UNPROVEN",
+              "originalDraftAcknowledged": false,
+              "receiverEvents": [],
+              "sha256": null
+            }
+          },
+          "universal-detached-ax.log": {
+            "exactReceiverHandlerReceipt": true,
+            "expectedPNGBytes": 69,
+            "expectedPNGSHA256": "b66e803d64b39903b44a26160923bb6ecb3f717dcf7900fe62afdb5fd1e4bac8",
+            "externalService": "NOT_RUN",
+            "observer": "DETACHED_SELECTION_AND_SUBMIT_AXPRESS_ONCE",
+            "scope": "detached-AX-selection-and-confirmation"
+          },
+          "universal-edge-engine.log": {
+            "acknowledgements": 2,
+            "correlatedRejections": 1,
+            "digests": [
+              "611033f4cc0aa9e3348e69eba089499bc6287d57b53832079e64f42564a4e876",
+              "c9b27a65dd17d8157b51d36d36b54305ec13cea89152ba0e24b5465eb3cbb0c7"
+            ],
+            "duplicateRequests": 0,
+            "lostReplies": 1,
+            "mode": "headless",
+            "scope": "local-fixture",
+            "verifiedBodies": 4
+          }
+        }
+      }
+    ]
   },
   "priorEvidence": "The previous matrix at sourceCommitInspected preserves its original reasons and relatedEvidence values, including two real Chrome images on build 18. Loopback bytes, hosted AX fixtures and service-shaped DOMs remain separately scoped."
 }

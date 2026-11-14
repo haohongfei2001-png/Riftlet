@@ -1,5 +1,7 @@
 """An ordinary Riftlet App rejecting a fresh Edge loopback window on a hosted Mac."""
 import argparse
+import ctypes
+import errno
 from contextlib import ExitStack
 import hashlib
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -9,6 +11,7 @@ from pathlib import Path
 import plistlib
 import re
 import sqlite3
+import stat
 import subprocess
 import sys
 import tempfile
@@ -44,14 +47,84 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def stop_process(process):
-    if process.poll() is None:
-        process.terminate()
-        try:
-            process.wait(timeout=10)
-        except subprocess.TimeoutExpired:
-            process.kill()
-            process.wait(timeout=5)
+def system_capture_digest(path, marker_wait=10):
+    """Read the OS marker and PNG from one fd, watching only that original inode."""
+    marker = b"com.apple.metadata:kMDItemIsScreenCapture"
+    # Darwin's <sys/xattr.h> ABI differs from Linux. CPython on macOS does
+    # not expose os.getxattr; keep the symbol binding off the non-Mac path.
+    get_attribute = ctypes.CDLL("/usr/lib/libSystem.B.dylib", use_errno=True).fgetxattr
+    get_attribute.restype = ctypes.c_ssize_t
+    get_attribute.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_void_p,
+                              ctypes.c_size_t, ctypes.c_uint32, ctypes.c_int]
+    try:
+        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC)
+        with os.fdopen(fd, "rb") as original:
+            initial = os.fstat(fd)
+            if not stat.S_ISREG(initial.st_mode) or initial.st_uid != os.getuid():
+                raise RuntimeError("capture_not_owned_regular_file")
+            header = original.read(24)
+            if (len(header) != 24 or header[:16] != b"\x89PNG\r\n\x1a\n\0\0\0\rIHDR"
+                    or not int.from_bytes(header[16:20], "big") or not int.from_bytes(header[20:24], "big")):
+                raise RuntimeError("capture_invalid_png_header")
+
+            def marker_ready():
+                if not os.path.samestat(initial, path.lstat()):
+                    raise RuntimeError("capture_original_inode_changed")
+                data = ctypes.create_string_buffer(4096)
+                count = get_attribute(fd, marker, data, len(data), 0, 0)
+                if count < 0:
+                    code = ctypes.get_errno()
+                    if code == errno.ENOATTR:
+                        return False
+                    if code == errno.ERANGE:
+                        raise RuntimeError("capture_marker_oversized")
+                    raise OSError(code, "fgetxattr")
+                try:
+                    value = plistlib.loads(data.raw[:count])
+                except (plistlib.InvalidFileException, ValueError):
+                    raise RuntimeError("capture_marker_invalid_plist") from None
+                if type(value) is not bool:
+                    raise RuntimeError("capture_marker_not_boolean")
+                if not value:
+                    raise RuntimeError("capture_marker_explicit_false")
+                return True
+
+            try:
+                marked = wait_for(marker_ready, "capture_marker_absent_after_wait", marker_wait)
+            except ObservationTimeout:
+                marked = False
+            original.seek(0)
+            image_hash = hashlib.sha256(original.read()).hexdigest()
+            final = os.fstat(fd)
+            if (not os.path.samestat(initial, path.lstat()) or initial.st_size != final.st_size
+                    or initial.st_mtime_ns != final.st_mtime_ns):
+                raise RuntimeError("capture_original_changed")
+            return image_hash, marked
+    except FileNotFoundError:
+        raise RuntimeError("capture_original_missing") from None
+    except PermissionError:
+        raise RuntimeError("capture_read_permission_denied") from None
+    except OSError as error:
+        if error.errno == errno.ELOOP:
+            raise RuntimeError("capture_original_is_symlink") from None
+        raise RuntimeError("capture_file_read_error") from None
+
+
+def default_file_capture_target(source):
+    settings = plistlib.loads(command("defaults", "export", "com.apple.screencapture", "-").stdout)
+    return (settings.get("location") == str(source) and settings.get("target", "file") == "file"
+            and settings.get("type", "png").lower() == "png")
+
+
+def sole_new_png(source, previous):
+    new = set(source.iterdir()) - previous
+    if len(new) > 1:
+        raise RuntimeError("ambiguous_system_capture_output")
+    if new:
+        output = next(iter(new))
+        if output.suffix.lower() == ".png":
+            return output
+    return None
 
 
 def events(path):
@@ -189,7 +262,6 @@ def exercise(app, report):
         else:
             cleanup.callback(command, "defaults", "delete", "com.apple.screencapture", "location")
         command("defaults", "write", "com.apple.screencapture", "location", "-string", source)
-        quiet = dict(stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         # Ordinary LaunchServices entry. This flag only enables the existing bounded diagnostics.
         command("/usr/bin/open", "-n", "-g", app, "--args", "--acceptance-trace")
         def product_pid():
@@ -212,21 +284,79 @@ def exercise(app, report):
             threading.Thread(target=server.serve_forever, daemon=True).start()
             session.callback(server.shutdown)
             url = f"http://127.0.0.1:{server.server_port}/{title}"
-            edge = subprocess.Popen([EDGE / "Contents/MacOS/Microsoft Edge", "--user-data-dir=" + str(root / "edge"),
-                "--disable-extensions", "--no-first-run", "--no-default-browser-check", "--no-proxy-server",
-                "--disable-background-networking", "--disable-sync", "--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1",
-                "--app=" + url], **quiet)
-            session.callback(stop_process, edge)
+            report["stage"] = "edge_launchservices"
+            launched = command(helper, "launchEdge", root / "edge", url, check=False, timeout=22)
+            report["edgeLaunchExit"] = launched.returncode
+            if launched.returncode == 19:
+                if re.fullmatch(rb"-?\d+\s*", launched.stdout):
+                    report["launchServicesErrorCode"] = int(launched.stdout)
+                report["result"] = "PARTIAL_EDGE_LAUNCHSERVICES_ERROR"
+                return 0
+            if launched.returncode == 21:
+                report["result"] = "PARTIAL_EDGE_LAUNCHSERVICES_REPLY_TIMEOUT"
+                return 0
+            if launched.returncode != 0:
+                raise RuntimeError({18: "edge_launch_isolation_unconfirmed", 20: "launched_edge_identity_mismatch",
+                                    64: "invalid_helper_arguments"}.get(launched.returncode, "edge_native_launch_failed"))
+            if not re.fullmatch(rb"[1-9]\d* [1-9]\d*\s*", launched.stdout):
+                raise RuntimeError("invalid_native_edge_launch_identity")
+            edge_pid, edge_birth = launched.stdout.decode().split()
+            session.callback(command, helper, "quitEdge", edge_pid, edge_birth)
             def ui(action, row=0, expected_window=0):
-                return command(helper, action, edge.pid, product, app, title, row, expected_window, check=False)
-            report["stage"] = "edge_loopback_window"
-            wait_for(lambda: 0 in draft.observed, "neutral_page_did_not_load")
-            ui("activate").check_returncode()
-            def selected_window():
-                value = ui("window")
-                return value.stdout.decode().strip() if value.returncode == 0 else None
-            window = wait_for(selected_window, "owned_edge_window_unverified")
+                result = command(helper, action, edge_pid, product, app, title, row, expected_window, edge_birth, check=False)
+                report["lastNativeAction"] = action
+                report["lastNativeExit"] = result.returncode
+                failures = {10: "original_edge_process_exited", 11: "original_edge_identity_changed",
+                            12: "original_product_process_exited", 13: "original_product_identity_changed",
+                            64: "invalid_helper_arguments"}
+                if result.returncode in failures:
+                    raise RuntimeError(failures[result.returncode])
+                return result
+            report["stage"] = "original_edge_document_get"
+            wait_for(lambda: draft.document_requests >= 1, "neutral_document_get_unobserved")
+            if draft.document_requests != 1:
+                raise RuntimeError("original_neutral_edge_document_unavailable")
+            def selected_window(action="window"):
+                value = ui(action)
+                if value.returncode in (2, 14):
+                    state = value.stdout.decode().strip()
+                    if state not in {"EDGE_NOT_FRONTMOST", "WINDOWSERVER_LIST_UNAVAILABLE", "NO_EDGE_NORMAL_WINDOW",
+                                     "MULTIPLE_EDGE_NORMAL_WINDOWS", "ORIGINAL_WINDOW_TITLE_UNAVAILABLE",
+                                     "NEUTRAL_DOCUMENT_TITLE_NOT_VISIBLE", "WINDOW_NUMBER_UNAVAILABLE"}:
+                        raise RuntimeError("unrecognized_window_probe_status")
+                    report["lastWindowObservation"] = state
+                    return None
+                value.check_returncode()
+                if not re.fullmatch(rb"[1-9]\d*\s*", value.stdout):
+                    raise RuntimeError("invalid_native_window_id")
+                return value.stdout.decode().strip()
+            report["stage"] = "original_edge_window_identification"
+            try:
+                window = wait_for(lambda: selected_window("unfocusedWindow"), "original_edge_window_unverified")
+            except ObservationTimeout:
+                report["result"] = "PARTIAL_UNIQUE_NEUTRAL_EDGE_WINDOW_UNVERIFIED"
+                return 0
+            report["stage"] = "original_edge_activation"
+            activation = ui("activate", expected_window=window)
+            report["edgeActivationExit"] = activation.returncode
+            if activation.returncode in (15, 16):
+                report["result"] = ("PARTIAL_ORIGINAL_EDGE_WINDOW_CHANGED_BEFORE_ACTIVATION" if activation.returncode == 15
+                                    else "PARTIAL_NATIVE_EDGE_ACTIVATION_DECLINED")
+                return 0
+            activation.check_returncode()
+            report["edgeActivation"] = activation.stdout.decode().strip()
+            if report["edgeActivation"] not in ("ALREADY_FRONTMOST", "REQUEST_ACCEPTED"):
+                raise RuntimeError("unrecognized_native_activation_status")
+            try:
+                wait_for(lambda: selected_window() == window, "original_edge_not_frontmost")
+            except ObservationTimeout:
+                report["result"] = "PARTIAL_ORIGINAL_EDGE_WINDOW_DID_NOT_BECOME_FRONTMOST"
+                return 0
+            report["stage"] = "original_visible_document_paint"
+            wait_for(lambda: 0 in draft.observed, "original_neutral_frame_unconfirmed")
             captures = []
+            dbfile = ROOT / "queue.sqlite"
+            region_mode = False
             for i in (0, 1):
                 report["stage"] = f"system_screenshot_{i + 1}"
                 if i:
@@ -234,15 +364,57 @@ def exercise(app, report):
                     wait_for(lambda: i in draft.observed, "neutral_second_frame_unconfirmed")
                 if selected_window() != window:
                     raise RuntimeError("original_edge_window_changed")
-                path = source / f"Neutral-{i}.png"
-                command("/usr/sbin/screencapture", "-x", "-o", "-l" + window, path)
-                if plistlib.loads(os.getxattr(path, "com.apple.metadata:kMDItemIsScreenCapture")) is not True:
-                    raise RuntimeError("actual_capture_missing_system_marker")
-                captures.append((digest(path), path))
-                report["actualSystemCaptures"] += 1
+                if not region_mode:
+                    path = source / f"Neutral-{i}.png"
+                    command("/usr/sbin/screencapture", "-x", "-o", "-t", "png", "-l" + window, path)
+                    image_hash, marked = system_capture_digest(path)
+                    report["generatedScreenshotFiles"] += 1
+                    if not marked:
+                        # No UI actions have occurred. Continue only while the real collector
+                        # still contains precisely the previously verified owned captures.
+                        if set(read_assets(dbfile)) != {d for d, _ in captures}:
+                            raise RuntimeError("unmarked_input_import_or_unknown_queue_state")
+                        report["windowCapturesWithoutMarker"] += 1
+                        region_mode = True
+                if region_mode:
+                    # Apple -p uses the account's capture preferences and ignores filenames.
+                    # -R bounds this operation to the unobscured center of the neutral window.
+                    report["stage"] = f"default_system_region_{i + 1}"
+                    report["result"] = "PARTIAL_SYSTEM_CAPTURE_WITHOUT_OS_SCREENSHOT_MARKER"
+                    if not default_file_capture_target(source):
+                        report["regionOutcome"] = "FILE_DESTINATION_UNVERIFIED"
+                        return 0
+                    previous_files = set(source.iterdir())
+                    region = ui("region", expected_window=window)
+                    if region.returncode == 2:
+                        report["regionOutcome"] = "UNOBSCURED_ORIGINAL_EDGE_REGION_UNVERIFIED"
+                        return 0
+                    region.check_returncode()
+                    bounds = region.stdout.decode().strip()
+                    if not re.fullmatch(r"-?\d+,-?\d+,128,72", bounds):
+                        raise RuntimeError("invalid_region_geometry")
+                    report["systemRegionCaptureAttempts"] += 1
+                    command("/usr/sbin/screencapture", "-p", "-x", "-t", "png", "-R" + bounds)
+                    after = ui("region", expected_window=window)
+                    if after.returncode or after.stdout != region.stdout:
+                        raise RuntimeError("region_owner_or_visibility_changed")
+                    try:
+                        path = wait_for(lambda: sole_new_png(source, previous_files), "default_output_not_observed")
+                    except ObservationTimeout:
+                        report["regionOutcome"] = "NO_UNIQUE_PNG_IN_CONFIGURED_SOURCE"
+                        return 0
+                    image_hash, marked = system_capture_digest(path)
+                    if sole_new_png(source, previous_files) != path:
+                        raise RuntimeError("default_capture_output_changed")
+                    report["generatedScreenshotFiles"] += 1
+                    if not marked:
+                        report["regionOutcome"] = "DEFAULT_CAPTURE_ALSO_MISSING_OS_MARKER"
+                        return 0
+                    report["regionOutcome"] = "DEFAULT_CAPTURE_PNG_WITH_OS_MARKER"
+                report["osScreenshotMarkersVerified"] += 1
+                captures.append((image_hash, path))
             if captures[0][0] == captures[1][0]:
                 raise RuntimeError("two_distinct_captures_unproven")
-            dbfile = ROOT / "queue.sqlite"
             def imported():
                 items = read_assets(dbfile)
                 return items if len(items) == 2 and all(d in items for d, _ in captures) else None
@@ -329,12 +501,16 @@ if __name__ == "__main__":
     parser.add_argument("--app", type=Path, required=True)
     args = parser.parse_args()
     report = dict(scope="ordinary-packaged-app-accessibility-press-edge-loopback", commercialService="NOT_RUN",
-                  physicalClicks=False, rounds=[], actualSystemCaptures=0, pressAttempts=0, confirmedDistinctRefusals=0)
+                  physicalClicks=False, rounds=[], generatedScreenshotFiles=0, osScreenshotMarkersVerified=0,
+                  windowCapturesWithoutMarker=0, systemRegionCaptureAttempts=0,
+                  pressAttempts=0, confirmedDistinctRefusals=0)
     try:
         code = exercise(args.app.resolve(), report)
     except Exception as error:
         # Never include browser URLs, traces with local paths, or image data in the output artifact.
         reason = str(error) if isinstance(error, RuntimeError) and re.fullmatch(r"[a-z_]+", str(error)) else type(error).__name__
+        if isinstance(error, subprocess.CalledProcessError):
+            report["upstreamExit"] = error.returncode
         report.update(result="FAILED_CONTROLLED_CHECK", reason=reason)
         code = 1
     print(json.dumps(report, sort_keys=True))
