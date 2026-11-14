@@ -67,5 +67,34 @@
     "96": "Five native permission purposes available in Chinese and English. Full core UI English and VO not established.",
     "97": "Reuse PR 77. Public 1.0.1 to the next signed release through Sparkle is not yet tested.",
     "99": "Default Chinese and English image descriptions and both language switches passed in offline headless Chromium."
+  },
+  "followUpVerification": {
+    "reviewedSettingsAndRecovery": {
+      "source": "bf11b35d2beec58cb305a0dd7e83d6d0ad47a2a7",
+      "admission": "26b81ceba0f90b464e2654009b3ff0271789c10c",
+      "nativeOnboarding": "18 named native program checks in an isolated macOS 27.2 guest. Three English guide views and the Simplified Chinese start view captured. Permission states supplied by a fixture. Corrected an inconsistent denied/ready test fixture and verified its replacement frame.",
+      "unavailableSettings": "In a private build with a settings host initialization error injected, clicked the status item and then Quit. The process exited and both instance and feedback locks were available. No production failure was injected."
+    },
+    "systemIME": {
+      "source": "6cd0d62373d92fe88ecc885a9f88558f3dcffb14",
+      "binarySHA256": "1e956ff5dbd41c6fa60f490291ffe128c26cb5d89feaed6e5e209625db0c21ef",
+      "tests": "7 scoped tests of Apple Simplified Pinyin through the virtual keyboard. The marked text and native candidate list survived a real screenshot import. Cancel, invalid candidate confirmation, correction and persistence tested. Original archive preference bytes restored.",
+      "scope": "Isolated Mac only. ABC restored as the sole effective input source. The disabled system input method retained one remembered inactive submode flag."
+    },
+    "websiteUpdater": {
+      "installedVersion": "1.0.1 (23)",
+      "binarySHA256": "5cd47c71fc8043158eda8b5725e22e3dcd60b628dbd5ad248dd7b1f6a132cf05",
+      "environment": "isolated macOS 27.2 arm64 GUI, retained Safari download and Finder-installed bundle",
+      "productionNoUpdate": "PASS",
+      "rejectWrongFeedSignatureBeforeDownload": "PASS",
+      "normalRestartAndData": "PASS: six media hashes, bookmark, feedback and one UNKNOWN retained. One legitimate idle archive.",
+      "higherBuildInstallation": "NOT_RUN"
+    },
+    "issue95": {
+      "selectionStudy": "Of 10,000 synthetic v4 assets, all 3,330 removed thumbnails had UNKNOWN. The pending archived records without operations are only an initial read-only filter.",
+      "reclaimableBytes": null,
+      "permanentDeletionImplemented": false
+    },
+    "realChatGPT": "NOT_RUN. The dedicated QA browser timed out before an editable draft. Zero file submissions. Resumption requires a reachable authorized QA draft and the exact proposed release package."
   }
 }

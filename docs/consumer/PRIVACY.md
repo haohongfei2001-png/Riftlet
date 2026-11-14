@@ -49,13 +49,13 @@ Screenshots and history are stored locally. A thumbnail click hands that image t
 
 Chrome’s **Allow JavaScript from Apple Events** setting lets apps with Chrome automation access execute page scripts. Turning it off stops one-click attachment. Local collection and history remain available.
 
-Starting with 1.0.1, daily update checks contact riftlet.com over HTTPS. Choosing to download an update contacts GitHub’s release asset service. These requests carry no screenshots, chats or feedback drafts. Service providers can see connection information such as your IP address. To check only on demand, turn off 每天检查更新 (Check daily for updates). In 1.0.1, open 权限与帮助 → 关于与诊断. In the four-page candidate, open 通用 (General).
+Starting with 1.0.1, daily update checks contact riftlet.com over HTTPS. Choosing to download an update contacts GitHub’s release asset service. These requests carry no screenshots, chats or feedback drafts. Service providers can see connection information such as your IP address. To check only on demand, turn off 每天检查更新 (Check daily for updates). In 1.0.1, open 权限与帮助 → 关于与诊断. In the four-page candidate, open General and turn off the daily check.
 
 Feedback is optional. Pressing Send authorizes the queued report to be retried later, including after restart. Its text, category, report ID, version, time and any explicitly selected diagnostic snapshot go to the private feedback service. New drafts have diagnostics off; saved drafts retain your choice. Diagnostics use a closed list of counts/events, but free text is **not automatically redacted**. Do not include images, chats, credentials or raw databases. Local storage, receipt, delivery and deletion are different states.
 
 Archiving or retracting a thumbnail does not delete its file. Uninstalling the App does not erase local data or already received feedback. Riftlet has no screenshot cloud library, account system or usage telemetry.
 
-In 1.0.1, Settings → 使用与历史 → 存储与恢复 → 在 Finder 中显示 opens the local data folder. In the four-page candidate, choose 帮助 → 诊断 → 在 Finder 中显示数据目录… (Help → Diagnostics → Show Data Folder in Finder). The storage estimate covers image copies, built-in captures, import staging and journals, and the queue database; external originals, feedback, preferences and backups are separate. There is no per-image permanent delete control. Keep the complete data folder together for backup or recovery.
+In 1.0.1, Settings → 使用与历史 → 存储与恢复 → 在 Finder 中显示 opens the local data folder. In the four-page candidate, open Help and expand Diagnostics to reveal the data folder in Finder. The storage estimate covers image copies, built-in captures, import staging and journals, and the queue database; external originals, feedback, preferences and backups are separate. There is no per-image permanent delete control. Keep the complete data folder together for backup or recovery.
 
 ## 反馈保留和联系
 
