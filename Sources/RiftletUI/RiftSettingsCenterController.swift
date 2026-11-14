@@ -74,7 +74,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
             styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView], backing: .buffered, defer: false)
         super.init()
         window.identifier = Self.windowIdentifier
-        window.title = "Riftlet 设置"
+        window.title = ProductCopy.text("Riftlet 设置", "Riftlet Settings")
         window.titleVisibility = .hidden
         window.titlebarAppearsTransparent = true
         window.isReleasedWhenClosed = false
@@ -181,7 +181,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
         let name = NSTextField(labelWithString: "Riftlet")
         name.font = .systemFont(ofSize: 19, weight: .semibold)
         let brand = SettingsNativeStyle.stack([logo,name], vertical: false, spacing: 8)
-        let caption = SettingsNativeStyle.label("设置", role: "caption")
+        let caption = SettingsNativeStyle.label(ProductCopy.text("设置", "Settings"), role: "caption")
         let nav = SettingsNativeStyle.stack(spacing: 3)
         for page in SettingsPage.allCases {
             let button = makeButton(page.title, id: "nav.\(page.rawValue)") { [weak self] in self?.navigate(to: page) }
@@ -200,7 +200,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
             button.heightAnchor.constraint(equalToConstant: 35).isActive = true
         }
         scroll.identifier = .init("settings.center.scroll")
-        scroll.setAccessibilityLabel("设置页面")
+        scroll.setAccessibilityLabel(ProductCopy.text("设置页面", "Settings page"))
         scroll.scrollerStyle = .overlay
         scroll.autohidesScrollers = true
         pageHeading.font = .systemFont(ofSize: 21, weight: .semibold)
@@ -351,10 +351,10 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     func restoreVisibleDefaults() {
         guard finishEditingForReplacement() else { return }
         let alert = NSAlert()
-        alert.messageText = "恢复当前形态的默认数值？"
-        alert.informativeText = "将恢复每页上限及当前形态适用的边距、遮挡或自定义色调。形态、位置、显示器和出现动效会保留。"
-        alert.addButton(withTitle: "取消")
-        alert.addButton(withTitle: "恢复默认数值")
+        alert.messageText = ProductCopy.text("恢复当前形态的默认数值？", "Restore defaults for this desktop form?")
+        alert.informativeText = ProductCopy.text("将恢复每页上限及当前形态适用的边距、遮挡或自定义色调。形态、位置、显示器和出现动效会保留。", "This resets the page limit and this form’s insets, overlap and custom tint. Your desktop form, position, display and arrival motion are kept.")
+        alert.addButton(withTitle: ProductCopy.text("取消", "Cancel"))
+        alert.addButton(withTitle: ProductCopy.text("恢复默认数值", "Restore Defaults"))
         alert.beginSheetModal(for: window) { [weak self] response in
             if response == .alertSecondButtonReturn { self?.dispatch(.settings(.restoreVisibleDefaults)) }
         }
@@ -388,7 +388,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
             // This explicit discard/default action cancels unconfirmed input
             // through AppKit; it never treats a partial IME string as a Save.
             guard field.abortEditing() else {
-                footerStatus.stringValue = "请先完成当前输入，再恢复或放弃更改。"
+                footerStatus.stringValue = ProductCopy.text("请先完成当前输入，再恢复或放弃更改。", "Finish editing this field before restoring or discarding changes.")
                 return false
             }
         } else {
@@ -481,9 +481,9 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
             suspendedEditor = (field, editor.selectedRange())
         }
         let alert = NSAlert()
-        alert.messageText = "要保存更改后再关闭吗？"
+        alert.messageText = ProductCopy.text("要保存更改后再关闭吗？", "Save changes before closing?")
         alert.alertStyle = .informational
-        for (name, id) in [("继续编辑", "continue"), ("不保存", "discard"), ("应用并关闭", "apply")] {
+        for (name, id) in [(ProductCopy.text("继续编辑", "Keep Editing"), "continue"), (ProductCopy.text("不保存", "Don’t Save"), "discard"), (ProductCopy.text("应用并关闭", "Apply and Close"), "apply")] {
             let button = alert.addButton(withTitle: name)
             button.identifier = .init("settings.center.close.\(id)")
             button.setAccessibilityLabel(name)
@@ -563,9 +563,9 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
         alert.buttons[1].isEnabled = !busy
         alert.buttons[2].isEnabled = !busy && product.capabilities.canEditPreferences
         alert.informativeText = busy
-            ? "正在保存更改。你可以继续编辑，或在保存结束后关闭。"
-            : failed ? "更改尚未保存，草稿已保留。你可以继续编辑或重试“应用并关闭”。"
-            : "选择“不保存”会放弃尚未应用的更改。已生效的设置会保留。"
+            ? ProductCopy.text("正在保存更改。你可以继续编辑，或在保存结束后关闭。", "Saving changes. You can keep editing or close when saving finishes.")
+            : failed ? ProductCopy.text("更改尚未保存，草稿已保留。你可以继续编辑或重试“应用并关闭”。", "Your edits haven’t been saved. Keep editing or try Apply and Close again.")
+            : ProductCopy.text("选择“不保存”会放弃尚未应用的更改。已生效的设置会保留。", "Don’t Save discards unapplied edits. Settings already applied are kept.")
     }
     private var persistenceBusy: Bool {
         // Appearance writes are synchronous on MainActor. Login registration

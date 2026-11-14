@@ -130,7 +130,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         }
         h.controller.show(page: .capture)
         let entry: NSSwitch = try control(h, "entry")
-        XCTAssertEqual(entry.accessibilityLabel(), "显示内置截图入口")
+        XCTAssertEqual(entry.accessibilityLabel(), ProductCopy.text("显示内置截图入口", "Show Capture Button"))
         XCTAssertEqual(entry.state, .on)
         XCTAssertTrue(h.requests.isEmpty)
     }
@@ -148,11 +148,11 @@ final class RiftSettingsCenterTests: XCTestCase {
             XCTAssertEqual(status.recoveryPage, .capture)
             XCTAssertEqual(status.detail, issue.text)
             if issue == .sourceVolumeUnidentified {
-                XCTAssertEqual(status.title, "当前截图位置无法收录")
-                XCTAssertTrue(status.detail.contains("选择其他保存位置"))
+                XCTAssertEqual(status.title, ProductCopy.text("当前截图位置无法收录", "Can’t Collect from This Location"))
+                XCTAssertTrue(status.detail.contains(ProductCopy.text("选择其他保存位置", "choose another save location")))
             } else {
-                XCTAssertEqual(status.title, "部分截图暂缓收录")
-                XCTAssertTrue(status.detail.contains("其他新截图仍可收录"))
+                XCTAssertEqual(status.title, ProductCopy.text("部分截图暂缓收录", "Some Screenshots Are on Hold"))
+                XCTAssertTrue(status.detail.contains(ProductCopy.text("其他新截图仍可收录", "Other new screenshots can still be collected")))
             }
             XCTAssertEqual(h.controller.labels["source.capture"]?.stringValue, issue.text)
             XCTAssertNil(h.controller.labels["source.help"])
@@ -169,12 +169,12 @@ final class RiftSettingsCenterTests: XCTestCase {
         h.controller.update(snapshot)
         let attachment = try XCTUnwrap(h.controller.labels["attachment"])
         let automation = try XCTUnwrap(h.controller.labels["automation"])
-        XCTAssertEqual(h.controller.labels["access.chrome"]?.stringValue, "需开启 JavaScript")
+        XCTAssertEqual(h.controller.labels["access.chrome"]?.stringValue, ProductCopy.text("需开启 JavaScript", "Enable JavaScript"))
         XCTAssertEqual(h.controller.labels["chrome.menu"]?.isHidden, true, "Recovery already contains the path")
-        let expected = "Chrome 拒绝了这次附加，截图仍在本机。" + ChromeAttachmentSetup.instructions
+        let expected = ProductCopy.text("Chrome 拒绝了这次附加，截图仍在本机。", "Chrome declined the attachment. The screenshot is saved on your Mac. ") + ChromeAttachmentSetup.instructions
         XCTAssertEqual(attachment.stringValue, expected)
         XCTAssertEqual(RiftControlCenterPresentation(snapshot).detail, expected)
-        XCTAssertEqual(automation.stringValue, "macOS 已允许 Riftlet 与 Chrome 通信。")
+        XCTAssertEqual(automation.stringValue, ProductCopy.text("macOS 已允许 Riftlet 与 Chrome 通信。", "macOS allows Riftlet to communicate with Chrome."))
         XCTAssertTrue(h.actions.isEmpty)
 
         snapshot.setup = .init(attachment: .productionDisabled, issue: .chromeJavaScriptDisabled)
@@ -201,7 +201,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertEqual(h.controller.selectedPage, .capture)
         XCTAssertFalse(captureAccess.isHidden)
         XCTAssertTrue(captureAccess.isEnabled)
-        XCTAssertEqual(captureAccess.title, "允许访问截图文件夹…")
+        XCTAssertEqual(captureAccess.title, ProductCopy.text("允许访问截图文件夹…", "Allow Screenshot Folder Access…"))
         let recheck: NSButton = try control(h, "source.recheck.capture")
         XCTAssertFalse(recheck.isHidden)
         XCTAssertTrue(recheck.isEnabled)
@@ -221,7 +221,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertTrue(grant.isHidden)
         XCTAssertFalse(check.isHidden)
         XCTAssertTrue(check.isEnabled)
-        XCTAssertEqual(h.controller.labels["access.chrome"]?.stringValue, "待检查连接")
+        XCTAssertEqual(h.controller.labels["access.chrome"]?.stringValue, ProductCopy.text("待检查连接", "Connection Not Checked"))
         XCTAssertTrue(h.actions.isEmpty)
         try await clickAndWait(h, "chrome.check")
         XCTAssertEqual(h.actions, ["checkChromeConnection"])
@@ -239,10 +239,10 @@ final class RiftSettingsCenterTests: XCTestCase {
         snapshot.chromeConnection = .ready
         h.controller.update(snapshot)
         XCTAssertEqual(h.controller.labels["attachment"]?.isHidden, true)
-        XCTAssertEqual(h.controller.labels["access.chrome"]?.stringValue, "已连接")
+        XCTAssertEqual(h.controller.labels["access.chrome"]?.stringValue, ProductCopy.text("已连接", "Connected"))
         snapshot.setup = .init(attachment: .available, permission: .denied)
         h.controller.update(snapshot)
-        XCTAssertEqual(h.controller.labels["access.chrome"]?.stringValue, "需要授权")
+        XCTAssertEqual(h.controller.labels["access.chrome"]?.stringValue, ProductCopy.text("需要授权", "Access Needed"))
         XCTAssertTrue(check.isHidden)
         XCTAssertFalse(grant.isHidden)
     }
@@ -282,10 +282,10 @@ final class RiftSettingsCenterTests: XCTestCase {
         snapshot.accessibility.reduceMotion = true
         h.controller.update(snapshot)
         XCTAssertFalse(motion.isHidden)
-        XCTAssertTrue(motion.stringValue.contains("减少动态效果"))
+        XCTAssertTrue(motion.stringValue.contains(ProductCopy.text("减少动态效果", "Reduce Motion")))
         XCTAssertFalse(history.isHidden)
-        XCTAssertTrue(history.stringValue.contains("2 张"))
-        XCTAssertTrue(history.stringValue.contains("不会自动重传"))
+        XCTAssertTrue(history.stringValue.contains(ProductCopy.text("2 张", "2 screenshot")))
+        XCTAssertTrue(history.stringValue.contains(ProductCopy.text("不会自动重传", "won’t retry them automatically")))
 
         snapshot.setup = .init(pendingCount: 0)
         snapshot.accessibility.reduceMotion = false
@@ -350,9 +350,9 @@ final class RiftSettingsCenterTests: XCTestCase {
                     if document.isFlipped { XCTAssertGreaterThanOrEqual(captionRect.minY + 0.5, drawingRect.maxY) }
                     else { XCTAssertLessThanOrEqual(captionRect.maxY - 0.5, drawingRect.minY) }
                     let effective = min(count, h.controller.countCapacity(h.model.snapshot.owner))
-                    XCTAssertTrue(caption.stringValue.contains(placement.title + " · \(effective) 张"))
+                    XCTAssertTrue(caption.stringValue.contains(placement.title + ProductCopy.text(" · \(effective) 张", " · \(effective) images")))
                     XCTAssertEqual(h.controller.geometryPreview.accessibilityValue() as? String, h.controller.geometryPreview.geometrySummary)
-                    XCTAssertEqual(caption.stringValue.contains("示意前 4 张"), effective > 4)
+                    XCTAssertEqual(caption.stringValue.contains(ProductCopy.text("示意前 4 张", "showing the first 4")), effective > 4)
                 }
             }
             let visible = h.controller.scroll.contentView.documentVisibleRect
@@ -362,7 +362,7 @@ final class RiftSettingsCenterTests: XCTestCase {
             XCTAssertTrue(visible.contains(rect), "Placement must be operable in the initial viewport")
             XCTAssertFalse(rect.intersects(drawingRect))
             XCTAssertEqual(picker.itemArray.filter { !$0.isHidden }.map(\.title), RiftPlacement.allCases.map(\.title))
-            XCTAssertEqual(picker.accessibilityLabel(), "屏幕边缘")
+            XCTAssertEqual(picker.accessibilityLabel(), ProductCopy.text("屏幕边缘", "Screen Edge"))
         }
         XCTAssertTrue(h.requests.isEmpty)
     }
@@ -481,13 +481,13 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertFalse(h.controller.windChimeSettings.isHidden)
         XCTAssertTrue(h.controller.commonEdgeSettings.isHidden)
         XCTAssertFalse(h.controller.windChimeLineSetting.isHidden)
-        XCTAssertTrue(h.controller.geometryPreview.geometrySummary.hasSuffix("风铃 · 错落"))
+        XCTAssertTrue(h.controller.geometryPreview.geometrySummary.hasSuffix(ProductCopy.text("风铃 · 错落", "Wind Chime · Staggered")))
         XCTAssertEqual(h.controller.numericFields[.windChimeLineInset]?.stringValue, "18")
-        XCTAssertEqual(arrangement.accessibilityLabel(), "风铃排列")
-        XCTAssertEqual(arrangement.label(forSegment: arrangement.selectedSegment), "错落")
+        XCTAssertEqual(arrangement.accessibilityLabel(), ProductCopy.text("风铃排列", "Wind Chime Layout"))
+        XCTAssertEqual(arrangement.label(forSegment: arrangement.selectedSegment), ProductCopy.text("错落", "Staggered"))
         try await changeAndWait(h, "windChimeArrangement", index: 0)
         XCTAssertEqual(h.owner.settings.configuration.windChimeArrangement, .aligned)
-        XCTAssertTrue(h.controller.geometryPreview.geometrySummary.hasSuffix("风铃 · 整齐"))
+        XCTAssertTrue(h.controller.geometryPreview.geometrySummary.hasSuffix(ProductCopy.text("风铃 · 整齐", "Wind Chime · Aligned")))
         var updated = h.owner.settings
         updated.configuration.windChimeArrangement = .staggered
         h.receive(updated)
@@ -538,9 +538,9 @@ final class RiftSettingsCenterTests: XCTestCase {
         try click(h, "disclosure.tray.favorites")
         let first: NSPopUpButton = try control(h, "trayFavorite1")
         let third: NSPopUpButton = try control(h, "trayFavorite3")
-        XCTAssertEqual(first.titleOfSelectedItem, "自动（区域）")
-        XCTAssertEqual(third.titleOfSelectedItem, "自动（留空）")
-        XCTAssertEqual(third.accessibilityLabel(), "常用键 3")
+        XCTAssertEqual(first.titleOfSelectedItem, ProductCopy.text("自动（区域）", "Automatic (Area)"))
+        XCTAssertEqual(third.titleOfSelectedItem, ProductCopy.text("自动（留空）", "Automatic (Empty)"))
+        XCTAssertEqual(third.accessibilityLabel(), ProductCopy.text("常用键 3", "Favorite 3"))
         XCTAssertFalse(third.itemTitles.contains("更多"))
         let custom = try XCTUnwrap(RiftTrayFavoriteChoice.menuChoices.firstIndex(of: .mode(.window)))
         try await changeAndWait(h, "trayFavorite3", index: custom)
@@ -550,8 +550,8 @@ final class RiftSettingsCenterTests: XCTestCase {
         h.receive(settings)
         XCTAssertTrue(h.controller.controls["trayFavorite1"] === first)
         XCTAssertTrue(h.controller.controls["trayFavorite3"] === third)
-        XCTAssertEqual(first.titleOfSelectedItem, "自动（窗口）")
-        XCTAssertEqual(third.titleOfSelectedItem, "窗口")
+        XCTAssertEqual(first.titleOfSelectedItem, ProductCopy.text("自动（窗口）", "Automatic (Window)"))
+        XCTAssertEqual(third.titleOfSelectedItem, ProductCopy.text("窗口", "Window"))
     }
 
     @MainActor func testExplicitDefaultsAffectOnlyCurrentPublicNumbers() async throws {
@@ -625,7 +625,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         let h = try host(); defer { h.controller.closeForTeardown() }
         h.controller.show(page: .capture)
         let preset: NSPopUpButton = try control(h, "archive.preset")
-        XCTAssertEqual(preset.itemTitles, ["关闭","1 分钟","2 分钟","5 分钟","10 分钟","自定义…"])
+        XCTAssertEqual(preset.itemTitles, [ProductCopy.text("关闭", "Off"),ProductCopy.text("1 分钟", "1 min"),ProductCopy.text("2 分钟", "2 min"),ProductCopy.text("5 分钟", "5 min"),ProductCopy.text("10 分钟", "10 min"),ProductCopy.text("自定义…", "Custom…")])
         XCTAssertEqual(preset.indexOfSelectedItem, 2)
         try change(h, "archive.preset", index: 5)
         let field = try XCTUnwrap(h.controller.archiveField)
@@ -665,7 +665,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         editor.setSelectedRange(NSRange(location: 1, length: 2))
         h.controller.window.performClose(nil)
         let alert = try XCTUnwrap(h.controller.pendingCloseAlert)
-        XCTAssertEqual(alert.buttons.map(\.title), ["继续编辑", "不保存", "应用并关闭"])
+        XCTAssertEqual(alert.buttons.map(\.title), [ProductCopy.text("继续编辑", "Keep Editing"), ProductCopy.text("不保存", "Don’t Save"), ProductCopy.text("应用并关闭", "Apply and Close")])
         XCTAssertTrue(alert.window.defaultButtonCell === alert.buttons[0].cell,
                       "AppKit may temporarily disable the key equivalent, but Return's default choice must remain Continue")
         XCTAssertTrue(h.controller.isVisible)
@@ -869,7 +869,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         let original = try XCTUnwrap(h.controller.pendingCloseAlert)
         try await answerClose(h, .alertThirdButtonReturn, remainsOpen: true)
         XCTAssertTrue(h.controller.pendingCloseAlert === original)
-        XCTAssertTrue(original.informativeText.contains("尚未保存"))
+        XCTAssertTrue(original.informativeText.contains(ProductCopy.text("尚未保存", "haven’t been saved")))
         XCTAssertTrue(answers.isEmpty)
         h.publish()
         XCTAssertTrue(h.controller.pendingCloseAlert === original)
@@ -1011,7 +1011,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         try await actionAndWait(h) { h.controller.dispatch(.settings(.setCollectionPaused(!h.owner.collectionPaused))) }
         XCTAssertTrue(h.owner.collectionPaused)
         XCTAssertEqual(h.model.snapshot.domains[.collection]?.pending, .collectionPaused(false))
-        XCTAssertTrue(h.controller.errorLabels[.collection]!.stringValue.contains("继续收录"))
+        XCTAssertTrue(h.controller.errorLabels[.collection]!.stringValue.contains(ProductCopy.text("继续收录", "Resume Collection")))
         h.failures = []; try await clickAndWait(h, "retry.collection")
         XCTAssertFalse(h.owner.collectionPaused)
     }
@@ -1025,7 +1025,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         next.configuration.numberGap = 14
         h.receive(next, effectiveDisplay: 2)
         let display: NSPopUpButton = try control(h, "display")
-        XCTAssertEqual(display.titleOfSelectedItem, "已选显示器（未连接）")
+        XCTAssertEqual(display.titleOfSelectedItem, ProductCopy.text("已选显示器（未连接）", "Preferred Display (Disconnected)"))
         XCTAssertEqual(h.model.text(for: .fitWidth), "95.125")
         try await actionAndWait(h) { h.controller.dispatch(.settings(.applyLayout)) }
         XCTAssertEqual(h.owner.settings.configuration.preferredDisplayID, 1)
@@ -1100,7 +1100,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         h.publish(); h.controller.show()
         let login: NSSwitch = try control(h, "login")
         XCTAssertEqual(login.state, .on)
-        XCTAssertTrue(h.controller.labels["login.detail"]!.stringValue.contains("尚未获准"))
+        XCTAssertTrue(h.controller.labels["login.detail"]!.stringValue.contains(ProductCopy.text("尚未获准", "to enable launch at login")))
         XCTAssertFalse(h.controller.controls["login.system"]!.isHidden)
         XCTAssertTrue(h.actions.isEmpty)
         h.login.status = .unknown; h.publish()
@@ -1114,7 +1114,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         let login: NSSwitch = try control(h, "login")
         XCTAssertTrue(login.isEnabled)
         XCTAssertEqual(login.state, .off)
-        XCTAssertTrue(h.controller.labels["login.detail"]!.stringValue.contains("可以尝试开启"))
+        XCTAssertTrue(h.controller.labels["login.detail"]!.stringValue.contains(ProductCopy.text("可以尝试开启", "try enabling it")))
         XCTAssertTrue(h.actions.isEmpty, "A missing service readback does not register automatically")
         try await clickAndWait(h, "login")
         XCTAssertEqual(h.actions, ["login:true"])
@@ -1137,8 +1137,8 @@ final class RiftSettingsCenterTests: XCTestCase {
             let login: NSSwitch = try control(h, "login")
             XCTAssertEqual(login.state, .on, "Actual system readback is not rolled back after an error")
             let detail = h.controller.labels["login.detail"]!.stringValue
-            XCTAssertTrue(detail.contains("代码 7"))
-            XCTAssertTrue(detail.contains(status == .enabled ? "已允许" : "尚未获准"))
+            XCTAssertTrue(detail.contains(ProductCopy.text("代码 7", "code 7")))
+            XCTAssertTrue(detail.contains(status == .enabled ? ProductCopy.text("已允许", "allows") : ProductCopy.text("尚未获准", "to enable launch at login")))
             XCTAssertTrue(h.controller.controls["login.retry"]!.isHidden)
             XCTAssertEqual(h.controller.controls["login.system"]!.isHidden, status != .requiresApproval)
         }
@@ -1148,7 +1148,7 @@ final class RiftSettingsCenterTests: XCTestCase {
     @MainActor func testNoStorageMeasurementNeverShowsInventedZeroAndClearRequestsHostConfirmationOnce() async throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
         h.controller.show(page: .history)
-        XCTAssertTrue(h.controller.labels["storage"]!.stringValue.contains("尚未检查"))
+        XCTAssertTrue(h.controller.labels["storage"]!.stringValue.contains(ProductCopy.text("尚未检查", "hasn’t been checked")))
         XCTAssertFalse(h.controller.labels["storage"]!.stringValue.contains("0 B"))
         XCTAssertTrue(h.actions.isEmpty)
         try await clickAndWait(h, "storage.reveal")
@@ -1216,6 +1216,29 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertNotNil(field.accessibilityLabel())
         XCTAssertFalse(field.accessibilityLabel()!.isEmpty)
     }
+    @MainActor func testLocalizedFourPagesKeepReadableNativeControlsAndStableEditors() throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        h.controller.show(page: .general)
+        h.controller.window.setContentSize(SettingsNativeStyle.settingsMinimumSize)
+        let field = try XCTUnwrap(h.controller.numericFields[.outerInset])
+        for page in SettingsPage.allCases {
+            h.controller.show(page: page)
+            h.controller.window.contentView?.layoutSubtreeIfNeeded()
+            XCTAssertEqual(h.controller.pageHeading.stringValue, page.title)
+            XCTAssertEqual(h.controller.navigation[page]?.accessibilityLabel(), page.title)
+            XCTAssertTrue(field === h.controller.numericFields[.outerInset])
+            for control in h.controller.controls.values where !control.isHiddenOrHasHiddenAncestor {
+                guard let button = control as? NSButton, !(button is NSPopUpButton) else { continue }
+                let width = (button.title as NSString).size(withAttributes: [.font: button.font ?? NSFont.systemFont(ofSize: 13)]).width
+                XCTAssertGreaterThanOrEqual(button.bounds.width, width, "Button title must remain readable: " + button.title)
+            }
+        }
+        XCTAssertEqual((h.controller.controls["source.access.capture"] as? NSButton)?.title,
+                       ProductCopy.text("允许访问截图文件夹…", "Allow Screenshot Folder Access…"))
+        XCTAssertEqual((h.controller.controls["archive.minutes"] as? NSTextField)?.accessibilityLabel(),
+                       ProductCopy.text("自定义归档分钟数", "Custom archive time in minutes"))
+    }
+
 }
 
 @MainActor
