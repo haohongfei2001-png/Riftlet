@@ -3,6 +3,7 @@ from pathlib import Path
 import unittest
 import json
 import tempfile
+import sqlite3
 
 helper_path = Path(__file__).resolve().parents[1] / "LiveCompatibility/edge_host.py"
 spec = importlib.util.spec_from_file_location("isolated_edge_host", helper_path)
@@ -88,3 +89,22 @@ class IndependentPickerTests(unittest.TestCase):
         report = dict(pressAttempts=1, mouseDispatchCalls=1, confirmedDistinctRefusals=0, result="FAILED_CONTROLLED_CHECK",
             rounds=[dict(action="ONE_GLOBAL_MOUSE_DOWN_UP_POSTED")])
         self.assertFalse(helper.picker_after_mouse_safe(report, [("private-asset", 7, 91)], []))
+
+
+    def test_failed_dispatch_observes_original_queue_and_upload_counts_read_only(self):
+        with tempfile.TemporaryDirectory() as directory:
+            dbfile = Path(directory) / "own.sqlite"
+            with sqlite3.connect(dbfile) as db:
+                db.executescript("CREATE TABLE assets(id TEXT,file_name TEXT,status TEXT,visibility TEXT,image_json TEXT);"
+                                 "CREATE TABLE operations(id INTEGER); CREATE TABLE upload_starts(id INTEGER);")
+                db.execute("INSERT INTO assets VALUES(?,?,?,?,?)", ("private-id", "own.png", "pending", "visible",
+                    json.dumps(dict(origin="systemScreenshot", sha256="private-hash"))))
+                db.execute("INSERT INTO operations VALUES(1)")
+            before = helper.read_assets(dbfile)
+            result = helper.observe_mouse_failure(Path(directory) / "missing.jsonl", [("private-id", 1, 2)],
+                dbfile, before, lambda: True, lambda: False, helper.Draft("private-title"))
+            self.assertEqual(helper.read_assets(dbfile), before)
+        self.assertEqual(result["queue"], dict(assetCount=1, originalAssetCount=1, originalRowsPresent=True,
+            originalRowsPendingVisible=True, unchangedFromImport=True, operations=1, upload_starts=0))
+        self.assertFalse(result["originalEdgeFrontWindow"])
+        self.assertNotIn("private", json.dumps(result))
