@@ -34,3 +34,7 @@ The controlled native picker uses the separately compiled `RIFTLET_CONTROLLED_ED
 | Edge × ChatGPT/Claude/Gemini/Perplexity/Poe | NOT_RUN for live service attachment, upload/start/finish and safe failure. The loopback service describes only this fixture |
 
 Receiver byte arrival and the fixture website's acknowledgement are separate observations. Additional evidence is needed to associate either milestone with an actual commercial service, inspect a commercial site's failure states, or show that an installed Riftlet click triggered either event. The public build and its existing source-specific evidence profiles stay on their original route.
+
+## Current measured stopping point
+
+The latest recorded ordinary App run posted one software mouse down/up after confirming the first actual input-window recipient. Its bounded trace then contained no selection, target-request, target-resolved or refusal event. The App and original Edge window were alive; both screenshot rows were unchanged and pending/visible. Operations, upload starts and loopback file requests were all zero. The ARM64 job failed, and the second action and native picker were skipped. The earlier separate picker attempt stopped at Automation `-1744` before native tab binding. Resume from the original input-delivery boundary, keeping the once-only and receipt checks intact. [Exact source, observations and artifacts](../acceptance-20261114.json)
