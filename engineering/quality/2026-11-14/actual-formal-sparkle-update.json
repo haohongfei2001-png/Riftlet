@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-14",
+  "result": "PASS_SCOPED_REAL_NATIVE_UPGRADE",
+  "preparedBy": "window_movie evidence analyst; no GUI operations during review",
+  "independentReleaseDecision": "PENDING_SEPARATE_REVIEW",
+  "method": {
+    "environment": "Isolated macOS 27.2 ARM64 graphical virtual machine; actual AppKit and WindowServer surfaces",
+    "input": "Dedicated virtual mouse events operated the actual Sparkle Install Update and Install and Relaunch controls; not direct updater-method calls",
+    "feed": "Private loopback signed Appcast, not the public stable feed",
+    "feedSHA256": "1dbc6a7ad74ab107199e6377bcf2463d76a2e4b862bda0b7b2286f0124352115",
+    "signing": "Official Sparkle 2.10.1 tools, existing com.riftlet.app.stable Keychain account; official and independent Ed25519 verification passed; no exported key",
+    "noPersonalInstallationChanges": true
+  },
+  "from": {
+    "version": "1.0.1",
+    "build": "23",
+    "origin": "Original website-download bundle retained from prior Finder installation and restaged in the owned isolated installation path",
+    "binarySHA256": "5cd47c71fc8043158eda8b5725e22e3dcd60b628dbd5ad248dd7b1f6a132cf05",
+    "bundleIdentifier": "com.riftlet.app"
+  },
+  "to": {
+    "version": "1.0.2",
+    "build": "24",
+    "source": "876c7e829abeef865e442f9e46eaae495d1a9e09",
+    "binarySHA256": "8828f3c0a982fb3fa761f8c99991f5a0640307f0f1d0bf242002390184f4aab1",
+    "bundleIdentifier": "com.riftlet.app",
+    "distributionChannel": "stable",
+    "teamID": "ZB9D4T66QB",
+    "architectures": [
+      "arm64",
+      "x86_64"
+    ],
+    "executedArchitecture": "arm64",
+    "dmgSHA256": "374fbe7b5a49938bf7d67c38a52a018941b672c382abdace63efbb4f73393931",
+    "dmgBytes": 12416741,
+    "appSubmissionID": "8b7d2551-c0a7-4b28-a7f9-ac2f95a2a62a",
+    "dmgSubmissionID": "71b877de-3954-4918-829a-198eba3c4ca0",
+    "installedGatekeeper": "accepted; Notarized Developer ID",
+    "installedNotarizationTicket": "stapled"
+  },
+  "actualSteps": [
+    {
+      "step": "Original 1.0.1 checks private signed feed and shows version 1.0.2 plus notes",
+      "result": "PASS"
+    },
+    {
+      "step": "Install Update downloads the exact final DMG and reaches Ready to Install",
+      "result": "PASS"
+    },
+    {
+      "step": "Install and Relaunch replaces the isolated installation and starts the exact final 1.0.2 executable",
+      "result": "PASS"
+    },
+    {
+      "step": "Post-update logical data and existing file hashes equal pre-update state",
+      "result": "PASS"
+    },
+    {
+      "step": "System Screenshot.app Capture creates one new image; normal collector and edge thumbnail show it",
+      "result": "PASS"
+    },
+    {
+      "step": "Actual history window opens and previews the new system image",
+      "result": "PASS"
+    },
+    {
+      "step": "Final App Chrome connection check reports Connected and macOS communication permission allowed",
+      "result": "PASS; connection check only, no new attachment after final update"
+    }
+  ],
+  "data": {
+    "schema": 4,
+    "beforeAndImmediatelyAfter": {
+      "assets": 12,
+      "operations": 5,
+      "uploadStarts": 3,
+      "checkpoints": 22,
+      "compensations": 0,
+      "unknownAssets": 1,
+      "unknownOperations": 1,
+      "mediaFiles": 12,
+      "logicalTablesExactlyEqual": true,
+      "mediaAndConfigurationFileHashesExactlyEqual": true,
+      "feedbackDraftHashAndSizeExactlyEqual": true,
+      "directoryBookmarkHashExactlyEqual": true,
+      "quickCheck": "ok"
+    },
+    "afterSystemCapture": {
+      "assets": 13,
+      "operations": 5,
+      "uploadStarts": 3,
+      "oldTwelveAssetRowsExactlyEqual": true,
+      "oldMediaAndConfigurationHashesExactlyEqual": true,
+      "checkpointsCompensationsOperationsAndSTARTExactlyEqual": true,
+      "feedbackDraftAndDirectoryBookmarkExactlyEqual": true,
+      "addedMediaFiles": 1,
+      "newImageInitially": "pending; visible; no operation",
+      "newImageLater": "pending; archived by existing automaticArchive policy; same UUID and original media identity",
+      "unexpectedOperationOrSTART": false,
+      "quickCheck": "ok"
+    }
+  },
+  "permissionScope": {
+    "directoryAccess": "PASS for a real newly captured system screenshot collected from the already-authorized directory after upgrade",
+    "chromeAutomation": "PASS for the product connection check after upgrade, without a new recorded authorization action",
+    "bookmarkEqualityIsNotTCCAuthorizationProof": true,
+    "allOtherTCCPermissions": "NOT_RUN; no claim that unchanged bookmark bytes prove every system authorization"
+  },
+  "limits": [
+    "This was a real Sparkle install through a private signed loopback feed; official public-feed and public-download deployment are separate checks.",
+    "The actual new release is universal, but this install test executed ARM64 only. Physical Intel, minimum macOS 13 and shared Applications elevation are not established here.",
+    "The retained original website 1.0.1 bundle was restaged; this run did not re-download 1.0.1 or repeat Finder installation.",
+    "No post-upgrade ChatGPT attachment was submitted. Earlier real attachment evidence is separately source-bound; the final connection check is narrower.",
+    "Existing QA records contain a real prior UNKNOWN and three START rows; no personal user data was used or modified.",
+    "WindowServer screenshots show the relevant native controls, although unrelated QA-system notification banners obscure part of the upper-right margin."
+  ],
+  "evidenceHashes": {
+    "rawReceiptHashes": {
+      "before-snapshot.json": "ce9eca0df1c3be14a00328a7f11acefe1557395b34ce241bb0974c0a19df5612",
+      "before-original23-launch.json": "ce9eca0df1c3be14a00328a7f11acefe1557395b34ce241bb0974c0a19df5612",
+      "original23-running-snapshot.json": "ce9eca0df1c3be14a00328a7f11acefe1557395b34ce241bb0974c0a19df5612",
+      "after-final24-snapshot.json": "ce9eca0df1c3be14a00328a7f11acefe1557395b34ce241bb0974c0a19df5612",
+      "update-data-comparison.json": "a3edc577b006cb86e9509bf789a2c7707d54422d7f3fc64194c6c2270c109e56",
+      "after-new-system-screenshot.json": "9e315f9f6ce1e589dc9d74a6b39ea9563e8c7fd7fa1cdfea9e9f6bc45bf1b0de",
+      "after-new-system-asset.json": "e27673539878169ef5cb8038d9f5f7a40de968d2fcdc9cd937e684022b34669d",
+      "old12-assets-after-new.sha256": "5efdaa1f8303caae318345bb79adbebacf920699d681d3dbf76d12f85e7d538f",
+      "all-assets-final.json": "88fb4be8e7d5cb2aa0f225c760b7dde9af6c43aac68e66fc69a211cf9b37b49d",
+      "final24-process.txt": "9f729b5f728a9123fe2b30922570d12209db9673b012857801311c8e7d727300",
+      "final24-identity.json": "ad26b3eaf8efb826ac18de2afca3a3168420bfc4ef2f85d7b2d98dbc7e3fc824",
+      "final24-codesign.txt": "7e46e6a4b4d97822bdfb68ecdc463e6e8ad856593b6d2f1fdf53c22d414badfa",
+      "final24-gatekeeper.txt": "40e2aabcfb2be8e74cf98317d3835fa2e90e3587da4392adc5ec83db1673867a",
+      "original23-process.txt": "d1c52f3dfe9f1f490533154515c5523f00954eba87b453d6da50a85f6a7db7e0"
+    },
+    "windowServerPNGHashes": {
+      "qa84-update-offer23.png": "2f16cdf5c7215ea90f07dbd5536a90c38b9365b2bd8dcff147ae7ed93178b185",
+      "qa84-update-install-confirm.png": "7c8293842e6e0d91395821a4527ea922e4fca9fd815fd3c821c5704739a2f3be",
+      "qa84-after-final-relaunch.png": "4ef954c680a9dea0ab536201eb5078ca207fa2d0e106c2dc0753a974a6487071",
+      "qa84-system-shot-ui.png": "0bed74522592fc43318b6eca0763458eac29625f6460ba1a7b45a296acbbc09e",
+      "qa84-final-system-capture-ingested.png": "dda132bea5e5a532be2ca4ae80c9cefad7853e9a7dcde189604a7ea5b292b52e",
+      "qa84-final-history-preview.png": "5418e61d673e1f78c1a1300332a5eaf392ad15f2b31d518c9075ae3d94af381c",
+      "qa84-final-chrome-connection.png": "fb4097e38c00729e16359ad13609dacc1ff4768290b4211f04fa2926399eb1a3"
+    },
+    "privateManifestSHA256": "2984537ae0a9c73e882a7259d50e2712522fa190d9833e7e908b0dc9303662d5",
+    "verifierSHA256": "542ce0290c1ff0f28d8969a3c3b146b742974e69fb1e0d9d10fc3241bc1c55fb",
+    "verifierResultSHA256": "0164e9d0d92991e66de10e22e6a75fd6df48038a0bf273298c283eceffa6e47f"
+  }
+}

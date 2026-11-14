@@ -1,18 +1,22 @@
-# Codex工程交接：Riftlet质量重整
+# Codex工程交接：Riftlet质量收口
 
-审计基线：正式1.0.1（23），main `44f745a15ecb3682a9da0bda17f17a5d9fc1f07e`。当前继续 [PR #101](https://github.com/haohongfei2001-png/Riftlet/pull/101)，先读其实际HEAD、[工程进度](../../engineering/quality/2026-11-14/progress.json)及[当前状态](ITERATION_STATUS.json)。本文件后续R1–R4分包保留原审计的实施约束，不是要求重新开展已经完成的修复，也不是全部终验通过声明。
+本文件是官网部署前的已审检查点；[最终公网发行与实际更新回执](https://github.com/haohongfei2001-png/Riftlet/pull/101#issuecomment-6879797338)在原 PR 按真实执行结果持续更新。
 
-## 第一动作与责任
+原审计基线为正式 1.0.1（23）、main `44f745a`，其问题与失败证据保留。当前 [PR #101](https://github.com/haohongfei2001-png/Riftlet/pull/101) 已合入 main `5b73c755ec1eb6d1aa2ef5b9390da6200b6108b9`。先读 [工程进度](../../engineering/quality/2026-11-14/progress.json) 与 [当前状态](ITERATION_STATUS.json)，不要按后文历史实施分包重新开发已经完成的修复。
 
-集成负责人沿用[现有Issues](ISSUE_REGISTER.md)和PR #101，按[AGENTS](../../AGENTS.md)及[主线准入](../MAINLINE_GOVERNANCE.md)完成有限剩余工作。R1修复、四页设置和核心双语已有实现；不要重新扫描后另建同义Issue、分支或产品设计。由可用Mac执行器承担真实验收，不要求用户做日常QA。
+## 当前交付与下一动作
 
-当前已执行隔离原生验证，最终组合包取得14项本地功能及6项重启检查；33帧中32帧有可见像素，透明关闭帧不算视觉通过。真实IME、双语控件及旧三形态证据各自保留原源码和范围，不能扩大成全硬件或真实服务验收。
+R1 修复、四页设置、历史状态、性能与核心双语已集成。正式 1.0.2／24 的源码为 `876c7e829abeef865e442f9e46eaae495d1a9e09`，Developer ID、App／DMG 双公证、贴票和安装后 Gatekeeper 已验证。真实 merge 的五项 main CI 已完成并通过。GitHub v1.0.2 已公开；官网部署、公开 stable feed 与正式公网下载核验仍单独待完成。
 
-当前已审 HEAD `2048b32` 的五项正式 CI 全部通过。#82 新增源码 `624e1b5` 私有公证包的真实 ChatGPT 三图记录，见 [actual-chatgpt-attachment.json](../../engineering/quality/2026-11-14/actual-chatgpt-attachment.json)。环境为 ARM64 macOS 27.2 AppleVZ、Chrome 156、专用匿名草稿。三张不同系统截图各产生一次附加，第三张 GUI 双击仍只有一个操作；已观察实际接收、附件可见、逐图 START 与吞噬。`positiveReady=false`，不表示服务端最终上传完成。本次逐项独立复核及目标切换边界结果以该回执为准，之前网络超时的 NOT_RUN 仍保留原记录。
+[正式包实际升级回执](../../engineering/quality/2026-11-14/actual-formal-sparkle-update.json) 记录：保留的官网原版 1.0.1 经真正 Sparkle Install Update／Install and Relaunch，安装最终正式 DMG 并运行其精确二进制。私有回环 feed 使用正式更新密钥，未替换公开 feed。12 条资产、5 条操作、3 条 START、旧 UNKNOWN、媒体、设置、反馈与目录书签升级前后精确一致；新系统截图收录为第 13 条，历史预览成功，旧 12 条资产仍一致。Chrome 实际连接检查 Connected；这不是新的附件提交，也不是全部 TCC 状态已验证。
 
-#97 的真实 Sparkle 安装仍对应源码 `31258e2`，见 [actual-private-sparkle-update.json](../../engineering/quality/2026-11-14/actual-private-sparkle-update.json)。从官网下载的 1.0.1 更新至该私有候选后，数据、历史、目录访问、新系统截图和重启已通过。312→624 的产品界面变化为英文控制中心标题布局，另有验收工具语言匹配；更新器、附件与数据代码相同。对后续正式包只继承未变实现的证据，签名、字节、正式版本身份、公开 feed 与公开升级另行核对。
+[真实附件回执](../../engineering/quality/2026-11-14/actual-chatgpt-attachment.json) 的实际执行源仍为 `624e1b5`，不能换写成正式包直接实测。三图、逐图 START／吞噬、原稿保留及重复点击各按原证据范围继承；`positiveReady=false`，未宣称服务端最终 ready。更早 `31258e2` 的 [私有升级回执](../../engineering/quality/2026-11-14/actual-private-sparkle-update.json) 同样保留原身份。
 
-下一步完成新附件证据复核和实际剩余边界，将版本元数据设为 1.0.2／24，再完成新 G/H 准入、正式 CI、main 集成及 stable 包发行核验。#83 远端保护与真实 GitHub 审批身份保持独立治理事项。#92 的完整 VoiceOver、实体 Intel、最低系统及未覆盖显示器保留实际缺口。#95 本轮只有只读用量和清理语义。PR #77 安装提示保持独立候选。
+剩余执行只涉及签名 feed 部署、官网部署及实际公网更新验收；无需新产品阶段、个人安装替换或重复上传。按真实回读更新每个发行通道，发布 GitHub Release 不代表官网部署已完成。
+
+完整 VoiceOver、实体 Intel、最低系统和未运行的显示器／权限组合保留 NOT_RUN。#83 远端保护仍是独立治理事项；#95 本轮没有永久删除；PR #77 不计入本次实现。不以本轮有限真实路径替代整个质量矩阵。
+
+## 历史实施约束（保留，不重新排期）
 
 ## 分包与并行边界
 

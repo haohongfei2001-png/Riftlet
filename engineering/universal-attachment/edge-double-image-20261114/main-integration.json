@@ -81,5 +81,26 @@
       "result": "PASS 9 same-source method bodies in assertion runner, not XCTest",
       "rawLogSHA256": "61b4863a30a16cf876504f0a53318c41c48a93b04e00247c81e8ca2164abab20"
     }
-  ]
+  ],
+  "subsequentMainIntegration": {
+    "main": "b5a412f6d37378b7cfef56e2f1e9524cc9b1ac6e",
+    "mergedUpstreamPR": 102,
+    "upstreamPRHead": "ffb9c6bcda16200a4c8b16fbe462e5f9d61eb04b",
+    "previousSourceCheckpoint": "78309aafc08aa831663baa94972e7f71bc7dc76b",
+    "integration": "Regular merge of already merged upstream main; this task neither merged PR 102 nor published or altered its release/feed.",
+    "nativeInputComparison": {
+      "unchanged": true,
+      "paths": [
+        "Sources",
+        "Resources",
+        "Package.swift",
+        "Package.resolved",
+        "ThirdParty",
+        "scripts/build-macos.sh",
+        "scripts/verify-app-bundle.py"
+      ]
+    },
+    "packageEvidence": "merged-package-and-entry.json",
+    "additionalNativeRerun": "Not repeated for documentation/website/feed-only upstream delta; original build/source/executable hashes remain explicit."
+  }
 }

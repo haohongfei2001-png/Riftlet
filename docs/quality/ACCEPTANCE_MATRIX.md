@@ -11,9 +11,11 @@
 | 官网 1.0.1 经 Sparkle 安装私有 1.0.2 | PASS，源 `31258e2`，ARM64 macOS 27.2 AppleVZ，真实下载、安装、重启、原数据及新系统截图核对 | [升级回执](../../engineering/quality/2026-11-14/actual-private-sparkle-update.json)。私有签名 feed；不是新正式公共 feed 的验收。样本含一个 UNKNOWN、零 START，Chrome 自动化连续性不由这次升级试验证明。 |
 | 真实 ChatGPT 连续三图 | 限定场景 PASS，私有公证源 `624e1b5`，Chrome 156 专用匿名草稿；三张不同系统截图各附加一次；第三张 GUI 双击只创建一个操作 | [附件回执](../../engineering/quality/2026-11-14/actual-chatgpt-attachment.json)。观察开始接收、附件可见、逐图 START 与吞噬；`positiveReady=false`，不宣称服务端最终 ready。独立证据复核通过；另一次真实换标签期间安全拒绝，setter/change/START 均为零。该次伴随匿名登录提示，不将失败单独归因于切换标签。 |
 | 原有隔离测试数据核对 | 旧 8 条资产、媒体、UNKNOWN、偏好、书签与反馈保留 | 以本次附件前后快照及独立复核记录为准。每个新截图和新操作由本次 GUI 动作对应，不能将正常新记录视为不变量。 |
-| 控制中心修正、源码与 CI | 英文标题布局修正完成中英文原生复查；H `2048b32` 五项 CI PASS | `31258e2`→`624e1b5` 的产品界面变化限于控制中心标题布局，另有验收工具语言匹配。两次实测保留各自包身份。正式 1.0.2／24 元数据及最终包仍需自己的准入和发行回执。 |
+| 控制中心修正、源码与 CI | 英文标题布局修正完成中英文原生复查；H `2048b32` 五项 CI PASS | `31258e2`→`624e1b5` 的产品界面变化限于控制中心标题布局，另有验收工具语言匹配。两次实测保留各自包身份。该历史检查仅对应所列 HEAD；正式源与最终包见下面新增记录。 |
+| 最终正式 DMG 的真实 Sparkle 升级 | PASS，官网原版 1.0.1／23 → 正式 1.0.2／24、源 `876c7e8`、DMG `374fbe7b5a49938bf7d67c38a52a018941b672c382abdace63efbb4f73393931`；同一隔离 ARM64 macOS 27.2 图形环境 | [正式包升级回执](../../engineering/quality/2026-11-14/actual-formal-sparkle-update.json)。真实 Install Update／Install and Relaunch；私有正式密钥签名回环 feed。12 资产、5 操作、3 START、旧 UNKNOWN、媒体、配置、反馈、书签精确保留；新系统截图与历史预览正常。Chrome 连接检查通过，不代表再次附加或全部 TCC 验收。 |
+| PR #101 主线与发行通道 | 已合并 main `5b73c75`；真实 merge 的五项 main CI 已完成并通过 | GitHub v1.0.2 已公开；官网部署、公开 stable feed 与正式公网下载核验仍单独待完成。源与包、GitHub、官网、签名 feed 和公开下载分别核对，不合并成单一 PASS。 |
 
-实体 Intel、最低 macOS、完整 VoiceOver 和未执行权限/显示器组合仍为相应范围的 NOT_RUN。#83 为独立远端治理缺口，PR #77 为独立候选。当前阶段为真实附件证据复核与正式发行准备，不能把这张追加表外推为全部矩阵通过。
+实体 Intel、最低 macOS、完整 VoiceOver 和未执行权限／显示器组合仍保留 NOT_RUN。#83 为独立治理缺口，PR #77 保持独立。上方只是已执行路径，不表示整张矩阵或全部安装组合通过。
 
 
 ## 证据等级与状态

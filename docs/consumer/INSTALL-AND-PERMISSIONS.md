@@ -1,6 +1,6 @@
 # 安装与权限
 
-Riftlet 1.0.1 的安装包名为 `Riftlet-1.0.1.dmg`，支持 macOS 13 及以上的 Apple 芯片和 Intel Mac。请从 [riftlet.com](https://riftlet.com/) 下载磁盘映像。如需校验，请在[对应版本的发行记录](https://github.com/haohongfei2001-png/Riftlet/releases)查看文件名和 SHA-256。开发者团队 ID 为 `ZB9D4T66QB`。
+Riftlet 1.0.2 的安装包名为 `Riftlet-1.0.2.dmg`，支持 macOS 13 及以上的 Apple 芯片和 Intel Mac。请从 [riftlet.com](https://riftlet.com/) 下载磁盘映像。如需校验，请在[对应版本的发行记录](https://github.com/haohongfei2001-png/Riftlet/releases)查看文件名和 SHA-256。开发者团队 ID 为 `ZB9D4T66QB`。
 
 1. 打开下载的 DMG，将 **Riftlet.app** 拖入 **Applications（应用程序）**。如果无法写入共享的「应用程序」，可以在 Finder 的个人主文件夹中创建 `Applications` 文件夹，将 App 拖入那里。如果原来安装的是 1.0.0，请先正常退出、备份截图库，再用新版 App 覆盖原安装位置一次。1.0.1 起可在 App 菜单栏或设置中使用「检查更新…」安装后续版本。[更新与恢复](RECOVERY-AND-FAQ.md)
 2. 推出磁盘映像，从安装位置打开 Riftlet。macOS 首次询问是否打开下载的应用时，核对应用名并点「打开」。若系统提示已损坏或无法验证开发者，请停止安装并核对下载来源。

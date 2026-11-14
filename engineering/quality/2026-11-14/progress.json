@@ -3,8 +3,8 @@
   "auditPR": 100,
   "implementationPR": 101,
   "base": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",
-  "stable": "1.0.1 (23)",
-  "overallAcceptance": "SCOPED_LIVE_ATTACHMENT_PASS_FORMAL_STABLE_RELEASE_PENDING",
+  "stable": "1.0.2 (24)",
+  "overallAcceptance": "SCOPED_FORMAL_UPGRADE_VERIFIED_PUBLIC_CHANNEL_PENDING",
   "R1": {
     "issues": [
       78,
@@ -206,6 +206,47 @@
         }
       },
       "historicalEvidence": "Earlier network NOT_RUN records remain unchanged. Formal stable pack and public feed still pending."
+    },
+    "actualFormalSparkleUpgrade": {
+      "receipt": "engineering/quality/2026-11-14/actual-formal-sparkle-update.json",
+      "receiptSHA256": "51c694480f3c14012e4df21eff3d23d446f514902408c057755f0ab339e6e89b",
+      "source": "876c7e829abeef865e442f9e46eaae495d1a9e09",
+      "from": "Original website1.0.1/23 bundle",
+      "to": "Final stable Developer ID signed and App/DMG notarized1.0.2/24",
+      "result": "PASS_SCOPED_REAL_NATIVE_UPGRADE",
+      "data": "12 assets,5 operations,3 START and one UNKNOWN preserved exactly through installation. Subsequent system screenshot becomes13th; old12 rows/media, settings, feedback and bookmark unchanged. New item later follows automaticArchive without an operation.",
+      "permissions": "Actual new directory collection and product Chrome connection check pass; bookmark equality is not proof of every TCC authorization.",
+      "channel": "Private loopback signed feed; public feed/deployment not established by this run."
     }
+  },
+  "entryStatusHistory": [
+    {
+      "checkpoint": "5b73c755ec1eb6d1aa2ef5b9390da6200b6108b9",
+      "stable": "1.0.1 (23)",
+      "overallAcceptance": "SCOPED_LIVE_ATTACHMENT_PASS_FORMAL_STABLE_RELEASE_PENDING",
+      "previousFollowup97": "Reuse PR 77. Public 1.0.1 to the next signed release through Sparkle is not yet tested.",
+      "scope": "Historical current-entry values retained before final formal upgrade closeout."
+    }
+  ],
+  "currentRelease": {
+    "mainMerge": "5b73c755ec1eb6d1aa2ef5b9390da6200b6108b9",
+    "reviewedProductSource": "876c7e829abeef865e442f9e46eaae495d1a9e09",
+    "version": "1.0.2",
+    "build": 24,
+    "mainCI": "PASS_5_OF_5",
+    "publicPublished": true,
+    "githubRelease": "https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.2",
+    "websiteDeployment": "PENDING_ACTUAL_DEPLOYMENT_AND_READBACK",
+    "publicStableFeed": "PENDING_ACTUAL_DEPLOYMENT_AND_SIGNATURE_VERIFICATION",
+    "publicDownloadAcceptance": "PENDING_REAL_PUBLIC_DOWNLOAD",
+    "publicFeedUpgradeAcceptance": "PENDING_QA85_REAL_PUBLIC_FEED_UPGRADE",
+    "formalDMGSHA256": "374fbe7b5a49938bf7d67c38a52a018941b672c382abdace63efbb4f73393931",
+    "installedTestBinarySHA256": "8828f3c0a982fb3fa761f8c99991f5a0640307f0f1d0bf242002390184f4aab1",
+    "actualFormalUpgradeEvidence": "engineering/quality/2026-11-14/actual-formal-sparkle-update.json",
+    "scope": "Scoped real ARM64 native upgrade via private signed loopback feed plus source-bound earlier live attachment; qa85 public-feed upgrade is pending. Not all acceptance-matrix cells PASS."
+  },
+  "finalPublicationReceipt": {
+    "url": "https://github.com/haohongfei2001-png/Riftlet/pull/101#issuecomment-6879797338",
+    "scope": "This file is the reviewed pre-website-deployment checkpoint; final public-channel and actual-update observations are appended to the linked durable PR receipt."
   }
 }

@@ -1,6 +1,8 @@
 # PR #69 · Edge × ChatGPT 双图专项
 
-最新主线整合：工作期间 PR #101 已正式合入 main `5b73c755ec1eb6d1aa2ef5b9390da6200b6108b9`（质量分支最终头 `c428881a`，版本元数据 1.0.2／24）。PR #69 的 `464132a` 因新主线冲突没有生成 CI 测试合并；不是一次绿色运行。现以普通双父合并整合实际 main，保留已发布工程方向和全部 P0 恢复、偏好、媒体、历史、设置及本地化修复。以下第一、二阶段记录保持各自原基线和失败身份。
+最新基线为 main `b5a412f6d37378b7cfef56e2f1e9524cc9b1ac6e`：随后合入的 PR #102 只涉及官网、更新源和证据文档，App 源码、资源及打包输入与组合源码 `78309aaf` 相同。本任务继承其主线字节，没有执行发行。固定 `78309aaf` 的隔离 1.0.2 包已严格验签并通过正常启动／退出；数据目录保持暂停且资产、操作、START 均为零，此项不代表截图或商业上传验收。[独立包与普通入口证据](../engineering/universal-attachment/edge-double-image-20261114/merged-package-and-entry.json)
+
+前次主线整合：工作期间 PR #101 已正式合入 main `5b73c755ec1eb6d1aa2ef5b9390da6200b6108b9`（质量分支最终头 `c428881a`，版本元数据 1.0.2／24）。PR #69 的 `464132a` 因新主线冲突没有生成 CI 测试合并；不是一次绿色运行。现以普通双父合并整合实际 main，保留已发布工程方向和全部 P0 恢复、偏好、媒体、历史、设置及本地化修复。以下第一、二阶段记录保持各自原基线和失败身份。
 
 当前组合保留一套 CaptureService 启动恢复和 TransferCoordinator/router；只在能证明尚未 dispatch 时恢复 prepared，旧 UNKNOWN/START/媒体不变。Chrome 采用主线 150 ms 总预算与最小 tick，叠加原文档/编辑器见证。系统权限说明两种语言均包含 Edge；验收 channel 保留自己的用途文案，禁止被产品本地化覆盖。[逐项主线整合记录](../engineering/universal-attachment/edge-double-image-20261114/main-integration.json)
 
@@ -41,7 +43,7 @@
 
 `bash scripts/build-macos.sh --isolated-product-acceptance` 生成唯一的 `Riftlet Product Test.app`：固定独立 bundle ID 和隔离的 `Riftlet-Isolated-Product-Acceptance` 数据目录（后续运行保留该测试目录已有数据，不自动清空），附件策略与普通产品相同，登录项及自动更新关闭；不会覆盖普通 App 或旧内部候选。它是 ad-hoc 签名、未公证的工程包，不代表公开 Developer ID/Mac App Store 发行。旧 `--ordinary-acceptance` 的历史范围保持原样。正式商店权限结论仍待沙箱包验证。
 
-## 与质量分支共存
+## 与质量分支共存（5b73 主线整合前的历史检查）
 
 只读核对了 PR #100 `b2291b97758413a5fa366040b1cf5db9c79faef0`、PR #101 `2048b32a7e7daf70c23f91576e335298a742c864`、PR #77 `d78baef554eed1a9cc66a2632e6322dff401c8de`。本轮按局部差异移入 #101 的正归属 picker 和发现截止时间修复、对应四个页面测试文件，并把同步读取总预算收紧到 150 ms，保留 #69 v18 原文档 witness。冻结 `chatgpt-web-observe-v17.js` 未改。
 
