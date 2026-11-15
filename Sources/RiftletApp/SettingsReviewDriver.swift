@@ -109,7 +109,7 @@ final class SettingsReviewDriver {
             await runHistoryStyleCases()
         } else {
             await runCase("real-collector-synthetic-fixture") { try await self.collectFixture() }
-            await runCase("accepted-collection-during-recheck") { try await self.collectionDuringRecheck() }
+            await runCase("programmatic-collection-during-recheck") { try await self.collectionDuringRecheck() }
             await runCase("four-pages-light-and-dark") { try await self.capturePages() }
             await runCase("orthogonal-pause-hidden-sqlite") { try await self.pauseAndHide() }
             await runCase("archive-editor-return-and-blur") { try await self.archiveEditing() }
@@ -396,11 +396,37 @@ final class SettingsReviewDriver {
             if (button.state == .on) != target { button.performClick(nil) }
         } else { throw Failure.controlUnavailable(id) }
     }
-    private func setRuntimeSwitch(_ id: String, _ target: Bool) async throws {
-        try await openControl()
-        guard let window = host.control.window else { throw Failure.controlUnavailable(id) }
-        try await setToggle(id, target, window: window)
+    // A paused owner can survive an older installation. There is deliberately
+    // no everyday pause switch: fixture creation is programmatic, while its
+    // recovery exercises the actual settings button a migrated user would see.
+    private func setCollectionPaused(_ paused: Bool) async throws {
         try await closeControl()
+        host.show(page: .capture)
+        if paused {
+            await host.perform(.settings(.setCollectionPaused(true)))
+            artifacts.append(["kind": "legacyPausedFixture", "inputMethod": "programmaticHostCommand",
+                              "targetPaused": true, "productionDataAccess": false])
+        } else if host.snapshot.state.owner.collectionPaused {
+            try await wait {
+                guard let button = self.find("settings.center.collection.resume", in: self.host.center.window.contentView) as? NSButton else { return false }
+                return button.isEnabled && !button.isHiddenOrHasHiddenAncestor
+            }
+            try click("settings.center.collection.resume")
+            artifacts.append(["kind": "legacyPausedRecovery", "inputMethod": "nativeButtonTargetAction",
+                              "identifier": "settings.center.collection.resume", "targetPaused": false])
+        }
+        try await wait {
+            self.host.snapshot.state.owner.collectionPaused == paused
+                && self.host.snapshot.state.domains[.collection]?.isSaving != true
+        }
+    }
+    private func setDesktopHidden(_ hidden: Bool) async throws {
+        try await setRuntimeSetting("settings.center.desktop.visible", enabled: !hidden)
+    }
+    private func setRuntimeSetting(_ id: String, enabled: Bool) async throws {
+        try await closeControl()
+        host.show(page: .capture)
+        try await setToggle(id, enabled, window: host.center.window)
     }
 
     private func select(_ id: String, index: Int, window: NSWindow? = nil) throws {
@@ -456,7 +482,7 @@ final class SettingsReviewDriver {
 
     private func collectFixture() async throws {
         host.show(page: .general)
-        try await setRuntimeSwitch("control.pause", false)
+        try await setCollectionPaused(false)
         try await wait { !self.host.snapshot.state.owner.collectionPaused }
         let fixtureSHA256 = try createFixture("first")
         try await wait(timeout: 10) { try await self.store.assets(includeUsed: true).contains { $0.image.sha256 == fixtureSHA256 } }
@@ -466,28 +492,23 @@ final class SettingsReviewDriver {
         artifacts.append(["kind": "collector", "input": "generatedPNGWithExplicitTestScreenshotMetadata", "assetCount": records.count])
     }
 
-    /// Exercise the actual native callback/owner boundary in a fixed order:
-    /// accepted enabled switch, synchronous background recheck, deferred command.
+    /// Programmatic owner regression: schedule an explicit legacy collection
+    /// intent, acquire background recheck synchronously, then allow the command
+    /// to reach persistence. No native pause control is claimed or reintroduced.
     /// No scheduling sleep, fake write receipt or production data is involved.
     private func collectionDuringRecheck() async throws {
         host.show(page: .general)
         var rejectedTargets: [Bool] = []
         for target in [true, false] {
             try await wait { self.host.snapshot.capabilities.canChangeCollection }
-            try await openControl()
-            guard let window = host.control.window, let toggle = try control("control.pause", window: window) as? NSSwitch,
-                  (toggle.state == .on) != target, let action = toggle.action else {
-                throw Failure.controlUnavailable("control.pause")
-            }
             let before = try await store.capturePaused()
             let hiddenBefore = try await store.userHidden()
-            toggle.state = target ? .on : .off
-            let dispatched = NSApp.sendAction(action, to: toggle.target, from: toggle)
-            // This is synchronous: the enabled callback has captured target, but
-            // its MainActor Task has not yet called the persistence owner.
+            let command = Task { await self.host.perform(.settings(.setCollectionPaused(target))) }
+            // The main actor has not yielded, so the recheck takes ownership
+            // before the independently queued command enters persistence.
             let recheckOwned = onRecheck()
-            try require(dispatched && recheckOwned, "collectionRaceOrderingNotEstablished")
-            try await closeControl()
+            await command.value
+            try require(recheckOwned, "collectionRaceOrderingNotEstablished")
             try await wait {
                 let domain = self.host.snapshot.state.domains[.collection]
                 return domain?.isSaving == false &&
@@ -498,7 +519,8 @@ final class SettingsReviewDriver {
             let accepted = persisted == target && host.snapshot.state.owner.collectionPaused == target
                 && domain?.saveFailure == nil && domain?.pending == nil
             artifacts.append(["kind": "acceptedCollectionDuringRecheck", "target": target,
-                "nativeActionAccepted": dispatched, "recheckOwnedBeforeDeferredCommand": recheckOwned,
+                "inputMethod": "programmaticHostCommand", "nativeActionPerformed": false,
+                "recheckOwnedBeforeDeferredCommand": recheckOwned,
                 "persistedBefore": before, "persistedAfter": persisted,
                 "ownerPaused": host.snapshot.state.owner.collectionPaused,
                 "pending": domain?.pending.map { String(describing: $0) } ?? "none",
@@ -526,9 +548,9 @@ final class SettingsReviewDriver {
         for (name, paused, hidden) in [("normal", false, false), ("paused", true, false),
                                        ("paused-hidden", true, true), ("hidden", false, true)] {
             try await closeControl(); host.show(page: .general)
-            try await setRuntimeSwitch("control.pause", paused)
+            try await setCollectionPaused(paused)
             try await wait { self.host.snapshot.state.owner.collectionPaused == paused && self.host.snapshot.capabilities.canChangeCollection }
-            try await setRuntimeSwitch("control.hide", hidden)
+            try await setDesktopHidden(hidden)
             try await wait { self.host.snapshot.state.owner.isHidden == hidden && self.host.snapshot.capabilities.canChangeVisibility }
             let persistedPaused = try await store.capturePaused()
             let persistedHidden = try await store.userHidden()
@@ -536,12 +558,14 @@ final class SettingsReviewDriver {
             if name == "paused" { try await observePausedCollector() }
             if name == "hidden" { try await observeResumedCollector() }
             await onRefresh()
+            host.show(page: .capture)
+            await capture("collection-settings-" + name, window: host.center.window)
             try await openControl()
             await capture("control-" + name, window: host.control.window)
             try await closeControl()
         }
         host.show(page: .general)
-        try await setRuntimeSwitch("control.hide", false)
+        try await setDesktopHidden(false)
         try await wait { !self.host.snapshot.state.owner.isHidden }
     }
 
@@ -948,7 +972,7 @@ final class SettingsReviewDriver {
         try require(host.historyDisplay.selection == .current && history.displayStyle == .current, "freshHistoryDefaultNotCurrent")
         try require(try historyDomain().value[HistoryDisplayPreferences.key] == nil, "freshHistoryDomainNotEmpty")
         host.show(page: .general)
-        try await setRuntimeSwitch("control.pause", false)
+        try await setCollectionPaused(false)
         try await wait { !self.host.snapshot.state.owner.collectionPaused }
         for (index, size) in [(640, 640), (320, 640), (800, 400)].enumerated() {
             let hash = try createFixture("history-\(index)", width: size.0, height: size.1)
@@ -1823,7 +1847,7 @@ extension SettingsReviewDriver {
         await runCase("isolated-review-controls") {
             try self.require(self.initialAssetIDs.isEmpty, "requiresFreshIsolatedReviewUUID")
             self.host.show(page: .general)
-            try await self.setRuntimeSwitch("control.pause", false)
+            try await self.setCollectionPaused(false)
             self.host.show(page: .display)
             guard let control = try self.control("settings.center.desktopForm") as? NSSegmentedControl else {
                 throw Failure.controlUnavailable("desktopForm")

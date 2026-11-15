@@ -26,12 +26,20 @@ extension RiftSettingsCenterController {
         renderLogin()
         select("appearance", index: SettingsAppearanceChoice.allCases.firstIndex(of: product.appearance.selection) ?? 0)
         enable("appearance", product.appearance.available)
-        text("appearance.detail", product.appearance.failure ?? (product.appearance.unreadable ? ProductCopy.text("暂时无法读取外观偏好。当前显示不代表偏好已保存。", "Appearance preferences couldn’t be read. The current appearance may differ from your saved choice.")
+        hide("appearance", !product.appearance.available)
+        text("appearance.detail", product.appearance.failure ?? (!product.appearance.available ? ProductCopy.text("窗口外观暂不可调整。", "Window appearance is unavailable.") : product.appearance.unreadable ? ProductCopy.text("暂时无法读取外观偏好。当前显示不代表偏好已保存。", "Appearance preferences couldn’t be read. The current appearance may differ from your saved choice.")
              : product.appearance.applied == nil ? ProductCopy.text("外观尚未应用。", "Appearance hasn’t been applied yet.") : ProductCopy.text("当前外观已应用。", "The current appearance has been applied.")))
-        labels["appearance.detail"]?.isHidden = product.appearance.failure == nil && !product.appearance.unreadable && product.appearance.applied != nil
+        labels["appearance.detail"]?.isHidden = product.appearance.available && product.appearance.failure == nil && !product.appearance.unreadable && product.appearance.applied != nil
         hide("appearance.retry", product.appearance.failure == nil)
         enable("appearance.retry", product.appearance.available && product.appearance.pending != nil)
         renderDisplay()
+        // Old pause preferences remain readable and recoverable, without
+        // introducing another everyday stop state beside quitting the app.
+        hide("collection.resume", !owner.collectionPaused)
+        enable("collection.resume", product.capabilities.canChangeCollection && !busy(.collection))
+        check("desktop.visible", !owner.isHidden, enabled: product.capabilities.canChangeVisibility && !busy(.visibility))
+        select("history.style", index: HistoryDisplayStyle.allCases.firstIndex(of: product.historyDisplayStyle) ?? 0)
+        enable("history.style", product.capabilities.canOpenHistory)
         check("entry", settings.entryEnabled, enabled: settings.entryAvailable && product.capabilities.canEditPreferences && !busy(.entry))
         select("captureMode", index: [.window, .region, .fullScreen].firstIndex(of: settings.defaultCaptureMode) ?? 0)
         enable("captureMode", settings.entryAvailable && product.capabilities.canEditPreferences && !busy(.captureMode))
@@ -76,6 +84,7 @@ extension RiftSettingsCenterController {
                && !product.reviewEnvironment && product.chromeConnection != .checking && !product.setup.isChecking)
         buttonTitle("chrome.check", product.chromeConnection == .checking ? ProductCopy.text("正在检查连接…", "Checking Connection…") : ProductCopy.text("检查 Chrome 连接", "Check Chrome Connection"))
         enable("source.open.capture", presentation.hasSourceLocation)
+        hide("source.open.capture", !presentation.hasSourceLocation)
         select("arrival", index: ArrivalMotionMode.allCases.firstIndex(of: settings.arrivalMode) ?? 0)
         enable("arrival", product.capabilities.canEditPreferences && !busy(.arrival))
         text("motion.detail", ProductCopy.text("已开启系统“减少动态效果”。截图将直接显示，动效选择会保留。", "Reduce Motion is on in macOS. Screenshots appear immediately. Your motion preference is kept."))
@@ -104,15 +113,17 @@ extension RiftSettingsCenterController {
         enable("screen.privacy", settings.entryAvailable)
         text("version", product.version.isEmpty ? ProductCopy.text("版本信息尚未提供。", "Version information isn’t available.") : product.version)
         let updater = product.updater
+        automaticUpdatesRow.isHidden = updater?.automaticChecks == nil
         check("updates.automatic", updater?.automaticChecks == true, enabled: updater?.automaticChecks != nil)
         buttonTitle("updates.check", updater?.checkTitle ?? ProductCopy.text("检查更新…", "Check for Updates…"))
         enable("updates.check", updater?.canCheck == true)
-        text("updates.failure", updater?.failure.map { ProductCopy.text("更新未完成。", "The update didn’t finish. ") + $0 } ?? "")
-        labels["updates.failure"]?.isHidden = updater?.failure == nil
+        hide("updates.check", updater == nil)
+        text("updates.failure", updater?.failure.map { ProductCopy.text("更新未完成。", "The update didn’t finish. ") + $0 } ?? (updater == nil ? ProductCopy.text("应用内更新暂不可用，可从官网下载。", "In-app updates are unavailable. Download from the website.") : ""))
+        labels["updates.failure"]?.isHidden = updater != nil && updater?.failure == nil
         text("support", presentation.supportText)
         text("diagnostics", ProductCopy.text("当前操作结束后会应用新的桌面布局。", "The new desktop layout will apply when the current action finishes."))
         labels["diagnostics"]?.isHidden = !product.configurationDeferred
-        hide("updates.website", updater?.failure == nil)
+        hide("updates.website", updater != nil && updater?.failure == nil)
         for domain in SettingsDomain.allCases { renderError(domain) }
         refreshDraftPresentation()
         refreshCloseButtons()
@@ -121,9 +132,10 @@ extension RiftSettingsCenterController {
     func renderLogin() {
         let login = product.login
         check("login", login.switchValue, enabled: login.available && !login.isBusy && login.status != .unknown && login.status != nil)
+        hide("login", !login.available)
         let detail: String
         if login.isBusy { detail = ProductCopy.text("正在等待 macOS 更新登录项状态…", "Waiting for macOS to update the login item…") }
-        else if !login.available { detail = ProductCopy.text("此运行环境不更改系统登录项。", "This environment doesn’t change login items.") }
+        else if !login.available { detail = ProductCopy.text("登录启动暂不可用。", "Launch at login is unavailable.") }
         else if login.status == .requiresApproval { detail = ProductCopy.text("开启请求已提交，等待你在系统设置中允许；尚未获准登录启动。", "The request was submitted. Allow Riftlet in System Settings to enable launch at login.") }
         else if login.notConfirmed { detail = ProductCopy.text("更改尚未确认。可重试或在系统设置中查看登录项。", "The change isn’t confirmed. Try again or check Login Items in System Settings.") }
         else {
@@ -354,7 +366,10 @@ extension RiftSettingsCenterController {
         button.setAccessibilityLabel(value)
     }
     func enable(_ id: String, _ enabled: Bool) { controls[id]?.isEnabled = enabled }
-    func hide(_ id: String, _ hidden: Bool) { controls[id]?.isHidden = hidden }
+    func hide(_ id: String, _ hidden: Bool) {
+        controls[id]?.isHidden = hidden
+        actionContainers[id]?.isHidden = hidden
+    }
     func check(_ id: String, _ on: Bool, enabled: Bool) {
         if let toggle = controls[id] as? NSSwitch { toggle.state = on ? .on : .off }
         else { (controls[id] as? NSButton)?.state = on ? .on : .off }

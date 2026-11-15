@@ -121,7 +121,7 @@ public struct RiftControlCenterPresentation {
             if snapshot.reviewEnvironment {
                 detail = setup.visibleCount == 0 ? copy.text("仅收录审核示例，不会上传。", "Preview examples stay on this Mac. Nothing is uploaded.") : copy.text("\(setup.visibleCount) 张审核示例在边缘，不会上传。", "Preview items at the edge: \(setup.visibleCount). Nothing is uploaded.")
             } else if !usesAutomation {
-                detail = setup.visibleCount == 0 ? copy.text("新截图会保存在本机，可从截图历史查看。", "New screenshots are saved on this Mac. See them in Screenshot History.") : copy.text("\(setup.visibleCount) 张截图在边缘，可从截图历史查看。", "Screenshots at the edge: \(setup.visibleCount). See them in Screenshot History.")
+                detail = setup.visibleCount == 0 ? copy.text("新截图会保存在本机，可从截图仓库查看。", "New screenshots are saved on this Mac. See them in Screenshot Library.") : copy.text("\(setup.visibleCount) 张截图在边缘，可从截图仓库查看。", "Screenshots at the edge: \(setup.visibleCount). See them in Screenshot Library.")
             } else if let issue = setup.issue, issue.isAttachmentConnectionIssue {
                 detail = issue.text(in: copy)
             } else {

@@ -20,6 +20,9 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     var navigation: [SettingsPage: NSButton] = [:]
     var labels: [String: NSTextField] = [:]
     var controls: [String: NSControl] = [:]
+    // Natural-width actions use a full-width alignment container. Hide both
+    // together so conditional recovery actions never leave empty rows.
+    var actionContainers: [String: NSView] = [:]
     var numericFields: [SettingsField: NSTextField] = [:]
     var numericSliders: [SettingsField: NSSlider] = [:]
     var handlers: [ObjectIdentifier: () -> Void] = [:]
@@ -39,6 +42,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     var archiveField: NSTextField!
     var archiveCustomRow: NSView!
     var captureOptions: NSView!
+    var automaticUpdatesRow: NSView!
     var trayFavorites: NSView!
     var commonEdgeSettings: NSView!
     var slitInsetFraction: NSView!

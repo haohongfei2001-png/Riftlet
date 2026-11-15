@@ -224,7 +224,7 @@ final class RiftControlCenterControllerTests: XCTestCase {
         XCTAssertEqual(paths.count, 2)
         let artwork = paths.map(\.xmlString).joined()
         let foreground = """
-            <svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="-2 4 72 72">
+            <svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="-8.857142857 -2.857142857 85.714285714 85.714285714">
               \(artwork)
             </svg>
             """
@@ -246,78 +246,65 @@ final class RiftControlCenterControllerTests: XCTestCase {
             }
             let expected = try alpha(reference)
             let actual = try alpha(image)
-            XCTAssertGreaterThan(expected.filter { $0 > 127 }.count, side * side / 4)
+            XCTAssertGreaterThan(expected.filter { $0 > 127 }.count, side * side / 6)
+            XCTAssertLessThan(actual.filter { $0 > 127 }.count, side * side / 2, "Keep breathing room around the original mark")
             let error = zip(expected, actual).reduce(0) { $0 + abs(Int($1.0) - Int($1.1)) }
             XCTAssertLessThan(Double(error) / Double(255 * side * side), 0.025, "Scale \(scale)×")
         }
     }
 
-    @MainActor func testHeaderKeepsWholeWordsAndFullCaptureTargetAtFixedPopoverWidth() async throws {
+
+    @MainActor func testCompactMenuKeepsFourFullWidthTargetsAtFixedWidth() async throws {
         try prepareAppKit()
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        item.isVisible = false // Layout only: never expose a test icon or popover.
+        item.isVisible = false // Layout only; no test status item on screen.
         defer { NSStatusBar.system.removeStatusItem(item) }
-        var captures = 0
-        let controller = RiftControlCenterController(statusItem: item) { action in
-            if case .capture = action { captures += 1 } else { XCTFail("Header issued another action") }
-        }
+        var actions = 0
+        let controller = RiftControlCenterController(statusItem: item) { _ in actions += 1 }
         defer { controller.close() }
-        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: SettingsNativeStyle.controlCenterWidth, height: 600),
+        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 224, height: 180),
                               styleMask: .borderless, backing: .buffered, defer: false)
         window.isReleasedWhenClosed = false
         window.contentView = controller.contentView
         defer { window.close() }
-        func descendants(_ view: NSView) -> [NSView] { [view] + view.subviews.flatMap(descendants) }
-        let title = try XCTUnwrap(descendants(controller.contentView).first { $0.identifier?.rawValue == "control.status" } as? NSTextField)
-        let capture = try XCTUnwrap(controller.control(identifier: "control.capture") as? NSButton)
+        let ids = ["control.settings", "control.history", "control.update", "control.quit"]
+        let controls = try ids.map { try XCTUnwrap(controller.control(identifier: $0) as? NSButton) }
         let states = [fixture(), fixture(revision: 2, paused: true, collection: .paused),
-                      fixture(revision: 3, hidden: true), fixture(revision: 4, source: .unavailable),
-                      fixture(revision: 5, issue: .chromeJavaScriptDisabled)]
+                      fixture(revision: 3, hidden: true), fixture(revision: 4, source: .unavailable)]
         for state in states {
             controller.update(state)
             controller.contentView.layoutSubtreeIfNeeded()
-            let font = try XCTUnwrap(title.font)
-            // Measure actual localized words with the real heading font. A
-            // word may wrap as a unit, but never split because the action stole its width.
-            let words = title.stringValue.split(whereSeparator: \.isWhitespace)
-            let requiredWordWidth = words.map { (String($0) as NSString).size(withAttributes: [.font: font]).width }.max() ?? 0
-            if ProductCopy.current == .english {
-                XCTAssertGreaterThanOrEqual(title.bounds.width + 1, requiredWordWidth + 4, title.stringValue)
+            XCTAssertEqual(controller.contextMenu.items.filter { !$0.isSeparatorItem }.count, 4)
+            var rectangles: [NSRect] = []
+            for control in controls {
+                XCTAssertFalse(control.isHiddenOrHasHiddenAncestor)
+                XCTAssertEqual(control.accessibilityLabel(), control.title)
+                let rect = control.convert(control.bounds, to: controller.contentView)
+                XCTAssertGreaterThanOrEqual(rect.width, 200, "The whole row remains clickable")
+                XCTAssertGreaterThanOrEqual(rect.height, 30)
+                XCTAssertGreaterThanOrEqual(rect.minX, 0)
+                XCTAssertLessThanOrEqual(rect.maxX, 224)
+                XCTAssertTrue(rectangles.allSatisfy { !$0.intersects(rect) }, "Rows cannot overlap")
+                rectangles.append(rect)
+                let parent = try XCTUnwrap(control.superview)
+                for point in [CGPoint(x: 2, y: control.bounds.midY), CGPoint(x: control.bounds.maxX - 2, y: control.bounds.midY)] {
+                    let hit = control.hitTest(control.convert(point, to: parent))
+                    XCTAssertTrue(hit === control || hit?.isDescendant(of: control) == true)
+                }
             }
-            if state.revision == 1 {
-                let full = (title.stringValue as NSString).size(withAttributes: [.font: font])
-                XCTAssertGreaterThanOrEqual(title.bounds.width + 1, full.width + 4, "Ordinary collecting status fits without splitting words")
+            for (first, second) in zip(controls, controls.dropFirst() + [controls[0]]) {
+                XCTAssertTrue(first.nextKeyView === second)
             }
-            XCTAssertGreaterThanOrEqual(capture.bounds.width + 1, capture.intrinsicContentSize.width)
-            XCTAssertGreaterThanOrEqual(capture.bounds.height + 1, capture.intrinsicContentSize.height)
-            let titleRect = title.convert(title.bounds, to: controller.contentView)
-            let captureRect = capture.convert(capture.bounds, to: controller.contentView)
-            XCTAssertFalse(titleRect.intersects(captureRect))
-            // Stack layout uses the button's alignment rect. Some macOS
-            // versions extend its rounded bezel/hit frame beyond that rect.
-            let captureParent = try XCTUnwrap(capture.superview)
-            let captureAlignmentRect = captureParent.convert(capture.alignmentRect(forFrame: capture.frame),
-                                                             to: controller.contentView)
-            XCTAssertGreaterThanOrEqual(captureAlignmentRect.minX, 17)
-            XCTAssertLessThanOrEqual(captureAlignmentRect.maxX, SettingsNativeStyle.controlCenterWidth - 17)
-            XCTAssertGreaterThanOrEqual(captureRect.minX, 0)
-            XCTAssertLessThanOrEqual(captureRect.maxX, SettingsNativeStyle.controlCenterWidth)
-            XCTAssertEqual(capture.accessibilityLabel(), capture.title)
-            XCTAssertEqual(controller.contentView.bounds.width, SettingsNativeStyle.controlCenterWidth)
+            for removed in ["control.pause", "control.hide", "control.capture", "control.recovery"] {
+                XCTAssertNil(controller.control(identifier: removed), "Removed menu controls must not survive as invisible actions")
+            }
+            XCTAssertEqual(controller.contentView.bounds.width, 224)
             XCTAssertFalse(window.isVisible)
             XCTAssertFalse(controller.isShown)
         }
-        controller.update(fixture(revision: 6))
-        controller.contentView.layoutSubtreeIfNeeded()
-        let parent = try XCTUnwrap(capture.superview)
-        for point in [CGPoint(x: 2, y: capture.bounds.midY), CGPoint(x: capture.bounds.maxX - 2, y: capture.bounds.midY)] {
-            let hit = capture.hitTest(capture.convert(point, to: parent))
-            XCTAssertTrue(hit === capture || hit?.isDescendant(of: capture) == true)
-        }
-        capture.performClick(nil)
-        await assertReceived { captures == 1 }
-        XCTAssertEqual(captures, 1)
+        XCTAssertEqual(actions, 0)
     }
+
 
     @MainActor func testUpdateIsPassivePreservesControlsAndRejectsOldRevisions() throws {
         try prepareAppKit()
@@ -327,16 +314,17 @@ final class RiftControlCenterControllerTests: XCTestCase {
         let controller = RiftControlCenterController(statusItem: item) { _ in actions += 1 }
         defer { controller.close() }
         controller.update(fixture())
-        let pause = try XCTUnwrap(controller.control(identifier: "control.pause") as? NSSwitch)
-        let hide = try XCTUnwrap(controller.control(identifier: "control.hide") as? NSSwitch)
-        let capture = try XCTUnwrap(controller.control(identifier: "control.capture") as? NSButton)
-        controller.update(fixture(revision: 2, paused: true, hidden: true, collection: .paused))
-        XCTAssertTrue(pause === controller.control(identifier: "control.pause"))
-        XCTAssertTrue(capture === controller.control(identifier: "control.capture"))
-        XCTAssertEqual(pause.state, .on); XCTAssertEqual(hide.state, .on)
-        XCTAssertFalse(capture.isEnabled)
+        let history = try XCTUnwrap(controller.control(identifier: "control.history") as? NSButton)
+        let settings = try XCTUnwrap(controller.control(identifier: "control.settings") as? NSButton)
+        var latest = fixture(revision: 2, paused: true, hidden: true, collection: .paused)
+        latest.capabilities.canOpenHistory = false
+        controller.update(latest)
+        XCTAssertTrue(history === controller.control(identifier: "control.history"))
+        XCTAssertTrue(settings === controller.control(identifier: "control.settings"))
+        XCTAssertFalse(history.isEnabled)
+        XCTAssertTrue(settings.isEnabled, "Settings is available to recover an interrupted state")
         controller.update(fixture(revision: 1))
-        XCTAssertEqual(pause.state, .on); XCTAssertEqual(hide.state, .on)
+        XCTAssertFalse(history.isEnabled, "An older snapshot cannot re-enable a blocked command")
         XCTAssertEqual(actions, 0)
         XCTAssertFalse(controller.isShown)
         XCTAssertEqual(item.button?.accessibilityLabel(), "Riftlet")
@@ -344,77 +332,99 @@ final class RiftControlCenterControllerTests: XCTestCase {
         XCTAssertEqual(item.button?.title, "")
     }
 
-    @MainActor func testSwitchActionsHaveExplicitTargetsWithoutOptimisticSuccess() async throws {
+
+    @MainActor func testFourMenuActionsDispatchOnlyTheirExistingHostCommands() async throws {
         try prepareAppKit()
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        item.isVisible = false
         defer { NSStatusBar.system.removeStatusItem(item) }
-        var targets: [String] = []
+        var commands: [String] = []
         let controller = RiftControlCenterController(statusItem: item) { action in
             switch action {
-            case .settings(.setCollectionPaused(let target)): targets.append("pause:\(target)")
-            case .settings(.setHidden(let target)): targets.append("hidden:\(target)")
-            default: XCTFail("Unrelated action")
+            case .openSettings(.general): commands.append("settings")
+            case .openHistory: commands.append("history")
+            case .checkForUpdates: commands.append("update")
+            case .quit: commands.append("quit")
+            default: XCTFail("The compact menu issued a removed or unrelated command")
             }
         }
         defer { controller.close() }
-        controller.update(fixture())
-        let pause = try XCTUnwrap(controller.control(identifier: "control.pause") as? NSSwitch)
-        let hide = try XCTUnwrap(controller.control(identifier: "control.hide") as? NSSwitch)
-        pause.state = .on
-        XCTAssertTrue(NSApp.sendAction(try XCTUnwrap(pause.action), to: pause.target, from: pause))
-        XCTAssertEqual(pause.state, .off, "Only a host receipt can change the accepted UI state")
-        XCTAssertEqual(hide.state, .off)
-        XCTAssertTrue(hide.isEnabled, "A collection request cannot lock independent visibility")
-        await assertReceived { targets.count == 1 }
-        controller.update(fixture(revision: 2, paused: true, collection: .paused))
-        hide.state = .on
-        XCTAssertTrue(NSApp.sendAction(try XCTUnwrap(hide.action), to: hide.target, from: hide))
-        await assertReceived { targets.count == 2 }
-        XCTAssertEqual(targets, ["pause:true", "hidden:true"])
-        XCTAssertEqual(pause.state, .on)
+        var value = fixture()
+        value.updater = .init(canCheck: true, automaticChecks: true, availableVersion: nil, failure: nil)
+        controller.update(value)
+        for id in ["control.settings", "control.history", "control.update", "control.quit"] {
+            let button = try XCTUnwrap(controller.control(identifier: id) as? NSButton)
+            XCTAssertTrue(button.isEnabled)
+            button.performClick(nil)
+        }
+        await assertReceived { commands.count == 4 }
+        XCTAssertEqual(commands, ["settings", "history", "update", "quit"])
     }
 
-    @MainActor func testMenuUsesSameCommandsAndPreservesItsExplicitTargetAcrossRefresh() async throws {
+
+    @MainActor func testContextMenuUsesSameFourCommandsAndKeepsSettingsAndQuitShortcuts() async throws {
         try prepareAppKit()
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        item.isVisible = false
         defer { NSStatusBar.system.removeStatusItem(item) }
-        var values: [Bool] = []
+        var commands: [String] = []
         let controller = RiftControlCenterController(statusItem: item) { action in
-            if case .settings(.setCollectionPaused(let value)) = action { values.append(value) }
+            switch action {
+            case .openSettings(.general): commands.append("settings")
+            case .openHistory: commands.append("history")
+            case .checkForUpdates: commands.append("update")
+            case .quit: commands.append("quit")
+            default: XCTFail("Unexpected context-menu command")
+            }
         }
         defer { controller.close() }
-        controller.update(fixture())
-        let originalPause = try XCTUnwrap(controller.contextMenu.items.first { $0.title == ProductCopy.text("暂停收录", "Pause Collection") })
-        controller.update(fixture(revision: 2, paused: true, collection: .paused))
-        XCTAssertNotNil(controller.contextMenu.items.first { $0.title == ProductCopy.text("继续收录", "Resume Collection") })
-        XCTAssertTrue(NSApp.sendAction(try XCTUnwrap(originalPause.action), to: originalPause.target, from: originalPause))
-        await assertReceived { values.count == 1 }
-        XCTAssertEqual(values, [true], "An already displayed command must not invert a newer owner state")
-        XCTAssertNotNil(controller.contextMenu.items.first { $0.title == ProductCopy.text("定位最早截图", "Locate Oldest Screenshot") })
-        XCTAssertEqual(controller.contextMenu.items.first { $0.title == ProductCopy.text("设置…", "Settings…") }?.keyEquivalent, ",")
+        var value = fixture()
+        value.updater = .init(canCheck: true, automaticChecks: true, availableVersion: nil, failure: nil)
+        controller.update(value)
+        let items = controller.contextMenu.items.filter { !$0.isSeparatorItem }
+        XCTAssertEqual(items.count, 4)
+        XCTAssertEqual(items.map(\.title), [ProductCopy.text("设置…", "Settings…"),
+            ProductCopy.text("截图仓库", "Screenshot Library"), ProductCopy.text("检查更新…", "Check for Updates…"),
+            ProductCopy.text("退出 Riftlet", "Quit Riftlet")])
+        XCTAssertEqual(items.first?.keyEquivalent, ",")
+        XCTAssertEqual(items.last?.keyEquivalent, "q")
+        for item in items {
+            XCTAssertTrue(item.isEnabled)
+            XCTAssertTrue(NSApp.sendAction(try XCTUnwrap(item.action), to: item.target, from: item))
+        }
+        await assertReceived { commands.count == 4 }
+        XCTAssertEqual(commands, ["settings", "history", "update", "quit"])
     }
 
-    @MainActor func testUnavailableCaptureCannotDispatchButHistoryRemainsAvailable() async throws {
+
+    @MainActor func testUnavailableUpdaterCannotDispatchButLibraryRemainsAvailable() async throws {
         try prepareAppKit()
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         defer { NSStatusBar.system.removeStatusItem(item) }
-        var history = 0, captureCalls = 0
+        var history = 0, updateCalls = 0
         let controller = RiftControlCenterController(statusItem: item) { action in
             if case .openHistory = action { history += 1 }
-            if case .capture = action { captureCalls += 1 }
+            if case .checkForUpdates = action { updateCalls += 1 }
         }
         defer { controller.close() }
-        var value = fixture(hidden: true)
-        value.capabilities.canChangeCollection = false
-        controller.update(value)
-        let capture = try XCTUnwrap(controller.control(identifier: "control.capture") as? NSButton)
-        capture.performClick(nil)
-        XCTAssertFalse(capture.isEnabled)
+        controller.update(fixture(hidden: true))
+        let update = try XCTUnwrap(controller.control(identifier: "control.update") as? NSButton)
+        XCTAssertFalse(update.isHidden)
+        XCTAssertFalse(update.isEnabled)
+        update.performClick(nil)
         let historyButton = try XCTUnwrap(controller.control(identifier: "control.history") as? NSButton)
         XCTAssertTrue(historyButton.isEnabled)
         historyButton.performClick(nil)
         await assertReceived { history == 1 }
-        XCTAssertEqual(captureCalls, 0)
+        XCTAssertEqual(updateCalls, 0)
+        var latest = fixture(revision: 2)
+        latest.updater = .init(canCheck: true, automaticChecks: true, availableVersion: "1.0.3", failure: nil)
+        controller.update(latest)
+        XCTAssertTrue(update.isEnabled)
+        XCTAssertEqual(update.accessibilityLabel(), update.title)
+        XCTAssertTrue(update.title.contains("1.0.3"))
+        XCTAssertEqual(item.button?.title, "", "An update cannot widen the status icon")
+        XCTAssertEqual(item.button?.imagePosition, .imageOnly)
     }
 
     @MainActor func testStatusActivationTogglesOnePopoverAndActionClosesBeforeDispatch() async throws {
@@ -449,19 +459,8 @@ final class RiftControlCenterControllerTests: XCTestCase {
         XCTAssertTrue(controller.isShown)
         await assertReceived { controller.isShown && controller.window?.isVisible == true }
         controller.contentView.layoutSubtreeIfNeeded()
-        for id in ["control.pause", "control.hide"] {
-            let toggle = try XCTUnwrap(controller.control(identifier: id))
-            let row = try XCTUnwrap(toggle.superview as? NSStackView)
-            let copy = try XCTUnwrap(row.arrangedSubviews.first { $0.identifier?.rawValue == id + ".text" })
-            XCTAssertGreaterThan(copy.frame.width, 200, "Wrapping copy must use the open space to the left of its switch")
-            // Auto Layout constrains alignment rects; the native switch's
-            // ornamental frame may extend beyond its constrained width.
-            let copyRect = copy.alignmentRect(forFrame: copy.frame)
-            let toggleRect = toggle.alignmentRect(forFrame: toggle.frame)
-            let rowWidth = row.alignmentRect(forFrame: row.frame).width
-            XCTAssertEqual(copyRect.width + toggleRect.width + row.spacing, rowWidth, accuracy: 1)
-            XCTAssertEqual(toggleRect.minX - copyRect.maxX, row.spacing, accuracy: 1)
-        }
+        XCTAssertEqual(controller.contentView.bounds.width, 224)
+        XCTAssertLessThanOrEqual(controller.contentView.bounds.height, 200, "Four actions do not need a dashboard-sized popover")
         let firstWindow = controller.window
         button.performClick(nil)
         await assertReceived { !controller.isShown && controller.window?.isVisible != true }
@@ -674,6 +673,7 @@ final class RiftControlCenterControllerTests: XCTestCase {
         XCTAssertEqual(actions, 0)
     }
 
+
     @MainActor func testSuspendedInteractionRejectsStatusAndStaleCommandsThenRestoresLatestState() async throws {
         try prepareAppKit()
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -683,25 +683,29 @@ final class RiftControlCenterControllerTests: XCTestCase {
         defer { controller.close() }
         controller.update(fixture())
         let status = try XCTUnwrap(item.button)
-        let pause = try XCTUnwrap(controller.control(identifier: "control.pause") as? NSSwitch)
+        let history = try XCTUnwrap(controller.control(identifier: "control.history") as? NSButton)
         let settings = try XCTUnwrap(controller.control(identifier: "control.settings") as? NSButton)
-        let staleMenu = try XCTUnwrap(controller.contextMenu.items.first { $0.title == ProductCopy.text("暂停收录", "Pause Collection") })
+        let quit = try XCTUnwrap(controller.control(identifier: "control.quit") as? NSButton)
+        let staleMenu = try XCTUnwrap(controller.contextMenu.items.first { $0.title == ProductCopy.text("退出 Riftlet", "Quit Riftlet") })
         controller.setInteractionSuspended(true)
-        controller.update(fixture(revision: 2, paused: true, hidden: true, collection: .paused))
-        XCTAssertFalse(status.isEnabled); XCTAssertFalse(pause.isEnabled); XCTAssertFalse(settings.isEnabled)
+        var latest = fixture(revision: 2, paused: true, hidden: true, collection: .paused)
+        latest.capabilities.canOpenHistory = false
+        controller.update(latest)
+        XCTAssertFalse(status.isEnabled); XCTAssertFalse(history.isEnabled); XCTAssertFalse(settings.isEnabled); XCTAssertFalse(quit.isEnabled)
         XCTAssertTrue(controller.contextMenu.items.filter { $0.action != nil }.allSatisfy { !$0.isEnabled })
-        XCTAssertTrue(NSApp.sendAction(try XCTUnwrap(status.action), to: status.target, from: status))
-        XCTAssertTrue(NSApp.sendAction(try XCTUnwrap(pause.action), to: pause.target, from: pause))
-        XCTAssertTrue(NSApp.sendAction(try XCTUnwrap(settings.action), to: settings.target, from: settings))
+        for control in [status, settings, quit] {
+            XCTAssertTrue(NSApp.sendAction(try XCTUnwrap(control.action), to: control.target, from: control))
+        }
         XCTAssertTrue(NSApp.sendAction(try XCTUnwrap(staleMenu.action), to: staleMenu.target, from: staleMenu))
         XCTAssertFalse(controller.isShown)
         XCTAssertEqual(actions, 0)
         controller.setInteractionSuspended(false)
-        XCTAssertTrue(status.isEnabled); XCTAssertTrue(pause.isEnabled); XCTAssertTrue(settings.isEnabled)
-        XCTAssertEqual(pause.state, .on, "Cancelling Quit keeps the latest owner state")
-        XCTAssertFalse(try XCTUnwrap(controller.control(identifier: "control.capture") as? NSButton).isEnabled)
+        XCTAssertTrue(status.isEnabled); XCTAssertTrue(settings.isEnabled); XCTAssertTrue(quit.isEnabled)
+        XCTAssertFalse(history.isEnabled, "Cancelling Quit retains the latest owner capability")
         settings.performClick(nil)
         await assertReceived { actions == 1 }
         XCTAssertEqual(actions, 1, "No command blocked during termination may be replayed after cancellation")
     }
+
+
 }

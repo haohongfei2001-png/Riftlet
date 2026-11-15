@@ -93,7 +93,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         NSImage(systemSymbolName: "square.grid.2x2", accessibilityDescription: copy.text("图像网格", "Image Grid"))!
     ], trackingMode: .selectOne, target: nil, action: nil)
     private let gridFilter = NSPopUpButton()
-    private lazy var gridTitle = NSTextField(labelWithString: copy.text("截图历史", "Screenshot History"))
+    private lazy var gridTitle = NSTextField(labelWithString: copy.text("截图仓库", "Screenshot Library"))
     private var tableScroll: NSScrollView!
     private var detailScroll: NSScrollView!
     private var listWidths: [NSLayoutConstraint] = []
@@ -155,9 +155,9 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         self.onNextPage = onNextPage; self.onPreviousPage = onPreviousPage
         self.displayStyle = displayStyle; self.onDisplayStyleChanged = onDisplayStyleChanged
         historyWindow = RiftVisualStyle.window(outerSize: NSSize(width: 808, height: 492),
-            minimum: NSSize(width: 680, height: 480), title: copy.text("Riftlet — 截图历史", "Riftlet — Screenshot History"))
+            minimum: NSSize(width: 680, height: 480), title: copy.text("Riftlet — 截图仓库", "Riftlet — Screenshot Library"))
         super.init()
-        historyWindow.title = copy.text("截图历史", "Screenshot History")
+        historyWindow.title = copy.text("截图仓库", "Screenshot Library")
         historyWindow.titleVisibility = .hidden
         historyWindow.identifier = .init("RiftletHistory")
         historyWindow.isReleasedWhenClosed = false

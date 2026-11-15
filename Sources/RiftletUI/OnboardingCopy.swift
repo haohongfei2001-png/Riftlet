@@ -52,8 +52,8 @@ extension ProductCopy {
              " An available display is in use. Your preferred display is still saved.")
     }
     var previewFinish: String {
-        text("预览结束后，可以从菜单栏打开设置和历史。",
-             "After this preview, open Settings or Screenshot History from the menu bar.")
+        text("预览结束后，可以从菜单栏打开设置和截图仓库。",
+             "After this preview, open Settings or Screenshot Library from the menu bar.")
     }
     var finishFolder: String {
         text("请先完成截图文件夹设置，让新截图显示在桌面边缘。",

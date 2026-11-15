@@ -7,7 +7,7 @@ public enum SettingsColorRole: String, Sendable { case window, surface, sidebar,
     public static let settingsSize = NSSize(width: 814, height: 580)
     public static let settingsMinimumSize = NSSize(width: 716, height: 450)
     public static let sidebarWidth: CGFloat = 172
-    public static let controlCenterWidth: CGFloat = 294
+    public static let controlCenterWidth: CGFloat = 224
     public static let onboardingSize = NSSize(width: 584, height: 453)
     public static func color(_ role: SettingsColorRole) -> NSColor {
         return NSColor(name: NSColor.Name("Riftlet.Settings." + role.rawValue)) { appearance in
@@ -67,6 +67,7 @@ public enum SettingsColorRole: String, Sendable { case window, surface, sidebar,
         let button = NSButton(title: title, target: nil, action: nil)
         button.bezelStyle = .rounded
         button.font = .systemFont(ofSize: 13)
+        button.alignment = .center
         button.setAccessibilityLabel(title)
         return button
     }
