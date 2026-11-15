@@ -1,0 +1,21 @@
+{
+  "status": "COMPILED_NOT_RUN",
+  "observedAt": "2026-11-15T12:32:57.281580+00:00",
+  "author": "mouse_delivery_review",
+  "guiExecution": false,
+  "productSourceEdited": false,
+  "files": {
+    "MouseDeliveryProbe.swift": {
+      "sha256": "e3e98c5e78092e8a84d2003c75cf988a957fea8d2e9cd8223f8f57d09c428857",
+      "bytes": 23316
+    },
+    "mouse-delivery-probe": {
+      "sha256": "1237d9919271b0141eee4af2c31014deb525bf7252396c503a76ea7925d0f936",
+      "bytes": 285592
+    },
+    "compile.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

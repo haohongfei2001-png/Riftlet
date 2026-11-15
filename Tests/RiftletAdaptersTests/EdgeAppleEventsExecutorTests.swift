@@ -9,6 +9,9 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
     let host: EdgeWindowTab
     var selected = true, alive = true, worldSeparated = true, replaceAtPin = false
     var wrongCaptureWindow = false, loseCommitReply = false, latePin = false
+    var modelClickBudget = false
+    private var modeledUptime: TimeInterval?
+    private(set) var synchronousEvaluations = 0
     var atPin: (() -> Void)?
     var atCommit: (() -> Void)?
     var worldBootstrapEntered: DispatchSemaphore?, releaseWorldBootstrap: DispatchSemaphore?
@@ -25,7 +28,9 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
         host = EdgeWindowTab(process: birth, windowID: "13", tabID: "45", address: "https://chatgpt.com/c/neutral")
     }
     func freeze(deadline: TimeInterval) throws -> EdgeWindowTab {
-        try revalidate(host, deadline: deadline); return host
+        try revalidate(host, deadline: deadline)
+        if modelClickBudget { modeledUptime = deadline - 0.15 + 0.045 }
+        return host
     }
     func revalidate(_ target: EdgeWindowTab, deadline: TimeInterval) throws {
         lock.lock(); defer { lock.unlock() }; selectionChecks += 1
@@ -34,6 +39,16 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
             throw WebAdapterError.nativeExecutionFailed
         }
         guard alive, selected, target == host else { throw WebAdapterError.nativeSelectionChanged }
+        if let now = modeledUptime {
+            // Three native identity reads still run, each requiring >=50 ms
+            // before dispatch. No sleep or CI wall-clock performance assumption.
+            for index in 0..<3 {
+                guard deadline - (now + Double(index) * 0.015) >= 0.05 else {
+                    throw WebAdapterError.nativeEventFailed(-1712)
+                }
+            }
+            modeledUptime = now + 0.045
+        }
     }
     func isCurrent(_ target: EdgeWindowTab) -> Bool {
         lock.lock(); defer { lock.unlock() }; return alive && target.process == host.process
@@ -46,7 +61,14 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
     func evaluate(_ source: String, target: EdgeWindowTab, budget: MainWorldReceiptReadBudget) throws -> String {
         lock.lock(); defer { lock.unlock() }
         guard target == host, alive else { throw WebAdapterError.invalidTarget }
-        if source.contains("edge-world-prepare") { return "prepared" }
+        if source.contains("edge-world-prepare") || source.contains("action:'pinTarget'") {
+            synchronousEvaluations += 1
+            if let now = modeledUptime {
+                _ = try budget.timeout(at: now)
+                modeledUptime = now + 0.024
+            }
+        }
+        if source.contains("edge-world-prepare"), !source.contains("edge-click-prepare-and-pin") { return "prepared" }
         if source.contains("action:'pinTarget'") {
             let match = try match("clickWitnessID:'([^']+)'", source)
             currentPin = UUID(uuidString: match[0])
@@ -188,6 +210,33 @@ final class EdgeAppleEventsExecutorTests: XCTestCase {
         XCTAssertThrowsError(try EdgeAppleEventsExecutor(driver: driver).targetForClick(program: program)) { error in
             XCTAssertEqual(error as? WebAdapterError, .nativeEventFailed(-1712))
         }
+        XCTAssertEqual(driver.bootstraps, 0)
+        XCTAssertTrue(driver.actions.isEmpty)
+    }
+
+    @MainActor func testOnePinEvaluationLeavesBudgetForEveryOriginalIdentityRecheck() throws {
+        let driver = EdgeExecutorFixture(); driver.modelClickBudget = true
+        let bridge = EdgeAppleEventsExecutor(driver: driver)
+        let task = try bridge.targetForClick(program: program)
+        task.cancel() // This regression ends before the asynchronous capture/input path.
+        XCTAssertEqual(driver.synchronousEvaluations, 1)
+        XCTAssertEqual(driver.selectionChecks, 2)
+        XCTAssertEqual(driver.bootstraps, 0)
+        XCTAssertTrue(driver.actions.isEmpty)
+    }
+
+    func testSeparatePrepareAndPinExhaustTheSameModeledRecheckBudget() throws {
+        let driver = EdgeExecutorFixture(); driver.modelClickBudget = true
+        let budget = MainWorldReceiptReadBudget.clickSnapshot(start: 100)
+        let host = try driver.freeze(deadline: budget.deadlineUptime)
+        let world = EdgeExecutionWorldWitness(), document = ChromeClickDocumentWitness()
+        XCTAssertEqual(try driver.evaluate(world.prepare, target: host, budget: budget), "prepared")
+        XCTAssertEqual(try driver.evaluate(document.bindScript(address: host.address, program: program),
+                                           target: host, budget: budget), "bound")
+        XCTAssertThrowsError(try driver.revalidate(host, deadline: budget.deadlineUptime)) { error in
+            XCTAssertEqual(error as? WebAdapterError, .nativeEventFailed(-1712))
+        }
+        XCTAssertEqual(driver.synchronousEvaluations, 2)
         XCTAssertEqual(driver.bootstraps, 0)
         XCTAssertTrue(driver.actions.isEmpty)
     }

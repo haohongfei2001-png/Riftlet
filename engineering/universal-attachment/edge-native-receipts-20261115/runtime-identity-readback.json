@@ -1,0 +1,10 @@
+{
+  "sourceSHA": "d23267fe825f9ad2384b35b03db9fe2692485741",
+  "sourceTree": "0644886ffae1f1522683d239b3ef7a039bdbcc4e",
+  "executableSHA256": "8f68a1dc1907371271e7a17b90866d1527cac4e48d03ed0a7757f87708b562f9",
+  "matchesSignedPackageReceipt": true,
+  "normalLaunchPID": 53644,
+  "normalLaunchPIDSource": "integration-lead launch and frozen sender configuration; ps unavailable in reader sandbox",
+  "packageReceiptOriginalSHA256": "a49e687e6374441b11fda3c6e1c5057b6c70320a7f500009557764259a1c3d90",
+  "observedAtUTC": "2026-11-15T13:09:38.559216+00:00"
+}

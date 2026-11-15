@@ -62,12 +62,9 @@ private final class EdgeCommandCancellation: @unchecked Sendable {
         // performs no Chrome-specific lookup and grants no attachment authority.
         let address = try ChromeClickRoute(window: host.windowID, tab: host.tabID, url: host.address).address
         let witness = ChromeClickDocumentWitness(), world = EdgeExecutionWorldWitness()
-        phase = "executionWorldPin"
-        guard try driver.evaluate(world.prepare, target: host, budget: budget) == "prepared" else {
-            throw WebAdapterError.pageRejected(.clickPinRefused)
-        }
         phase = "documentEditorPin"
-        guard try driver.evaluate(witness.bindScript(address: address, program: program), target: host, budget: budget) == "bound"
+        guard try driver.evaluate(world.prepareAndBind(witness, address: address, program: program),
+                                  target: host, budget: budget) == "bound"
         else { throw WebAdapterError.pageRejected(.clickPinRefused) }
         phase = "originalSelectionRecheck"
         try driver.revalidate(host, deadline: deadline)

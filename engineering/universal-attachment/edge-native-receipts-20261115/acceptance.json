@@ -1,0 +1,239 @@
+{
+  "schemaVersion": 1,
+  "recordedAtUTC": "2026-11-15T13:19:25.034784+00:00",
+  "scope": "ACTUAL_ORDINARY_APP_NATIVE_CLICK_RECEIPTS_AND_PRE_INPUT_REFUSALS_ONLY",
+  "sourceSHA": "d23267fe825f9ad2384b35b03db9fe2692485741",
+  "sourceTree": "0644886ffae1f1522683d239b3ef7a039bdbcc4e",
+  "executableSHA256": "8f68a1dc1907371271e7a17b90866d1527cac4e48d03ed0a7757f87708b562f9",
+  "normalLaunchPID": 53644,
+  "runtimeReadback": "runtime-identity-readback.json",
+  "packageBuildReceipt": "signed-package-receipt.json",
+  "currentRuntimeIncludesDiagnosticIncrement": true,
+  "diagnosticSessionDigest": "eda94c80fa2b18785ca0665a91ccb874ba753911189b93fd39f353934e79b1e1",
+  "phase1Result": "PASS_BOTH_DISTINCT_ASSETS_STRICT_MATCHED_NATIVE_RECEIPTS",
+  "commercialDoubleImageResult": "NOT_PASSED_PRE_INPUT_REFUSALS",
+  "mergeOrReleaseReady": false,
+  "attempts": [
+    {
+      "targetOrdinal": 1,
+      "captureIndex": 4,
+      "preclickObservedAtUTC": "2026-11-15T12:56:52Z",
+      "assetUUID": "A86F0DC4-2B0F-4496-9F8A-DA62830DE4A9",
+      "assetIDDigest": "ece8d8709553c8a0d3e061cd59f7aae7b108d19bed75b9e2450064ed319d62ea",
+      "originalScreenshotSHA256": "fcd3e2c5748e888c8d47363b441d325361823a828f64452859eb0a13526971f8",
+      "originalScreenshotByteCount": 62508,
+      "inputWindowNumber": 3442,
+      "clickPoint": {
+        "x": 33,
+        "y": 434.4487632508834
+      },
+      "mouseProbeTag": 183970661135835,
+      "eventNumber": 27172,
+      "configurationSHA256": "b656b2c54f50f40ffabf970b77319ba59e3bac044864611f9c439a74520cee55",
+      "postedPairs": 1,
+      "nativePhase1": "PASS_STRICT_MATCHED_PRODUCT_RECEIPT_ONLY",
+      "matchedApplicationEvents": 2,
+      "matchedNativeBoundaries": 7,
+      "matchedSelectionReceipts": 1,
+      "originalRefusal": "invalidReply",
+      "originalRefusalPhase": "resolveSelection",
+      "edgePinPhase": "documentEditorPin",
+      "edgePinElapsedMS": 108.94558333347959,
+      "traceSequences": {
+        "pin": 13,
+        "refusal": 22
+      },
+      "ordinaryFileInput": "NOT_RUN_PRE_INPUT_REFUSAL",
+      "uploadStart": "NOT_RUN",
+      "uploadCompletion": "NOT_RUN",
+      "automaticRetry": false,
+      "receiptRecord": "calibration-01-receipt-1.json"
+    },
+    {
+      "targetOrdinal": 2,
+      "captureIndex": 5,
+      "preclickObservedAtUTC": "2026-11-15T12:58:06Z",
+      "assetUUID": "A512DCFC-B06A-4A76-8AE7-2908FC6D365A",
+      "assetIDDigest": "09fd1e0f829fbe2bfb00cdff642a4a0c6315f1b642cb3e0b0984afa5d88aa045",
+      "originalScreenshotSHA256": "568de2784c37e0c6bfcc2de4b81a8eff4d022d72ded5be772ab80ef4d50c8991",
+      "originalScreenshotByteCount": 62346,
+      "inputWindowNumber": 3452,
+      "clickPoint": {
+        "x": 33,
+        "y": 494.4487632508834
+      },
+      "mouseProbeTag": 267215259898689,
+      "eventNumber": 10183,
+      "configurationSHA256": "b656b2c54f50f40ffabf970b77319ba59e3bac044864611f9c439a74520cee55",
+      "postedPairs": 1,
+      "nativePhase1": "PASS_STRICT_MATCHED_PRODUCT_RECEIPT_ONLY",
+      "matchedApplicationEvents": 2,
+      "matchedNativeBoundaries": 7,
+      "matchedSelectionReceipts": 1,
+      "originalRefusal": "nativeEventFailed(-1712)",
+      "originalRefusalPhase": "resolveSelection",
+      "edgePinPhase": "originalSelectionRecheck",
+      "edgePinElapsedMS": 100.51500000008673,
+      "traceSequences": {
+        "pin": 28,
+        "refusal": 37
+      },
+      "ordinaryFileInput": "NOT_RUN_PRE_INPUT_REFUSAL",
+      "uploadStart": "NOT_RUN",
+      "uploadCompletion": "NOT_RUN",
+      "automaticRetry": false,
+      "receiptRecord": "calibration-01-receipt-2.json"
+    }
+  ],
+  "databaseSnapshot": "asset-and-queue-snapshot.json",
+  "counts": {
+    "assets": 5,
+    "operations": 0,
+    "uploadStarts": 0,
+    "commercialInputs": 0,
+    "commercialCompletions": 0
+  },
+  "draftScope": {
+    "beforeEachClick": {
+      "neutralTextExact": true,
+      "selectionLength": 14,
+      "baselineImageCount": 1
+    },
+    "afterSecondClickSnapshot": "NOT_CAPTURED_BY_THIS_CHECKPOINT",
+    "preservationAcrossTwoSuccessfulInputs": "NOT_RUN_NO_FILE_INPUT",
+    "messagesSent": 0
+  },
+  "oldUnknowns": {
+    "record": "../edge-double-image-20261115/resumption.json",
+    "reposted": false,
+    "changedToRefusalOrSuccess": false,
+    "fresh03Clicked": false,
+    "old315978SecondMissingReceiptCause": "UNPROVEN"
+  },
+  "budgetDiagnosis": {
+    "status": "SOURCE_BASED_DIAGNOSIS_UNDER_REVIEW_NOT_LIVE_PAGE_REFUSAL_PROOF",
+    "observedFirst": "documentEditorPin at 108.945583ms; invalidReply before durable operation",
+    "observedSecond": "originalSelectionRecheck at 100.515ms; nativeEventFailed(-1712) before durable operation",
+    "sourceInference": "Original H code reaches final recheck only after document bind returned bound. Its 150ms total budget and 50ms minimum remaining event budget can refuse different native boundaries; the first error is not evidence that the page rejected its editor.",
+    "sourceRefs": [
+      {
+        "path": "Sources/RiftletAdapters/EdgeAppleEventsExecutor.swift",
+        "sha256": "7b746daefddd7c4966a57b09c358b48521acdf2b4a42917ea6d068f5f950ec88"
+      },
+      {
+        "path": "Sources/RiftletAdapters/MainWorldCommandEnvelope.swift",
+        "sha256": "0e20d9e37c7a7dbd6192c272b5f9b6c5876c006ce5d4f946ba62cc827ca3ef50"
+      }
+    ],
+    "nextIncrement": "Reduce native round trips while keeping original process/window/tab checks, total budget, minimum event threshold and final revalidation. Not part of this tested runtime.",
+    "successorSourceStatus": "Prepare and document pin now combined into one native evaluation in the successor source; 150ms/50ms/final full identity check unchanged; new runtime not tested by this checkpoint"
+  },
+  "neutralComparison": {
+    "run-20261115-01": {
+      "reportSHA256": "377cb54ed76fd35238bcc18c5615ad27f58a271e9c91df7204a2c823289c4a29",
+      "trials": [
+        {
+          "trialID": 1,
+          "waitForReceipt": false,
+          "acknowledged": true,
+          "inputDown": 1,
+          "inputUp": 1,
+          "senderExit": 0,
+          "correlatedObservations": 10,
+          "uncorrelatedObservations": 0
+        },
+        {
+          "trialID": 2,
+          "waitForReceipt": true,
+          "acknowledged": true,
+          "inputDown": 1,
+          "inputUp": 1,
+          "senderExit": 0,
+          "correlatedObservations": 10,
+          "uncorrelatedObservations": 0
+        }
+      ]
+    },
+    "run-20261115-roundtrip-01": {
+      "reportSHA256": "2aff659e3588d7198715e0a677cb32b82ad5889c8ca31147d638167d5fadd38b",
+      "trials": [
+        {
+          "trialID": 1,
+          "waitForReceipt": false,
+          "acknowledged": false,
+          "inputDown": 0,
+          "inputUp": 0,
+          "senderExit": 0,
+          "correlatedObservations": 0,
+          "uncorrelatedObservations": 0
+        },
+        {
+          "trialID": 2,
+          "waitForReceipt": true,
+          "acknowledged": true,
+          "inputDown": 1,
+          "inputUp": 1,
+          "senderExit": 0,
+          "correlatedObservations": 10,
+          "uncorrelatedObservations": 0
+        }
+      ]
+    },
+    "run-20261115-copyreadback-01": {
+      "reportSHA256": "adb53f5903cf2cb7b4a05ae2206dd4ea64d892c862f7c03b5cdb765e27799758",
+      "trials": [
+        {
+          "trialID": 1,
+          "waitForReceipt": false,
+          "acknowledged": true,
+          "inputDown": 1,
+          "inputUp": 1,
+          "senderExit": 0,
+          "correlatedObservations": 10,
+          "uncorrelatedObservations": 0
+        },
+        {
+          "trialID": 2,
+          "waitForReceipt": true,
+          "acknowledged": true,
+          "inputDown": 1,
+          "inputUp": 1,
+          "senderExit": 0,
+          "correlatedObservations": 10,
+          "uncorrelatedObservations": 0
+        }
+      ]
+    }
+  },
+  "neutralComparisonLimit": "Three bounded owned-window runs; no universal sender-lifetime or historical failure causality is claimed.",
+  "v2Tool": {
+    "manifest": "neutral/v2-manifest.json",
+    "pureTestsPassed": 39,
+    "eventValidation": "copy validation retains the original event object",
+    "postObservation": "bounded passive observation of the original receipt; no resend or retry"
+  },
+  "CI": {
+    "record": "ci/ci-verification.json",
+    "allFiveJobsPassed": true,
+    "headSHA": "d23267fe825f9ad2384b35b03db9fe2692485741",
+    "mergeSHA": "5e07809dbcddbdfe914da8e7af75990c990bb639",
+    "mergeTreeEqualsH": true,
+    "newEdgeDiagnosticXCTest": "EXECUTED_ON_ARM64_AND_INTEL",
+    "newUntaggedTwoAssetAppKitXCTest": "EXPLICIT_PASS_ON_ARM64_AND_INTEL",
+    "existingSkips": "PRESERVED_SEE_RAW_REPORT",
+    "hostedOrdinaryEdge": "FIRST_1744_SECOND_NOT_RUN_SEPARATE_FROM_LOCAL_PAIR",
+    "artifactZIPLocalHashRecomputation": false,
+    "futureEdgeBudgetFixCovered": false
+  },
+  "beforeSuccessorPackageBackup": {
+    "record": "before-budget-fix-backup.json",
+    "counts": {
+      "assets": 5,
+      "operations": 0,
+      "upload_starts": 0
+    },
+    "originalAndPrivatePNGFiles": 10,
+    "allFiveImageIdentitiesMatchSnapshot": true,
+    "imageBytesReadByEvidenceWorker": false
+  }
+}

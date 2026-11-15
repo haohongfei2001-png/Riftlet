@@ -1,0 +1,344 @@
+{
+  "executableSHA256" : "1237d9919271b0141eee4af2c31014deb525bf7252396c503a76ea7925d0f936",
+  "ownedWindowNativeMouseCounts" : {
+    "inputDown" : 2,
+    "inputUp" : 2,
+    "windowDown" : 2,
+    "windowUp" : 2
+  },
+  "receiverPID" : 44023,
+  "runID" : "8726BCA7-39C9-4B08-8ECC-7E9264F78D6A",
+  "scope" : "Two independent neutral AppKit events; no product screenshot\/browser\/session\/permission mutation; not commercial acceptance",
+  "stageFacts" : [
+    {
+      "AXTrusted" : true,
+      "listen" : true,
+      "post" : true,
+      "stage" : "preflight"
+    },
+    {
+      "frontmostReceiver" : false,
+      "stage" : "created",
+      "taps" : {
+        "annotatedTail" : true,
+        "hidHead" : true,
+        "hidTail" : true
+      },
+      "uptime" : 10065.880766625001
+    },
+    {
+      "frontmostReceiver" : true,
+      "stage" : "trial1_senderStarted",
+      "taps" : {
+        "annotatedTail" : true,
+        "hidHead" : true,
+        "hidTail" : true
+      },
+      "uptime" : 10065.951339500001
+    },
+    {
+      "frontmostReceiver" : true,
+      "stage" : "trial1_senderExited",
+      "taps" : {
+        "annotatedTail" : true,
+        "hidHead" : true,
+        "hidTail" : true
+      },
+      "uptime" : 10066.015478958334
+    },
+    {
+      "frontmostReceiver" : true,
+      "stage" : "trial2_senderStarted",
+      "taps" : {
+        "annotatedTail" : true,
+        "hidHead" : true,
+        "hidTail" : true
+      },
+      "uptime" : 10066.016706166667
+    },
+    {
+      "frontmostReceiver" : true,
+      "stage" : "trial2_senderExited",
+      "taps" : {
+        "annotatedTail" : true,
+        "hidHead" : true,
+        "hidTail" : true
+      },
+      "uptime" : 10066.096292416667
+    },
+    {
+      "frontmostReceiver" : true,
+      "stage" : "finish",
+      "taps" : {
+        "annotatedTail" : true,
+        "hidHead" : true,
+        "hidTail" : true
+      },
+      "uptime" : 10066.096470958333
+    }
+  ],
+  "status" : "OBSERVED_TWO_DISTINCT_NEUTRAL_TRIALS",
+  "trials" : [
+    {
+      "acknowledged" : true,
+      "expectedEventNumber" : 23001,
+      "expectedTag" : 51000000000001,
+      "inputDown" : 1,
+      "inputUp" : 1,
+      "observations" : [
+        {
+          "eventNumber" : 23001,
+          "eventTimestamp" : 10066013761708,
+          "sourcePID" : 44031,
+          "stage" : "annotatedTail",
+          "tag" : 51000000000001,
+          "targetPID" : 44023,
+          "type" : 1,
+          "uptime" : 10066.014681791667,
+          "x" : 625,
+          "y" : 493
+        },
+        {
+          "eventNumber" : 23001,
+          "eventTimestamp" : 10066013761708,
+          "sourcePID" : 44031,
+          "stage" : "hidTail",
+          "tag" : 51000000000001,
+          "targetPID" : 44023,
+          "type" : 1,
+          "uptime" : 10066.014717041668,
+          "x" : 625,
+          "y" : 493
+        },
+        {
+          "eventNumber" : 23001,
+          "eventTimestamp" : 10066013761708,
+          "sourcePID" : 44031,
+          "stage" : "hidHead",
+          "tag" : 51000000000001,
+          "targetPID" : 44023,
+          "type" : 1,
+          "uptime" : 10066.014731083334,
+          "x" : 625,
+          "y" : 493
+        },
+        {
+          "eventNumber" : 23001,
+          "eventTimestamp" : 10066014217958,
+          "sourcePID" : 44031,
+          "stage" : "annotatedTail",
+          "tag" : 51000000000001,
+          "targetPID" : 44023,
+          "type" : 2,
+          "uptime" : 10066.01474425,
+          "x" : 625,
+          "y" : 493
+        },
+        {
+          "eventNumber" : 23001,
+          "eventTimestamp" : 10066014217958,
+          "sourcePID" : 44031,
+          "stage" : "hidTail",
+          "tag" : 51000000000001,
+          "targetPID" : 44023,
+          "type" : 2,
+          "uptime" : 10066.014924583335,
+          "x" : 625,
+          "y" : 493
+        },
+        {
+          "eventNumber" : 23001,
+          "eventTimestamp" : 10066014217958,
+          "sourcePID" : 44031,
+          "stage" : "hidHead",
+          "tag" : 51000000000001,
+          "targetPID" : 44023,
+          "type" : 2,
+          "uptime" : 10066.014938291668,
+          "x" : 625,
+          "y" : 493
+        },
+        {
+          "eventNumber" : 23001,
+          "eventTimestamp" : 10066.013761708,
+          "sourcePID" : 44031,
+          "stage" : "window",
+          "tag" : 51000000000001,
+          "type" : 1,
+          "uptime" : 10066.015092291667,
+          "window" : 3394
+        },
+        {
+          "eventNumber" : 23001,
+          "eventTimestamp" : 10066.013761708,
+          "sourcePID" : 44031,
+          "stage" : "input",
+          "tag" : 51000000000001,
+          "type" : 1,
+          "uptime" : 10066.015211666667,
+          "window" : 3394
+        },
+        {
+          "eventNumber" : 23001,
+          "eventTimestamp" : 10066.014217958,
+          "sourcePID" : 44031,
+          "stage" : "window",
+          "tag" : 51000000000001,
+          "type" : 2,
+          "uptime" : 10066.015242166668,
+          "window" : 3394
+        },
+        {
+          "eventNumber" : 23001,
+          "eventTimestamp" : 10066.014217958,
+          "sourcePID" : 44031,
+          "stage" : "input",
+          "tag" : 51000000000001,
+          "type" : 2,
+          "uptime" : 10066.015250041668,
+          "window" : 3394
+        }
+      ],
+      "senderEndedUptime" : 10066.015477416668,
+      "senderExit" : 0,
+      "senderPID" : 44031,
+      "senderStartedUptime" : 10065.951091583334,
+      "trialID" : 1,
+      "uncorrelatedOwnedFixtureObservations" : [
+
+      ],
+      "waitForReceipt" : false
+    },
+    {
+      "acknowledged" : true,
+      "expectedEventNumber" : 23002,
+      "expectedTag" : 51000000000002,
+      "inputDown" : 1,
+      "inputUp" : 1,
+      "observations" : [
+        {
+          "eventNumber" : 23002,
+          "eventTimestamp" : 10066079790750,
+          "sourcePID" : 44032,
+          "stage" : "annotatedTail",
+          "tag" : 51000000000002,
+          "targetPID" : 44023,
+          "type" : 1,
+          "uptime" : 10066.080691916668,
+          "x" : 845,
+          "y" : 493
+        },
+        {
+          "eventNumber" : 23002,
+          "eventTimestamp" : 10066079790750,
+          "sourcePID" : 44032,
+          "stage" : "hidTail",
+          "tag" : 51000000000002,
+          "targetPID" : 44023,
+          "type" : 1,
+          "uptime" : 10066.080716958333,
+          "x" : 845,
+          "y" : 493
+        },
+        {
+          "eventNumber" : 23002,
+          "eventTimestamp" : 10066079790750,
+          "sourcePID" : 44032,
+          "stage" : "hidHead",
+          "tag" : 51000000000002,
+          "targetPID" : 44023,
+          "type" : 1,
+          "uptime" : 10066.08073025,
+          "x" : 845,
+          "y" : 493
+        },
+        {
+          "eventNumber" : 23002,
+          "eventTimestamp" : 10066080703958,
+          "sourcePID" : 44032,
+          "stage" : "annotatedTail",
+          "tag" : 51000000000002,
+          "targetPID" : 44023,
+          "type" : 2,
+          "uptime" : 10066.081119416667,
+          "x" : 845,
+          "y" : 493
+        },
+        {
+          "eventNumber" : 23002,
+          "eventTimestamp" : 10066080703958,
+          "sourcePID" : 44032,
+          "stage" : "hidTail",
+          "tag" : 51000000000002,
+          "targetPID" : 44023,
+          "type" : 2,
+          "uptime" : 10066.081136500001,
+          "x" : 845,
+          "y" : 493
+        },
+        {
+          "eventNumber" : 23002,
+          "eventTimestamp" : 10066080703958,
+          "sourcePID" : 44032,
+          "stage" : "hidHead",
+          "tag" : 51000000000002,
+          "targetPID" : 44023,
+          "type" : 2,
+          "uptime" : 10066.081150541668,
+          "x" : 845,
+          "y" : 493
+        },
+        {
+          "eventNumber" : 23002,
+          "eventTimestamp" : 10066.07979075,
+          "sourcePID" : 44032,
+          "stage" : "window",
+          "tag" : 51000000000002,
+          "type" : 1,
+          "uptime" : 10066.081313833334,
+          "window" : 3394
+        },
+        {
+          "eventNumber" : 23002,
+          "eventTimestamp" : 10066.07979075,
+          "sourcePID" : 44032,
+          "stage" : "input",
+          "tag" : 51000000000002,
+          "type" : 1,
+          "uptime" : 10066.081395041667,
+          "window" : 3394
+        },
+        {
+          "eventNumber" : 23002,
+          "eventTimestamp" : 10066.080703958,
+          "sourcePID" : 44032,
+          "stage" : "window",
+          "tag" : 51000000000002,
+          "type" : 2,
+          "uptime" : 10066.081418208334,
+          "window" : 3394
+        },
+        {
+          "eventNumber" : 23002,
+          "eventTimestamp" : 10066.080703958,
+          "sourcePID" : 44032,
+          "stage" : "input",
+          "tag" : 51000000000002,
+          "type" : 2,
+          "uptime" : 10066.081424166667,
+          "window" : 3394
+        }
+      ],
+      "senderEndedUptime" : 10066.096288708333,
+      "senderExit" : 0,
+      "senderPID" : 44032,
+      "senderStartedUptime" : 10066.01649675,
+      "trialID" : 2,
+      "uncorrelatedOwnedFixtureObservations" : [
+
+      ],
+      "waitForReceipt" : true
+    }
+  ],
+  "window" : 3394
+}

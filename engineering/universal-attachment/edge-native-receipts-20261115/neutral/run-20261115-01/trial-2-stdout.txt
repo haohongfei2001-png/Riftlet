@@ -1,0 +1,9 @@
+{
+  "fixtureAcknowledgment" : true,
+  "returnedPostUptime" : 10066.074244875001,
+  "senderExitUptime" : 10066.086580541667,
+  "senderPID" : 44032,
+  "status" : "onePairPosted",
+  "trialID" : 2,
+  "waitForReceipt" : true
+}

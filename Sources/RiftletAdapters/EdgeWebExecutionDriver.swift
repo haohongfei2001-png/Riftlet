@@ -123,6 +123,18 @@ struct EdgeExecutionWorldWitness: Sendable {
     private var key: String { "__riftletEdgeExecution_" + id }
     private var attribute: String { "data-riftlet-edge-execution-" + id }
 
+    /// Both original-document capabilities are created in one execute event on
+    /// the frozen tab. This saves a native round trip inside the unchanged
+    /// 150 ms click budget; neither check nor the final native recheck is omitted.
+    func prepareAndBind(_ witness: ChromeClickDocumentWitness, address: String,
+                        program: WebPageProgram) throws -> String {
+        let binding = try witness.bindScript(address: address, program: program)
+        return """
+        /* edge-click-prepare-and-pin */
+        (()=>{if((\(prepare))!=='prepared')return 'refused';return (\(binding));})()
+        """
+    }
+
     var prepare: String {
         """
         /* edge-world-prepare */

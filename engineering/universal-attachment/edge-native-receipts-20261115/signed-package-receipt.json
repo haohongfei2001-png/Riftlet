@@ -1,0 +1,136 @@
+{
+  "GUI": "NOT_RUN",
+  "TCCChange": false,
+  "actualAttachment": "NOT_RUN",
+  "adhocExecutableSHA256": "e2cff6e282188e83146402c38604740940b7eba5eb77d3db7809ca949f101835",
+  "applicationPath": "/private<ISOLATED_RIFTLET_APP>",
+  "architectures": [
+    "arm64"
+  ],
+  "binaryEarlyExitManifest": "ordinary-build-info.json",
+  "buildChannel": "isolated-product-acceptance",
+  "buildVersion": "24",
+  "bundleIdentifier": "com.riftlet.isolated-product-acceptance",
+  "databaseReadOrWrite": false,
+  "developerIDIdentitySHA1": "92B7E50A1D43D247EA7EA19A31DCA3E407435A42",
+  "executableSHA256": "8f68a1dc1907371271e7a17b90866d1527cac4e48d03ed0a7757f87708b562f9",
+  "gatekeeper": "NOT_RUN",
+  "logs": {
+    "build.log": "6afb95c1efe459a237adb0ef3f230f1e4a4f81b17eaeaadbbbd947139600980d",
+    "sign-driver.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sign-host.log": "604a122690649717d95fa47542504f4c5e5566bf49f522cb85ac35e960c5c830",
+    "sign-sparkle-0.log": "54bf813492f4ebf9683f45a7cd0215988fb57d1626a97b0223494d05e9055354",
+    "sign-sparkle-1.log": "04ec8098f7d026698e1c475d8d305fe382841ddc90cf8743a7b871ceb5bb6a51",
+    "sign-sparkle-2.log": "f8fc2717614d8b4b4a470498e263a794f0912e2cfd7848e26ed0662b6cf3be68",
+    "sign-sparkle-3.log": "4b682f05bdd7c6eb1c97693f90b019c80794e60d02b589ec153d2440466dfadf",
+    "sign-sparkle-4.log": "e6f4acb6f9b2ce5ed41122ce992aa8891e0765d739f294f8c8bc4f3d22b8fea5",
+    "signed-entitlements.log": "349ad30fd4da03f8d0183f25628be91b085b6b3ab13329de6040516fc87a95fa",
+    "signed-identity.log": "879d63836fe5b4de0ff31ac41be9bb52abc6d79c47c74462278df7275f6137d2",
+    "verify-bundle.log": "b55d94cdde2bd585b278ddff90f4443a04db651eba3e76585ffe66fd039f6d5f",
+    "verify-deep-strict.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "nativeInputTreesSHA256": "b5729a20c767ad1cf345b4f0f0927a6324a106b24c8fc3c7dd71c330e4efe31c",
+  "normalAppLaunch": "NOT_RUN",
+  "notarization": "NOT_RUN",
+  "observedAt": "2026-11-15T12:46:16.496917+00:00",
+  "packageArchive": "<USER_HOME>/Documents/GitHub/Riftlet/build/pr69-runtime-20261115-calibration/Riftlet-Product-Test-d23267f-signed.tar",
+  "packageArchiveBytes": 18124800,
+  "packageArchiveSHA256": "a362e102fce37beafa4056a7e4ad7a66dca49b84248320c89670903bd3256227",
+  "release": "NOT_PERFORMED",
+  "screenshotAccess": false,
+  "shortVersion": "1.0.2",
+  "signature": {
+    "architectures": {
+      "arm64": {
+        "cdhash": "3e37b98c60aa349c62f30202784654c2381af607",
+        "timestamp": "Nov 15, 2026 at 20:46:15"
+      }
+    },
+    "entitlements": {
+      "com.apple.security.automation.apple-events": true
+    },
+    "hardenedRuntime": true,
+    "sparkle": {
+      "Contents/Frameworks/Sparkle.framework": {
+        "architectures": {
+          "arm64": {
+            "cdhash": "ae42037a97a325f27c7127f2deb5be785b22e7a4",
+            "timestamp": "Nov 15, 2026 at 20:46:13"
+          },
+          "x86_64": {
+            "cdhash": "0c93b8c5ae0707a3424b3c14a5243f7f0ac2f386",
+            "timestamp": "Nov 15, 2026 at 20:46:13"
+          }
+        },
+        "entitlements": {},
+        "hardenedRuntime": true,
+        "teamID": "ZB9D4T66QB"
+      },
+      "Contents/Frameworks/Sparkle.framework/Versions/B/Autoupdate": {
+        "architectures": {
+          "arm64": {
+            "cdhash": "b0511e41fffdb5bdc010ca05a62f0f795d48563a",
+            "timestamp": "Nov 15, 2026 at 20:46:04"
+          },
+          "x86_64": {
+            "cdhash": "8cbcd06cfa631798946b788e09ea830aa1cf9c00",
+            "timestamp": "Nov 15, 2026 at 20:46:03"
+          }
+        },
+        "entitlements": {},
+        "hardenedRuntime": true,
+        "teamID": "ZB9D4T66QB"
+      },
+      "Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app": {
+        "architectures": {
+          "arm64": {
+            "cdhash": "0dcab7f829797e76d0be4b7150459a305e29dd54",
+            "timestamp": "Nov 15, 2026 at 20:46:12"
+          },
+          "x86_64": {
+            "cdhash": "3c72551b060f07d1eecd05faeecfcc27a06df78f",
+            "timestamp": "Nov 15, 2026 at 20:46:08"
+          }
+        },
+        "entitlements": {},
+        "hardenedRuntime": true,
+        "teamID": "ZB9D4T66QB"
+      },
+      "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Downloader.xpc": {
+        "architectures": {
+          "arm64": {
+            "cdhash": "df77cd033b0f8a0a557fa563c07e5537d79e6f8b",
+            "timestamp": "Nov 15, 2026 at 20:46:00"
+          },
+          "x86_64": {
+            "cdhash": "d09608494be3cf2f844b00fabc995c140eea1319",
+            "timestamp": "Nov 15, 2026 at 20:45:58"
+          }
+        },
+        "entitlements": {},
+        "hardenedRuntime": true,
+        "teamID": "ZB9D4T66QB"
+      },
+      "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Installer.xpc": {
+        "architectures": {
+          "arm64": {
+            "cdhash": "9a49e482423ddec111b806b6a762c55dd4c36087",
+            "timestamp": "Nov 15, 2026 at 20:45:58"
+          },
+          "x86_64": {
+            "cdhash": "bcda479b790137c2d132cd6027cb81cb5a99cbfe",
+            "timestamp": "Nov 15, 2026 at 20:45:57"
+          }
+        },
+        "entitlements": {},
+        "hardenedRuntime": true,
+        "teamID": "ZB9D4T66QB"
+      }
+    },
+    "teamID": "ZB9D4T66QB"
+  },
+  "source": "d23267fe825f9ad2384b35b03db9fe2692485741",
+  "sourceArchiveSHA256": "3397612ffeef2bf78e2e9d0f66875d08c6dbe6c32081a8eef4718d12daa95e81",
+  "sourceFilesManifestSHA256": "6e05b5d5ce199173e718f720b1f23771664dd292994172729094baa61f11a5a4",
+  "sourceTree": "0644886ffae1f1522683d239b3ef7a039bdbcc4e"
+}

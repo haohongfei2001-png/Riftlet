@@ -57,4 +57,33 @@ final class EdgeExecutionWorldWitnessTests: XCTestCase {
             XCTAssertEqual(try evaluate(witness.validate, in: isolated), "refused")
         }
     }
+
+    func testCombinedScriptPinsOnceAndKeepsTheSeparateWorldRequirement() throws {
+        for sameWorld in [false, true] {
+            let (main, isolated) = try realms(), world = EdgeExecutionWorldWitness()
+            let document = ChromeClickDocumentWitness()
+            let program = WebPageProgram(sourceID: ChatGPTWebPageProgram.sourceID, functionSource: """
+                function(command){globalThis.pinCalls=(globalThis.pinCalls||0)+1;
+                globalThis.pinnedID=command.clickWitnessID;
+                return command.action==='pinTarget'&&command.address===location.href?'bound':'refused';}
+                """)
+            let script = try world.prepareAndBind(document, address: "https://chatgpt.com/c/neutral", program: program)
+            XCTAssertEqual(try evaluate(script, in: isolated), "bound")
+            XCTAssertEqual(try evaluate("String(pinCalls)", in: isolated), "1")
+            XCTAssertEqual(try evaluate("pinnedID", in: isolated), document.id.uuidString)
+            XCTAssertEqual(try evaluate(script, in: isolated), "refused")
+            XCTAssertEqual(try evaluate("String(pinCalls)", in: isolated), "1")
+            _ = try evaluate(world.bootstrap, in: sameWorld ? isolated : main)
+            XCTAssertEqual(try evaluate(world.confirm, in: isolated), sameWorld ? "refused" : "verified")
+        }
+    }
+
+    func testCombinedScriptCannotReplaceARefusedDocumentBindingWithWorldPreparation() throws {
+        let (_, isolated) = try realms(), world = EdgeExecutionWorldWitness()
+        let program = WebPageProgram(sourceID: ChatGPTWebPageProgram.sourceID,
+                                     functionSource: "function(){return 'refused';}")
+        XCTAssertEqual(try evaluate(world.prepareAndBind(ChromeClickDocumentWitness(),
+            address: "https://chatgpt.com/c/neutral", program: program), in: isolated), "refused")
+        XCTAssertEqual(try evaluate(world.validate, in: isolated), "refused")
+    }
 }

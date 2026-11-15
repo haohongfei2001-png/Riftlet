@@ -1,0 +1,22 @@
+{
+  "status": "COMPILED_NOT_RUN",
+  "observedAt": "2026-11-15T12:40:39.649599+00:00",
+  "guiExecutionByAgent": false,
+  "roundtripSourceSHA256": "fb2367adb730aa8e049db9d444108ce9f59e1c6fbbe8601e8748e5c4b71b801f",
+  "priorRootRunReportSHA256": "2aff659e3588d7198715e0a677cb32b82ad5889c8ca31147d638167d5fadd38b",
+  "receiverSourceUnchanged": true,
+  "files": {
+    "NativeCopyReadbackProbe.swift": {
+      "sha256": "f555f4c931e7917af8ffe1e3670f856e3c0cb1db1cf64737d6bd26f9fa5ab8a0",
+      "bytes": 25278
+    },
+    "native-copy-readback-probe": {
+      "sha256": "8766c9d0c32b696745c6fbe04f4cc60ee12419911b58bfdeb86c4fc025e852ba",
+      "bytes": 302408
+    },
+    "copy-readback-compile.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

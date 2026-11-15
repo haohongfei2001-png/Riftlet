@@ -1,6 +1,16 @@
 # 无扩展附件引擎 · 首轮工程交接
 
-2026-11-15 续验状态：**Edge × ChatGPT 双图尚未通过**。17:46（Asia/Shanghai）重启使原临时包、Profile 和进程身份失效；持久保存的原日志、数据库和图片身份仍在。已从 `c3278c0bea1c03dc8cfc445fd7678a3de3467ae1` 重建独立签名的普通测试 App，可执行文件 SHA-256 为 `d3b8e12c05d989f6b14fa72f1555eedc167ffe10fa77dd71afc0e72ea38ef38e`。新隔离 Profile 已登录；12:16:58Z 的原生读回确认唯一编辑器、中性文字、14 字符选区和一张由官方选择器准备的基线附件。这些仅是验收前置条件。[重启、包身份、逐次点击与保留证据](../engineering/universal-attachment/edge-double-image-20261115/resumption.json)
+2026-11-15 最新检查点：**普通 App 两张新截图的产品级点击回执已通过；Edge × ChatGPT 双图上传仍未通过。** 当前签名运行包来自 H `d23267fe825f9ad2384b35b03db9fe2692485741`，实际可执行文件 SHA-256 已重新核算为 `8f68a1dc1907371271e7a17b90866d1527cac4e48d03ed0a7757f87708b562f9`。fresh-04 与 fresh-05 各投递一次，各收到 2 条 App、7 条原生边界及 1 条选择回执，资产、输入窗口、tag 和事件编号均严格匹配。[完整真实回执、源码/包身份与原始证据](../engineering/universal-attachment/edge-native-receipts-20261115/README.md)
+
+第一张在 `documentEditorPin` 阶段用时 108.945583 ms，随后明确拒绝 `resolveSelection / invalidReply`；第二张进入 `originalSelectionRecheck`，100.515 ms 后明确拒绝 `resolveSelection / nativeEventFailed(-1712)`。这两个原生预算边界不能合并，也不是网页拒绝编辑器的同一原因。两次都未创建持久化操作，当前商业输入、START、完成为零。两次前测中性正文、14 字符选区与一个原附件均在，但没有成功输入后的保留证明。两次间隔约 74 秒，快速连续点击尚未验收。旧两张 UNKNOWN 和未点击的 fresh-03 保留，未重发；旧 `315978e` 丢回执根因仍不追认。
+
+后续源码修复已把 Edge 执行环境准备与文档绑定合成一次原生 evaluation，150 ms 总预算、50 ms 最小剩余门槛和最终完整身份复核不变；模型与新增 XCTest 不等于真实通过，新包尚未运行，不能套用 H 的验收结果。
+
+H 的五项必要 CI 已由独立复核确认全部成功，新增 Edge XCTest 和两资产无标记 AppKit 测试在 ARM64/Intel 实际执行。原有跳过保留；托管 Edge 首图 `-1744`、第二图 NOT_RUN 与本机新两图结果分开记录。官方 artifact hash 已与上传日志交叉核对，本地 ZIP 哈希因下载受阻未重算。后续 Edge 预算修复还需自己的源码与 CI；H 的绿色结果不覆盖未来源码。[CI 原件与范围](../engineering/universal-attachment/edge-native-receipts-20261115/ci/README.md)
+
+## 前一重启检查点（历史）
+
+此前重启续验：**该检查点的 Edge × ChatGPT 双图未通过**。17:46（Asia/Shanghai）重启使原临时包、Profile 和进程身份失效；持久保存的原日志、数据库和图片身份仍在。已从 `c3278c0bea1c03dc8cfc445fd7678a3de3467ae1` 重建独立签名的普通测试 App，可执行文件 SHA-256 为 `d3b8e12c05d989f6b14fa72f1555eedc167ffe10fa77dd71afc0e72ea38ef38e`。新隔离 Profile 已登录；12:16:58Z 的原生读回确认唯一编辑器、中性文字、14 字符选区和一张由官方选择器准备的基线附件。这些仅是验收前置条件。[重启、包身份、逐次点击与保留证据](../engineering/universal-attachment/edge-double-image-20261115/resumption.json)
 
 重启后的 `restart-01` 分别在 12:16:58Z、12:20:10Z 向两张不同资产各投递一对带独立标记的鼠标事件，两次均先确认原 Edge 窗口和各自 Riftlet 输入窗口。有界观察都未取得匹配的 App/window/input/onDown 回执，均为 `UNCONFIRMED_DO_NOT_REPOST`，没有重复投递。第二次投递前中性文字、14 字符选区和基线附件仍在；数据库为 2 资产、0 操作、0 上传开始。两个被动事件 tap 的精确标记匹配为空，不能据此断言事件未到达，标记可能被丢弃。该缺失不能归因于旧会话的 `-1744`：旧首图曾有完整产品链并明确在目标解析前拒绝，另一次无标记的 `browserNotFrontmost` 仍属于同一首图，是独立事件。两次原生回执验证失败；商业输入、上传开始和最终完成均未确认。
 
@@ -42,7 +52,7 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | Google Chrome 157.0.8103.51 | N | N | N | N | N | 发现三个运行实例；既有真实草稿证据限于较早版本 |
 | Safari 27.0 | N | N | N | N | N | 已安装，本机采样时未运行；字典声明当前标签和索引，无标签类稳定 ID |
-| Microsoft Edge 156.0.4314.58 | N | N | N | N | N | 隔离登录草稿与基线已准备；两张不同资产各一次外部投递均无匹配产品回执，商业输入未确认 |
+| Microsoft Edge 156.0.4314.58 | N | N | N | N | N | H 普通 App 新两图均有完整产品回执，分别在原生绑定/最终复核前拒绝；商业输入、START、完成均为零 |
 | Firefox | N | N | N | N | N | LaunchServices、运行列表与常用目录均未找到 |
 | Brave | N | N | N | N | N | 同上 |
 | Arc | N | N | N | N | N | 同上 |
@@ -90,9 +100,9 @@ Edge 商业验收的下一步是在普通 App 接入已验证的单次文件交�
 
 ## 当前验收边界与续验
 
-当前运行包源码是 `c3278c0`，新诊断仍是单独审查过的增量。早期源码 `18d6189`、准入头 `f26694d` 和执行对象 `04ceda0` 的九次托管尝试保存在[原失败档案](../engineering/universal-attachment/acceptance-20261114.json)，不会被新结果覆盖。
+当前运行包源码是 `d23267f`，已包含诊断增量并完成五项必要 CI；最新真实两资产仅通过产品点击回执，后续预算修复尚未由这个运行包验证。早期源码 `18d6189`、准入头 `f26694d` 和执行对象 `04ceda0` 的九次托管尝试保存在[原失败档案](../engineering/universal-attachment/acceptance-20261114.json)，不会被新结果覆盖。
 
-1. 观察并诊断 `restart-01` 的原投递：保留资产、事件编号、探针标记、输入窗及接收边界。当前缺失回执不构成可重复上传许可，不自动重发同一点击。
+1. 保留 `restart-01` 的 UNKNOWN 原投递，不自动重发。最新 `calibration-01` 两张新图已各有完整回执和明确输入前拒绝；分别处理 `documentEditorPin / invalidReply` 与 `originalSelectionRecheck / -1712`，不从受控性能模型推断商业成功。
 2. 对后续真实点击分别取得普通 App 接收、点击时原进程/窗口/标签/文档/草稿、一次输入、真实 START 和最终完成证据。基线附件、进度 100、ready 属性及加载完成图片都不能单独证明商业上传完成。
 3. 连续双图、快速点击、点击后切换标签、Edge 无响应、明确拒绝、文字/选区/已有附件保留仍须分别实测。新诊断只提供观察事实，无法代替这些验收，也不解除 UNKNOWN 的禁止重传。
 4. 新增源码形成最终 checkpoint 后执行必要 ARM64/Intel/Feedback CI，并核对精确签名运行包。PR #69 保持 Draft，未满足合并或发行条件。
