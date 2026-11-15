@@ -1,0 +1,257 @@
+{
+  "schemaVersion": 1,
+  "builtSourceSHA": "57d8f0dcb9cd17967ab012642378a24b9caff4d8",
+  "admittedHeadSHA": "a2c54950a410b0d34d49ba522b2d8cb69155690b",
+  "artifacts": [
+    {
+      "file": "pinbudget-01-config.json",
+      "original": {
+        "bytes": 1022,
+        "sha256": "7f27197d6cb160848f44a9f500cc48945002af83a0248b331768eeb084f157cf"
+      },
+      "published": {
+        "bytes": 931,
+        "sha256": "b1c491fe6e5a174371a02af4b4cc84e4dd10008ac5d7ccaa00286c68957dec78"
+      },
+      "byteIdentical": false,
+      "redaction": "local home/temp/App path literals only; original retained under publication-originals"
+    },
+    {
+      "file": "signed-package-receipt.json",
+      "original": {
+        "bytes": 5674,
+        "sha256": "87f376e256b2e3f4acee53d0dd9532989eaf66172ec48a7b5fd7f28aaed2cb88"
+      },
+      "published": {
+        "bytes": 5623,
+        "sha256": "de8bde00dc46e8cc6efe79f478ef799e7f52484e7d4805ffe7c2686b999a6c97"
+      },
+      "byteIdentical": false,
+      "redaction": "local home/temp/App path literals only; original retained under publication-originals"
+    },
+    {
+      "file": "admitted-head-equivalence.json",
+      "original": {
+        "bytes": 376,
+        "sha256": "f260a44c31814833a8d7985f310fed5100b8935edd08e8f99deb04059e071895"
+      },
+      "published": {
+        "bytes": 376,
+        "sha256": "f260a44c31814833a8d7985f310fed5100b8935edd08e8f99deb04059e071895"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "ordinary-build-info.json",
+      "original": {
+        "bytes": 202,
+        "sha256": "9ed6b77365e275887bd6b24ba4aa7d7cae3252b46ee078327b90c30dcd274313"
+      },
+      "published": {
+        "bytes": 202,
+        "sha256": "9ed6b77365e275887bd6b24ba4aa7d7cae3252b46ee078327b90c30dcd274313"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "source-export.json",
+      "original": {
+        "bytes": 437,
+        "sha256": "1582c3b47f2b0550b0541f4892c1a9b3fa448f8962fe774c8135496dfd475757"
+      },
+      "published": {
+        "bytes": 361,
+        "sha256": "36fcea7c19c25e56a15f52d274589a8bbb5267bfcdf5361f065e2ca52aad66ca"
+      },
+      "byteIdentical": false,
+      "redaction": "local home/temp/App path literals only; original retained under publication-originals"
+    },
+    {
+      "file": "pinbudget-01-1-sent.json",
+      "original": {
+        "bytes": 1407,
+        "sha256": "021d6206188673da2d7b5ce05726e4cd85a053071352a41ab1d8e0bdcf2fe997"
+      },
+      "published": {
+        "bytes": 1407,
+        "sha256": "021d6206188673da2d7b5ce05726e4cd85a053071352a41ab1d8e0bdcf2fe997"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "pinbudget-01-1-preflight.json",
+      "original": {
+        "bytes": 538,
+        "sha256": "c31d8462924f67b2c774f8daadb5a9c4d1e775a5a5162bbb134bc925d4641e06"
+      },
+      "published": {
+        "bytes": 538,
+        "sha256": "c31d8462924f67b2c774f8daadb5a9c4d1e775a5a5162bbb134bc925d4641e06"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "pinbudget-01-1-receipt.json",
+      "original": {
+        "bytes": 705,
+        "sha256": "5dd9c37cb83411c627dd6ff8ad034cce26c9d97ede5dd923ce9c319d7b648c32"
+      },
+      "published": {
+        "bytes": 705,
+        "sha256": "5dd9c37cb83411c627dd6ff8ad034cce26c9d97ede5dd923ce9c319d7b648c32"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "pinbudget-01-1-draft-before.json",
+      "original": {
+        "bytes": 1155,
+        "sha256": "ed20cbd9f9fcf09a476156572117710a50bd6e79e72435f2b49c0773f65a1254"
+      },
+      "published": {
+        "bytes": 1155,
+        "sha256": "ed20cbd9f9fcf09a476156572117710a50bd6e79e72435f2b49c0773f65a1254"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "pinbudget-01-1-draft-after.json",
+      "original": {
+        "bytes": 1148,
+        "sha256": "29832664ab7f9cc415ad666ae3921f8496d7d00a827f7e1223c2a71750005dbd"
+      },
+      "published": {
+        "bytes": 1148,
+        "sha256": "29832664ab7f9cc415ad666ae3921f8496d7d00a827f7e1223c2a71750005dbd"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "pinbudget-01-1-observation.json",
+      "original": {
+        "bytes": 592,
+        "sha256": "f7e36812cd23c38bf5c6428af2b391ffc93371933cba14ecd6b5046c65e37769"
+      },
+      "published": {
+        "bytes": 592,
+        "sha256": "f7e36812cd23c38bf5c6428af2b391ffc93371933cba14ecd6b5046c65e37769"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "pinbudget-01-1-trace-01.jsonl",
+      "original": {
+        "bytes": 8372,
+        "sha256": "03ececbb488e48427030b83c7c86468359a78eb86f2fcc7e0494d45f1c93dc55"
+      },
+      "published": {
+        "bytes": 8372,
+        "sha256": "03ececbb488e48427030b83c7c86468359a78eb86f2fcc7e0494d45f1c93dc55"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "pinbudget-01-2-sent.json",
+      "original": {
+        "bytes": 1405,
+        "sha256": "a9dcadd60113a507b3cd50922693ba310116aa4747df6d2f01090cff7169a98c"
+      },
+      "published": {
+        "bytes": 1405,
+        "sha256": "a9dcadd60113a507b3cd50922693ba310116aa4747df6d2f01090cff7169a98c"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "pinbudget-01-2-preflight.json",
+      "original": {
+        "bytes": 539,
+        "sha256": "7d3b80e40250f2dc0dc8abdb94d09e9bac1fb9d093e7880273af8516d46a5bf1"
+      },
+      "published": {
+        "bytes": 539,
+        "sha256": "7d3b80e40250f2dc0dc8abdb94d09e9bac1fb9d093e7880273af8516d46a5bf1"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "pinbudget-01-2-receipt.json",
+      "original": {
+        "bytes": 702,
+        "sha256": "bb47acbd959ee17a449eabb291e0b9748856ed7b14c0f20738e84956ff801deb"
+      },
+      "published": {
+        "bytes": 702,
+        "sha256": "bb47acbd959ee17a449eabb291e0b9748856ed7b14c0f20738e84956ff801deb"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "pinbudget-01-2-draft-before.json",
+      "original": {
+        "bytes": 1155,
+        "sha256": "630b95c686d46743f9fd4d980ac2ea2dadfd914798ba2dc5bf6ae2c1cec03ebd"
+      },
+      "published": {
+        "bytes": 1155,
+        "sha256": "630b95c686d46743f9fd4d980ac2ea2dadfd914798ba2dc5bf6ae2c1cec03ebd"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "pinbudget-01-2-draft-after.json",
+      "original": {
+        "bytes": 1148,
+        "sha256": "dfa27f90571bd9f973a2dd99ab248c7d8816097d1bdbd9f7ed9c730c81dacbe8"
+      },
+      "published": {
+        "bytes": 1148,
+        "sha256": "dfa27f90571bd9f973a2dd99ab248c7d8816097d1bdbd9f7ed9c730c81dacbe8"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "pinbudget-01-2-observation.json",
+      "original": {
+        "bytes": 593,
+        "sha256": "8925337be9052829d5e317fc17f48455f17aa59d6793c6839a1cae6bd51d68c9"
+      },
+      "published": {
+        "bytes": 593,
+        "sha256": "8925337be9052829d5e317fc17f48455f17aa59d6793c6839a1cae6bd51d68c9"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "pinbudget-01-2-trace-01.jsonl",
+      "original": {
+        "bytes": 13915,
+        "sha256": "c3e4968b034c8efe81301a1e301290e8796c5434522b786dedbc3a84c0baade7"
+      },
+      "published": {
+        "bytes": 13915,
+        "sha256": "c3e4968b034c8efe81301a1e301290e8796c5434522b786dedbc3a84c0baade7"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    }
+  ],
+  "rawOriginalLocation": "build/pr69-runtime-20261115-pinbudget/publication-originals",
+  "privacy": "No PNGs, database, profile, auth state or draft text are published; collector outputs only scalar evidence. Original and published path-redacted hashes are separate.",
+  "workerActions": "Read saved records and actual executable bytes; no GUI, input post, Apple Events, database or product mutation."
+}

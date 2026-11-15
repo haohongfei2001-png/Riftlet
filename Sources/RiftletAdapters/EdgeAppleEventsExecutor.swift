@@ -53,21 +53,41 @@ private final class EdgeCommandCancellation: @unchecked Sendable {
         let budget = MainWorldReceiptReadBudget.clickSnapshot(start: started)
         let deadline = budget.deadlineUptime
         var phase = "nativeIdentity"
+        var phaseStarted = started
+        var timings: [String: Double] = [:]
         defer {
-            diagnosticTrace?.record(["event": "edge_click_pin", "phase": phase,
-                "succeeded": phase == "pinned", "elapsedMS": (ProcessInfo.processInfo.systemUptime - started) * 1000])
+            if let diagnosticTrace {
+                let finished = ProcessInfo.processInfo.systemUptime
+                var fields: [String: Any] = ["event": "edge_click_pin", "phase": phase,
+                    "succeeded": phase == "pinned", "elapsedMS": (finished - started) * 1000,
+                    "phaseElapsedMS": (finished - phaseStarted) * 1000]
+                for (key, value) in timings { fields[key] = value }
+                diagnosticTrace.record(fields)
+            }
         }
         let host = try driver.freeze(deadline: deadline)
+        timings["nativeIdentityMS"] = (ProcessInfo.processInfo.systemUptime - started) * 1000
         // This parser only canonicalizes the native address/positive IDs. It
         // performs no Chrome-specific lookup and grants no attachment authority.
         let address = try ChromeClickRoute(window: host.windowID, tab: host.tabID, url: host.address).address
         let witness = ChromeClickDocumentWitness(), world = EdgeExecutionWorldWitness()
         phase = "documentEditorPin"
+        phaseStarted = ProcessInfo.processInfo.systemUptime
         guard try driver.evaluate(world.prepareAndBind(witness, address: address, program: program),
                                   target: host, budget: budget) == "bound"
         else { throw WebAdapterError.pageRejected(.clickPinRefused) }
+        let pinned = ProcessInfo.processInfo.systemUptime
+        timings["documentPinMS"] = (pinned - phaseStarted) * 1000
+        timings["documentPinElapsedMS"] = (pinned - started) * 1000
         phase = "originalSelectionRecheck"
-        try driver.revalidate(host, deadline: deadline)
+        phaseStarted = pinned
+        // Address and original document/editor were just bound above. Avoid
+        // repeating the three-read freeze on the UI thread; the worker still
+        // performs full revalidate before capture and every attachment command.
+        try driver.recheckClickSelection(host, deadline: deadline)
+        let rechecked = ProcessInfo.processInfo.systemUptime
+        timings["selectionRecheckMS"] = (rechecked - phaseStarted) * 1000
+        timings["selectionRecheckElapsedMS"] = (rechecked - started) * 1000
         try budget.checkReturn(at: ProcessInfo.processInfo.systemUptime)
         phase = "pinned"
         let click = Click(host: host, world: world, captured: started)

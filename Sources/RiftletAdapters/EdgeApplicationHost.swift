@@ -63,6 +63,17 @@ struct EdgeApplicationHost: ApplicationHostAdapter {
         // Reject immediately on process switch, before reading any other receiver.
         guard try freeze(original.process) == original else { throw EdgeHostError.changed }
     }
+
+    /// The synchronous click already froze the address and pinned the original
+    /// document/editor. Check that exact native selection in one absolute-ID
+    /// read, bracketed by process/frontmost checks. This cannot replace full
+    /// revalidate before asynchronous capture or any attachment command.
+    func recheckClickSelection(_ original: EdgeWindowTab) throws {
+        guard frontmost() == original.process else { throw EdgeHostError.changed }
+        let selection = try selected(original.process.pid)
+        guard selection.window == original.windowID, selection.tab == original.tabID,
+              frontmost() == original.process else { throw EdgeHostError.changed }
+    }
 }
 
 /// Codes independently verified against the Edge app's own Contents/Resources/scripting.sdef.

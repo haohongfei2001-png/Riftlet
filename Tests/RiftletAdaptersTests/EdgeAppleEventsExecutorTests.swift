@@ -9,7 +9,9 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
     let host: EdgeWindowTab
     var selected = true, alive = true, worldSeparated = true, replaceAtPin = false
     var wrongCaptureWindow = false, loseCommitReply = false, latePin = false
+    var navigated = false, originalDocumentCurrent = true
     var modelClickBudget = false
+    var modeledPinDuration: TimeInterval = 0.024
     private var modeledUptime: TimeInterval?
     private(set) var synchronousEvaluations = 0
     var atPin: (() -> Void)?
@@ -20,6 +22,7 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
     private var replies: [String: String] = [:]
     private(set) var actions: [String] = []
     private(set) var bootstraps = 0, selectionChecks = 0
+    private(set) var fullSelectionChecks = 0, clickSelectionChecks = 0
     private var relayChannel: String?
 
     init() {
@@ -33,12 +36,12 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
         return host
     }
     func revalidate(_ target: EdgeWindowTab, deadline: TimeInterval) throws {
-        lock.lock(); defer { lock.unlock() }; selectionChecks += 1
+        lock.lock(); defer { lock.unlock() }; selectionChecks += 1; fullSelectionChecks += 1
         revalidateEntered?.signal()
         if let releaseRevalidate, releaseRevalidate.wait(timeout: .now() + 3) != .success {
             throw WebAdapterError.nativeExecutionFailed
         }
-        guard alive, selected, target == host else { throw WebAdapterError.nativeSelectionChanged }
+        guard alive, selected, !navigated, target == host else { throw WebAdapterError.nativeSelectionChanged }
         if let now = modeledUptime {
             // Three native identity reads still run, each requiring >=50 ms
             // before dispatch. No sleep or CI wall-clock performance assumption.
@@ -48,6 +51,14 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
                 }
             }
             modeledUptime = now + 0.045
+        }
+    }
+    func recheckClickSelection(_ target: EdgeWindowTab, deadline: TimeInterval) throws {
+        lock.lock(); defer { lock.unlock() }; selectionChecks += 1; clickSelectionChecks += 1
+        guard alive, selected, target == host else { throw WebAdapterError.nativeSelectionChanged }
+        if let now = modeledUptime {
+            guard deadline - now >= 0.05 else { throw WebAdapterError.nativeEventFailed(-1712) }
+            modeledUptime = now + 0.015
         }
     }
     func isCurrent(_ target: EdgeWindowTab) -> Bool {
@@ -65,7 +76,7 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
             synchronousEvaluations += 1
             if let now = modeledUptime {
                 _ = try budget.timeout(at: now)
-                modeledUptime = now + 0.024
+                modeledUptime = now + modeledPinDuration
             }
         }
         if source.contains("edge-world-prepare"), !source.contains("edge-click-prepare-and-pin") { return "prepared" }
@@ -78,7 +89,7 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
             return "bound"
         }
         if source.contains("edge-world-confirm") || source.contains("edge-world-validate") {
-            return worldSeparated ? "verified" : "refused"
+            return worldSeparated && originalDocumentCurrent ? "verified" : "refused"
         }
         if source.contains("root.attributes.length>1024") { return relayChannel ?? "" }
         if source.contains("?'ready':'missing'") { return relayChannel == nil ? "missing" : "ready" }
@@ -221,8 +232,71 @@ final class EdgeAppleEventsExecutorTests: XCTestCase {
         task.cancel() // This regression ends before the asynchronous capture/input path.
         XCTAssertEqual(driver.synchronousEvaluations, 1)
         XCTAssertEqual(driver.selectionChecks, 2)
+        XCTAssertEqual(driver.fullSelectionChecks, 1)
+        XCTAssertEqual(driver.clickSelectionChecks, 1)
         XCTAssertEqual(driver.bootstraps, 0)
         XCTAssertTrue(driver.actions.isEmpty)
+    }
+
+    @MainActor func testColdCombinedPinLeavesBudgetForExactSelectionWithoutRepeatingAddressFreeze() throws {
+        let driver = EdgeExecutorFixture(); driver.modelClickBudget = true; driver.modeledPinDuration = 0.044
+        let bridge = EdgeAppleEventsExecutor(driver: driver)
+        let task = try bridge.targetForClick(program: program)
+        task.cancel()
+        XCTAssertEqual(driver.synchronousEvaluations, 1)
+        XCTAssertEqual(driver.clickSelectionChecks, 1)
+        XCTAssertEqual(driver.fullSelectionChecks, 1)
+        XCTAssertEqual(driver.bootstraps, 0)
+        XCTAssertTrue(driver.actions.isEmpty)
+
+        // Identical costs fail when the post-pin path unnecessarily repeats all
+        // three freeze reads: their remaining budgets are 61, 46, then 31 ms.
+        let repeated = EdgeExecutorFixture(); repeated.modelClickBudget = true; repeated.modeledPinDuration = 0.044
+        let budget = MainWorldReceiptReadBudget.clickSnapshot(start: 100)
+        let host = try repeated.freeze(deadline: budget.deadlineUptime)
+        let world = EdgeExecutionWorldWitness(), document = ChromeClickDocumentWitness()
+        XCTAssertEqual(try repeated.evaluate(world.prepareAndBind(document, address: host.address, program: program),
+                                             target: host, budget: budget), "bound")
+        XCTAssertThrowsError(try repeated.revalidate(host, deadline: budget.deadlineUptime)) { error in
+            XCTAssertEqual(error as? WebAdapterError, .nativeEventFailed(-1712))
+        }
+        XCTAssertEqual(repeated.bootstraps, 0)
+        XCTAssertTrue(repeated.actions.isEmpty)
+    }
+
+    @MainActor func testFinalClickSelectionRefusesSwitchOrExitBeforeCapture() throws {
+        for exit in [false, true] {
+            let driver = EdgeExecutorFixture()
+            driver.atPin = { if exit { driver.alive = false } else { driver.selected = false } }
+            XCTAssertThrowsError(try EdgeAppleEventsExecutor(driver: driver).targetForClick(program: program)) { error in
+                XCTAssertEqual(error as? WebAdapterError, .nativeSelectionChanged)
+            }
+            XCTAssertEqual(driver.clickSelectionChecks, 1)
+            XCTAssertEqual(driver.bootstraps, 0)
+            XCTAssertTrue(driver.actions.isEmpty)
+        }
+    }
+
+    @MainActor func testNavigationAfterPinCannotCaptureOrInputThroughSelectionOnlyRecheck() async throws {
+        for sameAddressReplacement in [false, true] {
+            let driver = EdgeExecutorFixture()
+            driver.atPin = {
+                if sameAddressReplacement { driver.originalDocumentCurrent = false }
+                else { driver.navigated = true }
+            }
+            let original = EdgeAppleEventsExecutor(driver: driver)
+            do {
+                _ = try await original.targetForClick(program: program).value
+                XCTFail("selection identity alone cannot authorize capture of another document")
+            } catch {
+                XCTAssertEqual(error as? WebAdapterError,
+                    sameAddressReplacement ? .pageRejected(.bridgeUnavailable) : .nativeSelectionChanged)
+            }
+            XCTAssertEqual(driver.clickSelectionChecks, 1)
+            XCTAssertGreaterThanOrEqual(driver.fullSelectionChecks, 2)
+            XCTAssertEqual(driver.bootstraps, sameAddressReplacement ? 1 : 0)
+            XCTAssertTrue(driver.actions.isEmpty)
+        }
     }
 
     func testSeparatePrepareAndPinExhaustTheSameModeledRecheckBudget() throws {

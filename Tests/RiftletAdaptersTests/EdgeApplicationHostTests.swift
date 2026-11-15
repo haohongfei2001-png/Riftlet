@@ -16,10 +16,13 @@ final class EdgeApplicationHostTests: XCTestCase {
         let host = EdgeApplicationHost(frontmost: { process }, selected: { _ in chosen }, address: { _, _, _ in "https://example.test" })
         let original = try host.freeze()
         try host.revalidate(original)
+        try host.recheckClickSelection(original)
         chosen = ("14", "45")
         XCTAssertThrowsError(try host.revalidate(original))
+        XCTAssertThrowsError(try host.recheckClickSelection(original))
         chosen = ("13", "46")
         XCTAssertThrowsError(try host.revalidate(original))
+        XCTAssertThrowsError(try host.recheckClickSelection(original))
     }
 
     func testForegroundOrLaunchChangeRefusesBeforeReadingNewReceiver() throws {
@@ -33,9 +36,50 @@ final class EdgeApplicationHostTests: XCTestCase {
         let initial = reads
         foreground = nil
         XCTAssertThrowsError(try host.revalidate(original))
+        XCTAssertThrowsError(try host.recheckClickSelection(original))
         foreground = birth(second: 11)
         XCTAssertThrowsError(try host.revalidate(original))
+        XCTAssertThrowsError(try host.recheckClickSelection(original))
         XCTAssertEqual(reads, initial)
+    }
+
+    func testClickSelectionReadsOriginalPairOnceAndRechecksProcessAfterReply() throws {
+        let process = birth()
+        var foreground: KernelProcessBirth? = process
+        var selections = 0, addresses = 0
+        var restartDuringRead = false
+        let host = EdgeApplicationHost(frontmost: { foreground }, selected: { pid in
+            XCTAssertEqual(pid, process.pid)
+            selections += 1
+            if restartDuringRead { foreground = self.birth(second: 11) }
+            return ("13", "45")
+        }, address: { _, _, _ in addresses += 1; return "https://example.test/a" })
+        let original = try host.freeze()
+        selections = 0; addresses = 0
+        try host.recheckClickSelection(original)
+        XCTAssertEqual(selections, 1)
+        XCTAssertEqual(addresses, 0)
+        restartDuringRead = true
+        XCTAssertThrowsError(try host.recheckClickSelection(original)) { error in
+            XCTAssertEqual(error as? EdgeHostError, .changed)
+        }
+        XCTAssertEqual(selections, 2)
+        XCTAssertEqual(addresses, 0)
+    }
+
+    func testClickSelectionCannotReplaceFullNavigationValidation() throws {
+        let process = birth()
+        var url = "https://example.test/a", addressReads = 0
+        let host = EdgeApplicationHost(frontmost: { process }, selected: { _ in ("13", "45") },
+            address: { _, _, _ in addressReads += 1; return url })
+        let original = try host.freeze()
+        url = "https://example.test/b"
+        try host.recheckClickSelection(original)
+        XCTAssertEqual(addressReads, 1)
+        XCTAssertThrowsError(try host.revalidate(original)) { error in
+            XCTAssertEqual(error as? EdgeHostError, .changed)
+        }
+        XCTAssertEqual(addressReads, 2)
     }
 
     func testTabChangedBetweenDescriptorAndURLReadRefusesAndNavigationInvalidates() throws {

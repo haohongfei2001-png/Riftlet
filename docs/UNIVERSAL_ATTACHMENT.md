@@ -1,6 +1,12 @@
 # 无扩展附件引擎 · 首轮工程交接
 
-2026-11-15 最新检查点：**普通 App 两张新截图的产品级点击回执已通过；Edge × ChatGPT 双图上传仍未通过。** 当前签名运行包来自 H `d23267fe825f9ad2384b35b03db9fe2692485741`，实际可执行文件 SHA-256 已重新核算为 `8f68a1dc1907371271e7a17b90866d1527cac4e48d03ed0a7757f87708b562f9`。fresh-04 与 fresh-05 各投递一次，各收到 2 条 App、7 条原生边界及 1 条选择回执，资产、输入窗口、tag 和事件编号均严格匹配。[完整真实回执、源码/包身份与原始证据](../engineering/universal-attachment/edge-native-receipts-20261115/README.md)
+2026-11-15 最新真实检查点：**合并 Edge 文档绑定的新包仍未完成附件输入。** 构建源码 G `57d8f0dcb9cd17967ab012642378a24b9caff4d8` 与准入 H `a2c54950a410b0d34d49ba522b2d8cb69155690b` 的 1,813 个 native/test/build 文件一致；实际普通 App 可执行文件 SHA-256 为 `2c66bc1ebc64e86c8ddc7276de4dd95433df684a2f87a736b0d0cef813e46972`。两张均有严格匹配的完整 10 条点击链和明确输入前拒绝：首图在最终 `originalSelectionRecheck` 阶段 101.245167 ms、第二图 116.096167 ms，均为 `nativeEventFailed(-1712)`。没有操作、文件输入、START 或完成。[本轮原始证据及检查点](../engineering/universal-attachment/edge-pin-budget-20261115/README.md)
+
+该运行版已将 prepare 与 document pin 合为一次原生 evaluation，150 ms/50 ms 门槛及最终完整身份复核不变。进入最终复核说明前面的合并绑定返回 `bound`，这是源码顺序推断，不能替代完整草稿归属和上传证据。四份点击前后 AX 读回均保留中性正文、14 字符选区和 1 张基线附件；这只覆盖明确输入前拒绝。换包后使用一次产品既有分页显示目标 4/5；旧 UNKNOWN 与 fresh-03 未点，没有消息或自动重传。后续减少重复原生最终读取的优化尚未实测，模型不等于真实通过。新 H 的最终 CI 结果待独立报告，不能沿用旧 H 的绿色结果。
+
+## 上一原生回执检查点（历史）
+
+此前检查点：**普通 App 两张截图的产品级点击回执通过，Edge × ChatGPT 双图上传未通过。** 当前签名运行包来自 H `d23267fe825f9ad2384b35b03db9fe2692485741`，实际可执行文件 SHA-256 已重新核算为 `8f68a1dc1907371271e7a17b90866d1527cac4e48d03ed0a7757f87708b562f9`。fresh-04 与 fresh-05 各投递一次，各收到 2 条 App、7 条原生边界及 1 条选择回执，资产、输入窗口、tag 和事件编号均严格匹配。[完整真实回执、源码/包身份与原始证据](../engineering/universal-attachment/edge-native-receipts-20261115/README.md)
 
 第一张在 `documentEditorPin` 阶段用时 108.945583 ms，随后明确拒绝 `resolveSelection / invalidReply`；第二张进入 `originalSelectionRecheck`，100.515 ms 后明确拒绝 `resolveSelection / nativeEventFailed(-1712)`。这两个原生预算边界不能合并，也不是网页拒绝编辑器的同一原因。两次都未创建持久化操作，当前商业输入、START、完成为零。两次前测中性正文、14 字符选区与一个原附件均在，但没有成功输入后的保留证明。两次间隔约 74 秒，快速连续点击尚未验收。旧两张 UNKNOWN 和未点击的 fresh-03 保留，未重发；旧 `315978e` 丢回执根因仍不追认。
 
@@ -52,7 +58,7 @@ H 的五项必要 CI 已由独立复核确认全部成功，新增 Edge XCTest �
 | --- | --- | --- | --- | --- | --- | --- |
 | Google Chrome 157.0.8103.51 | N | N | N | N | N | 发现三个运行实例；既有真实草稿证据限于较早版本 |
 | Safari 27.0 | N | N | N | N | N | 已安装，本机采样时未运行；字典声明当前标签和索引，无标签类稳定 ID |
-| Microsoft Edge 156.0.4314.58 | N | N | N | N | N | H 普通 App 新两图均有完整产品回执，分别在原生绑定/最终复核前拒绝；商业输入、START、完成均为零 |
+| Microsoft Edge 156.0.4314.58 | N | N | N | N | N | 新 G57d8f0d/H a2c5495 两图均有完整产品回执，均在最终原目标复核以 -1712 拒绝；商业输入为零 |
 | Firefox | N | N | N | N | N | LaunchServices、运行列表与常用目录均未找到 |
 | Brave | N | N | N | N | N | 同上 |
 | Arc | N | N | N | N | N | 同上 |
@@ -100,9 +106,9 @@ Edge 商业验收的下一步是在普通 App 接入已验证的单次文件交�
 
 ## 当前验收边界与续验
 
-当前运行包源码是 `d23267f`，已包含诊断增量并完成五项必要 CI；最新真实两资产仅通过产品点击回执，后续预算修复尚未由这个运行包验证。早期源码 `18d6189`、准入头 `f26694d` 和执行对象 `04ceda0` 的九次托管尝试保存在[原失败档案](../engineering/universal-attachment/acceptance-20261114.json)，不会被新结果覆盖。
+当前运行包构建源码为 G `57d8f0d`、对应准入 H `a2c5495`；已合并的原生绑定仍在两次最终原选择复核中以 `-1712` 拒绝，没有文件输入。新 H 的最终 CI 待独立记录；后续减少重复原生读取的源码不在此运行包验收内。早期源码 `18d6189`、准入头 `f26694d` 和执行对象 `04ceda0` 的九次托管尝试保存在[原失败档案](../engineering/universal-attachment/acceptance-20261114.json)，不会被新结果覆盖。
 
-1. 保留 `restart-01` 的 UNKNOWN 原投递，不自动重发。最新 `calibration-01` 两张新图已各有完整回执和明确输入前拒绝；分别处理 `documentEditorPin / invalidReply` 与 `originalSelectionRecheck / -1712`，不从受控性能模型推断商业成功。
+1. 保留 `restart-01` 的 UNKNOWN 原投递，不自动重发。历史 `calibration-01` 两图分别在文档绑定/最终复核拒绝；最新 `pinbudget-01` 两图均在最终复核拒绝。各自保留完整原回执，不从受控性能模型推断商业成功。
 2. 对后续真实点击分别取得普通 App 接收、点击时原进程/窗口/标签/文档/草稿、一次输入、真实 START 和最终完成证据。基线附件、进度 100、ready 属性及加载完成图片都不能单独证明商业上传完成。
 3. 连续双图、快速点击、点击后切换标签、Edge 无响应、明确拒绝、文字/选区/已有附件保留仍须分别实测。新诊断只提供观察事实，无法代替这些验收，也不解除 UNKNOWN 的禁止重传。
 4. 新增源码形成最终 checkpoint 后执行必要 ARM64/Intel/Feedback CI，并核对精确签名运行包。PR #69 保持 Draft，未满足合并或发行条件。

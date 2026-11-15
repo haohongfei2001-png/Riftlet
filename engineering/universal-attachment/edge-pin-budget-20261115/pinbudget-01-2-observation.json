@@ -1,0 +1,25 @@
+{
+  "at": "2026-11-15T13:37:10.933747+00:00",
+  "assetIDDigest": "09fd1e0f829fbe2bfb00cdff642a4a0c6315f1b642cb3e0b0984afa5d88aa045",
+  "postExit": 0,
+  "strictReceiptExit": 0,
+  "afterInspectExit": 0,
+  "beforeCounts": {
+    "assets": 5,
+    "operations": 0,
+    "upload_starts": 0
+  },
+  "afterCounts": {
+    "assets": 5,
+    "operations": 0,
+    "upload_starts": 0
+  },
+  "traceChanges": [
+    {
+      "elapsed": 8.508400060236454e-05,
+      "sha256": "c3e4968b034c8efe81301a1e301290e8796c5434522b786dedbc3a84c0baade7"
+    }
+  ],
+  "automaticRetry": false,
+  "uploadSuccessClaimed": false
+}

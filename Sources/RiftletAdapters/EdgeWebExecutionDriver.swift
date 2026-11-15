@@ -3,6 +3,7 @@ import Carbon
 
 protocol EdgeWebExecutionDriver: Sendable {
     func freeze(deadline: TimeInterval) throws -> EdgeWindowTab
+    func recheckClickSelection(_ target: EdgeWindowTab, deadline: TimeInterval) throws
     func revalidate(_ target: EdgeWindowTab, deadline: TimeInterval) throws
     func isCurrent(_ target: EdgeWindowTab) -> Bool
     func recover(session: String, window: String, tab: String) -> EdgeWindowTab?
@@ -19,6 +20,10 @@ struct NativeEdgeWebExecutionDriver: EdgeWebExecutionDriver {
     }
     func revalidate(_ target: EdgeWindowTab, deadline: TimeInterval) throws {
         do { try EdgeApplicationHost(deadlineUptime: deadline).revalidate(target) } catch { throw Self.mapped(error) }
+    }
+    func recheckClickSelection(_ target: EdgeWindowTab, deadline: TimeInterval) throws {
+        do { try EdgeApplicationHost(deadlineUptime: deadline).recheckClickSelection(target) }
+        catch { throw Self.mapped(error) }
     }
     func isCurrent(_ target: EdgeWindowTab) -> Bool {
         EdgeProcessIdentity.read(pid: target.process.pid)?.birth == target.process
