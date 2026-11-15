@@ -1,4 +1,6 @@
 export const MAX_BODY = 32768;
+export const PRODUCTS = Object.freeze({riftlet: 'Riftlet', saytile: 'Saytile', nearpane: 'Nearpane'});
+export const productID = value => typeof value === 'string' && Object.hasOwn(PRODUCTS,value) ? value : null;
 export const FACTS = new Set(`sessionStarted previousSessionUnclean initializationIssue captureSourceUnavailable captureImportIssue captureUnsupported privateStorageIssue queueReadIssue selectionAccepted selectionRejected permissionUnavailable visibilityVisible visibilitySwallowed visibilityArchived visibilityRemoved queuePending queueTransferring queueUnknown queueFailed queueUsed queueMissing phasePrepared phaseDispatchIntent phaseInputTriggered phaseAttachmentPresent phaseUnknown phaseCompensated phaseFailed phaseSucceeded reasonCapture reasonUploadStarted reasonLegacyCompletion reasonAutomaticArchive reasonUserRemoved reasonUserRestored reasonSafeFailure uiProjectionDeferred uiProjectionMismatchCandidate`.split(' '));
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 export const validID = id => typeof id === 'string' && uuid.test(id);
@@ -9,12 +11,13 @@ export function keys(value, required, optional = []) {
 }
 const bounded = n => Number.isSafeInteger(n) && n >= 0 && n <= 9999;
 export function validate(value) {
-  if (!keys(value,['schema','id','kind','text','appVersion','createdAt'],['diagnostic'])
+  if (!keys(value,['schema','id','kind','text','appVersion','createdAt'],['diagnostic','product'])
       || value.schema !== 1 || !validID(value.id) || !['problem','suggestion'].includes(value.kind)
       || typeof value.text !== 'string' || !value.text.trim() || [...value.text].length > 4000
       || new TextEncoder().encode(value.text).length > 16384
       || typeof value.appVersion !== 'string' || !/^[0-9]{1,4}(\.[0-9]{1,4}){0,3}$/.test(value.appVersion)
       || !Number.isSafeInteger(value.createdAt) || value.createdAt < 0) throw new Error('schema');
+  if (Object.hasOwn(value,'product') && !productID(value.product)) throw new Error('product');
   if (Object.hasOwn(value,'diagnostic')) {
     const d = value.diagnostic;
     if (!keys(d,['schema','coverage','events','dropped']) || d.schema !== 1 || d.coverage !== 'session-sampled-v1'
@@ -23,6 +26,8 @@ export function validate(value) {
   }
   // Explicit reconstruction, not object spreading: new fields never pass through.
   const result = {schema:1,id:value.id,kind:value.kind,text:value.text,appVersion:value.appVersion,createdAt:value.createdAt};
+  // Omission is significant: do not add a default to legacy canonical payloads.
+  if (Object.hasOwn(value,'product')) result.product = value.product;
   if (value.diagnostic) result.diagnostic = {schema:1,coverage:'session-sampled-v1',events:value.diagnostic.events.map(e=>({fact:e.fact,count:e.count})),dropped:value.diagnostic.dropped};
   return result;
 }

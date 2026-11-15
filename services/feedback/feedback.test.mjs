@@ -4,10 +4,10 @@ import {DatabaseSync} from 'node:sqlite';
 import {readFileSync} from 'node:fs';
 import receiver from './receiver.mjs';
 import {dispatch} from './delivery.mjs';
-import {FACTS,validate} from './contract.mjs';
+import {FACTS,validate,digest} from './contract.mjs';
 
 class D1Fixture {
-  constructor(){this.db=new DatabaseSync(':memory:');this.db.exec(readFileSync(new URL('./schema.sql',import.meta.url),'utf8'));this.failure=null;}
+  constructor(schema=readFileSync(new URL('./schema.sql',import.meta.url),'utf8')){this.db=new DatabaseSync(':memory:');this.db.exec(schema);this.failure=null;}
   prepare(sql){return this.bound(sql,[]);}
   bound(sql,args){const self=this;return {
     sql,args,bind(...values){return self.bound(sql,values);},
@@ -277,4 +277,85 @@ test('Issue POST redirects stay uncertain and later ticks never repeat or follow
     assert.equal(record.payload,JSON.stringify(validate(p)));
     assert.equal(posts,1);assert.equal(reconciles,2);assert.equal(requests,6);
   }
+});
+
+
+test('product is a closed optional identifier and legacy canonical payload is byte-identical',async()=>{
+  const original={schema:1,id:'39d08ea2-6f19-4d46-9764-393c93f631ef',kind:'problem',text:'legacy',appVersion:'0.1',createdAt:2000000000};
+  const bytes=JSON.stringify(original);
+  assert.equal(JSON.stringify(validate(original)),bytes);
+  assert.equal(await digest(JSON.stringify(validate(original))),await digest(bytes));
+  const env=environment();
+  for(const product of [null,{},['saytile'],'Saytile','unknown','constructor','__proto__']) {
+    assert.equal((await receiver.fetch(req({...payload(),product}),env)).status,422);
+  }
+  for(const product of ['riftlet','saytile','nearpane']) {
+    const p={...payload(),product};assert.equal((await receiver.fetch(req(p),env)).status,202);
+    assert.equal((await stored(env,p.id)).product,product);
+    assert.equal(JSON.parse((await stored(env,p.id)).payload).product,product);
+    assert.equal((await receiver.fetch(req({...p,product:product==='riftlet'?'saytile':'riftlet'}),env)).status,409);
+  }
+});
+test('same private destination separates products using fixed titles labels and body metadata',async(t)=>{
+  const env=environment(),gh=github(t);
+  const products=['riftlet','saytile','nearpane'],names=['Riftlet','Saytile','Nearpane'];
+  const submissions=products.map(product=>({...payload(),product}));
+  for(const p of submissions)assert.equal((await receiver.fetch(req(p),env)).status,202);
+  await Promise.all([dispatch(env),dispatch(env)]);assert.equal(gh.posts,3);
+  for(let i=0;i<3;i++) {
+    const p=submissions[i],issue=gh.issues.find(x=>x.title===`${names[i]} feedback RF-${p.id}`);
+    assert(issue);assert.deepEqual(issue.labels,['product:'+products[i]]);
+    assert(issue.body.startsWith(`<!-- riftlet-feedback:v1:${p.id} -->\n`));
+    assert(issue.body.includes(`\nProduct: ${names[i]}\n`));
+    assert.equal((await stored(env,p.id)).state,'delivered');
+  }
+});
+test('lost Saytile Issue response still reconciles exact Issue after deleting payload',async(t)=>{
+  const env=environment(),p={...payload(),product:'saytile'},gh=github(t,{loseResponse:true});
+  await receiver.fetch(req(p),env);await dispatch(env);
+  assert.equal((await stored(env,p.id)).state,'uncertain');assert.equal(gh.posts,1);
+  assert.equal((await receiver.fetch(req(p,token,'DELETE'),env)).status,202);
+  assert.equal((await stored(env,p.id)).payload,null);
+  assert.equal((await stored(env,p.id)).product,'saytile');
+  env.DB.db.exec('UPDATE feedback SET checked_at=0');await dispatch(env);
+  const after=await stored(env,p.id);
+  assert.equal(after.state,'deletion_pending');assert.equal(after.issue_number,gh.issues[0].number);
+  assert.equal(gh.posts,1);assert.equal(after.payload,null);
+});
+test('expiry keeps product identity for uncertain Nearpane delivery without recreating Issue',async(t)=>{
+  const env=environment(),p={...payload(),product:'nearpane'},gh=github(t,{loseResponse:true});
+  await receiver.fetch(req(p),env);await dispatch(env);
+  env.DB.db.exec('UPDATE feedback SET expires=0,checked_at=0');await dispatch(env);
+  const after=await stored(env,p.id);
+  assert.equal(after.payload,null);assert.equal(after.product,'nearpane');
+  assert.equal(after.state,'deletion_pending');assert.equal(after.issue_number,gh.issues[0].number);
+  assert.equal(gh.posts,1);
+});
+test('stored product mismatch cannot redirect the issue label or body',async(t)=>{
+  const env=environment(),p={...payload(),product:'saytile'},gh=github(t);
+  await receiver.fetch(req(p),env);
+  env.DB.db.exec("UPDATE feedback SET product='riftlet'");
+  await dispatch(env);assert.equal(gh.posts,0);assert.equal((await stored(env,p.id)).state,'uncertain');
+});
+
+test('additive product migration preserves legacy payload hashes capabilities quotas and Issue identity',async(t)=>{
+  const env=environment();
+  env.DB=new D1Fixture(readFileSync(new URL('./fixtures/schema-before-product.sql',import.meta.url),'utf8'));
+  const p=payload(),bytes=JSON.stringify(p),now=Math.floor(Date.now()/1000);
+  const beforeHash=await digest(bytes),secretHash=await digest(token);
+  env.DB.db.prepare("INSERT INTO feedback(id,payload_hash,secret_hash,payload,created,expires,day_bucket,ip_bucket) VALUES(?,?,?,?,?,?,?,?)")
+    .run(p.id,beforeHash,secretHash,bytes,now,now+86400,'day:fixture','ip:fixture');
+  const before=await stored(env,p.id),quota=env.DB.db.prepare('SELECT * FROM quota ORDER BY bucket').all();
+  assert(!Object.hasOwn(before,'product'));
+  env.DB.db.exec(readFileSync(new URL('./migration-002-product.sql',import.meta.url),'utf8'));
+  const {product,...after}=await stored(env,p.id);
+  assert.equal(product,'riftlet');assert.deepEqual(after,{...before});
+  assert.deepEqual(env.DB.db.prepare('SELECT * FROM quota ORDER BY bucket').all(),quota);
+  const retry=await receiver.fetch(req(p),env);assert.equal(retry.status,202);
+  assert.equal((await stored(env,p.id)).payload_hash,beforeHash);
+  assert.equal((await stored(env,p.id)).payload,bytes);
+  const gh=github(t);await dispatch(env);
+  assert.equal(gh.posts,1);assert.equal(gh.issues[0].title,`Riftlet feedback RF-${p.id}`);
+  assert(gh.issues[0].body.startsWith(`<!-- riftlet-feedback:v1:${p.id} -->\n`));
+  assert.deepEqual(gh.issues[0].labels,['product:riftlet']);
 });

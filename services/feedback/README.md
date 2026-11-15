@@ -1,5 +1,24 @@
 # Feedback v0.1 — receiver and private Issues delivery
 
+## Multi-product routing · 2026-11-15
+
+The same private `haohongfei2001-png/Riftlet-Feedback` repository receives product-specific reports. The optional closed `product` field accepts `riftlet`, `saytile`, or `nearpane`; absence retains the legacy Riftlet contract byte-for-byte. Product names are not inferred from user prose. Existing Nearpane clients that prefix `product=Nearpane` inside text remain legacy v1 clients until their host explicitly adopts the structured field; this change does not rewrite their stored reports.
+
+New explicitly tagged Issues use the fixed product name in the title/body and `product:<id>` labels. The original UUID marker stays unchanged. Durable D1 product metadata survives text deletion/expiry so an uncertain submission reconciles the original Issue without another POST. App-provided product is a routing hint, not proof of installation or identity.
+
+Deployment sequence on the **existing** free account/resources only:
+
+1. Independently verify the private destination and current Receiver/Delivery/D1 bindings. Read `PRAGMA table_info(feedback)`; if the `product` column is absent, apply `migration-002-product.sql` exactly once. Verify its default and check constraint; never recreate the database or run a destructive schema reset. `schema.sql` is the full schema only for fresh isolated test databases.
+2. Ensure fixed destination labels `product:riftlet`, `product:saytile`, and `product:nearpane` exist. No source-repository feedback Issues and no Actions triggers on submitted text.
+3. Deploy Delivery before Receiver from the reviewed commit, then read back both version IDs/bindings. Existing payload canonicalization, quotas, credentials, private-repository verification, redirect refusal and at-most-one automatic creation claim remain unchanged. Do not change paid plans, quotas or create infrastructure.
+4. Run one explicitly authorized synthetic Saytile native submission; distinguish durable receipt from actual private-Issue arrival. Do not retry unknown submissions using a new UUID or capability. The cloud helper accepts `prepare --product saytile` and checks its exact title/body/label. No production/user recording is attached.
+5. Code rollback must not run the old Delivery against new Saytile rows: the old title matcher cannot reconcile them after a lost response. Prefer forward repair; if a rollback is unavoidable, disable delivery through the existing switch while preserving all rows and capabilities. The additive column itself is retained.
+
+Local verification: 30 Node service cases (real SQLite, mocked GitHub/D1 scheduling) and 6 Python acceptance-helper cases pass; no assertion skipped. These are not a claim of live deployment or native-to-cloud delivery. Live results belong in a source-bound delivery receipt.
+
+[2026-11-15 source-bound checkpoint](acceptance/2026-11-15-multiproduct-checkpoint.json): the private destination and three fixed product labels are verified; no feedback was submitted. Live migration and deployment are **BLOCKED** because Wrangler has no account authentication and this repository has no deployment credentials/workflow. An account holder must complete one login to the existing account; no paid plan or new infrastructure is needed. The current hosted service has not been upgraded by this change. Final source admission and CI must use the actual reviewed successor head, not this pre-admission snapshot.
+
+
 ## Final cloud checkpoint — 2026-10-29 15:39 UTC
 
 Real synthetic-service HTTPS reception, D1 persistence, three unique private Issues, original-Issue reconciliation and remote test-data deletion closure have actual evidence. Owner permanently deleted Issues1/2/3; the same authorized connector successfully read the private repository, obtained explicit deleted410 Gone for each exact Issue and an empty complete state=all list. After independent review, exact guarded D1 transitions were executed:8 deleted rows,0 active bodies,0 pending deletions,0 probe tables,limits100/20. Three original-capability GETs independently assert200/exactID/deleted/durable=true.
