@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "observedAtUTC": "2026-11-15T13:04:55.559707+00:00",
+  "sourceBase": "b5a412f6d37378b7cfef56e2f1e9524cc9b1ac6e",
+  "serviceCodeSource": "79eca543773c1f51f1434c151b2bacd27b18ddba",
+  "pullRequest": "https://github.com/haohongfei2001-png/Riftlet/pull/104",
+  "scope": "Shared private feedback service product routing; no native Riftlet or Nearpane product changes.",
+  "localTests": {
+    "nodeService": {
+      "status": "PASS",
+      "total": 30,
+      "passed": 30,
+      "failed": 0,
+      "skipped": 0
+    },
+    "pythonAcceptanceHelper": {
+      "status": "PASS",
+      "total": 6,
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0
+    },
+    "logDigests": {
+      "node_service": {
+        "sha256": "4d267409fb3da56b19bb14e56bee2a5f21da30e45be63eae5c32c7c86b5290b9"
+      },
+      "python_acceptance_helper": {
+        "sha256": "8750d4b5acdce1e4d680a3a27eb5d68370ed8b7d37b619aa32e9e0049f881dae"
+      }
+    }
+  },
+  "preAdmissionCI": {
+    "source": "79eca543773c1f51f1434c151b2bacd27b18ddba",
+    "feedbackNativeAndService": {
+      "status": "PASS",
+      "jobURL": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43715522196/job/132816095295"
+    },
+    "nativeSourceAdmission": "FAIL_OLD_REVIEW_DOES_NOT_ADMIT_NEW_TREE",
+    "feedbackSourceAdmission": "FAIL_OLD_REVIEW_DOES_NOT_ADMIT_NEW_TREE",
+    "nativeARM64": "RUNNING_AT_CHECKPOINT",
+    "nativeIntel": "RUNNING_AT_CHECKPOINT",
+    "note": "This is the pre-admission checkpoint, not the final reviewed head. No gates, assertions or workflows were changed."
+  },
+  "destination": {
+    "repository": "haohongfei2001-png/Riftlet-Feedback",
+    "private": true,
+    "issuesEnabled": true,
+    "verification": "PASS_GITHUB_API",
+    "labelsCreatedAndReadBack": [
+      "product:riftlet",
+      "product:saytile",
+      "product:nearpane"
+    ],
+    "issuesCreated": 0
+  },
+  "deployment": {
+    "status": "BLOCKED_NO_CLOUDFLARE_AUTHENTICATION",
+    "wranglerVersion": "4.162.0",
+    "whoami": "You are not authenticated. Please run `wrangler login`.",
+    "localAuthenticationPresence": "No configured token or standard OAuth config found; no credential value read or emitted.",
+    "repositoryActionsSecretCount": 0,
+    "repositoryActionsVariableCount": 0,
+    "repositoryEnvironments": [
+      "github-pages"
+    ],
+    "githubPagesEnvironmentSecretCount": 0,
+    "existingDeployWorkflow": false,
+    "migrationApplied": false,
+    "receiverDeployed": false,
+    "deliveryDeployed": false,
+    "liveVersionIDsVerified": false,
+    "existingAccountResourcesPreserved": true,
+    "newInfrastructureCreated": false,
+    "paidPlanChanges": false,
+    "minimumOwnerAction": "Sign in once to the existing authorized Cloudflare account using Wrangler login; no new account, token pasted in chat or paid plan is required.",
+    "afterAuthentication": "Verify exact existing account/Worker/D1 bindings; inspect PRAGMA and add product column only if absent; deploy reviewed Delivery then Receiver; read back versions; coordinate one synthetic native submission."
+  },
+  "nativeToPrivateIssue": "NOT_RUN_WAITING_FOR_REVIEWED_SERVICE_DEPLOYMENT",
+  "retainedGuarantees": [
+    "Legacy omitted-product canonical bytes and hashes unchanged",
+    "One automatic Issue creation claim; unknown delivery is never reset or blindly replayed",
+    "Product identity survives D1 body scrubbing for original-Issue reconciliation",
+    "Private destination, redirect refusal, quotas and capability validation unchanged",
+    "No main merge, release, production app replacement or private recording access"
+  ]
+}

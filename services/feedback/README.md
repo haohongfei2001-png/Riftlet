@@ -16,6 +16,8 @@ Deployment sequence on the **existing** free account/resources only:
 
 Local verification: 30 Node service cases (real SQLite, mocked GitHub/D1 scheduling) and 6 Python acceptance-helper cases pass; no assertion skipped. These are not a claim of live deployment or native-to-cloud delivery. Live results belong in a source-bound delivery receipt.
 
+[2026-11-15 source-bound checkpoint](acceptance/2026-11-15-multiproduct-checkpoint.json): the private destination and three fixed product labels are verified; no feedback was submitted. Live migration and deployment are **BLOCKED** because Wrangler has no account authentication and this repository has no deployment credentials/workflow. An account holder must complete one login to the existing account; no paid plan or new infrastructure is needed. The current hosted service has not been upgraded by this change. Final source admission and CI must use the actual reviewed successor head, not this pre-admission snapshot.
+
 
 ## Final cloud checkpoint — 2026-10-29 15:39 UTC
 
