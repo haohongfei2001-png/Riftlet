@@ -121,7 +121,7 @@ final class RiftControlCenterControllerTests: XCTestCase {
         for mode in [SetupAttachmentState.productionDisabled, .offlineSimulation] {
             let projection = RiftControlCenterPresentation(fixture(issue: .targetUnavailable, attachment: mode), copy: .simplifiedChinese)
             XCTAssertEqual(projection.state, .collecting)
-            XCTAssertTrue(projection.detail.contains("截图历史"))
+            XCTAssertTrue(projection.detail.contains("截图仓库"))
             XCTAssertFalse(projection.detail.contains("Chrome"))
         }
     }

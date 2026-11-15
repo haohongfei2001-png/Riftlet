@@ -1,0 +1,15 @@
+{
+  "firstHead": "8dac9a6e6d76059dca65a1baf6d34c0ff61bfdfc",
+  "nativeRun": 43715457569,
+  "feedbackRun": 43715458032,
+  "initialResult": "Native jobs FAIL; both source admissions and Feedback PASS",
+  "confirmedARM64Failures": [
+    "Two language assertions retained Screenshot History instead of Screenshot Library",
+    "Local-only collection description retained old Chinese library name",
+    "Two host tests still looked up removed pause/hide menu switches",
+    "Updater host test expected check action hidden until a version was available"
+  ],
+  "correction": "Update semantic UI assertions and migrate host tests to actual conditional legacy recovery and independent settings visibility control. Preserve shared model, stale updates, cross-domain persistence and update dispatch checks. No product runtime changes.",
+  "nativeEvidence": "Inherits exact unchanged product sources and binary from r3; no new native test/package is claimed.",
+  "rerun": "PENDING"
+}
