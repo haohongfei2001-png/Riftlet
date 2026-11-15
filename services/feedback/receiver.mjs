@@ -44,8 +44,8 @@ async function handle(request,env) {
       const day='day:'+Math.floor(now/86400), bucket=await ipBucket(ip,Math.floor(now/3600),env.IP_HMAC_KEY);
       try {
         const result=await env.DB.batch([
-          env.DB.prepare("INSERT INTO feedback(id,payload_hash,secret_hash,payload,created,expires,day_bucket,ip_bucket) SELECT ?,?,?,?,?,?,?,? WHERE NOT EXISTS(SELECT 1 FROM feedback WHERE id=?)")
-            .bind(value.id,payloadHash,hash,payload,now,now+90*86400,day,bucket,value.id),
+          env.DB.prepare("INSERT INTO feedback(id,payload_hash,secret_hash,payload,created,expires,day_bucket,ip_bucket,product) SELECT ?,?,?,?,?,?,?,?,? WHERE NOT EXISTS(SELECT 1 FROM feedback WHERE id=?)")
+            .bind(value.id,payloadHash,hash,payload,now,now+90*86400,day,bucket,value.product ?? 'riftlet',value.id),
           env.DB.prepare('SELECT * FROM feedback WHERE id=?').bind(value.id)
         ]);
         row=result[1].results[0];

@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS limits (
 INSERT OR IGNORE INTO limits VALUES (1,1000,20);
 CREATE TABLE IF NOT EXISTS quota (bucket TEXT PRIMARY KEY, used INTEGER NOT NULL, expires INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS feedback (
+  product TEXT NOT NULL DEFAULT 'riftlet' CHECK(product IN ('riftlet','saytile','nearpane')),
   id TEXT PRIMARY KEY, payload_hash TEXT NOT NULL, secret_hash TEXT NOT NULL,
   payload TEXT, created INTEGER NOT NULL, expires INTEGER NOT NULL,
   day_bucket TEXT NOT NULL, ip_bucket TEXT NOT NULL,
