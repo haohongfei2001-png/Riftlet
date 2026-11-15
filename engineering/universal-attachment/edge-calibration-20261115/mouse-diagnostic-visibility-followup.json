@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "recordedAtUTC": "2026-11-15T12:28:53.240557+00:00",
+  "scope": "SOURCE_ONLY_OPT_IN_NATIVE_MOUSE_DIAGNOSTIC_VISIBILITY",
+  "baseHead": "c3278c0bea1c03dc8cfc445fd7678a3de3467ae1",
+  "finalCheckpointSHA": null,
+  "sourceSHA256": {
+    "Sources/RiftletApp/RiftletMain.swift": "9992929c45341434c158149432441217a5c1f61f21587d5033e06823895fab17",
+    "Sources/RiftletUI/RiftPanelController.swift": "ff7126b5fdea98fb02955ee743cc12bc47d2868ac3f8d9f06c626e8f0e72a6d8",
+    "Tests/RiftletUITests/RiftInputIslandTests.swift": "cb7d21574687a01add29ceaf51f6dfff06142e54775ff3eaa4cefc9c21e26179"
+  },
+  "defect": "A missing or stripped positive probe tag suppressed actual App/window/input dispatch diagnostics in the running baseline.",
+  "change": "Record real native events under explicit diagnostic opt-in even without a positive valid tag; missing tags remain nil. Ordinary event selection and exact-tag receipt matching are unchanged.",
+  "defaultTracingEnabled": false,
+  "receiptMatcherRelaxed": false,
+  "repostedEvents": 0,
+  "existingMissingEventRootCause": "UNKNOWN_NOT_CLAIMED_FIXED",
+  "runningPackageContainsThisChange": false,
+  "testsAddedOrUpdated": [
+    "testMouseDiagnosticsDistinguishGeometryAndGateRefusalAndRequireOptIn",
+    "testUntaggedWindowDispatchRetainsIndependentAssetReceiptsAfterRefresh"
+  ],
+  "localNativeBuild": "PASS_WHOLE_APP_TEMPORARY_SCRATCH_PATH",
+  "nativeAppKitExecution": "NOT_RUN",
+  "swiftXCTest": "NOT_RUN_LOCAL_CLT_MISSING_XCTEST",
+  "independentReview": "NO_BLOCKING_FINDINGS_AT_RECORDED_THREE_FILE_HASHES",
+  "ci": "PENDING_FINAL_CHECKPOINT",
+  "previousFiveFileReviewDoesNotCoverThesePaths": true,
+  "commercialDoubleImageAcceptance": "NOT_PASSED",
+  "independentReviewRecord": "mouse-diagnostics-independent-review.md",
+  "independentReviewJSON": "mouse-diagnostics-review.json",
+  "nativeBuild": {
+    "seconds": 27.09,
+    "raw": {
+      "name": "root-native-build-temporary.log",
+      "bytes": 15958,
+      "sha256": "e589b2cb7355ea7cafabfcda6937a85548173f569015ca396a8b6f98023dc30f"
+    },
+    "published": {
+      "name": "native-build.log",
+      "bytes": 14662,
+      "sha256": "c763b8218e9f88b05fc0bc1c640cab30aa218958fa51f821b0c5ad1787b0899e"
+    },
+    "sanitization": "absolute checkout and temporary-build paths removed",
+    "scope": "Whole App build only; not XCTest, signing/notarization, live AppKit or commercial acceptance",
+    "earlierAttempts": [
+      {
+        "name": "root-native-build-unsandboxed.log",
+        "bytes": 1389,
+        "sha256": "e1a0a2cd0e0efcbfbd7170eafb56d98f1b71bd3bdf75cd39e768a5fad8366fac"
+      },
+      {
+        "name": "root-native-build.log",
+        "bytes": 1619,
+        "sha256": "d793d7c9b5b8081effbf3aaa33adb1095ce79e6d6a874324c998e9e359c54aa4"
+      }
+    ]
+  },
+  "independentStrictReceiptChecks": {
+    "invalidOrWrongTagsRefused": 6,
+    "unrelatedUntaggedBoundariesCannotSupplyReceipt": true
+  }
+}

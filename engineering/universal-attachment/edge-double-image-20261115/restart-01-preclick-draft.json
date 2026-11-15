@@ -1,0 +1,20 @@
+{
+  "scope": "PUBLIC_AX_TEST_DRAFT_PREPARATION_ONLY_NOT_PRODUCT_UPLOAD",
+  "observedAt": "2026-11-15T12:16:58Z",
+  "original": {
+    "name": "restart-01-first-preclick-draft.json",
+    "bytes": 1155,
+    "sha256": "88dc9243b0f10d47a36d29684f9f634416310b0e9708acf39a37b516bd580ba5"
+  },
+  "frontmostExact": true,
+  "standardWindows": 1,
+  "chatGPTWindow": true,
+  "editorCount": 1,
+  "exactNeutralText": true,
+  "textSHA256": "d60bcd4299469a1c5c0f8d2c7ed34dfde67d4631f99ff80de5297d3608407b3b",
+  "selectedWords": true,
+  "selectionLength": 14,
+  "baselineImageCount": 1,
+  "messageSent": false,
+  "omittedFields": "machine process IDs, launch time and unrelated window geometry"
+}

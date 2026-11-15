@@ -1,0 +1,1099 @@
+✖ capture alone never scans a body, html or undeclared fallback as a calibration root (6.43425ms)
+✖ capture prunes transcript, ancillary and nested composer subtrees inside a declared form (0.862084ms)
+✔ a declared non-form composer retains bounded local diagnostics (0.45625ms)
+✖ calibration never restarts descendant queries outside its single bounded traversal (2.721041ms)
+✖ matching cards cannot lend indicators or retention through a historical descendant (1.286959ms)
+✔ Edge sidecar binds two independent files to their original draft without granting START (1.532083ms)
+✔ progress, ready attributes and loaded images remain separate untrusted facts (1.175334ms)
+✔ original text, exact selection and original attachment nodes are compared without restoring user edits (0.882541ms)
+✔ original operation cannot sample a replacement editor, document or navigation ABA (3.195584ms)
+✔ another operation identity never receives the original sidecar (1.035083ms)
+✔ unowned same-filename indicators cannot borrow original form ownership (0.6335ms)
+✔ placeholder and missing progress do not become positive upload evidence (0.590459ms)
+✔ bounded or unavailable calibration never prevents a responsible input (14.673583ms)
+✔ a failed diagnostic read after input cannot throw away the original observation or repeat input (0.681708ms)
+✔ an oversized later DOM scan reports its limit instead of a partial progress claim (2.084ms)
+✔ textarea comparison preserves reverse selection without keyboard focus (0.709125ms)
+✔ capture-time snapshot is not overwritten by a later click on the same draft (1.240666ms)
+✔ Chrome keeps its existing receipt behavior and has no Edge calibration sidecar (0.549042ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 14
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 82.157834
+
+✖ failing tests:
+
+test at Tests/WebPageProgram/edge-calibration-diagnostics.test.cjs:47:1
+✖ capture alone never scans a body, html or undeclared fallback as a calibration root (6.43425ms)
+  AssertionError [ERR_ASSERTION]: body
+  + actual - expected
+  
+  + {
+  +   editor: <ref *1> Node {
+  +     _text: 'Existing 中文 draft 👋 and selection',
+  +     attrs: {
+  +       contenteditable: 'true',
+  +       id: 'prompt-textarea',
+  +       role: 'textbox'
+  +     },
+  +     children: [],
+  +     disabled: false,
+  +     listeners: Map(0) {},
+  +     nodeType: 1,
+  +     parentElement: <ref *2> Node {
+  +       _text: '',
+  +       attrs: {},
+  +       children: [
+  +         [Circular *1],
+  +         Input {
+  +           _files: [],
+  +           _text: '',
+  +           attrs: {
+  +             accept: 'image/*',
+  +             type: 'file'
+  +           },
+  +           changeCount: 0,
+  +           children: [],
+  +           chooserOpens: 0,
+  +           disabled: false,
+  +           listeners: Map(0) {},
+  +           nodeType: 1,
+  +           parentElement: [Circular *2],
+  +           setterCount: 0,
+  +           tagName: 'INPUT'
+  +         },
+  +         <ref *3> Node {
+  +           _text: '',
+  +           attrs: {
+  +             'data-file-name': 'existing.png',
+  +             role: 'button',
+  +             title: 'existing.png'
+  +           },
+  +           children: [
+  +             Node {
+  +               _text: '',
+  +               attrs: {
+  +                 alt: 'existing.png',
+  +                 src: 'blob:old-image'
+  +               },
+  +               children: [],
+  +               disabled: false,
+  +               listeners: Map(0) {},
+  +               nodeType: 1,
+  +               parentElement: [Circular *3],
+  +               tagName: 'IMG'
+  +             }
+  +           ],
+  +           disabled: false,
+  +           listeners: Map(0) {},
+  +           nodeType: 1,
+  +           parentElement: [Circular *2],
+  +           tagName: 'DIV'
+  +         },
+  +         <ref *5> Node {
+  +           _text: '',
+  +           attrs: {
+  +             'data-message-author-role': 'assistant'
+  +           },
+  +           children: [
+  +             <ref *4> Node {
+  +               _text: '',
+  +               attrs: {
+  +                 'data-file-name': 'historical-private.png'
+  +               },
+  +               children: [
+  +                 Node {
+  +                   _text: '',
+  +                   attrs: {
+  +                     src: 'blob:historical-private'
+  +                   },
+  +                   children: [],
+  +                   disabled: false,
+  +                   listeners: Map(0) {},
+  +                   nodeType: 1,
+  +                   parentElement: [Circular *4],
+  +                   tagName: 'IMG'
+  +                 }
+  +               ],
+  +               disabled: false,
+  +               listeners: Map(0) {},
+  +               nodeType: 1,
+  +               parentElement: [Circular *5],
+  +               tagName: 'DIV'
+  +             }
+  +           ],
+  +           disabled: false,
+  +           listeners: Map(0) {},
+  +           nodeType: 1,
+  +           parentElement: [Circular *2],
+  +           tagName: 'DIV'
+  +         }
+  +       ],
+  +       disabled: false,
+  +       listeners: Map(0) {},
+  +       nodeType: 1,
+  +       parentElement: null,
+  +       tagName: 'BODY'
+  +     },
+  +     tagName: 'DIV'
+  +   },
+  +   form: <ref *2> Node {
+  +     _text: '',
+  +     attrs: {},
+  +     children: [
+  +       <ref *1> Node {
+  +         _text: 'Existing 中文 draft 👋 and selection',
+  +         attrs: {
+  +           contenteditable: 'true',
+  +           id: 'prompt-textarea',
+  +           role: 'textbox'
+  +         },
+  +         children: [],
+  +         disabled: false,
+  +         listeners: Map(0) {},
+  +         nodeType: 1,
+  +         parentElement: [Circular *2],
+  +         tagName: 'DIV'
+  +       },
+  +       Input {
+  +         _files: [],
+  +         _text: '',
+  +         attrs: {
+  +           accept: 'image/*',
+  +           type: 'file'
+  +         },
+  +         changeCount: 0,
+  +         children: [],
+  +         chooserOpens: 0,
+  +         disabled: false,
+  +         listeners: Map(0) {},
+  +         nodeType: 1,
+  +         parentElement: [Circular *2],
+  +         setterCount: 0,
+  +         tagName: 'INPUT'
+  +       },
+  +       <ref *3> Node {
+  +         _text: '',
+  +         attrs: {
+  +           'data-file-name': 'existing.png',
+  +           role: 'button',
+  +           title: 'existing.png'
+  +         },
+  +         children: [
+  +           Node {
+  +             _text: '',
+  +             attrs: {
+  +               alt: 'existing.png',
+  +               src: 'blob:old-image'
+  +             },
+  +             children: [],
+  +             disabled: false,
+  +             listeners: Map(0) {},
+  +             nodeType: 1,
+  +             parentElement: [Circular *3],
+  +             tagName: 'IMG'
+  +           }
+  +         ],
+  +         disabled: false,
+  +         listeners: Map(0) {},
+  +         nodeType: 1,
+  +         parentElement: [Circular *2],
+  +         tagName: 'DIV'
+  +       },
+  +       <ref *5> Node {
+  +         _text: '',
+  +         attrs: {
+  +           'data-message-author-role': 'assistant'
+  +         },
+  +         children: [
+  +           <ref *4> Node {
+  +             _text: '',
+  +             attrs: {
+  +               'data-file-name': 'historical-private.png'
+  +             },
+  +             children: [
+  +               Node {
+  +                 _text: '',
+  +                 attrs: {
+  +                   src: 'blob:historical-private'
+  +                 },
+  +                 children: [],
+  +                 disabled: false,
+  +                 listeners: Map(0) {},
+  +                 nodeType: 1,
+  +                 parentElement: [Circular *4],
+  +                 tagName: 'IMG'
+  +               }
+  +             ],
+  +             disabled: false,
+  +             listeners: Map(0) {},
+  +             nodeType: 1,
+  +             parentElement: [Circular *5],
+  +             tagName: 'DIV'
+  +           }
+  +         ],
+  +         disabled: false,
+  +         listeners: Map(0) {},
+  +         nodeType: 1,
+  +         parentElement: [Circular *2],
+  +         tagName: 'DIV'
+  +       }
+  +     ],
+  +     disabled: false,
+  +     listeners: Map(0) {},
+  +     nodeType: 1,
+  +     parentElement: null,
+  +     tagName: 'BODY'
+  +   },
+  +   navigation: 0,
+  +   nodes: [
+  +     <ref *3> Node {
+  +       _text: '',
+  +       attrs: {
+  +         'data-file-name': 'existing.png',
+  +         role: 'button',
+  +         title: 'existing.png'
+  +       },
+  +       children: [
+  +         Node {
+  +           _text: '',
+  +           attrs: {
+  +             alt: 'existing.png',
+  +             src: 'blob:old-image'
+  +           },
+  +           children: [],
+  +           disabled: false,
+  +           listeners: Map(0) {},
+  +           nodeType: 1,
+  +           parentElement: [Circular *3],
+  +           tagName: 'IMG'
+  +         }
+  +       ],
+  +       disabled: false,
+  +       listeners: Map(0) {},
+  +       nodeType: 1,
+  +       parentElement: <ref *2> Node {
+  +         _text: '',
+  +         attrs: {},
+  +         children: [
+  +           <ref *1> Node {
+  +             _text: 'Existing 中文 draft 👋 and selection',
+  +             attrs: {
+  +               contenteditable: 'true',
+  +               id: 'prompt-textarea',
+  +               role: 'textbox'
+  +             },
+  +             children: [],
+  +             disabled: false,
+  +             listeners: Map(0) {},
+  +             nodeType: 1,
+  +             parentElement: [Circular *2],
+  +             tagName: 'DIV'
+  +           },
+  +           Input {
+  +             _files: [],
+  +             _text: '',
+  +             attrs: {
+  +               accept: 'image/*',
+  +               type: 'file'
+  +             },
+  +             changeCount: 0,
+  +             children: [],
+  +             chooserOpens: 0,
+  +             disabled: false,
+  +             listeners: Map(0) {},
+  +             nodeType: 1,
+  +             parentElement: [Circular *2],
+  +             setterCount: 0,
+  +             tagName: 'INPUT'
+  +           },
+  +           [Circular *3],
+  +           <ref *5> Node {
+  +             _text: '',
+  +             attrs: {
+  +               'data-message-author-role': 'assistant'
+  +             },
+  +             children: [
+  +               <ref *4> Node {
+  +                 _text: '',
+  +                 attrs: {
+  +                   'data-file-name': 'historical-private.png'
+  +                 },
+  +                 children: [
+  +                   Node {
+  +                     _text: '',
+  +                     attrs: {
+  +                       src: 'blob:historical-private'
+  +                     },
+  +                     children: [],
+  +                     disabled: false,
+  +                     listeners: Map(0) {},
+  +                     nodeType: 1,
+  +                     parentElement: [Circular *4],
+  +                     tagName: 'IMG'
+  +                   }
+  +                 ],
+  +                 disabled: false,
+  +                 listeners: Map(0) {},
+  +                 nodeType: 1,
+  +                 parentElement: [Circular *5],
+  +                 tagName: 'DIV'
+  +               }
+  +             ],
+  +             disabled: false,
+  +             listeners: Map(0) {},
+  +             nodeType: 1,
+  +             parentElement: [Circular *2],
+  +             tagName: 'DIV'
+  +           }
+  +         ],
+  +         disabled: false,
+  +         listeners: Map(0) {},
+  +         nodeType: 1,
+  +         parentElement: null,
+  +         tagName: 'BODY'
+  +       },
+  +       tagName: 'DIV'
+  +     },
+  +     <ref *6> Node {
+  +       _text: '',
+  +       attrs: {
+  +         alt: 'existing.png',
+  +         src: 'blob:old-image'
+  +       },
+  +       children: [],
+  +       disabled: false,
+  +       listeners: Map(0) {},
+  +       nodeType: 1,
+  +       parentElement: <ref *3> Node {
+  +         _text: '',
+  +         attrs: {
+  +           'data-file-name': 'existing.png',
+  +           role: 'button',
+  +           title: 'existing.png'
+  +         },
+  +         children: [
+  +           [Circular *6]
+  +         ],
+  +         disabled: false,
+  +         listeners: Map(0) {},
+  +         nodeType: 1,
+  +         parentElement: <ref *2> Node {
+  +           _text: '',
+  +           attrs: {},
+  +           children: [
+  +             <ref *1> Node {
+  +               _text: 'Existing 中文 draft 👋 and selection',
+  +               attrs: {
+  +                 contenteditable: 'true',
+  +                 id: 'prompt-textarea',
+  +                 role: 'textbox'
+  +               },
+  +               children: [],
+  +               disabled: false,
+  +               listeners: Map(0) {},
+  +               nodeType: 1,
+  +               parentElement: [Circular *2],
+  +               tagName: 'DIV'
+  +             },
+  +             Input {
+  +               _files: [],
+  +               _text: '',
+  +               attrs: {
+  +                 accept: 'image/*',
+  +                 type: 'file'
+  +               },
+  +               changeCount: 0,
+  +               children: [],
+  +               chooserOpens: 0,
+  +               disabled: false,
+  +               listeners: Map(0) {},
+  +               nodeType: 1,
+  +               parentElement: [Circular *2],
+  +               setterCount: 0,
+  +               tagName: 'INPUT'
+  +             },
+  +             [Circular *3],
+  +             <ref *5> Node {
+  +               _text: '',
+  +               attrs: {
+  +                 'data-message-author-role': 'assistant'
+  +               },
+  +               children: [
+  +                 <ref *4> Node {
+  +                   _text: '',
+  +                   attrs: {
+  +                     'data-file-name': 'historical-private.png'
+  +                   },
+  +                   children: [
+  +                     Node {
+  +                       _text: '',
+  +                       attrs: {
+  +                         src: 'blob:historical-private'
+  +                       },
+  +                       children: [],
+  +                       disabled: false,
+  +                       listeners: Map(0) {},
+  +                       nodeType: 1,
+  +                       parentElement: [Circular *4],
+  +                       tagName: 'IMG'
+  +                     }
+  +                   ],
+  +                   disabled: false,
+  +                   listeners: Map(0) {},
+  +                   nodeType: 1,
+  +                   parentElement: [Circular *5],
+  +                   tagName: 'DIV'
+  +                 }
+  +               ],
+  +               disabled: false,
+  +               listeners: Map(0) {},
+  +               nodeType: 1,
+  +               parentElement: [Circular *2],
+  +               tagName: 'DIV'
+  +             }
+  +           ],
+  +           disabled: false,
+  +           listeners: Map(0) {},
+  +           nodeType: 1,
+  +           parentElement: null,
+  +           tagName: 'BODY'
+  +         },
+  +         tagName: 'DIV'
+  +       },
+  +       tagName: 'IMG'
+  +     },
+  +     <ref *4> Node {
+  +       _text: '',
+  +       attrs: {
+  +         'data-file-name': 'historical-private.png'
+  +       },
+  +       children: [
+  +         Node {
+  +           _text: '',
+  +           attrs: {
+  +             src: 'blob:historical-private'
+  +           },
+  +           children: [],
+  +           disabled: false,
+  +           listeners: Map(0) {},
+  +           nodeType: 1,
+  +           parentElement: [Circular *4],
+  +           tagName: 'IMG'
+  +         }
+  +       ],
+  +       disabled: false,
+  +       listeners: Map(0) {},
+  +       nodeType: 1,
+  +       parentElement: <ref *5> Node {
+  +         _text: '',
+  +         attrs: {
+  +           'data-message-author-role': 'assistant'
+  +         },
+  +         children: [
+  +           [Circular *4]
+  +         ],
+  +         disabled: false,
+  +         listeners: Map(0) {},
+  +         nodeType: 1,
+  +         parentElement: <ref *2> Node {
+  +           _text: '',
+  +           attrs: {},
+  +           children: [
+  +             <ref *1> Node {
+  +               _text: 'Existing 中文 draft 👋 and selection',
+  +               attrs: {
+  +                 contenteditable: 'true',
+  +                 id: 'prompt-textarea',
+  +                 role: 'textbox'
+  +               },
+  +               children: [],
+  +               disabled: false,
+  +               listeners: Map(0) {},
+  +               nodeType: 1,
+  +               parentElement: [Circular *2],
+  +               tagName: 'DIV'
+  +             },
+  +             Input {
+  +               _files: [],
+  +               _text: '',
+  +               attrs: {
+  +                 accept: 'image/*',
+  +                 type: 'file'
+  +               },
+  +               changeCount: 0,
+  +               children: [],
+  +               chooserOpens: 0,
+  +               disabled: false,
+  +               listeners: Map(0) {},
+  +               nodeType: 1,
+  +               parentElement: [Circular *2],
+  +               setterCount: 0,
+  +               tagName: 'INPUT'
+  +             },
+  +             <ref *3> Node {
+  +               _text: '',
+  +               attrs: {
+  +                 'data-file-name': 'existing.png',
+  +                 role: 'button',
+  +                 title: 'existing.png'
+  +               },
+  +               children: [
+  +                 <ref *6> Node {
+  +                   _text: '',
+  +                   attrs: {
+  +                     alt: 'existing.png',
+  +                     src: 'blob:old-image'
+  +                   },
+  +                   children: [],
+  +                   disabled: false,
+  +                   listeners: Map(0) {},
+  +                   nodeType: 1,
+  +                   parentElement: [Circular *3],
+  +                   tagName: 'IMG'
+  +                 }
+  +               ],
+  +               disabled: false,
+  +               listeners: Map(0) {},
+  +               nodeType: 1,
+  +               parentElement: [Circular *2],
+  +               tagName: 'DIV'
+  +             },
+  +             [Circular *5]
+  +           ],
+  +           disabled: false,
+  +           listeners: Map(0) {},
+  +           nodeType: 1,
+  +           parentElement: null,
+  +           tagName: 'BODY'
+  +         },
+  +         tagName: 'DIV'
+  +       },
+  +       tagName: 'DIV'
+  +     },
+  +     <ref *7> Node {
+  +       _text: '',
+  +       attrs: {
+  +         src: 'blob:historical-private'
+  +       },
+  +       children: [],
+  +       disabled: false,
+  +       listeners: Map(0) {},
+  +       nodeType: 1,
+  +       parentElement: <ref *4> Node {
+  +         _text: '',
+  +         attrs: {
+  +           'data-file-name': 'historical-private.png'
+  +         },
+  +         children: [
+  +           [Circular *7]
+  +         ],
+  +         disabled: false,
+  +         listeners: Map(0) {},
+  +         nodeType: 1,
+  +         parentElement: <ref *5> Node {
+  +           _text: '',
+  +           attrs: {
+  +             'data-message-author-role': 'assistant'
+  +           },
+  +           children: [
+  +             [Circular *4]
+  +           ],
+  +           disabled: false,
+  +           listeners: Map(0) {},
+  +           nodeType: 1,
+  +           parentElement: <ref *2> Node {
+  +             _text: '',
+  +             attrs: {},
+  +             children: [
+  +               <ref *1> Node {
+  +                 _text: 'Existing 中文 draft 👋 and selection',
+  +                 attrs: {
+  +                   contenteditable: 'true',
+  +                   id: 'prompt-textarea',
+  +                   role: 'textbox'
+  +                 },
+  +                 children: [],
+  +                 disabled: false,
+  +                 listeners: Map(0) {},
+  +                 nodeType: 1,
+  +                 parentElement: [Circular *2],
+  +                 tagName: 'DIV'
+  +               },
+  +               Input {
+  +                 _files: [],
+  +                 _text: '',
+  +                 attrs: {
+  +                   accept: 'image/*',
+  +                   type: 'file'
+  +                 },
+  +                 changeCount: 0,
+  +                 children: [],
+  +                 chooserOpens: 0,
+  +                 disabled: false,
+  +                 listeners: Map(0) {},
+  +                 nodeType: 1,
+  +                 parentElement: [Circular *2],
+  +                 setterCount: 0,
+  +                 tagName: 'INPUT'
+  +               },
+  +               <ref *3> Node {
+  +                 _text: '',
+  +                 attrs: {
+  +                   'data-file-name': 'existing.png',
+  +                   role: 'button',
+  +                   title: 'existing.png'
+  +                 },
+  +                 children: [
+  +                   <ref *6> Node {
+  +                     _text: '',
+  +                     attrs: {
+  +                       alt: 'existing.png',
+  +                       src: 'blob:old-image'
+  +                     },
+  +                     children: [],
+  +                     disabled: false,
+  +                     listeners: Map(0) {},
+  +                     nodeType: 1,
+  +                     parentElement: [Circular *3],
+  +                     tagName: 'IMG'
+  +                   }
+  +                 ],
+  +                 disabled: false,
+  +                 listeners: Map(0) {},
+  +                 nodeType: 1,
+  +                 parentElement: [Circular *2],
+  +                 tagName: 'DIV'
+  +               },
+  +               [Circular *5]
+  +             ],
+  +             disabled: false,
+  +             listeners: Map(0) {},
+  +             nodeType: 1,
+  +             parentElement: null,
+  +             tagName: 'BODY'
+  +           },
+  +           tagName: 'DIV'
+  +         },
+  +         tagName: 'DIV'
+  +       },
+  +       tagName: 'IMG'
+  +     }
+  +   ],
+  +   root: <ref *2> Node {
+  +     _text: '',
+  +     attrs: {},
+  +     children: [
+  +       <ref *1> Node {
+  +         _text: 'Existing 中文 draft 👋 and selection',
+  +         attrs: {
+  +           contenteditable: 'true',
+  +           id: 'prompt-textarea',
+  +           role: 'textbox'
+  +         },
+  +         children: [],
+  +         disabled: false,
+  +         listeners: Map(0) {},
+  +         nodeType: 1,
+  +         parentElement: [Circular *2],
+  +         tagName: 'DIV'
+  +       },
+  +       Input {
+  +         _files: [],
+  +         _text: '',
+  +         attrs: {
+  +           accept: 'image/*',
+  +           type: 'file'
+  +         },
+  +         changeCount: 0,
+  +         children: [],
+  +         chooserOpens: 0,
+  +         disabled: false,
+  +         listeners: Map(0) {},
+  +         nodeType: 1,
+  +         parentElement: [Circular *2],
+  +         setterCount: 0,
+  +         tagName: 'INPUT'
+  +       },
+  +       <ref *3> Node {
+  +         _text: '',
+  +         attrs: {
+  +           'data-file-name': 'existing.png',
+  +           role: 'button',
+  +           title: 'existing.png'
+  +         },
+  +         children: [
+  +           <ref *6> Node {
+  +             _text: '',
+  +             attrs: {
+  +               alt: 'existing.png',
+  +               src: 'blob:old-image'
+  +             },
+  +             children: [],
+  +             disabled: false,
+  +             listeners: Map(0) {},
+  +             nodeType: 1,
+  +             parentElement: [Circular *3],
+  +             tagName: 'IMG'
+  +           }
+  +         ],
+  +         disabled: false,
+  +         listeners: Map(0) {},
+  +         nodeType: 1,
+  +         parentElement: [Circular *2],
+  +         tagName: 'DIV'
+  +       },
+  +       <ref *5> Node {
+  +         _text: '',
+  +         attrs: {
+  +           'data-message-author-role': 'assistant'
+  +         },
+  +         children: [
+  +           <ref *4> Node {
+  +             _text: '',
+  +             attrs: {
+  +               'data-file-name': 'historical-private.png'
+  +             },
+  +             children: [
+  +               <ref *7> Node {
+  +                 _text: '',
+  +                 attrs: {
+  +                   src: 'blob:historical-private'
+  +                 },
+  +                 children: [],
+  +                 disabled: false,
+  +                 listeners: Map(0) {},
+  +                 nodeType: 1,
+  +                 parentElement: [Circular *4],
+  +                 tagName: 'IMG'
+  +               }
+  +             ],
+  +             disabled: false,
+  +             listeners: Map(0) {},
+  +             nodeType: 1,
+  +             parentElement: [Circular *5],
+  +             tagName: 'DIV'
+  +           }
+  +         ],
+  +         disabled: false,
+  +         listeners: Map(0) {},
+  +         nodeType: 1,
+  +         parentElement: [Circular *2],
+  +         tagName: 'DIV'
+  +       }
+  +     ],
+  +     disabled: false,
+  +     listeners: Map(0) {},
+  +     nodeType: 1,
+  +     parentElement: null,
+  +     tagName: 'BODY'
+  +   },
+  +   route: 'https://chatgpt.com/c/ordinary-thread',
+  +   selection: {
+  +     anchor: <ref *1> Node {
+  +       _text: 'Existing 中文 draft 👋 and selection',
+  +       attrs: {
+  +         contenteditable: 'true',
+  +         id: 'prompt-textarea',
+  +         role: 'textbox'
+  +       },
+  +       children: [],
+  +       disabled: false,
+  +       listeners: Map(0) {},
+  +       nodeType: 1,
+  +       parentElement: <ref *2> Node {
+  +         _text: '',
+  +         attrs: {},
+  +         children: [
+  +           [Circular *1],
+  +           Input {
+  +             _files: [],
+  +             _text: '',
+  +             attrs: {
+  +               accept: 'image/*',
+  +               type: 'file'
+  +             },
+  +             changeCount: 0,
+  +             children: [],
+  +             chooserOpens: 0,
+  +             disabled: false,
+  +             listeners: Map(0) {},
+  +             nodeType: 1,
+  +             parentElement: [Circular *2],
+  +             setterCount: 0,
+  +             tagName: 'INPUT'
+  +           },
+  +           <ref *3> Node {
+  +             _text: '',
+  +             attrs: {
+  +               'data-file-name': 'existing.png',
+  +               role: 'button',
+  +               title: 'existing.png'
+  +             },
+  +             children: [
+  +               Node {
+  +                 _text: '',
+  +                 attrs: {
+  +                   alt: 'existing.png',
+  +                   src: 'blob:old-image'
+  +                 },
+  +                 children: [],
+  +                 disabled: false,
+  +                 listeners: Map(0) {},
+  +                 nodeType: 1,
+  +                 parentElement: [Circular *3],
+  +                 tagName: 'IMG'
+  +               }
+  +             ],
+  +             disabled: false,
+  +             listeners: Map(0) {},
+  +             nodeType: 1,
+  +             parentElement: [Circular *2],
+  +             tagName: 'DIV'
+  +           },
+  +           <ref *5> Node {
+  +             _text: '',
+  +             attrs: {
+  +               'data-message-author-role': 'assistant'
+  +             },
+  +             children: [
+  +               <ref *4> Node {
+  +                 _text: '',
+  +                 attrs: {
+  +                   'data-file-name': 'historical-private.png'
+  +                 },
+  +                 children: [
+  +                   Node {
+  +                     _text: '',
+  +                     attrs: {
+  +                       src: 'blob:historical-private'
+  +                     },
+  +                     children: [],
+  +                     disabled: false,
+  +                     listeners: Map(0) {},
+  +                     nodeType: 1,
+  +                     parentElement: [Circular *4],
+  +                     tagName: 'IMG'
+  +                   }
+  +                 ],
+  +                 disabled: false,
+  +                 listeners: Map(0) {},
+  +                 nodeType: 1,
+  +                 parentElement: [Circular *5],
+  +                 tagName: 'DIV'
+  +               }
+  +             ],
+  +             disabled: false,
+  +             listeners: Map(0) {},
+  +             nodeType: 1,
+  +             parentElement: [Circular *2],
+  +             tagName: 'DIV'
+  +           }
+  +         ],
+  +         disabled: false,
+  +         listeners: Map(0) {},
+  +         nodeType: 1,
+  +         parentElement: null,
+  +         tagName: 'BODY'
+  +       },
+  +       tagName: 'DIV'
+  +     },
+  +     anchorOffset: 2,
+  +     focus: <ref *1> Node {
+  +       _text: 'Existing 中文 draft 👋 and selection',
+  +       attrs: {
+  +         contenteditable: 'true',
+  +         id: 'prompt-textarea',
+  +         role: 'textbox'
+  +       },
+  +       children: [],
+  +       disabled: false,
+  +       listeners: Map(0) {},
+  +       nodeType: 1,
+  +       parentElement: <ref *2> Node {
+  +         _text: '',
+  +         attrs: {},
+  +         children: [
+  +           [Circular *1],
+  +           Input {
+  +             _files: [],
+  +             _text: '',
+  +             attrs: {
+  +               accept: 'image/*',
+  +               type: 'file'
+  +             },
+  +             changeCount: 0,
+  +             children: [],
+  +             chooserOpens: 0,
+  +             disabled: false,
+  +             listeners: Map(0) {},
+  +             nodeType: 1,
+  +             parentElement: [Circular *2],
+  +             setterCount: 0,
+  +             tagName: 'INPUT'
+  +           },
+  +           <ref *3> Node {
+  +             _text: '',
+  +             attrs: {
+  +               'data-file-name': 'existing.png',
+  +               role: 'button',
+  +               title: 'existing.png'
+  +             },
+  +             children: [
+  +               Node {
+  +                 _text: '',
+  +                 attrs: {
+  +                   alt: 'existing.png',
+  +                   src: 'blob:old-image'
+  +                 },
+  +                 children: [],
+  +                 disabled: false,
+  +                 listeners: Map(0) {},
+  +                 nodeType: 1,
+  +                 parentElement: [Circular *3],
+  +                 tagName: 'IMG'
+  +               }
+  +             ],
+  +             disabled: false,
+  +             listeners: Map(0) {},
+  +             nodeType: 1,
+  +             parentElement: [Circular *2],
+  +             tagName: 'DIV'
+  +           },
+  +           <ref *5> Node {
+  +             _text: '',
+  +             attrs: {
+  +               'data-message-author-role': 'assistant'
+  +             },
+  +             children: [
+  +               <ref *4> Node {
+  +                 _text: '',
+  +                 attrs: {
+  +                   'data-file-name': 'historical-private.png'
+  +                 },
+  +                 children: [
+  +                   Node {
+  +                     _text: '',
+  +                     attrs: {
+  +                       src: 'blob:historical-private'
+  +                     },
+  +                     children: [],
+  +                     disabled: false,
+  +                     listeners: Map(0) {},
+  +                     nodeType: 1,
+  +                     parentElement: [Circular *4],
+  +                     tagName: 'IMG'
+  +                   }
+  +                 ],
+  +                 disabled: false,
+  +                 listeners: Map(0) {},
+  +                 nodeType: 1,
+  +                 parentElement: [Circular *5],
+  +                 tagName: 'DIV'
+  +               }
+  +             ],
+  +             disabled: false,
+  +             listeners: Map(0) {},
+  +             nodeType: 1,
+  +             parentElement: [Circular *2],
+  +             tagName: 'DIV'
+  +           }
+  +         ],
+  +         disabled: false,
+  +         listeners: Map(0) {},
+  +         nodeType: 1,
+  +         parentElement: null,
+  +         tagName: 'BODY'
+  +       },
+  +       tagName: 'DIV'
+  +     },
+  +     focusOffset: 7,
+  +     rangeCount: 1
+  +   },
+  +   target: {
+  +     adapterID: 'chatgpt-web',
+  +     applicationID: 'com.microsoft.edgemac',
+  +     composerID: 'node-1:node-2',
+  +     documentID: '04515f23-6102-45bf-b633-52d0284942fe',
+  +     draftGeneration: 'af0ea6fc-b9e4-4407-99b5-7ae7bbd784e7',
+  +     sessionID: 'edge-kernel-v1:7:10:1',
+  +     surface: 'webChat',
+  +     tabID: '19',
+  +     windowID: '17'
+  +   },
+  +   text: 'Existing 中文 draft 👋 and selection'
+  + }
+  - null
+  
+      at TestContext.<anonymous> (Tests/WebPageProgram/edge-calibration-diagnostics.test.cjs:59:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { editor: { nodeType: 1, tagName: 'DIV', attrs: [Object], children: [], parentElement: [Object], _text: 'Existing 中文 draft 👋 and selection', disabled: false, listeners: Map(0) {} }, form: { nodeType: 1, tagName: 'BODY', attrs: {}, children: [Array], parentElement: null, _text: '', disabled: false, listeners: Map(0) {} }, text: 'Existing 中文 draft 👋 and selection', selection: { anchor: [Object], focus: [Object], anchorOffset: 2, focusOffset: 7, rangeCount: 1 }, nodes: [ [Object], [Object], [Object], [Object] ], root: { nodeType: 1, tagName: 'BODY', attrs: {}, children: [Array], parentElement: null, _text: '', disabled: false, listeners: Map(0) {} }, target: { adapterID: 'chatgpt-web', surface: 'webChat', applicationID: 'com.microsoft.edgemac', sessionID: 'edge-kernel-v1:7:10:1', windowID: '17', tabID: '19', documentID: '04515f23-6102-45bf-b633-52d0284942fe', composerID: 'node-1:node-2', draftGeneration: 'af0ea6fc-b9e4-4407-99b5-7ae7bbd784e7' }, route: 'https://chatgpt.com/c/ordinary-thread', navigation: 0 },
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at Tests/WebPageProgram/edge-calibration-diagnostics.test.cjs:64:1
+✖ capture prunes transcript, ancillary and nested composer subtrees inside a declared form (0.862084ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  18 !== 2
+  
+      at TestContext.<anonymous> (Tests/WebPageProgram/edge-calibration-diagnostics.test.cjs:77:31)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 18,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at Tests/WebPageProgram/edge-calibration-diagnostics.test.cjs:89:1
+✖ calibration never restarts descendant queries outside its single bounded traversal (2.721041ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at calibration (Tests/WebPageProgram/edge-calibration-diagnostics.test.cjs:31:10)
+      at TestContext.<anonymous> (Tests/WebPageProgram/edge-calibration-diagnostics.test.cjs:101:17)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at Tests/WebPageProgram/edge-calibration-diagnostics.test.cjs:108:1
+✖ matching cards cannot lend indicators or retention through a historical descendant (1.286959ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  3 !== 2
+  
+      at TestContext.<anonymous> (Tests/WebPageProgram/edge-calibration-diagnostics.test.cjs:116:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 3,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

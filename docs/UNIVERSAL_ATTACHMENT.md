@@ -1,6 +1,14 @@
 # 无扩展附件引擎 · 首轮工程交接
 
-2026-11-15 真实续验：隔离 Edge 已登录，新建未发送草稿中已准备中性文字与一张基线系统截图。ChatGPT 提示文件已加入聊天、资料库存储不足；未清理资料库或发送消息。普通 Riftlet 双图输入、START 和完成仍未执行，不能以基线附件出现替代验收。隔离构建现固定使用私有 `capture-source`，失败时不回退系统目录，读前重验目录身份及权限；正式产品仍使用系统截图目录。[准备与隔离修复记录](../engineering/universal-attachment/edge-double-image-20261115/preparation.json)
+2026-11-15 续验状态：**Edge × ChatGPT 双图尚未通过**。17:46（Asia/Shanghai）重启使原临时包、Profile 和进程身份失效；持久保存的原日志、数据库和图片身份仍在。已从 `c3278c0bea1c03dc8cfc445fd7678a3de3467ae1` 重建独立签名的普通测试 App，可执行文件 SHA-256 为 `d3b8e12c05d989f6b14fa72f1555eedc167ffe10fa77dd71afc0e72ea38ef38e`。新隔离 Profile 已登录；12:16:58Z 的原生读回确认唯一编辑器、中性文字、14 字符选区和一张由官方选择器准备的基线附件。这些仅是验收前置条件。[重启、包身份、逐次点击与保留证据](../engineering/universal-attachment/edge-double-image-20261115/resumption.json)
+
+重启后的 `restart-01` 分别在 12:16:58Z、12:20:10Z 向两张不同资产各投递一对带独立标记的鼠标事件，两次均先确认原 Edge 窗口和各自 Riftlet 输入窗口。有界观察都未取得匹配的 App/window/input/onDown 回执，均为 `UNCONFIRMED_DO_NOT_REPOST`，没有重复投递。第二次投递前中性文字、14 字符选区和基线附件仍在；数据库为 2 资产、0 操作、0 上传开始。两个被动事件 tap 的精确标记匹配为空，不能据此断言事件未到达，标记可能被丢弃。该缺失不能归因于旧会话的 `-1744`：旧首图曾有完整产品链并明确在目标解析前拒绝，另一次无标记的 `browserNotFrontmost` 仍属于同一首图，是独立事件。两次原生回执验证失败；商业输入、上传开始和最终完成均未确认。
+
+用户已明确批准隔离 Edge 的 JavaScript Apple Events 设置及签名测试 App 的 Automation 授权。保留日志中有实际 App 的 `OSStatus 0` 授权回执；它只证明原会话，不能替代新进程的目标绑定。12:00:28Z 的原生菜单读回确认隔离 Edge 的脚本设置已开启。此前的 `REQUESTED_PENDING` 与 `BLOCKED_LOGIN` 保留为历史状态，不是当前阻塞。[早期准备及隔离修复原件](../engineering/universal-attachment/edge-double-image-20261115/preparation.json)
+
+本次新增的 Edge 只读诊断已通过独立源码审查：限定原声明容器，排除整页、历史与辅助区域，记录有界的文字/选区/节点比较和未校准进度属性。修复前四项回归失败；修复后页面及历史观察共 220 项通过、实际 JS→Swift 读取器 9 项通过、独立探针 4 项通过。本机 XCTest 未运行（CLT 缺少 XCTest）；当前 `c3278c0` 的五项既有 CI 成功不能替代新增源码的 CI，也不能证明商业上传。该增量尚未包含在上述运行包中，START/完成和 UNKNOWN 规则未开放。[诊断修复、原始受控日志及独立审查](../engineering/universal-attachment/edge-calibration-20261115/README.md)
+
+续验另发现一个诊断盲点：运行中的旧包仅在正数探针标记存在时记录 App/行鼠标边界，标记缺失时无法区分“未投递”和“投递但失去标记”。新增源码在显式启用开发诊断后也记录无标记的实际事件，保留 `nil`，不伪造身份；发送端精确标记匹配不变。三文件增量独审无阻塞，六种无效标记仍被拒绝，临时构建目录中的整个 App 构建通过（27.09 秒）。已补两资产无标记 `sendEvent` 与显式启用测试，原生执行及最终 CI 尚待记录。这修复了观察能力，**尚未证明两次缺失回执的投递根因已修复**，也不允许重发。[独立增量边界、构建与审查](../engineering/universal-attachment/edge-calibration-20261115/mouse-diagnostic-visibility-followup.json)
 
 最新基线更新至 main `b5a412f6`（已合入 PR #101／#102）。隔离组合包源码 `78309aaf` 的正常启动、严格验签与退出已验证；随后主线的官网／更新源变更未改变 App 构建输入。该包先前记录的商业 Edge 双图为 `BLOCKED_LOGIN / NOT_RUN`，没有 START 或完成；登录状态已由上方 11 月 15 日记录更新。详见 [精确包与入口回执](../engineering/universal-attachment/edge-double-image-20261114/merged-package-and-entry.json)。
 
@@ -13,9 +21,9 @@
 
 普通 App 已接入独立的 Edge Apple Events 执行器，复用原有 WebAttachmentAdapter、TransferCoordinator 和持久化输入意图。点击时保存宿主进程及内核启动时间；路由返回后再次核对最初应用和 session。Chrome/Edge 的同步原生查询和文档绑定共用 150 ms 截止时间，晚到结果被拒绝。独立审查发现的 PR #101 picker 归属修复已按局部差异移入；冻结的 v17 原操作观察资源不变。
 
-本机已通过 LaunchServices 打开微软签名校验通过的独立 Edge 副本和空 Profile，真实 ChatGPT 页面显示未登录，并明确要求登录后上传文件。因此商业双图为 **BLOCKED_LOGIN / NOT_RUN**，真实上传开始和完成均为零。Edge 的预览不能借用 Chrome 的 START/完成 profile，页面与原生归一化均拒绝未经校准的状态。新的输入路由不等于已经通过商业附件验收。
+此前空 Profile 的真实 ChatGPT 页面要求登录后上传，当次记为 **BLOCKED_LOGIN / NOT_RUN**。当前登录与两项正常授权的状态已由上方记录更新，但普通 App 商业双图仍未通过。Edge 的预览不能借用 Chrome 的 START/完成 profile，页面与原生归一化均拒绝未经校准的状态。新的输入路由、诊断事实或授权成功均不等于商业附件验收通过。
 
-托管 Mac 在源码 `275012e547c2a3f0f6dd98626b47c67a72767011` 的普通 App 上记录了两条完整原资产鼠标链及拒绝回执。原测试整体仍失败：聚合器要求不同事件编号，而发送器使用了 CGEvent 默认编号；本机公开 API 分配实验确认两个默认编号均为零。云端当时没有导出实际编号值，旧 `315978e` 第二张缺失原因也不能追认。发送器现为每张图显式指定独立编号，并加强接收端逐图匹配，等待最终 CI 复验。[专项报告](PR69_EDGE_ACCEPTANCE_20261114.md)
+托管 Mac 在源码 `275012e547c2a3f0f6dd98626b47c67a72767011` 的普通 App 上记录了两条完整原资产鼠标链及拒绝回执。原测试整体仍失败：聚合器要求不同事件编号，而发送器使用了 CGEvent 默认编号；本机公开 API 分配实验确认两个默认编号均为零。云端当时没有导出实际编号值，旧 `315978e` 第二张缺失原因也不能追认。发送器随后为每张图显式指定独立编号，并加强接收端逐图匹配；旧失败保留，后续 `c3278c0` 的五项 CI 已成功。[专项报告](PR69_EDGE_ACCEPTANCE_20261114.md)
 
 下文保留此前阶段的研究、原型和尝试历史；其中“Edge 未注册”和“一秒点击预算”描述的是此前源码，不代表本次实现。PR 继续为 Draft，无合并或公开发行。
 
@@ -34,7 +42,7 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | Google Chrome 157.0.8103.51 | N | N | N | N | N | 发现三个运行实例；既有真实草稿证据限于较早版本 |
 | Safari 27.0 | N | N | N | N | N | 已安装，本机采样时未运行；字典声明当前标签和索引，无标签类稳定 ID |
-| Microsoft Edge 156.0.4314.58 | N | N | N | N | N | 一个运行实例；独立 Profile 无窗口引擎通过回环传输；本机 AE 测试在前台检查处停止 |
+| Microsoft Edge 156.0.4314.58 | N | N | N | N | N | 隔离登录草稿与基线已准备；两张不同资产各一次外部投递均无匹配产品回执，商业输入未确认 |
 | Firefox | N | N | N | N | N | LaunchServices、运行列表与常用目录均未找到 |
 | Brave | N | N | N | N | N | 同上 |
 | Arc | N | N | N | N | N | 同上 |
@@ -44,7 +52,7 @@
 | ChatGPT for Mac | NOT_RUN | 未发现 `com.openai.chat`；名为 ChatGPT 的现装应用实际为 `com.openai.codex` 26.1106.51428 (26605)，AX 核实后台进程拥有一个窗口。没有读取草稿内容或操作该窗口。 |
 | Claude Desktop | NOT_RUN | 未发现登记、运行或安装的 `com.anthropic.claudefordesktop`。 |
 
-内置浏览器未能建立专用 ChatGPT 测试草稿，访问 Claude 和 Gemini 时报告 IAB 不可用，后者在导航前就已停止。没有向商业服务发送测试消息，也没有使用个人浏览器会话绕过访问限制。已安装、已登录、允许自动化和能够证明目标草稿是不同事实。某服务的未执行不表示该产品无法支持。[宿主清单与复现命令](../engineering/universal-attachment/hosts/README.md) · [ChatGPT 标识应用的 AX 记录](../engineering/universal-attachment/native/installed-chatgpt-host.json)
+此前内置浏览器未能建立专用 ChatGPT 测试草稿，访问 Claude 和 Gemini 时报告 IAB 不可用，后者在导航前就已停止；其余组合没有被后续 Edge 准备工作追认为通过。没有向商业服务发送测试消息，也没有使用个人浏览器会话绕过访问限制。已安装、已登录、允许自动化和能够证明目标草稿是不同事实。某服务的未执行不表示该产品无法支持。[宿主清单与复现命令](../engineering/universal-attachment/hosts/README.md) · [ChatGPT 标识应用的 AX 记录](../engineering/universal-attachment/native/installed-chatgpt-host.json)
 
 ## 可复现的原型结果
 
@@ -60,11 +68,13 @@
 
 ## 权限及发行
 
-- 官网 Developer ID 渠道沿用现有 Apple Events entitlement 和面向 Chrome 的用途说明。新原型没有修改签名、Info.plist、发行包或系统设置。新接收方获准使用前，要为该接收进程验证 Automation 授权及浏览器自身的 JavaScript 开关。TCC 授权按实际发送方和接收方检查，开发工具的授权不能移植到安装包。[Apple Event 权限](https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.security.automation.apple-events)
+- 官网 Developer ID 渠道沿用 Apple Events entitlement。本轮对隔离签名的 Riftlet Product Test 请求控制 Edge，并依用户明确批准启用隔离 Edge 的原生脚本设置；没有修改 TCC 数据库、当前公开安装包或签名更新源。每个接收方都要验证实际 Automation 授权和浏览器 JavaScript 开关，开发工具或旧进程的授权记录不能替代当前安装包/接收进程的检查。[Apple Event 权限](https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.security.automation.apple-events)
 - AX 辅助功能授权用于读取或操作其他进程的界面。该授权本身无法证明选中的草稿、面板或文件；探针仅被动检查现有授权。普通系统截图文件收录使用既有目录访问与书签。内置屏幕捕获按原流程处理录屏权限。新适配器没有为识别窗口增加录屏权限。[辅助功能信任检查](https://developer.apple.com/documentation/applicationservices/1459186-axisprocesstrustedwithoptions) · [安全作用域书签](https://developer.apple.com/documentation/foundation/nsurl/bookmarkcreationoptions/withsecurityscope)
 - Mac App Store 要求 App Sandbox。目标须提供适用的 scripting access group，否则发送 Apple Events 通常要逐目标申请临时例外并说明理由。现有 Developer ID entitlement 不能证明沙箱外部 AX、跨 App 文件访问或商店审核通过。后续应使用单独的沙箱测试包验证授权、重新启动后的书签解析和失权时的降级。[App Sandbox](https://developer.apple.com/documentation/security/app-sandbox) · [Apple Events 沙箱例外](https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/EntitlementKeyReference/Chapters/AppSandboxTemporaryExceptionEntitlements.html)
 
-## 下一次可执行验收
+## 早期原型与投递尝试（历史）
+
+本节保留此前源码的阶段结果，包括当时尚未注册 Edge 的限制和旧 ARM64 失败；不能覆盖上方当前状态，也不能解释另一轮缺失回执。
 
 在隔离的托管 macOS 上，普通 Riftlet 1.0.1 (23) 已确认前台 Edge 的进程启动时间、可执行文件及中性测试窗口。两张不同的系统截图都带有 macOS 截图标记，普通 App 的队列也按各自 SHA-256 收录了两条记录。外部辅助功能探针在 14 秒内未能唯一定位第一枚可按下的微图，实际点击为零。该次测试使用的版本没有向外部探针提供微图与输入窗口的对应关系。[分阶段实测及原始产物](../engineering/universal-attachment/acceptance-20261114.json)
 
@@ -78,13 +88,13 @@
 
 Edge 商业验收的下一步是在普通 App 接入已验证的单次文件交付，并取得隔离且已获授权的登录环境。然后用包含中性文字、选区和已有附件的专用 ChatGPT 草稿，从实际微图连续操作两张不同截图，分别观测真实上传开始和最终确认，保留未发送状态。Safari 需先验证两同址标签切换、标签移位及重建时仍能复核原文档。Claude、Gemini 依次从已绑定的精确草稿采集脱敏的真实状态，只在能排除错投、重放、伪 START、文字/选区丢失时注册对应路由。对未安装的客户端先取得独立安装环境和受支持公开接口，再运行同一组验收。当前没有公开发行或主线合并操作。
 
-## 当前交接与直接续验
+## 当前验收边界与续验
 
-最新普通 App 失败归档绑定了源码 `18d6189846f2f2d423697d5e67f5bb915132f78e`、准入头 `f26694d74caa29f87a990c4d9d293f8c6848269c` 和执行合并对象 `04ceda0c017047b4488d0ff8a05f9b593af6fb50`。证据档案保存九次托管尝试的分阶段结果、对应 SHA 和原始产物摘要。[当前证据](../engineering/universal-attachment/acceptance-20261114.json)
+当前运行包源码是 `c3278c0`，新诊断仍是单独审查过的增量。早期源码 `18d6189`、准入头 `f26694d` 和执行对象 `04ceda0` 的九次托管尝试保存在[原失败档案](../engineering/universal-attachment/acceptance-20261114.json)，不会被新结果覆盖。
 
-1. 先在一次性托管 Mac 上隔离验证 `CGEventPost → RiftInputView.mouseDown → onDown` 的投递边界。保持原窗口、真实第一接收者、资产和事件关联，读取原操作的失败观测，确认事件投递与 UI 前置条件后再进入完整双图验收。
-2. 为独立 Edge 原生路径取得可验证的 Automation 测试环境。当前 `-1744` 发生在原生标签绑定之前；独立 AX 文档探针返回 `document`，也需要针对实际原生 WebArea 的公开属性验证。
-3. 接通普通 App 的 Edge 单次文件传输后，在隔离已登录的专用 ChatGPT 未发送草稿验证两张图片。分别取得原目标、文件交付、真实开始及完成证据，保留草稿文字、选区和原附件。
-4. 外部 AppKit 正向路径、WebKit 双图和 Edge 无界面回环已可复用。系统选择器需补原窗口与选中 URL 的证明；商业服务、Safari 和原生客户端继续按矩阵中的具体缺项续验。
+1. 观察并诊断 `restart-01` 的原投递：保留资产、事件编号、探针标记、输入窗及接收边界。当前缺失回执不构成可重复上传许可，不自动重发同一点击。
+2. 对后续真实点击分别取得普通 App 接收、点击时原进程/窗口/标签/文档/草稿、一次输入、真实 START 和最终完成证据。基线附件、进度 100、ready 属性及加载完成图片都不能单独证明商业上传完成。
+3. 连续双图、快速点击、点击后切换标签、Edge 无响应、明确拒绝、文字/选区/已有附件保留仍须分别实测。新诊断只提供观察事实，无法代替这些验收，也不解除 UNKNOWN 的禁止重传。
+4. 新增源码形成最终 checkpoint 后执行必要 ARM64/Intel/Feedback CI，并核对精确签名运行包。PR #69 保持 Draft，未满足合并或发行条件。
 
-不明投递只可在原操作上观察。本轮托管作业已结束，现场状态已不可再次观察，现有记录不能补认成功。后续独立的全新托管作业使用新的空数据目录和新生成图片。当前商业组合的验收通过数为零。
+不明投递只可在原操作上观察。早期已经结束的托管作业现场不可再次观察，旧记录不能补认成功；这不指当前本机隔离会话。后续独立的全新托管作业使用新的空数据目录和新生成图片。当前商业组合的验收通过数为零。

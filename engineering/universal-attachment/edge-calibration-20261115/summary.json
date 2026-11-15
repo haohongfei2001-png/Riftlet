@@ -1,0 +1,268 @@
+{
+  "schemaVersion": 1,
+  "observedAtUTC": "2026-11-15T11:55:23.861501+00:00",
+  "baseHead": "c3278c0bea1c03dc8cfc445fd7678a3de3467ae1",
+  "scope": "CONTROLLED_DIAGNOSTICS_ONLY_NOT_COMMERCIAL_OR_NATIVE_CLICK_ACCEPTANCE",
+  "finalCheckpointSHA": null,
+  "independentReview": "NO_BLOCKING_FINDINGS_AT_FIVE_RECORDED_FILE_HASHES",
+  "finalCheckpointAdmission": "PENDING_INTEGRATION",
+  "sourceFiles": {
+    "Sources/RiftletAdapters/AttachmentEntryDiagnostics.swift": "38a5144086496d62553bf9bc16263d4e08910b4596b055c6e44f838a4a61ab30",
+    "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js": "c32a45bbe8f6339247d523371193a81e554d770424e86f214ea50e14c29a4ef8",
+    "Tests/WebPageProgram/acceptance-program.test.cjs": "a5511d788e537b9f8f9f95cd24b47e793e91bed120e995bc6b919c4c49ef2850",
+    "Tests/RiftletAdaptersTests/EdgeCalibrationDiagnosticsTests.swift": "d2db276b47df58095ab2a08f5920e7e80d153dc0b4870e7fb065887afe34e5d9",
+    "Tests/WebPageProgram/edge-calibration-diagnostics.test.cjs": "ba5cc11a2ce89248fee16a32bbc93906087eed361fcb79051fc70d497701970c"
+  },
+  "fixedFindings": [
+    "P2: body/html/undeclared composer fallback now yields unavailable diagnostics before any diagnostic subtree or draft-text read.",
+    "Explicit form/composer roots reject transcript/ancillary ancestors; traversal prunes article/history/ancillary and nested composer subtrees before their children.",
+    "Baseline previews and current indicators use one 2048-element/512-candidate bounded traversal per snapshot; no nested descendant query can escape that budget.",
+    "Baseline nodes relocated under excluded transcript content are no longer counted as retained local attachments."
+  ],
+  "regression": {
+    "beforeFix": {
+      "tests": 18,
+      "pass": 14,
+      "fail": 4,
+      "skipped": 0
+    },
+    "edgeFinal": {
+      "tests": 18,
+      "pass": 18,
+      "fail": 0,
+      "skipped": 0
+    },
+    "ordinaryPageAndChrome": {
+      "tests": 159,
+      "pass": 159,
+      "fail": 0,
+      "skipped": 0
+    },
+    "legacyObservation": {
+      "tests": 61,
+      "pass": 61,
+      "fail": 0,
+      "skipped": 0
+    },
+    "combinedPageAndLegacyTotal": 220,
+    "actualJavaScriptToCompiledSwiftReader": {
+      "passed": 9,
+      "xctest": false
+    },
+    "swiftReaderTypecheck": "PASS",
+    "swiftTestsSyntaxParse": "PASS",
+    "swiftXCTest": "NOT_RUN_LOCAL_COMMAND_LINE_TOOLS_NO_XCTEST",
+    "newSwiftXCTestCases": 5,
+    "commercialUpload": "NOT_RUN_BY_THIS_WORKER",
+    "gui": "NOT_RUN_BY_THIS_WORKER",
+    "sequenceNote": "The 159-case page run used the same final JS and Swift source. The final 18-case Edge run additionally checked that an undeclared root cannot veto the responsible input; only test assertions/coverage changed after the page run."
+  },
+  "independentProbes": {
+    "scope": "independent controlled DOM review probes; not commercial acceptance",
+    "results": [
+      {
+        "probe": "excluded-content-read-and-mutation-traps",
+        "pass": true,
+        "excludedRoots": 13,
+        "historyReads": 0,
+        "diagnosticMutations": 0
+      },
+      {
+        "probe": "original-process-session-mismatch-repeated-observation",
+        "pass": true,
+        "observations": 5,
+        "setters": 1,
+        "changes": 1
+      },
+      {
+        "probe": "calibration-invocation-mismatch-does-not-lend-sidecar",
+        "pass": true
+      },
+      {
+        "probe": "complete-looking-facts-never-admit-start-completion-or-retry",
+        "pass": true,
+        "observations": 5
+      }
+    ]
+  },
+  "guardEvidence": "reviewed-source-hashes.json",
+  "limitations": [
+    "These are controlled DOM command and diagnostic-reader checks, not commercial ChatGPT, AppKit click or backend upload acceptance.",
+    "Ready attributes, progress 100, loaded images, and retained-node counts do not grant START, completion, exact image identity or retry authority.",
+    "Unknown/portalled/undeclared composer scope is unavailable, never broadened to body/history and never used to veto input.",
+    "The local editor snapshot is accepted only up to 65536 UTF-16 units; all raw text/selection/node objects remain document-local. Only fixed bool/int fields cross the boundary.",
+    "This report supersedes the incorrect no-history-scan claim in the previous implementation-report-final.json; the prior evidence has not been overwritten.",
+    "Native input normalizer, frozen v17 observer and the entire sample(op) receipt function remain byte-identical to HEAD."
+  ],
+  "runtimePackageContainsThisIncrement": false,
+  "ciForThisIncrement": "PENDING_FINAL_SOURCE_CHECKPOINT",
+  "publishedArtifacts": [
+    {
+      "purpose": "controlled regression before P2 correction",
+      "original": {
+        "name": "before-scope-fix.log",
+        "bytes": 36846,
+        "sha256": "4636700c59ec3febee6a28836770f8f731334beadb68817e6056a331edb4c180"
+      },
+      "published": {
+        "name": "before-scope-fix.log",
+        "bytes": 36486,
+        "sha256": "14be407418217a7d60875690b8b9dd7b29922c571a2fcbcf73441048270eac73"
+      },
+      "sanitization": "checkout and local workspace absolute path prefixes removed"
+    },
+    {
+      "purpose": "18 final controlled Edge tests",
+      "original": {
+        "name": "edge-final.log",
+        "bytes": 1850,
+        "sha256": "28a6985d52577ab45c94335ecbc70a8ccf2d4660fb7ec33b75cff2fce095dae6"
+      },
+      "published": {
+        "name": "edge-final.log",
+        "bytes": 1850,
+        "sha256": "28a6985d52577ab45c94335ecbc70a8ccf2d4660fb7ec33b75cff2fce095dae6"
+      },
+      "sanitization": "checkout and local workspace absolute path prefixes removed"
+    },
+    {
+      "purpose": "159 controlled ordinary page tests",
+      "original": {
+        "name": "page-regression.log",
+        "bytes": 16162,
+        "sha256": "dd14ed67756b3ce9f99876041a192fa2ddb71dc9cd660e7ddca9c008b123e44b"
+      },
+      "published": {
+        "name": "page-regression.log",
+        "bytes": 16162,
+        "sha256": "dd14ed67756b3ce9f99876041a192fa2ddb71dc9cd660e7ddca9c008b123e44b"
+      },
+      "sanitization": "checkout and local workspace absolute path prefixes removed"
+    },
+    {
+      "purpose": "61 historical observation tests",
+      "original": {
+        "name": "legacy-regression.log",
+        "bytes": 6047,
+        "sha256": "beff22f95d1da3353d67d6e72e6e090b47ac7535d90b62e3696319a78ded0e76"
+      },
+      "published": {
+        "name": "legacy-regression.log",
+        "bytes": 6047,
+        "sha256": "beff22f95d1da3353d67d6e72e6e090b47ac7535d90b62e3696319a78ded0e76"
+      },
+      "sanitization": "checkout and local workspace absolute path prefixes removed"
+    },
+    {
+      "purpose": "9 compiled diagnostic-reader cases; not XCTest",
+      "original": {
+        "name": "swift-reader.log",
+        "bytes": 129,
+        "sha256": "afd4d7ef85c227bb8d48f5d22ef04fd8837f8fa9415a2010a37db5b7c8e943fa"
+      },
+      "published": {
+        "name": "swift-reader.log",
+        "bytes": 129,
+        "sha256": "afd4d7ef85c227bb8d48f5d22ef04fd8837f8fa9415a2010a37db5b7c8e943fa"
+      },
+      "sanitization": "checkout and local workspace absolute path prefixes removed"
+    },
+    {
+      "purpose": "local CLT missing XCTest",
+      "original": {
+        "name": "xctest-availability.log",
+        "bytes": 112,
+        "sha256": "56f133dcf1d76235cf2656831e5cedc92de3f22f5bd6f8a6561f1af8100377b9"
+      },
+      "published": {
+        "name": "xctest-availability.log",
+        "bytes": 112,
+        "sha256": "56f133dcf1d76235cf2656831e5cedc92de3f22f5bd6f8a6561f1af8100377b9"
+      },
+      "sanitization": "checkout and local workspace absolute path prefixes removed"
+    },
+    {
+      "purpose": "independent review; final immutable checkpoint still pending",
+      "original": {
+        "name": "REVIEW.md",
+        "bytes": 4547,
+        "sha256": "fbbd8cf16b464f1da4801e526eaeb4042699f19c25461cb759f28ffcc8d4f0ce"
+      },
+      "published": {
+        "name": "independent-review.md",
+        "bytes": 4556,
+        "sha256": "f5df72e0c074c3c8246dee882d36d7a08ac4b67f3e9ced1dd3fac95563b235b7"
+      },
+      "sanitization": "checkout and local workspace absolute path prefixes removed; artifact reference uses its published filename"
+    },
+    {
+      "purpose": "exact five reviewed WIP file hashes",
+      "original": {
+        "name": "source-checks.json",
+        "bytes": 2529,
+        "sha256": "b585e6d6d71ee58da25a1b37442d3677992bb9a2ec74174c422ccd8bbff180a7"
+      },
+      "published": {
+        "name": "reviewed-source-hashes.json",
+        "bytes": 2529,
+        "sha256": "b585e6d6d71ee58da25a1b37442d3677992bb9a2ec74174c422ccd8bbff180a7"
+      },
+      "sanitization": "checkout and local workspace absolute path prefixes removed"
+    },
+    {
+      "purpose": "four independently executed controlled probes",
+      "original": {
+        "name": "independent-probes.json",
+        "bytes": 689,
+        "sha256": "696b3980431f3d229091ab706cb884b5b94961f78f0cfdfccf98118429dce21f"
+      },
+      "published": {
+        "name": "independent-probes.json",
+        "bytes": 689,
+        "sha256": "696b3980431f3d229091ab706cb884b5b94961f78f0cfdfccf98118429dce21f"
+      },
+      "sanitization": "checkout and local workspace absolute path prefixes removed"
+    },
+    {
+      "purpose": "compiled reader verification source",
+      "original": {
+        "name": "DiagnosticsScopeProbe.swift",
+        "bytes": 2108,
+        "sha256": "2fb9762cbf4da9966b5b4b5fc55fc96fda2c2b83f69ed971948347bdf3a24afe"
+      },
+      "published": {
+        "name": "DiagnosticsScopeProbe.swift",
+        "bytes": 2108,
+        "sha256": "2fb9762cbf4da9966b5b4b5fc55fc96fda2c2b83f69ed971948347bdf3a24afe"
+      },
+      "sanitization": "checkout and local workspace absolute path prefixes removed"
+    },
+    {
+      "original": {
+        "name": "generate-reader-fixtures.cjs",
+        "bytes": 3438,
+        "sha256": "09657292343c2dbe7b6dd37de34e3621ca3f33b4558d80682f8fc351cc1afed7"
+      },
+      "published": {
+        "name": "generate-reader-fixtures.cjs",
+        "bytes": 3414,
+        "sha256": "42e9e4c47e7a4436da586fcf9672f8266fb0d5a4a70d95d2e989f43fffab75b1"
+      },
+      "sanitization": "fixture require rebased to repository path; test logic unchanged"
+    },
+    {
+      "original": {
+        "name": "independent-probes.cjs",
+        "bytes": 6387,
+        "sha256": "46aa35591603387ab83e8fe7cd56f015b508fb44564c1f60f8f1201125ef03d3"
+      },
+      "published": {
+        "name": "independent-probes.cjs",
+        "bytes": 6360,
+        "sha256": "ba75525ee6cfb69ce53ae380167aae6bfe1028b3b150b117e2146493cbab6ae7"
+      },
+      "sanitization": "fixture require rebased to repository path; test logic unchanged"
+    }
+  ],
+  "separateLaterSourceFollowup": "mouse-diagnostic-visibility-followup.json"
+}

@@ -534,22 +534,25 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     arguments: CommandLine.arguments, buildChannel: Bundle.main.object(forInfoDictionaryKey: "RiftletBuildChannel") as? String)
                 if acceptanceHitMap != nil {
                     rift.onMouseDispatchBoundary = { [weak self] boundary in
-                        self?.recordAcceptance(["event": "mouse_dispatch_boundary",
+                        var fields: [String: Any] = ["event": "mouse_dispatch_boundary",
                             "assetID": boundary.assetID.uuidString, "phase": boundary.stage.rawValue,
                             "status": boundary.status.rawValue, "eventUptime": boundary.eventUptime,
                             "eventNumber": boundary.eventNumber, "windowNumber": boundary.windowNumber,
-                            "clickCount": boundary.clickCount, "mouseProbeTag": boundary.mouseProbeTag,
-                            "mouseDown": boundary.isMouseDown])
+                            "clickCount": boundary.clickCount, "mouseDown": boundary.isMouseDown]
+                        if let tag = boundary.mouseProbeTag { fields["mouseProbeTag"] = tag }
+                        self?.recordAcceptance(fields)
                     }
                     acceptanceMouseEventMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .leftMouseUp]) { [weak self] event in
+                        var fields: [String: Any] = ["event": "mouse_application_event",
+                            "phase": event.type == .leftMouseDown ? "down" : "up",
+                            "eventUptime": event.timestamp, "eventNumber": event.eventNumber,
+                            "windowNumber": event.windowNumber, "clickCount": event.clickCount,
+                            "mouseDown": event.type == .leftMouseDown]
                         if let tag = event.cgEvent?.getIntegerValueField(.eventSourceUserData),
                            tag > 0, tag < (1 << 48) {
-                            self?.recordAcceptance(["event": "mouse_application_event",
-                                "phase": event.type == .leftMouseDown ? "down" : "up",
-                                "eventUptime": event.timestamp, "eventNumber": event.eventNumber,
-                                "windowNumber": event.windowNumber, "clickCount": event.clickCount,
-                                "mouseProbeTag": tag, "mouseDown": event.type == .leftMouseDown])
+                            fields["mouseProbeTag"] = tag
                         }
+                        self?.recordAcceptance(fields)
                         return event
                     }
                 }

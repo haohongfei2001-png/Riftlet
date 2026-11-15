@@ -28,7 +28,8 @@ public struct RiftSelectionBoundary: Equatable, Sendable {
     }
 }
 
-/// Opt-in receipt for the path traversed by one tagged native mouse event.
+/// Opt-in receipt for the path traversed by one native mouse event. A probe tag
+/// is optional evidence, never a condition for observing actual AppKit delivery.
 /// Observers do not choose a row, change event delivery, or grant a selection.
 public struct RiftMouseDispatchBoundary {
     public enum Stage: String { case windowEvent, inputDown, inputUp, onDown, gate, release }
@@ -43,7 +44,7 @@ public struct RiftMouseDispatchBoundary {
     public let eventNumber: Int
     public let windowNumber: Int
     public let clickCount: Int
-    public let mouseProbeTag: Int64
+    public let mouseProbeTag: Int64?
     public let isMouseDown: Bool
 }
 
@@ -1839,9 +1840,9 @@ public final class RiftPanelController {
 
     private func wire(_ window: RowWindow, id: UUID) {
         window.view.onMouseDispatch = { [weak self] event, stage, status in
-            guard let self, self.readsAcceptanceMouseTag, let observer = self.onMouseDispatchBoundary,
-                  let tag = event.cgEvent?.getIntegerValueField(.eventSourceUserData),
-                  tag > 0, tag < (1 << 48) else { return }
+            guard let self, self.readsAcceptanceMouseTag, let observer = self.onMouseDispatchBoundary else { return }
+            let tag = (event.cgEvent?.getIntegerValueField(.eventSourceUserData))
+                .flatMap { $0 > 0 && $0 < (1 << 48) ? $0 : nil }
             observer(RiftMouseDispatchBoundary(assetID: id, stage: stage, status: status,
                 eventUptime: event.timestamp, eventNumber: event.eventNumber, windowNumber: event.windowNumber,
                 clickCount: event.clickCount, mouseProbeTag: tag, isMouseDown: event.type == .leftMouseDown))

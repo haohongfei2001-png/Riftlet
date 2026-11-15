@@ -1,6 +1,6 @@
 {
-  "scope": "Commercial services, this branch, installed Riftlet press to original unsent draft; 2026-11-14 Asia/Shanghai.",
-  "latestAcceptanceRecord": "acceptance-20261114.json",
+  "scope": "Commercial services, this branch, installed Riftlet press to original unsent draft; updated 2026-11-15. Preparation and controlled diagnostics do not establish commercial input/START/completion.",
+  "latestAcceptanceRecord": "edge-double-image-20261115/resumption.json",
   "previousMatrix": {
     "commit": "d50e1a26a2b75ea24cf92edde5a5a9ce6a02256a",
     "path": "engineering/universal-attachment/live-matrix.json"
@@ -180,7 +180,7 @@
       "host": "Microsoft Edge",
       "service": "ChatGPT",
       "result": "NOT_RUN",
-      "reason": "SIGNED_IN_DRAFT_PREPARED_ORDINARY_APP_DOUBLE_INPUT_PENDING",
+      "reason": "TWO_DISTINCT_MOUSE_PAIRS_POSTED_BOTH_PRODUCT_RECEIPTS_UNCONFIRMED_DO_NOT_REPOST",
       "application": "NOT_RUN",
       "windowAndDraft": "NOT_RUN",
       "entry": "NOT_RUN",
@@ -191,19 +191,27 @@
       "failureAndUnknown": "NOT_RUN",
       "consecutiveImages": "NOT_RUN",
       "additionalUserSteps": "NOT_RUN",
-      "relatedEvidence": "edge-double-image-20261114/isolated-login.json",
+      "relatedEvidence": "edge-double-image-20261115/resumption.json",
       "controlledLoopbackEvidence": "edge-double-image-20261114/phase1-hosted-original.json",
       "codeStatus": "ORDINARY_EDGE_INPUT_ROUTE_IMPLEMENTED_UPLOAD_EVIDENCE_NOT_CALIBRATED",
-      "receiptScope": "Two tagged software mouse chains and per-asset pre-input refusals verified in the diagnostic checkpoint; original overall hosted result remains failed.",
+      "receiptScope": "Historical first tagged click had the product chain and an explicit -1744 pre-input refusal; another untagged click on the same first asset had browserNotFrontmost. Restarted-session first and second distinct assets were each posted once and have no matching product receipt. These are separate attempts; no original second-receipt cause is inferred.",
       "historicalEvidence": [
         "edge-loopback",
         "acceptance-20261114.json#/supplementalHostCheck/attempts/8"
       ],
-      "latestMouseDiagnostic": "edge-double-image-20261114/main-integration-hosted-original.json",
-      "latestMouseDiagnosticScope": "Source ea2e9a2: first ordinary App callback chain and exact event number verified; -1744 refusal. Second click NOT_RUN_SYSTEM_AUTOMATION_CONSENT after original Edge focus unavailable. No input, START or commercial completion.",
-      "latestPreparation": "edge-double-image-20261115/preparation.json",
+      "latestMouseDiagnostic": "edge-double-image-20261115/resumption.json#/restart01",
+      "latestMouseDiagnosticScope": "c3278c0 signed ordinary App: one software mouse pair per distinct asset after exact receiver preflight; both bounded original receipts UNCONFIRMED_DO_NOT_REPOST. Matched application/window/input/onDown counts 0, sequence stayed 38; database assets 2, operations 0, starts 0. Zero exact-tag passive tap matches do not prove event absence.",
+      "latestPreparation": "edge-double-image-20261115/restart-01-second-preclick-draft.json",
       "login": "SIGNED_IN_ISOLATED_PROFILE",
-      "setupOnlyEvidence": "Neutral text and baseline system screenshot present in one new unsent draft through official service UI; not an ordinary Riftlet input, START or completion result."
+      "setupOnlyEvidence": "Persistent isolated signed-in profile: unique original window/editor, neutral text, 14-unit selection and one baseline attachment observed before the post. Official-picker setup only; no proof of preservation across Riftlet input.",
+      "authorization": "USER_APPROVED_BOTH_NORMAL_SYSTEM_AUTHORIZATIONS; HISTORICAL_APP_OSSTATUS_0; ISOLATED_EDGE_NATIVE_SCRIPT_SETTING_ENABLED_20261115T120028Z",
+      "nativeClickAttempt": "FAILED_MATCHED_PRODUCT_RECEIPT_VERIFICATION_TWO_POSTS_NO_REPOST",
+      "confirmedCommercialInputs": 0,
+      "confirmedCommercialUploadStarts": 0,
+      "confirmedCommercialUploadCompletions": 0,
+      "calibrationEvidence": "edge-calibration-20261115/summary.json",
+      "calibrationRuntimeScope": "REVIEWED_DIAGNOSTICS_INCREMENT_NOT_IN_CURRENT_c3278c0_PACKAGE",
+      "sourceOnlyMouseDiagnosticFollowup": "edge-calibration-20261115/mouse-diagnostic-visibility-followup.json"
     },
     {
       "host": "Microsoft Edge",
@@ -566,5 +574,6 @@
   "edgeSpecialistFollowup": "edge-double-image-20261114/isolated-login.json",
   "latestMainIntegration": "edge-double-image-20261114/main-integration.json",
   "inheritedScopedChromeEvidence": "../../engineering/quality/2026-11-14/actual-chatgpt-attachment.json (source 624e1b5; START only; not this PR head or final completion)",
-  "latestPreparationRecord": "edge-double-image-20261115/preparation.json"
+  "latestPreparationRecord": "edge-double-image-20261115/restart-01-second-preclick-draft.json",
+  "latestCalibrationRecord": "edge-calibration-20261115/summary.json"
 }

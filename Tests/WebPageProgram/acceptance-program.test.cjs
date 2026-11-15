@@ -10,6 +10,7 @@ require('./original-image-transport.test.cjs');
 require('./ordinary-composer.test.cjs');
 require('./click-document-witness.test.cjs');
 require('./edge-input.test.cjs');
+require('./edge-calibration-diagnostics.test.cjs');
 
 function accepted(f,op) {
  const observation=f.observe(op);

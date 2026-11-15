@@ -220,7 +220,7 @@ final class RiftInputIslandTests: XCTestCase {
         XCTAssertEqual(selected, records.map(\.id))
     }
 
-    @MainActor func testMouseDiagnosticsDistinguishGeometryAndGateRefusalAndRequireOptInTag() throws {
+    @MainActor func testMouseDiagnosticsDistinguishGeometryAndGateRefusalAndRequireOptIn() throws {
         var selected: [UUID] = [], boundaries: [RiftMouseDispatchBoundary] = []
         let panel = try controller(onSelect: { selected.append($0) })
         defer { panel.close() }
@@ -234,7 +234,10 @@ final class RiftInputIslandTests: XCTestCase {
         XCTAssertTrue(boundaries.isEmpty, "The observer alone does not enable acceptance event reads")
         panel.readsAcceptanceMouseTag = true
         view.mouseDown(with: double)
-        XCTAssertTrue(boundaries.isEmpty, "Untagged native events have no acceptance trace")
+        XCTAssertEqual(boundaries.map { $0.status }, [.received, .received, .blocked])
+        XCTAssertTrue(boundaries.allSatisfy { $0.mouseProbeTag == nil },
+            "An absent probe tag cannot hide an actual event or be replaced with an invented identity")
+        boundaries.removeAll()
         view.mouseDown(with: TaggedInputEvent(double, tag: 2))
         XCTAssertEqual(boundaries.map { $0.status }, [.received, .received, .blocked])
         boundaries.removeAll()
@@ -242,6 +245,33 @@ final class RiftInputIslandTests: XCTestCase {
         view.mouseDown(with: TaggedInputEvent(try event(.leftMouseDown, window: target, screen: outside, time: 14), tag: 3))
         XCTAssertEqual(boundaries.map { $0.status }, [.received, .outsideBounds])
         XCTAssertTrue(selected.isEmpty)
+    }
+
+    @MainActor func testUntaggedWindowDispatchRetainsIndependentAssetReceiptsAfterRefresh() throws {
+        var selected: [UUID] = [], boundaries: [RiftMouseDispatchBoundary] = []
+        let panel = try controller(holdsSelectionUntilFinished: true, onSelect: { selected.append($0) })
+        defer { panel.close() }
+        panel.readsAcceptanceMouseTag = true
+        panel.onMouseDispatchBoundary = { boundaries.append($0) }
+        let records = [record(), record(2)]
+        panel.render(records)
+        for (index, asset) in records.enumerated() {
+            let row = try XCTUnwrap(panel.diagnosticSnapshot.rows.first { $0.assetID == asset.id })
+            let target = try window(row.imageInputWindowNumber)
+            let point = CGPoint(x: row.imageClipFrame.midX, y: row.imageClipFrame.midY)
+            let down = try event(.leftMouseDown, window: target, screen: point, time: 40 + Double(index))
+            target.sendEvent(down)
+            target.sendEvent(try event(.leftMouseUp, window: target, screen: point, time: down.timestamp + 0.01))
+            let traced = boundaries.filter { $0.assetID == asset.id }
+            XCTAssertEqual(traced.map { $0.stage }, [.windowEvent, .inputDown, .onDown, .gate, .windowEvent, .inputUp, .release])
+            XCTAssertEqual(traced.map { $0.status }, [.received, .received, .received, .accepted, .received, .received, .selected])
+            XCTAssertTrue(traced.allSatisfy { $0.mouseProbeTag == nil && $0.windowNumber == target.windowNumber })
+            XCTAssertEqual(traced.first?.eventNumber, down.eventNumber)
+            panel.setFeedback("当前浏览器不可用，图片保留。", for: asset.id)
+            panel.finishSelection(asset.id)
+            panel.render(records)
+        }
+        XCTAssertEqual(selected, records.map(\.id))
     }
 
 }

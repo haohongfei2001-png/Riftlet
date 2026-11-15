@@ -736,6 +736,161 @@ function riftletWebAcceptance(command, native) {
   const previewValue = node => node.tagName === 'IMG' ? (node.getAttribute('src') || '').trim() : true;
   const previewsOf = node => node.matches(previewSelector)
     ? [node] : [...node.querySelectorAll(previewSelector)];
+  // Edge calibration is a read-only sidecar, never receipt evidence. Keep the
+  // original nodes/text/selection inside this document; export only bounded
+  // counts and comparisons. A missing/oversized snapshot cannot veto input.
+  const edgeCalibrationLimit = 512;
+  const edgeCalibrationExcluded = 'article,[data-message-author-role],aside,nav,header,[role="search"],[role="menu"],[role="dialog"]';
+  function edgeCalibrationScan(binding) {
+    // composerForm deliberately accepts responsible input without a declared
+    // wrapper. Diagnostics are narrower: that fallback may be body or contain
+    // transcript history, so only an explicit form/composer is a local root.
+    const form = binding.form;
+    if (!form || form === document.body || form === document.documentElement || form.matches('body,html')
+        || !form.matches('form,' + composerSurface)) return null;
+    let ancestors = 0;
+    for (let node = form; node; node = node.parentElement) {
+      if (++ancestors > 2048 || node.matches(edgeCalibrationExcluded)) return null;
+    }
+    // One traversal supplies candidates, previews and indicators. Descendant
+    // queries after this pass would bypass both pruning and the visit budget.
+    const pending = [{node: form, parent: -1}], entries = [], candidates = [];
+    let visited = 0, editorFound = false;
+    while (pending.length) {
+      const {node, parent} = pending.pop();
+      if (++visited > 2048) return null;
+      if (node === binding.editor) { editorFound = true; continue; }
+      if (node === binding.input || (node !== form && node.matches(edgeCalibrationExcluded + ',form,' + composerSurface
+          + ',[contenteditable],[role="textbox"],textarea'))) continue;
+      const entry = {node, parent, hasPreview: node.matches(previewSelector),
+        indicator: node.matches('img,progress,[role="progressbar"],[aria-busy],[data-state],[data-status],[data-upload-status],[role="alert"]')};
+      const position = entries.length;
+      entries.push(entry);
+      if (node !== form && node.matches('[data-file-name],[role="button"],button,img[alt],img[src],[title]')) {
+        if (candidates.length === edgeCalibrationLimit) return null;
+        candidates.push(entry);
+      }
+      const children = node.children;
+      if (visited + pending.length + children.length > 2048) return null;
+      for (let index = children.length - 1; index >= 0; index--) pending.push({node: children[index], parent: position});
+    }
+    if (!editorFound) return null;
+    for (let index = entries.length - 1; index >= 0; index--) {
+      const entry = entries[index];
+      if (entry.hasPreview && entry.parent >= 0) entries[entry.parent].hasPreview = true;
+    }
+    return {entries, candidates, nodes: candidates.map(entry => entry.node)};
+  }
+  function edgeCalibrationBaseline(binding) {
+    try {
+      const editor = binding.editor, form = binding.form;
+      const scan = edgeCalibrationScan(binding);
+      if (!scan) return null;
+      const text = editor.tagName === 'TEXTAREA' ? editor.value : editor.textContent;
+      if (typeof text !== 'string' || text.length > 65536) return null;
+      const nodes = scan.candidates.filter(({node, hasPreview}) => node.hasAttribute('data-file-name')
+        || node.tagName === 'IMG' || hasPreview).map(entry => entry.node);
+      const current = document.getSelection?.();
+      const selection = editor.tagName === 'TEXTAREA'
+        ? {textarea: true, start: editor.selectionStart, end: editor.selectionEnd, direction: editor.selectionDirection}
+        : current?.rangeCount && editor.contains(current.anchorNode) && editor.contains(current.focusNode)
+          ? {anchor: current.anchorNode, focus: current.focusNode, anchorOffset: current.anchorOffset,
+            focusOffset: current.focusOffset, rangeCount: current.rangeCount} : null;
+      return {editor, form, text, selection, nodes, root: document.documentElement,
+        target: {...binding.target}, route: binding.route, navigation: binding.navigation};
+    } catch { return null; }
+  }
+  function edgeCalibrationBeforeInput(op) {
+    if (!op.edgeCalibration) return;
+    try {
+      const scan = edgeCalibrationScan(op.binding);
+      if (scan) op.edgeCalibration.beforeInput = new Set(scan.nodes);
+    } catch { /* Diagnostics cannot change the once-only input path. */ }
+  }
+  function edgeCalibrationSample(op, originalDraftCurrent) {
+    const saved = op.edgeCalibration;
+    if (!saved || saved.invocationID !== op.invocationID) return null;
+    const baseline = saved.baseline;
+    const result = {version: 1, sampleNumber: saved.samples = Math.min(65535, saved.samples + 1),
+      baselineAvailable: !!baseline, beforeInputBaselineAvailable: !!saved.beforeInput,
+      originalDraftCurrent: false, clickBound: !!op.identity.target.clickBindingID,
+      originalTextUnchanged: false, selectionComparable: false, originalSelectionUnchanged: false,
+      baselineAttachmentNodes: baseline?.nodes.length || 0, retainedBaselineAttachmentNodes: 0,
+      matchedNodes: 0, matchedOriginalFormNodes: 0, newMatchedNodes: 0, filenameMatchedNodes: 0,
+      blobMatchedNodes: 0, progressNodes: 0, progressValueKnown: false,
+      progressPercentMinimum: 0, progressPercentMaximum: 0, busyAttributeNodes: 0,
+      readyAttributeNodes: 0, errorAttributeNodes: 0, loadedImageNodes: 0,
+      changedMatchedPreviews: 0, scanLimited: false, samplingFailed: false};
+    try {
+      // Do not let legacy sameDraft's wrapper recovery lend a replacement
+      // editor to this diagnostic, or sample another operation's file.
+      if (!baseline || !originalDraftCurrent || registry.root !== baseline.root || document.documentElement !== baseline.root
+          || !sameTarget(baseline.target, op.identity.target) || !sameTarget(baseline.target, op.binding.target)
+          || !contextMatches(baseline.target) || baseline.route !== route() || baseline.navigation !== registry.navigation
+          || op.binding.editor !== baseline.editor || op.binding.form !== baseline.form) return result;
+      const scan = edgeCalibrationScan(op.binding);
+      if (!scan) { result.scanLimited = true; return result; }
+      result.originalDraftCurrent = true;
+      const {editor, form, selection} = baseline;
+      result.originalTextUnchanged = (editor.tagName === 'TEXTAREA' ? editor.value : editor.textContent) === baseline.text;
+      const currentNodes = new Set(scan.nodes);
+      result.retainedBaselineAttachmentNodes = baseline.nodes.filter(node => node.isConnected && currentNodes.has(node)).length;
+      if (selection?.textarea) {
+        result.selectionComparable = Number.isInteger(selection.start) && Number.isInteger(selection.end);
+        result.originalSelectionUnchanged = result.selectionComparable && editor.selectionStart === selection.start
+          && editor.selectionEnd === selection.end && editor.selectionDirection === selection.direction;
+      } else if (selection) {
+        const current = document.getSelection?.();
+        result.selectionComparable = true;
+        result.originalSelectionUnchanged = !!current && current.rangeCount === selection.rangeCount
+          && current.anchorNode === selection.anchor && current.focusNode === selection.focus
+          && current.anchorOffset === selection.anchorOffset && current.focusOffset === selection.focusOffset;
+      }
+      if (!op.inputCount || !saved.beforeInput) return result;
+      const nodes = scan.nodes;
+      const filename = new RegExp('(^|[^a-zA-Z0-9_.-])' + op.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '($|[^a-zA-Z0-9_.-])');
+      const named = node => ['data-file-name', 'aria-label', 'title', 'alt'].some(key => filename.test(node.getAttribute(key) || ''));
+      const blob = node => node.tagName === 'IMG' && op.urls.has(node.getAttribute('src'));
+      const matched = nodes.filter(node => node.isConnected && (named(node) || blob(node)));
+      const owned = matched.filter(node => form.contains(node));
+      result.matchedNodes = matched.length; result.matchedOriginalFormNodes = owned.length;
+      result.newMatchedNodes = matched.filter(node => !saved.beforeInput.has(node)).length;
+      result.filenameMatchedNodes = matched.filter(named).length; result.blobMatchedNodes = matched.filter(blob).length;
+      // A filename alone is not an upload signal. Inspect only its candidate
+      // nodes in the original form; no guessed portal lends ownership here.
+      const ownedNodes = new Set(owned), indicators = [];
+      for (const entry of scan.entries) {
+        entry.matchedAncestor = ownedNodes.has(entry.node)
+          || (entry.parent >= 0 && scan.entries[entry.parent].matchedAncestor);
+        if (!entry.matchedAncestor || (!entry.indicator && !ownedNodes.has(entry.node))) continue;
+        if (indicators.length === edgeCalibrationLimit) { result.scanLimited = true; return result; }
+        indicators.push(entry.node);
+      }
+      const progress = [];
+      for (const node of indicators) {
+        if (node.matches('progress,[role="progressbar"]')) {
+          result.progressNodes++;
+          const raw = node.getAttribute(node.tagName === 'PROGRESS' ? 'value' : 'aria-valuenow');
+          const low = node.tagName === 'PROGRESS' ? 0 : Number(node.getAttribute('aria-valuemin') ?? 0);
+          const high = Number(node.getAttribute(node.tagName === 'PROGRESS' ? 'max' : 'aria-valuemax') ?? (node.tagName === 'PROGRESS' ? 1 : 100));
+          const value = Number(raw);
+          if (raw !== null && raw.trim() !== '' && [value, low, high].every(Number.isFinite)
+              && high > low && value >= low && value <= high) progress.push(Math.round(100 * (value - low) / (high - low)));
+        }
+        const states = ['data-state', 'data-status', 'data-upload-status'].map(key => node.getAttribute(key));
+        if (node.getAttribute('aria-busy') === 'true' || states.some(value => ['loading', 'uploading', 'pending'].includes(value))) result.busyAttributeNodes++;
+        if (states.some(value => ['ready', 'complete', 'completed', 'done'].includes(value))) result.readyAttributeNodes++;
+        if (node.getAttribute('role') === 'alert' || states.some(value => ['error', 'failed'].includes(value))) result.errorAttributeNodes++;
+        if (node.tagName === 'IMG' && node.complete === true && node.naturalWidth > 0) result.loadedImageNodes++;
+        if (node.matches(previewSelector) && previewValue(node) && op.previewBaseline?.get(node) !== previewValue(node)) result.changedMatchedPreviews++;
+      }
+      if (progress.length) {
+        result.progressValueKnown = true;
+        result.progressPercentMinimum = Math.min(...progress); result.progressPercentMaximum = Math.max(...progress);
+      }
+    } catch { result.samplingFailed = true; }
+    return result;
+  }
   // One document observer covers only the actual draft pairs with pending
   // observations. Removing a transcript subtree never enumerates its contents.
   function observationMonitor() {
@@ -838,6 +993,10 @@ function riftletWebAcceptance(command, native) {
     const result = blank(op.identity), item = result.observation;
     if (op.entryDiagnostics) result.entryDiagnostics = {...op.entryDiagnostics};
     item.belongsToOriginalDraft = sameDraft(op.binding, true);
+    if (native.applicationID === 'com.microsoft.edgemac' && result.entryDiagnostics) {
+      const calibration = edgeCalibrationSample(op, item.belongsToOriginalDraft);
+      if (calibration) result.entryDiagnostics.edgeCalibration = calibration;
+    }
     item.inputExecutionPending = op.executionPending === true;
     if (op.retirement) {
       result.schemaVersion = 3;
@@ -877,6 +1036,7 @@ function riftletWebAcceptance(command, native) {
         draftGeneration: registry.witnessGeneration.id};
       const pinned = {...parts, target, route: route(), navigation: registry.navigation};
       if (!sameDraft(pinned)) fail('CLICK_PIN_REFUSED');
+      if (native.applicationID === 'com.microsoft.edgemac') pinned.edgeCalibrationBaseline = edgeCalibrationBaseline(pinned);
       registry.clickBindings ||= new Map();
       if (registry.clickBindings.has(pin)) fail('CLICK_PIN_SPENT');
       registry.clickBindings.set(pin, pinned);
@@ -890,6 +1050,7 @@ function riftletWebAcceptance(command, native) {
           documentID: registry.documentID, composerID: nodeID(parts.editor) + ':' + nodeID(parts.form),
           draftGeneration: crypto.randomUUID()}};
     }
+    if (native.applicationID === 'com.microsoft.edgemac') registry.current.edgeCalibrationBaseline = edgeCalibrationBaseline(registry.current);
     return registry.current.target;
   }
   const binding = bindingFor(command.target);
@@ -911,6 +1072,8 @@ function riftletWebAcceptance(command, native) {
       name: command.uploadName, mediaType: command.mediaType, size: command.byteCount, chunks: [], received: 0, nextChunk: 0,
       committed: false, discarded: false, inputCount: 0, changeReturned: false, retirement: null,
       baseline: new Set(), urls: new Set(), start: null};
+    if (native.applicationID === 'com.microsoft.edgemac') op.edgeCalibration = {
+      baseline: binding.edgeCalibrationBaseline, invocationID: op.invocationID, beforeInput: null, samples: 0};
     registry.operations.set(identity.operationID, op);
     if (binding.target.clickBindingID) binding.begun = true;
     return acknowledgement(op, 0);
@@ -988,6 +1151,7 @@ function riftletWebAcceptance(command, native) {
       return retire('attachmentInputNotCreated', 'handoff', 'timeout');
     op.binding.input = input;
     op.previewBaseline = new WeakMap([...document.querySelectorAll(previewSelector)].map(node => [node, previewValue(node)]));
+    edgeCalibrationBeforeInput(op);
     registry.files.set(file, op);
     const writingForm = op.binding.form;
     registry.writingInputs ||= new WeakSet();
