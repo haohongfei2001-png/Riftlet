@@ -142,7 +142,7 @@ function riftletWebAcceptance(command, native) {
     fail('AMBIGUOUS_COMPOSER');
   }
   const blank = (identity, state = 'unknown') => ({schemaVersion: 2,
-    provenance: {source: 'integratedDevelopment', evidenceID: 'click-document-witness-20261117-v20'},
+    provenance: {source: 'integratedDevelopment', evidenceID: 'click-document-witness-20261117-v21'},
     observation: {identity, state, exactImageIdentity: false, belongsToOriginalDraft: false,
       hasError: false, isUploading: false, attachmentAbsent: false, automaticRetryExcluded: false}});
   let registry = globalThis[KEY];
@@ -887,6 +887,78 @@ function riftletWebAcceptance(command, native) {
     if (![low, high, value].every(Number.isFinite) || high <= low || value < low || value > high) return null;
     return {percent: 100 * (value - low) / (high - low), low, high};
   }
+  const edgeLabelAttributes = ['alt', 'title', 'aria-label', 'aria-description', 'aria-valuetext'];
+  const edgeLabelRelations = ['aria-labelledby', 'aria-describedby', 'aria-owns', 'for', 'id'];
+  // Inspect visible ownership claims only inside the already proven new single-file
+  // scope. An external label or owner can veto a sample, never supply its name.
+  function edgeProgressLabels(filename, members, originals) {
+    if (members.length > 128) return null;
+    const own = new RegExp(filename.source, 'g');
+    const fileSuffix = /\S\.(?:png|jpe?g|gif|webp|avif|hei[cf]|bmp|svg|tiff?|ico|pdf|docx?|xlsx?|pptx?|csv|txt|md|json|zip)(?![a-z0-9_-])/iu;
+    const prior = [...new Set(originals.map(item => item.name).filter(Boolean))];
+    if (prior.length > 32 || prior.some(name => name.length > 256)) return null;
+    const exactPrior = prior.length ? new RegExp('(?:^|[^a-zA-Z0-9_.-])(?:'
+      + prior.map(name => name.replace(/[\\^$.*+?()[\]{}|]/g, '\\$&')).join('|') + ')(?=$|[^a-zA-Z0-9_.-])') : null;
+    const conflicts = text => typeof text !== 'string' || text.length > 1024 || !!exactPrior?.test(text)
+      || fileSuffix.test(text.replace(own, '$1'));
+    let budget = 16384, referenceCount = 0;
+    const accepts = text => (budget -= text.length) >= 0 && !conflicts(text);
+    const ids = new Map(), refs = new Map(), nodes = new Set(members.map(entry => entry.node));
+    for (const {node} of members) {
+      if (node.children.length > 128 || [...node.children].some(child => !nodes.has(child))) return null;
+      if (node.id) {
+        if (ids.size === 32 || !/^[a-zA-Z0-9_:.-]{1,128}$/.test(node.id) || ids.has(node.id)
+            || document.getElementById(node.id) !== node) return null;
+        ids.set(node.id, node);
+      }
+      if (node.hasAttribute('aria-owns')) return null;
+      for (const attr of edgeLabelAttributes) {
+        const value = node.getAttribute(attr);
+        if (value !== null && !accepts(value)) return null;
+      }
+      // Reading individual immediate text nodes never enters a pruned editor,
+      // transcript, form or dialog nested below a candidate.
+      if (node.childNodes) {
+        if (node.childNodes.length > 128) return null;
+        for (const child of node.childNodes) {
+          if (child.nodeType === 3 && (child.length > 1024 || !accepts(child.data))) return null;
+        }
+      } else if (!node.children.length && !accepts(node.textContent)) return null;
+    }
+    for (const [id, node] of ids) {
+      // Exact reverse associations only. No document text, list of controls, or
+      // content of an external accessible label is read.
+      if (document.querySelector('[aria-owns~="' + id + '"]')) return null;
+      if (document.querySelector('label[for="' + id + '"]')) {
+        const labels = node.labels;
+        if (!labels?.length || labels.length > 8 || [...labels].some(label => !nodes.has(label))) return null;
+      }
+    }
+    for (const {node} of members) {
+      const destinations = [];
+      for (const attr of ['aria-labelledby', 'aria-describedby', 'for']) {
+        const value = node.getAttribute(attr);
+        if (value === null) continue;
+        if (value.length > 512 || !value.trim()) return null;
+        for (const id of value.trim().split(/\s+/)) {
+          if (++referenceCount > 32 || !ids.has(id)) return null;
+          // A native label's 'for' identifies a control. It is not a recursive
+          // accessible-name reference from the label back to its control.
+          if (attr !== 'for') destinations.push(ids.get(id));
+        }
+      }
+      if (destinations.length) refs.set(node, destinations);
+    }
+    const done = new Set(), visiting = new Set();
+    const resolved = node => {
+      if (done.has(node)) return true;
+      if (visiting.has(node)) return false;
+      visiting.add(node);
+      if (!(refs.get(node) || []).every(resolved)) return false;
+      visiting.delete(node); done.add(node); return true;
+    };
+    return [...refs.keys()].every(resolved) ? conflicts : null;
+  }
   // Bound to this original input only. A removed and reinserted node is not a
   // continuous witness, even when two polls see the same object and parent.
   function watchEdgeProgress(baseline) {
@@ -900,16 +972,31 @@ function riftletWebAcceptance(command, native) {
       witness.decision = reason;
       observer.disconnect(); clearTimeout(expires); held = null; expectedChange = null;
       input?.removeEventListener('change', onChange, true);
+      document.removeEventListener('change', onDocumentChange, true);
       document.removeEventListener('selectionchange', onSelection);
       if (op) op.edgeCalibration.progress = null;
       witness.active = false; op = null; input = null; originalFile = null;
     };
     const holdsOriginalFile = () => input.files?.length === 1 && input.files[0] === originalFile
       && registry.files.get(originalFile) === op;
+    const checkExtraChange = field => {
+      const files = field.files, count = files?.length;
+      if (!Number.isSafeInteger(count) || count < 0 || count > 32) return close('inputCount');
+      for (let index = 0; index < count; index++) {
+        if (!files[index] || registry.files.get(files[index]) === op) return close('inputCount');
+      }
+    };
+    const onDocumentChange = event => {
+      // Capture before a target handler can clear a mixed selection. A rebuilt
+      // field in this original draft can also receive the same File again.
+      const field = event.target;
+      if (event !== expectedChange && field instanceof HTMLInputElement && field.type === 'file'
+          && (field === input || field.form === form || form.contains(field))) checkExtraChange(field);
+    };
     const onChange = event => {
       if (event === expectedChange) {
         if (!holdsOriginalFile() || ++changes !== 1) close('inputCount');
-      } else if (input.files?.length === 1 && registry.files.get(input.files[0]) === op) close('inputCount');
+      } else checkExtraChange(input);
     };
     const onSelection = () => {
       if (!edgeSelectionUnchanged(baseline)) close('selectionChanged');
@@ -923,6 +1010,9 @@ function riftletWebAcceptance(command, native) {
           const node = record.target, key = record.attributeName;
           if (originalNodes.has(node) && identityAttributes.includes(key)) return close('retainedBaseline');
           if (!held || !held.scope.contains(node)) continue;
+          if ((key === 'data-file-name' && [record.oldValue, node.getAttribute(key)].some(value => value != null && value !== op.name))
+              || edgeLabelRelations.includes(key) || (edgeLabelAttributes.includes(key) &&
+              (held.conflicts(record.oldValue || '') || held.conflicts(node.getAttribute(key) || '')))) return close('conflictingFileLabel');
           if (node === held.bar && ['value', 'aria-valuenow'].includes(key)) {
             // Old values also catch a finish/reset/reuse between two polls.
             if (record.oldValue !== undefined) {
@@ -935,22 +1025,35 @@ function riftletWebAcceptance(command, native) {
           if ((held.labels.includes(node) && identityAttributes.includes(key))
               || (node === held.image && key === 'src') || statusAttributes.includes(key)
               || (node === held.bar && ['role', 'aria-valuemin', 'aria-valuemax', 'max'].includes(key))) return close('nodeReused');
-        } else for (const removed of record.removedNodes) {
-          if (++removedCount > 2048) return close();
-          moved.add(removed);
-          if (originals.some(item => removed.contains(item.node))
-              || (held && [held.scope, held.card, held.image, held.bar, held.remove].some(node => node && removed.contains(node)))) return close('nodeReused');
+        } else if (held && held.scope.contains(record.target) && record.type === 'characterData') {
+          if (record.oldValue === null || held.conflicts(record.oldValue) || held.conflicts(record.target.data)) return close('conflictingFileLabel');
+        } else if (record.type === 'childList') {
+          if (held && held.scope.contains(record.target)) {
+            const count = record.addedNodes.length + record.removedNodes.length;
+            if (!count || count > 128) return close('conflictingFileLabel');
+            for (const list of [record.addedNodes, record.removedNodes]) for (const node of list) {
+              if (node.nodeType === 3 && (node.length > 1024 || held.conflicts(node.data))) return close('conflictingFileLabel');
+              if (node.nodeType === 1) return close('nodeReused');
+            }
+          }
+          for (const removed of record.removedNodes) {
+            if (++removedCount > 2048) return close();
+            moved.add(removed);
+            if (originals.some(item => removed.contains(item.node))
+                || (held && [held.scope, held.card, held.image, held.bar, held.remove].some(node => node && removed.contains(node)))) return close('nodeReused');
+          }
         }
       }
     };
     const observer = new MutationObserver(changed);
-    observer.observe(form, {childList: true, characterData: true, attributes: true, attributeOldValue: true, subtree: true,
-      attributeFilter: [...identityAttributes, ...statusAttributes, 'role', 'aria-valuemin', 'aria-valuemax', 'max', 'value', 'aria-valuenow']});
+    observer.observe(form, {childList: true, characterData: true, characterDataOldValue: true, attributes: true, attributeOldValue: true, subtree: true,
+      attributeFilter: [...identityAttributes, 'aria-description', 'aria-valuetext', ...edgeLabelRelations, ...statusAttributes, 'role', 'aria-valuemin', 'aria-valuemax', 'max', 'value', 'aria-valuenow']});
     const witness = {active: true, decision: 'awaitingInput', close, moved, flush: () => changed(observer.takeRecords()),
       bind: (original, file) => {
         witness.flush();
         if (!witness.active) { original.edgeCalibration.progress = null; return; }
-        op = original; originalFile = file; input = op.binding.input; input.addEventListener('change', onChange, true);
+        op = original; originalFile = file; input = op.binding.input;
+        document.addEventListener('change', onDocumentChange, true); input.addEventListener('change', onChange, true);
         deadline = performance.now() + 30000;
         clearTimeout(expires); expires = setTimeout(close, 30000);
       },
@@ -1039,6 +1142,8 @@ function riftletWebAcceptance(command, native) {
           || (node.getAttribute('role') === 'alert' && visible(node) && node.textContent.trim().length > 0)))
       return proof.close('ownershipTopology');
     if (!controls.length) { proof.decision = 'progressUnavailable'; if (held) proof.close(proof.decision); return; }
+    const conflicts = edgeProgressLabels(filename, members, baseline.originals);
+    if (!conflicts) return proof.close('conflictingFileLabel');
     const bar = controls[0].node, url = image.getAttribute('src');
     // A detached node might be absent from this input's baseline and still
     // belong to an earlier file. A later independent input may see our own
@@ -1059,7 +1164,7 @@ function riftletWebAcceptance(command, native) {
     const value = reading.percent;
     if (value >= 100 || now < op.inputTime || (held && (value < held.highest || now < held.at))) return proof.close('progressUnavailable');
     if (value <= 0 || now === op.inputTime) { proof.decision = 'progressUnavailable'; return; }
-    if (!held) { proof.decision = 'firstProgress'; proof.hold({card, scope, remove, image, bar, labels, url, value, highest: value, low: reading.low, high: reading.high, at: now}); return; }
+    if (!held) { proof.decision = 'firstProgress'; proof.hold({card, scope, remove, image, bar, labels, conflicts, url, value, highest: value, low: reading.low, high: reading.high, at: now}); return; }
     if (value === held.value || now === held.at) return;
     const current = composer();
     if (current.form !== baseline.form || current.editor !== baseline.editor) return proof.close('draftChanged');
@@ -1112,7 +1217,7 @@ function riftletWebAcceptance(command, native) {
       }
       if (!op.inputCount || !saved.beforeInput) return result;
       const nodes = scan.nodes;
-      const filename = new RegExp('(^|[^a-zA-Z0-9_.-])' + op.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '($|[^a-zA-Z0-9_.-])');
+      const filename = new RegExp('(^|[^a-zA-Z0-9_.-])' + op.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?=$|[^a-zA-Z0-9_.-])');
       const named = node => ['data-file-name', 'aria-label', 'title', 'alt'].some(key => filename.test(node.getAttribute(key) || ''));
       const blob = node => node.tagName === 'IMG' && op.urls.has(node.getAttribute('src'));
       const matched = nodes.filter(node => node.isConnected && (named(node) || blob(node)));

@@ -29,7 +29,7 @@ struct AttachmentEntryDiagnostics: Decodable, Equatable {
     struct EdgeCalibration: Decodable, Equatable {
         enum ProgressDecision: String, Decodable {
             case awaitingInput, fileBlobMissing, ownershipTopology, retainedBaseline, selectionChanged, draftChanged
-            case nodeReused, progressUnavailable, firstProgress, historyUnavailable, inputCount, terminal, started
+            case conflictingFileLabel, nodeReused, progressUnavailable, firstProgress, historyUnavailable, inputCount, terminal, started
         }
         let progressDecision: ProgressDecision?
         let version, sampleNumber: Int

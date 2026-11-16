@@ -245,8 +245,8 @@ final class EdgeAppleEventsExecutorTests: XCTestCase {
         XCTAssertEqual(driver.actions, ["captureTarget", "observe"])
     }
 
-    @MainActor func testRestartReadsH2AndH3EdgeWithFrozenProgramsAndNoNewClickOrBootstrap() async throws {
-        for source in [ChatGPTWebPageProgram.priorClickSource, ChatGPTWebPageProgram.priorOriginSource] {
+    @MainActor func testRestartReadsV18ThroughV20EdgeWithFrozenProgramsAndNoNewClickOrBootstrap() async throws {
+        for source in [ChatGPTWebPageProgram.priorClickSource, ChatGPTWebPageProgram.priorOriginSource, ChatGPTWebPageProgram.priorProgressSource] {
             let old = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: source))
             let driver = EdgeExecutorFixture(), host = driver.host
             let target = TargetLease(adapterID: "chatgpt-web", surface: .webChat, applicationID: EdgeApplicationHost.bundleID,

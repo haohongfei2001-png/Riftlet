@@ -27,7 +27,7 @@ public enum SystemScreenshotAdmissionScope: Sendable, Equatable {
         }
     }
     func registeredProfile(for request: TransferRequest, sourceID: String) -> ObservationProfile {
-        if self == .productSystem, sourceID == OrdinaryProductScreenshotScope.edgeProgressSourceID,
+        if self == .productSystem, [OrdinaryProductScreenshotScope.edgeProgressSourceID, ChatGPTWebPageProgram.priorProgressSource].contains(sourceID),
            request.asset.origin == .systemScreenshot, request.asset.mediaType.lowercased() == "image/png",
            request.operation.target.applicationID == "com.microsoft.edgemac", request.operation.target.clickBindingID != nil,
            request.operation.target.webDraftRoute == .chatGPTTemporaryHome {
@@ -116,8 +116,8 @@ public enum OrdinarySystemScreenshotScope {
 /// policy must independently admit each profile for its exact asset origin;
 /// merely constructing these values grants no input, start, completion or retry.
 public enum OrdinaryProductScreenshotScope {
-    static let edgeProgressSourceID = "chatgpt-web-click-document-witness-20261117-v20"
-    static let edgeProgressProvenanceID = "click-document-witness-20261117-v20"
+    static let edgeProgressSourceID = "chatgpt-web-click-document-witness-20261117-v21"
+    static let edgeProgressProvenanceID = "click-document-witness-20261117-v21"
     public static let edgeProgressStartProfileID = "chatgpt-web-edge-temporary-system-png-progress-20261117-v1"
     public static let edgeProgressProfile = ObservationProfile(adapterID: "chatgpt-web", surface: .webChat,
         profileID: "chatgpt-web-edge-temporary-system-input-20261117-v1", uploadStartProfileID: edgeProgressStartProfileID)

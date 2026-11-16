@@ -160,21 +160,26 @@ final class EdgeOrdinaryInputTests: XCTestCase {
     func testEdgeProgressCannotPromoteOldRegistrationOrBuiltInOriginOrZeroStartingValue() async throws {
         let root = try directory(); defer { try? FileManager.default.removeItem(at: root) }
         let store = try QueueStore(databaseURL: root.appendingPathComponent("queue.sqlite"))
-        for scenario in ["old-v18", "old-v19", "v19-new-route", "ordinary-draft", "built-in", "zero", "old-provenance"] {
-            let historical = ["old-v18", "old-v19", "v19-new-route"].contains(scenario)
+        for scenario in ["old-v18", "old-v19", "old-v20", "v19-new-route", "ordinary-draft", "built-in", "zero", "old-provenance"] {
+            let historical = ["old-v18", "old-v19", "old-v20", "v19-new-route"].contains(scenario)
             let (request, _, _) = try await prepare(root: root, store: store, gray: 0.2,
                 origin: scenario == "built-in" ? .applicationScreenshot : .systemScreenshot,
                 route: ["old-v18", "old-v19", "ordinary-draft"].contains(scenario) ? nil : .chatGPTTemporaryHome)
             let bridge = EdgeInputBridge(state: .uploadStarted, signal: .correlatedProgress,
                 previousProgress: scenario == "zero" ? 0 : 4,
-                provenanceID: scenario == "old-provenance" ? "click-document-witness-20261117-v19" : "click-document-witness-20261117-v20")
+                provenanceID: scenario == "old-provenance" ? "click-document-witness-20261117-v20" : "click-document-witness-20261117-v21")
             let client = try adapter(root: root, store: store, bridge: bridge)
             if historical {
                 let op = request.operation
                 let identity = ObservationIdentity(operationID: op.id, assetID: request.asset.id,
                     attempt: op.attempt, assetSHA256: request.asset.sha256, target: op.target)
-                let old = OrdinaryProductScreenshotScope.admittedSystemProfile
-                let source = scenario == "old-v18" ? ChatGPTWebPageProgram.priorClickSource : ChatGPTWebPageProgram.priorOriginSource
+                let old = scenario == "old-v20" ? OrdinaryProductScreenshotScope.edgeProgressProfile : OrdinaryProductScreenshotScope.admittedSystemProfile
+                let source: String
+                switch scenario {
+                case "old-v18": source = ChatGPTWebPageProgram.priorClickSource
+                case "old-v20": source = ChatGPTWebPageProgram.priorProgressSource
+                default: source = ChatGPTWebPageProgram.priorOriginSource
+                }
                 let registration: [String: Any] = ["version": 2, "sourceID": source,
                     "startProfileID": try XCTUnwrap(old.uploadStartProfileID), "completionProfileID": old.profileID,
                     "enrollmentID": UUID().uuidString, "assetOrigin": AssetOrigin.systemScreenshot.rawValue,
@@ -276,7 +281,7 @@ private actor EdgeInputBridge: WebBridgeExecutor {
     private let provenanceID: String
     init(state: AttachmentObservedState = .inputTriggered, loseCommitReply: Bool = false,
          signal: UploadStartSignal = .attachmentAccepted, previousProgress: Double = 4,
-         provenanceID: String = "click-document-witness-20261117-v20") {
+         provenanceID: String = "click-document-witness-20261117-v21") {
         self.state = state; self.loseCommitReply = loseCommitReply; self.signal = signal
         self.previousProgress = previousProgress; self.provenanceID = provenanceID
     }

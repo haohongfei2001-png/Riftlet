@@ -585,6 +585,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         if request.operation.target.applicationID == "com.microsoft.edgemac",
            ![.inputTriggered, .unknown, .invalidated].contains(envelope.observation.state) {
             guard mode == .ordinaryProduct, envelope.observation.state == .uploadStarted,
+                  registration?.source == OrdinaryProductScreenshotScope.edgeProgressSourceID,
                   scopedNormalizer.profile.uploadStartProfileID == OrdinaryProductScreenshotScope.edgeProgressStartProfileID,
                   envelope.provenance == .init(source: .integratedDevelopment, evidenceID: OrdinaryProductScreenshotScope.edgeProgressProvenanceID),
                   let start = envelope.observation.uploadStart, start.signal == .correlatedProgress, start.previousProgress > 0,

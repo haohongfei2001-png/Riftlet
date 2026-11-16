@@ -45,7 +45,7 @@ final class EdgeCalibrationDiagnosticsTests: XCTestCase {
 
     func testProgressDecisionAcceptsOnlyClosedLabelsAndNeverSuppliesAReceipt() throws {
         let original = packet()
-        for name in ["fileBlobMissing", "ownershipTopology", "retainedBaseline", "selectionChanged", "nodeReused", "progressUnavailable", "started", "untrusted data"] {
+        for name in ["fileBlobMissing", "ownershipTopology", "conflictingFileLabel", "retainedBaseline", "selectionChanged", "nodeReused", "progressUnavailable", "started", "untrusted data"] {
             var fields = calibration; fields["progressDecision"] = name
             let data = try payload(original, summary(fields))
             let decoded = try ObservationDecoder.decodeResponse(data, includeDiagnostics: true)

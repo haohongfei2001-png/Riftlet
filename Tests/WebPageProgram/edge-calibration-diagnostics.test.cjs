@@ -510,3 +510,79 @@ test('a bounded history overflow keeps later detached identities uncertain witho
   assert.equal(reply.observation.state,'inputTriggered');assert.equal(reply.entryDiagnostics.edgeCalibration.progressDecision,'historyUnavailable');
   assert.equal(f.setters,2);assert.equal(f.changes,2);
 });
+
+test('Edge progress names must agree across the original card, control and accessible labels', async t => {
+  const cases = [
+    ...['aria-label','title','aria-description','aria-valuetext'].map(attr => ['control',attr]),
+    ...['aria-label','title','aria-description'].map(attr => ['group',attr]),
+    ...['alt','title','aria-label'].map(attr => ['image',attr]),
+    ['card','title'], ['text'], ['reference','aria-labelledby'], ['reference','aria-describedby'],
+    ['mixed names'], ['temporary','aria-valuetext'], ['temporary','data-file-name'],
+    ['external reference'], ['native external label'], ['outside owner'], ['missing reference'], ['cyclic reference']
+  ];
+  for (const [kind, attr] of cases) for (const mode of ['current','generic','foreign']) {
+    await t.test([kind,attr,mode].filter(Boolean).join(' / '), async () => {
+      const {f, bind, observe} = edgeFixture({route:calibratedTemporary, accept:false});
+      let previous, bar, name, label;
+      f.setChange(file => {
+        if (!previous) { previous = file.name; return; }
+        name = file.name;
+        label = mode === 'current' ? name : mode === 'foreign' ? previous : '上传进度 · 35.5%';
+        const card = f.addCard(name,{progress:false}), image = card.querySelector('img');
+        image.setAttribute('src',f.context.URL.createObjectURL(file));
+        const group = card.append(new f.Node('div',{role:'group'}));
+        bar = group.append(kind === 'native external label' ? new f.Node('progress',{value:'10',max:'100',id:'bar'})
+          : new f.Node('div',{role:'progressbar','aria-valuenow':'10',id:'bar'}));
+        const target = {card, group, image, control:bar}[kind];
+        if (target) target.setAttribute(attr,label);
+        if (kind === 'text') bar.textContent = label;
+        if (kind === 'mixed names') group.setAttribute('title',name + ', ' + label);
+        if (kind === 'reference' || kind === 'external reference' || kind === 'cyclic reference') {
+          const root = kind === 'external reference' ? f.body : group;
+          const ref = root.append(new f.Node('span',{id:'label'}));
+          ref.textContent = label;
+          if (kind === 'cyclic reference') ref.setAttribute('aria-labelledby','bar');
+          bar.setAttribute(attr || 'aria-labelledby','label');
+        }
+        if (kind === 'native external label') f.body.append(new f.Node('label',{for:'bar'})).textContent = label;
+        if (kind === 'outside owner') f.form.append(new f.Node('div',{'aria-owns':'bar','aria-label':label}));
+        if (kind === 'missing reference') bar.setAttribute('aria-describedby','missing');
+      });
+      const first = bind(); f.stage(first,{edgeProgressCandidate:true}); await f.commit(first);
+      const second = bind(); f.stage(second,{edgeProgressCandidate:true}); await f.commit(second);
+      if (kind === 'temporary') bar.setAttribute(attr,label);
+      bar.setAttribute(kind === 'native external label' ? 'value' : 'aria-valuenow','35');
+      if (kind === 'temporary') bar.removeAttribute(attr);
+      const reply = observe(second);
+      const unknownOwner = ['external reference','native external label','outside owner','missing reference','cyclic reference'].includes(kind);
+      const expected = !unknownOwner && mode !== 'foreign' && !(attr === 'data-file-name' && mode === 'generic');
+      assert.equal(reply.observation.state,expected ? 'uploadStarted' : 'inputTriggered');
+      assert.equal(reply.entryDiagnostics.edgeCalibration.progressDecision,expected ? 'started' : 'conflictingFileLabel');
+      assert.equal(reply.observation.completionEvidence,undefined);
+      assert.deepEqual([f.setters,f.changes,f.sends],[2,2,0]);
+    });
+  }
+});
+
+test('an extra change inspects the entire bounded FileList for the original operation', async t => {
+  for (const [name,count,originalIndex,otherField,started] of [
+    ['empty',0,-1,false,true], ['other files at the limit',32,-1,false,true],
+    ['original first',3,0,false,false], ['original middle',3,1,false,false],
+    ['original last',32,31,false,false], ['over limit',33,-1,false,false],
+    ['rebuilt input, other files',2,-1,true,true], ['rebuilt input, mixed files',2,1,true,false]
+  ]) await t.test(name,async () => {
+    const {f,cards,submit,observe} = edgeProgressFixture();
+    const original = await submit(), [{file,bar}] = cards;
+    f.setChange(() => {});
+    const field = otherField ? f.form.append(f.document.createElement('input')) : f.input;
+    const transfer = new f.context.DataTransfer();
+    for (let i = 0; i < count; i++) transfer.items.add(i === originalIndex ? file : new f.context.File(['other'],file.name));
+    field.files = transfer.files;
+    field.dispatchEvent(new f.context.Event('change',{bubbles:true}));
+    bar.setAttribute('aria-valuenow','35');
+    const result = observe(original);
+    assert.equal(result.observation.state,started ? 'uploadStarted' : 'inputTriggered');
+    assert.equal(result.entryDiagnostics.edgeCalibration.progressDecision,started ? 'started' : 'inputCount');
+    assert.equal(f.sends,0);
+  });
+});
