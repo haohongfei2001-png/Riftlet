@@ -436,3 +436,77 @@ test('a named Remove sibling must share one new card with the popup that owns bo
     });
   }
 });
+
+test('all original-form inputs contribute detached node history, including an unsampled asynchronous card', async t => {
+  for (const enrolled of [false, true]) for (const delayed of [false, true]) await t.test(
+    'enrolled=' + enrolled + ' delayed=' + delayed, async () => {
+      const {f, bind, observe} = edgeFixture({route:calibratedTemporary, accept:false});
+      let pending, cardA, barA;
+      const render = file => {
+        const card = f.addCard(file.name), image = card.querySelector('img'), bar = card.querySelector('[role="progressbar"]');
+        image.setAttribute('src',f.context.URL.createObjectURL(file));
+        if (!cardA) {cardA=card; barA=bar;} else {bar.remove(); card.append(barA);}
+      };
+      f.setChange(file => { if (delayed && !pending) pending=file; else render(file); });
+      const a = bind(); f.stage(a,enrolled ? {edgeProgressCandidate:true} : {}); await f.commit(a);
+      if (delayed) render(pending);
+      cardA.remove(); barA.remove();
+      const b = bind(); f.stage(b,{edgeProgressCandidate:true}); await f.commit(b);
+      barA.setAttribute('aria-valuenow','35');
+      const result = observe(b);
+      assert.equal(result.observation.state,'inputTriggered');
+      assert.equal(result.entryDiagnostics.edgeCalibration.progressDecision,'nodeReused');
+      assert.equal(f.setters,2); assert.equal(f.changes,2);
+    });
+});
+
+test('the exact original File must be present at change dispatch and capture; the receiver can clear it afterwards', async t => {
+  for (const timing of ['before dispatch', 'before capture', 'after capture']) await t.test(timing, async () => {
+    const {f, bind, observe} = edgeFixture({route:calibratedTemporary, accept:false});
+    let bar;
+    f.input.addEventListener('input', () => {
+      const file = f.input.files[0], card = f.addCard(file.name);
+      card.querySelector('img').setAttribute('src',f.context.URL.createObjectURL(file));
+      bar = card.querySelector('[role="progressbar"]');
+      if (timing === 'before dispatch') f.input.value='';
+    });
+    if (timing !== 'before dispatch') f.input.addEventListener('change', () => { f.input.value=''; }, timing === 'before capture');
+    const op = bind(); f.stage(op,{edgeProgressCandidate:true}); await f.commit(op);
+    bar.setAttribute('aria-valuenow','35');
+    const result = observe(op);
+    assert.equal(result.observation.state,timing === 'after capture' ? 'uploadStarted' : 'inputTriggered');
+    assert.equal(result.entryDiagnostics.edgeCalibration.progressDecision,timing === 'after capture' ? 'started' : 'inputCount');
+    assert.equal(f.setters,1); assert.equal(f.changes,1);
+  });
+});
+
+test('staging and actual input have separate bounded clocks and a damaged click baseline is never renewed', async t => {
+  for (const scenario of ['slow', 'expired click', 'expired input', 'prior edit']) await t.test(scenario, async () => {
+    let now=100;
+    const setup = edgeProgressFixture({prepare:f => { f.context.performance={now:()=>now++}; },
+      beforeInput:f => {
+        now+=scenario === 'expired click' ? 61000 : 31000;
+        if (scenario === 'prior edit') { const prior=f.editor.textContent; f.editor.textContent='changed'; f.editor.textContent=prior; }
+      }});
+    const op=await setup.submit();
+    now+=scenario === 'expired input' ? 31000 : 100;
+    setup.cards[0].bar.setAttribute('aria-valuenow','35');
+    const result=setup.observe(op);
+    assert.equal(result.observation.state,scenario === 'slow' ? 'uploadStarted' : 'inputTriggered');
+    assert.equal(setup.f.setters,1); assert.equal(setup.f.changes,1);
+  });
+});
+
+test('a bounded history overflow keeps later detached identities uncertain without blocking input', async () => {
+  const {f, bind, observe} = edgeFixture({route:calibratedTemporary, accept:false});
+  const a=bind(); f.stage(a); await f.commit(a);
+  const transient=new f.Node('div');
+  for(let i=0;i<2050;i++) transient.append(new f.Node('span'));
+  f.form.append(transient); transient.remove();
+  let bar;
+  f.setChange(file=>{const card=f.addCard(file.name);card.querySelector('img').setAttribute('src',f.context.URL.createObjectURL(file));bar=card.querySelector('[role="progressbar"]');});
+  const b=bind();f.stage(b,{edgeProgressCandidate:true});await f.commit(b);bar.setAttribute('aria-valuenow','35');
+  const reply=observe(b);
+  assert.equal(reply.observation.state,'inputTriggered');assert.equal(reply.entryDiagnostics.edgeCalibration.progressDecision,'historyUnavailable');
+  assert.equal(f.setters,2);assert.equal(f.changes,2);
+});

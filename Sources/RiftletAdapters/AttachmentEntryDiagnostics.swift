@@ -27,6 +27,11 @@ struct AttachmentEntryDiagnostics: Decodable, Equatable {
     /// Uncalibrated DOM facts. These fields never decode into an observation,
     /// receipt or policy, and do not assert upload START or final completion.
     struct EdgeCalibration: Decodable, Equatable {
+        enum ProgressDecision: String, Decodable {
+            case awaitingInput, fileBlobMissing, ownershipTopology, retainedBaseline, selectionChanged, draftChanged
+            case nodeReused, progressUnavailable, firstProgress, historyUnavailable, inputCount, terminal, started
+        }
+        let progressDecision: ProgressDecision?
         let version, sampleNumber: Int
         let baselineAvailable, beforeInputBaselineAvailable, originalDraftCurrent, clickBound: Bool
         let originalTextUnchanged, selectionComparable, originalSelectionUnchanged: Bool
@@ -44,11 +49,16 @@ struct AttachmentEntryDiagnostics: Decodable, Equatable {
             case baselineAttachmentNodes, retainedBaselineAttachmentNodes, matchedNodes, matchedOriginalFormNodes
             case newMatchedNodes, filenameMatchedNodes, blobMatchedNodes, progressNodes, progressValueKnown
             case progressPercentMinimum, progressPercentMaximum, busyAttributeNodes, readyAttributeNodes, errorAttributeNodes
-            case loadedImageNodes, changedMatchedPreviews, scanLimited, samplingFailed
+            case loadedImageNodes, changedMatchedPreviews, scanLimited, samplingFailed, progressDecision
         }
 
         static func read(_ value: Any?) -> Self? {
-            guard let fields = value as? [String: Any], Set(fields.keys) == Set(CodingKeys.allCases.map(\.rawValue)),
+            guard let fields = value as? [String: Any] else { return nil }
+            let mandatory = Set(CodingKeys.allCases.map(\.rawValue)).subtracting(["progressDecision"])
+            if let decision = fields["progressDecision"] {
+                guard let name = decision as? String, ProgressDecision(rawValue: name) != nil else { return nil }
+            }
+            guard Set(fields.keys).subtracting(["progressDecision"]) == mandatory,
                   let bytes = try? JSONSerialization.data(withJSONObject: fields), bytes.count <= 1_536,
                   let result = try? JSONDecoder().decode(Self.self, from: bytes), result.version == 1,
                   (1...65_535).contains(result.sampleNumber),
@@ -76,6 +86,7 @@ struct AttachmentEntryDiagnostics: Decodable, Equatable {
             fields["progressValueKnown"] = progressValueKnown
             fields["progressPercentMinimum"] = progressPercentMinimum; fields["progressPercentMaximum"] = progressPercentMaximum
             fields["scanLimited"] = scanLimited; fields["samplingFailed"] = samplingFailed
+            if let progressDecision { fields["progressDecision"] = progressDecision.rawValue }
             return Dictionary(uniqueKeysWithValues: fields.map { key, value in
                 ("edge" + key.prefix(1).uppercased() + key.dropFirst(), value)
             })

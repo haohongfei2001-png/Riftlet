@@ -160,20 +160,22 @@ final class EdgeOrdinaryInputTests: XCTestCase {
     func testEdgeProgressCannotPromoteOldRegistrationOrBuiltInOriginOrZeroStartingValue() async throws {
         let root = try directory(); defer { try? FileManager.default.removeItem(at: root) }
         let store = try QueueStore(databaseURL: root.appendingPathComponent("queue.sqlite"))
-        for scenario in ["old-v18", "ordinary-draft", "built-in", "zero", "old-provenance"] {
+        for scenario in ["old-v18", "old-v19", "v19-new-route", "ordinary-draft", "built-in", "zero", "old-provenance"] {
+            let historical = ["old-v18", "old-v19", "v19-new-route"].contains(scenario)
             let (request, _, _) = try await prepare(root: root, store: store, gray: 0.2,
                 origin: scenario == "built-in" ? .applicationScreenshot : .systemScreenshot,
-                route: ["old-v18", "ordinary-draft"].contains(scenario) ? nil : .chatGPTTemporaryHome)
+                route: ["old-v18", "old-v19", "ordinary-draft"].contains(scenario) ? nil : .chatGPTTemporaryHome)
             let bridge = EdgeInputBridge(state: .uploadStarted, signal: .correlatedProgress,
                 previousProgress: scenario == "zero" ? 0 : 4,
-                provenanceID: scenario == "old-provenance" ? "click-document-witness-20261114-v18" : "click-document-witness-20261117-v19")
+                provenanceID: scenario == "old-provenance" ? "click-document-witness-20261117-v19" : "click-document-witness-20261117-v20")
             let client = try adapter(root: root, store: store, bridge: bridge)
-            if scenario == "old-v18" {
+            if historical {
                 let op = request.operation
                 let identity = ObservationIdentity(operationID: op.id, assetID: request.asset.id,
                     attempt: op.attempt, assetSHA256: request.asset.sha256, target: op.target)
                 let old = OrdinaryProductScreenshotScope.admittedSystemProfile
-                let registration: [String: Any] = ["version": 2, "sourceID": ChatGPTWebPageProgram.priorClickSource,
+                let source = scenario == "old-v18" ? ChatGPTWebPageProgram.priorClickSource : ChatGPTWebPageProgram.priorOriginSource
+                let registration: [String: Any] = ["version": 2, "sourceID": source,
                     "startProfileID": try XCTUnwrap(old.uploadStartProfileID), "completionProfileID": old.profileID,
                     "enrollmentID": UUID().uuidString, "assetOrigin": AssetOrigin.systemScreenshot.rawValue,
                     "identity": try JSONSerialization.jsonObject(with: JSONEncoder().encode(identity))]
@@ -185,7 +187,7 @@ final class EdgeOrdinaryInputTests: XCTestCase {
                 try await store.markUnknown(op.id, reason: "original old input permanently uncertain")
             }
             do {
-                if scenario == "old-v18" { _ = try await client.reconcile(refreshed(request, store: store)) }
+                if historical { _ = try await client.reconcile(refreshed(request, store: store)) }
                 else { _ = try await client.append(request) }
                 XCTFail(scenario)
             } catch { XCTAssertEqual(error as? WebAdapterError, .invalidReply, scenario) }
@@ -193,7 +195,7 @@ final class EdgeOrdinaryInputTests: XCTestCase {
             let row = try await store.asset(id: request.asset.id)
             XCTAssertNil(start); XCTAssertEqual(row?.visibility, .visible)
             let sent = await bridge.records()
-            XCTAssertEqual(sent.commands.map(\.action), scenario == "old-v18" ? [.observe] : [.begin, .chunk, .commit])
+            XCTAssertEqual(sent.commands.map(\.action), historical ? [.observe] : [.begin, .chunk, .commit])
             if ["built-in", "ordinary-draft"].contains(scenario) { XCTAssertNil(sent.commands.first?.edgeProgressCandidate) }
         }
     }
@@ -274,7 +276,7 @@ private actor EdgeInputBridge: WebBridgeExecutor {
     private let provenanceID: String
     init(state: AttachmentObservedState = .inputTriggered, loseCommitReply: Bool = false,
          signal: UploadStartSignal = .attachmentAccepted, previousProgress: Double = 4,
-         provenanceID: String = "click-document-witness-20261117-v19") {
+         provenanceID: String = "click-document-witness-20261117-v20") {
         self.state = state; self.loseCommitReply = loseCommitReply; self.signal = signal
         self.previousProgress = previousProgress; self.provenanceID = provenanceID
     }

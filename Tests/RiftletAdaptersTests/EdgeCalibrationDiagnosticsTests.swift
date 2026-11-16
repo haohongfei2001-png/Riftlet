@@ -43,6 +43,17 @@ final class EdgeCalibrationDiagnosticsTests: XCTestCase {
         return try JSONSerialization.data(withJSONObject: object)
     }
 
+    func testProgressDecisionAcceptsOnlyClosedLabelsAndNeverSuppliesAReceipt() throws {
+        let original = packet()
+        for name in ["fileBlobMissing", "ownershipTopology", "retainedBaseline", "selectionChanged", "nodeReused", "progressUnavailable", "started", "untrusted data"] {
+            var fields = calibration; fields["progressDecision"] = name
+            let data = try payload(original, summary(fields))
+            let decoded = try ObservationDecoder.decodeResponse(data, includeDiagnostics: true)
+            XCTAssertEqual(decoded.envelope, original)
+            XCTAssertEqual(decoded.diagnostics?.traceFields["edgeProgressDecision"] as? String, name == "untrusted data" ? nil : name)
+        }
+    }
+
     func testCompleteLookingCalibrationCannotChangeObservationOrGrantEvidence() throws {
         let original = packet(), data = try payload(original, summary(calibration))
         let response = try ObservationDecoder.decodeResponse(data, includeDiagnostics: true)

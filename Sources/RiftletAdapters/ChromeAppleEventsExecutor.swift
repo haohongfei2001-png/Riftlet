@@ -29,6 +29,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
     /// Freeze the native address and the document's original composer before
     /// returning from the press. The subsequent task may only resolve that pin.
     public func targetForClick(program: WebPageProgram) throws -> Task<TargetLease, Error> {
+        guard !ChatGPTWebPageProgram.isHistoricalObserver(program.sourceID) else { throw WebAdapterError.invalidRequest }
         let clickDeadline = ChromeClickDeadline()
         let requestID = UUID().uuidString
         let host = Self.host(trace: trace, requestID: requestID, clickDeadline: clickDeadline)
@@ -68,7 +69,8 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
     }
 
     public func execute(_ command: WebBridgeCommand, program: WebPageProgram) async throws -> Data {
-        guard command.action != .pinTarget else { throw WebAdapterError.invalidRequest }
+        guard command.action != .pinTarget, command.action == .observe || !ChatGPTWebPageProgram.isHistoricalObserver(program.sourceID)
+        else { throw WebAdapterError.invalidRequest }
         if command.action == .captureTarget {
             let task = try targetForClick(program: program)
             let target = try await task.value

@@ -142,7 +142,7 @@ function riftletWebAcceptance(command, native) {
     fail('AMBIGUOUS_COMPOSER');
   }
   const blank = (identity, state = 'unknown') => ({schemaVersion: 2,
-    provenance: {source: 'integratedDevelopment', evidenceID: 'click-document-witness-20261117-v19'},
+    provenance: {source: 'integratedDevelopment', evidenceID: 'click-document-witness-20261117-v20'},
     observation: {identity, state, exactImageIdentity: false, belongsToOriginalDraft: false,
       hasError: false, isUploading: false, attachmentAbsent: false, automaticRetryExcluded: false}});
   let registry = globalThis[KEY];
@@ -784,11 +784,66 @@ function riftletWebAcceptance(command, native) {
     }
     return {entries, candidates, nodes: candidates.map(entry => entry.node)};
   }
+  // This draft's child-list observer records object birth for *all* inputs,
+  // including cards mounted and removed before any operation gets a poll.
+  // Weak keys retain no detached DOM. Only the original declared form is read.
+  function edgeHistoryFor(form, scan) {
+    let history = registry.edgeProgressHistory;
+    if (!history) {
+      const nodes = new WeakMap(), forms = new WeakSet();
+      const mark = node => {
+        if (!nodes.has(node)) nodes.set(node, {first: history.generation});
+        return nodes.get(node);
+      };
+      const excluded = edgeCalibrationExcluded + ',form,' + composerSurface + ',[contenteditable],[role="textbox"],textarea';
+      const record = records => {
+        if (!history.complete) return;
+        let budget = 2048;
+        const visit = (root, removed) => {
+          const pending = [root];
+          while (pending.length && budget >= 0) {
+            const node = pending.pop();
+            if (--budget < 0 || node.nodeType !== 1 || node.matches(excluded)) continue;
+            const entry = mark(node);
+            if (removed) entry.removed = true;
+            if (node.children.length > budget - pending.length) { budget = -1; return; }
+            for (const child of node.children) pending.push(child);
+          }
+        };
+        for (const entry of records) {
+          if (--budget < 0 || entry.addedNodes.length + entry.removedNodes.length > budget) { budget = -1; break; }
+          const owner = entry.target.closest?.(excluded);
+          if (owner && !forms.has(owner)) continue;
+          // A null owner is possible when the whole card was detached before
+          // delivery. Its earlier child records still identify the actual bar.
+          for (const node of entry.addedNodes) {
+            if (node.nodeType !== 1) continue;
+            const first = mark(node);
+            if (first.added) first.removed = true;
+            first.added = true;
+            visit(node, false);
+          }
+          for (const node of entry.removedNodes) visit(node, true);
+        }
+        if (budget < 0) { history.complete = false; observer.disconnect(); }
+      };
+      const observer = new MutationObserver(record);
+      history = registry.edgeProgressHistory = {generation: 0, complete: true, nodes, flush: () => record(observer.takeRecords()),
+        add: (root, entries) => {
+          if (!history.complete) return;
+          if (!forms.has(root)) { observer.observe(root, {subtree: true, childList: true}); forms.add(root); }
+          for (const {node} of entries) mark(node);
+        }};
+    }
+    history.flush(); history.add(form, scan.entries);
+    return history;
+  }
   function edgeCalibrationBaseline(binding) {
     try {
       const editor = binding.editor, form = binding.form;
       const scan = edgeCalibrationScan(binding);
       if (!scan) return null;
+      const history = edgeHistoryFor(binding.form, scan);
       const text = editor.tagName === 'TEXTAREA' ? editor.value : editor.textContent;
       if (typeof text !== 'string' || text.length > 65536) return null;
       const nodes = scan.candidates.filter(({node, hasPreview}) => node.hasAttribute('data-file-name')
@@ -801,26 +856,25 @@ function riftletWebAcceptance(command, native) {
             focusOffset: current.focusOffset, rangeCount: current.rangeCount} : null;
       const originals = nodes.map(node => ({node, parent: node.parentElement, src: node.getAttribute('src'),
         name: node.getAttribute('data-file-name'), alt: node.getAttribute('alt')}));
-      const baseline = {editor, form, text, selection, nodes, originals, emptySelection: current?.rangeCount === 0,
+      const baseline = {editor, form, text, selection, nodes, originals, history, emptySelection: current?.rangeCount === 0,
         root: document.documentElement, target: {...binding.target}, route: binding.route, navigation: binding.navigation};
       if (binding.target.clickBindingID && isEdgeTemporary()) baseline.witness = watchEdgeProgress(baseline);
       return baseline;
     } catch { return null; }
   }
-  function edgeCalibrationBeforeInput(op) {
+  function edgeCalibrationBeforeInput(op, file) {
     if (!op.edgeCalibration) return;
     try {
-      const scan = edgeCalibrationScan(op.binding);
-      if (!scan) return;
       const saved = op.edgeCalibration;
+      saved.baseline?.history.flush();
+      const scan = edgeCalibrationScan(op.binding);
+      if (!scan) { registry.edgeHistoryIncomplete = true; return; }
+      const history = edgeHistoryFor(op.binding.form, scan);
       saved.beforeInput = new WeakSet(scan.entries.map(entry => entry.node));
-      if (saved.trackProgress && saved.baseline?.witness?.active) {
-        registry.edgeNodeHistory ||= new WeakMap();
-        saved.generation = tick();
-        for (const {node} of scan.entries) if (!registry.edgeNodeHistory.has(node))
-          registry.edgeNodeHistory.set(node, {before: saved.generation});
+      saved.generation = ++history.generation;
+      if (saved.trackProgress && saved.baseline?.witness?.active && history.complete && !registry.edgeHistoryIncomplete) {
         saved.progress = saved.baseline.witness;
-        saved.progress.bind(op);
+        saved.progress.bind(op, file);
       }
     } catch { /* Diagnostics cannot change the once-only input path. */ }
   }
@@ -840,61 +894,74 @@ function riftletWebAcceptance(command, native) {
     const originalNodes = new Set(originals.map(item => item.node));
     const identityAttributes = ['data-file-name', 'alt', 'src', 'title', 'aria-label'];
     const statusAttributes = ['data-state', 'data-status', 'data-upload-status'];
-    let held = null, op = null, input = null, expectedChange = null, changes = 0, expires;
-    const started = performance.now();
-    const close = () => {
+    let held = null, op = null, input = null, originalFile = null, expectedChange = null, changes = 0, expires;
+    let deadline = performance.now() + 60000;
+    const close = (reason = 'historyUnavailable') => {
+      witness.decision = reason;
       observer.disconnect(); clearTimeout(expires); held = null; expectedChange = null;
       input?.removeEventListener('change', onChange, true);
       document.removeEventListener('selectionchange', onSelection);
       if (op) op.edgeCalibration.progress = null;
-      witness.active = false; op = null; input = null;
+      witness.active = false; op = null; input = null; originalFile = null;
     };
+    const holdsOriginalFile = () => input.files?.length === 1 && input.files[0] === originalFile
+      && registry.files.get(originalFile) === op;
     const onChange = event => {
-      if (event === expectedChange || (input.files?.length === 1 && registry.files.get(input.files[0]) === op)) {
-        if (++changes > 1) close();
-      }
+      if (event === expectedChange) {
+        if (!holdsOriginalFile() || ++changes !== 1) close('inputCount');
+      } else if (input.files?.length === 1 && registry.files.get(input.files[0]) === op) close('inputCount');
     };
     const onSelection = () => {
-      if (!edgeSelectionUnchanged(baseline)) close();
+      if (!edgeSelectionUnchanged(baseline)) close('selectionChanged');
     };
     const changed = records => {
-      if (records.length > 2048 || performance.now() - started >= 30000) return close();
+      if (records.length > 2048 || performance.now() >= deadline) return close();
       let removedCount = 0;
       for (const record of records) {
-        if (editor.contains(record.target)) return close();
+        if (editor.contains(record.target)) return close('draftChanged');
         if (record.type === 'attributes') {
           const node = record.target, key = record.attributeName;
-          if (originalNodes.has(node) && identityAttributes.includes(key)) return close();
+          if (originalNodes.has(node) && identityAttributes.includes(key)) return close('retainedBaseline');
           if (!held || !held.scope.contains(node)) continue;
           if (node === held.bar && ['value', 'aria-valuenow'].includes(key)) {
             // Old values also catch a finish/reset/reuse between two polls.
             if (record.oldValue !== undefined) {
               const previous = edgeProgressValue(node, record.oldValue);
-              if (!previous || previous.percent < held.highest || previous.percent >= 100) return close();
+              if (!previous || previous.percent < held.highest || previous.percent >= 100) return close('progressUnavailable');
               held.highest = previous.percent;
             }
             continue;
           }
           if ((held.labels.includes(node) && identityAttributes.includes(key))
               || (node === held.image && key === 'src') || statusAttributes.includes(key)
-              || (node === held.bar && ['role', 'aria-valuemin', 'aria-valuemax', 'max'].includes(key))) return close();
+              || (node === held.bar && ['role', 'aria-valuemin', 'aria-valuemax', 'max'].includes(key))) return close('nodeReused');
         } else for (const removed of record.removedNodes) {
           if (++removedCount > 2048) return close();
           moved.add(removed);
           if (originals.some(item => removed.contains(item.node))
-              || (held && [held.scope, held.card, held.image, held.bar, held.remove].some(node => node && removed.contains(node)))) return close();
+              || (held && [held.scope, held.card, held.image, held.bar, held.remove].some(node => node && removed.contains(node)))) return close('nodeReused');
         }
       }
     };
     const observer = new MutationObserver(changed);
     observer.observe(form, {childList: true, characterData: true, attributes: true, attributeOldValue: true, subtree: true,
       attributeFilter: [...identityAttributes, ...statusAttributes, 'role', 'aria-valuemin', 'aria-valuemax', 'max', 'value', 'aria-valuenow']});
-    const witness = {active: true, close, moved, flush: () => changed(observer.takeRecords()),
-      bind: original => { op = original; input = op.binding.input; input.addEventListener('change', onChange, true); },
-      expect: event => { expectedChange = event; }, get changes() { return changes; },
+    const witness = {active: true, decision: 'awaitingInput', close, moved, flush: () => changed(observer.takeRecords()),
+      bind: (original, file) => {
+        witness.flush();
+        if (!witness.active) { original.edgeCalibration.progress = null; return; }
+        op = original; originalFile = file; input = op.binding.input; input.addEventListener('change', onChange, true);
+        deadline = performance.now() + 30000;
+        clearTimeout(expires); expires = setTimeout(close, 30000);
+      },
+      expect: event => {
+        if (event && !holdsOriginalFile()) { close('inputCount'); return; }
+        expectedChange = event;
+        if (!event) originalFile = null;
+      }, get changes() { return changes; },
       get held() { return held; }, hold: value => { held = value; }};
     document.addEventListener('selectionchange', onSelection);
-    expires = setTimeout(close, 30000);
+    expires = setTimeout(close, 60000);
     return witness;
   }
   function edgeSelectionUnchanged(baseline) {
@@ -914,17 +981,25 @@ function riftletWebAcceptance(command, native) {
     proof.flush();
     if (saved.progress !== proof) return;
     const {baseline, beforeInput} = saved;
-    if (proof.changes !== 1 || !result.originalDraftCurrent || !result.originalTextUnchanged || !edgeSelectionUnchanged(baseline)
-        || result.retainedBaselineAttachmentNodes !== result.baselineAttachmentNodes
+    baseline.history.flush();
+    if (!baseline.history.complete || registry.edgeHistoryIncomplete) return proof.close('historyUnavailable');
+    if (proof.changes !== 1) return proof.close('inputCount');
+    if (!result.originalDraftCurrent || !result.originalTextUnchanged) return proof.close('draftChanged');
+    if (!edgeSelectionUnchanged(baseline)) return proof.close('selectionChanged');
+    if (result.retainedBaselineAttachmentNodes !== result.baselineAttachmentNodes
         || baseline.originals.some(({node, parent, name, src, alt}) => node.parentElement !== parent
           || node.getAttribute('data-file-name') !== name || node.getAttribute('src') !== src || node.getAttribute('alt') !== alt)
-        || matched.some(node => beforeInput.has(node))) return proof.close();
+        || matched.some(node => beforeInput.has(node))) return proof.close('retainedBaseline');
     const labels = matched.filter(named), images = matched.filter(blob);
     // The DOM may mount an image before the numeric progress control. Once we
     // have sampled one, we may never replace it, cross a gap or start over.
     const held = proof.held;
-    if (images.length > 1 || result.errorAttributeNodes || result.readyAttributeNodes) return proof.close();
-    if (!images.length || !labels.length) { if (held) proof.close(); return; }
+    if (result.errorAttributeNodes || result.readyAttributeNodes) return proof.close('terminal');
+    if (images.length > 1) return proof.close('ownershipTopology');
+    if (!images.length || !labels.length) {
+      proof.decision = !images.length ? 'fileBlobMissing' : 'ownershipTopology';
+      if (held) proof.close(proof.decision); return;
+    }
     const image = images[0];
     // An existing tray or a newly mounted group cannot lend a sibling's bar.
     // The exact filename must identify the card that owns every matching facet.
@@ -947,7 +1022,10 @@ function riftletWebAcceptance(command, native) {
         }
       }
     }
-    if (!card) { if (held || labels.some(node => !node.contains(image) && !image.contains(node))) proof.close(); return; }
+    if (!card) {
+      proof.decision = 'ownershipTopology';
+      if (held || labels.some(node => !node.contains(image) && !image.contains(node))) proof.close(proof.decision); return;
+    }
     const members = scan.entries.filter(({node}) => scope.contains(node));
     const controls = members.filter(({node}) => node.matches('progress,[role="progressbar"]'));
     const failed = ['error', 'failed', 'errored', 'aborted', 'canceled', 'cancelled', 'rejected'];
@@ -959,37 +1037,37 @@ function riftletWebAcceptance(command, native) {
           || (node.hasAttribute('data-file-name') && node.getAttribute('data-file-name') !== op.name))
         || scan.entries.some(({node}) => hasState(node, failed)
           || (node.getAttribute('role') === 'alert' && visible(node) && node.textContent.trim().length > 0)))
-      return proof.close();
-    if (!controls.length) { if (held) proof.close(); return; }
+      return proof.close('ownershipTopology');
+    if (!controls.length) { proof.decision = 'progressUnavailable'; if (held) proof.close(proof.decision); return; }
     const bar = controls[0].node, url = image.getAttribute('src');
     // A detached node might be absent from this input's baseline and still
     // belong to an earlier file. A later independent input may see our own
     // pending nodes in its baseline without taking their ownership.
     for (const node of [card, image, bar]) {
-      const history = registry.edgeNodeHistory.get(node);
-      if (history?.before <= saved.generation || (history?.owner && history.owner !== saved.generation)) return proof.close();
+      const history = baseline.history.nodes.get(node);
+      if (!history || history.removed || history.first < saved.generation || (history.owner && history.owner !== saved.generation)) return proof.close('nodeReused');
     }
-    for (const node of [card, image, bar]) registry.edgeNodeHistory.set(node, {owner: saved.generation});
+    for (const node of [card, image, bar]) baseline.history.nodes.get(node).owner = saved.generation;
     for (let node = card; node !== baseline.form; node = node.parentElement)
-      if (!node || proof.moved.has(node)) return proof.close();
+      if (!node || proof.moved.has(node)) return proof.close('nodeReused');
     if (!card.contains(bar) || (held?.remove && held.remove !== remove)
         || op.previewBaseline.has(image) || op.previewBaseline.has(bar) || !visible(image) || !visible(bar)
-        || (held && (held.card !== card || held.image !== image || held.bar !== bar || held.url !== url))) return proof.close();
+        || (held && (held.card !== card || held.image !== image || held.bar !== bar || held.url !== url))) return proof.close('nodeReused');
     const reading = edgeProgressValue(bar), now = performance.now();
-    if (!reading) { if (held) proof.close(); return; }
-    if (held && (held.low !== reading.low || held.high !== reading.high)) return proof.close();
+    if (!reading) { proof.decision = 'progressUnavailable'; if (held) proof.close(proof.decision); return; }
+    if (held && (held.low !== reading.low || held.high !== reading.high)) return proof.close('progressUnavailable');
     const value = reading.percent;
-    if (value >= 100 || now < op.inputTime || (held && (value < held.highest || now < held.at))) return proof.close();
-    if (value <= 0 || now === op.inputTime) return;
-    if (!held) { proof.hold({card, scope, remove, image, bar, labels, url, value, highest: value, low: reading.low, high: reading.high, at: now}); return; }
+    if (value >= 100 || now < op.inputTime || (held && (value < held.highest || now < held.at))) return proof.close('progressUnavailable');
+    if (value <= 0 || now === op.inputTime) { proof.decision = 'progressUnavailable'; return; }
+    if (!held) { proof.decision = 'firstProgress'; proof.hold({card, scope, remove, image, bar, labels, url, value, highest: value, low: reading.low, high: reading.high, at: now}); return; }
     if (value === held.value || now === held.at) return;
     const current = composer();
-    if (current.form !== baseline.form || current.editor !== baseline.editor) return proof.close();
+    if (current.form !== baseline.form || current.editor !== baseline.editor) return proof.close('draftChanged');
     op.attachmentID = registry.documentID + ':' + nodeID(card);
     op.start = {version: 1, signal: 'correlatedProgress', evidenceID: crypto.randomUUID(), inputCount: 1,
       inputSequence: op.inputSequence, startSequence: tick(), previousProgress: held.value, currentProgress: value,
       inputObservedAtMS: op.inputTime, startObservedAtMS: now};
-    proof.close(); op.binding.endObservation?.(); op.baseline.clear(); op.previewBaseline = null; op.urls.clear();
+    proof.close('started'); op.binding.endObservation?.(); op.baseline.clear(); op.previewBaseline = null; op.urls.clear();
   }
   function edgeCalibrationSample(op, originalDraftCurrent) {
     const saved = op.edgeCalibration;
@@ -1012,7 +1090,7 @@ function riftletWebAcceptance(command, native) {
           || !sameTarget(baseline.target, op.identity.target) || !sameTarget(baseline.target, op.binding.target)
           || !contextMatches(baseline.target) || baseline.route !== route() || baseline.navigation !== registry.navigation
           || op.binding.editor !== baseline.editor || op.binding.form !== baseline.form) {
-        saved.progress?.close(); return result;
+        saved.progress?.close('draftChanged'); return result;
       }
       const scan = edgeCalibrationScan(op.binding);
       if (!scan) { saved.progress?.close(); result.scanLimited = true; return result; }
@@ -1072,6 +1150,11 @@ function riftletWebAcceptance(command, native) {
       }
       observeEdgeProgress(op, result, scan, filename, named, blob, matched);
     } catch { saved.progress?.close(); result.samplingFailed = true; }
+    finally {
+      if (saved.trackProgress) result.progressDecision = op.start ? 'started'
+        : !baseline?.history?.complete || registry.edgeHistoryIncomplete ? 'historyUnavailable'
+        : baseline.witness?.decision || 'historyUnavailable';
+    }
     return result;
   }
   // One document observer covers only the actual draft pairs with pending
@@ -1339,7 +1422,7 @@ function riftletWebAcceptance(command, native) {
       return retire('attachmentInputNotCreated', 'handoff', 'timeout');
     op.binding.input = input;
     op.previewBaseline = new WeakMap([...document.querySelectorAll(previewSelector)].map(node => [node, previewValue(node)]));
-    edgeCalibrationBeforeInput(op);
+    edgeCalibrationBeforeInput(op, file);
     registry.files.set(file, op);
     const writingForm = op.binding.form;
     registry.writingInputs ||= new WeakSet();

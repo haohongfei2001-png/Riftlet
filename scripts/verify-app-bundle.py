@@ -28,7 +28,8 @@ class VerificationError(Exception):
 
 
 RESOURCE_NAMES = ("chatgpt-web-20261027.js", "legacy-web-observe.js", "ConversationSurfaceProbe.js",
-                  "chatgpt-web-observe-v17.js", "chatgpt-web-observe-v17-main.js", "chatgpt-web-observe-v18.js")
+                  "chatgpt-web-observe-v17.js", "chatgpt-web-observe-v17-main.js", "chatgpt-web-observe-v18.js",
+                  "chatgpt-web-observe-v19.js")
 ICON_NAME = "Riftlet.icns"
 PRESENTATION_NAMES = ("glass-study.png", "reading.svg", "error.svg", "riftlet.svg")
 ICON_SLOTS = {b"ic04": 16, b"ic05": 32, b"ic07": 128, b"ic08": 256,

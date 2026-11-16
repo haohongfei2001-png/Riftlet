@@ -245,33 +245,35 @@ final class EdgeAppleEventsExecutorTests: XCTestCase {
         XCTAssertEqual(driver.actions, ["captureTarget", "observe"])
     }
 
-    @MainActor func testRestartReadsH2EdgeWithFrozenProgramAndNoNewClickOrBootstrap() async throws {
-        let old = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorClickSource))
-        let driver = EdgeExecutorFixture(), host = driver.host
-        let target = TargetLease(adapterID: "chatgpt-web", surface: .webChat, applicationID: EdgeApplicationHost.bundleID,
-            sessionID: host.sessionID, windowID: host.windowID, tabID: host.tabID, documentID: "d",
-            composerID: "c", draftGeneration: "g", clickBindingID: UUID())
-        let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
-        let context = try encoder.encode(["applicationID": target.applicationID, "sessionID": target.sessionID,
-                                          "windowID": host.windowID, "tabID": host.tabID])
-        driver.retainInstalledRelay(MainWorldCommandRelay(function: old.functionSource, contextJSON: String(decoding: context, as: UTF8.self)))
-        driver.selected = false
-        let restarted = EdgeAppleEventsExecutor(driver: driver)
-        let operation = identity(target), observe = WebBridgeCommand(action: .observe, target: target, identity: operation)
-        _ = try await restarted.execute(observe, program: old)
-        do {
-            _ = try await restarted.execute(observe, program: program)
-            XCTFail("A different version discovered an H2-only relay")
-        } catch { XCTAssertEqual(error as? WebAdapterError, .pageRejected(.bridgeUnavailable)) }
-        for action in [WebBridgeAction.captureTarget, .begin, .chunk, .commit, .discard] {
+    @MainActor func testRestartReadsH2AndH3EdgeWithFrozenProgramsAndNoNewClickOrBootstrap() async throws {
+        for source in [ChatGPTWebPageProgram.priorClickSource, ChatGPTWebPageProgram.priorOriginSource] {
+            let old = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: source))
+            let driver = EdgeExecutorFixture(), host = driver.host
+            let target = TargetLease(adapterID: "chatgpt-web", surface: .webChat, applicationID: EdgeApplicationHost.bundleID,
+                sessionID: host.sessionID, windowID: host.windowID, tabID: host.tabID, documentID: "d",
+                composerID: "c", draftGeneration: "g", clickBindingID: UUID())
+            let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
+            let context = try encoder.encode(["applicationID": target.applicationID, "sessionID": target.sessionID,
+                                              "windowID": host.windowID, "tabID": host.tabID])
+            driver.retainInstalledRelay(MainWorldCommandRelay(function: old.functionSource, contextJSON: String(decoding: context, as: UTF8.self)))
+            driver.selected = false
+            let restarted = EdgeAppleEventsExecutor(driver: driver)
+            let operation = identity(target), observe = WebBridgeCommand(action: .observe, target: target, identity: operation)
+            _ = try await restarted.execute(observe, program: old)
             do {
-                _ = try await restarted.execute(.init(action: action, target: target, identity: operation), program: old)
-                XCTFail("Historical observation permitted \(action)")
-            } catch { XCTAssertEqual(error as? WebAdapterError, .invalidRequest) }
+                _ = try await restarted.execute(observe, program: program)
+                XCTFail("A different version discovered a historical-only relay")
+            } catch { XCTAssertEqual(error as? WebAdapterError, .pageRejected(.bridgeUnavailable)) }
+            for action in [WebBridgeAction.captureTarget, .begin, .chunk, .commit, .discard] {
+                do {
+                    _ = try await restarted.execute(.init(action: action, target: target, identity: operation), program: old)
+                    XCTFail("Historical observation permitted \(action)")
+                } catch { XCTAssertEqual(error as? WebAdapterError, .invalidRequest) }
+            }
+            XCTAssertEqual(driver.actions, ["observe"])
+            XCTAssertEqual(driver.bootstraps, 0)
+            XCTAssertEqual(driver.selectionChecks, 0)
         }
-        XCTAssertEqual(driver.actions, ["observe"])
-        XCTAssertEqual(driver.bootstraps, 0)
-        XCTAssertEqual(driver.selectionChecks, 0)
     }
 
     @MainActor func testLateSynchronousPinCannotPublishAnInputCapability() throws {

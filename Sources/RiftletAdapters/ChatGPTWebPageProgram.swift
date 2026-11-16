@@ -11,7 +11,8 @@ public enum ChatGPTWebPageProgram {
     static let priorHandoffSource = "chatgpt-web-attachment-handoff-20261105-v16"
     static let priorScreenshotSource = "chatgpt-web-screenshot-handoff-20261105-v17"
     static let priorClickSource = "chatgpt-web-click-document-witness-20261114-v18"
-    public static let sourceID = "chatgpt-web-click-document-witness-20261117-v19"
+    static let priorOriginSource = "chatgpt-web-click-document-witness-20261117-v19"
+    public static let sourceID = "chatgpt-web-click-document-witness-20261117-v20"
     /// Candidate mapping only; ReceiptPolicy start registries remain separate.
     public static let acceptanceUploadStartProfileID = "chatgpt-web-zh-progress-start-development-20261027-v1"
     public static let acceptanceProfile = ObservationProfile(
@@ -30,13 +31,15 @@ public enum ChatGPTWebPageProgram {
             return try load(resource: "chatgpt-web-observe-v17", id: priorScreenshotSource)
         case priorClickSource:
             return try load(resource: "chatgpt-web-observe-v18", id: priorClickSource)
+        case priorOriginSource:
+            return try load(resource: "chatgpt-web-observe-v19", id: priorOriginSource)
         default:
             return nil
         }
     }
 
     static func isHistoricalObserver(_ sourceID: String) -> Bool {
-        [priorEntrySource, priorHandoffSource, priorScreenshotSource, priorClickSource].contains(sourceID)
+        [priorEntrySource, priorHandoffSource, priorScreenshotSource, priorClickSource, priorOriginSource].contains(sourceID)
     }
 
     static func observationRelayFunctions(for program: WebPageProgram) throws -> [String] {
