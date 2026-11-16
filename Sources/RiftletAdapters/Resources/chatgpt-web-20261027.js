@@ -23,7 +23,8 @@ function riftletWebAcceptance(command, native) {
     const url = new URL(location.href);
     // Restrict the product to ChatGPT, without a whitelist of conversation or
     // Project paths. A different service's editor is not an attachment target.
-    if (url.username || url.password || !['https://chatgpt.com', 'https://chat.openai.com'].includes(url.origin))
+    if (url.protocol !== 'https:' || url.username || url.password
+        || !['https://chatgpt.com', 'https://chat.openai.com'].includes(url.origin))
       fail('PAGE_ROUTE_UNSUPPORTED');
     return url.origin + url.pathname;
   };

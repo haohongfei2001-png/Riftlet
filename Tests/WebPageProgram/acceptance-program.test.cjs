@@ -518,7 +518,8 @@ test('both hosts require a credential-free HTTPS ChatGPT origin at capture and d
  for(const applicationID of ['com.google.Chrome','com.microsoft.edgemac']){
   const nativeContext={applicationID,sessionID:'local',windowID:'17',tabID:'19'};
   for(const route of ['https://chatgpt.com:8443/c/neutral','https://u@chatgpt.com/c/neutral',
-                      'https://u:p@chat.openai.com/c/neutral','http://chatgpt.com/c/neutral']){
+                      'https://u:p@chat.openai.com/c/neutral','http://chatgpt.com/c/neutral',
+                      'blob:https://chatgpt.com/neutral']){
    const f=fixture({route,nativeContext});
    assert.throws(()=>f.bind(),/PAGE_ROUTE_UNSUPPORTED/);
    const g=fixture({route:'https://chatgpt.com:443/c/neutral',nativeContext});
