@@ -1,0 +1,257 @@
+{
+  "caseID": "HIST-01/02/03/05 and PERF-01 (metadata portion)",
+  "mode": "CONTROLLED_NATIVE_SQLITE",
+  "result": "PASS_SCOPED",
+  "version": "1.0.4 implementation, build 26 planned; standalone release-optimized Core modules, not an App bundle",
+  "baselineSource": "3f8149e2313fd81bbaee5a7bbbdbb1efca2fc81b",
+  "candidateCoreCommit": "d996060c8bcd74de024a9878610d88703f502a65",
+  "environment": {
+    "macOS": "27.0",
+    "osBuild": "26A428",
+    "arch": "arm64",
+    "scale": "no display",
+    "swift": "Apple Swift version 6.4 (swiftlang-6.4.0.34.1 clang-2100.3.34.1)"
+  },
+  "command": "scripts/measure-history-query.sh /absolute/new/private/output",
+  "isolation": "new synthetic simulation roots; each baseline/candidate pair opens a byte-identical copy. Metadata only. No production files, chats, permissions, source images or image data read.",
+  "sampling": "Three measurements per case; first query on a fresh process/SQLite connection after copying fixture, then two warm-connection queries. OS file cache not purged or controlled; other host processes unregulated.",
+  "semantics": {
+    "firstPage": "newest 200 records, stable descending (capture date, sequence), read 201 for next-page; baseline returns up to 201 decoded",
+    "findOldest": "literal filename substring ending at the oldest record. Baseline simulates manually scanning each bounded page with the production API; candidate performs one global filtered page query",
+    "needsVerification": "one durable UNKNOWN among otherwise heterogeneous pending, archived and missing rows; no operation telemetry fabricated"
+  },
+  "observations": [
+    "Candidate asserts full UUID/sequence bounds, equivalent Chinese and English serial forms, literal percent/underscore, same-timestamp ordering, half-open date range, stable frozen paging after a later arrival, and eligible restore followed by reopen for each fixture size."
+  ],
+  "notCovered": [
+    "native WindowServer UI and screen scaling",
+    "cold OS cache",
+    "1–2 GB image ingest",
+    "idle 30 minutes CPU/RSS, 2 hours mixed usage/wake/display, relay growth",
+    "real ChatGPT and installer"
+  ],
+  "binaries": {
+    "baseline": {
+      "probe": "57a78bd6d140c33da41715fc1997610d7c51a1032b0c31518671259dfb07b3ee",
+      "libRiftletCore.dylib": "2aaca07cdc12dcc82a165f68377b0078d18aceb88d9dee37f3c051b6538277f5",
+      "source.sha256": "4e65449aadd91989445a3124e3860910581cd9a9572e122c7c18e82ee0350556"
+    },
+    "candidate": {
+      "probe": "c57476157d72acbc09575d0d4927a1ade4af236c1c0ad6abe9bd8a48fee7c7eb",
+      "libRiftletCore.dylib": "9074c364a443634aab8627b3e70eae1ded7ae0b866126cf84c8873dcdbf4a562",
+      "source.sha256": "3bfe1fedf96fe5168a9944284ed925e1c89f552d32cb7a9a106f61f109752931"
+    }
+  },
+  "measurements": [
+    {
+      "variant": "baseline",
+      "rows": 200,
+      "seedBytes": 217088,
+      "seedSHA256": "141d51533809b1de6438a3043d1f7238d2e7b92e5b68c44384ea44c7b0526a73",
+      "metric": "firstPage",
+      "milliseconds": [
+        2.293,
+        1.56,
+        1.528
+      ],
+      "median": 1.56,
+      "worst": 2.293
+    },
+    {
+      "variant": "baseline",
+      "rows": 200,
+      "seedBytes": 217088,
+      "seedSHA256": "141d51533809b1de6438a3043d1f7238d2e7b92e5b68c44384ea44c7b0526a73",
+      "metric": "findOldest",
+      "milliseconds": [
+        1.667,
+        1.497,
+        1.401
+      ],
+      "median": 1.497,
+      "worst": 1.667
+    },
+    {
+      "variant": "baseline",
+      "rows": 2000,
+      "seedBytes": 1368064,
+      "seedSHA256": "f42c01e9f6a5e83c866d6693abf4da59ab659e705d06e483af74d64065994306",
+      "metric": "firstPage",
+      "milliseconds": [
+        2.514,
+        2.286,
+        2.224
+      ],
+      "median": 2.286,
+      "worst": 2.514
+    },
+    {
+      "variant": "baseline",
+      "rows": 2000,
+      "seedBytes": 1368064,
+      "seedSHA256": "f42c01e9f6a5e83c866d6693abf4da59ab659e705d06e483af74d64065994306",
+      "metric": "findOldest",
+      "milliseconds": [
+        23.208,
+        23.287,
+        23.019
+      ],
+      "median": 23.208,
+      "worst": 23.287
+    },
+    {
+      "variant": "baseline",
+      "rows": 10000,
+      "seedBytes": 6713344,
+      "seedSHA256": "b7ed70c2cc0cf3f69eb55b808f8e9fc1256adf3bcb36c54785c5b91a08afb129",
+      "metric": "firstPage",
+      "milliseconds": [
+        8.214,
+        7.912,
+        7.929
+      ],
+      "median": 7.929,
+      "worst": 8.214
+    },
+    {
+      "variant": "baseline",
+      "rows": 10000,
+      "seedBytes": 6713344,
+      "seedSHA256": "b7ed70c2cc0cf3f69eb55b808f8e9fc1256adf3bcb36c54785c5b91a08afb129",
+      "metric": "findOldest",
+      "milliseconds": [
+        424.474,
+        427.063,
+        421.98
+      ],
+      "median": 424.474,
+      "worst": 427.063
+    },
+    {
+      "variant": "candidate",
+      "rows": 200,
+      "seedBytes": 217088,
+      "seedSHA256": "141d51533809b1de6438a3043d1f7238d2e7b92e5b68c44384ea44c7b0526a73",
+      "metric": "firstPage",
+      "milliseconds": [
+        3.489,
+        2.924,
+        2.831
+      ],
+      "median": 2.924,
+      "worst": 3.489
+    },
+    {
+      "variant": "candidate",
+      "rows": 200,
+      "seedBytes": 217088,
+      "seedSHA256": "141d51533809b1de6438a3043d1f7238d2e7b92e5b68c44384ea44c7b0526a73",
+      "metric": "findOldest",
+      "milliseconds": [
+        4.083,
+        0.265,
+        0.209
+      ],
+      "median": 0.265,
+      "worst": 4.083
+    },
+    {
+      "variant": "candidate",
+      "rows": 200,
+      "seedBytes": 217088,
+      "seedSHA256": "141d51533809b1de6438a3043d1f7238d2e7b92e5b68c44384ea44c7b0526a73",
+      "metric": "needsVerification",
+      "milliseconds": [
+        0.407,
+        0.363,
+        0.394
+      ],
+      "median": 0.394,
+      "worst": 0.407
+    },
+    {
+      "variant": "candidate",
+      "rows": 2000,
+      "seedBytes": 1368064,
+      "seedSHA256": "f42c01e9f6a5e83c866d6693abf4da59ab659e705d06e483af74d64065994306",
+      "metric": "firstPage",
+      "milliseconds": [
+        2.626,
+        2.48,
+        2.426
+      ],
+      "median": 2.48,
+      "worst": 2.626
+    },
+    {
+      "variant": "candidate",
+      "rows": 2000,
+      "seedBytes": 1368064,
+      "seedSHA256": "f42c01e9f6a5e83c866d6693abf4da59ab659e705d06e483af74d64065994306",
+      "metric": "findOldest",
+      "milliseconds": [
+        2.278,
+        0.378,
+        0.365
+      ],
+      "median": 0.378,
+      "worst": 2.278
+    },
+    {
+      "variant": "candidate",
+      "rows": 2000,
+      "seedBytes": 1368064,
+      "seedSHA256": "f42c01e9f6a5e83c866d6693abf4da59ab659e705d06e483af74d64065994306",
+      "metric": "needsVerification",
+      "milliseconds": [
+        1.264,
+        1.233,
+        1.227
+      ],
+      "median": 1.233,
+      "worst": 1.264
+    },
+    {
+      "variant": "candidate",
+      "rows": 10000,
+      "seedBytes": 6713344,
+      "seedSHA256": "b7ed70c2cc0cf3f69eb55b808f8e9fc1256adf3bcb36c54785c5b91a08afb129",
+      "metric": "firstPage",
+      "milliseconds": [
+        8.455,
+        8.063,
+        8.208
+      ],
+      "median": 8.208,
+      "worst": 8.455
+    },
+    {
+      "variant": "candidate",
+      "rows": 10000,
+      "seedBytes": 6713344,
+      "seedSHA256": "b7ed70c2cc0cf3f69eb55b808f8e9fc1256adf3bcb36c54785c5b91a08afb129",
+      "metric": "findOldest",
+      "milliseconds": [
+        3.86,
+        1.656,
+        1.577
+      ],
+      "median": 1.656,
+      "worst": 3.86
+    },
+    {
+      "variant": "candidate",
+      "rows": 10000,
+      "seedBytes": 6713344,
+      "seedSHA256": "b7ed70c2cc0cf3f69eb55b808f8e9fc1256adf3bcb36c54785c5b91a08afb129",
+      "metric": "needsVerification",
+      "milliseconds": [
+        6.209,
+        5.944,
+        5.918
+      ],
+      "median": 5.944,
+      "worst": 6.209
+    }
+  ]
+}
