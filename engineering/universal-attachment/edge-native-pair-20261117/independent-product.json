@@ -1,0 +1,253 @@
+{
+  "reviewer": "independent_checkpoint_5bd",
+  "result": "PARTIAL_REAL_PRODUCT_ACCEPTANCE",
+  "scope": "Read-only review of two user-authorized controlled screenshot clicks in the signed isolated ordinary App and the original dedicated signed-in Edge temporary draft. CGEvent/AppKit down and up receipts are verified. These are software-generated native clicks.",
+  "source": "7a3f033470b75cc4c97f4322fed3143ff4f96d46",
+  "sourceTree": "7f097dd4df83661d30f092a8a53e4295494fae23",
+  "build": {
+    "version": "1.0.3",
+    "build": "25",
+    "arch": [
+      "arm64"
+    ],
+    "channel": "isolated-product-acceptance",
+    "sourceArchiveSHA256": "0591de7fcd98c9e31a45fa2aa85a5ed05e8b9d02c41b8b57b93f789f204ab820",
+    "signedPackageArchiveSHA256": "89fd4ddbbe72a7053531ccd2a4e8752883ab9a1fb5c9edb8dec8e40998eb1d7e",
+    "packageArchiveDigestRecomputed": true,
+    "executableSHA256MatchedAtRuntimePreflight": "2f30da8e2ce8851433eea387d6c5083c7dbf2bcb6358c8e98b11a98451a355f4"
+  },
+  "observationWindowUTC": {
+    "before": "2026-11-16T20:03:50Z",
+    "after": "2026-11-16T20:04:35Z"
+  },
+  "realPair": [
+    {
+      "seed": 607,
+      "operationColumnsChangedSinceRecordedOutcome": [],
+      "originalSHA256": "ec2f0aa3265c79e05a1c93eae1a07d945175e508ac2dca7522e0e46b0eed6f81",
+      "originalBytes": 4512802,
+      "sourceAndImportedMediaHashesVerified": true,
+      "distinctTaggedNativeRecords": 10,
+      "operationDigest": "10e5182a066ddb5c542da7ade634dbf258c1f7aafbbd28ed73dcafad8cb0eff3",
+      "assetDigest": "558999a9c7079b17abceb81a1960b891e575a22db78a01937fb5080dd516f032",
+      "attempt": 1,
+      "inputCommands": {
+        "begin": 1,
+        "chunk": 18,
+        "commit": 1
+      },
+      "onceOnlySetterAndReturnedChange": true,
+      "applicationHandlerAcceptance": "CORRELATED_PROGRESS_ON_607",
+      "entryCandidates": [
+        1
+      ],
+      "entryActivations": [
+        0
+      ],
+      "pickerClicks": [
+        0
+      ],
+      "observations": 7,
+      "firstObservationSequence": 74,
+      "lastObservationSequence": 94,
+      "observationSpanSeconds": 1.838399374995788,
+      "matchedNodes": [
+        3
+      ],
+      "filenameMatches": [
+        3
+      ],
+      "exactFileBlobMatches": [
+        1
+      ],
+      "progressControls": [
+        1
+      ],
+      "retainedAttachmentNodesEachSample": 10,
+      "originalDraftTextAndSelectionUnchangedAllSamples": true,
+      "scanLimitErrorsAndFailedSamples": 0,
+      "errorOrReadyAttributeSamples": 0,
+      "draftNewFilenameCountAtFinalAX": 1,
+      "sqlitePhase": "inputTriggered",
+      "historicalReceiptOutcome": "uploadStarted",
+      "assetVisibility": "swallowed",
+      "assetStatus": "transferring",
+      "productStartRows": 1,
+      "positiveReady": false,
+      "safeToRetry": false,
+      "dispatchExclusive": 0,
+      "sourceProvenance": "chatgpt-web-click-document-witness-20261117-v21",
+      "firstStart": {
+        "inputCount": 1,
+        "signal": "correlatedProgress",
+        "previousProgress": 1.839901698125334,
+        "currentProgress": 3.679803396250668,
+        "inputSequence": 5,
+        "startSequence": 6,
+        "millisecondsAfterInput": 2059.1999999955297
+      }
+    },
+    {
+      "seed": 608,
+      "operationColumnsChangedSinceRecordedOutcome": [
+        "updated_at"
+      ],
+      "originalSHA256": "18ea85a6b5413ad9b3666374ae73e44a8f3c282d59fa46e3ef6e80f2bf94320d",
+      "originalBytes": 4514379,
+      "sourceAndImportedMediaHashesVerified": true,
+      "distinctTaggedNativeRecords": 10,
+      "operationDigest": "de7d88a326013e31446d920f65146e2adf772f2e3226cacb6c1a6bc7d4f92063",
+      "assetDigest": "eea15e77154db2c6a17c07b07ee82f152d9f72b8100b8cd3f624108bec88b910",
+      "attempt": 1,
+      "inputCommands": {
+        "begin": 1,
+        "chunk": 18,
+        "commit": 1
+      },
+      "onceOnlySetterAndReturnedChange": true,
+      "applicationHandlerAcceptance": "UNKNOWN",
+      "entryCandidates": [
+        1
+      ],
+      "entryActivations": [
+        0
+      ],
+      "pickerClicks": [
+        0
+      ],
+      "observations": 87,
+      "firstObservationSequence": 112,
+      "lastObservationSequence": 287,
+      "observationSpanSeconds": 35.269599874998676,
+      "matchedNodes": [
+        0
+      ],
+      "filenameMatches": [
+        0
+      ],
+      "exactFileBlobMatches": [
+        0
+      ],
+      "progressControls": [
+        0
+      ],
+      "retainedAttachmentNodesEachSample": 10,
+      "originalDraftTextAndSelectionUnchangedAllSamples": true,
+      "scanLimitErrorsAndFailedSamples": 0,
+      "errorOrReadyAttributeSamples": 0,
+      "draftNewFilenameCountAtFinalAX": 0,
+      "sqlitePhase": "unknown",
+      "historicalReceiptOutcome": "inputTriggered",
+      "assetVisibility": "visible",
+      "assetStatus": "unknown",
+      "productStartRows": 0,
+      "positiveReady": false,
+      "safeToRetry": false,
+      "dispatchExclusive": 0,
+      "sourceProvenance": "chatgpt-web-click-document-witness-20261117-v21"
+    }
+  ],
+  "clicks": {
+    "sameWindowTabDocumentComposerDraftGenerationSession": true,
+    "differentClickBindingIDs": true,
+    "distinctOriginalInvocationIDs": true,
+    "sharedCoordinatorDispatchOwner": true,
+    "nativeDownIntervalMS": 489.78920900117373,
+    "selectionCallbackIntervalMS": 482.357,
+    "normalInputScheduler": {
+      "captureTargets": [
+        31,
+        49
+      ],
+      "validates": [
+        47,
+        72
+      ],
+      "begins": [
+        52,
+        75
+      ],
+      "commits": [
+        71,
+        110
+      ],
+      "inputTransportReturned": [
+        73,
+        111
+      ],
+      "visualEvents": [
+        {
+          "phase": "swallowScheduled",
+          "diagnosticSequence": 96
+        },
+        {
+          "phase": "swallowActualStart",
+          "diagnosticSequence": 97
+        },
+        {
+          "phase": "swallowClose",
+          "diagnosticSequence": 99
+        }
+      ]
+    },
+    "nativeCommands": {
+      "captureTarget": 2,
+      "validate": 2,
+      "begin": 2,
+      "chunk": 36,
+      "commit": 2,
+      "observe": 92
+    },
+    "continuousOriginalRawRows": 271,
+    "rawSequenceFirstLast": [
+      17,
+      287
+    ],
+    "retryCount": 0,
+    "retainedVisuals": {
+      "607": "actual App swallow scheduled, began, closed",
+      "608": "visible in durable asset state; no swallow event"
+    }
+  },
+  "preservation": {
+    "originalDraftTextDigestUnchanged": true,
+    "nonemptySelectionLengthBeforeAfter": 14,
+    "editorFocusedBeforeAfter": false,
+    "fiveEarlierImageIdentitiesPreserved": true,
+    "previousUnknownOperationsIdenticalAllColumns": 5,
+    "knownUntouchedControls": 2,
+    "mediaObjectsDigestAndSizeVerified": 14,
+    "queueCounts": {
+      "assets": 14,
+      "operations": 7,
+      "upload_starts": 1,
+      "compensations": 0
+    },
+    "sqlQuickCheck": "ok",
+    "readMethod": "SQLite mode=ro, query_only, single read transaction"
+  },
+  "diagnosis608": {
+    "confirmed": "The connected responsible input on the same original draft accepted the setter and returned the change. The 87 original observations over ~35.27 seconds saw no filename, exact File-backed blob, matched card, numeric progress, ready indicator or error in the bounded original composer. No named 608 image was present in the final controlled draft snapshot. The durable operation remains UNKNOWN, no START row.",
+    "serverOrStorageAcceptance": "UNKNOWN from these sources. Parent independently reviews the first-party Network records.",
+    "quota": "UNKNOWN. Neither a quota response nor a quota UI was positively observed in these records. The local composer error counter cannot exclude an external or portalled quota dialog.",
+    "pickerOrApplicationIgnoredFile": "UNKNOWN. Picker click/activation was unnecessary on the direct existing input. Returned change is not a positive downstream consumption acknowledgement.",
+    "concurrency": "Native clicks overlapped staging, but 607 commit/return preceded 608 begin and 607 START preceded 608 commit. Service-side overlap, deduplication, throttling or causation are not identified by these logs.",
+    "laterOutcome": "No automatic retry. No product completion or failure admission. Absence of new attachment within the recorded window is not a proven never-received or permanent service failure."
+  },
+  "sourceEvidenceSHA256": {
+    "decisions.jsonl": "3390bd65a27352a616a643126547fe978687ad7af931e7b22459ee8732781de7",
+    "intent-1.json": "e220ae02e03f196ce3f5fb3b2df9130cc9de1811628ec183b00cecb31b7d580d",
+    "intent-2.json": "de893b727c3fe6d6ba461f654cbbe99a0ddd512b3d32ab50bbe6d59f272b6a64",
+    "map-epochs.jsonl": "4cbe08b22121ac841d4ea9b62384831b66ef168771789f23004c557e07c134fd",
+    "outcome.json": "f9562ea317b54adebb535a677edc410825af6010b4d4145eef473e1717ab85fb",
+    "prepared.json": "cdaaec635bdc11e8aa7542e025b1a8c52a735b151394db69d797a26588765f62",
+    "prior-operations.json": "2cb06365e2e6b0102c94428a7acb2ff9d7e5636cbba85e072b6aab7c6fa783f4",
+    "raw-events.jsonl": "173f55f916008a799993d0adb2c79adaa4c22e07cea27681e3e6811c6bf4c873",
+    "sender-1.json": "2e3e404231bcb9d33fbc775e2d438fb2aa69caf073bff38da1df47ccc1f204ac",
+    "sender-1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sender-2.json": "a95a77838ed3677ff21217fe5c5987f7518fe15f64b8e7040dd24a1da774e837",
+    "sender-2.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "signed-package-receipt.json": "e2fddca18d3ab8e0a39f607f269e245586f89d659b38606836ade229e7f3cf1d",
+    "native-pair.json": "c2dba1073376b50af30a235508c243c3251f6d0cdb71e9d56c3c027e6bb6bc37"
+  }
+}

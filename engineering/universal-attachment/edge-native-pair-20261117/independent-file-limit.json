@@ -1,0 +1,45 @@
+{
+  "reviewer": "independent_checkpoint_5bd",
+  "source": "7a3f033470b75cc4c97f4322fed3143ff4f96d46",
+  "sourceTree": "7f097dd4df83661d30f092a8a53e4295494fae23",
+  "parentProductObservationReportSHA256": "750a0b8c5030852bd87ecb4550c8d5075f435341a437b5339c9fc8ad047e5d11",
+  "scope": "Independent read of operator-collected, allowlisted original-page accessibility and Network projections. This reviewer did not open the browser or inspect the unredacted HAR.",
+  "lateOriginalDraft": {
+    "firstLateUTC": "2026-11-16T20:19:45Z",
+    "specificNoticeUTC": "2026-11-16T20:22:03Z",
+    "sameOriginalNeutralTextOnLateRead": true,
+    "selectionLength": 14,
+    "607NamedImageCount": 1,
+    "608NamedImageCount": 0,
+    "nativeNoticeContainer": "AXGroup / AXApplicationStatus",
+    "publicUIHeading": "你已达到文件附件数量限制",
+    "matchingDismissControl": true,
+    "numericThresholdOrRemainingUnits": [],
+    "genericAlertCountBeforeSpecificInspection": 0
+  },
+  "causeAssessment": {
+    "confirmed": "The original ChatGPT draft displayed its explicit file attachment count limit warning. A visible status at 20:22:03Z establishes a real service UI limitation on this draft. The 607 chip remained and the 608 chip was absent.",
+    "inference": "The limit is an evidence-backed explanation for the missing 608. The observation does not bind the notice to its original change handler or the exact service state at click time.",
+    "unknown": [
+      "Whether a 608 upload request reached the service, whether the limit rejected that particular file, and the HTTP status for 608.",
+      "The numeric capacity/reset rules and whether a quota notice was already present before the original two clicks.",
+      "An intentionally ignored picker event, page-side race/overlap or server-side rejection for this particular upload remain unproven."
+    ]
+  },
+  "initialNetworkProjection": {
+    "bytes": 8488153,
+    "sha256": "9159f8a36552dca430540ae3b41983eb074757bbaef2681610c368968ddf6c0f",
+    "completeEntriesDecoded": 158,
+    "closedEntriesArray": false,
+    "closedOuterDocument": false,
+    "matchedOriginals": 0,
+    "meaning": "This incomplete nonmatching export cannot prove the absence of either request."
+  },
+  "inputs": {
+    "late-original-page-status.json": "b63e118ce4269e6de8fc3c273c9d2580b699fdffee623052a103a28a90f2cfb7",
+    "classified-page-status.json": "b6f4d4a29c4e7a9f9ee289a0fe2202b7e2796beb09e170c7994d0a6cd994074f",
+    "bounded-file-limit-notice.json": "94b0d7f4d3966403b4bcfbdd8cfbe760e6533b26d99cebccdd428377de65e5ec",
+    "har-local-custody.json": "9f1905c0457121105877081db59e4e2ec72d22525375ad7b612911831cbdba53",
+    "offline-pair.json": "35edfbd93ad3e2d23d6a3bdcca85ef4246e6a7f0964f079af8a5ff51686efc5f"
+  }
+}

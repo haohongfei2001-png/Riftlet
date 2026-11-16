@@ -1,5 +1,7 @@
 # 无扩展附件引擎 · 首轮工程交接
 
+**2026-11-17 快速双图验收。** 普通 App 以 489.789 毫秒间隔收到了两个真实微图点击，各有 10 条回执。607 在原草稿产生首条产品 START 并吞噬，匹配的实际存储写入返回 HTTP 201。608 一次输入后未出现。原草稿显示文件附件数量限制，已有五图、正文和 14 字符选区保留。607 的最终处理和 608 的投递结果均为 UNKNOWN。[逐图实测](../engineering/universal-attachment/edge-native-pair-20261117/README.md)
+
 **2026-11-17 实测更新。** 605 和 606 均经普通 App 的单次微图点击进入同一临时草稿。两笔存储写入都返回 HTTP 201，并独立关联原操作的文件名、服务文件身份与内容长度。606 的原服务响应明确记录 `file.processing.completed`。605 的最终处理响应正文缺失，终态仍为 UNKNOWN。被测包自身记录的 START 和完成均为 0。原正文、14 字符选区、已有三图和两张新增图片均保留，实际点击相隔 439.076 秒。[分项证据](../engineering/universal-attachment/edge-service-pair-20261116/README.md) · [矩阵](../engineering/universal-attachment/live-matrix.json)
 
 ## 602 与 603 的较早双图实测
