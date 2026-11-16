@@ -16,6 +16,8 @@ final class SettingsProductHost {
     private var capabilities = SettingsCapabilities()
     private let updaterPresentation: @MainActor () -> SettingsUpdaterPresentation?
     private var recoveryDomains: Set<SettingsPreferenceDomain> = []
+    private var legacyCustomFields = Set<SettingsField>()
+    private var hasLegacyTrayTheme = false
     private var recoveryFailure: SettingsPreferenceDomain?
     private var deferred = false
     private var chromeConnection: OnboardingChromeConnection = .unchecked
@@ -68,7 +70,10 @@ final class SettingsProductHost {
     func update(owner: SettingsOwnerSnapshot, setup: SetupSnapshot,
                 capabilities: SettingsCapabilities, configurationDeferred: Bool,
                 chromeConnection: OnboardingChromeConnection = .unchecked,
+                legacyCustomFields: Set<SettingsField> = [], hasLegacyTrayTheme: Bool = false,
                 recoveryDomains: Set<SettingsPreferenceDomain> = [], recoveryFailure: SettingsPreferenceDomain? = nil) {
+        self.legacyCustomFields = legacyCustomFields
+        self.hasLegacyTrayTheme = hasLegacyTrayTheme
         self.recoveryDomains = recoveryDomains
         self.recoveryFailure = recoveryFailure
         self.chromeConnection = chromeConnection
@@ -83,6 +88,8 @@ final class SettingsProductHost {
         result.configurationDeferred = deferred
         result.historyDisplayStyle = historyDisplay.selection
         let workspace = NSWorkspace.shared
+        result.legacyCustomFields = legacyCustomFields
+        result.hasLegacyTrayTheme = hasLegacyTrayTheme
         result.preferenceRecovery = recoveryDomains
         result.preferenceRecoveryFailure = recoveryFailure
         result.accessibility = .init(reduceMotion: workspace.accessibilityDisplayShouldReduceMotion,

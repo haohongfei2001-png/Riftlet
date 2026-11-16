@@ -11,7 +11,7 @@ public enum SettingsPage: String, CaseIterable, Sendable {
     }
     public var title: String {
         switch self {
-        case .motion, .display: return ProductCopy.text("桌面", "Desktop")
+        case .motion, .display: return ProductCopy.text("外观", "Appearance")
         case .capture, .history: return ProductCopy.text("截图", "Screenshots")
         case .general: return ProductCopy.text("通用", "General")
         case .help: return ProductCopy.text("帮助", "Help")
@@ -113,6 +113,8 @@ public struct SettingsProductSnapshot: Equatable, Sendable {
     public var chromeConnection: OnboardingChromeConnection = .unchecked
     public var preferenceRecovery: Set<SettingsPreferenceDomain> = []
     public var preferenceRecoveryFailure: SettingsPreferenceDomain?
+    public var legacyCustomFields: Set<SettingsField> = []
+    public var hasLegacyTrayTheme = false
     public var configurationDeferred = false
     public var reviewEnvironment = false
     public init(revision: UInt64, setup: SetupSnapshot, state: SettingsStateSnapshot) {
@@ -123,6 +125,8 @@ public struct SettingsProductSnapshot: Equatable, Sendable {
 /// Each invocation is a deliberate action. A view must never send an action from
 /// its update callback. Existing host owners remain responsible for all effects.
 public enum SettingsProductAction: Sendable {
+    case previewTrayAppearance(transparency: Double?, cameraBodyColor: String?)
+    case openChrome
     case settings(SettingsCommand)
     case appearance(SettingsAppearanceChoice), retryAppearance
     case historyDisplayStyle(HistoryDisplayStyle)

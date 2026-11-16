@@ -4,11 +4,12 @@ import RiftletCapture
 /// Presentation state only. No file, window, capture, browser or upload access.
 public enum SettingsDomain: String, CaseIterable, Sendable {
     case collection, visibility, entry, captureMode, arrival, layout, placement, display, desktopForm, windChimeArrangement, trayTheme, archive
+    case trayBackgroundTransparency, trayCameraBodyColor
     case trayFavorite1, trayFavorite2, trayFavorite3
 
     var writesConfiguration: Bool {
         switch self {
-        case .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFavorite1, .trayFavorite2, .trayFavorite3: return true
+        case .layout, .trayBackgroundTransparency, .trayCameraBodyColor, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFavorite1, .trayFavorite2, .trayFavorite3: return true
         default: return false
         }
     }
@@ -34,6 +35,11 @@ public enum SettingsField: String, CaseIterable, Hashable, Sendable {
     case pressDuration, swallowDuration, shiftDuration, returnDuration
 
     static let publicNumbers: [Self] = [.visibleCountPreference, .outerInset, .hiddenFraction, .windChimeLineInset, .trayOcclusion, .trayTintHue, .trayTintStrength]
+    /// Numeric presentation fields that an existing user can explicitly restore.
+    public static let legacyAppearance: Set<Self> = [.fitWidth, .fitHeight, .hiddenFraction, .trayOcclusion,
+        .trayTintHue, .trayTintStrength, .rowPitch, .outerInset, .windChimeLineInset, .firstCenterFromTop,
+        .numberFontSize, .numberGap, .leftPadding]
+
     fileprivate var isCustomTrayTint: Bool { self == .trayTintHue || self == .trayTintStrength }
 
     public var page: SettingsDraftPage {
@@ -49,7 +55,7 @@ public enum SettingsField: String, CaseIterable, Hashable, Sendable {
         return page == .motion ? 1000 : 1
     }
 
-    fileprivate func value(in c: RiftConfiguration) -> Double {
+    public func value(in c: RiftConfiguration) -> Double {
         switch self {
         case .fitWidth: return c.fitWidth
         case .fitHeight: return c.fitHeight
@@ -124,6 +130,8 @@ public enum SettingsIntent: Equatable, Sendable {
     case collectionPaused(Bool), hidden(Bool), entryEnabled(Bool)
     case captureMode(ScreenshotMode), arrival(ArrivalMotionMode)
     case desktopForm(RiftDesktopForm), windChimeArrangement(RiftWindChimeArrangement), trayTheme(RiftTrayTheme)
+    case trayBackgroundTransparency(Double?), trayCameraBodyColor(String?)
+    case restoreLegacyCustom(fields: Set<SettingsField>, resetTheme: Bool)
     case trayFavorite(RiftTrayFavoriteSlot, RiftTrayFavoriteChoice)
     case layout([SettingsField: Double]), placement(RiftPlacement)
     case display(SettingsDisplayPreference), archiveMinutes(Double?)
@@ -137,6 +145,9 @@ public enum SettingsIntent: Equatable, Sendable {
         case .arrival: return .arrival
         case .desktopForm: return .desktopForm
         case .windChimeArrangement: return .windChimeArrangement
+        case .trayBackgroundTransparency: return .trayBackgroundTransparency
+        case .trayCameraBodyColor: return .trayCameraBodyColor
+        case .restoreLegacyCustom: return .layout
         case .trayTheme: return .trayTheme
         case .trayFavorite(let slot, _): return slot.settingsDomain
         case .layout: return .layout
@@ -150,6 +161,7 @@ public enum SettingsIntent: Equatable, Sendable {
 public enum SettingsConfirmedValue: Equatable, Sendable {
     case boolean(Bool), captureMode(ScreenshotMode), arrival(ArrivalMotionMode)
     case desktopForm(RiftDesktopForm), windChimeArrangement(RiftWindChimeArrangement), trayTheme(RiftTrayTheme)
+    case transparency(Double?), cameraColor(String?)
     case trayFavorite(RiftTrayFavoriteChoice)
     case configuration(RiftConfiguration), placement(RiftPlacement?)
     case display(id: UInt32?, uuid: String?), archiveMinutes(Double?)
@@ -228,6 +240,8 @@ public enum SettingsCommand: Sendable {
     case setCollectionPaused(Bool), setHidden(Bool), setEntryEnabled(Bool)
     case setCaptureMode(ScreenshotMode), setArrival(ArrivalMotionMode)
     case selectDesktopForm(RiftDesktopForm), selectWindChimeArrangement(RiftWindChimeArrangement), selectTrayTheme(RiftTrayTheme)
+    case setTrayBackgroundTransparency(Double?), setTrayCameraBodyColor(String?)
+    case restoreLegacyCustom(fields: Set<SettingsField>, resetTheme: Bool)
     case selectTrayFavorite(RiftTrayFavoriteSlot, RiftTrayFavoriteChoice)
     case selectPlacement(RiftPlacement), selectDisplay(UInt32?), retry(SettingsDomain)
 }
@@ -439,6 +453,12 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         case .selectDesktopForm(let value):
             await save(prepare(.desktopForm(value)), into: &result)
         case .selectWindChimeArrangement(let value): await save(prepare(.windChimeArrangement(value)), into: &result)
+        case .setTrayBackgroundTransparency(let value):
+            await save(prepare(.trayBackgroundTransparency(value)), into: &result)
+        case .setTrayCameraBodyColor(let value):
+            await save(prepare(.trayCameraBodyColor(value)), into: &result)
+        case .restoreLegacyCustom(let fields, let resetTheme):
+            await save(prepare(.restoreLegacyCustom(fields: fields, resetTheme: resetTheme)), into: &result)
         case .selectTrayTheme(let value): await save(prepare(.trayTheme(value)), into: &result)
         case .selectTrayFavorite(let slot, let choice):
             guard choice != .unsupported else { return result }
@@ -546,6 +566,19 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
             return candidate
         case .desktopForm(let value): candidate.desktopForm = value
         case .windChimeArrangement(let value): candidate.windChimeArrangement = value
+        case .trayBackgroundTransparency(let value):
+            if let value, !(0...0.75).contains(value) { throw SettingsValidationFailure.invalidConfiguration }
+            candidate.trayBackgroundTransparency = value
+        case .trayCameraBodyColor(let value):
+            if let value, RiftConfiguration.normalizedCameraColor(value) == nil { throw SettingsValidationFailure.invalidConfiguration }
+            candidate.trayCameraBodyColor = value
+        case .restoreLegacyCustom(let fields, let resetTheme):
+            let defaults = RiftConfiguration()
+            for field in fields {
+                guard SettingsField.legacyAppearance.contains(field) && includedInLayoutDraft(field) else { throw SettingsValidationFailure.inactiveLegacyField }
+                try field.put(field.value(in: defaults), into: &candidate)
+            }
+            if resetTheme && candidate.desktopForm == .tray { candidate.trayTheme = .system }
         case .trayTheme(let value): candidate.trayTheme = value
         case .trayFavorite(let slot, let choice): candidate.setTrayFavorite(choice, for: slot)
         case .placement(let placement): candidate.placement = placement; candidate.placementSource = .user
@@ -665,6 +698,11 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
             return patch.allSatisfy { $0.key.value(in: value.settings.configuration) == $0.value }
         case .desktopForm(let target): return value.settings.configuration.desktopForm == target
         case .windChimeArrangement(let target): return value.settings.configuration.windChimeArrangement == target
+        case .trayBackgroundTransparency(let target): return value.settings.configuration.trayBackgroundTransparency == target
+        case .trayCameraBodyColor(let target): return value.settings.configuration.trayCameraBodyColor == target.flatMap(RiftConfiguration.normalizedCameraColor)
+        case .restoreLegacyCustom(let fields, let resetTheme):
+            let config = value.settings.configuration, defaults = RiftConfiguration()
+            return fields.allSatisfy { $0.value(in: config) == $0.value(in: defaults) } && (!resetTheme || config.trayTheme == .system)
         case .trayTheme(let target): return value.settings.configuration.trayTheme == target
         case .trayFavorite(let slot, let choice): return value.settings.configuration.trayFavorite(slot) == choice
         case .placement(let target):
@@ -684,6 +722,8 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         case .arrival: return .arrival(value.settings.arrivalMode)
         case .desktopForm: return .desktopForm(value.settings.configuration.desktopForm)
         case .windChimeArrangement: return .windChimeArrangement(value.settings.configuration.windChimeArrangement)
+        case .trayBackgroundTransparency: return .transparency(value.settings.configuration.trayBackgroundTransparency)
+        case .trayCameraBodyColor: return .cameraColor(value.settings.configuration.trayCameraBodyColor)
         case .trayTheme: return .trayTheme(value.settings.configuration.trayTheme)
         case .trayFavorite1: return .trayFavorite(value.settings.configuration.trayFavorite(.first))
         case .trayFavorite2: return .trayFavorite(value.settings.configuration.trayFavorite(.second))

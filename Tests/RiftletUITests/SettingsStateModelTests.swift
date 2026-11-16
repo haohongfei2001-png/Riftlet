@@ -68,7 +68,7 @@ final class SettingsStateModelTests: XCTestCase {
                 case .arrival(let mode):
                     if !failed { next.settings.arrivalMode = mode; next.settings.hasArrivalSelection = true }
                 case .archiveMinutes(let minutes): if !failed { next.settings.archiveAfterMinutes = minutes }
-                case .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFavorite:
+                case .layout, .restoreLegacyCustom, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFavorite, .trayBackgroundTransparency, .trayCameraBodyColor:
                     if !failed, let configuration = request.configuration {
                         next.settings.configuration = configuration
                         next.settings.preferredDisplayID = configuration.preferredDisplayID

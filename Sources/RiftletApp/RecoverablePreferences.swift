@@ -17,6 +17,23 @@ final class RecoverablePreferences {
     var recoveryDomains: Set<SettingsPreferenceDomain> { Set(problems.keys) }
     private(set) var layout: RiftConfiguration
     private(set) var lifecycle = LifecycleSettings()
+    private(set) var legacyCustomFields = Set<SettingsField>()
+    var hasLegacyTrayTheme: Bool {
+        layout.trayTheme != .system || !legacyCustomFields.isDisjoint(with: [.trayTintHue, .trayTintStrength])
+    }
+
+    private func updateLegacyFields() {
+        guard let bytes = confirmedBytes[.layout],
+              let raw = (try? JSONSerialization.jsonObject(with: bytes)) as? [String: Any] else {
+            legacyCustomFields = []
+            return
+        }
+        let defaults = RiftConfiguration()
+        legacyCustomFields = Set(SettingsField.legacyAppearance.filter { field in
+            guard raw[field.rawValue] is NSNumber else { return false }
+            return field.value(in: layout) != field.value(in: defaults)
+        })
+    }
     private static let maxBytes = 1_048_576
 
     init(root: URL, defaultLayout: RiftConfiguration) {
@@ -72,6 +89,7 @@ final class RecoverablePreferences {
                 try value.validate()
                 layout = value
                 confirmedBytes[.layout] = bytes
+                updateLegacyFields()
             } else if confirmedBytes[.layout] == nil, problems[.layout] == nil {
                 try saveLayout(defaultLayout)
             } else { throw Problem.changed }
@@ -87,6 +105,7 @@ final class RecoverablePreferences {
         try value.validate()
         try write(value, previous: layout, domain: .layout)
         layout = value
+        updateLegacyFields()
     }
 
     func saveLifecycle(_ value: LifecycleSettings) throws {
@@ -138,7 +157,7 @@ final class RecoverablePreferences {
             }
             try bytes.write(to: url, options: .atomic)
             confirmedBytes[domain] = bytes
-            if domain == .layout { layout = defaultLayout } else { lifecycle = LifecycleSettings() }
+            if domain == .layout { layout = defaultLayout; updateLegacyFields() } else { lifecycle = LifecycleSettings() }
             problems.removeValue(forKey: domain)
             if recoveryFailure == domain { recoveryFailure = nil }
         } catch {

@@ -17,6 +17,37 @@ final class RecoverablePreferencesTests: XCTestCase {
 
     private func load() -> RecoverablePreferences { RecoverablePreferences(root: root, defaultLayout: .init()) }
 
+    func testAppearanceEditsPreserveUnknownFieldsAndLegacyFieldPresence() throws {
+        let old = Data(#"{"trayBackgroundTransparency":{"future":3},"trayTheme":"violetGlass","outerInset":22,"shiftDuration":0.12,"extra":false}"#.utf8)
+        try old.write(to: layout)
+        let prefs = load()
+        XCTAssertEqual(prefs.legacyCustomFields, [.outerInset])
+        XCTAssertTrue(prefs.hasLegacyTrayTheme)
+        XCTAssertNil(prefs.layout.trayBackgroundTransparency)
+        var changed = prefs.layout
+        changed.trayCameraBodyColor = "#a08f00"
+        try prefs.saveLayout(changed)
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: layout)) as? NSDictionary)
+        XCTAssertEqual(json["trayCameraBodyColor"] as? String, "#A08F00")
+        XCTAssertEqual(json["trayBackgroundTransparency"] as? NSDictionary, ["future":3])
+        XCTAssertEqual(json["extra"] as? Bool, false)
+        XCTAssertEqual(load().layout.trayTheme, .violetGlass)
+        changed.trayBackgroundTransparency = 0.75
+        try prefs.saveLayout(changed)
+        XCTAssertEqual(load().layout.trayBackgroundTransparency, 0.75)
+        changed.trayCameraBodyColor = nil
+        try prefs.saveLayout(changed)
+        XCTAssertNil(load().layout.trayCameraBodyColor)
+        XCTAssertEqual(load().layout.trayBackgroundTransparency, 0.75)
+
+        try Data("{}".utf8).write(to: layout)
+        let partial = load()
+        XCTAssertEqual(partial.layout.outerInset, 14)
+        XCTAssertEqual(partial.legacyCustomFields, [])
+        XCTAssertEqual(partial.layout.desktopForm, .microSlit)
+        XCTAssertEqual(try Data(contentsOf: layout), Data("{}".utf8))
+    }
+
     func testDamagedLayoutLeavesArchiveAndOriginalUntouchedUntilExplicitRecovery() throws {
         let other = Data(#"{"archiveAfterSeconds":91,"next":"preserve"}"#.utf8)
         try other.write(to: archive)

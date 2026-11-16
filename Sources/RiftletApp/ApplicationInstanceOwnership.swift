@@ -7,6 +7,7 @@ import Darwin
 final class ApplicationInstanceOwnership {
     enum Failure: Error { case unavailable }
     let root: URL
+    private let createdLock: Bool
     private var descriptor: Int32 = -1
     private var processOwnsDescriptor = false
 
@@ -14,8 +15,11 @@ final class ApplicationInstanceOwnership {
         self.root = root
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true,
                                                attributes: [.posixPermissions: 0o700])
-        let fd = Darwin.open(root.appendingPathComponent("instance.lock").path,
-                             O_CREAT | O_RDWR | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC, 0o600)
+        let path = root.appendingPathComponent("instance.lock").path
+        let flags = O_RDWR | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC
+        let created = Darwin.open(path, O_CREAT | O_EXCL | flags, 0o600)
+        createdLock = created >= 0
+        let fd = createdLock ? created : (errno == EEXIST ? Darwin.open(path, flags) : -1)
         guard fd >= 0 else { throw Failure.unavailable }
         var info = stat()
         guard fstat(fd, &info) == 0, info.st_mode & mode_t(S_IFMT) == mode_t(S_IFREG),
@@ -24,6 +28,13 @@ final class ApplicationInstanceOwnership {
             throw Failure.unavailable
         }
         descriptor = fd
+    }
+
+    /// Run under the instance lock, before first-use, SQLite, or sidecars write profile evidence.
+    func isNewProfile(defaults: UserDefaults, domain: String, reviewMarker: Bool = false) -> Bool {
+        guard createdLock, (defaults.persistentDomain(forName: domain) ?? [:]).isEmpty,
+              let files = try? FileManager.default.contentsOfDirectory(atPath: root.path) else { return false }
+        return files.allSatisfy { $0 == "instance.lock" || (reviewMarker && $0 == "settings-review-identity.txt") }
     }
 
     /// Call only from applicationWillTerminate, after termination is irrevocable.

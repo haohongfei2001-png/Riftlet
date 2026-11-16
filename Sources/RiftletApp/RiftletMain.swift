@@ -154,6 +154,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var history: RiftHistoryController?
     // Root ownership is established before installSetup first reads this owner.
     private lazy var historyDisplayPreferences = HistoryDisplayPreferences.make(mode: mode, root: root)
+    private var historyWatermark: Int64?
     private var historyOffset = 0
     private var userHidden = false
     private var captureIsPaused = false
@@ -186,6 +187,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var watchedCompletions = Set<UUID>()
     private var observationBackoff: [UUID: (failures: Int, next: Date)] = [:]
     private var instanceOwnership: ApplicationInstanceOwnership?
+    private var newProfile = false
     private let mode: ApplicationMode
     private var simulation: Bool { mode == .simulation }
 
@@ -202,6 +204,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 try environment.prepare(); reviewEnvironment = environment
             }
             let owner = try ApplicationInstanceOwnership(root: reviewEnvironment?.root ?? base.appendingPathComponent(mode.directoryName, isDirectory: true))
+            if mode == .capture || mode == .settingsReview, let domain = reviewEnvironment?.suiteName ?? Bundle.main.bundleIdentifier {
+                newProfile = owner.isNewProfile(defaults: reviewEnvironment?.defaults ?? .standard,
+                                                domain: domain, reviewMarker: reviewEnvironment != nil)
+            }
             try reviewEnvironment?.prepareFixtures()
             instanceOwnership = owner; root = owner.root
             if mode.usesWebAdapter, CommandLine.arguments.contains("--acceptance-trace") {
@@ -377,6 +383,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         // after recovery as well, before any real adapter is constructed.
         if mode.generatesSyntheticImages { try await seedSyntheticImages(store: store) }
         var defaultLayout = RiftConfiguration()
+        if newProfile { defaultLayout.desktopForm = .tray }
         if let screen = NSScreen.screens.first,
            let id = (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value {
             defaultLayout.preferredDisplayID = id
@@ -516,6 +523,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             onPreviousPage: { [weak self] in self?.changeHistoryPage(-1) },
             displayStyle: historyDisplay.selection,
             onDisplayStyleChanged: { [weak historyDisplay] style in historyDisplay?.select(style) })
+        history?.onLibraryQueryChanged = { [weak self] in
+            self?.resetHistoryQuery()
+            Task { await self?.refreshHistory() }
+        }
+        history?.onRetryHistory = { [weak self] in Task { await self?.refreshHistory() } }
         historyDisplay.onChange = { [weak self] style in
             self?.history?.updateDisplayStyle(style)
             self?.settingsHost?.refreshHistoryDisplayStyle()
@@ -863,7 +875,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         capabilities.canOpenConfiguration = root != nil
         settingsHost?.update(owner: nextSettingsOwner(), setup: snapshot, capabilities: capabilities,
             configurationDeferred: rift.map { $0.requestedConfiguration != $0.configuration } ?? false,
-            chromeConnection: chromeConnection, recoveryDomains: recoverablePreferences?.recoveryDomains ?? [],
+            chromeConnection: chromeConnection,
+            legacyCustomFields: recoverablePreferences?.legacyCustomFields ?? [],
+            hasLegacyTrayTheme: recoverablePreferences?.hasLegacyTrayTheme ?? false,
+            recoveryDomains: recoverablePreferences?.recoveryDomains ?? [],
             recoveryFailure: recoverablePreferences?.recoveryFailure)
         let presentation = SetupPresentation(snapshot: snapshot)
         let summary = presentation.issueText ?? (mode.collectsSystemScreenshots ? presentation.collectionText : presentation.attachmentText)
@@ -1366,16 +1381,27 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private func refreshHistory() async {
         guard let store, let history else { return }
         historyGeneration &+= 1
-        let generation = historyGeneration, offset = historyOffset
+        let generation = historyGeneration, offset = historyOffset, query = history.libraryQuery
         do {
-            let page = try await store.historySnapshot(limit: 201, offset: offset)
-            guard historyGeneration == generation, historyOffset == offset else { return }
-            let entries = page.prefix(200).map(RiftHistoryEntry.init(snapshot:))
-            history.update(entries: entries, pageOffset: offset, hasEarlier: page.count > 200)
-        } catch { showIssue("Local history could not be read; data preserved.") }
+            let page = try await store.historyPage(query: query, offset: offset, throughSequence: historyWatermark)
+            guard generation == historyGeneration, offset == historyOffset, query == history.libraryQuery else { return }
+            historyWatermark = page.throughSequence
+            history.update(entries: page.records.map(RiftHistoryEntry.init(snapshot:)), pageOffset: offset,
+                           hasEarlier: page.hasNext, hasNewCaptures: page.hasNewCaptures)
+        } catch {
+            guard generation == historyGeneration, offset == historyOffset, query == history.libraryQuery else { return }
+            history.showReadError()
+        }
+    }
+
+    private func resetHistoryQuery() {
+        historyGeneration &+= 1
+        historyOffset = 0
+        historyWatermark = nil
     }
 
     private func changeHistoryPage(_ direction: Int) {
+        historyGeneration &+= 1
         historyOffset = max(0, historyOffset + direction * 200)
         Task { await refreshHistory() }
     }
@@ -1385,6 +1411,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         // An explicit auxiliary action ends the capture session so its full-
         // screen selection overlay cannot intercept this window's controls.
         screenshotEntry?.cancel()
+        if !history.isVisible { resetHistoryQuery() }
         history.show()
         Task { await refreshHistory() }
     }
@@ -1409,15 +1436,19 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 try await store.restoreToQueue(id)
                 await refresh()
                 rift?.showAsset(id)
-            } catch { showIssue("This image cannot safely return to the queue; local history is preserved.") }
+            } catch { history?.showActionError(ProductCopy.text("无法恢复这张截图。请查看当前记录的状态。", "This screenshot could not be restored. Check its status.")) }
         }
     }
 
     private func revealHistory(_ id: UUID) {
         guard let store, let root else { return }
         Task {
-            guard let record = try? await store.asset(id: id) else { return }
-            NSWorkspace.shared.activateFileViewerSelecting([root.appendingPathComponent("media").appendingPathComponent(record.image.fileName)])
+            do {
+                guard let record = try await store.asset(id: id) else { throw CocoaError(.fileNoSuchFile) }
+                let file = root.appendingPathComponent("media").appendingPathComponent(record.image.fileName)
+                guard FileManager.default.isReadableFile(atPath: file.path) else { throw CocoaError(.fileReadNoSuchFile) }
+                NSWorkspace.shared.activateFileViewerSelecting([file])
+            } catch { history?.showActionError(ProductCopy.text("无法显示这张截图的本地文件。", "The local screenshot file is unavailable.")) }
         }
     }
 
@@ -1426,7 +1457,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         cancelSelections(assetID: id, reason: "removed")
         Task {
             do { try await store.removeFromQueue(id); await refresh() }
-            catch { showIssue("Could not remove this image from the rift; files are preserved.") }
+            catch {
+                let message = ProductCopy.text("无法从桌面收起这张截图。", "Could not remove this screenshot from the desktop.")
+                if history?.isVisible == true { history?.showActionError(message) } else { showIssue(message) }
+            }
         }
     }
 
@@ -1647,14 +1681,22 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             case .captureMode(let target): _ = try applySettings(.defaultCaptureMode(target))
             case .arrival(let target): _ = try applySettings(.arrivalMode(target))
             case .archiveMinutes(let target): _ = try applySettings(.archiveAfterMinutes(target))
-            case .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFavorite:
+            case .layout, .restoreLegacyCustom, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFavorite, .trayBackgroundTransparency, .trayCameraBodyColor:
                 guard let configuration = request.configuration, rift != nil else { throw CocoaError(.fileWriteUnknown) }
                 if case .display(let selected) = request.intent {
                     guard settingsSnapshot().displays.contains(where: { $0.id == selected.id && $0.uuid == selected.uuid }) else {
                         return .unconfirmed(nextSettingsOwner(), .ownerUnavailable)
                     }
                 }
-                try persistRiftConfiguration(configuration, displayChanged: request.intent.domain == .display)
+                switch request.intent {
+                case .trayBackgroundTransparency, .trayCameraBodyColor:
+                    guard let preferences = recoverablePreferences, let rift else { throw CocoaError(.fileWriteUnknown) }
+                    defer { rift.clearTrayAppearancePreview() }
+                    try preferences.saveLayout(configuration)
+                    rift.applyTrayAppearance(configuration)
+                default:
+                    try persistRiftConfiguration(configuration, displayChanged: request.intent.domain == .display)
+                }
                 updateControlTitles()
             }
             if [.entry, .captureMode].contains(request.intent.domain), screenshotEntry?.preferenceSaveFailed == true {
@@ -1670,7 +1712,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private func performSettingsAction(_ action: SettingsProductAction) async {
         if mode == .settingsReview {
             switch action {
-            case .capture, .chooseSourceAccess, .requestAutomation, .checkChromeConnection, .openFilePrivacy, .openScreenRecordingPrivacy:
+            case .openChrome, .capture, .chooseSourceAccess, .requestAutomation, .checkChromeConnection, .openFilePrivacy, .openScreenRecordingPrivacy:
                 showIssue("设置验收环境不申请系统授权、不抓取屏幕。")
                 return
             default: break
@@ -1687,13 +1729,17 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         case .openSource: openScreenshotSource()
         case .chooseSourceAccess: chooseSourceAccess()
         case .requestAutomation: requestAutomationPermission()
+        case .previewTrayAppearance(let transparency, let color):
+            rift?.previewTrayAppearance(transparency: transparency, cameraBodyColor: color)
+        case .openChrome:
+            if let chrome = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.google.Chrome") {
+                do { _ = try await NSWorkspace.shared.openApplication(at: chrome, configuration: .init()) }
+                catch { showIssue(ProductCopy.text("未能打开 Google Chrome。", "Could not open Google Chrome.")) }
+            } else { showIssue(ProductCopy.text("没有找到 Google Chrome。", "Google Chrome could not be found.")) }
+            updateSetup()
         case .checkChromeConnection: await checkChromeConnection()
         case .finishOnboarding:
             guard let host = settingsHost, host.onboarding.isVisible, host.snapshot.onboardingReady else { return }
-            let session = host.onboarding.presentationID
-            await checkChromeConnection()
-            guard !terminationPreparationPending, host.onboarding.isVisible, host.onboarding.presentationID == session,
-                  host.snapshot.onboardingReady else { return }
             firstUse.recordCompletion()
             host.onboarding.closeForTeardown()
         case .openFilePrivacy: openFilePrivacySettings()
