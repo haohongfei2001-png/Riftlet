@@ -62,7 +62,7 @@ function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focu
   removeAttribute(key){const oldValue=this.getAttribute(key);delete this.attrs[key];queueMutation({type:'attributes',target:this,attributeName:key,oldValue});}
   matches(selector){return matches(this,selector);}
   closest(selector){return this.matches(selector)?this:this.parentElement?.closest?.(selector)||null;}
-  contains(node){return this===node||this.children.some(child=>child.contains(node));}
+  contains(node){return node?.nodeType===3?this.contains(node.parentElement):this===node||this.children.some(child=>child.contains(node));}
   append(...nodes){for(const node of nodes){if(node.parentElement)node.remove();node.parentElement=this;this.children.push(node);queueMutation({type:'childList',target:this,addedNodes:[node],removedNodes:[]});}return nodes[0];}
   appendChild(node){return this.append(node);}
   remove(){const parent=this.parentElement;if(!parent)return;parent.children=parent.children.filter(node=>node!==this);this.parentElement=null;queueMutation({type:'childList',target:parent,addedNodes:[],removedNodes:[this]});}
@@ -115,6 +115,18 @@ function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focu
   getElementById:id=>body.querySelectorAll('*').find(node=>node.id===id)||null,getSelection:()=>selection,
   addEventListener:(type,fn,options=false)=>{const list=events.get(type)||[];list.push({fn,capture:options===true||!!options.capture});events.set(type,list);},
   removeEventListener:(type,fn)=>{events.set(type,(events.get(type)||[]).filter(item=>item.fn!==fn));}};
+ // Text nodes can change in place between two page observations, independently
+ // of their element parent and adjacent text fragments.
+ function appendText(parent,value){
+  if(!parent.childNodes){
+   Object.defineProperty(parent,'childNodes',{value:[...parent.children]});
+   Object.defineProperty(parent,'textContent',{get:()=>parent.childNodes.map(node=>node.nodeType===3?node.data:node.textContent).join('')});
+  }
+  const text={nodeType:3,parentElement:parent,get data(){return value;},get length(){return value.length;},
+   replace(next,hasOldValue=true){const oldValue=hasOldValue?value:null;value=next;queueMutation({type:'characterData',target:text,oldValue});}};
+  parent.childNodes.push(text);queueMutation({type:'childList',target:parent,addedNodes:[text],removedNodes:[]});
+  return text;
+ }
  const blobFiles=new Map();let blobID=0;
  class NativeURL extends URL {static createObjectURL(file){const url='blob:fixture-'+(++blobID);blobFiles.set(url,file);return url;}static revokeObjectURL() {}}
  const context=vm.createContext({console,Uint8Array,Map,Set,WeakMap,WeakSet,Promise,File,Blob,atob,btoa,ArrayBuffer,TextDecoder,URL:NativeURL,
@@ -150,7 +162,7 @@ function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focu
  const commit=op=>call({...op.command('commit'),chunkIndex:1});
  const observe=op=>call(op.command('observe')).observation;
  const waitFor=async(fn,label='page result')=>{const deadline=Date.now()+2000;do{const value=fn();if(value)return value;await new Promise(r=>setTimeout(r,1));}while(Date.now()<deadline);throw Error('bounded wait expired: '+label);};
- return {call,bind,stage,commit,observe,waitFor,notify,addCard,body,form,editor,input,oldCard,selection,context,document,Node,
+ return {call,bind,stage,commit,observe,waitFor,notify,addCard,appendText,body,form,editor,input,oldCard,selection,context,document,Node,
   setChange:fn=>{onChange=fn;},setSetter:fn=>{onSet=fn;},setAccept:value=>{accept=value;},
   get changes(){return changes;},get setters(){return setters;},get sends(){return sends;},get chooserOpens(){return chooserOpens;},
   setRoute:href=>{context.location.href=href;},setFocused:value=>{focused=value;}};

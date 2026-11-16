@@ -217,24 +217,27 @@ final class MainWorldCommandRelayTests: XCTestCase {
         XCTAssertEqual(js.evaluateScript(next.discovery)?.toString(), "")
     }
 
-    func testOriginalObservationFindsBothV17BuildsAndV18ThroughV20ByExactFunctionAndLease() throws {
+    func testOriginalObservationFindsBothV17BuildsAndV18ThroughV21ByExactFunctionAndLease() throws {
         let v17 = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorScreenshotSource))
         let v18 = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorClickSource))
         let v19 = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorOriginSource))
         let v20 = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorProgressSource))
+        let v21 = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorLabelSource))
+        let v21Sources = try ChatGPTWebPageProgram.observationRelayFunctions(for: v21)
         let v20Sources = try ChatGPTWebPageProgram.observationRelayFunctions(for: v20)
         let v19Sources = try ChatGPTWebPageProgram.observationRelayFunctions(for: v19)
         let v17Sources = try ChatGPTWebPageProgram.observationRelayFunctions(for: v17)
         let v18Sources = try ChatGPTWebPageProgram.observationRelayFunctions(for: v18)
-        let hashes = (v17Sources + v18Sources + v19Sources + v20Sources).map { source in
+        let hashes = (v17Sources + v18Sources + v19Sources + v20Sources + v21Sources).map { source in
             SHA256.hash(data: Data(source.utf8)).map { String(format: "%02x", $0) }.joined()
         }
         XCTAssertEqual(hashes, ["0daf3f2763e340503b8c957c4ef35a619417c5e486ac48fccbcae3f657ff9a09",
                                 "5fffb4b9fcee31af401a00259b3cf0cdbf7577c8f990dddbbd1ec99bfe16de3f",
                                 "c32a45bbe8f6339247d523371193a81e554d770424e86f214ea50e14c29a4ef8",
                                 "f1a4dfce2e04e5c54ec812e01e33fb90a6a97a839d2b06ce5eed378f77887550",
-                                "0bc928293ba44f84accdb0d19886fedc94c6702383a827fa1a48214eeaebc336"])
-        for (program, sources) in [(v17, v17Sources), (v18, v18Sources), (v19, v19Sources), (v20, v20Sources)] {
+                                "0bc928293ba44f84accdb0d19886fedc94c6702383a827fa1a48214eeaebc336",
+                                "58190675ec87b88db2334f0a38a764616e4cc923cbfcb955df33e8c87d303621"])
+        for (program, sources) in [(v17, v17Sources), (v18, v18Sources), (v19, v19Sources), (v20, v20Sources), (v21, v21Sources)] {
             for function in sources {
                 let hosts = program.sourceID == v17.sourceID ? ["com.google.Chrome"] : ["com.google.Chrome", "com.microsoft.edgemac"]
                 for host in hosts {
@@ -278,7 +281,7 @@ final class MainWorldCommandRelayTests: XCTestCase {
     @MainActor func testChromeHistoricalProgramsCannotPinOrExecuteInputBeforeConsultingBrowser() async throws {
         let executor = ChromeAppleEventsExecutor()
         for source in [ChatGPTWebPageProgram.priorScreenshotSource, ChatGPTWebPageProgram.priorClickSource,
-                       ChatGPTWebPageProgram.priorOriginSource, ChatGPTWebPageProgram.priorProgressSource] {
+                       ChatGPTWebPageProgram.priorOriginSource, ChatGPTWebPageProgram.priorProgressSource, ChatGPTWebPageProgram.priorLabelSource] {
             let program = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: source))
             XCTAssertThrowsError(try executor.targetForClick(program: program)) { XCTAssertEqual($0 as? WebAdapterError, .invalidRequest) }
             for action in [WebBridgeAction.captureTarget, .validate, .begin, .chunk, .commit, .discard] {

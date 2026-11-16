@@ -108,7 +108,7 @@ private final class EdgeCommandCancellation: @unchecked Sendable {
         try Task.checkCancellation()
         guard command.action != .pinTarget,
               program.sourceID == ChatGPTWebPageProgram.sourceID ||
-                (command.action == .observe && [ChatGPTWebPageProgram.priorClickSource, ChatGPTWebPageProgram.priorOriginSource, ChatGPTWebPageProgram.priorProgressSource].contains(program.sourceID)) else {
+                (command.action == .observe && [ChatGPTWebPageProgram.priorClickSource, ChatGPTWebPageProgram.priorOriginSource, ChatGPTWebPageProgram.priorProgressSource, ChatGPTWebPageProgram.priorLabelSource].contains(program.sourceID)) else {
             throw WebAdapterError.invalidRequest
         }
         if command.action == .captureTarget {

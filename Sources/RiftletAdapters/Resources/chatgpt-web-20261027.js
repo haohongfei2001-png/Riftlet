@@ -142,7 +142,7 @@ function riftletWebAcceptance(command, native) {
     fail('AMBIGUOUS_COMPOSER');
   }
   const blank = (identity, state = 'unknown') => ({schemaVersion: 2,
-    provenance: {source: 'integratedDevelopment', evidenceID: 'click-document-witness-20261117-v21'},
+    provenance: {source: 'integratedDevelopment', evidenceID: 'click-document-witness-20261117-v22'},
     observation: {identity, state, exactImageIdentity: false, belongsToOriginalDraft: false,
       hasError: false, isUploading: false, attachmentAbsent: false, automaticRetryExcluded: false}});
   let registry = globalThis[KEY];
@@ -916,14 +916,6 @@ function riftletWebAcceptance(command, native) {
         const value = node.getAttribute(attr);
         if (value !== null && !accepts(value)) return null;
       }
-      // Reading individual immediate text nodes never enters a pruned editor,
-      // transcript, form or dialog nested below a candidate.
-      if (node.childNodes) {
-        if (node.childNodes.length > 128) return null;
-        for (const child of node.childNodes) {
-          if (child.nodeType === 3 && (child.length > 1024 || !accepts(child.data))) return null;
-        }
-      } else if (!node.children.length && !accepts(node.textContent)) return null;
     }
     for (const [id, node] of ids) {
       // Exact reverse associations only. No document text, list of controls, or
@@ -957,7 +949,49 @@ function riftletWebAcceptance(command, native) {
       if (!(refs.get(node) || []).every(resolved)) return false;
       visiting.delete(node); done.add(node); return true;
     };
-    return [...refs.keys()].every(resolved) ? conflicts : null;
+    if (![...refs.keys()].every(resolved)) return null;
+    const referenced = new Set([...refs.values()].flat());
+    const roots = new Set([members[0].node, ...referenced, ...members.map(entry => entry.node).filter(node =>
+      node.matches('button,label,progress,[role="button"],[role="group"],[role="progressbar"]'))]);
+    // Read each complete local name in DOM order. Inline elements and adjacent
+    // Text nodes are one label; independent controls have separate names.
+    // An explicitly referenced element contributes its entire vetted subtree.
+    let steps = 2048;
+    const simpleText = new Set(), compoundText = new Set();
+    for (const root of roots) {
+      let value = '', fragments = [];
+      const flush = () => {
+        if (!accepts(value)) return false;
+        for (const node of fragments) (fragments.length === 1 ? simpleText : compoundText).add(node);
+        value = ''; fragments = []; return true;
+      };
+      const append = (node, data) => {
+        if (typeof data !== 'string' || value.length + data.length > 1024) return false;
+        fragments.push(node); value += data; return true;
+      };
+      const pending = [root];
+      while (pending.length) {
+        const node = pending.pop();
+        if (--steps < 0) return null;
+        if (node.nodeType === 3) {
+          if (node.length > 1024 || !append(node, node.data)) return null;
+          continue;
+        }
+        if (node.nodeType === 8) continue;
+        if (!nodes.has(node)) return null;
+        if (node !== root && roots.has(node) && !referenced.has(root)) {
+          if (!flush()) return null;
+          continue;
+        }
+        const children = node.childNodes || node.children;
+        if (children.length > 128 || pending.length + children.length > steps) return null;
+        if (!node.childNodes && !children.length && !append(node, node.textContent)) return null;
+        for (let i = children.length - 1; i >= 0; i--) pending.push(children[i]);
+      }
+      if (!flush()) return null;
+    }
+    for (const node of compoundText) simpleText.delete(node);
+    return {conflicts, simpleText};
   }
   // Bound to this original input only. A removed and reinserted node is not a
   // continuous witness, even when two polls see the same object and parent.
@@ -1026,13 +1060,19 @@ function riftletWebAcceptance(command, native) {
               || (node === held.image && key === 'src') || statusAttributes.includes(key)
               || (node === held.bar && ['role', 'aria-valuemin', 'aria-valuemax', 'max'].includes(key))) return close('nodeReused');
         } else if (held && held.scope.contains(record.target) && record.type === 'characterData') {
-          if (record.oldValue === null || held.conflicts(record.oldValue) || held.conflicts(record.target.data)) return close('conflictingFileLabel');
+          // An isolated old/current fragment cannot establish the former name
+          // of a multi-part label. Only a complete, unchanged text boundary
+          // admits direct character-data changes between the two samples.
+          if (!held.simpleText.has(record.target) || held.conflicts(record.oldValue)
+              || held.conflicts(record.target.data)) return close('conflictingFileLabel');
         } else if (record.type === 'childList') {
           if (held && held.scope.contains(record.target)) {
             const count = record.addedNodes.length + record.removedNodes.length;
             if (!count || count > 128) return close('conflictingFileLabel');
             for (const list of [record.addedNodes, record.removedNodes]) for (const node of list) {
-              if (node.nodeType === 3 && (node.length > 1024 || held.conflicts(node.data))) return close('conflictingFileLabel');
+              // A child-list record has no former text value. Inserting or
+              // replacing part of a name cannot attest its intermediate owner.
+              if (node.nodeType === 3) return close('conflictingFileLabel');
               if (node.nodeType === 1) return close('nodeReused');
             }
           }
@@ -1142,8 +1182,8 @@ function riftletWebAcceptance(command, native) {
           || (node.getAttribute('role') === 'alert' && visible(node) && node.textContent.trim().length > 0)))
       return proof.close('ownershipTopology');
     if (!controls.length) { proof.decision = 'progressUnavailable'; if (held) proof.close(proof.decision); return; }
-    const conflicts = edgeProgressLabels(filename, members, baseline.originals);
-    if (!conflicts) return proof.close('conflictingFileLabel');
+    const names = edgeProgressLabels(filename, members, baseline.originals);
+    if (!names) return proof.close('conflictingFileLabel');
     const bar = controls[0].node, url = image.getAttribute('src');
     // A detached node might be absent from this input's baseline and still
     // belong to an earlier file. A later independent input may see our own
@@ -1164,7 +1204,7 @@ function riftletWebAcceptance(command, native) {
     const value = reading.percent;
     if (value >= 100 || now < op.inputTime || (held && (value < held.highest || now < held.at))) return proof.close('progressUnavailable');
     if (value <= 0 || now === op.inputTime) { proof.decision = 'progressUnavailable'; return; }
-    if (!held) { proof.decision = 'firstProgress'; proof.hold({card, scope, remove, image, bar, labels, conflicts, url, value, highest: value, low: reading.low, high: reading.high, at: now}); return; }
+    if (!held) { proof.decision = 'firstProgress'; proof.hold({card, scope, remove, image, bar, labels, ...names, url, value, highest: value, low: reading.low, high: reading.high, at: now}); return; }
     if (value === held.value || now === held.at) return;
     const current = composer();
     if (current.form !== baseline.form || current.editor !== baseline.editor) return proof.close('draftChanged');

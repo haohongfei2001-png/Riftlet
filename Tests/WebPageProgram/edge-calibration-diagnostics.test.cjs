@@ -586,3 +586,66 @@ test('an extra change inspects the entire bounded FileList for the original oper
     assert.equal(f.sends,0);
   });
 });
+
+test('Edge examines complete local labels in DOM order before attributing progress', async t => {
+  for (const structure of ['adjacent text','inline spans','nested referenced spans','progress contents']) {
+    for (const mode of ['current','foreign','localized']) await t.test(structure+' / '+mode,async () => {
+      const {f,bind,observe} = edgeFixture({route:calibratedTemporary,accept:false});
+      let former, bar;
+      f.setChange(file => {
+        if (!former) { former = file.name; return; }
+        const card = f.addCard(file.name,{progress:false});
+        card.querySelector('img').setAttribute('src',f.context.URL.createObjectURL(file));
+        bar = card.append(new f.Node('div',{role:'progressbar','aria-valuenow':'10'}));
+        let label = bar;
+        if (structure !== 'progress contents') {
+          label = card.append(new f.Node('span',{id:'name'})); bar.setAttribute('aria-labelledby','name');
+        }
+        const value = mode === 'current' ? file.name : mode === 'foreign' ? former : '正在上传 · 10%';
+        if (structure === 'nested referenced spans') label = label.append(new f.Node('span'));
+        // Split through both the UUID and extension. The last suffix alone
+        // can itself look like a file, although the full name belongs to B.
+        for (const part of [value.slice(0,9),value.slice(9,-2),value.slice(-2)]) {
+          const parent = structure === 'adjacent text' ? label : label.append(new f.Node('span'));
+          f.appendText(parent,part);
+        }
+      });
+      const first = bind(); f.stage(first,{edgeProgressCandidate:true}); await f.commit(first);
+      const second = bind(); f.stage(second,{edgeProgressCandidate:true}); await f.commit(second);
+      bar.setAttribute('aria-valuenow','35');
+      const result = observe(second);
+      assert.equal(result.observation.state,mode === 'foreign' ? 'inputTriggered' : 'uploadStarted');
+      assert.equal(result.entryDiagnostics.edgeCalibration.progressDecision,mode === 'foreign' ? 'conflictingFileLabel' : 'started');
+      assert.deepEqual([f.setters,f.changes,f.sends],[2,2,0]);
+    });
+  }
+});
+
+test('Edge refuses uncertain prior text between increasing progress samples', async t => {
+  for (const variety of ['foreign then restored','missing prior value','readable generic text','overlong assembled name'])
+    await t.test(variety,async () => {
+      const {f,bind,observe} = edgeFixture({route:calibratedTemporary,accept:false});
+      let original, label, bar, changed;
+      f.setChange(file => {
+        if (!original) { original = file.name; return; }
+        const card = f.addCard(file.name,{progress:false});
+        card.querySelector('img').setAttribute('src',f.context.URL.createObjectURL(file));
+        bar = card.append(new f.Node('div',{role:'progressbar','aria-valuenow':'10','aria-labelledby':'label'}));
+        label = card.append(new f.Node('span',{id:'label'}));
+        if (variety === 'foreign then restored') {
+          changed = f.appendText(label,file.name.slice(0,-4)); f.appendText(label,'.png');
+        } else if (variety === 'overlong assembled name') {
+          f.appendText(label,'a'.repeat(600)); f.appendText(label,'b'.repeat(600));
+        } else changed = f.appendText(label,'上传进度 10%');
+      });
+      const a = bind(); f.stage(a,{edgeProgressCandidate:true}); await f.commit(a);
+      const b = bind(); f.stage(b,{edgeProgressCandidate:true}); await f.commit(b);
+      if (variety === 'foreign then restored') {
+        const before = changed.data; changed.replace(original.slice(0,-4)); changed.replace(before);
+      } else if (changed) changed.replace('上传进度 35%',variety !== 'missing prior value');
+      bar.setAttribute('aria-valuenow','35');
+      const reply = observe(b);
+      assert.equal(reply.observation.state,variety === 'readable generic text' ? 'uploadStarted' : 'inputTriggered');
+      assert.equal(reply.entryDiagnostics.edgeCalibration.progressDecision,variety === 'readable generic text' ? 'started' : 'conflictingFileLabel');
+    });
+});

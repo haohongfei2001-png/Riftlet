@@ -157,39 +157,81 @@ final class EdgeOrdinaryInputTests: XCTestCase {
         XCTAssertTrue(records.commands.dropFirst().allSatisfy { $0.edgeProgressCandidate == nil })
     }
 
+    private func seedEdgeRegistration(_ request: TransferRequest, profile: ObservationProfile,
+                                      source: String, store: QueueStore) async throws -> ObservationIdentity {
+        let op = request.operation
+        let identity = ObservationIdentity(operationID: op.id, assetID: request.asset.id, attempt: op.attempt,
+            assetSHA256: request.asset.sha256, target: op.target)
+        let registration: [String: Any] = ["version": 2, "sourceID": source,
+            "startProfileID": try XCTUnwrap(profile.uploadStartProfileID), "completionProfileID": profile.profileID,
+            "enrollmentID": UUID().uuidString, "assetOrigin": AssetOrigin.systemScreenshot.rawValue,
+            "identity": try JSONSerialization.jsonObject(with: JSONEncoder().encode(identity))]
+        let bytes = try JSONSerialization.data(withJSONObject: registration, options: [.sortedKeys])
+        for scope in [SystemScreenshotAdmissionScope.candidate, .productSystem] {
+            _ = try await store.claimDispatchCheckpoint(bytes, for: SystemScreenshotCandidateAdmission.checkpointKey(for: request, scope: scope),
+                operation: op, asset: request.asset)
+        }
+        return identity
+    }
+
+    func testRestartPreservesV21EdgeStartAndUnknownAndReadsOnlyTheOriginalObserver() async throws {
+        let root = try directory(); defer { try? FileManager.default.removeItem(at: root) }
+        let url = root.appendingPathComponent("queue.sqlite"), store = try QueueStore(databaseURL: url)
+        let profile = OrdinaryProductScreenshotScope.edgeProgressProfile, id = try XCTUnwrap(profile.uploadStartProfileID)
+        let policy = ReceiptPolicy(uploadStartProfiles: [id: .webChat], profileOrigins: [id: [.systemScreenshot]],
+            startOnlyApplications: ["com.microsoft.edgemac": .init(adapterID: profile.adapterID, receiptProfileID: profile.profileID,
+                startProfileID: id, signal: .correlatedProgress, mediaType: "image/png", route: .chatGPTTemporaryHome)])
+        let frozen = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorLabelSource))
+        let first = try await prepare(root: root, store: store, gray: 0.31).0
+        let identity = try await seedEdgeRegistration(first, profile: profile, source: frozen.sourceID, store: store)
+        let original = EdgeInputBridge(state: .uploadStarted, signal: .correlatedProgress, provenanceID: "click-document-witness-20261117-v21")
+        let raw = try await original.execute(.init(action: .observe, target: identity.target, identity: identity), program: frozen)
+        let receipt = try ObservationNormalizer(profile: profile, developmentScope: .ordinarySystemScreenshot)
+            .receipt(from: ObservationDecoder.decode(raw), for: first)
+        _ = try await store.apply(receipt, policy: policy)
+        let second = try await prepare(root: root, store: store, gray: 0.73).0
+        _ = try await seedEdgeRegistration(second, profile: profile, source: frozen.sourceID, store: store)
+        try await store.markUnknown(second.operation.id, reason: "original input uncertain")
+        let key = SystemScreenshotCandidateAdmission.checkpointKey(for: second, scope: .productSystem)
+        let registration = try await store.checkpoint(for: key)
+
+        let reopened = try QueueStore(databaseURL: url)
+        let bridge = EdgeInputBridge(state: .unknown, provenanceID: "click-document-witness-20261117-v21")
+        let client = try adapter(root: root, store: reopened, bridge: bridge)
+        try await TransferCoordinator(store: reopened, adapter: client, mediaDirectory: root, policy: policy).recover()
+        let result = try await client.reconcile(refreshed(second, store: reopened))
+        XCTAssertEqual(result.outcome, .unknown); XCTAssertNil(result.uploadStartEvidence); XCTAssertFalse(result.safeToRetry)
+        let after = try await reopened.uploadStartReceipt(for: first.operation.id), firstRow = try await reopened.asset(id: first.asset.id)
+        let secondStart = try await reopened.uploadStartReceipt(for: second.operation.id), secondRow = try await reopened.asset(id: second.asset.id)
+        let saved = try await reopened.checkpoint(for: key), executed = await bridge.records(), sources = await bridge.programIDs
+        XCTAssertEqual(after, receipt); XCTAssertEqual(firstRow?.visibility, .swallowed)
+        XCTAssertNil(secondStart); XCTAssertEqual(secondRow?.visibility, .visible); XCTAssertEqual(saved, registration)
+        XCTAssertEqual(executed.commands.map(\.action), [.observe]); XCTAssertEqual(sources, [frozen.sourceID])
+    }
+
     func testEdgeProgressCannotPromoteOldRegistrationOrBuiltInOriginOrZeroStartingValue() async throws {
         let root = try directory(); defer { try? FileManager.default.removeItem(at: root) }
         let store = try QueueStore(databaseURL: root.appendingPathComponent("queue.sqlite"))
-        for scenario in ["old-v18", "old-v19", "old-v20", "v19-new-route", "ordinary-draft", "built-in", "zero", "old-provenance"] {
-            let historical = ["old-v18", "old-v19", "old-v20", "v19-new-route"].contains(scenario)
+        for scenario in ["old-v18", "old-v19", "old-v20", "old-v21", "v19-new-route", "ordinary-draft", "built-in", "zero", "old-provenance"] {
+            let historical = ["old-v18", "old-v19", "old-v20", "old-v21", "v19-new-route"].contains(scenario)
             let (request, _, _) = try await prepare(root: root, store: store, gray: 0.2,
                 origin: scenario == "built-in" ? .applicationScreenshot : .systemScreenshot,
                 route: ["old-v18", "old-v19", "ordinary-draft"].contains(scenario) ? nil : .chatGPTTemporaryHome)
             let bridge = EdgeInputBridge(state: .uploadStarted, signal: .correlatedProgress,
                 previousProgress: scenario == "zero" ? 0 : 4,
-                provenanceID: scenario == "old-provenance" ? "click-document-witness-20261117-v20" : "click-document-witness-20261117-v21")
+                provenanceID: scenario == "old-provenance" ? "click-document-witness-20261117-v21" : "click-document-witness-20261117-v22")
             let client = try adapter(root: root, store: store, bridge: bridge)
             if historical {
-                let op = request.operation
-                let identity = ObservationIdentity(operationID: op.id, assetID: request.asset.id,
-                    attempt: op.attempt, assetSHA256: request.asset.sha256, target: op.target)
-                let old = scenario == "old-v20" ? OrdinaryProductScreenshotScope.edgeProgressProfile : OrdinaryProductScreenshotScope.admittedSystemProfile
+                let old = ["old-v20", "old-v21"].contains(scenario) ? OrdinaryProductScreenshotScope.edgeProgressProfile : OrdinaryProductScreenshotScope.admittedSystemProfile
                 let source: String
                 switch scenario {
                 case "old-v18": source = ChatGPTWebPageProgram.priorClickSource
                 case "old-v20": source = ChatGPTWebPageProgram.priorProgressSource
+                case "old-v21": source = ChatGPTWebPageProgram.priorLabelSource
                 default: source = ChatGPTWebPageProgram.priorOriginSource
                 }
-                let registration: [String: Any] = ["version": 2, "sourceID": source,
-                    "startProfileID": try XCTUnwrap(old.uploadStartProfileID), "completionProfileID": old.profileID,
-                    "enrollmentID": UUID().uuidString, "assetOrigin": AssetOrigin.systemScreenshot.rawValue,
-                    "identity": try JSONSerialization.jsonObject(with: JSONEncoder().encode(identity))]
-                let bytes = try JSONSerialization.data(withJSONObject: registration, options: [.sortedKeys])
-                for scope in [SystemScreenshotAdmissionScope.candidate, .productSystem] {
-                    _ = try await store.claimDispatchCheckpoint(bytes, for: SystemScreenshotCandidateAdmission.checkpointKey(for: request, scope: scope),
-                        operation: op, asset: request.asset)
-                }
-                try await store.markUnknown(op.id, reason: "original old input permanently uncertain")
+                _ = try await seedEdgeRegistration(request, profile: old, source: source, store: store)
+                try await store.markUnknown(request.operation.id, reason: "original old input permanently uncertain")
             }
             do {
                 if historical { _ = try await client.reconcile(refreshed(request, store: store)) }
@@ -275,13 +317,14 @@ private actor EdgeInputBridge: WebBridgeExecutor {
     private var state: AttachmentObservedState
     private var loseCommitReply: Bool
     private var commands: [WebBridgeCommand] = []
+    private(set) var programIDs: [String] = []
     private var bytes: [UUID: Data] = [:]
     private let signal: UploadStartSignal
     private let previousProgress: Double
     private let provenanceID: String
     init(state: AttachmentObservedState = .inputTriggered, loseCommitReply: Bool = false,
          signal: UploadStartSignal = .attachmentAccepted, previousProgress: Double = 4,
-         provenanceID: String = "click-document-witness-20261117-v21") {
+         provenanceID: String = "click-document-witness-20261117-v22") {
         self.state = state; self.loseCommitReply = loseCommitReply; self.signal = signal
         self.previousProgress = previousProgress; self.provenanceID = provenanceID
     }
@@ -289,7 +332,7 @@ private actor EdgeInputBridge: WebBridgeExecutor {
     func records() -> (commands: [WebBridgeCommand], bytes: [UUID: Data]) { (commands, bytes) }
 
     func execute(_ command: WebBridgeCommand, program: WebPageProgram) async throws -> Data {
-        commands.append(command)
+        commands.append(command); programIDs.append(program.sourceID)
         let identity = try XCTUnwrap(command.identity)
         switch command.action {
         case .begin, .chunk:

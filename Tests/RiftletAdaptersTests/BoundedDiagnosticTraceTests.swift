@@ -87,6 +87,23 @@ final class BoundedDiagnosticTraceTests: XCTestCase {
         XCTAssertEqual(try Data(contentsOf: directory), Data("not a directory".utf8))
     }
 
+    func testEdgeProgressDecisionsSurviveTheFinalJSONLFilterOnlyAsKnownStrings() throws {
+        let trace = BoundedDiagnosticTrace(enabled: true, directory: directory, emitStandardError: false)
+        let inputs: [Any] = ["fileBlobMissing", "conflictingFileLabel", "started", "private-page-label", 42]
+        for value in inputs {
+            trace.record(["event": "attachment_entry_result", "edgeProgressDecision": value], critical: true)
+        }
+        trace.flushForTesting()
+        for name in ["acceptance-recent.jsonl", "acceptance-failures.jsonl"] {
+            let saved = try rows(name)
+            XCTAssertEqual(saved.count, inputs.count)
+            XCTAssertEqual(saved.compactMap { $0["edgeProgressDecision"] as? String },
+                           ["fileBlobMissing", "conflictingFileLabel", "started"])
+            XCTAssertNil(saved[3]["edgeProgressDecision"])
+            XCTAssertNil(saved[4]["edgeProgressDecision"])
+        }
+    }
+
     func testHostClickErrorsRetainOnlyClosedReasons() {
         let errors: [(Error, String)] = [(RiftletError.database("private SQL"), "database"),
             (RiftletError.adapterUnavailable("private page"), "adapterUnavailable"),
