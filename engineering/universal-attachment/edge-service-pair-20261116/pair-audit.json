@@ -1,0 +1,489 @@
+{
+  "runtime": {
+    "source": "285389696de110f076ba60d2e8a1a6fbe98c6b3e",
+    "admittedHead": "932f278f3412fd3158f01907a5a484ac9c235fa2",
+    "appExecutableSHA256": "39b9cd983441533a75a171fe56432de903a9c16e93cd4d367577cc4fd9aaa894",
+    "edgeExecutableSHA256": "39253ce4e2b5243b02385299a6211af56ca6f1e70b986177e0a01d3879b5efef"
+  },
+  "diagnosticSessionDigest": "000c164e42aebaa02e1ff816362417f008f4335eb1d2a59bc1fd2327f3179d97",
+  "browserWindow": 304,
+  "rapidAttempt": {
+    "senderLaunchIntervalMS": 271.363,
+    "exitCodes": [
+      78,
+      1
+    ],
+    "secondSender": {
+      "status": "STOP",
+      "reason": "unexpectedMapAssets"
+    },
+    "secondNativeSelectionsInRapidWindow": 0,
+    "retryCount": 0
+  },
+  "acceptedMouseDownEventIntervalSeconds": 439.076119667,
+  "acceptedSelectionCallbackIntervalSeconds": 439.100242583,
+  "images": [
+    {
+      "seed": 605,
+      "assetDigest": "69a1613c832a8541f7949b989f7146c3f1a348d7eb1b0a4f27f281b7a6a800d9",
+      "operationDigest": "42757826432694954c594df4941870ee7737caf43dcf93e030a12189309a4cc6",
+      "traceSeq": [
+        32375,
+        32724
+      ],
+      "selectionDigest": "c8c60fe88abd9308ce67fff355e1f81a0e6493ae7e1844b9a57355524d998b11",
+      "mouseDownUptime": 18955.304346833,
+      "approxMouseDownUTCFromLauncherClockPair": "2026-11-16T13:07:19.017+00:00",
+      "nativeCallbackUptime": 18955.38241275,
+      "nativeReceipt": "EXACT_NATIVE_MOUSE_SELECTION_RECEIPT",
+      "receiptIdentity": {
+        "windowNumber": 4067,
+        "eventNumber": 17557,
+        "mouseProbeTag": 10093232993133,
+        "afterDiagnosticSequence": 32376
+      },
+      "nativeOrderedTaggedRows": 10,
+      "senderPassiveResult": {
+        "status": "UNKNOWN_DO_NOT_REPOST",
+        "observationSeconds": 5.0168013333350245,
+        "nativeReceiptComplete": true,
+        "terminalObservationAvailable": false
+      },
+      "clickPinMilliseconds": {
+        "nativeIdentityMS": 35.81533333272091,
+        "documentPinMS": 20.818208333366783,
+        "selectionRecheckMS": 11.66416666819714,
+        "elapsedMS": 68.33608333181473
+      },
+      "webCommandsWithinUniqueSubmission": {
+        "begin": {
+          "count": 1,
+          "firstSeq": 32401,
+          "lastSeq": 32401
+        },
+        "captureTarget": {
+          "count": 1,
+          "firstSeq": 32393,
+          "lastSeq": 32393
+        },
+        "chunk": {
+          "count": 18,
+          "firstSeq": 32402,
+          "lastSeq": 32445
+        },
+        "commit": {
+          "count": 1,
+          "firstSeq": 32446,
+          "lastSeq": 32446
+        },
+        "validate": {
+          "count": 1,
+          "firstSeq": 32398,
+          "lastSeq": 32398
+        }
+      },
+      "milestones": {
+        "mouseDown": {
+          "seq": 32377,
+          "afterMouseDownMS": 0.0
+        },
+        "targetRequested": {
+          "seq": 32383,
+          "afterMouseDownMS": 77.976
+        },
+        "selectionCallback": {
+          "seq": 32384,
+          "afterMouseDownMS": 78.066
+        },
+        "selectionEnqueued": {
+          "seq": 32389,
+          "afterMouseDownMS": 80.951
+        },
+        "submissionStarted": {
+          "seq": 32390,
+          "afterMouseDownMS": 81.272
+        },
+        "targetResolved": {
+          "seq": 32395,
+          "afterMouseDownMS": 496.388
+        },
+        "transferringVisibleUpperBound": {
+          "seq": 32397,
+          "afterMouseDownMS": 498.247
+        },
+        "inputTransportFinished": {
+          "seq": 32447,
+          "afterMouseDownMS": 5187.723
+        },
+        "firstSetterAndChangeObserved": {
+          "seq": 32448,
+          "afterMouseDownMS": 5190.037
+        },
+        "firstLoadedPreviewObserved": {
+          "seq": 32452,
+          "afterMouseDownMS": 5482.502
+        },
+        "firstQuantifiedProgressObserved": {
+          "seq": 32474,
+          "afterMouseDownMS": 8380.072
+        },
+        "lastQuantifiedProgressInOwnWindow": {
+          "seq": 32553,
+          "afterMouseDownMS": 15048.009
+        },
+        "unknownVisibleUpperBound": {
+          "seq": 32554,
+          "afterMouseDownMS": 15195.246
+        }
+      },
+      "uniqueInitialOperationSamples": 35,
+      "baselineAttachmentNodesRetained": 6,
+      "boundedSamplesAllMatchDraftTextAndComparableSelection": true,
+      "firstLoadedSample": 2,
+      "minimumMatchedNodeCounts": {
+        "edgeNewMatchedNodes": 3,
+        "edgeMatchedOriginalFormNodes": 3,
+        "edgeFilenameMatchedNodes": 3,
+        "edgeBlobMatchedNodes": 1
+      },
+      "knownProgress": {
+        "samples": 24,
+        "firstSample": 12,
+        "unknownValueSamples": 11,
+        "minimum": 2,
+        "maximum": 26
+      },
+      "positiveSampleCounts": {
+        "startObserved": 0,
+        "edgeReadyAttributeNodes": 0,
+        "edgeErrorAttributeNodes": 0,
+        "entryActivations": 0,
+        "menuActivations": 0,
+        "pickerClicks": 0,
+        "pickerShows": 0
+      },
+      "retainedPresentationOrReadyEvents": 0
+    },
+    {
+      "seed": 606,
+      "assetDigest": "229ef056ba1a45fd3f54a44a626e1d5c664df677c157893bcdecf8c1ed8253a2",
+      "operationDigest": "680c6903664ca8baf633f71f51d69e74c016232a0e067d0e7c822801c713909f",
+      "traceSeq": [
+        35055,
+        35346
+      ],
+      "selectionDigest": "e8c52dc87ce0b7bef1e1fa81e7cf56f26b68c8b418d1664c9192a52336c5b61c",
+      "mouseDownUptime": 19394.3804665,
+      "approxMouseDownUTCFromLauncherClockPair": "2026-11-16T13:14:38.093+00:00",
+      "nativeCallbackUptime": 19394.482655333333,
+      "nativeReceipt": "EXACT_NATIVE_MOUSE_SELECTION_RECEIPT",
+      "receiptIdentity": {
+        "windowNumber": 4070,
+        "eventNumber": 3827,
+        "mouseProbeTag": 166437091970558,
+        "afterDiagnosticSequence": 35054
+      },
+      "nativeOrderedTaggedRows": 10,
+      "senderPassiveResult": {
+        "status": "NATIVE_AND_ORIGINAL_ENTRY_OBSERVED",
+        "observationSeconds": 4.900030416665686,
+        "nativeReceiptComplete": true,
+        "terminalObservationAvailable": true
+      },
+      "clickPinMilliseconds": {
+        "nativeIdentityMS": 60.44491666762042,
+        "documentPinMS": 18.885624998802086,
+        "selectionRecheckMS": 13.578791669715429,
+        "elapsedMS": 92.94158333432279
+      },
+      "webCommandsWithinUniqueSubmission": {
+        "begin": {
+          "count": 1,
+          "firstSeq": 35079,
+          "lastSeq": 35079
+        },
+        "captureTarget": {
+          "count": 1,
+          "firstSeq": 35073,
+          "lastSeq": 35073
+        },
+        "chunk": {
+          "count": 18,
+          "firstSeq": 35082,
+          "lastSeq": 35121
+        },
+        "commit": {
+          "count": 1,
+          "firstSeq": 35124,
+          "lastSeq": 35124
+        },
+        "validate": {
+          "count": 1,
+          "firstSeq": 35076,
+          "lastSeq": 35076
+        }
+      },
+      "milestones": {
+        "mouseDown": {
+          "seq": 35055,
+          "afterMouseDownMS": 0.0
+        },
+        "targetRequested": {
+          "seq": 35062,
+          "afterMouseDownMS": 102.104
+        },
+        "selectionCallback": {
+          "seq": 35063,
+          "afterMouseDownMS": 102.189
+        },
+        "selectionEnqueued": {
+          "seq": 35068,
+          "afterMouseDownMS": 104.664
+        },
+        "submissionStarted": {
+          "seq": 35069,
+          "afterMouseDownMS": 104.831
+        },
+        "targetResolved": {
+          "seq": 35074,
+          "afterMouseDownMS": 503.042
+        },
+        "transferringVisibleUpperBound": {
+          "seq": 35075,
+          "afterMouseDownMS": 504.515
+        },
+        "inputTransportFinished": {
+          "seq": 35125,
+          "afterMouseDownMS": 4876.673
+        },
+        "firstSetterAndChangeObserved": {
+          "seq": 35126,
+          "afterMouseDownMS": 4878.323
+        },
+        "firstLoadedPreviewObserved": {
+          "seq": 35133,
+          "afterMouseDownMS": 5155.364
+        },
+        "firstQuantifiedProgressObserved": {
+          "seq": 35153,
+          "afterMouseDownMS": 6596.094
+        },
+        "lastQuantifiedProgressInOwnWindow": {
+          "seq": 35269,
+          "afterMouseDownMS": 14811.183
+        },
+        "unknownVisibleUpperBound": {
+          "seq": 35270,
+          "afterMouseDownMS": 14878.871
+        }
+      },
+      "uniqueInitialOperationSamples": 36,
+      "baselineAttachmentNodesRetained": 8,
+      "boundedSamplesAllMatchDraftTextAndComparableSelection": true,
+      "firstLoadedSample": 2,
+      "minimumMatchedNodeCounts": {
+        "edgeNewMatchedNodes": 3,
+        "edgeMatchedOriginalFormNodes": 3,
+        "edgeFilenameMatchedNodes": 3,
+        "edgeBlobMatchedNodes": 1
+      },
+      "knownProgress": {
+        "samples": 30,
+        "firstSample": 7,
+        "unknownValueSamples": 6,
+        "minimum": 3,
+        "maximum": 94
+      },
+      "positiveSampleCounts": {
+        "startObserved": 0,
+        "edgeReadyAttributeNodes": 0,
+        "edgeErrorAttributeNodes": 0,
+        "entryActivations": 0,
+        "menuActivations": 0,
+        "pickerClicks": 0,
+        "pickerShows": 0
+      },
+      "retainedPresentationOrReadyEvents": 0
+    }
+  ],
+  "durableState": {
+    "observedAtUTC": "2026-11-16T18:21:51.711713+00:00",
+    "images": {
+      "605": {
+        "sequence": 10,
+        "status": "unknown",
+        "visibility": "visible",
+        "visibility_revision": 0,
+        "visibility_reason": "capture",
+        "origin": "systemScreenshot",
+        "bytes": 4514903,
+        "assetDigest": "69a1613c832a8541f7949b989f7146c3f1a348d7eb1b0a4f27f281b7a6a800d9",
+        "pngSHA256": "d172158b5725f6a1df58a840d594f58fb10fa25c0cbd606a81127824e715f691",
+        "operationCount": 1,
+        "operationDigest": "42757826432694954c594df4941870ee7737caf43dcf93e030a12189309a4cc6",
+        "operationSequence": 4,
+        "operationPhase": "unknown",
+        "attempt": 1,
+        "reason": "observer-v2:inputTriggered:integratedDevelopment",
+        "dispatchExclusive": 0,
+        "uploadStartRows": 0,
+        "operationCreatedAtUTC": "2026-11-16T13:07:19.514993+00:00",
+        "clickBindingDigest": "02e0b04f2bba61778ecc6b05f77fae973dc3f749972dbe3956e7d41c713b3cb9",
+        "commonTargetFields": [
+          "adapterID",
+          "applicationID",
+          "composerID",
+          "documentID",
+          "draftGeneration",
+          "sessionID",
+          "surface",
+          "tabID",
+          "windowID"
+        ],
+        "commonTargetDigest": "a214c69bbd978d4fccb5039a091b398fcd2d123604900c8068b4471f1d87be2d"
+      },
+      "606": {
+        "sequence": 11,
+        "status": "unknown",
+        "visibility": "visible",
+        "visibility_revision": 0,
+        "visibility_reason": "capture",
+        "origin": "systemScreenshot",
+        "bytes": 4512373,
+        "assetDigest": "229ef056ba1a45fd3f54a44a626e1d5c664df677c157893bcdecf8c1ed8253a2",
+        "pngSHA256": "6b363c8891603ce479e98055c71f3e40d797f024d09166687c6d818122a16306",
+        "operationCount": 1,
+        "operationDigest": "680c6903664ca8baf633f71f51d69e74c016232a0e067d0e7c822801c713909f",
+        "operationSequence": 5,
+        "operationPhase": "unknown",
+        "attempt": 1,
+        "reason": "observer-v2:inputTriggered:integratedDevelopment",
+        "dispatchExclusive": 0,
+        "uploadStartRows": 0,
+        "operationCreatedAtUTC": "2026-11-16T13:14:38.601559+00:00",
+        "clickBindingDigest": "a09b9c9161664fb539c21e31f47ad6a9318232dec0182104632f76bff52cc64e",
+        "commonTargetFields": [
+          "adapterID",
+          "applicationID",
+          "composerID",
+          "documentID",
+          "draftGeneration",
+          "sessionID",
+          "surface",
+          "tabID",
+          "windowID"
+        ],
+        "commonTargetDigest": "a214c69bbd978d4fccb5039a091b398fcd2d123604900c8068b4471f1d87be2d"
+      },
+      "604": {
+        "sequence": 9,
+        "status": "pending",
+        "visibility": "visible",
+        "visibility_revision": 0,
+        "visibility_reason": "capture",
+        "origin": "systemScreenshot",
+        "bytes": 4515869,
+        "assetDigest": "0d9ccc654188e0c9023069a49a44c8b757fe7a69fb46e90701370e21e7f57fbb",
+        "pngSHA256": "482b0bef99b94b3178b26a1c105ce0f79e22d73db0a87fd1f2f202737c275f9a",
+        "operationCount": 0
+      }
+    },
+    "priorOperationIdentityAssetAttemptPhaseExclusivityAndTargetMatchCount": 3
+  },
+  "targetFieldsDiffering": [
+    "clickBindingID"
+  ],
+  "axSnapshots": [
+    {
+      "timestamp": "2026-11-16T13:07:18Z",
+      "textSHA256": "d60bcd4299469a1c5c0f8d2c7ed34dfde67d4631f99ff80de5297d3608407b3b",
+      "selectedWords": true,
+      "selectionLength": 14,
+      "editorFocused": false,
+      "priorImageCounts": [
+        1,
+        1,
+        1
+      ],
+      "identifiableTestAttachments": 3,
+      "newOperationImages": [
+        0,
+        0
+      ]
+    },
+    {
+      "timestamp": "2026-11-16T13:14:37Z",
+      "textSHA256": "d60bcd4299469a1c5c0f8d2c7ed34dfde67d4631f99ff80de5297d3608407b3b",
+      "selectedWords": true,
+      "selectionLength": 14,
+      "editorFocused": false,
+      "priorImageCounts": [
+        1,
+        1,
+        1
+      ],
+      "identifiableTestAttachments": 4,
+      "newOperationImages": [
+        1,
+        0
+      ]
+    },
+    {
+      "timestamp": "2026-11-16T13:15:10Z",
+      "textSHA256": "d60bcd4299469a1c5c0f8d2c7ed34dfde67d4631f99ff80de5297d3608407b3b",
+      "selectedWords": true,
+      "selectionLength": 14,
+      "editorFocused": false,
+      "priorImageCounts": [
+        1,
+        1,
+        1
+      ],
+      "identifiableTestAttachments": 5,
+      "newOperationImages": [
+        1,
+        1
+      ]
+    }
+  ],
+  "firstDuringIndependentSecond": {
+    "sampleRange": [
+      411,
+      446
+    ],
+    "count": 36,
+    "allLoadedWithOriginalDraftTextSelection": true,
+    "startRows": 0,
+    "readyHintRows": 0,
+    "knownProgressRows": 0
+  },
+  "unretainedDiagnosticSequenceRange": [
+    32725,
+    35054
+  ],
+  "sourceSHA256": {
+    "audit/durable-state.json": "5d93f567c0f5b4b5056d6a6365d0301de8bb2da9a4c46200dde47b0b7c2adba5",
+    "pr69-network-20261116/606-separate/draft-after.json": "ce31bf617f4604af0d3b3f50239777b3a33cb8757493ed65b7929d6a1df81788",
+    "pr69-network-20261116/606-separate/draft-before.json": "fe63a01342df9e1ecefd2537dca70d4409adc5b2e63a9bde9c4a84af0f186834",
+    "pr69-network-20261116/606-separate/preflight.json": "e15f6c2f3e629d55ba63cb48b1a46d7bc26af8427ac2db3307d4c46f03b93e1d",
+    "pr69-network-20261116/606-separate/raw-events.jsonl": "e2a3d33e7d15059454500a7376d547da64e431d09096927709a572ef03175b5c",
+    "pr69-network-20261116/606-separate/sent.json": "67ca0b4e302922c4249ab6190618e4533c1c4f225d29cb0a7cc70a59587468de",
+    "pr69-network-20261116/NetworkDraft.swift": "8103a4bb8c179c3db328b89c108f28ce7bc206d5d967a21b472f3bcb25ffb11b",
+    "pr69-network-20261116/capture-first.json": "f5a0e4aad6693a0fa6195a48ad59bd847be2e4c7d9a6adbb7e1241d8f3840978",
+    "pr69-network-20261116/capture-second.json": "16d3ae71d89f868196f82ed495f88acbec60fd8b51748008c5ac0eea9eb818f2",
+    "pr69-network-20261116/network-config.json": "854bba1d7ef7286dc58b73a4aeee6328b805577cdd9580dd08802b7595a475a1",
+    "pr69-network-20261116/pair-prepared.json": "00600c016d6dafbda936f4e2943e77f22e1ade0d5624054deb6a4007da0d1ca1",
+    "pr69-network-20261116/preflight-1.json": "0e97174c3a473d1fc1c5fab91da3e7715751a4af9381b4ababd9f59664c0190e",
+    "pr69-network-20261116/preflight-2.json": "34e27c64e5dd98b957cad6506afd51ad342e18af24265598b4766602c3b3bc8e",
+    "pr69-network-20261116/rapid-outcome.json": "1a4cc34a1628454ac3f0eafad6f9a872ff01919000ea9b5287371e4b770a608f",
+    "pr69-network-20261116/rapid-pair.py": "d36ef29c22aadfe3a6e9c330be98b50d6da0d6c67fb7bdab366fe8b0932a1f34",
+    "pr69-network-20261116/raw-events.jsonl": "7e441b991fdbebecceb0d54a14d8c8f196c6d5f9026941bd1a8aaeca5e1abc95",
+    "pr69-network-20261116/remaining-click.py": "d085fb1cc97c0633a9ac953f0e4a956d734565dbcad774e0d7f14bb93bb14f64",
+    "pr69-network-20261116/sent-1.json": "46adbfee0a121f8ecc647b6d5e0ffa5c05315b5d3436ffd16432b9d2d0ba8597",
+    "pr69-network-20261116/sent-2.json": "6256b53a621d316eaef52d10f70d7cff49aca7e2fb6227cc8fde3782b9ec76a0",
+    "pr69-resume-20261116/restore-receipt.json": "a3a4020982fda6b4c75733c80524351a81218ce79080e88bdc3a917392f284df",
+    "pr69-runtime-20261115-restart/native-helper/attempts/rapid-network-01-20261116/229ef056ba1a45fd3f54a44a626e1d5c664df677c157893bcdecf8c1ed8253a2.json": "64798437cfbd644abc71cc5a90b2ff415a49febe1e368dcd42fe0945247dd0a9",
+    "pr69-runtime-20261115-restart/native-helper/attempts/rapid-network-01-20261116/69a1613c832a8541f7949b989f7146c3f1a348d7eb1b0a4f27f281b7a6a800d9.json": "04d7925de769e16c48d613274d97978e81da67184b9abec3b100681e93ca30c5",
+    "pr69-runtime-20261115-restart/native-helper/receipt.py": "74844b1e4028682797f2756743c2dfcc0b85868fff53f47391d3ca525b426196"
+  }
+}

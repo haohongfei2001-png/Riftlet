@@ -1,0 +1,244 @@
+{
+  "harSHA256": "4fddbe800991bb3f68ef632b08085f7175344d0aaca47e8d8bda2e37a0a99372",
+  "harEntries": 498,
+  "appAuditSHA256": "acb512bb1871b3041f6b94c9bd2088786e7402eb28633840409a92c66b4237b4",
+  "appUTCMapping": "SAME_HOST_LAUNCHER_WALL_MONOTONIC_APPROXIMATION",
+  "clockBasis": "APP_SAMPLE_UPTIME_AND_HAR_UTC",
+  "bodySizeBasis": "PUT_REQUEST_CONTENT_LENGTH",
+  "operations": [
+    {
+      "fixture": 605,
+      "operationIDDigest": "42757826432694954c594df4941870ee7737caf43dcf93e030a12189309a4cc6",
+      "create": {
+        "harEntryIndexZeroBased": 158,
+        "method": "POST",
+        "httpStatus": 200,
+        "startUTC": "2026-11-16T13:07:24.278Z",
+        "endUTC": "2026-11-16T13:07:25.227Z",
+        "durationMS": 949.634,
+        "requestFileNameSHA256": "be9886a61741143825d31d55431f8206a67c50c1a4f6d71bc10adfdf6f356e8b",
+        "requestFileNameMatchesOriginalOperation": true,
+        "requestedFileSizeBytes": 4449773,
+        "responseFileIDSHA256": "f832eababfbb5d18c9aef144fbbc73c780ec17b818beec4344ddc05782833113",
+        "queryFreeStorageLocatorSHA256": "edff2bc65b597ef64f998d4a9cd3f012a08d9ac127f690a2da4062ff7b725b6f"
+      },
+      "put": {
+        "harEntryIndexZeroBased": 159,
+        "method": "PUT",
+        "httpStatus": 201,
+        "startUTC": "2026-11-16T13:07:25.231Z",
+        "endUTC": "2026-11-16T13:07:49.988Z",
+        "durationMS": 24757.139,
+        "requestContentLengthBytes": 4449773,
+        "responseETagPresent": true,
+        "requestFileSizeEqualsContentLength": true,
+        "queryFreeStorageLocatorSHA256": "edff2bc65b597ef64f998d4a9cd3f012a08d9ac127f690a2da4062ff7b725b6f",
+        "matchingOPTIONSExcluded": 1,
+        "localHARPhaseMS": {
+          "blocked": 1952.155,
+          "dns": null,
+          "connect": null,
+          "send": 21759.684,
+          "wait": 1044.85,
+          "receive": 0.45
+        },
+        "harSendStartUTC": "2026-11-16T13:07:27.183Z",
+        "harSendEndUTC": "2026-11-16T13:07:48.942Z",
+        "storageResult": "HTTP_201_WITH_ETAG"
+      },
+      "process": {
+        "harEntryIndexZeroBased": 161,
+        "method": "POST",
+        "httpStatus": 200,
+        "startUTC": "2026-11-16T13:07:49.993Z",
+        "endUTC": "2026-11-16T13:07:51.167Z",
+        "durationMS": 1174.744,
+        "requestFileIDSHA256": "f832eababfbb5d18c9aef144fbbc73c780ec17b818beec4344ddc05782833113",
+        "requestFileNameSHA256": "be9886a61741143825d31d55431f8206a67c50c1a4f6d71bc10adfdf6f356e8b",
+        "originalFileIDAndNameMatch": true,
+        "bodyState": "ABSENT_FROM_HAR",
+        "matchedFileEvents": [],
+        "fileTerminalResult": "UNKNOWN"
+      },
+      "alignment": {
+        "operationDigest": "42757826432694954c594df4941870ee7737caf43dcf93e030a12189309a4cc6",
+        "originalPNGBytes": 4514903,
+        "initialSamples": 35,
+        "knownPositiveIntermediateSamples": 24,
+        "withinWholePUT": 24,
+        "withinHARSendPhase": 24,
+        "distinctPositivePercentValues": [
+          2,
+          4,
+          7,
+          10,
+          13,
+          15,
+          19,
+          22,
+          23,
+          25,
+          26
+        ],
+        "firstPositive": {
+          "originalSample": 12,
+          "appUTCApprox": "2026-11-16T13:07:27.397Z",
+          "percent": 2,
+          "sincePutStartMS": 2166.815,
+          "sinceHARSendStartMS": 214.66
+        },
+        "firstAdjacentStrictIncrease": {
+          "originalSample": 15,
+          "appUTCApprox": "2026-11-16T13:07:28.264Z",
+          "percent": 4,
+          "sincePutStartMS": 3033.554,
+          "sinceHARSendStartMS": 1081.399
+        },
+        "lastPositiveInRetainedWindow": {
+          "originalSample": 35,
+          "appUTCApprox": "2026-11-16T13:07:34.065Z",
+          "percent": 26,
+          "sincePutStartMS": 8834.751,
+          "sinceHARSendStartMS": 6882.596
+        },
+        "remainingHARSendAtLastPositiveMS": 14877.088,
+        "positiveProductSTARTRows": 0
+      },
+      "originalPNGMinusRequestSizeBytes": 65130
+    },
+    {
+      "fixture": 606,
+      "operationIDDigest": "680c6903664ca8baf633f71f51d69e74c016232a0e067d0e7c822801c713909f",
+      "create": {
+        "harEntryIndexZeroBased": 170,
+        "method": "POST",
+        "httpStatus": 200,
+        "startUTC": "2026-11-16T13:14:43.041Z",
+        "endUTC": "2026-11-16T13:14:43.577Z",
+        "durationMS": 536.908,
+        "requestFileNameSHA256": "4d22b2c926148a54fa6a78edf63d0b1a988e2ce2f3a03265eda541ecc2d30ca9",
+        "requestFileNameMatchesOriginalOperation": true,
+        "requestedFileSizeBytes": 4449635,
+        "responseFileIDSHA256": "4e8a0824a7cf6c5f328441321217cfd49625d439ebd180ce16d112462fafca2b",
+        "queryFreeStorageLocatorSHA256": "bb9eb04b5a54c7562b65be88fd088a9b8c336fc1a6459ccaed081a81ebaf9af7"
+      },
+      "put": {
+        "harEntryIndexZeroBased": 171,
+        "method": "PUT",
+        "httpStatus": 201,
+        "startUTC": "2026-11-16T13:14:43.580Z",
+        "endUTC": "2026-11-16T13:14:54.004Z",
+        "durationMS": 10424.534,
+        "requestContentLengthBytes": 4449635,
+        "responseETagPresent": true,
+        "requestFileSizeEqualsContentLength": true,
+        "queryFreeStorageLocatorSHA256": "bb9eb04b5a54c7562b65be88fd088a9b8c336fc1a6459ccaed081a81ebaf9af7",
+        "matchingOPTIONSExcluded": 1,
+        "localHARPhaseMS": {
+          "blocked": 772.568,
+          "dns": null,
+          "connect": null,
+          "send": 9175.354,
+          "wait": 476.209,
+          "receive": 0.403
+        },
+        "harSendStartUTC": "2026-11-16T13:14:44.352Z",
+        "harSendEndUTC": "2026-11-16T13:14:53.527Z",
+        "storageResult": "HTTP_201_WITH_ETAG"
+      },
+      "process": {
+        "harEntryIndexZeroBased": 174,
+        "method": "POST",
+        "httpStatus": 200,
+        "startUTC": "2026-11-16T13:14:54.008Z",
+        "endUTC": "2026-11-16T13:14:54.517Z",
+        "durationMS": 509.421,
+        "requestFileIDSHA256": "4e8a0824a7cf6c5f328441321217cfd49625d439ebd180ce16d112462fafca2b",
+        "requestFileNameSHA256": "4d22b2c926148a54fa6a78edf63d0b1a988e2ce2f3a03265eda541ecc2d30ca9",
+        "originalFileIDAndNameMatch": true,
+        "bodyState": "PRESENT_NEWLINE_DELIMITED_JSON",
+        "matchedFileEvents": [
+          {
+            "event": "file.processing.started",
+            "sameFileID": true,
+            "progressPercent": 0.0
+          },
+          {
+            "event": "file.processing.file_ready",
+            "sameFileID": true,
+            "progressPercent": 100.0
+          },
+          {
+            "event": "file.processing.completed",
+            "sameFileID": true,
+            "progressPercent": 100.0
+          }
+        ],
+        "fileTerminalResult": "COMPLETED_FOR_MATCHED_FILE"
+      },
+      "alignment": {
+        "operationDigest": "680c6903664ca8baf633f71f51d69e74c016232a0e067d0e7c822801c713909f",
+        "originalPNGBytes": 4512373,
+        "initialSamples": 36,
+        "knownPositiveIntermediateSamples": 30,
+        "withinWholePUT": 30,
+        "withinHARSendPhase": 30,
+        "distinctPositivePercentValues": [
+          3,
+          7,
+          11,
+          15,
+          18,
+          22,
+          26,
+          30,
+          32,
+          36,
+          40,
+          44,
+          47,
+          50,
+          54,
+          56,
+          61,
+          64,
+          67,
+          69,
+          72,
+          75,
+          79,
+          82,
+          85,
+          88,
+          90,
+          91,
+          94
+        ],
+        "firstPositive": {
+          "originalSample": 7,
+          "appUTCApprox": "2026-11-16T13:14:44.689Z",
+          "percent": 3,
+          "sincePutStartMS": 1109.957,
+          "sinceHARSendStartMS": 337.389
+        },
+        "firstAdjacentStrictIncrease": {
+          "originalSample": 9,
+          "appUTCApprox": "2026-11-16T13:14:45.264Z",
+          "percent": 7,
+          "sincePutStartMS": 1684.801,
+          "sinceHARSendStartMS": 912.233
+        },
+        "lastPositiveInRetainedWindow": {
+          "originalSample": 36,
+          "appUTCApprox": "2026-11-16T13:14:52.905Z",
+          "percent": 94,
+          "sincePutStartMS": 9325.046,
+          "sinceHARSendStartMS": 8552.478
+        },
+        "remainingHARSendAtLastPositiveMS": 622.876,
+        "positiveProductSTARTRows": 0
+      },
+      "originalPNGMinusRequestSizeBytes": 62738
+    }
+  ]
+}

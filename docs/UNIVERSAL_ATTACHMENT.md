@@ -1,5 +1,9 @@
 # 无扩展附件引擎 · 首轮工程交接
 
+**2026-11-17 实测更新。** 605 和 606 均经普通 App 的单次微图点击进入同一临时草稿。两笔存储写入都返回 HTTP 201，并独立关联原操作的文件名、服务文件身份与内容长度。606 的原服务响应明确记录 `file.processing.completed`。605 的最终处理响应正文缺失，终态仍为 UNKNOWN。被测包自身记录的 START 和完成均为 0。原正文、14 字符选区、已有三图和两张新增图片均保留，实际点击相隔 439.076 秒。[分项证据](../engineering/universal-attachment/edge-service-pair-20261116/README.md) · [矩阵](../engineering/universal-attachment/live-matrix.json)
+
+## 602 与 603 的较早双图实测
+
 2026-11-16，**普通 Riftlet App 的两次微图点击已把两张不同的系统截图输入同一个隔离 Edge × ChatGPT Temporary 草稿。** 每张截图各有 10 条匹配回执和一次文件输入。两次绑定的进程、窗口、标签、文档、编辑器及草稿均一致，间隔 85.677551 秒。03:39:34Z 的延迟 AX 读回确认原正文、14 字符选区、原附件、首图、第二图全部保留，三张对应图片各 1 个。此次运行使用 G `28538969` 的普通签名包，准入 H `932f278f`。[两图原件及独审](../engineering/universal-attachment/edge-temporary-pair-20261116/README.md)
 
 每张图都出现了归属于原操作的中间进度，首图有 35 个样本覆盖 2%–95%，第二图有 24 个样本覆盖 2%–96%。产品记录中真实 START 为 0，两个操作最终仍为 UNKNOWN。快速连续场景仍待运行。前一天普通草稿配额弹窗后选区变为 0 的失败仍单独保留。PR #69 继续为 Draft。[上传观察和原操作](../engineering/universal-attachment/edge-temporary-pair-20261116/independent-audit.json) · [普通草稿失败](../engineering/universal-attachment/edge-first-input-20261115/README.md)
