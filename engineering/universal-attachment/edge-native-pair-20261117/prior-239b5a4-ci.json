@@ -1,0 +1,459 @@
+{
+  "reviewer": "independent_checkpoint_5bd",
+  "scope": "Separate non-author audit of H3 admission-only child, actual GitHub PR test merge, and CI for this source. The later Edge START code is outside H3.",
+  "repository": "haohongfei2001-png/Riftlet",
+  "pullRequest": 69,
+  "base": "3f8149e2313fd81bbaee5a7bbbdbb1efca2fc81b",
+  "reviewedSource": "07a43184cec51ab4de121d00e52877559432479d",
+  "reviewedSourceTree": "a4af9709ba94d01a54eb35c3db6a36bf66bf86e6",
+  "admissionHead": "239b5a4645a52fc86eeb89c5e9b3bb6b2e8615da",
+  "admissionHeadTree": "518299cb177c162ffbd89762669b1c0612e8e6e0",
+  "testedMerge": "58e8babb41eb6cf84c8624ff08768db374a835ed",
+  "testedMergeTree": "518299cb177c162ffbd89762669b1c0612e8e6e0",
+  "orderedMergeParents": [
+    "3f8149e2313fd81bbaee5a7bbbdbb1efca2fc81b",
+    "239b5a4645a52fc86eeb89c5e9b3bb6b2e8615da"
+  ],
+  "admissionOnly": {
+    "soleParent": "07a43184cec51ab4de121d00e52877559432479d",
+    "path": "engineering/mainline/source-admission.json",
+    "modeBeforeAndAfter": "100644",
+    "sourceReviewer": "independent_checkpoint_5bd",
+    "author": "universal_attachment_integrator",
+    "sourceReportBytes": 8482,
+    "sourceReportSHA256": "7593cab5aa6620444e00b171a491aa0e9fe7deb5aa65d3a34a119ff788a78a1f",
+    "sameProductionAdmissionAsBase": true,
+    "allOtherSourceBytesAndModesMatch": true,
+    "localGovernancePassChecks": 59,
+    "localGovernanceReportSHA256": "edf3fa2e6b46d189d2691358070d6fe924b7bda375bc6eb4d56a164ed20c99ef"
+  },
+  "mergeAuthentication": {
+    "ghGitCommitAPI": {
+      "head": "H-api.json",
+      "merge": "merge-api.json"
+    },
+    "rawCommitFromIsolatedRefFreeFetch": "tested-merge.raw-commit",
+    "rawCommitContentSHA256": "640908d5028348c03ffe128e1e32886121698753eed72f02af64e48454b811b0",
+    "locallyRecomputedGitObjectSHA1": "58e8babb41eb6cf84c8624ff08768db374a835ed"
+  },
+  "result": "REQUIRED_CI_NOT_ALL_SUCCESS",
+  "runs": [
+    {
+      "id": 43936282790,
+      "name": "Native foundation",
+      "event": "pull_request",
+      "head_sha": "239b5a4645a52fc86eeb89c5e9b3bb6b2e8615da",
+      "run_attempt": 1,
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43936282790",
+      "created_at": "2026-11-16T19:08:59Z",
+      "updated_at": "2026-11-16T19:34:27Z",
+      "run_started_at": "2026-11-16T19:08:59Z"
+    },
+    {
+      "id": 43936282795,
+      "name": "Feedback v0.1",
+      "event": "pull_request",
+      "head_sha": "239b5a4645a52fc86eeb89c5e9b3bb6b2e8615da",
+      "run_attempt": 1,
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43936282795",
+      "created_at": "2026-11-16T19:08:59Z",
+      "updated_at": "2026-11-16T19:24:04Z",
+      "run_started_at": "2026-11-16T19:08:59Z"
+    },
+    {
+      "id": 43936282795,
+      "name": "Feedback v0.1",
+      "event": "pull_request",
+      "head_sha": "239b5a4645a52fc86eeb89c5e9b3bb6b2e8615da",
+      "run_attempt": 2,
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43936282795",
+      "created_at": "2026-11-16T19:28:04Z",
+      "updated_at": "2026-11-16T19:43:08Z",
+      "run_started_at": "2026-11-16T19:28:02Z"
+    }
+  ],
+  "latestJobs": [
+    {
+      "id": 133541609196,
+      "name": "Native ARM64",
+      "run_id": 43936282790,
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43936282790/job/133541609196",
+      "started_at": "2026-11-16T19:14:03Z",
+      "completed_at": "2026-11-16T19:26:51Z",
+      "runner_name": "GitHub Actions 1000060281",
+      "skippedSteps": [
+        "Verify isolated arrival delta and report native motion outcomes"
+      ],
+      "failedSteps": [],
+      "log": {
+        "file": "job-133541609196.log",
+        "bytes": 1225536,
+        "sha256": "505536fed3c51f3d20536023f76d11057087a4f739ece3dab651ad382873ac5c"
+      },
+      "checkedOutMergeLogLine": 234,
+      "testedMergeCheckout": {
+        "line": 234,
+        "text": "2026-11-16T19:14:10.9830190Z 58e8babb41eb6cf84c8624ff08768db374a835ed"
+      },
+      "nativeTests": {
+        "partition": {
+          "result": "PASS",
+          "discovered": 1475,
+          "parallel": 1453,
+          "serial": 22,
+          "serialOutcomes": {
+            "passed": 22
+          }
+        },
+        "partitionStartLogLine": 8901,
+        "independentlyCountedParallelExecutionRows": 1453,
+        "independentlyCountedUniqueParallelMethods": 1453,
+        "independentlyCountedSerialPassingCaseRows": 22,
+        "swiftResultBasis": "Each parallel method appears in a real Testing row. The native XCTest step succeeded and its disjoint inventory succeeded. SwiftPM did not emit individual passed text for those parallel methods.",
+        "originAndRecoveryTests": {
+          "EdgeAppleEventsExecutorTests/testChatGPTOriginIsCheckedBeforeAnyEdgePageExecution": {
+            "line": 7669,
+            "text": "2026-11-16T19:17:39.9617530Z [284/1453] Testing RiftletAdaptersTests.EdgeAppleEventsExecutorTests/testChatGPTOriginIsCheckedBeforeAnyEdgePageExecution"
+          },
+          "EdgeAppleEventsExecutorTests/testRestartReadsH2EdgeWithFrozenProgramAndNoNewClickOrBootstrap": {
+            "line": 7679,
+            "text": "2026-11-16T19:17:40.2593210Z [294/1453] Testing RiftletAdaptersTests.EdgeAppleEventsExecutorTests/testRestartReadsH2EdgeWithFrozenProgramAndNoNewClickOrBootstrap"
+          },
+          "MainWorldCommandRelayTests/testOriginalObservationFindsBothV17BuildsAndH2V18ByExactFunctionAndLease": {
+            "line": 8111,
+            "text": "2026-11-16T19:18:05.4749210Z [726/1453] Testing RiftletAdaptersTests.MainWorldCommandRelayTests/testOriginalObservationFindsBothV17BuildsAndH2V18ByExactFunctionAndLease"
+          },
+          "MainWorldCommandRelayTests/testHistoricalObservationAmbiguityAbsenceAndDifferentLeaseNeverInstallOrDispatch": {
+            "line": 8105,
+            "text": "2026-11-16T19:18:05.3493060Z [720/1453] Testing RiftletAdaptersTests.MainWorldCommandRelayTests/testHistoricalObservationAmbiguityAbsenceAndDifferentLeaseNeverInstallOrDispatch"
+          },
+          "ProductScreenshotScopeTests/testOlderFencedRowsAndFirstJournalEntriesSurviveV19ReadOnlyReconciliation": {
+            "line": 8214,
+            "text": "2026-11-16T19:18:09.7814910Z [829/1453] Testing RiftletAdaptersTests.ProductScreenshotScopeTests/testOlderFencedRowsAndFirstJournalEntriesSurviveV19ReadOnlyReconciliation"
+          }
+        },
+        "conditionalXCTestSkipsObservedInDetailedLogs": [
+          {
+            "line": 10475,
+            "text": "2026-11-16T19:21:35.0543370Z Test Case '-[RiftletUITests.HistoryDisplayStyleTests testCachedGridTextAndBorderResolveActualHighContrastWithinItsAppearance]' skipped (0.001 seconds)."
+          },
+          {
+            "line": 10923,
+            "text": "2026-11-16T19:25:45.8799970Z Test Case '-[RiftletUITests.SettingsNativeStyleTests testSameCachedColorsResolveNativeLightAndDarkWithoutChangingV2Tokens]' skipped (0.003 seconds)."
+          }
+        ]
+      },
+      "integratedNodeProgram": {
+        "summary": {
+          "tests": 160,
+          "pass": 160,
+          "fail": 0,
+          "skipped": 0
+        },
+        "originTest": {
+          "line": 1286,
+          "text": "2026-11-16T19:15:03.9813540Z ok 146 - both hosts require a credential-free HTTPS ChatGPT origin at capture and delivery"
+        }
+      },
+      "controlledEdgeProbe": {
+        "line": 10742,
+        "result": "NOT_RUN_SYSTEM_AUTOMATION_CONSENT",
+        "stage": "original_mouse_thumbnail_1",
+        "commercialService": "NOT_RUN",
+        "fixtureFileChanges": 0,
+        "operations": 0,
+        "starts": 0,
+        "automationConsent": "ORIGINAL_EDGE_FOCUS_UNAVAILABLE_DURING_CONSENT",
+        "physicalClicks": false
+      }
+    },
+    {
+      "id": 133541609648,
+      "name": "Native source admission",
+      "run_id": 43936282790,
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43936282790/job/133541609648",
+      "started_at": "2026-11-16T19:09:03Z",
+      "completed_at": "2026-11-16T19:09:45Z",
+      "runner_name": "GitHub Actions 1000060280",
+      "skippedSteps": [],
+      "failedSteps": [],
+      "log": {
+        "file": "job-133541609648.log",
+        "bytes": 5207981,
+        "sha256": "65f6405acf4be935a33b98b88bb20b2c14a307474231dc9e8625f4b490b546dc"
+      },
+      "checkedOutMergeLogLine": 250
+    },
+    {
+      "id": 133541609732,
+      "name": "Native Intel",
+      "run_id": 43936282790,
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43936282790/job/133541609732",
+      "started_at": "2026-11-16T19:09:04Z",
+      "completed_at": "2026-11-16T19:34:26Z",
+      "runner_name": "GitHub Actions 1000060279",
+      "skippedSteps": [
+        "Verify isolated arrival delta and report native motion outcomes",
+        "Check two ordinary Riftlet actions with an isolated Edge window",
+        "Exercise extension-free attachment candidates with isolated drafts"
+      ],
+      "failedSteps": [],
+      "log": {
+        "file": "job-133541609732.log",
+        "bytes": 1146531,
+        "sha256": "3c86e9fa20a182d10845ffe0605b92977c92a4366642370d52515bc5b80ed9a0"
+      },
+      "checkedOutMergeLogLine": 291,
+      "testedMergeCheckout": {
+        "line": 291,
+        "text": "2026-11-16T19:09:22.8604470Z 58e8babb41eb6cf84c8624ff08768db374a835ed"
+      },
+      "nativeTests": {
+        "partition": {
+          "result": "PASS",
+          "discovered": 1475,
+          "parallel": 1453,
+          "serial": 22,
+          "serialOutcomes": {
+            "passed": 22
+          }
+        },
+        "partitionStartLogLine": 8404,
+        "independentlyCountedParallelExecutionRows": 1453,
+        "independentlyCountedUniqueParallelMethods": 1453,
+        "independentlyCountedSerialPassingCaseRows": 22,
+        "swiftResultBasis": "Each parallel method appears in a real Testing row. The native XCTest step succeeded and its disjoint inventory succeeded. SwiftPM did not emit individual passed text for those parallel methods.",
+        "originAndRecoveryTests": {
+          "EdgeAppleEventsExecutorTests/testChatGPTOriginIsCheckedBeforeAnyEdgePageExecution": {
+            "line": 7171,
+            "text": "2026-11-16T19:18:31.3967900Z [283/1453] Testing RiftletAdaptersTests.EdgeAppleEventsExecutorTests/testChatGPTOriginIsCheckedBeforeAnyEdgePageExecution"
+          },
+          "EdgeAppleEventsExecutorTests/testRestartReadsH2EdgeWithFrozenProgramAndNoNewClickOrBootstrap": {
+            "line": 7182,
+            "text": "2026-11-16T19:18:31.9161040Z [294/1453] Testing RiftletAdaptersTests.EdgeAppleEventsExecutorTests/testRestartReadsH2EdgeWithFrozenProgramAndNoNewClickOrBootstrap"
+          },
+          "MainWorldCommandRelayTests/testOriginalObservationFindsBothV17BuildsAndH2V18ByExactFunctionAndLease": {
+            "line": 7618,
+            "text": "2026-11-16T19:19:13.3341880Z [730/1453] Testing RiftletAdaptersTests.MainWorldCommandRelayTests/testOriginalObservationFindsBothV17BuildsAndH2V18ByExactFunctionAndLease"
+          },
+          "MainWorldCommandRelayTests/testHistoricalObservationAmbiguityAbsenceAndDifferentLeaseNeverInstallOrDispatch": {
+            "line": 7607,
+            "text": "2026-11-16T19:19:12.5783860Z [719/1453] Testing RiftletAdaptersTests.MainWorldCommandRelayTests/testHistoricalObservationAmbiguityAbsenceAndDifferentLeaseNeverInstallOrDispatch"
+          },
+          "ProductScreenshotScopeTests/testOlderFencedRowsAndFirstJournalEntriesSurviveV19ReadOnlyReconciliation": {
+            "line": 7752,
+            "text": "2026-11-16T19:19:22.0630830Z [864/1453] Testing RiftletAdaptersTests.ProductScreenshotScopeTests/testOlderFencedRowsAndFirstJournalEntriesSurviveV19ReadOnlyReconciliation"
+          }
+        },
+        "conditionalXCTestSkipsObservedInDetailedLogs": [
+          {
+            "line": 9977,
+            "text": "2026-11-16T19:26:28.7041730Z Test Case '-[RiftletUITests.HistoryDisplayStyleTests testCachedGridTextAndBorderResolveActualHighContrastWithinItsAppearance]' skipped (0.002 seconds)."
+          },
+          {
+            "line": 10411,
+            "text": "2026-11-16T19:34:01.5005830Z Test Case '-[RiftletUITests.SettingsNativeStyleTests testSameCachedColorsResolveNativeLightAndDarkWithoutChangingV2Tokens]' skipped (0.008 seconds)."
+          }
+        ]
+      },
+      "integratedNodeProgram": {
+        "summary": {
+          "tests": 160,
+          "pass": 160,
+          "fail": 0,
+          "skipped": 0
+        },
+        "originTest": {
+          "line": 1343,
+          "text": "2026-11-16T19:10:29.6742700Z ok 146 - both hosts require a credential-free HTTPS ChatGPT origin at capture and delivery"
+        }
+      },
+      "controlledEdgeProbe": null
+    },
+    {
+      "id": 133553358894,
+      "name": "Feedback native and service",
+      "run_id": 43936282795,
+      "status": "completed",
+      "conclusion": "cancelled",
+      "html_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43936282795/job/133553358894",
+      "started_at": "2026-11-16T19:28:06Z",
+      "completed_at": "2026-11-16T19:43:07Z",
+      "runner_name": "",
+      "skippedSteps": [],
+      "failedSteps": [],
+      "annotations": [
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/haohongfei2001-png/Riftlet/blob/239b5a4645a52fc86eeb89c5e9b3bb6b2e8615da/.github",
+          "start_line": 1,
+          "start_column": null,
+          "end_line": 1,
+          "end_column": null,
+          "annotation_level": "failure",
+          "title": "",
+          "message": "The job was not acquired by Runner of type hosted even after multiple attempts",
+          "raw_details": ""
+        },
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/haohongfei2001-png/Riftlet/blob/239b5a4645a52fc86eeb89c5e9b3bb6b2e8615da/.github",
+          "start_line": 1,
+          "start_column": null,
+          "end_line": 1,
+          "end_column": null,
+          "annotation_level": "notice",
+          "title": "",
+          "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.",
+          "raw_details": ""
+        },
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/haohongfei2001-png/Riftlet/blob/239b5a4645a52fc86eeb89c5e9b3bb6b2e8615da/.github",
+          "start_line": 1,
+          "start_column": null,
+          "end_line": 1,
+          "end_column": null,
+          "annotation_level": "notice",
+          "title": "",
+          "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.",
+          "raw_details": ""
+        },
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/haohongfei2001-png/Riftlet/blob/239b5a4645a52fc86eeb89c5e9b3bb6b2e8615da/.github",
+          "start_line": 1,
+          "start_column": null,
+          "end_line": 1,
+          "end_column": null,
+          "annotation_level": "notice",
+          "title": "",
+          "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.",
+          "raw_details": ""
+        }
+      ],
+      "stepCount": 0
+    },
+    {
+      "id": 133553362869,
+      "name": "Feedback source admission",
+      "run_id": 43936282795,
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43936282795/job/133553362869",
+      "started_at": "2026-11-16T19:09:02Z",
+      "completed_at": "2026-11-16T19:09:15Z",
+      "runner_name": "GitHub Actions 1000060276",
+      "skippedSteps": [],
+      "failedSteps": [],
+      "log": {
+        "file": "job-133553362869.log",
+        "bytes": 5186845,
+        "sha256": "7e36499e561bd9e33e23832d61590fab2c56a91e9474a101336f35b7d903fdc4"
+      },
+      "checkedOutMergeLogLine": 250
+    }
+  ],
+  "firstFeedbackAttemptJobs": [
+    {
+      "id": 133541608593,
+      "name": "Feedback source admission",
+      "run_id": 43936282795,
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43936282795/job/133541608593",
+      "started_at": "2026-11-16T19:09:02Z",
+      "completed_at": "2026-11-16T19:09:15Z",
+      "runner_name": "GitHub Actions 1000060276",
+      "skippedSteps": [],
+      "failedSteps": [],
+      "log": {
+        "file": "job-133541608593.log",
+        "bytes": 5186845,
+        "sha256": "7e36499e561bd9e33e23832d61590fab2c56a91e9474a101336f35b7d903fdc4"
+      },
+      "checkedOutMergeLogLine": 250
+    },
+    {
+      "id": 133541609195,
+      "name": "Feedback native and service",
+      "run_id": 43936282795,
+      "status": "completed",
+      "conclusion": "cancelled",
+      "html_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43936282795/job/133541609195",
+      "started_at": "2026-11-16T19:09:00Z",
+      "completed_at": "2026-11-16T19:24:03Z",
+      "runner_name": "",
+      "skippedSteps": [],
+      "failedSteps": [],
+      "stepCount": 0,
+      "annotations": [
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/haohongfei2001-png/Riftlet/blob/239b5a4645a52fc86eeb89c5e9b3bb6b2e8615da/.github",
+          "start_line": 1,
+          "start_column": null,
+          "end_line": 1,
+          "end_column": null,
+          "annotation_level": "failure",
+          "title": "",
+          "message": "The job was not acquired by Runner of type hosted even after multiple attempts",
+          "raw_details": ""
+        },
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/haohongfei2001-png/Riftlet/blob/239b5a4645a52fc86eeb89c5e9b3bb6b2e8615da/.github",
+          "start_line": 1,
+          "start_column": null,
+          "end_line": 1,
+          "end_column": null,
+          "annotation_level": "notice",
+          "title": "",
+          "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.",
+          "raw_details": ""
+        },
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/haohongfei2001-png/Riftlet/blob/239b5a4645a52fc86eeb89c5e9b3bb6b2e8615da/.github",
+          "start_line": 1,
+          "start_column": null,
+          "end_line": 1,
+          "end_column": null,
+          "annotation_level": "notice",
+          "title": "",
+          "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.",
+          "raw_details": ""
+        },
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/haohongfei2001-png/Riftlet/blob/239b5a4645a52fc86eeb89c5e9b3bb6b2e8615da/.github",
+          "start_line": 1,
+          "start_column": null,
+          "end_line": 1,
+          "end_column": null,
+          "annotation_level": "notice",
+          "title": "",
+          "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.",
+          "raw_details": ""
+        }
+      ]
+    }
+  ],
+  "scopeLimits": [
+    "Source and hosted CI only. The two architecture Swift results cover 1453 distinct parallel execution rows plus 22 serial passes. Two appearance tests explicitly skipped in later targeted runs.",
+    "The controlled ARM64 Edge job returned NOT_RUN_SYSTEM_AUTOMATION_CONSENT, fixture changes/operations/starts all zero. The corresponding Intel step was conditional and skipped. Commercial ChatGPT is outside these runs.",
+    "Sole retry was performed by the integration lead, not by this reviewer. This audit made only read-only GitHub calls."
+  ]
+}
