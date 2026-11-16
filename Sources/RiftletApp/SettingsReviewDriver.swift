@@ -1955,8 +1955,18 @@ extension SettingsReviewDriver {
                 let quartz = CGPoint(x:point.x,y:display.frame.maxY-point.y)
                 CGWarpMouseCursorPosition(quartz)
                 await self.settle(120)
-                try self.require(NSWindow.windowNumber(at:point,belowWindowWithWindowNumber:0)==tray.windowNumber,
-                                 "trayCameraObscured")
+                let hit = NSWindow.windowNumber(at: point, belowWindowWithWindowNumber: 0)
+                let windows = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID) as? [[String: Any]] ?? []
+                // Window IDs, coordinates and PIDs only. Never record another window's title or content.
+                let hitInfo = windows.first { ($0[kCGWindowNumber as String] as? NSNumber)?.intValue == hit }
+                self.artifacts.append(["kind": "trayCameraHit", "cycle": cycle, "camera": self.rect(frame),
+                    "tray": self.rect(tray.frame), "screen": self.rect(screen.frame), "scale": tray.backingScaleFactor,
+                    "targetID": tray.windowNumber, "hitID": hit, "targetPID": getpid(),
+                    "hitPID": hitInfo?[kCGWindowOwnerPID as String] ?? NSNull(),
+                    "hitLevel": hitInfo?[kCGWindowLayer as String] ?? NSNull(),
+                    "hitQuartzBounds": hitInfo?[kCGWindowBounds as String] ?? NSNull(),
+                    "frontmostPID": NSWorkspace.shared.frontmostApplication?.processIdentifier as Any? ?? NSNull()])
+                try self.require(hit == tray.windowNumber, "trayCameraObscured")
                 for type in [CGEventType.leftMouseDown,.leftMouseUp] {
                     let event = CGEvent(mouseEventSource:nil,mouseType:type,mouseCursorPosition:quartz,mouseButton:.left)
                     event?.setIntegerValueField(.mouseEventClickState,value:1)
@@ -1978,6 +1988,37 @@ extension SettingsReviewDriver {
                     return keys.count == 1 && keys.first === camera && camera.identifier?.rawValue == "tray.capture.expand"
                 }
                 try self.desktopCapture((cycle == 1 ? "tray-closed-menu" : "tray-closed-again"),screen:screen,rows:panel.diagnosticSnapshot.rows)
+            }
+        }
+        await runCase("actual-tray-appearance-layers") {
+            try await self.chooseDesktopForm(.tray)
+            guard let tray = NSApp.windows.first(where: { window in
+                self.isDesktopPresentationWindow(window) &&
+                    window.contentView?.subviews.contains { $0.identifier?.rawValue == "tray.capture.expand" && !$0.isHidden } == true
+            }), let camera = tray.contentView?.subviews.first(where: { $0.identifier?.rawValue == "tray.capture.expand" })
+            else { throw Failure.assertion("appearanceCameraUnavailable") }
+            let keyFrame = tray.convertToScreen(camera.convert(camera.bounds, to: nil))
+            let before = panel.diagnosticSnapshot.rows.map(\.assetID)
+            defer { panel.clearTrayAppearancePreview() }
+            for style in [SettingsAppearanceChoice.light, .dark] {
+                try await self.appearance(style)
+                for (name, transparency, color) in [
+                    ("default", nil as Double?, nil as String?),
+                    ("opaque", 0, nil), ("t01", 0.01, nil), ("t75", 0.75, nil),
+                    ("violet", nil, "#8067C7"), ("blue", nil, "#367DD9"), ("teal", nil, "#278F88"),
+                    ("coral", nil, "#C96A58"), ("graphite", nil, "#545B65"), ("black", nil, "#000000"),
+                    ("white", nil, "#FFFFFF"), ("saturated", nil, "#00FF13")
+                ] {
+                    panel.previewTrayAppearance(transparency: transparency, cameraBodyColor: color)
+                    await self.settle(160)
+                    try self.require(panel.diagnosticSnapshot.rows.map(\.assetID) == before &&
+                        tray.convertToScreen(camera.convert(camera.bounds, to: nil)) == keyFrame && tray.alphaValue == 1,
+                        "appearanceChangedQueueOrInput")
+                    let label = "appearance-" + style.rawValue + "-" + name
+                    try self.desktopCapture(label, screen: screen, rows: panel.diagnosticSnapshot.rows)
+                    self.artifacts.append(["kind": "trayAppearanceMask", "name": label, "key": self.rect(keyFrame),
+                        "tray": self.rect(tray.frame), "primaryTop": NSScreen.screens.first?.frame.maxY ?? screen.frame.maxY, "scale": tray.backingScaleFactor])
+                }
             }
         }
         await runCase("violet-restart-and-material-switch") {
