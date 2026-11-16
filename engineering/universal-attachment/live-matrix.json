@@ -206,7 +206,7 @@
       ],
       "latestMouseDiagnostic": "edge-service-pair-20261116/pair-audit.json",
       "latestMouseDiagnosticScope": "Ten uniquely tagged native/Product records per actual click. Rapid sender #2 stopped before posting. Separate first actual click for 606 succeeded.",
-      "latestPreparation": "edge-temporary-pair-20261116/temporary-01-1-draft-before.json",
+      "latestPreparation": "edge-native-pair-20261117/intake.json",
       "login": "SIGNED_IN_ISOLATED_PROFILE",
       "setupOnlyEvidence": "Isolated logged-in Temporary draft. Original editor text, nonempty 14-unit selection and three prior attachments preserved. Five unique attachment labels after 606.",
       "authorization": "USER_APPROVED_BOTH_NORMAL_SYSTEM_AUTHORIZATIONS; HISTORICAL_APP_OSSTATUS_0; ISOLATED_EDGE_NATIVE_SCRIPT_SETTING_ENABLED_20261115T120028Z",
@@ -588,8 +588,8 @@
   "edgeSpecialistFollowup": "edge-double-image-20261114/isolated-login.json",
   "latestMainIntegration": "edge-service-pair-20261116/main-integration.json",
   "inheritedScopedChromeEvidence": "../../engineering/quality/2026-11-14/actual-chatgpt-attachment.json (source 624e1b5; START only; not this PR head or final completion)",
-  "latestPreparationRecord": "edge-temporary-pair-20261116/temporary-01-1-draft-before.json",
+  "latestPreparationRecord": "edge-native-pair-20261117/intake.json",
   "latestCalibrationRecord": "edge-calibration-20261115/summary.json",
   "latestNativeReceiptRecord": "edge-temporary-pair-20261116/independent-audit.json",
-  "latestCIEvidence": "edge-first-input-20261115/ci-verification.json"
+  "latestCIEvidence": "edge-native-pair-20261117/prior-239b5a4-ci.json"
 }
