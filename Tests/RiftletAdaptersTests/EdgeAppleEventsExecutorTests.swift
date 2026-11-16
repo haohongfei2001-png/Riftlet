@@ -26,6 +26,7 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
     private(set) var fullSelectionChecks = 0, clickSelectionChecks = 0
     private var relayChannel: String?
 
+    var returnedRoute: WebDraftRoute?
     init(address: String = "https://chatgpt.com/c/neutral") {
         var record = proc_bsdinfo(); record.pbi_pid = 71; record.pbi_start_tvsec = 10
         let birth = KernelProcessBirth(requestedPID: 71, record: record, bytesRead: Int32(MemoryLayout.size(ofValue: record)))!
@@ -131,7 +132,7 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
             let target = TargetLease(adapterID: "chatgpt-web", surface: .webChat, applicationID: "com.microsoft.edgemac",
                 sessionID: host.sessionID, windowID: wrongCaptureWindow ? "14" : host.windowID, tabID: host.tabID,
                 documentID: "original-document", composerID: "original-editor", draftGeneration: "original-draft",
-                clickBindingID: try XCTUnwrap(currentPin))
+                clickBindingID: try XCTUnwrap(currentPin), webDraftRoute: returnedRoute)
             result = try JSONSerialization.jsonObject(with: JSONEncoder().encode(target))
         } else { result = ["original": true] }
         replies[pieces[0]] = String(decoding: try JSONSerialization.data(withJSONObject:
@@ -280,6 +281,22 @@ final class EdgeAppleEventsExecutorTests: XCTestCase {
         }
         XCTAssertEqual(driver.bootstraps, 0)
         XCTAssertTrue(driver.actions.isEmpty)
+    }
+
+    @MainActor func testTemporaryRouteMustAgreeWithExactFrozenNativeAddress() async throws {
+        let exact = "https://chatgpt.com/?temporary-chat=true"
+        for (address, returned, matches) in [(exact, WebDraftRoute.chatGPTTemporaryHome as WebDraftRoute?, true),
+                (exact, nil, true), ("https://chatgpt.com:443/?temporary-chat=true", .chatGPTTemporaryHome, true),
+                ("https://chatgpt.com/c/sample", .chatGPTTemporaryHome, false),
+                (exact + "&other=1", .chatGPTTemporaryHome, false)] {
+            let driver = EdgeExecutorFixture(address: address); driver.returnedRoute = returned
+            let bridge = EdgeAppleEventsExecutor(driver: driver)
+            do {
+                let target = try await bridge.targetForClick(program: program).value
+                XCTAssertTrue(matches); XCTAssertEqual(target.webDraftRoute, returned)
+            } catch { XCTAssertFalse(matches); XCTAssertEqual(error as? WebAdapterError, .invalidTarget) }
+            XCTAssertFalse(driver.actions.contains("begin")); XCTAssertFalse(driver.actions.contains("commit"))
+        }
     }
 
     @MainActor func testOnePinEvaluationLeavesBudgetForEveryOriginalIdentityRecheck() throws {

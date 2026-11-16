@@ -117,6 +117,9 @@ public struct LogicalDraftIdentity: Codable, Equatable, Hashable, Sendable {
     }
 }
 
+/// A bounded click-time public route classification. Historical leases omit it.
+public enum WebDraftRoute: String, Codable, Sendable { case chatGPTTemporaryHome }
+
 /// Captured at click time and rechecked atomically with dispatch by the adapter.
 /// Tokens are opaque local identities, never cookies, credentials or chat contents.
 public struct TargetLease: Codable, Equatable, Hashable, Sendable {
@@ -132,16 +135,17 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
     public let logicalDraftIdentity: LogicalDraftIdentity?
     /// Runtime page-issued click capability; absent on all historical leases.
     public let clickBindingID: UUID?
+    public let webDraftRoute: WebDraftRoute?
 
     public init(adapterID: String, surface: TargetSurface, applicationID: String,
                 sessionID: String, windowID: String, tabID: String? = nil,
                 documentID: String, composerID: String, draftGeneration: String,
-                logicalDraftIdentity: LogicalDraftIdentity? = nil, clickBindingID: UUID? = nil) {
+                logicalDraftIdentity: LogicalDraftIdentity? = nil, clickBindingID: UUID? = nil, webDraftRoute: WebDraftRoute? = nil) {
         self.adapterID = adapterID; self.surface = surface; self.applicationID = applicationID
         self.sessionID = sessionID; self.windowID = windowID; self.tabID = tabID
         self.documentID = documentID; self.composerID = composerID; self.draftGeneration = draftGeneration
         self.logicalDraftIdentity = logicalDraftIdentity
-        self.clickBindingID = clickBindingID
+        self.clickBindingID = clickBindingID; self.webDraftRoute = webDraftRoute
     }
 
     public var stableKey: String {
@@ -163,7 +167,7 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
               !windowID.isEmpty, windowID == other.windowID,
               let tabID, !tabID.isEmpty, tabID == other.tabID,
               !documentID.isEmpty, documentID == other.documentID,
-              !composerID.isEmpty, composerID == other.composerID,
+              !composerID.isEmpty, composerID == other.composerID, webDraftRoute == other.webDraftRoute,
               !draftGeneration.isEmpty, draftGeneration == other.draftGeneration,
               let draft = logicalDraftIdentity, draft.isRecognized,
               draft == other.logicalDraftIdentity else { return false }

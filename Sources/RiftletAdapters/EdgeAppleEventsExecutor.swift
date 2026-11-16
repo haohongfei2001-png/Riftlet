@@ -148,12 +148,21 @@ private final class EdgeCommandCancellation: @unchecked Sendable {
                                   driver: driver, relays: relays, trace: diagnosticTrace)
     }
 
+    private nonisolated static func isTemporaryHome(_ address: String) -> Bool {
+        guard let url = URLComponents(string: address) else { return false }
+        return url.scheme?.lowercased() == "https" && url.host?.lowercased() == "chatgpt.com"
+            && url.user == nil && url.password == nil && (url.port == nil || url.port == 443)
+            && (url.percentEncodedPath.isEmpty || url.percentEncodedPath == "/")
+            && url.percentEncodedQuery == "temporary-chat=true" && url.fragment == nil
+    }
+
     private nonisolated static func decodeCapture(_ data: Data, host: EdgeWindowTab, witnessID: UUID) throws -> TargetLease {
         guard data.count <= ObservationDecoder.maximumPayloadBytes,
               let target = try? JSONDecoder().decode(TargetLease.self, from: data),
               target.adapterID == "chatgpt-web", target.surface == .webChat,
               target.applicationID == EdgeApplicationHost.bundleID, target.sessionID == host.sessionID,
               target.windowID == host.windowID, target.tabID == host.tabID, target.clickBindingID == witnessID,
+              target.webDraftRoute == nil || (target.webDraftRoute == .chatGPTTemporaryHome && isTemporaryHome(host.address)),
               !target.documentID.isEmpty, !target.composerID.isEmpty, !target.draftGeneration.isEmpty else {
             throw WebAdapterError.invalidTarget
         }

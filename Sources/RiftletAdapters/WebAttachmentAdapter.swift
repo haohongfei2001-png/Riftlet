@@ -42,21 +42,22 @@ public struct WebBridgeCommand: Encodable, Sendable {
     public let chunkBase64: String?
     public let invocationID: UUID?
     public let clickWitnessID: UUID?
+    public let edgeProgressCandidate: Bool?
     /// Host diagnostics only, deliberately excluded from the page payload.
     public let captureInvocation: CaptureInvocationContext?
 
     private enum CodingKeys: String, CodingKey {
-        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID, clickWitnessID
+        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID, clickWitnessID, edgeProgressCandidate
     }
 
     init(action: WebBridgeAction, target: TargetLease? = nil, identity: ObservationIdentity? = nil,
          uploadName: String? = nil, mediaType: String? = nil, byteCount: Int64? = nil,
          chunkIndex: Int? = nil, chunkBase64: String? = nil, invocationID: UUID? = nil,
-         clickWitnessID: UUID? = nil, captureInvocation: CaptureInvocationContext? = nil) {
+         clickWitnessID: UUID? = nil, edgeProgressCandidate: Bool? = nil, captureInvocation: CaptureInvocationContext? = nil) {
         self.action = action; self.target = target; self.identity = identity
         self.uploadName = uploadName; self.mediaType = mediaType; self.byteCount = byteCount
         self.chunkIndex = chunkIndex; self.chunkBase64 = chunkBase64; self.invocationID = invocationID
-        self.clickWitnessID = clickWitnessID
+        self.clickWitnessID = clickWitnessID; self.edgeProgressCandidate = edgeProgressCandidate
         self.captureInvocation = captureInvocation
     }
 }
@@ -330,9 +331,12 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         let uploadName = "riftlet-\(request.operation.id.uuidString).\(file.fileExtension)"
         var committing = false
         do {
+            let enrolled = binding(for: request.asset)?.admission.scope.registeredProfile(for: request,
+                sourceID: SystemScreenshotWebCandidate.sourceID)
+            let edgeProgress = enrolled?.uploadStartProfileID == OrdinaryProductScreenshotScope.edgeProgressStartProfileID
             let begin = WebBridgeCommand(action: .begin, target: identity.target, identity: identity,
                 uploadName: uploadName, mediaType: file.mediaType, byteCount: file.byteCount,
-                invocationID: request.invocationID)
+                invocationID: request.invocationID, edgeProgressCandidate: edgeProgress ? true : nil)
             let beginReply = try await perform(begin)
             try acknowledge(beginReply, identity: identity, nextChunk: 0)
             var index = 0
@@ -567,26 +571,26 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
 
     private func normalize(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest,
                            liveAppend: Bool = false) async throws -> TransferReceipt {
-        // Host input capability is separate from service evidence admission.
-        // No Edge-specific START, completion or failure profile has real signed-in
-        // calibration yet. Never borrow Chrome's accepted-preview profile.
-        if request.operation.target.applicationID == "com.microsoft.edgemac",
-           ![.inputTriggered, .unknown, .invalidated].contains(envelope.observation.state) {
-            throw WebAdapterError.invalidReply
-        }
-        var scopedNormalizer = normalizer
-        var originalScope: SystemScreenshotAdmissionScope?
         let binding = binding(for: request.asset)
-        if mode == .ordinaryProduct, let binding {
+        let registration = screenshotScope == nil ? nil : try await binding?.admission.originalRegistration(for: request)
+        let originalScope = registration?.scope
+        var scopedNormalizer = normalizer
+        if let registration {
+            let profile = registration.scope.registeredProfile(for: request, sourceID: registration.source)
+            scopedNormalizer = ObservationNormalizer(profile: profile, developmentScope: registration.scope.observationScope)
+        } else if mode == .ordinaryProduct, let binding {
             scopedNormalizer = ObservationNormalizer(profile: binding.admission.scope.legacyProfile,
                 developmentScope: .ordinarySystemScreenshot)
         }
-        if screenshotScope != nil, let binding {
-            originalScope = try await binding.admission.admittedObservationScope(for: request)
-        }
-        if let scope = originalScope {
-            scopedNormalizer = ObservationNormalizer(profile: scope.admittedProfile,
-                developmentScope: scope.observationScope)
+        if request.operation.target.applicationID == "com.microsoft.edgemac",
+           ![.inputTriggered, .unknown, .invalidated].contains(envelope.observation.state) {
+            guard mode == .ordinaryProduct, envelope.observation.state == .uploadStarted,
+                  scopedNormalizer.profile.uploadStartProfileID == OrdinaryProductScreenshotScope.edgeProgressStartProfileID,
+                  envelope.provenance == .init(source: .integratedDevelopment, evidenceID: OrdinaryProductScreenshotScope.edgeProgressProvenanceID),
+                  let start = envelope.observation.uploadStart, start.signal == .correlatedProgress, start.previousProgress > 0,
+                  envelope.observation.inputExecutionPending == false, envelope.observation.requestEvidence == nil,
+                  envelope.observation.continuationEvidence == nil, envelope.observation.completionEvidence == nil,
+                  envelope.observation.terminationEvidence == nil else { throw WebAdapterError.invalidReply }
         }
         let receipt = try scopedNormalizer.receipt(from: envelope, for: request, liveAppend: liveAppend)
         if screenshotScope != nil {

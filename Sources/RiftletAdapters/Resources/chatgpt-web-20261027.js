@@ -9,7 +9,7 @@ function riftletWebAcceptance(command, native) {
   const KEY = '__riftletIndependentFileInput20261104';
   const MAX_BYTES = 128 * 1024 * 1024, MAX_CHUNK_BYTES = 256 * 1024;
   const targetKeys = ['adapterID', 'surface', 'applicationID', 'sessionID', 'windowID', 'tabID',
-    'documentID', 'composerID', 'draftGeneration'];
+    'documentID', 'composerID', 'draftGeneration', 'webDraftRoute'];
   const fail = code => { throw Error(code); };
   const uuid = value => typeof value === 'string' && /^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i.test(value);
   const sameTarget = (a, b) => !!a && !!b && targetKeys.every(k => a[k] === b[k])
@@ -738,10 +738,11 @@ function riftletWebAcceptance(command, native) {
   const previewValue = node => node.tagName === 'IMG' ? (node.getAttribute('src') || '').trim() : true;
   const previewsOf = node => node.matches(previewSelector)
     ? [node] : [...node.querySelectorAll(previewSelector)];
-  // Edge calibration is a read-only sidecar, never receipt evidence. Keep the
-  // original nodes/text/selection inside this document; export only bounded
-  // counts and comparisons. A missing/oversized snapshot cannot veto input.
+  // The Edge diagnostic contains aggregate counts only. The independently
+  // scoped START witness below requires actual, stable node and File identities.
+  // A missing/oversized snapshot never vetoes the input.
   const edgeCalibrationLimit = 512;
+  const isEdgeTemporary = () => new URL(location.href).href === 'https://chatgpt.com/?temporary-chat=true';
   const edgeCalibrationExcluded = 'article,[data-message-author-role],aside,nav,header,[role="search"],[role="menu"],[role="dialog"]';
   function edgeCalibrationScan(binding) {
     // composerForm deliberately accepts responsible input without a declared
@@ -798,16 +799,197 @@ function riftletWebAcceptance(command, native) {
         : current?.rangeCount && editor.contains(current.anchorNode) && editor.contains(current.focusNode)
           ? {anchor: current.anchorNode, focus: current.focusNode, anchorOffset: current.anchorOffset,
             focusOffset: current.focusOffset, rangeCount: current.rangeCount} : null;
-      return {editor, form, text, selection, nodes, root: document.documentElement,
-        target: {...binding.target}, route: binding.route, navigation: binding.navigation};
+      const originals = nodes.map(node => ({node, parent: node.parentElement, src: node.getAttribute('src'),
+        name: node.getAttribute('data-file-name'), alt: node.getAttribute('alt')}));
+      const baseline = {editor, form, text, selection, nodes, originals, emptySelection: current?.rangeCount === 0,
+        root: document.documentElement, target: {...binding.target}, route: binding.route, navigation: binding.navigation};
+      if (binding.target.clickBindingID && isEdgeTemporary()) baseline.witness = watchEdgeProgress(baseline);
+      return baseline;
     } catch { return null; }
   }
   function edgeCalibrationBeforeInput(op) {
     if (!op.edgeCalibration) return;
     try {
       const scan = edgeCalibrationScan(op.binding);
-      if (scan) op.edgeCalibration.beforeInput = new Set(scan.nodes);
+      if (!scan) return;
+      const saved = op.edgeCalibration;
+      saved.beforeInput = new WeakSet(scan.entries.map(entry => entry.node));
+      if (saved.trackProgress && saved.baseline?.witness?.active) {
+        registry.edgeNodeHistory ||= new WeakMap();
+        saved.generation = tick();
+        for (const {node} of scan.entries) if (!registry.edgeNodeHistory.has(node))
+          registry.edgeNodeHistory.set(node, {before: saved.generation});
+        saved.progress = saved.baseline.witness;
+        saved.progress.bind(op);
+      }
     } catch { /* Diagnostics cannot change the once-only input path. */ }
+  }
+  function edgeProgressValue(node, raw = node.getAttribute(node.tagName === 'PROGRESS' ? 'value' : 'aria-valuenow')) {
+    const nativeBar = node.tagName === 'PROGRESS';
+    const numeric = raw => raw !== null && raw.length <= 32 && /^(?:\d+(?:\.\d*)?|\.\d+)$/.test(raw.trim()) ? Number(raw) : NaN;
+    const value = numeric(raw);
+    const low = nativeBar ? 0 : numeric(node.getAttribute('aria-valuemin') ?? '0');
+    const high = numeric(node.getAttribute(nativeBar ? 'max' : 'aria-valuemax') ?? (nativeBar ? '1' : '100'));
+    if (![low, high, value].every(Number.isFinite) || high <= low || value < low || value > high) return null;
+    return {percent: 100 * (value - low) / (high - low), low, high};
+  }
+  // Bound to this original input only. A removed and reinserted node is not a
+  // continuous witness, even when two polls see the same object and parent.
+  function watchEdgeProgress(baseline) {
+    const {form, editor, originals} = baseline, moved = new WeakSet();
+    const originalNodes = new Set(originals.map(item => item.node));
+    const identityAttributes = ['data-file-name', 'alt', 'src', 'title', 'aria-label'];
+    const statusAttributes = ['data-state', 'data-status', 'data-upload-status'];
+    let held = null, op = null, input = null, expectedChange = null, changes = 0, expires;
+    const started = performance.now();
+    const close = () => {
+      observer.disconnect(); clearTimeout(expires); held = null; expectedChange = null;
+      input?.removeEventListener('change', onChange, true);
+      document.removeEventListener('selectionchange', onSelection);
+      if (op) op.edgeCalibration.progress = null;
+      witness.active = false; op = null; input = null;
+    };
+    const onChange = event => {
+      if (event === expectedChange || (input.files?.length === 1 && registry.files.get(input.files[0]) === op)) {
+        if (++changes > 1) close();
+      }
+    };
+    const onSelection = () => {
+      if (!edgeSelectionUnchanged(baseline)) close();
+    };
+    const changed = records => {
+      if (records.length > 2048 || performance.now() - started >= 30000) return close();
+      let removedCount = 0;
+      for (const record of records) {
+        if (editor.contains(record.target)) return close();
+        if (record.type === 'attributes') {
+          const node = record.target, key = record.attributeName;
+          if (originalNodes.has(node) && identityAttributes.includes(key)) return close();
+          if (!held || !held.scope.contains(node)) continue;
+          if (node === held.bar && ['value', 'aria-valuenow'].includes(key)) {
+            // Old values also catch a finish/reset/reuse between two polls.
+            if (record.oldValue !== undefined) {
+              const previous = edgeProgressValue(node, record.oldValue);
+              if (!previous || previous.percent < held.highest || previous.percent >= 100) return close();
+              held.highest = previous.percent;
+            }
+            continue;
+          }
+          if ((held.labels.includes(node) && identityAttributes.includes(key))
+              || (node === held.image && key === 'src') || statusAttributes.includes(key)
+              || (node === held.bar && ['role', 'aria-valuemin', 'aria-valuemax', 'max'].includes(key))) return close();
+        } else for (const removed of record.removedNodes) {
+          if (++removedCount > 2048) return close();
+          moved.add(removed);
+          if (originals.some(item => removed.contains(item.node))
+              || (held && [held.scope, held.card, held.image, held.bar, held.remove].some(node => node && removed.contains(node)))) return close();
+        }
+      }
+    };
+    const observer = new MutationObserver(changed);
+    observer.observe(form, {childList: true, characterData: true, attributes: true, attributeOldValue: true, subtree: true,
+      attributeFilter: [...identityAttributes, ...statusAttributes, 'role', 'aria-valuemin', 'aria-valuemax', 'max', 'value', 'aria-valuenow']});
+    const witness = {active: true, close, moved, flush: () => changed(observer.takeRecords()),
+      bind: original => { op = original; input = op.binding.input; input.addEventListener('change', onChange, true); },
+      expect: event => { expectedChange = event; }, get changes() { return changes; },
+      get held() { return held; }, hold: value => { held = value; }};
+    document.addEventListener('selectionchange', onSelection);
+    expires = setTimeout(close, 30000);
+    return witness;
+  }
+  function edgeSelectionUnchanged(baseline) {
+    const {editor, selection} = baseline;
+    if (selection?.textarea) return Number.isInteger(selection.start) && Number.isInteger(selection.end)
+      && editor.selectionStart === selection.start && editor.selectionEnd === selection.end
+      && editor.selectionDirection === selection.direction;
+    const current = document.getSelection?.();
+    if (!selection) return baseline.emptySelection && current?.rangeCount === 0;
+    return current?.rangeCount === 1 && selection.rangeCount === 1 && current.anchorNode === selection.anchor
+      && current.anchorOffset === selection.anchorOffset && current.focusNode === selection.focus
+      && current.focusOffset === selection.focusOffset;
+  }
+  function observeEdgeProgress(op, result, scan, filename, named, blob, matched) {
+    const saved = op.edgeCalibration, proof = saved.progress;
+    if (!proof || op.start || !op.changeReturned || op.inputCount !== 1) return;
+    proof.flush();
+    if (saved.progress !== proof) return;
+    const {baseline, beforeInput} = saved;
+    if (proof.changes !== 1 || !result.originalDraftCurrent || !result.originalTextUnchanged || !edgeSelectionUnchanged(baseline)
+        || result.retainedBaselineAttachmentNodes !== result.baselineAttachmentNodes
+        || baseline.originals.some(({node, parent, name, src, alt}) => node.parentElement !== parent
+          || node.getAttribute('data-file-name') !== name || node.getAttribute('src') !== src || node.getAttribute('alt') !== alt)
+        || matched.some(node => beforeInput.has(node))) return proof.close();
+    const labels = matched.filter(named), images = matched.filter(blob);
+    // The DOM may mount an image before the numeric progress control. Once we
+    // have sampled one, we may never replace it, cross a gap or start over.
+    const held = proof.held;
+    if (images.length > 1 || result.errorAttributeNodes || result.readyAttributeNodes) return proof.close();
+    if (!images.length || !labels.length) { if (held) proof.close(); return; }
+    const image = images[0];
+    // An existing tray or a newly mounted group cannot lend a sibling's bar.
+    // The exact filename must identify the card that owns every matching facet.
+    let card = labels.find(node => node !== image && node.contains(image) && labels.every(label => node.contains(label)));
+    let scope = card, remove = null;
+    if (!card) {
+      // ChatGPT can expose the image popup and its specifically named Remove
+      // button as siblings in one new attachment. The progress bar still has
+      // to be inside the same named popup as the original File-backed image.
+      const popup = labels.find(node => node.hasAttribute('aria-haspopup') && node.contains(image));
+      const parent = popup?.parentElement;
+      if (parent && !beforeInput.has(parent) && parent.children.length === 2) {
+        const sibling = [...parent.children].find(node => node !== popup);
+        const removesFile = sibling?.matches('button,[role="button"]') && ['aria-label', 'title'].some(key => {
+          const label = sibling.getAttribute(key) || '';
+          return /(?:\bremove\b|移除|删除)/i.test(label) && filename.test(label);
+        });
+        if (removesFile && labels.every(node => popup.contains(node) || sibling.contains(node))) {
+          card = popup; scope = parent; remove = sibling;
+        }
+      }
+    }
+    if (!card) { if (held || labels.some(node => !node.contains(image) && !image.contains(node))) proof.close(); return; }
+    const members = scan.entries.filter(({node}) => scope.contains(node));
+    const controls = members.filter(({node}) => node.matches('progress,[role="progressbar"]'));
+    const failed = ['error', 'failed', 'errored', 'aborted', 'canceled', 'cancelled', 'rejected'];
+    const terminal = [...failed, 'ready', 'complete', 'completed', 'done'];
+    const hasState = (node, values) => ['data-state', 'data-status', 'data-upload-status']
+      .some(key => values.includes((node.getAttribute(key) || '').trim().toLowerCase()));
+    if (controls.length > 1 || members.filter(({node}) => node.tagName === 'IMG').length !== 1
+        || members.some(({node}) => beforeInput.has(node) || proof.moved.has(node) || hasState(node, terminal)
+          || (node.hasAttribute('data-file-name') && node.getAttribute('data-file-name') !== op.name))
+        || scan.entries.some(({node}) => hasState(node, failed)
+          || (node.getAttribute('role') === 'alert' && visible(node) && node.textContent.trim().length > 0)))
+      return proof.close();
+    if (!controls.length) { if (held) proof.close(); return; }
+    const bar = controls[0].node, url = image.getAttribute('src');
+    // A detached node might be absent from this input's baseline and still
+    // belong to an earlier file. A later independent input may see our own
+    // pending nodes in its baseline without taking their ownership.
+    for (const node of [card, image, bar]) {
+      const history = registry.edgeNodeHistory.get(node);
+      if (history?.before <= saved.generation || (history?.owner && history.owner !== saved.generation)) return proof.close();
+    }
+    for (const node of [card, image, bar]) registry.edgeNodeHistory.set(node, {owner: saved.generation});
+    for (let node = card; node !== baseline.form; node = node.parentElement)
+      if (!node || proof.moved.has(node)) return proof.close();
+    if (!card.contains(bar) || (held?.remove && held.remove !== remove)
+        || op.previewBaseline.has(image) || op.previewBaseline.has(bar) || !visible(image) || !visible(bar)
+        || (held && (held.card !== card || held.image !== image || held.bar !== bar || held.url !== url))) return proof.close();
+    const reading = edgeProgressValue(bar), now = performance.now();
+    if (!reading) { if (held) proof.close(); return; }
+    if (held && (held.low !== reading.low || held.high !== reading.high)) return proof.close();
+    const value = reading.percent;
+    if (value >= 100 || now < op.inputTime || (held && (value < held.highest || now < held.at))) return proof.close();
+    if (value <= 0 || now === op.inputTime) return;
+    if (!held) { proof.hold({card, scope, remove, image, bar, labels, url, value, highest: value, low: reading.low, high: reading.high, at: now}); return; }
+    if (value === held.value || now === held.at) return;
+    const current = composer();
+    if (current.form !== baseline.form || current.editor !== baseline.editor) return proof.close();
+    op.attachmentID = registry.documentID + ':' + nodeID(card);
+    op.start = {version: 1, signal: 'correlatedProgress', evidenceID: crypto.randomUUID(), inputCount: 1,
+      inputSequence: op.inputSequence, startSequence: tick(), previousProgress: held.value, currentProgress: value,
+      inputObservedAtMS: op.inputTime, startObservedAtMS: now};
+    proof.close(); op.binding.endObservation?.(); op.baseline.clear(); op.previewBaseline = null; op.urls.clear();
   }
   function edgeCalibrationSample(op, originalDraftCurrent) {
     const saved = op.edgeCalibration;
@@ -829,9 +1011,11 @@ function riftletWebAcceptance(command, native) {
       if (!baseline || !originalDraftCurrent || registry.root !== baseline.root || document.documentElement !== baseline.root
           || !sameTarget(baseline.target, op.identity.target) || !sameTarget(baseline.target, op.binding.target)
           || !contextMatches(baseline.target) || baseline.route !== route() || baseline.navigation !== registry.navigation
-          || op.binding.editor !== baseline.editor || op.binding.form !== baseline.form) return result;
+          || op.binding.editor !== baseline.editor || op.binding.form !== baseline.form) {
+        saved.progress?.close(); return result;
+      }
       const scan = edgeCalibrationScan(op.binding);
-      if (!scan) { result.scanLimited = true; return result; }
+      if (!scan) { saved.progress?.close(); result.scanLimited = true; return result; }
       result.originalDraftCurrent = true;
       const {editor, form, selection} = baseline;
       result.originalTextUnchanged = (editor.tagName === 'TEXTAREA' ? editor.value : editor.textContent) === baseline.text;
@@ -865,19 +1049,15 @@ function riftletWebAcceptance(command, native) {
         entry.matchedAncestor = ownedNodes.has(entry.node)
           || (entry.parent >= 0 && scan.entries[entry.parent].matchedAncestor);
         if (!entry.matchedAncestor || (!entry.indicator && !ownedNodes.has(entry.node))) continue;
-        if (indicators.length === edgeCalibrationLimit) { result.scanLimited = true; return result; }
+        if (indicators.length === edgeCalibrationLimit) { saved.progress?.close(); result.scanLimited = true; return result; }
         indicators.push(entry.node);
       }
       const progress = [];
       for (const node of indicators) {
         if (node.matches('progress,[role="progressbar"]')) {
           result.progressNodes++;
-          const raw = node.getAttribute(node.tagName === 'PROGRESS' ? 'value' : 'aria-valuenow');
-          const low = node.tagName === 'PROGRESS' ? 0 : Number(node.getAttribute('aria-valuemin') ?? 0);
-          const high = Number(node.getAttribute(node.tagName === 'PROGRESS' ? 'max' : 'aria-valuemax') ?? (node.tagName === 'PROGRESS' ? 1 : 100));
-          const value = Number(raw);
-          if (raw !== null && raw.trim() !== '' && [value, low, high].every(Number.isFinite)
-              && high > low && value >= low && value <= high) progress.push(Math.round(100 * (value - low) / (high - low)));
+          const reading = edgeProgressValue(node);
+          if (reading) progress.push(Math.round(reading.percent));
         }
         const states = ['data-state', 'data-status', 'data-upload-status'].map(key => node.getAttribute(key));
         if (node.getAttribute('aria-busy') === 'true' || states.some(value => ['loading', 'uploading', 'pending'].includes(value))) result.busyAttributeNodes++;
@@ -890,7 +1070,8 @@ function riftletWebAcceptance(command, native) {
         result.progressValueKnown = true;
         result.progressPercentMinimum = Math.min(...progress); result.progressPercentMaximum = Math.max(...progress);
       }
-    } catch { result.samplingFailed = true; }
+      observeEdgeProgress(op, result, scan, filename, named, blob, matched);
+    } catch { saved.progress?.close(); result.samplingFailed = true; }
     return result;
   }
   // One document observer covers only the actual draft pairs with pending
@@ -950,10 +1131,7 @@ function riftletWebAcceptance(command, native) {
     };
   }
   function sample(op) {
-    // Edge's real upload states have not yet been calibrated in an authorized
-    // commercial draft. Its input may proceed, but Chrome's preview handoff
-    // must not become Edge START/completion evidence. Keep observing the same
-    // operation and never authorize another input from an uncertain result.
+    // Chrome's preview acceptance cannot supply Edge's correlated progress.
     if (native.applicationID === 'com.microsoft.edgemac') return;
     // The app may disable or remove its picker after accepting this file.
     // Observing that handoff needs the original draft, not another input slot.
@@ -995,9 +1173,9 @@ function riftletWebAcceptance(command, native) {
     const result = blank(op.identity), item = result.observation;
     if (op.entryDiagnostics) result.entryDiagnostics = {...op.entryDiagnostics};
     item.belongsToOriginalDraft = sameDraft(op.binding, true);
-    if (native.applicationID === 'com.microsoft.edgemac' && result.entryDiagnostics) {
+    if (native.applicationID === 'com.microsoft.edgemac') {
       const calibration = edgeCalibrationSample(op, item.belongsToOriginalDraft);
-      if (calibration) result.entryDiagnostics.edgeCalibration = calibration;
+      if (calibration && result.entryDiagnostics) result.entryDiagnostics.edgeCalibration = calibration;
     }
     item.inputExecutionPending = op.executionPending === true;
     if (op.retirement) {
@@ -1014,7 +1192,7 @@ function riftletWebAcceptance(command, native) {
       // This is an immutable acceptance fact, not a current upload-status claim.
       item.state = 'uploadStarted'; item.belongsToOriginalDraft = true;
       item.attachmentID = op.attachmentID; item.exactImageIdentity = true;
-      item.uploadStart = {...op.start};
+      item.uploadStart = {...op.start}; item.isUploading = op.start.signal === 'correlatedProgress';
     }
     return result;
   }
@@ -1036,6 +1214,8 @@ function riftletWebAcceptance(command, native) {
       const target = {adapterID: 'chatgpt-web', surface: 'webChat', ...native, clickBindingID: pin,
         documentID: registry.documentID, composerID: nodeID(parts.editor) + ':' + nodeID(parts.form),
         draftGeneration: registry.witnessGeneration.id};
+      if (native.applicationID === 'com.microsoft.edgemac' && isEdgeTemporary())
+        target.webDraftRoute = 'chatGPTTemporaryHome';
       const pinned = {...parts, target, route: route(), navigation: registry.navigation};
       if (!sameDraft(pinned)) fail('CLICK_PIN_REFUSED');
       if (native.applicationID === 'com.microsoft.edgemac') pinned.edgeCalibrationBaseline = edgeCalibrationBaseline(pinned);
@@ -1075,7 +1255,12 @@ function riftletWebAcceptance(command, native) {
       committed: false, discarded: false, inputCount: 0, changeReturned: false, retirement: null,
       baseline: new Set(), urls: new Set(), start: null};
     if (native.applicationID === 'com.microsoft.edgemac') op.edgeCalibration = {
-      baseline: binding.edgeCalibrationBaseline, invocationID: op.invocationID, beforeInput: null, samples: 0};
+      baseline: binding.edgeCalibrationBaseline, invocationID: op.invocationID, beforeInput: null, samples: 0,
+      trackProgress: command.edgeProgressCandidate === true && binding.target.webDraftRoute === 'chatGPTTemporaryHome'
+        && isEdgeTemporary()
+        && !!binding.target.clickBindingID
+        && op.mediaType === 'image/png' && op.name === 'riftlet-' + op.identity.operationID + '.png'};
+    if (op.edgeCalibration && !op.edgeCalibration.trackProgress) op.edgeCalibration.baseline?.witness?.close();
     registry.operations.set(identity.operationID, op);
     if (binding.target.clickBindingID) binding.begun = true;
     return acknowledgement(op, 0);
@@ -1115,6 +1300,7 @@ function riftletWebAcceptance(command, native) {
     inputSeen: false, inputConnected: false, setterEntered: false, changeReturned: false,
     stage: 'prepare', cause: 'none', exceptionType: 'none'};
   const retire = (reason, stage, cause) => {
+    op.edgeCalibration?.progress?.close();
     op.chunks = []; op.retirement = reason; op.executionPending = false;
     diag.stage = stage; diag.cause = cause;
     return observe(op);
@@ -1166,12 +1352,16 @@ function riftletWebAcceptance(command, native) {
       Reflect.apply(setter, input, [transfer.files]);
       diag.stage = 'change';
       input.dispatchEvent(new Event('input', {bubbles: true, composed: true}));
-      input.dispatchEvent(new Event('change', {bubbles: true}));
+      const change = new Event('change', {bubbles: true});
+      op.edgeCalibration?.progress?.expect(change);
+      input.dispatchEvent(change);
+      op.edgeCalibration?.progress?.expect(null);
       op.changeReturned = true; diag.changeReturned = true; diag.stage = 'observation';
     } catch (error) {
       // The native setter or a receiver can have taken effect. Never switch
       // paths after entering it, including after a dropped native receipt.
       diag.exceptionType = exceptionName(error); diag.cause = 'deliveryUncertain';
+      op.edgeCalibration?.progress?.close();
       op.binding.endObservation?.(); // No returned change can yield a positive START.
     } finally {
       registry.busy.delete(writingForm); registry.writingInputs.delete(input);

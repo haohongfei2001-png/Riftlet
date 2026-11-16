@@ -15,13 +15,14 @@ final class EdgeOrdinaryInputTests: XCTestCase {
         return root
     }
 
-    private func target(application: String = "com.microsoft.edgemac") -> TargetLease {
+    private func target(application: String = "com.microsoft.edgemac", route: WebDraftRoute? = .chatGPTTemporaryHome) -> TargetLease {
         TargetLease(adapterID: "chatgpt-web", surface: .webChat, applicationID: application,
             sessionID: "owned-edge-session", windowID: "11", tabID: "12", documentID: "owned-document",
-            composerID: "owned-editor", draftGeneration: "owned-draft", clickBindingID: UUID())
+            composerID: "owned-editor", draftGeneration: "owned-draft", clickBindingID: UUID(), webDraftRoute: route)
     }
 
-    private func prepare(root: URL, store: QueueStore, gray: CGFloat, origin: AssetOrigin = .systemScreenshot)
+    private func prepare(root: URL, store: QueueStore, gray: CGFloat, origin: AssetOrigin = .systemScreenshot,
+                         route: WebDraftRoute? = .chatGPTTemporaryHome)
         async throws -> (TransferRequest, Data, UUID) {
         let context = try XCTUnwrap(CGContext(data: nil, width: 4, height: 4, bitsPerComponent: 8,
             bytesPerRow: 4, space: CGColorSpaceCreateDeviceGray(), bitmapInfo: CGImageAlphaInfo.none.rawValue))
@@ -36,7 +37,7 @@ final class EdgeOrdinaryInputTests: XCTestCase {
             sha256: SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined(), byteCount: Int64(bytes.count),
             pixelWidth: 4, pixelHeight: 4, mediaType: "image/png", origin: origin)
         _ = try await store.importAsset(asset)
-        let prepared = try await store.prepare(assetID: asset.id, target: target()), owner = UUID()
+        let prepared = try await store.prepare(assetID: asset.id, target: target(route: route)), owner = UUID()
         let invocation = try await store.markIndependentFileInputIntent(prepared.id, ownerID: owner)
         let saved = try await store.operation(id: prepared.id)
         return (TransferRequest(operation: try XCTUnwrap(saved), asset: asset, fileURL: file, invocationID: invocation), bytes, owner)
@@ -124,6 +125,79 @@ final class EdgeOrdinaryInputTests: XCTestCase {
         }
     }
 
+    func testNewSystemPNGUsesOriginalEdgeOnlyStartWithNoOtherCapability() async throws {
+        let root = try directory(); defer { try? FileManager.default.removeItem(at: root) }
+        let store = try QueueStore(databaseURL: root.appendingPathComponent("queue.sqlite"))
+        let bridge = EdgeInputBridge(signal: .correlatedProgress)
+        let client = try adapter(root: root, store: store, bridge: bridge)
+        let (request, _, owner) = try await prepare(root: root, store: store, gray: 0.41)
+        let entered = try await client.append(request)
+        XCTAssertEqual(entered.outcome, .inputTriggered)
+        try await store.recordAppendReturned(entered, invocationID: try XCTUnwrap(request.invocationID), ownerID: owner)
+        _ = try await store.apply(entered)
+        await bridge.setState(.uploadStarted)
+        let receipt = try await client.reconcile(refreshed(request, store: store))
+        let profile = OrdinaryProductScreenshotScope.edgeProgressProfile
+        let id = try XCTUnwrap(profile.uploadStartProfileID)
+        XCTAssertEqual(receipt.profileID, profile.profileID); XCTAssertEqual(receipt.uploadStartEvidence?.profileID, id)
+        XCTAssertEqual(receipt.uploadStartEvidence?.signal, .correlatedProgress); XCTAssertEqual(receipt.outcome, .uploadStarted)
+        XCTAssertTrue(receipt.isUploading); XCTAssertFalse(receipt.safeToRetry); XCTAssertFalse(receipt.positiveReady)
+        XCTAssertNil(receipt.completionEvidence); XCTAssertNil(receipt.terminationEvidence); XCTAssertNil(receipt.continuationEvidence)
+        let policy = ReceiptPolicy(uploadStartProfiles: [id: .webChat], profileOrigins: [id: [.systemScreenshot]],
+            startOnlyApplications: ["com.microsoft.edgemac": .init(adapterID: profile.adapterID, receiptProfileID: profile.profileID, startProfileID: id,
+                signal: .correlatedProgress, mediaType: "image/png", route: .chatGPTTemporaryHome)])
+        let row = try await store.apply(receipt, policy: policy)
+        XCTAssertEqual(row.visibility, .swallowed)
+        let start = try await store.uploadStartReceipt(for: request.operation.id)
+        XCTAssertEqual(start, receipt); XCTAssertFalse(policy.allowsConsumption(receipt: receipt, asset: request.asset, mode: .production))
+        XCTAssertFalse(policy.allowsRetry(receipt: receipt, asset: request.asset, mode: .production))
+        let records = await bridge.records()
+        XCTAssertEqual(records.commands.map(\.action), [.begin, .chunk, .commit, .observe])
+        XCTAssertEqual(records.commands.first?.edgeProgressCandidate, true)
+        XCTAssertTrue(records.commands.dropFirst().allSatisfy { $0.edgeProgressCandidate == nil })
+    }
+
+    func testEdgeProgressCannotPromoteOldRegistrationOrBuiltInOriginOrZeroStartingValue() async throws {
+        let root = try directory(); defer { try? FileManager.default.removeItem(at: root) }
+        let store = try QueueStore(databaseURL: root.appendingPathComponent("queue.sqlite"))
+        for scenario in ["old-v18", "ordinary-draft", "built-in", "zero", "old-provenance"] {
+            let (request, _, _) = try await prepare(root: root, store: store, gray: 0.2,
+                origin: scenario == "built-in" ? .applicationScreenshot : .systemScreenshot,
+                route: ["old-v18", "ordinary-draft"].contains(scenario) ? nil : .chatGPTTemporaryHome)
+            let bridge = EdgeInputBridge(state: .uploadStarted, signal: .correlatedProgress,
+                previousProgress: scenario == "zero" ? 0 : 4,
+                provenanceID: scenario == "old-provenance" ? "click-document-witness-20261114-v18" : "click-document-witness-20261117-v19")
+            let client = try adapter(root: root, store: store, bridge: bridge)
+            if scenario == "old-v18" {
+                let op = request.operation
+                let identity = ObservationIdentity(operationID: op.id, assetID: request.asset.id,
+                    attempt: op.attempt, assetSHA256: request.asset.sha256, target: op.target)
+                let old = OrdinaryProductScreenshotScope.admittedSystemProfile
+                let registration: [String: Any] = ["version": 2, "sourceID": ChatGPTWebPageProgram.priorClickSource,
+                    "startProfileID": try XCTUnwrap(old.uploadStartProfileID), "completionProfileID": old.profileID,
+                    "enrollmentID": UUID().uuidString, "assetOrigin": AssetOrigin.systemScreenshot.rawValue,
+                    "identity": try JSONSerialization.jsonObject(with: JSONEncoder().encode(identity))]
+                let bytes = try JSONSerialization.data(withJSONObject: registration, options: [.sortedKeys])
+                for scope in [SystemScreenshotAdmissionScope.candidate, .productSystem] {
+                    _ = try await store.claimDispatchCheckpoint(bytes, for: SystemScreenshotCandidateAdmission.checkpointKey(for: request, scope: scope),
+                        operation: op, asset: request.asset)
+                }
+                try await store.markUnknown(op.id, reason: "original old input permanently uncertain")
+            }
+            do {
+                if scenario == "old-v18" { _ = try await client.reconcile(refreshed(request, store: store)) }
+                else { _ = try await client.append(request) }
+                XCTFail(scenario)
+            } catch { XCTAssertEqual(error as? WebAdapterError, .invalidReply, scenario) }
+            let start = try await store.uploadStartReceipt(for: request.operation.id)
+            let row = try await store.asset(id: request.asset.id)
+            XCTAssertNil(start); XCTAssertEqual(row?.visibility, .visible)
+            let sent = await bridge.records()
+            XCTAssertEqual(sent.commands.map(\.action), scenario == "old-v18" ? [.observe] : [.begin, .chunk, .commit])
+            if ["built-in", "ordinary-draft"].contains(scenario) { XCTAssertNil(sent.commands.first?.edgeProgressCandidate) }
+        }
+    }
+
     func testLostCommitReplyObservesOriginalUnknownWhileDistinctNextImageCanEnter() async throws {
         let root = try directory(); defer { try? FileManager.default.removeItem(at: root) }
         let store = try QueueStore(databaseURL: root.appendingPathComponent("queue.sqlite"))
@@ -158,6 +232,15 @@ final class EdgeOrdinaryInputTests: XCTestCase {
         }
     }
 
+    func testHistoricalLeaseStableKeyRemainsByteIdenticalWithoutRouteClassification() throws {
+        let original: [String: String] = ["adapterID": "chatgpt-web", "surface": "webChat", "applicationID": "com.microsoft.edgemac",
+            "sessionID": "s", "windowID": "1", "tabID": "2", "documentID": "d", "composerID": "c", "draftGeneration": "g",
+            "clickBindingID": UUID().uuidString]
+        let bytes = try JSONSerialization.data(withJSONObject: original, options: [.sortedKeys])
+        let restored = try JSONDecoder().decode(TargetLease.self, from: bytes)
+        XCTAssertNil(restored.webDraftRoute); XCTAssertEqual(Data(restored.stableKey.utf8), bytes)
+    }
+
     func testProductAllowsEdgeInputScopeWhileOriginalInternalScopeStaysChromeOnly() throws {
         let edge = target(), chrome = target(application: "com.google.Chrome")
         for scope in [SystemScreenshotAdmissionScope.productSystem, .productApplication] {
@@ -186,8 +269,14 @@ private actor EdgeInputBridge: WebBridgeExecutor {
     private var loseCommitReply: Bool
     private var commands: [WebBridgeCommand] = []
     private var bytes: [UUID: Data] = [:]
-    init(state: AttachmentObservedState = .inputTriggered, loseCommitReply: Bool = false) {
-        self.state = state; self.loseCommitReply = loseCommitReply
+    private let signal: UploadStartSignal
+    private let previousProgress: Double
+    private let provenanceID: String
+    init(state: AttachmentObservedState = .inputTriggered, loseCommitReply: Bool = false,
+         signal: UploadStartSignal = .attachmentAccepted, previousProgress: Double = 4,
+         provenanceID: String = "click-document-witness-20261117-v19") {
+        self.state = state; self.loseCommitReply = loseCommitReply; self.signal = signal
+        self.previousProgress = previousProgress; self.provenanceID = provenanceID
     }
     func setState(_ value: AttachmentObservedState) { state = value }
     func records() -> (commands: [WebBridgeCommand], bytes: [UUID: Data]) { (commands, bytes) }
@@ -206,15 +295,15 @@ private actor EdgeInputBridge: WebBridgeExecutor {
                 loseCommitReply = false
                 throw WebAdapterError.nativeEventFailed(-1712)
             }
-            let start = state == .uploadStarted ? ObservedUploadStart(version: 1, signal: .attachmentAccepted,
+            let start = state == .uploadStarted ? ObservedUploadStart(version: 1, signal: signal,
                 evidenceID: "00000000-0000-4000-8000-000000000001", inputCount: 1, inputSequence: 1, startSequence: 2,
-                previousProgress: 0, currentProgress: 0, inputObservedAtMS: 10, startObservedAtMS: 11) : nil
+                previousProgress: signal == .correlatedProgress ? previousProgress : 0, currentProgress: signal == .correlatedProgress ? 18 : 0, inputObservedAtMS: 10, startObservedAtMS: 11) : nil
             return try JSONEncoder().encode(AttachmentObservationEnvelope(schemaVersion: 2,
-                provenance: .init(source: .integratedDevelopment, evidenceID: "click-document-witness-20261117-v19"),
+                provenance: .init(source: .integratedDevelopment, evidenceID: provenanceID),
                 observation: .init(identity: identity, state: state,
                     attachmentID: [.uploadStarted, .attached, .ready].contains(state) ? "owned-fixture-attachment" : nil,
                     exactImageIdentity: true, belongsToOriginalDraft: true,
-                    hasError: state == .failed, attachmentAbsent: state == .failed,
+                    hasError: state == .failed, isUploading: state == .uploadStarted && signal == .correlatedProgress, attachmentAbsent: state == .failed,
                     automaticRetryExcluded: state == .failed, uploadStart: start, inputExecutionPending: false)))
         default: throw WebAdapterError.invalidRequest
         }

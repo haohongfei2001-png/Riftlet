@@ -110,13 +110,20 @@ struct OrdinaryAttachmentAdmission {
                     continuations[continuation] = .webChat; origins[continuation] = [scope.origin]
                 }
             }
+            let edgeStart = OrdinaryProductScreenshotScope.edgeProgressStartProfileID
+            let edgeRule = ReceiptPolicy.StartOnlyRule(adapterID: OrdinaryProductScreenshotScope.edgeProgressProfile.adapterID,
+                receiptProfileID: OrdinaryProductScreenshotScope.edgeProgressProfile.profileID,
+                startProfileID: edgeStart, signal: .correlatedProgress, mediaType: "image/png", route: .chatGPTTemporaryHome)
+            if productOrigins.contains(.systemScreenshot) {
+                starts[edgeStart] = .webChat; origins[edgeStart] = [.systemScreenshot]
+            }
             // Old scopes may have registered input-only operations without
             // start/completion approval. Observe their original journal, but do
             // not promote them merely because a new product is now enabled.
             return ReceiptPolicy(admittedProfiles: completions, uploadStartProfiles: starts,
                 continuationProfiles: continuations, profileOrigins: origins,
                 requiredCompletionEvidenceProfiles: Set(completions.keys),
-                requiredInputIsolationProfiles: Set(continuations.keys))
+                requiredInputIsolationProfiles: Set(continuations.keys), startOnlyApplications: ["com.microsoft.edgemac": edgeRule])
         }
         if allowsStart { starts[OrdinarySystemScreenshotScope.admittedUploadStartProfileID] = .webChat }
         if allowsCompletion { completions[OrdinarySystemScreenshotScope.admittedCompletionProfileID] = .webChat }

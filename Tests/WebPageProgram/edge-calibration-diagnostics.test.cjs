@@ -298,3 +298,141 @@ test('Chrome keeps its existing receipt behavior and has no Edge calibration sid
   assert.equal(result.observation.state, 'uploadStarted'); assert.equal(result.entryDiagnostics.edgeCalibration, undefined);
   assert.equal(f.setters, 1); assert.equal(f.changes, 1); assert.equal(f.sends, 0);
 });
+
+const calibratedTemporary = 'https://chatgpt.com/?temporary-chat=true';
+function edgeProgressFixture({route = calibratedTemporary, candidate = true, prepare, beforeInput, render} = {}) {
+  const controls = edgeFixture({route, accept:false}), {f} = controls;
+  const cards = [];
+  prepare?.(f);
+  f.setChange(file => {
+    const url = f.context.URL.createObjectURL(file);
+    const card = f.addCard(file.name);
+    const image = card.querySelector('img'), bar = card.querySelector('[role="progressbar"]');
+    image.setAttribute('src', url);
+    const current = {card, image, bar, file};
+    render?.(f, current); cards.push(current);
+  });
+  const submit = async () => {
+    const op = controls.bind();
+    beforeInput?.(f);
+    f.stage(op, candidate ? {edgeProgressCandidate:true} : {});
+    const reply = await f.commit(op);
+    assert.equal(reply.observation.state, 'inputTriggered');
+    return op;
+  };
+  return {...controls, cards, submit};
+}
+
+test('Edge START binds independent in-flight PNGs to their own fresh card, File URL and advancing control', async () => {
+  const {f, cards, submit, observe} = edgeProgressFixture();
+  const first = await submit(), second = await submit();
+  const [a, b] = cards;
+  b.bar.setAttribute('aria-valuenow','12.5');
+  assert.equal(observe(first).observation.state, 'inputTriggered');
+  const two = observe(second).observation;
+  assert.equal(two.state, 'uploadStarted'); assert.equal(two.uploadStart.signal,'correlatedProgress');
+  assert.equal(two.uploadStart.previousProgress,10); assert.equal(two.uploadStart.currentProgress,12.5);
+  assert.ok(two.uploadStart.startObservedAtMS > two.uploadStart.inputObservedAtMS);
+  assert.equal(two.uploadStart.inputCount,1); assert.equal(two.isUploading,true);
+  assert.equal(two.exactImageIdentity,true); assert.equal(two.belongsToOriginalDraft,true);
+  assert.equal(two.completionEvidence,undefined); assert.equal(two.automaticRetryExcluded,false);
+  a.bar.setAttribute('aria-valuenow','19');
+  const one = observe(first).observation;
+  assert.equal(one.state,'uploadStarted'); assert.equal(one.uploadStart.currentProgress,19);
+  assert.notEqual(one.attachmentID,two.attachmentID); assert.notEqual(one.uploadStart.evidenceID,two.uploadStart.evidenceID);
+  assert.equal(observe(first).observation.uploadStart.evidenceID,one.uploadStart.evidenceID);
+  assert.equal(f.setters,2); assert.equal(f.changes,2); assert.equal(f.sends,0);
+});
+
+test('Edge progress refuses historical sources, other routes, stale or ambiguous page evidence', async t => {
+  const cases = {
+    'not enrolled': {candidate:false},
+    'ordinary draft': {route:'https://chatgpt.com/c/mock'},
+    'similar temporary query': {route:'https://chatgpt.com/?temporary-chat=true&other=1'},
+    'blob from another File': {render:(f,c) => c.image.setAttribute('src', f.context.URL.createObjectURL(new File(['x'], c.file.name)))},
+    'prior preview': {render:(f,c) => {c.image.remove(); const old=f.oldCard.querySelector('img'); c.card.append(old); old.setAttribute('src',c.image.getAttribute('src'));}},
+    'wrong filename': {render:(f,c) => {for(const n of [c.card,c.image]) for(const k of ['data-file-name','alt','title','aria-label']) n.setAttribute(k,'different.png');}},
+    'second named card': {render:(f,c) => f.addCard(c.file.name)},
+    'anonymous tray with differently named owners': {render:(f,c) => {
+      const group = f.form.append(new f.Node('div')), sibling = group.append(new f.Node('div',{'data-file-name':'different.png'}));
+      group.append(c.card); sibling.append(c.bar);
+    }},
+    'two bars': {render:(f,c) => c.card.append(new f.Node('div',{role:'progressbar','aria-valuenow':'5'}))},
+    'extra change of the same File': {change:f => {f.setChange(null); f.input.dispatchEvent(new f.context.Event('change',{bubbles:true}));}, changes:2},
+    'finish and reset between observations': {change:(f,c) => {c.bar.setAttribute('aria-valuenow','100'); c.bar.setAttribute('aria-valuenow','3');}},
+    'remove and reinsert a prior attachment during staging': {beforeInput:f => {f.oldCard.remove(); f.form.append(f.oldCard);}},
+    'replace bar': {change:(f,c) => {c.bar.remove(); c.bar=c.card.append(new f.Node('div',{role:'progressbar','aria-valuenow':'21'}));}},
+    'move card and restore': {change:(f,c) => {c.card.remove(); f.form.append(c.card);}},
+    'move bar and restore': {change:(f,c) => {c.bar.remove(); c.card.append(c.bar);}},
+    'recycle previous bar': {prepare:f => {f.existingBar=f.oldCard.append(new f.Node('div',{role:'progressbar','aria-valuenow':'10'}));},
+      render:(f,c) => {c.bar.remove(); c.bar=c.card.append(f.existingBar);}},
+    'rename and restore': {change:(f,c) => {c.card.setAttribute('title','another'); c.card.setAttribute('title',c.file.name);}},
+    'prior attachment removed': {change:f => f.oldCard.remove()},
+    'original selection changed': {change:f => f.selection.setBaseAndExtent(f.editor,0,f.editor,0)},
+    'original text changed': {change:f => {f.editor.textContent='updated';}},
+    'original document replaced': {change:f => {f.document.documentElement=new f.Node('html');}},
+    'error': {change:(f,c) => c.card.setAttribute('data-state','failed')},
+    'ready': {change:(f,c) => c.card.setAttribute('data-state','ready')},
+    'bar restarted': {intermediate:'2'},
+    'unknown gap': {intermediate:''},
+    '100 is not START': {intermediate:'100'},
+    'static value': {final:'10'}, 'invalid later scale': {change:(f,c) => c.bar.setAttribute('aria-valuemax','50')},
+    'no second instant': {prepare:f => {f.context.performance={now:()=>100};}}
+  };
+  for (const [name, options] of Object.entries(cases)) await t.test(name, async () => {
+    const {f, cards, submit, observe} = edgeProgressFixture(options);
+    const operation = await submit(), current = cards[0];
+    options.change?.(f,current);
+    if (options.intermediate !== undefined) {
+      current.bar.setAttribute('aria-valuenow',options.intermediate);
+      assert.equal(observe(operation).observation.state,'inputTriggered');
+    }
+    current.bar.setAttribute('aria-valuenow',options.final ?? '25');
+    const result = observe(operation).observation;
+    assert.equal(result.state,'inputTriggered'); assert.equal(result.uploadStart,undefined);
+    assert.equal(result.completionEvidence,undefined); assert.equal(result.automaticRetryExcluded,false);
+    assert.equal(f.setters,1); assert.equal(f.changes,options.changes ?? 1); assert.equal(f.sends,0);
+  });
+});
+
+
+test('an input cannot reclaim another operation’s previously observed detached progressbar', async () => {
+  let priorBar;
+  const {f, cards, submit, observe} = edgeProgressFixture({render:(fixture,c) => {
+    if (priorBar) { c.bar.remove(); c.bar=c.card.append(priorBar); }
+    else priorBar=c.bar;
+  }});
+  const first = await submit(), original = cards[0];
+  original.bar.setAttribute('aria-valuenow','14');
+  assert.equal(observe(first).observation.state,'uploadStarted');
+  original.card.remove(); priorBar.remove(); priorBar.setAttribute('aria-valuenow','10');
+  const second = await submit();
+  priorBar.setAttribute('aria-valuenow','28');
+  assert.equal(observe(second).observation.state,'inputTriggered');
+  assert.equal(f.setters,2); assert.equal(f.changes,2);
+});
+
+test('a named Remove sibling must share one new card with the popup that owns both the exact File image and bar', async t => {
+  for (const arrangement of ['sibling', 'other parent', 'third sibling', 'unrelated action', 'sibling bar']) {
+    await t.test(arrangement, async () => {
+      const {f, cards, submit, observe} = edgeProgressFixture({route:'https://chatgpt.com:443/?temporary-chat=true', render:(f,c) => {
+        const local = f.form.append(new f.Node('div'));
+        // Build the final initial DOM before inserting it into the observed form.
+        // addCard() already inserted its fresh contents in this small fixture.
+        const popup = new f.Node('button',{'aria-haspopup':'dialog', 'aria-label':c.file.name});
+        const image = popup.append(new f.Node('img',{src:c.image.getAttribute('src'),alt:c.file.name}));
+        const bar = new f.Node('div',{role:'progressbar','aria-valuenow':'10'});
+        c.card.remove(); c.card=popup; c.image=image; c.bar=bar;
+        const container = arrangement === 'other parent' ? f.form.append(new f.Node('div')) : local;
+        const remove = new f.Node('button',{'aria-label':(arrangement === 'unrelated action' ? 'Open ' : '移除 ') + c.file.name});
+        if (arrangement === 'sibling bar') remove.append(bar); else popup.append(bar);
+        local.append(popup); container.append(remove);
+        if (arrangement === 'third sibling') local.append(new f.Node('button',{'aria-label':'Another file'}));
+      }});
+      const op = await submit();
+      cards[0].bar.setAttribute('aria-valuenow','36');
+      assert.equal(observe(op).observation.state,arrangement === 'sibling' ? 'uploadStarted' : 'inputTriggered');
+      assert.equal(f.setters,1); assert.equal(f.changes,1);
+    });
+  }
+});

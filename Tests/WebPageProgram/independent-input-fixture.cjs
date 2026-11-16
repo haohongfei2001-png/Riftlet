@@ -58,8 +58,8 @@ function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focu
   get type(){return this.attrs.type||(this.tagName==='BUTTON'?'submit':'');} get accept(){return this.attrs.accept||'';} get form(){return this.closest('form');}
   get isContentEditable(){return this.attrs.contenteditable==='true';}
   getAttribute(key){return this.attrs[key]??null;} hasAttribute(key){return key in this.attrs;}
-  setAttribute(key,value){this.attrs[key]=String(value);queueMutation({type:'attributes',target:this,attributeName:key});}
-  removeAttribute(key){delete this.attrs[key];queueMutation({type:'attributes',target:this,attributeName:key});}
+  setAttribute(key,value){const oldValue=this.getAttribute(key);this.attrs[key]=String(value);queueMutation({type:'attributes',target:this,attributeName:key,oldValue});}
+  removeAttribute(key){const oldValue=this.getAttribute(key);delete this.attrs[key];queueMutation({type:'attributes',target:this,attributeName:key,oldValue});}
   matches(selector){return matches(this,selector);}
   closest(selector){return this.matches(selector)?this:this.parentElement?.closest?.(selector)||null;}
   contains(node){return this===node||this.children.some(child=>child.contains(node));}
@@ -146,7 +146,7 @@ function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focu
   const identity={operationID:id,assetID:webcrypto.randomUUID(),attempt:1,assetSHA256:sha(bytes),target},invocationID=webcrypto.randomUUID();
   return {identity,target,bytes,name:'riftlet-'+id+'.png',invocationID,command:action=>({action,target,identity,invocationID})};
  }
- function stage(op){call({...op.command('begin'),invocationID:op.invocationID,uploadName:op.name,mediaType:'image/png',byteCount:op.bytes.length});call({...op.command('chunk'),chunkIndex:0,chunkBase64:op.bytes.toString('base64')});}
+ function stage(op,begin={}){call({...op.command('begin'),...begin,invocationID:op.invocationID,uploadName:op.name,mediaType:'image/png',byteCount:op.bytes.length});call({...op.command('chunk'),chunkIndex:0,chunkBase64:op.bytes.toString('base64')});}
  const commit=op=>call({...op.command('commit'),chunkIndex:1});
  const observe=op=>call(op.command('observe')).observation;
  const waitFor=async(fn,label='page result')=>{const deadline=Date.now()+2000;do{const value=fn();if(value)return value;await new Promise(r=>setTimeout(r,1));}while(Date.now()<deadline);throw Error('bounded wait expired: '+label);};
