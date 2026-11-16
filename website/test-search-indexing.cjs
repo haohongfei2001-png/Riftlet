@@ -22,9 +22,9 @@ test('Riftlet identity is explicit and there is no false capability claim',()=>{
  const app=JSON.parse(data[1]);
  assert.equal(app.name,'Riftlet');
  assert.equal(app.url,'https://riftlet.com/');
- assert.equal(app.softwareVersion,'1.0.2');
+ assert.equal(app.softwareVersion,'1.0.3');
  assert.match(app.description,/Chrome/);
- assert.match(app.downloadUrl,/v1\.0\.2\/Riftlet-1\.0\.2\.dmg$/);
+ assert.match(app.downloadUrl,/v1\.0\.3-zip\/Riftlet-1\.0\.3\.zip$/);
  assert.equal((html.match(/type="application\/ld\+json"/g)||[]).length,1);
 });
 test('IndexNow domain ownership file matches key exactly',()=>{
