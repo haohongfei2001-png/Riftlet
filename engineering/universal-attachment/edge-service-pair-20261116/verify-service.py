@@ -4,7 +4,6 @@ Only structural offsets are traversed for unrelated HAR fields. No general HAR
 JSON deserialization, URL/query parser, cookie/header dump or PUT body access.
 """
 import argparse
-from collections import Counter
 from datetime import datetime, timezone, timedelta
 import hashlib
 import json
@@ -13,7 +12,11 @@ from pathlib import Path
 import re
 
 SOURCE = "4fddbe800991bb3f68ef632b08085f7175344d0aaca47e8d8bda2e37a0a99372"
-FIXTURES = {605: "ADD22B55-CA51-4F3B-AA5D-961FB38FC73B", 606: "AB43217B-B05E-4E0E-A31D-D55742D28D41"}
+# Operation and exact neutral request filename allowlists, in SHA-256 form.
+FIXTURES = {
+    605: ("42757826432694954c594df4941870ee7737caf43dcf93e030a12189309a4cc6", "be9886a61741143825d31d55431f8206a67c50c1a4f6d71bc10adfdf6f356e8b"),
+    606: ("680c6903664ca8baf633f71f51d69e74c016232a0e067d0e7c822801c713909f", "4d22b2c926148a54fa6a78edf63d0b1a988e2ce2f3a03265eda541ecc2d30ca9"),
+}
 BRACKETS = re.compile(rb'["{}\[\]]')
 WS = re.compile(rb'[\x20\x09\x0a\x0d]*')
 PRIMITIVE = re.compile(rb'[^,\]}\s]+')
@@ -162,7 +165,7 @@ def route(js, url):
         return None
     off = a+len(prefix)
     for suffix, kind in ((b"/process_upload_stream","PROCESS"), (b"","CREATE")):
-        if js.b[off:off+len(suffix)] == suffix and js.b[off+len(suffix):off+len(suffix)+1] in (b"?",b'"'):
+        if re.compile(re.escape(suffix)).match(js.b,off,z) and js.b[off+len(suffix):off+len(suffix)+1] in (b"?",b'"'):
             return kind
     return "OTHER_FILE_ENDPOINT"
 
@@ -240,18 +243,21 @@ def request_record(js, row):
                 startUTC=time_iso(start), endUTC=time_iso(end), durationMS=round(length,3)), end
 
 
-def projected_name(js, row, name):
+def projected_name(js, row, name_hash):
     req = js.fields(row[6]["request"], "postData")
     text = body(js,req.get("postData"))
-    if text and only(body_field_pattern(b"file_name",re.escape(name)),js.b,text):
-        demand(key_count(js.b,text,b"file_name") == 1,"AMBIGUOUS_NEUTRAL_FILE_NAME")
-        return text
+    shape = rb'riftlet-[0-9A-F]{8}(?:-[0-9A-F]{4}){3}-[0-9A-F]{12}\.png'
+    if text:
+        for match in body_field_pattern(b"file_name",shape).finditer(js.b,*text):
+            if sha(memoryview(js.b)[match.start(1):match.end(1)]) == name_hash:
+                demand(key_count(js.b,text,b"file_name") == 1,"AMBIGUOUS_NEUTRAL_FILE_NAME")
+                return text, match.group(1)
     return None
 
 
-def linked_creation(js, rows, name):
-    row, post = one(((r,p) for r in rows if r[3:5] == ("POST","CREATE") and
-                     (p := projected_name(js,r,name))), "NEUTRAL_CREATE_COUNT")
+def linked_creation(js, rows, name_hash):
+    row, (post,name) = one(((r,p) for r in rows if r[3:5] == ("POST","CREATE") and
+                            (p := projected_name(js,r,name_hash))), "NEUTRAL_CREATE_COUNT")
     size = only(body_field_pattern(b"file_size",rb'\d{1,12}',False),js.b,post)
     response = body(js,js.fields(row[6]["response"],"content").get("content"))
     demand(size and response,"CREATE_SIZE_OR_RESPONSE_MISSING")
@@ -262,7 +268,7 @@ def linked_creation(js, rows, name):
     record, _ = request_record(js,row)
     record.update(requestFileNameSHA256=sha(name), requestFileNameMatchesOriginalOperation=True,
                   requestedFileSizeBytes=int(size), responseFileIDSHA256=sha(file_id), queryFreeStorageLocatorSHA256=sha(locator))
-    return record, file_id, locator
+    return record, file_id, locator, name
 
 
 def linked_put(js, rows, locator, size):
@@ -322,9 +328,9 @@ def processing_events(js, response_content, file_id):
 
 
 def linked_processing(js, rows, name, file_id):
-    row, post = one(((r,p) for r in rows if r[3:5] == ("POST","PROCESS") and
-                     (p := projected_name(js,r,name))),"NEUTRAL_PROCESS_COUNT")
-    demand(key_count(js.b,post,b"file_id") == 1 and only(body_field_pattern(b"file_id",ID_BYTES),js.b,post) == file_id,
+    row, (post,process_name) = one(((r,p) for r in rows if r[3:5] == ("POST","PROCESS") and
+                                    (p := projected_name(js,r,sha(name)))),"NEUTRAL_PROCESS_COUNT")
+    demand(process_name == name and key_count(js.b,post,b"file_id") == 1 and only(body_field_pattern(b"file_id",ID_BYTES),js.b,post) == file_id,
            "PROCESS_FILE_ID_DIFFERS_FROM_CREATE")
     record, _ = request_record(js,row)
     state, events, result = processing_events(js,js.fields(row[6]["response"],"content").get("content"),file_id)
@@ -343,7 +349,7 @@ def clock_anchor(app_folder):
 
 
 def progress_alignment(app_folder, app_audit, seed, times, anchor):
-    op = sha(FIXTURES[seed].lower().encode("ascii"))
+    op = FIXTURES[seed][0]
     case = one((c for c in app_audit["images"] if c["seed"] == seed),"APP_CASE")
     demand(case["operationDigest"] == op,"APP_OPERATION_ID_MISMATCH")
     relative = "raw-events.jsonl" if seed == 605 else "606-separate/raw-events.jsonl"
@@ -383,10 +389,10 @@ def audit(har, app_folder, app_path):
         demand(sha(buf) == SOURCE,"HAR_SHA256_MISMATCH")
         js = StructuralJSON(buf)
         rows,n = walk_projection(js)
-        for seed,operation in FIXTURES.items():
+        for seed,(operation_hash,name_hash) in FIXTURES.items():
             subset = [r for r in rows if r[1] == seed]
-            name = ("riftlet-"+operation+".png").encode("ascii")
-            create,file_id,locator = linked_creation(js,subset,name)
+            create,file_id,locator,name = linked_creation(js,subset,name_hash)
+            demand(sha(name[8:-4].lower()) == operation_hash,"NEUTRAL_NAME_OPERATION_MISMATCH")
             put,times = linked_put(js,subset,locator,create["requestedFileSizeBytes"])
             process = linked_processing(js,subset,name,file_id)
             demand(create["httpStatus"] == process["httpStatus"] == 200 and
