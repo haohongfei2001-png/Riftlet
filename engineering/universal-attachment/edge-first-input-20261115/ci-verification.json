@@ -1,0 +1,400 @@
+{
+  "reviewer": "independent_final_diagnostics_source_review",
+  "head": "932f278f3412fd3158f01907a5a484ac9c235fa2",
+  "reviewedSource": "285389696de110f076ba60d2e8a1a6fbe98c6b3e",
+  "base": "b5a412f6d37378b7cfef56e2f1e9524cc9b1ac6e",
+  "scope": "Exact H2 932f278 hosted CI/source/package scope only; not commercial attachment acceptance or proof for a later head/configuration.",
+  "result": "PASS_5_REQUIRED_CI_JOBS",
+  "runs": [
+    {
+      "id": 43721501954,
+      "name": "Feedback v0.1",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 324,
+      "jobs_url": "https://api.github.com/repos/haohongfei2001-png/Riftlet/actions/runs/43721501954/jobs",
+      "logs_url": "https://api.github.com/repos/haohongfei2001-png/Riftlet/actions/runs/43721501954/logs",
+      "workflow_id": 399083617,
+      "run_attempt": 1,
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43721501954"
+    },
+    {
+      "id": 43721502023,
+      "name": "Native foundation",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 418,
+      "jobs_url": "https://api.github.com/repos/haohongfei2001-png/Riftlet/actions/runs/43721502023/jobs",
+      "logs_url": "https://api.github.com/repos/haohongfei2001-png/Riftlet/actions/runs/43721502023/logs",
+      "workflow_id": 397402349,
+      "run_attempt": 1,
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43721502023"
+    }
+  ],
+  "testedMerge": {
+    "sha": "49f7c280083d84a933b19bc9183b45c4d5524bb7",
+    "tree": "5b0507d290c247f51584c779538967ea8be7d1cc",
+    "parents": [
+      "b5a412f6d37378b7cfef56e2f1e9524cc9b1ac6e",
+      "932f278f3412fd3158f01907a5a484ac9c235fa2"
+    ],
+    "verification": "GitHub git commits API tree/ordered parents; all five raw checkout logs; tree equals H2."
+  },
+  "admissionVerification": {
+    "head": "932f278f3412fd3158f01907a5a484ac9c235fa2",
+    "source": "285389696de110f076ba60d2e8a1a6fbe98c6b3e",
+    "base": "b5a412f6d37378b7cfef56e2f1e9524cc9b1ac6e",
+    "tree": "5b0507d290c247f51584c779538967ea8be7d1cc",
+    "soleParent": "285389696de110f076ba60d2e8a1a6fbe98c6b3e",
+    "admissionOnly": true,
+    "rawReviewByteIdentical": true,
+    "rawReviewBytes": 4432,
+    "rawReviewSHA256": "236415d2eaee2541a80ddc67c09ccb99c4364abeecfa2fe4eb0a6f4ed11811e1",
+    "scope": "Local commit verification only, not remote or CI result"
+  },
+  "jobs": [
+    {
+      "id": 132834278630,
+      "name": "Native ARM64",
+      "run_id": 43721502023,
+      "status": "completed",
+      "conclusion": "success",
+      "log": {
+        "file": "native-arm64.log",
+        "bytes": 1222862,
+        "sha256": "6df9b545e19234b60ff4e103a8f05b1e86f0cfdd5479d401714ad6f93fdc92fd",
+        "scope": "Complete connector-decoded job text persisted as UTF-8 with original BOM; not a downloaded ZIP."
+      },
+      "checkedOutMergeConfirmedInLog": true,
+      "skippedSteps": [
+        "Verify isolated arrival delta and report native motion outcomes"
+      ],
+      "skippedXCTestLines": [
+        {
+          "line": 10455,
+          "text": "2026-11-15T14:05:13.6969530Z Test Case '-[RiftletUITests.HistoryDisplayStyleTests testCachedGridTextAndBorderResolveActualHighContrastWithinItsAppearance]' skipped (0.001 seconds)."
+        },
+        {
+          "line": 10902,
+          "text": "2026-11-15T14:10:29.6524170Z Test Case '-[RiftletUITests.SettingsNativeStyleTests testSameCachedColorsResolveNativeLightAndDarkWithoutChangingV2Tokens]' skipped (0.012 seconds)."
+        }
+      ],
+      "newTests": [
+        {
+          "test": "EdgeAppleEventsExecutorTests/testColdCombinedPinLeavesBudgetForExactSelectionWithoutRepeatingAddressFreeze",
+          "result": "PASS",
+          "evidence": {
+            "line": 7658,
+            "text": "2026-11-15T14:00:30.0336060Z [284/1444] Testing RiftletAdaptersTests.EdgeAppleEventsExecutorTests/testColdCombinedPinLeavesBudgetForExactSelectionWithoutRepeatingAddressFreeze"
+          },
+          "basis": "Actual parallel Testing row plus successful native test step and completed successful job."
+        },
+        {
+          "test": "EdgeAppleEventsExecutorTests/testFinalClickSelectionRefusesSwitchOrExitBeforeCapture",
+          "result": "PASS",
+          "evidence": {
+            "line": 7659,
+            "text": "2026-11-15T14:00:30.0447930Z [285/1444] Testing RiftletAdaptersTests.EdgeAppleEventsExecutorTests/testFinalClickSelectionRefusesSwitchOrExitBeforeCapture"
+          },
+          "basis": "Actual parallel Testing row plus successful native test step and completed successful job."
+        },
+        {
+          "test": "EdgeAppleEventsExecutorTests/testNavigationAfterPinCannotCaptureOrInputThroughSelectionOnlyRecheck",
+          "result": "PASS",
+          "evidence": {
+            "line": 7662,
+            "text": "2026-11-15T14:00:30.1268930Z [288/1444] Testing RiftletAdaptersTests.EdgeAppleEventsExecutorTests/testNavigationAfterPinCannotCaptureOrInputThroughSelectionOnlyRecheck"
+          },
+          "basis": "Actual parallel Testing row plus successful native test step and completed successful job."
+        },
+        {
+          "test": "EdgeApplicationHostTests/testClickSelectionReadsOriginalPairOnceAndRechecksProcessAfterReply",
+          "result": "PASS",
+          "evidence": {
+            "line": 7672,
+            "text": "2026-11-15T14:00:30.4657480Z [298/1444] Testing RiftletAdaptersTests.EdgeApplicationHostTests/testClickSelectionReadsOriginalPairOnceAndRechecksProcessAfterReply"
+          },
+          "basis": "Actual parallel Testing row plus successful native test step and completed successful job."
+        },
+        {
+          "test": "EdgeApplicationHostTests/testClickSelectionCannotReplaceFullNavigationValidation",
+          "result": "PASS",
+          "evidence": {
+            "line": 7671,
+            "text": "2026-11-15T14:00:30.4454960Z [297/1444] Testing RiftletAdaptersTests.EdgeApplicationHostTests/testClickSelectionCannotReplaceFullNavigationValidation"
+          },
+          "basis": "Actual parallel Testing row plus successful native test step and completed successful job."
+        }
+      ],
+      "priorIncrementTestsReexecuted": [
+        {
+          "test": "EdgeAppleEventsExecutorTests/testOnePinEvaluationLeavesBudgetForEveryOriginalIdentityRecheck",
+          "result": "PASS",
+          "evidence": {
+            "line": 7661,
+            "text": "2026-11-15T14:00:30.1167150Z [287/1444] Testing RiftletAdaptersTests.EdgeAppleEventsExecutorTests/testOnePinEvaluationLeavesBudgetForEveryOriginalIdentityRecheck"
+          },
+          "basis": "Actual parallel Testing row plus successful native test step and completed successful job."
+        },
+        {
+          "test": "EdgeAppleEventsExecutorTests/testSeparatePrepareAndPinExhaustTheSameModeledRecheckBudget",
+          "result": "PASS",
+          "evidence": {
+            "line": 7667,
+            "text": "2026-11-15T14:00:30.3433690Z [293/1444] Testing RiftletAdaptersTests.EdgeAppleEventsExecutorTests/testSeparatePrepareAndPinExhaustTheSameModeledRecheckBudget"
+          },
+          "basis": "Actual parallel Testing row plus successful native test step and completed successful job."
+        },
+        {
+          "test": "EdgeExecutionWorldWitnessTests/testCombinedScriptPinsOnceAndKeepsTheSeparateWorldRequirement",
+          "result": "PASS",
+          "evidence": {
+            "line": 7697,
+            "text": "2026-11-15T14:00:31.5109340Z [323/1444] Testing RiftletAdaptersTests.EdgeExecutionWorldWitnessTests/testCombinedScriptPinsOnceAndKeepsTheSeparateWorldRequirement"
+          },
+          "basis": "Actual parallel Testing row plus successful native test step and completed successful job."
+        },
+        {
+          "test": "EdgeExecutionWorldWitnessTests/testCombinedScriptCannotReplaceARefusedDocumentBindingWithWorldPreparation",
+          "result": "PASS",
+          "evidence": {
+            "line": 7696,
+            "text": "2026-11-15T14:00:31.4698520Z [322/1444] Testing RiftletAdaptersTests.EdgeExecutionWorldWitnessTests/testCombinedScriptCannotReplaceARefusedDocumentBindingWithWorldPreparation"
+          },
+          "basis": "Actual parallel Testing row plus successful native test step and completed successful job."
+        }
+      ],
+      "inheritedUntaggedAppKitPassLines": [
+        {
+          "line": 9288,
+          "text": "2026-11-15T14:03:56.3518230Z Test Case '-[RiftletUITests.RiftInputIslandTests testUntaggedWindowDispatchRetainsIndependentAssetReceiptsAfterRefresh]' passed (0.019 seconds)."
+        }
+      ]
+    },
+    {
+      "id": 132834278838,
+      "name": "Native source admission",
+      "run_id": 43721502023,
+      "status": "completed",
+      "conclusion": "success",
+      "log": {
+        "file": "native-source.log",
+        "bytes": 5207768,
+        "sha256": "e6472b13c345daefe84f3124cf467d4bd9cca144190dd53f9de6fe2c9b1eb5fc",
+        "scope": "Complete connector-decoded job text persisted as UTF-8 with original BOM; not a downloaded ZIP."
+      },
+      "checkedOutMergeConfirmedInLog": true,
+      "skippedSteps": [],
+      "skippedXCTestLines": []
+    },
+    {
+      "id": 132834278866,
+      "name": "Native Intel",
+      "run_id": 43721502023,
+      "status": "completed",
+      "conclusion": "success",
+      "log": {
+        "file": "native-intel.log",
+        "bytes": 1139755,
+        "sha256": "ffa19a752d8a415719b02e1ad4130daa40bc62d176e56a0cf4ff20e00f30831c",
+        "scope": "Complete connector-decoded job text persisted as UTF-8 with original BOM; not a downloaded ZIP."
+      },
+      "checkedOutMergeConfirmedInLog": true,
+      "skippedSteps": [
+        "Verify isolated arrival delta and report native motion outcomes",
+        "Check two ordinary Riftlet actions with an isolated Edge window",
+        "Exercise extension-free attachment candidates with isolated drafts"
+      ],
+      "skippedXCTestLines": [
+        {
+          "line": 9896,
+          "text": "2026-11-15T14:07:16.8821210Z Test Case '-[RiftletUITests.HistoryDisplayStyleTests testCachedGridTextAndBorderResolveActualHighContrastWithinItsAppearance]' skipped (0.002 seconds)."
+        },
+        {
+          "line": 10328,
+          "text": "2026-11-15T14:13:45.5194140Z Test Case '-[RiftletUITests.SettingsNativeStyleTests testSameCachedColorsResolveNativeLightAndDarkWithoutChangingV2Tokens]' skipped (0.006 seconds)."
+        }
+      ],
+      "newTests": [
+        {
+          "test": "EdgeAppleEventsExecutorTests/testColdCombinedPinLeavesBudgetForExactSelectionWithoutRepeatingAddressFreeze",
+          "result": "PASS",
+          "evidence": {
+            "line": 7101,
+            "text": "2026-11-15T14:01:38.1013440Z [285/1444] Testing RiftletAdaptersTests.EdgeAppleEventsExecutorTests/testColdCombinedPinLeavesBudgetForExactSelectionWithoutRepeatingAddressFreeze"
+          },
+          "basis": "Actual parallel Testing row plus successful native test step and completed successful job."
+        },
+        {
+          "test": "EdgeAppleEventsExecutorTests/testFinalClickSelectionRefusesSwitchOrExitBeforeCapture",
+          "result": "PASS",
+          "evidence": {
+            "line": 7102,
+            "text": "2026-11-15T14:01:38.1251440Z [286/1444] Testing RiftletAdaptersTests.EdgeAppleEventsExecutorTests/testFinalClickSelectionRefusesSwitchOrExitBeforeCapture"
+          },
+          "basis": "Actual parallel Testing row plus successful native test step and completed successful job."
+        },
+        {
+          "test": "EdgeAppleEventsExecutorTests/testNavigationAfterPinCannotCaptureOrInputThroughSelectionOnlyRecheck",
+          "result": "PASS",
+          "evidence": {
+            "line": 7103,
+            "text": "2026-11-15T14:01:38.1770170Z [287/1444] Testing RiftletAdaptersTests.EdgeAppleEventsExecutorTests/testNavigationAfterPinCannotCaptureOrInputThroughSelectionOnlyRecheck"
+          },
+          "basis": "Actual parallel Testing row plus successful native test step and completed successful job."
+        },
+        {
+          "test": "EdgeApplicationHostTests/testClickSelectionReadsOriginalPairOnceAndRechecksProcessAfterReply",
+          "result": "PASS",
+          "evidence": {
+            "line": 7113,
+            "text": "2026-11-15T14:01:38.4308800Z [297/1444] Testing RiftletAdaptersTests.EdgeApplicationHostTests/testClickSelectionReadsOriginalPairOnceAndRechecksProcessAfterReply"
+          },
+          "basis": "Actual parallel Testing row plus successful native test step and completed successful job."
+        },
+        {
+          "test": "EdgeApplicationHostTests/testClickSelectionCannotReplaceFullNavigationValidation",
+          "result": "PASS",
+          "evidence": {
+            "line": 7112,
+            "text": "2026-11-15T14:01:38.4166860Z [296/1444] Testing RiftletAdaptersTests.EdgeApplicationHostTests/testClickSelectionCannotReplaceFullNavigationValidation"
+          },
+          "basis": "Actual parallel Testing row plus successful native test step and completed successful job."
+        }
+      ],
+      "priorIncrementTestsReexecuted": [
+        {
+          "test": "EdgeAppleEventsExecutorTests/testOnePinEvaluationLeavesBudgetForEveryOriginalIdentityRecheck",
+          "result": "PASS",
+          "evidence": {
+            "line": 7104,
+            "text": "2026-11-15T14:01:38.1813190Z [288/1444] Testing RiftletAdaptersTests.EdgeAppleEventsExecutorTests/testOnePinEvaluationLeavesBudgetForEveryOriginalIdentityRecheck"
+          },
+          "basis": "Actual parallel Testing row plus successful native test step and completed successful job."
+        },
+        {
+          "test": "EdgeAppleEventsExecutorTests/testSeparatePrepareAndPinExhaustTheSameModeledRecheckBudget",
+          "result": "PASS",
+          "evidence": {
+            "line": 7109,
+            "text": "2026-11-15T14:01:38.3425710Z [293/1444] Testing RiftletAdaptersTests.EdgeAppleEventsExecutorTests/testSeparatePrepareAndPinExhaustTheSameModeledRecheckBudget"
+          },
+          "basis": "Actual parallel Testing row plus successful native test step and completed successful job."
+        },
+        {
+          "test": "EdgeExecutionWorldWitnessTests/testCombinedScriptPinsOnceAndKeepsTheSeparateWorldRequirement",
+          "result": "PASS",
+          "evidence": {
+            "line": 7137,
+            "text": "2026-11-15T14:01:39.1832390Z [321/1444] Testing RiftletAdaptersTests.EdgeExecutionWorldWitnessTests/testCombinedScriptPinsOnceAndKeepsTheSeparateWorldRequirement"
+          },
+          "basis": "Actual parallel Testing row plus successful native test step and completed successful job."
+        },
+        {
+          "test": "EdgeExecutionWorldWitnessTests/testCombinedScriptCannotReplaceARefusedDocumentBindingWithWorldPreparation",
+          "result": "PASS",
+          "evidence": {
+            "line": 7136,
+            "text": "2026-11-15T14:01:39.1420950Z [320/1444] Testing RiftletAdaptersTests.EdgeExecutionWorldWitnessTests/testCombinedScriptCannotReplaceARefusedDocumentBindingWithWorldPreparation"
+          },
+          "basis": "Actual parallel Testing row plus successful native test step and completed successful job."
+        }
+      ],
+      "inheritedUntaggedAppKitPassLines": [
+        {
+          "line": 8730,
+          "text": "2026-11-15T14:05:44.3403620Z Test Case '-[RiftletUITests.RiftInputIslandTests testUntaggedWindowDispatchRetainsIndependentAssetReceiptsAfterRefresh]' passed (0.039 seconds)."
+        }
+      ]
+    },
+    {
+      "id": 132834278769,
+      "name": "Feedback native and service",
+      "run_id": 43721501954,
+      "status": "completed",
+      "conclusion": "success",
+      "log": {
+        "file": "feedback-native.log",
+        "bytes": 367116,
+        "sha256": "d0e592fd80fb0e81873656f42c0ef3dfbe0c9a4ecfc527e7da0579e459baaaf0",
+        "scope": "Complete connector-decoded job text persisted as UTF-8 with original BOM; not a downloaded ZIP."
+      },
+      "checkedOutMergeConfirmedInLog": true,
+      "skippedSteps": [
+        "Verify actual Feedback and current screenshot composition"
+      ],
+      "skippedXCTestLines": []
+    },
+    {
+      "id": 132834278982,
+      "name": "Feedback source admission",
+      "run_id": 43721501954,
+      "status": "completed",
+      "conclusion": "success",
+      "log": {
+        "file": "feedback-source.log",
+        "bytes": 5186634,
+        "sha256": "e5a23e5cddd305222e5044e088841d9c74c68b2d639b4f5fb0a442740d5fc371",
+        "scope": "Complete connector-decoded job text persisted as UTF-8 with original BOM; not a downloaded ZIP."
+      },
+      "checkedOutMergeConfirmedInLog": true,
+      "skippedSteps": [],
+      "skippedXCTestLines": []
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 14165765408,
+      "name": "native-foundation-macos-15-49f7c280083d84a933b19bc9183b45c4d5524bb7",
+      "size_in_bytes": 8378257,
+      "digest": "sha256:3b0f63466747960c52f78903d42204703ac91b8412d45f253d4d5ef80dd0579c",
+      "expired": false
+    },
+    {
+      "id": 14165033385,
+      "name": "native-foundation-macos-15-intel-49f7c280083d84a933b19bc9183b45c4d5524bb7",
+      "size_in_bytes": 9811637,
+      "digest": "sha256:a31a26d47939f55e7b767b2e650b27b61e49baff0e771ec6378cf608bab2ca5f",
+      "expired": false
+    },
+    {
+      "id": 14164617835,
+      "name": "final-source-admission-49f7c280083d84a933b19bc9183b45c4d5524bb7",
+      "size_in_bytes": 448379,
+      "digest": "sha256:664d590616632e03b2f59abf8ac6d5021f73492920370cfdcc17adf711c4ea63",
+      "expired": false
+    },
+    {
+      "id": 14164811768,
+      "name": "feedback-v01-49f7c280083d84a933b19bc9183b45c4d5524bb7",
+      "size_in_bytes": 64431108,
+      "digest": "sha256:befe492a5dbf03010b87b235d82c7efe21bd40c887cc543d38bab1aee8cf37e9",
+      "expired": false
+    },
+    {
+      "id": 14164792245,
+      "name": "feedback-source-admission-49f7c280083d84a933b19bc9183b45c4d5524bb7",
+      "size_in_bytes": 444188,
+      "digest": "sha256:700a51ed69b5b8b2626e304485120dd6e542fbbe82cec829b3bb23069d5182be",
+      "expired": false
+    }
+  ],
+  "artifactVerification": "Official API digest/size/ID matched exact completed uploader logs. No ZIP downloads attempted; no locally recomputed ZIP hash claimed.",
+  "commercialScope": {
+    "ordinaryARM64Edge": "NOT_RUN_SYSTEM_AUTOMATION_CONSENT",
+    "firstImageRefusal": [
+      "nativeEventFailed(-1744)"
+    ],
+    "secondImage": "NOT_RUN",
+    "operations": 0,
+    "starts": 0,
+    "commercialService": "NOT_RUN",
+    "physicalClicks": false
+  },
+  "limitations": [
+    "Existing conditionally skipped workflow steps and two appearance XCTest skips per architecture remain skips, not PASS.",
+    "New five tests and prior increment four tests actually executed on both ARM64 and Intel within 1444-test runs; synthetic source/test success does not establish real Edge uploads.",
+    "No actual failures found; no reruns, assertion changes or cancellations performed by reviewer.",
+    "No merge or public release approval. Local signed App runtime acceptance and any different build configuration require separate exact package evidence."
+  ]
+}

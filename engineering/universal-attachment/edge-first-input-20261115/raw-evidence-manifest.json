@@ -1,0 +1,192 @@
+{
+  "scope": "Small immutable copies of existing 2026-11-15 real first-input and independent H2 CI evidence. No new runtime tests. Original private files retained outside repository.",
+  "excluded": [
+    "PNG files",
+    "databases",
+    "browser profiles",
+    "account or session secrets",
+    "draft plaintext",
+    "signed application/archive",
+    "large CI logs and artifacts"
+  ],
+  "files": [
+    {
+      "sourceRoot": "pr69-runtime-20261115-selectioncheck",
+      "sourceRelativePath": "admitted-head-equivalence.json",
+      "originalBytes": 376,
+      "originalSHA256": "6734b54fc40bed9153052d302e00217a5abc3d94876faa33cd6713863fe7be01",
+      "publishedPath": "admitted-head-equivalence.json",
+      "publishedBytes": 376,
+      "publishedSHA256": "6734b54fc40bed9153052d302e00217a5abc3d94876faa33cd6713863fe7be01",
+      "redactions": []
+    },
+    {
+      "sourceRoot": "pr69-runtime-20261115-selectioncheck",
+      "sourceRelativePath": "post-build-source-verification.json",
+      "originalBytes": 189,
+      "originalSHA256": "a9096fed3fd0a74e44689a15434d364bf756de145a772475085bd210c19cf883",
+      "publishedPath": "post-build-source-verification.json",
+      "publishedBytes": 189,
+      "publishedSHA256": "a9096fed3fd0a74e44689a15434d364bf756de145a772475085bd210c19cf883",
+      "redactions": []
+    },
+    {
+      "sourceRoot": "pr69-runtime-20261115-selectioncheck",
+      "sourceRelativePath": "offline-build-provenance.json",
+      "originalBytes": 575,
+      "originalSHA256": "ea8fd2f95926ed5b252058c1d97aca739d6d458b964486c205e43fab846c0a48",
+      "publishedPath": "offline-build-provenance.json",
+      "publishedBytes": 575,
+      "publishedSHA256": "ea8fd2f95926ed5b252058c1d97aca739d6d458b964486c205e43fab846c0a48",
+      "redactions": []
+    },
+    {
+      "sourceRoot": "pr69-runtime-20261115-selectioncheck",
+      "sourceRelativePath": "signed-package-receipt.json",
+      "originalBytes": 5868,
+      "originalSHA256": "91b82707e030db779b5d565647972b9e2f3d4ba2f99d408ac8cf0f12c4a71768",
+      "publishedPath": "signed-package-receipt.json",
+      "publishedBytes": 5792,
+      "publishedSHA256": "6454030f7e777cfba8ca034d12c282dff19bf830e7f35e0e76a7216ae3f41ffb",
+      "redactions": [
+        "replace local filesystem prefix with <ISOLATED_BUILD_ROOT>",
+        "replace local filesystem prefix with <PRIVATE_RUNTIME_EVIDENCE_ROOT>"
+      ]
+    },
+    {
+      "sourceRoot": "pr69-runtime-20261115-selectioncheck",
+      "sourceRelativePath": "selectioncheck-01-config.json",
+      "originalBytes": 1027,
+      "originalSHA256": "179ed3da4372c504e570e93d83c880d4c84d9bbf0fee496226e05f260930f86f",
+      "publishedPath": "selectioncheck-01-config.json",
+      "publishedBytes": 987,
+      "publishedSHA256": "a17ea43c4625d9f77cb249607b5d242058df788cbbd1ef6b252114c9fa722da2",
+      "redactions": [
+        "replace local filesystem prefix with <ISOLATED_BUILD_ROOT>",
+        "replace local filesystem prefix with <ISOLATED_EDGE_ROOT>"
+      ]
+    },
+    {
+      "sourceRoot": "pr69-runtime-20261115-selectioncheck",
+      "sourceRelativePath": "selectioncheck-01-1-preflight.json",
+      "originalBytes": 543,
+      "originalSHA256": "b5c7dc2ea1fb6e8a95512d7258cdccf1dc66d09054d8726382963f7ae4a0e0ef",
+      "publishedPath": "selectioncheck-01-1-preflight.json",
+      "publishedBytes": 543,
+      "publishedSHA256": "b5c7dc2ea1fb6e8a95512d7258cdccf1dc66d09054d8726382963f7ae4a0e0ef",
+      "redactions": []
+    },
+    {
+      "sourceRoot": "pr69-runtime-20261115-selectioncheck",
+      "sourceRelativePath": "selectioncheck-01-1-sent.json",
+      "originalBytes": 1465,
+      "originalSHA256": "061b67317cdd628b01e41a39a8106a1fbc447d3e33b74b289ac5c41c674ede03",
+      "publishedPath": "selectioncheck-01-1-sent.json",
+      "publishedBytes": 1465,
+      "publishedSHA256": "061b67317cdd628b01e41a39a8106a1fbc447d3e33b74b289ac5c41c674ede03",
+      "redactions": []
+    },
+    {
+      "sourceRoot": "pr69-runtime-20261115-selectioncheck",
+      "sourceRelativePath": "selectioncheck-01-1-receipt.json",
+      "originalBytes": 683,
+      "originalSHA256": "41138566ef12bfcbdde6f905404009d4d544888750c7b67527fb7e0d28d9ce19",
+      "publishedPath": "selectioncheck-01-1-receipt.json",
+      "publishedBytes": 683,
+      "publishedSHA256": "41138566ef12bfcbdde6f905404009d4d544888750c7b67527fb7e0d28d9ce19",
+      "redactions": []
+    },
+    {
+      "sourceRoot": "pr69-runtime-20261115-selectioncheck",
+      "sourceRelativePath": "selectioncheck-01-1-draft-before.json",
+      "originalBytes": 1155,
+      "originalSHA256": "c6fbf67f63068ffe34b884b2c147d3a9af9c11e611d16156f1de821fca267a81",
+      "publishedPath": "selectioncheck-01-1-draft-before.json",
+      "publishedBytes": 1155,
+      "publishedSHA256": "c6fbf67f63068ffe34b884b2c147d3a9af9c11e611d16156f1de821fca267a81",
+      "redactions": []
+    },
+    {
+      "sourceRoot": "pr69-runtime-20261115-selectioncheck",
+      "sourceRelativePath": "selectioncheck-01-1-draft-after.json",
+      "originalBytes": 979,
+      "originalSHA256": "0fb1d43b5db02e370ef71e6a4f8eca5bd522af1a150f618e0f0343ad06db9892",
+      "publishedPath": "selectioncheck-01-1-draft-after.json",
+      "publishedBytes": 979,
+      "publishedSHA256": "0fb1d43b5db02e370ef71e6a4f8eca5bd522af1a150f618e0f0343ad06db9892",
+      "redactions": []
+    },
+    {
+      "sourceRoot": "pr69-runtime-20261115-selectioncheck",
+      "sourceRelativePath": "selectioncheck-01-1-observation.json",
+      "originalBytes": 5225,
+      "originalSHA256": "1bd0ac2736e89da6dc1de370708bf9a52ad21e09f06737c19e533317424ad9a5",
+      "publishedPath": "selectioncheck-01-1-observation.json",
+      "publishedBytes": 5225,
+      "publishedSHA256": "1bd0ac2736e89da6dc1de370708bf9a52ad21e09f06737c19e533317424ad9a5",
+      "redactions": []
+    },
+    {
+      "sourceRoot": "pr69-runtime-20261115-selectioncheck",
+      "sourceRelativePath": "selectioncheck-01-1-trace-36.jsonl",
+      "originalBytes": 69125,
+      "originalSHA256": "e2dce74df4007ba0c381f9ce6d77feeb699e1ce4964ea3ac9cfed660e32edd65",
+      "publishedPath": "selectioncheck-01-1-trace-36.jsonl",
+      "publishedBytes": 69125,
+      "publishedSHA256": "e2dce74df4007ba0c381f9ce6d77feeb699e1ce4964ea3ac9cfed660e32edd65",
+      "redactions": []
+    },
+    {
+      "sourceRoot": "pr69-runtime-20261115-selectioncheck",
+      "sourceRelativePath": "selectioncheck-01-first-service-dialog.json",
+      "originalBytes": 479,
+      "originalSHA256": "098ccca0d21c5fbaf1a3c8c9fed50ecd386baa643bda10ccb57e57a7074be723",
+      "publishedPath": "selectioncheck-01-first-service-dialog.json",
+      "publishedBytes": 479,
+      "publishedSHA256": "098ccca0d21c5fbaf1a3c8c9fed50ecd386baa643bda10ccb57e57a7074be723",
+      "redactions": []
+    },
+    {
+      "sourceRoot": "pr69-runtime-20261115-selectioncheck",
+      "sourceRelativePath": "selectioncheck-01-first-dialog-close.json",
+      "originalBytes": 613,
+      "originalSHA256": "967152da6fa483de9638a081c7ae7a99d06c49596913cb8fd6832674ba219c13",
+      "publishedPath": "selectioncheck-01-first-dialog-close.json",
+      "publishedBytes": 613,
+      "publishedSHA256": "967152da6fa483de9638a081c7ae7a99d06c49596913cb8fd6832674ba219c13",
+      "redactions": []
+    },
+    {
+      "sourceRoot": "pr69-runtime-20261115-selectioncheck",
+      "sourceRelativePath": "selectioncheck-01-first-after-dialog-close.json",
+      "originalBytes": 1148,
+      "originalSHA256": "bfd23fdac260d472f7e2e785c6e360f6e57bc86ea274d28ddf6c598952d46773",
+      "publishedPath": "selectioncheck-01-first-after-dialog-close.json",
+      "publishedBytes": 1148,
+      "publishedSHA256": "bfd23fdac260d472f7e2e785c6e360f6e57bc86ea274d28ddf6c598952d46773",
+      "redactions": []
+    },
+    {
+      "sourceRoot": "pr69-runtime-20261115-selectioncheck",
+      "sourceRelativePath": "after-first-input/state.json",
+      "originalBytes": 1312,
+      "originalSHA256": "ca70d12d252fba78ace9ce795c2caca5f4d3f88095e77e7df1f106d18d8dae9b",
+      "publishedPath": "after-first-input-state.json",
+      "publishedBytes": 871,
+      "publishedSHA256": "55d7ded18c725d7eefddd0a8272540385bb3eb2f53aa1790046f51f4faec948a",
+      "redactions": [
+        "omit serialized target_key; retain original target SHA256, key names, process/window/tab identity"
+      ]
+    },
+    {
+      "sourceRoot": "pr69-ci-932f278-20261115",
+      "sourceRelativePath": "ci-verification.json",
+      "originalBytes": 19153,
+      "originalSHA256": "6b4e4b37f1245ed5ea1fb81bb3d990edcee9e0d7fe885487ae21191af76334dc",
+      "publishedPath": "ci-verification.json",
+      "publishedBytes": 19153,
+      "publishedSHA256": "6b4e4b37f1245ed5ea1fb81bb3d990edcee9e0d7fe885487ae21191af76334dc",
+      "redactions": []
+    }
+  ]
+}

@@ -1,6 +1,20 @@
 # 无扩展附件引擎 · 首轮工程交接
 
-2026-11-15 最新真实检查点：**合并 Edge 文档绑定的新包仍未完成附件输入。** 构建源码 G `57d8f0dcb9cd17967ab012642378a24b9caff4d8` 与准入 H `a2c54950a410b0d34d49ba522b2d8cb69155690b` 的 1,813 个 native/test/build 文件一致；实际普通 App 可执行文件 SHA-256 为 `2c66bc1ebc64e86c8ddc7276de4dd95433df684a2f87a736b0d0cef813e46972`。两张均有严格匹配的完整 10 条点击链和明确输入前拒绝：首图在最终 `originalSelectionRecheck` 阶段 101.245167 ms、第二图 116.096167 ms，均为 `nativeEventFailed(-1712)`。没有操作、文件输入、START 或完成。[本轮原始证据及检查点](../engineering/universal-attachment/edge-pin-budget-20261115/README.md)
+2026-11-16，**普通 Riftlet App 的两次微图点击已把两张不同的系统截图输入同一个隔离 Edge × ChatGPT Temporary 草稿。** 每张截图各有 10 条匹配回执和一次文件输入。两次绑定的进程、窗口、标签、文档、编辑器及草稿均一致，间隔 85.677551 秒。03:39:34Z 的延迟 AX 读回确认原正文、14 字符选区、原附件、首图、第二图全部保留，三张对应图片各 1 个。此次运行使用 G `28538969` 的普通签名包，准入 H `932f278f`。[两图原件及独审](../engineering/universal-attachment/edge-temporary-pair-20261116/README.md)
+
+每张图都出现了归属于原操作的中间进度，首图有 35 个样本覆盖 2%–95%，第二图有 24 个样本覆盖 2%–96%。产品记录中真实 START 为 0，两个操作最终仍为 UNKNOWN。快速连续场景仍待运行。前一天普通草稿配额弹窗后选区变为 0 的失败仍单独保留。PR #69 继续为 Draft。[上传观察和原操作](../engineering/universal-attachment/edge-temporary-pair-20261116/independent-audit.json) · [普通草稿失败](../engineering/universal-attachment/edge-first-input-20261115/README.md)
+
+## 上一普通草稿首图检查点（历史）
+
+2026-11-15 普通草稿检查点：**普通 Riftlet App 已向隔离的 Edge × ChatGPT 原草稿执行首图文件输入；双图验收仍未完成，原选区保留失败。** 运行源码 G `285389696de110f076ba60d2e8a1a6fbe98c6b3e` 与准入 H `932f278f3412fd3158f01907a5a484ac9c235fa2` 仅准入文件不同；实际可执行 SHA-256 为 `39b9cd983441533a75a171fe56432de903a9c16e93cd4d367577cc4fd9aaa894`。首图有 10 条严格匹配的原生／产品回执，99.558958 ms 内完成原目标 pin，captureTarget、validate、begin、chunk、commit 各一次完成。此后 34 次观察均为 inputTriggered，真实 START／完成各 0，原操作 UNKNOWN，不重传。第二张本源码尚未投递，严格 NOT_RUN。[实测、原件与双哈希清单](../engineering/universal-attachment/edge-first-input-20261115/README.md)
+
+服务随后显示原文件的 Library 配额提示；该提示、缩略图及 100% 进度均不足以证明上传开始或完成。诊断工具只关闭归属明确的信息框后，14:13:59Z 独立 AX 读回原正文与 1 张基线仍在，但原 14 字符选区变为 0。**选区保留 FAIL**；额外 AX 关闭是测试诊断操作，不能算无额外步骤通过。丢失的唯一因果尚未确定，不能以当前首图结果宣称双图、冷首击、快速连续或异常场景均通过。旧缺回执和之前两张输入前拒绝的证据仍分别保留。
+
+H 的五项必要 CI 已独立确认全部成功：ARM64／Intel 各 1,444 项，新增 5 项和前增量 4 项均实际执行；原有条件／appearance 跳过保留。托管 Edge 的 -1744／第二图 NOT_RUN 与本机首图实测分开。官方产物 digest 已核对，未下载 ZIP；绿色 CI 不是商业上传成功，也不覆盖后续源码。PR #69 保持 Draft，尚不满足合并或发行条件。[精确 H2 CI 报告](../engineering/universal-attachment/edge-first-input-20261115/ci-verification.json)
+
+## 上一合并绑定预算检查点（历史）
+
+此前检查点：**合并 Edge 文档绑定的 G57d8f0d 新包未完成附件输入。** 构建源码 G `57d8f0dcb9cd17967ab012642378a24b9caff4d8` 与准入 H `a2c54950a410b0d34d49ba522b2d8cb69155690b` 的 1,813 个 native/test/build 文件一致；实际普通 App 可执行文件 SHA-256 为 `2c66bc1ebc64e86c8ddc7276de4dd95433df684a2f87a736b0d0cef813e46972`。两张均有严格匹配的完整 10 条点击链和明确输入前拒绝：首图在最终 `originalSelectionRecheck` 阶段 101.245167 ms、第二图 116.096167 ms，均为 `nativeEventFailed(-1712)`。没有操作、文件输入、START 或完成。[本轮原始证据及检查点](../engineering/universal-attachment/edge-pin-budget-20261115/README.md)
 
 该运行版已将 prepare 与 document pin 合为一次原生 evaluation，150 ms/50 ms 门槛及最终完整身份复核不变。进入最终复核说明前面的合并绑定返回 `bound`，这是源码顺序推断，不能替代完整草稿归属和上传证据。四份点击前后 AX 读回均保留中性正文、14 字符选区和 1 张基线附件；这只覆盖明确输入前拒绝。换包后使用一次产品既有分页显示目标 4/5；旧 UNKNOWN 与 fresh-03 未点，没有消息或自动重传。后续减少重复原生最终读取的优化尚未实测，模型不等于真实通过。新 H 的最终 CI 结果待独立报告，不能沿用旧 H 的绿色结果。
 
@@ -52,13 +66,13 @@ H 的五项必要 CI 已由独立复核确认全部成功，新增 Edge XCTest �
 
 ## 真实商业服务兼容性
 
-表中每个格子表示**本分支经 Riftlet 实际点击并附加至对应商业服务**的结果。N 表示 NOT_RUN。各格的前台宿主、窗口及草稿、附件入口、指定图片、文本选区及原附件、START、最终状态、失败及 UNKNOWN、连续附加、额外操作十项都有独立字段。[32 个组合的逐项记录](../engineering/universal-attachment/live-matrix.json)
+表中每个格子表示**本分支经 Riftlet 实际点击并附加至对应商业服务**的结果。N 表示 NOT_RUN，I 表示已运行且仍有关键验收项未确认。各格的前台宿主、窗口及草稿、附件入口、指定图片、文本选区及原附件、START、最终状态、失败及 UNKNOWN、连续附加、额外操作十项都有独立字段。[32 个组合的逐项记录](../engineering/universal-attachment/live-matrix.json)
 
 | 本机宿主 | ChatGPT | Claude | Gemini | Perplexity | Poe | 本轮可核实的宿主证据 |
 | --- | --- | --- | --- | --- | --- | --- |
 | Google Chrome 157.0.8103.51 | N | N | N | N | N | 发现三个运行实例；既有真实草稿证据限于较早版本 |
 | Safari 27.0 | N | N | N | N | N | 已安装，本机采样时未运行；字典声明当前标签和索引，无标签类稳定 ID |
-| Microsoft Edge 156.0.4314.58 | N | N | N | N | N | 新 G57d8f0d/H a2c5495 两图均有完整产品回执，均在最终原目标复核以 -1712 拒绝；商业输入为零 |
+| Microsoft Edge 156.0.4314.58 | I | N | N | N | N | Temporary 草稿两张截图各输入一次，正文、选区、原附件及两图保留。START／最终完成未确认。另有普通草稿选区丢失记录 |
 | Firefox | N | N | N | N | N | LaunchServices、运行列表与常用目录均未找到 |
 | Brave | N | N | N | N | N | 同上 |
 | Arc | N | N | N | N | N | 同上 |

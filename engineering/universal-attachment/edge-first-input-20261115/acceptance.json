@@ -1,0 +1,118 @@
+{
+  "scope": "Real ordinary App first input into isolated signed-in Edge ChatGPT draft; two-image acceptance FAILED/NOT_COMPLETE. This is not a new 2026-11-16 runtime test.",
+  "observedDate": "2026-11-15",
+  "source": "285389696de110f076ba60d2e8a1a6fbe98c6b3e",
+  "admittedHead": "932f278f3412fd3158f01907a5a484ac9c235fa2",
+  "executableSHA256": "39b9cd983441533a75a171fe56432de903a9c16e93cd4d367577cc4fd9aaa894",
+  "signedArchiveSHA256": "55a8135dabe6d2ec7eb62d2006534da92f22a74b26502e02ebce74444d46b003",
+  "first": {
+    "assetUUID": "A86F0DC4-2B0F-4496-9F8A-DA62830DE4A9",
+    "originalScreenshotSHA256": "fcd3e2c5748e888c8d47363b441d325361823a828f64452859eb0a13526971f8",
+    "originalBytes": 62508,
+    "assetIDDigest": "ece8d8709553c8a0d3e061cd59f7aae7b108d19bed75b9e2450064ed319d62ea",
+    "productReceipt": "EXACT_NATIVE_MOUSE_SELECTION_RECEIPT",
+    "matchingRecords": 10,
+    "windowNumber": 3563,
+    "eventNumber": 8651,
+    "mouseProbeTag": 229607662175447,
+    "coordinate": {
+      "x": 33,
+      "y": 434.4487632508834
+    },
+    "pinElapsedMS": 99.5589583326364,
+    "operationUUID": "46A3293A-FD87-4533-B4CB-201AD3777D12",
+    "attempt": 1,
+    "commandsCompletedOnce": [
+      "captureTarget",
+      "validate",
+      "begin",
+      "chunk",
+      "commit"
+    ],
+    "phase": "unknown",
+    "lastEntryPhase": "inputTriggered",
+    "dispatchExclusive": 0,
+    "observationSamples": 34,
+    "originalDraftCurrentAllSamples": true,
+    "originalTextUnchangedAllSamples": true,
+    "baselineAttachmentDOMNodes": 2,
+    "retainedBaselineDOMNodesAllSamples": 2,
+    "baselineImageCount": 1,
+    "startConfirmed": false,
+    "completionConfirmed": false,
+    "selectionPreservation": "FAIL_AFTER_FIRST_INPUT",
+    "firstSelectionFalseSample": 8,
+    "postDialogAXSelectionLength": 0,
+    "postDialogAXTextUnchanged": true,
+    "postDialogAXBaselineImageCount": 1,
+    "automaticRetry": false,
+    "firstLoadedImageSample": 2,
+    "progress100Samples": [
+      5,
+      6,
+      7
+    ],
+    "intermediateProgressSamples": 0,
+    "readyAttributeSamples": 0
+  },
+  "second": {
+    "assetUUID": "A512DCFC-B06A-4A76-8AE7-2908FC6D365A",
+    "originalScreenshotSHA256": "568de2784c37e0c6bfcc2de4b81a8eff4d022d72ded5be772ab80ef4d50c8991",
+    "originalBytes": 62346,
+    "assetIDDigest": "09fd1e0f829fbe2bfb00cdff642a4a0c6315f1b642cb3e0b0984afa5d88aa045",
+    "result": "NOT_RUN",
+    "reason": "No second click posted on this source; first input remained UNKNOWN and original selection preservation failed. Earlier explicit pre-input refusals remain separate evidence."
+  },
+  "serviceDialog": {
+    "result": "KNOWN_LIBRARY_QUOTA_INFORMATION_DIALOG",
+    "uploadFailureProven": false,
+    "completionProven": false,
+    "onlyDiagnosticMutation": "AXPress exact original-file close button",
+    "selectionSetOrEditorFocusChangedByHelper": false,
+    "extraDiagnosticAction": true,
+    "storageManagementOpened": false
+  },
+  "counts": {
+    "assetsBefore": 5,
+    "assetsAfter": 5,
+    "operationsBefore": 0,
+    "operationsAfter": 1,
+    "confirmedCommercialInputs": 1,
+    "confirmedCommercialUploadStarts": 0,
+    "confirmedCommercialUploadCompletions": 0
+  },
+  "notRun": [
+    "second image on this source",
+    "rapid consecutive two-image acceptance",
+    "switch-tab-after-input scenario",
+    "temporarily unresponsive Edge scenario",
+    "final commercial upload completion",
+    "notarization/Gatekeeper distribution acceptance"
+  ],
+  "ci": {
+    "result": "PASS_5_REQUIRED_CI_JOBS",
+    "head": "932f278f3412fd3158f01907a5a484ac9c235fa2",
+    "testedMerge": {
+      "sha": "49f7c280083d84a933b19bc9183b45c4d5524bb7",
+      "tree": "5b0507d290c247f51584c779538967ea8be7d1cc",
+      "parents": [
+        "b5a412f6d37378b7cfef56e2f1e9524cc9b1ac6e",
+        "932f278f3412fd3158f01907a5a484ac9c235fa2"
+      ],
+      "verification": "GitHub git commits API tree/ordered parents; all five raw checkout logs; tree equals H2."
+    },
+    "report": "ci-verification.json",
+    "originalReportSHA256": "6b4e4b37f1245ed5ea1fb81bb3d990edcee9e0d7fe885487ae21191af76334dc",
+    "nativeRun": 43721502023,
+    "feedbackRun": 43721501954,
+    "testCountPerArchitecture": 1444,
+    "newTestsExecutedPerArchitecture": 5,
+    "previousIncrementTestsExecutedPerArchitecture": 4,
+    "scope": "Exact H2 source/CI; historical skips retained, hosted commercial test NOT_RUN_SYSTEM_AUTOMATION_CONSENT; official artifact digests verified, no local ZIP hash claim"
+  },
+  "historicalAssetIdentityEvidence": "../edge-native-receipts-20261115/asset-and-queue-snapshot.json",
+  "rawEvidenceManifest": "raw-evidence-manifest.json",
+  "mergeReady": false,
+  "releaseReady": false,
+  "prRemainsDraft": true
+}

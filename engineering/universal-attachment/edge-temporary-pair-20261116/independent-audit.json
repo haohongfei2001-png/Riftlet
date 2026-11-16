@@ -1,0 +1,897 @@
+{
+  "reviewer": "independent evidence auditor latest_evidence",
+  "auditedAt": "2026-11-16T03:40:32.505091+00:00",
+  "scope": "Read-only verification of retained ordinary-App raw evidence and exact isolated database. No new UI, uploads, browser or source mutations.",
+  "source": "285389696de110f076ba60d2e8a1a6fbe98c6b3e",
+  "admittedHead": "932f278f3412fd3158f01907a5a484ac9c235fa2",
+  "appExecutableSHA256": "39b9cd983441533a75a171fe56432de903a9c16e93cd4d367577cc4fd9aaa894",
+  "nativeDoubleInputResult": "PASS_TWO_DISTINCT_ORDINARY_CLICKS_AND_INPUTS_SAME_ORIGINAL_DRAFT",
+  "commercialFinalAcceptance": "NOT_COMPLETE_START_NOT_ADMITTED_COMPLETION_UNCONFIRMED",
+  "images": [
+    {
+      "image": 1,
+      "assetUUID": "EE44D7C0-2293-4CAD-A6C8-09BAED121707",
+      "assetIDDigest": "270f32dab0b6cdb5b0e7be86015fb5c325eeb7ccffefef3e675bd6ad84ddd79b",
+      "originalPNGBytes": 4512568,
+      "originalPNGSHA256": "408c21d6637a02579d1aa71ef77a0c1f643a07313be04f715ff73754718ae1e9",
+      "systemCaptureAndOrdinaryImportMatch": true,
+      "operationUUID": "B99E0FB7-6A23-4BB4-BABC-E5029C04BA27",
+      "operationIDDigest": "65125d063d4d3a04465a6504c43b99c4dba33c605d102fb60d7cd9914c52ade0",
+      "clickBindingID": "3A2460E6-0740-4252-ADEE-057C8762CA6B",
+      "clickWindowNumber": 816,
+      "eventNumber": 9629,
+      "mouseProbeTag": 197450205339439,
+      "coordinate": {
+        "x": 33,
+        "y": 434.7371007371007
+      },
+      "nativeProductReceiptRecords": 10,
+      "nativeBoundaryCounts": {
+        "windowEvent:received:down": 1,
+        "inputDown:received:down": 1,
+        "onDown:received:down": 1,
+        "gate:accepted:down": 1,
+        "windowEvent:received:up": 1,
+        "inputUp:received:up": 1,
+        "release:selected:up": 1
+      },
+      "inputCommandCounts": {
+        "captureTarget": 1,
+        "validate": 1,
+        "begin": 1,
+        "chunk": 18,
+        "commit": 1
+      },
+      "inputCommandScope": "observe commands belong to original operation observation interleaved with the new once-only transfer; 18 chunks constitute one image input",
+      "inputTransportEndSequence": 49,
+      "pinElapsedMS": 88.46104166696023,
+      "pinSucceeded": true,
+      "observedEntryRows": 170,
+      "sampleNumberMinimum": 1,
+      "sampleNumberMaximum": 248,
+      "missingSampleNumbers": [
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121
+      ],
+      "phaseCounts": {
+        "inputTriggered": 170
+      },
+      "allObservedOriginalDraftTextSelectionRetained": true,
+      "baselineDOMNodeCount": 2,
+      "allObservedBaselineNodesRetained": true,
+      "firstLoadedImageSample": 2,
+      "intermediateProgressSamples": [
+        {
+          "sequence": 66,
+          "sample": 9,
+          "minimum": 2,
+          "maximum": 2
+        },
+        {
+          "sequence": 71,
+          "sample": 10,
+          "minimum": 20,
+          "maximum": 20
+        },
+        {
+          "sequence": 73,
+          "sample": 11,
+          "minimum": 21,
+          "maximum": 21
+        },
+        {
+          "sequence": 75,
+          "sample": 12,
+          "minimum": 24,
+          "maximum": 24
+        },
+        {
+          "sequence": 77,
+          "sample": 13,
+          "minimum": 27,
+          "maximum": 27
+        },
+        {
+          "sequence": 79,
+          "sample": 14,
+          "minimum": 29,
+          "maximum": 29
+        },
+        {
+          "sequence": 81,
+          "sample": 15,
+          "minimum": 31,
+          "maximum": 31
+        },
+        {
+          "sequence": 83,
+          "sample": 16,
+          "minimum": 33,
+          "maximum": 33
+        },
+        {
+          "sequence": 85,
+          "sample": 17,
+          "minimum": 36,
+          "maximum": 36
+        },
+        {
+          "sequence": 87,
+          "sample": 18,
+          "minimum": 38,
+          "maximum": 38
+        },
+        {
+          "sequence": 89,
+          "sample": 19,
+          "minimum": 40,
+          "maximum": 40
+        },
+        {
+          "sequence": 91,
+          "sample": 20,
+          "minimum": 42,
+          "maximum": 42
+        },
+        {
+          "sequence": 93,
+          "sample": 21,
+          "minimum": 45,
+          "maximum": 45
+        },
+        {
+          "sequence": 95,
+          "sample": 22,
+          "minimum": 46,
+          "maximum": 46
+        },
+        {
+          "sequence": 97,
+          "sample": 23,
+          "minimum": 49,
+          "maximum": 49
+        },
+        {
+          "sequence": 99,
+          "sample": 24,
+          "minimum": 51,
+          "maximum": 51
+        },
+        {
+          "sequence": 101,
+          "sample": 25,
+          "minimum": 54,
+          "maximum": 54
+        },
+        {
+          "sequence": 103,
+          "sample": 26,
+          "minimum": 56,
+          "maximum": 56
+        },
+        {
+          "sequence": 105,
+          "sample": 27,
+          "minimum": 58,
+          "maximum": 58
+        },
+        {
+          "sequence": 107,
+          "sample": 28,
+          "minimum": 60,
+          "maximum": 60
+        },
+        {
+          "sequence": 109,
+          "sample": 29,
+          "minimum": 63,
+          "maximum": 63
+        },
+        {
+          "sequence": 111,
+          "sample": 30,
+          "minimum": 66,
+          "maximum": 66
+        },
+        {
+          "sequence": 113,
+          "sample": 31,
+          "minimum": 68,
+          "maximum": 68
+        },
+        {
+          "sequence": 115,
+          "sample": 32,
+          "minimum": 68,
+          "maximum": 68
+        },
+        {
+          "sequence": 117,
+          "sample": 33,
+          "minimum": 71,
+          "maximum": 71
+        },
+        {
+          "sequence": 119,
+          "sample": 34,
+          "minimum": 74,
+          "maximum": 74
+        },
+        {
+          "sequence": 121,
+          "sample": 35,
+          "minimum": 75,
+          "maximum": 75
+        },
+        {
+          "sequence": 123,
+          "sample": 36,
+          "minimum": 77,
+          "maximum": 77
+        },
+        {
+          "sequence": 125,
+          "sample": 37,
+          "minimum": 80,
+          "maximum": 80
+        },
+        {
+          "sequence": 127,
+          "sample": 38,
+          "minimum": 83,
+          "maximum": 83
+        },
+        {
+          "sequence": 129,
+          "sample": 39,
+          "minimum": 86,
+          "maximum": 86
+        },
+        {
+          "sequence": 131,
+          "sample": 40,
+          "minimum": 87,
+          "maximum": 87
+        },
+        {
+          "sequence": 133,
+          "sample": 41,
+          "minimum": 89,
+          "maximum": 89
+        },
+        {
+          "sequence": 135,
+          "sample": 42,
+          "minimum": 92,
+          "maximum": 92
+        },
+        {
+          "sequence": 137,
+          "sample": 43,
+          "minimum": 95,
+          "maximum": 95
+        }
+      ],
+      "progress100Samples": [],
+      "readyAttributeSamples": 0,
+      "errorAttributeSamples": 0,
+      "startObservedRows": 0,
+      "productionSTARTConfirmed": false,
+      "finalCompletionConfirmed": false,
+      "durablePhase": "unknown",
+      "dispatchExclusive": 0,
+      "axBeforeAfter": [
+        {
+          "observedAt": "2026-11-16T03:33:29Z",
+          "exactNeutralText": true,
+          "textSHA256": "d60bcd4299469a1c5c0f8d2c7ed34dfde67d4631f99ff80de5297d3608407b3b",
+          "selectedWords": true,
+          "selectionLength": 14,
+          "baselineImageCount": 1,
+          "frontmostExact": true
+        },
+        {
+          "observedAt": "2026-11-16T03:33:53Z",
+          "exactNeutralText": true,
+          "textSHA256": "d60bcd4299469a1c5c0f8d2c7ed34dfde67d4631f99ff80de5297d3608407b3b",
+          "selectedWords": true,
+          "selectionLength": 14,
+          "baselineImageCount": 1,
+          "frontmostExact": true
+        }
+      ]
+    },
+    {
+      "image": 2,
+      "assetUUID": "318A7AD9-CB10-43C3-AC44-564E6A3A28AD",
+      "assetIDDigest": "6616498b3e58123da00fe20a7c71abdf6ddca6b688d1eab5a4ba136accc7be6d",
+      "originalPNGBytes": 4515606,
+      "originalPNGSHA256": "ecc9f3ffac8751da85415d55da84d1388ff07cbc092a1b06d835fa2dfb1ad115",
+      "systemCaptureAndOrdinaryImportMatch": true,
+      "operationUUID": "C745AAD4-2AB4-4060-B383-01B65DD0D0BE",
+      "operationIDDigest": "85f0c95987dda2980e8d76b94ae60ccc2bd124b90d03b8d039786c813ca4fd52",
+      "clickBindingID": "EB5D812B-16EE-4A94-ABCC-7F8EAB6462AF",
+      "clickWindowNumber": 819,
+      "eventNumber": 27943,
+      "mouseProbeTag": 215591146439339,
+      "coordinate": {
+        "x": 33,
+        "y": 494.7371007371007
+      },
+      "nativeProductReceiptRecords": 10,
+      "nativeBoundaryCounts": {
+        "windowEvent:received:down": 1,
+        "inputDown:received:down": 1,
+        "onDown:received:down": 1,
+        "gate:accepted:down": 1,
+        "windowEvent:received:up": 1,
+        "inputUp:received:up": 1,
+        "release:selected:up": 1
+      },
+      "inputCommandCounts": {
+        "observe": 16,
+        "captureTarget": 1,
+        "validate": 1,
+        "begin": 1,
+        "chunk": 18,
+        "commit": 1
+      },
+      "inputCommandScope": "observe commands belong to original operation observation interleaved with the new once-only transfer; 18 chunks constitute one image input",
+      "inputTransportEndSequence": 495,
+      "pinElapsedMS": 78.56125000034808,
+      "pinSucceeded": true,
+      "observedEntryRows": 34,
+      "sampleNumberMinimum": 1,
+      "sampleNumberMaximum": 34,
+      "missingSampleNumbers": [],
+      "phaseCounts": {
+        "inputTriggered": 34
+      },
+      "allObservedOriginalDraftTextSelectionRetained": true,
+      "baselineDOMNodeCount": 4,
+      "allObservedBaselineNodesRetained": true,
+      "firstLoadedImageSample": 2,
+      "intermediateProgressSamples": [
+        {
+          "sequence": 512,
+          "sample": 5,
+          "minimum": 2,
+          "maximum": 2
+        },
+        {
+          "sequence": 516,
+          "sample": 6,
+          "minimum": 5,
+          "maximum": 5
+        },
+        {
+          "sequence": 520,
+          "sample": 7,
+          "minimum": 5,
+          "maximum": 5
+        },
+        {
+          "sequence": 524,
+          "sample": 8,
+          "minimum": 11,
+          "maximum": 11
+        },
+        {
+          "sequence": 528,
+          "sample": 9,
+          "minimum": 17,
+          "maximum": 17
+        },
+        {
+          "sequence": 532,
+          "sample": 10,
+          "minimum": 22,
+          "maximum": 22
+        },
+        {
+          "sequence": 536,
+          "sample": 11,
+          "minimum": 25,
+          "maximum": 25
+        },
+        {
+          "sequence": 540,
+          "sample": 12,
+          "minimum": 28,
+          "maximum": 28
+        },
+        {
+          "sequence": 544,
+          "sample": 13,
+          "minimum": 34,
+          "maximum": 34
+        },
+        {
+          "sequence": 548,
+          "sample": 14,
+          "minimum": 37,
+          "maximum": 37
+        },
+        {
+          "sequence": 552,
+          "sample": 15,
+          "minimum": 41,
+          "maximum": 41
+        },
+        {
+          "sequence": 556,
+          "sample": 16,
+          "minimum": 46,
+          "maximum": 46
+        },
+        {
+          "sequence": 560,
+          "sample": 17,
+          "minimum": 52,
+          "maximum": 52
+        },
+        {
+          "sequence": 564,
+          "sample": 18,
+          "minimum": 55,
+          "maximum": 55
+        },
+        {
+          "sequence": 566,
+          "sample": 19,
+          "minimum": 55,
+          "maximum": 55
+        },
+        {
+          "sequence": 568,
+          "sample": 20,
+          "minimum": 61,
+          "maximum": 61
+        },
+        {
+          "sequence": 570,
+          "sample": 21,
+          "minimum": 67,
+          "maximum": 67
+        },
+        {
+          "sequence": 572,
+          "sample": 22,
+          "minimum": 67,
+          "maximum": 67
+        },
+        {
+          "sequence": 574,
+          "sample": 23,
+          "minimum": 72,
+          "maximum": 72
+        },
+        {
+          "sequence": 576,
+          "sample": 24,
+          "minimum": 78,
+          "maximum": 78
+        },
+        {
+          "sequence": 578,
+          "sample": 25,
+          "minimum": 81,
+          "maximum": 81
+        },
+        {
+          "sequence": 580,
+          "sample": 26,
+          "minimum": 84,
+          "maximum": 84
+        },
+        {
+          "sequence": 582,
+          "sample": 27,
+          "minimum": 90,
+          "maximum": 90
+        },
+        {
+          "sequence": 584,
+          "sample": 28,
+          "minimum": 96,
+          "maximum": 96
+        }
+      ],
+      "progress100Samples": [
+        29,
+        30,
+        31,
+        32
+      ],
+      "readyAttributeSamples": 0,
+      "errorAttributeSamples": 0,
+      "startObservedRows": 0,
+      "productionSTARTConfirmed": false,
+      "finalCompletionConfirmed": false,
+      "durablePhase": "unknown",
+      "dispatchExclusive": 0,
+      "axBeforeAfter": [
+        {
+          "observedAt": "2026-11-16T03:34:55Z",
+          "exactNeutralText": true,
+          "textSHA256": "d60bcd4299469a1c5c0f8d2c7ed34dfde67d4631f99ff80de5297d3608407b3b",
+          "selectedWords": true,
+          "selectionLength": 14,
+          "baselineImageCount": 1,
+          "frontmostExact": true
+        },
+        {
+          "observedAt": "2026-11-16T03:35:19Z",
+          "exactNeutralText": true,
+          "textSHA256": "d60bcd4299469a1c5c0f8d2c7ed34dfde67d4631f99ff80de5297d3608407b3b",
+          "selectedWords": true,
+          "selectionLength": 14,
+          "baselineImageCount": 1,
+          "frontmostExact": true
+        }
+      ]
+    }
+  ],
+  "targetLease": {
+    "commonFields": {
+      "adapterID": "chatgpt-web",
+      "applicationID": "com.microsoft.edgemac",
+      "composerID": "node-1:node-2",
+      "documentID": "f1b52823-5860-48eb-975a-4bb8d9fd11f0",
+      "draftGeneration": "cf80d0bb-0122-4aad-a16e-122306b316d3",
+      "sessionID": "edge-kernel-v1:15065:1794798551:96568",
+      "surface": "webChat",
+      "tabID": "512563263",
+      "windowID": "512563253"
+    },
+    "differingFields": [
+      "clickBindingID"
+    ],
+    "independentClickBindings": true,
+    "exactOriginalTupleEqualExceptClickBinding": true
+  },
+  "firstRetainedDuringSecond": {
+    "observedOriginalFirstOperationRows": 48,
+    "allOriginalDraftTextSelectionAndFirstLoadedPreviewRetained": true,
+    "secondBaselineNodes": 4,
+    "scope": "Second baseline includes original baseline and first new attachment nodes; matching original first-operation filename/image observations remain. No remote original-byte or final-completion assertion."
+  },
+  "clickIntervalSeconds": 85.6775506670001,
+  "rapidConsecutiveAcceptance": "NOT_RUN_85_SECOND_SEPARATION",
+  "traceReconstruction": {
+    "key": [
+      "diagnosticSessionDigest",
+      "diagnosticSequence"
+    ],
+    "sessions": [
+      "000c164e42aebaa02e1ff816362417f008f4335eb1d2a59bc1fd2327f3179d97"
+    ],
+    "rawSnapshotCounts": [
+      {
+        "case": 1,
+        "snapshots": 71,
+        "uniqueRows": 137,
+        "sequenceMinimum": 1,
+        "sequenceMaximum": 137,
+        "allSnapshotHashesMatch": true,
+        "readErrors": []
+      },
+      {
+        "case": 2,
+        "snapshots": 117,
+        "uniqueRows": 364,
+        "sequenceMinimum": 297,
+        "sequenceMaximum": 660,
+        "allSnapshotHashesMatch": true,
+        "readErrors": []
+      }
+    ],
+    "uniqueRows": 501,
+    "deduplicatedSHA256": "b39d4dcb8234566192db1adb5db87324abbd48f976b7f56dc98d8ae19b5f1e5e",
+    "conflictingRows": 0,
+    "missingDiagnosticSequences": [
+      138,
+      139,
+      140,
+      141,
+      142,
+      143,
+      144,
+      145,
+      146,
+      147,
+      148,
+      149,
+      150,
+      151,
+      152,
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162,
+      163,
+      164,
+      165,
+      166,
+      167,
+      168,
+      169,
+      170,
+      171,
+      172,
+      173,
+      174,
+      175,
+      176,
+      177,
+      178,
+      179,
+      180,
+      181,
+      182,
+      183,
+      184,
+      185,
+      186,
+      187,
+      188,
+      189,
+      190,
+      191,
+      192,
+      193,
+      194,
+      195,
+      196,
+      197,
+      198,
+      199,
+      200,
+      201,
+      202,
+      203,
+      204,
+      205,
+      206,
+      207,
+      208,
+      209,
+      210,
+      211,
+      212,
+      213,
+      214,
+      215,
+      216,
+      217,
+      218,
+      219,
+      220,
+      221,
+      222,
+      223,
+      224,
+      225,
+      226,
+      227,
+      228,
+      229,
+      230,
+      231,
+      232,
+      233,
+      234,
+      235,
+      236,
+      237,
+      238,
+      239,
+      240,
+      241,
+      242,
+      243,
+      244,
+      245,
+      246,
+      247,
+      248,
+      249,
+      250,
+      251,
+      252,
+      253,
+      254,
+      255,
+      256,
+      257,
+      258,
+      259,
+      260,
+      261,
+      262,
+      263,
+      264,
+      265,
+      266,
+      267,
+      268,
+      269,
+      270,
+      271,
+      272,
+      273,
+      274,
+      275,
+      276,
+      277,
+      278,
+      279,
+      280,
+      281,
+      282,
+      283,
+      284,
+      285,
+      286,
+      287,
+      288,
+      289,
+      290,
+      291,
+      292,
+      293,
+      294,
+      295,
+      296
+    ],
+    "limitation": "The trace ring retains 128 rows. Union of both bounded observation windows captures all click/input chains, but sequences138-296 between windows are absent; first operation sample44-121 is unrecorded, not inferred."
+  },
+  "databaseCounts": {
+    "assets": 8,
+    "operations": 3,
+    "upload_starts": 0
+  },
+  "priorUnknown": {
+    "operationUUID": "46A3293A-FD87-4533-B4CB-201AD3777D12",
+    "originalIdentityAttemptPhaseExclusiveUnchanged": true,
+    "phase": "unknown",
+    "attempt": 1,
+    "dispatchExclusive": 0,
+    "reason": "Background observation unavailable; original operation retained",
+    "automaticReplayEvidence": false
+  },
+  "normalPermissionEvidence": [
+    {
+      "sequence": 69,
+      "osStatus": 0,
+      "askedUser": false,
+      "senderIsOrdinaryApp": true,
+      "receiverSignatureValid": true
+    },
+    {
+      "sequence": 351,
+      "osStatus": 0,
+      "askedUser": false,
+      "senderIsOrdinaryApp": true,
+      "receiverSignatureValid": true
+    },
+    {
+      "sequence": 422,
+      "osStatus": 0,
+      "askedUser": false,
+      "senderIsOrdinaryApp": true,
+      "receiverSignatureValid": true
+    },
+    {
+      "sequence": 598,
+      "osStatus": 0,
+      "askedUser": false,
+      "senderIsOrdinaryApp": true,
+      "receiverSignatureValid": true
+    }
+  ],
+  "observerRefusals": [
+    {
+      "action": "observe",
+      "critical": false,
+      "diagnosticSequence": 67,
+      "diagnosticSessionDigest": "000c164e42aebaa02e1ff816362417f008f4335eb1d2a59bc1fd2327f3179d97",
+      "error": "invalidTarget",
+      "event": "web_command_refused",
+      "operationIDDigest": "65125d063d4d3a04465a6504c43b99c4dba33c605d102fb60d7cd9914c52ade0"
+    }
+  ],
+  "diagnosticLimitations": [
+    "Default-sandbox runtime-after-app.json falsely appears empty with AX/post-event false; authorized runtime-after-app-authorized.json is the actual verified inventory. Do not infer app exit or lost OS consent from the sandbox output.",
+    "Baseline capture completed but original metadata parser failed because xattr binary output was hex; recovery used -px decoding without recapture. Original baseline fixture/window receipt was not persisted.",
+    "Official baseline preview download differs in byte count/SHA from original; network origin not confirmed. This is not proof of original-byte server round trip or new-image completion.",
+    "Both images loaded at sample2 before meaningful progress completed, so loaded previews cannot establish final completion.",
+    "Intermediate progress is newly observed real service UI evidence but does not change current closed START/completion profiles; no code or admission changed by this audit.",
+    "Two software CGEvent clicks separated about85.68s are not physical clicks or rapid-consecutive acceptance.",
+    "No new Chrome regression, tab-switch, unresponsive Edge, failure timeout, restart or distribution acceptance performed by this evidence review."
+  ],
+  "mergeReady": false,
+  "releaseReady": false
+}

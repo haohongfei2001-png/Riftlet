@@ -1,0 +1,13 @@
+{
+  "source": "285389696de110f076ba60d2e8a1a6fbe98c6b3e",
+  "dependencyRevision": "ab7d71291238df6e0492143b120c9b696a35f603",
+  "originalBuildScriptSHA256": "f56f0dde3692380d186a3806dce995e1a24077c423e29b0fab10c95e54572b85",
+  "derivedBuildScriptSHA256": "e45242f9314c8f6cbb6056629213623b7251c7029e0971b172a62e7ebadc818f",
+  "externalBuildOnlyChanges": [
+    "absolute cd to unchanged exported source",
+    "official SwiftPM --skip-update dependency resolution option"
+  ],
+  "runtimeOrAdmissionOverride": false,
+  "automaticRetry": false,
+  "allTestsPassedClaimed": false
+}

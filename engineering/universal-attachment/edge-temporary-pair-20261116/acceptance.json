@@ -1,0 +1,76 @@
+{
+  "trial": "temporary-01-20261116",
+  "host": "Microsoft Edge",
+  "surface": "ChatGPT Web, isolated signed-in Temporary draft",
+  "builtSource": "285389696de110f076ba60d2e8a1a6fbe98c6b3e",
+  "admittedHead": "932f278f3412fd3158f01907a5a484ac9c235fa2",
+  "actualExecutableSHA256": "39b9cd983441533a75a171fe56432de903a9c16e93cd4d367577cc4fd9aaa894",
+  "signedArchiveSHA256": "55a8135dabe6d2ec7eb62d2006534da92f22a74b26502e02ebce74444d46b003",
+  "productEntry": "Ordinary signed App; one CGEvent down/up through each actual thumbnail input window, one accepted file input per image",
+  "commercialAcceptance": "INCOMPLETE",
+  "images": [
+    {
+      "operationUUID": "B99E0FB7-6A23-4BB4-BABC-E5029C04BA27",
+      "assetUUID": "EE44D7C0-2293-4CAD-A6C8-09BAED121707",
+      "sourcePNGSHA256": "408c21d6637a02579d1aa71ef77a0c1f643a07313be04f715ff73754718ae1e9",
+      "sourcePNGBytes": 4512568,
+      "nativeReceiptRows": 10,
+      "windowNumber": 816,
+      "eventNumber": 9629,
+      "pinElapsedMS": 88.46104166696023,
+      "observeSamplesRetained": 170,
+      "intermediateProgressSamples": 35,
+      "observedIntermediateProgressPercentRange": [
+        2,
+        95
+      ],
+      "startConfirmed": false,
+      "completionConfirmed": false,
+      "state": "unknown"
+    },
+    {
+      "operationUUID": "C745AAD4-2AB4-4060-B383-01B65DD0D0BE",
+      "assetUUID": "318A7AD9-CB10-43C3-AC44-564E6A3A28AD",
+      "sourcePNGSHA256": "ecc9f3ffac8751da85415d55da84d1388ff07cbc092a1b06d835fa2dfb1ad115",
+      "sourcePNGBytes": 4515606,
+      "nativeReceiptRows": 10,
+      "windowNumber": 819,
+      "eventNumber": 27943,
+      "pinElapsedMS": 78.56125000034808,
+      "observeSamplesRetained": 34,
+      "intermediateProgressSamples": 24,
+      "observedIntermediateProgressPercentRange": [
+        2,
+        96
+      ],
+      "startConfirmed": false,
+      "completionConfirmed": false,
+      "state": "unknown"
+    }
+  ],
+  "perClickLease": "Same exact process launch, window, tab, document, composer and draft generation; independent clickBindingIDs",
+  "clickIntervalSeconds": 85.6775506670001,
+  "rapidConsecutive": "NOT_RUN",
+  "lateAX": {
+    "observedAt": "2026-11-16T03:39:34Z",
+    "exactNeutralText": true,
+    "selectedWords": true,
+    "selectionLength": 14,
+    "baselineImageCount": 1,
+    "firstAddedImageCount": 1,
+    "secondAddedImageCount": 1,
+    "editorFocused": false,
+    "visibleUploadProgressCount": 0
+  },
+  "lateAXRaw": "pair-late-preservation.json",
+  "oldOrdinaryDraftSelectionLoss": "FAIL_REMAINS_RECORDED",
+  "historicalTrial": "../edge-first-input-20261115/acceptance.json",
+  "productionUploadStarts": 0,
+  "confirmedUploadCompletions": 0,
+  "independentReportSHA256": "d225848e3e35663de549a2112abe3c40b83fd1dbdc48607c4d16c333fd019439",
+  "independentReport": "independent-audit.json",
+  "evidenceManifest": "raw-evidence-manifest.json",
+  "exactCIEvidence": "../edge-first-input-20261115/ci-verification.json",
+  "mergeReady": false,
+  "releaseReady": false
+}
