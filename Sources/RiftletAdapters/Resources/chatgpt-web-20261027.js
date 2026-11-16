@@ -23,7 +23,8 @@ function riftletWebAcceptance(command, native) {
     const url = new URL(location.href);
     // Restrict the product to ChatGPT, without a whitelist of conversation or
     // Project paths. A different service's editor is not an attachment target.
-    if (url.protocol !== 'https:' || !['chatgpt.com', 'chat.openai.com'].includes(url.hostname)) fail('PAGE_ROUTE_UNSUPPORTED');
+    if (url.username || url.password || !['https://chatgpt.com', 'https://chat.openai.com'].includes(url.origin))
+      fail('PAGE_ROUTE_UNSUPPORTED');
     return url.origin + url.pathname;
   };
   const blocked = node => {
@@ -140,7 +141,7 @@ function riftletWebAcceptance(command, native) {
     fail('AMBIGUOUS_COMPOSER');
   }
   const blank = (identity, state = 'unknown') => ({schemaVersion: 2,
-    provenance: {source: 'integratedDevelopment', evidenceID: 'click-document-witness-20261114-v18'},
+    provenance: {source: 'integratedDevelopment', evidenceID: 'click-document-witness-20261117-v19'},
     observation: {identity, state, exactImageIdentity: false, belongsToOriginalDraft: false,
       hasError: false, isUploading: false, attachmentAbsent: false, automaticRetryExcluded: false}});
   let registry = globalThis[KEY];

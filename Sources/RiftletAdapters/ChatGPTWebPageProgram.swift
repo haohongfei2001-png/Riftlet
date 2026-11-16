@@ -10,7 +10,8 @@ public enum ChatGPTWebPageProgram {
     static let priorEntrySource = "chatgpt-web-attachment-entry-20261105-v15"
     static let priorHandoffSource = "chatgpt-web-attachment-handoff-20261105-v16"
     static let priorScreenshotSource = "chatgpt-web-screenshot-handoff-20261105-v17"
-    public static let sourceID = "chatgpt-web-click-document-witness-20261114-v18"
+    static let priorClickSource = "chatgpt-web-click-document-witness-20261114-v18"
+    public static let sourceID = "chatgpt-web-click-document-witness-20261117-v19"
     /// Candidate mapping only; ReceiptPolicy start registries remain separate.
     public static let acceptanceUploadStartProfileID = "chatgpt-web-zh-progress-start-development-20261027-v1"
     public static let acceptanceProfile = ObservationProfile(
@@ -22,10 +23,29 @@ public enum ChatGPTWebPageProgram {
         try load(resource: "chatgpt-web-20261027", id: sourceID)
     }
 
-    // The exact unchanged v17 function is necessary to rediscover its installed
-    // relay marker after a native restart. Only original reconciliation uses it.
-    static func loadPriorScreenshotObservation() throws -> WebPageProgram {
-        try load(resource: "chatgpt-web-observe-v17", id: priorScreenshotSource)
+    static func originalObservationProgram(sourceID: String) throws -> WebPageProgram? {
+        switch sourceID {
+        case priorEntrySource, priorHandoffSource, priorScreenshotSource:
+            // v15/v16 already used the v17 observer at the previous baseline.
+            return try load(resource: "chatgpt-web-observe-v17", id: priorScreenshotSource)
+        case priorClickSource:
+            return try load(resource: "chatgpt-web-observe-v18", id: priorClickSource)
+        default:
+            return nil
+        }
+    }
+
+    static func isHistoricalObserver(_ sourceID: String) -> Bool {
+        [priorEntrySource, priorHandoffSource, priorScreenshotSource, priorClickSource].contains(sourceID)
+    }
+
+    static func observationRelayFunctions(for program: WebPageProgram) throws -> [String] {
+        // Main and the earlier v17 used one registration ID but installed
+        // different byte-for-byte functions. Only a unique resident channel
+        // may distinguish those registrations after a native restart.
+        guard program.sourceID == priorScreenshotSource else { return [program.functionSource] }
+        let main = try load(resource: "chatgpt-web-observe-v17-main", id: priorScreenshotSource)
+        return [program.functionSource, main.functionSource]
     }
 
     private static func load(resource: String, id: String) throws -> WebPageProgram {

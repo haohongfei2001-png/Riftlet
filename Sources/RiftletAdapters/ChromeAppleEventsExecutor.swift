@@ -123,22 +123,11 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                         let legacySession = identity.legacyLaunchDate.flatMap { date in
                             date.timeIntervalSince1970.isFinite ? "\(identity.pid):\(date.timeIntervalSince1970)" : nil
                         }
-                        var relay = command.target.flatMap { relays.bound(to: $0) } ?? relays.relay(function: program.functionSource, contextJSON: context,
-                            allowCreate: false, legacyObservationSession: legacySession)
-                        if relay == nil, command.action == .observe || command.action == .captureTarget {
-                            let expected = MainWorldCommandRelay(function: program.functionSource,
-                                contextJSON: context, legacyObservationSession: legacySession)
-                            let channel = try bridge.execute(expected.discovery, window: window, tab: tab,
+                        let relay = try relays.resolve(command, program: program, contextJSON: context,
+                                                       legacyObservationSession: legacySession) { discovery in
+                            try bridge.execute(discovery, window: window, tab: tab,
                                 receiptBudget: .init(deadlineUptime: ProcessInfo.processInfo.systemUptime + 1))
-                            guard channel != "ambiguous" else { throw WebAdapterError.pageRejected(.bridgeUnavailable) }
-                            relay = relays.adopt(function: program.functionSource, contextJSON: context,
-                                channel: channel, legacyObservationSession: legacySession)
                         }
-                        if command.action == .captureTarget, relay == nil {
-                            relay = relays.relay(function: program.functionSource, contextJSON: context,
-                                allowCreate: true, legacyObservationSession: legacySession)
-                        }
-                        guard let relay else { throw WebAdapterError.pageRejected(.bridgeUnavailable) }
                         phase = "submit"
                         var install = false
                         if command.action == .captureTarget {

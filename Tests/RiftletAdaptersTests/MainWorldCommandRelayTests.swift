@@ -1,5 +1,6 @@
 import XCTest
 import JavaScriptCore
+import CryptoKit
 import RiftletCore
 @testable import RiftletAdapters
 
@@ -214,6 +215,88 @@ final class MainWorldCommandRelayTests: XCTestCase {
         XCTAssertEqual(js.evaluateScript(changed.discovery)?.toString(), "")
         js.evaluateScript("document.documentElement=makeRoot()")
         XCTAssertEqual(js.evaluateScript(next.discovery)?.toString(), "")
+    }
+
+    func testOriginalObservationFindsBothV17BuildsAndH2V18ByExactFunctionAndLease() throws {
+        let v17 = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorScreenshotSource))
+        let v18 = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorClickSource))
+        let v17Sources = try ChatGPTWebPageProgram.observationRelayFunctions(for: v17)
+        let v18Sources = try ChatGPTWebPageProgram.observationRelayFunctions(for: v18)
+        let hashes = (v17Sources + v18Sources).map { source in
+            SHA256.hash(data: Data(source.utf8)).map { String(format: "%02x", $0) }.joined()
+        }
+        XCTAssertEqual(hashes, ["0daf3f2763e340503b8c957c4ef35a619417c5e486ac48fccbcae3f657ff9a09",
+                                "5fffb4b9fcee31af401a00259b3cf0cdbf7577c8f990dddbbd1ec99bfe16de3f",
+                                "c32a45bbe8f6339247d523371193a81e554d770424e86f214ea50e14c29a4ef8"])
+        for (program, sources) in [(v17, v17Sources), (v18, v18Sources)] {
+            for function in sources {
+                let hosts = program.sourceID == v17.sourceID ? ["com.google.Chrome"] : ["com.google.Chrome", "com.microsoft.edgemac"]
+                for host in hosts {
+                    let js = try context(), store = MainWorldRelayStore()
+                    let target = TargetLease(adapterID: "chatgpt-web", surface: .webChat, applicationID: host,
+                        sessionID: "current", windowID: "A", tabID: "1", documentID: "d", composerID: "c", draftGeneration: "g")
+                    let identity = ObservationIdentity(operationID: UUID(), assetID: UUID(), attempt: 1,
+                        assetSHA256: String(repeating: "a", count: 64), target: target)
+                    let command = WebBridgeCommand(action: .observe, target: target, identity: identity)
+                    let json = String(decoding: try JSONEncoder().encode(command), as: UTF8.self)
+                    let context = native.replacingOccurrences(of: "com.google.Chrome", with: host)
+                    let legacy = host == "com.google.Chrome" ? "legacy" : nil
+                    let old = MainWorldCommandRelay(function: function, contextJSON: context, legacyObservationSession: legacy)
+                    js.evaluateScript(old.installer)
+                    js.evaluateScript("""
+                        const id=(\(json)).identity;
+                        globalThis.__riftletIndependentFileInput20261104={operations:new Map([[id.operationID,
+                          {identity:id,binding:null,changeReturned:true,inputCount:1}]])};
+                        """)
+                    let recovered = try store.resolve(command, program: program, contextJSON: context, legacyObservationSession: legacy) {
+                        try XCTUnwrap(js.evaluateScript($0)?.toString())
+                    }
+                    XCTAssertEqual(recovered.channel, old.channel)
+                    let request = MainWorldCommandEnvelope(function: program.functionSource, commandJSON: json, contextJSON: context)
+                    js.evaluateScript(recovered.dispatch(request))
+                    let raw = try XCTUnwrap(js.evaluateScript(request.reader)?.toString())
+                    let result = try ObservationDecoder.decode(Data(request.decode(raw).utf8))
+                    XCTAssertEqual(result.observation.identity, identity)
+                    XCTAssertEqual(result.observation.state, .inputTriggered)
+                    XCTAssertNil(result.observation.uploadStart)
+                    XCTAssertNil(js.exception)
+                    XCTAssertNil(store.bound(to: target))
+                    XCTAssertNil(store.relay(function: function, contextJSON: context, allowCreate: false))
+                    XCTAssertThrowsError(try store.resolve(.init(action: .commit, target: target, identity: identity),
+                        program: program, contextJSON: context) { _ in XCTFail("Historical input attempted discovery"); return "" })
+                }
+            }
+        }
+    }
+
+    func testHistoricalObservationAmbiguityAbsenceAndDifferentLeaseNeverInstallOrDispatch() throws {
+        let program = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorScreenshotSource))
+        let functions = try ChatGPTWebPageProgram.observationRelayFunctions(for: program)
+        let target = TargetLease(adapterID: "chatgpt-web", surface: .webChat, applicationID: "com.google.Chrome",
+            sessionID: "current", windowID: "A", tabID: "1", documentID: "d", composerID: "c", draftGeneration: "g")
+        let identity = ObservationIdentity(operationID: UUID(), assetID: UUID(), attempt: 1,
+            assetSHA256: String(repeating: "a", count: 64), target: target)
+        let command = WebBridgeCommand(action: .observe, target: target, identity: identity)
+        for installed in [[], functions, [functions[0], functions[0]]] {
+            let js = try context(), store = MainWorldRelayStore()
+            for source in installed { js.evaluateScript(MainWorldCommandRelay(function: source, contextJSON: native).installer) }
+            let before = try XCTUnwrap(js.evaluateScript("JSON.stringify(document.documentElement.values)")?.toString())
+            var reads = 0
+            XCTAssertThrowsError(try store.resolve(command, program: program, contextJSON: native) { script in
+                reads += 1
+                return try XCTUnwrap(js.evaluateScript(script)?.toString())
+            }) { XCTAssertEqual($0 as? WebAdapterError, .pageRejected(.bridgeUnavailable)) }
+            XCTAssertEqual(reads, 1)
+            XCTAssertEqual(js.evaluateScript("JSON.stringify(document.documentElement.values)")?.toString(), before)
+            XCTAssertNil(store.bound(to: target))
+        }
+        let another = TargetLease(adapterID: target.adapterID, surface: target.surface, applicationID: target.applicationID,
+            sessionID: target.sessionID, windowID: "other", tabID: target.tabID, documentID: target.documentID,
+            composerID: target.composerID, draftGeneration: target.draftGeneration)
+        XCTAssertThrowsError(try MainWorldRelayStore().resolve(.init(action: .observe, target: another, identity: identity),
+            program: program, contextJSON: native) { _ in XCTFail("Mismatched identity reached the page"); return "" }) {
+                XCTAssertEqual($0 as? WebAdapterError, .invalidRequest)
+            }
     }
     func testNonceIsConsumedBeforeReentrantEvent() throws {
         let js = try context(), id = UUID().uuidString.lowercased()

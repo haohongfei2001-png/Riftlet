@@ -67,9 +67,7 @@ private final class EdgeCommandCancellation: @unchecked Sendable {
         }
         let host = try driver.freeze(deadline: deadline)
         timings["nativeIdentityMS"] = (ProcessInfo.processInfo.systemUptime - started) * 1000
-        // This parser only canonicalizes the native address/positive IDs. It
-        // performs no Chrome-specific lookup and grants no attachment authority.
-        let address = try ChromeClickRoute(window: host.windowID, tab: host.tabID, url: host.address).address
+        let address = try ChromeClickRoute.chatGPT(window: host.windowID, tab: host.tabID, url: host.address).address
         let witness = ChromeClickDocumentWitness(), world = EdgeExecutionWorldWitness()
         phase = "documentEditorPin"
         phaseStarted = ProcessInfo.processInfo.systemUptime
@@ -108,7 +106,9 @@ private final class EdgeCommandCancellation: @unchecked Sendable {
 
     public func execute(_ command: WebBridgeCommand, program: WebPageProgram) async throws -> Data {
         try Task.checkCancellation()
-        guard command.action != .pinTarget, program.sourceID == ChatGPTWebPageProgram.sourceID else {
+        guard command.action != .pinTarget,
+              program.sourceID == ChatGPTWebPageProgram.sourceID ||
+                (command.action == .observe && program.sourceID == ChatGPTWebPageProgram.priorClickSource) else {
             throw WebAdapterError.invalidRequest
         }
         if command.action == .captureTarget {
@@ -208,19 +208,9 @@ private final class EdgeCommandCancellation: @unchecked Sendable {
                         let envelope = MainWorldCommandEnvelope(function: program.functionSource,
                             commandJSON: json, contextJSON: context)
                         phase = "originalRelay"
-                        var relay = command.target.flatMap { relays.bound(to: $0) }
-                            ?? relays.relay(function: program.functionSource, contextJSON: context, allowCreate: false)
-                        if relay == nil, command.action == .observe || command.action == .captureTarget {
-                            let expected = MainWorldCommandRelay(function: program.functionSource, contextJSON: context)
-                            let channel = try read(expected.discovery)
-                            guard channel != "ambiguous" else { throw WebAdapterError.pageRejected(.bridgeUnavailable) }
-                            relay = relays.adopt(function: program.functionSource, contextJSON: context,
-                                                channel: channel, legacyObservationSession: nil)
+                        let relay = try relays.resolve(command, program: program, contextJSON: context) { discovery in
+                            try read(discovery)
                         }
-                        if relay == nil, command.action == .captureTarget {
-                            relay = relays.relay(function: program.functionSource, contextJSON: context, allowCreate: true)
-                        }
-                        guard let relay else { throw WebAdapterError.pageRejected(.bridgeUnavailable) }
                         var install = false
                         if command.action == .captureTarget { install = try read(relay.probe) != "ready" }
                         try selection()

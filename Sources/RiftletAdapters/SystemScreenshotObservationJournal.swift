@@ -79,7 +79,8 @@ public actor SystemScreenshotObservationJournal {
         let versions = [(ChatGPTWebPageProgram.priorEntrySource, "attachment-entry-20261105-v15"),
                         (ChatGPTWebPageProgram.priorHandoffSource, "attachment-handoff-20261105-v16"),
                         (ChatGPTWebPageProgram.priorScreenshotSource, "screenshot-handoff-20261105-v17"),
-                        (ChatGPTWebPageProgram.sourceID, "click-document-witness-20261114-v18")]
+                        (ChatGPTWebPageProgram.priorClickSource, "click-document-witness-20261114-v18"),
+                        (ChatGPTWebPageProgram.sourceID, "click-document-witness-20261117-v19")]
         guard let previous = versions.firstIndex(where: { $0.1 == saved.evidenceID }),
               let observed = versions.firstIndex(where: { $0.1 == current.evidenceID }), previous < observed,
               let source = try await SystemScreenshotCandidateAdmission(store: store, scope: scope).registeredObservationSource(for: request),

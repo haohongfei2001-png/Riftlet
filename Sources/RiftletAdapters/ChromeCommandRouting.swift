@@ -16,6 +16,17 @@ struct ChromeClickRoute: Equatable, Sendable {
     let tab: String
     let address: String
 
+    /// Validate the raw browser URL before the click identity drops credentials
+    /// and normalizes the default HTTPS port.
+    static func chatGPT(window: String, tab: String, url: String) throws -> Self {
+        guard let parts = URLComponents(string: url), parts.scheme?.lowercased() == "https",
+              parts.user == nil, parts.password == nil, parts.port == nil || parts.port == 443,
+              ["chatgpt.com", "chat.openai.com"].contains(parts.host?.lowercased()) else {
+            throw WebAdapterError.pageRejected(.pageRouteUnsupported)
+        }
+        return try Self(window: window, tab: tab, url: url)
+    }
+
     init(window: String, tab: String, url: String) throws {
         guard let windowNumber = Int64(window), windowNumber > 0,
               let tabNumber = Int64(tab), tabNumber > 0,

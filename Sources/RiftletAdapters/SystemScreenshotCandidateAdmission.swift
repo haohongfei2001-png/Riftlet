@@ -76,7 +76,8 @@ public actor SystemScreenshotCandidateAdmission {
               registration.version == (scope.isProduct ? 2 : 1),
               registration.assetOrigin == (scope.isProduct ? scope.origin : nil),
               [SystemScreenshotWebCandidate.sourceID, ChatGPTWebPageProgram.priorEntrySource,
-               ChatGPTWebPageProgram.priorHandoffSource, ChatGPTWebPageProgram.priorScreenshotSource].contains(registration.sourceID),
+               ChatGPTWebPageProgram.priorHandoffSource, ChatGPTWebPageProgram.priorScreenshotSource,
+               ChatGPTWebPageProgram.priorClickSource].contains(registration.sourceID),
               registration.startProfileID == scope.admittedProfile.uploadStartProfileID!,
               registration.completionProfileID == scope.admittedProfile.profileID,
               registration.identity == Self.identity(for: request),
@@ -93,7 +94,8 @@ public actor SystemScreenshotCandidateAdmission {
         }
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
         guard (try? encoder.encode(registration)) == data else { throw WebAdapterError.invalidRequest }
-        if [SystemScreenshotWebCandidate.sourceID, ChatGPTWebPageProgram.priorScreenshotSource].contains(registration.sourceID) {
+        if [SystemScreenshotWebCandidate.sourceID, ChatGPTWebPageProgram.priorScreenshotSource,
+            ChatGPTWebPageProgram.priorClickSource].contains(registration.sourceID) {
             try scope.validateMetadata(request.asset)
         } else {
             try SystemScreenshotWebCandidate.validateMetadata(request.asset, expectedOrigin: scope.origin)
@@ -119,10 +121,7 @@ public actor SystemScreenshotCandidateAdmission {
         guard let original = try await admittedObservationScope(for: request) else { return nil }
         let admission = original == scope ? self : SystemScreenshotCandidateAdmission(store: store, scope: original)
         guard let source = try await admission.registeredObservationSource(for: request) else { return nil }
-        guard [ChatGPTWebPageProgram.priorEntrySource, ChatGPTWebPageProgram.priorHandoffSource,
-               ChatGPTWebPageProgram.priorScreenshotSource].contains(source) else { return nil }
-        // v15/v16 were already reconciled through v17 at the previous baseline.
-        return try ChatGPTWebPageProgram.loadPriorScreenshotObservation()
+        return try ChatGPTWebPageProgram.originalObservationProgram(sourceID: source)
     }
 
     static func checkpointKey(for request: TransferRequest, scope: SystemScreenshotAdmissionScope = .candidate) -> String {

@@ -20,15 +20,16 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
     var revalidateEntered: DispatchSemaphore?, releaseRevalidate: DispatchSemaphore?, recovered: DispatchSemaphore?
     private var currentPin: UUID?
     private var replies: [String: String] = [:]
+    private var relayMarker: String?
     private(set) var actions: [String] = []
     private(set) var bootstraps = 0, selectionChecks = 0
     private(set) var fullSelectionChecks = 0, clickSelectionChecks = 0
     private var relayChannel: String?
 
-    init() {
+    init(address: String = "https://chatgpt.com/c/neutral") {
         var record = proc_bsdinfo(); record.pbi_pid = 71; record.pbi_start_tvsec = 10
         let birth = KernelProcessBirth(requestedPID: 71, record: record, bytesRead: Int32(MemoryLayout.size(ofValue: record)))!
-        host = EdgeWindowTab(process: birth, windowID: "13", tabID: "45", address: "https://chatgpt.com/c/neutral")
+        host = EdgeWindowTab(process: birth, windowID: "13", tabID: "45", address: address)
     }
     func freeze(deadline: TimeInterval) throws -> EdgeWindowTab {
         try revalidate(host, deadline: deadline)
@@ -64,6 +65,10 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
     func isCurrent(_ target: EdgeWindowTab) -> Bool {
         lock.lock(); defer { lock.unlock() }; return alive && target.process == host.process
     }
+    func retainInstalledRelay(_ relay: MainWorldCommandRelay) {
+        relayChannel = relay.channel
+        relayMarker = relay.marker
+    }
     func recover(session: String, window: String, tab: String) -> EdgeWindowTab? {
         lock.lock(); defer { lock.unlock() }
         recovered?.signal()
@@ -91,7 +96,10 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
         if source.contains("edge-world-confirm") || source.contains("edge-world-validate") {
             return worldSeparated && originalDocumentCurrent ? "verified" : "refused"
         }
-        if source.contains("root.attributes.length>1024") { return relayChannel ?? "" }
+        if source.contains("root.attributes.length>1024") {
+            guard let relayMarker, let relayChannel, source.contains(relayMarker) else { return "" }
+            return relayChannel
+        }
         if source.contains("?'ready':'missing'") { return relayChannel == nil ? "missing" : "ready" }
         if source.contains("data-riftlet-reply-") && !source.contains("riftlet-command-") {
             let nonce = try match("data-riftlet-reply-([a-f0-9-]+)", source)[0]
@@ -110,6 +118,7 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
             return
         }
         relayChannel = try match("data-riftlet-channel-([a-f0-9-]+)", source)[0]
+        relayMarker = try match("marker='([a-f0-9]{64})'", source)[0]
         _ = try dispatch(source)
     }
     private func dispatch(_ source: String) throws -> String {
@@ -185,6 +194,25 @@ final class EdgeAppleEventsExecutorTests: XCTestCase {
         XCTAssertTrue(replaced.actions.isEmpty)
     }
 
+    @MainActor func testChatGPTOriginIsCheckedBeforeAnyEdgePageExecution() async throws {
+        for address in ["https://chatgpt.com:8443/c/neutral", "https://u@chatgpt.com/c/neutral",
+                        "https://u:p@chat.openai.com/", "http://chatgpt.com/", "https://chatgpt.com.example/"] {
+            let driver = EdgeExecutorFixture(address: address)
+            XCTAssertThrowsError(try EdgeAppleEventsExecutor(driver: driver).targetForClick(program: program)) {
+                XCTAssertEqual($0 as? WebAdapterError, .pageRejected(.pageRouteUnsupported))
+            }
+            XCTAssertEqual(driver.synchronousEvaluations, 0)
+            XCTAssertEqual(driver.bootstraps, 0)
+            XCTAssertTrue(driver.actions.isEmpty)
+        }
+        for address in ["https://chatgpt.com:443/?temporary-chat=true", "https://chat.openai.com/g/project/c/neutral"] {
+            let driver = EdgeExecutorFixture(address: address)
+            let bridge = EdgeAppleEventsExecutor(driver: driver)
+            _ = try await bridge.targetForClick(program: program).value
+            XCTAssertEqual(driver.actions, ["captureTarget"])
+        }
+    }
+
     @MainActor func testPageNativeIdentityCannotOverrideFrozenWindow() async throws {
         let driver = EdgeExecutorFixture(); driver.wrongCaptureWindow = true
         do {
@@ -214,6 +242,35 @@ final class EdgeAppleEventsExecutorTests: XCTestCase {
             XCTFail("process exit invalidates original observation")
         } catch { XCTAssertEqual(error as? WebAdapterError, .invalidTarget) }
         XCTAssertEqual(driver.actions, ["captureTarget", "observe"])
+    }
+
+    @MainActor func testRestartReadsH2EdgeWithFrozenProgramAndNoNewClickOrBootstrap() async throws {
+        let old = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorClickSource))
+        let driver = EdgeExecutorFixture(), host = driver.host
+        let target = TargetLease(adapterID: "chatgpt-web", surface: .webChat, applicationID: EdgeApplicationHost.bundleID,
+            sessionID: host.sessionID, windowID: host.windowID, tabID: host.tabID, documentID: "d",
+            composerID: "c", draftGeneration: "g", clickBindingID: UUID())
+        let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
+        let context = try encoder.encode(["applicationID": target.applicationID, "sessionID": target.sessionID,
+                                          "windowID": host.windowID, "tabID": host.tabID])
+        driver.retainInstalledRelay(MainWorldCommandRelay(function: old.functionSource, contextJSON: String(decoding: context, as: UTF8.self)))
+        driver.selected = false
+        let restarted = EdgeAppleEventsExecutor(driver: driver)
+        let operation = identity(target), observe = WebBridgeCommand(action: .observe, target: target, identity: operation)
+        _ = try await restarted.execute(observe, program: old)
+        do {
+            _ = try await restarted.execute(observe, program: program)
+            XCTFail("A different version discovered an H2-only relay")
+        } catch { XCTAssertEqual(error as? WebAdapterError, .pageRejected(.bridgeUnavailable)) }
+        for action in [WebBridgeAction.captureTarget, .begin, .chunk, .commit, .discard] {
+            do {
+                _ = try await restarted.execute(.init(action: action, target: target, identity: operation), program: old)
+                XCTFail("Historical observation permitted \(action)")
+            } catch { XCTAssertEqual(error as? WebAdapterError, .invalidRequest) }
+        }
+        XCTAssertEqual(driver.actions, ["observe"])
+        XCTAssertEqual(driver.bootstraps, 0)
+        XCTAssertEqual(driver.selectionChecks, 0)
     }
 
     @MainActor func testLateSynchronousPinCannotPublishAnInputCapability() throws {

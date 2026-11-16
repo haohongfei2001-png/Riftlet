@@ -42,12 +42,6 @@ struct ChromeApplicationHost: ApplicationHostAdapter {
 
     private func route(pid: pid_t, window: String, tab: String) throws -> ChromeClickRoute {
         let url = try address(pid, window, tab)
-        guard let parts = URLComponents(string: url),
-              parts.scheme?.lowercased() == "https", parts.user == nil, parts.password == nil,
-              parts.port == nil || parts.port == 443,
-              ["chatgpt.com", "chat.openai.com"].contains(parts.host?.lowercased()) else {
-            throw WebAdapterError.pageRejected(.pageRouteUnsupported)
-        }
-        return try ChromeClickRoute(window: window, tab: tab, url: url)
+        return try ChromeClickRoute.chatGPT(window: window, tab: tab, url: url)
     }
 }

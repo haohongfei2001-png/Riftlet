@@ -53,13 +53,14 @@ final class ProductScreenshotScopeTests: XCTestCase {
         do { _ = try await body(); XCTFail("Unqualified source/operation accepted", file: file, line: line) } catch {}
     }
 
-    func testOlderFencedRowsAndFirstJournalEntriesSurviveV18ReadOnlyReconciliation() async throws {
+    func testOlderFencedRowsAndFirstJournalEntriesSurviveV19ReadOnlyReconciliation() async throws {
         let program = try ChatGPTWebPageProgram.load()
-        XCTAssertEqual(program.sourceID, "chatgpt-web-click-document-witness-20261114-v18")
+        XCTAssertEqual(program.sourceID, "chatgpt-web-click-document-witness-20261117-v19")
         let scopes: [SystemScreenshotAdmissionScope] = [.candidate, .ordinary, .ordinaryCurrentDraftInternal, .productSystem, .productApplication]
         let versions = [("chatgpt-web-attachment-entry-20261105-v15", "attachment-entry-20261105-v15"),
                         ("chatgpt-web-attachment-handoff-20261105-v16", "attachment-handoff-20261105-v16"),
-                        ("chatgpt-web-screenshot-handoff-20261105-v17", "screenshot-handoff-20261105-v17")]
+                        ("chatgpt-web-screenshot-handoff-20261105-v17", "screenshot-handoff-20261105-v17"),
+                        ("chatgpt-web-click-document-witness-20261114-v18", "click-document-witness-20261114-v18")]
         for (scope, (source, evidence)) in scopes.flatMap({ scope in versions.map { (scope, $0) } }) {
             let (store, request, database) = try await fixture(origin: scope.origin)
             let identity = envelope(request).observation.identity
@@ -82,7 +83,7 @@ final class ProductScreenshotScopeTests: XCTestCase {
             let prior = AttachmentObservationEnvelope(provenance: .init(source: .integratedDevelopment,
                 evidenceID: evidence), observation: item)
             let current = AttachmentObservationEnvelope(provenance: .init(source: .integratedDevelopment,
-                evidenceID: "click-document-witness-20261114-v18"), observation: item)
+                evidenceID: "click-document-witness-20261117-v19"), observation: item)
             let journal = SystemScreenshotObservationJournal(store: store, scope: scope)
             try await journal.record(prior, for: request)
             let journalKey = SystemScreenshotObservationJournal.checkpointKey(request, slot: .unknown, scope: scope)
@@ -109,7 +110,8 @@ final class ProductScreenshotScopeTests: XCTestCase {
             let receipt = try await client.reconcile(original)
             XCTAssertEqual(receipt.outcome, .unknown); XCTAssertEqual(receipt.profileID, scope.admittedProfile.profileID)
             let actions = await bridge.actions; XCTAssertEqual(actions, [.observe, .observe])
-            let readPrograms = await bridge.programIDs; XCTAssertEqual(readPrograms, Array(repeating: ChatGPTWebPageProgram.priorScreenshotSource, count: 2))
+            let expectedReader = source == ChatGPTWebPageProgram.priorClickSource ? source : ChatGPTWebPageProgram.priorScreenshotSource
+            let readPrograms = await bridge.programIDs; XCTAssertEqual(readPrograms, Array(repeating: expectedReader, count: 2))
             for name in Set([key, fence]) { let saved = try await reopened.checkpoint(for: name); XCTAssertEqual(saved, bytes) }
             let savedJournal = try await reopened.checkpoint(for: journalKey), saved = try await reopened.operation(id: request.operation.id)
             XCTAssertEqual(savedJournal, priorJournal); XCTAssertEqual(saved, original.operation)
@@ -160,7 +162,7 @@ final class ProductScreenshotScopeTests: XCTestCase {
                 let saved = try await store.checkpoint(for: key), bytes = try XCTUnwrap(saved)
                 let object = try XCTUnwrap(JSONSerialization.jsonObject(with: bytes) as? [String: Any])
                 XCTAssertEqual(object["version"] as? Int, 2)
-                XCTAssertEqual(object["sourceID"] as? String, "chatgpt-web-click-document-witness-20261114-v18")
+                XCTAssertEqual(object["sourceID"] as? String, "chatgpt-web-click-document-witness-20261117-v19")
                 XCTAssertEqual(object["assetOrigin"] as? String, scope.origin.rawValue)
                 let fence = try await store.checkpoint(for: SystemScreenshotCandidateAdmission.checkpointKey(for: request))
                 XCTAssertEqual(fence, bytes)

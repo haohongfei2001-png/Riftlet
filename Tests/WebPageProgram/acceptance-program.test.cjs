@@ -514,6 +514,21 @@ test('disabled input permits discovery while non-ChatGPT host remains invalid',a
  assert.throws(()=>g.call({action:'captureTarget'}),/HOST|ROUTE|PAGE|TARGET/);assert.equal(g.changes,0);
 });
 
+test('both hosts require a credential-free HTTPS ChatGPT origin at capture and delivery',()=>{
+ for(const applicationID of ['com.google.Chrome','com.microsoft.edgemac']){
+  const nativeContext={applicationID,sessionID:'local',windowID:'17',tabID:'19'};
+  for(const route of ['https://chatgpt.com:8443/c/neutral','https://u@chatgpt.com/c/neutral',
+                      'https://u:p@chat.openai.com/c/neutral','http://chatgpt.com/c/neutral']){
+   const f=fixture({route,nativeContext});
+   assert.throws(()=>f.bind(),/PAGE_ROUTE_UNSUPPORTED/);
+   const g=fixture({route:'https://chatgpt.com:443/c/neutral',nativeContext});
+   const op=g.bind();g.stage(op);g.setRoute(route);
+   try {g.commit(op);} catch(error){assert.match(error.message,/PAGE_ROUTE_UNSUPPORTED|TARGET/);}
+   assert.equal(g.setters,0);assert.equal(g.changes,0);
+  }
+ }
+});
+
 test('malformed PNG fails before native input and cannot hold the next screenshot',()=>{
  const f=fixture(),bad=f.bind({bytes:Buffer.from('not png')});
  let failed=false;try{f.stage(bad);f.commit(bad);}catch{failed=true;}

@@ -210,7 +210,7 @@ private actor EdgeInputBridge: WebBridgeExecutor {
                 evidenceID: "00000000-0000-4000-8000-000000000001", inputCount: 1, inputSequence: 1, startSequence: 2,
                 previousProgress: 0, currentProgress: 0, inputObservedAtMS: 10, startObservedAtMS: 11) : nil
             return try JSONEncoder().encode(AttachmentObservationEnvelope(schemaVersion: 2,
-                provenance: .init(source: .integratedDevelopment, evidenceID: "click-document-witness-20261114-v18"),
+                provenance: .init(source: .integratedDevelopment, evidenceID: "click-document-witness-20261117-v19"),
                 observation: .init(identity: identity, state: state,
                     attachmentID: [.uploadStarted, .attached, .ready].contains(state) ? "owned-fixture-attachment" : nil,
                     exactImageIdentity: true, belongsToOriginalDraft: true,
