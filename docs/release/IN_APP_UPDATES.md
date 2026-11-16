@@ -10,7 +10,7 @@
 
 To install 1.0.3, download the ZIP from the website, unzip it, quit Riftlet and replace the app in its existing location. The in-app feed currently offers 1.0.2. Starting with 1.0.1, Riftlet checks for updates daily by default. Open **检查更新…** (Check for Updates) in the menu bar or Settings, read the release notes, then choose to install or postpone. [Website](https://riftlet.com/) · [Release notes](https://github.com/haohongfei2001-png/Riftlet/releases)
 
-Installation quits and relaunches the app normally. macOS may request administrator authorization for a shared Applications folder. A standard user can usually update an app installed in their own Applications folder. Screenshots and history remain available offline. If an update fails, check again later or download the official DMG and replace the app in its current location. Keep your library, bookmarks and feedback drafts. Use the permission settings if macOS requests access again. [Backup and recovery](MANUAL_UPDATE_AND_RECOVERY.md)
+Installation quits and relaunches the app normally. macOS may request administrator authorization for a shared Applications folder. A standard user can usually update an app installed in their own Applications folder. Screenshots and history remain available offline. If an update fails, check again later or download the ZIP from the website, unzip it, and replace the app in its current location. Keep your library, bookmarks and feedback drafts. Use the permission settings if macOS requests access again. [Backup and recovery](MANUAL_UPDATE_AND_RECOVERY.md)
 
 ## Release operators
 
