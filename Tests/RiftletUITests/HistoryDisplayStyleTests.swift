@@ -533,7 +533,7 @@ final class HistoryDisplayStyleTests: XCTestCase {
             defer { controller.close() }
             controller.update(entries: [entry], pageOffset: 200)
             controller.show()
-            XCTAssertEqual(controller.window.title, copy.text("截图历史", "Screenshot History"))
+            XCTAssertEqual(controller.window.title, copy.text("截图仓库", "Screenshot Library"))
             let search: NSSearchField = try find("history.search", in: controller.window)
             XCTAssertEqual(search.placeholderString, copy.text("搜索本页", "Search this page"))
             search.stringValue = image.id.uuidString

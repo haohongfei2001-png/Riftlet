@@ -25,11 +25,12 @@ extension RiftSettingsCenterController {
     }
 
     private func makePage(_ page: SettingsPage, views: [NSView]) {
-        let document = RiftVisualStyle.documentStack(views, spacing: 0)
+        let rows = views.map { ($0 as? NSButton).map(actionRow) ?? $0 }
+        let document = RiftVisualStyle.documentStack(rows, spacing: 0)
         document.identifier = .init("settings.center.page.\(page.rawValue)")
         document.edgeInsets = NSEdgeInsets(top: 15, left: 24, bottom: 22, right: 24)
         document.translatesAutoresizingMaskIntoConstraints = false
-        for view in views { view.widthAnchor.constraint(equalTo: document.widthAnchor, constant: -48).isActive = true }
+        for view in rows { view.widthAnchor.constraint(equalTo: document.widthAnchor, constant: -48).isActive = true }
         pageWidthConstraints[page] = document.widthAnchor.constraint(equalTo: scroll.contentView.widthAnchor)
         pages[page] = document
     }
@@ -128,6 +129,16 @@ extension RiftSettingsCenterController {
     }
 
     func captureContent() -> [NSView] {
+        let resumeCollection = makeButton(ProductCopy.text("继续收录截图", "Resume Screenshot Collection"), id: "collection.resume") { [weak self] in
+            self?.dispatch(.settings(.setCollectionPaused(false)))
+        }
+        let visible = nativeSwitch(ProductCopy.text("显示桌面截图", "Show Desktop Screenshots"), id: "desktop.visible") { [weak self] visible in
+            self?.dispatch(.settings(.setHidden(!visible)))
+        }
+        let historyStyle = segmented(ProductCopy.text("仓库视图", "Library View"), id: "history.style",
+            titles: [ProductCopy.text("列表", "List"), ProductCopy.text("图像网格", "Image Grid")]) { [weak self] index in
+                self?.dispatch(.historyDisplayStyle(HistoryDisplayStyle.allCases[index]))
+        }
         let entry = nativeSwitch(ProductCopy.text("显示内置截图入口", "Show Capture Button"), id: "entry") { [weak self] in self?.dispatch(.settings(.setEntryEnabled($0))) }
         let modes: [ScreenshotMode] = [.window, .region, .fullScreen]
         let mode = segmented(ProductCopy.text("默认截图方式", "Default Capture Mode"), id: "captureMode", titles: [ProductCopy.text("窗口", "Window"),ProductCopy.text("区域", "Area"),ProductCopy.text("全屏", "Full Screen")]) { [weak self] in
@@ -146,13 +157,17 @@ extension RiftSettingsCenterController {
                 makeButton(ProductCopy.text("允许访问截图文件夹…", "Allow Screenshot Folder Access…"), id: "source.access.capture") { [weak self] in self?.dispatch(.chooseSourceAccess) },
                 makeButton(ProductCopy.text("重新检查", "Check Again"), id: "source.recheck.capture") { [weak self] in self?.dispatch(.recheck) }
             ]),
-            domainError(.collection), domainError(.visibility),
+            resumeCollection, domainError(.collection),
+            row(ProductCopy.text("显示桌面截图", "Show Desktop Screenshots"), detail: ProductCopy.text("只影响桌面显示，不影响截图收录。", "Only changes desktop visibility, not collection."), control: visible), domainError(.visibility),
+            section(ProductCopy.text("内置截图", "Built-in Capture")),
             row(ProductCopy.text("显示内置截图入口", "Show Capture Button"), control: entry), domainError(.entry), captureOptions!,
             section(ProductCopy.text("归档与本机存储", "Archive and Local Storage")), preferenceRecoveryRow(.archive), archiveSettings(),
             row(ProductCopy.text("本机存储", "Local Storage"), control: makeButton(ProductCopy.text("检查用量", "Check Usage"), id: "storage.check") { [weak self] in self?.dispatch(.checkStorage) }),
             namedLabel("storage", role:"caption"),
             makeButton(ProductCopy.text("重新检查本地截图副本", "Check Local Screenshot Copies"), id:"storage.recheckMedia") { [weak self] in self?.dispatch(.recheck) },
-            makeButton(ProductCopy.text("打开截图历史…", "Open Screenshot History…"), id:"history.open") { [weak self] in self?.dispatch(.openHistory) },
+            section(ProductCopy.text("截图仓库", "Screenshot Library")),
+            row(ProductCopy.text("仓库视图", "Library View"), control: historyStyle),
+            makeButton(ProductCopy.text("打开截图仓库…", "Open Screenshot Library…"), id:"history.open") { [weak self] in self?.dispatch(.openHistory) },
             namedLabel("history.detail", role:"caption")
         ]
     }
@@ -180,7 +195,7 @@ extension RiftSettingsCenterController {
         archiveField = textField(id: "archive.minutes", accessibility: ProductCopy.text("自定义归档分钟数", "Custom archive time in minutes"))
         archiveCustomRow = row(ProductCopy.text("自定义时限", "Custom Time"), detail: ProductCopy.text("1–10 分钟，可用小数。", "1–10 minutes. Decimals are allowed."), control: buttonRow([archiveField, SettingsNativeStyle.label(ProductCopy.text("分钟", "min"), role: "secondary")]))
         return group([
-            row(ProductCopy.text("闲置后归档", "Archive When Idle"), detail:ProductCopy.text("归档后可在截图历史中找回。", "Find archived screenshots in Screenshot History."), control:preset), archiveCustomRow, domainError(.archive)
+            row(ProductCopy.text("闲置后归档", "Archive When Idle"), detail:ProductCopy.text("归档后可在截图仓库中找回。", "Find archived screenshots in Screenshot Library."), control:preset), archiveCustomRow, domainError(.archive)
         ])
     }
 
@@ -190,6 +205,7 @@ extension RiftSettingsCenterController {
             guard SettingsAppearanceChoice.allCases.indices.contains(popup.indexOfSelectedItem) else { return }
             self?.dispatch(.appearance(SettingsAppearanceChoice.allCases[popup.indexOfSelectedItem]))
         }
+        automaticUpdatesRow = row(ProductCopy.text("每天检查更新", "Check Daily for Updates"), control: nativeSwitch(ProductCopy.text("每天检查更新", "Check Daily for Updates"), id: "updates.automatic") { [weak self] enabled in self?.dispatch(.automaticUpdateChecks(enabled)) })
         return [
             row(ProductCopy.text("登录时启动 Riftlet", "Launch Riftlet at Login"), control:login), namedLabel("login.detail", role:"caption"),
             buttonRow([makeButton(ProductCopy.text("重试", "Retry"), id:"login.retry") { [weak self] in self?.dispatch(.retryLogin) },
@@ -198,7 +214,7 @@ extension RiftSettingsCenterController {
             makeButton(ProductCopy.text("重试保存外观", "Retry Saving Appearance"), id: "appearance.retry") { [weak self] in self?.dispatch(.retryAppearance) },
             section(ProductCopy.text("软件更新", "Software Updates")), row(ProductCopy.text("当前版本", "Current Version"), control: namedLabel("version", role:"secondary")),
             makeButton(ProductCopy.text("检查更新…", "Check for Updates…"), id: "updates.check") { [weak self] in self?.dispatch(.checkForUpdates) },
-            row(ProductCopy.text("每天检查更新", "Check Daily for Updates"), control: nativeSwitch(ProductCopy.text("每天检查更新", "Check Daily for Updates"), id: "updates.automatic") { [weak self] enabled in self?.dispatch(.automaticUpdateChecks(enabled)) }),
+            automaticUpdatesRow,
             namedLabel("updates.failure", role: "caption"),
             makeButton(ProductCopy.text("从官网下载…", "Download from Website…"), id: "updates.website") { [weak self] in self?.dispatch(.openDownloadWebsite) }
         ]
@@ -226,7 +242,6 @@ extension RiftSettingsCenterController {
         let button = SettingsNativeStyle.button(title)
         configure(button, id: id, action: action)
         button.refusesFirstResponder = false
-        button.heightAnchor.constraint(greaterThanOrEqualToConstant: 32).isActive = true
         return button
     }
     func configure(_ control: NSControl, id: String, action: @escaping () -> Void) {
@@ -248,7 +263,6 @@ extension RiftSettingsCenterController {
         configure(popup, id: id) { [weak popup] in guard let popup else { return }; action(popup) }
         popup.widthAnchor.constraint(greaterThanOrEqualToConstant: 144).isActive = true
         popup.widthAnchor.constraint(lessThanOrEqualToConstant: 228).isActive = true
-        popup.heightAnchor.constraint(greaterThanOrEqualToConstant: 32).isActive = true
         return popup
     }
     func textField(id: String, accessibility: String) -> NSTextField {
@@ -259,7 +273,6 @@ extension RiftSettingsCenterController {
         field.alignment = .right
         field.setAccessibilityLabel(accessibility)
         field.widthAnchor.constraint(equalToConstant: 64).isActive = true
-        field.heightAnchor.constraint(greaterThanOrEqualToConstant: 32).isActive = true
         controls[id] = field
         return field
     }
@@ -270,16 +283,41 @@ extension RiftSettingsCenterController {
         labels[id] = label
         return label
     }
-    func buttonRow(_ views: [NSView]) -> NSStackView { SettingsNativeStyle.stack(views, vertical: false, spacing: 9) }
+    func buttonRow(_ views: [NSView]) -> NSStackView {
+        // Action clusters align with the controls above. Numeric input clusters
+        // remain intrinsic-width so their slider, value and unit stay together.
+        let actionsOnly = !views.isEmpty && views.allSatisfy { $0 is NSButton }
+        return SettingsNativeStyle.stack(actionsOnly ? [NSView()] + views : views, vertical: false, spacing: 9)
+    }
+    /// A secondary action keeps its native bezel and intrinsic width, rather
+    /// than becoming a full-width, shallow button when placed in a page stack.
+    func actionRow(_ button: NSButton) -> NSView {
+        let container = NSView()
+        button.setContentHuggingPriority(.required, for: .horizontal)
+        button.setContentCompressionResistancePriority(.required, for: .horizontal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(button)
+        NSLayoutConstraint.activate([
+            button.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            button.leadingAnchor.constraint(greaterThanOrEqualTo: container.leadingAnchor),
+            button.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            container.heightAnchor.constraint(equalTo: button.heightAnchor, constant: 12)
+        ])
+        if let id = button.identifier?.rawValue, id.hasPrefix("settings.center.") {
+            actionContainers[String(id.dropFirst("settings.center.".count))] = container
+        }
+        return container
+    }
     func row(_ title: String, detail: String = "", control: NSView) -> NSStackView {
         var copyViews = [SettingsNativeStyle.label(title, role: "rowTitle")]
         if !detail.isEmpty { copyViews.append(SettingsNativeStyle.label(detail, role: "caption")) }
         let copy = SettingsNativeStyle.stack(copyViews, spacing: 3)
         copy.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        let stack = SettingsNativeStyle.stack([copy, NSView(), control], vertical: false, spacing: 8)
+        let stack = SettingsNativeStyle.stack([copy, control], vertical: false, spacing: 16)
         stack.distribution = .fill
         copy.setContentHuggingPriority(.defaultLow, for: .horizontal)
         control.setContentHuggingPriority(.required, for: .horizontal)
+        control.setContentCompressionResistancePriority(.required, for: .horizontal)
         stack.heightAnchor.constraint(greaterThanOrEqualToConstant: detail.isEmpty ? 36 : 48).isActive = true
         let divider = NSBox()
         divider.boxType = .separator
@@ -290,10 +328,9 @@ extension RiftSettingsCenterController {
         return outer
     }
     func group(_ views: [NSView]) -> NSStackView {
-        let group = SettingsNativeStyle.stack(views, spacing: 2)
-        for view in views where !(view is NSButton) {
-            view.widthAnchor.constraint(equalTo: group.widthAnchor).isActive = true
-        }
+        let rows = views.map { ($0 as? NSButton).map(actionRow) ?? $0 }
+        let group = SettingsNativeStyle.stack(rows, spacing: 2)
+        for view in rows { view.widthAnchor.constraint(equalTo: group.widthAnchor).isActive = true }
         return group
     }
     func section(_ title:String, trailing:NSView? = nil) -> NSView {
@@ -335,6 +372,7 @@ extension RiftSettingsCenterController {
             item.button.setAccessibilityValue(expand ? ProductCopy.text("已展开", "Expanded") : ProductCopy.text("已折叠", "Collapsed"))
             window.recalculateKeyViewLoop()
         }
+        button.heightAnchor.constraint(greaterThanOrEqualToConstant: 32).isActive = true
         button.bezelStyle = .inline; button.isBordered = false; button.setButtonType(.pushOnPushOff)
         button.image = NSImage(systemSymbolName: "chevron.right", accessibilityDescription: nil)
         button.imagePosition = .imageLeading; button.alignment = .left

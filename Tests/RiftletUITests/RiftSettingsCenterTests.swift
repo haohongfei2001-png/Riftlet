@@ -1184,6 +1184,94 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertEqual(h.requests.filter { $0.intent.domain == .layout }.count, 1)
     }
 
+    @MainActor func testSettingsRecoverLegacyPauseWithoutOfferingAnotherPauseSwitch() async throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        h.controller.show(page: .capture)
+        let resume: NSButton = try control(h, "collection.resume")
+        let visible: NSSwitch = try control(h, "desktop.visible")
+        XCTAssertTrue(resume.isHidden)
+        XCTAssertNil(h.controller.controls["collection.enabled"])
+        XCTAssertEqual(visible.state, .on)
+        try await actionAndWait(h) { h.controller.dispatch(.settings(.setCollectionPaused(true))) }
+        XCTAssertFalse(resume.isHidden)
+        try await clickAndWait(h, "desktop.visible")
+        XCTAssertTrue(h.owner.collectionPaused)
+        XCTAssertTrue(h.owner.isHidden)
+        try await clickAndWait(h, "collection.resume")
+        XCTAssertFalse(h.owner.collectionPaused)
+        XCTAssertTrue(h.owner.isHidden, "Resuming collection must not change visibility")
+        XCTAssertTrue(resume.isHidden)
+        try await clickAndWait(h, "desktop.visible")
+        XCTAssertFalse(h.owner.isHidden)
+        XCTAssertEqual(h.requests.map(\.intent), [.collectionPaused(true), .hidden(true), .collectionPaused(false), .hidden(false)])
+    }
+
+    @MainActor func testLegacyResumeFailureKeepsIndependentRetryDirection() async throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        h.controller.show(page: .capture)
+        try await actionAndWait(h) { h.controller.dispatch(.settings(.setCollectionPaused(true))) }
+        h.failures = [.collection]
+        try await clickAndWait(h, "collection.resume")
+        XCTAssertTrue(h.owner.collectionPaused)
+        XCTAssertEqual(h.model.snapshot.domains[.collection]?.pending, .collectionPaused(false))
+        try await clickAndWait(h, "desktop.visible")
+        XCTAssertTrue(h.model.snapshot.domains[.collection]?.hasIssue == true)
+        h.failures = []
+        try await clickAndWait(h, "retry.collection")
+        XCTAssertFalse(h.owner.collectionPaused)
+        XCTAssertEqual(h.requests.filter { $0.intent.domain == .collection }.map(\.intent), [.collectionPaused(true), .collectionPaused(false), .collectionPaused(false)])
+    }
+
+    @MainActor func testLibraryViewUsesExistingSharedPreferenceAndRefreshesWithoutSavingAgain() async throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        h.controller.show(page: .capture)
+        let picker: NSSegmentedControl = try control(h, "history.style")
+        XCTAssertEqual(picker.selectedSegment, 0)
+        try await changeAndWait(h, "history.style", index: 1)
+        XCTAssertEqual(h.historyStyle, .imageGrid)
+        XCTAssertEqual(picker.selectedSegment, 1)
+        XCTAssertEqual(h.actions, ["historyStyle:imageGrid"])
+        h.historyStyle = .current
+        h.publish()
+        XCTAssertEqual(picker.selectedSegment, 0)
+        XCTAssertEqual(h.actions.count, 1, "Rendering another entry's choice must not persist again")
+        XCTAssertTrue(h.requests.isEmpty, "Presentation choice must not edit screenshot settings")
+    }
+
+    @MainActor func testUnavailableServicesShowStatusAndRecoveryInsteadOfDeadControls() throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        h.login.available = false; h.appearance.available = false; h.updater = nil; h.publish()
+        h.controller.show(page: .general)
+        for id in ["login", "appearance", "updates.check", "updates.automatic"] {
+            XCTAssertTrue(try XCTUnwrap(h.controller.controls[id]).isHiddenOrHasHiddenAncestor)
+        }
+        XCTAssertFalse(try XCTUnwrap(h.controller.labels["login.detail"]).isHidden)
+        XCTAssertFalse(try XCTUnwrap(h.controller.labels["updates.failure"]).isHidden)
+        XCTAssertFalse(try XCTUnwrap(h.controller.controls["updates.website"]).isHiddenOrHasHiddenAncestor)
+        h.login.available = true; h.appearance.available = true
+        h.updater = .init(canCheck: false, automaticChecks: true, availableVersion: nil, failure: nil)
+        h.publish()
+        XCTAssertFalse(try XCTUnwrap(h.controller.controls["updates.check"]).isHiddenOrHasHiddenAncestor,
+                       "A temporary in-progress check remains visible, unlike an absent updater")
+        XCTAssertFalse(try XCTUnwrap(h.controller.controls["updates.check"]).isEnabled)
+    }
+
+    @MainActor func testStandaloneSettingsActionsKeepNaturalWidthAndRecoveryLeavesNoEmptyRow() throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        h.controller.show(page: .general)
+        h.controller.window.contentView?.layoutSubtreeIfNeeded()
+        let update: NSButton = try control(h, "updates.check")
+        let row = try XCTUnwrap(h.controller.actionContainers["updates.check"])
+        XCTAssertLessThan(update.bounds.width, row.bounds.width - 40, "A short action must not stretch across the page")
+        XCTAssertEqual(update.alignmentRect(forFrame: update.frame).midY, row.bounds.midY, accuracy: 1)
+        XCTAssertEqual(update.alignmentRect(forFrame: update.frame).maxX, row.bounds.maxX, accuracy: 1)
+        XCTAssertTrue(try XCTUnwrap(h.controller.actionContainers["appearance.retry"]).isHidden)
+        h.appearance.selection = .dark; h.appearance.applied = .light
+        h.appearance.pending = .dark; h.appearance.failure = "Synthetic save failure"; h.appearance.available = true
+        h.publish()
+        XCTAssertFalse(try XCTUnwrap(h.controller.actionContainers["appearance.retry"]).isHidden)
+    }
+
     @MainActor func testResizeRetainsFieldsAndScrollableDocument() throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
         h.controller.show(page: .display)
@@ -1257,8 +1345,12 @@ private final class SettingsCenterTestHost {
     var accessibility = SettingsAccessibility()
     var login = SettingsLoginPresentation()
     var appearance = SettingsAppearancePresentation()
+    var historyStyle = HistoryDisplayStyle.current
+    var updater: SettingsUpdaterPresentation? = .init(canCheck: true, automaticChecks: true, availableVersion: nil, failure: nil)
 
     init() throws {
+        login.available = true; login.status = .notRegistered
+        appearance.available = true; appearance.applied = .system
         var configuration = RiftConfiguration(); configuration.preferredDisplayID = 1
         let settings = RiftSettingsSnapshot(entryAvailable: true,
             displays: [.init(id: 1, name: "First screen"), .init(id: 2, name: "Second screen")], preferredDisplayID: 1,
@@ -1280,6 +1372,7 @@ private final class SettingsCenterTestHost {
                 case .revealDataFolder: actions.append("revealDataFolder")
                 case .loginEnabled(let value): actions.append("login:\(value)")
                 case .appearance(let value): actions.append("appearance:\(value.rawValue)")
+                case .historyDisplayStyle(let value): historyStyle = value; actions.append("historyStyle:\(value.rawValue)")
                 default: actions.append("hostAction")
                 }
             }
@@ -1323,6 +1416,7 @@ private final class SettingsCenterTestHost {
             storage: .notMeasured, supportDescription: "Synthetic settings test host")
         var snapshot = SettingsProductSnapshot(revision: revision, setup: setup, state: model.snapshot)
         snapshot.accessibility = accessibility; snapshot.login = login; snapshot.appearance = appearance
+        snapshot.historyDisplayStyle = historyStyle; snapshot.updater = updater
         snapshot.capabilities.initialized = true; snapshot.capabilities.canChangeCollection = true
         snapshot.capabilities.canChangeVisibility = true; snapshot.capabilities.canEditPreferences = true
         snapshot.capabilities.canClearVisible = true; snapshot.capabilities.canOpenHistory = true

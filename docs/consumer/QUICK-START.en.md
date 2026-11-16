@@ -1,6 +1,6 @@
 # Take your first screenshot and attach it
 
-Riftlet 1.0.2 includes English and Simplified Chinese setup, menu bar controls and screenshot history. Riftlet follows your Mac’s preferred language. If you still use 1.0.1, its earlier interface is primarily Chinese; the Chinese labels below help identify the controls before updating.
+Riftlet 1.0.3 includes English and Simplified Chinese setup, menu bar controls and screenshot history. Riftlet follows your Mac’s preferred language. If you still use 1.0.1, its earlier interface is primarily Chinese; the Chinese labels below help identify the controls before updating.
 
 1. Open Riftlet from Applications. In setup, check the displayed screenshot folder. If access is needed, choose **Allow Screenshot Folder Access…** (授权读取系统截图文件夹…) and select the folder shown.
 2. Open an editable ChatGPT draft in Google Chrome. Return to setup and allow Riftlet to control Chrome when macOS asks. In Chrome’s menu bar, select **View → Developer → Allow JavaScript from Apple Events**, then choose **Check Connection** in Riftlet. In Chinese Chrome the same menu is **显示 → 开发者 → 允许 Apple 事件中的 JavaScript**. This setting allows apps with Chrome automation permission to run page scripts. For local screenshot history alone, choose **Set Up Later** (稍后设置).
@@ -20,8 +20,8 @@ Open **Settings…** (设置…) from the Riftlet menu bar icon.
 
 In the earlier 1.0.1 interface, open **外观与布局** for desktop appearance, **使用与历史** for the archive time, or **权限与帮助 → 关于与诊断** for updates.
 
-**Find an earlier screenshot.** Click the Riftlet menu bar icon and open **Screenshot History** (截图历史). Select an archived image and choose **Restore to Desktop** (恢复到桌面). Your original file is preserved. To stop collecting new screenshots or hide thumbnails temporarily, use the menu bar controls. Hiding the thumbnails keeps collection running.
+**Find an earlier screenshot.** Click the Riftlet menu bar icon and open **Screenshot Library** (截图仓库). Select an archived image and choose **Restore to Desktop** (恢复到桌面). Your original file is preserved. To hide thumbnails while continuing to collect screenshots, turn off **Show Desktop Screenshots** in Settings → Screenshots. To stop collecting, choose **Quit Riftlet** from the menu bar.
 
-**Upgrade an older copy.** If you use 1.0.0, quit the app, back up your library and replace the installed app once with 1.0.2 from the [official download](https://riftlet.com/). From 1.0.1, you can use **Check for Updates…** (检查更新…) from the menu bar icon’s right-click menu.
+**Upgrade an older copy.** Download and unzip 1.0.3 from the [website](https://riftlet.com/). Quit the running copy, back up your library and replace the app in its existing location. The in-app **Check for Updates…** command currently offers 1.0.2.
 
 [Installation and permissions](INSTALL-AND-PERMISSIONS.md) · [Troubleshooting and recovery](RECOVERY-AND-FAQ.md)
