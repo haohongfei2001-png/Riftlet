@@ -102,6 +102,24 @@ public actor QueueStore {
         }
     }
 
+    /// The upper bound belongs to the browsing session. Later arrivals cannot move a
+    /// record across the cursor while the user pages or clicks an existing result.
+    public func historyPage(query: HistoryQuery, offset: Int, throughSequence: Int64?) throws -> LibraryHistoryPage {
+        try database.transaction(readOnly: true) {
+            let newest = try database.rows("SELECT COALESCE(MAX(sequence),0) FROM assets")
+            guard let value = newest.first?.first ?? nil, let latest = Int64(value) else {
+                throw RiftletError.database("Cannot read history cursor")
+            }
+            let ceiling = throughSequence ?? latest
+            let filter = query.predicate(through: ceiling)
+            let sql = historyProjectionSQL + " WHERE " + filter.sql +
+                " ORDER BY a.sort_at DESC,a.sequence DESC LIMIT 201 OFFSET ?"
+            let rows = try database.rows(sql, filter.values + [String(max(0, offset))])
+            return LibraryHistoryPage(records: try rows.prefix(200).map(historyRecord),
+                hasNext: rows.count > 200, throughSequence: ceiling, hasNewCaptures: latest > ceiling)
+        }
+    }
+
     /// Read older handoffs once. A local transition invalidates that asset only.
     /// SQLite's connection-local data_version detects commits by other writers.
     public func pendingAttachmentReviewCount() throws -> Int {

@@ -19,6 +19,7 @@ final class SQLiteDatabase {
             throw RiftletError.database(message)
         }
         try fm.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
+        try HistoryQuery.registerStateFunction(on: handle)
         sqlite3_busy_timeout(handle, 3000)
         try execute("PRAGMA foreign_keys = ON")
         try Self.enableWAL(handle: handle)
@@ -253,8 +254,8 @@ final class SQLiteDatabase {
         return output
     }
 
-    func transaction<T>(_ body: () throws -> T) throws -> T {
-        try execute("BEGIN IMMEDIATE")
+    func transaction<T>(readOnly: Bool = false, _ body: () throws -> T) throws -> T {
+        try execute(readOnly ? "BEGIN DEFERRED" : "BEGIN IMMEDIATE")
         do {
             let value = try body()
             try execute("COMMIT")

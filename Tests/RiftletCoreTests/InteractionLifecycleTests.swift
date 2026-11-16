@@ -185,6 +185,15 @@ final class InteractionLifecycleTests: XCTestCase {
             XCTAssertEqual(current.attachmentState, expected, file: file, line: line)
             XCTAssertEqual(current.startReceipt != nil, hasStart, file: file, line: line)
             XCTAssertEqual(count, expected.needsVerification ? 1 : 0, file: file, line: line)
+            let filters: [(HistoryQuery.Filter, Bool)] = [
+                (.needsVerification, expected.needsVerification), (.preparing, expected == .preparing),
+                (.handedOff, expected == .handedOff), (.attached, expected == .attached),
+                (.failed, expected == .confirmedFailure)
+            ]
+            for (filter, matches) in filters {
+                let result = try await db.historyPage(query: .init(filter: filter), offset: 0, throughSequence: nil)
+                XCTAssertEqual(result.records.map(\.record.id), matches ? [asset.id] : [], file: file, line: line)
+            }
             XCTAssertFalse(current.canRestore, file: file, line: line)
         }
         try await check(.preparing, hasStart: false)

@@ -28,7 +28,7 @@ final class FeedbackRecordsTests: XCTestCase {
         let pending = try await engine.enqueue(FeedbackDraft(text: "已有尝试，仍须等待删除确认", revision: 5), appVersion: "0.1.0")
         let began = try await store.beginAttempt(id: pending, expected: .queued); XCTAssertTrue(began)
         try await engine.requestDeletion(id: pending)
-        let controller = FeedbackWindowController(engine: engine, diagnostics: FeedbackDiagnostics(), appVersion: "0.1.0")
+        let controller = FeedbackWindowController(engine: engine, diagnostics: FeedbackDiagnostics(), appVersion: "0.1.0", copy: .simplifiedChinese)
         await controller.waitUntilLoaded(); defer { controller.window?.close() }
         controller.show()
         let content = try XCTUnwrap(controller.window?.contentView)
@@ -70,7 +70,7 @@ final class FeedbackRecordsTests: XCTestCase {
     @MainActor func testRecordRefreshAndFoldingPreserveEditorMarkedTextSelectionAndConsent() async throws {
         let (_, engine) = try fixture()
         let id = try await engine.enqueue(FeedbackDraft(text: "后台刷新的记录", revision: 1), appVersion: "0.1.0")
-        let controller = FeedbackWindowController(engine: engine, diagnostics: FeedbackDiagnostics(), appVersion: "0.1.0")
+        let controller = FeedbackWindowController(engine: engine, diagnostics: FeedbackDiagnostics(), appVersion: "0.1.0", copy: .simplifiedChinese)
         await controller.waitUntilLoaded(); defer { controller.window?.close() }
         let content = try XCTUnwrap(controller.window?.contentView)
         let editor = try XCTUnwrap(views(content).compactMap { $0 as? NSTextView }.first { $0.isEditable })
@@ -100,7 +100,7 @@ final class FeedbackRecordsTests: XCTestCase {
         let (store, engine) = try fixture()
         let first = try await engine.enqueue(FeedbackDraft(text: "保留的第一条", revision: 1), appVersion: "0.1.0")
         let second = try await engine.enqueue(FeedbackDraft(text: "点击取消的第二条", revision: 3), appVersion: "0.1.0")
-        let controller = FeedbackWindowController(engine: engine, diagnostics: FeedbackDiagnostics(), appVersion: "0.1.0")
+        let controller = FeedbackWindowController(engine: engine, diagnostics: FeedbackDiagnostics(), appVersion: "0.1.0", copy: .simplifiedChinese)
         await controller.waitUntilLoaded(); controller.show(); defer { controller.window?.close() }
         let window = try XCTUnwrap(controller.window)
         let content = try XCTUnwrap(window.contentView)
@@ -136,7 +136,7 @@ final class FeedbackRecordsTests: XCTestCase {
         guard !NSScreen.screens.isEmpty else { throw XCTSkip("AppKit window server unavailable") }
         let (store, engine) = try fixture()
         let id = try await engine.enqueue(FeedbackDraft(text: "Return 和 Escape 都应保留", revision: 1), appVersion: "0.1.0")
-        let controller = FeedbackWindowController(engine: engine, diagnostics: FeedbackDiagnostics(), appVersion: "0.1.0")
+        let controller = FeedbackWindowController(engine: engine, diagnostics: FeedbackDiagnostics(), appVersion: "0.1.0", copy: .simplifiedChinese)
         await controller.waitUntilLoaded(); controller.show()
         let window = try XCTUnwrap(controller.window)
         defer {

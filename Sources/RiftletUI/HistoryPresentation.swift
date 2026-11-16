@@ -52,6 +52,19 @@ public enum RiftHistoryFilter: String, CaseIterable, Sendable {
 
     static let menuFilters: [Self] = [.all, .needsVerification, .attached, .archived, .failed, .removed, .handedOff]
 
+    var libraryFilter: HistoryQuery.Filter {
+        switch self {
+        case .all: return .all
+        case .needsVerification: return .needsVerification
+        case .swallowed: return .swallowed
+        case .archived: return .archived
+        case .failed: return .failed
+        case .removed: return .removed
+        case .handedOff: return .handedOff
+        case .attached: return .attached
+        }
+    }
+
     public var title: String { title(copy: .current) }
 
     public func title(copy: ProductCopy) -> String {

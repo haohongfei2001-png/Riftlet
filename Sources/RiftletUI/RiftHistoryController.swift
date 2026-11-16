@@ -104,6 +104,37 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
             self?.historyWindow.isVisible == true && self?.displayStyle == .imageGrid
         })
     private let search = NSSearchField()
+    public var onLibraryQueryChanged: (() -> Void)?
+    public var onRetryHistory: (() -> Void)?
+    private let dateFilter = NSPopUpButton()
+    private let fromDate = NSDatePicker()
+    private let toDate = NSDatePicker()
+    private let dateControls = NSStackView()
+    private let noticeControls = NSStackView()
+    private let notice = NSTextField(wrappingLabelWithString: "")
+    private let noticeAction = NSButton(title: "", target: nil, action: nil)
+    private var issueText: String?
+    private var failedRead = false
+    private var hasNewCaptures = false
+
+    public var libraryQuery: HistoryQuery {
+        let calendar = Calendar.autoupdatingCurrent
+        let today = calendar.startOfDay(for: Date())
+        let range: DateInterval?
+        switch dateFilter.indexOfSelectedItem {
+        case 1: range = calendar.dateInterval(of: .day, for: today)
+        case 2:
+            range = DateInterval(start: calendar.date(byAdding: .day, value: -6, to: today)!,
+                                 end: calendar.date(byAdding: .day, value: 1, to: today)!)
+        case 3:
+            let start = calendar.startOfDay(for: fromDate.dateValue)
+            let last = max(start, calendar.startOfDay(for: toDate.dateValue))
+            range = DateInterval(start: start, end: calendar.date(byAdding: .day, value: 1, to: last)!)
+        default: range = nil
+        }
+        let filter = RiftHistoryFilter.menuFilters[filterIndex]
+        return HistoryQuery(text: search.stringValue, filter: filter.libraryFilter, dateRange: range)
+    }
     private var filterIndex = 0
     private let table = HistoryTableView()
     private let detailImage = HistoryPreviewImageView()
@@ -127,8 +158,8 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     private var previewResize: DispatchWorkItem?
     private var previewFileObserver: HistoryPreviewFileObserver?
     private let countLabel = NSTextField(labelWithString: "")
-    private lazy var restoreButton = NSButton(title: copy.text("恢复到桌面", "Restore to Desktop"), target: nil, action: nil)
-    private lazy var removeButton = NSButton(title: copy.text("移出可见队列", "Remove from Queue"), target: nil, action: nil)
+    private lazy var restoreButton = NSButton(title: copy.text("恢复到托盘", "Restore to Tray"), target: nil, action: nil)
+    private lazy var removeButton = NSButton(title: copy.text("从桌面收起", "Hide from Desktop"), target: nil, action: nil)
     private lazy var revealButton = NSButton(title: copy.text("在 Finder 中显示", "Show in Finder"), target: nil, action: nil)
     private lazy var originalButton = NSButton(title: copy.text("查看原图", "View Original"), target: nil, action: nil)
     private lazy var newerButton = NSButton(title: copy.text("上一页", "Previous Page"), target: nil, action: nil)
@@ -169,10 +200,27 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
 
     /// Applying observations never orders the history window front or activates
     /// Riftlet. Only an explicit history action calls show().
-    public func update(entries: [RiftHistoryEntry], pageOffset: Int = 0, hasEarlier: Bool = false) {
-        self.entries = Array(HistoryPresentation.matching(entries).prefix(HistoryPresentation.pageSize))
+    public func update(entries: [RiftHistoryEntry], pageOffset: Int = 0, hasEarlier: Bool = false, hasNewCaptures: Bool = false) {
+        let sorted = onLibraryQueryChanged == nil ? HistoryPresentation.matching(entries) : entries
+        let next = Array(sorted.prefix(HistoryPresentation.pageSize))
+        if self.entries == next, self.pageOffset == pageOffset, self.hasEarlier == hasEarlier,
+           self.hasNewCaptures == hasNewCaptures, !failedRead { return }
+        let anchor: UUID?
+        if self.pageOffset == pageOffset && isVisible {
+            let first = table.rows(in: table.visibleRect).location
+            anchor = displayStyle == .imageGrid ? grid.firstVisibleID : (displayed.indices.contains(first) ? displayed[first].id : nil)
+        } else { anchor = nil }
+        self.hasNewCaptures = hasNewCaptures
+        if failedRead { failedRead = false; issueText = nil }
+        self.entries = next
         self.pageOffset = max(0, pageOffset); self.hasEarlier = hasEarlier
-        if historyWindow.isVisible { refresh() }
+        if historyWindow.isVisible {
+            refresh()
+            if let anchor, let row = displayed.firstIndex(where: { $0.id == anchor }) {
+                if displayStyle == .imageGrid { grid.scroll(to: anchor) }
+                else { table.scrollRowToVisible(row) }
+            }
+        }
     }
 
     public func show() {
@@ -242,7 +290,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
 
     private func configureContent() {
         guard let content = historyWindow.contentView else { return }
-        search.placeholderString = copy.text("搜索本页", "Search this page"); search.setAccessibilityLabel(copy.text("搜索当前历史页", "Search the current history page"))
+        search.placeholderString = copy.text("搜索截图", "Search screenshots"); search.setAccessibilityLabel(copy.text("搜索截图", "Search screenshots"))
         search.delegate = self; search.sendsSearchStringImmediately = true
         let list = NSVisualEffectView()
         list.material = .sidebar
@@ -288,11 +336,25 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         gridFilter.identifier = .init("history.grid.filter")
         gridFilter.addItems(withTitles: RiftHistoryFilter.menuFilters.map { $0.title(copy: copy) })
         gridFilter.target = self; gridFilter.action = #selector(gridFilterChanged(_:))
-        gridFilter.setAccessibilityLabel(copy.text("筛选当前历史页", "Filter the current history page"))
+        gridFilter.setAccessibilityLabel(copy.text("筛选截图状态", "Filter screenshots by status"))
         gridTitle.font = .systemFont(ofSize: 23, weight: .semibold); gridTitle.textColor = .labelColor
-        let heading = NSStackView(views: [gridTitle, NSView(), search, gridFilter, styleSelector])
-        heading.alignment = .centerY; heading.spacing = 8
-        search.widthAnchor.constraint(equalToConstant: 138).isActive = true
+        configureDateFilters()
+        let tools = NSStackView(views: [gridTitle, NSView(), search, gridFilter, dateFilter, styleSelector])
+        tools.spacing = 8
+        search.widthAnchor.constraint(greaterThanOrEqualToConstant: 106).isActive = true
+        let preferredSearchWidth = search.widthAnchor.constraint(equalToConstant: 138)
+        preferredSearchWidth.priority = .defaultHigh; preferredSearchWidth.isActive = true
+        gridTitle.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        notice.identifier = .init("history.notice")
+        notice.font = RiftVisualStyle.bodyFont
+        noticeAction.identifier = .init("history.notice.action")
+        noticeAction.target = self; noticeAction.action = #selector(performNoticeAction)
+        RiftVisualStyle.style(noticeAction)
+        noticeControls.addArrangedSubview(notice); noticeControls.addArrangedSubview(noticeAction)
+        noticeControls.isHidden = true
+        let heading = NSStackView(views: [tools, dateControls, noticeControls])
+        heading.orientation = .vertical; heading.alignment = .leading; heading.spacing = 8
+        tools.widthAnchor.constraint(equalTo: heading.widthAnchor).isActive = true
         for view in [scroll, grid.scrollView, paging, countLabel] {
             view.translatesAutoresizingMaskIntoConstraints = false
             list.addSubview(view)
@@ -401,7 +463,16 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     private func refresh() {
         let selectedID = selectedRecordID
         let filter = RiftHistoryFilter.menuFilters[filterIndex]
-        displayed = HistoryPresentation.matching(entries, filter: filter, query: search.stringValue)
+        if onLibraryQueryChanged != nil { displayed = entries }
+        else {
+            let interval = libraryQuery.dateRange
+            displayed = HistoryPresentation.matching(entries, filter: filter, query: search.stringValue).filter { item in
+                guard let interval else { return true }
+                let date = HistoryPresentation.captureDate(for: item)
+                return date >= interval.start && date < interval.end
+            }
+        }
+        refreshNotice()
         gridFilter.selectItem(at: filterIndex)
         selectedRecordID = selectedID.flatMap { id in displayed.contains(where: { $0.id == id }) ? id : nil }
         suppressSelection = true
@@ -411,8 +482,8 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         } else { table.deselectAll(nil) }
         suppressSelection = false
         grid.update(entries: displayed, selection: selectedRecordID)
-        countLabel.stringValue = copy.text("\(displayed.count) / \(entries.count) 张 · 第 \(pageOffset / HistoryPresentation.pageSize + 1) 页",
-            "\(displayed.count) / \(entries.count) · Page \(pageOffset / HistoryPresentation.pageSize + 1)")
+        countLabel.stringValue = copy.text("\(displayed.count) 张 · 第 \(pageOffset / HistoryPresentation.pageSize + 1) 页",
+            "\(displayed.count) · Page \(pageOffset / HistoryPresentation.pageSize + 1)")
         updateActions()
     }
 
@@ -425,8 +496,8 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         restoreButton.isHidden = !restoreButton.isEnabled
         removeButton.isHidden = !removeButton.isEnabled
         revealButton.isHidden = selectedEntry == nil
-        let notes = [restoreButton.isEnabled ? copy.text("恢复到桌面后，可再次点选。", "Restore it to the desktop to click it again.") : nil,
-                     removeButton.isEnabled ? copy.text("移出队列不会删除私有副本、系统原图或聊天附件。", "Removing it from the queue keeps its local copy, original screenshot and chat attachment.") : nil].compactMap { $0 }
+        let notes = [restoreButton.isEnabled ? copy.text("恢复后可以再次点选。", "You can click it again after restoring it.") : nil,
+                     removeButton.isEnabled ? copy.text("收起后仍可在截图仓库找到。", "Hidden screenshots stay in your library.") : nil].compactMap { $0 }
         actionNote.stringValue = notes.joined(separator: copy.text("", " "))
         RiftVisualStyle.applyTextStyle(actionNote)
         actionNote.isHidden = notes.isEmpty
@@ -640,12 +711,93 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         sender.selectedSegment = displayStyle == .current ? 0 : 1
         if requested != displayStyle { onDisplayStyleChanged(requested) }
     }
+    private func configureDateFilters() {
+        dateFilter.identifier = .init("history.date")
+        dateFilter.setAccessibilityLabel(copy.text("截图日期", "Capture date"))
+        dateFilter.addItems(withTitles: [copy.text("全部日期", "All Dates"), copy.text("今天", "Today"),
+            copy.text("最近7天", "Last 7 Days"), copy.text("自定日期…", "Custom Dates…")])
+        dateFilter.target = self; dateFilter.action = #selector(dateChanged(_:))
+        for (index, picker) in [fromDate, toDate].enumerated() {
+            picker.datePickerStyle = .textFieldAndStepper
+            picker.datePickerElements = .yearMonthDay
+            picker.dateValue = Date()
+            picker.identifier = .init(index == 0 ? "history.date.from" : "history.date.to")
+            picker.setAccessibilityLabel(index == 0 ? copy.text("开始日期", "Start date") : copy.text("结束日期", "End date"))
+            picker.target = self; picker.action = #selector(dateChanged(_:))
+        }
+        dateControls.addArrangedSubview(fromDate)
+        dateControls.addArrangedSubview(NSTextField(labelWithString: copy.text("至", "to")))
+        dateControls.addArrangedSubview(toDate); dateControls.isHidden = true
+    }
+
+    @objc private func dateChanged(_ sender: NSControl) {
+        dateControls.isHidden = dateFilter.indexOfSelectedItem != 3
+        if fromDate.dateValue > toDate.dateValue {
+            if sender === toDate { fromDate.dateValue = toDate.dateValue }
+            else { toDate.dateValue = fromDate.dateValue }
+        }
+        queryChanged()
+    }
+
+    private func queryChanged() {
+        issueText = nil; failedRead = false
+        refreshNotice()
+        if let onLibraryQueryChanged { onLibraryQueryChanged() }
+        else { refresh() }
+    }
+
+    public func showReadError() {
+        failedRead = true
+        showActionError(copy.text("未能读取截图仓库。", "Your library could not be read."))
+    }
+
+    public func showActionError(_ message: String) {
+        let announce = message != issueText
+        issueText = message; refreshNotice()
+        if announce && historyWindow.isVisible {
+            NSAccessibility.post(element: notice, notification: .announcementRequested,
+                userInfo: [.announcement: message, .priority: NSAccessibilityPriorityLevel.medium.rawValue])
+        }
+    }
+
+    private var hasFilters: Bool {
+        filterIndex != 0 || dateFilter.indexOfSelectedItem > 0 || !search.stringValue.isEmpty
+    }
+
+    private func refreshNotice() {
+        let message: String
+        if let issueText {
+            message = issueText
+            noticeAction.title = failedRead ? copy.text("重试", "Retry") : copy.text("关闭", "Dismiss")
+        } else if displayed.isEmpty && hasFilters {
+            message = copy.text("没有符合条件的截图。", "No matching screenshots.")
+            noticeAction.title = copy.text("清除筛选", "Clear Filters")
+        } else if hasNewCaptures {
+            message = copy.text("有新截图", "New screenshots available")
+            noticeAction.title = copy.text("刷新", "Refresh")
+        } else { noticeControls.isHidden = true; return }
+        notice.stringValue = message; noticeControls.isHidden = false
+    }
+
+    @objc private func performNoticeAction() {
+        if failedRead { onRetryHistory?(); return }
+        if issueText != nil { issueText = nil; refreshNotice(); return }
+        if displayed.isEmpty && hasFilters {
+            filterIndex = 0; gridFilter.selectItem(at: 0); dateFilter.selectItem(at: 0)
+            dateControls.isHidden = true; search.stringValue = ""
+        }
+        queryChanged()
+    }
+
     @objc private func gridFilterChanged(_ sender: NSPopUpButton) {
         guard RiftHistoryFilter.menuFilters.indices.contains(sender.indexOfSelectedItem) else { return }
         filterIndex = sender.indexOfSelectedItem
-        refresh()
+        queryChanged()
     }
-    public func controlTextDidChange(_ obj: Notification) { refresh() }
+    public func controlTextDidChange(_ obj: Notification) {
+        if let editor = search.currentEditor() as? NSTextView, editor.hasMarkedText() { return }
+        queryChanged()
+    }
     public func tableViewSelectionDidChange(_ notification: Notification) {
         guard !suppressSelection, displayStyle == .current else { return }
         selectRecord(displayed.indices.contains(table.selectedRow) ? displayed[table.selectedRow].id : nil)
