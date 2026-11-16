@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "kind": "sanitized-audit-summary-not-release-approval",
+  "auditDateLocal": "2026-11-17 Asia/Shanghai",
+  "baseline": "3f8149e2313fd81bbaee5a7bbbdbb1efca2fc81b",
+  "publicPackage": {
+    "url": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.3-zip/Riftlet-1.0.3.zip",
+    "version": "1.0.3",
+    "build": "25",
+    "bundleID": "com.riftlet.app",
+    "bytes": 10483530,
+    "sha256": "b9814f1df2fa44a8ae1aef3f491ea76fabbc9ff67ac1c0db41cbb55ed18aa836",
+    "executableSHA256": "219c3d9febac0ff58ab03bb4d1869f374caff1da9256a0bf9b5968731bce9161",
+    "scope": "Unchanged public ZIP extracted into a new isolated directory; existing native review driver used with synthetic profiles. Personal installed app and production data untouched."
+  },
+  "freshPackageVerification": {
+    "rawPrivateReportSHA256": "9c1d123cdbbef6d37017f8ed337e643d3eedc86943d139d491f19483c97076d7",
+    "codesignVerifyDeepStrictExitCode": 0,
+    "gatekeeperExecuteAssessmentExitCode": 0,
+    "gatekeeperSource": "Notarized Developer ID",
+    "teamID": "ZB9D4T66QB",
+    "staplerValidateExitCode": 0,
+    "ordinaryInstallOrUpgradeExecutedByThisAudit": false
+  },
+  "nativeEnvironment": {
+    "macOS": "27.0",
+    "build": "26A428",
+    "architecture": "arm64",
+    "hardware": "Mac17,3",
+    "connectedDisplays": 1,
+    "backingScale": 2
+  },
+  "nativeResults": {
+    "settings": {"pass": 14, "fail": 0, "frames": 37},
+    "desktop": {"pass": 41, "fail": 1, "frames": 45, "failedCase": "tray-owned-button-and-escape", "reason": "trayCameraObscured", "failurePhase": "pre-click window ownership check", "wrapperExitCode": 0},
+    "samePackageSettingsRestart": {
+      "status": "PASS_SCOPED_ISOLATED_RESTART",
+      "rawPrivateReportSHA256": "6a9285db41bac76c37aa9872a72ef7c08152dce8581cb8350e3180fdbe246caa",
+      "fixtureAssets": 3,
+      "operations": 0,
+      "starts": 0,
+      "settingsAndMediaMatched": true,
+      "provesOrdinaryOnboardingCloseBehavior": false
+    },
+    "publishedOriginalPNGCount": 12,
+    "casesAndFrameHashes": "native-runs.json"
+  },
+  "liveDistributionSnapshot": {
+    "websiteURL": "https://riftlet.com/",
+    "websiteSHA256": "087fcfd01e45560413d422fab32919514d38a5ea83f0a65904fc391516e400bf",
+    "websiteEqualsBaselineIndex": true,
+    "websiteDownloadVersion": "1.0.3 ZIP",
+    "stableFeedURL": "https://riftlet.com/updates/stable.xml",
+    "stableFeedSHA256": "8d08d90e7877d5701f863c66f4c7bb50eb2993076bfd1e9b3d29e81239776b1e",
+    "stableFeedVersion": "1.0.2",
+    "stableFeedBuild": "24"
+  },
+  "notarizationSnapshot": {
+    "atUTC": "2026-11-16T18:26:49Z",
+    "app": {"submission": "963c318c-7b96-4ca9-92a1-4b94615c4ca2", "status": "Accepted"},
+    "outerDMGOriginal": {"submission": "20e69573-4eeb-4641-b8e4-7482f37af11f", "status": "In Progress"},
+    "outerDMGRegional": {"submission": "4fbeac49-d9dd-4686-8a76-56df05498d8d", "status": "In Progress"},
+    "public103DMGObserved": false
+  },
+  "remoteGovernanceSnapshot": {"mainProtected": false, "rulesets": []},
+  "releaseMutationsByThisPlanningTask": 0,
+  "limitations": [
+    "Native review mode is not ordinary permission/login/update or real-service acceptance.",
+    "Desktop capture includes only owned floating windows, not desktop wallpaper.",
+    "One original settings capture frame is withheld because it contains a local account name and full fixture path.",
+    "Current wrapper exit 0 does not override its internal FAIL.",
+    "Future 1.0.4 implementation, same-package acceptance and RC release are not performed by this planning increment."
+  ]
+}

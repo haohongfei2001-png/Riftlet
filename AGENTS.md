@@ -7,9 +7,10 @@ The 2026-11-14 audit baseline is 1.0.1 (23); this is a dated fact, not a future 
 ## Read only what the task needs
 
 1. This file and [current product contract](docs/PRODUCT.md).
-2. [Current implementation evidence](engineering/quality/2026-11-14/progress.json),
-   [quality status](docs/quality/ITERATION_STATUS.json), the assigned Issue, and
-   [Codex handoff](docs/quality/CODEX_HANDOFF.md).
+2. [1.0.4 Codex entry](docs/releases/1.0.4/CODEX_HANDOFF.md), its exact baseline,
+   ordered tasks and acceptance rows, and the assigned Issue. Use
+   [prior implementation evidence](engineering/quality/2026-11-14/progress.json)
+   and [dated quality status](docs/quality/ITERATION_STATUS.json) as historical evidence.
 3. [Current design decisions](docs/quality/DECISIONS.md) and the relevant source/tests.
 4. [Mainline admission](docs/MAINLINE_GOVERNANCE.md) before committing a formal PR.
 
@@ -18,11 +19,13 @@ historical phase restrictions. Old files are retained under `docs/quality/histor
 `engineering/evidence/` and `research/` remain source-bound historical evidence,
 not new permission or a second work queue. Open candidates are not released features.
 
-The active quality implementation is [PR #101](https://github.com/haohongfei2001-png/Riftlet/pull/101).
-Continue its actual head and evidence; do not recreate R1 or the four settings pages.
-PR #100 supplies the dated audit and reviewed instructions. PR #77 is a separate
-installer increment, not an integrated feature of PR #101. Issue closure, source
-admission, native acceptance and release approval remain distinct.
+The current work is [1.0.4 consumer planning and RC delivery](docs/releases/1.0.4/CODEX_HANDOFF.md),
+tracked in [Issue #106](https://github.com/haohongfei2001-png/Riftlet/issues/106), from
+baseline `3f8149e2313fd81bbaee5a7bbbdbb1efca2fc81b`. PR #101/#103/#105 are merged;
+public 1.0.3 is the immutable ZIP release, while the stable feed still serves 1.0.2
+at the recorded audit snapshot. Freeze the 1.0.3 channels. Do not resume PR #101,
+recreate its fixes, or import stale PR #100, #69 or #77 as the new base.
+Issue closure, source admission, native acceptance and release approval remain distinct.
 
 ## Product invariants
 
@@ -39,7 +42,8 @@ admission, native acceptance and release approval remain distinct.
   only from the matching durable START, never from visibility alone. Do not invent
   completion, retry rights or late-failure evidence to simplify history.
 - Keep approved tray/wind-chime/micro-slit forms, tray 2×2 and capture-button placement,
-  queue identity, previews and accessibility. No new visual language or destination expansion.
+  queue identity, previews and accessibility. The scoped 1.0.4 visual changes are defined
+  in its DESIGN_SPEC; no unplanned visual language or destination expansion.
 
 ## Data and release safety
 

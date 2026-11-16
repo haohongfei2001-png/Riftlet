@@ -1,5 +1,7 @@
 # Codex工程交接：Riftlet质量收口
 
+> 当前任务入口（2026-11-17）：[1.0.4 Codex工作包](../releases/1.0.4/CODEX_HANDOFF.md)。下文保留为PR101/1.0.2时点的历史交接，后续PR103/105已发布1.0.3 ZIP并更新官网。不要执行下文旧的“剩余发行”指令或重做已实施R1–R4；1.0.3发行物冻结，新版本只在独立分支推进。
+
 本文件是官网部署前的已审检查点；[最终公网发行与实际更新回执](https://github.com/haohongfei2001-png/Riftlet/pull/101#issuecomment-6879797338)在原 PR 按真实执行结果持续更新。
 
 原审计基线为正式 1.0.1（23）、main `44f745a`，其问题与失败证据保留。当前 [PR #101](https://github.com/haohongfei2001-png/Riftlet/pull/101) 已合入 main `5b73c755ec1eb6d1aa2ef5b9390da6200b6108b9`。先读 [工程进度](../../engineering/quality/2026-11-14/progress.json) 与 [当前状态](ITERATION_STATUS.json)，不要按后文历史实施分包重新开发已经完成的修复。

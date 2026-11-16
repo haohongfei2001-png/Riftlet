@@ -1,4 +1,19 @@
 {
+  "currentWork": {
+    "asOf": "2026-11-17 Asia/Shanghai",
+    "version": "1.0.4",
+    "phase": "DESIGN_AND_IMPLEMENTATION_PLAN_READY_APP_NOT_IMPLEMENTED",
+    "baseline": "3f8149e2313fd81bbaee5a7bbbdbb1efca2fc81b",
+    "entry": "docs/releases/1.0.4/CODEX_HANDOFF.md",
+    "tracker": "https://github.com/haohongfei2001-png/Riftlet/issues/106",
+    "publicRelease": "v1.0.3-zip",
+    "publicBuild": 25,
+    "stableFeedVersion": "1.0.2",
+    "stableFeedBuild": 24,
+    "freeze103": true,
+    "applicationSourceChangedByPlanning": false,
+    "priorTopLevelFields": "Dated PR101 / 1.0.2 evidence retained below; use currentWork for the active work queue."
+  },
   "schemaVersion": 1,
   "updatedAt": "2026-11-14",
   "baseline": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",
