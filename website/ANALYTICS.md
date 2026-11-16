@@ -22,7 +22,7 @@ Sample UTM promotion links:
 
 1. Run `node --test website/test-analytics.cjs`; it tests disabled/untrusted hosts and storage, DNT/GPC, one official tracker and both original DMG links.
 2. On the published HTTPS site, inspect `<meta name="riftlet-umami-website-id">`: it must equal the configured public ID exactly once. The bootstrap should request `https://cloud.umami.is/script.js` exactly once on first load if tracking is allowed.
-3. In the Umami Cloud dashboard, verify the pageview appears. Click each download link and check the `download_dmg` event has the correct `placement`. Events can be blocked by browser privacy tools or lost during fast cross-site navigation; do not claim every click is captured.
+3. In the Umami Cloud dashboard, verify the pageview appears. Click each download link and check the `download_zip` event has the correct `placement`. Events can be blocked by browser privacy tools or lost during fast cross-site navigation; do not claim every click is captured.
 4. Compare live HTML and JS to reviewed GitHub Pages deployed source. Check site and downloads with JavaScript blocked, and the existing synthetic demo with JavaScript enabled.
 5. Exclude developer testing in an individual browser/profile with `localStorage.setItem('umami.disabled', '1')` then refresh. This does not exclude the developer on other devices or private windows.
 
