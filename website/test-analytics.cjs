@@ -64,16 +64,16 @@ test('real ID loads only official Umami cloud script, confined to Riftlet domain
   assert.equal(script.attributes['data-exclude-hash'], 'true');
   assert.match(boot, /window\.umamiConfig = \{ websiteId, hostUrl: 'https:\/\/cloud\.umami\.is' \}/);
 });
-test('exactly two official DMG links record distinct placements without URL changes', () => {
+test('exactly two official ZIP links record distinct placements without URL changes', () => {
   const anchors = Array.from(html.matchAll(/<a\b[^>]*>/g), m => m[0]);
-  const downloads = anchors.filter(s => s.includes('data-umami-event="download_dmg"'));
+  const downloads = anchors.filter(s => s.includes('data-umami-event="download_zip"'));
   assert.equal(downloads.length, 2);
   assert.deepEqual(downloads.map(a => /data-umami-event-placement="([^"]+)"/.exec(a)?.[1]).sort(), ['header', 'primary']);
   for (const a of downloads) {
-    assert.match(a, /data-umami-event-version="1\.0\.2"/);
-    assert.match(a, /href="https:\/\/github\.com\/haohongfei2001-png\/Riftlet\/releases\/download\/v1\.0\.2\/Riftlet-1\.0\.2\.dmg"/);
+    assert.match(a, /data-umami-event-version="1\.0\.3"/);
+    assert.match(a, /href="https:\/\/github\.com\/haohongfei2001-png\/Riftlet\/releases\/download\/v1\.0\.3-zip\/Riftlet-1\.0\.3\.zip"/);
   }
-  assert.equal(anchors.filter(s => s.includes('Riftlet-1.0.2.dmg')).length, 2);
+  assert.equal(anchors.filter(s => s.includes('Riftlet-1.0.3.zip')).length, 2);
 });
 test('website includes a single analytics loader and the configured website ID', () => {
   assert.equal((html.match(/src="website-analytics\.js"/g) || []).length, 1);
