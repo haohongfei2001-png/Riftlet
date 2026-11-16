@@ -1,0 +1,2380 @@
+{
+  "base": "b5a412f6d37378b7cfef56e2f1e9524cc9b1ac6e",
+  "scope": "Native programmatic AppKit target-actions, WindowServer captures, isolated SQLite/configuration; not physical mouse/VoiceOver/ChatGPT acceptance",
+  "runs": [
+    {
+      "run": "r1",
+      "status": "FAIL",
+      "binarySHA256": "3e889961bc2ac1370241b30ff7198a5785401f759e6b0cce81b06068798b37c2",
+      "reportSHA256": "cc0344721c004a2c4b63c1e69fa0803ac68b26421c884b3f3621c1dc3f3f09d7",
+      "cases": [
+        {
+          "case": "environment-and-default-window",
+          "seconds": 0.32678391666559037,
+          "status": "PASS"
+        },
+        {
+          "case": "real-collector-synthetic-fixture",
+          "seconds": 0.3635256666675559,
+          "status": "PASS"
+        },
+        {
+          "case": "programmatic-collection-during-recheck",
+          "seconds": 0.31902216666640015,
+          "status": "PASS"
+        },
+        {
+          "case": "four-pages-light-and-dark",
+          "seconds": 4.897513666666782,
+          "status": "PASS"
+        },
+        {
+          "case": "orthogonal-pause-hidden-sqlite",
+          "seconds": 9.07538033333367,
+          "status": "PASS"
+        },
+        {
+          "case": "archive-editor-return-and-blur",
+          "seconds": 0.7190184999999474,
+          "status": "PASS"
+        },
+        {
+          "case": "configuration-editor-refresh-defaults",
+          "seconds": 1.5227621666654159,
+          "status": "PASS"
+        },
+        {
+          "case": "close-sheet-continue-discard",
+          "seconds": 1.5542852916678385,
+          "status": "PASS"
+        },
+        {
+          "case": "independent-write-failures-and-retry",
+          "seconds": 2.762504833332059,
+          "status": "PASS"
+        },
+        {
+          "case": "motion-selection-in-advanced-appearance",
+          "seconds": 0.26868166666645266,
+          "status": "PASS"
+        },
+        {
+          "case": "three-step-guidance-light-and-dark",
+          "reason": "onboardingOuterSizeMismatch",
+          "seconds": 0.34475587499946414,
+          "status": "FAIL"
+        },
+        {
+          "case": "resizing-and-reopen",
+          "seconds": 2.0432549999986804,
+          "status": "PASS"
+        },
+        {
+          "case": "history-real-records",
+          "seconds": 0.19674579166712647,
+          "status": "PASS"
+        },
+        {
+          "case": "original-media-and-no-upload-operations",
+          "seconds": 0.00350287499895785,
+          "status": "PASS"
+        }
+      ],
+      "frames": [
+        {
+          "name": "initial-general",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "f334e20ecbe08a528a225002471b3f4917e98263620c7018b26d81bac70e59b8",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "settings-light-general",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "9bfacd47378ec22e272089658275b1682abaa9dbeb3ea53972567d7b150ec016",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "settings-light-display",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "9bf912a6c773250c82a530ce761f3105f62a46d06fbadc8a2b3b1c4b85f58b62",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "settings-light-capture",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "cffe6add1a446cc171b5012d875f21a66852e8bd453a5f6eda0276bfb98910a3",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "settings-light-help",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "78474ccec612c56e2810fc8fe8ded56bec1dd880efa9a00476f2a3070da7b346",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "control-light",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "74190989af2f781801225630b2c3c53ce49e010345d5f774ed5f32796a727dbd",
+          "pixels": [
+            258,
+            384
+          ],
+          "contentBounds": [
+            0,
+            0,
+            103,
+            166
+          ],
+          "windowFrame": [
+            785,
+            736,
+            129,
+            192
+          ]
+        },
+        {
+          "name": "settings-dark-general",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "08faf60c1b727b6eae248987044d1658b5a4c41aceef9595d25e21367c0f8268",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "settings-dark-display",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "713dfc0bcd003bcb6cb1df85449d6f3b433f563be6675da41350e9af2330a60a",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "settings-dark-capture",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "725a1b3fd1d41462b54c13ee0c3d22d731f8a73eaf8da091e9c5c55dda24aae1",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "settings-dark-help",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "834decc12e8d13dc933d3e124b413f18d8f52dde5c9af7bef319390179ab7ce7",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "control-dark",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "a58bea897e30a744ef9185031eea33579415890c9103f8132f74660ba512794e",
+          "pixels": [
+            258,
+            374
+          ],
+          "contentBounds": [
+            0,
+            0,
+            103,
+            161
+          ],
+          "windowFrame": [
+            785,
+            741,
+            129,
+            187
+          ]
+        },
+        {
+          "name": "collection-settings-normal",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "5961712e9b3a369e0eb8abfd49876e621c4d24b01e961f757bfc9776451c0026",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "control-normal",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "99ebfc0a9818c4075bee721db0188cb4a92eb72188f6a4b8ee17f0cc151cf2d9",
+          "pixels": [
+            258,
+            374
+          ],
+          "contentBounds": [
+            0,
+            0,
+            103,
+            161
+          ],
+          "windowFrame": [
+            785,
+            741,
+            129,
+            187
+          ]
+        },
+        {
+          "name": "collection-settings-paused",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "d9327b37b5f1759bfdce55709a293b153d58b4cef8b802413ad1087c28caf1c6",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "control-paused",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "99ebfc0a9818c4075bee721db0188cb4a92eb72188f6a4b8ee17f0cc151cf2d9",
+          "pixels": [
+            258,
+            374
+          ],
+          "contentBounds": [
+            0,
+            0,
+            103,
+            161
+          ],
+          "windowFrame": [
+            785,
+            741,
+            129,
+            187
+          ]
+        },
+        {
+          "name": "collection-settings-paused-hidden",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "254325e6f50caf5fb48ff65a5da85dd4575cd60e311a16405a1c37a543a59424",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "control-paused-hidden",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "99ebfc0a9818c4075bee721db0188cb4a92eb72188f6a4b8ee17f0cc151cf2d9",
+          "pixels": [
+            258,
+            374
+          ],
+          "contentBounds": [
+            0,
+            0,
+            103,
+            161
+          ],
+          "windowFrame": [
+            785,
+            741,
+            129,
+            187
+          ]
+        },
+        {
+          "name": "collection-settings-hidden",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "b72b23f21eac3112ca210f2eb2eda5600b35d6245f21de69dc8aec8c3412bf68",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "control-hidden",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "99ebfc0a9818c4075bee721db0188cb4a92eb72188f6a4b8ee17f0cc151cf2d9",
+          "pixels": [
+            258,
+            374
+          ],
+          "contentBounds": [
+            0,
+            0,
+            103,
+            161
+          ],
+          "windowFrame": [
+            785,
+            741,
+            129,
+            187
+          ]
+        },
+        {
+          "name": "archive-return-and-blur",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "5329a3b9ab4f8a8be6496906b8ff2c2233315865c85293bc4b7c2ad96ab8c4e4",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "display-defaults-after-active-edit",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "d4a2e85489d1c296319b51525becd746d2cb84bdee0e49e5427a0e79f7cd026c",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "close-draft-sheet",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "43246cca3a1ed9bd754cb614f13850e3efc4246b6f71c0f554d29a609ef3152b",
+          "pixels": [
+            520,
+            414
+          ],
+          "contentBounds": [
+            0,
+            0,
+            260,
+            207
+          ],
+          "windowFrame": [
+            605,
+            359,
+            260,
+            207
+          ]
+        },
+        {
+          "name": "control-save-failure",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "99ebfc0a9818c4075bee721db0188cb4a92eb72188f6a4b8ee17f0cc151cf2d9",
+          "pixels": [
+            258,
+            374
+          ],
+          "contentBounds": [
+            0,
+            0,
+            103,
+            161
+          ],
+          "windowFrame": [
+            785,
+            741,
+            129,
+            187
+          ]
+        },
+        {
+          "name": "independent-errors-resolved",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "eb530e07cab4fb5f2cda2fd4ec4d9d472f72237708e5ae56f271fbebce5df781",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "advanced-arrival-selection",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "c14b7fee9e08f167c4d38e416ff193331a3b779b6e7a162eb2732696762a5796",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "onboarding-light-1",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "9ccc1a3094e789efa72a1a9340346e6be30ec0b55b78ca5a7d1fe98ef3c83853",
+          "pixels": [
+            388,
+            906
+          ],
+          "contentBounds": [
+            0,
+            0,
+            194,
+            425
+          ],
+          "windowFrame": [
+            443,
+            235,
+            194,
+            453
+          ]
+        },
+        {
+          "name": "settings-minimum-size",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "e1cec4fed3390bcf479a760a7666a7c847a6fd2420a2e625cdd071e37c85a8f6",
+          "pixels": [
+            1432,
+            900
+          ],
+          "contentBounds": [
+            0,
+            0,
+            716,
+            450
+          ],
+          "windowFrame": [
+            328,
+            172,
+            716,
+            450
+          ]
+        },
+        {
+          "name": "settings-minimum-general",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "17051b8382e28efc68eb92a26a31d894436dde5c2ed587c75bfff4a100568def",
+          "pixels": [
+            1432,
+            900
+          ],
+          "contentBounds": [
+            0,
+            0,
+            716,
+            450
+          ],
+          "windowFrame": [
+            328,
+            172,
+            716,
+            450
+          ]
+        },
+        {
+          "name": "settings-minimum-capture",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "6dde2fc0b95c48fc381656a73e3693a6380bd582a3c51b795cd91a9adbf97e41",
+          "pixels": [
+            1432,
+            900
+          ],
+          "contentBounds": [
+            0,
+            0,
+            716,
+            450
+          ],
+          "windowFrame": [
+            328,
+            172,
+            716,
+            450
+          ]
+        },
+        {
+          "name": "settings-minimum-help",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "63b1260eab739963f5c95f42b26d551413846eb942de7da7302724c21c3ef36d",
+          "pixels": [
+            1432,
+            900
+          ],
+          "contentBounds": [
+            0,
+            0,
+            716,
+            450
+          ],
+          "windowFrame": [
+            328,
+            172,
+            716,
+            450
+          ]
+        },
+        {
+          "name": "settings-minimum-display-scrolled",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "e271d8e6426eb4e1b42b38fec37e559c8f653586c87cf1e48254bc242683364a",
+          "pixels": [
+            1432,
+            900
+          ],
+          "contentBounds": [
+            0,
+            0,
+            716,
+            450
+          ],
+          "windowFrame": [
+            328,
+            172,
+            716,
+            450
+          ]
+        },
+        {
+          "name": "history-real-isolated-records",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "d80a18a02a1a4f1afbdf742e156b7901f09112863634606b69a238d9471035fc",
+          "pixels": [
+            1612,
+            984
+          ],
+          "contentBounds": [
+            0,
+            0,
+            808,
+            464
+          ],
+          "windowFrame": [
+            331,
+            324,
+            808,
+            492
+          ]
+        }
+      ]
+    },
+    {
+      "run": "r2",
+      "status": "FAIL",
+      "binarySHA256": "9c633a05b81d26e47a7df1c2461ebc04f6c767f9bedfc5e11806bf166f28ab34",
+      "reportSHA256": "bb4c324914e1da7fe42817adcea2cb01b362f2974f4078ee73e3e662494eedfb",
+      "cases": [
+        {
+          "case": "environment-and-default-window",
+          "seconds": 0.3399678333335032,
+          "status": "PASS"
+        },
+        {
+          "case": "real-collector-synthetic-fixture",
+          "seconds": 0.36147208333204617,
+          "status": "PASS"
+        },
+        {
+          "case": "programmatic-collection-during-recheck",
+          "seconds": 0.3030024166673684,
+          "status": "PASS"
+        },
+        {
+          "case": "four-pages-light-and-dark",
+          "seconds": 4.837606541666901,
+          "status": "PASS"
+        },
+        {
+          "case": "orthogonal-pause-hidden-sqlite",
+          "seconds": 8.692335749999984,
+          "status": "PASS"
+        },
+        {
+          "case": "archive-editor-return-and-blur",
+          "seconds": 0.703694916666791,
+          "status": "PASS"
+        },
+        {
+          "case": "configuration-editor-refresh-defaults",
+          "seconds": 1.481021374998818,
+          "status": "PASS"
+        },
+        {
+          "case": "close-sheet-continue-discard",
+          "seconds": 1.5123045416676177,
+          "status": "PASS"
+        },
+        {
+          "case": "independent-write-failures-and-retry",
+          "seconds": 2.7279740416670393,
+          "status": "PASS"
+        },
+        {
+          "case": "motion-selection-in-advanced-appearance",
+          "seconds": 0.25403708333396935,
+          "status": "PASS"
+        },
+        {
+          "case": "three-step-guidance-light-and-dark",
+          "reason": "onboardingOuterSizeMismatch",
+          "seconds": 0.3484190833332832,
+          "status": "FAIL"
+        },
+        {
+          "case": "resizing-and-reopen",
+          "seconds": 1.9867084999987128,
+          "status": "PASS"
+        },
+        {
+          "case": "history-real-records",
+          "seconds": 0.19719141666610085,
+          "status": "PASS"
+        },
+        {
+          "case": "original-media-and-no-upload-operations",
+          "seconds": 0.00343862500085379,
+          "status": "PASS"
+        }
+      ],
+      "frames": [
+        {
+          "name": "initial-general",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "112a1ae48c5a57b0ae5fd012930f9c248242cb886012a1742daa1f0f7ea8389a",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "settings-light-general",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "9bfacd47378ec22e272089658275b1682abaa9dbeb3ea53972567d7b150ec016",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "settings-light-display",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "9bf912a6c773250c82a530ce761f3105f62a46d06fbadc8a2b3b1c4b85f58b62",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "settings-light-capture",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "a567a3cc629ac09e9cb1eee19ca0046a01eddfaf79a495a287265b5e5170c246",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "settings-light-help",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "78474ccec612c56e2810fc8fe8ded56bec1dd880efa9a00476f2a3070da7b346",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "control-light",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "0e7a75315552817db10e3ad5d4ba5e6266676690bea83619492e8824d08a268f",
+          "pixels": [
+            266,
+            384
+          ],
+          "contentBounds": [
+            0,
+            0,
+            107,
+            166
+          ],
+          "windowFrame": [
+            783,
+            736,
+            133,
+            192
+          ]
+        },
+        {
+          "name": "settings-dark-general",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "08faf60c1b727b6eae248987044d1658b5a4c41aceef9595d25e21367c0f8268",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "settings-dark-display",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "713dfc0bcd003bcb6cb1df85449d6f3b433f563be6675da41350e9af2330a60a",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "settings-dark-capture",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "84f3b8a68234027db6f1f6d78dddd1dd98f7aa014cb3e563216055f181f5c62a",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "settings-dark-help",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "834decc12e8d13dc933d3e124b413f18d8f52dde5c9af7bef319390179ab7ce7",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "control-dark",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "e99c45710cd2399ddccaec104e734a4dd2124a8a3ae7c56a5a1fc8d092585a8c",
+          "pixels": [
+            266,
+            374
+          ],
+          "contentBounds": [
+            0,
+            0,
+            107,
+            161
+          ],
+          "windowFrame": [
+            783,
+            741,
+            133,
+            187
+          ]
+        },
+        {
+          "name": "collection-settings-normal",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "02f91b33014cbccf23e146e8a7d96b6981746e203d649b31629d378c6b749534",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "control-normal",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "0cafebfb0b5bed969875e73e5b06e8255cc4f8f79c31b548206e2b5023211215",
+          "pixels": [
+            266,
+            374
+          ],
+          "contentBounds": [
+            0,
+            0,
+            107,
+            161
+          ],
+          "windowFrame": [
+            783,
+            741,
+            133,
+            187
+          ]
+        },
+        {
+          "name": "collection-settings-paused",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "8f5af9cec657d7efd4b000ac7123550e155f20efcb4e9cc0c3a6822a254f1c49",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "control-paused",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "0cafebfb0b5bed969875e73e5b06e8255cc4f8f79c31b548206e2b5023211215",
+          "pixels": [
+            266,
+            374
+          ],
+          "contentBounds": [
+            0,
+            0,
+            107,
+            161
+          ],
+          "windowFrame": [
+            783,
+            741,
+            133,
+            187
+          ]
+        },
+        {
+          "name": "collection-settings-paused-hidden",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "b70cf76595f49b7f270e595c3ea5a84add2e953b1b83016f1c122dda0014265f",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "control-paused-hidden",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "0cafebfb0b5bed969875e73e5b06e8255cc4f8f79c31b548206e2b5023211215",
+          "pixels": [
+            266,
+            374
+          ],
+          "contentBounds": [
+            0,
+            0,
+            107,
+            161
+          ],
+          "windowFrame": [
+            783,
+            741,
+            133,
+            187
+          ]
+        },
+        {
+          "name": "collection-settings-hidden",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "8b3f1946a904b53bc75f5c5c7fc3bb589aba1a820603861eda5eed762e64561e",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "control-hidden",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "0cafebfb0b5bed969875e73e5b06e8255cc4f8f79c31b548206e2b5023211215",
+          "pixels": [
+            266,
+            374
+          ],
+          "contentBounds": [
+            0,
+            0,
+            107,
+            161
+          ],
+          "windowFrame": [
+            783,
+            741,
+            133,
+            187
+          ]
+        },
+        {
+          "name": "archive-return-and-blur",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "c5ca031538ec8d234d34f414498011c139fe0268b26c0a4b3cabc88f4ed16b1e",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "display-defaults-after-active-edit",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "d4a2e85489d1c296319b51525becd746d2cb84bdee0e49e5427a0e79f7cd026c",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "close-draft-sheet",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "a76611047090e720c97184d712d80ece5ef317e197ac2e6ae3fbe1397302659d",
+          "pixels": [
+            520,
+            414
+          ],
+          "contentBounds": [
+            0,
+            0,
+            260,
+            207
+          ],
+          "windowFrame": [
+            605,
+            359,
+            260,
+            207
+          ]
+        },
+        {
+          "name": "control-save-failure",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "0cafebfb0b5bed969875e73e5b06e8255cc4f8f79c31b548206e2b5023211215",
+          "pixels": [
+            266,
+            374
+          ],
+          "contentBounds": [
+            0,
+            0,
+            107,
+            161
+          ],
+          "windowFrame": [
+            783,
+            741,
+            133,
+            187
+          ]
+        },
+        {
+          "name": "independent-errors-resolved",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "eb530e07cab4fb5f2cda2fd4ec4d9d472f72237708e5ae56f271fbebce5df781",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "advanced-arrival-selection",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "c14b7fee9e08f167c4d38e416ff193331a3b779b6e7a162eb2732696762a5796",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "onboarding-light-1",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "d1bab84f0aac7c2003c8fc728a5c2c05309345ff665c1d9e78911633f73dd2f3",
+          "pixels": [
+            594,
+            906
+          ],
+          "contentBounds": [
+            0,
+            0,
+            297,
+            425
+          ],
+          "windowFrame": [
+            443,
+            235,
+            297,
+            453
+          ]
+        },
+        {
+          "name": "settings-minimum-size",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "e1cec4fed3390bcf479a760a7666a7c847a6fd2420a2e625cdd071e37c85a8f6",
+          "pixels": [
+            1432,
+            900
+          ],
+          "contentBounds": [
+            0,
+            0,
+            716,
+            450
+          ],
+          "windowFrame": [
+            328,
+            172,
+            716,
+            450
+          ]
+        },
+        {
+          "name": "settings-minimum-general",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "17051b8382e28efc68eb92a26a31d894436dde5c2ed587c75bfff4a100568def",
+          "pixels": [
+            1432,
+            900
+          ],
+          "contentBounds": [
+            0,
+            0,
+            716,
+            450
+          ],
+          "windowFrame": [
+            328,
+            172,
+            716,
+            450
+          ]
+        },
+        {
+          "name": "settings-minimum-capture",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "7631ecb954c75c6575d149f7f4abef026cbcacd9061cb96008d4b61ce31555c7",
+          "pixels": [
+            1432,
+            900
+          ],
+          "contentBounds": [
+            0,
+            0,
+            716,
+            450
+          ],
+          "windowFrame": [
+            328,
+            172,
+            716,
+            450
+          ]
+        },
+        {
+          "name": "settings-minimum-help",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "63b1260eab739963f5c95f42b26d551413846eb942de7da7302724c21c3ef36d",
+          "pixels": [
+            1432,
+            900
+          ],
+          "contentBounds": [
+            0,
+            0,
+            716,
+            450
+          ],
+          "windowFrame": [
+            328,
+            172,
+            716,
+            450
+          ]
+        },
+        {
+          "name": "settings-minimum-display-scrolled",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "e271d8e6426eb4e1b42b38fec37e559c8f653586c87cf1e48254bc242683364a",
+          "pixels": [
+            1432,
+            900
+          ],
+          "contentBounds": [
+            0,
+            0,
+            716,
+            450
+          ],
+          "windowFrame": [
+            328,
+            172,
+            716,
+            450
+          ]
+        },
+        {
+          "name": "history-real-isolated-records",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "a7fed1918babbb45d7a33d0f4c072ba8e4878f5087bebc947d4037e8b31f1a10",
+          "pixels": [
+            1616,
+            984
+          ],
+          "contentBounds": [
+            0,
+            0,
+            808,
+            464
+          ],
+          "windowFrame": [
+            331,
+            324,
+            808,
+            492
+          ]
+        }
+      ]
+    },
+    {
+      "run": "r3",
+      "status": "PASS_SCOPED_NATIVE_REVIEW",
+      "binarySHA256": "51cc31963de745561e08835007cac15ae61507fb30a6dfc75abbf69420525dc6",
+      "reportSHA256": "a7191ec49948f0c89ccdfc4dbcc1decc90acbe0fa430607c97d0c1b1af1026cd",
+      "cases": [
+        {
+          "case": "environment-and-default-window",
+          "seconds": 0.3291783333334024,
+          "status": "PASS"
+        },
+        {
+          "case": "real-collector-synthetic-fixture",
+          "seconds": 0.36437316666524566,
+          "status": "PASS"
+        },
+        {
+          "case": "programmatic-collection-during-recheck",
+          "seconds": 0.3011916249997739,
+          "status": "PASS"
+        },
+        {
+          "case": "four-pages-light-and-dark",
+          "seconds": 4.850872708333554,
+          "status": "PASS"
+        },
+        {
+          "case": "orthogonal-pause-hidden-sqlite",
+          "seconds": 8.949765333334653,
+          "status": "PASS"
+        },
+        {
+          "case": "archive-editor-return-and-blur",
+          "seconds": 0.6888700833333132,
+          "status": "PASS"
+        },
+        {
+          "case": "configuration-editor-refresh-defaults",
+          "seconds": 1.4948369583325984,
+          "status": "PASS"
+        },
+        {
+          "case": "close-sheet-continue-discard",
+          "seconds": 1.5169457083338784,
+          "status": "PASS"
+        },
+        {
+          "case": "independent-write-failures-and-retry",
+          "seconds": 2.725700458333449,
+          "status": "PASS"
+        },
+        {
+          "case": "motion-selection-in-advanced-appearance",
+          "seconds": 0.24841758333423059,
+          "status": "PASS"
+        },
+        {
+          "case": "three-step-guidance-light-and-dark",
+          "seconds": 2.1606219166678784,
+          "status": "PASS"
+        },
+        {
+          "case": "resizing-and-reopen",
+          "seconds": 1.9462839166681078,
+          "status": "PASS"
+        },
+        {
+          "case": "history-real-records",
+          "seconds": 0.19906933333368215,
+          "status": "PASS"
+        },
+        {
+          "case": "original-media-and-no-upload-operations",
+          "seconds": 0.0033247916671825806,
+          "status": "PASS"
+        }
+      ],
+      "frames": [
+        {
+          "name": "initial-general",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "112a1ae48c5a57b0ae5fd012930f9c248242cb886012a1742daa1f0f7ea8389a",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "settings-light-general",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "9bfacd47378ec22e272089658275b1682abaa9dbeb3ea53972567d7b150ec016",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "settings-light-display",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "9bf912a6c773250c82a530ce761f3105f62a46d06fbadc8a2b3b1c4b85f58b62",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "settings-light-capture",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "b9bd77510f2d3317c7a89832aebe8b37130348c5054a831e4e045ce468b0893a",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "settings-light-help",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "78474ccec612c56e2810fc8fe8ded56bec1dd880efa9a00476f2a3070da7b346",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "control-light",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "3c5b02bcd4adcd99e5c0fa4ab932e9c399a865abd5efdfa05b724156fa5c9bf1",
+          "pixels": [
+            500,
+            374
+          ],
+          "contentBounds": [
+            0,
+            0,
+            224,
+            161
+          ],
+          "windowFrame": [
+            725,
+            741,
+            250,
+            187
+          ]
+        },
+        {
+          "name": "settings-dark-general",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "08faf60c1b727b6eae248987044d1658b5a4c41aceef9595d25e21367c0f8268",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "settings-dark-display",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "713dfc0bcd003bcb6cb1df85449d6f3b433f563be6675da41350e9af2330a60a",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "settings-dark-capture",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "f60ccb5721c4bd49e7bb884ac8c07dbaf5970d17550c245b5737c6478e98d6e2",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "settings-dark-help",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "834decc12e8d13dc933d3e124b413f18d8f52dde5c9af7bef319390179ab7ce7",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "control-dark",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "370090dab89b3798f3ed41cd99556ed9858e62471b9f536224a49e195c81a729",
+          "pixels": [
+            500,
+            374
+          ],
+          "contentBounds": [
+            0,
+            0,
+            224,
+            161
+          ],
+          "windowFrame": [
+            725,
+            741,
+            250,
+            187
+          ]
+        },
+        {
+          "name": "collection-settings-normal",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "3253918a239bb11fbe643aa244cf8030282373ce53bfd779b31362cb947a3e68",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "control-normal",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "fa1ff09078ec699f9583c82ad663345f4226faa77fdb31bf6baeced4744e11d6",
+          "pixels": [
+            500,
+            374
+          ],
+          "contentBounds": [
+            0,
+            0,
+            224,
+            161
+          ],
+          "windowFrame": [
+            725,
+            741,
+            250,
+            187
+          ]
+        },
+        {
+          "name": "collection-settings-paused",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "4e4b5ac27e710872aa2785e1f0a99252529951dae526cbcfdd4f820abf92a5d1",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "control-paused",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "fa1ff09078ec699f9583c82ad663345f4226faa77fdb31bf6baeced4744e11d6",
+          "pixels": [
+            500,
+            374
+          ],
+          "contentBounds": [
+            0,
+            0,
+            224,
+            161
+          ],
+          "windowFrame": [
+            725,
+            741,
+            250,
+            187
+          ]
+        },
+        {
+          "name": "collection-settings-paused-hidden",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "f2e3ce7f5a6ca3914f0c72a6b2d3aacf0b5ff40391e8d04b0717bfd146c09031",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "control-paused-hidden",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "fa1ff09078ec699f9583c82ad663345f4226faa77fdb31bf6baeced4744e11d6",
+          "pixels": [
+            500,
+            374
+          ],
+          "contentBounds": [
+            0,
+            0,
+            224,
+            161
+          ],
+          "windowFrame": [
+            725,
+            741,
+            250,
+            187
+          ]
+        },
+        {
+          "name": "collection-settings-hidden",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "c2aeb8331a8f23678d8f7dbdcca038a1625aece45d60dab70db92d9c3e4e105f",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "control-hidden",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "fa1ff09078ec699f9583c82ad663345f4226faa77fdb31bf6baeced4744e11d6",
+          "pixels": [
+            500,
+            374
+          ],
+          "contentBounds": [
+            0,
+            0,
+            224,
+            161
+          ],
+          "windowFrame": [
+            725,
+            741,
+            250,
+            187
+          ]
+        },
+        {
+          "name": "archive-return-and-blur",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "dc4f8881de48e1dbb09689303a0fb109e2960722a08fb628dffe5e28114beac9",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "display-defaults-after-active-edit",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "d4a2e85489d1c296319b51525becd746d2cb84bdee0e49e5427a0e79f7cd026c",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "close-draft-sheet",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "a76611047090e720c97184d712d80ece5ef317e197ac2e6ae3fbe1397302659d",
+          "pixels": [
+            520,
+            414
+          ],
+          "contentBounds": [
+            0,
+            0,
+            260,
+            207
+          ],
+          "windowFrame": [
+            605,
+            359,
+            260,
+            207
+          ]
+        },
+        {
+          "name": "control-save-failure",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "fa1ff09078ec699f9583c82ad663345f4226faa77fdb31bf6baeced4744e11d6",
+          "pixels": [
+            500,
+            374
+          ],
+          "contentBounds": [
+            0,
+            0,
+            224,
+            161
+          ],
+          "windowFrame": [
+            725,
+            741,
+            250,
+            187
+          ]
+        },
+        {
+          "name": "independent-errors-resolved",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "eb530e07cab4fb5f2cda2fd4ec4d9d472f72237708e5ae56f271fbebce5df781",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "advanced-arrival-selection",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "c14b7fee9e08f167c4d38e416ff193331a3b779b6e7a162eb2732696762a5796",
+          "pixels": [
+            1628,
+            1160
+          ],
+          "contentBounds": [
+            0,
+            0,
+            814,
+            580
+          ],
+          "windowFrame": [
+            328,
+            172,
+            814,
+            580
+          ]
+        },
+        {
+          "name": "onboarding-light-1",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "1f7eeb1ef84c4535a36806f5db08821df4fa87b1754b339632a7f80f296a55ab",
+          "pixels": [
+            1168,
+            906
+          ],
+          "contentBounds": [
+            0,
+            0,
+            584,
+            425
+          ],
+          "windowFrame": [
+            443,
+            235,
+            584,
+            453
+          ]
+        },
+        {
+          "name": "onboarding-light-2",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "11ca4ea4889178a0b876f0ee55e31ad13d650751f47edf908b0d82e10c89ad46",
+          "pixels": [
+            1168,
+            906
+          ],
+          "contentBounds": [
+            0,
+            0,
+            584,
+            425
+          ],
+          "windowFrame": [
+            443,
+            235,
+            584,
+            453
+          ]
+        },
+        {
+          "name": "onboarding-light-3",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "651f06c500c5da6335dc2d3981a9691a25120d36f849cf066d7fb989578e7382",
+          "pixels": [
+            1168,
+            906
+          ],
+          "contentBounds": [
+            0,
+            0,
+            584,
+            425
+          ],
+          "windowFrame": [
+            443,
+            235,
+            584,
+            453
+          ]
+        },
+        {
+          "name": "onboarding-dark-1",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "23cc5f58863c3ddf249f2ebe76df2a088e5cccc257cf951c3f5af53f72ca6028",
+          "pixels": [
+            1168,
+            906
+          ],
+          "contentBounds": [
+            0,
+            0,
+            584,
+            425
+          ],
+          "windowFrame": [
+            443,
+            235,
+            584,
+            453
+          ]
+        },
+        {
+          "name": "onboarding-dark-2",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "3f2ad05f76eafd240bfe965794bd8ce7ccc0219763754196aff5ed9926046868",
+          "pixels": [
+            1168,
+            906
+          ],
+          "contentBounds": [
+            0,
+            0,
+            584,
+            425
+          ],
+          "windowFrame": [
+            443,
+            235,
+            584,
+            453
+          ]
+        },
+        {
+          "name": "onboarding-dark-3",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "8c78e63ecbc63c7fc597a256ec428e1cedc0c148dd01c1c2366fccd15686a433",
+          "pixels": [
+            1168,
+            906
+          ],
+          "contentBounds": [
+            0,
+            0,
+            584,
+            425
+          ],
+          "windowFrame": [
+            443,
+            235,
+            584,
+            453
+          ]
+        },
+        {
+          "name": "settings-minimum-size",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "0d65f76998c1d826670ee45a97c71cadfcc8faf43936c8415dfefb4d3d34cf63",
+          "pixels": [
+            1432,
+            900
+          ],
+          "contentBounds": [
+            0,
+            0,
+            716,
+            450
+          ],
+          "windowFrame": [
+            328,
+            172,
+            716,
+            450
+          ]
+        },
+        {
+          "name": "settings-minimum-general",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "fe56f0207602a9ac0000f34e83b5fe8eff0542888990ccdc28732c32564e1e27",
+          "pixels": [
+            1432,
+            900
+          ],
+          "contentBounds": [
+            0,
+            0,
+            716,
+            450
+          ],
+          "windowFrame": [
+            328,
+            172,
+            716,
+            450
+          ]
+        },
+        {
+          "name": "settings-minimum-capture",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "c54b61744c21274c0c3586385f356128edf09c8f63f07240444dde473fbe704a",
+          "pixels": [
+            1432,
+            900
+          ],
+          "contentBounds": [
+            0,
+            0,
+            716,
+            450
+          ],
+          "windowFrame": [
+            328,
+            172,
+            716,
+            450
+          ]
+        },
+        {
+          "name": "settings-minimum-help",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "acbe7b09ac09080814835455c2a40bb064ca0405b1c1ab249cb7775111501f6b",
+          "pixels": [
+            1432,
+            900
+          ],
+          "contentBounds": [
+            0,
+            0,
+            716,
+            450
+          ],
+          "windowFrame": [
+            328,
+            172,
+            716,
+            450
+          ]
+        },
+        {
+          "name": "settings-minimum-display-scrolled",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "349a64cf8683fc2b9145ef0ed174fa63c92dff2ceb88ba48b62479fa6dac98f4",
+          "pixels": [
+            1432,
+            900
+          ],
+          "contentBounds": [
+            0,
+            0,
+            716,
+            450
+          ],
+          "windowFrame": [
+            328,
+            172,
+            716,
+            450
+          ]
+        },
+        {
+          "name": "history-real-isolated-records",
+          "status": "RECORDED_NATIVE_WINDOWSERVER",
+          "sha256": "72be21d8489432b8e5454c0ceca95fd1019b6e7f904eb6398ec38a2345d622c1",
+          "pixels": [
+            1612,
+            984
+          ],
+          "contentBounds": [
+            0,
+            0,
+            808,
+            464
+          ],
+          "windowFrame": [
+            331,
+            324,
+            808,
+            492
+          ]
+        }
+      ]
+    }
+  ],
+  "restart": {
+    "status": "PASS_SCOPED_NATIVE_RESTART",
+    "dataEqual": true
+  },
+  "regression": "Shared NSButton horizontal hugging shrank the menu and guide in r1/r2. Scoped natural width to settings action containers; r3 restores menu224 and guide584. Original failures retained.",
+  "localXCTest": "NOT_RUN: Command Line Tools only; XCTest module unavailable; execute in normal GitHub native CI",
+  "release": "NOT_REQUESTED",
+  "personalInstallation": "UNCHANGED",
+  "intelPhysical": "SKIPPED_BY_USER",
+  "macOS13": "NOT_RUN",
+  "fullVoiceOver": "NOT_RUN"
+}

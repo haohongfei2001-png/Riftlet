@@ -18,18 +18,9 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
     private let removeOutsideMouseMonitor: (Any) -> Void
     private var pressBeganWhileShown = false
     private var interactionSuspended = false
-    private var busy: Set<String> = []
-    private let title = SettingsNativeStyle.label(ProductCopy.text("正在准备截图收录", "Preparing screenshot collection"), role: "heading")
-    private let detail = SettingsNativeStyle.label(ProductCopy.text("正在读取当前状态。", "Checking status…"), role: "caption")
-    private let symbol = NSImageView()
-    private let recovery = SettingsNativeStyle.button("")
-    private let capture = SettingsNativeStyle.button(ProductCopy.text("截图…", "Take Screenshot…"))
-    private let captureHint = SettingsNativeStyle.label("", role: "caption")
-    private let pause = NSSwitch()
-    private let hide = NSSwitch()
     private var buttons: [String: NSButton] = [:]
     private let scroll = RiftVisualStyle.topAlignedScrollView()
-    private let stack = RiftVisualStyle.documentStack([], spacing: 10)
+    private let stack = RiftVisualStyle.documentStack([], spacing: 3)
 
     public var isShown: Bool { popover.isShown }
     public var window: NSWindow? { body.view.window }
@@ -146,8 +137,6 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
 
     /// Read-only native control lookup for isolated UI verification.
     public func control(identifier: String) -> NSView? {
-        if identifier == "control.pause" { return pause }
-        if identifier == "control.hide" { return hide }
         return buttons[identifier]
     }
 
@@ -155,7 +144,7 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         body.view = SettingsSurfaceView(role: .window, radius: 0)
         scroll.translatesAutoresizingMaskIntoConstraints = false
         stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.edgeInsets = NSEdgeInsets(top: 17, left: 17, bottom: 17, right: 17)
+        stack.edgeInsets = NSEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
         scroll.documentView = stack
         body.view.addSubview(scroll)
         NSLayoutConstraint.activate([
@@ -167,50 +156,23 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
             stack.topAnchor.constraint(equalTo: scroll.contentView.topAnchor),
             stack.leadingAnchor.constraint(equalTo: scroll.contentView.leadingAnchor)
         ])
-        symbol.imageScaling = .scaleProportionallyDown
-        symbol.setAccessibilityElement(false)
-        symbol.widthAnchor.constraint(equalToConstant: 17).isActive = true
-        title.font = .systemFont(ofSize: 16, weight: .semibold)
-        title.identifier = .init("control.status")
-        detail.identifier = .init("control.detail")
-        capture.identifier = .init("control.capture")
-        capture.target = self; capture.action = #selector(buttonPressed(_:))
-        capture.image = NSImage(systemSymbolName: "camera", accessibilityDescription: nil)
-        capture.imagePosition = .imageLeading
-        capture.setContentCompressionResistancePriority(.required, for: .horizontal)
-        buttons["control.capture"] = capture
-        // The fixed-width popover must fit complete status words even when the
-        // capture action has a longer localized title. Keep that same button
-        // on its own action row instead of compressing the status beside it.
-        append(SettingsNativeStyle.stack([symbol, title, spacer()], vertical: false, spacing: 7))
-        append(detail)
-        append(SettingsNativeStyle.stack([capture, spacer()], vertical: false, spacing: 7))
-        recovery.identifier = .init("control.recovery")
-        recovery.target = self; recovery.action = #selector(buttonPressed(_:))
-        recovery.isHidden = true
-        buttons["control.recovery"] = recovery
-        append(recovery)
-        let update = button(ProductCopy.text("查看更新…", "View Update…"), id: "control.update", symbol: "arrow.down.circle")
-        update.isHidden = true
-        append(update)
-        captureHint.isHidden = true
-        append(captureHint)
+        let settings = button(ProductCopy.text("设置…", "Settings…"), id: "control.settings", symbol: "gearshape")
+        let history = button(ProductCopy.text("截图仓库", "Screenshot Library"), id: "control.history", symbol: "photo.on.rectangle")
+        let update = button(ProductCopy.text("检查更新…", "Check for Updates…"), id: "control.update", symbol: "arrow.down.circle")
+        let quit = button(ProductCopy.text("退出 Riftlet", "Quit Riftlet"), id: "control.quit", symbol: "power")
+        [settings, history, update].forEach(append)
         append(separator())
-        append(toggleRow(ProductCopy.text("暂停收录", "Pause Collection"), symbol: "pause", control: pause, id: "control.pause"))
-        append(toggleRow(ProductCopy.text("隐藏桌面截图", "Hide Desktop Screenshots"), symbol: "eye.slash", control: hide, id: "control.hide"))
-        append(separator())
-        let history = button(ProductCopy.text("截图历史", "Screenshot History"), id: "control.history", symbol: "clock")
-        let settings = button(ProductCopy.text("设置", "Settings"), id: "control.settings", symbol: "gearshape")
-        append(SettingsNativeStyle.stack([history, spacer(), settings], vertical: false, spacing: 8))
-        let controls: [NSView] = [capture, recovery, update, pause, hide, history, settings]
-        for (a, b) in zip(controls, controls.dropFirst() + [capture]) { a.nextKeyView = b }
-        body.view.setAccessibilityLabel(ProductCopy.text("Riftlet 控制中心", "Riftlet Control Center"))
-        body.view.frame.size = NSSize(width: SettingsNativeStyle.controlCenterWidth, height: 230)
+        append(quit)
+        let controls: [NSView] = [settings, history, update, quit]
+        for (a, b) in zip(controls, controls.dropFirst() + [settings]) { a.nextKeyView = b }
+        body.view.setAccessibilityLabel(ProductCopy.text("Riftlet 菜单", "Riftlet Menu"))
+        body.view.frame.size = NSSize(width: SettingsNativeStyle.controlCenterWidth, height: 166)
     }
+
 
     private func append(_ view: NSView) {
         stack.addArrangedSubview(view)
-        view.widthAnchor.constraint(equalTo: stack.widthAnchor, constant: -34).isActive = true
+        view.widthAnchor.constraint(equalTo: stack.widthAnchor, constant: -20).isActive = true
     }
 
     private func button(_ title: String, id: String, symbol: String? = nil) -> NSButton {
@@ -228,35 +190,6 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         return value
     }
 
-    private func toggleRow(_ name: String, symbol: String, control: NSSwitch, id: String) -> NSView {
-        let icon = NSImageView()
-        icon.image = NSImage(systemSymbolName: symbol, accessibilityDescription: nil)
-        icon.contentTintColor = SettingsNativeStyle.color(.accentInk)
-        icon.setAccessibilityElement(false)
-        icon.widthAnchor.constraint(equalToConstant: 19).isActive = true
-        let text = SettingsNativeStyle.stack([icon, SettingsNativeStyle.label(name, role: "rowTitle"), spacer()],
-                                            vertical: false, spacing: 9)
-        control.identifier = .init(id); control.setAccessibilityLabel(name)
-        control.target = self; control.action = #selector(toggleChanged(_:))
-        control.controlSize = .small
-        control.widthAnchor.constraint(equalToConstant: 44).isActive = true
-        control.heightAnchor.constraint(greaterThanOrEqualToConstant: 32).isActive = true
-        text.identifier = .init(id + ".text")
-        text.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        let row = SettingsNativeStyle.stack([text, control], vertical: false, spacing: 8)
-        // The copy owns the space to the left of the fixed-width switch. A
-        // separate expanding spacer can otherwise compress wrapping labels to
-        // their shortest intrinsic width while leaving the row mostly blank.
-        text.widthAnchor.constraint(equalTo: row.widthAnchor, constant: -52).isActive = true
-        return row
-    }
-
-    private func spacer() -> NSView {
-        let value = NSView()
-        value.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        return value
-    }
-
     private func separator() -> NSView { let value = NSBox(); value.boxType = .separator; return value }
 
     private func refreshControls() {
@@ -264,35 +197,21 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         buttons.values.forEach { $0.isEnabled = true }
         popover.appearance = NSApp.appearance
         let projection = RiftControlCenterPresentation(snapshot)
-        title.stringValue = projection.title
-        detail.stringValue = projection.detail
-        symbol.image = NSImage(systemSymbolName: projection.symbol, accessibilityDescription: nil)
-        symbol.contentTintColor = SettingsNativeStyle.color(projection.state == .attention ? .warning : .accent)
         let update = snapshot.updater
-        buttons["control.update"]?.title = update?.checkTitle ?? ProductCopy.text("检查更新…", "Check for Updates…")
-        buttons["control.update"]?.isHidden = update?.availableVersion == nil
-        buttons["control.update"]?.isEnabled = update?.canCheck == true
+        let updateButton = buttons["control.update"]
+        updateButton?.title = update?.checkTitle ?? ProductCopy.text("检查更新…", "Check for Updates…")
+        updateButton?.setAccessibilityLabel(updateButton?.title)
+        updateButton?.isEnabled = update?.canCheck == true
         let hasUpdate = update?.availableVersion != nil
-        statusItem.button?.title = hasUpdate ? "•" : ""
-        statusItem.button?.imagePosition = hasUpdate ? .imageLeading : .imageOnly
-        recovery.title = projection.recoveryTitle ?? ""
-        recovery.setAccessibilityLabel(recovery.title)
-        recovery.isHidden = projection.recoveryPage == nil
-        capture.isEnabled = projection.primaryEnabled
-        captureHint.isHidden = projection.captureHint == nil
-        captureHint.stringValue = projection.captureHint ?? ""
-        pause.state = snapshot.state.owner.collectionPaused ? .on : .off
-        hide.state = snapshot.state.owner.isHidden ? .on : .off
-        pause.isEnabled = snapshot.capabilities.canChangeCollection
-            && snapshot.state.domains[.collection]?.isSaving != true && !busy.contains("collection")
-        hide.isEnabled = snapshot.capabilities.canChangeVisibility
-            && snapshot.state.domains[.visibility]?.isSaving != true && !busy.contains("visibility")
+        // Keep a stable icon size. Available updates are described by the menu
+        // action and accessibility value, without widening the menu-bar item.
+        statusItem.button?.title = ""
+        statusItem.button?.imagePosition = .imageOnly
         buttons["control.history"]?.isEnabled = snapshot.capabilities.canOpenHistory
         statusItem.button?.toolTip = projection.title + "\n" + projection.detail
         statusItem.button?.setAccessibilityValue(hasUpdate ? projection.title + ProductCopy.text("，有新版本", ", update available") : projection.title)
         popover.animates = !snapshot.accessibility.reduceMotion
         if interactionSuspended {
-            pause.isEnabled = false; hide.isEnabled = false
             buttons.values.forEach { $0.isEnabled = false }
         }
         if isShown { fitPopover() }
@@ -300,12 +219,12 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
 
     private func fitPopover() {
         let screen = statusItem.button?.window?.screen ?? NSScreen.main
-        let maximumHeight = max(180, (screen?.visibleFrame.height ?? 700) - 32)
+        let maximumHeight = max(160, (screen?.visibleFrame.height ?? 700) - 32)
         body.view.frame.size.width = SettingsNativeStyle.controlCenterWidth
         body.view.layoutSubtreeIfNeeded()
         let required = stack.fittingSize.height
         popover.contentSize = NSSize(width: SettingsNativeStyle.controlCenterWidth,
-                                     height: min(maximumHeight, max(180, required)))
+                                     height: min(maximumHeight, max(160, required)))
     }
 
     private func isStatusEvent(_ event: NSEvent) -> Bool {
@@ -343,32 +262,12 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         }
     }
 
-    @objc private func toggleChanged(_ sender: NSSwitch) {
-        guard !interactionSuspended, let snapshot else { return }
-        let isPause = sender === pause
-        let key = isPause ? "collection" : "visibility"
-        guard !busy.contains(key), sender.isEnabled else { refreshControls(); return }
-        let target = sender.state == .on
-        let action: SettingsProductAction = isPause ? .settings(.setCollectionPaused(target)) : .settings(.setHidden(target))
-        guard isPause ? snapshot.capabilities.canChangeCollection : snapshot.capabilities.canChangeVisibility else { refreshControls(); return }
-        busy.insert(key); refreshControls()
-        Task { [weak self] in
-            guard let self else { return }
-            if !self.interactionSuspended { await self.onAction(action) }
-            self.busy.remove(key)
-            self.refreshControls()
-        }
-    }
-
     @objc private func buttonPressed(_ sender: NSButton) {
         guard !interactionSuspended, sender.isEnabled, let snapshot else { return }
         let action: SettingsProductAction
         switch sender.identifier?.rawValue {
         case "control.settings": action = .openSettings(.general)
-        case "control.capture": guard snapshot.capabilities.canCapture else { return }; action = .capture
-        case "control.recovery":
-            guard let page = RiftControlCenterPresentation(snapshot).recoveryPage else { return }
-            action = .openSettings(page)
+        case "control.quit": action = .quit
         case "control.update": guard snapshot.updater?.canCheck == true else { return }; action = .checkForUpdates
         case "control.history": guard snapshot.capabilities.canOpenHistory else { return }; action = .openHistory
         default: return
@@ -380,25 +279,11 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
     private func refreshMenu() {
         contextMenu.removeAllItems()
         guard let snapshot else { return }
-        let heading = NSMenuItem(title: RiftControlCenterPresentation(snapshot).title, action: nil, keyEquivalent: "")
-        heading.isEnabled = false; contextMenu.addItem(heading)
-        addMenu(ProductCopy.text("截图…", "Take Screenshot…"), .capture, enabled: snapshot.capabilities.canCapture)
-        contextMenu.addItem(.separator())
-        addMenu(snapshot.state.owner.collectionPaused ? ProductCopy.text("继续收录", "Resume Collection") : ProductCopy.text("暂停收录", "Pause Collection"),
-                .settings(.setCollectionPaused(!snapshot.state.owner.collectionPaused)),
-                enabled: pause.isEnabled)
-        addMenu(snapshot.state.owner.isHidden ? ProductCopy.text("显示桌面截图", "Show Desktop Screenshots") : ProductCopy.text("隐藏桌面截图", "Hide Desktop Screenshots"),
-                .settings(.setHidden(!snapshot.state.owner.isHidden)), enabled: hide.isEnabled)
-        addMenu(ProductCopy.text("截图历史…", "Screenshot History…"), .openHistory, enabled: snapshot.capabilities.canOpenHistory)
-        addMenu(ProductCopy.text("定位最新截图", "Locate Newest Screenshot"), .showLatest, enabled: snapshot.setup.visibleCount > 0)
-        addMenu(ProductCopy.text("定位最早截图", "Locate Oldest Screenshot"), .showOldest, enabled: snapshot.setup.visibleCount > 0)
-        addMenu(ProductCopy.text("从边缘收起全部", "Remove All from Desktop"), .clearVisible, enabled: snapshot.capabilities.canClearVisible && snapshot.setup.visibleCount > 0)
-        contextMenu.addItem(.separator())
         addMenu(ProductCopy.text("设置…", "Settings…"), .openSettings(.general), key: ",")
-        if let updater = snapshot.updater {
-            addMenu(updater.checkTitle, .checkForUpdates, enabled: updater.canCheck)
-        }
-        addMenu(ProductCopy.text("反馈与建议…", "Feedback…"), .openFeedback)
+        addMenu(ProductCopy.text("截图仓库", "Screenshot Library"), .openHistory, enabled: snapshot.capabilities.canOpenHistory)
+        addMenu(snapshot.updater?.checkTitle ?? ProductCopy.text("检查更新…", "Check for Updates…"),
+                .checkForUpdates, enabled: snapshot.updater?.canCheck == true)
+        contextMenu.addItem(.separator())
         addMenu(ProductCopy.text("退出 Riftlet", "Quit Riftlet"), .quit, key: "q")
     }
 
@@ -425,7 +310,7 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
 
     private static func templateIcon() -> NSImage {
         // The two foreground paths of website-assets/riftlet.svg, without the app icon’s tile.
-        // SVG coordinates run downwards. Center its 60 × 62 mark in the 18 pt menu image.
+        // SVG coordinates run downwards. Keep its original proportions and center the smaller mark in an 18 pt canvas.
         let image = NSImage(size: NSSize(width: 18, height: 18), flipped: true) { _ in
             let path = NSBezierPath()
             path.move(to: NSPoint(x: 13, y: 9))
@@ -451,7 +336,7 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
             path.close()
 
             var fit = AffineTransform(translationByX: 9, byY: 9)
-            fit.scale(0.25)
+            fit.scale(0.21)
             fit.translate(x: -34, y: -40)
             path.transform(using: fit)
             NSColor.black.setFill()

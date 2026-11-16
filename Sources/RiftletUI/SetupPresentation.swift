@@ -304,7 +304,7 @@ public struct SetupPresentation: Equatable, Sendable {
 
     public var pendingText: String? {
         guard snapshot.pendingCount > 0 else { return nil }
-        return copy.text("\(snapshot.pendingCount) 张结果待核实 · 图片仍保存在本机，不会自动再次附加。可在截图历史中查看。", "Results to check: \(snapshot.pendingCount). Your images are saved locally. Review the original draft before trying again.")
+        return copy.text("\(snapshot.pendingCount) 张结果待核实 · 图片仍保存在本机，不会自动再次附加。可在截图仓库中查看。", "Results to check: \(snapshot.pendingCount). Your images are saved locally. Review the original draft before trying again.")
     }
 
     public var attachmentText: String {
