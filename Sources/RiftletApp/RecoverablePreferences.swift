@@ -136,6 +136,34 @@ final class RecoverablePreferences {
         confirmedBytes[domain] = bytes
     }
 
+    /// Keep the last three distinct damaged settings files for this domain.
+    /// Restrict pruning to this writer's regular files. Earlier backups remain readable.
+    private func preserveRecoveryCopy(of source: URL) throws {
+        let manager = FileManager.default
+        let prefix = source.lastPathComponent + ".backup-v2-"
+        let keys: [URLResourceKey] = [.creationDateKey, .isRegularFileKey, .isSymbolicLinkKey]
+        let backups = try manager.contentsOfDirectory(at: root, includingPropertiesForKeys: keys)
+            .compactMap { url -> (URL, Date)? in
+                let name = url.lastPathComponent
+                guard name.hasPrefix(prefix), UUID(uuidString: String(name.dropFirst(prefix.count))) != nil,
+                      let info = try? url.resourceValues(forKeys: Set(keys)),
+                      info.isRegularFile == true, info.isSymbolicLink == false,
+                      let created = info.creationDate else { return nil }
+                return (url, created)
+            }.sorted { $0.1 > $1.1 }
+
+        let retained: URL
+        if let same = backups.first(where: { manager.contentsEqual(atPath: source.path, andPath: $0.0.path) }) {
+            retained = same.0
+        } else {
+            retained = root.appendingPathComponent(prefix + UUID().uuidString)
+            try manager.copyItem(at: source, to: retained)
+        }
+        for (url, _) in backups.filter({ $0.0 != retained }).dropFirst(2) {
+            try manager.removeItem(at: url)
+        }
+    }
+
     func restore(_ domain: SettingsPreferenceDomain) throws {
         guard problems[domain] != nil else { return }
         do {
@@ -143,10 +171,7 @@ final class RecoverablePreferences {
             var info = stat()
             if lstat(url.path, &info) == 0 {
                 guard info.st_mode & S_IFMT == S_IFREG else { throw Problem.inaccessible }
-                let backup = url.deletingLastPathComponent()
-                    .appendingPathComponent(url.lastPathComponent + ".backup-" + UUID().uuidString)
-                // Also preserves oversized documents without loading them into memory.
-                try FileManager.default.copyItem(at: url, to: backup)
+                try preserveRecoveryCopy(of: url)
             } else if errno != ENOENT {
                 throw Problem.inaccessible
             }
