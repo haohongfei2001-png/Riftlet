@@ -261,6 +261,12 @@ public actor PrivateAssetImporter {
                 rememberEarlierEvidence(asset)
                 let mediaURL = mediaDirectory.appendingPathComponent(asset.fileName)
                 let stageURL = stagingDirectory.appendingPathComponent(asset.id.uuidString.lowercased() + ".part")
+                if verifyUsedMedia, !FileManager.default.fileExists(atPath: mediaURL.path),
+                   !FileManager.default.fileExists(atPath: stageURL.path),
+                   let original = manifest.externalSource, asset.origin == .systemScreenshot,
+                   try await store.asset(id: asset.id)?.image == asset {
+                    try restoreMissingCopy(from: original, image: asset, stage: stageURL)
+                }
                 let candidate = FileManager.default.fileExists(atPath: mediaURL.path) ? mediaURL : stageURL
                 guard FileManager.default.fileExists(atPath: candidate.path) else {
                     report.missing.append(asset.id); continue
@@ -323,6 +329,25 @@ public actor PrivateAssetImporter {
             }
         }
         return report
+    }
+
+    /// Explicit media repair only. The usual journal verifier still checks this
+    /// stage and promotes it to the same asset; no new capture/operation is created.
+    private func restoreMissingCopy(from original: URL, image: ImportedAsset, stage: URL) throws {
+        guard original.isFileURL else { return }
+        let fd = Darwin.open(original.path, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
+        guard fd >= 0 else { return }
+        defer { Darwin.close(fd) }
+        guard let signature = try? FileSignature.read(descriptor: fd),
+              signature.sourceKey == image.sourceKey, signature.size == image.byteCount else { return }
+        try capacityCheck(stagingDirectory, image.byteCount)
+        let temporary = stagingDirectory.appendingPathComponent(UUID().uuidString.lowercased() + ".part")
+        defer { try? FileManager.default.removeItem(at: temporary) }
+        guard try PrivateFiles.copyAndHash(sourceDescriptor: fd, destination: temporary,
+                                           maximumBytes: image.byteCount) == image.sha256,
+              try FileSignature.read(descriptor: fd) == signature,
+              try FileSignature.read(at: original) == signature else { return }
+        try PrivateFiles.promote(temporary, to: stage)
     }
 
     private func rememberEarlierEvidence(_ image: ImportedAsset) {

@@ -83,10 +83,12 @@ extension PrivateAssetImporter {
             return try await importBuiltInScreenshot(original: source, outputDirectory: ownedCaptures)
         }
         let signature = try FileSignature.read(at: source)
+        try PrivateFiles.ensurePrivateDirectory(ownedCaptures)
         let marker = "owned-capture-v1:" + signature.sourceKey
         _ = try await store.saveCheckpointIfAbsent(Data([1]), for: marker)
         let record = try await importBuiltInScreenshot(original: source, outputDirectory: ownedCaptures)
         guard record.image.sourceKey == signature.sourceKey,
+              try PrivateFiles.hashFile(source) == record.image.sha256,
               try FileSignature.read(at: source) == signature,
               try PrivateFiles.hashFile(mediaDirectory.appendingPathComponent(record.image.fileName)) == record.image.sha256
         else { throw CaptureError.unstableFile }

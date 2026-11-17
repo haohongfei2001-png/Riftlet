@@ -1,4 +1,5 @@
 import Foundation
+import ImageIO
 import RiftletCore
 
 public struct MediaCleanupItem: Sendable {
@@ -12,6 +13,12 @@ public struct MediaRetention: Codable, Sendable {
 }
 
 extension PrivateAssetImporter {
+    private func isManagedName(_ record: AssetRecord) -> Bool {
+        let name = record.image.fileName
+        return name.hasPrefix(record.id.uuidString.lowercased() + ".")
+            && !name.contains("/") && !name.contains("\\") && !name.utf8.contains(0)
+    }
+
     private var retentionKey: String { "media-retention-v1" }
 
     public func initializeRetention(newProfile: Bool) async throws {
@@ -21,7 +28,9 @@ extension PrivateAssetImporter {
 
     public func retention() async throws -> MediaRetention {
         guard let bytes = try await store.checkpoint(for: retentionKey) else { return MediaRetention(days: 0, since: nil) }
-        return try JSONDecoder().decode(MediaRetention.self, from: bytes)
+        let rule = try JSONDecoder().decode(MediaRetention.self, from: bytes)
+        guard [0, 30, 90].contains(rule.days) else { throw CaptureError.invalidManifest }
+        return rule
     }
 
     public func setRetention(days: Int, includeExisting: Bool) async throws {
@@ -46,12 +55,15 @@ extension PrivateAssetImporter {
     public func cleanupItems(rule: MediaRetention? = nil, now: Date = Date()) async throws -> [MediaCleanupItem] {
         if let rule, rule.days == 0 { return [] }
         var items = [MediaCleanupItem]()
-        for record in try await store.cleanableMedia() {
+        let cutoff = rule.map { now.addingTimeInterval(-Double($0.days) * 86_400) }
+        for record in try await store.cleanableMedia(before: cutoff) {
+            await Task.yield()
             try Task.checkCancellation()
-            if let rule, record.lastInteractionAt > now.addingTimeInterval(-Double(rule.days) * 86_400)
-                || record.image.importedAt < (rule.since ?? .distantPast) { continue }
+            if let rule, record.image.importedAt < (rule.since ?? .distantPast) { continue }
+            guard isManagedName(record) else { continue }
             let url = mediaDirectory.appendingPathComponent(record.image.fileName)
-            guard (try? FileSignature.read(at: url).size) == record.image.byteCount else { continue }
+            guard (try? FileSignature.read(at: url).size) == record.image.byteCount,
+                  (try? PrivateFiles.hashFile(url)) == record.image.sha256 else { continue }
             let verified = hasVerifiedOriginal(record.image)
             if rule == nil || verified { items.append(MediaCleanupItem(record: record, verifiedOriginal: verified)) }
         }
@@ -64,26 +76,30 @@ extension PrivateAssetImporter {
         guard !mediaMaintenanceActive else { throw RiftletError.invalidTransition }
         mediaMaintenanceActive = true
         defer { mediaMaintenanceActive = false }
+        try PrivateFiles.ensurePrivateDirectory(mediaDirectory)
         let current = automatic ? try await retention() : nil
+        var skipped = false
         let batch = UUID()
         for item in items {
             try Task.checkCancellation()
             let record = item.record
+            guard isManagedName(record) else { throw CaptureError.invalidManifest }
             if let current, current.days == 0 || record.image.importedAt < (current.since ?? .distantPast)
                 || record.lastInteractionAt > Date().addingTimeInterval(-Double(current.days) * 86_400) { continue }
             let media = mediaDirectory.appendingPathComponent(record.image.fileName)
-            guard (try? PrivateFiles.hashFile(media)) == record.image.sha256 else { continue }
+            guard (try? PrivateFiles.hashFile(media)) == record.image.sha256 else { skipped = true; continue }
             if automatic || item.verifiedOriginal {
-                guard hasVerifiedOriginal(record.image) else { continue }
+                guard hasVerifiedOriginal(record.image) else { skipped = true; continue }
             }
             do { try await store.retireMedia(record.id, revision: record.visibilityRevision, batch: batch) }
-            catch RiftletError.invalidTransition { continue }
+            catch RiftletError.invalidTransition { skipped = true; continue }
             do { try PrivateFiles.promote(media, to: trashURL(for: record, directory: trash)) }
             catch {
                 if FileManager.default.fileExists(atPath: media.path) { try await store.reinstateMedia(record.id) }
                 throw error
             }
         }
+        if skipped && !automatic { throw CaptureError.unstableFile }
     }
 
     private func trashURL(for record: AssetRecord, directory: URL) -> URL {
@@ -103,7 +119,7 @@ extension PrivateAssetImporter {
         let records = try await store.retiredMedia()
         guard !records.isEmpty else { return 0 }
         let trash = try trashDirectory()
-        return records.filter { FileManager.default.fileExists(atPath: trashURL(for: $0, directory: trash).path) }.count
+        return records.filter { isManagedName($0) && FileManager.default.fileExists(atPath: trashURL(for: $0, directory: trash).path) }.count
     }
 
     public func restoreTrash() async throws { try await restoreTrash(from: trashDirectory()) }
@@ -112,7 +128,8 @@ extension PrivateAssetImporter {
         guard !mediaMaintenanceActive else { throw RiftletError.invalidTransition }
         mediaMaintenanceActive = true
         defer { mediaMaintenanceActive = false }
-        for record in try await store.retiredMedia() {
+        try PrivateFiles.ensurePrivateDirectory(mediaDirectory)
+        for record in try await store.retiredMedia() where isManagedName(record) {
             let media = mediaDirectory.appendingPathComponent(record.image.fileName)
             let trash = trashURL(for: record, directory: directory)
             if !FileManager.default.fileExists(atPath: media.path) {
@@ -127,7 +144,8 @@ extension PrivateAssetImporter {
         guard !mediaMaintenanceActive else { throw RiftletError.invalidTransition }
         mediaMaintenanceActive = true
         defer { mediaMaintenanceActive = false }
-        for record in try await store.retiredMedia() {
+        try PrivateFiles.ensurePrivateDirectory(mediaDirectory)
+        for record in try await store.retiredMedia() where isManagedName(record) {
             let media = mediaDirectory.appendingPathComponent(record.image.fileName)
             if (try? PrivateFiles.hashFile(media)) == record.image.sha256 { try await store.reinstateMedia(record.id) }
         }
@@ -135,9 +153,28 @@ extension PrivateAssetImporter {
 }
 
 extension PrivateAssetImporter {
+    private func truncatedPNG(_ url: URL, length: Int64) throws -> Bool {
+        let file = try FileHandle(forReadingFrom: url)
+        defer { try? file.close() }
+        guard try file.read(upToCount: 8) == Data([137, 80, 78, 71, 13, 10, 26, 10]) else { return false }
+        var offset: Int64 = 8
+        while offset < length {
+            try file.seek(toOffset: UInt64(offset))
+            guard let header = try file.read(upToCount: 8), header.count == 8 else { return true }
+            let bytes = header.prefix(4).reduce(Int64(0)) { $0 * 256 + Int64($1) }
+            guard bytes <= Int64(Int32.max) else { return false }
+            let type = String(decoding: header.suffix(4), as: UTF8.self)
+            if offset == 8 && (type != "IHDR" || bytes != 13) { return false }
+            offset += bytes + 12
+            if offset > length { return true }
+            if type == "IEND" { return false }
+        }
+        return true
+    }
+
     /// Called once the profile's exclusive instance lock is held, before starting
     /// a new interactive capture. A complete, unjournaled image is never garbage.
-    public func cleanEmptyReservations() throws {
+    public func cleanAbandonedStaging() throws {
         let fm = FileManager.default
         let stage = privateRoot.appendingPathComponent("staging")
         try PrivateFiles.ensurePrivateDirectory(stage)
@@ -146,7 +183,17 @@ extension PrivateAssetImporter {
             let stem = url.deletingPathExtension().lastPathComponent
             guard UUID(uuidString: stem) != nil, url.pathExtension == "part",
                   !fm.fileExists(atPath: journals.appendingPathComponent(stem + ".json").path),
-                  let sig = try? FileSignature.read(at: url), sig.size == 0 else { continue }
+                  let sig = try? FileSignature.read(at: url) else { continue }
+            if sig.size > 0 {
+                // Only an explicitly identified truncated image is disposable.
+                // Complete files, foreign formats and undecidable bytes stay intact.
+                guard sig.size <= ValidatedImage.maximumBytes,
+                      let source = CGImageSourceCreateWithURL(url as CFURL, [kCGImageSourceShouldCache: false] as CFDictionary),
+                      CGImageSourceGetType(source) != nil,
+                      try [.statusUnexpectedEOF, .statusIncomplete].contains(CGImageSourceGetStatus(source))
+                          || truncatedPNG(url, length: sig.size) else { continue }
+            }
+            guard try FileSignature.read(at: url) == sig else { continue }
             try fm.removeItem(at: url)
         }
         let captures = privateRoot.appendingPathComponent("captures")

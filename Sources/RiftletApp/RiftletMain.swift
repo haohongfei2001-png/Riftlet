@@ -636,7 +636,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         if let importer = startupCapture?.importer {
             do {
                 try await importer.initializeRetention(newProfile: newProfile)
-                try await importer.cleanEmptyReservations()
+                try await importer.cleanAbandonedStaging()
             } catch { showIssue(ProductCopy.text("请在截图设置中检查本地资料。", "Check local files in Screenshot settings.")) }
             mediaMaintenanceTask = Task { [weak self] in
                 do {

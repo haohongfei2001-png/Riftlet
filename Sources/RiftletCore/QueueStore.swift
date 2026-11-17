@@ -56,8 +56,10 @@ public actor QueueStore {
         """
     }
 
-    public func cleanableMedia() throws -> [AssetRecord] {
-        try database.rows("SELECT \(assetColumns) FROM assets WHERE " + cleanablePredicate).map(decodeAsset)
+    public func cleanableMedia(before cutoff: Date? = nil) throws -> [AssetRecord] {
+        let age = cutoff == nil ? "" : " AND last_interaction_at<=?"
+        return try database.rows("SELECT \(assetColumns) FROM assets WHERE " + cleanablePredicate + age,
+                                 cutoff.map { [String($0.timeIntervalSince1970)] } ?? []).map(decodeAsset)
             .filter { !selectionReservations.contains($0.id) }
     }
 

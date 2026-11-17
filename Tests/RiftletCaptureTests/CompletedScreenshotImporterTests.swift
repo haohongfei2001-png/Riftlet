@@ -281,6 +281,16 @@ final class CompletedScreenshotImporterTests: XCTestCase {
         XCTAssertEqual(initial.map(\.record.id), [archived.id])
         XCTAssertTrue(initial.allSatisfy(\.verifiedOriginal))
         let original = try Data(contentsOf: file)
+        let mediaURL = root.appendingPathComponent("media").appendingPathComponent(archived.image.fileName)
+        var corrupt = original; corrupt[corrupt.count / 2] ^= 0xff
+        try corrupt.write(to: mediaURL)
+        let corruptedCandidates = try await importer.cleanupItems()
+        XCTAssertTrue(corruptedCandidates.isEmpty)
+        try FileManager.default.removeItem(at: mediaURL)
+        _ = try await importer.recover()
+        let repaired = try await importer.recheckPrivateMedia()
+        XCTAssertTrue(repaired.missing.isEmpty && repaired.invalid.isEmpty)
+        XCTAssertEqual(try Data(contentsOf: mediaURL), original)
         try await importer.cleanup(initial, trash: trash, automatic: false)
         XCTAssertEqual(try Data(contentsOf: file), original)
         let again = try await importer.importCompletedScreenshot(at: file, origin: .systemScreenshot)
@@ -319,6 +329,15 @@ final class CompletedScreenshotImporterTests: XCTestCase {
         let interrupted = PrivateAssetImporter(privateRoot: root, store: first, fault: { context in
             if context.boundary == .mediaSynced { throw SimulatedImportInterruption(boundary: context.boundary) }
         })
+        let staging = root.appendingPathComponent("staging")
+        try FileManager.default.createDirectory(at: staging, withIntermediateDirectories: true)
+        func fragment() -> URL { staging.appendingPathComponent(UUID().uuidString.lowercased() + ".part") }
+        let empty = fragment(), complete = fragment(), partial = fragment()
+        try Data().write(to: empty); try bytes.write(to: complete); try Data(bytes.prefix(46)).write(to: partial)
+        try await interrupted.cleanAbandonedStaging()
+        XCTAssertFalse(FileManager.default.fileExists(atPath: empty.path))
+        XCTAssertEqual(try Data(contentsOf: complete), bytes)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: partial.path))
         let before = try await interrupted.pendingOwnedCaptures()
         XCTAssertEqual(before.map(\.lastPathComponent), [url.lastPathComponent])
         do { _ = try await interrupted.collectOwnedCapture(url); XCTFail("Fault not reached") }
