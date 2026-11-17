@@ -183,6 +183,7 @@ private final class EdgeCommandCancellation: @unchecked Sendable {
           try await withCheckedThrowingContinuation { continuation in
             queue.async {
                 var phase = "process"
+                var failedCheck: String?
                 let result: Result<Data, Error> = Result {
                     try autoreleasepool {
                         func read(_ script: String, budget: MainWorldReceiptReadBudget? = nil,
@@ -194,12 +195,18 @@ private final class EdgeCommandCancellation: @unchecked Sendable {
                         }
                         func selection() throws {
                             try cancellation.checkBeforeSubmission()
-                            guard driver.isCurrent(host) else { throw WebAdapterError.invalidTarget }
-                            guard command.action != .observe else { return }
-                            guard let click, ProcessInfo.processInfo.systemUptime - click.captured < 60 else {
+                            guard driver.isCurrent(host) else {
+                                failedCheck = "processIdentity"
                                 throw WebAdapterError.invalidTarget
                             }
-                            try driver.revalidate(click.host, deadline: ProcessInfo.processInfo.systemUptime + 1)
+                            guard command.action != .observe else { return }
+                            guard let click, ProcessInfo.processInfo.systemUptime - click.captured < 60 else {
+                                failedCheck = "originalClickLifetime"
+                                throw WebAdapterError.invalidTarget
+                            }
+                            try driver.revalidate(click.host, deadline: ProcessInfo.processInfo.systemUptime + 1) {
+                                failedCheck = $0.rawValue
+                            }
                         }
                         try selection()
                         if command.action == .captureTarget {
@@ -267,7 +274,14 @@ private final class EdgeCommandCancellation: @unchecked Sendable {
                 }
                 var fields: [String: Any] = ["event": "edge_web_command", "action": command.action.rawValue,
                     "phase": phase, "succeeded": (try? result.get()) != nil]
-                if case .failure(let error) = result { fields["error"] = NativeEdgeWebExecutionDriver.mapped(error).diagnosticLabel }
+                if case .failure(let error) = result {
+                    fields["error"] = NativeEdgeWebExecutionDriver.mapped(error).diagnosticLabel
+                    if let failedCheck {
+                        fields["check"] = failedCheck
+                        if let identity = command.identity { fields["operationID"] = identity.operationID.uuidString }
+                        if let index = command.chunkIndex { fields["chunkIndex"] = index }
+                    }
+                }
                 trace?.record(fields, critical: command.action != .observe && command.action != .captureTarget)
                 continuation.resume(with: result)
             }

@@ -11,8 +11,12 @@ struct EdgeWindowTab: Equatable, Sendable {
     var sessionID: String { "edge-kernel-v1:\(process.pid):\(process.seconds):\(process.microseconds)" }
 }
 
+enum EdgeDescriptorFailure: String {
+    case objectConstruction, activeTabReplyMissing, addressReplyMissing, activeTabIdentity, addressValue, scriptValue
+}
+
 enum EdgeHostError: Error, Equatable {
-    case notFrontmost, changed, unsupportedDescriptor, automation(OSStatus)
+    case notFrontmost, changed, unsupportedDescriptor(EdgeDescriptorFailure), automation(OSStatus)
 }
 
 /// Read-only host candidate. A window title, a URL, or a previously foreground browser
@@ -89,7 +93,7 @@ enum EdgeReadEvents {
         descriptor.setDescriptor(key, forKeyword: code("seld"))
         descriptor.setDescriptor(container, forKeyword: code("from"))
         guard let result = descriptor.coerce(toDescriptorType: code("obj ")) else {
-            throw EdgeHostError.unsupportedDescriptor
+            throw EdgeHostError.unsupportedDescriptor(.objectConstruction)
         }
         return result
     }
@@ -122,7 +126,7 @@ enum EdgeReadEvents {
             throw EdgeHostError.automation(error.int32Value)
         }
         guard let result = reply.paramDescriptor(forKeyword: code("----")) else {
-            throw EdgeHostError.unsupportedDescriptor
+            throw EdgeHostError.unsupportedDescriptor(property == "acTa" ? .activeTabReplyMissing : .addressReplyMissing)
         }
         return result
     }
@@ -131,7 +135,7 @@ enum EdgeReadEvents {
         let front = try object(kind: "cwin", form: "indx", key: .init(int32: 1))
         let descriptor = try read(pid: pid, property: "acTa", of: front, deadlineUptime: deadlineUptime)
         guard let selection = ChromeActiveTabDescriptor.identity(in: descriptor) else {
-            throw EdgeHostError.unsupportedDescriptor
+            throw EdgeHostError.unsupportedDescriptor(.activeTabIdentity)
         }
         return selection
     }
@@ -139,7 +143,7 @@ enum EdgeReadEvents {
     static func address(pid: pid_t, window: String, tab id: String, deadlineUptime: TimeInterval? = nil) throws -> String {
         guard let value = try read(pid: pid, property: "URL ", of: tab(window: window, id: id),
                                    deadlineUptime: deadlineUptime).stringValue else {
-            throw EdgeHostError.unsupportedDescriptor
+            throw EdgeHostError.unsupportedDescriptor(.addressValue)
         }
         return value
     }

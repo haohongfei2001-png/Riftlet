@@ -7,6 +7,8 @@ import RiftletCore
 private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Sendable {
     private let lock = NSRecursiveLock()
     let host: EdgeWindowTab
+    var failNextOriginalProcessRead = false
+    var nextDescriptorFailure: EdgeDescriptorFailure?
     var selected = true, alive = true, worldSeparated = true, replaceAtPin = false
     var wrongCaptureWindow = false, loseCommitReply = false, latePin = false
     var navigated = false, originalDocumentCurrent = true
@@ -37,8 +39,14 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
         if modelClickBudget { modeledUptime = deadline - 0.15 + 0.045 }
         return host
     }
-    func revalidate(_ target: EdgeWindowTab, deadline: TimeInterval) throws {
+    func revalidate(_ target: EdgeWindowTab, deadline: TimeInterval,
+                    descriptorFailure: (EdgeDescriptorFailure) -> Void) throws {
         lock.lock(); defer { lock.unlock() }; selectionChecks += 1; fullSelectionChecks += 1
+        if let failure = nextDescriptorFailure {
+            nextDescriptorFailure = nil
+            descriptorFailure(failure)
+            throw NativeEdgeWebExecutionDriver.mapped(EdgeHostError.unsupportedDescriptor(failure))
+        }
         revalidateEntered?.signal()
         if let releaseRevalidate, releaseRevalidate.wait(timeout: .now() + 3) != .success {
             throw WebAdapterError.nativeExecutionFailed
@@ -64,7 +72,9 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
         }
     }
     func isCurrent(_ target: EdgeWindowTab) -> Bool {
-        lock.lock(); defer { lock.unlock() }; return alive && target.process == host.process
+        lock.lock(); defer { lock.unlock() }
+        if failNextOriginalProcessRead { failNextOriginalProcessRead = false; return false }
+        return alive && target.process == host.process
     }
     func retainInstalledRelay(_ relay: MainWorldCommandRelay) {
         relayChannel = relay.channel
@@ -157,6 +167,46 @@ final class EdgeAppleEventsExecutorTests: XCTestCase {
     private let program = WebPageProgram(sourceID: ChatGPTWebPageProgram.sourceID, functionSource: "function fixture(){return {};}")
     private func identity(_ target: TargetLease) -> ObservationIdentity {
         .init(operationID: UUID(), assetID: UUID(), attempt: 1, assetSHA256: String(repeating: "a", count: 64), target: target)
+    }
+
+    @MainActor func testPreDispatchChunkRefusalReportsOriginalCheckWithoutSending() async throws {
+        let cases: [(failure: EdgeDescriptorFailure?, expected: String)] = [
+            (nil, "processIdentity"), (.objectConstruction, "objectConstruction"),
+            (.activeTabReplyMissing, "activeTabReplyMissing"), (.addressReplyMissing, "addressReplyMissing"),
+            (.activeTabIdentity, "activeTabIdentity"), (.addressValue, "addressValue")
+        ]
+        for item in cases {
+            let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+            defer { try? FileManager.default.removeItem(at: directory) }
+            let trace = BoundedDiagnosticTrace(enabled: true, directory: directory, emitStandardError: false)
+            let driver = EdgeExecutorFixture()
+            let bridge = EdgeAppleEventsExecutor(driver: driver, diagnosticTrace: trace)
+            let target = try await bridge.targetForClick(program: program).value
+            let operation = identity(target)
+            _ = try await bridge.execute(.init(action: .begin, target: target, identity: operation), program: program)
+            func chunk(_ index: Int) -> WebBridgeCommand {
+                .init(action: .chunk, target: target, identity: operation, chunkIndex: index, chunkBase64: "AQ==")
+            }
+            for index in 0..<4 { _ = try await bridge.execute(chunk(index), program: program) }
+            if let failure = item.failure { driver.nextDescriptorFailure = failure }
+            else { driver.failNextOriginalProcessRead = true }
+            do {
+                _ = try await bridge.execute(chunk(4), program: program)
+                XCTFail("a missing native witness must refuse before this chunk")
+            } catch { XCTAssertEqual(error as? WebAdapterError, .invalidTarget) }
+            XCTAssertEqual(driver.actions, ["captureTarget", "begin", "chunk", "chunk", "chunk", "chunk"])
+            trace.flushForTesting()
+            let data = try Data(contentsOf: directory.appendingPathComponent("acceptance-recent.jsonl"))
+            let rows = try data.split(separator: 10).map { try XCTUnwrap(JSONSerialization.jsonObject(with: Data($0)) as? [String:Any]) }
+            let row = try XCTUnwrap(rows.last)
+            XCTAssertEqual(row["action"] as? String, "chunk")
+            XCTAssertEqual(row["phase"] as? String, "process")
+            XCTAssertEqual(row["error"] as? String, "invalidTarget")
+            XCTAssertEqual(row["check"] as? String, item.expected)
+            XCTAssertEqual(row["chunkIndex"] as? Int, 4)
+            XCTAssertEqual((row["operationIDDigest"] as? String)?.count, 64)
+            XCTAssertNil(row["operationID"])
+        }
     }
 
     @MainActor func testTwoClicksRemainIndependentAfterUnknownCommitWithoutReplayingFirst() async throws {

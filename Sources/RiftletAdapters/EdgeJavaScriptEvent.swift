@@ -19,7 +19,7 @@ enum EdgeJavaScriptEvent {
             throw EdgeHostError.automation(failure.int32Value)
         }
         guard let value = reply.paramDescriptor(forKeyword: code("----"))?.stringValue else {
-            throw EdgeHostError.unsupportedDescriptor
+            throw EdgeHostError.unsupportedDescriptor(.scriptValue)
         }
         return value
     }

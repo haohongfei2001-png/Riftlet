@@ -4,11 +4,18 @@ import Carbon
 protocol EdgeWebExecutionDriver: Sendable {
     func freeze(deadline: TimeInterval) throws -> EdgeWindowTab
     func recheckClickSelection(_ target: EdgeWindowTab, deadline: TimeInterval) throws
-    func revalidate(_ target: EdgeWindowTab, deadline: TimeInterval) throws
+    func revalidate(_ target: EdgeWindowTab, deadline: TimeInterval,
+                    descriptorFailure: (EdgeDescriptorFailure) -> Void) throws
     func isCurrent(_ target: EdgeWindowTab) -> Bool
     func recover(session: String, window: String, tab: String) -> EdgeWindowTab?
     func evaluate(_ source: String, target: EdgeWindowTab, budget: MainWorldReceiptReadBudget) throws -> String
     func bootstrap(_ source: String, target: EdgeWindowTab) throws
+}
+
+extension EdgeWebExecutionDriver {
+    func revalidate(_ target: EdgeWindowTab, deadline: TimeInterval) throws {
+        try revalidate(target, deadline: deadline, descriptorFailure: { _ in })
+    }
 }
 
 /// Independently uses Edge's scripting.sdef: CrSu/ExJa/JvSc, CrTb in cwin,
@@ -18,8 +25,13 @@ struct NativeEdgeWebExecutionDriver: EdgeWebExecutionDriver {
     func freeze(deadline: TimeInterval) throws -> EdgeWindowTab {
         do { return try EdgeApplicationHost(deadlineUptime: deadline).freeze() } catch { throw Self.mapped(error) }
     }
-    func revalidate(_ target: EdgeWindowTab, deadline: TimeInterval) throws {
-        do { try EdgeApplicationHost(deadlineUptime: deadline).revalidate(target) } catch { throw Self.mapped(error) }
+    func revalidate(_ target: EdgeWindowTab, deadline: TimeInterval,
+                    descriptorFailure: (EdgeDescriptorFailure) -> Void) throws {
+        do { try EdgeApplicationHost(deadlineUptime: deadline).revalidate(target) }
+        catch {
+            if case let EdgeHostError.unsupportedDescriptor(failure) = error { descriptorFailure(failure) }
+            throw Self.mapped(error)
+        }
     }
     func recheckClickSelection(_ target: EdgeWindowTab, deadline: TimeInterval) throws {
         do { try EdgeApplicationHost(deadlineUptime: deadline).recheckClickSelection(target) }
