@@ -30,3 +30,5 @@ python3 -B "$evidence/verify_later_files.py" --private-build "$RIFTLET_PRIVATE_B
 ```
 
 准入提交 `4a493e950285a10d0362077ff501f149c1cc330c` 首次托管运行中，Intel、Feedback 和两项源码准入都已成功。ARM64 等待 19 分 42 秒后由 GitHub 取消，未获得托管 runner，执行步骤为 0。[官方运行元数据与取消注解](ci-4a493e9.json)
+
+最后在原 DevTools 行分别核对了 612、613 的操作文件名和服务文件 ID，各执行一次“复制响应”。两次系统剪贴板版本均前进一代，工具均返回 `UNATTRIBUTED_CLIPBOARD / NEW_OWNER_PRESERVED`。未能取得可归属的原响应实体，也未判断实体是否为空。助手未清空或写回内容；原剪贴板仅在进程内暂存，进程退出后没有可恢复副本。原内容恢复未获确认。此项取证已结束，两个原业务终态均保持 UNKNOWN。[执行范围与剪贴板结果](original-response-copy.json)

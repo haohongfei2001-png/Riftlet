@@ -314,6 +314,15 @@
         "displayedRetryAfter": "11月18日 21:33",
         "serviceLimitScope": "UNSPECIFIED",
         "displayedTimezone": null
+      },
+      "originalProcessingReplyRecovery": {
+        "fixtures": [
+          612,
+          613
+        ],
+        "result": "BOTH_UNATTRIBUTED_TERMINALS_UNKNOWN",
+        "clipboardRestoration": "UNCONFIRMED",
+        "evidence": "edge-fresh-pair-20261117/followup-617-618/original-response-copy.json"
       }
     },
     {
