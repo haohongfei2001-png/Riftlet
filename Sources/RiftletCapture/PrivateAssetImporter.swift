@@ -244,7 +244,6 @@ public actor PrivateAssetImporter {
     private func recoverManifests(_ manifests: [URL], verifyUsedMedia: Bool = false,
                                   deferringColdHistory: Bool = false) async throws -> CaptureRecoveryReport {
         var report = CaptureRecoveryReport()
-        let retired = Set(try await store.retiredMedia().map(\.id))
         for url in manifests where url.pathExtension == "json" {
             do {
                 let attrs = try url.resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey, .fileSizeKey])
@@ -257,7 +256,7 @@ public actor PrivateAssetImporter {
                       asset.fileName.hasPrefix(asset.id.uuidString.lowercased() + ".") else {
                     throw CaptureError.invalidManifest
                 }
-                if retired.contains(asset.id) { continue }
+                if try await store.isRetiredMedia(asset.id) { continue }
                 rememberEarlierEvidence(asset)
                 let mediaURL = mediaDirectory.appendingPathComponent(asset.fileName)
                 let stageURL = stagingDirectory.appendingPathComponent(asset.id.uuidString.lowercased() + ".part")
