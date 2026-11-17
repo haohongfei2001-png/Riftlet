@@ -57,7 +57,7 @@ P1 为本版必须修正的产品问题；P2 也进入相应工作包，复杂�
 
 ### R105-04：原“失败重生”被 START 截断
 
-[生产页面脚本](https://github.com/haohongfei2001-png/Riftlet/blob/f3153b10dac4445720f1c20c8836ddbbea625c49/Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js#L679-L735)的 `sample(op)` 在 `op.start` 后直接返回；observe 持续返回 `uploadStarted` 和默认 `hasError=false`。`TransferCoordinator.swift:537–545,580–592,639–645` 在 START 后将普通独立输入移出观察，`RiftletMain.swift:1322–1324` 不给 Web click adapter 加 completion watch。库里已有失败恢复能力，普通路径没有供应这类证据。
+[生产页面脚本](https://github.com/haohongfei2001-png/Riftlet/blob/f3153b10dac4445720f1c20c8836ddbbea625c49/Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js#L679-L735)的 `sample(op)` 在 `op.start` 后直接返回；observe 持续返回 `uploadStarted` 和默认 `hasError=false`。`TransferCoordinator.swift:537–545,580–592,639–645` 在 START 后将普通独立输入移出观察，`RiftletMain.swift:1322–1324` 不给 Web click adapter 加 completion watch。库里已有失败恢复能力，普通路径没有供应这类证据。另一个必要依赖是 `OrdinaryCaptureConfiguration.swift:93–118` 的生产 ReceiptPolicy 没有提供 retrySafeProfiles/terminationProfiles（默认空）；`ReceiptPolicy.swift:137–156` 会继续拒绝失败重试。单补观察或UI不等于完成恢复资格。
 
 本次用现有 DOM fixture 做了可重复实验：同一附件先 START，再将该卡标记 failed 并加入 alert；下一次 observe 仍 `uploadStarted/hasError=false`，setter=1、send=0。它证明当前源码的边界，**不证明真实 ChatGPT 采用该 DOM 结构**。可复现脚本与结果见 [evidence](evidence/README.md)。
 
