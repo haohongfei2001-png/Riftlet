@@ -103,11 +103,36 @@ def evaluate(report, directory, temporary):
     return results
 
 
+def verify_desktop_run(report, folder):
+    forms = ('tray', 'windChime', 'microSlit')
+    expected = {f'{form}-{count}' for form in forms for count in (0, 1, 2, 3, 4, 5, 10)}
+    expected.update(f'collect-fixture-{count}' for count in range(1, 11))
+    expected.update(f'{mode}-{edge}Middle' for mode in ('light', 'dark') for edge in ('left', 'right'))
+    expected.update(('isolated-review-controls', 'tray-native-wheel', 'tray-owned-button-and-escape',
+                     'actual-tray-appearance-layers', 'violet-restart-and-material-switch',
+                     'physical-connected-displays', 'native-high-contrast-appearance-override',
+                     'tray-restart-baseline'))
+    cases = report.get('cases', [])
+    names = [case.get('case') for case in cases]
+    if (report.get('reviewMode') != 'desktopForms' or not report.get('completed')
+            or report.get('status') != 'PASS_SCOPED_NATIVE_REVIEW' or not expected.issubset(names)
+            or len(set(names)) != len(names) or any(case.get('status') != 'PASS' for case in cases)):
+        raise ValueError("Desktop review did not pass every required case")
+    for frame in report['frames']:
+        if frame['status'] != 'RECORDED_NATIVE_WINDOWSERVER':
+            raise ValueError("Incomplete desktop frame: " + frame['name'])
+        name = frame.get('file', frame['name'] + '.png')
+        path = folder / name
+        if Path(name).name != name or path.is_symlink() or hashlib.sha256(path.read_bytes()).hexdigest() != frame['sha256']:
+            raise ValueError("Desktop frame identity mismatch: " + frame['name'])
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('report', type=Path)
     args = parser.parse_args()
     report = json.loads(args.report.read_bytes())
+    verify_desktop_run(report, args.report.parent)
     with tempfile.TemporaryDirectory() as tmp:
         results = evaluate(report, args.report.parent, Path(tmp))
     good = all(entry['passed'] for entry in results)
