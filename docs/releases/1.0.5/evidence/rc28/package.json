@@ -1,0 +1,34 @@
+{
+  "appCertificateFingerprints": {
+    "arm64": "92B7E50A1D43D247EA7EA19A31DCA3E407435A42",
+    "x86_64": "92B7E50A1D43D247EA7EA19A31DCA3E407435A42"
+  },
+  "appSubmissionID": "be65b016-3d0a-407b-a42a-d83a2fc97494",
+  "architectures": [
+    "arm64",
+    "x86_64"
+  ],
+  "artifact": "Riftlet-1.0.5.dmg",
+  "build": "28",
+  "bytes": 12717846,
+  "dmgCertificateFingerprint": "92B7E50A1D43D247EA7EA19A31DCA3E407435A42",
+  "dmgSubmissionID": "fac1fd55-fe3f-4551-966f-4adad3844093",
+  "nestedCodeVerified": [
+    "Contents/Frameworks/Sparkle.framework",
+    "Contents/Frameworks/Sparkle.framework/Versions/B/Autoupdate",
+    "Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app",
+    "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Downloader.xpc",
+    "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Installer.xpc"
+  ],
+  "published": false,
+  "receipt": "dmg-receipt.json",
+  "sha256": "a2e803123f2726f60ff00ef7ceadf9ee97ccd79ac97570e9cb8baffa058d2ff7",
+  "source": "628eef15f5512fdb6d3dc5701f6340eb87af8b4a",
+  "sparkleVersion": "2.10.1",
+  "status": "VERIFIED_FOR_PUBLICATION_REVIEW",
+  "teamID": "ZB9D4T66QB",
+  "version": "1.0.5",
+  "executableSHA256": "885c0e2ee5f87540143da148ccef38edd8e550eaa05ca8c21c11b5c8add66896",
+  "privateUpdateZipSHA256": "f0e9ad18002cf28f9600e79f3886599fc38a8baed6b9c7e2bd8f2c343176f302",
+  "ticketVerification": "Apple stapler on isolated macOS; local release scripts verified code signatures and the final read-only disk image."
+}

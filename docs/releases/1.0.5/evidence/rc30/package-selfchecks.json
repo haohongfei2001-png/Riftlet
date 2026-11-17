@@ -1,0 +1,40 @@
+{
+  "binary": "c1474953ca02d19c21f773ef1847b1507792cbe2284ae30d30f3e34b69fac3e6",
+  "scope": "Signed build 30 executable on Apple Silicon. x86_64 executed using Rosetta. Offline synthetic fixtures, independent of live-service and physical Intel checks.",
+  "results": {
+    "arm64": {
+      "--ordinary-build-info": {
+        "builtInUpload": true,
+        "completion": true,
+        "continuation": true,
+        "dataDirectory": "Riftlet",
+        "input": true,
+        "internalAcceptance": false,
+        "mode": "capture",
+        "safeRetry": false,
+        "start": true
+      },
+      "--self-check": "PASS",
+      "--web-acceptance-self-check": "PASS",
+      "--first-use-self-check": "PASS",
+      "--system-screenshot-candidate-self-check": "PASS"
+    },
+    "x86_64": {
+      "--ordinary-build-info": {
+        "builtInUpload": true,
+        "completion": true,
+        "continuation": true,
+        "dataDirectory": "Riftlet",
+        "input": true,
+        "internalAcceptance": false,
+        "mode": "capture",
+        "safeRetry": false,
+        "start": true
+      },
+      "--self-check": "PASS",
+      "--web-acceptance-self-check": "PASS",
+      "--first-use-self-check": "PASS",
+      "--system-screenshot-candidate-self-check": "PASS"
+    }
+  }
+}
