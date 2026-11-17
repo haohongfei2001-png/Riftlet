@@ -1,0 +1,62 @@
+{
+  "executableSHA256": "2c66bc1ebc64e86c8ddc7276de4dd95433df684a2f87a736b0d0cef813e46972",
+  "inputs": [
+    {
+      "after": {
+        "assets": 5,
+        "operations": 0,
+        "upload_starts": 0
+      },
+      "automaticRetry": false,
+      "before": {
+        "assets": 5,
+        "operations": 0,
+        "upload_starts": 0
+      },
+      "completeNativeFields": true,
+      "draftAndSelectionPreserved": true,
+      "error": "nativeEventFailed(-1712)",
+      "inputSHA256": {
+        "draft-after": "29832664ab7f9cc415ad666ae3921f8496d7d00a827f7e1223c2a71750005dbd",
+        "draft-before": "ed20cbd9f9fcf09a476156572117710a50bd6e79e72435f2b49c0773f65a1254",
+        "observation": "f7e36812cd23c38bf5c6428af2b391ffc93371933cba14ecd6b5046c65e37769",
+        "sent": "021d6206188673da2d7b5ce05726e4cd85a053071352a41ab1d8e0bdcf2fe997",
+        "trace-01": "03ececbb488e48427030b83c7c86468359a78eb86f2fcc7e0494d45f1c93dc55"
+      },
+      "ordinal": 1,
+      "pinMS": 101.245,
+      "stage": "originalSelectionRecheck",
+      "taggedRows": 10
+    },
+    {
+      "after": {
+        "assets": 5,
+        "operations": 0,
+        "upload_starts": 0
+      },
+      "automaticRetry": false,
+      "before": {
+        "assets": 5,
+        "operations": 0,
+        "upload_starts": 0
+      },
+      "completeNativeFields": true,
+      "draftAndSelectionPreserved": true,
+      "error": "nativeEventFailed(-1712)",
+      "inputSHA256": {
+        "draft-after": "dfa27f90571bd9f973a2dd99ab248c7d8816097d1bdbd9f7ed9c730c81dacbe8",
+        "draft-before": "630b95c686d46743f9fd4d980ac2ea2dadfd914798ba2dc5bf6ae2c1cec03ebd",
+        "observation": "8925337be9052829d5e317fc17f48455f17aa59d6793c6839a1cae6bd51d68c9",
+        "sent": "a9dcadd60113a507b3cd50922693ba310116aa4747df6d2f01090cff7169a98c",
+        "trace-01": "c3e4968b034c8efe81301a1e301290e8796c5434522b786dedbc3a84c0baade7"
+      },
+      "ordinal": 2,
+      "pinMS": 116.096,
+      "stage": "originalSelectionRecheck",
+      "taggedRows": 10
+    }
+  ],
+  "sameG7Build": false,
+  "source": "57d8f0dcb9cd17967ab012642378a24b9caff4d8",
+  "suspendedBrowserEstablished": false
+}

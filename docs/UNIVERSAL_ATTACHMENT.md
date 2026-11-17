@@ -6,6 +6,8 @@
 
 完整的 68 条 Edge 网络记录保存了两次独立的存储 HTTP 201 和 ETag。ChatGPT 的两个逐文件处理请求均返回 HTTP 200；导出缺少两个响应正文。两笔最终处理仍为 UNKNOWN，组合保留 INCOMPLETE。[逐文件回执](../engineering/universal-attachment/edge-fresh-pair-20261117/product-and-network.json) · [兼容性矩阵](../engineering/universal-attachment/live-matrix.json)
 
+另用两张新截图验证了点击后切换标签和空标签明确拒绝。两张均留在队列，未发生文件输入；返回原窗口后独立读回了三张原附件、原正文和 14 字符选区。[拒绝与原草稿读回](../engineering/universal-attachment/edge-fresh-pair-20261117/tab-switch/REPORT.md)
+
 ## 607 与 608 的较早快速双图实测
 
 **2026-11-17 快速双图验收。** 普通 App 以 489.789 毫秒间隔收到了两个真实微图点击，各有 10 条回执。607 在原草稿产生首条产品 START 并吞噬，匹配的实际存储写入返回 HTTP 201。608 一次输入后未出现。原草稿显示文件附件数量限制，已有五图、正文和 14 字符选区保留。607 的最终处理和 608 的投递结果均为 UNKNOWN。[逐图实测](../engineering/universal-attachment/edge-native-pair-20261117/README.md)

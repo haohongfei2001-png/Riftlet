@@ -1,0 +1,104 @@
+{
+  "G7AETimeout1712Observed": false,
+  "afterStore": {
+    "assets": 18,
+    "operations": 9,
+    "starts": 3
+  },
+  "diagnosticSequenceRange": [
+    157,
+    187
+  ],
+  "executableSHA256": "31613ef46bd7551b14a808c03d2aba2f50a9b6c29d8ca6a9dda7d0bc47370a37",
+  "initialDraft": {
+    "baseline614": 1,
+    "expectedPriorOperationFilenamesOnceEach": 2,
+    "originalSelectedUTF16Range": [
+      61,
+      14
+    ],
+    "totalAttachments": 3
+  },
+  "laterReadOnlyDraft": {
+    "properties": {
+      "freshTemporaryDraftAndText": true,
+      "one614AndBothPriorNamedAttachments": true,
+      "original14UTF16SelectedWords": true,
+      "sameFrontmostNativeTabWindow": true
+    },
+    "snapshotSHA256": "15f12b7257660d8064f42d3cae77097404be0e332a6644206373823b6bf449a3",
+    "state": "ALL_TARGET_PROPERTIES_OBSERVED",
+    "timeUTC": "2026-11-17T08:46:10Z"
+  },
+  "operationalResult": {
+    "actualNativeDownIntervalMS": 677.143,
+    "blankGuardBeforeSecondDownMS": 133.233,
+    "firstCallbackToSwitchRequestMS": 12.434,
+    "firstDownToSwitchRequestMS": 104.422,
+    "firstRejectionRelativeToConfirmationMS": -29.965,
+    "inputs": [
+      {
+        "distinctPhysicalUserClickProved": false,
+        "exactCallbackSequence": 164,
+        "nativeTaggedStages": 10,
+        "newOperations": 0,
+        "newStarts": 0,
+        "onePositiveMouseSelection": true,
+        "pendingVisible": true,
+        "refusal": "nativeSelectionChanged",
+        "refusalAtSequence": 172,
+        "refusalPhase": "resolveSelection",
+        "scopedSetterOrSwallowTrace": false,
+        "seed": 610,
+        "softwareNativeClickReceipt": true
+      },
+      {
+        "distinctPhysicalUserClickProved": false,
+        "exactCallbackSequence": 180,
+        "nativeTaggedStages": 10,
+        "newOperations": 0,
+        "newStarts": 0,
+        "onePositiveMouseSelection": true,
+        "pendingVisible": true,
+        "refusal": "pageRejected(PAGE_ROUTE_UNSUPPORTED)",
+        "refusalAtSequence": 187,
+        "refusalPhase": "resolveSelection",
+        "scopedSetterOrSwallowTrace": false,
+        "seed": 611,
+        "softwareNativeClickReceipt": true
+      }
+    ],
+    "originalTabRestoreReceipt": true,
+    "retryCount": 0,
+    "sameBoundBlankAt611Down": true,
+    "switchRequestToConfirmedMS": 89.556
+  },
+  "originalRun": {
+    "afterDraftFieldsIndividuallyUnavailable": true,
+    "afterDraftProbe": "boundFreshComposerChanged",
+    "compositeProof": false,
+    "exitCode": 3
+  },
+  "priorStore": {
+    "allOperationsExactlyUnchanged": true,
+    "allPriorAssetRowsUnchanged": true,
+    "allPriorMediaBytesUnchanged": true,
+    "allStartReceiptsExactlyUnchanged": true,
+    "assets": 16,
+    "operations": 9,
+    "preservedMedia": 16,
+    "starts": 3
+  },
+  "schema": 1,
+  "source": "62ab4b2638f78926a92dd01a0942aa98e72a7614",
+  "sourceSHA256": {
+    "actions.jsonl": "e304f5bd904ee10fff90cf83ace6884eb5fc615ddd4c1d244ca9bae4f108e9a9",
+    "outcome.json": "8c432630e0e98bb4241a671c78524caac5d014247eafc8cbb0ab839595b3389c",
+    "prepared.json": "94b41ff3029c31905c06339fefa791c32d10d383ecbf0ceff56217802b61c67c",
+    "projection.json": "c495ddd028f9f78c2b2704b79722543b72bb9bc4526755a1822ece64ee7207c5",
+    "raw-events.jsonl": "450d0ba1e033861e5f4bde5f84bc26575c6438149ec82c952be95b15fb83ef6c",
+    "restored.json": "04ece95c1f8a8cef7ad2ec439a01e5461cc139b4619a8f3fddf9a6f09fe57934",
+    "sender-1.json": "c9f8753619846a4f9360730407b8a4e29fa30ebcfd699d046268599a8145dea8",
+    "sender-2.json": "656150d9d7eb9807183de5a053f6d04f8a49a864ca8fdd46bc504b8b7a44f50f"
+  }
+}

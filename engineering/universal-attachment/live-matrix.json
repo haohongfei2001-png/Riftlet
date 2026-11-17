@@ -227,7 +227,12 @@
       "commercialUploadCountsScope": "Service storage confirmed for 605, 606, 607, 612 and 613. Service processing completion confirmed for historical 606. The product recorded START for 607, 612 and 613.",
       "recordedProductUploadStarts": 3,
       "recordedProductUploadCompletions": 0,
-      "latestServiceEvidence": "edge-fresh-pair-20261117/product-and-network.json"
+      "latestServiceEvidence": "edge-fresh-pair-20261117/product-and-network.json",
+      "postClickTabSwitch": "610_PREINPUT_NATIVE_SELECTION_CHANGED_NO_OPERATION_OR_START_IMAGE_RETAINED",
+      "explicitRefusal": "611_ALREADY_BLANK_TAB_PAGE_ROUTE_UNSUPPORTED_NO_OPERATION_OR_START_IMAGE_RETAINED",
+      "tabSwitchDraftAfter": "IMMEDIATE_AGGREGATE_UNVERIFIED_LATER_ORIGINAL_TEXT_SELECTION_61_14_AND_THREE_ATTACHMENTS_CONFIRMED",
+      "latestSwitchRefusalEvidence": "edge-fresh-pair-20261117/tab-switch/REPORT.md",
+      "edgeUnresponsive": "NO_NEW_G7_TIMEOUT_TWO_HISTORICAL_BOUND_PREINPUT_AE_MINUS_1712"
     },
     {
       "host": "Microsoft Edge",
