@@ -1,0 +1,391 @@
+{
+  "schema": 1,
+  "source": "f7407cdae28b4d63e20cf7c3972f4f131ec9e33e",
+  "version": "1.0.4",
+  "build": 26,
+  "executableSHA256": "2a76ad89e9501edecec02bafef203dadadf6c6b2a36f3d055011095fad3fecb4",
+  "scope": "PASS applies to the named mode and observations only. Unavailable physical/service dimensions are explicit. Source reviews and CI are bound by the actual admission record and Draft PR.",
+  "evidence": [
+    "receipt.json",
+    "onboarding-development.json",
+    "../settings-candidate/report.json",
+    "../history-query-20261117.json",
+    "../native-storage-and-browser.json",
+    "tray-pixels.json",
+    "upgrade.json"
+  ],
+  "rows": [
+    {
+      "caseID": "BASE-01",
+      "result": "PASS",
+      "mode": "SOURCE",
+      "observation": "Reviewed PR 109 H descendant of B; public ZIP identity verified."
+    },
+    {
+      "caseID": "BASE-02",
+      "result": "PASS",
+      "mode": "SOURCE / SIGNED_INSTALL",
+      "observation": "Frozen artifact identities, source tree, isolated roots and live stable XML."
+    },
+    {
+      "caseID": "BASE-03",
+      "result": "BLOCKED",
+      "mode": "CI",
+      "observation": "See Draft PR actual check runs for the dedicated admission-only H. No result inherited from plan H."
+    },
+    {
+      "caseID": "BASE-04",
+      "result": "PASS",
+      "mode": "CONTROLLED_NATIVE",
+      "observation": "12 worker lifetimes across normal termination, SIGTERM and SIGKILL retained ownership and history."
+    },
+    {
+      "caseID": "SET-01",
+      "result": "PASS",
+      "mode": "NATIVE_GUI",
+      "observation": "Signed bilingual suite, 38 WindowServer frames per locale, four pages and centered wide reading column."
+    },
+    {
+      "caseID": "SET-02",
+      "result": "PASS",
+      "mode": "NATIVE_GUI / SOURCE",
+      "observation": "Controls and legacy conditional disclosure checked in signed UI suite and field inventory."
+    },
+    {
+      "caseID": "SET-03",
+      "result": "PASS",
+      "mode": "NATIVE_GUI",
+      "observation": "Collector starts during recheck; archive and settings retain edits; restart equivalence."
+    },
+    {
+      "caseID": "SET-04",
+      "result": "PASS",
+      "mode": "NATIVE_GUI",
+      "observation": "Independent write failures, native tray color and transparency controls retain separate pending errors and retry directions."
+    },
+    {
+      "caseID": "SET-05",
+      "result": "NOT_RUN",
+      "mode": "SYSTEM_IME",
+      "observation": "Programmatic editing and marked-text handling have narrower coverage than native Chinese candidate selection."
+    },
+    {
+      "caseID": "SET-06",
+      "result": "NOT_RUN",
+      "mode": "PHYSICAL",
+      "observation": "Display identity retention in controlled settings tests; no hot-unplug/reconnect during menu tracking."
+    },
+    {
+      "caseID": "SET-07",
+      "result": "PASS",
+      "mode": "NATIVE_GUI",
+      "observation": "Orthogonal collection and visibility states checked against queue and controlled collector."
+    },
+    {
+      "caseID": "SET-08",
+      "result": "NOT_RUN",
+      "mode": "ORDINARY_OS",
+      "observation": "Updater prompts exercised in two upgrades. Did not test every OS login approval/denial branch with the signed ordinary app."
+    },
+    {
+      "caseID": "MIG-01",
+      "result": "PASS",
+      "mode": "ORDINARY_GUI",
+      "observation": "New isolated guest profile selected tray; fresh state under exclusive lock verified in source."
+    },
+    {
+      "caseID": "MIG-02",
+      "result": "PASS",
+      "mode": "SOURCE / CONTROLLED",
+      "observation": "Old-root or persistent preferences and missing desktopForm keep old semantics. See RecoverablePreferencesTests and ApplicationInstanceOwnershipTests."
+    },
+    {
+      "caseID": "MIG-03",
+      "result": "PASS",
+      "mode": "SOURCE / CONTROLLED",
+      "observation": "Partial patch merges preserve pre-existing user choices and old special layout values."
+    },
+    {
+      "caseID": "MIG-04",
+      "result": "PASS",
+      "mode": "SOURCE / CONTROLLED",
+      "observation": "Damaged or oversized files preserved; unknown fields retained across successful unrelated writes and error recovery."
+    },
+    {
+      "caseID": "MIG-05",
+      "result": "PASS",
+      "mode": "NATIVE_GUI / CONTROLLED",
+      "observation": "One-field restore and independent saved fields retained at new-process reopen."
+    },
+    {
+      "caseID": "MIG-06",
+      "result": "PASS",
+      "mode": "SOURCE / CONTROLLED",
+      "observation": "Legacy disclosure reads actual persisted fields; unrelated edits retain presence and unknown values. Viewing does not persist."
+    },
+    {
+      "caseID": "TRAY-01",
+      "result": "PASS",
+      "mode": "NATIVE_GUI",
+      "observation": "Signed original-window captures at both appearances with patterned samples and per-layer checks."
+    },
+    {
+      "caseID": "TRAY-02",
+      "result": "PASS",
+      "mode": "NATIVE_GUI / CONTROLLED",
+      "observation": "Only known values rendered; invalid input and saved representation handled independently; persisted at restart."
+    },
+    {
+      "caseID": "TRAY-03",
+      "result": "PASS",
+      "mode": "NATIVE_GUI",
+      "observation": "Both themes, body presets/extreme RGB, returning across material/form and reopening with saved values."
+    },
+    {
+      "caseID": "TRAY-04",
+      "result": "PASS",
+      "mode": "NATIVE_GUI",
+      "observation": "24 measured image comparisons of material, body, lens, key and thumbnails on exact executable."
+    },
+    {
+      "caseID": "TRAY-05",
+      "result": "NOT_RUN",
+      "mode": "SYSTEM_ACCESSIBILITY",
+      "observation": "High contrast override exercised; full ordinary live OS preference combinations were not observed."
+    },
+    {
+      "caseID": "TRAY-06",
+      "result": "NOT_RUN",
+      "mode": "PHYSICAL",
+      "observation": "Geometry checked at two backing scales in software; signed host ran on one 2x display."
+    },
+    {
+      "caseID": "TRAY-07",
+      "result": "PASS",
+      "mode": "NATIVE_GUI / CONTROLLED",
+      "observation": "0/1/2/3/4/5/10 queue counts and synthetic mixed aspect ratios; geometry and UUID assertions."
+    },
+    {
+      "caseID": "TRAY-08",
+      "result": "PASS",
+      "mode": "NATIVE_GUI / CONTROLLED",
+      "observation": "Path-dependent menu opening, exclusion, collapse, stable queue order and new arrivals."
+    },
+    {
+      "caseID": "TRAY-09",
+      "result": "PASS",
+      "mode": "NATIVE_GUI / CONTROLLED",
+      "observation": "Signed natural CGEvent opens, Escape and wheel. Selection and item routing covered in native tests."
+    },
+    {
+      "caseID": "TRAY-10",
+      "result": "NOT_RUN",
+      "mode": "PHYSICAL",
+      "observation": "Available display and edge cases captured; no multi-display physical attach/detach and wake."
+    },
+    {
+      "caseID": "ONB-01",
+      "result": "NOT_RUN",
+      "mode": "ORDINARY_GUI",
+      "observation": "Ordinary fresh tray, system folder rejection and recovery message observed; full clean-account onboarding plus authorized capture reviewed separately below."
+    },
+    {
+      "caseID": "ONB-02",
+      "result": "PASS",
+      "mode": "ORDINARY_GUI",
+      "observation": "Four fresh-profile ordinary runs. Close, Cmd-W, Escape and Later deferred through process restart. System virtual keyboard calibrated with separate AppKit app."
+    },
+    {
+      "caseID": "ONB-03",
+      "result": "NOT_RUN",
+      "mode": "ORDINARY_GUI",
+      "observation": "Controlled teardown and normal close regression; complete fresh-profile crash matrix not observed."
+    },
+    {
+      "caseID": "ONB-04",
+      "result": "NOT_RUN",
+      "mode": "REAL_SERVICE",
+      "observation": "Permission-denial recovery copy and local-only path exercised. Entire Chrome permission-state matrix not observed on real service."
+    },
+    {
+      "caseID": "ONB-05",
+      "result": "BLOCKED",
+      "mode": "REAL_SERVICE",
+      "observation": "Guest test draft did not load; no authorized end-to-end first attach."
+    },
+    {
+      "caseID": "ONB-06",
+      "result": "PASS",
+      "mode": "CONTROLLED / ORDINARY_GUI",
+      "observation": "Ordinary deferred state persists; controlled legacy data/read-only presentation and reopen tests."
+    },
+    {
+      "caseID": "HIST-01",
+      "result": "PASS",
+      "mode": "NATIVE_GUI / CONTROLLED",
+      "observation": "401 records and cross-page search, list and grid share exact selected UUID."
+    },
+    {
+      "caseID": "HIST-02",
+      "result": "PASS",
+      "mode": "CONTROLLED_NATIVE",
+      "observation": "SQLite 200/201 boundary, cursor tie-break, >2 pages and frozen snapshot during arrival."
+    },
+    {
+      "caseID": "HIST-03",
+      "result": "PASS",
+      "mode": "CONTROLLED_NATIVE",
+      "observation": "Chinese/English, dates, serial, Unicode, literal search, dimensions and empty filter on same fixtures."
+    },
+    {
+      "caseID": "HIST-04",
+      "result": "PASS",
+      "mode": "SOURCE / CONTROLLED",
+      "observation": "Epoch guards ignore stale query and frozen cursors retain stable older results after arrivals. UI UUID remained selected across renderers."
+    },
+    {
+      "caseID": "HIST-05",
+      "result": "PASS",
+      "mode": "NATIVE_GUI / CONTROLLED",
+      "observation": "Native preview, remove, restore and 200% zoom; eligibility/UNKNOWN controlled by Core; media identity retained at restart."
+    },
+    {
+      "caseID": "COPY-01",
+      "result": "PASS",
+      "mode": "SOURCE / CONTROLLED",
+      "observation": "Feedback, library and transient notices project durable asset/operation state; no claim of remote upload completion."
+    },
+    {
+      "caseID": "COPY-02",
+      "result": "NOT_RUN",
+      "mode": "NATIVE_GUI / CONTROLLED",
+      "observation": "Native failed independent preferences and disk-full recovery exercised; not every error in every language and actual OS service."
+    },
+    {
+      "caseID": "COPY-03",
+      "result": "NOT_RUN",
+      "mode": "VOICEOVER",
+      "observation": "Accessibility labels and keyboard order have narrower coverage than complete VoiceOver spoken navigation."
+    },
+    {
+      "caseID": "CORE-01",
+      "result": "NOT_RUN",
+      "mode": "REAL_SERVICE",
+      "observation": "Guest Chrome156 dedicated draft timed out. One sanctioned TLS recovery failed with -1200."
+    },
+    {
+      "caseID": "CORE-02",
+      "result": "NOT_RUN",
+      "mode": "REAL_SERVICE",
+      "observation": "No three A/B pairs at ≤2 seconds; zero input/send attempted in an unverifiable draft."
+    },
+    {
+      "caseID": "CORE-03",
+      "result": "PASS",
+      "mode": "CONTROLLED",
+      "observation": "Frozen page/Chrome fixture programs verify one setter per attempt, no auto send or blind replay."
+    },
+    {
+      "caseID": "CORE-04",
+      "result": "PASS",
+      "mode": "CONTROLLED",
+      "observation": "Rebuilt documents, forged/different targets and lost original tabs tested; no real ChatGPT claim."
+    },
+    {
+      "caseID": "CORE-05",
+      "result": "PASS",
+      "mode": "CONTROLLED",
+      "observation": "Missing/ambiguous/unowned input and pre-input errors fail safely in test DOM and isolated Chrome."
+    },
+    {
+      "caseID": "CORE-06",
+      "result": "PASS",
+      "mode": "CONTROLLED",
+      "observation": "Legacy UNKNOWN observed; receipt loss and restarting do not issue a fresh attempt."
+    },
+    {
+      "caseID": "CORE-07",
+      "result": "PASS",
+      "mode": "CONTROLLED",
+      "observation": "Matching durable START remains necessary; no unrelated START promotes fixture."
+    },
+    {
+      "caseID": "CORE-08",
+      "result": "PASS",
+      "mode": "CONTROLLED_NATIVE",
+      "observation": "Store crash/recovery tests and restart snapshots preserve independent attempts and originals."
+    },
+    {
+      "caseID": "CORE-09",
+      "result": "NOT_RUN",
+      "mode": "REAL_SERVICE",
+      "observation": "150ms native pin unchanged. No real per-click p50/p95/max with a pinned real QA draft."
+    },
+    {
+      "caseID": "PERF-01",
+      "result": "NOT_RUN",
+      "mode": "CONTROLLED_NATIVE",
+      "observation": "200/2k/10k three repetitions and 1.106GB import measured. Complete end-to-end UI latency matrix not measured."
+    },
+    {
+      "caseID": "PERF-02",
+      "result": "NOT_RUN",
+      "mode": "ORDINARY_GUI",
+      "observation": "Indexed metadata tests available; no complete 30-minute idle CPU/RSS/wake/read-I/O attribution."
+    },
+    {
+      "caseID": "PERF-03",
+      "result": "NOT_RUN",
+      "mode": "NATIVE_LONG_RUN",
+      "observation": "7200s data run, 420 synthetic arrivals and matching restart; hardware sleep and multiple displays absent."
+    },
+    {
+      "caseID": "PERF-04",
+      "result": "NOT_RUN",
+      "mode": "REAL_SERVICE",
+      "observation": "No signed-production many-draft real-service context/RSS series."
+    },
+    {
+      "caseID": "PERF-05",
+      "result": "PASS",
+      "mode": "SOURCE / CONTROLLED_NATIVE",
+      "observation": "No startup hash bypass or tombstone cache change. Recovery and low-space tests preserve data."
+    },
+    {
+      "caseID": "REL-01",
+      "result": "PASS",
+      "mode": "SIGNED_INSTALL",
+      "observation": "Exact App, two architectures, separate Developer ID receipts, same executable in old-version upgrades."
+    },
+    {
+      "caseID": "REL-02",
+      "result": "PASS",
+      "mode": "SIGNED_INSTALL",
+      "observation": "App and DMG Accepted, stapled, Gatekeeper accepted. See upgrade/install record for actual running guest."
+    },
+    {
+      "caseID": "REL-03",
+      "result": "PASS",
+      "mode": "SIGNED_INSTALL",
+      "observation": "Real public 1.0.3(25) accepted a private signed 1.0.4(26) offer and relaunched. Fixture has zero upload_starts."
+    },
+    {
+      "caseID": "REL-04",
+      "result": "PASS",
+      "mode": "SIGNED_INSTALL",
+      "observation": "Real 1.0.2(24) to 26 on guest per-user Applications. Shared /Applications admin challenge and denial not exercised on this path."
+    },
+    {
+      "caseID": "REL-05",
+      "result": "NOT_RUN",
+      "mode": "SIGNED_INSTALL",
+      "observation": "Version and signature checks covered by release-readiness tests; full signed interrupted update suite on guest not rerun."
+    },
+    {
+      "caseID": "REL-06",
+      "result": "BLOCKED",
+      "mode": "REAL_SERVICE",
+      "observation": "Signed guest exit/relaunch and data verified. No real post-upgrade ChatGPT receipt."
+    }
+  ]
+}

@@ -24,7 +24,7 @@
 | TRAY-01–04、07–09 | 原生变色像素对照、两行四槽与顺序、开合路径、真实窗口命中、滚轮和 Escape。开发包 18 组机身对比每组有 946–953 个像素随颜色变化，镜头、键帽与缩略图对照区未改变。|
 | TRAY-05、06、10 | 有 AppKit 高对比覆盖、屏幕锚点、比例和命中测试。现场切换所有系统辅助功能组合、物理双屏热插拔、跨 Space 及两种真实硬件缩放的完整组合未验证。|
 | ONB-01–06 | 普通隔离账户首次启动并拒绝桌面访问后出现恢复入口。四个普通隔离档案的红关闭、Cmd-W、Esc、“稍后”均写入延期，退出后重新打开保持选择。VZ 按键注入未能发送 Command；切换到客体 macOS 自带辅助功能键盘，独立 AppKit 窗口确认收到标准关闭快捷键，再执行同一个真实操作成功。该组证据来自开发包。真实 Chrome 服务路径见下。|
-| HIST-01–05 | 200、2,000、10,000 行 SQLite fixture；分页边界、字面量与 Unicode 查询，稳定时间戳排序和 UUID，合资格归档恢复。原生仓库实际找到第 401 条，切列表／网格仍可预览原图与 200% 缩放，原生重启检查通过。|
+| HIST-01–05 | 200、2,000、10,000 行 SQLite fixture；分页边界、字面量与 Unicode 查询，稳定时间戳排序和 UUID，合资格归档恢复。原生仓库在含 401 条的库中跨页找回原 UUID，切列表／网格仍可预览原图与 200% 缩放，原生重启检查通过。|
 | COPY-01、02 | 界面投影区分已交给 ChatGPT、输入前失败和结果待核实；写盘失败可以就地重试。受控 Chrome 与容量故障回执见下。完整外部服务异常组合未验证。|
 | CORE-01、02 | **NOT_RUN / REAL_SERVICE**。隔离 Chrome 的专用新草稿连接超时，一次正式 TLS 恢复检查返回 `NSURLErrorDomain -1200`。无法稳定读取编辑器，未追加、未发送。无该包首次冷点击或三组 ≤2 秒双图证据。|
 | CORE-03–08 | 126 项页面程序、61 项旧操作观察、31 组原生 headless Chrome 回归均通过。包含目标冻结、异步 input 归属、setter 至多一次、丢回执与旧 UNKNOWN 观察。测试来源为专用 fixture，不能证明服务端接收。|
@@ -45,4 +45,14 @@
 | REL-02 签名与票据 | PASS。App `eb4a3edb-4ab2-4b37-94fa-256eff3a91cd`，DMG `090c6f04-88ff-422f-b07d-095b8d356344`，Apple 两份原始回执均 Accepted。两层票据及 Gatekeeper 均通过，只读挂载后逐文件核对，含所有嵌套 Sparkle 组件。一次 Apple 票据服务 TLS 中断后用同一提交与同一签名恢复验证。|
 | 签名 App 实际界面 | PASS。中文设置 15/15、英文 15/15，各 38 个真实窗口帧，两种语言均通过同包新进程重启。仓库 8/8、20 帧；桌面形态 43/43、73 帧，两者重启通过；托盘全部 24 组图像对照通过。早期菜单超时保留，时间线显示其他窗口实际收到左键，触发了原生弹窗的正常外部点击关闭。|
 
-[设置和首用的实际窗口、测试与原始失败记录](evidence/settings-candidate/report.json) · [历史与三形态、包身份和公证记录](evidence/signed-rc/receipt.json) · [托盘](evidence/signed-rc/tray-3.png) · [风铃](evidence/signed-rc/light-leftMiddle-windChime.png) · [微缝](evidence/signed-rc/dark-rightMiddle-microSlit.png) · [找到第 401 条历史](evidence/signed-rc/history-library-cross-page-uuid.png)。全部图像来自独立生成的样本和应用自有窗口。
+[设置和首用的实际窗口、测试与原始失败记录](evidence/settings-candidate/report.json) · [历史与三形态、包身份和公证记录](evidence/signed-rc/receipt.json) · [托盘](evidence/signed-rc/tray-3.png) · [风铃](evidence/signed-rc/light-leftMiddle-windChime.png) · [微缝](evidence/signed-rc/dark-rightMiddle-microSlit.png) · [401 条记录中跨页找回原 UUID](evidence/signed-rc/history-library-cross-page-uuid.png)。全部图像来自独立生成的样本和应用自有窗口。
+
+## 旧版本升级与准入裁决
+
+- **REL-03、04，PASS（独立 macOS 27.2，个人 Applications）**。普通图形会话中分别打开真实 1.0.3（25）和 1.0.2（24），使用各版本自带“检查更新”、Sparkle 的安装和重新启动动作。两次均重启到上述 build 26 的同一二进制，Gatekeeper 给出 Notarized Developer ID。每次升级前后的六张表、12 个旧文件、反馈草稿和目录书签的完整对比摘要均为 `db5b24492eecb77a3bcf333b6a97aa103ce83b2346e5e93c85b5cdd0817704d2`。样本有 5 个资产、1 个 UNKNOWN、3 个 checkpoint、0 条 START。未覆盖非空 START 的实际升级和共享 Applications 中的管理员挑战。
+- **直接安装，PASS（同一普通图形会话）**。实际从公证 DMG 复制、推出后启动，Gatekeeper 接受，读出的旧数据与之前一致。随后操作系统截图，收录稳定后资产从 5 增至 6，UNKNOWN 仍为 1，START 仍为 0。打开的可执行文件与签名包 SHA 相同。
+- REL-05 有版本、签名与拒绝分支的发行回归；未在这次客体实际复现每一种下载中断和错签。REL-06 的 post-upgrade 真实附加仍 **NOT_RUN**。实际可执行与 Appcast 由同一既有正式公钥核验，稳定 feed 公网回读 SHA `8d08d90e7877d5701f863c66f4c7bb50eb2993076bfd1e9b3d29e81239776b1e`（1.0.2）。个人 `/Applications` 安装仍为公开 1.0.3 的原始可执行散列。
+- [所有验收项目按执行方式及证据范围逐项列出](evidence/signed-rc/cases.json)。发布准入 **BLOCKED**，当前专用测试机无法通过正常 TLS 连接 ChatGPT；因此没有最终包冷点击和三组 ≤2 秒双图的真实记录。macOS 13 原生启动、完整 VoiceOver／系统中文组字、实体多屏切换仍未完整实测。Ventura 恢复介质 94 块中仅有 26 块验证通过；不能用最低部署目标或 CI 机器代替实际 Ventura 运行。
+- 独立源码审查的字面报告与散列记录在本开发 PR 的直接准入提交 `engineering/mainline/source-admission.json`；五项检查以该 PR 的 **Checks** 为准。规划 PR 的绿灯单独保留。GitHub 主线的分支保护状态应从远端核对；本次没有提交至 main。关联工作 [#106](https://github.com/haohongfei2001-png/Riftlet/issues/106)、[#107](https://github.com/haohongfei2001-png/Riftlet/issues/107)、[#108](https://github.com/haohongfei2001-png/Riftlet/issues/108)、[#82](https://github.com/haohongfei2001-png/Riftlet/issues/82)、[#97](https://github.com/haohongfei2001-png/Riftlet/issues/97)。
+
+两次应用内升级、直接安装和其后截图的原始回执散列见[隔离 Mac 升级与安装记录](evidence/signed-rc/upgrade.json)。独立查看 GUI、时间线和原文件时可使用相同散列定位私有材料。
