@@ -7,6 +7,8 @@
 | workbench.png | ImageGen 创建的摄影编辑工作台。原图屏幕为空，显示器内的桌面、校样、浏览器和托盘均后期合成。 |
 | trackpad.png | ImageGen 创建的指尖与触控板特写。拉近及指腹靠近动作由后期位移完成。 |
 | prompts.json、trackpad-prompt.txt | 四张静帧的原始提示词。 |
+| social-mac-plate.png、social-pointer-plate.png | 平台封面使用的两张 ImageGen 静物底图，分别为空屏金属机身和珐琅指针。屏幕里的 Chrome、草稿文字和托盘由工程叠入。 |
+| social-cover-prompts.json | 两张平台封面静物底图的生成提示词。 |
 | score-master.wav、score-vertical.wav | 本工程合成的 48 kHz、24-bit 立体声无损母带。原始声部、音符、声像、音色及混音可从 studio/sound 重建。 |
 
 英文与中文均独立排字。官网正式标志取自仓库的 website-assets/riftlet.svg；相机键取自公开标签的 AppKit 绘制例程；标签页小图标采用 OpenAI 公开 CDN 文件。原图不含用户屏幕或私人聊天。

@@ -13,16 +13,16 @@
 
 ## 平台发布封面
 
-中文封面以「Mac 截图，一点就进 ChatGPT」点出用途，再用「不用找文件、切窗口、拖图」说明省去的操作。英文封面以 “Mac screenshots. One click to ChatGPT.” 为标题。托盘里点中的红衣车手也出现在当前 Chrome 草稿里，原有问题和发送按钮同时可见。
+中文封面以「截张图，接着问。」表现图片编辑的下一步，英文封面以 “Screenshot. Keep writing.” 表现继续写草稿的动作。薄荷色棚景中，放大的 Riftlet 托盘停在点选瞬间。下方 Mac 屏幕中，同一张骑手照片已经附加，原问题和发送按钮仍然可见。
 
 | 平台与位置 | 高清 JPG | 构图 |
 |---|---|---|
-| B 站稿件列表 | [1920 × 1440 · 4:3](social-covers/bilibili-feed-zh-CN.jpg) | 右侧照片接入托盘，向左指向草稿 |
-| B 站播放页 | [1920 × 1080 · 16:9](social-covers/bilibili-player-zh-CN.jpg) | 独立调整标题、托盘与草稿之间的距离 |
-| 小红书笔记 | [1440 × 1920 · 3:4](social-covers/xiaohongshu-zh-CN.jpg) | 纵向阅读，从截图、点选读到草稿 |
-| YouTube 常规视频 | [3840 × 2160 · 16:9](social-covers/youtube-en.jpg) | 全英文标题、操作提示与草稿 |
+| B 站稿件列表 | [1920 × 1440 · 4:3](social-covers/bilibili-feed-zh-CN.jpg) | 机身、手边的截图与草稿上下呼应 |
+| B 站播放页 | [1920 × 1080 · 16:9](social-covers/bilibili-player-zh-CN.jpg) | 放大点选瞬间，压低机身，给左侧大标题留白 |
+| 小红书笔记 | [1440 × 1920 · 3:4](social-covers/xiaohongshu-zh-CN.jpg) | 标题从上方读入，视线经过指针落到斜向取景的屏幕上 |
+| YouTube 常规视频 | [3840 × 2160 · 16:9](social-covers/youtube-en.jpg) | 英文标题、卖点、Chrome 页面与草稿全文独立排入 |
 
-源图沿用影片的骑手美术素材。封面从同一工程分别取 13.20 秒按压状态和 16.25 秒草稿状态，使用原生绘制的相机键及合成的托盘、草稿图层。四图均为嵌入 sRGB 的 JPEG，单张小于 2 MB。[排版与复现源码](studio/social_covers.py)
+空屏设备和深绿珐琅指针是生成的静物素材。Mac 屏幕由制作工程透视合成，珐琅指针是封面上放大的点击提示。独立的托盘特写取自 13.20 秒的按压状态，机内草稿取自 16.25 秒的附加后状态。托盘保留双缩略图及原生绘制的相机键，两处骑手图像共用同一份原图。四张成品均为内嵌 sRGB 的 JPEG，单张小于 2 MB。[制作源码](studio/social_covers.py) · [静物素材及生成提示词](originals/social-cover-prompts.json)
 
 平台比例依据见 [B 站客服投稿指南](https://www.bilibili.com/opus/1106096748969852979)、[小红书笔记创作课程](https://school.xiaohongshu.com/lesson/normal/af0fe7e97bb0433fac9da5d1df52b07f) 和 [YouTube 视频缩略图说明](https://support.google.com/youtubecreatorstudio/answer/72431?hl=en)。
 
