@@ -99,7 +99,7 @@ extension RiftSettingsCenterController {
             ?? (canTestConnection && [.unchecked, .javaScriptDisabled].contains(product.chromeConnection) ? ChromeAttachmentSetup.instructions : nil)
         text("chrome.menu", scriptInstructions ?? "")
         labels["chrome.menu"]?.isHidden = scriptInstructions == nil || !canTestConnection
-            || (canTestConnection && product.chromeConnection == .ready)
+            || product.chromeConnection == .ready || product.setup.issue == .chromeJavaScriptDisabled
         // A general invitation to click a screenshot would contradict a failed connection check.
         let lastAttachmentProblem = product.setup.issue?.isAttachmentConnectionIssue == true
         labels["attachment"]?.isHidden = supportsConnectionCheck && !lastAttachmentProblem

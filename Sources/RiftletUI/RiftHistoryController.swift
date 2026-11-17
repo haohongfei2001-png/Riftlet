@@ -59,8 +59,8 @@ private final class HistoryPreviewImageView: NSImageView {
     }
 }
 
-/// Wrap the action hint inside its detail column when AppKit measures the window.
-private final class HistoryActionNote: NSTextField {
+/// Detail labels wrap at the column width, including when AppKit measures a resized window.
+private final class HistoryDetailLabel: NSTextField {
     override func setFrameSize(_ newSize: NSSize) {
         super.setFrameSize(newSize)
         let textWidth = alignmentRect(forFrame: bounds).width
@@ -139,7 +139,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     private let table = HistoryTableView()
     private let detailImage = HistoryPreviewImageView()
     private let imageBackdrop = NSVisualEffectView()
-    private lazy var detailTitle = NSTextField(wrappingLabelWithString: copy.text("选择一张截图", "Select a screenshot"))
+    private lazy var detailTitle = HistoryDetailLabel(wrappingLabelWithString: copy.text("选择一张截图", "Select a screenshot"))
     private let detailMetadata = NSTextField(wrappingLabelWithString: "")
     private lazy var detailState = NSTextField(wrappingLabelWithString: copy.text("原图与本地记录始终保留。", "Original images and local records are kept."))
     private var detailID: UUID?
@@ -164,7 +164,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     private lazy var originalButton = NSButton(title: copy.text("查看原图", "View Original"), target: nil, action: nil)
     private lazy var newerButton = NSButton(title: copy.text("上一页", "Previous Page"), target: nil, action: nil)
     private lazy var olderButton = NSButton(title: copy.text("下一页", "Next Page"), target: nil, action: nil)
-    private let actionNote = HistoryActionNote(wrappingLabelWithString: "")
+    private let actionNote = HistoryDetailLabel(wrappingLabelWithString: "")
     private var entries: [RiftHistoryEntry] = []
     private var displayed: [RiftHistoryEntry] = []
     private var pageOffset = 0
