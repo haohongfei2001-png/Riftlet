@@ -37,6 +37,7 @@ final class ScreenshotEntryHost {
     private var exposureIsSuppressed = false
 
     init(root: URL, store: QueueStore, rift: RiftPanelController,
+         importer: PrivateAssetImporter? = nil,
          onChange: @escaping @MainActor () async -> Void,
          onIssue: @escaping (String) -> Void,
          captureController: InteractiveScreenshotController? = nil,
@@ -51,7 +52,7 @@ final class ScreenshotEntryHost {
         if firstInstallation {
             try savePreferences(preferences, preferencesURL)
         }
-        importer = PrivateAssetImporter(privateRoot: root, store: store)
+        self.importer = importer ?? PrivateAssetImporter(privateRoot: root, store: store)
         entry = ScreenshotEntryController(defaultMode: preferences.defaultMode,
                                           isEnabled: preferences.builtInScreenshotEnabled)
         capture = captureController ?? InteractiveScreenshotController(outputDirectory: outputDirectory,

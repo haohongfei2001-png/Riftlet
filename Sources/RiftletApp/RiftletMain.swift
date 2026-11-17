@@ -631,6 +631,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         if mode.collectsSystemScreenshots, let rift {
             do {
                 screenshotEntry = try ScreenshotEntryHost(root: root, store: store, rift: rift,
+                    importer: startupCapture?.importer,
                     onChange: { [weak self] in await self?.refresh() },
                     onIssue: { [weak self] message in self?.showIssue(message) },
                     allowsSystemCapture: mode != .settingsReview)
@@ -967,7 +968,6 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 catch { setupIssue = .targetUnavailable }
             }
             await refresh()
-            checkStorage()
         }
     }
 
