@@ -93,13 +93,30 @@ extension PrivateAssetImporter {
             }
             do { try await store.retireMedia(record.id, revision: record.visibilityRevision, batch: batch) }
             catch RiftletError.invalidTransition { skipped = true; continue }
-            do { try PrivateFiles.promote(media, to: trashURL(for: record, directory: trash)) }
+            do { try moveTrashFile(media, to: trashURL(for: record, directory: trash)) }
             catch {
                 if FileManager.default.fileExists(atPath: media.path) { try await store.reinstateMedia(record.id) }
                 throw error
             }
         }
         if skipped && !automatic { throw CaptureError.unstableFile }
+    }
+
+    /// The system may allow access to an individual Trash item while denying a
+    /// read handle on the enclosing Trash. Sync the exact file and our own
+    /// directory. Startup reconciliation handles either side of an interrupted move.
+    private func moveTrashFile(_ source: URL, to destination: URL) throws {
+        let fd = Darwin.open(source.path, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
+        guard fd >= 0 else { throw CaptureError.io("open-trash-item", errno) }
+        defer { Darwin.close(fd) }
+        let identity = try FileSignature.read(descriptor: fd)
+        guard try FileSignature.read(at: source) == identity else { throw CaptureError.unstableFile }
+        guard renamex_np(source.path, destination.path, UInt32(RENAME_EXCL)) == 0 else {
+            throw CaptureError.io("move-trash-item", errno)
+        }
+        guard try FileSignature.read(at: destination) == identity else { throw CaptureError.unstableFile }
+        guard fsync(fd) == 0 else { throw CaptureError.io("sync-trash-item", errno) }
+        try PrivateFiles.syncDirectory(mediaDirectory)
     }
 
     private func trashURL(for record: AssetRecord, directory: URL) -> URL {
@@ -152,7 +169,7 @@ extension PrivateAssetImporter {
                     guard try PrivateFiles.hashFile(trash) == record.image.sha256 else { failed = true; continue }
                 } catch CaptureError.io(_, ENOENT) { continue }
                 catch { failed = true; continue }
-                try PrivateFiles.promote(trash, to: media)
+                try moveTrashFile(trash, to: media)
             }
             if (try? PrivateFiles.hashFile(media)) == record.image.sha256 { try await store.reinstateMedia(record.id, restoredByUserAt: Date()) }
             else { failed = true }

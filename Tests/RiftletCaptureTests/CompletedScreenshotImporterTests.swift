@@ -336,6 +336,50 @@ final class CompletedScreenshotImporterTests: XCTestCase {
         XCTAssertTrue(eligible.isEmpty, "A same-named replacement cannot qualify an old copy for automatic cleanup")
     }
 
+    func testCleanupAndUndoBatchWithoutTrashDirectoryReadAccess() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let trash = root.appendingPathComponent("fixture-trash"), db = root.appendingPathComponent("queue.sqlite")
+        try FileManager.default.createDirectory(at: trash, withIntermediateDirectories: true)
+        defer { _ = chmod(trash.path, 0o700); try? FileManager.default.removeItem(at: root) }
+        let store = try QueueStore(databaseURL: db), owner = PrivateAssetImporter(privateRoot: root, store: store)
+        var ids = Set<UUID>()
+        for index in 0..<6 {
+            let source = root.appendingPathComponent("capture-\(index).png")
+            _ = try syntheticPNG(at: source); try markSyntheticScreenshot(source)
+            let row = try await owner.importCompletedScreenshot(at: source, origin: .systemScreenshot)
+            try await store.removeFromQueue(row.id)
+            ids.insert(row.id)
+        }
+        let eligible = try await owner.cleanupItems()
+        XCTAssertEqual(eligible.count, 6)
+        XCTAssertEqual(chmod(trash.path, 0o300), 0)
+        try await owner.cleanup(eligible, trash: trash, automatic: false)
+        let retired = try await store.retiredMedia()
+        XCTAssertEqual(Set(retired.map(\.id)), ids)
+        let inTrash = try await owner.trashSummary(retired, directory: trash)
+        XCTAssertEqual(inTrash.recoverable, 6)
+        // Reopen the precise build 28 state: Undo renamed the first item back
+        // into media and stopped before committing its SQLite reinstatement.
+        let first = try XCTUnwrap(retired.first)
+        let media = root.appendingPathComponent("media").appendingPathComponent(first.image.fileName)
+        let trashed = trash.appendingPathComponent("Riftlet-" + first.image.fileName)
+        try FileManager.default.moveItem(at: trashed, to: media)
+        let reopened = try QueueStore(databaseURL: db)
+        let next = PrivateAssetImporter(privateRoot: root, store: reopened)
+        try await next.reconcileInterruptedMoves()
+        let afterCrash = try await reopened.history()
+        XCTAssertEqual(afterCrash.map(\.id), [first.id])
+        try await next.restoreTrash(from: trash)
+        let afterUndo = try await reopened.history()
+        XCTAssertEqual(Set(afterUndo.map(\.id)), ids)
+        let restoredTombstones = try await reopened.retiredMedia()
+        XCTAssertTrue(restoredTombstones.isEmpty)
+        for row in afterUndo {
+            let url = root.appendingPathComponent("media").appendingPathComponent(row.image.fileName)
+            XCTAssertEqual(try PrivateFiles.hashFile(url), row.image.sha256)
+        }
+    }
+
     func testPublishedCaptureAndPostManifestInterruptionRecoverOnce() async throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }
