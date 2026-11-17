@@ -123,6 +123,12 @@ function browserFixture(options){
    }
    const card=document.createElement('div');card.setAttribute('role','button');card.setAttribute('data-file-name',file.name);card.title=file.name;
    const image=document.createElement('img');image.alt=file.name;image.src=URL.createObjectURL(file);card.append(image);
+   if(options.ariaCardFailure){
+    card.removeAttribute('data-file-name');
+    card.removeAttribute('title');
+    card.setAttribute('aria-label','Attachment '+file.name);
+    image.removeAttribute('alt');
+   }
    if(options.decoratedFilename){
     card.removeAttribute('data-file-name');card.title='正在上传 '+file.name+' (PNG image)';
     image.alt='Preview '+file.name+' (uploading)';image.src=canvas.toDataURL('image/png');
@@ -312,7 +318,8 @@ function browserFixture(options){
    if(options.retained)check(task.list.length===1&&task.list[0]===task.file,'retained prior FileList independent from replacement');
   }
   if(options.portalCards){
-   tasks[0].card.dataset.state='failed';
+   const failedNode=options.ariaCardFailure?tasks[0].image:tasks[0].card;
+   failedNode.dataset.state='failed';
    const observed=call(ops[0].command('observe')).observation;
    check(observed.state==='failed'&&observed.hasError&&!observed.automaticRetryExcluded&&!observed.attachmentAbsent,'portalled failure bound to its accepted file');
    check(call(ops[1].command('observe')).observation.state==='uploadStarted','other card unaffected');
@@ -387,6 +394,7 @@ function browserFixture(options){
 }
 const originalScenarios=[
  {name:'original-portal-card-failure',count:2,retained:true,portalCards:true,route:'https://chatgpt.com/c/ordinary-thread'},
+ {name:'aria-preview-portal-failure',count:2,retained:true,portalCards:true,ariaCardFailure:true,route:'https://chatgpt.com/c/ordinary-thread'},
  {name:'actual-marked-zh-composer-four-direct-fields',count:5,retained:true,liveComposerShape:true,route:'https://chatgpt.com/'},
  ...[2,3,5].map(count=>({count,retained:true,route:'https://chatgpt.com/c/ordinary-thread'})),
  {count:3,retained:false,route:'https://chatgpt.com/'},
