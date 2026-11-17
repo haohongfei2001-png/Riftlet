@@ -314,9 +314,14 @@ final class CompletedScreenshotImporterTests: XCTestCase {
         do { try await second.restoreTrash(from: trash); XCTFail("Corrupt trash was reported restored") }
         catch CaptureError.invalidManifest {}
         try original.write(to: trashed)
+        let undoBegan = Date()
         try await second.restoreTrash(from: trash)
         let after = try await reopened.history()
         XCTAssertEqual(Set(after.map(\.id)), [locked.id, archived.id])
+        XCTAssertTrue(try XCTUnwrap(after.first(where: { $0.id == archived.id })).lastInteractionAt >= undoBegan)
+        let soon = try await second.cleanupItems(rule: MediaRetention(days: 30, since: nil),
+                                                  now: undoBegan.addingTimeInterval(29 * 86_400))
+        XCTAssertTrue(soon.isEmpty)
         XCTAssertEqual(try Data(contentsOf: root.appendingPathComponent("media").appendingPathComponent(archived.image.fileName)), original)
         let finalPhase = try await reopened.operation(id: operation.id)?.phase
         XCTAssertEqual(finalPhase, .unknown)

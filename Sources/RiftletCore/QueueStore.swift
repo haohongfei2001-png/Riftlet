@@ -76,8 +76,15 @@ public actor QueueStore {
         }
     }
 
-    public func reinstateMedia(_ id: UUID) throws {
-        try database.execute("DELETE FROM retired_media WHERE asset_id=?", [id.uuidString])
+    public func reinstateMedia(_ id: UUID, restoredByUserAt: Date? = nil) throws {
+        try database.transaction {
+            guard try isRetiredMedia(id) else { return }
+            if let restoredByUserAt {
+                try database.execute("UPDATE assets SET last_interaction_at=? WHERE id=?",
+                                     [String(restoredByUserAt.timeIntervalSince1970), id.uuidString])
+            }
+            try database.execute("DELETE FROM retired_media WHERE asset_id=?", [id.uuidString])
+        }
     }
 
     public func containsSource(key: String) throws -> Bool {

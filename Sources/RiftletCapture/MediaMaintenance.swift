@@ -154,7 +154,7 @@ extension PrivateAssetImporter {
                 catch { failed = true; continue }
                 try PrivateFiles.promote(trash, to: media)
             }
-            if (try? PrivateFiles.hashFile(media)) == record.image.sha256 { try await store.reinstateMedia(record.id) }
+            if (try? PrivateFiles.hashFile(media)) == record.image.sha256 { try await store.reinstateMedia(record.id, restoredByUserAt: Date()) }
             else { failed = true }
         }
         if failed { throw CaptureError.invalidManifest }
