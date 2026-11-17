@@ -95,8 +95,8 @@ final class SettingsReviewDriver {
             try self.require(window.isVisible, "settingsWindowNotVisible")
             let content = window.contentRect(forFrameRect: window.frame)
             let titleHeight = window.frame.height - content.height
-            if let screen = window.screen, screen.visibleFrame.width >= 814, screen.visibleFrame.height >= 580 + titleHeight {
-                try self.require(abs(content.width - 814) <= 1 && abs(content.height - 580) <= 1,
+            if let screen = window.screen, screen.visibleFrame.width >= 640, screen.visibleFrame.height >= 560 + titleHeight {
+                try self.require(abs(content.width - 640) <= 1 && abs(content.height - 560) <= 1,
                                  "initialContentSizeMismatch")
             }
             try self.require(!self.host.snapshot.capabilities.canCapture, "reviewCaptureCapabilityEnabled")
@@ -113,11 +113,12 @@ final class SettingsReviewDriver {
             await runCase("four-pages-light-and-dark") { try await self.capturePages() }
             await runCase("orthogonal-pause-hidden-sqlite") { try await self.pauseAndHide() }
             await runCase("archive-editor-return-and-blur") { try await self.archiveEditing() }
+            await runCase("tray-material-settings-and-legacy-visibility") { try await self.trayAppearanceSettings() }
             await runCase("configuration-editor-refresh-defaults") { try await self.configurationEditing() }
             await runCase("close-sheet-continue-discard") { try await self.closeEditing() }
             await runCase("independent-write-failures-and-retry") { try await self.saveFailures() }
             await runCase("motion-selection-in-advanced-appearance") { try await self.motion() }
-            await runCase("three-step-guidance-light-and-dark") { try await self.onboarding() }
+            await runCase("two-step-guidance-light-and-dark") { try await self.onboarding() }
             await runCase("resizing-and-reopen") { try await self.resize() }
             await runCase("history-real-records") { try await self.history() }
             await runCase("original-media-and-no-upload-operations") { try await self.integrity() }
@@ -425,7 +426,7 @@ final class SettingsReviewDriver {
     }
     private func setRuntimeSetting(_ id: String, enabled: Bool) async throws {
         try await closeControl()
-        host.show(page: .capture)
+        host.show(page: id == "settings.center.desktop.visible" ? .display : .capture)
         try await setToggle(id, enabled, window: host.center.window)
     }
 
@@ -455,7 +456,7 @@ final class SettingsReviewDriver {
         try JSONDecoder().decode(type, from: Data(contentsOf: environment.root.appendingPathComponent(name)))
     }
     private func appearance(_ value: SettingsAppearanceChoice) async throws {
-        host.show(page: .general)
+        host.show(page: .display)
         try select("settings.center.appearance", index: SettingsAppearanceChoice.allCases.firstIndex(of: value)!)
         try await wait { self.host.snapshot.appearance.selection == value && self.host.snapshot.appearance.failure == nil }
         let json = try JSONSerialization.jsonObject(with: Data(contentsOf: environment.root.appendingPathComponent("app-presentation-settings.json"))) as? [String: Any]
@@ -652,10 +653,41 @@ final class SettingsReviewDriver {
         guard let button = try control(id) as? NSButton else { throw Failure.controlUnavailable(id) }
         if button.state != .on { try click(id) }
     }
+    private func trayAppearanceSettings() async throws {
+        host.show(page: .display)
+        try await chooseDesktopForm(.tray)
+        let config = host.snapshot.state.owner.settings.configuration
+        let legacy = host.snapshot.legacyCustomFields
+        if legacy.isEmpty && !host.snapshot.hasLegacyTrayTheme {
+            try require(find("settings.center.disclosure.display.legacy", in: host.center.window.contentView)?.isHiddenOrHasHiddenAncestor == true,
+                        "newProfileShowsLegacySettings")
+        }
+        guard let slider = try control("settings.center.tray.transparency") as? NSSlider,
+              let action = slider.action else { throw Failure.controlUnavailable("transparencySlider") }
+        let original = config.trayBackgroundTransparency, originalCamera = config.trayCameraBodyColor
+        let target = original == 0.65 ? 0.45 : 0.65
+        let originalFile = try Data(contentsOf: environment.root.appendingPathComponent("rift-configuration.json"))
+        slider.doubleValue = target
+        try require(NSApp.sendAction(action, to: slider.target, from: slider), "appearancePreviewNotDispatched")
+        try require(try Data(contentsOf: environment.root.appendingPathComponent("rift-configuration.json")) == originalFile, "previewWroteBeforeIdle")
+        try await wait { self.host.snapshot.state.owner.settings.configuration.trayBackgroundTransparency == target }
+        try click("settings.center.tray.camera.2")
+        try await wait { self.host.snapshot.state.owner.settings.configuration.trayCameraBodyColor != nil }
+        let saved = try read(RiftConfiguration.self, "rift-configuration.json")
+        try require(saved.trayBackgroundTransparency == target && saved.trayCameraBodyColor == host.snapshot.state.owner.settings.configuration.trayCameraBodyColor,
+                    "persistedAppearanceDiffersFromOwner")
+        await capture("tray-custom-material-and-camera", window: host.center.window)
+        await host.perform(.settings(.setTrayBackgroundTransparency(original)))
+        await host.perform(.settings(.setTrayCameraBodyColor(originalCamera)))
+    }
+
     private func configurationEditing() async throws {
         host.show(page: .display)
         try await chooseDesktopForm(.microSlit)
-        try expandLayoutDetails()
+        // Seed an actual saved non-default legacy field in this guarded review profile.
+        await host.perform(.settings(.commitField(.outerInset, "22", maximumCount: 10)))
+        try await wait { self.host.snapshot.legacyCustomFields.contains(.outerInset) }
+        try click("settings.center.disclosure.display.legacy")
         let (field, editor) = try edit("settings.center.field.outerInset", text: "83.25")
         let selection = NSRange(location: 1, length: 2)
         editor.setSelectedRange(selection)
@@ -746,7 +778,7 @@ final class SettingsReviewDriver {
             try click("settings.center.close.continue", window: sheet)
             try await wait { self.host.center.window.attachedSheet == nil }
         }
-        host.show(page: .general)
+        host.show(page: .display)
         let beforeAppearance = host.snapshot.appearance.selection
         let target = beforeAppearance == .dark ? SettingsAppearanceChoice.light : .dark
         try await blockedJSON("app-presentation-settings.json") {
@@ -766,7 +798,7 @@ final class SettingsReviewDriver {
         try await wait { self.host.snapshot.state.owner.settings.archiveAfterMinutes == 1.75 }
         try require(host.snapshot.appearance.failure != nil && host.snapshot.state.domains[.layout]?.saveFailure != nil,
                     "unrelatedSaveClearedErrors")
-        host.show(page: .general); try click("settings.center.appearance.retry")
+        host.show(page: .display); try click("settings.center.appearance.retry")
         try await wait { self.host.snapshot.appearance.failure == nil && self.host.snapshot.appearance.selection == target }
         try require(host.snapshot.state.domains[.layout]?.saveFailure != nil, "appearanceRetryClearedLayoutError")
         host.show(page: .display); try click("settings.center.retry.layout")
@@ -799,7 +831,7 @@ final class SettingsReviewDriver {
         for theme in [SettingsAppearanceChoice.light, .dark] {
             try await appearance(theme)
             try require(host.showOnboarding(), "onboardingNotPresented")
-            for step in 0..<3 {
+            for step in 0..<2 {
                 try require(host.onboarding.currentStep == step, "onboardingWrongStep")
                 await settle()
                 let window = host.onboarding.window
@@ -829,8 +861,7 @@ final class SettingsReviewDriver {
     private func resize() async throws {
         host.show(page: .display)
         let original = host.center.window.frame
-        var small = original; small.size = SettingsNativeStyle.settingsMinimumSize
-        host.center.window.setFrame(small, display: true)
+        host.center.window.setContentSize(SettingsNativeStyle.settingsMinimumSize)
         await settle()
         let size = host.center.window.frame.size
         await capture("settings-minimum-size", window: host.center.window)
@@ -844,31 +875,28 @@ final class SettingsReviewDriver {
         }
         host.show(page: .display)
         try expandLayoutDetails()
-        let originalWidth = host.snapshot.state.owner.settings.configuration.outerInset
-        let testWidth = originalWidth == 82 ? 83.0 : 82.0
-        _ = try edit("settings.center.field.outerInset", text: String(testWidth))
+        let originalCount = host.snapshot.state.owner.settings.configuration.visibleCountPreference
+        let testCount = originalCount == 2 ? 1 : 2
+        _ = try edit("settings.center.field.visibleCountPreference", text: String(testCount))
         try await wait { self.host.model.hasLayoutDraft }
         await settle()
         guard let scroll = find("settings.center.scroll", in: host.center.window.contentView) as? NSScrollView,
               let document = scroll.documentView,
-              let target = find("settings.center.layout.defaults.display", in: document) else {
+              let target = find("settings.center.arrival", in: document) else {
             throw Failure.controlUnavailable("minimumWindowScrollTarget")
         }
-        scroll.contentView.scroll(to: NSPoint(x: 0, y: max(0, document.bounds.height - scroll.contentView.bounds.height)))
-        scroll.reflectScrolledClipView(scroll.contentView)
-        await settle()
         target.scrollToVisible(target.bounds)
         let targetRect = target.convert(target.bounds, to: scroll.contentView)
-        try require(!target.isHiddenOrHasHiddenAncestor && scroll.contentView.bounds.contains(targetRect), "minimumWindowDefaultsUnreachableByScrolling")
+        try require(!target.isHiddenOrHasHiddenAncestor && scroll.contentView.bounds.insetBy(dx: -1, dy: -1).contains(targetRect), "minimumWindowLastOptionUnreachableByScrolling")
         artifacts.append(["kind": "minimumWindowScroll", "page": "display", "detailsExpanded": true,
             "documentHeight": document.bounds.height, "viewportHeight": scroll.contentView.bounds.height,
-            "scrollOffset": scroll.contentView.bounds.origin.y, "defaultsFullyVisible": true])
+            "scrollOffset": scroll.contentView.bounds.origin.y, "arrivalOptionFullyVisible": true])
         await capture("settings-minimum-display-scrolled", window: host.center.window)
-        try commitReturn("settings.center.field.outerInset")
-        try await wait { self.host.snapshot.state.owner.settings.configuration.outerInset == testWidth && !self.host.model.hasLayoutDraft }
-        _ = try edit("settings.center.field.outerInset", text: String(originalWidth))
-        try commitReturn("settings.center.field.outerInset")
-        try await wait { self.host.snapshot.state.owner.settings.configuration.outerInset == originalWidth && !self.host.model.hasLayoutDraft }
+        try commitReturn("settings.center.field.visibleCountPreference")
+        try await wait { self.host.snapshot.state.owner.settings.configuration.visibleCountPreference == testCount && !self.host.model.hasLayoutDraft }
+        _ = try edit("settings.center.field.visibleCountPreference", text: String(originalCount))
+        try commitReturn("settings.center.field.visibleCountPreference")
+        try await wait { self.host.snapshot.state.owner.settings.configuration.visibleCountPreference == originalCount && !self.host.model.hasLayoutDraft }
         scroll.contentView.scroll(to: .zero); scroll.reflectScrolledClipView(scroll.contentView)
         host.center.window.performClose(nil)
         try await wait { !self.host.center.isVisible }
@@ -885,6 +913,7 @@ final class SettingsReviewDriver {
         await runCase("history-original-200-percent-survives-renderer-change") { try await self.historyOriginal() }
         await runCase("history-both-renderers-light-dark-minimum") { try await self.historyVisuals() }
         await runCase("history-one-asset-remove-and-restore") { try await self.historyVisibilityActions() }
+        await runCase("history-whole-library-cross-page-and-restoration") { try await self.historyCrossPageSearch() }
         await runCase("history-final-integrity-and-persisted-style") {
             let history = try self.reviewHistory()
             self.host.show(page: .capture)
@@ -898,7 +927,7 @@ final class SettingsReviewDriver {
             self.artifacts.append(["kind": "historyFinalState", "assetRowsSHA256": try self.assetRowsDigest(records),
                 "assetCount": records.count, "selectedStyle": self.host.historyDisplay.selection.rawValue,
                 "rawDomainSHA256": self.digest(domain.bytes), "rawDomain": domain.value,
-                "inputMethod": "PROGRAMMATIC_NATIVE_CONTROLS", "pageScope": "First real page with three collected fixtures; next/previous are disabled, no fabricated second page"])
+                "inputMethod": "PROGRAMMATIC_NATIVE_CONTROLS", "pageScope": "Three collector captures and 398 isolated library fixtures; native library navigation and search across three pages"])
         }
     }
 
@@ -1212,6 +1241,52 @@ final class SettingsReviewDriver {
         let final = try await store.assets(includeUsed: true)
         try require(final.first(where: { $0.id == id })?.visibilityRevision == original.visibilityRevision + 4
             && final.filter { $0.id != id } == initial.filter { $0.id != id }, "historyBothStylesVisibilityRoundtripMismatch")
+    }
+
+    private func historyCrossPageSearch() async throws {
+        try validateEnvironment()
+        let history = try reviewHistory()
+        guard let id = historyFixtureIDs.first, let original = try await store.asset(id: id) else {
+            throw Failure.assertion("historyCrossPageFixtureMissing")
+        }
+        let media = environment.root.appendingPathComponent("media")
+        let bytes = try Data(contentsOf: media.appendingPathComponent(original.image.fileName))
+        try require(digest(bytes) == original.image.sha256, "historyCrossPageFixtureChanged")
+        // Only three inputs exercise the collector. The rest intentionally seed
+        // the real isolated store directly with small copied local images.
+        let captured = Date().addingTimeInterval(1)
+        for index in 0..<398 {
+            let asset = ImportedAsset(sourceKey: "history-page-\(index)", fileName: "history-page-\(index).png",
+                sha256: original.image.sha256, byteCount: Int64(bytes.count), pixelWidth: original.image.pixelWidth,
+                pixelHeight: original.image.pixelHeight, mediaType: original.image.mediaType,
+                capturedAt: captured, origin: .synthetic)
+            try bytes.write(to: media.appendingPathComponent(asset.fileName), options: .withoutOverwriting)
+            let record = try await store.importAsset(asset)
+            try await store.removeFromQueue(record.id)
+        }
+        try await chooseHistoryStyle(.current)
+        try await historySearch("")
+        try await wait { try self.historyTable().numberOfRows == 200 }
+        let table = try historyTable()
+        try click("history.next", window: history.window)
+        try await wait {
+            (self.find("history.count", in: history.window.contentView) as? NSTextField)?.stringValue
+                .contains(ProductCopy.text("第 2 页", "Page 2")) == true
+        }
+        try click("history.next", window: history.window)
+        try await wait { table.numberOfRows == 1 }
+        try await historySearch(id.uuidString)
+        try await wait {
+            (self.find("history.count", in: history.window.contentView) as? NSTextField)?.stringValue
+                .contains(ProductCopy.text("第 1 页", "Page 1")) == true && table.numberOfRows == 1
+        }
+        table.selectRowIndexes(IndexSet(integer: 0), byExtendingSelection: false)
+        try await wait { history.selectedRecordID == id }
+        try await chooseHistoryStyle(.imageGrid)
+        try require(history.selectedRecordID == id, "historyCrossPageRendererChangedUUID")
+        await capture("history-library-cross-page-uuid", window: history.window)
+        artifacts.append(["kind": "historyCrossPage", "rows": 401, "metadataFixtures": 398, "collectorFixtures": 3,
+            "targetUUID": id.uuidString, "lastPageRows": 1, "realUIQueryReturnedToFirstPage": true])
     }
 
     private func verifyHistoryStyleRestart(output: URL, initialChecks: [[String: Any]], prior: [String: Any]?, executableSHA: String?) async -> URL? {
@@ -2023,6 +2098,11 @@ extension SettingsReviewDriver {
         }
         await runCase("violet-restart-and-material-switch") {
             try await self.chooseDesktopForm(.tray)
+            // An upgraded profile with a saved nondefault theme exposes the legacy controls.
+            await self.host.perform(.settings(.selectTrayTheme(.custom)))
+            try await self.wait { self.host.snapshot.hasLegacyTrayTheme }
+            let legacyID = "settings.center.disclosure.display.legacy"
+            if let legacy = try self.control(legacyID) as? NSButton, legacy.state != .on { try self.click(legacyID) }
             try self.select("settings.center.trayTheme",index:1)
             try await self.wait { self.host.snapshot.state.owner.settings.configuration.trayTheme == .violetGlass }
             await self.settle(180)
@@ -2034,12 +2114,19 @@ extension SettingsReviewDriver {
         await runCase("physical-connected-displays") {
             for (index,display) in NSScreen.screens.enumerated() {
                 self.host.show(page:.display)
-                guard let popup = try self.control("settings.center.display") as? NSPopUpButton,
-                      let id = display.deviceDescription[.init("NSScreenNumber")] as? NSNumber,
-                      let item = popup.itemArray.firstIndex(where:{ ($0.representedObject as? NSNumber)?.uint32Value == id.uint32Value })
-                else { throw Failure.assertion("physicalDisplayMenuMissing") }
-                try self.select("settings.center.display",index:item)
-                try await self.wait { panel.preferredScreen?.frame == display.frame }
+                let displayID = "settings.center.display"
+                if NSScreen.screens.count > 1 {
+                    guard let popup = try self.control(displayID) as? NSPopUpButton,
+                          let id = display.deviceDescription[.init("NSScreenNumber")] as? NSNumber,
+                          let item = popup.itemArray.firstIndex(where:{ ($0.representedObject as? NSNumber)?.uint32Value == id.uint32Value })
+                    else { throw Failure.assertion("physicalDisplayMenuMissing") }
+                    try self.select(displayID, index:item)
+                    try await self.wait { panel.preferredScreen?.frame == display.frame }
+                } else {
+                    try self.require(self.find(displayID, in: self.host.center.window.contentView)?.isHiddenOrHasHiddenAncestor == true,
+                                     "singleDisplayShowsUnavailableChoice")
+                    self.artifacts.append(["kind": "physicalDisplaySelection", "multipleDisplays": "NOT_RUN", "reason": "one connected display"])
+                }
                 for form in variants {
                     try await self.chooseDesktopForm(form)
                     let rows = panel.diagnosticSnapshot.rows

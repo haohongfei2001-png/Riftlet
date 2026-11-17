@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 import XCTest
 import RiftletUI
@@ -46,6 +47,28 @@ final class RecoverablePreferencesTests: XCTestCase {
         XCTAssertEqual(partial.legacyCustomFields, [])
         XCTAssertEqual(partial.layout.desktopForm, .microSlit)
         XCTAssertEqual(try Data(contentsOf: layout), Data("{}".utf8))
+    }
+
+    @MainActor func testLiveAppearanceThenUnrelatedSavePreservesOpaqueSibling() throws {
+        _ = NSApplication.shared
+        for (input, colorEdited) in [(#"{"trayBackgroundTransparency":{"future":3}}"#, true),
+                                    (#"{"trayCameraBodyColor":"#00aaff"}"#, false)] {
+            try Data(input.utf8).write(to: layout)
+            let prefs = load()
+            let panel = RiftPanelController(mediaDirectory: root, configuration: prefs.layout, onSelect: { _ in })
+            defer { panel.close() }
+            var selected = panel.requestedConfiguration
+            if colorEdited { selected.trayCameraBodyColor = "#AA2211" }
+            else { selected.trayBackgroundTransparency = 0.5 }
+            try prefs.saveLayout(selected)
+            panel.applyTrayAppearance(selected)
+            var moved = panel.requestedConfiguration
+            moved.outerInset = 23
+            try prefs.saveLayout(moved)
+            let raw = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: layout)) as? NSDictionary)
+            if colorEdited { XCTAssertEqual(raw["trayBackgroundTransparency"] as? NSDictionary, ["future": 3]) }
+            else { XCTAssertEqual(raw["trayCameraBodyColor"] as? String, "#00aaff") }
+        }
     }
 
     func testDamagedLayoutLeavesArchiveAndOriginalUntouchedUntilExplicitRecovery() throws {

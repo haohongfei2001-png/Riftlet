@@ -2030,10 +2030,8 @@ public final class RiftPanelController {
 
     /// Commit these two independent fields even when a geometry change is deferred.
     public func applyTrayAppearance(_ persisted: RiftConfiguration) {
-        configuration.trayBackgroundTransparency = persisted.trayBackgroundTransparency
-        configuration.trayCameraBodyColor = persisted.trayCameraBodyColor
-        deferredConfiguration?.trayBackgroundTransparency = persisted.trayBackgroundTransparency
-        deferredConfiguration?.trayCameraBodyColor = persisted.trayCameraBodyColor
+        configuration.applyPersistedTrayAppearance(from: persisted)
+        deferredConfiguration?.applyPersistedTrayAppearance(from: persisted)
         clearTrayAppearancePreview()
     }
 

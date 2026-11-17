@@ -226,6 +226,11 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
         }
     }
 
+    mutating func applyPersistedTrayAppearance(from saved: Self) {
+        storedTransparency = saved.storedTransparency
+        storedCameraColor = saved.storedCameraColor
+    }
+
     public static func normalizedCameraColor(_ value: String) -> String? {
         let bytes = value.utf8
         guard bytes.count == 7, bytes.first == 35, bytes.dropFirst().allSatisfy({
