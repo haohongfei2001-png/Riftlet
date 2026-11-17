@@ -718,6 +718,7 @@ function riftletWebAcceptance(command, native) {
     const consistent = value => !value || (value.length <= 1024
       && [...value.matchAll(uploadName)].every(match => match[0].toLowerCase() === expected));
     const nodes = [card];
+    let textLength = 0;
     for (let i = 0; i < nodes.length; i++) {
       const node = nodes[i], declared = node.getAttribute('data-file-name');
       if (declared !== null && declared !== name) return false;
@@ -726,12 +727,17 @@ function riftletWebAcceptance(command, native) {
       // before expanding a collection or joining an arbitrarily large subtree.
       if (node.childNodes.length > 32) return false;
       for (const child of node.childNodes) {
-        if (child.nodeType === 3 && !consistent(child.nodeValue)) return false;
+        if (child.nodeType === 3) {
+          textLength += child.nodeValue.length;
+          if (textLength > 1024) return false;
+        }
       }
       if (nodes.length + node.children.length > 32) return false;
       for (const child of node.children) nodes.push(child);
     }
-    return true;
+    // Filenames can be split across styled spans. The traversal bounded the
+    // complete text before joining it in document order.
+    return consistent(card.textContent);
   }
   function captureFailureWatch(op, accepted, matches) {
     if (typeof WeakRef !== 'function') return;

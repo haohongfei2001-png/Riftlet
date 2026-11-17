@@ -740,6 +740,9 @@ test('an original blob left behind during a component rebind cannot borrow the n
  }
  const message=card.append(new f.Node('span')); message.textContent=b.name;
  accepted(f,a); message.remove();
+ const left=card.append(new f.Node('span')), right=card.append(new f.Node('span'));
+ left.textContent=b.name.slice(0,18); right.textContent=b.name.slice(18);
+ accepted(f,a); left.remove(); right.remove();
  const secondPreview=card.append(new f.Node('img',{alt:b.name}));
  accepted(f,a); secondPreview.remove();
  card.setAttribute('aria-label',b.name); image.setAttribute('alt',b.name);
