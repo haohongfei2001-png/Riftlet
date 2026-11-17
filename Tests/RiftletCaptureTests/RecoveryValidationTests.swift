@@ -120,7 +120,8 @@ final class RecoveryValidationTests: XCTestCase {
         bytes[bytes.count / 2] ^= 1
         try bytes.write(to: fixture.media(record.image))
         let startup = try await fixture.importer.recover(deferringColdHistory: true)
-        XCTAssertEqual(startup.deferredManifests, [fixture.journal(record.image)])
+        XCTAssertEqual(startup.deferredManifests.map { $0.resolvingSymlinksInPath().path },
+                       [fixture.journal(record.image).resolvingSymlinksInPath().path])
         let verified = try await fixture.importer.verifyDeferredManifest(fixture.journal(record.image))
         XCTAssertEqual(verified.invalid, [record.id])
         let stored = try await fixture.store.asset(id: record.id)
