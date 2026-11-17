@@ -95,7 +95,9 @@ extension PrivateAssetImporter {
             catch RiftletError.invalidTransition { skipped = true; continue }
             do { try moveTrashFile(media, to: trashURL(for: record, directory: trash)) }
             catch {
-                if FileManager.default.fileExists(atPath: media.path) { try await store.reinstateMedia(record.id) }
+                if (try? PrivateFiles.hashFile(media)) == record.image.sha256 {
+                    try await store.reinstateMedia(record.id, restoredByUserAt: Date())
+                }
                 throw error
             }
         }
@@ -184,7 +186,11 @@ extension PrivateAssetImporter {
         try PrivateFiles.ensurePrivateDirectory(mediaDirectory)
         for record in try await store.retiredMedia() where isManagedName(record) {
             let media = mediaDirectory.appendingPathComponent(record.image.fileName)
-            if (try? PrivateFiles.hashFile(media)) == record.image.sha256 { try await store.reinstateMedia(record.id) }
+            // The earlier build could stop after Undo moved the file home. Give
+            // recovered bytes a full retention interval before the startup sweep.
+            if (try? PrivateFiles.hashFile(media)) == record.image.sha256 {
+                try await store.reinstateMedia(record.id, restoredByUserAt: Date())
+            }
         }
     }
 }
