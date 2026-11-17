@@ -115,16 +115,20 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertFalse(h.controller.isVisible, "Background updates do not open a closed settings window")
     }
 
-    @MainActor func testGeneralContainsVersionUpdateAppearanceLoginAndCaptureHasEntry() throws {
+    @MainActor func testFourPagesExposeWorkingControlsInTheirPrimaryLocation() throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
         h.controller.show()
         XCTAssertEqual(h.controller.selectedPage, .general)
-        for id in ["login", "appearance", "updates.check", "updates.automatic"] {
+        for id in ["login", "updates.check", "updates.automatic"] {
             let view = try XCTUnwrap(h.controller.controls[id])
             XCTAssertTrue(view.window === h.controller.window)
             XCTAssertFalse(view.isHiddenOrHasHiddenAncestor)
         }
         XCTAssertTrue(h.controller.labels["version"]?.window === h.controller.window)
+        h.controller.show(page: .display)
+        for id in ["appearance", "desktop.visible"] {
+            XCTAssertTrue(h.controller.controls[id]?.window === h.controller.window)
+        }
         for moved in ["paused", "hidden", "history.displayStyle", "configuration.open", "configuration.reload"] {
             XCTAssertNil(h.controller.controls[moved])
         }
@@ -191,10 +195,13 @@ final class RiftSettingsCenterTests: XCTestCase {
         h.controller.show(page: .capture)
         let captureAccess: NSButton = try control(h, "source.access.capture")
         XCTAssertTrue(captureAccess.isHidden)
+        h.controller.show(page: .help)
+        try click(h, "disclosure.diagnostics")
         let verifyMedia: NSButton = try control(h, "storage.recheckMedia")
         XCTAssertFalse(verifyMedia.isHiddenOrHasHiddenAncestor, "A working screenshot folder must not hide private-copy recovery")
         XCTAssertTrue(verifyMedia.isEnabled)
 
+        h.controller.show(page: .capture)
         XCTAssertNil(h.controller.controls["source.access.help"])
         snapshot.setup = .init(sourceLocation: "/fixture/shots", source: .accessible, issue: .screenshotFolderNeedsSelection)
         h.controller.update(snapshot)
@@ -203,8 +210,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertTrue(captureAccess.isEnabled)
         XCTAssertEqual(captureAccess.title, ProductCopy.text("允许访问截图文件夹…", "Allow Screenshot Folder Access…"))
         let recheck: NSButton = try control(h, "source.recheck.capture")
-        XCTAssertFalse(recheck.isHidden)
-        XCTAssertTrue(recheck.isEnabled)
+        XCTAssertTrue(recheck.isHidden, "Only the relevant folder authorization action is offered")
         XCTAssertTrue(h.actions.isEmpty)
     }
 
@@ -300,7 +306,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         let window = h.controller.window
         let visible = try XCTUnwrap((window.screen ?? NSScreen.main)?.visibleFrame)
         let available = window.contentRect(forFrameRect: visible).size
-        let expected = NSSize(width: min(814, available.width), height: min(580, available.height))
+        let expected = NSSize(width: min(640, available.width), height: min(560, available.height))
         h.controller.show()
         window.contentView?.layoutSubtreeIfNeeded()
         let actual = window.contentRect(forFrameRect: window.frame).size
@@ -310,7 +316,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertLessThanOrEqual(window.frame.maxX, visible.maxX + 0.5)
         XCTAssertGreaterThanOrEqual(window.frame.minY, visible.minY - 0.5)
         XCTAssertLessThanOrEqual(window.frame.maxY, visible.maxY + 0.5)
-        let smaller = NSSize(width: max(716, expected.width - 40), height: max(450, expected.height - 30))
+        let smaller = NSSize(width: max(600, expected.width - 40), height: max(460, expected.height - 30))
         window.setContentSize(smaller)
         let resized = window.frame.size
         h.publish(); h.controller.show(page: .capture)
@@ -328,39 +334,28 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertEqual(frame.midX, large.midX); XCTAssertEqual(frame.midY, large.midY)
     }
 
-    @MainActor func testLayoutCaptionStaysOutsideDrawingForAllPlacementsAndCompactWidth() throws {
+    @MainActor func testInlinePreviewAndEdgePickerStayAccessibleAtCompactWidth() throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
         h.controller.show(page: .display)
-        let caption = try XCTUnwrap(h.controller.labels["layoutPreview.detail"])
         let document = try XCTUnwrap(h.controller.pages[.display])
-        try click(h, "disclosure.display.advanced")
+        let picker: NSPopUpButton = try control(h, "placement")
         for size in [SettingsNativeStyle.settingsSize, SettingsNativeStyle.settingsMinimumSize] {
             h.controller.window.setContentSize(size)
             for placement in RiftPlacement.allCases {
-                for count in [1, 3, 10] {
-                    var settings = h.owner.settings
-                    settings.configuration.placement = placement
-                    settings.configuration.visibleCountPreference = count
-                    h.receive(settings)
-                    h.controller.window.contentView?.layoutSubtreeIfNeeded()
-                    let drawingRect = h.controller.geometryPreview.convert(h.controller.geometryPreview.bounds, to: document)
-                    let captionRect = caption.convert(caption.bounds, to: document)
-                    XCTAssertGreaterThan(captionRect.height, 0)
-                    XCTAssertFalse(drawingRect.intersects(captionRect), "The caption must never cover a synthetic card, including left-middle")
-                    if document.isFlipped { XCTAssertGreaterThanOrEqual(captionRect.minY + 0.5, drawingRect.maxY) }
-                    else { XCTAssertLessThanOrEqual(captionRect.maxY - 0.5, drawingRect.minY) }
-                    let effective = min(count, h.controller.countCapacity(h.model.snapshot.owner))
-                    XCTAssertTrue(caption.stringValue.contains(placement.title + ProductCopy.text(" · \(effective) 张", " · \(effective) images")))
-                    XCTAssertEqual(h.controller.geometryPreview.accessibilityValue() as? String, h.controller.geometryPreview.geometrySummary)
-                    XCTAssertEqual(caption.stringValue.contains(ProductCopy.text("示意前 4 张", "showing the first 4")), effective > 4)
-                }
+                var settings = h.owner.settings
+                settings.configuration.placement = placement
+                h.receive(settings)
+                h.controller.window.contentView?.layoutSubtreeIfNeeded()
+                let preview = h.controller.geometryPreview
+                XCTAssertEqual(preview.bounds.height, 140, accuracy: 1)
+                XCTAssertEqual(preview.accessibilityValue() as? String, preview.geometrySummary)
+                XCTAssertTrue(preview.geometrySummary.hasPrefix(placement.title))
+                XCTAssertEqual(picker.titleOfSelectedItem, placement.title)
+                XCTAssertFalse(picker.convert(picker.bounds, to: document).intersects(preview.convert(preview.bounds, to: document)))
             }
-            let visible = h.controller.scroll.contentView.documentVisibleRect
-            let picker: NSPopUpButton = try control(h, "placement")
-            let rect = picker.convert(picker.bounds, to: document)
-            let drawingRect = h.controller.geometryPreview.convert(h.controller.geometryPreview.bounds, to: document)
-            XCTAssertTrue(visible.contains(rect), "Placement must be operable in the initial viewport")
-            XCTAssertFalse(rect.intersects(drawingRect))
+            picker.scrollToVisible(picker.bounds)
+            let clip = h.controller.scroll.contentView
+            XCTAssertTrue(clip.bounds.insetBy(dx: -1, dy: -1).contains(picker.convert(picker.bounds, to: clip)))
             XCTAssertEqual(picker.itemArray.filter { !$0.isHidden }.map(\.title), RiftPlacement.allCases.map(\.title))
             XCTAssertEqual(picker.accessibilityLabel(), ProductCopy.text("屏幕边缘", "Screen Edge"))
         }
@@ -399,7 +394,10 @@ final class RiftSettingsCenterTests: XCTestCase {
     @MainActor func testReturnCanSaveTheOriginalNumberAgainWithoutLeavingTheField() async throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
         h.controller.show(page: .display)
-        try click(h, "disclosure.display.advanced")
+        var legacy = h.owner.settings
+        legacy.configuration.outerInset = 22
+        h.receive(legacy)
+        try click(h, "disclosure.display.legacy")
         let field = try XCTUnwrap(h.controller.numericFields[.outerInset])
         let original = field.stringValue
         let initial = h.owner.settings.configuration.outerInset
@@ -421,7 +419,10 @@ final class RiftSettingsCenterTests: XCTestCase {
     @MainActor func testNativeFieldsKeepIdentityRawTextAndSelectionAcrossOwnerRefresh() throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
         h.controller.show(page: .display)
-        try click(h, "disclosure.display.advanced")
+        var legacy = h.owner.settings
+        legacy.configuration.outerInset = 22
+        h.receive(legacy)
+        try click(h, "disclosure.display.legacy")
         let field = try XCTUnwrap(h.controller.numericFields[.outerInset])
         let editor = try enter(h, field: field, text: "83.2500")
         editor.setSelectedRange(NSRange(location: 2, length: 3))
@@ -453,19 +454,21 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertEqual(field.stringValue, "4")
         XCTAssertEqual(slider.maxValue, 4)
         XCTAssertEqual(h.controller.geometryPreview.configuration.visibleCountPreference, 4)
-        XCTAssertFalse(h.controller.commonEdgeSettings.isHidden)
+        XCTAssertTrue(h.controller.legacySection.isHidden)
+        XCTAssertTrue(h.controller.commonEdgeSettings.isHidden)
         XCTAssertTrue(h.controller.slitInsetFraction.isHidden)
-        XCTAssertFalse(h.controller.trayOcclusionRow.isHidden)
-        for field in [SettingsField.fitWidth, .rowPitch, .numberFontSize, .firstCenterFromTop, .pressDuration] {
-            XCTAssertNil(h.controller.numericFields[field])
+        XCTAssertTrue(h.controller.trayOcclusionRow.isHidden)
+        for key in [SettingsField.fitWidth, .rowPitch, .numberFontSize, .firstCenterFromTop] {
+            XCTAssertTrue(try XCTUnwrap(h.controller.numericFields[key]).isHiddenOrHasHiddenAncestor)
         }
+        XCTAssertNil(h.controller.numericFields[.pressDuration])
         h.controller.window.makeFirstResponder(field)
         h.controller.window.makeFirstResponder(slider)
         await Task.yield()
         XCTAssertTrue(h.requests.isEmpty, "Merely focusing the capped value must keep the original ten")
         try await changeAndWait(h, "desktopForm", index: RiftDesktopForm.allCases.firstIndex(of: .microSlit)!)
         XCTAssertEqual(h.owner.settings.configuration.visibleCountPreference, 10)
-        XCTAssertFalse(h.controller.slitInsetFraction.isHidden)
+        XCTAssertTrue(h.controller.slitInsetFraction.isHidden, "An unmodified legacy default remains hidden")
         XCTAssertTrue(h.controller.trayOcclusionRow.isHidden)
         XCTAssertEqual(Int(field.stringValue), min(10,h.controller.countCapacity(h.model.snapshot.owner)))
     }
@@ -480,7 +483,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         try await changeAndWait(h, "desktopForm", index: 1)
         XCTAssertFalse(h.controller.windChimeSettings.isHidden)
         XCTAssertTrue(h.controller.commonEdgeSettings.isHidden)
-        XCTAssertFalse(h.controller.windChimeLineSetting.isHidden)
+        XCTAssertTrue(h.controller.windChimeLineSetting.isHidden, "A default line inset does not expose legacy customization")
         XCTAssertTrue(h.controller.geometryPreview.geometrySummary.hasSuffix(ProductCopy.text("风铃 · 错落", "Wind Chime · Staggered")))
         XCTAssertEqual(h.controller.numericFields[.windChimeLineInset]?.stringValue, "18")
         XCTAssertEqual(arrangement.accessibilityLabel(), ProductCopy.text("风铃排列", "Wind Chime Layout"))
@@ -1151,6 +1154,8 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertTrue(h.controller.labels["storage"]!.stringValue.contains(ProductCopy.text("尚未检查", "hasn’t been checked")))
         XCTAssertFalse(h.controller.labels["storage"]!.stringValue.contains("0 B"))
         XCTAssertTrue(h.actions.isEmpty)
+        h.controller.show(page: .help)
+        try click(h, "disclosure.diagnostics")
         try await clickAndWait(h, "storage.reveal")
         XCTAssertEqual(h.actions, ["revealDataFolder"])
         XCTAssertNil(h.controller.controls["history.clear"])
@@ -1222,27 +1227,43 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertEqual(h.requests.filter { $0.intent.domain == .collection }.map(\.intent), [.collectionPaused(true), .collectionPaused(false), .collectionPaused(false)])
     }
 
-    @MainActor func testLibraryViewUsesExistingSharedPreferenceAndRefreshesWithoutSavingAgain() async throws {
+    @MainActor func testLibraryStyleOwnedByLibraryAndSettingsStillOpensIt() async throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
+        h.historyStyle = .imageGrid; h.publish()
         h.controller.show(page: .capture)
-        let picker: NSSegmentedControl = try control(h, "history.style")
-        XCTAssertEqual(picker.selectedSegment, 0)
-        try await changeAndWait(h, "history.style", index: 1)
+        XCTAssertNil(h.controller.controls["history.style"])
+        try await clickAndWait(h, "history.open")
         XCTAssertEqual(h.historyStyle, .imageGrid)
-        XCTAssertEqual(picker.selectedSegment, 1)
-        XCTAssertEqual(h.actions, ["historyStyle:imageGrid"])
-        h.historyStyle = .current
-        h.publish()
-        XCTAssertEqual(picker.selectedSegment, 0)
-        XCTAssertEqual(h.actions.count, 1, "Rendering another entry's choice must not persist again")
-        XCTAssertTrue(h.requests.isEmpty, "Presentation choice must not edit screenshot settings")
+        XCTAssertEqual(h.actions, ["openHistory"])
+        XCTAssertTrue(h.requests.isEmpty)
+    }
+
+    @MainActor func testFreshTrayShowsOnlyCurrentMaterialAndLegacyRowsFollowActualNonDefaultFields() throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        var settings = h.owner.settings
+        settings.configuration.desktopForm = .tray
+        h.receive(settings)
+        h.controller.show(page: .display)
+        let legacy = try XCTUnwrap(h.controller.legacySection)
+        let slider: NSSlider = try control(h, "tray.transparency")
+        XCTAssertTrue(legacy.isHidden)
+        XCTAssertFalse(slider.isHiddenOrHasHiddenAncestor)
+        XCTAssertEqual(slider.minValue, 0)
+        XCTAssertEqual(slider.maxValue, 0.75)
+        settings.configuration.outerInset = 22
+        h.receive(settings)
+        XCTAssertFalse(legacy.isHidden)
+        try click(h, "disclosure.display.legacy")
+        XCTAssertFalse(try XCTUnwrap(h.controller.numericFields[.outerInset]).isHiddenOrHasHiddenAncestor)
+        XCTAssertTrue(try XCTUnwrap(h.controller.numericFields[.trayOcclusion]).isHiddenOrHasHiddenAncestor)
+        XCTAssertTrue(h.requests.isEmpty)
     }
 
     @MainActor func testUnavailableServicesShowStatusAndRecoveryInsteadOfDeadControls() throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
         h.login.available = false; h.appearance.available = false; h.updater = nil; h.publish()
         h.controller.show(page: .general)
-        for id in ["login", "appearance", "updates.check", "updates.automatic"] {
+        for id in ["login", "updates.check", "updates.automatic"] {
             XCTAssertTrue(try XCTUnwrap(h.controller.controls[id]).isHiddenOrHasHiddenAncestor)
         }
         XCTAssertFalse(try XCTUnwrap(h.controller.labels["login.detail"]).isHidden)
@@ -1275,7 +1296,10 @@ final class RiftSettingsCenterTests: XCTestCase {
     @MainActor func testResizeRetainsFieldsAndScrollableDocument() throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
         h.controller.show(page: .display)
-        try click(h, "disclosure.display.advanced")
+        var legacy = h.owner.settings
+        legacy.configuration.outerInset = 22
+        h.receive(legacy)
+        try click(h, "disclosure.display.legacy")
         let field = try XCTUnwrap(h.controller.numericFields[.outerInset])
         let size = SettingsNativeStyle.settingsMinimumSize
         h.controller.window.setContentSize(size)
@@ -1316,7 +1340,7 @@ final class RiftSettingsCenterTests: XCTestCase {
             XCTAssertEqual(h.controller.navigation[page]?.accessibilityLabel(), page.title)
             XCTAssertTrue(field === h.controller.numericFields[.outerInset])
             for control in h.controller.controls.values where !control.isHiddenOrHasHiddenAncestor {
-                guard let button = control as? NSButton, !(button is NSPopUpButton) else { continue }
+                guard let button = control as? NSButton, !(button is NSPopUpButton), button.imagePosition != .imageOnly, button.window != nil else { continue }
                 let width = (button.title as NSString).size(withAttributes: [.font: button.font ?? NSFont.systemFont(ofSize: 13)]).width
                 XCTAssertGreaterThanOrEqual(button.bounds.width, width, "Button title must remain readable: " + button.title)
             }
@@ -1367,6 +1391,7 @@ private final class SettingsCenterTestHost {
             if case .settings(let command) = action { _ = await model.perform(command) }
             else {
                 switch action {
+                case .openHistory: actions.append("openHistory")
                 case .checkChromeConnection: actions.append("checkChromeConnection")
                 case .clearVisible: actions.append("clearVisible")
                 case .revealDataFolder: actions.append("revealDataFolder")
@@ -1395,7 +1420,7 @@ private final class SettingsCenterTestHost {
         case .captureMode(let mode): if !failure { settings.defaultCaptureMode = mode; settings.capturePreferencesSaveFailed = false }
         case .arrival(let mode): if !failure { settings.arrivalMode = mode; settings.hasArrivalSelection = true }
         case .archiveMinutes(let value): if !failure { settings.archiveAfterMinutes = value }
-        case .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFavorite:
+        case .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFavorite, .trayBackgroundTransparency, .trayCameraBodyColor, .restoreLegacyCustom:
             if !failure, let configuration = request.configuration { settings.configuration = configuration; settings.preferredDisplayID = configuration.preferredDisplayID }
         }
         owner = SettingsOwnerSnapshot(revision: owner.revision + 1, settings: settings, collectionPaused: paused, isHidden: hidden,
@@ -1415,6 +1440,10 @@ private final class SettingsCenterTestHost {
             visibleCount: 2, pendingCount: 0, attachment: .available, permission: .granted,
             storage: .notMeasured, supportDescription: "Synthetic settings test host")
         var snapshot = SettingsProductSnapshot(revision: revision, setup: setup, state: model.snapshot)
+        snapshot.legacyCustomFields = Set(SettingsField.legacyAppearance.filter { field in
+            field.value(in: owner.settings.configuration) != field.value(in: RiftConfiguration())
+        })
+        snapshot.hasLegacyTrayTheme = owner.settings.configuration.trayTheme != .system
         snapshot.accessibility = accessibility; snapshot.login = login; snapshot.appearance = appearance
         snapshot.historyDisplayStyle = historyStyle; snapshot.updater = updater
         snapshot.capabilities.initialized = true; snapshot.capabilities.canChangeCollection = true

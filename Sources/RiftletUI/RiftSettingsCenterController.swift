@@ -52,6 +52,19 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     var traySettings: NSView!
     var trayTintSettings: NSView!
     var trayOcclusionRow: NSView!
+    var displayRow: NSView!
+    var legacySection: NSView!
+    var trayAppearanceSection: NSView!
+    var geometryRows: [SettingsField: NSView] = [:]
+    var previewTransparency: Double?
+    var previewBodyColor: String?
+    var pendingTone: Task<Void, Never>?
+    var pendingPreview: Task<Void, Never>?
+    var announcedErrors: [SettingsDomain: String] = [:]
+    var editingTransparency = false
+    var editingBodyColor = false
+    var storageRequested = false
+    let edgePreview = SettingsEdgeDiagram()
     let geometryPreview = RiftSettingsCenterPreview()
     // Consecutive edits to a single on-disk owner must run in event order.
     private var queuedSaves: [SettingsDomain: Task<Void, Never>] = [:]
@@ -75,14 +88,14 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
         self.model = model; self.onAction = onAction
         product = SettingsProductSnapshot(revision: 0, setup: .init(), state: model.snapshot)
         window = NSWindow(contentRect: NSRect(origin: .zero, size: SettingsNativeStyle.settingsSize),
-            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView], backing: .buffered, defer: false)
+            styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         super.init()
         window.identifier = Self.windowIdentifier
         window.title = ProductCopy.text("Riftlet 设置", "Riftlet Settings")
-        window.titleVisibility = .hidden
-        window.titlebarAppearsTransparent = true
+        window.titleVisibility = .visible
+        window.titlebarAppearsTransparent = false
         window.isReleasedWhenClosed = false
-        window.minSize = SettingsNativeStyle.settingsMinimumSize
+        window.contentMinSize = SettingsNativeStyle.settingsMinimumSize
         window.delegate = self
         buildWindow()
         render()
@@ -111,6 +124,14 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
                 window.setFrame(Self.firstPresentationFrame(window.frame, visibleFrame: visible), display: false)
             } else {
                 window.setContentSize(contentSize); window.center()
+            }
+            if !product.reviewEnvironment && Bundle.main.bundleIdentifier == "com.riftlet.app" {
+                let savedFrame: NSWindow.FrameAutosaveName = "RiftletConsumerSettings"
+                if window.setFrameUsingName(savedFrame) {
+                    let reachable = RiftVisualStyle.reachableWindowFrame(window.frame, visibleFrames: NSScreen.screens.map(\.visibleFrame), preferredFrame: window.screen?.visibleFrame)
+                    window.setFrame(reachable, display: false)
+                }
+                window.setFrameAutosaveName(savedFrame)
             }
             hasPositioned = true
         }
@@ -143,6 +164,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     /// Explicit App Quit shares the existing draft decision. A repeated request
     /// cannot replace an unanswered callback; teardown never approves a Quit.
     public func requestCloseForTermination(_ completion: @escaping @MainActor (Bool) -> Void) {
+        flushTrayAppearance()
         guard terminationCompletion == nil else { completion(false); return }
         guard window.attachedSheet == nil || pendingCloseAlert != nil else { completion(false); return }
         if commitActiveEditBeforeClose(termination: completion) { return }
@@ -160,81 +182,49 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     func buildWindow() {
         let root = NSView(frame: NSRect(origin: .zero, size: SettingsNativeStyle.settingsSize))
         window.contentView = root
-        let sidebar = NSVisualEffectView()
-        sidebar.material = .sidebar
-        sidebar.blendingMode = .behindWindow
-        sidebar.state = .active
-        let content = NSVisualEffectView()
-        content.material = .contentBackground
-        content.blendingMode = .withinWindow
-        content.state = .active
-        let divider = NSBox()
-        divider.boxType = .separator
-        let headerRule = NSBox()
-        headerRule.boxType = .separator
-        let logo = NSImageView()
-        if let url = Bundle.main.url(forResource: "riftlet", withExtension: "svg") {
-            logo.image = NSImage(contentsOf: url)
-        } else {
-            logo.image = NSApp.applicationIconImage
-        }
-        logo.imageScaling = .scaleProportionallyDown
-        logo.setAccessibilityElement(false)
-        logo.widthAnchor.constraint(equalToConstant: 22).isActive = true
-        logo.heightAnchor.constraint(equalToConstant: 22).isActive = true
-        let name = NSTextField(labelWithString: "Riftlet")
-        name.font = .systemFont(ofSize: 19, weight: .semibold)
-        let brand = SettingsNativeStyle.stack([logo,name], vertical: false, spacing: 8)
-        let caption = SettingsNativeStyle.label(ProductCopy.text("设置", "Settings"), role: "caption")
-        let nav = SettingsNativeStyle.stack(spacing: 3)
+        let nav = SettingsNativeStyle.stack([], vertical: false, spacing: 8)
         for page in SettingsPage.allCases {
             let button = makeButton(page.title, id: "nav.\(page.rawValue)") { [weak self] in self?.navigate(to: page) }
-            button.bezelStyle = .regularSquare
-            button.isBordered = false
-            button.alignment = .left
+            button.bezelStyle = .texturedRounded
+            button.setButtonType(.pushOnPushOff)
             button.image = NSImage(systemSymbolName: page.symbol, accessibilityDescription: nil)
             button.imagePosition = .imageLeading
             button.imageHugsTitle = true
-            button.wantsLayer = true
-            button.layer?.cornerRadius = 7
-            button.font = .systemFont(ofSize: 13, weight: .medium)
+            button.setAccessibilityLabel(page.title)
             navigation[page] = button
             nav.addArrangedSubview(button)
-            button.widthAnchor.constraint(equalTo: nav.widthAnchor).isActive = true
-            button.heightAnchor.constraint(equalToConstant: 35).isActive = true
         }
         scroll.identifier = .init("settings.center.scroll")
         scroll.setAccessibilityLabel(ProductCopy.text("设置页面", "Settings page"))
         scroll.scrollerStyle = .overlay
         scroll.autohidesScrollers = true
-        pageHeading.font = .systemFont(ofSize: 21, weight: .semibold)
+        pageHeading.font = .systemFont(ofSize: 20, weight: .semibold)
         footerStatus.identifier = .init("settings.center.footerStatus")
-        footerStatus.font = .systemFont(ofSize: 11)
         footerStatus.maximumNumberOfLines = 2
         footerStatus.alignment = .right
         footerStatus.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        for view in [sidebar,content,divider] { view.translatesAutoresizingMaskIntoConstraints = false; root.addSubview(view) }
-        for view in [brand,caption,nav] as [NSView] { view.translatesAutoresizingMaskIntoConstraints = false; sidebar.addSubview(view) }
-        for view in [pageHeading,headerRule,scroll,footerStatus] as [NSView] {
-            view.translatesAutoresizingMaskIntoConstraints = false; content.addSubview(view)
+        let rule = NSBox()
+        rule.boxType = .separator
+        for view in [nav, rule, pageHeading, scroll, footerStatus] as [NSView] {
+            view.translatesAutoresizingMaskIntoConstraints = false
+            root.addSubview(view)
         }
+        let width = scroll.widthAnchor.constraint(equalTo: root.widthAnchor)
+        width.priority = .defaultHigh
         NSLayoutConstraint.activate([
-            sidebar.leadingAnchor.constraint(equalTo: root.leadingAnchor), sidebar.topAnchor.constraint(equalTo: root.topAnchor),
-            sidebar.bottomAnchor.constraint(equalTo: root.bottomAnchor), sidebar.widthAnchor.constraint(equalToConstant: SettingsNativeStyle.sidebarWidth),
-            divider.leadingAnchor.constraint(equalTo: sidebar.trailingAnchor), divider.topAnchor.constraint(equalTo: root.topAnchor),
-            divider.bottomAnchor.constraint(equalTo: root.bottomAnchor), divider.widthAnchor.constraint(equalToConstant: 1),
-            brand.leadingAnchor.constraint(equalTo: sidebar.leadingAnchor, constant: 21), brand.topAnchor.constraint(equalTo: sidebar.topAnchor, constant: 48),
-            caption.leadingAnchor.constraint(equalTo: brand.leadingAnchor), caption.topAnchor.constraint(equalTo: brand.bottomAnchor, constant: 24),
-            nav.leadingAnchor.constraint(equalTo: sidebar.leadingAnchor, constant: 14), nav.trailingAnchor.constraint(equalTo: sidebar.trailingAnchor, constant: -14),
-            nav.topAnchor.constraint(equalTo: caption.bottomAnchor, constant: 6),
-            content.leadingAnchor.constraint(equalTo: sidebar.trailingAnchor), content.trailingAnchor.constraint(equalTo: root.trailingAnchor),
-            content.topAnchor.constraint(equalTo: root.topAnchor), content.bottomAnchor.constraint(equalTo: root.bottomAnchor),
-            pageHeading.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 24), pageHeading.topAnchor.constraint(equalTo: content.topAnchor, constant: 38),
-            headerRule.leadingAnchor.constraint(equalTo: pageHeading.leadingAnchor), headerRule.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -24),
-            headerRule.topAnchor.constraint(equalTo: pageHeading.bottomAnchor, constant: 17), headerRule.heightAnchor.constraint(equalToConstant: 1),
-            scroll.leadingAnchor.constraint(equalTo: content.leadingAnchor), scroll.trailingAnchor.constraint(equalTo: content.trailingAnchor),
-            scroll.topAnchor.constraint(equalTo: headerRule.bottomAnchor), scroll.bottomAnchor.constraint(equalTo: content.bottomAnchor),
-            footerStatus.trailingAnchor.constraint(equalTo: headerRule.trailingAnchor), footerStatus.leadingAnchor.constraint(greaterThanOrEqualTo: pageHeading.trailingAnchor, constant: 12),
+            nav.centerXAnchor.constraint(equalTo: root.centerXAnchor),
+            nav.topAnchor.constraint(equalTo: root.topAnchor, constant: 8),
+            rule.topAnchor.constraint(equalTo: nav.bottomAnchor, constant: 8),
+            rule.leadingAnchor.constraint(equalTo: root.leadingAnchor), rule.trailingAnchor.constraint(equalTo: root.trailingAnchor),
+            pageHeading.leadingAnchor.constraint(equalTo: scroll.leadingAnchor, constant: 24),
+            pageHeading.topAnchor.constraint(equalTo: rule.bottomAnchor, constant: 16),
+            scroll.topAnchor.constraint(equalTo: pageHeading.bottomAnchor, constant: 4),
+            scroll.centerXAnchor.constraint(equalTo: root.centerXAnchor),
+            scroll.widthAnchor.constraint(lessThanOrEqualTo: root.widthAnchor),
+            scroll.widthAnchor.constraint(lessThanOrEqualToConstant: 768), width,
+            scroll.bottomAnchor.constraint(equalTo: root.bottomAnchor),
+            footerStatus.trailingAnchor.constraint(equalTo: scroll.trailingAnchor, constant: -24),
+            footerStatus.leadingAnchor.constraint(greaterThanOrEqualTo: pageHeading.trailingAnchor, constant: 12),
             footerStatus.centerYAnchor.constraint(equalTo: pageHeading.centerYAnchor)
         ])
         buildPages()
@@ -251,6 +241,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
             if page == .motion { scrollToMotion() }
             return
         }
+        flushTrayAppearance()
         flushEditor()
         window.makeFirstResponder(nil)
         selectedPage = destination
@@ -286,7 +277,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
         render()
         let writer: SettingsDomain?
         switch action {
-        case .settings(.commitField), .settings(.restoreVisibleDefaults), .settings(.selectPlacement),
+        case .settings(.setTrayBackgroundTransparency), .settings(.setTrayCameraBodyColor), .settings(.restoreLegacyCustom), .settings(.commitField), .settings(.restoreVisibleDefaults), .settings(.selectPlacement),
              .settings(.selectDisplay), .settings(.selectDesktopForm), .settings(.selectWindChimeArrangement),
              .settings(.selectTrayTheme), .settings(.selectTrayFavorite):
             writer = .layout
@@ -352,15 +343,50 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
         }
     }
 
+    var visibleLegacyFields: Set<SettingsField> {
+        let c = model.snapshot.owner.settings.configuration
+        return product.legacyCustomFields.filter { field in
+            switch field {
+            case .outerInset: return c.desktopForm != .windChime
+            case .windChimeLineInset: return c.desktopForm == .windChime
+            case .fitWidth, .fitHeight, .rowPitch, .numberFontSize, .numberGap, .leftPadding:
+                return c.desktopForm != .tray
+            case .firstCenterFromTop: return c.placement == nil && c.desktopForm != .tray
+            case .hiddenFraction: return c.desktopForm == .microSlit
+            case .trayOcclusion: return c.desktopForm == .tray
+            case .trayTintHue, .trayTintStrength: return c.desktopForm == .tray && c.trayTheme == .custom
+            default: return false
+            }
+        }
+    }
+
+    private func finishAppearanceBeforeClose() -> Bool {
+        guard editingBodyColor || editingTransparency || queuedSaves[.layout] != nil else { return false }
+        flushTrayAppearance()
+        let write = queuedSaves[.layout]
+        Task { @MainActor [weak self] in
+            await write?.value
+            guard let self else { return }
+            if needsCloseConfirmation { presentCloseConfirmation() }
+            else { window.performClose(nil) }
+        }
+        return true
+    }
+
     func restoreVisibleDefaults() {
         guard finishEditingForReplacement() else { return }
         let alert = NSAlert()
-        alert.messageText = ProductCopy.text("恢复当前形态的默认数值？", "Restore defaults for this desktop form?")
-        alert.informativeText = ProductCopy.text("将恢复每页上限及当前形态适用的边距、遮挡或自定义色调。形态、位置、显示器和出现动效会保留。", "This resets the page limit and this form’s insets, overlap and custom tint. Your desktop form, position, display and arrival motion are kept.")
+        let fields = visibleLegacyFields
+        let resetTheme = product.hasLegacyTrayTheme && model.snapshot.owner.settings.configuration.desktopForm == .tray
+        guard !fields.isEmpty || resetTheme else { return }
+        alert.messageText = ProductCopy.text("恢复旧版自定义？", "Restore Legacy Defaults?")
+        let names = fields.sorted { $0.rawValue < $1.rawValue }.map(fieldTitle)
+            + (resetTheme ? [ProductCopy.text("托盘材质", "Tray Material")] : [])
+        alert.informativeText = names.joined(separator: ProductCopy.text("、", ", "))
         alert.addButton(withTitle: ProductCopy.text("取消", "Cancel"))
         alert.addButton(withTitle: ProductCopy.text("恢复默认数值", "Restore Defaults")).identifier = .init("settings.center.defaults.confirm")
         alert.beginSheetModal(for: window) { [weak self] response in
-            if response == .alertSecondButtonReturn { self?.dispatch(.settings(.restoreVisibleDefaults)) }
+            if response == .alertSecondButtonReturn { self?.dispatch(.settings(.restoreLegacyCustom(fields: fields, resetTheme: resetTheme))) }
         }
     }
 
@@ -470,6 +496,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
 
     public func windowShouldClose(_ sender: NSWindow) -> Bool {
         if allowClose { return true }
+        if finishAppearanceBeforeClose() { return false }
         if commitActiveEditBeforeClose() { return false }
         flushEditor()
         if pendingCloseAlert != nil { return false }

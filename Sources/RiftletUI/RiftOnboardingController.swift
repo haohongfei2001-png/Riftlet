@@ -22,17 +22,14 @@ public extension SettingsProductSnapshot {
         }
         guard setup.attachment == .available, setup.permission == .granted,
               chromeConnection == .ready, setup.issue != .chromeJavaScriptDisabled else { return 1 }
-        for domain in [SettingsDomain.placement, .display] {
-            if let setting = state.domains[domain], setting.isSaving || setting.hasIssue { return 2 }
-        }
         return nil
     }
 }
 
-/// Three-step guidance uses the same host facts and explicit settings commands.
+/// Two-step guidance uses the same host facts and explicit settings commands.
 /// Its only local state is navigation; it stores no permission/completion flags.
 @MainActor
-public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuDelegate {
+public final class RiftOnboardingController: NSObject, NSWindowDelegate {
     public static let windowIdentifier = NSUserInterfaceItemIdentifier("RiftletOnboarding")
     public let window: NSWindow
     public private(set) var currentStep = 0
@@ -63,17 +60,8 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
     private lazy var chromeMenuSection = section(copy.chromeMenuHeading, symbol: "menubar.rectangle", views: [scriptDetail, connectionStatus, actionButton(copy.checkConnection, id: "onboarding.checkChrome")])
     private lazy var sourceAccess = SettingsNativeStyle.button(copy.allowAccess)
     private lazy var automation = SettingsNativeStyle.button(copy.checkPermission)
-    private let display = NSPopUpButton(frame: .zero, pullsDown: false)
-    private var displayMenuTracking = false
-    private var displayRefreshPending = false
-    private var displaySignature: [RiftSettingsDisplay] = []
-    private var representedPreferredDisplayID: UInt32?
-    private lazy var placementPreview = RiftOnboardingPlacementPreview(copy: copy)
-    private var placements: [RiftPlacement: NSButton] = [:]
-    private let placementHint = SettingsNativeStyle.label("", role: "caption")
-    private let placementError = SettingsNativeStyle.label("", role: "secondary")
-    private let displayError = SettingsNativeStyle.label("", role: "secondary")
-    private let finishHint = SettingsNativeStyle.label("", role: "secondary")
+    private var closedByOwner = false
+    private var didDefer = false
 
     private let copy: OnboardingCopy
 
@@ -110,7 +98,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         let previousFrame = window.frame
         if !isVisible {
             presentationID = UUID()
-            currentStep = 0; finishing = false
+            currentStep = 0; finishing = false; didDefer = false
             refreshStep()
         }
         if !hasPresented {
@@ -132,7 +120,16 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         return window.isVisible
     }
 
-    public func closeForTeardown() { window.close() }
+    public func closeForTeardown() {
+        closedByOwner = true
+        window.close()
+        closedByOwner = false
+    }
+    public func windowWillClose(_ notification: Notification) {
+        guard hasPresented, !closedByOwner, !didDefer else { return }
+        didDefer = true
+        onDefer()
+    }
     public func control(identifier: String) -> NSView? { controls[identifier] }
 
     private func layout(keeping frame: NSRect) {
@@ -153,7 +150,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         scroll.translatesAutoresizingMaskIntoConstraints = false
         content.translatesAutoresizingMaskIntoConstraints = false
         root.addSubview(progress); root.addSubview(scroll)
-        for (index, title) in [copy.stepFolder, copy.stepChrome, copy.stepPosition].enumerated() {
+        for (index, title) in [copy.stepFolder, copy.stepChrome].enumerated() {
             if index > 0 {
                 let separator = NSImageView()
                 separator.image = NSImage(systemSymbolName: "chevron.right", accessibilityDescription: nil)?
@@ -230,37 +227,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
             section(copy.automationHeading, symbol: "macwindow", views: [automationDetail, automation]),
             chromeMenuSection
         ])
-        display.identifier = .init("onboarding.display"); display.setAccessibilityLabel(copy.display)
-        display.target = self; display.action = #selector(displayChanged)
-        display.menu?.delegate = self
-        display.menu?.autoenablesItems = false
-        display.font = .systemFont(ofSize: 13)
-        display.heightAnchor.constraint(greaterThanOrEqualToConstant: 32).isActive = true
-        controls["onboarding.display"] = display
-        let choices = SettingsNativeStyle.stack([], vertical: false, spacing: 1)
-        choices.distribution = .fillEqually
-        for placement in RiftPlacement.allCases {
-            let button = SettingsNativeStyle.button(copy.placement(placement))
-            button.setButtonType(.pushOnPushOff); button.bezelStyle = .roundRect
-            button.identifier = .init("onboarding.placement." + placement.rawValue)
-            button.target = self; button.action = #selector(placementChanged(_:))
-            button.setAccessibilityLabel(copy.positionLabel(placement))
-            button.heightAnchor.constraint(greaterThanOrEqualToConstant: 24).isActive = true
-            placements[placement] = button; controls[button.identifier!.rawValue] = button
-            choices.addArrangedSubview(button)
-        }
-        let displayRetry = actionButton(copy.retryDisplay, id: "onboarding.retryDisplay")
-        let placementRetry = actionButton(copy.retryPosition, id: "onboarding.retryPlacement")
-        let displayRow = SettingsNativeStyle.stack([SettingsNativeStyle.label(copy.display, role: "rowTitle"), display, NSView()],
-                                                  vertical: false, spacing: 8)
-        controls["onboarding.finishHint"] = finishHint
-        let placementPage = page([
-            SettingsNativeStyle.label(copy.positionHeading, role: "title"),
-            SettingsNativeStyle.label(copy.positionDetail, role: "secondary"),
-            placementPreview, choices, displayRow,
-            displayError, displayRetry, placementError, placementRetry, placementHint, finishHint
-        ])
-        pages = [intro, connections, placementPage]
+        pages = [intro, connections]
         for page in pages {
             content.addArrangedSubview(page)
             page.widthAnchor.constraint(equalTo: content.widthAnchor).isActive = true
@@ -312,7 +279,9 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
             ? copy.reviewDetail : ""
         introCapability.isHidden = introCapability.stringValue.isEmpty
         sourceDetail.stringValue = sourceStatus(snapshot)
-        sourcePath.stringValue = presentation.sourcePath
+        sourcePath.stringValue = presentation.hasSourceLocation
+            ? URL(fileURLWithPath: presentation.sourcePath).lastPathComponent : ""
+        sourcePath.toolTip = presentation.sourcePath
         sourcePath.isHidden = !presentation.hasSourceLocation
         sourceAccess.title = copy.authorizeFolder
         sourceAccess.setAccessibilityLabel(sourceAccess.title)
@@ -322,55 +291,27 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
                         enabled: snapshot.capabilities.canChangeCollection && !busy.contains(.collection))
         configureAction("onboarding.unhide", visible: snapshot.state.owner.isHidden,
                         enabled: snapshot.capabilities.canChangeVisibility && !busy.contains(.visibility))
-        configureAction("onboarding.recheck", visible: snapshot.firstIncompleteOnboardingStep == 0,
+        configureAction("onboarding.recheck", visible: snapshot.firstIncompleteOnboardingStep == 0 && sourceAccess.isHidden && !snapshot.state.owner.collectionPaused && !snapshot.state.owner.isHidden,
                         enabled: snapshot.capabilities.canRecheck)
         automationDetail.stringValue = copy.automationStatus(presentation)
         automation.title = copy.permissionAction(presentation)
         automation.setAccessibilityLabel(automation.title)
         automation.isHidden = snapshot.setup.permission == .notNeeded || snapshot.setup.permission == .granted
         automation.isEnabled = !automation.isHidden && snapshot.capabilities.canRequestAutomation && presentation.canRequestPermission
-        if snapshot.setup.permission == .notRunning || snapshot.setup.permission == .browserUnavailable {
-            automation.title = copy.recheckChrome
+        if snapshot.setup.permission == .notRunning {
+            automation.title = copy.text("打开 Chrome", "Open Chrome")
             automation.setAccessibilityLabel(automation.title)
             automation.isEnabled = snapshot.capabilities.canRecheck
         }
         scriptDetail.stringValue = copy.chromeInstructions(presentation)
-        chromeMenuSection.isHidden = presentation.chromeScriptInstructions == nil
+        chromeMenuSection.isHidden = snapshot.setup.permission != .granted || presentation.chromeScriptInstructions == nil
+        scriptDetail.isHidden = snapshot.chromeConnection == .ready
         connectionStatus.stringValue = chromeStatus(snapshot.chromeConnection)
         let chromeCheck = controls["onboarding.checkChrome"] as? NSButton
         chromeCheck?.title = snapshot.chromeConnection == .unchecked ? copy.checkConnection : copy.recheckConnection
         if let chromeCheck { chromeCheck.setAccessibilityLabel(chromeCheck.title) }
+        chromeCheck?.isHidden = snapshot.chromeConnection == .ready
         chromeCheck?.isEnabled = snapshot.setup.permission == .granted && snapshot.chromeConnection != .checking
-        let settings = snapshot.state.owner.settings
-        refreshDisplay()
-        for (placement, button) in placements {
-            button.state = settings.configuration.placement == placement ? .on : .off
-            button.isEnabled = snapshot.capabilities.canEditPreferences
-                && snapshot.state.domains[.placement]?.isSaving != true && !busy.contains(.placement)
-            button.contentTintColor = button.state == .on ? SettingsNativeStyle.color(.accentInk) : SettingsNativeStyle.color(.ink)
-        }
-        placementPreview.configuration = settings.configuration
-        placementPreview.entryEnabled = settings.entryEnabled
-        placementHint.stringValue = settings.configuration.placement == nil
-            ? copy.legacyPosition
-            : ""
-        placementHint.isHidden = placementHint.stringValue.isEmpty && !settings.displayRestoreAvailable
-        if settings.displayRestoreAvailable {
-            placementHint.stringValue += copy.fallbackDisplay
-        }
-        updateError(.display, label: displayError, retryID: "onboarding.retryDisplay")
-        updateError(.placement, label: placementError, retryID: "onboarding.retryPlacement")
-        if snapshot.reviewEnvironment {
-            finishHint.stringValue = copy.previewFinish
-        } else {
-            switch snapshot.firstIncompleteOnboardingStep {
-            case 0: finishHint.stringValue = copy.finishFolder
-            case 1: finishHint.stringValue = copy.finishChrome
-            case 2: finishHint.stringValue = ""
-            default: finishHint.stringValue = copy.finishReady
-            }
-        }
-        finishHint.isHidden = finishHint.stringValue.isEmpty
         refreshNext()
         window.initialFirstResponder = firstAction
     }
@@ -433,66 +374,6 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         button?.isEnabled = visible && enabled
     }
 
-    private func updateError(_ domain: SettingsDomain, label: NSTextField, retryID: String) {
-        guard let snapshot else { return }
-        let state = snapshot.state.domains[domain]
-        let failed = state?.hasIssue == true
-        label.stringValue = failed ? copy.saveError(display: domain == .display) : ""
-        label.textColor = SettingsNativeStyle.color(.warning)
-        label.isHidden = !failed
-        let retry = controls[retryID] as? NSButton
-        retry?.isHidden = state?.saveFailure == nil
-        retry?.isEnabled = snapshot.capabilities.canEditPreferences && state?.pending != nil
-            && state?.isSaving != true && !busy.contains(domain)
-    }
-
-    private func refreshDisplay() {
-        guard let snapshot else { return }
-        guard !displayMenuTracking else { displayRefreshPending = true; return }
-        let settings = snapshot.state.owner.settings
-        let preferred = settings.configuration.preferredDisplayID ?? settings.preferredDisplayID
-        if displaySignature != settings.displays || representedPreferredDisplayID != preferred || display.numberOfItems == 0 {
-            displaySignature = settings.displays; representedPreferredDisplayID = preferred
-            display.removeAllItems()
-            let primary = NSMenuItem(title: copy.primaryDisplay, action: nil, keyEquivalent: "")
-            primary.representedObject = NSNull(); display.menu?.addItem(primary)
-            for screen in settings.displays {
-                // addItem(withTitle:) deduplicates equal titles. Each physical
-                // display instead gets its own native item and stable identity.
-                let item = NSMenuItem(title: screen.name, action: nil, keyEquivalent: "")
-                item.representedObject = NSNumber(value: screen.id)
-                display.menu?.addItem(item)
-            }
-            if let preferred, !settings.displays.contains(where: { $0.id == preferred }) {
-                let item = NSMenuItem(title: copy.disconnectedDisplay, action: nil, keyEquivalent: "")
-                item.representedObject = NSNumber(value: preferred); item.isEnabled = false
-                display.menu?.addItem(item)
-            }
-        }
-        if let item = display.itemArray.first(where: { item in
-            if let preferred { return (item.representedObject as? NSNumber)?.uint32Value == preferred }
-            return item.representedObject is NSNull
-        }) { display.select(item) }
-        display.isEnabled = snapshot.capabilities.canEditPreferences && !settings.displays.isEmpty
-            && snapshot.state.domains[.display]?.isSaving != true && !busy.contains(.display)
-    }
-
-    public func menuWillOpen(_ menu: NSMenu) {
-        if menu === display.menu { displayMenuTracking = true }
-    }
-
-    public func menuDidClose(_ menu: NSMenu) {
-        guard menu === display.menu else { return }
-        displayMenuTracking = false
-        // Let the native picker action read the item that was actually chosen
-        // before a queued background display-list refresh can replace it.
-        Task { @MainActor [weak self] in
-            await Task.yield()
-            guard let self, !displayMenuTracking, displayRefreshPending else { return }
-            displayRefreshPending = false; refreshDisplay()
-        }
-    }
-
     private func refreshStep() {
         let preservedFrame = hasPresented ? window.frame : nil
         defer { if let preservedFrame { layout(keeping: preservedFrame) } }
@@ -515,35 +396,30 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
     private func refreshNext() {
         let incomplete = snapshot?.firstIncompleteOnboardingStep
         let preview = snapshot?.reviewEnvironment == true
-        if currentStep < 2 {
-            next.title = !preview && currentStep == 1 && incomplete == 0 ? copy.setUpFolder : copy.continueButton
-            next.isEnabled = snapshot != nil && (preview || incomplete != currentStep)
+        if currentStep == 0 {
+            next.title = copy.continueButton
+            next.isEnabled = snapshot != nil && (preview || incomplete != 0)
         } else {
-            switch (preview, incomplete) {
-            case (true, _): next.title = copy.endPreview
-            case (false, 0): next.title = copy.setUpFolder
-            case (false, 1): next.title = copy.stepChrome
-            default: next.title = copy.getStarted
-            }
-            let changingPosition = busy.contains(.placement) || busy.contains(.display)
-            next.isEnabled = !finishing && snapshot != nil && (preview || (!changingPosition && incomplete != 2))
+            next.title = preview ? copy.endPreview : incomplete == 0 ? copy.setUpFolder : copy.getStarted
+            next.isEnabled = !finishing && snapshot != nil && (preview || incomplete != 1)
         }
+        later.title = currentStep == 1 && incomplete == 1
+            ? copy.text("先使用本地截图", "Use Local Screenshots") : copy.later
+        later.setAccessibilityLabel(later.title)
         next.setAccessibilityLabel(next.title)
     }
 
     @objc private func previousStep() { guard currentStep > 0 else { return }; currentStep -= 1; refreshStep() }
     @objc private func nextStep() {
         guard next.isEnabled, let snapshot else { return }
-        if currentStep < 2 {
-            if !snapshot.reviewEnvironment, let missing = snapshot.firstIncompleteOnboardingStep,
-               missing < currentStep { currentStep = missing } else { currentStep += 1 }
-            refreshStep(); return
+        if currentStep == 0 {
+            currentStep = 1; refreshStep(); return
         }
-        if snapshot.reviewEnvironment { window.performClose(nil); return }
+        if snapshot.reviewEnvironment { closeForTeardown(); return }
         if let step = snapshot.firstIncompleteOnboardingStep {
             currentStep = step; refreshStep(); return
         }
-        guard snapshot.onboardingReady, !finishing, !busy.contains(.display), !busy.contains(.placement) else { return }
+        guard snapshot.onboardingReady, !finishing else { return }
         finishing = true; refreshNext()
         let session = presentationID
         Task {
@@ -554,7 +430,6 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         }
     }
     @objc private func deferSetup() {
-        onDefer()
         window.performClose(nil)
     }
 
@@ -566,8 +441,8 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         case "onboarding.resume": send(.settings(.setCollectionPaused(false)), domain: .collection)
         case "onboarding.unhide": send(.settings(.setHidden(false)), domain: .visibility)
         case "onboarding.automation":
-            if snapshot.setup.permission == .notRunning || snapshot.setup.permission == .browserUnavailable {
-                send(.recheck)
+            if snapshot.setup.permission == .notRunning {
+                send(.openChrome)
             } else if snapshot.capabilities.canRequestAutomation {
                 send(.requestAutomation)
             }
@@ -576,25 +451,8 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
             send(.checkChromeConnection)
         case "onboarding.recheck":
             guard snapshot.capabilities.canRecheck else { return }; send(.recheck)
-        case "onboarding.retryDisplay": send(.settings(.retry(.display)), domain: .display)
-        case "onboarding.retryPlacement": send(.settings(.retry(.placement)), domain: .placement)
         default: break
         }
-    }
-
-    @objc private func displayChanged() {
-        guard display.isEnabled, snapshot?.capabilities.canEditPreferences == true,
-              let item = display.selectedItem else { return }
-        let target: UInt32?
-        if item.representedObject is NSNull { target = nil }
-        else if let number = item.representedObject as? NSNumber { target = number.uint32Value }
-        else { return }
-        send(.settings(.selectDisplay(target)), domain: .display)
-    }
-
-    @objc private func placementChanged(_ sender: NSButton) {
-        guard sender.isEnabled, let placement = placements.first(where: { $0.value === sender })?.key else { return }
-        send(.settings(.selectPlacement(placement)), domain: .placement)
     }
 
     private func send(_ action: SettingsProductAction, domain: SettingsDomain? = nil) {
