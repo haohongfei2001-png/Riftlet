@@ -659,3 +659,67 @@ test('history links use only the exact canonical saved conversation path', () =>
   assert.equal(target.logicalDraftIdentity,undefined);
  }
 });
+
+for (const attribute of ['aria-label', 'title', 'alt']) test('post-START error on the originally labelled view: '+attribute, () => {
+ const f=fixture({accept:false}), op=f.bind(); f.stage(op); f.commit(op);
+ const card=f.addCard('placeholder'), image=card.querySelector('img');
+ for(const key of ['data-file-name','aria-label','title']) card.removeAttribute(key);
+ image.removeAttribute('alt');
+ const witness=attribute==='alt' ? image : card, label='Uploading '+op.name+' (PNG)';
+ witness.setAttribute(attribute,label);
+ const start=accepted(f,op);
+ card.setAttribute('data-state','failed');
+ const error=f.observe(op);
+ assert.equal(error.state,'failed'); assert.equal(error.attachmentID,start.attachmentID);
+ assert.equal(error.automaticRetryExcluded,false); assert.equal(error.attachmentAbsent,false);
+ witness.setAttribute(attribute,'other-'+op.name); accepted(f,op);
+ witness.setAttribute(attribute,label); image.setAttribute('src','blob:replacement'); accepted(f,op);
+ card.remove(); const replacement=f.addCard(op.name); replacement.setAttribute('data-state','failed'); accepted(f,op);
+ assert.equal(f.setters,1); assert.equal(f.changes,1); assert.equal(f.sends,0);
+});
+
+test('a second START-time view needs the original File object URL to report a scoped error', () => {
+ const f=fixture({accept:false}), op=f.bind(); f.stage(op); f.commit(op);
+ const first=f.addCard(op.name), sameName=f.addCard(op.name), sameFile=f.addCard(op.name);
+ const container=f.form.append(new f.Node('section')); container.append(sameFile);
+ const fileURL=f.context.URL.createObjectURL(f.input.files[0]);
+ sameFile.querySelector('img').setAttribute('src',fileURL);
+ const start=accepted(f,op);
+ sameName.setAttribute('data-state','error'); accepted(f,op);
+ const after=f.addCard(op.name); after.querySelector('img').setAttribute('src',fileURL);
+ after.setAttribute('data-state','failed'); accepted(f,op);
+ first.append(new f.Node('span',{'role':'alert','data-file-name':op.name,'data-state':'failed'})); accepted(f,op);
+ sameFile.setAttribute('data-state','failed');
+ const error=f.observe(op);
+ assert.equal(error.state,'failed'); assert.equal(error.attachmentID,start.attachmentID);
+ assert.equal(error.automaticRetryExcluded,false); assert.equal(error.attachmentAbsent,false);
+ const otherComposer=f.form.append(new f.Node('div',{'data-chatgpt-composer':'1'}));
+ otherComposer.append(container); accepted(f,op); f.form.append(container);
+ sameFile.querySelector('img').setAttribute('src','blob:other'); accepted(f,op);
+ assert.equal(f.setters,1); assert.equal(f.changes,1); assert.equal(f.sends,0);
+});
+
+test('a nested error is limited to the original named preview, not a newly inserted same-name node', () => {
+ const f=fixture(), op=f.bind(); f.stage(op); f.commit(op); const start=accepted(f,op);
+ const card=f.document.querySelectorAll('[data-file-name]').find(n=>n.getAttribute('data-file-name')===op.name);
+ const old=card.querySelector('img'), replacement=new f.Node('img',{...old.attrs,'data-state':'failed'});
+ card.append(replacement); accepted(f,op);
+ old.setAttribute('data-state','failed');
+ const error=f.observe(op); assert.equal(error.state,'failed'); assert.equal(error.attachmentID,start.attachmentID);
+ old.setAttribute('alt','another.png'); accepted(f,op);
+ old.remove(); accepted(f,op);
+ assert.equal(f.setters,1); assert.equal(f.changes,1); assert.equal(f.sends,0);
+});
+
+test('post-START watches retain neither inline pixels nor unbounded preview addresses', () => {
+ const f=fixture({accept:false}), op=f.bind(); f.stage(op); f.commit(op);
+ const large='x'.repeat(1024*1024);
+ for(const src of ['data:image/png;base64,'+large,'blob:'+large,'https://example.invalid/preview?token=unused']) {
+  const card=f.addCard(op.name); card.querySelector('img').setAttribute('src',src);
+ }
+ accepted(f,op);
+ const registry=vm.runInContext('globalThis.__riftletIndependentFileInput20261104',f.context);
+ const views=registry.operations.get(op.identity.operationID).failureWatch.views;
+ assert.equal(views.length,1); assert.equal(views[0].src,undefined);
+ assert.equal(views[0].preview,null);
+});
