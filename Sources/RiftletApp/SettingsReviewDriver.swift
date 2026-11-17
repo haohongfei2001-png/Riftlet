@@ -121,6 +121,7 @@ final class SettingsReviewDriver {
             await runCase("two-step-guidance-light-and-dark") { try await self.onboarding() }
             await runCase("resizing-and-reopen") { try await self.resize() }
             await runCase("history-real-records") { try await self.history() }
+            await runCase("manage-recover-clean-and-undo") { try await self.exerciseMediaManager() }
             await runCase("original-media-and-no-upload-operations") { try await self.integrity() }
         }
 
@@ -1270,6 +1271,43 @@ final class SettingsReviewDriver {
         await capture("history-real-isolated-records", window: history)
         try require(try await store.history().count >= initialAssetIDs.count + 1, "historyLostCollectedFixture")
         history?.close()
+    }
+
+    private func exerciseMediaManager() async throws {
+        try validateEnvironment()
+        try await setCollectionPaused(false)
+        let hash = try createFixture("cleanup")
+        try await wait(timeout: 10) { try await self.store.history().contains { $0.image.sha256 == hash } }
+        guard let external = try await store.history().first(where: { $0.image.sha256 == hash }) else { throw Failure.encoding }
+        let media = environment.root.appendingPathComponent("media").appendingPathComponent(external.image.fileName)
+        let captures = environment.root.appendingPathComponent("captures")
+        let pending = captures.appendingPathComponent("." + UUID().uuidString.lowercased() + ".png")
+        try Data(contentsOf: media).write(to: pending, options: .withoutOverwriting)
+        try await store.removeFromQueue(external.id)
+        await onRefresh()
+        host.show(page: .capture)
+        try click("settings.center.storage.manage")
+        let windowID = NSUserInterfaceItemIdentifier("RiftletMediaManager")
+        try await wait { NSApp.windows.contains { $0.isVisible && $0.identifier == windowID } }
+        guard let window = NSApp.windows.first(where: { $0.isVisible && $0.identifier == windowID }) else { throw Failure.encoding }
+        defer { window.close() }
+        func ready(_ id: String) async throws {
+            try await wait { (try? self.control("media.manage." + id, window: window)) != nil }
+        }
+        try await ready("recover")
+        await capture("manage-pending-capture", window: window)
+        try click("media.manage.recover", window: window)
+        try await ready("trash")
+        try require(!FileManager.default.fileExists(atPath: pending.path), "captureNotRecovered")
+        try click("media.manage.trash", window: window)
+        try await ready("restore")
+        try require(try await store.isRetiredMedia(external.id), "cleanupMissingRetirement")
+        try require(!FileManager.default.fileExists(atPath: media.path), "cleanupDidNotMoveMedia")
+        await capture("manage-recoverable-trash", window: window)
+        try click("media.manage.restore", window: window)
+        try await ready("trash")
+        try require(try await !store.isRetiredMedia(external.id), "undoDidNotRestoreHistory")
+        try require(try digest(Data(contentsOf: media)) == hash, "undoChangedOriginalBytes")
     }
 
     private func integrity() async throws {

@@ -252,6 +252,92 @@ final class CompletedScreenshotImporterTests: XCTestCase {
         XCTAssertEqual(try Data(contentsOf: root.appendingPathComponent("media").appendingPathComponent(record.image.fileName)), bytes)
     }
 
+    func testCleanupFenceRestartChangedExternalOriginalAndUndo() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let db = root.appendingPathComponent("queue.sqlite"), trash = root.appendingPathComponent("fixture-trash")
+        try FileManager.default.createDirectory(at: trash, withIntermediateDirectories: true)
+        let store = try QueueStore(databaseURL: db)
+        let importer = PrivateAssetImporter(privateRoot: root, store: store)
+        try await importer.initializeRetention(newProfile: false)
+        let legacyRule = try await importer.retention()
+        XCTAssertEqual(legacyRule.days, 0)
+        func insert(_ name: String) async throws -> (URL, AssetRecord) {
+            let url = root.appendingPathComponent(name)
+            _ = try syntheticPNG(at: url)
+            try markSyntheticScreenshot(url)
+            let record = try await importer.importCompletedScreenshot(at: url, origin: .systemScreenshot)
+            return (url, record)
+        }
+        let (file, archived) = try await insert("first.png"), (_, locked) = try await insert("second.png")
+        let target = TargetLease(adapterID: "fixture", surface: .webChat, applicationID: "fixture", sessionID: "s",
+            windowID: "w", documentID: "d", composerID: "c", draftGeneration: "g")
+        let operation = try await store.prepare(assetID: locked.id, target: target)
+        _ = try await store.markIndependentFileInputIntent(operation.id, ownerID: UUID())
+        try await store.markUnknown(operation.id, reason: "fixture")
+        try await store.removeFromQueue(locked.id)
+        try await store.removeFromQueue(archived.id)
+        let initial = try await importer.cleanupItems()
+        XCTAssertEqual(initial.map(\.record.id), [archived.id])
+        XCTAssertTrue(initial.allSatisfy(\.verifiedOriginal))
+        let original = try Data(contentsOf: file)
+        try await importer.cleanup(initial, trash: trash, automatic: false)
+        XCTAssertEqual(try Data(contentsOf: file), original)
+        let again = try await importer.importCompletedScreenshot(at: file, origin: .systemScreenshot)
+        XCTAssertEqual(again.id, archived.id)
+        try FileManager.default.removeItem(at: file)
+        _ = try syntheticPNG(at: file, red: 0.8)
+        let reopened = try QueueStore(databaseURL: db)
+        let second = PrivateAssetImporter(privateRoot: root, store: reopened)
+        let report = try await second.recover()
+        XCTAssertTrue(report.missing.isEmpty)
+        let remaining = try await reopened.history().map(\.id)
+        XCTAssertEqual(remaining, [locked.id])
+        do { try await reopened.restoreToQueue(archived.id); XCTFail("Stale restore reopened deleted media") }
+        catch RiftletError.invalidTransition {}
+        try await second.restoreTrash(from: trash)
+        let after = try await reopened.history()
+        XCTAssertEqual(Set(after.map(\.id)), [locked.id, archived.id])
+        XCTAssertEqual(try Data(contentsOf: root.appendingPathComponent("media").appendingPathComponent(archived.image.fileName)), original)
+        let finalPhase = try await reopened.operation(id: operation.id)?.phase
+        XCTAssertEqual(finalPhase, .unknown)
+        let afterMove = try await second.cleanupItems()
+        XCTAssertEqual(afterMove.first?.verifiedOriginal, false)
+        try await second.setRetention(days: 30, includeExisting: true)
+        let eligible = try await second.cleanupItems(rule: second.retention(), now: Date().addingTimeInterval(31 * 86_400))
+        XCTAssertTrue(eligible.isEmpty, "A same-named replacement cannot qualify an old copy for automatic cleanup")
+    }
+
+    func testPublishedCaptureAndPostManifestInterruptionRecoverOnce() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let captures = root.appendingPathComponent("captures")
+        let url = InteractiveScreenshotOutput.originalURL(in: captures, captureID: UUID())
+        let bytes = try syntheticPNG(at: url)
+        let db = root.appendingPathComponent("queue.sqlite")
+        let first = try QueueStore(databaseURL: db)
+        let interrupted = PrivateAssetImporter(privateRoot: root, store: first, fault: { context in
+            if context.boundary == .mediaSynced { throw SimulatedImportInterruption(boundary: context.boundary) }
+        })
+        let before = try await interrupted.pendingOwnedCaptures()
+        XCTAssertEqual(before.map(\.lastPathComponent), [url.lastPathComponent])
+        do { _ = try await interrupted.collectOwnedCapture(url); XCTFail("Fault not reached") }
+        catch is SimulatedImportInterruption {}
+        let store = try QueueStore(databaseURL: db)
+        let recovered = PrivateAssetImporter(privateRoot: root, store: store)
+        let report = try await recovered.recover()
+        XCTAssertEqual(report.adopted, 1)
+        let pending = try await recovered.pendingOwnedCaptures()
+        XCTAssertEqual(pending.map(\.lastPathComponent), [url.lastPathComponent])
+        let row = try await recovered.collectOwnedCapture(url)
+        let after = try await recovered.pendingOwnedCaptures()
+        XCTAssertTrue(after.isEmpty)
+        let history = try await store.history()
+        XCTAssertEqual(history.map(\.id), [row.id])
+        XCTAssertEqual(try Data(contentsOf: root.appendingPathComponent("media").appendingPathComponent(row.image.fileName)), bytes)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: url.path))
+    }
+
     private func generatedPNG() throws -> Data {
         let context = try XCTUnwrap(CGContext(data: nil, width: 20, height: 12, bitsPerComponent: 8,
             bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))

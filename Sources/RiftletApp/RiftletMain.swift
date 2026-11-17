@@ -138,6 +138,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var pauseItem: NSMenuItem?
     private var archiveItem: NSMenuItem?
     private var store: QueueStore?
+    private var captureNeedsRecovery = false
     private var mediaManager: MediaManagerWindow?
     private var mediaMaintenanceTask: Task<Void, Never>?
     private var capture: CaptureService?
@@ -635,7 +636,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 try await importer.cleanEmptyReservations()
             } catch { showIssue(ProductCopy.text("请在截图设置中检查本地资料。", "Check local files in Screenshot settings.")) }
             mediaMaintenanceTask = Task { [weak self] in
-                do { try await importer.reconcileInterruptedMoves() }
+                do {
+                    try await importer.reconcileInterruptedMoves()
+                    self?.captureNeedsRecovery = try await !importer.pendingOwnedCaptures().isEmpty
+                    self?.updateSetup()
+                }
                 catch { self?.showIssue(ProductCopy.text("请检查待恢复的截图。", "Check screenshots awaiting recovery.")) }
                 while !Task.isCancelled {
                     do {
@@ -660,6 +665,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     onIssue: { [weak self] message in self?.showIssue(message) },
                     allowsSystemCapture: mode != .settingsReview)
                 screenshotEntry?.onScreenPermissionRequired = { [weak self] in self?.settingsHost?.recordScreenPermissionFailure() }
+                screenshotEntry?.onCaptureImportFailed = { [weak self] in self?.captureNeedsRecovery = true; self?.updateSetup() }
                 screenshotEntry?.onPreferencesChanged = { [weak self] in self?.updateSetup() }
                 screenshotEntry?.setHidden(userHidden)
             } catch { showIssue("截图入口暂不可用，已有截图收录和队列仍保留。") }
@@ -872,7 +878,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         let issue: SetupIssue? = visibilitySettingFailed ? .visibilityPreferenceUnsaved
             : (collectionSettingFailed ? .collectionPreferenceUnsaved
                 : (screenshotEntry?.preferenceSaveFailed == true ? .screenshotPreferenceUnsaved
-                    : (needsSelection ? .screenshotFolderNeedsSelection : (captureDiagnostic.map(ProductStatus.issue) ?? setupIssue))))
+                    : (needsSelection ? .screenshotFolderNeedsSelection : (captureDiagnostic.map(ProductStatus.issue) ?? (captureNeedsRecovery ? .pendingCapture : setupIssue)))))
         let attachment = mode.attachmentState
         let source = ProductStatus.sourceState(detectedSource: detectedSource, observation: captureStatus,
             systemCollection: mode.collectsSystemScreenshots, paused: captureIsPaused, initialized: initialized)
@@ -1953,7 +1959,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         if mediaManager == nil {
             mediaManager = MediaManagerWindow(importer: importer,
                 captureBusy: { [weak self] in self?.screenshotEntry?.hasOutstandingCapture ?? true },
-                changed: { [weak self] in await self?.refresh(); self?.checkStorage() })
+                changed: { [weak self] in
+                    if let pending = try? await importer.pendingOwnedCaptures() { self?.captureNeedsRecovery = !pending.isEmpty }
+                    await self?.refresh(); self?.checkStorage()
+                })
         }
         mediaManager?.present()
         checkStorage()

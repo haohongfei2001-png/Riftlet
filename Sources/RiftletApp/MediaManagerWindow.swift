@@ -23,6 +23,7 @@ final class MediaManagerWindow: NSWindowController {
                              backing: .buffered, defer: false)
         super.init(window: panel)
         panel.isReleasedWhenClosed = false
+        panel.identifier = .init("RiftletMediaManager")
         panel.title = text("管理截图资料", "Manage Screenshots")
         let stack = NSStackView()
         stack.orientation = .vertical; stack.alignment = .leading; stack.spacing = 12
@@ -42,6 +43,9 @@ final class MediaManagerWindow: NSWindowController {
         stack.addArrangedSubview(NSStackView(views: [recover, reveal]))
         stack.addArrangedSubview(status)
         actions = [save, trash, undo, recover, reveal]
+        for (control, name) in zip(actions, ["save", "trash", "restore", "recover", "reveal"]) {
+            control.identifier = .init("media.manage." + name)
+        }
         for field in [summary, explanation, status] {
             field.preferredMaxLayoutWidth = 480
             field.setContentCompressionResistancePriority(.required, for: .vertical)
