@@ -75,8 +75,13 @@ struct RiftTrayGlassPalette {
             material = NSColor.windowBackgroundColor.withAlphaComponent(glassAlpha)
             key = NSColor.controlBackgroundColor.withAlphaComponent(keyAlpha)
             ink = .labelColor
-            keyFoot = (dark ? NSColor(srgbRed: 0.13, green: 0.13, blue: 0.15, alpha: 1)
-                            : NSColor.controlColor).withAlphaComponent(keyAlpha)
+            var foot = NSColor.controlColor
+            if dark {
+                appearance.performAsCurrentDrawingAppearance {
+                    foot = NSColor.controlBackgroundColor.blended(withFraction: 0.24, of: .black) ?? .windowBackgroundColor
+                }
+            }
+            keyFoot = foot.withAlphaComponent(keyAlpha)
         }
         if contrast { ink = .labelColor }
         cameraBody = cameraBodyColor.flatMap { text -> NSColor? in
