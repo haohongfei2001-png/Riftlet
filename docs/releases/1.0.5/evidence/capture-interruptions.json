@@ -51,6 +51,18 @@
       "assetCount": 1,
       "operationCount": 0,
       "injection": "Production importer internal test hook after directory fsync. The child ended via SIGKILL."
+    },
+    {
+      "boundary": "original published and the native markup panel visible, before save",
+      "childSignal": "SIGKILL",
+      "injection": "Native ScreenshotMarkupController.present() in a dedicated graphical guest. The probe checked window.isVisible before signalling itself. No edits submitted.",
+      "platform": "VirtualMac2,1 macOS 27.2 arm64",
+      "recoverProcess": "PASS pending=1 adopted=0 assets=1 retainedCaptureNames=0 sameSHA=true",
+      "secondRestart": "PASS pending=0 adopted=0 assets=1 retainedCaptureNames=0 sameSHA=true",
+      "sameAssetAcrossProcesses": true,
+      "operationCount": 0,
+      "shaMatched": true,
+      "assetCount": 1
     }
   ]
 }
