@@ -3,6 +3,7 @@
 Run from `marketing/launch/light-study` on macOS. Use Python 3.12+ with Pillow, NumPy, PyAV, fonttools with Brotli, and imageio-ffmpeg. The production host used Python 3.14, Pillow 13, NumPy 2.5 and PyAV 19. System Helvetica Neue, STHeiti, SF Mono, Songti and PingFang must be available. The repository contains Instrument Serif under its OFL license. ImageIO provides FFmpeg/x264, including when no ffmpeg is on PATH.
 
 ```sh
+python studio/render.py brand-zh
 python studio/render.py brand
 python studio/render.py capture
 python studio/render.py at-hand
@@ -11,6 +12,7 @@ python studio/render.py loops
 python studio/render.py stills
 python studio/platforms.py
 python native-demo/edit/edit.py
+python native-demo/edit/edit_zh.py
 ```
 
 Edit timing and composition in [art.py](art.py) and [editions.py](editions.py), font sizes and native tray dimensions in art.py, and the music cues in [score.py](score.py). The [storyboard](direction.md) describes the cut. The platform script reads the same originals. [Captions](../captions/) are optional sidecar tracks. Each output section is independently rebuildable. The product demo retains its own camera source and timeline.

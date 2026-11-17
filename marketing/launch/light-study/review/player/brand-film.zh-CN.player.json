@@ -1,0 +1,12 @@
+{
+  "completed" : true,
+  "displaySamples" : 768,
+  "duration" : 32,
+  "endNotification" : true,
+  "firstDisplayTime" : 0,
+  "jpegErrors" : 0,
+  "largestDisplayGap" : 0.04166666666666785,
+  "lastDisplayTime" : 31.958333333333332,
+  "playWallSeconds" : 32.170176041676314,
+  "sampledSeconds" : 32
+}

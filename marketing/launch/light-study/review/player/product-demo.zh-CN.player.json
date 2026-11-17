@@ -1,0 +1,12 @@
+{
+  "clock": "monotonic",
+  "playback": "PyAV decoded and displayed every frame into an offscreen PIL buffer at original timestamps",
+  "frames": 900,
+  "seconds": 29.980631541009643,
+  "maxLateness": 0.044739666001987644,
+  "completed": true,
+  "recordedRelease": "1.0.3 (25)",
+  "sha256": "3d38082109f3b475e7db46e2707ac5c37b7830be0b01762e899fe699ecc42160",
+  "visualReview": "Actual full 30-second presentation clock, 900 frames rendered into an offscreen software image surface. Each second sampled for visual inspection.",
+  "avplayer": "Outside-sandbox AVPlayer request and its single retry both timed out in automatic permission review before launch."
+}

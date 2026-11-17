@@ -10,11 +10,13 @@ from PIL import Image, ImageOps
 from art import ROOT, RES, master
 from editions import short, print_panels
 from score import write_score
+import workflow_zh
 from platforms import PROFILE
 
 FFMPEG=imageio_ffmpeg.get_ffmpeg_exe()
 CUTS={
     "brand": ("brand-film",37,1920,1080,1.2),
+    "brand-zh": (workflow_zh.OUTPUT,workflow_zh.DURATION,1920,1080,1.2),
     "capture": ("short-capture",8,1080,1920,1.2),
     "at-hand": ("short-at-hand",8,1080,1080,1.08),
     "draft": ("short-draft",8.5,1080,1350,1.2),
@@ -36,7 +38,12 @@ def film(key):
         with subprocess.Popen(args,stdin=subprocess.PIPE) as proc:
             for frame in range(round(duration*24)):
                 t=frame/24
-                img=master(t,scale) if key=="brand" else short(key,t,scale)
+                if key=="brand-zh":
+                    img=workflow_zh.frame(t,scale)
+                elif key=="brand":
+                    img=master(t,scale)
+                else:
+                    img=short(key,t,scale)
                 assert img.size==(w,h)
                 proc.stdin.write(img.tobytes())
             proc.stdin.close()

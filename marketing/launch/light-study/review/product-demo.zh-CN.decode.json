@@ -1,0 +1,17 @@
+{
+  "sha256": "3d38082109f3b475e7db46e2707ac5c37b7830be0b01762e899fe699ecc42160",
+  "bytes": 1480183,
+  "decodedFrames": 900,
+  "durationSeconds": 30.0,
+  "dimensions": [
+    1920,
+    1080
+  ],
+  "nativeRecordingFrames": 720,
+  "instructionFrames": 180,
+  "codec": "h264",
+  "fps": "30/1",
+  "language": "zh-CN",
+  "audio": "Silent",
+  "recordedRelease": "1.0.3 (25)"
+}

@@ -2,7 +2,14 @@
 
 两道光在桌面上交汇。设计者想问它们在哪里相交，于是截下那个细节。影片跟随同一张图从取景框来到 Riftlet 托盘，再进入写着这个问题的草稿。
 
-[![Light study — 37 秒品牌片](covers/press-16x9.jpg)](films/brand-film.mp4)
+## 中文版优先播放
+
+- [品牌片《截下想问的那一处》](films/brand-film.zh-CN.mp4) · 32 秒。用 Mac 区域截图圈出两束光的交点，再截一张侧面图。回到 Chrome，依次点两张微图，原来的问题和两张附件都在同一份草稿里。界面流程为设计动画。
+- [产品演示《两次潮汐》](films/product-demo.zh-CN.mp4) · 30 秒。前 24 秒为正式版 1.0.3（25）新拍实录，并排展示实际系统窗口截图与桌面托盘，后 6 秒给出在 Chrome 中附加图片的中文使用指引。
+
+两条片都把中文直接排进画面，可静音观看。 [中文版制作与验收](review/zh-CN-20261117.md)
+
+## 第一版影片与社交短片
 
 | 影片 | 规格 | 内容 |
 |---|---|---|
@@ -12,7 +19,7 @@
 | [At hand · 两个角度](films/short-at-hand.mp4) | 8 秒 · 1080 × 1080 | 托盘从一排展开为两排，两个角度并排供选择。 |
 | [Draft · 放进问题里](films/short-draft.mp4) | 8.5 秒 · 1080 × 1350 | 点选其中一张，已有问题和另一张待用缩略图都保留。 |
 
-本次检查到的最新公开发行是 **0.3.5（20）Public Beta**，支持 macOS 13 及以上，网页附加目标为 Google Chrome 前台可编辑的 ChatGPT 草稿。Product Demo 的实录止于本机托盘，当次产生 0 个附加操作。已公开记录的两张图片连续进入同一真实草稿的验证来自 build 18。 [发行说明](https://github.com/haohongfei2001-png/Riftlet/releases/tag/v0.3.5-beta.1) · [支持矩阵](../../../docs/consumer/SUPPORT-MATRIX.md)
+11 月 14 日的英文片取材于 **0.3.5（20）Public Beta**，支持 macOS 13 及以上，网页附加目标为 Google Chrome 前台可编辑的 ChatGPT 草稿。Product Demo 的实录止于本机托盘，当次产生 0 个附加操作。已公开记录的两张图片连续进入同一真实草稿的验证来自 build 18。 [当时的发行说明](https://github.com/haohongfei2001-png/Riftlet/releases/tag/v0.3.5-beta.1) · [支持矩阵](../../../docs/consumer/SUPPORT-MATRIX.md)
 
 ## 动图与平面
 
