@@ -167,7 +167,11 @@ final class WebAcceptanceIntegrationTests: XCTestCase {
         XCTAssertEqual(afterStart.map(\.action), [.validate, .begin, .chunk, .commit],
                        "Positive start returns without a query for final completion")
         await bridge.setObservation(.attached)
-        try await transfer.observePending()
+        for _ in 0..<300 {
+            try await transfer.observePending()
+            if await bridge.recordedCommands().last?.action == .observe { break }
+            try await Task.sleep(nanoseconds: 2_000_000)
+        }
         await bridge.setObservation(.attached, error: true)
         let observedCompletion = try await transfer.observeCompleted(operationID: operationID)
         let retainedOperation = try await store.operation(id: operationID)
@@ -180,7 +184,10 @@ final class WebAcceptanceIntegrationTests: XCTestCase {
         try await transfer.select(asset.id, frozenTarget: target)
         let retained = try await store.uploadStartReceipt(for: operationID)
         let commands = await bridge.recordedCommands()
-        XCTAssertEqual(retained, audit); XCTAssertEqual(commands.map(\.action), afterStart.map(\.action))
+        XCTAssertEqual(retained, audit)
+        XCTAssertEqual(commands.map(\.action), afterStart.map(\.action) + [.observe])
+        XCTAssertEqual(commands.last?.identity?.operationID, operationID)
+        XCTAssertEqual(commands.last?.identity?.target, target)
     }
 
     func testPermissionAwaitKeepsOriginalTargetAndRejectsChangedDraft() async throws {

@@ -242,8 +242,8 @@ final class SettingsProductHostTests: XCTestCase {
         let task = Task { @MainActor in await f.host.perform(.settings(.commitField(.outerInset, "81"))) }
         await fulfillment(of: [gate.entered], timeout: 2)
         XCTAssertTrue(f.host.snapshot.state.domains[.layout]!.isSaving)
-        let slider = try XCTUnwrap(f.host.center.controls["slider.outerInset"] as? NSSlider)
-        XCTAssertFalse(slider.isContinuous)
+        let count = try XCTUnwrap(f.host.center.controls["count"] as? NSPopUpButton)
+        XCTAssertFalse(count.isEnabled, "A layout save blocks changes to the discrete desktop count")
         await f.host.perform(.settings(.commitField(.outerInset, "81")))
         XCTAssertEqual(f.adapter.requests.filter { $0.intent.domain == .layout }.count, 1)
         let visibleImages = try XCTUnwrap(f.host.center.controls["desktop.visible"] as? NSSwitch)
