@@ -1,0 +1,374 @@
+{
+  "oldBaseline": {
+    "release": "1.0.3 build 25",
+    "executableSHA256": "219c3d9febac0ff58ab03bb4d1869f374caff1da9256a0bf9b5968731bce9161",
+    "originalFailure": "trayCameraObscured (original report preserved in native-runs.json); hit identity was not recorded",
+    "exactBinaryRetest": "PASS_SCOPED_NATIVE_REVIEW",
+    "passedCases": 42,
+    "reportSHA256": "86375d132ab05530cb5f129c5ea535866a22f356907e29e23ac258a655ebc999"
+  },
+  "developmentApp": {
+    "version": "1.0.4 build 26; development ad-hoc SwiftPM release configuration",
+    "executableSHA256": "b4700accd52860681bcdd1fa9625b940ec4d878072a07760223bc19afb846c97",
+    "reportSHA256": "366b14a6d1e91bb353eda61431cf5375b716538234ec137840a0538d470e4e07",
+    "reviewID": "8d710d05-b9d8-45f5-b4af-440a402a6432",
+    "status": "PASS_SCOPED_NATIVE_REVIEW",
+    "passedCases": 43,
+    "cameraHits": [
+      {
+        "cycle": 1,
+        "window": 9744,
+        "hit": 9744,
+        "ownerMatches": true,
+        "backingScale": 2
+      },
+      {
+        "cycle": 2,
+        "window": 9744,
+        "hit": 9744,
+        "ownerMatches": true,
+        "backingScale": 2
+      }
+    ],
+    "input": "CGEvent posted mouse + native AppKit Escape; isolated synthetic assets",
+    "notRun": [
+      "realChatGPTAttachment",
+      "physicalPointer",
+      "OSInputMethod",
+      "VoiceOver",
+      "realLoginRegistration",
+      "realTCCPrompt",
+      "multiDisplayHotplug",
+      "live accessibility preference toggles",
+      "physical second screen",
+      "1x host",
+      "exact signed RC in this run"
+    ]
+  },
+  "pixelComparisons": {
+    "status": "PASS",
+    "source": "b4700accd52860681bcdd1fa9625b940ec4d878072a07760223bc19afb846c97",
+    "samples": [
+      {
+        "appearance": "light",
+        "variant": "default",
+        "baseline": "saturated",
+        "changedPixels": {
+          "body": 950,
+          "lens": 0,
+          "key": 0,
+          "thumbnails": 0,
+          "material": 0
+        },
+        "passed": true
+      },
+      {
+        "appearance": "light",
+        "variant": "violet",
+        "baseline": "saturated",
+        "changedPixels": {
+          "body": 950,
+          "lens": 0,
+          "key": 0,
+          "thumbnails": 0,
+          "material": 0
+        },
+        "passed": true
+      },
+      {
+        "appearance": "light",
+        "variant": "blue",
+        "baseline": "saturated",
+        "changedPixels": {
+          "body": 951,
+          "lens": 0,
+          "key": 0,
+          "thumbnails": 0,
+          "material": 0
+        },
+        "passed": true
+      },
+      {
+        "appearance": "light",
+        "variant": "teal",
+        "baseline": "saturated",
+        "changedPixels": {
+          "body": 946,
+          "lens": 0,
+          "key": 0,
+          "thumbnails": 0,
+          "material": 0
+        },
+        "passed": true
+      },
+      {
+        "appearance": "light",
+        "variant": "coral",
+        "baseline": "saturated",
+        "changedPixels": {
+          "body": 949,
+          "lens": 0,
+          "key": 0,
+          "thumbnails": 0,
+          "material": 0
+        },
+        "passed": true
+      },
+      {
+        "appearance": "light",
+        "variant": "graphite",
+        "baseline": "saturated",
+        "changedPixels": {
+          "body": 950,
+          "lens": 0,
+          "key": 0,
+          "thumbnails": 0,
+          "material": 0
+        },
+        "passed": true
+      },
+      {
+        "appearance": "light",
+        "variant": "black",
+        "baseline": "saturated",
+        "changedPixels": {
+          "body": 950,
+          "lens": 0,
+          "key": 0,
+          "thumbnails": 0,
+          "material": 0
+        },
+        "passed": true
+      },
+      {
+        "appearance": "light",
+        "variant": "white",
+        "baseline": "saturated",
+        "changedPixels": {
+          "body": 953,
+          "lens": 0,
+          "key": 0,
+          "thumbnails": 0,
+          "material": 0
+        },
+        "passed": true
+      },
+      {
+        "appearance": "light",
+        "variant": "saturated",
+        "baseline": "blue",
+        "changedPixels": {
+          "body": 951,
+          "lens": 0,
+          "key": 0,
+          "thumbnails": 0,
+          "material": 0
+        },
+        "passed": true
+      },
+      {
+        "appearance": "light",
+        "variant": "default",
+        "baseline": "opaque",
+        "changedPixels": {
+          "lens": 0,
+          "material": 65897
+        },
+        "passed": true
+      },
+      {
+        "appearance": "light",
+        "variant": "t01",
+        "baseline": "opaque",
+        "changedPixels": {
+          "lens": 0,
+          "material": 60018
+        },
+        "passed": true
+      },
+      {
+        "appearance": "light",
+        "variant": "t75",
+        "baseline": "opaque",
+        "changedPixels": {
+          "lens": 0,
+          "material": 65897
+        },
+        "passed": true
+      },
+      {
+        "appearance": "dark",
+        "variant": "default",
+        "baseline": "saturated",
+        "changedPixels": {
+          "body": 949,
+          "lens": 0,
+          "key": 0,
+          "thumbnails": 0,
+          "material": 0
+        },
+        "passed": true
+      },
+      {
+        "appearance": "dark",
+        "variant": "violet",
+        "baseline": "saturated",
+        "changedPixels": {
+          "body": 950,
+          "lens": 0,
+          "key": 0,
+          "thumbnails": 0,
+          "material": 0
+        },
+        "passed": true
+      },
+      {
+        "appearance": "dark",
+        "variant": "blue",
+        "baseline": "saturated",
+        "changedPixels": {
+          "body": 952,
+          "lens": 0,
+          "key": 0,
+          "thumbnails": 0,
+          "material": 0
+        },
+        "passed": true
+      },
+      {
+        "appearance": "dark",
+        "variant": "teal",
+        "baseline": "saturated",
+        "changedPixels": {
+          "body": 951,
+          "lens": 0,
+          "key": 0,
+          "thumbnails": 0,
+          "material": 0
+        },
+        "passed": true
+      },
+      {
+        "appearance": "dark",
+        "variant": "coral",
+        "baseline": "saturated",
+        "changedPixels": {
+          "body": 950,
+          "lens": 0,
+          "key": 0,
+          "thumbnails": 0,
+          "material": 0
+        },
+        "passed": true
+      },
+      {
+        "appearance": "dark",
+        "variant": "graphite",
+        "baseline": "saturated",
+        "changedPixels": {
+          "body": 951,
+          "lens": 0,
+          "key": 0,
+          "thumbnails": 0,
+          "material": 0
+        },
+        "passed": true
+      },
+      {
+        "appearance": "dark",
+        "variant": "black",
+        "baseline": "saturated",
+        "changedPixels": {
+          "body": 952,
+          "lens": 0,
+          "key": 0,
+          "thumbnails": 0,
+          "material": 0
+        },
+        "passed": true
+      },
+      {
+        "appearance": "dark",
+        "variant": "white",
+        "baseline": "saturated",
+        "changedPixels": {
+          "body": 950,
+          "lens": 0,
+          "key": 0,
+          "thumbnails": 0,
+          "material": 0
+        },
+        "passed": true
+      },
+      {
+        "appearance": "dark",
+        "variant": "saturated",
+        "baseline": "blue",
+        "changedPixels": {
+          "body": 952,
+          "lens": 0,
+          "key": 0,
+          "thumbnails": 0,
+          "material": 0
+        },
+        "passed": true
+      },
+      {
+        "appearance": "dark",
+        "variant": "default",
+        "baseline": "opaque",
+        "changedPixels": {
+          "lens": 0,
+          "material": 65889
+        },
+        "passed": true
+      },
+      {
+        "appearance": "dark",
+        "variant": "t01",
+        "baseline": "opaque",
+        "changedPixels": {
+          "lens": 0,
+          "material": 40778
+        },
+        "passed": true
+      },
+      {
+        "appearance": "dark",
+        "variant": "t75",
+        "baseline": "opaque",
+        "changedPixels": {
+          "lens": 0,
+          "material": 65894
+        },
+        "passed": true
+      }
+    ]
+  },
+  "frameDigests": {
+    "appearance-light-default": "f5eed6bab508d9d217fe3935cc6da141ccc0aa4dedfda2e7cac90a1267ec7c4a",
+    "appearance-light-opaque": "3c10248abd82ae1cb0a7f68c9ed51de25431d52f2cf2070d718fbc3eff6cd12e",
+    "appearance-light-t01": "ce1d59a815bd7c521f9d5af7a0579e22e3a89e41269220c7269486ea39bf46d4",
+    "appearance-light-t75": "0cd5cbbd1cba419217bd5f0c6cff47b7267da03369c88e1be0a65d8554539aba",
+    "appearance-light-violet": "e665c2cec8f435aa728cb69ac2d16becaf4f72b5b68d32ba432d67cc245195fd",
+    "appearance-light-blue": "63cfac7bdcfa6377cea1ae349b5349d325d0e3a47e9d4e8e7726c26fd0e49f83",
+    "appearance-light-teal": "98d35fa41a5b146c4852d24c95ff8d5a1abad6e2f787b1946c3e794763754dda",
+    "appearance-light-coral": "ef8d0c190281ea3c0074bb0bcc663dcfb7bc653c24dabcb008e7e2bbc27c67a9",
+    "appearance-light-graphite": "cabaa328d57685bffe72228090808cb1e2d8c5ef99894d39d0560080045c5f8a",
+    "appearance-light-black": "445abc1512b798e1428b99151faa9b74d3264b98cd3a089b21d9b027da50d1a5",
+    "appearance-light-white": "65de14db6a299fe2e3a6f6900af8d84c06ff62353e342df0859b0711b4a1eb6a",
+    "appearance-light-saturated": "8f36bfeecb09653b85bd201251ac5c9b53dde2430d725ba85a7a6ca5edf1a420",
+    "appearance-dark-default": "aaab856ce23e77f2c7a434480323591a78148e6a4d4a08ad2f51abe9dbc54bfc",
+    "appearance-dark-opaque": "1ce103d07da0789ebf8339552e0fa1a73cc188d186d778acdc3a33893c1aa67b",
+    "appearance-dark-t01": "40431d435473bad364dbc00a165bdd9dd11c23b0107e7aaa34d3d05704164fa4",
+    "appearance-dark-t75": "09d9ebc7898562394029e910687deea65d68c5596576702e5f6b4c92b9aa17ae",
+    "appearance-dark-violet": "f1eed699e04c3d8d5dd9fffa7e954d5aaedd80f4b77cf6b189dbdcb7c45b484d",
+    "appearance-dark-blue": "23b420948350a230396e8d6661329c1a4c29d60204812b7aa8910f667734eeaa",
+    "appearance-dark-teal": "55509e96070cb6138d0602b8214256fd97562655859dd6b406c207fc7bb588f4",
+    "appearance-dark-coral": "d49d6c3da99b6051fe0931001ffd99759250841eea7711a37502d0797533d528",
+    "appearance-dark-graphite": "fd4efeb09fdeb7f305222f60a60ab79aeb3f43f3577409f9d7cb0dfeb926cd80",
+    "appearance-dark-black": "01254073bb927fc902f9df7a80b7adf38b205a3dde184d744d9a34b8d3f7c5b9",
+    "appearance-dark-white": "b97f5fe38b8852457dfff3e41aea63602f8420505d3b6faa7066871c0d74da2f",
+    "appearance-dark-saturated": "5c16ccafdeffc3f84540b760f5fadf2c92213aadb4133a12193eb09d309c8287"
+  }
+}
