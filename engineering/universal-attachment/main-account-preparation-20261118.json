@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "localDate": "2026-11-18",
-  "scope": "The current task is the user-confirmed signed-in daily Edge account. Its new native-window preparation stopped before commercial input. Chrome records are historical preparation references only; no further Chrome trial is part of this task.",
-  "edge": {
+  "scope": "The current target is the user-confirmed signed-in daily Edge account. The later new visible Temporary window had a unique editor and Attach control, but the real-input test stopped at the auxiliary runner signature and automatic-approval boundary. Earlier-window page-script error 12 and historical Chrome preparation remain separately scoped; neither is a product click result for this final window.",
+  "edgeEarlierWindow": {
     "accountScope": "USER_CONFIRMED_SIGNED_IN_DEFAULT_EDGE",
     "profileSource": "DAILY_EDGE_DEFAULT_PROFILE_LOCAL_HOST_RECORDS",
     "profileIsolation": "dedicated_window_in_existing_profile",
@@ -43,7 +43,84 @@
       "signedInDefaultEdge": true,
       "source": "EXPLICIT_USER_CONFIRMATION_IN_CURRENT_SESSION"
     },
-    "independentOnsiteLoginEvidence": "NOT_ESTABLISHED_FOR_THE_EXACT_NEW_TEMPORARY_DRAFT"
+    "independentOnsiteLoginEvidence": "NOT_ESTABLISHED_FOR_THE_EXACT_NEW_TEMPORARY_DRAFT",
+    "windowEvidenceRole": "EARLIER_DAILY_EDGE_WINDOW_ONLY"
+  },
+  "edge": {
+    "accountScope": "USER_CONFIRMED_SIGNED_IN_DEFAULT_EDGE",
+    "userConfirmation": {
+      "signedInDefaultEdge": true,
+      "source": "EXPLICIT_USER_CONFIRMATION_IN_CURRENT_SESSION"
+    },
+    "independentOnsiteLoginEvidence": "NOT_ESTABLISHED_FOR_THIS_EXACT_NEW_WINDOW",
+    "profileSource": "SAME_USER_CONFIRMED_DAILY_EDGE_DEFAULT_PROFILE",
+    "profileIsolation": "dedicated_window_in_existing_profile",
+    "windowEvidenceRole": "LATER_NEW_DEDICATED_NATIVE_WINDOW_SEPARATE_FROM_EARLIER_ERROR_12_WINDOW",
+    "windowSource": "NEW_VISIBLE_NATIVE_WINDOW_AND_SOLE_TAB_WITH_UNIQUE_MATCHED_AX_MAIN_FRAME",
+    "newWindowAndSoleTab": true,
+    "fixedTemporaryRouteConfirmed": true,
+    "visible": true,
+    "uniqueComposerCount": 1,
+    "uniqueEnabledAttachControlCount": 1,
+    "editor": {
+      "valueAvailable": true,
+      "valueSettable": true,
+      "valueUTF16Length": 11,
+      "emptyValue": false,
+      "contentsRetainedInPublicOrLocalReport": false,
+      "contentsOverwritten": false
+    },
+    "nativeAutomationReadOnlyOSStatus": 0,
+    "preparationResult": "NOT_RUN_REAL_INPUT_TEST_HELPER_SIGNATURE_BLOCK",
+    "testHelperSignatureGate": {
+      "dailyEdgeDeepStrictExitCode": 1,
+      "dailyEdgeExistingSignatureIdentityReadable": true,
+      "failure": "RESOURCE_FORK_FINDER_INFORMATION_OR_SIMILAR_DETRITUS_NOT_ALLOWED",
+      "signedG9AppDeepStrictVerification": "PASS",
+      "productSource": "0e0ae7fa0b17a72190b8ad08f995048148f31d39",
+      "bindingExecuted": false,
+      "originalValidatorRestored": true,
+      "restoredValidatorMatchesPreviousBytes": true,
+      "installationChanged": false
+    },
+    "automaticApprovalReview": {
+      "result": "REJECTED",
+      "action": "CHANGE_BINDING_VALIDATOR_TO_TREAT_THE_EDGE_DEEP_STRICT_FAILURE_AS_SEPARATE_EVIDENCE",
+      "reason": "Weakening a security gate without explicit user authorization.",
+      "bypassPerformed": false,
+      "alternateRuntimeUsed": false
+    },
+    "ordinaryRiftletMouseEvents": 0,
+    "newPair619620SystemCaptures": 0,
+    "baseline621PickerUploads": 0,
+    "neutralTextWrites": 0,
+    "ordinaryFileInputs": 0,
+    "newTargetOperations": 0,
+    "newTargetProductStarts": 0,
+    "applicationEntry": "NOT_RUN",
+    "uploadStart": "NOT_RUN",
+    "serviceTerminal": "NOT_RUN",
+    "consecutiveImages": "NOT_RUN",
+    "productScriptError12Observed": false,
+    "baseline621": {
+      "originalPNGSHA256": "15fa30fac446b7ecfb7a800ad7e0321fce811cb28548a0b8fea8ba6390202195",
+      "privateOriginalAndCopyOnly": true,
+      "uploaded": false
+    },
+    "custody": {
+      "assets": 22,
+      "operations": 13,
+      "starts": 4,
+      "media": 22,
+      "allOldRecordsPreserved": true,
+      "usedOldInputsReplayed": false
+    },
+    "freezeCurrentGuard": {
+      "compiledOffline": true,
+      "liveInvocationCount": 0,
+      "productOutcomeEvidence": false
+    },
+    "resultScope": "The auxiliary test runner stopped at signature and approval gates before binding or any product click. This is not a product, account, service, or new-window error-12 result. The earlier window observation remains separate."
   },
   "chrome": {
     "accountScope": "USER_AUTHORIZED_MAIN_ACCOUNT_CANDIDATE",
@@ -206,6 +283,36 @@
       "id": "chrome-later-native-window-inventory",
       "sha256": "70f80f89c89a5ec7b964bdc4e0e01e8175e4bca10b9b780f0bc37cc2b8cbfe62",
       "bytes": 264
+    },
+    {
+      "id": "edge-final-public-stop",
+      "sha256": "16df255343bf9454a677e7e349b67d192f98213fb176b50f7edf8fe53c5eb292",
+      "bytes": 3281
+    },
+    {
+      "id": "edge-final-stop-manifest",
+      "sha256": "6676a0701b506b163e68550ef70eb94fecb7278427110730792e2300db1bd6b6",
+      "bytes": 825
+    },
+    {
+      "id": "edge-final-original-signature-diagnostics",
+      "sha256": "ebfa7248f0827afd6cc6eda590aaeb15e5ce9e1416d4cfa8cd4328c356d0ce77",
+      "bytes": 2713
+    },
+    {
+      "id": "edge-final-zero-input-custody",
+      "sha256": "5b0c6f157cc25700f442c9209b2e6f48f8fbde2d7e15df16f2713bc4c2b463d0",
+      "bytes": 1104
+    },
+    {
+      "id": "edge-final-automatic-approval-rejection",
+      "sha256": "e148dce065895adddc5452cc925aa6c83315d876707a722600968548ed7098d5",
+      "bytes": 711
+    },
+    {
+      "id": "edge-final-owned-temporary-public-controls",
+      "sha256": "cbb64b7280d2fe311d2d18751ab0f7a2e8043e49b8dd73308a38e4d36494f078",
+      "bytes": 2304
     }
   ],
   "privacy": "Only fixed categories, counts and SHA-256 fingerprints are public. No account names, email addresses, local paths, chat addresses, native identifiers, credentials, screenshots or page text are included."
