@@ -352,6 +352,11 @@
           "job": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44054602340/job/133940603775"
         }
       ]
+    },
+    "ci27-first-visual": {
+      "location": "prior-visual-helper-ci.json",
+      "sha256": "9b98cddfbc47abaee2668d0e5850bebbf23f74a2978924184e9295794cf295b1",
+      "basis": "Both final-package architectures passed XCTest. Both failed only English feedback-record screenshots in a separate helper. Six actual locale/window probes preserve pre-fix and post-fix outcomes."
     }
   },
   "rows": [
@@ -413,13 +418,14 @@
       ],
       "artifacts": [
         "ci-live",
-        "ci26"
+        "ci26",
+        "ci27-first-visual"
       ],
       "result": "NOT_RUN",
       "scope": "PENDING",
       "blocker": "Await actual reviewed H for this exact product and its five checks. Earlier green checks or local test results cannot establish this.",
       "fixSHA": null,
-      "observations": "The published build 26 admission head had three passing and two failing checks; both product failures were independently reproduced and fixed."
+      "observations": "The published build 26 admission head had three passing and two failing checks; both product failures were independently reproduced and fixed. The first build 27 admission b91c601 cleared both native XCTest steps. Its visual helper failed to recognize localized feedback records in English. Final five checks are bound to the successor H."
     },
     {
       "caseID": "BASE-04",

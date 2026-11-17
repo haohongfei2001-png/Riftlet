@@ -1,0 +1,158 @@
+{
+  "source": "b91c601253e9d6ee28eb157f43741363a6e69e40",
+  "scope": "First formal run of the build 27 source. Both XCTest partitions passed. The following visual helper failures are retained independently of subsequent fixes.",
+  "jobs": [
+    {
+      "id": 133964109477,
+      "name": "Native ARM64",
+      "started_at": "2026-11-17T10:04:55Z",
+      "completed_at": "2026-11-17T10:19:38Z",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44061455233/job/133964109477"
+    },
+    {
+      "id": 133964109873,
+      "name": "Native Intel",
+      "started_at": "2026-11-17T10:04:53Z",
+      "completed_at": "2026-11-17T10:24:05Z",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44061455233/job/133964109873"
+    },
+    {
+      "id": 133964109997,
+      "name": "Native source admission",
+      "started_at": "2026-11-17T10:04:51Z",
+      "completed_at": "2026-11-17T10:05:32Z",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44061455233/job/133964109997"
+    },
+    {
+      "id": 133964109814,
+      "name": "Feedback source admission",
+      "started_at": "2026-11-17T10:04:52Z",
+      "completed_at": "2026-11-17T10:05:15Z",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44061455356/job/133964109814"
+    },
+    {
+      "id": 133964110035,
+      "name": "Feedback native and service",
+      "started_at": "2026-11-17T10:04:54Z",
+      "completed_at": "2026-11-17T10:10:59Z",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44061455356/job/133964110035"
+    }
+  ],
+  "CI": {
+    "arm64": {
+      "originalCIJobLogSHA256": "d5b6fad16ba9486ca68eb38c56632b0a553aa00fda564dcd3d0c867bbd0f672a",
+      "failedScenes": [
+        "feedback-records-light",
+        "feedback-records-dark"
+      ]
+    },
+    "intel": {
+      "originalCIJobLogSHA256": "ebac801c41948780c0a18084b8ca46729976dcd63e3854bbce6d3097329fdd75",
+      "failedScenes": [
+        "feedback-records-light",
+        "feedback-records-dark"
+      ]
+    }
+  },
+  "beforeNativeReproduction": {
+    "helperSHA256": "1901397cd5233df45e0370a2b69644f86f45ea7821426e947ad2778eb208f691",
+    "results": [
+      [
+        "en-feedback-records-light",
+        "missingFrames",
+        []
+      ],
+      [
+        "en-feedback-records-dark",
+        "missingFrames",
+        []
+      ],
+      [
+        "en-feedback-save-failure-minimum-light",
+        "missingFrames",
+        []
+      ],
+      [
+        "zh-Hans-feedback-records-light",
+        "CAPTURED_NATIVE_WINDOWSERVER",
+        [
+          "30363e6b8ebdc844d3faff598428e4007e72abcfacfdf2e41291c9c0971cf939"
+        ]
+      ],
+      [
+        "zh-Hans-feedback-records-dark",
+        "CAPTURED_NATIVE_WINDOWSERVER",
+        [
+          "10ce68e39963b7d62a6ae76141debce560bb70494ff9eeded9224c4d3f2f7c0a"
+        ]
+      ],
+      [
+        "zh-Hans-feedback-save-failure-minimum-light",
+        "CAPTURED_NATIVE_WINDOWSERVER",
+        [
+          "7ba84cf83d83d2d71f0e382974f721803092eb086e8b872e85d77eaf27354b27"
+        ]
+      ]
+    ]
+  },
+  "beforeNativeReportSHA256": "80ab7d794230cc3be7c908ccd9eeba0bdc3a22924219d660dc7799c9c654570e",
+  "afterNativeReproduction": {
+    "helperSHA256": "fa121903f85abb33f6072ef2da26e9252225f6555a3a617af3ad67fe9cb6bd6b",
+    "results": [
+      [
+        "en-feedback-records-light",
+        "CAPTURED_NATIVE_WINDOWSERVER",
+        [
+          "49da81bb08ad9194df7929b18f64d1ce6a5d1a5d84813306994623f6209b5d81"
+        ]
+      ],
+      [
+        "en-feedback-records-dark",
+        "CAPTURED_NATIVE_WINDOWSERVER",
+        [
+          "78587302d6ee03e26b7c03b16122342295a1f500b1f6acdc45dd1cfb56feaa4a"
+        ]
+      ],
+      [
+        "en-feedback-save-failure-minimum-light",
+        "CAPTURED_NATIVE_WINDOWSERVER",
+        [
+          "2dc8db69928d79566624c5eb5ecb534856c90a0f1c95246f7809be9e0a772400"
+        ]
+      ],
+      [
+        "zh-Hans-feedback-records-light",
+        "CAPTURED_NATIVE_WINDOWSERVER",
+        [
+          "fae0a4d8bcf4bd22d2443bd02311614b87247b899cf630e5e23435312b99d531"
+        ]
+      ],
+      [
+        "zh-Hans-feedback-records-dark",
+        "CAPTURED_NATIVE_WINDOWSERVER",
+        [
+          "04f938d0c59a2c4174790e3bd53281ebd8c0dbd18b11e70833b88b86a6b9a1cc"
+        ]
+      ],
+      [
+        "zh-Hans-feedback-save-failure-minimum-light",
+        "CAPTURED_NATIVE_WINDOWSERVER",
+        [
+          "f303eddca2d617a87d9a9d02d4c811e3a5b37c63b4cce422d4963a50bb5be78d"
+        ]
+      ]
+    ]
+  },
+  "afterNativeReportSHA256": "4e37eaffa70c3f7367904db377c3d904d2892d0293120d0dbfa37b41fb19fba2",
+  "explanation": "The visual helper compared the English feedback window against Chinese-only strings. Exact fixture UUID, local text, localized status, expansion, visible frames and disabled transport are required. The helper is a separate SwiftPM product, not included in the signed app."
+}

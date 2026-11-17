@@ -160,6 +160,18 @@ final class AcceptanceWindowScenes {
 
     func cancel() { feedbackLoad?.cancel(); feedbackLoad = nil }
 
+    /// Each fixture record has an independently known state. Match its full
+    /// localized label in the real product view both before and after opening.
+    private func matchesFeedbackStatus(_ label: NSTextField, record: FeedbackRecord) -> Bool {
+        let english: String
+        switch record.state {
+        case .queued: english = "Offline demo: Saved locally, awaiting delivery"
+        case .cancelled: english = "Offline demo: Cancelled before sending"
+        default: return false
+        }
+        return label.stringValue == ProductCopy.text("离线演示（非云端）：\(record.label)", english)
+    }
+
     private func feedbackRecordsReadyForNavigation() -> Bool {
         guard feedbackLoad == nil, let feedback, feedbackFixtureRecords.count == 2,
               feedback.currentText == feedbackFixtureDraftText,
@@ -172,7 +184,7 @@ final class AcceptanceWindowScenes {
               let disclosure = views.first(where: {
                   $0.identifier?.rawValue == "feedback.recordsDisclosure"
               }) as? NSButton,
-              disclosure.isEnabled, disclosure.title == "本机反馈记录 · 2" else { return false }
+              disclosure.isEnabled, disclosure.title == ProductCopy.text("本机反馈记录 · 2", "Feedback on This Mac · 2") else { return false }
         // Folded cards are normally hidden. Observe the real loaded identities
         // and contents before navigating; visibility is still asserted below.
         return feedbackFixtureRecords.allSatisfy { record in
@@ -182,7 +194,7 @@ final class AcceptanceWindowScenes {
                   }) as? NSTextView, body.string == record.envelope.text,
                   let state = views.first(where: {
                       $0.identifier?.rawValue == "feedback.record.status.\(record.id)"
-                  }) as? NSTextField, state.stringValue == "离线演示（非云端）：\(record.label)" else { return false }
+                  }) as? NSTextField, matchesFeedbackStatus(state, record: record) else { return false }
             return true
         }
     }
@@ -223,7 +235,7 @@ final class AcceptanceWindowScenes {
                       let body = views.first(where: { $0.identifier?.rawValue == "feedback.record.body.\(record.id)" }) as? NSTextView,
                       body.string == record.envelope.text,
                       let state = views.first(where: { $0.identifier?.rawValue == "feedback.record.status.\(record.id)" }) as? NSTextField,
-                      state.stringValue == "离线演示（非云端）：\(record.label)" else { throw NativeVisualEvidence.Failure.missingWindow }
+                      matchesFeedbackStatus(state, record: record) else { throw NativeVisualEvidence.Failure.missingWindow }
                 return card
             }
             guard disclosure.state == .on, let first = cards.first else { throw NativeVisualEvidence.Failure.missingWindow }
@@ -231,6 +243,11 @@ final class AcceptanceWindowScenes {
             // scroll view. No action button, transport or receipt is invoked.
             let area = cards.dropFirst().reduce(first.bounds) { $0.union(first.convert($1.bounds, from: $1)) }
             first.scrollToVisible(area)
+            content.layoutSubtreeIfNeeded()
+            guard cards.allSatisfy({ card in
+                card.window === feedback?.window && !card.isHiddenOrHasHiddenAncestor
+                    && card.visibleRect.width > 0 && card.visibleRect.height > 0
+            }) else { throw NativeVisualEvidence.Failure.missingWindow }
             record("native_evidence_feedback_records", ["fixtureRecordCount": cards.count,
                 "fixtureStates": feedbackFixtureRecords.map { $0.state.rawValue }.sorted(),
                 "fixtureReadyBeforeExpansion": true, "fixturePreparationSeconds": preparationSeconds,
