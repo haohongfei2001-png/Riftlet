@@ -1,0 +1,19 @@
+{
+  "sha256": "bef617acf33d8f02b18d515fcc7b8385ece00b2ec7cfaa9239845602337d6ed3",
+  "completed": true,
+  "player": "IINA libmpv 2; offscreen video and silent audio devices, 1x",
+  "endReason": "EOF",
+  "wallSeconds": 22.95010933400772,
+  "progressSamples": 72,
+  "lastProgressSeconds": 22.966667,
+  "properties": {
+    "video-codec": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+    "audio-codec": "AAC (Advanced Audio Coding)",
+    "container-fps": "60.000000",
+    "speed": "1.000000",
+    "duration": "23.000000",
+    "audio-params/samplerate": "48000",
+    "video-params/w": "1920",
+    "video-params/h": "1080"
+  }
+}

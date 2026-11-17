@@ -1,0 +1,26 @@
+{
+  "dimensions": [
+    1920,
+    1080
+  ],
+  "codec": "h264",
+  "fps": 60.0,
+  "audioTracks": 1,
+  "frames": 1860,
+  "videoDuration": 31.0,
+  "firstPTS": 0.0,
+  "maxPTSDelta": 0.01667,
+  "audio": {
+    "codec": "aac",
+    "rate": 48000,
+    "channels": 2,
+    "firstPTS": 0.0,
+    "endPTS": 31.0,
+    "peak": 0.719022,
+    "rms": 0.097365,
+    "framesWithSignal": 1444,
+    "digitalPeakDbFS": -2.87
+  },
+  "sha256": "00a69f9499fddf7a8298888d42643211e7c9236990a074dfb020c8601fdd4ea2",
+  "bytes": 17962007
+}

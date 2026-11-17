@@ -3,6 +3,8 @@
 Run from `marketing/launch/light-study` on macOS. Use Python 3.12+ with Pillow, NumPy, PyAV, fonttools with Brotli, and imageio-ffmpeg. The production host used Python 3.14, Pillow 13, NumPy 2.5 and PyAV 19. System Helvetica Neue, STHeiti, SF Mono, Songti and PingFang must be available. The repository contains Instrument Serif under its OFL license. ImageIO provides FFmpeg/x264, including when no ffmpeg is on PATH.
 
 ```sh
+python studio/bentwood.py
+python native-demo/edit/at_hand_zh.py
 python studio/render.py brand-zh
 python studio/render.py brand
 python studio/render.py capture

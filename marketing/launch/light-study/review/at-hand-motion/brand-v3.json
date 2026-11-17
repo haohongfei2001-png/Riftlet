@@ -1,0 +1,111 @@
+{
+  "file": "at-hand.brand.zh-CN.mp4",
+  "sha256": "00a69f9499fddf7a8298888d42643211e7c9236990a074dfb020c8601fdd4ea2",
+  "frames": 1860,
+  "duration": 31.0,
+  "fps": 60.0,
+  "pts_min_step": 0.016667,
+  "pts_max_step": 0.016667,
+  "nonmonotonic_pts_count": 0,
+  "summary": {
+    "pairs": 1859,
+    "full_luma_exact_ratio": 0.0,
+    "near_still_ratio": 0.07262,
+    "moving_central_area_median_over_quarter_second": 0.15078,
+    "broad_motion_over_quarter_second_ratio": 0.97615,
+    "quiet_core_over_quarter_second_ratio": 0.0
+  },
+  "near_still_runs_s": [],
+  "persistent_quiet_core_windows_s": [],
+  "broad_discontinuities_s": [],
+  "shots": {
+    "0-3.1": {
+      "pairs": 171,
+      "full_luma_exact_ratio": 0.0,
+      "near_still_ratio": 0.15205,
+      "moving_central_area_median_over_quarter_second": 0.18971,
+      "broad_motion_over_quarter_second_ratio": 0.98246,
+      "quiet_core_over_quarter_second_ratio": 0.0
+    },
+    "3.1-5.45": {
+      "pairs": 126,
+      "full_luma_exact_ratio": 0.0,
+      "near_still_ratio": 0.03175,
+      "moving_central_area_median_over_quarter_second": 0.56846,
+      "broad_motion_over_quarter_second_ratio": 1.0,
+      "quiet_core_over_quarter_second_ratio": 0.0
+    },
+    "5.45-8.32": {
+      "pairs": 158,
+      "full_luma_exact_ratio": 0.0,
+      "near_still_ratio": 0.02532,
+      "moving_central_area_median_over_quarter_second": 0.27842,
+      "broad_motion_over_quarter_second_ratio": 0.98734,
+      "quiet_core_over_quarter_second_ratio": 0.0
+    },
+    "8.32-10.95": {
+      "pairs": 142,
+      "full_luma_exact_ratio": 0.0,
+      "near_still_ratio": 0.0,
+      "moving_central_area_median_over_quarter_second": 0.41934,
+      "broad_motion_over_quarter_second_ratio": 1.0,
+      "quiet_core_over_quarter_second_ratio": 0.0
+    },
+    "10.95-15.6": {
+      "pairs": 264,
+      "full_luma_exact_ratio": 0.0,
+      "near_still_ratio": 0.0,
+      "moving_central_area_median_over_quarter_second": 0.26569,
+      "broad_motion_over_quarter_second_ratio": 1.0,
+      "quiet_core_over_quarter_second_ratio": 0.0
+    },
+    "15.6-18.9": {
+      "pairs": 183,
+      "full_luma_exact_ratio": 0.0,
+      "near_still_ratio": 0.1694,
+      "moving_central_area_median_over_quarter_second": 0.08667,
+      "broad_motion_over_quarter_second_ratio": 0.9071,
+      "quiet_core_over_quarter_second_ratio": 0.0
+    },
+    "18.9-20.15": {
+      "pairs": 60,
+      "full_luma_exact_ratio": 0.0,
+      "near_still_ratio": 0.0,
+      "moving_central_area_median_over_quarter_second": 0.09369,
+      "broad_motion_over_quarter_second_ratio": 1.0,
+      "quiet_core_over_quarter_second_ratio": 0.0
+    },
+    "20.15-24.8": {
+      "pairs": 264,
+      "full_luma_exact_ratio": 0.0,
+      "near_still_ratio": 0.09091,
+      "moving_central_area_median_over_quarter_second": 0.14661,
+      "broad_motion_over_quarter_second_ratio": 0.96591,
+      "quiet_core_over_quarter_second_ratio": 0.0
+    },
+    "24.8-25.55": {
+      "pairs": 30,
+      "full_luma_exact_ratio": 0.0,
+      "near_still_ratio": 0.0,
+      "moving_central_area_median_over_quarter_second": 0.99829,
+      "broad_motion_over_quarter_second_ratio": 1.0,
+      "quiet_core_over_quarter_second_ratio": 0.0
+    },
+    "25.55-27.75": {
+      "pairs": 117,
+      "full_luma_exact_ratio": 0.0,
+      "near_still_ratio": 0.00855,
+      "moving_central_area_median_over_quarter_second": 0.09046,
+      "broad_motion_over_quarter_second_ratio": 1.0,
+      "quiet_core_over_quarter_second_ratio": 0.0
+    },
+    "27.75-31": {
+      "pairs": 180,
+      "full_luma_exact_ratio": 0.0,
+      "near_still_ratio": 0.03889,
+      "moving_central_area_median_over_quarter_second": 0.07792,
+      "broad_motion_over_quarter_second_ratio": 1.0,
+      "quiet_core_over_quarter_second_ratio": 0.0
+    }
+  }
+}
