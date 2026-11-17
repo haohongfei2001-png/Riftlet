@@ -269,10 +269,13 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     func applicationDidBecomeActive(_ notification: Notification) {
-        // Explicit return from settings/menu, not an idle timer. Recheck does
-        // not grant permission or re-enable a paused collector.
-        if initialized, settingsHost?.isVisible == true {
-            settingsHost?.refreshSystemFacts(); recheckSetup()
+        guard initialized, settingsHost?.isVisible == true else { return }
+        settingsHost?.refreshSystemFacts()
+        permissionResumer?.request()
+        // A return from folder authorization can repair a previously blocked source.
+        // The running source watcher already handles ordinary screenshot arrivals.
+        if folderNeedingSelection != nil || captureStatus?.sourceAccessible == false && !captureIsPaused {
+            beginSetupRecheck(.source)
         }
     }
 
