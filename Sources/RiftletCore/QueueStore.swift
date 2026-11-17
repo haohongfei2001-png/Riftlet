@@ -40,6 +40,42 @@ public actor QueueStore {
         }
     }
 
+    public func isRetiredMedia(_ id: UUID) throws -> Bool {
+        try !database.rows("SELECT 1 FROM retired_media WHERE asset_id=?", [id.uuidString]).isEmpty
+    }
+
+    public func retiredMedia() throws -> [AssetRecord] {
+        try database.rows("SELECT \(assetColumns) FROM assets WHERE id IN (SELECT asset_id FROM retired_media)").map(decodeAsset)
+    }
+
+    private var cleanablePredicate: String {
+        """
+        visibility!='visible' AND status IN ('pending','used')
+        AND id NOT IN (SELECT asset_id FROM retired_media)
+        AND NOT EXISTS (SELECT 1 FROM operations o WHERE o.asset_id=assets.id AND o.phase NOT IN ('succeeded','failed'))
+        """
+    }
+
+    public func cleanableMedia() throws -> [AssetRecord] {
+        try database.rows("SELECT \(assetColumns) FROM assets WHERE " + cleanablePredicate).map(decodeAsset)
+            .filter { !selectionReservations.contains($0.id) }
+    }
+
+    /// Keep the immutable asset, source occurrence and operation rows. This transaction
+    /// fences stale Restore buttons and excludes newly active or unresolved work.
+    public func retireMedia(_ id: UUID, revision: Int64, batch: UUID) throws {
+        try database.transaction {
+            guard !selectionReservations.contains(id),
+                  try !database.rows("SELECT 1 FROM assets WHERE id=? AND visibility_revision=? AND " + cleanablePredicate,
+                                     [id.uuidString, String(revision)]).isEmpty else { throw RiftletError.invalidTransition }
+            try database.execute("INSERT INTO retired_media(asset_id,batch) VALUES(?,?)", [id.uuidString, batch.uuidString])
+        }
+    }
+
+    public func reinstateMedia(_ id: UUID) throws {
+        try database.execute("DELETE FROM retired_media WHERE asset_id=?", [id.uuidString])
+    }
+
     public func containsSource(key: String) throws -> Bool {
         try !database.rows("SELECT id FROM assets WHERE source_key=? LIMIT 1", [key]).isEmpty
     }
@@ -47,7 +83,7 @@ public actor QueueStore {
     public func assets(includeUsed: Bool = false) throws -> [AssetRecord] {
         // Retain the old all-history option for capture recovery; the normal
         // queue is now selected exclusively by durable visibility.
-        let filter = includeUsed ? "" : "WHERE visibility='visible'"
+        let filter = includeUsed ? "WHERE id NOT IN (SELECT asset_id FROM retired_media)" : "WHERE visibility='visible'"
         return try database.rows("SELECT \(assetColumns) FROM assets \(filter) ORDER BY sort_at,sequence").map(decodeAsset)
     }
 
@@ -67,7 +103,7 @@ public actor QueueStore {
     }
 
     public func history(limit: Int = 200, offset: Int = 0) throws -> [AssetRecord] {
-        try database.rows("SELECT \(assetColumns) FROM assets ORDER BY sort_at DESC,sequence DESC LIMIT ? OFFSET ?",
+        try database.rows("SELECT \(assetColumns) FROM assets WHERE id NOT IN (SELECT asset_id FROM retired_media) ORDER BY sort_at DESC,sequence DESC LIMIT ? OFFSET ?",
                           [String(max(0, min(limit, 201))), String(max(0, offset))]).map(decodeAsset)
     }
 
@@ -97,7 +133,7 @@ public actor QueueStore {
 
     public func historySnapshot(limit: Int = 200, offset: Int = 0) throws -> [QueueHistoryRecord] {
         try database.transaction {
-            try database.rows(historyProjectionSQL + " ORDER BY a.sort_at DESC,a.sequence DESC LIMIT ? OFFSET ?",
+            try database.rows(historyProjectionSQL + " WHERE a.id NOT IN (SELECT asset_id FROM retired_media) ORDER BY a.sort_at DESC,a.sequence DESC LIMIT ? OFFSET ?",
                               [String(max(0, min(limit, 201))), String(max(0, offset))]).map(historyRecord)
         }
     }
@@ -112,7 +148,7 @@ public actor QueueStore {
             }
             let ceiling = throughSequence ?? latest
             let filter = query.predicate(through: ceiling)
-            let sql = historyProjectionSQL + " WHERE " + filter.sql +
+            let sql = historyProjectionSQL + " WHERE a.id NOT IN (SELECT asset_id FROM retired_media) AND " + filter.sql +
                 " ORDER BY a.sort_at DESC,a.sequence DESC LIMIT 201 OFFSET ?"
             let rows = try database.rows(sql, filter.values + [String(max(0, offset))])
             return LibraryHistoryPage(records: try rows.prefix(200).map(historyRecord),
@@ -216,7 +252,7 @@ public actor QueueStore {
     }
 
     public func canRestoreToQueue(_ id: UUID) throws -> Bool {
-        guard let record = try asset(id: id) else { return false }
+        guard try !isRetiredMedia(id), let record = try asset(id: id) else { return false }
         let operation = try record.activeOperationID.flatMap { try self.operation(id: $0) }
         return canRestoreToQueue(record, operation: operation)
     }
@@ -877,6 +913,7 @@ public actor QueueStore {
 
     public func markMissingAsset(_ id: UUID) throws {
         guard let record = try asset(id: id) else { throw RiftletError.assetNotFound }
+        guard try !isRetiredMedia(id) else { return }
         // Used history must never reappear as a pending/missing screenshot.
         guard record.status != .used else { return }
         invalidateAttachmentReview(id)

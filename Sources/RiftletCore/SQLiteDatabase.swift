@@ -47,6 +47,7 @@ final class SQLiteDatabase {
             default:
                 throw RiftletError.database("Unsupported schema version \(version); database preserved")
             }
+            try execute("CREATE TABLE IF NOT EXISTS retired_media(asset_id TEXT PRIMARY KEY REFERENCES assets(id), batch TEXT NOT NULL)")
             if let mode {
                 let storedMode = try rows("SELECT value FROM metadata WHERE key='mode'").first?.first ?? nil
                 if let storedMode {
