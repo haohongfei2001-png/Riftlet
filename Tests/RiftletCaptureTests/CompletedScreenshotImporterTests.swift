@@ -323,6 +323,10 @@ final class CompletedScreenshotImporterTests: XCTestCase {
                                                   now: undoBegan.addingTimeInterval(29 * 86_400))
         XCTAssertTrue(soon.isEmpty)
         XCTAssertEqual(try Data(contentsOf: root.appendingPathComponent("media").appendingPathComponent(archived.image.fileName)), original)
+        do {
+            try await reopened.retireMedia(archived.id, revision: initial[0].record.visibilityRevision, batch: UUID())
+            XCTFail("A cleanup preview created before Undo was accepted")
+        } catch RiftletError.invalidTransition {}
         let finalPhase = try await reopened.operation(id: operation.id)?.phase
         XCTAssertEqual(finalPhase, .unknown)
         let afterMove = try await second.cleanupItems()

@@ -80,7 +80,7 @@ public actor QueueStore {
         try database.transaction {
             guard try isRetiredMedia(id) else { return }
             if let restoredByUserAt {
-                try database.execute("UPDATE assets SET last_interaction_at=? WHERE id=?",
+                try database.execute("UPDATE assets SET last_interaction_at=?,visibility_revision=visibility_revision+1 WHERE id=?",
                                      [String(restoredByUserAt.timeIntervalSince1970), id.uuidString])
             }
             try database.execute("DELETE FROM retired_media WHERE asset_id=?", [id.uuidString])
