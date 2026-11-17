@@ -723,3 +723,36 @@ test('post-START watches retain neither inline pixels nor unbounded preview addr
  assert.equal(views.length,1); assert.equal(views[0].src,undefined);
  assert.equal(views[0].preview,null);
 });
+
+test('an original blob left behind during a component rebind cannot borrow the new upload’s error', () => {
+ const f=fixture({accept:false}), a=f.bind(), b=f.bind(); f.stage(a); f.commit(a);
+ const card=f.addCard(a.name), image=card.querySelector('img');
+ card.removeAttribute('data-file-name'); card.removeAttribute('title');
+ image.setAttribute('src',f.context.URL.createObjectURL(f.input.files[0]));
+ const start=accepted(f,a);
+ card.setAttribute('data-state','failed');
+ assert.equal(f.observe(a).state,'failed');
+ for(const [node,attr] of [[card,'aria-label'],[card,'title'],[image,'alt']]) {
+  const was=node.getAttribute(attr);
+  node.setAttribute(attr,'Uploading '+b.name);
+  accepted(f,a);
+  if(was===null)node.removeAttribute(attr);else node.setAttribute(attr,was);
+ }
+ const message=card.append(new f.Node('span')); message.textContent=b.name;
+ accepted(f,a); message.remove();
+ const secondPreview=card.append(new f.Node('img',{alt:b.name}));
+ accepted(f,a); secondPreview.remove();
+ card.setAttribute('aria-label',b.name); image.setAttribute('alt',b.name);
+ accepted(f,a);
+ assert.equal(f.observe(a).attachmentID,start.attachmentID); assert.equal(f.setters,1); assert.equal(f.sends,0);
+});
+
+test('an unlabelled original File preview still supports its own explicit card failure', () => {
+ const f=fixture({accept:false}), op=f.bind(); f.stage(op); f.commit(op);
+ const card=f.addCard(op.name), image=card.querySelector('img');
+ for(const key of ['data-file-name','title','aria-label'])card.removeAttribute(key);
+ image.removeAttribute('alt'); image.setAttribute('src',f.context.URL.createObjectURL(f.input.files[0]));
+ const start=accepted(f,op); card.setAttribute('data-state','failed');
+ const error=f.observe(op); assert.equal(error.state,'failed'); assert.equal(error.attachmentID,start.attachmentID);
+ assert.equal(error.automaticRetryExcluded,false); assert.equal(f.setters,1); assert.equal(f.sends,0);
+});

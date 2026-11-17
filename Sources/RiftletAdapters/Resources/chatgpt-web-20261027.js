@@ -705,9 +705,33 @@ function riftletWebAcceptance(command, native) {
   const fileNamePattern = name => new RegExp('(^|[^a-zA-Z0-9_.-])' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '($|[^a-zA-Z0-9_.-])');
   const cardSelector = '[data-file-name],[role="button"],button';
   function inOriginalCardContainer(card, binding) {
-    if (!binding.form.contains(card) || binding.editor.contains(card)) return false;
+    if (!binding.form.contains(card) || binding.editor.contains(card) || card.contains(binding.editor)) return false;
     const scope = card.closest(composerSurface + ',form,article,aside,nav,header,[role="menu"],[role="dialog"],[data-message-author-role]');
     return !scope || scope === binding.form || scope.contains(binding.editor);
+  }
+  // A reused card may still display the old blob while its other labels
+  // already identify a different upload. Check the small card only; a complex
+  // or changing subtree is insufficient evidence for an error hint.
+  function consistentCardLabels(card, name) {
+    const uploadName = /riftlet-[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}\.[a-z0-9]{1,16}/gi;
+    const expected = name.toLowerCase();
+    const consistent = value => !value || (value.length <= 1024
+      && [...value.matchAll(uploadName)].every(match => match[0].toLowerCase() === expected));
+    const nodes = [card];
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i], declared = node.getAttribute('data-file-name');
+      if (declared !== null && declared !== name) return false;
+      if (!['aria-label', 'title', 'alt'].every(key => consistent(node.getAttribute(key)))) return false;
+      // Inspect direct text as well as accessible names. Cap the traversal
+      // before expanding a collection or joining an arbitrarily large subtree.
+      if (node.childNodes.length > 32) return false;
+      for (const child of node.childNodes) {
+        if (child.nodeType === 3 && !consistent(child.nodeValue)) return false;
+      }
+      if (nodes.length + node.children.length > 32) return false;
+      for (const child of node.children) nodes.push(child);
+    }
+    return true;
   }
   function captureFailureWatch(op, accepted, matches) {
     if (typeof WeakRef !== 'function') return;
@@ -736,6 +760,7 @@ function riftletWebAcceptance(command, native) {
       const sameFile = !!src && op.urls.has(src);
       if (node !== accepted && !sameFile) continue;
       if (!namedCard && !sameFile && (!label || !preview)) continue;
+      if (!consistentCardLabels(card, op.name)) continue;
       cards.add(card);
       views.push({card: new WeakRef(card), parent: new WeakRef(card.parentElement), namedCard, label, witness: new WeakRef(node),
         preview: preview ? new WeakRef(preview) : null, src, sameFile,
@@ -761,19 +786,20 @@ function riftletWebAcceptance(command, native) {
     if (view.sameFile || !view.namedCard) {
       const preview = view.preview?.deref();
       if (!preview || preview.closest(cardSelector) !== card || preview.getAttribute('src') !== view.src) return false;
-      if (!view.sameFile) {
+      if (view.label) {
         const witness = view.witness.deref();
         if (!witness || witness.closest(cardSelector) !== card
             || !fileNamePattern(op.name).test(witness.getAttribute(view.label) || '')) return false;
       }
     }
     const failed = node => ['failed', 'error'].includes(node.getAttribute('data-state'));
-    if (failed(card)) return true;
+    if (failed(card)) return consistentCardLabels(card, op.name);
     // Only the initially bound, still-identical preview can contribute a
     // descendant's error. An inserted status, toast, or sibling cannot.
     const preview = view.preview?.deref();
     return !!preview && preview.closest(cardSelector) === card && preview.getAttribute('src') === view.src
-      && (view.sameFile || fileNamePattern(op.name).test(preview.getAttribute('alt') || '')) && failed(preview);
+      && (view.sameFile || fileNamePattern(op.name).test(preview.getAttribute('alt') || ''))
+      && failed(preview) && consistentCardLabels(card, op.name);
   }
   function sample(op) {
     // The app may disable or remove its picker after accepting this file.

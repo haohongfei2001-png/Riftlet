@@ -52,6 +52,7 @@ function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focu
  class Node {
   constructor(tag,attrs={}){this.nodeType=1;this.tagName=tag.toUpperCase();this.attrs={...attrs};this.children=[];this.parentElement=null;this._text='';this.disabled=false;this.listeners=new Map();}
   get isConnected(){return this===body||this.parentElement?.isConnected===true;}
+  get childNodes(){return this._text ? [{nodeType:3,nodeValue:this._text},...this.children] : this.children;}
   get textContent(){return this._text+this.children.map(node=>node.textContent).join('');}
   set textContent(value){for(const child of [...this.children])child.remove();this._text=String(value);queueMutation({type:'childList',target:this,addedNodes:[],removedNodes:[]});}
   get id(){return this.attrs.id||'';} get parentNode(){return this.parentElement;}
