@@ -147,7 +147,13 @@ public actor CaptureService {
         await reportRecovery(report)
     }
 
-    public func finishApplicationStartup() { startupRecovery = nil }
+    public func finishApplicationStartup() {
+        if let prepared = startupRecovery, prepared.generation == generation {
+            // A paused collector still verifies private history without reading the source.
+            scheduleColdVerification(prepared.report.deferredManifests, generation: generation)
+        }
+        startupRecovery = nil
+    }
 
     public func start() async throws {
         guard !stoppingForExit else { return }
@@ -230,16 +236,21 @@ public actor CaptureService {
                 }
             initializing = false
             try await rescan()
-            guard generation == token, !report.deferredManifests.isEmpty else { return }
-            coldVerification = Task(priority: .utility) { [weak self] in
-                await self?.verifyColdHistory(report.deferredManifests, generation: token)
-            }
+            guard generation == token else { return }
+            scheduleColdVerification(report.deferredManifests, generation: token)
         } catch {
             if generation == token {
                 await reportDiagnostic(.classify(error, context: .source))
                 if generation == token { stop() }
             }
             throw error
+        }
+    }
+
+    private func scheduleColdVerification(_ manifests: [URL], generation token: UUID) {
+        guard !manifests.isEmpty else { return }
+        coldVerification = Task(priority: .utility) { [weak self] in
+            await self?.verifyColdHistory(manifests, generation: token)
         }
     }
 
