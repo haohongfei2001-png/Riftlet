@@ -138,13 +138,14 @@ func ownedWindow() -> CGWindowID? {
 
 // WindowServer returns front-to-back order. Decline if any visible window
 // intersects the entire capture rectangle before the exact neutral Edge window.
-func unobscuredContentRegion() -> CGRect? {
+func unobscuredContentRegion(size: CGSize) -> CGRect? {
     guard expectedWindow != 0, ownedWindow() == expectedWindow, CGPreflightScreenCaptureAccess(),
           let entries = CGWindowListCopyWindowInfo(.optionOnScreenOnly, 0) as? [[String: Any]],
           let own = entries.first(where: { ($0[kCGWindowNumber as String] as? CGWindowID) == expectedWindow }),
           let bounds = own[kCGWindowBounds as String] as? NSDictionary,
           let frame = CGRect(dictionaryRepresentation: bounds), frame.width >= 420, frame.height >= 340 else { return nil }
-    let region = CGRect(x: floor(frame.midX) - 64, y: floor(frame.midY) - 36, width: 128, height: 72)
+    let region = CGRect(origin: CGPoint(x: floor(frame.midX - size.width / 2),
+                                        y: floor(frame.midY - size.height / 2)), size: size)
     var count: UInt32 = 0
     guard frame.insetBy(dx: 60, dy: 90).contains(region),
           CGGetDisplaysWithRect(region, 0, nil, &count) == .success, count == 1 else { return nil }
@@ -290,7 +291,9 @@ case "window":
     guard let id = ownedWindow(status: &status) else { print(status); exit(2) }
     print(id)
 case "region":
-    guard let region = unobscuredContentRegion() else { exit(2) }
+    guard row == 0 || row == 1 else { exit(64) }
+    let size = row == 0 ? CGSize(width: 128, height: 72) : CGSize(width: 160, height: 96)
+    guard let region = unobscuredContentRegion(size: size) else { exit(2) }
     print([region.minX, region.minY, region.width, region.height].map { String(Int($0)) }.joined(separator: ","))
 case "mouseReady", "mouseClick":
     guard args[10].range(of: #"^[0-9a-f]{64}$"#, options: .regularExpression) != nil,

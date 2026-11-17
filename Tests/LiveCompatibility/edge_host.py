@@ -76,8 +76,9 @@ def system_capture_digest(path, marker_wait=10):
             if not stat.S_ISREG(initial.st_mode) or initial.st_uid != os.getuid():
                 raise RuntimeError("capture_not_owned_regular_file")
             header = original.read(24)
+            pixel_size = (int.from_bytes(header[16:20], "big"), int.from_bytes(header[20:24], "big"))
             if (len(header) != 24 or header[:16] != b"\x89PNG\r\n\x1a\n\0\0\0\rIHDR"
-                    or not int.from_bytes(header[16:20], "big") or not int.from_bytes(header[20:24], "big")):
+                    or 0 in pixel_size):
                 raise RuntimeError("capture_invalid_png_header")
 
             def marker_ready():
@@ -112,7 +113,7 @@ def system_capture_digest(path, marker_wait=10):
             if (not os.path.samestat(initial, path.lstat()) or initial.st_size != final.st_size
                     or initial.st_mtime_ns != final.st_mtime_ns):
                 raise RuntimeError("capture_original_changed")
-            return image_hash, marked
+            return image_hash, marked, pixel_size
     except FileNotFoundError:
         raise RuntimeError("capture_original_missing") from None
     except PermissionError:
@@ -121,6 +122,15 @@ def system_capture_digest(path, marker_wait=10):
         if error.errno == errno.ELOOP:
             raise RuntimeError("capture_original_is_symlink") from None
         raise RuntimeError("capture_file_read_error") from None
+
+
+def verify_capture_geometry(image_hash, size, bounds, previous):
+    if bounds:
+        width, height = map(int, bounds.split(",")[-2:])
+        if size[0] < width or size[1] < height or size[0] * height != size[1] * width:
+            raise RuntimeError("region_pixel_shape_mismatch")
+    if previous and (image_hash == previous[0] or size == previous[1]):
+        raise RuntimeError("two_distinct_captures_unproven")
 
 
 def default_file_capture_target(source):
@@ -686,7 +696,22 @@ def exercise(app, report):
                                                      edge_birth, product_birth, url)
             captures = []
             dbfile = ROOT / "queue.sqlite"
-            region_mode = False
+            # A page animation frame can be acknowledged before WindowServer changes
+            # the pixels of a window capture. Take a full window and a smaller,
+            # unobscured region of that same window. Never rewrite a system PNG.
+            capture_sizes = []
+
+            def region_bounds(index):
+                region = ui("region", index, window)
+                if region.returncode == 2:
+                    raise RuntimeError("unobscured_original_edge_region_unproven")
+                region.check_returncode()
+                bounds = region.stdout.decode().strip()
+                shape = "128,72" if index == 0 else "160,96"
+                if not re.fullmatch(r"-?\d+,-?\d+," + shape, bounds):
+                    raise RuntimeError("invalid_region_geometry")
+                return bounds
+
             for i in (0, 1):
                 report["stage"] = f"system_screenshot_{i + 1}"
                 if i:
@@ -694,57 +719,62 @@ def exercise(app, report):
                     wait_for(lambda: i in draft.observed, "neutral_second_frame_unconfirmed")
                 if selected_window() != window:
                     raise RuntimeError("original_edge_window_changed")
-                if not region_mode:
-                    path = source / f"Neutral-{i}.png"
-                    command("/usr/sbin/screencapture", "-x", "-o", "-t", "png", "-l" + window, path)
-                    image_hash, marked = system_capture_digest(path)
-                    report["generatedScreenshotFiles"] += 1
-                    if not marked:
-                        # No UI actions have occurred. Continue only while the real collector
-                        # still contains precisely the previously verified owned captures.
-                        if set(read_assets(dbfile)) != {d for d, _ in captures}:
-                            raise RuntimeError("unmarked_input_import_or_unknown_queue_state")
+                bounds = region_bounds(i) if i else None
+                # Stage explicit output outside the watched source until ownership,
+                # geometry and OS provenance are confirmed. Rename preserves xattrs.
+                path = root / f"Neutral-{i}.png"
+                options = ["-R" + bounds] if bounds else ["-o", "-l" + window]
+                if bounds:
+                    report["systemRegionCaptureAttempts"] += 1
+                command("/usr/sbin/screencapture", "-x", "-t", "png", *options, path)
+                if selected_window() != window or (bounds and region_bounds(i) != bounds):
+                    raise RuntimeError("capture_owner_or_visibility_changed")
+                image_hash, marked, size = system_capture_digest(path)
+                report["generatedScreenshotFiles"] += 1
+                staged = marked
+                if not marked:
+                    if not bounds:
                         report["windowCapturesWithoutMarker"] += 1
-                        region_mode = True
-                if region_mode:
-                    # Apple -p uses the account's capture preferences and ignores filenames.
-                    # -R bounds this operation to the unobscured center of the neutral window.
-                    report["stage"] = f"default_system_region_{i + 1}"
-                    report["result"] = "PARTIAL_SYSTEM_CAPTURE_WITHOUT_OS_SCREENSHOT_MARKER"
+                    # Apple -p uses the account's verified capture preferences.
+                    # Only a unique new OS file is eligible for this fallback.
+                    expected_assets = {d for d, _ in captures}
+                    def prior_imports_ready():
+                        actual = set(read_assets(dbfile))
+                        if actual - expected_assets:
+                            raise RuntimeError("unmarked_input_import_or_unknown_queue_state")
+                        return actual == expected_assets
+
+                    wait_for(prior_imports_ready, "prior_capture_import_unproven")
                     if not default_file_capture_target(source):
-                        report["regionOutcome"] = "FILE_DESTINATION_UNVERIFIED"
-                        return 0
+                        raise RuntimeError("default_file_destination_unverified")
                     previous_files = set(source.iterdir())
-                    region = ui("region", expected_window=window)
-                    if region.returncode == 2:
-                        report["regionOutcome"] = "UNOBSCURED_ORIGINAL_EDGE_REGION_UNVERIFIED"
-                        return 0
-                    region.check_returncode()
-                    bounds = region.stdout.decode().strip()
-                    if not re.fullmatch(r"-?\d+,-?\d+,128,72", bounds):
-                        raise RuntimeError("invalid_region_geometry")
+                    bounds = region_bounds(i)
+                    report["stage"] = f"default_system_region_{i + 1}"
                     report["systemRegionCaptureAttempts"] += 1
                     command("/usr/sbin/screencapture", "-p", "-x", "-t", "png", "-R" + bounds)
-                    after = ui("region", expected_window=window)
-                    if after.returncode or after.stdout != region.stdout:
+                    if region_bounds(i) != bounds:
                         raise RuntimeError("region_owner_or_visibility_changed")
-                    try:
-                        path = wait_for(lambda: sole_new_png(source, previous_files), "default_output_not_observed")
-                    except ObservationTimeout:
-                        report["regionOutcome"] = "NO_UNIQUE_PNG_IN_CONFIGURED_SOURCE"
-                        return 0
-                    image_hash, marked = system_capture_digest(path)
+                    path = wait_for(lambda: sole_new_png(source, previous_files), "default_output_not_observed")
+                    image_hash, marked, size = system_capture_digest(path)
                     if sole_new_png(source, previous_files) != path:
                         raise RuntimeError("default_capture_output_changed")
                     report["generatedScreenshotFiles"] += 1
                     if not marked:
-                        report["regionOutcome"] = "DEFAULT_CAPTURE_ALSO_MISSING_OS_MARKER"
-                        return 0
+                        raise RuntimeError("default_capture_missing_os_marker")
                     report["regionOutcome"] = "DEFAULT_CAPTURE_PNG_WITH_OS_MARKER"
+                previous = (captures[0][0], capture_sizes[0]) if captures else None
+                verify_capture_geometry(image_hash, size, bounds, previous)
+                if staged:
+                    destination = source / path.name
+                    if os.path.lexists(destination):
+                        raise RuntimeError("capture_destination_occupied")
+                    path.rename(destination)
+                    path = destination
                 report["osScreenshotMarkersVerified"] += 1
                 captures.append((image_hash, path))
-            if captures[0][0] == captures[1][0]:
-                raise RuntimeError("two_distinct_captures_unproven")
+                capture_sizes.append(size)
+                report["systemCapturePixelSizes"] = capture_sizes
+
             def imported():
                 items = read_assets(dbfile)
                 return items if len(items) == 2 and all(d in items for d, _ in captures) else None
