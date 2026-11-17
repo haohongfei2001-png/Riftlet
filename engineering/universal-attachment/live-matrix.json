@@ -1,5 +1,5 @@
 {
-  "scope": "Commercial services through the ordinary Riftlet App. The 612/613 pair entered the original draft and produced two durable product STARTs and two storage 201s. No rapid pair has two confirmed service processing terminals. The 617/618 cold-launch pair reached both file setters, produced no new attachment or START, and remains UNKNOWN. The dedicated draft subsequently displayed an attachment-count limit and a retry time.",
+  "scope": "Commercial services through the ordinary Riftlet App. The 612/613 pair entered the original draft and produced two durable product STARTs and two storage 201s. No rapid pair has two confirmed service processing terminals. The 617/618 cold-launch pair reached both file setters, produced no new attachment or START, and remains UNKNOWN. The dedicated draft subsequently displayed an attachment-count limit and a retry time. The current 2026-11-18 target is the user-confirmed signed-in daily Edge account; its new native-window candidate stopped before commercial input. Chrome has a historical signed-in default-Profile control observation, followed by loss of the original native window. No further Chrome trial is part of this task.",
   "latestAcceptanceRecord": "edge-fresh-pair-20261117/followup-617-618/REPORT.md",
   "previousMatrix": {
     "commit": "d50e1a26a2b75ea24cf92edde5a5a9ce6a02256a",
@@ -10,9 +10,9 @@
       "host": "Google Chrome",
       "service": "ChatGPT",
       "result": "NOT_RUN",
-      "reason": "NO_VERIFIED_ISOLATED_SIGNED_IN_DRAFT",
+      "reason": "HISTORICAL_SIGNED_IN_DEFAULT_PROFILE_REFERENCE_ORIGINAL_NATIVE_TARGET_UNAVAILABLE_NO_COMMERCIAL_INPUT",
       "application": "NOT_RUN",
-      "windowAndDraft": "NOT_RUN",
+      "windowAndDraft": "NEW_OWNED_DEFAULT_PROFILE_TEMPORARY_PAGE_OBSERVED_THEN_ORIGINAL_NATIVE_TARGET_MINUS_1728_EMPTY_COMPOSER_NOT_CONFIRMED",
       "entry": "NOT_RUN",
       "specifiedImage": "NOT_RUN",
       "textSelectionPriorAttachments": "NOT_RUN",
@@ -21,7 +21,15 @@
       "failureAndUnknown": "NOT_RUN",
       "consecutiveImages": "NOT_RUN",
       "additionalUserSteps": "NOT_RUN",
-      "relatedEvidence": "build18-two-real-images"
+      "relatedEvidence": "main-account-preparation-20261118.json#/chrome",
+      "accountScope": "USER_AUTHORIZED_MAIN_ACCOUNT_CANDIDATE",
+      "profileIsolation": "dedicated_window_in_existing_profile",
+      "login": "SIGNED_IN_CURRENT_OWNED_PAGE_CONTROL_CONFIRMED",
+      "historicalEvidence": [
+        "build18-two-real-images"
+      ],
+      "testScope": "HISTORICAL_REFERENCE_ONLY_NO_FURTHER_CHROME_TESTING",
+      "paidTier": "NOT_CONFIRMED"
     },
     {
       "host": "Google Chrome",
@@ -323,7 +331,38 @@
         "result": "BOTH_UNATTRIBUTED_TERMINALS_UNKNOWN",
         "clipboardRestoration": "UNCONFIRMED",
         "evidence": "edge-fresh-pair-20261117/followup-617-618/original-response-copy.json"
-      }
+      },
+      "accountScope": "EARLIER_SIGNED_IN_TEST_ACCOUNT",
+      "profileIsolation": "dedicated_profile",
+      "perFileTrialRows": "main-account-preparation-20261118.json#/earlierAccountPerFile"
+    },
+    {
+      "host": "Microsoft Edge",
+      "service": "ChatGPT",
+      "trial": "20261118_DAILY_DEFAULT_PROFILE_MAIN_ACCOUNT_CANDIDATE",
+      "accountScope": "USER_CONFIRMED_SIGNED_IN_DEFAULT_EDGE",
+      "profileIsolation": "dedicated_window_in_existing_profile",
+      "result": "NOT_RUN",
+      "reason": "PAGE_SCRIPT_REFUSED_12_SETTING_REMAINED_OFF_AND_EXACT_TEMPORARY_DRAFT_NOT_VERIFIED",
+      "application": "NOT_RUN",
+      "windowAndDraft": "NEW_NATIVE_WINDOW_AND_SOLE_TAB_CONFIRMED_LATER_BOUND_PAGE_NOT_TEMPORARY",
+      "entry": "NOT_RUN",
+      "specifiedImage": "621_PRIVATE_BASELINE_CAPTURE_ONLY_ZERO_COMMERCIAL_INPUT",
+      "textSelectionPriorAttachments": "NOT_RUN",
+      "uploadStart": "NOT_RUN",
+      "finalSuccess": "NOT_RUN",
+      "failureAndUnknown": "NO_NEW_COMMERCIAL_OPERATION_OLD_UNKNOWNS_UNCHANGED",
+      "consecutiveImages": "NOT_RUN",
+      "additionalUserSteps": "NORMAL_PERMISSION_AND_DEDICATED_DRAFT_PREPARATION_INCOMPLETE",
+      "login": "USER_CONFIRMED_SIGNED_IN_DEFAULT_EDGE",
+      "nativeAutomationReadOnlyOSStatus": 0,
+      "pageScriptError": 12,
+      "browserScriptSettingBefore": "OFF",
+      "browserScriptSettingAfter": "OFF",
+      "confirmedCommercialInputs": 0,
+      "relatedEvidence": "main-account-preparation-20261118.json#/edge",
+      "independentOnsiteLoginEvidence": "NOT_ESTABLISHED_FOR_THE_EXACT_NEW_TEMPORARY_DRAFT",
+      "userConfirmationSource": "EXPLICIT_USER_CONFIRMATION_IN_CURRENT_SESSION"
     },
     {
       "host": "Microsoft Edge",
@@ -686,7 +725,7 @@
   "edgeSpecialistFollowup": "edge-double-image-20261114/isolated-login.json",
   "latestMainIntegration": "edge-service-pair-20261116/main-integration.json",
   "inheritedScopedChromeEvidence": "../../engineering/quality/2026-11-14/actual-chatgpt-attachment.json (source 624e1b5; START only; not this PR head or final completion)",
-  "latestPreparationRecord": "edge-fresh-pair-20261117/independent-product.json#/preservation",
+  "latestPreparationRecord": "main-account-preparation-20261118.json",
   "latestCalibrationRecord": "edge-calibration-20261115/summary.json",
   "latestNativeReceiptRecord": "edge-fresh-pair-20261117/independent-product.json",
   "latestCIEvidence": "edge-fresh-pair-20261117/followup-617-618/ci-4a493e9.json"
