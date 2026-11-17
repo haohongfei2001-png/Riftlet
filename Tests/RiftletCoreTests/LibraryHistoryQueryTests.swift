@@ -3,6 +3,20 @@ import XCTest
 @testable import RiftletCore
 
 final class LibraryHistoryQueryTests: XCTestCase {
+    func testSearchPreservesUnicodeFilenameAndDisplayedPixelDimensions() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: false)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = try QueueStore(databaseURL: root.appendingPathComponent("queue.sqlite"))
+        let image = ImportedAsset(sourceKey: "resume", fileName: "Résumé 01.png", sha256: String(repeating: "1", count: 64),
+                                  byteCount: 10, pixelWidth: 1920, pixelHeight: 1080, mediaType: "image/png", origin: .synthetic)
+        let record = try await store.importAsset(image)
+        for query in ["resume", "RÉSUMÉ", "1920×1080", "1080"] {
+            let page = try await store.historyPage(query: .init(text: query), offset: 0, throughSequence: nil)
+            XCTAssertEqual(page.records.map { $0.record.id }, [record.id], query)
+        }
+    }
+
     func testCrossPageSearchDateLiteralEscapesAndStableSnapshot() async throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }

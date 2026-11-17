@@ -677,6 +677,27 @@ final class SettingsReviewDriver {
         try require(saved.trayBackgroundTransparency == target && saved.trayCameraBodyColor == host.snapshot.state.owner.settings.configuration.trayCameraBodyColor,
                     "persistedAppearanceDiffersFromOwner")
         await capture("tray-custom-material-and-camera", window: host.center.window)
+        let failedTarget = target == 0.65 ? 0.3 : 0.6
+        try await blockedJSON("rift-configuration.json") {
+            slider.doubleValue = failedTarget
+            try self.require(NSApp.sendAction(action, to: slider.target, from: slider), "failedToneGestureNotDispatched")
+            try await self.wait { self.host.snapshot.state.domains[.trayBackgroundTransparency]?.hasIssue == true }
+            try self.require(self.host.snapshot.state.owner.settings.configuration.trayBackgroundTransparency == target
+                             && slider.doubleValue == target, "failedToneDidNotReturnToConfirmedValue")
+            try self.click("settings.center.tray.camera.3")
+            try await self.wait { self.host.snapshot.state.domains[.trayCameraBodyColor]?.hasIssue == true }
+            try self.require(self.host.snapshot.state.owner.settings.configuration.trayCameraBodyColor == saved.trayCameraBodyColor,
+                             "failedCameraDidNotReturnToConfirmedValue")
+            await self.capture("tray-appearance-independent-errors", window: self.host.center.window)
+        }
+        try click("settings.center.retry.trayBackgroundTransparency")
+        try await wait { self.host.snapshot.state.owner.settings.configuration.trayBackgroundTransparency == failedTarget }
+        try require(host.snapshot.state.domains[.trayCameraBodyColor]?.hasIssue == true, "retryClearedOtherAppearanceError")
+        try click("settings.center.retry.trayCameraBodyColor")
+        try await wait { self.host.snapshot.state.owner.settings.configuration.trayCameraBodyColor == "#278F88" }
+        let resolved = try read(RiftConfiguration.self, "rift-configuration.json")
+        try require(resolved.trayBackgroundTransparency == failedTarget && resolved.trayCameraBodyColor == "#278F88",
+                    "retryLostOriginalAppearanceTargets")
         await host.perform(.settings(.setTrayBackgroundTransparency(original)))
         await host.perform(.settings(.setTrayCameraBodyColor(originalCamera)))
     }
@@ -902,6 +923,13 @@ final class SettingsReviewDriver {
         try await wait { !self.host.center.isVisible }
         host.show(page: .display)
         try require(host.center.window.frame.size == size, "reopenLostWindowSize")
+        if let screen = host.center.window.screen, screen.visibleFrame.width >= 900 {
+            host.center.window.setContentSize(NSSize(width: 900, height: 580))
+            await settle()
+            try require(document.frame.width <= 768 + 1 && document.frame.width >= 720,
+                        "readingColumnWidthDidNotStayBounded")
+            await capture("settings-wide-reading-column", window: host.center.window)
+        }
         host.center.window.setFrame(original, display: true)
     }
 

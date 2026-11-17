@@ -62,9 +62,20 @@ public struct HistoryQuery: Equatable, Sendable {
         let term = text.trimmingCharacters(in: .whitespacesAndNewlines)
         if !term.isEmpty {
             // Bind literal substrings (including % and _) instead of SQL wildcard patterns.
-            var matches = ["instr(lower(a.file_name),lower(?))>0", "instr(lower(a.id),lower(?))>0",
-                           "instr(CAST(a.sequence AS TEXT),?)>0"]
-            values += [term, term, term]
+            let folded = term.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
+            // Native SQLite lower() handles ASCII. Use Foundation folding only for
+            // non-ASCII filenames and for the bounded, occasionally present reason.
+            var matches = [
+                "instr(lower(a.file_name),?)>0",
+                "(length(CAST(a.file_name AS BLOB))!=length(a.file_name) AND riftlet_history_contains(a.file_name,?))",
+                "instr(lower(a.id),?)>0", "instr(CAST(a.sequence AS TEXT),?)>0",
+                "(o.reason IS NOT NULL AND riftlet_history_contains(substr(o.reason,1,512),?))"
+            ]
+            values += [folded, term, folded, term, term]
+            if term.allSatisfy({ $0.isASCII && $0.isNumber || $0 == "×" }) {
+                matches.append("instr(json_extract(a.image_json,'$.pixelWidth')||'×'||json_extract(a.image_json,'$.pixelHeight'),?)>0")
+                values.append(term)
+            }
             // Formatting a local date for every row is expensive; other characters
             // cannot occur in this numeric date/time representation.
             if term.utf8.count <= 16 && term.utf8.allSatisfy({ (48...57).contains($0) || [32, 45, 58].contains($0) }) {
@@ -98,6 +109,16 @@ public struct HistoryQuery: Equatable, Sendable {
         let result = sqlite3_create_function_v2(handle, "riftlet_history_state", 9, SQLITE_UTF8 | SQLITE_DETERMINISTIC,
             nil, historyStateSQLValue, nil, nil, nil)
         guard result == SQLITE_OK else { throw RiftletError.database("Cannot register library query") }
+        let contains = sqlite3_create_function_v2(handle, "riftlet_history_contains", 2, SQLITE_UTF8 | SQLITE_DETERMINISTIC,
+            nil, { context, _, arguments in
+                guard let arguments, let raw = sqlite3_value_text(arguments[0]), let query = sqlite3_value_text(arguments[1]) else {
+                    sqlite3_result_int(context, 0)
+                    return
+                }
+                let found = String(cString: raw).range(of: String(cString: query), options: [.caseInsensitive, .diacriticInsensitive]) != nil
+                sqlite3_result_int(context, found ? 1 : 0)
+            }, nil, nil, nil)
+        guard contains == SQLITE_OK else { throw RiftletError.database("Cannot register library text search") }
     }
 }
 
