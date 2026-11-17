@@ -246,7 +246,7 @@ final class AcceptanceWindowScenes {
             content.layoutSubtreeIfNeeded()
             guard cards.allSatisfy({ card in
                 card.window === feedback?.window && !card.isHiddenOrHasHiddenAncestor
-                    && card.visibleRect.width > 0 && card.visibleRect.height > 0
+                    && !card.bounds.isEmpty && card.visibleRect.contains(card.bounds)
             }) else { throw NativeVisualEvidence.Failure.missingWindow }
             record("native_evidence_feedback_records", ["fixtureRecordCount": cards.count,
                 "fixtureStates": feedbackFixtureRecords.map { $0.state.rawValue }.sorted(),

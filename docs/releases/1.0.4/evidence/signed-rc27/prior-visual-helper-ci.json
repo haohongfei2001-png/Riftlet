@@ -154,5 +154,53 @@
     ]
   },
   "afterNativeReportSHA256": "4e37eaffa70c3f7367904db377c3d904d2892d0293120d0dbfa37b41fb19fba2",
-  "explanation": "The visual helper compared the English feedback window against Chinese-only strings. Exact fixture UUID, local text, localized status, expansion, visible frames and disabled transport are required. The helper is a separate SwiftPM product, not included in the signed app."
+  "explanation": "The visual helper compared the English feedback window against Chinese-only strings. Exact fixture UUID, local text, localized status, expansion, visible frames and disabled transport are required. The helper is a separate SwiftPM product, not included in the signed app.",
+  "fullCardNativeReproduction": {
+    "helperSHA256": "05dbc539a8e386a2436537718a186d9050307c028311f04b310046568690b575",
+    "results": [
+      [
+        "en-feedback-records-light",
+        "CAPTURED_NATIVE_WINDOWSERVER",
+        [
+          "8e51be0b025cdb103e535d79ba6a1b4df315211997bb6e16e9d9bf62c34ff344"
+        ]
+      ],
+      [
+        "en-feedback-records-dark",
+        "CAPTURED_NATIVE_WINDOWSERVER",
+        [
+          "8998387bc594b37113108c63862388205771b47fbc5d6e332f4fec53b5e7cc7c"
+        ]
+      ],
+      [
+        "en-feedback-save-failure-minimum-light",
+        "CAPTURED_NATIVE_WINDOWSERVER",
+        [
+          "0b6035f2d1efda9ce74dadcab8f17d12bd6fb797af8362b6e30abb10c7995ee7"
+        ]
+      ],
+      [
+        "zh-Hans-feedback-records-light",
+        "CAPTURED_NATIVE_WINDOWSERVER",
+        [
+          "feda64a766431f544798814e033d89a508246ff744a1ccb1a06391c4c91520ec"
+        ]
+      ],
+      [
+        "zh-Hans-feedback-records-dark",
+        "CAPTURED_NATIVE_WINDOWSERVER",
+        [
+          "cce648891acceaa3507b2d651fe467bced4bba5da9f8fbb90b010171e0454562"
+        ]
+      ],
+      [
+        "zh-Hans-feedback-save-failure-minimum-light",
+        "CAPTURED_NATIVE_WINDOWSERVER",
+        [
+          "c6b7800378b3daf6992b1772d44b43f3a8e7917d209cd9a5c4e77c2f5afa45cd"
+        ]
+      ]
+    ]
+  },
+  "fullCardNativeReportSHA256": "656daaf2bc1572cd7ef69f3c7d70b2321acf2a3e675be316f8b5357d92828d53"
 }

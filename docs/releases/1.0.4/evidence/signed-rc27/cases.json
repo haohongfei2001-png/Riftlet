@@ -355,7 +355,7 @@
     },
     "ci27-first-visual": {
       "location": "prior-visual-helper-ci.json",
-      "sha256": "9b98cddfbc47abaee2668d0e5850bebbf23f74a2978924184e9295794cf295b1",
+      "sha256": "80002d0f4f35f6f238fddc4c0d098348ec733cc9ef4c6c696fa0d6be42b9c1b8",
       "basis": "Both final-package architectures passed XCTest. Both failed only English feedback-record screenshots in a separate helper. Six actual locale/window probes preserve pre-fix and post-fix outcomes."
     }
   },
