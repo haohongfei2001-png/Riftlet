@@ -1,0 +1,257 @@
+{
+  "candidate": {
+    "version": "1.0.5",
+    "build": 28,
+    "source": "628eef15f5512fdb6d3dc5701f6340eb87af8b4a",
+    "executableSHA256": "885c0e2ee5f87540143da148ccef38edd8e550eaa05ca8c21c11b5c8add66896",
+    "dmgSHA256": "a2e803123f2726f60ff00ef7ceadf9ee97ccd79ac97570e9cb8baffa058d2ff7"
+  },
+  "platform": "Dedicated cloned macOS 27.2 ARM64 VM, one virtual display, disposable user and test captures",
+  "disposition": "Rejected for ordinary Trash cleanup and restore",
+  "directInstall": {
+    "mountedReadOnly": true,
+    "dmgVerified": true,
+    "copiedAppEjectedDisk": true,
+    "strictCodesign": true,
+    "gatekeeper": "accepted / Notarized Developer ID",
+    "launchedPID": 3792,
+    "freshQuarantinedInstallOrTCCOnboarding": "NOT_RUN"
+  },
+  "sparkle": {
+    "25": {
+      "tables": {
+        "assets": {
+          "before": 5,
+          "after": 6,
+          "allOriginalRowsIdentical": true
+        },
+        "operations": {
+          "before": 2,
+          "after": 2,
+          "allOriginalRowsIdentical": true
+        },
+        "upload_starts": {
+          "before": 1,
+          "after": 1,
+          "allOriginalRowsIdentical": true
+        },
+        "checkpoints": {
+          "before": 4,
+          "after": 5,
+          "allOriginalRowsIdentical": true
+        },
+        "compensations": {
+          "before": 0,
+          "after": 0,
+          "allOriginalRowsIdentical": true
+        },
+        "metadata": {
+          "before": 2,
+          "after": 2,
+          "allOriginalRowsIdentical": true
+        }
+      },
+      "originalFileCount": 13,
+      "missingOrChangedOriginalFiles": 0,
+      "existingFolderBookmarkIdentical": true,
+      "feedbackDraftIdentical": true,
+      "integrity": "ok",
+      "oldVersion": "1.0.3",
+      "transport": "Local signed Sparkle feed, ordinary Install Update and Install and Relaunch, new verified notarized executable",
+      "survivingStates": {
+        "historicalUNKNOWN": 1,
+        "controlledOfflineSTART": 1,
+        "pendingOriginalSHA256": "5d6bafaf3db774178cf6c5dc4d4123fd1e54048c29d9c699a6441907f42d0b2c"
+      },
+      "newPID": 3240
+    },
+    "27": {
+      "tables": {
+        "assets": {
+          "before": 6,
+          "after": 6,
+          "allOriginalRowsIdentical": true
+        },
+        "operations": {
+          "before": 2,
+          "after": 2,
+          "allOriginalRowsIdentical": true
+        },
+        "upload_starts": {
+          "before": 1,
+          "after": 1,
+          "allOriginalRowsIdentical": true
+        },
+        "checkpoints": {
+          "before": 4,
+          "after": 5,
+          "allOriginalRowsIdentical": true
+        },
+        "compensations": {
+          "before": 0,
+          "after": 0,
+          "allOriginalRowsIdentical": true
+        },
+        "metadata": {
+          "before": 2,
+          "after": 2,
+          "allOriginalRowsIdentical": true
+        }
+      },
+      "originalFileCount": 14,
+      "missingOrChangedOriginalFiles": 0,
+      "existingFolderBookmarkIdentical": true,
+      "feedbackDraftIdentical": true,
+      "integrity": "ok",
+      "oldVersion": "1.0.4",
+      "transport": "Local signed Sparkle feed, ordinary Install Update and Install and Relaunch, new verified notarized executable",
+      "survivingStates": {
+        "historicalUNKNOWN": 1,
+        "controlledOfflineSTART": 1,
+        "pendingOriginalSHA256": "5d6bafaf3db774178cf6c5dc4d4123fd1e54048c29d9c699a6441907f42d0b2c"
+      },
+      "newPID": 2844
+    }
+  },
+  "normalSystemScreenshotAfterUpgrade": {
+    "sequence": 7,
+    "origin": "systemScreenshot",
+    "externalHits": 1,
+    "privateFileSHA256": "35c1fdc811a21317b84e0e54a046282e509a00e1d5576bbd3052211c41b9482e",
+    "metadataSHA256": "35c1fdc811a21317b84e0e54a046282e509a00e1d5576bbd3052211c41b9482e"
+  },
+  "pendingCaptureRecovery": {
+    "visibleRoute": [
+      "A Screenshot Needs Recovery",
+      "Recover Screenshot",
+      "Manage Screenshots",
+      "Recover pending captures"
+    ],
+    "from": 1,
+    "to": 0,
+    "assetsBefore": 7,
+    "assetsAfter": 8,
+    "preservedOperationCount": 2,
+    "recoveredSHA256": "5d6bafaf3db774178cf6c5dc4d4123fd1e54048c29d9c699a6441907f42d0b2c"
+  },
+  "nativeReview": {
+    "settings-en": {
+      "timeUTC": "2026-11-17T21:41:25Z",
+      "passed": 16,
+      "failed": [],
+      "frames": 39,
+      "restart": "PASS_SCOPED_NATIVE_RESTART",
+      "scope": "Exact signed executable, isolated review process, native owned windows, synthetic data"
+    },
+    "settings-zh": {
+      "timeUTC": "2026-11-17T21:41:50Z",
+      "passed": 16,
+      "failed": [],
+      "frames": 39,
+      "restart": "PASS_SCOPED_NATIVE_RESTART",
+      "scope": "Exact signed executable, isolated review process, native owned windows, synthetic data"
+    },
+    "history": {
+      "timeUTC": "2026-11-17T21:42:15Z",
+      "passed": 8,
+      "failed": [],
+      "frames": 20,
+      "restart": "PASS_SCOPED_NATIVE_RESTART",
+      "scope": "Exact signed executable, isolated review process, native owned windows, synthetic data"
+    },
+    "desktop": {
+      "timeUTC": "2026-11-17T21:42:21Z",
+      "passed": 41,
+      "failed": [
+        {
+          "case": "tray-native-wheel",
+          "reason": "wheelWindowNotOwned"
+        },
+        {
+          "case": "tray-owned-button-and-escape",
+          "reason": "conditionTimedOut"
+        }
+      ],
+      "frames": 68,
+      "restart": "PASS",
+      "scope": "Exact signed executable, isolated review process, native owned windows, synthetic data"
+    }
+  },
+  "evidenceImages": {
+    "appearance-en.png": "af80a413cbff11786926e9f3daca39b1c000c0630ff26e8e5fe8107835d5c579",
+    "history.png": "2cbdc5332f800e8c125461761ad8356f0e2fe859cc8e8668beed719e1ef93fbe",
+    "ime-library.png": "b22b4a10a0d75c5ee31055094d11abb51f5a9e23f5baaddbb922dbb9f1e81d60",
+    "manage-zh.png": "68a793b9222128c9b62054f46d7df76b766e3298612932380a69bb5874e8ede4",
+    "tray.png": "8af30f38ed248737ae8d7ed3f8b66bb8dfa054681d5ed0fce513910c55df00ec"
+  },
+  "actualIME": {
+    "input": "System Pinyin - Simplified; synthetic virtual keyboard physical keys n, i, h, a, o",
+    "observed": "Library search showed marked phonetics and the system candidate panel. The red close button dismissed the Library; reopening in the same process retained the uncommitted Latin phonetics.",
+    "notRun": [
+      "Selecting a converted candidate",
+      "Closing Settings or quitting during marked text"
+    ]
+  },
+  "voiceOver": "PARTIAL: VoiceOver process and welcome caption observed; spoken product control labels and full focus traversal unverified",
+  "realChatGPT": "NOT_RUN for first/second click and post-start failure: ordinary guest Chrome navigation returned ERR_CONNECTION_REFUSED before a usable draft.",
+  "otherNotRun": [
+    "Multiple physical displays or hardware mouse",
+    "Minimum supported OS"
+  ],
+  "ordinaryTrash": {
+    "status": "FAIL",
+    "initialEligible": 6,
+    "initialBytesDisplay": "1.8 MB",
+    "initialWithoutVerifiedOriginal": 5,
+    "actualMoved": 1,
+    "movedBytes": 475528,
+    "originalAndRestoredSHA256": "5d6bafaf3db774178cf6c5dc4d4123fd1e54048c29d9c699a6441907f42d0b2c",
+    "phases": {
+      "before": {
+        "retiredRows": 0,
+        "expectedSHAInPrivate": true,
+        "expectedSHAInTrash": false,
+        "otherRowsIdentical": true,
+        "ops": 2,
+        "starts": 1
+      },
+      "after": {
+        "retiredRows": 1,
+        "expectedSHAInPrivate": false,
+        "expectedSHAInTrash": true,
+        "otherRowsIdentical": true,
+        "ops": 2,
+        "starts": 1
+      },
+      "restart": {
+        "retiredRows": 1,
+        "expectedSHAInPrivate": false,
+        "expectedSHAInTrash": true,
+        "otherRowsIdentical": true,
+        "ops": 2,
+        "starts": 1
+      },
+      "undo": {
+        "retiredRows": 1,
+        "expectedSHAInPrivate": true,
+        "expectedSHAInTrash": false,
+        "otherRowsIdentical": true,
+        "ops": 2,
+        "starts": 1
+      }
+    },
+    "diagnostic": {
+      "method": "Fresh ad-hoc signed native QA process, independent bundle, launched with LaunchServices under the regular guest, no privacy grants, one disposable file.",
+      "result": {
+        "moveErrno": 0,
+        "privateOpenErrno": 0,
+        "privateSyncErrno": 0,
+        "readByKnownName": true,
+        "restoredKnownBytes": true,
+        "restoreErrno": 0,
+        "trashOpenErrno": 1
+      }
+    },
+    "visibleError": "Some items could not be processed. Check disk and Trash access."
+  }
+}
