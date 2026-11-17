@@ -1346,7 +1346,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 if interactionFence.snapshot().blocked { feedback.diagnostics.record(.uiProjectionDeferred) }
                 switch mode {
                 case .capture:
-                    statusItem?.button?.toolTip = "\(OrdinaryCaptureConfiguration.menuTitle) · \(active.count) visible screenshots\(userHidden ? " · hidden" : "")"
+                    let count = ProductCopy.text("桌面截图 \(active.count) 张", "\(active.count) desktop screenshots")
+                    let hidden = userHidden ? ProductCopy.text(" · 已隐藏", " · Hidden") : ""
+                    statusItem?.button?.toolTip = "\(OrdinaryCaptureConfiguration.menuTitle) · \(count)\(hidden)"
                 case .simulation: statusItem?.button?.toolTip = "Riftlet SIMULATION — synthetic only; start then delayed result"
                 case .systemScreenshotCandidate: statusItem?.button?.toolTip = "Riftlet REAL TEST · 原图候选 · 生产准入关闭 · 待核实不重传"
                 case .webAcceptance: statusItem?.button?.toolTip = "Riftlet WEB ACCEPTANCE · \(active.count) visible test images · unresolved records stay in local history"
@@ -1354,7 +1356,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 }
                 if history?.isVisible == true { await refreshHistory() }
                 updateSetup()
-            } catch { feedback.diagnostics.record(.queueReadIssue); showIssue("Queue read failed; durable data is preserved.") }
+            } catch {
+                feedback.diagnostics.record(.queueReadIssue)
+                if history?.isVisible == true { history?.showReadError() }
+                showIssue(ProductCopy.text("暂时无法读取截图。请在截图仓库中重试。", "Could not read screenshots. Open the library to try again."))
+            }
         } while refreshRequested
         refreshRunning = false
         let waiters = refreshWaiters; refreshWaiters.removeAll()
@@ -1422,10 +1428,13 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         rift?.setDetailPresented(true)
         Task {
             do {
-                guard let record = try await store.asset(id: id) else { rift?.setDetailPresented(false); return }
+                guard let record = try await store.asset(id: id) else { throw CocoaError(.fileNoSuchFile) }
                 guard !terminating else { rift?.setDetailPresented(false); return }
                 history?.openOriginal(entry: RiftHistoryEntry(record: record))
-            } catch { rift?.setDetailPresented(false); showIssue("原图暂不可读取，截图与记录仍保留。") }
+            } catch {
+                rift?.setDetailPresented(false)
+                showActionIssue(ProductCopy.text("无法读取原图。请在截图仓库中重新检查文件。", "Could not read the original image. Check its file in the library."))
+            }
         }
     }
 
@@ -1469,7 +1478,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         cancelSelections(reason: "clearVisible")
         Task {
             do { _ = try await store.clearVisibleQueue(); await refresh() }
-            catch { showIssue("Could not clear the visible queue; files and attachments are preserved.") }
+            catch { showActionIssue(ProductCopy.text("未能清空桌面截图。请稍后重试。", "Could not clear the desktop screenshots. Try again.")) }
         }
     }
 
@@ -1585,7 +1594,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             let archived = try await store.archiveIdle(before: now.addingTimeInterval(-interval),
                 fence: interactionFence, revision: state.revision, limit: 3)
             if !archived.isEmpty { await refresh() }
-        } catch { showIssue("Idle archive deferred; screenshots remain available.") }
+        } catch { showIssue(ProductCopy.text("自动归档已延后，截图仍可使用。", "Auto-archive was deferred. Your screenshots are still available.")) }
     }
 
     private func installMenu() {
@@ -1646,6 +1655,22 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         if item.action == #selector(toggleHidden) { return store != nil && !changingHidden }
         return true
     }
+    /// Present failures from an explicit action where the user invoked it.
+    /// Background diagnostics do not open sheets or steal focus from a draft.
+    private func showActionIssue(_ message: String) {
+        showIssue(message)
+        if let history, history.isVisible, history.window.isKeyWindow {
+            history.showActionError(message)
+            return
+        }
+        guard let window = [settingsHost?.onboarding.window, settingsHost?.center.window]
+            .compactMap({ $0 }).first(where: { $0.isVisible && $0.attachedSheet == nil }) else { return }
+        let alert = NSAlert()
+        alert.messageText = message
+        alert.addButton(withTitle: ProductCopy.text("好", "OK"))
+        alert.beginSheetModal(for: window)
+    }
+
     private func showIssue(_ message: String) { statusLine?.title = message; statusItem?.button?.toolTip = message }
     @objc private func beginScreenshot() { screenshotEntry?.beginFromMenu() }
     @objc private func showLatest() { rift?.showLatest() }
@@ -1734,8 +1759,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         case .openChrome:
             if let chrome = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.google.Chrome") {
                 do { _ = try await NSWorkspace.shared.openApplication(at: chrome, configuration: .init()) }
-                catch { showIssue(ProductCopy.text("未能打开 Google Chrome。", "Could not open Google Chrome.")) }
-            } else { showIssue(ProductCopy.text("没有找到 Google Chrome。", "Google Chrome could not be found.")) }
+                catch { showActionIssue(ProductCopy.text("未能打开 Google Chrome。", "Could not open Google Chrome.")) }
+            } else { showActionIssue(ProductCopy.text("没有找到 Google Chrome。", "Google Chrome could not be found.")) }
             updateSetup()
         case .checkChromeConnection: await checkChromeConnection()
         case .finishOnboarding:
@@ -1784,9 +1809,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         guard store != nil, !visibleIDs.isEmpty else { return }
         screenshotEntry?.cancel(); settingsHost?.control.close()
         let alert = NSAlert()
-        alert.messageText = "清空可见队列？"
-        alert.informativeText = "图片会移入本地历史，不会删除系统原图或 ChatGPT 附件，也不会重新上传。可在历史中按实际状态逐张恢复。"
-        alert.addButton(withTitle: "取消"); alert.addButton(withTitle: "清空队列")
+        alert.messageText = ProductCopy.text("收起全部桌面截图？", "Remove all screenshots from the desktop?")
+        alert.informativeText = ProductCopy.text("图片会留在截图仓库中。系统原图和聊天附件会保留。", "The images stay in your library. Original files and chat attachments are preserved.")
+        alert.addButton(withTitle: ProductCopy.text("取消", "Cancel"))
+        alert.addButton(withTitle: ProductCopy.text("全部收起", "Remove from Desktop"))
         if let window = settingsHost?.center.window, window.isVisible {
             alert.beginSheetModal(for: window) { [weak self] response in
                 if response == .alertSecondButtonReturn { self?.clearVisible() }
