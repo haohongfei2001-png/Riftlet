@@ -1,0 +1,215 @@
+{
+  "afterDraft": {
+    "available": true,
+    "eachNewOperationFilenameCount": [
+      0,
+      0
+    ],
+    "exactOriginalSelection": true,
+    "observedAt": "2026-11-17T13:43:36Z",
+    "onlyNamedOriginalsAndNew": true,
+    "originalNativeTabAndWindow": true,
+    "retainedCounts614_612_613_615": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "sameText": true,
+    "selection": [
+      61,
+      14
+    ],
+    "totalAttachments": 4,
+    "unknownAttachments": 0
+  },
+  "beforeDraft": {
+    "available": true,
+    "eachNewOperationFilenameCount": [
+      0,
+      0
+    ],
+    "exactOriginalSelection": true,
+    "observedAt": "2026-11-17T13:42:51Z",
+    "onlyNamedOriginalsAndNew": true,
+    "originalNativeTabAndWindow": true,
+    "retainedCounts614_612_613_615": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "sameText": true,
+    "selection": [
+      61,
+      14
+    ],
+    "totalAttachments": 4,
+    "unknownAttachments": 0
+  },
+  "compressedTraceBytes": 7069,
+  "executableSHA256": "7819726ae4afd6bfcfc8b7fc2819842fe46f42a490e4c6ed4f00d571322dac96",
+  "historicalEvidence": {
+    "SHA256": "5360d70c724522794f96a0c42b9c0fee9c2e15bbf11525f6b9e9fc8163207b37",
+    "bytes": 33122893,
+    "files": 73,
+    "latestFrozenLedgerSHA256": "80f8097bbed43fcc1dcb89c64bf4fdd35057115fe0d67b68852eb0ab2cfc9ae1",
+    "latestPairEvidenceSHA256": "b11be33fd717edcd1420ae2f7a1d607c9530eb53a9f3926f75a4faeeff038d54"
+  },
+  "images": [
+    {
+      "currentVisibility": "visible",
+      "ledgerPhases": [
+        "unknown"
+      ],
+      "localDurableStarts": 0,
+      "localStatus": "unknown",
+      "nativeReceiptError": null,
+      "nativeSelection": true,
+      "nativeTaggedRows": 10,
+      "operationCount": 1,
+      "operationFilenameSHA256s": [
+        "5221677c1c7650b73ee7e6e96c97e20862af6832b11c2382627d42558bd51a9c"
+      ],
+      "operationReasons": [
+        {
+          "code": "observer-v2:inputTriggered:integratedDevelopment",
+          "sha256": "228f4928c0479715852b461eb7497f6db7b33cf9a80881ce02f2dff89241022e"
+        }
+      ],
+      "originalBytes": 1406130,
+      "originalChangeObserved": true,
+      "originalOutcomeVisibility": "visible",
+      "originalPreserved": true,
+      "originalSHA256": "b998c430aae7abd8bbf73e0abe5a3648184cdbbb4300345f304f9661a0257b64",
+      "originalSetterObserved": true,
+      "reserved": true,
+      "seed": 617,
+      "senderExit": 0,
+      "serviceTerminal": "REQUIRES_INDEPENDENT_SERVICE_RECEIPT",
+      "swallowActualStartCount": 0,
+      "swallowCloseCount": 0,
+      "swallowScheduledCount": 0,
+      "traceRefusals": [],
+      "traceStartObserved": false
+    },
+    {
+      "currentVisibility": "visible",
+      "ledgerPhases": [
+        "unknown"
+      ],
+      "localDurableStarts": 0,
+      "localStatus": "unknown",
+      "nativeReceiptError": null,
+      "nativeSelection": true,
+      "nativeTaggedRows": 10,
+      "operationCount": 1,
+      "operationFilenameSHA256s": [
+        "1d7648f01be8d258c9bcf454450653242747dc9136a6b0f3f3ded815a50e5cbd"
+      ],
+      "operationReasons": [
+        {
+          "code": "observer-v2:inputTriggered:integratedDevelopment",
+          "sha256": "228f4928c0479715852b461eb7497f6db7b33cf9a80881ce02f2dff89241022e"
+        }
+      ],
+      "originalBytes": 1407109,
+      "originalChangeObserved": true,
+      "originalOutcomeVisibility": "visible",
+      "originalPreserved": true,
+      "originalSHA256": "139cb2688a344296fcf70654a1e457a56759415c8bbd8816ac9cafa5818543d4",
+      "originalSetterObserved": true,
+      "reserved": true,
+      "seed": 618,
+      "senderExit": 0,
+      "serviceTerminal": "REQUIRES_INDEPENDENT_SERVICE_RECEIPT",
+      "swallowActualStartCount": 0,
+      "swallowCloseCount": 0,
+      "swallowScheduledCount": 0,
+      "traceRefusals": [],
+      "traceStartObserved": false
+    }
+  ],
+  "lateDraft": {
+    "available": true,
+    "eachNewOperationFilenameCount": [
+      0,
+      0
+    ],
+    "exactOriginalSelection": true,
+    "observedAt": "2026-11-17T13:44:29Z",
+    "onlyNamedOriginalsAndNew": true,
+    "originalNativeTabAndWindow": true,
+    "retainedCounts614_612_613_615": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "sameText": true,
+    "selection": [
+      61,
+      14
+    ],
+    "totalAttachments": 4,
+    "unknownAttachments": 0
+  },
+  "nativeDownIntervalMs": 426.847,
+  "oneDiagnosticSession": true,
+  "ordinaryRunStop": null,
+  "originalLedgerAndMediaPreserved": {
+    "assets": true,
+    "operations": true,
+    "originalMedia": true,
+    "starts": true
+  },
+  "originalNativeLeaseChecks": {
+    "bothLeases": true,
+    "bothSameOriginalThreeImageDraft": true,
+    "sameNativeTabAndWindow": true,
+    "separateOriginalClickBindings": true
+  },
+  "productRowsAtIndependentRead": {
+    "assets": 22,
+    "operations": 13,
+    "starts": 4
+  },
+  "productRowsBefore": {
+    "assets": 20,
+    "operations": 11,
+    "starts": 4
+  },
+  "rawSequencesContinuous": true,
+  "rawTraceBytes": 274161,
+  "schema": 1,
+  "serviceProcessingTerminal": "REQUIRES_INDEPENDENT_HAR_JOIN",
+  "source": "0e0ae7fa0b17a72190b8ad08f995048148f31d39",
+  "sourceSHA256": {
+    "afterSQLiteAnd20PriorMedia": "8ce399f6b2a5cc211ac9cc8ae2a8d551e70f69e7c6e7aff68a9b4a8019b9dc8d",
+    "beforeSQLite": "40af63940aaa9cedb36fe8a1d63fc31df2ea43fcd55bba928006cb2f0733d9c4",
+    "capture617": "f4d0fae1c9e4ea032cd3b30fde20949e72f2dc8ad1fbae38870a494e09e7e1a3",
+    "capture618": "bf8f4a1aad3ae5a5afbeed713d7c942dceb2480f2ee0e0c421693d60fd28ea01",
+    "compressedOriginalTrace": "f850d8c065a4aafd2274074a9fa9dff681d92637547003d27b2a298061e9106b",
+    "import617": "044343a7f81db672cd5e8387786ef3ea8f5d8806d7f8f490bc98260e9057e8b5",
+    "import618": "765ca329288240e8f36dd8bfe9c52b92e64a1dbb986523bc2dc1b9929fed532b",
+    "independentReaderArm": "f1fccc76bbe6770b83ec27633c15cf4404fcd96a91b279b22308a0d308c3dd9c",
+    "intent1": "97c9bbbc9d84bc66e5432f98fc398dea5b1bf5f96c161db9d99e5afd7f77176b",
+    "intent2": "f2ea9e4df2673ebf00fd5c996e5c358fb026a5b7c2c8d0eff2436cdb0c061a81",
+    "lateOriginalInspection": "4aa50c33c4abb0f2fff63ff8aea03b8a746149dea28ee7330143ec41e371026c",
+    "nativeDecisions": "71f34e619c2a7e8a54eef7f8424d54548dc9c8a00ffb06385d9d5da1725942c3",
+    "nativeMapEpochs": "da764bb0c03f8937310b5949c0545537589840cde640fbc31e58a66313bc47c6",
+    "nativeOutcome": "cb0e1c0916f13c44e147bdb094fbfa5cd498caecbc46065c38ab77df042ed5e4",
+    "nativePrepared": "a5a974ef9bd9f07b98174bee6f5ad1e2d99febf2252ef80a35416fdffd63c540",
+    "nativeReservation1": "f9089bdc217cef07bde7ebaee08e42a566410986b608e329dab436c810316426",
+    "nativeReservation2": "95d2c0123b46995cb321fdf881e2986d8b2b7597662e68657bb6f3216c8a4145",
+    "pairReservation": "903bb9e8006320942910475231f00f0ae1748cef1406efacea4b73be4080704b",
+    "priorOperations": "1c96a2009ab8d571039f8be9282ee4d2a7a97f17943be37ca39a58f300761eb7",
+    "rawOrdinaryTrace": "f76c04bb3883dc2b52113593d2bfd6653341b2c307fd1d7b28fb9a050d4d152a",
+    "sender1": "8ac083c8666388dda69484e35a33eef508338ae375f1166fc9237e064d8c5535",
+    "sender2": "4f69dcef3503ea90e66c35b59e87d47d3c5584942085fd890e574e9e8a011af3",
+    "systemPNG617": "b998c430aae7abd8bbf73e0abe5a3648184cdbbb4300345f304f9661a0257b64",
+    "systemPNG618": "139cb2688a344296fcf70654a1e457a56759415c8bbd8816ac9cafa5818543d4",
+    "ticket": "c594058e371cd2032533d876501d3761959a23983ef97e72a7bdc3319ca918fd"
+  },
+  "traceRows": 347
+}

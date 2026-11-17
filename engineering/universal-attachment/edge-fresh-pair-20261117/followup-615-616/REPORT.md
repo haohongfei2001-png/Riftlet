@@ -23,3 +23,5 @@ python3 -B engineering/universal-attachment/edge-fresh-pair-20261117/followup-61
 ```
 
 环境变量 `RIFTLET_PRIVATE_BUILD` 指向已封存原材料的目录。报告可公开核验的部分包括 [102 条原始 App 事件](pair-trace.jsonl.gz)、[两次试验的原生分块对照](chunk-comparison.json) 和 [测试产物摘要](actual.json)。私有目录只用于逐字节复算截图、账本和服务观察原件。
+
+稍后导出的 191 项原网络记录将 615 唯一对应到 1,386,385 字节的存储写入、HTTP 201 和 ETag。该文件处理请求返回 HTTP 200，记录 576 字节并伴有 `net::ERR_ABORTED`，没有可用响应正文。616 没有匹配的服务创建或处理请求。[逐文件服务证据](service.json)

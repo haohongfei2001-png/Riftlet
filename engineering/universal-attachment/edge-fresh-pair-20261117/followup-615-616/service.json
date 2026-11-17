@@ -1,0 +1,77 @@
+{
+  "scope": "Original ordinary DevTools sanitized HAR, matched to this signed product trial. Zero-based entry indices. File names, raw service IDs, URLs, ETags, request and response bodies are withheld.",
+  "originalHARSHA256": "b9c6fdff2ee7610124304e28061f93fcaa2a3aa4bedc69f3fa0342693097a00f",
+  "originalHARBytes": 14134614,
+  "completeEntries": 191,
+  "preparedSHA256": "8eabfe74cbc471428a3b4e2653615fc60a4a6b64efd4bc0bc152c2d8b8382b51",
+  "productOutcomeSHA256": "df959bdc17a9d5596b18dbf3646478d0322298f7cb5aa834f4935c5f9e0b35d2",
+  "sqliteProjectionSHA256": "80f8097bbed43fcc1dcb89c64bf4fdd35057115fe0d67b68852eb0ab2cfc9ae1",
+  "files": [
+    {
+      "fixture": 615,
+      "originalPNGBytes": 1405721,
+      "originalPNGSHA256": "20dc07d25260930366add4bb33f1ea8b7b089f6bf60faff794824abf50a67ddd",
+      "operationUUIDLowercaseSHA256": "dde956b914e13ed843c1bf7b401fbc4b74db252c06a006b317d76de7672f2f2b",
+      "operationFilenameSHA256": "946a263454eed9e29aac766e0d719bdd91dd572fc7d40352782bc346d53994b3",
+      "nativeAttempts": 1,
+      "originalDraftOperationFilenameCount": 1,
+      "durableProductSTARTs": 1,
+      "namedFirstPartyRequestIndices": [
+        122,
+        126
+      ],
+      "matchingCreates": [
+        {
+          "index": 122,
+          "status": 200,
+          "fileIDSHA256": "b7d05c9ad165ed79acc876c4abf0fb01ed03a00f1980c15ae57eb3abedd2eb48",
+          "exactGrantedUploadURLSHA256": "fde1dd54f92a73f57d48e72031d7d155e0440dd5a75a76660b72ae85545beeeb",
+          "declaredBytes": 1386385
+        }
+      ],
+      "assignedPUTs": [
+        {
+          "index": 124,
+          "status": 201,
+          "contentLength": 1386385,
+          "etagPresent": true,
+          "etagSHA256": "57ad3ef125bf2d89bf6c4a73149574d190c0489c4ce3e40131a03ddf153f6b89"
+        }
+      ],
+      "sameFileProcessing": [
+        {
+          "index": 126,
+          "status": 200,
+          "matchedOperationFilename": true,
+          "matchedServiceFileID": true,
+          "contentBytesReported": 576,
+          "responseBodyPresent": false,
+          "responseNetErrAborted": true,
+          "matchedFileEvents": [],
+          "matchedAuxiliaryFrames": []
+        }
+      ],
+      "sameFileControlledTerminalSignals": [],
+      "terminal": "UNKNOWN"
+    },
+    {
+      "fixture": 616,
+      "originalPNGBytes": 1405361,
+      "originalPNGSHA256": "f96215470556b556cb48a7455082f5a5dc7f3576f4537ead5e52a2bfd66de001",
+      "operationUUIDLowercaseSHA256": "c2447a70effa5a598c6c64eccbaff288e38442ee33dda83c1ff73b539fe8c4da",
+      "operationFilenameSHA256": "94b097c5e9303872f7d408bf652d5b30188de6aaf3ec59094298717925a9aa61",
+      "nativeAttempts": 1,
+      "originalDraftOperationFilenameCount": 0,
+      "durableProductSTARTs": 0,
+      "namedFirstPartyRequestIndices": [],
+      "matchingCreates": [],
+      "assignedPUTs": [],
+      "sameFileProcessing": [],
+      "sameFileControlledTerminalSignals": [],
+      "terminal": "UNKNOWN_NO_MATCHED_CREATION_OR_ASSIGNMENT"
+    }
+  ],
+  "limits": [
+    "An absent same-file terminal in the available export leaves final service state unknown. Missing traffic is not proof of remote nonexistence. A per-file PUT and ETag establish storage acknowledgement; exported content is not an independently verified byte hash of the remote image."
+  ]
+}

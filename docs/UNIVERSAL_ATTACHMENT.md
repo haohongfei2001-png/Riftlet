@@ -1,5 +1,7 @@
 # 无扩展附件引擎 · 首轮工程交接
 
+11 月 17 日，隔离 Edge × ChatGPT 的普通 App 已在同一草稿中连续交付 612 和 613。两图分别有上传开始和存储 HTTP 201 的回执，最终处理均为 UNKNOWN。后续真实运行的 617、618 同样收到各自的点击和文件输入，但没有新附件、START 或匹配的服务请求；原草稿显示已达文件附件数量限制，提示 11 月 18 日 21:33 后重试。组合维持 INCOMPLETE。[实测矩阵](../engineering/universal-attachment/live-matrix.json) · [原服务提示及逐文件证据](../engineering/universal-attachment/edge-fresh-pair-20261117/followup-617-618/REPORT.md)
+
 ## 612 与 613 的普通 App 实测
 
 在已登录的隔离 Edge 临时草稿里，两张不同的 macOS 系统截图通过普通 App 微图各点击一次，实际间隔 398.130 毫秒。两次分别绑定到同一窗口、标签、文档和编辑器。预置图 614 与两个新附件各出现一次，原正文及原位置的 14 字符选区保留，编辑器在前后两次读回时均未聚焦。Riftlet 对两图分别持久记录 START，随后各自触发吞噬。[逐图实测与原始事件](../engineering/universal-attachment/edge-fresh-pair-20261117/README.md)

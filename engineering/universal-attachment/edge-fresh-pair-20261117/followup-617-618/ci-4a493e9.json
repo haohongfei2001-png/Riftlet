@@ -1,0 +1,97 @@
+{
+  "head": "4a493e950285a10d0362077ff501f149c1cc330c",
+  "merge": "19655a926a5364a248f172123ef673c0db47018f",
+  "source": "0e0ae7fa0b17a72190b8ad08f995048148f31d39",
+  "workflows": {
+    "native": {
+      "runID": 44094716172,
+      "conclusion": "failure",
+      "attempt": 1,
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44094716172",
+      "jobs": [
+        {
+          "id": 134078685383,
+          "name": "Native source admission",
+          "conclusion": "success",
+          "started_at": "2026-11-17T13:38:17Z",
+          "completed_at": "2026-11-17T13:39:05Z",
+          "runner_id": 1000060450,
+          "labels": [
+            "ubuntu-latest"
+          ],
+          "stepCount": 6
+        },
+        {
+          "id": 134078685597,
+          "name": "Native Intel",
+          "conclusion": "success",
+          "started_at": "2026-11-17T13:38:24Z",
+          "completed_at": "2026-11-17T14:01:05Z",
+          "runner_id": 1000060451,
+          "labels": [
+            "macos-15-intel"
+          ],
+          "stepCount": 37
+        },
+        {
+          "id": 134078685910,
+          "name": "Native ARM64",
+          "conclusion": "cancelled",
+          "started_at": "2026-11-17T13:38:15Z",
+          "completed_at": "2026-11-17T13:57:57Z",
+          "runner_id": 0,
+          "labels": [
+            "macos-15"
+          ],
+          "stepCount": 0
+        }
+      ]
+    },
+    "feedback": {
+      "runID": 44094716041,
+      "conclusion": "success",
+      "attempt": 1,
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44094716041",
+      "jobs": [
+        {
+          "id": 134078684113,
+          "name": "Feedback native and service",
+          "conclusion": "success",
+          "started_at": "2026-11-17T13:43:18Z",
+          "completed_at": "2026-11-17T13:48:14Z",
+          "runner_id": 1000060458,
+          "labels": [
+            "macos-15"
+          ],
+          "stepCount": 11
+        },
+        {
+          "id": 134078684577,
+          "name": "Feedback source admission",
+          "conclusion": "success",
+          "started_at": "2026-11-17T13:38:18Z",
+          "completed_at": "2026-11-17T13:38:40Z",
+          "runner_id": 1000060449,
+          "labels": [
+            "ubuntu-latest"
+          ],
+          "stepCount": 6
+        }
+      ]
+    }
+  },
+  "officialRawSHA256": {
+    "native-final-run.json": "12598fb0913430cd061e8f907202a18fffd994de22088ccaf57f930e616f8926",
+    "feedback-final-run.json": "d351cd55f963303d08866923452650c839365937538bba48c0054d9c90113c34",
+    "native-final-jobs.json": "b88af4aefe6fa853a37250feebb5a994e5387ec76aade8843f65d6704efbbc52",
+    "feedback-final-jobs.json": "0c844f1ef0467af939901982e48d473e5096c94867d1184fc0cd86f284ac75d2",
+    "arm-cancel-annotations.json": "a4a6203b1652b322f659022dccd518aab28dbc13afdd6ff65dea058fdee96bdd",
+    "verified-merge-commit.raw": "336457c2e55b1037f31a9a70ad14d6d6890395915fdf1aa6314bec16f9103575"
+  },
+  "arm64Annotations": [
+    "The job was not acquired by Runner of type hosted even after multiple attempts",
+    "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.",
+    "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.",
+    "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times."
+  ]
+}

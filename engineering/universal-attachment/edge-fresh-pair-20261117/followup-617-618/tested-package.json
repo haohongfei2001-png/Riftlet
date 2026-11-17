@@ -1,0 +1,129 @@
+{
+  "source": "0e0ae7fa0b17a72190b8ad08f995048148f31d39",
+  "sourceTree": "7feafbe3586d26487bb1fd1e65b513f3aa1be43d",
+  "buildChannel": "isolated-product-acceptance",
+  "bundleIdentifier": "com.riftlet.isolated-product-acceptance",
+  "shortVersion": "1.0.3",
+  "buildVersion": "25",
+  "executableSHA256": "7819726ae4afd6bfcfc8b7fc2819842fe46f42a490e4c6ed4f00d571322dac96",
+  "nativeInputTreesSHA256": "eb232197b773133dee5f48edc7fa081b257be2f640cf820f76bf4445797bcd2f",
+  "packageArchiveSHA256": "d8463a36f03ea3c96d057c90910578274f3f943994445e3a3297502683a1d63b",
+  "packageArchiveBytes": 18647040,
+  "signature": {
+    "architectures": {
+      "arm64": {
+        "cdhash": "338e8fbabce33720983b57c33018a89dd8ed8c53",
+        "timestamp": "Nov 17, 2026 at 21:26:11"
+      }
+    },
+    "entitlements": {
+      "com.apple.security.automation.apple-events": true
+    },
+    "hardenedRuntime": true,
+    "sparkle": {
+      "Contents/Frameworks/Sparkle.framework": {
+        "architectures": {
+          "arm64": {
+            "cdhash": "ae42037a97a325f27c7127f2deb5be785b22e7a4",
+            "timestamp": "Nov 17, 2026 at 21:26:09"
+          },
+          "x86_64": {
+            "cdhash": "0c93b8c5ae0707a3424b3c14a5243f7f0ac2f386",
+            "timestamp": "Nov 17, 2026 at 21:26:07"
+          }
+        },
+        "entitlements": {},
+        "hardenedRuntime": true,
+        "teamID": "ZB9D4T66QB"
+      },
+      "Contents/Frameworks/Sparkle.framework/Versions/B/Autoupdate": {
+        "architectures": {
+          "arm64": {
+            "cdhash": "b0511e41fffdb5bdc010ca05a62f0f795d48563a",
+            "timestamp": "Nov 17, 2026 at 21:26:01"
+          },
+          "x86_64": {
+            "cdhash": "8cbcd06cfa631798946b788e09ea830aa1cf9c00",
+            "timestamp": "Nov 17, 2026 at 21:26:00"
+          }
+        },
+        "entitlements": {},
+        "hardenedRuntime": true,
+        "teamID": "ZB9D4T66QB"
+      },
+      "Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app": {
+        "architectures": {
+          "arm64": {
+            "cdhash": "0dcab7f829797e76d0be4b7150459a305e29dd54",
+            "timestamp": "Nov 17, 2026 at 21:26:07"
+          },
+          "x86_64": {
+            "cdhash": "3c72551b060f07d1eecd05faeecfcc27a06df78f",
+            "timestamp": "Nov 17, 2026 at 21:26:02"
+          }
+        },
+        "entitlements": {},
+        "hardenedRuntime": true,
+        "teamID": "ZB9D4T66QB"
+      },
+      "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Downloader.xpc": {
+        "architectures": {
+          "arm64": {
+            "cdhash": "df77cd033b0f8a0a557fa563c07e5537d79e6f8b",
+            "timestamp": "Nov 17, 2026 at 21:25:57"
+          },
+          "x86_64": {
+            "cdhash": "d09608494be3cf2f844b00fabc995c140eea1319",
+            "timestamp": "Nov 17, 2026 at 21:25:57"
+          }
+        },
+        "entitlements": {},
+        "hardenedRuntime": true,
+        "teamID": "ZB9D4T66QB"
+      },
+      "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Installer.xpc": {
+        "architectures": {
+          "arm64": {
+            "cdhash": "9a49e482423ddec111b806b6a762c55dd4c36087",
+            "timestamp": "Nov 17, 2026 at 21:25:56"
+          },
+          "x86_64": {
+            "cdhash": "bcda479b790137c2d132cd6027cb81cb5a99cbfe",
+            "timestamp": "Nov 17, 2026 at 21:25:56"
+          }
+        },
+        "entitlements": {},
+        "hardenedRuntime": true,
+        "teamID": "ZB9D4T66QB"
+      }
+    },
+    "teamID": "ZB9D4T66QB"
+  },
+  "notarization": "NOT_RUN",
+  "gatekeeper": "NOT_RUN",
+  "normalAppLaunch": {
+    "birth": "1794922516:947425",
+    "executableSHA256": "7819726ae4afd6bfcfc8b7fc2819842fe46f42a490e4c6ed4f00d571322dac96",
+    "kernelPID": 27773,
+    "knownRuntime": "20261117-0e0ae7fa0b",
+    "launchServices": true,
+    "pid": 27773,
+    "procInfoLength": 136,
+    "source": "0e0ae7fa0b17a72190b8ad08f995048148f31d39",
+    "terminated": false
+  },
+  "signedArtifactAndLaunchSourcesSHA256": {
+    "actual-launch.json": "05e5018622ee11200d5d139c8389e9d51e149790ed6f7f13dc46b730c584e340",
+    "signed-package-receipt.json": "0502392df8fbecb8aaabac585b12ee287553437dbae9b91fa4523689fae1d3c6",
+    "queue-before.json": "1618fa45585db5a0c9a912e7d3015f4074980553e6cb6c1cf9258896a7d0b619",
+    "queue-after.json": "0eec62298df6834e908192553a552c2a1a3f97ba85e82ee4a697c32191e01038",
+    "verify-deep-strict.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "privateDatabaseBeforeAndAfterLaunch": {
+    "assets": 20,
+    "operations": 11,
+    "starts": 4,
+    "mediaCompared": 20,
+    "integrity": "ok"
+  }
+}

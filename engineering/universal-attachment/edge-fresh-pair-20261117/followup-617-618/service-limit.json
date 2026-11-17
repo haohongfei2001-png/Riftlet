@@ -1,0 +1,81 @@
+{
+  "reviewer": "independent_checkpoint_5bd",
+  "scope": "Exact 617/618 operation names and native snapshots, protected original 200-entry official DevTools export, and the original bound first-party draft's late read-only accessibility notice.",
+  "harBytes": 14549084,
+  "completeEntries": 200,
+  "harSHA256": "535a8db87bd87725f9234e78da8fbe6e54c40df2820856b81818a6500fddf693",
+  "perFileProjectionSHA256": "8c76d7b69655b4e26acd84b6d6fdffb0dc5d1146ff514fa26ff22296b58b6c0e",
+  "beforeUTC": "2026-11-17T13:42:51.155342+00:00",
+  "outcomeUTC": "2026-11-17T13:43:36.653242+00:00",
+  "caseInsensitiveExactOriginalNameInRequestURLOrBody": {
+    "617": [],
+    "618": []
+  },
+  "recognizedFirstPartyFileEndpointInTrialWindow": [],
+  "recordedEntriesInOriginalWindow": [
+    {
+      "index": 195,
+      "status": 202,
+      "ordinaryFileEndpoint": false,
+      "firstPartyExactHost": true
+    }
+  ],
+  "perFile": [
+    {
+      "fixture": 617,
+      "originalPNGBytes": 1406130,
+      "originalPNGSHA256": "b998c430aae7abd8bbf73e0abe5a3648184cdbbb4300345f304f9661a0257b64",
+      "operationUUIDLowercaseSHA256": "569971936618f4212d7b1485522cebd4a4b657dc49624b836c05b94c2462f81a",
+      "operationFilenameSHA256": "5221677c1c7650b73ee7e6e96c97e20862af6832b11c2382627d42558bd51a9c",
+      "nativeAttempts": 1,
+      "originalDraftOperationFilenameCount": 0,
+      "durableProductSTARTs": 0,
+      "namedFirstPartyRequestIndices": [],
+      "matchingCreates": [],
+      "assignedPUTs": [],
+      "sameFileProcessing": [],
+      "sameFileControlledTerminalSignals": [],
+      "terminal": "UNKNOWN_NO_MATCHED_CREATION_OR_ASSIGNMENT"
+    },
+    {
+      "fixture": 618,
+      "originalPNGBytes": 1407109,
+      "originalPNGSHA256": "139cb2688a344296fcf70654a1e457a56759415c8bbd8816ac9cafa5818543d4",
+      "operationUUIDLowercaseSHA256": "39b63e1595635f3b9f9004ed50e7809bfedc1fce35332b7c44c989fdc100398e",
+      "operationFilenameSHA256": "1d7648f01be8d258c9bcf454450653242747dc9136a6b0f3f3ded815a50e5cbd",
+      "nativeAttempts": 1,
+      "originalDraftOperationFilenameCount": 0,
+      "durableProductSTARTs": 0,
+      "namedFirstPartyRequestIndices": [],
+      "matchingCreates": [],
+      "assignedPUTs": [],
+      "sameFileProcessing": [],
+      "sameFileControlledTerminalSignals": [],
+      "terminal": "UNKNOWN_NO_MATCHED_CREATION_OR_ASSIGNMENT"
+    }
+  ],
+  "sameDraftServiceNotice": {
+    "originalAXEvidenceSHA256": "b50ae2fcbb20720a434bfc49917ecc204cb99fb2bc8016b1d5f8c846bd309bd1",
+    "timeUTC": "2026-11-17T13:53:17Z",
+    "sameNearestAXGroup": true,
+    "oneHeadingInsideGroup": true,
+    "allThreeNodesIntersectedOriginalWindow": true,
+    "heading": "你已达到文件附件数量限制",
+    "body": "请于 11月18日 21:33 后重试",
+    "closeControl": "关闭文件附件数量限制提示",
+    "scope": "UNSPECIFIED",
+    "fileCountLimitVisible": true,
+    "specificMessageScopeOrAccountScopeSpecified": false,
+    "modelMentionInThisNotice": false,
+    "displayedRetryAfter": "11月18日 21:33",
+    "timezoneOrServerUnlockInferred": false,
+    "controlPressed": false,
+    "nodeCountInExaminedBranch": 6
+  },
+  "earlier615And616DetailsEqualToOriginal191EntryReport": true,
+  "earlierProjectionFromThis200EntryHARSHA256": "d0d97160db30f3ca49562cb4bd73950a882ea1036208e056cb30316402fb1bdc",
+  "limits": [
+    "Neither case had a matching first-party create, matched storage PUT, processing request or file-specific rejection/terminal in the recorded HAR. The explicit file-count notice and literal retry-after time apply to its displayed scope; the UI does not state the complete account or single-message scope, the timezone, or the cause for an individual file.",
+    "The first-party countdown text was captured later than the clicks. It does not prove an HTTP 429 or a specific subsequent reset. The prior 615 same-file processing response continues to lack a recoverable body in this export."
+  ]
+}
