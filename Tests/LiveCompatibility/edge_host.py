@@ -124,9 +124,9 @@ def system_capture_digest(path, marker_wait=10):
         raise RuntimeError("capture_file_read_error") from None
 
 
-def verify_capture_geometry(image_hash, size, bounds, previous):
-    if bounds:
-        width, height = map(int, bounds.split(",")[-2:])
+def verify_capture_geometry(image_hash, size, expected_points, previous):
+    if expected_points:
+        width, height = expected_points
         if size[0] < width or size[1] < height or size[0] * height != size[1] * width:
             raise RuntimeError("region_pixel_shape_mismatch")
     if previous and (image_hash == previous[0] or size == previous[1]):
@@ -534,6 +534,8 @@ def exercise(app, report):
         adapters = REPO / "Sources/RiftletAdapters"
         command("swiftc", main_source, *(adapters / (name + ".swift") for name in AX_HOST_SOURCES),
                 "-o", helper, timeout=120)
+        source_capture = root / "neutral-window-capture"
+        command("swiftc", HERE / "NeutralWindowCapture.swift", "-o", source_capture, timeout=120)
         number_check = command(helper, "mouseNumberSelfCheck", check=False)
         if number_check.returncode == 77 and number_check.stdout.decode().strip() == "EVENT_SOURCE_UNAVAILABLE":
             report["result"] = "NOT_RUN_EVENT_SOURCE_UNAVAILABLE"
@@ -696,19 +698,18 @@ def exercise(app, report):
                                                      edge_birth, product_birth, url)
             captures = []
             dbfile = ROOT / "queue.sqlite"
-            # A page animation frame can be acknowledged before WindowServer changes
-            # the pixels of a window capture. Take a full window and a smaller,
-            # unobscured region of that same window. Never rewrite a system PNG.
+            # Select the click destination independently of screenshot composition.
+            # Capture the original browser window and a neutral window owned by
+            # the test. Full-window captures use those exact WindowServer IDs.
             capture_sizes = []
 
-            def region_bounds(index):
-                region = ui("region", index, window)
+            def region_bounds():
+                region = ui("region", expected_window=window)
                 if region.returncode == 2:
                     raise RuntimeError("unobscured_original_edge_region_unproven")
                 region.check_returncode()
                 bounds = region.stdout.decode().strip()
-                shape = "128,72" if index == 0 else "160,96"
-                if not re.fullmatch(r"-?\d+,-?\d+," + shape, bounds):
+                if not re.fullmatch(r"-?\d+,-?\d+,128,72", bounds):
                     raise RuntimeError("invalid_region_geometry")
                 return bounds
 
@@ -719,40 +720,44 @@ def exercise(app, report):
                     wait_for(lambda: i in draft.observed, "neutral_second_frame_unconfirmed")
                 if selected_window() != window:
                     raise RuntimeError("original_edge_window_changed")
-                bounds = region_bounds(i) if i else None
+                expected_points = (160, 96) if i else None
                 # Stage explicit output outside the watched source until ownership,
                 # geometry and OS provenance are confirmed. Rename preserves xattrs.
                 path = root / f"Neutral-{i}.png"
-                options = ["-R" + bounds] if bounds else ["-o", "-l" + window]
-                if bounds:
-                    report["systemRegionCaptureAttempts"] += 1
-                command("/usr/sbin/screencapture", "-x", "-t", "png", *options, path)
-                if selected_window() != window or (bounds and region_bounds(i) != bounds):
-                    raise RuntimeError("capture_owner_or_visibility_changed")
+                if i:
+                    result = command(source_capture, path, check=False)
+                    report["sourceWindowCaptureExit"] = result.returncode
+                    receipt = result.stdout.strip()
+                    if receipt in {b"NONACTIVATING_POLICY_UNAVAILABLE", b"SCREEN_CAPTURE_ACCESS_UNAVAILABLE",
+                                   b"SOURCE_WINDOW_IDENTITY_UNAVAILABLE", b"SOURCE_PIXELS_UNVERIFIED"}:
+                        report["sourceWindowObservation"] = receipt.decode("ascii")
+                    if result.returncode or receipt != b"OWNED_WINDOW_TWO_SWATCHES_VERIFIED":
+                        raise RuntimeError("owned_neutral_window_capture_unproven")
+                    report["secondCaptureSource"] = "OWN_PROCESS_WINDOW_TWO_SWATCHES_VERIFIED"
+                else:
+                    command("/usr/sbin/screencapture", "-x", "-t", "png", "-o", "-l" + window, path)
+                if selected_window() != window:
+                    raise RuntimeError("original_edge_window_changed")
                 image_hash, marked, size = system_capture_digest(path)
                 report["generatedScreenshotFiles"] += 1
                 staged = marked
                 if not marked:
-                    if not bounds:
-                        report["windowCapturesWithoutMarker"] += 1
+                    report["windowCapturesWithoutMarker"] += 1
+                    if i:
+                        raise RuntimeError("owned_neutral_capture_missing_os_marker")
                     # Apple -p uses the account's verified capture preferences.
                     # Only a unique new OS file is eligible for this fallback.
-                    expected_assets = {d for d, _ in captures}
-                    def prior_imports_ready():
-                        actual = set(read_assets(dbfile))
-                        if actual - expected_assets:
-                            raise RuntimeError("unmarked_input_import_or_unknown_queue_state")
-                        return actual == expected_assets
-
-                    wait_for(prior_imports_ready, "prior_capture_import_unproven")
+                    if read_assets(dbfile):
+                        raise RuntimeError("unmarked_input_import_or_unknown_queue_state")
                     if not default_file_capture_target(source):
                         raise RuntimeError("default_file_destination_unverified")
                     previous_files = set(source.iterdir())
-                    bounds = region_bounds(i)
+                    bounds = region_bounds()
+                    expected_points = (128, 72)
                     report["stage"] = f"default_system_region_{i + 1}"
                     report["systemRegionCaptureAttempts"] += 1
                     command("/usr/sbin/screencapture", "-p", "-x", "-t", "png", "-R" + bounds)
-                    if region_bounds(i) != bounds:
+                    if region_bounds() != bounds:
                         raise RuntimeError("region_owner_or_visibility_changed")
                     path = wait_for(lambda: sole_new_png(source, previous_files), "default_output_not_observed")
                     image_hash, marked, size = system_capture_digest(path)
@@ -763,7 +768,7 @@ def exercise(app, report):
                         raise RuntimeError("default_capture_missing_os_marker")
                     report["regionOutcome"] = "DEFAULT_CAPTURE_PNG_WITH_OS_MARKER"
                 previous = (captures[0][0], capture_sizes[0]) if captures else None
-                verify_capture_geometry(image_hash, size, bounds, previous)
+                verify_capture_geometry(image_hash, size, expected_points, previous)
                 if staged:
                     destination = source / path.name
                     if os.path.lexists(destination):

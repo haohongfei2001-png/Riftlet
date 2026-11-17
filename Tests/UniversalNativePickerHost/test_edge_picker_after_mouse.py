@@ -16,16 +16,16 @@ class IndependentPickerTests(unittest.TestCase):
     def test_distinct_system_capture_geometry(self):
         first = ("first", (1000, 800))
         for size in [(160, 96), (320, 192)]:
-            helper.verify_capture_geometry("second", size, "23,41,160,96", first)
+            helper.verify_capture_geometry("second", size, (160, 96), first)
         # Metadata-only differences and duplicate PNGs cannot prove two frames.
         with self.assertRaisesRegex(RuntimeError, "two_distinct_captures_unproven"):
             helper.verify_capture_geometry("different-metadata", first[1], None, first)
         with self.assertRaisesRegex(RuntimeError, "two_distinct_captures_unproven"):
-            helper.verify_capture_geometry(first[0], (160, 96), "23,41,160,96", first)
+            helper.verify_capture_geometry(first[0], (160, 96), (160, 96), first)
         for wrong_size in [(160, 100), (80, 48)]:
             with self.assertRaisesRegex(RuntimeError, "region_pixel_shape_mismatch"):
-                helper.verify_capture_geometry("second", wrong_size, "23,41,160,96", first)
-        helper.verify_capture_geometry("second", (320, 192), "23,41,160,96", ("first", (256, 144)))
+                helper.verify_capture_geometry("second", wrong_size, (160, 96), first)
+        helper.verify_capture_geometry("second", (320, 192), (160, 96), ("first", (256, 144)))
 
     def mouse_pair(self, asset, window, tag, event_number, sequence):
         return [dict(event="selection_boundary", source="mouse", targetRequested=True, assetIDDigest=asset,

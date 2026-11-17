@@ -1,0 +1,16 @@
+{
+  "scope": "LOCAL_MAC_OWNED_NEUTRAL_SOURCE_WINDOW_ONLY",
+  "macOS": "27.0",
+  "architecture": "arm64",
+  "sourceSHA256": "faef54ff362548229334658fe7ac7fc458119bc0fced98b153211ac5d97cb85c",
+  "helperExecutableSHA256": "05ee41302fe896a046bd9ffd10bbd02249cf8fbc492d8b3a90411660d12a68af",
+  "captureCommand": "/usr/sbin/screencapture -x -t png -o -l <own-window> <private-output>",
+  "helperReceipt": "OWNED_WINDOW_TWO_SWATCHES_VERIFIED",
+  "systemCaptureMarker": true,
+  "originalPNGBytes": 6238,
+  "originalPNGSHA256": "aa12505e07a61a6434ed6661ef3e857cec3a59492ba6fef4b693278e55da346c",
+  "pixelWidth": 320,
+  "pixelHeight": 192,
+  "ordinaryRiftletClicks": 0,
+  "commercialUpload": "NOT_RUN"
+}
