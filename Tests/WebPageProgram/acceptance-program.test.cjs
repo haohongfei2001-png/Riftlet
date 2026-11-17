@@ -767,5 +767,9 @@ test('a retained v18 watch can report its own error but conflicting labels veto 
  registry.operations.get(a.identity.operationID).failureWatch={binding:new WeakRef(registry.current),card:new WeakRef(card),portalParent:null};
  card.setAttribute('data-state','failed'); assert.equal(f.observe(a).state,'failed');
  card.querySelector('img').setAttribute('alt',b.name); accepted(f,a);
+ card.querySelector('img').setAttribute('alt',a.name);
+ const otherComposer=f.form.append(new f.Node('section'));
+ otherComposer.setAttribute('data-chatgpt-composer','');
+ otherComposer.append(card); accepted(f,a);
  assert.equal(f.setters,1); assert.equal(f.sends,0);
 });
