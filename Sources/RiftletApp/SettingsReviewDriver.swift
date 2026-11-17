@@ -925,9 +925,10 @@ final class SettingsReviewDriver {
         try require(host.center.window.frame.size == size, "reopenLostWindowSize")
         if let screen = host.center.window.screen, screen.visibleFrame.width >= 900 {
             host.center.window.setContentSize(NSSize(width: 900, height: 580))
-            await settle()
-            try require(document.frame.width <= 768 + 1 && document.frame.width >= 720,
+            try await wait { abs((self.host.center.window.contentView?.bounds.width ?? 0) - 900) <= 1 }
+            try require(abs(document.frame.width - 768) <= 1 && abs(scroll.convert(scroll.bounds, to: host.center.window.contentView).midX - 450) <= 1,
                         "readingColumnWidthDidNotStayBounded")
+            await settle(450)
             await capture("settings-wide-reading-column", window: host.center.window)
         }
         host.center.window.setFrame(original, display: true)

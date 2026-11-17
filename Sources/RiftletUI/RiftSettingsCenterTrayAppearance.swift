@@ -43,7 +43,7 @@ extension RiftSettingsCenterController {
         }
         reset.setAccessibilityLabel(ProductCopy.text("恢复默认背景透明度", "Restore Default Background Transparency"))
         let ends = SettingsNativeStyle.stack([SettingsNativeStyle.label(ProductCopy.text("更清晰", "Clearer"), role: "secondary"), NSView(),
-                                               SettingsNativeStyle.label(ProductCopy.text("更通透", "More Transparent"), role: "secondary")], vertical: false, spacing: 0)
+                                               SettingsNativeStyle.label(ProductCopy.text("更通透", "Lighter"), role: "secondary")], vertical: false, spacing: 0)
         let scale = SettingsNativeStyle.stack([slider, ends], spacing: 2)
         ends.widthAnchor.constraint(equalTo: slider.widthAnchor).isActive = true
         let swatches = SettingsNativeStyle.stack([], vertical: false, spacing: 4)

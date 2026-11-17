@@ -180,8 +180,9 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     }
 
     func buildWindow() {
-        let root = NSView(frame: NSRect(origin: .zero, size: SettingsNativeStyle.settingsSize))
-        window.contentView = root
+        let canvas = SettingsWindowCanvas(frame: NSRect(origin: .zero, size: SettingsNativeStyle.settingsSize))
+        let root = canvas.column
+        window.contentView = canvas
         let nav = SettingsNativeStyle.stack([], vertical: false, spacing: 8)
         for page in SettingsPage.allCases {
             let button = makeButton(page.title, id: "nav.\(page.rawValue)") { [weak self] in self?.navigate(to: page) }
@@ -209,8 +210,6 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
             view.translatesAutoresizingMaskIntoConstraints = false
             root.addSubview(view)
         }
-        let width = scroll.widthAnchor.constraint(equalTo: root.widthAnchor)
-        width.priority = .defaultHigh
         NSLayoutConstraint.activate([
             nav.centerXAnchor.constraint(equalTo: root.centerXAnchor),
             nav.topAnchor.constraint(equalTo: root.topAnchor, constant: 8),
@@ -219,9 +218,8 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
             pageHeading.leadingAnchor.constraint(equalTo: scroll.leadingAnchor, constant: 24),
             pageHeading.topAnchor.constraint(equalTo: rule.bottomAnchor, constant: 16),
             scroll.topAnchor.constraint(equalTo: pageHeading.bottomAnchor, constant: 4),
-            scroll.centerXAnchor.constraint(equalTo: root.centerXAnchor),
-            scroll.widthAnchor.constraint(lessThanOrEqualTo: root.widthAnchor),
-            scroll.widthAnchor.constraint(lessThanOrEqualToConstant: 768), width,
+            scroll.leadingAnchor.constraint(equalTo: root.leadingAnchor),
+            scroll.trailingAnchor.constraint(equalTo: root.trailingAnchor),
             scroll.bottomAnchor.constraint(equalTo: root.bottomAnchor),
             footerStatus.trailingAnchor.constraint(equalTo: scroll.trailingAnchor, constant: -24),
             footerStatus.leadingAnchor.constraint(greaterThanOrEqualTo: pageHeading.trailingAnchor, constant: 12),
@@ -624,4 +622,27 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
         allowClose = true; window.close(); allowClose = false
     }
 
+}
+
+
+/// Content can grow vertically while the window size stays under user control.
+@MainActor private final class SettingsWindowCanvas: NSView {
+    let column = NSView()
+
+    override init(frame: NSRect) {
+        super.init(frame: frame)
+        addSubview(column)
+        sizeColumn()
+    }
+    required init?(coder: NSCoder) { nil }
+
+    override func resizeSubviews(withOldSize oldSize: NSSize) {
+        super.resizeSubviews(withOldSize: oldSize)
+        sizeColumn()
+    }
+
+    private func sizeColumn() {
+        let width = min(bounds.width, 768)
+        column.frame = NSRect(x: (bounds.width - width) / 2, y: 0, width: width, height: bounds.height)
+    }
 }
