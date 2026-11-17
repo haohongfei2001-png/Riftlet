@@ -1,4 +1,6 @@
-# Codex工程交接：Riftlet质量收口
+# Codex工程交接：Riftlet质量收口（历史记录）
+
+> 2026-11-18：当前任务已转到 [1.0.5开工入口](../releases/1.0.5/CODEX_HANDOFF.md)。下文只记录1.0.2相关工作及原当时下一步；不作为当前待办，不重复实施已完成修复。
 
 本文件是官网部署前的已审检查点；[最终公网发行与实际更新回执](https://github.com/haohongfei2001-png/Riftlet/pull/101#issuecomment-6879797338)在原 PR 按真实执行结果持续更新。
 
