@@ -759,3 +759,13 @@ test('an unlabelled original File preview still supports its own explicit card f
  const error=f.observe(op); assert.equal(error.state,'failed'); assert.equal(error.attachmentID,start.attachmentID);
  assert.equal(error.automaticRetryExcluded,false); assert.equal(f.setters,1); assert.equal(f.sends,0);
 });
+
+test('a retained v18 watch can report its own error but conflicting labels veto that hint', () => {
+ const f=fixture(), a=f.bind(), b=f.bind(); f.stage(a); f.commit(a);
+ const card=f.document.querySelectorAll('[data-file-name]').find(n=>n.getAttribute('data-file-name')===a.name);
+ const registry=vm.runInContext('globalThis.__riftletIndependentFileInput20261104',f.context);
+ registry.operations.get(a.identity.operationID).failureWatch={binding:new WeakRef(registry.current),card:new WeakRef(card),portalParent:null};
+ card.setAttribute('data-state','failed'); assert.equal(f.observe(a).state,'failed');
+ card.querySelector('img').setAttribute('alt',b.name); accepted(f,a);
+ assert.equal(f.setters,1); assert.equal(f.sends,0);
+});

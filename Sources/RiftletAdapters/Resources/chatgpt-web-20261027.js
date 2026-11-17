@@ -785,7 +785,8 @@ function riftletWebAcceptance(command, native) {
     // v18 watches in an already-open document used only data-file-name and
     // the card itself. Preserve that read path without expanding its evidence.
     if (view.namedCard === undefined) {
-      return declared === op.name && ['error', 'failed'].includes(card.getAttribute('data-state'));
+      return declared === op.name && ['error', 'failed'].includes(card.getAttribute('data-state'))
+        && consistentCardLabels(card, op.name);
     }
     if (view.parent.deref() !== card.parentElement || (!view.portalParent && !inOriginalCardContainer(card, binding))) return false;
     if (view.namedCard ? declared !== op.name : declared !== null && declared !== op.name) return false;
