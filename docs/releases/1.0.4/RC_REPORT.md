@@ -56,3 +56,5 @@
 - 独立源码审查的字面报告与散列记录在本开发 PR 的直接准入提交 `engineering/mainline/source-admission.json`；五项检查以该 PR 的 **Checks** 为准。规划 PR 的绿灯单独保留。GitHub 主线的分支保护状态应从远端核对；本次没有提交至 main。关联工作 [#106](https://github.com/haohongfei2001-png/Riftlet/issues/106)、[#107](https://github.com/haohongfei2001-png/Riftlet/issues/107)、[#108](https://github.com/haohongfei2001-png/Riftlet/issues/108)、[#82](https://github.com/haohongfei2001-png/Riftlet/issues/82)、[#97](https://github.com/haohongfei2001-png/Riftlet/issues/97)。
 
 两次应用内升级、直接安装和其后截图的原始回执散列见[隔离 Mac 升级与安装记录](evidence/signed-rc/upgrade.json)。独立查看 GUI、时间线和原文件时可使用相同散列定位私有材料。
+
+首次实施 CI 在编译偏好回归测试时失败。Swift 的单 `#` 原始字符串被 fixture 中的 `"#00aaff"` 提前结束。修复扩大了该测试字面量的分隔符，保留完全相同的 JSON 输入与断言。对本次改过的每个 Swift 测试文件重新执行了编译器语法解析；正式结果取修复后的 PR head。签名 App 的产品输入没有变化。[首次 Native 记录](https://github.com/haohongfei2001-png/Riftlet/actions/runs/44052651629) · [首次 Feedback 记录](https://github.com/haohongfei2001-png/Riftlet/actions/runs/44052651646)。

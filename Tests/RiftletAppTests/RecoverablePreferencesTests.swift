@@ -52,7 +52,7 @@ final class RecoverablePreferencesTests: XCTestCase {
     @MainActor func testLiveAppearanceThenUnrelatedSavePreservesOpaqueSibling() throws {
         _ = NSApplication.shared
         for (input, colorEdited) in [(#"{"trayBackgroundTransparency":{"future":3}}"#, true),
-                                    (#"{"trayCameraBodyColor":"#00aaff"}"#, false)] {
+                                    (##"{"trayCameraBodyColor":"#00aaff"}"##, false)] {
             try Data(input.utf8).write(to: layout)
             let prefs = load()
             let panel = RiftPanelController(mediaDirectory: root, configuration: prefs.layout, onSelect: { _ in })
