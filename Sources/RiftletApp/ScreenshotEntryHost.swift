@@ -29,6 +29,7 @@ final class ScreenshotEntryHost {
     private var editorID: UUID?
     private var cancelling = false
     private var closed = false
+    var hasOutstandingCapture: Bool { capture.isActive || editor != nil || !imports.isEmpty }
     private var finishingForExit = false
     private var deferredUpdateCheck: (@MainActor () -> Void)?
     private var imports: [UUID: Task<Void, Never>] = [:]
@@ -271,11 +272,10 @@ final class ScreenshotEntryHost {
                 guard let self else { return false }
                 do {
                     if derivative == nil {
-                        derivative = try await self.importer.saveBuiltInMarkup(data, original: result.sourceURL,
-                            outputDirectory: self.outputDirectory)
+                        derivative = try await self.importer.saveOwnedMarkup(data, original: result.sourceURL)
                     }
                     guard let derivative else { return false }
-                    _ = try await self.importer.importBuiltInScreenshot(original: derivative, outputDirectory: self.outputDirectory)
+                    _ = try await self.importer.collectOwnedCapture(derivative)
                     await self.onChange()
                     return true
                 } catch { return false }
@@ -298,7 +298,7 @@ final class ScreenshotEntryHost {
     }
 
     private func collect(_ result: InteractiveScreenshotCapture) {
-        let importer = self.importer, directory = outputDirectory
+        let importer = self.importer
         // A completed exposure owns a saved original. Its durable import may
         // finish after the feature is disabled; it never restarts capture or
         // changes a setting. Unfinished exposures are cancelled by the engine.
@@ -309,14 +309,13 @@ final class ScreenshotEntryHost {
                 // Origin records who initiated the capture, not which encoder
                 // happened to write an xattr. Built-in originals and derivatives
                 // must never borrow the system-screenshot admission profile.
-                _ = try await importer.importBuiltInScreenshot(original: result.sourceURL,
-                    outputDirectory: directory)
+                _ = try await importer.collectOwnedCapture(result.sourceURL)
                 guard let self, !self.closed else { return }
                 await self.onChange()
                 self.configure()
             } catch {
                 guard let self, !self.closed else { return }
-                self.onIssue("截图原文件已保留，暂未加入裂缝。请检查可用存储空间后重试。")
+                self.onIssue("截图尚未收录。请打开“设置 → 截图 → 管理”找回。")
             }
         }
     }

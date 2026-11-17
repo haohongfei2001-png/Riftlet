@@ -42,7 +42,7 @@ final class SQLiteDatabase {
                 fallthrough
             case "3":
                 try migrateDispatchSlots()
-            case "4":
+            case "4", "5":
                 break
             default:
                 throw RiftletError.database("Unsupported schema version \(version); database preserved")
@@ -58,7 +58,7 @@ final class SQLiteDatabase {
                 // Older collectors cannot interpret volume-qualified source keys.
                 // Commit this format boundary before the production store can
                 // hand out an importer, recover a journal, or write a checkpoint.
-                if mode == .production && version != "4" {
+                if mode == .production && version != "4" && version != "5" {
                     try execute("PRAGMA user_version = 4")
                 }
             }

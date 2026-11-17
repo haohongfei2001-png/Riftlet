@@ -68,6 +68,8 @@ public actor QueueStore {
             guard !selectionReservations.contains(id),
                   try !database.rows("SELECT 1 FROM assets WHERE id=? AND visibility_revision=? AND " + cleanablePredicate,
                                      [id.uuidString, String(revision)]).isEmpty else { throw RiftletError.invalidTransition }
+            // A 1.0.4 opener must refuse before recovering deliberately moved copies as missing.
+            if mode == .production { try database.execute("PRAGMA user_version = 5") }
             try database.execute("INSERT INTO retired_media(asset_id,batch) VALUES(?,?)", [id.uuidString, batch.uuidString])
         }
     }

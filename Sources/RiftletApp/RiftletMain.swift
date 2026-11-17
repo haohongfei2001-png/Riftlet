@@ -138,6 +138,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var pauseItem: NSMenuItem?
     private var archiveItem: NSMenuItem?
     private var store: QueueStore?
+    private var mediaManager: MediaManagerWindow?
+    private var mediaMaintenanceTask: Task<Void, Never>?
     private var capture: CaptureService?
     private var sourceBinding: CaptureSourceBinding?
     private var transfer: TransferCoordinator?
@@ -353,6 +355,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         selectionSubmissions.stop()
         frozenPress?.target.cancel(); frozenPress = nil
         if let archiveWakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(archiveWakeObserver) }
+        mediaMaintenanceTask?.cancel()
+        mediaManager?.close()
         screenshotEntry?.close()
         arrivalCapture?.close()
         rift?.close()
@@ -624,6 +628,26 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         } else {
             statusLine?.title = simulation ? "SIMULATION · synthetic images only · no ChatGPT input"
                 : "WEB ACCEPTANCE · generated images · real Chrome input"
+        }
+        if let importer = startupCapture?.importer {
+            do {
+                try await importer.initializeRetention(newProfile: newProfile)
+                try await importer.cleanEmptyReservations()
+            } catch { showIssue(ProductCopy.text("请在截图设置中检查本地资料。", "Check local files in Screenshot settings.")) }
+            mediaMaintenanceTask = Task { [weak self] in
+                do { try await importer.reconcileInterruptedMoves() }
+                catch { self?.showIssue(ProductCopy.text("请检查待恢复的截图。", "Check screenshots awaiting recovery.")) }
+                while !Task.isCancelled {
+                    do {
+                        let rule = try await importer.retention()
+                        if rule.days > 0 {
+                            let due = try await importer.cleanupItems(rule: rule)
+                            if !due.isEmpty { try await importer.cleanup(due, automatic: true); await self?.refresh() }
+                        }
+                    } catch { self?.showIssue(ProductCopy.text("截图整理未完成，请打开管理。", "Screenshot cleanup needs attention in Manage.")) }
+                    do { try await Task.sleep(nanoseconds: 86_400_000_000_000) } catch { return }
+                }
+            }
         }
         updateControlTitles()
         startArchiveScheduler()
@@ -1917,6 +1941,17 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     @objc private func openGeometry() {
         guard let root else { return }; NSWorkspace.shared.open(root.appendingPathComponent("rift-configuration.json"))
     }
+    private func showMediaManager() {
+        guard let importer = capture?.importer else { return }
+        if mediaManager == nil {
+            mediaManager = MediaManagerWindow(importer: importer,
+                captureBusy: { [weak self] in self?.screenshotEntry?.hasOutstandingCapture ?? true },
+                changed: { [weak self] in await self?.refresh(); self?.checkStorage() })
+        }
+        mediaManager?.present()
+        checkStorage()
+    }
+
     @objc private func checkStorage() {
         guard let root, storageMeasurement == nil else { return }
         storageLine?.title = "正在检查私有存储…"

@@ -45,6 +45,7 @@ public actor PrivateAssetImporter {
     public let mediaDirectory: URL
     private let stagingDirectory: URL
     private let journalDirectory: URL
+    var mediaMaintenanceActive = false
     private var importing = Set<String>()
     private var journaledSources = Set<String>()
     private var outstandingRecoveryIDs = Set<UUID>()
