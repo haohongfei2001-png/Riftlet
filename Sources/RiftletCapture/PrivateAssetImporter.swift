@@ -4,14 +4,16 @@ import Darwin
 import RiftletCore
 
 public struct CaptureRecoveryReport: Sendable {
+    var deferredManifests: [URL] = []
     public var adopted: Int = 0
     public var missing: [UUID] = []
     public var invalid: [UUID] = []
 }
 
-private struct ImportManifest: Codable {
+struct ImportManifest: Codable {
     let version: Int
     let image: ImportedAsset
+    var externalSource: URL?
 }
 
 /// Internal deterministic fault seams. Production construction leaves the hook nil.
@@ -38,7 +40,7 @@ typealias ImportFaultHook = @Sendable (ImportBoundaryContext) throws -> Void
 /// Durable staging -> durable manifest -> atomic media rename -> SQLite insert.
 /// The original screenshot is never moved, modified or deleted.
 public actor PrivateAssetImporter {
-    private let store: QueueStore
+    let store: QueueStore
     public let privateRoot: URL
     public let mediaDirectory: URL
     private let stagingDirectory: URL
@@ -163,7 +165,7 @@ public actor PrivateAssetImporter {
                                       pixelHeight: result.height, mediaType: result.mimeType,
                                       capturedAt: nil, firstSeenAt: firstSeenAt, origin: origin)
             // File birthtime is useful for scan order, but is not mislabeled as capture time.
-            let manifest = ImportManifest(version: 1, image: image)
+            let manifest = ImportManifest(version: 1, image: image, externalSource: origin == .systemScreenshot ? url.standardizedFileURL : nil)
             let manifestURL = journalDirectory.appendingPathComponent(id.uuidString.lowercased() + ".json")
             let mediaURL = mediaDirectory.appendingPathComponent(fileName)
             let commitProbe: ((ImportBoundary) throws -> Void)? = hook.map { callback in
@@ -193,11 +195,11 @@ public actor PrivateAssetImporter {
     /// Adopt only journaled, identity-checked private copies. Unjournaled staging fragments
     /// are left inert; directory listing alone is never treated as proof of a complete import.
     @discardableResult
-    public func recover() async throws -> CaptureRecoveryReport {
+    public func recover(deferringColdHistory: Bool = false) async throws -> CaptureRecoveryReport {
         try ensureDirectories()
         let manifests = try FileManager.default.contentsOfDirectory(at: journalDirectory,
             includingPropertiesForKeys: [.isRegularFileKey, .isSymbolicLinkKey], options: [.skipsHiddenFiles])
-        var report = try await recoverManifests(manifests)
+        var report = try await recoverManifests(manifests, deferringColdHistory: deferringColdHistory)
         for record in try await store.assets(includeUsed: true) {
             rememberEarlierEvidence(record.image)
             guard Self.isValidBasename(record.image.fileName) else { continue }
@@ -233,8 +235,16 @@ public actor PrivateAssetImporter {
         return report
     }
 
-    private func recoverManifests(_ manifests: [URL], verifyUsedMedia: Bool = false) async throws -> CaptureRecoveryReport {
+    func verifyDeferredManifest(_ url: URL) async throws -> CaptureRecoveryReport {
+        let report = try await recoverManifests([url])
+        outstandingRecoveryIDs.formUnion(report.invalid + report.missing)
+        return report
+    }
+
+    private func recoverManifests(_ manifests: [URL], verifyUsedMedia: Bool = false,
+                                  deferringColdHistory: Bool = false) async throws -> CaptureRecoveryReport {
         var report = CaptureRecoveryReport()
+        let retired = Set(try await store.retiredMedia().map(\.id))
         for url in manifests where url.pathExtension == "json" {
             do {
                 let attrs = try url.resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey, .fileSizeKey])
@@ -247,6 +257,7 @@ public actor PrivateAssetImporter {
                       asset.fileName.hasPrefix(asset.id.uuidString.lowercased() + ".") else {
                     throw CaptureError.invalidManifest
                 }
+                if retired.contains(asset.id) { continue }
                 rememberEarlierEvidence(asset)
                 let mediaURL = mediaDirectory.appendingPathComponent(asset.fileName)
                 let stageURL = stagingDirectory.appendingPathComponent(asset.id.uuidString.lowercased() + ".part")
@@ -262,6 +273,11 @@ public actor PrivateAssetImporter {
                     // Skip routine hashing of used history at startup. A previously reported
                     // missing or invalid file must match its original bytes before clearing the issue.
                     if existing.status == .used && !verifyUsedMedia { continue }
+                    if deferringColdHistory, existing.status == .pending,
+                       existing.activeOperationID == nil, existing.visibility != .visible {
+                        report.deferredManifests.append(url)
+                        continue
+                    }
                     try PrivateFiles.verifyPreviouslyValidatedMedia(candidate, asset: asset, signature: current)
                     if existing.status == .missing { try await store.restoreMissingAsset(asset.id) }
                     continue

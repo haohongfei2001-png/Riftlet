@@ -111,6 +111,23 @@ final class RecoveryValidationTests: XCTestCase {
         }
     }
 
+    func testColdVerificationFindsEqualSizeCorruptionAfterStartup() async throws {
+        let fixture = try Fixture()
+        defer { fixture.close() }
+        let record = try await fixture.importImage()
+        try await fixture.store.removeFromQueue(record.id)
+        var bytes = fixture.bytes
+        bytes[bytes.count / 2] ^= 1
+        try bytes.write(to: fixture.media(record.image))
+        let startup = try await fixture.importer.recover(deferringColdHistory: true)
+        XCTAssertEqual(startup.deferredManifests, [fixture.journal(record.image)])
+        let verified = try await fixture.importer.verifyDeferredManifest(fixture.journal(record.image))
+        XCTAssertEqual(verified.invalid, [record.id])
+        let stored = try await fixture.store.asset(id: record.id)
+        XCTAssertEqual(stored?.status, .missing)
+        XCTAssertEqual(stored?.visibility, .removed)
+    }
+
     func testStartupCheckWithoutSourceAndRechecksAfterStopUseOriginalHash() async throws {
         let f = try Fixture(); defer { f.close() }
         let record = try await f.importImage()
