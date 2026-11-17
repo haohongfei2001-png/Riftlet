@@ -712,7 +712,9 @@ function riftletWebAcceptance(command, native) {
   function captureFailureWatch(op, accepted, matches) {
     if (typeof WeakRef !== 'function') return;
     const filename = fileNamePattern(op.name), views = [], cards = new Set();
-    for (const node of [accepted, ...matches]) {
+    // Secondary views are optional. A busy document cannot enlarge the
+    // post-START scan beyond 16 candidates or the retained set beyond four.
+    for (const node of [accepted, ...matches.slice(0, 16)]) {
       const card = node.closest(cardSelector);
       if (!card || cards.has(card)) continue;
       const local = inOriginalCardContainer(card, op.binding);
