@@ -371,9 +371,9 @@
     },
     {
       "caseID": "REL-04",
-      "result": "PASS",
+      "result": "NOT_RUN",
       "mode": "SIGNED_INSTALL",
-      "observation": "Real 1.0.2(24) to 26 on guest per-user Applications. Shared /Applications admin challenge and denial not exercised on this path."
+      "observation": "Per-user 1.0.2 to 1.0.4 real installation and preservation PASS. Remaining entire shared /Applications admin challenge, authorization denial or interrupted download matrix NOT_RUN."
     },
     {
       "caseID": "REL-05",

@@ -1,6 +1,6 @@
 # Riftlet 1.0.4 验收与发行候选门槛
 
-基线 **B=`3f8149e2313fd81bbaee5a7bbbdbb1efca2fc81b`**；包身份见[BASELINE.md](BASELINE.md)。本页是未来1.0.4的执行标准，未执行的格均为 **NOT_RUN**。任务编号对应[IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)的T00–T10，外观值以[DESIGN_SPEC.md](DESIGN_SPEC.md)为准。
+基线 **B=`3f8149e2313fd81bbaee5a7bbbdbb1efca2fc81b`**；包身份见[BASELINE.md](BASELINE.md)。本页是规划时制定的执行标准。当前逐项结果及证据见[私有候选报告](RC_REPORT.md)。任务编号对应[IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)的T00–T10，外观值以[DESIGN_SPEC.md](DESIGN_SPEC.md)为准。
 
 ## 1. 证据不能跨级代替
 

@@ -2,7 +2,9 @@
   "currentWork": {
     "asOf": "2026-11-17 Asia/Shanghai",
     "version": "1.0.4",
-    "phase": "DESIGN_AND_IMPLEMENTATION_PLAN_READY_APP_NOT_IMPLEMENTED",
+    "phase": "PRIVATE_RC_SIGNED_UPGRADES_VERIFIED_PUBLIC_RELEASE_BLOCKED",
+    "candidateBuild": 26,
+    "candidateReport": "docs/releases/1.0.4/RC_REPORT.md",
     "baseline": "3f8149e2313fd81bbaee5a7bbbdbb1efca2fc81b",
     "entry": "docs/releases/1.0.4/CODEX_HANDOFF.md",
     "tracker": "https://github.com/haohongfei2001-png/Riftlet/issues/106",
