@@ -10,7 +10,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
     private static let observationQueue = DispatchQueue(label: "com.riftlet.apple-events-observation", qos: .utility)
     private let relays = MainWorldRelayStore()
     private let trace: ChromeBridgeTrace
-    private var routes: [String: ChromeClickRoute] = [:]
+    private var routes = ChromeSessionCache<ChromeClickRoute>()
     private var lastForegroundChrome: ChromeProcessIdentity?
     private var activationObserver: NSObjectProtocol?
 
@@ -57,9 +57,10 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                   target.adapterID == "chatgpt-web", target.surface == .webChat,
                   target.applicationID == "com.google.Chrome", target.sessionID == identity.session,
                   target.windowID == route.window, target.tabID == route.tab,
+                  target.historyConversationID == nil || target.historyConversationID == route.historyConversationID,
                   !target.documentID.isEmpty, !target.composerID.isEmpty, !target.draftGeneration.isEmpty,
                   let self else { throw WebAdapterError.invalidTarget }
-            self.routes[target.stableKey] = route
+            self.routes.store(route, for: target.stableKey)
             return target
         }
     }
@@ -103,7 +104,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
               }), let identity = ChromeProcessIdentity.read(pid: application.processIdentifier),
               let tab = target.tabID, let windowNumber = Int64(target.windowID), windowNumber > 0,
               let tabNumber = Int64(tab), tabNumber > 0 else { throw WebAdapterError.invalidTarget }
-        let route = routes[target.stableKey]
+        let route = routes.value(for: target.stableKey)
         if ChromeCommandRouting.requiresSelectionCheck(command.action), route == nil {
             throw WebAdapterError.invalidTarget
         }

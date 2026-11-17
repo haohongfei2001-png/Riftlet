@@ -109,7 +109,12 @@ public actor TransferCoordinator {
     private var inputExecutions = Set<UUID>()
     // Only this process's new file inputs may be observed. Existing database
     // operations are immutable history, never upgraded, retried or reconciled.
-    private var currentFileInputs = Set<UUID>()
+    private struct InputWatch {
+        var reads = 0
+        var due: TimeInterval = 0
+    }
+    private var currentFileInputs: [UUID: InputWatch] = [:]
+    private let observationClock: @Sendable () -> TimeInterval
     /// A prepared slot may survive a failed database transaction after the
     /// last running call returned. Such a slot is durable state, not work to wait for.
     public var hasInFlightAttachmentWork: Bool {
@@ -123,8 +128,10 @@ public actor TransferCoordinator {
                 onSelectionSettled: @escaping @Sendable (UUID) async -> Void = { _ in },
                 onAcceptedSelectionSettled: @escaping @Sendable (AcceptedSelection) async -> Void = { _ in },
                 maximumPendingSelections: Int = 12,
+                observationClock: @escaping @Sendable () -> TimeInterval = { ProcessInfo.processInfo.systemUptime },
                 onAcceptedSelectionFinished: @escaping @Sendable (UUID) async -> Void = { _ in },
                 validateAcceptedSelection: @escaping @Sendable (AcceptedSelection) async -> Bool = { _ in false }) {
+        self.observationClock = observationClock
         self.store = store; self.adapter = adapter; self.mediaDirectory = mediaDirectory
         self.policy = policy; self.onChange = onChange; self.onSelectionSettled = onSelectionSettled
         self.onAcceptedSelectionSettled = onAcceptedSelectionSettled
@@ -261,7 +268,12 @@ public actor TransferCoordinator {
                 }
             }
             if let op = originalOperation {
-                if op.phase == .unknown || op.phase == .compensated { try await reconcile(op) }
+                if op.phase == .unknown || op.phase == .compensated {
+                    if usesIndependentFileInput, try await store.ownsDispatchedOperation(op.id, ownerID: dispatchOwnerID) {
+                        currentFileInputs[op.id] = InputWatch()
+                    }
+                    try await reconcile(op)
+                }
                 await onChange()
                 selecting.remove(assetID); ownsSelection = false; settled = true
                 await settleSelection(assetID, accepted: accepted)
@@ -442,7 +454,7 @@ public actor TransferCoordinator {
             do {
                 if usesIndependentFileInput {
                     try await store.markIndependentFileInputIntent(id, selection: accepted, ownerID: dispatchOwnerID)
-                    currentFileInputs.insert(id)
+                    currentFileInputs[id] = InputWatch()
                 } else {
                     try await store.markDispatchIntent(id, selection: accepted, ownerID: dispatchOwnerID)
                 }
@@ -540,9 +552,7 @@ public actor TransferCoordinator {
         do {
             let receipt = try await append()
             _ = try await store.apply(receipt, policy: policy)
-            if usesIndependentFileInput, try await store.uploadStartReceipt(for: id) != nil {
-                currentFileInputs.remove(id)
-            }
+
             if let invocationID = committedRequest.invocationID {
                 try await store.recordAppendReturned(receipt, invocationID: invocationID, ownerID: dispatchOwnerID)
             }
@@ -554,7 +564,7 @@ public actor TransferCoordinator {
             do {
                 guard rejection.operationID == id else { throw RiftletError.mismatchedReceipt }
                 try await store.recordPreInputRejection(rejection)
-                currentFileInputs.remove(id)
+                currentFileInputs.removeValue(forKey: id)
             }
             catch { try await store.markUnknown(id, reason: "Invalid pre-input proof; original operation retained") }
         } catch {
@@ -580,41 +590,58 @@ public actor TransferCoordinator {
     private func reconcile(_ op: TransferOperation) async throws {
         guard op.target.adapterID == adapter.id else { throw RiftletError.adapterUnavailable("Original adapter is unavailable") }
         if usesIndependentFileInput {
-            guard currentFileInputs.contains(op.id), try await store.uploadStartReceipt(for: op.id) == nil else { return }
+            guard currentFileInputs[op.id] != nil else { return }
         }
         guard activeAppends[op.id] == nil, observing.insert(op.id).inserted else { return }
         defer { observing.remove(op.id) }
         let original = try await request(for: op)
         let receipt = try await adapter.reconcile(original)
-        _ = try await store.apply(receipt, policy: policy)
-        if usesIndependentFileInput, try await store.uploadStartReceipt(for: op.id) != nil {
-            currentFileInputs.remove(op.id)
+        if usesIndependentFileInput {
+            // A past START stays immutable. Only an error explicitly attached to
+            // that same original member can change its latest status.
+            if let start = try await store.uploadStartReceipt(for: op.id) {
+                guard receipt.hasError, receipt.belongsToOriginalDraft,
+                      receipt.attachmentID != nil, receipt.attachmentID == start.attachmentID,
+                      [.unknown, .definitiveFailure].contains(receipt.outcome) else { return }
+            }
+            guard try await store.receipt(for: op.id) != receipt else { return }
+        }
+        let updated = try await store.apply(receipt, policy: policy)
+        if usesIndependentFileInput, updated.status == .failed {
+            currentFileInputs.removeValue(forKey: op.id)
         }
         await onChange()
         try await drain()
     }
 
-    /// Bounded, round-robin observation of the same uncertain inputs. Normal
-    /// file input reads only operations created by this coordinator and stops
-    /// after START. Observation never grants or denies another screenshot.
+    /// A bounded set of single reads of current-process operations. Navigation,
+    /// permission loss, and elapsed time never certify termination or re-input.
     public func observePending(limit: Int = 8,
         authorize: @Sendable (TargetLease) async -> Bool = { _ in true }) async throws {
-        let candidates: [TransferOperation]
         if usesIndependentFileInput {
-            var pending: [TransferOperation] = []
-            for id in currentFileInputs {
-                if let op = try await store.operation(id: id),
-                   [.inputTriggered, .attachmentPresent, .unknown, .compensated].contains(op.phase) {
-                    pending.append(op)
+            let now = observationClock()
+            let due = currentFileInputs.filter { $0.value.due <= now && activeAppends[$0.key] == nil }
+                .sorted { $0.value.due == $1.value.due ? $0.key.uuidString < $1.key.uuidString : $0.value.due < $1.value.due }
+                .prefix(max(0, min(32, limit)))
+            for (id, var watch) in due {
+                guard !Task.isCancelled else { return }
+                watch.reads += 1
+                watch.due = now + min(120, 5 * pow(2, Double(watch.reads - 1)))
+                currentFileInputs[id] = watch
+                defer { if watch.reads >= 8 { currentFileInputs.removeValue(forKey: id) } }
+                guard let op = try await store.operation(id: id), op.phase.isUnresolved else {
+                    currentFileInputs.removeValue(forKey: id)
+                    continue
                 }
+                guard await authorize(op.target), !Task.isCancelled else { continue }
+                // The original durable receipt survives an inaccessible tab.
+                // Transport failure consumes only this read's time budget.
+                try? await reconcile(op)
             }
-            candidates = pending.sorted {
-                $0.createdAt == $1.createdAt ? $0.id.uuidString < $1.id.uuidString : $0.createdAt < $1.createdAt
-            }
-        } else {
-            candidates = try await store.unresolvedOperations().filter {
-                $0.target.adapterID == adapter.id && [.inputTriggered, .attachmentPresent, .unknown, .compensated].contains($0.phase)
-            }
+            return
+        }
+        let candidates = try await store.unresolvedOperations().filter {
+            $0.target.adapterID == adapter.id && [.inputTriggered, .attachmentPresent, .unknown, .compensated].contains($0.phase)
         }
         guard !candidates.isEmpty else { observationCursor = 0; return }
         let count = max(0, min(limit, min(32, candidates.count)))

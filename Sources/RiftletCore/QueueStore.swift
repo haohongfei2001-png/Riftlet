@@ -314,6 +314,7 @@ public actor QueueStore {
         guard !key.isEmpty, key.utf8.count <= 256, data.count <= 64 * 1024 else {
             throw RiftletError.invalidAsset("Checkpoint exceeds its bounded contract")
         }
+        if let existing = try checkpoint(for: key) { return existing }
         return try database.transaction {
             try database.execute("INSERT OR IGNORE INTO checkpoints(key,value) VALUES(?,?)", [key, data.base64EncodedString()])
             guard let saved = try checkpoint(for: key) else { throw RiftletError.database("Missing first checkpoint") }
@@ -499,6 +500,11 @@ public actor QueueStore {
         return try JSONDecoder().decode(DispatchCallRecord.self, from: data)
     }
     public func dispatchInvocationID(for id: UUID) throws -> UUID? { try dispatchCall(id)?.invocationID }
+    func ownsDispatchedOperation(_ id: UUID, ownerID: UUID) throws -> Bool {
+        guard let call = try dispatchCall(id) else { return false }
+        return call.version == 1 && call.operationID == id && call.ownerID == ownerID
+    }
+
     public func inputExecutionIsActive(for id: UUID) throws -> Bool {
         try dispatchCall(id)?.inputExecutionReturned == false
     }

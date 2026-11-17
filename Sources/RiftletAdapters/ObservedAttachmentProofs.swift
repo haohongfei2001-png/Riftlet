@@ -147,7 +147,7 @@ enum ObservedAttachmentProofs {
                 "assetSHA256", "target", "invocationID", "attachmentID"])
             let target = try fields(binding["target"], allowed: ["adapterID", "surface", "applicationID",
                 "sessionID", "windowID", "tabID", "documentID", "composerID", "draftGeneration",
-                "logicalDraftIdentity", "clickBindingID"])
+                "logicalDraftIdentity", "clickBindingID", "historyConversationID"])
             if let logical = target["logicalDraftIdentity"] {
                 _ = try fields(logical, allowed: ["profileID", "id"])
             }

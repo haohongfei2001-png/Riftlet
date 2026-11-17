@@ -13,6 +13,7 @@ function riftletWebAcceptance(command, native) {
   const fail = code => { throw Error(code); };
   const uuid = value => typeof value === 'string' && /^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i.test(value);
   const sameTarget = (a, b) => !!a && !!b && targetKeys.every(k => a[k] === b[k])
+    && (a.historyConversationID || '').toLowerCase() === (b.historyConversationID || '').toLowerCase()
     && (a.clickBindingID || null) === (b.clickBindingID || null);
   const sameIdentity = (a, b) => !!a && !!b && a.operationID === b.operationID
     && a.assetID === b.assetID && a.attempt === b.attempt && a.assetSHA256 === b.assetSHA256
@@ -140,7 +141,7 @@ function riftletWebAcceptance(command, native) {
     fail('AMBIGUOUS_COMPOSER');
   }
   const blank = (identity, state = 'unknown') => ({schemaVersion: 2,
-    provenance: {source: 'integratedDevelopment', evidenceID: 'screenshot-handoff-20261105-v17'},
+    provenance: {source: 'integratedDevelopment', evidenceID: 'screenshot-observation-20261118-v18'},
     observation: {identity, state, exactImageIdentity: false, belongsToOriginalDraft: false,
       hasError: false, isUploading: false, attachmentAbsent: false, automaticRetryExcluded: false}});
   let registry = globalThis[KEY];
@@ -175,11 +176,31 @@ function riftletWebAcceptance(command, native) {
         URL.createObjectURL = function (file) {
           const value = Reflect.apply(original, this, arguments);
           const operation = state.files.get(file);
-          if (operation && !operation.start) operation.urls.add(value);
+          if (operation && !operation.discarded && !operation.start) operation.urls.add(value);
           return value;
         };
       } catch { /* Preview attribution is optional, never an input permit. */ }
     }
+  }
+  // Timers are created by one document-scoped function, so timer closures
+  // cannot capture individual input commands, staged bytes, or composer locals.
+  if (registry && !registry.scheduleRetirement) {
+    registry.scheduleRetirement = (operations, id, operation) => {
+      const idleBudget = 10 * 60 * 1000;
+      operation.lastActivity = Date.now();
+      function expire() {
+        const remaining = operation.lastActivity + idleBudget - Date.now();
+        if (remaining > 0 || operation.executionPending) {
+          setTimeout(expire, Math.max(5000, remaining))?.unref?.();
+          return;
+        }
+        operation.discarded = true; operation.chunks = [];
+        operation.binding = null; operation.failureWatch = null;
+        operation.urls.clear(); operation.baseline.clear(); operation.previewBaseline = null;
+        operations.set(id, {committed: true});
+      }
+      setTimeout(expire, idleBudget)?.unref?.();
+    };
   }
   const nodeID = node => {
     if (!registry.nodeIDs.has(node)) registry.nodeIDs.set(node, 'node-' + (++registry.nextNode));
@@ -708,8 +729,13 @@ function riftletWebAcceptance(command, native) {
     op.start = {version: 1, signal: 'attachmentAccepted', evidenceID: crypto.randomUUID(), inputCount: 1,
       inputSequence: op.inputSequence, startSequence: tick(), previousProgress: 0, currentProgress: 0,
       inputObservedAtMS: op.inputTime, startObservedAtMS: Math.max(op.inputTime, performance.now())};
-    // This handoff is finished. No load/progress/COMPLETE watcher owns resources.
-    op.baseline.clear(); op.previewBaseline = null; op.urls.clear();
+    // A retained, same-name card may subsequently expose a local failure. Weak
+    // references cannot keep a detached composer, input, or attachment alive.
+    const card = accepted.closest('[data-file-name]');
+    if (card?.getAttribute('data-file-name') === op.name && typeof WeakRef === 'function') {
+      op.failureWatch = {card: new WeakRef(card), binding: new WeakRef(op.binding)};
+    }
+    op.binding = null; op.baseline.clear(); op.previewBaseline = null; op.urls.clear();
   }
   function observe(op) {
     sample(op);
@@ -732,6 +758,16 @@ function riftletWebAcceptance(command, native) {
       item.state = 'uploadStarted'; item.belongsToOriginalDraft = true;
       item.attachmentID = op.attachmentID; item.exactImageIdentity = true;
       item.uploadStart = {...op.start};
+      const watch = op.failureWatch, card = watch?.card.deref(), original = watch?.binding.deref();
+      // Require the actual accepted node, same named file, original connected
+      // composer and local explicit error state. A toast, another card, a
+      // removal or navigation cannot turn a handoff into a failed upload.
+      if (card?.isConnected && card.getAttribute('data-file-name') === op.name
+          && original?.form.contains(card) && sameDraft(original)
+          && ['error', 'failed'].includes(card.getAttribute('data-state'))) {
+        item.state = 'failed'; item.hasError = true;
+        delete item.uploadStart;
+      }
     }
     return result;
   }
@@ -740,8 +776,11 @@ function riftletWebAcceptance(command, native) {
         || !native.windowID || !native.tabID) fail('NATIVE_CONTEXT_REQUIRED');
     const parts = composer();
     if (!validDraft(registry.current) || registry.current.editor !== parts.editor) {
+      const address = new URL(route());
+      const id = address.origin === 'https://chatgpt.com' && /^\/c\/([^/]+)\/?$/.exec(address.pathname)?.[1];
       registry.current = {...parts, route: route(), navigation: registry.navigation,
         target: {adapterID: 'chatgpt-web', surface: 'webChat', ...native,
+          ...(uuid(id) ? {historyConversationID: id.toUpperCase()} : {}),
           documentID: registry.documentID, composerID: nodeID(parts.editor) + ':' + nodeID(parts.form),
           draftGeneration: crypto.randomUUID()}};
     }
@@ -767,6 +806,7 @@ function riftletWebAcceptance(command, native) {
       committed: false, discarded: false, inputCount: 0, changeReturned: false, retirement: null,
       baseline: new Set(), urls: new Set(), start: null};
     registry.operations.set(identity.operationID, op);
+    registry.scheduleRetirement(registry.operations, identity.operationID, op);
     return acknowledgement(op, 0);
   }
   if (!op || !sameIdentity(op.identity, identity)) {
@@ -776,7 +816,7 @@ function riftletWebAcceptance(command, native) {
   if (command.action === 'observe') return observe(op);
   if (command.invocationID !== op.invocationID) fail('INVOCATION_MISMATCH');
   if (command.action === 'discard') {
-    if (!op.committed) { op.chunks = []; op.discarded = true; }
+    if (!op.committed) { op.chunks = []; op.discarded = true; op.binding = null; }
     return {discarded: !op.committed, inputCount: op.inputCount};
   }
   if (command.action === 'chunk') {
@@ -785,7 +825,7 @@ function riftletWebAcceptance(command, native) {
         || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(command.chunkBase64)) fail('CHUNK_REFUSED');
     const bytes = Uint8Array.from(atob(command.chunkBase64), character => character.charCodeAt(0));
     if (!bytes.length || bytes.length > MAX_CHUNK_BYTES || op.received + bytes.length > op.size) fail('CHUNK_REFUSED');
-    op.chunks.push(bytes); op.received += bytes.length; op.nextChunk++;
+    op.lastActivity = Date.now(); op.chunks.push(bytes); op.received += bytes.length; op.nextChunk++;
     return acknowledgement(op, op.nextChunk);
   }
   if (command.action !== 'commit') fail('UNKNOWN_ACTION');
@@ -798,6 +838,7 @@ function riftletWebAcceptance(command, native) {
     }
     if (header.length !== 8 || header.some((byte, index) => byte !== signature[index])) fail('INVALID_FILE');
   }
+  op.lastActivity = Date.now();
   op.committed = true; // Once-only before every possible file-input side effect.
   const diag = op.entryDiagnostics = {version: 1, entryCandidates: 0, entryActivations: 0,
     openedContainers: 0, menuActivations: 0, pickerClicks: 0, pickerShows: 0,
@@ -806,7 +847,8 @@ function riftletWebAcceptance(command, native) {
   const retire = (reason, stage, cause) => {
     op.chunks = []; op.retirement = reason; op.executionPending = false;
     diag.stage = stage; diag.cause = cause;
-    return observe(op);
+    const result = observe(op); op.binding = null;
+    return result;
   };
   if (!validDraft(op.binding)) return retire('targetInvalidBeforeInput', 'prepare', 'targetChanged');
   if (registry.busy.has(op.binding.form)) return retire('inputExecutionBusy', 'prepare', 'executionBusy');

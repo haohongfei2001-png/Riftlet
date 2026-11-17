@@ -87,34 +87,34 @@ struct MainWorldCommandRelay: Sendable {
 /// historical relay. Observation never creates a relay or captures a new target.
 final class MainWorldRelayStore: @unchecked Sendable {
     private let lock = NSLock()
-    private var values: [String: MainWorldCommandRelay] = [:]
-    private var targetRelays: [String: MainWorldCommandRelay] = [:]
+    private var values = ChromeSessionCache<MainWorldCommandRelay>()
+    private var targetRelays = ChromeSessionCache<MainWorldCommandRelay>()
     func bind(_ relay: MainWorldCommandRelay, to target: TargetLease) {
         lock.lock(); defer { lock.unlock() }
-        targetRelays[target.stableKey] = relay
+        targetRelays.store(relay, for: target.stableKey)
     }
     func bound(to target: TargetLease) -> MainWorldCommandRelay? {
         lock.lock(); defer { lock.unlock() }
-        return targetRelays[target.stableKey]
+        return targetRelays.value(for: target.stableKey)
     }
     func adopt(function: String, contextJSON: String, channel: String,
                legacyObservationSession: String?) -> MainWorldCommandRelay? {
         guard let id = UUID(uuidString: channel), id.uuidString.lowercased() == channel else { return nil }
         let key = SHA256.hash(data: Data((function + "\n" + contextJSON).utf8)).map { String(format: "%02x", $0) }.joined()
         lock.lock(); defer { lock.unlock() }
-        if let value = values[key] { return value }
+        if let value = values.value(for: key) { return value }
         let value = MainWorldCommandRelay(function: function, contextJSON: contextJSON,
             legacyObservationSession: legacyObservationSession, channel: channel)
-        values[key] = value
+        values.store(value, for: key)
         return value
     }
     func relay(function: String, contextJSON: String, allowCreate: Bool, legacyObservationSession: String? = nil) -> MainWorldCommandRelay? {
         let key = SHA256.hash(data: Data((function + "\n" + contextJSON).utf8)).map { String(format: "%02x", $0) }.joined()
         lock.lock(); defer { lock.unlock() }
-        if let value = values[key], !allowCreate || legacyObservationSession == nil || value.legacyObservationSession == legacyObservationSession { return value }
+        if let value = values.value(for: key), !allowCreate || legacyObservationSession == nil || value.legacyObservationSession == legacyObservationSession { return value }
         guard allowCreate else { return nil }
         let value = MainWorldCommandRelay(function: function, contextJSON: contextJSON, legacyObservationSession: legacyObservationSession)
-        values[key] = value
+        values.store(value, for: key)
         return value
     }
 }

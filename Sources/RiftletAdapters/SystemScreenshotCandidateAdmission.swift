@@ -76,7 +76,7 @@ public actor SystemScreenshotCandidateAdmission {
               registration.version == (scope.isProduct ? 2 : 1),
               registration.assetOrigin == (scope.isProduct ? scope.origin : nil),
               [SystemScreenshotWebCandidate.sourceID, ChatGPTWebPageProgram.priorEntrySource,
-               ChatGPTWebPageProgram.priorHandoffSource].contains(registration.sourceID),
+               ChatGPTWebPageProgram.priorHandoffSource, ChatGPTWebPageProgram.priorScreenshotSource].contains(registration.sourceID),
               registration.startProfileID == scope.admittedProfile.uploadStartProfileID!,
               registration.completionProfileID == scope.admittedProfile.profileID,
               registration.identity == Self.identity(for: request),
@@ -93,7 +93,7 @@ public actor SystemScreenshotCandidateAdmission {
         }
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
         guard (try? encoder.encode(registration)) == data else { throw WebAdapterError.invalidRequest }
-        if registration.sourceID == SystemScreenshotWebCandidate.sourceID {
+        if [SystemScreenshotWebCandidate.sourceID, ChatGPTWebPageProgram.priorScreenshotSource].contains(registration.sourceID) {
             try scope.validateMetadata(request.asset)
         } else {
             try SystemScreenshotWebCandidate.validateMetadata(request.asset, expectedOrigin: scope.origin)
