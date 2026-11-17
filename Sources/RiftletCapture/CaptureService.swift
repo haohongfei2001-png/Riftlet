@@ -71,7 +71,7 @@ enum CaptureLifecycleCheckpoint: Equatable, Sendable {
 /// metadata / partial writes, and wake or an explicit rescan can retry later.
 public actor CaptureService {
     private let store: QueueStore
-    public let importer: PrivateAssetImporter
+    public nonisolated let importer: PrivateAssetImporter
     private var sourceDirectory: URL
     private let permitsRead: (@Sendable (URL) async -> Bool)?
     private let onChange: @Sendable () async -> Void
