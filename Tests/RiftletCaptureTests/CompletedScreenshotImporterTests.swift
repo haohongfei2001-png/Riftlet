@@ -305,6 +305,15 @@ final class CompletedScreenshotImporterTests: XCTestCase {
         XCTAssertEqual(remaining, [locked.id])
         do { try await reopened.restoreToQueue(archived.id); XCTFail("Stale restore reopened deleted media") }
         catch RiftletError.invalidTransition {}
+        let trashed = trash.appendingPathComponent("Riftlet-" + archived.image.fileName)
+        try corrupt.write(to: trashed)
+        let retired = try await reopened.retiredMedia()
+        let broken = try await second.trashSummary(retired, directory: trash)
+        XCTAssertEqual(broken.recoverable, 0)
+        XCTAssertEqual(broken.damaged, 1)
+        do { try await second.restoreTrash(from: trash); XCTFail("Corrupt trash was reported restored") }
+        catch CaptureError.invalidManifest {}
+        try original.write(to: trashed)
         try await second.restoreTrash(from: trash)
         let after = try await reopened.history()
         XCTAssertEqual(Set(after.map(\.id)), [locked.id, archived.id])
@@ -338,6 +347,26 @@ final class CompletedScreenshotImporterTests: XCTestCase {
         XCTAssertFalse(FileManager.default.fileExists(atPath: empty.path))
         XCTAssertEqual(try Data(contentsOf: complete), bytes)
         XCTAssertFalse(FileManager.default.fileExists(atPath: partial.path))
+        let prepublication = captures.appendingPathComponent(".capture-" + UUID().uuidString.lowercased())
+        let linked = captures.appendingPathComponent(".capture-" + UUID().uuidString.lowercased())
+        for dir in [prepublication, linked] { try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true) }
+        let request = UUID()
+        let staged = prepublication.appendingPathComponent(request.uuidString.lowercased() + ".png")
+        try bytes.write(to: staged)
+        let duplicate = linked.appendingPathComponent(String(url.lastPathComponent.dropFirst()))
+        try FileManager.default.linkItem(at: url, to: duplicate)
+        ActiveCaptureStages.insert(prepublication.lastPathComponent)
+        try await interrupted.cleanAbandonedStaging()
+        XCTAssertTrue(FileManager.default.fileExists(atPath: staged.path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: duplicate.path))
+        ActiveCaptureStages.remove(prepublication.lastPathComponent)
+        try await interrupted.cleanAbandonedStaging()
+        let rescued = InteractiveScreenshotOutput.originalURL(in: captures, captureID: request)
+        let recoveredStages = try await interrupted.pendingOwnedCaptures()
+        XCTAssertEqual(Set(recoveredStages.map(\.lastPathComponent)), [url.lastPathComponent, rescued.lastPathComponent])
+        let helper = PrivateAssetImporter(privateRoot: root, store: first)
+        let stageRecord = try await helper.collectOwnedCapture(rescued)
+        XCTAssertEqual(stageRecord.image.origin, .applicationScreenshot)
         let before = try await interrupted.pendingOwnedCaptures()
         XCTAssertEqual(before.map(\.lastPathComponent), [url.lastPathComponent])
         do { _ = try await interrupted.collectOwnedCapture(url); XCTFail("Fault not reached") }
@@ -352,7 +381,7 @@ final class CompletedScreenshotImporterTests: XCTestCase {
         let after = try await recovered.pendingOwnedCaptures()
         XCTAssertTrue(after.isEmpty)
         let history = try await store.history()
-        XCTAssertEqual(history.map(\.id), [row.id])
+        XCTAssertEqual(Set(history.map(\.id)), [row.id, stageRecord.id])
         XCTAssertEqual(try Data(contentsOf: root.appendingPathComponent("media").appendingPathComponent(row.image.fileName)), bytes)
         XCTAssertFalse(FileManager.default.fileExists(atPath: url.path))
     }

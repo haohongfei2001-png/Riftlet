@@ -76,6 +76,12 @@ public struct RiftControlCenterPresentation {
             detail = SetupIssue.configurationUnavailable.text(in: copy)
             symbol = "exclamationmark.circle"
             recoveryTitle = nil; recoveryPage = nil
+        } else if setup.issue == .mediaMaintenance {
+            state = .attention; title = copy.text("截图整理未完成", "Screenshot Cleanup Needs Attention")
+            detail = SetupIssue.mediaMaintenance.text(in: copy)
+            symbol = "exclamationmark.circle"
+            recoveryTitle = copy.text("管理截图资料", "Manage Screenshot Storage"); recoveryPage = .capture
+            recoveryOverride = .manageMedia
         } else if setup.issue == .pendingCapture {
             state = .attention; title = copy.text("有截图待找回", "A Screenshot Needs Recovery")
             detail = SetupIssue.pendingCapture.text(in: copy)

@@ -138,6 +138,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var pauseItem: NSMenuItem?
     private var archiveItem: NSMenuItem?
     private var store: QueueStore?
+    private var captureMaintenanceIssue = false { didSet { updateSetup() } }
     private var captureNeedsRecovery = false
     private var mediaManager: MediaManagerWindow?
     private var mediaMaintenanceTask: Task<Void, Never>?
@@ -637,14 +638,14 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             do {
                 try await importer.initializeRetention(newProfile: newProfile)
                 try await importer.cleanAbandonedStaging()
-            } catch { showIssue(ProductCopy.text("请在截图设置中检查本地资料。", "Check local files in Screenshot settings.")) }
+            } catch { captureMaintenanceIssue = true }
             mediaMaintenanceTask = Task { [weak self] in
                 do {
                     try await importer.reconcileInterruptedMoves()
                     self?.captureNeedsRecovery = try await !importer.pendingOwnedCaptures().isEmpty
                     self?.updateSetup()
                 }
-                catch { self?.showIssue(ProductCopy.text("请检查待恢复的截图。", "Check screenshots awaiting recovery.")) }
+                catch { self?.captureMaintenanceIssue = true }
                 while !Task.isCancelled {
                     do {
                         let rule = try await importer.retention()
@@ -652,7 +653,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                             let due = try await importer.cleanupItems(rule: rule)
                             if !due.isEmpty { try await importer.cleanup(due, automatic: true); await self?.refresh() }
                         }
-                    } catch { self?.showIssue(ProductCopy.text("截图整理未完成，请打开管理。", "Screenshot cleanup needs attention in Manage.")) }
+                    } catch { self?.captureMaintenanceIssue = true }
                     do { try await Task.sleep(nanoseconds: 86_400_000_000_000) } catch { return }
                 }
             }
@@ -881,7 +882,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         let issue: SetupIssue? = visibilitySettingFailed ? .visibilityPreferenceUnsaved
             : (collectionSettingFailed ? .collectionPreferenceUnsaved
                 : (screenshotEntry?.preferenceSaveFailed == true ? .screenshotPreferenceUnsaved
-                    : (needsSelection ? .screenshotFolderNeedsSelection : (captureDiagnostic.map(ProductStatus.issue) ?? (captureNeedsRecovery ? .pendingCapture : setupIssue)))))
+                    : (needsSelection ? .screenshotFolderNeedsSelection : (captureDiagnostic.map(ProductStatus.issue) ?? (captureNeedsRecovery ? .pendingCapture : (captureMaintenanceIssue ? .mediaMaintenance : setupIssue))))))
         let attachment = mode.attachmentState
         let source = ProductStatus.sourceState(detectedSource: detectedSource, observation: captureStatus,
             systemCollection: mode.collectsSystemScreenshots, paused: captureIsPaused, initialized: initialized)
@@ -1962,6 +1963,18 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         if mediaManager == nil {
             mediaManager = MediaManagerWindow(importer: importer,
                 captureBusy: { [weak self] in self?.screenshotEntry?.hasOutstandingCapture ?? true },
+                retryMaintenance: { [weak self] in
+                    guard let self, self.captureMaintenanceIssue else { return }
+                    try await importer.initializeRetention(newProfile: self.newProfile)
+                    try await importer.cleanAbandonedStaging()
+                    try await importer.reconcileInterruptedMoves()
+                    let due = try await importer.cleanupItems(rule: importer.retention())
+                    if !due.isEmpty { try await importer.cleanup(due, automatic: true) }
+                    self.captureNeedsRecovery = try await !importer.pendingOwnedCaptures().isEmpty
+                    self.captureMaintenanceIssue = false
+                    await self.refresh()
+                },
+                reportFault: { [weak self] in self?.captureMaintenanceIssue = true },
                 changed: { [weak self] in
                     if let pending = try? await importer.pendingOwnedCaptures() { self?.captureNeedsRecovery = !pending.isEmpty }
                     await self?.refresh(); self?.checkStorage()

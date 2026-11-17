@@ -115,11 +115,25 @@ extension PrivateAssetImporter {
         try await cleanup(items, trash: trashDirectory(), automatic: automatic)
     }
 
-    public func recoverableTrashCount() async throws -> Int {
+    public func trashSummary() async throws -> (recoverable: Int, damaged: Int) {
         let records = try await store.retiredMedia()
-        guard !records.isEmpty else { return 0 }
+        guard !records.isEmpty else { return (0, 0) }
         let trash = try trashDirectory()
-        return records.filter { isManagedName($0) && FileManager.default.fileExists(atPath: trashURL(for: $0, directory: trash).path) }.count
+        return try trashSummary(records, directory: trash)
+    }
+
+    func trashSummary(_ records: [AssetRecord], directory: URL) throws -> (recoverable: Int, damaged: Int) {
+        var count = 0, damaged = 0
+        for record in records where isManagedName(record) {
+            let trash = trashURL(for: record, directory: directory)
+            do {
+                let media = mediaDirectory.appendingPathComponent(record.image.fileName)
+                if try PrivateFiles.hashFile(trash) == record.image.sha256,
+                   !FileManager.default.fileExists(atPath: media.path) || (try? PrivateFiles.hashFile(media)) == record.image.sha256 { count += 1 }
+                else { damaged += 1 }
+            } catch CaptureError.io(_, ENOENT) { continue }
+        }
+        return (count, damaged)
     }
 
     public func restoreTrash() async throws { try await restoreTrash(from: trashDirectory()) }
@@ -129,15 +143,21 @@ extension PrivateAssetImporter {
         mediaMaintenanceActive = true
         defer { mediaMaintenanceActive = false }
         try PrivateFiles.ensurePrivateDirectory(mediaDirectory)
+        var failed = false
         for record in try await store.retiredMedia() where isManagedName(record) {
             let media = mediaDirectory.appendingPathComponent(record.image.fileName)
             let trash = trashURL(for: record, directory: directory)
             if !FileManager.default.fileExists(atPath: media.path) {
-                guard (try? PrivateFiles.hashFile(trash)) == record.image.sha256 else { continue }
+                do {
+                    guard try PrivateFiles.hashFile(trash) == record.image.sha256 else { failed = true; continue }
+                } catch CaptureError.io(_, ENOENT) { continue }
+                catch { failed = true; continue }
                 try PrivateFiles.promote(trash, to: media)
             }
             if (try? PrivateFiles.hashFile(media)) == record.image.sha256 { try await store.reinstateMedia(record.id) }
+            else { failed = true }
         }
+        if failed { throw CaptureError.invalidManifest }
     }
 
     public func reconcileInterruptedMoves() async throws {
@@ -200,15 +220,57 @@ extension PrivateAssetImporter {
         try PrivateFiles.ensurePrivateDirectory(captures)
         for dir in try fm.contentsOfDirectory(at: captures, includingPropertiesForKeys: nil) {
             let name = dir.lastPathComponent
-            guard name.hasPrefix(".capture-"), UUID(uuidString: String(name.dropFirst(9))) != nil,
+            guard !ActiveCaptureStages.contains(name), name.hasPrefix(".capture-"), let stageID = UUID(uuidString: String(name.dropFirst(9))),
                   (try dir.resourceValues(forKeys: [.isSymbolicLinkKey])).isSymbolicLink != true else { continue }
-            for file in try fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil) {
-                guard file.pathExtension == "png", UUID(uuidString: file.deletingPathExtension().lastPathComponent) != nil,
-                      let sig = try? FileSignature.read(at: file), sig.size == 0 else { continue }
-                try fm.removeItem(at: file)
-            }
+            try recoverAbandonedCapture(in: dir, captures: captures, stageID: stageID)
             // rmdir fails closed if another entry appeared.
             _ = rmdir(dir.path)
         }
     }
+    private func recoverAbandonedCapture(in stage: URL, captures: URL, stageID: UUID) throws {
+        let flags = O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC
+        let rootFD = Darwin.open(captures.path, flags)
+        guard rootFD >= 0 else { throw CaptureError.io("inspect-captures", errno) }
+        defer { Darwin.close(rootFD) }
+        let stageFD = openat(rootFD, stage.lastPathComponent, flags)
+        guard stageFD >= 0 else { throw CaptureError.io("inspect-capture-stage", errno) }
+        defer { Darwin.close(stageFD) }
+
+        func signature(at name: String, in directory: Int32) throws -> FileSignature {
+            let fd = openat(directory, name, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
+            guard fd >= 0 else { throw CaptureError.io("inspect-capture-file", errno) }
+            defer { Darwin.close(fd) }
+            return try FileSignature.read(descriptor: fd)
+        }
+
+        var info = stat()
+        guard fstat(stageFD, &info) == 0, info.st_uid == geteuid() else { throw CaptureError.privatePathUnsafe }
+        for file in try FileManager.default.contentsOfDirectory(at: stage, includingPropertiesForKeys: nil) {
+            let name = file.lastPathComponent
+            guard file.pathExtension == "png", let requestID = UUID(uuidString: file.deletingPathExtension().lastPathComponent),
+                  let sig = try? signature(at: name, in: stageFD), (try? FileSignature.read(at: file)) == sig else { continue }
+            if sig.size == 0 {
+                // After an abrupt application exit the old system tool can briefly
+                // outlive its parent. Leave recent empty reservations for the next pass.
+                guard Date().timeIntervalSince1970 - Double(sig.modificationSeconds) > 60 else { continue }
+                if unlinkat(stageFD, name, 0) != 0 { throw CaptureError.io("retire-empty-reservation", errno) }
+                continue
+            }
+            guard sig.size <= ValidatedImage.maximumBytes,
+                  (try? ValidatedImage.inspect(file, byteCount: sig.size).mimeType) == "image/png",
+                  try !truncatedPNG(file, length: sig.size), try FileSignature.read(at: file) == sig,
+                  try signature(at: name, in: stageFD) == sig else { continue }
+            var destination = InteractiveScreenshotOutput.originalURL(in: captures, captureID: requestID).lastPathComponent
+            if let published = try? signature(at: destination, in: rootFD) {
+                if published == sig {
+                    guard fsync(rootFD) == 0, unlinkat(stageFD, name, 0) == 0 else { throw CaptureError.io("retire-published-link", errno) }
+                    continue
+                }
+                destination = InteractiveScreenshotOutput.originalURL(in: captures, captureID: stageID).lastPathComponent
+            }
+            guard renameatx_np(stageFD, name, rootFD, destination, UInt32(RENAME_EXCL)) == 0,
+                  fsync(rootFD) == 0, fsync(stageFD) == 0 else { throw CaptureError.io("recover-capture-stage", errno) }
+        }
+    }
+
 }
