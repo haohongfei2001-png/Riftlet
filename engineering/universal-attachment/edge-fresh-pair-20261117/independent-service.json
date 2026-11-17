@@ -1,0 +1,230 @@
+{
+  "reviewer": "independent_checkpoint_5bd",
+  "result": "PASS_TWO_MATCHED_STORAGE_PUTS_BOTH_PROCESSING_FINALS_UNOBSERVED_IN_HAR",
+  "reviewedRuntimeSource": "62ab4b2638f78926a92dd01a0942aa98e72a7614",
+  "reviewedRuntimeTree": "6dda2c9721a026778c287f80ecb6887fb24bef6c",
+  "scope": "Independent offline analysis of a structurally complete standard Edge DevTools HAR, the original signed ordinary product observations, exact AX attachment labels and the frozen isolated SQLite database. The service conclusions here refer to this export, not a fresh transaction or terminal data from another source.",
+  "productReportSHA256": "829cb73acb88224d89d4556af36d3bbf7d348084f1a63b5cd10c3f507cdb58dc",
+  "sealedServiceProjectionSHA256": "fb69ee94acce08861e73f361519815c3d040d01815723be712bf87d836fe7955",
+  "sqliteSnapshotSHA256": "4da7b516ba01f485de42e5b4802d729cb72010906c46d7e4dbb56d1c7e9ddc23",
+  "har": {
+    "sha256": "1b0974cb48d123c0f13d2b76acaea951d02988a4693d66f63e1abed7f3596097",
+    "bytes": 8162985,
+    "completeEntries": 68,
+    "entriesArrayAndOuterObjectClosed": true,
+    "firstRequestUTC": "2026-11-17T04:05:34.643Z",
+    "lastRequestUTC": "2026-11-17T07:47:22.028Z",
+    "rowIndices": "zero-based HAR entry indices"
+  },
+  "perFile": [
+    {
+      "fixture": 612,
+      "operationDigest": "1a2bed6955c5e55c16079e43459e4cf86357879be119f350a2862545fb4c7acc",
+      "originalFilenameCaseSHA256": "3d2559084f871deef8b65a5d8ecb5655aede8d18a2b4aff91873da7518fad8ea",
+      "originalPNGBytes": 1405603,
+      "originalPNGSHA256": "2c2dccd0092652a9cb39a7d5b0601d076192547c4a46dc214a1b20b9d3decdce",
+      "visibleExactlyOnceInFinalDraft": true,
+      "persistedCurrentFileSTART": true,
+      "originalFileIDSHA256": "18b1cb86a43bae665c757d839dabb49aeb23bf8862e0afa338ab218c4a6dc193",
+      "assignedQueryFreeStorageLocatorSHA256": "f92153338296e354f932153b1199aaf7951753f0aa1c4b71fdc553ea14037102",
+      "create": {
+        "index": 56,
+        "httpStatus": 200,
+        "fileNameEqualToExactAXLabelAndOperationName": true,
+        "creationResponse": "success",
+        "requestedFileSize": 1386370,
+        "mime": "image/png"
+      },
+      "storage": {
+        "index": 58,
+        "method": "PUT",
+        "fullAssignedPrivateURLByteIdentical": true,
+        "httpStatus": 201,
+        "etagPresent": true,
+        "contentLength": 1386370,
+        "sameLengthAsCreate": true,
+        "matchingPreflightIndex": 59,
+        "putRequestUTC": "2026-11-17T07:46:40.556Z",
+        "sendStartUTC": "2026-11-17T07:46:42.658+00:00",
+        "sendEndUTC": "2026-11-17T07:46:53.399+00:00",
+        "sendDurationMS": 10741.576,
+        "httpResponseEndUTCApprox": "2026-11-17T07:46:54.426+00:00",
+        "harTextContainsReplacementCharacters": true,
+        "harReportedBodySize": 2537855,
+        "remoteOriginalPNGDigestEstablished": false
+      },
+      "progress": {
+        "validOriginalSamplesInOwnSendWindow": 3,
+        "validOriginalSamplesTotal": 3,
+        "sequences": [
+          104,
+          108,
+          112
+        ],
+        "nativeStartTraceSequence": 112,
+        "estimatedNativeSTARTUTC": "2026-11-17T07:46:43.648+00:00",
+        "millisecondsAfterSendStart": 989.703,
+        "millisecondsBeforeSendEnd": 9751.873,
+        "actualSourcePercentFromDurablePageWitness": [
+          10.63027907412884,
+          11.81142119347649
+        ]
+      },
+      "processing": {
+        "index": 63,
+        "requestUTC": "2026-11-17T07:46:54.429Z",
+        "exactFileIDAndOriginalNameMatched": true,
+        "httpStatus": 200,
+        "responseMime": "text/event-stream",
+        "reportedContentSize": 576,
+        "textFieldPresent": false,
+        "retainedSSEFrames": 0,
+        "terminalFromHAR": "UNKNOWN"
+      },
+      "draftPreparation": {
+        "index": 65,
+        "httpStatus": 200,
+        "requestContainsThisFileID": true,
+        "requestSource": "file_picker",
+        "immediatePreparation": true,
+        "conversationMessageFieldsPresent": false
+      }
+    },
+    {
+      "fixture": 613,
+      "operationDigest": "564f44562def8a1230e8cf05768589ddd1c6aa12968f22632b624d6251382c02",
+      "originalFilenameCaseSHA256": "5b199daa1655b9a16ec7b31a0e65467f3f8cd85dd8c9c6ee9e84fa568ff9094d",
+      "originalPNGBytes": 1406330,
+      "originalPNGSHA256": "046cba3f086c25a8bd7fcc1e7ec4d1e11e7c9f480ba7ce11349d0df790b1b410",
+      "visibleExactlyOnceInFinalDraft": true,
+      "persistedCurrentFileSTART": true,
+      "originalFileIDSHA256": "147236ba0069d7180c302fa12068e432103be8800f70b2133e8ebc0a95547151",
+      "assignedQueryFreeStorageLocatorSHA256": "74ce8ec19d46eb21b438a4763a73b95c3d710ce554d37427351deaec4f229a18",
+      "create": {
+        "index": 60,
+        "httpStatus": 200,
+        "fileNameEqualToExactAXLabelAndOperationName": true,
+        "creationResponse": "success",
+        "requestedFileSize": 1386418,
+        "mime": "image/png"
+      },
+      "storage": {
+        "index": 61,
+        "method": "PUT",
+        "fullAssignedPrivateURLByteIdentical": true,
+        "httpStatus": 201,
+        "etagPresent": true,
+        "contentLength": 1386418,
+        "sameLengthAsCreate": true,
+        "matchingPreflightIndex": 62,
+        "putRequestUTC": "2026-11-17T07:46:42.757Z",
+        "sendStartUTC": "2026-11-17T07:46:43.768+00:00",
+        "sendEndUTC": "2026-11-17T07:46:54.425+00:00",
+        "sendDurationMS": 10657.332,
+        "httpResponseEndUTCApprox": "2026-11-17T07:46:54.872+00:00",
+        "harTextContainsReplacementCharacters": true,
+        "harReportedBodySize": 2538218,
+        "remoteOriginalPNGDigestEstablished": false
+      },
+      "progress": {
+        "validOriginalSamplesInOwnSendWindow": 7,
+        "validOriginalSamplesTotal": 7,
+        "sequences": [
+          120,
+          122,
+          124,
+          126,
+          128,
+          130,
+          132
+        ],
+        "nativeStartTraceSequence": 132,
+        "estimatedNativeSTARTUTC": "2026-11-17T07:46:45.761+00:00",
+        "millisecondsAfterSendStart": 1993.207,
+        "millisecondsBeforeSendEnd": 8664.125,
+        "actualSourcePercentFromDurablePageWitness": [
+          5.905506131628411,
+          15.354315942233871
+        ]
+      },
+      "processing": {
+        "index": 64,
+        "requestUTC": "2026-11-17T07:46:54.877Z",
+        "exactFileIDAndOriginalNameMatched": true,
+        "httpStatus": 200,
+        "responseMime": "text/event-stream",
+        "reportedContentSize": 576,
+        "textFieldPresent": false,
+        "retainedSSEFrames": 0,
+        "terminalFromHAR": "UNKNOWN"
+      },
+      "draftPreparation": {
+        "index": 66,
+        "httpStatus": 200,
+        "requestContainsThisFileID": true,
+        "requestSource": "file_picker",
+        "immediatePreparation": true,
+        "conversationMessageFieldsPresent": false
+      }
+    }
+  ],
+  "timing": {
+    "clockBasis": "Median of independent same-machine UTC minus monotonic anchors recorded during the trial; HAR request start plus nonnegative blocked/dns/connect times determines send start and HAR send determines end. Data represent instrumented same-device estimates.",
+    "observedMapAnchors": 176,
+    "observedDecisionAnchors": 4,
+    "offsetRangeMS": 0.065088,
+    "estimatedOverlapOfBothStorageSendIntervalsMS": 9631.721,
+    "attributionBasis": "Each PUT URL matches that specific original allocation; progress is operation/card/File-correlated. The observed overlap alone does not assign the rows."
+  },
+  "noResendOrMessage": {
+    "productAttemptsPerImage": [
+      1,
+      1
+    ],
+    "productFileSetterAndChangePerImage": [
+      1,
+      1
+    ],
+    "productClickReceiptsPerImage": [
+      10,
+      10
+    ],
+    "uniqueCreatesPerImage": [
+      1,
+      1
+    ],
+    "uniquePUTsPerImage": [
+      1,
+      1
+    ],
+    "uniqueProcessingRequestsPerImage": [
+      1,
+      1
+    ],
+    "matchingOPTIONSRequests": 2,
+    "ordinaryConversationSubmitPOSTsInCompleteRecordedEntries": 0,
+    "filePickerConversationPreparePOSTs": 2,
+    "preparedFilesAreRecognizedInTheirRespectiveRequests": true,
+    "bothPrepareRequestsLackMessageContentFields": true,
+    "webSocketChannelsInHAR": 9,
+    "recordedWebSocketFrames": 42,
+    "namedFileIDOrOperationFilenameInRecordedWebSocketData": 0,
+    "pairAuditWindowUTC": [
+      "2026-11-17T07:46:36.565543+00:00",
+      "2026-11-17T07:47:22.107935+00:00"
+    ],
+    "webSocketFramesInPairAuditWindow": 6,
+    "outgoingWebSocketFramesInThatWindow": 3,
+    "outgoingFrameCommandsInPairWindow": {
+      "connect": 3,
+      "subscribe": 4
+    },
+    "draftTextDigestAndOriginalNonemptySelectionEqualBeforeAfter": true,
+    "scope": "The original App trace, SQLite and HAR contain no new message submission or automatic file replay. The two prepare requests and two CORS preflights are distinct from a message send or second PUT. Unrecorded transport or lower-level retransmission is outside this observation."
+  },
+  "limits": [
+    "Both matched storage transfers returned HTTP 201 with ETag and both same-ID processing requests returned 200. The event streams report 576 content bytes each and omit both response text and stream frames; a terminal processing success/failure cannot be read from this file. The product has no terminal completion receipt.",
+    "Declared upload sizes and PUT Content-Length agree for each file and are smaller than its captured original PNG. Exported request postData.text contains replacement characters in both entries; its UTF-8 size accounts for the HAR bodySize and cannot recover a byte hash of the original bytes actually sent.",
+    "No service file IDs, URLs, tokens, ETags, request bodies, response bodies, WebSocket bodies, images, draft text, or account details are disclosed by this report."
+  ]
+}

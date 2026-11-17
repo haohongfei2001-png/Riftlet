@@ -1,5 +1,13 @@
 # 无扩展附件引擎 · 首轮工程交接
 
+## 612 与 613 的普通 App 实测
+
+在已登录的隔离 Edge 临时草稿里，两张不同的 macOS 系统截图通过普通 App 微图各点击一次，实际间隔 398.130 毫秒。两次分别绑定到同一窗口、标签、文档和编辑器。预置图 614 与两个新附件各出现一次，原正文及原位置的 14 字符选区保留，编辑器在前后两次读回时均未聚焦。Riftlet 对两图分别持久记录 START，随后各自触发吞噬。[逐图实测与原始事件](../engineering/universal-attachment/edge-fresh-pair-20261117/README.md)
+
+完整的 68 条 Edge 网络记录保存了两次独立的存储 HTTP 201 和 ETag。ChatGPT 的两个逐文件处理请求均返回 HTTP 200；导出缺少两个响应正文。两笔最终处理仍为 UNKNOWN，组合保留 INCOMPLETE。[逐文件回执](../engineering/universal-attachment/edge-fresh-pair-20261117/product-and-network.json) · [兼容性矩阵](../engineering/universal-attachment/live-matrix.json)
+
+## 607 与 608 的较早快速双图实测
+
 **2026-11-17 快速双图验收。** 普通 App 以 489.789 毫秒间隔收到了两个真实微图点击，各有 10 条回执。607 在原草稿产生首条产品 START 并吞噬，匹配的实际存储写入返回 HTTP 201。608 一次输入后未出现。原草稿显示文件附件数量限制，已有五图、正文和 14 字符选区保留。607 的最终处理和 608 的投递结果均为 UNKNOWN。[逐图实测](../engineering/universal-attachment/edge-native-pair-20261117/README.md)
 
 **2026-11-17 实测更新。** 605 和 606 均经普通 App 的单次微图点击进入同一临时草稿。两笔存储写入都返回 HTTP 201，并独立关联原操作的文件名、服务文件身份与内容长度。606 的原服务响应明确记录 `file.processing.completed`。605 的最终处理响应正文缺失，终态仍为 UNKNOWN。被测包自身记录的 START 和完成均为 0。原正文、14 字符选区、已有三图和两张新增图片均保留，实际点击相隔 439.076 秒。[分项证据](../engineering/universal-attachment/edge-service-pair-20261116/README.md) · [矩阵](../engineering/universal-attachment/live-matrix.json)

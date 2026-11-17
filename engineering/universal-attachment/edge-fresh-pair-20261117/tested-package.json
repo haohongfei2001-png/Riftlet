@@ -1,0 +1,17 @@
+{
+  "source": "62ab4b2638f78926a92dd01a0942aa98e72a7614",
+  "sourceTree": "6dda2c9721a026778c287f80ecb6887fb24bef6c",
+  "shortVersion": "1.0.3",
+  "buildVersion": "25",
+  "architectures": [
+    "arm64"
+  ],
+  "buildChannel": "isolated-product-acceptance",
+  "bundleIdentifier": "com.riftlet.isolated-product-acceptance",
+  "executableSHA256": "31613ef46bd7551b14a808c03d2aba2f50a9b6c29d8ca6a9dda7d0bc47370a37",
+  "packageArchiveSHA256": "9beba62df7a52f811be3341a69b1b586a9270c455b649776487311c2b6d4fa1c",
+  "sourceArchiveSHA256": "801a2e47975e229ed73773918706e45219a7ba09abb4d9cef4e7f1593e723a73",
+  "packageArchiveBytes": 18647040,
+  "realGUIEvidence": "independent-product.json",
+  "sourceAdmission": "514f7199ba988d634dc81a079b7dc7a27ab1b663"
+}

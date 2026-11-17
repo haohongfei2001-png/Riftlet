@@ -1,0 +1,97 @@
+{
+  "coverage": {
+    "completeEntries": 68,
+    "entriesArrayClosed": true,
+    "outerDocumentClosed": true
+  },
+  "custodyRecordSHA256": "b039a62ca6e755fddf3e1efdd8da3b35ea0c6f2822debe9e5940c67456cd903a",
+  "entryIndexBase": 0,
+  "files": {
+    "612": {
+      "creationEntry": 56,
+      "explicitPerFileTerminalSignals": [],
+      "laterFirstPartyEntries": [
+        {
+          "bodyAvailability": "ABSENT_FROM_HAR",
+          "entry": 63,
+          "genericHTTPReplyStatuses": [],
+          "httpStatus": 200,
+          "matchedFileProcessingStates": [],
+          "matchedRecordEvents": [],
+          "method": "POST",
+          "requestMatchedFileID": true,
+          "requestMatchedOperationFilename": true,
+          "responseMatchedFileID": false,
+          "responseMatchedOperationFilename": false,
+          "route": "processing_stream",
+          "strictTerminalSignals": []
+        },
+        {
+          "bodyAvailability": "TEXT",
+          "entry": 65,
+          "genericHTTPReplyStatuses": [
+            "ok"
+          ],
+          "httpStatus": 200,
+          "matchedFileProcessingStates": [],
+          "matchedRecordEvents": [],
+          "method": "POST",
+          "requestMatchedFileID": true,
+          "requestMatchedOperationFilename": false,
+          "responseMatchedFileID": false,
+          "responseMatchedOperationFilename": false,
+          "route": "conversation_preparation",
+          "strictTerminalSignals": []
+        }
+      ],
+      "operationFilenameSHA256": "3d2559084f871deef8b65a5d8ecb5655aede8d18a2b4aff91873da7518fad8ea",
+      "serviceFileIDSHA256": "18b1cb86a43bae665c757d839dabb49aeb23bf8862e0afa338ab218c4a6dc193",
+      "terminalObservation": "UNKNOWN"
+    },
+    "613": {
+      "creationEntry": 60,
+      "explicitPerFileTerminalSignals": [],
+      "laterFirstPartyEntries": [
+        {
+          "bodyAvailability": "ABSENT_FROM_HAR",
+          "entry": 64,
+          "genericHTTPReplyStatuses": [],
+          "httpStatus": 200,
+          "matchedFileProcessingStates": [],
+          "matchedRecordEvents": [],
+          "method": "POST",
+          "requestMatchedFileID": true,
+          "requestMatchedOperationFilename": true,
+          "responseMatchedFileID": false,
+          "responseMatchedOperationFilename": false,
+          "route": "processing_stream",
+          "strictTerminalSignals": []
+        },
+        {
+          "bodyAvailability": "TEXT",
+          "entry": 66,
+          "genericHTTPReplyStatuses": [
+            "ok"
+          ],
+          "httpStatus": 200,
+          "matchedFileProcessingStates": [],
+          "matchedRecordEvents": [],
+          "method": "POST",
+          "requestMatchedFileID": true,
+          "requestMatchedOperationFilename": false,
+          "responseMatchedFileID": false,
+          "responseMatchedOperationFilename": false,
+          "route": "conversation_preparation",
+          "strictTerminalSignals": []
+        }
+      ],
+      "operationFilenameSHA256": "5b199daa1655b9a16ec7b31a0e65467f3f8cd85dd8c9c6ee9e84fa568ff9094d",
+      "serviceFileIDSHA256": "147236ba0069d7180c302fa12068e432103be8800f70b2133e8ebc0a95547151",
+      "terminalObservation": "UNKNOWN"
+    }
+  },
+  "originalHARBytes": 8162985,
+  "originalHARSHA256": "1b0974cb48d123c0f13d2b76acaea951d02988a4693d66f63e1abed7f3596097",
+  "preservedCopySHA256": "1b0974cb48d123c0f13d2b76acaea951d02988a4693d66f63e1abed7f3596097",
+  "schema": 1
+}

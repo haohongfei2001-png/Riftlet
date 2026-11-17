@@ -1,0 +1,476 @@
+{
+  "clock": {
+    "anchors": 176,
+    "lastWallUTC": "2026-11-17T07:47:21.729+00:00",
+    "offsetSpreadMS": 0.06,
+    "wallTimeBasis": "sameHostObservedWallMinusUptimeMedian"
+  },
+  "databaseRead": "standaloneDatabase",
+  "destinations": {
+    "allFieldsExceptClickBindingMatch": true,
+    "distinctClickBindings": true
+  },
+  "draft": {
+    "armedNativeIDAvailable": true,
+    "finalTotalAttachmentCount": 3,
+    "initialTotalAttachmentCount": 1,
+    "neutralTextDigestPreserved": true,
+    "newOperationImageCounts": {
+      "612": 1,
+      "613": 1
+    },
+    "onePrior614After": true,
+    "onePrior614Before": true,
+    "sameNativeTabBeforeAfter": true,
+    "selection14Preserved": true,
+    "temporaryDraftBeforeAfter": true
+  },
+  "images": [
+    {
+      "capturePNGDimensions": [
+        948,
+        624
+      ],
+      "captureWindowPoints": [
+        428,
+        266
+      ],
+      "durable": {
+        "assetIDDigest": "ae2d2b5e89140eaffd6a4cb45808c41bd53fb8dd36c6900df157a5ec99635677",
+        "attempt": 1,
+        "clickBindingIDDigest": "3d63604709b854c12c71a6ca0cab8029a9ec399c9958994fa8a6ac3c4e9717df",
+        "commonDestinationFields": [
+          "adapterID",
+          "applicationID",
+          "composerID",
+          "documentID",
+          "draftGeneration",
+          "sessionID",
+          "surface",
+          "tabID",
+          "webDraftRoute",
+          "windowID"
+        ],
+        "commonDestinationSHA256": "b366198f5381fc03b4dbbe17d27048096ac9a4ddd50da4527ec73ec3fa6b641d",
+        "createdUTC": "2026-11-17T07:46:37.532+00:00",
+        "dispatchExclusive": 0,
+        "edgeTarget": true,
+        "exactOperationFilenameSHA256": "3d2559084f871deef8b65a5d8ecb5655aede8d18a2b4aff91873da7518fad8ea",
+        "latestReceiptOutcome": "uploadStarted",
+        "operationCount": 1,
+        "operationIDDigest": "1a2bed6955c5e55c16079e43459e4cf86357879be119f350a2862545fb4c7acc",
+        "originalFileBytesSHAAndLengthMatch": true,
+        "phase": "inputTriggered",
+        "pngBytes": 1405603,
+        "pngSHA256": "2c2dccd0092652a9cb39a7d5b0601d076192547c4a46dc214a1b20b9d3decdce",
+        "position": 15,
+        "privateImportedBytesSHAAndLengthMatch": true,
+        "startReceipts": [
+          {
+            "belongsToOriginalDraft": true,
+            "correlatedProgressSignal": true,
+            "evidenceIDDigest": "a1bc2fd497ac1d2a78cc6986a3a38a4e6e5ea410806ac62a2c29fc2aa7dce3f9",
+            "identityMatchesOperationPNGAndTarget": true,
+            "inputCount": 1,
+            "ordinaryEdgeTemporaryProvenanceMatches": true,
+            "proofVersion": 1,
+            "startUTC": "2026-11-17T07:46:43.649+00:00",
+            "uploadStartedOutcome": true
+          }
+        ],
+        "status": "transferring",
+        "systemPNGMetadataMatchesCapture": true,
+        "temporaryHomeRoute": true,
+        "uploadStartRows": 1,
+        "visibility": "swallowed",
+        "visibilityReason": "uploadStarted",
+        "visibilityRevision": 1
+      },
+      "seed": 612,
+      "trace": {
+        "committedVisibility": [
+          {
+            "commitUpperBoundUptime": 63233.09984250001,
+            "reason": "capture",
+            "seq": 50,
+            "visibility": "visible"
+          },
+          {
+            "commitUpperBoundUptime": 63239.21807404167,
+            "reason": "uploadStarted",
+            "seq": 113,
+            "visibility": "swallowed"
+          }
+        ],
+        "exactNativeFieldMatch": true,
+        "explicitReadyPersistenceRows": 0,
+        "explicitStartObservedRows": 1,
+        "intermediateProgressUTCApprox": [
+          "2026-11-17T07:46:43.030+00:00",
+          "2026-11-17T07:46:43.348+00:00",
+          "2026-11-17T07:46:43.648+00:00"
+        ],
+        "intermediateStrictlyScopedProgressSamples": 3,
+        "nativeTenStageReceipt": true,
+        "observedInputDownEventUptime": 63232.57269025,
+        "observedSelectionCallbackUptime": 63232.65985179167,
+        "originalAssetSelectionRows": 1,
+        "originalAssetSubmissionRows": 1,
+        "originalOperationEntryRows": 13,
+        "presentation": [
+          {
+            "actualDuration": 0.12,
+            "operationDigestMatched": true,
+            "phase": "swallowScheduled",
+            "pixelPresentationMeasured": false,
+            "seq": 114,
+            "uptime": 63239.218881541674
+          },
+          {
+            "actualDuration": 0.12,
+            "operationDigestMatched": true,
+            "phase": "swallowActualStart",
+            "pixelPresentationMeasured": false,
+            "seq": 115,
+            "uptime": 63239.21905054167
+          },
+          {
+            "actualDuration": 0.12,
+            "operationDigestMatched": true,
+            "phase": "swallowClose",
+            "pixelPresentationMeasured": false,
+            "seq": 118,
+            "uptime": 63239.345128125
+          }
+        ],
+        "retainedChangeReturnedTrueRows": 13,
+        "retainedSetterEnteredTrueRows": 13,
+        "scopedProgressPercentValues": [
+          11,
+          12
+        ],
+        "taggedReceiptSourcePresent": true,
+        "uniqueBoundedDiagnosticSamples": 13
+      }
+    },
+    {
+      "capturePNGDimensions": [
+        948,
+        624
+      ],
+      "captureWindowPoints": [
+        428,
+        266
+      ],
+      "durable": {
+        "assetIDDigest": "8d2178b6e038e05907b4fc0832c50294d44655ce5f07760ba26101080c6c4ceb",
+        "attempt": 1,
+        "clickBindingIDDigest": "28fadfae94669bb14b1025e3cdeaea64235ba6c57b75b1f0777b563df6d583c4",
+        "commonDestinationFields": [
+          "adapterID",
+          "applicationID",
+          "composerID",
+          "documentID",
+          "draftGeneration",
+          "sessionID",
+          "surface",
+          "tabID",
+          "webDraftRoute",
+          "windowID"
+        ],
+        "commonDestinationSHA256": "b366198f5381fc03b4dbbe17d27048096ac9a4ddd50da4527ec73ec3fa6b641d",
+        "createdUTC": "2026-11-17T07:46:38.135+00:00",
+        "dispatchExclusive": 0,
+        "edgeTarget": true,
+        "exactOperationFilenameSHA256": "5b199daa1655b9a16ec7b31a0e65467f3f8cd85dd8c9c6ee9e84fa568ff9094d",
+        "latestReceiptOutcome": "uploadStarted",
+        "operationCount": 1,
+        "operationIDDigest": "564f44562def8a1230e8cf05768589ddd1c6aa12968f22632b624d6251382c02",
+        "originalFileBytesSHAAndLengthMatch": true,
+        "phase": "inputTriggered",
+        "pngBytes": 1406330,
+        "pngSHA256": "046cba3f086c25a8bd7fcc1e7ec4d1e11e7c9f480ba7ce11349d0df790b1b410",
+        "position": 16,
+        "privateImportedBytesSHAAndLengthMatch": true,
+        "startReceipts": [
+          {
+            "belongsToOriginalDraft": true,
+            "correlatedProgressSignal": true,
+            "evidenceIDDigest": "da6c68de4e67aed44921cb68e2494f1b3f14ca5daa89091b77517046275047f4",
+            "identityMatchesOperationPNGAndTarget": true,
+            "inputCount": 1,
+            "ordinaryEdgeTemporaryProvenanceMatches": true,
+            "proofVersion": 1,
+            "startUTC": "2026-11-17T07:46:45.761+00:00",
+            "uploadStartedOutcome": true
+          }
+        ],
+        "status": "transferring",
+        "systemPNGMetadataMatchesCapture": true,
+        "temporaryHomeRoute": true,
+        "uploadStartRows": 1,
+        "visibility": "swallowed",
+        "visibilityReason": "uploadStarted",
+        "visibilityRevision": 1
+      },
+      "seed": 613,
+      "trace": {
+        "committedVisibility": [
+          {
+            "commitUpperBoundUptime": 63233.702874500006,
+            "reason": "capture",
+            "seq": 55,
+            "visibility": "visible"
+          },
+          {
+            "commitUpperBoundUptime": 63241.33062275001,
+            "reason": "uploadStarted",
+            "seq": 133,
+            "visibility": "swallowed"
+          }
+        ],
+        "exactNativeFieldMatch": true,
+        "explicitReadyPersistenceRows": 0,
+        "explicitStartObservedRows": 1,
+        "intermediateProgressUTCApprox": [
+          "2026-11-17T07:46:43.966+00:00",
+          "2026-11-17T07:46:44.264+00:00",
+          "2026-11-17T07:46:44.565+00:00",
+          "2026-11-17T07:46:44.864+00:00",
+          "2026-11-17T07:46:45.165+00:00",
+          "2026-11-17T07:46:45.467+00:00",
+          "2026-11-17T07:46:45.761+00:00"
+        ],
+        "intermediateStrictlyScopedProgressSamples": 7,
+        "nativeTenStageReceipt": true,
+        "observedInputDownEventUptime": 63232.970820125,
+        "observedSelectionCallbackUptime": 63233.076362375,
+        "originalAssetSelectionRows": 1,
+        "originalAssetSubmissionRows": 1,
+        "originalOperationEntryRows": 15,
+        "presentation": [
+          {
+            "actualDuration": 0.12,
+            "operationDigestMatched": true,
+            "phase": "swallowScheduled",
+            "pixelPresentationMeasured": false,
+            "seq": 134,
+            "uptime": 63241.331562458334
+          },
+          {
+            "actualDuration": 0.12,
+            "operationDigestMatched": true,
+            "phase": "swallowActualStart",
+            "pixelPresentationMeasured": false,
+            "seq": 135,
+            "uptime": 63241.331709750004
+          },
+          {
+            "actualDuration": 0.12,
+            "operationDigestMatched": true,
+            "phase": "swallowClose",
+            "pixelPresentationMeasured": false,
+            "seq": 136,
+            "uptime": 63241.46126558334
+          }
+        ],
+        "retainedChangeReturnedTrueRows": 15,
+        "retainedSetterEnteredTrueRows": 15,
+        "scopedProgressPercentValues": [
+          6,
+          15
+        ],
+        "taggedReceiptSourcePresent": true,
+        "uniqueBoundedDiagnosticSamples": 15
+      }
+    }
+  ],
+  "network": {
+    "ambiguousKnownFileIDCount": 0,
+    "coverage": {
+      "completeEntries": 68,
+      "entriesArrayClosed": true,
+      "outerDocumentClosed": true,
+      "unreadableMetadataRows": 0
+    },
+    "harBytes": 8162985,
+    "harSHA256": "1b0974cb48d123c0f13d2b76acaea951d02988a4693d66f63e1abed7f3596097",
+    "images": {
+      "612": {
+        "completedSameFileAcrossEntireChain": null,
+        "create": [
+          {
+            "boundBy": "exactJSONOperationFilename",
+            "declaredBytes": 1386370,
+            "durationMS": 731.7309999998542,
+            "entry": 56,
+            "fileIDSHA256": "18b1cb86a43bae665c757d839dabb49aeb23bf8862e0afa338ab218c4a6dc193",
+            "httpStatus": 200,
+            "method": "POST",
+            "queryFreeStorageLocatorSHA256": "f92153338296e354f932153b1199aaf7951753f0aa1c4b71fdc553ea14037102",
+            "requestFilenameSHA256": "3d2559084f871deef8b65a5d8ecb5655aede8d18a2b4aff91873da7518fad8ea",
+            "route": "CREATE",
+            "startUTC": "2026-11-17T07:46:39.823+00:00"
+          }
+        ],
+        "matchedImageGET": [],
+        "originalCreatePutProcessChain": true,
+        "originalStorageHTTP201WithETag": true,
+        "processing": [
+          {
+            "boundBy": "exactJSONOperationFilename",
+            "durationMS": 601.1280000020633,
+            "entry": 63,
+            "fileIDSHA256": "18b1cb86a43bae665c757d839dabb49aeb23bf8862e0afa338ab218c4a6dc193",
+            "httpStatus": 200,
+            "method": "POST",
+            "requestFilenameSHA256": "3d2559084f871deef8b65a5d8ecb5655aede8d18a2b4aff91873da7518fad8ea",
+            "responseBody": "ABSENT_FROM_HAR",
+            "route": "PROCESS",
+            "sameFileEvents": [],
+            "startUTC": "2026-11-17T07:46:54.429+00:00",
+            "terminal": "UNKNOWN"
+          }
+        ],
+        "put": [
+          {
+            "boundBy": "exactCreateResponseStorageLocator",
+            "durationMS": 13870.193999995536,
+            "entry": 58,
+            "harReportedRequestBodySize": 2537855,
+            "http201WithETag": true,
+            "httpStatus": 201,
+            "method": "PUT",
+            "queryFreeStorageLocatorSHA256": "f92153338296e354f932153b1199aaf7951753f0aa1c4b71fdc553ea14037102",
+            "requestContentLength": 1386370,
+            "responseETagPresent": true,
+            "retainedOriginalProgressSamplesInSend": 3,
+            "retainedOriginalProgressSamplesWithClock": 3,
+            "route": "PUT",
+            "sameDeclaredLength": true,
+            "sendEndUTC": "2026-11-17T07:46:53.399+00:00",
+            "sendStartUTC": "2026-11-17T07:46:42.658+00:00",
+            "startUTC": "2026-11-17T07:46:40.556+00:00"
+          }
+        ],
+        "uniqueCreateAndProcessFileIDMatch": true
+      },
+      "613": {
+        "completedSameFileAcrossEntireChain": null,
+        "create": [
+          {
+            "boundBy": "exactJSONOperationFilename",
+            "declaredBytes": 1386418,
+            "durationMS": 1080.4009999992559,
+            "entry": 60,
+            "fileIDSHA256": "147236ba0069d7180c302fa12068e432103be8800f70b2133e8ebc0a95547151",
+            "httpStatus": 200,
+            "method": "POST",
+            "queryFreeStorageLocatorSHA256": "74ce8ec19d46eb21b438a4763a73b95c3d710ce554d37427351deaec4f229a18",
+            "requestFilenameSHA256": "5b199daa1655b9a16ec7b31a0e65467f3f8cd85dd8c9c6ee9e84fa568ff9094d",
+            "route": "CREATE",
+            "startUTC": "2026-11-17T07:46:41.675+00:00"
+          }
+        ],
+        "matchedImageGET": [],
+        "originalCreatePutProcessChain": true,
+        "originalStorageHTTP201WithETag": true,
+        "processing": [
+          {
+            "boundBy": "exactJSONOperationFilename",
+            "durationMS": 717.6269999981741,
+            "entry": 64,
+            "fileIDSHA256": "147236ba0069d7180c302fa12068e432103be8800f70b2133e8ebc0a95547151",
+            "httpStatus": 200,
+            "method": "POST",
+            "requestFilenameSHA256": "5b199daa1655b9a16ec7b31a0e65467f3f8cd85dd8c9c6ee9e84fa568ff9094d",
+            "responseBody": "ABSENT_FROM_HAR",
+            "route": "PROCESS",
+            "sameFileEvents": [],
+            "startUTC": "2026-11-17T07:46:54.877+00:00",
+            "terminal": "UNKNOWN"
+          }
+        ],
+        "put": [
+          {
+            "boundBy": "exactCreateResponseStorageLocator",
+            "durationMS": 12115.16699999629,
+            "entry": 61,
+            "harReportedRequestBodySize": 2538218,
+            "http201WithETag": true,
+            "httpStatus": 201,
+            "method": "PUT",
+            "queryFreeStorageLocatorSHA256": "74ce8ec19d46eb21b438a4763a73b95c3d710ce554d37427351deaec4f229a18",
+            "requestContentLength": 1386418,
+            "responseETagPresent": true,
+            "retainedOriginalProgressSamplesInSend": 7,
+            "retainedOriginalProgressSamplesWithClock": 7,
+            "route": "PUT",
+            "sameDeclaredLength": true,
+            "sendEndUTC": "2026-11-17T07:46:54.425+00:00",
+            "sendStartUTC": "2026-11-17T07:46:43.768+00:00",
+            "startUTC": "2026-11-17T07:46:42.757+00:00"
+          }
+        ],
+        "uniqueCreateAndProcessFileIDMatch": true
+      }
+    },
+    "state": "ARCHIVE_PROJECTED",
+    "unassignedFileEndpointRequestsWithinScope": [
+      {
+        "durationMS": 2101.104000003251,
+        "entry": 59,
+        "httpStatus": 200,
+        "method": "OPTIONS",
+        "route": "PREFLIGHT",
+        "startUTC": "2026-11-17T07:46:40.558+00:00"
+      },
+      {
+        "durationMS": 1010.2880000049481,
+        "entry": 62,
+        "httpStatus": 200,
+        "method": "OPTIONS",
+        "route": "PREFLIGHT",
+        "startUTC": "2026-11-17T07:46:42.758+00:00"
+      }
+    ],
+    "unassignedScopeEndUTC": "2026-11-17T07:47:22.107+00:00",
+    "unassignedScopeStartUTC": "2026-11-17T07:46:36.565+00:00"
+  },
+  "observedDownEventIntervalMS": 398.13,
+  "productExecutableSHA256": "31613ef46bd7551b14a808c03d2aba2f50a9b6c29d8ca6a9dda7d0bc47370a37",
+  "runnerReportedDestinationChecks": {
+    "armedAETabMatchesProduct": true,
+    "bothLeases": true,
+    "boundEdgeTemporaryHome": true,
+    "distinctOriginalClickBindings": true,
+    "sameOldEdgeWindowWithDistinctNewTabAndDocument": true,
+    "sameWindowTabDocumentComposerAndGeneration": true
+  },
+  "runnerReportedFrozenPriorStorePreservation": {
+    "allPriorAssetRows": true,
+    "allPriorOperations": true,
+    "allPriorOriginalMedia": true,
+    "allPriorStarts": true,
+    "onlyNewPairOperations": true,
+    "onlyNewPairStarts": true,
+    "onlyPairAssetsAdded": true
+  },
+  "schema": 1,
+  "selectionCallbackIntervalMS": 416.511,
+  "sourceSHA256": {
+    "capture612": "f48a60bc792153d48a997804295c1e9c4611babf4ecf38fc652b69e67f6743c4",
+    "capture613": "f791fe3ac4361fccee84525c4aaaa535678a8d4566e5a9021a8bd16299403503",
+    "database": "4da7b516ba01f485de42e5b4802d729cb72010906c46d7e4dbb56d1c7e9ddc23",
+    "mapEpochs": "d9a0ab2be48bc443f9a7b1185eab36468850737b1ef80b70a1c5650b1ccd6b36",
+    "outcome": "351f331da30f32629617486917c5b0dbba2a0c48d414506b2500285f88739235",
+    "prepared": "a862ef9f4b74ccccd2cf51e5a1f0b65349c90331b81ca9f7f4d18947f6a450e5",
+    "queueFreeze": "628d46d4847009b7698f9dded6456ea5f4568b3a503730838abd4a82c63bb7af",
+    "sender612": "877009b94eb3b1c4ca5cd85b0b8a3ebb1cdad6fd52595805420d1cf450f1f7f0",
+    "sender613": "7cfcfba90e9fd00460ee5ed819e7978c8b54df454fd2292438523145468998bf",
+    "trace1": "24de266cfbdd2f86d150abb70cd2a61fe12221a21e188600e178bd7248b456ac"
+  },
+  "traceRowsInPreparedSession": 116,
+  "traceSessionSHA256": "d8c953a5b3583b8f96101da4ab29f9ab3685a6481444150885cd50d601874d3c",
+  "unretainedSequenceRanges": []
+}
