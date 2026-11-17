@@ -93,6 +93,20 @@ final class RecoverablePreferencesTests: XCTestCase {
         }
     }
 
+    func testOnlyThreeDistinctRecoveryCopiesAccumulateAndLegacyBackupsSurvive() throws {
+        let legacy = root.appendingPathComponent("rift-configuration.json.backup-" + UUID().uuidString)
+        try Data("legacy".utf8).write(to: legacy)
+        for damaged in ["a", "b", "c", "a", "d", "d"] {
+            try Data(damaged.utf8).write(to: layout)
+            try load().restore(.layout)
+        }
+        let managed = try FileManager.default.contentsOfDirectory(at: root, includingPropertiesForKeys: nil)
+            .filter { $0.lastPathComponent.hasPrefix("rift-configuration.json.backup-v2-") }
+        XCTAssertEqual(managed.count, 3)
+        XCTAssertEqual(try Set(managed.map { try String(contentsOf: $0, encoding: .utf8) }), ["a", "c", "d"])
+        XCTAssertEqual(try Data(contentsOf: legacy), Data("legacy".utf8))
+    }
+
     func testBadArchivePausesUntilRestoredAndUnreadableTargetCanRetry() throws {
         try Data(#"{"fitWidth":96,"future":[1,2]}"#.utf8).write(to: layout)
         try Data(#"{"archiveAfterSeconds":-1}"#.utf8).write(to: archive)

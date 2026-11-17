@@ -141,14 +141,14 @@ final class RecoverablePreferences {
     private func preserveRecoveryCopy(of source: URL) throws {
         let manager = FileManager.default
         let prefix = source.lastPathComponent + ".backup-v2-"
-        let keys: [URLResourceKey] = [.creationDateKey, .isRegularFileKey, .isSymbolicLinkKey]
+        let keys: [URLResourceKey] = [.contentModificationDateKey, .isRegularFileKey, .isSymbolicLinkKey]
         let backups = try manager.contentsOfDirectory(at: root, includingPropertiesForKeys: keys)
             .compactMap { url -> (URL, Date)? in
                 let name = url.lastPathComponent
                 guard name.hasPrefix(prefix), UUID(uuidString: String(name.dropFirst(prefix.count))) != nil,
                       let info = try? url.resourceValues(forKeys: Set(keys)),
                       info.isRegularFile == true, info.isSymbolicLink == false,
-                      let created = info.creationDate else { return nil }
+                      let created = info.contentModificationDate else { return nil }
                 return (url, created)
             }.sorted { $0.1 > $1.1 }
 
@@ -159,6 +159,7 @@ final class RecoverablePreferences {
             retained = root.appendingPathComponent(prefix + UUID().uuidString)
             try manager.copyItem(at: source, to: retained)
         }
+        try manager.setAttributes([.modificationDate: Date()], ofItemAtPath: retained.path)
         for (url, _) in backups.filter({ $0.0 != retained }).dropFirst(2) {
             try manager.removeItem(at: url)
         }
