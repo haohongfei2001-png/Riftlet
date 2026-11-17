@@ -34,6 +34,8 @@ function browserFixture(options){
   check(location.protocol==='http:'&&location.hostname==='127.0.0.1','fixture must stay on loopback');
   await stage('initializing');
   const form=document.querySelector('[data-harness-composer]'),editor=document.querySelector('#prompt-textarea');
+  const cardHost=options.portalCards ? document.createElement('section') : form;
+  if(options.portalCards)document.body.append(cardHost);
   let input=form.querySelector('input');
   if(options.unfamiliarAccept)input.accept='IMAGE/PNG; charset=binary,.PNG,image/x-png';
   if(options.portalPicker)document.body.append(input);
@@ -129,8 +131,8 @@ function browserFixture(options){
    const task={file,list,card,image,progress,state:'uploading'};tasks.push(task);
    // The first acceptance is deliberately delayed; its input return is dropped.
    // A second input is allowed while A has no observed START yet.
-   if(options.unavailablePicker){form.append(card);makePickerUnavailable();}
-   else if(changes===1)firstPendingCard=card;else{form.append(card);if(changes===2)setTimeout(()=>form.append(firstPendingCard),0);}
+   if(options.unavailablePicker){cardHost.append(card);makePickerUnavailable();}
+   else if(changes===1)firstPendingCard=card;else{cardHost.append(card);if(changes===2)setTimeout(()=>cardHost.append(firstPendingCard),0);}
    if(!options.retained)submittedInput.value='';
   };
   input.addEventListener('change',changed);
@@ -304,10 +306,18 @@ function browserFixture(options){
    check(rejected&&changes===options.count,'duplicate commit never submits again');
   }
   for(let index=0;index<tasks.length;index++){
-   const task=tasks[index];check(form.contains(task.card),'all app attachments appended');
+   const task=tasks[index];check(cardHost.contains(task.card),'all app attachments appended');
    check(await hash(await task.file.arrayBuffer())===ops[index].sha,'accepted File bytes remain unchanged after later inputs');
    check(task.list instanceof FileList,'application observed actual native FileList');
    if(options.retained)check(task.list.length===1&&task.list[0]===task.file,'retained prior FileList independent from replacement');
+  }
+  if(options.portalCards){
+   tasks[0].card.dataset.state='failed';
+   const observed=call(ops[0].command('observe')).observation;
+   check(observed.state==='failed'&&observed.hasError&&!observed.automaticRetryExcluded&&!observed.attachmentAbsent,'portalled failure bound to its accepted file');
+   check(call(ops[1].command('observe')).observation.state==='uploadStarted','other card unaffected');
+   const unrelated=document.createElement('form');document.body.append(unrelated);unrelated.append(cardHost);
+   check(call(ops[0].command('observe')).observation.state==='uploadStarted','moved portal cannot attribute failure');
   }
   if(otherTab){
    check(otherTab.document.hasFocus()&&!document.hasFocus(),'input to A did not seize focus from B');
@@ -376,6 +386,7 @@ function browserFixture(options){
  .replace('__PREVIOUS__',()=>JSON.stringify(previous)).replace('__SOURCE__',()=>JSON.stringify(source).replace(/<\/script/gi,'<\\/script'));
 }
 const originalScenarios=[
+ {name:'original-portal-card-failure',count:2,retained:true,portalCards:true,route:'https://chatgpt.com/c/ordinary-thread'},
  {name:'actual-marked-zh-composer-four-direct-fields',count:5,retained:true,liveComposerShape:true,route:'https://chatgpt.com/'},
  ...[2,3,5].map(count=>({count,retained:true,route:'https://chatgpt.com/c/ordinary-thread'})),
  {count:3,retained:false,route:'https://chatgpt.com/'},

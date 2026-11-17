@@ -608,12 +608,33 @@ test('a local failure belongs only to its accepted card in the original draft', 
  assert.equal(f.setters,2); assert.equal(f.changes,2); assert.equal(f.sends,0);
 });
 
+test('a portalled card can report failure only in its original draft and placement', () => {
+ const f=fixture({accept:false}), op=f.bind();
+ f.stage(op); f.commit(op);
+ const portal=f.body.append(new f.Node('section'));
+ const card=portal.append(f.addCard(op.name));
+ const start=accepted(f,op);
+ card.setAttribute('data-state','error');
+ const failure=f.observe(op);
+ assert.equal(failure.state,'failed'); assert.equal(failure.attachmentID,start.attachmentID);
+ assert.equal(failure.automaticRetryExcluded,false); assert.equal(failure.attachmentAbsent,false);
+ const otherForm=f.body.append(new f.Node('form'));
+ otherForm.append(portal); accepted(f,op);
+ f.body.append(portal);
+ f.body.append(card); accepted(f,op);
+ portal.append(card);
+ f.setRoute('https://chatgpt.com/c/another'); accepted(f,op);
+ assert.equal(f.setters,1); assert.equal(f.changes,1); assert.equal(f.sends,0);
+});
+
 test('START releases strong composer references and expired reads retain a replay fence', async () => {
  const f=fixture(), callbacks=[];
  f.context.setTimeout=(callback,ms)=>ms===600000 ? (callbacks.push(callback),0) : setTimeout(callback,ms);
  const first=f.bind();
  for(let i=0;i<101;i++) { const op=i===0?first:f.bind(); f.stage(op); await f.commit(op); }
  const registry=vm.runInContext('globalThis.__riftletIndependentFileInput20261104',f.context);
+ f.input.remove();
+ assert.ok(!Object.values(registry.current).includes(f.input), 'no retained detached file picker');
  for(const op of registry.operations.values()) {
    assert.equal(op.binding,null); assert.equal(op.chunks.length,0);
  }

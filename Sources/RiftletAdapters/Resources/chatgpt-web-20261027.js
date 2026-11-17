@@ -95,7 +95,7 @@ function riftletWebAcceptance(command, native) {
     // First establish the actual chat surface. Search, settings, conversation
     // transcript edits and focus proxies can all render visible textboxes.
     // Focus is useful only among candidates, never required for a cold click.
-    const partsFor = editor => ({editor, form: composerForm(editor, editors), input: null});
+    const partsFor = editor => ({editor, form: composerForm(editor, editors)});
     if (editors.length === 1) return partsFor(editors[0]);
     const pageControls = controls(document), pageInputs = [...document.querySelectorAll('input[type="file"]')];
     const destinations = editors.map(editor => {
@@ -689,7 +689,8 @@ function riftletWebAcceptance(command, native) {
     // current file's unique filename/blob and pre-input baseline bind START;
     // containment in a guessed form is not an acceptance prerequisite.
     return [...document.querySelectorAll('[data-file-name],[role="button"],button,img[alt],img[src],[title]')]
-      .filter(node => node !== binding.editor && !binding.editor.contains(node) && node !== binding.input
+      .filter(node => node !== binding.editor && !binding.editor.contains(node)
+        && !(node instanceof HTMLInputElement && node.type === 'file')
         && (!node.closest('[role="menu"],[role="dialog"]')
           || node.closest('[role="dialog"]')?.contains(binding.editor)));
   }
@@ -697,6 +698,10 @@ function riftletWebAcceptance(command, native) {
   const previewValue = node => node.tagName === 'IMG' ? (node.getAttribute('src') || '').trim() : true;
   const previewsOf = node => node.matches(previewSelector)
     ? [node] : [...node.querySelectorAll(previewSelector)];
+  function independentCardPortal(card, binding) {
+    return !card.closest(composerSurface + ',form,article,aside,nav,header,[role="menu"],[role="dialog"],[data-message-author-role]')
+      && !outsidePurpose(card, binding);
+  }
   function sample(op) {
     // The app may disable or remove its picker after accepting this file.
     // Observing that handoff needs the original draft, not another input slot.
@@ -733,7 +738,11 @@ function riftletWebAcceptance(command, native) {
     // references cannot keep a detached composer, input, or attachment alive.
     const card = accepted.closest('[data-file-name]');
     if (card?.getAttribute('data-file-name') === op.name && typeof WeakRef === 'function') {
-      op.failureWatch = {card: new WeakRef(card), binding: new WeakRef(op.binding)};
+      const inDraft = op.binding.form.contains(card);
+      if (inDraft || (card.parentElement && independentCardPortal(card, op.binding))) {
+        op.failureWatch = {card: new WeakRef(card), binding: new WeakRef(op.binding),
+          portalParent: inDraft ? null : new WeakRef(card.parentElement)};
+      }
     }
     op.binding = null; op.baseline.clear(); op.previewBaseline = null; op.urls.clear();
   }
@@ -763,7 +772,9 @@ function riftletWebAcceptance(command, native) {
       // composer and local explicit error state. A toast, another card, a
       // removal or navigation cannot turn a handoff into a failed upload.
       if (card?.isConnected && card.getAttribute('data-file-name') === op.name
-          && original?.form.contains(card) && sameDraft(original)
+          && sameDraft(original) && (watch.portalParent
+            ? watch.portalParent.deref() === card.parentElement && independentCardPortal(card, original)
+            : original.form.contains(card))
           && ['error', 'failed'].includes(card.getAttribute('data-state'))) {
         item.state = 'failed'; item.hasError = true;
         delete item.uploadStart;
@@ -874,7 +885,6 @@ function riftletWebAcceptance(command, native) {
       return retire('attachmentInputNotCreated', 'handoff', 'inputLost');
     if (op.discoveryDeadline && Date.now() >= op.discoveryDeadline)
       return retire('attachmentInputNotCreated', 'handoff', 'timeout');
-    op.binding.input = input;
     op.previewBaseline = new WeakMap([...document.querySelectorAll(previewSelector)].map(node => [node, previewValue(node)]));
     registry.files.set(file, op);
     const writingForm = op.binding.form;
