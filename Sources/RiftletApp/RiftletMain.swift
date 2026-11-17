@@ -954,19 +954,21 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         return allowed
     }
 
-    @objc private func recheckSetup() { beginSetupRecheck(checkPrivateMedia: false) }
+    @objc private func recheckSetup() { beginSetupRecheck() }
 
-    private func beginSetupRecheck(checkPrivateMedia: Bool) {
+    private enum SetupRecheckScope { case setup, source, media }
+
+    private func beginSetupRecheck(_ scope: SetupRecheckScope = .setup) {
         guard !drainingForExit, initialized, !requestingPermission, !collectionChangePending,
               let token = captureControl.begin(.recheck) else { return }
         updateControlTitles()
         recheckTask = Task {
             defer { captureControl.finish(token); recheckTask = nil; updateControlTitles() }
-            if checkPrivateMedia, let capture, await capture.recheckPrivateMedia(),
+            if scope == .media, let capture, await capture.recheckPrivateMedia(),
                let code = captureDiagnostic?.code, [.missingPrivateCopy, .recoveryRequired].contains(code) {
                 captureDiagnostic = nil
             }
-            if mode.collectsSystemScreenshots, let capture, let binding = sourceBinding {
+            if scope != .media, mode.collectsSystemScreenshots, let capture, let binding = sourceBinding {
                 do {
                     do { detectedSource = try await captureLocation.currentDirectory() }
                     catch { detectedSource = nil; throw error }
@@ -987,10 +989,12 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     }
                 } catch { receiveCaptureDiagnostic(.classify(error, context: .source)) }
             }
-            let permission = await inspectAutomationPermission(reason: "setupRecheck")
-            if !mode.usesWebAdapter || permission == .granted {
-                do { try await startAttachmentObservationIfPermitted() }
-                catch { setupIssue = .targetUnavailable }
+            if scope == .setup {
+                let permission = await inspectAutomationPermission(reason: "setupRecheck")
+                if !mode.usesWebAdapter || permission == .granted {
+                    do { try await startAttachmentObservationIfPermitted() }
+                    catch { setupIssue = .targetUnavailable }
+                }
             }
             await refresh()
         }
@@ -1773,9 +1777,12 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         case .openOnboarding: showOnboarding()
         case .capture: beginScreenshot()
         case .openHistory: showHistory()
+        case .manageMedia: showMediaManager()
         case .openFeedback: showFeedback()
         case .clearVisible: confirmClearVisible()
-        case .recheck: beginSetupRecheck(checkPrivateMedia: true)
+        case .recheck: beginSetupRecheck()
+        case .recheckSource: beginSetupRecheck(.source)
+        case .recheckMedia: beginSetupRecheck(.media)
         case .openSource: openScreenshotSource()
         case .chooseSourceAccess: chooseSourceAccess()
         case .requestAutomation: requestAutomationPermission()

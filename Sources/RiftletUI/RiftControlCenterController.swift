@@ -206,6 +206,7 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         let recovery = projection.recovery(snapshot)
         buttons["control.recovery"]?.isHidden = recovery == nil
         buttons["control.recovery"]?.title = recovery?.0 ?? ""
+        buttons["control.recovery"]?.setAccessibilityLabel(recovery?.0)
         let update = snapshot.updater
         let updateButton = buttons["control.update"]
         updateButton?.title = update?.checkTitle ?? ProductCopy.text("检查更新…", "Check for Updates…")

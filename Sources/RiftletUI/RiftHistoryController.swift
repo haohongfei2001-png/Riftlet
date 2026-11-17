@@ -160,6 +160,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     private let countLabel = NSTextField(labelWithString: "")
     private lazy var restoreButton = NSButton(title: copy.text("恢复到托盘", "Restore to Tray"), target: nil, action: nil)
     private lazy var removeButton = NSButton(title: copy.text("从桌面收起", "Hide from Desktop"), target: nil, action: nil)
+    private lazy var conversationButton = NSButton(title: copy.text("查看原对话", "View Original Conversation"), target: nil, action: nil)
     private lazy var revealButton = NSButton(title: copy.text("在 Finder 中显示", "Show in Finder"), target: nil, action: nil)
     private lazy var originalButton = NSButton(title: copy.text("查看原图", "View Original"), target: nil, action: nil)
     private lazy var newerButton = NSButton(title: copy.text("上一页", "Previous Page"), target: nil, action: nil)
@@ -312,11 +313,13 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         tableScroll = scroll
         scroll.drawsBackground = false; scroll.documentView = table
         let paging = NSStackView(views: [newerButton, olderButton]); paging.spacing = 8
-        for button in [restoreButton, removeButton, revealButton, originalButton, newerButton, olderButton] {
+        for button in [restoreButton, removeButton, revealButton, originalButton, conversationButton, newerButton, olderButton] {
             RiftVisualStyle.style(button); button.target = self
         }
         restoreButton.action = #selector(restoreSelected); removeButton.action = #selector(removeSelected)
         revealButton.action = #selector(revealSelected); newerButton.action = #selector(previousPage); olderButton.action = #selector(nextPage)
+        conversationButton.action = #selector(viewOriginalConversation)
+        conversationButton.identifier = .init("history.conversation")
         originalButton.action = #selector(previewSelected)
         for (button, identifier) in [(restoreButton, "restore"), (removeButton, "remove"), (revealButton, "reveal"),
                                       (originalButton, "original"), (newerButton, "previous"), (olderButton, "next")] {
@@ -402,7 +405,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         let viewActions = NSStackView(views: [originalButton, revealButton])
         let queueActions = NSStackView(views: [restoreButton, removeButton])
         let detail = RiftVisualStyle.documentStack([surface, detailTitle, detailMetadata, detailState,
-                                                   viewActions, queueActions, actionNote], spacing: 8)
+                                                   viewActions, conversationButton, queueActions, actionNote], spacing: 8)
         detail.edgeInsets = NSEdgeInsets(top: 17, left: 18, bottom: 16, right: 18)
         for view in [surface, detailTitle, detailMetadata, detailState, actionNote] {
             view.widthAnchor.constraint(equalTo: detail.widthAnchor, constant: -36).isActive = true
@@ -490,6 +493,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     private func updateActions() {
         restoreButton.isEnabled = selectedEntry?.canRestoreToRift == true
         removeButton.isEnabled = selectedEntry?.canRemoveFromRift == true
+        conversationButton.isHidden = selectedEntry?.conversationURL == nil
         revealButton.isEnabled = selectedEntry != nil
         originalButton.isEnabled = selectedEntry != nil
         originalButton.isHidden = selectedEntry == nil
@@ -847,6 +851,19 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     @objc private func removeSelected() {
         guard let entry = selectedEntry, entry.canRemoveFromRift else { return }
         onRemove(entry.id)
+    }
+
+    @objc private func viewOriginalConversation() {
+        guard let url = selectedEntry?.conversationURL else { return }
+        guard let chrome = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.google.Chrome") else {
+            showActionError(copy.text("找不到 Chrome。可查看原图后在原草稿中核对。", "Chrome is unavailable. View the original image and compare it with your draft."))
+            return
+        }
+        NSWorkspace.shared.open([url], withApplicationAt: chrome, configuration: .init()) { [weak self] _, error in
+            if error != nil {
+                Task { @MainActor in self?.showActionError(ProductCopy.text("未能打开原对话。请在原草稿中核对图片。", "Could not open the conversation. Check the image in your original draft.")) }
+            }
+        }
     }
 
     @objc private func revealSelected() {

@@ -19,6 +19,7 @@ final class ScreenshotEntryHost {
     private let savePreferences: (ScreenshotEntryPreferences, URL) throws -> Void
     private let allowsSystemCapture: Bool
     var onScreenPermissionRequired: (() -> Void)?
+    var onCaptureImportFailed: (() -> Void)?
     var onPreferencesChanged: (() -> Void)?
     var isEnabled: Bool { preferences.builtInScreenshotEnabled }
     var defaultMode: ScreenshotMode { preferences.defaultMode }
@@ -119,7 +120,7 @@ final class ScreenshotEntryHost {
         capture.onError = { [weak self] error in
             guard let self, self.isEnabled, !self.closed else { return }
             if error == .screenRecordingPermissionRequired { self.onScreenPermissionRequired?() }
-            self.onIssue(error.localizedDescription)
+            self.onIssue(ProductCopy.text(error.localizedDescription, error.englishRecovery))
         }
         capture.onCaptureVisibilityChanged = { [weak self] hidden in
             self?.setExposureSuppressed(hidden)
@@ -130,7 +131,7 @@ final class ScreenshotEntryHost {
     func checkAfterCapture(_ check: @escaping @MainActor () -> Void) {
         if capture.isActive || editor != nil {
             deferredUpdateCheck = check
-            onIssue("结束截图或标注后将检查更新。")
+            onIssue(ProductCopy.text("结束截图或标注后将检查更新。", "Updates will be checked when capture or markup finishes."))
         } else { check() }
     }
 
@@ -174,7 +175,7 @@ final class ScreenshotEntryHost {
         guard !finishingForExit else { return }
         guard allowsSystemCapture else {
             entry.setExpanded(false)
-            onIssue("设置验收环境不会抓取屏幕；当前仅验证原生界面与本地设置。")
+            onIssue(ProductCopy.text("设置验收环境不会抓取屏幕；当前仅验证原生界面与本地设置。", "Screen capture is unavailable in the settings preview."))
             return
         }
         guard isEnabled, !closed, !userHidden, !cancelling else { return }
@@ -216,8 +217,8 @@ final class ScreenshotEntryHost {
             configure()
         } catch {
             preferenceSaveFailed = true
-            onIssue(enabled ? "内置截图设置未能保存，开关状态未改变。请检查可用存储空间后重试。"
-                : "内置截图已关闭，但设置未能保存；重启可能恢复原设置。请检查可用存储空间后重试。")
+            onIssue(enabled ? ProductCopy.text("内置截图设置未能保存，开关状态未改变。请检查可用存储空间后重试。", "Could not save this capture setting. Check disk space and try again.")
+                : ProductCopy.text("内置截图已关闭，但设置未能保存；重启可能恢复原设置。请检查可用存储空间后重试。", "Capture is off for this session. Check disk space and retry to keep it off after restarting."))
         }
         onPreferencesChanged?()
     }
@@ -234,7 +235,7 @@ final class ScreenshotEntryHost {
         catch {
             preferenceSaveFailed = true
             entry.setDefaultMode(preferences.defaultMode)
-            onIssue("默认截图方式未能保存，请稍后重试。")
+            onIssue(ProductCopy.text("默认截图方式未能保存，请稍后重试。", "Could not save the default capture mode. Try again."))
         }
         onPreferencesChanged?()
     }
@@ -278,7 +279,7 @@ final class ScreenshotEntryHost {
                     _ = try await self.importer.collectOwnedCapture(derivative)
                     await self.onChange()
                     return true
-                } catch { return false }
+                } catch { self.onCaptureImportFailed?(); return false }
             }
             editor.onFinish = { [weak self] editedData in
                 guard let self, !self.closed, self.editorID == owner else { return }
@@ -291,7 +292,7 @@ final class ScreenshotEntryHost {
         } else {
             collect(result)
             if result.options.editAfter {
-                onIssue("这张截图已按原画质保留；当前轻量标注不支持它的颜色格式。")
+                onIssue(ProductCopy.text("这张截图已按原画质保留；当前轻量标注不支持它的颜色格式。", "The original image was saved. Markup is unavailable for its color format."))
             }
         }
         // Deliberately no setExpanded(false), cancel(), or mode/order mutation.
@@ -315,7 +316,7 @@ final class ScreenshotEntryHost {
                 self.configure()
             } catch {
                 guard let self, !self.closed else { return }
-                self.onIssue("截图尚未收录。请打开“设置 → 截图 → 管理”找回。")
+                self.onCaptureImportFailed?()
             }
         }
     }
@@ -368,5 +369,26 @@ final class ScreenshotEntryHost {
         rift.onGeometryChange = nil
         entry.onGeometryChange = nil
         entry.close()
+    }
+}
+
+
+private extension InteractiveScreenshotError {
+    var englishRecovery: String {
+        switch self {
+        case .screenRecordingPermissionRequired: return "Allow Riftlet in Screen Recording settings, then try again."
+        case .noDisplay: return "Connect a display, then try again."
+        case .invalidSelection: return "Select an area to capture."
+        case .displayConfigurationChanged: return "The display layout changed. Select the area again."
+        case .selectedWindowUnavailable: return "That window is unavailable. Select another window."
+        case .captureToolUnavailable: return "The macOS screenshot tool could not start."
+        case .captureFailed: return "macOS could not capture the screen. Check screen recording access and try again."
+        case .captureTimedOut: return "Screen capture timed out. Select the area again."
+        case .captureOverlayStillVisible: return "The selection overlay was still visible. Try capturing again."
+        case .unsafeOutputDirectory: return "Riftlet could not access its screenshot folder."
+        case .invalidOutput: return "macOS did not return a complete PNG image."
+        case .unexpectedPixelDimensions: return "The image size did not match the selection. The original file was kept."
+        case .imageTooLarge: return "This image exceeds the supported size. The original file was kept."
+        }
     }
 }

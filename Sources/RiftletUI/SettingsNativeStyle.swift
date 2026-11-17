@@ -9,6 +9,14 @@ public enum SettingsColorRole: String, Sendable { case window, surface, sidebar,
     public static let controlCenterWidth: CGFloat = 224
     public static let onboardingSize = NSSize(width: 584, height: 453)
     public static func color(_ role: SettingsColorRole) -> NSColor {
+        switch role {
+        case .window: return .windowBackgroundColor
+        case .surface: return .controlBackgroundColor
+        case .ink: return .labelColor
+        case .secondary: return .secondaryLabelColor
+        case .border: return .separatorColor
+        default: break
+        }
         return NSColor(name: NSColor.Name("Riftlet.Settings." + role.rawValue)) { appearance in
             // Decide each time this cached color resolves, using the appearance
             // supplied by AppKit rather than the preference at label creation.
@@ -54,7 +62,7 @@ public enum SettingsColorRole: String, Sendable { case window, surface, sidebar,
         case "title": label.font = .systemFont(ofSize: 22, weight: .semibold)
         case "heading", "rowTitle": label.font = .systemFont(ofSize: 13, weight: .medium)
         case "secondary": label.font = .systemFont(ofSize: 12)
-        case "caption": label.font = .systemFont(ofSize: 11)
+        case "caption": label.font = .systemFont(ofSize: 12)
         default: label.font = .systemFont(ofSize: 13)
         }
         label.textColor = color(role == "secondary" || role == "caption" ? .secondary : .ink)

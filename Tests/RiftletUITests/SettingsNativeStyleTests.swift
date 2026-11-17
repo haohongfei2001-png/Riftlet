@@ -31,13 +31,20 @@ final class SettingsNativeStyleTests: XCTestCase {
             throw XCTSkip("System currently supplies high-contrast matching; ordinary palette test does not change that preference")
         }
         let tokens: [(SettingsColorRole, UInt32, UInt32)] = [
-            (.window, 0xf7f9f8, 0x1c2420), (.surface, 0xffffff, 0x26312b),
-            (.sidebar, 0xedf1ee, 0x19241e), (.ink, 0x172521, 0xedf3ef),
-            (.secondary, 0x59675f, 0xadbab1), (.border, 0xdce2de, 0x3b4840),
+            (.sidebar, 0xedf1ee, 0x19241e),
             (.selection, 0xdcebe4, 0x294d3d), (.accent, 0x087f73, 0x65d2bb),
             (.accentInk, 0x086d63, 0x65d2bb), (.warning, 0x9b6429, 0xe8bc7e),
             (.warningBackground, 0xfaf3e7, 0x3a3020)
         ]
+        let native: [(SettingsColorRole, NSColor)] = [
+            (.window, .windowBackgroundColor), (.surface, .controlBackgroundColor),
+            (.ink, .labelColor), (.secondary, .secondaryLabelColor), (.border, .separatorColor)
+        ]
+        for (role, color) in native {
+            for appearance in [light, dark] {
+                assertComponents(try resolved(SettingsNativeStyle.color(role), in: appearance), try resolved(color, in: appearance))
+            }
+        }
         for (role, lightToken, darkToken) in tokens {
             let cached = SettingsNativeStyle.color(role)
             assertComponents(try resolved(cached, in: light), rgb(lightToken))
@@ -62,7 +69,7 @@ final class SettingsNativeStyleTests: XCTestCase {
         let normal = try XCTUnwrap(NSAppearance(named: .aqua))
         for (role, color) in cached {
             let before = try resolved(color, in: normal)
-            let system: NSColor = role == .border ? .separatorColor : .labelColor
+            let system: NSColor = role == .border ? .separatorColor : role == .secondary ? .secondaryLabelColor : .labelColor
             assertComponents(try resolved(color, in: appearance), try resolved(system, in: appearance))
             assertComponents(try resolved(color, in: normal), before)
         }

@@ -131,7 +131,7 @@ final class RiftControlCenterControllerTests: XCTestCase {
         value.appearance.unreadable = true
         let projection = RiftControlCenterPresentation(value, copy: .simplifiedChinese)
         XCTAssertEqual(projection.state, .attention)
-        XCTAssertEqual(projection.recoveryPage, .general)
+        XCTAssertEqual(projection.recoveryPage, .display)
         XCTAssertTrue(projection.title.contains("确认保存"))
         XCTAssertFalse(projection.detail.contains("回滚"))
     }
@@ -171,7 +171,7 @@ final class RiftControlCenterControllerTests: XCTestCase {
         XCTAssertEqual(Set(value.state.domains.compactMap { $0.value.saveFailure == nil ? nil : $0.key }),
                        [.collection, .entry, .placement], "Routing cannot clear another pending retry")
         for (issue, page): (SetupIssue, SettingsPage) in [(.screenshotPreferenceUnsaved, .capture),
-                (.collectionPreferenceUnsaved, .capture), (.visibilityPreferenceUnsaved, .capture)] {
+                (.collectionPreferenceUnsaved, .capture), (.visibilityPreferenceUnsaved, .display)] {
             XCTAssertEqual(RiftControlCenterPresentation(fixture(issue: issue), copy: .simplifiedChinese).recoveryPage, page)
         }
         var login = fixture()
@@ -274,7 +274,7 @@ final class RiftControlCenterControllerTests: XCTestCase {
         for state in states {
             controller.update(state)
             controller.contentView.layoutSubtreeIfNeeded()
-            XCTAssertEqual(controller.contextMenu.items.filter { !$0.isSeparatorItem }.count, 4)
+            XCTAssertEqual(controller.contextMenu.items.filter { !$0.isSeparatorItem }.count, state.revision == states.first?.revision ? 4 : 6)
             var rectangles: [NSRect] = []
             for control in controls {
                 XCTAssertFalse(control.isHiddenOrHasHiddenAncestor)
@@ -295,7 +295,7 @@ final class RiftControlCenterControllerTests: XCTestCase {
             for (first, second) in zip(controls, controls.dropFirst() + [controls[0]]) {
                 XCTAssertTrue(first.nextKeyView === second)
             }
-            for removed in ["control.pause", "control.hide", "control.capture", "control.recovery"] {
+            for removed in ["control.pause", "control.hide", "control.capture"] {
                 XCTAssertNil(controller.control(identifier: removed), "Removed menu controls must not survive as invisible actions")
             }
             XCTAssertEqual(controller.contentView.bounds.width, 224)

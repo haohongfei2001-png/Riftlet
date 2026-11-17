@@ -112,10 +112,10 @@ final class SettingsReviewDriver {
             await runCase("programmatic-collection-during-recheck") { try await self.collectionDuringRecheck() }
             await runCase("four-pages-light-and-dark") { try await self.capturePages() }
             await runCase("orthogonal-pause-hidden-sqlite") { try await self.pauseAndHide() }
-            await runCase("archive-editor-return-and-blur") { try await self.archiveEditing() }
+            await runCase("archive-presets-and-inherited-value") { try await self.archiveEditing() }
             await runCase("tray-material-settings-and-legacy-visibility") { try await self.trayAppearanceSettings() }
-            await runCase("configuration-editor-refresh-defaults") { try await self.configurationEditing() }
-            await runCase("close-sheet-continue-discard") { try await self.closeEditing() }
+            await runCase("recommended-appearance-and-undo") { try await self.configurationEditing() }
+            await runCase("preset-persistence-across-close") { try await self.closeEditing() }
             await runCase("independent-write-failures-and-retry") { try await self.saveFailures() }
             await runCase("motion-selection-in-advanced-appearance") { try await self.motion() }
             await runCase("two-step-guidance-light-and-dark") { try await self.onboarding() }
@@ -444,14 +444,6 @@ final class SettingsReviewDriver {
         }
         try require(NSApp.sendAction(action, to: sender.target, from: sender), "nativeChoiceActionNotDispatched")
     }
-    private func edit(_ id: String, text: String) throws -> (NSTextField, NSTextView) {
-        guard let field = try control(id) as? NSTextField else { throw Failure.controlUnavailable(id) }
-        host.center.window.makeFirstResponder(field)
-        guard let editor = field.currentEditor() as? NSTextView else { throw Failure.assertion("nativeFieldEditorMissing") }
-        let local = text.replacingOccurrences(of: ".", with: Locale.current.decimalSeparator ?? ".")
-        editor.insertText(local, replacementRange: NSRange(location: 0, length: (editor.string as NSString).length))
-        return (field, editor)
-    }
     private func read<T: Decodable>(_ type: T.Type, _ name: String) throws -> T {
         try JSONDecoder().decode(type, from: Data(contentsOf: environment.root.appendingPathComponent(name)))
     }
@@ -621,31 +613,13 @@ final class SettingsReviewDriver {
             try require(try read(ArchiveDocument.self, "lifecycle-settings.json").archiveAfterSeconds == minutes.map { $0 * 60 },
                         "archivePresetSecondsMismatch")
         }
-        try select("settings.center.archive.preset", index: 5)
-        let (field, editor) = try edit("settings.center.archive.minutes", text: "1.5")
-        let originalSelection = NSRange(location: 1, length: 1)
-        editor.setSelectedRange(originalSelection)
-        let text = editor.string
-        await onRefresh(); await settle(50)
-        try require(field.currentEditor() === editor && editor.string == text && editor.selectedRange() == originalSelection,
-                    "archiveEditorChangedOnRefresh")
-        try commitReturn("settings.center.archive.minutes")
-        try await wait { self.host.snapshot.state.owner.settings.archiveAfterMinutes == 1.5 && !self.host.model.hasArchiveDraft }
-        try require(try read(ArchiveDocument.self, "lifecycle-settings.json").archiveAfterSeconds == 90,
-                    "archiveJSONMismatch")
-        _ = try edit("settings.center.archive.minutes", text: "2.5")
-        try require(host.center.window.makeFirstResponder(nil), "archiveBlurRefused")
-        try await wait { self.host.snapshot.state.owner.settings.archiveAfterMinutes == 2.5 && !self.host.model.hasArchiveDraft }
+        // Older installations may carry a valid fractional duration.
+        await host.perform(.settings(.commitArchive("1.75")))
         host.show(page: .display); host.show(page: .capture)
-        try require(try read(ArchiveDocument.self, "lifecycle-settings.json").archiveAfterSeconds == 150, "blurDidNotPersistArchive")
-        await capture("archive-return-and-blur", window: host.center.window)
-    }
-
-    private func commitReturn(_ identifier: String) throws {
-        guard let field = try control(identifier) as? NSTextField, let editor = field.currentEditor() as? NSTextView else {
-            throw Failure.controlUnavailable(identifier)
-        }
-        editor.doCommand(by: #selector(NSResponder.insertNewline(_:)))
+        let preset = try control("settings.center.archive.preset") as? NSPopUpButton
+        try require(preset?.indexOfSelectedItem == 5 && preset?.lastItem?.isEnabled == false, "inheritedDurationNotShown")
+        try require(try read(ArchiveDocument.self, "lifecycle-settings.json").archiveAfterSeconds == 105, "viewChangedArchiveTime")
+        await capture("inherited-archive-duration", window: host.center.window)
     }
 
     private func expandLayoutDetails() throws {
@@ -659,7 +633,7 @@ final class SettingsReviewDriver {
         let config = host.snapshot.state.owner.settings.configuration
         let legacy = host.snapshot.legacyCustomFields
         if legacy.isEmpty && !host.snapshot.hasLegacyTrayTheme {
-            try require(find("settings.center.disclosure.display.legacy", in: host.center.window.contentView)?.isHiddenOrHasHiddenAncestor == true,
+            try require(find("settings.center.layout.defaults.display", in: host.center.window.contentView)?.isHiddenOrHasHiddenAncestor == true,
                         "newProfileShowsLegacySettings")
         }
         guard let slider = try control("settings.center.tray.transparency") as? NSSlider,
@@ -708,96 +682,33 @@ final class SettingsReviewDriver {
         // Seed an actual saved non-default legacy field in this guarded review profile.
         await host.perform(.settings(.commitField(.outerInset, "22", maximumCount: 10)))
         try await wait { self.host.snapshot.legacyCustomFields.contains(.outerInset) }
-        try click("settings.center.disclosure.display.legacy")
-        let (field, editor) = try edit("settings.center.field.outerInset", text: "83.25")
-        let selection = NSRange(location: 1, length: 2)
-        editor.setSelectedRange(selection)
-        let text = editor.string
-        let old = try Data(contentsOf: environment.root.appendingPathComponent("rift-configuration.json"))
-        await onRefresh(); await settle(50)
-        try require(field.currentEditor() === editor && editor.string == text && editor.selectedRange() == selection,
-                    "configurationEditorChangedOnRefresh")
-        try require(try Data(contentsOf: environment.root.appendingPathComponent("rift-configuration.json")) == old,
-                    "backgroundRefreshSavedDraft")
-        try commitReturn("settings.center.field.outerInset")
-        try await wait { self.host.snapshot.state.owner.settings.configuration.outerInset == 83.25 && !self.host.model.hasLayoutDraft }
-        try require(try read(RiftConfiguration.self, "rift-configuration.json").outerInset == 83.25,
-                    "firstConfigurationSaveDidNotPersist")
-        guard let slider = try control("settings.center.slider.outerInset") as? NSSlider,
-              let action = slider.action else { throw Failure.controlUnavailable("outerInsetSlider") }
-        try require(host.center.window.makeFirstResponder(nil), "layoutBlurRefused")
-        try require(!slider.isContinuous, "sliderSavesBeforeGestureEnds")
-        slider.doubleValue = 91.25
-        try require(try read(RiftConfiguration.self, "rift-configuration.json").outerInset == 83.25, "sliderSavedBeforeAction")
-        try require(NSApp.sendAction(action, to: slider.target, from: slider), "sliderCommitNotDispatched")
-        try await wait { self.host.snapshot.state.owner.settings.configuration.outerInset == 91.25 && !self.host.model.hasLayoutDraft }
-        try require(try read(RiftConfiguration.self, "rift-configuration.json").outerInset == 91.25, "sliderGestureDidNotPersist")
         try click("settings.center.layout.defaults.display")
-        try await wait { self.host.center.window.attachedSheet != nil }
-        guard let sheet = host.center.window.attachedSheet,
-              let confirm = find("settings.center.defaults.confirm", in: sheet.contentView) as? NSButton else {
-            throw Failure.controlUnavailable("restoreDefaultsConfirmation")
-        }
-        confirm.performClick(nil)
-        let defaultWidth = RiftConfiguration().outerInset
-        try await wait { self.host.snapshot.state.owner.settings.configuration.outerInset == defaultWidth && !self.host.model.hasLayoutDraft }
-        try require(try read(RiftConfiguration.self, "rift-configuration.json").outerInset == defaultWidth, "defaultsDidNotSave")
-        let displayedWidth = Double(host.model.text(for: .outerInset).replacingOccurrences(of: Locale.current.decimalSeparator ?? ".", with: "."))
-        try require(displayedWidth == defaultWidth, "oldEditorRestoredDiscardedText")
-        await capture("display-defaults-after-active-edit", window: host.center.window)
+        try await wait { self.host.snapshot.state.owner.settings.configuration.outerInset == RiftConfiguration().outerInset }
+        try click("settings.center.layout.defaults.display")
+        try await wait { self.host.snapshot.state.owner.settings.configuration.outerInset == 22 }
+        try require(try read(RiftConfiguration.self, "rift-configuration.json").outerInset == 22, "undoDidNotRestoreGeometry")
+        await capture("restored-legacy-appearance", window: host.center.window)
     }
 
     private func closeEditing() async throws {
         host.show(page: .capture)
-        try select("settings.center.archive.preset", index: 5)
-        _ = try edit("settings.center.archive.minutes", text: "3.5")
+        try select("settings.center.archive.preset", index: 3)
+        try await wait { self.host.snapshot.state.owner.settings.archiveAfterMinutes == 5 }
         host.center.window.performClose(nil)
-        try await wait { !self.host.center.isVisible && !self.host.model.hasArchiveDraft }
-        try require(try read(ArchiveDocument.self, "lifecycle-settings.json").archiveAfterSeconds == 210, "validCloseLostArchive")
+        try await wait { !self.host.center.isVisible }
         host.show(page: .capture)
-        try select("settings.center.archive.preset", index: 5)
-        let (_, editor) = try edit("settings.center.archive.minutes", text: "13.5")
-        let selection = NSRange(location: 1, length: 1); editor.setSelectedRange(selection)
-        let text = editor.string
-        host.center.window.performClose(nil)
-        try await wait { self.host.center.window.attachedSheet != nil }
-        let sheet = host.center.window.attachedSheet!
-        await capture("close-draft-sheet", window: sheet)
-        try click("settings.center.close.continue", window: sheet)
-        try await wait { self.host.center.window.attachedSheet == nil }
-        await settle(60)
-        let field = try control("settings.center.archive.minutes") as! NSTextField
-        let restored = field.currentEditor() as? NSTextView
-        try require(restored?.string == text && restored?.selectedRange() == selection, "continueDidNotRestoreEditor")
-        host.center.window.performClose(nil)
-        try await wait { self.host.center.window.attachedSheet != nil }
-        try click("settings.center.close.discard", window: host.center.window.attachedSheet!)
-        try await wait { !self.host.center.isVisible && !self.host.model.hasArchiveDraft }
-        try require(try read(ArchiveDocument.self, "lifecycle-settings.json").archiveAfterSeconds == 210,
-                    "closeDiscardChangedSavedArchive")
-        host.show(page: .capture)
+        try require(try read(ArchiveDocument.self, "lifecycle-settings.json").archiveAfterSeconds == 300, "closeLostArchive")
     }
 
     private func saveFailures() async throws {
         host.show(page: .display)
         try expandLayoutDetails()
-        _ = try edit("settings.center.field.visibleCountPreference", text: "4")
         let oldCount = host.snapshot.state.owner.settings.configuration.visibleCountPreference
         try await blockedJSON("rift-configuration.json") {
-            try self.commitReturn("settings.center.field.visibleCountPreference")
+            try self.select("settings.center.count", index: 3)
             try await self.wait { self.host.snapshot.state.domains[.layout]?.saveFailure != nil }
             try self.require(self.host.snapshot.state.owner.settings.configuration.visibleCountPreference == oldCount,
                              "failedLayoutChangedEffectiveValue")
-            self.host.center.window.performClose(nil)
-            try await self.wait { self.host.center.window.attachedSheet != nil }
-            try self.click("settings.center.close.apply", window: self.host.center.window.attachedSheet!)
-            await self.settle(200)
-            try self.require(self.host.center.isVisible && self.host.model.hasLayoutDraft,
-                             "failedCloseApplyDismissedDraft")
-        }
-        if let sheet = host.center.window.attachedSheet {
-            try click("settings.center.close.continue", window: sheet)
-            try await wait { self.host.center.window.attachedSheet == nil }
         }
         host.show(page: .display)
         let beforeAppearance = host.snapshot.appearance.selection
@@ -813,10 +724,8 @@ final class SettingsReviewDriver {
         await capture("control-save-failure", window: host.control.window)
         try await closeControl()
         host.show(page: .capture)
-        try select("settings.center.archive.preset", index: 5)
-        _ = try edit("settings.center.archive.minutes", text: "1.75")
-        try commitReturn("settings.center.archive.minutes")
-        try await wait { self.host.snapshot.state.owner.settings.archiveAfterMinutes == 1.75 }
+        try select("settings.center.archive.preset", index: 4)
+        try await wait { self.host.snapshot.state.owner.settings.archiveAfterMinutes == 10 }
         try require(host.snapshot.appearance.failure != nil && host.snapshot.state.domains[.layout]?.saveFailure != nil,
                     "unrelatedSaveClearedErrors")
         host.show(page: .display); try click("settings.center.appearance.retry")
@@ -898,8 +807,7 @@ final class SettingsReviewDriver {
         try expandLayoutDetails()
         let originalCount = host.snapshot.state.owner.settings.configuration.visibleCountPreference
         let testCount = originalCount == 2 ? 1 : 2
-        _ = try edit("settings.center.field.visibleCountPreference", text: String(testCount))
-        try await wait { self.host.model.hasLayoutDraft }
+        try select("settings.center.count", index: testCount - 1)
         await settle()
         guard let scroll = find("settings.center.scroll", in: host.center.window.contentView) as? NSScrollView,
               let document = scroll.documentView,
@@ -913,10 +821,8 @@ final class SettingsReviewDriver {
             "documentHeight": document.bounds.height, "viewportHeight": scroll.contentView.bounds.height,
             "scrollOffset": scroll.contentView.bounds.origin.y, "arrivalOptionFullyVisible": true])
         await capture("settings-minimum-display-scrolled", window: host.center.window)
-        try commitReturn("settings.center.field.visibleCountPreference")
         try await wait { self.host.snapshot.state.owner.settings.configuration.visibleCountPreference == testCount && !self.host.model.hasLayoutDraft }
-        _ = try edit("settings.center.field.visibleCountPreference", text: String(originalCount))
-        try commitReturn("settings.center.field.visibleCountPreference")
+        try select("settings.center.count", index: originalCount - 1)
         try await wait { self.host.snapshot.state.owner.settings.configuration.visibleCountPreference == originalCount && !self.host.model.hasLayoutDraft }
         scroll.contentView.scroll(to: .zero); scroll.reflectScrolledClipView(scroll.contentView)
         host.center.window.performClose(nil)
@@ -1070,13 +976,13 @@ final class SettingsReviewDriver {
         await capture("history-grid-selected", window: history.window)
         try await chooseHistoryStyle(.current)
         try require(history.selectedRecordID == id && count.stringValue == page, "historyStyleLostUUIDOrPage")
-        try select("history.grid.filter", index: 3, window: history.window)
+        try select("history.grid.filter", index: 2, window: history.window)
         try await wait { try self.historyTable().numberOfRows == 0 }
         try await chooseHistoryStyle(.imageGrid)
-        try require((find("history.grid.filter", in: history.window.contentView) as? NSPopUpButton)?.indexOfSelectedItem == 3,
+        try require((find("history.grid.filter", in: history.window.contentView) as? NSPopUpButton)?.indexOfSelectedItem == 2,
                     "historyStyleLostFilter")
         try await chooseHistoryStyle(.current)
-        try require((find("history.grid.filter", in: history.window.contentView) as? NSPopUpButton)?.indexOfSelectedItem == 3, "historyCurrentFilterLost")
+        try require((find("history.grid.filter", in: history.window.contentView) as? NSPopUpButton)?.indexOfSelectedItem == 2, "historyCurrentFilterLost")
         try select("history.grid.filter", index: 0, window: history.window)
         _ = try await selectHistoryFixture()
         try await assertHistoryReadOnly("search-filter-history-renderer")
@@ -2130,9 +2036,7 @@ extension SettingsReviewDriver {
             // An upgraded profile with a saved nondefault theme exposes the legacy controls.
             await self.host.perform(.settings(.selectTrayTheme(.custom)))
             try await self.wait { self.host.snapshot.hasLegacyTrayTheme }
-            let legacyID = "settings.center.disclosure.display.legacy"
-            if let legacy = try self.control(legacyID) as? NSButton, legacy.state != .on { try self.click(legacyID) }
-            try self.select("settings.center.trayTheme",index:1)
+            await self.host.perform(.settings(.selectTrayTheme(.violetGlass)))
             try await self.wait { self.host.snapshot.state.owner.settings.configuration.trayTheme == .violetGlass }
             await self.settle(180)
             try self.desktopCapture("tray-violet",screen:screen,rows:panel.diagnosticSnapshot.rows)

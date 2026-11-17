@@ -4,7 +4,7 @@ import RiftletCapture
 /// One native settings window over the existing owner/model. Rendering cannot
 /// persist preferences, request permission, start capture, or reopen the window.
 @MainActor
-public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NSTextFieldDelegate, NSMenuDelegate {
+public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NSMenuDelegate {
     public static let windowIdentifier = NSUserInterfaceItemIdentifier("RiftletSettingsCenter")
     public let window: NSWindow
     public var isVisible: Bool { window.isVisible }
@@ -23,8 +23,6 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     // Natural-width actions use a full-width alignment container. Hide both
     // together so conditional recovery actions never leave empty rows.
     var actionContainers: [String: NSView] = [:]
-    var numericFields: [SettingsField: NSTextField] = [:]
-    var numericSliders: [SettingsField: NSSlider] = [:]
     var handlers: [ObjectIdentifier: () -> Void] = [:]
     var preferenceRecoveryRows: [SettingsPreferenceDomain: NSView] = [:]
     var errorRows: [SettingsDomain: NSStackView] = [:]
@@ -38,24 +36,15 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     var displaySelection: UInt32?
     var displayMenuTracking = false
     var displayRefreshPending = false
-    var archiveCustom = false
-    var archiveField: NSTextField!
-    var archiveCustomRow: NSView!
+    var legacyUndo: (form: RiftDesktopForm, fields: [SettingsField: Double], theme: RiftTrayTheme?)?
     var captureOptions: NSView!
     var automaticUpdatesRow: NSView!
     var trayFavorites: NSView!
-    var commonEdgeSettings: NSView!
-    var slitInsetFraction: NSView!
 
-    var windChimeLineSetting: NSView!
     var windChimeSettings: NSView!
-    var traySettings: NSView!
-    var trayTintSettings: NSView!
-    var trayOcclusionRow: NSView!
     var displayRow: NSView!
     var legacySection: NSView!
     var trayAppearanceSection: NSView!
-    var geometryRows: [SettingsField: NSView] = [:]
     var previewTransparency: Double?
     var previewBodyColor: String?
     var pendingTone: Task<Void, Never>?
@@ -69,16 +58,9 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     // Consecutive edits to a single on-disk owner must run in event order.
     private var queuedSaves: [SettingsDomain: Task<Void, Never>] = [:]
     private var queuedSaveIDs: [SettingsDomain: UUID] = [:]
-    private var submittingCloseEdit = false
-    private var replacingEditor = false
-    // Last value actually displayed or submitted. AppKit can deliver end-editing
-    // on a focus-only visit without ever sending a begin-editing notification.
-    var displayedEditorValues: [ObjectIdentifier: String] = [:]
-    private var markedFields = Set<ObjectIdentifier>()
     private var allowClose = false
     private var hasPositioned = false
     private(set) var pendingCloseAlert: NSAlert?
-    private var suspendedEditor: (field: NSTextField, selection: NSRange)?
     private var closingAfterApply = false
     private var closeSheetApproved = false
     private var closeKeyMonitor: Any?
@@ -104,6 +86,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     /// The host is the only subscriber to model.onChange and projects all owners.
     public func update(_ snapshot: SettingsProductSnapshot) {
         guard snapshot.revision >= product.revision else { return }
+        if snapshot.state.owner.settings.configuration.desktopForm != product.state.owner.settings.configuration.desktopForm { legacyUndo = nil }
         product = snapshot
         render()
     }
@@ -155,7 +138,6 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
         pendingCloseAlert = nil
         closingAfterApply = false
         closeSheetApproved = false
-        suspendedEditor = nil
         if let sheet { window.endSheet(sheet, returnCode: .abort) }
         window.close()
         allowClose = false
@@ -167,8 +149,6 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
         flushTrayAppearance()
         guard terminationCompletion == nil else { completion(false); return }
         guard window.attachedSheet == nil || pendingCloseAlert != nil else { completion(false); return }
-        if commitActiveEditBeforeClose(termination: completion) { return }
-        flushEditor()
         if pendingCloseAlert == nil && !needsCloseConfirmation && !persistenceBusy {
             completion(true)
             return
@@ -240,7 +220,6 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
             return
         }
         flushTrayAppearance()
-        flushEditor()
         window.makeFirstResponder(nil)
         selectedPage = destination
         mountPage(destination)
@@ -266,7 +245,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
         pageWidthConstraints[page]?.isActive = true
         scroll.contentView.scroll(to: .zero); scroll.reflectScrolledClipView(scroll.contentView)
         pageHeading.stringValue = page.title
-        window.title = "Riftlet — \(page.title)"
+        window.title = ProductCopy.text("Riftlet 设置", "Riftlet Settings")
     }
 
     func dispatch(_ action: SettingsProductAction) {
@@ -303,44 +282,6 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
         handlers[ObjectIdentifier(sender)]?()
     }
 
-    public func controlTextDidChange(_ obj: Notification) {
-        guard let field = obj.object as? NSTextField else { return }
-        if let editor = field.currentEditor() as? NSTextView, editor.hasMarkedText() {
-            markedFields.insert(ObjectIdentifier(field))
-            return
-        }
-        markedFields.remove(ObjectIdentifier(field))
-        record(field)
-        refreshDraftPresentation()
-    }
-    public func controlTextDidEndEditing(_ obj: Notification) {
-        guard let field = obj.object as? NSTextField else { return }
-        guard !allowClose, !submittingCloseEdit, !replacingEditor, pendingCloseAlert == nil,
-              markedFields.remove(ObjectIdentifier(field)) == nil,
-              (field.currentEditor() as? NSTextView)?.hasMarkedText() != true else { return }
-        commitEditor(field)
-    }
-    public func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
-        guard commandSelector == #selector(NSResponder.insertNewline(_:)), !textView.hasMarkedText(),
-              let field = control as? NSTextField else { return false }
-        markedFields.remove(ObjectIdentifier(field))
-        commitEditor(field)
-        return true
-    }
-
-    private func commitEditor(_ field: NSTextField) {
-        let text = (field.currentEditor() as? NSTextView)?.string ?? field.stringValue
-        guard text != displayedEditorValues[ObjectIdentifier(field)] else { return }
-        record(field)
-        displayedEditorValues[ObjectIdentifier(field)] = text
-        if field === archiveField, model.hasArchiveDraft {
-            dispatch(.settings(.commitArchive(model.archiveDraftText)))
-        } else if let key = numericFields.first(where: { $0.value === field })?.key,
-                  let text = model.snapshot.layoutText[key] {
-            dispatch(.settings(.commitField(key, text, maximumCount: countCapacity(model.snapshot.owner))))
-        }
-    }
-
     var visibleLegacyFields: Set<SettingsField> {
         let c = model.snapshot.owner.settings.configuration
         return product.legacyCustomFields.filter { field in
@@ -372,62 +313,17 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     }
 
     func restoreVisibleDefaults() {
-        guard finishEditingForReplacement() else { return }
-        let alert = NSAlert()
-        let fields = visibleLegacyFields
-        let resetTheme = product.hasLegacyTrayTheme && model.snapshot.owner.settings.configuration.desktopForm == .tray
-        guard !fields.isEmpty || resetTheme else { return }
-        alert.messageText = ProductCopy.text("恢复旧版自定义？", "Restore Legacy Defaults?")
-        let names = fields.sorted { $0.rawValue < $1.rawValue }.map(fieldTitle)
-            + (resetTheme ? [ProductCopy.text("托盘材质", "Tray Material")] : [])
-        alert.informativeText = names.joined(separator: ProductCopy.text("、", ", "))
-        alert.addButton(withTitle: ProductCopy.text("取消", "Cancel"))
-        alert.addButton(withTitle: ProductCopy.text("恢复默认数值", "Restore Defaults")).identifier = .init("settings.center.defaults.confirm")
-        alert.beginSheetModal(for: window) { [weak self] response in
-            if response == .alertSecondButtonReturn { self?.dispatch(.settings(.restoreLegacyCustom(fields: fields, resetTheme: resetTheme))) }
-        }
-    }
-
-    func record(_ field: NSTextField) {
-        guard (field.currentEditor() as? NSTextView)?.hasMarkedText() != true else { return }
-        let text = (field.currentEditor() as? NSTextView)?.string ?? field.stringValue
-        if text == displayedEditorValues[ObjectIdentifier(field)] { return }
-        if field === archiveField {
-            if model.archiveDraftText != text { model.setArchiveDraftText(text) }
-        } else if let key = numericFields.first(where: { $0.value === field })?.key,
-                  model.text(for: key) != text {
-            model.setDraftText(text, for: key)
-        }
-    }
-    func flushEditor() {
-        for field in numericFields.values where field.currentEditor() != nil { record(field) }
-        if archiveField?.currentEditor() != nil { record(archiveField) }
-    }
-    /// Explicit replacement is different from a background refresh. Retire the
-    /// old field editor first so its later end-edit notification cannot restore
-    /// text that the user has just chosen to discard or replace with defaults.
-    @discardableResult func finishEditingForReplacement() -> Bool {
-        let fields = Array(numericFields.values) + [archiveField].compactMap { $0 }
-        guard let field = fields.first(where: { $0.currentEditor() != nil }),
-              let editor = field.currentEditor() as? NSTextView else { return true }
-        replacingEditor = true
-        defer { replacingEditor = false; markedFields.remove(ObjectIdentifier(field)) }
-        if editor.hasMarkedText() {
-            // This explicit discard/default action cancels unconfirmed input
-            // through AppKit; it never treats a partial IME string as a Save.
-            guard field.abortEditing() else {
-                footerStatus.stringValue = ProductCopy.text("请先完成当前输入，再恢复或放弃更改。", "Finish editing this field before restoring or discarding changes.")
-                return false
-            }
+        let config = model.snapshot.owner.settings.configuration
+        if let undo = legacyUndo, undo.form == config.desktopForm {
+            dispatch(.settings(.restoreLegacyCustom(fields: Set(undo.fields.keys), resetTheme: undo.theme != nil, priorValues: undo.fields, priorTheme: undo.theme)))
+            legacyUndo = nil
         } else {
-            record(field)
-            guard window.makeFirstResponder(nil) else { return false }
+            let fields = visibleLegacyFields
+            let resetTheme = product.hasLegacyTrayTheme && config.desktopForm == .tray
+            guard !fields.isEmpty || resetTheme else { return }
+            legacyUndo = (config.desktopForm, Dictionary(uniqueKeysWithValues: fields.map { ($0, $0.value(in: config)) }), resetTheme ? config.trayTheme : nil)
+            dispatch(.settings(.restoreLegacyCustom(fields: fields, resetTheme: resetTheme)))
         }
-        return field.currentEditor() == nil
-    }
-    func replaceDrafts(_ command: SettingsCommand) {
-        guard finishEditingForReplacement() else { return }
-        dispatch(.settings(command))
     }
 
     public func menuWillOpen(_ menu: NSMenu) {
@@ -452,51 +348,9 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
         }
     }
 
-    /// Closing a valid focused editor is a commit, just like Tab or Return.
-    /// Keep invalid edits and failed writes recoverable in the existing sheet.
-    private func commitActiveEditBeforeClose(termination: (@MainActor (Bool) -> Void)? = nil) -> Bool {
-        if submittingCloseEdit { termination?(false); return true }
-        guard pendingCloseAlert == nil,
-              let field = (Array(numericFields.values) + [archiveField].compactMap { $0 }).first(where: { $0.currentEditor() != nil }),
-              let editor = field.currentEditor() as? NSTextView else { return false }
-        if editor.hasMarkedText() {
-            termination?(false)
-            return true
-        }
-        guard editor.string != displayedEditorValues[ObjectIdentifier(field)] else { return false }
-        record(field)
-        let command: SettingsCommand
-        if field === archiveField, model.hasArchiveDraft {
-            guard let n = number(model.archiveDraftText), QueueArchivePolicy.minutesRange.contains(n) else { return false }
-            command = .commitArchive(model.archiveDraftText)
-        } else if let key = numericFields.first(where: { $0.value === field })?.key,
-                  let text = model.snapshot.layoutText[key], number(text) != nil {
-            command = .commitField(key, text, maximumCount: countCapacity(model.snapshot.owner))
-        } else { return false }
-        displayedEditorValues[ObjectIdentifier(field)] = editor.string
-        submittingCloseEdit = true
-        dispatch(.settings(command))
-        let write = queuedSaves[field === archiveField ? .archive : .layout]
-        Task { @MainActor [weak self] in
-            await write?.value
-            guard let self else { termination?(false); return }
-            submittingCloseEdit = false
-            if needsCloseConfirmation || persistenceBusy {
-                termination?(false)
-                if needsCloseConfirmation && window.isVisible { presentCloseConfirmation() }
-            } else {
-                finishUserClose()
-                termination?(true)
-            }
-        }
-        return true
-    }
-
     public func windowShouldClose(_ sender: NSWindow) -> Bool {
         if allowClose { return true }
         if finishAppearanceBeforeClose() { return false }
-        if commitActiveEditBeforeClose() { return false }
-        flushEditor()
         if pendingCloseAlert != nil { return false }
         guard needsCloseConfirmation else { return true }
         presentCloseConfirmation()
@@ -505,10 +359,6 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
 
     func presentCloseConfirmation() {
         guard pendingCloseAlert == nil, window.attachedSheet == nil else { return }
-        if let field = (Array(numericFields.values) + [archiveField].compactMap { $0 }).first(where: { $0.currentEditor() != nil }),
-           let editor = field.currentEditor() as? NSTextView {
-            suspendedEditor = (field, editor.selectedRange())
-        }
         let alert = NSAlert()
         alert.messageText = ProductCopy.text("要保存更改后再关闭吗？", "Save changes before closing?")
         alert.alertStyle = .informational
@@ -536,7 +386,6 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
                     finishUserClose()
                     resolveTermination(true)
                 } else {
-                    restoreEditor()
                     resolveTermination(false)
                 }
             }
@@ -568,7 +417,6 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
             return
         }
         guard sender.isEnabled, !closingAfterApply else { return }
-        if index == 1 && !finishEditingForReplacement() { return }
         closingAfterApply = true
         refreshCloseButtons()
         Task { @MainActor [weak self, weak alert] in
@@ -606,19 +454,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
         terminationCompletion = nil
         completion?(approved)
     }
-    private func restoreEditor() {
-        guard let context = suspendedEditor else { return }
-        suspendedEditor = nil
-        guard context.field.window === window, !context.field.isHiddenOrHasHiddenAncestor else { return }
-        window.makeFirstResponder(context.field)
-        if let editor = context.field.currentEditor() as? NSTextView, !editor.hasMarkedText() {
-            let count = (editor.string as NSString).length
-            let start = min(context.selection.location, count)
-            editor.setSelectedRange(NSRange(location: start, length: min(context.selection.length, count - start)))
-        }
-    }
     private func finishUserClose() {
-        suspendedEditor = nil
         allowClose = true; window.close(); allowClose = false
     }
 

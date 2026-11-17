@@ -31,6 +31,19 @@ public struct RiftHistoryEntry: Identifiable, Equatable, Sendable {
         return operation
     }
 
+    /// Opening the recorded conversation is a read/navigation action. It does
+    /// not resume a handoff or identify a live browser tab for input.
+    var conversationURL: URL? {
+        guard let target = currentOperation?.target, target.adapterID == "chatgpt-web",
+              target.surface == .webChat, target.applicationID == "com.google.Chrome" else { return nil }
+        let conversation: UUID
+        if let id = target.historyConversationID { conversation = id }
+        else if let draft = target.logicalDraftIdentity, draft.isRecognized,
+                draft.profileID == "chatgpt-composer-react-persisted-20261027-v1", let id = UUID(uuidString: draft.id) { conversation = id }
+        else { return nil }
+        return URL(string: "https://chatgpt.com/c/" + conversation.uuidString.lowercased())
+    }
+
     public var isConfirmedFailure: Bool { attachmentState == .confirmedFailure }
     public var needsVerification: Bool { attachmentState.needsVerification }
 
@@ -141,7 +154,7 @@ public enum HistoryPresentation {
         case .available:
             switch entry.record.visibility {
             case .archived: return copy.text("已归档", "Archived")
-            case .removed: return copy.text("已移出裂缝", "Removed from desktop")
+            case .removed: return copy.text("已从桌面收起", "Removed from desktop")
             default: return copy.text("待附加", "Ready to attach")
             }
         }
@@ -159,7 +172,7 @@ public enum HistoryPresentation {
         switch entry.attachmentState {
         case .handedOff: return copy.text("上传结果见原对话。", "Check the original conversation for the upload result.")
         case .checkDraft: return copy.text("原附件报告异常，请到原对话核对。", "The attachment reported a problem. Check the original conversation.")
-        case .needsReview: return copy.text("请到原对话核对附件。Riftlet 不会自动重传。", "Check the attachment in the original conversation. Riftlet will not upload it again automatically.")
+        case .needsReview: return copy.text("请对照原图，在原草稿中核对附件。Riftlet 不会自动重传。", "Compare the original image with the attachment in your draft. Riftlet won’t upload it again automatically.")
         case .attached: return copy.text("原始系统截图仍然保留。", "The original system screenshot is still saved.")
         case .confirmedFailure, .notAttached: return copy.text("图片仍保存在本机。", "The image is still saved on this Mac.")
         case .preparing, .available: return ""

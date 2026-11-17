@@ -132,8 +132,8 @@ public enum SettingsProductAction: Sendable {
     case historyDisplayStyle(HistoryDisplayStyle)
     case loginEnabled(Bool), retryLogin, openLoginSettings
     case openSettings(SettingsPage), openOnboarding, finishOnboarding
-    case capture, openHistory, openFeedback, clearVisible
-    case recheck, openSource, chooseSourceAccess, requestAutomation, checkChromeConnection
+    case capture, manageMedia, openHistory, openFeedback, clearVisible
+    case recheck, recheckSource, recheckMedia, openSource, chooseSourceAccess, requestAutomation, checkChromeConnection
     case openFilePrivacy, openScreenRecordingPrivacy
     case restorePreferredDisplay, checkStorage, revealDataFolder, reloadConfiguration, openConfiguration
     case restorePreference(SettingsPreferenceDomain)

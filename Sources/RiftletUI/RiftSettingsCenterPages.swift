@@ -80,39 +80,22 @@ extension RiftSettingsCenterController {
             self?.dispatch(.settings(.selectDisplay(number.uint32Value)))
         }
         display.menu?.delegate = self
-        let theme = popup(ProductCopy.text("托盘材质", "Tray Material"), id: "trayTheme", titles: RiftTrayTheme.allCases.map(\.title)) { [weak self] popup in
-            guard RiftTrayTheme.allCases.indices.contains(popup.indexOfSelectedItem) else { return }
-            self?.dispatch(.settings(.selectTrayTheme(RiftTrayTheme.allCases[popup.indexOfSelectedItem])))
-        }
-        trayTintSettings = group([
-            numericRow(.trayTintHue, title: ProductCopy.text("玻璃色调", "Glass Hue"), unit: "°", range: 0...360, step: 1),
-            numericRow(.trayTintStrength, title: ProductCopy.text("色彩强度", "Color Strength"), unit: "%", range: 0...100, step: 1)
-        ])
-        traySettings = group([row(ProductCopy.text("托盘材质", "Tray Material"), control: theme), domainError(.trayTheme), trayTintSettings!])
-        trayOcclusionRow = numericRow(.trayOcclusion, title: ProductCopy.text("缩略图遮挡", "Thumbnail Overlap"), unit: "%", range: 0...90)
-        slitInsetFraction = numericRow(.hiddenFraction, title: ProductCopy.text("藏入边缘", "Hide into Edge"), unit: "%", range: 0...90)
-        commonEdgeSettings = group([slitInsetFraction!, numericRow(.outerInset, title: ProductCopy.text("边缘内缩", "Edge Inset"), unit: "pt", range: 0...256)])
-        windChimeLineSetting = numericRow(.windChimeLineInset, title: ProductCopy.text("连线距边", "Line Inset"), unit: "pt", range: 0...256)
         let arrival = popup(ProductCopy.text("出现动效", "Arrival Motion"), id: "arrival", titles: ArrivalMotionMode.allCases.map(\.title)) { [weak self] popup in
             guard ArrivalMotionMode.allCases.indices.contains(popup.indexOfSelectedItem) else { return }
             self?.dispatch(.settings(.setArrival(ArrivalMotionMode.allCases[popup.indexOfSelectedItem])))
         }
-        let restore = makeButton(ProductCopy.text("恢复旧版自定义…", "Restore Legacy Defaults…"), id: "layout.defaults.display") { [weak self] in
+        let restore = makeButton(ProductCopy.text("使用推荐外观", "Use Recommended Appearance"), id: "layout.defaults.display") { [weak self] in
             self?.restoreVisibleDefaults()
         }
-        legacySection = disclosure(ProductCopy.text("旧版自定义", "Legacy Customization"), id: "display.legacy", content:
-            group([commonEdgeSettings!, windChimeLineSetting!, traySettings!, trayOcclusionRow!,
-                   numericRow(.fitWidth, title: ProductCopy.text("缩略图宽度", "Thumbnail Width"), unit: "pt"),
-                   numericRow(.fitHeight, title: ProductCopy.text("缩略图高度", "Thumbnail Height"), unit: "pt"),
-                   numericRow(.rowPitch, title: ProductCopy.text("行距", "Row Spacing"), unit: "pt"),
-                   numericRow(.numberFontSize, title: ProductCopy.text("编号字号", "Number Size"), unit: "pt"),
-                   numericRow(.numberGap, title: ProductCopy.text("编号间隔", "Number Spacing"), unit: "pt"),
-                   numericRow(.leftPadding, title: ProductCopy.text("左侧留白", "Left Padding"), unit: "pt"),
-                   numericRow(.firstCenterFromTop, title: ProductCopy.text("首张距顶部", "First Image from Top"), unit: "pt"), restore]))
+        legacySection = row(ProductCopy.text("沿用自定义外观", "Custom Appearance"), control: restore)
+        let count = popup(ProductCopy.text("每页截图数", "Screenshots per Page"), id: "count", titles: []) { [weak self] popup in
+            guard let self, let count = Int(popup.titleOfSelectedItem ?? "") else { return }
+            dispatch(.settings(.commitField(.visibleCountPreference, String(count), maximumCount: countCapacity(model.snapshot.owner))))
+        }
         trayAppearanceSection = trayAppearanceControls()
         displayRow = row(ProductCopy.text("显示器", "Display"), control: display)
         let advanced = group([
-            numericRow(.visibleCountPreference, title: ProductCopy.text("每页截图上限", "Screenshots per Page"), unit: ProductCopy.text("张", "images"), range: 1...10, step: 1),
+            row(ProductCopy.text("每页截图数", "Screenshots per Page"), control: count),
             row(ProductCopy.text("出现动效", "Arrival Motion"), control: arrival), domainError(.arrival), namedLabel("motion.detail", role: "caption")
         ])
         return [
@@ -173,12 +156,13 @@ extension RiftSettingsCenterController {
             namedLabel("sourcePath.capture", role:"caption"), namedLabel("source.capture", role:"caption"),
             buttonRow([
                 makeButton(ProductCopy.text("允许访问截图文件夹…", "Allow Screenshot Folder Access…"), id: "source.access.capture") { [weak self] in self?.dispatch(.chooseSourceAccess) },
-                makeButton(ProductCopy.text("重新检查", "Check Again"), id: "source.recheck.capture") { [weak self] in self?.dispatch(.recheck) }
+                makeButton(ProductCopy.text("重新检查", "Check Again"), id: "source.recheck.capture") { [weak self] in self?.dispatch(.recheckSource) }
             ]),
             resumeCollection, domainError(.collection),
             section(ProductCopy.text("内置截图", "Built-in Capture")),
             row(ProductCopy.text("显示内置截图入口", "Show Capture Button"), control: entry), domainError(.entry), captureOptions!,
-            section(ProductCopy.text("归档与本机存储", "Archive and Local Storage")), preferenceRecoveryRow(.archive), archiveSettings(),
+            section(ProductCopy.text("截图资料", "Screenshot Storage")), preferenceRecoveryRow(.archive), archiveSettings(),
+            makeButton(ProductCopy.text("管理截图资料…", "Manage Screenshot Storage…"), id: "storage.manage") { [weak self] in self?.dispatch(.manageMedia) },
             disclosure(ProductCopy.text("本机存储", "Local Storage"), id:"storage", content: group([namedLabel("storage", role:"caption"), makeButton(ProductCopy.text("重新检查用量", "Refresh Usage"), id: "storage.check") { [weak self] in self?.dispatch(.checkStorage) }])),
             section(ProductCopy.text("截图仓库", "Screenshot Library")),
             makeButton(ProductCopy.text("打开截图仓库…", "Open Screenshot Library…"), id:"history.open") { [weak self] in self?.dispatch(.openHistory) },
@@ -191,25 +175,15 @@ extension RiftSettingsCenterController {
     private func archiveSettings() -> NSView {
         let choices = Self.archivePresetMinutes
         let preset = popup(ProductCopy.text("自动归档时限", "Auto-Archive Time"), id: "archive.preset", titles: [ProductCopy.text("关闭", "Off")] + choices.map { ProductCopy.text("\($0) 分钟", "\($0) min") } + [ProductCopy.text("自定义…", "Custom…")]) { [weak self] popup in
-            // Ending the previous editor can synchronously refresh this popup.
             let index = popup.indexOfSelectedItem
-            guard let self, finishEditingForReplacement() else { return }
-            archiveCustom = index == choices.count + 1
-            if archiveCustom {
-                if model.archiveIsDisabled { model.setArchiveDraftText(String(QueueArchivePolicy.defaultMinutes)) }
-            } else {
-                let text = choices.indices.contains(index - 1) ? String(choices[index - 1]) : nil
-                model.setArchiveDraftText(text)
-                dispatch(.settings(.commitArchive(text)))
-            }
-            refreshDraftPresentation()
-            window.recalculateKeyViewLoop()
-            if archiveCustom { window.makeFirstResponder(archiveField) }
+            guard index <= choices.count else { return }
+            let text = choices.indices.contains(index - 1) ? String(choices[index - 1]) : nil
+            self?.dispatch(.settings(.commitArchive(text)))
         }
-        archiveField = textField(id: "archive.minutes", accessibility: ProductCopy.text("自定义归档分钟数", "Custom archive time in minutes"))
-        archiveCustomRow = row(ProductCopy.text("自定义时限", "Custom Time"), detail: ProductCopy.text("1–10 分钟，可用小数。", "1–10 minutes. Decimals are allowed."), control: buttonRow([archiveField, SettingsNativeStyle.label(ProductCopy.text("分钟", "min"), role: "secondary")]))
+        preset.autoenablesItems = false
+        preset.lastItem?.isEnabled = false
         return group([
-            row(ProductCopy.text("闲置后从桌面收起", "Remove Idle Screenshots from Desktop"), detail:ProductCopy.text("归档后可在截图仓库中找回。", "Find archived screenshots in Screenshot Library."), control:preset), archiveCustomRow, domainError(.archive)
+            row(ProductCopy.text("闲置后从桌面收起", "Hide Idle Screenshots"), detail: ProductCopy.text("收起后仍可在截图仓库中查看。", "Hidden screenshots remain in your library."), control: preset), domainError(.archive)
         ])
     }
 
@@ -247,7 +221,7 @@ extension RiftSettingsCenterController {
                     NSPasteboard.general.clearContents()
                     NSPasteboard.general.setString(lines.joined(separator: "\n"), forType: .string)
                 },
-                makeButton(ProductCopy.text("重新检查本地截图副本", "Check Local Screenshot Copies"), id:"storage.recheckMedia") { [weak self] in self?.dispatch(.recheck) },
+                makeButton(ProductCopy.text("重新检查本地截图副本", "Check Local Screenshot Copies"), id:"storage.recheckMedia") { [weak self] in self?.dispatch(.recheckMedia) },
                 makeButton(ProductCopy.text("在 Finder 中显示数据目录…", "Show Data Folder in Finder…"), id:"storage.reveal") { [weak self] in self?.dispatch(.revealDataFolder) }
             ]))
         ]
@@ -282,17 +256,6 @@ extension RiftSettingsCenterController {
         popup.widthAnchor.constraint(greaterThanOrEqualToConstant: 144).isActive = true
         popup.widthAnchor.constraint(lessThanOrEqualToConstant: 228).isActive = true
         return popup
-    }
-    func textField(id: String, accessibility: String) -> NSTextField {
-        let field = NSTextField(string: "")
-        field.identifier = .init("settings.center.\(id)")
-        field.delegate = self
-        field.font = .monospacedDigitSystemFont(ofSize: 13, weight: .regular)
-        field.alignment = .right
-        field.setAccessibilityLabel(accessibility)
-        field.widthAnchor.constraint(equalToConstant: 64).isActive = true
-        controls[id] = field
-        return field
     }
     func namedLabel(_ id: String, role: String = "body") -> NSTextField {
         let label = SettingsNativeStyle.label("", role: role)
@@ -336,7 +299,7 @@ extension RiftSettingsCenterController {
         copy.setContentHuggingPriority(.defaultLow, for: .horizontal)
         control.setContentHuggingPriority(.required, for: .horizontal)
         control.setContentCompressionResistancePriority(.required, for: .horizontal)
-        stack.heightAnchor.constraint(greaterThanOrEqualToConstant: detail.isEmpty ? 44 : 60).isActive = true
+        stack.heightAnchor.constraint(greaterThanOrEqualToConstant: detail.isEmpty ? 36 : 50).isActive = true
         return stack
     }
     func group(_ views: [NSView]) -> NSStackView {
@@ -347,13 +310,13 @@ extension RiftSettingsCenterController {
     }
     func section(_ title:String, trailing:NSView? = nil) -> NSView {
         let label = SettingsNativeStyle.label(title,role:"rowTitle")
-        label.textColor = SettingsNativeStyle.color(.accentInk)
+        label.textColor = .labelColor
         label.font = .systemFont(ofSize:13,weight:.semibold)
         let group = NSView()
         label.translatesAutoresizingMaskIntoConstraints = false
         group.addSubview(label)
-        NSLayoutConstraint.activate([label.leadingAnchor.constraint(equalTo:group.leadingAnchor), label.bottomAnchor.constraint(equalTo:group.bottomAnchor,constant:-12),
-                                     group.heightAnchor.constraint(equalToConstant:50)])
+        NSLayoutConstraint.activate([label.leadingAnchor.constraint(equalTo:group.leadingAnchor), label.bottomAnchor.constraint(equalTo:group.bottomAnchor,constant:-5),
+                                     label.topAnchor.constraint(equalTo:group.topAnchor,constant:14)])
         if let trailing {
             trailing.translatesAutoresizingMaskIntoConstraints = false
             group.addSubview(trailing)
@@ -402,39 +365,6 @@ extension RiftSettingsCenterController {
         }
         disclosures[id] = (button, content)
         return stack
-    }
-    func numericRow(_ key: SettingsField, title: String, unit: String,
-                    range: ClosedRange<Double>? = nil, step: Double? = nil) -> NSView {
-        let field = textField(id: "field.\(key.rawValue)", accessibility: "\(title)（\(unit)）")
-        numericFields[key] = field
-        var valueControls: [NSView] = []
-        if let range {
-            let slider = NSSlider(value: range.lowerBound, minValue: range.lowerBound, maxValue: range.upperBound, target: nil, action: nil)
-            slider.setAccessibilityLabel(title)
-            configure(slider, id: "slider.\(key.rawValue)") { [weak self, weak slider] in
-                guard let self, let slider else { return }
-                window.makeFirstResponder(slider)
-                let value = step.map { (slider.doubleValue / $0).rounded() * $0 } ?? slider.doubleValue
-                let text = value.rounded() == value ? String(Int(value)) : String(value)
-                model.setDraftText(text, for: key)
-                dispatch(.settings(.commitField(key, text)))
-            }
-            if let step {
-                let tickCount = Int((range.upperBound - range.lowerBound) / step) + 1
-                if tickCount <= 10 {
-                    slider.numberOfTickMarks = tickCount
-                    slider.allowsTickMarkValuesOnly = true
-                }
-            }
-            slider.isContinuous = false
-            slider.widthAnchor.constraint(greaterThanOrEqualToConstant: 85).isActive = true
-            slider.widthAnchor.constraint(lessThanOrEqualToConstant: 160).isActive = true
-            numericSliders[key] = slider; valueControls.append(slider)
-        }
-        valueControls.append(field); valueControls.append(SettingsNativeStyle.label(unit, role: "secondary"))
-        let view = row(title, detail: "", control: buttonRow(valueControls))
-        geometryRows[key] = view
-        return view
     }
     func domainError(_ domain: SettingsDomain) -> NSView {
         let label = SettingsNativeStyle.label("", role: "secondary")
