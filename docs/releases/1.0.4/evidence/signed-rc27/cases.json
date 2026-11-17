@@ -1,0 +1,1766 @@
+{
+  "schema": 2,
+  "version": "1.0.4",
+  "build": 27,
+  "sourceSHA": "c7934adc82d382e78cf23ab96ed6d6784e88b905",
+  "executableSHA256": "2f83a996f1a9738754ed001fa221af7d782e54e350a970b8b1c9ff6c8c57a2ab",
+  "packageSHA256": "b841402653082510d82e2278eb5a047ac64166e951b2e74694b9e7aa244fcdd3",
+  "packageRole": "Private RC only. App and DMG are separate distribution checks; signed update ZIP and private feed are separate artifacts.",
+  "taskT10": "Independent review and the eventual admission-only H are verified by the PR source-admission workflow. See BASE-03 for the remote snapshot.",
+  "specSHA256": "3b6c87c6bdd54921a4ddba99da15444512a09cb7a05b6049aeca2b0f7bf20dff",
+  "resultKey": {
+    "PASS": "Direct or attributed observations meet the named case within its stated mode.",
+    "PASS_SCOPED": "Only the observations listed were demonstrated; remaining dimensions are listed.",
+    "BLOCKED": "Required check cannot run in the available environment. Any adjacent partial observation is identified.",
+    "NOT_RUN": "One or more defining parts of this case were not executed; partial measurements are listed.",
+    "PENDING": "Source-specific formal check not yet complete."
+  },
+  "interpretation": "Per-case rows resolve evidence and execution environment through artifacts and mode. Package identity, candidate version and source fields apply only to build 27 records. A previous-build receipt keeps its own identity. Local synthetic, CI and ordinary signed GUI results have different scopes. No production profile, stable feed or release was changed by these tests.",
+  "inheritance": {
+    "fromSource": "f7407cdae28b4d63e20cf7c3972f4f131ec9e33e",
+    "toSource": "c7934adc82d382e78cf23ab96ed6d6784e88b905",
+    "productInputChanges": [
+      "Resources/Info.plist",
+      "Sources/RiftletUI/RiftHistoryController.swift",
+      "Sources/RiftletUI/RiftSettingsCenterRendering.swift"
+    ],
+    "rule": "Inherited cases refer to unchanged behavior only. For the changed narrow-title and refused-JS paths use direct before/after evidence and actual head CI."
+  },
+  "environments": {
+    "signedUI27": {
+      "os": "macOS 27.0 (26A428)",
+      "arch": "arm64",
+      "accountType": "existing WindowServer session, isolated synthetic app/SQLite roots",
+      "displayScale": 2,
+      "inputMethod": "per artifact: AppKit actions/events; explicitly identified CGEvents; no Web service"
+    },
+    "ordinary27": {
+      "os": "macOS 27.2 (26B123)",
+      "arch": "arm64",
+      "accountType": "dedicated interactive VM user; per-user Applications",
+      "displayScale": null,
+      "inputMethod": "native GUI via guest keyboard/pointer; Sparkle update controls; normal launch"
+    },
+    "package27": "Developer ID, universal arm64 + x86_64, minimum macOS 13 deployment; packaging does not establish physical Intel or actual Ventura compatibility.",
+    "ordinary26": {
+      "build": 26,
+      "source": "f7407cdae28b4d63e20cf7c3972f4f131ec9e33e",
+      "executableSHA256": "2a76ad89e9501edecec02bafef203dadadf6c6b2a36f3d055011095fad3fecb4",
+      "macOS": "27.2 (26B123)",
+      "arch": "arm64",
+      "accountType": "isolated interactive guest",
+      "displayScale": null,
+      "inputMethod": "individual signed guest receipts"
+    },
+    "development": "Synthetic isolated modules or development package as identified per artifact; no release package hash applies.",
+    "previousCI": "Failed hosted workflow on PR 110 H=542c5e2. Individual earlier test evidence only.",
+    "currentPR": "Authoritative GitHub PR, queried by remote commit; not macOS GUI acceptance.",
+    "probe26": "Developer-linked AppKit macOS probe before fixes; no signed package involved.",
+    "probe27": "Developer-linked AppKit macOS probe after c7934ad changes; no signed package involved.",
+    "source": "Source / version / artifact identity only.",
+    "priorRegister": "Previous acceptance snapshot, not a rerun on build 27."
+  },
+  "evidence": {
+    "baseline": {
+      "location": "../audit-receipt.json",
+      "sha256": "2c8d6eaf24a750545d83f8c2de67fdf3bcd7e22d637fe3b8f05b2b9369014b80",
+      "basis": "Planning audit of public build 25, public stable feed and source state."
+    },
+    "matrix26": {
+      "location": "../signed-rc/cases.json",
+      "sha256": "f79932cc3359fb7d775d4f4ed896957fa108b923519044cd8cdcdcc1f2786fc9",
+      "basis": "Previous per-case scoped results. Consult the referenced source, release or browser evidence for each scope."
+    },
+    "coredata": {
+      "location": "../native-storage-and-browser.json",
+      "sha256": "7bcaed802ba9a6877d1fa26dbfa6a18c52b9b41f1156aa68b8054bb8271525e3",
+      "basis": "Generated inputs via native filesystem, SQLite, decoding and controlled DOM / Chrome programs; these were not executed on ChatGPT or with a signed build 27 app."
+    },
+    "historystore": {
+      "location": "../history-query-20261117.json",
+      "sha256": "622f75e5ffa23b6847a23c979dd7d530e1c08c5411704b2caea4bc0596108d1f",
+      "basis": "Native SQLite data/query probes with three sizes. Isolated baseline and implementation, no GUI."
+    },
+    "guest26": {
+      "location": "../signed-rc/guest-upgrade-and-install.json",
+      "sha256": "6325b66a17ebacaeadb881892fcc099e63ede89093f0a68e955d33b66a5b6b84",
+      "basis": "Ordinary signed build 26, ARM64 macOS 27.2 interactive guest; per-user Applications. Previous binary only."
+    },
+    "onb-dev26": {
+      "location": "../signed-rc/onboarding-development.json",
+      "sha256": "40314102005f70f13f58be45b4ab3d69420f137f6e83f230b314ac89c95e65ca",
+      "basis": "Development package with independent fresh ordinary profiles, not signed build 26 or 27."
+    },
+    "idle26": {
+      "location": "build26-signed-guest-idle-30m.json",
+      "sha256": "13ce00fba523b7dfa4043b00d79b7bf018d63acff031e2655969ac5e2c552ad0",
+      "basis": "Ordinary, signed build 26 in graphical ARM64 macOS 27.2 guest; distinct executable from build 27."
+    },
+    "vo26": {
+      "location": "build26-signed-voiceover.json",
+      "sha256": "b4d76855cb57af16c003dc1844135bfb306d31343bc66f1ca7bd7d258159c4b3",
+      "basis": "Ordinary, signed build 26 in graphical ARM64 macOS 27.2 guest; distinct executable from build 27."
+    },
+    "onb26": {
+      "location": "build26-signed-onboarding.json",
+      "sha256": "44cca034e3572ea1befb386188b0ed440b9d8d07a266a768cf2ebf823ced2e6a",
+      "basis": "Ordinary, signed build 26 in graphical ARM64 macOS 27.2 guest; distinct executable from build 27."
+    },
+    "ownership": {
+      "location": "private fixture log / riftlet104-ownership.log",
+      "sha256": "85ef5638aeaaa8863d527d84dd8991bc2e81c1a6b52f168506702f7071f0a539",
+      "basis": "12 isolated subprocess lifetimes, synthetic store; no ordinary App launched."
+    },
+    "ci26": {
+      "location": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44054602340/job/133940603669",
+      "sha256": "cb83701d19369915010827f7b3a81a93ee256dc94020c69007d30d4f077f3c45",
+      "basis": "Previous PR head 542c5e2. This ARM64 job failed. Individual passing suites and the two original failed assertions must be read separately."
+    },
+    "update-tests": {
+      "location": "private local test log / riftlet104-release-readiness.log",
+      "sha256": "dee8bd0f3f8f29577164fbaac3a248fbec07c7edea5962a161c5f00416884f0e",
+      "basis": "127 release-tool tests, one mounted-image error in sandbox."
+    },
+    "mount-retest": {
+      "location": "private local test log / riftlet104-mounted-image-retest.log",
+      "sha256": "b4fe9b330929f4a73ba07147371c6aa9f664629bf808b3b97bdf6c4553099331",
+      "basis": "Single mounted-image test rerun with macOS disk-image support passed."
+    },
+    "history-before": {
+      "location": "prior-regressions.json#/nativeProbe/rd104-ci-gui-before.log",
+      "sha256": "a8c3c489865b8d33ccd5dcab457dc12d5fe0b7884d1557b1340d5213f5fbfcd7",
+      "basis": "Developer-linked AppKit probe. Selected bitmap and UUID, two languages, minimum 680pt. Not the signed executable."
+    },
+    "history-after": {
+      "location": "prior-regressions.json#/nativeProbe/rd104-ci-gui-after.log",
+      "sha256": "16e74febb5bcf9085be1c11f77664325510306f58d5cdd7f804d0af6f2c749c3",
+      "basis": "Developer-linked AppKit probe. Selected bitmap and UUID, two languages, minimum 680pt. Not the signed executable."
+    },
+    "settings-en": {
+      "location": "receipt.json#/signedUI/settings-en",
+      "sha256": "9beec3467cb6c8581b4c6a0ffc8cbd5fe8e956ba86d9d65515cd2708cd491523",
+      "basis": "Private signed build 27, normal WindowServer and isolated review mode with generated assets.",
+      "cases": [
+        "environment-and-default-window",
+        "real-collector-synthetic-fixture",
+        "programmatic-collection-during-recheck",
+        "four-pages-light-and-dark",
+        "orthogonal-pause-hidden-sqlite",
+        "archive-editor-return-and-blur",
+        "tray-material-settings-and-legacy-visibility",
+        "configuration-editor-refresh-defaults",
+        "close-sheet-continue-discard",
+        "independent-write-failures-and-retry",
+        "motion-selection-in-advanced-appearance",
+        "two-step-guidance-light-and-dark",
+        "resizing-and-reopen",
+        "history-real-records",
+        "original-media-and-no-upload-operations"
+      ],
+      "frames": 38,
+      "restartSHA256": "46fb7973da7be3480da5121d91f977ec1b79d8cea18f7163ba4ce3b34562d224",
+      "input": "Native NSControl actions and NSTextView insertion; no physical pointer or OS IME claim",
+      "receiptSHA256": "d5c0cdc77daaec6d13f76feebf2fad0c3b1da26c16ea37077b00112634f204d7"
+    },
+    "settings-zh": {
+      "location": "receipt.json#/signedUI/settings-zh",
+      "sha256": "b672e584d0ab539fb33969f32b134de0ae8b1542971685cbc7a139b7060f9480",
+      "basis": "Private signed build 27, normal WindowServer and isolated review mode with generated assets.",
+      "cases": [
+        "environment-and-default-window",
+        "real-collector-synthetic-fixture",
+        "programmatic-collection-during-recheck",
+        "four-pages-light-and-dark",
+        "orthogonal-pause-hidden-sqlite",
+        "archive-editor-return-and-blur",
+        "tray-material-settings-and-legacy-visibility",
+        "configuration-editor-refresh-defaults",
+        "close-sheet-continue-discard",
+        "independent-write-failures-and-retry",
+        "motion-selection-in-advanced-appearance",
+        "two-step-guidance-light-and-dark",
+        "resizing-and-reopen",
+        "history-real-records",
+        "original-media-and-no-upload-operations"
+      ],
+      "frames": 38,
+      "restartSHA256": "1938a3aeafaf009c9df9655fe4b6a0685753a949aad0f3861ebb642ca8ff86e4",
+      "input": "Native NSControl actions and NSTextView insertion; no physical pointer or OS IME claim",
+      "receiptSHA256": "d5c0cdc77daaec6d13f76feebf2fad0c3b1da26c16ea37077b00112634f204d7"
+    },
+    "history": {
+      "location": "receipt.json#/signedUI/history",
+      "sha256": "293b268cf564bbef6287598e1012e3779648991075dfa0f99e167be166375085",
+      "basis": "Private signed build 27, normal WindowServer and isolated review mode with generated assets.",
+      "cases": [
+        "environment-and-default-window",
+        "history-default-and-three-collector-assets",
+        "history-style-search-filter-uuid",
+        "history-original-200-percent-survives-renderer-change",
+        "history-both-renderers-light-dark-minimum",
+        "history-one-asset-remove-and-restore",
+        "history-whole-library-cross-page-and-restoration",
+        "history-final-integrity-and-persisted-style"
+      ],
+      "frames": 20,
+      "restartSHA256": "3ff3fbe191a034a1066a214b8ce9b79a61cdd5f9e27aab465e42e04b0ea27ae6",
+      "input": "PROGRAMMATIC_NATIVE_CONTROLS: NSControl actions, native selection/accessibility action and NSTextView insertion; not CGEvent or hardware",
+      "receiptSHA256": "d5c0cdc77daaec6d13f76feebf2fad0c3b1da26c16ea37077b00112634f204d7"
+    },
+    "desktop": {
+      "location": "receipt.json#/signedUI/desktop",
+      "sha256": "fc7f709db22ac32ca02bdb41e0d2b0707a0841f2b8ce02d02bd8e1a3f894422b",
+      "basis": "Private signed build 27, normal WindowServer and isolated review mode with generated assets.",
+      "cases": [
+        "isolated-review-controls",
+        "tray-0",
+        "windChime-0",
+        "microSlit-0",
+        "collect-fixture-1",
+        "tray-1",
+        "windChime-1",
+        "microSlit-1",
+        "collect-fixture-2",
+        "tray-2",
+        "windChime-2",
+        "microSlit-2",
+        "collect-fixture-3",
+        "tray-3",
+        "windChime-3",
+        "microSlit-3",
+        "collect-fixture-4",
+        "tray-4",
+        "windChime-4",
+        "microSlit-4",
+        "collect-fixture-5",
+        "tray-5",
+        "windChime-5",
+        "microSlit-5",
+        "collect-fixture-6",
+        "collect-fixture-7",
+        "collect-fixture-8",
+        "collect-fixture-9",
+        "collect-fixture-10",
+        "tray-10",
+        "windChime-10",
+        "microSlit-10",
+        "light-leftMiddle",
+        "light-rightMiddle",
+        "dark-leftMiddle",
+        "dark-rightMiddle",
+        "tray-native-wheel",
+        "tray-owned-button-and-escape",
+        "actual-tray-appearance-layers",
+        "violet-restart-and-material-switch",
+        "physical-connected-displays",
+        "native-high-contrast-appearance-override",
+        "tray-restart-baseline"
+      ],
+      "frames": 73,
+      "restartSHA256": "17f035a9558370d477f039930eeec3698a5dcaf8fb6d3549a2fd5bee80997625",
+      "input": "Native NSControl actions and NSTextView insertion; no physical pointer or OS IME claim",
+      "receiptSHA256": "d5c0cdc77daaec6d13f76feebf2fad0c3b1da26c16ea37077b00112634f204d7"
+    },
+    "pixels": {
+      "location": "tray-pixels.json",
+      "sha256": "3dd190de64846df78c9bb6518eb7c24a3f38d68bec04918585887294ff64b36d",
+      "basis": "Signed build 27, 24 measured comparisons of captured window pixels; same executable on ARM64 with 2× backing."
+    },
+    "feed27": {
+      "location": "private-update-identity.json",
+      "sha256": "236e42ecccd7d645bdd277ca13e0c0ec6cc2afb1ea7c467d5223ed39b7902aa6",
+      "basis": "Final signed ZIP and private loopback feed for this package. The DMG has its own identity."
+    },
+    "package27": {
+      "location": "receipt.json",
+      "sha256": "d5c0cdc77daaec6d13f76feebf2fad0c3b1da26c16ea37077b00112634f204d7",
+      "basis": "Direct, final Developer ID package. App and formal DMG notarization, stapling, Gatekeeper and test binary identities."
+    },
+    "repro": {
+      "location": "prior-regressions.json",
+      "sha256": "b7388f329c3d2f7529ce61e78f26dea5e348fcb30744c33051022465117d3f78",
+      "basis": "Immutable original constraints and both before/after controlled AppKit probe digests."
+    },
+    "cmdw27": {
+      "location": "private ordinary guest / build27/signed-cmdw.json",
+      "sha256": "a1e2dadd9d6574a72daf5d4b139e02018d95dc852503babc5833e5f59bdce245",
+      "basis": "Calibrated macOS Accessibility Keyboard Command-W, ordinary signed build 27; independently hashed frames before/after/restart."
+    },
+    "onb27": {
+      "location": "onboarding.json",
+      "sha256": "53ebbb976894e939e33d3883b9480194bf497b5d4d6d96f3174c1fbcb4c1e400",
+      "basis": "Four fresh ordinary app profiles, red/escape/later posted to macOS and Cmd-W via the guest Accessibility Keyboard. No review flags."
+    },
+    "up24raw": {
+      "location": "private ordinary guest / build27/upgrade-24-installed.txt",
+      "sha256": "53f92b3ce8d8dbcb39b6a878e2b7120535ffcd5397f55ae2694325a721eb20e8",
+      "basis": "Installed build 27 normal process, Gatekeeper, original Sparkle source and matching before/after inventory.",
+      "beforeFile": "before24.json",
+      "afterFile": "after24.json",
+      "beforeAfterSHA256": "db5b24492eecb77a3bcf333b6a97aa103ce83b2346e5e93c85b5cdd0817704d2"
+    },
+    "up25raw": {
+      "location": "private ordinary guest / build27/upgrade-25-installed.txt",
+      "sha256": "c3e180f4dbe451a445db9a0b28691c0feda1563fea0d62a465df42c66f8f1c8b",
+      "basis": "Installed build 27 normal process, Gatekeeper, original Sparkle source and matching before/after inventory.",
+      "beforeFile": "before25.json",
+      "afterFile": "after25.json",
+      "beforeAfterSHA256": "db5b24492eecb77a3bcf333b6a97aa103ce83b2346e5e93c85b5cdd0817704d2"
+    },
+    "guest27": {
+      "location": "upgrade.json",
+      "sha256": "74ca2f6449f620ef60aea05a6bb813ca1c7be585953c4369cf55103894a01284",
+      "basis": "Ordinary macOS ARM64 guest using private Sparkle offers for previous releases; actual DMG copy, detach and launch, plus screenshot."
+    },
+    "ci-live": {
+      "location": "https://github.com/haohongfei2001-png/Riftlet/pull/110/checks",
+      "basis": "GitHub PR check rollup, live at retrieval; prior head checks do not validate source c7934ad. CI after this document is committed is reported on the actual H.",
+      "checkedHead": "542c5e2fc4c24aadfa4596e7d24cbd319697ff3e",
+      "reportedMain": {
+        "commit": "3f8149e2313fd81bbaee5a7bbbdbb1efca2fc81b",
+        "protected": false
+      },
+      "checks": [
+        {
+          "name": "Feedback source admission",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "job": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44054602358/job/133940603232"
+        },
+        {
+          "name": "Native source admission",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "job": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44054602340/job/133940603185"
+        },
+        {
+          "name": "Native ARM64",
+          "status": "COMPLETED",
+          "conclusion": "FAILURE",
+          "job": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44054602340/job/133940603669"
+        },
+        {
+          "name": "Feedback native and service",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "job": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44054602358/job/133940603823"
+        },
+        {
+          "name": "Native Intel",
+          "status": "COMPLETED",
+          "conclusion": "FAILURE",
+          "job": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44054602340/job/133940603775"
+        }
+      ]
+    }
+  },
+  "rows": [
+    {
+      "caseID": "BASE-01",
+      "taskID": "T00",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 46,
+        "action": "fetch实际main、release与PR；核对B、1.0.3 ZIP/build25和stable1.0.2/build24；创建1.0.4独立分支"
+      },
+      "mode": [
+        "source",
+        "priorRegister"
+      ],
+      "artifacts": [
+        "baseline",
+        "matrix26"
+      ],
+      "result": "PASS",
+      "scope": "PASS",
+      "blocker": null,
+      "fixSHA": null,
+      "observations": "Actual B 3f8149e; planning G 9f10bb1 and H 2aec103 precede this development branch. Public 1.0.3 ZIP SHA b9814f1d…; stable version 1.0.2."
+    },
+    {
+      "caseID": "BASE-02",
+      "taskID": "T00",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 47,
+        "action": "对源码、资源、包和feed建立哈希清单；记录工作树及QA根"
+      },
+      "mode": [
+        "source",
+        "package27"
+      ],
+      "artifacts": [
+        "baseline",
+        "package27"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "Historical captures are point-in-time; no claim about future content at the public URLs.",
+      "fixSHA": null,
+      "observations": "Original public ZIP and feed identities recorded. Build 27 uses a separate source tree, sign/notary workspace and private feed."
+    },
+    {
+      "caseID": "BASE-03",
+      "taskID": "T00",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 48,
+        "action": "以现有B→G→H流程提交；实际读取五项正式CI及远端保护状态"
+      },
+      "mode": [
+        "currentPR",
+        "previousCI"
+      ],
+      "artifacts": [
+        "ci-live",
+        "ci26"
+      ],
+      "result": "NOT_RUN",
+      "scope": "PENDING",
+      "blocker": "Await actual reviewed H for this exact product and its five checks. Earlier green checks or local test results cannot establish this.",
+      "fixSHA": null,
+      "observations": "The published build 26 admission head had three passing and two failing checks; both product failures were independently reproduced and fixed."
+    },
+    {
+      "caseID": "BASE-04",
+      "taskID": "T00",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 49,
+        "action": "单实例二次启动、正常退出再开；核对owner lock"
+      },
+      "mode": [
+        "development"
+      ],
+      "artifacts": [
+        "ownership"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "Controlled process harness; this does not exercise every ordinary Finder launch on build 27.",
+      "fixSHA": null,
+      "observations": "Twelve worker lifetimes, including normal termination, SIGTERM and SIGKILL, exercised ownership release and preserved history."
+    },
+    {
+      "caseID": "SET-01",
+      "taskID": "T01/T02",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 55,
+        "action": "打开四页；依次640×560、600×460、宽于720；中英及浅深色"
+      },
+      "mode": [
+        "signedUI27"
+      ],
+      "artifacts": [
+        "settings-en",
+        "settings-zh"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "One host, ARM64, 2×; no separate 1× hardware visual judgment.",
+      "fixSHA": null,
+      "observations": "four-pages-light-and-dark and resizing-and-reopen exercised the real window at default, minimum and wide sizes. Each locale captured 38 own-window frames, with a bounded 720pt reading column."
+    },
+    {
+      "caseID": "SET-02",
+      "taskID": "T01/T02",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 56,
+        "action": "逐项比对[SETTINGS_INVENTORY](SETTINGS_INVENTORY.md)，展开“更多”、旧自定义和诊断"
+      },
+      "mode": [
+        "signedUI27"
+      ],
+      "artifacts": [
+        "settings-en",
+        "settings-zh",
+        "desktop"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "No automated semantic check establishes a complete human visual audit of all inventory items.",
+      "fixSHA": null,
+      "observations": "New profile hid legacy controls. Actual #outerInset edits exposed progressive controls; single-screen display choice checked. Four-page frames and desktop disclosures are inspectable."
+    },
+    {
+      "caseID": "SET-03",
+      "taskID": "T01/T02",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 57,
+        "action": "切换、滑动、输入、切页；并行收录一张合成截图"
+      },
+      "mode": [
+        "signedUI27"
+      ],
+      "artifacts": [
+        "settings-en",
+        "settings-zh"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "Collector/recheck scenario used generated files and programmatic overlap.",
+      "fixSHA": null,
+      "observations": "real-collector-synthetic-fixture, programmatic-collection-during-recheck and configuration-editor-refresh-defaults observed stable field editor, text selection, owner revision, persisted JSON and independent intake."
+    },
+    {
+      "caseID": "SET-04",
+      "taskID": "T01/T02",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 58,
+        "action": "对每个新字段与既有保存域注入独立可复现写失败，再重试"
+      },
+      "mode": [
+        "signedUI27"
+      ],
+      "artifacts": [
+        "settings-en",
+        "settings-zh"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "No assertion of ordinary OS write-denial for every historical domain.",
+      "fixSHA": null,
+      "observations": "Blocked configuration writes for both appearance fields. Owner and slider retained the confirmed values, each error survived retrying its sibling, both original targets persisted after retry; layout and orthogonal runtime switches also have distinct failure cases."
+    },
+    {
+      "caseID": "SET-05",
+      "taskID": "T01/T02",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 59,
+        "action": "中文拼音处于marked text时收录／刷新／切页；Return、Esc、关闭／退出分别测试"
+      },
+      "mode": [
+        "signedUI27",
+        "ordinary26"
+      ],
+      "artifacts": [
+        "settings-en",
+        "settings-zh",
+        "vo26"
+      ],
+      "result": "NOT_RUN",
+      "scope": "NOT_RUN",
+      "blocker": "Actual system Chinese candidate composition across refresh, navigation, close and quit.",
+      "fixSHA": null,
+      "observations": "Return, blur, background editor retention and close/discard produced direct observations. The guest had only ABC enabled."
+    },
+    {
+      "caseID": "SET-06",
+      "taskID": "T01/T02",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 60,
+        "action": "单屏→多屏→拔掉已选屏→重新接入；菜单追踪时改变拓扑"
+      },
+      "mode": [
+        "signedUI27",
+        "previousCI"
+      ],
+      "artifacts": [
+        "desktop",
+        "ci26"
+      ],
+      "result": "NOT_RUN",
+      "scope": "NOT_RUN",
+      "blocker": "Live multi-display reconnect, fallback while a menu is tracking, and physical topology changes.",
+      "fixSHA": null,
+      "observations": "physical-connected-displays checked only the one real display connected; controlled settings coverage includes stable identity."
+    },
+    {
+      "caseID": "SET-07",
+      "taskID": "T01/T02",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 61,
+        "action": "关闭桌面显示、关闭内置入口、切形态、再恢复；legacy paused账户继续收录"
+      },
+      "mode": [
+        "signedUI27"
+      ],
+      "artifacts": [
+        "settings-en",
+        "settings-zh",
+        "desktop"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "No claim for all combinations of historical paused-file encodings in an ordinary signed guest.",
+      "fixSHA": null,
+      "observations": "orthogonal-pause-hidden-sqlite and collector observations distinguish visibility and collection; native form switching retains current queue records."
+    },
+    {
+      "caseID": "SET-08",
+      "taskID": "T01/T02",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 62,
+        "action": "更新与登录项正常／等待批准／失败状态"
+      },
+      "mode": [
+        "signedUI27",
+        "ordinary26"
+      ],
+      "artifacts": [
+        "settings-zh",
+        "guest26"
+      ],
+      "result": "NOT_RUN",
+      "scope": "NOT_RUN",
+      "blocker": "Signed build 27 ordinary login service approval, denied registration and the complete failure-state sequence.",
+      "fixSHA": null,
+      "observations": "The settings entry exists, and preceding signed ordinary guest upgrades directly used Sparkle."
+    },
+    {
+      "caseID": "MIG-01",
+      "taskID": "T02/T03",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 68,
+        "action": "真正空的新profile，创建root/DB之前判定"
+      },
+      "mode": [
+        "ordinary27",
+        "previousCI",
+        "signedUI27"
+      ],
+      "artifacts": [
+        "onb27",
+        "cmdw27",
+        "ci26",
+        "desktop"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "The ordinary dismissal run did not sample every default field before initial root creation.",
+      "fixSHA": null,
+      "observations": "New ordinary build 27 profile showed first use and default tray. Build 27 signed review and fresh-root tests cover count 3, left-middle and archive defaults; the ordinary guest receipt directly records tray."
+    },
+    {
+      "caseID": "MIG-02",
+      "taskID": "T02/T03",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 69,
+        "action": "旧三形态、旧JSON缺desktopForm、legacy位置、旧root缺JSON、旧DB无prefs、旧defaults无root"
+      },
+      "mode": [
+        "previousCI",
+        "priorRegister"
+      ],
+      "artifacts": [
+        "ci26",
+        "matrix26"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "Controlled configurations; no ordinary account trial for each historical encoding.",
+      "fixSHA": null,
+      "observations": "Existing-root and old defaults distinguish existing users; missing form uses legacy microSlit semantics; no schema rewrite for choosing a renderer."
+    },
+    {
+      "caseID": "MIG-03",
+      "taskID": "T02/T03",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 70,
+        "action": "已有合法count1/2/4/超屏容量、custom tint、legacy insets、3.5分钟／关闭归档"
+      },
+      "mode": [
+        "previousCI",
+        "signedUI27"
+      ],
+      "artifacts": [
+        "ci26",
+        "settings-en",
+        "settings-zh"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "Not every previous count, tint and non-preset archive duration was reopened through a signed ordinary guest.",
+      "fixSHA": null,
+      "observations": "RecoverablePreferencesTests checked partial patches and retained unknown/legacy values. Build 27 retained explicit custom outerInset across unrelated editing and let the archive duration be edited."
+    },
+    {
+      "caseID": "MIG-04",
+      "taskID": "T02/T03",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 71,
+        "action": "坏JSON、未知未来键／raw、部分初始化后失败、不可写目录；调整另一个合法字段"
+      },
+      "mode": [
+        "previousCI",
+        "development"
+      ],
+      "artifacts": [
+        "ci26",
+        "coredata"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "Disk-full and future/invalid JSON were exercised on separate isolated fixtures, not one destructive combined fault.",
+      "fixSHA": null,
+      "observations": "RecoverablePreferencesTests exercised oversized/damaged layouts and unrelated patch writes. Disk-full fixture preserved SQLite integrity, media and old UNKNOWN."
+    },
+    {
+      "caseID": "MIG-05",
+      "taskID": "T02/T03",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 72,
+        "action": "用户明确“恢复旧版自定义”或单一新外观字段默认；重启核对"
+      },
+      "mode": [
+        "signedUI27",
+        "previousCI"
+      ],
+      "artifacts": [
+        "settings-en",
+        "settings-zh",
+        "ci26"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "Same-package restarts compare final fixture data; no exhaustive restart per possible legacy field.",
+      "fixSHA": null,
+      "observations": "configuration-editor-refresh-defaults confirmed explicit per-section restore; tray-material-settings-and-legacy-visibility restored the two fields individually and checked persisted values."
+    },
+    {
+      "caseID": "MIG-06",
+      "taskID": "T02/T03",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 73,
+        "action": "旧JSON缺outerInset与明确outerInset=22分别打开外观页；记录显示前后原文件hash"
+      },
+      "mode": [
+        "signedUI27",
+        "previousCI"
+      ],
+      "artifacts": [
+        "settings-en",
+        "settings-zh",
+        "ci26"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "The signed review fixture did not hash a separate historical file for every absence/legacy-position combination.",
+      "fixSHA": null,
+      "observations": "Fresh fixture hid legacy controls; explicitly committing outerInset=22 disclosed its editor. Background refresh left JSON unchanged while the editor remained live. RecoverablePreferencesTests cover raw presence across unrelated writes."
+    },
+    {
+      "caseID": "TRAY-01",
+      "taskID": "T03",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 79,
+        "action": "t=nil、0、0.01、0.75；浅／暗／彩色／细纹理背景；实际托盘与样例同帧对照"
+      },
+      "mode": [
+        "signedUI27"
+      ],
+      "artifacts": [
+        "desktop",
+        "pixels",
+        "settings-en"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "Host used modern glass; earlier material fallback and every wallpaper were not independently compared side by side on this binary.",
+      "fixSHA": null,
+      "observations": "actual-tray-appearance-layers rendered nil/0/.01/.75 and both appearances; pixel samples distinguish wash changes from camera lens. Same-renderer sample visible in settings."
+    },
+    {
+      "caseID": "TRAY-02",
+      "taskID": "T03",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 80,
+        "action": "对t输入NaN/∞、越界、错误类型、未来值；快速拖动后立即退出／重启"
+      },
+      "mode": [
+        "signedUI27",
+        "previousCI"
+      ],
+      "artifacts": [
+        "settings-en",
+        "settings-zh",
+        "desktop",
+        "ci26"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "No ordinary process-kill during the last drag frame or full signed run for every IEEE nonfinite value.",
+      "fixSHA": null,
+      "observations": "Live slider action preceded disk write, failed target returned to saved state, retry restored intended value. Per-layer scene preserved panel alpha 1, key hit bounds and asset identities. Controlled preference parsing covers malformed data."
+    },
+    {
+      "caseID": "TRAY-03",
+      "taskID": "T03",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 81,
+        "action": "相机默认、五色、黑／白、高饱和、自定义RGB；重启、换主题、换形态返回"
+      },
+      "mode": [
+        "signedUI27"
+      ],
+      "artifacts": [
+        "desktop",
+        "pixels",
+        "settings-en"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "Review driver sets extreme RGB values programmatically; this is not a physical user action for each color.",
+      "fixSHA": null,
+      "observations": "Two appearances with default, violet, blue, teal, coral, graphite, black, white and saturated green. Form switching did not replace UUIDs, and persisted color fields were read on reopen."
+    },
+    {
+      "caseID": "TRAY-04",
+      "taskID": "T03",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 82,
+        "action": "同素材同位置截取改色前后，按body／lens／key／material／thumbnail mask比较"
+      },
+      "mode": [
+        "signedUI27"
+      ],
+      "artifacts": [
+        "pixels",
+        "desktop"
+      ],
+      "result": "PASS",
+      "scope": "PASS",
+      "blocker": null,
+      "fixSHA": null,
+      "observations": "24 direct comparisons from the signed window: mask counts are recorded for each variant; body changes leave sampled neutral lens, key, material and thumbnail controls unchanged. Opacity variants change sampled material."
+    },
+    {
+      "caseID": "TRAY-05",
+      "taskID": "T03",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 83,
+        "action": "队列静止时现场切Reduce Transparency／Increase Contrast／Reduce Motion与组合，再关闭"
+      },
+      "mode": [
+        "signedUI27",
+        "previousCI"
+      ],
+      "artifacts": [
+        "desktop",
+        "ci26"
+      ],
+      "result": "NOT_RUN",
+      "scope": "NOT_RUN",
+      "blocker": "Live OS Reduce Transparency, Increase Contrast and Reduce Motion toggled individually and together on the idle queue.",
+      "fixSHA": null,
+      "observations": "Native high-contrast appearance override and controlled defaults were exercised; no hardware display change was needed for those samples."
+    },
+    {
+      "caseID": "TRAY-06",
+      "taskID": "T03",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 84,
+        "action": "相机／图片hover、按压、退出hover、键盘focus；1×／2×截图"
+      },
+      "mode": [
+        "signedUI27"
+      ],
+      "artifacts": [
+        "desktop",
+        "pixels"
+      ],
+      "result": "NOT_RUN",
+      "scope": "NOT_RUN",
+      "blocker": "Complete pressed/hover/exit/keyboard focus comparisons on physical 1× and 2× screens.",
+      "fixSHA": null,
+      "observations": "2× observed. Real CGEvent pointer hit the settled camera twice; synthetic geometry in code tests measures both scales."
+    },
+    {
+      "caseID": "TRAY-07",
+      "taskID": "T03",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 85,
+        "action": "0/1/2/3/4/5/10张；每页1/2/3/4；宽／长图、透明PNG、小图"
+      },
+      "mode": [
+        "signedUI27",
+        "previousCI"
+      ],
+      "artifacts": [
+        "desktop",
+        "ci26"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "No claim that every per-page capacity, alpha, source aspect ratio and count combination was directly captured.",
+      "fixSHA": null,
+      "observations": "Native queues with 0,1,2,3,4,5,10 generated inputs in all three forms preserve count and rendered identities. Controlled RiftTrayLayoutTests exercise visibility and geometry."
+    },
+    {
+      "caseID": "TRAY-08",
+      "taskID": "T03",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 86,
+        "action": "先有1图再展开；先空展开再收新图；3图展开／折叠；展开期间再来图"
+      },
+      "mode": [
+        "signedUI27",
+        "previousCI"
+      ],
+      "artifacts": [
+        "desktop",
+        "ci26"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "The signed desktop driver did not exercise all four distinct arrival histories.",
+      "fixSHA": null,
+      "observations": "RiftTrayLayoutTests cover order-dependent expansion; signed desktop captured repeated four-key one-row menus, collapse and stable UUIDs."
+    },
+    {
+      "caseID": "TRAY-09",
+      "taskID": "T03",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 87,
+        "action": "滚轮／惯性找到相机→自然原生事件打开→点四键或Esc→再开；动画期间点击"
+      },
+      "mode": [
+        "signedUI27",
+        "source"
+      ],
+      "artifacts": [
+        "desktop",
+        "baseline"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "Clicks were posted events. The signed scenario used Escape rather than invoking all capture modes or a physical trackpad.",
+      "fixSHA": null,
+      "observations": "Two native CGEvent down/up sequences hit the correct topmost tray window; four distinct keys settled in a single row. AppKit Escape closed each, and tray-native-wheel exercised scrolling."
+    },
+    {
+      "caseID": "TRAY-10",
+      "taskID": "T03",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 88,
+        "action": "全部六点位置、多屏尺度、拔插／睡眠；透明阴影区域与邻近其他App点击"
+      },
+      "mode": [
+        "signedUI27",
+        "previousCI"
+      ],
+      "artifacts": [
+        "desktop",
+        "ci26"
+      ],
+      "result": "NOT_RUN",
+      "scope": "NOT_RUN",
+      "blocker": "Six-anchor physical multi-screen, neighbor app input, Space changes and sleep/hot-plug.",
+      "fixSHA": null,
+      "observations": "Used real connected display, both middle edges, pointer ownership and preserved size at 2×; separate layout formulas are tested."
+    },
+    {
+      "caseID": "ONB-01",
+      "taskID": "T04",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 96,
+        "action": "全新隔离普通账户，正常Finder启动；只用系统截图；授权目录后截图／预览"
+      },
+      "mode": [
+        "ordinary26",
+        "signedUI27",
+        "ordinary27"
+      ],
+      "artifacts": [
+        "guest26",
+        "onb26",
+        "settings-zh",
+        "guest27"
+      ],
+      "result": "NOT_RUN",
+      "scope": "NOT_RUN",
+      "blocker": "A single fresh standard user granting a previously refused folder then capturing through an ordinary build 27 install has not been established.",
+      "fixSHA": null,
+      "observations": "Previous ordinary guest opened onboarding, rejected the screenshot folder and had an actionable recovery prompt. Signed build 27 directly renders both onboarding pages in review mode."
+    },
+    {
+      "caseID": "ONB-02",
+      "taskID": "T04",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 97,
+        "action": "四个独立profile分别红关闭、Cmd-W／窗口菜单关闭、Esc、显式稍后；正常退出并Finder重开"
+      },
+      "mode": [
+        "ordinary27"
+      ],
+      "artifacts": [
+        "onb27",
+        "cmdw27"
+      ],
+      "result": "PASS",
+      "scope": "PASS",
+      "blocker": null,
+      "fixSHA": null,
+      "observations": "On four fresh profiles, red close, Cmd-W, Escape and Set Up Later each closed the ordinary window, saved deferred, and kept it closed under a different PID after relaunch."
+    },
+    {
+      "caseID": "ONB-03",
+      "taskID": "T04",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 98,
+        "action": "成功完成、程序closeForTeardown、正常退出中的内部关闭、崩溃／强退分别执行"
+      },
+      "mode": [
+        "development",
+        "previousCI"
+      ],
+      "artifacts": [
+        "onb-dev26",
+        "ci26"
+      ],
+      "result": "NOT_RUN",
+      "scope": "NOT_RUN",
+      "blocker": "No complete signed ordinary completed, teardown, quit and crash/kill cross-run matrix.",
+      "fixSHA": null,
+      "observations": "Controlled teardown and normal close follow different progress paths."
+    },
+    {
+      "caseID": "ONB-04",
+      "taskID": "T04",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 99,
+        "action": "Chrome不存在／未开／自动化被拒／JS未开／授权后返回；选择先使用本机截图"
+      },
+      "mode": [
+        "signedUI27",
+        "probe27",
+        "ordinary26"
+      ],
+      "artifacts": [
+        "settings-en",
+        "settings-zh",
+        "history-after",
+        "guest26"
+      ],
+      "result": "NOT_RUN",
+      "scope": "NOT_RUN",
+      "blocker": "Ordinary absent/closed Chrome, actual OS denial, JS off/on, return after granting and independent local use were not all observed.",
+      "fixSHA": "c7934adc82d382e78cf23ab96ed6d6784e88b905",
+      "observations": "In a native AppKit probe, feeding the actual refusal state to the signed-source help controller produced one recovery instruction. The signed suite rendered both panes; prior guest exercised rejection and local recovery copy."
+    },
+    {
+      "caseID": "ONB-05",
+      "taskID": "T04",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 100,
+        "action": "在新profile逐步完成目录与Chrome；捕获匹配事实，再首次点击截图"
+      },
+      "mode": [
+        "ordinary26",
+        "ordinary27"
+      ],
+      "artifacts": [
+        "guest26",
+        "guest27"
+      ],
+      "result": "BLOCKED",
+      "scope": "BLOCKED",
+      "blocker": "An authorized dedicated Chrome test account/session able to read an editable draft over valid TLS is required.",
+      "fixSHA": null,
+      "observations": "Dedicated guest ChatGPT draft failed to load; nothing was attached or sent. A local connection check alone cannot prove matching START."
+    },
+    {
+      "caseID": "ONB-06",
+      "taskID": "T04",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 101,
+        "action": "已有deferred/completed/legacy presented记录升级；重新查看引导后关闭"
+      },
+      "mode": [
+        "ordinary27",
+        "ordinary26",
+        "development"
+      ],
+      "artifacts": [
+        "cmdw27",
+        "onb26",
+        "onb-dev26"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "Signed build 27 did not migrate every historical progress variant end to end.",
+      "fixSHA": null,
+      "observations": "Ordinary re-open after deferral preserved state without showing onboarding again. Test fixtures additionally cover old progress and opening guidance again."
+    },
+    {
+      "caseID": "HIST-01",
+      "taskID": "T05",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 111,
+        "action": "从查询第一页分别找原第201、401条；跨三页搜索和状态筛选"
+      },
+      "mode": [
+        "signedUI27",
+        "development",
+        "probe26",
+        "probe27"
+      ],
+      "artifacts": [
+        "history",
+        "historystore",
+        "history-before",
+        "history-after"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "Store query coverage and signed renderer coverage are recorded separately.",
+      "fixSHA": "c7934adc82d382e78cf23ab96ed6d6784e88b905",
+      "observations": "Whole-library query in 401-row fixture, restoration by UUID, list/grid selection and reopening matched; SQLite measurements cover cross-page matching at larger sizes. Separate narrow-window regression: English image grid fitting width fell from 697.5 to 575.5pt in a 680pt window."
+    },
+    {
+      "caseID": "HIST-02",
+      "taskID": "T05",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 112,
+        "action": "多个命中超过200；连续翻页再反向，包含相同timestamp"
+      },
+      "mode": [
+        "development",
+        "previousCI",
+        "signedUI27"
+      ],
+      "artifacts": [
+        "historystore",
+        "ci26",
+        "history"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "Identical-timestamp permutations are exercised in store tests, rather than repeated in both signed renderers.",
+      "fixSHA": null,
+      "observations": "Real SQLite bounded page/cursor with 201st-row lookahead and sorted timestamp/sequence tie-break; GUI searched old records across pages."
+    },
+    {
+      "caseID": "HIST-03",
+      "taskID": "T05",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 113,
+        "action": "中文／英文编号、文件名、日期、状态；日期跨时区边界；零结果清除"
+      },
+      "mode": [
+        "development",
+        "signedUI27",
+        "previousCI"
+      ],
+      "artifacts": [
+        "historystore",
+        "history",
+        "ci26"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "Midnight/time-zone and empty field cases rely on controlled storage/query tests; no ordinary system timezone change.",
+      "fixSHA": null,
+      "observations": "Names, accented and literal Unicode, dimensions and dates checked in storage/query tests. Signed history changed query/filters, cleared empty results and retained UUID."
+    },
+    {
+      "caseID": "HIST-04",
+      "taskID": "T05",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 114,
+        "action": "快速改查询，故意乱序返回；第二页时新图到达；选中旧图后刷新"
+      },
+      "mode": [
+        "signedUI27",
+        "previousCI"
+      ],
+      "artifacts": [
+        "history",
+        "ci26"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "Ordinary guest live mouse over a disappearing item and deliberate reordering of OS events not independently recorded.",
+      "fixSHA": null,
+      "observations": "Signed history verified older-record selection and UUID across renderers; controlled history-query tests exercise invalidation and frozen page membership across arrivals."
+    },
+    {
+      "caseID": "HIST-05",
+      "taskID": "T05",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 115,
+        "action": "查旧归档／失败图，预览、按Core资格恢复；查UNKNOWN／已交接"
+      },
+      "mode": [
+        "signedUI27",
+        "development",
+        "ordinary27"
+      ],
+      "artifacts": [
+        "history",
+        "historystore",
+        "guest27"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "Not an actual ChatGPT upload/retry. Signed renderer fixtures did not create a matching service START.",
+      "fixSHA": null,
+      "observations": "history-one-asset-remove-and-restore, original 200% preview, persisted style and integrity/restart checks ran on 27; recovery tests use Core eligibility and durable operation state."
+    },
+    {
+      "caseID": "COPY-01",
+      "taskID": "T06",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 121,
+        "action": "正常START、明确输入前失败、输入后回执不明、缺媒体分别投影到托盘／仓库／帮助"
+      },
+      "mode": [
+        "previousCI",
+        "development",
+        "signedUI27"
+      ],
+      "artifacts": [
+        "ci26",
+        "coredata",
+        "history"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "Synthetic states. No signed build 27 service-side handoff or live traversal of every surface for all four states.",
+      "fixSHA": null,
+      "observations": "Status presentation tests distinguish pre-input failures, uncertain input, matching START and missing media. SQLite and page fixture observations deliberately leave uncertain results uncertain."
+    },
+    {
+      "caseID": "COPY-02",
+      "taskID": "T06",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 122,
+        "action": "文件夹无权限、历史读取失败、恢复不允许、低空间、保存失败、更新失败"
+      },
+      "mode": [
+        "signedUI27",
+        "probe26",
+        "probe27",
+        "development"
+      ],
+      "artifacts": [
+        "settings-en",
+        "settings-zh",
+        "history-before",
+        "history-after",
+        "coredata"
+      ],
+      "result": "NOT_RUN",
+      "scope": "NOT_RUN",
+      "blocker": "Ordinary directory denial, failed update, low storage, history read error and prohibited restore have not all been observed in both languages on signed 27.",
+      "fixSHA": "c7934adc82d382e78cf23ab96ed6d6784e88b905",
+      "observations": "Independent persisted appearance errors and retries displayed in both languages. Duplicate JS instruction reproduced and corrected. Prior 128 MiB forced-full data run preserved integrity and UNKNOWN."
+    },
+    {
+      "caseID": "COPY-03",
+      "taskID": "T06",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 123,
+        "action": "刷新多次并由VoiceOver实际操作；比较菜单／四设置页／托盘／仓库／弹窗"
+      },
+      "mode": [
+        "ordinary26",
+        "signedUI27"
+      ],
+      "artifacts": [
+        "vo26",
+        "settings-en",
+        "settings-zh"
+      ],
+      "result": "NOT_RUN",
+      "scope": "NOT_RUN",
+      "blocker": "Full signed 27 VoiceOver spoken navigation, repeat announcements, modal focus, tray/library and pronunciation remain unmeasured.",
+      "fixSHA": null,
+      "observations": "Real VoiceOver in the 26 guest announced the four status controls in order, then the General selected toggle after Space. Both 27 settings suites exercised four pages."
+    },
+    {
+      "caseID": "CORE-01",
+      "taskID": "T07",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 131,
+        "action": "冷启动首图自然一次点击"
+      },
+      "mode": [
+        "ordinary26",
+        "ordinary27"
+      ],
+      "artifacts": [
+        "guest26",
+        "guest27"
+      ],
+      "result": "BLOCKED",
+      "scope": "BLOCKED",
+      "blocker": "Valid TLS and an authorized stable dedicated guest editor with readable attachment area, followed by a cold native first click.",
+      "fixSHA": null,
+      "observations": "Guest Chrome could not load the dedicated test draft; one supported recovery hit TLS -1200. No upload/send attempted."
+    },
+    {
+      "caseID": "CORE-02",
+      "taskID": "T07",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 132,
+        "action": "A→B两次独立原生点击间隔≤2秒；不等A达到ChatGPT上传终态；至少3组独立A/B"
+      },
+      "mode": [
+        "ordinary26",
+        "ordinary27"
+      ],
+      "artifacts": [
+        "guest26",
+        "guest27"
+      ],
+      "result": "BLOCKED",
+      "scope": "BLOCKED",
+      "blocker": "Same dedicated editor as CORE-01 and three separate ≤2s pairs with matching per-asset START and observed no-send.",
+      "fixSHA": null,
+      "observations": "The signed 27 review driver generated local screenshots and never accessed the service. No valid A/B intervals, matched handoffs or attachment ownership are available for this RC."
+    },
+    {
+      "caseID": "CORE-03",
+      "taskID": "T07",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 133,
+        "action": "同一图双击、动画期间重复点击；不同图快速交错"
+      },
+      "mode": [
+        "development",
+        "previousCI"
+      ],
+      "artifacts": [
+        "coredata",
+        "ci26"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "Not a rapid repeated-click trial on real ChatGPT.",
+      "fixSHA": null,
+      "observations": "Controlled page/Chrome regressions verify at most one setter per attempt and independent subsequent submissions. Product attachment sources unchanged from prior run."
+    },
+    {
+      "caseID": "CORE-04",
+      "taskID": "T07",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 134,
+        "action": "点击后立刻切tab／window／导航／关闭草稿；Chrome退出与重开"
+      },
+      "mode": [
+        "development",
+        "previousCI"
+      ],
+      "artifacts": [
+        "coredata",
+        "ci26"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "Not a real-service navigation trial on 27.",
+      "fixSHA": null,
+      "observations": "Controlled moved/closed tab, rebuilt document and mismatching editor tests retained the frozen destination; no search for a replacement conversation."
+    },
+    {
+      "caseID": "CORE-05",
+      "taskID": "T07",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 135,
+        "action": "无可编辑草稿、拒绝权限、JS关闭、受控无归属异步picker"
+      },
+      "mode": [
+        "development",
+        "previousCI",
+        "probe27"
+      ],
+      "artifacts": [
+        "coredata",
+        "ci26",
+        "history-after"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "Actual guest Chrome service denial and uncertain picker scenarios were not run on the same signed session.",
+      "fixSHA": null,
+      "observations": "Controlled DOM rejected missing/ambiguous/unowned inputs. AppKit probe confirmed refused-JS instructions displayed once and preserved recovery guidance."
+    },
+    {
+      "caseID": "CORE-06",
+      "taskID": "T07",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 136,
+        "action": "setter可能发生后丢receipt／超时／网络断开；重启再看"
+      },
+      "mode": [
+        "development",
+        "ordinary26",
+        "previousCI",
+        "ordinary27"
+      ],
+      "artifacts": [
+        "coredata",
+        "guest26",
+        "ci26",
+        "guest27"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "No signed guest real-service post-setter dropped network followed by matching original observation.",
+      "fixSHA": null,
+      "observations": "Lost receipts and old observations use the original operation in controlled fixtures. Ordinary guest upgrade retained its existing UNKNOWN."
+    },
+    {
+      "caseID": "CORE-07",
+      "taskID": "T07",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 137,
+        "action": "注入其他asset/operation、旧START、只有可见图、无匹配durable START"
+      },
+      "mode": [
+        "development",
+        "previousCI"
+      ],
+      "artifacts": [
+        "coredata",
+        "ci26"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "No independent real-service matching START obtained for build 27.",
+      "fixSHA": null,
+      "observations": "Controlled invalid old/other START and no-matching-identity paths did not trigger synthetic handoff. Only matching START can cause swallow."
+    },
+    {
+      "caseID": "CORE-08",
+      "taskID": "T07",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 138,
+        "action": "prepared未dispatch崩溃恢复；dispatchIntent／START／UNKNOWN各自重启"
+      },
+      "mode": [
+        "previousCI",
+        "development",
+        "ordinary26",
+        "ordinary27"
+      ],
+      "artifacts": [
+        "ci26",
+        "coredata",
+        "guest26",
+        "guest27"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "Guest state had zero START; a nonempty event cannot be inferred from equality of empty tables.",
+      "fixSHA": null,
+      "observations": "RecoveryBoundaryTests and isolated restarts exercised pre-dispatch versus possibly submitted operations. Actual signed 26 upgrade preserved UNKNOWN and media."
+    },
+    {
+      "caseID": "CORE-09",
+      "taskID": "T07",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 139,
+        "action": "记录点击同步native pin与其后工作；Chrome无响应／权限待决"
+      },
+      "mode": [
+        "ordinary26",
+        "previousCI",
+        "ordinary27"
+      ],
+      "artifacts": [
+        "guest26",
+        "ci26",
+        "guest27"
+      ],
+      "result": "BLOCKED",
+      "scope": "BLOCKED",
+      "blocker": "Authorized dedicated live draft and observed cold/slow Chrome click sample for p50, p95 and max.",
+      "fixSHA": null,
+      "observations": "150ms native-pin design and controlled routing tests remain; there is no real click distribution."
+    },
+    {
+      "caseID": "PERF-01",
+      "taskID": "T08",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 147,
+        "action": "同Mac同OS同root复制组，以1.0.3基线A和候选B分别跑200／2k／10k；每组至少3次；另测1–2GB合理尺寸合成图片"
+      },
+      "mode": [
+        "development"
+      ],
+      "artifacts": [
+        "historystore",
+        "coredata"
+      ],
+      "result": "NOT_RUN",
+      "scope": "NOT_RUN",
+      "blocker": "Signed UI wall-clock latency for startup/menu, first clickable thumbnail, first history display and quit for each matched condition.",
+      "fixSHA": null,
+      "observations": "Paired 200/2,000/10,000-row SQLite with 3 samples; 100 unique PNGs total 1,106,442,800 bytes, real import and three reopen passes. OS caches were not forced cold."
+    },
+    {
+      "caseID": "PERF-02",
+      "taskID": "T08",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 148,
+        "action": "将CPU/RSS/唤醒/读盘字节与主线程采样区分空闲和使用峰值"
+      },
+      "mode": [
+        "ordinary26",
+        "development"
+      ],
+      "artifacts": [
+        "idle26",
+        "historystore"
+      ],
+      "result": "NOT_RUN",
+      "scope": "NOT_RUN",
+      "blocker": "Only six assets, no activity-peak/main-thread attribution or large-fixture baseline; cached reads could include queries unseen by physical I/O counters. Not a repeat on signed 27.",
+      "fixSHA": null,
+      "observations": "Build 26 ordinary process sampled 31 times over 1,800.306s. Mean CPU 0.013% of one core, peak RSS 122,437,632 bytes and zero physical I/O deltas. See per-process wake counters."
+    },
+    {
+      "caseID": "PERF-03",
+      "taskID": "T08",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 149,
+        "action": "≥2小时混合截图、展开／折叠、历史查询、改外观、睡眠唤醒和多屏改变"
+      },
+      "mode": [
+        "development"
+      ],
+      "artifacts": [
+        "coredata"
+      ],
+      "result": "NOT_RUN",
+      "scope": "NOT_RUN",
+      "blocker": "Run did not open AppKit windows or exercise ordinary settings/feedback, hardware sleep, display changes or normal interaction throughout.",
+      "fixSHA": null,
+      "observations": "7,200.01s native data-lane run, 420 generated captures, restart and original identities retained."
+    },
+    {
+      "caseID": "PERF-04",
+      "taskID": "T08",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 150,
+        "action": "受控执行同draft多次输入与大量不同draft/tab/process导航，分别统计routes/relays/once-only集合与RSS"
+      },
+      "mode": [
+        "development"
+      ],
+      "artifacts": [
+        "coredata"
+      ],
+      "result": "NOT_RUN",
+      "scope": "NOT_RUN",
+      "blocker": "No long signed-app profile separating same-draft versus distinct tabs/processes with per-context receiver counts and RSS.",
+      "fixSHA": null,
+      "observations": "Controlled DOM suite exercises relay and original-operation behavior."
+    },
+    {
+      "caseID": "PERF-05",
+      "taskID": "T08",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 151,
+        "action": "优化启动校验或缓存后重跑缺媒体／journal／UNKNOWN／重复输入反例"
+      },
+      "mode": [
+        "development",
+        "previousCI"
+      ],
+      "artifacts": [
+        "coredata",
+        "ci26"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "Faults were injected into isolated native data programs.",
+      "fixSHA": null,
+      "observations": "Importer verified full SHA-256 for original/private copies at each reopen; forced full disk retained quick_check/foreign-key integrity and old UNKNOWN. No startup-hash or replay-tombstone optimization in this candidate."
+    },
+    {
+      "caseID": "REL-01",
+      "taskID": "T09",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 159,
+        "action": "冻结1.0.4营销版本及高于既有build的唯一候选；构建universal并Developer ID签名"
+      },
+      "mode": [
+        "package27"
+      ],
+      "artifacts": [
+        "package27",
+        "feed27"
+      ],
+      "result": "PASS",
+      "scope": "PASS",
+      "blocker": null,
+      "fixSHA": null,
+      "observations": "Build 27 is a private signed 1.0.4 universal app with Developer ID. Both slices are listed in its package manifest; compiled minimum target and actual platform runs remain distinct."
+    },
+    {
+      "caseID": "REL-02",
+      "taskID": "T09",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 160,
+        "action": "对App检查签名、Gatekeeper、公证ticket；对拟交付ZIP或DMG分别校验；DMG挂载后安装／推出再运行"
+      },
+      "mode": [
+        "package27",
+        "ordinary27"
+      ],
+      "artifacts": [
+        "package27",
+        "guest27"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "Per-user install; clean standard-user and shared Applications authorization remain separate scenarios.",
+      "fixSHA": null,
+      "observations": "App and DMG checked separately. Ordinary guest mounted read-only, copied app to user Applications, detached image, launched installed notarized app and checked the actual PID and executable digest. A new system screenshot reached library."
+    },
+    {
+      "caseID": "REL-03",
+      "taskID": "T09",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 161,
+        "action": "真正官网1.0.3 ZIP/build25普通安装→私有签名feed的1.0.4候选；实际点击Install Update并重启"
+      },
+      "mode": [
+        "ordinary27",
+        "package27"
+      ],
+      "artifacts": [
+        "up25raw",
+        "feed27",
+        "guest27"
+      ],
+      "result": "PASS",
+      "scope": "PASS_SCOPED",
+      "blocker": "Fixture had no START rows, so positive START preservation was not exercised. No nonempty private Keychain record is inferred from file/feedback equality.",
+      "fixSHA": null,
+      "observations": "Ordinary guest 25 → 27 relaunched the notarized installed app. All six table contents and file, feedback and bookmark inventories matched byte for byte after upgrade."
+    },
+    {
+      "caseID": "REL-04",
+      "taskID": "T09",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 162,
+        "action": "稳定1.0.2/build24→同候选；个人／共享Applications、标准账户，拒绝授权或失败下载"
+      },
+      "mode": [
+        "ordinary27",
+        "package27"
+      ],
+      "artifacts": [
+        "up24raw",
+        "feed27",
+        "guest27"
+      ],
+      "result": "NOT_RUN",
+      "scope": "NOT_RUN",
+      "blocker": "Shared Applications, standard-user admin challenge/denial and interrupted download with original app retained.",
+      "fixSHA": null,
+      "observations": "Ordinary per-user 24 → 27 succeeded and the same six-table/file/bookmark/feedback inventory matched after relaunch."
+    },
+    {
+      "caseID": "REL-05",
+      "taskID": "T09",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 163,
+        "action": "错签名feed／包、低版本、同营销版本较高build、不足磁盘、取消、下载中断"
+      },
+      "mode": [
+        "development",
+        "package27",
+        "previousCI"
+      ],
+      "artifacts": [
+        "update-tests",
+        "mount-retest",
+        "feed27",
+        "ci26"
+      ],
+      "result": "NOT_RUN",
+      "scope": "NOT_RUN",
+      "blocker": "No signed build 27 full interruption/cancel/disk-full/invalid-feed matrix with normal updater, nor claim all 127 passed in the first run.",
+      "fixSHA": null,
+      "observations": "Release-tool test suite exercised signature/version gates. Initial mounted-image check failed in sandbox; the same check passed separately with actual disk-image support. Private feed signature verified."
+    },
+    {
+      "caseID": "REL-06",
+      "taskID": "T09",
+      "steps": {
+        "path": "../../ACCEPTANCE.md",
+        "line": 164,
+        "action": "安装后退出／重开、双实例、权限改变；更新前后的Chrome连接与一次真实附加"
+      },
+      "mode": [
+        "signedUI27",
+        "ordinary26",
+        "ordinary27"
+      ],
+      "artifacts": [
+        "settings-en",
+        "settings-zh",
+        "history",
+        "desktop",
+        "guest26",
+        "guest27"
+      ],
+      "result": "BLOCKED",
+      "scope": "BLOCKED",
+      "blocker": "No ordinary post-upgrade Chrome connection with an observed real matching START.",
+      "fixSHA": null,
+      "observations": "Ordinary guest in-app upgrades, detached DMG launch and post-install screenshot worked. Signed review and ordinary onboarding each reopened in a new process."
+    }
+  ]
+}

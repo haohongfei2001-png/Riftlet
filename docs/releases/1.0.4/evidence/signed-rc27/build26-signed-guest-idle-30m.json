@@ -1,0 +1,38 @@
+{
+  "source": "f7407cdae28b4d63e20cf7c3972f4f131ec9e33e",
+  "version": "1.0.4",
+  "build": 26,
+  "executableSHA256": "2a76ad89e9501edecec02bafef203dadadf6c6b2a36f3d055011095fad3fecb4",
+  "guest": "dedicated arm64 macOS 27.2 26B123",
+  "identityGuard": "proc_pidpath verified a unique ordinary installed Riftlet.app PID before sampling. Same sampled process remained alive for 31 observations.",
+  "fixture": "6 library assets, prior capture settled and archived, ordinary installed signed app on fresh launch; no further interactions with Riftlet",
+  "method": "read-only macOS proc_pid_rusage RUSAGE_INFO_V4 and mach_continuous_time, Mach absolute time converted to seconds",
+  "status": "OBSERVED",
+  "durationSeconds": 1800.306,
+  "samples": 31,
+  "intervalSeconds": {
+    "min": 60.002,
+    "max": 60.016
+  },
+  "cpuSeconds": {
+    "user": 0.111,
+    "system": 0.1216
+  },
+  "meanPercentOfOneCore": 0.013,
+  "rssBytes": {
+    "first": 122437632,
+    "last": 121929728,
+    "max": 122437632
+  },
+  "physicalFootprintBytes": {
+    "first": 34245056,
+    "last": 32180672,
+    "max": 34245056
+  },
+  "physicalDiskReadDeltaBytes": 0,
+  "physicalDiskWrittenDeltaBytes": 0,
+  "interruptWakeupsDelta": 527,
+  "packageIdleWakeupsDelta": 481,
+  "rawCsvSHA256": "6e8e3fab6c4b701aa998014eed98ce43ebda3329b143b5603b83141ad0f1934f",
+  "limits": "Small fixture; process counters cannot classify cached SQLite reads or identify a history-wide scan. No baseline or physical Intel comparison."
+}

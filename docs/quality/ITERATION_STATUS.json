@@ -3,7 +3,7 @@
     "asOf": "2026-11-17 Asia/Shanghai",
     "version": "1.0.4",
     "phase": "PRIVATE_RC_SIGNED_UPGRADES_VERIFIED_PUBLIC_RELEASE_BLOCKED",
-    "candidateBuild": 26,
+    "candidateBuild": 27,
     "candidateReport": "docs/releases/1.0.4/RC_REPORT.md",
     "baseline": "3f8149e2313fd81bbaee5a7bbbdbb1efca2fc81b",
     "entry": "docs/releases/1.0.4/CODEX_HANDOFF.md",

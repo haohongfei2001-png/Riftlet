@@ -1,0 +1,43 @@
+{
+  "source": "f7407cdae28b4d63e20cf7c3972f4f131ec9e33e",
+  "version": "1.0.4",
+  "build": 26,
+  "executableSHA256": "2a76ad89e9501edecec02bafef203dadadf6c6b2a36f3d055011095fad3fecb4",
+  "environment": "Isolated ARM64 macOS 27.2 WindowServer guest, fresh synthetic local preferences, normal signed app startup without a review flag",
+  "results": {
+    "red": {
+      "status": "PASS",
+      "onFirstOpen": "visible",
+      "onDismissal": "closed",
+      "onRelaunch": "absent, deferred persisted",
+      "pngSHA256": {
+        "start": "b1d25f49dcf7219bc807d73c1df67a76c6b6e467217167dc4350cabb33374b1c",
+        "closed": "9da4c0eca76b5697328bbddef9ce6849778dac33f5b84bb13976c886ecb5ffcc",
+        "restart": "31327c51c151b94b8a87784dc49a5136e986df2472b6803c50b8aa836ecb0bf7"
+      }
+    },
+    "escape": {
+      "status": "PASS",
+      "onFirstOpen": "visible",
+      "onDismissal": "closed",
+      "onRelaunch": "absent, deferred persisted",
+      "pngSHA256": {
+        "start": "bdd83710674084a1feef55383779b6c1916cf2af3ec4fd3ce5889a60b17aabf3",
+        "closed": "212f74973491c32940bd5567b097fe6e025a1c3cd4df594378d1764b76dcec9a",
+        "restart": "31327c51c151b94b8a87784dc49a5136e986df2472b6803c50b8aa836ecb0bf7"
+      }
+    },
+    "later": {
+      "status": "PASS",
+      "onFirstOpen": "visible",
+      "onDismissal": "closed",
+      "onRelaunch": "absent, deferred persisted",
+      "pngSHA256": {
+        "start": "6d303eaa01090698d259e8dcbcc65d71e3f7e950c83c34da179dcced3da5d2c4",
+        "closed": "7429f5b74f50c694e11e372e100fed1c74b8f187445903368a6cbef11cd05451",
+        "restart": "31327c51c151b94b8a87784dc49a5136e986df2472b6803c50b8aa836ecb0bf7"
+      }
+    }
+  },
+  "cmdW": "Executed successfully on the 1.0.4 development package with a calibrated Apple Accessibility Keyboard. Not re-executed on this signed binary; see the separate ordinary-onboarding receipt."
+}
