@@ -15,6 +15,11 @@ final class SettingsProductHost {
     private var setup = SetupSnapshot()
     private var capabilities = SettingsCapabilities()
     private let updaterPresentation: @MainActor () -> SettingsUpdaterPresentation?
+    private var captureAccessWasDenied = false
+    func recordScreenPermissionFailure() {
+        captureAccessWasDenied = true
+        publish()
+    }
     private var recoveryDomains: Set<SettingsPreferenceDomain> = []
     private var legacyCustomFields = Set<SettingsField>()
     private var hasLegacyTrayTheme = false
@@ -122,7 +127,10 @@ final class SettingsProductHost {
             }
         }
         // A read-only preflight; never presents the macOS permission dialog.
-        result.screenRecording = CGPreflightScreenCaptureAccess() ? .granted : .notGranted
+        if captureAccessWasDenied {
+            if CGPreflightScreenCaptureAccess() { captureAccessWasDenied = false; result.screenRecording = .granted }
+            else { result.screenRecording = .notGranted }
+        }
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
         result.updater = updaterPresentation()
         result.version = version.map { "Riftlet " + $0 } ?? "Riftlet"

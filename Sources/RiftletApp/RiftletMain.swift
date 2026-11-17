@@ -635,6 +635,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     onChange: { [weak self] in await self?.refresh() },
                     onIssue: { [weak self] message in self?.showIssue(message) },
                     allowsSystemCapture: mode != .settingsReview)
+                screenshotEntry?.onScreenPermissionRequired = { [weak self] in self?.settingsHost?.recordScreenPermissionFailure() }
                 screenshotEntry?.onPreferencesChanged = { [weak self] in self?.updateSetup() }
                 screenshotEntry?.setHidden(userHidden)
             } catch { showIssue("截图入口暂不可用，已有截图收录和队列仍保留。") }

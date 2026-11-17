@@ -11,11 +11,13 @@ public struct LibraryHistoryPage: Sendable {
 /// Text, status and half-open date range are all applied before returning a bounded page.
 public struct HistoryQuery: Equatable, Sendable {
     public enum Filter: String, CaseIterable, Sendable {
-        case all, needsVerification, swallowed, archived, failed, removed, handedOff, attached, missing, available, preparing, notAttached
+        case all, desktop, needsAttention, needsVerification, swallowed, archived, failed, removed, handedOff, attached, missing, available, preparing, notAttached
 
         fileprivate var predicate: String {
             switch self {
             case .all: return "1"
+            case .desktop: return "a.visibility='visible'"
+            case .needsAttention: return "(a.status='missing' OR \(state) IN ('needsReview','checkDraft','confirmedFailure','notAttached'))"
             case .swallowed, .archived, .removed: return "a.visibility='\(rawValue)'"
             case .missing: return "a.status='missing'"
             case .needsVerification: return "\(state) IN ('needsReview','checkDraft')"
@@ -29,6 +31,8 @@ public struct HistoryQuery: Equatable, Sendable {
         fileprivate var terms: String {
             switch self {
             case .all: return ""
+            case .desktop: return "桌面中 on desktop"
+            case .needsAttention: return "需要处理 needs attention"
             case .available: return "待附加 ready to attach"
             case .preparing: return "准备附加 preparing attachment"
             case .notAttached: return "未附加 not attached"

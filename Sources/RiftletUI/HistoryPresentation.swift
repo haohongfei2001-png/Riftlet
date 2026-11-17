@@ -48,13 +48,15 @@ public struct RiftHistoryEntry: Identifiable, Equatable, Sendable {
 }
 
 public enum RiftHistoryFilter: String, CaseIterable, Sendable {
-    case all, needsVerification, swallowed, archived, failed, removed, handedOff, attached
+    case all, desktop, needsAttention, needsVerification, swallowed, archived, failed, removed, handedOff, attached
 
-    static let menuFilters: [Self] = [.all, .needsVerification, .attached, .archived, .failed, .removed, .handedOff]
+    static let menuFilters: [Self] = [.all, .desktop, .needsAttention]
 
     var libraryFilter: HistoryQuery.Filter {
         switch self {
         case .all: return .all
+        case .desktop: return .desktop
+        case .needsAttention: return .needsAttention
         case .needsVerification: return .needsVerification
         case .swallowed: return .swallowed
         case .archived: return .archived
@@ -69,6 +71,8 @@ public enum RiftHistoryFilter: String, CaseIterable, Sendable {
 
     public func title(copy: ProductCopy) -> String {
         switch self {
+        case .desktop: return copy.text("桌面中", "On Desktop")
+        case .needsAttention: return copy.text("需要处理", "Needs Attention")
         case .all: return copy.text("全部截图", "All Screenshots")
         case .needsVerification: return copy.text("待核实", "Needs Review")
         case .swallowed: return copy.text("已收起", "Hidden")
@@ -83,6 +87,8 @@ public enum RiftHistoryFilter: String, CaseIterable, Sendable {
     public func includes(_ entry: RiftHistoryEntry) -> Bool {
         switch self {
         case .all: return true
+        case .desktop: return entry.record.visibility == .visible
+        case .needsAttention: return entry.record.status == .missing || entry.needsVerification || entry.isConfirmedFailure || entry.attachmentState == .notAttached
         case .needsVerification: return entry.needsVerification
         case .swallowed: return entry.record.visibility == .swallowed
         case .attached: return entry.record.status != .missing && entry.attachmentState == .attached

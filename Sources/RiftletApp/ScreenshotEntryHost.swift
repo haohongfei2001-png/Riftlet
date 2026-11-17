@@ -18,6 +18,7 @@ final class ScreenshotEntryHost {
     private let onIssue: (String) -> Void
     private let savePreferences: (ScreenshotEntryPreferences, URL) throws -> Void
     private let allowsSystemCapture: Bool
+    var onScreenPermissionRequired: (() -> Void)?
     var onPreferencesChanged: (() -> Void)?
     var isEnabled: Bool { preferences.builtInScreenshotEnabled }
     var defaultMode: ScreenshotMode { preferences.defaultMode }
@@ -116,6 +117,7 @@ final class ScreenshotEntryHost {
         capture.onStateChange = { [weak self] _ in self?.updateCapturePresentation() }
         capture.onError = { [weak self] error in
             guard let self, self.isEnabled, !self.closed else { return }
+            if error == .screenRecordingPermissionRequired { self.onScreenPermissionRequired?() }
             self.onIssue(error.localizedDescription)
         }
         capture.onCaptureVisibilityChanged = { [weak self] hidden in
