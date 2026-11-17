@@ -124,6 +124,26 @@ public struct RiftControlCenterPresentation {
             detail = setup.issue == .chromeJavaScriptDisabled ? SetupIssue.chromeJavaScriptDisabled.text(in: copy) : ChromeAttachmentSetup.instructions(in: copy)
             symbol = "globe"
             recoveryTitle = copy.text("检查 Chrome 连接", "Check Chrome Connection"); recoveryPage = .help
+        } else if setup.issue == .imageUnavailable {
+            state = .attention; title = copy.text("找不到这张截图的本地副本", "Local Screenshot Copy Unavailable")
+            detail = SetupIssue.imageUnavailable.text(in: copy)
+            symbol = "photo"
+            recoveryTitle = copy.text("检查本地截图副本", "Check Local Screenshot Copies"); recoveryPage = .capture
+            recoveryOverride = .recheckMedia
+        } else if usesAutomation && (snapshot.chromeConnection == .noWindow || snapshot.chromeConnection == .unavailable
+                    || setup.issue == .targetUnavailable || setup.issue == .unsupportedBrowser) {
+            state = .attention
+            symbol = "globe"
+            recoveryPage = .help
+            if snapshot.chromeConnection == .noWindow {
+                title = copy.text("没有可用的 Chrome 窗口", "No Chrome Window Available")
+                detail = copy.text("打开要使用的 ChatGPT 草稿。", "Open the ChatGPT draft you want to use.")
+                recoveryTitle = copy.text("打开 Chrome", "Open Chrome"); recoveryOverride = .openChrome
+            } else {
+                title = copy.text("无法连接到当前草稿", "Can’t Connect to the Current Draft")
+                detail = setup.issue?.text(in: copy) ?? copy.text("请检查 Chrome 连接。", "Check the Chrome connection.")
+                recoveryTitle = copy.text("查看 Chrome 连接", "Show Chrome Connection")
+            }
         } else if owner.settings.entryEnabled && snapshot.screenRecording == .notGranted {
             state = .attention; title = copy.text("内置截图需要屏幕录制权限", "Allow Screen Recording for Built-in Capture")
             detail = copy.text("在系统设置中允许 Riftlet 录制屏幕。", "Allow Riftlet to record the screen in System Settings.")

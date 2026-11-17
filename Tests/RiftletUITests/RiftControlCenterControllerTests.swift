@@ -89,14 +89,17 @@ final class RiftControlCenterControllerTests: XCTestCase {
         XCTAssertEqual(fault.recoveryPage, .capture)
     }
 
-    @MainActor func testTransientAttachmentContextIsNotPersistentAttentionOrFalseRunning() {
+    @MainActor func testClickFailuresExposeRecoveryWhileUnsupportedFilesLeaveCollectionRunning() {
         for issue in [SetupIssue.targetUnavailable, .unsupportedBrowser, .unsupportedFormat, .imageUnavailable] {
             let projection = RiftControlCenterPresentation(fixture(issue: issue), copy: .simplifiedChinese)
-            XCTAssertEqual(projection.state, .collecting)
             if issue == .targetUnavailable || issue == .unsupportedBrowser {
+                XCTAssertEqual(projection.state, .attention)
                 XCTAssertEqual(projection.detail, issue.text(in: .simplifiedChinese))
-                XCTAssertNil(projection.recoveryPage)
-            }
+                XCTAssertEqual(projection.recoveryPage, .help)
+            } else if issue == .imageUnavailable {
+                XCTAssertEqual(projection.state, .attention)
+                guard case .recheckMedia? = projection.recovery(fixture(issue: issue))?.1 else { return XCTFail("Missing verification action") }
+            } else { XCTAssertEqual(projection.state, .collecting) }
         }
         let stopped = RiftControlCenterPresentation(fixture(collection: .stopped), copy: .simplifiedChinese)
         XCTAssertEqual(stopped.state, .stopped)
