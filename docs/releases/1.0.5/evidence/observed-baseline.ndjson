@@ -1,0 +1,3 @@
+{"kind":"scope","scope":"controlled DOM; not real Chrome/macOS/ChatGPT","node":"v24.22.1","baseline":"f3153b10dac4445720f1c20c8836ddbbea625c49","sourcePath":"Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js","sourceSHA256":"5fffb4b9fcee31af401a00259b3cf0cdbf7577c8f990dddbbd1ec99bfe16de3f"}
+{"case":"same-attachment-error-after-START","before":"uploadStarted","after":"uploadStarted","hasError":false,"exactImageIdentity":true,"setters":1,"sends":0}
+{"case":"lifetime-retention-after-101-successful-STARTs","operations":101,"started":101,"bindings":101,"retainedChunks":0,"setters":101,"sends":0}

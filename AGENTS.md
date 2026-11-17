@@ -7,10 +7,10 @@ The 2026-11-14 audit baseline is 1.0.1 (23); this is a dated fact, not a future 
 ## Read only what the task needs
 
 1. This file and [current product contract](docs/PRODUCT.md).
-2. [1.0.4 Codex entry](docs/releases/1.0.4/CODEX_HANDOFF.md), its exact baseline,
-   ordered tasks and acceptance rows, and the assigned Issue. Use
-   [prior implementation evidence](engineering/quality/2026-11-14/progress.json)
-   and [dated quality status](docs/quality/ITERATION_STATUS.json) as historical evidence.
+2. [1.0.5 current entry](docs/releases/1.0.5/README.md), its audit, product direction
+   and Codex handoff. Read only the relevant work packet.
+   [2026-11-14 evidence](engineering/quality/2026-11-14/progress.json) and the
+   old quality handoff are dated history, not an additional work queue.
 3. [Current design decisions](docs/quality/DECISIONS.md) and the relevant source/tests.
 4. [Mainline admission](docs/MAINLINE_GOVERNANCE.md) before committing a formal PR.
 
@@ -19,13 +19,15 @@ historical phase restrictions. Old files are retained under `docs/quality/histor
 `engineering/evidence/` and `research/` remain source-bound historical evidence,
 not new permission or a second work queue. Open candidates are not released features.
 
-The current work is [1.0.4 consumer planning and RC delivery](docs/releases/1.0.4/CODEX_HANDOFF.md),
-tracked in [Issue #106](https://github.com/haohongfei2001-png/Riftlet/issues/106), from
-baseline `3f8149e2313fd81bbaee5a7bbbdbb1efca2fc81b`. PR #101/#103/#105 are merged;
-public 1.0.3 is the immutable ZIP release, while the stable feed still serves 1.0.2
-at the recorded audit snapshot. Freeze the 1.0.3 channels. Do not resume PR #101,
-recreate its fixes, or import stale PR #100, #69 or #77 as the new base.
-Issue closure, source admission, native acceptance and release approval remain distinct.
+The active next-version task is [1.0.5 product closeout](docs/releases/1.0.5/CODEX_HANDOFF.md).
+At the 2026-11-18 audit, main was `3f8149e2313fd81bbaee5a7bbbdbb1efca2fc81b`;
+PR #110 held the unmerged 1.0.4 build 27 candidate at
+`f3153b10dac4445720f1c20c8836ddbbea625c49`. Public download was 1.0.3 and the
+repository stable feed was 1.0.2. Re-read actual remote state before implementation.
+Integrate the valid 1.0.4 changes into a separate 1.0.5 worktree; do not restart from
+old main alone or resume already merged PR #101. PR #100/#109 are dated planning;
+#69/#77 are separate candidates, not automatic dependencies. Issue closure, source
+admission, native acceptance and release approval remain distinct.
 
 ## Product invariants
 
@@ -37,19 +39,22 @@ Issue closure, source admission, native acceptance and release approval remain d
   uncertain replies are observed by original identity; never resubmit automatically.
 - Positively evidenced current-file START permits the fast swallow. START is not READY.
   Preserve old UNKNOWN, receipts and media. Independent later screenshots stay usable.
-- Confirmed pre-input failures stay/recover clickable. Ordinary accepted handoff ends
-  at START; ChatGPT owns upload progress and sending. Presentation may say “已交给 ChatGPT”
-  only from the matching durable START, never from visibility alone. Do not invent
-  completion, retry rights or late-failure evidence to simplify history.
+- Confirmed pre-input failures stay/recover clickable. START still permits the fast
+  swallow and truthful “已交给 ChatGPT”; ChatGPT owns upload progress and sending.
+  1.0.5 adds narrowly correlated failure aftercare and visible recovery per its product
+  direction. Never invent completion, late-failure proof or retry rights. UNKNOWN
+  remains non-resubmitting; displaying an image does not grant input authority.
 - Keep approved tray/wind-chime/micro-slit forms, tray 2×2 and capture-button placement,
-  queue identity, previews and accessibility. The scoped 1.0.4 visual changes are defined
-  in its DESIGN_SPEC; no unplanned visual language or destination expansion.
+  queue identity, previews and accessibility. Scope settings refinement to the 1.0.5
+  product direction; no destination expansion or unplanned product modules.
 
 ## Data and release safety
 
-- Original screenshots are read-only. Never reset the current SQLite library, replay or
-  clear UNKNOWN, delete private media, replace current data with an old backup, or repurpose
-  production profiles for a test. Use isolated synthetic fixtures and data roots.
+- External original screenshots are read-only. Never reset the current SQLite library,
+  replay or clear UNKNOWN, replace current data with an old backup, or repurpose production
+  profiles for a test. Implement 1.0.5 lifecycle/cleanup only within its explicit product
+  direction, preserving active/unknown/only-copy recovery and legacy retention promises.
+  Audit and tests never delete production media; use isolated synthetic data roots.
 - Preserve journal/media/SQLite recovery ordering, file identity/hash checks, single-instance
   ownership, safe migrations, folder bookmarks, saved preferences and feedback credentials.
 - Preference/UI simplification must not discard valid old or unknown fields. A corrupt
