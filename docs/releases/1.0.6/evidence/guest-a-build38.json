@@ -51,6 +51,6 @@
   "V2": {
     "oldUNKNOWN": "Cancel leaves data unchanged; Continue requires a separate fresh click; Hide changes local visibility; Mark as Handled clears attention entry only. Native records unchanged and explicit handling marker persisted. No new operation/START.",
     "originalMissing": "After relaunch of 38, original Chrome process no longer exists. Return reports draft not located. Check does not input or alter original facts and reports the attachment can no longer be verified, with local recovery guidance.",
-    "note": "Independent live-page result is reported separately."
+    "livePageAndChromeRestart": "A fresh real anonymous Chrome draft received a single capture (seq 29). Earlier ordinary click timed out during target resolution, with zero new operations or START; a later ordinary click produced one operation and one START. After leaving the tab active in the background and quitting/reopening build 38 without terminating Chrome, Check Status Again confirmed the original card. Return selected the correct draft with its visible test attachment. Used Chrome File > Close Tab on that confirmed page. With the same Chrome process still running, Return reported draft not located and Check reported original attachment unverifiable, with no Automation prompt. No additional operation, START, or send. Full cohort now 29 assets / 9 operations / 6 START."
   }
 }
