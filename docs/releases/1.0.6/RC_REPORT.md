@@ -1,22 +1,24 @@
 # Riftlet 1.0.6 候选验收
 
-**当前暂缓扩大推广。** 安装候选是 **1.0.6（37）**，产品提交 `1d5731545564b4a1d5a4b342dba455dc3521bb1f`。公开 Release、官网下载与签名稳定清单仍提供 1.0.5（31）。
+**当前暂缓扩大推广。** 安装候选是 **1.0.6（38）**，产品提交 `7e44fd3040af32dc8e53bffac5256ac3cc992767`。公开 Release、官网下载与签名稳定清单仍提供 1.0.5（31）。
 
 ## 安装包与变更
 
-最终 DMG 为 13,282,446 字节，SHA-256 为 `4a09219f7f49089aef372980a5e0a10f407215064523c65607ed5e7fb6ee13fd`。App 可执行文件 SHA-256 为 `19afd362e42598f02b97fd49f924f15c5290a3d3c519053d9256fcfbcd676b3c`。arm64 / x86_64、Developer ID、App 与 DMG 的 Apple 公证、装订及 Gatekeeper 均通过。声明最低系统为 macOS 13.0。[发行回执](evidence/package-build37.json)
+最终 DMG 为 13,298,749 字节，SHA-256 为 `14085326e9ed36dde6a370f36e9cfd1a65ae688f37159fc2a67527d1fa406b28`。App 可执行文件 SHA-256 为 `47a5a203719cec88ca76e4e27eb6cbaa7805ba46b673919aaab5ef367119851a`。arm64 / x86_64、Developer ID、App 与 DMG 的 Apple 公证、装订及 Gatekeeper 均通过。声明最低系统为 macOS 13.0。[发行回执](evidence/package-build38.json)
 
 基线为 PR #114 的主线合并 `9fd8ad15fca043915069904113e5fb67d82b4948`。独立核验过公开 1.0.5 DMG 的 12,686,160 字节、SHA-256 `99276347932e231adf743664a54cfc782d8e345d89221587d54b7299a5c9f315`，下载按钮、Release 和签名 feed 与其一致。
 
 36 的 Intel 原生故障测试发现，持久化输入意图后资产 JSON 损坏时，保存 UNKNOWN 的保护逻辑重复解码坏行。37 在原事务内以资产与活动操作 ID 核实归属。原夹具修前能重现，修后 A 的 UNKNOWN / invocation / 零输入均保存，B 独立成功。重启回归现验证恰好一次原 invocation 的只读检查。装饰窗测试分开验证同步所有权和建窗超时回退，发行 App 沿用系统 Core Animation 时钟。故障详情可见[36 的 Intel 正式作业](https://github.com/haohongfei2001-png/Riftlet/actions/runs/44316646141/job/134844416984)。
 
+37 实机发现，原 Chrome 进程退出后，仓库复查误提示开启自动化权限。38 将接收端失效和授权被拒分别处理。
+
 ## 同一候选验收
 
-签名包两个架构的受控自检、201 项生产网页程序回归、11 项真实 Sparkle 工具回归通过。独立编译的 Core/Capture 原生故障夹具验证普通 START、无 START 的 UNKNOWN、在途、错误、唯一副本、T1/T2/T3 和三个导入中断点。系统废纸篓与真实浏览器结果单列。[原生故障回归](evidence/v3-source-build37.json)
+签名包两个架构的受控自检、201 项生产网页程序回归、11 项真实 Sparkle 工具回归通过。独立编译的 Core/Capture 原生故障夹具验证普通 START、无 START 的 UNKNOWN、在途、错误、唯一副本、T1/T2/T3 和三个导入中断点。系统废纸篓与真实浏览器结果单列。[原生故障回归](evidence/v3-source-build38.json)
 
-本次 Release 组件使用 1,000 个有原件与私有副本的 1024×768 PNG，首屏摘要 10.85 ms，完整校验与并发工作 1.03 秒，20 张新图收录的 p50/p95 14.01/18.63 ms。[千图组件基准](evidence/v6-source-build37.json)
+本次 Release 组件使用 1,000 个有原件与私有副本的 1024×768 PNG，首屏摘要 13.75 ms，完整校验与并发工作 1.96 秒，20 张新图收录的 p50/p95 23.17/25.81 ms。[千图组件基准](evidence/v6-source-build38.json)
 
-前一候选的真实草稿、异常及升级结果均以原 build 36 保存。[36 验收报告](https://github.com/haohongfei2001-png/Riftlet/blob/58e61278f5f658cd9eaed53460c36461bab82f4c/docs/releases/1.0.6/RC_REPORT.md)
+先前构建的结果分别保留原身份。[37 登录草稿](evidence/v1-host-build37.json) · [37 升级](evidence/v5-upgrade-build37.json) · [36 验收报告](https://github.com/haohongfei2001-png/Riftlet/blob/58e61278f5f658cd9eaed53460c36461bab82f4c/docs/releases/1.0.6/RC_REPORT.md)
 
 ## 修复与判定依据
 
