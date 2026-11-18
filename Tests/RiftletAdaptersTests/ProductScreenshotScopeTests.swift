@@ -55,7 +55,7 @@ final class ProductScreenshotScopeTests: XCTestCase {
 
     func testOlderFencedRowsAndFirstJournalEntriesSurviveV19ReadOnlyReconciliation() async throws {
         let program = try ChatGPTWebPageProgram.load()
-        XCTAssertEqual(program.sourceID, "chatgpt-web-screenshot-card-observation-20261118-v19")
+        XCTAssertEqual(program.sourceID, "chatgpt-web-screenshot-original-review-20261118-v20")
         let scopes: [SystemScreenshotAdmissionScope] = [.candidate, .ordinary, .ordinaryCurrentDraftInternal, .productSystem, .productApplication]
         let versions = [("chatgpt-web-attachment-entry-20261105-v15", "attachment-entry-20261105-v15"),
                         ("chatgpt-web-attachment-handoff-20261105-v16", "attachment-handoff-20261105-v16"),
@@ -83,7 +83,7 @@ final class ProductScreenshotScopeTests: XCTestCase {
             let prior = AttachmentObservationEnvelope(provenance: .init(source: .integratedDevelopment,
                 evidenceID: evidence), observation: item)
             let current = AttachmentObservationEnvelope(provenance: .init(source: .integratedDevelopment,
-                evidenceID: "screenshot-card-observation-20261118-v19"), observation: item)
+                evidenceID: "screenshot-original-review-20261118-v20"), observation: item)
             let journal = SystemScreenshotObservationJournal(store: store, scope: scope)
             try await journal.record(prior, for: request)
             let journalKey = SystemScreenshotObservationJournal.checkpointKey(request, slot: .unknown, scope: scope)
@@ -153,7 +153,7 @@ final class ProductScreenshotScopeTests: XCTestCase {
                 let saved = try await store.checkpoint(for: key), bytes = try XCTUnwrap(saved)
                 let object = try XCTUnwrap(JSONSerialization.jsonObject(with: bytes) as? [String: Any])
                 XCTAssertEqual(object["version"] as? Int, 2)
-                XCTAssertEqual(object["sourceID"] as? String, "chatgpt-web-screenshot-card-observation-20261118-v19")
+                XCTAssertEqual(object["sourceID"] as? String, "chatgpt-web-screenshot-original-review-20261118-v20")
                 XCTAssertEqual(object["assetOrigin"] as? String, scope.origin.rawValue)
                 let fence = try await store.checkpoint(for: SystemScreenshotCandidateAdmission.checkpointKey(for: request))
                 XCTAssertEqual(fence, bytes)
