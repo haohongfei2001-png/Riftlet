@@ -76,7 +76,7 @@ public actor QueueStore {
               let latest = try receipt(for: id) else { return false }
         let state = HistoryAttachmentState(record: record, operation: op, receipt: latest, startReceipt: start)
         if state == .handedOff { return !latest.hasError }
-        return try state == .checkDraft && !database.rows("SELECT 1 FROM handled_attachments WHERE operation_id=?", [id.uuidString]).isEmpty
+        return try state == .checkDraft && isAttachmentHandled(id)
     }
 
     /// Keep the immutable asset, source occurrence and operation rows. This transaction
@@ -159,9 +159,16 @@ public actor QueueStore {
                                   isHandled: row[18] != nil, reason: row[17])
     }
 
+    // A card error may be discovered after local cleanup won the transaction.
+    // Keep that outstanding decision reachable even while the bytes are in Trash.
+    private let historyVisibility = """
+        (a.id NOT IN (SELECT asset_id FROM retired_media) OR
+         (a.status='unknown' AND h.operation_id IS NULL AND s.operation_id IS NOT NULL))
+        """
+
     public func historySnapshot(limit: Int = 200, offset: Int = 0) throws -> [QueueHistoryRecord] {
         try database.transaction {
-            try database.rows(historyProjectionSQL + " WHERE a.id NOT IN (SELECT asset_id FROM retired_media) ORDER BY a.sort_at DESC,a.sequence DESC LIMIT ? OFFSET ?",
+            try database.rows(historyProjectionSQL + " WHERE " + historyVisibility + " ORDER BY a.sort_at DESC,a.sequence DESC LIMIT ? OFFSET ?",
                               [String(max(0, min(limit, 201))), String(max(0, offset))]).map(historyRecord)
         }
     }
@@ -176,7 +183,7 @@ public actor QueueStore {
             }
             let ceiling = throughSequence ?? latest
             let filter = query.predicate(through: ceiling)
-            let sql = historyProjectionSQL + " WHERE a.id NOT IN (SELECT asset_id FROM retired_media) AND " + filter.sql +
+            let sql = historyProjectionSQL + " WHERE " + historyVisibility + " AND " + filter.sql +
                 " ORDER BY a.sort_at DESC,a.sequence DESC LIMIT 201 OFFSET ?"
             let rows = try database.rows(sql, filter.values + [String(max(0, offset))])
             return LibraryHistoryPage(records: try rows.prefix(200).map(historyRecord),
@@ -377,6 +384,10 @@ public actor QueueStore {
         let entry = try historyRecord(row)
         guard entry.attachmentState.needsVerification else { throw RiftletError.invalidTransition }
         return entry
+    }
+
+    func isAttachmentHandled(_ id: UUID) throws -> Bool {
+        try !database.rows("SELECT 1 FROM handled_attachments WHERE operation_id=?", [id.uuidString]).isEmpty
     }
 
     public func markAttachmentHandled(operationID: UUID) throws {
@@ -1053,6 +1064,7 @@ public actor QueueStore {
     private func reviveSafely(_ record: AssetRecord) throws {
         // A user removal/archive overrides automatic visibility changes even
         // though the true failure fact is still recorded in operation history.
+        if let id = record.activeOperationID, try isAttachmentHandled(id) { return }
         if record.visibility == .visible || record.visibility == .swallowed {
             try setVisibility(record, .visible, reason: .safeFailure)
         }

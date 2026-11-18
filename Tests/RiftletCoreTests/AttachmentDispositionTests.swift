@@ -28,7 +28,6 @@ final class AttachmentDispositionTests: XCTestCase {
         XCTAssertEqual(cleanable.map(\.id), [asset.id])
         try await store.retireMedia(asset.id, revision: swallowed.visibilityRevision, batch: UUID())
         let reopened = try QueueStore(databaseURL: url)
-        try await reopened.reinstateMedia(asset.id, restoredByUserAt: Date())
         let core = TransferCoordinator(store: reopened, adapter: adapter, mediaDirectory: directory, policy: policy,
                                        validateAcceptedSelection: { $0.isValid() })
         try await core.recover()
@@ -38,6 +37,9 @@ final class AttachmentDispositionTests: XCTestCase {
         XCTAssertEqual(observed, .observed)
         let failing = try await reopened.historyPage(query: .init(filter: .needsAttention), offset: 0, throughSequence: nil)
         XCTAssertEqual(failing.records.first?.attachmentState, .checkDraft)
+        let visibleWhileRetired = try await reopened.isRetiredMedia(asset.id)
+        XCTAssertTrue(visibleWhileRetired)
+        try await reopened.reinstateMedia(asset.id, restoredByUserAt: Date())
         let errorProtected = try await reopened.cleanableMedia()
         XCTAssertTrue(errorProtected.isEmpty)
         try await reopened.markAttachmentHandled(operationID: first.id)

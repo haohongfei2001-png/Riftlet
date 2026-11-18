@@ -650,13 +650,14 @@ public actor TransferCoordinator {
     private func reconcile(_ op: TransferOperation) async throws {
         guard op.target.adapterID == adapter.id else { throw RiftletError.adapterUnavailable("Original adapter is unavailable") }
         if usesIndependentFileInput {
-            guard currentFileInputs[op.id] != nil else { return }
+            guard currentFileInputs[op.id] != nil, try await !store.isAttachmentHandled(op.id) else { return }
         }
         guard activeAppends[op.id] == nil, observing.insert(op.id).inserted else { return }
         defer { observing.remove(op.id) }
         let original = try await request(for: op)
         let receipt = try await adapter.reconcile(original)
         if usesIndependentFileInput {
+            guard try await !store.isAttachmentHandled(op.id) else { return }
             // A past START stays immutable. Only an error explicitly attached to
             // that same original member can change its latest status.
             if let start = try await store.uploadStartReceipt(for: op.id) {
@@ -688,7 +689,8 @@ public actor TransferCoordinator {
                 // Back off permission probes without consuming an observation.
                 watch.due = now + min(120, 5 * pow(2, Double(watch.reads)))
                 currentFileInputs[id] = watch
-                guard let op = try await store.operation(id: id), op.phase.isUnresolved else {
+                guard let op = try await store.operation(id: id), op.phase.isUnresolved,
+                      try await !store.isAttachmentHandled(id) else {
                     currentFileInputs.removeValue(forKey: id)
                     continue
                 }
