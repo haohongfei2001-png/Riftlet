@@ -22,7 +22,7 @@ final class EdgeOrdinaryInputTests: XCTestCase {
     }
 
     private func prepare(root: URL, store: QueueStore, gray: CGFloat, origin: AssetOrigin = .systemScreenshot,
-                         route: WebDraftRoute? = .chatGPTTemporaryHome)
+                         route: WebDraftRoute? = .chatGPTTemporaryHome, application: String = "com.microsoft.edgemac")
         async throws -> (TransferRequest, Data, UUID) {
         let context = try XCTUnwrap(CGContext(data: nil, width: 4, height: 4, bitsPerComponent: 8,
             bytesPerRow: 4, space: CGColorSpaceCreateDeviceGray(), bitmapInfo: CGImageAlphaInfo.none.rawValue))
@@ -37,7 +37,7 @@ final class EdgeOrdinaryInputTests: XCTestCase {
             sha256: SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined(), byteCount: Int64(bytes.count),
             pixelWidth: 4, pixelHeight: 4, mediaType: "image/png", origin: origin)
         _ = try await store.importAsset(asset)
-        let prepared = try await store.prepare(assetID: asset.id, target: target(route: route)), owner = UUID()
+        let prepared = try await store.prepare(assetID: asset.id, target: target(application: application, route: route)), owner = UUID()
         let invocation = try await store.markIndependentFileInputIntent(prepared.id, ownerID: owner)
         let saved = try await store.operation(id: prepared.id)
         return (TransferRequest(operation: try XCTUnwrap(saved), asset: asset, fileURL: file, invocationID: invocation), bytes, owner)
@@ -209,25 +209,78 @@ final class EdgeOrdinaryInputTests: XCTestCase {
         XCTAssertEqual(executed.commands.map(\.action), [.observe]); XCTAssertEqual(sources, [frozen.sourceID])
     }
 
+    func testNeitherHostCanUseTheOtherHostsExclusiveRegistration() async throws {
+        let root = try directory(); defer { try? FileManager.default.removeItem(at: root) }
+        let store = try QueueStore(databaseURL: root.appendingPathComponent("queue.sqlite"))
+        for (host, foreign) in [("com.google.Chrome", ChatGPTWebPageProgram.edgeSourceID),
+                                ("com.microsoft.edgemac", ChatGPTWebPageProgram.sourceID)] {
+            let (request, _, _) = try await prepare(root: root, store: store, gray: 0.4, application: host)
+            _ = try await seedEdgeRegistration(request, profile: OrdinaryProductScreenshotScope.admittedSystemProfile,
+                                               source: foreign, store: store)
+            let admission = SystemScreenshotCandidateAdmission(store: store, scope: .productSystem)
+            do { _ = try await admission.originalObservationProgram(for: request); XCTFail("foreign host registration") }
+            catch { XCTAssertEqual(error as? WebAdapterError, .invalidRequest) }
+        }
+    }
+
+    func testFencedV22AndV24EdgeOperationsKeepTheirOwnProgramAndJournalOnRestart() async throws {
+        let root = try directory(); defer { try? FileManager.default.removeItem(at: root) }
+        let url = root.appendingPathComponent("queue.sqlite")
+        for source in [ChatGPTWebPageProgram.priorEdgeSource, ChatGPTWebPageProgram.edgeSourceID] {
+            let store = try QueueStore(databaseURL: url)
+            let (request, _, _) = try await prepare(root: root, store: store, gray: 0.4)
+            let identity = try await seedEdgeRegistration(request, profile: OrdinaryProductScreenshotScope.edgeProgressProfile,
+                                                          source: source, store: store)
+            try await store.markUnknown(request.operation.id, reason: "original one-shot input")
+            let evidence = try XCTUnwrap(ChatGPTWebPageProgram.edgeEvidence(for: source))
+            let reopened = try QueueStore(databaseURL: url)
+            let original = try await refreshed(request, store: reopened)
+            let journal = SystemScreenshotObservationJournal(store: reopened, scope: .productSystem)
+            let key = SystemScreenshotObservationJournal.checkpointKey(original, slot: .unknown, scope: .productSystem)
+            func packet(_ provenance: String) -> AttachmentObservationEnvelope {
+                .init(provenance: .init(source: .integratedDevelopment, evidenceID: provenance),
+                      observation: .init(identity: identity, state: .unknown, belongsToOriginalDraft: true))
+            }
+            for conflicting in ["click-document-witness-20261118-v23", "click-document-witness-20261117-v22", ChatGPTWebPageProgram.edgeEvidenceID] where conflicting != evidence {
+                do { try await journal.record(packet(conflicting), for: original, readOnly: true); XCTFail("unregistered provenance") }
+                catch { XCTAssertEqual(error as? SystemScreenshotObservationJournalError, .invalidProvenance) }
+            }
+            let before = try await reopened.checkpoint(for: key)
+            XCTAssertNil(before)
+            let bridge = EdgeInputBridge(state: .unknown, provenanceID: evidence)
+            let client = try adapter(root: root, store: reopened, bridge: bridge)
+            _ = try await client.reconcile(original)
+            let first = try await reopened.checkpoint(for: key)
+            _ = try await client.reconcile(original)
+            let retained = try await reopened.checkpoint(for: key)
+            let ids = await bridge.programIDs, commands = await bridge.records().commands
+            XCTAssertEqual(ids, [source, source]); XCTAssertEqual(commands.map(\.action), [.observe, .observe])
+            XCTAssertNotNil(first); XCTAssertEqual(retained, first)
+            let stored = try await reopened.operation(id: original.operation.id)
+            XCTAssertEqual(stored?.phase, .unknown)
+        }
+    }
+
     func testEdgeProgressCannotPromoteOldRegistrationOrBuiltInOriginOrZeroStartingValue() async throws {
         let root = try directory(); defer { try? FileManager.default.removeItem(at: root) }
         let store = try QueueStore(databaseURL: root.appendingPathComponent("queue.sqlite"))
-        for scenario in ["old-v18", "old-v19", "old-v20", "old-v21", "v19-new-route", "ordinary-draft", "built-in", "zero", "old-provenance"] {
-            let historical = ["old-v18", "old-v19", "old-v20", "old-v21", "v19-new-route"].contains(scenario)
+        for scenario in ["old-v18", "old-v19", "old-v20", "old-v21", "old-v22", "v19-new-route", "ordinary-draft", "built-in", "zero", "old-provenance"] {
+            let historical = ["old-v18", "old-v19", "old-v20", "old-v21", "old-v22", "v19-new-route"].contains(scenario)
             let (request, _, _) = try await prepare(root: root, store: store, gray: 0.2,
                 origin: scenario == "built-in" ? .applicationScreenshot : .systemScreenshot,
                 route: ["old-v18", "old-v19", "ordinary-draft"].contains(scenario) ? nil : .chatGPTTemporaryHome)
             let bridge = EdgeInputBridge(state: .uploadStarted, signal: .correlatedProgress,
                 previousProgress: scenario == "zero" ? 0 : 4,
-                provenanceID: scenario == "old-provenance" ? "click-document-witness-20261117-v21" : "click-document-witness-20261117-v22")
+                provenanceID: scenario == "old-provenance" ? "click-document-witness-20261117-v22" : ChatGPTWebPageProgram.edgeEvidenceID)
             let client = try adapter(root: root, store: store, bridge: bridge)
             if historical {
-                let old = ["old-v20", "old-v21"].contains(scenario) ? OrdinaryProductScreenshotScope.edgeProgressProfile : OrdinaryProductScreenshotScope.admittedSystemProfile
+                let old = ["old-v20", "old-v21", "old-v22"].contains(scenario) ? OrdinaryProductScreenshotScope.edgeProgressProfile : OrdinaryProductScreenshotScope.admittedSystemProfile
                 let source: String
                 switch scenario {
                 case "old-v18": source = ChatGPTWebPageProgram.priorClickSource
                 case "old-v20": source = ChatGPTWebPageProgram.priorProgressSource
                 case "old-v21": source = ChatGPTWebPageProgram.priorLabelSource
+                case "old-v22": source = ChatGPTWebPageProgram.priorEdgeSource
                 default: source = ChatGPTWebPageProgram.priorOriginSource
                 }
                 _ = try await seedEdgeRegistration(request, profile: old, source: source, store: store)
@@ -324,7 +377,7 @@ private actor EdgeInputBridge: WebBridgeExecutor {
     private let provenanceID: String
     init(state: AttachmentObservedState = .inputTriggered, loseCommitReply: Bool = false,
          signal: UploadStartSignal = .attachmentAccepted, previousProgress: Double = 4,
-         provenanceID: String = "click-document-witness-20261117-v22") {
+         provenanceID: String = ChatGPTWebPageProgram.edgeEvidenceID) {
         self.state = state; self.loseCommitReply = loseCommitReply; self.signal = signal
         self.previousProgress = previousProgress; self.provenanceID = provenanceID
     }

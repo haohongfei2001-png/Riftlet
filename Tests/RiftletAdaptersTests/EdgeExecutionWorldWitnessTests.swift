@@ -62,7 +62,7 @@ final class EdgeExecutionWorldWitnessTests: XCTestCase {
         let witness = ChromeClickDocumentWitness()
         let edge = try ChatGPTWebPageProgram.edgeProgram.get()
         let chrome = WebPageProgram(sourceID: ChatGPTWebPageProgram.sourceID, functionSource: "function(){}")
-        let old = WebPageProgram(sourceID: ChatGPTWebPageProgram.priorLabelSource, functionSource: "function(){}")
+        let old = WebPageProgram(sourceID: ChatGPTWebPageProgram.priorEdgeSource, functionSource: "function(){}")
         let address = "https://chatgpt.com/c/neutral"
         XCTAssertNoThrow(try witness.bindScript(address: address, program: chrome))
         XCTAssertNoThrow(try EdgeExecutionWorldWitness().prepareAndBind(witness, address: address, program: edge))
@@ -77,7 +77,7 @@ final class EdgeExecutionWorldWitnessTests: XCTestCase {
         for sameWorld in [false, true] {
             let (main, isolated) = try realms(), world = EdgeExecutionWorldWitness()
             let document = ChromeClickDocumentWitness()
-            let program = WebPageProgram(sourceID: ChatGPTWebPageProgram.priorEdgeSource, functionSource: """
+            let program = WebPageProgram(sourceID: ChatGPTWebPageProgram.edgeSourceID, functionSource: """
                 function(command){globalThis.pinCalls=(globalThis.pinCalls||0)+1;
                 globalThis.pinnedID=command.clickWitnessID;
                 return command.action==='pinTarget'&&command.address===location.href?'bound':'refused';}
@@ -95,7 +95,7 @@ final class EdgeExecutionWorldWitnessTests: XCTestCase {
 
     func testCombinedScriptCannotReplaceARefusedDocumentBindingWithWorldPreparation() throws {
         let (_, isolated) = try realms(), world = EdgeExecutionWorldWitness()
-        let program = WebPageProgram(sourceID: ChatGPTWebPageProgram.priorEdgeSource,
+        let program = WebPageProgram(sourceID: ChatGPTWebPageProgram.edgeSourceID,
                                      functionSource: "function(){return 'refused';}")
         XCTAssertEqual(try evaluate(world.prepareAndBind(ChromeClickDocumentWitness(),
             address: "https://chatgpt.com/c/neutral", program: program), in: isolated), "refused")

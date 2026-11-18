@@ -47,6 +47,15 @@ public actor SystemScreenshotObservationJournal {
                 throw SystemScreenshotObservationJournalError.persistentIdentityMismatch
             }
         }
+        if operation.target.applicationID == EdgeApplicationHost.bundleID {
+            let admission = SystemScreenshotCandidateAdmission(store: store, scope: scope)
+            guard let source = try await admission.registeredObservationSource(for: request),
+                  ChatGPTWebPageProgram.edgeEvidence(for: source) == envelope.provenance.evidenceID else {
+                throw SystemScreenshotObservationJournalError.invalidProvenance
+            }
+        } else if envelope.provenance.evidenceID == ChatGPTWebPageProgram.edgeEvidenceID {
+            throw SystemScreenshotObservationJournalError.invalidProvenance
+        }
         let slots = Slot.classifyAll(envelope.observation)
         guard !slots.isEmpty else { return }
         let wrapper = Entry(schemaVersion: 1, envelope: envelope)
@@ -75,7 +84,8 @@ public actor SystemScreenshotObservationJournal {
 
     private func canReadEarlierEntry(_ saved: ObservationProvenance, from current: ObservationProvenance,
                                      for request: TransferRequest) async throws -> Bool {
-        guard saved.source == .integratedDevelopment, current.source == .integratedDevelopment else { return false }
+        guard request.operation.target.applicationID != EdgeApplicationHost.bundleID,
+              saved.source == .integratedDevelopment, current.source == .integratedDevelopment else { return false }
         let versions = [(ChatGPTWebPageProgram.priorEntrySource, "attachment-entry-20261105-v15"),
                         (ChatGPTWebPageProgram.priorHandoffSource, "attachment-handoff-20261105-v16"),
                         (ChatGPTWebPageProgram.priorScreenshotSource, "screenshot-handoff-20261105-v17"),

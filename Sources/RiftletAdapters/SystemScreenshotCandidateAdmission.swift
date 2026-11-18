@@ -77,9 +77,12 @@ public actor SystemScreenshotCandidateAdmission {
               let registration = try? JSONDecoder().decode(Registration.self, from: data),
               registration.version == (scope.isProduct ? 2 : 1),
               registration.assetOrigin == (scope.isProduct ? scope.origin : nil),
-              [SystemScreenshotWebCandidate.sourceID, ChatGPTWebPageProgram.priorEntrySource,
+              [ChatGPTWebPageProgram.edgeSourceID, SystemScreenshotWebCandidate.sourceID, ChatGPTWebPageProgram.priorEntrySource,
                ChatGPTWebPageProgram.priorHandoffSource, ChatGPTWebPageProgram.priorScreenshotSource,
                ChatGPTWebPageProgram.priorClickSource, ChatGPTWebPageProgram.priorOriginSource, ChatGPTWebPageProgram.priorProgressSource, ChatGPTWebPageProgram.priorLabelSource, ChatGPTWebPageProgram.priorEdgeSource, ChatGPTWebPageProgram.priorProductSource].contains(registration.sourceID),
+              (request.operation.target.applicationID == EdgeApplicationHost.bundleID
+                ? ChatGPTWebPageProgram.edgeEvidence(for: registration.sourceID) != nil
+                : registration.sourceID != ChatGPTWebPageProgram.edgeSourceID),
               registration.identity == Self.identity(for: request),
               request.operation.assetID == request.asset.id, request.operation.phase != .prepared,
               request.operation.phase.isUnresolved || request.operation.phase == .succeeded,
@@ -96,7 +99,7 @@ public actor SystemScreenshotCandidateAdmission {
         let profile = scope.registeredProfile(for: request, sourceID: registration.sourceID)
         guard (try? encoder.encode(registration)) == data, registration.startProfileID == profile.uploadStartProfileID,
               registration.completionProfileID == profile.profileID else { throw WebAdapterError.invalidRequest }
-        if [SystemScreenshotWebCandidate.sourceID, ChatGPTWebPageProgram.priorScreenshotSource,
+        if [ChatGPTWebPageProgram.edgeSourceID, SystemScreenshotWebCandidate.sourceID, ChatGPTWebPageProgram.priorScreenshotSource,
             ChatGPTWebPageProgram.priorClickSource, ChatGPTWebPageProgram.priorOriginSource, ChatGPTWebPageProgram.priorProgressSource, ChatGPTWebPageProgram.priorLabelSource, ChatGPTWebPageProgram.priorEdgeSource, ChatGPTWebPageProgram.priorProductSource].contains(registration.sourceID) {
             try scope.validateMetadata(request.asset)
         } else {
@@ -124,7 +127,11 @@ public actor SystemScreenshotCandidateAdmission {
     }
 
     func originalObservationProgram(for request: TransferRequest) async throws -> WebPageProgram? {
-        guard let original = try await originalRegistration(for: request) else { return nil }
+        guard let original = try await originalRegistration(for: request) else {
+            if request.operation.target.applicationID == EdgeApplicationHost.bundleID { throw WebAdapterError.invalidRequest }
+            return nil
+        }
+        if original.source == ChatGPTWebPageProgram.edgeSourceID { return try ChatGPTWebPageProgram.edgeProgram.get() }
         return try ChatGPTWebPageProgram.originalObservationProgram(sourceID: original.source)
     }
 

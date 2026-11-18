@@ -15,6 +15,8 @@ public enum ChatGPTWebPageProgram {
     static let priorProgressSource = "chatgpt-web-click-document-witness-20261117-v20"
     static let priorLabelSource = "chatgpt-web-click-document-witness-20261117-v21"
     static let priorEdgeSource = "chatgpt-web-click-document-witness-20261117-v22"
+    static let edgeSourceID = "chatgpt-web-click-document-witness-20261118-v24"
+    static let edgeEvidenceID = "click-document-witness-20261118-v24"
     static let priorProductSource = "chatgpt-web-screenshot-observation-20261118-v18"
     public static let sourceID = "chatgpt-web-click-document-witness-20261118-v23"
     /// Candidate mapping only; ReceiptPolicy start registries remain separate.
@@ -24,13 +26,42 @@ public enum ChatGPTWebPageProgram {
         profileID: "chatgpt-web-zh-attached-development-20261027-v2",
         completionSignal: .attached, uploadStartProfileID: acceptanceUploadStartProfileID)
 
-    // Edge keeps the exact page bytes and receipt registration exercised by
-    // PR #69. Chrome uses the new program with the 1.0.5 lifecycle changes.
     static func currentSourceID(for target: TargetLease) -> String {
-        target.applicationID == EdgeApplicationHost.bundleID ? priorEdgeSource : sourceID
+        target.applicationID == EdgeApplicationHost.bundleID ? edgeSourceID : sourceID
     }
 
-    static let edgeProgram = Result { try load(resource: "chatgpt-web-observe-v22", id: priorEdgeSource) }
+    // v18 through v22 also shipped on Chrome before the implementations diverged.
+    // A fenced operation supplies both its source and its native target.
+    static func edgeEvidence(for source: String) -> String? {
+        switch source {
+        case edgeSourceID: return edgeEvidenceID
+        case priorEdgeSource: return "click-document-witness-20261117-v22"
+        case priorLabelSource: return "click-document-witness-20261117-v21"
+        case priorProgressSource: return "click-document-witness-20261117-v20"
+        case priorOriginSource: return "click-document-witness-20261117-v19"
+        case priorClickSource: return "click-document-witness-20261114-v18"
+        default: return nil
+        }
+    }
+
+    static let edgeProgram = Result {
+        let template = try resourceSource("chatgpt-web-edge-v24")
+        let watcher = try resourceSource("edge-encoded-preview")
+        let script = try assembleEdgeProgram(template: template, watcher: watcher)
+        return WebPageProgram(sourceID: edgeSourceID, functionSource: script,
+                              maximumChunkBytes: 256 * 1024, inputDiscoveryTimeout: 3)
+    }
+
+    static func assembleEdgeProgram(template: String, watcher: String) throws -> String {
+        let marker = "/*__RIFTLET_ENCODED_PREVIEW_WATCHER__*/"
+        let sections = template.components(separatedBy: marker)
+        guard sections.count == 2, !watcher.contains(marker),
+              watcher.components(separatedBy: "function watchEdgeEncodedPreview(file, name)").count == 2,
+              template.contains(edgeEvidenceID) else { throw WebAdapterError.programUnavailable }
+        let source = sections.joined(separator: watcher)
+        guard source.utf8.count <= 128 * 1024 else { throw WebAdapterError.programUnavailable }
+        return source
+    }
 
     public static func load() throws -> WebPageProgram {
         try load(resource: "chatgpt-web-20261027", id: sourceID)
@@ -72,6 +103,11 @@ public enum ChatGPTWebPageProgram {
     }
 
     private static func load(resource: String, id: String) throws -> WebPageProgram {
+        WebPageProgram(sourceID: id, functionSource: try resourceSource(resource),
+                       maximumChunkBytes: 256 * 1024, inputDiscoveryTimeout: 3)
+    }
+
+    private static func resourceSource(_ resource: String) throws -> String {
         let resources: Bundle
         if Bundle.main.bundleURL.pathExtension == "app" {
             guard let url = Bundle.main.resourceURL?.appendingPathComponent("Riftlet_RiftletAdapters.bundle"),
@@ -83,11 +119,7 @@ public enum ChatGPTWebPageProgram {
         guard let url = resources.url(forResource: resource, withExtension: "js"),
               let source = try? String(contentsOf: url, encoding: .utf8), !source.isEmpty,
               source.utf8.count <= 128 * 1024 else { throw WebAdapterError.programUnavailable }
-        // Ordinary input never executes historical observers. Their registries
-        // cannot veto a new handoff; the separate legacy reader remains available
-        // only to explicit historical tooling.
-        return WebPageProgram(sourceID: id, functionSource: source,
-                              maximumChunkBytes: 256 * 1024, inputDiscoveryTimeout: 3)
+        return source
     }
 }
 

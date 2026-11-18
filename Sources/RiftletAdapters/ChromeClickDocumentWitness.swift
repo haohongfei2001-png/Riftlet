@@ -11,7 +11,7 @@ struct ChromeClickDocumentWitness {
     func bindScript(address: String, program: WebPageProgram, host: Host = .chrome) throws -> String {
         // Each browser pins with the version its ordinary input route executes.
         // Older observation-only programs cannot acquire a click witness.
-        let activeSource = host == .edge ? ChatGPTWebPageProgram.priorEdgeSource : ChatGPTWebPageProgram.sourceID
+        let activeSource = host == .edge ? ChatGPTWebPageProgram.edgeSourceID : ChatGPTWebPageProgram.sourceID
         guard program.sourceID == activeSource else { throw WebAdapterError.invalidRequest }
         let expected = String(decoding: try JSONEncoder().encode(address), as: UTF8.self)
         return "(()=>{try{return (\(program.functionSource))({action:'pinTarget',clickWitnessID:'\(id.uuidString)',address:\(expected)},{});}catch{return 'refused';}})()"

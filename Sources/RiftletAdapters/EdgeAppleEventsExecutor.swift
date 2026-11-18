@@ -33,7 +33,7 @@ private final class EdgeCommandCancellation: @unchecked Sendable {
     private nonisolated static let commandQueue = DispatchQueue(label: "com.riftlet.edge-input", qos: .userInitiated)
     private nonisolated static let observationQueue = DispatchQueue(label: "com.riftlet.edge-observation", qos: .utility)
     private let driver: any EdgeWebExecutionDriver
-    private let relays = MainWorldRelayStore(activeSourceID: ChatGPTWebPageProgram.priorEdgeSource)
+    private let relays = MainWorldRelayStore(activeSourceID: ChatGPTWebPageProgram.edgeSourceID)
     private let diagnosticTrace: BoundedDiagnosticTrace?
     private var clicks: [String: Click] = [:]
     private var committed = Set<UUID>()
@@ -109,7 +109,7 @@ private final class EdgeCommandCancellation: @unchecked Sendable {
         try Task.checkCancellation()
         guard command.action != .pinTarget,
               requested.sourceID == ChatGPTWebPageProgram.sourceID ||
-                (command.action == .observe && [ChatGPTWebPageProgram.priorClickSource, ChatGPTWebPageProgram.priorOriginSource, ChatGPTWebPageProgram.priorProgressSource, ChatGPTWebPageProgram.priorLabelSource, ChatGPTWebPageProgram.priorEdgeSource].contains(requested.sourceID)) else {
+                (command.action == .observe && ChatGPTWebPageProgram.edgeEvidence(for: requested.sourceID) != nil) else {
             throw WebAdapterError.invalidRequest
         }
         if command.action == .captureTarget {
@@ -122,7 +122,15 @@ private final class EdgeCommandCancellation: @unchecked Sendable {
                 return try JSONEncoder().encode(target)
             } onCancel: { original.cancel() }
         }
-        let program = requested.sourceID == ChatGPTWebPageProgram.sourceID ? try ChatGPTWebPageProgram.edgeProgram.get() : requested
+        let program: WebPageProgram
+        if requested.sourceID == ChatGPTWebPageProgram.sourceID || requested.sourceID == ChatGPTWebPageProgram.edgeSourceID {
+            program = try ChatGPTWebPageProgram.edgeProgram.get()
+        } else {
+            // Original observation can only read its resident channel using the frozen bundle bytes.
+            guard let original = try ChatGPTWebPageProgram.originalObservationProgram(sourceID: requested.sourceID)
+            else { throw WebAdapterError.invalidRequest }
+            program = original
+        }
         guard let target = command.target, target.adapterID == "chatgpt-web", target.surface == .webChat,
               target.applicationID == EdgeApplicationHost.bundleID, let tab = target.tabID,
               let host = driver.recover(session: target.sessionID, window: target.windowID, tab: tab) else {

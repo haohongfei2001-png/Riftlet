@@ -585,9 +585,11 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         if request.operation.target.applicationID == "com.microsoft.edgemac",
            ![.inputTriggered, .unknown, .invalidated].contains(envelope.observation.state) {
             guard mode == .ordinaryProduct, envelope.observation.state == .uploadStarted,
-                  registration?.source == OrdinaryProductScreenshotScope.edgeProgressSourceID,
+                  let source = registration?.source,
+                  [ChatGPTWebPageProgram.edgeSourceID, ChatGPTWebPageProgram.priorEdgeSource].contains(source),
+                  let evidence = ChatGPTWebPageProgram.edgeEvidence(for: source),
                   scopedNormalizer.profile.uploadStartProfileID == OrdinaryProductScreenshotScope.edgeProgressStartProfileID,
-                  envelope.provenance == .init(source: .integratedDevelopment, evidenceID: OrdinaryProductScreenshotScope.edgeProgressProvenanceID),
+                  envelope.provenance == .init(source: .integratedDevelopment, evidenceID: evidence),
                   let start = envelope.observation.uploadStart, start.signal == .correlatedProgress, start.previousProgress > 0,
                   envelope.observation.inputExecutionPending == false, envelope.observation.requestEvidence == nil,
                   envelope.observation.continuationEvidence == nil, envelope.observation.completionEvidence == nil,

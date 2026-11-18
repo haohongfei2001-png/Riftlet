@@ -9,13 +9,28 @@ final class MainWorldCommandRelayTests: XCTestCase {
         let edge = try ChatGPTWebPageProgram.edgeProgram.get()
         let product = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorProductSource))
         for (program, digest) in [
-            (edge, "1ba873abcdcb614d143cb9cbcc0dc5437e28d89853b4adeb40e4db16d7717d8d"),
+            (try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorEdgeSource)), "1ba873abcdcb614d143cb9cbcc0dc5437e28d89853b4adeb40e4db16d7717d8d"),
             (product, "cca114d1cf23c0e8166d3cc962d0d91148e101a7f42eda6cb2ff22267ec7dcfd")
         ] {
             XCTAssertEqual(SHA256.hash(data: Data(program.functionSource.utf8)).map { String(format: "%02x", $0) }.joined(), digest)
         }
-        XCTAssertEqual(edge.sourceID, OrdinaryProductScreenshotScope.edgeProgressSourceID)
+        XCTAssertEqual(edge.sourceID, ChatGPTWebPageProgram.edgeSourceID)
+        XCTAssertTrue(edge.functionSource.contains("function watchEdgeEncodedPreview(file, name)"))
+        XCTAssertFalse(edge.functionSource.contains("/*__RIFTLET_ENCODED_PREVIEW_WATCHER__*/"))
         XCTAssertNotEqual(edge.sourceID, try ChatGPTWebPageProgram.load().sourceID)
+    }
+
+    func testEdgeAssemblyRequiresExactlyOneSlotAndBoundedWatcher() throws {
+        let marker = "/*__RIFTLET_ENCODED_PREVIEW_WATCHER__*/"
+        let template = ChatGPTWebPageProgram.edgeEvidenceID + marker
+        let watcher = "function watchEdgeEncodedPreview(file, name) { return null; }"
+        XCTAssertEqual(try ChatGPTWebPageProgram.assembleEdgeProgram(template: template, watcher: watcher),
+                       ChatGPTWebPageProgram.edgeEvidenceID + watcher)
+        for (badTemplate, badWatcher) in [(template + marker, watcher), (ChatGPTWebPageProgram.edgeEvidenceID, watcher),
+                                         (marker, watcher), (template, ""), (template, watcher + marker),
+                                         (template, watcher + String(repeating: " ", count: 128 * 1024))] {
+            XCTAssertThrowsError(try ChatGPTWebPageProgram.assembleEdgeProgram(template: badTemplate, watcher: badWatcher))
+        }
     }
 
     private func context(virtualMachine: JSVirtualMachine? = nil) throws -> JSContext {
