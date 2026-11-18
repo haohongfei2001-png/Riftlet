@@ -27,7 +27,7 @@ struct EdgeApplicationHost: ApplicationHostAdapter {
     private let selected: (pid_t) throws -> (window: String, tab: String)
     private let address: (pid_t, String, String) throws -> String
 
-    init(deadlineUptime: TimeInterval? = nil) {
+    init(wait: EdgeReadEvents.Wait = .ordinary(nil)) {
         self.init(frontmost: {
             guard let app = NSWorkspace.shared.frontmostApplication, !app.isTerminated,
                   app.bundleIdentifier == Self.bundleID,
@@ -36,8 +36,8 @@ struct EdgeApplicationHost: ApplicationHostAdapter {
                   NSRunningApplication(processIdentifier: birth.pid)?.bundleIdentifier == Self.bundleID,
                   KernelProcessBirth.read(pid: birth.pid) == birth else { return nil }
             return birth
-        }, selected: { try EdgeReadEvents.activeTab(pid: $0, deadlineUptime: deadlineUptime) },
-           address: { try EdgeReadEvents.address(pid: $0, window: $1, tab: $2, deadlineUptime: deadlineUptime) })
+        }, selected: { try EdgeReadEvents.activeTab(pid: $0, wait: wait) },
+           address: { try EdgeReadEvents.address(pid: $0, window: $1, tab: $2, wait: wait) })
     }
 
     init(frontmost: @escaping () -> KernelProcessBirth?,
@@ -83,6 +83,30 @@ struct EdgeApplicationHost: ApplicationHostAdapter {
 /// Codes independently verified against the Edge app's own Contents/Resources/scripting.sdef.
 /// The shared parser accepts only absolute tab-id -> window-id -> null descriptors.
 enum EdgeReadEvents {
+    enum Wait {
+        case ordinary(TimeInterval?)
+        case click(EdgeClickAppleEvent)
+
+        func send(_ event: NSAppleEventDescriptor) throws -> NSAppleEventDescriptor {
+            switch self {
+            case .click(let budget):
+                return try budget.send(event)
+            case .ordinary(let deadlineUptime):
+                let timeout: TimeInterval
+                if let deadlineUptime {
+                    let remaining = deadlineUptime - ProcessInfo.processInfo.systemUptime
+                    guard remaining.isFinite, remaining >= 0.05 else { throw EdgeHostError.automation(-1712) }
+                    timeout = min(1, remaining)
+                } else { timeout = 1 }
+                let reply = try event.sendEvent(options: [.waitForReply, .neverInteract], timeout: timeout)
+                if let deadlineUptime, ProcessInfo.processInfo.systemUptime >= deadlineUptime {
+                    throw EdgeHostError.automation(-1712)
+                }
+                return reply
+            }
+        }
+    }
+
     static func code(_ value: String) -> UInt32 { value.utf8.reduce(0) { $0 << 8 | UInt32($1) } }
 
     private static func object(kind: String, form: String, key: NSAppleEventDescriptor,
@@ -104,7 +128,7 @@ enum EdgeReadEvents {
     }
 
     private static func read(pid: pid_t, property: String, of container: NSAppleEventDescriptor,
-                             deadlineUptime: TimeInterval? = nil) throws -> NSAppleEventDescriptor {
+                             wait: Wait) throws -> NSAppleEventDescriptor {
         let receiver = NSAppleEventDescriptor(processIdentifier: pid)
         let status = AEDeterminePermissionToAutomateTarget(receiver.aeDesc, code("core"), code("getd"), false)
         guard status == noErr else { throw EdgeHostError.automation(status) }
@@ -112,16 +136,7 @@ enum EdgeReadEvents {
                                            targetDescriptor: receiver, returnID: -1, transactionID: 0)
         event.setParam(try object(kind: "prop", form: "prop", key: .init(typeCode: code(property)),
                                   container: container), forKeyword: code("----"))
-        let timeout: TimeInterval
-        if let deadlineUptime {
-            let remaining = deadlineUptime - ProcessInfo.processInfo.systemUptime
-            guard remaining.isFinite, remaining >= 0.05 else { throw EdgeHostError.automation(-1712) }
-            timeout = min(1, remaining)
-        } else { timeout = 1 }
-        let reply = try event.sendEvent(options: [.waitForReply, .neverInteract], timeout: timeout)
-        if let deadlineUptime, ProcessInfo.processInfo.systemUptime >= deadlineUptime {
-            throw EdgeHostError.automation(-1712)
-        }
+        let reply = try wait.send(event)
         if let error = reply.paramDescriptor(forKeyword: code("errn")), error.int32Value != 0 {
             throw EdgeHostError.automation(error.int32Value)
         }
@@ -131,18 +146,18 @@ enum EdgeReadEvents {
         return result
     }
 
-    static func activeTab(pid: pid_t, deadlineUptime: TimeInterval? = nil) throws -> (window: String, tab: String) {
+    static func activeTab(pid: pid_t, wait: Wait) throws -> (window: String, tab: String) {
         let front = try object(kind: "cwin", form: "indx", key: .init(int32: 1))
-        let descriptor = try read(pid: pid, property: "acTa", of: front, deadlineUptime: deadlineUptime)
+        let descriptor = try read(pid: pid, property: "acTa", of: front, wait: wait)
         guard let selection = ChromeActiveTabDescriptor.identity(in: descriptor) else {
             throw EdgeHostError.unsupportedDescriptor(.activeTabIdentity)
         }
         return selection
     }
 
-    static func address(pid: pid_t, window: String, tab id: String, deadlineUptime: TimeInterval? = nil) throws -> String {
+    static func address(pid: pid_t, window: String, tab id: String, wait: Wait) throws -> String {
         guard let value = try read(pid: pid, property: "URL ", of: tab(window: window, id: id),
-                                   deadlineUptime: deadlineUptime).stringValue else {
+                                   wait: wait).stringValue else {
             throw EdgeHostError.unsupportedDescriptor(.addressValue)
         }
         return value

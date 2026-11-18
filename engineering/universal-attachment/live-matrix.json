@@ -1,5 +1,5 @@
 {
-  "scope": "Commercial services through the ordinary Riftlet App. In the earlier isolated account, screenshots 612 and 613 each have a durable product START and storage HTTP 201. Service processing is UNKNOWN for each. Screenshots 617 and 618 reached file input without a new attachment or START. Separate rows preserve each dated default-profile trial. In the signed-in default account, 619 and 620 both entered the original temporary draft and have storage HTTP 201. Neither has a product START or an observed processing terminal. On the integrated 1.0.5 (31) ordinary App, 622 and 623 entered the same default-profile draft; their card progress and storage responses were observed. Product START was absent for both, service processing remained UNKNOWN, and the rapid pair failed. The next build 31 candidate received both rapid clicks (624/625) on one tray page. 624 stopped at document binding. Only 625 entered the original five-attachment draft; the page replaced the complete card before the PNG appeared and the product retained UNKNOWN.",
+  "scope": "Commercial services through the ordinary Riftlet App. In the earlier isolated account, screenshots 612 and 613 each have a durable product START and storage HTTP 201. Service processing is UNKNOWN for each. Screenshots 617 and 618 reached file input without a new attachment or START. Separate rows preserve each dated default-profile trial. In the signed-in default account, 619 and 620 both entered the original temporary draft and have storage HTTP 201. Neither has a product START or an observed processing terminal. On the integrated 1.0.5 (31) ordinary App, 622 and 623 entered the same default-profile draft; their card progress and storage responses were observed. Product START was absent for both, service processing remained UNKNOWN, and the rapid pair failed. The next build 31 candidate received both rapid clicks (624/625) on one tray page. 624 exhausted the old 50 ms minimum before sending the document-binding event. Only 625 entered the original five-attachment draft; the page replaced the complete card before the PNG appeared and the product retained UNKNOWN.",
   "latestAcceptanceRecord": "edge-unified-default-20261118/build31/pair-624-625/REPORT.md",
   "previousMatrix": {
     "commit": "d50e1a26a2b75ea24cf92edde5a5a9ce6a02256a",
@@ -807,7 +807,7 @@
       "executableSHA256": "a16719e3f992adab8edf116f478b16c12d5160799a928e4e68fff6d22c7c7c83",
       "accountScope": "SIGNED_IN_DAILY_DEFAULT_IN_OWN_TEMPORARY_DRAFT",
       "application": "TWO_TAGGED_ORDINARY_APP_SELECTIONS",
-      "windowAndDraft": "624_DOCUMENT_EDITOR_PIN_INVALID_REPLY_625_ORIGINAL_LEASE_VERIFIED",
+      "windowAndDraft": "624_PRE_SEND_DOCUMENT_PIN_UNDER_50MS_REMAINING_625_ORIGINAL_LEASE_VERIFIED",
       "entry": "624_NO_INPUT_625_ONE_SETTER_AND_CHANGE",
       "specifiedImage": "ONLY_625_ORIGINAL_FILE_IN_ORIGINAL_DRAFT",
       "textSelectionPriorAttachments": "FIVE_TO_SIX_ORIGINAL_TEXT_AND_UTF16_SELECTION_61_14_RETAINED",

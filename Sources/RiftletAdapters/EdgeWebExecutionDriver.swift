@@ -8,6 +8,7 @@ protocol EdgeWebExecutionDriver: Sendable {
                     descriptorFailure: (EdgeDescriptorFailure) -> Void) throws
     func isCurrent(_ target: EdgeWindowTab) -> Bool
     func recover(session: String, window: String, tab: String) -> EdgeWindowTab?
+    func pinDocument(_ source: String, target: EdgeWindowTab, deadline: TimeInterval) throws -> String
     func evaluate(_ source: String, target: EdgeWindowTab, budget: MainWorldReceiptReadBudget) throws -> String
     func bootstrap(_ source: String, target: EdgeWindowTab) throws
 }
@@ -23,18 +24,18 @@ extension EdgeWebExecutionDriver {
 /// remote debugging, private API, extension, chooser or network API is involved.
 struct NativeEdgeWebExecutionDriver: EdgeWebExecutionDriver {
     func freeze(deadline: TimeInterval) throws -> EdgeWindowTab {
-        do { return try EdgeApplicationHost(deadlineUptime: deadline).freeze() } catch { throw Self.mapped(error) }
+        do { return try EdgeApplicationHost(wait: .click(.init(deadlineUptime: deadline))).freeze() } catch { throw Self.mapped(error) }
     }
     func revalidate(_ target: EdgeWindowTab, deadline: TimeInterval,
                     descriptorFailure: (EdgeDescriptorFailure) -> Void) throws {
-        do { try EdgeApplicationHost(deadlineUptime: deadline).revalidate(target) }
+        do { try EdgeApplicationHost(wait: .ordinary(deadline)).revalidate(target) }
         catch {
             if case let EdgeHostError.unsupportedDescriptor(failure) = error { descriptorFailure(failure) }
             throw Self.mapped(error)
         }
     }
     func recheckClickSelection(_ target: EdgeWindowTab, deadline: TimeInterval) throws {
-        do { try EdgeApplicationHost(deadlineUptime: deadline).recheckClickSelection(target) }
+        do { try EdgeApplicationHost(wait: .click(.init(deadlineUptime: deadline))).recheckClickSelection(target) }
         catch { throw Self.mapped(error) }
     }
     func isCurrent(_ target: EdgeWindowTab) -> Bool {
@@ -52,9 +53,22 @@ struct NativeEdgeWebExecutionDriver: EdgeWebExecutionDriver {
         return String(number) == text
     }
 
+    func pinDocument(_ source: String, target: EdgeWindowTab, deadline: TimeInterval) throws -> String {
+        let wait = EdgeClickAppleEvent(deadlineUptime: deadline)
+        let result = try send(suite: "CrSu", action: "ExJa", target: target, source: source) {
+            try wait.send($0)
+        }
+        guard let value = result?.stringValue else { throw WebAdapterError.invalidReply }
+        return value
+    }
+
     func evaluate(_ source: String, target: EdgeWindowTab, budget: MainWorldReceiptReadBudget) throws -> String {
-        let result = try send(suite: "CrSu", action: "ExJa", target: target, source: source,
-                              budget: budget)
+        let result = try send(suite: "CrSu", action: "ExJa", target: target, source: source) { request in
+            let timeout = try budget.timeout(at: ProcessInfo.processInfo.systemUptime)
+            let reply = try request.sendEvent(options: [.waitForReply, .neverInteract], timeout: timeout)
+            try budget.checkReturn()
+            return reply
+        }
         guard let value = result?.stringValue else { throw WebAdapterError.nativeExecutionFailed }
         return value
     }
@@ -64,11 +78,13 @@ struct NativeEdgeWebExecutionDriver: EdgeWebExecutionDriver {
         guard let escaped = ("void(" + source + ")").addingPercentEncoding(withAllowedCharacters: allowed) else {
             throw WebAdapterError.invalidRequest
         }
-        _ = try send(suite: "core", action: "setd", target: target, value: "javascript:" + escaped)
+        _ = try send(suite: "core", action: "setd", target: target, value: "javascript:" + escaped) {
+            try $0.sendEvent(options: [.waitForReply, .neverInteract], timeout: 5)
+        }
     }
 
     private func send(suite: String, action: String, target: EdgeWindowTab, source: String? = nil,
-                      value: String? = nil, budget: MainWorldReceiptReadBudget? = nil) throws -> NSAppleEventDescriptor? {
+                      value: String? = nil, receive: (NSAppleEventDescriptor) throws -> NSAppleEventDescriptor) throws -> NSAppleEventDescriptor? {
         guard isCurrent(target), Self.identifier(target.windowID), Self.identifier(target.tabID) else {
             throw WebAdapterError.invalidTarget
         }
@@ -96,13 +112,8 @@ struct NativeEdgeWebExecutionDriver: EdgeWebExecutionDriver {
         request.setParam(direct, forKeyword: code("----"))
         if let source { request.setParam(.init(string: source), forKeyword: code("JvSc")) }
         if let value { request.setParam(.init(string: value), forKeyword: code("data")) }
-        let timeout = try budget?.timeout(at: ProcessInfo.processInfo.systemUptime) ?? 5
         let reply: NSAppleEventDescriptor
-        do { reply = try request.sendEvent(options: [.waitForReply, .neverInteract], timeout: timeout) }
-        catch { throw Self.mapped(error) }
-        if let budget, ProcessInfo.processInfo.systemUptime >= budget.deadlineUptime {
-            throw WebAdapterError.nativeEventFailed(-1712)
-        }
+        do { reply = try receive(request) } catch { throw Self.mapped(error) }
         if let error = reply.paramDescriptor(forKeyword: code("errn")), error.int32Value != 0 {
             throw WebAdapterError.nativeEventFailed(error.int32Value)
         }

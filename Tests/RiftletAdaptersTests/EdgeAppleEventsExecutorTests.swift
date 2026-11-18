@@ -14,6 +14,9 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
     var navigated = false, originalDocumentCurrent = true
     var modelClickBudget = false
     var modeledPinDuration: TimeInterval = 0.024
+    var modeledFreezeDuration: TimeInterval = 0.045
+    var pinReply = "bound"
+    private(set) var clickPinCalls = 0
     private var modeledUptime: TimeInterval?
     private(set) var synchronousEvaluations = 0
     var atPin: (() -> Void)?
@@ -36,7 +39,7 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
     }
     func freeze(deadline: TimeInterval) throws -> EdgeWindowTab {
         try revalidate(host, deadline: deadline)
-        if modelClickBudget { modeledUptime = deadline - 0.15 + 0.045 }
+        if modelClickBudget { modeledUptime = deadline - 0.15 + modeledFreezeDuration }
         return host
     }
     func revalidate(_ target: EdgeWindowTab, deadline: TimeInterval,
@@ -67,7 +70,7 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
         lock.lock(); defer { lock.unlock() }; selectionChecks += 1; clickSelectionChecks += 1
         guard alive, selected, target == host else { throw WebAdapterError.nativeSelectionChanged }
         if let now = modeledUptime {
-            guard deadline - now >= 0.05 else { throw WebAdapterError.nativeEventFailed(-1712) }
+            _ = try EdgeClickAppleEvent(deadlineUptime: deadline).ticks(at: now)
             modeledUptime = now + 0.015
         }
     }
@@ -85,13 +88,24 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
         recovered?.signal()
         return alive && session == host.sessionID && window == host.windowID && tab == host.tabID ? host : nil
     }
+    func pinDocument(_ source: String, target: EdgeWindowTab, deadline: TimeInterval) throws -> String {
+        lock.lock(); defer { lock.unlock() }
+        clickPinCalls += 1
+        return try evaluate(source, target: target, checkWait: { now in
+            _ = try EdgeClickAppleEvent(deadlineUptime: deadline).ticks(at: now)
+        })
+    }
     func evaluate(_ source: String, target: EdgeWindowTab, budget: MainWorldReceiptReadBudget) throws -> String {
+        try evaluate(source, target: target, checkWait: { _ = try budget.timeout(at: $0) })
+    }
+
+    private func evaluate(_ source: String, target: EdgeWindowTab, checkWait: (TimeInterval) throws -> Void) throws -> String {
         lock.lock(); defer { lock.unlock() }
         guard target == host, alive else { throw WebAdapterError.invalidTarget }
         if source.contains("edge-world-prepare") || source.contains("action:'pinTarget'") {
             synchronousEvaluations += 1
             if let now = modeledUptime {
-                _ = try budget.timeout(at: now)
+                try checkWait(now)
                 modeledUptime = now + modeledPinDuration
             }
         }
@@ -102,7 +116,7 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
             if replaceAtPin { selected = false }
             if latePin { Thread.sleep(forTimeInterval: 0.16) }
             atPin?()
-            return "bound"
+            return pinReply
         }
         if source.contains("edge-world-confirm") || source.contains("edge-world-validate") {
             return worldSeparated && originalDocumentCurrent ? "verified" : "refused"
@@ -388,6 +402,39 @@ final class EdgeAppleEventsExecutorTests: XCTestCase {
         }
         XCTAssertEqual(repeated.bootstraps, 0)
         XCTAssertTrue(repeated.actions.isEmpty)
+    }
+
+    @MainActor func testColdClickUsesOriginalResidualBudgetForPinAndSelectionRecheck() async throws {
+        let driver = EdgeExecutorFixture()
+        driver.modelClickBudget = true
+        driver.modeledFreezeDuration = 0.1005
+        let executor = EdgeAppleEventsExecutor(driver: driver)
+        let capture = try executor.targetForClick(program: program)
+        XCTAssertEqual(driver.clickPinCalls, 1)
+        XCTAssertEqual(driver.synchronousEvaluations, 1)
+        XCTAssertEqual(driver.clickSelectionChecks, 1)
+        _ = try await capture.value
+        XCTAssertFalse(driver.actions.contains("commit"))
+    }
+
+    @MainActor func testPinRejectsSubtickDeadlineAndDistinguishesPageRefusal() throws {
+        let expired = EdgeExecutorFixture()
+        expired.modelClickBudget = true
+        expired.modeledFreezeDuration = 0.14
+        XCTAssertThrowsError(try EdgeAppleEventsExecutor(driver: expired).targetForClick(program: program)) {
+            XCTAssertEqual($0 as? WebAdapterError, .nativeEventFailed(-1712))
+        }
+        let rejected = EdgeExecutorFixture()
+        rejected.pinReply = "refused"
+        XCTAssertThrowsError(try EdgeAppleEventsExecutor(driver: rejected).targetForClick(program: program)) {
+            XCTAssertEqual($0 as? WebAdapterError, .pageRejected(.clickPinRefused))
+        }
+        for driver in [expired, rejected] {
+            XCTAssertEqual(driver.clickPinCalls, 1)
+            XCTAssertEqual(driver.clickSelectionChecks, 0)
+            XCTAssertEqual(driver.bootstraps, 0)
+            XCTAssertTrue(driver.actions.isEmpty)
+        }
     }
 
     @MainActor func testFinalClickSelectionRefusesSwitchOrExitBeforeCapture() throws {

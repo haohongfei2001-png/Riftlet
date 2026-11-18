@@ -72,8 +72,8 @@ private final class EdgeCommandCancellation: @unchecked Sendable {
         let witness = ChromeClickDocumentWitness(), world = EdgeExecutionWorldWitness()
         phase = "documentEditorPin"
         phaseStarted = ProcessInfo.processInfo.systemUptime
-        guard try driver.evaluate(world.prepareAndBind(witness, address: address, program: program),
-                                  target: host, budget: budget) == "bound"
+        guard try driver.pinDocument(world.prepareAndBind(witness, address: address, program: program),
+                                     target: host, deadline: deadline) == "bound"
         else { throw WebAdapterError.pageRejected(.clickPinRefused) }
         let pinned = ProcessInfo.processInfo.systemUptime
         timings["documentPinMS"] = (pinned - phaseStarted) * 1000
