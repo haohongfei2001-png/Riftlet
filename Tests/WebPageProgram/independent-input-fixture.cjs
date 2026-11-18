@@ -9,7 +9,10 @@ const source=fs.readFileSync(process.env.RIFTLET_PAGE_PROGRAM_SOURCE||path.join(
 const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLttAAAAABJRU5ErkJggg==','base64');
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 const native={applicationID:'com.google.Chrome',sessionID:'synthetic-local-session',windowID:'17',tabID:'19'};
-const edgeSource=fs.readFileSync(path.join(__dirname,'../../Sources/RiftletAdapters/Resources/chatgpt-web-observe-v22.js'),'utf8');
+const resources = path.join(__dirname, '../../Sources/RiftletAdapters/Resources');
+const encodedPreview = fs.readFileSync(path.join(resources, 'edge-encoded-preview.js'), 'utf8');
+const edgeSource = fs.readFileSync(path.join(resources, 'chatgpt-web-edge-v24.js'), 'utf8')
+  .replace('/*__RIFTLET_ENCODED_PREVIEW_WATCHER__*/', () => encodedPreview);
 function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focused=true,visible=true,editorTag='div',nativeContext=native,programSource=(nativeContext.applicationID==='com.microsoft.edgemac'?edgeSource:source)}={}) {
  const observers=[],events=new Map();
  function queueMutation(record){
