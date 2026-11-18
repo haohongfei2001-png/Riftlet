@@ -196,7 +196,7 @@ final class PresentationBoundaryTests: XCTestCase {
         panel.setTrayCapture(enabled: true, defaultMode: .window)
         panel.render(records)
         let glass = try XCTUnwrap(visibleTrayWindow())
-        let shadow = try XCTUnwrap(NSApp.windows.first { $0.isVisible && $0.contentView is RiftTrayCastShadow })
+        XCTAssertTrue(glass.hasShadow, "The glass panel owns the only exterior tray shadow")
         let rows = panel.diagnosticSnapshot.rows
         XCTAssertEqual(rows.map(\.assetID), records.map(\.id))
         let cardWindows = try rows.flatMap { row in
@@ -204,9 +204,9 @@ final class PresentationBoundaryTests: XCTestCase {
              try XCTUnwrap(NSApp.window(withWindowNumber: row.imageInputWindowNumber))]
         }
         XCTAssertEqual(glass.level.rawValue, NSWindow.Level.floating.rawValue - 1)
-        XCTAssertEqual(shadow.level, glass.level)
+        XCTAssertFalse(NSApp.windows.contains { $0 !== glass && $0.isVisible && $0.ignoresMouseEvents && $0.level == glass.level && $0.frame.contains(glass.frame) })
         XCTAssertTrue(cardWindows.allSatisfy { $0.isVisible && $0.level == .floating })
-        let windows = [glass, shadow] + cardWindows
+        let windows = [glass] + cardWindows
         let previousLevels = windows.map(\.level)
         panel.setCaptureSessionActive(true)
         panel.render(records)
@@ -217,6 +217,32 @@ final class PresentationBoundaryTests: XCTestCase {
         XCTAssertEqual(windows.map(\.level), previousLevels)
         panel.render(records)
         XCTAssertEqual(windows.map(\.level), previousLevels)
+    }
+
+    @MainActor func testAppearancePreviewAndCommitKeepActualButtonsAndVisibleCardWindows() throws {
+        let panel = try coldTray()
+        defer { panel.close() }
+        let records = [record(), record(2), record(3)]
+        panel.setTrayCapture(enabled: true, defaultMode: .window)
+        panel.render(records)
+        panel.setTrayExpanded(true)
+        let surface = try XCTUnwrap(visibleTrayWindow())
+        let before = panel.diagnosticSnapshot.rows
+        let keys = try XCTUnwrap(surface.contentView).subviews.compactMap { $0 as? NSButton }
+        let previous = panel.requestedConfiguration
+        panel.previewTrayAppearance(transparency: 0.75, cameraBodyColor: "#FFFFFF")
+        XCTAssertEqual(panel.requestedConfiguration, previous)
+        panel.clearTrayAppearancePreview()
+        var persisted = previous
+        persisted.trayCameraBodyColor = "#367DD9"
+        panel.applyTrayAppearance(persisted)
+        XCTAssertEqual(panel.requestedConfiguration, persisted)
+        XCTAssertIdentical(surface, visibleTrayWindow())
+        XCTAssertEqual(surface.alphaValue, 1)
+        XCTAssertEqual(keys.filter { !$0.isHidden }.count, 4)
+        XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.windowNumber), before.map(\.windowNumber))
+        XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.imageInputWindowNumber), before.map(\.imageInputWindowNumber))
+        XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), before.map(\.assetID))
     }
 
     @MainActor func testOnlyConfirmedFailureRevealsSoleSwallowedUUIDAboveEmptyTrayMenu() throws {

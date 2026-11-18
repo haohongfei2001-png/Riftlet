@@ -4,14 +4,16 @@ import Darwin
 import RiftletCore
 
 public struct CaptureRecoveryReport: Sendable {
+    var deferredManifests: [URL] = []
     public var adopted: Int = 0
     public var missing: [UUID] = []
     public var invalid: [UUID] = []
 }
 
-private struct ImportManifest: Codable {
+struct ImportManifest: Codable {
     let version: Int
     let image: ImportedAsset
+    var externalSource: URL?
 }
 
 /// Internal deterministic fault seams. Production construction leaves the hook nil.
@@ -38,11 +40,12 @@ typealias ImportFaultHook = @Sendable (ImportBoundaryContext) throws -> Void
 /// Durable staging -> durable manifest -> atomic media rename -> SQLite insert.
 /// The original screenshot is never moved, modified or deleted.
 public actor PrivateAssetImporter {
-    private let store: QueueStore
+    let store: QueueStore
     public let privateRoot: URL
     public let mediaDirectory: URL
     private let stagingDirectory: URL
     private let journalDirectory: URL
+    var mediaMaintenanceActive = false
     private var importing = Set<String>()
     private var journaledSources = Set<String>()
     private var outstandingRecoveryIDs = Set<UUID>()
@@ -163,7 +166,7 @@ public actor PrivateAssetImporter {
                                       pixelHeight: result.height, mediaType: result.mimeType,
                                       capturedAt: nil, firstSeenAt: firstSeenAt, origin: origin)
             // File birthtime is useful for scan order, but is not mislabeled as capture time.
-            let manifest = ImportManifest(version: 1, image: image)
+            let manifest = ImportManifest(version: 1, image: image, externalSource: origin == .systemScreenshot ? url.standardizedFileURL : nil)
             let manifestURL = journalDirectory.appendingPathComponent(id.uuidString.lowercased() + ".json")
             let mediaURL = mediaDirectory.appendingPathComponent(fileName)
             let commitProbe: ((ImportBoundary) throws -> Void)? = hook.map { callback in
@@ -193,11 +196,11 @@ public actor PrivateAssetImporter {
     /// Adopt only journaled, identity-checked private copies. Unjournaled staging fragments
     /// are left inert; directory listing alone is never treated as proof of a complete import.
     @discardableResult
-    public func recover() async throws -> CaptureRecoveryReport {
+    public func recover(deferringColdHistory: Bool = false) async throws -> CaptureRecoveryReport {
         try ensureDirectories()
         let manifests = try FileManager.default.contentsOfDirectory(at: journalDirectory,
             includingPropertiesForKeys: [.isRegularFileKey, .isSymbolicLinkKey], options: [.skipsHiddenFiles])
-        var report = try await recoverManifests(manifests)
+        var report = try await recoverManifests(manifests, deferringColdHistory: deferringColdHistory)
         for record in try await store.assets(includeUsed: true) {
             rememberEarlierEvidence(record.image)
             guard Self.isValidBasename(record.image.fileName) else { continue }
@@ -233,7 +236,14 @@ public actor PrivateAssetImporter {
         return report
     }
 
-    private func recoverManifests(_ manifests: [URL], verifyUsedMedia: Bool = false) async throws -> CaptureRecoveryReport {
+    func verifyDeferredManifest(_ url: URL) async throws -> CaptureRecoveryReport {
+        let report = try await recoverManifests([url])
+        outstandingRecoveryIDs.formUnion(report.invalid + report.missing)
+        return report
+    }
+
+    private func recoverManifests(_ manifests: [URL], verifyUsedMedia: Bool = false,
+                                  deferringColdHistory: Bool = false) async throws -> CaptureRecoveryReport {
         var report = CaptureRecoveryReport()
         for url in manifests where url.pathExtension == "json" {
             do {
@@ -247,9 +257,16 @@ public actor PrivateAssetImporter {
                       asset.fileName.hasPrefix(asset.id.uuidString.lowercased() + ".") else {
                     throw CaptureError.invalidManifest
                 }
+                if try await store.isRetiredMedia(asset.id) { continue }
                 rememberEarlierEvidence(asset)
                 let mediaURL = mediaDirectory.appendingPathComponent(asset.fileName)
                 let stageURL = stagingDirectory.appendingPathComponent(asset.id.uuidString.lowercased() + ".part")
+                if verifyUsedMedia, !FileManager.default.fileExists(atPath: mediaURL.path),
+                   !FileManager.default.fileExists(atPath: stageURL.path),
+                   let original = manifest.externalSource, asset.origin == .systemScreenshot,
+                   try await store.asset(id: asset.id)?.image == asset {
+                    try restoreMissingCopy(from: original, image: asset, stage: stageURL)
+                }
                 let candidate = FileManager.default.fileExists(atPath: mediaURL.path) ? mediaURL : stageURL
                 guard FileManager.default.fileExists(atPath: candidate.path) else {
                     report.missing.append(asset.id); continue
@@ -262,6 +279,11 @@ public actor PrivateAssetImporter {
                     // Skip routine hashing of used history at startup. A previously reported
                     // missing or invalid file must match its original bytes before clearing the issue.
                     if existing.status == .used && !verifyUsedMedia { continue }
+                    if deferringColdHistory, existing.status == .pending,
+                       existing.activeOperationID == nil, existing.visibility != .visible {
+                        report.deferredManifests.append(url)
+                        continue
+                    }
                     try PrivateFiles.verifyPreviouslyValidatedMedia(candidate, asset: asset, signature: current)
                     if existing.status == .missing { try await store.restoreMissingAsset(asset.id) }
                     continue
@@ -307,6 +329,25 @@ public actor PrivateAssetImporter {
             }
         }
         return report
+    }
+
+    /// Explicit media repair only. The usual journal verifier still checks this
+    /// stage and promotes it to the same asset; no new capture/operation is created.
+    private func restoreMissingCopy(from original: URL, image: ImportedAsset, stage: URL) throws {
+        guard original.isFileURL else { return }
+        let fd = Darwin.open(original.path, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
+        guard fd >= 0 else { return }
+        defer { Darwin.close(fd) }
+        guard let signature = try? FileSignature.read(descriptor: fd),
+              signature.sourceKey == image.sourceKey, signature.size == image.byteCount else { return }
+        try capacityCheck(stagingDirectory, image.byteCount)
+        let temporary = stagingDirectory.appendingPathComponent(UUID().uuidString.lowercased() + ".part")
+        defer { try? FileManager.default.removeItem(at: temporary) }
+        guard try PrivateFiles.copyAndHash(sourceDescriptor: fd, destination: temporary,
+                                           maximumBytes: image.byteCount) == image.sha256,
+              try FileSignature.read(descriptor: fd) == signature,
+              try FileSignature.read(at: original) == signature else { return }
+        try PrivateFiles.promote(temporary, to: stage)
     }
 
     private func rememberEarlierEvidence(_ image: ImportedAsset) {

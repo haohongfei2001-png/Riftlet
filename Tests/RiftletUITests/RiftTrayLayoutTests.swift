@@ -58,6 +58,33 @@ final class RiftTrayLayoutTests: XCTestCase {
         RiftTrayLayout.make(records: assets, visibleFrame: display, configuration: configuration,
                             firstVisibleIndex: first, backingScale: scale, captureEnabled: capture, menu: menu)
     }
+    @MainActor func testTrayWashAndOpaqueCameraUseSeparateChannels() throws {
+        for style in [NSAppearance.Name.aqua, .darkAqua, .accessibilityHighContrastAqua, .accessibilityHighContrastDarkAqua] {
+            let appearance = try XCTUnwrap(NSAppearance(named: style))
+            for clear in [false, true] {
+                let defaultPalette = RiftTrayGlassPalette(colors: .violetGlass, appearance: appearance, clearGlass: clear)
+                for value: Double? in [nil, 0, 0.01, 0.75] {
+                    let colored = RiftTrayGlassPalette(colors: .violetGlass, appearance: appearance, clearGlass: clear,
+                                                       transparency: value, cameraBodyColor: "#278F88")
+                    let alpha = 1 - (value ?? (clear ? 0.47 : 0.32))
+                    let expected = NSWorkspace.shared.accessibilityDisplayShouldReduceTransparency ? 1 : max(colored.highContrast ? 0.86 : 0, alpha)
+                    XCTAssertEqual(colored.material.alphaComponent, expected, accuracy: 0.0001)
+                    XCTAssertEqual(colored.key, defaultPalette.key)
+                    XCTAssertEqual(colored.keyFoot, defaultPalette.keyFoot)
+                    XCTAssertEqual(colored.ink, defaultPalette.ink)
+                    XCTAssertEqual(colored.rim, defaultPalette.rim)
+                    let body = try XCTUnwrap(colored.cameraBody.usingColorSpace(.sRGB))
+                    XCTAssertEqual(body.redComponent, 39 / 255.0, accuracy: 0.0001)
+                    XCTAssertEqual(body.greenComponent, 143 / 255.0, accuracy: 0.0001)
+                    XCTAssertEqual(body.blueComponent, 136 / 255.0, accuracy: 0.0001)
+                    XCTAssertEqual(body.alphaComponent, 1)
+                    XCTAssertEqual(defaultPalette.cameraBody, defaultPalette.ink)
+                    if NSWorkspace.shared.accessibilityDisplayShouldReduceTransparency { XCTAssertEqual(colored.blurOpacity, 0) }
+                }
+            }
+        }
+    }
+
     func testCountMatrixStableBoundsQueueOrderAndMenuExclusion() {
         let compact = layout([]).surfaceFrame
         let full = layout(assets(3)).surfaceFrame

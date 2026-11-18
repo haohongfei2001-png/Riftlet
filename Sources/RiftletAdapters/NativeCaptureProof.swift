@@ -25,7 +25,7 @@ enum NativeCaptureProof {
             applicationID: expected.applicationID, sessionID: expected.sessionID, windowID: expected.windowID,
             tabID: expected.tabID, documentID: expected.documentID, composerID: expected.composerID,
             draftGeneration: expected.draftGeneration, logicalDraftIdentity: expected.logicalDraftIdentity,
-            clickBindingID: pinID)
+            clickBindingID: pinID, historyConversationID: expected.historyConversationID)
         guard returned == pinned else { throw WebAdapterError.invalidTarget }
         return returned
     }

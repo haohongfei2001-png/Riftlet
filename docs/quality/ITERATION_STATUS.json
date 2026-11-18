@@ -1,4 +1,21 @@
 {
+  "currentWork": {
+    "version": "1.0.5",
+    "stage": "implementation-and-private-RC",
+    "issue": 111,
+    "date": "2026-11-18 Asia/Shanghai",
+    "entry": "docs/releases/1.0.5/CODEX_HANDOFF.md",
+    "audit": "docs/releases/1.0.5/AUDIT.md",
+    "auditedCandidatePR": 110,
+    "auditedCandidateHead": "f3153b10dac4445720f1c20c8836ddbbea625c49",
+    "mainAtAudit": "3f8149e2313fd81bbaee5a7bbbdbb1efca2fc81b",
+    "publicReleaseAtAudit": "v1.0.3-zip",
+    "repositoryStableFeedAtAudit": "1.0.2",
+    "productImplementedByThisPlanningChange": false,
+    "historicalFieldsBelow": "Dated earlier evidence; do not treat it as a second current queue.",
+    "implementationPR": 113,
+    "progress": "docs/releases/1.0.5/PROGRESS.md"
+  },
   "schemaVersion": 1,
   "updatedAt": "2026-11-14",
   "baseline": "44f745a15ecb3682a9da0bda17f17a5d9fc1f07e",

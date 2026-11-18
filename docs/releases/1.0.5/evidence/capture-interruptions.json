@@ -1,0 +1,68 @@
+{
+  "scope": "Controlled native process-termination and restart evidence. Compiled RiftletCapture/RiftletCore and the product markup controller with a standalone probe; each case used a new temporary profile and generated pixels. No production profiles, web adapter, hardware screenshot, or public update path.",
+  "source": "628eef15f5512fdb6d3dc5701f6340eb87af8b4a",
+  "probeSHA256": "70d98f0f3d0c84ae273078c9e10384e68d905122769f6a36c7b041213ab17a1b",
+  "recovery": "First new process called recover(), cleanAbandonedStaging(), pendingOwnedCaptures(), then explicitly requested local collection. A second independent process reopened the profile, found no remaining pending capture and verified identical asset UUID and bytes. No input or send command.",
+  "cases": [
+    {
+      "boundary": "complete PNG in the reserved stage, before publication",
+      "childSignal": "SIGKILL",
+      "recoverProcess": "PASS pending=1 adopted=0 assets=1 retainedCaptureNames=0 sameSHA=true",
+      "secondRestart": "PASS pending=0 adopted=0 assets=1 retainedCaptureNames=0 sameSHA=true",
+      "sameAssetAcrossProcesses": true,
+      "platform": "macOS 27.0 arm64",
+      "shaMatched": true,
+      "assetCount": 1,
+      "operationCount": 0,
+      "injection": "Fixture constructor placed generated PNG bytes in the specified on-disk publication state. The child ended via SIGKILL."
+    },
+    {
+      "boundary": "identical staged and published hard links, before stage unlink",
+      "childSignal": "SIGKILL",
+      "recoverProcess": "PASS pending=1 adopted=0 assets=1 retainedCaptureNames=0 sameSHA=true",
+      "secondRestart": "PASS pending=0 adopted=0 assets=1 retainedCaptureNames=0 sameSHA=true",
+      "sameAssetAcrossProcesses": true,
+      "platform": "macOS 27.0 arm64",
+      "shaMatched": true,
+      "assetCount": 1,
+      "operationCount": 0,
+      "injection": "Fixture constructor placed generated PNG bytes in the specified on-disk publication state. The child ended via SIGKILL."
+    },
+    {
+      "boundary": "published original, before import manifest",
+      "childSignal": "SIGKILL",
+      "recoverProcess": "PASS pending=1 adopted=0 assets=1 retainedCaptureNames=0 sameSHA=true",
+      "secondRestart": "PASS pending=0 adopted=0 assets=1 retainedCaptureNames=0 sameSHA=true",
+      "sameAssetAcrossProcesses": true,
+      "platform": "macOS 27.0 arm64",
+      "shaMatched": true,
+      "assetCount": 1,
+      "operationCount": 0,
+      "injection": "Fixture constructor placed generated PNG bytes in the specified on-disk publication state. The child ended via SIGKILL."
+    },
+    {
+      "boundary": "durable import manifest, before media promotion and SQLite commit",
+      "childSignal": "SIGKILL",
+      "recoverProcess": "PASS pending=1 adopted=1 assets=1 retainedCaptureNames=0 sameSHA=true",
+      "secondRestart": "PASS pending=0 adopted=0 assets=1 retainedCaptureNames=0 sameSHA=true",
+      "sameAssetAcrossProcesses": true,
+      "platform": "macOS 27.0 arm64",
+      "shaMatched": true,
+      "assetCount": 1,
+      "operationCount": 0,
+      "injection": "Production importer internal test hook after directory fsync. The child ended via SIGKILL."
+    },
+    {
+      "boundary": "original published and the native markup panel visible, before save",
+      "childSignal": "SIGKILL",
+      "injection": "Native ScreenshotMarkupController.present() in a dedicated graphical guest. The probe checked window.isVisible before signalling itself. No edits submitted.",
+      "platform": "VirtualMac2,1 macOS 27.2 arm64",
+      "recoverProcess": "PASS pending=1 adopted=0 assets=1 retainedCaptureNames=0 sameSHA=true",
+      "secondRestart": "PASS pending=0 adopted=0 assets=1 retainedCaptureNames=0 sameSHA=true",
+      "sameAssetAcrossProcesses": true,
+      "operationCount": 0,
+      "shaMatched": true,
+      "assetCount": 1
+    }
+  ]
+}

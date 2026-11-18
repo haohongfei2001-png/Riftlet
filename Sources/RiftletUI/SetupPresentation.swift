@@ -33,7 +33,7 @@ public enum ChromeAttachmentSetup {
 /// description, file contents, browser identity, URL, or arbitrary remote text.
 public enum SetupIssue: Equatable, Sendable {
     case sourceAccess, wrongScreenshotFolder, screenshotFolderNeedsSelection, unsupportedFormat, unsupportedSize, invalidImage
-    case insufficientSpace, privateWriteFailed, storageUnavailable
+    case insufficientSpace, privateWriteFailed, storageUnavailable, pendingCapture, mediaMaintenance
     case sourceVolumeUnidentified, fileVolumeUnidentified, historicalSourceUnconfirmed
     case unsupportedBrowser, targetUnavailable, permissionDenied, chromeJavaScriptDisabled, imageUnavailable
     case initializationFailed, configurationUnavailable
@@ -91,6 +91,10 @@ public enum SetupIssue: Equatable, Sendable {
         case .insufficientSpace:
             return copy.text("私有存储空间不足，新的截图暂不能安全保存。请释放磁盘空间后重新检查；已有记录与系统原图保留。",
                              "Free up disk space, then check again. Your existing history and original files are safe.")
+        case .mediaMaintenance:
+            return copy.text("截图整理遇到问题。打开管理查看并恢复。", "Screenshot maintenance needs attention. Open Manage to recover.")
+        case .pendingCapture:
+            return copy.text("有截图尚未收录，可在管理中找回。", "A saved screenshot is waiting to be recovered in Manage.")
         case .privateWriteFailed:
             return copy.text("无法写入 Riftlet 私有存储。请检查磁盘和访问权限后重新检查；不要删除已有数据来恢复。",
                              "Riftlet could not save this screenshot. Check available disk space and file permissions, then try again.")
@@ -252,7 +256,7 @@ public struct SetupPresentation: Equatable, Sendable {
 
     var sourceIssue: SetupIssue? {
         switch snapshot.issue {
-        case .screenshotFolderNeedsSelection, .wrongScreenshotFolder, .sourceVolumeUnidentified,
+        case .sourceAccess, .screenshotFolderNeedsSelection, .wrongScreenshotFolder, .sourceVolumeUnidentified,
              .fileVolumeUnidentified, .historicalSourceUnconfirmed:
             return snapshot.issue
         default: return nil
@@ -273,7 +277,7 @@ public struct SetupPresentation: Equatable, Sendable {
 
     public var needsSourceAccess: Bool {
         hasSourceLocation && snapshot.source != .notApplicable
-            && (snapshot.source != .accessible || snapshot.issue == .screenshotFolderNeedsSelection)
+            && (snapshot.source != .accessible || [.screenshotFolderNeedsSelection, .wrongScreenshotFolder, .sourceAccess].contains(snapshot.issue))
     }
 
     public var sourcePath: String {

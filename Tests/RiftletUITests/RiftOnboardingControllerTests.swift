@@ -69,12 +69,12 @@ final class RiftOnboardingControllerTests: XCTestCase {
         let state = try model()
         controller.update(fixture(state))
         let next = try button(controller, "onboarding.next")
-        let display = try XCTUnwrap(controller.control(identifier: "onboarding.display"))
+        let folder = try XCTUnwrap(controller.control(identifier: "onboarding.sourceAccess"))
         controller.update(fixture(state, revision: 2, source: .accessible, permission: .granted))
         XCTAssertFalse(controller.isVisible)
         XCTAssertEqual(actions, 0)
         XCTAssertTrue(next === controller.control(identifier: "onboarding.next"))
-        XCTAssertTrue(display === controller.control(identifier: "onboarding.display"))
+        XCTAssertTrue(folder === controller.control(identifier: "onboarding.sourceAccess"))
         XCTAssertEqual(controller.currentStep, 0)
         XCTAssertEqual(controller.window.identifier, RiftOnboardingController.windowIdentifier)
     }
@@ -91,7 +91,7 @@ final class RiftOnboardingControllerTests: XCTestCase {
         let capability = try XCTUnwrap(controller.control(identifier: "onboarding.capability") as? NSTextField)
         XCTAssertFalse(description.stringValue.contains("⌘"))
         XCTAssertTrue(description.stringValue.contains("Chrome"))
-        XCTAssertTrue(description.stringValue.contains("桌面边缘的缩略图"))
+        XCTAssertTrue(description.stringValue.contains("托盘里的图片"))
         XCTAssertTrue(description.stringValue.contains("ChatGPT"))
         XCTAssertTrue(capability.stringValue.contains("隔离审核"))
         XCTAssertTrue(capability.stringValue.contains("不连接浏览器或上传"))
@@ -103,7 +103,7 @@ final class RiftOnboardingControllerTests: XCTestCase {
         let controller = RiftOnboardingController(copy: .simplifiedChinese) { _ in XCTFail("Showing setup must not contact Chrome") }
         defer { controller.closeForTeardown() }
         let state = try model()
-        controller.update(fixture(state, source: .accessible, permission: .granted))
+        controller.update(fixture(state, source: .accessible, permission: .granted, connection: .unchecked))
         XCTAssertTrue(controller.show())
         try button(controller, "onboarding.next").performClick(nil)
         let instructions = try XCTUnwrap(controller.control(identifier: "onboarding.scriptStatus") as? NSTextField)
@@ -131,31 +131,6 @@ final class RiftOnboardingControllerTests: XCTestCase {
         XCTAssertTrue(instructions.isHiddenOrHasHiddenAncestor)
     }
 
-    @MainActor func testDefaultPlacementStepShowsAllSixChoicesWithoutScrolling() throws {
-        try prepareAppKit()
-        let controller = RiftOnboardingController(copy: .simplifiedChinese) { _ in XCTFail("Navigation cannot save a preference") }
-        defer { controller.closeForTeardown() }
-        controller.update(fixture(try model(paused: false, hidden: false), source: .accessible, permission: .granted))
-        XCTAssertTrue(controller.show())
-        guard let screen = controller.window.screen,
-              screen.visibleFrame.width >= SettingsNativeStyle.onboardingSize.width,
-              screen.visibleFrame.height >= SettingsNativeStyle.onboardingSize.height else {
-            throw XCTSkip("The intended onboarding size is unavailable on this display")
-        }
-        try button(controller, "onboarding.next").performClick(nil)
-        try button(controller, "onboarding.next").performClick(nil)
-        controller.window.contentView?.layoutSubtreeIfNeeded()
-        for placement in RiftPlacement.allCases {
-            let choice = try button(controller, "onboarding.placement." + placement.rawValue)
-            XCTAssertFalse(choice.isHiddenOrHasHiddenAncestor)
-            XCTAssertGreaterThan(choice.bounds.width, 0)
-            let viewport = try XCTUnwrap(choice.enclosingScrollView?.contentView)
-            let choiceInViewport = choice.convert(choice.bounds, to: viewport)
-            XCTAssertTrue(viewport.bounds.insetBy(dx: -1, dy: -1).contains(choiceInViewport),
-                          "Every placement choice must be reachable in the default first viewport")
-        }
-    }
-
     @MainActor func testFirstPresentationRestoresIntendedOuterSizeAndReopenPreservesResize() throws {
         try prepareAppKit()
         let controller = RiftOnboardingController(copy: .simplifiedChinese) { _ in XCTFail("Presentation cannot save a setting") }
@@ -169,7 +144,6 @@ final class RiftOnboardingControllerTests: XCTestCase {
         }
         let presented = controller.window.frame
         controller.update(fixture(try model(), revision: 2, source: .accessible, permission: .granted))
-        try button(controller, "onboarding.next").performClick(nil)
         try button(controller, "onboarding.next").performClick(nil)
         XCTAssertEqual(controller.window.frame, presented, "Facts and stack page layout cannot replace the window size")
         controller.closeForTeardown()
@@ -219,8 +193,7 @@ final class RiftOnboardingControllerTests: XCTestCase {
             XCTAssertEqual(check.isEnabled, result != .checking)
         }
         controller.update(fixture(state, revision: 8))
-        next.performClick(nil)
-        XCTAssertEqual(controller.currentStep, 2)
+        XCTAssertTrue(next.isEnabled)
         controller.update(fixture(state, revision: 9, source: .unavailable))
         XCTAssertEqual(next.title, "设置截图文件夹")
         next.performClick(nil)
@@ -228,7 +201,7 @@ final class RiftOnboardingControllerTests: XCTestCase {
         XCTAssertEqual(actions, ["folder", "chrome"])
 
         controller.update(fixture(state, revision: 10))
-        next.performClick(nil); next.performClick(nil)
+        next.performClick(nil)
         XCTAssertEqual(next.title, "开始使用")
         next.performClick(nil); next.performClick(nil)
         await assertReceived { actions == ["folder", "chrome", "finish"] }
@@ -261,19 +234,26 @@ final class RiftOnboardingControllerTests: XCTestCase {
         XCTAssertFalse(next.isEnabled)
     }
 
-    @MainActor func testOnlyLaterRecordsDeferralWithoutDispatchingAProductCommand() async throws {
+    @MainActor func testClosingAndLaterDeferOncePerPresentationWhileTeardownDoesNot() throws {
         try prepareAppKit()
-        var actions = 0
         var deferrals = 0
-        let controller = RiftOnboardingController(copy: .simplifiedChinese, onDefer: { deferrals += 1 }) { _ in actions += 1 }
-        controller.update(fixture(try model()))
-        try button(controller, "onboarding.next").performClick(nil)
-        try button(controller, "onboarding.later").performClick(nil)
-        controller.closeForTeardown()
-        await Task.yield()
-        XCTAssertEqual(actions, 0)
-        XCTAssertEqual(deferrals, 1)
+        let controller = RiftOnboardingController(copy: .simplifiedChinese, onDefer: { deferrals += 1 }) { _ in XCTFail("Closing must not request permissions") }
+        controller.update(fixture(try model(), connection: .unchecked))
+        XCTAssertTrue(controller.show())
+        controller.window.performClose(nil)
         XCTAssertFalse(controller.isVisible)
+        XCTAssertEqual(deferrals, 1)
+        XCTAssertTrue(controller.show())
+        try button(controller, "onboarding.next").performClick(nil)
+        let later = try button(controller, "onboarding.later")
+        XCTAssertEqual(later.title, "先使用本地截图")
+        XCTAssertEqual(later.keyEquivalent, "\u{1b}")
+        later.performClick(nil)
+        XCTAssertFalse(controller.isVisible)
+        XCTAssertEqual(deferrals, 2)
+        XCTAssertTrue(controller.show())
+        controller.closeForTeardown()
+        XCTAssertEqual(deferrals, 2)
     }
 
     @MainActor func testAlreadyGrantedPermissionsDoNotOfferOrRepeatAuthorization() async throws {
@@ -308,185 +288,32 @@ final class RiftOnboardingControllerTests: XCTestCase {
         await assertReceived { requested == 2 }
     }
 
-    @MainActor func testPlacementAndDisplayUseExistingExplicitCommandsAndPreserveLegacyValues() async throws {
+    @MainActor func testTwoStepsUseExistingPlacementAndOpenChromeOnlyWhenRequested() async throws {
         try prepareAppKit()
-        var configuration = RiftConfiguration()
-        configuration.placement = nil; configuration.placementSource = .legacy
-        configuration.outerInset = 14; configuration.hiddenFraction = 0.57
-        configuration.preferredDisplayID = 2; configuration.preferredDisplayUUID = Self.externalDisplayUUID
-        try configuration.validate()
-        let state = try model(configuration: configuration)
-        var selected: [String] = []
-        let controller = RiftOnboardingController(copy: .simplifiedChinese) { action in
-            switch action {
-            case .settings(.selectPlacement(let placement)): selected.append(placement.rawValue)
-            case .settings(.selectDisplay(let id)): selected.append(id.map(String.init) ?? "primary")
-            default: XCTFail("Unrelated command")
-            }
-        }
-        defer { controller.closeForTeardown() }
-        controller.update(fixture(state))
-        for _ in 0..<2 { try button(controller, "onboarding.next").performClick(nil) }
-        for placement in RiftPlacement.allCases {
-            XCTAssertEqual(try button(controller, "onboarding.placement." + placement.rawValue).state, .off)
-        }
-        try button(controller, "onboarding.placement.leftMiddle").performClick(nil)
-        await assertReceived { selected.count == 1 }
-        XCTAssertEqual(state.snapshot.owner.settings.configuration, configuration)
-        let display = try XCTUnwrap(controller.control(identifier: "onboarding.display") as? NSPopUpButton)
-        XCTAssertEqual(display.titleOfSelectedItem, "合成外接屏")
-        display.selectItem(at: 0)
-        XCTAssertTrue(NSApp.sendAction(try XCTUnwrap(display.action), to: display.target, from: display))
-        await assertReceived { selected.count == 2 }
-        XCTAssertEqual(selected, ["leftMiddle", "primary"])
-        XCTAssertEqual(state.snapshot.owner.settings.configuration, configuration,
-                       "A UI action cannot fabricate persistence or apply the recommendation")
-    }
-
-    @MainActor func testUnconfirmedPlacementShowsSameTargetRetryAndOtherDomainRemainsUsable() async throws {
-        try prepareAppKit()
-        let original = try model().snapshot.owner
-        var attempts = 0
-        let state = try SettingsStateModel(owner: original, adapter: SettingsPersistenceClosures { request in
-            attempts += 1
-            guard attempts > 1, let configuration = request.configuration else {
-                return .unconfirmed(nil, .writeUnconfirmed)
-            }
-            var settings = original.settings
-            settings.configuration = configuration
-            return .confirmed(.init(revision: 2, settings: settings, collectionPaused: false, isHidden: false, mainDisplayID: 1))
-        })
-        weak var observed: RiftOnboardingController?
-        var commands: [String] = []
-        var revision: UInt64 = 1
-        let controller = RiftOnboardingController(copy: .simplifiedChinese) { action in
-            guard case .settings(let command) = action else { XCTFail("Unrelated action"); return }
-            switch command {
-            case .selectPlacement(let value): commands.append(value.rawValue)
-            case .retry(let domain): commands.append("retry:" + domain.rawValue)
-            default: XCTFail("Unexpected preference domain")
-            }
-            _ = await state.perform(command)
-            revision += 1
-            observed?.update(self.fixture(state, revision: revision))
-        }
-        observed = controller
-        defer { controller.closeForTeardown() }
-        controller.update(fixture(state))
-        for _ in 0..<2 { try button(controller, "onboarding.next").performClick(nil) }
-        try button(controller, "onboarding.placement.rightBottom").performClick(nil)
-        let finish = try button(controller, "onboarding.next")
-        XCTAssertFalse(finish.isEnabled, "Selection dispatch can precede the first saving snapshot")
-        await assertReceived { state.snapshot.domains[.placement]?.saveFailure != nil }
-        // The closure also publishes the receipt before returning to the view.
-        await assertReceived { (controller.control(identifier: "onboarding.retryPlacement") as? NSButton)?.isEnabled == true }
-        XCTAssertEqual(state.snapshot.owner.settings.configuration.placement, .leftMiddle)
-        XCTAssertTrue(try XCTUnwrap(controller.control(identifier: "onboarding.display") as? NSPopUpButton).isEnabled)
-        let retry = try button(controller, "onboarding.retryPlacement")
-        XCTAssertFalse(retry.isHidden)
-        XCTAssertFalse(finish.isEnabled)
-        XCTAssertFalse(fixture(state).onboardingReady)
-        XCTAssertEqual(state.snapshot.domains[.placement]?.pending, .placement(.rightBottom))
-        retry.performClick(nil)
-        await assertReceived { commands.count == 2 }
-        XCTAssertEqual(commands, ["rightBottom", "retry:placement"])
-        await assertReceived { finish.isEnabled }
-        XCTAssertTrue(fixture(state).onboardingReady)
-        XCTAssertEqual(state.snapshot.owner.settings.configuration.placement, .rightBottom)
-    }
-
-    @MainActor func testDisplayWriteFailurePreventsFinishingButArchiveFailureDoesNot() async throws {
+        var opened = 0
         let state = try model()
-        _ = await state.perform(.editArchive("5"))
-        _ = await state.perform(.applyArchive)
-        XCTAssertTrue(fixture(state).onboardingReady)
-        _ = await state.perform(.selectDisplay(2))
-        XCTAssertNotNil(state.snapshot.domains[.display]?.saveFailure)
-        XCTAssertFalse(fixture(state).onboardingReady)
-    }
-
-    @MainActor func testDisconnectedSelectedDisplayAndOldSnapshotCannotChangePreference() throws {
-        try prepareAppKit()
-        var configuration = RiftConfiguration()
-        configuration.preferredDisplayID = 99; configuration.preferredDisplayUUID = Self.disconnectedDisplayUUID
-        try configuration.validate()
-        let state = try model(configuration: configuration)
-        let controller = RiftOnboardingController(copy: .simplifiedChinese) { _ in XCTFail("A refresh cannot save a fallback") }
+        let controller = RiftOnboardingController(copy: .english) { action in
+            if case .openChrome = action { opened += 1 } else { XCTFail("Unexpected request") }
+        }
         defer { controller.closeForTeardown() }
-        controller.update(fixture(state, revision: 4))
-        let display = try XCTUnwrap(controller.control(identifier: "onboarding.display") as? NSPopUpButton)
-        XCTAssertEqual(display.titleOfSelectedItem, "已选显示器（未连接）")
-        XCTAssertFalse(try XCTUnwrap(display.selectedItem).isEnabled)
-        controller.update(fixture(try model(), revision: 3))
-        XCTAssertEqual(display.titleOfSelectedItem, "已选显示器（未连接）")
-        XCTAssertEqual(state.snapshot.owner.settings.configuration.preferredDisplayUUID, Self.disconnectedDisplayUUID)
-    }
-
-    @MainActor func testBackAndForwardKeepSameNativeControlsAndAccessibleNames() throws {
-        try prepareAppKit()
-        let controller = RiftOnboardingController(copy: .simplifiedChinese) { _ in XCTFail("Navigation cannot run a host command") }
-        defer { controller.closeForTeardown() }
-        controller.update(fixture(try model()))
-        let display = try XCTUnwrap(controller.control(identifier: "onboarding.display"))
-        let placement = try button(controller, "onboarding.placement.leftTop")
+        controller.update(fixture(state, permission: .notRunning, connection: .unchecked))
+        XCTAssertTrue(controller.show())
         let next = try button(controller, "onboarding.next")
-        next.performClick(nil); next.performClick(nil)
-        XCTAssertEqual(controller.currentStep, 2)
-        try button(controller, "onboarding.back").performClick(nil)
-        XCTAssertEqual(controller.currentStep, 1)
         next.performClick(nil)
-        XCTAssertTrue(display === controller.control(identifier: "onboarding.display"))
-        XCTAssertTrue(placement === controller.control(identifier: "onboarding.placement.leftTop"))
-        XCTAssertEqual(placement.accessibilityLabel(), "桌面位置：左上")
-        XCTAssertEqual((display as? NSPopUpButton)?.accessibilityLabel(), "所在显示器")
-        XCTAssertEqual(try button(controller, "onboarding.later").keyEquivalent, "\u{1b}")
-    }
-
-    @MainActor func testDuplicateDisplayNamesKeepDistinctNativeItemIdentities() async throws {
-        try prepareAppKit()
-        let state = try model(displays: [.init(id: 1, name: "Studio Display", uuid: Self.mainDisplayUUID),
-                                         .init(id: 2, name: "Studio Display", uuid: Self.externalDisplayUUID)])
-        var selected: [UInt32?] = []
-        let controller = RiftOnboardingController(copy: .simplifiedChinese) { action in
-            if case .settings(.selectDisplay(let id)) = action { selected.append(id) }
-            else { XCTFail("Unexpected command") }
-        }
-        defer { controller.closeForTeardown() }
-        controller.update(fixture(state))
-        let display = try XCTUnwrap(controller.control(identifier: "onboarding.display") as? NSPopUpButton)
-        XCTAssertEqual(display.numberOfItems, 3)
-        XCTAssertEqual(display.itemTitle(at: 1), display.itemTitle(at: 2))
-        XCTAssertEqual((display.item(at: 1)?.representedObject as? NSNumber)?.uint32Value, 1)
-        XCTAssertEqual((display.item(at: 2)?.representedObject as? NSNumber)?.uint32Value, 2)
-        display.selectItem(at: 2)
-        XCTAssertTrue(NSApp.sendAction(try XCTUnwrap(display.action), to: display.target, from: display))
-        await assertReceived { selected.count == 1 }
-        XCTAssertEqual(selected, [2])
-    }
-
-    @MainActor func testDisplayTrackingDefersRefreshUntilChosenNativeItemHasDispatched() async throws {
-        try prepareAppKit()
-        let state = try model()
-        var selected: [UInt32?] = []
-        let controller = RiftOnboardingController(copy: .simplifiedChinese) { action in
-            if case .settings(.selectDisplay(let id)) = action { selected.append(id) }
-        }
-        defer { controller.closeForTeardown() }
-        controller.update(fixture(state))
-        let display = try XCTUnwrap(controller.control(identifier: "onboarding.display") as? NSPopUpButton)
-        let menu = try XCTUnwrap(display.menu)
-        let selectedItem = try XCTUnwrap(display.item(at: 2))
-        controller.menuWillOpen(menu)
-        let changed = try model(revision: 2, displays: [.init(id: 1, name: "合成内建屏", uuid: Self.mainDisplayUUID)])
-        controller.update(fixture(changed, revision: 2))
-        XCTAssertEqual(display.numberOfItems, 3)
-        XCTAssertTrue(display.item(at: 2) === selectedItem)
-        display.select(selectedItem)
-        controller.menuDidClose(menu)
-        XCTAssertTrue(NSApp.sendAction(try XCTUnwrap(display.action), to: display.target, from: display))
-        await assertReceived { selected.count == 1 }
-        XCTAssertEqual(selected, [2], "The original item identity reaches the host, which validates current availability")
-        await assertReceived { display.numberOfItems == 2 }
+        let open = try button(controller, "onboarding.automation")
+        XCTAssertEqual(open.title, "Open Chrome")
+        XCTAssertFalse(next.isEnabled)
+        XCTAssertFalse(open.isHiddenOrHasHiddenAncestor)
+        XCTAssertTrue(try button(controller, "onboarding.checkChrome").isHiddenOrHasHiddenAncestor)
+        XCTAssertNil(controller.control(identifier: "onboarding.display"))
+        XCTAssertNil(controller.control(identifier: "onboarding.placement.rightTop"))
+        XCTAssertEqual(opened, 0)
+        open.performClick(nil)
+        await assertReceived { opened == 1 }
+        try button(controller, "onboarding.back").performClick(nil)
+        XCTAssertEqual(controller.currentStep, 0)
+        next.performClick(nil)
+        XCTAssertTrue(open === controller.control(identifier: "onboarding.automation"))
     }
 
     func testFirstUseSelectsPreferredSupportedLanguageAndFallsBackToChinese() {
@@ -540,17 +367,10 @@ final class RiftOnboardingControllerTests: XCTestCase {
         XCTAssertTrue((controller.control(identifier: "onboarding.connectionStatus") as? NSTextField)?.stringValue.contains("option is off") == true)
         XCTAssertFalse(next.isEnabled)
         controller.update(fixture(state, revision: 4))
-        next.performClick(nil)
-        controller.window.contentView?.layoutSubtreeIfNeeded()
         XCTAssertEqual(next.accessibilityLabel(), "Get Started")
-        for placement in RiftPlacement.allCases {
-            let option = try button(controller, "onboarding.placement." + placement.rawValue)
-            XCTAssertEqual(option.accessibilityLabel(), "Desktop position: " + option.title)
-            let required = (option.title as NSString).size(withAttributes: [.font: try XCTUnwrap(option.font)]).width
-            XCTAssertGreaterThanOrEqual(option.bounds.width, required + 4, "Placement title must fit at minimum width: " + option.title)
-        }
+        XCTAssertTrue(instructions.isHiddenOrHasHiddenAncestor)
         try button(controller, "onboarding.back").performClick(nil)
-        XCTAssertEqual(controller.currentStep, 1)
+        XCTAssertEqual(controller.currentStep, 0)
         next.performClick(nil)
         next.performClick(nil)
         await assertReceived { actions == ["folder", "automation", "finish"] }

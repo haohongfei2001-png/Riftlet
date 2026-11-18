@@ -77,10 +77,19 @@ final class LegacyUnknownInputLeaseTests: XCTestCase {
                     let record = try await store.asset(id: next.id)
                     XCTAssertEqual(record?.visibility, .swallowed)
                 }
-                try await coordinator.observePending()
+                let priorReads = await adapter.observations()
+                XCTAssertTrue(priorReads.isEmpty, "Independent clicks never require an earlier upload read")
+                // The last receipt may be durable just before its append task returns.
+                // Poll until every original operation is eligible for its first read.
+                for _ in 0..<300 {
+                    try await coordinator.observePending()
+                    if await adapter.observations().count == count { break }
+                    try await Task.sleep(nanoseconds: 2_000_000)
+                }
                 let calls = await adapter.inputs(), observations = await adapter.observations()
                 let after = try await operation(first, store), afterImage = try await store.asset(id: first.id)
-                XCTAssertEqual(calls, inputs); XCTAssertEqual(observations, [])
+                XCTAssertEqual(calls, inputs)
+                XCTAssertEqual(Set(observations), Set(inputs)); XCTAssertEqual(observations.count, count)
                 XCTAssertEqual(after, before); XCTAssertEqual(afterImage, beforeImage)
                 XCTAssertEqual(before.phase, firstUnknown ? .unknown : .inputTriggered)
             }

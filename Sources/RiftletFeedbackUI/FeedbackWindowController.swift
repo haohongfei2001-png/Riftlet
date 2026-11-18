@@ -7,6 +7,7 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     private let engine: FeedbackEngine?
     private let diagnostics: FeedbackDiagnostics
     private let appVersion: String
+    private let copy: ProductCopy
     private let demo: Bool
     private var draft = FeedbackDraft()
     // A fresh editor has no changes. Loading and successful storage operations
@@ -20,20 +21,20 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     private var records: [FeedbackRecord] = []
     private let text = NSTextView()
     private let kind = NSPopUpButton()
-    private let consent = NSButton(checkboxWithTitle: "附带最近的技术诊断（仅本次）", target: nil, action: nil)
+    private lazy var consent = NSButton(checkboxWithTitle: copy.text("附带最近的技术诊断（仅本次）", "Include recent diagnostics with this report"), target: nil, action: nil)
     private let service = NSTextField(wrappingLabelWithString: "")
-    private let status = NSTextField(wrappingLabelWithString: "正在打开本地反馈草稿…")
-    private let send = NSButton(title: "发送反馈", target: nil, action: nil)
+    private lazy var status = NSTextField(wrappingLabelWithString: copy.text("正在打开本地反馈草稿…", "Opening your feedback draft…"))
+    private lazy var send = NSButton(title: copy.text("发送反馈", "Send Feedback"), target: nil, action: nil)
     private let recoveryActions = NSStackView()
-    private let retrySave = NSButton(title: "重试保存", target: nil, action: nil)
-    private let copyText = NSButton(title: "复制正文", target: nil, action: nil)
+    private lazy var retrySave = NSButton(title: copy.text("重试保存", "Retry Save"), target: nil, action: nil)
+    private lazy var copyText = NSButton(title: copy.text("复制正文", "Copy Text"), target: nil, action: nil)
     // This only selects the explicitly labelled recovery button's action. It
     // never schedules a later close after an unrelated edit or autosave.
     private var retryClosesWindow = false
     private var previewWindow: NSWindow?
     private var loading: Task<Void, Never>?
-    private let characterCount = NSTextField(labelWithString: "0 / 4,000 字符")
-    private let recordsDisclosure = NSButton(title: "本机反馈记录 · 0", target: nil, action: nil)
+    private lazy var characterCount = NSTextField(labelWithString: copy.text("0 / 4,000 字符", "0 / 4,000 characters"))
+    private lazy var recordsDisclosure = NSButton(title: copy.text("本机反馈记录 · 0", "Feedback on This Mac · 0"), target: nil, action: nil)
     private let recordsBody = NSStackView()
     private var recordsExpanded = false
     private var recordsRefreshGeneration: UInt64 = 0
@@ -48,11 +49,12 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     public var diagnosticSelected: Bool { consent.state == .on }
     public var currentText: String { text.string }
 
-    public init(engine: FeedbackEngine?, diagnostics: FeedbackDiagnostics, appVersion: String, demo: Bool = false) {
+    public init(engine: FeedbackEngine?, diagnostics: FeedbackDiagnostics, appVersion: String, demo: Bool = false, copy: ProductCopy = .current) {
+        self.copy = copy
         self.engine = engine; self.diagnostics = diagnostics; self.appVersion = appVersion; self.demo = demo
         if let engine { persistDraft = { value in try await engine.store.saveDraft(value) } }
         let window = RiftVisualStyle.window(outerSize: NSSize(width: 506, height: 464),
-            minimum: NSSize(width: 450, height: 386), title: demo ? "反馈与建议 — 离线合成演示" : "反馈与建议")
+            minimum: NSSize(width: 450, height: 386), title: demo ? copy.text("反馈与建议 — 离线合成演示", "Feedback — Offline Demo") : copy.text("反馈与建议", "Feedback"))
         super.init(window: window)
         window.delegate = self; window.isReleasedWhenClosed = false
         window.backgroundColor = .windowBackgroundColor
@@ -69,12 +71,12 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         let scroller = RiftVisualStyle.topAlignedScrollView()
         scroller.documentView = stack
         stack.translatesAutoresizingMaskIntoConstraints = false
-        let heading = RiftVisualStyle.label("使用反馈", role: "title")
+        let heading = RiftVisualStyle.label(copy.text("使用反馈", "Feedback"), role: "title")
         heading.font = .systemFont(ofSize: 24, weight: .semibold)
         heading.textColor = .labelColor
-        let introduction = RiftVisualStyle.label("你遇到了什么问题，或有什么建议？", role: "secondary")
-        kind.addItems(withTitles: ["遇到问题", "改进建议"]); kind.target = self; kind.action = #selector(changedKind)
-        kind.setAccessibilityLabel("反馈类型"); kind.font = RiftVisualStyle.bodyFont
+        let introduction = RiftVisualStyle.label(copy.text("你遇到了什么问题，或有什么建议？", "What happened, or what would you like to improve?"), role: "secondary")
+        kind.addItems(withTitles: [copy.text("遇到问题", "Report a Problem"), copy.text("改进建议", "Make a Suggestion")]); kind.target = self; kind.action = #selector(changedKind)
+        kind.setAccessibilityLabel(copy.text("反馈类型", "Feedback type")); kind.font = RiftVisualStyle.bodyFont
         let scroll = NSScrollView(); scroll.hasVerticalScroller = true; scroll.borderType = .bezelBorder
         scroll.documentView = text; scroll.backgroundColor = .textBackgroundColor
         text.isRichText = false; text.importsGraphics = false; text.isAutomaticQuoteSubstitutionEnabled = false
@@ -85,31 +87,31 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         text.textContainerInset = NSSize(width: 12, height: 12); text.delegate = self
         let paragraph = NSMutableParagraphStyle(); paragraph.minimumLineHeight = 18; paragraph.maximumLineHeight = 18
         text.defaultParagraphStyle = paragraph
-        text.setAccessibilityLabel("发生了什么？你原本希望怎样？")
+        text.setAccessibilityLabel(copy.text("发生了什么？你原本希望怎样？", "What happened and what did you expect?"))
         scroll.heightAnchor.constraint(equalToConstant: 104).isActive = true
         characterCount.font = RiftVisualStyle.secondaryFont; characterCount.textColor = RiftVisualStyle.secondary
         characterCount.identifier = NSUserInterfaceItemIdentifier("feedback.characterCount")
-        characterCount.toolTip = "组合符号和 emoji 可能包含多个字符，按组成字符计数；发送限制与这里的计数一致。正文最多 16 KiB。"
+        characterCount.toolTip = copy.text("组合符号和 emoji 可能包含多个字符，按组成字符计数；发送限制与这里的计数一致。正文最多 16 KiB。", "Counts Unicode scalars. Some emoji and combined characters count as more than one. The message limit is 16 KiB.")
         consent.target = self; consent.action = #selector(changedConsent); consent.font = RiftVisualStyle.bodyFont
-        let preview = NSButton(title: "预览…", target: self, action: #selector(showPreview)); RiftVisualStyle.style(preview)
+        let preview = NSButton(title: copy.text("预览…", "Preview…"), target: self, action: #selector(showPreview)); RiftVisualStyle.style(preview)
         let diagnosticsRow = NSStackView(views: [consent, preview]); diagnosticsRow.spacing = 8
-        let privacy = RiftVisualStyle.label("反馈服务可用时，只有你提交的文字及主动勾选的诊断会发往开发者的私有反馈中心，可供开发者和获授权的 AI 辅助分析。不会自动附带截图、聊天、剪贴板、完整路径或浏览器资料。请勿填写密码等秘密。", role: "secondary")
+        let privacy = RiftVisualStyle.label(copy.text("反馈服务可用时，只有你提交的文字及主动勾选的诊断会发往开发者的私有反馈中心，可供开发者和获授权的 AI 辅助分析。不会自动附带截图、聊天、剪贴板、完整路径或浏览器资料。请勿填写密码等秘密。", "The developer and authorized AI tools may review your submitted text and any diagnostics you choose to include in a private feedback center. Screenshots, chats, clipboard contents, full paths, and browser data are never attached automatically. Keep passwords and other secrets out of your report."), role: "secondary")
         privacy.identifier = NSUserInterfaceItemIdentifier("feedback.privacy")
         service.font = RiftVisualStyle.secondaryFont; service.textColor = RiftVisualStyle.secondary
         service.identifier = NSUserInterfaceItemIdentifier("feedback.serviceCapability")
         if demo {
-            service.stringValue = "离线合成演示；不会向云端发送反馈。"
+            service.stringValue = copy.text("离线合成演示；不会向云端发送反馈。", "Offline demo. Feedback stays on this Mac.")
         } else if engine == nil {
-            service.stringValue = "本地反馈存储暂不可用；当前不会上传。"
+            service.stringValue = copy.text("本地反馈存储暂不可用；当前不会上传。", "Local feedback storage is unavailable. Sending is paused.")
         } else if engine?.configured == true {
-            service.stringValue = "点“发送反馈”后，可在下方查看发送状态。"
+            service.stringValue = copy.text("点“发送反馈”后，可在下方查看发送状态。", "Check the status of sent feedback below.")
         } else {
-            service.stringValue = "接收服务尚未配置。可保存待发送；当前不会上传。"
+            service.stringValue = copy.text("接收服务尚未配置。可保存待发送；当前不会上传。", "The feedback service is not configured. You can save a report for later.")
         }
         status.font = RiftVisualStyle.secondaryFont; status.textColor = RiftVisualStyle.secondary
-        send.title = engine?.configured == true ? "发送反馈" : "保存待发送"
+        send.title = engine?.configured == true ? copy.text("发送反馈", "Send Feedback") : copy.text("保存待发送", "Save for Later")
         send.target = self; send.action = #selector(submit); RiftVisualStyle.style(send, prominent: true)
-        let close = NSButton(title: "保存并关闭", target: self, action: #selector(closeRequested)); RiftVisualStyle.style(close)
+        let close = NSButton(title: copy.text("保存并关闭", "Save and Close"), target: self, action: #selector(closeRequested)); RiftVisualStyle.style(close)
         retrySave.target = self; retrySave.action = #selector(retrySaveRequested)
         retrySave.identifier = NSUserInterfaceItemIdentifier("feedback.retrySave")
         copyText.target = self; copyText.action = #selector(copyTextRequested)
@@ -126,7 +128,7 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         recordsDisclosure.image = NSImage(systemSymbolName: "chevron.right", accessibilityDescription: nil)
         recordsDisclosure.imagePosition = .imageLeading
         recordsDisclosure.target = self; recordsDisclosure.action = #selector(toggleRecords)
-        recordsDisclosure.setAccessibilityLabel("展开本机反馈记录")
+        recordsDisclosure.setAccessibilityLabel(copy.text("展开本机反馈记录", "Show feedback on this Mac"))
         recordsBody.orientation = .vertical; recordsBody.alignment = .leading; recordsBody.spacing = 8
         rebuildRecords()
         recordsBody.isHidden = true
@@ -153,10 +155,10 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         recordsExpanded.toggle(); recordsBody.isHidden = !recordsExpanded
         recordsDisclosure.state = recordsExpanded ? .on : .off
         recordsDisclosure.image = NSImage(systemSymbolName: recordsExpanded ? "chevron.down" : "chevron.right", accessibilityDescription: nil)
-        recordsDisclosure.setAccessibilityLabel(recordsExpanded ? "收起本机反馈记录" : "展开本机反馈记录")
+        recordsDisclosure.setAccessibilityLabel(recordsExpanded ? copy.text("收起本机反馈记录", "Hide feedback on this Mac") : copy.text("展开本机反馈记录", "Show feedback on this Mac"))
     }
     private func updateCharacterCount() {
-        characterCount.stringValue = "\(text.string.unicodeScalars.count) / 4,000 字符"
+        characterCount.stringValue = copy.text("\(text.string.unicodeScalars.count) / 4,000 字符", "\(text.string.unicodeScalars.count) / 4,000 characters")
         let containsText = !text.string.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         characterCount.textColor = containsText && !submissionTextIsValid ? .systemOrange : RiftVisualStyle.secondary
         updateSendAvailability()
@@ -187,14 +189,14 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
             cleanDraft = draft
             draftReadFailed = false
             applyDraft(); loaded = true; controlsEnabled(true)
-            status.stringValue = "草稿保存在这台 Mac；关闭不会发送。"
+            status.stringValue = copy.text("草稿保存在这台 Mac；关闭不会发送。", "Your draft stays on this Mac when you close this window.")
             await refreshRecords()
         } catch {
             // A missing baseline cannot supply a revision for editing or submission.
             loaded = true
             draftReadFailed = true
             controlsEnabled(false)
-            status.stringValue = "未能读取已有反馈草稿。可关闭窗口，重新打开时会再次读取。"
+            presentError(copy.text("未能读取已有反馈草稿。可关闭窗口，重新打开时会再次读取。", "Your draft could not be read. Close and reopen this window to try again."))
         }
     }
     public func show() {
@@ -266,31 +268,39 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         autosaveWriting = nil
     }
 
+    private func presentError(_ message: String) {
+        let changed = status.stringValue != message
+        status.stringValue = message
+        if changed && isVisible {
+            NSAccessibility.post(element: status, notification: .announcementRequested,
+                userInfo: [.announcement: message, .priority: NSAccessibilityPriorityLevel.medium.rawValue])
+        }
+    }
     private func failure() {
-        status.stringValue = "未能可靠保存或处理反馈；文字仍在这里。请保留窗口或复制正文，不会报告发送成功。"
+        presentError(copy.text("未能可靠保存或处理反馈；文字仍在这里。请保留窗口或复制正文，不会报告发送成功。", "Your feedback could not be saved or processed. Keep this window open or copy your text."))
     }
     private func draftSaved() {
         recoveryActions.isHidden = true; retryClosesWindow = false
-        status.stringValue = "草稿已保存在本机；没有发送。"
+        status.stringValue = copy.text("草稿已保存在本机；没有发送。", "Draft saved on this Mac.")
     }
     private func draftSaveFailed(closeAttempt: Bool) {
         retryClosesWindow = closeAttempt
-        retrySave.title = closeAttempt ? "重试保存并关闭" : "重试保存"
+        retrySave.title = closeAttempt ? copy.text("重试保存并关闭", "Retry Save and Close") : copy.text("重试保存", "Retry Save")
         retrySave.isHidden = persistDraft == nil
         recoveryActions.isHidden = false
-        status.stringValue = persistDraft == nil
-            ? "反馈存储暂不可用。文字仍在此窗口；关闭前请复制正文保存。"
-            : "未能可靠保存草稿；文字仍在此窗口。可重试保存或复制正文，没有发送。"
+        presentError(persistDraft == nil
+            ? copy.text("反馈存储暂不可用。文字仍在此窗口；关闭前请复制正文保存。", "Feedback storage is unavailable. Copy your text before closing this window.")
+            : copy.text("未能可靠保存草稿；文字仍在此窗口。可重试保存或复制正文，没有发送。", "Your draft could not be saved. Retry or copy your text before closing this window."))
         updateSendAvailability()
     }
     public func saveBeforeClosing(lockOnSuccess: Bool = false) async -> Bool {
         await saveCurrentDraft(lockOnSuccess: lockOnSuccess, closeAttempt: true)
     }
     private func saveCurrentDraft(lockOnSuccess: Bool, closeAttempt: Bool) async -> Bool {
-        guard loaded else { status.stringValue = "正在打开本地草稿，请稍候再关闭。"; return false }
-        guard !busy else { status.stringValue = "正在保存或处理反馈，请稍候再关闭。"; return false }
+        guard loaded else { status.stringValue = copy.text("正在打开本地草稿，请稍候再关闭。", "Opening your draft. Wait for it to load before closing."); return false }
+        guard !busy else { status.stringValue = copy.text("正在保存或处理反馈，请稍候再关闭。", "Wait for feedback processing to finish before closing."); return false }
         guard !text.hasMarkedText() else {
-            status.stringValue = "请先完成当前文字输入，再保存并关闭。"; return false
+            status.stringValue = copy.text("请先完成当前文字输入，再保存并关闭。", "Finish composing the current text before saving and closing."); return false
         }
         busy = true; controlsEnabled(false)
         await finishAutosave()
@@ -310,7 +320,7 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
             if !recoveryActions.isHidden {
                 recoveryActions.isHidden = true
                 retryClosesWindow = false
-                status.stringValue = "当前没有待保存的更改。"
+                status.stringValue = copy.text("当前没有待保存的更改。", "All changes are saved.")
             }
             saved = true
             return true
@@ -319,7 +329,7 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
             draftSaveFailed(closeAttempt: closeAttempt)
             return false
         }
-        status.stringValue = closeAttempt ? "正在保存草稿；保存完成后才能关闭。" : "正在保存草稿；不会发送。"
+        status.stringValue = closeAttempt ? copy.text("正在保存草稿；保存完成后才能关闭。", "Saving your draft before closing…") : copy.text("正在保存草稿；不会发送。", "Saving your draft…")
         let value = nextDraft()
         do {
             try await persistDraft(value)
@@ -353,12 +363,12 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     }
     @objc private func copyTextRequested() {
         status.stringValue = copyDraftText(to: .general)
-            ? "正文已复制；没有发送或关闭反馈。"
-            : "无法复制正文，请选择文字后手动复制。"
+            ? copy.text("正文已复制；没有发送或关闭反馈。", "Text copied. Your draft is still open.")
+            : copy.text("无法复制正文，请选择文字后手动复制。", "Could not copy. Select the text and copy it manually.")
     }
     @objc private func showPreview() {
-        let value = (try? draft.diagnostic?.preview()) ?? "未附带诊断。勾选后会冻结当时的白名单快照；之后的新事件不会加入本次提交。"
-        showText(value, title: "本次诊断预览", monospaced: true)
+        let value = (try? draft.diagnostic?.preview()) ?? copy.text("未附带诊断。勾选后会冻结当时的白名单快照；之后的新事件不会加入本次提交。", "No diagnostics selected. Selecting the checkbox takes a snapshot of the allowed events at that moment.")
+        showText(value, title: copy.text("本次诊断预览", "Diagnostics Preview"), monospaced: true)
     }
     private func showText(_ value: String, title: String, monospaced: Bool = false) {
         let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 580, height: 420),
@@ -386,12 +396,12 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
             draft = FeedbackDraft(revision: value.revision + 1)
             cleanDraft = draft
             applyDraft()
-            status.stringValue = "已保存在本机，等待接收。编号 RF-\(id)"
+            status.stringValue = copy.text("已保存在本机，等待接收。编号 RF-\(id)", "Saved on this Mac, awaiting delivery. RF-\(id)")
             busy = false; controlsEnabled(true)
             await refreshRecords()
             await engine.pump(); await refreshRecords()
             if draft.revision == value.revision + 1, let record = records.first(where: { $0.id == id }) {
-                status.stringValue = "\(demo ? "离线演示（非云端）：" : "")\(record.label)。编号 RF-\(id)"
+                status.stringValue = "\(statusLabel(record)) · RF-\(id)"
             }
         } catch {
             // Enqueue can persist the draft and then fail to create the report.
@@ -399,11 +409,11 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
             busy = false; controlsEnabled(true)
             switch error {
             case FeedbackFailure.invalidText:
-                status.stringValue = "请输入文字，最多 4,000 个 Unicode 字符且 16 KiB；原文仍在草稿中。"
+                status.stringValue = copy.text("请输入文字，最多 4,000 个 Unicode 字符且 16 KiB；原文仍在草稿中。", "Enter up to 4,000 Unicode scalars and 16 KiB. Your draft is still here.")
             case FeedbackFailure.capacity:
-                status.stringValue = "待发送或本机记录已满；没有覆盖旧反馈，当前草稿保留。"
+                status.stringValue = copy.text("待发送或本机记录已满；没有覆盖旧反馈，当前草稿保留。", "Your local feedback queue is full. Your draft and previous reports are saved.")
             case FeedbackFailure.secretUnavailable:
-                status.stringValue = "无法保存反馈访问凭证。请检查钥匙串；原文已保留为草稿。"
+                status.stringValue = copy.text("无法保存反馈访问凭证。请检查钥匙串；原文已保留为草稿。", "The feedback credential could not be saved. Check Keychain. Your draft is preserved.")
             default: failure()
             }
         }
@@ -416,15 +426,33 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
             let latest = try await engine.store.records()
             guard generation == recordsRefreshGeneration else { return }
             records = latest
-            recordsDisclosure.title = "本机反馈记录 · \(records.count)"
+            recordsDisclosure.title = copy.text("本机反馈记录 · \(records.count)", "Feedback on This Mac · \(records.count)")
             rebuildRecords()
         } catch { failure() }
+    }
+
+    private func statusLabel(_ record: FeedbackRecord) -> String {
+        let prefix = demo ? copy.text("离线演示（非云端）：", "Offline demo: ") : ""
+        let english: String
+        switch record.state {
+        case .queued: english = "Saved locally, awaiting delivery"
+        case .received: english = "Received and stored by the service"
+        case .delivered: english = "Delivered to the private feedback center"
+        case .cancelled: english = "Cancelled before sending"
+        case .blocked: english = "Needs attention. Your text is saved on this Mac."
+        case .deletionQueued: english = "Deletion queued. The report text will not be resent."
+        case .deletionBlocked: english = "Check the access credential and retry deletion. The text will not be resent."
+        case .deletionPending: english = "Deleting the report and its private maintenance copy"
+        case .deleted: english = "Deletion confirmed by the service"
+        case .expired: english = "Delivery expired. Your text is saved on this Mac."
+        }
+        return prefix + copy.text(record.label, english)
     }
 
     private func recordButton(_ title: String, record: FeedbackRecord, action: Selector) -> NSButton {
         let button = FeedbackRecordButton(title: title, recordID: record.id, target: self, action: action)
         RiftVisualStyle.style(button); button.font = RiftVisualStyle.secondaryFont; button.controlSize = .small
-        button.setAccessibilityLabel("\(title)，反馈 RF-\(record.id.prefix(8))")
+        button.setAccessibilityLabel(copy.text("\(title)，反馈 RF-\(record.id.prefix(8))", "\(title), feedback RF-\(record.id.prefix(8))"))
         return button
     }
     private func rebuildRecords() {
@@ -432,7 +460,7 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         // text, selection and draft controls stay alive during every refresh.
         for view in recordsBody.arrangedSubviews { recordsBody.removeArrangedSubview(view); view.removeFromSuperview() }
         if records.isEmpty {
-            let empty = RiftVisualStyle.label("尚无已提交反馈。保存草稿不会生成待发送记录。", role: "secondary")
+            let empty = RiftVisualStyle.label(copy.text("尚无已提交反馈。保存草稿不会生成待发送记录。", "No feedback submitted yet. Drafts appear here after submission."), role: "secondary")
             recordsBody.addArrangedSubview(empty)
             empty.widthAnchor.constraint(equalTo: recordsBody.widthAnchor).isActive = true
             return
@@ -440,22 +468,22 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         for record in records {
             let identifier = RiftVisualStyle.label("RF-\(record.id.prefix(8))", role: "heading")
             identifier.toolTip = "RF-\(record.id)"
-            let state = RiftVisualStyle.label("\(demo ? "离线演示（非云端）：" : "")\(record.label)", role: "secondary")
+            let state = RiftVisualStyle.label(statusLabel(record), role: "secondary")
             state.identifier = NSUserInterfaceItemIdentifier("feedback.record.status.\(record.id)")
             let body = FeedbackRecordBodyView(text: record.envelope.text, recordID: record.id)
-            let actions = NSStackView(views: [recordButton("查看完整正文", record: record, action: #selector(showSaved(_:)))])
+            let actions = NSStackView(views: [recordButton(copy.text("查看完整正文", "Read Full Text"), record: record, action: #selector(showSaved(_:)))])
             actions.spacing = 8; actions.alignment = .centerY
             if record.state != .cancelled && record.state != .deleted {
-                actions.addArrangedSubview(recordButton("刷新状态", record: record, action: #selector(refreshRecord(_:))))
+                actions.addArrangedSubview(recordButton(copy.text("刷新状态", "Refresh Status"), record: record, action: #selector(refreshRecord(_:))))
             }
             switch record.state {
             case .cancelled, .deleted:
-                actions.addArrangedSubview(recordButton("移除本机正文与凭证…", record: record, action: #selector(forgetRecord(_:))))
+                actions.addArrangedSubview(recordButton(copy.text("移除本机正文与凭证…", "Remove Local Copy…"), record: record, action: #selector(forgetRecord(_:))))
             case .deletionQueued, .deletionPending:
-                actions.addArrangedSubview(RiftVisualStyle.label("等待删除确认", role: "secondary"))
+                actions.addArrangedSubview(RiftVisualStyle.label(copy.text("等待删除确认", "Awaiting deletion confirmation"), role: "secondary"))
             default:
                 let canCancelLocally = record.attempts == 0 && [.queued, .blocked, .deletionBlocked].contains(record.state)
-                let title = canCancelLocally ? "取消待发送" : record.state == .deletionBlocked ? "重新申请删除" : "申请删除"
+                let title = canCancelLocally ? copy.text("取消待发送", "Cancel Queued Report") : record.state == .deletionBlocked ? copy.text("重新申请删除", "Retry Deletion") : copy.text("申请删除", "Request Deletion")
                 actions.addArrangedSubview(recordButton(title, record: record, action: #selector(deleteRecord(_:))))
             }
             let card = RiftVisualStyle.card([identifier, state, body, actions])
@@ -467,7 +495,7 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     }
     private func record(for sender: FeedbackRecordButton) -> FeedbackRecord? { records.first { $0.id == sender.recordID } }
     @objc private func showSaved(_ sender: FeedbackRecordButton) {
-        if let record = record(for: sender) { showText(record.envelope.text, title: "本机保存的反馈 RF-\(record.id)") }
+        if let record = record(for: sender) { showText(record.envelope.text, title: copy.text("本机保存的反馈 RF-\(record.id)", "Local Feedback RF-\(record.id)")) }
     }
     @objc private func refreshRecord(_ sender: FeedbackRecordButton) {
         guard let record = record(for: sender), let engine else { return }
@@ -476,25 +504,25 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
                 if record.state == .queued || record.state == .deletionQueued { await engine.pump() }
                 else { try await engine.refresh(id: record.id) }
                 await refreshRecords()
-            } catch { status.stringValue = "服务暂不可用；本机正文和反馈编号保留。" }
+            } catch { status.stringValue = copy.text("服务暂不可用；本机正文和反馈编号保留。", "The service is unavailable. The text and report ID are saved on this Mac.") }
         }
     }
     @objc private func forgetRecord(_ sender: FeedbackRecordButton) {
         guard let record = record(for: sender), let engine else { return }
         guard record.state == .cancelled || record.state == .deleted else {
-            status.stringValue = "先取消未发送反馈或等待服务确认删除，再移除本机正文。"; return
+            status.stringValue = copy.text("先取消未发送反馈或等待服务确认删除，再移除本机正文。", "Cancel the queued report or wait for deletion confirmation before removing the local copy."); return
         }
-        confirmRecordAction(title: "移除这条本机反馈正文及访问凭证？",
-            message: "只移除反馈 RF-\(record.id.prefix(8)) 的已取消或已确认删除的本机正文和钥匙串凭证。不改变其他反馈或任何截图。",
-            button: "移除") { [weak self] in
+        confirmRecordAction(title: copy.text("移除这条本机反馈正文及访问凭证？", "Remove the local text and access credential?"),
+            message: copy.text("只移除反馈 RF-\(record.id.prefix(8)) 的已取消或已确认删除的本机正文和钥匙串凭证。不改变其他反馈或任何截图。", "This removes the local copy and Keychain credential for resolved report RF-\(record.id.prefix(8)). Other reports and screenshots are unaffected."),
+            button: copy.text("移除", "Remove")) { [weak self] in
                 do { try await engine.forgetResolved(id: record.id); await self?.refreshRecords() }
                 catch { self?.failure() }
             }
     }
     @objc private func deleteRecord(_ sender: FeedbackRecordButton) {
         guard let record = record(for: sender), let engine else { return }
-        confirmRecordAction(title: sender.title == "取消待发送" ? "取消这条待发送反馈？" : "申请删除这条反馈？",
-            message: "反馈 RF-\(record.id.prefix(8)) 如果还没发出，将取消发送。如果已经尝试发送，Riftlet 会申请删除云端记录及其维护副本。本机仍保留这条反馈。",
+        confirmRecordAction(title: sender.title == copy.text("取消待发送", "Cancel Queued Report") ? copy.text("取消这条待发送反馈？", "Cancel this queued report?") : copy.text("申请删除这条反馈？", "Request deletion of this report?"),
+            message: copy.text("反馈 RF-\(record.id.prefix(8)) 如果还没发出，将取消发送。如果已经尝试发送，Riftlet 会申请删除云端记录及其维护副本。本机仍保留这条反馈。", "If RF-\(record.id.prefix(8)) has not been sent, delivery will be cancelled. Otherwise, Riftlet will request deletion of the service record and its maintenance copy. The local copy stays on this Mac."),
             button: sender.title) { [weak self] in
                 do { try await engine.requestDeletion(id: record.id); await self?.refreshRecords() }
                 catch { self?.failure() }
@@ -505,7 +533,7 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         guard let window, window.attachedSheet == nil else { return }
         let alert = NSAlert(); alert.messageText = title; alert.informativeText = message
         let destructive = alert.addButton(withTitle: button)
-        let keep = alert.addButton(withTitle: "保留")
+        let keep = alert.addButton(withTitle: copy.text("保留", "Keep"))
         destructive.keyEquivalent = ""
         keep.keyEquivalent = "\r"; keep.keyEquivalentModifierMask = []
         alert.layout()

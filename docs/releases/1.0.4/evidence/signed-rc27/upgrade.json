@@ -1,0 +1,114 @@
+{
+  "schema": 1,
+  "sourceCommit": "c7934adc82d382e78cf23ab96ed6d6784e88b905",
+  "version": "1.0.4",
+  "build": 27,
+  "environment": "Dedicated Apple Virtualization macOS 27.2 (26B123), arm64, interactive WindowServer guest, isolated user Applications, synthetic records only",
+  "distribution": "private RC and signed private loopback feed, stable distribution unchanged",
+  "signedFeedSHA256": "3d9881305ac3d7f16b816914ff25cf3ea5444effc26ef3b9d4c02ab9a6ee4cef",
+  "privateUpdateZipSHA256": "f623931aa5202e5eb19c3ad22350d2f29799206298ab9f97528cde0c850695d0",
+  "developerTeam": "ZB9D4T66QB",
+  "sparkle": {
+    "25-to-27": {
+      "status": "PASS",
+      "previousVersion": "1.0.3",
+      "previousExecutableSHA256": "219c3d9febac0ff58ab03bb4d1869f374caff1da9256a0bf9b5968731bce9161",
+      "newExecutableSHA256": "2f83a996f1a9738754ed001fa221af7d782e54e350a970b8b1c9ff6c8c57a2ab",
+      "sparkleUserActions": [
+        "Check for Updates",
+        "Install Update",
+        "Install and Relaunch"
+      ],
+      "runningAfterRelaunch": true,
+      "newBuild": 27,
+      "gatekeeper": "accepted, Notarized Developer ID",
+      "dataBeforeAndAfterDigest": "db5b24492eecb77a3bcf333b6a97aa103ce83b2346e5e93c85b5cdd0817704d2"
+    },
+    "24-to-27": {
+      "status": "PASS",
+      "previousVersion": "1.0.2",
+      "previousExecutableSHA256": "8828f3c0a982fb3fa761f8c99991f5a0640307f0f1d0bf242002390184f4aab1",
+      "newExecutableSHA256": "2f83a996f1a9738754ed001fa221af7d782e54e350a970b8b1c9ff6c8c57a2ab",
+      "sparkleUserActions": [
+        "Check for Updates",
+        "Install Update",
+        "Install and Relaunch"
+      ],
+      "runningAfterRelaunch": true,
+      "newBuild": 27,
+      "gatekeeper": "accepted, Notarized Developer ID",
+      "dataBeforeAndAfterDigest": "db5b24492eecb77a3bcf333b6a97aa103ce83b2346e5e93c85b5cdd0817704d2"
+    }
+  },
+  "dmgInstall": {
+    "status": "PASS",
+    "sha256": "b841402653082510d82e2278eb5a047ac64166e951b2e74694b9e7aa244fcdd3",
+    "executableSHA256": "2f83a996f1a9738754ed001fa221af7d782e54e350a970b8b1c9ff6c8c57a2ab",
+    "steps": [
+      "verify DMG checksum and image",
+      "read-only mount",
+      "copy to the isolated user Applications",
+      "detach DMG",
+      "verify codesign and Gatekeeper acceptance",
+      "open installed copy with Launch Services",
+      "verify running build 27 by PID and executable SHA-256"
+    ],
+    "cleanUser": false,
+    "publicBrowserQuarantineDownload": "NOT_RUN"
+  },
+  "invariants": {
+    "status": "PASS",
+    "snapshotSHA256": "db5b24492eecb77a3bcf333b6a97aa103ce83b2346e5e93c85b5cdd0817704d2",
+    "checks": [
+      "SQLite quick_check ok",
+      "all canonical row hashes and row counts match across both Sparkle upgrades and the direct DMG install",
+      "original media, screenshot files and persisted settings match byte-for-byte",
+      "feedback draft content hash equal",
+      "screenshot directory bookmark bytes equal"
+    ],
+    "tables": {
+      "assets": 5,
+      "operations": 1,
+      "upload_starts": 0,
+      "checkpoints": 3,
+      "compensations": 0,
+      "metadata": 2
+    },
+    "preexistingUnknown": 1,
+    "preexistingUploadStarts": 0,
+    "scope": "The empty upload_starts table remained empty. This fixture establishes preservation of its one existing UNKNOWN rather than positive START coverage. No Chrome automation grant continuity claim."
+  },
+  "captureAfterDMG": {
+    "status": "PASS",
+    "method": "macOS Screenshot.app Capture button on known synthetic content",
+    "realAcquisition": true,
+    "newAssetUUID": "83D6B4AD-D283-43E6-8461-DCF41F1BBE3E",
+    "originalAndMediaSHA256": "fcb576c18b5202385183b639d95cda16d79f2c68e33b0d42c8e68ff7b92e138b",
+    "newAssets": 1,
+    "beforeCount": 5,
+    "afterCount": 6,
+    "selectedInNativeLibrary": true,
+    "pixelSize": [
+      768,
+      576
+    ],
+    "libraryStatus": "Ready to attach",
+    "oldDataAndOriginalsStillIntact": true,
+    "screenshotFolderAccess": "real screenshot discovered with previous bookmark retained",
+    "postCaptureSnapshotSHA256": "abb8b29b36208d190791c11d93ad77c04130c33414970dc522c5d5faf2024698"
+  },
+  "realChatGPT": {
+    "status": "NOT_RUN",
+    "reason": "Same isolated Chrome network as prior attempt. A new dedicated draft timed out and one guest-only network recovery failed TLS validation there. No further attempt, uploads or messages."
+  },
+  "evidencePNGDigests": {
+    "qa104b27u25-menu": "eabed2557b621a0b09fa85319447208f9994c225cf4cd3de6504cc795e49ea54",
+    "qa104b27u25-offer": "81864f3d28cd654241051692e5acbd4d9b758b57da77f7a2e01ce03b6411dfe0",
+    "qa104b27u25-download": "962479da570aceba1437f61912a88251c0a5190da26387e7a047ef02a99975b0",
+    "qa104b27u24-settings": "c7f9b760957a7842d3590883e497ce855121734bffe92a307079744631bbadda",
+    "qa104b27u24-offer": "80e5171247f61e51a97728b38aa6953409b7b442f0653931cd679b926aa49a39",
+    "qa104b27u24-download": "98c96f869c9428961c3bad30137d12b26af4443b7667c6def5c930ef842934ea",
+    "qa104b27dmg-system-capture": "7580d8a80a2d06d10362aa6c3251e99760c153b5bccbb9af6df73dfbfd25c4f3",
+    "qa104b27dmg-library-selected": "b9c792c879b9344faec133675929ac554acd73a6147002d61c1426c20f051297"
+  }
+}

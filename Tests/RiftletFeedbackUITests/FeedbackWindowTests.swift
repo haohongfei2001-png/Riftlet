@@ -31,7 +31,7 @@ final class FeedbackWindowTests: XCTestCase {
         let store = try FeedbackStore(directory: root)
         let engine = FeedbackEngine(store: store, secrets: MemoryFeedbackSecrets(), transport: DisabledFeedbackTransport())
         let diagnostics = FeedbackDiagnostics()
-        return (store, engine, diagnostics, FeedbackWindowController(engine: engine, diagnostics: diagnostics, appVersion: "0.1.0"))
+        return (store, engine, diagnostics, FeedbackWindowController(engine: engine, diagnostics: diagnostics, appVersion: "0.1.0", copy: .simplifiedChinese))
     }
     @MainActor private func editor(_ controller: FeedbackWindowController) throws -> NSTextView {
         try XCTUnwrap(views(try XCTUnwrap(controller.window?.contentView)).compactMap { $0 as? NSTextView }.first)
@@ -151,7 +151,7 @@ final class FeedbackWindowTests: XCTestCase {
     }
     @MainActor func testUnavailableStoreCannotCloseAndLoseUnsavedText() async throws {
         _ = NSApplication.shared
-        let controller = FeedbackWindowController(engine: nil, diagnostics: FeedbackDiagnostics(), appVersion: "0.1.0")
+        let controller = FeedbackWindowController(engine: nil, diagnostics: FeedbackDiagnostics(), appVersion: "0.1.0", copy: .simplifiedChinese)
         await controller.waitUntilLoaded()
         try editor(controller).string = "保留在窗口中"
         let saved = await controller.saveBeforeClosing()

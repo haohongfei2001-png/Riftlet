@@ -19,6 +19,7 @@ final class SQLiteDatabase {
             throw RiftletError.database(message)
         }
         try fm.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
+        try HistoryQuery.registerStateFunction(on: handle)
         sqlite3_busy_timeout(handle, 3000)
         try execute("PRAGMA foreign_keys = ON")
         try Self.enableWAL(handle: handle)
@@ -41,11 +42,12 @@ final class SQLiteDatabase {
                 fallthrough
             case "3":
                 try migrateDispatchSlots()
-            case "4":
+            case "4", "5":
                 break
             default:
                 throw RiftletError.database("Unsupported schema version \(version); database preserved")
             }
+            try execute("CREATE TABLE IF NOT EXISTS retired_media(asset_id TEXT PRIMARY KEY REFERENCES assets(id), batch TEXT NOT NULL)")
             if let mode {
                 let storedMode = try rows("SELECT value FROM metadata WHERE key='mode'").first?.first ?? nil
                 if let storedMode {
@@ -56,7 +58,7 @@ final class SQLiteDatabase {
                 // Older collectors cannot interpret volume-qualified source keys.
                 // Commit this format boundary before the production store can
                 // hand out an importer, recover a journal, or write a checkpoint.
-                if mode == .production && version != "4" {
+                if mode == .production && version != "4" && version != "5" {
                     try execute("PRAGMA user_version = 4")
                 }
             }
@@ -253,8 +255,8 @@ final class SQLiteDatabase {
         return output
     }
 
-    func transaction<T>(_ body: () throws -> T) throws -> T {
-        try execute("BEGIN IMMEDIATE")
+    func transaction<T>(readOnly: Bool = false, _ body: () throws -> T) throws -> T {
+        try execute(readOnly ? "BEGIN DEFERRED" : "BEGIN IMMEDIATE")
         do {
             let value = try body()
             try execute("COMMIT")

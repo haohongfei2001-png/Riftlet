@@ -299,7 +299,10 @@ private final class InteractiveScreenshotOwnedOutput: @unchecked Sendable {
         stagedURL = directoryURL.appendingPathComponent(stageName, isDirectory: true).appendingPathComponent(filename)
     }
 
-    deinit { Darwin.close(stageDescriptor); Darwin.close(directoryDescriptor) }
+    deinit {
+        ActiveCaptureStages.remove(stageName)
+        Darwin.close(stageDescriptor); Darwin.close(directoryDescriptor)
+    }
 
     static func reserve(in requestedDirectory: URL, requestID: UUID) throws -> InteractiveScreenshotOwnedOutput {
         guard requestedDirectory.isFileURL else { throw InteractiveScreenshotError.unsafeOutputDirectory }
@@ -326,6 +329,8 @@ private final class InteractiveScreenshotOwnedOutput: @unchecked Sendable {
         // isolates the entire write from the independent, nonrecursive system
         // collector, including while markup has not yet imported the capture.
         let stageName = ".capture-" + UUID().uuidString.lowercased()
+        ActiveCaptureStages.insert(stageName)
+        defer { if !transferred { ActiveCaptureStages.remove(stageName) } }
         guard mkdirat(rootFD, stageName, 0o700) == 0 else { throw InteractiveScreenshotError.unsafeOutputDirectory }
         let stageFD = openat(rootFD, stageName, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
         guard stageFD >= 0 else { throw InteractiveScreenshotError.unsafeOutputDirectory }
@@ -421,4 +426,14 @@ private final class InteractiveScreenshotOwnedOutput: @unchecked Sendable {
         guard (try? requireCurrentDirectories()) != nil else { return }
         _ = unlinkat(directoryDescriptor, stageName, AT_REMOVEDIR)
     }
+}
+
+/// A recovery pass may run while a new interactive capture is starting. Register
+/// before mkdir and retain the name until the writer's last descriptor is released.
+enum ActiveCaptureStages {
+    private static let lock = NSLock()
+    private static var names = Set<String>()
+    static func insert(_ name: String) { lock.withLock { _ = names.insert(name) } }
+    static func remove(_ name: String) { lock.withLock { _ = names.remove(name) } }
+    static func contains(_ name: String) -> Bool { lock.withLock { names.contains(name) } }
 }

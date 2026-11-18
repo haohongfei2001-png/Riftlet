@@ -57,7 +57,7 @@ final class BuiltInScreenshotHostTests: XCTestCase {
     private func pngFile(root: URL) throws -> InteractiveScreenshotFile {
         let directory = root.appendingPathComponent("captures")
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        let url = directory.appendingPathComponent(UUID().uuidString + ".png")
+        let url = InteractiveScreenshotOutput.originalURL(in: directory, captureID: UUID())
         let bitmap = try XCTUnwrap(CGContext(data: nil, width: 24, height: 12, bitsPerComponent: 8,
             bytesPerRow: 0, space: CGColorSpace(name: CGColorSpace.displayP3)!,
             bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
@@ -132,12 +132,14 @@ final class BuiltInScreenshotHostTests: XCTestCase {
         while window.isVisible && Date() < successDeadline { try await Task.sleep(nanoseconds: 5_000_000) }
         XCTAssertFalse(window.isVisible)
         XCTAssertEqual(checks, 1)
-        XCTAssertEqual(try derivatives(), [saved])
+        XCTAssertTrue(try derivatives().isEmpty)
         let records = try await store.assets()
         XCTAssertEqual(records.count, 1)
         let record = try XCTUnwrap(records.first)
         XCTAssertEqual(try Data(contentsOf: root.appendingPathComponent("media").appendingPathComponent(record.image.fileName)), expected)
-        XCTAssertEqual(try Data(contentsOf: file.sourceURL), file.data)
+        let basis = captures.appendingPathComponent("." + record.id.uuidString.lowercased() + "-original.png")
+        XCTAssertEqual(try Data(contentsOf: basis), file.data)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: file.sourceURL.path))
         let finalQuit = await host.prepareForApplicationExit()
         XCTAssertTrue(finalQuit)
         await host.finishForApplicationExit()
@@ -212,7 +214,7 @@ final class BuiltInScreenshotHostTests: XCTestCase {
         await fulfillment(of: [imported], timeout: 3)
         let records = try await store.assets(includeUsed: true)
         XCTAssertEqual(records.count, 1); XCTAssertEqual(records.first?.image.origin, .applicationScreenshot)
-        XCTAssertEqual(try Data(contentsOf: fresh.sourceURL), fresh.data)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fresh.sourceURL.path))
         let name = try XCTUnwrap(records.first?.image.fileName)
         XCTAssertEqual(try Data(contentsOf: root.appendingPathComponent("media").appendingPathComponent(name)), fresh.data)
         XCTAssertTrue(host.entry.isExpanded); XCTAssertTrue(capture.isActive)
@@ -402,7 +404,7 @@ final class BuiltInScreenshotHostTests: XCTestCase {
         XCTAssertEqual(camera.accessibilityLabel(), ProductCopy.text("默认截图，区域截图", "Default Capture, Region Screenshot"))
         permission.granted = false
         camera.performClick(nil)
-        XCTAssertEqual(issues, [InteractiveScreenshotError.screenRecordingPermissionRequired.localizedDescription])
+        XCTAssertEqual(issues, [ProductCopy.text(InteractiveScreenshotError.screenRecordingPermissionRequired.localizedDescription, "Allow Riftlet in Screen Recording settings, then try again.")])
         XCTAssertNil(capture.activeSessionID)
         XCTAssertEqual(camera.accessibilityLabel(), ProductCopy.text("默认截图，区域截图", "Default Capture, Region Screenshot"))
 

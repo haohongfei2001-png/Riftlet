@@ -189,7 +189,7 @@ public enum ObservationDecoder {
                   let target = identity["target"] as? [String: Any],
                   Set(target.keys).isSubset(of: Set([
                     "adapterID", "surface", "applicationID", "sessionID", "windowID", "tabID",
-                    "documentID", "composerID", "draftGeneration", "logicalDraftIdentity", "clickBindingID", "webDraftRoute"
+                    "documentID", "composerID", "draftGeneration", "logicalDraftIdentity", "clickBindingID", "webDraftRoute", "historyConversationID"
                   ])) else { throw ObservationError.invalidPayload }
             if let pin = target["clickBindingID"] {
                 guard let value = pin as? String, UUID(uuidString: value) != nil else { throw ObservationError.invalidPayload }

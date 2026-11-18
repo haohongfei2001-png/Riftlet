@@ -83,13 +83,23 @@ public actor SystemScreenshotObservationJournal {
                         (ChatGPTWebPageProgram.priorOriginSource, "click-document-witness-20261117-v19"),
                         (ChatGPTWebPageProgram.priorProgressSource, "click-document-witness-20261117-v20"),
                         (ChatGPTWebPageProgram.priorLabelSource, "click-document-witness-20261117-v21"),
-                        (ChatGPTWebPageProgram.sourceID, "click-document-witness-20261117-v22")]
+                        (ChatGPTWebPageProgram.priorEdgeSource, "click-document-witness-20261117-v22"),
+                        (ChatGPTWebPageProgram.priorProductSource, "screenshot-observation-20261118-v18"),
+                        (ChatGPTWebPageProgram.sourceID, "click-document-witness-20261118-v23")]
+        // The two pre-integration programs diverged after v17. A journal
+        // entry from one branch cannot be reconciled using the other branch.
+        let edgeBranch = Set(versions[3...7].map { $0.1 })
+        let productBranch = "screenshot-observation-20261118-v18"
+        if (edgeBranch.contains(saved.evidenceID) && current.evidenceID == productBranch)
+            || (saved.evidenceID == productBranch && edgeBranch.contains(current.evidenceID)) { return false }
         guard let previous = versions.firstIndex(where: { $0.1 == saved.evidenceID }),
               let observed = versions.firstIndex(where: { $0.1 == current.evidenceID }), previous < observed,
               let source = try await SystemScreenshotCandidateAdmission(store: store, scope: scope).registeredObservationSource(for: request),
               let enrolled = versions.firstIndex(where: { $0.0 == source }) else { return false }
         // Only a forward read of this operation's original, fenced registration
         // may cross provenance. The first slot retains its exact earlier bytes.
+        if source == ChatGPTWebPageProgram.priorProductSource && edgeBranch.contains(saved.evidenceID) { return false }
+        if edgeBranch.contains(versions[enrolled].1) && saved.evidenceID == productBranch { return false }
         return enrolled <= previous
     }
 

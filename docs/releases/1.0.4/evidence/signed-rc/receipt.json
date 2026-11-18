@@ -1,0 +1,203 @@
+{
+  "source": "f7407cdae28b4d63e20cf7c3972f4f131ec9e33e",
+  "version": "1.0.4",
+  "build": 26,
+  "executableSHA256": "2a76ad89e9501edecec02bafef203dadadf6c6b2a36f3d055011095fad3fecb4",
+  "release": {
+    "appCertificateFingerprints": {
+      "arm64": "92B7E50A1D43D247EA7EA19A31DCA3E407435A42",
+      "x86_64": "92B7E50A1D43D247EA7EA19A31DCA3E407435A42"
+    },
+    "appSubmissionID": "eb4a3edb-4ab2-4b37-94fa-256eff3a91cd",
+    "architectures": [
+      "arm64",
+      "x86_64"
+    ],
+    "build": "26",
+    "bytes": 12716281,
+    "dmgCertificateFingerprint": "92B7E50A1D43D247EA7EA19A31DCA3E407435A42",
+    "dmgSubmissionID": "090c6f04-88ff-422f-b07d-095b8d356344",
+    "nestedCodeVerified": [
+      "Contents/Frameworks/Sparkle.framework",
+      "Contents/Frameworks/Sparkle.framework/Versions/B/Autoupdate",
+      "Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app",
+      "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Downloader.xpc",
+      "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Installer.xpc"
+    ],
+    "published": false,
+    "sha256": "044e44dbc77831d45de2a56fad602039243147810c1fa1c1b36892ab641f8f1f",
+    "source": "f7407cdae28b4d63e20cf7c3972f4f131ec9e33e",
+    "sparkleVersion": "2.10.1",
+    "teamID": "ZB9D4T66QB",
+    "version": "1.0.4"
+  },
+  "dmgChecks": {
+    "embeddedAppTicket": "VALID",
+    "embeddedAppGatekeeperExecute": "ACCEPTED",
+    "dmgTicket": "VALID",
+    "dmgGatekeeperOpen": "ACCEPTED",
+    "notaryStatus": "Accepted",
+    "appInventory": "PINNED_FULL_TREE_MATCH",
+    "mountedReadOnlyDetached": true
+  },
+  "appStatus": "Accepted",
+  "releaseManifestSHA256": "815d5523e4a7d121dbe0188b95c74f45bf70e15ed949c5c3ed6f9949c57f638a",
+  "dmgReceiptSHA256": "e48c4aaf7a29e0a04c54f1dd0c94a1214dc8911cfa287dadaaf0f642bb4ef4cd",
+  "privateUpdate": {
+    "scope": "Private loopback feed; standalone stapled App inside ZIP, DMG tested separately",
+    "source": "f7407cdae28b4d63e20cf7c3972f4f131ec9e33e",
+    "version": "1.0.4",
+    "build": "26",
+    "feedSHA256": "a069af352b7145155ec8f731f8dc9e4a8f47ebb6bd1d0368c414c5d6c39a6aa0",
+    "archiveSHA256": "f2bd9327abc278595d0ad0116559ccefd1124bb3a52ca26193de33ae801969fa",
+    "executableSHA256": "2a76ad89e9501edecec02bafef203dadadf6c6b2a36f3d055011095fad3fecb4",
+    "team": "ZB9D4T66QB",
+    "appNotary": "eb4a3edb-4ab2-4b37-94fa-256eff3a91cd",
+    "packageFit": "official stapler validation on identical source, ticket carrier and entire restored tree, independent restored Gatekeeper assessment",
+    "signatures": "official Sparkle verification plus public-key-only CryptoKit"
+  },
+  "nativeEvidence": {
+    "desktop": {
+      "result": "PASS_SCOPED_NATIVE_REVIEW",
+      "cases": [
+        "isolated-review-controls",
+        "tray-0",
+        "windChime-0",
+        "microSlit-0",
+        "collect-fixture-1",
+        "tray-1",
+        "windChime-1",
+        "microSlit-1",
+        "collect-fixture-2",
+        "tray-2",
+        "windChime-2",
+        "microSlit-2",
+        "collect-fixture-3",
+        "tray-3",
+        "windChime-3",
+        "microSlit-3",
+        "collect-fixture-4",
+        "tray-4",
+        "windChime-4",
+        "microSlit-4",
+        "collect-fixture-5",
+        "tray-5",
+        "windChime-5",
+        "microSlit-5",
+        "collect-fixture-6",
+        "collect-fixture-7",
+        "collect-fixture-8",
+        "collect-fixture-9",
+        "collect-fixture-10",
+        "tray-10",
+        "windChime-10",
+        "microSlit-10",
+        "light-leftMiddle",
+        "light-rightMiddle",
+        "dark-leftMiddle",
+        "dark-rightMiddle",
+        "tray-native-wheel",
+        "tray-owned-button-and-escape",
+        "actual-tray-appearance-layers",
+        "violet-restart-and-material-switch",
+        "physical-connected-displays",
+        "native-high-contrast-appearance-override",
+        "tray-restart-baseline"
+      ],
+      "frames": 73,
+      "reportSHA256": "64c7c9f355c116f7a298328a891e2d6cb7e144afb1e433489e6af514d77f9ed8",
+      "selectedFrames": {
+        "tray-3.png": "9f04d4b28916f05a864cf6bb4a87b76d222dd6bf7607269170208d059237f705",
+        "tray-expanded-again.png": "7a14d3bfe7c84ae3e0500a9a6715cf407efb8eb824c3dd61a720d5ee32276e6f",
+        "light-leftMiddle-windChime.png": "d111e7fe05da03c55b33515c546a4d0e3dbe7a2860b4d8757255b3b8d4878a25",
+        "dark-rightMiddle-microSlit.png": "dafd192aafa9bd39d5004d50fe96f34e65b5610592c0dc28b09f391db6150554"
+      },
+      "input": "Native NSControl actions and NSTextView insertion; no physical pointer or OS IME claim",
+      "notRun": [
+        "realChatGPTAttachment",
+        "physicalPointer",
+        "OSInputMethod",
+        "VoiceOver",
+        "realLoginRegistration",
+        "realTCCPrompt",
+        "multiDisplayHotplug"
+      ],
+      "restartReportSHA256": "cebaf1d2b625626583144c6cf37a4d94400ecd30558a847dcd9961ac8c13679e"
+    },
+    "history": {
+      "result": "PASS_SCOPED_NATIVE_REVIEW",
+      "cases": [
+        "environment-and-default-window",
+        "history-default-and-three-collector-assets",
+        "history-style-search-filter-uuid",
+        "history-original-200-percent-survives-renderer-change",
+        "history-both-renderers-light-dark-minimum",
+        "history-one-asset-remove-and-restore",
+        "history-whole-library-cross-page-and-restoration",
+        "history-final-integrity-and-persisted-style"
+      ],
+      "frames": 20,
+      "reportSHA256": "2b18d5d7b57172a9009fa09811291d2450f9f50befa701d834425fd50db0181e",
+      "selectedFrames": {
+        "history-library-cross-page-uuid.png": "833d13b4fd60a81cf15fbc11c44552a5c6329a555787024c8673d14a3f829fa3"
+      },
+      "input": "PROGRAMMATIC_NATIVE_CONTROLS: NSControl actions, native selection/accessibility action and NSTextView insertion; not CGEvent or hardware",
+      "notRun": [
+        "realChatGPTAttachment",
+        "physicalPointer",
+        "OSInputMethod",
+        "VoiceOver",
+        "realLoginRegistration",
+        "realTCCPrompt",
+        "multiDisplayHotplug"
+      ],
+      "restartResult": "PASS_SCOPED_NATIVE_RESTART",
+      "restartRunnerSHA256": "364970ee20c690b1cec5b3bac972090a802c0a46bacac8f436d5a4713856d09d"
+    }
+  },
+  "host": "macOS 27.0 (26A428), arm64, 2x, isolated synthetic fixtures",
+  "diskFull": {
+    "result": "PASS_SCOPED_REAL_DISK_FULL_RECOVERY",
+    "requestedImageBytes": 134217728,
+    "nativeReportSHA256": "75824fbea65a798fb774982c5b770703504fa9241cc9b43000c0a32509379cc7",
+    "database": {
+      "quickCheck": "ok",
+      "foreignKeyViolations": 0,
+      "tables": {
+        "assets": 4,
+        "checkpoints": 1,
+        "compensations": 0,
+        "metadata": 2,
+        "operations": 1,
+        "sqlite_sequence": 2,
+        "upload_starts": 0
+      },
+      "unknownOperations": 1
+    },
+    "productionDataAccess": false,
+    "volumeDetached": true
+  },
+  "ownership": {
+    "logSHA256": "85ef5638aeaaa8863d527d84dd8991bc2e81c1a6b52f168506702f7071f0a539",
+    "isolatedProcessLifetimes": 12
+  },
+  "unicodePerformance": {
+    "source": "e9c4bdf923279d99ed8ec050d113384d6a636df3",
+    "rows": 10000,
+    "resultsSHA256": "f7558c0ec1325737b0747e142ed9d5548888ba56bb9ea00dfb379fb5f271a5f0",
+    "ms": [
+      "%_needle [1] 16.66",
+      "%_needle [1] 8.40",
+      "%_needle [1] 8.85",
+      "跨页 [1] 7.84",
+      "跨页 [1] 10.81",
+      "跨页 [1] 13.75",
+      "1000×1000 [] 24.47",
+      "1000×1000 [] 19.53",
+      "1000×1000 [] 18.17",
+      "x-missing [] 7.99",
+      "x-missing [] 7.58",
+      "x-missing [] 7.70"
+    ]
+  }
+}

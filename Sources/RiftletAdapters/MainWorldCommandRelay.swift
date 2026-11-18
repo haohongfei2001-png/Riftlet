@@ -126,7 +126,13 @@ struct MainWorldCommandRelay: Sendable {
 /// historical relay. Observation never creates a relay or captures a new target.
 final class MainWorldRelayStore: @unchecked Sendable {
     private let lock = NSLock()
-    private var values: [String: MainWorldCommandRelay] = [:]
+    private let activeSourceID: String
+    init(activeSourceID: String = ChatGPTWebPageProgram.sourceID) { self.activeSourceID = activeSourceID }
+
+    private func observationOnly(_ sourceID: String) -> Bool {
+        sourceID != activeSourceID && ChatGPTWebPageProgram.isHistoricalObserver(sourceID)
+    }
+    private var values = ChromeSessionCache<MainWorldCommandRelay>()
     // Keep exact per-click relays through the input window. Long-lived read-only
     // operations can rediscover their original page relay from its marker.
     private var targetRelays: [String: (relay: MainWorldCommandRelay, captured: TimeInterval)] = [:]
@@ -140,7 +146,7 @@ final class MainWorldRelayStore: @unchecked Sendable {
             guard let target = command.target, let identity = command.identity, identity.target == target else {
                 throw WebAdapterError.invalidRequest
             }
-            if !ChatGPTWebPageProgram.isHistoricalObserver(program.sourceID), let known = bound(to: target) { return known }
+            if !observationOnly(program.sourceID), let known = bound(to: target) { return known }
             if let known = lock.withLock({ observed.first { $0.identity == identity && $0.sourceID == program.sourceID } }) {
                 return known.relay
             }
@@ -153,7 +159,7 @@ final class MainWorldRelayStore: @unchecked Sendable {
             }
             return found
         }
-        guard !ChatGPTWebPageProgram.isHistoricalObserver(program.sourceID) else { throw WebAdapterError.invalidRequest }
+        guard !observationOnly(program.sourceID) else { throw WebAdapterError.invalidRequest }
         if let known = command.target.flatMap({ bound(to: $0) }) ?? relay(function: program.functionSource,
             contextJSON: contextJSON, allowCreate: false, legacyObservationSession: legacyObservationSession) {
             return known
@@ -186,19 +192,19 @@ final class MainWorldRelayStore: @unchecked Sendable {
         guard let id = UUID(uuidString: channel), id.uuidString.lowercased() == channel else { return nil }
         let key = SHA256.hash(data: Data((function + "\n" + contextJSON).utf8)).map { String(format: "%02x", $0) }.joined()
         lock.lock(); defer { lock.unlock() }
-        if let value = values[key] { return value }
+        if let value = values.value(for: key) { return value }
         let value = MainWorldCommandRelay(function: function, contextJSON: contextJSON,
             legacyObservationSession: legacyObservationSession, channel: channel)
-        values[key] = value
+        values.store(value, for: key)
         return value
     }
     func relay(function: String, contextJSON: String, allowCreate: Bool, legacyObservationSession: String? = nil) -> MainWorldCommandRelay? {
         let key = SHA256.hash(data: Data((function + "\n" + contextJSON).utf8)).map { String(format: "%02x", $0) }.joined()
         lock.lock(); defer { lock.unlock() }
-        if let value = values[key], !allowCreate || legacyObservationSession == nil || value.legacyObservationSession == legacyObservationSession { return value }
+        if let value = values.value(for: key), !allowCreate || legacyObservationSession == nil || value.legacyObservationSession == legacyObservationSession { return value }
         guard allowCreate else { return nil }
         let value = MainWorldCommandRelay(function: function, contextJSON: contextJSON, legacyObservationSession: legacyObservationSession)
-        values[key] = value
+        values.store(value, for: key)
         return value
     }
 }

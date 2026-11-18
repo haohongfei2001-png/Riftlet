@@ -332,7 +332,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         var committing = false
         do {
             let enrolled = binding(for: request.asset)?.admission.scope.registeredProfile(for: request,
-                sourceID: SystemScreenshotWebCandidate.sourceID)
+                sourceID: ChatGPTWebPageProgram.currentSourceID(for: request.operation.target))
             let edgeProgress = enrolled?.uploadStartProfileID == OrdinaryProductScreenshotScope.edgeProgressStartProfileID
             let begin = WebBridgeCommand(action: .begin, target: identity.target, identity: identity,
                 uploadName: uploadName, mediaType: file.mediaType, byteCount: file.byteCount,
@@ -442,7 +442,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         let data = try await perform(.init(action: .observe, target: identity.target, identity: identity), observer: priorProgram)
         // Successful operations may only be checked for identity-correlated late
         // errors. A single observation does not start another polling/upload loop.
-        if request.operation.phase == .succeeded {
+        if mode == .ordinaryProduct || request.operation.phase == .succeeded {
             return try await normalize(data, for: request)
         }
         return try await observeCompletion(initial: data, identity: identity, request: request, observer: priorProgram)

@@ -5,6 +5,19 @@ import RiftletCore
 @testable import RiftletAdapters
 
 final class MainWorldCommandRelayTests: XCTestCase {
+    func testIntegratedProgramKeepsTheOriginalEdgeAndProductObserverResources() throws {
+        let edge = try ChatGPTWebPageProgram.edgeProgram.get()
+        let product = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorProductSource))
+        for (program, digest) in [
+            (edge, "1ba873abcdcb614d143cb9cbcc0dc5437e28d89853b4adeb40e4db16d7717d8d"),
+            (product, "cca114d1cf23c0e8166d3cc962d0d91148e101a7f42eda6cb2ff22267ec7dcfd")
+        ] {
+            XCTAssertEqual(SHA256.hash(data: Data(program.functionSource.utf8)).map { String(format: "%02x", $0) }.joined(), digest)
+        }
+        XCTAssertEqual(edge.sourceID, OrdinaryProductScreenshotScope.edgeProgressSourceID)
+        XCTAssertNotEqual(edge.sourceID, try ChatGPTWebPageProgram.load().sourceID)
+    }
+
     private func context(virtualMachine: JSVirtualMachine? = nil) throws -> JSContext {
         let machine = try XCTUnwrap(virtualMachine ?? JSVirtualMachine())
         let js = try XCTUnwrap(JSContext(virtualMachine: machine))

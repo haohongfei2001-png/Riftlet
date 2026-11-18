@@ -1,0 +1,300 @@
+{
+  "status": "PASS",
+  "source": "2a76ad89e9501edecec02bafef203dadadf6c6b2a36f3d055011095fad3fecb4",
+  "samples": [
+    {
+      "appearance": "light",
+      "variant": "default",
+      "baseline": "saturated",
+      "changedPixels": {
+        "body": 950,
+        "lens": 0,
+        "key": 0,
+        "thumbnails": 0,
+        "material": 0
+      },
+      "passed": true
+    },
+    {
+      "appearance": "light",
+      "variant": "violet",
+      "baseline": "saturated",
+      "changedPixels": {
+        "body": 950,
+        "lens": 0,
+        "key": 0,
+        "thumbnails": 0,
+        "material": 0
+      },
+      "passed": true
+    },
+    {
+      "appearance": "light",
+      "variant": "blue",
+      "baseline": "saturated",
+      "changedPixels": {
+        "body": 951,
+        "lens": 0,
+        "key": 0,
+        "thumbnails": 0,
+        "material": 0
+      },
+      "passed": true
+    },
+    {
+      "appearance": "light",
+      "variant": "teal",
+      "baseline": "saturated",
+      "changedPixels": {
+        "body": 946,
+        "lens": 0,
+        "key": 0,
+        "thumbnails": 0,
+        "material": 0
+      },
+      "passed": true
+    },
+    {
+      "appearance": "light",
+      "variant": "coral",
+      "baseline": "saturated",
+      "changedPixels": {
+        "body": 949,
+        "lens": 0,
+        "key": 0,
+        "thumbnails": 0,
+        "material": 0
+      },
+      "passed": true
+    },
+    {
+      "appearance": "light",
+      "variant": "graphite",
+      "baseline": "saturated",
+      "changedPixels": {
+        "body": 950,
+        "lens": 0,
+        "key": 0,
+        "thumbnails": 0,
+        "material": 0
+      },
+      "passed": true
+    },
+    {
+      "appearance": "light",
+      "variant": "black",
+      "baseline": "saturated",
+      "changedPixels": {
+        "body": 950,
+        "lens": 0,
+        "key": 0,
+        "thumbnails": 0,
+        "material": 0
+      },
+      "passed": true
+    },
+    {
+      "appearance": "light",
+      "variant": "white",
+      "baseline": "saturated",
+      "changedPixels": {
+        "body": 953,
+        "lens": 0,
+        "key": 0,
+        "thumbnails": 0,
+        "material": 0
+      },
+      "passed": true
+    },
+    {
+      "appearance": "light",
+      "variant": "saturated",
+      "baseline": "blue",
+      "changedPixels": {
+        "body": 951,
+        "lens": 0,
+        "key": 0,
+        "thumbnails": 0,
+        "material": 0
+      },
+      "passed": true
+    },
+    {
+      "appearance": "light",
+      "variant": "default",
+      "baseline": "opaque",
+      "changedPixels": {
+        "lens": 0,
+        "material": 65897
+      },
+      "passed": true
+    },
+    {
+      "appearance": "light",
+      "variant": "t01",
+      "baseline": "opaque",
+      "changedPixels": {
+        "lens": 0,
+        "material": 60018
+      },
+      "passed": true
+    },
+    {
+      "appearance": "light",
+      "variant": "t75",
+      "baseline": "opaque",
+      "changedPixels": {
+        "lens": 0,
+        "material": 65897
+      },
+      "passed": true
+    },
+    {
+      "appearance": "dark",
+      "variant": "default",
+      "baseline": "saturated",
+      "changedPixels": {
+        "body": 949,
+        "lens": 0,
+        "key": 0,
+        "thumbnails": 0,
+        "material": 0
+      },
+      "passed": true
+    },
+    {
+      "appearance": "dark",
+      "variant": "violet",
+      "baseline": "saturated",
+      "changedPixels": {
+        "body": 950,
+        "lens": 0,
+        "key": 0,
+        "thumbnails": 0,
+        "material": 0
+      },
+      "passed": true
+    },
+    {
+      "appearance": "dark",
+      "variant": "blue",
+      "baseline": "saturated",
+      "changedPixels": {
+        "body": 952,
+        "lens": 0,
+        "key": 0,
+        "thumbnails": 0,
+        "material": 0
+      },
+      "passed": true
+    },
+    {
+      "appearance": "dark",
+      "variant": "teal",
+      "baseline": "saturated",
+      "changedPixels": {
+        "body": 951,
+        "lens": 0,
+        "key": 0,
+        "thumbnails": 0,
+        "material": 0
+      },
+      "passed": true
+    },
+    {
+      "appearance": "dark",
+      "variant": "coral",
+      "baseline": "saturated",
+      "changedPixels": {
+        "body": 950,
+        "lens": 0,
+        "key": 0,
+        "thumbnails": 0,
+        "material": 0
+      },
+      "passed": true
+    },
+    {
+      "appearance": "dark",
+      "variant": "graphite",
+      "baseline": "saturated",
+      "changedPixels": {
+        "body": 951,
+        "lens": 0,
+        "key": 0,
+        "thumbnails": 0,
+        "material": 0
+      },
+      "passed": true
+    },
+    {
+      "appearance": "dark",
+      "variant": "black",
+      "baseline": "saturated",
+      "changedPixels": {
+        "body": 952,
+        "lens": 0,
+        "key": 0,
+        "thumbnails": 0,
+        "material": 0
+      },
+      "passed": true
+    },
+    {
+      "appearance": "dark",
+      "variant": "white",
+      "baseline": "saturated",
+      "changedPixels": {
+        "body": 950,
+        "lens": 0,
+        "key": 0,
+        "thumbnails": 0,
+        "material": 0
+      },
+      "passed": true
+    },
+    {
+      "appearance": "dark",
+      "variant": "saturated",
+      "baseline": "blue",
+      "changedPixels": {
+        "body": 952,
+        "lens": 0,
+        "key": 0,
+        "thumbnails": 0,
+        "material": 0
+      },
+      "passed": true
+    },
+    {
+      "appearance": "dark",
+      "variant": "default",
+      "baseline": "opaque",
+      "changedPixels": {
+        "lens": 0,
+        "material": 65889
+      },
+      "passed": true
+    },
+    {
+      "appearance": "dark",
+      "variant": "t01",
+      "baseline": "opaque",
+      "changedPixels": {
+        "lens": 0,
+        "material": 40778
+      },
+      "passed": true
+    },
+    {
+      "appearance": "dark",
+      "variant": "t75",
+      "baseline": "opaque",
+      "changedPixels": {
+        "lens": 0,
+        "material": 65894
+      },
+      "passed": true
+    }
+  ]
+}

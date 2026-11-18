@@ -155,29 +155,10 @@ private final class TrayButton: NSButton {
 
     override func draw(_ dirtyRect: NSRect) {
         guard let palette else { return }
-        let stroke = max(1 / (window?.backingScaleFactor ?? 1), unit * 0.68)
-        let outline = bounds.insetBy(dx: stroke / 2, dy: stroke / 2)
-        let foot = min(4.5 * unit, bounds.height * 0.08)
-        let upper = CGRect(x: outline.minX, y: outline.minY + (isFlipped ? 0 : foot),
-                           width: outline.width, height: max(0, outline.height - foot))
-        let face = NSBezierPath(roundedRect: upper, xRadius: radius, yRadius: radius)
-        let base = NSBezierPath(roundedRect: outline, xRadius: radius, yRadius: radius)
-        base.windingRule = .evenOdd
-        base.append(face)
-        palette.keyFoot.setFill()
-        base.fill()
-        palette.key.setFill()
-        face.fill()
-        if cell?.isHighlighted == true {
-            palette.ink.withAlphaComponent(0.08).setFill()
-            face.fill()
-        }
-        palette.keyRim.setStroke()
-        face.lineWidth = stroke
-        face.stroke()
-
+        let center = RiftTrayKeyDrawing.drawFace(palette: palette, bounds: bounds, unit: unit,
+            scale: window?.backingScaleFactor ?? 1, isFlipped: isFlipped, highlighted: cell?.isHighlighted == true)
         if assignment == .expand {
-            drawCamera(ink: palette.ink, centerY: upper.midY)
+            RiftTrayKeyDrawing.drawCamera(palette: palette, bounds: bounds, unit: unit, centerY: center, isFlipped: isFlipped)
             return
         }
         let configuration = NSImage.SymbolConfiguration(pointSize: 24, weight: .medium)
@@ -186,43 +167,10 @@ private final class TrayButton: NSButton {
         let glyphWidth = min(bounds.width * 0.52, 23 * unit)
         let factor = min(glyphWidth / image.size.width, bounds.height * 0.6 / image.size.height)
         let size = CGSize(width: image.size.width * factor, height: image.size.height * factor)
-        let rect = CGRect(x: bounds.midX - size.width / 2, y: upper.midY - size.height / 2,
+        let rect = CGRect(x: bounds.midX - size.width / 2, y: center - size.height / 2,
                           width: size.width, height: size.height)
         image.draw(in: rect, from: .zero, operation: .sourceOver, fraction: isEnabled ? 1 : 0.45,
                    respectFlipped: true, hints: nil)
-    }
-
-    /// The selected reference has a raised viewfinder above a centered lens.
-    /// Trace the 28 × 24 silhouette in top-down coordinates even on a flipped NSButton.
-    private func drawCamera(ink: NSColor, centerY: CGFloat) {
-        let scale = min(unit, bounds.width / 36, bounds.height / 32)
-        guard scale > 0 else { return }
-        func point(_ x: CGFloat, _ y: CGFloat) -> CGPoint {
-            CGPoint(x: bounds.midX + (x - 14) * scale,
-                    y: centerY + (isFlipped ? 1 : -1) * (y - 12) * scale)
-        }
-        let path = NSBezierPath()
-        path.move(to: point(3, 5.5))
-        path.line(to: point(8.3, 5.5))
-        path.line(to: point(10.8, 1.4))
-        path.line(to: point(17.2, 1.4))
-        path.line(to: point(19.8, 5.5))
-        path.line(to: point(25.2, 5.5))
-        path.curve(to: point(26.8, 7.2), controlPoint1: point(26.4, 5.5), controlPoint2: point(26.8, 5.9))
-        path.line(to: point(26.8, 20.9))
-        path.curve(to: point(25.2, 22.5), controlPoint1: point(26.8, 22.1), controlPoint2: point(26.4, 22.5))
-        path.line(to: point(2.8, 22.5))
-        path.curve(to: point(1.2, 20.9), controlPoint1: point(1.6, 22.5), controlPoint2: point(1.2, 22.1))
-        path.line(to: point(1.2, 7.2))
-        path.curve(to: point(3, 5.5), controlPoint1: point(1.2, 5.9), controlPoint2: point(1.6, 5.5))
-        path.close()
-        let lens = point(14, 13.8)
-        path.appendOval(in: CGRect(x: lens.x - 4.5 * scale, y: lens.y - 4.5 * scale,
-                                   width: 9 * scale, height: 9 * scale))
-        path.lineWidth = 2.55 * scale
-        path.lineJoinStyle = .round
-        ink.setStroke()
-        path.stroke()
     }
 
     override func drawFocusRingMask() {
@@ -333,6 +281,9 @@ final class RiftTraySurfaceView: NSView {
     private var sessionID: UUID?
     private var defaultMode: ScreenshotMode = .window
     private var colors = RiftTrayColors.system
+    private var transparency: Double?
+    private var cameraColor: String?
+    private var displayObserver: NSObjectProtocol?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -353,6 +304,29 @@ final class RiftTraySurfaceView: NSView {
         glass.frame = bounds
     }
 
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        let center = NSWorkspace.shared.notificationCenter
+        if let displayObserver { center.removeObserver(displayObserver); self.displayObserver = nil }
+        if window != nil {
+            displayObserver = center.addObserver(forName: NSWorkspace.accessibilityDisplayOptionsDidChangeNotification,
+                                                  object: nil, queue: .main) { [weak self] _ in
+                Task { @MainActor in self?.applyPalette() }
+            }
+        }
+    }
+
+    deinit {
+        if let displayObserver { NSWorkspace.shared.notificationCenter.removeObserver(displayObserver) }
+    }
+
+    func setAppearance(colors: RiftTrayColors, transparency: Double?, cameraColor: String?) {
+        self.colors = colors
+        self.transparency = transparency
+        self.cameraColor = cameraColor
+        applyPalette()
+    }
+
     override func viewDidChangeEffectiveAppearance() {
         super.viewDidChangeEffectiveAppearance()
         applyPalette()
@@ -360,7 +334,8 @@ final class RiftTraySurfaceView: NSView {
 
     private func applyPalette() {
         effectiveAppearance.performAsCurrentDrawingAppearance {
-            let palette = RiftTrayGlassPalette(colors: colors, appearance: effectiveAppearance, clearGlass: glass.usesClearGlass)
+            let palette = RiftTrayGlassPalette(colors: colors, appearance: effectiveAppearance, clearGlass: glass.usesClearGlass,
+                                              transparency: transparency, cameraBodyColor: cameraColor)
             glass.apply(palette)
             for button in favorites + [captureKey] {
                 button.apply(palette, unit: bounds.width / 246)
@@ -384,10 +359,9 @@ final class RiftTraySurfaceView: NSView {
         }
     }
 
-    func update(layout: RiftLayoutResult, colors: RiftTrayColors, defaultMode: ScreenshotMode, favoriteModes: [ScreenshotMode?],
+    func update(layout: RiftLayoutResult, colors: RiftTrayColors, transparency: Double? = nil, cameraColor: String? = nil, defaultMode: ScreenshotMode, favoriteModes: [ScreenshotMode?],
                 reduceMotion: Bool) {
-        self.colors = colors
-        applyPalette()
+        setAppearance(colors: colors, transparency: transparency, cameraColor: cameraColor)
         self.defaultMode = defaultMode
         let wasOpen = showingMenu
         showingMenu = !layout.captureMenuFrame.isEmpty

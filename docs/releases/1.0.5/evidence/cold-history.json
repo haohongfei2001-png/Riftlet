@@ -1,0 +1,47 @@
+{
+  "scope": "Local arm64 development modules (Debug), private APFS copy of 100 distinct actual synthetic PNG files and matching journals/SQLite; OS cache not controlled. All four runs use the same implemented importer. Full sync and deferred are two supported modes; timing excludes AppKit launch and browser input. No production files.",
+  "initialMediaBytes": 1106442800,
+  "allRemoved": [
+    {
+      "foregroundMs": 579.96,
+      "completeMs": 579.96,
+      "deferred": 0,
+      "bytes": 1106442800
+    },
+    {
+      "foregroundMs": 8.98,
+      "completeMs": 459.87,
+      "deferred": 100,
+      "bytes": 1106442800
+    },
+    {
+      "foregroundMs": 9.9,
+      "completeMs": 452.51,
+      "deferred": 100,
+      "bytes": 1106442800
+    },
+    {
+      "foregroundMs": 585.23,
+      "completeMs": 585.24,
+      "deferred": 0,
+      "bytes": 1106442800
+    }
+  ],
+  "allRemovedMaxRSSBytes": 20430848,
+  "mixed": {
+    "visible": 3,
+    "removed": 97,
+    "readyMs": 48.2,
+    "new11MBImageImportMs": 159.12,
+    "completeMs": 502.22,
+    "maxRSSBytes": 34734080
+  },
+  "assertions": [
+    "All deferred manifests hash-checked against original metadata with zero invalid/missing.",
+    "New 11,064,428-byte occurrence durably visible during background verification, old UUIDs retained."
+  ],
+  "source": {
+    "PrivateAssetImporter.swift": "165be298f2d76031ed6cbc070324c58b2a5007a1",
+    "CaptureService.swift": "c4ef55bb0abf40a4f78358c47ec327256b639b09"
+  }
+}

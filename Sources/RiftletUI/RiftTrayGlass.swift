@@ -39,14 +39,20 @@ struct RiftTrayGlassPalette {
     var rim: NSColor
     var keyRim: NSColor
     var blurOpacity: CGFloat
+    var highContrast: Bool
+    var cameraBody: NSColor
+    var cameraOutline: NSColor
 
-    init(colors: RiftTrayColors, appearance: NSAppearance, clearGlass: Bool) {
+    @MainActor init(colors: RiftTrayColors, appearance: NSAppearance, clearGlass: Bool,
+         transparency: Double? = nil, cameraBodyColor: String? = nil) {
         let dark = appearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
         let contrast = NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast ||
             appearance.bestMatch(from: [.aqua, .darkAqua, .accessibilityHighContrastAqua, .accessibilityHighContrastDarkAqua])
                 .map { $0 == .accessibilityHighContrastAqua || $0 == .accessibilityHighContrastDarkAqua } == true
         let opaque = NSWorkspace.shared.accessibilityDisplayShouldReduceTransparency
-        let glassAlpha: CGFloat = opaque ? 1 : contrast ? 0.86 : (clearGlass ? 0.53 : 0.68)
+        let baseAlpha = 1 - (transparency ?? (clearGlass ? 0.47 : 0.32))
+        let glassAlpha = opaque ? 1 : max(contrast ? 0.86 : 0, baseAlpha)
+        highContrast = contrast
         let violet = colors != .system
         let keyAlpha: CGFloat = opaque || contrast ? 1 : (violet && !dark ? 0.94 : 0.78)
         if violet {
@@ -69,10 +75,21 @@ struct RiftTrayGlassPalette {
             material = NSColor.windowBackgroundColor.withAlphaComponent(glassAlpha)
             key = NSColor.controlBackgroundColor.withAlphaComponent(keyAlpha)
             ink = .labelColor
-            keyFoot = NSColor.controlColor.withAlphaComponent(keyAlpha)
+            var foot = NSColor.controlColor
+            if dark {
+                appearance.performAsCurrentDrawingAppearance {
+                    foot = NSColor.controlBackgroundColor.blended(withFraction: 0.24, of: .black) ?? .windowBackgroundColor
+                }
+            }
+            keyFoot = foot.withAlphaComponent(keyAlpha)
         }
         if contrast { ink = .labelColor }
-        rim = contrast ? .labelColor : NSColor.white.withAlphaComponent(dark ? 0.32 : 0.21)
+        cameraBody = cameraBodyColor.flatMap { text -> NSColor? in
+            guard text.hasPrefix("#"), text.count == 7, let hex = UInt32(text.dropFirst(), radix: 16) else { return nil }
+            return RiftThumbnailAppearance.color(hex)
+        } ?? ink
+        cameraOutline = dark ? NSColor(white: 0.9, alpha: 1) : NSColor(white: 0.22, alpha: 1)
+        rim = contrast ? .labelColor : .separatorColor
         keyRim = contrast ? .labelColor : NSColor.white.withAlphaComponent(dark ? 0.27 : 0.42)
         blurOpacity = opaque ? 0 : (clearGlass ? 1 : 0.22)
     }
@@ -81,7 +98,14 @@ struct RiftTrayGlassPalette {
 @MainActor
 final class RiftTrayGlass: NSView {
     private let backdrop: NSView
+    static var defaultTransparency: Double {
+        #if compiler(>=6.2)
+        if #available(macOS 26, *) { return 0.47 }
+        #endif
+        return 0.32
+    }
     let usesClearGlass: Bool
+    private var highContrast = false
     private let wash = CAGradientLayer()
     private let overlay = NSView()
     private var maskSize = CGSize.zero
@@ -130,6 +154,7 @@ final class RiftTrayGlass: NSView {
 
     func apply(_ palette: RiftTrayGlassPalette) {
         backdrop.alphaValue = palette.blurOpacity
+        highContrast = palette.highContrast
         let tint = palette.material
         let highlight = tint.withAlphaComponent(min(1, tint.alphaComponent + 0.012))
         CATransaction.begin()
@@ -149,7 +174,7 @@ final class RiftTrayGlass: NSView {
         CATransaction.setDisableActions(true)
         wash.frame = overlay.bounds
         wash.cornerRadius = radius
-        wash.borderWidth = max(1 / (window?.backingScaleFactor ?? 1), bounds.width / 328)
+        wash.borderWidth = highContrast ? 1 : 1 / (window?.backingScaleFactor ?? 1)
         CATransaction.commit()
         if maskSize != bounds.size, !bounds.isEmpty {
             maskSize = bounds.size
@@ -166,55 +191,5 @@ final class RiftTrayGlass: NSView {
             #endif
             window?.invalidateShadow()
         }
-    }
-}
-
-/// The system window shadow supplies the contact edge. This wider penumbra
-/// lives on the existing click-through decoration panel, entirely outside the glass.
-@MainActor
-final class RiftTrayCastShadow: NSView {
-    private let caster = CALayer()
-    private let exterior = CAShapeLayer()
-    private var appliedSize = CGSize.zero
-    private var appliedColors: RiftTrayColors?
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        wantsLayer = true
-        exterior.fillRule = .evenOdd
-        layer?.mask = exterior
-        layer?.addSublayer(caster)
-        setAccessibilityElement(false)
-    }
-
-    required init?(coder: NSCoder) { nil }
-    override func hitTest(_ point: NSPoint) -> NSView? { nil }
-
-    func configure(for surface: CGRect, colors: RiftTrayColors) -> CGRect {
-        let unit = surface.width / 246
-        let margin = ceil(42 * unit)
-        let outer = surface.insetBy(dx: -margin, dy: -margin)
-        guard surface.size != appliedSize || colors != appliedColors else { return outer }
-        appliedSize = surface.size
-        appliedColors = colors
-        let local = CGRect(origin: CGPoint(x: margin, y: margin), size: surface.size)
-        let radius = min(local.height / 2, 24 * unit)
-        let shape = CGPath(roundedRect: local, cornerWidth: radius, cornerHeight: radius, transform: nil)
-        let outside = CGMutablePath()
-        let bounds = CGRect(origin: .zero, size: outer.size)
-        outside.addRect(bounds)
-        outside.addPath(shape)
-        CATransaction.begin()
-        CATransaction.setDisableActions(true)
-        exterior.frame = bounds
-        exterior.path = outside
-        caster.frame = bounds
-        caster.shadowPath = shape
-        caster.shadowColor = colors == .system ? NSColor.black.cgColor : colors.tint(NSColor(srgbRed: 0.05, green: 0.06, blue: 0.15, alpha: 1)).cgColor
-        caster.shadowRadius = 11 * unit
-        caster.shadowOffset = CGSize(width: 0, height: -10.5 * unit)
-        caster.shadowOpacity = 0.20
-        CATransaction.commit()
-        return outer
     }
 }

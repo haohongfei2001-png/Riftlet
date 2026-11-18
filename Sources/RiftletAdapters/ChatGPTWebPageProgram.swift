@@ -14,13 +14,23 @@ public enum ChatGPTWebPageProgram {
     static let priorOriginSource = "chatgpt-web-click-document-witness-20261117-v19"
     static let priorProgressSource = "chatgpt-web-click-document-witness-20261117-v20"
     static let priorLabelSource = "chatgpt-web-click-document-witness-20261117-v21"
-    public static let sourceID = "chatgpt-web-click-document-witness-20261117-v22"
+    static let priorEdgeSource = "chatgpt-web-click-document-witness-20261117-v22"
+    static let priorProductSource = "chatgpt-web-screenshot-observation-20261118-v18"
+    public static let sourceID = "chatgpt-web-click-document-witness-20261118-v23"
     /// Candidate mapping only; ReceiptPolicy start registries remain separate.
     public static let acceptanceUploadStartProfileID = "chatgpt-web-zh-progress-start-development-20261027-v1"
     public static let acceptanceProfile = ObservationProfile(
         adapterID: "chatgpt-web", surface: .webChat,
         profileID: "chatgpt-web-zh-attached-development-20261027-v2",
         completionSignal: .attached, uploadStartProfileID: acceptanceUploadStartProfileID)
+
+    // Edge keeps the exact page bytes and receipt registration exercised by
+    // PR #69. Chrome uses the new program with the 1.0.5 lifecycle changes.
+    static func currentSourceID(for target: TargetLease) -> String {
+        target.applicationID == EdgeApplicationHost.bundleID ? priorEdgeSource : sourceID
+    }
+
+    static let edgeProgram = Result { try load(resource: "chatgpt-web-observe-v22", id: priorEdgeSource) }
 
     public static func load() throws -> WebPageProgram {
         try load(resource: "chatgpt-web-20261027", id: sourceID)
@@ -37,6 +47,10 @@ public enum ChatGPTWebPageProgram {
             return try load(resource: "chatgpt-web-observe-v19", id: priorOriginSource)
         case priorProgressSource:
             return try load(resource: "chatgpt-web-observe-v20", id: priorProgressSource)
+        case priorEdgeSource:
+            return try load(resource: "chatgpt-web-observe-v22", id: priorEdgeSource)
+        case priorProductSource:
+            return try load(resource: "chatgpt-web-observe-product-v18", id: priorProductSource)
         case priorLabelSource:
             return try load(resource: "chatgpt-web-observe-v21", id: priorLabelSource)
         default:
@@ -45,7 +59,7 @@ public enum ChatGPTWebPageProgram {
     }
 
     static func isHistoricalObserver(_ sourceID: String) -> Bool {
-        [priorEntrySource, priorHandoffSource, priorScreenshotSource, priorClickSource, priorOriginSource, priorProgressSource, priorLabelSource].contains(sourceID)
+        [priorEntrySource, priorHandoffSource, priorScreenshotSource, priorClickSource, priorOriginSource, priorProgressSource, priorLabelSource, priorEdgeSource, priorProductSource].contains(sourceID)
     }
 
     static func observationRelayFunctions(for program: WebPageProgram) throws -> [String] {

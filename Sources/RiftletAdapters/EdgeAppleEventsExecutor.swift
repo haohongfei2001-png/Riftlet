@@ -33,7 +33,7 @@ private final class EdgeCommandCancellation: @unchecked Sendable {
     private nonisolated static let commandQueue = DispatchQueue(label: "com.riftlet.edge-input", qos: .userInitiated)
     private nonisolated static let observationQueue = DispatchQueue(label: "com.riftlet.edge-observation", qos: .utility)
     private let driver: any EdgeWebExecutionDriver
-    private let relays = MainWorldRelayStore()
+    private let relays = MainWorldRelayStore(activeSourceID: ChatGPTWebPageProgram.priorEdgeSource)
     private let diagnosticTrace: BoundedDiagnosticTrace?
     private var clicks: [String: Click] = [:]
     private var committed = Set<UUID>()
@@ -46,9 +46,10 @@ private final class EdgeCommandCancellation: @unchecked Sendable {
         self.driver = driver; self.diagnosticTrace = diagnosticTrace
     }
 
-    public func targetForClick(program: WebPageProgram) throws -> Task<TargetLease, Error> {
+    public func targetForClick(program requested: WebPageProgram) throws -> Task<TargetLease, Error> {
         try Task.checkCancellation()
-        guard program.sourceID == ChatGPTWebPageProgram.sourceID else { throw WebAdapterError.invalidRequest }
+        guard requested.sourceID == ChatGPTWebPageProgram.sourceID else { throw WebAdapterError.invalidRequest }
+        let program = try ChatGPTWebPageProgram.edgeProgram.get()
         let started = ProcessInfo.processInfo.systemUptime
         let budget = MainWorldReceiptReadBudget.clickSnapshot(start: started)
         let deadline = budget.deadlineUptime
@@ -104,16 +105,16 @@ private final class EdgeCommandCancellation: @unchecked Sendable {
         }
     }
 
-    public func execute(_ command: WebBridgeCommand, program: WebPageProgram) async throws -> Data {
+    public func execute(_ command: WebBridgeCommand, program requested: WebPageProgram) async throws -> Data {
         try Task.checkCancellation()
         guard command.action != .pinTarget,
-              program.sourceID == ChatGPTWebPageProgram.sourceID ||
-                (command.action == .observe && [ChatGPTWebPageProgram.priorClickSource, ChatGPTWebPageProgram.priorOriginSource, ChatGPTWebPageProgram.priorProgressSource, ChatGPTWebPageProgram.priorLabelSource].contains(program.sourceID)) else {
+              requested.sourceID == ChatGPTWebPageProgram.sourceID ||
+                (command.action == .observe && [ChatGPTWebPageProgram.priorClickSource, ChatGPTWebPageProgram.priorOriginSource, ChatGPTWebPageProgram.priorProgressSource, ChatGPTWebPageProgram.priorLabelSource, ChatGPTWebPageProgram.priorEdgeSource].contains(requested.sourceID)) else {
             throw WebAdapterError.invalidRequest
         }
         if command.action == .captureTarget {
             try Task.checkCancellation()
-            let original = try targetForClick(program: program)
+            let original = try targetForClick(program: requested)
             return try await withTaskCancellationHandler {
                 try Task.checkCancellation()
                 let target = try await original.value
@@ -121,6 +122,7 @@ private final class EdgeCommandCancellation: @unchecked Sendable {
                 return try JSONEncoder().encode(target)
             } onCancel: { original.cancel() }
         }
+        let program = requested.sourceID == ChatGPTWebPageProgram.sourceID ? try ChatGPTWebPageProgram.edgeProgram.get() : requested
         guard let target = command.target, target.adapterID == "chatgpt-web", target.surface == .webChat,
               target.applicationID == EdgeApplicationHost.bundleID, let tab = target.tabID,
               let host = driver.recover(session: target.sessionID, window: target.windowID, tab: tab) else {

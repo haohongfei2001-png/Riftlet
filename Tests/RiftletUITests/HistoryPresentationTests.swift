@@ -161,8 +161,8 @@ final class HistoryPresentationTests: XCTestCase {
             XCTAssertEqual(HistoryPresentation.localizedState(for: missing, copy: copy),
                            copy.text("本地副本不可用", "Local copy unavailable"))
             XCTAssertEqual(HistoryPresentation.detailText(for: unknown, copy: copy),
-                           copy.text("请到原对话核对附件。Riftlet 不会自动重传。",
-                                     "Check the attachment in the original conversation. Riftlet will not upload it again automatically."))
+                           copy.text("请对照原图，在原草稿中核对附件。Riftlet 不会自动重传。",
+                                     "Compare the original image with the attachment in your draft. Riftlet won’t upload it again automatically."))
             XCTAssertFalse(unknown.canRestoreToRift)
             XCTAssertEqual(RiftHistoryFilter.needsVerification.title(copy: copy), copy.text("待核实", "Needs Review"))
         }

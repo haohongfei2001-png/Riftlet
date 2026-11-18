@@ -32,8 +32,9 @@ public actor SystemScreenshotCandidateAdmission {
         guard request.operation.phase == .dispatchIntent else { throw WebAdapterError.invalidRequest }
         let key = Self.checkpointKey(for: request, scope: scope)
         guard try await store.checkpoint(for: key) == nil else { throw WebAdapterError.invalidRequest }
-        let profile = scope.registeredProfile(for: request, sourceID: SystemScreenshotWebCandidate.sourceID)
-        let registration = Registration(version: scope.isProduct ? 2 : 1, sourceID: SystemScreenshotWebCandidate.sourceID,
+        let source = ChatGPTWebPageProgram.currentSourceID(for: request.operation.target)
+        let profile = scope.registeredProfile(for: request, sourceID: source)
+        let registration = Registration(version: scope.isProduct ? 2 : 1, sourceID: source,
             startProfileID: profile.uploadStartProfileID!,
             completionProfileID: profile.profileID,
             identity: Self.identity(for: request), enrollmentID: UUID(), assetOrigin: scope.isProduct ? request.asset.origin : nil)
@@ -78,7 +79,7 @@ public actor SystemScreenshotCandidateAdmission {
               registration.assetOrigin == (scope.isProduct ? scope.origin : nil),
               [SystemScreenshotWebCandidate.sourceID, ChatGPTWebPageProgram.priorEntrySource,
                ChatGPTWebPageProgram.priorHandoffSource, ChatGPTWebPageProgram.priorScreenshotSource,
-               ChatGPTWebPageProgram.priorClickSource, ChatGPTWebPageProgram.priorOriginSource, ChatGPTWebPageProgram.priorProgressSource, ChatGPTWebPageProgram.priorLabelSource].contains(registration.sourceID),
+               ChatGPTWebPageProgram.priorClickSource, ChatGPTWebPageProgram.priorOriginSource, ChatGPTWebPageProgram.priorProgressSource, ChatGPTWebPageProgram.priorLabelSource, ChatGPTWebPageProgram.priorEdgeSource, ChatGPTWebPageProgram.priorProductSource].contains(registration.sourceID),
               registration.identity == Self.identity(for: request),
               request.operation.assetID == request.asset.id, request.operation.phase != .prepared,
               request.operation.phase.isUnresolved || request.operation.phase == .succeeded,
@@ -96,7 +97,7 @@ public actor SystemScreenshotCandidateAdmission {
         guard (try? encoder.encode(registration)) == data, registration.startProfileID == profile.uploadStartProfileID,
               registration.completionProfileID == profile.profileID else { throw WebAdapterError.invalidRequest }
         if [SystemScreenshotWebCandidate.sourceID, ChatGPTWebPageProgram.priorScreenshotSource,
-            ChatGPTWebPageProgram.priorClickSource, ChatGPTWebPageProgram.priorOriginSource, ChatGPTWebPageProgram.priorProgressSource, ChatGPTWebPageProgram.priorLabelSource].contains(registration.sourceID) {
+            ChatGPTWebPageProgram.priorClickSource, ChatGPTWebPageProgram.priorOriginSource, ChatGPTWebPageProgram.priorProgressSource, ChatGPTWebPageProgram.priorLabelSource, ChatGPTWebPageProgram.priorEdgeSource, ChatGPTWebPageProgram.priorProductSource].contains(registration.sourceID) {
             try scope.validateMetadata(request.asset)
         } else {
             try SystemScreenshotWebCandidate.validateMetadata(request.asset, expectedOrigin: scope.origin)

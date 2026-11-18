@@ -53,6 +53,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                   target.adapterID == "chatgpt-web", target.surface == .webChat,
                   target.applicationID == "com.google.Chrome", target.sessionID == identity.session,
                   target.windowID == route.window, target.tabID == route.tab, target.clickBindingID == witness.id,
+                  target.historyConversationID == nil || target.historyConversationID == route.historyConversationID,
                   !target.documentID.isEmpty, !target.composerID.isEmpty, !target.draftGeneration.isEmpty,
                   let self else { throw WebAdapterError.invalidTarget }
             let now = ProcessInfo.processInfo.systemUptime

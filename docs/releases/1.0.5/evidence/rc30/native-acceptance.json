@@ -1,0 +1,231 @@
+{
+  "candidate": {
+    "version": "1.0.5",
+    "build": 30,
+    "productSource": "70cc3deadf571a9b97609a0af1a979bbb677412f",
+    "executableSHA256": "c1474953ca02d19c21f773ef1847b1507792cbe2284ae30d30f3e34b69fac3e6",
+    "dmgSHA256": "d517df961eef60b6afe84151f8ce0cd75e6f5aa1bc3a63e9bbee3571cbcf97ea",
+    "sparkleArchiveSHA256": "3cc265c37d8ac99d4bac07aede7b93512b295fac2e5e28198f2e5f0013064e2f"
+  },
+  "platform": "ARM64, macOS 27.2 dedicated virtual Mac, one virtual display, isolated user, synthetic media",
+  "sparkle": {
+    "25": {
+      "tables": {
+        "assets": {
+          "before": 5,
+          "after": 7,
+          "allOriginalRowsIdentical": true
+        },
+        "operations": {
+          "before": 2,
+          "after": 2,
+          "allOriginalRowsIdentical": true
+        },
+        "upload_starts": {
+          "before": 1,
+          "after": 1,
+          "allOriginalRowsIdentical": true
+        },
+        "checkpoints": {
+          "before": 4,
+          "after": 5,
+          "allOriginalRowsIdentical": true
+        },
+        "compensations": {
+          "before": 0,
+          "after": 0,
+          "allOriginalRowsIdentical": true
+        },
+        "metadata": {
+          "before": 2,
+          "after": 2,
+          "allOriginalRowsIdentical": true
+        }
+      },
+      "originalFileCount": 14,
+      "missingOrChangedOriginalFiles": 0,
+      "existingFolderBookmarkIdentical": true,
+      "feedbackDraftIdentical": true,
+      "integrity": "ok",
+      "oldVersion": "1.0.3",
+      "action": "Install Update, then Install and Relaunch via isolated signed loopback Sparkle feed",
+      "newPID": 5605,
+      "verifiedNotarizedNewExecutable": true,
+      "retainedPreferences": [
+        "capture-entry settings",
+        "lifecycle settings",
+        "desktop configuration"
+      ],
+      "preservedHistoricalUNKNOWN": 1,
+      "preservedOfflineFixtureSTART": 1,
+      "pendingScreenshotBytesUnchanged": true
+    },
+    "27": {
+      "tables": {
+        "assets": {
+          "before": 7,
+          "after": 7,
+          "allOriginalRowsIdentical": true
+        },
+        "operations": {
+          "before": 2,
+          "after": 2,
+          "allOriginalRowsIdentical": true
+        },
+        "upload_starts": {
+          "before": 1,
+          "after": 1,
+          "allOriginalRowsIdentical": true
+        },
+        "checkpoints": {
+          "before": 4,
+          "after": 5,
+          "allOriginalRowsIdentical": true
+        },
+        "compensations": {
+          "before": 0,
+          "after": 0,
+          "allOriginalRowsIdentical": true
+        },
+        "metadata": {
+          "before": 2,
+          "after": 2,
+          "allOriginalRowsIdentical": true
+        }
+      },
+      "originalFileCount": 16,
+      "missingOrChangedOriginalFiles": 0,
+      "existingFolderBookmarkIdentical": true,
+      "feedbackDraftIdentical": true,
+      "integrity": "ok",
+      "oldVersion": "1.0.4",
+      "action": "Install Update, then Install and Relaunch via isolated signed loopback Sparkle feed",
+      "newPID": 5179,
+      "verifiedNotarizedNewExecutable": true,
+      "retainedPreferences": [
+        "capture-entry settings",
+        "lifecycle settings",
+        "desktop configuration"
+      ],
+      "preservedHistoricalUNKNOWN": 1,
+      "preservedOfflineFixtureSTART": 1,
+      "pendingScreenshotBytesUnchanged": true
+    }
+  },
+  "directInstall": {
+    "source": "User Applications, copied from read-only mount of SHA-verified DMG. Disk image verified and ejected before first launch of this copy.",
+    "strictCodesign": true,
+    "gatekeeper": "accepted / Notarized Developer ID",
+    "runningPID": 5749,
+    "executableSHA256": "c1474953ca02d19c21f773ef1847b1507792cbe2284ae30d30f3e34b69fac3e6",
+    "freshPrivacyOnboarding": "NOT_RUN"
+  },
+  "normalSystemCapture": {
+    "sequence": 8,
+    "origin": "systemScreenshot",
+    "externalHits": 1,
+    "privateFileSHA256": "88534d916ebc26f2d4f9a1764e9a59ab7715a53e6f99599da314c963cacc59da",
+    "metadataSHA256": "88534d916ebc26f2d4f9a1764e9a59ab7715a53e6f99599da314c963cacc59da"
+  },
+  "ordinaryPendingRecovery": {
+    "menu": "Recover Screenshot",
+    "destination": "Manage Screenshots",
+    "action": "Recover pending captures",
+    "pendingBefore": 1,
+    "pendingAfter": 0,
+    "assetsAdded": 1,
+    "totalAssets": 9,
+    "privateSHA256": "5d6bafaf3db774178cf6c5dc4d4123fd1e54048c29d9c699a6441907f42d0b2c",
+    "operationsAfter": 2,
+    "startsAfter": 1
+  },
+  "ordinaryTrash": {
+    "status": "PASS",
+    "testedPool": "3 existing archived files, each without a verified external original and explicitly allowed by the on-demand action. 6 other records stayed in place.",
+    "previewEligible": 3,
+    "afterMoveEligible": 0,
+    "recoverableAfterMove": 3,
+    "afterQuitRestart": "All three known files remained in actual Trash; hashes identical.",
+    "afterExplicitRestoreEligible": 3,
+    "afterExplicitRestoreRecoverable": 0,
+    "schemaTransition": [
+      4,
+      5
+    ],
+    "allNinePrivateSHAAndMetadataMatchedAfterRestore": true,
+    "operationsAtEveryCheckpoint": 2,
+    "uploadStartsAtEveryCheckpoint": 1,
+    "bytesMoved": 1142657,
+    "files": [
+      {
+        "bytes": 475528,
+        "sha256": "5d6bafaf3db774178cf6c5dc4d4123fd1e54048c29d9c699a6441907f42d0b2c"
+      },
+      {
+        "bytes": 475550,
+        "sha256": "a1d6aaafcebb892c0989f4346822b61609fbe6dc7557e8618f9f73901ea8c93f"
+      },
+      {
+        "bytes": 191579,
+        "sha256": "c931c4cc9792c1644842b6b7b8ed64bd93a431c0757840c19d91096114cef898"
+      }
+    ]
+  },
+  "nativeReview": {
+    "settings-en": {
+      "beganUTC": "2026-11-17T22:25:35Z",
+      "scope": "Native AppKit owned-window review using exact executable and disposable app-mode profile",
+      "casesPassed": 16,
+      "failures": [],
+      "frames": 39,
+      "restart": "PASS_SCOPED_NATIVE_RESTART"
+    },
+    "settings-zh": {
+      "beganUTC": "2026-11-17T22:26:00Z",
+      "scope": "Native AppKit owned-window review using exact executable and disposable app-mode profile",
+      "casesPassed": 16,
+      "failures": [],
+      "frames": 39,
+      "restart": "PASS_SCOPED_NATIVE_RESTART"
+    },
+    "history": {
+      "beganUTC": "2026-11-17T22:26:24Z",
+      "scope": "Native AppKit owned-window review using exact executable and disposable app-mode profile",
+      "casesPassed": 8,
+      "failures": [],
+      "frames": 20,
+      "restart": "PASS_SCOPED_NATIVE_RESTART"
+    },
+    "desktop": {
+      "beganUTC": "2026-11-17T22:26:31Z",
+      "scope": "Native AppKit owned-window review using exact executable and disposable app-mode profile",
+      "casesPassed": 41,
+      "failures": [
+        {
+          "case": "tray-native-wheel",
+          "reason": "conditionTimedOut"
+        },
+        {
+          "case": "tray-owned-button-and-escape",
+          "reason": "conditionTimedOut"
+        }
+      ],
+      "frames": 68,
+      "restart": "PASS"
+    }
+  },
+  "images": {
+    "appearance-en.png": "af80a413cbff11786926e9f3daca39b1c000c0630ff26e8e5fe8107835d5c579",
+    "history.png": "6be109e0af9134511843071cac76356b83e39c02d848fcf62e8ddb6c5b5abcf9",
+    "manage-before.png": "a8af871343ce5b3af2798e2ac407a856a812eeafbfaa15b8d2d020a426600a1f",
+    "manage-moved.png": "95e6eec140211e68aefe3a8326cfd550168cff3a75adde3ef643033d0729c173",
+    "manage-restored.png": "fe9437b7f6900b87fab31455a79f1066359e7d652568157ef021ed56bfdfb2d5",
+    "manage-zh.png": "7f1832607a0b074ab2f4ef0594c2c1f9e2bd563da8d2952a2d27d4693f7e4030",
+    "tray.png": "efd8428f49e3ad850746506191c021d24783ffc552d62f0c1b477ff8bb59e988"
+  },
+  "notRun": [
+    "Live ChatGPT first or second attachment and actual service rejection after START: normal browser access failed before a usable draft.",
+    "Fresh privacy grants, minimum OS, physical Intel and multiple physical displays.",
+    "Full VoiceOver control traversal and speech, and IME across Settings quit. Library Pinyin composition and ordinary camera dialog previously observed on build 28."
+  ]
+}

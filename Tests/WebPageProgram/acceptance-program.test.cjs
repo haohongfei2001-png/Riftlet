@@ -606,3 +606,75 @@ test('an empty img src is still a placeholder and cannot start the attachment',(
  assert.equal(f.observe(op).state,'inputTriggered');
  assert.equal(f.observe(op).uploadStart,undefined);assert.equal(f.changes,1);
 });
+
+test('a local failure belongs only to its accepted card in the original draft', async () => {
+ const f=fixture(), a=f.bind(), b=f.bind();
+ for(const op of [a,b]) { f.stage(op); await f.commit(op); }
+ const start=accepted(f,a), card=f.document.querySelectorAll('[data-file-name]').find(n=>n.getAttribute('data-file-name')===a.name);
+ card.setAttribute('data-state','failed');
+ const failed=f.observe(a);
+ assert.equal(failed.state,'failed'); assert.equal(failed.attachmentID,start.attachmentID);
+ assert.equal(failed.hasError,true); assert.equal(failed.automaticRetryExcluded,false);
+ assert.equal(failed.attachmentAbsent,false); assert.equal(failed.uploadStart,undefined);
+ accepted(f,b);
+ card.removeAttribute('data-state');
+ f.form.append(new f.Node('div',{role:'alert','data-state':'error'}));
+ accepted(f,a);
+ card.setAttribute('data-state','failed'); card.setAttribute('data-file-name','other.png');
+ accepted(f,a);
+ card.setAttribute('data-file-name',a.name); f.setRoute('https://chatgpt.com/c/other');
+ accepted(f,a);
+ assert.equal(f.setters,2); assert.equal(f.changes,2); assert.equal(f.sends,0);
+});
+
+test('a portalled card can report failure only in its original draft and placement', () => {
+ const f=fixture({accept:false}), op=f.bind();
+ f.stage(op); f.commit(op);
+ const portal=f.body.append(new f.Node('section'));
+ const card=portal.append(f.addCard(op.name));
+ const start=accepted(f,op);
+ card.setAttribute('data-state','error');
+ const failure=f.observe(op);
+ assert.equal(failure.state,'failed'); assert.equal(failure.attachmentID,start.attachmentID);
+ assert.equal(failure.automaticRetryExcluded,false); assert.equal(failure.attachmentAbsent,false);
+ const otherForm=f.body.append(new f.Node('form'));
+ otherForm.append(portal); accepted(f,op);
+ f.body.append(portal);
+ f.body.append(card); accepted(f,op);
+ portal.append(card);
+ f.setRoute('https://chatgpt.com/c/another'); accepted(f,op);
+ assert.equal(f.setters,1); assert.equal(f.changes,1); assert.equal(f.sends,0);
+});
+
+test('START releases strong composer references and expired reads retain a replay fence', async () => {
+ const f=fixture(), callbacks=[];
+ f.context.setTimeout=(callback,ms)=>ms===600000 ? (callbacks.push(callback),0) : setTimeout(callback,ms);
+ const first=f.bind();
+ for(let i=0;i<101;i++) { const op=i===0?first:f.bind(); f.stage(op); await f.commit(op); }
+ const registry=vm.runInContext('globalThis.__riftletIndependentFileInput20261104',f.context);
+ f.input.remove();
+ assert.ok(!Object.values(registry.current).includes(f.input), 'no retained detached file picker');
+ for(const op of registry.operations.values()) {
+   assert.equal(op.binding,null); assert.equal(op.chunks.length,0);
+ }
+ vm.runInContext('Date.now = () => Number.MAX_SAFE_INTEGER', f.context);
+ for(const expire of callbacks) expire();
+ assert.equal(registry.operations.size,101);
+ for(const value of registry.operations.values()) assert.deepEqual(Object.keys(value),['committed']);
+ assert.equal(f.observe(first).state,'invalidated');
+ assert.throws(()=>f.stage(first),/BEGIN_REFUSED/);
+ assert.throws(()=>f.commit(first),/ORIGINAL_OPERATION_REQUIRED/);
+ assert.equal(f.setters,101); assert.equal(f.changes,101); assert.equal(f.sends,0);
+});
+
+test('history links use only the exact canonical saved conversation path', () => {
+ const id='00000000-0000-4000-8000-000000000ABC';
+ for (const [route,expected] of [
+  ['https://chatgpt.com/c/'+id.toLowerCase()+'?x=1#z',id],
+  ['https://chatgpt.com/',undefined],['https://chatgpt.com/c/other',undefined],
+  ['https://chatgpt.com/g/other/c/'+id,undefined],['https://chat.openai.com/c/'+id,undefined]]) {
+  const target=fixture({route}).call({action:'captureTarget'});
+  assert.equal(target.historyConversationID,expected);
+  assert.equal(target.logicalDraftIdentity,undefined);
+ }
+});

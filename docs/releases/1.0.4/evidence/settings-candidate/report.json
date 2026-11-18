@@ -1,0 +1,507 @@
+{
+  "schema": 1,
+  "sourceSHA": "f7407cdae28b4d63e20cf7c3972f4f131ec9e33e",
+  "appVersion": "1.0.4",
+  "build": 26,
+  "architecture": "arm64",
+  "macOS": "27.0 (26A428)",
+  "displayScale": 2,
+  "accountType": "existing graphical session with generated private review profiles",
+  "mode": "Developer ID signed universal RC, isolated synthetic profile; arm64 slice executed",
+  "inputMethod": "native AppKit events and target/action dispatched by the packaged driver; WindowServer captured only this process's own windows",
+  "publicRelease": false,
+  "productionDataAccess": false,
+  "packageSHA256": null,
+  "buildIdentity": {
+    "bundleID": "com.riftlet.app",
+    "signing": "Developer ID Application; identity verified by release engineer separately",
+    "artifact": "executable in private Riftlet.app before stapling; DMG hash belongs to the separate distribution record"
+  },
+  "priorFailures": [
+    {
+      "run": "first",
+      "executableSHA256": "cea44a8cb042abe1b97626bccfd87de09fb07e67befe37ae0834a97371ae4689",
+      "reportSHA256": "c0f2a3fd740f6e4bde4de50d4d583b0ffc476dc49dac9b5a1696507dbab29cdb",
+      "cases": [
+        {
+          "case": "resizing-and-reopen",
+          "reason": "reopenLostWindowSize",
+          "status": "FAIL"
+        }
+      ]
+    },
+    {
+      "run": "english",
+      "executableSHA256": "3e7997d640fbd852094015db4ae97345d378f5b57e727e6feeec9528961a8567",
+      "reportSHA256": "b5b233367ca6b18415a867bab30f8aff9790f7611685bdf97d42b8b8c8222275",
+      "cases": [
+        {
+          "case": "resizing-and-reopen",
+          "reason": "reopenLostWindowSize",
+          "status": "FAIL"
+        }
+      ]
+    },
+    {
+      "run": "english-wide",
+      "executableSHA256": "f462c7a1bc7ba854f4b316be0259c74d7183cfb7cdcebba832102856217521e9",
+      "reportSHA256": "d01f28191efe83a352cb9a4da1ffcdbf2652d8fbadf6cbb2a2caf44979454fcb",
+      "cases": [
+        {
+          "case": "resizing-and-reopen",
+          "reason": "reopenLostWindowSize",
+          "status": "FAIL"
+        }
+      ]
+    },
+    {
+      "run": "en-geometry",
+      "executableSHA256": "ce8c057d7fdfa95eaa9b8fff1a3a979689932c53e4ecd0d47081c2a2a789bee1",
+      "reportSHA256": "5368a5d4060a426db87be9bf5295f9c89fbeb5cafa94de8432377a7aab0701b4",
+      "cases": [
+        {
+          "case": "resizing-and-reopen",
+          "reason": "reopenLostWindowSize",
+          "status": "FAIL"
+        }
+      ]
+    },
+    {
+      "run": "en-canvas",
+      "executableSHA256": "e234b19f8a117f7f899af5bea20a5aff50fbd124ba0209c76954cd1aa9826899",
+      "reportSHA256": "44d21e3689f369e97906f2773b9891c6b58befd7dfd5c845907eb00719aaec69",
+      "cases": [
+        {
+          "case": "four-pages-light-and-dark",
+          "reason": "conditionTimedOut",
+          "status": "FAIL"
+        },
+        {
+          "case": "orthogonal-pause-hidden-sqlite",
+          "reason": "conditionTimedOut",
+          "status": "FAIL"
+        }
+      ]
+    },
+    {
+      "run": "zh-frozen",
+      "executableSHA256": "e234b19f8a117f7f899af5bea20a5aff50fbd124ba0209c76954cd1aa9826899",
+      "reportSHA256": "4b9c4b05751344b2fe1f0057d8b828d27836d5c7a7f2dcf8bb6c1b13e82d1d50",
+      "cases": [
+        {
+          "case": "four-pages-light-and-dark",
+          "reason": "conditionTimedOut",
+          "status": "FAIL"
+        },
+        {
+          "case": "orthogonal-pause-hidden-sqlite",
+          "reason": "conditionTimedOut",
+          "status": "FAIL"
+        },
+        {
+          "case": "independent-write-failures-and-retry",
+          "reason": "conditionTimedOut",
+          "status": "FAIL"
+        }
+      ]
+    }
+  ],
+  "originalPopoverTimeout": {
+    "observation": "The transient popover did show. A left mouse down arrived on the settings window outside the menu-bar button before AppKit closed it. The driver timed out waiting for a stable visible popover. Identity of the external event source is unverified.",
+    "mouseEvent": {
+      "type": 1,
+      "windowRole": "settings",
+      "insideStatusButton": false,
+      "clickCount": 1,
+      "ageSeconds": 0.0017387503394274972
+    },
+    "productImpact": "Both signed RC runs subsequently passed all menu cases. Native target/action and actual WindowServer visibility are covered; physical clicks are separate."
+  },
+  "originalSwatchFailure": {
+    "observation": "AppKit rendered the five template swatches monochrome. The following artifact was observed before the non-template paint fix.",
+    "path": "development-before-swatch-fix.png",
+    "sha256": "3cd1a7420ed27140b735853d8604873a4f3f452779908654073e74bd1dd2843d"
+  },
+  "runs": [
+    {
+      "language": "zh",
+      "executableSHA256": "2a76ad89e9501edecec02bafef203dadadf6c6b2a36f3d055011095fad3fecb4",
+      "reviewID": "4bbae15a-0e39-4916-8fde-5449da80d45a",
+      "reportSHA256": "8cb719b97e0f7188e08d9468af3470329205db9c18f7a52b6d5550d346231db8",
+      "restartReportSHA256": "fbee882feffc8d520ca9a30eb337df92082e4500cb4dfe692343a0792209cc4b",
+      "framesCaptured": 38,
+      "status": "PASS_SCOPED_NATIVE_REVIEW",
+      "cases": [
+        {
+          "caseID": [
+            "SET-01"
+          ],
+          "steps": "environment-and-default-window",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "SET-03"
+          ],
+          "steps": "real-collector-synthetic-fixture",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "SET-03"
+          ],
+          "steps": "programmatic-collection-during-recheck",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "SET-01",
+            "SET-02"
+          ],
+          "steps": "four-pages-light-and-dark",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "SET-07"
+          ],
+          "steps": "orthogonal-pause-hidden-sqlite",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "MIG-03"
+          ],
+          "steps": "archive-editor-return-and-blur",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "SET-04",
+            "MIG-06"
+          ],
+          "steps": "tray-material-settings-and-legacy-visibility",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "SET-03",
+            "MIG-06"
+          ],
+          "steps": "configuration-editor-refresh-defaults",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "SET-03"
+          ],
+          "steps": "close-sheet-continue-discard",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "SET-04"
+          ],
+          "steps": "independent-write-failures-and-retry",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "SET-02"
+          ],
+          "steps": "motion-selection-in-advanced-appearance",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "ONB-01",
+            "ONB-04"
+          ],
+          "steps": "two-step-guidance-light-and-dark",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "SET-01"
+          ],
+          "steps": "resizing-and-reopen",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "SET-03"
+          ],
+          "steps": "history-real-records",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "SET-03"
+          ],
+          "steps": "original-media-and-no-upload-operations",
+          "result": "PASS"
+        }
+      ],
+      "restart": {
+        "result": "PASS_SCOPED_NATIVE_RESTART",
+        "equal": true,
+        "assetCount": 3,
+        "operations": 0,
+        "starts": 0
+      },
+      "artifacts": [
+        {
+          "path": "zh-settings-light-display.png",
+          "sha256": "ad365be258dea49e65cca3c4f77816f90de2aa1e739c37e67ca9b251402f4b35",
+          "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+          "contentBounds": [
+            0,
+            0,
+            640,
+            560
+          ],
+          "pixels": [
+            1280,
+            1176
+          ]
+        },
+        {
+          "path": "zh-tray-custom-material-and-camera.png",
+          "sha256": "212e18b2b8d557419ca26fda60862cd20b8931d85bc24ef4e2d7d2d8dea0c9c2",
+          "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+          "contentBounds": [
+            0,
+            0,
+            640,
+            560
+          ],
+          "pixels": [
+            1280,
+            1176
+          ]
+        },
+        {
+          "path": "zh-tray-appearance-independent-errors.png",
+          "sha256": "336d9877b3a81c4a729880d096a3511d4307641a5aa2093f707f9df34ad91567",
+          "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+          "contentBounds": [
+            0,
+            0,
+            640,
+            560
+          ],
+          "pixels": [
+            1280,
+            1176
+          ]
+        },
+        {
+          "path": "zh-settings-wide-reading-column.png",
+          "sha256": "54981385105076631f995011bc67600471a9ffb418bb5f9f53732abddffe6a93",
+          "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+          "contentBounds": [
+            0,
+            0,
+            900,
+            580
+          ],
+          "pixels": [
+            1800,
+            1216
+          ]
+        }
+      ]
+    },
+    {
+      "language": "en",
+      "executableSHA256": "2a76ad89e9501edecec02bafef203dadadf6c6b2a36f3d055011095fad3fecb4",
+      "reviewID": "af2344ac-2671-4a4e-9579-58fa306c37b9",
+      "reportSHA256": "27baa0ce420ee862892fe7af25b6c7270f16391c125463b23d6af7f5651eac92",
+      "restartReportSHA256": "c6b1bf421c87393ac2da737ef9155c3787ba68f24ce927740b55f2b4e8c64624",
+      "framesCaptured": 38,
+      "status": "PASS_SCOPED_NATIVE_REVIEW",
+      "cases": [
+        {
+          "caseID": [
+            "SET-01"
+          ],
+          "steps": "environment-and-default-window",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "SET-03"
+          ],
+          "steps": "real-collector-synthetic-fixture",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "SET-03"
+          ],
+          "steps": "programmatic-collection-during-recheck",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "SET-01",
+            "SET-02"
+          ],
+          "steps": "four-pages-light-and-dark",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "SET-07"
+          ],
+          "steps": "orthogonal-pause-hidden-sqlite",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "MIG-03"
+          ],
+          "steps": "archive-editor-return-and-blur",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "SET-04",
+            "MIG-06"
+          ],
+          "steps": "tray-material-settings-and-legacy-visibility",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "SET-03",
+            "MIG-06"
+          ],
+          "steps": "configuration-editor-refresh-defaults",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "SET-03"
+          ],
+          "steps": "close-sheet-continue-discard",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "SET-04"
+          ],
+          "steps": "independent-write-failures-and-retry",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "SET-02"
+          ],
+          "steps": "motion-selection-in-advanced-appearance",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "ONB-01",
+            "ONB-04"
+          ],
+          "steps": "two-step-guidance-light-and-dark",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "SET-01"
+          ],
+          "steps": "resizing-and-reopen",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "SET-03"
+          ],
+          "steps": "history-real-records",
+          "result": "PASS"
+        },
+        {
+          "caseID": [
+            "SET-03"
+          ],
+          "steps": "original-media-and-no-upload-operations",
+          "result": "PASS"
+        }
+      ],
+      "restart": {
+        "result": "PASS_SCOPED_NATIVE_RESTART",
+        "equal": true,
+        "assetCount": 3,
+        "operations": 0,
+        "starts": 0
+      },
+      "artifacts": [
+        {
+          "path": "en-onboarding-light-2.png",
+          "sha256": "c8c61cdac0f5e38bade7fe5825f5816d5fa793a6c443700912ccc60b86941d81",
+          "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+          "contentBounds": [
+            0,
+            0,
+            584,
+            425
+          ],
+          "pixels": [
+            1168,
+            906
+          ]
+        },
+        {
+          "path": "en-settings-minimum-capture.png",
+          "sha256": "9bbe689ca71ed0663c63f878feedcb745a304af4dbd2cee5085acc475addda1d",
+          "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+          "contentBounds": [
+            0,
+            0,
+            600,
+            460
+          ],
+          "pixels": [
+            1200,
+            976
+          ]
+        },
+        {
+          "path": "en-settings-wide-reading-column.png",
+          "sha256": "b033d29103e9f2048366a7811164068edb810c1ef13e11814c53d335d1a33a4f",
+          "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+          "contentBounds": [
+            0,
+            0,
+            900,
+            580
+          ],
+          "pixels": [
+            1800,
+            1216
+          ]
+        }
+      ]
+    }
+  ],
+  "observations": [
+    "The reopened 600×460pt content stays the same size across all four pages, including the English Screenshots tab. Wide-window coverage asserts a 900pt window with a centered 768pt scroll area, including 24pt margins per side.",
+    "A real file-write failure at the isolated preference owner restores the confirmed transparency and camera color and keeps separate retry targets. A successful transparency retry preserves the pending camera error.",
+    "Two native onboarding pages are rendered in each appearance. This review mode does not establish persistent deferral during ordinary Finder launch.",
+    "The camera uses full-color swatch images so actual appearance and selected shape remain visible under AppKit button tinting.",
+    "Restart compared isolated media hashes and identities, all preference documents, SQLite operations and start rows."
+  ],
+  "notRunInThisDriver": [
+    "physical mouse",
+    "VoiceOver speech",
+    "system IME",
+    "multi-display hotplug",
+    "ordinary Finder first launch or live TCC",
+    "real Chrome attachment",
+    "official XCTest (CLT-only machine)",
+    "notarization/Gatekeeper assessment (separate package test)"
+  ]
+}

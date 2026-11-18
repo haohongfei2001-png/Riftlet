@@ -30,10 +30,10 @@ extension ProductCopy {
         text("新截图会从所选的屏幕边缘出现。之后可以在设置中调整。",
              "New screenshots appear at the edge you choose. You can change this later in Settings.")
     }
-    var rootLabel: String { text("开始使用 Riftlet，三步引导", "Get started with Riftlet in three steps") }
+    var rootLabel: String { text("开始使用 Riftlet，两步引导", "Get started with Riftlet in two steps") }
     var introDetail: String {
-        text("Riftlet 会收录这个文件夹里的新截图。在 Chrome 打开 ChatGPT 对话后，点桌面边缘的缩略图即可附加。",
-             "Riftlet collects new screenshots saved in this folder. Open your ChatGPT conversation in Chrome and click a thumbnail at the edge of your desktop to attach it.")
+        text("截图后，点托盘里的图片即可附加到 Chrome 中当前的 ChatGPT 草稿。",
+             "Take a screenshot, then click its thumbnail in the tray to attach it to your current ChatGPT draft in Chrome.")
     }
     var reviewDetail: String {
         text("当前为隔离审核：不连接浏览器或上传。",
@@ -150,7 +150,7 @@ extension ProductCopy {
     }
 
     func progress(step: Int) -> String {
-        text("第 \(step) 步，共 3 步", "Step \(step) of 3")
+        text("第 \(step) 步，共 2 步", "Step \(step) of 2")
     }
 
     func introduction(_ presentation: SetupPresentation) -> (title: String, detail: String) {

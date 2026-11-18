@@ -10,7 +10,7 @@ final class FeedbackCloseTests: XCTestCase {
         addTeardownBlock { try? FileManager.default.removeItem(at: root) }
         let store = try FeedbackStore(directory: root)
         let engine = FeedbackEngine(store: store, secrets: MemoryFeedbackSecrets(), transport: DisabledFeedbackTransport())
-        return (store, FeedbackWindowController(engine: engine, diagnostics: FeedbackDiagnostics(), appVersion: "0.1.0"))
+        return (store, FeedbackWindowController(engine: engine, diagnostics: FeedbackDiagnostics(), appVersion: "0.1.0", copy: .simplifiedChinese))
     }
     @MainActor private func editor(in view: NSView) -> NSTextView? {
         if let text = view as? NSTextView { return text }
@@ -77,7 +77,7 @@ final class FeedbackCloseTests: XCTestCase {
         try renameDraft("draft", "unavailable_draft")
         _ = NSApplication.shared
         let engine = FeedbackEngine(store: store, secrets: MemoryFeedbackSecrets(), transport: DisabledFeedbackTransport())
-        let controller = FeedbackWindowController(engine: engine, diagnostics: FeedbackDiagnostics(), appVersion: "0.3.5")
+        let controller = FeedbackWindowController(engine: engine, diagnostics: FeedbackDiagnostics(), appVersion: "0.3.5", copy: .simplifiedChinese)
         await controller.waitUntilLoaded()
         XCTAssertFalse(controller.isEditingEnabled)
         let closed = await controller.saveBeforeClosing()

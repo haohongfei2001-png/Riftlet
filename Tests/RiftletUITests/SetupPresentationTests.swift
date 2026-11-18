@@ -161,7 +161,8 @@ final class SetupPresentationTests: XCTestCase {
         XCTAssertTrue(huge.storageText.contains(String(UInt64.max)))
         let stopped = SetupPresentation(snapshot: .init(source: .unavailable, collection: .stopped,
             issue: .sourceAccess), copy: .simplifiedChinese)
-        XCTAssertTrue(stopped.sourceText.contains("不可访问"))
+        XCTAssertTrue(stopped.sourceText.contains("无法读取截图保存位置"))
+        XCTAssertTrue(stopped.sourceText.contains("允许访问当前截图位置"))
         XCTAssertTrue(stopped.collectionText.contains("当前未收录"))
         XCTAssertTrue(stopped.issueText?.contains("原截图没有被删除") == true)
     }
