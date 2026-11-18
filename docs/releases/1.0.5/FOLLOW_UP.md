@@ -33,3 +33,5 @@ App 与 DMG 均已完成 Developer ID 签名、Apple 公证、装订及验证。
 普通安装的 build 30 与 build 31 均标为 1.0.5，现有 Sparkle 宿主要求营销版本、构建号同时递增，实测会拒绝这一候选间的更新。通过只读挂载最终 DMG 原位替换、弹出磁盘后启动 build 31，Gatekeeper 验证通过。原档案 29 个旧文件和原数据库行逐一核对一致，目录书签、反馈草稿均保留。
 
 build 31 普通应用中，使用系统截图工具生成不同颜色的测试图。在 6 张可见图中正向翻到另一组三张，反向翻页返回原三张。两次普通相机点击均展开四键，各按一次 Escape 后恢复为单相机。操作数一直为 2，旧 UNKNOWN 和旧 START 各 1。
+
+从 1.0.4（27）经隔离 feed 原位升级至 1.0.5（31）也已运行；7 条旧图片记录的 UUID 和图像元数据均保留，其中 1 张按既有 120 秒策略自动归档。另收录 11 张已有的桌面测试 PNG，逐张核对 SHA。27 个旧文件、旧操作和已有 START 均保留，数据库完整性检查正常。[build 31 安装、升级、事件诊断和普通交互回执](evidence/acceptance-followup/build31.json) · [最终候选菜单展开](evidence/acceptance-followup/build31-camera-open1.png) · [Escape 后](evidence/acceptance-followup/build31-camera-closed1.png)
