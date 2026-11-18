@@ -1,4 +1,5 @@
 import AppKit
+import RiftletUI
 import ImageIO
 import UniformTypeIdentifiers
 
@@ -8,13 +9,13 @@ import UniformTypeIdentifiers
 final class ScreenshotMarkupController: NSWindowController, NSWindowDelegate {
     var onFinish: ((Data?) -> Void)?
     var persistEdits: ((Data) async -> Bool)?
-    private let hint = NSTextField(labelWithString: "拖动添加矩形标注")
-    private let done = NSButton(title: "完成", target: nil, action: nil)
-    private let original = NSButton(title: "保留原图", target: nil, action: nil)
+    private let hint = NSTextField(labelWithString: ProductCopy.text("拖动添加矩形标注", "Drag to draw a rectangle"))
+    private let done = NSButton(title: ProductCopy.text("完成", "Done"), target: nil, action: nil)
+    private let original = NSButton(title: ProductCopy.text("保留原图", "Keep Original"), target: nil, action: nil)
     private var retryBytes: Data?
     private var saving = false
     private let canvas: ScreenshotMarkupCanvas
-    private let undoButton = NSButton(title: "撤销", target: nil, action: nil)
+    private let undoButton = NSButton(title: ProductCopy.text("撤销", "Undo"), target: nil, action: nil)
     private var finished = false
 
     init?(pngData: Data) {
@@ -24,7 +25,7 @@ final class ScreenshotMarkupController: NSWindowController, NSWindowDelegate {
         canvas = ScreenshotMarkupCanvas(image: image)
         let panel = ScreenshotMarkupPanel(contentRect: NSRect(x: 0, y: 0, width: 760, height: 540),
             styleMask: [.titled, .closable, .resizable, .nonactivatingPanel], backing: .buffered, defer: false)
-        panel.title = "截图标注"; panel.isReleasedWhenClosed = false
+        panel.title = ProductCopy.text("截图标注", "Mark Up Screenshot"); panel.isReleasedWhenClosed = false
         panel.level = NSWindow.Level(rawValue: NSWindow.Level.statusBar.rawValue + 2)
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         panel.hidesOnDeactivate = false; panel.minSize = NSSize(width: 360, height: 260)
@@ -82,25 +83,25 @@ final class ScreenshotMarkupController: NSWindowController, NSWindowDelegate {
         guard !saving, !finished else { return }
         guard !canvas.marks.isEmpty || retryBytes != nil else { complete(nil); return }
         guard let data = retryBytes ?? canvas.encodedPNG(), let persistEdits else {
-            hint.stringValue = "未能保存标注。请重试，或选择保留原图。"
+            hint.stringValue = ProductCopy.text("未能保存标注。请重试，或选择保留原图。", "Couldn’t save your edits. Retry or choose Keep Original.")
             return
         }
         retryBytes = data; saving = true; canvas.acceptsEdits = false
         undoButton.isEnabled = false; original.isEnabled = false; done.isEnabled = false
-        hint.stringValue = "正在保存标注…"
+        hint.stringValue = ProductCopy.text("正在保存标注…", "Saving edits…")
         Task { @MainActor in
             let saved = await persistEdits(data)
             saving = false
             if saved { complete(data); return }
             // Keep the exact attempted PNG and the canvas visible until a retry
             // succeeds or the user explicitly chooses the unmodified original.
-            hint.stringValue = "标注未能保存。请检查可用空间，然后重试。"
-            done.title = "重试保存"; done.isEnabled = true; original.isEnabled = true
+            hint.stringValue = ProductCopy.text("标注未能保存。请检查可用空间，然后重试。", "Couldn’t save your edits. Check available storage, then retry.")
+            done.title = ProductCopy.text("重试保存", "Retry Save"); done.isEnabled = true; original.isEnabled = true
         }
     }
 
     func presentForPendingQuit() {
-        if !saving && retryBytes == nil { hint.stringValue = "完成标注或选择保留原图后，可以退出 Riftlet。" }
+        if !saving && retryBytes == nil { hint.stringValue = ProductCopy.text("完成标注或选择保留原图后，可以退出 Riftlet。", "Finish editing or choose Keep Original before quitting Riftlet.") }
         present()
     }
 
@@ -140,7 +141,7 @@ final class ScreenshotMarkupCanvas: NSView {
     init(image: CGImage) {
         self.image = image
         super.init(frame: .zero)
-        setAccessibilityElement(true); setAccessibilityLabel("拖动添加截图矩形标注")
+        setAccessibilityElement(true); setAccessibilityLabel(ProductCopy.text("拖动添加截图矩形标注", "Draw rectangular annotations on the screenshot"))
     }
     required init?(coder: NSCoder) { fatalError("init(coder:) is not used") }
     override var acceptsFirstResponder: Bool { true }

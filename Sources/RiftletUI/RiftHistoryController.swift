@@ -342,12 +342,11 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         gridFilter.setAccessibilityLabel(copy.text("筛选截图状态", "Filter screenshots by status"))
         gridTitle.font = .systemFont(ofSize: 23, weight: .semibold); gridTitle.textColor = .labelColor
         configureDateFilters()
-        let tools = NSStackView(views: [gridTitle, NSView(), search, gridFilter, dateFilter, styleSelector])
+        let tools = NSStackView(views: [search, gridFilter, dateFilter, NSView(), styleSelector])
         tools.spacing = 8
         search.widthAnchor.constraint(greaterThanOrEqualToConstant: 106).isActive = true
         let preferredSearchWidth = search.widthAnchor.constraint(equalToConstant: 138)
         preferredSearchWidth.priority = .defaultHigh; preferredSearchWidth.isActive = true
-        gridTitle.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         notice.identifier = .init("history.notice")
         notice.font = RiftVisualStyle.bodyFont
         noticeAction.identifier = .init("history.notice.action")
@@ -355,7 +354,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         RiftVisualStyle.style(noticeAction)
         noticeControls.addArrangedSubview(notice); noticeControls.addArrangedSubview(noticeAction)
         noticeControls.isHidden = true
-        let heading = NSStackView(views: [tools, dateControls, noticeControls])
+        let heading = NSStackView(views: [gridTitle, tools, dateControls, noticeControls])
         heading.orientation = .vertical; heading.alignment = .leading; heading.spacing = 8
         tools.widthAnchor.constraint(equalTo: heading.widthAnchor).isActive = true
         for view in [scroll, grid.scrollView, paging, countLabel] {
