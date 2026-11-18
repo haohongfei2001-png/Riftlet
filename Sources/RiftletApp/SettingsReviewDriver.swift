@@ -327,20 +327,20 @@ final class SettingsReviewDriver {
         }
     }
     private func settle(_ milliseconds: UInt64 = 120) async { try? await Task.sleep(nanoseconds: milliseconds * 1_000_000) }
-    private func wait(timeout: Double = 5, _ condition: () async throws -> Bool) async throws {
+    private func wait(timeout: Double = 5, timeoutReason: String = "conditionTimedOut", _ condition: () async throws -> Bool) async throws {
         let limit = ProcessInfo.processInfo.systemUptime + timeout
         while ProcessInfo.processInfo.systemUptime < limit {
             if try await condition() { return }
             await settle(25)
         }
         let collection = host.snapshot.state.domains[.collection]
-        artifacts.append(["kind": "nativeWaitTimeout", "timeoutSeconds": timeout,
+        artifacts.append(["kind": "nativeWaitTimeout", "timeoutSeconds": timeout, "reason": timeoutReason,
             "ownerPaused": host.snapshot.state.owner.collectionPaused,
             "canChangeCollection": host.snapshot.capabilities.canChangeCollection,
             "collectionSaving": collection?.isSaving ?? false,
             "collectionPending": collection?.pending.map { String(describing: $0) } ?? "none",
             "collectionFailure": collection?.saveFailure.map { String(describing: $0) } ?? "none"])
-        throw Failure.assertion("conditionTimedOut")
+        throw Failure.assertion(timeoutReason)
     }
 
     private func find(_ identifier: String, in view: NSView?) -> NSView? {
@@ -1959,21 +1959,31 @@ extension SettingsReviewDriver {
             guard let wheel=CGEvent(scrollWheelEvent2Source:nil,units:.pixel,wheelCount:1,wheel1:-80,wheel2:0,wheel3:0) else { throw Failure.assertion("wheelUnavailable") }
             guard let old = CGEvent(source:nil)?.location else {throw Failure.assertion("pointerUnavailable")}
             defer { CGWarpMouseCursorPosition(old) }
+            let mayPost = CGPreflightPostEventAccess()
             CGEvent(mouseEventSource:nil,mouseType:.mouseMoved,mouseCursorPosition:whereAt,mouseButton:.left)?.post(tap:.cghidEventTap)
             await self.settle(150)
             let hitWindow = NSWindow.windowNumber(at: NSEvent.mouseLocation, belowWindowWithWindowNumber: 0)
-            try self.require(NSApp.windows.contains { $0.windowNumber == hitWindow }, "wheelWindowNotOwned")
+            var wheelPosted = false
+            var eventWindows = [Int]()
             var delivered = [Double]()
             let monitor = NSEvent.addLocalMonitorForEvents(matching:.scrollWheel) { event in
-                delivered.append(event.scrollingDeltaY); return event
+                delivered.append(event.scrollingDeltaY)
+                eventWindows.append(event.windowNumber)
+                return event
             }
             defer {
                 if let monitor { NSEvent.removeMonitor(monitor) }
-                self.artifacts.append(["kind":"trayWheel","deltas":delivered,"before":before.map(\.ordinal),
+                self.artifacts.append(["kind":"trayWheel", "postEventAccess":mayPost, "posted":wheelPosted,
+                                       "hitWindow":hitWindow, "monitorInstalled":monitor != nil,
+                                       "eventWindows":eventWindows, "deltas":delivered, "before":before.map(\.ordinal),
                                        "after":panel.diagnosticSnapshot.rows.map(\.ordinal)])
             }
+            try self.require(NSApp.windows.contains { $0.windowNumber == hitWindow }, "wheelWindowNotOwned")
             wheel.location=whereAt; wheel.post(tap:.cghidEventTap)
-            try await self.wait { panel.diagnosticSnapshot.rows.map(\.assetID) != before.map(\.assetID) }
+            wheelPosted = true
+            try await self.wait(timeoutReason: "trayWheelPageDidNotChange") {
+                panel.diagnosticSnapshot.rows.map(\.assetID) != before.map(\.assetID)
+            }
             try self.desktopCapture("tray-after-wheel",screen:screen,rows:panel.diagnosticSnapshot.rows)
         }
         await runCase("tray-owned-button-and-escape") {
@@ -2014,14 +2024,37 @@ extension SettingsReviewDriver {
                     "hitLevel": hitInfo?[kCGWindowLayer as String] ?? NSNull(),
                     "hitQuartzBounds": hitInfo?[kCGWindowBounds as String] ?? NSNull(),
                     "frontmostPID": NSWorkspace.shared.frontmostApplication?.processIdentifier as Any? ?? NSNull()])
+                let mayPost = CGPreflightPostEventAccess()
+                var postedMouse = 0, escapePosted = false
+                var observedEvents = [[String: Any]]()
+                let monitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .leftMouseUp, .keyDown]) { event in
+                    guard observedEvents.count < 24 else { return event }
+                    let kind: String
+                    switch event.type {
+                    case .leftMouseDown: kind = "down"
+                    case .leftMouseUp: kind = "up"
+                    case .keyDown where event.keyCode == 53: kind = "escape"
+                    default: return event
+                    }
+                    observedEvents.append(["kind": kind, "window": event.windowNumber])
+                    return event
+                }
+                defer {
+                    if let monitor { NSEvent.removeMonitor(monitor) }
+                    self.artifacts.append(["kind": "trayCycleEvents", "cycle": cycle, "postEventAccess": mayPost,
+                        "targetWindow": tray.windowNumber, "monitorInstalled": monitor != nil,
+                        "mousePosts": postedMouse, "escapePosted": escapePosted, "localEvents": observedEvents])
+                }
                 try self.require(hit == tray.windowNumber, "trayCameraObscured")
                 for type in [CGEventType.leftMouseDown,.leftMouseUp] {
-                    let event = CGEvent(mouseEventSource:nil,mouseType:type,mouseCursorPosition:quartz,mouseButton:.left)
-                    event?.setIntegerValueField(.mouseEventClickState,value:1)
-                    event?.post(tap:.cghidEventTap)
+                    guard let event = CGEvent(mouseEventSource:nil,mouseType:type,mouseCursorPosition:quartz,mouseButton:.left)
+                    else { throw Failure.assertion("trayCameraEventUnavailable") }
+                    event.setIntegerValueField(.mouseEventClickState,value:1)
+                    event.post(tap:.cghidEventTap)
+                    postedMouse += 1
                     await self.settle(50)
                 }
-                try await self.wait { stableKeys().count == 4 }
+                try await self.wait(timeoutReason: "trayCameraDidNotExpandCycle" + String(cycle)) { stableKeys().count == 4 }
                 let arranged = stableKeys().sorted { $0.frame.minX < $1.frame.minX }
                 try self.require(Set(arranged.map { $0.frame.midY }).count == 1 &&
                                  zip(arranged, arranged.dropFirst()).allSatisfy { $0.frame.maxX <= $1.frame.minX },
@@ -2031,7 +2064,8 @@ extension SettingsReviewDriver {
                          windowNumber:tray.windowNumber,context:nil,characters:"\u{1b}",charactersIgnoringModifiers:"\u{1b}",isARepeat:false,keyCode:53)
                 else {throw Failure.assertion("escapeUnavailable")}
                 NSApp.postEvent(event,atStart:false)
-                try await self.wait {
+                escapePosted = true
+                try await self.wait(timeoutReason: "trayEscapeDidNotCollapseCycle" + String(cycle)) {
                     let keys = stableKeys()
                     return keys.count == 1 && keys.first === camera && camera.identifier?.rawValue == "tray.capture.expand"
                 }

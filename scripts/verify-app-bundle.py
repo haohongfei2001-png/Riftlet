@@ -31,6 +31,7 @@ RESOURCE_NAMES = ("chatgpt-web-20261027.js", "legacy-web-observe.js", "Conversat
                   "chatgpt-web-observe-v17.js", "chatgpt-web-observe-v17-main.js", "chatgpt-web-observe-v18.js",
                   "chatgpt-web-observe-v19.js", "chatgpt-web-observe-v20.js", "chatgpt-web-observe-v21.js",
                   "chatgpt-web-observe-v22.js", "chatgpt-web-observe-product-v18.js",
+                  "chatgpt-web-observe-v23.js", "chatgpt-web-observe-product-v19.js",
                   "chatgpt-web-edge-v24.js", "edge-encoded-preview.js")
 ICON_NAME = "Riftlet.icns"
 PRESENTATION_NAMES = ("glass-study.png", "reading.svg", "error.svg", "riftlet.svg")

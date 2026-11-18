@@ -86,31 +86,33 @@ public actor SystemScreenshotObservationJournal {
                                      for request: TransferRequest) async throws -> Bool {
         guard request.operation.target.applicationID != EdgeApplicationHost.bundleID,
               saved.source == .integratedDevelopment, current.source == .integratedDevelopment else { return false }
-        let versions = [(ChatGPTWebPageProgram.priorEntrySource, "attachment-entry-20261105-v15"),
-                        (ChatGPTWebPageProgram.priorHandoffSource, "attachment-handoff-20261105-v16"),
-                        (ChatGPTWebPageProgram.priorScreenshotSource, "screenshot-handoff-20261105-v17"),
-                        (ChatGPTWebPageProgram.priorClickSource, "click-document-witness-20261114-v18"),
-                        (ChatGPTWebPageProgram.priorOriginSource, "click-document-witness-20261117-v19"),
-                        (ChatGPTWebPageProgram.priorProgressSource, "click-document-witness-20261117-v20"),
-                        (ChatGPTWebPageProgram.priorLabelSource, "click-document-witness-20261117-v21"),
-                        (ChatGPTWebPageProgram.priorEdgeSource, "click-document-witness-20261117-v22"),
-                        (ChatGPTWebPageProgram.priorProductSource, "screenshot-observation-20261118-v18"),
-                        (ChatGPTWebPageProgram.sourceID, "click-document-witness-20261118-v23")]
-        // The two pre-integration programs diverged after v17. A journal
-        // entry from one branch cannot be reconciled using the other branch.
-        let edgeBranch = Set(versions[3...7].map { $0.1 })
-        let productBranch = "screenshot-observation-20261118-v18"
-        if (edgeBranch.contains(saved.evidenceID) && current.evidenceID == productBranch)
-            || (saved.evidenceID == productBranch && edgeBranch.contains(current.evidenceID)) { return false }
-        guard let previous = versions.firstIndex(where: { $0.1 == saved.evidenceID }),
-              let observed = versions.firstIndex(where: { $0.1 == current.evidenceID }), previous < observed,
-              let source = try await SystemScreenshotCandidateAdmission(store: store, scope: scope).registeredObservationSource(for: request),
-              let enrolled = versions.firstIndex(where: { $0.0 == source }) else { return false }
-        // Only a forward read of this operation's original, fenced registration
-        // may cross provenance. The first slot retains its exact earlier bytes.
-        if source == ChatGPTWebPageProgram.priorProductSource && edgeBranch.contains(saved.evidenceID) { return false }
-        if edgeBranch.contains(versions[enrolled].1) && saved.evidenceID == productBranch { return false }
-        return enrolled <= previous
+        guard let source = try await SystemScreenshotCandidateAdmission(store: store, scope: scope)
+            .registeredObservationSource(for: request) else { return false }
+        return Self.permitsHistoricalRead(source: source, saved: saved.evidenceID, observed: current.evidenceID)
+    }
+
+    static func permitsHistoricalRead(source: String, saved: String, observed: String) -> Bool {
+        // A read must travel forward on one real Chrome ancestry, including the
+        // original registration. Main's card observer and the PR's v23 were siblings.
+        let common = ["attachment-entry-20261105-v15", "attachment-handoff-20261105-v16",
+                      "screenshot-handoff-20261105-v17"]
+        let click = ["click-document-witness-20261114-v18", "click-document-witness-20261117-v19",
+                     "click-document-witness-20261117-v20", "click-document-witness-20261117-v21",
+                     "click-document-witness-20261117-v22"]
+        let product = "screenshot-observation-20261118-v18"
+        let unified = "click-document-witness-20261118-v23"
+        let card = "screenshot-card-observation-20261118-v19"
+        let active = "click-document-witness-20261118-v25"
+        let prefix = "chatgpt-web-"
+        guard source.hasPrefix(prefix) else { return false }
+        let registered = String(source.dropFirst(prefix.count))
+        let histories = [common + click + [unified, active],
+                         common + [product, unified, active], common + [product, card, active]]
+        return histories.contains { history in
+            guard let first = history.firstIndex(of: registered), let stored = history.firstIndex(of: saved),
+                  let next = history.firstIndex(of: observed) else { return false }
+            return first <= stored && stored < next
+        }
     }
 
     /// Only an exact original ordinary registration can retain its historical

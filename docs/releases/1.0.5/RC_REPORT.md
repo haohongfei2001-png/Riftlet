@@ -1,6 +1,8 @@
 # Riftlet 1.0.5（30）签名候选验收
 
-本候选继承 [1.0.4 实现 #110](https://github.com/haohongfei2001-png/Riftlet/pull/110) 和 [产品规划 #112](https://github.com/haohongfei2001-png/Riftlet/pull/112)，在独立分支集成。build 30 产品源码为 `70cc3deadf571a9b97609a0af1a979bbb677412f`。后续提交仅涉及测试、证据、报告和源码准入。公开推广仍有两个关键缺口：真实 ChatGPT 首次和连续附加未跑通，接收后的真实终止证据也未取得。[开发 PR #113](https://github.com/haohongfei2001-png/Riftlet/pull/113)
+后续的普通托盘输入、真实站点重试以及 build 31 的局部修复见[专项复验](FOLLOW_UP.md)。
+
+本候选继承 [1.0.4 实现 #110](https://github.com/haohongfei2001-png/Riftlet/pull/110) 和 [产品规划 #112](https://github.com/haohongfei2001-png/Riftlet/pull/112)，在独立分支集成。build 30 产品源码为 `70cc3deadf571a9b97609a0af1a979bbb677412f`。从该产品提交到 build 30 首次准入 `d6248d5`，后续提交仅涉及测试、证据、报告和源码准入。公开推广仍有两个关键缺口：真实 ChatGPT 首次和连续附加未跑通，接收后的真实终止证据也未取得。[开发 PR #113](https://github.com/haohongfei2001-png/Riftlet/pull/113)
 
 ## 安装包与版本更换
 
@@ -36,6 +38,6 @@ build 28 在普通 Mac 安装路径出现了资料清理缺陷。6 张待移出�
 | V07 资料清理 | build 28 的普通安装在第一张后中断。最终 build 30 的 9 张测试图中，3 张符合手动清理条件（界面显示共 1.1 MB，均无已验证的外部原件），用户明确移出后全部进入系统废纸篓并逐张匹配原哈希；重启仍为 3 张，撤销后 9 张私有文件哈希全部与原记录一致，已移出标记归零。全程保持 2 个附件操作、1 个 START。外部原件变更、未决和仅存副本保护另有受控反例。[移出前](evidence/rc30/manage-before.png) · [移出后](evidence/rc30/manage-moved.png) · [撤销后](evidence/rc30/manage-restored.png) |
 | V08 长期运行 | 100 张实际合成 PNG 共 1.106 GB。全部冷历史时前台 9–10 ms；3 张可见、97 张冷历史时为 48 ms，插入新图 159 ms，进程峰值 RSS 34.7 MB。涵盖 importer 与受控多草稿，不含普通 App 全启动或真实浏览器点击时延。[测量口径和原始数值](evidence/cold-history.json) |
 | V09 签名升级 | 在隔离候选 feed 中，公开 1.0.3（25）和候选 1.0.4（27）均原位升级到 build 30。两次升级后的运行文件均与 DMG 中主程序的 SHA 一致。原有六张数据库表的逐行哈希均保留，旧文件、目录书签、反馈草稿和待收录原图保留。两条路径各保留 2 个操作、1 个 START（夹具预置）及旧 UNKNOWN。build 30 上使用 macOS 截图工具又收录了一张新截图，核实了外部原件和私有副本的哈希；通过可见恢复入口另找回一张待收录旧图。两次动作均未新增上传操作。升级后真实附加仍受 V01 阻塞。 |
-| V10 安装与平台 | 最终 DMG 已在 Apple Silicon、macOS 27.2 上只读挂载，拷贝 App、弹出磁盘后启动，Gatekeeper 验证通过。已用 Rosetta 实际运行签名包 x86_64 切片，通过合成导入、接收后隐藏和重启自检。最低 macOS 13、实体 Intel 机与显示器热插拔未实测。build 30 桌面原生检查 41/43；托盘滚轮、相机按钮及 Escape 两项受控输入超时，尚待核实。四组界面重启检查均通过。 |
+| V10 安装与平台 | 最终 DMG 已在 Apple Silicon、macOS 27.2 上只读挂载，拷贝 App、弹出磁盘后启动，Gatekeeper 验证通过。已用 Rosetta 实际运行签名包 x86_64 切片，通过合成导入、接收后隐藏和重启自检。最低 macOS 13、实体 Intel 机与显示器热插拔未实测。build 30 桌面原生检查 41/43；托盘滚轮、相机按钮及 Escape 两项受控输入超时，当时尚待核实。普通输入的后续实测见文首专项复验。四组界面重启检查均通过。 |
 
 实际 PR 检查与 Native、Feedback 两个源码准入 job 见 [PR #113 检查](https://github.com/haohongfei2001-png/Riftlet/pull/113/checks)。当前候选供私下安装验收，公开下载与更新通道保持原状。

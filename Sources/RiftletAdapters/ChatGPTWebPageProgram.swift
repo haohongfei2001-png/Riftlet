@@ -18,7 +18,9 @@ public enum ChatGPTWebPageProgram {
     static let edgeSourceID = "chatgpt-web-click-document-witness-20261118-v24"
     static let edgeEvidenceID = "click-document-witness-20261118-v24"
     static let priorProductSource = "chatgpt-web-screenshot-observation-20261118-v18"
-    public static let sourceID = "chatgpt-web-click-document-witness-20261118-v23"
+    static let priorProductCardSource = "chatgpt-web-screenshot-card-observation-20261118-v19"
+    static let priorUnifiedSource = "chatgpt-web-click-document-witness-20261118-v23"
+    public static let sourceID = "chatgpt-web-click-document-witness-20261118-v25"
     /// Candidate mapping only; ReceiptPolicy start registries remain separate.
     public static let acceptanceUploadStartProfileID = "chatgpt-web-zh-progress-start-development-20261027-v1"
     public static let acceptanceProfile = ObservationProfile(
@@ -80,6 +82,10 @@ public enum ChatGPTWebPageProgram {
             return try load(resource: "chatgpt-web-observe-v20", id: priorProgressSource)
         case priorEdgeSource:
             return try load(resource: "chatgpt-web-observe-v22", id: priorEdgeSource)
+        case priorProductCardSource:
+            return try load(resource: "chatgpt-web-observe-product-v19", id: priorProductCardSource)
+        case priorUnifiedSource:
+            return try load(resource: "chatgpt-web-observe-v23", id: priorUnifiedSource)
         case priorProductSource:
             return try load(resource: "chatgpt-web-observe-product-v18", id: priorProductSource)
         case priorLabelSource:
@@ -90,7 +96,7 @@ public enum ChatGPTWebPageProgram {
     }
 
     static func isHistoricalObserver(_ sourceID: String) -> Bool {
-        [priorEntrySource, priorHandoffSource, priorScreenshotSource, priorClickSource, priorOriginSource, priorProgressSource, priorLabelSource, priorEdgeSource, priorProductSource].contains(sourceID)
+        [priorEntrySource, priorHandoffSource, priorScreenshotSource, priorClickSource, priorOriginSource, priorProgressSource, priorLabelSource, priorEdgeSource, priorProductSource, priorProductCardSource, priorUnifiedSource].contains(sourceID)
     }
 
     static func observationRelayFunctions(for program: WebPageProgram) throws -> [String] {

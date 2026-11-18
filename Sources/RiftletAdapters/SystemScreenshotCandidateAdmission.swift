@@ -77,9 +77,9 @@ public actor SystemScreenshotCandidateAdmission {
               let registration = try? JSONDecoder().decode(Registration.self, from: data),
               registration.version == (scope.isProduct ? 2 : 1),
               registration.assetOrigin == (scope.isProduct ? scope.origin : nil),
-              [ChatGPTWebPageProgram.edgeSourceID, SystemScreenshotWebCandidate.sourceID, ChatGPTWebPageProgram.priorEntrySource,
-               ChatGPTWebPageProgram.priorHandoffSource, ChatGPTWebPageProgram.priorScreenshotSource,
-               ChatGPTWebPageProgram.priorClickSource, ChatGPTWebPageProgram.priorOriginSource, ChatGPTWebPageProgram.priorProgressSource, ChatGPTWebPageProgram.priorLabelSource, ChatGPTWebPageProgram.priorEdgeSource, ChatGPTWebPageProgram.priorProductSource].contains(registration.sourceID),
+              (registration.sourceID == ChatGPTWebPageProgram.edgeSourceID
+                || registration.sourceID == SystemScreenshotWebCandidate.sourceID
+                || ChatGPTWebPageProgram.isHistoricalObserver(registration.sourceID)),
               (request.operation.target.applicationID == EdgeApplicationHost.bundleID
                 ? ChatGPTWebPageProgram.edgeEvidence(for: registration.sourceID) != nil
                 : registration.sourceID != ChatGPTWebPageProgram.edgeSourceID),
@@ -99,8 +99,8 @@ public actor SystemScreenshotCandidateAdmission {
         let profile = scope.registeredProfile(for: request, sourceID: registration.sourceID)
         guard (try? encoder.encode(registration)) == data, registration.startProfileID == profile.uploadStartProfileID,
               registration.completionProfileID == profile.profileID else { throw WebAdapterError.invalidRequest }
-        if [ChatGPTWebPageProgram.edgeSourceID, SystemScreenshotWebCandidate.sourceID, ChatGPTWebPageProgram.priorScreenshotSource,
-            ChatGPTWebPageProgram.priorClickSource, ChatGPTWebPageProgram.priorOriginSource, ChatGPTWebPageProgram.priorProgressSource, ChatGPTWebPageProgram.priorLabelSource, ChatGPTWebPageProgram.priorEdgeSource, ChatGPTWebPageProgram.priorProductSource].contains(registration.sourceID) {
+        // The two oldest registrations predate the product screenshot metadata contract.
+        if ![ChatGPTWebPageProgram.priorEntrySource, ChatGPTWebPageProgram.priorHandoffSource].contains(registration.sourceID) {
             try scope.validateMetadata(request.asset)
         } else {
             try SystemScreenshotWebCandidate.validateMetadata(request.asset, expectedOrigin: scope.origin)

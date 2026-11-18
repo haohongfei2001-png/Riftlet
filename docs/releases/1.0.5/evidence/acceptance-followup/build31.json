@@ -1,0 +1,289 @@
+{
+  "source": "fe9c227a3b89a082b9da39dc5bb1f5c0b955c2ee",
+  "version": "1.0.5",
+  "build": 31,
+  "executableSHA256": "9408b891e805c141108b64019e523a45e30221a03a10c2b91ae97bb16cb66207",
+  "dmgSHA256": "99276347932e231adf743664a54cfc782d8e345d89221587d54b7299a5c9f315",
+  "signedSparkleArchiveSHA256": "e999151161e6fce63dbacb9752ac125deabe86aa35e987133f8206d39339672f",
+  "environment": "Dedicated macOS 27.2 ARM64 VM; isolated guest; no permission changes.",
+  "sameMarketingVersionSparkle": {
+    "installed": "1.0.5 (30)",
+    "offered": "1.0.5 (31)",
+    "status": "REJECTED_AS_DESIGNED",
+    "message": "This version cannot upgrade your current Riftlet installation. Visit riftlet.com for official releases.",
+    "reason": "ApplicationUpdater.isUpgrade requires both the marketing version and build to increase. The candidate feed and binary were not modified."
+  },
+  "dmgReplacementFrom30": {
+    "mountedReadOnly": true,
+    "volumeEjectedBeforeLaunch": true,
+    "runningPID": 2187,
+    "strictCodesign": true,
+    "gatekeeper": "accepted / Notarized Developer ID",
+    "data": {
+      "tables": {
+        "assets": {
+          "before": 14,
+          "after": 14,
+          "allOriginalRowsIdentical": true
+        },
+        "operations": {
+          "before": 2,
+          "after": 2,
+          "allOriginalRowsIdentical": true
+        },
+        "upload_starts": {
+          "before": 1,
+          "after": 1,
+          "allOriginalRowsIdentical": true
+        },
+        "checkpoints": {
+          "before": 6,
+          "after": 6,
+          "allOriginalRowsIdentical": true
+        },
+        "compensations": {
+          "before": 0,
+          "after": 0,
+          "allOriginalRowsIdentical": true
+        },
+        "metadata": {
+          "before": 2,
+          "after": 2,
+          "allOriginalRowsIdentical": true
+        }
+      },
+      "originalFileCount": 29,
+      "missingOrChangedOriginalFiles": 0,
+      "existingFolderBookmarkIdentical": true,
+      "feedbackDraftIdentical": true,
+      "integrity": "ok"
+    },
+    "state": {
+      "assets": 14,
+      "unknown_count": 1,
+      "starts": 1,
+      "ops": 2,
+      "schemaVersion": 5
+    }
+  },
+  "ordinarySparkle27to31": {
+    "from": "1.0.4 (27)",
+    "status": "PASS",
+    "input": "Ordinary user Check for Updates / Install Update / Install and Relaunch via signed private loopback feed.",
+    "runningPID": 2786,
+    "strictCodesign": true,
+    "gatekeeper": "accepted / Notarized Developer ID",
+    "data": {
+      "tables": {
+        "assets": {
+          "before": 7,
+          "after": 18,
+          "allOriginalRowsIdentical": false
+        },
+        "operations": {
+          "before": 2,
+          "after": 2,
+          "allOriginalRowsIdentical": true
+        },
+        "upload_starts": {
+          "before": 1,
+          "after": 1,
+          "allOriginalRowsIdentical": true
+        },
+        "checkpoints": {
+          "before": 4,
+          "after": 5,
+          "allOriginalRowsIdentical": true
+        },
+        "compensations": {
+          "before": 0,
+          "after": 0,
+          "allOriginalRowsIdentical": true
+        },
+        "metadata": {
+          "before": 2,
+          "after": 2,
+          "allOriginalRowsIdentical": true
+        }
+      },
+      "originalFileCount": 27,
+      "missingOrChangedOriginalFiles": 0,
+      "existingFolderBookmarkIdentical": true,
+      "feedbackDraftIdentical": true,
+      "integrity": "ok",
+      "assetAudit": {
+        "originalIDsPresent": 7,
+        "originalImageMetadataIdentical": true,
+        "changedOriginals": [
+          {
+            "sequence": 7,
+            "fields": [
+              "visibility",
+              "visibility_revision",
+              "visibility_reason"
+            ],
+            "visibilityBefore": "visible",
+            "visibilityAfter": "archived",
+            "reasonAfter": "automaticArchive"
+          }
+        ],
+        "added": 11,
+        "addedSystemCaptureOrigin": 11,
+        "addedWithMatchedActualExternalDesktopPNG": 11
+      }
+    },
+    "legacyState": {
+      "before": {
+        "assets": 7,
+        "unknown_count": 1,
+        "starts": 1,
+        "ops": 2,
+        "schemaVersion": 4
+      },
+      "after": {
+        "assets": 18,
+        "unknown_count": 1,
+        "starts": 1,
+        "ops": 2,
+        "schemaVersion": 4
+      },
+      "pendingOldCaptureSHA256Unchanged": true
+    }
+  },
+  "exactDesktopReview": {
+    "reviewBeganUTC": "2026-11-17T23:55:26Z",
+    "processPID": 2285,
+    "passes": 41,
+    "failures": [
+      {
+        "case": "tray-native-wheel",
+        "reason": "trayWheelPageDidNotChange",
+        "seconds": 5.866484583333431,
+        "status": "FAIL"
+      },
+      {
+        "case": "tray-owned-button-and-escape",
+        "reason": "trayCameraDidNotExpandCycle1",
+        "seconds": 5.86506866666673,
+        "status": "FAIL"
+      }
+    ],
+    "nativeFramesWithCheckedSHA256": 68,
+    "restart": {
+      "status": "PASS",
+      "pid": 2336,
+      "form": "tray",
+      "assetCount": 10
+    },
+    "fullNativeReportSHA256": "372451b8706b13b026f27abcaaadd941847cc3e68cc931eb2a3232287741cb1a",
+    "inputDiagnostics": [
+      {
+        "after": [
+          1,
+          2,
+          3
+        ],
+        "before": [
+          1,
+          2,
+          3
+        ],
+        "deltas": [],
+        "eventWindows": [],
+        "hitWindow": 199,
+        "kind": "trayWheel",
+        "monitorInstalled": true,
+        "posted": true,
+        "postEventAccess": false
+      },
+      {
+        "camera": [
+          955,
+          309,
+          59,
+          42
+        ],
+        "cycle": 1,
+        "frontmostPID": 2285,
+        "hitID": 201,
+        "hitLevel": 2,
+        "hitPID": 2285,
+        "hitQuartzBounds": {
+          "Height": 110,
+          "Width": 128,
+          "X": 890,
+          "Y": 358
+        },
+        "kind": "trayCameraHit",
+        "scale": 1,
+        "screen": [
+          0,
+          0,
+          1024,
+          768
+        ],
+        "targetID": 201,
+        "targetPID": 2285,
+        "tray": [
+          890,
+          300,
+          128,
+          110
+        ]
+      },
+      {
+        "cycle": 1,
+        "escapePosted": false,
+        "kind": "trayCycleEvents",
+        "localEvents": [],
+        "monitorInstalled": true,
+        "mousePosts": 2,
+        "postEventAccess": false,
+        "targetWindow": 201
+      }
+    ]
+  },
+  "ordinaryVirtualInput": {
+    "cameraAndEscape": "Camera click revealed four horizontally arranged buttons; Escape restored the single camera. Two full cycles. Each collapsed result matches its counterpart; both expanded results also match.",
+    "wheel": "Five different colored synthetic TextEdit screenshots added through the real macOS Screenshot toolbar. Six screenshots visible. Two opposite scroll gestures on the first card revealed a different page then returned to the original three cards.",
+    "wheelInput": "VZVirtualMachineView.scrollWheel, +16 then -16 lines, cursor over the first card in the real tray.",
+    "RGBComparison": {
+      "metric": "Mean absolute RGB channel difference on 0–255 scale in equal rectangular interior samples per card.",
+      "startVsNext": [
+        8.627,
+        5.88,
+        6.293
+      ],
+      "startVsReturn": [
+        0.083,
+        0.0,
+        0.0
+      ]
+    },
+    "beforeWheel": {
+      "assets": 18,
+      "unknown_count": 1,
+      "starts": 1,
+      "ops": 2,
+      "schemaVersion": 5
+    },
+    "afterWheel": {
+      "assets": 19,
+      "unknown_count": 1,
+      "starts": 1,
+      "ops": 2,
+      "schemaVersion": 5
+    }
+  },
+  "scope": "The ordinary pointer results and the App-originated CGEvent review use different input routes. The earlier ordinary ChatGPT navigation failed before a usable draft; live attachments, sends, post-START server failure and safe retry remain unverified.",
+  "imagesSHA256": {
+    "build31-camera-before.png": "fc911b8c6142a2b461ad66608ac62d7b214b778234eae6cc4c649588fbe73b23",
+    "build31-camera-open1.png": "3cf7158d00a56084d32ed3862a4d9d4dfed812c75b747520b58d732345cd7156",
+    "build31-camera-closed1.png": "86c961f2cf82c92c6b399e3e9f5ff59d93a722fbfcce90e2becd0e8c13da757b",
+    "build31-camera-open2.png": "3cf7158d00a56084d32ed3862a4d9d4dfed812c75b747520b58d732345cd7156",
+    "build31-camera-closed2.png": "86c961f2cf82c92c6b399e3e9f5ff59d93a722fbfcce90e2becd0e8c13da757b",
+    "build31-wheel-before.png": "df536a200c7c0df226af25d5989ad08a4adae68022a5909b4c4da0a638688b5e",
+    "build31-wheel-page.png": "ba3e7695ace2022a0b5b1d10bb83fa0c015ef228eba94d96b591d0e0dac0ab7b",
+    "build31-wheel-return.png": "0efd215e7f5dfa01381827eb2cbf45c23b2e49f5280c02a68fde43ccf1d2463b"
+  }
+}

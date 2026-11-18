@@ -54,10 +54,17 @@ function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focu
   });
  }
  class Node {
-  constructor(tag,attrs={}){this.nodeType=1;this.tagName=tag.toUpperCase();this.attrs={...attrs};this.children=[];this.parentElement=null;this._text='';this.disabled=false;this.listeners=new Map();}
+  constructor(tag,attrs={}){this.nodeType=1;this.tagName=tag.toUpperCase();this.attrs={...attrs};this.childNodes=[];this.parentElement=null;this.disabled=false;this.listeners=new Map();}
   get isConnected(){return this===body||this.parentElement?.isConnected===true;}
-  get textContent(){return this._text+this.children.map(node=>node.textContent).join('');}
-  set textContent(value){for(const child of [...this.children])child.remove();this._text=String(value);queueMutation({type:'childList',target:this,addedNodes:[],removedNodes:[]});}
+  get children(){return this.childNodes.filter(node=>node.nodeType===1);}
+  get textContent(){return this.childNodes.map(node=>node.nodeType===3?node.data:node.textContent).join('');}
+  set textContent(value){
+   const removedNodes=this.childNodes.splice(0);
+   for(const node of removedNodes)node.parentElement=null;
+   const addedNodes=String(value)?[textNode(this,String(value))]:[];
+   this.childNodes.push(...addedNodes);
+   queueMutation({type:'childList',target:this,addedNodes,removedNodes});
+  }
   get id(){return this.attrs.id||'';} get parentNode(){return this.parentElement;}
   get type(){return this.attrs.type||(this.tagName==='BUTTON'?'submit':'');} get accept(){return this.attrs.accept||'';} get form(){return this.closest('form');}
   get isContentEditable(){return this.attrs.contenteditable==='true';}
@@ -67,9 +74,9 @@ function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focu
   matches(selector){return matches(this,selector);}
   closest(selector){return this.matches(selector)?this:this.parentElement?.closest?.(selector)||null;}
   contains(node){return node?.nodeType===3?this.contains(node.parentElement):this===node||this.children.some(child=>child.contains(node));}
-  append(...nodes){for(const node of nodes){if(node.parentElement)node.remove();node.parentElement=this;this.children.push(node);queueMutation({type:'childList',target:this,addedNodes:[node],removedNodes:[]});}return nodes[0];}
+  append(...nodes){for(const node of nodes){if(node.parentElement)node.remove();node.parentElement=this;this.childNodes.push(node);queueMutation({type:'childList',target:this,addedNodes:[node],removedNodes:[]});}return nodes[0];}
   appendChild(node){return this.append(node);}
-  remove(){const parent=this.parentElement;if(!parent)return;parent.children=parent.children.filter(node=>node!==this);this.parentElement=null;queueMutation({type:'childList',target:parent,addedNodes:[],removedNodes:[this]});}
+  remove(){const parent=this.parentElement;if(!parent)return;parent.childNodes.splice(parent.childNodes.indexOf(this),1);this.parentElement=null;queueMutation({type:'childList',target:parent,addedNodes:[],removedNodes:[this]});}
   querySelectorAll(selector){return this.children.flatMap(node=>[node,...node.querySelectorAll('*')]).filter(node=>node.matches(selector));}
   querySelector(selector){return this.querySelectorAll(selector)[0]||null;}
   getClientRects(){for(let node=this;node;node=node.parentElement)if(node.rendered===false||node.hidden)return [];return this.isConnected?[{width:100,height:40}]:[];}
@@ -121,13 +128,15 @@ function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focu
   removeEventListener:(type,fn)=>{events.set(type,(events.get(type)||[]).filter(item=>item.fn!==fn));}};
  // Text nodes can change in place between two page observations, independently
  // of their element parent and adjacent text fragments.
- function appendText(parent,value){
-  if(!parent.childNodes){
-   Object.defineProperty(parent,'childNodes',{value:[...parent.children]});
-   Object.defineProperty(parent,'textContent',{get:()=>parent.childNodes.map(node=>node.nodeType===3?node.data:node.textContent).join('')});
-  }
-  const text={nodeType:3,parentElement:parent,get data(){return value;},get length(){return value.length;},
+ function textNode(parent,value){
+  const text={nodeType:3,parentElement:parent,contains(node){return node===this;},
+   get parentNode(){return this.parentElement;},get isConnected(){return this.parentElement?.isConnected===true;},
+   get data(){return value;},get nodeValue(){return value;},get length(){return value.length;},
    replace(next,hasOldValue=true){const oldValue=hasOldValue?value:null;value=next;queueMutation({type:'characterData',target:text,oldValue});}};
+  return text;
+ }
+ function appendText(parent,value){
+  const text=textNode(parent,value);
   parent.childNodes.push(text);queueMutation({type:'childList',target:parent,addedNodes:[text],removedNodes:[]});
   return text;
  }

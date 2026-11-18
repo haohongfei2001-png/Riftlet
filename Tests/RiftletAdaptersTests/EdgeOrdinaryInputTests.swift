@@ -241,7 +241,7 @@ final class EdgeOrdinaryInputTests: XCTestCase {
                 .init(provenance: .init(source: .integratedDevelopment, evidenceID: provenance),
                       observation: .init(identity: identity, state: .unknown, belongsToOriginalDraft: true))
             }
-            for conflicting in ["click-document-witness-20261118-v23", "click-document-witness-20261117-v22", ChatGPTWebPageProgram.edgeEvidenceID] where conflicting != evidence {
+            for conflicting in ["click-document-witness-20261118-v25", "click-document-witness-20261118-v23", "click-document-witness-20261117-v22", ChatGPTWebPageProgram.edgeEvidenceID] where conflicting != evidence {
                 do { try await journal.record(packet(conflicting), for: original, readOnly: true); XCTFail("unregistered provenance") }
                 catch { XCTAssertEqual(error as? SystemScreenshotObservationJournalError, .invalidProvenance) }
             }
