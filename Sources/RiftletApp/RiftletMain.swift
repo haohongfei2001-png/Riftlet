@@ -630,9 +630,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         // No page observation is attempted until a passive check says allowed.
         if adapter is any IndependentFileInputAdapter {
             // Startup may release a preparation proven never to have dispatched.
-            // It never submits or observes an independent input.
+            // Read-only recovery below uses only recent durable original identities.
             try await store.recoverUndispatchedPreparations()
-            originalRecoveryIDs = nil
+            originalRecoveryIDs = mode.observesAttachments ? try await store.recentOriginalObservationIDs() : nil
             startupCompletedIDs = []
         } else {
             try await store.recoverInterruptedOperations()
