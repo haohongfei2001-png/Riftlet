@@ -213,6 +213,7 @@ final class EdgeOrdinaryInputTests: XCTestCase {
         let root = try directory(); defer { try? FileManager.default.removeItem(at: root) }
         let store = try QueueStore(databaseURL: root.appendingPathComponent("queue.sqlite"))
         for (host, foreign) in [("com.google.Chrome", ChatGPTWebPageProgram.edgeSourceID),
+                                ("com.google.Chrome", ChatGPTWebPageProgram.priorEncodedSource),
                                 ("com.microsoft.edgemac", ChatGPTWebPageProgram.sourceID)] {
             let (request, _, _) = try await prepare(root: root, store: store, gray: 0.4, application: host)
             _ = try await seedEdgeRegistration(request, profile: OrdinaryProductScreenshotScope.admittedSystemProfile,
@@ -223,10 +224,10 @@ final class EdgeOrdinaryInputTests: XCTestCase {
         }
     }
 
-    func testFencedV22AndV24EdgeOperationsKeepTheirOwnProgramAndJournalOnRestart() async throws {
+    func testEdgeProgressVersionsKeepTheirOwnProgramAndJournalOnRestart() async throws {
         let root = try directory(); defer { try? FileManager.default.removeItem(at: root) }
         let url = root.appendingPathComponent("queue.sqlite")
-        for source in [ChatGPTWebPageProgram.priorEdgeSource, ChatGPTWebPageProgram.edgeSourceID] {
+        for source in [ChatGPTWebPageProgram.priorEdgeSource, ChatGPTWebPageProgram.priorEncodedSource, ChatGPTWebPageProgram.edgeSourceID] {
             let store = try QueueStore(databaseURL: url)
             let (request, _, _) = try await prepare(root: root, store: store, gray: 0.4)
             let identity = try await seedEdgeRegistration(request, profile: OrdinaryProductScreenshotScope.edgeProgressProfile,
@@ -241,7 +242,7 @@ final class EdgeOrdinaryInputTests: XCTestCase {
                 .init(provenance: .init(source: .integratedDevelopment, evidenceID: provenance),
                       observation: .init(identity: identity, state: .unknown, belongsToOriginalDraft: true))
             }
-            for conflicting in ["click-document-witness-20261118-v25", "click-document-witness-20261118-v23", "click-document-witness-20261117-v22", ChatGPTWebPageProgram.edgeEvidenceID] where conflicting != evidence {
+            for conflicting in [ChatGPTWebPageProgram.priorEncodedEvidence, "click-document-witness-20261118-v25", "click-document-witness-20261118-v23", "click-document-witness-20261117-v22", ChatGPTWebPageProgram.edgeEvidenceID] where conflicting != evidence {
                 do { try await journal.record(packet(conflicting), for: original, readOnly: true); XCTFail("unregistered provenance") }
                 catch { XCTAssertEqual(error as? SystemScreenshotObservationJournalError, .invalidProvenance) }
             }

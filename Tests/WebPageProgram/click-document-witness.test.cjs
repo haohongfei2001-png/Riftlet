@@ -180,3 +180,24 @@ test('retained hidden, inert and overtaken original composers retire before thei
     assert.equal(f.setters,0); assert.equal(f.changes,0); assert.equal(f.sends,0);
   }
 });
+
+test('independent click witnesses retain only their own failed card after the last START', async () => {
+  const {f,pin,capture}=witnessed({accept:false});
+  const first=f.bind({target:capture(pin())}), second=f.bind({target:capture(pin())});
+  f.stage(first); f.stage(second); await f.commit(first); await f.commit(second);
+  const firstCard=f.addCard(first.name);
+  const firstStart=f.observe(first);
+  assert.equal(firstStart.state,'uploadStarted');
+  f.addCard(second.name);
+  const secondStart=f.observe(second);
+  assert.equal(secondStart.state,'uploadStarted');
+  assert.notEqual(firstStart.attachmentID,secondStart.attachmentID);
+  assert.equal(f.context.__riftletIndependentFileInput20261104.observationMonitor,null);
+  firstCard.setAttribute('data-state','failed');
+  const failure=f.observe(first);
+  assert.equal(failure.state,'failed'); assert.equal(failure.attachmentID,firstStart.attachmentID);
+  assert.equal(f.observe(second).state,'uploadStarted');
+  firstCard.querySelector('img').setAttribute('alt',second.name);
+  assert.equal(f.observe(first).state,'uploadStarted');
+  assert.equal(f.setters,2); assert.equal(f.changes,2); assert.equal(f.sends,0);
+});

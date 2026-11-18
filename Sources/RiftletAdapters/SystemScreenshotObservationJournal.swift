@@ -53,7 +53,7 @@ public actor SystemScreenshotObservationJournal {
                   ChatGPTWebPageProgram.edgeEvidence(for: source) == envelope.provenance.evidenceID else {
                 throw SystemScreenshotObservationJournalError.invalidProvenance
             }
-        } else if envelope.provenance.evidenceID == ChatGPTWebPageProgram.edgeEvidenceID {
+        } else if [ChatGPTWebPageProgram.edgeEvidenceID, ChatGPTWebPageProgram.priorEncodedEvidence].contains(envelope.provenance.evidenceID) {
             throw SystemScreenshotObservationJournalError.invalidProvenance
         }
         let slots = Slot.classifyAll(envelope.observation)

@@ -315,8 +315,9 @@ class BundleVerificationTests(unittest.TestCase):
         with self.assertRaisesRegex(VERIFY.VerificationError, "^resource_differs_from_source_"):
             VERIFY.verify_bundle(self.app, REPOSITORY, "isolated-product-acceptance")
 
-    def test_edge_v24_requires_both_packaged_program_components(self):
-        for name in ("chatgpt-web-edge-v24.js", "edge-encoded-preview.js"):
+    def test_current_and_historical_edge_programs_require_all_packaged_components(self):
+        for name in ("chatgpt-web-edge-v24.js", "edge-encoded-preview.js",
+                  "chatgpt-web-edge-v26.js", "edge-encoded-preview-v26.js"):
             with self.subTest(resource=name):
                 path = self.bundle / name
                 original = path.read_bytes()

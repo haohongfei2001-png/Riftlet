@@ -82,7 +82,7 @@ public actor SystemScreenshotCandidateAdmission {
                 || ChatGPTWebPageProgram.isHistoricalObserver(registration.sourceID)),
               (request.operation.target.applicationID == EdgeApplicationHost.bundleID
                 ? ChatGPTWebPageProgram.edgeEvidence(for: registration.sourceID) != nil
-                : registration.sourceID != ChatGPTWebPageProgram.edgeSourceID),
+                : !ChatGPTWebPageProgram.isEdgeExclusive(registration.sourceID)),
               registration.identity == Self.identity(for: request),
               request.operation.assetID == request.asset.id, request.operation.phase != .prepared,
               request.operation.phase.isUnresolved || request.operation.phase == .succeeded,

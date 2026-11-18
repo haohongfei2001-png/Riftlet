@@ -11,6 +11,9 @@ require('./ordinary-composer.test.cjs');
 require('./click-document-witness.test.cjs');
 require('./edge-input.test.cjs');
 require('./edge-calibration-diagnostics.test.cjs');
+require('./edge-encoded-preview.test.cjs');
+require('./edge-encoded-progress.test.cjs');
+require('./edge-staged-progress.test.cjs');
 
 function accepted(f,op) {
  const observation=f.observe(op);

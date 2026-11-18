@@ -586,7 +586,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
            ![.inputTriggered, .unknown, .invalidated].contains(envelope.observation.state) {
             guard mode == .ordinaryProduct, envelope.observation.state == .uploadStarted,
                   let source = registration?.source,
-                  [ChatGPTWebPageProgram.edgeSourceID, ChatGPTWebPageProgram.priorEdgeSource].contains(source),
+                  [ChatGPTWebPageProgram.edgeSourceID, ChatGPTWebPageProgram.priorEncodedSource, ChatGPTWebPageProgram.priorEdgeSource].contains(source),
                   let evidence = ChatGPTWebPageProgram.edgeEvidence(for: source),
                   scopedNormalizer.profile.uploadStartProfileID == OrdinaryProductScreenshotScope.edgeProgressStartProfileID,
                   envelope.provenance == .init(source: .integratedDevelopment, evidenceID: evidence),

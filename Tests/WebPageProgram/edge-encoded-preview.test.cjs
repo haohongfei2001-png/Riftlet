@@ -7,7 +7,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const {File} = require('node:buffer');
 const source = fs.readFileSync(path.join(__dirname,
-  '../../Sources/RiftletAdapters/Resources/edge-encoded-preview.js'), 'utf8');
+  '../../Sources/RiftletAdapters/Resources/edge-encoded-preview-v26.js'), 'utf8');
 const name = 'riftlet-11111111-1111-4111-8111-111111111111.png';
 const original = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLttAAAAABJRU5ErkJggg==', 'base64');
 function fixture(hold) {
@@ -95,4 +95,18 @@ test('invalid original PNG header/dimensions are refused before decoder; operati
   assert.equal(f.counters.decoded,0);
   f.sandbox.location.href='https://chatgpt.com/';
   assert.equal(f.getWatcher(),null);
+});
+
+test('Swift UUID and lowercase UUID forms retain exact case-sensitive File and operation equality', () => {
+  const f=fixture(), id='abcdef01-2345-4abc-8def-abcdef012345';
+  const file=n=>new File([original],n,{type:'image/png'});
+  for(const uuid of [id,id.toUpperCase()]) {
+    const exact='riftlet-'+uuid+'.png';
+    assert.ok(f.watch(file(exact),exact));
+  }
+  const upper='riftlet-'+id.toUpperCase()+'.png', lower='riftlet-'+id+'.png';
+  assert.equal(f.watch(file(lower),upper),null);
+  for(const invalid of [upper.toUpperCase(),upper.replace('.png','.PNG'),upper.replace('riftlet','Riftlet'),upper+'.png']) {
+    assert.equal(f.watch(file(invalid),invalid),null);
+  }
 });
