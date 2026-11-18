@@ -116,7 +116,7 @@ def previous_version(feed):
 
 def require_successor(previous, v, build):
     old_v, old_b = previous
-    check(version(v) > old_v and number(build) > old_b, 'both marketing version and build must increase')
+    check(version(v) >= old_v and number(build) > old_b, 'build must increase and marketing version must not decrease')
 
 
 def validate_item(feed, v, build, size, body):
@@ -186,8 +186,8 @@ def verify_transition(old, new):
         return
     verify(old)
     previous = previous_version(old)
-    check(latest[0] > previous[0] and latest[1] > previous[1],
-          'feed replacement must increase both stable version and build')
+    check(latest[0] >= previous[0] and latest[1] > previous[1],
+          'feed replacement requires a newer build with no marketing version downgrade')
 
 
 def verify_github_transition():
