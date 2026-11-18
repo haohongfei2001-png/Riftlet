@@ -123,6 +123,7 @@ public actor TransferCoordinator {
     // Only new inputs acquire background polling slots. Explicit historical
     // reads use the original identity and never allocate another polling slot.
     private struct InputWatch {
+        let registeredAt: TimeInterval
         var reads = 0
         var due: TimeInterval = 0
     }
@@ -295,7 +296,7 @@ public actor TransferCoordinator {
             if let op = originalOperation, replacing == nil {
                 if op.phase == .unknown || op.phase == .compensated {
                     if usesIndependentFileInput, try await store.ownsDispatchedOperation(op.id, ownerID: dispatchOwnerID) {
-                        currentFileInputs[op.id] = InputWatch()
+                        currentFileInputs[op.id] = InputWatch(registeredAt: observationClock())
                     }
                     try await reconcile(op)
                 }
@@ -486,7 +487,7 @@ public actor TransferCoordinator {
             do {
                 if usesIndependentFileInput {
                     try await store.markIndependentFileInputIntent(id, selection: accepted, ownerID: dispatchOwnerID)
-                    currentFileInputs[id] = InputWatch()
+                    currentFileInputs[id] = InputWatch(registeredAt: observationClock())
                 } else {
                     try await store.markDispatchIntent(id, selection: accepted, ownerID: dispatchOwnerID)
                 }
@@ -693,7 +694,12 @@ public actor TransferCoordinator {
                 .prefix(max(0, min(32, limit)))
             for (id, var watch) in due {
                 guard !Task.isCancelled else { return }
-                // Back off permission probes without consuming an observation.
+                // Denied probes do not use read attempts or keep a dead watch
+                // resident after the page's own ten-minute observation window.
+                guard now - watch.registeredAt < 600 else {
+                    currentFileInputs.removeValue(forKey: id)
+                    continue
+                }
                 watch.due = now + min(120, 5 * pow(2, Double(watch.reads)))
                 currentFileInputs[id] = watch
                 guard let op = try await store.operation(id: id), op.phase.isUnresolved,
@@ -701,7 +707,13 @@ public actor TransferCoordinator {
                     currentFileInputs.removeValue(forKey: id)
                     continue
                 }
-                guard await authorize(op.target), !Task.isCancelled else { continue }
+                guard await authorize(op.target), !Task.isCancelled else {
+                    if currentFileInputs[id] != nil {
+                        watch.due = now + 30
+                        currentFileInputs[id] = watch
+                    }
+                    continue
+                }
                 guard currentFileInputs[id] != nil else { continue }
                 watch.reads += 1
                 currentFileInputs[id] = watch
