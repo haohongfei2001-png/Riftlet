@@ -315,6 +315,17 @@ class BundleVerificationTests(unittest.TestCase):
         with self.assertRaisesRegex(VERIFY.VerificationError, "^resource_differs_from_source_"):
             VERIFY.verify_bundle(self.app, REPOSITORY, "isolated-product-acceptance")
 
+    def test_edge_v24_requires_both_packaged_program_components(self):
+        for name in ("chatgpt-web-edge-v24.js", "edge-encoded-preview.js"):
+            with self.subTest(resource=name):
+                path = self.bundle / name
+                original = path.read_bytes()
+                path.unlink()
+                self.assert_rejected("missing_or_ambiguous_" + name, REPOSITORY)
+                path.write_bytes(b"// substituted")
+                self.assert_rejected("resource_differs_from_source_" + name, REPOSITORY)
+                path.write_bytes(original)
+
     def test_mac_resource_bundle_layout_and_post_signing_directory(self):
         nested = self.bundle / "Contents/Resources"
         nested.mkdir(parents=True)
