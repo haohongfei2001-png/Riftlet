@@ -80,7 +80,7 @@ final class ImportFaultTests: XCTestCase {
             let report = try await reopened.recover()
             let beforeRetry = try await reopenedStore.assets()
             switch boundary {
-            case .stageOpened, .stageSynced:
+            case .stageOpened, .stageSynced, .journalTemporarySynced:
                 // Unjournaled stages are inert, even when their bytes happen to be complete.
                 XCTAssertEqual(report.adopted, 0)
                 XCTAssertTrue(beforeRetry.isEmpty)
@@ -93,6 +93,12 @@ final class ImportFaultTests: XCTestCase {
                 XCTAssertEqual(report.adopted, 0)
                 XCTAssertEqual(beforeRetry.count, 1)
             }
+            try await reopened.cleanAbandonedStaging()
+            let orphans = try await reopened.orphanFiles()
+            if [.stageSynced, .journalTemporarySynced].contains(boundary) {
+                XCTAssertEqual(orphans.count, 1)
+                XCTAssertEqual(try Data(contentsOf: XCTUnwrap(orphans.first)), f.bytes)
+            } else { XCTAssertTrue(orphans.isEmpty) }
             let result = try await importNow(reopened, from: f)
             let retry = try await importNow(reopened, from: f)
             let afterRetry = try await reopenedStore.assets(includeUsed: true)
@@ -101,6 +107,18 @@ final class ImportFaultTests: XCTestCase {
             XCTAssertEqual(try f.files("media").count, 1)
             XCTAssertEqual(try Data(contentsOf: f.source), f.bytes)
             let again = try await reopened.recover()
+            for _ in 0..<2 {
+                let nextStore = try QueueStore(databaseURL: f.databaseURL)
+                let next = PrivateAssetImporter(privateRoot: f.privateRoot, store: nextStore)
+                _ = try await next.recover()
+                try await next.cleanAbandonedStaging()
+                let remaining = try await next.orphanFiles()
+                XCTAssertTrue(remaining.isEmpty)
+                XCTAssertTrue(try f.files("staging").isEmpty)
+                XCTAssertTrue(try f.files("captures").isEmpty)
+                XCTAssertEqual(try f.files("journal").count, 1)
+                XCTAssertEqual(try f.files("media").map { try Data(contentsOf: $0).count }, [f.bytes.count])
+            }
             XCTAssertEqual(again.adopted, 0)
         }
     }

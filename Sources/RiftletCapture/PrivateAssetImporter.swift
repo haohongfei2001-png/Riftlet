@@ -19,7 +19,7 @@ struct ImportManifest: Codable {
 /// Internal deterministic fault seams. Production construction leaves the hook nil.
 /// Tests reopen real files/SQLite after an interruption; this does not simulate power loss.
 enum ImportBoundary: CaseIterable, Hashable, Sendable {
-    case stageOpened, stageSynced, journalRenamed, journalSynced
+    case stageOpened, stageSynced, journalTemporarySynced, journalRenamed, journalSynced
     case mediaRenamed, mediaSynced, databaseCommitted
 }
 
@@ -465,9 +465,18 @@ enum PrivateFiles {
         let temporary = destination.deletingLastPathComponent().appendingPathComponent("." + UUID().uuidString + ".tmp")
         let descriptor = Darwin.open(temporary.path, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0o600)
         guard descriptor >= 0 else { throw CaptureError.io("create-import-journal", errno) }
-        defer { Darwin.close(descriptor); try? FileManager.default.removeItem(at: temporary) }
+        var simulateExit = false
+        defer {
+            Darwin.close(descriptor)
+            if !simulateExit { try? FileManager.default.removeItem(at: temporary) }
+        }
         try writeAll(data, descriptor: descriptor)
         guard fsync(descriptor) == 0 else { throw CaptureError.io("sync-import-journal", errno) }
+        do { try probe?(.journalTemporarySynced) }
+        catch is SimulatedImportInterruption {
+            simulateExit = true
+            throw SimulatedImportInterruption(boundary: .journalTemporarySynced)
+        }
         guard Darwin.rename(temporary.path, destination.path) == 0 else { throw CaptureError.io("commit-import-journal", errno) }
         didRename()
         try probe?(.journalRenamed)
