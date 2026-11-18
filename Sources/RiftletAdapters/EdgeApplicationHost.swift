@@ -85,12 +85,12 @@ struct EdgeApplicationHost: ApplicationHostAdapter {
 enum EdgeReadEvents {
     enum Wait {
         case ordinary(TimeInterval?)
-        case click(EdgeClickAppleEvent)
+        case click((NSAppleEventDescriptor) throws -> NSAppleEventDescriptor)
 
         func send(_ event: NSAppleEventDescriptor) throws -> NSAppleEventDescriptor {
             switch self {
-            case .click(let budget):
-                return try budget.send(event)
+            case .click(let send):
+                return try send(event)
             case .ordinary(let deadlineUptime):
                 let timeout: TimeInterval
                 if let deadlineUptime {

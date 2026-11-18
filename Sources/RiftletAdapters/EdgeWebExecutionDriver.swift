@@ -23,8 +23,13 @@ extension EdgeWebExecutionDriver {
 /// and the writable tab URL property. No osascript recipient lookup, activation,
 /// remote debugging, private API, extension, chooser or network API is involved.
 struct NativeEdgeWebExecutionDriver: EdgeWebExecutionDriver {
+    private func clickHost(deadline: TimeInterval) -> EdgeApplicationHost {
+        let wait = EdgeClickAppleEvent(deadlineUptime: deadline)
+        return EdgeApplicationHost(wait: .click { try wait.send($0) })
+    }
+
     func freeze(deadline: TimeInterval) throws -> EdgeWindowTab {
-        do { return try EdgeApplicationHost(wait: .click(.init(deadlineUptime: deadline))).freeze() } catch { throw Self.mapped(error) }
+        do { return try clickHost(deadline: deadline).freeze() } catch { throw Self.mapped(error) }
     }
     func revalidate(_ target: EdgeWindowTab, deadline: TimeInterval,
                     descriptorFailure: (EdgeDescriptorFailure) -> Void) throws {
@@ -35,7 +40,7 @@ struct NativeEdgeWebExecutionDriver: EdgeWebExecutionDriver {
         }
     }
     func recheckClickSelection(_ target: EdgeWindowTab, deadline: TimeInterval) throws {
-        do { try EdgeApplicationHost(wait: .click(.init(deadlineUptime: deadline))).recheckClickSelection(target) }
+        do { try clickHost(deadline: deadline).recheckClickSelection(target) }
         catch { throw Self.mapped(error) }
     }
     func isCurrent(_ target: EdgeWindowTab) -> Bool {
