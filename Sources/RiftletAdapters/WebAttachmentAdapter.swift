@@ -41,21 +41,23 @@ public struct WebBridgeCommand: Encodable, Sendable {
     public let chunkIndex: Int?
     public let chunkBase64: String?
     public let invocationID: UUID?
+    public let requireLiveOriginal: Bool?
     /// Host diagnostics only, deliberately excluded from the page payload.
     public let captureInvocation: CaptureInvocationContext?
 
     private enum CodingKeys: String, CodingKey {
-        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID
+        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID, requireLiveOriginal
     }
 
     init(action: WebBridgeAction, target: TargetLease? = nil, identity: ObservationIdentity? = nil,
          uploadName: String? = nil, mediaType: String? = nil, byteCount: Int64? = nil,
          chunkIndex: Int? = nil, chunkBase64: String? = nil, invocationID: UUID? = nil,
-         captureInvocation: CaptureInvocationContext? = nil) {
+         requireLiveOriginal: Bool? = nil, captureInvocation: CaptureInvocationContext? = nil) {
         self.action = action; self.target = target; self.identity = identity
         self.uploadName = uploadName; self.mediaType = mediaType; self.byteCount = byteCount
         self.chunkIndex = chunkIndex; self.chunkBase64 = chunkBase64; self.invocationID = invocationID
         self.captureInvocation = captureInvocation
+        self.requireLiveOriginal = requireLiveOriginal
     }
 }
 
@@ -429,7 +431,10 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
               request.operation.phase != .prepared else { throw WebAdapterError.invalidRequest }
         let identity = ObservationIdentity(operationID: request.operation.id, assetID: request.asset.id,
             attempt: request.operation.attempt, assetSHA256: request.asset.sha256, target: request.operation.target)
-        let data = try await perform(.init(action: .observe, target: identity.target, identity: identity))
+        let invocation = request.requireLiveOriginal ? request.invocationID : nil
+        guard !request.requireLiveOriginal || invocation != nil else { throw WebAdapterError.invalidRequest }
+        let data = try await perform(.init(action: .observe, target: identity.target, identity: identity,
+                                           invocationID: invocation, requireLiveOriginal: request.requireLiveOriginal ? true : nil))
         // Successful operations may only be checked for identity-correlated late
         // errors. A single observation does not start another polling/upload loop.
         if mode == .ordinaryProduct || request.operation.phase == .succeeded {

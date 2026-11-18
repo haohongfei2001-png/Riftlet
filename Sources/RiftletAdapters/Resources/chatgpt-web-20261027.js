@@ -776,7 +776,7 @@ function riftletWebAcceptance(command, native) {
     if (views.length) op.failureWatch = {binding: new WeakRef(op.binding), views};
   }
 
-  function reportsOriginalError(op, view, binding) {
+  function matchesOriginalCard(op, view, binding, requireError = true) {
     const card = view.card.deref();
     if (!card?.isConnected || (view.portalParent
         ? view.portalParent.deref() !== card.parentElement || !independentCardPortal(card, binding)
@@ -785,7 +785,7 @@ function riftletWebAcceptance(command, native) {
     // v18 watches in an already-open document used only data-file-name and
     // the card itself. Preserve that read path without expanding its evidence.
     if (view.namedCard === undefined) {
-      return declared === op.name && ['error', 'failed'].includes(card.getAttribute('data-state'))
+      return declared === op.name && (!requireError || ['error', 'failed'].includes(card.getAttribute('data-state')))
         && consistentCardLabels(card, op.name);
     }
     if (view.parent.deref() !== card.parentElement) return false;
@@ -800,7 +800,7 @@ function riftletWebAcceptance(command, native) {
       }
     }
     const failed = node => ['failed', 'error'].includes(node.getAttribute('data-state'));
-    if (failed(card)) return consistentCardLabels(card, op.name);
+    if (!requireError || failed(card)) return consistentCardLabels(card, op.name);
     // Only the initially bound, still-identical preview can contribute a
     // descendant's error. An inserted status, toast, or sibling cannot.
     const preview = view.preview?.deref();
@@ -867,7 +867,7 @@ function riftletWebAcceptance(command, native) {
       item.attachmentID = op.attachmentID; item.exactImageIdentity = true;
       item.uploadStart = {...op.start};
       const watch = op.failureWatch, original = watch?.binding.deref();
-      if (watch && sameDraft(original) && (watch.views || [watch]).some(view => reportsOriginalError(op, view, original))) {
+      if (watch && sameDraft(original) && (watch.views || [watch]).some(view => matchesOriginalCard(op, view, original))) {
         item.state = 'failed'; item.hasError = true;
         delete item.uploadStart;
       }
@@ -916,7 +916,19 @@ function riftletWebAcceptance(command, native) {
     if (command.action === 'observe') return blank(identity, 'invalidated');
     fail('ORIGINAL_OPERATION_REQUIRED');
   }
-  if (command.action === 'observe') return observe(op);
+  if (command.action === 'observe') {
+    // Manual historical checks additionally bind the persisted invocation and
+    // require the original live draft/member. A past START alone is insufficient.
+    if (command.requireLiveOriginal === true) {
+      if (!uuid(command.invocationID) || command.invocationID !== op.invocationID) return blank(identity, 'invalidated');
+      const watch = op.failureWatch, original = watch?.binding.deref();
+      const available = op.start
+        ? watch && sameDraft(original) && (watch.views || [watch]).some(view => matchesOriginalCard(op, view, original, false))
+        : sameDraft(op.binding);
+      if (!available) return blank(identity, 'invalidated');
+    }
+    return observe(op);
+  }
   if (command.invocationID !== op.invocationID) fail('INVOCATION_MISMATCH');
   if (command.action === 'discard') {
     if (!op.committed) { op.chunks = []; op.discarded = true; op.binding = null; }

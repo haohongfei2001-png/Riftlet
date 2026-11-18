@@ -773,3 +773,22 @@ test('a retained v18 watch can report its own error but conflicting labels veto 
  otherComposer.append(card); accepted(f,a);
  assert.equal(f.setters,1); assert.equal(f.sends,0);
 });
+
+test('on-demand reconciliation binds the original invocation, draft and living attachment card', async () => {
+ const f=fixture(), op=f.bind();
+ f.stage(op); await f.commit(op);
+ const original=op.command('observe');
+ const inspect=extra=>f.call({...original,requireLiveOriginal:true,...extra}).observation;
+ const card=f.document.querySelectorAll('[data-file-name]').find(n=>n.getAttribute('data-file-name')===op.name);
+ assert.equal(inspect().state,'uploadStarted');
+ assert.equal(inspect({invocationID:'00000000-0000-4000-8000-000000000000'}).state,'invalidated');
+ card.setAttribute('data-state','failed');
+ assert.equal(inspect().state,'failed');
+ card.setAttribute('data-file-name','other.png');
+ assert.equal(inspect().state,'invalidated');
+ card.setAttribute('data-file-name',op.name);
+ f.setRoute('https://chatgpt.com/c/other');
+ assert.equal(inspect().state,'invalidated');
+ assert.equal(f.observe(op).state,'uploadStarted');
+ assert.equal(f.setters,1); assert.equal(f.changes,1); assert.equal(f.sends,0);
+});

@@ -50,9 +50,12 @@ public actor QueueStore {
 
     private var cleanablePredicate: String {
         """
-        visibility!='visible' AND status IN ('pending','used')
+        visibility!='visible' AND status IN ('pending','used','transferring','unknown')
         AND id NOT IN (SELECT asset_id FROM retired_media)
-        AND NOT EXISTS (SELECT 1 FROM operations o WHERE o.asset_id=assets.id AND o.phase NOT IN ('succeeded','failed'))
+        AND NOT EXISTS (SELECT 1 FROM operations o WHERE o.asset_id=assets.id AND o.phase NOT IN ('succeeded','failed')
+            AND NOT (o.id!=assets.active_operation_id AND EXISTS (SELECT 1 FROM handled_attachments h WHERE h.operation_id=o.id))
+            AND NOT (o.id=assets.active_operation_id AND o.dispatch_exclusive=0 AND o.phase IN ('inputTriggered','attachmentPresent','unknown')
+              AND EXISTS (SELECT 1 FROM upload_starts s WHERE s.operation_id=o.id)))
         """
     }
 
@@ -60,18 +63,31 @@ public actor QueueStore {
         let age = cutoff == nil ? "" : " AND last_interaction_at<=?"
         return try database.rows("SELECT \(assetColumns) FROM assets WHERE " + cleanablePredicate + age,
                                  cutoff.map { [String($0.timeIntervalSince1970)] } ?? []).map(decodeAsset)
-            .filter { !selectionReservations.contains($0.id) }
+            .filter { try eligibleReturnedInput($0) && !selectionReservations.contains($0.id) }
+    }
+
+    private func eligibleReturnedInput(_ record: AssetRecord) throws -> Bool {
+        guard record.status == .transferring || record.status == .unknown else { return true }
+        guard let id = record.activeOperationID, let op = try operation(id: id),
+              let call = try dispatchCall(id), call.version == 1, call.inputExecutionReturned == true,
+              call.operationID == id, call.assetID == record.id, call.attempt == op.attempt,
+              call.target == op.target, call.assetSHA256 == record.image.sha256,
+              let start = try uploadStartReceipt(for: id), start.uploadStartEvidence?.signal == .attachmentAccepted,
+              let latest = try receipt(for: id) else { return false }
+        let state = HistoryAttachmentState(record: record, operation: op, receipt: latest, startReceipt: start)
+        if state == .handedOff { return !latest.hasError }
+        return try state == .checkDraft && !database.rows("SELECT 1 FROM handled_attachments WHERE operation_id=?", [id.uuidString]).isEmpty
     }
 
     /// Keep the immutable asset, source occurrence and operation rows. This transaction
     /// fences stale Restore buttons and excludes newly active or unresolved work.
     public func retireMedia(_ id: UUID, revision: Int64, batch: UUID) throws {
         try database.transaction {
-            guard !selectionReservations.contains(id),
+            guard !selectionReservations.contains(id), let record = try asset(id: id), try eligibleReturnedInput(record),
                   try !database.rows("SELECT 1 FROM assets WHERE id=? AND visibility_revision=? AND " + cleanablePredicate,
                                      [id.uuidString, String(revision)]).isEmpty else { throw RiftletError.invalidTransition }
             // A 1.0.4 opener must refuse before recovering deliberately moved copies as missing.
-            if mode == .production { try database.execute("PRAGMA user_version = 5") }
+            if mode == .production, try database.rows("PRAGMA user_version").first?.first != "6" { try database.execute("PRAGMA user_version = 5") }
             try database.execute("INSERT INTO retired_media(asset_id,batch) VALUES(?,?)", [id.uuidString, batch.uuidString])
         }
     }
@@ -124,10 +140,11 @@ public actor QueueStore {
         """
         SELECT a.sequence,a.image_json,a.status,a.active_operation_id,a.visibility,a.visibility_revision,
                a.visibility_reason,a.last_interaction_at,o.id,o.asset_id,o.attempt,o.target_json,
-               o.phase,o.created_at,o.updated_at,o.receipt_json,s.receipt_json,o.reason
+               o.phase,o.created_at,o.updated_at,o.receipt_json,s.receipt_json,o.reason,h.operation_id
         FROM assets a
         LEFT JOIN operations o ON o.id=a.active_operation_id AND o.asset_id=a.id
         LEFT JOIN upload_starts s ON s.operation_id=o.id
+        LEFT JOIN handled_attachments h ON h.operation_id=o.id
         """
     }
 
@@ -139,7 +156,7 @@ public actor QueueStore {
         }
         return QueueHistoryRecord(record: record, operation: operation, receipt: try receipt(15),
                                   startReceipt: try receipt(16), canRestore: canRestoreToQueue(record, operation: operation),
-                                  reason: row[17])
+                                  isHandled: row[18] != nil, reason: row[17])
     }
 
     public func historySnapshot(limit: Int = 200, offset: Int = 0) throws -> [QueueHistoryRecord] {
@@ -187,7 +204,7 @@ public actor QueueStore {
         }
         let pending = try rows.compactMap { row -> UUID? in
             let entry = try historyRecord(row)
-            return entry.attachmentState.needsVerification ? entry.record.id : nil
+            return !entry.isHandled && entry.attachmentState.needsVerification ? entry.record.id : nil
         }
         if reload { reviewIDs = Set(pending) }
         else {
@@ -353,15 +370,68 @@ public actor QueueStore {
         }
     }
 
+    private func actionableAttachment(_ id: UUID) throws -> QueueHistoryRecord {
+        guard let row = try database.rows(historyProjectionSQL + " WHERE o.id=? AND o.phase!='prepared'", [id.uuidString]).first else {
+            throw RiftletError.invalidTransition
+        }
+        let entry = try historyRecord(row)
+        guard entry.attachmentState.needsVerification else { throw RiftletError.invalidTransition }
+        return entry
+    }
+
+    public func markAttachmentHandled(operationID: UUID) throws {
+        try database.transaction {
+            let entry = try actionableAttachment(operationID)
+            try database.execute("INSERT OR IGNORE INTO handled_attachments(operation_id) VALUES(?)", [operationID.uuidString])
+            invalidateAttachmentReview(entry.record.id)
+        }
+    }
+
+    /// Showing a recovery tile leaves the original operation active. The application
+    /// separately binds the subsequent, explicitly confirmed click to a new target.
+    public func stageAttachmentForReattach(operationID: UUID) throws -> AssetRecord {
+        try database.transaction {
+            let record = try actionableAttachment(operationID).record
+            guard record.status != .missing, try !isRetiredMedia(record.id) else { throw RiftletError.invalidTransition }
+            if record.status == .transferring {
+                try database.execute("UPDATE assets SET status='unknown' WHERE id=?", [record.id.uuidString])
+                invalidateAttachmentReview(record.id)
+            }
+            if record.visibility != .visible { try setVisibility(record, .visible, reason: .userRestored) }
+            guard let staged = try asset(id: record.id) else { throw RiftletError.assetNotFound }
+            return staged
+        }
+    }
+
     /// Duplicate clicks return the unresolved operation instead of allocating a new attempt.
     public func prepare(assetID: UUID, target: TargetLease) throws -> TransferOperation {
+        try prepare(assetID: assetID, target: target, replacing: nil)
+    }
+
+    func prepare(assetID: UUID, target: TargetLease, replacing predecessor: UUID?) throws -> TransferOperation {
         try database.transaction {
             guard let record = try asset(id: assetID) else { throw RiftletError.assetNotFound }
-            if let activeID = record.activeOperationID, let existing = try operation(id: activeID), existing.phase.isUnresolved {
-                return existing
+            if let predecessor {
+                guard record.visibility == .visible, record.activeOperationID == predecessor,
+                      try actionableAttachment(predecessor).record.id == assetID, try !isRetiredMedia(assetID),
+                      record.status != .missing else { throw RiftletError.invalidTransition }
+                // Only this first explicit replacement changes the old single-unresolved
+                // index. Older applications must refuse this format before opening it.
+                if try !database.rows("PRAGMA table_info(operations)").contains(where: { $0[1] == "superseded_locally" }) {
+                    try database.execute("ALTER TABLE operations ADD COLUMN superseded_locally INTEGER NOT NULL DEFAULT 0 CHECK(superseded_locally IN (0,1))")
+                    try database.execute("DROP INDEX one_unresolved_per_asset")
+                    try database.execute("CREATE UNIQUE INDEX one_unresolved_per_asset ON operations(asset_id) WHERE superseded_locally=0 AND phase NOT IN ('failed','succeeded')")
+                }
+                try database.execute("PRAGMA user_version = 6")
+                try database.execute("UPDATE operations SET superseded_locally=1 WHERE id=?", [predecessor.uuidString])
+                try database.execute("INSERT OR IGNORE INTO handled_attachments(operation_id) VALUES(?)", [predecessor.uuidString])
+            } else {
+                if let activeID = record.activeOperationID, let existing = try operation(id: activeID), existing.phase.isUnresolved {
+                    return existing
+                }
+                guard record.visibility == .visible,
+                      record.status == .pending || record.status == .failed else { throw RiftletError.invalidTransition }
             }
-            guard record.visibility == .visible,
-                  record.status == .pending || record.status == .failed else { throw RiftletError.invalidTransition }
             guard mode != .simulation || (target.surface == .simulation && target.adapterID == "simulation") else { throw RiftletError.modeMismatch }
             guard mode != .production || target.surface != .simulation else { throw RiftletError.modeMismatch }
             let count = try database.rows("SELECT COALESCE(MAX(attempt),0) FROM operations WHERE asset_id=?", [assetID.uuidString]).first?[0] ?? "0"
@@ -404,15 +474,29 @@ public actor QueueStore {
         return try JSONDecoder().decode(TransferCompensation.self, from: Data(raw.utf8))
     }
 
+    /// The page's short-lived operation records cannot be rediscovered by
+    /// searching drafts. Probe only a small recent tail on an authorized launch.
+    public func recentOriginalObservationIDs(now: Date = Date()) throws -> [UUID] {
+        let rows = try database.rows("""
+            SELECT o.id FROM (SELECT * FROM operations ORDER BY sequence DESC LIMIT 16) o
+            JOIN assets a ON a.id=o.asset_id AND a.active_operation_id=o.id
+            LEFT JOIN handled_attachments h ON h.operation_id=o.id
+            WHERE o.created_at>=? AND o.dispatch_exclusive=0 AND o.phase NOT IN ('prepared','failed','succeeded')
+              AND h.operation_id IS NULL AND a.id NOT IN (SELECT asset_id FROM retired_media)
+            ORDER BY o.sequence DESC LIMIT 4
+            """, [String(now.addingTimeInterval(-600).timeIntervalSince1970)])
+        return rows.compactMap { $0[0].flatMap(UUID.init(uuidString:)) }
+    }
+
     public func unresolvedOperations() throws -> [TransferOperation] {
-        try database.rows("SELECT id,asset_id,attempt,target_json,phase,created_at,updated_at FROM operations WHERE phase NOT IN ('failed','succeeded') ORDER BY sequence").map(decodeOperation)
+        try database.rows("SELECT id,asset_id,attempt,target_json,phase,created_at,updated_at FROM operations WHERE id IN (SELECT active_operation_id FROM assets) AND phase NOT IN ('failed','succeeded') ORDER BY sequence").map(decodeOperation)
     }
 
     /// Read lightweight facts for the desktop. Old attachment targets are needed
     /// by the coordinator on restart, never to render a queue badge.
     public func unresolvedPhaseCounts() throws -> [OperationPhase: Int] {
         let rows = try database.rows("""
-            SELECT phase,COUNT(*) FROM operations WHERE phase NOT IN ('failed','succeeded') GROUP BY phase
+            SELECT phase,COUNT(*) FROM operations WHERE id IN (SELECT active_operation_id FROM assets) AND phase NOT IN ('failed','succeeded') GROUP BY phase
             """)
         var counts: [OperationPhase: Int] = [:]
         for row in rows {
@@ -588,7 +672,7 @@ public actor QueueStore {
     public func markUnknown(_ id: UUID, reason: String) throws {
         try database.transaction {
             let op = try requiredOperation(id)
-            guard op.phase.isUnresolved, op.phase != .prepared else { throw RiftletError.invalidTransition }
+            guard op.phase.isUnresolved, op.phase != .prepared, try asset(id: op.assetID)?.activeOperationID == id else { throw RiftletError.invalidTransition }
             try update(op, phase: op.phase == .compensated ? .compensated : .unknown, status: .unknown, reason: reason)
         }
     }

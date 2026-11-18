@@ -1,12 +1,20 @@
 import Foundation
 
+public enum OriginalAttachmentCheck: Sendable, Equatable {
+    case observed, unavailable, permissionDenied, busy
+}
+
 public struct TransferRequest: Sendable {
     public let operation: TransferOperation
     public let asset: ImportedAsset
     public let fileURL: URL
     public let invocationID: UUID?
 
-    public init(operation: TransferOperation, asset: ImportedAsset, fileURL: URL, invocationID: UUID? = nil) {
+    public let requireLiveOriginal: Bool
+
+    public init(operation: TransferOperation, asset: ImportedAsset, fileURL: URL, invocationID: UUID? = nil,
+                requireLiveOriginal: Bool = false) {
+        self.requireLiveOriginal = requireLiveOriginal
         self.operation = operation; self.asset = asset; self.fileURL = fileURL
         self.invocationID = invocationID
     }
@@ -107,8 +115,8 @@ public actor TransferCoordinator {
     // These observations do not occupy the next screenshot's input lane.
     private var activeAppends: [UUID: TransferRequest] = [:]
     private var inputExecutions = Set<UUID>()
-    // Only this process's new file inputs may be observed. Existing database
-    // operations are immutable history, never upgraded, retried or reconciled.
+    // Only new inputs acquire background polling slots. Explicit historical
+    // reads use the original identity and never allocate another polling slot.
     private struct InputWatch {
         var reads = 0
         var due: TimeInterval = 0
@@ -152,9 +160,21 @@ public actor TransferCoordinator {
         try await select(assetID, target: frozenTarget, allowCapture: false, visibilityRevision: visibilityRevision)
     }
 
-    /// Only this explicitly accepted selection path may park behind a busy draft.
-    /// Legacy callers retain their prior behavior and cannot manufacture a queued retry.
+    /// Only for the user's explicit new intent on a staged recovery tile. The
+    /// immutable predecessor ID fences delayed and double clicks across attempts.
+    public func reattach(_ selection: AcceptedSelection, replacing operationID: UUID) async throws {
+        guard usesIndependentFileInput, selection.authorization == .currentClick,
+              selection.target.adapterID == adapter.id, !inputExecutions.contains(operationID) else {
+            throw RiftletError.invalidTransition
+        }
+        try await accept(selection, replacing: operationID)
+    }
+
     public func select(_ selection: AcceptedSelection) async throws {
+        try await accept(selection, replacing: nil)
+    }
+
+    private func accept(_ selection: AcceptedSelection, replacing predecessor: UUID?) async throws {
         guard selection.isValid(), acceptedSelections[selection.id] == nil,
               selection.authorization == .currentClick || acceptedSelections.count < maximumPendingSelections else { throw RiftletError.invalidTransition }
         acceptedSelections[selection.id] = selection
@@ -173,7 +193,7 @@ public actor TransferCoordinator {
         }
         do {
             try await select(selection.assetID, target: selection.target, allowCapture: false,
-                             visibilityRevision: selection.visibilityRevision, accepted: selection)
+                             visibilityRevision: selection.visibilityRevision, accepted: selection, replacing: predecessor)
         } catch {
             finishAcceptedSelection(selection)
             throw error
@@ -223,7 +243,7 @@ public actor TransferCoordinator {
     }
 
     private func select(_ assetID: UUID, target frozenTarget: TargetLease?, allowCapture: Bool,
-                        visibilityRevision: Int64?, accepted: AcceptedSelection? = nil) async throws {
+                        visibilityRevision: Int64?, accepted: AcceptedSelection? = nil, replacing: UUID? = nil) async throws {
         // Covers reentrancy while captureTarget awaits a transport reply.
         // Only the selection owner may release its UI reservation. A duplicate
         // invocation cannot settle the original while captureTarget still awaits.
@@ -252,7 +272,7 @@ public actor TransferCoordinator {
             // input. It still needs the original selection's fresh permission
             // and host checks before any transport call.
             if let accepted {
-                if let originalOperation {
+                if let originalOperation, replacing == nil {
                     // The App checks permission for the selection's exact
                     // process. That result cannot authorize observation in a
                     // different still-running browser session. Leave that old
@@ -267,7 +287,7 @@ public actor TransferCoordinator {
                     throw RiftletError.invalidTransition
                 }
             }
-            if let op = originalOperation {
+            if let op = originalOperation, replacing == nil {
                 if op.phase == .unknown || op.phase == .compensated {
                     if usesIndependentFileInput, try await store.ownsDispatchedOperation(op.id, ownerID: dispatchOwnerID) {
                         currentFileInputs[op.id] = InputWatch()
@@ -293,7 +313,7 @@ public actor TransferCoordinator {
             else if allowCapture { target = try await adapter.captureTarget() }
             else { throw RiftletError.adapterUnavailable("No verified target existed at selection; image retained") }
             guard target.adapterID == adapter.id else { throw RiftletError.mismatchedReceipt }
-            let op = try await store.prepare(assetID: assetID, target: target)
+            let op = try await store.prepare(assetID: assetID, target: target, replacing: replacing)
             await store.releaseSelection(assetID); reserved = false
             if let accepted {
                 guard accepted.isValid(), acceptedSelections[accepted.id] != nil else {
@@ -358,7 +378,13 @@ public actor TransferCoordinator {
     /// target. Any queued selection awakened by a terminal receipt keeps its own token.
     public func recoverOriginalObservations(operationIDs: [UUID],
         authorize: @Sendable (TargetLease) async -> Bool = { _ in true }) async throws {
-        guard !usesIndependentFileInput else { return }
+        if usesIndependentFileInput {
+            let allowed = Set(try await store.recentOriginalObservationIDs())
+            for id in operationIDs.prefix(4) where allowed.contains(id) && !Task.isCancelled {
+                _ = try await recheckOriginal(operationID: id, authorize: authorize)
+            }
+            return
+        }
         for id in Set(operationIDs) {
             guard let op = try await store.operation(id: id), op.target.adapterID == adapter.id,
                   op.phase == .unknown || op.phase == .compensated else { continue }
@@ -587,6 +613,40 @@ public actor TransferCoordinator {
         if let selection { finishAcceptedSelection(selection) }
     }
 
+    /// One user-requested read of the durable original binding, independent of
+    /// the background polling budget. This method never queues or drains input.
+    public func recheckOriginal(operationID: UUID,
+        authorize: @Sendable (TargetLease) async -> Bool) async throws -> OriginalAttachmentCheck {
+        guard usesIndependentFileInput, let op = try await store.operation(id: operationID),
+              op.phase.isUnresolved, op.phase != .prepared, op.target.adapterID == adapter.id,
+              let asset = try await store.asset(id: op.assetID), asset.activeOperationID == op.id,
+              let invocation = try await store.dispatchInvocationID(for: op.id) else { return .unavailable }
+        guard await authorize(op.target) else { return .permissionDenied }
+        guard !Task.isCancelled, activeAppends[op.id] == nil, observing.insert(op.id).inserted else { return .busy }
+        defer { observing.remove(op.id) }
+        let request = TransferRequest(operation: op, asset: asset.image,
+            fileURL: mediaDirectory.appendingPathComponent(asset.image.fileName),
+            invocationID: invocation, requireLiveOriginal: true)
+        do {
+            let receipt = try await adapter.reconcile(request)
+            guard receipt.operationID == op.id, receipt.assetID == asset.id,
+                  receipt.attempt == op.attempt, receipt.assetSHA256 == asset.image.sha256,
+                  receipt.target == op.target, receipt.belongsToOriginalDraft,
+                  !Task.isCancelled, try await store.asset(id: asset.id)?.activeOperationID == op.id else { return .unavailable }
+            if let start = try await store.uploadStartReceipt(for: op.id) {
+                guard receipt.attachmentID != nil, receipt.attachmentID == start.attachmentID else { return .unavailable }
+                // Historical START does not prove that a reported failure resolved.
+                if !receipt.hasError { return .observed }
+                guard [.unknown, .definitiveFailure].contains(receipt.outcome) else { return .unavailable }
+            }
+            if try await store.receipt(for: op.id) != receipt {
+                _ = try await store.apply(receipt, policy: policy)
+                await onChange()
+            }
+            return .observed
+        } catch { return .unavailable }
+    }
+
     private func reconcile(_ op: TransferOperation) async throws {
         guard op.target.adapterID == adapter.id else { throw RiftletError.adapterUnavailable("Original adapter is unavailable") }
         if usesIndependentFileInput {
@@ -625,15 +685,18 @@ public actor TransferCoordinator {
                 .prefix(max(0, min(32, limit)))
             for (id, var watch) in due {
                 guard !Task.isCancelled else { return }
-                watch.reads += 1
-                watch.due = now + min(120, 5 * pow(2, Double(watch.reads - 1)))
+                // Back off permission probes without consuming an observation.
+                watch.due = now + min(120, 5 * pow(2, Double(watch.reads)))
                 currentFileInputs[id] = watch
-                defer { if watch.reads >= 8 { currentFileInputs.removeValue(forKey: id) } }
                 guard let op = try await store.operation(id: id), op.phase.isUnresolved else {
                     currentFileInputs.removeValue(forKey: id)
                     continue
                 }
                 guard await authorize(op.target), !Task.isCancelled else { continue }
+                guard currentFileInputs[id] != nil else { continue }
+                watch.reads += 1
+                currentFileInputs[id] = watch
+                defer { if watch.reads >= 8 { currentFileInputs.removeValue(forKey: id) } }
                 // The original durable receipt survives an inaccessible tab.
                 // Transport failure consumes only this read's time budget.
                 try? await reconcile(op)
