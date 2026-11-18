@@ -683,7 +683,13 @@ public actor QueueStore {
     public func markUnknown(_ id: UUID, reason: String) throws {
         try database.transaction {
             let op = try requiredOperation(id)
-            guard op.phase.isUnresolved, op.phase != .prepared, try asset(id: op.assetID)?.activeOperationID == id else { throw RiftletError.invalidTransition }
+            // A corrupt image descriptor can be the reason this fallback is needed.
+            // Check ownership directly under the same write transaction.
+            guard op.phase.isUnresolved, op.phase != .prepared,
+                  try !database.rows("SELECT 1 FROM assets WHERE id=? AND active_operation_id=?",
+                                     [op.assetID.uuidString, id.uuidString]).isEmpty else {
+                throw RiftletError.invalidTransition
+            }
             try update(op, phase: op.phase == .compensated ? .compensated : .unknown, status: .unknown, reason: reason)
         }
     }
