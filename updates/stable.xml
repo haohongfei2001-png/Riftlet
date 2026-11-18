@@ -4,50 +4,29 @@ IMPORTANT: This file was signed by Sparkle. Any modifications to this file requi
     <channel>
         <title>Riftlet</title>
         <item>
-            <title>1.0.2</title>
-            <pubDate>Sat, 14 Nov 2026 23:31:16 +0800</pubDate>
+            <title>1.0.5</title>
+            <pubDate>Wed, 18 Nov 2026 10:59:39 +0800</pubDate>
             <link>https://riftlet.com/</link>
-            <sparkle:version>24</sparkle:version>
-            <sparkle:shortVersionString>1.0.2</sparkle:shortVersionString>
+            <sparkle:version>31</sparkle:version>
+            <sparkle:shortVersionString>1.0.5</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
-            <description sparkle:format="plain-text"><![CDATA[Riftlet 1.0.2 改善截图附加、异常恢复和日常设置。
+            <description sparkle:format="plain-text"><![CDATA[Riftlet 1.0.5 (31)
 
-- 修复动态附件菜单可能选到无关文件输入框的问题，改进点击截图时的目标确认。
-- 修复附加尚未开始就退出后截图滞留的问题。结果不确定的操作继续保留，避免自动重复附加。
-- 外观偏好损坏时保留原文件并继续启动，恢复截图收录和历史访问。
-- 设置整理为「通用」「桌面」「截图」「帮助」四页，常用更新和权限入口更容易找到，编辑中的文字与输入法组字受到保护。
-- 改善中英文引导、菜单栏状态和历史界面，修复英文控制中心标题拥挤的问题。
-- 减少大量历史记录下的重复读取，改善启动和历史刷新响应。
+截图资料现在可以按留存期整理，也可以手动移入系统废纸篓，再从 Riftlet 找回。旧用户沿用原有留存策略，系统截图原件保留。内置截图在收录中断后可从菜单进入「管理」找回。设置与截图仓库增加了对应的恢复入口，大图库会优先载入可见图片。
 
-使用 1.0.1 时，可从菜单栏选择「检查更新…」，阅读说明后决定安装。Riftlet 会正常退出并重新打开，保留截图、历史和设置。使用 1.0.0 或更早版本时，请先退出 App，再将下载包中的 Riftlet.app 拖到原安装位置并选择替换一次。
+如果原附件在原草稿中明确报错，截图可在「需要处理」中找到，并可在有原对话记录时返回核对。Riftlet 不会自动发送消息或重新上传状态不明的截图。真实 ChatGPT 首次、连续双图及服务端终止后的恢复，在本版隔离验收中因未能连接到可用草稿而未验证。
 
-支持 macOS 13 及以上的 Apple 芯片和 Intel Mac。截图附加适用于 Google Chrome 中可编辑的 ChatGPT 网页草稿，需要截图文件夹访问权限、macOS 的 Chrome 自动化授权，以及 Chrome「显示 → 开发者 → 允许 Apple 事件中的 JavaScript」。点击微图后图片交给当前草稿，消息由你发送。
+下载 Riftlet-1.0.5.dmg，打开后将 Riftlet 拖入「应用程序」。手动升级时先退出旧版，再替换原安装位置的 App。支持 Apple Silicon 与 Intel；最低系统要求为 macOS 13。应用与磁盘映像均已通过 Apple 公证。
 
-[下载 Riftlet 1.0.2](https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.2/Riftlet-1.0.2.dmg) · [安装与权限](https://github.com/haohongfei2001-png/Riftlet/blob/main/docs/consumer/INSTALL-AND-PERMISSIONS.md) · [支持与验收范围](https://github.com/haohongfei2001-png/Riftlet/blob/main/docs/consumer/SUPPORT-MATRIX.md)
+Riftlet can now move eligible private screenshot copies to the system Trash and restore them. Existing libraries keep their retention settings. Interrupted captures can be recovered from Manage, and large libraries load visible screenshots first.
 
-隐私联系 [privacy@riftlet.com](mailto:privacy@riftlet.com)
+When the original attachment reports an error, Needs Attention helps you find the screenshot and check its saved conversation. Riftlet never sends messages or automatically uploads an uncertain attachment again. The isolated release test could not reach a live ChatGPT draft, so first-click, rapid two-image attachment and recovery from a server-side terminal failure remain unverified on the live service.
 
-
-Riftlet 1.0.2 improves screenshot attachment, recovery and everyday settings.
-
-- Fixes a case where a dynamic attachment menu could select an unrelated file input, and improves target checks when a screenshot is clicked.
-- Restores screenshots that became stuck after the app quit before attachment began. Operations with an uncertain result remain recorded to avoid automatic duplicate uploads.
-- Keeps the original file when appearance preferences are damaged and allows screenshot collection and history to start.
-- Organizes Settings into General, Desktop, Screenshots and Help. Update and permission controls are easier to find, and text being edited, including input-method composition, is preserved.
-- Improves English and Simplified Chinese setup, menu bar status and history, and fixes crowded English titles in the control center.
-- Reduces repeated reads with large histories to improve startup and history refresh responsiveness.
-
-If you use 1.0.1, choose Check for Updates from the menu bar and decide whether to install after reading the notes. Riftlet quits normally, reopens and preserves screenshots, history and settings. If you use 1.0.0 or earlier, quit the app, then drag the downloaded Riftlet.app to its existing installation location and choose Replace once.
-
-Supports macOS 13 or later on Apple silicon and Intel. Screenshot attachments work in editable ChatGPT web drafts in Google Chrome. Allow access to the screenshot folder, grant macOS permission to automate Chrome, and enable View → Developer → Allow JavaScript from Apple Events in Chrome. Clicking a thumbnail hands that image to the current draft. You send the message yourself.
-
-[Download Riftlet 1.0.2](https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.2/Riftlet-1.0.2.dmg) · [Installation and permissions](https://github.com/haohongfei2001-png/Riftlet/blob/main/docs/consumer/INSTALL-AND-PERMISSIONS.md) · [Support and acceptance coverage](https://github.com/haohongfei2001-png/Riftlet/blob/main/docs/consumer/SUPPORT-MATRIX.md)
-
-Privacy contact [privacy@riftlet.com](mailto:privacy@riftlet.com)]]></description>
-            <enclosure url="https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.2/Riftlet-1.0.2.dmg" length="12416741" type="application/octet-stream" sparkle:edSignature="pkrfHJZi07BWNmNQOMMMRBMBFjc+1Ex+guC4M+BJ8WRh2rexu0+56X6Q5mjZzl6udZmY3/O/IgG2bxdrCOtnBA=="></enclosure>
+Open Riftlet-1.0.5.dmg and drag Riftlet to Applications. For a manual update, quit the old app and replace it in the same location. The app and disk image are notarized by Apple. The universal app supports Apple Silicon and Intel and requires macOS 13 or later.]]></description>
+            <enclosure url="https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.5/Riftlet-1.0.5.dmg" length="12686160" type="application/octet-stream" sparkle:edSignature="pJS/n937O7vwcRz0zDaWaZLPz+k2nR2I/g7tJiVL0dUyn6r8wjQm7l6DyL3tlCYiJjN6ASyJDBOwIf21xLYABg=="></enclosure>
         </item>
     </channel>
 </rss><!-- sparkle-signatures:
-edSignature: YuWoSGjo9sI4AUWA/Hz0Epq3PgVnccxUvH3Vw49A3l8fIvDW6qAV59wyrDLXzS7VdFYNKFQU416npgIXIqALBA==
-length: 5116
+edSignature: 42+5zxo1cH8y/BXBQXSDhY5SUjdutn1OnlYtK4NFo6GWrYhH8yya2949QuKlJ8uilcS6DKlqpSMiq5feK+IxDw==
+length: 3050
 -->
