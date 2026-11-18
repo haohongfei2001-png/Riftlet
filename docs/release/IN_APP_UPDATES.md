@@ -44,3 +44,10 @@ The committed initial feed was created with `python3 scripts/release-appcast.py 
 ## Verification
 
 `python3 scripts/test-release-appcast.py` checks the repository feed using the application public key, rejects changed content and incorrect keys, and exercises release selection, increasing versions, source provenance, signed item policy and collision-safe output. On the isolated signing/test Mac set `RIFTLET_SPARKLE_TEST_BIN` to the official tools directory before running this command to include a generated QA DMG. That case signs a temporary feed and archive with a disposable in-memory test key, checks both with Sparkle and CryptoKit, and rejects tampered, incomplete and incorrectly signed downloads. Actual application restart and data continuity are covered by separate installation tests.
+
+
+After deployment, check both download buttons, the latest immutable GitHub release, the public feed and a complete anonymous download against the same notarized DMG receipt. Run this command on the release Mac with the corresponding public key.
+
+```sh
+python3 -B scripts/release-appcast.py verify-public --receipt "$RIFTLET_RELEASE_WORKSPACE/formal-dmg/dmg-receipt.json"
+```
