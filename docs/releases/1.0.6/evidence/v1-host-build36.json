@@ -92,5 +92,14 @@
     "median": 5091.7,
     "p95NearestRank": 7098.4,
     "maximum": 7098.4
+  },
+  "supplementalTextSelection": {
+    "build": 36,
+    "singleClick": true,
+    "entireVisibleShortDraftComparedBeforeAndAfter": true,
+    "selectedRange": "final two digits, unchanged",
+    "existingAttachmentCards": 5,
+    "additionalVisibleUploadCard": 1,
+    "sendsObserved": 0
   }
 }
