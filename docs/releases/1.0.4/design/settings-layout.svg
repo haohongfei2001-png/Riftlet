@@ -1,0 +1,217 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="850" viewBox="0 0 1120 850" role="img" aria-labelledby="title desc">
+  <title id="title">1.0.4 设计结构示意 · 非运行截图</title>
+  <desc id="desc">Riftlet 设置的精确布局示意。窗口内容 640×560 逻辑点，四个顶部分页。外观页包含桌面显示、窗口外观、形态、材质预览、位置、显示器、背景透明度与相机实体颜色。右侧解释透明度与颜色作用区域。本图由 SVG 绘制，不证明 App 已实现或运行。</desc>
+  <defs>
+    <style>
+      text { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Noto Sans CJK SC', 'Microsoft YaHei', sans-serif; fill: #202526; }
+      .title { font-size: 24px; font-weight: 650; }
+      .sub { font-size: 13px; fill: #667174; }
+      .label { font-size: 13px; }
+      .small { font-size: 12px; fill: #677275; }
+      .note { font-size: 13px; fill: #405154; }
+      .section { font-size: 15px; font-weight: 650; }
+      .dim { stroke: #91a1a6; stroke-width: 1; fill: none; }
+      .line { stroke: #e0e4e6; stroke-width: 1; }
+      .outline { stroke: #ccd4d8; stroke-width: 1; }
+    </style>
+    <linearGradient id="stage" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e8eef3"/>
+      <stop offset="1" stop-color="#d3dbe4"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0.9" y2="1">
+      <stop offset="0" stop-color="#fbfcff" stop-opacity=".9"/>
+      <stop offset="1" stop-color="#e9edf7" stop-opacity=".8"/>
+    </linearGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="0.9" y2="1">
+      <stop offset="0" stop-color="#a8a4e6"/>
+      <stop offset=".5" stop-color="#8067C7"/>
+      <stop offset="1" stop-color="#6761a9"/>
+    </linearGradient>
+    <linearGradient id="auto" x1="0" y1="0" x2="1" y2="0">
+      <stop offset=".5" stop-color="#f8fafb"/>
+      <stop offset=".5" stop-color="#414a51"/>
+    </linearGradient>
+    <filter id="windowShadow" x="-12%" y="-10%" width="124%" height="130%">
+      <feDropShadow dx="0" dy="9" stdDeviation="12" flood-color="#283941" flood-opacity=".10"/>
+    </filter>
+    <filter id="keyShadow" x="-25%" y="-25%" width="150%" height="165%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="#343b54" flood-opacity=".16"/>
+    </filter>
+    <g id="down">
+      <path d="m0 0 3 3 3-3" fill="none" stroke="#667379" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <g id="camera">
+      <path d="M3 5.5H8.3L10.8 1.4H17.2L19.8 5.5H25.2Q26.8 5.5 26.8 7.2V20.9Q26.8 22.5 25.2 22.5H2.8Q1.2 22.5 1.2 20.9V7.2Q1.2 5.5 3 5.5Z" fill="url(#body)" stroke="#615a9c" stroke-width=".8"/>
+      <path d="M3.1 6.2H8.6L11.2 2.2H16.8L19.4 6.2H25" fill="none" stroke="#dedbf7" stroke-width=".8" stroke-linecap="round"/>
+      <circle cx="14" cy="13.8" r="4.8" fill="#4d5367" stroke="#d9dbec" stroke-width="1.2"/>
+      <circle cx="14" cy="13.8" r="2.8" fill="#252f42"/>
+      <circle cx="13.2" cy="12.6" r=".85" fill="#c9d5e6"/>
+    </g>
+  </defs>
+
+  <rect width="1120" height="850" fill="#f3f5f6"/>
+  <text class="title" x="40" y="46">1.0.4 设计结构示意 · 非运行截图</text>
+  <text class="sub" x="40" y="71">Riftlet · 外观设置 / 布局与分层要求　　SVG 规格图，不代表已实现界面或真实材质效果</text>
+
+  <path class="dim" d="M40 100V92H680V100M40 96H680"/>
+  <rect x="283" y="85" width="154" height="22" rx="6" fill="#f3f5f6"/>
+  <text class="small" x="360" y="100" text-anchor="middle">内容宽度 640 pt</text>
+
+  <!-- The depicted application has exactly 640 x 560 pt of content, plus 28 pt title bar. -->
+  <g filter="url(#windowShadow)">
+    <rect x="40" y="116" width="640" height="588" rx="12" fill="#fff"/>
+  </g>
+  <path d="M52 116H668Q680 116 680 128V144H40V128Q40 116 52 116Z" fill="#f7f8f9"/>
+  <circle cx="57" cy="130" r="4.5" fill="#ff6057" stroke="#e45149" stroke-width=".6"/>
+  <circle cx="73" cy="130" r="4.5" fill="#febc2e" stroke="#e7a421" stroke-width=".6"/>
+  <circle cx="89" cy="130" r="4.5" fill="#28c840" stroke="#24b537" stroke-width=".6"/>
+  <text x="360" y="134" text-anchor="middle" class="small" style="font-weight:600;fill:#505c62">Riftlet 设置</text>
+
+  <!-- Top tabs, not a settings sidebar. -->
+  <rect x="40" y="144" width="640" height="47" fill="#fafbfc"/>
+  <path class="line" d="M40 191H680"/>
+  <g transform="translate(203 160)" stroke="#637176" stroke-width="1.2" fill="none" stroke-linecap="round">
+    <path d="M0 2H14M0 7H14M0 12H14"/>
+    <path d="M4 0V4M10 5V9M5 10V14" stroke-width="2.6"/>
+  </g>
+  <text class="label" x="238" y="173" text-anchor="middle" fill="#637176">通用</text>
+  <rect x="278" y="153" width="76" height="29" rx="7" fill="#e6efef"/>
+  <g transform="translate(291 160)" stroke="#0c6767" stroke-width="1.2">
+    <circle cx="7" cy="7" r="6" fill="none"/>
+    <path d="M7 1A6 6 0 0 1 7 13Z" fill="#0c6767" stroke="none"/>
+  </g>
+  <text class="label" x="326" y="173" text-anchor="middle" style="fill:#0c6767;font-weight:650">外观</text>
+  <g transform="translate(379 160)" stroke="#637176" stroke-width="1.2" fill="none" stroke-linejoin="round">
+    <path d="M1 3H4L5.5 1H9.5L11 3H14V12H1Z"/>
+    <circle cx="7.5" cy="7.5" r="2.5"/>
+  </g>
+  <text class="label" x="414" y="173" text-anchor="middle" fill="#637176">截图</text>
+  <g transform="translate(467 160)" stroke="#637176" stroke-width="1.2" fill="none" stroke-linecap="round">
+    <circle cx="7" cy="7" r="6.5"/>
+    <path d="M5 4.5C5 2.6 9 2.6 9 4.7C9 6.4 7 6.1 7 8.2M7 10.5V10.6"/>
+  </g>
+  <text class="label" x="502" y="173" text-anchor="middle" fill="#637176">帮助</text>
+
+  <text class="label" x="64" y="222">显示桌面截图</text>
+  <rect x="158" y="207" width="32" height="19" rx="9.5" fill="#0f7977"/>
+  <circle cx="180" cy="216.5" r="7" fill="#fff"/>
+  <text class="label" x="432" y="222">窗口外观</text>
+  <rect class="outline" x="507" y="204" width="149" height="26" rx="6" fill="#fff"/>
+  <text class="label" x="519" y="222">跟随系统</text>
+  <use href="#down" x="640" y="214"/>
+
+  <text class="label" x="64" y="263">呈现方式</text>
+  <rect x="362" y="242" width="294" height="30" rx="7" fill="#eef0f2" stroke="#dfe3e6"/>
+  <rect x="364" y="244" width="115" height="26" rx="5" fill="#fff" stroke="#d5dade"/>
+  <text class="label" x="421.5" y="262" text-anchor="middle" style="font-weight:600">截图托盘</text>
+  <path class="line" d="M565 249V265"/>
+  <text class="label" x="521" y="262" text-anchor="middle">风铃</text>
+  <text class="label" x="609" y="262" text-anchor="middle">微缝</text>
+
+  <!-- A drawing of the preview requirement; deliberately separate from live evidence. -->
+  <rect x="64" y="286" width="592" height="140" rx="9" fill="url(#stage)" stroke="#d8e0e6"/>
+  <text class="small" x="78" y="305">预览</text>
+  <rect x="100" y="322" width="170" height="82" rx="5" fill="#eef1f4" stroke="#c1cdd5"/>
+  <rect x="103" y="325" width="164" height="75" rx="3" fill="#dde5ed"/>
+  <rect x="111" y="343" width="21" height="19" rx="3" fill="#f7f8fc" stroke="#b6bfd0"/>
+  <rect x="114" y="346" width="6" height="5" rx="1" fill="#aaa7ca"/>
+  <rect x="123" y="346" width="6" height="5" rx="1" fill="#a7bac6"/>
+  <rect x="114" y="354" width="6" height="5" rx="1" fill="#adc2bc"/>
+  <rect x="123" y="354" width="6" height="5" rx="1" fill="#e0dced"/>
+  <text class="small" x="185" y="418" text-anchor="middle">位置示意</text>
+
+  <path d="M306 310V410" stroke="#c5cfd6"/>
+  <rect x="389" y="298" width="134" height="116" rx="13" fill="url(#glass)" stroke="#fff" stroke-width="1"/>
+  <rect x="393" y="307" width="60" height="43" rx="5" fill="#fafbfc" stroke="#d1d8de"/>
+  <rect x="397" y="311" width="52" height="35" fill="#dfe8ee"/>
+  <path d="M401 319H443M401 324H438M401 329H440" stroke="#8094a4" stroke-width="2"/>
+  <rect x="459" y="307" width="60" height="43" rx="5" fill="#fafbfc" stroke="#d1d8de"/>
+  <rect x="463" y="311" width="52" height="35" fill="#e9e8df"/>
+  <path d="M468 338 479 324 489 331 501 319 510 338Z" fill="#96aaa8"/>
+  <rect x="393" y="360" width="60" height="43" rx="5" fill="#fafbfc" stroke="#d1d8de"/>
+  <rect x="397" y="364" width="52" height="35" fill="#e4e5f0"/>
+  <path d="M402 373H444M402 379H435M402 385H440" stroke="#9694af" stroke-width="2"/>
+  <rect x="459" y="360" width="60" height="43" rx="6" fill="#eeeef6" stroke="#fff" filter="url(#keyShadow)"/>
+  <use href="#camera" transform="translate(475 369)"/>
+  <text class="small" x="547" y="350">材质</text>
+  <text class="small" x="547" y="367">与颜色</text>
+  <text class="small" x="547" y="384">预览</text>
+
+  <text class="label" x="64" y="458">位置</text>
+  <rect class="outline" x="424" y="439" width="232" height="27" rx="6" fill="#fff"/>
+  <text class="label" x="436" y="457">左侧 · 居中</text>
+  <use href="#down" x="640" y="450"/>
+  <path class="line" d="M64 475H656"/>
+  <text class="label" x="64" y="498">显示器</text>
+  <rect class="outline" x="424" y="479" width="232" height="27" rx="6" fill="#fff"/>
+  <text class="label" x="436" y="497">内建视网膜显示器</text>
+  <use href="#down" x="640" y="490"/>
+  <path class="line" d="M64 515H656"/>
+
+  <text class="label" x="64" y="543">背景透明度</text>
+  <text class="small" x="366" y="543" text-anchor="end">更清晰</text>
+  <path d="M382 539H581" stroke="#d8dfe3" stroke-width="4" stroke-linecap="round"/>
+  <path d="M382 539H478" stroke="#267d7b" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="478" cy="539" r="7" fill="#fff" stroke="#9daeb4"/>
+  <text class="small" x="596" y="543">更通透</text>
+  <path class="line" d="M64 562H656"/>
+
+  <text class="label" x="64" y="591">相机颜色</text>
+  <circle cx="338" cy="587" r="11" fill="none" stroke="#197b78" stroke-width="1.5"/>
+  <circle cx="338" cy="587" r="8" fill="url(#auto)" stroke="#c7cfd5" stroke-width=".5"/>
+  <text class="small" x="338" y="610" text-anchor="middle">跟随外观</text>
+  <circle cx="380" cy="587" r="8" fill="#8067C7"/>
+  <circle cx="411" cy="587" r="8" fill="#367DD9"/>
+  <circle cx="442" cy="587" r="8" fill="#278F88"/>
+  <circle cx="473" cy="587" r="8" fill="#C96A58"/>
+  <circle cx="504" cy="587" r="8" fill="#545B65"/>
+  <rect class="outline" x="540" y="574" width="116" height="27" rx="6" fill="#fff"/>
+  <text class="label" x="598" y="592" text-anchor="middle">自定义…</text>
+
+  <path class="line" d="M64 622H656"/>
+  <path d="m67 640 4 4-4 4" fill="none" stroke="#6b797e" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="label" x="82" y="649">更多外观选项</text>
+  <text class="small" x="642" y="684" text-anchor="end">恢复背景透明度默认</text>
+
+  <!-- All following text is specification annotation outside the product canvas. -->
+  <path class="dim" d="M697 144H705V704H697M701 144V704"/>
+  <rect x="690" y="376" width="22" height="95" rx="5" fill="#f3f5f6"/>
+  <text class="small" transform="translate(705 423) rotate(-90)" text-anchor="middle">内容高度 560 pt</text>
+
+  <text class="section" x="744" y="134">实现边界</text>
+  <text class="note" x="744" y="161">内容默认 640 × 560 pt</text>
+  <text class="note" x="744" y="183">最小 600 × 460 pt；有效宽度上限 720 pt</text>
+  <text class="note" x="744" y="205">小窗口滚动内容，顶部分页保持可用。</text>
+  <text class="small" x="744" y="227">显示器仅多屏或已选屏幕断开时出现。</text>
+
+  <text class="section" x="744" y="248">预览必须可信</text>
+  <text class="note" x="744" y="274">实现要求：实际渲染器预览。</text>
+  <text class="note" x="744" y="296">复用材质与相机绘制，只放合成样图；</text>
+  <text class="note" x="744" y="318">这里的 SVG 样本不代表最终玻璃效果。</text>
+  <text class="note" x="744" y="340">位置示意与外观样本各自说明一件事。</text>
+  <text class="small" x="744" y="362">紫相机仅示意分层，默认仍跟随外观。</text>
+
+  <text class="section" x="744" y="385">颜色与透明度的作用区域</text>
+  <rect x="755" y="408" width="126" height="108" rx="15" fill="#e2e8f0" stroke="#8b9eaf" stroke-dasharray="4 3"/>
+  <rect x="773" y="427" width="90" height="68" rx="9" fill="#f3f1f9" stroke="#b3aabd"/>
+  <use href="#camera" transform="translate(789 438) scale(2.05)"/>
+  <path d="M880 414H909" stroke="#8b9eaf" stroke-width="1.3"/>
+  <text class="small" x="918" y="418">背景：透明度</text>
+  <path d="M859 484H909" stroke="#b3aabd" stroke-width="1.3"/>
+  <text class="small" x="918" y="488">键帽：保持独立</text>
+  <path d="M840 451H909" stroke="#8067C7" stroke-width="1.3"/>
+  <text class="small" x="918" y="455">机身：选色范围</text>
+  <path d="M822 467 889 470H909" stroke="#4d5367" stroke-width="1.3"/>
+  <text class="small" x="918" y="473">镜头：独立材质</text>
+  <text class="small" x="744" y="539">轮廓 / 高光 / 下缘 / 接触阴影分层，</text>
+  <text class="small" x="744" y="558">保留原轮廓比例；颜色不覆盖键帽矩形。</text>
+
+  <text class="section" x="744" y="600">只开放两项必要的个性化</text>
+  <text class="note" x="744" y="626">背景透明度；相机实体颜色。</text>
+  <text class="note" x="744" y="648">边框、阴影和圆角采用统一默认。</text>
+  <text class="note" x="744" y="670">系统辅助功能优先，保存用户偏好。</text>
+
+  <rect x="40" y="742" width="1040" height="72" rx="9" fill="#e9eef0"/>
+  <text x="58" y="766" class="note" style="font-weight:600">迁移约束：旧偏好保留，已有用户不因升级被切换形态、颜色或位置。</text>
+  <text x="58" y="789" class="sub">新用户默认托盘；缺少字段的旧数据不等于新用户。托盘仍为两列、最多两行；展开、滚动、点击和原图身份保持不变。</text>
+</svg>

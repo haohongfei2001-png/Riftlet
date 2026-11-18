@@ -100,13 +100,11 @@ final class SettingsProductHostTests: XCTestCase {
             XCTAssertEqual(visibleImages.state, hidden ? .off : .on)
         }
         let centerPosition = try XCTUnwrap(f.host.center.controls["placement"] as? NSPopUpButton)
-        let guidePosition = try XCTUnwrap(f.host.onboarding.control(identifier: "onboarding.placement.rightBottom") as? NSButton)
+        XCTAssertNil(f.host.onboarding.control(identifier: "onboarding.placement.rightBottom"))
         XCTAssertEqual(centerPosition.selectedItem?.identifier?.rawValue, "settings.center.placement.rightBottom")
-        XCTAssertEqual(guidePosition.state, .on)
         let centerDisplay = try XCTUnwrap(f.host.center.controls["display"] as? NSPopUpButton)
-        let guideDisplay = try XCTUnwrap(f.host.onboarding.control(identifier: "onboarding.display") as? NSPopUpButton)
+        XCTAssertNil(f.host.onboarding.control(identifier: "onboarding.display"))
         XCTAssertEqual(centerDisplay.titleOfSelectedItem, "Synthetic second")
-        XCTAssertEqual(guideDisplay.titleOfSelectedItem, "Synthetic second")
         XCTAssertTrue(f.adapter.requests.isEmpty); XCTAssertTrue(f.actions.isEmpty)
         XCTAssertFalse(f.host.isVisible); XCTAssertFalse(f.host.control.isShown)
         XCTAssertEqual(f.loginService.registerCalls + f.loginService.unregisterCalls + f.loginService.openSettingsCalls, 0)
@@ -150,8 +148,7 @@ final class SettingsProductHostTests: XCTestCase {
         let action = try XCTUnwrap(segments.action)
         XCTAssertEqual(segments.selectedSegment, 0)
         XCTAssertNil(f.host.center.controls["history.displayStyle"])
-        let settingsStyle = try XCTUnwrap(f.host.center.controls["history.style"] as? NSSegmentedControl)
-        XCTAssertEqual(settingsStyle.selectedSegment, 0)
+        XCTAssertNil(f.host.center.controls["history.style"], "The library owns its renderer selector")
         XCTAssertNotNil(f.host.center.controls["history.open"])
         f.host.model.setDraftText("88.1250", for: .outerInset)
         let draft = f.host.model.snapshot
@@ -164,7 +161,6 @@ final class SettingsProductHostTests: XCTestCase {
             XCTAssertEqual(f.host.snapshot.historyDisplayStyle, style)
             XCTAssertEqual(f.host.center.product.historyDisplayStyle, style)
             XCTAssertEqual(segments.selectedSegment, index)
-            XCTAssertEqual(settingsStyle.selectedSegment, index, "Settings and the library reflect the same presentation preference")
             XCTAssertEqual(f.host.model.snapshot, draft)
         }
         XCTAssertTrue(f.adapter.requests.isEmpty)
@@ -246,8 +242,8 @@ final class SettingsProductHostTests: XCTestCase {
         let task = Task { @MainActor in await f.host.perform(.settings(.commitField(.outerInset, "81"))) }
         await fulfillment(of: [gate.entered], timeout: 2)
         XCTAssertTrue(f.host.snapshot.state.domains[.layout]!.isSaving)
-        let slider = try XCTUnwrap(f.host.center.controls["slider.outerInset"] as? NSSlider)
-        XCTAssertFalse(slider.isContinuous)
+        let count = try XCTUnwrap(f.host.center.controls["count"] as? NSPopUpButton)
+        XCTAssertFalse(count.isEnabled, "A layout save blocks changes to the discrete desktop count")
         await f.host.perform(.settings(.commitField(.outerInset, "81")))
         XCTAssertEqual(f.adapter.requests.filter { $0.intent.domain == .layout }.count, 1)
         let visibleImages = try XCTUnwrap(f.host.center.controls["desktop.visible"] as? NSSwitch)
@@ -467,7 +463,7 @@ private final class HostSettingsAdapter: SettingsPersistenceAdapter {
         case .captureMode(let value): if !failed { settings.defaultCaptureMode = value }
         case .arrival(let value): if !failed { settings.arrivalMode = value; settings.hasArrivalSelection = true }
         case .archiveMinutes(let value): if !failed { settings.archiveAfterMinutes = value }
-        case .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFavorite:
+        case .layout, .restoreLegacyCustom, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayFavorite, .trayBackgroundTransparency, .trayCameraBodyColor:
             if !failed, let config = request.configuration { settings.configuration = config; settings.preferredDisplayID = config.preferredDisplayID }
         }
         owner = .init(revision: owner.revision + 1, settings: settings, collectionPaused: paused, isHidden: hidden,

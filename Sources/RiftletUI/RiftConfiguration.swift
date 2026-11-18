@@ -136,6 +136,8 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
     private var storedForm: PresentationValue?
     private var storedWindChimeLineInset: PresentationValue?
     private var storedWindChimeArrangement: PresentationValue?
+    private var storedTransparency: PresentationValue?
+    private var storedCameraColor: PresentationValue?
     private var storedTrayTheme: PresentationValue?
     private var storedTrayTintHue: PresentationValue?
     private var storedTrayTintStrength: PresentationValue?
@@ -215,6 +217,40 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
         }
     }
 
+    public var trayBackgroundTransparency: Double? {
+        get { storedTransparency?.number(in: 0...0.75) }
+        set {
+            if let newValue {
+                if let number = PresentationValue.number(newValue, in: 0...0.75) { storedTransparency = number }
+            } else { storedTransparency = nil }
+        }
+    }
+
+    mutating func applyPersistedTrayAppearance(from saved: Self) {
+        storedTransparency = saved.storedTransparency
+        storedCameraColor = saved.storedCameraColor
+    }
+
+    public static func normalizedCameraColor(_ value: String) -> String? {
+        let bytes = value.utf8
+        guard bytes.count == 7, bytes.first == 35, bytes.dropFirst().allSatisfy({
+            (48...57).contains($0) || (65...70).contains($0) || (97...102).contains($0)
+        }) else { return nil }
+        return value.uppercased()
+    }
+
+    public var trayCameraBodyColor: String? {
+        get {
+            guard case .text(let text) = storedCameraColor else { return nil }
+            return Self.normalizedCameraColor(text)
+        }
+        set {
+            if let newValue {
+                if let color = Self.normalizedCameraColor(newValue) { storedCameraColor = .text(color) }
+            } else { storedCameraColor = nil }
+        }
+    }
+
     public var trayTheme: RiftTrayTheme {
         get {
             guard case .text(let raw) = storedTrayTheme else { return .system }
@@ -255,6 +291,7 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
 
     private enum CodingKeys: String, CodingKey { case fitWidth, fitHeight, hiddenFraction, rowPitch, lineWidth, lineExtension, emptyTraceLength, outerInset, firstCenterFromTop, screenPadding, numberFontSize, numberGap, leftPadding, minimumHitWidth, minimumHitHeight, arrivalDuration, pressDuration, inwardDistance, swallowDuration, shiftDuration, returnDuration, reducedMotionDuration, preferredDisplayID, visibleCountPreference, placement, placementSource, preferredDisplayUUID
         case storedWindChimeArrangement = "windChimeArrangement", storedWindChimeLineInset = "windChimeLineInset"
+        case storedTransparency = "trayBackgroundTransparency", storedCameraColor = "trayCameraBodyColor"
         case storedForm = "desktopForm", storedTrayTheme = "trayTheme", storedTrayOcclusion = "trayOcclusion"
         case storedTrayTintHue = "trayTintHue", storedTrayTintStrength = "trayTintStrength"
         case storedTrayFavorite1 = "trayFavorite1", storedTrayFavorite2 = "trayFavorite2", storedTrayFavorite3 = "trayFavorite3"
@@ -263,6 +300,8 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
     public init(from decoder: Decoder) throws {
         self.init()
         let values = try decoder.container(keyedBy: CodingKeys.self)
+        if values.contains(.storedTransparency) { storedTransparency = try values.decode(PresentationValue.self, forKey: .storedTransparency) }
+        if values.contains(.storedCameraColor) { storedCameraColor = try values.decode(PresentationValue.self, forKey: .storedCameraColor) }
         if values.contains(.storedForm) { storedForm = try values.decode(PresentationValue.self, forKey: .storedForm) }
         if values.contains(.storedWindChimeLineInset) {
             storedWindChimeLineInset = try values.decode(PresentationValue.self, forKey: .storedWindChimeLineInset)

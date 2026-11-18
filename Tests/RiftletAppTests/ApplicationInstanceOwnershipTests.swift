@@ -12,6 +12,26 @@ final class ApplicationInstanceOwnershipTests: XCTestCase {
     }
     override func tearDownWithError() throws { try FileManager.default.removeItem(at: root) }
 
+    func testFreshProfileRequiresBothAnEmptyRootAndEmptyAppDomain() throws {
+        let suite = "Riftlet.ProfileTest." + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        for (index, evidence) in [nil, "queue.sqlite", "media", "screenshot-folder.bookmark", "rift-configuration.json"].enumerated() {
+            let directory = root.appendingPathComponent(String(index))
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            if let evidence { try Data("existing profile".utf8).write(to: directory.appendingPathComponent(evidence)) }
+            let owner = try ApplicationInstanceOwnership(root: directory)
+            XCTAssertEqual(owner.isNewProfile(defaults: defaults, domain: suite), evidence == nil)
+            defaults.set("imageGrid", forKey: "historyDisplayStyle")
+            XCTAssertFalse(owner.isNewProfile(defaults: defaults, domain: suite))
+            defaults.removeObject(forKey: "historyDisplayStyle")
+            owner.close()
+            let restarted = try ApplicationInstanceOwnership(root: directory)
+            XCTAssertFalse(restarted.isNewProfile(defaults: defaults, domain: suite))
+            restarted.close()
+        }
+    }
+
     func testHistoricalFeedbackFirstOrderingCanSplitRealStoreAndAppLocks() throws {
         let feedbackB = try FeedbackStore(directory: root.appendingPathComponent("Feedback-v01"))
         let ownerA = try ApplicationInstanceOwnership(root: root)

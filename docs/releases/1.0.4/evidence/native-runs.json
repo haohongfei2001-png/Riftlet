@@ -1,0 +1,420 @@
+{
+  "settings": {
+    "beganUTC": "2026-11-16T19:38:01Z",
+    "completed": true,
+    "elapsedSeconds": 31.81203979167185,
+    "executableSHA256": "219c3d9febac0ff58ab03bb4d1869f374caff1da9256a0bf9b5968731bce9161",
+    "reviewID": "c499ed36-e5e9-4e72-bc08-bb65044987aa",
+    "reviewMode": "settings",
+    "schema": 1,
+    "scope": "UUID-isolated real host/model/SQLite/collector and AppKit windows in the same App binary",
+    "status": "PASS_SCOPED_NATIVE_REVIEW",
+    "notRun": [
+      "realChatGPTAttachment",
+      "physicalPointer",
+      "OSInputMethod",
+      "VoiceOver",
+      "realLoginRegistration",
+      "realTCCPrompt",
+      "multiDisplayHotplug"
+    ],
+    "restorationFailures": [],
+    "rawReportSHA256": "905c0282637c8ab19082a9f26b9957e206d861b7fe5a17551eddc2e0f4ad656f",
+    "caseResults": [
+      {
+        "case": "environment-and-default-window",
+        "status": "PASS"
+      },
+      {
+        "case": "real-collector-synthetic-fixture",
+        "status": "PASS"
+      },
+      {
+        "case": "programmatic-collection-during-recheck",
+        "status": "PASS"
+      },
+      {
+        "case": "four-pages-light-and-dark",
+        "status": "PASS"
+      },
+      {
+        "case": "orthogonal-pause-hidden-sqlite",
+        "status": "PASS"
+      },
+      {
+        "case": "archive-editor-return-and-blur",
+        "status": "PASS"
+      },
+      {
+        "case": "configuration-editor-refresh-defaults",
+        "status": "PASS"
+      },
+      {
+        "case": "close-sheet-continue-discard",
+        "status": "PASS"
+      },
+      {
+        "case": "independent-write-failures-and-retry",
+        "status": "PASS"
+      },
+      {
+        "case": "motion-selection-in-advanced-appearance",
+        "status": "PASS"
+      },
+      {
+        "case": "three-step-guidance-light-and-dark",
+        "status": "PASS"
+      },
+      {
+        "case": "resizing-and-reopen",
+        "status": "PASS"
+      },
+      {
+        "case": "history-real-records",
+        "status": "PASS"
+      },
+      {
+        "case": "original-media-and-no-upload-operations",
+        "status": "PASS"
+      }
+    ],
+    "totalFrameCount": 37,
+    "publishedFrames": [
+      {
+        "file": "settings-light-general.png",
+        "sha256": "248035b9fce3094acff46dec9ff6c7ac543017ede9fb329927979a57e3aa6080",
+        "pixels": [
+          1628,
+          1160
+        ],
+        "backingScale": 2,
+        "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+        "status": "RECORDED_NATIVE_WINDOWSERVER"
+      },
+      {
+        "file": "settings-light-display.png",
+        "sha256": "f3d57c1e071f084dca9d6b5310eacab7c8c1b515f4f9a25bbb2a4099c1afdf26",
+        "pixels": [
+          1628,
+          1160
+        ],
+        "backingScale": 2,
+        "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+        "status": "RECORDED_NATIVE_WINDOWSERVER"
+      },
+      {
+        "file": "settings-light-help.png",
+        "sha256": "094d4cd05ce2c4cbd346ca2a994571a4a2efc0dba826995278b3f17b3aae829b",
+        "pixels": [
+          1628,
+          1160
+        ],
+        "backingScale": 2,
+        "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+        "status": "RECORDED_NATIVE_WINDOWSERVER"
+      },
+      {
+        "file": "control-light.png",
+        "sha256": "84cffd4d67ccc3cc114eb686836e409a6ef793fc11305b76696a13e72ab017c1",
+        "pixels": [
+          500,
+          374
+        ],
+        "backingScale": 2,
+        "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+        "status": "RECORDED_NATIVE_WINDOWSERVER"
+      },
+      {
+        "file": "settings-dark-display.png",
+        "sha256": "713dfc0bcd003bcb6cb1df85449d6f3b433f563be6675da41350e9af2330a60a",
+        "pixels": [
+          1628,
+          1160
+        ],
+        "backingScale": 2,
+        "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+        "status": "RECORDED_NATIVE_WINDOWSERVER"
+      },
+      {
+        "file": "advanced-arrival-selection.png",
+        "sha256": "c14b7fee9e08f167c4d38e416ff193331a3b779b6e7a162eb2732696762a5796",
+        "pixels": [
+          1628,
+          1160
+        ],
+        "backingScale": 2,
+        "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+        "status": "RECORDED_NATIVE_WINDOWSERVER"
+      },
+      {
+        "file": "onboarding-light-2.png",
+        "sha256": "96342aae816766f0c94b7a36c187de7067b0a5c1706a63475fe003bc33a9aa1b",
+        "pixels": [
+          1168,
+          906
+        ],
+        "backingScale": 2,
+        "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+        "status": "RECORDED_NATIVE_WINDOWSERVER"
+      },
+      {
+        "file": "history-real-isolated-records.png",
+        "sha256": "560abe8aa158dfc1202a7ba8303e356277c111a6f147e383353897eafdc65173",
+        "pixels": [
+          1616,
+          984
+        ],
+        "backingScale": 2,
+        "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+        "status": "RECORDED_NATIVE_WINDOWSERVER"
+      }
+    ],
+    "withheldFrames": [
+      {
+        "name": "settings-light-capture",
+        "sha256": "0954dbbcc613bef1ac6af1fa9f03dd499e42c976451b50ee6b1313b6705fc710",
+        "reason": "Original contains a local account name and full isolated fixture path; visually inspected, not published."
+      }
+    ]
+  },
+  "desktop": {
+    "beganUTC": "2026-11-16T19:40:51Z",
+    "completed": true,
+    "elapsedSeconds": 25.774193375000323,
+    "executableSHA256": "219c3d9febac0ff58ab03bb4d1869f374caff1da9256a0bf9b5968731bce9161",
+    "reviewID": "08e39634-ede7-44d7-a116-09923112b726",
+    "reviewMode": "desktopForms",
+    "schema": 1,
+    "scope": "UUID-isolated real host/model/SQLite/collector and AppKit windows in the same App binary",
+    "status": "FAIL",
+    "notRun": [
+      "realChatGPTAttachment",
+      "physicalPointer",
+      "OSInputMethod",
+      "VoiceOver",
+      "realLoginRegistration",
+      "realTCCPrompt",
+      "multiDisplayHotplug"
+    ],
+    "restorationFailures": [],
+    "rawReportSHA256": "746a62e06109517cbb7ec68fa2319105d471d9e1dddbdd68d0737798cf3c2359",
+    "caseResults": [
+      {
+        "case": "isolated-review-controls",
+        "status": "PASS"
+      },
+      {
+        "case": "tray-0",
+        "status": "PASS"
+      },
+      {
+        "case": "windChime-0",
+        "status": "PASS"
+      },
+      {
+        "case": "microSlit-0",
+        "status": "PASS"
+      },
+      {
+        "case": "collect-fixture-1",
+        "status": "PASS"
+      },
+      {
+        "case": "tray-1",
+        "status": "PASS"
+      },
+      {
+        "case": "windChime-1",
+        "status": "PASS"
+      },
+      {
+        "case": "microSlit-1",
+        "status": "PASS"
+      },
+      {
+        "case": "collect-fixture-2",
+        "status": "PASS"
+      },
+      {
+        "case": "tray-2",
+        "status": "PASS"
+      },
+      {
+        "case": "windChime-2",
+        "status": "PASS"
+      },
+      {
+        "case": "microSlit-2",
+        "status": "PASS"
+      },
+      {
+        "case": "collect-fixture-3",
+        "status": "PASS"
+      },
+      {
+        "case": "tray-3",
+        "status": "PASS"
+      },
+      {
+        "case": "windChime-3",
+        "status": "PASS"
+      },
+      {
+        "case": "microSlit-3",
+        "status": "PASS"
+      },
+      {
+        "case": "collect-fixture-4",
+        "status": "PASS"
+      },
+      {
+        "case": "tray-4",
+        "status": "PASS"
+      },
+      {
+        "case": "windChime-4",
+        "status": "PASS"
+      },
+      {
+        "case": "microSlit-4",
+        "status": "PASS"
+      },
+      {
+        "case": "collect-fixture-5",
+        "status": "PASS"
+      },
+      {
+        "case": "tray-5",
+        "status": "PASS"
+      },
+      {
+        "case": "windChime-5",
+        "status": "PASS"
+      },
+      {
+        "case": "microSlit-5",
+        "status": "PASS"
+      },
+      {
+        "case": "collect-fixture-6",
+        "status": "PASS"
+      },
+      {
+        "case": "collect-fixture-7",
+        "status": "PASS"
+      },
+      {
+        "case": "collect-fixture-8",
+        "status": "PASS"
+      },
+      {
+        "case": "collect-fixture-9",
+        "status": "PASS"
+      },
+      {
+        "case": "collect-fixture-10",
+        "status": "PASS"
+      },
+      {
+        "case": "tray-10",
+        "status": "PASS"
+      },
+      {
+        "case": "windChime-10",
+        "status": "PASS"
+      },
+      {
+        "case": "microSlit-10",
+        "status": "PASS"
+      },
+      {
+        "case": "light-leftMiddle",
+        "status": "PASS"
+      },
+      {
+        "case": "light-rightMiddle",
+        "status": "PASS"
+      },
+      {
+        "case": "dark-leftMiddle",
+        "status": "PASS"
+      },
+      {
+        "case": "dark-rightMiddle",
+        "status": "PASS"
+      },
+      {
+        "case": "tray-native-wheel",
+        "status": "PASS"
+      },
+      {
+        "case": "tray-owned-button-and-escape",
+        "status": "FAIL",
+        "reason": "trayCameraObscured"
+      },
+      {
+        "case": "violet-restart-and-material-switch",
+        "status": "PASS"
+      },
+      {
+        "case": "physical-connected-displays",
+        "status": "PASS"
+      },
+      {
+        "case": "native-high-contrast-appearance-override",
+        "status": "PASS"
+      },
+      {
+        "case": "tray-restart-baseline",
+        "status": "PASS"
+      }
+    ],
+    "totalFrameCount": 45,
+    "publishedFrames": [
+      {
+        "name": "tray-0",
+        "sha256": "020421537545f4624ed275ec28bfcaa34d3ad901da9f5b49e70a1b4662c481a3",
+        "pixels": [
+          496,
+          300
+        ],
+        "method": "owned floating windows only",
+        "status": "RECORDED_NATIVE_WINDOWSERVER",
+        "file": "tray-0.png"
+      },
+      {
+        "name": "tray-3",
+        "sha256": "0a7814e6652437bf944e28c2c79cbe392699ae4dc0f910048cfe79b9d9904a9b",
+        "pixels": [
+          496,
+          446
+        ],
+        "method": "owned floating windows only",
+        "status": "RECORDED_NATIVE_WINDOWSERVER",
+        "file": "tray-3.png"
+      },
+      {
+        "name": "dark-rightMiddle-tray",
+        "sha256": "e3e81b498d90ac9349544c6c6f62c2413430b95fd3166953df31d5d83aac06ce",
+        "pixels": [
+          496,
+          446
+        ],
+        "method": "owned floating windows only",
+        "status": "RECORDED_NATIVE_WINDOWSERVER",
+        "file": "dark-rightMiddle-tray.png"
+      },
+      {
+        "name": "tray-violet",
+        "sha256": "ca324d3b76e8871df37f75034cba78ccf609dbaed5a4093a17cb81627c9ad1a5",
+        "pixels": [
+          496,
+          446
+        ],
+        "method": "owned floating windows only",
+        "status": "RECORDED_NATIVE_WINDOWSERVER",
+        "file": "tray-violet.png"
+      }
+    ]
+  }
+}

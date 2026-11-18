@@ -252,6 +252,200 @@ final class CompletedScreenshotImporterTests: XCTestCase {
         XCTAssertEqual(try Data(contentsOf: root.appendingPathComponent("media").appendingPathComponent(record.image.fileName)), bytes)
     }
 
+    func testCleanupFenceRestartChangedExternalOriginalAndUndo() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let db = root.appendingPathComponent("queue.sqlite"), trash = root.appendingPathComponent("fixture-trash")
+        try FileManager.default.createDirectory(at: trash, withIntermediateDirectories: true)
+        let store = try QueueStore(databaseURL: db)
+        let importer = PrivateAssetImporter(privateRoot: root, store: store)
+        try await importer.initializeRetention(newProfile: false)
+        let legacyRule = try await importer.retention()
+        XCTAssertEqual(legacyRule.days, 0)
+        func insert(_ name: String) async throws -> (URL, AssetRecord) {
+            let url = root.appendingPathComponent(name)
+            _ = try syntheticPNG(at: url)
+            try markSyntheticScreenshot(url)
+            let record = try await importer.importCompletedScreenshot(at: url, origin: .systemScreenshot)
+            return (url, record)
+        }
+        let (file, archived) = try await insert("first.png"), (_, locked) = try await insert("second.png")
+        let target = TargetLease(adapterID: "fixture", surface: .webChat, applicationID: "fixture", sessionID: "s",
+            windowID: "w", documentID: "d", composerID: "c", draftGeneration: "g")
+        let operation = try await store.prepare(assetID: locked.id, target: target)
+        _ = try await store.markIndependentFileInputIntent(operation.id, ownerID: UUID())
+        try await store.markUnknown(operation.id, reason: "fixture")
+        try await store.removeFromQueue(locked.id)
+        try await store.removeFromQueue(archived.id)
+        let initial = try await importer.cleanupItems()
+        XCTAssertEqual(initial.map(\.record.id), [archived.id])
+        XCTAssertTrue(initial.allSatisfy(\.verifiedOriginal))
+        let original = try Data(contentsOf: file)
+        let mediaURL = root.appendingPathComponent("media").appendingPathComponent(archived.image.fileName)
+        var corrupt = original; corrupt[corrupt.count / 2] ^= 0xff
+        try corrupt.write(to: mediaURL)
+        let corruptedCandidates = try await importer.cleanupItems()
+        XCTAssertTrue(corruptedCandidates.isEmpty)
+        try FileManager.default.removeItem(at: mediaURL)
+        _ = try await importer.recover()
+        let repaired = try await importer.recheckPrivateMedia()
+        XCTAssertTrue(repaired.missing.isEmpty && repaired.invalid.isEmpty)
+        XCTAssertEqual(try Data(contentsOf: mediaURL), original)
+        try await importer.cleanup(initial, trash: trash, automatic: false)
+        XCTAssertEqual(try Data(contentsOf: file), original)
+        let again = try await importer.importCompletedScreenshot(at: file, origin: .systemScreenshot)
+        XCTAssertEqual(again.id, archived.id)
+        try FileManager.default.removeItem(at: file)
+        _ = try syntheticPNG(at: file, red: 0.8)
+        let reopened = try QueueStore(databaseURL: db)
+        let second = PrivateAssetImporter(privateRoot: root, store: reopened)
+        let report = try await second.recover()
+        XCTAssertTrue(report.missing.isEmpty)
+        let remaining = try await reopened.history().map(\.id)
+        XCTAssertEqual(remaining, [locked.id])
+        do { try await reopened.restoreToQueue(archived.id); XCTFail("Stale restore reopened deleted media") }
+        catch RiftletError.invalidTransition {}
+        let trashed = trash.appendingPathComponent("Riftlet-" + archived.image.fileName)
+        try corrupt.write(to: trashed)
+        let retired = try await reopened.retiredMedia()
+        let broken = try await second.trashSummary(retired, directory: trash)
+        XCTAssertEqual(broken.recoverable, 0)
+        XCTAssertEqual(broken.damaged, 1)
+        do { try await second.restoreTrash(from: trash); XCTFail("Corrupt trash was reported restored") }
+        catch CaptureError.invalidManifest {}
+        try original.write(to: trashed)
+        let undoBegan = Date()
+        try await second.restoreTrash(from: trash)
+        let after = try await reopened.history()
+        XCTAssertEqual(Set(after.map(\.id)), [locked.id, archived.id])
+        XCTAssertTrue(try XCTUnwrap(after.first(where: { $0.id == archived.id })).lastInteractionAt >= undoBegan)
+        let soon = try await second.cleanupItems(rule: MediaRetention(days: 30, since: nil),
+                                                  now: undoBegan.addingTimeInterval(29 * 86_400))
+        XCTAssertTrue(soon.isEmpty)
+        XCTAssertEqual(try Data(contentsOf: root.appendingPathComponent("media").appendingPathComponent(archived.image.fileName)), original)
+        do {
+            try await reopened.retireMedia(archived.id, revision: initial[0].record.visibilityRevision, batch: UUID())
+            XCTFail("A cleanup preview created before Undo was accepted")
+        } catch RiftletError.invalidTransition {}
+        let finalPhase = try await reopened.operation(id: operation.id)?.phase
+        XCTAssertEqual(finalPhase, .unknown)
+        let afterMove = try await second.cleanupItems()
+        XCTAssertEqual(afterMove.first?.verifiedOriginal, false)
+        try await second.setRetention(days: 30, includeExisting: true)
+        let eligible = try await second.cleanupItems(rule: second.retention(), now: Date().addingTimeInterval(31 * 86_400))
+        XCTAssertTrue(eligible.isEmpty, "A same-named replacement cannot qualify an old copy for automatic cleanup")
+    }
+
+    func testCleanupAndUndoBatchWithoutTrashDirectoryReadAccess() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let trash = root.appendingPathComponent("fixture-trash"), db = root.appendingPathComponent("queue.sqlite")
+        try FileManager.default.createDirectory(at: trash, withIntermediateDirectories: true)
+        defer { _ = chmod(trash.path, 0o700); try? FileManager.default.removeItem(at: root) }
+        let store = try QueueStore(databaseURL: db), owner = PrivateAssetImporter(privateRoot: root, store: store)
+        var ids = Set<UUID>()
+        for index in 0..<6 {
+            let source = root.appendingPathComponent("capture-\(index).png")
+            _ = try syntheticPNG(at: source); try markSyntheticScreenshot(source)
+            let row = try await owner.importCompletedScreenshot(at: source, origin: .systemScreenshot)
+            try await store.reserveSelection(row.id, now: Date().addingTimeInterval(-40 * 86_400))
+            await store.releaseSelection(row.id)
+            ids.insert(row.id)
+        }
+        let fence = QueueInteractionFence()
+        _ = try await store.archiveIdle(before: Date(), fence: fence, revision: fence.snapshot().revision)
+        try await owner.setRetention(days: 30, includeExisting: true)
+        let eligible = try await owner.cleanupItems(rule: owner.retention())
+        XCTAssertEqual(eligible.count, 6)
+        XCTAssertEqual(chmod(trash.path, 0o300), 0)
+        try await owner.cleanup(eligible, trash: trash, automatic: false)
+        let retired = try await store.retiredMedia()
+        XCTAssertEqual(Set(retired.map(\.id)), ids)
+        let inTrash = try await owner.trashSummary(retired, directory: trash)
+        XCTAssertEqual(inTrash.recoverable, 6)
+        // Reopen the precise build 28 state: Undo renamed the first item back
+        // into media and stopped before committing its SQLite reinstatement.
+        let first = try XCTUnwrap(retired.first)
+        let media = root.appendingPathComponent("media").appendingPathComponent(first.image.fileName)
+        let trashed = trash.appendingPathComponent("Riftlet-" + first.image.fileName)
+        try FileManager.default.moveItem(at: trashed, to: media)
+        let reopened = try QueueStore(databaseURL: db)
+        let next = PrivateAssetImporter(privateRoot: root, store: reopened)
+        try await next.reconcileInterruptedMoves()
+        let afterCrash = try await reopened.history()
+        XCTAssertEqual(afterCrash.map(\.id), [first.id])
+        let afterRestartDue = try await next.cleanupItems(rule: next.retention())
+        XCTAssertTrue(afterRestartDue.isEmpty)
+        XCTAssertTrue(try XCTUnwrap(afterCrash.first).visibilityRevision > first.visibilityRevision)
+        try await next.restoreTrash(from: trash)
+        let afterUndo = try await reopened.history()
+        XCTAssertEqual(Set(afterUndo.map(\.id)), ids)
+        let restoredTombstones = try await reopened.retiredMedia()
+        XCTAssertTrue(restoredTombstones.isEmpty)
+        for row in afterUndo {
+            let url = root.appendingPathComponent("media").appendingPathComponent(row.image.fileName)
+            XCTAssertEqual(try PrivateFiles.hashFile(url), row.image.sha256)
+        }
+    }
+
+    func testPublishedCaptureAndPostManifestInterruptionRecoverOnce() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let captures = root.appendingPathComponent("captures")
+        let url = InteractiveScreenshotOutput.originalURL(in: captures, captureID: UUID())
+        let bytes = try syntheticPNG(at: url)
+        let db = root.appendingPathComponent("queue.sqlite")
+        let first = try QueueStore(databaseURL: db)
+        let interrupted = PrivateAssetImporter(privateRoot: root, store: first, fault: { context in
+            if context.boundary == .mediaSynced { throw SimulatedImportInterruption(boundary: context.boundary) }
+        })
+        let staging = root.appendingPathComponent("staging")
+        try FileManager.default.createDirectory(at: staging, withIntermediateDirectories: true)
+        func fragment() -> URL { staging.appendingPathComponent(UUID().uuidString.lowercased() + ".part") }
+        let empty = fragment(), complete = fragment(), partial = fragment()
+        try Data().write(to: empty); try bytes.write(to: complete); try Data(bytes.prefix(46)).write(to: partial)
+        try await interrupted.cleanAbandonedStaging()
+        XCTAssertFalse(FileManager.default.fileExists(atPath: empty.path))
+        XCTAssertEqual(try Data(contentsOf: complete), bytes)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: partial.path))
+        let prepublication = captures.appendingPathComponent(".capture-" + UUID().uuidString.lowercased())
+        let linked = captures.appendingPathComponent(".capture-" + UUID().uuidString.lowercased())
+        for dir in [prepublication, linked] { try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true) }
+        let request = UUID()
+        let staged = prepublication.appendingPathComponent(request.uuidString.lowercased() + ".png")
+        try bytes.write(to: staged)
+        let duplicate = linked.appendingPathComponent(String(url.lastPathComponent.dropFirst()))
+        try FileManager.default.linkItem(at: url, to: duplicate)
+        ActiveCaptureStages.insert(prepublication.lastPathComponent)
+        try await interrupted.cleanAbandonedStaging()
+        XCTAssertTrue(FileManager.default.fileExists(atPath: staged.path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: duplicate.path))
+        ActiveCaptureStages.remove(prepublication.lastPathComponent)
+        try await interrupted.cleanAbandonedStaging()
+        let rescued = InteractiveScreenshotOutput.originalURL(in: captures, captureID: request)
+        let recoveredStages = try await interrupted.pendingOwnedCaptures()
+        XCTAssertEqual(Set(recoveredStages.map(\.lastPathComponent)), [url.lastPathComponent, rescued.lastPathComponent])
+        let helper = PrivateAssetImporter(privateRoot: root, store: first)
+        let stageRecord = try await helper.collectOwnedCapture(rescued)
+        XCTAssertEqual(stageRecord.image.origin, .applicationScreenshot)
+        let before = try await interrupted.pendingOwnedCaptures()
+        XCTAssertEqual(before.map(\.lastPathComponent), [url.lastPathComponent])
+        do { _ = try await interrupted.collectOwnedCapture(url); XCTFail("Fault not reached") }
+        catch is SimulatedImportInterruption {}
+        let store = try QueueStore(databaseURL: db)
+        let recovered = PrivateAssetImporter(privateRoot: root, store: store)
+        let report = try await recovered.recover()
+        XCTAssertEqual(report.adopted, 1)
+        let pending = try await recovered.pendingOwnedCaptures()
+        XCTAssertEqual(pending.map(\.lastPathComponent), [url.lastPathComponent])
+        let row = try await recovered.collectOwnedCapture(url)
+        let after = try await recovered.pendingOwnedCaptures()
+        XCTAssertTrue(after.isEmpty)
+        let history = try await store.history()
+        XCTAssertEqual(Set(history.map(\.id)), [row.id, stageRecord.id])
+        XCTAssertEqual(try Data(contentsOf: root.appendingPathComponent("media").appendingPathComponent(row.image.fileName)), bytes)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: url.path))
+    }
+
     private func generatedPNG() throws -> Data {
         let context = try XCTUnwrap(CGContext(data: nil, width: 20, height: 12, bitsPerComponent: 8,
             bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))

@@ -1,0 +1,13 @@
+{
+  "scope": "Private loopback feed; standalone stapled App inside ZIP, DMG tested separately",
+  "source": "c7934adc82d382e78cf23ab96ed6d6784e88b905",
+  "version": "1.0.4",
+  "build": "27",
+  "feedSHA256": "3d9881305ac3d7f16b816914ff25cf3ea5444effc26ef3b9d4c02ab9a6ee4cef",
+  "archiveSHA256": "f623931aa5202e5eb19c3ad22350d2f29799206298ab9f97528cde0c850695d0",
+  "executableSHA256": "2f83a996f1a9738754ed001fa221af7d782e54e350a970b8b1c9ff6c8c57a2ab",
+  "team": "ZB9D4T66QB",
+  "appNotary": "a253b079-2ded-45be-aa4a-b72129250a72",
+  "packageFit": "official stapler validation on identical source, ticket carrier and entire restored tree, independent restored Gatekeeper assessment",
+  "signatures": "official Sparkle verification plus public-key-only CryptoKit"
+}

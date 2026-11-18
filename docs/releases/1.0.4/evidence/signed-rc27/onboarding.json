@@ -1,0 +1,60 @@
+{
+  "version": "1.0.4",
+  "build": 27,
+  "source": "c7934adc82d382e78cf23ab96ed6d6784e88b905",
+  "executableSHA256": "2f83a996f1a9738754ed001fa221af7d782e54e350a970b8b1c9ff6c8c57a2ab",
+  "environment": "dedicated ARM64 macOS 27.2 guest, independent clean application data for each path, ordinary signed app launch without review flags",
+  "mechanism": "red, Escape, Set Up Later use VZ WindowServer GUI; Command-W used the macOS Accessibility Keyboard, activated actual Command and W in that window; system keyboard restored afterwards.",
+  "results": {
+    "red": {
+      "status": "PASS",
+      "onFirstOpen": "visible",
+      "onDismissal": "closed and deferred",
+      "onRelaunch": "absent, deferred persisted",
+      "differentProcessOnRelaunch": true,
+      "nativeFramesSHA256": {
+        "start": "ac6102e89967e972b4b5e74d6a1052c335d7a9fa770a2fe5951e0b92b0bf10a8",
+        "closed": "7d335df12f8f0b5617244cb05fbf26b46b408cf238fbc015e04562941f38d492",
+        "restart": "592a4ea462a5cead3f9c4f47a9ec248c3164be78e7cde9130c0ce1a8dfccb21b"
+      }
+    },
+    "later": {
+      "status": "PASS",
+      "onFirstOpen": "visible",
+      "onDismissal": "closed and deferred",
+      "onRelaunch": "absent, deferred persisted",
+      "differentProcessOnRelaunch": true,
+      "nativeFramesSHA256": {
+        "start": "bc3aa857e1d0ff1993ba8ee630d3cc2321ee49f2727e914ef6f2adccb868d95c",
+        "closed": "75b17afadebae69f8b1cbc07372bba3e0dab4ad17a1d7dc0f54830a3e2534218",
+        "restart": "2fdf565b5fc88b438e57c28fe61161671c74f987c8911ab1630b4529b5e56c2a"
+      }
+    },
+    "escape": {
+      "status": "PASS",
+      "onFirstOpen": "visible",
+      "onDismissal": "closed and deferred",
+      "onRelaunch": "absent, deferred persisted",
+      "differentProcessOnRelaunch": true,
+      "nativeFramesSHA256": {
+        "start": "5a0a97388f812ff914ff057723277b4abccff5e371c20884e9608c046e27160b",
+        "closed": "7d335df12f8f0b5617244cb05fbf26b46b408cf238fbc015e04562941f38d492",
+        "restart": "592a4ea462a5cead3f9c4f47a9ec248c3164be78e7cde9130c0ce1a8dfccb21b"
+      }
+    },
+    "cmdW": {
+      "status": "PASS",
+      "onFirstOpen": "visible",
+      "onDismissal": "closed and deferred",
+      "onRelaunch": "absent, deferred persisted",
+      "differentProcessOnRelaunch": true,
+      "nativeFramesSHA256": {
+        "start": "cf82413ce1e550337a696daadc02b7e9da1ef5ab5475f79fa5bcc8700108c2e8",
+        "before": "b535c5bd11a7e76ee1eac7209465250f8d9e555085c1fbcfc4a9061a27bc753c",
+        "after": "310490bb078ede9efe0f58eec7e80c17a15a347cb2acd1cc842b4ea6f68ebc6a",
+        "restart": "3201175b723f7b87045b8d177881dbd98f58ebf901c45c92d1a6be2fe4464934"
+      }
+    }
+  },
+  "restoredOriginalFixtureSHA256": "db5b24492eecb77a3bcf333b6a97aa103ce83b2346e5e93c85b5cdd0817704d2"
+}

@@ -75,6 +75,53 @@ final class IndependentAttachmentLifecycleTests: XCTestCase {
         return try XCTUnwrap(observed)
     }
 
+    func testPostStartOnlyOriginalFailureCanChangeStateAndOnlyTerminalEvidenceRevives() async throws {
+        let store = try store(), adapter = IndependentLifecycleAdapter()
+        let owner = coordinator(store, adapter)
+        let awaiting = try await asset(store), retired = try await asset(store)
+        for image in [awaiting, retired] {
+            try await owner.select(try await selection(image, store))
+            let op = try await operation(image, store)
+            _ = try await returnedDispatchCall(op.id, store)
+        }
+        while await owner.hasInFlightAttachmentWork { await Task.yield() }
+        await adapter.set(.compensated, for: awaiting.id)
+        await adapter.set(.failed, for: retired.id)
+        try await owner.observePending()
+        let uncertain = try await operation(awaiting, store), safe = try await operation(retired, store)
+        let hidden = try await store.asset(id: awaiting.id), visible = try await store.asset(id: retired.id)
+        XCTAssertEqual(uncertain.phase, .unknown); XCTAssertEqual(hidden?.visibility, .swallowed)
+        XCTAssertEqual(safe.phase, .failed); XCTAssertEqual(visible?.visibility, .visible)
+        let original = try await store.uploadStartReceipt(for: uncertain.id)
+        let error = try await store.receipt(for: uncertain.id)
+        XCTAssertEqual(original?.outcome, .uploadStarted)
+        XCTAssertEqual(error?.attachmentID, original?.attachmentID); XCTAssertEqual(error?.safeToRetry, false)
+        let inputs = await adapter.inputs()
+        XCTAssertEqual(inputs, [awaiting.id, retired.id])
+    }
+
+    func testIdleOriginalObservationsBackOffAndStopWithoutChangingStartOrWritingUnknown() async throws {
+        let store = try store(), adapter = IndependentLifecycleAdapter(), clock = WatchClock()
+        let owner = TransferCoordinator(store: store, adapter: adapter, mediaDirectory: directory, policy: policy,
+            observationClock: { clock.now }, validateAcceptedSelection: { $0.isValid() })
+        let a = try await asset(store)
+        try await owner.select(try await selection(a, store))
+        let op = try await operation(a, store)
+        _ = try await returnedDispatchCall(op.id, store)
+        while await owner.hasInFlightAttachmentWork { await Task.yield() }
+        let initial = try await operation(a, store), start = try await store.uploadStartReceipt(for: op.id)
+        for t in 0...720 {
+            clock.set(Double(t))
+            try await owner.observePending()
+        }
+        let reads = await adapter.observations
+        XCTAssertEqual(reads, 8)
+        let unchanged = try await operation(a, store), final = try await store.receipt(for: op.id)
+        XCTAssertEqual(unchanged, initial); XCTAssertEqual(final, start)
+        let inputs = await adapter.inputs()
+        XCTAssertEqual(inputs, [a.id])
+    }
+
     func testRelaunchReleasesOnlyUndispatchedPreparationAndNewClickUsesItsOwnTarget() async throws {
         let path = directory.appendingPathComponent("restart.sqlite")
         let first = try QueueStore(databaseURL: path)
@@ -300,6 +347,13 @@ final class IndependentAttachmentLifecycleTests: XCTestCase {
     }
 }
 
+private final class WatchClock: @unchecked Sendable {
+    private let lock = NSLock()
+    private var value = 0.0
+    var now: Double { lock.lock(); defer { lock.unlock() }; return value }
+    func set(_ time: Double) { lock.lock(); value = time; lock.unlock() }
+}
+
 private actor IndependentLifecycleAdapter: IndependentFileInputAdapter {
     enum State: CaseIterable { case started, unknown, complete, failed, compensated }
     nonisolated let id = "independent-lifecycle-fixture"
@@ -307,6 +361,7 @@ private actor IndependentLifecycleAdapter: IndependentFileInputAdapter {
     static let startProfile = "independent-fixture-start"
     static let continuationProfile = "independent-fixture-continuation"
     static let terminationProfile = "independent-fixture-retirement"
+    private(set) var observations = 0
     private let continuation: Bool
     private var calls: [TransferRequest] = []
     private var states: [UUID: State] = [:]
@@ -327,7 +382,8 @@ private actor IndependentLifecycleAdapter: IndependentFileInputAdapter {
         append(request)
     }
     func reconcile(_ request: TransferRequest) -> TransferReceipt {
-        Self.receipt(request, state: states[request.asset.id] ?? .unknown, continuation: continuation,
+        observations += 1
+        return Self.receipt(request, state: states[request.asset.id] ?? .unknown, continuation: continuation,
                      requestID: (calls.firstIndex { $0.operation.id == request.operation.id } ?? 0) + 1)
     }
     nonisolated static func receipt(_ request: TransferRequest, state: State, continuation: Bool = true, requestID: Int = 1) -> TransferReceipt {

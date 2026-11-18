@@ -7,6 +7,7 @@ import QuartzCore
 final class RiftSettingsCenterPreview: NSView {
     private(set) var configuration = RiftConfiguration()
     private let drawing = RiftSettingsDesktopIllustration(frame: .zero)
+    private let traySample = RiftTrayAppearanceSample(frame: .zero)
     var geometrySummary: String {
         let count = min(configuration.visibleCountPreference, 4)
         let title = configuration.placement?.title ?? ProductCopy.text("旧版位置", "Previous Position")
@@ -24,6 +25,16 @@ final class RiftSettingsCenterPreview: NSView {
         drawing.autoresizingMask = [.width, .height]
         drawing.setAccessibilityElement(false)
         addSubview(drawing)
+        traySample.frame = bounds
+        traySample.autoresizingMask = [.width,.height]
+        traySample.isHidden = true
+        addSubview(traySample)
+        let caption = NSTextField(labelWithString: ProductCopy.text("预览", "Preview"))
+        caption.font = .systemFont(ofSize: 12, weight: .medium)
+        caption.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(caption)
+        NSLayoutConstraint.activate([caption.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
+                                     caption.topAnchor.constraint(equalTo: topAnchor, constant: 8)])
         setAccessibilityElement(true)
         setAccessibilityRole(.image)
         setAccessibilityLabel(ProductCopy.text("截图布局预览", "Screenshot layout preview"))
@@ -31,6 +42,9 @@ final class RiftSettingsCenterPreview: NSView {
     required init?(coder: NSCoder) { nil }
     func update(configuration: RiftConfiguration, entryEnabled: Bool = false) {
         self.configuration = configuration
+        traySample.isHidden = configuration.desktopForm != .tray
+        drawing.isHidden = !traySample.isHidden
+        if !traySample.isHidden { traySample.update(configuration: configuration, entryEnabled: entryEnabled) }
         drawing.configuration = configuration
         drawing.includesEntry = entryEnabled
         drawing.needsDisplay = true
@@ -213,5 +227,27 @@ enum WindChimePlacementIllustration {
             ])
             NSGraphicsContext.restoreGraphicsState()
         }
+    }
+}
+
+/// Position alone. The larger appearance sample is independent of placement.
+@MainActor
+final class SettingsEdgeDiagram: NSView {
+    var placement: RiftPlacement? { didSet { needsDisplay = true } }
+    override var intrinsicContentSize: NSSize { NSSize(width: 49, height: 30) }
+    override func draw(_ dirtyRect: NSRect) {
+        let rect = bounds.insetBy(dx: 3, dy: 3)
+        NSColor.secondaryLabelColor.setStroke()
+        NSBezierPath(roundedRect: rect, xRadius: 3, yRadius: 3).stroke()
+        guard let placement else { return }
+        let x = placement.side == .left ? rect.minX : rect.maxX
+        let y: CGFloat
+        switch placement {
+        case .leftTop, .rightTop: y = rect.maxY - 4
+        case .leftMiddle, .rightMiddle: y = rect.midY
+        case .leftBottom, .rightBottom: y = rect.minY + 4
+        }
+        NSColor.controlAccentColor.setFill()
+        NSBezierPath(ovalIn: NSRect(x: x - 3, y: y - 3, width: 6, height: 6)).fill()
     }
 }

@@ -20,19 +20,30 @@ public struct RiftControlCenterPresentation {
         var pages = Set<SettingsPage>()
         for (domain, state) in snapshot.state.domains where state.saveFailure != nil {
             switch domain {
-            case .arrival, .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme: pages.insert(.display)
+            case .arrival, .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayBackgroundTransparency, .trayCameraBodyColor: pages.insert(.display)
             case .entry, .captureMode, .trayFavorite1, .trayFavorite2, .trayFavorite3: pages.insert(.capture)
-            case .collection, .visibility, .archive: pages.insert(.capture)
+            case .visibility: pages.insert(.display)
+            case .collection, .archive: pages.insert(.capture)
             }
         }
-        if snapshot.appearance.failure != nil || snapshot.appearance.unreadable { pages.insert(.general) }
+        if snapshot.appearance.failure != nil || snapshot.appearance.unreadable { pages.insert(.display) }
         if snapshot.login.errorCode != nil || snapshot.login.notConfirmed { pages.insert(.general) }
         switch snapshot.setup.issue {
         case .screenshotPreferenceUnsaved: pages.insert(.capture)
-        case .visibilityPreferenceUnsaved, .collectionPreferenceUnsaved: pages.insert(.capture)
+        case .visibilityPreferenceUnsaved: pages.insert(.display)
+        case .collectionPreferenceUnsaved: pages.insert(.capture)
         default: break
         }
         return SettingsPage.allCases.first(where: pages.contains)
+    }
+
+    private var recoveryOverride: SettingsProductAction? = nil
+
+    func recovery(_ snapshot: SettingsProductSnapshot) -> (String, SettingsProductAction)? {
+        if case .paused = state { return (ProductCopy.text("恢复收录", "Resume Collection"), .settings(.setCollectionPaused(false))) }
+        if case .hidden = state { return (ProductCopy.text("显示桌面截图", "Show Desktop Screenshots"), .settings(.setHidden(false))) }
+        guard let recoveryTitle, let recoveryPage else { return nil }
+        return (recoveryTitle, recoveryOverride ?? .openSettings(recoveryPage))
     }
 
     public init(_ snapshot: SettingsProductSnapshot, copy: ProductCopy = .current) {
@@ -65,18 +76,31 @@ public struct RiftControlCenterPresentation {
             detail = SetupIssue.configurationUnavailable.text(in: copy)
             symbol = "exclamationmark.circle"
             recoveryTitle = nil; recoveryPage = nil
+        } else if setup.issue == .mediaMaintenance {
+            state = .attention; title = copy.text("截图整理未完成", "Screenshot Cleanup Needs Attention")
+            detail = SetupIssue.mediaMaintenance.text(in: copy)
+            symbol = "exclamationmark.circle"
+            recoveryTitle = copy.text("管理截图资料", "Manage Screenshot Storage"); recoveryPage = .capture
+            recoveryOverride = .manageMedia
+        } else if setup.issue == .pendingCapture {
+            state = .attention; title = copy.text("有截图待找回", "A Screenshot Needs Recovery")
+            detail = SetupIssue.pendingCapture.text(in: copy)
+            symbol = "photo"
+            recoveryTitle = copy.text("找回截图", "Recover Screenshot"); recoveryPage = .capture
+            recoveryOverride = .manageMedia
         } else if setup.issue == .initializationFailed {
             state = .attention; title = copy.text("Riftlet 未能完成启动", "Riftlet Couldn’t Finish Starting")
             detail = SetupIssue.initializationFailed.text(in: copy)
             symbol = "exclamationmark.circle"
             recoveryTitle = copy.text("查看启动问题", "View Startup Help"); recoveryPage = .help
         } else if setup.issue == .insufficientSpace || setup.issue == .privateWriteFailed
-                    || setup.storage == .insufficientSpace || setup.storage == .writeFailed {
+                    || setup.issue == .storageUnavailable || setup.storage == .insufficientSpace || setup.storage == .writeFailed {
             state = .attention; title = copy.text("无法保存新截图", "Can’t Save New Screenshots")
             detail = copy.text("请检查可用磁盘空间和文件访问权限。", "Check available disk space and file access.")
             symbol = "exclamationmark.circle"
-            recoveryTitle = copy.text("查看本机存储", "Show Local Storage"); recoveryPage = .capture
-        } else if setup.issue == .screenshotFolderNeedsSelection {
+            recoveryTitle = copy.text("管理截图资料", "Manage Screenshot Storage"); recoveryPage = .capture
+            recoveryOverride = .manageMedia
+        } else if setup.issue == .screenshotFolderNeedsSelection || setup.issue == .wrongScreenshotFolder {
             state = .attention; title = copy.text("需要重新选择截图文件夹", "Choose Your Screenshot Folder Again")
             detail = copy.text("此前的文件夹选择已无法确认，已有截图保留。", "Riftlet can no longer verify the previous folder. Your screenshots are safe.")
             symbol = "folder.badge.questionmark"
@@ -106,6 +130,32 @@ public struct RiftControlCenterPresentation {
             detail = setup.issue == .chromeJavaScriptDisabled ? SetupIssue.chromeJavaScriptDisabled.text(in: copy) : ChromeAttachmentSetup.instructions(in: copy)
             symbol = "globe"
             recoveryTitle = copy.text("检查 Chrome 连接", "Check Chrome Connection"); recoveryPage = .help
+        } else if setup.issue == .imageUnavailable {
+            state = .attention; title = copy.text("找不到这张截图的本地副本", "Local Screenshot Copy Unavailable")
+            detail = SetupIssue.imageUnavailable.text(in: copy)
+            symbol = "photo"
+            recoveryTitle = copy.text("检查本地截图副本", "Check Local Screenshot Copies"); recoveryPage = .capture
+            recoveryOverride = .recheckMedia
+        } else if usesAutomation && (snapshot.chromeConnection == .noWindow || snapshot.chromeConnection == .unavailable
+                    || setup.issue == .targetUnavailable || setup.issue == .unsupportedBrowser) {
+            state = .attention
+            symbol = "globe"
+            recoveryPage = .help
+            if snapshot.chromeConnection == .noWindow {
+                title = copy.text("没有可用的 Chrome 窗口", "No Chrome Window Available")
+                detail = copy.text("打开要使用的 ChatGPT 草稿。", "Open the ChatGPT draft you want to use.")
+                recoveryTitle = copy.text("打开 Chrome", "Open Chrome"); recoveryOverride = .openChrome
+            } else {
+                title = copy.text("无法连接到当前草稿", "Can’t Connect to the Current Draft")
+                detail = setup.issue?.text(in: copy) ?? copy.text("请检查 Chrome 连接。", "Check the Chrome connection.")
+                recoveryTitle = copy.text("查看 Chrome 连接", "Show Chrome Connection")
+            }
+        } else if owner.settings.entryEnabled && snapshot.screenRecording == .notGranted {
+            state = .attention; title = copy.text("内置截图需要屏幕录制权限", "Allow Screen Recording for Built-in Capture")
+            detail = copy.text("在系统设置中允许 Riftlet 录制屏幕。", "Allow Riftlet to record the screen in System Settings.")
+            symbol = "rectangle.dashed"
+            recoveryTitle = copy.text("打开屏幕录制设置", "Open Screen Recording Settings"); recoveryPage = .capture
+            recoveryOverride = .openScreenRecordingPrivacy
         } else if owner.collectionPaused {
             state = .paused; title = copy.text("已暂停收录", "Collection Paused")
             detail = owner.isHidden ? copy.text("已有截图保留；桌面截图也已隐藏。", "Desktop screenshots are also hidden. Existing images are kept.") : copy.text("已有截图保留，仍可按需使用。", "Existing screenshots are still available.")

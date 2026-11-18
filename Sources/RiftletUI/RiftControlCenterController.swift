@@ -20,6 +20,7 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
     private var interactionSuspended = false
     private var buttons: [String: NSButton] = [:]
     private let scroll = RiftVisualStyle.topAlignedScrollView()
+    private let problemLabel = SettingsNativeStyle.label("", role: "secondary")
     private let stack = RiftVisualStyle.documentStack([], spacing: 3)
 
     public var isShown: Bool { popover.isShown }
@@ -160,6 +161,8 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         let history = button(ProductCopy.text("截图仓库", "Screenshot Library"), id: "control.history", symbol: "photo.on.rectangle")
         let update = button(ProductCopy.text("检查更新…", "Check for Updates…"), id: "control.update", symbol: "arrow.down.circle")
         let quit = button(ProductCopy.text("退出 Riftlet", "Quit Riftlet"), id: "control.quit", symbol: "power")
+        append(problemLabel)
+        append(button("", id: "control.recovery", symbol: "arrow.right.circle"))
         [settings, history, update].forEach(append)
         append(separator())
         append(quit)
@@ -197,6 +200,13 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         buttons.values.forEach { $0.isEnabled = true }
         popover.appearance = NSApp.appearance
         let projection = RiftControlCenterPresentation(snapshot)
+        let actionable = [.attention, .paused, .hidden].contains(projection.state)
+        problemLabel.stringValue = projection.title
+        problemLabel.isHidden = !actionable
+        let recovery = projection.recovery(snapshot)
+        buttons["control.recovery"]?.isHidden = recovery == nil
+        buttons["control.recovery"]?.title = recovery?.0 ?? ""
+        buttons["control.recovery"]?.setAccessibilityLabel(recovery?.0)
         let update = snapshot.updater
         let updateButton = buttons["control.update"]
         updateButton?.title = update?.checkTitle ?? ProductCopy.text("检查更新…", "Check for Updates…")
@@ -266,6 +276,9 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         guard !interactionSuspended, sender.isEnabled, let snapshot else { return }
         let action: SettingsProductAction
         switch sender.identifier?.rawValue {
+        case "control.recovery":
+            guard let recovery = RiftControlCenterPresentation(snapshot).recovery(snapshot) else { return }
+            action = recovery.1
         case "control.settings": action = .openSettings(.general)
         case "control.quit": action = .quit
         case "control.update": guard snapshot.updater?.canCheck == true else { return }; action = .checkForUpdates
@@ -279,6 +292,12 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
     private func refreshMenu() {
         contextMenu.removeAllItems()
         guard let snapshot else { return }
+        let projection = RiftControlCenterPresentation(snapshot)
+        if [.attention, .paused, .hidden].contains(projection.state) {
+            contextMenu.addItem(withTitle: projection.title, action: nil, keyEquivalent: "").isEnabled = false
+            if let recovery = projection.recovery(snapshot) { addMenu(recovery.0, recovery.1) }
+            contextMenu.addItem(.separator())
+        }
         addMenu(ProductCopy.text("设置…", "Settings…"), .openSettings(.general), key: ",")
         addMenu(ProductCopy.text("截图仓库", "Screenshot Library"), .openHistory, enabled: snapshot.capabilities.canOpenHistory)
         addMenu(snapshot.updater?.checkTitle ?? ProductCopy.text("检查更新…", "Check for Updates…"),

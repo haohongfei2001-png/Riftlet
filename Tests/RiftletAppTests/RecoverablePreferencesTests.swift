@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 import XCTest
 import RiftletUI
@@ -16,6 +17,59 @@ final class RecoverablePreferencesTests: XCTestCase {
     override func tearDownWithError() throws { try FileManager.default.removeItem(at: root) }
 
     private func load() -> RecoverablePreferences { RecoverablePreferences(root: root, defaultLayout: .init()) }
+
+    func testAppearanceEditsPreserveUnknownFieldsAndLegacyFieldPresence() throws {
+        let old = Data(#"{"trayBackgroundTransparency":{"future":3},"trayTheme":"violetGlass","outerInset":22,"shiftDuration":0.12,"extra":false}"#.utf8)
+        try old.write(to: layout)
+        let prefs = load()
+        XCTAssertEqual(prefs.legacyCustomFields, [.outerInset])
+        XCTAssertTrue(prefs.hasLegacyTrayTheme)
+        XCTAssertNil(prefs.layout.trayBackgroundTransparency)
+        var changed = prefs.layout
+        changed.trayCameraBodyColor = "#a08f00"
+        try prefs.saveLayout(changed)
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: layout)) as? NSDictionary)
+        XCTAssertEqual(json["trayCameraBodyColor"] as? String, "#A08F00")
+        XCTAssertEqual(json["trayBackgroundTransparency"] as? NSDictionary, ["future":3])
+        XCTAssertEqual(json["extra"] as? Bool, false)
+        XCTAssertEqual(load().layout.trayTheme, .violetGlass)
+        changed.trayBackgroundTransparency = 0.75
+        try prefs.saveLayout(changed)
+        XCTAssertEqual(load().layout.trayBackgroundTransparency, 0.75)
+        changed.trayCameraBodyColor = nil
+        try prefs.saveLayout(changed)
+        XCTAssertNil(load().layout.trayCameraBodyColor)
+        XCTAssertEqual(load().layout.trayBackgroundTransparency, 0.75)
+
+        try Data("{}".utf8).write(to: layout)
+        let partial = load()
+        XCTAssertEqual(partial.layout.outerInset, 14)
+        XCTAssertEqual(partial.legacyCustomFields, [])
+        XCTAssertEqual(partial.layout.desktopForm, .microSlit)
+        XCTAssertEqual(try Data(contentsOf: layout), Data("{}".utf8))
+    }
+
+    @MainActor func testLiveAppearanceThenUnrelatedSavePreservesOpaqueSibling() throws {
+        _ = NSApplication.shared
+        for (input, colorEdited) in [(#"{"trayBackgroundTransparency":{"future":3}}"#, true),
+                                    (##"{"trayCameraBodyColor":"#00aaff"}"##, false)] {
+            try Data(input.utf8).write(to: layout)
+            let prefs = load()
+            let panel = RiftPanelController(mediaDirectory: root, configuration: prefs.layout, onSelect: { _ in })
+            defer { panel.close() }
+            var selected = panel.requestedConfiguration
+            if colorEdited { selected.trayCameraBodyColor = "#AA2211" }
+            else { selected.trayBackgroundTransparency = 0.5 }
+            try prefs.saveLayout(selected)
+            panel.applyTrayAppearance(selected)
+            var moved = panel.requestedConfiguration
+            moved.outerInset = 23
+            try prefs.saveLayout(moved)
+            let raw = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: layout)) as? NSDictionary)
+            if colorEdited { XCTAssertEqual(raw["trayBackgroundTransparency"] as? NSDictionary, ["future": 3]) }
+            else { XCTAssertEqual(raw["trayCameraBodyColor"] as? String, "#00aaff") }
+        }
+    }
 
     func testDamagedLayoutLeavesArchiveAndOriginalUntouchedUntilExplicitRecovery() throws {
         let other = Data(#"{"archiveAfterSeconds":91,"next":"preserve"}"#.utf8)
@@ -37,6 +91,20 @@ final class RecoverablePreferencesTests: XCTestCase {
             XCTAssertEqual(try Data(contentsOf: archive), other)
             XCTAssertEqual(load().recoveryDomains, [])
         }
+    }
+
+    func testOnlyThreeDistinctRecoveryCopiesAccumulateAndLegacyBackupsSurvive() throws {
+        let legacy = root.appendingPathComponent("rift-configuration.json.backup-" + UUID().uuidString)
+        try Data("legacy".utf8).write(to: legacy)
+        for damaged in ["a", "b", "c", "a", "d", "d"] {
+            try Data(damaged.utf8).write(to: layout)
+            try load().restore(.layout)
+        }
+        let managed = try FileManager.default.contentsOfDirectory(at: root, includingPropertiesForKeys: nil)
+            .filter { $0.lastPathComponent.hasPrefix("rift-configuration.json.backup-v2-") }
+        XCTAssertEqual(managed.count, 3)
+        XCTAssertEqual(try Set(managed.map { try String(contentsOf: $0, encoding: .utf8) }), ["a", "c", "d"])
+        XCTAssertEqual(try Data(contentsOf: legacy), Data("legacy".utf8))
     }
 
     func testBadArchivePausesUntilRestoredAndUnreadableTargetCanRetry() throws {

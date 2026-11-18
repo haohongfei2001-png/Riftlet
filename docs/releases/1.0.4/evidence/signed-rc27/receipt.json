@@ -1,0 +1,176 @@
+{
+  "package": {
+    "appCertificateFingerprints": {
+      "arm64": "92B7E50A1D43D247EA7EA19A31DCA3E407435A42",
+      "x86_64": "92B7E50A1D43D247EA7EA19A31DCA3E407435A42"
+    },
+    "appSubmissionID": "a253b079-2ded-45be-aa4a-b72129250a72",
+    "architectures": [
+      "arm64",
+      "x86_64"
+    ],
+    "build": "27",
+    "bytes": 12717001,
+    "dmgCertificateFingerprint": "92B7E50A1D43D247EA7EA19A31DCA3E407435A42",
+    "dmgSubmissionID": "f4b1ca22-0b75-4cb2-8118-192e7a623115",
+    "nestedCodeVerified": [
+      "Contents/Frameworks/Sparkle.framework",
+      "Contents/Frameworks/Sparkle.framework/Versions/B/Autoupdate",
+      "Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app",
+      "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Downloader.xpc",
+      "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Installer.xpc"
+    ],
+    "published": false,
+    "sha256": "b841402653082510d82e2278eb5a047ac64166e951b2e74694b9e7aa244fcdd3",
+    "source": "c7934adc82d382e78cf23ab96ed6d6784e88b905",
+    "sparkleVersion": "2.10.1",
+    "teamID": "ZB9D4T66QB",
+    "version": "1.0.4",
+    "appStatus": "Accepted",
+    "dmgStatus": "Accepted",
+    "gatekeeper": [
+      "ACCEPTED",
+      "ACCEPTED"
+    ],
+    "identity": "2f83a996f1a9738754ed001fa221af7d782e54e350a970b8b1c9ff6c8c57a2ab",
+    "DMG": "Riftlet-1.0.4.dmg"
+  },
+  "signedUI": {
+    "settings-zh": {
+      "status": "PASS_SCOPED_NATIVE_REVIEW",
+      "cases": [
+        "environment-and-default-window",
+        "real-collector-synthetic-fixture",
+        "programmatic-collection-during-recheck",
+        "four-pages-light-and-dark",
+        "orthogonal-pause-hidden-sqlite",
+        "archive-editor-return-and-blur",
+        "tray-material-settings-and-legacy-visibility",
+        "configuration-editor-refresh-defaults",
+        "close-sheet-continue-discard",
+        "independent-write-failures-and-retry",
+        "motion-selection-in-advanced-appearance",
+        "two-step-guidance-light-and-dark",
+        "resizing-and-reopen",
+        "history-real-records",
+        "original-media-and-no-upload-operations"
+      ],
+      "frames": 38,
+      "input": "Native NSControl actions and NSTextView insertion; no physical pointer or OS IME claim",
+      "reportSHA256": "b672e584d0ab539fb33969f32b134de0ae8b1542971685cbc7a139b7060f9480",
+      "restartStatus": "PASS_SCOPED_NATIVE_RESTART",
+      "restartSHA256": "1938a3aeafaf009c9df9655fe4b6a0685753a949aad0f3861ebb642ca8ff86e4",
+      "images": {
+        "settings-zh-settings-light-display.png": "ad365be258dea49e65cca3c4f77816f90de2aa1e739c37e67ca9b251402f4b35"
+      }
+    },
+    "settings-en": {
+      "status": "PASS_SCOPED_NATIVE_REVIEW",
+      "cases": [
+        "environment-and-default-window",
+        "real-collector-synthetic-fixture",
+        "programmatic-collection-during-recheck",
+        "four-pages-light-and-dark",
+        "orthogonal-pause-hidden-sqlite",
+        "archive-editor-return-and-blur",
+        "tray-material-settings-and-legacy-visibility",
+        "configuration-editor-refresh-defaults",
+        "close-sheet-continue-discard",
+        "independent-write-failures-and-retry",
+        "motion-selection-in-advanced-appearance",
+        "two-step-guidance-light-and-dark",
+        "resizing-and-reopen",
+        "history-real-records",
+        "original-media-and-no-upload-operations"
+      ],
+      "frames": 38,
+      "input": "Native NSControl actions and NSTextView insertion; no physical pointer or OS IME claim",
+      "reportSHA256": "9beec3467cb6c8581b4c6a0ffc8cbd5fe8e956ba86d9d65515cd2708cd491523",
+      "restartStatus": "PASS_SCOPED_NATIVE_RESTART",
+      "restartSHA256": "46fb7973da7be3480da5121d91f977ec1b79d8cea18f7163ba4ce3b34562d224",
+      "images": {
+        "settings-en-settings-minimum-capture.png": "9bbe689ca71ed0663c63f878feedcb745a304af4dbd2cee5085acc475addda1d"
+      }
+    },
+    "history": {
+      "status": "PASS_SCOPED_NATIVE_REVIEW",
+      "cases": [
+        "environment-and-default-window",
+        "history-default-and-three-collector-assets",
+        "history-style-search-filter-uuid",
+        "history-original-200-percent-survives-renderer-change",
+        "history-both-renderers-light-dark-minimum",
+        "history-one-asset-remove-and-restore",
+        "history-whole-library-cross-page-and-restoration",
+        "history-final-integrity-and-persisted-style"
+      ],
+      "frames": 20,
+      "input": "PROGRAMMATIC_NATIVE_CONTROLS: NSControl actions, native selection/accessibility action and NSTextView insertion; not CGEvent or hardware",
+      "reportSHA256": "293b268cf564bbef6287598e1012e3779648991075dfa0f99e167be166375085",
+      "restartStatus": "PASS_SCOPED_NATIVE_RESTART",
+      "restartSHA256": "3ff3fbe191a034a1066a214b8ce9b79a61cdd5f9e27aab465e42e04b0ea27ae6",
+      "images": {
+        "history-history-library-cross-page-uuid.png": "44d86e6344573fea12fe680bca14c660fcb6fab02f3dd54ce80c677eb32b8d36"
+      }
+    },
+    "desktop": {
+      "status": "PASS_SCOPED_NATIVE_REVIEW",
+      "cases": [
+        "isolated-review-controls",
+        "tray-0",
+        "windChime-0",
+        "microSlit-0",
+        "collect-fixture-1",
+        "tray-1",
+        "windChime-1",
+        "microSlit-1",
+        "collect-fixture-2",
+        "tray-2",
+        "windChime-2",
+        "microSlit-2",
+        "collect-fixture-3",
+        "tray-3",
+        "windChime-3",
+        "microSlit-3",
+        "collect-fixture-4",
+        "tray-4",
+        "windChime-4",
+        "microSlit-4",
+        "collect-fixture-5",
+        "tray-5",
+        "windChime-5",
+        "microSlit-5",
+        "collect-fixture-6",
+        "collect-fixture-7",
+        "collect-fixture-8",
+        "collect-fixture-9",
+        "collect-fixture-10",
+        "tray-10",
+        "windChime-10",
+        "microSlit-10",
+        "light-leftMiddle",
+        "light-rightMiddle",
+        "dark-leftMiddle",
+        "dark-rightMiddle",
+        "tray-native-wheel",
+        "tray-owned-button-and-escape",
+        "actual-tray-appearance-layers",
+        "violet-restart-and-material-switch",
+        "physical-connected-displays",
+        "native-high-contrast-appearance-override",
+        "tray-restart-baseline"
+      ],
+      "frames": 73,
+      "input": "Native NSControl actions and NSTextView insertion; no physical pointer or OS IME claim",
+      "reportSHA256": "fc7f709db22ac32ca02bdb41e0d2b0707a0841f2b8ce02d02bd8e1a3f894422b",
+      "restartStatus": "PASS",
+      "restartSHA256": "17f035a9558370d477f039930eeec3698a5dcaf8fb6d3549a2fd5bee80997625",
+      "images": {
+        "desktop-tray-3.png": "68b49d9594bf3df8af1ca2452123654f48fe9fab6eb80f6ff77292256b29628a",
+        "desktop-light-leftMiddle-windChime.png": "e2d9dcaf07331e62733d7ed6aec90e664352038c40b5c0366e4f213e667dc568",
+        "desktop-dark-rightMiddle-microSlit.png": "8f4e4e8cc47bd4ea6438bf820a89238594c1ba8463eaf26ae8f6418cecf4215f"
+      }
+    }
+  },
+  "scope": "Real WindowServer, isolated fixture, macOS 27.0 2x, actual ARM64 execution. Does not establish real ChatGPT acceptance."
+}

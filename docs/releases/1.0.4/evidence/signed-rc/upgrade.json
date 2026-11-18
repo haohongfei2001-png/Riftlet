@@ -1,0 +1,63 @@
+{
+  "scope": "Authorized independent GUI guest, ARM64 macOS 27.2, per-user Applications; single synthetic fixture restored between updates",
+  "source": "f7407cdae28b4d63e20cf7c3972f4f131ec9e33e",
+  "executableSHA256": "2a76ad89e9501edecec02bafef203dadadf6c6b2a36f3d055011095fad3fecb4",
+  "dmgSHA256": "044e44dbc77831d45de2a56fad602039243147810c1fa1c1b36892ab641f8f1f",
+  "normalUpdates": [
+    {
+      "source": "1.0.3 (25)",
+      "result": "PASS",
+      "restartedPID": 2811
+    },
+    {
+      "source": "1.0.2 (24)",
+      "result": "PASS",
+      "restartedPID": 3039
+    }
+  ],
+  "sourceAndDestinationInventoryEqual": true,
+  "originalTables": {
+    "assets": 5,
+    "operations": 1,
+    "upload_starts": 0,
+    "checkpoints": 3,
+    "compensations": 0,
+    "metadata": 2
+  },
+  "oldFileHashesCompared": 12,
+  "feedbackAndBookmarkEqual": true,
+  "unknownRows": 1,
+  "sourceSTART": 0,
+  "quickCheck": [
+    {
+      "quick_check": "ok"
+    }
+  ],
+  "dmgCopyDetachLaunch": "PASS",
+  "dmgRunPID": 3179,
+  "afterSystemScreenshot": {
+    "assets": 6,
+    "operations": 1,
+    "upload_starts": 0,
+    "checkpoints": 3,
+    "compensations": 0,
+    "metadata": 2
+  },
+  "privateReceiptHashes": {
+    "actual-before24.json": "db5b24492eecb77a3bcf333b6a97aa103ce83b2346e5e93c85b5cdd0817704d2",
+    "actual-after24.json": "db5b24492eecb77a3bcf333b6a97aa103ce83b2346e5e93c85b5cdd0817704d2",
+    "actual-before25.json": "db5b24492eecb77a3bcf333b6a97aa103ce83b2346e5e93c85b5cdd0817704d2",
+    "actual-after25.json": "db5b24492eecb77a3bcf333b6a97aa103ce83b2346e5e93c85b5cdd0817704d2",
+    "after-dmg-install.json": "db5b24492eecb77a3bcf333b6a97aa103ce83b2346e5e93c85b5cdd0817704d2",
+    "after-settled-capture.json": "551801838eb8053f5aca85e0121c52472835e87629f2852d9bcb054a04fb121b",
+    "upgrade-24-installed.txt": "c4bfcd25edffdd0e8f92500dc8ebea75b7089adc91e1968ee82e6107da6428b2",
+    "upgrade-25-installed.txt": "da61865bf4b2c9109d4009cdb390a73f9bbd823fd9880c433454b1e0064c9bf7",
+    "dmg-verified-open.txt": "2db27d571276fc154412e32847ab35e2139b29871ec808e6cf6301d7fe5a4b82"
+  },
+  "notCovered": [
+    "physical Intel",
+    "real ChatGPT service",
+    "nonzero START migration in this fixture",
+    "shared /Applications authorization challenge"
+  ]
+}

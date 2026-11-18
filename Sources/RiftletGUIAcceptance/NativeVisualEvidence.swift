@@ -321,7 +321,7 @@ final class NativeVisualEvidence {
         controller.show()
         guard let window = controller.window, let content = window.contentView,
               let editor = descendants(content).compactMap({ $0 as? NSTextView }).first,
-              let close = descendants(content).compactMap({ $0 as? NSButton }).first(where: { $0.title == "保存并关闭" }),
+              let close = descendants(content).compactMap({ $0 as? NSButton }).first(where: { $0.title == ProductCopy.text("保存并关闭", "Save and Close") }),
               let retry = descendants(content).first(where: { $0.identifier?.rawValue == "feedback.retrySave" }) as? NSButton,
               let copy = descendants(content).first(where: { $0.identifier?.rawValue == "feedback.copyText" }) as? NSButton else {
             throw Failure.missingWindow
@@ -339,12 +339,14 @@ final class NativeVisualEvidence {
         controller.textDidChange(Notification(name: NSText.didChangeNotification))
         supplementalStage = "feedbackPersistenceFailure"
         close.performClick(nil)
-        let failureText = "未能可靠保存草稿；文字仍在此窗口。可重试保存或复制正文，没有发送。"
+        let failureText = ProductCopy.text("未能可靠保存草稿；文字仍在此窗口。可重试保存或复制正文，没有发送。",
+            "Your draft could not be saved. Retry or copy your text before closing this window.")
+        let retryTitle = ProductCopy.text("重试保存并关闭", "Retry Save and Close")
         var failureStatus: NSTextField?
         try await waitForSupplement {
             failureStatus = self.descendants(content).compactMap { $0 as? NSTextField }.first { $0.stringValue == failureText }
             return window.isVisible && failureStatus != nil
-                && retry.title == "重试保存并关闭" && retry.isEnabled && copy.isEnabled
+                && retry.title == retryTitle && retry.isEnabled && copy.isEnabled
                 && !retry.isHiddenOrHasHiddenAncestor && !copy.isHiddenOrHasHiddenAncestor
         }
         guard let failureStatus, let viewport = editor.enclosingScrollView?.contentView else { throw Failure.missingWindow }
@@ -367,7 +369,7 @@ final class NativeVisualEvidence {
         let footerAndViewport: [NSView] = [failureStatus, retry, copy, viewport]
         try await waitForSupplement {
             window.isVisible && window.alphaValue >= 0.99 && failureStatus.stringValue == failureText
-                && retry.title == "重试保存并关闭" && retry.isEnabled && copy.isEnabled
+                && retry.title == retryTitle && retry.isEnabled && copy.isEnabled
                 && controller.currentText == body && editor.isEditable
                 && views.allSatisfy {
                     $0.window === window && !$0.isHiddenOrHasHiddenAncestor && $0.alphaValue >= 0.99

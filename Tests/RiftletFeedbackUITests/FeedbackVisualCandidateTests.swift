@@ -5,10 +5,22 @@ import RiftletFeedback
 
 final class FeedbackVisualCandidateTests: XCTestCase {
     @MainActor private func views(_ root: NSView) -> [NSView] { [root] + root.subviews.flatMap(views) }
+    @MainActor func testEnglishFeedbackUsesLocalCopyAndPreservesTheDiagnosticDisclosure() async throws {
+        _ = NSApplication.shared
+        guard !NSScreen.screens.isEmpty else { throw XCTSkip("WindowServer unavailable") }
+        let controller = FeedbackWindowController(engine: nil, diagnostics: FeedbackDiagnostics(), appVersion: "1.0.4", copy: .english)
+        await controller.waitUntilLoaded()
+        let all = views(try XCTUnwrap(controller.window?.contentView))
+        XCTAssertEqual(controller.window?.title, "Feedback")
+        XCTAssertTrue(all.compactMap { $0 as? NSButton }.contains { $0.title == "Save for Later" })
+        let privacy = try XCTUnwrap(all.compactMap { $0 as? NSTextField }.first { $0.identifier?.rawValue == "feedback.privacy" })
+        XCTAssertTrue(privacy.stringValue.contains("authorized AI tools"))
+        XCTAssertTrue(privacy.stringValue.contains("never attached automatically"))
+    }
     @MainActor func testFeedbackReopenPreservesValidPositionAndUsesTopAlignedDocument() async throws {
         _ = NSApplication.shared
         guard let screen = NSScreen.main else { throw XCTSkip("AppKit window server unavailable") }
-        let controller = FeedbackWindowController(engine: nil, diagnostics: FeedbackDiagnostics(), appVersion: "test")
+        let controller = FeedbackWindowController(engine: nil, diagnostics: FeedbackDiagnostics(), appVersion: "test", copy: .simplifiedChinese)
         await controller.waitUntilLoaded()
         let window = try XCTUnwrap(controller.window)
         defer { window.close() }
@@ -27,7 +39,7 @@ final class FeedbackVisualCandidateTests: XCTestCase {
     @MainActor func testCollapsedRecordsKeepSameEditorDraftSelectionAndNoDefaultSubmit() async throws {
         _ = NSApplication.shared
         guard !NSScreen.screens.isEmpty else { throw XCTSkip("AppKit window server unavailable") }
-        let controller = FeedbackWindowController(engine: nil, diagnostics: FeedbackDiagnostics(), appVersion: "test")
+        let controller = FeedbackWindowController(engine: nil, diagnostics: FeedbackDiagnostics(), appVersion: "test", copy: .simplifiedChinese)
         await controller.waitUntilLoaded()
         let content = try XCTUnwrap(controller.window?.contentView)
         let editor = try XCTUnwrap(views(content).compactMap { $0 as? NSTextView }.first)

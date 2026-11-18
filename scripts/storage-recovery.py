@@ -23,7 +23,7 @@ import uuid
 
 
 FORMAT = "riftlet-offline-storage-v1"
-CURRENT_QUEUE_VERSION = 4
+CURRENT_QUEUE_VERSION = 5
 CHUNK = 1024 * 1024
 NOFOLLOW = os.O_NOFOLLOW | os.O_CLOEXEC | os.O_NONBLOCK
 HEX = re.compile(r"^[0-9a-f]{64}$")
@@ -278,6 +278,7 @@ def inspect(tree, inventory, known_queue_version=CURRENT_QUEUE_VERSION):
     """Health is distinct from byte integrity; no repair/adoption is performed."""
     indexed = {entry["path"]: entry for entry in inventory}
     errors, warnings, databases, images = [], [], {}, {}
+    retired_media = set()
 
     def issue(code, path, **facts):
         errors.append({"code": code, "path": path, **facts})
@@ -338,6 +339,8 @@ def inspect(tree, inventory, known_queue_version=CURRENT_QUEUE_VERSION):
                         warnings.append({"code": "queue-schema-not-understood", "userVersion": version})
                     if "operations" in tables:
                         result["unknownOperationSequences"] = [x[0] for x in connection.execute("SELECT sequence FROM operations WHERE phase='unknown' ORDER BY sequence")]
+                    if version == 5 and "retired_media" in tables:
+                        retired_media = {row[0].lower() for row in connection.execute("SELECT asset_id FROM retired_media")}
                     if "assets" in tables:
                         for sequence, identifier, name, raw in connection.execute("SELECT sequence,id,file_name,image_json FROM assets ORDER BY sequence"):
                             location = "queue.sqlite:asset:" + str(sequence)
@@ -345,7 +348,8 @@ def inspect(tree, inventory, known_queue_version=CURRENT_QUEUE_VERSION):
                                 image = json.loads(raw)
                                 require(image.get("fileName") == name and str(image.get("id")).lower() == identifier.lower(),
                                         "image-identity-mismatch", "Queue image identity differs")
-                                check_image(image, location)
+                                if identifier.lower() not in retired_media:
+                                    check_image(image, location)
                                 images[identifier.lower()] = image
                             except (ValueError, TypeError, AttributeError, StorageError) as error:
                                 issue(getattr(error, "code", "invalid-image-json"), location)
@@ -369,7 +373,8 @@ def inspect(tree, inventory, known_queue_version=CURRENT_QUEUE_VERSION):
                     and image["fileName"].startswith(identifier + "."), "invalid-import-journal", "Journal identity differs")
             stage = "staging/" + identifier + ".part"
             journaled.add(stage)
-            check_image(image, relative, stage)
+            if identifier not in retired_media:
+                check_image(image, relative, stage)
             if identifier in images and images[identifier] != image:
                 issue("journal-queue-mismatch", relative)
             if "media/" + image["fileName"] not in indexed and stage in indexed:
@@ -485,7 +490,7 @@ def verified_bundle(bundle, expected=None):
     # Original backups include the v3 inspector's warnings in their exact
     # health checksum, even if that tool backed up a newer queue.
     known_queue_version = manifest.get("knownQueueVersion", 3)
-    require(type(known_queue_version) is int and known_queue_version in (3, 4),
+    require(type(known_queue_version) is int and known_queue_version in (3, 4, 5),
             "invalid-manifest", "Unsupported queue inspection version")
     require(manifest.get("captureSHA256") == sha(bundle.read("capture.json")), "capture-checksum", "Capture provenance differs")
     validate_entries(manifest.get("entries"))

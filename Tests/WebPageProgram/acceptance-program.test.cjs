@@ -587,3 +587,189 @@ test('an empty img src is still a placeholder and cannot start the attachment',(
  assert.equal(f.observe(op).state,'inputTriggered');
  assert.equal(f.observe(op).uploadStart,undefined);assert.equal(f.changes,1);
 });
+
+test('a local failure belongs only to its accepted card in the original draft', async () => {
+ const f=fixture(), a=f.bind(), b=f.bind();
+ for(const op of [a,b]) { f.stage(op); await f.commit(op); }
+ const start=accepted(f,a), card=f.document.querySelectorAll('[data-file-name]').find(n=>n.getAttribute('data-file-name')===a.name);
+ card.setAttribute('data-state','failed');
+ const failed=f.observe(a);
+ assert.equal(failed.state,'failed'); assert.equal(failed.attachmentID,start.attachmentID);
+ assert.equal(failed.hasError,true); assert.equal(failed.automaticRetryExcluded,false);
+ assert.equal(failed.attachmentAbsent,false); assert.equal(failed.uploadStart,undefined);
+ accepted(f,b);
+ card.removeAttribute('data-state');
+ f.form.append(new f.Node('div',{role:'alert','data-state':'error'}));
+ accepted(f,a);
+ card.setAttribute('data-state','failed'); card.setAttribute('data-file-name','other.png');
+ accepted(f,a);
+ card.setAttribute('data-file-name',a.name); f.setRoute('https://chatgpt.com/c/other');
+ accepted(f,a);
+ assert.equal(f.setters,2); assert.equal(f.changes,2); assert.equal(f.sends,0);
+});
+
+test('a portalled card can report failure only in its original draft and placement', () => {
+ const f=fixture({accept:false}), op=f.bind();
+ f.stage(op); f.commit(op);
+ const portal=f.body.append(new f.Node('section'));
+ const card=portal.append(f.addCard(op.name));
+ const start=accepted(f,op);
+ card.setAttribute('data-state','error');
+ const failure=f.observe(op);
+ assert.equal(failure.state,'failed'); assert.equal(failure.attachmentID,start.attachmentID);
+ assert.equal(failure.automaticRetryExcluded,false); assert.equal(failure.attachmentAbsent,false);
+ const otherForm=f.body.append(new f.Node('form'));
+ otherForm.append(portal); accepted(f,op);
+ f.body.append(portal);
+ f.body.append(card); accepted(f,op);
+ portal.append(card);
+ f.setRoute('https://chatgpt.com/c/another'); accepted(f,op);
+ assert.equal(f.setters,1); assert.equal(f.changes,1); assert.equal(f.sends,0);
+});
+
+test('START releases strong composer references and expired reads retain a replay fence', async () => {
+ const f=fixture(), callbacks=[];
+ f.context.setTimeout=(callback,ms)=>ms===600000 ? (callbacks.push(callback),0) : setTimeout(callback,ms);
+ const first=f.bind();
+ for(let i=0;i<101;i++) { const op=i===0?first:f.bind(); f.stage(op); await f.commit(op); }
+ const registry=vm.runInContext('globalThis.__riftletIndependentFileInput20261104',f.context);
+ f.input.remove();
+ assert.ok(!Object.values(registry.current).includes(f.input), 'no retained detached file picker');
+ for(const op of registry.operations.values()) {
+   assert.equal(op.binding,null); assert.equal(op.chunks.length,0);
+ }
+ vm.runInContext('Date.now = () => Number.MAX_SAFE_INTEGER', f.context);
+ for(const expire of callbacks) expire();
+ assert.equal(registry.operations.size,101);
+ for(const value of registry.operations.values()) assert.deepEqual(Object.keys(value),['committed']);
+ assert.equal(f.observe(first).state,'invalidated');
+ assert.throws(()=>f.stage(first),/BEGIN_REFUSED/);
+ assert.throws(()=>f.commit(first),/ORIGINAL_OPERATION_REQUIRED/);
+ assert.equal(f.setters,101); assert.equal(f.changes,101); assert.equal(f.sends,0);
+});
+
+test('history links use only the exact canonical saved conversation path', () => {
+ const id='00000000-0000-4000-8000-000000000ABC';
+ for (const [route,expected] of [
+  ['https://chatgpt.com/c/'+id.toLowerCase()+'?x=1#z',id],
+  ['https://chatgpt.com/',undefined],['https://chatgpt.com/c/other',undefined],
+  ['https://chatgpt.com/g/other/c/'+id,undefined],['https://chat.openai.com/c/'+id,undefined]]) {
+  const target=fixture({route}).call({action:'captureTarget'});
+  assert.equal(target.historyConversationID,expected);
+  assert.equal(target.logicalDraftIdentity,undefined);
+ }
+});
+
+for (const attribute of ['aria-label', 'title', 'alt']) test('post-START error on the originally labelled view: '+attribute, () => {
+ const f=fixture({accept:false}), op=f.bind(); f.stage(op); f.commit(op);
+ const card=f.addCard('placeholder'), image=card.querySelector('img');
+ for(const key of ['data-file-name','aria-label','title']) card.removeAttribute(key);
+ image.removeAttribute('alt');
+ const witness=attribute==='alt' ? image : card, label='Uploading '+op.name+' (PNG)';
+ witness.setAttribute(attribute,label);
+ const start=accepted(f,op);
+ card.setAttribute('data-state','failed');
+ const error=f.observe(op);
+ assert.equal(error.state,'failed'); assert.equal(error.attachmentID,start.attachmentID);
+ assert.equal(error.automaticRetryExcluded,false); assert.equal(error.attachmentAbsent,false);
+ witness.setAttribute(attribute,'other-'+op.name); accepted(f,op);
+ witness.setAttribute(attribute,label); image.setAttribute('src','blob:replacement'); accepted(f,op);
+ card.remove(); const replacement=f.addCard(op.name); replacement.setAttribute('data-state','failed'); accepted(f,op);
+ assert.equal(f.setters,1); assert.equal(f.changes,1); assert.equal(f.sends,0);
+});
+
+test('a second START-time view needs the original File object URL to report a scoped error', () => {
+ const f=fixture({accept:false}), op=f.bind(); f.stage(op); f.commit(op);
+ const first=f.addCard(op.name), sameName=f.addCard(op.name), sameFile=f.addCard(op.name);
+ const container=f.form.append(new f.Node('section')); container.append(sameFile);
+ const fileURL=f.context.URL.createObjectURL(f.input.files[0]);
+ sameFile.querySelector('img').setAttribute('src',fileURL);
+ const start=accepted(f,op);
+ sameName.setAttribute('data-state','error'); accepted(f,op);
+ const after=f.addCard(op.name); after.querySelector('img').setAttribute('src',fileURL);
+ after.setAttribute('data-state','failed'); accepted(f,op);
+ first.append(new f.Node('span',{'role':'alert','data-file-name':op.name,'data-state':'failed'})); accepted(f,op);
+ sameFile.setAttribute('data-state','failed');
+ const error=f.observe(op);
+ assert.equal(error.state,'failed'); assert.equal(error.attachmentID,start.attachmentID);
+ assert.equal(error.automaticRetryExcluded,false); assert.equal(error.attachmentAbsent,false);
+ const otherComposer=f.form.append(new f.Node('div',{'data-chatgpt-composer':'1'}));
+ otherComposer.append(container); accepted(f,op); f.form.append(container);
+ sameFile.querySelector('img').setAttribute('src','blob:other'); accepted(f,op);
+ assert.equal(f.setters,1); assert.equal(f.changes,1); assert.equal(f.sends,0);
+});
+
+test('a nested error is limited to the original named preview, not a newly inserted same-name node', () => {
+ const f=fixture(), op=f.bind(); f.stage(op); f.commit(op); const start=accepted(f,op);
+ const card=f.document.querySelectorAll('[data-file-name]').find(n=>n.getAttribute('data-file-name')===op.name);
+ const old=card.querySelector('img'), replacement=new f.Node('img',{...old.attrs,'data-state':'failed'});
+ card.append(replacement); accepted(f,op);
+ old.setAttribute('data-state','failed');
+ const error=f.observe(op); assert.equal(error.state,'failed'); assert.equal(error.attachmentID,start.attachmentID);
+ old.setAttribute('alt','another.png'); accepted(f,op);
+ old.remove(); accepted(f,op);
+ assert.equal(f.setters,1); assert.equal(f.changes,1); assert.equal(f.sends,0);
+});
+
+test('post-START watches retain neither inline pixels nor unbounded preview addresses', () => {
+ const f=fixture({accept:false}), op=f.bind(); f.stage(op); f.commit(op);
+ const large='x'.repeat(1024*1024);
+ for(const src of ['data:image/png;base64,'+large,'blob:'+large,'https://example.invalid/preview?token=unused']) {
+  const card=f.addCard(op.name); card.querySelector('img').setAttribute('src',src);
+ }
+ accepted(f,op);
+ const registry=vm.runInContext('globalThis.__riftletIndependentFileInput20261104',f.context);
+ const views=registry.operations.get(op.identity.operationID).failureWatch.views;
+ assert.equal(views.length,1); assert.equal(views[0].src,undefined);
+ assert.equal(views[0].preview,null);
+});
+
+test('an original blob left behind during a component rebind cannot borrow the new upload’s error', () => {
+ const f=fixture({accept:false}), a=f.bind(), b=f.bind(); f.stage(a); f.commit(a);
+ const card=f.addCard(a.name), image=card.querySelector('img');
+ card.removeAttribute('data-file-name'); card.removeAttribute('title');
+ image.setAttribute('src',f.context.URL.createObjectURL(f.input.files[0]));
+ const start=accepted(f,a);
+ card.setAttribute('data-state','failed');
+ assert.equal(f.observe(a).state,'failed');
+ for(const [node,attr] of [[card,'aria-label'],[card,'title'],[image,'alt']]) {
+  const was=node.getAttribute(attr);
+  node.setAttribute(attr,'Uploading '+b.name);
+  accepted(f,a);
+  if(was===null)node.removeAttribute(attr);else node.setAttribute(attr,was);
+ }
+ const message=card.append(new f.Node('span')); message.textContent=b.name;
+ accepted(f,a); message.remove();
+ const left=card.append(new f.Node('span')), right=card.append(new f.Node('span'));
+ left.textContent=b.name.slice(0,18); right.textContent=b.name.slice(18);
+ accepted(f,a); left.remove(); right.remove();
+ const secondPreview=card.append(new f.Node('img',{alt:b.name}));
+ accepted(f,a); secondPreview.remove();
+ card.setAttribute('aria-label',b.name); image.setAttribute('alt',b.name);
+ accepted(f,a);
+ assert.equal(f.observe(a).attachmentID,start.attachmentID); assert.equal(f.setters,1); assert.equal(f.sends,0);
+});
+
+test('an unlabelled original File preview still supports its own explicit card failure', () => {
+ const f=fixture({accept:false}), op=f.bind(); f.stage(op); f.commit(op);
+ const card=f.addCard(op.name), image=card.querySelector('img');
+ for(const key of ['data-file-name','title','aria-label'])card.removeAttribute(key);
+ image.removeAttribute('alt'); image.setAttribute('src',f.context.URL.createObjectURL(f.input.files[0]));
+ const start=accepted(f,op); card.setAttribute('data-state','failed');
+ const error=f.observe(op); assert.equal(error.state,'failed'); assert.equal(error.attachmentID,start.attachmentID);
+ assert.equal(error.automaticRetryExcluded,false); assert.equal(f.setters,1); assert.equal(f.sends,0);
+});
+
+test('a retained v18 watch can report its own error but conflicting labels veto that hint', () => {
+ const f=fixture(), a=f.bind(), b=f.bind(); f.stage(a); f.commit(a);
+ const card=f.document.querySelectorAll('[data-file-name]').find(n=>n.getAttribute('data-file-name')===a.name);
+ const registry=vm.runInContext('globalThis.__riftletIndependentFileInput20261104',f.context);
+ registry.operations.get(a.identity.operationID).failureWatch={binding:new WeakRef(registry.current),card:new WeakRef(card),portalParent:null};
+ card.setAttribute('data-state','failed'); assert.equal(f.observe(a).state,'failed');
+ card.querySelector('img').setAttribute('alt',b.name); accepted(f,a);
+ card.querySelector('img').setAttribute('alt',a.name);
+ const otherComposer=f.form.append(new f.Node('section'));
+ otherComposer.setAttribute('data-chatgpt-composer','');
+ otherComposer.append(card); accepted(f,a);
+ assert.equal(f.setters,1); assert.equal(f.sends,0);
+});

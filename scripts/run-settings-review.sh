@@ -88,6 +88,17 @@ def launch(flag, log_name, timeout):
         result["logSHA256"] = digest(log.read_bytes())
     return result, log
 
+def verify_case_results(document, section, key, required):
+    rows = document.get(section)
+    if not isinstance(rows, list) or not rows:
+        raise ValueError("missingCaseResults")
+    names = [row.get(key) for row in rows if isinstance(row, dict)]
+    if (len(names) != len(rows) or any(not isinstance(name, str) for name in names)
+            or len(set(names)) != len(names) or not required.issubset(names)):
+        raise ValueError("missingOrDuplicateCase")
+    if any(row.get("status") != "PASS" for row in rows):
+        raise ValueError("caseDidNotPass")
+
 def read_report(result, log, filename, directory_prefix):
     paths = [line[len(prefix):] for line in log.read_text(errors="replace").splitlines() if line.startswith(prefix)]
     if len(paths) != 1:
@@ -178,8 +189,37 @@ review_root = None
 try:
     review_root, document = read_report(result, log, "report.json", "run-")
     result.update(caseCount=len(document.get("cases", [])), frameCount=len(document.get("frames", [])))
+    if result["status"] == "PASS_SCOPED_NATIVE_REVIEW":
+        verify_case_results(document, "cases", "case", {
+            "environment-and-default-window",
+            "real-collector-synthetic-fixture",
+            "programmatic-collection-during-recheck",
+            "four-pages-light-and-dark",
+            "orthogonal-pause-hidden-sqlite",
+            "archive-presets-and-inherited-value",
+            "tray-material-settings-and-legacy-visibility",
+            "recommended-appearance-and-undo",
+            "preset-persistence-across-close",
+            "independent-write-failures-and-retry",
+            "motion-selection-in-advanced-appearance",
+            "two-step-guidance-light-and-dark",
+            "resizing-and-reopen",
+            "history-real-records",
+            "original-media-and-no-upload-operations",
+        })
+        frames = document.get("frames")
+        if not frames or any(frame.get("status") != "RECORDED_NATIVE_WINDOWSERVER" for frame in frames):
+            raise ValueError("frameEvidenceIncomplete")
+        for frame in frames:
+            name = frame.get("file")
+            if not isinstance(name, str) or Path(name).name != name:
+                raise ValueError("unexpectedFramePath")
+            data = regular_bytes(Path(result["report"]).parent / name)
+            if len(data) != frame.get("bytes") or digest(data) != frame.get("sha256"):
+                raise ValueError("frameIdentityMismatch")
 except (OSError, ValueError, KeyError, TypeError) as error:
-    result["reportError"] = type(error).__name__
+    result["status"] = "INCOMPLETE"
+    result["reportError"] = str(error) if isinstance(error, ValueError) else type(error).__name__
 if result.get("timedOut") or result.get("exitCode") != 0 or not result.get("completed"):
     result["status"] = "INCOMPLETE"
 destination = save_result("runner-result.json", result)
@@ -213,6 +253,14 @@ try:
         raise ValueError("restartProcessOrRootMismatch")
     if not restart.get("completed") or document.get("status") != "PASS_SCOPED_NATIVE_RESTART":
         raise ValueError("restartReportDidNotPass")
+    verify_case_results(document, "checks", "check", {
+        "same-binary-new-process-after-completed-run",
+        "persisted-json-and-loaded-owners",
+        "sqlite-pause-and-visibility",
+        "existing-first-use-not-presented-again",
+        "assets-media-and-operation-readback",
+        "verification-left-preference-bytes-unchanged",
+    })
     prior = next((item for item in document.get("checks", []) if item.get("check") == "same-binary-new-process-after-completed-run"), {})
     if (prior.get("status") != "PASS" or prior.get("priorReport") != result["report"]
             or prior.get("priorReportSHA256") != result["reportSHA256"] or prior.get("priorProcessPID") != result["childPID"]):

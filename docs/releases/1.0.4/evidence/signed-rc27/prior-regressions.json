@@ -1,0 +1,14 @@
+{
+  "firstFailRun": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44054602340",
+  "ciSource": "542c5e2fc4c24aadfa4596e7d24cbd319697ff3e",
+  "resolvedIn": "c7934adc82d382e78cf23ab96ed6d6784e88b905",
+  "checks": {
+    "history": "Long detail title wraps at the available width in a 680pt English window",
+    "chromeHelp": "Only one JavaScript recovery message is shown when permission refusal already identifies the menu entry"
+  },
+  "nativeProbe": {
+    "rd104-ci-gui-before.log": "a8c3c489865b8d33ccd5dcab457dc12d5fe0b7884d1557b1340d5213f5fbfcd7",
+    "rd104-ci-gui-after.log": "16e74febb5bcf9085be1c11f77664325510306f58d5cdd7f804d0af6f2c749c3"
+  },
+  "testChangeForTheseTwoFailures": false
+}

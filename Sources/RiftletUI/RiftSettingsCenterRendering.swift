@@ -10,9 +10,6 @@ extension RiftSettingsCenterController {
         for (page, button) in navigation {
             button.state = page == selectedPage ? .on : .off
             button.contentTintColor = page == selectedPage ? SettingsNativeStyle.color(.accentInk) : .secondaryLabelColor
-            button.effectiveAppearance.performAsCurrentDrawingAppearance {
-                button.layer?.backgroundColor = page == selectedPage ? SettingsNativeStyle.color(.accentInk).withAlphaComponent(0.13).cgColor : NSColor.clear.cgColor
-            }
             button.setAccessibilityValue(page == selectedPage ? ProductCopy.text("已选中", "Selected") : "")
         }
         for (domain, row) in preferenceRecoveryRows {
@@ -38,15 +35,14 @@ extension RiftSettingsCenterController {
         hide("collection.resume", !owner.collectionPaused)
         enable("collection.resume", product.capabilities.canChangeCollection && !busy(.collection))
         check("desktop.visible", !owner.isHidden, enabled: product.capabilities.canChangeVisibility && !busy(.visibility))
-        select("history.style", index: HistoryDisplayStyle.allCases.firstIndex(of: product.historyDisplayStyle) ?? 0)
-        enable("history.style", product.capabilities.canOpenHistory)
         check("entry", settings.entryEnabled, enabled: settings.entryAvailable && product.capabilities.canEditPreferences && !busy(.entry))
         select("captureMode", index: [.window, .region, .fullScreen].firstIndex(of: settings.defaultCaptureMode) ?? 0)
         enable("captureMode", settings.entryAvailable && product.capabilities.canEditPreferences && !busy(.captureMode))
         captureOptions.isHidden = !settings.entryEnabled && ![SettingsDomain.captureMode, .trayFavorite1, .trayFavorite2, .trayFavorite3].contains { model.snapshot.domains[$0]?.hasIssue == true }
         trayFavorites.isHidden = settings.configuration.desktopForm != .tray && !RiftTrayFavoriteSlot.allCases.contains { model.snapshot.domains[$0.settingsDomain]?.hasIssue == true }
         text("source.capture", presentation.sourceText)
-        text("sourcePath.capture", presentation.sourcePath)
+        text("sourcePath.capture", presentation.hasSourceLocation ? URL(fileURLWithPath: presentation.sourcePath).lastPathComponent : "")
+        labels["sourcePath.capture"]?.toolTip = presentation.sourcePath
         hide("source.access.capture", !presentation.needsSourceAccess)
         enable("source.access.capture", product.capabilities.canChooseSource && presentation.needsSourceAccess)
         text("screen.capture", screenRecordingText)
@@ -55,7 +51,7 @@ extension RiftSettingsCenterController {
         hide("screen.privacy", !screenNeedsAttention)
         let readableFolder = product.setup.source == .accessible && presentation.sourceIssue == nil
         labels["source.capture"]?.isHidden = readableFolder
-        hide("source.recheck.capture", readableFolder || product.setup.source == .notApplicable)
+        hide("source.recheck.capture", presentation.needsSourceAccess || readableFolder || product.setup.source == .notApplicable)
         enable("source.recheck.capture", product.capabilities.canRecheck && !product.setup.isChecking)
         let supportsConnectionCheck = product.setup.attachment == .available
         var chromeState: String
@@ -79,7 +75,7 @@ extension RiftSettingsCenterController {
         }
         text("access.chrome", chromeState)
         let canTestConnection = supportsConnectionCheck && product.setup.permission == .granted
-        hide("chrome.check", !canTestConnection)
+        hide("chrome.check", !canTestConnection || product.chromeConnection == .ready)
         enable("chrome.check", canTestConnection && product.capabilities.canRequestAutomation
                && !product.reviewEnvironment && product.chromeConnection != .checking && !product.setup.isChecking)
         buttonTitle("chrome.check", product.chromeConnection == .checking ? ProductCopy.text("正在检查连接…", "Checking Connection…") : ProductCopy.text("检查 Chrome 连接", "Check Chrome Connection"))
@@ -93,24 +89,27 @@ extension RiftSettingsCenterController {
         text("history.detail", ProductCopy.text("有 \(count) 张截图的附加结果待核实。请查看原草稿，Riftlet 不会自动重传。", "\(count) screenshot attachments are awaiting confirmation. Check their original drafts. Riftlet won’t retry them automatically."))
         labels["history.detail"]?.isHidden = count == 0
         enable("history.open", product.capabilities.canOpenHistory)
+        enable("storage.manage", product.capabilities.initialized)
         text("storage", product.setup.storage == .notMeasured ? ProductCopy.text("尚未检查本地存储用量。", "Local storage usage hasn’t been checked yet.") : presentation.storageText)
         enable("storage.recheckMedia", product.capabilities.canRecheck && !product.setup.isChecking)
         enable("storage.check", product.capabilities.canCheckStorage && product.setup.storage != .measuring)
         enable("storage.reveal", product.capabilities.initialized)
         text("automation", presentation.automationStatusText ?? ProductCopy.text("当前模式不需要 Chrome 自动化访问。", "This mode doesn’t need access to control Chrome."))
+        labels["automation"]?.isHidden = product.setup.permission == .granted
         let scriptInstructions = presentation.chromeScriptInstructions
-            ?? (canTestConnection && [.unchecked, .javaScriptDisabled].contains(product.chromeConnection) ? ChromeAttachmentSetup.instructions : nil)
+            ?? (product.chromeConnection == .javaScriptDisabled ? ChromeAttachmentSetup.instructions : nil)
         text("chrome.menu", scriptInstructions ?? "")
-        labels["chrome.menu"]?.isHidden = scriptInstructions == nil || product.setup.issue == .chromeJavaScriptDisabled
-            || (canTestConnection && product.chromeConnection == .ready)
+        labels["chrome.menu"]?.isHidden = scriptInstructions == nil || !canTestConnection
+            || product.chromeConnection != .javaScriptDisabled || product.setup.issue == .chromeJavaScriptDisabled
         // A general invitation to click a screenshot would contradict a failed connection check.
         let lastAttachmentProblem = product.setup.issue?.isAttachmentConnectionIssue == true
         labels["attachment"]?.isHidden = supportsConnectionCheck && !lastAttachmentProblem
         text("attachment", presentation.attachmentText)
-        buttonTitle("automation.request", presentation.permissionActionTitle)
-        hide("automation.request", !presentation.canRequestPermission)
-        enable("automation.request", product.capabilities.canRequestAutomation && presentation.canRequestPermission && !product.setup.isChecking)
+        buttonTitle("automation.request", product.setup.permission == .notRunning ? ProductCopy.text("打开 Chrome", "Open Chrome") : presentation.permissionActionTitle)
+        hide("automation.request", !presentation.canRequestPermission && product.setup.permission != .notRunning)
+        enable("automation.request", product.capabilities.canRequestAutomation && (presentation.canRequestPermission || product.setup.permission == .notRunning) && !product.setup.isChecking)
         enable("screen.privacy", settings.entryAvailable)
+        text("build.detail", product.version + " · " + (Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"))
         text("version", product.version.isEmpty ? ProductCopy.text("版本信息尚未提供。", "Version information isn’t available.") : product.version)
         let updater = product.updater
         automaticUpdatesRow.isHidden = updater?.automaticChecks == nil
@@ -164,17 +163,19 @@ extension RiftSettingsCenterController {
         let windChime = configuration.desktopForm == .windChime
         windChimeSettings?.isHidden = !windChime
         let tray = configuration.desktopForm == .tray
-        commonEdgeSettings?.isHidden = windChime
-        slitInsetFraction?.isHidden = configuration.desktopForm != .microSlit
-        trayOcclusionRow?.isHidden = !tray
-        windChimeLineSetting?.isHidden = !windChime
+        let fields = visibleLegacyFields
+        let oldTheme = tray && product.hasLegacyTrayTheme
+        legacySection.isHidden = fields.isEmpty && !oldTheme && legacyUndo == nil
+        buttonTitle("layout.defaults.display", legacyUndo == nil
+            ? ProductCopy.text("使用推荐外观", "Use Recommended Appearance") : ProductCopy.text("撤销推荐外观", "Undo Recommended Appearance"))
+        trayAppearanceSection.isHidden = !tray
+        edgePreview.placement = configuration.placement
+        renderTrayAppearance()
         select("windChimeArrangement", index: RiftWindChimeArrangement.allCases.firstIndex(of: configuration.windChimeArrangement)!)
         enable("windChimeArrangement", product.capabilities.canEditPreferences && !configurationBusy)
         (controls["trayTheme"] as? NSPopUpButton)?.selectItem(withTitle: configuration.trayTheme.title)
         enable("desktopForm", product.capabilities.canEditPreferences && !configurationBusy)
         enable("trayTheme", product.capabilities.canEditPreferences && !configurationBusy)
-        trayTintSettings?.isHidden = configuration.trayTheme != .custom
-        traySettings?.isHidden = configuration.desktopForm != .tray
         let defaultMode = settings.defaultCaptureMode
         let defaultTitle = RiftTrayFavoriteChoice.mode(defaultMode).menuTitle
         text("tray.favorites.detail", ProductCopy.text("常用键从屏幕内侧向边缘排列。最外侧使用“截图”页的默认方式（\(defaultTitle)）。", "Favorites run from the inside of the screen toward its edge. The outermost button uses the default capture mode (\(defaultTitle))."))
@@ -194,6 +195,7 @@ extension RiftSettingsCenterController {
         // Concrete UUID/ID resolution is already performed by the owner; the
         // view never converts a temporary fallback into a preference.
         let selected = settings.configuration.preferredDisplayID ?? settings.preferredDisplayID
+        displayRow.isHidden = settings.displays.count < 2 && !settings.displayRestoreAvailable && (selected == nil || selected == owner.effectiveDisplayID)
         if displayMenuTracking {
             displayRefreshPending = true
         } else {
@@ -264,50 +266,34 @@ extension RiftSettingsCenterController {
         let state = model.snapshot
         let editable = product.capabilities.canEditPreferences
         let limit = countCapacity(state.owner)
-        for (field, view) in numericFields {
-            let failed = state.domains[.layout]?.saveFailure != nil
-            var value = failed ? model.effectiveText(for: field) : model.text(for: field)
-            if field == .visibleCountPreference, state.layoutText[field] == nil || failed {
-                value = String(min(state.owner.settings.configuration.visibleCountPreference, limit))
-            }
-            if view.currentEditor() == nil {
-                displayedEditorValues[ObjectIdentifier(view)] = value
-                if view.stringValue != value { view.stringValue = value }
-                view.isEnabled = editable && (field != .visibleCountPreference || limit > 0)
-            }
-            if let slider = numericSliders[field] {
-                if field == .visibleCountPreference {
-                    slider.maxValue = Double(max(1, limit))
-                    slider.numberOfTickMarks = max(1, limit)
-                }
-                if let n = number(value), n.isFinite { slider.doubleValue = min(slider.maxValue, max(slider.minValue, n)) }
-                slider.isEnabled = editable && (field != .visibleCountPreference || limit > 1)
-            }
-        }
         let config = state.owner.settings.configuration
-        numericSliders[.trayTintHue]?.trackFillColor = NSColor(hue: config.trayTintHue / 360, saturation: 0.7, brightness: 0.8, alpha: 1)
-        let archiveFailed = state.domains[.archive]?.saveFailure != nil
         let minutes = state.owner.settings.archiveAfterMinutes
-        let archiveValue = archiveFailed ? SettingsStateModel.archiveMinutesText(minutes ?? QueueArchivePolicy.defaultMinutes,
-                decimalSeparator: Locale.current.decimalSeparator ?? ".") : model.archiveDraftText
-        if archiveField.currentEditor() == nil {
-            displayedEditorValues[ObjectIdentifier(archiveField)] = archiveValue
-            if archiveField.stringValue != archiveValue { archiveField.stringValue = archiveValue }
-            archiveField.isEnabled = editable
-        }
         let choices = Self.archivePresetMinutes.map(Double.init)
-        let preset = number(archiveValue).flatMap { choices.firstIndex(of: $0) }
-        let disabled = archiveFailed ? minutes == nil : model.archiveIsDisabled
-        let showCustom = !disabled && (archiveCustom || preset == nil)
-        archiveCustomRow.isHidden = !showCustom
+        let preset = minutes.flatMap { choices.firstIndex(of: $0) }
+        let disabled = minutes == nil
+        let showCustom = !disabled && preset == nil
+        if let popup = controls["archive.preset"] as? NSPopUpButton {
+            popup.lastItem?.isHidden = !showCustom
+            if let minutes, showCustom {
+                let current = SettingsStateModel.archiveMinutesText(minutes, decimalSeparator: Locale.current.decimalSeparator ?? ".")
+                popup.lastItem?.title = ProductCopy.text("沿用 \(current) 分钟", "Current: \(current) min")
+            }
+        }
+        if let popup = controls["count"] as? NSPopUpButton {
+            if popup.numberOfItems != max(0,limit) {
+                popup.removeAllItems()
+                if limit > 0 { popup.addItems(withTitles: (1...limit).map(String.init)) }
+            }
+            popup.selectItem(at: max(-1,min(limit, config.visibleCountPreference) - 1))
+            popup.isEnabled = editable && limit > 1 && !configurationBusy
+        }
         select("archive.preset", index: disabled ? 0 : showCustom ? choices.count + 1 : (preset ?? 0) + 1)
         enable("archive.preset", editable)
         enable("layout.defaults.display", editable && !configurationBusy)
         renderError(.layout); renderError(.archive)
-        var previewConfig = config
+        var previewConfig = displayedTrayConfiguration
         previewConfig.visibleCountPreference = min(limit, config.visibleCountPreference)
         geometryPreview.update(configuration: previewConfig, entryEnabled: state.owner.settings.entryEnabled)
-        text("layoutPreview.detail", ProductCopy.text("预览 · ", "Preview · ") + geometryPreview.geometrySummary)
         refreshCloseButtons()
     }
 
@@ -317,6 +303,14 @@ extension RiftSettingsCenterController {
         let value = errorText(domain)
         row.isHidden = value == nil
         errorLabels[domain]?.stringValue = value ?? ""
+        if value == nil {
+            announcedErrors.removeValue(forKey: domain)
+        } else if let value, window.isVisible, row.window === window, !row.isHiddenOrHasHiddenAncestor,
+                  announcedErrors[domain] != value {
+            announcedErrors[domain] = value
+            NSAccessibility.post(element: row, notification: .announcementRequested,
+                                  userInfo: [.announcement: value, .priority: NSAccessibilityPriorityLevel.medium.rawValue])
+        }
         retryButtons[domain]?.isHidden = state?.saveFailure == nil || state?.pending == nil
         let canSave: Bool
         switch domain {
@@ -331,7 +325,7 @@ extension RiftSettingsCenterController {
         if let validation = state.validationFailure {
             switch validation {
             case .invalidArchive: return ProductCopy.text("请输入 1–10 之间的分钟数，支持小数。如需停用，请选择“关闭”。", "Enter a time from 1 to 10 minutes. Decimals are allowed. Choose Off to disable archiving.")
-            case .invalidNumber(let field): return ProductCopy.text("“\(fieldTitle(field))”不是有效数值。请修改后按回车。", "Enter a valid value for “\(fieldTitle(field))”, then press Return.")
+            case .invalidNumber: return ProductCopy.text("这个显示选项暂不可用。请重新选择。", "This display option is unavailable. Choose another value.")
             case .invalidConfiguration: return ProductCopy.text("该值超出允许范围，请输入有效数值。", "This value is out of range. Enter a valid number.")
             case .displayUnavailable: return ProductCopy.text("所选显示器当前不可用，未保存新的显示器偏好。", "The selected display is unavailable. Your display preference hasn’t changed.")
             case .inactiveLegacyField: return ProductCopy.text("已选择六点位置，旧版距顶部参数不再生效。请放弃这项旧参数草稿后重试。", "A preset position is selected, so the previous top offset no longer applies. Discard that edit and try again.")
@@ -347,6 +341,9 @@ extension RiftSettingsCenterController {
         case .arrival: target = ProductCopy.text("截图出现动效", "Screenshot Arrival Motion")
         case .desktopForm: target = ProductCopy.text("桌面形态", "Desktop Form")
         case .windChimeArrangement(let arrangement): target = ProductCopy.text("风铃排列 · ", "Wind Chime Layout · ") + arrangement.title
+        case .trayCameraBodyColor: target = ProductCopy.text("相机颜色", "Camera Color")
+        case .trayBackgroundTransparency: target = ProductCopy.text("背景透明度", "Background Transparency")
+        case .restoreLegacyCustom: target = ProductCopy.text("旧版自定义", "Legacy Customization")
         case .trayTheme: target = ProductCopy.text("托盘材质", "Tray Material")
         case .trayFavorite(let slot, let choice): target = ProductCopy.text("常用键 \(slot.rawValue) · \(choice.menuTitle)", "Favorite \(slot.rawValue) · \(choice.menuTitle)")
         case .layout: target = ProductCopy.text("参数更改", "Layout Changes")
@@ -382,12 +379,6 @@ extension RiftSettingsCenterController {
         }
         guard let popup = controls[id] as? NSPopUpButton, popup.itemArray.indices.contains(index) else { return }
         if popup.indexOfSelectedItem != index { popup.selectItem(at: index) }
-    }
-    func number(_ text: String) -> Double? {
-        Double(text.replacingOccurrences(of: Locale.current.decimalSeparator ?? ".", with: "."))
-    }
-    func fieldTitle(_ field: SettingsField) -> String {
-        numericFields[field]?.accessibilityLabel() ?? field.rawValue
     }
     var screenRecordingText: String {
         switch product.screenRecording {

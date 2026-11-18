@@ -432,7 +432,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         let data = try await perform(.init(action: .observe, target: identity.target, identity: identity))
         // Successful operations may only be checked for identity-correlated late
         // errors. A single observation does not start another polling/upload loop.
-        if request.operation.phase == .succeeded {
+        if mode == .ordinaryProduct || request.operation.phase == .succeeded {
             return try await normalize(data, for: request)
         }
         return try await observeCompletion(initial: data, identity: identity, request: request)

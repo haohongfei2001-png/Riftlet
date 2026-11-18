@@ -2,6 +2,7 @@ import Foundation
 import CryptoKit
 import XCTest
 import RiftletCore
+@testable import RiftletUI
 @testable import RiftletAdapters
 @testable import RiftletApp
 
@@ -13,7 +14,8 @@ final class WebAcceptanceIntegrationTests: XCTestCase {
     private let policy = WebAcceptanceConfiguration.receiptPolicy
     private let target = TargetLease(adapterID: "chatgpt-web", surface: .webChat,
         applicationID: "com.google.Chrome", sessionID: "fixture-session", windowID: "1", tabID: "1",
-        documentID: "fixture-document", composerID: "fixture-composer", draftGeneration: "original")
+        documentID: "fixture-document", composerID: "fixture-composer", draftGeneration: "original",
+        historyConversationID: UUID())
 
     override func setUpWithError() throws {
         root = FileManager.default.temporaryDirectory.appendingPathComponent("riftlet-web-composition-\(UUID())")
@@ -154,6 +156,62 @@ final class WebAcceptanceIntegrationTests: XCTestCase {
         XCTAssertEqual(SHA256.hash(data: secondBytes).map { String(format: "%02x", $0) }.joined(), second.sha256)
     }
 
+    func testOriginalCardErrorAfterStartSurfacesInHistoryWithoutRetrying() async throws {
+        let (store, asset, bridge, transfer) = try await fixture()
+        let sibling = try await image(in: store)
+        let siblingBefore = try await store.asset(id: sibling.id)
+        let original = root.appendingPathComponent(asset.fileName)
+        let bytes = try Data(contentsOf: original)
+
+        try await transfer.select(asset.id, frozenTarget: target)
+        try await settlement.waitForReceipt(assetID: asset.id)
+        let started = try await store.asset(id: asset.id)
+        let operationID = try XCTUnwrap(started?.activeOperationID)
+        let savedStart = try await store.uploadStartReceipt(for: operationID)
+        let start = try XCTUnwrap(savedStart)
+        XCTAssertEqual(start.uploadStartEvidence?.signal, .attachmentAccepted)
+        XCTAssertEqual(started?.visibility, .swallowed)
+        let initial = try await store.historyPage(query: .init(filter: .needsAttention), offset: 0, throughSequence: nil)
+        XCTAssertTrue(initial.records.isEmpty)
+
+        // The bridge reports only the original card's local error, with no retirement proof.
+        await bridge.setObservation(.failed, error: true)
+        let deadline = ProcessInfo.processInfo.systemUptime + 5
+        while await transfer.hasInFlightAttachmentWork {
+            guard ProcessInfo.processInfo.systemUptime < deadline else { return XCTFail("Original append did not settle") }
+            try await Task.sleep(nanoseconds: 2_000_000)
+        }
+        try await transfer.observePending()
+        let attention = try await store.historyPage(query: .init(filter: .needsAttention), offset: 0, throughSequence: nil)
+        XCTAssertEqual(attention.records.map(\.record.id), [asset.id])
+        let row = try XCTUnwrap(attention.records.first)
+        let latest = try XCTUnwrap(row.receipt)
+        XCTAssertEqual(row.startReceipt, start)
+        XCTAssertEqual(latest.attachmentID, start.attachmentID)
+        XCTAssertTrue(latest.hasError)
+        XCTAssertFalse(latest.safeToRetry)
+        XCTAssertNil(latest.terminationEvidence)
+        XCTAssertEqual(latest.outcome, .unknown)
+        XCTAssertEqual(row.operation?.phase, .unknown)
+        XCTAssertEqual(row.record.visibility, .swallowed)
+        let entry = RiftHistoryEntry(snapshot: row)
+        XCTAssertEqual(entry.attachmentState, .checkDraft)
+        XCTAssertEqual(HistoryPresentation.localizedState(for: entry, copy: .simplifiedChinese), "需要检查原对话")
+        XCTAssertFalse(entry.canRestoreToRift)
+        let conversationID = try XCTUnwrap(target.historyConversationID)
+        XCTAssertEqual(entry.conversationURL?.absoluteString, "https://chatgpt.com/c/" + conversationID.uuidString.lowercased())
+        do { try await store.restoreToQueue(asset.id); XCTFail("Uncertain upload became retryable") }
+        catch RiftletError.invalidTransition {}
+
+        try await transfer.select(asset.id, frozenTarget: target)
+        let commands = await bridge.recordedCommands()
+        XCTAssertEqual(commands.filter { $0.action == .begin }.compactMap { $0.identity?.operationID }, [operationID])
+        XCTAssertEqual(commands.filter { $0.action == .commit }.compactMap { $0.identity?.operationID }, [operationID])
+        XCTAssertEqual(try Data(contentsOf: original), bytes)
+        let siblingAfter = try await store.asset(id: sibling.id)
+        XCTAssertEqual(siblingAfter, siblingBefore)
+    }
+
     func testCompletionAndLatePageErrorDoNotResumeAnAcceptedUploadLifecycle() async throws {
         let (store, asset, bridge, transfer) = try await fixture()
         try await transfer.select(asset.id, frozenTarget: target)
@@ -167,7 +225,11 @@ final class WebAcceptanceIntegrationTests: XCTestCase {
         XCTAssertEqual(afterStart.map(\.action), [.validate, .begin, .chunk, .commit],
                        "Positive start returns without a query for final completion")
         await bridge.setObservation(.attached)
-        try await transfer.observePending()
+        for _ in 0..<300 {
+            try await transfer.observePending()
+            if await bridge.recordedCommands().last?.action == .observe { break }
+            try await Task.sleep(nanoseconds: 2_000_000)
+        }
         await bridge.setObservation(.attached, error: true)
         let observedCompletion = try await transfer.observeCompleted(operationID: operationID)
         let retainedOperation = try await store.operation(id: operationID)
@@ -180,7 +242,10 @@ final class WebAcceptanceIntegrationTests: XCTestCase {
         try await transfer.select(asset.id, frozenTarget: target)
         let retained = try await store.uploadStartReceipt(for: operationID)
         let commands = await bridge.recordedCommands()
-        XCTAssertEqual(retained, audit); XCTAssertEqual(commands.map(\.action), afterStart.map(\.action))
+        XCTAssertEqual(retained, audit)
+        XCTAssertEqual(commands.map(\.action), afterStart.map(\.action) + [.observe])
+        XCTAssertEqual(commands.last?.identity?.operationID, operationID)
+        XCTAssertEqual(commands.last?.identity?.target, target)
     }
 
     func testPermissionAwaitKeepsOriginalTargetAndRejectsChangedDraft() async throws {

@@ -1,0 +1,71 @@
+{
+  "environment": "Apple Virtualization macOS 27.2 26B123 arm64, dedicated GUI, 1024x768",
+  "scope": "ordinary 1.0.4 (26) development package, synthetic independent profile. Not final signed RC installation",
+  "executableSHA256": "4b2205ec9d7386c2ff65316ec6c9927ba5648fb704a6a51a9dc0a400085f2744",
+  "onboarding": {
+    "red": {
+      "result": "PASS",
+      "before": "started",
+      "after": "deferred",
+      "restart": "deferred",
+      "distinctProcesses": true,
+      "receiptSHA256": "3e5412ec73910f636d011a712502344c1f7217f5a3ec87c06f47a761e1d981fe"
+    },
+    "later": {
+      "result": "PASS",
+      "before": "started",
+      "after": "deferred",
+      "restart": "deferred",
+      "distinctProcesses": true,
+      "receiptSHA256": "62b0b31eed5791101c5b29b9104e7cafaabc3dfda64d55e2b07431ddb9ba6bda"
+    },
+    "escape": {
+      "result": "PASS",
+      "before": "started",
+      "after": "deferred",
+      "restart": "deferred",
+      "distinctProcesses": true,
+      "receiptSHA256": "2cac84357c9dbedce6b2435a09437a7961ac72e01d068d6dc4d45a4a0f933224"
+    },
+    "cmdW": {
+      "result": "PASS",
+      "source": "real macOS Accessibility Keyboard clicks in virtual display",
+      "positiveControl": [
+        "ready",
+        "testW command=true",
+        "standardCloseKeyEquivalent"
+      ],
+      "before": "started",
+      "after": "deferred",
+      "restart": "deferred",
+      "normalWindowAbsentAfterCloseAndRestart": true,
+      "beforeReceipt": "6520a7a611cef5dc3fbee2e236ae00195d32a3401c246cdb7b03a7b1ce8e214e",
+      "afterReceipt": "81db760c9cf3cc87e65893bb23fe2b105b183ec5464e7711d2cf4d17b6321e6e",
+      "restartReceipt": "62f8c069f0daa43463e8584c44478203ac127a92cbe89ba4417813375b7dcc72",
+      "nonpassingInputControl": [
+        "ready",
+        "testW command=false"
+      ]
+    }
+  },
+  "localFreshDefault": "tray",
+  "permissionDenialObserved": "Desktop refused by system sheet. Application showed the source folder and how to select it again.",
+  "baselineRestoration": {
+    "digestBefore": "db5b24492eecb77a3bcf333b6a97aa103ce83b2346e5e93c85b5cdd0817704d2",
+    "digestRestored": "db5b24492eecb77a3bcf333b6a97aa103ce83b2346e5e93c85b5cdd0817704d2"
+  },
+  "realService": {
+    "result": "NOT_RUN",
+    "reason": "Dedicated Chrome 156 temporary chat read back ERR_CONNECTION_TIMED_OUT. Supported guest-network recovery preflight from previously verified route failed native TLS (-1200); request not retried, no attachments created.",
+    "publicProfileUsed": false
+  },
+  "nativeFrames": {
+    "qa104-first-before.png": "8d818630daaa77152c292716f9542654cd177ee048d87249fa2035e474157429",
+    "qa104c-red-start.png": "af3a111553f0735299dfdb929e0a767b3a9e708757b0852a08f724601386fd4b",
+    "qa104c-later-restart.png": "2adb89c718923cdf6f8535980d117fdae2aacdb4a84695a02df1024caadb90a3",
+    "qa104c-escape-restart.png": "2adb89c718923cdf6f8535980d117fdae2aacdb4a84695a02df1024caadb90a3",
+    "qa104-key-before.png": "a2338f589cf191debbbacaf2e102f7213c766f44b51e3bab5f3cfc00db1f9933",
+    "qa104-key-after.png": "9d7b5f9c9b1988e3d305b681e965fe1e771147c7d14a51adfe7fbd235e84cfb1",
+    "qa104-draft-two.png": "457d60fc4975420a1daaec92efb44d410b1bbcf292a8518b02000eea26f72607"
+  }
+}

@@ -592,6 +592,7 @@ public final class RiftPanelController {
     private var pointerApproach = RiftPointerApproachState()
     private let decoration: RiftPanel
     private let formSurface = RiftPanel(frame: .zero, decorative: true)
+    private var trayPreview: (transparency: Double?, cameraColor: String?)?
     private var trayMenu: RiftTrayMenuState?
     private var trayExpanded: Bool { trayMenu != nil }
     // Keep the original bitmap and UUID for the return trip. Its input islands
@@ -639,8 +640,8 @@ public final class RiftPanelController {
         if rowWindows.isEmpty && (configuration.desktopForm != .tray || !trayCaptureEnabled) {
             formSurface.orderOut(nil)
         }
-        if decoration.contentView is RiftTrayCastShadow {
-            if !formSurface.isVisible { decoration.orderOut(nil) }
+        if configuration.desktopForm == .tray {
+            decoration.orderOut(nil)
         } else if configuration.desktopForm == .windChime, let layout = pagerLayout, let screen {
             let rows = rowWindows.values.map { $0.view.geometry }
             let frame = RiftWindChimeLayout.stringFrame(rows: rows, x: layout.lineFrame.minX,
@@ -1395,32 +1396,17 @@ public final class RiftPanelController {
         }
     }
 
-    private func setFormFrame(_ frame: CGRect) {
-        formSurface.setFrame(frame, display: true)
-        if let shadow = decoration.contentView as? RiftTrayCastShadow {
-            decoration.setFrame(shadow.configure(for: frame, colors: configuration.trayColors), display: true)
-        }
-    }
-
     private func updateFormSurface(_ layout: RiftLayoutResult) {
         let tray = configuration.desktopForm == .tray
-        if !tray && decoration.contentView is RiftTrayCastShadow {
-            decoration.orderOut(nil)
-            decoration.contentView = RiftLineView(frame: .zero)
-        }
         guard tray, !layout.surfaceFrame.isEmpty else {
             formSurface.orderOut(nil)
             if tray { decoration.orderOut(nil) }
             return
         }
-        // The existing mouse-transparent seam panel carries the tray's cast
-        // shadow. Its transparent margins must never become an input island.
-        if !(decoration.contentView is RiftTrayCastShadow) {
-            decoration.contentView = RiftTrayCastShadow(frame: .zero)
-        }
+        // The tray has one outer shadow, owned by its nonactivating system panel.
+        decoration.orderOut(nil)
         formSurface.hasShadow = true
-        setFormFrame(layout.surfaceFrame)
-        present(decoration)
+        formSurface.setFrame(layout.surfaceFrame, display: true)
         let view: RiftTraySurfaceView
         if let current = formSurface.contentView as? RiftTraySurfaceView { view = current }
         else {
@@ -1435,7 +1421,9 @@ public final class RiftPanelController {
             view.onScroll = { [weak self] in self?.scroll($0) }
         }
         view.setCaptureSession(trayCaptureSessionID, reduceMotion: reduceMotion)
-        view.update(layout: layout, colors: configuration.trayColors, defaultMode: trayDefaultMode,
+        view.update(layout: layout, colors: configuration.trayColors,
+                    transparency: effectiveTrayAppearance.transparency, cameraColor: effectiveTrayAppearance.cameraColor,
+                    defaultMode: trayDefaultMode,
                     favoriteModes: configuration.trayFavoriteModes(defaultMode: trayDefaultMode),
                     reduceMotion: reduceMotion)
         formSurface.ignoresMouseEvents = false
@@ -1499,7 +1487,7 @@ public final class RiftPanelController {
             && previousSurface.height < layout.surfaceFrame.height
         let shouldShift = !movingFrames.isEmpty || slidesAtTop || growsAboveMenu
         let resizeTray = shouldShift && sameTrayWidthAndAnchor && previousSurface.height != layout.surfaceFrame.height
-        if resizeTray { setFormFrame(previousSurface) }
+        if resizeTray { formSurface.setFrame(previousSurface, display: true) }
         firstVisibleIndex = layout.firstVisibleIndex
         pageCapacity = layout.capacity
         visibleRange = firstVisibleIndex..<(firstVisibleIndex + layout.rows.count)
@@ -1632,7 +1620,7 @@ public final class RiftPanelController {
             let began = ProcessInfo.processInfo.systemUptime
             finishQueueAnimation = { [weak self] _ in
                 guard let self, !self.closed, self.generation == token else { return }
-                if resizeTray { self.setFormFrame(layout.surfaceFrame) }
+                if resizeTray { self.formSurface.setFrame(layout.surfaceFrame, display: true) }
                 if openingMenu { slidingRow?.orderOut() }
                 for geometry in layout.rows {
                     guard let row = self.rowWindows[geometry.assetID] else { continue }
@@ -1662,7 +1650,7 @@ public final class RiftPanelController {
                 if resizeTray {
                     var surface = previousSurface
                     surface.size.height += (layout.surfaceFrame.height - previousSurface.height) * eased
-                    self.setFormFrame(surface)
+                    self.formSurface.setFrame(surface, display: true)
                     if growsAboveMenu {
                         for geometry in layout.rows {
                             guard let row = self.rowWindows[geometry.assetID] else { continue }
@@ -2018,6 +2006,33 @@ public final class RiftPanelController {
         viewportAnchor = nil
         trayMenu?.userPaged()
         firstVisibleIndex = 0; apply(lastRecords)
+    }
+
+    private var effectiveTrayAppearance: (transparency: Double?, cameraColor: String?) {
+        trayPreview ?? (configuration.trayBackgroundTransparency, configuration.trayCameraBodyColor)
+    }
+
+    private func repaintTray() {
+        guard !closed, let surface = formSurface.contentView as? RiftTraySurfaceView else { return }
+        surface.setAppearance(colors: configuration.trayColors, transparency: effectiveTrayAppearance.transparency,
+                              cameraColor: effectiveTrayAppearance.cameraColor)
+    }
+
+    public func previewTrayAppearance(transparency: Double?, cameraBodyColor: String?) {
+        trayPreview = (transparency, cameraBodyColor)
+        repaintTray()
+    }
+
+    public func clearTrayAppearancePreview() {
+        trayPreview = nil
+        repaintTray()
+    }
+
+    /// Commit these two independent fields even when a geometry change is deferred.
+    public func applyTrayAppearance(_ persisted: RiftConfiguration) {
+        configuration.applyPersistedTrayAppearance(from: persisted)
+        deferredConfiguration?.applyPersistedTrayAppearance(from: persisted)
+        clearTrayAppearancePreview()
     }
 
     public func updateConfiguration(_ configuration: RiftConfiguration) throws {

@@ -1,0 +1,33 @@
+{
+  "version": "1.0.4",
+  "build": 26,
+  "executableSHA256": "2a76ad89e9501edecec02bafef203dadadf6c6b2a36f3d055011095fad3fecb4",
+  "environment": "ARM64 macOS 27.2 (26B123) dedicated guest",
+  "method": "Genuine macOS VoiceOver, real keyboard event to guest WindowServer, VoiceOver caption panel observed",
+  "statusMenuKeyboardCycle": {
+    "result": "PASS",
+    "labelsRolesInTabOrder": [
+      "Settings..., button",
+      "Screenshot Library, button",
+      "Check for Updates..., button",
+      "Quit Riftlet, button",
+      "Settings..., button"
+    ]
+  },
+  "selectedSettingsTab": {
+    "result": "PASS",
+    "activationKey": "Space",
+    "caption": "Now in, Riftlet - General, window, General, Selected, toggle button"
+  },
+  "allSettingsPagesTraversal": "NOT_RUN",
+  "audioPronunciation": "NOT_RUN",
+  "realChineseIME": "NOT_RUN; only ABC was observed enabled in this isolated guest",
+  "privateWindowServerImageSHA256": {
+    "statusmenu": "ba12ffe703b89d6eafeffe8074483f59dff2c187b5b75a7a0885442837fa640f",
+    "tab1": "e606149bdbcbeae9695fa7a7a3e7051d4e82ccfbf7f2bbf71ed2bbcc520dbedd",
+    "tab2": "4887b80a2eeee9817f8dd9ef71d3f2f5f09c4b12e3dc69f13f9472981aaa08a3",
+    "tab3": "c74fb2e2fc5e120b0b7b2db344fa8052b928492ca1d7a1ba5e588d4ccce3a6fd",
+    "tab4": "49f61c61af45b4e0cae247cd2cae9b9221e1ef3c2b22565dca5d85ce195ba40f",
+    "opened-settings": "5aabc00f742c7e75b7a7dfdb762cdf89517021facce961a7bf87b8ef8d48d9b8"
+  }
+}

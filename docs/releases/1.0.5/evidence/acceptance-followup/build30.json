@@ -1,0 +1,84 @@
+{
+  "productSource": "70cc3deadf571a9b97609a0af1a979bbb677412f",
+  "version": "1.0.5",
+  "build": 30,
+  "installedExecutableSHA256": "c1474953ca02d19c21f773ef1847b1507792cbe2284ae30d30f3e34b69fac3e6",
+  "environment": "Dedicated macOS 27.2 ARM64 VM after an ordinary reboot, one 1024 x 768 virtual display. Signed DMG-installed app in the disposable user Applications folder. Gatekeeper accepted the Notarized Developer ID.",
+  "ordinaryBrowser": {
+    "url": "https://chatgpt.com/?temporary-chat=true",
+    "browser": "Normal installed Chrome, dedicated guest profile and unchanged network",
+    "outcome": "ERR_CONNECTION_REFUSED on the ordinary Chrome error page, before a usable draft appeared.",
+    "actualFirstClick": "NOT_RUN",
+    "twoConsecutiveImages": "NOT_RUN",
+    "actualPostStartFailure": "NOT_RUN",
+    "messagesSent": 0
+  },
+  "fixture": {
+    "before": {
+      "assets": 9,
+      "unknown_count": 1,
+      "starts": 1,
+      "ops": 2,
+      "schemaVersion": 5
+    },
+    "after": {
+      "assets": 14,
+      "unknown_count": 1,
+      "starts": 1,
+      "ops": 2,
+      "schemaVersion": 5
+    },
+    "setup": "Selected Screenshot Tray in ordinary Appearance settings. Invoked the macOS Screenshot toolbar five times over a synthetic TextEdit fixture. Standard idle archive was 120 seconds. No product settings were changed on the host Mac."
+  },
+  "wheel": {
+    "status": "PASS",
+    "input": "Apple Virtualization VZVirtualMachineView mouseMoved/scrollWheel via the guest virtual pointer, cursor on the first visible screenshot at guest (40,385); +16 followed by -16 lines in separate gestures.",
+    "visibleAtSetup": 5,
+    "shownSlots": 3,
+    "observed": "First card content visibly changed. The reverse gesture restored all three sampled card interiors exactly; native owned screenshot windows also changed. Other synthetic images have similar interiors.",
+    "sampledRGB_SHA256": {
+      "start": [
+        "10ca09764c904fe8ae208ef86cadc5f40ed18e7d676cd4b861c7feeebef95cb3",
+        "98b5b2386ca848b26aa6a7229bf0ff7cbba09e8602fee1f022a424e3d16a1d18",
+        "01c33edfe171d0673ec1dbe1acfad6b5e623c4d269df48e2e23cd3dd71b32a8d"
+      ],
+      "afterScroll": [
+        "f62fb34e39cd59ddc5972e8888b295f05f387a49055d7aabc5a77d006275d3b3",
+        "98b5b2386ca848b26aa6a7229bf0ff7cbba09e8602fee1f022a424e3d16a1d18",
+        "01c33edfe171d0673ec1dbe1acfad6b5e623c4d269df48e2e23cd3dd71b32a8d"
+      ],
+      "afterReverseScroll": [
+        "10ca09764c904fe8ae208ef86cadc5f40ed18e7d676cd4b861c7feeebef95cb3",
+        "98b5b2386ca848b26aa6a7229bf0ff7cbba09e8602fee1f022a424e3d16a1d18",
+        "01c33edfe171d0673ec1dbe1acfad6b5e623c4d269df48e2e23cd3dd71b32a8d"
+      ]
+    },
+    "timestampsUTC": [
+      "2026-11-17T23:38:14Z",
+      "2026-11-17T23:38:15Z"
+    ]
+  },
+  "cameraAndEscape": {
+    "status": "PASS",
+    "input": "Ordinary clean relaunch after idle archiving to one visible screenshot. Pointer clicked the clearly visible camera at guest (100,438); Escape on the virtual keyboard. Repeated twice.",
+    "sequence": [
+      "fresh",
+      "expanded1",
+      "escaped1",
+      "expanded2",
+      "escaped2"
+    ],
+    "observed": "Both camera clicks produced four horizontally arranged mode buttons. Both Escape presses restored the single camera. The two expanded images match each other byte-for-byte, as do the two collapsed images."
+  },
+  "scope": "Ordinary VM pointer and keyboard for the installed application. The earlier isolated build 30 desktop review reports retain their two synthetic event timeouts. No guest accessibility or event-posting grant was added. Images are cropped to the tray and synthetic thumbnails.",
+  "imagesSHA256": {
+    "tray-camera-escaped1.png": "d106dab62ba1375025424abd0792a4c96212839cea1ae0cca6a091ecc6d17577",
+    "tray-camera-escaped2.png": "d106dab62ba1375025424abd0792a4c96212839cea1ae0cca6a091ecc6d17577",
+    "tray-camera-expanded1.png": "28ee66ca42248e79472d7bc88a39384bedbe5adef2f6f16b0a12672662ce55b4",
+    "tray-camera-expanded2.png": "28ee66ca42248e79472d7bc88a39384bedbe5adef2f6f16b0a12672662ce55b4",
+    "tray-camera-fresh.png": "8e079b1e01a4d5558f11c72771d9ffe28488e78b8474c48b27f33c28a80e8af9",
+    "tray-wheel-page.png": "2f019c829baf30baad3b3ce1e9655568db139c22261fb2bc499f2fbaa8665e85",
+    "tray-wheel-return.png": "b25c5be866c1ce5b71aac699083561570a37476ee28f36aaa4da1b070438356d",
+    "tray-wheel-start.png": "e9fe30e0588126a8b636061b3f29e678c4b97f6e6fa4a7b8f4a4a43bd780f6a1"
+  }
+}

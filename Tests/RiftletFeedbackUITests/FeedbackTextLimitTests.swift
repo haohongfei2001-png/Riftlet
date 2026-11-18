@@ -11,7 +11,7 @@ final class FeedbackTextLimitTests: XCTestCase {
         addTeardownBlock { try? FileManager.default.removeItem(at: root) }
         let store = try FeedbackStore(directory: root)
         let engine = FeedbackEngine(store: store, secrets: MemoryFeedbackSecrets(), transport: DisabledFeedbackTransport())
-        let controller = FeedbackWindowController(engine: engine, diagnostics: FeedbackDiagnostics(), appVersion: "0.1.0")
+        let controller = FeedbackWindowController(engine: engine, diagnostics: FeedbackDiagnostics(), appVersion: "0.1.0", copy: .simplifiedChinese)
         await controller.waitUntilLoaded()
         return (store, engine, controller)
     }

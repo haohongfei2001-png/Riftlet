@@ -130,17 +130,20 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
     public let composerID: String
     public let draftGeneration: String
     public let logicalDraftIdentity: LogicalDraftIdentity?
+    /// History navigation only. New clicks still require the complete frozen target.
+    public let historyConversationID: UUID?
     /// Runtime page-issued click capability; absent on all historical leases.
     public let clickBindingID: UUID?
 
     public init(adapterID: String, surface: TargetSurface, applicationID: String,
                 sessionID: String, windowID: String, tabID: String? = nil,
                 documentID: String, composerID: String, draftGeneration: String,
-                logicalDraftIdentity: LogicalDraftIdentity? = nil, clickBindingID: UUID? = nil) {
+                logicalDraftIdentity: LogicalDraftIdentity? = nil, clickBindingID: UUID? = nil, historyConversationID: UUID? = nil) {
         self.adapterID = adapterID; self.surface = surface; self.applicationID = applicationID
         self.sessionID = sessionID; self.windowID = windowID; self.tabID = tabID
         self.documentID = documentID; self.composerID = composerID; self.draftGeneration = draftGeneration
         self.logicalDraftIdentity = logicalDraftIdentity
+        self.historyConversationID = historyConversationID
         self.clickBindingID = clickBindingID
     }
 

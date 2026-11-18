@@ -1,0 +1,69 @@
+{
+  "environment": "macOS 27.0 ARM64; local synthetic files and application modules, separate from the signed App",
+  "browser": {
+    "pageProgram": {
+      "pass": 126,
+      "fail": 0,
+      "logSHA256": "f9bd0589cf9c606ecdaf81027b3eb00171f4339afcd6ecff20fd688e89c5d434"
+    },
+    "oldObservation": {
+      "pass": 61,
+      "fail": 0,
+      "logSHA256": "6b1ea2d6daebf4a24ca4c81fa13ae247bcb19c9645ca7dbcf105a112516ea3c1"
+    },
+    "headlessLoopbackChrome": {
+      "pass": 31,
+      "fail": 0,
+      "logSHA256": "1417ba3fae5bf85fa6b6249bf9e44df90bbd375ae346ce6cb559a754276a12dc"
+    }
+  },
+  "realService": "not tested by these probes",
+  "collectorRestart160": {
+    "result": "PASS",
+    "logSHA256": "2dd6b388b87b1b8bec8868f8abedf65c5397433f14ed629d6236fa141dd2254e",
+    "originalSandboxFailure": "File monitor did not report the expected batch at NativeSoak.swift:136. Same binary passed with normal filesystem event delivery."
+  },
+  "highResolution": {
+    "scope": {
+      "appWindowsCreated": false,
+      "browserOrNetwork": false,
+      "noClaim": "These are native data/cache/decode timings, not rendered UI, physical screenshot or upload timings. Database reopen is not process restart. Sources are bounded patterns, not adversarial image noise.",
+      "OSFileCacheControlled": false,
+      "processRestartMeasured": false,
+      "productionDataAccess": false,
+      "realCollectorImporterSQLiteImageIO": true,
+      "sleepWakeMeasured": false,
+      "syntheticFixtures": true,
+      "UIVisibleLatencyMeasured": false
+    },
+    "result": "PASS_SCOPED_HIGH_RESOLUTION_READINESS",
+    "captures": 420,
+    "initialCount": 100,
+    "actualMaintenanceSeconds": 7200.010370291668,
+    "issues": [],
+    "binarySHA256": "c78c83d6ed6584ac6efb995ffe0d10fe7c8bc9eaab4a2bea3e630ef31a088619",
+    "reportSHA256": "630451a1410b0bd6b079245dafbef1c6104d802161fdcf7e9dd6e89e167d06b7",
+    "restartReportSHA256": "e2790efa8de02677f6cb86d7cc464c19e4271464d946f289af8eaa27377c1c36",
+    "restart": "HIGH_RESOLUTION_RESTART_PASS"
+  },
+  "volume": {
+    "result": "PASS",
+    "distinctPNGCount": 100,
+    "originalAndPrivateCopiesBytesEach": 1106442800,
+    "pixelsEach": [
+      2048,
+      1800
+    ],
+    "importSeconds": 23.804166666668607,
+    "reopenAndRecoverSeconds": [
+      1.3670188333344413,
+      0.8202237083314685,
+      0.7642043333326001
+    ],
+    "harnessSHA256": "05ecd2ec4d0037bc76e3e473e6243a45ad886ffa93ae22047f4bcb83f14ce633",
+    "generatorSHA256": "ea04e14751b5bde1442345a5378c5f01d8119c602ab14a5d41f36ffa78b10dab",
+    "logSHA256": "bcfb28f15dd01a45d1104c3e999391effc3830d93d0efdc696f9b9406bf03a89",
+    "scope": "Unique seeded RGB8 rasters through the ordinary private importer; verify every original SHA-256 and stored identity on three reopen/recovery passes. Not a GUI or attachment trial.",
+    "originalSandboxFailure": "The sandboxed ImageIO/UTType probe rejected a valid PNG; the authorized macOS run on those same PNG bytes was successful."
+  }
+}
