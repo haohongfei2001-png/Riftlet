@@ -122,6 +122,82 @@ final class IndependentAttachmentLifecycleTests: XCTestCase {
         XCTAssertEqual(inputs, [a.id])
     }
 
+    func testEachOriginalInputCanCompleteAfterStartWithoutReplayingEitherFile() async throws {
+        let store = try store(), adapter = IndependentLifecycleAdapter(), clock = WatchClock()
+        let owner = TransferCoordinator(store: store, adapter: adapter, mediaDirectory: directory, policy: policy,
+            observationClock: { clock.now }, validateAcceptedSelection: { $0.isValid() })
+        let a = try await asset(store), b = try await asset(store)
+        var starts = [TransferReceipt]()
+        for image in [a, b] {
+            try await owner.select(try await selection(image, store))
+            let op = try await operation(image, store)
+            let call = try await returnedDispatchCall(op.id, store)
+            let start = try XCTUnwrap(call.returnedReceipt)
+            XCTAssertEqual(start.outcome, .uploadStarted)
+            starts.append(start)
+        }
+        while await owner.hasInFlightAttachmentWork { await Task.yield() }
+        let bRequests = await adapter.requests(for: b.id)
+        let bReady = IndependentLifecycleAdapter.receipt(try XCTUnwrap(bRequests.first), state: .complete)
+        // An adapter may return a well-formed receipt for the other concurrent read.
+        await adapter.overrideObservation(bReady, for: a.id)
+        try await owner.observePending()
+        for start in starts {
+            let latest = try await store.receipt(for: start.operationID)
+            XCTAssertEqual(latest, start)
+        }
+        await adapter.overrideObservation(nil, for: a.id)
+        await adapter.set(.complete, for: b.id)
+        clock.set(5)
+        try await owner.observePending()
+        let firstStillStarted = try await store.receipt(for: starts[0].operationID)
+        let secondReady = try await store.receipt(for: starts[1].operationID)
+        XCTAssertEqual(firstStillStarted, starts[0])
+        XCTAssertEqual(secondReady, bReady)
+        await adapter.set(.complete, for: a.id)
+        clock.set(15)
+        try await owner.observePending()
+        for start in starts {
+            let saved = try await store.uploadStartReceipt(for: start.operationID)
+            let ready = try await store.receipt(for: start.operationID)
+            let op = try await store.operation(id: start.operationID)
+            XCTAssertEqual(saved, start)
+            XCTAssertEqual(ready?.completionEvidence?.binding.attachmentID, start.attachmentID)
+            XCTAssertEqual(op?.phase, .succeeded)
+        }
+        await adapter.set(.compensated, for: b.id)
+        clock.set(35)
+        try await owner.observePending()
+        let compensation = try await store.compensation(for: starts[1].operationID)
+        let unaffected = try await store.operation(id: starts[0].operationID)
+        XCTAssertEqual(compensation?.originalSuccess, bReady)
+        XCTAssertEqual(unaffected?.phase, .succeeded)
+        let hidden = try await store.asset(id: b.id)
+        XCTAssertEqual(hidden?.visibility, .swallowed)
+        let inputs = await adapter.inputs()
+        XCTAssertEqual(inputs, [a.id, b.id])
+    }
+
+    func testUnadmittedCompletionLeavesOriginalStartAndLatestReceiptIntact() async throws {
+        let store = try store(), adapter = IndependentLifecycleAdapter(continuation: false)
+        let startOnly = ReceiptPolicy(syntheticUploadStartProfiles: [IndependentLifecycleAdapter.startProfile: .webChat])
+        let owner = TransferCoordinator(store: store, adapter: adapter, mediaDirectory: directory, policy: startOnly,
+            validateAcceptedSelection: { $0.isValid() })
+        let a = try await asset(store)
+        try await owner.select(try await selection(a, store))
+        let op = try await operation(a, store)
+        let call = try await returnedDispatchCall(op.id, store)
+        while await owner.hasInFlightAttachmentWork { await Task.yield() }
+        await adapter.set(.complete, for: a.id)
+        try await owner.observePending()
+        let latest = try await store.receipt(for: op.id), start = try await store.uploadStartReceipt(for: op.id)
+        XCTAssertEqual(latest, call.returnedReceipt)
+        XCTAssertEqual(start?.outcome, .uploadStarted)
+        XCTAssertEqual(start, latest)
+        let inputs = await adapter.inputs()
+        XCTAssertEqual(inputs, [a.id])
+    }
+
     func testRelaunchReleasesOnlyUndispatchedPreparationAndNewClickUsesItsOwnTarget() async throws {
         let path = directory.appendingPathComponent("restart.sqlite")
         let first = try QueueStore(databaseURL: path)
@@ -365,10 +441,12 @@ private actor IndependentLifecycleAdapter: IndependentFileInputAdapter {
     private let continuation: Bool
     private var calls: [TransferRequest] = []
     private var states: [UUID: State] = [:]
+    private var observationOverrides: [UUID: TransferReceipt] = [:]
     init(continuation: Bool = true) { self.continuation = continuation }
     func captureTarget() throws -> TargetLease { throw RiftletError.invalidTransition }
     func validate(_ target: TargetLease) -> Bool { target.adapterID == id }
     func set(_ state: State, for asset: UUID) { states[asset] = state }
+    func overrideObservation(_ receipt: TransferReceipt?, for asset: UUID) { observationOverrides[asset] = receipt }
     func inputs() -> [UUID] { calls.map { $0.asset.id } }
     func requests(for asset: UUID) -> [TransferRequest] { calls.filter { $0.asset.id == asset } }
     func append(_ request: TransferRequest) -> TransferReceipt {
@@ -383,6 +461,7 @@ private actor IndependentLifecycleAdapter: IndependentFileInputAdapter {
     }
     func reconcile(_ request: TransferRequest) -> TransferReceipt {
         observations += 1
+        if let receipt = observationOverrides[request.asset.id] { return receipt }
         return Self.receipt(request, state: states[request.asset.id] ?? .unknown, continuation: continuation,
                      requestID: (calls.firstIndex { $0.operation.id == request.operation.id } ?? 0) + 1)
     }

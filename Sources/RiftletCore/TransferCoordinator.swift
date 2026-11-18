@@ -10,6 +10,12 @@ public struct TransferRequest: Sendable {
         self.operation = operation; self.asset = asset; self.fileURL = fileURL
         self.invocationID = invocationID
     }
+
+    fileprivate func matches(_ receipt: TransferReceipt) -> Bool {
+        receipt.operationID == operation.id && receipt.assetID == operation.assetID
+            && receipt.attempt == operation.attempt && receipt.assetSHA256 == asset.sha256
+            && receipt.target == operation.target
+    }
 }
 
 /// No send-message method exists. A transport must revalidate the immutable target
@@ -112,6 +118,7 @@ public actor TransferCoordinator {
     private struct InputWatch {
         var reads = 0
         var due: TimeInterval = 0
+        var observedCompletion = false
     }
     private var currentFileInputs: [UUID: InputWatch] = [:]
     private let observationClock: @Sendable () -> TimeInterval
@@ -501,9 +508,7 @@ public actor TransferCoordinator {
                                 boundary: InputPhaseBoundary) async {
         let original = request.operation
         guard let owner = activeAppends[original.id], owner.invocationID == request.invocationID,
-              request.invocationID != nil, receipt.operationID == original.id,
-              receipt.assetID == original.assetID, receipt.attempt == original.attempt,
-              receipt.assetSHA256 == request.asset.sha256, receipt.target == original.target,
+              request.invocationID != nil, request.matches(receipt),
               receipt.belongsToOriginalDraft, !receipt.hasError,
               receipt.outcome == .inputTriggered || receipt.outcome == .uploadStarted else { return }
         await boundary.finish()
@@ -551,6 +556,7 @@ public actor TransferCoordinator {
         let id = committedRequest.operation.id
         do {
             let receipt = try await append()
+            guard committedRequest.matches(receipt) else { throw RiftletError.mismatchedReceipt }
             _ = try await store.apply(receipt, policy: policy)
 
             if let invocationID = committedRequest.invocationID {
@@ -596,19 +602,30 @@ public actor TransferCoordinator {
         defer { observing.remove(op.id) }
         let original = try await request(for: op)
         let receipt = try await adapter.reconcile(original)
+        guard original.matches(receipt) else { throw RiftletError.mismatchedReceipt }
         if usesIndependentFileInput {
-            // A past START stays immutable. Only an error explicitly attached to
-            // that same original member can change its latest status.
             if let start = try await store.uploadStartReceipt(for: op.id) {
-                guard receipt.hasError, receipt.belongsToOriginalDraft,
-                      receipt.attachmentID != nil, receipt.attachmentID == start.attachmentID,
-                      [.unknown, .definitiveFailure].contains(receipt.outcome) else { return }
+                guard receipt.belongsToOriginalDraft, let member = start.attachmentID,
+                      receipt.attachmentID == member else { return }
+                // Preserve START on inconclusive reads. The store also verifies the
+                // proof's invocation against the original dispatch inside its transaction.
+                if receipt.outcome == .verifiedReady {
+                    guard receipt.completionEvidence != nil,
+                          policy.allowsConsumption(receipt: receipt, asset: original.asset, mode: store.mode)
+                    else { return }
+                } else {
+                    guard receipt.hasError, [.unknown, .definitiveFailure].contains(receipt.outcome) else { return }
+                }
             }
             guard try await store.receipt(for: op.id) != receipt else { return }
         }
         let updated = try await store.apply(receipt, policy: policy)
-        if usesIndependentFileInput, updated.status == .failed {
-            currentFileInputs.removeValue(forKey: op.id)
+        if usesIndependentFileInput {
+            if updated.status == .failed {
+                currentFileInputs.removeValue(forKey: op.id)
+            } else if updated.status == .used, receipt.completionEvidence != nil {
+                currentFileInputs[op.id]?.observedCompletion = true
+            }
         }
         await onChange()
         try await drain()
@@ -629,7 +646,8 @@ public actor TransferCoordinator {
                 watch.due = now + min(120, 5 * pow(2, Double(watch.reads - 1)))
                 currentFileInputs[id] = watch
                 defer { if watch.reads >= 8 { currentFileInputs.removeValue(forKey: id) } }
-                guard let op = try await store.operation(id: id), op.phase.isUnresolved else {
+                guard let op = try await store.operation(id: id),
+                      op.phase.isUnresolved || (watch.observedCompletion && op.phase == .succeeded) else {
                     currentFileInputs.removeValue(forKey: id)
                     continue
                 }
@@ -676,7 +694,9 @@ public actor TransferCoordinator {
               try await store.operation(id: op.id) == op else { return true }
         guard observing.insert(op.id).inserted else { return true }
         defer { observing.remove(op.id) }
-        let receipt = try await adapter.reconcile(try await request(for: op))
+        let original = try await request(for: op)
+        let receipt = try await adapter.reconcile(original)
+        guard original.matches(receipt) else { throw RiftletError.mismatchedReceipt }
         _ = try await store.apply(receipt, policy: policy)
         await onChange()
         let current = try await store.operation(id: operationID)
