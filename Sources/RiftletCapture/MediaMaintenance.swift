@@ -28,7 +28,9 @@ extension PrivateAssetImporter {
 
     public func retention() async throws -> MediaRetention {
         guard let bytes = try await store.checkpoint(for: retentionKey) else { return MediaRetention(days: 0, since: nil) }
-        let rule = try JSONDecoder().decode(MediaRetention.self, from: bytes)
+        guard let rule = try? JSONDecoder().decode(MediaRetention.self, from: bytes) else {
+            throw CaptureError.invalidManifest
+        }
         guard [0, 30, 90].contains(rule.days) else { throw CaptureError.invalidManifest }
         return rule
     }
@@ -37,8 +39,10 @@ extension PrivateAssetImporter {
         guard !mediaMaintenanceActive, [0, 30, 90].contains(days) else { throw RiftletError.invalidTransition }
         mediaMaintenanceActive = true
         defer { mediaMaintenanceActive = false }
-        let old = try await retention()
-        let since = days == 0 ? old.since : (includeExisting ? nil : (old.since ?? Date()))
+        let old: MediaRetention?
+        do { old = try await retention() }
+        catch CaptureError.invalidManifest { old = nil } // Explicit user selection repairs malformed policy only.
+        let since = days == 0 ? old?.since : (includeExisting ? nil : (old?.since ?? Date()))
         let rule = MediaRetention(days: days, since: since)
         guard old != rule else { return }
         try await store.saveCheckpoint(JSONEncoder().encode(rule), for: retentionKey)
@@ -106,13 +110,15 @@ extension PrivateAssetImporter {
             if let current, current.days == 0 || record.image.importedAt < (current.since ?? .distantPast)
                 || record.lastInteractionAt > Date().addingTimeInterval(-Double(current.days) * 86_400) { continue }
             let media = mediaDirectory.appendingPathComponent(record.image.fileName)
-            guard (try? PrivateFiles.hashFile(media)) == record.image.sha256 else { skipped = true; continue }
+            guard let validated = try? FileSignature.read(at: media),
+                  (try? PrivateFiles.hashFile(media)) == record.image.sha256,
+                  (try? FileSignature.read(at: media)) == validated else { skipped = true; continue }
             if automatic || item.verifiedOriginal {
                 guard hasVerifiedOriginal(record.image) else { skipped = true; continue }
             }
             do { try await store.retireMedia(record.id, revision: record.visibilityRevision, batch: batch) }
             catch RiftletError.invalidTransition { skipped = true; continue }
-            do { try moveTrashFile(media, to: trashURL(for: record, directory: trash)) }
+            do { try moveTrashFile(media, to: trashURL(for: record, directory: trash), expected: validated) }
             catch {
                 if (try? PrivateFiles.hashFile(media)) == record.image.sha256 {
                     try await store.reinstateMedia(record.id, restoredByUserAt: Date())
@@ -126,12 +132,12 @@ extension PrivateAssetImporter {
     /// The system may allow access to an individual Trash item while denying a
     /// read handle on the enclosing Trash. Sync the exact file and our own
     /// directory. Startup reconciliation handles either side of an interrupted move.
-    private func moveTrashFile(_ source: URL, to destination: URL) throws {
+    private func moveTrashFile(_ source: URL, to destination: URL, expected: FileSignature) throws {
         let fd = Darwin.open(source.path, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
         guard fd >= 0 else { throw CaptureError.io("open-trash-item", errno) }
         defer { Darwin.close(fd) }
         let identity = try FileSignature.read(descriptor: fd)
-        guard try FileSignature.read(at: source) == identity else { throw CaptureError.unstableFile }
+        guard identity == expected, try FileSignature.read(at: source) == identity else { throw CaptureError.unstableFile }
         guard renamex_np(source.path, destination.path, UInt32(RENAME_EXCL)) == 0 else {
             throw CaptureError.io("move-trash-item", errno)
         }
@@ -186,11 +192,13 @@ extension PrivateAssetImporter {
             let media = mediaDirectory.appendingPathComponent(record.image.fileName)
             let trash = trashURL(for: record, directory: directory)
             if !FileManager.default.fileExists(atPath: media.path) {
+                let validated: FileSignature
                 do {
+                    validated = try FileSignature.read(at: trash)
                     guard try PrivateFiles.hashFile(trash) == record.image.sha256 else { failed = true; continue }
                 } catch CaptureError.io(_, ENOENT) { continue }
                 catch { failed = true; continue }
-                try moveTrashFile(trash, to: media)
+                try moveTrashFile(trash, to: media, expected: validated)
             }
             if (try? PrivateFiles.hashFile(media)) == record.image.sha256 { try await store.reinstateMedia(record.id, restoredByUserAt: Date()) }
             else { failed = true }

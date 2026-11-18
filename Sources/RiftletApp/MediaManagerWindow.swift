@@ -120,16 +120,24 @@ final class MediaManagerWindow: NSWindowController, NSWindowDelegate {
 
     private func refresh() async {
         do {
-            let policy = try await importer.retention()
+            let policy: MediaRetention?
+            do { policy = try await importer.retention() }
+            catch CaptureError.invalidManifest { policy = nil }
             let inventory = try await importer.cleanupSummary()
             let trash = try await importer.availableTrashCount()
             let captures = try await importer.pendingOwnedCaptures()
             let orphans = try await importer.orphanFiles()
             guard !busy, !Task.isCancelled else { return }
             pending = captures
-            rule.selectItem(at: [0, 30, 90].firstIndex(of: policy.days) ?? 0)
-            existing.state = policy.days > 0 && policy.since == nil ? .on : .off
-            rule.isEnabled = true; existing.isEnabled = policy.days > 0
+            if let policy {
+                rule.selectItem(at: [0, 30, 90].firstIndex(of: policy.days) ?? 0)
+                existing.state = policy.days > 0 && policy.since == nil ? .on : .off
+                existing.isEnabled = policy.days > 0
+            } else {
+                rule.select(nil); existing.state = .off; existing.isEnabled = false
+                show(text("留存规则无法读取。重新选择保留时间可修复。", "Choose a retention period to replace the unreadable rule."))
+            }
+            rule.isEnabled = true
             let size = ByteCountFormatter.string(fromByteCount: inventory.bytes, countStyle: .file)
             summary.stringValue = text("待核对 \(inventory.count) 份副本（\(size)）。手动整理不限天数，可包含唯一副本。",
                 "\(inventory.count) copies to review (\(size)). Manual cleanup includes all ages and may include sole copies.")
@@ -187,7 +195,7 @@ final class MediaManagerWindow: NSWindowController, NSWindowDelegate {
             alert.informativeText = self.text("包含所有符合条件的日期。其中 \(unique) 份没有已验证的外部原件，清空废纸篓前可以找回。",
                 "Includes all eligible dates. \(unique) copies have no verified external original. You can restore them before emptying Trash.")
             alert.addButton(withTitle: self.text("取消", "Cancel"))
-            alert.addButton(withTitle: self.text("移到废纸篓", "Move to Trash"))
+            alert.addButton(withTitle: self.text("移到废纸篓", "Move to Trash")).identifier = .init("media.manage.confirmTrash")
             let confirmed = await withCheckedContinuation { continuation in
                 alert.beginSheetModal(for: window) { continuation.resume(returning: $0 == .alertSecondButtonReturn) }
             }
