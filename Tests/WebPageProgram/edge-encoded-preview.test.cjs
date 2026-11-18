@@ -39,13 +39,12 @@ function fixture(hold) {
   const file = new File([original], name, {type:'image/png'});
   return {counters, Image, sandbox, watch, file, getWatcher:() => watch(file,name)};
 }
-async function settled(watcher, image) {
-  for (let i=0; i<100; i++) {
-    const state=watcher.inspect(image);
-    if (state!=='encoding') return state;
-    await new Promise(resolve=>setImmediate(resolve));
-  }
-  throw Error('encoding did not settle');
+function settled(watcher, image, expectedInitial) {
+  return new Promise(resolve => {
+    const initial = watcher.inspect(image, () => resolve(watcher.inspect(image)));
+    if (expectedInitial !== undefined) assert.equal(initial, expectedInitial);
+    if (initial !== 'encoding') resolve(initial);
+  });
 }
 
 test('exact bytes, not a same-size different image; no duplicate encoding or START', async () => {
@@ -53,8 +52,7 @@ test('exact bytes, not a same-size different image; no duplicate encoding or STA
     const f=fixture(), watcher=f.getWatcher(), bytes=Buffer.from(original);
     if(!equal) bytes[50]^=4;
     const image=new f.Image(bytes);
-    assert.equal(watcher.inspect(image),'encoding');
-    assert.equal(await settled(watcher,image),equal?'matched':'mismatch');
+    assert.equal(await settled(watcher,image,'encoding'),equal?'matched':'mismatch');
     assert.deepEqual(f.counters,{decoded:1,encoded:1,closed:1});
     assert.deepEqual(Object.keys(watcher).sort(),['close','inspect']);
     assert.equal(watcher.inspect(new f.Image(bytes)),'mismatch');
