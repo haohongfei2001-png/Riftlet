@@ -6,7 +6,7 @@
 
 最终 DMG 为 13,298,749 字节，SHA-256 为 `14085326e9ed36dde6a370f36e9cfd1a65ae688f37159fc2a67527d1fa406b28`。App 可执行文件 SHA-256 为 `47a5a203719cec88ca76e4e27eb6cbaa7805ba46b673919aaab5ef367119851a`。arm64 / x86_64、Developer ID、App 与 DMG 的 Apple 公证、装订及 Gatekeeper 均通过。声明最低系统为 macOS 13.0。[发行回执](evidence/package-build38.json)
 
-基线为 PR #114 的主线合并 `9fd8ad15fca043915069904113e5fb67d82b4948`。独立核验过公开 1.0.5 DMG 的 12,686,160 字节、SHA-256 `99276347932e231adf743664a54cfc782d8e345d89221587d54b7299a5c9f315`，下载按钮、Release 和签名 feed 与其一致。
+基线为 PR #114 的主线合并 `9fd8ad15fca043915069904113e5fb67d82b4948`。独立核验过公开 1.0.5 DMG 的 12,686,160 字节、SHA-256 `99276347932e231adf743664a54cfc782d8e345d89221587d54b7299a5c9f315`，下载按钮、Release 和签名 feed 与其一致。[实际官网下载及签名核验](evidence/public-v1.0.5.json)
 
 36 的 Intel 原生故障测试发现，持久化输入意图后资产 JSON 损坏时，保存 UNKNOWN 的保护逻辑重复解码坏行。37 在原事务内以资产与活动操作 ID 核实归属。原夹具修前能重现，修后 A 的 UNKNOWN / invocation / 零输入均保存，B 独立成功。重启回归现验证恰好一次原 invocation 的只读检查。装饰窗测试分开验证同步所有权和建窗超时回退，发行 App 沿用系统 Core Animation 时钟。故障详情可见[36 的 Intel 正式作业](https://github.com/haohongfei2001-png/Riftlet/actions/runs/44316646141/job/134844416984)。
 
