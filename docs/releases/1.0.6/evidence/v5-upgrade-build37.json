@@ -1,0 +1,143 @@
+{
+  "build": 37,
+  "feed": {
+    "scope": "isolated QA loopback signed feed; bit-identical notarized DMG",
+    "code": "1d5731545564b4a1d5a4b342dba455dc3521bb1f",
+    "version": "1.0.6",
+    "build": "37",
+    "feedSHA256": "59d29b9934eddeabf1d9858a41bb91eb15b01cb20360f33354bbe23ec3d2881e",
+    "dmgSHA256": "4a09219f7f49089aef372980a5e0a10f407215064523c65607ed5e7fb6ee13fd",
+    "executableSHA256": "19afd362e42598f02b97fd49f924f15c5290a3d3c519053d9256fcfbcd676b3c",
+    "minimumOS": "13.0"
+  },
+  "runs": {
+    "31": {
+      "userActions": [
+        "Check for Updates",
+        "Install Update",
+        "Install and Relaunch"
+      ],
+      "verifiedRunningInstalled37": true,
+      "comparison": {
+        "tables": {
+          "assets": {
+            "before": 19,
+            "after": 28,
+            "allOriginalRowsIdentical": true
+          },
+          "operations": {
+            "before": 2,
+            "after": 2,
+            "allOriginalRowsIdentical": true
+          },
+          "upload_starts": {
+            "before": 1,
+            "after": 1,
+            "allOriginalRowsIdentical": true
+          },
+          "checkpoints": {
+            "before": 6,
+            "after": 6,
+            "allOriginalRowsIdentical": true
+          },
+          "compensations": {
+            "before": 0,
+            "after": 0,
+            "allOriginalRowsIdentical": true
+          },
+          "metadata": {
+            "before": 2,
+            "after": 2,
+            "allOriginalRowsIdentical": true
+          }
+        },
+        "originalFileCount": 48,
+        "missingOrChangedOriginalFiles": 0,
+        "existingFolderBookmarkIdentical": true,
+        "feedbackDraftIdentical": true,
+        "integrity": "ok"
+      },
+      "originalRecords": {
+        "originals": 19,
+        "originalIDsPresent": true,
+        "metadataIntact": true,
+        "changedOriginals": [],
+        "newCount": 9,
+        "newSystemOrigins": 9,
+        "newMatchingUserOriginals": 9
+      },
+      "preferences": {
+        "consumerProductKeys": 2,
+        "changedNames": [],
+        "intactNames": [
+          "Riftlet.firstUse.presented.v1.Riftlet",
+          "Riftlet.firstUse.setup.v2.Riftlet"
+        ]
+      }
+    },
+    "35": {
+      "userActions": [
+        "Check for Updates",
+        "Install Update",
+        "Install and Relaunch"
+      ],
+      "verifiedRunningInstalled37": true,
+      "comparison": {
+        "tables": {
+          "assets": {
+            "before": 28,
+            "after": 28,
+            "allOriginalRowsIdentical": true
+          },
+          "operations": {
+            "before": 8,
+            "after": 8,
+            "allOriginalRowsIdentical": true
+          },
+          "upload_starts": {
+            "before": 5,
+            "after": 5,
+            "allOriginalRowsIdentical": true
+          },
+          "checkpoints": {
+            "before": 35,
+            "after": 35,
+            "allOriginalRowsIdentical": true
+          },
+          "compensations": {
+            "before": 0,
+            "after": 0,
+            "allOriginalRowsIdentical": true
+          },
+          "metadata": {
+            "before": 2,
+            "after": 2,
+            "allOriginalRowsIdentical": true
+          }
+        },
+        "originalFileCount": 57,
+        "missingOrChangedOriginalFiles": 0,
+        "existingFolderBookmarkIdentical": true,
+        "feedbackDraftIdentical": true,
+        "integrity": "ok"
+      },
+      "originalRecords": {
+        "originals": 28,
+        "originalIDsPresent": true,
+        "metadataIntact": true,
+        "changedOriginals": [],
+        "newCount": 0,
+        "newSystemOrigins": 0,
+        "newMatchingUserOriginals": 0
+      },
+      "preferences": {
+        "consumerProductKeys": 2,
+        "changedNames": [],
+        "intactNames": [
+          "Riftlet.firstUse.presented.v1.Riftlet",
+          "Riftlet.firstUse.setup.v2.Riftlet"
+        ]
+      }
+    }
+  }
+}
