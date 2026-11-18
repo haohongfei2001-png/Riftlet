@@ -1,6 +1,6 @@
 # Riftlet 1.0.5：推广前产品收口
 
-**开发交付**　[签名候选 1.0.5（30）及真实验收报告](RC_REPORT.md) · [进度](PROGRESS.md) · [开发 PR #113](https://github.com/haohongfei2001-png/Riftlet/pull/113)
+**开发交付**　[签名候选 1.0.5（31）与附加、托盘复验](FOLLOW_UP.md) · [build 30 原始验收与升级记录](RC_REPORT.md) · [进度](PROGRESS.md) · [开发 PR #113](https://github.com/haohongfei2001-png/Riftlet/pull/113)
 
 审计日期：2026-11-18（北京时间）。本包交付问题、产品修正方向和 Codex 开工任务；不代表 1.0.5 已开发或发布。
 

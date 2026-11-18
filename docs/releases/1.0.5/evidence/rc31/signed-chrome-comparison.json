@@ -1,0 +1,20 @@
+{
+  "scope": "Actual signed page resources in a fresh local headless Chrome per run. Two independent files, original document/composer, preserved draft selection and existing attachment. Explicit error is injected by the loopback fixture on the original preview of its aria-labelled card. Not a real ChatGPT server response.",
+  "test": "Tests/WebPageProgram/chrome-input-resource.test.cjs / aria-preview-portal-failure",
+  "results": [
+    {
+      "build": 30,
+      "source": "70cc3deadf571a9b97609a0af1a979bbb677412f",
+      "pageProgramSHA256": "cca114d1cf23c0e8166d3cc962d0d91148e101a7f42eda6cb2ff22267ec7dcfd",
+      "outcome": "MISSED_ORIGINAL_PREVIEW_ERROR",
+      "runnerExit": 1
+    },
+    {
+      "build": 31,
+      "source": "fe9c227a3b89a082b9da39dc5bb1f5c0b955c2ee",
+      "pageProgramSHA256": "47b2ad88fecd29f91127fd5b04c4279db2db3e77f23a3e4cfd1aee4234c726ee",
+      "outcome": "SAME_FILE_ERROR_OBSERVED",
+      "runnerExit": 0
+    }
+  ]
+}
