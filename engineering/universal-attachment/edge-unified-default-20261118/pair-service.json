@@ -1,0 +1,312 @@
+{
+  "schemaVersion": 1,
+  "reviewer": "independent_checkpoint_5bd",
+  "reviewedAt": "2026-11-18T01:31:34.670057+00:00",
+  "result": "PARTIAL_OBSERVED_WITH_UNRESOLVED_PRODUCT_START_AND_SERVICE_TERMINAL",
+  "scope": "Independent preservation and bounded original-file service association. This reviewer operated only original normal DevTools export and response views after explicit GUI handoff; original product clicks and native projection were performed by another role. Not CI, source admission, physical-click proof or all-layer product acceptance.",
+  "source": "8ac2bf1c7129763fce3a1d3ccd1a581e08848df2",
+  "executableSHA256": "eb61c5cfd65487e4a02bf9d125e9ef8853e3f4500b4d4cda887a6a6e3aa0e5c3",
+  "har": {
+    "entryCount": 85,
+    "bytes": 8813602,
+    "sha256": "49da5d8c111c82850a360e95b7160531d0adec856ed2032e547e1579f9a7855b",
+    "normalDevToolsSanitizedExport": true,
+    "privateFileMode": "0600",
+    "privateParentMode": "0700",
+    "singleExportAction": true,
+    "singleSaveAction": true,
+    "originalName": "original-619-620.har.devtools"
+  },
+  "images": [
+    {
+      "createEntry": 65,
+      "encodedUploadBytes": 1386335,
+      "fileIDSHA256": "a1169965d4eef4ec7c9c49cec127fc0c507ea095647ec7d6edfa82187312a189",
+      "filenameSHA256": "b87b77dcda947b28786bf387dbca22d76e331465c8366af6dc13dfe241fda5f2",
+      "originalPNGBytes": 1406725,
+      "originalPNGSHA256": "922323e620f744b798cfe55ce985950f0af28c1047b223d5dfcb180c6be019bf",
+      "processEntry": 71,
+      "putETagPresent": true,
+      "putEntry": 66,
+      "putStatus": 201,
+      "seed": 619,
+      "terminal": "UNKNOWN",
+      "harProcessingContent": {
+        "declaredResponseContentBytes": 576.0,
+        "responseTextFieldPresent": false,
+        "responseEncodingFieldPresent": false
+      },
+      "originalNativeProjection": {
+        "reserved": true,
+        "nativeSelection": true,
+        "operationCount": 1,
+        "originalSetterObserved": true,
+        "originalChangeObserved": true,
+        "localDurableStarts": 0,
+        "traceStartObserved": false,
+        "swallowActualStartCount": 0,
+        "originalPreserved": true
+      },
+      "normalDevToolsReadback": {
+        "originalFilenameDigestMatchedBeforeAndAfter": true,
+        "originalFileIDDigestMatchedBeforeAndAfter": true,
+        "responsePanel": "NO_AVAILABLE_RESPONSE_DATA",
+        "responsePanelLiteral": "没有可预览的内容 此请求没有可用的响应数据",
+        "eventStreamTablePresent": true,
+        "eventStreamRowsIncludingHeader": 1,
+        "eventStreamProcessingFrames": 0,
+        "processingTerminal": "UNKNOWN",
+        "UIProjectionIsNotHARResponseEntity": true
+      }
+    },
+    {
+      "createEntry": 68,
+      "encodedUploadBytes": 1386732,
+      "fileIDSHA256": "0351f4671925add2031c04f71d0b4eb0853a0d4ff410e97bef79e24404f8615e",
+      "filenameSHA256": "cef59827531913774d80309b00a9e4cd1a99f9cdb9aae35c848222664d2f4f38",
+      "originalPNGBytes": 1405826,
+      "originalPNGSHA256": "c543f731cff7e357d4fd54c2ea813e474fe76b47f483ac4d1f63cf1fc21f1880",
+      "processEntry": 73,
+      "putETagPresent": true,
+      "putEntry": 69,
+      "putStatus": 201,
+      "seed": 620,
+      "terminal": "UNKNOWN",
+      "harProcessingContent": {
+        "declaredResponseContentBytes": 576.0,
+        "responseTextFieldPresent": false,
+        "responseEncodingFieldPresent": false
+      },
+      "originalNativeProjection": {
+        "reserved": true,
+        "nativeSelection": true,
+        "operationCount": 1,
+        "originalSetterObserved": true,
+        "originalChangeObserved": true,
+        "localDurableStarts": 0,
+        "traceStartObserved": false,
+        "swallowActualStartCount": 0,
+        "originalPreserved": true
+      },
+      "normalDevToolsReadback": {
+        "originalFilenameDigestMatchedBeforeAndAfter": true,
+        "originalFileIDDigestMatchedBeforeAndAfter": true,
+        "responsePanel": "NO_AVAILABLE_RESPONSE_DATA",
+        "responsePanelLiteral": "没有可预览的内容 此请求没有可用的响应数据",
+        "eventStreamTablePresent": true,
+        "eventStreamRowsIncludingHeader": 1,
+        "eventStreamProcessingFrames": 0,
+        "processingTerminal": "UNKNOWN",
+        "UIProjectionIsNotHARResponseEntity": true
+      }
+    }
+  ],
+  "browserRequestTypes": [
+    {
+      "browserResourceType": "xhr",
+      "entry": 66,
+      "fileIDSHA256": "a1169965d4eef4ec7c9c49cec127fc0c507ea095647ec7d6edfa82187312a189",
+      "kind": "storagePUT",
+      "method": "PUT",
+      "responseMIMEType": "text/plain",
+      "seed": 619,
+      "status": 201.0
+    },
+    {
+      "browserResourceType": "xhr",
+      "entry": 69,
+      "fileIDSHA256": "0351f4671925add2031c04f71d0b4eb0853a0d4ff410e97bef79e24404f8615e",
+      "kind": "storagePUT",
+      "method": "PUT",
+      "responseMIMEType": "text/plain",
+      "seed": 620,
+      "status": 201.0
+    },
+    {
+      "browserResourceType": "fetch",
+      "entry": 71,
+      "fileIDSHA256": "a1169965d4eef4ec7c9c49cec127fc0c507ea095647ec7d6edfa82187312a189",
+      "kind": "process",
+      "method": "POST",
+      "responseMIMEType": "text/event-stream",
+      "seed": 619,
+      "status": 200.0
+    },
+    {
+      "browserResourceType": "fetch",
+      "entry": 73,
+      "fileIDSHA256": "0351f4671925add2031c04f71d0b4eb0853a0d4ff410e97bef79e24404f8615e",
+      "kind": "process",
+      "method": "POST",
+      "responseMIMEType": "text/event-stream",
+      "seed": 620,
+      "status": 200.0
+    }
+  ],
+  "productContextFromSealedNativeProjection": {
+    "nativeDownIntervalMs": 572.822,
+    "intervalScope": "Two actual product input-down receipts; not attachment arrival interval.",
+    "beforeDraft": {
+      "available": true,
+      "baselineReadinessAtReadback": true,
+      "eachNewOperationFilenameCount": [
+        0,
+        0
+      ],
+      "exactOriginalSelection": true,
+      "observedAt": "2026-11-18T01:17:54Z",
+      "onlyNamedOriginalsAndNew": true,
+      "originalNativeTabAndWindow": true,
+      "retained621BaselineCounts": [
+        1
+      ],
+      "sameText": true,
+      "selection": [
+        61,
+        14
+      ],
+      "signedIn": true,
+      "totalAttachments": 1,
+      "unknownAttachments": 0,
+      "visibleFileLimit": false
+    },
+    "afterDraft": {
+      "available": true,
+      "baselineReadinessAtReadback": true,
+      "eachNewOperationFilenameCount": [
+        1,
+        1
+      ],
+      "exactOriginalSelection": true,
+      "observedAt": "2026-11-18T01:18:40Z",
+      "onlyNamedOriginalsAndNew": true,
+      "originalNativeTabAndWindow": true,
+      "retained621BaselineCounts": [
+        1
+      ],
+      "sameText": true,
+      "selection": [
+        61,
+        14
+      ],
+      "signedIn": true,
+      "totalAttachments": 3,
+      "unknownAttachments": 0,
+      "visibleFileLimit": false
+    },
+    "originalNativeLeaseChecks": {
+      "bothLeases": true,
+      "edgeTemporaryRoute": true,
+      "newTargetAndDocumentDistinctFromPreviousLeases": true,
+      "sameNewDocumentTabComposerAndGeneration": true,
+      "sameVerifiedNativeTabAndWindow": true,
+      "uniqueIndependentClickBindings": true
+    },
+    "originalLedgerAndMediaPreserved": {
+      "allOriginalOperationPayloadsAndReceipts": true,
+      "allOriginalRawAssetAndStartColumns": true,
+      "assets": true,
+      "originalMedia": true,
+      "starts": true
+    },
+    "rawSequencesContinuous": true,
+    "nativeAndDraftCompositeFromOriginalTerminalTool": false,
+    "compositeFalseReason": "Both images have zero local durable START, no trace START and zero swallowActualStartCount; setters/changes and attachments do not supply these missing receipts."
+  },
+  "findings": [
+    {
+      "id": "S01",
+      "level": "CONFIRMED",
+      "observation": "Both original operations uniquely associate create HTTP200 to exactly allocated HTTPS storage PUT HTTP201 plus ETag and exact wire Content-Length, then same-name/same-file-ID processing HTTP200. Signed URLs and ETag values remain private."
+    },
+    {
+      "id": "S02",
+      "level": "CONFIRMED",
+      "observation": "Both PUT entries are browser resource type xhr with response MIME text/plain. Both process entries are fetch with response MIME text/event-stream."
+    },
+    {
+      "id": "S03",
+      "level": "UNKNOWN",
+      "observation": "No complete processing response entity is available in the original HAR. Normal Response UI explicitly reports no data; normal EventStream UI has only the header. No per-file processing completion or failure is established."
+    },
+    {
+      "id": "P01",
+      "level": "CONFIRMED_IN_ORIGINAL_NATIVE_PROJECTION",
+      "observation": "Both images appear exactly once in the original draft while original text, selection [61,14], baseline621 and prior ledger/media are preserved. Neither original operation has product START/swallow receipts in this sealed projection."
+    }
+  ],
+  "method": {
+    "normalExport": "Exact native original process/window/tab/CG binding succeeded through existing network-ui export. The available sanitized-HAR UI was used.",
+    "savePanel": "The old guarded helper reported filenameFields=0 for the current normal Save panel. CUA used its visibly identified saveAsNameTextField and Go To Folder controls; guarded native save-panel inspect confirmed the same original CG and exact private destination before one Save. Existing export intent and save-har.once retained.",
+    "normalPanel": "Existing helper returned processRows=0 due its limited AX row locator; this was not treated as absence. CUA selected each visible process row, hashed only original request file_name/file_id and matched both to the sealed HAR before reading Response/EventStream, then rechecked the same payload identity after each read. No header, account field or other request body was published.",
+    "clipboard": "NOT_USED",
+    "newUploadOrProductClick": "NONE_BY_THIS_REVIEWER",
+    "reloadRefreshOrRequestReplay": "NONE",
+    "draftMutationIssued": "NONE",
+    "GUIReleased": "Returned to root/edge_native_preference before offline report work."
+  },
+  "evidence": {
+    "originalHAR": {
+      "id": "original-619-620.har.devtools",
+      "bytes": 8813602,
+      "sha256": "49da5d8c111c82850a360e95b7160531d0adec856ed2032e547e1579f9a7855b"
+    },
+    "normalExportIntent": {
+      "id": "sanitized-export-intent.json",
+      "bytes": 77,
+      "sha256": "7d8a6e06e43f3d6beb184c36587a4bfcdf28f1493ce78550c0a3b0ed0c477423"
+    },
+    "normalSaveIntent": {
+      "id": "save-har.once",
+      "bytes": 481,
+      "sha256": "806b15de116e3bd41252f0bf1eca86d79cd79434e1f73eabcf8d9bef1154fd74"
+    },
+    "sealedHARProjection": {
+      "id": "har-projection.json",
+      "bytes": 1183,
+      "sha256": "7bc174fef96322260db1a28a77beb6942ddb3b31158dc3184fd9983eece0df3b"
+    },
+    "sealedHARCustody": {
+      "id": "har-custody.json",
+      "bytes": 430,
+      "sha256": "c5f02d8de66ee921cce6abede92dda8a8164b015a7f8c2c349b9ab538bbc768c"
+    },
+    "requestTypeProjection": {
+      "id": "network-entry-types.json",
+      "bytes": 1388,
+      "sha256": "ffe91b707f23201b1526e384a849672c0f55ea9253f55a3d926845d2e263e91c"
+    },
+    "originalNativeProjection": {
+      "id": "actual.json",
+      "bytes": 8836,
+      "sha256": "62b14e072d1a571d20697e8db076f0e3f4e1bb12d3d0e6ac469ce8c18b5964b5"
+    },
+    "originalTicket": {
+      "id": "qa-ticket.json",
+      "bytes": 2237,
+      "sha256": "8b0513022c79ec0e12f8bd501a030a967f09829335deab9a40f5f9941cd2d6e9"
+    },
+    "beforeRecording": {
+      "id": "before-recording-native-verified.json",
+      "bytes": 1454,
+      "sha256": "2362a7b7e665df7debe85c14f028c46d0ebf0e57bb02edcbf8ebdae6466d0a09"
+    },
+    "terminalProgram": {
+      "id": "terminal.py",
+      "bytes": 4875,
+      "sha256": "ceb5d249f3bd80c6717e9e6c7b9bd2f78e671c78b72e89965d23d6a9221b2103"
+    },
+    "HARJoinProgram": {
+      "id": "join.py",
+      "bytes": 12737,
+      "sha256": "dfa0cdf975975db698ebb5ff628263053c0068c776e94c2068d5f190c783c50d"
+    }
+  },
+  "limits": [
+    "A browser storage 201 is not a Riftlet durable START and is not service processing completion.",
+    "The processing HTTP200 and HAR content size do not supply missing response frames. No inferred completion from attachment cards or progress100.",
+    "No raw file IDs, operation names, signed URLs, request headers, account identifiers, private image bytes or chat content are published. Only hashes, counters, enum fields and prepared neutral-draft booleans are included.",
+    "No claim that the server failed or no new background requests existed; no original request was reissued by this reviewer.",
+    "Normal UI response findings are reviewer observations, not raw HAR entity bytes. The sealed HAR is unchanged."
+  ]
+}

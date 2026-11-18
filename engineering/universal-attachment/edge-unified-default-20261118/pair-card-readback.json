@@ -1,0 +1,59 @@
+{
+  "baselineNamedNodes": 3,
+  "files": [
+    {
+      "exactNamedNodeCount": 3,
+      "explicitFileReady": false,
+      "images": [
+        {
+          "currentSrcScheme": "data-png",
+          "existingDataPNGLengthMatches": false,
+          "existingDataPNGSHA256Matches": false,
+          "previewDecoded": true,
+          "srcScheme": "data-png"
+        }
+      ],
+      "knownSemanticStates": [],
+      "nodes": 7,
+      "numericProgress": [],
+      "ownedCard": true,
+      "progressControls": 0,
+      "seed": 619,
+      "statusRoles": 0,
+      "visibleProgress": 0
+    },
+    {
+      "exactNamedNodeCount": 3,
+      "explicitFileReady": false,
+      "images": [
+        {
+          "currentSrcScheme": "data-png",
+          "existingDataPNGLengthMatches": false,
+          "existingDataPNGSHA256Matches": false,
+          "previewDecoded": true,
+          "srcScheme": "data-png"
+        }
+      ],
+      "knownSemanticStates": [],
+      "nodes": 7,
+      "numericProgress": [],
+      "ownedCard": true,
+      "progressControls": 0,
+      "seed": 620,
+      "statusRoles": 0,
+      "visibleProgress": 0
+    }
+  ],
+  "nativeEvidenceSHA256": "62b14e072d1a571d20697e8db076f0e3f4e1bb12d3d0e6ac469ce8c18b5964b5",
+  "nativeReaderExecutableSHA256": "3da910b351c50046c6a4590199f7247b6fe381b45597306886dc3f9d34e9d04f",
+  "networkRequests": 0,
+  "originalDocument": true,
+  "originalForm": true,
+  "originalText": true,
+  "originalTicketSHA256": "8b0513022c79ec0e12f8bd501a030a967f09829335deab9a40f5f9941cd2d6e9",
+  "pageWrites": 0,
+  "projectionSourceSHA256": "bdc4a02d482b5fa9603c7ad57424d2596d19a8d1ccddbf5921f14b8e94d4d6b9",
+  "selectionRetained": true,
+  "sourceReads": "ALREADY_PRESENT_DOM_IMAGE_STRINGS_ONLY",
+  "status": "OBSERVED_ORIGINAL_CARDS"
+}

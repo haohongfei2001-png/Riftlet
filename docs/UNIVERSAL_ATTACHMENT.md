@@ -4,6 +4,8 @@
 
 本轮使用已经登录的日常 Edge，在 Default 配置里新建独立的 ChatGPT 临时窗口。修复安装包内经逐项复核的 Finder 元数据后，Edge 通过 Microsoft 身份与全架构严格验签。已通过原生页面脚本读回临时文档和唯一编辑器。同机曾运行另一个相同标识的 Edge 副本，测试按进程和启动身份定位日常安装，再核对窗口、唯一标签、文档、屏幕窗口与编辑器归属。[签名、目标和源码证据](../engineering/universal-attachment/edge-unified-default-20261118/README.md)
 
+默认账户实测中，两次普通微图点击相隔 572.822 毫秒。619、620 各有 10 条原生及产品回执，各触发一次文件输入。原草稿由 1 张变为 3 张，原文字、14 字符选区和基线图均保留。两笔独立存储 PUT 返回 HTTP 201 和 ETag。两图在 Riftlet 中的 START 与吞噬均为 0，ChatGPT 处理请求各返回 HTTP 200，但缺少可验证的终态正文。组合结论为 **INCOMPLETE**。[双图验收及逐文件回执](../engineering/universal-attachment/edge-unified-default-20261118/PAIR-619-620.md)
+
 普通 App 来自 `8ac2bf1`，保留已合并的 #101 和 #113 的 build 30 产品改动。首次整合把 Chrome v23 的脚本检查错误地用于 Edge v22；修复后两种宿主分别校验各自版本，交叉版本会被拒绝。开发者签名的候选通过 LaunchServices 在唯一活动测试安装位启动。升级前后的 22 张原图、13 笔原操作和 4 条既有 START 已复核。#113 随后发布到其开发分支的 build 31 有独立的源码和包身份。本轮结果仅归于上述 build 30。[源码审查和签名包](../engineering/universal-attachment/edge-unified-default-20261118/source-review-and-repair.json)
 
 

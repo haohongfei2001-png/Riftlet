@@ -1,0 +1,12 @@
+{
+  "firstAttemptTraceRows": 0,
+  "nativeAttemptID": "unified105-default-edge-619-620",
+  "nativeReservationsBefore": 0,
+  "nativeSenderSubdirectoryMode": "0700",
+  "noHistoricalUnknownReplayed": true,
+  "oldOuterIntentSHA256": "f9e310d978a7d086db4968fd30aef1452d1e3536ae90e6a508bf91364b9bfbeb",
+  "previousPostedDowns": 0,
+  "previousProductFileInputs": 0,
+  "sameTicketSHA256": "8b0513022c79ec0e12f8bd501a030a967f09829335deab9a40f5f9941cd2d6e9",
+  "senderNegativeSHA256": "1d1a24718da4359e1a19a903091cbaebe592be75fa3d68ec92125c3f7f4b4127"
+}

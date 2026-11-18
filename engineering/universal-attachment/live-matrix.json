@@ -1,6 +1,6 @@
 {
-  "scope": "Commercial services through the ordinary Riftlet App. In the earlier isolated account, screenshots 612 and 613 each have a durable product START and storage HTTP 201. Service processing is UNKNOWN for each. Screenshots 617 and 618 reached file input without a new attachment or START. Separate rows preserve each dated default-profile trial.",
-  "latestAcceptanceRecord": "edge-fresh-pair-20261117/followup-617-618/REPORT.md",
+  "scope": "Commercial services through the ordinary Riftlet App. In the earlier isolated account, screenshots 612 and 613 each have a durable product START and storage HTTP 201. Service processing is UNKNOWN for each. Screenshots 617 and 618 reached file input without a new attachment or START. Separate rows preserve each dated default-profile trial. In the signed-in default account, 619 and 620 both entered the original temporary draft and have storage HTTP 201. Neither has a product START or an observed processing terminal.",
+  "latestAcceptanceRecord": "edge-unified-default-20261118/PAIR-619-620.md",
   "previousMatrix": {
     "commit": "d50e1a26a2b75ea24cf92edde5a5a9ce6a02256a",
     "path": "engineering/universal-attachment/live-matrix.json"
@@ -398,23 +398,28 @@
       "trial": "20261118_UNIFIED_BUILD30_DEFAULT_TEMPORARY_DRAFT_619_620",
       "accountScope": "USER_CONFIRMED_SIGNED_IN_DEFAULT_EDGE",
       "profileIsolation": "dedicated_window_in_existing_profile",
-      "result": "NOT_RUN",
-      "reason": "PRECLICK_ONLY_ORIGINAL_DRAFT_ARMED_AND_BASELINE_CONFIRMED",
-      "application": "SIGNED_ORDINARY_ISOLATED_DATA_APP_1_0_5_30_LAUNCHED",
-      "windowAndDraft": "ORIGINAL_DEFAULT_EDGE_PROCESS_WINDOW_SINGLE_TAB_AND_TEMPORARY_DOCUMENT_MATCH",
-      "entry": "ATTACH_CONTROL_OWNS_UNIQUE_COMPOSER_FORM",
-      "specifiedImage": "NOT_RUN",
-      "textSelectionPriorAttachments": "BEFORE_CLICKS_ONLY_ORIGINAL_TEXT_SELECTION_61_14_AND_621_VERIFIED",
-      "uploadStart": "NOT_RUN",
-      "finalSuccess": "NOT_RUN",
-      "failureAndUnknown": "13_PREEXISTING_OPERATIONS_PRESERVED_ACROSS_UPGRADE",
-      "consecutiveImages": "NOT_RUN",
-      "additionalUserSteps": "NO_MANUAL_TEST_ACTION",
+      "result": "INCOMPLETE",
+      "reason": "TWO_ORIGINAL_DRAFT_ATTACHMENTS_AND_STORAGE_201_CONFIRMED_BOTH_PRODUCT_STARTS_MISSING_BOTH_PROCESSING_TERMINALS_UNKNOWN",
+      "application": "BOTH_ORDINARY_APP_CLICKS_CONFIRMED",
+      "windowAndDraft": "SAME_ORIGINAL_WINDOW_TAB_DOCUMENT_COMPOSER_AND_GENERATION",
+      "entry": "ONE_SETTER_AND_CHANGE_PER_ORIGINAL_SCREENSHOT",
+      "specifiedImage": "619_AND_620_ORIGINAL_PRIVATE_PNGS_VERIFIED_HANDOFF_EACH_OPERATION_FILENAME_ONCE",
+      "textSelectionPriorAttachments": "BEFORE_AND_AFTER_NEUTRAL_TEXT_SELECTION_61_14_AND_621_RETAINED",
+      "uploadStart": "TWO_REAL_TRANSFERS_CONFIRMED_BY_STORAGE_ETAG_AND_201_DURABLE_PRODUCT_START_0_OF_2",
+      "finalSuccess": "TWO_PROCESS_HTTP_200_WITHOUT_TERMINAL_ENTITY_OR_FRAMES_UNKNOWN_BOTH",
+      "failureAndUnknown": "TWO_OBSERVE_ONLY_UNKNOWN_NO_RETRANSMISSION",
+      "consecutiveImages": "TWO_DISTINCT_ORDINARY_DOWNS_572_822_MS_APART",
+      "additionalUserSteps": "ONE_ORDINARY_THUMBNAIL_CLICK_PER_IMAGE_AFTER_TEST_FIXTURE_SETUP",
       "login": "ORIGINAL_DEFAULT_PROFILE_SIGNED_IN",
       "source": "8ac2bf1c7129763fce3a1d3ccd1a581e08848df2",
       "executableSHA256": "eb61c5cfd65487e4a02bf9d125e9ef8853e3f4500b4d4cda887a6a6e3aa0e5c3",
-      "relatedEvidence": "edge-unified-default-20261118/README.md",
-      "preClickDraftEvidence": "edge-unified-default-20261118/prepared-draft.json"
+      "relatedEvidence": "edge-unified-default-20261118/PAIR-619-620.md",
+      "preClickDraftEvidence": "edge-unified-default-20261118/prepared-draft.json",
+      "newAttachments": 2,
+      "durableProductStarts": 0,
+      "storageCreated": 2,
+      "verifiedServiceProcessingCompletions": 0,
+      "swallowStarts": 0
     },
     {
       "host": "Microsoft Edge",
@@ -781,5 +786,5 @@
   "latestCalibrationRecord": "edge-calibration-20261115/summary.json",
   "latestNativeReceiptRecord": "edge-fresh-pair-20261117/independent-product.json",
   "latestCIEvidence": "edge-fresh-pair-20261117/followup-617-618/ci-4a493e9.json",
-  "latestDefaultProfileRecord": "edge-unified-default-20261118/README.md"
+  "latestDefaultProfileRecord": "edge-unified-default-20261118/PAIR-619-620.md"
 }
