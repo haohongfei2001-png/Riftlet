@@ -20,6 +20,7 @@ final class MediaManagerWindow: NSWindowController, NSWindowDelegate {
     private var refreshTask: Task<Void, Never>?
     private var visibleTimer: Timer?
     private var pending: [URL] = []
+    private var lastRecoveryState: Bool?
     private var retry: (() -> Void)?
     private var refreshRequested = false
 
@@ -147,6 +148,11 @@ final class MediaManagerWindow: NSWindowController, NSWindowDelegate {
             collectButton.title = text("收录待找回截图（\(captures.count)）", "Recover captures (\(captures.count))")
             collectButton.isEnabled = !captureBusy() && !captures.isEmpty
             orphanButton.isHidden = orphans.isEmpty
+            let recoveryState = !orphans.isEmpty || !captures.isEmpty
+            if lastRecoveryState != recoveryState {
+                lastRecoveryState = recoveryState
+                await changed()
+            }
         } catch {
             guard !busy, !Task.isCancelled else { return }
             show(text("资料概览读取失败。", "Could not read the storage summary."), retry: { [weak self] in self?.hostStateChanged() })
