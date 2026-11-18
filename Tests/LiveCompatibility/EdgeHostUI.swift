@@ -10,6 +10,30 @@ func mouseNumberSurvivesNativeBridge(_ event: CGEvent, expected: Int64) -> Bool 
     validProbeEventNumber(expected) && event.getIntegerValueField(.mouseEventNumber) == expected
         && NSEvent(cgEvent: event)?.eventNumber == Int(expected)
 }
+// The click probe owns only the cursor position to which it actually posts. A later
+// movement (including one between its two clicks) belongs to its new owner.
+struct HostedCursorChange: Codable {
+    let original: CGPoint
+    let posted: CGPoint
+    init(before: CGPoint, posted: CGPoint, previous: Self?) {
+        original = previous.flatMap { $0.posted == before ? $0.original : nil } ?? before
+        self.posted = posted
+    }
+    func shouldRestore(at current: CGPoint, buttonHeld: Bool) -> Bool {
+        !buttonHeld && current == posted
+    }
+}
+if args == [args[0], "cursorOwnershipSelfCheck"] {
+    let start = CGPoint(x: 512, y: 380), a = CGPoint(x: 40, y: 387), b = CGPoint(x: 41, y: 430)
+    let moved = CGPoint(x: 39, y: 387)
+    let first = HostedCursorChange(before: start, posted: a, previous: nil)
+    let second = HostedCursorChange(before: a, posted: b, previous: first)
+    let afterMove = HostedCursorChange(before: moved, posted: b, previous: first)
+    guard first.original == start, first.shouldRestore(at: a, buttonHeld: false),
+          !first.shouldRestore(at: moved, buttonHeld: false), !first.shouldRestore(at: a, buttonHeld: true),
+          second.original == start, afterMove.original == moved else { exit(1) }
+    print("CURSOR_OWNERSHIP_VERIFIED noPost=true"); exit(0)
+}
 // This one command only allocates local events: no post, window, AX or TCC request.
 // It is usable outside a hosted runner to validate every number the sender uses.
 if args.count == 2, args[1] == "mouseNumberSelfCheck" {
@@ -34,6 +58,22 @@ if args.count == 2, args[1] == "mouseNumberSelfCheck" {
 }
 guard env["GITHUB_ACTIONS"] == "true", env["RUNNER_ENVIRONMENT"] == "github-hosted",
       env["GITHUB_REPOSITORY"] == "haohongfei2001-png/Riftlet", args.count >= 2 else { exit(77) }
+// edge_host.py compiles this helper inside a fresh 0700 TemporaryDirectory.
+let cursorFile = URL(fileURLWithPath: args[0]).standardizedFileURL.deletingLastPathComponent()
+    .appendingPathComponent("hosted-cursor.json")
+func readCursorChange() throws -> HostedCursorChange? {
+    guard FileManager.default.fileExists(atPath: cursorFile.path) else { return nil }
+    return try JSONDecoder().decode(HostedCursorChange.self, from: Data(contentsOf: cursorFile))
+}
+if args[1] == "restoreCursor" {
+    guard args.count == 2 else { exit(64) }
+    guard let change = try readCursorChange() else { print("NO_MOUSE_POST"); exit(0) }
+    guard let current = CGEvent(source: nil)?.location else { exit(1) }
+    let held = [CGMouseButton.left, .right, .center].contains { CGEventSource.buttonState(.combinedSessionState, button: $0) }
+    guard change.shouldRestore(at: current, buttonHeld: held) else { print("NEWER_POINTER_PRESERVED"); exit(0) }
+    guard CGWarpMouseCursorPosition(change.original) == .success else { exit(1) }
+    print("ORIGINAL_POINTER_RESTORED"); exit(0)
+}
 if args[1] == "preflight" {
     guard CGPreflightScreenCaptureAccess() else {
         print("SCREEN_CAPTURE_PERMISSION_UNAVAILABLE")
@@ -233,7 +273,10 @@ func mouseTarget() throws -> MouseTarget {
     let frame = target.frame
     guard [target.x, target.y, target.width, target.height].allSatisfy(\.isFinite),
           target.width > 0, target.height > 0 else { throw MouseUnavailable.invalidGeometry }
-    let point = CGPoint(x: frame.midX, y: frame.midY)
+    // Use an integer Quartz point in the original attested 2x2 map region.
+    // WindowServer can quantize fractional input; exact position ownership must survive.
+    let point = CGPoint(x: frame.midX.rounded(), y: frame.midY.rounded())
+    guard frame.contains(point) else { throw MouseUnavailable.invalidGeometry }
     guard !map.rows.contains(where: { $0.assetIDDigest != target.assetIDDigest && $0.frame.contains(point) })
         else { throw MouseUnavailable.overlappingAssets }
     guard let entries = CGWindowListCopyWindowInfo(.optionOnScreenOnly, 0) as? [[String: Any]] else {
@@ -316,7 +359,19 @@ case "mouseReady", "mouseClick":
                     throw MouseUnavailable.eventNumberRoundTripMismatch
                 }
             }
-            guard try mouseTarget() == first else { throw MouseUnavailable.targetChangedBeforeDown }
+            guard let before = CGEvent(source: nil)?.location else { throw MouseUnavailable.eventAllocationFailed }
+            let previous = try readCursorChange()
+            let change = HostedCursorChange(before: before, posted: first.point, previous: previous)
+            // Persist before posting, including the lost-reply case. Keep the full target recheck
+            // immediately before down/up; a veto rolls back this never-posted position.
+            try JSONEncoder().encode(change).write(to: cursorFile, options: .atomic)
+            do {
+                guard try mouseTarget() == first else { throw MouseUnavailable.targetChangedBeforeDown }
+            } catch {
+                if let previous { try JSONEncoder().encode(previous).write(to: cursorFile, options: .atomic) }
+                else { try FileManager.default.removeItem(at: cursorFile) }
+                throw error
+            }
             // No fallbacks/retries past this boundary, including an indeterminate reply.
             down.post(tap: .cghidEventTap)
             up.post(tap: .cghidEventTap)

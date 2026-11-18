@@ -534,6 +534,16 @@ def exercise(app, report):
         adapters = REPO / "Sources/RiftletAdapters"
         command("swiftc", main_source, *(adapters / (name + ".swift") for name in AX_HOST_SOURCES),
                 "-o", helper, timeout=120)
+        # Registered at the outer scope so early target/consent refusals and exceptions
+        # also relinquish our position, after teardown of our two test applications.
+        def restore_probe_pointer():
+            restored = command(helper, "restoreCursor")
+            outcome = restored.stdout.decode().strip()
+            if outcome not in {"NO_MOUSE_POST", "NEWER_POINTER_PRESERVED", "ORIGINAL_POINTER_RESTORED"}:
+                raise RuntimeError("unknown_cursor_cleanup_receipt")
+            report["hostedPointerCleanup"] = outcome
+        cleanup.callback(restore_probe_pointer)
+        command(helper, "cursorOwnershipSelfCheck")
         source_capture = root / "neutral-window-capture"
         command("swiftc", HERE / "NeutralWindowCapture.swift", "-o", source_capture, timeout=120)
         number_check = command(helper, "mouseNumberSelfCheck", check=False)
