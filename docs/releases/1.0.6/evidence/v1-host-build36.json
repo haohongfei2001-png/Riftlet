@@ -75,5 +75,22 @@
     6
   ],
   "lastTwoFinalImages": "Two distinct original-card START receipts recorded. Final screenshot of cards 7 and 8 from this original draft unavailable after its window became shared.",
-  "oldDraftFocusAfterFirst": "From about:blank in the same window, the ordinary history action reselected the original tab and raised its original Chrome process."
+  "oldDraftFocusAfterFirst": "From about:blank in the same window, the ordinary history action reselected the original tab and raised its original Chrome process.",
+  "supplementalPair": {
+    "sameSignedCandidate": true,
+    "newTestDraft": true,
+    "clickGapMS": 360.9,
+    "visibleInSameCompletedFrame": 2,
+    "distinctStarts": 2,
+    "mouseToSwallowCommitMS": [
+      1791.4,
+      2232.0
+    ]
+  },
+  "tenClickLatencyMS": {
+    "n": 10,
+    "median": 5091.7,
+    "p95NearestRank": 7098.4,
+    "maximum": 7098.4
+  }
 }
