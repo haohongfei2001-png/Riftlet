@@ -1,5 +1,5 @@
 {
-  "scope": "Commercial services through the ordinary Riftlet App. Earlier isolated-account 612/613 each have one durable product START and storage HTTP 201, with service processing terminals UNKNOWN. Earlier 617/618 reached one setter/change each, produced no new attachment or START and remain UNKNOWN. The current user-confirmed signed-in daily Edge account has a later new visible Temporary window with a unique editor and Attach control. Its real-input trial is NOT_RUN_REAL_INPUT_TEST_HELPER_SIGNATURE_BLOCK: the auxiliary runner stopped before binding or product clicks. Earlier-window page-script error 12 and historical Chrome login preparation are separate observations. No further Chrome trial is part of this task.",
+  "scope": "Commercial services through the ordinary Riftlet App. In the earlier isolated account, screenshots 612 and 613 each have a durable product START and storage HTTP 201. Service processing is UNKNOWN for each. Screenshots 617 and 618 reached file input without a new attachment or START. Separate rows preserve each dated default-profile trial.",
   "latestAcceptanceRecord": "edge-fresh-pair-20261117/followup-617-618/REPORT.md",
   "previousMatrix": {
     "commit": "d50e1a26a2b75ea24cf92edde5a5a9ce6a02256a",
@@ -394,6 +394,30 @@
     },
     {
       "host": "Microsoft Edge",
+      "service": "ChatGPT",
+      "trial": "20261118_UNIFIED_BUILD30_DEFAULT_TEMPORARY_DRAFT_619_620",
+      "accountScope": "USER_CONFIRMED_SIGNED_IN_DEFAULT_EDGE",
+      "profileIsolation": "dedicated_window_in_existing_profile",
+      "result": "NOT_RUN",
+      "reason": "PRECLICK_ONLY_ORIGINAL_DRAFT_ARMED_AND_BASELINE_CONFIRMED",
+      "application": "SIGNED_ORDINARY_ISOLATED_DATA_APP_1_0_5_30_LAUNCHED",
+      "windowAndDraft": "ORIGINAL_DEFAULT_EDGE_PROCESS_WINDOW_SINGLE_TAB_AND_TEMPORARY_DOCUMENT_MATCH",
+      "entry": "ATTACH_CONTROL_OWNS_UNIQUE_COMPOSER_FORM",
+      "specifiedImage": "NOT_RUN",
+      "textSelectionPriorAttachments": "BEFORE_CLICKS_ONLY_ORIGINAL_TEXT_SELECTION_61_14_AND_621_VERIFIED",
+      "uploadStart": "NOT_RUN",
+      "finalSuccess": "NOT_RUN",
+      "failureAndUnknown": "13_PREEXISTING_OPERATIONS_PRESERVED_ACROSS_UPGRADE",
+      "consecutiveImages": "NOT_RUN",
+      "additionalUserSteps": "NO_MANUAL_TEST_ACTION",
+      "login": "ORIGINAL_DEFAULT_PROFILE_SIGNED_IN",
+      "source": "8ac2bf1c7129763fce3a1d3ccd1a581e08848df2",
+      "executableSHA256": "eb61c5cfd65487e4a02bf9d125e9ef8853e3f4500b4d4cda887a6a6e3aa0e5c3",
+      "relatedEvidence": "edge-unified-default-20261118/README.md",
+      "preClickDraftEvidence": "edge-unified-default-20261118/prepared-draft.json"
+    },
+    {
+      "host": "Microsoft Edge",
       "service": "Claude",
       "result": "NOT_RUN",
       "reason": "ORDINARY_SERVICE_ATTACHMENT_ROUTE_NOT_REGISTERED",
@@ -756,5 +780,6 @@
   "latestPreparationRecord": "main-account-preparation-20261118.json",
   "latestCalibrationRecord": "edge-calibration-20261115/summary.json",
   "latestNativeReceiptRecord": "edge-fresh-pair-20261117/independent-product.json",
-  "latestCIEvidence": "edge-fresh-pair-20261117/followup-617-618/ci-4a493e9.json"
+  "latestCIEvidence": "edge-fresh-pair-20261117/followup-617-618/ci-4a493e9.json",
+  "latestDefaultProfileRecord": "edge-unified-default-20261118/README.md"
 }

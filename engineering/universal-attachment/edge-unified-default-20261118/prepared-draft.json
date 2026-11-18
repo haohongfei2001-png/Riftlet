@@ -1,0 +1,26 @@
+{
+  "stage": "before the two product clicks",
+  "source": "8ac2bf1c7129763fce3a1d3ccd1a581e08848df2",
+  "defaultProfile": true,
+  "sameOriginalWindowSingleTabAndDocument": true,
+  "draft": {
+    "newNeutralText": true,
+    "textSHA256": "4ddf1ae357213585f8b3a5c02c0f37a6f0074ffe7db73a3362329531c559c3de",
+    "selectedWords": true,
+    "selectedRangeLocation": 61,
+    "selectedRangeLength": 14,
+    "baselineImageCount": 1,
+    "attachmentImageCount": 1,
+    "unexpectedAttachmentCount": 0,
+    "editorFocused": false,
+    "addFocused": true,
+    "visibleFileLimit": false,
+    "timestamp": "2026-11-18T01:02:45Z"
+  },
+  "baselineSourceSHA256": "15fa30fac446b7ecfb7a800ad7e0321fce811cb28548a0b8fea8ba6390202195",
+  "custody": {
+    "armed.json": "e872ddf87818cb60dbafde8d2d91970ff772646999fa7eefbf546d9815be96aa",
+    "source-and-input.json": "68865e393c65444d8a8918d4262de4cf223b918b3b9240caa90801c6954b284d",
+    "target-adopted.json": "9fd69b0fa7f411dc0e9f2398715b81df8f212d25291d65ba477a03492b4e083f"
+  }
+}

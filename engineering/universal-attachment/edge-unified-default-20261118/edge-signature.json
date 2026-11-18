@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "preparedAt": "2026-11-18T00:39:46.531391+00:00",
+  "preparedBy": "independent_checkpoint_5bd",
+  "recordType": "SANITIZED_EVIDENCE_PROJECTION",
+  "clickAcceptanceIncluded": false,
+  "scope": "Default Microsoft Edge code identity and strict-signature repair; no attachment acceptance.",
+  "vendorCloneRehearsal": {
+    "scope": "DEFAULT_EDGE_READ_ONLY_AND_PRIVATE_CLONE_REHEARSAL",
+    "officialFeed": "https://edgeupdates.microsoft.com/api/products?view=enterprise",
+    "expectedArtifact": "https://msedge.sf.dl.delivery.mp.microsoft.com/filestreamingservice/files/7590cd85-7916-4f99-95b6-564118ec4d54/MicrosoftEdge-156.0.4314.58.pkg",
+    "packageSHA256": "bfa2f3cac6c9ec13773b79d54f13b016bf40966f8584990e4a4975ae27975263",
+    "packageBytes": 435787916,
+    "installerSigner": "Developer ID Installer: Microsoft Corporation (UBF8T346G9)",
+    "version": "156.0.4314.58",
+    "teamID": "UBF8T346G9",
+    "CDHash": "7e02aca48d805e9ec08e6663ad14666fe82b4c5e",
+    "nativeStrictCommand": "/usr/bin/codesign --verify --deep --strict --all-architectures <bundle>",
+    "vendorPayloadStrictExit": 0,
+    "installedStrictBefore": 1,
+    "vendorCompared": {
+      "entries": 1032,
+      "ordinaryFiles": 536,
+      "links": 9,
+      "pathMismatch": 0,
+      "contentHashMismatch": 0,
+      "linkTargetMismatch": 0,
+      "permissionModeMismatch": 0
+    },
+    "originalXattrCounts": {
+      "com.apple.FinderInfo": 1032,
+      "com.apple.macl": 1,
+      "com.apple.provenance": 4,
+      "com.apple.quarantine": 1030
+    },
+    "firstError": "mac_addons.so: resource fork, Finder information, or similar detritus not allowed",
+    "exactCloneBefore": true,
+    "individuallyNecessaryFinderInfoEntries": 516,
+    "strictMinimalCloneExit": 0,
+    "otherXattrMismatch": 0,
+    "modifiedContentFiles": 0,
+    "liveInstallModifiedInExperiment": false,
+    "liveBrowserOrProfilesRead": false,
+    "fixtureRollbackVerified": true,
+    "fixtureInjectedFaultRollbackVerified": true,
+    "scopeOfRuntime": "Browser login and attachment behavior were not tested in this diagnostic.",
+    "appleTechnicalQA": "https://developer.apple.com/library/archive/qa/qa1940/_index.html"
+  },
+  "vendorRehearsalOriginal": {
+    "id": "private-vendor-public-report.json",
+    "bytes": 1770,
+    "sha256": "cb769788581b74a1251003414800b5097a6ec81f3aa77d1032a5bc5bf2eced14"
+  },
+  "actualRepair": {
+    "originalReceipt": {
+      "id": "edge-signature-repair.log",
+      "bytes": 206,
+      "sha256": "5cf6a70c8eafe9097a459b674a4f8e607a7184cca3fe9f49e79ddffed5fc12b8"
+    },
+    "result": "STRICT_MICROSOFT_VERIFIED",
+    "enumeratedEntries": 1032,
+    "metadataItemsChanged": 516,
+    "backupOriginal": {
+      "id": "private-installed-finder-backup.json",
+      "bytes": 182870,
+      "sha256": "4f4663db509d60db2be767b0a383686660d6d8e3b0f54a7e20c40d822a0465fd"
+    },
+    "backupFinderInfoEntries": 516,
+    "backupIdentityEntries": 516,
+    "rawBackupPublished": false,
+    "scope": "This is the actual installation-repair receipt. liveInstallModifiedInExperiment=false in the vendor report refers only to the earlier separate clone rehearsal."
+  },
+  "independentCurrentVerification": {
+    "command": "codesign --verify --deep --strict --all-architectures <default Edge bundle>",
+    "exit": 0,
+    "stdoutBytes": 0,
+    "stderrBytes": 0,
+    "bundleID": "com.microsoft.edgemac",
+    "teamID": "UBF8T346G9",
+    "CDHash": "7e02aca48d805e9ec08e6663ad14666fe82b4c5e",
+    "authority": "Developer ID Application: Microsoft Corporation (UBF8T346G9)",
+    "mutation": false,
+    "browserOrProfileOpened": false
+  },
+  "limits": [
+    "Strict signature success is not login, script access or upload evidence.",
+    "The 516-entry minimum and rollback results belong to the clone rehearsal; not replayed on the live browser.",
+    "This evidence author did not weaken verification, alter TCC or settings, or repair metadata."
+  ]
+}

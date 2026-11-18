@@ -1,0 +1,45 @@
+{
+  "source": "8ac2bf1c7129763fce3a1d3ccd1a581e08848df2",
+  "sourceTree": "ba57293b4c9e8d00dd95f9f4636f467bca24c6a3",
+  "version": "1.0.5",
+  "build": "30",
+  "executableSHA256": "eb61c5cfd65487e4a02bf9d125e9ef8853e3f4500b4d4cda887a6a6e3aa0e5c3",
+  "bundleIdentifier": "com.riftlet.isolated-product-acceptance",
+  "channel": "isolated-product-acceptance",
+  "activeInstallation": "Current",
+  "actualLaunch": "LaunchServices",
+  "pidAndKernelBirthMatched": true,
+  "signedRuntimeVerification": {
+    "strictAllArchitectures": true,
+    "developerIDRequirement": true
+  },
+  "buildManifest": {
+    "builtInUpload": true,
+    "completion": true,
+    "continuation": true,
+    "dataDirectory": "Riftlet-Isolated-Product-Acceptance",
+    "input": true,
+    "internalAcceptance": true,
+    "mode": "capture",
+    "safeRetry": false,
+    "start": true
+  },
+  "previousIsolatedProcessExitedNormally": true,
+  "preAndPostUpgrade": {
+    "originalAssets": 22,
+    "originalPNGFiles": 22,
+    "originalOperations": 13,
+    "originalSTARTs": 4,
+    "exactOperationAssetAndMediaProjectionPreserved": true,
+    "integrity": "ok"
+  },
+  "receiptSHA256": {
+    "installed-candidate.json": "2428420b41b310641b9ae2bb432329f40a3217327fd0bdb85d8822e56b1b8778",
+    "actual-launch.json": "f69928821f0daf3f8d0ede7196408befe941def25d46aa84db03d6d7cdb5e08a",
+    "signed-package-receipt.json": "127ba4618b77e4cb2876901a6f4da5eb2a3a778fee47a57b3ba5d90d7d21ef12",
+    "queue-before.json": "abc7d72723e277d36b6bc5cb5ad92b05a5e50cc14bb5e67640813b5c2087c1e5",
+    "queue-after.json": "dd764a1a3671ec9b03fec13b70be2bbc0c0befd78764cd01501fb22fe92ee6e1"
+  },
+  "observedAt": "2026-11-18T00:36:21.409493+00:00",
+  "scope": "App launch and SQLite/media preservation prior to any input for screenshots 619 and 620."
+}

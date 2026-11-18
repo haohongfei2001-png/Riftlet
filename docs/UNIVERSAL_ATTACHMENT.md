@@ -1,5 +1,12 @@
 # 无扩展附件引擎 · 首轮工程交接
 
+## 11 月 18 日 · 默认 Edge 和统一的 Riftlet 1.0.5（30）
+
+本轮使用已经登录的日常 Edge，在 Default 配置里新建独立的 ChatGPT 临时窗口。修复安装包内经逐项复核的 Finder 元数据后，Edge 通过 Microsoft 身份与全架构严格验签。已通过原生页面脚本读回临时文档和唯一编辑器。同机曾运行另一个相同标识的 Edge 副本，测试按进程和启动身份定位日常安装，再核对窗口、唯一标签、文档、屏幕窗口与编辑器归属。[签名、目标和源码证据](../engineering/universal-attachment/edge-unified-default-20261118/README.md)
+
+普通 App 来自 `8ac2bf1`，保留已合并的 #101 和 #113 的 build 30 产品改动。首次整合把 Chrome v23 的脚本检查错误地用于 Edge v22；修复后两种宿主分别校验各自版本，交叉版本会被拒绝。开发者签名的候选通过 LaunchServices 在唯一活动测试安装位启动。升级前后的 22 张原图、13 笔原操作和 4 条既有 START 已复核。#113 随后发布到其开发分支的 build 31 有独立的源码和包身份。本轮结果仅归于上述 build 30。[源码审查和签名包](../engineering/universal-attachment/edge-unified-default-20261118/source-review-and-repair.json)
+
+
 11 月 17 日，隔离 Edge × ChatGPT 的普通 App 已在同一草稿中连续交付 612 和 613。两图分别有上传开始和存储 HTTP 201 的回执，最终处理均为 UNKNOWN。后续真实运行的 617、618 同样收到各自的点击和文件输入，但没有新附件、START 或匹配的服务请求；原草稿显示已达文件附件数量限制，提示 11 月 18 日 21:33 后重试。组合维持 INCOMPLETE。[实测矩阵](../engineering/universal-attachment/live-matrix.json) · [原服务提示及逐文件证据](../engineering/universal-attachment/edge-fresh-pair-20261117/followup-617-618/REPORT.md)
 
 ## 612 与 613 的普通 App 实测

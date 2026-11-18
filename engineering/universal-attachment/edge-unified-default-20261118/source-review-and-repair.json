@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "preparedAt": "2026-11-18T00:39:46.531391+00:00",
+  "preparedBy": "independent_checkpoint_5bd",
+  "recordType": "SANITIZED_EVIDENCE_PROJECTION",
+  "clickAcceptanceIncluded": false,
+  "base": "3f8149e2313fd81bbaee5a7bbbdbb1efca2fc81b",
+  "G1": {
+    "source": "8e8b6f4ab797c37d70efb255059ef86bcabab097",
+    "tree": "698de165b858f1603eac270770114737efe3c7d7",
+    "result": "FAIL",
+    "rawReview": {
+      "id": "riftlet-pr69-8e8b6f4-independent.json",
+      "bytes": 6985,
+      "sha256": "853f941889c9c7594f2f4f815b21c70ed5dbe6e2d627d8a00076d353795750b2"
+    },
+    "findings": [
+      {
+        "id": "F1",
+        "priority": "P1",
+        "title": "The integrated Edge click source is rejected before page binding",
+        "path": "Sources/RiftletAdapters/EdgeAppleEventsExecutor.swift",
+        "line": 52,
+        "relatedPaths": [
+          "Sources/RiftletAdapters/EdgeWebExecutionDriver.swift:148",
+          "Sources/RiftletAdapters/ChromeClickDocumentWitness.swift:10"
+        ],
+        "observation": "targetForClick validates the caller v23 and then substitutes exact edgeProgram/priorEdgeSource v22. prepareAndBind passes that program to ChromeClickDocumentWitness.bindScript, whose guard only accepts current sourceID v23. The call throws invalidRequest before driver.evaluate. This prevents all fresh Edge clicks that reach the document pin stage.",
+        "reproduction": "Compiled the exact committed pure witness source with minimal supporting value types. Chrome-current v23 returns a script; Edge-active v22 throws invalidRequest. Native driver evaluations and GUI actions were zero.",
+        "requiredChange": "Provide an explicitly source-scoped Edge binding route for its exact active v22 bytes while preserving the current Chrome source gate and the historical observe-only boundary. Exercise the actual Edge source selection through prepareAndBind, including disallowed prior/foreign sources."
+      },
+      {
+        "id": "F2",
+        "priority": "P1",
+        "title": "Merged recovery test contradicts ordinary single-observation behavior",
+        "path": "Tests/RiftletAdaptersTests/ProductScreenshotScopeTests.swift",
+        "line": 117,
+        "relatedPaths": [
+          "Sources/RiftletAdapters/WebAttachmentAdapter.swift:445"
+        ],
+        "observation": "The merged test loops over five scopes and nine source versions, then always asserts two observe commands and two original program IDs from a single reconcile. ordinaryProduct now directly normalizes one sample, so both product scopes return after one observe. Eighteen product cases have conflicting assertions.",
+        "reproduction": "Direct control-flow review of the committed test and reconcile branch; native XCTest was not executed locally.",
+        "requiredChange": "Assert one read per ordinaryProduct reconcile, then explicitly request a second independent read of the same original operation. Preserve original reader, receipt profile, immutable registration/journal/PNG assertions. Do not change ordinary product behavior to satisfy an obsolete polling expectation.",
+        "workingTreeFollowup": "The integrator supplied a matching test-only patch during review. That uncommitted patch does not change this reviewed commit or this result."
+      }
+    ]
+  },
+  "G2": {
+    "source": "8ac2bf1c7129763fce3a1d3ccd1a581e08848df2",
+    "tree": "ba57293b4c9e8d00dd95f9f4636f467bca24c6a3",
+    "parent": "8e8b6f4ab797c37d70efb255059ef86bcabab097",
+    "result": "PASS",
+    "reviewer": "independent_checkpoint_5bd",
+    "rawReview": {
+      "id": "riftlet-pr69-8ac2bf1-independent.json",
+      "bytes": 18735,
+      "sha256": "9c32409d9e472aaf2f9fc8973ad502028079397451e81f13b8fd7ddd1c98fd47"
+    },
+    "resolvedFindings": [
+      {
+        "id": "F1",
+        "priorPriority": "P1",
+        "priorSource": "8e8b6f4ab797c37d70efb255059ef86bcabab097",
+        "status": "RESOLVED_AT_G",
+        "summary": "Edge canonical v22 was rejected by the v23-only witness before native evaluation. The explicit browser host now accepts only its active input version. Exact-source Swift counterexample and actual generated-script VM verification pass. Historical/foreign programs remain refused."
+      },
+      {
+        "id": "F2",
+        "priorPriority": "P1",
+        "priorSource": "8e8b6f4ab797c37d70efb255059ef86bcabab097",
+        "status": "RESOLVED_AT_G",
+        "summary": "Historical ordinary recovery test expected two observations from one single-sample reconcile. It now asserts one first observation, invokes a second independent reconcile, and still asserts two original-version reads plus both UNKNOWN/profile results and unchanged durable data. Production reconcile behavior is unchanged."
+      }
+    ],
+    "changedPaths": [
+      "Sources/RiftletAdapters/ChromeClickDocumentWitness.swift",
+      "Sources/RiftletAdapters/EdgeWebExecutionDriver.swift",
+      "Tests/RiftletAdaptersTests/EdgeAppleEventsExecutorTests.swift",
+      "Tests/RiftletAdaptersTests/EdgeExecutionWorldWitnessTests.swift",
+      "Tests/RiftletAdaptersTests/ProductScreenshotScopeTests.swift"
+    ]
+  },
+  "admissionChild": {
+    "source": "f823bcde3923aaf170a6844d7a027793747a9c29",
+    "tree": "e7d46ba9fbd25e9086fe1740d51d2bc7c726c16a",
+    "singleParent": "8ac2bf1c7129763fce3a1d3ccd1a581e08848df2",
+    "onlyChangedPath": "engineering/mainline/source-admission.json",
+    "embeddedRawReviewBytesMatch": true,
+    "productionAdmission": {
+      "ordinaryInput": true,
+      "ordinaryStart": true,
+      "ordinaryCompletion": true,
+      "builtInUpload": true,
+      "safeRetry": false,
+      "webContinuation": true,
+      "existingRestrictedCandidate": "UNCHANGED_NO_EXPANSION"
+    }
+  },
+  "offlineChecks": {
+    "exactSwiftHostSourceCombinations": 24,
+    "allowedCombinations": [
+      "Chrome default: current v23",
+      "Explicit Edge host: active Edge v22"
+    ],
+    "rejectedCombinations": 22,
+    "generatedSwiftScriptAndCanonicalPageVMScenarios": 4,
+    "result": "PASS",
+    "scope": "Exact committed witness/world/page code with controlled supporting value types and Node DOM; not native browser or service acceptance."
+  },
+  "independenceDisclosure": "This evidence compiler authored both prior independent source reviews and their offline evidence; did not implement the product, merge or repair. This documentary projection is not a new independent review of itself.",
+  "limits": [
+    "No local native XCTest executed; observed integrator setup lacked the full Xcode/XCTest SDK.",
+    "The 311 JS and 32 controlled Chrome results retain the unchanged-page-resource scope described in the raw G2 review.",
+    "Formal CI status is separately captured in ci-f823bcd-snapshot.json."
+  ]
+}

@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 1,
+  "preparedAt": "2026-11-18T00:39:46.531391+00:00",
+  "preparedBy": "independent_checkpoint_5bd",
+  "recordType": "SANITIZED_EVIDENCE_PROJECTION",
+  "clickAcceptanceIncluded": false,
+  "scope": "Recorded native-bound default-profile temporary page preflight, before product click acceptance.",
+  "userStatement": {
+    "alreadyLoggedInDefaultEdge": "User/integrator context, not an independently authenticated account identity."
+  },
+  "priorBoundTargetProbe": {
+    "check": "NATIVE_REPLY_core_getd",
+    "nativeCode": -1728,
+    "status": "PREINPUT_REFUSED",
+    "original": {
+      "id": "current-script-preflight.json",
+      "bytes": 82,
+      "sha256": "66a5ca543d6372bb21d57254e895b593b510480a26fc2e29a24a66e06accc2c6"
+    },
+    "interpretation": "The original core/getd -1728 refusal remains. It is not the fresh-page script result, and its historical root cause is not inferred."
+  },
+  "newTemporaryWindow": {
+    "profileArgument": "Default",
+    "browserBundleID": "com.microsoft.edgemac",
+    "browserExecutableSHA256": "39253ce4e2b5243b02385299a6211af56ca6f1e70b986177e0a01d3879b5efef",
+    "nativeReadPermissionCode": 0,
+    "beforeWindowCount": 1,
+    "afterWindowCount": 2,
+    "newWindowCount": 1,
+    "newWindowTabCount": 1,
+    "priorWindowIDsRetained": true,
+    "uniquelyBound": true,
+    "route": "https://chatgpt.com/?temporary-chat=true",
+    "original": {
+      "id": "fresh/created.json",
+      "bytes": 517,
+      "sha256": "0480caece61ca5db9a09aa47c886f2bb9bd5162c26e674751444fca6b9070625"
+    },
+    "rawProcessAndWindowIdentifiersPublished": false
+  },
+  "probes": {
+    "constantScript": {
+      "pageDataRead": false,
+      "status": "DEFAULT_TEMPORARY_SCRIPT_ENABLED",
+      "writes": 0,
+      "original": {
+        "id": "fresh/initial-result.json",
+        "bytes": 78,
+        "sha256": "c01acf052ab681a7958b34c53b8750850aab0a66278daf9aa96f0b150eb6761c"
+      }
+    },
+    "narrowPromptIDProbe": {
+      "accountMenuVisible": true,
+      "editorForm": false,
+      "loginVisible": false,
+      "originalTemporaryDocument": true,
+      "ready": true,
+      "scriptEnabled": true,
+      "uniqueEditor": false,
+      "original": {
+        "id": "fresh/document-result.json",
+        "bytes": 156,
+        "sha256": "bf1345152e820ba70cc8647b631294244da337ef7776c79a261876182bdb1c5a"
+      }
+    },
+    "structuralProbe": {
+      "dialogs": 0,
+      "editables": [
+        {
+          "idIsComposer": false,
+          "idIsPrompt": false,
+          "inForm": true,
+          "insideMain": true,
+          "plain": true,
+          "role": "textbox",
+          "tag": "DIV"
+        }
+      ],
+      "fileInputs": {
+        "all": 4,
+        "visible": 0
+      },
+      "forms": {
+        "all": 1,
+        "visible": 1
+      },
+      "frames": {
+        "all": 1,
+        "visible": 0
+      },
+      "main": 2,
+      "promptID": {
+        "all": 0,
+        "visible": 0
+      },
+      "publicButtonLabels": [
+        "新聊天",
+        "添加文件等内容",
+        "工具"
+      ],
+      "ready": "complete",
+      "temporaryDocument": true,
+      "textareas": {
+        "all": 0,
+        "visible": 0
+      },
+      "original": {
+        "id": "fresh/composer-shape.json",
+        "bytes": 428,
+        "sha256": "1977eb4ad685c1cf7f22b793215372c92a5c13567837bc69a467e2cc03624236"
+      }
+    },
+    "formOwnershipProbe": {
+      "buttonInsideForm": true,
+      "buttonOwnsForm": true,
+      "emptyEditor": true,
+      "inputCountInForm": 4,
+      "singleEditor": true,
+      "singleEntry": true,
+      "singleForm": true,
+      "temporaryDocument": true,
+      "original": {
+        "id": "fresh/ownership.json",
+        "bytes": 170,
+        "sha256": "63ec79fd2687dd9345e1f05ea306c63722a58a5df5d08381f830c827f30dea30"
+      }
+    }
+  },
+  "readerSources": [
+    {
+      "id": "main.swift",
+      "bytes": 6655,
+      "sha256": "bfd72d0b4a514408bf2e02c6ebab247f2ad245fc488579cba7dacadb265966d2"
+    },
+    {
+      "id": "fresh/main.swift",
+      "bytes": 8205,
+      "sha256": "6afb472ef9aafe9c7778585090ab52952ad168279d481e3adc8da25285d9bafc"
+    },
+    {
+      "id": "fresh/readonly-document.swift",
+      "bytes": 7611,
+      "sha256": "8cdd61c2c0713edda92513c621c6c1a11f8aa0eb5e7f592661ceb0b496cdc0d7"
+    },
+    {
+      "id": "fresh/shape-read.swift",
+      "bytes": 8450,
+      "sha256": "d4381d45bd95b844a0ce3be59088069bc23887e500048a59c46b19f8f86e80c6"
+    },
+    {
+      "id": "fresh/ownership-read.swift",
+      "bytes": 7666,
+      "sha256": "f67a20c7d486ed523e852e02db9e1c66305c948ead183c2ead303f0369e042f8"
+    }
+  ],
+  "interpretation": [
+    "The constant probe rechecks the original process lifetime/window/tab and route around String(6 * 7), receiving 42. Its writes=0 means no page-probe writes, not that creating a browser window changed no state.",
+    "uniqueEditor=false/editorForm=false in the first DOM probe only concern visible #prompt-textarea. Later probes observe one visible contenteditable textbox in a form without that ID; the original negative is retained.",
+    "Visible account menu and absent login button are UI signals only. No account identity, cookies, credentials or session tokens were read.",
+    "Four hidden file inputs are an inventory, not authority to choose any input."
+  ],
+  "limits": [
+    "Production microimage click, setter/change, durable operation, START, swallow and service completion are outside this evidence set and must be recorded separately.",
+    "The evidence author did not open or operate a browser, click, upload, send a message or retry."
+  ]
+}

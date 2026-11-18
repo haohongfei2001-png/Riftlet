@@ -1,0 +1,267 @@
+{
+  "schemaVersion": 1,
+  "preparedAt": "2026-11-18T00:39:46.531391+00:00",
+  "preparedBy": "independent_checkpoint_5bd",
+  "recordType": "SANITIZED_EVIDENCE_PROJECTION",
+  "clickAcceptanceIncluded": false,
+  "scope": "Source-bound ARM64 Developer ID isolated G2 package, not release or click acceptance.",
+  "source": "8ac2bf1c7129763fce3a1d3ccd1a581e08848df2",
+  "sourceTree": "ba57293b4c9e8d00dd95f9f4636f467bca24c6a3",
+  "admissionChild": "f823bcde3923aaf170a6844d7a027793747a9c29",
+  "sourceExport": {
+    "original": {
+      "id": "source-export.json",
+      "bytes": 334,
+      "sha256": "e14bd9f161f20a3337e17e64daa882fa89bd54f415935cc1d057b15ec27adb54"
+    },
+    "sourceListingSHA256": "a5813a6d47a5cac664b413dd870a6802abb974159f3f2bc27ff5ffabc4c8f025",
+    "sourceInputsOriginal": {
+      "id": "source-inputs.json",
+      "bytes": 344853,
+      "sha256": "ee7253426da4856f17abd866bfe15e29f6d99dd1925bb3d2cc657e8fd54a98e7"
+    },
+    "sourceInputCount": 2059,
+    "sourceInputsMatchExactGitTree": true,
+    "nativeInputTrees": {
+      "Package.resolved": "100644 blob 5f5f1ebea92ebb344bcaea6f858c1fff33f7ff68\tPackage.resolved",
+      "Package.swift": "100644 blob 200a889be151c6c274e9f5cf46e7cdc93c550f23\tPackage.swift",
+      "Resources": "040000 tree df37ca639115d2abf9b0432acdfc6fea31d8ff07\tResources",
+      "Sources": "040000 tree bfff6531fb9c0e4ee549d39ee351351a5d3b5d5a\tSources",
+      "packaging/release/Entitlements.plist": "100644 blob cffd6379ced83e702edc105686b40026d35cd73e\tpackaging/release/Entitlements.plist",
+      "scripts/build-macos.sh": "100644 blob ca6aeac366ebab2c430245ae44f69a77b06f955a\tscripts/build-macos.sh",
+      "scripts/verify-app-bundle.py": "100644 blob 987074ca7789cc3a5014f50ceeb30cc9041904f3\tscripts/verify-app-bundle.py"
+    },
+    "nativeInputTreesOriginal": {
+      "id": "native-input-trees.json",
+      "bytes": 713,
+      "sha256": "e067c096ad0d4095072397d3375a0d8f2e52567cdb6c588a6c942f5393c5c207"
+    },
+    "G2AndAdmissionChildNativeInputsIdentical": true
+  },
+  "package": {
+    "version": "1.0.5",
+    "build": "30",
+    "channel": "isolated-product-acceptance",
+    "bundleID": "com.riftlet.isolated-product-acceptance",
+    "architectures": [
+      "arm64"
+    ],
+    "adHocExecutableSHA256": "015ec1a50fc2407a56e0f9f9faf73b4df649b727e5507c1756cbf5c8a5910b4d",
+    "signedExecutableSHA256": "eb61c5cfd65487e4a02bf9d125e9ef8853e3f4500b4d4cda887a6a6e3aa0e5c3",
+    "archiveBytes": 19589120,
+    "archiveSHA256": "4caee412513afdd49bd2094b85cb8cfdaeb9a6be5a9a337e5cf3e9a398af7975",
+    "signature": {
+      "architectures": {
+        "arm64": {
+          "cdhash": "e77545fc450f5596dd4fbea6fad762c7cee55a68",
+          "timestamp": "Nov 18, 2026 at 08:29:41"
+        }
+      },
+      "entitlements": {
+        "com.apple.security.automation.apple-events": true
+      },
+      "hardenedRuntime": true,
+      "sparkle": {
+        "Contents/Frameworks/Sparkle.framework": {
+          "architectures": {
+            "arm64": {
+              "cdhash": "ae42037a97a325f27c7127f2deb5be785b22e7a4",
+              "timestamp": "Nov 18, 2026 at 08:29:40"
+            },
+            "x86_64": {
+              "cdhash": "0c93b8c5ae0707a3424b3c14a5243f7f0ac2f386",
+              "timestamp": "Nov 18, 2026 at 08:29:40"
+            }
+          },
+          "entitlements": {},
+          "hardenedRuntime": true,
+          "teamID": "ZB9D4T66QB"
+        },
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Autoupdate": {
+          "architectures": {
+            "arm64": {
+              "cdhash": "b0511e41fffdb5bdc010ca05a62f0f795d48563a",
+              "timestamp": "Nov 18, 2026 at 08:29:38"
+            },
+            "x86_64": {
+              "cdhash": "8cbcd06cfa631798946b788e09ea830aa1cf9c00",
+              "timestamp": "Nov 18, 2026 at 08:29:38"
+            }
+          },
+          "entitlements": {},
+          "hardenedRuntime": true,
+          "teamID": "ZB9D4T66QB"
+        },
+        "Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app": {
+          "architectures": {
+            "arm64": {
+              "cdhash": "0dcab7f829797e76d0be4b7150459a305e29dd54",
+              "timestamp": "Nov 18, 2026 at 08:29:39"
+            },
+            "x86_64": {
+              "cdhash": "3c72551b060f07d1eecd05faeecfcc27a06df78f",
+              "timestamp": "Nov 18, 2026 at 08:29:39"
+            }
+          },
+          "entitlements": {},
+          "hardenedRuntime": true,
+          "teamID": "ZB9D4T66QB"
+        },
+        "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Downloader.xpc": {
+          "architectures": {
+            "arm64": {
+              "cdhash": "df77cd033b0f8a0a557fa563c07e5537d79e6f8b",
+              "timestamp": "Nov 18, 2026 at 08:29:37"
+            },
+            "x86_64": {
+              "cdhash": "d09608494be3cf2f844b00fabc995c140eea1319",
+              "timestamp": "Nov 18, 2026 at 08:29:37"
+            }
+          },
+          "entitlements": {},
+          "hardenedRuntime": true,
+          "teamID": "ZB9D4T66QB"
+        },
+        "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Installer.xpc": {
+          "architectures": {
+            "arm64": {
+              "cdhash": "9a49e482423ddec111b806b6a762c55dd4c36087",
+              "timestamp": "Nov 18, 2026 at 08:29:36"
+            },
+            "x86_64": {
+              "cdhash": "bcda479b790137c2d132cd6027cb81cb5a99cbfe",
+              "timestamp": "Nov 18, 2026 at 08:29:36"
+            }
+          },
+          "entitlements": {},
+          "hardenedRuntime": true,
+          "teamID": "ZB9D4T66QB"
+        }
+      },
+      "teamID": "ZB9D4T66QB"
+    },
+    "notarization": "NOT_RUN",
+    "gatekeeper": "NOT_RUN",
+    "release": "NOT_PERFORMED"
+  },
+  "originalReceipt": {
+    "id": "signed-package-receipt.json",
+    "bytes": 5592,
+    "sha256": "127ba4618b77e4cb2876901a6f4da5eb2a3a778fee47a57b3ba5d90d7d21ef12"
+  },
+  "originalSigningLogs": {
+    "build.log": {
+      "id": "build.log",
+      "bytes": 16800,
+      "sha256": "a3c9d62bd5f67101456e13a5bbeeb83f671fa12622285173fadae675aa5dfe48"
+    },
+    "sign-host.log": {
+      "id": "sign-host.log",
+      "bytes": 126,
+      "sha256": "66a491c56e6603689778faea655361da78a6449702bc676a33e51a541b599b61"
+    },
+    "sign-sparkle-0.log": {
+      "id": "sign-sparkle-0.log",
+      "bytes": 201,
+      "sha256": "006e1c6dc037736e99982ab0381e425a98a04ff96160699f7a9ab85d73a197da"
+    },
+    "sign-sparkle-1.log": {
+      "id": "sign-sparkle-1.log",
+      "bytes": 202,
+      "sha256": "0984d6a9485ca72d7a98c978aba23cf2edbde953b7a340f1418efd2f34ba43dc"
+    },
+    "sign-sparkle-2.log": {
+      "id": "sign-sparkle-2.log",
+      "bytes": 186,
+      "sha256": "b8ef6d42441546d50f0506709c146e230bc0bad646fb1e067032d506aa7811b7"
+    },
+    "sign-sparkle-3.log": {
+      "id": "sign-sparkle-3.log",
+      "bytes": 187,
+      "sha256": "77c04056ae8be06ca6888cff170500bc1e5e84735f3d4b505571f542d0003323"
+    },
+    "sign-sparkle-4.log": {
+      "id": "sign-sparkle-4.log",
+      "bytes": 164,
+      "sha256": "fcb5dbcb474a41c1e323c3d6019e0e2452e066a388ccc1fbf1730b6c8df89d67"
+    },
+    "signed-entitlements.log": {
+      "id": "signed-entitlements.log",
+      "bytes": 462,
+      "sha256": "c4daca17cbe1319286b8df24f628a9093fa1e7d8b7c8a9e44c13eb34f2d80262"
+    },
+    "signed-identity.log": {
+      "id": "signed-identity.log",
+      "bytes": 1189,
+      "sha256": "69fc9824125ccd98fa76caea28fdc83eca5c3bc00741d748db35e5b091e6b613"
+    },
+    "verify-bundle.log": {
+      "id": "verify-bundle.log",
+      "bytes": 142,
+      "sha256": "6e84bb94850c51644458b06554311030dbb81253635935409912c80e786d71ea"
+    },
+    "verify-deep-strict.log": {
+      "id": "verify-deep-strict.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "originalSigningLogHashMatches": 11,
+  "ordinaryEarlyExitManifest": {
+    "builtInUpload": true,
+    "completion": true,
+    "continuation": true,
+    "dataDirectory": "Riftlet-Isolated-Product-Acceptance",
+    "input": true,
+    "internalAcceptance": true,
+    "mode": "capture",
+    "safeRetry": false,
+    "start": true
+  },
+  "ordinaryEarlyExitManifestOriginal": {
+    "id": "ordinary-build-info.json",
+    "bytes": 202,
+    "sha256": "9ed6b77365e275887bd6b24ba4aa7d7cae3252b46ee078327b90c30dcd274313"
+  },
+  "originalReceiptRuntimeScope": {
+    "GUI": "NOT_RUN",
+    "actualAttachment": "NOT_RUN",
+    "normalAppLaunch": "NOT_RUN",
+    "TCCChange": false,
+    "databaseReadOrWrite": false,
+    "screenshotAccess": false
+  },
+  "independentReadOnlyVerification": {
+    "originalSignedBundle": {
+      "strictAllArchitecturesExit": 0,
+      "stderrBytes": 0,
+      "executableMatchesReceipt": true,
+      "locationClass": "Original private build output, separate from staged worktree copy."
+    },
+    "archive": {
+      "bytesMatch": true,
+      "SHA256MatchesReceipt": true
+    },
+    "stagedWorktreeCopy": {
+      "manifestEntries": 119,
+      "fileOrSymlinkMismatches": 0,
+      "executableMatchesReceipt": true,
+      "strictAllArchitecturesExit": 1,
+      "errorClass": "RESOURCE_FORK_OR_FINDER_DETRITUS",
+      "failedComponent": "Sparkle.framework/Versions/Current/XPCServices/Installer.xpc",
+      "metadataNameObserved": "com.apple.FinderInfo",
+      "metadataChangedByThisReviewer": false,
+      "interpretation": "Equal bytes/links do not establish equal extended attributes. Current staged-copy failure does not retroactively negate original bundle verification or establish archive extraction behavior."
+    }
+  },
+  "limits": [
+    "Signing-phase GUI/actualAttachment/normalAppLaunch NOT_RUN applies only to that phase. Later operations must be recorded separately.",
+    "No archive extraction, app launch, notarization, Gatekeeper execution or production install by this evidence author.",
+    "The staged copy must not substitute for the original verified package without its own identity and strict-signature verification."
+  ],
+  "signedFileManifestOriginal": {
+    "id": "signed-package-files.json",
+    "bytes": 25861,
+    "sha256": "f9aaf9d867baed4905335d3e7591bc8b618cfb78973d401b4612dc65a1ece915"
+  }
+}
