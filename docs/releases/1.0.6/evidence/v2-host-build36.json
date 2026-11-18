@@ -238,5 +238,24 @@
     "noDraft": "Normal click while own about:blank selected -> invalidTarget before input; 11/11 retained, pending and visible.",
     "postStartSameCardError": "Not established on this session as of current receipt: real red failed card had no preceding START.",
     "larger": "10,811,740-byte real screenshot twice failed prior to input with begin invalidTarget. No setter, START, or remote rejection is claimed."
+  },
+  "lastPostStartExperiment": {
+    "bytes": 2767023,
+    "timeToPositiveStartSeconds": 90.7,
+    "scopedOfflineAfterStartSeconds": 2.8,
+    "originalCardAt120Seconds": "gray placeholder, no explicit failure",
+    "originalRecheckAfterRestartApproxSeconds": 170,
+    "operationsBeforeAndAfterRead": [
+      16,
+      16
+    ],
+    "startsBeforeAndAfterRead": [
+      13,
+      13
+    ],
+    "laterVisibleCard": "exact original image; earlier red card belongs to another attempt",
+    "realPostStartFailure": "NOT_TRIGGERED",
+    "nativeRecoveryFromSuchARealFailure": "NOT_RUN",
+    "networkRestored": true
   }
 }
