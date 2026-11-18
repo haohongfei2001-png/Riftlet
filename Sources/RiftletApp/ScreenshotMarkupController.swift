@@ -9,7 +9,7 @@ import UniformTypeIdentifiers
 final class ScreenshotMarkupController: NSWindowController, NSWindowDelegate {
     var onFinish: ((Data?) -> Void)?
     var persistEdits: ((Data) async -> Bool)?
-    private let hint = NSTextField(labelWithString: ProductCopy.text("拖动添加矩形标注", "Drag to draw a rectangle"))
+    private let hint = NSTextField(wrappingLabelWithString: ProductCopy.text("拖动添加矩形标注", "Drag to draw a rectangle"))
     private let done = NSButton(title: ProductCopy.text("完成", "Done"), target: nil, action: nil)
     private let original = NSButton(title: ProductCopy.text("保留原图", "Keep Original"), target: nil, action: nil)
     private var retryBytes: Data?
@@ -33,7 +33,9 @@ final class ScreenshotMarkupController: NSWindowController, NSWindowDelegate {
         panel.delegate = self
         let content = NSView(); content.translatesAutoresizingMaskIntoConstraints = false
         panel.contentView = content
+        hint.identifier = .init("markup.hint")
         hint.textColor = .secondaryLabelColor
+        hint.setContentCompressionResistancePriority(.required, for: .vertical)
         original.target = self; original.action = #selector(keepOriginal)
         done.target = self; done.action = #selector(finishEditing)
         done.keyEquivalent = "\r"
@@ -49,6 +51,8 @@ final class ScreenshotMarkupController: NSWindowController, NSWindowDelegate {
         NSLayoutConstraint.activate([
             hint.topAnchor.constraint(equalTo: content.topAnchor, constant: 14),
             hint.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 16),
+            hint.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -16),
+            canvas.heightAnchor.constraint(greaterThanOrEqualToConstant: 64),
             canvas.topAnchor.constraint(equalTo: hint.bottomAnchor, constant: 10),
             canvas.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 16),
             canvas.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -16),

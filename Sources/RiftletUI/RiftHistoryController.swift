@@ -1,4 +1,5 @@
 import AppKit
+import UniformTypeIdentifiers
 import RiftletCore
 
 private final class HistoryTextCell: NSTableCellView {
@@ -167,6 +168,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     private lazy var checkButton = NSButton(title: copy.text("重新核对状态", "Check Status Again"), target: self, action: #selector(checkOriginal))
     private lazy var handledButton = NSButton(title: copy.text("标为已处理", "Mark as Handled"), target: self, action: #selector(markHandled))
     private lazy var reattachButton = NSButton(title: copy.text("重新附加…", "Attach Again…"), target: self, action: #selector(prepareReattachment))
+    private lazy var exportButton = NSButton(title: copy.text("导出原图…", "Export Original…"), target: self, action: #selector(exportOriginal))
     private lazy var focusButton = NSButton(title: copy.text("返回原草稿", "Return to Original Draft"), target: self, action: #selector(focusOriginal))
     private lazy var conversationButton = NSButton(title: copy.text("打开会话记录", "Open Conversation History"), target: nil, action: nil)
     private lazy var revealButton = NSButton(title: copy.text("在 Finder 中显示", "Show in Finder"), target: nil, action: nil)
@@ -321,12 +323,12 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         tableScroll = scroll
         scroll.drawsBackground = false; scroll.documentView = table
         let paging = NSStackView(views: [newerButton, olderButton]); paging.spacing = 8
-        for button in [restoreButton, removeButton, revealButton, originalButton, conversationButton, newerButton, olderButton, checkButton, handledButton, reattachButton, focusButton] {
+        for button in [restoreButton, removeButton, revealButton, originalButton, conversationButton, newerButton, olderButton, checkButton, handledButton, reattachButton, focusButton, exportButton] {
             RiftVisualStyle.style(button); button.target = self
         }
         restoreButton.action = #selector(restoreSelected); removeButton.action = #selector(removeSelected)
         revealButton.action = #selector(revealSelected); newerButton.action = #selector(previousPage); olderButton.action = #selector(nextPage)
-        for (button, id) in [(focusButton, "focusOriginal"), (checkButton, "checkOriginal"), (handledButton, "markHandled"), (reattachButton, "reattach")] {
+        for (button, id) in [(exportButton, "exportOriginal"), (focusButton, "focusOriginal"), (checkButton, "checkOriginal"), (handledButton, "markHandled"), (reattachButton, "reattach")] {
             button.identifier = .init("history." + id)
         }
         conversationButton.action = #selector(viewOriginalConversation)
@@ -415,7 +417,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         let viewActions = NSStackView(views: [originalButton, revealButton])
         let queueActions = NSStackView(views: [restoreButton, removeButton])
         let detail = RiftVisualStyle.documentStack([surface, detailTitle, detailMetadata, detailState,
-                                                   viewActions, focusButton, conversationButton, checkButton, handledButton, reattachButton, queueActions, actionNote], spacing: 8)
+                                                   viewActions, exportButton, focusButton, conversationButton, checkButton, handledButton, reattachButton, queueActions, actionNote], spacing: 8)
         detail.edgeInsets = NSEdgeInsets(top: 17, left: 18, bottom: 16, right: 18)
         for view in [surface, detailTitle, detailMetadata, detailState, actionNote] {
             view.widthAnchor.constraint(equalTo: detail.widthAnchor, constant: -36).isActive = true
@@ -504,6 +506,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         restoreButton.isEnabled = selectedEntry?.canRestoreToRift == true
         removeButton.isEnabled = selectedEntry?.canRemoveFromRift == true
         let actionable = selectedEntry?.hasRecoveryOptions == true
+        exportButton.isHidden = !actionable
         checkButton.isHidden = selectedEntry?.canReviewOriginal != true || onCheckOriginal == nil || selectedEntry?.isHandled == true
         focusButton.isHidden = selectedEntry?.canReviewOriginal != true || onFocusOriginal == nil
         handledButton.isHidden = !actionable || selectedEntry?.isHandled == true || onMarkHandled == nil
@@ -526,7 +529,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     }
 
     private func stateText(_ entry: RiftHistoryEntry) -> String {
-        entry.isHandled ? copy.text("已处理", "Handled") : HistoryPresentation.localizedState(for: entry, copy: copy)
+        HistoryPresentation.localizedState(for: entry, copy: copy)
     }
     private func updateDetail() {
         detailGeneration &+= 1
@@ -770,7 +773,16 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         showActionError(copy.text("未能读取截图仓库。", "Your library could not be read."))
     }
 
+    public func showActionNotice(_ message: String) {
+        failedRead = false
+        announceNotice(message)
+    }
+
     public func showActionError(_ message: String) {
+        announceNotice(message)
+    }
+
+    private func announceNotice(_ message: String) {
         let announce = message != issueText
         issueText = message; refreshNotice()
         if announce && historyWindow.isVisible {
@@ -866,6 +878,33 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     @objc private func removeSelected() {
         guard let entry = selectedEntry, entry.canRemoveFromRift else { return }
         onRemove(entry.id)
+    }
+
+    @objc private func exportOriginal() {
+        guard let entry = selectedEntry else { return }
+        let panel = NSSavePanel()
+        let suffix = URL(fileURLWithPath: entry.record.image.fileName).pathExtension
+        if let type = UTType(filenameExtension: suffix) { panel.allowedContentTypes = [type] }
+        panel.nameFieldStringValue = copy.text("截图", "Screenshot") + "." + suffix
+        panel.beginSheetModal(for: historyWindow) { [weak self] result in
+            guard result == .OK, let url = panel.url, let self else { return }
+            let directory = self.mediaDirectory
+            Task {
+                do {
+                    try await Task.detached {
+                        let (bytes, _) = try HistoryPreviewDecode.verifiedBytes(asset: entry.record.image, directory: directory)
+                        let dest = url.resolvingSymlinksInPath().standardizedFileURL
+                        guard !dest.path.hasPrefix(directory.resolvingSymlinksInPath().standardizedFileURL.path + "/") else {
+                            throw HistoryPreviewFailure.invalidFile
+                        }
+                        try bytes.write(to: url, options: .atomic)
+                    }.value
+                    self.showActionNotice(self.copy.text("已导出原图。", "Original image exported."))
+                } catch {
+                    self.showActionError(self.copy.text("无法导出原图。请检查本机副本和保存位置。", "Could not export the original. Check the local copy and the save location."))
+                }
+            }
+        }
     }
 
     @objc private func checkOriginal() {

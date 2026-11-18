@@ -131,6 +131,7 @@ public enum HistoryPresentation {
     public static func stateText(for entry: RiftHistoryEntry) -> String {
         let state: String
         if entry.record.status == .missing { state = "Private copy unavailable" }
+        else if entry.isHandled { state = "Handled" }
         else {
             switch entry.attachmentState {
             case .handedOff: state = "Handed to ChatGPT"
@@ -154,6 +155,7 @@ public enum HistoryPresentation {
 
     public static func localizedState(for entry: RiftHistoryEntry, copy: ProductCopy = .current) -> String {
         if entry.record.status == .missing { return copy.text("本地副本不可用", "Local copy unavailable") }
+        if entry.isHandled { return copy.text("已处理", "Handled") }
         switch entry.attachmentState {
         case .handedOff: return copy.text("已交给 ChatGPT", "Handed to ChatGPT")
         case .attached: return copy.text("已附加", "Attached")
