@@ -58,11 +58,26 @@ final class EdgeExecutionWorldWitnessTests: XCTestCase {
         }
     }
 
+    func testOnlyTheHostInputVersionCanPinItsClick() throws {
+        let witness = ChromeClickDocumentWitness()
+        let edge = try ChatGPTWebPageProgram.edgeProgram.get()
+        let chrome = WebPageProgram(sourceID: ChatGPTWebPageProgram.sourceID, functionSource: "function(){}")
+        let old = WebPageProgram(sourceID: ChatGPTWebPageProgram.priorLabelSource, functionSource: "function(){}")
+        let address = "https://chatgpt.com/c/neutral"
+        XCTAssertNoThrow(try witness.bindScript(address: address, program: chrome))
+        XCTAssertNoThrow(try EdgeExecutionWorldWitness().prepareAndBind(witness, address: address, program: edge))
+        XCTAssertThrowsError(try witness.bindScript(address: address, program: edge))
+        XCTAssertThrowsError(try EdgeExecutionWorldWitness().prepareAndBind(witness, address: address, program: chrome))
+        for host in [ChromeClickDocumentWitness.Host.chrome, .edge] {
+            XCTAssertThrowsError(try witness.bindScript(address: address, program: old, host: host))
+        }
+    }
+
     func testCombinedScriptPinsOnceAndKeepsTheSeparateWorldRequirement() throws {
         for sameWorld in [false, true] {
             let (main, isolated) = try realms(), world = EdgeExecutionWorldWitness()
             let document = ChromeClickDocumentWitness()
-            let program = WebPageProgram(sourceID: ChatGPTWebPageProgram.sourceID, functionSource: """
+            let program = WebPageProgram(sourceID: ChatGPTWebPageProgram.priorEdgeSource, functionSource: """
                 function(command){globalThis.pinCalls=(globalThis.pinCalls||0)+1;
                 globalThis.pinnedID=command.clickWitnessID;
                 return command.action==='pinTarget'&&command.address===location.href?'bound':'refused';}
@@ -80,7 +95,7 @@ final class EdgeExecutionWorldWitnessTests: XCTestCase {
 
     func testCombinedScriptCannotReplaceARefusedDocumentBindingWithWorldPreparation() throws {
         let (_, isolated) = try realms(), world = EdgeExecutionWorldWitness()
-        let program = WebPageProgram(sourceID: ChatGPTWebPageProgram.sourceID,
+        let program = WebPageProgram(sourceID: ChatGPTWebPageProgram.priorEdgeSource,
                                      functionSource: "function(){return 'refused';}")
         XCTAssertEqual(try evaluate(world.prepareAndBind(ChromeClickDocumentWitness(),
             address: "https://chatgpt.com/c/neutral", program: program), in: isolated), "refused")

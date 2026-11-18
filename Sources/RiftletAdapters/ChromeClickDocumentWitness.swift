@@ -6,8 +6,13 @@ struct ChromeClickDocumentWitness {
     let id: UUID
     init(id: UUID = UUID()) { self.id = id }
 
-    func bindScript(address: String, program: WebPageProgram) throws -> String {
-        guard program.sourceID == ChatGPTWebPageProgram.sourceID else { throw WebAdapterError.invalidRequest }
+    enum Host { case chrome, edge }
+
+    func bindScript(address: String, program: WebPageProgram, host: Host = .chrome) throws -> String {
+        // Each browser pins with the version its ordinary input route executes.
+        // Older observation-only programs cannot acquire a click witness.
+        let activeSource = host == .edge ? ChatGPTWebPageProgram.priorEdgeSource : ChatGPTWebPageProgram.sourceID
+        guard program.sourceID == activeSource else { throw WebAdapterError.invalidRequest }
         let expected = String(decoding: try JSONEncoder().encode(address), as: UTF8.self)
         return "(()=>{try{return (\(program.functionSource))({action:'pinTarget',clickWitnessID:'\(id.uuidString)',address:\(expected)},{});}catch{return 'refused';}})()"
     }

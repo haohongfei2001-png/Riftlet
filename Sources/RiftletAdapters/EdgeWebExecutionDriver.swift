@@ -145,7 +145,7 @@ struct EdgeExecutionWorldWitness: Sendable {
     /// 150 ms click budget; neither check nor the final native recheck is omitted.
     func prepareAndBind(_ witness: ChromeClickDocumentWitness, address: String,
                         program: WebPageProgram) throws -> String {
-        let binding = try witness.bindScript(address: address, program: program)
+        let binding = try witness.bindScript(address: address, program: program, host: .edge)
         return """
         /* edge-click-prepare-and-pin */
         (()=>{if((\(prepare))!=='prepared')return 'refused';return (\(binding));})()

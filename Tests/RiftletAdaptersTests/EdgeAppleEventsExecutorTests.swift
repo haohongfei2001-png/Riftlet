@@ -381,7 +381,7 @@ final class EdgeAppleEventsExecutorTests: XCTestCase {
         let budget = MainWorldReceiptReadBudget.clickSnapshot(start: 100)
         let host = try repeated.freeze(deadline: budget.deadlineUptime)
         let world = EdgeExecutionWorldWitness(), document = ChromeClickDocumentWitness()
-        XCTAssertEqual(try repeated.evaluate(world.prepareAndBind(document, address: host.address, program: program),
+        XCTAssertEqual(try repeated.evaluate(world.prepareAndBind(document, address: host.address, program: ChatGPTWebPageProgram.edgeProgram.get()),
                                              target: host, budget: budget), "bound")
         XCTAssertThrowsError(try repeated.revalidate(host, deadline: budget.deadlineUptime)) { error in
             XCTAssertEqual(error as? WebAdapterError, .nativeEventFailed(-1712))
@@ -431,7 +431,7 @@ final class EdgeAppleEventsExecutorTests: XCTestCase {
         let host = try driver.freeze(deadline: budget.deadlineUptime)
         let world = EdgeExecutionWorldWitness(), document = ChromeClickDocumentWitness()
         XCTAssertEqual(try driver.evaluate(world.prepare, target: host, budget: budget), "prepared")
-        XCTAssertEqual(try driver.evaluate(document.bindScript(address: host.address, program: program),
+        XCTAssertEqual(try driver.evaluate(document.bindScript(address: host.address, program: ChatGPTWebPageProgram.edgeProgram.get(), host: .edge),
                                            target: host, budget: budget), "bound")
         XCTAssertThrowsError(try driver.revalidate(host, deadline: budget.deadlineUptime)) { error in
             XCTAssertEqual(error as? WebAdapterError, .nativeEventFailed(-1712))

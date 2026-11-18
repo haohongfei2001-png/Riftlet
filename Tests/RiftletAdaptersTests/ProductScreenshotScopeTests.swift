@@ -98,9 +98,8 @@ final class ProductScreenshotScopeTests: XCTestCase {
             try await store.markUnknown(request.operation.id, reason: "existing v15 observation")
             let reopened = try QueueStore(databaseURL: database)
             let original = try await refreshed(request, store: reopened)
-            // The first response keeps polling. The second ends the loop without
-            // granting START, success or retry. Both reads must use the original
-            // relay version, including across the reopened SQLite connection.
+            // The first read is UNKNOWN. A later read invalidates the same
+            // original target. Neither read authorizes new input or a retry.
             let terminal = AttachmentObservationEnvelope(provenance: prior.provenance, observation:
                 .init(identity: identity, state: .invalidated, belongsToOriginalDraft: false))
             let bridge = OriginalReadOnlyBridge(first: try JSONEncoder().encode(prior),
@@ -114,7 +113,17 @@ final class ProductScreenshotScopeTests: XCTestCase {
                 productStore: scope.isProduct ? reopened : nil, productOrigins: scope.isProduct ? [scope.origin] : [])
             let receipt = try await client.reconcile(original)
             XCTAssertEqual(receipt.outcome, .unknown); XCTAssertEqual(receipt.profileID, scope.admittedProfile.profileID)
-            let actions = await bridge.actions; XCTAssertEqual(actions, [.observe, .observe])
+            if scope.isProduct {
+                // 1.0.5 reconciles one sample per observation tick. Preserve
+                // that boundary even when the historical reader can be polled.
+                let firstActions = await bridge.actions
+                XCTAssertEqual(firstActions, [.observe])
+                let laterReceipt = try await client.reconcile(original)
+                XCTAssertEqual(laterReceipt.outcome, .unknown)
+                XCTAssertEqual(laterReceipt.profileID, scope.admittedProfile.profileID)
+            }
+            let actions = await bridge.actions
+            XCTAssertEqual(actions, [.observe, .observe])
             let expectedReader = [ChatGPTWebPageProgram.priorClickSource, ChatGPTWebPageProgram.priorOriginSource, ChatGPTWebPageProgram.priorProgressSource, ChatGPTWebPageProgram.priorLabelSource, ChatGPTWebPageProgram.priorEdgeSource, ChatGPTWebPageProgram.priorProductSource].contains(source)
                 ? source : ChatGPTWebPageProgram.priorScreenshotSource
             let readPrograms = await bridge.programIDs; XCTAssertEqual(readPrograms, Array(repeating: expectedReader, count: 2))
