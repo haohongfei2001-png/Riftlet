@@ -1,8 +1,21 @@
 import XCTest
+import AppKit
 import RiftletCore
 @testable import RiftletAdapters
 
 final class ChromePinnedRoutingTests: XCTestCase {
+    func testHistoryTabEnumerationMatchesAppleScriptAbsoluteOrdinal() throws {
+        // The reference targets an in-process list. It sends no browser events.
+        let script = try XCTUnwrap(NSAppleScript(source: "return a reference to every item of {1,2}"))
+        var error: NSDictionary?
+        let reference = script.executeAndReturnError(&error)
+        XCTAssertNil(error)
+        let selector = try XCTUnwrap(reference.forKeyword(AEKeyword(keyAEKeyData)))
+        let native = try ChromeHistoryTabSelection.allTabsOrdinal()
+        XCTAssertEqual(native.descriptorType, selector.descriptorType)
+        XCTAssertEqual(native.data, selector.data)
+    }
+
     func testColdClickUsesForegroundOrUniqueChromeWithoutEarlierCapture() {
         XCTAssertEqual(ChromeReceiverSelection.choose(frontmost: 20, lastForeground: nil,
             running: [10, 20]), 20)

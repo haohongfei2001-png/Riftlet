@@ -792,3 +792,15 @@ test('on-demand reconciliation binds the original invocation, draft and living a
  assert.equal(f.observe(op).state,'uploadStarted');
  assert.equal(f.setters,1); assert.equal(f.changes,1); assert.equal(f.sends,0);
 });
+
+
+test('returning to an existing hidden temporary draft validates the same editor without input', () => {
+ const f = fixture({route: 'https://chatgpt.com/?temporary-chat=true'});
+ const target = f.call({action: 'captureTarget'});
+ f.document.visibilityState = 'hidden';
+ f.setFocused(false);
+ assert.equal(f.call({action: 'validate', target}).valid, true);
+ f.setRoute('https://chatgpt.com/c/9479e823-49e9-4d49-8822-b9ec96410c96');
+ assert.equal(f.call({action: 'validate', target}).valid, false);
+ assert.deepEqual([f.setters, f.changes, f.sends], [0, 0, 0]);
+});

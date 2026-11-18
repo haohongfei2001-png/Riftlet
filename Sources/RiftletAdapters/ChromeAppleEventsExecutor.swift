@@ -76,9 +76,18 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                 .first(where: { ChromeProcessIdentity.read(pid: $0.processIdentifier)?.matches(session: target.sessionID) == true }),
               let identity = ChromeProcessIdentity.read(pid: app.processIdentifier),
               identity.matches(session: target.sessionID) else { return false }
+        let requestID = UUID().uuidString
+        let start = ProcessInfo.processInfo.systemUptime
+        var phase = "readOriginalTab"
+        var succeeded = false
+        var failure: WebAdapterError?
+        defer {
+            trace.record(requestID: requestID, action: "focusOriginal", phase: phase,
+                enqueued: start, started: start, context: nil, succeeded: succeeded, error: failure)
+        }
         do {
             let program = try ChatGPTWebPageProgram.load()
-            let bridge = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: UUID().uuidString)
+            let bridge = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: requestID)
             let route = try await Task.detached {
                 try ChromeClickRoute(window: target.windowID, tab: tab, url: bridge.url(window: target.windowID, tab: tab))
             }.value
@@ -89,14 +98,22 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                 let result = try JSONDecoder().decode(DraftValidation.self, from: data)
                 return result.valid && result.target == target && identity.isCurrent()
             }
+            phase = "validateBeforeSelection"
             guard try await matches() else { return false }
+            phase = "selectOriginalTab"
             try await Task.detached {
                 guard identity.isCurrent() else { throw WebAdapterError.invalidTarget }
                 try bridge.selectForHistory(window: route.window, tab: route.tab)
             }.value
+            phase = "validateAfterSelection"
             guard try await matches() else { return false }
-            return app.activate(options: [.activateIgnoringOtherApps])
-        } catch { return false }
+            phase = "activateOriginalProcess"
+            succeeded = app.activate(options: [.activateIgnoringOtherApps])
+            return succeeded
+        } catch {
+            failure = error as? WebAdapterError
+            return false
+        }
     }
 
     private func clickReceiver() throws -> ChromeProcessIdentity {
@@ -374,6 +391,18 @@ struct ChromeClickDeadline {
     }
 }
 
+enum ChromeHistoryTabSelection {
+    /// An absolute-position object specifier carries an absolute ordinal (abso),
+    /// even though its key form is an enumeration (indx).
+    static func allTabsOrdinal() throws -> NSAppleEventDescriptor {
+        let value = NSAppleEventDescriptor(enumCode: OSType(kAEAll)).data
+        guard let descriptor = NSAppleEventDescriptor(descriptorType: typeAbsoluteOrdinal, data: value) else {
+            throw WebAdapterError.nativeExecutionFailed
+        }
+        return descriptor
+    }
+}
+
 /// Codes come from Chrome's installed scripting.sdef (Standard/Chromium suites),
 /// not undocumented browser internals. Mouse-down reads use the common click
 /// deadline. Background submissions use five seconds; receipts use their command
@@ -460,10 +489,10 @@ private struct ChromePIDEvents {
     func selectForHistory(window: String, tab: String) throws {
         let owner = try object("cwin", form: "ID  ", key: .init(string: window))
         let active = try property("acTa", of: owner)
-        if try identifier(active) != tab {
+        if try identifier(get(active)) != tab {
             // Chrome exposes selection by index only. Resolve IDs within the
             // saved window and check both sides of the indexed selection.
-            let tabs = try object("CrTb", form: "indx", key: .init(enumCode: code("all ")), container: owner)
+            let tabs = try object("CrTb", form: "indx", key: ChromeHistoryTabSelection.allTabsOrdinal(), container: owner)
             let ids = try get(property("ID  ", of: tabs))
             guard ids.numberOfItems > 0,
                   let index = (1...ids.numberOfItems).first(where: { ids.atIndex($0)?.stringValue == tab }),
@@ -472,7 +501,7 @@ private struct ChromePIDEvents {
             guard try identifier(candidate) == tab else { throw WebAdapterError.invalidTarget }
             _ = try send("core", "setd", direct: property("acTI", of: owner), integer: position)
         }
-        guard try identifier(active) == tab else { throw WebAdapterError.invalidTarget }
+        guard try identifier(get(active)) == tab else { throw WebAdapterError.invalidTarget }
         _ = try send("core", "setd", direct: property("pidx", of: owner), integer: 1)
         let selected = try activeIdentity(check: "history_focus")
         guard selected.window == window, selected.tab == tab else { throw WebAdapterError.invalidTarget }
