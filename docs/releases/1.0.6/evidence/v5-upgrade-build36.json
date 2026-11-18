@@ -1,0 +1,191 @@
+{
+  "build": 36,
+  "feed": {
+    "scope": "isolated QA loopback signed feed; bit-identical notarized DMG",
+    "code": "4ed6cbede7260fb857d98bc2a23ef9240870c32e",
+    "version": "1.0.6",
+    "build": "36",
+    "feedSHA256": "3dc39ca6a6e3491168982bd6c3801c42cc8dd003dd97a5be2e2cdfd5a43cefed",
+    "dmgSHA256": "9481d9afa784f7bcc723b7888eb7dcbf16f9860ace64e6765adb2b29f02dd727",
+    "executableSHA256": "c2524bcdffe400908b13f29a245b4f539a1a6cc3e6ebebadaabc8675e89ba5cb",
+    "minimumOS": "13.0"
+  },
+  "runs": {
+    "31": {
+      "beforeVersion": "1.0.5",
+      "userActions": [
+        "Check for Updates",
+        "Install Update",
+        "Install and Relaunch"
+      ],
+      "startedInstalledExecutable": true,
+      "comparison": {
+        "tables": {
+          "assets": {
+            "before": 19,
+            "after": 28,
+            "allOriginalRowsIdentical": false
+          },
+          "operations": {
+            "before": 2,
+            "after": 2,
+            "allOriginalRowsIdentical": true
+          },
+          "upload_starts": {
+            "before": 1,
+            "after": 1,
+            "allOriginalRowsIdentical": true
+          },
+          "checkpoints": {
+            "before": 6,
+            "after": 6,
+            "allOriginalRowsIdentical": true
+          },
+          "compensations": {
+            "before": 0,
+            "after": 0,
+            "allOriginalRowsIdentical": true
+          },
+          "metadata": {
+            "before": 2,
+            "after": 2,
+            "allOriginalRowsIdentical": true
+          }
+        },
+        "originalFileCount": 48,
+        "missingOrChangedOriginalFiles": 0,
+        "existingFolderBookmarkIdentical": true,
+        "feedbackDraftIdentical": true,
+        "integrity": "ok"
+      },
+      "originalRecords": {
+        "originals": 19,
+        "originalIDsPresent": true,
+        "metadataIntact": true,
+        "changedOriginals": [
+          {
+            "sequence": 15,
+            "fields": [
+              "visibility",
+              "visibility_revision",
+              "visibility_reason"
+            ],
+            "reason": "automaticArchive"
+          },
+          {
+            "sequence": 16,
+            "fields": [
+              "visibility",
+              "visibility_revision",
+              "visibility_reason"
+            ],
+            "reason": "automaticArchive"
+          },
+          {
+            "sequence": 17,
+            "fields": [
+              "visibility",
+              "visibility_revision",
+              "visibility_reason"
+            ],
+            "reason": "automaticArchive"
+          },
+          {
+            "sequence": 18,
+            "fields": [
+              "visibility",
+              "visibility_revision",
+              "visibility_reason"
+            ],
+            "reason": "automaticArchive"
+          },
+          {
+            "sequence": 19,
+            "fields": [
+              "visibility",
+              "visibility_revision",
+              "visibility_reason"
+            ],
+            "reason": "automaticArchive"
+          }
+        ],
+        "newCount": 9,
+        "newSystemOrigins": 9,
+        "newMatchingUserOriginals": 9
+      },
+      "preferences": {
+        "consumerProductKeys": 2,
+        "changedNames": [],
+        "intactNames": [
+          "Riftlet.firstUse.presented.v1.Riftlet",
+          "Riftlet.firstUse.setup.v2.Riftlet"
+        ]
+      }
+    },
+    "35": {
+      "beforeVersion": "1.0.6",
+      "userActions": [
+        "Check for Updates",
+        "Install Update",
+        "Install and Relaunch"
+      ],
+      "startedInstalledExecutable": true,
+      "comparison": {
+        "tables": {
+          "assets": {
+            "before": 28,
+            "after": 28,
+            "allOriginalRowsIdentical": true
+          },
+          "operations": {
+            "before": 8,
+            "after": 8,
+            "allOriginalRowsIdentical": true
+          },
+          "upload_starts": {
+            "before": 5,
+            "after": 5,
+            "allOriginalRowsIdentical": true
+          },
+          "checkpoints": {
+            "before": 35,
+            "after": 35,
+            "allOriginalRowsIdentical": true
+          },
+          "compensations": {
+            "before": 0,
+            "after": 0,
+            "allOriginalRowsIdentical": true
+          },
+          "metadata": {
+            "before": 2,
+            "after": 2,
+            "allOriginalRowsIdentical": true
+          }
+        },
+        "originalFileCount": 57,
+        "missingOrChangedOriginalFiles": 0,
+        "existingFolderBookmarkIdentical": true,
+        "feedbackDraftIdentical": true,
+        "integrity": "ok"
+      },
+      "originalRecords": {
+        "originals": 28,
+        "originalIDsPresent": true,
+        "metadataIntact": true,
+        "changedOriginals": [],
+        "newCount": 0,
+        "newSystemOrigins": 0,
+        "newMatchingUserOriginals": 0
+      },
+      "preferences": {
+        "consumerProductKeys": 2,
+        "changedNames": [],
+        "intactNames": [
+          "Riftlet.firstUse.presented.v1.Riftlet",
+          "Riftlet.firstUse.setup.v2.Riftlet"
+        ]
+      }
+    }
+  }
+}
