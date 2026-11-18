@@ -132,6 +132,12 @@ final class MediaManagerWindow: NSWindowController, NSWindowDelegate {
             pending = captures
             if let policy {
                 rule.selectItem(at: [0, 30, 90].firstIndex(of: policy.days) ?? 0)
+                if let since = policy.since {
+                    let date = DateFormatter.localizedString(from: since, dateStyle: .short, timeStyle: .short)
+                    existing.title = text("也纳入 " + date + " 前的截图", "Include screenshots from before " + date)
+                } else {
+                    existing.title = text("也应用于已有截图", "Include existing screenshots")
+                }
                 existing.state = policy.days > 0 && policy.since == nil ? .on : .off
                 existing.isEnabled = policy.days > 0
             } else {

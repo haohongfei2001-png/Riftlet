@@ -53,8 +53,8 @@ public actor QueueStore {
         visibility!='visible' AND status IN ('pending','used','transferring','unknown')
         AND id NOT IN (SELECT asset_id FROM retired_media)
         AND NOT EXISTS (SELECT 1 FROM operations o WHERE o.asset_id=assets.id AND o.phase NOT IN ('succeeded','failed')
-            AND NOT (o.id!=assets.active_operation_id AND EXISTS (SELECT 1 FROM handled_attachments h WHERE h.operation_id=o.id))
-            AND NOT (o.id=assets.active_operation_id AND o.dispatch_exclusive=0 AND o.phase IN ('inputTriggered','attachmentPresent','unknown')
+            AND NOT (assets.active_operation_id IS NOT NULL AND o.id!=assets.active_operation_id AND EXISTS (SELECT 1 FROM handled_attachments h WHERE h.operation_id=o.id))
+            AND NOT (o.id IS assets.active_operation_id AND o.dispatch_exclusive=0 AND o.phase IN ('inputTriggered','attachmentPresent','unknown')
               AND EXISTS (SELECT 1 FROM upload_starts s WHERE s.operation_id=o.id)))
         """
     }
