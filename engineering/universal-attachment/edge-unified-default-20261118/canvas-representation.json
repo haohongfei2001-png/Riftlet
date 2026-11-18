@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "appliesToProductSource": "507997884bcdd26f165fe8310b883cf597be2d0e",
+  "edgeVersion": "156.0.4314.58",
+  "inputs": {
+    "rendererOutputSHA256": "1657083d4b7b6d59d093820fdd14dd3e119bc627f32fca7b456dff5b751df8f1",
+    "actualCardReadbackSHA256": "8f7bf30043460c92898040eaacb87e3cd19acff21417e7d91481a860d3dbba58",
+    "cardAndHARProjectionSHA256": "f64505ec680811f6a51ee921b204851a6960e95e7d1b29b7ec78682c7f0bea59"
+  },
+  "method": "Authenticated test-draft card digests are independent of headless Edge using fresh local fixtures and both original system screenshots. The product function ran with synthetic route and entry, native File, connected IMG, ImageBitmap, canvas serialization and browser SHA-256.",
+  "rows": [
+    {
+      "seed": 619,
+      "originalPNG": {
+        "sha256": "922323e620f744b798cfe55ce985950f0af28c1047b223d5dfcb180c6be019bf",
+        "bytes": 1406725
+      },
+      "dimensions": [
+        948,
+        624
+      ],
+      "siteCardPNG": {
+        "sha256": "8472cfeccba9b43e28848c7b251acfa120104f9bc787b81e76086c2eef67852c",
+        "bytes": 1386335,
+        "rgbaSHA256": "c28767e98e889c8fec83d9848a61bb14edb254f9f69756e9f6a24dbe7d2a0e9d"
+      },
+      "independentlyReproducedEncodings": [
+        "htmlImage/html/normal",
+        "htmlImage/offscreen/normal",
+        "bitmap/html/normal",
+        "bitmap/offscreen/normal"
+      ],
+      "sameSizeSrgbCPURead": [
+        1386308,
+        "1ff55307c9ca875812a028d85ca720bd037ac76a2700c84062be1ab899f7145c",
+        "a659f5ba7077b1e8a4bce68b6de788c4db384ac38c01fd7aac9f385917848ea2"
+      ],
+      "isolatedNativeProductObserver": {
+        "samePNG": "matched",
+        "samePixelsDifferentPNG": "mismatch"
+      }
+    },
+    {
+      "seed": 620,
+      "originalPNG": {
+        "sha256": "c543f731cff7e357d4fd54c2ea813e474fe76b47f483ac4d1f63cf1fc21f1880",
+        "bytes": 1405826
+      },
+      "dimensions": [
+        948,
+        624
+      ],
+      "siteCardPNG": {
+        "sha256": "948f8e30e9a2cb05c1a15be6be110bf868044f82a761718383caf772765216fd",
+        "bytes": 1386732,
+        "rgbaSHA256": "7569995e7650642dce9c004ed1741afa82851980a59827cb85e15efe37184bc7"
+      },
+      "independentlyReproducedEncodings": [
+        "htmlImage/html/normal",
+        "htmlImage/offscreen/normal",
+        "bitmap/html/normal",
+        "bitmap/offscreen/normal"
+      ],
+      "sameSizeSrgbCPURead": [
+        1386767,
+        "a20b2573e2b00ca82d54cbaa5a33c14c243b5df13f1782868d1f759f0da55f9f",
+        "551e62696fd81836e20e31f88660d6d42425f0410c85739faa2a9f691cc05d17"
+      ],
+      "isolatedNativeProductObserver": {
+        "samePNG": "matched",
+        "samePixelsDifferentPNG": "mismatch"
+      }
+    }
+  ],
+  "limits": "No on-site v24 click, no v24 product START or processing terminal was observed. The HAR did not retain recoverable PUT bytes. The matching encoded length and lossy UTF-8 projection do not constitute a binary SHA-256 of the storage entity."
+}
