@@ -1,6 +1,6 @@
 # 官网直接分发
 
-Riftlet 使用 SwiftPM 构建普通 App，通过 Developer ID Application 在 Mac App Store 以外分发。正式 bundle ID 是 `com.riftlet.app`。每个版本的主程序、资源、历史和截图目录使用既有产品布局。1.0.3 已优先提供官网 ZIP 下载，解压后退出旧版并替换原位置的 App。1.0.1 起使用 Sparkle 验证签名更新，默认每天检查，由用户选择安装。当前公开更新清单仍提供 1.0.2。[应用内更新与签名 feed 发布](IN_APP_UPDATES.md)
+Riftlet 使用 SwiftPM 构建普通 App，通过 Developer ID Application 在 Mac App Store 以外分发。正式 bundle ID 是 `com.riftlet.app`。每个版本的主程序、资源、历史和截图目录使用既有产品布局。官网提供 1.0.5（31）的签名、公证 DMG。退出旧版，打开磁盘映像，将 Riftlet 拖到原安装位置并选择替换。1.0.1 起使用 Sparkle 验证签名更新，默认每天检查，由用户选择安装。当前公开更新清单提供同一版本。[应用内更新与签名 feed 发布](IN_APP_UPDATES.md)
 
 ## 首次配置签名机
 
