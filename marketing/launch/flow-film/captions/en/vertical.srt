@@ -1,0 +1,35 @@
+1
+00:00:00,000 --> 00:00:01,000
+Before you take a screenshot, the edge is clear.
+
+2
+00:00:01,000 --> 00:00:03,800
+Three screenshots collect the code, the inspected value and the error.
+
+3
+00:00:03,800 --> 00:00:05,220
+Click the first screenshot. It joins the existing draft as the others move up.
+
+4
+00:00:05,220 --> 00:00:06,200
+Micro Slit also appears with the first screenshot.
+
+5
+00:00:06,200 --> 00:00:08,940
+The tangent, the approximation and the expansion collect at the edge.
+
+6
+00:00:08,940 --> 00:00:10,130
+Click the graph. The next screenshot moves up.
+
+7
+00:00:10,130 --> 00:00:10,830
+Click one more. The original question stays in place.
+
+8
+00:00:10,830 --> 00:00:13,230
+Keep writing. You choose when to send.
+
+9
+00:00:13,230 --> 00:00:15,000
+Riftlet. Capture. Click. Continue. riftlet.com

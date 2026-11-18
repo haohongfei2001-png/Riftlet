@@ -1,0 +1,94 @@
+{
+  "films": [
+    {
+      "file": "films/en/master.mp4",
+      "seconds": 24,
+      "frames": 720,
+      "size": [
+        1920,
+        1080
+      ],
+      "fps": 30,
+      "h264_profile": "High",
+      "audio": "AAC stereo 48000 Hz",
+      "integrated_LUFS": -15.7,
+      "true_peak_dBTP": -1.6,
+      "bytes": 3281776,
+      "sha256": "1b8f80b55755359b0a8a715b0be1fe1b6d64625d64c7ecb6aed21311094a449f"
+    },
+    {
+      "file": "films/en/vertical.mp4",
+      "seconds": 15,
+      "frames": 450,
+      "size": [
+        1080,
+        1920
+      ],
+      "fps": 30,
+      "h264_profile": "High",
+      "audio": "AAC stereo 48000 Hz",
+      "integrated_LUFS": -15.8,
+      "true_peak_dBTP": -1.7,
+      "bytes": 2079681,
+      "sha256": "73384c29c1cbd0eaea2284e50ed6c76ec8c81594f152fb1a7b5e8690d1ce3331"
+    },
+    {
+      "file": "films/zh-CN/master.mp4",
+      "seconds": 24,
+      "frames": 720,
+      "size": [
+        1920,
+        1080
+      ],
+      "fps": 30,
+      "h264_profile": "High",
+      "audio": "AAC stereo 48000 Hz",
+      "integrated_LUFS": -15.7,
+      "true_peak_dBTP": -1.6,
+      "bytes": 3254381,
+      "sha256": "e21999a8c641aa1d282d46dee95ef722a0043684b2997fb145a3df6b1b678625"
+    },
+    {
+      "file": "films/zh-CN/vertical.mp4",
+      "seconds": 15,
+      "frames": 450,
+      "size": [
+        1080,
+        1920
+      ],
+      "fps": 30,
+      "h264_profile": "High",
+      "audio": "AAC stereo 48000 Hz",
+      "integrated_LUFS": -15.8,
+      "true_peak_dBTP": -1.7,
+      "bytes": 2061155,
+      "sha256": "10baceb43cfad4afe14f2513710282231a108d543aefc666595dfd31779fbcae"
+    }
+  ],
+  "covers": {
+    "covers/en/master.jpg": [
+      3840,
+      2160
+    ],
+    "covers/en/vertical.jpg": [
+      1080,
+      1920
+    ],
+    "covers/zh-CN/bilibili-feed.jpg": [
+      1920,
+      1440
+    ],
+    "covers/zh-CN/master.jpg": [
+      1920,
+      1080
+    ],
+    "covers/zh-CN/vertical.jpg": [
+      1080,
+      1920
+    ],
+    "covers/zh-CN/xiaohongshu.jpg": [
+      1440,
+      1920
+    ]
+  }
+}

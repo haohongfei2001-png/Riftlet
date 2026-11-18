@@ -1,0 +1,39 @@
+1
+00:00:00,000 --> 00:00:01,490
+Click to attach a Mac screenshot to a ChatGPT draft in Chrome.
+
+2
+00:00:01,490 --> 00:00:02,300
+Before you take a screenshot, the edge is clear.
+
+3
+00:00:02,300 --> 00:00:06,460
+Three screenshots collect the code, the inspected value and the error.
+
+4
+00:00:06,460 --> 00:00:08,760
+Click the first screenshot. It joins the existing draft as the others move up.
+
+5
+00:00:08,760 --> 00:00:10,300
+Micro Slit also appears with the first screenshot.
+
+6
+00:00:10,300 --> 00:00:14,870
+The tangent, the approximation and the expansion collect at the edge.
+
+7
+00:00:14,870 --> 00:00:16,440
+Click the graph. The next screenshot moves up.
+
+8
+00:00:16,440 --> 00:00:17,500
+Click one more. The original question stays in place.
+
+9
+00:00:17,500 --> 00:00:21,280
+Keep writing. You choose when to send.
+
+10
+00:00:21,280 --> 00:00:24,000
+Riftlet. Capture. Click. Continue. riftlet.com
