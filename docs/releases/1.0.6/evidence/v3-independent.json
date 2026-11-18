@@ -1,0 +1,37 @@
+{
+  "product": "57ebe3d3448df0c4ffc11abeb7607a0cdc415d57",
+  "build": 35,
+  "environment": "native ARM64 macOS, Core and Capture compiled unchanged from candidate, controlled adapter, separate process invocations and isolated Trash directory",
+  "results": [
+    "move PASS pid 8082",
+    "restore PASS pid 8083"
+  ],
+  "stateDigest": {
+    "operations": "98301cd0e87aff94c0870d090e69afda75e239e485cd58e3a9f7e5efba1f2115",
+    "checkpoints": "783bcb5490aca900d3f9c0e8030887f41184c972967a833b636bda8c1a9b7d9d",
+    "starts": "3c8a7997e29e9c163d15b69ea59026740dec77e5a104921d5231a62b8ae1f6bd",
+    "external": "903bce427698aaad4d7be6639a259e6ee014d7936ed7e579db01577d88e18c39",
+    "integrity": "ok"
+  },
+  "manualCandidates": 2,
+  "autoEligibleAt31Days": 1,
+  "protected": [
+    "noSTARTunknown",
+    "currentExecution",
+    "unhandledSameCardError"
+  ],
+  "restoredFiles": 2,
+  "mediaCount": 5,
+  "originalRows": 5,
+  "operations": 4,
+  "starts": 3,
+  "tests": [
+    "cleanup and changed original",
+    "Trash directory permissions",
+    "enrollment boundary",
+    "every durable import boundary recovered twice",
+    "original START disposition",
+    "crash/no-return/new intent"
+  ],
+  "trueLiveChatGPT": "not exercised by this harness"
+}
