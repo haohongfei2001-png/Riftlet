@@ -83,7 +83,7 @@ final class HistoryPresentationTests: XCTestCase {
         XCTAssertFalse(missingEntry.canRestoreToRift)
     }
 
-    func testOnlyAmbiguousChromeInputOffersExplicitNewIntent() throws {
+    func testAmbiguousWebInputOffersLocalDispositionIndependentOfOriginalBrowserSupport() throws {
         let chrome = TargetLease(adapterID: "chatgpt-web", surface: .webChat, applicationID: "com.google.Chrome",
                                  sessionID: "session", windowID: "window", documentID: "doc",
                                  composerID: "composer", draftGeneration: "generation")
@@ -97,6 +97,13 @@ final class HistoryPresentationTests: XCTestCase {
         let ambiguous = RiftHistoryEntry(record: unknown, operation: try operation(for: unknown, phase: .unknown, webTarget: chrome))
         XCTAssertTrue(ambiguous.hasRecoveryOptions)
         XCTAssertFalse(ambiguous.canRestoreToRift)
+        let retiredTarget = TargetLease(adapterID: "legacy-web", surface: .webChat, applicationID: "retired",
+                                        sessionID: "old", windowID: "old", documentID: "old",
+                                        composerID: "old", draftGeneration: "old")
+        let legacy = RiftHistoryEntry(record: unknown, operation: try operation(for: unknown, phase: .unknown, webTarget: retiredTarget))
+        XCTAssertFalse(legacy.canReviewOriginal)
+        XCTAssertTrue(legacy.hasRecoveryOptions)
+        XCTAssertFalse(RiftHistoryEntry(record: unknown, operation: try operation(for: unknown, phase: .unknown)).hasRecoveryOptions)
     }
 
     func testPreInputCancellationIsNotPresentedAsRemoteUploadFailure() throws {

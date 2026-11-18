@@ -55,7 +55,7 @@ public struct RiftHistoryEntry: Identifiable, Equatable, Sendable {
     }
 
     var hasRecoveryOptions: Bool {
-        canReviewOriginal && attachmentState.needsVerification
+        currentOperation?.target.surface == .webChat && attachmentState.needsVerification
     }
 
     public var canRestoreToRift: Bool {
