@@ -1,0 +1,16 @@
+{
+  "failedSource": "5c1be92703b14638f30304f6717e31cf0256876a",
+  "testedMerge": "50b9815f0342c1ea16e4dd015d324ffe31a90a54",
+  "failedJob": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44244780823/job/134600992400",
+  "steps": [
+    24,
+    34
+  ],
+  "failure": "The independently compiled read-only Edge host inherited an attachment-layer type that its three standalone swiftc source sets do not include. The ordinary host check failed at compile time before collecting screenshots or posting events. The Apple Events probe failed at compile time before contacting the browser.",
+  "repairSource": "04fa8ff609126c3a53ab13d0b55c336bb82441df",
+  "repair": "The ordinary web driver supplies the bounded Apple Event send to the read-only Edge host. All three original swiftc source sets compile unmodified; process, target identity, deadline and error checks remain.",
+  "assertionsChanged": false,
+  "originalServiceRunContinuesUsing": "cb82a728237504ac9270ee8322144f8f8e793c9b",
+  "step34IndependentReportSHA256": "1fd3b9bcf954d7afc222e946d758943322c67ada44664b79826bb23e77a42cd4",
+  "step24IndependentReportSHA256": "cfac27fd46229e15438342ca6bc73a624f2bd3a391f7c80004f88bf8bdf05d59"
+}

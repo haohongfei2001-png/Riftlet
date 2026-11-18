@@ -1,0 +1,31 @@
+{
+  "source": "cb82a728237504ac9270ee8322144f8f8e793c9b",
+  "sourceTree": "8a8cbf57a015e87a4094e7f57a5fc7184c8356c3",
+  "shortVersion": "1.0.5",
+  "buildVersion": "31",
+  "executableSHA256": "2ef4f1abadf7893ca88b58a839092fbdac891942627971949467b46cbf04e3c2",
+  "packageArchiveSHA256": "c37352f15694789fb41c24242c87464f48678b403cc740d5cf6157ae3a2e8781",
+  "architectures": [
+    "arm64"
+  ],
+  "buildChannel": "isolated-product-acceptance",
+  "gatekeeper": "NOT_RUN",
+  "notarization": "NOT_RUN",
+  "signedPackageReceiptSHA256": "3009e3868c605d989771506750cbb7ab1f53f204d15fc78a96b033eb06319c03",
+  "hardenedRuntime": true,
+  "publicInstallerModified": false,
+  "sourceAdmissionCommit": "5c1be92703b14638f30304f6717e31cf0256876a",
+  "independentReportSHA256": "7beb333e23b0d673b82881f16d7eada7da5ce5c3ae14223916bfad227dbf262f",
+  "coldClickNativeTest": {
+    "boundedWindowMilliseconds": 49.5,
+    "browserAccess": false,
+    "expectedTimeoutTicks": 2,
+    "nearCutoffElapsedMilliseconds": 0.045500026317313313,
+    "nearCutoffReplies": 1,
+    "receiverDispatches": 2,
+    "result": "PASS",
+    "scope": "Mac Apple Event Manager, fresh isolated same-process receiver, no browser",
+    "subTickRefusal": true,
+    "warmupReplies": 1
+  }
+}

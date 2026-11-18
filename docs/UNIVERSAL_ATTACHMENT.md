@@ -2,6 +2,8 @@
 
 ## 11 月 18 日 · 普通 Riftlet 1.0.5（31）与默认 Edge
 
+签名候选 `cb82a72` 修复了 624 的发送前时间保护问题。本机真实 Apple Event 在实测对应的 49.5 毫秒余量内收到回包。626、627 均已收录，投递前无法唯一显示原 Default Edge 窗口，两个商业操作均为 **NOT_RUN**。另一次只读核对确认，625 留在原稿的预览与原截图经同一 Edge 编码的 PNG 摘要一致；它的产品 START 和服务处理终态仍然缺失。[冷点击修复、窗口阻塞与 625 读回](../engineering/universal-attachment/edge-unified-default-20261118/build31/pair-626-627/REPORT.md)
+
 新版观察器在同一页收到了 624 和 625 两次微图点击，间隔 766.343 毫秒。624 的文档绑定请求在发送前触发了 50 毫秒保护，未发生文件输入。625 进入原草稿，获得真实同卡递增进度，但网页在显示图片前替换了整张卡片和移除按钮，产品保持 UNKNOWN。原五张附件、正文与选区完整。默认 Edge × ChatGPT 的快速双图验收仍为 **INCOMPLETE**。[逐图验收、服务记录与卡片替换](../engineering/universal-attachment/edge-unified-default-20261118/build31/pair-624-625/REPORT.md)
 
 622 和 623 分别通过普通 App 进入同一个已登录的临时草稿，原三张附件、正文和 14 字符选区保留。原服务各有存储 HTTP 201，两个处理响应都缺少可验证的终态。每张具名卡片的真实数值从 5% 升到 100%，产品却分别在 33 和 34 次观察中漏判 START。两次受控点击因跨页相隔约 14 分钟，快速条件未通过。[逐图与独立服务证据](../engineering/universal-attachment/edge-unified-default-20261118/build31/PAIR-622-623.md)

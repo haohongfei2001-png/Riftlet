@@ -1,0 +1,55 @@
+{
+  "result": "PASS_SCOPED_SOURCE_AND_RECEIPT_AUDIT_NO_START_OR_TERMINAL_ADMISSION",
+  "encodedContentComparison": {
+    "conclusion": "Later original-form IMG content matches the same-browser PNG encoding of original625. The original file bytes and the two decoded RGBA arrays are not identical.",
+    "existingPreviewPNGBytes": 1386479,
+    "existingPreviewPNGSHA256": "fe8f5658ddf52d7082020bfb11392c12f10c58db3506b01de12ac0469df212f8",
+    "originalCanvasMatchesExistingPreview": true,
+    "originalCanvasPNGBytes": 1386479,
+    "originalCanvasPNGSHA256": "fe8f5658ddf52d7082020bfb11392c12f10c58db3506b01de12ac0469df212f8",
+    "originalPNGBytes": 1406064,
+    "originalPNGSHA256": "e782d6a35cfd00730b724a949648b175f1d98eb939ac96c24e43eb48328634f5",
+    "previewEncodedBytesMatchOriginal": false
+  },
+  "limits": {
+    "actualCSSRenderedDimensionsMeasured": false,
+    "live625STARTRewritten": false,
+    "original625CrossRootFileIdentityEstablished": false,
+    "physicalScreenPixelsVerified": false,
+    "pixelCountsIndependentlyRecomputed": false,
+    "previewPNGEntityArchived": false,
+    "selectionExplanation": "Source writes no selection, text, input or DOM nodes and checks original form/text/ref interactions. This receipt does not contain a new [61,14] selection projection.",
+    "selectionReadbackRepeatedByProbe": false,
+    "serviceProcessingTerminalEstablished": false,
+    "visibilityExplanation": "visible() is declared but not called. renderedCard fields draw an already loaded IMG into an offscreen canvas at naturalWidth/naturalHeight; they do not sample WindowServer or CSS-composited pixels.",
+    "visibilityGuardApplied": false
+  },
+  "pixelComparisonReportedByOriginalBrowser": {
+    "algorithmScope": "Both PNGs use browser createImageBitmap default color conversion/premultiplication and full natural-size offscreen sRGB RGBA8 canvases. Every overlapping pixel/channel is compared. Equal dimensions leave no pixels outside that comparison.",
+    "allPixelsEqual": false,
+    "comparedPixels": 591552,
+    "completeImageOverlap": true,
+    "differentFraction": 0.043472086984745216,
+    "differentPixels": 25716,
+    "height": 624,
+    "maxAbsoluteDeltaPerChannel": [
+      1,
+      1,
+      1,
+      0
+    ],
+    "originalRGBASHA256": "f385274cf34c088de3fecb016d481bcf21bb5d64dabfc43d4aa9d0c8210c659c",
+    "perChannelDifferentSamples": [
+      9123,
+      7813,
+      9228,
+      0
+    ],
+    "previewRGBASHA256": "46419f8604fbc4a809bbc504656d82e2419bf594e6d7c7c051f8ef9a393a77d7",
+    "renderedCardMatchesDecodedPreview": true,
+    "renderedCardRGBASHA256": "46419f8604fbc4a809bbc504656d82e2419bf594e6d7c7c051f8ef9a393a77d7",
+    "width": 948
+  },
+  "independentReportSHA256": "336ee82fc997cc7a1c8f3e0c2a311ef98b580ea8aabe44f6cf192d1aac29bf11",
+  "laterReadbackSHA256": "37b57f56973d49a4c054d615fc24814355243f8ba8d888b72b988f05eecd1c28"
+}

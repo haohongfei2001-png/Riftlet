@@ -1,0 +1,43 @@
+{
+  "source": "84871b36067e82e4b0c641a498e6ccc4c7d0a350",
+  "base": "9fd8ad15fca043915069904113e5fb67d82b4948",
+  "draft": true,
+  "scope": "GitHub Actions on the pull request. Commercial attachment acceptance is recorded separately.",
+  "checks": [
+    {
+      "name": "Feedback source admission",
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "completedAt": "2026-11-18T05:03:45Z",
+      "detailsUrl": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44241540100/job/134590369777"
+    },
+    {
+      "name": "Native source admission",
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "completedAt": "2026-11-18T05:04:12Z",
+      "detailsUrl": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44241539974/job/134590369151"
+    },
+    {
+      "name": "Feedback native and service",
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "completedAt": "2026-11-18T05:09:23Z",
+      "detailsUrl": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44241540100/job/134590370129"
+    },
+    {
+      "name": "Native ARM64",
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "completedAt": "2026-11-18T05:20:59Z",
+      "detailsUrl": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44241539974/job/134590369611"
+    },
+    {
+      "name": "Native Intel",
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "completedAt": "2026-11-18T05:25:40Z",
+      "detailsUrl": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44241539974/job/134590369609"
+    }
+  ]
+}
