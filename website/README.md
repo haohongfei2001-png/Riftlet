@@ -5,8 +5,8 @@ The official public homepage is served at https://riftlet.com/ from the reposito
 ## Current site state
 
 - **Design baseline:** 2026-10-30 v2. The approved typography, composition, palette, artwork, responsive layout and interaction remain the active design.
-- **Latest content update:** 2026-11-17. The bilingual homepage and installation dialog identify Riftlet 1.0.3, with direct links to its versioned ZIP archive and release notes.
-- **Website source marker:** `riftlet-1.0.3` in the `riftlet-website-version` meta tag.
+- **Latest content update:** 2026-11-18. The bilingual homepage and installation dialog identify Riftlet 1.0.5, with direct links to its versioned disk image and release notes.
+- **Website source marker:** `riftlet-1.0.5` in the `riftlet-website-version` meta tag.
 
 The 2026-10-30 design release record remains historical and documents the original v2 publication. It is not the current native-app release status.
 
@@ -26,9 +26,9 @@ Old `site.*`, `website-product.*`, `website-hero.*` and `website-locale.js` file
 
 ## Native product availability and support boundary
 
-**Riftlet 1.0.3** is available from the homepage as `Riftlet-1.0.3.zip`. The universal Mac package supports macOS 13 or later on Apple silicon and Intel. The current one-click attachment target is an editable ChatGPT draft in Google Chrome. A standard macOS user can install it in the Applications folder under their home directory. Riftlet has included in-app update checks since 1.0.1. The public in-app feed currently offers 1.0.2. To install 1.0.3 now, unzip the website download, quit any running copy and replace the app in its installed location. Other browsers, the ChatGPT desktop app and read-only drafts are unsupported.
+**Riftlet 1.0.5** is available from the homepage as `Riftlet-1.0.5.dmg`. The universal Mac package supports macOS 13 or later on Apple silicon and Intel. The current one-click attachment target is an editable ChatGPT draft in Google Chrome. A standard macOS user can install it in the Applications folder under their home directory. Riftlet has included in-app update checks since 1.0.1. To install 1.0.5 now, open the downloaded disk image, quit any running copy and replace the app in its installed location. Other browsers, the ChatGPT desktop app and read-only drafts are unsupported.
 
-The website's interactive demo is separate from the native app. It does not expand native support or claim real ChatGPT upload acceptance. Refer to the current [consumer support matrix](../docs/consumer/SUPPORT-MATRIX.md), [installation and permissions guide](../docs/consumer/INSTALL-AND-PERMISSIONS.md), and [release notes](https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.3-zip) for the authoritative product details.
+The website's interactive demo is separate from the native app. It does not expand native support or claim real ChatGPT upload acceptance. Refer to the current [consumer support matrix](../docs/consumer/SUPPORT-MATRIX.md), [installation and permissions guide](../docs/consumer/INSTALL-AND-PERMISSIONS.md), and [release notes](https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.5) for the authoritative product details.
 
 ## Demo boundaries
 
@@ -42,7 +42,7 @@ The illustrated handoff separates simulated upload-start evidence from final att
 
 Keep GitHub Pages on `main`, repository root, custom domain `riftlet.com`. Do not add a new hosting service or alter DNS to publish this static page. A website commit triggers the existing Pages build and deployment.
 
-The release page must serve the verified ZIP before activating its homepage links. If distribution needs to be suspended, update the links in a new reviewed commit and preserve the original release artifact.
+The release page must serve the verified DMG before activating its homepage links. If distribution needs to be suspended, update the links in a new reviewed commit and preserve the original release artifact.
 
 ## Verification
 

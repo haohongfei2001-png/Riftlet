@@ -10,7 +10,7 @@ const map=fs.readFileSync(path.join(root,'sitemap.xml'),'utf8');
 const robots=fs.readFileSync(path.join(root,'robots.txt'),'utf8');
 test('sitemap is public, canonical and recently updated',()=>{
  assert.match(map,/<loc>https:\/\/riftlet\.com\/<\/loc>/);
- assert.match(map,/<lastmod>2026-11-14<\/lastmod>/);
+ assert.match(map,/<lastmod>2026-11-18<\/lastmod>/);
  assert.match(robots,/User-agent: \*/);
  assert.match(robots,/Sitemap: https:\/\/riftlet\.com\/sitemap\.xml/);
  assert.match(html,/<link rel="canonical" href="https:\/\/riftlet\.com\/"/);
@@ -22,9 +22,9 @@ test('Riftlet identity is explicit and there is no false capability claim',()=>{
  const app=JSON.parse(data[1]);
  assert.equal(app.name,'Riftlet');
  assert.equal(app.url,'https://riftlet.com/');
- assert.equal(app.softwareVersion,'1.0.3');
+ assert.equal(app.softwareVersion,'1.0.5');
  assert.match(app.description,/Chrome/);
- assert.match(app.downloadUrl,/v1\.0\.3-zip\/Riftlet-1\.0\.3\.zip$/);
+ assert.match(app.downloadUrl,/v1\.0\.5\/Riftlet-1\.0\.5\.dmg$/);
  assert.equal((html.match(/type="application\/ld\+json"/g)||[]).length,1);
 });
 test('IndexNow domain ownership file matches key exactly',()=>{

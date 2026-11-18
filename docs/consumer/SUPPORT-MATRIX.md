@@ -1,10 +1,10 @@
-# Riftlet 1.0.3 支持范围
+# Riftlet 1.0.5 支持范围
 
 Riftlet 支持 macOS 和 Google Chrome 中可编辑的 ChatGPT 网页。ChatGPT 调整网页界面可能影响附加功能。
 
 | 场景 | 范围 |
 | --- | --- |
-| Mac 安装 | macOS 13 及以上，Apple 芯片与 Intel 通用安装包。1.0.3 通过官网下载 ZIP 安装。1.0.1 起支持应用内更新，目前推送版本为 1.0.2。 |
+| Mac 安装 | macOS 13 及以上，Apple 芯片与 Intel 通用安装包。1.0.5 通过官网下载 DMG 安装。1.0.1 起支持应用内更新，请在 Riftlet 中选择「检查更新…」。 |
 | 系统截图 | 从 macOS 实际截图保存目录收录新生成的截图文件。普通下载图片、剪贴板截图和屏幕录像不属于此入口。 |
 | 图片格式 | 识别带系统截图标识的单帧 PNG、JPEG、HEIC、HEIF、TIFF。超大、损坏或不受支持的文件会被跳过；系统原件保留。 |
 | 内置截图 | 经屏幕录制授权后可截窗口、区域、全屏。「更多」进入其他操作。 |
@@ -25,4 +25,6 @@ Riftlet 支持 macOS 和 Google Chrome 中可编辑的 ChatGPT 网页。ChatGPT 
 
 [安装与权限](INSTALL-AND-PERMISSIONS.md) · [故障恢复](RECOVERY-AND-FAQ.md) · [私下反馈](FEEDBACK-TEMPLATE.md)
 
-开发中的无扩展连接实验已在专用测试宿主运行。Edge、Safari、其他 AI 网站与原生对话应用的实际支持状态随各自验证记录更新。[开发分支验证矩阵](../UNIVERSAL_ATTACHMENT.md)
+**1.0.5 验证范围。** 已在隔离 Mac 上验证 1.0.4 到 1.0.5 的原位升级、托盘翻页和相机菜单。真实 ChatGPT 草稿当时连接失败，一次附加、连续双图及服务端终止后的恢复仍待验证。[专项验收报告](../releases/1.0.5/FOLLOW_UP.md)
+
+**开发分支的默认 Edge 实测。** 独立签名的普通测试 App 已把不同系统截图附加到同一临时草稿，保留原文字、选区和附件。Riftlet 的上传开始与服务最终完成仍按每张图单独核验，Edge 未列入公开版本的已验收组合。[开发分支实测矩阵](../UNIVERSAL_ATTACHMENT.md)

@@ -2,15 +2,15 @@
 
 ## 使用方法
 
-要安装 1.0.3，从官网下载并解压 ZIP，退出 Riftlet，再将新版拖到原安装位置。目前应用内更新提供 1.0.2。从 1.0.1 起，Riftlet 默认每天检查一次更新。可以从菜单栏或设置选择「检查更新…」，阅读说明，再决定安装或稍后处理。[官网](https://riftlet.com/) · [发行说明](https://github.com/haohongfei2001-png/Riftlet/releases)
+官网与应用内更新均提供 1.0.5（31）。手动安装时，先退出 Riftlet，再打开官网下载的 DMG，将 Riftlet 拖到原安装位置并选择替换。从 1.0.1 起，Riftlet 默认每天检查一次更新。可以从菜单栏或设置选择「检查更新…」，阅读说明，再决定安装或稍后处理。[官网](https://riftlet.com/) · [发行说明](https://github.com/haohongfei2001-png/Riftlet/releases)
 
 安装更新时，Riftlet 会正常退出并重新打开。安装在「应用程序」时，macOS 可能要求管理员批准。安装在个人主目录的「Applications」中，标准账户通常可以自行更新。离线时可以继续使用截图和历史功能。更新失败时，稍后重新检查，或从官网手动下载到原安装位置。保留已有截图库、文件夹授权和反馈草稿。macOS 若重新询问授权，请在 Riftlet 的权限设置中确认。[更新、备份与恢复](MANUAL_UPDATE_AND_RECOVERY.md)
 
 ## Using updates
 
-To install 1.0.3, download the ZIP from the website, unzip it, quit Riftlet and replace the app in its existing location. The in-app feed currently offers 1.0.2. Starting with 1.0.1, Riftlet checks for updates daily by default. Open **检查更新…** (Check for Updates) in the menu bar or Settings, read the release notes, then choose to install or postpone. [Website](https://riftlet.com/) · [Release notes](https://github.com/haohongfei2001-png/Riftlet/releases)
+The website and in-app updater offer 1.0.5 (31). To install manually, quit Riftlet, open the downloaded DMG, then drag Riftlet to its existing location and choose Replace. Starting with 1.0.1, Riftlet checks for updates daily by default. Open **检查更新…** (Check for Updates) in the menu bar or Settings, read the release notes, then choose to install or postpone. [Website](https://riftlet.com/) · [Release notes](https://github.com/haohongfei2001-png/Riftlet/releases)
 
-Installation quits and relaunches the app normally. macOS may request administrator authorization for a shared Applications folder. A standard user can usually update an app installed in their own Applications folder. Screenshots and history remain available offline. If an update fails, check again later or download the ZIP from the website, unzip it, and replace the app in its current location. Keep your library, bookmarks and feedback drafts. Use the permission settings if macOS requests access again. [Backup and recovery](MANUAL_UPDATE_AND_RECOVERY.md)
+Installation quits and relaunches the app normally. macOS may request administrator authorization for a shared Applications folder. A standard user can usually update an app installed in their own Applications folder. Screenshots and history remain available offline. If an update fails, check again later or open the DMG from the website and replace the app in its current location. Keep your library, bookmarks and feedback drafts. Use the permission settings if macOS requests access again. [Backup and recovery](MANUAL_UPDATE_AND_RECOVERY.md)
 
 ## Release operators
 
