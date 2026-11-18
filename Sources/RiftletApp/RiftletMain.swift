@@ -1550,14 +1550,25 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
 
     private func stageHistoryAttachment(asset: UUID, operation: UUID) {
         guard let store else { return }
+        guard !userHidden else {
+            history?.showActionNotice(ProductCopy.text("请从菜单栏选择「显示桌面截图」，再选择重新附加。", "Choose Show Desktop Screenshots from the menu bar, then choose Attach Again."))
+            return
+        }
         Task {
             do {
                 let record = try await store.stageAttachmentForReattach(operationID: operation)
                 guard record.id == asset, record.visibility == .visible else { throw RiftletError.invalidTransition }
                 reattachmentIntents[asset] = ReattachmentIntent(operationID: operation, revision: record.visibilityRevision)
                 await refresh()
+                rift?.showAsset(asset)
                 history?.showActionNotice(ProductCopy.text("打开要附加的 Chrome 草稿，再点这张桌面截图。", "Open the intended draft in Chrome, then click this screenshot at the desktop edge."))
-            } catch { history?.showActionError(ProductCopy.text("暂时无法重新附加。请检查原图是否可用，或稍后再试。", "Could not prepare this image. Check that its file is available or try again shortly.")) }
+            } catch {
+                if (try? await store.isRetiredMedia(asset)) == true {
+                    history?.showActionError(ProductCopy.text("请在「设置 → 截图 → 管理截图资料…」中从废纸篓找回副本，然后再选择重新附加。", "Restore the copy from Trash in Settings → Screenshots → Manage Screenshot Storage…, then choose Attach Again."))
+                } else {
+                    history?.showActionError(ProductCopy.text("暂时无法重新附加。请检查原图是否可用，或稍后再试。", "Could not prepare this image. Check that its file is available or try again shortly."))
+                }
+            }
         }
     }
 
