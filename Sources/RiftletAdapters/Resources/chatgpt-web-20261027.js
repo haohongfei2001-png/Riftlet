@@ -880,7 +880,7 @@ function riftletWebAcceptance(command, native) {
     const parts = composer();
     if (!validDraft(registry.current) || registry.current.editor !== parts.editor) {
       const address = new URL(route());
-      const id = address.origin === 'https://chatgpt.com' && /^\/c\/([^/]+)\/?$/.exec(address.pathname)?.[1];
+      const id = address.origin === 'https://chatgpt.com' && /^\/(?:g\/[a-zA-Z0-9_-]+\/)?c\/([^/]+)\/?$/.exec(address.pathname)?.[1];
       registry.current = {...parts, route: route(), navigation: registry.navigation,
         target: {adapterID: 'chatgpt-web', surface: 'webChat', ...native,
           ...(uuid(id) ? {historyConversationID: id.toUpperCase()} : {}),

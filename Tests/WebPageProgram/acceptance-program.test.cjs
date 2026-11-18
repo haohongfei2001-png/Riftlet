@@ -653,7 +653,7 @@ test('history links use only the exact canonical saved conversation path', () =>
  for (const [route,expected] of [
   ['https://chatgpt.com/c/'+id.toLowerCase()+'?x=1#z',id],
   ['https://chatgpt.com/',undefined],['https://chatgpt.com/c/other',undefined],
-  ['https://chatgpt.com/g/other/c/'+id,undefined],['https://chat.openai.com/c/'+id,undefined]]) {
+  ['https://chatgpt.com/g/other/c/'+id,id],['https://chatgpt.com/g/%2F/c/'+id,undefined],['https://chat.openai.com/c/'+id,undefined]]) {
   const target=fixture({route}).call({action:'captureTarget'});
   assert.equal(target.historyConversationID,expected);
   assert.equal(target.logicalDraftIdentity,undefined);

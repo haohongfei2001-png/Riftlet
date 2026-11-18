@@ -160,7 +160,15 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     private let countLabel = NSTextField(labelWithString: "")
     private lazy var restoreButton = NSButton(title: copy.text("恢复到托盘", "Restore to Tray"), target: nil, action: nil)
     private lazy var removeButton = NSButton(title: copy.text("从桌面收起", "Hide from Desktop"), target: nil, action: nil)
-    private lazy var conversationButton = NSButton(title: copy.text("查看原对话", "View Original Conversation"), target: nil, action: nil)
+    public var onCheckOriginal: ((UUID) -> Void)?
+    public var onMarkHandled: ((UUID) -> Void)?
+    public var onPrepareReattachment: ((UUID, UUID) -> Void)?
+    public var onFocusOriginal: ((TransferOperation) async -> Bool)?
+    private lazy var checkButton = NSButton(title: copy.text("重新核对状态", "Check Status Again"), target: self, action: #selector(checkOriginal))
+    private lazy var handledButton = NSButton(title: copy.text("标为已处理", "Mark as Handled"), target: self, action: #selector(markHandled))
+    private lazy var reattachButton = NSButton(title: copy.text("重新附加…", "Attach Again…"), target: self, action: #selector(prepareReattachment))
+    private lazy var focusButton = NSButton(title: copy.text("返回原草稿", "Return to Original Draft"), target: self, action: #selector(focusOriginal))
+    private lazy var conversationButton = NSButton(title: copy.text("打开会话记录", "Open Conversation History"), target: nil, action: nil)
     private lazy var revealButton = NSButton(title: copy.text("在 Finder 中显示", "Show in Finder"), target: nil, action: nil)
     private lazy var originalButton = NSButton(title: copy.text("查看原图", "View Original"), target: nil, action: nil)
     private lazy var newerButton = NSButton(title: copy.text("上一页", "Previous Page"), target: nil, action: nil)
@@ -313,11 +321,14 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         tableScroll = scroll
         scroll.drawsBackground = false; scroll.documentView = table
         let paging = NSStackView(views: [newerButton, olderButton]); paging.spacing = 8
-        for button in [restoreButton, removeButton, revealButton, originalButton, conversationButton, newerButton, olderButton] {
+        for button in [restoreButton, removeButton, revealButton, originalButton, conversationButton, newerButton, olderButton, checkButton, handledButton, reattachButton, focusButton] {
             RiftVisualStyle.style(button); button.target = self
         }
         restoreButton.action = #selector(restoreSelected); removeButton.action = #selector(removeSelected)
         revealButton.action = #selector(revealSelected); newerButton.action = #selector(previousPage); olderButton.action = #selector(nextPage)
+        for (button, id) in [(focusButton, "focusOriginal"), (checkButton, "checkOriginal"), (handledButton, "markHandled"), (reattachButton, "reattach")] {
+            button.identifier = .init("history." + id)
+        }
         conversationButton.action = #selector(viewOriginalConversation)
         conversationButton.identifier = .init("history.conversation")
         originalButton.action = #selector(previewSelected)
@@ -404,7 +415,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         let viewActions = NSStackView(views: [originalButton, revealButton])
         let queueActions = NSStackView(views: [restoreButton, removeButton])
         let detail = RiftVisualStyle.documentStack([surface, detailTitle, detailMetadata, detailState,
-                                                   viewActions, conversationButton, queueActions, actionNote], spacing: 8)
+                                                   viewActions, focusButton, conversationButton, checkButton, handledButton, reattachButton, queueActions, actionNote], spacing: 8)
         detail.edgeInsets = NSEdgeInsets(top: 17, left: 18, bottom: 16, right: 18)
         for view in [surface, detailTitle, detailMetadata, detailState, actionNote] {
             view.widthAnchor.constraint(equalTo: detail.widthAnchor, constant: -36).isActive = true
@@ -492,6 +503,11 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     private func updateActions() {
         restoreButton.isEnabled = selectedEntry?.canRestoreToRift == true
         removeButton.isEnabled = selectedEntry?.canRemoveFromRift == true
+        let actionable = selectedEntry?.hasRecoveryOptions == true
+        checkButton.isHidden = selectedEntry?.canReviewOriginal != true || onCheckOriginal == nil || selectedEntry?.isHandled == true
+        focusButton.isHidden = selectedEntry?.canReviewOriginal != true || onFocusOriginal == nil
+        handledButton.isHidden = !actionable || selectedEntry?.isHandled == true || onMarkHandled == nil
+        reattachButton.isHidden = !actionable || onPrepareReattachment == nil
         conversationButton.isHidden = selectedEntry?.conversationURL == nil
         revealButton.isEnabled = selectedEntry != nil
         originalButton.isEnabled = selectedEntry != nil
@@ -510,7 +526,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     }
 
     private func stateText(_ entry: RiftHistoryEntry) -> String {
-        HistoryPresentation.localizedState(for: entry, copy: copy)
+        entry.isHandled ? copy.text("已处理", "Handled") : HistoryPresentation.localizedState(for: entry, copy: copy)
     }
     private func updateDetail() {
         detailGeneration &+= 1
@@ -850,6 +866,39 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     @objc private func removeSelected() {
         guard let entry = selectedEntry, entry.canRemoveFromRift else { return }
         onRemove(entry.id)
+    }
+
+    @objc private func checkOriginal() {
+        guard let op = selectedEntry?.currentOperation else { return }
+        onCheckOriginal?(op.id)
+    }
+
+    @objc private func markHandled() {
+        guard let entry = selectedEntry, entry.hasRecoveryOptions, !entry.isHandled,
+              let op = entry.currentOperation else { return }
+        onMarkHandled?(op.id)
+    }
+
+    @objc private func prepareReattachment() {
+        guard let entry = selectedEntry, entry.hasRecoveryOptions, let op = entry.currentOperation else { return }
+        let alert = NSAlert()
+        alert.messageText = copy.text("再次附加这张截图？", "Attach this screenshot again?")
+        alert.informativeText = copy.text("原草稿可能已有这张图。继续后，请打开目标草稿，再点一下桌面上的截图。", "The original draft may already contain this image. Continue, open the draft you want, then click the screenshot on your desktop.")
+        alert.addButton(withTitle: copy.text("继续", "Continue"))
+        alert.addButton(withTitle: copy.text("取消", "Cancel"))
+        alert.beginSheetModal(for: historyWindow) { [weak self] response in
+            guard response == .alertFirstButtonReturn else { return }
+            self?.onPrepareReattachment?(entry.id, op.id)
+        }
+    }
+
+    @objc private func focusOriginal() {
+        guard let op = selectedEntry?.currentOperation, let onFocusOriginal else { return }
+        Task { [weak self] in
+            let focused = await onFocusOriginal(op)
+            guard !focused, let self, self.selectedEntry?.currentOperation?.id == op.id else { return }
+            self.showActionError(self.copy.text("未能定位原草稿。可查看原图，或打开已有的会话记录。", "The original draft could not be located. View the image or open the conversation history if available."))
+        }
     }
 
     @objc private func viewOriginalConversation() {

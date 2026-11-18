@@ -51,6 +51,14 @@ final class ChromePinnedRoutingTests: XCTestCase {
         XCTAssertNotEqual(original, try ChromeClickRoute(window: "11", tab: "12", url: "https://other.example/c/original"))
     }
 
+    func testSavedConversationLinksAcceptOnlyScopedUUIDPaths() throws {
+        let id = UUID()
+        for (path, expected) in [("/g/g-example/c/", id), ("/c/", id), ("/g//c/", nil), ("/g/%2F/c/", nil), ("/unrelated/c/", nil)] {
+            let route = try ChromeClickRoute(window: "1", tab: "2", url: "https://chatgpt.com" + path + id.uuidString)
+            XCTAssertEqual(route.historyConversationID, expected)
+        }
+    }
+
     func testSnapshotHasNoNewChatOrProjectPathWhitelist() throws {
         for path in ["/", "/c/ordinary", "/g/project/project", "/g/project/c/conversation", "/future-chat-route"] {
             let route = try ChromeClickRoute(window: "1", tab: "2", url: "https://chatgpt.com" + path)

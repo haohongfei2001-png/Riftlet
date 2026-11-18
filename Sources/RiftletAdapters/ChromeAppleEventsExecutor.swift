@@ -65,6 +65,40 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         }
     }
 
+    /// Only a user-requested history action calls this path. Validate the stored
+    /// document and composer against an existing relay before raising its tab.
+    public func focusOriginal(_ operation: TransferOperation) async -> Bool {
+        struct DraftValidation: Decodable { let target: TargetLease; let valid: Bool }
+        let target = operation.target
+        guard target.surface == .webChat, target.adapterID == "chatgpt-web",
+              target.applicationID == "com.google.Chrome", let tab = target.tabID,
+              let app = NSRunningApplication.runningApplications(withBundleIdentifier: target.applicationID)
+                .first(where: { ChromeProcessIdentity.read(pid: $0.processIdentifier)?.matches(session: target.sessionID) == true }),
+              let identity = ChromeProcessIdentity.read(pid: app.processIdentifier),
+              identity.matches(session: target.sessionID) else { return false }
+        do {
+            let program = try ChatGPTWebPageProgram.load()
+            let bridge = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: UUID().uuidString)
+            let route = try await Task.detached {
+                try ChromeClickRoute(window: target.windowID, tab: tab, url: bridge.url(window: target.windowID, tab: tab))
+            }.value
+            func matches() async throws -> Bool {
+                let data = try await Self.run(.init(action: .validate, target: target), program: program,
+                    identity: identity, route: route, relays: relays, trace: trace,
+                    requestID: UUID().uuidString, discoverForHistory: true)
+                let result = try JSONDecoder().decode(DraftValidation.self, from: data)
+                return result.valid && result.target == target && identity.isCurrent()
+            }
+            guard try await matches() else { return false }
+            try await Task.detached {
+                guard identity.isCurrent() else { throw WebAdapterError.invalidTarget }
+                try bridge.selectForHistory(window: route.window, tab: route.tab)
+            }.value
+            guard try await matches() else { return false }
+            return app.activate(options: [.activateIgnoringOtherApps])
+        } catch { return false }
+    }
+
     private func clickReceiver() throws -> ChromeProcessIdentity {
         let applications = NSRunningApplication.runningApplications(withBundleIdentifier: "com.google.Chrome")
         let running = Set(applications.filter { !$0.isTerminated }.map(\.processIdentifier))
@@ -114,7 +148,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
 
     private nonisolated static func run(_ command: WebBridgeCommand, program: WebPageProgram,
         identity: ChromeProcessIdentity, route: ChromeClickRoute?, relays: MainWorldRelayStore,
-        trace: ChromeBridgeTrace, requestID: String) async throws -> Data {
+        trace: ChromeBridgeTrace, requestID: String, discoverForHistory: Bool = false) async throws -> Data {
         let commandJSON = String(decoding: try JSONEncoder().encode(command), as: UTF8.self)
         let enqueued = ProcessInfo.processInfo.systemUptime
         // Old UNKNOWN observations must not occupy the input queue. Each
@@ -148,7 +182,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                         }
                         var relay = command.target.flatMap { relays.bound(to: $0) } ?? relays.relay(function: program.functionSource, contextJSON: context,
                             allowCreate: false, legacyObservationSession: legacySession)
-                        if relay == nil, command.action == .observe || command.action == .captureTarget {
+                        if relay == nil, command.action == .observe || command.action == .captureTarget || (discoverForHistory && command.action == .validate) {
                             let expected = MainWorldCommandRelay(function: program.functionSource,
                                 contextJSON: context, legacyObservationSession: legacySession)
                             let channel = try bridge.execute(expected.discovery, window: window, tab: tab,
@@ -369,12 +403,13 @@ private struct ChromePIDEvents {
     }
 
     private func send(_ suite: String, _ event: String, direct: NSAppleEventDescriptor,
-                      javascript: String? = nil, value: String? = nil,
+                      javascript: String? = nil, value: String? = nil, integer: Int32? = nil,
                       receiptBudget: MainWorldReceiptReadBudget? = nil) throws -> NSAppleEventDescriptor {
         let request = NSAppleEventDescriptor(eventClass: code(suite), eventID: code(event),
             targetDescriptor: .init(processIdentifier: pid), returnID: -1, transactionID: 0)
         request.setParam(direct, forKeyword: code("----"))
         if let javascript { request.setParam(.init(string: javascript), forKeyword: code("JvSc")) }
+        if let integer { request.setParam(.init(int32: integer), forKeyword: code("data")) }
         if let value { request.setParam(.init(string: value), forKeyword: code("data")) }
         let timeout: TimeInterval
         if let receiptBudget {
@@ -397,7 +432,7 @@ private struct ChromePIDEvents {
             throw WebAdapterError.nativeEventFailed(error.int32Value)
         }
         guard let result = reply.paramDescriptor(forKeyword: code("----")) else {
-            if value != nil { return .null() }
+            if value != nil || integer != nil { return .null() }
             throw WebAdapterError.nativeExecutionFailed
         }
         return result
@@ -420,6 +455,27 @@ private struct ChromePIDEvents {
             throw WebAdapterError.invalidTarget
         }
         return value
+    }
+
+    func selectForHistory(window: String, tab: String) throws {
+        let owner = try object("cwin", form: "ID  ", key: .init(string: window))
+        let active = try property("acTa", of: owner)
+        if try identifier(active) != tab {
+            // Chrome exposes selection by index only. Resolve IDs within the
+            // saved window and check both sides of the indexed selection.
+            let tabs = try object("CrTb", form: "indx", key: .init(enumCode: code("all ")), container: owner)
+            let ids = try get(property("ID  ", of: tabs))
+            guard ids.numberOfItems > 0,
+                  let index = (1...ids.numberOfItems).first(where: { ids.atIndex($0)?.stringValue == tab }),
+                  let position = Int32(exactly: index) else { throw WebAdapterError.invalidTarget }
+            let candidate = try object("CrTb", form: "indx", key: .init(int32: position), container: owner)
+            guard try identifier(candidate) == tab else { throw WebAdapterError.invalidTarget }
+            _ = try send("core", "setd", direct: property("acTI", of: owner), integer: position)
+        }
+        guard try identifier(active) == tab else { throw WebAdapterError.invalidTarget }
+        _ = try send("core", "setd", direct: property("pidx", of: owner), integer: 1)
+        let selected = try activeIdentity(check: "history_focus")
+        guard selected.window == window, selected.tab == tab else { throw WebAdapterError.invalidTarget }
     }
 
     func activeIdentity(check: String) throws -> (window: String, tab: String) {

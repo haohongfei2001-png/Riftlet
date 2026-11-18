@@ -18,9 +18,16 @@ struct ChromeClickRoute: Equatable, Sendable {
 
     var historyConversationID: UUID? {
         guard let parts = URLComponents(string: address), parts.scheme == "https", parts.host == "chatgpt.com",
-              parts.port == nil, parts.percentEncodedPath.hasPrefix("/c/") else { return nil }
-        var id = String(parts.percentEncodedPath.dropFirst(3))
-        if id.hasSuffix("/") { id.removeLast() }
+              parts.port == nil else { return nil }
+        let segments = parts.percentEncodedPath.split(separator: "/", omittingEmptySubsequences: false)
+        var path = Array(segments.dropFirst())
+        if path.last == "" { path.removeLast() }
+        if path.count == 4, path[0] == "g",
+           !path[1].isEmpty, path[1].utf8.allSatisfy({ (65...90).contains($0) || (97...122).contains($0) || (48...57).contains($0) || $0 == 45 || $0 == 95 }) {
+            path.removeFirst(2)
+        }
+        guard path.count == 2, path[0] == "c" else { return nil }
+        let id = String(path[1])
         return id.count == 36 ? UUID(uuidString: id) : nil
     }
 

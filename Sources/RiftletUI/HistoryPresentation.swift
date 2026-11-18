@@ -9,23 +9,25 @@ public struct RiftHistoryEntry: Identifiable, Equatable, Sendable {
     public let operation: TransferOperation?
     public let lastReceipt: TransferReceipt?
     public let attachmentState: HistoryAttachmentState
+    public let isHandled: Bool
     public let canRestore: Bool
     public let detail: String?
 
     public init(record: AssetRecord, operation: TransferOperation? = nil,
                 lastReceipt: TransferReceipt? = nil, startReceipt: TransferReceipt? = nil, canRestore: Bool = false,
-                detail: String? = nil) {
+                isHandled: Bool = false, detail: String? = nil) {
         self.record = record; self.operation = operation; self.lastReceipt = lastReceipt
         attachmentState = HistoryAttachmentState(record: record, operation: operation, receipt: lastReceipt, startReceipt: startReceipt)
+        self.isHandled = isHandled
         self.canRestore = canRestore; self.detail = detail.map { String($0.prefix(512)) }
     }
 
     public init(snapshot: QueueHistoryRecord) {
         self.init(record: snapshot.record, operation: snapshot.operation, lastReceipt: snapshot.receipt,
-                  startReceipt: snapshot.startReceipt, canRestore: snapshot.canRestore, detail: snapshot.reason)
+                  startReceipt: snapshot.startReceipt, canRestore: snapshot.canRestore, isHandled: snapshot.isHandled, detail: snapshot.reason)
     }
 
-    private var currentOperation: TransferOperation? {
+    var currentOperation: TransferOperation? {
         guard let operation, record.activeOperationID == operation.id,
               operation.assetID == record.id else { return nil }
         return operation
@@ -46,6 +48,15 @@ public struct RiftHistoryEntry: Identifiable, Equatable, Sendable {
 
     public var isConfirmedFailure: Bool { attachmentState == .confirmedFailure }
     public var needsVerification: Bool { attachmentState.needsVerification }
+
+    var canReviewOriginal: Bool {
+        guard let target = currentOperation?.target else { return false }
+        return target.adapterID == "chatgpt-web" && target.surface == .webChat && target.applicationID == "com.google.Chrome"
+    }
+
+    var hasRecoveryOptions: Bool {
+        canReviewOriginal && (attachmentState.needsVerification || attachmentState == .confirmedFailure || attachmentState == .notAttached)
+    }
 
     public var canRestoreToRift: Bool {
         guard canRestore,
@@ -101,7 +112,7 @@ public enum RiftHistoryFilter: String, CaseIterable, Sendable {
         switch self {
         case .all: return true
         case .desktop: return entry.record.visibility == .visible
-        case .needsAttention: return entry.record.status == .missing || entry.needsVerification || entry.isConfirmedFailure || entry.attachmentState == .notAttached
+        case .needsAttention: return entry.record.status == .missing || (!entry.isHandled && (entry.needsVerification || entry.isConfirmedFailure || entry.attachmentState == .notAttached))
         case .needsVerification: return entry.needsVerification
         case .swallowed: return entry.record.visibility == .swallowed
         case .attached: return entry.record.status != .missing && entry.attachmentState == .attached
