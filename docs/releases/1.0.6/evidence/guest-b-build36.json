@@ -32,7 +32,7 @@
     ],
     "limits": [
       "language/appearance/size combinations sampled independently",
-      "VoiceOver speech and multiple physical displays not run"
+      "VoiceOver sound recording and multiple physical displays not run"
     ],
     "annotationAndPermission": {
       "missingScreenRecording": "actual initial denial, app status and actionable entry, correct macOS pane, OS consent then real capture",
@@ -54,6 +54,11 @@
       "derivedEqualsOriginal": false,
       "retainedOriginalExactSHA": true,
       "keepOriginalExactSHA": true
+    },
+    "VoiceOver": {
+      "tested": "Real macOS VoiceOver announced library search name and text-field role, status popup, date popup, selected grid radio (2 of 2); verified display transcript of the native caption panel while Tab moved focus",
+      "spokenAudioRecording": "NOT_RUN",
+      "speechSynthesisOutputHeardByHuman": "NOT_RUN"
     }
   },
   "V6ordinary": {
@@ -181,6 +186,13 @@
     "screens-en-light.png": "fe3c4f7c557fca2e2e6c1ea62f4e37803643c4f67f4f9a7bc9c83b451570ea82",
     "screens-zh-dark.png": "af93cac10afccc475647e4f96df54c453df93fc1a59063ff270aa59b9e15e45c",
     "v6-initial-manager.png": "314d98b57568ee7f21102b47d9a50858c6e876eca53d0917b593ad9a389120eb",
-    "v6-verified-1000.png": "852d8409ffbc914fcdc646ee0b98d9c20be50e1e045960108b3588c1dfeed738"
+    "v6-verified-1000.png": "852d8409ffbc914fcdc646ee0b98d9c20be50e1e045960108b3588c1dfeed738",
+    "voiceover-dates.png": "598a08e1adf82fa70f19f2de7ee8d0fefd280c8d5be74f415fe667c5fd6c3f55",
+    "voiceover-filter.png": "598a08e1adf82fa70f19f2de7ee8d0fefd280c8d5be74f415fe667c5fd6c3f55",
+    "voiceover-next.png": "1b5bae9f9f2235c0616845404b5e8276ebf05d854e8771718521f2ead773c7a7",
+    "voiceover-search.png": "66aea639e6a3b9a74483a57ec25a8ab9cd687f5d2c129a1fc8d36d8055efa1b9",
+    "voiceover-tab-dates.png": "c1222e7b8cee2a40768f2f519aca48a41bf7b3c7ea41be01951fab6a220272ab",
+    "voiceover-tab-list.png": "a63d7f90fd9a65e1e58a4981af6b6e3ab39a6df48dd3358250ab0c2035840f3f",
+    "voiceover-tab-rule.png": "abe48cad3af0d25be303128bc19031bccdb0d30808757385b7130807701e8613"
   }
 }
