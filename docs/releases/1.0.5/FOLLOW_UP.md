@@ -1,5 +1,8 @@
 # 1.0.5 真实附加与托盘交互复验
 
+1.0.5 历史记录。最终正式版为 build 31。[正式通道验收](https://github.com/haohongfei2001-png/Riftlet/pull/114#issuecomment-6968323045) · [1.0.6 修复任务](https://github.com/haohongfei2001-png/Riftlet/issues/115)
+
+
 本轮从 PR #113 已通过五项检查的 `d6248d5` 继续。build 30 的签名主程序 SHA-256 为 `c1474953ca02d19c21f773ef1847b1507792cbe2284ae30d30f3e34b69fac3e6`。[前次验收](RC_REPORT.md)
 
 | 流程 | 普通签名 build 30 的观察 |
