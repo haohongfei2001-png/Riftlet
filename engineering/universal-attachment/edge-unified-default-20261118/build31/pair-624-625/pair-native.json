@@ -1,0 +1,214 @@
+{
+  "accountScope": "user-authorized-main-account",
+  "afterDraft": {
+    "allPriorCounts": [
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "available": true,
+    "baselineReadinessAtReadback": true,
+    "eachNewOperationFilenameCount": [
+      null,
+      1
+    ],
+    "exactOriginalSelection": true,
+    "observedAt": "2026-11-18T04:24:58Z",
+    "onlyNamedOriginalsAndNew": true,
+    "originalNativeTabAndWindow": true,
+    "retained621BaselineCounts": [
+      1
+    ],
+    "sameText": true,
+    "selection": [
+      61,
+      14
+    ],
+    "signedIn": true,
+    "totalAttachments": 6,
+    "unknownAttachments": 0,
+    "visibleFileLimit": false
+  },
+  "beforeDraft": {
+    "allPriorCounts": [
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "available": true,
+    "baselineReadinessAtReadback": true,
+    "eachNewOperationFilenameCount": [
+      null,
+      0
+    ],
+    "exactOriginalSelection": true,
+    "observedAt": "2026-11-18T04:24:13Z",
+    "onlyNamedOriginalsAndNew": true,
+    "originalNativeTabAndWindow": true,
+    "retained621BaselineCounts": [
+      1
+    ],
+    "sameText": true,
+    "selection": [
+      61,
+      14
+    ],
+    "signedIn": true,
+    "totalAttachments": 5,
+    "unknownAttachments": 0,
+    "visibleFileLimit": false
+  },
+  "compressedTraceBytes": 3330,
+  "executableSHA256": "a16719e3f992adab8edf116f478b16c12d5160799a928e4e68fff6d22c7c7c83",
+  "fullOriginalObserverMetadataChanges": [],
+  "historicalEvidence": {
+    "ordinary617EvidenceSHA256": "aef414643a8b13196ee32090d65e9b01c91820496ed8853861023fe25aa4fc2c",
+    "original617LedgerSHA256": "8ce399f6b2a5cc211ac9cc8ae2a8d551e70f69e7c6e7aff68a9b4a8019b9dc8d",
+    "prior617_618ReservationsStillPresent": true,
+    "priorEvidence": {
+      "SHA256": "5360d70c724522794f96a0c42b9c0fee9c2e15bbf11525f6b9e9fc8163207b37",
+      "bytes": 33122893,
+      "files": 73,
+      "latestFrozenLedgerSHA256": "80f8097bbed43fcc1dcb89c64bf4fdd35057115fe0d67b68852eb0ab2cfc9ae1",
+      "latestPairEvidenceSHA256": "b11be33fd717edcd1420ae2f7a1d607c9530eb53a9f3926f75a4faeeff038d54"
+    }
+  },
+  "images": [
+    {
+      "currentVisibility": "visible",
+      "ledgerPhases": [],
+      "localDurableStarts": 0,
+      "localStatus": "pending",
+      "nativeReceiptError": null,
+      "nativeSelection": true,
+      "nativeTaggedRows": 10,
+      "operationCount": 0,
+      "operationFilenameSHA256s": [],
+      "operationReasons": [],
+      "originalBytes": 1405809,
+      "originalChangeObserved": false,
+      "originalOutcomeVisibility": "visible",
+      "originalPreserved": true,
+      "originalSHA256": "e9e882b9d3a3b54f6838df4e8858dc1a5c35dc75c866504870726c8d29498fcf",
+      "originalSetterObserved": false,
+      "reserved": true,
+      "seed": 624,
+      "senderExit": 0,
+      "serviceTerminal": "REQUIRES_INDEPENDENT_SERVICE_RECEIPT",
+      "swallowActualStartCount": 0,
+      "swallowCloseCount": 0,
+      "swallowScheduledCount": 0,
+      "traceRefusals": [
+        {
+          "error": "invalidReply",
+          "event": "click_input_refused",
+          "phase": "resolveSelection",
+          "sequence": 41
+        }
+      ],
+      "traceStartObserved": false
+    },
+    {
+      "currentVisibility": "visible",
+      "ledgerPhases": [
+        "unknown"
+      ],
+      "localDurableStarts": 0,
+      "localStatus": "unknown",
+      "nativeReceiptError": null,
+      "nativeSelection": true,
+      "nativeTaggedRows": 10,
+      "operationCount": 1,
+      "operationFilenameSHA256s": [
+        "76b672a0aa09e70502c7647995dc784dc22686f24d5892b56b5ff0f423dd29f0"
+      ],
+      "operationReasons": [
+        {
+          "code": null,
+          "sha256": "550fceacb5148e6ad57f5469607f9a9bc25856ae93038f79ea74fcf87425854a"
+        }
+      ],
+      "originalBytes": 1406064,
+      "originalChangeObserved": true,
+      "originalOutcomeVisibility": "visible",
+      "originalPreserved": true,
+      "originalSHA256": "e782d6a35cfd00730b724a949648b175f1d98eb939ac96c24e43eb48328634f5",
+      "originalSetterObserved": true,
+      "reserved": true,
+      "seed": 625,
+      "senderExit": 0,
+      "serviceTerminal": "REQUIRES_INDEPENDENT_SERVICE_RECEIPT",
+      "swallowActualStartCount": 0,
+      "swallowCloseCount": 0,
+      "swallowScheduledCount": 0,
+      "traceRefusals": [],
+      "traceStartObserved": false
+    }
+  ],
+  "nativeDownIntervalMs": 766.343,
+  "oneDiagnosticSession": true,
+  "ordinaryRunStop": null,
+  "originalLedgerAndMediaPreserved": {
+    "allOriginalOperationPayloadsAndReceipts": true,
+    "allOriginalRawAssetAndStartColumns": true,
+    "assets": true,
+    "originalMedia": true,
+    "starts": true
+  },
+  "originalNativeLeaseChecks": {
+    "bothLeases": false
+  },
+  "originalObserverMetadataChanges": [],
+  "productRowsAtIndependentRead": {
+    "assets": 28,
+    "operations": 18,
+    "starts": 4
+  },
+  "productRowsBefore": {
+    "assets": 26,
+    "operations": 17,
+    "starts": 4
+  },
+  "profileIsolation": "dedicated_window_in_existing_profile",
+  "rawSequencesContinuous": true,
+  "rawTraceBytes": 76623,
+  "readerMainWorldBeforeInput": null,
+  "schema": 1,
+  "serviceProcessingTerminal": "REQUIRES_INDEPENDENT_HAR_JOIN",
+  "source": "fb4e8fa73746d9cba55362ef099dab4ac3a9b057",
+  "sourceSHA256": {
+    "afterFullRows": "ef0ae29325a916d51a227f5b723444b26f2e1bb0f2e534a6b0cf6b5dcc16cbcc",
+    "afterSQLiteAndPriorMedia": "84a46dc228d87860fd39bec3e24bc4e916145ec934d96b9effda42c85e0e7bf4",
+    "beforeSQLite": "83f47133bdd6deed5133d002a89d48644e8faf8c837b11fd104a7cd0ce2477b6",
+    "capture624": "9d23bb3350ce29ae0524ef97a9ebccc214052ca40c34f4a51e3bf97cf7622421",
+    "capture625": "f6ebbfb3500a17acf08c5a628898240f245a1e494f7f0a1db7b2fd2e45242bc4",
+    "compressedOriginalTrace": "51d21219b6e8a16df6d64b2174a3d4c35da30c7e8ca6986023880aab4dffc7bd",
+    "import624": "66cf4871e1367a1e93a82a093f7ae7773b250bb5256ad013d7820b58694f1b63",
+    "import625": "4ff9f40de5f3f27f91661ca93be9fca22dc587f6d73b69c9991761630ede9ba2",
+    "intent1": "a9b48bae1b36377633d40d8c60a6c401468a2e093cbb924b9dcaed78f3ffb691",
+    "intent2": "e701c5cb82fea152b527a258cf996cde2a60326630fb39c7d77d2a9cd105b50a",
+    "nativeDecisions": "5c30fb967f0b8fbf9e5ba0d496bae28aa771a521800168ea4d11afd011ef8797",
+    "nativeMapEpochs": "c84b127c2120e9decd8795a4cd8c417470dcff9737ac1f4102fe314caa2c2dc1",
+    "nativeOutcome": "6489f9f5ec7455c4a8324d555b74968087e4f656f05d4547d04b4c2915809c72",
+    "nativePrepared": "5bbdd86cefb71557557094420390707b0e5b8fdcfe637ea11cda6c7e446f938a",
+    "nativeReservation1": "28839a6adc09da9a817ecd7c7c520fc14fc592a7a8249226cae9ac93f19eb5a8",
+    "nativeReservation2": "1209e0459a582c62a7109bd1c537bed6244ddadd46b3bd40d81086b347d5b672",
+    "originalArmedSetup": "1329af08a545c56a9f29144797c191478d5bc24b72708831b667e9b8278bbedd",
+    "originalTabCreation": "02cfd8bdd5041306a93de546a7f01ceee7d141951646ee87e9c40c5bb9687f57",
+    "pairReservation": "ad9b56b46b0948e9ceb035d72e7653c6c8d0e3e97e89e6a761236d60c6a6c39d",
+    "priorFullRows": "c436a20a8bb79629a23b0c746ddce398d9fb595c06b3445b2f38ba9f7133da2f",
+    "priorOperations": "a6806f0e1d6fd70af94742a63824f8890b00d6f980b91ab0c86b157aa0c29d4d",
+    "rawOrdinaryTrace": "1ab5398301fb91ac2c668d73eb3007f30030ef79d3d4f57b8fbde1ce05005a43",
+    "sender1": "03c30fb5f1507352246ccaffb3a3d019288b4c5694e79f4ba248fe82851142ca",
+    "sender2": "62462bf20d052e1187ca73be7fc486059d97f2f4c57f319c9277dd66786e3bd8",
+    "systemPNG624": "e9e882b9d3a3b54f6838df4e8858dc1a5c35dc75c866504870726c8d29498fcf",
+    "systemPNG625": "e782d6a35cfd00730b724a949648b175f1d98eb939ac96c24e43eb48328634f5",
+    "ticket": "6492fc05f11fa3fdbec17069b35c5bc5daa740a42c32f5c22efd5a4ad41e0078"
+  },
+  "targetSHA256": "d5026e94bfd7dca5657b6cc22a341167e8703ef05a020183837d343b9c8cd9f2",
+  "traceRows": 116
+}

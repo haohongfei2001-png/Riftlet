@@ -1,0 +1,76 @@
+{
+  "status": "PASS",
+  "scope": "isolated native headless DOM / synthetic fixture; no service, no original input",
+  "cases": [
+    {
+      "mode": "atomic",
+      "kinds": [
+        "oneForOneFormDOMEdit"
+      ]
+    },
+    {
+      "mode": "splitSameTurn",
+      "kinds": [
+        "multiRecordOrMissingEdit"
+      ]
+    },
+    {
+      "mode": "differentParent",
+      "kinds": [
+        "differentParent"
+      ]
+    },
+    {
+      "mode": "gap",
+      "kinds": [
+        "originalNoLongerUniquelyVisible",
+        "appearedAfterGap"
+      ]
+    },
+    {
+      "mode": "intermediateABA",
+      "kinds": [
+        "continuityUncertain"
+      ]
+    },
+    {
+      "mode": "competingEdit",
+      "kinds": [
+        "multiRecordOrMissingEdit"
+      ]
+    },
+    {
+      "mode": "movedSlot",
+      "kinds": [
+        "differentSlotOrNeighbors"
+      ]
+    },
+    {
+      "mode": "foreignClaim",
+      "kinds": [
+        "originalNoLongerUniquelyVisible"
+      ]
+    },
+    {
+      "mode": "processing",
+      "kinds": [
+        "oneForOneFormDOMEdit"
+      ]
+    },
+    {
+      "mode": "failed",
+      "kinds": [
+        "conflictingProcessingState"
+      ]
+    }
+  ],
+  "identicalCompleteOriginalEventSequenceExceptClock": [
+    "atomic",
+    "splitSameTurn",
+    "differentParent",
+    "intermediateABA",
+    "competingEdit",
+    "movedSlot",
+    "foreignClaim"
+  ]
+}

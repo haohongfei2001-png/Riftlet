@@ -1,0 +1,167 @@
+{
+  "actualClickedOrdinals": [
+    23,
+    24
+  ],
+  "actualClickedPageNumbers": [
+    8,
+    8
+  ],
+  "allNativeSelectionEvents": 2,
+  "assessment": {
+    "624": "pre-input refusal at the documentEditorPin phase; inner return and precise cause not recorded",
+    "625": "one input reached the original draft; staged progress preceded replacement of the original card root and remove button; product never recorded START",
+    "pairAcceptance": "FAIL",
+    "serviceCompletion": "classified independently from normal Network evidence"
+  },
+  "build": "31",
+  "draft": {
+    "afterCount": 6,
+    "beforeCount": 5,
+    "newNamedCardsInOriginalDraft": [
+      null,
+      1
+    ],
+    "retainedPriorAttachmentCounts": [
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "selectedTextExact": true,
+    "selection": [
+      61,
+      14
+    ],
+    "textPreserved": true,
+    "unexpectedAttachments": 0
+  },
+  "evidenceSHA256": {
+    "native": "648f23838af3b569aeab9e41c3373a08af4c0f01e631faf46ebe7470125156d6",
+    "outcome": "6489f9f5ec7455c4a8324d555b74968087e4f656f05d4547d04b4c2915809c72",
+    "package": "b78009d89d4fd84bea0be383519eed4cd968271a1ad97886629f61b806197e31",
+    "progress": "20a856f54ed8596b07fa3658e2ea2f3de32a2350c83e1b455daaee9308a7b59d",
+    "raw": "1ab5398301fb91ac2c668d73eb3007f30030ef79d3d4f57b8fbde1ce05005a43",
+    "ticket": "6492fc05f11fa3fdbec17069b35c5bc5daa740a42c32f5c22efd5a4ad41e0078",
+    "transition": "95c1773d0060e59a589a7b441a633f18c6c421eeade46815df1a1088f615d999"
+  },
+  "executableSHA256": "a16719e3f992adab8edf116f478b16c12d5160799a928e4e68fff6d22c7c7c83",
+  "images": [
+    {
+      "assetStatus": "pending",
+      "clickTimeDocumentPin": {
+        "phase": "documentEditorPin",
+        "seq": 32,
+        "succeeded": false,
+        "timingsMilliseconds": {
+          "elapsedMS": 100.535,
+          "nativeIdentityMS": 77.135,
+          "phaseElapsedMS": 22.449
+        }
+      },
+      "durableStarts": 0,
+      "mouseEventChainLength": 10,
+      "nativeInputDownSeq": 29,
+      "nativeSelectionSeq": 34,
+      "operationCount": 0,
+      "operationPhases": [],
+      "originalBytesRetained": true,
+      "originalPNGBytes": 1405809,
+      "originalSHA256": "e9e882b9d3a3b54f6838df4e8858dc1a5c35dc75c866504870726c8d29498fcf",
+      "positiveProductStart": false,
+      "preinputRefusals": [
+        {
+          "error": "invalidReply",
+          "phase": "resolveSelection",
+          "seq": 41
+        }
+      ],
+      "productDecisionSampleCounts": {},
+      "productObservations": 0,
+      "seed": 624,
+      "setterReturnedChangeObserved": false,
+      "swallowStarts": 0,
+      "visibility": "visible"
+    },
+    {
+      "assetStatus": "unknown",
+      "clickTimeDocumentPin": {
+        "phase": "pinned",
+        "seq": 47,
+        "succeeded": true,
+        "timingsMilliseconds": {
+          "documentPinElapsedMS": 69.168,
+          "documentPinMS": 15.218,
+          "elapsedMS": 78.907,
+          "nativeIdentityMS": 53.864,
+          "phaseElapsedMS": 9.74,
+          "selectionRecheckElapsedMS": 78.895,
+          "selectionRecheckMS": 9.728
+        }
+      },
+      "durableStarts": 0,
+      "mouseEventChainLength": 10,
+      "nativeInputDownSeq": 44,
+      "nativeSelectionSeq": 49,
+      "operationCount": 1,
+      "operationPhases": [
+        "unknown"
+      ],
+      "originalBytesRetained": true,
+      "originalPNGBytes": 1406064,
+      "originalSHA256": "e782d6a35cfd00730b724a949648b175f1d98eb939ac96c24e43eb48328634f5",
+      "positiveProductStart": false,
+      "preinputRefusals": [],
+      "productDecisionSampleCounts": {
+        "fileBlobMissing": 3,
+        "firstProgress": 1,
+        "nodeReused": 4,
+        "stagedProgressAwaitingPreview": 26
+      },
+      "productObservations": 34,
+      "seed": 625,
+      "setterReturnedChangeObserved": true,
+      "swallowStarts": 0,
+      "visibility": "visible"
+    }
+  ],
+  "nativeDownIntervalMilliseconds": 766.343,
+  "ordinaryTaggedNativeSelections": 2,
+  "previousDatabaseAndMediaPreserved": {
+    "allOriginalOperationPayloadsAndReceipts": true,
+    "allOriginalRawAssetAndStartColumns": true,
+    "assets": true,
+    "originalMedia": true,
+    "starts": true
+  },
+  "rawSequenceContinuous": true,
+  "receiptBackedCountsAfter": {
+    "assets": 28,
+    "operations": 18,
+    "starts": 4
+  },
+  "receiptBackedCountsBefore": {
+    "assets": 26,
+    "operations": 17,
+    "starts": 4
+  },
+  "sameAppSession": true,
+  "schema": 1,
+  "scope": "ordinary Developer ID candidate in the existing signed-in Default Edge temporary ChatGPT draft",
+  "source": "fb4e8fa73746d9cba55362ef099dab4ac3a9b057",
+  "tree": "5280ee8a6911404a8ecfa8df41611054a78a0400",
+  "version": "1.0.5",
+  "witness625": {
+    "observedIncreasingSamples": 33,
+    "observedNumericRange": [
+      5,
+      100
+    ],
+    "perMutationProgramBranch": "not recorded",
+    "removeReplacedWhenFinalPreviewAppeared": true,
+    "rootReplacedWhenFinalPreviewAppeared": true,
+    "sameRootAndRemoveWhenBarRetired": true,
+    "timeOrdering": "progress through 100, status on original root and remove, then different root and remove with image"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "scope": "read-only analysis of existing 625 records and controlled offline DOM repro, no service or product writes",
+  "source": "fb4e8fa73746d9cba55362ef099dab4ac3a9b057",
+  "seed": 625,
+  "originalOrdinaryResult": "UNKNOWN",
+  "durableStart": false,
+  "originalArtifactSHA256": {
+    "qaObserver": "bb7a4c56a56222d5dfbd4a11d60dc2ec126d5ffdd73d245dd334dae8dfba850d",
+    "originalQA": "19decdc7fb5968c32da56e1146ea3de17b2d7a434fd6d3248185b1fb0db9b182",
+    "ordinaryTrace": "1ab5398301fb91ac2c668d73eb3007f30030ef79d3d4f57b8fbde1ce05005a43",
+    "derivedNodeProjection": "95c1773d0060e59a589a7b441a633f18c6c421eeade46815df1a1088f615d999"
+  },
+  "totalOriginalQAEvents": 43,
+  "storedEventFamilies": [
+    "cardPresent",
+    "controls",
+    "neutralCardShape",
+    "numeric",
+    "svgCount",
+    "svgProgressRole"
+  ],
+  "before": {
+    "root": 1,
+    "remove": 2,
+    "bar": 3
+  },
+  "after": {
+    "root": 4,
+    "remove": 5,
+    "image": 6
+  },
+  "missingForCrossViewAttribution": [
+    "stable parent of the card root",
+    "before and after sibling boundaries, index and other children",
+    "ordered childList target, added, removed and sibling endpoints",
+    "racing edits and detach/reinsert within a delivery",
+    "a non-transferable File identity shared by both views"
+  ],
+  "verdict": "Existing evidence cannot connect the two views uniquely. No retroactive admission.",
+  "offlineNativeDOM": {
+    "cases": 10,
+    "identicalCompleteOriginalEventSequenceExceptClock": [
+      "atomic",
+      "splitSameTurn",
+      "differentParent",
+      "intermediateABA",
+      "competingEdit",
+      "movedSlot",
+      "foreignClaim"
+    ],
+    "resultSHA256": "ddf8d776325b875ac723186cf901cec46b5bb15a9ceb7acecdb5f1e9a969ef26"
+  },
+  "futureQAOnly": {
+    "sourceSHA256": "0aa1ffeb9fce2466bd9ee4dd094236433e059c2d6a87f490323011fa32884ea5",
+    "patchSHA256": "335731cc1a4b1a3f010afca6d6775df955927f3a93df4efccd5a2d282ec3d8ec",
+    "scope": "bounded original test form, offline verified; no new live run",
+    "disposition": "An unambiguous local one-for-one edit remains a structural observation. It does not establish file identity or a service-state receipt."
+  }
+}
