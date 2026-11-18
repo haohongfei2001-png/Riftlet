@@ -1,0 +1,56 @@
+{
+  "source": "7e44fd3040af32dc8e53bffac5256ac3cc992767",
+  "candidate": "1.0.6 (38)",
+  "environment": "Dedicated ARM64 macOS VM A, stock signed native candidate, ordinary Sparkle UI. Fixture uses four actual screenshots originally attached to the real Chrome test draft using build 35. The original page was definitively closed before this run.",
+  "feed": {
+    "build": "38",
+    "feedSHA256": "3d9372316bf18b8f523bb9dabdbc9defe086b1a23592a225b9628080faa8290e",
+    "dmgSHA256": "14085326e9ed36dde6a370f36e9cfd1a65ae688f37159fc2a67527d1fa406b28",
+    "executableSHA256": "47a5a203719cec88ca76e4e27eb6cbaa7805ba46b673919aaab5ef367119851a"
+  },
+  "V5": {
+    "31->38": {
+      "installedRunning": "1.0.6 (38), Gatekeeper Notarized Developer ID; feed-exact executable SHA256",
+      "unchangedOriginalFiles": 48,
+      "existingAssets": 19,
+      "existingOperations": 2,
+      "existingStarts": 1,
+      "existingCheckpoints": 6,
+      "newObservedOriginals": 9,
+      "priorAssetsWithVisibilityChange": 0,
+      "prefDraftBookmark": "intact",
+      "sqlite": "ok"
+    },
+    "35->38": {
+      "installedRunning": "1.0.6 (38), Gatekeeper Notarized Developer ID; feed-exact executable SHA256",
+      "unchangedOriginalFiles": 57,
+      "existingAssets": 28,
+      "existingOperations": 8,
+      "existingStarts": 5,
+      "existingCheckpoints": 35,
+      "newObservedOriginals": 0,
+      "priorAssetsWithVisibilityChange": 0,
+      "prefDraftBookmark": "intact",
+      "sqlite": "ok"
+    }
+  },
+  "V3": {
+    "manualScope": 24,
+    "manualOnlyCopiesWithoutVerifiedExternalOriginal": 6,
+    "previouslyRealChatGPTAttachmentsCleaned": 4,
+    "oldUnknownWithoutSTARTProtected": true,
+    "bothPreInputFailuresProtected": true,
+    "actualQuitAndRestart": true,
+    "completeByteAndRowRestoration": true,
+    "assets": 28,
+    "operations": 8,
+    "START": 5,
+    "integrity": "ok",
+    "sourceOnly": "30-day eligibility, change-of-original, in-flight fence, current failure and three import interruption points are separate native source-controlled cases. The GUI did not simulate elapsed calendar days or a service-side failure."
+  },
+  "V2": {
+    "oldUNKNOWN": "Cancel leaves data unchanged; Continue requires a separate fresh click; Hide changes local visibility; Mark as Handled clears attention entry only. Native records unchanged and explicit handling marker persisted. No new operation/START.",
+    "originalMissing": "After relaunch of 38, original Chrome process no longer exists. Return reports draft not located. Check does not input or alter original facts and reports the attachment can no longer be verified, with local recovery guidance.",
+    "note": "Independent live-page result is reported separately."
+  }
+}
