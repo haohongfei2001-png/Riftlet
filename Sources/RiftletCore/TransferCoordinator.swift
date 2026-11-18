@@ -51,11 +51,16 @@ public protocol InputPhasedAttachmentAdapter: AttachmentAdapter {
 /// execution. Its return boundary is independent of the upload observation: a
 /// returned setter can have an unknown result without occupying the next input.
 public protocol IndependentFileInputAdapter: InputPhasedAttachmentAdapter {
+    /// The observer can verify a live receiver, invocation, draft and attachment
+    /// after restart. Historical candidate adapters retain their original scope.
+    var supportsOriginalHandoffChecks: Bool { get }
     func append(_ request: TransferRequest,
                 onInputExecutionReturned: @escaping @Sendable () async -> Void) async throws -> TransferReceipt
 }
 
 public extension IndependentFileInputAdapter {
+    var supportsOriginalHandoffChecks: Bool { false }
+
     /// Existing adapters may report a positive input phase or simply finish the
     /// original call. Repeated return notifications are harmless; Core owns the
     /// one-operation execution lane. A Web adapter overrides this to notify even
@@ -379,6 +384,7 @@ public actor TransferCoordinator {
     public func recoverOriginalObservations(operationIDs: [UUID],
         authorize: @Sendable (TargetLease) async -> Bool = { _ in true }) async throws {
         if usesIndependentFileInput {
+            guard (adapter as? any IndependentFileInputAdapter)?.supportsOriginalHandoffChecks == true else { return }
             let allowed = Set(try await store.recentOriginalObservationIDs())
             for id in operationIDs.prefix(4) where allowed.contains(id) && !Task.isCancelled {
                 _ = try await recheckOriginal(operationID: id, authorize: authorize)
@@ -617,7 +623,8 @@ public actor TransferCoordinator {
     /// the background polling budget. This method never queues or drains input.
     public func recheckOriginal(operationID: UUID,
         authorize: @Sendable (TargetLease) async -> Bool) async throws -> OriginalAttachmentCheck {
-        guard usesIndependentFileInput, let op = try await store.operation(id: operationID),
+        guard (adapter as? any IndependentFileInputAdapter)?.supportsOriginalHandoffChecks == true,
+              let op = try await store.operation(id: operationID),
               op.phase.isUnresolved, op.phase != .prepared, op.target.adapterID == adapter.id,
               let asset = try await store.asset(id: op.assetID), asset.activeOperationID == op.id,
               let invocation = try await store.dispatchInvocationID(for: op.id) else { return .unavailable }

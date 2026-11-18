@@ -121,6 +121,7 @@ final class AttachmentDispositionTests: XCTestCase {
 
 private actor DispositionAdapter: IndependentFileInputAdapter {
     nonisolated let id = "test-adapter"
+    nonisolated let supportsOriginalHandoffChecks = true
     nonisolated let target = TargetLease(adapterID: "test-adapter", surface: .webChat, applicationID: "com.google.Chrome",
         sessionID: "fixture", windowID: "1", tabID: "1", documentID: "doc", composerID: "composer", draftGeneration: "1", clickBindingID: UUID())
     var attempts = [Int]()

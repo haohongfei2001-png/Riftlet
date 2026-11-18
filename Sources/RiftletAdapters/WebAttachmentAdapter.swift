@@ -113,6 +113,7 @@ public enum WebAdapterError: Error, Equatable, Sendable {
 /// operations; historical operations retain their observation-only profiles.
 public actor WebAttachmentAdapter: IndependentFileInputAdapter {
     public nonisolated let id: String
+    public nonisolated var supportsOriginalHandoffChecks: Bool { mode == .ordinaryProduct || mode == .syntheticDevelopment }
     private let mediaDirectory: URL
     private nonisolated let executor: any WebBridgeExecutor
     private nonisolated let program: WebPageProgram?
@@ -437,7 +438,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
                                            invocationID: invocation, requireLiveOriginal: request.requireLiveOriginal ? true : nil))
         // Successful operations may only be checked for identity-correlated late
         // errors. A single observation does not start another polling/upload loop.
-        if mode == .ordinaryProduct || request.operation.phase == .succeeded {
+        if mode == .ordinaryProduct || request.requireLiveOriginal || request.operation.phase == .succeeded {
             return try await normalize(data, for: request)
         }
         return try await observeCompletion(initial: data, identity: identity, request: request)
