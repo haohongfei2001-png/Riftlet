@@ -1,0 +1,154 @@
+{
+  "files": [
+    {
+      "boundAtMs": 8441.9,
+      "events": [
+        [
+          10149.9,
+          "cardPresent",
+          true
+        ],
+        [
+          10149.9,
+          "controls",
+          "progressbar#2,semantic#1"
+        ],
+        [
+          10149.9,
+          "svgCount",
+          1
+        ],
+        [
+          10149.9,
+          "svgProgressRole",
+          false
+        ],
+        [
+          10149.9,
+          "numeric#2",
+          null
+        ],
+        [
+          12324.2,
+          "numeric#2",
+          5
+        ],
+        [
+          12637.8,
+          "numeric#2",
+          10
+        ],
+        [
+          12740.2,
+          "numeric#2",
+          11
+        ],
+        [
+          12842.5,
+          "numeric#2",
+          16
+        ],
+        [
+          12946.6,
+          "numeric#2",
+          22
+        ],
+        [
+          13043.2,
+          "numeric#2",
+          25
+        ],
+        [
+          13154.6,
+          "numeric#2",
+          30
+        ],
+        [
+          13260.4,
+          "numeric#2",
+          35
+        ],
+        [
+          13349.8,
+          "numeric#2",
+          40
+        ],
+        [
+          13456.4,
+          "numeric#2",
+          44
+        ],
+        [
+          13562.6,
+          "numeric#2",
+          49
+        ],
+        [
+          13772.5,
+          "numeric#2",
+          59
+        ],
+        [
+          13874,
+          "numeric#2",
+          60
+        ],
+        [
+          13968.5,
+          "numeric#2",
+          68
+        ],
+        [
+          14185.1,
+          "numeric#2",
+          75
+        ],
+        [
+          14279.3,
+          "numeric#2",
+          77
+        ],
+        [
+          14383.2,
+          "numeric#2",
+          82
+        ],
+        [
+          14494.4,
+          "numeric#2",
+          87
+        ],
+        [
+          14587.5,
+          "numeric#2",
+          95
+        ],
+        [
+          14695.1,
+          "numeric#2",
+          100
+        ],
+        [
+          15008.4,
+          "controls",
+          "semantic#1,status#2"
+        ],
+        [
+          15953.8,
+          "controls",
+          "semantic#3"
+        ]
+      ],
+      "seed": 622,
+      "seen": true,
+      "truncated": false
+    }
+  ],
+  "matchedDurableOperations": 1,
+  "productInput": false,
+  "scriptSHA256": "fd91e6b4a8b8c30c39a6e67b96a387fba622625fbc59e10c86a6ac9b2f703cf0",
+  "serviceTerminal": "NOT_MEASURED",
+  "source": "2979d69868e6d6ef64a55e2b767f202b3747520a",
+  "status": "OBSERVED",
+  "ticketSHA256": "0d8220effa87f267f080d9bc5f840f0e219c0792dbfcc823d0859eec4bff7db7"
+}

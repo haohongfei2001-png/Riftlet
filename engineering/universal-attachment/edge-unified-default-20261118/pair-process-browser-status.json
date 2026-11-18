@@ -1,0 +1,23 @@
+{
+  "normalHARSHA256": "49da5d8c111c82850a360e95b7160531d0adec856ed2032e547e1579f9a7855b",
+  "originalProcessResponses": [
+    {
+      "seed": 619,
+      "processEntry": 71,
+      "status": 200,
+      "browserError": "net::ERR_ABORTED",
+      "contentSize": 576,
+      "hasEntity": false,
+      "fileProcessingTerminal": "UNKNOWN"
+    },
+    {
+      "seed": 620,
+      "processEntry": 73,
+      "status": 200,
+      "browserError": "net::ERR_ABORTED",
+      "contentSize": 576,
+      "hasEntity": false,
+      "fileProcessingTerminal": "UNKNOWN"
+    }
+  ]
+}

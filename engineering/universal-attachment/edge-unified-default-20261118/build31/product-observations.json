@@ -1,0 +1,43 @@
+{
+  "actualNativeProjectionSHA256": "58adb7788a3243c8e64eb32fe19e33e50aa98c797957ed6eda29d85e7f4463fe",
+  "executableSHA256": "f1374e2901bfcf4a96b92fdf368e98dd6e2082bf39ce0d8e3d2e08f78eb61ff8",
+  "files": [
+    {
+      "edgeBusyAttributeNodesMaximum": 0,
+      "edgeLoadedImageNodesMaximum": 1,
+      "edgeMatchedOriginalFormNodesMaximum": 3,
+      "edgeProgressDecisions": {
+        "fileBlobMissing": 33
+      },
+      "edgeProgressNodesMaximum": 0,
+      "edgeReadyAttributeNodesMaximum": 0,
+      "edgeSampleNumberMaximum": 33,
+      "observedNumericRanges": [],
+      "operationCount": 1,
+      "productObservedStart": false,
+      "sampleCount": 33,
+      "sawExactEncodedPreviewWithoutProgress": false,
+      "seed": 622
+    },
+    {
+      "edgeBusyAttributeNodesMaximum": 0,
+      "edgeLoadedImageNodesMaximum": 0,
+      "edgeMatchedOriginalFormNodesMaximum": 1,
+      "edgeProgressDecisions": {
+        "fileBlobMissing": 34
+      },
+      "edgeProgressNodesMaximum": 0,
+      "edgeReadyAttributeNodesMaximum": 0,
+      "edgeSampleNumberMaximum": 34,
+      "observedNumericRanges": [],
+      "operationCount": 1,
+      "productObservedStart": false,
+      "sampleCount": 34,
+      "sawExactEncodedPreviewWithoutProgress": false,
+      "seed": 623
+    }
+  ],
+  "inputCountDuringProjection": 0,
+  "ordinaryRawTraceSHA256": "133a3ec34e89058158b255ddc939b95ed6fc0741de7753c366329835078902ea",
+  "source": "2979d69868e6d6ef64a55e2b767f202b3747520a"
+}

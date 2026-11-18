@@ -1,5 +1,9 @@
 # 无扩展附件引擎 · 首轮工程交接
 
+## 11 月 18 日 · 普通 Riftlet 1.0.5（31）与默认 Edge
+
+622 和 623 分别通过普通 App 进入同一个已登录的临时草稿，原三张附件、正文和 14 字符选区保留。原服务各有存储 HTTP 201，两个处理响应都缺少可验证的终态。每张具名卡片的真实数值从 5% 升到 100%，产品却分别在 33 和 34 次观察中漏判 START。两次受控点击因跨页相隔约 14 分钟，快速条件未通过。[逐图与独立服务证据](../engineering/universal-attachment/edge-unified-default-20261118/build31/PAIR-622-623.md)
+
 ## 11 月 18 日 · 默认 Edge 和统一的 Riftlet 1.0.5（30）
 
 本轮使用已经登录的日常 Edge，在 Default 配置里新建独立的 ChatGPT 临时窗口。修复安装包内经逐项复核的 Finder 元数据后，Edge 通过 Microsoft 身份与全架构严格验签。已通过原生页面脚本读回临时文档和唯一编辑器。同机曾运行另一个相同标识的 Edge 副本，测试按进程和启动身份定位日常安装，再核对窗口、唯一标签、文档、屏幕窗口与编辑器归属。[签名、目标和源码证据](../engineering/universal-attachment/edge-unified-default-20261118/README.md)
