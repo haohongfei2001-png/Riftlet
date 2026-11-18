@@ -804,16 +804,20 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     /// Chrome. Its permission must neither borrow B's grant nor publish A as
     /// the foreground target. Denial is retained for a later passive check.
     private func mayObserveOriginal(_ target: TargetLease) async -> Bool {
-        guard !terminating else { return false }
-        guard mode.usesWebAdapter else { return true }
-        guard target.applicationID == "com.google.Chrome" else { return false }
+        await accessToOriginalReceiver(target) == .granted
+    }
+
+    private func accessToOriginalReceiver(_ target: TargetLease) async -> OriginalReceiverAccess {
+        guard !terminating else { return .unavailable }
+        guard mode.usesWebAdapter else { return .granted }
+        guard target.applicationID == "com.google.Chrome" else { return .unavailable }
         let started = ProcessInfo.processInfo.systemUptime
         let result = await originalReceiverPermission.inspectResolution(session: target.sessionID, gate: permissionGate)
         recordAcceptance(["event": "original_observation_permission", "startedUptime": started,
             "endedUptime": ProcessInfo.processInfo.systemUptime,
             "usableResult": String(describing: result.usable), "published": result.published,
             "askedUser": false, "foregroundRequired": false])
-        return !terminating && result.usable == .granted
+        return terminating ? .unavailable : result.attachmentAccess
     }
 
     private func startOriginalRecovery() {
@@ -1516,9 +1520,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         guard let transfer else { return }
         Task {
             do {
-                let result = try await transfer.recheckOriginal(operationID: operation) { [weak self] target in
-                    await self?.mayObserveOriginal(target) ?? false
-                }
+                let result = try await transfer.recheckOriginal(operationID: operation, inspectAccess: { [weak self] target in
+                    await self?.accessToOriginalReceiver(target) ?? .unavailable
+                })
                 await refresh()
                 let message: String
                 switch result {

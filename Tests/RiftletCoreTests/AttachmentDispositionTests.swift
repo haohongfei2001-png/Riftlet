@@ -33,6 +33,8 @@ final class AttachmentDispositionTests: XCTestCase {
         try await core.recover()
         let denied = try await core.recheckOriginal(operationID: first.id, authorize: { _ in false })
         XCTAssertEqual(denied, .permissionDenied)
+        let missingReceiver = try await core.recheckOriginal(operationID: first.id, inspectAccess: { _ in .unavailable })
+        XCTAssertEqual(missingReceiver, .unavailable)
         let observed = try await core.recheckOriginal(operationID: first.id, authorize: { $0 == adapter.target })
         XCTAssertEqual(observed, .observed)
         let failing = try await reopened.historyPage(query: .init(filter: .needsAttention), offset: 0, throughSequence: nil)

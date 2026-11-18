@@ -1,5 +1,9 @@
 import Foundation
 
+public enum OriginalReceiverAccess: Sendable, Equatable {
+    case granted, permissionRequired, unavailable
+}
+
 public enum OriginalAttachmentCheck: Sendable, Equatable {
     case observed, unavailable, permissionDenied, busy
 }
@@ -624,12 +628,23 @@ public actor TransferCoordinator {
     /// the background polling budget. This method never queues or drains input.
     public func recheckOriginal(operationID: UUID,
         authorize: @Sendable (TargetLease) async -> Bool) async throws -> OriginalAttachmentCheck {
+        try await recheckOriginal(operationID: operationID, inspectAccess: { target in
+            await authorize(target) ? .granted : .permissionRequired
+        })
+    }
+
+    public func recheckOriginal(operationID: UUID,
+        inspectAccess: @Sendable (TargetLease) async -> OriginalReceiverAccess) async throws -> OriginalAttachmentCheck {
         guard (adapter as? any IndependentFileInputAdapter)?.supportsOriginalHandoffChecks == true,
               let op = try await store.operation(id: operationID),
               op.phase.isUnresolved, op.phase != .prepared, op.target.adapterID == adapter.id,
               let asset = try await store.asset(id: op.assetID), asset.activeOperationID == op.id,
               let invocation = try await store.dispatchInvocationID(for: op.id) else { return .unavailable }
-        guard await authorize(op.target) else { return .permissionDenied }
+        switch await inspectAccess(op.target) {
+        case .unavailable: return .unavailable
+        case .permissionRequired: return .permissionDenied
+        case .granted: break
+        }
         guard !Task.isCancelled, activeAppends[op.id] == nil, observing.insert(op.id).inserted else { return .busy }
         defer { observing.remove(op.id) }
         let request = TransferRequest(operation: op, asset: asset.image,
