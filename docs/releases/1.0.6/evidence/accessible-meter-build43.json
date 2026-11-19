@@ -1,0 +1,28 @@
+{
+  "product": "38cbef90ed3370797edf3f902bb8fba87299abda",
+  "build": 43,
+  "sha256OfShippedSource": "c6807b9a9325bf5c62d99701a0401e2b7ad6d9ba4aff529aaf223ced68cfe796",
+  "scope": "Stock headless Chrome on a controlled local page and source regressions. Service evidence has a separate receipt.",
+  "before": {
+    "42": "Original card identified by role=button and an exact accessible filename with a determinate progress bar and no image or data-file-name. START was observed, same-shell failure was missed. Adding data-file-name to the control permitted failure recovery.",
+    "firstPatch": "If the real meter was removed one render before the error caption, the first patch incorrectly retired the persistent shell."
+  },
+  "after": {
+    "conditions": "Same original draft, exact named shell, parent and original meter. Empty render is not a current verifiable status. Only a visible same-shell failure counts. A different meter or file or a reused shell invalidates the witness.",
+    "checked": "Once-only setter and change, zero sends, same attachment ID from the positive START through the error, independent original read (including manual recheck).",
+    "webSuites": {
+      "tests": 237,
+      "pass": 237,
+      "fail": 0,
+      "skipped": 0
+    },
+    "loopbackChrome": {
+      "tests": 36,
+      "pass": 36,
+      "fail": 0,
+      "skipped": 0
+    }
+  },
+  "signedInstallerSHA256": "926c64d904b6c95bfc1ae1bbf50059579aa3681dfa0ae02d99bcf542b5102a06",
+  "nativeSourceProbe": "Tracked native test methods executed with assertion shims against compiled RiftletAdapters/Core. Verified v23 pending START reads, prior source registrations and immutable journals across restart; verified one input and independent original START then error after a lost reply. Formal XCTest results are recorded separately."
+}

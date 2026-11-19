@@ -1017,3 +1017,107 @@ for(const [label,expected] of [['Image preview',true],['上传图片的预览',t
   assert.equal(f.observe(op).state,expected?'uploadStarted':'inputTriggered');assert.equal(f.setters,1);
  });
 }
+
+for (const scenario of ['same member','neighbor error','relabel and restore','new meter','foreign image removed',
+                         'different parent','remove and reinsert','hidden error','transparent error','link error','empty render','later occupant']) {
+ test('accessible-name progress card aftercare: '+scenario,async()=>{
+  const f=fixture({accept:false}),op=f.bind();
+  f.stage(op);f.commit(op);
+  const card=f.form.append(new f.Node('div',{role:'button','aria-label':op.name}));
+  const meter=card.append(new f.Node('div',{role:'progressbar','aria-valuenow':'4.71'}));
+  const start=accepted(f,op);
+  const manual=()=>f.call({...op.command('observe'),requireLiveOriginal:true}).observation;
+  const other=f.form.append(new f.Node('section'));
+  if(scenario==='relabel and restore'){
+   card.setAttribute('aria-label','else.png');card.setAttribute('aria-label',op.name);
+  }
+  if(scenario==='new meter')card.append(new f.Node('progress',{value:'0.5'})).remove();
+  if(scenario==='foreign image removed')card.append(new f.Node('img',{src:'blob:foreign'})).remove();
+  if(scenario==='different parent')other.append(card);
+  if(scenario==='remove and reinsert'){card.remove();f.form.append(card);}
+  if(scenario==='neighbor error'){
+   other.append(new f.Node('span')).textContent='上传未成功';
+  }else{
+   meter.remove();
+   if(scenario==='empty render'||scenario==='later occupant'){
+    if(scenario==='later occupant')card.append(new f.Node('span')).textContent='Other file';
+    await new Promise(done=>setImmediate(done));
+    assert.equal(manual().state,'invalidated');
+    assert.equal(f.observe(op).state,'uploadStarted');
+    if(scenario==='later occupant')card.textContent='';
+   }
+   const container=scenario==='link error'?card.append(new f.Node('a',{href:'#help'})):card;
+   const error=container.append(new f.Node('span'));
+   error.textContent='上传未成功';
+   if(scenario==='hidden error')error.rendered=false;
+   if(scenario==='transparent error')error.checkVisibility=()=>false;
+  }
+  if(scenario==='same member'||scenario==='empty render'){
+   for(const result of [f.observe(op),manual()]){
+    assert.equal(result.state,'failed');
+    assert.equal(result.attachmentID,start.attachmentID);
+    assert.equal(result.automaticRetryExcluded,false);
+   }
+  }else{
+   assert.equal(f.observe(op).state,'uploadStarted');
+   assert.notEqual(manual().state,'failed');
+  }
+  assert.deepEqual([f.setters,f.changes,f.sends],[1,1,0]);
+ });
+}
+
+for(const scenario of ['own retry','zh retry','zh unrelated action','zh wrong file','zh generic notice','legacy watch','wrong figure','global notice','remove action','wrong label','wrong title','fake button',
+ 'hidden retry','transparent retry','disabled retry','aria disabled','extra picture','replaced original','relabel and restore',
+ 'reparented original','reparent and restore','unmarked figure','no image marker','failed before START','disabled failure before START']){
+ test('original figure upload retry: '+scenario,()=>{
+  const f=fixture({accept:false}),op=f.bind();
+  f.stage(op);f.commit(op);
+  const figure=f.form.append(new f.Node('figure',{'data-composer-image-attachment':''}));
+  const card=figure.append(new f.Node('button',{type:'button','data-assistant-image-link':'','aria-label':op.name}));
+  const attrs={src:f.context.URL.createObjectURL(f.input.files[0]),alt:op.name,'data-assistant-image':'','data-composer-image-attachment-preview':''};
+  const image=card.append(new f.Node('img',attrs));image.currentSrc=attrs.src;
+  const early=scenario.endsWith('before START');
+  const start=early?null:accepted(f,op);
+  const host=scenario==='wrong figure'?f.form.append(new f.Node('figure',{'data-composer-image-attachment':''})):figure;
+  const retry=host.append(new f.Node(scenario==='fake button'?'div':'button',{type:'button','data-composer-image-upload-retry':'',
+   'aria-label':'Retry uploading '+op.name,title:'Failed to upload file.'}));
+  if(scenario.startsWith('zh ')){
+   retry.setAttribute('aria-label','重新上传文件：'+op.name);retry.setAttribute('title','上传未成功');
+   if(scenario==='zh unrelated action')retry.setAttribute('aria-label','查看文件：'+op.name);
+   if(scenario==='zh wrong file')retry.setAttribute('aria-label','重新上传文件：其他.png');
+   if(scenario==='zh generic notice')retry.setAttribute('title','点击重试');
+  }
+  if(scenario==='legacy watch'){
+   const registry=vm.runInContext('globalThis.__riftletIndependentFileInput20261104',f.context);
+   delete registry.operations.get(op.identity.operationID).failureWatch.views[0].figurePreview;
+  }
+  if(scenario==='disabled failure before START')retry.disabled=true;
+  if(scenario==='global notice'){retry.remove();f.form.append(new f.Node('span')).textContent='Failed to upload file.';}
+  if(scenario==='remove action'){retry.removeAttribute('data-composer-image-upload-retry');retry.setAttribute('data-composer-remove-image','');}
+  if(scenario==='wrong label')retry.setAttribute('aria-label','Retry uploading other.png');
+  if(scenario==='wrong title')retry.setAttribute('title','Retry');
+  if(scenario==='hidden retry')retry.rendered=false;
+  if(scenario==='transparent retry')retry.checkVisibility=()=>false;
+  if(scenario==='disabled retry')retry.disabled=true;
+  if(scenario==='aria disabled')retry.setAttribute('aria-disabled','true');
+  if(scenario==='extra picture')figure.append(new f.Node('img',attrs));
+  if(scenario==='replaced original'){image.remove();card.append(new f.Node('img',attrs));}
+  if(scenario==='relabel and restore'){card.setAttribute('aria-label','different.png');card.setAttribute('aria-label',op.name);}
+  if(scenario==='reparented original')host.parentElement.append(new f.Node('figure',{'data-composer-image-attachment':''})).append(card);
+  if(scenario==='reparent and restore'){card.remove();figure.append(card);}
+  if(scenario==='unmarked figure')figure.removeAttribute('data-composer-image-attachment');
+  if(scenario==='no image marker')image.removeAttribute('data-composer-image-attachment-preview');
+  const read=live=>f.call({...op.command('observe'),requireLiveOriginal:live}).observation;
+  if(early)assert.equal(read(false).state,'inputTriggered');
+  else if(scenario==='own retry'||scenario==='zh retry'){
+   for(const result of [read(false),read(true)]){
+    assert.equal(result.state,'failed');assert.equal(result.attachmentID,start.attachmentID);
+    assert.equal(result.automaticRetryExcluded,false);
+   }
+  }else{
+   assert.equal(read(false).state,'uploadStarted');
+   assert.notEqual(read(true).state,'failed');
+  }
+  assert.deepEqual([f.setters,f.changes,f.sends],[1,1,0]);
+ });
+}
