@@ -137,7 +137,7 @@ final class EdgeOrdinaryInputTests: XCTestCase {
         _ = try await store.apply(entered)
         await bridge.setState(.uploadStarted)
         let receipt = try await client.reconcile(refreshed(request, store: store))
-        let profile = OrdinaryProductScreenshotScope.edgeProgressProfile
+        let profile = OrdinaryProductScreenshotScope.edgeAttachmentAcceptedProfile
         let id = try XCTUnwrap(profile.uploadStartProfileID)
         XCTAssertEqual(receipt.profileID, profile.profileID); XCTAssertEqual(receipt.uploadStartEvidence?.profileID, id)
         XCTAssertEqual(receipt.uploadStartEvidence?.signal, .correlatedProgress); XCTAssertEqual(receipt.outcome, .uploadStarted)
@@ -214,10 +214,11 @@ final class EdgeOrdinaryInputTests: XCTestCase {
         let db = root.appendingPathComponent("queue.sqlite"), store = try QueueStore(databaseURL: db)
         let request = try await prepare(root: root, store: store, gray: 0.51).0
         _ = try await seedEdgeRegistration(request, profile: OrdinaryProductScreenshotScope.edgeProgressProfile,
-            source: ChatGPTWebPageProgram.edgeSourceID, store: store)
+            source: ChatGPTWebPageProgram.priorRootContentSource, store: store)
         try await store.markUnknown(request.operation.id, reason: "Input returned without an upload receipt")
         let original = try await refreshed(request, store: store)
-        let bridge = EdgeInputBridge(), client = try adapter(root: root, store: store, bridge: bridge)
+        let bridge = EdgeInputBridge(provenanceID: ChatGPTWebPageProgram.draftContentEvidenceV28)
+        let client = try adapter(root: root, store: store, bridge: bridge)
         let key = SystemScreenshotObservationJournal.checkpointKey(request, slot: .originalDraftContent, scope: .productSystem)
         func content(_ invocation: UUID) -> ObservedDraftImage {
             .init(version: 1, invocationID: invocation, evidenceID: UUID(), inputSequence: 3, observedSequence: 8,
@@ -247,6 +248,122 @@ final class EdgeOrdinaryInputTests: XCTestCase {
         XCTAssertEqual(image?.visibility, .visible)
         let commands = await bridge.records().commands
         XCTAssertEqual(commands.map(\.action), [.observe, .observe, .observe])
+        let historicalPrograms = await bridge.programIDs
+        XCTAssertEqual(historicalPrograms, Array(repeating: ChatGPTWebPageProgram.priorRootContentSource, count: 3))
+    }
+
+    func testV29PreservesExactV28ProgramAndChangesOnlyItsResidentIdentity() throws {
+        let old = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorRootContentSource))
+        XCTAssertEqual(old.functionSource.utf8.count, 125372)
+        XCTAssertEqual(SHA256.hash(data: Data(old.functionSource.utf8)).map { String(format: "%02x", $0) }.joined(),
+                       "7401f5bb27b084fd0602a316fbeab9c6baf4bad731baf4328fecc796c0837f16")
+        let current = try ChatGPTWebPageProgram.edgeProgram.get()
+        XCTAssertEqual(current.sourceID, ChatGPTWebPageProgram.edgeSourceID)
+        XCTAssertEqual(current.functionSource,
+            old.functionSource.replacingOccurrences(of: "__riftletEdgeFileInput20261119v28", with: "__riftletEdgeFileInput20261119v29")
+                .replacingOccurrences(of: ChatGPTWebPageProgram.draftContentEvidenceV28, with: ChatGPTWebPageProgram.edgeEvidenceID))
+        XCTAssertThrowsError(try ChromeClickDocumentWitness().bindScript(address: "https://chatgpt.com/", program: old, host: .edge))
+    }
+
+    func testV29TwoExactDraftContentsUseChromeAcceptanceWithoutServerCompletionAndSurviveRestart() async throws {
+        let root = try directory(); defer { try? FileManager.default.removeItem(at: root) }
+        let db = root.appendingPathComponent("queue.sqlite"), store = try QueueStore(databaseURL: db)
+        let bridge = EdgeInputBridge(), client = try adapter(root: root, store: store, bridge: bridge)
+        let profile = OrdinaryProductScreenshotScope.edgeAttachmentAcceptedProfile
+        let startID = OrdinaryProductScreenshotScope.edgeAttachmentAcceptedStartProfileID
+        let policy = ReceiptPolicy(uploadStartProfiles: [startID: .webChat], profileOrigins: [startID: [.systemScreenshot]],
+            startOnlyApplications: ["com.microsoft.edgemac": .init(adapterID: profile.adapterID, receiptProfileID: profile.profileID,
+                startProfileID: startID, signal: .attachmentAccepted, mediaType: "image/png", route: .chatGPTTemporaryHome)])
+        var requests: [TransferRequest] = [], proofs: [ObservedDraftImage] = [], receipts: [TransferReceipt] = [], originals: [Data] = []
+        for (index, gray) in [CGFloat(0.21), CGFloat(0.79)].enumerated() {
+            let (request, bytes, owner) = try await prepare(root: root, store: store, gray: gray)
+            let proof = ObservedDraftImage(version: 1, invocationID: try XCTUnwrap(request.invocationID), evidenceID: UUID(),
+                inputSequence: index * 2 + 1, observedSequence: index * 2 + 2,
+                encodedSHA256: String(repeating: index == 0 ? "a" : "b", count: 64), encodedByteCount: 187 + index)
+            await bridge.setContent(proof)
+            let accepted = try await client.append(request)
+            XCTAssertEqual(accepted.outcome, .uploadStarted)
+            XCTAssertEqual(accepted.profileID, profile.profileID)
+            XCTAssertEqual(accepted.uploadStartEvidence?.profileID, startID)
+            XCTAssertEqual(accepted.uploadStartEvidence?.signal, .attachmentAccepted)
+            XCTAssertEqual(accepted.uploadStartEvidence?.evidenceID, proof.evidenceID.uuidString)
+            XCTAssertEqual(accepted.uploadStartEvidence?.inputCount, 1)
+            XCTAssertEqual(accepted.attachmentID, "edge-draft-image:" + proof.evidenceID.uuidString.lowercased())
+            XCTAssertFalse(accepted.isUploading); XCTAssertFalse(accepted.positiveReady); XCTAssertFalse(accepted.safeToRetry)
+            XCTAssertNil(accepted.completionEvidence); XCTAssertNil(accepted.terminationEvidence); XCTAssertNil(accepted.continuationEvidence)
+            try await store.recordAppendReturned(accepted, invocationID: try XCTUnwrap(request.invocationID), ownerID: owner)
+            let row = try await store.apply(accepted, policy: policy)
+            XCTAssertEqual(row.visibility, .swallowed)
+            XCTAssertFalse(policy.allowsConsumption(receipt: accepted, asset: request.asset, mode: .production))
+            XCTAssertFalse(policy.allowsRetry(receipt: accepted, asset: request.asset, mode: .production))
+            let journal = try await store.checkpoint(for: SystemScreenshotObservationJournal.checkpointKey(request, slot: .originalDraftContent, scope: .productSystem))
+            let saved = try JSONDecoder().decode(SystemScreenshotObservationJournal.Entry.self, from: XCTUnwrap(journal))
+            XCTAssertEqual(saved.envelope.observation.state, .inputTriggered)
+            XCTAssertNil(saved.envelope.observation.uploadStart)
+            XCTAssertEqual(saved.envelope.observation.originalDraftContent, proof)
+            requests.append(request); proofs.append(proof); receipts.append(accepted); originals.append(bytes)
+        }
+        XCTAssertNotEqual(receipts[0].attachmentID, receipts[1].attachmentID)
+        let entered = await bridge.records()
+        XCTAssertEqual(entered.commands.map(\.action), [.begin, .chunk, .commit, .begin, .chunk, .commit])
+        XCTAssertTrue(entered.commands.filter { $0.action == .begin }.allSatisfy { $0.edgeProgressCandidate == true })
+        let reopened = try QueueStore(databaseURL: db), restored = try adapter(root: root, store: reopened, bridge: bridge)
+        for index in requests.indices {
+            let request = try await refreshed(requests[index], store: reopened)
+            await bridge.setContent(proofs[index])
+            let observed = try await restored.reconcile(request)
+            let retainedStart = try await reopened.uploadStartReceipt(for: request.operation.id)
+            XCTAssertEqual(observed, receipts[index]); XCTAssertEqual(retainedStart, receipts[index])
+            do { _ = try await restored.append(request); XCTFail("Accepted original input repeated") }
+            catch { XCTAssertEqual(error as? WebAdapterError, .invalidRequest) }
+            XCTAssertEqual(try Data(contentsOf: request.fileURL), originals[index])
+            XCTAssertEqual(entered.bytes[request.operation.id], originals[index])
+        }
+        let final = await bridge.records()
+        XCTAssertEqual(final.commands.map(\.action), [.begin, .chunk, .commit, .begin, .chunk, .commit, .observe, .observe])
+    }
+
+    func testV29RequiresOriginalRegistrationInvocationAndImmutableContentJournal() async throws {
+        let root = try directory(); defer { try? FileManager.default.removeItem(at: root) }
+        let store = try QueueStore(databaseURL: root.appendingPathComponent("queue.sqlite"))
+        let bridge = EdgeInputBridge(), client = try adapter(root: root, store: store, bridge: bridge)
+        let (request, _, owner) = try await prepare(root: root, store: store, gray: 0.55)
+        func content(_ invocation: UUID, hash: String = String(repeating: "c", count: 64)) -> ObservedDraftImage {
+            .init(version: 1, invocationID: invocation, evidenceID: UUID(), inputSequence: 1, observedSequence: 2,
+                  encodedSHA256: hash, encodedByteCount: 190)
+        }
+        do { _ = try await client.reconcile(request); XCTFail("Missing enrollment read as current") }
+        catch { XCTAssertEqual(error as? WebAdapterError, .invalidRequest) }
+        let beforeCommands = await bridge.records().commands
+        XCTAssertEqual(beforeCommands.count, 0)
+        let initial = try await client.append(request)
+        XCTAssertEqual(initial.outcome, .inputTriggered)
+        try await store.recordAppendReturned(initial, invocationID: try XCTUnwrap(request.invocationID), ownerID: owner)
+        _ = try await store.apply(initial)
+        let key = SystemScreenshotObservationJournal.checkpointKey(request, slot: .originalDraftContent, scope: .productSystem)
+        await bridge.setContent(content(UUID()))
+        do { _ = try await client.reconcile(refreshed(request, store: store)); XCTFail("Foreign invocation accepted") }
+        catch SystemScreenshotObservationJournalError.persistentIdentityMismatch {}
+        let absent = try await store.checkpoint(for: key)
+        XCTAssertNil(absent)
+        let proof = content(try XCTUnwrap(request.invocationID))
+        await bridge.setContent(proof)
+        let accepted = try await client.reconcile(refreshed(request, store: store))
+        XCTAssertEqual(accepted.uploadStartEvidence?.signal, .attachmentAccepted)
+        let saved = try await store.checkpoint(for: key)
+        await bridge.setContent(content(proof.invocationID))
+        do { _ = try await client.reconcile(refreshed(request, store: store)); XCTFail("First proof overwritten") }
+        catch SystemScreenshotObservationJournalError.conflictingCheckpoint {}
+        let retained = try await store.checkpoint(for: key)
+        XCTAssertEqual(retained, saved)
+        await bridge.setContent(content(proof.invocationID, hash: "not-a-sha256"))
+        do { _ = try await client.reconcile(refreshed(request, store: store)); XCTFail("Malformed content accepted") }
+        catch { XCTAssertEqual(error as? ObservationError, .invalidField("original draft content")) }
+        let commands = await bridge.records().commands
+        XCTAssertEqual(commands.filter { $0.action == .begin }.count, 1)
+        XCTAssertEqual(commands.filter { $0.action == .commit }.count, 1)
+        let start = try await store.uploadStartReceipt(for: request.operation.id)
+        XCTAssertNil(start)
     }
 
     func testNeitherHostCanUseTheOtherHostsExclusiveRegistration() async throws {
@@ -269,10 +386,12 @@ final class EdgeOrdinaryInputTests: XCTestCase {
     func testEdgeProgressVersionsKeepTheirOwnProgramAndJournalOnRestart() async throws {
         let root = try directory(); defer { try? FileManager.default.removeItem(at: root) }
         let url = root.appendingPathComponent("queue.sqlite")
-        for source in [ChatGPTWebPageProgram.priorEdgeSource, ChatGPTWebPageProgram.priorEncodedSource, ChatGPTWebPageProgram.priorStagedSource, ChatGPTWebPageProgram.priorDraftContentSource, ChatGPTWebPageProgram.edgeSourceID] {
+        for source in [ChatGPTWebPageProgram.priorEdgeSource, ChatGPTWebPageProgram.priorEncodedSource, ChatGPTWebPageProgram.priorStagedSource, ChatGPTWebPageProgram.priorDraftContentSource, ChatGPTWebPageProgram.priorRootContentSource, ChatGPTWebPageProgram.edgeSourceID] {
             let store = try QueueStore(databaseURL: url)
             let (request, _, _) = try await prepare(root: root, store: store, gray: 0.4)
-            let identity = try await seedEdgeRegistration(request, profile: OrdinaryProductScreenshotScope.edgeProgressProfile,
+            let profile = source == ChatGPTWebPageProgram.edgeSourceID
+                ? OrdinaryProductScreenshotScope.edgeAttachmentAcceptedProfile : OrdinaryProductScreenshotScope.edgeProgressProfile
+            let identity = try await seedEdgeRegistration(request, profile: profile,
                                                           source: source, store: store)
             try await store.markUnknown(request.operation.id, reason: "original one-shot input")
             let evidence = try XCTUnwrap(ChatGPTWebPageProgram.edgeEvidence(for: source))
@@ -284,7 +403,7 @@ final class EdgeOrdinaryInputTests: XCTestCase {
                 .init(provenance: .init(source: .integratedDevelopment, evidenceID: provenance),
                       observation: .init(identity: identity, state: .unknown, belongsToOriginalDraft: true))
             }
-            for conflicting in [ChatGPTWebPageProgram.draftContentEvidenceV27, ChatGPTWebPageProgram.priorStagedEvidence, ChatGPTWebPageProgram.priorEncodedEvidence, "click-document-witness-20261118-v25", "click-document-witness-20261118-v23", "click-document-witness-20261117-v22", ChatGPTWebPageProgram.edgeEvidenceID] where conflicting != evidence {
+            for conflicting in [ChatGPTWebPageProgram.draftContentEvidenceV27, ChatGPTWebPageProgram.draftContentEvidenceV28, ChatGPTWebPageProgram.priorStagedEvidence, ChatGPTWebPageProgram.priorEncodedEvidence, "click-document-witness-20261118-v25", "click-document-witness-20261118-v23", "click-document-witness-20261117-v22", ChatGPTWebPageProgram.edgeEvidenceID] where conflicting != evidence {
                 do { try await journal.record(packet(conflicting), for: original, readOnly: true); XCTFail("unregistered provenance") }
                 catch { XCTAssertEqual(error as? SystemScreenshotObservationJournalError, .invalidProvenance) }
             }

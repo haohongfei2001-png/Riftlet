@@ -310,7 +310,7 @@ final class EdgeAppleEventsExecutorTests: XCTestCase {
     }
 
     @MainActor func testRestartReadsV18ThroughV21EdgeWithFrozenProgramsAndNoNewClickOrBootstrap() async throws {
-        for source in [ChatGPTWebPageProgram.priorClickSource, ChatGPTWebPageProgram.priorOriginSource, ChatGPTWebPageProgram.priorProgressSource, ChatGPTWebPageProgram.priorLabelSource, ChatGPTWebPageProgram.priorEdgeSource, ChatGPTWebPageProgram.priorEncodedSource, ChatGPTWebPageProgram.priorStagedSource, ChatGPTWebPageProgram.priorDraftContentSource] {
+        for source in [ChatGPTWebPageProgram.priorClickSource, ChatGPTWebPageProgram.priorOriginSource, ChatGPTWebPageProgram.priorProgressSource, ChatGPTWebPageProgram.priorLabelSource, ChatGPTWebPageProgram.priorEdgeSource, ChatGPTWebPageProgram.priorEncodedSource, ChatGPTWebPageProgram.priorStagedSource, ChatGPTWebPageProgram.priorDraftContentSource, ChatGPTWebPageProgram.priorRootContentSource] {
             let old = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: source))
             let driver = EdgeExecutorFixture(), host = driver.host
             let target = TargetLease(adapterID: "chatgpt-web", surface: .webChat, applicationID: EdgeApplicationHost.bundleID,
@@ -338,6 +338,26 @@ final class EdgeAppleEventsExecutorTests: XCTestCase {
             XCTAssertEqual(driver.bootstraps, 0)
             XCTAssertEqual(driver.selectionChecks, 0)
         }
+    }
+
+    @MainActor func testFrozenV28CannotBorrowAFreshV29ClickForInput() async throws {
+        let driver = EdgeExecutorFixture(), bridge = EdgeAppleEventsExecutor(driver: driver)
+        let current = try ChatGPTWebPageProgram.edgeProgram.get()
+        let old = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorRootContentSource))
+        XCTAssertEqual(current.sourceID, ChatGPTWebPageProgram.edgeSourceID)
+        // The ordinary adapter passes its common program; this executor selects
+        // the current Edge program internally at the click boundary.
+        let target = try await bridge.targetForClick(program: program).value, operation = identity(target)
+        let originalActions = driver.actions, originalBootstraps = driver.bootstraps
+        for action in [WebBridgeAction.begin, .chunk, .commit, .discard] {
+            do {
+                _ = try await bridge.execute(.init(action: action, target: target, identity: operation,
+                    invocationID: UUID()), program: old)
+                XCTFail("Historical input borrowed a current click")
+            } catch { XCTAssertEqual(error as? WebAdapterError, .invalidRequest) }
+        }
+        XCTAssertEqual(driver.actions, originalActions)
+        XCTAssertEqual(driver.bootstraps, originalBootstraps)
     }
 
     @MainActor func testLateSynchronousPinCannotPublishAnInputCapability() throws {

@@ -15,14 +15,17 @@ final class MainWorldCommandRelayTests: XCTestCase {
             (try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorEncodedSource)), "b899943f29c0d4ba4ed6cada951147b578a5e6e57982139c5465af454b49fcc7"),
             (try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorStagedSource)), "9406e3c627ac09406fc7d61fcf754889bef8fd785f69f85a7653e841097bf0f3"),
             (try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorDraftContentSource)), "d8d383d077c28b297625837a7e57419392aafb0995e8ffbf0c058063b94200bd"),
+            (try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorRootContentSource)), "7401f5bb27b084fd0602a316fbeab9c6baf4bad731baf4328fecc796c0837f16"),
             (product, "cca114d1cf23c0e8166d3cc962d0d91148e101a7f42eda6cb2ff22267ec7dcfd")
         ] {
             XCTAssertEqual(SHA256.hash(data: Data(program.functionSource.utf8)).map { String(format: "%02x", $0) }.joined(), digest)
         }
         XCTAssertEqual(edge.sourceID, ChatGPTWebPageProgram.edgeSourceID)
+        XCTAssertEqual(edge.sourceID, "chatgpt-web-click-document-witness-20261119-v29")
+        XCTAssertEqual(edge.functionSource.utf8.count, 125372)
         // The ordinary program shipped by Swift must match the page exercised by the DOM suite.
         XCTAssertEqual(SHA256.hash(data: Data(edge.functionSource.utf8)).map { String(format: "%02x", $0) }.joined(),
-                       "7401f5bb27b084fd0602a316fbeab9c6baf4bad731baf4328fecc796c0837f16")
+                       "e4a7a3d1bf5e4d006508d5ed0d324872d0e8f700274980428f9edd546e1601f3")
         XCTAssertTrue(edge.functionSource.contains("function watchEdgeEncodedPreview(file, name)"))
         XCTAssertFalse(edge.functionSource.contains("/*__RIFTLET_ENCODED_PREVIEW_WATCHER__*/"))
         XCTAssertNotEqual(edge.sourceID, try ChatGPTWebPageProgram.load().sourceID)

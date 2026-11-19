@@ -2,7 +2,7 @@
 const assert = require('node:assert/strict');
 const {createHash, randomUUID} = require('node:crypto');
 const test = require('node:test');
-const {fixture, native, png, edgeSource, previousEdgeSource} = require('./independent-input-fixture.cjs');
+const {fixture, native, png, edgeSource, previousEdgeSource, edgeAttachmentAcceptedSource} = require('./independent-input-fixture.cjs');
 
 const encoded = bytes => Buffer.concat([bytes, Buffer.from([0])]);
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -106,6 +106,43 @@ test('frozen v27 refuses the observed outer-root template; v28 refuses ambiguous
         assert.equal(observation.originalDraftContent, undefined);
       }
       assert.deepEqual([f.setters, f.changes, f.sends], [1,1,0]);
+    });
+  }
+});
+
+test('v29 executes the frozen v28 content predicate in a distinct resident registry', async () => {
+  assert.equal(Buffer.byteLength(edgeSource),125372);
+  assert.equal(digest(Buffer.from(edgeSource)),'7401f5bb27b084fd0602a316fbeab9c6baf4bad731baf4328fecc796c0837f16');
+  assert.equal(edgeAttachmentAcceptedSource.replace('__riftletEdgeFileInput20261119v29','__riftletEdgeFileInput20261119v28')
+    .replace('click-document-witness-20261119-v29','click-document-witness-20261119-v28'),edgeSource);
+  const {f, submit, preview, observe} = setup(edgeAttachmentAcceptedSource);
+  const first = await submit(png), other = Buffer.concat([png,Buffer.from([71])]), second = await submit(other);
+  preview(second,encoded(other));
+  await f.waitFor(() => !!observe(second).originalDraftContent,'v29 second original content');
+  assert.equal(observe(first).originalDraftContent,undefined);
+  preview(first,encoded(png));
+  await f.waitFor(() => !!observe(first).originalDraftContent,'v29 first original content');
+  for (const [op,bytes] of [[first,png],[second,other]]) {
+    const packet = f.call(op.command('observe'));
+    assert.equal(packet.provenance.evidenceID,'click-document-witness-20261119-v29');
+    inputOnly(packet.observation); // Native mapping is separate; no invented server status.
+    assert.equal(packet.observation.originalDraftContent.invocationID,op.invocationID);
+    assert.equal(packet.observation.originalDraftContent.encodedSHA256,digest(encoded(bytes)));
+  }
+  assert.ok(f.context.__riftletEdgeFileInput20261119v29);
+  assert.equal(f.context.__riftletEdgeFileInput20261119v28,undefined);
+  assert.deepEqual([f.setters,f.changes,f.sends],[2,2,0]);
+});
+
+test('v29 keeps mismatched original content, ownership and duplicate-card refusals', async t => {
+  for (const variant of ['other form','unnamed','other name','wrong branch tag','image in Remove',
+    'fourth label','duplicate roots','different bytes']) {
+    await t.test(variant,async () => {
+      const {f,submit,preview,observe}=setup(edgeAttachmentAcceptedSource),op=await submit(png);
+      preview(op,variant==='different bytes'?png:encoded(png),variant);
+      if(variant==='duplicate roots')preview(op,encoded(png));
+      for(let i=0;i<16;i++){await turn();inputOnly(observe(op));assert.equal(observe(op).originalDraftContent,undefined);}
+      assert.deepEqual([f.setters,f.changes,f.sends],[1,1,0]);
     });
   }
 });

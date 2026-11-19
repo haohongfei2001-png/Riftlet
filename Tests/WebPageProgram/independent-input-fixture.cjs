@@ -19,6 +19,9 @@ const edgeSource = previousEdgeSource
     () => "const popup = (" + draftOwner + ")(filename, labels, scope, visual, image, remove);")
   .replace('__riftletEdgeFileInput20261118v27', '__riftletEdgeFileInput20261119v28')
   .replace('click-document-witness-20261118-v27', 'click-document-witness-20261119-v28');
+const edgeAttachmentAcceptedSource = edgeSource
+  .replace('__riftletEdgeFileInput20261119v28', '__riftletEdgeFileInput20261119v29')
+  .replace('click-document-witness-20261119-v28', 'click-document-witness-20261119-v29');
 function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focused=true,visible=true,editorTag='div',nativeContext=native,programSource=(nativeContext.applicationID==='com.microsoft.edgemac'?edgeSource:source)}={}) {
  const observers=[],events=new Map();
  function queueMutation(record){
@@ -186,4 +189,4 @@ function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focu
   get changes(){return changes;},get setters(){return setters;},get sends(){return sends;},get chooserOpens(){return chooserOpens;},
   setRoute:href=>{context.location.href=href;},setFocused:value=>{focused=value;}};
 }
-module.exports={fixture,png,sha,native,edgeSource,previousEdgeSource};
+module.exports={fixture,png,sha,native,edgeSource,previousEdgeSource,edgeAttachmentAcceptedSource};
