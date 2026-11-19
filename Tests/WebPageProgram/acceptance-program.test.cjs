@@ -983,7 +983,7 @@ test('nested decorative icons do not replace the independently named original pr
  const card=f.addCard(a.name,{placeholder:true,progress:false}),help=card.append(new f.Node('button',{'aria-label':'Help'}));
  help.append(new f.Node('img',{src:'/help-icon',alt:'Help'}));
  card.append(new f.Node('img',{src:'/decorative'}));
- const image=card.append(new f.Node('img',{src:'blob:original',alt:a.name}));
+ const image=card.append(new f.Node('img',{src:f.context.URL.createObjectURL(f.input.files[0]),alt:a.name}));
  const start=accepted(f,a);image.setAttribute('data-state','failed');
  const error=f.observe(a);assert.equal(error.state,'failed');assert.equal(error.attachmentID,start.attachmentID);
  f.stage(b);f.commit(b);const portal=f.body.append(new f.Node('section'));portal.append(f.addCard(b.name));
@@ -991,12 +991,12 @@ test('nested decorative icons do not replace the independently named original pr
  assert.deepEqual([f.setters,f.changes,f.sends],[2,2,0]);
 });
 
-for(const count of [65,257,769])test('current File and prior generation ownership at URL count '+count,()=>{
+for(const count of [65,257,513,1025])test('current File and evicted foreign URL ownership at URL count '+count,()=>{
  const f=fixture({accept:false}),a=f.bind();f.stage(a);f.commit(a);
  let retainedForeign,last;
  for(let i=0;i<count;i++){
   last=f.context.URL.createObjectURL(f.input.files[0]);
-  if(i===Math.max(0,count-257))retainedForeign=last;
+  if(i===0)retainedForeign=last;
  }
  const card=f.addCard(a.name,{progress:false}),image=card.querySelector('img');
  for(const key of ['data-file-name','title','aria-label'])card.removeAttribute(key);
@@ -1005,7 +1005,8 @@ for(const count of [65,257,769])test('current File and prior generation ownershi
  assert.equal(f.observe(a).attachmentID,original.attachmentID);assert.equal(f.observe(a).state,'failed');
  const b=f.bind();f.stage(b);f.commit(b);const second=f.addCard(b.name,{progress:false}),next=second.querySelector('img');
  next.setAttribute('src',retainedForeign);assert.equal(f.observe(b).state,'inputTriggered');
- next.setAttribute('src','blob:new-site-created-preview');accepted(f,b);
+ next.setAttribute('src','blob:unwitnessed-older-url');assert.equal(f.observe(b).state,'inputTriggered');
+ next.setAttribute('src',f.context.URL.createObjectURL(new Blob(['derived B'])));accepted(f,b);
  assert.deepEqual([f.setters,f.changes,f.sends],[2,2,0]);
 });
 

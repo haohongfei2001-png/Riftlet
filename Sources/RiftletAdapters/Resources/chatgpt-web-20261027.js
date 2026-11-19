@@ -174,20 +174,18 @@ function riftletWebAcceptance(command, native) {
   if (registry && !registry.blobOwners && typeof URL.createObjectURL === 'function') {
     const state = registry, original = URL.createObjectURL;
     state.blobOwners = new Map();
-    state.earlierBlobOwners = new Map();
+    state.blobSerial = 0;
     try {
       URL.createObjectURL = function (file) {
         const value = Reflect.apply(original, this, arguments);
         const operation = state.files.get(file);
-        if (operation && value.startsWith('blob:') && value.length <= 256) {
+        if ((operation || performance.now() < state.blobWindowUntil)
+            && value.startsWith('blob:') && value.length <= 256) {
           if (state.blobOwners.size >= 256) {
-            // Retain the previous finite generation. An unrelated later
-            // image never inherits a failure merely because this table rotated.
-            state.earlierBlobOwners = state.blobOwners;
-            state.blobOwners = new Map();
+            state.blobOwners.delete(state.blobOwners.keys().next().value);
           }
-          state.blobOwners.set(value, operation.identity.operationID);
-          if (!operation.discarded && !operation.start && operation.urls.size < 64) operation.urls.add(value);
+          state.blobOwners.set(value, {owner: operation?.identity.operationID, serial: ++state.blobSerial});
+          if (operation && !operation.discarded && !operation.start && operation.urls.size < 64) operation.urls.add(value);
         }
         return value;
       };
@@ -717,13 +715,21 @@ function riftletWebAcceptance(command, native) {
     return Number.isFinite(min) && Number.isFinite(max) && max > min && current >= min && current <= max
       ? {min, max, current} : true;
   }
-  function blobOwner(src) {
+  function blobIssue(src) {
     if (!src || src.length > 256 || !src.startsWith('blob:')) return undefined;
-    return registry.blobOwners?.get(src) ?? registry.earlierBlobOwners?.get(src);
+    return registry.blobOwners?.get(src);
   }
   function currentFileURL(op, src) {
-    const owner = blobOwner(src);
+    const owner = blobIssue(src)?.owner;
     return owner === undefined ? op.urls.has(src) : owner === op.identity.operationID;
+  }
+  // For a page-derived blob, names establish member ownership while issuance
+  // establishes freshness. An expired or evicted record cannot certify either
+  // a pre-existing URL or a URL fabricated in a different JavaScript realm.
+  function usablePreviewSource(op, src) {
+    if (!src || !src.startsWith('blob:') || currentFileURL(op, src)) return true;
+    const issue = blobIssue(src);
+    return !!issue && !issue.owner && issue.serial > op.blobSerialBeforeInput;
   }
   function renderedPreview(node) {
     if (!visible(node)) return false;
@@ -982,11 +988,8 @@ function riftletWebAcceptance(command, native) {
       }
       if (node.tagName === 'IMG' && node.getAttribute('src')) {
         const src = node.getAttribute('src');
-        const renderedOwner = blobOwner(node.currentSrc);
-        if (renderedOwner && renderedOwner !== op.identity.operationID) return null;
+        if (!usablePreviewSource(op, src) || !usablePreviewSource(op, node.currentSrc)) return null;
         if (node.hasAttribute('srcset') && node.currentSrc !== src) return null;
-        const owner = blobOwner(src);
-        if (owner && owner !== op.identity.operationID) return null;
         images.push(node);
       } else if (node.matches('progress,[role="progressbar"]')) {
         meters.push(node);
@@ -1029,6 +1032,7 @@ function riftletWebAcceptance(command, native) {
     // The app may disable or remove its picker after accepting this file.
     // Observing that handoff needs the original draft, not another input slot.
     if (op.start || !op.changeReturned || !sameDraft(op.binding)) return;
+    if (!surface) registry.blobWindowUntil = performance.now() + 10000;
     const hasError = node => {
       const card = node.closest('[data-file-name],[role="button"],button') || node;
       const errors = '[role="alert"],[data-state="error"],[data-state="failed"]';
@@ -1222,6 +1226,8 @@ function riftletWebAcceptance(command, native) {
     registry.busy.add(writingForm); registry.writingInputs.add(input);
     try {
       op.inputCount = 1; op.inputSequence = tick(); op.inputTime = performance.now();
+      op.blobSerialBeforeInput = registry.blobSerial ?? 0;
+      registry.blobWindowUntil = op.inputTime + 10000;
       diag.stage = 'setter'; diag.setterEntered = true;
       Reflect.apply(setter, input, [transfer.files]);
       diag.stage = 'change';
