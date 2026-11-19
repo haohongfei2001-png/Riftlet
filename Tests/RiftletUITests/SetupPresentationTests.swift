@@ -2,6 +2,22 @@ import XCTest
 @testable import RiftletUI
 
 final class SetupPresentationTests: XCTestCase {
+    func testEdgePermissionAndScriptRecoveryNameOnlyTheObservedReceiver() {
+        for language in [ProductCopy.english, .simplifiedChinese] {
+            let denied = SetupPresentation(snapshot: .init(attachment: .available, permission: .denied,
+                                                            browser: .edge), copy: language)
+            XCTAssertTrue(denied.automationStatusText?.contains("Microsoft Edge") == true)
+            XCTAssertFalse(denied.automationStatusText?.contains("Chrome") == true)
+            let script = SetupPresentation(snapshot: .init(attachment: .available, permission: .granted,
+                                                          issue: .chromeJavaScriptDisabled, browser: .edge),
+                                           copy: language)
+            XCTAssertTrue(script.attachmentText.contains("Microsoft Edge"))
+            XCTAssertTrue(script.attachmentText.contains("JavaScript"))
+            XCTAssertFalse(script.attachmentText.contains("Chrome"))
+            XCTAssertTrue(script.automationStatusText?.contains("Edge") == true)
+        }
+    }
+
     func testOnboardingChromeRecipeUsesRequestedLanguageAndPreservesCustomDetails() {
         for input: ProductCopy in [.english, .simplifiedChinese] {
             let snapshot = SetupSnapshot(attachment: .available,

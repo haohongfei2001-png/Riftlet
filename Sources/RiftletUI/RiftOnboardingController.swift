@@ -269,7 +269,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
         guard let snapshot else { return }
         let preservedFrame = hasPresented ? window.frame : nil
         defer { if let preservedFrame { layout(keeping: preservedFrame) } }
-        let presentation = SetupPresentation(snapshot: snapshot.setup)
+        let presentation = SetupPresentation(snapshot: snapshot.setup, copy: copy)
         let ordinary = snapshot.setup.attachment == .available || snapshot.reviewEnvironment
         introTitle.stringValue = ordinary ? copy.headline : copy.introduction(presentation).title
         introDescription.stringValue = ordinary
@@ -299,13 +299,17 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
         automation.isHidden = snapshot.setup.permission == .notNeeded || snapshot.setup.permission == .granted
         automation.isEnabled = !automation.isHidden && snapshot.capabilities.canRequestAutomation && presentation.canRequestPermission
         if snapshot.setup.permission == .notRunning {
-            automation.title = copy.text("打开 Chrome", "Open Chrome")
+            automation.title = copy.text("打开 \(snapshot.setup.browser.displayName)", "Open \(snapshot.setup.browser.displayName)")
             automation.setAccessibilityLabel(automation.title)
             automation.isEnabled = snapshot.capabilities.canRecheck
         }
-        scriptDetail.stringValue = copy.chromeInstructions(presentation)
-        chromeMenuSection.isHidden = snapshot.setup.permission != .granted || presentation.chromeScriptInstructions == nil
-        scriptDetail.isHidden = snapshot.chromeConnection == .ready
+        let scriptDisabled = snapshot.chromeConnection == .javaScriptDisabled || snapshot.setup.issue == .chromeJavaScriptDisabled
+        scriptDetail.stringValue = scriptDisabled
+            ? ChromeAttachmentSetup.instructions(in: copy, browser: snapshot.setup.browser)
+            : copy.chromeInstructions(presentation)
+        chromeMenuSection.isHidden = snapshot.setup.permission != .granted
+        scriptDetail.isHidden = scriptDetail.stringValue.isEmpty || snapshot.chromeConnection == .ready
+            || (snapshot.setup.browser == .edge && !scriptDisabled)
         connectionStatus.stringValue = chromeStatus(snapshot.chromeConnection)
         let chromeCheck = controls["onboarding.checkChrome"] as? NSButton
         chromeCheck?.title = snapshot.chromeConnection == .unchecked ? copy.checkConnection : copy.recheckConnection

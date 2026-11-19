@@ -98,6 +98,29 @@ final class RiftOnboardingControllerTests: XCTestCase {
         XCTAssertFalse(controller.isVisible)
     }
 
+    @MainActor func testEdgeScriptInstructionsAppearAfterARealRefusal() throws {
+        try prepareAppKit()
+        let controller = RiftOnboardingController(copy: .english) { _ in XCTFail("Rendering cannot request permission") }
+        defer { controller.closeForTeardown() }
+        var state = fixture(try model(), source: .accessible, permission: .granted, connection: .unchecked)
+        state.setup = .init(source: .accessible, collection: .collecting, attachment: .available, permission: .granted,
+                            permissionDetail: ChromeAttachmentSetup.instructions(for: .edge), browser: .edge)
+        controller.update(state)
+        XCTAssertTrue(controller.show())
+        try button(controller, "onboarding.next").performClick(nil)
+        let label = try XCTUnwrap(controller.control(identifier: "onboarding.scriptStatus") as? NSTextField)
+        XCTAssertTrue(label.isHiddenOrHasHiddenAncestor)
+        XCTAssertFalse(try button(controller, "onboarding.checkChrome").isHiddenOrHasHiddenAncestor)
+        state = fixture(try model(), revision: 2, connection: .javaScriptDisabled)
+        state.setup = .init(source: .accessible, collection: .collecting, attachment: .available, permission: .granted,
+                            issue: .chromeJavaScriptDisabled, browser: .edge)
+        controller.update(state)
+        XCTAssertFalse(label.isHiddenOrHasHiddenAncestor)
+        XCTAssertTrue(label.stringValue.contains("Microsoft Edge"))
+        XCTAssertFalse(label.stringValue.contains("Chrome"))
+        XCTAssertFalse(try button(controller, "onboarding.next").isEnabled)
+    }
+
     @MainActor func testChromeMenuPathIsVisibleBeforeFirstClickEvenWhenAutomationIsGranted() throws {
         try prepareAppKit()
         let controller = RiftOnboardingController(copy: .simplifiedChinese) { _ in XCTFail("Showing setup must not contact Chrome") }
