@@ -804,3 +804,43 @@ test('returning to an existing hidden temporary draft validates the same editor 
  assert.equal(f.call({action: 'validate', target}).valid, false);
  assert.deepEqual([f.setters, f.changes, f.sends], [0, 0, 0]);
 });
+
+test('an existing meter starts only when the current file owns its visible advancing progress',()=>{
+ const f=fixture({accept:false}),op=f.bind(),other=f.bind();
+ const card=f.addCard(other.name,{placeholder:true,progress:true}), meter=card.querySelector('[role="progressbar"]');
+ f.stage(op);f.commit(op);
+ for(const key of ['data-file-name','aria-label','title'])card.setAttribute(key,op.name);
+ assert.equal(f.observe(op).state,'inputTriggered');
+ meter.setAttribute('aria-valuenow','5');
+ assert.equal(f.observe(op).state,'inputTriggered');
+ meter.setAttribute('aria-valuenow','40');meter.rendered=false;
+ assert.equal(f.observe(op).state,'inputTriggered');
+ meter.rendered=true;const start=accepted(f,op);
+ meter.remove();
+ const feedback=card.append(new f.Node('span'));
+ feedback.textContent='上传未成功';feedback.rendered=false;
+ accepted(f,op);feedback.rendered=true;
+ const failure=f.observe(op);assert.equal(failure.state,'failed');assert.equal(failure.attachmentID,start.attachmentID);
+ assert.equal(failure.automaticRetryExcluded,false);assert.equal(f.setters,1);assert.equal(f.sends,0);
+});
+
+test('visible failure belongs only to the original attachment, including a replaced shell retaining the exact File preview',()=>{
+ const f=fixture({accept:false}), op=f.bind(), other=f.bind();
+ f.stage(op);f.commit(op);
+ const card=f.addCard(op.name), image=card.querySelector('img');
+ image.setAttribute('src',f.context.URL.createObjectURL(f.input.files[0]));
+ const start=accepted(f,op);
+ const neighbor=f.addCard(other.name);
+ neighbor.append(new f.Node('span')).textContent='上传未成功';
+ const action=card.append(new f.Node('button'));action.textContent='上传未成功';
+ accepted(f,op);action.remove();
+ card.remove();
+ const replacement=f.addCard(op.name);
+ const message=replacement.append(new f.Node('span'));message.textContent='上传未成功';
+ // A matching filename and status on another DOM card cannot replace the witness.
+ accepted(f,op);
+ replacement.querySelector('img').remove();replacement.append(image);
+ const failure=f.observe(op);assert.equal(failure.state,'failed');assert.equal(failure.attachmentID,start.attachmentID);
+ replacement.setAttribute('title',other.name);accepted(f,op);
+ assert.equal(f.changes,1);assert.equal(f.sends,0);
+});

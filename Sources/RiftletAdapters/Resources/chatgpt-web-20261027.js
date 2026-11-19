@@ -141,7 +141,7 @@ function riftletWebAcceptance(command, native) {
     fail('AMBIGUOUS_COMPOSER');
   }
   const blank = (identity, state = 'unknown') => ({schemaVersion: 2,
-    provenance: {source: 'integratedDevelopment', evidenceID: 'screenshot-original-review-20261118-v20'},
+    provenance: {source: 'integratedDevelopment', evidenceID: 'screenshot-member-status-20261119-v21'},
     observation: {identity, state, exactImageIdentity: false, belongsToOriginalDraft: false,
       hasError: false, isUploading: false, attachmentAbsent: false, automaticRetryExcluded: false}});
   let registry = globalThis[KEY];
@@ -695,7 +695,16 @@ function riftletWebAcceptance(command, native) {
           || node.closest('[role="dialog"]')?.contains(binding.editor)));
   }
   const previewSelector = 'img[src],progress,[role="progressbar"]';
-  const previewValue = node => node.tagName === 'IMG' ? (node.getAttribute('src') || '').trim() : true;
+  function previewValue(node) {
+    if (node.tagName === 'IMG') return (node.getAttribute('src') || '').trim();
+    const native = node.tagName === 'PROGRESS';
+    const value = node.getAttribute(native ? 'value' : 'aria-valuenow');
+    if (!value?.trim()) return true;
+    const min = native ? 0 : Number(node.getAttribute('aria-valuemin') ?? 0);
+    const max = Number(node.getAttribute(native ? 'max' : 'aria-valuemax') ?? (native ? 1 : 100));
+    const fraction = (Number(value) - min) / (max - min);
+    return max > min && Number.isFinite(fraction) && fraction >= 0 && fraction <= 1 ? fraction : true;
+  }
   const previewsOf = node => node.matches(previewSelector)
     ? [node] : [...node.querySelectorAll(previewSelector)];
   function independentCardPortal(card, binding) {
@@ -739,6 +748,21 @@ function riftletWebAcceptance(command, native) {
     // complete text before joining it in document order.
     return consistent(card.textContent);
   }
+  // Only a visible status inside the verified member can describe its failure.
+  // Labels on page notices, neighbouring uploads and nested actions have other owners.
+  function visibleFailureText(card) {
+    const nodes = [card];
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i];
+      if (!node.children.length && visible(node) && node.textContent.length <= 32
+          && /^(上传未成功|上传失败|upload failed)$/i.test(node.textContent.trim())) return true;
+      if (nodes.length + node.children.length > 32) return false;
+      for (const child of node.children) {
+        if (!child.matches(cardSelector + ',input,textarea,[contenteditable="true"]')) nodes.push(child);
+      }
+    }
+    return false;
+  }
   function captureFailureWatch(op, accepted, matches) {
     if (typeof WeakRef !== 'function') return;
     const filename = fileNamePattern(op.name), views = [], cards = new Set();
@@ -777,7 +801,15 @@ function riftletWebAcceptance(command, native) {
   }
 
   function matchesOriginalCard(op, view, binding, requireError = true) {
-    const card = view.card.deref();
+    let card = view.card.deref();
+    const retainedPreview = view.preview?.deref();
+    if (!card?.isConnected && view.sameFile && retainedPreview?.isConnected
+        && retainedPreview.getAttribute('src') === view.src) {
+      // A component can replace its shell while moving the very same preview.
+      // The original File URL, node, parent and full generated name must agree.
+      const next = retainedPreview.closest(cardSelector);
+      if (next && next.parentElement === view.parent?.deref() && next.getAttribute('data-file-name') === op.name) card = next;
+    }
     if (!card?.isConnected || (view.portalParent
         ? view.portalParent.deref() !== card.parentElement || !independentCardPortal(card, binding)
         : !inOriginalCardContainer(card, binding))) return false;
@@ -790,17 +822,21 @@ function riftletWebAcceptance(command, native) {
     }
     if (view.parent.deref() !== card.parentElement) return false;
     if (view.namedCard ? declared !== op.name : declared !== null && declared !== op.name) return false;
+    // Some failed cards keep their exact named shell but replace the image
+    // with a local error status and filename. A different preview vetoes it.
+    if (view.namedCard && !card.querySelector('img[src]') && visibleFailureText(card)
+        && consistentCardLabels(card, op.name)) return true;
     if (view.sameFile || !view.namedCard) {
       const preview = view.preview?.deref();
       if (!preview || preview.closest(cardSelector) !== card || preview.getAttribute('src') !== view.src) return false;
-      if (view.label) {
+      if (view.label && card === view.card.deref()) {
         const witness = view.witness.deref();
         if (!witness || witness.closest(cardSelector) !== card
             || !fileNamePattern(op.name).test(witness.getAttribute(view.label) || '')) return false;
       }
     }
     const failed = node => ['failed', 'error'].includes(node.getAttribute('data-state'));
-    if (!requireError || failed(card)) return consistentCardLabels(card, op.name);
+    if (!requireError || failed(card) || visibleFailureText(card)) return consistentCardLabels(card, op.name);
     // Only the initially bound, still-identical preview can contribute a
     // descendant's error. An inserted status, toast, or sibling cannot.
     const preview = view.preview?.deref();
@@ -814,7 +850,15 @@ function riftletWebAcceptance(command, native) {
     if (op.start || !op.changeReturned || !sameDraft(op.binding)) return;
     const newPreview = node => previewsOf(node).some(preview => {
       const value = previewValue(preview);
-      if (!value) return false;
+      if (value === '') return false;
+      const previous = op.previewBaseline?.get(preview);
+      if (previous !== undefined && preview.tagName !== 'IMG') {
+        // A re-used meter must actually advance under the current named member.
+        const card = node.closest(cardSelector);
+        return typeof value === 'number' && value > (typeof previous === 'number' ? previous : 0)
+          && card && preview.closest(cardSelector) === card && inOriginalCardContainer(card, op.binding)
+          && visible(preview) && consistentCardLabels(card, op.name);
+      }
       // Original resident operations have a node-identity baseline. New
       // handoffs also recognize a framework filling an existing preview slot.
       return op.previewBaseline ? op.previewBaseline.get(preview) !== value : !op.baseline.has(node);
@@ -822,7 +866,7 @@ function riftletWebAcceptance(command, native) {
     const hasError = node => {
       const card = node.closest('[data-file-name],[role="button"],button') || node;
       const errors = '[role="alert"],[data-state="error"],[data-state="failed"]';
-      return !!node.closest(errors) || !!card.querySelector(errors);
+      return !!node.closest(errors) || !!card.querySelector(errors) || visibleFailureText(card);
     };
     const filename = fileNamePattern(op.name);
     const named = node => ['data-file-name', 'aria-label', 'title', 'alt'].some(key => filename.test(node.getAttribute(key) || ''))
