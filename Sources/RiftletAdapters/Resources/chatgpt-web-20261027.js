@@ -141,7 +141,7 @@ function riftletWebAcceptance(command, native) {
     fail('AMBIGUOUS_COMPOSER');
   }
   const blank = (identity, state = 'unknown') => ({schemaVersion: 2,
-    provenance: {source: 'integratedDevelopment', evidenceID: 'screenshot-observed-start-20261119-v22'},
+    provenance: {source: 'integratedDevelopment', evidenceID: 'screenshot-owned-preview-20261119-v23'},
     observation: {identity, state, exactImageIdentity: false, belongsToOriginalDraft: false,
       hasError: false, isUploading: false, attachmentAbsent: false, automaticRetryExcluded: false}});
   let registry = globalThis[KEY];
@@ -168,19 +168,27 @@ function riftletWebAcceptance(command, native) {
       } catch { /* Direct route/node checks still protect every input. */ }
     }
     globalThis.addEventListener('popstate', noteNavigation);
-    // Optional current-file preview attribution. A filename-labelled card works
-    // without this hook. No network API or Request/body is inspected or changed.
-    if (typeof URL.createObjectURL === 'function') {
-      const original = URL.createObjectURL;
-      try {
-        URL.createObjectURL = function (file) {
-          const value = Reflect.apply(original, this, arguments);
-          const operation = state.files.get(file);
-          if (operation && !operation.discarded && !operation.start) operation.urls.add(value);
-          return value;
-        };
-      } catch { /* Preview attribution is optional, never an input permit. */ }
-    }
+  }
+  // In an already-open document an earlier program may have installed its
+  // own attribution hook. Chain once, preserving that program's File map.
+  if (registry && !registry.blobOwners && typeof URL.createObjectURL === 'function') {
+    const state = registry, original = URL.createObjectURL;
+    state.blobOwners = new Map();
+    try {
+      URL.createObjectURL = function (file) {
+        const value = Reflect.apply(original, this, arguments);
+        const operation = state.files.get(file);
+        if (operation && value.startsWith('blob:') && value.length <= 256) {
+          if (state.blobOwners.size >= 256) {
+            state.blobOwners.delete(state.blobOwners.keys().next().value);
+            state.blobOwnerEvicted = true;
+          }
+          state.blobOwners.set(value, operation.identity.operationID);
+          if (!operation.discarded && !operation.start && operation.urls.size < 64) operation.urls.add(value);
+        }
+        return value;
+      };
+    } catch { /* Signed/remote URLs and File bytes are never copied here. */ }
   }
   // Timers are created by one document-scoped function, so timer closures
   // cannot capture individual input commands, staged bytes, or composer locals.
@@ -706,8 +714,18 @@ function riftletWebAcceptance(command, native) {
     return Number.isFinite(min) && Number.isFinite(max) && max > min && current >= min && current <= max
       ? {min, max, current} : true;
   }
-  const previewsOf = node => node.matches(previewSelector)
-    ? [node] : [...node.querySelectorAll(previewSelector)];
+  function renderedPreview(node) {
+    if (!visible(node)) return false;
+    if (typeof node.checkVisibility === 'function') {
+      if (!node.checkVisibility({opacityProperty: true, visibilityProperty: true, contentVisibilityAuto: true})) return false;
+    } else {
+      for (let at = node; at; at = at.parentElement) {
+        if (getComputedStyle(at).opacity === '0') return false;
+      }
+    }
+    const bounds = node.getBoundingClientRect();
+    return bounds.width > 0 && bounds.height > 0;
+  }
   function independentCardPortal(card, binding) {
     return !card.closest(composerSurface + ',form,article,aside,nav,header,[role="menu"],[role="dialog"],[data-message-author-role]')
       && !outsidePurpose(card, binding);
@@ -810,15 +828,11 @@ function riftletWebAcceptance(command, native) {
     const filename = fileNamePattern(op.name), views = [], cards = new Set();
     // Secondary views are optional. A busy document cannot enlarge the
     // post-START scan beyond 16 candidates or the retained set beyond four.
-    for (const node of [accepted, ...matches.slice(0, 16)]) {
-      const image = node.tagName === 'IMG' ? node : node.querySelector('img[alt]');
+    for (const match of [accepted, ...matches.slice(0, 16)]) {
+      const {node, card} = match;
+      const image = match.preview.tagName === 'IMG' ? match.preview : null;
       const labelledImage = image && filename.test(image.getAttribute('alt') || '')
         && visible(image) && !!image.getAttribute('src');
-      // Some compact image members have no button role. Its original immediate
-      // shell is usable only while it holds exactly this one named image.
-      const shell = labelledImage && node === image && node.parentElement;
-      const card = node.closest(cardSelector) || (shell && shell.children.length === 1
-        && shell.children[0] === node && inOriginalCardContainer(shell, op.binding) ? shell : null);
       if (!card || cards.has(card)) continue;
       const local = inOriginalCardContainer(card, op.binding);
       if (!local && (!card.parentElement || !independentCardPortal(card, op.binding))) continue;
@@ -828,22 +842,19 @@ function riftletWebAcceptance(command, native) {
       const namedCard = declared === op.name;
       const label = ['aria-label', 'title', 'alt'].find(key => filename.test(node.getAttribute(key) || ''));
       // Never retain inline image data, signed remote URLs or page text.
-      const preview = previewsOf(node).find(image => {
-        if (image.tagName !== 'IMG' || image.closest(cardSelector) !== card) return false;
-        const src = image.getAttribute('src');
-        return src && src.length <= 256 && src.startsWith('blob:') && op.previewBaseline?.get(image) !== src;
-      });
+      const imageSource = image?.getAttribute('src');
+      const preview = imageSource?.startsWith('blob:') && imageSource.length <= 256 ? image : null;
       const src = preview?.getAttribute('src');
       // Only the actual START node may rely on its own filename and preview.
       // A separate view must show an object URL minted from this exact File.
       const sameFile = !!src && op.urls.has(src);
-      if (node !== accepted && !sameFile) continue;
-      const opaqueImage = node === accepted && labelledImage && !preview
+      if (match !== accepted && !sameFile) continue;
+      const opaqueImage = match === accepted && labelledImage && !preview
         && inOriginalCardContainer(card, op.binding) && card.querySelectorAll('img[src]').length === 1;
       if (!opaqueImage && !namedCard && !sameFile && (!label || !preview)) continue;
       if (!consistentCardLabels(card, op.name)) continue;
       cards.add(card);
-      const initialImage = card.querySelector('img[src]');
+      const initialImage = image;
       views.push({opaqueImage: opaqueImage ? new WeakRef(image) : null,
         unchanged: opaqueImage || namedCard ? unchangedPreview(initialImage && new WeakRef(initialImage), new WeakRef(card), op.name, src) : null,
         startedWithoutImage: !initialImage,
@@ -938,32 +949,72 @@ function riftletWebAcceptance(command, native) {
       attributeFilter: ['src', 'alt', 'title', 'aria-label', 'role', 'data-file-name', 'value', 'max',
         'aria-valuenow', 'aria-valuemin', 'aria-valuemax', 'hidden', 'class', 'style']});
   }
+  // Labels, pixels and progress must belong to one attachment member. Its
+  // nested buttons, links and other attachment cards own their own content.
+  function startMember(op, card, filename) {
+    const nodes = [card], images = [], meters = [];
+    const otherFile = /riftlet-[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}\.[a-z0-9]{1,16}/gi;
+    const conflicts = value => [...value.matchAll(otherFile)].some(match => match[0].toLowerCase() !== op.name.toLowerCase());
+    let text = '', labelNode = null;
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i];
+      if (node.childNodes.length > 32 || nodes.length + node.children.length > 32) return null;
+      const declared = node.getAttribute('data-file-name');
+      if (declared && declared !== op.name && /\.[a-z0-9]{1,16}$/i.test(declared)) return null;
+      for (const key of ['data-file-name', 'aria-label', 'title', 'alt']) {
+        const value = node.getAttribute(key);
+        if (!value) continue;
+        if (value.length > 1024 || conflicts(value)) return null;
+        if (!labelNode && filename.test(value)) labelNode = node;
+      }
+      if (node.tagName === 'IMG' && node.getAttribute('src')) {
+        const src = node.getAttribute('src');
+        if (node.currentSrc && node.currentSrc !== src && registry.blobOwners?.has(node.currentSrc)
+            && registry.blobOwners.get(node.currentSrc) !== op.identity.operationID) return null;
+        if (node.hasAttribute('srcset') && node.currentSrc !== src) return null;
+        const owner = registry.blobOwners?.get(src);
+        if (owner && owner !== op.identity.operationID) return null;
+        if (registry.blobOwnerEvicted && src.startsWith('blob:') && !owner && !op.urls.has(src)) return null;
+        images.push(node);
+      } else if (node.matches('progress,[role="progressbar"]')) {
+        meters.push(node);
+      }
+      for (const child of node.childNodes) {
+        if (child.nodeType === 3) {
+          if (text.length + child.nodeValue.length > 1024) return null;
+          text += child.nodeValue;
+        } else if (child.nodeType === 1 && !child.matches(cardSelector + ',a[href],input,select,textarea,[role="menuitem"],[role="option"],[role="link"],[aria-haspopup],[onclick],[contenteditable="true"]')) {
+          nodes.push(child);
+        }
+      }
+    }
+    if (conflicts(text)) return null;
+    if (!labelNode && filename.test(text)) labelNode = card;
+    for (const image of images) {
+      const src = image.getAttribute('src').trim();
+      if (!src || !renderedPreview(image)) continue;
+      const ownFile = op.urls.has(src) || registry.blobOwners?.get(src) === op.identity.operationID;
+      const explicitlyNamed = ['data-file-name', 'alt', 'aria-label', 'title'].some(key => filename.test(image.getAttribute(key) || ''));
+      if (!ownFile && !explicitlyNamed && (!labelNode || images.length !== 1 || image.getAttribute('alt')?.trim())) continue;
+      if (op.previewBaseline ? op.previewBaseline.get(image) === src : op.baseline.has(image)) continue;
+      return {node: labelNode || image, preview: image, card};
+    }
+    if (!labelNode || images.length > 1) return null;
+    for (const meter of meters) {
+      const value = previewValue(meter);
+      if (!renderedPreview(meter) || typeof value !== 'object' || value.current <= value.min) continue;
+      const previous = op.previewBaseline?.get(meter);
+      if (previous !== undefined && (typeof previous !== 'object' || previous.min !== value.min
+          || previous.max !== value.max || value.current <= previous.current)) continue;
+      if (!op.previewBaseline && op.baseline.has(card)) continue;
+      return {node: labelNode, preview: meter, card};
+    }
+    return null;
+  }
   function sample(op, surface = null) {
     // The app may disable or remove its picker after accepting this file.
     // Observing that handoff needs the original draft, not another input slot.
     if (op.start || !op.changeReturned || !sameDraft(op.binding)) return;
-    const newPreview = node => previewsOf(node).some(preview => {
-      const value = previewValue(preview);
-      if (value === '') return false;
-      if (surface) {
-        const member = preview.closest(cardSelector) || preview.parentElement;
-        if (!member || !inOriginalCardContainer(member, op.binding) || !visible(preview)
-            || !consistentCardLabels(member, op.name)) return false;
-        if (preview.tagName !== 'IMG' && !(typeof value === 'object' && value.current > value.min)) return false;
-      }
-      const previous = op.previewBaseline?.get(preview);
-      if (previous !== undefined && preview.tagName !== 'IMG') {
-        // A re-used meter must actually advance under the current named member.
-        const card = node.closest(cardSelector);
-        return typeof value === 'object' && typeof previous === 'object'
-          && previous.min === value.min && previous.max === value.max && value.current > previous.current
-          && card && preview.closest(cardSelector) === card && inOriginalCardContainer(card, op.binding)
-          && visible(preview) && consistentCardLabels(card, op.name);
-      }
-      // Original resident operations have a node-identity baseline. New
-      // handoffs also recognize a framework filling an existing preview slot.
-      return op.previewBaseline ? op.previewBaseline.get(preview) !== value : !op.baseline.has(node);
-    });
     const hasError = node => {
       const card = node.closest('[data-file-name],[role="button"],button') || node;
       const errors = '[role="alert"],[data-state="error"],[data-state="failed"]';
@@ -976,7 +1027,18 @@ function riftletWebAcceptance(command, native) {
     const identifiesFile = node => named(node) || (node.tagName === 'IMG' && op.urls.has(node.getAttribute('src')));
     const identified = attachmentNodes(op.binding, surface || document).filter(node => node.isConnected && identifiesFile(node));
     if (identified.some(hasError)) return;
-    const matches = identified.filter(newPreview);
+    const matches = [];
+    const seen = new Set();
+    for (const node of identified) {
+      const card = node.closest(cardSelector) || (node.tagName === 'IMG' ? node.parentElement : node);
+      if (!card || seen.has(card)) continue;
+      seen.add(card);
+      if (!inOriginalCardContainer(card, op.binding) && !independentCardPortal(card, op.binding)) continue;
+      if (card === document.body || card === document.documentElement || card.contains(op.binding.editor)
+          || card.parentElement?.closest(cardSelector + ',a[href],[role="menuitem"],[role="option"]')) continue;
+      const match = startMember(op, card, filename);
+      if (match) matches.push(match);
+    }
     if (!matches.length) return;
     // Keep the ordinary whole-document veto for conflicting same-file error
     // views, while unrelated composer edits only inspect the composer.
@@ -984,8 +1046,8 @@ function riftletWebAcceptance(command, native) {
     op.stopHandoffWatch?.();
     // A compact tray and expanded view can both present this same exact
     // File. START needs one positive handoff; duplicate views are not inputs.
-    const accepted = matches.find(node => op.binding.form.contains(node)) || matches[0];
-    op.attachmentID = registry.documentID + ':' + nodeID(accepted);
+    const accepted = matches.find(match => op.binding.form.contains(match.card)) || matches[0];
+    op.attachmentID = registry.documentID + ':' + nodeID(accepted.node);
     op.start = {version: 1, signal: 'attachmentAccepted', evidenceID: crypto.randomUUID(), inputCount: 1,
       inputSequence: op.inputSequence, startSequence: tick(), previousProgress: 0, currentProgress: 0,
       inputObservedAtMS: op.inputTime, startObservedAtMS: Math.max(op.inputTime, performance.now())};

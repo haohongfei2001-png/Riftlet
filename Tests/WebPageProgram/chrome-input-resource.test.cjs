@@ -286,6 +286,9 @@ function browserFixture(options){
    check(changes===index+1,'one change per screenshot');
    check(setters===index+1,'one native files setter per screenshot');
    if(options.unavailablePicker){
+    // A new image can still have zero dimensions in the dispatch turn.
+    // Wait for the real preview to render while the picker remains unavailable.
+    await wait(()=>tasks[index].image.getBoundingClientRect().width>0);
     const observed=call(op.command('observe')).observation;
     check(input.disabled||!input.isConnected,'picker remains unavailable while START is observed');
     check(observed.state==='uploadStarted'&&observed.belongsToOriginalDraft,'accepted START does not wait for picker restoration or COMPLETE');
@@ -297,6 +300,20 @@ function browserFixture(options){
      &&!failed.uploadStart&&setters===index+1&&changes===index+1,'actual unavailable execution is retained without input or START');
     startBeforePickerRestored=true;restorePicker();
    }else if(index===0)check(call(op.command('observe')).observation.state==='inputTriggered','first input completed before START');
+   if(options.memberOwnership && index===0){
+    const shell=tasks[0].card.cloneNode(false);
+    const button=document.createElement('button');button.setAttribute('aria-label','Help');
+    const icon=tasks[0].image.cloneNode();icon.removeAttribute('alt');button.append(icon);shell.append(button);
+    cardHost.append(shell);
+    await new Promise(done=>setTimeout(done,20));
+    const state=()=>call({...op.command('observe'),preferStartReceipt:true}).observation.state;
+    check(state()==='inputTriggered','a nested Help icon cannot substantiate a handoff');
+    shell.replaceChildren(tasks[0].image.cloneNode());
+    shell.style.opacity='0';
+    await new Promise(done=>setTimeout(done,20));
+    check(state()==='inputTriggered','real layout of an opacity-zero ancestor cannot substantiate a handoff');
+    shell.remove();
+   }
    if(index>0)await wait(()=>call(op.command('observe')).observation.state==='uploadStarted');
    check(editor.textContent===text&&selection.anchorNode===anchor&&selection.focusNode===focus&&selection.anchorOffset===anchorOffset&&selection.focusOffset===focusOffset,'draft text and selection preserved');
    check(form.contains(priorCard),'existing attachment preserved');
@@ -426,7 +443,7 @@ function browserFixture(options){
  .replace('__PREVIOUS__',()=>JSON.stringify(previous)).replace('__SOURCE__',()=>JSON.stringify(source).replace(/<\/script/gi,'<\\/script'));
 }
 const originalScenarios=[
- {name:'positive-preview-between-native-reads',count:2,retained:true,betweenReads:true,route:'https://chatgpt.com/'},
+ {name:'positive-preview-between-native-reads',count:2,retained:true,betweenReads:true,memberOwnership:true,route:'https://chatgpt.com/'},
  {name:'opaque-member-text-failure',count:2,retained:true,decoratedFilename:true,opaqueFailure:true,route:'https://chatgpt.com/'},
  {name:'original-portal-card-failure',count:2,retained:true,portalCards:true,route:'https://chatgpt.com/c/ordinary-thread'},
  {name:'aria-preview-portal-failure',count:2,retained:true,portalCards:true,ariaCardFailure:true,route:'https://chatgpt.com/c/ordinary-thread'},

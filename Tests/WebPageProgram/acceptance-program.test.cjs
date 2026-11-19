@@ -941,3 +941,51 @@ for(const mode of ['placeholder','hidden','already-failed','foreign-image','navi
   assert.equal(f.setters,1);assert.equal(f.changes,1);assert.equal(f.sends,0);
  });
 }
+
+for(const path of ['commit','native-read','mutation']){
+ test('START ownership in '+path+' excludes unrelated or ambiguous members',async()=>{
+  for(const kind of ['hidden','foreign-label','zero','indeterminate','help','foreign-blob','multiple-anonymous','wrong-composer','nested-only-name']){
+   const f=fixture({accept:false}),b=f.bind(),a=f.bind();
+   f.stage(b);f.commit(b);
+   const foreign=f.context.URL.createObjectURL(f.input.files[0]);
+   const add=()=>{
+    const card=f.addCard(a.name,{placeholder:true,progress:false});
+    const image=(parent,src,alt)=>parent.append(new f.Node('img',alt?{src,alt}:{src}));
+    if(kind==='zero'||kind==='indeterminate')card.append(new f.Node('div',kind==='zero'?{role:'progressbar','aria-valuenow':'0'}:{role:'progressbar'}));
+    else if(kind==='help')image(card.append(new f.Node('button',{'aria-label':'Help'})),'/help-icon','Help');
+    else if(kind==='multiple-anonymous'){image(card,'/one');image(card,'/two');}
+    else if(kind==='nested-only-name'){
+     for(const key of ['data-file-name','title','aria-label'])card.removeAttribute(key);
+     card.append(new f.Node('button')).textContent=a.name;image(card,'/anonymous');
+    }else {
+     const img=image(card,kind==='foreign-blob'?foreign:'/preview',kind==='foreign-label'?b.name:a.name);
+     if(kind==='hidden')img.rendered=false;
+     if(kind==='wrong-composer')f.body.append(new f.Node('form')).append(card);
+    }
+    return card;
+   };
+   f.stage(a);let result;
+   if(path==='commit'){f.setChange(add);result=f.commit(a).observation;}
+   else {
+    f.commit(a);const card=add();
+    if(path==='mutation'){await new Promise(done=>setImmediate(done));card.setAttribute('data-state','failed');}
+    result=f.call({...a.command('observe'),preferStartReceipt:true}).observation;
+   }
+   assert.equal(result.state,'inputTriggered',kind);assert.equal(result.uploadStart,undefined,kind);
+   assert.deepEqual([f.setters,f.changes,f.sends],[2,2,0],kind);
+  }
+ });
+}
+
+test('nested decorative icons do not replace the independently named original preview',async()=>{
+ const f=fixture({accept:false}),a=f.bind(),b=f.bind();f.stage(a);f.commit(a);
+ const card=f.addCard(a.name,{placeholder:true,progress:false}),help=card.append(new f.Node('button',{'aria-label':'Help'}));
+ help.append(new f.Node('img',{src:'/help-icon',alt:'Help'}));
+ card.append(new f.Node('img',{src:'/decorative'}));
+ const image=card.append(new f.Node('img',{src:'blob:original',alt:a.name}));
+ const start=accepted(f,a);image.setAttribute('data-state','failed');
+ const error=f.observe(a);assert.equal(error.state,'failed');assert.equal(error.attachmentID,start.attachmentID);
+ f.stage(b);f.commit(b);const portal=f.body.append(new f.Node('section'));portal.append(f.addCard(b.name));
+ const next=accepted(f,b);assert.notEqual(next.attachmentID,start.attachmentID);
+ assert.deepEqual([f.setters,f.changes,f.sends],[2,2,0]);
+});
