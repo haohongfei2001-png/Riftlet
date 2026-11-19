@@ -1,0 +1,52 @@
+{
+  "GUIActions": 0,
+  "browserOrServiceRequests": 0,
+  "claims": "Service entity observation is separate from product START/completion and source admission. Missing bodies cannot borrow 606 framing or events.",
+  "entryCount": 68,
+  "files": [
+    {
+      "bodyState": "ABSENT_FROM_HAR",
+      "browserError": "net::ERR_ABORTED",
+      "createAndProcessStatus": 200,
+      "createEntry": 56,
+      "declaredContentBytes": 576.0,
+      "fileIDSHA256": "18b1cb86a43bae665c757d839dabb49aeb23bf8862e0afa338ab218c4a6dc193",
+      "filenameSHA256": "3d2559084f871deef8b65a5d8ecb5655aede8d18a2b4aff91873da7518fad8ea",
+      "format": "UNDETERMINED_NO_BODY",
+      "mimeType": "text/event-stream",
+      "originalFilenameCreatePUTProcessChainVerified": true,
+      "processEntry": 63,
+      "productCompletionAdmitted": false,
+      "putETagPresent": true,
+      "putEntry": 58,
+      "putStatus": 201,
+      "resourceType": "fetch",
+      "seed": 612,
+      "terminal": "UNKNOWN"
+    },
+    {
+      "bodyState": "ABSENT_FROM_HAR",
+      "browserError": "net::ERR_ABORTED",
+      "createAndProcessStatus": 200,
+      "createEntry": 60,
+      "declaredContentBytes": 576.0,
+      "fileIDSHA256": "147236ba0069d7180c302fa12068e432103be8800f70b2133e8ebc0a95547151",
+      "filenameSHA256": "5b199daa1655b9a16ec7b31a0e65467f3f8cd85dd8c9c6ee9e84fa568ff9094d",
+      "format": "UNDETERMINED_NO_BODY",
+      "mimeType": "text/event-stream",
+      "originalFilenameCreatePUTProcessChainVerified": true,
+      "processEntry": 64,
+      "productCompletionAdmitted": false,
+      "putETagPresent": true,
+      "putEntry": 61,
+      "putStatus": 201,
+      "resourceType": "fetch",
+      "seed": 613,
+      "terminal": "UNKNOWN"
+    }
+  ],
+  "harBytes": 8162985,
+  "harSHA256": "1b0974cb48d123c0f13d2b76acaea951d02988a4693d66f63e1abed7f3596097",
+  "schema": 1,
+  "scope": "Hash-pinned historical originals only; offline closed-field projection, no private endpoint call"
+}

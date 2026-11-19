@@ -1,0 +1,38 @@
+{
+  "GUIActions": 0,
+  "actualOriginalEntityReplayed": {
+    "bytes": 576,
+    "seed": 606,
+    "sha256": "4d24602342422c30df68389bc2fa06d19891589a93e84c27d0a4ac1a2c275744",
+    "upstreamSSEEventsByChunkPartition": [
+      0,
+      0,
+      0
+    ]
+  },
+  "browserOrServiceRequests": 0,
+  "installedEdgeExecution": false,
+  "neutralProtocolAndIdentityTests": 25,
+  "newAttachments": 0,
+  "originalHARReproductions": [
+    {
+      "byteIdenticalReproduction": true,
+      "case": "606",
+      "reportSHA256": "b5c67e09e3b4a638bd3c24959634c8a8eef98958beb05bec5f9bbe785683b5b0"
+    },
+    {
+      "byteIdenticalReproduction": true,
+      "case": "612-613",
+      "reportSHA256": "1fa9f5d4741ab4cc7f1121ff6b8913b424d8dbc5cab5574309a17f06044c9722"
+    },
+    {
+      "byteIdenticalReproduction": true,
+      "case": "625",
+      "reportSHA256": "a99c55563c091756fbdaacf39e91594beb24813bdaaf87488f9f95aa55969d9a"
+    }
+  ],
+  "schema": 1,
+  "scope": "Offline original-custody/protocol diagnosis. No new upload or production completion admission.",
+  "testResult": "PASS",
+  "upstreamParserHasNeutralSSEPositiveControl": true
+}

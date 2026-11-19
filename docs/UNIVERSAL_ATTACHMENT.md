@@ -1,5 +1,15 @@
 # 无扩展附件引擎 · 首轮工程交接
 
+## 11 月 19 日 · 默认 Edge 中的原图归属与完成回执
+
+普通 App 在 START 后继续按原操作观察。Core 修复 `aa2ede8` 可分别保存两张图各自已获准入的完成证明，拒绝相邻操作的回执，并保留最初的 START。同一原附件后来出现明确错误时，仍依原有失败策略处理。Edge 当前没有获准入的完成信号。
+
+Edge v27 单独记录已交付截图的内容。网页替换整张加载卡后，观察器只在原文档、编辑器和草稿中查找新增的具名图片，并比较页面图片与浏览器从原 PNG 生成的编码摘要和字节数。该事实单独留在原操作的 SQLite 记录中。上传开始、最终完成和重试仍须各自取得证据。旧 Edge 操作继续读取其原始观察器。
+
+默认配置中的原临时草稿曾通过 Dock 恢复到正确窗口，原六个附件和文字仍在。测试重新建立了 14 字符选区。随后窗口缩到桌面缩览尺寸，恢复后原窗口已消失。631 和 632 只完成普通 App 收录，两张均为零产品点击、零上传操作，本轮商业结果为 **NOT_RUN**。[逐张点击前记录](../engineering/universal-attachment/edge-unified-default-20261118/build31/pair-631-632/preinput-only.json)
+
+单张历史图 606 的原始服务响应中有同一文件的开始、就绪和完成三个事件。DevTools 的 EventStream 面板按 SSE 格式解析，而这份正文实际用了逐行 JSON。612、613、625 各自的原响应缺失正文，这三张的处理终态仍为 UNKNOWN。[原始响应的脱敏核查](../engineering/universal-attachment/edge-unified-default-20261118/terminal-response/README.md)
+
 ## 11 月 18 日 · 普通 Riftlet 1.0.5（31）与默认 Edge
 
 签名候选 `cb82a72` 修复了 624 的发送前时间保护问题。本机真实 Apple Event 在实测对应的 49.5 毫秒余量内收到回包。626、627 均已收录，投递前无法唯一显示原 Default Edge 窗口，两个商业操作均为 **NOT_RUN**。另一次只读核对确认，625 留在原稿的预览与原截图经同一 Edge 编码的 PNG 摘要一致；它的产品 START 和服务处理终态仍然缺失。[冷点击修复、窗口阻塞与 625 读回](../engineering/universal-attachment/edge-unified-default-20261118/build31/pair-626-627/REPORT.md)

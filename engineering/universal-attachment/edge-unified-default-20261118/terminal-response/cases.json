@@ -1,0 +1,52 @@
+{
+  "606": {
+    "harSHA256": "4fddbe800991bb3f68ef632b08085f7175344d0aaca47e8d8bda2e37a0a99372",
+    "entryCount": 498,
+    "files": [
+      {
+        "seed": 606,
+        "filenameSHA256": "4d22b2c926148a54fa6a78edf63d0b1a988e2ce2f3a03265eda541ecc2d30ca9",
+        "fileIDSHA256": "4e8a0824a7cf6c5f328441321217cfd49625d439ebd180ce16d112462fafca2b",
+        "createEntry": 170,
+        "putEntry": 171,
+        "processEntry": 174
+      }
+    ]
+  },
+  "612-613": {
+    "harSHA256": "1b0974cb48d123c0f13d2b76acaea951d02988a4693d66f63e1abed7f3596097",
+    "entryCount": 68,
+    "files": [
+      {
+        "seed": 612,
+        "filenameSHA256": "3d2559084f871deef8b65a5d8ecb5655aede8d18a2b4aff91873da7518fad8ea",
+        "fileIDSHA256": "18b1cb86a43bae665c757d839dabb49aeb23bf8862e0afa338ab218c4a6dc193",
+        "createEntry": 56,
+        "putEntry": 58,
+        "processEntry": 63
+      },
+      {
+        "seed": 613,
+        "filenameSHA256": "5b199daa1655b9a16ec7b31a0e65467f3f8cd85dd8c9c6ee9e84fa568ff9094d",
+        "fileIDSHA256": "147236ba0069d7180c302fa12068e432103be8800f70b2133e8ebc0a95547151",
+        "createEntry": 60,
+        "putEntry": 61,
+        "processEntry": 64
+      }
+    ]
+  },
+  "625": {
+    "harSHA256": "79126720f4b90c33e2c5b1002e96256c66fcf392253f03700e5b9821336149ad",
+    "entryCount": 760,
+    "files": [
+      {
+        "seed": 625,
+        "filenameSHA256": "76b672a0aa09e70502c7647995dc784dc22686f24d5892b56b5ff0f423dd29f0",
+        "fileIDSHA256": "42cbf905e8ef86158cf5b1e1b3fb9f131f03d9ddd314e4941f1ccd25872d9c56",
+        "createEntry": 712,
+        "putEntry": 713,
+        "processEntry": 715
+      }
+    ]
+  }
+}

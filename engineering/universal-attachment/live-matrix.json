@@ -1,6 +1,6 @@
 {
   "scope": "Commercial services through the ordinary Riftlet App. In the earlier isolated account, screenshots 612 and 613 each have a durable product START and storage HTTP 201. Service processing is UNKNOWN for each. Screenshots 617 and 618 reached file input without a new attachment or START. Separate rows preserve each dated default-profile trial. In the signed-in default account, 619 and 620 both entered the original temporary draft and have storage HTTP 201. Neither has a product START or an observed processing terminal. On the integrated 1.0.5 (31) ordinary App, 622 and 623 entered the same default-profile draft; their card progress and storage responses were observed. Product START was absent for both, service processing remained UNKNOWN, and the rapid pair failed. The next build 31 candidate received both rapid clicks (624/625) on one tray page. 624 exhausted the old 50 ms minimum before sending the document-binding event. Only 625 entered the original five-attachment draft; the page replaced the complete card before the PNG appeared and the product retained UNKNOWN. The cold-click repair build imported 626 and 627. Their dedicated Default Edge window could not be uniquely presented again before either ordinary click. Both commercial operations are NOT_RUN. A later read of the original 625 attachment matched the browser encoding of its original PNG.",
-  "latestAcceptanceRecord": "edge-unified-default-20261118/build31/pair-626-627/REPORT.md",
+  "latestAcceptanceRecord": "edge-unified-default-20261118/build31/pair-631-632/preinput-only.json",
   "previousMatrix": {
     "commit": "d50e1a26a2b75ea24cf92edde5a5a9ce6a02256a",
     "path": "engineering/universal-attachment/live-matrix.json"
@@ -836,6 +836,25 @@
       "consecutiveImages": "NOT_RUN",
       "additionalUserSteps": "NONE",
       "relatedEvidence": "edge-unified-default-20261118/build31/pair-626-627/REPORT.md"
+    },
+    {
+      "host": "Microsoft Edge",
+      "service": "ChatGPT",
+      "trial": "20261119_BUILD31_ORIGINAL_DEFAULT_WINDOW_631_632",
+      "result": "NOT_RUN",
+      "source": "cb82a728237504ac9270ee8322144f8f8e793c9b",
+      "accountScope": "SIGNED_IN_DAILY_DEFAULT_IN_OWN_TEMPORARY_DRAFT",
+      "application": "BOTH_SYSTEM_PNGS_IMPORTED_BY_SIGNED_ORDINARY_APP",
+      "windowAndDraft": "DOCK_RESTORED_ORIGINAL_VISIBLE_DRAFT_THEN_WINDOW_SERVER_REPORTED_MINIATURE_AND_WINDOW_LATER_CLOSED",
+      "entry": "NO_NATIVE_MOUSE_POST_OR_PRODUCT_OPERATION",
+      "specifiedImage": "TWO_DISTINCT_ORIGINAL_PNGS_VERIFIED_LOCALLY",
+      "textSelectionPriorAttachments": "SIX_OLD_ATTACHMENTS_AND_TEXT_IDENTIFIED_SELECTION_REESTABLISHED_61_14_BEFORE_PLANNED_CLICKS",
+      "uploadStart": "NOT_RUN",
+      "finalSuccess": "NOT_RUN",
+      "failureAndUnknown": "NO_INPUT_OR_REPLAY",
+      "consecutiveImages": "NOT_RUN",
+      "additionalUserSteps": "NONE",
+      "relatedEvidence": "edge-unified-default-20261118/build31/pair-631-632/preinput-only.json"
     }
   ],
   "edgeSpecialistFollowup": "edge-double-image-20261114/isolated-login.json",
@@ -846,5 +865,6 @@
   "latestNativeReceiptRecord": "edge-fresh-pair-20261117/independent-product.json",
   "latestCIEvidence": "edge-unified-default-20261118/ci-84871b3-final.json",
   "latestDefaultProfileRecord": "edge-unified-default-20261118/build31/pair-626-627/REPORT.md",
-  "latestPresentationPreflight": "edge-unified-default-20261118/build31/pair-626-627/fresh-window-preflight.json"
+  "latestPresentationPreflight": "edge-unified-default-20261118/build31/pair-631-632/preinput-only.json",
+  "historicalProcessingResponseVerification": "edge-unified-default-20261118/terminal-response/README.md"
 }
