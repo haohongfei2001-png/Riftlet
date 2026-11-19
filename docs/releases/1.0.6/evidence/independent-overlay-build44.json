@@ -1,0 +1,221 @@
+{
+  "webProgramSHA256": "3a23e5d6fba1f39945bebce0c07212839527385da3434c4a143c8674882bedab",
+  "scope": "Independent controlled page fixture, source v24 or v25 creates the original handoff; v25 reads original. No live service. No actual URL, personal file or text.",
+  "figureCases": [
+    {
+      "sourceVersion": "v25",
+      "scenario": "own",
+      "start": "uploadStarted",
+      "read": "failed",
+      "manual": "failed",
+      "agrees": true
+    },
+    {
+      "sourceVersion": "v25",
+      "scenario": "nested",
+      "start": "uploadStarted",
+      "read": "uploadStarted",
+      "manual": "uploadStarted",
+      "agrees": true
+    },
+    {
+      "sourceVersion": "v25",
+      "scenario": "hidden",
+      "start": "uploadStarted",
+      "read": "uploadStarted",
+      "manual": "uploadStarted",
+      "agrees": true
+    },
+    {
+      "sourceVersion": "v25",
+      "scenario": "dead-name",
+      "start": "uploadStarted",
+      "read": "uploadStarted",
+      "manual": "uploadStarted",
+      "agrees": true
+    },
+    {
+      "sourceVersion": "v25",
+      "scenario": "already-error",
+      "start": "inputTriggered",
+      "read": "inputTriggered",
+      "manual": "inputTriggered",
+      "agrees": true
+    },
+    {
+      "sourceVersion": "v25",
+      "scenario": "disabled-early",
+      "start": "inputTriggered",
+      "read": "inputTriggered",
+      "manual": "inputTriggered",
+      "agrees": true
+    },
+    {
+      "sourceVersion": "v25",
+      "scenario": "before-hover",
+      "start": "uploadStarted",
+      "read": "uploadStarted",
+      "manual": "uploadStarted",
+      "agrees": true
+    },
+    {
+      "sourceVersion": "v25",
+      "scenario": "moved-and-back",
+      "start": "uploadStarted",
+      "read": "uploadStarted",
+      "manual": "invalidated",
+      "agrees": true
+    },
+    {
+      "sourceVersion": "v25",
+      "scenario": "changed-resource-back",
+      "start": "uploadStarted",
+      "read": "uploadStarted",
+      "manual": "invalidated",
+      "agrees": true
+    },
+    {
+      "sourceVersion": "v25",
+      "scenario": "changed-name-back",
+      "start": "uploadStarted",
+      "read": "uploadStarted",
+      "manual": "invalidated",
+      "agrees": true
+    },
+    {
+      "sourceVersion": "v24\u2192v25",
+      "scenario": "own",
+      "start": "uploadStarted",
+      "read": "uploadStarted",
+      "manual": "uploadStarted",
+      "agrees": true
+    },
+    {
+      "sourceVersion": "v24\u2192v25",
+      "scenario": "nested",
+      "start": "uploadStarted",
+      "read": "uploadStarted",
+      "manual": "uploadStarted",
+      "agrees": true
+    },
+    {
+      "sourceVersion": "v24\u2192v25",
+      "scenario": "hidden",
+      "start": "uploadStarted",
+      "read": "uploadStarted",
+      "manual": "uploadStarted",
+      "agrees": true
+    },
+    {
+      "sourceVersion": "v24\u2192v25",
+      "scenario": "dead-name",
+      "start": "uploadStarted",
+      "read": "uploadStarted",
+      "manual": "uploadStarted",
+      "agrees": true
+    },
+    {
+      "sourceVersion": "v24\u2192v25",
+      "scenario": "already-error",
+      "start": "uploadStarted",
+      "read": "uploadStarted",
+      "manual": "uploadStarted",
+      "agrees": true
+    },
+    {
+      "sourceVersion": "v24\u2192v25",
+      "scenario": "disabled-early",
+      "start": "uploadStarted",
+      "read": "uploadStarted",
+      "manual": "uploadStarted",
+      "agrees": true
+    },
+    {
+      "sourceVersion": "v24\u2192v25",
+      "scenario": "before-hover",
+      "start": "uploadStarted",
+      "read": "uploadStarted",
+      "manual": "uploadStarted",
+      "agrees": true
+    },
+    {
+      "sourceVersion": "v24\u2192v25",
+      "scenario": "moved-and-back",
+      "start": "uploadStarted",
+      "read": "uploadStarted",
+      "manual": "uploadStarted",
+      "agrees": true
+    },
+    {
+      "sourceVersion": "v24\u2192v25",
+      "scenario": "changed-resource-back",
+      "start": "uploadStarted",
+      "read": "uploadStarted",
+      "manual": "uploadStarted",
+      "agrees": true
+    },
+    {
+      "sourceVersion": "v24\u2192v25",
+      "scenario": "changed-name-back",
+      "start": "uploadStarted",
+      "read": "uploadStarted",
+      "manual": "uploadStarted",
+      "agrees": true
+    }
+  ],
+  "perFigureCase": {
+    "setters": 1,
+    "changes": 1,
+    "sends": 0
+  },
+  "twoFileChineseCases": [
+    {
+      "type": "zh",
+      "expected": true,
+      "got": "failed",
+      "ok": true
+    },
+    {
+      "type": "zh-retry",
+      "expected": true,
+      "got": "failed",
+      "ok": true
+    },
+    {
+      "type": "unknown-filename",
+      "expected": false,
+      "got": "uploadStarted",
+      "ok": true
+    },
+    {
+      "type": "additional-filename",
+      "expected": false,
+      "got": "uploadStarted",
+      "ok": true
+    },
+    {
+      "type": "ordinary-remove",
+      "expected": false,
+      "got": "uploadStarted",
+      "ok": true
+    },
+    {
+      "type": "generic",
+      "expected": false,
+      "got": "uploadStarted",
+      "ok": true
+    },
+    {
+      "type": "title-not-error",
+      "expected": false,
+      "got": "uploadStarted",
+      "ok": true
+    }
+  ],
+  "perChineseCase": {
+    "setters": 2,
+    "changes": 2,
+    "sends": 0,
+    "neighborStillStarted": true
+  }
+}
