@@ -79,7 +79,8 @@ public struct ObservationNormalizer: Sendable {
             // ReceiptPolicy separately refuses unadmitted start/success/retry.
         }
         if OrdinaryProductScreenshotScope.matches(profile) {
-            if profile.uploadStartProfileID == OrdinaryProductScreenshotScope.edgeProgressStartProfileID {
+            if [OrdinaryProductScreenshotScope.edgeProgressStartProfileID,
+                OrdinaryProductScreenshotScope.edgeAttachmentAcceptedStartProfileID].contains(profile.uploadStartProfileID ?? "") {
                 guard operation.target.applicationID == "com.microsoft.edgemac", operation.target.clickBindingID != nil,
                       operation.target.webDraftRoute == .chatGPTTemporaryHome,
                       request.asset.origin == .systemScreenshot, request.asset.mediaType.lowercased() == "image/png",
@@ -87,7 +88,7 @@ public struct ObservationNormalizer: Sendable {
                          && (item.uploadStart?.previousProgress ?? 0) > 0) else { throw ObservationError.profileTargetMismatch }
             }
             let allowed = request.asset.origin == .systemScreenshot
-                ? [OrdinaryProductScreenshotScope.systemProfile, OrdinaryProductScreenshotScope.admittedSystemProfile, OrdinaryProductScreenshotScope.edgeProgressProfile]
+                ? [OrdinaryProductScreenshotScope.systemProfile, OrdinaryProductScreenshotScope.admittedSystemProfile, OrdinaryProductScreenshotScope.edgeProgressProfile, OrdinaryProductScreenshotScope.edgeAttachmentAcceptedProfile]
                 : request.asset.origin == .applicationScreenshot
                     ? [OrdinaryProductScreenshotScope.applicationProfile, OrdinaryProductScreenshotScope.admittedApplicationProfile] : []
             guard allowed.contains(where: { $0.profileID == profile.profileID && $0.uploadStartProfileID == profile.uploadStartProfileID }) else {

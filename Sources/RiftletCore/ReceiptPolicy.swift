@@ -8,16 +8,35 @@ public struct ReceiptPolicy: Sendable {
     /// A host with calibrated START alone cannot borrow another host's profile
     /// or its completion, retry and continuation mechanisms.
     public struct StartOnlyRule: Sendable {
+        public struct Profile: Sendable {
+            public let receiptID: String
+            public let startID: String
+            public let signals: Set<UploadStartSignal>
+
+            public init(receiptID: String, startID: String, signals: Set<UploadStartSignal>) {
+                self.receiptID = receiptID
+                self.startID = startID
+                self.signals = signals
+            }
+        }
+
         public let adapterID: String
         public let receiptProfileID: String
         public let startProfileID: String
         public let signal: UploadStartSignal
         public let route: WebDraftRoute
         public let mediaType: String
-        public init(adapterID: String, receiptProfileID: String, startProfileID: String, signal: UploadStartSignal, mediaType: String, route: WebDraftRoute) {
+        fileprivate let profiles: [Profile]
+
+        public init(adapterID: String, receiptProfileID: String, startProfileID: String, signal: UploadStartSignal,
+                    mediaType: String, route: WebDraftRoute, additionalProfiles: [Profile] = []) {
             self.adapterID = adapterID
-            self.receiptProfileID = receiptProfileID; self.startProfileID = startProfileID
-            self.signal = signal; self.mediaType = mediaType; self.route = route
+            self.receiptProfileID = receiptProfileID
+            self.startProfileID = startProfileID
+            self.signal = signal
+            self.mediaType = mediaType
+            self.route = route
+            self.profiles = [Profile(receiptID: receiptProfileID, startID: startProfileID, signals: [signal])] + additionalProfiles
         }
     }
     public let startOnlyApplications: [String: StartOnlyRule]
@@ -91,12 +110,16 @@ public struct ReceiptPolicy: Sendable {
               let attachmentID = receipt.attachmentID, !attachmentID.isEmpty,
               attachmentID.utf8.count <= 1024 else { return false }
         if let rule = startOnlyApplications[receipt.target.applicationID] {
-            guard receipt.target.adapterID == rule.adapterID, receipt.profileID == rule.receiptProfileID, evidence.profileID == rule.startProfileID,
-                  profileOrigins[rule.startProfileID]?.contains(asset.origin) == true,
-                  evidence.signal == rule.signal, asset.mediaType.lowercased() == rule.mediaType,
+            guard receipt.target.adapterID == rule.adapterID,
+                  rule.profiles.contains(where: { $0.receiptID == receipt.profileID && $0.startID == evidence.profileID && $0.signals.contains(evidence.signal) }),
+                  profileOrigins[evidence.profileID]?.contains(asset.origin) == true,
+                  receipt.isUploading == (evidence.signal != .attachmentAccepted),
+                  asset.mediaType.lowercased() == rule.mediaType,
                   receipt.target.clickBindingID != nil, receipt.target.webDraftRoute == rule.route, receipt.completionEvidence == nil,
                   receipt.continuationEvidence == nil, receipt.terminationEvidence == nil else { return false }
-        } else if startOnlyApplications.values.contains(where: { $0.startProfileID == evidence.profileID || $0.receiptProfileID == receipt.profileID }) {
+        } else if startOnlyApplications.values.contains(where: { rule in
+            rule.profiles.contains { $0.startID == evidence.profileID || $0.receiptID == receipt.profileID }
+        }) {
             return false
         }
         if mode == .simulation {

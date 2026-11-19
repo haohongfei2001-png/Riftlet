@@ -27,11 +27,12 @@ public enum SystemScreenshotAdmissionScope: Sendable, Equatable {
         }
     }
     func registeredProfile(for request: TransferRequest, sourceID: String) -> ObservationProfile {
-        if self == .productSystem, [ChatGPTWebPageProgram.edgeSourceID, ChatGPTWebPageProgram.priorDraftContentSource, ChatGPTWebPageProgram.priorStagedSource, ChatGPTWebPageProgram.priorEncodedSource, ChatGPTWebPageProgram.priorEdgeSource, ChatGPTWebPageProgram.priorProgressSource, ChatGPTWebPageProgram.priorLabelSource].contains(sourceID),
+        if self == .productSystem, [ChatGPTWebPageProgram.edgeSourceID, ChatGPTWebPageProgram.priorRootContentSource, ChatGPTWebPageProgram.priorDraftContentSource, ChatGPTWebPageProgram.priorStagedSource, ChatGPTWebPageProgram.priorEncodedSource, ChatGPTWebPageProgram.priorEdgeSource, ChatGPTWebPageProgram.priorProgressSource, ChatGPTWebPageProgram.priorLabelSource].contains(sourceID),
            request.asset.origin == .systemScreenshot, request.asset.mediaType.lowercased() == "image/png",
            request.operation.target.applicationID == "com.microsoft.edgemac", request.operation.target.clickBindingID != nil,
            request.operation.target.webDraftRoute == .chatGPTTemporaryHome {
-            return OrdinaryProductScreenshotScope.edgeProgressProfile
+            return sourceID == ChatGPTWebPageProgram.edgeSourceID
+                ? OrdinaryProductScreenshotScope.edgeAttachmentAcceptedProfile : OrdinaryProductScreenshotScope.edgeProgressProfile
         }
         return admittedProfile
     }
@@ -116,6 +117,10 @@ public enum OrdinarySystemScreenshotScope {
 /// policy must independently admit each profile for its exact asset origin;
 /// merely constructing these values grants no input, start, completion or retry.
 public enum OrdinaryProductScreenshotScope {
+    /// Local original-draft acceptance only. Completion, failure and retry stay separate.
+    public static let edgeAttachmentAcceptedStartProfileID = "chatgpt-web-edge-temporary-system-png-accepted-20261119-v1"
+    public static let edgeAttachmentAcceptedProfile = ObservationProfile(adapterID: "chatgpt-web", surface: .webChat,
+        profileID: "chatgpt-web-edge-temporary-system-input-20261119-v29", uploadStartProfileID: edgeAttachmentAcceptedStartProfileID)
     public static let edgeProgressStartProfileID = "chatgpt-web-edge-temporary-system-png-progress-20261117-v1"
     public static let edgeProgressProfile = ObservationProfile(adapterID: "chatgpt-web", surface: .webChat,
         profileID: "chatgpt-web-edge-temporary-system-input-20261117-v1", uploadStartProfileID: edgeProgressStartProfileID)
@@ -139,7 +144,7 @@ public enum OrdinaryProductScreenshotScope {
                 ? (origin == "system" ? systemContinuationProfileID : applicationContinuationProfileID) : nil)
     }
     static func matches(_ candidate: ObservationProfile) -> Bool {
-        [systemProfile, applicationProfile, admittedSystemProfile, admittedApplicationProfile, edgeProgressProfile].contains { profile in
+        [systemProfile, applicationProfile, admittedSystemProfile, admittedApplicationProfile, edgeProgressProfile, edgeAttachmentAcceptedProfile].contains { profile in
             candidate.adapterID == profile.adapterID && candidate.surface == profile.surface
                 && candidate.completionSignal == profile.completionSignal && candidate.failureSignal == nil
                 && candidate.profileID == profile.profileID && candidate.uploadStartProfileID == profile.uploadStartProfileID

@@ -333,7 +333,9 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         do {
             let enrolled = binding(for: request.asset)?.admission.scope.registeredProfile(for: request,
                 sourceID: ChatGPTWebPageProgram.currentSourceID(for: request.operation.target))
-            let edgeProgress = enrolled?.uploadStartProfileID == OrdinaryProductScreenshotScope.edgeProgressStartProfileID
+            let edgeProgress = [OrdinaryProductScreenshotScope.edgeProgressStartProfileID,
+                                OrdinaryProductScreenshotScope.edgeAttachmentAcceptedStartProfileID]
+                .contains(enrolled?.uploadStartProfileID ?? "")
             let begin = WebBridgeCommand(action: .begin, target: identity.target, identity: identity,
                 uploadName: uploadName, mediaType: file.mediaType, byteCount: file.byteCount,
                 invocationID: request.invocationID, edgeProgressCandidate: edgeProgress ? true : nil)
@@ -586,9 +588,10 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
            ![.inputTriggered, .unknown, .invalidated].contains(envelope.observation.state) {
             guard mode == .ordinaryProduct, envelope.observation.state == .uploadStarted,
                   let source = registration?.source,
-                  [ChatGPTWebPageProgram.edgeSourceID, ChatGPTWebPageProgram.priorDraftContentSource, ChatGPTWebPageProgram.priorStagedSource, ChatGPTWebPageProgram.priorEncodedSource, ChatGPTWebPageProgram.priorEdgeSource].contains(source),
+                  [ChatGPTWebPageProgram.edgeSourceID, ChatGPTWebPageProgram.priorRootContentSource, ChatGPTWebPageProgram.priorDraftContentSource, ChatGPTWebPageProgram.priorStagedSource, ChatGPTWebPageProgram.priorEncodedSource, ChatGPTWebPageProgram.priorEdgeSource].contains(source),
                   let evidence = ChatGPTWebPageProgram.edgeEvidence(for: source),
-                  scopedNormalizer.profile.uploadStartProfileID == OrdinaryProductScreenshotScope.edgeProgressStartProfileID,
+                  scopedNormalizer.profile.uploadStartProfileID == (source == ChatGPTWebPageProgram.edgeSourceID
+                    ? OrdinaryProductScreenshotScope.edgeAttachmentAcceptedStartProfileID : OrdinaryProductScreenshotScope.edgeProgressStartProfileID),
                   envelope.provenance == .init(source: .integratedDevelopment, evidenceID: evidence),
                   let start = envelope.observation.uploadStart, start.signal == .correlatedProgress, start.previousProgress > 0,
                   envelope.observation.inputExecutionPending == false, envelope.observation.requestEvidence == nil,
@@ -609,6 +612,13 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
             } else {
                 try await journal.record(envelope, for: request, readOnly: !liveAppend)
             }
+        }
+        // Preserve the original page observation and invocation-bound content
+        // checkpoint before returning the new native, local-acceptance receipt.
+        // Historical registrations and their UNKNOWN records never enter this path.
+        if mode == .ordinaryProduct, registration?.scope == .productSystem,
+           registration?.source == ChatGPTWebPageProgram.edgeSourceID {
+            return try EdgeDraftAttachmentAcceptance.receipt(from: envelope, normalized: receipt, for: request)
         }
         return receipt
     }

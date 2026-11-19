@@ -127,7 +127,8 @@ private final class EdgeCommandCancellation: @unchecked Sendable {
             program = try ChatGPTWebPageProgram.edgeProgram.get()
         } else {
             // Original observation can only read its resident channel using the frozen bundle bytes.
-            guard let original = try ChatGPTWebPageProgram.originalObservationProgram(sourceID: requested.sourceID)
+            guard command.action == .observe,
+                  let original = try ChatGPTWebPageProgram.originalObservationProgram(sourceID: requested.sourceID)
             else { throw WebAdapterError.invalidRequest }
             program = original
         }

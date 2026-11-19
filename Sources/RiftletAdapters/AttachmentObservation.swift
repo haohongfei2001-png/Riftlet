@@ -248,7 +248,7 @@ public enum ObservationDecoder {
         if let content = item.originalDraftContent {
             let target = item.identity.target
             guard envelope.schemaVersion == 2, envelope.provenance.source == .integratedDevelopment,
-                  [ChatGPTWebPageProgram.draftContentEvidenceV27, ChatGPTWebPageProgram.edgeEvidenceID]
+                  [ChatGPTWebPageProgram.draftContentEvidenceV27, ChatGPTWebPageProgram.draftContentEvidenceV28, ChatGPTWebPageProgram.edgeEvidenceID]
                       .contains(envelope.provenance.evidenceID),
                   target.adapterID == "chatgpt-web", target.surface == .webChat,
                   target.applicationID == EdgeApplicationHost.bundleID, target.clickBindingID != nil,
