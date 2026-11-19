@@ -318,7 +318,8 @@ class BundleVerificationTests(unittest.TestCase):
     def test_current_and_historical_edge_programs_require_all_packaged_components(self):
         for name in ("chatgpt-web-edge-v24.js", "edge-encoded-preview.js",
                   "chatgpt-web-edge-v26.js", "edge-encoded-preview-v26.js",
-                  "chatgpt-web-edge-v27.js", "edge-encoded-preview-v27.js"):
+                  "chatgpt-web-edge-v27.js", "edge-encoded-preview-v27.js",
+                  "edge-draft-content-owner-v28.js"):
             with self.subTest(resource=name):
                 path = self.bundle / name
                 original = path.read_bytes()

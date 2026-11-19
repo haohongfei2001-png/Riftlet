@@ -61,7 +61,7 @@ public actor SystemScreenshotObservationJournal {
                   ChatGPTWebPageProgram.edgeEvidence(for: source) == envelope.provenance.evidenceID else {
                 throw SystemScreenshotObservationJournalError.invalidProvenance
             }
-        } else if [ChatGPTWebPageProgram.edgeEvidenceID, ChatGPTWebPageProgram.priorStagedEvidence,
+        } else if [ChatGPTWebPageProgram.edgeEvidenceID, ChatGPTWebPageProgram.draftContentEvidenceV27, ChatGPTWebPageProgram.priorStagedEvidence,
                    ChatGPTWebPageProgram.priorEncodedEvidence].contains(envelope.provenance.evidenceID) {
             throw SystemScreenshotObservationJournalError.invalidProvenance
         }

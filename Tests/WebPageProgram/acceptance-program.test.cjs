@@ -15,6 +15,7 @@ require('./edge-encoded-preview.test.cjs');
 require('./edge-encoded-progress.test.cjs');
 require('./edge-staged-progress.test.cjs');
 require('./edge-original-draft-content.test.cjs');
+require('./edge-root-content-v28.test.cjs');
 
 function accepted(f,op) {
  const observation=f.observe(op);

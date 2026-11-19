@@ -41,7 +41,7 @@ function calibration(reply) {
 
 function captureBaseline(f) {
   f.call({action:'captureTarget'});
-  return f.context.__riftletEdgeFileInput20261118v27.current.edgeCalibrationBaseline;
+  return f.context.__riftletEdgeFileInput20261119v28.current.edgeCalibrationBaseline;
 }
 
 test('capture alone never scans a body, html or undeclared fallback as a calibration root', () => {

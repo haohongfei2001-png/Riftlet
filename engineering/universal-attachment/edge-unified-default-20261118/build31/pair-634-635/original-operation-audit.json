@@ -1,0 +1,117 @@
+{
+  "draftAfterClosedProjection": {
+    "baseline": 1,
+    "messages": 0,
+    "named": [
+      1,
+      1
+    ],
+    "originalDocument": true,
+    "selectionExact": true,
+    "submitCount": 0,
+    "textExact": true,
+    "totalImages": 3
+  },
+  "files": [
+    {
+      "assetStatus": "unknown",
+      "attachmentEntryDiagnosticCount": 26,
+      "databaseImageDigestMatchesTicket": true,
+      "operationCount": 1,
+      "operations": [
+        {
+          "attempt": 1,
+          "compensations": 0,
+          "completionEvidencePresent": false,
+          "durableStarts": 0,
+          "hasError": false,
+          "operationFilenameSHA256": "ec6db664bcb70a467dc352972e4d95ec20fc4d52f975625c0094ff96889d35ea",
+          "operationIDDigest": "419f7a41c3b081ecd16bf31bd0084cb002743770cc52ba5b8308c99c3363f744",
+          "outcome": "inputTriggered",
+          "phase": "unknown",
+          "positiveReady": false,
+          "safeToRetry": false,
+          "sameNativeTarget": true
+        }
+      ],
+      "originalPNGBytes": 1405249,
+      "originalPNGSHA256": "471d48b12801871b72600f80cac8e91a91aa4051e3c27d640def4a2d4a90e792",
+      "positiveChangeReturnedObserved": true,
+      "retainedMediaExactBytesMatch": true,
+      "seed": 634,
+      "selectionBoundaryCount": 1,
+      "visibility": "visible"
+    },
+    {
+      "assetStatus": "unknown",
+      "attachmentEntryDiagnosticCount": 34,
+      "databaseImageDigestMatchesTicket": true,
+      "operationCount": 1,
+      "operations": [
+        {
+          "attempt": 1,
+          "compensations": 0,
+          "completionEvidencePresent": false,
+          "durableStarts": 0,
+          "hasError": false,
+          "operationFilenameSHA256": "4009467fda0feac1bc9f53e6dfd097ec3c57a017133dcd1638f0f7d30d4221a0",
+          "operationIDDigest": "3ac521dc4435eda0659b1d71a401bbaf239f37fd1959378a909ed2b9ab518ca7",
+          "outcome": "inputTriggered",
+          "phase": "unknown",
+          "positiveReady": false,
+          "safeToRetry": false,
+          "sameNativeTarget": true
+        }
+      ],
+      "originalPNGBytes": 1406650,
+      "originalPNGSHA256": "76987c78d33561c499a37a1296611986ded1e20050df6fe31080a68cc69a8895",
+      "positiveChangeReturnedObserved": true,
+      "retainedMediaExactBytesMatch": true,
+      "seed": 635,
+      "selectionBoundaryCount": 1,
+      "visibility": "visible"
+    }
+  ],
+  "limitations": [
+    "Repeated attachment-entry diagnostic records are observations, not counts of setter executions.",
+    "This snapshot does not claim a service processing terminal.",
+    "No input, retry, chat send, browser UI or source change was performed by this reviewer."
+  ],
+  "observedAtUTC": "2026-11-19T03:21:39.061293+00:00",
+  "productExecutableSHA256": "478dd572ad2164acf6a6ef8e736a0bebbcb52d92e347d776de5e99e5b0437903",
+  "productSource": "d38663dadfc71df3ca4a0f185bd1b53696840c7e",
+  "readerGUIActions": 0,
+  "readerNewServiceRequests": 0,
+  "result": "CONFIRMED_TWO_CURRENT_INPUTS_PRODUCT_START_AND_COMPLETION_UNPROVEN",
+  "reviewer": "independent_checkpoint_5bd",
+  "schema": 1,
+  "scope": "Read-only current artifacts and one isolated SQLite transaction; independent of operator assertions. Not CI or service E2E.",
+  "sourceSHA256": {
+    "case.json": "5b3d6728c54fd8afe5cc9fbc8ce69cafd5e0527edec643394e9cad48446705b2",
+    "current/network-arm.json": "d243d1bee546f31ae96d7c6ff97f95c1d587e105a6a9d3eb305dc30f60a439e9",
+    "current/network-entering.json": "caf10ed81c7aa3d6d385f6b9ae93ab37c830c79131cd52d78c9c64daa3edf511",
+    "observations/draft-after.json": "3bb9cdb9d038ae21a172c3ee99ca9590a5d5e16b94999105360d98e61c826d15",
+    "observations/op-results.json": "9a5a19db9ffbac8fe383ac27636d42eb1e5becf196de2f0bcec79c23535361dd",
+    "observations/raw-events.jsonl": "521c7799128940714e6cf905d90215ed5b1d2988c03475f9a55bd32d2c830766",
+    "observations/sender-1.json": "d46877163b960a937eddcb7973bc8dc842b40ce6f12ee6f61cc905935c015ca8",
+    "observations/sender-2.json": "95d7b1e35780bf7966fae36861b6967179bf97dd2af1f2afa231371899b5c291",
+    "qa-ticket.json": "c8a8910d9fa363e52ed515dde778eec238f214696ac59336b09bc2fa412fa274"
+  },
+  "traceEventCount": 183,
+  "traceEvents": {
+    "attachment_entry_result": 60,
+    "click_target_requested": 2,
+    "click_target_resolved": 2,
+    "committed_visibility_observed": 4,
+    "edge_automation_permission": 4,
+    "edge_click_pin": 2,
+    "edge_web_command": 82,
+    "input_transport_finished": 2,
+    "mouse_application_event": 4,
+    "mouse_dispatch_boundary": 14,
+    "selection_boundary": 2,
+    "selection_enqueued": 2,
+    "selection_submission_started": 2,
+    "web_command_refused": 1
+  }
+}

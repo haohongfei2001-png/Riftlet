@@ -11,8 +11,14 @@ const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 const native={applicationID:'com.google.Chrome',sessionID:'synthetic-local-session',windowID:'17',tabID:'19'};
 const resources = path.join(__dirname, '../../Sources/RiftletAdapters/Resources');
 const encodedPreview = fs.readFileSync(path.join(resources, 'edge-encoded-preview-v27.js'), 'utf8');
-const edgeSource = fs.readFileSync(path.join(resources, 'chatgpt-web-edge-v27.js'), 'utf8')
+const previousEdgeSource = fs.readFileSync(path.join(resources, 'chatgpt-web-edge-v27.js'), 'utf8')
   .replace('/*__RIFTLET_ENCODED_PREVIEW_WATCHER__*/', () => encodedPreview);
+const draftOwner = fs.readFileSync(path.join(resources, 'edge-draft-content-owner-v28.js'), 'utf8');
+const edgeSource = previousEdgeSource
+  .replace("const popup = labels.filter(node => node !== scope && node.tagName === 'DIV' &&\n          visual.contains(node) && node.contains(image));",
+    () => "const popup = (" + draftOwner + ")(filename, labels, scope, visual, image, remove);")
+  .replace('__riftletEdgeFileInput20261118v27', '__riftletEdgeFileInput20261119v28')
+  .replace('click-document-witness-20261118-v27', 'click-document-witness-20261119-v28');
 function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focused=true,visible=true,editorTag='div',nativeContext=native,programSource=(nativeContext.applicationID==='com.microsoft.edgemac'?edgeSource:source)}={}) {
  const observers=[],events=new Map();
  function queueMutation(record){
@@ -180,4 +186,4 @@ function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focu
   get changes(){return changes;},get setters(){return setters;},get sends(){return sends;},get chooserOpens(){return chooserOpens;},
   setRoute:href=>{context.location.href=href;},setFocused:value=>{focused=value;}};
 }
-module.exports={fixture,png,sha,native};
+module.exports={fixture,png,sha,native,edgeSource,previousEdgeSource};

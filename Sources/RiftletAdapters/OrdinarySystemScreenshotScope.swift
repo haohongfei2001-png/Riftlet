@@ -27,7 +27,7 @@ public enum SystemScreenshotAdmissionScope: Sendable, Equatable {
         }
     }
     func registeredProfile(for request: TransferRequest, sourceID: String) -> ObservationProfile {
-        if self == .productSystem, [ChatGPTWebPageProgram.edgeSourceID, ChatGPTWebPageProgram.priorStagedSource, ChatGPTWebPageProgram.priorEncodedSource, ChatGPTWebPageProgram.priorEdgeSource, ChatGPTWebPageProgram.priorProgressSource, ChatGPTWebPageProgram.priorLabelSource].contains(sourceID),
+        if self == .productSystem, [ChatGPTWebPageProgram.edgeSourceID, ChatGPTWebPageProgram.priorDraftContentSource, ChatGPTWebPageProgram.priorStagedSource, ChatGPTWebPageProgram.priorEncodedSource, ChatGPTWebPageProgram.priorEdgeSource, ChatGPTWebPageProgram.priorProgressSource, ChatGPTWebPageProgram.priorLabelSource].contains(sourceID),
            request.asset.origin == .systemScreenshot, request.asset.mediaType.lowercased() == "image/png",
            request.operation.target.applicationID == "com.microsoft.edgemac", request.operation.target.clickBindingID != nil,
            request.operation.target.webDraftRoute == .chatGPTTemporaryHome {
