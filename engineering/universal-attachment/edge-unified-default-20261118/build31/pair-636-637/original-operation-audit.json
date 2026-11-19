@@ -51,10 +51,12 @@
       "operationFilenameSHA256": "05fc108d71b43effdef69a3f3ef044f2d33c8d15221d15772132f38beff94190",
       "operationIDDigest": "c0842d0996025964077ce121777e15f7e45a5b1cc77b8c641d5f1fd283a090c5",
       "originalDraftContent": {
+        "comparisonBoundary": "Independently rechecked the saved product-journal, original named-page hash projection and separate local headless encoding report. This audit did not rerun a browser or obtain raw page preview bytes.",
         "decodedCheckpointSHA256": "bf2b380ed7962f6ad0fb7e9086e336c2c13ee450c621b21bbced1c38dcfb2198",
         "encodedPNGBytes": 1386273,
         "encodedPNGSHA256": "37f57eb40baa7b805cb3400ae9916fe6149d66d1ca3e52b94ae4f2d949feebd1",
         "evidenceIDDigest": "e1376ef9638a52c4d12e4e2668fa2ee26f4e0944c49d25ae26499d8edc6c75d9",
+        "existingPostInputPreviewAndLocalEncodingReportsAgree": true,
         "firstMatchedDiagnosticSequence": 93,
         "independentRawPreviewReencodingPerformed": false,
         "inputSequence": 1,
@@ -64,6 +66,16 @@
         "originalDraftTextAndSelectionMatchedInPositiveRows": true,
         "originalInvocationMatched": true,
         "originalOperationAssetAttemptTargetMatched": true,
+        "ownedARIARefFacts": {
+          "ambiguous": 0,
+          "claims": 0,
+          "states": [],
+          "uniqueOwned": 0
+        },
+        "recordedPreviewNaturalSize": [
+          948,
+          624
+        ],
         "result": "CONFIRMED_DURABLE_ORIGINAL_PAGE_MATCH_REPORT",
         "sourceEvidence": "click-document-witness-20261119-v28",
         "traceMatchedRows": 27
@@ -105,10 +117,12 @@
       "operationFilenameSHA256": "3cbc7f32c9f7d1faaa9d38969c2f5cd1a7a55bef8f9dce236a27fb0cdb2d1d1c",
       "operationIDDigest": "51f13b823e2f0ebfdd6ee5e209591a0eec6b9aa7ad86d863fab41fd75762345d",
       "originalDraftContent": {
+        "comparisonBoundary": "Independently rechecked the saved product-journal, original named-page hash projection and separate local headless encoding report. This audit did not rerun a browser or obtain raw page preview bytes.",
         "decodedCheckpointSHA256": "b0de4694fcd9d1cd6dae624a489b7dfd5c5c2e6ac8e3e20f7b58e8d3910e8bc4",
         "encodedPNGBytes": 1386508,
         "encodedPNGSHA256": "88be14d4117cfe31e13d0d2d3ffb54c60e483c39478f812a294aa9a8e6067ef9",
         "evidenceIDDigest": "c3c7c01c63516fdef5ef6bfb17e40b00d03470d85ca1277bb31ffb799899434c",
+        "existingPostInputPreviewAndLocalEncodingReportsAgree": true,
         "firstMatchedDiagnosticSequence": 146,
         "independentRawPreviewReencodingPerformed": false,
         "inputSequence": 3,
@@ -118,6 +132,16 @@
         "originalDraftTextAndSelectionMatchedInPositiveRows": true,
         "originalInvocationMatched": true,
         "originalOperationAssetAttemptTargetMatched": true,
+        "ownedARIARefFacts": {
+          "ambiguous": 0,
+          "claims": 0,
+          "states": [],
+          "uniqueOwned": 0
+        },
+        "recordedPreviewNaturalSize": [
+          948,
+          624
+        ],
         "result": "CONFIRMED_DURABLE_ORIGINAL_PAGE_MATCH_REPORT",
         "sourceEvidence": "click-document-witness-20261119-v28",
         "traceMatchedRows": 24
@@ -132,6 +156,17 @@
       "visibility": "visible"
     }
   ],
+  "lateExistingReadbacks": {
+    "DevToolsRestoreSHA256": "bda6548fa9ac1fab21e8521b3445195d3b1bd3606068a5eb4b483dfdc0cacf2b",
+    "closeoutSHA256": "80501db6f4dbf656cbf98cfd4b7efa1a1236644df7dd82c14d3bf65a4bdffd97",
+    "defaultEdgeScriptPreferenceWritesReported": 0,
+    "localEncodingComparisonSHA256": "b57664a28c84ebce85a56e5d8fda45c54087e3bbf013ef0712d58b093f9be940",
+    "namedPageProjectionSHA256": "5973aff4870410b8216b9eaf5e7e88dbb5bcb4bb976d5f1d148407ea8cb98f87",
+    "operatorRestorationVerifiedFromSavedReceiptOnly": true,
+    "originalOwnOpenedDevToolsClosedReceiptVerified": true,
+    "originalReportRetainedSHA256": "49d9f8d0a82f0ffd5c4de3eb5ed361dfff44f7c8091cd48d0110bdf1a9ea1e78",
+    "settingChangesThisPairReported": 0
+  },
   "limitations": [
     "The two v28 originalDraftContent checkpoints are actual stored page-match reports bound to the original invocations. Their encoded PNG hashes describe the page comparison; this audit did not revisit the page or independently reconstruct missing preview bytes.",
     "Original PNG bytes and retained media were rehashed independently. Browser reencoding hashes are not original-file or PUT-body hashes.",
