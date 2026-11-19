@@ -1,0 +1,42 @@
+{
+  "product": "28f4f5979190c0255b97978afdd97c713c39a50b",
+  "scope": "Source component tests and compiled release Core/Capture against private synthetic real PNG files. Times and memory below are for the benchmark process.",
+  "coreAndCapture": [
+    "six source-bound native test bodies passed",
+    "seed PASS pid 74411",
+    "move PASS pid 74412",
+    "restore PASS pid 74413"
+  ],
+  "benchmark": {
+    "concurrentCollectionMS": {
+      "max": 9.187167,
+      "n": 20,
+      "p50": 6.755542,
+      "p95": 8.03725
+    },
+    "cpuSystemMS": 145.13695833333335,
+    "cpuUserMS": 480.9449166666667,
+    "extraImports": 20,
+    "fileGrowth": 60,
+    "finalRSSBytes": 27213824,
+    "imageSize": "1024x768",
+    "initialCopies": 1000,
+    "initialLogicalBytes": 597249781,
+    "initialProfileAndOriginalFiles": 3003,
+    "initialRSSBytes": 24952832,
+    "initialSummaryMS": 5.199375,
+    "logicalGrowthBytes": 12636398,
+    "physicalDiskReadBytes": 28672,
+    "physicalDiskWriteBytes": 13418496,
+    "summaryHistoryAndRuleMS": {
+      "max": 8.325167,
+      "n": 20,
+      "p50": 7.828959,
+      "p95": 8.115875
+    },
+    "syntheticImageBytes": 297060,
+    "verifiedCopies": 1000,
+    "verifyAndConcurrentWorkMS": 518.963958
+  },
+  "sparkleToolTests": 11
+}

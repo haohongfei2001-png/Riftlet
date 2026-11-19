@@ -1,0 +1,63 @@
+{
+  "scope": "Non-author investigation, controlled loopback pages in the installed headless Microsoft Edge browser; separate from real logged-in services or Apple Events. No account content, user images, or URL history. Each case was run for a temporary and a saved-shaped route.",
+  "product": "28f4f5979190c0255b97978afdd97c713c39a50b",
+  "programSHA256": "3884f51acd2a7cec9a4219559734373a6a6d59bfdbe482c4604dd20e15a055bd",
+  "edgeVersion": "156.0.4314.58",
+  "cases": {
+    "retina": {
+      "stage": "before",
+      "expectedBehaviorObserved": false,
+      "logSHA256": "183bb333fddbdad980713ac6325837004041649ddb54082e34c18d56c22149f5"
+    },
+    "div-failed": {
+      "stage": "before",
+      "expectedBehaviorObserved": false,
+      "logSHA256": "f3a6eb05ba4cd0cb88e31411e3bd110b7c37914765565637a04c6e1b6cb346ec"
+    },
+    "28f4-retina": {
+      "stage": "final",
+      "expectedBehaviorObserved": true,
+      "logSHA256": "0c3eef7d159b3e12eb9f712d4819f810c825b41b9c5d87b9da0ccfa474557280"
+    },
+    "28f4-retina-wrong": {
+      "stage": "final",
+      "expectedBehaviorObserved": true,
+      "logSHA256": "5fc7eacc31ec2609c28bcc9380baae9140242aa883e54aba629f54bd382aafe7"
+    },
+    "28f4-div-failed": {
+      "stage": "final",
+      "expectedBehaviorObserved": true,
+      "logSHA256": "857a363e33af420918371e57567704f80098fda2663c4b8e495fd68839016bd4"
+    },
+    "final-adjacent-name": {
+      "stage": "DIV-repair-before-Retina",
+      "expectedBehaviorObserved": true,
+      "logSHA256": "ba1efb13d4c425731f3fd910e57381661a092063894c513898aa675aec331c18"
+    },
+    "final-hidden-retry": {
+      "stage": "DIV-repair-before-Retina",
+      "expectedBehaviorObserved": true,
+      "logSHA256": "34e8ec9eb7fc95a3f0e4f9ca5531395699200eedf878fbdcc2cacffd56daa993"
+    },
+    "final-disabled-retry": {
+      "stage": "DIV-repair-before-Retina",
+      "expectedBehaviorObserved": true,
+      "logSHA256": "49d6ca169280673ca7d22fe8f5c5d7f33a282812894063266125baf4e3852614"
+    },
+    "final-shell-reused": {
+      "stage": "DIV-repair-before-Retina",
+      "expectedBehaviorObserved": true,
+      "logSHA256": "9f1e0bf385d3f1953488b9f977219122b8c67a4f0efc02f810265a7660997be2"
+    },
+    "final-reparent": {
+      "stage": "DIV-repair-before-Retina",
+      "expectedBehaviorObserved": true,
+      "logSHA256": "d14ccb375e2ad120d6fccec50a30503b0f23af27fd01e5ee3fea553d804f513d"
+    },
+    "final-replace-img": {
+      "stage": "DIV-repair-before-Retina",
+      "expectedBehaviorObserved": true,
+      "logSHA256": "af6d7984fd905d70a472e5f1fb266599444a5dc802007bc1715abb9195f3663f"
+    }
+  }
+}
