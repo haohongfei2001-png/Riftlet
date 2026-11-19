@@ -6,7 +6,7 @@
 
 44 在接收时记住原图、按钮和图片卡的归属。同卡随后明确显示该文件的重试操作时，Riftlet 可通过原操作只读核对。若首见时已经失败，不产生 START。邻卡、已改名复用的卡和旧记录均无法因此获得重传权限。网页回归 262/262、headless Chrome 37/37 通过，并独立验证了 20 个跨版本及 7 个中文双卡场景。[回归结果](evidence/regressions-build44.json) · [归属反例](evidence/independent-overlay-build44.json)
 
-产品源为 `193009d842b460dbff80ee3416954cb087e4160f`。正式双架构 App 的 Developer ID 签名已核验，包内网页程序与受审文件逐字节一致。两个架构的自检与 11 项 Sparkle 工具测试通过。测试 Mac 锁屏时公证工具报告原配置不可用，尚无 44 的 Apple 提交号。两台隔离 Mac 的 Gatekeeper 均拒绝运行尚未公证的 App。[签名检查点](evidence/signed-app-build44.json)
+产品源为 `193009d842b460dbff80ee3416954cb087e4160f`。正式双架构 App 的 Developer ID 签名已核验，包内网页程序与受审文件逐字节一致。两个架构的自检与 11 项 Sparkle 工具测试通过。测试 Mac 锁屏时公证工具报告原配置不可用，尚无 44 的 Apple 提交号。两台隔离 Mac 的静态 Gatekeeper 评估均为 Unnotarized Developer ID。客机 A 经普通打开已观察到隔离转置的签名进程，正式安装及真实界面结果另行核对。[签名检查点](evidence/signed-app-build44.json)
 
 | 验收项 | build 44 源码及签名 App 检查点 |
 | --- | --- |
