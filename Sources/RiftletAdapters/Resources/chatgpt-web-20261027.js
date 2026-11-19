@@ -755,8 +755,8 @@ function riftletWebAcceptance(command, native) {
     const nodes = [card];
     for (let i = 0; i < nodes.length; i++) {
       const node = nodes[i];
-      if (!node.children.length && visible(node) && node.textContent.length <= 32
-          && /^(上传未成功|上传失败|upload failed)$/i.test(node.textContent.trim())) return true;
+      if (!node.children.length && node.textContent.length <= 32
+          && /^(上传未成功|上传失败|upload failed)$/i.test(node.textContent.trim()) && visible(node)) return true;
       if (nodes.length + node.children.length > 32) return false;
       for (const child of node.children) {
         if (!child.matches(cardSelector + ',input,textarea,[contenteditable="true"]')) nodes.push(child);
@@ -764,13 +764,56 @@ function riftletWebAcceptance(command, native) {
     }
     return false;
   }
+  // Keep only a weak node and a change bit, never a signed URL or inline
+  // payload. The narrow observer expires even on documents with older registries.
+  function unchangedPreview(imageRef, shellRef, name) {
+    let changed = false;
+    const invalidate = () => { changed = true; observer.disconnect(); clearTimeout(timer); };
+    const inspect = records => {
+      if (!records.length) return;
+      const image = imageRef.deref(), shell = shellRef.deref();
+      if (!shell?.isConnected || records.length > 32) return invalidate();
+      for (const record of records) {
+        if (record.target === image && record.type === 'attributes') return invalidate();
+        for (const node of record.addedNodes || []) {
+          if (node.nodeType !== 1 || node === image) continue;
+          if (!consistentCardLabels(node, name) || node.matches('img[src]') || node.querySelector('img[src]')) return invalidate();
+        }
+      }
+      // Losing the original preview without a complete local failure in this
+      // render ends the binding. A later occupant cannot revive that old slot.
+      if (!image || !shell.contains(image)) {
+        if (!consistentCardLabels(shell, name) || !completeOwnName(shell, name)
+            || !visibleFailureText(shell) || shell.querySelector('img[src]')) invalidate();
+      }
+    };
+    const observer = new MutationObserver(inspect);
+    observer.observe(shellRef.deref(), {subtree: true, childList: true, attributes: true, characterData: true,
+      attributeFilter: ['src', 'srcset', 'alt', 'data-file-name', 'title', 'aria-label']});
+    const timer = setTimeout(invalidate, 600000);
+    timer?.unref?.();
+    return () => { inspect(observer.takeRecords()); return !changed; };
+  }
+  function completeOwnName(card, name) {
+    // Call only after consistentCardLabels has bounded this subtree.
+    const filename = fileNamePattern(name);
+    return card.getAttribute('data-file-name') === name || filename.test(card.textContent)
+      || ['title', 'aria-label'].some(key => filename.test(card.getAttribute(key) || ''));
+  }
   function captureFailureWatch(op, accepted, matches) {
     if (typeof WeakRef !== 'function') return;
     const filename = fileNamePattern(op.name), views = [], cards = new Set();
     // Secondary views are optional. A busy document cannot enlarge the
     // post-START scan beyond 16 candidates or the retained set beyond four.
     for (const node of [accepted, ...matches.slice(0, 16)]) {
-      const card = node.closest(cardSelector);
+      const image = node.tagName === 'IMG' ? node : node.querySelector('img[alt]');
+      const labelledImage = image && filename.test(image.getAttribute('alt') || '')
+        && visible(image) && !!image.getAttribute('src');
+      // Some compact image members have no button role. Its original immediate
+      // shell is usable only while it holds exactly this one named image.
+      const shell = labelledImage && node === image && node.parentElement;
+      const card = node.closest(cardSelector) || (shell && shell.children.length === 1
+        && shell.children[0] === node && inOriginalCardContainer(shell, op.binding) ? shell : null);
       if (!card || cards.has(card)) continue;
       const local = inOriginalCardContainer(card, op.binding);
       if (!local && (!card.parentElement || !independentCardPortal(card, op.binding))) continue;
@@ -790,10 +833,14 @@ function riftletWebAcceptance(command, native) {
       // A separate view must show an object URL minted from this exact File.
       const sameFile = !!src && op.urls.has(src);
       if (node !== accepted && !sameFile) continue;
-      if (!namedCard && !sameFile && (!label || !preview)) continue;
+      const opaqueImage = node === accepted && labelledImage && !preview && !namedCard
+        && inOriginalCardContainer(card, op.binding) && card.querySelectorAll('img[src]').length === 1;
+      if (!opaqueImage && !namedCard && !sameFile && (!label || !preview)) continue;
       if (!consistentCardLabels(card, op.name)) continue;
       cards.add(card);
-      views.push({card: new WeakRef(card), parent: new WeakRef(card.parentElement), namedCard, label, witness: new WeakRef(node),
+      views.push({opaqueImage: opaqueImage ? new WeakRef(image) : null,
+        unchanged: opaqueImage ? unchangedPreview(new WeakRef(image), new WeakRef(card), op.name) : null,
+        imageParent: opaqueImage ? new WeakRef(image.parentElement) : null, card: new WeakRef(card), parent: new WeakRef(card.parentElement), namedCard, label, witness: new WeakRef(node),
         preview: preview ? new WeakRef(preview) : null, src, sameFile,
         portalParent: local ? null : new WeakRef(card.parentElement)});
       if (views.length === 4) break;
@@ -827,6 +874,18 @@ function riftletWebAcceptance(command, native) {
     // with a local error status and filename. A different preview vetoes it.
     if (view.namedCard && !card.querySelector('img[src]') && visibleFailureText(card)
         && consistentCardLabels(card, op.name)) return true;
+    if (view.opaqueImage) {
+      if (!consistentCardLabels(card, op.name) || !view.unchanged()) return false;
+      const image = view.opaqueImage.deref();
+      if (image?.isConnected) {
+        return card.contains(image) && card.querySelectorAll('img[src]').length === 1 && image.parentElement === view.imageParent.deref()
+          && fileNamePattern(op.name).test(image.getAttribute('alt') || '')
+          && (!requireError || visibleFailureText(card));
+      }
+      // A failed member can replace the image with a label and filename. Its
+      // original shell, parent and draft must survive, with no successor image.
+      return !card.querySelector('img[src]') && completeOwnName(card, op.name) && visibleFailureText(card);
+    }
     if (view.sameFile || !view.namedCard) {
       const preview = view.preview?.deref();
       if (!preview || preview.closest(cardSelector) !== card || preview.getAttribute('src') !== view.src) return false;

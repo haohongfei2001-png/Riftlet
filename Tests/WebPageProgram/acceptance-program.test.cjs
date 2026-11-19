@@ -848,3 +848,37 @@ test('visible failure belongs only to the original attachment, including a repla
  replacement.setAttribute('title',other.name);accepted(f,op);
  assert.equal(f.changes,1);assert.equal(f.sends,0);
 });
+
+test('a non-blob preview keeps the same local member across a named text-only failure',()=>{
+ function mount() {
+  const f=fixture({accept:false}), op=f.bind();
+  f.stage(op);f.commit(op);
+  const shell=f.form.append(new f.Node('div'));
+  const image=shell.append(new f.Node('img',{alt:op.name,src:'/opaque-image'}));
+  const start=accepted(f,op);
+  return {f,op,shell,image,start};
+ }
+ const {f,op,shell,image,start}=mount();
+ const sibling=f.form.append(new f.Node('div'));
+ sibling.append(new f.Node('span')).textContent='上传未成功';
+ sibling.append(new f.Node('span')).textContent=op.name;
+ assert.equal(f.call({...op.command('observe'),requireLiveOriginal:true}).observation.state,'uploadStarted');
+ accepted(f,op);
+ image.remove();shell.append(new f.Node('span')).textContent='上传未成功';
+ const file=shell.append(new f.Node('span')); file.textContent=op.name;
+ const failed=f.observe(op);assert.equal(failed.state,'failed');assert.equal(failed.attachmentID,start.attachmentID);
+ shell.remove();accepted(f,op);
+ const reused=mount();
+ reused.image.remove();reused.shell.append(new reused.f.Node('img',{alt:'other.png',src:'/other'})).remove();
+ reused.shell.append(new reused.f.Node('span')).textContent=reused.op.name;
+ reused.shell.append(new reused.f.Node('span')).textContent='上传未成功';
+ accepted(reused.f,reused.op);
+ for(const key of ['src','alt']) {
+  const {f,op,shell,image}=mount();
+  image.setAttribute(key,key==='alt'?'another.png':'/new-preview');
+  image.remove();
+  shell.append(new f.Node('span')).textContent=op.name;
+  shell.append(new f.Node('span')).textContent='上传未成功';
+  accepted(f,op);assert.equal(f.setters,1);assert.equal(f.sends,0);
+ }
+});
