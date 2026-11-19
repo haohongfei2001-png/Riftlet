@@ -944,7 +944,7 @@ for(const mode of ['placeholder','hidden','already-failed','foreign-image','navi
 
 for(const path of ['commit','native-read','mutation']){
  test('START ownership in '+path+' excludes unrelated or ambiguous members',async()=>{
-  for(const kind of ['hidden','foreign-label','zero','indeterminate','help','foreign-blob','multiple-anonymous','wrong-composer','nested-only-name']){
+  for(const kind of ['hidden','foreign-label','zero','indeterminate','help','keyboard-action','foreign-blob','multiple-anonymous','wrong-composer','nested-only-name']){
    const f=fixture({accept:false}),b=f.bind(),a=f.bind();
    f.stage(b);f.commit(b);
    const foreign=f.context.URL.createObjectURL(f.input.files[0]);
@@ -953,6 +953,7 @@ for(const path of ['commit','native-read','mutation']){
     const image=(parent,src,alt)=>parent.append(new f.Node('img',alt?{src,alt}:{src}));
     if(kind==='zero'||kind==='indeterminate')card.append(new f.Node('div',kind==='zero'?{role:'progressbar','aria-valuenow':'0'}:{role:'progressbar'}));
     else if(kind==='help')image(card.append(new f.Node('button',{'aria-label':'Help'})),'/help-icon','Help');
+    else if(kind==='keyboard-action')image(card.append(new f.Node('span',{tabindex:'0','aria-label':'Help'})),'/help-icon');
     else if(kind==='multiple-anonymous'){image(card,'/one');image(card,'/two');}
     else if(kind==='nested-only-name'){
      for(const key of ['data-file-name','title','aria-label'])card.removeAttribute(key);

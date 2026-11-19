@@ -949,6 +949,8 @@ function riftletWebAcceptance(command, native) {
       attributeFilter: ['src', 'alt', 'title', 'aria-label', 'role', 'data-file-name', 'value', 'max',
         'aria-valuenow', 'aria-valuemin', 'aria-valuemax', 'hidden', 'class', 'style']});
   }
+  const independentMemberContent = cardSelector + ',' + controlSelector
+    + ',input,select,textarea,summary,[role="link"],[role="tab"],[role="checkbox"],[role="switch"],[contenteditable="true"]';
   // Labels, pixels and progress must belong to one attachment member. Its
   // nested buttons, links and other attachment cards own their own content.
   function startMember(op, card, filename) {
@@ -983,7 +985,7 @@ function riftletWebAcceptance(command, native) {
         if (child.nodeType === 3) {
           if (text.length + child.nodeValue.length > 1024) return null;
           text += child.nodeValue;
-        } else if (child.nodeType === 1 && !child.matches(cardSelector + ',a[href],input,select,textarea,[role="menuitem"],[role="option"],[role="link"],[aria-haspopup],[onclick],[contenteditable="true"]')) {
+        } else if (child.nodeType === 1 && !child.matches(independentMemberContent)) {
           nodes.push(child);
         }
       }
