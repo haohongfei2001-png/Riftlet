@@ -141,7 +141,7 @@ function riftletWebAcceptance(command, native) {
     fail('AMBIGUOUS_COMPOSER');
   }
   const blank = (identity, state = 'unknown') => ({schemaVersion: 2,
-    provenance: {source: 'integratedDevelopment', evidenceID: 'screenshot-member-status-20261119-v21'},
+    provenance: {source: 'integratedDevelopment', evidenceID: 'screenshot-observed-start-20261119-v22'},
     observation: {identity, state, exactImageIdentity: false, belongsToOriginalDraft: false,
       hasError: false, isUploading: false, attachmentAbsent: false, automaticRetryExcluded: false}});
   let registry = globalThis[KEY];
@@ -684,11 +684,11 @@ function riftletWebAcceptance(command, native) {
     if (!registry || !contextMatches(target)) return null;
     return sameTarget(registry.current?.target, target) ? registry.current : null;
   }
-  function attachmentNodes(binding) {
+  function attachmentNodes(binding, root = document) {
     // Attachment cards can also be portalled outside the editor's form. The
     // current file's unique filename/blob and pre-input baseline bind START;
     // containment in a guessed form is not an acceptance prerequisite.
-    return [...document.querySelectorAll('[data-file-name],[role="button"],button,img[alt],img[src],[title]')]
+    return [...root.querySelectorAll('[data-file-name],[role="button"],button,img[alt],img[src],[title]')]
       .filter(node => node !== binding.editor && !binding.editor.contains(node)
         && !(node instanceof HTMLInputElement && node.type === 'file')
         && (!node.closest('[role="menu"],[role="dialog"]')
@@ -913,13 +913,43 @@ function riftletWebAcceptance(command, native) {
       && (view.sameFile || fileNamePattern(op.name).test(preview.getAttribute('alt') || ''))
       && failed(preview) && consistentCardLabels(card, op.name);
   }
-  function sample(op) {
+  // A visible preview can be replaced with an error between native reads. Only
+  // sample the live original surface at mutation delivery. Never infer a START
+  // from removed nodes, a transient mutation record, or a pending request.
+  function watchHandoff(op) {
+    const surface = op.binding.form;
+    const deadline = performance.now() + 10000;
+    let batches = 0;
+    const stop = () => {
+      observer.disconnect();
+      clearTimeout(timer);
+      op.stopHandoffWatch = null;
+    };
+    const observer = new MutationObserver(() => {
+      if (++batches > 64 || performance.now() >= deadline || !surface.isConnected
+          || !sameDraft(op.binding) || op.binding.form !== surface) return stop();
+      sample(op, surface);
+    });
+    const timer = setTimeout(stop, 10000);
+    timer?.unref?.();
+    op.stopHandoffWatch = stop;
+    observer.observe(surface, {subtree: true, childList: true, attributes: true, characterData: true,
+      attributeFilter: ['src', 'alt', 'title', 'aria-label', 'role', 'data-file-name', 'value', 'max',
+        'aria-valuenow', 'aria-valuemin', 'aria-valuemax', 'hidden', 'class', 'style']});
+  }
+  function sample(op, surface = null) {
     // The app may disable or remove its picker after accepting this file.
     // Observing that handoff needs the original draft, not another input slot.
     if (op.start || !op.changeReturned || !sameDraft(op.binding)) return;
     const newPreview = node => previewsOf(node).some(preview => {
       const value = previewValue(preview);
       if (value === '') return false;
+      if (surface) {
+        const member = preview.closest(cardSelector) || preview.parentElement;
+        if (!member || !inOriginalCardContainer(member, op.binding) || !visible(preview)
+            || !consistentCardLabels(member, op.name)) return false;
+        if (preview.tagName !== 'IMG' && !(typeof value === 'object' && value.current > value.min)) return false;
+      }
       const previous = op.previewBaseline?.get(preview);
       if (previous !== undefined && preview.tagName !== 'IMG') {
         // A re-used meter must actually advance under the current named member.
@@ -943,10 +973,14 @@ function riftletWebAcceptance(command, native) {
       || ((node.hasAttribute('data-file-name') || node.getAttribute('role') === 'button' || node.tagName === 'BUTTON')
         && filename.test(node.textContent || ''));
     const identifiesFile = node => named(node) || (node.tagName === 'IMG' && op.urls.has(node.getAttribute('src')));
-    const identified = attachmentNodes(op.binding).filter(node => node.isConnected && identifiesFile(node));
+    const identified = attachmentNodes(op.binding, surface || document).filter(node => node.isConnected && identifiesFile(node));
     if (identified.some(hasError)) return;
     const matches = identified.filter(newPreview);
     if (!matches.length) return;
+    // Keep the ordinary whole-document veto for conflicting same-file error
+    // views, while unrelated composer edits only inspect the composer.
+    if (surface && attachmentNodes(op.binding).some(node => identifiesFile(node) && hasError(node))) return;
+    op.stopHandoffWatch?.();
     // A compact tray and expanded view can both present this same exact
     // File. START needs one positive handoff; duplicate views are not inputs.
     const accepted = matches.find(node => op.binding.form.contains(node)) || matches[0];
@@ -981,7 +1015,7 @@ function riftletWebAcceptance(command, native) {
       item.attachmentID = op.attachmentID; item.exactImageIdentity = true;
       item.uploadStart = {...op.start};
       const watch = op.failureWatch, original = watch?.binding.deref();
-      if (watch && sameDraft(original) && (watch.views || [watch]).some(view => matchesOriginalCard(op, view, original))) {
+      if (command.preferStartReceipt !== true && watch && sameDraft(original) && (watch.views || [watch]).some(view => matchesOriginalCard(op, view, original))) {
         item.state = 'failed'; item.hasError = true;
         delete item.uploadStart;
       }
@@ -1125,7 +1159,9 @@ function riftletWebAcceptance(command, native) {
       registry.busy.delete(writingForm); registry.writingInputs.delete(input);
     }
     op.executionPending = false;
-    return observe(op);
+    const result = observe(op);
+    if (op.changeReturned && !op.start && sameDraft(op.binding)) watchHandoff(op);
+    return result;
   };
   const run = () => {
     if (!validDraft(op.binding)) return retire('targetInvalidBeforeInput', 'prepare', 'targetChanged');

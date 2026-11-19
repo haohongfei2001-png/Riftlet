@@ -303,6 +303,21 @@ function browserFixture(options){
   }
   let busyRetired=false;try{call({...busyProbe.command('commit'),chunkIndex:1});}catch(error){busyRetired=error.message==='COMMIT_REFUSED';}
   check(busyRetired,'retired concurrent operation cannot later submit');
+  if(options.betweenReads){
+   // First card was rendered after commit, and its error arrives in a later
+   // task before the native host asks for its first positive observation.
+   await wait(()=>cardHost.contains(firstPendingCard));
+   await new Promise(done=>setTimeout(done,20));
+   firstPendingCard.dataset.state='failed';
+   const read=preferStartReceipt=>call({...ops[0].command('observe'),preferStartReceipt}).observation;
+   const start=read(true), replay=read(true), error=read(false);
+   check(start.state==='uploadStarted'&&start.uploadStart.evidenceID===replay.uploadStart.evidenceID,
+    'original positive evidence survives a lost reply');
+   check(error.state==='failed'&&error.attachmentID===start.attachmentID&&!error.automaticRetryExcluded,
+    'same-card error is independently readable after durable START');
+   check(call(ops[1].command('observe')).observation.state==='uploadStarted','second member keeps its own START');
+   delete firstPendingCard.dataset.state;
+  }
   await stage('observing-starts');
   for(const op of ops){
    await wait(()=>call(op.command('observe')).observation.state==='uploadStarted');
@@ -411,6 +426,7 @@ function browserFixture(options){
  .replace('__PREVIOUS__',()=>JSON.stringify(previous)).replace('__SOURCE__',()=>JSON.stringify(source).replace(/<\/script/gi,'<\\/script'));
 }
 const originalScenarios=[
+ {name:'positive-preview-between-native-reads',count:2,retained:true,betweenReads:true,route:'https://chatgpt.com/'},
  {name:'opaque-member-text-failure',count:2,retained:true,decoratedFilename:true,opaqueFailure:true,route:'https://chatgpt.com/'},
  {name:'original-portal-card-failure',count:2,retained:true,portalCards:true,route:'https://chatgpt.com/c/ordinary-thread'},
  {name:'aria-preview-portal-failure',count:2,retained:true,portalCards:true,ariaCardFailure:true,route:'https://chatgpt.com/c/ordinary-thread'},

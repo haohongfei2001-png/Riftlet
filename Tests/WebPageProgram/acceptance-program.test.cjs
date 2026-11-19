@@ -905,3 +905,39 @@ test('a progress-only A member cannot borrow the later B preview under its old l
  accepted(f,a);preview.remove();accepted(f,a);
  assert.equal(f.observe(a).attachmentID,start.attachmentID);assert.equal(f.setters,2);assert.equal(f.sends,0);
 });
+
+test('two render turns between native reads preserve positive original START and its current error',async()=>{
+ const f=fixture({accept:false}),a=f.bind(),b=f.bind();
+ for(const op of [a,b]){f.stage(op);assert.equal(f.commit(op).observation.state,'inputTriggered');}
+ const first=f.addCard(a.name),second=f.addCard(b.name);
+ await new Promise(done=>setImmediate(done));
+ first.setAttribute('data-state','failed');
+ const read=()=>f.call({...a.command('observe'),preferStartReceipt:true,requireLiveOriginal:true}).observation;
+ const start=read(),afterLostReply=read(),error=f.observe(a);
+ assert.equal(start.state,'uploadStarted');assert.equal(start.uploadStart.evidenceID,afterLostReply.uploadStart.evidenceID);
+ assert.equal(error.state,'failed');assert.equal(start.attachmentID,error.attachmentID);
+ assert.equal(error.automaticRetryExcluded,false);assert.equal(error.attachmentAbsent,false);
+ assert.equal(f.observe(b).state,'uploadStarted');
+ first.removeAttribute('data-state');assert.equal(f.observe(a).state,'uploadStarted');
+ assert.notEqual(second,first);assert.equal(f.setters,2);assert.equal(f.changes,2);assert.equal(f.sends,0);
+});
+
+for(const mode of ['placeholder','hidden','already-failed','foreign-image','navigation','expiry']){
+ test('background handoff sampling declines '+mode,async()=>{
+  const f=fixture({accept:false}),op=f.bind();let expire;
+  const nativeTimer=f.context.setTimeout;
+  f.context.setTimeout=(fn,ms)=>ms===10000?(expire=fn,0):nativeTimer(fn,ms);
+  f.stage(op);f.commit(op);
+  if(mode==='expiry')expire();
+  if(mode==='navigation')f.setRoute('https://chatgpt.com/c/different-draft');
+  const card=f.addCard(op.name,{placeholder:mode==='placeholder',progress:false});
+  if(mode==='hidden')card.rendered=false;
+  if(mode==='foreign-image')card.querySelector('img').setAttribute('alt','riftlet-11111111-1111-1111-1111-111111111111.png');
+  if(mode==='already-failed')card.setAttribute('data-state','failed');
+  await new Promise(done=>setImmediate(done));
+  card.setAttribute('data-state','failed');
+  const result=f.call({...op.command('observe'),preferStartReceipt:true}).observation;
+  assert.notEqual(result.state,'uploadStarted');assert.equal(result.uploadStart,undefined);
+  assert.equal(f.setters,1);assert.equal(f.changes,1);assert.equal(f.sends,0);
+ });
+}

@@ -13,7 +13,8 @@ public enum ChatGPTWebPageProgram {
     static let priorObservationSource = "chatgpt-web-screenshot-observation-20261118-v18"
     static let priorCardObservationSource = "chatgpt-web-screenshot-card-observation-20261118-v19"
     static let priorOriginalReviewSource = "chatgpt-web-screenshot-original-review-20261118-v20"
-    public static let sourceID = "chatgpt-web-screenshot-member-status-20261119-v21"
+    static let priorMemberStatusSource = "chatgpt-web-screenshot-member-status-20261119-v21"
+    public static let sourceID = "chatgpt-web-screenshot-observed-start-20261119-v22"
     /// Candidate mapping only; ReceiptPolicy start registries remain separate.
     public static let acceptanceUploadStartProfileID = "chatgpt-web-zh-progress-start-development-20261027-v1"
     public static let acceptanceProfile = ObservationProfile(
