@@ -68,7 +68,7 @@ public actor SystemScreenshotCandidateAdmission {
         guard scope.isProduct,
               let source = try await registeredObservationSource(for: request),
               [SystemScreenshotWebCandidate.sourceID, ChatGPTWebPageProgram.priorOwnedPreviewSource,
-               ChatGPTWebPageProgram.priorProgressCardSource].contains(source) else { return false }
+               ChatGPTWebPageProgram.priorProgressCardSource, ChatGPTWebPageProgram.priorRetryOverlaySource].contains(source) else { return false }
         return try await store.uploadStartReceipt(for: request.operation.id) == nil
     }
 
@@ -90,7 +90,7 @@ public actor SystemScreenshotCandidateAdmission {
                ChatGPTWebPageProgram.priorObservationSource, ChatGPTWebPageProgram.priorCardObservationSource,
                ChatGPTWebPageProgram.priorOriginalReviewSource, ChatGPTWebPageProgram.priorMemberStatusSource,
                ChatGPTWebPageProgram.priorObservedStartSource, ChatGPTWebPageProgram.priorOwnedPreviewSource,
-               ChatGPTWebPageProgram.priorProgressCardSource].contains(registration.sourceID),
+               ChatGPTWebPageProgram.priorProgressCardSource, ChatGPTWebPageProgram.priorRetryOverlaySource].contains(registration.sourceID),
               registration.startProfileID == scope.admittedProfile.uploadStartProfileID!,
               registration.completionProfileID == scope.admittedProfile.profileID,
               registration.identity == Self.identity(for: request),
@@ -111,7 +111,7 @@ public actor SystemScreenshotCandidateAdmission {
                ChatGPTWebPageProgram.priorObservationSource, ChatGPTWebPageProgram.priorCardObservationSource,
                ChatGPTWebPageProgram.priorOriginalReviewSource, ChatGPTWebPageProgram.priorMemberStatusSource,
                ChatGPTWebPageProgram.priorObservedStartSource, ChatGPTWebPageProgram.priorOwnedPreviewSource,
-               ChatGPTWebPageProgram.priorProgressCardSource].contains(registration.sourceID) {
+               ChatGPTWebPageProgram.priorProgressCardSource, ChatGPTWebPageProgram.priorRetryOverlaySource].contains(registration.sourceID) {
             try scope.validateMetadata(request.asset)
         } else {
             try SystemScreenshotWebCandidate.validateMetadata(request.asset, expectedOrigin: scope.origin)

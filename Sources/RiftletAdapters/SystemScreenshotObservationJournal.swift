@@ -86,7 +86,8 @@ public actor SystemScreenshotObservationJournal {
                         (ChatGPTWebPageProgram.priorObservedStartSource, "screenshot-observed-start-20261119-v22"),
                         (ChatGPTWebPageProgram.priorOwnedPreviewSource, "screenshot-owned-preview-20261119-v23"),
                         (ChatGPTWebPageProgram.priorProgressCardSource, "screenshot-progress-card-20261119-v24"),
-                        (ChatGPTWebPageProgram.sourceID, "screenshot-retry-overlay-20261119-v25")]
+                        (ChatGPTWebPageProgram.priorRetryOverlaySource, "screenshot-retry-overlay-20261119-v25"),
+                        (ChatGPTWebPageProgram.sourceID, "browser-handoff-20261120-v30")]
         guard let previous = versions.firstIndex(where: { $0.1 == saved.evidenceID }),
               let observed = versions.firstIndex(where: { $0.1 == current.evidenceID }), previous < observed,
               let source = try await SystemScreenshotCandidateAdmission(store: store, scope: scope).registeredObservationSource(for: request),

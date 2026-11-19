@@ -84,7 +84,7 @@ function browserFixture(options){
   XMLHttpRequest.prototype.send=function(){applicationNetworkRequests++;throw Error('application XHR forbidden in local fixture');};
   const mockLocation={href:options.route};
   const program=new Function('location','return ('+__SOURCE__+')')(mockLocation);
-  const native={applicationID:'com.google.Chrome',sessionID:'synthetic-local-profile',windowID:'1',tabID:'1'};
+  const native={applicationID:options.edge?'com.microsoft.edgemac':'com.google.Chrome',sessionID:'synthetic-local-profile',windowID:'1',tabID:'1'};
   const call=command=>program(command,native);
   if(options.resident){
    const oldProgram=new Function('location','return ('+__PREVIOUS__+')')(mockLocation);
@@ -133,7 +133,19 @@ function browserFixture(options){
     card.removeAttribute('data-file-name');card.title='正在上传 '+file.name+' (PNG image)';
     image.alt='Preview '+file.name+' (uploading)';image.src=canvas.toDataURL('image/png');
    }
-   const progress=document.createElement('div');progress.setAttribute('role','progressbar');progress.setAttribute('aria-valuenow','10');card.append(progress);
+   if(options.edge){
+    card.removeAttribute('role');card.removeAttribute('data-file-name');card.removeAttribute('title');
+    card.setAttribute('aria-label',file.name);
+    const visual=document.createElement('span'),remove=document.createElement('button');
+    remove.type='button';remove.setAttribute('aria-label','Remove '+file.name);
+    visual.append(image);card.append(visual,remove);
+    if(changes===1)image.src=priorImage.src;else image.removeAttribute('src');
+    if(changes!==1)createImageBitmap(file).then(bitmap=>{
+      const c=document.createElement('canvas');c.width=bitmap.width;c.height=bitmap.height;
+      c.getContext('2d').drawImage(bitmap,0,0);bitmap.close();image.src=c.toDataURL('image/png');
+    });
+   }
+   const progress=document.createElement('div');progress.setAttribute('role','progressbar');progress.setAttribute('aria-valuenow','10');if(!options.edge)card.append(progress);
    if(options.meterCard){
     card.removeAttribute('data-file-name');card.removeAttribute('title');
     card.setAttribute('aria-label',file.name);image.remove();
@@ -238,7 +250,9 @@ function browserFixture(options){
    const color='rgb('+(20+index*30)+',40,70)';canvas.getContext('2d').fillStyle=color;canvas.getContext('2d').fillRect(0,0,2,2);
    const png=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
    const bytes=new Uint8Array(await png.arrayBuffer()),sha=await hash(bytes);
-   const target=call({action:'captureTarget'}),id=crypto.randomUUID();
+   const pin=options.edge?crypto.randomUUID():null;
+   if(pin)check(call({action:'pinTarget',clickWitnessID:pin,address:options.route.split('?')[0]})==='bound','actual click binds original editor');
+   const target=call({action:'captureTarget',clickWitnessID:pin}),id=crypto.randomUUID();
    const identity={operationID:id,assetID:crypto.randomUUID(),attempt:1,assetSHA256:sha,target},invocationID=crypto.randomUUID();
    const op={identity,target,name:'riftlet-'+id+'.png',sha,command:action=>({action,identity,target,invocationID})};
    call({...op.command('begin'),uploadName:op.name,mediaType:'image/png',byteCount:bytes.length});
@@ -333,6 +347,24 @@ function browserFixture(options){
   }
   let busyRetired=false;try{call({...busyProbe.command('commit'),chunkIndex:1});}catch(error){busyRetired=error.message==='COMMIT_REFUSED';}
   check(busyRetired,'retired concurrent operation cannot later submit');
+  if(options.edge){
+   const read=index=>call(ops[index].command('observe')).observation;
+   await wait(()=>read(1).state==='uploadStarted'&&cardHost.contains(firstPendingCard));
+   check(read(0).state==='inputTriggered','same filename with different encoded pixels cannot supply START');
+   const accepted=read(1);
+   check(accepted.uploadStart.signal==='attachmentAccepted'&&!accepted.isUploading&&!accepted.automaticRetryExcluded,'handoff only');
+   check(accepted.identity.target.clickBindingID===ops[1].target.clickBindingID,'original signed-invocation binding');
+   check(ops[0].target.clickBindingID!==ops[1].target.clickBindingID,'distinct click witnesses');
+   check(ops[0].target.draftGeneration===ops[1].target.draftGeneration,'same composing surface across clicks');
+   const third=await operation(70);
+   let duplicate=false;try{call({...third.command('begin'),identity:{...third.identity,operationID:crypto.randomUUID()}});}catch{duplicate=true;}
+   check(duplicate,'one click cannot enroll another operation');
+   editor.replaceWith(editor.cloneNode(true));
+   const retired=await call({...third.command('commit'),chunkIndex:1});
+   check(retired.observation.preInputRetirement?.inputCount===0,'replaced editor vetoes staged input');
+   check(call({...ops[1].command('observe'),requireLiveOriginal:true}).observation.state==='invalidated','replaced draft cannot authorize original inspection');
+   return {passed:true,nativeChanges:changes,nativeSetters:setters,automaticSends:sends,networkRequests:applicationNetworkRequests,observedStarts:1};
+  }
   if(options.betweenReads){
    // First card was rendered after commit, and its error arrives in a later
    // task before the native host asks for its first positive observation.
@@ -494,6 +526,7 @@ function browserFixture(options){
  .replace('__PREVIOUS__',()=>JSON.stringify(previous)).replace('__SOURCE__',()=>JSON.stringify(source).replace(/<\/script/gi,'<\\/script'));
 }
 const originalScenarios=[
+ ...['https://chatgpt.com/?temporary-chat=true','https://chatgpt.com/c/12345678-1111-2222-3333-444455556666'].map(route=>({name:'edge-click-and-content',edge:true,count:2,retained:true,route})),
  {name:'original-figure-retry-overlay',count:2,retained:true,retryOverlay:true,route:'https://chatgpt.com/'},
  {name:'accessible-name-progress-aftercare',count:2,retained:true,meterCard:true,route:'https://chatgpt.com/'},
  {name:'positive-preview-between-native-reads',count:2,retained:true,betweenReads:true,memberOwnership:true,route:'https://chatgpt.com/'},
@@ -582,6 +615,10 @@ for(const unfiltered of groups){
      const options=group[index];
      try{
       assert.equal(report.passed,true,JSON.stringify(report));
+      if(options.edge){
+       assert.equal(report.nativeChanges,2);assert.equal(report.nativeSetters,2);assert.equal(report.observedStarts,1);
+       assert.equal(report.networkRequests,0);assert.equal(report.automaticSends,0);continue;
+      }
       if(options.expectUnowned){
        assert.equal(report.preInputRetirement,'attachmentInputNotCreated');assert.equal(report.nativeChanges,0);assert.equal(report.nativeSetters,0);
        assert.equal(report.emptyFileLists,true);assert.equal(report.networkRequests,0);assert.equal(report.automaticSends,0);
