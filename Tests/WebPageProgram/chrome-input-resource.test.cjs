@@ -359,7 +359,11 @@ function browserFixture(options){
    const original=inspect(0,true);
    check(original.state==='uploadStarted','accessible-name card retains its active progress member');
    const error=document.createElement('span');error.textContent='Upload failed';
-   tasks[0].card.replaceChildren(error);
+   tasks[0].progress.remove();
+   await new Promise(done=>setTimeout(done,20));
+   check(inspect(0).state==='uploadStarted'&&inspect(0,true).state==='invalidated',
+    'an empty render is neither a failure nor proof that the original attachment is still visible');
+   tasks[0].card.append(error);
    tasks[1].card.setAttribute('aria-label','another.png');
    tasks[1].card.setAttribute('aria-label',tasks[1].file.name);
    tasks[1].card.replaceChildren(error.cloneNode(true));

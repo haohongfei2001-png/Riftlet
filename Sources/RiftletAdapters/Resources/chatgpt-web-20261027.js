@@ -869,8 +869,13 @@ function riftletWebAcceptance(command, native) {
               || node.querySelector(previewSelector)) return stop();
         }
       }
-      if (card.getAttribute('aria-label') !== name || !consistentCardLabels(card, name)
-          || (!card.contains(meter) && !visibleFailureText(card, independentMemberContent, renderedPreview))) stop();
+      if (card.getAttribute('aria-label') !== name || !consistentCardLabels(card, name)) return stop();
+      if (!card.contains(meter) && !visibleFailureText(card, independentMemberContent, renderedPreview)) {
+        // Frameworks can clear the meter in one render and add the error in
+        // another. The empty shell keeps its identity but proves no live state.
+        const text = card.textContent.trim();
+        if ((text && text !== name) || card.querySelector(independentMemberContent)) stop();
+      }
     };
     const contents = new MutationObserver(checkContents);
     contents.observe(shellRef.deref(), {subtree:true, childList:true, characterData:true, attributes:true,

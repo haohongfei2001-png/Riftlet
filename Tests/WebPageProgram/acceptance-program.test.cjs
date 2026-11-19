@@ -1019,7 +1019,7 @@ for(const [label,expected] of [['Image preview',true],['上传图片的预览',t
 }
 
 for (const scenario of ['same member','neighbor error','relabel and restore','new meter','foreign image removed',
-                         'different parent','remove and reinsert','hidden error','transparent error','link error','later occupant']) {
+                         'different parent','remove and reinsert','hidden error','transparent error','link error','empty render','later occupant']) {
  test('accessible-name progress card aftercare: '+scenario,async()=>{
   const f=fixture({accept:false}),op=f.bind();
   f.stage(op);f.commit(op);
@@ -1039,14 +1039,20 @@ for (const scenario of ['same member','neighbor error','relabel and restore','ne
    other.append(new f.Node('span')).textContent='上传未成功';
   }else{
    meter.remove();
-   if(scenario==='later occupant')await new Promise(done=>setImmediate(done));
+   if(scenario==='empty render'||scenario==='later occupant'){
+    if(scenario==='later occupant')card.append(new f.Node('span')).textContent='Other file';
+    await new Promise(done=>setImmediate(done));
+    assert.equal(manual().state,'invalidated');
+    assert.equal(f.observe(op).state,'uploadStarted');
+    if(scenario==='later occupant')card.textContent='';
+   }
    const container=scenario==='link error'?card.append(new f.Node('a',{href:'#help'})):card;
    const error=container.append(new f.Node('span'));
    error.textContent='上传未成功';
    if(scenario==='hidden error')error.rendered=false;
    if(scenario==='transparent error')error.checkVisibility=()=>false;
   }
-  if(scenario==='same member'){
+  if(scenario==='same member'||scenario==='empty render'){
    for(const result of [f.observe(op),manual()]){
     assert.equal(result.state,'failed');
     assert.equal(result.attachmentID,start.attachmentID);
