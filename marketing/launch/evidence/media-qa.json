@@ -1,0 +1,542 @@
+{
+  "date": "2026-11-14",
+  "scope": "Desktop-side Launch Kit exports. Real-time AVPlayer playback at rate 1, muted. PNG visual inspection and two GIF decode cycles. See quality.md for viewing scope.",
+  "passed": true,
+  "nativeChatGPTBuild20": "NOT_RUN",
+  "counts": {
+    "masterLanguages": 2,
+    "shortConcepts": 3,
+    "shortLanguageFiles": 6,
+    "gif": 4,
+    "images": 6,
+    "covers": 3
+  },
+  "files": {
+    "covers/01-public-beta.png": {
+      "sha256": "93d945c791c63823e171126eda8de8e1f1d4f241f8dde313594e9468b9422dc4",
+      "passed": true,
+      "size": [
+        1920,
+        1080
+      ],
+      "fullDecode": true,
+      "bytes": 953449
+    },
+    "covers/02-social-video.png": {
+      "sha256": "a2a711aa6427e5d775f1ac3f32ce0fcee18ae0c1bcc89e6b5e8a055e28d63b6b",
+      "passed": true,
+      "size": [
+        1080,
+        1920
+      ],
+      "fullDecode": true,
+      "bytes": 896341
+    },
+    "covers/03-site-campaign.png": {
+      "sha256": "b6dba04acda24371d6f508dabfe343139c76b8c5933efb0c4848754395a713b4",
+      "passed": true,
+      "size": [
+        1600,
+        840
+      ],
+      "fullDecode": true,
+      "bytes": 608038
+    },
+    "gif/01-arrival.gif": {
+      "sha256": "bd31d090a60e3d777e6ca2edc428d2cc11a6960729db7833a035cf86aade645a",
+      "passed": true,
+      "size": [
+        768,
+        570
+      ],
+      "framesPerCycle": 96,
+      "loop": 0,
+      "cyclesDecoded": 2,
+      "uniqueFrames": 22,
+      "minFrameMs": 40,
+      "maxFrameMs": 40,
+      "durationsMs": [
+        3840,
+        3840
+      ],
+      "identicalCycles": true,
+      "decodedCycleDigest": "3e6e3bb24aa842d9b4296cb2e2a176b25be2eaa16671a33e6061a65b024d5d96",
+      "meanPixelDeltaAtLoop": 0.0,
+      "largestAdjacentMeanDelta": 1.387,
+      "bytes": 382710
+    },
+    "gif/02-tray-menu.gif": {
+      "sha256": "d1643a55074ab69a575802f3b8557ee8b72e1675ccd713c253c1f8f0415e4106",
+      "passed": true,
+      "size": [
+        768,
+        570
+      ],
+      "framesPerCycle": 156,
+      "loop": 0,
+      "cyclesDecoded": 2,
+      "uniqueFrames": 29,
+      "minFrameMs": 40,
+      "maxFrameMs": 40,
+      "durationsMs": [
+        6240,
+        6240
+      ],
+      "identicalCycles": true,
+      "decodedCycleDigest": "9015353b302022c4cd85a70e0bb15fcdfb1ce4c16c695bc192f8bb7b858831a4",
+      "meanPixelDeltaAtLoop": 0.0,
+      "largestAdjacentMeanDelta": 1.092,
+      "bytes": 821883
+    },
+    "gif/03-thumbnail-press.gif": {
+      "sha256": "744b7f6f47b7d2facc00c802dde3311ecdf876c29b8ea98216106b7499bb09d7",
+      "passed": true,
+      "size": [
+        768,
+        570
+      ],
+      "framesPerCycle": 82,
+      "loop": 0,
+      "cyclesDecoded": 2,
+      "uniqueFrames": 15,
+      "minFrameMs": 40,
+      "maxFrameMs": 40,
+      "durationsMs": [
+        3280,
+        3280
+      ],
+      "identicalCycles": true,
+      "decodedCycleDigest": "22c3464238ed7e7a44fb22fdd16113f675ccfdf08f605d49c6b26e781e22e282",
+      "meanPixelDeltaAtLoop": 0.0,
+      "largestAdjacentMeanDelta": 1.423,
+      "bytes": 691850
+    },
+    "gif/04-two-captures.gif": {
+      "sha256": "a330057c97342cad8f891a118c99f39552a1951ec29d77c5c6542bba5fbda98b",
+      "passed": true,
+      "size": [
+        768,
+        570
+      ],
+      "framesPerCycle": 221,
+      "loop": 0,
+      "cyclesDecoded": 2,
+      "uniqueFrames": 29,
+      "minFrameMs": 40,
+      "maxFrameMs": 40,
+      "durationsMs": [
+        8840,
+        8840
+      ],
+      "identicalCycles": true,
+      "decodedCycleDigest": "a0a9fac687878c459d715b3db62cbbb41d36747d16ee5813201147239d78c29b",
+      "meanPixelDeltaAtLoop": 0.0,
+      "largestAdjacentMeanDelta": 5.383,
+      "bytes": 662639
+    },
+    "images/01-overview.png": {
+      "sha256": "6b89f46a3303fab1af34130b12008740ce623697b64b85fa3a336b8550ba12ad",
+      "passed": true,
+      "size": [
+        1800,
+        1200
+      ],
+      "fullDecode": true,
+      "bytes": 899747
+    },
+    "images/02-tray-detail.png": {
+      "sha256": "f0c2979289ab79e5fb0daa4d42574b76c5d86af1d3c825237fb55526364859ab",
+      "passed": true,
+      "size": [
+        1440,
+        1440
+      ],
+      "fullDecode": true,
+      "bytes": 344675
+    },
+    "images/03-workflow.png": {
+      "sha256": "5386b292ec53653ade610be354cca689052400a3fa4a50372a863f1792978f71",
+      "passed": true,
+      "size": [
+        2048,
+        1152
+      ],
+      "fullDecode": true,
+      "bytes": 466612
+    },
+    "images/04-two-tides.png": {
+      "sha256": "315e8cb9ddc300645c66a8dcf308a4166cb2a180833f67039f8116e27da57763",
+      "passed": true,
+      "size": [
+        1800,
+        1350
+      ],
+      "fullDecode": true,
+      "bytes": 956199
+    },
+    "images/05-camera-control.png": {
+      "sha256": "70663035c6bfc83ebaaef3dbe216db9da0dd67efc5ebb346569773b21083351b",
+      "passed": true,
+      "size": [
+        1600,
+        1200
+      ],
+      "fullDecode": true,
+      "bytes": 354775
+    },
+    "images/06-brand.png": {
+      "sha256": "21c27ee958291de35868879fadf10ec74b4f214ffd235b23167062d8a39e6255",
+      "passed": true,
+      "size": [
+        1800,
+        1080
+      ],
+      "fullDecode": true,
+      "bytes": 673290
+    },
+    "video/master/riftlet-en-US.mp4": {
+      "sha256": "fd17228b2a998e32919e7ed6f73260606d290c6c5a51c80891176c6492a64ed9",
+      "passed": true,
+      "size": [
+        1920,
+        1080
+      ],
+      "frameRate": 30.0,
+      "codec": "h264",
+      "duration": 40,
+      "player": {
+        "completed": true,
+        "displaySamples": 1200,
+        "duration": 40,
+        "endNotification": true,
+        "firstDisplayTime": 0,
+        "jpegErrors": 0,
+        "largestDisplayGap": 0.033333333333338544,
+        "lastDisplayTime": 39.96666666666667,
+        "playWallSeconds": 40.62649541674182,
+        "sampledSeconds": 40
+      },
+      "audio": {
+        "codec": "aac",
+        "sampleRate": 48000,
+        "frames": 1875,
+        "samples": 1920000,
+        "peak": 0.21401,
+        "signalFrames": 383,
+        "firstSignal": 0.17066666666666666,
+        "lastSignal": 38.48533333333333,
+        "streamStart": 0.0,
+        "streamEnd": 40.0,
+        "editScore": {
+          "reference": "master.wav",
+          "referenceSHA256": "3b3bed397e01722d0b1f33e6f8cc1bbb207035e9c21189bf0eaac901c4a76bd4",
+          "correlation": 0.999999,
+          "audioLagMs": 0
+        }
+      },
+      "bytes": 1684934,
+      "decodedVideoFrames": 1200
+    },
+    "video/master/riftlet-zh-CN.mp4": {
+      "sha256": "851cef74b606708023379ece195ac3f62370f5e45685a040dde7480dae9e4b05",
+      "passed": true,
+      "size": [
+        1920,
+        1080
+      ],
+      "frameRate": 30.0,
+      "codec": "h264",
+      "duration": 40,
+      "player": {
+        "completed": true,
+        "displaySamples": 1200,
+        "duration": 40,
+        "endNotification": true,
+        "firstDisplayTime": 0,
+        "jpegErrors": 0,
+        "largestDisplayGap": 0.033333333333338544,
+        "lastDisplayTime": 39.96666666666667,
+        "playWallSeconds": 40.50445125019178,
+        "sampledSeconds": 40
+      },
+      "audio": {
+        "codec": "aac",
+        "sampleRate": 48000,
+        "frames": 1875,
+        "samples": 1920000,
+        "peak": 0.21401,
+        "signalFrames": 383,
+        "firstSignal": 0.17066666666666666,
+        "lastSignal": 38.48533333333333,
+        "streamStart": 0.0,
+        "streamEnd": 40.0,
+        "editScore": {
+          "reference": "master.wav",
+          "referenceSHA256": "3b3bed397e01722d0b1f33e6f8cc1bbb207035e9c21189bf0eaac901c4a76bd4",
+          "correlation": 0.999999,
+          "audioLagMs": 0
+        }
+      },
+      "bytes": 1652545,
+      "decodedVideoFrames": 1200
+    },
+    "video/shorts/01-by-sight-en-US.mp4": {
+      "sha256": "0525b5458aec61b4a8b56a43467b687d1dae7812c01f1ade604efb3ca418678e",
+      "passed": true,
+      "size": [
+        1080,
+        1920
+      ],
+      "frameRate": 30.0,
+      "codec": "h264",
+      "duration": 18,
+      "player": {
+        "completed": true,
+        "displaySamples": 540,
+        "duration": 18,
+        "endNotification": true,
+        "firstDisplayTime": 0,
+        "jpegErrors": 0,
+        "largestDisplayGap": 0.03333333333333499,
+        "lastDisplayTime": 17.966666666666665,
+        "playWallSeconds": 18.57277233339846,
+        "sampledSeconds": 18
+      },
+      "audio": {
+        "codec": "aac",
+        "sampleRate": 48000,
+        "frames": 844,
+        "samples": 864000,
+        "peak": 0.18904,
+        "signalFrames": 203,
+        "firstSignal": 0.10666666666666667,
+        "lastSignal": 16.55466666666667,
+        "streamStart": 0.0,
+        "streamEnd": 18.0,
+        "editScore": {
+          "reference": "value.wav",
+          "referenceSHA256": "c17a3df934cb3dfb0d0bbd21cd8d19cb10daaadb07b30276afe48a221ba57783",
+          "correlation": 0.999999,
+          "audioLagMs": 0
+        }
+      },
+      "bytes": 597533,
+      "decodedVideoFrames": 540
+    },
+    "video/shorts/01-by-sight-zh-CN.mp4": {
+      "sha256": "b76d1ec485e010257812f3c05fb5550f5307ccb5bc9e9a70d33166eebbbf1a1e",
+      "passed": true,
+      "size": [
+        1080,
+        1920
+      ],
+      "frameRate": 30.0,
+      "codec": "h264",
+      "duration": 18,
+      "player": {
+        "completed": true,
+        "displaySamples": 531,
+        "duration": 18,
+        "endNotification": true,
+        "firstDisplayTime": 0,
+        "jpegErrors": 0,
+        "largestDisplayGap": 0.13333333333333375,
+        "lastDisplayTime": 17.966666666666665,
+        "playWallSeconds": 18.510530875064433,
+        "sampledSeconds": 18
+      },
+      "audio": {
+        "codec": "aac",
+        "sampleRate": 48000,
+        "frames": 844,
+        "samples": 864000,
+        "peak": 0.18904,
+        "signalFrames": 203,
+        "firstSignal": 0.10666666666666667,
+        "lastSignal": 16.55466666666667,
+        "streamStart": 0.0,
+        "streamEnd": 18.0,
+        "editScore": {
+          "reference": "value.wav",
+          "referenceSHA256": "c17a3df934cb3dfb0d0bbd21cd8d19cb10daaadb07b30276afe48a221ba57783",
+          "correlation": 0.999999,
+          "audioLagMs": 0
+        }
+      },
+      "bytes": 606580,
+      "decodedVideoFrames": 540
+    },
+    "video/shorts/02-tray-controls-en-US.mp4": {
+      "sha256": "b3528ebc303ab7a50767724427bc6d3155212b8ba11aec5761d570840a06b07e",
+      "passed": true,
+      "size": [
+        1080,
+        1920
+      ],
+      "frameRate": 30.0,
+      "codec": "h264",
+      "duration": 19,
+      "player": {
+        "completed": true,
+        "displaySamples": 570,
+        "duration": 19,
+        "endNotification": true,
+        "firstDisplayTime": 0,
+        "jpegErrors": 0,
+        "largestDisplayGap": 0.03333333333333499,
+        "lastDisplayTime": 18.966666666666665,
+        "playWallSeconds": 19.632766916649416,
+        "sampledSeconds": 19
+      },
+      "audio": {
+        "codec": "aac",
+        "sampleRate": 48000,
+        "frames": 891,
+        "samples": 912000,
+        "peak": 0.1959,
+        "signalFrames": 171,
+        "firstSignal": 0.10666666666666667,
+        "lastSignal": 17.450666666666667,
+        "streamStart": 0.0,
+        "streamEnd": 19.0,
+        "editScore": {
+          "reference": "controls.wav",
+          "referenceSHA256": "643b21de022a49426d1f2ffeb2e2bae6a7def0a2aebccf5e3116260870fe8687",
+          "correlation": 0.999999,
+          "audioLagMs": 0
+        }
+      },
+      "bytes": 436557,
+      "decodedVideoFrames": 570
+    },
+    "video/shorts/02-tray-controls-zh-CN.mp4": {
+      "sha256": "d240a58205e5151e91ef2c91fddf5e7ce3a3abfd74028fc7148a06c39b6fc613",
+      "passed": true,
+      "size": [
+        1080,
+        1920
+      ],
+      "frameRate": 30.0,
+      "codec": "h264",
+      "duration": 19,
+      "player": {
+        "completed": true,
+        "displaySamples": 570,
+        "duration": 19,
+        "endNotification": true,
+        "firstDisplayTime": 0,
+        "jpegErrors": 0,
+        "largestDisplayGap": 0.03333333333333499,
+        "lastDisplayTime": 18.966666666666665,
+        "playWallSeconds": 19.681762208230793,
+        "sampledSeconds": 19
+      },
+      "audio": {
+        "codec": "aac",
+        "sampleRate": 48000,
+        "frames": 891,
+        "samples": 912000,
+        "peak": 0.1959,
+        "signalFrames": 171,
+        "firstSignal": 0.10666666666666667,
+        "lastSignal": 17.450666666666667,
+        "streamStart": 0.0,
+        "streamEnd": 19.0,
+        "editScore": {
+          "reference": "controls.wav",
+          "referenceSHA256": "643b21de022a49426d1f2ffeb2e2bae6a7def0a2aebccf5e3116260870fe8687",
+          "correlation": 0.999999,
+          "audioLagMs": 0
+        }
+      },
+      "bytes": 434167,
+      "decodedVideoFrames": 570
+    },
+    "video/shorts/03-two-tides-en-US.mp4": {
+      "sha256": "ee708ffd82b87a7864102adc532a8584c14ea0b8168ce6c07d0113e5b31b81bc",
+      "passed": true,
+      "size": [
+        1080,
+        1920
+      ],
+      "frameRate": 30.0,
+      "codec": "h264",
+      "duration": 20,
+      "player": {
+        "completed": true,
+        "displaySamples": 597,
+        "duration": 20,
+        "endNotification": true,
+        "firstDisplayTime": 0,
+        "jpegErrors": 0,
+        "largestDisplayGap": 0.06666666666666643,
+        "lastDisplayTime": 19.966666666666665,
+        "playWallSeconds": 20.67065858328715,
+        "sampledSeconds": 20
+      },
+      "audio": {
+        "codec": "aac",
+        "sampleRate": 48000,
+        "frames": 938,
+        "samples": 960000,
+        "peak": 0.19626,
+        "signalFrames": 247,
+        "firstSignal": 0.10666666666666667,
+        "lastSignal": 18.538666666666668,
+        "streamStart": 0.0,
+        "streamEnd": 20.0,
+        "editScore": {
+          "reference": "pair.wav",
+          "referenceSHA256": "d9d1382240d6213facf984d47a58f4723722b449ef0b0e49119c4c297eb9b50d",
+          "correlation": 0.999999,
+          "audioLagMs": 0
+        }
+      },
+      "bytes": 643802,
+      "decodedVideoFrames": 600
+    },
+    "video/shorts/03-two-tides-zh-CN.mp4": {
+      "sha256": "e356a4cc0a0d3063aeafa2a4a5ce466fe8bea972ad2874bbd651cc2858200519",
+      "passed": true,
+      "size": [
+        1080,
+        1920
+      ],
+      "frameRate": 30.0,
+      "codec": "h264",
+      "duration": 20,
+      "player": {
+        "completed": true,
+        "displaySamples": 600,
+        "duration": 20,
+        "endNotification": true,
+        "firstDisplayTime": 0,
+        "jpegErrors": 0,
+        "largestDisplayGap": 0.03333333333333499,
+        "lastDisplayTime": 19.966666666666665,
+        "playWallSeconds": 20.67379012517631,
+        "sampledSeconds": 20
+      },
+      "audio": {
+        "codec": "aac",
+        "sampleRate": 48000,
+        "frames": 938,
+        "samples": 960000,
+        "peak": 0.19626,
+        "signalFrames": 247,
+        "firstSignal": 0.10666666666666667,
+        "lastSignal": 18.538666666666668,
+        "streamStart": 0.0,
+        "streamEnd": 20.0,
+        "editScore": {
+          "reference": "pair.wav",
+          "referenceSHA256": "d9d1382240d6213facf984d47a58f4723722b449ef0b0e49119c4c297eb9b50d",
+          "correlation": 0.999999,
+          "audioLagMs": 0
+        }
+      },
+      "bytes": 678266,
+      "decodedVideoFrames": 600
+    }
+  }
+}
