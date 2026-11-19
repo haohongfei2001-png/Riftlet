@@ -12,6 +12,23 @@ final class ChromeActiveTabDescriptorTests: XCTestCase {
         XCTAssertThrowsError(try deadline.checkReturn(at: 10.151))
     }
 
+    func testConcurrentTabPropertiesCannotSupplyAnotherTabsURL() throws {
+        let record = NSAppleEventDescriptor.record()
+        record.setDescriptor(.init(typeCode: code("CrTb")), forKeyword: code("pcls"))
+        record.setDescriptor(.init(string: "9"), forKeyword: code("ID  "))
+        record.setDescriptor(.init(string: "https://chatgpt.com/c/test"), forKeyword: code("URL "))
+        XCTAssertEqual(try ChromeActiveTabDescriptor.matchedURL(properties: record, tab: "9"), "https://chatgpt.com/c/test")
+        XCTAssertThrowsError(try ChromeActiveTabDescriptor.matchedURL(properties: record, tab: "8"))
+        XCTAssertNil(try ChromeActiveTabDescriptor.matchedURL(properties: .list(), tab: "9"))
+        XCTAssertNil(try ChromeActiveTabDescriptor.matchedURL(properties: nil, tab: "9"))
+    }
+
+    func testQueuedRepliesShareRemainingClickTime() throws {
+        let deadline = ChromeClickDeadline(start: 10)
+        XCTAssertTrue((49...50).contains(try deadline.receiveMilliseconds(at: 10.100)))
+        XCTAssertThrowsError(try deadline.receiveMilliseconds(at: 10.150))
+    }
+
     private func code(_ text: String) -> UInt32 { text.utf8.reduce(0) { ($0 << 8) | UInt32($1) } }
 
     private func object(_ kind: String, form: String = "ID  ", key: NSAppleEventDescriptor,
