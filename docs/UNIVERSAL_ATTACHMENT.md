@@ -1,5 +1,9 @@
 # 无扩展附件引擎 · 首轮工程交接
 
+## 11 月 19 日 · 默认 Edge 的实际微图交付
+
+签名的 1.0.5（31）候选版在已登录的默认 Edge 中，把两张系统截图逐一交付到同一 ChatGPT 临时草稿并收起两张微图。五张原附件增至七张，文字和选区保留，零发送。独立实测逐图区分草稿交付、屏幕退场和服务端处理。[实测记录](../engineering/universal-attachment/edge-unified-default-20261118/build31/draft-handoff-v29/REPORT.md)
+
 ## 11 月 19 日 · 签名修复版在默认 Edge 连续附加 636、637
 
 普通 Riftlet 1.0.5（31）接收两次真实微图点击。两张新系统截图进入同一个临时草稿，原三张变五张，原文字和 14 字符选区保留，消息提交数为零。修复版也首次在两笔原操作中分别持久保存了匹配的图片摘要和字节数。两张分别收到原存储 PUT 201 和 ETag。两笔均缺少产品 START 和最终完成，服务处理请求均未保留终态正文，组合为 **INCOMPLETE**。[逐图实测、源码与服务记录](../engineering/universal-attachment/edge-unified-default-20261118/build31/pair-636-637/REPORT.md)

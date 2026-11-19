@@ -2,7 +2,9 @@
 
 ## 无扩展连接开发分支
 
-Public Beta 0.3.5 (20) 的日常一键附加目标是 Chrome 中的 ChatGPT 草稿。Edge、Safari 和原生应用的原型使用隔离的测试图片，尚未取得对应商业服务的一键附加验收。当前台应用或草稿无法唯一确认时，截图留在队列。其他浏览器不需要安装扩展或修改剪贴板设置。[开发分支兼容性矩阵](UNIVERSAL_ATTACHMENT.md)
+公开版 1.0.5（31）支持 Chrome 中的 ChatGPT。PR #69 的候选版已在登录的默认 Microsoft Edge 与 ChatGPT 临时聊天中验证系统 PNG 的一键交付。打开要用的草稿，正常截图，再点屏幕边缘的微图；图片出现在该草稿后，微图会收起，用户可以接着点另一张。原有文字、选区和附件保留，由用户发送消息。[开发分支实测](UNIVERSAL_ATTACHMENT.md)
+
+Edge 第一次使用可能需要允许 Riftlet 控制 Microsoft Edge，并在 Edge 的开发人员菜单中启用“允许 Apple 事件中的 JavaScript”。日常无需聚焦编辑器、重选文件或安装扩展。若目标草稿无法唯一确认，图片留在本地。
 
 ## 已知范围
 

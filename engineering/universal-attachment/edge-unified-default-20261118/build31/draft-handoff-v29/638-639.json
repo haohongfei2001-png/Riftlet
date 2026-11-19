@@ -1,0 +1,134 @@
+{
+  "schema": 1,
+  "reviewer": "gate_v27_independent",
+  "scope": "Offline non-author audit of two original ordinary App clicks, their existing signed artifacts, target-bound records, and WindowServer observations. No new browser, upload or message.",
+  "result": "PASS_TWO_INDIVIDUAL_ORIGINAL_DRAFT_HANDOFFS_AND_VISUAL_EXIT",
+  "rapidPairAcceptance": false,
+  "runtimeSource": "5212a35cf29e5d584709f084acce4b3959b2a485",
+  "runtimeTree": "9d2717fa49eb3c628e25e580664be8eb26701093",
+  "runtimeBinarySHA256": "10b8d1108524bec4517891e2712fc273511dfd0c3e8335fdbb8beeb37a1aeb8b",
+  "signedArchiveSHA256": "f82433f3751876c6c1901d1ac160398093d93cc59f516306a22c5bb9d0ee4c42",
+  "shortVersion": "1.0.5",
+  "buildVersion": "31",
+  "downIntervalMs": 102615.469,
+  "callbackIntervalMs": 102637.244,
+  "sameClickTimeOriginalProcessWindowTabDocumentComposerDraft": true,
+  "distinctPerClickBindingsAndInvocations": true,
+  "draftCounts": [
+    5,
+    6,
+    7
+  ],
+  "retainedTextAndOriginal14CharacterSelection": true,
+  "fivePriorAttachmentsRetained": true,
+  "nativeInputCounts": [
+    1,
+    1
+  ],
+  "messagesAndSubmissions": 0,
+  "files": [
+    {
+      "seed": 638,
+      "originalPNGBytes": 1405849,
+      "originalPNGSHA256": "c70f7efbffed92e7536702992b8034792b14ff78b81db2af41c4d8a3ee3805e7",
+      "systemScreenshotXattr": true,
+      "retainedOriginalBytesMatch": true,
+      "namedLocalDraftPNGBytes": 1386884,
+      "namedLocalDraftPNGSHA256": "31bd702c01bac824ce9fcd1ed5ab0ff239c7cac7da7e6ec5479976f9aa49b5c6",
+      "windowSenderAndOriginalReservationMatched": true,
+      "oneNativeDownUpAndSelection": true,
+      "originalOperations": 1,
+      "attempt": 1,
+      "originalContentInvocationAndAcceptanceEvidenceMatch": true,
+      "persistedAttachmentAcceptedRows": 1,
+      "isUploading": false,
+      "positiveReady": false,
+      "completionEvidence": false,
+      "safeToRetry": false,
+      "visibility": "swallowed",
+      "phase": "inputTriggered",
+      "originalCallbackToContentMs": 4886.071,
+      "contentToVisibilitySnapshotMs": 2.086,
+      "contentToAnimationStartMs": 3.233,
+      "animationStartToCloseMs": 127.752,
+      "windows": [
+        {
+          "kind": "visual",
+          "initiallyVisible": true,
+          "lastOnScreen": false,
+          "firstFadeObservedAfterClickMs": 4927.0,
+          "firstAbsentObservedAfterClickMs": 5050.444,
+          "firstAbsentObservedAfterProofMs": 164.373
+        },
+        {
+          "kind": "input",
+          "initiallyVisible": true,
+          "lastOnScreen": false,
+          "firstFadeObservedAfterClickMs": 4927.0,
+          "firstAbsentObservedAfterClickMs": 5050.444,
+          "firstAbsentObservedAfterProofMs": 164.373
+        }
+      ]
+    },
+    {
+      "seed": 639,
+      "originalPNGBytes": 1406327,
+      "originalPNGSHA256": "ceeb2bc9e7807c81f4c05bd0ecf46848e53f10277ba77260c53850fb98a1fc87",
+      "systemScreenshotXattr": true,
+      "retainedOriginalBytesMatch": true,
+      "namedLocalDraftPNGBytes": 1386681,
+      "namedLocalDraftPNGSHA256": "a401a069b91a0791242f71ce34da7d5924ddd556ebb9fd79517b98df669acd78",
+      "windowSenderAndOriginalReservationMatched": true,
+      "oneNativeDownUpAndSelection": true,
+      "originalOperations": 1,
+      "attempt": 1,
+      "originalContentInvocationAndAcceptanceEvidenceMatch": true,
+      "persistedAttachmentAcceptedRows": 1,
+      "isUploading": false,
+      "positiveReady": false,
+      "completionEvidence": false,
+      "safeToRetry": false,
+      "visibility": "swallowed",
+      "phase": "inputTriggered",
+      "originalCallbackToContentMs": 6124.412,
+      "contentToVisibilitySnapshotMs": 2.307,
+      "contentToAnimationStartMs": 3.094,
+      "animationStartToCloseMs": 123.508,
+      "windows": [
+        {
+          "kind": "visual",
+          "initiallyVisible": true,
+          "lastOnScreen": false,
+          "firstFadeObservedAfterClickMs": 6147.79,
+          "firstAbsentObservedAfterClickMs": 6281.391,
+          "firstAbsentObservedAfterProofMs": 156.979
+        },
+        {
+          "kind": "input",
+          "initiallyVisible": true,
+          "lastOnScreen": false,
+          "firstFadeObservedAfterClickMs": 6147.79,
+          "firstAbsentObservedAfterClickMs": 6281.391,
+          "firstAbsentObservedAfterProofMs": 156.979
+        }
+      ]
+    }
+  ],
+  "historicalFourRecordSnapshotUnchanged": true,
+  "backendNetworkObservation": "NOT_RUN",
+  "backendTerminal": "UNKNOWN",
+  "limitations": [
+    "The planned initial second click stopped before mouse reservation, product selection or operation because the visible roster had changed. Subsequent 639 was its first real input. This pair cannot demonstrate rapid clicks.",
+    "The two initial/last windows were observed via WindowServer window list, on-screen flag and alpha. Recorded timestamps are bounds on observed changes, not refresh-by-refresh display scanout.",
+    "Acceptance is a positive local draft handoff. No raw upload request, network start, service-processing result or server completion was captured. The page-journal PNG SHA belongs to same-browser encoding; it is distinct from the original file SHA."
+  ],
+  "evidenceSHA256": {
+    "remaining/original-trace.jsonl": "2bd876051fe5fd7bd1eb6e16e3777bbd0fe37b12f9131956df7aa664fac90662",
+    "observations/windowserver-panels.jsonl": "5e7ad6715acf36fb297a6536fe3497aeedc8d52afc18e99b5d51d29f64ff0c65",
+    "remaining/visual.jsonl": "5ee189e4667ddc9d75c86912579f14708e3fdd3690275323a11c3a4171a70b58",
+    "remaining/original-eligibility.json": "1d68878b5b8224fa058f8fba40aa0abd326f2021d2f5208358093815cf6ab70e",
+    "remaining/after.json": "5da136fcc9f1823fe70a95fd7bab5ab2c727e45b818be8cf765c6b45918d1732",
+    "qa-ticket.json": "40654221a59e894f4f41f917026f7c04a87ce2e6aebd422ba58d23a70bfd4d62"
+  },
+  "historicalSnapshotSHA256": "c2a9aa537cac6de2d08e76107c37187c385eee15b5814a257ac080fbdc97bb70"
+}
