@@ -1,0 +1,22 @@
+{
+  "baselineProduct": "65398096092e739bb9581244961112b572006465",
+  "originalSourceSHA256": "627ab25a80e0470bc5de13c5c13a0d82a72ed07eee7fb331b653ab7ab3942b4b",
+  "reviewedProgramSHA256": "26c0937047a94465c5781bd074bb4c5aed7662adff298fffc34a2939183c7573",
+  "controlledChrome": {
+    "scope": "real Chrome primitives; controlled local application; NOT live ChatGPT",
+    "scenario": "positive-preview-between-native-reads",
+    "baseline": "FAIL at original positive evidence survives a lost reply",
+    "updated": "PASS",
+    "inputChanges": 2,
+    "inputSetters": 2,
+    "starts": 2,
+    "networkRequests": 0,
+    "sends": 0
+  },
+  "controlledCases": [
+    "A positive original member appeared and then failed in separate renderer turns while no native read was made.",
+    "Re-reading the original START after a dropped response returned the same evidence identity. The current error had the original card identity and the neighboring card kept its own status.",
+    "Placeholder-only, hidden, already failed, foreign image, navigation and expired observer did not retroactively create a START."
+  ],
+  "liveService": "Recorded independently by candidate build."
+}
