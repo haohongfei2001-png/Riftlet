@@ -359,7 +359,13 @@ function browserFixture(options){
    const third=await operation(70);
    let duplicate=false;try{call({...third.command('begin'),identity:{...third.identity,operationID:crypto.randomUUID()}});}catch{duplicate=true;}
    check(duplicate,'one click cannot enroll another operation');
+   // Blurring retires the write witness. History can still locate the same
+   // original before activating its tab; even then the old click cannot write.
+   globalThis.dispatchEvent(new Event('blur'));
+   check(!call({action:'validate',target:third.target}).valid,'blurred input witness retired');
+   check(call({action:'validate',target:third.target,requireLiveOriginal:true}).valid,'read-only original survives blur');
    editor.replaceWith(editor.cloneNode(true));
+   check(!call({action:'validate',target:third.target,requireLiveOriginal:true}).valid,'read-only locate rejects replaced editor');
    const retired=await call({...third.command('commit'),chunkIndex:1});
    check(retired.observation.preInputRetirement?.inputCount===0,'replaced editor vetoes staged input');
    check(call({...ops[1].command('observe'),requireLiveOriginal:true}).observation.state==='invalidated','replaced draft cannot authorize original inspection');

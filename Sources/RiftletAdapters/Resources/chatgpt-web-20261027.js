@@ -1436,7 +1436,10 @@ function riftletWebAcceptance(command, native) {
     return registry.current.target;
   }
   const binding = bindingFor(command.target);
-  if (command.action === 'validate') return {target: command.target, valid: validDraft(binding)};
+  if (command.action === 'validate') {
+    const readPinnedOriginal = command.requireLiveOriginal === true && binding?.target.clickBindingID;
+    return {target: command.target, valid: readPinnedOriginal ? sameDraft(binding) : validDraft(binding)};
+  }
   const identity = command.identity;
   if (!identity || !sameTarget(identity.target, command.target)) fail('TARGET_INVALID');
   const acknowledgement = (op, nextChunk) => ({operationID: op.identity.operationID, attempt: op.identity.attempt, nextChunk});
