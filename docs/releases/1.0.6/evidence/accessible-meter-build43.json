@@ -22,5 +22,7 @@
       "fail": 0,
       "skipped": 0
     }
-  }
+  },
+  "signedInstallerSHA256": "926c64d904b6c95bfc1ae1bbf50059579aa3681dfa0ae02d99bcf542b5102a06",
+  "nativeSourceProbe": "Tracked native test methods executed with assertion shims against compiled RiftletAdapters/Core. Verified v23 pending START reads, prior source registrations and immutable journals across restart; verified one input and independent original START then error after a lost reply. Formal XCTest results are recorded separately."
 }
