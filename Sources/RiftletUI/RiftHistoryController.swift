@@ -301,7 +301,8 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
 
     private func configureContent() {
         guard let content = historyWindow.contentView else { return }
-        search.placeholderString = copy.text("搜索截图", "Search screenshots"); search.setAccessibilityLabel(copy.text("搜索截图", "Search screenshots"))
+        search.placeholderString = copy.text("搜索", "Search")
+        search.setAccessibilityLabel(copy.text("搜索截图", "Search screenshots"))
         search.delegate = self; search.sendsSearchStringImmediately = true
         let list = NSVisualEffectView()
         list.material = .sidebar
