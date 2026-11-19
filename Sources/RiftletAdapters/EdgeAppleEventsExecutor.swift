@@ -194,6 +194,14 @@ private final class EdgeCommandCancellation: @unchecked Sendable {
           try await withCheckedThrowingContinuation { continuation in
             queue.async {
                 var phase = "process"
+                let started = ProcessInfo.processInfo.systemUptime
+                var phaseStarted = started
+                var fullSelectionChecks = 0, worldValidationReads = 0, relayDiscoveryReads = 0
+                var skippedCachedSelection = false
+                func enter(_ next: String) {
+                    phase = next
+                    phaseStarted = ProcessInfo.processInfo.systemUptime
+                }
                 var failedCheck: String?
                 let result: Result<Data, Error> = Result {
                     try autoreleasepool {
@@ -215,39 +223,69 @@ private final class EdgeCommandCancellation: @unchecked Sendable {
                                 failedCheck = "originalClickLifetime"
                                 throw WebAdapterError.invalidTarget
                             }
+                            fullSelectionChecks += 1
                             try driver.revalidate(click.host, deadline: ProcessInfo.processInfo.systemUptime + 1) {
                                 failedCheck = $0.rawValue
                             }
                         }
+                        func validateWorld(_ click: Click) throws -> Bool {
+                            worldValidationReads += 1
+                            // A single read of the original capability is not
+                            // receipt polling. Keep the same one-second absolute
+                            // window, without the polling reader's 250 ms cap.
+                            return try read(click.world.validate, budget: .init(
+                                deadlineUptime: ProcessInfo.processInfo.systemUptime + 1,
+                                clickSnapshot: true)) == "verified"
+                        }
                         try selection()
                         if command.action == .captureTarget {
                             guard let click else { throw WebAdapterError.invalidTarget }
-                            phase = "executionWorld"
+                            enter("executionWorld")
                             // No attachment command has been sent. Same-world,
                             // replaced-document and blocked-bootstrap outcomes refuse.
                             try cancellation.checkBeforeSubmission()
                             try driver.bootstrap(click.world.bootstrap, target: host)
+                            enter("worldConfirmation")
                             guard try read(click.world.confirm) == "verified" else {
                                 throw WebAdapterError.pageRejected(.bridgeUnavailable)
                             }
+                            enter("captureSelection")
                             try selection()
                         }
                         let envelope = MainWorldCommandEnvelope(function: program.functionSource,
                             commandJSON: json, contextJSON: context)
-                        phase = "originalRelay"
+                        enter("originalRelay")
+                        let hasBoundInputRelay = [.validate, .begin, .chunk, .commit, .discard].contains(command.action)
+                            && command.target.flatMap({ relays.bound(to: $0) }) != nil
                         let relay = try relays.resolve(command, program: program, contextJSON: context) { discovery in
-                            try read(discovery)
+                            enter("relayDiscovery")
+                            relayDiscoveryReads += 1
+                            return try read(discovery)
                         }
                         var install = false
-                        if command.action == .captureTarget { install = try read(relay.probe) != "ready" }
-                        try selection()
-                        if command.action != .observe {
-                            guard let click, try read(click.world.validate) == "verified" else {
-                                throw WebAdapterError.pageRejected(.clickPinRefused)
-                            }
+                        if command.action == .captureTarget {
+                            enter("relayProbe")
+                            install = try read(relay.probe) != "ready"
+                        }
+                        // A bound input resolves only native cached values
+                        // between the first full selection and this point. Keep
+                        // the middle check for capture, observation, discovery
+                        // and every missing-cache path. The original world and
+                        // final full selection are checked in every input path.
+                        skippedCachedSelection = hasBoundInputRelay && relayDiscoveryReads == 0
+                        if !skippedCachedSelection {
+                            enter("postRelaySelection")
                             try selection()
                         }
-                        phase = "submit"
+                        if command.action != .observe {
+                            enter("worldValidation")
+                            guard let click, try validateWorld(click) else {
+                                throw WebAdapterError.pageRejected(.clickPinRefused)
+                            }
+                            enter("preSubmitSelection")
+                            try selection()
+                        }
+                        enter("submit")
                         // This is the final cancellation boundary. After entering
                         // the native call, preserve its exact original receipt even
                         // if the caller cancels; never report pre-input cancellation.
@@ -262,7 +300,7 @@ private final class EdgeCommandCancellation: @unchecked Sendable {
                                 afterSubmission: true) == "submitted"
                             else { throw WebAdapterError.nativeExecutionFailed }
                         }
-                        phase = "receipt"
+                        enter("receipt")
                         let receipt = try MainWorldReceiptReader.read(envelope,
                             timeout: command.action == .commit ? 8 : 1,
                             checkContinuation: { guard driver.isCurrent(host) else { throw WebAdapterError.invalidTarget } }) { budget in
@@ -273,24 +311,30 @@ private final class EdgeCommandCancellation: @unchecked Sendable {
                         }
                         let data = Data(receipt.text.utf8)
                         if command.action == .captureTarget {
+                            enter("captureReceiptSelection")
                             try selection()
+                            enter("captureWorldValidation")
                             guard let id = command.clickWitnessID, let click,
-                                  try read(click.world.validate) == "verified" else { throw WebAdapterError.invalidTarget }
+                                  try validateWorld(click) else { throw WebAdapterError.invalidTarget }
                             let target = try decodeCapture(data, host: host, witnessID: id)
                             relays.bind(relay, to: target)
                         }
-                        phase = "complete"
+                        enter("complete")
                         return data
                     }
                 }
+                let finished = ProcessInfo.processInfo.systemUptime
                 var fields: [String: Any] = ["event": "edge_web_command", "action": command.action.rawValue,
-                    "phase": phase, "succeeded": (try? result.get()) != nil]
+                    "phase": phase, "succeeded": (try? result.get()) != nil,
+                    "elapsedMS": (finished - started) * 1000, "phaseElapsedMS": (finished - phaseStarted) * 1000,
+                    "fullSelectionChecks": fullSelectionChecks, "worldValidationReads": worldValidationReads,
+                    "relayDiscoveryReads": relayDiscoveryReads, "skippedCachedSelection": skippedCachedSelection]
+                if let identity = command.identity { fields["operationID"] = identity.operationID.uuidString }
+                if let index = command.chunkIndex { fields["chunkIndex"] = index }
                 if case .failure(let error) = result {
                     fields["error"] = NativeEdgeWebExecutionDriver.mapped(error).diagnosticLabel
                     if let failedCheck {
                         fields["check"] = failedCheck
-                        if let identity = command.identity { fields["operationID"] = identity.operationID.uuidString }
-                        if let index = command.chunkIndex { fields["chunkIndex"] = index }
                     }
                 }
                 trace?.record(fields, critical: command.action != .observe && command.action != .captureTarget)

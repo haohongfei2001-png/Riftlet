@@ -15,6 +15,8 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
     var modelClickBudget = false
     var modeledPinDuration: TimeInterval = 0.024
     var modeledFreezeDuration: TimeInterval = 0.045
+    var failAtFullSelection: Int?, failNextWorldValidation = false
+    var afterWorldValidation: (() -> Void)?
     var pinReply = "bound"
     private(set) var clickPinCalls = 0
     private var modeledUptime: TimeInterval?
@@ -29,6 +31,9 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
     private(set) var actions: [String] = []
     private(set) var bootstraps = 0, selectionChecks = 0
     private(set) var fullSelectionChecks = 0, clickSelectionChecks = 0
+    private(set) var steps: [String] = []
+    private(set) var worldValidationBudgets: [MainWorldReceiptReadBudget] = []
+    private(set) var receiptBudgets: [MainWorldReceiptReadBudget] = []
     private var relayChannel: String?
 
     var returnedRoute: WebDraftRoute?
@@ -45,6 +50,8 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
     func revalidate(_ target: EdgeWindowTab, deadline: TimeInterval,
                     descriptorFailure: (EdgeDescriptorFailure) -> Void) throws {
         lock.lock(); defer { lock.unlock() }; selectionChecks += 1; fullSelectionChecks += 1
+        steps.append("fullSelection")
+        if failAtFullSelection == fullSelectionChecks { throw WebAdapterError.nativeEventFailed(-1712) }
         if let failure = nextDescriptorFailure {
             nextDescriptorFailure = nil
             descriptorFailure(failure)
@@ -96,7 +103,10 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
         })
     }
     func evaluate(_ source: String, target: EdgeWindowTab, budget: MainWorldReceiptReadBudget) throws -> String {
-        try evaluate(source, target: target, checkWait: { _ = try budget.timeout(at: $0) })
+        lock.lock(); defer { lock.unlock() }
+        if source.contains("edge-world-validate") { worldValidationBudgets.append(budget) }
+        if source.contains("data-riftlet-reply-") && !source.contains("riftlet-command-") { receiptBudgets.append(budget) }
+        return try evaluate(source, target: target, checkWait: { _ = try budget.timeout(at: $0) })
     }
 
     private func evaluate(_ source: String, target: EdgeWindowTab, checkWait: (TimeInterval) throws -> Void) throws -> String {
@@ -118,7 +128,13 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
             atPin?()
             return pinReply
         }
-        if source.contains("edge-world-confirm") || source.contains("edge-world-validate") {
+        if source.contains("edge-world-validate") {
+            steps.append("worldValidation")
+            if failNextWorldValidation { failNextWorldValidation = false; throw WebAdapterError.nativeEventFailed(-1712) }
+            afterWorldValidation?()
+            return worldSeparated && originalDocumentCurrent ? "verified" : "refused"
+        }
+        if source.contains("edge-world-confirm") {
             return worldSeparated && originalDocumentCurrent ? "verified" : "refused"
         }
         if source.contains("root.attributes.length>1024") {
@@ -127,6 +143,7 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
         }
         if source.contains("?'ready':'missing'") { return relayChannel == nil ? "missing" : "ready" }
         if source.contains("data-riftlet-reply-") && !source.contains("riftlet-command-") {
+            steps.append("receipt")
             let nonce = try match("data-riftlet-reply-([a-f0-9-]+)", source)[0]
             return replies[nonce] ?? ""
         }
@@ -151,6 +168,7 @@ private final class EdgeExecutorFixture: EdgeWebExecutionDriver, @unchecked Send
         let command = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(pieces[1].utf8)) as? [String: Any])
         let action = try XCTUnwrap(command["action"] as? String)
         actions.append(action)
+        steps.append("dispatch:" + action)
         let result: Any
         if action == "captureTarget" {
             let target = TargetLease(adapterID: "chatgpt-web", surface: .webChat, applicationID: "com.microsoft.edgemac",
@@ -181,6 +199,104 @@ final class EdgeAppleEventsExecutorTests: XCTestCase {
     private let program = WebPageProgram(sourceID: ChatGPTWebPageProgram.sourceID, functionSource: "function fixture(){return {};}")
     private func identity(_ target: TargetLease) -> ObservationIdentity {
         .init(operationID: UUID(), assetID: UUID(), attempt: 1, assetSHA256: String(repeating: "a", count: 64), target: target)
+    }
+
+    private func commandRows(_ trace: BoundedDiagnosticTrace, directory: URL) throws -> [[String: Any]] {
+        trace.flushForTesting()
+        return try Data(contentsOf: directory.appendingPathComponent("acceptance-recent.jsonl"))
+            .split(separator: 10).map { try XCTUnwrap(JSONSerialization.jsonObject(with: Data($0)) as? [String: Any]) }
+            .filter { $0["event"] as? String == "edge_web_command" }
+    }
+
+    @MainActor func testEveryBoundChunkRetainsInitialFullWorldAndFinalFullWithoutAnAdjacentDuplicate() async throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let trace = BoundedDiagnosticTrace(enabled: true, directory: directory, emitStandardError: false)
+        let driver = EdgeExecutorFixture(), bridge = EdgeAppleEventsExecutor(driver: driver, diagnosticTrace: trace)
+        let target = try await bridge.targetForClick(program: program).value, operation = identity(target)
+        let captured = try XCTUnwrap(commandRows(trace, directory: directory).last)
+        XCTAssertEqual(captured["action"] as? String, "captureTarget")
+        XCTAssertEqual(captured["fullSelectionChecks"] as? Int, 5)
+        XCTAssertEqual(captured["worldValidationReads"] as? Int, 2)
+        XCTAssertEqual(captured["relayDiscoveryReads"] as? Int, 1)
+        XCTAssertEqual(captured["skippedCachedSelection"] as? Bool, false)
+        _ = try await bridge.execute(.init(action: .begin, target: target, identity: operation), program: program)
+        for index in 0..<6 {
+            let start = driver.steps.count
+            _ = try await bridge.execute(.init(action: .chunk, target: target, identity: operation,
+                chunkIndex: index, chunkBase64: "AQ=="), program: program)
+            XCTAssertEqual(Array(driver.steps.dropFirst(start)),
+                ["fullSelection", "worldValidation", "fullSelection", "dispatch:chunk", "receipt"])
+            let row = try XCTUnwrap(commandRows(trace, directory: directory).last)
+            XCTAssertEqual(row["action"] as? String, "chunk")
+            XCTAssertEqual(row["chunkIndex"] as? Int, index)
+            XCTAssertEqual(row["fullSelectionChecks"] as? Int, 2)
+            XCTAssertEqual(row["worldValidationReads"] as? Int, 1)
+            XCTAssertEqual(row["relayDiscoveryReads"] as? Int, 0)
+            XCTAssertEqual(row["skippedCachedSelection"] as? Bool, true)
+            XCTAssertEqual(row["phase"] as? String, "complete")
+            XCTAssertEqual((row["operationIDDigest"] as? String)?.count, 64)
+            XCTAssertNil(row["operationID"]); XCTAssertNil(row["target"]); XCTAssertNil(row["address"])
+        }
+        let beforeObserve = driver.steps.count
+        _ = try await bridge.execute(.init(action: .observe, target: target, identity: operation), program: program)
+        XCTAssertEqual(Array(driver.steps.dropFirst(beforeObserve)), ["dispatch:observe", "receipt"])
+        let observed = try XCTUnwrap(commandRows(trace, directory: directory).last)
+        XCTAssertEqual(observed["skippedCachedSelection"] as? Bool, false)
+        XCTAssertEqual(observed["fullSelectionChecks"] as? Int, 0)
+        XCTAssertEqual(observed["worldValidationReads"] as? Int, 0)
+    }
+
+    @MainActor func testWorldAndFinalSelectionFailuresArePreciselyReportedWithoutDispatchingTheChunk() async throws {
+        for scenario in ["worldTimeout", "finalSelectionTimeout", "switchAfterWorld", "navigationAfterWorld"] {
+            let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+            defer { try? FileManager.default.removeItem(at: directory) }
+            let trace = BoundedDiagnosticTrace(enabled: true, directory: directory, emitStandardError: false)
+            let driver = EdgeExecutorFixture(), bridge = EdgeAppleEventsExecutor(driver: driver, diagnosticTrace: trace)
+            let target = try await bridge.targetForClick(program: program).value, operation = identity(target)
+            _ = try await bridge.execute(.init(action: .begin, target: target, identity: operation), program: program)
+            if scenario == "worldTimeout" { driver.failNextWorldValidation = true }
+            if scenario == "finalSelectionTimeout" { driver.failAtFullSelection = driver.fullSelectionChecks + 2 }
+            if scenario == "switchAfterWorld" { driver.afterWorldValidation = { driver.selected = false } }
+            if scenario == "navigationAfterWorld" { driver.afterWorldValidation = { driver.navigated = true } }
+            do {
+                _ = try await bridge.execute(.init(action: .chunk, target: target, identity: operation,
+                    chunkIndex: 5, chunkBase64: "AQ=="), program: program)
+                XCTFail("the original check must refuse before chunk dispatch")
+            } catch {
+                XCTAssertEqual(error as? WebAdapterError, scenario.hasSuffix("Timeout")
+                    ? .nativeEventFailed(-1712) : .nativeSelectionChanged)
+            }
+            XCTAssertEqual(driver.actions, ["captureTarget", "begin"])
+            let row = try XCTUnwrap(commandRows(trace, directory: directory).last)
+            XCTAssertEqual(row["phase"] as? String, scenario == "worldTimeout" ? "worldValidation" : "preSubmitSelection")
+            XCTAssertEqual(row["fullSelectionChecks"] as? Int, scenario == "worldTimeout" ? 1 : 2)
+            XCTAssertEqual(row["worldValidationReads"] as? Int, 1)
+            XCTAssertEqual(row["chunkIndex"] as? Int, 5)
+            XCTAssertEqual(row["succeeded"] as? Bool, false)
+            XCTAssertNotNil(row["phaseElapsedMS"] as? Double)
+            XCTAssertEqual((row["operationIDDigest"] as? String)?.count, 64)
+            XCTAssertNil(row["operationID"]); XCTAssertNil(row["target"]); XCTAssertNil(row["url"])
+        }
+    }
+
+    @MainActor func testOneShotWorldValidationUsesItsExistingWindowWhileReceiptPollingRemainsCapped() async throws {
+        let driver = EdgeExecutorFixture(), bridge = EdgeAppleEventsExecutor(driver: driver)
+        let target = try await bridge.targetForClick(program: program).value, operation = identity(target)
+        _ = try await bridge.execute(.init(action: .begin, target: target, identity: operation), program: program)
+        _ = try await bridge.execute(.init(action: .chunk, target: target, identity: operation,
+            chunkIndex: 0, chunkBase64: "AQ=="), program: program)
+        XCTAssertEqual(driver.worldValidationBudgets.count, 4)
+        for budget in driver.worldValidationBudgets {
+            XCTAssertTrue(abs(try budget.timeout(at: budget.deadlineUptime - 0.8) - 0.8) < 0.000001)
+            XCTAssertThrowsError(try budget.checkReturn(at: budget.deadlineUptime))
+        }
+        XCTAssertEqual(driver.receiptBudgets.count, 3)
+        for budget in driver.receiptBudgets {
+            XCTAssertEqual(try budget.timeout(at: budget.deadlineUptime - 0.8), 0.25)
+            XCTAssertThrowsError(try budget.checkReturn(at: budget.deadlineUptime))
+        }
+        XCTAssertEqual(driver.actions, ["captureTarget", "begin", "chunk"])
     }
 
     @MainActor func testPreDispatchChunkRefusalReportsOriginalCheckWithoutSending() async throws {
