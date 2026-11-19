@@ -918,6 +918,7 @@ function riftletWebAcceptance(command, native) {
   // from removed nodes, a transient mutation record, or a pending request.
   function watchHandoff(op) {
     const surface = op.binding.form;
+    if (surface === document.body || surface === document.documentElement) return;
     const deadline = performance.now() + 10000;
     let batches = 0;
     const stop = () => {
