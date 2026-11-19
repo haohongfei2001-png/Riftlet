@@ -51,7 +51,28 @@
   },
   "V2": {
     "oldUNKNOWN": "Cancel leaves data unchanged; Continue requires a separate fresh click; Hide changes local visibility; Mark as Handled clears attention entry only. Native records unchanged and explicit handling marker persisted. No new operation/START.",
-    "originalMissing": "After relaunch of 42, original Chrome process no longer exists. Return reports draft not located. Check does not input or alter original facts and reports the attachment can no longer be verified, with local recovery guidance."
+    "originalMissing": "After relaunch of 42, original Chrome process no longer exists. Return reports draft not located. Check does not input or alter original facts and reports the attachment can no longer be verified, with local recovery guidance.",
+    "livePageThenClosed": "Switched to a blank new tab, restarted the signed application with Chrome retained, checked the original operation and returned to its draft with the single QA image. Closed the original tab in Chrome. Return and Check gave the distinct unavailable notices. 9 operations and 6 STARTs, no replay.",
+    "automaticBudgetAndManualAccess": {
+      "scenario": "Same fresh seq33 operation used for anonymous cold click. Isolated process observed continuously; original Chrome document and unsent draft kept alive through expiry.",
+      "postSTARTAutomaticReadPairsSecondsFromClick": [
+        1.43,
+        6.7,
+        17.16,
+        38.39,
+        80.39,
+        162.79,
+        287.08,
+        411.18
+      ],
+      "attribution": "Each grant immediately followed by successful original-observe transport in isolated app trace. Native bridge does not log the operation ID; the private library inventory independently retains the original operation and START.",
+      "manualAfterAutomaticBudgetSecondsFromClickUpperBound": 418.31,
+      "firstManualBeforeNativeRestart": "The actual latest library row was selected. Check Status Again reported Checked the original draft after the eighth automatic read.",
+      "restart": "Returned to same draft, created blank tab, normally quit/relaunched native app; Check still verified, Return restored the original QA draft.",
+      "expired": "Over 613 seconds after the original click, Check on the same selected row reported the original attachment can no longer be verified with Chrome process and exact page still alive.",
+      "originalTabClosed": "After the verified QA tab was closed, Return reported draft could not be located. Check remained unverifiable.",
+      "duplicateInputs": 0
+    }
   },
   "V1": {
     "scope": "Anonymous guest A; freshly restarted installed candidate, fresh system screenshot, normal virtual mouse.",
@@ -65,5 +86,20 @@
     "clickToCommittedSwallowObservationUpperBoundMS": 670.62,
     "selectionOffsets": "not measured in anonymous guest",
     "rapidPairs": "separate host batch"
+  },
+  "postColdCheckInventory": {
+    "assets": 33,
+    "operations": 9,
+    "starts": 6
+  },
+  "finalInventory": {
+    "assets": 33,
+    "operations": 9,
+    "starts": 6,
+    "integrity": [
+      {
+        "quick_check": "ok"
+      }
+    ]
   }
 }
