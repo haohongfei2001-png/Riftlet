@@ -133,7 +133,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private lazy var folderAccess = ScreenshotFolderAccess(defaults: reviewEnvironment?.defaults ?? .standard, modeName: mode.directoryName)
     private var folderNeedingSelection: URL?
     private var folderShownInPicker: URL?
-    private var permissionGate: AutomationPermissionGate { .init(requiresChrome: mode.usesWebAdapter) }
+    private var setupBrowser: AttachmentBrowser = .chrome
+    private var supportedBrowsers: [AttachmentBrowser] { mode == .capture ? AttachmentBrowser.allCases : [.chrome] }
+    private var permissionGate: AutomationPermissionGate {
+        .init(requiresChrome: mode.usesWebAdapter, checker: NativeAutomationPermissionChecker(browsers: supportedBrowsers))
+    }
     private var hideItem: NSMenuItem?
     private var pauseItem: NSMenuItem?
     private var archiveItem: NSMenuItem?
@@ -188,7 +192,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var diagnosticTrace: BoundedDiagnosticTrace?
     private var visibilityTrace = AcceptanceTraceDeduplicator<UUID, [String]>()
     private var readyTrace = AcceptanceTraceDeduplicator<UUID, [String]>()
-    private var frozenPress: (id: UUID, eventUptime: TimeInterval, target: Task<TargetLease, Error>)?
+    private var frozenPress: (id: UUID, eventUptime: TimeInterval, bundleID: String?, receiverEpoch: UUID, target: Task<TargetLease, Error>)?
     private var pendingClickTargets: [UUID: Task<TargetLease, Error>] = [:]
     private let selectionAuthority = SelectionAuthority()
     private let originalReceiverPermission = OriginalReceiverPermission()
@@ -464,8 +468,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                             }
                         selection = resolved
                         self.setupIssue = nil
-                        self.lastForegroundSession = resolved.target.sessionID
-                        self.applyAutomationPermission(.granted)
+                        if self.foregroundBrowserSession == resolved.target.sessionID, let browser = resolved.target.attachmentBrowser {
+                            self.updateSetupReceiver(browser, session: resolved.target.sessionID)
+                            self.applyAutomationPermission(.granted)
+                        }
                         self.feedback.diagnostics.record(.selectionAccepted)
                         self.recordAcceptance(["event": "click_target_resolved", "assetID": id.uuidString,
                             "selectionID": resolved.id.uuidString, "uptime": ProcessInfo.processInfo.systemUptime])
@@ -489,9 +495,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 } catch is CancellationError {
                     self.cancelOriginalSelection(selection, reason: "submissionCancelled")
                 } catch {
-                    if self.mode.usesWebAdapter {
-                        self.setupIssue = ProductStatus.clickIssue(error,
-                            frontmostBundleID: NSWorkspace.shared.frontmostApplication?.bundleIdentifier, webAcceptance: true)
+                    let clickIssue = ProductStatus.clickIssue(error, frontmostBundleID: press?.bundleID, webAcceptance: true)
+                    if self.mode.usesWebAdapter, press?.receiverEpoch == self.permissionSession {
+                        self.setupIssue = clickIssue
                         if self.setupIssue == .permissionDenied { self.applyAutomationPermission(.denied) }
                         if self.setupIssue == .chromeJavaScriptDisabled {
                             self.chromeCheckID = nil
@@ -505,7 +511,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     refusal["uptime"] = ProcessInfo.processInfo.systemUptime
                     self.diagnosticTrace?.record(refusal, critical: true)
                     feedback(!self.mode.usesWebAdapter && self.mode == .capture ? "此版本尚未启用真实截图附加；图片保留。"
-                        : (ProductStatus.clickFeedback(error)?.text ?? self.setupIssue?.text
+                        : (ProductStatus.clickFeedback(error)?.text ?? clickIssue?.text(in: .current, browser: press?.bundleID.flatMap(AttachmentBrowser.init(rawValue:)) ?? self.setupBrowser)
                            ?? "当前附件目标暂不可用；图片保留，可在运行状态中查看原因。"), .immediate)
                     self.feedback.diagnostics.record(.selectionRejected)
                     self.cancelOriginalSelection(selection, reason: "selectionRejected")
@@ -642,7 +648,17 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         recordAcceptance(["event": "local_recovery_complete", "uptime": ProcessInfo.processInfo.systemUptime])
         if mode.usesWebAdapter {
             // Process identity only, not permission or a page/attachment lease.
-            lastForegroundSession = foregroundChromeSession
+            let (_, receiver) = NativeAutomationPermissionChecker.selectBrowser(expectedSession: nil, browsers: supportedBrowsers)
+            if let process = receiver?.process {
+                lastForegroundSession = process.session
+                setupBrowser = AttachmentBrowser(rawValue: process.applicationID) ?? .chrome
+            } else if let defaultURL = NSWorkspace.shared.urlForApplication(toOpen: URL(string: "https://chatgpt.com")!),
+                      let bundle = Bundle(url: defaultURL)?.bundleIdentifier, let browser = AttachmentBrowser(rawValue: bundle),
+                      supportedBrowsers.contains(browser) {
+                setupBrowser = browser
+            } else if let installed = supportedBrowsers.first(where: { NSWorkspace.shared.urlForApplication(withBundleIdentifier: $0.rawValue) != nil }) {
+                setupBrowser = installed
+            }
             installPassivePermissionRecovery()
             _ = await inspectAutomationPermission(reason: "startup")
         }
@@ -730,12 +746,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 MainActor.assumeIsolated {
                     guard let self,
                           let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
-                          app.bundleIdentifier == "com.google.Chrome" else { return }
-                    if let checked = self.checkedChrome, checked.pid != app.processIdentifier {
-                        self.resetChromeConnection()
-                        self.updateSetup()
-                    }
-                    self.lastForegroundSession = self.foregroundChromeSession
+                          let bundle = app.bundleIdentifier, let browser = AttachmentBrowser(rawValue: bundle),
+                          self.supportedBrowsers.contains(browser),
+                          let receiver = ChromeProcessIdentity.read(pid: app.processIdentifier, applicationID: bundle),
+                          NSWorkspace.shared.frontmostApplication?.processIdentifier == receiver.pid else { return }
+                    self.updateSetupReceiver(browser, session: receiver.session)
                     self.permissionResumer?.request()
                 }
             }
@@ -743,9 +758,14 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             forName: NSWorkspace.didTerminateApplicationNotification, object: nil, queue: .main) { [weak self] note in
                 MainActor.assumeIsolated {
                     guard let self, let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
-                          let checked = self.checkedChrome, app.processIdentifier == checked.pid,
-                          !checked.isCurrent() else { return }
+                          let session = self.lastForegroundSession,
+                          self.setupBrowser.rawValue == app.bundleIdentifier,
+                          session.split(separator: ":").dropFirst().first == Substring(String(app.processIdentifier)),
+                          ChromeProcessIdentity.read(pid: app.processIdentifier, applicationID: self.setupBrowser.rawValue)?.session != session else { return }
+                    self.lastForegroundSession = nil
+                    self.permissionSession = UUID()
                     self.resetChromeConnection()
+                    self.automationPermission = .browserNotRunning
                     self.updateSetup()
                 }
             }
@@ -766,7 +786,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                                              expectedSession: String? = nil,
                                              requestFromUserAction: Bool = false) async -> AutomationPermissionState {
         let started = ProcessInfo.processInfo.systemUptime
-        let foreground = foregroundChromeSession
+        let foreground = foregroundBrowserSession
         let receiver = expectedSession ?? foreground ?? lastForegroundSession
         let receiverRequest = receiver.map { originalReceiverPermission.begin(session: $0) }
         let request = permissionPublication.begin(hostEpoch: permissionSession, foregroundSession: foreground,
@@ -776,7 +796,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         else { result = await permissionGate.inspect(expectedSession: receiver) }
         let receiverResolution = receiverRequest.map { originalReceiverPermission.resolve($0, result: result) }
         let resolution = permissionPublication.resolve(request, state: result, hostEpoch: permissionSession,
-            foregroundSession: foregroundChromeSession, terminating: terminating)
+            foregroundSession: foregroundBrowserSession, terminating: terminating)
         if resolution == .publish { applyAutomationPermission(result) }
         // A stale grant cannot authorize this caller even when another fresh
         // check has since set the shared status to granted. A stale failure is
@@ -810,7 +830,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private func accessToOriginalReceiver(_ target: TargetLease) async -> OriginalReceiverAccess {
         guard !terminating else { return .unavailable }
         guard mode.usesWebAdapter else { return .granted }
-        guard target.applicationID == "com.google.Chrome" else { return .unavailable }
+        guard let browser = target.attachmentBrowser, supportedBrowsers.contains(browser) else { return .unavailable }
         let started = ProcessInfo.processInfo.systemUptime
         let result = await originalReceiverPermission.inspectResolution(session: target.sessionID, gate: permissionGate)
         recordAcceptance(["event": "original_observation_permission", "startedUptime": started,
@@ -927,11 +947,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         let snapshot = SetupSnapshot(sourceLocation: detectedSource?.path, source: source, collection: collection,
             isHidden: userHidden, visibleCount: visibleIDs.count, pendingCount: pendingResultCount,
             attachment: attachment, permission: ProductStatus.permission(automationPermission),
-            permissionDetail: mode.usesWebAdapter ? ChromeAttachmentSetup.instructions : nil,
+            permissionDetail: mode.usesWebAdapter ? ChromeAttachmentSetup.instructions(for: setupBrowser) : nil,
             storage: setupStorage, issue: issue, supportDescription: ProductStatus.supportDescription,
             isChecking: captureControlBusy || requestingPermission || !initialized,
             builtInScreenshotEnabled: screenshotEntry?.isEnabled,
-            defaultScreenshotMode: screenshotEntry?.defaultMode ?? .window)
+            defaultScreenshotMode: screenshotEntry?.defaultMode ?? .window, browser: setupBrowser)
         var capabilities = SettingsCapabilities()
         capabilities.initialized = initialized
         capabilities.canChangeCollection = canChangeCollection
@@ -1103,6 +1123,17 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         }
     }
 
+    private func updateSetupReceiver(_ browser: AttachmentBrowser, session: String) {
+        guard browser != setupBrowser || lastForegroundSession != session else { return }
+        setupBrowser = browser
+        lastForegroundSession = session
+        permissionSession = UUID()
+        automationPermission = .unavailable
+        resetChromeConnection()
+        if setupIssue == .permissionDenied || setupIssue == .unsupportedBrowser || setupIssue == .targetUnavailable { setupIssue = nil }
+        updateSetup()
+    }
+
     private func resetChromeConnection() {
         chromeCheckID = nil
         checkedChrome = nil
@@ -1112,12 +1143,13 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
 
     private func checkChromeConnection() async {
         guard mode == .capture, mode.usesWebAdapter, initialized, !terminating, chromeCheckID == nil else { return }
-        let (status, choice) = NativeAutomationPermissionChecker.selectBrowser(expectedSession: nil)
+        let (status, choice) = NativeAutomationPermissionChecker.selectBrowser(expectedSession: foregroundBrowserSession ?? lastForegroundSession, browsers: supportedBrowsers)
         guard let process = choice?.process else {
             applyAutomationPermission(status ?? .unavailable)
             updateSetup()
             return
         }
+        if let browser = AttachmentBrowser(rawValue: process.applicationID) { updateSetupReceiver(browser, session: process.session) }
         let id = UUID()
         chromeCheckID = id
         checkedChrome = process
@@ -1247,16 +1279,18 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         if hadSelection { Task { [weak self] in await self?.refresh() } }
     }
 
-    private var foregroundChromeSession: String? {
-        guard let app = NSWorkspace.shared.frontmostApplication,
-              app.bundleIdentifier == "com.google.Chrome" else { return nil }
-        return ChromeProcessIdentity.read(pid: app.processIdentifier)?.session
+    private var foregroundBrowserSession: String? {
+        guard let app = NSWorkspace.shared.frontmostApplication, let id = app.bundleIdentifier,
+              let browser = AttachmentBrowser(rawValue: id), supportedBrowsers.contains(browser) else { return nil }
+        return ChromeProcessIdentity.read(pid: app.processIdentifier, applicationID: id)?.session
     }
 
     private func freezePress(_ id: UUID, timestamp: TimeInterval) {
         frozenPress?.target.cancel()
         frozenPress = nil
         guard !drainingForExit, mode.usesWebAdapter, let web = clickAdapter else { return }
+        let app = NSWorkspace.shared.frontmostApplication
+        let bundleID = app?.bundleIdentifier
         let target: Task<TargetLease, Error>
         do {
             // Only native window/tab IDs and the route are read synchronously.
@@ -1265,7 +1299,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         } catch {
             target = Task { throw error }
         }
-        frozenPress = (id, timestamp, target)
+        if let app, let id = bundleID, let browser = AttachmentBrowser(rawValue: id), supportedBrowsers.contains(browser),
+           let process = ChromeProcessIdentity.read(pid: app.processIdentifier, applicationID: id) {
+            updateSetupReceiver(browser, session: process.session)
+        }
+        frozenPress = (id, timestamp, bundleID, permissionSession, target)
         recordAcceptance(["event": "click_target_requested", "assetID": id.uuidString,
             "originalEventUptime": timestamp, "uptime": ProcessInfo.processInfo.systemUptime])
     }
@@ -1531,7 +1569,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 case .unavailable:
                     message = ProductCopy.text("现已无法核实原附件。你可以查看原图，或结束本地跟踪。", "The original attachment can no longer be verified. View the image or finish tracking it here.")
                 case .permissionDenied:
-                    message = ProductCopy.text("Riftlet 需要自动化权限来检查原草稿。请在设置中检查 Chrome 连接。", "Allow Automation and check the Chrome connection in Settings to inspect the original draft.")
+                    message = ProductCopy.text("Riftlet 需要自动化权限来检查原草稿。请在设置中检查原浏览器的连接。", "Allow Automation and check the original browser connection in Settings to inspect the original draft.")
                 case .busy:
                     message = ProductCopy.text("这张截图正在处理，请稍后重新检查。", "This screenshot is being processed. Check again shortly.")
                 }
@@ -1565,7 +1603,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 reattachmentIntents[asset] = ReattachmentIntent(operationID: operation, revision: record.visibilityRevision)
                 await refresh()
                 rift?.showAsset(asset)
-                history?.showActionNotice(ProductCopy.text("打开要附加的 Chrome 草稿，再点这张桌面截图。", "Open the intended draft in Chrome, then click this screenshot at the desktop edge."))
+                history?.showActionNotice(ProductCopy.text("打开要附加的 Chrome 或 Edge 草稿，再点这张桌面截图。", "Open the intended draft in Chrome or Edge, then click this screenshot at the desktop edge."))
             } catch {
                 if (try? await store.isRetiredMedia(asset)) == true {
                     history?.showActionError(ProductCopy.text("请在「设置 → 截图 → 管理截图资料…」中从废纸篓找回副本，然后再选择重新附加。", "Restore the copy from Trash in Settings → Screenshots → Manage Screenshot Storage…, then choose Attach Again."))
@@ -1898,10 +1936,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         case .previewTrayAppearance(let transparency, let color):
             rift?.previewTrayAppearance(transparency: transparency, cameraBodyColor: color)
         case .openChrome:
-            if let chrome = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.google.Chrome") {
+            if let chrome = NSWorkspace.shared.urlForApplication(withBundleIdentifier: setupBrowser.rawValue) {
                 do { _ = try await NSWorkspace.shared.openApplication(at: chrome, configuration: .init()) }
-                catch { showActionIssue(ProductCopy.text("未能打开 Google Chrome。", "Could not open Google Chrome.")) }
-            } else { showActionIssue(ProductCopy.text("没有找到 Google Chrome。", "Google Chrome could not be found.")) }
+                catch { showActionIssue(ProductCopy.text("未能打开浏览器。", "Could not open the browser.")) }
+            } else { showActionIssue(ProductCopy.text("没有找到这个浏览器。", "The browser could not be found.")) }
             updateSetup()
         case .checkChromeConnection: await checkChromeConnection()
         case .finishOnboarding:

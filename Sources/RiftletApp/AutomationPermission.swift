@@ -1,6 +1,7 @@
 import AppKit
 import Carbon
 import RiftletAdapters
+import RiftletCore
 
 enum AutomationPermissionState: Equatable, Sendable {
     case notNeeded, notRequested, granted, denied, browserNotRunning, browserNotInstalled, unavailable
@@ -47,21 +48,23 @@ struct PermissionBrowserIdentity: Equatable, Sendable {
 /// A status check sends no page program and never launches/activates Chrome.
 /// Apple Events authorization is unrelated to admission of an upload profile.
 struct NativeAutomationPermissionChecker: AutomationPermissionChecking {
+    var browsers: [AttachmentBrowser] = [.chrome]
     private static let queue = DispatchQueue(label: "Riftlet.permission", qos: .userInitiated)
 
     func check(askUserIfNeeded: Bool) async -> AutomationPermissionState {
         await check(askUserIfNeeded: askUserIfNeeded, expectedSession: nil)
     }
 
-    @MainActor static func selectBrowser(expectedSession: String?) -> (AutomationPermissionState?, PermissionBrowserIdentity?) {
-        guard NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.google.Chrome") != nil else {
-            return (.browserNotInstalled, nil)
-        }
-        let candidates = NSRunningApplication.runningApplications(withBundleIdentifier: "com.google.Chrome")
-            .compactMap { app -> PermissionBrowserIdentity? in
-                guard let process = ChromeProcessIdentity.read(pid: app.processIdentifier) else { return nil }
-                return .init(process: process)
+    @MainActor static func selectBrowser(expectedSession: String?, browsers: [AttachmentBrowser] = [.chrome])
+        -> (AutomationPermissionState?, PermissionBrowserIdentity?) {
+        let installed = browsers.filter { NSWorkspace.shared.urlForApplication(withBundleIdentifier: $0.rawValue) != nil }
+        guard !installed.isEmpty else { return (.browserNotInstalled, nil) }
+        let candidates = installed.flatMap { browser in
+            NSRunningApplication.runningApplications(withBundleIdentifier: browser.rawValue).compactMap { app in
+                ChromeProcessIdentity.read(pid: app.processIdentifier, applicationID: browser.rawValue)
+                    .map(PermissionBrowserIdentity.init(process:))
             }
+        }
         guard !candidates.isEmpty else { return (.browserNotRunning, nil) }
         let chosen = PermissionBrowserIdentity.select(candidates,
             foregroundPID: NSWorkspace.shared.frontmostApplication?.processIdentifier, expectedSession: expectedSession)
@@ -69,7 +72,7 @@ struct NativeAutomationPermissionChecker: AutomationPermissionChecking {
     }
 
     func check(askUserIfNeeded: Bool, expectedSession: String?) async -> AutomationPermissionState {
-        let availability = await Self.selectBrowser(expectedSession: expectedSession)
+        let availability = await Self.selectBrowser(expectedSession: expectedSession, browsers: browsers)
         if let status = availability.0 { return status }
         guard let identity = availability.1 else { return .unavailable }
         return await withCheckedContinuation { continuation in
