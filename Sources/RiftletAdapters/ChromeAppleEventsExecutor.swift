@@ -501,7 +501,11 @@ private struct ChromePIDEvents {
         let active = try property("acTa", of: front)
         let reads = try ChromeClickSnapshot.read(pid: pid, active: active, properties: property("pALL", of: active),
                                                  deadline: deadline)
-        let identity = try ChromeActiveTabDescriptor.identity(in: reads.activeTab) ?? legacyIdentity(front: front)
+        // A later front-window lookup could select a different draft. The
+        // absolute click-time pair remains mandatory even when pALL is absent.
+        guard let identity = ChromeActiveTabDescriptor.identity(in: reads.activeTab) else {
+            throw WebAdapterError.invalidTarget
+        }
         let address = try ChromeActiveTabDescriptor.matchedURL(properties: reads.properties, tab: identity.tab)
             ?? url(window: identity.window, tab: identity.tab)
         let route = try ChromeClickRoute(window: identity.window, tab: identity.tab, url: address)
