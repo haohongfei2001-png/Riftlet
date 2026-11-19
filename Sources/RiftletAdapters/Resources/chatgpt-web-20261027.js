@@ -1163,12 +1163,13 @@ function riftletWebAcceptance(command, native) {
     + ',input,select,textarea,summary,[role="link"],[role="tab"],[role="checkbox"],[role="switch"],[contenteditable="true"]';
   // A derived data URL must encode the exact input image rendered by this browser.
   function watchEdgeEncodedPreview(file, name) {
-    const maxBytes = 8 * 1024 * 1024, maxPixels = 4194304;
-    if (!(file instanceof File) || file.type !== 'image/png' || !file.size || file.size > maxBytes
-        || file.name !== name || !/^riftlet-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.png$/i.test(name)
-        || top !== self
-        || typeof OffscreenCanvas !== 'function' || typeof createImageBitmap !== 'function'
-        || typeof crypto?.subtle?.digest !== 'function') return null;
+    // The collector permits 128 MiB and 160M pixels. Comparing encoded bytes
+    // needs no extra pixel buffer. Re-encoding uses a smaller display budget.
+    const maxEncodedBytes = MAX_BYTES, maxRenderPixels = 16 * 1024 * 1024;
+    if (!(file instanceof File) || !['image/png', 'image/jpeg'].includes(file.type)
+        || !file.size || file.size > maxEncodedBytes || file.name !== name
+        || !/^riftlet-[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}\.(?:png|jpe?g)$/i.test(name)
+        || top !== self) return null;
     const address = location.href, root = document.documentElement, entry = navigation.currentEntry?.id;
     if (!entry) return null;
     let image = null, source = null, shell = null, monitor = null, state = 'unavailable', closed = false;
@@ -1179,37 +1180,64 @@ function riftletWebAcceptance(command, native) {
       clearTimeout(timer); closed = true;
       monitor?.disconnect(); monitor = null; file = null; image = null; shell = null; source = null; state = 'unavailable';
     }
+    // Each slice ends on a three-byte boundary. Do not materialize another
+    // full-size URL, byte array or digest input in the browser process.
+    async function identical(blob, url, prefix) {
+      if (!blob.size || blob.size > maxEncodedBytes || url.length !== prefix.length + 4 * Math.ceil(blob.size / 3)) return false;
+      const chunk = 48 * 1024;
+      for (let offset = 0; offset < blob.size; offset += chunk) {
+        const bytes = new Uint8Array(await blob.slice(offset, offset + chunk).arrayBuffer());
+        if (!current()) return false;
+        const encoded = btoa(String.fromCharCode(...bytes));
+        if (!url.startsWith(encoded, prefix.length + offset / 3 * 4)) return false;
+      }
+      return true;
+    }
+    async function dimensions(original) {
+      if (original.type === 'image/png') {
+        const h = new DataView(await original.slice(0, 24).arrayBuffer());
+        if (h.byteLength >= 24 && h.getUint32(0) === 0x89504e47 && h.getUint32(4) === 0x0d0a1a0a
+            && h.getUint32(8) === 13 && h.getUint32(12) === 0x49484452) return [h.getUint32(16), h.getUint32(20)];
+        return null;
+      }
+      // Bound header work even for JPEGs with very large metadata segments.
+      const h = new DataView(await original.slice(0, 512 * 1024).arrayBuffer());
+      if (h.byteLength < 4 || h.getUint16(0) !== 0xffd8) return null;
+      let at = 2;
+      while (at + 4 <= h.byteLength && h.getUint8(at++) === 0xff) {
+        let marker = h.getUint8(at++);
+        while (marker === 0xff && at < h.byteLength) marker = h.getUint8(at++);
+        if (at + 2 > h.byteLength || marker === 0xda || marker === 0xd9) return null;
+        const length = h.getUint16(at);
+        if (length < 2 || at + length > h.byteLength) return null;
+        if ([0xc0, 0xc1, 0xc2].includes(marker) && length >= 8) return [h.getUint16(at + 5), h.getUint16(at + 3)];
+        at += length;
+      }
+      return null;
+    }
     async function matches(original, url) {
-      // Reject oversized decompression before decoding even when the PNG fits the byte budget.
-      const header = new DataView(await original.slice(0, 24).arrayBuffer());
-      if (!current() || header.byteLength < 24 || header.getUint32(0) !== 0x89504e47
-          || header.getUint32(4) !== 0x0d0a1a0a || header.getUint32(8) !== 13
-          || header.getUint32(12) !== 0x49484452) return false;
-      const width = header.getUint32(16), height = header.getUint32(20);
-      if (!width || !height || width * height > maxPixels) return false;
+      const originalPrefix = 'data:' + original.type + ';base64,', pngPrefix = 'data:image/png;base64,';
+      if (url.startsWith(originalPrefix) && await identical(original, url, originalPrefix)) return true;
+      if (!current() || !url.startsWith(pngPrefix) || typeof OffscreenCanvas !== 'function'
+          || typeof createImageBitmap !== 'function') return false;
+      const size = await dimensions(original);
+      if (!current() || !size || !size[0] || !size[1] || size.some(value => value > 50000)
+          || size[0] * size[1] > maxRenderPixels) return false;
       const bitmap = await createImageBitmap(original);
-      let png;
+      let canvas, png;
       try {
-        if (!current() || bitmap.width !== width || bitmap.height !== height) return false;
-        const canvas = new OffscreenCanvas(width, height);
+        if (!current() || bitmap.width * bitmap.height !== size[0] * size[1]
+            || bitmap.width !== image.naturalWidth || bitmap.height !== image.naturalHeight) return false;
+        canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
         const context = canvas.getContext('2d', {colorSpace: 'srgb'});
         if (!context) return false;
         context.drawImage(bitmap, 0, 0);
         png = await canvas.convertToBlob({type:'image/png'});
-      } finally { bitmap.close(); }
-      const prefix = 'data:image/png;base64,';
-      if (!current() || png.type !== 'image/png' || !png.size || png.size > maxBytes
-          || url.length !== prefix.length + 4 * Math.ceil(png.size / 3)) return false;
-      const decoded = atob(url.slice(prefix.length));
-      if (decoded.length !== png.size) return false;
-      const preview = new Uint8Array(decoded.length);
-      for (let i = 0; i < decoded.length; i++) preview[i] = decoded.charCodeAt(i);
-      const [expected, actual] = await Promise.all([
-        png.arrayBuffer().then(bytes => crypto.subtle.digest('SHA-256', bytes)),
-        crypto.subtle.digest('SHA-256', preview)
-      ]);
-      const digest = new Uint8Array(expected), other = new Uint8Array(actual);
-      return current() && digest.length === 32 && other.length === 32 && digest.every((byte, i) => byte === other[i]);
+      } finally {
+        bitmap.close();
+        if (canvas) canvas.width = canvas.height = 0;
+      }
+      return current() && png.type === 'image/png' && identical(png, url, pngPrefix);
     }
     const altered = record => record.type === 'attributes' || record.target !== shell?.parentElement
       || [...record.removedNodes, ...record.addedNodes].includes(shell);
@@ -1223,15 +1251,21 @@ function riftletWebAcceptance(command, native) {
           close(); return 'mismatch';
         }
         if (image) return candidate.currentSrc === source ? state : 'unavailable';
-        if (!src || !src.startsWith('data:image/png;base64,') || candidate.currentSrc !== src
-            || src.length > 22 + 4 * Math.ceil(maxBytes / 3)) return 'unavailable';
+        if (!src || !(src.startsWith('data:image/png;base64,') || src.startsWith('data:image/jpeg;base64,'))
+            || candidate.currentSrc !== src || src.length > 23 + 4 * Math.ceil(maxEncodedBytes / 3)) return 'unavailable';
         image = candidate; shell = card; source = src; state = 'encoding';
         monitor = new MutationObserver(records => { if (records.some(altered)) close(); });
         monitor.observe(shell, {subtree:true, childList:true, attributes:true,
           attributeFilter:['src','srcset','alt','title','aria-label','data-file-name']});
         monitor.observe(shell.parentElement, {childList:true});
         // Never re-read a changed/replaced card and never start another encode for this input.
-        matches(file, src).then(ok => {
+        // Serialize only the content comparison, never the user's next input.
+        // Waiting jobs do not decode pixels and drop their work when retired.
+        const pending = Promise.resolve(registry.edgeComparisonTail).then(() => current() && matches(file, source));
+        const tail = pending.catch(() => false);
+        registry.edgeComparisonTail = tail;
+        tail.then(() => { if (registry.edgeComparisonTail === tail) registry.edgeComparisonTail = null; });
+        tail.then(ok => {
           if (!closed) state = ok ? 'matched' : 'mismatch';
         }).catch(() => { if (!closed) state = 'unavailable'; }).then(() => { if (!closed) settled(); });
         return state;

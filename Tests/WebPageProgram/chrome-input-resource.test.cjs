@@ -95,6 +95,14 @@ function browserFixture(options){
   editor.focus();const selection=getSelection(),range=document.createRange();range.setStart(editor.firstChild,2);range.setEnd(editor.firstChild,7);selection.removeAllRanges();selection.addRange(range);
   if(options.liveComposerShape)editor.blur();
   const text=editor.textContent,anchor=selection.anchorNode,focus=selection.focusNode,anchorOffset=selection.anchorOffset,focusOffset=selection.focusOffset;
+  const encoding={active:0,peak:0,runs:0,ms:[]};
+  if(options.dimensions){
+   const encode=OffscreenCanvas.prototype.convertToBlob;
+   OffscreenCanvas.prototype.convertToBlob=async function(...args){
+    const t=performance.now();encoding.runs++;encoding.peak=Math.max(encoding.peak,++encoding.active);
+    try{return await Reflect.apply(encode,this,args);}finally{encoding.active--;encoding.ms.push(Math.round(performance.now()-t));}
+   };
+  }
   let changes=0,setters=0,sends=0,reentrant=null,reentrantRefused=false,firstPendingCard=null;
   let startBeforePickerRestored=false,noInputStartRejected=false;
   const nativeFiles=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'files');
@@ -117,7 +125,7 @@ function browserFixture(options){
    }
    if(reentrant){
     const next=reentrant;reentrant=null;
-    const refusal=call({...next.command('commit'),chunkIndex:1}).observation;
+    const refusal=call({...next.command('commit'),chunkIndex:next.chunks}).observation;
     reentrantRefused=refusal.preInputRetirement?.reason==='inputExecutionBusy'&&refusal.preInputRetirement.inputCount===0;
     check(reentrantRefused&&submittedInput.files[0]===file,'reentrant input cannot overwrite current native control');
    }
@@ -139,10 +147,13 @@ function browserFixture(options){
     const visual=document.createElement('span'),remove=document.createElement('button');
     remove.type='button';remove.setAttribute('aria-label','Remove '+file.name);
     visual.append(image);card.append(visual,remove);
-    if(changes===1)image.src=priorImage.src;else image.removeAttribute('src');
-    if(changes!==1)createImageBitmap(file).then(bitmap=>{
+    const wrong=changes===1;
+    if(wrong&&!options.dimensions)image.src=priorImage.src;else image.removeAttribute('src');
+    if(!wrong||options.dimensions)createImageBitmap(file).then(bitmap=>{
       const c=document.createElement('canvas');c.width=bitmap.width;c.height=bitmap.height;
-      c.getContext('2d').drawImage(bitmap,0,0);bitmap.close();image.src=c.toDataURL('image/png');
+      c.getContext('2d').drawImage(bitmap,0,0);bitmap.close();
+      if(wrong){const ctx=c.getContext('2d');ctx.fillStyle='#00FF00';ctx.fillRect(c.width-1,c.height-1,1,1);}
+      image.src=c.toDataURL('image/png');c.width=c.height=0;
     });
    }
    const progress=document.createElement('div');progress.setAttribute('role','progressbar');progress.setAttribute('aria-valuenow','10');if(!options.edge)card.append(progress);
@@ -247,16 +258,32 @@ function browserFixture(options){
    }
   }
   async function operation(index){
-   const color='rgb('+(20+index*30)+',40,70)';canvas.getContext('2d').fillStyle=color;canvas.getContext('2d').fillRect(0,0,2,2);
-   const png=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
-   const bytes=new Uint8Array(await png.arrayBuffer()),sha=await hash(bytes);
+   if(options.dimensions){canvas.width=options.dimensions[0];canvas.height=options.dimensions[1];}
+   const color='rgb('+(20+index*30)+',40,70)';canvas.getContext('2d').fillStyle=color;canvas.getContext('2d').fillRect(0,0,canvas.width,canvas.height);
+   if(options.texture && index<2){
+    const ctx=canvas.getContext('2d'), noise=ctx.createImageData(canvas.width,900);
+    for(let i=0;i<noise.data.length;i+=65536)crypto.getRandomValues(noise.data.subarray(i,i+65536));
+    for(let i=3;i<noise.data.length;i+=4)noise.data[i]=255;
+    ctx.putImageData(noise,0,0);
+   }
+   const png=await new Promise(resolve=>canvas.toBlob(resolve,options.jpeg?'image/jpeg':'image/png'));
+   // Valid tEXt chunk "Fixture: Riftlet", including its CRC, before IEND.
+   // Metadata forces the correct preview through re-encoding equality.
+   const note=new Uint8Array([0,0,0,15,116,69,88,116,70,105,120,116,117,114,101,0,82,105,102,116,108,101,116,179,52,150,103]);
+   const original=options.dimensions&&!options.jpeg?new Blob([png.slice(0,-12),note,png.slice(-12)],{type:'image/png'}):png;
+   const bytes=new Uint8Array(await original.arrayBuffer()),sha=await hash(bytes);
    const pin=options.edge?crypto.randomUUID():null;
    if(pin)check(call({action:'pinTarget',clickWitnessID:pin,address:options.route.split('?')[0]})==='bound','actual click binds original editor');
    const target=call({action:'captureTarget',clickWitnessID:pin}),id=crypto.randomUUID();
    const identity={operationID:id,assetID:crypto.randomUUID(),attempt:1,assetSHA256:sha,target},invocationID=crypto.randomUUID();
-   const op={identity,target,name:'riftlet-'+id+'.png',sha,command:action=>({action,identity,target,invocationID})};
-   call({...op.command('begin'),uploadName:op.name,mediaType:'image/png',byteCount:bytes.length});
-   call({...op.command('chunk'),chunkIndex:0,chunkBase64:btoa(String.fromCharCode(...bytes))});return op;
+   const op={identity,target,name:'riftlet-'+id+(options.jpeg?'.jpeg':'.png'),sha,command:action=>({action,identity,target,invocationID})};
+   call({...op.command('begin'),uploadName:op.name,mediaType:original.type,byteCount:bytes.length});
+   let chunkIndex=0;
+   for(let offset=0;offset<bytes.length;offset+=48*1024){
+    const block=bytes.subarray(offset,offset+48*1024);
+    call({...op.command('chunk'),chunkIndex:chunkIndex++,chunkBase64:btoa(String.fromCharCode(...block))});
+   }
+   op.chunks=chunkIndex;return op;
   }
   for(let index=0;index<options.count;index++)ops.push(await operation(index));
   const busyProbe=await operation(50);
@@ -304,7 +331,7 @@ function browserFixture(options){
    if(index===2)tasks[0].state='unknown'; // Synthetic app lifecycle; deliberately irrelevant to native permission.
    if(foreignAction)setTimeout(foreignAction,0);
    const started=performance.now();
-   const receipt=await call({...op.command('commit'),chunkIndex:1});
+   const receipt=await call({...op.command('commit'),chunkIndex:op.chunks});
    inputExecutionMS.push(Math.round(performance.now()-started));
    // Only transport counters are inspected for diagnostics. Recover the product
    // receipt by observe, never by a second commit.
@@ -345,13 +372,21 @@ function browserFixture(options){
    check(editor.textContent===text&&selection.anchorNode===anchor&&selection.focusNode===focus&&selection.anchorOffset===anchorOffset&&selection.focusOffset===focusOffset,'draft text and selection preserved');
    check(form.contains(priorCard),'existing attachment preserved');
   }
-  let busyRetired=false;try{call({...busyProbe.command('commit'),chunkIndex:1});}catch(error){busyRetired=error.message==='COMMIT_REFUSED';}
+  let busyRetired=false;try{call({...busyProbe.command('commit'),chunkIndex:busyProbe.chunks});}catch(error){busyRetired=error.message==='COMMIT_REFUSED';}
   check(busyRetired,'retired concurrent operation cannot later submit');
   if(options.edge){
    const read=index=>call(ops[index].command('observe')).observation;
    await wait(()=>read(1).state==='uploadStarted'&&cardHost.contains(firstPendingCard));
    check(read(0).state==='inputTriggered','same filename with different encoded pixels cannot supply START');
    const accepted=read(1);
+   if(options.dimensions){
+    await wait(()=>encoding.runs===2&&encoding.active===0);
+    await new Promise(resolve=>setTimeout(resolve,250));
+    check(read(0).state==='inputTriggered'&&encoding.peak===1,'single-pixel mismatch rejected after both full compares; heavy work is serial');
+    if(options.texture)check(tasks[1].file.size>8*1024*1024,'full-size input exceeds former byte limit');
+    report.largePNG={dimensions:options.dimensions,sourceType:tasks[1].file.type,sourceBytes:tasks[1].file.size,
+     encodeMS:encoding.ms,inputToPositiveReadMS:Math.round(accepted.uploadStart.startObservedAtMS-accepted.uploadStart.inputObservedAtMS)};
+   }
    check(accepted.uploadStart.signal==='attachmentAccepted'&&!accepted.isUploading&&!accepted.automaticRetryExcluded,'handoff only');
    check(accepted.identity.target.clickBindingID===ops[1].target.clickBindingID,'original signed-invocation binding');
    check(ops[0].target.clickBindingID!==ops[1].target.clickBindingID,'distinct click witnesses');
@@ -374,7 +409,7 @@ function browserFixture(options){
    check(call({action:'validate',target:third.target,requireLiveOriginal:true}).valid,'read-only original survives blur');
    editor.replaceWith(editor.cloneNode(true));
    check(!call({action:'validate',target:third.target,requireLiveOriginal:true}).valid,'read-only locate rejects replaced editor');
-   const retired=await call({...third.command('commit'),chunkIndex:1});
+   const retired=await call({...third.command('commit'),chunkIndex:third.chunks});
    check(retired.observation.preInputRetirement?.inputCount===0,'replaced editor vetoes staged input');
    check(call({...ops[1].command('observe'),requireLiveOriginal:true}).observation.state==='invalidated','replaced draft cannot authorize original inspection');
    return {passed:true,nativeChanges:changes,nativeSetters:setters,automaticSends:sends,networkRequests:applicationNetworkRequests,observedStarts:1};
@@ -399,7 +434,7 @@ function browserFixture(options){
    await wait(()=>call(op.command('observe')).observation.state==='uploadStarted');
    const observation=call(op.command('observe')).observation;
    check(observation.identity.operationID===op.identity.operationID&&observation.uploadStart.signal==='attachmentAccepted'&&observation.uploadStart.inputCount===1,'current operation gets independent accepted START');
-   let rejected=false;try{call({...op.command('commit'),chunkIndex:1});}catch(error){rejected=error.message==='COMMIT_REFUSED';}
+   let rejected=false;try{call({...op.command('commit'),chunkIndex:op.chunks});}catch(error){rejected=error.message==='COMMIT_REFUSED';}
    check(rejected&&changes===options.count,'duplicate commit never submits again');
   }
   for(let index=0;index<tasks.length;index++){
@@ -540,6 +575,9 @@ function browserFixture(options){
  .replace('__PREVIOUS__',()=>JSON.stringify(previous)).replace('__SOURCE__',()=>JSON.stringify(source).replace(/<\/script/gi,'<\\/script'));
 }
 const originalScenarios=[
+ ...(process.env.RIFTLET_EDGE_LARGE_TEXTURE==='1'?[{name:'edge-full-display-texture',dimensions:[3840,2160],texture:true,edge:true,count:2,retained:true,route:'https://chatgpt.com/?temporary-chat=true'}]:[]),
+ ...[[2560,1664],[3840,2160]].map(dimensions=>({name:'edge-full-display',dimensions,edge:true,count:2,retained:true,route:'https://chatgpt.com/?temporary-chat=true'})),
+ {name:'edge-full-display-jpeg',dimensions:[2560,1664],jpeg:true,edge:true,count:2,retained:true,route:'https://chatgpt.com/?temporary-chat=true'},
  ...['https://chatgpt.com/?temporary-chat=true','https://chatgpt.com/c/12345678-1111-2222-3333-444455556666'].map(route=>({name:'edge-click-and-content',edge:true,count:2,retained:true,route})),
  {name:'original-figure-retry-overlay',count:2,retained:true,retryOverlay:true,route:'https://chatgpt.com/'},
  {name:'accessible-name-progress-aftercare',count:2,retained:true,meterCard:true,route:'https://chatgpt.com/'},
@@ -631,7 +669,8 @@ for(const unfiltered of groups){
       assert.equal(report.passed,true,JSON.stringify(report));
       if(options.edge){
        assert.equal(report.nativeChanges,2);assert.equal(report.nativeSetters,2);assert.equal(report.observedStarts,1);
-       assert.equal(report.networkRequests,0);assert.equal(report.automaticSends,0);continue;
+       assert.equal(report.networkRequests,0);assert.equal(report.automaticSends,0);
+       if(options.dimensions)console.log(JSON.stringify(report.largePNG));continue;
       }
       if(options.expectUnowned){
        assert.equal(report.preInputRetirement,'attachmentInputNotCreated');assert.equal(report.nativeChanges,0);assert.equal(report.nativeSetters,0);
