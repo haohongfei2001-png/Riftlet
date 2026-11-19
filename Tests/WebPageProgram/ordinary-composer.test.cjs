@@ -91,6 +91,8 @@ test('an accepted preview in a reused slot can start, but renaming an unchanged 
   slot.setAttribute('data-file-name',op.name);image.setAttribute('alt',op.name);
   assert.equal(f.observe(op).state,'inputTriggered');
   image.setAttribute('src',f.context.URL.createObjectURL(f.input.files[0]));
+  assert.equal(f.observe(op).state,'inputTriggered','the previous selected resource is still displayed');
+  image.currentSrc=image.getAttribute('src');
   assert.equal(f.observe(op).state,'uploadStarted');
   assert.equal(f.setters,1);
 });
