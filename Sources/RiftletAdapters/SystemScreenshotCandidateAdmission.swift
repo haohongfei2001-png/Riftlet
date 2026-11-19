@@ -63,11 +63,12 @@ public actor SystemScreenshotCandidateAdmission {
     }
 
     /// Ask for a retained original START only until Core has committed that fact.
-    /// The preceding owned-preview source already enforced the same positive handoff rules.
+    /// These two earlier sources already enforced the same positive handoff rules.
     func needsOriginalStart(for request: TransferRequest) async throws -> Bool {
         guard scope.isProduct,
               let source = try await registeredObservationSource(for: request),
-              source == SystemScreenshotWebCandidate.sourceID || source == ChatGPTWebPageProgram.priorOwnedPreviewSource else { return false }
+              [SystemScreenshotWebCandidate.sourceID, ChatGPTWebPageProgram.priorOwnedPreviewSource,
+               ChatGPTWebPageProgram.priorProgressCardSource].contains(source) else { return false }
         return try await store.uploadStartReceipt(for: request.operation.id) == nil
     }
 
@@ -88,7 +89,8 @@ public actor SystemScreenshotCandidateAdmission {
                ChatGPTWebPageProgram.priorHandoffSource, ChatGPTWebPageProgram.priorScreenshotSource,
                ChatGPTWebPageProgram.priorObservationSource, ChatGPTWebPageProgram.priorCardObservationSource,
                ChatGPTWebPageProgram.priorOriginalReviewSource, ChatGPTWebPageProgram.priorMemberStatusSource,
-               ChatGPTWebPageProgram.priorObservedStartSource, ChatGPTWebPageProgram.priorOwnedPreviewSource].contains(registration.sourceID),
+               ChatGPTWebPageProgram.priorObservedStartSource, ChatGPTWebPageProgram.priorOwnedPreviewSource,
+               ChatGPTWebPageProgram.priorProgressCardSource].contains(registration.sourceID),
               registration.startProfileID == scope.admittedProfile.uploadStartProfileID!,
               registration.completionProfileID == scope.admittedProfile.profileID,
               registration.identity == Self.identity(for: request),
@@ -108,7 +110,8 @@ public actor SystemScreenshotCandidateAdmission {
         if [SystemScreenshotWebCandidate.sourceID, ChatGPTWebPageProgram.priorScreenshotSource,
                ChatGPTWebPageProgram.priorObservationSource, ChatGPTWebPageProgram.priorCardObservationSource,
                ChatGPTWebPageProgram.priorOriginalReviewSource, ChatGPTWebPageProgram.priorMemberStatusSource,
-               ChatGPTWebPageProgram.priorObservedStartSource, ChatGPTWebPageProgram.priorOwnedPreviewSource].contains(registration.sourceID) {
+               ChatGPTWebPageProgram.priorObservedStartSource, ChatGPTWebPageProgram.priorOwnedPreviewSource,
+               ChatGPTWebPageProgram.priorProgressCardSource].contains(registration.sourceID) {
             try scope.validateMetadata(request.asset)
         } else {
             try SystemScreenshotWebCandidate.validateMetadata(request.asset, expectedOrigin: scope.origin)
