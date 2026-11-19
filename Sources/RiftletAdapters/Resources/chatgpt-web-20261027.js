@@ -771,10 +771,11 @@ function riftletWebAcceptance(command, native) {
     const invalidate = () => { changed = true; observer.disconnect(); clearTimeout(timer); };
     const inspect = records => {
       if (!records.length) return;
-      const image = imageRef.deref(), shell = shellRef.deref();
+      const image = imageRef?.deref(), shell = shellRef.deref();
       if (!shell?.isConnected || records.length > 32) return invalidate();
       for (const record of records) {
-        if (record.target === image && record.type === 'attributes') return invalidate();
+        if (record.type === 'attributes' && record.target.tagName === 'IMG'
+            && ['src', 'srcset', 'alt'].includes(record.attributeName)) return invalidate();
         for (const node of record.addedNodes || []) {
           if (node.nodeType !== 1 || node === image) continue;
           if (!consistentCardLabels(node, name) || node.matches('img[src]') || node.querySelector('img[src]')) return invalidate();
@@ -782,7 +783,7 @@ function riftletWebAcceptance(command, native) {
       }
       // Losing the original preview without a complete local failure in this
       // render ends the binding. A later occupant cannot revive that old slot.
-      if (!image || !shell.contains(image)) {
+      if (imageRef && (!image || !shell.contains(image))) {
         if (!consistentCardLabels(shell, name) || !completeOwnName(shell, name)
             || !visibleFailureText(shell) || shell.querySelector('img[src]')) invalidate();
       }
@@ -833,13 +834,15 @@ function riftletWebAcceptance(command, native) {
       // A separate view must show an object URL minted from this exact File.
       const sameFile = !!src && op.urls.has(src);
       if (node !== accepted && !sameFile) continue;
-      const opaqueImage = node === accepted && labelledImage && !preview && !namedCard
+      const opaqueImage = node === accepted && labelledImage && !preview
         && inOriginalCardContainer(card, op.binding) && card.querySelectorAll('img[src]').length === 1;
       if (!opaqueImage && !namedCard && !sameFile && (!label || !preview)) continue;
       if (!consistentCardLabels(card, op.name)) continue;
       cards.add(card);
+      const initialImage = card.querySelector('img[src]');
       views.push({opaqueImage: opaqueImage ? new WeakRef(image) : null,
-        unchanged: opaqueImage ? unchangedPreview(new WeakRef(image), new WeakRef(card), op.name) : null,
+        unchanged: opaqueImage || namedCard ? unchangedPreview(initialImage && new WeakRef(initialImage), new WeakRef(card), op.name) : null,
+        startedWithoutImage: !initialImage,
         imageParent: opaqueImage ? new WeakRef(image.parentElement) : null, card: new WeakRef(card), parent: new WeakRef(card.parentElement), namedCard, label, witness: new WeakRef(node),
         preview: preview ? new WeakRef(preview) : null, src, sameFile,
         portalParent: local ? null : new WeakRef(card.parentElement)});
@@ -870,12 +873,14 @@ function riftletWebAcceptance(command, native) {
     }
     if (view.parent.deref() !== card.parentElement) return false;
     if (view.namedCard ? declared !== op.name : declared !== null && declared !== op.name) return false;
+    if (card === view.card.deref() && view.unchanged && !view.unchanged()) return false;
+    if (view.startedWithoutImage && card.querySelector('img[src]')) return false;
     // Some failed cards keep their exact named shell but replace the image
     // with a local error status and filename. A different preview vetoes it.
-    if (view.namedCard && !card.querySelector('img[src]') && visibleFailureText(card)
+    if (!view.opaqueImage && view.namedCard && !card.querySelector('img[src]') && visibleFailureText(card)
         && consistentCardLabels(card, op.name)) return true;
     if (view.opaqueImage) {
-      if (!consistentCardLabels(card, op.name) || !view.unchanged()) return false;
+      if (!consistentCardLabels(card, op.name)) return false;
       const image = view.opaqueImage.deref();
       if (image?.isConnected) {
         return card.contains(image) && card.querySelectorAll('img[src]').length === 1 && image.parentElement === view.imageParent.deref()
@@ -886,10 +891,10 @@ function riftletWebAcceptance(command, native) {
       // original shell, parent and draft must survive, with no successor image.
       return !card.querySelector('img[src]') && completeOwnName(card, op.name) && visibleFailureText(card);
     }
-    if (view.sameFile || !view.namedCard) {
+    if (view.preview || !view.namedCard) {
       const preview = view.preview?.deref();
       if (!preview || preview.closest(cardSelector) !== card || preview.getAttribute('src') !== view.src) return false;
-      if (view.label && card === view.card.deref()) {
+      if ((!view.namedCard || view.sameFile) && view.label && card === view.card.deref()) {
         const witness = view.witness.deref();
         if (!witness || witness.closest(cardSelector) !== card
             || !fileNamePattern(op.name).test(witness.getAttribute(view.label) || '')) return false;

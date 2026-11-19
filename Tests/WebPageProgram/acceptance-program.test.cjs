@@ -882,3 +882,26 @@ test('a non-blob preview keeps the same local member across a named text-only fa
   accepted(f,op);assert.equal(f.setters,1);assert.equal(f.sends,0);
  }
 });
+
+test('a stale named A card cannot claim B’s exact File URL or its failure',()=>{
+ const f=fixture(), a=f.bind(), b=f.bind();
+ f.stage(a);f.commit(a);
+ const start=accepted(f,a);
+ const card=f.form.querySelectorAll('[data-file-name]').find(n=>n.getAttribute('data-file-name')===a.name);
+ f.stage(b);f.commit(b);
+ card.querySelector('img').setAttribute('src',f.context.URL.createObjectURL(f.input.files[0]));
+ card.append(new f.Node('span')).textContent='上传失败';
+ accepted(f,a);accepted(f,b);
+ assert.equal(f.observe(a).attachmentID,start.attachmentID);assert.equal(f.changes,2);assert.equal(f.sends,0);
+});
+
+test('a progress-only A member cannot borrow the later B preview under its old label',()=>{
+ const f=fixture({accept:false}), a=f.bind(), b=f.bind();
+ f.stage(a);f.commit(a);
+ const card=f.addCard(a.name,{placeholder:true,progress:true});const start=accepted(f,a);
+ f.stage(b);f.commit(b);
+ const preview=card.append(new f.Node('img',{src:f.context.URL.createObjectURL(f.input.files[0])}));
+ card.append(new f.Node('span')).textContent='上传失败';
+ accepted(f,a);preview.remove();accepted(f,a);
+ assert.equal(f.observe(a).attachmentID,start.attachmentID);assert.equal(f.setters,2);assert.equal(f.sends,0);
+});
