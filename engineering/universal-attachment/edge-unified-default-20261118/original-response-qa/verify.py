@@ -34,11 +34,20 @@ def run():
     counts = {'inputIdentityAndScheduling': py['offlineGateSchedulerAndIdentityCases'],
               'networkCountAndPayloadPolicy': swift[0]['policyCases'],
               'responseProjectionParser': swift[1]['offlineSyntheticPanelCases']}
-    if counts != {'inputIdentityAndScheduling': 39, 'networkCountAndPayloadPolicy': 38,
+    if counts != {'inputIdentityAndScheduling': 55, 'networkCountAndPayloadPolicy': 72,
                   'responseProjectionParser': 14}:
         raise RuntimeError('unexpected_fixture_count')
+    if py.get('retainedOriginalCases') != 39 or swift[0].get('retainedOriginalCases') != 38:
+        raise RuntimeError('original_fixture_count_changed')
+    appended = {'inputIdentityAndScheduling': py['appendedCases'],
+                'networkCountAndPayloadPolicy': swift[0]['appendedCases']}
+    if len(appended['inputIdentityAndScheduling']) != 16 or len(appended['networkCountAndPayloadPolicy']) != 34:
+        raise RuntimeError('unexpected_appended_fixture_count')
     return {'schema': 1, 'result': 'PASS', 'totalCases': sum(counts.values()), 'cases': counts,
             'pythonCases': py['cases'],
+            'retainedOriginalCases': 91, 'appendedCaseCount': 50, 'appendedCases': appended,
+            'publicQAFollowupRepairOnly': True, 'liveOperatorModified': False,
+            'historicalAcceptanceReinterpreted': False,
             'sourceSHA256': {name: digest(ROOT/name) for name in SOURCES},
             'GUIActions': 0, 'networkRequests': 0, 'databaseAccesses': 0, 'productInput': 0,
             'syntheticOnly': True, 'nativeBinaryTemporaryAndRemoved': True,

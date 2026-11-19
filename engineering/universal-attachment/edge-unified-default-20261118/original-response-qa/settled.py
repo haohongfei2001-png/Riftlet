@@ -32,6 +32,8 @@ def classify(targets, operations, trace, senders, reservations, intents,
     ops = dict(operations)
     for op in ops.values():
         need(str(uuid.UUID(op)).upper() == op, 'operation_uuid_not_canonical')
+    # Two assets cannot own one operation/filename, even if both trace digests match.
+    need(len(set(ops.values())) == len(ops), 'operation_uuid_reused')
     if any(seed not in senders or seed not in reservations or seed not in intents
            for seed in SEEDS):
         return None

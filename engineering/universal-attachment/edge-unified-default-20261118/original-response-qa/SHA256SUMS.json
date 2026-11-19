@@ -1,8 +1,9 @@
 {
+  "appendedCases": 50,
   "files": {
     "README.md": {
-      "bytes": 2960,
-      "sha256": "7fb6e8facc8e091385ead53b274d0fa199630beb2570757f1e98113bcfd9aeef"
+      "bytes": 4032,
+      "sha256": "05bdfb69fbb74dc612dad22502f6415a79e72171b4f393e33e7d19c2bc2c81aa"
     },
     "identity.py": {
       "bytes": 1555,
@@ -13,38 +14,40 @@
       "sha256": "941d90b9012a44e803c7ec4d7855acfd25ea38fd8c0553a2694464d059319df7"
     },
     "network_policy.swift": {
-      "bytes": 4957,
-      "sha256": "2027eaa8778af627aec628c025d916adaf265f428786728ce84093e4ae951708"
+      "bytes": 8181,
+      "sha256": "7285d812b1a8067653ff8e567770244910923ffb6468cf144d00075d54f752fb"
     },
     "provenance.json": {
-      "bytes": 1620,
-      "sha256": "016621fe326da85c7af09a4cb76005e3256478d7e077389bf2e71c96d6fc2e64"
+      "bytes": 4109,
+      "sha256": "d4a7a2d4257cb30ab8ec5d71cf0c42060af1e42478e03c13015ac4ed10f61fe5"
     },
     "response.swift": {
       "bytes": 2224,
       "sha256": "b9fddcdfe9a66c30faaa3f33db28c58d1a8263d67f36315d4189c36111b486b8"
     },
     "settled.py": {
-      "bytes": 7217,
-      "sha256": "943476d4eeecf98f53fa5c066373d0eec2ad54443b379356c26ace50f4892d65"
+      "bytes": 7373,
+      "sha256": "2667a390d906ebbd8652282ede6f85d3dde231da75555b193c8f1d456043d879"
     },
     "test_identity.py": {
-      "bytes": 8638,
-      "sha256": "979f3a36972c5ac602e6e686206f94f43732d460f9903f2b2322ed9a7a844d41"
+      "bytes": 11432,
+      "sha256": "b29545ac7c892804a2931a3f2f4811751f118ad0248c091e1692824b2d3ef564"
     },
     "validation.json": {
-      "bytes": 2355,
-      "sha256": "cd5519f43ca30b22dac4ae49ed13bbd313c559bc8fbd55a406cad1d52f0940fd"
+      "bytes": 5047,
+      "sha256": "ee9d5e4ae20c8ca425f2f5eaea05f33421a045ac0b5262223d267b8e4234dd41"
     },
     "verify.py": {
-      "bytes": 3006,
-      "sha256": "e03a0a88f1fe780f20c0c35de8299eb16b19bb8afa4980bad1d202200056c0ce"
+      "bytes": 3707,
+      "sha256": "5dbe373a41040158f2f4aa2f1c43a609cd678e7c0570cc3346b66b61d47608d1"
     }
   },
   "privacyAndCapabilityScan": "PASS",
   "privateOperatorSourcePinsUnchanged": true,
   "publicFilesOnly": true,
+  "publicQAFollowupRepairOnly": true,
+  "retainedOriginalCases": 91,
   "schema": 1,
-  "totalBytesExcludingManifest": 35904,
+  "totalBytesExcludingManifest": 49032,
   "totalFilesExcludingManifest": 10
 }

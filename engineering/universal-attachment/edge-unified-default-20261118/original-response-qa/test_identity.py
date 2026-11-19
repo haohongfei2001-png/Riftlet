@@ -47,13 +47,15 @@ def refused(data, seed, phase='resolveSelection'):
 def run():
     import identity as early
     names = []
-    def check(label, mutation=lambda d: None, expect='ready2'):
+    def check(label, mutation=lambda d: None, expect='ready2', reason=None):
         d = fixture(); mutation(d)
         try:
             got = classify(**d)
-        except ValueError:
+        except ValueError as exc:
             if expect != 'reject':
                 raise
+            if reason is not None:
+                assert str(exc) == reason, (label, str(exc))
         else:
             if expect == 'pending':
                 assert got is None, label
@@ -123,7 +125,52 @@ def run():
         else:
             raise AssertionError(label)
         names.append(label)
+    # Public QA follow-up: all original 39 names/cases above remain in order.
+    assert len(names) == 39
+    def operation(data, index, value):
+        asset, _ = data['operations'][index]
+        data['operations'][index] = (asset, value)
+        for row in data['trace']:
+            if row.get('event') == 'attachment_entry_result' and row['assetIDDigest'] == digest_id(asset):
+                row['operationIDDigest'] = digest_id(value)
+    def shared_operation(data):
+        operation(data, 1, data['operations'][0][1])
+    check('two_assets_share_operation_matching_diagnostics', shared_operation,
+          'reject', 'operation_uuid_reused')
+    check('shared_operation_rejected_before_pending_sender',
+          lambda d: [shared_operation(d), d['senders'].pop(102)],
+          'reject', 'operation_uuid_reused')
+    for label, transform in [
+        ('operation_lowercase_alias', str.lower),
+        ('operation_unhyphenated_alias', lambda s: s.replace('-', '')),
+        ('operation_braced_alias', lambda s: '{' + s + '}'),
+        ('operation_urn_alias', lambda s: 'urn:uuid:' + s),
+        ('operation_trailing_newline', lambda s: s + '\n'),
+        ('operation_leading_space', lambda s: ' ' + s),
+        ('operation_path_suffix', lambda s: s + '/file.png'),
+        ('operation_filename_suffix', lambda s: s + '.png'),
+        ('operation_truncated', lambda s: s[:-1]),
+    ]:
+        check(label, lambda d, transform=transform: operation(d, 1, transform(d['operations'][1][1])), 'reject')
+    check('shared_operation_lowercase_alias',
+          lambda d: operation(d, 1, d['operations'][0][1].lower()),
+          'reject', 'operation_uuid_not_canonical')
+    check('foreign_operation_asset', lambda d: d['operations'].__setitem__(
+          1, ('CCCCCCCC-0000-4000-8000-000000000001', d['operations'][1][1])),
+          'reject', 'operation_conflict')
+    def lowercase_asset(data):
+        asset = next(iter(data['targets']))
+        data['targets'][asset.lower()] = data['targets'].pop(asset)
+    check('asset_lowercase_alias', lowercase_asset, 'reject', 'asset_uuid_not_canonical')
+    check('operation_row_order_independent', lambda d: d['operations'].reverse())
+    original = fixture(); result = classify(**original)
+    wanted = {original['targets'][asset]: hashlib.sha256(('riftlet-' + op + '.png').encode()).hexdigest()
+              for asset, op in original['operations']}
+    assert {row['seed']: row['filenameSHA256'] for row in result['names']} == wanted
+    assert len(set(wanted.values())) == 2
+    names.append('distinct_canonical_operations_keep_distinct_exact_filenames')
     return {'PASS': True, 'offlineGateSchedulerAndIdentityCases': len(names),
+            'retainedOriginalCases': 39, 'appendedCases': names[39:],
             'cases': names, 'GUIActions': 0, 'browserProcessesStarted': 0,
             'databaseAccesses': 0, 'HTTPRequests': 0}
 
