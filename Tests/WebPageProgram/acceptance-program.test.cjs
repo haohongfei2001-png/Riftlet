@@ -1065,3 +1065,47 @@ for (const scenario of ['same member','neighbor error','relabel and restore','ne
   assert.deepEqual([f.setters,f.changes,f.sends],[1,1,0]);
  });
 }
+
+for(const scenario of ['own retry','wrong figure','global notice','remove action','wrong label','wrong title','fake button',
+ 'hidden retry','transparent retry','disabled retry','aria disabled','extra picture','replaced original','relabel and restore',
+ 'reparented original','reparent and restore','unmarked figure','no image marker','failed before START']){
+ test('original figure upload retry: '+scenario,()=>{
+  const f=fixture({accept:false}),op=f.bind();
+  f.stage(op);f.commit(op);
+  const figure=f.form.append(new f.Node('figure',{'data-composer-image-attachment':''}));
+  const card=figure.append(new f.Node('button',{type:'button','data-assistant-image-link':'','aria-label':op.name}));
+  const attrs={src:f.context.URL.createObjectURL(f.input.files[0]),alt:op.name,'data-assistant-image':'','data-composer-image-attachment-preview':''};
+  const image=card.append(new f.Node('img',attrs));image.currentSrc=attrs.src;
+  const start=scenario==='failed before START'?null:accepted(f,op);
+  const host=scenario==='wrong figure'?f.form.append(new f.Node('figure',{'data-composer-image-attachment':''})):figure;
+  const retry=host.append(new f.Node(scenario==='fake button'?'div':'button',{type:'button','data-composer-image-upload-retry':'',
+   'aria-label':'Retry uploading '+op.name,title:'Failed to upload file.'}));
+  if(scenario==='global notice'){retry.remove();f.form.append(new f.Node('span')).textContent='Failed to upload file.';}
+  if(scenario==='remove action'){retry.removeAttribute('data-composer-image-upload-retry');retry.setAttribute('data-composer-remove-image','');}
+  if(scenario==='wrong label')retry.setAttribute('aria-label','Retry uploading other.png');
+  if(scenario==='wrong title')retry.setAttribute('title','Retry');
+  if(scenario==='hidden retry')retry.rendered=false;
+  if(scenario==='transparent retry')retry.checkVisibility=()=>false;
+  if(scenario==='disabled retry')retry.disabled=true;
+  if(scenario==='aria disabled')retry.setAttribute('aria-disabled','true');
+  if(scenario==='extra picture')figure.append(new f.Node('img',attrs));
+  if(scenario==='replaced original'){image.remove();card.append(new f.Node('img',attrs));}
+  if(scenario==='relabel and restore'){card.setAttribute('aria-label','different.png');card.setAttribute('aria-label',op.name);}
+  if(scenario==='reparented original')host.parentElement.append(new f.Node('figure',{'data-composer-image-attachment':''})).append(card);
+  if(scenario==='reparent and restore'){card.remove();figure.append(card);}
+  if(scenario==='unmarked figure')figure.removeAttribute('data-composer-image-attachment');
+  if(scenario==='no image marker')image.removeAttribute('data-composer-image-attachment-preview');
+  const read=live=>f.call({...op.command('observe'),requireLiveOriginal:live}).observation;
+  if(scenario==='failed before START')assert.equal(read(false).state,'inputTriggered');
+  else if(scenario==='own retry'){
+   for(const result of [read(false),read(true)]){
+    assert.equal(result.state,'failed');assert.equal(result.attachmentID,start.attachmentID);
+    assert.equal(result.automaticRetryExcluded,false);
+   }
+  }else{
+   assert.equal(read(false).state,'uploadStarted');
+   assert.notEqual(read(true).state,'failed');
+  }
+  assert.deepEqual([f.setters,f.changes,f.sends],[1,1,0]);
+ });
+}

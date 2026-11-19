@@ -121,7 +121,7 @@ function browserFixture(options){
     reentrantRefused=refusal.preInputRetirement?.reason==='inputExecutionBusy'&&refusal.preInputRetirement.inputCount===0;
     check(reentrantRefused&&submittedInput.files[0]===file,'reentrant input cannot overwrite current native control');
    }
-   const card=document.createElement('div');card.setAttribute('role','button');card.setAttribute('data-file-name',file.name);card.title=file.name;
+   const card=document.createElement(options.retryOverlay?'button':'div');card.setAttribute('role','button');card.setAttribute('data-file-name',file.name);card.title=file.name;
    const image=document.createElement('img');image.alt=file.name;image.src=URL.createObjectURL(file);card.append(image);
    if(options.ariaCardFailure){
     card.removeAttribute('data-file-name');
@@ -139,11 +139,19 @@ function browserFixture(options){
     card.setAttribute('aria-label',file.name);image.remove();
     progress.style.cssText='width:80px;height:6px;background:blue';
    }
+   let attachment=card;
+   if(options.retryOverlay){
+    attachment=document.createElement('figure');attachment.setAttribute('data-composer-image-attachment','');attachment.append(card);
+    card.type='button';card.setAttribute('data-assistant-image-link','');card.setAttribute('aria-label',file.name);
+    for(const key of ['role','data-file-name','title'])card.removeAttribute(key);
+    image.setAttribute('data-assistant-image','');image.setAttribute('data-composer-image-attachment-preview','');
+    progress.remove();
+   }
    const task={file,list,card,image,progress,state:'uploading'};tasks.push(task);
    // The first acceptance is deliberately delayed; its input return is dropped.
    // A second input is allowed while A has no observed START yet.
    if(options.unavailablePicker){cardHost.append(card);makePickerUnavailable();}
-   else if(changes===1)firstPendingCard=card;else{cardHost.append(card);if(changes===2)setTimeout(()=>cardHost.append(firstPendingCard),0);}
+   else if(changes===1)firstPendingCard=attachment;else{cardHost.append(attachment);if(changes===2)setTimeout(()=>cardHost.append(firstPendingCard),0);}
    if(!options.retained)submittedInput.value='';
   };
   input.addEventListener('change',changed);
@@ -376,6 +384,22 @@ function browserFixture(options){
    check(inspect(1).state==='uploadStarted'&&inspect(1,true).state==='invalidated',
     'the reused neighbor cannot claim a later error');
   }
+  if(options.retryOverlay){
+   const read=(index,live=false)=>call({...ops[index].command('observe'),requireLiveOriginal:live}).observation;
+   const initial=read(0,true);
+   const retry=document.createElement('button');retry.type='button';retry.textContent='↻';
+   retry.setAttribute('data-composer-image-upload-retry','');retry.setAttribute('aria-label','Retry uploading '+tasks[0].file.name);
+   retry.title='Failed to upload file.';
+   tasks[1].card.parentElement.append(retry);
+   check(read(0).state==='uploadStarted'&&read(1).state==='uploadStarted','neighbour does not report another image failure');
+   tasks[0].card.parentElement.append(retry);
+   for(const live of [false,true]){
+    const result=read(0,live);
+    check(result.state==='failed'&&result.attachmentID===initial.attachmentID&&!result.automaticRetryExcluded,
+     'original file-specific retry overlay is readable without clicking or sending');
+   }
+   check(read(1).state==='uploadStarted','unaffected second picture');
+  }
   if(options.opaqueFailure){
    const first=tasks[0], second=tasks[1];
    const read=index=>call(ops[index].command('observe')).observation;
@@ -470,6 +494,7 @@ function browserFixture(options){
  .replace('__PREVIOUS__',()=>JSON.stringify(previous)).replace('__SOURCE__',()=>JSON.stringify(source).replace(/<\/script/gi,'<\\/script'));
 }
 const originalScenarios=[
+ {name:'original-figure-retry-overlay',count:2,retained:true,retryOverlay:true,route:'https://chatgpt.com/'},
  {name:'accessible-name-progress-aftercare',count:2,retained:true,meterCard:true,route:'https://chatgpt.com/'},
  {name:'positive-preview-between-native-reads',count:2,retained:true,betweenReads:true,memberOwnership:true,route:'https://chatgpt.com/'},
  {name:'opaque-member-text-failure',count:2,retained:true,decoratedFilename:true,opaqueFailure:true,route:'https://chatgpt.com/'},

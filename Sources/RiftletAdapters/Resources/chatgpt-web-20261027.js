@@ -141,7 +141,7 @@ function riftletWebAcceptance(command, native) {
     fail('AMBIGUOUS_COMPOSER');
   }
   const blank = (identity, state = 'unknown') => ({schemaVersion: 2,
-    provenance: {source: 'integratedDevelopment', evidenceID: 'screenshot-progress-card-20261119-v24'},
+    provenance: {source: 'integratedDevelopment', evidenceID: 'screenshot-retry-overlay-20261119-v25'},
     observation: {identity, state, exactImageIdentity: false, belongsToOriginalDraft: false,
       hasError: false, isUploading: false, attachmentAbsent: false, automaticRetryExcluded: false}});
   let registry = globalThis[KEY];
@@ -799,16 +799,43 @@ function riftletWebAcceptance(command, native) {
     }
     return false;
   }
+  function composerPreview(card, image, name) {
+    return card?.matches('button[type="button"][data-assistant-image-link]')
+      && card.parentElement?.matches('figure[data-composer-image-attachment]')
+      && card.getAttribute('aria-label') === name && card.children.length === 1
+      && image?.parentElement === card && image.matches('img[src][data-assistant-image][data-composer-image-attachment-preview]')
+      && image.getAttribute('alt') === name;
+  }
+  // The real upload error is on a sibling of the image button. Only the
+  // figure containing this exact preview can own its filename-specific Retry.
+  function ownUploadRetry(card, image, name) {
+    if (!composerPreview(card, image, name) || !renderedPreview(card) || !renderedPreview(image)) return false;
+    const figure = card.parentElement;
+    if (figure.children.length > 3 || !consistentCardLabels(figure, name)
+        || figure.querySelectorAll('img').length !== 1) return false;
+    let retry = null;
+    for (const child of figure.children) {
+      if (child === card || child.matches('button[type="button"][data-composer-remove-image]')) continue;
+      if (retry || !child.matches('button[type="button"][data-composer-image-upload-retry]')) return false;
+      retry = child;
+    }
+    return !!retry && retry.getAttribute('aria-label') === 'Retry uploading ' + name
+      && retry.getAttribute('title') === 'Failed to upload file.'
+      && !retry.disabled && !blocked(retry) && !retry.matches(':disabled') && renderedPreview(retry);
+  }
   // Keep only a weak node and a change bit, never a signed URL or inline
   // payload. The narrow observer expires even on documents with older registries.
-  function unchangedPreview(imageRef, shellRef, name, boundBlob) {
+  function unchangedPreview(imageRef, shellRef, name, boundBlob, figurePreview = false) {
     let changed = false;
-    const invalidate = () => { changed = true; observer.disconnect(); clearTimeout(timer); };
+    let placement;
+    const invalidate = () => { changed = true; observer.disconnect(); placement?.disconnect(); clearTimeout(timer); };
     const inspect = records => {
       if (!records.length) return;
       const image = imageRef?.deref(), shell = shellRef.deref();
       if (!shell?.isConnected || records.length > 32) return invalidate();
       for (const record of records) {
+        if (figurePreview && (record.type === 'attributes' && (record.target === shell || record.target === image)
+            || record.removedNodes?.length > 32 || [...(record.removedNodes || [])].includes(image))) return invalidate();
         if (record.type === 'attributes' && record.target.tagName === 'IMG'
             && ['src', 'srcset', 'alt'].includes(record.attributeName)) return invalidate();
         for (const node of record.addedNodes || []) {
@@ -829,10 +856,19 @@ function riftletWebAcceptance(command, native) {
     };
     const observer = new MutationObserver(inspect);
     observer.observe(shellRef.deref(), {subtree: true, childList: true, attributes: true, characterData: true,
-      attributeFilter: ['src', 'srcset', 'alt', 'data-file-name', 'title', 'aria-label']});
+      attributeFilter: ['src', 'srcset', 'alt', 'data-file-name', 'title', 'aria-label', ...(figurePreview ? ['data-assistant-image-link', 'data-assistant-image', 'data-composer-image-attachment-preview'] : [])]});
+    const moved = records => {
+      if (!records.length) return;
+      if (records.length > 32 || records.some(record => record.type === 'attributes'
+          || record.removedNodes.length > 32 || [...record.removedNodes].includes(shellRef.deref()))) invalidate();
+    };
+    if (figurePreview) {
+      placement = new MutationObserver(moved);
+      placement.observe(shellRef.deref().parentElement, {childList:true, attributes:true, attributeFilter:['data-composer-image-attachment']});
+    }
     const timer = setTimeout(invalidate, 600000);
     timer?.unref?.();
-    return () => { inspect(observer.takeRecords()); return !changed; };
+    return () => { if (placement) moved(placement.takeRecords()); inspect(observer.takeRecords()); return !changed; };
   }
   function completeOwnName(card, name) {
     // Call only after consistentCardLabels has bounded this subtree.
@@ -930,9 +966,11 @@ function riftletWebAcceptance(command, native) {
       if (!consistentCardLabels(card, op.name)) continue;
       cards.add(card);
       const initialImage = image;
+      const figurePreview = local && match === accepted && composerPreview(card, image, op.name);
       views.push({meterCard: accessibleMeter ? watchMeterCard(new WeakRef(card), new WeakRef(match.preview), op.name) : null,
         opaqueImage: opaqueImage ? new WeakRef(image) : null,
-        unchanged: opaqueImage || namedCard ? unchangedPreview(initialImage && new WeakRef(initialImage), new WeakRef(card), op.name, src) : null,
+        figurePreview,
+        unchanged: opaqueImage || namedCard || figurePreview ? unchangedPreview(initialImage && new WeakRef(initialImage), new WeakRef(card), op.name, src, figurePreview) : null,
         startedWithoutImage: !initialImage,
         imageParent: opaqueImage ? new WeakRef(image.parentElement) : null, card: new WeakRef(card), parent: new WeakRef(card.parentElement), namedCard, label, witness: new WeakRef(node),
         preview: preview ? new WeakRef(preview) : null, src, sameFile,
@@ -965,6 +1003,13 @@ function riftletWebAcceptance(command, native) {
     if (view.parent.deref() !== card.parentElement) return false;
     if (view.namedCard ? declared !== op.name : declared !== null && declared !== op.name) return false;
     if (card === view.card.deref() && view.unchanged && !view.unchanged()) return false;
+    // Older live operations already retain the original button, figure, and
+    // image. No watch is reconstructed from a name after any of them retires.
+    if (view.figurePreview !== false && card === view.card.deref() && !view.portalParent) {
+      const originalImage = view.opaqueImage?.deref() || retainedPreview;
+      if ((view.opaqueImage || originalImage && originalImage.getAttribute('src') === view.src)
+          && ownUploadRetry(card, originalImage, op.name)) return true;
+    }
     if (view.meterCard) return view.meterCard(requireError);
     if (view.startedWithoutImage && card.querySelector('img[src]')) return false;
     // Some failed cards keep their exact named shell but replace the image
@@ -1096,7 +1141,8 @@ function riftletWebAcceptance(command, native) {
     const hasError = node => {
       const card = node.closest('[data-file-name],[role="button"],button') || node;
       const errors = '[role="alert"],[data-state="error"],[data-state="failed"]';
-      return !!node.closest(errors) || !!card.querySelector(errors) || visibleFailureText(card);
+      return !!node.closest(errors) || !!card.querySelector(errors) || visibleFailureText(card)
+        || ownUploadRetry(card, card.children[0], op.name);
     };
     const filename = fileNamePattern(op.name);
     const named = node => ['data-file-name', 'aria-label', 'title', 'alt'].some(key => filename.test(node.getAttribute(key) || ''))
