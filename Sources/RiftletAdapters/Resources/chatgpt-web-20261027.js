@@ -874,6 +874,9 @@ function riftletWebAcceptance(command, native) {
     }
     if (!retry || !renderedPreview(retry)
         || (requireEnabled && (retry.disabled || blocked(retry) || retry.matches(':disabled')))) return false;
+    return namedFailedRetry(retry, name);
+  }
+  function namedFailedRetry(retry, name) {
     const label = retry.getAttribute('aria-label') || '', title = retry.getAttribute('title') || '';
     if (label === 'Retry uploading ' + name) return title === 'Failed to upload file.';
     // The filename must be the complete operand of the localized retry action.
@@ -883,7 +886,7 @@ function riftletWebAcceptance(command, native) {
   }
   // Keep only a weak node and a change bit, never a signed URL or inline
   // payload. The narrow observer expires even on documents with older registries.
-  function unchangedPreview(imageRef, shellRef, name, boundBlob, figurePreview = false) {
+  function unchangedPreview(imageRef, shellRef, name, boundBlob, figurePreview = false, edgeNodes = null) {
     let changed = false;
     let placement;
     const invalidate = () => { changed = true; observer.disconnect(); placement?.disconnect(); clearTimeout(timer); };
@@ -892,6 +895,14 @@ function riftletWebAcceptance(command, native) {
       const image = imageRef?.deref(), shell = shellRef.deref();
       if (!shell?.isConnected || records.length > 32) return invalidate();
       for (const record of records) {
+        if (edgeNodes) {
+          const removed = record.removedNodes || [];
+          if (removed.length > 32 || edgeNodes.some(ref => {
+            const node = ref.deref();
+            return !node || (record.type === 'attributes' && record.target === node)
+              || [...removed].some(previous => previous === node || previous.contains(node));
+          })) return invalidate();
+        }
         if (figurePreview && (record.type === 'attributes' && (record.target === shell || record.target === image)
             || record.removedNodes?.length > 32 || [...(record.removedNodes || [])].includes(image))) return invalidate();
         if (record.type === 'attributes' && record.target.tagName === 'IMG'
@@ -920,9 +931,10 @@ function riftletWebAcceptance(command, native) {
       if (records.length > 32 || records.some(record => record.type === 'attributes'
           || record.removedNodes.length > 32 || [...record.removedNodes].includes(shellRef.deref()))) invalidate();
     };
-    if (figurePreview) {
+    if (figurePreview || edgeNodes) {
       placement = new MutationObserver(moved);
-      placement.observe(shellRef.deref().parentElement, {childList:true, attributes:true, attributeFilter:['data-composer-image-attachment']});
+      placement.observe(shellRef.deref().parentElement, figurePreview
+        ? {childList:true, attributes:true, attributeFilter:['data-composer-image-attachment']} : {childList:true});
     }
     const timer = setTimeout(invalidate, 600000);
     timer?.unref?.();
@@ -1025,10 +1037,17 @@ function riftletWebAcceptance(command, native) {
       cards.add(card);
       const initialImage = image;
       const figurePreview = local && match === accepted && composerPreview(card, image, op.name);
+      let edgeNodes = null;
+      if (local && match === accepted && native.applicationID === 'com.microsoft.edgemac'
+          && image && edgeImageCard(image, op, filename) === card) {
+        edgeNodes = [...card.children].map(child => new WeakRef(child));
+        for (let node = image; node !== card; node = node.parentElement) edgeNodes.push(new WeakRef(node));
+        edgeNodes.push(new WeakRef(card));
+      }
       views.push({meterCard: accessibleMeter ? watchMeterCard(new WeakRef(card), new WeakRef(match.preview), op.name) : null,
         opaqueImage: opaqueImage ? new WeakRef(image) : null,
-        figurePreview,
-        unchanged: opaqueImage || namedCard || figurePreview ? unchangedPreview(initialImage && new WeakRef(initialImage), new WeakRef(card), op.name, src, figurePreview) : null,
+        figurePreview, edgeMember: edgeNodes !== null,
+        unchanged: opaqueImage || namedCard || figurePreview || edgeNodes ? unchangedPreview(initialImage && new WeakRef(initialImage), new WeakRef(card), op.name, src, figurePreview, edgeNodes) : null,
         startedWithoutImage: !initialImage,
         imageParent: opaqueImage ? new WeakRef(image.parentElement) : null, card: new WeakRef(card), parent: new WeakRef(card.parentElement), namedCard, label, witness: new WeakRef(node),
         preview: preview ? new WeakRef(preview) : null, src, sameFile,
@@ -1067,6 +1086,17 @@ function riftletWebAcceptance(command, native) {
       const originalImage = view.opaqueImage?.deref() || retainedPreview;
       if ((view.opaqueImage || originalImage && originalImage.getAttribute('src') === view.src)
           && ownUploadRetry(card, originalImage, op.name)) return true;
+    }
+    // A named, active retry on this continuously tracked Edge image card
+    // describes a local failure. An adjacent card or generic Retry is unrelated.
+    if (view.edgeMember && card === view.card.deref() && !view.portalParent
+        && ['failed', 'error'].includes(card.getAttribute('data-state')) && card.children.length === 3) {
+      const image = view.opaqueImage?.deref() || retainedPreview;
+      const retries = [...card.children].filter(child => child.matches('button[type="button"]') && namedFailedRetry(child, op.name));
+      if (image && image.isConnected && card.contains(image) && renderedPreview(image)
+          && card.querySelectorAll('img').length === 1 && consistentCardLabels(card, op.name)
+          && retries.length === 1 && renderedPreview(retries[0]) && !blocked(retries[0])
+          && !retries[0].matches(':disabled')) return true;
     }
     if (view.meterCard) return view.meterCard(requireError);
     if (view.startedWithoutImage && card.querySelector('img[src]')) return false;

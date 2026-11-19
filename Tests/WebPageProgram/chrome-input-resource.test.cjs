@@ -356,6 +356,14 @@ function browserFixture(options){
    check(accepted.identity.target.clickBindingID===ops[1].target.clickBindingID,'original signed-invocation binding');
    check(ops[0].target.clickBindingID!==ops[1].target.clickBindingID,'distinct click witnesses');
    check(ops[0].target.draftGeneration===ops[1].target.draftGeneration,'same composing surface across clicks');
+   const shell=tasks[1].card, retry=document.createElement('button');
+   retry.type='button';retry.title='Failed to upload file.';retry.textContent='Retry';
+   tasks[0].card.setAttribute('data-state','failed');retry.setAttribute('aria-label','Retry uploading '+ops[0].name);tasks[0].card.append(retry);
+   check(!read(1).hasError,'neighbor retry cannot mark the accepted image failed');
+   shell.setAttribute('data-state','failed');retry.setAttribute('aria-label','Retry uploading '+ops[1].name);retry.hidden=true;shell.append(retry);
+   check(!read(1).hasError,'hidden retry cannot mark the accepted image failed');
+   retry.hidden=false;
+   check(read(1).hasError && !read(0).hasError,'explicit failure and exact retry on the original Edge image');
    const third=await operation(70);
    let duplicate=false;try{call({...third.command('begin'),identity:{...third.identity,operationID:crypto.randomUUID()}});}catch{duplicate=true;}
    check(duplicate,'one click cannot enroll another operation');
