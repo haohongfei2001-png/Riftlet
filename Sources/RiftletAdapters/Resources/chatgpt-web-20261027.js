@@ -702,8 +702,9 @@ function riftletWebAcceptance(command, native) {
     if (!value?.trim()) return true;
     const min = native ? 0 : Number(node.getAttribute('aria-valuemin') ?? 0);
     const max = Number(node.getAttribute(native ? 'max' : 'aria-valuemax') ?? (native ? 1 : 100));
-    const fraction = (Number(value) - min) / (max - min);
-    return max > min && Number.isFinite(fraction) && fraction >= 0 && fraction <= 1 ? fraction : true;
+    const current = Number(value);
+    return Number.isFinite(min) && Number.isFinite(max) && max > min && current >= min && current <= max
+      ? {min, max, current} : true;
   }
   const previewsOf = node => node.matches(previewSelector)
     ? [node] : [...node.querySelectorAll(previewSelector)];
@@ -855,7 +856,8 @@ function riftletWebAcceptance(command, native) {
       if (previous !== undefined && preview.tagName !== 'IMG') {
         // A re-used meter must actually advance under the current named member.
         const card = node.closest(cardSelector);
-        return typeof value === 'number' && value > (typeof previous === 'number' ? previous : 0)
+        return typeof value === 'object' && typeof previous === 'object'
+          && previous.min === value.min && previous.max === value.max && value.current > previous.current
           && card && preview.closest(cardSelector) === card && inOriginalCardContainer(card, op.binding)
           && visible(preview) && consistentCardLabels(card, op.name);
       }

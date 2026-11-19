@@ -811,6 +811,10 @@ test('an existing meter starts only when the current file owns its visible advan
  f.stage(op);f.commit(op);
  for(const key of ['data-file-name','aria-label','title'])card.setAttribute(key,op.name);
  assert.equal(f.observe(op).state,'inputTriggered');
+ meter.setAttribute('aria-valuemax','50');
+ meter.setAttribute('aria-valuenow','30');
+ assert.equal(f.observe(op).state,'inputTriggered');
+ meter.setAttribute('aria-valuemax','100');
  meter.setAttribute('aria-valuenow','5');
  assert.equal(f.observe(op).state,'inputTriggered');
  meter.setAttribute('aria-valuenow','40');meter.rendered=false;
