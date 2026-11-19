@@ -17,8 +17,8 @@
 | G2 Edge | 安装的 Microsoft Edge 156.0.4314.58 在独立 headless 配置中运行临时及已保存形态的受控草稿。正确内容获得 `attachmentAccepted`，同名错图无 START。Retina PNG、Retina JPEG、4K PNG 和 12 MB 纹理 PNG 的局部交接耗时分别为 59、68、91、584 ms。这里从文件输入计至读到正面回执。 | **NOT_RUN** · 已登录真实临时、已保存 ChatGPT 草稿；冷、暖单击及三组小于两秒双图的服务逐图结果和点击延迟 p50/p95/max。 |
 | G3 目标与权限 | 控制场景覆盖重复标签号、跨浏览器、进程重启、换编辑器、失焦、后台只读返回、取消、原卡移位，以及授权/未授权提示。普通应用已区分首次需同意与已拒绝。 | 新用户实际 TCC 授权、拒绝/恢复与 JS 开关，真实双浏览器切换及多实例组合均为 **NOT_RUN**。 |
 | G4 异常与资料 | 已验证精准原卡失败和一次输入；发行源码的资料移出、重启、还原经过独立进程测试。旧 START 和旧 UNKNOWN 保留，明确重新附加需要新的用户点击。 | 最终普通 App 的真实失败→核对→明确新点击、仅一份媒体移入系统废纸篓再找回均为 **NOT_RUN**。 |
-| G5 界面与性能 | 中英文按接收端和当前权限显示说明。发行 Core/Capture 核验了 1,000 份真实 PNG 副本，期间另收录 20 张。收录 p50/p95/max 为 6.76/8.04/9.19 ms，进程结束 RSS 为 27,213,824 字节。 | 正式安装后的普通 App 整窗、连续真实截图和界面负载仍为 **NOT_RUN**；组件数据仅代表测量进程。 |
-| G6 安装与发布 | Developer ID 双架构签名深度验证通过，包内网页程序与受审程序哈希一致。arm64 原生和 Rosetta x86_64 自检通过，Sparkle 工具测试 11/11。独立验收机实际启动公开 31，保存 51 张图、2 个操作、1 份 START、86 份文件散列与 3 项偏好。 | Apple 公证/装订、可安装 DMG 的 SHA-256、31→45 的真实 Sparkle 与手工替换 **BLOCKED**。正式 GitHub CI 在审查提交的准入子提交上运行，结果与作业链接记于 PR。 |
+| G5 界面与性能 | 已从 45 的发行组件离屏渲染 24 张原生界面，覆盖中英文、浅深色、Chrome/Edge 首次权限与 JavaScript 指引，以及 680×480 和 808×492 的管理窗。发行 Core/Capture 核验了 1,000 份真实 PNG 副本，期间另收录 20 张。收录 p50/p95/max 为 6.76/8.04/9.19 ms，进程结束 RSS 为 27,213,824 字节。 | 正式安装后的普通 App 整窗、连续真实截图和界面负载仍为 **NOT_RUN**；组件数据仅代表测量进程。 |
+| G6 安装与发布 | Developer ID 双架构签名深度验证通过，包内网页程序与受审程序哈希一致。arm64 原生和 Rosetta x86_64 自检通过，Sparkle 工具测试 11/11。独立验收机实际启动公开 31，保存 51 张图、2 个操作、1 份 START、86 份文件散列与 3 项偏好。客机普通打开同一份已签名 45 时，Gatekeeper 显示「Riftlet Not Opened」。关闭提示后，旧资料与偏好核对一致。 | Apple 公证/装订、可安装 DMG 的 SHA-256、31→45 的真实 Sparkle 与手工替换 **BLOCKED**。正式 GitHub CI 在审查提交的准入子提交上运行，结果与作业链接记于 PR。 |
 
 [浏览器受控运行及图像大小](evidence/controlled-browsers.json) · [资料测试与负载](evidence/local-storage.json) · [升级前基线](evidence/upgrade-preflight.json) · [PR #119](https://github.com/haohongfei2001-png/Riftlet/pull/119)
 
