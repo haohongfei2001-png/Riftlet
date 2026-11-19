@@ -104,7 +104,7 @@ extension ProductCopy {
         text("选择这个文件夹，允许 Riftlet 读取新截图。",
              "Select this folder to let Riftlet read new screenshots.")
     }
-    var unchecked: String { text("开启后回到这里检查连接。", "Once enabled, come back here to check the connection.") }
+    var unchecked: String { text("点“检查连接”，确认当前浏览器可用。", "Choose Check Connection to verify the current browser.") }
     var checking: String { text("正在检查浏览器连接…", "Checking the browser connection…") }
     var connected: String { text("已连接浏览器。", "Browser connected.") }
     var jsDisabled: String {
@@ -194,7 +194,7 @@ extension ProductCopy {
 
     func chromeInstructions(_ presentation: SetupPresentation) -> String {
         guard let instructions = presentation.chromeScriptInstructions else { return "" }
-        // Only the host's known Chrome recipe is localized. Custom details have
+        // Only the host's known browser recipe is localized. Custom details have
         // already gone through the presentation’s sanitization and size limit.
         guard instructions == ChromeAttachmentSetup.instructions(in: .english, browser: presentation.snapshot.browser)
                 || instructions == ChromeAttachmentSetup.instructions(in: .simplifiedChinese, browser: presentation.snapshot.browser) else { return instructions }

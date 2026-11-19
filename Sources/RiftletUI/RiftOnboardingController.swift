@@ -1,6 +1,6 @@
 import AppKit
 
-/// The host measures this only after an explicit Chrome check.
+/// Connection to the browser identified by the matching SetupSnapshot.
 public enum OnboardingChromeConnection: Equatable, Sendable {
     case unchecked, checking, ready, javaScriptDisabled, noWindow, unavailable
 }
@@ -307,7 +307,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
         scriptDetail.stringValue = scriptDisabled
             ? ChromeAttachmentSetup.instructions(in: copy, browser: snapshot.setup.browser)
             : copy.chromeInstructions(presentation)
-        chromeMenuSection.isHidden = snapshot.setup.permission != .granted
+        chromeMenuSection.isHidden = snapshot.setup.permission != .granted || presentation.automationStatusText == nil
         scriptDetail.isHidden = scriptDetail.stringValue.isEmpty || snapshot.chromeConnection == .ready
             || (snapshot.setup.browser == .edge && !scriptDisabled)
         connectionStatus.stringValue = chromeStatus(snapshot.chromeConnection)
