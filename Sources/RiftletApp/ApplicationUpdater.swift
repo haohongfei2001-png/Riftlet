@@ -72,7 +72,7 @@ final class ApplicationUpdater: NSObject, SPUUpdaterDelegate, @preconcurrency SP
     }
 
     /// Sparkle uses CFBundleVersion for ordering. Riftlet's published marketing
-    /// version must advance as well. This is a pre-download check on the signed feed.
+    /// version must never decrease. This is a pre-download check on the signed feed.
     nonisolated static func isUpgrade(from currentVersion: String, build: String,
                                       to candidateVersion: String, build candidateBuild: String) -> Bool {
         func number(_ text: Substring) -> UInt? {
@@ -87,7 +87,7 @@ final class ApplicationUpdater: NSObject, SPUUpdaterDelegate, @preconcurrency SP
         }
         guard let old = version(currentVersion), let new = version(candidateVersion),
               let oldBuild = number(build[...]), let newBuild = number(candidateBuild[...]) else { return false }
-        return old.lexicographicallyPrecedes(new) && newBuild > oldBuild
+        return !new.lexicographicallyPrecedes(old) && newBuild > oldBuild
     }
     nonisolated static func validationError(signatureInvalid: Bool, copy: ProductCopy = .current) -> NSError {
         NSError(domain: "com.riftlet.update", code: signatureInvalid ? 2 : 1, userInfo: [

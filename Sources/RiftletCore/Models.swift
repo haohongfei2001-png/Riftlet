@@ -87,6 +87,7 @@ public struct QueueHistoryRecord: Sendable {
     /// Immutable, admitted first START for the active operation.
     public let startReceipt: TransferReceipt?
     public let canRestore: Bool
+    public let isHandled: Bool
     public let reason: String?
 
     public var attachmentState: HistoryAttachmentState {

@@ -140,6 +140,14 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var store: QueueStore?
     private var captureMaintenanceIssue = false { didSet { updateSetup() } }
     private var captureNeedsRecovery = false
+    // Confirmation alone cannot submit. A later click must match this visible revision.
+    private struct ReattachmentIntent: Equatable {
+        let operationID: UUID
+        let revision: Int64
+        let nonce = UUID()
+    }
+    private var reattachmentIntents: [UUID: ReattachmentIntent] = [:]
+
     private var mediaManager: MediaManagerWindow?
     private var mediaMaintenanceTask: Task<Void, Never>?
     private var capture: CaptureService?
@@ -423,6 +431,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             let press = self.frozenPress?.id == id ? self.frozenPress : nil
             let revision = self.rift?.selectionRevision(for: id)
             self.frozenPress = nil
+            let reattachment = self.reattachmentIntents[id]
             let selectionOwner = UUID()
             let selectedAt = ProcessInfo.processInfo.systemUptime
             self.selectionUIOwners[id] = selectionOwner
@@ -460,7 +469,15 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                         self.feedback.diagnostics.record(.selectionAccepted)
                         self.recordAcceptance(["event": "click_target_resolved", "assetID": id.uuidString,
                             "selectionID": resolved.id.uuidString, "uptime": ProcessInfo.processInfo.systemUptime])
-                        try await transfer.select(resolved)
+                        if let reattachment {
+                            guard self.reattachmentIntents[id] == reattachment, reattachment.revision == revision else {
+                                throw CancellationError()
+                            }
+                            self.reattachmentIntents.removeValue(forKey: id)
+                            try await transfer.reattach(resolved, replacing: reattachment.operationID)
+                        } else {
+                            try await transfer.select(resolved)
+                        }
                     } else {
                         try await self.transfer?.select(id, visibilityRevision: revision)
                     }
@@ -577,7 +594,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         } else {
             startupCapture = nil
         }
+        let chromeExecutor = mode.usesWebAdapter ? ChromeAppleEventsExecutor(
+            traceEnabled: CommandLine.arguments.contains("--acceptance-trace"), diagnosticTrace: diagnosticTrace) : nil
         let composition = try ApplicationAttachmentComposition.make(mode: mode, root: root, store: store,
+            executor: chromeExecutor,
             traceEnabled: CommandLine.arguments.contains("--acceptance-trace"),
             diagnosticTrace: diagnosticTrace,
             onInputTransportFinished: { [weak self] in await self?.inputTransportFinished() })
@@ -594,14 +614,25 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 await self?.validateAcceptedSelection(selection) ?? false
             })
         self.transfer = transfer
+        if let chromeExecutor {
+            history?.onFocusOriginal = { [weak self] operation in
+                guard let self, await self.mayObserveOriginal(operation.target) else { return false }
+                return await chromeExecutor.focusOriginal(operation)
+            }
+            history?.onCheckOriginal = { [weak self] id in self?.checkHistoryAttachment(id) }
+            history?.onMarkHandled = { [weak self] id in self?.handleHistoryAttachment(id) }
+            history?.onPrepareReattachment = { [weak self] asset, operation in
+                self?.stageHistoryAttachment(asset: asset, operation: operation)
+            }
+        }
         clickAdapter = mode.usesWebAdapter ? adapter as? WebAttachmentAdapter : nil
         // Durable crash recovery remains local even when Automation is denied.
         // No page observation is attempted until a passive check says allowed.
         if adapter is any IndependentFileInputAdapter {
             // Startup may release a preparation proven never to have dispatched.
-            // It never submits or observes an independent input.
+            // Read-only recovery below uses only recent durable original identities.
             try await store.recoverUndispatchedPreparations()
-            originalRecoveryIDs = nil
+            originalRecoveryIDs = mode.observesAttachments ? try await store.recentOriginalObservationIDs() : nil
             startupCompletedIDs = []
         } else {
             try await store.recoverInterruptedOperations()
@@ -642,7 +673,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             mediaMaintenanceTask = Task { [weak self] in
                 do {
                     try await importer.reconcileInterruptedMoves()
-                    self?.captureNeedsRecovery = try await !importer.pendingOwnedCaptures().isEmpty
+                    self?.captureNeedsRecovery = try await importer.hasPendingRecovery()
                     self?.updateSetup()
                 }
                 catch { self?.captureMaintenanceIssue = true }
@@ -669,6 +700,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     onIssue: { [weak self] message in self?.showIssue(message) },
                     allowsSystemCapture: mode != .settingsReview)
                 screenshotEntry?.onScreenPermissionRequired = { [weak self] in self?.settingsHost?.recordScreenPermissionFailure() }
+                screenshotEntry?.onOutstandingCaptureChanged = { [weak self] in self?.mediaManager?.hostStateChanged() }
                 screenshotEntry?.onCaptureImportFailed = { [weak self] in self?.captureNeedsRecovery = true; self?.updateSetup() }
                 screenshotEntry?.onPreferencesChanged = { [weak self] in self?.updateSetup() }
                 screenshotEntry?.setHidden(userHidden)
@@ -772,16 +804,20 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     /// Chrome. Its permission must neither borrow B's grant nor publish A as
     /// the foreground target. Denial is retained for a later passive check.
     private func mayObserveOriginal(_ target: TargetLease) async -> Bool {
-        guard !terminating else { return false }
-        guard mode.usesWebAdapter else { return true }
-        guard target.applicationID == "com.google.Chrome" else { return false }
+        await accessToOriginalReceiver(target) == .granted
+    }
+
+    private func accessToOriginalReceiver(_ target: TargetLease) async -> OriginalReceiverAccess {
+        guard !terminating else { return .unavailable }
+        guard mode.usesWebAdapter else { return .granted }
+        guard target.applicationID == "com.google.Chrome" else { return .unavailable }
         let started = ProcessInfo.processInfo.systemUptime
         let result = await originalReceiverPermission.inspectResolution(session: target.sessionID, gate: permissionGate)
         recordAcceptance(["event": "original_observation_permission", "startedUptime": started,
             "endedUptime": ProcessInfo.processInfo.systemUptime,
             "usableResult": String(describing: result.usable), "published": result.published,
             "askedUser": false, "foregroundRequired": false])
-        return !terminating && result.usable == .granted
+        return terminating ? .unavailable : result.attachmentAccess
     }
 
     private func startOriginalRecovery() {
@@ -1171,6 +1207,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func cancelSelections(assetID: UUID? = nil, reason: String) {
+        if let assetID { reattachmentIntents.removeValue(forKey: assetID) }
+        else { reattachmentIntents.removeAll() }
         let ids = selectionAuthority.cancel(assetID: assetID)
         let pendingOwners = selectionUIOwners.filter { assetID == nil || $0.key == assetID }
         selectionSubmissions.cancel(selectionIDs: Set(ids + Array(pendingOwners.values)))
@@ -1401,6 +1439,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 showIssue(ProductCopy.text("暂时无法读取截图。请在截图仓库中重试。", "Could not read screenshots. Open the library to try again."))
             }
         } while refreshRequested
+        mediaManager?.hostStateChanged()
         refreshRunning = false
         let waiters = refreshWaiters; refreshWaiters.removeAll()
         for waiter in waiters { waiter.resume() }
@@ -1473,6 +1512,66 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             } catch {
                 rift?.setDetailPresented(false)
                 showActionIssue(ProductCopy.text("无法读取原图。请在截图仓库中重新检查文件。", "Could not read the original image. Check its file in the library."))
+            }
+        }
+    }
+
+    private func checkHistoryAttachment(_ operation: UUID) {
+        guard let transfer else { return }
+        Task {
+            do {
+                let result = try await transfer.recheckOriginal(operationID: operation, inspectAccess: { [weak self] target in
+                    await self?.accessToOriginalReceiver(target) ?? .unavailable
+                })
+                await refresh()
+                let message: String
+                switch result {
+                case .observed:
+                    message = ProductCopy.text("已检查原草稿，请查看这张截图的最新记录。", "Checked the original draft. Review this screenshot’s updated details.")
+                case .unavailable:
+                    message = ProductCopy.text("现已无法核实原附件。你可以查看原图，或结束本地跟踪。", "The original attachment can no longer be verified. View the image or finish tracking it here.")
+                case .permissionDenied:
+                    message = ProductCopy.text("Riftlet 需要自动化权限来检查原草稿。请在设置中检查 Chrome 连接。", "Allow Automation and check the Chrome connection in Settings to inspect the original draft.")
+                case .busy:
+                    message = ProductCopy.text("这张截图正在处理，请稍后重新检查。", "This screenshot is being processed. Check again shortly.")
+                }
+                history?.showActionNotice(message)
+            } catch { history?.showActionError(ProductCopy.text("未能读取原操作记录，请重新检查。", "Could not read the original operation. Try checking again.")) }
+        }
+    }
+
+    private func handleHistoryAttachment(_ operation: UUID) {
+        guard let store else { return }
+        Task {
+            do {
+                try await store.markAttachmentHandled(operationID: operation)
+                reattachmentIntents = reattachmentIntents.filter { $0.value.operationID != operation }
+                await refresh()
+                history?.showActionNotice(ProductCopy.text("已结束本地跟踪，原操作记录已保留。", "Tracking finished. The original operation is preserved."))
+            } catch { history?.showActionError(ProductCopy.text("无法更新这条待办，请刷新后重试。", "Could not update this item. Refresh and try again.")) }
+        }
+    }
+
+    private func stageHistoryAttachment(asset: UUID, operation: UUID) {
+        guard let store else { return }
+        guard !userHidden else {
+            history?.showActionNotice(ProductCopy.text("请从菜单栏选择「显示桌面截图」，再选择重新附加。", "Choose Show Desktop Screenshots from the menu bar, then choose Attach Again."))
+            return
+        }
+        Task {
+            do {
+                let record = try await store.stageAttachmentForReattach(operationID: operation)
+                guard record.id == asset, record.visibility == .visible else { throw RiftletError.invalidTransition }
+                reattachmentIntents[asset] = ReattachmentIntent(operationID: operation, revision: record.visibilityRevision)
+                await refresh()
+                rift?.showAsset(asset)
+                history?.showActionNotice(ProductCopy.text("打开要附加的 Chrome 草稿，再点这张桌面截图。", "Open the intended draft in Chrome, then click this screenshot at the desktop edge."))
+            } catch {
+                if (try? await store.isRetiredMedia(asset)) == true {
+                    history?.showActionError(ProductCopy.text("请在「设置 → 截图 → 管理截图资料…」中从废纸篓找回副本，然后再选择重新附加。", "Restore the copy from Trash in Settings → Screenshots → Manage Screenshot Storage…, then choose Attach Again."))
+                } else {
+                    history?.showActionError(ProductCopy.text("暂时无法重新附加。请检查原图是否可用，或稍后再试。", "Could not prepare this image. Check that its file is available or try again shortly."))
+                }
             }
         }
     }
@@ -1970,13 +2069,13 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     try await importer.reconcileInterruptedMoves()
                     let due = try await importer.cleanupItems(rule: importer.retention())
                     if !due.isEmpty { try await importer.cleanup(due, automatic: true) }
-                    self.captureNeedsRecovery = try await !importer.pendingOwnedCaptures().isEmpty
+                    self.captureNeedsRecovery = try await importer.hasPendingRecovery()
                     self.captureMaintenanceIssue = false
                     await self.refresh()
                 },
                 reportFault: { [weak self] in self?.captureMaintenanceIssue = true },
                 changed: { [weak self] in
-                    if let pending = try? await importer.pendingOwnedCaptures() { self?.captureNeedsRecovery = !pending.isEmpty }
+                    if let pending = try? await importer.hasPendingRecovery() { self?.captureNeedsRecovery = pending }
                     await self?.refresh(); self?.checkStorage()
                 })
         }

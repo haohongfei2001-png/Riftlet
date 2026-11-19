@@ -7,7 +7,7 @@ public struct MediaCleanupItem: Sendable {
     public let verifiedOriginal: Bool
 }
 
-public struct MediaRetention: Codable, Sendable {
+public struct MediaRetention: Codable, Equatable, Sendable {
     public let days: Int
     public let since: Date?
 }
@@ -28,15 +28,38 @@ extension PrivateAssetImporter {
 
     public func retention() async throws -> MediaRetention {
         guard let bytes = try await store.checkpoint(for: retentionKey) else { return MediaRetention(days: 0, since: nil) }
-        let rule = try JSONDecoder().decode(MediaRetention.self, from: bytes)
+        guard let rule = try? JSONDecoder().decode(MediaRetention.self, from: bytes) else {
+            throw CaptureError.invalidManifest
+        }
         guard [0, 30, 90].contains(rule.days) else { throw CaptureError.invalidManifest }
         return rule
     }
 
     public func setRetention(days: Int, includeExisting: Bool) async throws {
         guard !mediaMaintenanceActive, [0, 30, 90].contains(days) else { throw RiftletError.invalidTransition }
-        let rule = MediaRetention(days: days, since: includeExisting ? nil : Date())
+        mediaMaintenanceActive = true
+        defer { mediaMaintenanceActive = false }
+        let old: MediaRetention?
+        do { old = try await retention() }
+        catch CaptureError.invalidManifest { old = nil } // Explicit user selection repairs malformed policy only.
+        let since = days == 0 ? old?.since : (includeExisting ? nil : (old?.since ?? Date()))
+        let rule = MediaRetention(days: days, since: since)
+        guard old != rule else { return }
         try await store.saveCheckpoint(JSONEncoder().encode(rule), for: retentionKey)
+    }
+
+    /// Initial inventory reads metadata. Byte-level eligibility is checked when
+    /// the user previews a batch and again immediately before moving a copy.
+    public func cleanupSummary() async throws -> (count: Int, bytes: Int64) {
+        let records = try await store.cleanableMedia().filter(isManagedName)
+        return (records.count, records.reduce(0) { $0 + $1.image.byteCount })
+    }
+
+    public func availableTrashCount() async throws -> Int {
+        let records = try await store.retiredMedia()
+        guard !records.isEmpty else { return 0 }
+        let directory = try trashDirectory()
+        return records.filter { isManagedName($0) && (try? FileSignature.read(at: trashURL(for: $0, directory: directory))) != nil }.count
     }
 
     private func hasVerifiedOriginal(_ image: ImportedAsset) -> Bool {
@@ -87,13 +110,15 @@ extension PrivateAssetImporter {
             if let current, current.days == 0 || record.image.importedAt < (current.since ?? .distantPast)
                 || record.lastInteractionAt > Date().addingTimeInterval(-Double(current.days) * 86_400) { continue }
             let media = mediaDirectory.appendingPathComponent(record.image.fileName)
-            guard (try? PrivateFiles.hashFile(media)) == record.image.sha256 else { skipped = true; continue }
+            guard let validated = try? FileSignature.read(at: media),
+                  (try? PrivateFiles.hashFile(media)) == record.image.sha256,
+                  (try? FileSignature.read(at: media)) == validated else { skipped = true; continue }
             if automatic || item.verifiedOriginal {
                 guard hasVerifiedOriginal(record.image) else { skipped = true; continue }
             }
             do { try await store.retireMedia(record.id, revision: record.visibilityRevision, batch: batch) }
             catch RiftletError.invalidTransition { skipped = true; continue }
-            do { try moveTrashFile(media, to: trashURL(for: record, directory: trash)) }
+            do { try moveTrashFile(media, to: trashURL(for: record, directory: trash), expected: validated) }
             catch {
                 if (try? PrivateFiles.hashFile(media)) == record.image.sha256 {
                     try await store.reinstateMedia(record.id, restoredByUserAt: Date())
@@ -107,12 +132,12 @@ extension PrivateAssetImporter {
     /// The system may allow access to an individual Trash item while denying a
     /// read handle on the enclosing Trash. Sync the exact file and our own
     /// directory. Startup reconciliation handles either side of an interrupted move.
-    private func moveTrashFile(_ source: URL, to destination: URL) throws {
+    private func moveTrashFile(_ source: URL, to destination: URL, expected: FileSignature) throws {
         let fd = Darwin.open(source.path, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
         guard fd >= 0 else { throw CaptureError.io("open-trash-item", errno) }
         defer { Darwin.close(fd) }
         let identity = try FileSignature.read(descriptor: fd)
-        guard try FileSignature.read(at: source) == identity else { throw CaptureError.unstableFile }
+        guard identity == expected, try FileSignature.read(at: source) == identity else { throw CaptureError.unstableFile }
         guard renamex_np(source.path, destination.path, UInt32(RENAME_EXCL)) == 0 else {
             throw CaptureError.io("move-trash-item", errno)
         }
@@ -167,11 +192,13 @@ extension PrivateAssetImporter {
             let media = mediaDirectory.appendingPathComponent(record.image.fileName)
             let trash = trashURL(for: record, directory: directory)
             if !FileManager.default.fileExists(atPath: media.path) {
+                let validated: FileSignature
                 do {
+                    validated = try FileSignature.read(at: trash)
                     guard try PrivateFiles.hashFile(trash) == record.image.sha256 else { failed = true; continue }
                 } catch CaptureError.io(_, ENOENT) { continue }
                 catch { failed = true; continue }
-                try moveTrashFile(trash, to: media)
+                try moveTrashFile(trash, to: media, expected: validated)
             }
             if (try? PrivateFiles.hashFile(media)) == record.image.sha256 { try await store.reinstateMedia(record.id, restoredByUserAt: Date()) }
             else { failed = true }
@@ -217,10 +244,12 @@ extension PrivateAssetImporter {
 
     /// Called once the profile's exclusive instance lock is held, before starting
     /// a new interactive capture. A complete, unjournaled image is never garbage.
-    public func cleanAbandonedStaging() throws {
+    public func cleanAbandonedStaging() async throws {
         let fm = FileManager.default
         let stage = privateRoot.appendingPathComponent("staging")
         try PrivateFiles.ensurePrivateDirectory(stage)
+        let recovered = recoveryDirectory
+        try PrivateFiles.ensurePrivateDirectory(recovered)
         let journals = privateRoot.appendingPathComponent("journal")
         for url in try fm.contentsOfDirectory(at: stage, includingPropertiesForKeys: nil) {
             let stem = url.deletingPathExtension().lastPathComponent
@@ -228,6 +257,13 @@ extension PrivateAssetImporter {
                   !fm.fileExists(atPath: journals.appendingPathComponent(stem + ".json").path),
                   let sig = try? FileSignature.read(at: url) else { continue }
             if sig.size > 0 {
+                if sig.size <= ValidatedImage.maximumBytes,
+                   let image = try? ValidatedImage.inspect(url, byteCount: sig.size),
+                   try !truncatedPNG(url, length: sig.size) {
+                    guard try FileSignature.read(at: url) == sig else { continue }
+                    try PrivateFiles.promote(url, to: recovered.appendingPathComponent(stem + "." + image.fileExtension))
+                    continue
+                }
                 // Only an explicitly identified truncated image is disposable.
                 // Complete files, foreign formats and undecidable bytes stay intact.
                 guard sig.size <= ValidatedImage.maximumBytes,
@@ -239,6 +275,7 @@ extension PrivateAssetImporter {
             guard try FileSignature.read(at: url) == sig else { continue }
             try fm.removeItem(at: url)
         }
+        try await retireVerifiedOrphanDuplicates()
         let captures = privateRoot.appendingPathComponent("captures")
         try PrivateFiles.ensurePrivateDirectory(captures)
         for dir in try fm.contentsOfDirectory(at: captures, includingPropertiesForKeys: nil) {
@@ -250,6 +287,39 @@ extension PrivateAssetImporter {
             _ = rmdir(dir.path)
         }
     }
+    private var recoveryDirectory: URL { privateRoot.appendingPathComponent("recovered-files", isDirectory: true) }
+
+    /// Unknown provenance: Finder can save, open or trash these files. They do
+    /// not acquire a source occurrence or a dispatchable queue row.
+    public func orphanFiles() throws -> [URL] {
+        try PrivateFiles.ensurePrivateDirectory(recoveryDirectory)
+        return try FileManager.default.contentsOfDirectory(at: recoveryDirectory, includingPropertiesForKeys: nil).filter {
+            UUID(uuidString: $0.deletingPathExtension().lastPathComponent) != nil && (try? FileSignature.read(at: $0)) != nil
+        }
+    }
+
+    public func hasPendingRecovery() async throws -> Bool {
+        if try !orphanFiles().isEmpty { return true }
+        return try await !pendingOwnedCaptures().isEmpty
+    }
+
+    private func retireVerifiedOrphanDuplicates() async throws {
+        let orphans = try orphanFiles()
+        guard !orphans.isEmpty else { return }
+        try PrivateFiles.ensurePrivateDirectory(mediaDirectory)
+        let records = try await store.assets(includeUsed: true)
+        let byDigest = Dictionary(grouping: records.filter(isManagedName), by: { $0.image.sha256 })
+        for url in orphans {
+            guard let sig = try? FileSignature.read(at: url),
+                  let hash = try? PrivateFiles.hashFile(url),
+                  let matching = byDigest[hash], matching.contains(where: {
+                      $0.image.byteCount == sig.size && (try? PrivateFiles.hashFile(mediaDirectory.appendingPathComponent($0.image.fileName))) == hash
+                  }), try FileSignature.read(at: url) == sig else { continue }
+            try FileManager.default.removeItem(at: url)
+            try PrivateFiles.syncDirectory(recoveryDirectory)
+        }
+    }
+
     private func recoverAbandonedCapture(in stage: URL, captures: URL, stageID: UUID) throws {
         let flags = O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC
         let rootFD = Darwin.open(captures.path, flags)

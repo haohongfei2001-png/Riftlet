@@ -75,6 +75,59 @@ final class WebScreenshotTransportTests: XCTestCase {
         }
     }
 
+    func testLostReplyAndRestartPersistOriginalStartBeforeSameCardError() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let db = root.appendingPathComponent("queue.sqlite")
+        let file = root.appendingPathComponent("original.png")
+        let bytes = try encode(grayImage(width: 3, height: 2), type: .png)
+        try bytes.write(to: file)
+        let hash = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
+        let asset = ImportedAsset(sourceKey: "fixture", fileName: file.lastPathComponent, sha256: hash,
+            byteCount: Int64(bytes.count), pixelWidth: 3, pixelHeight: 2, mediaType: "image/png", origin: .systemScreenshot)
+        let target = TargetLease(adapterID: "chatgpt-web", surface: .webChat, applicationID: "com.google.Chrome",
+            sessionID: "fixture", windowID: "1", tabID: "2", documentID: "doc", composerID: "composer", draftGeneration: "draft")
+        let store = try QueueStore(databaseURL: db)
+        _ = try await store.importAsset(asset)
+        let prepared = try await store.prepare(assetID: asset.id, target: target)
+        let invocation = try await store.markIndependentFileInputIntent(prepared.id, ownerID: UUID())
+        let original = try await store.operation(id: prepared.id)
+        let request = TransferRequest(operation: try XCTUnwrap(original), asset: asset, fileURL: file, invocationID: invocation)
+        let registration = SystemScreenshotCandidateAdmission(store: store, scope: .productSystem)
+        let unregistered = try await registration.needsOriginalStart(for: request)
+        XCTAssertEqual(unregistered, false)
+        let bridge = FormatBridge(loseFirstReply: true)
+        func adapter(_ store: QueueStore) throws -> WebAttachmentAdapter {
+            WebAttachmentAdapter(mediaDirectory: root, executor: bridge, program: try ChatGPTWebPageProgram.load(),
+                mode: .ordinaryProduct, profile: OrdinaryProductScreenshotScope.systemProfile, polling: .disabled,
+                productStore: store, productOrigins: [.systemScreenshot])
+        }
+
+        let first = try await adapter(store).append(request)
+        XCTAssertEqual(first.outcome, .uploadStarted)
+        // Stop before Core persists the transport response. A new process has
+        // the invocation and enrollment, but cannot assume the START is durable.
+        let reopened = try QueueStore(databaseURL: db)
+        let absent = try await reopened.uploadStartReceipt(for: prepared.id)
+        XCTAssertNil(absent)
+        let core = try TransferCoordinator(store: reopened, adapter: adapter(reopened), mediaDirectory: root,
+            policy: ReceiptPolicy(uploadStartProfiles: [OrdinaryProductScreenshotScope.systemUploadStartProfileID: .webChat]))
+        let checked = try await core.recheckOriginal(operationID: prepared.id, authorize: { _ in true })
+        XCTAssertEqual(checked, .observed)
+        let start = try await reopened.uploadStartReceipt(for: prepared.id)
+        let latest = try await reopened.receipt(for: prepared.id)
+        XCTAssertEqual(start?.uploadStartEvidence, first.uploadStartEvidence)
+        XCTAssertEqual(start?.attachmentID, latest?.attachmentID)
+        XCTAssertEqual(latest?.hasError, true)
+        XCTAssertEqual(latest?.outcome, .unknown)
+        let commands = await bridge.reads
+        XCTAssertEqual(commands.map(\.action), [.commit, .observe, .observe, .observe])
+        XCTAssertEqual(commands.map(\.preferStartReceipt), [true, true, true, nil])
+        XCTAssertEqual(commands.suffix(2).map(\.invocationID), [invocation, invocation])
+        XCTAssertTrue(commands.suffix(2).allSatisfy { $0.requireLiveOriginal == true })
+    }
+
     private func grayImage(width: Int, height: Int) throws -> CGImage {
         let context = try XCTUnwrap(CGContext(data: nil, width: width, height: height, bitsPerComponent: 8,
             bytesPerRow: width, space: CGColorSpaceCreateDeviceGray(), bitmapInfo: CGImageAlphaInfo.none.rawValue))
@@ -102,6 +155,11 @@ final class WebScreenshotTransportTests: XCTestCase {
 }
 
 private actor FormatBridge: WebBridgeExecutor {
+    private let loseFirstReply: Bool
+    private let evidenceID = UUID().uuidString
+    private(set) var reads: [WebBridgeCommand] = []
+    init(loseFirstReply: Bool = false) { self.loseFirstReply = loseFirstReply }
+
     private var begin: WebBridgeCommand?
     private var bytes = Data()
     private var commits = 0
@@ -114,14 +172,25 @@ private actor FormatBridge: WebBridgeExecutor {
             if let encoded = command.chunkBase64 { bytes.append(try XCTUnwrap(Data(base64Encoded: encoded))) }
             return try JSONSerialization.data(withJSONObject: ["operationID": identity.operationID.uuidString,
                 "attempt": identity.attempt, "nextChunk": command.action == .begin ? 0 : (command.chunkIndex ?? -1) + 1])
-        case .commit:
-            commits += 1
-            let start = ObservedUploadStart(version: 1, signal: .attachmentAccepted, evidenceID: UUID().uuidString,
+        case .commit, .observe:
+            reads.append(command)
+            if command.action == .commit {
+                commits += 1
+                if loseFirstReply { throw WebAdapterError.invalidReply }
+            }
+            let attachment = "format-" + identity.operationID.uuidString
+            if loseFirstReply && command.preferStartReceipt != true {
+                return try JSONEncoder().encode(AttachmentObservationEnvelope(schemaVersion: 2,
+                    provenance: .init(source: .integratedDevelopment, evidenceID: "screenshot-handoff-20261105-v17"),
+                    observation: .init(identity: identity, state: .failed, attachmentID: attachment,
+                        exactImageIdentity: true, belongsToOriginalDraft: true, hasError: true)))
+            }
+            let start = ObservedUploadStart(version: 1, signal: .attachmentAccepted, evidenceID: evidenceID,
                 inputCount: 1, inputSequence: 1, startSequence: 2, previousProgress: 0, currentProgress: 0,
                 inputObservedAtMS: 10, startObservedAtMS: 11)
             return try JSONEncoder().encode(AttachmentObservationEnvelope(schemaVersion: 2,
                 provenance: .init(source: .integratedDevelopment, evidenceID: "screenshot-handoff-20261105-v17"),
-                observation: .init(identity: identity, state: .uploadStarted, attachmentID: "format-" + identity.operationID.uuidString,
+                observation: .init(identity: identity, state: .uploadStarted, attachmentID: attachment,
                     exactImageIdentity: true, belongsToOriginalDraft: true, uploadStart: start)))
         default: throw WebAdapterError.invalidRequest
         }

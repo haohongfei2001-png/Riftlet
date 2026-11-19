@@ -1,0 +1,105 @@
+{
+  "build": 42,
+  "feed": {
+    "scope": "isolated QA loopback signed feed; bit-identical notarized DMG",
+    "code": "3ab118d590c911a52e4110094f78ae1f480927f2",
+    "version": "1.0.6",
+    "build": "42",
+    "feedSHA256": "5adde214900d4e45ca81353377cce18a95b7d2d04d62d212fc5142a452666e46",
+    "dmgSHA256": "a9037d17d079c2ae6ed62693c4523e2f8b3543d0943dd00e8a79270c9069fde1",
+    "executableSHA256": "b2f67175b8a1d522291c3f5f21c710b6435bd9cde9c00e9a98ff912d2d723080",
+    "minimumOS": "13.0"
+  },
+  "runs": {
+    "31": {
+      "runningBuild": 42,
+      "comparison": {
+        "tables": {
+          "assets": {
+            "before": 19,
+            "after": 32,
+            "allOriginalRowsIdentical": true
+          },
+          "operations": {
+            "before": 2,
+            "after": 2,
+            "allOriginalRowsIdentical": true
+          },
+          "upload_starts": {
+            "before": 1,
+            "after": 1,
+            "allOriginalRowsIdentical": true
+          },
+          "checkpoints": {
+            "before": 6,
+            "after": 6,
+            "allOriginalRowsIdentical": true
+          },
+          "compensations": {
+            "before": 0,
+            "after": 0,
+            "allOriginalRowsIdentical": true
+          },
+          "metadata": {
+            "before": 2,
+            "after": 2,
+            "allOriginalRowsIdentical": true
+          }
+        },
+        "originalFileCount": 52,
+        "missingOrChangedOriginalFiles": 0,
+        "existingFolderBookmarkIdentical": true,
+        "feedbackDraftIdentical": true,
+        "integrity": "ok"
+      },
+      "retainedPreferences": true,
+      "originalIDsPresent": true,
+      "newMatchingUserOriginals": 13
+    },
+    "35": {
+      "runningBuild": 42,
+      "comparison": {
+        "tables": {
+          "assets": {
+            "before": 28,
+            "after": 32,
+            "allOriginalRowsIdentical": true
+          },
+          "operations": {
+            "before": 8,
+            "after": 8,
+            "allOriginalRowsIdentical": true
+          },
+          "upload_starts": {
+            "before": 5,
+            "after": 5,
+            "allOriginalRowsIdentical": true
+          },
+          "checkpoints": {
+            "before": 35,
+            "after": 35,
+            "allOriginalRowsIdentical": true
+          },
+          "compensations": {
+            "before": 0,
+            "after": 0,
+            "allOriginalRowsIdentical": true
+          },
+          "metadata": {
+            "before": 2,
+            "after": 2,
+            "allOriginalRowsIdentical": true
+          }
+        },
+        "originalFileCount": 61,
+        "missingOrChangedOriginalFiles": 0,
+        "existingFolderBookmarkIdentical": true,
+        "feedbackDraftIdentical": true,
+        "integrity": "ok"
+      },
+      "retainedPreferences": true,
+      "originalIDsPresent": true,
+      "newMatchingUserOriginals": 4
+    }
+  }
+}

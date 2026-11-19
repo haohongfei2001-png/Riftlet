@@ -20,8 +20,8 @@ final class HistoryPresentationTests: XCTestCase {
                     composerID: "fixture", draftGeneration: "1")
     }
 
-    private func operation(for record: AssetRecord, phase: OperationPhase, attempt: Int = 1) throws -> TransferOperation {
-        let targetObject = try JSONSerialization.jsonObject(with: JSONEncoder().encode(target()))
+    private func operation(for record: AssetRecord, phase: OperationPhase, attempt: Int = 1, webTarget: TargetLease? = nil) throws -> TransferOperation {
+        let targetObject = try JSONSerialization.jsonObject(with: JSONEncoder().encode(webTarget ?? target()))
         let object: [String: Any] = [
             "id": (record.activeOperationID ?? UUID()).uuidString,
             "assetID": record.id.uuidString, "attempt": attempt, "target": targetObject,
@@ -81,6 +81,29 @@ final class HistoryPresentationTests: XCTestCase {
         XCTAssertTrue(HistoryPresentation.detailText(for: missingEntry, copy: .simplifiedChinese).contains("已交给"))
         XCTAssertFalse(RiftHistoryFilter.handedOff.includes(missingEntry))
         XCTAssertFalse(missingEntry.canRestoreToRift)
+    }
+
+    func testAmbiguousWebInputOffersLocalDispositionIndependentOfOriginalBrowserSupport() throws {
+        let chrome = TargetLease(adapterID: "chatgpt-web", surface: .webChat, applicationID: "com.google.Chrome",
+                                 sessionID: "session", windowID: "window", documentID: "doc",
+                                 composerID: "composer", draftGeneration: "generation")
+        let failed = asset(status: .failed, visibility: .archived, operationID: UUID())
+        let prior = try operation(for: failed, phase: .failed, webTarget: chrome)
+        let ordinary = RiftHistoryEntry(record: failed, operation: prior, canRestore: true)
+        XCTAssertTrue(ordinary.canReviewOriginal)
+        XCTAssertTrue(ordinary.canRestoreToRift)
+        XCTAssertFalse(ordinary.hasRecoveryOptions)
+        let unknown = asset(status: .unknown, operationID: UUID())
+        let ambiguous = RiftHistoryEntry(record: unknown, operation: try operation(for: unknown, phase: .unknown, webTarget: chrome))
+        XCTAssertTrue(ambiguous.hasRecoveryOptions)
+        XCTAssertFalse(ambiguous.canRestoreToRift)
+        let retiredTarget = TargetLease(adapterID: "legacy-web", surface: .webChat, applicationID: "retired",
+                                        sessionID: "old", windowID: "old", documentID: "old",
+                                        composerID: "old", draftGeneration: "old")
+        let legacy = RiftHistoryEntry(record: unknown, operation: try operation(for: unknown, phase: .unknown, webTarget: retiredTarget))
+        XCTAssertFalse(legacy.canReviewOriginal)
+        XCTAssertTrue(legacy.hasRecoveryOptions)
+        XCTAssertFalse(RiftHistoryEntry(record: unknown, operation: try operation(for: unknown, phase: .unknown)).hasRecoveryOptions)
     }
 
     func testPreInputCancellationIsNotPresentedAsRemoteUploadFailure() throws {

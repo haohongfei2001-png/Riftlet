@@ -121,7 +121,7 @@ function browserFixture(options){
     reentrantRefused=refusal.preInputRetirement?.reason==='inputExecutionBusy'&&refusal.preInputRetirement.inputCount===0;
     check(reentrantRefused&&submittedInput.files[0]===file,'reentrant input cannot overwrite current native control');
    }
-   const card=document.createElement('div');card.setAttribute('role','button');card.setAttribute('data-file-name',file.name);card.title=file.name;
+   const card=document.createElement(options.retryOverlay?'button':'div');card.setAttribute('role','button');card.setAttribute('data-file-name',file.name);card.title=file.name;
    const image=document.createElement('img');image.alt=file.name;image.src=URL.createObjectURL(file);card.append(image);
    if(options.ariaCardFailure){
     card.removeAttribute('data-file-name');
@@ -134,11 +134,24 @@ function browserFixture(options){
     image.alt='Preview '+file.name+' (uploading)';image.src=canvas.toDataURL('image/png');
    }
    const progress=document.createElement('div');progress.setAttribute('role','progressbar');progress.setAttribute('aria-valuenow','10');card.append(progress);
+   if(options.meterCard){
+    card.removeAttribute('data-file-name');card.removeAttribute('title');
+    card.setAttribute('aria-label',file.name);image.remove();
+    progress.style.cssText='width:80px;height:6px;background:blue';
+   }
+   let attachment=card;
+   if(options.retryOverlay){
+    attachment=document.createElement('figure');attachment.setAttribute('data-composer-image-attachment','');attachment.append(card);
+    card.type='button';card.setAttribute('data-assistant-image-link','');card.setAttribute('aria-label',file.name);
+    for(const key of ['role','data-file-name','title'])card.removeAttribute(key);
+    image.setAttribute('data-assistant-image','');image.setAttribute('data-composer-image-attachment-preview','');
+    progress.remove();
+   }
    const task={file,list,card,image,progress,state:'uploading'};tasks.push(task);
    // The first acceptance is deliberately delayed; its input return is dropped.
    // A second input is allowed while A has no observed START yet.
    if(options.unavailablePicker){cardHost.append(card);makePickerUnavailable();}
-   else if(changes===1)firstPendingCard=card;else{cardHost.append(card);if(changes===2)setTimeout(()=>cardHost.append(firstPendingCard),0);}
+   else if(changes===1)firstPendingCard=attachment;else{cardHost.append(attachment);if(changes===2)setTimeout(()=>cardHost.append(firstPendingCard),0);}
    if(!options.retained)submittedInput.value='';
   };
   input.addEventListener('change',changed);
@@ -286,6 +299,9 @@ function browserFixture(options){
    check(changes===index+1,'one change per screenshot');
    check(setters===index+1,'one native files setter per screenshot');
    if(options.unavailablePicker){
+    // A new image can still have zero dimensions in the dispatch turn.
+    // Wait for the real preview to render while the picker remains unavailable.
+    await wait(()=>tasks[index].image.getBoundingClientRect().width>0);
     const observed=call(op.command('observe')).observation;
     check(input.disabled||!input.isConnected,'picker remains unavailable while START is observed');
     check(observed.state==='uploadStarted'&&observed.belongsToOriginalDraft,'accepted START does not wait for picker restoration or COMPLETE');
@@ -297,12 +313,41 @@ function browserFixture(options){
      &&!failed.uploadStart&&setters===index+1&&changes===index+1,'actual unavailable execution is retained without input or START');
     startBeforePickerRestored=true;restorePicker();
    }else if(index===0)check(call(op.command('observe')).observation.state==='inputTriggered','first input completed before START');
+   if(options.memberOwnership && index===0){
+    const shell=tasks[0].card.cloneNode(false);
+    const button=document.createElement('button');button.setAttribute('aria-label','Help');
+    const icon=tasks[0].image.cloneNode();icon.removeAttribute('alt');button.append(icon);shell.append(button);
+    cardHost.append(shell);
+    await new Promise(done=>setTimeout(done,20));
+    const state=()=>call({...op.command('observe'),preferStartReceipt:true}).observation.state;
+    check(state()==='inputTriggered','a nested Help icon cannot substantiate a handoff');
+    shell.replaceChildren(tasks[0].image.cloneNode());
+    shell.style.opacity='0';
+    await new Promise(done=>setTimeout(done,20));
+    check(state()==='inputTriggered','real layout of an opacity-zero ancestor cannot substantiate a handoff');
+    shell.remove();
+   }
    if(index>0)await wait(()=>call(op.command('observe')).observation.state==='uploadStarted');
    check(editor.textContent===text&&selection.anchorNode===anchor&&selection.focusNode===focus&&selection.anchorOffset===anchorOffset&&selection.focusOffset===focusOffset,'draft text and selection preserved');
    check(form.contains(priorCard),'existing attachment preserved');
   }
   let busyRetired=false;try{call({...busyProbe.command('commit'),chunkIndex:1});}catch(error){busyRetired=error.message==='COMMIT_REFUSED';}
   check(busyRetired,'retired concurrent operation cannot later submit');
+  if(options.betweenReads){
+   // First card was rendered after commit, and its error arrives in a later
+   // task before the native host asks for its first positive observation.
+   await wait(()=>cardHost.contains(firstPendingCard));
+   await new Promise(done=>setTimeout(done,20));
+   firstPendingCard.dataset.state='failed';
+   const read=preferStartReceipt=>call({...ops[0].command('observe'),preferStartReceipt}).observation;
+   const start=read(true), replay=read(true), error=read(false);
+   check(start.state==='uploadStarted'&&start.uploadStart.evidenceID===replay.uploadStart.evidenceID,
+    'original positive evidence survives a lost reply');
+   check(error.state==='failed'&&error.attachmentID===start.attachmentID&&!error.automaticRetryExcluded,
+    'same-card error is independently readable after durable START');
+   check(call(ops[1].command('observe')).observation.state==='uploadStarted','second member keeps its own START');
+   delete firstPendingCard.dataset.state;
+  }
   await stage('observing-starts');
   for(const op of ops){
    await wait(()=>call(op.command('observe')).observation.state==='uploadStarted');
@@ -316,6 +361,62 @@ function browserFixture(options){
    check(await hash(await task.file.arrayBuffer())===ops[index].sha,'accepted File bytes remain unchanged after later inputs');
    check(task.list instanceof FileList,'application observed actual native FileList');
    if(options.retained)check(task.list.length===1&&task.list[0]===task.file,'retained prior FileList independent from replacement');
+  }
+  if(options.meterCard){
+   const inspect=(index,live=false)=>call({...ops[index].command('observe'),requireLiveOriginal:live}).observation;
+   const original=inspect(0,true);
+   check(original.state==='uploadStarted','accessible-name card retains its active progress member');
+   const error=document.createElement('span');error.textContent='Upload failed';
+   tasks[0].progress.remove();
+   await new Promise(done=>setTimeout(done,20));
+   check(inspect(0).state==='uploadStarted'&&inspect(0,true).state==='invalidated',
+    'an empty render is neither a failure nor proof that the original attachment is still visible');
+   tasks[0].card.append(error);
+   tasks[1].card.setAttribute('aria-label','another.png');
+   tasks[1].card.setAttribute('aria-label',tasks[1].file.name);
+   tasks[1].card.replaceChildren(error.cloneNode(true));
+   await new Promise(done=>setTimeout(done,0));
+   for(const live of [false,true]){
+    const result=inspect(0,live);
+    check(result.state==='failed'&&result.attachmentID===original.attachmentID&&!result.automaticRetryExcluded,
+     'the exact original accessible-name progress card now shows a failure');
+   }
+   check(inspect(1).state==='uploadStarted'&&inspect(1,true).state==='invalidated',
+    'the reused neighbor cannot claim a later error');
+  }
+  if(options.retryOverlay){
+   const read=(index,live=false)=>call({...ops[index].command('observe'),requireLiveOriginal:live}).observation;
+   const initial=read(0,true);
+   const retry=document.createElement('button');retry.type='button';retry.textContent='↻';
+   retry.setAttribute('data-composer-image-upload-retry','');retry.setAttribute('aria-label','Retry uploading '+tasks[0].file.name);
+   retry.title='Failed to upload file.';
+   tasks[1].card.parentElement.append(retry);
+   check(read(0).state==='uploadStarted'&&read(1).state==='uploadStarted','neighbour does not report another image failure');
+   tasks[0].card.parentElement.append(retry);
+   for(const live of [false,true]){
+    const result=read(0,live);
+    check(result.state==='failed'&&result.attachmentID===initial.attachmentID&&!result.automaticRetryExcluded,
+     'original file-specific retry overlay is readable without clicking or sending');
+   }
+   check(read(1).state==='uploadStarted','unaffected second picture');
+  }
+  if(options.opaqueFailure){
+   const first=tasks[0], second=tasks[1];
+   const read=index=>call(ops[index].command('observe')).observation;
+   const start=read(0).attachmentID;
+   const status=document.createElement('span');status.textContent='上传未成功';
+   second.image.src=URL.createObjectURL(first.file);
+   second.card.append(status.cloneNode(true));
+   await new Promise(done=>setTimeout(done,0));
+   check(read(1).state==='uploadStarted','a reused named shell cannot claim another File preview');
+   check(read(0).state==='uploadStarted','the neighbour’s error cannot migrate');
+   const name=document.createElement('span');name.textContent=first.file.name;
+   first.card.replaceChildren(status,name);
+   await new Promise(done=>setTimeout(done,0));
+   const failed=read(0);
+   check(failed.state==='failed'&&failed.attachmentID===start&&!failed.automaticRetryExcluded,
+    'native mutation delivery preserves the exact local text-only failure');
+   check(read(1).state==='uploadStarted','replacement in A does not change B');
   }
   if(options.portalCards){
    const failedNode=options.ariaCardFailure?tasks[0].image:tasks[0].card;
@@ -393,6 +494,10 @@ function browserFixture(options){
  .replace('__PREVIOUS__',()=>JSON.stringify(previous)).replace('__SOURCE__',()=>JSON.stringify(source).replace(/<\/script/gi,'<\\/script'));
 }
 const originalScenarios=[
+ {name:'original-figure-retry-overlay',count:2,retained:true,retryOverlay:true,route:'https://chatgpt.com/'},
+ {name:'accessible-name-progress-aftercare',count:2,retained:true,meterCard:true,route:'https://chatgpt.com/'},
+ {name:'positive-preview-between-native-reads',count:2,retained:true,betweenReads:true,memberOwnership:true,route:'https://chatgpt.com/'},
+ {name:'opaque-member-text-failure',count:2,retained:true,decoratedFilename:true,opaqueFailure:true,route:'https://chatgpt.com/'},
  {name:'original-portal-card-failure',count:2,retained:true,portalCards:true,route:'https://chatgpt.com/c/ordinary-thread'},
  {name:'aria-preview-portal-failure',count:2,retained:true,portalCards:true,ariaCardFailure:true,route:'https://chatgpt.com/c/ordinary-thread'},
  {name:'actual-marked-zh-composer-four-direct-fields',count:5,retained:true,liveComposerShape:true,route:'https://chatgpt.com/'},

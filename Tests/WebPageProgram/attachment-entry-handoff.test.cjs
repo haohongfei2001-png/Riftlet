@@ -419,7 +419,7 @@ test('an independent composer reached during discovery gets its own input budget
   input.addEventListener('change', () => {
     const name = input.files[0].name;
     const card = form.append(new f.Node('div', {role:'button', 'data-file-name':name}));
-    card.append(new f.Node('img', {alt:name, src:'blob:local-draft-b'}));
+    card.append(new f.Node('img', {alt:name, src:f.context.URL.createObjectURL(input.files[0])}));
   });
   const entry = entryButton(f, form);
   entry.addEventListener('click', () => setTimeout(() => {

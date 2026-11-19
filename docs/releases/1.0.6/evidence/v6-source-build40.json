@@ -1,0 +1,34 @@
+{
+  "concurrentCollectionMS": {
+    "max": 51.165,
+    "n": 20,
+    "p50": 32.454833,
+    "p95": 49.818042
+  },
+  "cpuSystemMS": 893.3044583333334,
+  "cpuUserMS": 1543.7964583333332,
+  "extraImports": 20,
+  "fileGrowth": 60,
+  "finalRSSBytes": 25280512,
+  "imageSize": "1024x768",
+  "initialCopies": 1000,
+  "initialLogicalBytes": 597336315,
+  "initialProfileAndOriginalFiles": 3003,
+  "initialRSSBytes": 22200320,
+  "initialSummaryMS": 24.204084,
+  "logicalGrowthBytes": 12648754,
+  "physicalDiskReadBytes": 456409088,
+  "physicalDiskWriteBytes": 13422592,
+  "summaryHistoryAndRuleMS": {
+    "max": 61.545167,
+    "n": 20,
+    "p50": 37.959292,
+    "p95": 54.138208
+  },
+  "syntheticImageBytes": 297060,
+  "verifiedCopies": 1000,
+  "verifyAndConcurrentWorkMS": 4095.235958,
+  "source": "65398096092e739bb9581244961112b572006465",
+  "build": 40,
+  "scope": "Release Core/Capture objects from the ordinary build; 1,000 independent external and managed files with real PNG data; separate from guest process measurements."
+}

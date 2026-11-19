@@ -1,0 +1,29 @@
+{
+  "clickToSwallowCommitUpperBoundMS": [
+    1862.8,
+    2434.1,
+    2780.8,
+    2289.6,
+    2273.1,
+    2988.3,
+    2408.2,
+    1689.9
+  ],
+  "cold": 1862.8,
+  "warm": 2434.1,
+  "median": 2348.8999999999996,
+  "p95NearestRank": 2988.3,
+  "pairMouseDownIntervalsMS": [
+    711.4,
+    645.2,
+    664.3
+  ],
+  "build": 40,
+  "product": "65398096092e739bb9581244961112b572006465",
+  "positiveSTART": 8,
+  "distinctOperations": 8,
+  "uniqueVisibleFixtureImagesInOriginalOrder": 8,
+  "preservedSelection": true,
+  "unsent": true,
+  "refocusOriginalTab": true
+}

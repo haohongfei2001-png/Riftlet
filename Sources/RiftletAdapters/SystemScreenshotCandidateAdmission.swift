@@ -62,6 +62,16 @@ public actor SystemScreenshotCandidateAdmission {
         try await registeredObservationSource(for: request) != nil
     }
 
+    /// Ask for a retained original START only until Core has committed that fact.
+    /// These two earlier sources already enforced the same positive handoff rules.
+    func needsOriginalStart(for request: TransferRequest) async throws -> Bool {
+        guard scope.isProduct,
+              let source = try await registeredObservationSource(for: request),
+              [SystemScreenshotWebCandidate.sourceID, ChatGPTWebPageProgram.priorOwnedPreviewSource,
+               ChatGPTWebPageProgram.priorProgressCardSource].contains(source) else { return false }
+        return try await store.uploadStartReceipt(for: request.operation.id) == nil
+    }
+
     // Only the read path accepts older source identities. New enrollment always uses today's page
     // program and the existing one-shot fence, including after a restart.
     func registeredObservationSource(for request: TransferRequest) async throws -> String? {
@@ -77,7 +87,10 @@ public actor SystemScreenshotCandidateAdmission {
               registration.assetOrigin == (scope.isProduct ? scope.origin : nil),
               [SystemScreenshotWebCandidate.sourceID, ChatGPTWebPageProgram.priorEntrySource,
                ChatGPTWebPageProgram.priorHandoffSource, ChatGPTWebPageProgram.priorScreenshotSource,
-               ChatGPTWebPageProgram.priorObservationSource].contains(registration.sourceID),
+               ChatGPTWebPageProgram.priorObservationSource, ChatGPTWebPageProgram.priorCardObservationSource,
+               ChatGPTWebPageProgram.priorOriginalReviewSource, ChatGPTWebPageProgram.priorMemberStatusSource,
+               ChatGPTWebPageProgram.priorObservedStartSource, ChatGPTWebPageProgram.priorOwnedPreviewSource,
+               ChatGPTWebPageProgram.priorProgressCardSource].contains(registration.sourceID),
               registration.startProfileID == scope.admittedProfile.uploadStartProfileID!,
               registration.completionProfileID == scope.admittedProfile.profileID,
               registration.identity == Self.identity(for: request),
@@ -95,7 +108,10 @@ public actor SystemScreenshotCandidateAdmission {
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
         guard (try? encoder.encode(registration)) == data else { throw WebAdapterError.invalidRequest }
         if [SystemScreenshotWebCandidate.sourceID, ChatGPTWebPageProgram.priorScreenshotSource,
-               ChatGPTWebPageProgram.priorObservationSource].contains(registration.sourceID) {
+               ChatGPTWebPageProgram.priorObservationSource, ChatGPTWebPageProgram.priorCardObservationSource,
+               ChatGPTWebPageProgram.priorOriginalReviewSource, ChatGPTWebPageProgram.priorMemberStatusSource,
+               ChatGPTWebPageProgram.priorObservedStartSource, ChatGPTWebPageProgram.priorOwnedPreviewSource,
+               ChatGPTWebPageProgram.priorProgressCardSource].contains(registration.sourceID) {
             try scope.validateMetadata(request.asset)
         } else {
             try SystemScreenshotWebCandidate.validateMetadata(request.asset, expectedOrigin: scope.origin)

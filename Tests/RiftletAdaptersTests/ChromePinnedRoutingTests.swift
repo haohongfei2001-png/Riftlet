@@ -1,8 +1,21 @@
 import XCTest
+import AppKit
 import RiftletCore
 @testable import RiftletAdapters
 
 final class ChromePinnedRoutingTests: XCTestCase {
+    func testHistoryTabEnumerationMatchesAppleScriptAbsoluteOrdinal() throws {
+        // The reference targets an in-process list. It sends no browser events.
+        let script = try XCTUnwrap(NSAppleScript(source: "return a reference to every item of {1,2}"))
+        var error: NSDictionary?
+        let reference = script.executeAndReturnError(&error)
+        XCTAssertNil(error)
+        let selector = try XCTUnwrap(reference.forKeyword(AEKeyword(keyAEKeyData)))
+        let native = try ChromeHistoryTabSelection.allTabsOrdinal()
+        XCTAssertEqual(native.descriptorType, selector.descriptorType)
+        XCTAssertEqual(native.data, selector.data)
+    }
+
     func testColdClickUsesForegroundOrUniqueChromeWithoutEarlierCapture() {
         XCTAssertEqual(ChromeReceiverSelection.choose(frontmost: 20, lastForeground: nil,
             running: [10, 20]), 20)
@@ -49,6 +62,14 @@ final class ChromePinnedRoutingTests: XCTestCase {
         XCTAssertNotEqual(original, try ChromeClickRoute(window: "11", tab: "13", url: original.address))
         XCTAssertNotEqual(original, try ChromeClickRoute(window: "11", tab: "12", url: "https://chatgpt.com/c/next"))
         XCTAssertNotEqual(original, try ChromeClickRoute(window: "11", tab: "12", url: "https://other.example/c/original"))
+    }
+
+    func testSavedConversationLinksAcceptOnlyScopedUUIDPaths() throws {
+        let id = UUID()
+        for (path, expected) in [("/g/g-example/c/", id), ("/c/", id), ("/g//c/", nil), ("/g/%2F/c/", nil), ("/unrelated/c/", nil)] {
+            let route = try ChromeClickRoute(window: "1", tab: "2", url: "https://chatgpt.com" + path + id.uuidString)
+            XCTAssertEqual(route.historyConversationID, expected)
+        }
     }
 
     func testSnapshotHasNoNewChatOrProjectPathWhitelist() throws {

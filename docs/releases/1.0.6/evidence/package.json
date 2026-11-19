@@ -1,0 +1,22 @@
+{
+  "stage": "VERIFIED_STAPLED_DMG",
+  "version": "1.0.6",
+  "build": "35",
+  "source": "57ebe3d3448df0c4ffc11abeb7607a0cdc415d57",
+  "archive": "Riftlet-1.0.6.dmg",
+  "sha256": "7fec9b5e5cfff0398ae161f0f45233f86612349b5e746aee721488a209ba48fa",
+  "bytes": 13276461,
+  "architectures": [
+    "arm64",
+    "x86_64"
+  ],
+  "teamID": "ZB9D4T66QB",
+  "dmgGatekeeperOpen": "ACCEPTED",
+  "dmgTicket": "VALID",
+  "embeddedAppGatekeeperExecute": "ACCEPTED",
+  "embeddedAppTicket": "VALID",
+  "notaryStatus": "Accepted",
+  "appSubmissionID": "240993a1-b6af-4231-b111-4c5e50bb2a82",
+  "submissionID": "132bce19-096b-4a6a-b5c0-93df65c69985",
+  "executableSHA256": "976bae3e9ba10a71e136d0e15c8cd0a18831bdc6d2b5e0fcf58bc3d72d2b5954"
+}

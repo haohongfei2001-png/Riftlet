@@ -1,5 +1,8 @@
 # Riftlet 1.0.5（30）签名候选验收
 
+1.0.5 历史记录。最终正式版为 build 31。[正式通道验收](https://github.com/haohongfei2001-png/Riftlet/pull/114#issuecomment-6968323045) · [1.0.6 修复任务](https://github.com/haohongfei2001-png/Riftlet/issues/115)
+
+
 后续的普通托盘输入、真实站点重试以及 build 31 的局部修复见[专项复验](FOLLOW_UP.md)。
 
 本候选继承 [1.0.4 实现 #110](https://github.com/haohongfei2001-png/Riftlet/pull/110) 和 [产品规划 #112](https://github.com/haohongfei2001-png/Riftlet/pull/112)，在独立分支集成。build 30 产品源码为 `70cc3deadf571a9b97609a0af1a979bbb677412f`。从该产品提交到 build 30 首次准入 `d6248d5`，后续提交仅涉及测试、证据、报告和源码准入。公开推广仍有两个关键缺口：真实 ChatGPT 首次和连续附加未跑通，接收后的真实终止证据也未取得。[开发 PR #113](https://github.com/haohongfei2001-png/Riftlet/pull/113)

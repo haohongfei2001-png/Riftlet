@@ -139,7 +139,7 @@ function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focu
  const notify=()=>queueMutation({type:'childList',target:form,addedNodes:[],removedNodes:[]});
  function addCard(name,{placeholder=false,progress=true}={}) {
   const card=form.append(new Node('div',{'data-file-name':name,title:name,'aria-label':name,role:'button'}));
-  if(!placeholder){const img=card.append(new Node('img',{alt:name,src:'blob:current-'+name}));img.src=img.currentSrc=img.attrs.src;img.complete=false;img.naturalWidth=0;}
+  if(!placeholder){const img=card.append(new Node('img',{alt:name,src:NativeURL.createObjectURL(new Blob([name]))}));img.src=img.currentSrc=img.attrs.src;img.complete=false;img.naturalWidth=0;}
   if(progress)card.append(new Node('div',{role:'progressbar','aria-valuenow':'10'}));
   notify();return card;
  }

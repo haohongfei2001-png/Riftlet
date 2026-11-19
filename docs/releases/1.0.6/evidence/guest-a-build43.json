@@ -1,0 +1,231 @@
+{
+  "source": "38cbef90ed3370797edf3f902bb8fba87299abda",
+  "candidate": "1.0.6 (43)",
+  "environment": "Dedicated ARM64 macOS VM A, stock signed native candidate, ordinary Sparkle UI. Fixture uses four actual screenshots originally attached to the real Chrome test draft using build 35. The original page was definitively closed before this run.",
+  "feed": {
+    "build": "43",
+    "feedSHA256": "a3b63983f9821127e4b1480fd9571b3ebbf7d09606b78ed7de6085de4dddd4f1",
+    "dmgSHA256": "926c64d904b6c95bfc1ae1bbf50059579aa3681dfa0ae02d99bcf542b5102a06",
+    "executableSHA256": "c876b4173e7470dfde8074fc6db8c236f0d20e11830df69f349586b8d256b65a"
+  },
+  "V5": {
+    "31->43": {
+      "installedRunning": "1.0.6 (43), Gatekeeper Notarized Developer ID; feed-exact executable SHA256",
+      "unchangedOriginalFiles": 53,
+      "existingAssets": 19,
+      "existingOperations": 2,
+      "existingStarts": 1,
+      "existingCheckpoints": 6,
+      "newObservedOriginals": 14,
+      "priorAssetsWithVisibilityChange": 0,
+      "prefDraftBookmark": "intact",
+      "sqlite": "ok"
+    },
+    "35->43": {
+      "installedRunning": "1.0.6 (43), Gatekeeper Notarized Developer ID; feed-exact executable SHA256",
+      "unchangedOriginalFiles": 62,
+      "existingAssets": 28,
+      "existingOperations": 8,
+      "existingStarts": 5,
+      "existingCheckpoints": 35,
+      "newObservedOriginals": 5,
+      "priorAssetsWithVisibilityChange": 0,
+      "prefDraftBookmark": "intact",
+      "sqlite": "ok"
+    }
+  },
+  "V3": {
+    "manualScope": 24,
+    "manualOnlyCopiesWithoutVerifiedExternalOriginal": 6,
+    "previouslyRealChatGPTAttachmentsCleaned": 4,
+    "oldUnknownWithoutSTARTProtected": true,
+    "bothPreInputFailuresProtected": true,
+    "actualQuitAndRestart": true,
+    "completeByteAndRowRestoration": true,
+    "assets": 33,
+    "operations": 8,
+    "START": 5,
+    "integrity": "ok",
+    "sourceOnly": "30-day eligibility, change-of-original, in-flight fence, current failure and three import interruption points are separate native source-controlled cases. The GUI did not simulate elapsed calendar days or a service-side failure.",
+    "newWatchedOriginalsDuring35Upgrade": 5
+  },
+  "V2": {
+    "oldUNKNOWN": "Cancel leaves data unchanged; Continue requires a separate fresh click; Hide changes local visibility; Mark as Handled clears attention entry only. Native records unchanged and explicit handling marker persisted. No new operation/START.",
+    "originalMissing": "After relaunch of 43, original Chrome process no longer exists. Return reports draft not located. Check does not input or alter original facts and reports the attachment can no longer be verified, with local recovery guidance.",
+    "liveAfterStartFailure": {
+      "result": "FAIL: real original-card failure missed by build 43",
+      "freshScreenAndOriginalIdentity": true,
+      "attemptsForThisAsset": 1,
+      "immutableSTARTsForThisAsset": 1,
+      "unchangedReceiptAttachmentIdentity": true,
+      "nativeAutomaticReplayCount": 0,
+      "sendCount": 0,
+      "cutMethod": "Terminated only the preflight-verified dedicated guest HTTPS relay after the first committed START for the exact new asset. Separate guest control survived.",
+      "secondsFromClickCommandToStartDetection": 0.923,
+      "msDetectedStartToLocalRelayKillSignal": 5.93,
+      "cutUTCepoch": 1795095294.466877,
+      "dbStartUTCepoch": 1795095294.4185472,
+      "offlineProbes": [
+        "direct HTTP 000",
+        "proxy HTTP 000"
+      ],
+      "restoredProxyHTTP": 200,
+      "serviceDisplayed": "Failed to upload file.",
+      "serviceSurface": "Original thumbnail and centered circular Retry button. The error callout remained with pointer away. Hovering Retry also displayed its native title, which disappeared on pointer exit.",
+      "reporterUI": "Handed to ChatGPT before and after normal Check Status Again. Return to Original Draft showed the same single card and unsent marker after network restoration.",
+      "nativeResult": {
+        "status": "transferring",
+        "phase": "inputTriggered",
+        "visibility": "swallowed",
+        "attempt": 1,
+        "localOperations": 1,
+        "immutableSTART": 1,
+        "sameReceiver": 1,
+        "storedHasError": 0
+      },
+      "readOnlyFigure": [
+        {
+          "depth": 0,
+          "tag": "figure",
+          "attributes": [
+            "data-composer-image-attachment",
+            "class"
+          ]
+        },
+        {
+          "depth": 1,
+          "tag": "button",
+          "attributes": [
+            "data-assistant-image-link",
+            "data-radius",
+            "data-size",
+            "data-variant",
+            "data-w-component",
+            "type",
+            "class",
+            "aria-label",
+            "value"
+          ],
+          "type": "button",
+          "aria-label": "EXACT_OPERATION_FILE"
+        },
+        {
+          "depth": 2,
+          "tag": "img",
+          "attributes": [
+            "decoding",
+            "data-assistant-image",
+            "data-composer-image-attachment-preview",
+            "class",
+            "alt",
+            "src"
+          ],
+          "alt": "EXACT_OPERATION_FILE"
+        },
+        {
+          "depth": 1,
+          "tag": "button",
+          "attributes": [
+            "data-composer-image-upload-retry",
+            "data-icon-only",
+            "data-radius",
+            "data-size",
+            "data-variant",
+            "data-w-component",
+            "type",
+            "class",
+            "aria-label",
+            "title"
+          ],
+          "type": "button",
+          "aria-label": "Retry uploading EXACT_OPERATION_FILE",
+          "title": "Failed to upload file."
+        },
+        {
+          "depth": 2,
+          "tag": "svg",
+          "attributes": [
+            "aria-hidden",
+            "fill",
+            "viewBox",
+            "class"
+          ],
+          "aria-hidden": "true"
+        },
+        {
+          "depth": 3,
+          "tag": "path",
+          "attributes": [
+            "d",
+            "stroke",
+            "stroke-linecap",
+            "stroke-linejoin",
+            "stroke-width"
+          ]
+        },
+        {
+          "depth": 1,
+          "tag": "button",
+          "attributes": [
+            "data-composer-remove-image",
+            "data-icon-only",
+            "data-oai-tooltip",
+            "data-radius",
+            "data-size",
+            "data-variant",
+            "data-w-component",
+            "type",
+            "class",
+            "aria-label"
+          ],
+          "type": "button",
+          "aria-label": "Remove file: EXACT_OPERATION_FILE"
+        },
+        {
+          "depth": 2,
+          "tag": "svg",
+          "attributes": [
+            "aria-hidden",
+            "fill",
+            "class",
+            "height",
+            "viewBox",
+            "width"
+          ],
+          "aria-hidden": "true"
+        },
+        {
+          "depth": 3,
+          "tag": "use",
+          "attributes": [
+            "href"
+          ]
+        }
+      ],
+      "samplingGap": "The first scheduled subsecond screen sampler rejected the tag syntax. Immediate post-cut, independent offline follow-up and restored UI stills were captured. No numeric upload fraction was established."
+    }
+  },
+  "V1": {
+    "scope": "Dedicated anonymous ordinary Chrome, one unique queued macOS screenshot and real virtual pointing device. Foreign drafts were not inspected.",
+    "naturalClicks": 1,
+    "originalPNGBytes": 1176644,
+    "originalWidth": 768,
+    "originalHeight": 576,
+    "assetsWithNewSTART": 1,
+    "visibleNewCards": 1,
+    "syntheticTypedDraftPreserved": true,
+    "sends": 0,
+    "reuploads": 0,
+    "route": "queued_click_route",
+    "nativeTargetResolutionMS": 45.71,
+    "clickToCommittedSwallowObservationUpperBoundMS": 838.25,
+    "selectionOffsets": "not instrumented",
+    "numericUploadProgress": "not sampled",
+    "rapidPairs": "separate host batch"
+  },
+  "postColdCheckInventory": {
+    "assetRows": 34,
+    "operations": 9,
+    "starts": 6
+  }
+}

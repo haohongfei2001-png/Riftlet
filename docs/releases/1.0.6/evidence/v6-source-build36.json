@@ -1,0 +1,34 @@
+{
+  "concurrentCollectionMS": {
+    "max": 14.069791,
+    "n": 20,
+    "p50": 7.099959,
+    "p95": 9.899875
+  },
+  "cpuSystemMS": 162.81858333333335,
+  "cpuUserMS": 504.9875416666667,
+  "extraImports": 20,
+  "fileGrowth": 60,
+  "finalRSSBytes": 27017216,
+  "imageSize": "1024x768",
+  "initialCopies": 1000,
+  "initialLogicalBytes": 597439323,
+  "initialProfileAndOriginalFiles": 3003,
+  "initialRSSBytes": 24166400,
+  "initialSummaryMS": 5.406958,
+  "logicalGrowthBytes": 12801199,
+  "physicalDiskReadBytes": 20480,
+  "physicalDiskWriteBytes": 13582336,
+  "summaryHistoryAndRuleMS": {
+    "max": 14.736625,
+    "n": 20,
+    "p50": 7.953042,
+    "p95": 12.304667
+  },
+  "syntheticImageBytes": 297060,
+  "verifiedCopies": 1000,
+  "verifyAndConcurrentWorkMS": 561.637583,
+  "source": "4ed6cbede7260fb857d98bc2a23ef9240870c32e",
+  "build": 36,
+  "scope": "Release Core and Capture ARM64 objects from the signed package build, with full PNGs and a dedicated isolated library"
+}

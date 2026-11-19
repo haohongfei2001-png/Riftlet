@@ -1,0 +1,345 @@
+{
+  "build": 41,
+  "product": "bfd043e2af82fbc64e33a1167e7d4f2245aa2b81",
+  "dmgSHA256": "fa40e9df09b7e9007aecf802a505ecf21a770fd732b50d16df37c6db77942d6f",
+  "executableSHA256": "ace72bf6d2959b3e6d970308a2b58caf74f7045fa477a990709945bcab8618f6",
+  "scope": "Ordinary signed candidate on macOS. Dedicated signed-in Chrome temporary drafts, synthetic screenshots, native mouse events. No messages submitted.",
+  "operations": [
+    {
+      "sequence": 1,
+      "op": "83257f1a66d9",
+      "asset": "d47f57411836",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "9f9e63e7bece",
+      "draft": "f590c12df6d6",
+      "card": "3d6ac985f15e",
+      "belongs": true
+    },
+    {
+      "sequence": 2,
+      "op": "fc14c2547164",
+      "asset": "988ee19fcae8",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "62f563f9a24c",
+      "draft": "f590c12df6d6",
+      "card": "aada414f5a06",
+      "belongs": true
+    },
+    {
+      "sequence": 3,
+      "op": "eb24329f7f7d",
+      "asset": "ff01b91b672a",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "7ac0fe35430f",
+      "draft": "f590c12df6d6",
+      "card": "c0ba4823ee19",
+      "belongs": true
+    },
+    {
+      "sequence": 4,
+      "op": "07af565b5a6f",
+      "asset": "abfdb3d1be0d",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "99ad1d622914",
+      "draft": "f590c12df6d6",
+      "card": "b09fb7ea5ab4",
+      "belongs": true
+    },
+    {
+      "sequence": 5,
+      "op": "8ebf17580d12",
+      "asset": "0e692062148b",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "86f4f87b31e6",
+      "draft": "f590c12df6d6",
+      "card": "6528aa6804b4",
+      "belongs": true
+    },
+    {
+      "sequence": 6,
+      "op": "be2833f10b74",
+      "asset": "ad66d31ed158",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "d8efe3ebc003",
+      "draft": "f590c12df6d6",
+      "card": "bf3bf4335bc5",
+      "belongs": true
+    },
+    {
+      "sequence": 7,
+      "op": "e20cfd6e04fb",
+      "asset": "98e3a0ef71d3",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "cd53f24a95d3",
+      "draft": "f590c12df6d6",
+      "card": "ca853e20d4ff",
+      "belongs": true
+    },
+    {
+      "sequence": 8,
+      "op": "884d82e9a3cf",
+      "asset": "0f5c38f1ce6a",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "366ea3760237",
+      "draft": "f590c12df6d6",
+      "card": "5a1cefc171a9",
+      "belongs": true
+    },
+    {
+      "sequence": 9,
+      "op": "0c75b97ff14b",
+      "asset": "1089638d48dc",
+      "attempt": 1,
+      "phase": "unknown",
+      "invocation": "6ba84ffe855e",
+      "draft": "b63965ef4342",
+      "card": null,
+      "belongs": null
+    },
+    {
+      "sequence": 10,
+      "op": "4a4bfa8b290a",
+      "asset": "1089638d48dc",
+      "attempt": 2,
+      "phase": "inputTriggered",
+      "invocation": "a8c778ca372a",
+      "draft": "b63965ef4342",
+      "card": "5f3ffc005436",
+      "belongs": true
+    },
+    {
+      "sequence": 11,
+      "op": "f0544f9eba6e",
+      "asset": "2a4b3553980a",
+      "attempt": 1,
+      "phase": "unknown",
+      "invocation": "ed0baebe4420",
+      "draft": "b63965ef4342",
+      "card": null,
+      "belongs": null
+    }
+  ],
+  "noComposer": {
+    "operationsBeforeAndAfter": 8,
+    "startsBeforeAndAfter": 8,
+    "image": "pending/visible"
+  },
+  "explicitReattachment": {
+    "original": 9,
+    "new": 10,
+    "countsBeforeAndAfterCheckAndUserConfirmation": [
+      9,
+      8
+    ],
+    "countsAfterFreshClick": [
+      10,
+      9
+    ],
+    "originalFailedCardDisplayedBesideNewPreview": true,
+    "originalFailureFilenamePrefixMatchesOperation": true
+  },
+  "lateProcessingFailure": {
+    "operation": 11,
+    "sourceBytes": 182745,
+    "throttling": "3G",
+    "observedProcessingNetworkAction": "Built-in Chrome request blocking applied to one observed processing request on dedicated test target, one affected request, blocked:devtools.",
+    "newCardBeforeError": "Gray animated placeholder in each crop sampled at 1.5, 2.2, 3, 5, 7 seconds; neither current picture nor numeric progress observed on this member.",
+    "at10s": "Original and current red cards visible next to successful preview; current red card visibly contains verified current operation prefix.",
+    "lastObservationSeconds": 90.0,
+    "originalPositiveSTART": false,
+    "definitivePostPositiveSTARTFailureRecovery": "NOT_OBSERVED",
+    "rows": [
+      {
+        "t": 1.52,
+        "row": [
+          [
+            11,
+            "dispatchIntent",
+            0,
+            "visible"
+          ]
+        ]
+      },
+      {
+        "t": 2.2,
+        "row": [
+          [
+            11,
+            "dispatchIntent",
+            0,
+            "visible"
+          ]
+        ]
+      },
+      {
+        "t": 3.01,
+        "row": [
+          [
+            11,
+            "dispatchIntent",
+            0,
+            "visible"
+          ]
+        ]
+      },
+      {
+        "t": 5.0,
+        "row": [
+          [
+            11,
+            "dispatchIntent",
+            0,
+            "visible"
+          ]
+        ]
+      },
+      {
+        "t": 7.01,
+        "row": [
+          [
+            11,
+            "dispatchIntent",
+            0,
+            "visible"
+          ]
+        ]
+      },
+      {
+        "t": 10.0,
+        "row": [
+          [
+            11,
+            "dispatchIntent",
+            0,
+            "visible"
+          ]
+        ]
+      },
+      {
+        "t": 15.01,
+        "row": [
+          [
+            11,
+            "unknown",
+            0,
+            "visible"
+          ]
+        ]
+      },
+      {
+        "t": 20.01,
+        "row": [
+          [
+            11,
+            "unknown",
+            0,
+            "visible"
+          ]
+        ]
+      },
+      {
+        "t": 27.01,
+        "row": [
+          [
+            11,
+            "unknown",
+            0,
+            "visible"
+          ]
+        ]
+      },
+      {
+        "t": 35.01,
+        "row": [
+          [
+            11,
+            "unknown",
+            0,
+            "visible"
+          ]
+        ]
+      },
+      {
+        "t": 45.0,
+        "row": [
+          [
+            11,
+            "unknown",
+            0,
+            "visible"
+          ]
+        ]
+      },
+      {
+        "t": 55.01,
+        "row": [
+          [
+            11,
+            "unknown",
+            0,
+            "visible"
+          ]
+        ]
+      },
+      {
+        "t": 65.0,
+        "row": [
+          [
+            11,
+            "unknown",
+            0,
+            "visible"
+          ]
+        ]
+      },
+      {
+        "t": 75.01,
+        "row": [
+          [
+            11,
+            "unknown",
+            0,
+            "visible"
+          ]
+        ]
+      },
+      {
+        "t": 85.01,
+        "row": [
+          [
+            11,
+            "unknown",
+            0,
+            "visible"
+          ]
+        ]
+      },
+      {
+        "t": 90.0,
+        "row": [
+          [
+            11,
+            "unknown",
+            0,
+            "visible"
+          ]
+        ]
+      }
+    ]
+  },
+  "restartAndDisposition": {
+    "operationsBeforeAndAfter": 11,
+    "startsBeforeAndAfter": 9,
+    "originalTargetPresent": "Returned to the correct live test window and tab after restarting only the app.",
+    "originalTargetClosed": "Explicit recheck reported that the original attachment can no longer be verified. Available actions included viewing the image or ending local tracking."
+  },
+  "teardown": "QA App exited. Dedicated test windows closed. Exact QA rule deleted, blocking disabled, No throttling restored; no DevTools windows remained."
+}
