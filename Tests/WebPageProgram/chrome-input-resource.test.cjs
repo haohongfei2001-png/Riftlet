@@ -317,6 +317,24 @@ function browserFixture(options){
    check(task.list instanceof FileList,'application observed actual native FileList');
    if(options.retained)check(task.list.length===1&&task.list[0]===task.file,'retained prior FileList independent from replacement');
   }
+  if(options.opaqueFailure){
+   const first=tasks[0], second=tasks[1];
+   const read=index=>call(ops[index].command('observe')).observation;
+   const start=read(0).attachmentID;
+   const status=document.createElement('span');status.textContent='上传未成功';
+   second.image.src=URL.createObjectURL(first.file);
+   second.card.append(status.cloneNode(true));
+   await new Promise(done=>setTimeout(done,0));
+   check(read(1).state==='uploadStarted','a reused named shell cannot claim another File preview');
+   check(read(0).state==='uploadStarted','the neighbour’s error cannot migrate');
+   const name=document.createElement('span');name.textContent=first.file.name;
+   first.card.replaceChildren(status,name);
+   await new Promise(done=>setTimeout(done,0));
+   const failed=read(0);
+   check(failed.state==='failed'&&failed.attachmentID===start&&!failed.automaticRetryExcluded,
+    'native mutation delivery preserves the exact local text-only failure');
+   check(read(1).state==='uploadStarted','replacement in A does not change B');
+  }
   if(options.portalCards){
    const failedNode=options.ariaCardFailure?tasks[0].image:tasks[0].card;
    failedNode.dataset.state='failed';
@@ -393,6 +411,7 @@ function browserFixture(options){
  .replace('__PREVIOUS__',()=>JSON.stringify(previous)).replace('__SOURCE__',()=>JSON.stringify(source).replace(/<\/script/gi,'<\\/script'));
 }
 const originalScenarios=[
+ {name:'opaque-member-text-failure',count:2,retained:true,decoratedFilename:true,opaqueFailure:true,route:'https://chatgpt.com/'},
  {name:'original-portal-card-failure',count:2,retained:true,portalCards:true,route:'https://chatgpt.com/c/ordinary-thread'},
  {name:'aria-preview-portal-failure',count:2,retained:true,portalCards:true,ariaCardFailure:true,route:'https://chatgpt.com/c/ordinary-thread'},
  {name:'actual-marked-zh-composer-four-direct-fields',count:5,retained:true,liveComposerShape:true,route:'https://chatgpt.com/'},
