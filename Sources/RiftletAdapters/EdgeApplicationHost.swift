@@ -53,6 +53,20 @@ struct EdgeApplicationHost: ApplicationHostAdapter {
         return try freeze(process)
     }
 
+    /// First half of the synchronous click bracket. Read the selected IDs once
+    /// and only their address; the same click then pins that document/editor
+    /// while its page is visible and focused, and rechecks these exact IDs.
+    /// This is not a complete lease for capture or input. Those paths continue
+    /// to use revalidate's full selected/address/selected freeze below.
+    func freezeForClick() throws -> EdgeWindowTab {
+        guard let process = frontmost() else { throw EdgeHostError.notFrontmost }
+        guard frontmost() == process else { throw EdgeHostError.changed }
+        let selection = try selected(process.pid)
+        let url = try address(process.pid, selection.window, selection.tab)
+        guard !url.isEmpty, frontmost() == process else { throw EdgeHostError.changed }
+        return EdgeWindowTab(process: process, windowID: selection.window, tabID: selection.tab, address: url)
+    }
+
     private func freeze(_ process: KernelProcessBirth) throws -> EdgeWindowTab {
         guard frontmost() == process else { throw EdgeHostError.changed }
         let selection = try selected(process.pid)

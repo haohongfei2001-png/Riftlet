@@ -29,7 +29,7 @@ struct NativeEdgeWebExecutionDriver: EdgeWebExecutionDriver {
     }
 
     func freeze(deadline: TimeInterval) throws -> EdgeWindowTab {
-        do { return try clickHost(deadline: deadline).freeze() } catch { throw Self.mapped(error) }
+        do { return try clickHost(deadline: deadline).freezeForClick() } catch { throw Self.mapped(error) }
     }
     func revalidate(_ target: EdgeWindowTab, deadline: TimeInterval,
                     descriptorFailure: (EdgeDescriptorFailure) -> Void) throws {
@@ -158,13 +158,18 @@ struct EdgeExecutionWorldWitness: Sendable {
 
     /// Both original-document capabilities are created in one execute event on
     /// the frozen tab. This saves a native round trip inside the unchanged
-    /// 150 ms click budget; neither check nor the final native recheck is omitted.
+    /// 150 ms click budget. A page that became background during the original
+    /// ID/address read must refuse before installing a witness: a past blur
+    /// cannot be recovered by listeners installed later. Editor focus is not
+    /// required. The final native selection and all later full checks remain.
     func prepareAndBind(_ witness: ChromeClickDocumentWitness, address: String,
                         program: WebPageProgram) throws -> String {
         let binding = try witness.bindScript(address: address, program: program, host: .edge)
         return """
         /* edge-click-prepare-and-pin */
-        (()=>{if((\(prepare))!=='prepared')return 'refused';return (\(binding));})()
+        (()=>{if(document.visibilityState!=='visible'||typeof document.hasFocus!=='function'
+          ||document.hasFocus()!==true)return 'refused';
+        if((\(prepare))!=='prepared')return 'refused';return (\(binding));})()
         """
     }
 
