@@ -766,7 +766,7 @@ function riftletWebAcceptance(command, native) {
   }
   // Keep only a weak node and a change bit, never a signed URL or inline
   // payload. The narrow observer expires even on documents with older registries.
-  function unchangedPreview(imageRef, shellRef, name) {
+  function unchangedPreview(imageRef, shellRef, name, boundBlob) {
     let changed = false;
     const invalidate = () => { changed = true; observer.disconnect(); clearTimeout(timer); };
     const inspect = records => {
@@ -778,6 +778,10 @@ function riftletWebAcceptance(command, native) {
             && ['src', 'srcset', 'alt'].includes(record.attributeName)) return invalidate();
         for (const node of record.addedNodes || []) {
           if (node.nodeType !== 1 || node === image) continue;
+          // Two renderings of the exact bound blob can coexist. Only the
+          // original node may report its own failure while both are present.
+          if (boundBlob && node.tagName === 'IMG' && node.getAttribute('src') === boundBlob
+              && fileNamePattern(name).test(node.getAttribute('alt') || '')) continue;
           if (!consistentCardLabels(node, name) || node.matches('img[src]') || node.querySelector('img[src]')) return invalidate();
         }
       }
@@ -841,7 +845,7 @@ function riftletWebAcceptance(command, native) {
       cards.add(card);
       const initialImage = card.querySelector('img[src]');
       views.push({opaqueImage: opaqueImage ? new WeakRef(image) : null,
-        unchanged: opaqueImage || namedCard ? unchangedPreview(initialImage && new WeakRef(initialImage), new WeakRef(card), op.name) : null,
+        unchanged: opaqueImage || namedCard ? unchangedPreview(initialImage && new WeakRef(initialImage), new WeakRef(card), op.name, src) : null,
         startedWithoutImage: !initialImage,
         imageParent: opaqueImage ? new WeakRef(image.parentElement) : null, card: new WeakRef(card), parent: new WeakRef(card.parentElement), namedCard, label, witness: new WeakRef(node),
         preview: preview ? new WeakRef(preview) : null, src, sameFile,
@@ -901,7 +905,7 @@ function riftletWebAcceptance(command, native) {
       }
     }
     const failed = node => ['failed', 'error'].includes(node.getAttribute('data-state'));
-    if (!requireError || failed(card) || visibleFailureText(card)) return consistentCardLabels(card, op.name);
+    if (!requireError || (card.querySelectorAll('img[src]').length <= 1 && (failed(card) || visibleFailureText(card)))) return consistentCardLabels(card, op.name);
     // Only the initially bound, still-identical preview can contribute a
     // descendant's error. An inserted status, toast, or sibling cannot.
     const preview = view.preview?.deref();
