@@ -1,0 +1,122 @@
+{
+  "source": "3ab118d590c911a52e4110094f78ae1f480927f2",
+  "product": "3ab118d590c911a52e4110094f78ae1f480927f2",
+  "build": 42,
+  "dmgSHA256": "a9037d17d079c2ae6ed62693c4523e2f8b3543d0943dd00e8a79270c9069fde1",
+  "executableSHA256": "b2f67175b8a1d522291c3f5f21c710b6435bd9cde9c00e9a98ff912d2d723080",
+  "clickToSwallowCommitUpperBoundMS": [
+    3747.2,
+    2461.0,
+    1932.6,
+    2229.5,
+    2197.3,
+    1898.8,
+    1691.5,
+    2484.6
+  ],
+  "cold": 3747.2,
+  "warm": 2461.0,
+  "median": 2213.4,
+  "p95NearestRank": 3747.2,
+  "pairMouseDownIntervalsMS": [
+    451.6,
+    416.7,
+    374.1
+  ],
+  "operations": [
+    {
+      "sequence": 1,
+      "op": "17dd948b4602",
+      "asset": "f49cb54470eb",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "fcd25b2fc023",
+      "draft": "5a801d459208",
+      "card": "8c1e9f826e78",
+      "belongs": true
+    },
+    {
+      "sequence": 2,
+      "op": "2950ab1cfb82",
+      "asset": "a9f8a623bdae",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "b99f53164fe0",
+      "draft": "5a801d459208",
+      "card": "bb7e671542ec",
+      "belongs": true
+    },
+    {
+      "sequence": 3,
+      "op": "464e684f03e7",
+      "asset": "f6e54dbf1d0d",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "e285eb6f0033",
+      "draft": "5a801d459208",
+      "card": "10413cb8afc4",
+      "belongs": true
+    },
+    {
+      "sequence": 4,
+      "op": "6e2c57548929",
+      "asset": "d90ac85e551e",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "97b931e3d631",
+      "draft": "5a801d459208",
+      "card": "41e8d0a200f2",
+      "belongs": true
+    },
+    {
+      "sequence": 5,
+      "op": "639a4a2d6440",
+      "asset": "ba5d934c0a71",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "0059ef42500b",
+      "draft": "5a801d459208",
+      "card": "09feb1cea763",
+      "belongs": true
+    },
+    {
+      "sequence": 6,
+      "op": "10226267c760",
+      "asset": "fa498938a30d",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "09ea48a8d6f0",
+      "draft": "5a801d459208",
+      "card": "0462366450ba",
+      "belongs": true
+    },
+    {
+      "sequence": 7,
+      "op": "fb298d9411d4",
+      "asset": "926b88c961f2",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "613ffc0cae68",
+      "draft": "5a801d459208",
+      "card": "73bfa154a710",
+      "belongs": true
+    },
+    {
+      "sequence": 8,
+      "op": "82d1eb8a21c7",
+      "asset": "0add0d30c521",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "cf39ad14c1e3",
+      "draft": "5a801d459208",
+      "card": "4d18533b3caf",
+      "belongs": true
+    }
+  ],
+  "positiveSTART": 8,
+  "distinctOperations": 8,
+  "uniqueVisibleFixtureImagesInOriginalOrder": 8,
+  "preservedSelection": true,
+  "unsent": true,
+  "refocusOriginalTab": true
+}
