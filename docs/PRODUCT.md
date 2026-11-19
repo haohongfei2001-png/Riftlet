@@ -1,5 +1,8 @@
 # Riftlet 当前产品约束
 
+1.0.7 候选依据 [Issue #118](https://github.com/haohongfei2001-png/Riftlet/issues/118) 整合 Chrome 与 Microsoft Edge。一次普通点选绑定前台浏览器进程、窗口、标签和原草稿。仅明确收取本图才可收起；服务终态未知时保留原记录。发布状态和实测范围见[候选报告](releases/1.0.7/RC_REPORT.md)。
+
+
 2026-11-18 已发布 1.0.5（31），官网与应用内更新提供同一签名、公证安装包。[公开发行](https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.5) · [通道验收](https://github.com/haohongfei2001-png/Riftlet/pull/114#issuecomment-6968323045)
 
 1.0.6 以 [Issue #115](https://github.com/haohongfei2001-png/Riftlet/issues/115) 为唯一修复入口。正常点击继续在 START 时收起。用户核对原草稿、结束本地待办或另行授权一次新附加时，应保留旧操作与回执；处置截图资料依据本地文件身份和留存规则。[本版进度](releases/1.0.6/PROGRESS.md)

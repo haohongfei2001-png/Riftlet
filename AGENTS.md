@@ -7,9 +7,7 @@ The verified 2026-11-18 release is 1.0.5 (31). Recheck all three distribution ch
 ## Read only what the task needs
 
 1. This file and [current product contract](docs/PRODUCT.md).
-2. [Issue #115](https://github.com/haohongfei2001-png/Riftlet/issues/115) is the sole
-   1.0.6 task. Use its R106-01–11 decisions and V1–V6 acceptance matrix, with
-   [progress and candidate receipts](docs/releases/1.0.6/README.md).
+2. [Issue #118](https://github.com/haohongfei2001-png/Riftlet/issues/118) is the 1.0.7 specification. Continue Draft PR #119 from the inherited build 44 source. Record same-candidate results in [the release directory](docs/releases/1.0.7/README.md).
 3. [Current design decisions](docs/quality/DECISIONS.md) and the relevant source/tests.
 4. [Mainline admission](docs/MAINLINE_GOVERNANCE.md) before committing a formal PR.
 
@@ -18,13 +16,12 @@ historical phase restrictions. Old files are retained under `docs/quality/histor
 `engineering/evidence/` and `research/` remain source-bound historical evidence,
 not new permission or a second work queue. Open candidates are not released features.
 
-Start from the actual main containing merged PRs #113 and #114. Preserve the
-signed 1.0.5 release, stable feed and unrelated branches. PR #69 is separate.
+Preserve the signed 1.0.5 release, stable feed and review history. Port selected Edge behavior from #69 onto #117’s product lifecycle.
 
 ## Product invariants
 
 - Normal system screenshot → visible edge thumbnail → one explicit click attaches
-  that image to the correct click-time Chrome ChatGPT draft. Never send the message.
+  that image to the correct click-time Chrome or Edge ChatGPT draft. Never send the message.
 - Freeze and revalidate the exact process/window/tab/document/composer. Do not guess
   another conversation or let an unowned file input become eligible merely by timeout.
 - Enter the setter/change path at most once per attempt. After possible external input,
