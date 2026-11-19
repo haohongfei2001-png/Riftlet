@@ -1,4 +1,9 @@
 {
+  "source": "bfd043e2af82fbc64e33a1167e7d4f2245aa2b81",
+  "product": "bfd043e2af82fbc64e33a1167e7d4f2245aa2b81",
+  "build": 41,
+  "dmgSHA256": "fa40e9df09b7e9007aecf802a505ecf21a770fd732b50d16df37c6db77942d6f",
+  "executableSHA256": "ace72bf6d2959b3e6d970308a2b58caf74f7045fa477a990709945bcab8618f6",
   "clickToSwallowCommitUpperBoundMS": [
     1974.4,
     2706.3,
@@ -18,8 +23,96 @@
     409.9,
     398.3
   ],
-  "build": 41,
-  "product": "bfd043e2af82fbc64e33a1167e7d4f2245aa2b81",
+  "operations": [
+    {
+      "sequence": 1,
+      "op": "83257f1a66d9",
+      "asset": "d47f57411836",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "9f9e63e7bece",
+      "draft": "f590c12df6d6",
+      "card": "3d6ac985f15e",
+      "belongs": true
+    },
+    {
+      "sequence": 2,
+      "op": "fc14c2547164",
+      "asset": "988ee19fcae8",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "62f563f9a24c",
+      "draft": "f590c12df6d6",
+      "card": "aada414f5a06",
+      "belongs": true
+    },
+    {
+      "sequence": 3,
+      "op": "eb24329f7f7d",
+      "asset": "ff01b91b672a",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "7ac0fe35430f",
+      "draft": "f590c12df6d6",
+      "card": "c0ba4823ee19",
+      "belongs": true
+    },
+    {
+      "sequence": 4,
+      "op": "07af565b5a6f",
+      "asset": "abfdb3d1be0d",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "99ad1d622914",
+      "draft": "f590c12df6d6",
+      "card": "b09fb7ea5ab4",
+      "belongs": true
+    },
+    {
+      "sequence": 5,
+      "op": "8ebf17580d12",
+      "asset": "0e692062148b",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "86f4f87b31e6",
+      "draft": "f590c12df6d6",
+      "card": "6528aa6804b4",
+      "belongs": true
+    },
+    {
+      "sequence": 6,
+      "op": "be2833f10b74",
+      "asset": "ad66d31ed158",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "d8efe3ebc003",
+      "draft": "f590c12df6d6",
+      "card": "bf3bf4335bc5",
+      "belongs": true
+    },
+    {
+      "sequence": 7,
+      "op": "e20cfd6e04fb",
+      "asset": "98e3a0ef71d3",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "cd53f24a95d3",
+      "draft": "f590c12df6d6",
+      "card": "ca853e20d4ff",
+      "belongs": true
+    },
+    {
+      "sequence": 8,
+      "op": "884d82e9a3cf",
+      "asset": "0f5c38f1ce6a",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "366ea3760237",
+      "draft": "f590c12df6d6",
+      "card": "5a1cefc171a9",
+      "belongs": true
+    }
+  ],
   "positiveSTART": 8,
   "distinctOperations": 8,
   "uniqueVisibleFixtureImagesInOriginalOrder": 8,
