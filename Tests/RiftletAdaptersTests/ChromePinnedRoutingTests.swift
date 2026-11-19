@@ -42,6 +42,15 @@ final class ChromePinnedRoutingTests: XCTestCase {
         }
     }
 
+    func testRestartReadOnlyDiscoveryRejectsDifferentSavedChatAndCachedRoute() throws {
+        let id = UUID(), other = UUID()
+        let saved = try ChromeClickRoute.chatGPT(window: "1", tab: "2", url: "https://chatgpt.com/c/" + id.uuidString)
+        let navigated = try ChromeClickRoute.chatGPT(window: "1", tab: "2", url: "https://chatgpt.com/c/" + other.uuidString)
+        XCTAssertTrue(saved.matchesOriginal(route: nil, savedConversation: id))
+        XCTAssertFalse(navigated.matchesOriginal(route: nil, savedConversation: id))
+        XCTAssertFalse(navigated.matchesOriginal(route: saved, savedConversation: nil))
+    }
+
     func testSnapshotHasNoNewChatOrProjectPathWhitelist() throws {
         for path in ["/", "/c/ordinary", "/g/project/project", "/g/project/c/conversation", "/future-chat-route"] {
             let route = try ChromeClickRoute(window: "1", tab: "2", url: "https://chatgpt.com" + path)

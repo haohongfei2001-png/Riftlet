@@ -85,7 +85,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
             let program = try ChatGPTWebPageProgram.load()
             let bridge = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: requestID)
             let route = try await Task.detached {
-                try ChromeClickRoute(window: target.windowID, tab: tab, url: bridge.url(window: target.windowID, tab: tab))
+                try ChromeClickRoute.chatGPT(window: target.windowID, tab: tab, url: bridge.url(window: target.windowID, tab: tab))
             }.value
             func matches() async throws -> Bool {
                 let data = try await Self.run(.init(action: .validate, target: target, requireLiveOriginal: true), program: program,
@@ -146,7 +146,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
               let tab = target.tabID, let windowNumber = Int64(target.windowID), windowNumber > 0,
               let tabNumber = Int64(tab), tabNumber > 0 else { throw WebAdapterError.invalidTarget }
         let route = routes.value(for: target.stableKey)
-        if ChromeCommandRouting.requiresSelectionCheck(command.action), route == nil {
+        if command.action != .observe, route == nil || relays.bound(to: target) == nil {
             throw WebAdapterError.invalidTarget
         }
         return try await Self.run(command, program: program, identity: identity, route: route,
@@ -188,6 +188,15 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                         }
                         phase = "selection"
                         if command.action == .captureTarget { try checkSelection() }
+                        if command.action == .observe || discoverForHistory {
+                            // A relaunched App may have no cached route. Read the
+                            // exact saved tab's service before any relay discovery.
+                            let current = try ChromeClickRoute.chatGPT(window: window, tab: tab,
+                                url: bridge.url(window: window, tab: tab))
+                            guard current.matchesOriginal(route: route, savedConversation: command.target?.historyConversationID) else {
+                                throw WebAdapterError.nativeSelectionChanged
+                            }
+                        }
                         if let world, command.action == .captureTarget {
                             try bridge.submitMainWorld(world.bootstrap, window: window, tab: tab)
                             guard try bridge.execute(world.confirm, window: window, tab: tab) == "verified" else {

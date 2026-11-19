@@ -42,6 +42,10 @@ struct ChromeClickRoute: Equatable, Sendable {
         return id.count == 36 ? UUID(uuidString: id) : nil
     }
 
+    func matchesOriginal(route: Self?, savedConversation: UUID?) -> Bool {
+        (route == nil || route == self) && (savedConversation == nil || savedConversation == historyConversationID)
+    }
+
     init(window: String, tab: String, url: String) throws {
         guard let windowNumber = Int64(window), windowNumber > 0,
               let tabNumber = Int64(tab), tabNumber > 0,
