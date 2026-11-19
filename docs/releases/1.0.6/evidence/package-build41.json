@@ -1,0 +1,28 @@
+{
+  "stage": "VERIFIED_STAPLED_DMG",
+  "version": "1.0.6",
+  "build": "41",
+  "source": "bfd043e2af82fbc64e33a1167e7d4f2245aa2b81",
+  "archive": "Riftlet-1.0.6.dmg",
+  "sha256": "fa40e9df09b7e9007aecf802a505ecf21a770fd732b50d16df37c6db77942d6f",
+  "bytes": 13325896,
+  "architectures": [
+    "arm64",
+    "x86_64"
+  ],
+  "teamID": "ZB9D4T66QB",
+  "dmgGatekeeperOpen": "ACCEPTED",
+  "dmgTicket": "VALID",
+  "embeddedAppGatekeeperExecute": "ACCEPTED",
+  "embeddedAppTicket": "VALID",
+  "notaryStatus": "Accepted",
+  "appSubmissionID": "0b91c3c7-7e62-4633-abf5-6866a9b9626b",
+  "submissionID": "737460ef-567e-4211-b2c8-2a16516203c6",
+  "executableSHA256": "ace72bf6d2959b3e6d970308a2b58caf74f7045fa477a990709945bcab8618f6",
+  "minimumMacOS": "13.0",
+  "nativePackageSelfCheck": {
+    "arm64": "PASS",
+    "x86_64ViaRosetta": "PASS",
+    "scope": "original-byte import, two independent controlled inputs/STARTs and read-only restart; real Chrome tested separately"
+  }
+}
