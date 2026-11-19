@@ -53,6 +53,20 @@ final class ChromeProcessIdentityTests: XCTestCase {
         XCTAssertFalse(withDate.matches(session: "23:100.500", allowLegacyObservation: true))
         XCTAssertFalse(withDate.matches(session: "23:100.000007", allowLegacyObservation: true))
     }
+    func testClickRequiresCurrentForegroundBrowserAndOriginalInstance() throws {
+        let chrome = try identity()
+        let edge = try XCTUnwrap(ChromeProcessIdentity(birth: chrome.birth, applicationID: "com.microsoft.edgemac",
+            terminated: false, launchDate: Date(timeIntervalSince1970: 100.5)))
+        XCTAssertEqual(edge.session, "edge-kernel-v1:23:100:7")
+        XCTAssertNotEqual(chrome, edge)
+        XCTAssertTrue(edge.matchesForeground(pid: 23, applicationID: "com.microsoft.edgemac"))
+        XCTAssertFalse(edge.matchesForeground(pid: 27, applicationID: "com.microsoft.edgemac"))
+        XCTAssertFalse(edge.matchesForeground(pid: 23, applicationID: "com.google.Chrome"))
+        XCTAssertFalse(edge.matchesForeground(pid: nil, applicationID: nil))
+        XCTAssertFalse(edge.matches(session: chrome.session, allowLegacyObservation: true))
+        XCTAssertFalse(edge.matches(session: "23:100.5", allowLegacyObservation: true))
+    }
+
     func testKernelBirthCanBeReadForThisProcessWithoutGUIOrChrome() throws {
         let first = try XCTUnwrap(KernelProcessBirth.read(pid: getpid()))
         XCTAssertEqual(KernelProcessBirth.read(pid: getpid()), first)

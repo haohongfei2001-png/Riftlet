@@ -1,4 +1,5 @@
 import AppKit
+import Carbon
 import Foundation
 import RiftletCore
 
@@ -11,27 +12,10 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
     private let relays = MainWorldRelayStore()
     private let trace: ChromeBridgeTrace
     private var routes = ChromeSessionCache<ChromeClickRoute>()
-    private var lastForegroundChrome: ChromeProcessIdentity?
-    private var activationObserver: NSObjectProtocol?
+    private var edgeWorlds = ChromeSessionCache<EdgeExecutionWorldWitness>()
 
     public init(traceEnabled: Bool = false, diagnosticTrace: BoundedDiagnosticTrace? = nil) {
         trace = ChromeBridgeTrace(sink: diagnosticTrace ?? BoundedDiagnosticTrace(enabled: traceEnabled))
-        if let application = NSWorkspace.shared.frontmostApplication,
-           application.bundleIdentifier == "com.google.Chrome" {
-            lastForegroundChrome = ChromeProcessIdentity.read(pid: application.processIdentifier)
-        }
-        activationObserver = NSWorkspace.shared.notificationCenter.addObserver(
-            forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { [weak self] note in
-                MainActor.assumeIsolated {
-                    guard let application = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
-                          application.bundleIdentifier == "com.google.Chrome" else { return }
-                    self?.lastForegroundChrome = ChromeProcessIdentity.read(pid: application.processIdentifier)
-                }
-            }
-    }
-
-    deinit {
-        if let activationObserver { NSWorkspace.shared.notificationCenter.removeObserver(activationObserver) }
     }
 
     /// Only native object IDs and the tab URL are read during mouse-down. This
@@ -42,22 +26,36 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         let identity = try clickReceiver()
         let requestID = UUID().uuidString
         let bridge = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: requestID, clickDeadline: clickDeadline)
+        try identity.checkAutomationPermission()
         let route = try bridge.clickRoute(deadline: clickDeadline)
+        let witness = ChromeClickDocumentWitness()
+        let world = identity.applicationID == AttachmentBrowser.edge.rawValue ? EdgeExecutionWorldWitness() : nil
+        let binding = try world?.prepareAndBind(witness, address: route.address, program: program)
+            ?? witness.bindScript(address: route.address, program: program)
+        guard try bridge.execute(binding, window: route.window, tab: route.tab) == "bound" else {
+            throw WebAdapterError.pageRejected(.clickPinRefused)
+        }
+        let selected = try bridge.activeIdentity(check: "document_pin")
+        guard selected.window == route.window, selected.tab == route.tab, Self.foregroundMatches(identity) else {
+            throw WebAdapterError.nativeSelectionChanged
+        }
         try clickDeadline.checkReturn()
         guard identity.isCurrent() else { throw WebAdapterError.invalidTarget }
         let relays = self.relays, trace = self.trace
         return Task { [weak self] in
             try Task.checkCancellation()
-            let bytes = try await Self.run(WebBridgeCommand(action: .captureTarget), program: program,
-                identity: identity, route: route, relays: relays, trace: trace, requestID: requestID)
+            let bytes = try await Self.run(WebBridgeCommand(action: .captureTarget, clickWitnessID: witness.id), program: program,
+                identity: identity, route: route, relays: relays, trace: trace, requestID: requestID, world: world)
             try Task.checkCancellation()
             guard let target = try? JSONDecoder().decode(TargetLease.self, from: bytes),
                   target.adapterID == "chatgpt-web", target.surface == .webChat,
-                  target.applicationID == "com.google.Chrome", target.sessionID == identity.session,
+                  target.applicationID == identity.applicationID, target.sessionID == identity.session,
+                  target.clickBindingID == witness.id,
                   target.windowID == route.window, target.tabID == route.tab,
                   target.historyConversationID == nil || target.historyConversationID == route.historyConversationID,
                   !target.documentID.isEmpty, !target.composerID.isEmpty, !target.draftGeneration.isEmpty,
                   let self else { throw WebAdapterError.invalidTarget }
+            if let world { self.edgeWorlds.store(world, for: target.stableKey) }
             self.routes.store(route, for: target.stableKey)
             return target
         }
@@ -69,10 +67,10 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         struct DraftValidation: Decodable { let target: TargetLease; let valid: Bool }
         let target = operation.target
         guard target.surface == .webChat, target.adapterID == "chatgpt-web",
-              target.applicationID == "com.google.Chrome", let tab = target.tabID,
+              ChromeProcessIdentity.supports(target.applicationID), let tab = target.tabID,
               let app = NSRunningApplication.runningApplications(withBundleIdentifier: target.applicationID)
-                .first(where: { ChromeProcessIdentity.read(pid: $0.processIdentifier)?.matches(session: target.sessionID) == true }),
-              let identity = ChromeProcessIdentity.read(pid: app.processIdentifier),
+                .first(where: { ChromeProcessIdentity.read(pid: $0.processIdentifier, applicationID: target.applicationID)?.matches(session: target.sessionID) == true }),
+              let identity = ChromeProcessIdentity.read(pid: app.processIdentifier, applicationID: target.applicationID),
               identity.matches(session: target.sessionID) else { return false }
         let requestID = UUID().uuidString
         let start = ProcessInfo.processInfo.systemUptime
@@ -115,27 +113,20 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
     }
 
     private func clickReceiver() throws -> ChromeProcessIdentity {
-        let applications = NSRunningApplication.runningApplications(withBundleIdentifier: "com.google.Chrome")
-        let running = Set(applications.filter { !$0.isTerminated }.map(\.processIdentifier))
-        let frontmost = NSWorkspace.shared.frontmostApplication
-        let frontmostPID = frontmost?.bundleIdentifier == "com.google.Chrome" ? frontmost?.processIdentifier : nil
-        if let frontmostPID {
-            guard let identity = ChromeProcessIdentity.read(pid: frontmostPID) else { throw WebAdapterError.invalidTarget }
-            return identity
-        }
-        let previous = lastForegroundChrome
-        guard let pid = ChromeReceiverSelection.choose(frontmost: nil, lastForeground: previous?.pid,
-                running: running),
-              let identity = ChromeProcessIdentity.read(pid: pid) else { throw WebAdapterError.invalidTarget }
-        // Retain the observed process lifetime. An exited Chrome or reused PID
-        // is different from never having observed a Chrome activation.
-        if let previous, identity != previous { throw WebAdapterError.invalidTarget }
+        guard let front = NSWorkspace.shared.frontmostApplication, let id = front.bundleIdentifier,
+              let identity = ChromeProcessIdentity.read(pid: front.processIdentifier, applicationID: id),
+              Self.foregroundMatches(identity) else { throw WebAdapterError.browserNotFrontmost }
         return identity
     }
 
-    private nonisolated static func contextJSON(session: String, window: String, tab: String) -> String {
+    private nonisolated static func foregroundMatches(_ identity: ChromeProcessIdentity) -> Bool {
+        let front = NSWorkspace.shared.frontmostApplication
+        return identity.isCurrent() && identity.matchesForeground(pid: front?.processIdentifier, applicationID: front?.bundleIdentifier)
+    }
+
+    private nonisolated static func contextJSON(applicationID: String, session: String, window: String, tab: String) -> String {
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
-        return String(decoding: try! encoder.encode(["applicationID":"com.google.Chrome", "sessionID":session,
+        return String(decoding: try! encoder.encode(["applicationID":applicationID, "sessionID":session,
             "windowID":window, "tabID":tab]), as: UTF8.self)
     }
 
@@ -146,11 +137,12 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
             let target = try await task.value
             return try JSONEncoder().encode(target)
         }
-        guard let target = command.target, target.applicationID == "com.google.Chrome",
-              let application = NSRunningApplication.runningApplications(withBundleIdentifier: "com.google.Chrome").first(where: {
-                  ChromeProcessIdentity.read(pid: $0.processIdentifier)?.matches(session: target.sessionID,
+        guard let target = command.target, ChromeProcessIdentity.supports(target.applicationID),
+              let application = NSRunningApplication.runningApplications(withBundleIdentifier: target.applicationID).first(where: {
+                  ChromeProcessIdentity.read(pid: $0.processIdentifier, applicationID: target.applicationID)?.matches(session: target.sessionID,
                       allowLegacyObservation: command.action == .observe) == true
-              }), let identity = ChromeProcessIdentity.read(pid: application.processIdentifier),
+              }), let identity = ChromeProcessIdentity.read(pid: application.processIdentifier, applicationID: target.applicationID),
+              identity.matches(session: target.sessionID, allowLegacyObservation: command.action == .observe),
               let tab = target.tabID, let windowNumber = Int64(target.windowID), windowNumber > 0,
               let tabNumber = Int64(tab), tabNumber > 0 else { throw WebAdapterError.invalidTarget }
         let route = routes.value(for: target.stableKey)
@@ -158,12 +150,12 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
             throw WebAdapterError.invalidTarget
         }
         return try await Self.run(command, program: program, identity: identity, route: route,
-            relays: relays, trace: trace, requestID: UUID().uuidString)
+            relays: relays, trace: trace, requestID: UUID().uuidString, world: edgeWorlds.value(for: target.stableKey))
     }
 
     private nonisolated static func run(_ command: WebBridgeCommand, program: WebPageProgram,
         identity: ChromeProcessIdentity, route: ChromeClickRoute?, relays: MainWorldRelayStore,
-        trace: ChromeBridgeTrace, requestID: String, discoverForHistory: Bool = false) async throws -> Data {
+        trace: ChromeBridgeTrace, requestID: String, discoverForHistory: Bool = false, world: EdgeExecutionWorldWitness? = nil) async throws -> Data {
         let commandJSON = String(decoding: try JSONEncoder().encode(command), as: UTF8.self)
         let enqueued = ProcessInfo.processInfo.systemUptime
         // Old UNKNOWN observations must not occupy the input queue. Each
@@ -176,23 +168,35 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                 let result: Result<Data, Error> = Result {
                     try autoreleasepool {
                         guard identity.isCurrent() else { throw WebAdapterError.invalidTarget }
+                        try identity.checkAutomationPermission()
                         let bridge = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: requestID)
                         guard let window = route?.window ?? command.target?.windowID,
                               let tab = route?.tab ?? command.target?.tabID else { throw WebAdapterError.invalidTarget }
                         func checkSelection() throws {
                             guard identity.isCurrent() else { throw WebAdapterError.invalidTarget }
                             guard ChromeCommandRouting.requiresSelectionCheck(command.action) else { return }
+                            if !discoverForHistory {
+                                guard Self.foregroundMatches(identity) else { throw WebAdapterError.nativeSelectionChanged }
+                                let selection = try bridge.activeIdentity(check: "before_command")
+                                guard selection.window == window, selection.tab == tab else { throw WebAdapterError.nativeSelectionChanged }
+                            }
                             guard let route else { throw WebAdapterError.invalidTarget }
-                            let current = try ChromeClickRoute(window: route.window, tab: route.tab,
+                            let current = try ChromeClickRoute.chatGPT(window: route.window, tab: route.tab,
                                 url: bridge.url(window: route.window, tab: route.tab))
                             guard current == route else { throw WebAdapterError.nativeSelectionChanged }
                         }
                         phase = "selection"
                         if command.action == .captureTarget { try checkSelection() }
-                        let context = contextJSON(session: command.target?.sessionID ?? identity.session, window: window, tab: tab)
+                        if let world, command.action == .captureTarget {
+                            try bridge.submitMainWorld(world.bootstrap, window: window, tab: tab)
+                            guard try bridge.execute(world.confirm, window: window, tab: tab) == "verified" else {
+                                throw WebAdapterError.pageRejected(.bridgeUnavailable)
+                            }
+                        }
+                        let context = contextJSON(applicationID: identity.applicationID, session: command.target?.sessionID ?? identity.session, window: window, tab: tab)
                         let envelope = MainWorldCommandEnvelope(function: program.functionSource,
                             commandJSON: commandJSON, contextJSON: context)
-                        let legacySession = identity.legacyLaunchDate.flatMap { date in
+                        let legacySession = (identity.applicationID == AttachmentBrowser.chrome.rawValue ? identity.legacyLaunchDate : nil).flatMap { date in
                             date.timeIntervalSince1970.isFinite ? "\(identity.pid):\(date.timeIntervalSince1970)" : nil
                         }
                         var relay = command.target.flatMap { relays.bound(to: $0) } ?? relays.relay(function: program.functionSource, contextJSON: context,
@@ -220,6 +224,11 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                         // Bootstrap is legal on the first click even when the
                         // thumbnail changed focus. It addresses this exact tab.
                         try checkSelection()
+                        if identity.applicationID == AttachmentBrowser.edge.rawValue, !discoverForHistory, command.action != .observe {
+                            guard let world, try bridge.execute(world.validate, window: window, tab: tab) == "verified" else {
+                                throw WebAdapterError.pageRejected(.clickPinRefused)
+                            }
+                        }
                         try ChromeMainWorldSubmission.submit(relay: relay, envelope: envelope, install: install,
                             bootstrap: { try bridge.submitMainWorld($0, window: window, tab: tab) },
                             dispatch: { try bridge.dispatchMainWorld($0, window: window, tab: tab) })
@@ -281,6 +290,7 @@ public enum ChromeSetupConnectionProbe {
         let result: Result
         do { result = try read() == "Riftlet" ? .ready : .unavailable }
         catch WebAdapterError.nativeEventFailed(12) { result = .javaScriptDisabled }
+        catch WebAdapterError.nativeEventFailed(-1744) { result = .permissionDenied }
         catch WebAdapterError.nativeEventFailed(-1743) { result = .permissionDenied }
         catch WebAdapterError.nativeEventFailed(-1728) { result = .noWindow }
         catch { result = .unavailable }
@@ -462,7 +472,7 @@ private struct ChromePIDEvents {
             timeout = try clickDeadline.timeout()
         } else { timeout = 5 }
         let reply: NSAppleEventDescriptor
-        do { reply = try request.sendEvent(options: [.waitForReply], timeout: timeout) }
+        do { reply = try request.sendEvent(options: [.waitForReply, .neverInteract], timeout: timeout) }
         catch {
             // Never surface the native localized description: it can contain
             // script source, user paths or page payload. A numeric OSStatus is
@@ -508,7 +518,7 @@ private struct ChromePIDEvents {
         }
         let address = try ChromeActiveTabDescriptor.matchedURL(properties: reads.properties, tab: identity.tab)
             ?? url(window: identity.window, tab: identity.tab)
-        let route = try ChromeClickRoute(window: identity.window, tab: identity.tab, url: address)
+        let route = try ChromeClickRoute.chatGPT(window: identity.window, tab: identity.tab, url: address)
         succeeded = true
         return route
     }
@@ -572,7 +582,7 @@ private struct ChromePIDEvents {
     }
 
     func execute(_ source: String, window: String, tab: String,
-                 receiptBudget: MainWorldReceiptReadBudget) throws -> String {
+                 receiptBudget: MainWorldReceiptReadBudget? = nil) throws -> String {
         let windowObject = try object("cwin", form: "ID  ", key: .init(string: window))
         let tabObject = try object("CrTb", form: "ID  ", key: .init(string: tab), container: windowObject)
         guard let result = try send("CrSu", "ExJa", direct: tabObject, javascript: source,

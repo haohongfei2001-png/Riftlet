@@ -16,6 +16,17 @@ struct ChromeClickRoute: Equatable, Sendable {
     let tab: String
     let address: String
 
+    /// Validate the raw browser URL before the click identity drops credentials
+    /// and normalizes the default HTTPS port.
+    static func chatGPT(window: String, tab: String, url: String) throws -> Self {
+        guard let parts = URLComponents(string: url), parts.scheme?.lowercased() == "https",
+              parts.user == nil, parts.password == nil, parts.port == nil || parts.port == 443,
+              ["chatgpt.com", "chat.openai.com"].contains(parts.host?.lowercased()) else {
+            throw WebAdapterError.pageRejected(.pageRouteUnsupported)
+        }
+        return try Self(window: window, tab: tab, url: url)
+    }
+
     var historyConversationID: UUID? {
         guard let parts = URLComponents(string: address), parts.scheme == "https", parts.host == "chatgpt.com",
               parts.port == nil else { return nil }
@@ -48,16 +59,6 @@ struct ChromeClickRoute: Equatable, Sendable {
         if components.path.isEmpty { components.path = "/" }
         guard let address = components.string else { throw WebAdapterError.invalidTarget }
         self.window = window; self.tab = tab; self.address = address
-    }
-}
-
-/// Uses actual application activity. A visible Chrome window does not identify
-/// the last used process: the user's chat may be minimized or on another Space.
-enum ChromeReceiverSelection {
-    static func choose(frontmost: Int32?, lastForeground: Int32?, running: Set<Int32>) -> Int32? {
-        if let frontmost, running.contains(frontmost) { return frontmost }
-        if let lastForeground { return running.contains(lastForeground) ? lastForeground : nil }
-        return running.count == 1 ? running.first : nil
     }
 }
 
