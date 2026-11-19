@@ -1,0 +1,673 @@
+{
+  "schemaVersion": 1,
+  "preparedAt": "2026-11-18T00:39:46.531391+00:00",
+  "preparedBy": "independent_checkpoint_5bd",
+  "recordType": "SANITIZED_EVIDENCE_PROJECTION",
+  "clickAcceptanceIncluded": false,
+  "repository": "haohongfei2001-png/Riftlet",
+  "pr": {
+    "url": "https://github.com/haohongfei2001-png/Riftlet/pull/69",
+    "number": 69,
+    "state": "open",
+    "draft": true,
+    "merged": false,
+    "base": "3f8149e2313fd81bbaee5a7bbbdbb1efca2fc81b",
+    "head": "f823bcde3923aaf170a6844d7a027793747a9c29",
+    "mergeCandidate": "5b6e3c663b827a4ad234840564ac8b64c82771ab"
+  },
+  "runs": [
+    {
+      "id": 44208702018,
+      "name": "Native foundation",
+      "status": "in_progress",
+      "conclusion": null,
+      "runNumber": 446,
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44208702018"
+    },
+    {
+      "id": 44208702045,
+      "name": "Feedback v0.1",
+      "status": "in_progress",
+      "conclusion": null,
+      "runNumber": 352,
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44208702045"
+    }
+  ],
+  "jobs": [
+    {
+      "id": 134481227922,
+      "runId": 44208702018,
+      "name": "Native source admission",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44208702018/job/134481227922",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Verify mainline review, actual merge and immutable inherited audits",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        }
+      ]
+    },
+    {
+      "id": 134481228164,
+      "runId": 44208702018,
+      "name": "Native Intel",
+      "status": "in_progress",
+      "conclusion": null,
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44208702018/job/134481228164",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Record compiler and OS",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Replay archived Web evidence offline",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Exercise integrated page program with synthetic DOM",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Verify search discovery metadata and IndexNow ownership",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Verify website analytics privacy guard and download events",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Verify native Chrome input resources with an isolated synthetic application",
+          "status": "in_progress",
+          "conclusion": null,
+          "number": 8
+        },
+        {
+          "name": "Exercise round-two fault harness offline",
+          "status": "pending",
+          "conclusion": null,
+          "number": 9
+        },
+        {
+          "name": "Exercise round-three diagnostic probe offline",
+          "status": "pending",
+          "conclusion": null,
+          "number": 10
+        },
+        {
+          "name": "Verify round-five diagnostic evidence helpers offline",
+          "status": "pending",
+          "conclusion": null,
+          "number": 11
+        },
+        {
+          "name": "Verify system-screenshot stage-two diagnostic fixtures",
+          "status": "pending",
+          "conclusion": null,
+          "number": 12
+        },
+        {
+          "name": "Establish and verify actual CI accessibility baseline",
+          "status": "pending",
+          "conclusion": null,
+          "number": 13
+        },
+        {
+          "name": "Compile screenshot comparison probe and report environment capabilities",
+          "status": "pending",
+          "conclusion": null,
+          "number": 14
+        },
+        {
+          "name": "Execute native unit and integration tests",
+          "status": "pending",
+          "conclusion": null,
+          "number": 15
+        },
+        {
+          "name": "Verify offline storage, release and process lifecycle readiness",
+          "status": "pending",
+          "conclusion": null,
+          "number": 16
+        },
+        {
+          "name": "Verify isolated arrival delta and report native motion outcomes",
+          "status": "pending",
+          "conclusion": null,
+          "number": 17
+        },
+        {
+          "name": "Verify signed stable feed and update publication rules offline",
+          "status": "pending",
+          "conclusion": null,
+          "number": 18
+        },
+        {
+          "name": "Verify packaging rejection paths offline",
+          "status": "pending",
+          "conclusion": null,
+          "number": 19
+        },
+        {
+          "name": "Report software panel lifecycle outcomes",
+          "status": "pending",
+          "conclusion": null,
+          "number": 20
+        },
+        {
+          "name": "Exercise the production screenshot engine and private import with an owned fixture",
+          "status": "pending",
+          "conclusion": null,
+          "number": 21
+        },
+        {
+          "name": "Verify strict magnet completion and resource cleanup separately",
+          "status": "pending",
+          "conclusion": null,
+          "number": 22
+        },
+        {
+          "name": "Package native application",
+          "status": "pending",
+          "conclusion": null,
+          "number": 23
+        },
+        {
+          "name": "Check two ordinary Riftlet actions with an isolated Edge window",
+          "status": "pending",
+          "conclusion": null,
+          "number": 24
+        },
+        {
+          "name": "Run packaged executable with synthetic data",
+          "status": "pending",
+          "conclusion": null,
+          "number": 25
+        },
+        {
+          "name": "Package unified internal Beta with explicit candidate entry",
+          "status": "pending",
+          "conclusion": null,
+          "number": 26
+        },
+        {
+          "name": "Validate and archive synthetic GUI acceptance helper",
+          "status": "pending",
+          "conclusion": null,
+          "number": 27
+        },
+        {
+          "name": "Capture isolated native visual evidence at original pixels",
+          "status": "pending",
+          "conclusion": null,
+          "number": 28
+        },
+        {
+          "name": "Capture additional integrated experience windows at original pixels",
+          "status": "pending",
+          "conclusion": null,
+          "number": 29
+        },
+        {
+          "name": "Capture Quiet Edge R2 native geometry",
+          "status": "pending",
+          "conclusion": null,
+          "number": 30
+        },
+        {
+          "name": "Capture R2.1 microimage visual increment",
+          "status": "pending",
+          "conclusion": null,
+          "number": 31
+        },
+        {
+          "name": "Capture bounded actual system accessibility variants",
+          "status": "pending",
+          "conclusion": null,
+          "number": 32
+        },
+        {
+          "name": "Reject actual screenshot output failures independently of software tests",
+          "status": "pending",
+          "conclusion": null,
+          "number": 33
+        },
+        {
+          "name": "Exercise extension-free attachment candidates with isolated drafts",
+          "status": "pending",
+          "conclusion": null,
+          "number": 34
+        },
+        {
+          "name": "Archive evidence",
+          "status": "pending",
+          "conclusion": null,
+          "number": 35
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "pending",
+          "conclusion": null,
+          "number": 70
+        }
+      ]
+    },
+    {
+      "id": 134481228504,
+      "runId": 44208702018,
+      "name": "Native ARM64",
+      "status": "in_progress",
+      "conclusion": null,
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44208702018/job/134481228504",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Record compiler and OS",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Replay archived Web evidence offline",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Exercise integrated page program with synthetic DOM",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Verify search discovery metadata and IndexNow ownership",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Verify website analytics privacy guard and download events",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Verify native Chrome input resources with an isolated synthetic application",
+          "status": "in_progress",
+          "conclusion": null,
+          "number": 8
+        },
+        {
+          "name": "Exercise round-two fault harness offline",
+          "status": "pending",
+          "conclusion": null,
+          "number": 9
+        },
+        {
+          "name": "Exercise round-three diagnostic probe offline",
+          "status": "pending",
+          "conclusion": null,
+          "number": 10
+        },
+        {
+          "name": "Verify round-five diagnostic evidence helpers offline",
+          "status": "pending",
+          "conclusion": null,
+          "number": 11
+        },
+        {
+          "name": "Verify system-screenshot stage-two diagnostic fixtures",
+          "status": "pending",
+          "conclusion": null,
+          "number": 12
+        },
+        {
+          "name": "Establish and verify actual CI accessibility baseline",
+          "status": "pending",
+          "conclusion": null,
+          "number": 13
+        },
+        {
+          "name": "Compile screenshot comparison probe and report environment capabilities",
+          "status": "pending",
+          "conclusion": null,
+          "number": 14
+        },
+        {
+          "name": "Execute native unit and integration tests",
+          "status": "pending",
+          "conclusion": null,
+          "number": 15
+        },
+        {
+          "name": "Verify offline storage, release and process lifecycle readiness",
+          "status": "pending",
+          "conclusion": null,
+          "number": 16
+        },
+        {
+          "name": "Verify isolated arrival delta and report native motion outcomes",
+          "status": "pending",
+          "conclusion": null,
+          "number": 17
+        },
+        {
+          "name": "Verify signed stable feed and update publication rules offline",
+          "status": "pending",
+          "conclusion": null,
+          "number": 18
+        },
+        {
+          "name": "Verify packaging rejection paths offline",
+          "status": "pending",
+          "conclusion": null,
+          "number": 19
+        },
+        {
+          "name": "Report software panel lifecycle outcomes",
+          "status": "pending",
+          "conclusion": null,
+          "number": 20
+        },
+        {
+          "name": "Exercise the production screenshot engine and private import with an owned fixture",
+          "status": "pending",
+          "conclusion": null,
+          "number": 21
+        },
+        {
+          "name": "Verify strict magnet completion and resource cleanup separately",
+          "status": "pending",
+          "conclusion": null,
+          "number": 22
+        },
+        {
+          "name": "Package native application",
+          "status": "pending",
+          "conclusion": null,
+          "number": 23
+        },
+        {
+          "name": "Check two ordinary Riftlet actions with an isolated Edge window",
+          "status": "pending",
+          "conclusion": null,
+          "number": 24
+        },
+        {
+          "name": "Run packaged executable with synthetic data",
+          "status": "pending",
+          "conclusion": null,
+          "number": 25
+        },
+        {
+          "name": "Package unified internal Beta with explicit candidate entry",
+          "status": "pending",
+          "conclusion": null,
+          "number": 26
+        },
+        {
+          "name": "Validate and archive synthetic GUI acceptance helper",
+          "status": "pending",
+          "conclusion": null,
+          "number": 27
+        },
+        {
+          "name": "Capture isolated native visual evidence at original pixels",
+          "status": "pending",
+          "conclusion": null,
+          "number": 28
+        },
+        {
+          "name": "Capture additional integrated experience windows at original pixels",
+          "status": "pending",
+          "conclusion": null,
+          "number": 29
+        },
+        {
+          "name": "Capture Quiet Edge R2 native geometry",
+          "status": "pending",
+          "conclusion": null,
+          "number": 30
+        },
+        {
+          "name": "Capture R2.1 microimage visual increment",
+          "status": "pending",
+          "conclusion": null,
+          "number": 31
+        },
+        {
+          "name": "Capture bounded actual system accessibility variants",
+          "status": "pending",
+          "conclusion": null,
+          "number": 32
+        },
+        {
+          "name": "Reject actual screenshot output failures independently of software tests",
+          "status": "pending",
+          "conclusion": null,
+          "number": 33
+        },
+        {
+          "name": "Exercise extension-free attachment candidates with isolated drafts",
+          "status": "pending",
+          "conclusion": null,
+          "number": 34
+        },
+        {
+          "name": "Archive evidence",
+          "status": "pending",
+          "conclusion": null,
+          "number": 35
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "pending",
+          "conclusion": null,
+          "number": 70
+        }
+      ]
+    },
+    {
+      "id": 134481227958,
+      "runId": 44208702045,
+      "name": "Feedback native and service",
+      "status": "in_progress",
+      "conclusion": null,
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44208702045/job/134481227958",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Verify isolation audit regressions",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Verify actual Feedback and current screenshot composition",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 4
+        },
+        {
+          "name": "Environment and service fault tests",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Native feedback and software AppKit tests",
+          "status": "in_progress",
+          "conclusion": null,
+          "number": 6
+        },
+        {
+          "name": "Package isolated offline feedback demo",
+          "status": "pending",
+          "conclusion": null,
+          "number": 7
+        },
+        {
+          "name": "Archive exact feedback source for reproducibility",
+          "status": "pending",
+          "conclusion": null,
+          "number": 8
+        },
+        {
+          "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "status": "pending",
+          "conclusion": null,
+          "number": 9
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "pending",
+          "conclusion": null,
+          "number": 18
+        }
+      ]
+    },
+    {
+      "id": 134481228423,
+      "runId": 44208702045,
+      "name": "Feedback source admission",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44208702045/job/134481228423",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Verify reviewed mainline composition and actual merge",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        }
+      ]
+    }
+  ],
+  "merge": {
+    "sha": "5b6e3c663b827a4ad234840564ac8b64c82771ab",
+    "tree": "e7d46ba9fbd25e9086fe1740d51d2bc7c726c16a",
+    "orderedParents": [
+      "3f8149e2313fd81bbaee5a7bbbdbb1efca2fc81b",
+      "f823bcde3923aaf170a6844d7a027793747a9c29"
+    ],
+    "source": "GitHub git/commits API; connector commit wrapper lacked tree/parent fields."
+  },
+  "snapshotScope": "One PR/run/job metadata collection during this task; not terminal CI. No polling loop, rerun, workflow trigger or job-log/artifact download.",
+  "nativeInputsMatchSignedG2Package": true,
+  "admissionOnlyChildVerifiedLocally": true,
+  "completeRequiredChecks": false,
+  "observedSuccessfulRequiredChecks": 2,
+  "observedInProgressRequiredChecks": 3,
+  "actualXCTestExecutionCount": "NOT_ESTABLISHED_BY_THIS_METADATA_SNAPSHOT",
+  "notes": [
+    "Both source-admission jobs succeeded. Native ARM64, Native Intel and Feedback native/service were in progress at collection.",
+    "The PR body still referred to older checkpoints; current head/base/merge fields, exact git objects and job metadata establish this association.",
+    "Queued/in-progress steps do not establish execution or final success. Later terminal evidence must retain this earlier snapshot."
+  ]
+}

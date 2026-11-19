@@ -1,0 +1,27 @@
+<!doctype html><meta charset=utf-8>
+<form data-riftlet-fixture="edge-v1"><textarea name="draft">neutral draft</textarea>
+<input name="attachment" type="file"><div data-attachments><span>prior fixture file</span></div></form>
+<button type="button" id="outside">Outside draft</button><output></output>
+<script>
+const form = document.querySelector('form');
+form.onsubmit = e => e.preventDefault();
+const editor = form.elements.draft;
+editor.setSelectionRange(2, 7, 'backward');
+outside.focus();
+const collection = document.querySelector('[data-attachments]');
+const prior = collection.firstElementChild;
+const draft = location.pathname.split('/').pop();
+form.elements.attachment.onchange = async ({target}) => {
+  const file = target.files[0];
+  const operation = file.name.replace(/\.png$/, '');
+  let response;
+  try { response = await fetch('/upload/' + draft + '/' + operation, {method: 'POST', body: file}); }
+  catch { return; } // A lost reply leaves no proof of success or failure.
+  if (![201, 422].includes(response.status) || (await response.text()) !== operation) return;
+  const item = document.createElement('span');
+  item.dataset.operation = operation;
+  item.dataset.state = response.status === 201 ? 'complete' : 'rejected';
+  collection.append(item);
+};
+</script>
+<!--RUNNER-->

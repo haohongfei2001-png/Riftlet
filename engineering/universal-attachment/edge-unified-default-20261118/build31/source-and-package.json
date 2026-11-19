@@ -1,0 +1,41 @@
+{
+  "productVersion": "1.0.5 (31)",
+  "reviewedMain": "314f42e5a682f67085f3c95b87ecaace7b88156c",
+  "source": "2979d69868e6d6ef64a55e2b767f202b3747520a",
+  "sourceTree": "218266327421a3bca61133c25a338bf1314408f6",
+  "reviewedAdmission": "163d2b37577242a9b4b6946bf147c5ce99667d86",
+  "independentReviewSHA256": "167d01134a11245790859d82e55c4e77309bfd340c3f06cfe6d9a70a91875227",
+  "signedPackageReceiptSHA256": "838829fcc2ede2618876ca8d66026e9a61576619f27f45d17c806ef2eff95929",
+  "localPackage": {
+    "architectures": [
+      "arm64"
+    ],
+    "buildChannel": "isolated-product-acceptance",
+    "executableSHA256": "f1374e2901bfcf4a96b92fdf368e98dd6e2082bf39ce0d8e3d2e08f78eb61ff8",
+    "packageArchiveSHA256": "14cce49b1e3ef105c27cb40e9da4744b78150bb54664512e0d83d887d21d6896",
+    "packageArchiveBytes": 19916800,
+    "notarization": "NOT_RUN",
+    "gatekeeper": "NOT_RUN"
+  },
+  "hardenedRuntime": true,
+  "signedTeamID": "ZB9D4T66QB",
+  "webProgramSHA256": {
+    "chatgpt-web-20261027.js": "6e6c3a03f7aaba83b4d3ff72b118c8a172d4487915346d101d77057fc7510623",
+    "chatgpt-web-edge-v24.js": "5399a19071f3f7e5dd92cf53759db9b0b84906aa3c0864c410a002ec8af5087f",
+    "edge-encoded-preview.js": "86fc8fc2f03f647fdcdfd1e8e5631e8d3c268ede99727f509299a09b79fb8c69",
+    "chatgpt-web-observe-v23.js": "fb97782271e6c52cd6bb10a543d71b6f537f50f8456cf094d98bb19708265295",
+    "chatgpt-web-observe-product-v19.js": "47b2ad88fecd29f91127fd5b04c4279db2db3e77f23a3e4cfd1aee4234c726ee"
+  },
+  "localChecks": {
+    "fullWebProgramSuite": {
+      "tests": 683,
+      "pass": 683,
+      "skipped": 0,
+      "tapSHA256": "70c1c9ecb70ad249e50ee725d12e939badd6b5272036fcc8c16ac89bbbcca113"
+    },
+    "packagingTests": 28,
+    "releaseSwiftBuild": "PASS",
+    "releaseBuildLogSHA256": "9f568497cbee7ef20ce6613fd6db7826eee6a3e53c17b5368c1c02ff721b7ee9"
+  },
+  "priorPackage": "1.0.5 (30) from fbe31f5 was installed in the same isolated slot. No 622 or 623 input occurred on it."
+}

@@ -1,0 +1,28 @@
+{
+  "scope": "independent controlled DOM review probes; not commercial acceptance",
+  "results": [
+    {
+      "probe": "excluded-content-read-and-mutation-traps",
+      "pass": true,
+      "excludedRoots": 13,
+      "historyReads": 0,
+      "diagnosticMutations": 0
+    },
+    {
+      "probe": "original-process-session-mismatch-repeated-observation",
+      "pass": true,
+      "observations": 5,
+      "setters": 1,
+      "changes": 1
+    },
+    {
+      "probe": "calibration-invocation-mismatch-does-not-lend-sidecar",
+      "pass": true
+    },
+    {
+      "probe": "complete-looking-facts-never-admit-start-completion-or-retry",
+      "pass": true,
+      "observations": 5
+    }
+  ]
+}

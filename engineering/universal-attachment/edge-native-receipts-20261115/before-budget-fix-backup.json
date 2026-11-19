@@ -1,0 +1,61 @@
+{
+  "at": "2026-11-15T13:18:34.180193+00:00",
+  "counts": {
+    "assets": 5,
+    "operations": 0,
+    "upload_starts": 0
+  },
+  "files": [
+    {
+      "path": "media/38dac70a-0b2c-4b13-8541-30905fc6272b.png",
+      "bytes": 62537,
+      "sha256": "93ebfa16e9a82c4dafe498cad1f4c0118f6561019c067f9e3d6c17e5f0b78cc9"
+    },
+    {
+      "path": "media/a512dcfc-b06a-4a76-8ae7-2908fc6d365a.png",
+      "bytes": 62346,
+      "sha256": "568de2784c37e0c6bfcc2de4b81a8eff4d022d72ded5be772ab80ef4d50c8991"
+    },
+    {
+      "path": "media/a86f0dc4-2b0f-4496-9f8a-da62830de4a9.png",
+      "bytes": 62508,
+      "sha256": "fcd3e2c5748e888c8d47363b441d325361823a828f64452859eb0a13526971f8"
+    },
+    {
+      "path": "media/d0510bf8-4146-4986-9a54-d1d637b7d869.png",
+      "bytes": 203540,
+      "sha256": "4fe18f85105f1cbdef5fc1c33e98a43bc160582e00117130ab9699655e50e6ca"
+    },
+    {
+      "path": "media/e976a817-9bb9-4cf7-b282-0bbc2ee0351b.png",
+      "bytes": 110264,
+      "sha256": "8553e963e07855c87b58c3c87ed02c2ae0ebf798f71bae27b41c6e1693339c0c"
+    },
+    {
+      "path": "capture-source/Riftlet-PR69-20261115-01.png",
+      "bytes": 203540,
+      "sha256": "4fe18f85105f1cbdef5fc1c33e98a43bc160582e00117130ab9699655e50e6ca"
+    },
+    {
+      "path": "capture-source/Riftlet-PR69-20261115-02.png",
+      "bytes": 110264,
+      "sha256": "8553e963e07855c87b58c3c87ed02c2ae0ebf798f71bae27b41c6e1693339c0c"
+    },
+    {
+      "path": "capture-source/Riftlet-PR69-20261115-fresh-03.png",
+      "bytes": 62537,
+      "sha256": "93ebfa16e9a82c4dafe498cad1f4c0118f6561019c067f9e3d6c17e5f0b78cc9"
+    },
+    {
+      "path": "capture-source/Riftlet-PR69-20261115-fresh-04.png",
+      "bytes": 62508,
+      "sha256": "fcd3e2c5748e888c8d47363b441d325361823a828f64452859eb0a13526971f8"
+    },
+    {
+      "path": "capture-source/Riftlet-PR69-20261115-fresh-05.png",
+      "bytes": 62346,
+      "sha256": "568de2784c37e0c6bfcc2de4b81a8eff4d022d72ded5be772ab80ef4d50c8991"
+    }
+  ],
+  "databaseBackupSHA256": "4fa188108247e8b102f94b1b9f37328419b9515bce833f95cea1846a2fc9c031"
+}

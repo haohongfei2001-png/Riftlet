@@ -1,0 +1,41 @@
+{
+  "coverage": {
+    "allEntries": 85,
+    "bodyAbsentOrEmpty": 4,
+    "bodyCandidates": 0,
+    "bodyWithoutLiteralOrBase64KnownID": 65,
+    "candidateBodiesUnavailableOrTooLarge": 0,
+    "excludedOriginalCreateProcessEntries": 4,
+    "firstPartyEntries": 73,
+    "otherFirstPartyEntries": 69
+  },
+  "normalHARSHA256": "49da5d8c111c82850a360e95b7160531d0adec856ed2032e547e1579f9a7855b",
+  "notes": [
+    "Only exact known-ID candidate bodies are decoded, bounded to1MiB. Other response content, signed URLs, queries, headers and free-form messages are not emitted.",
+    "Closed semantic fields: file_id/id/object/event/status/file_status/processing_status/file_processing_status/upload_status/progress; traversal only through file/files/result/data/payload/attachments. Generic status=ok/success and storage success never establish processing completion.",
+    "No matching supported per-file terminal in this export cannot prove that the server never completed. Both original processing streams have no HAR text and normal Response/EventStream views supply no frames; retain UNKNOWN.",
+    "This supplement does not alter the immutable prior service report or HAR."
+  ],
+  "observedAt": "2026-11-18T01:33:41.591009+00:00",
+  "otherFirstPartyResponseMatches": [],
+  "parserSHA256": "3a34cb8fe799f129c0feb7c2f44d5498b36d69f5ae172e3b5f658262f11640a5",
+  "perFile": [
+    {
+      "fileIDSHA256": "a1169965d4eef4ec7c9c49cec127fc0c507ea095647ec7d6edfa82187312a189",
+      "otherResponseMatchCount": 0,
+      "recognizedTerminalSignalCount": 0,
+      "seed": 619,
+      "terminal": "UNKNOWN"
+    },
+    {
+      "fileIDSHA256": "0351f4671925add2031c04f71d0b4eb0853a0d4ff410e97bef79e24404f8615e",
+      "otherResponseMatchCount": 0,
+      "recognizedTerminalSignalCount": 0,
+      "seed": 620,
+      "terminal": "UNKNOWN"
+    }
+  ],
+  "reviewer": "independent_checkpoint_5bd",
+  "schemaVersion": 1,
+  "scope": "Closed-set local pass over the same preserved HAR; only known original file-ID tokens and pre-existing allowlisted structured per-file state fields. No HTTP or GUI."
+}

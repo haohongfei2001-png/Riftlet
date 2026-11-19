@@ -1,0 +1,69 @@
+{
+  "stage": "INTAKE_ONLY_BEFORE_ANY_607_OR_608_DOWN",
+  "collectedBy": {
+    "source": "42edbab3a2ea4b4f5ff74926c359039e5e9dd3e9",
+    "sourceTree": "d20ba836d24c98a65fac320b215267349daf7d8b",
+    "sourceArchiveSHA256": "74e10fbe0b29684c0b773b7c5f0aa3884d8b244b6a1321df757f1f3f348f4076",
+    "shortVersion": "1.0.3",
+    "buildVersion": "25",
+    "buildChannel": "isolated-product-acceptance",
+    "executableSHA256": "f5e9c5bbe71957ccff95867d5f9d54efeb6cb696d800717cad22716c1770f20b",
+    "packageArchiveSHA256": "704525357619aaaad664a47f6cf13101df6b5965471670d899f659d2c0beb021"
+  },
+  "timeUTC": "2026-11-16T19:49:04.753002+00:00",
+  "originals": [
+    {
+      "assetDigest": "558999a9c7079b17abceb81a1960b891e575a22db78a01937fb5080dd516f032",
+      "at": "2026-11-16T19:47:13.906195+00:00",
+      "bytes": 4512802,
+      "seed": 607,
+      "sha256": "ec2f0aa3265c79e05a1c93eae1a07d945175e508ac2dca7522e0e46b0eed6f81",
+      "uuid": "FCB2AEF1-3757-4C2B-9389-B015AF9D6846"
+    },
+    {
+      "assetDigest": "eea15e77154db2c6a17c07b07ee82f152d9f72b8100b8cd3f624108bec88b910",
+      "at": "2026-11-16T19:47:15.015649+00:00",
+      "bytes": 4514379,
+      "seed": 608,
+      "sha256": "18ea85a6b5413ad9b3666374ae73e44a8f3c282d59fa46e3ef6e80f2bf94320d",
+      "uuid": "014D34A0-DA25-45E5-B9C3-71587EE65AD5"
+    }
+  ],
+  "layoutOnlyUnclickedControl": {
+    "assetDigest": "1be9aaff42c915f2ba76152857c2513e67ac4e104c4efa726b228bc75b05c555",
+    "at": "2026-11-16T19:47:12.615298+00:00",
+    "bytes": 4514218,
+    "seed": 609,
+    "sha256": "367ee09303bcc499628e5e9120d83655410f4437565f1fdde381bf0c56298bd0",
+    "uuid": "4747F218-6D9F-4EC5-9D6A-CB32B6DD3833"
+  },
+  "priorDurableOperations": 5,
+  "priorAssetsCheckedOnLaunch": 11,
+  "priorPrivateOriginalsCheckedOnLaunch": 11,
+  "priorProductStarts": 0,
+  "databaseIntegrity": "ok",
+  "allThreeVerifiedSystemCaptureMetadata": true,
+  "beforeFirstDown": {
+    "window": 304,
+    "sameDedicatedBrowserProcess": true,
+    "sameTemporaryDraft": true,
+    "neutralTextSHA256": "d60bcd4299469a1c5c0f8d2c7ed34dfde67d4631f99ff80de5297d3608407b3b",
+    "nonemptySelectionLength": 14,
+    "editorFocused": false,
+    "priorFiveImagesEachOnce": true,
+    "bothImagesOnCurrentPage": true,
+    "extraPagerPresses": 0,
+    "newOperations": 0
+  },
+  "evidenceSHA256": {
+    "capture-607.json": "f6b5e5e3c6eb3140bc3bcc009a7d3dc90111e42f7480278284930fbb53b5ea0c",
+    "capture-608.json": "e6f89fe58abbf8bc0e8e01340c2593f307e5e7b5fb953a9266f6b9099d1301a7",
+    "capture-609.json": "eadca3d18ee15dcaeca2dd21a4956a61180ab3ead49d5282ae37ee4131bde24c",
+    "collector-readonly-pair-1794858544758676000.json": "ff1da4be51e2e3f24f6076745af37989c45eebf48e27d50d196611a159a88b1a",
+    "signed-package-receipt.json": "adc0fe7c61d9299581bc9e96fe7c5cd819c61a8dd890243eb7f4bcbdeedba9a4",
+    "queue-after.json": "efee0d021dd986883d8699bf59390c85c13c495894537b719fcd0a092e3acbff",
+    "pair.py": "d2d063085a41b39341db81837a8d76602b489026784e69f514cb72bcfb2596f3",
+    "capture.py": "e878e84f9fcfa5513bb94adf70ab24aad76003caecc59caa03441bcd7b219de9",
+    "QueuePage.swift": "ff61fd00a0dcad67d3ad4e4c38bb92755964b8e42190dcbd21a31591da928f01"
+  }
+}

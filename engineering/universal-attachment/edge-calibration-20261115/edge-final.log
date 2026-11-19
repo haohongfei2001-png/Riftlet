@@ -1,0 +1,26 @@
+✔ capture alone never scans a body, html or undeclared fallback as a calibration root (3.646208ms)
+✔ capture prunes transcript, ancillary and nested composer subtrees inside a declared form (0.571667ms)
+✔ a declared non-form composer retains bounded local diagnostics (0.363333ms)
+✔ calibration never restarts descendant queries outside its single bounded traversal (3.044875ms)
+✔ matching cards cannot lend indicators or retention through a historical descendant (1.109167ms)
+✔ Edge sidecar binds two independent files to their original draft without granting START (1.934958ms)
+✔ progress, ready attributes and loaded images remain separate untrusted facts (1.328083ms)
+✔ original text, exact selection and original attachment nodes are compared without restoring user edits (0.93225ms)
+✔ original operation cannot sample a replacement editor, document or navigation ABA (3.207ms)
+✔ another operation identity never receives the original sidecar (0.928791ms)
+✔ unowned same-filename indicators cannot borrow original form ownership (0.73875ms)
+✔ placeholder and missing progress do not become positive upload evidence (0.707667ms)
+✔ bounded or unavailable calibration never prevents a responsible input (17.472791ms)
+✔ a failed diagnostic read after input cannot throw away the original observation or repeat input (0.905542ms)
+✔ an oversized later DOM scan reports its limit instead of a partial progress claim (3.857334ms)
+✔ textarea comparison preserves reverse selection without keyboard focus (1.007417ms)
+✔ capture-time snapshot is not overwritten by a later click on the same draft (1.073375ms)
+✔ Chrome keeps its existing receipt behavior and has no Edge calibration sidecar (0.506917ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 84.758708

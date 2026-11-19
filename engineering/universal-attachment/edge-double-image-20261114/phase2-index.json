@@ -1,0 +1,20 @@
+{
+  "source": "f3ecfaf5c67c78a7b24c50417e8a4239ce636697",
+  "admissionHead": "3230ddc8c42cfc518880668001827c5b5ed09dfe",
+  "testedMerge": "b9bf6be39d5fa084d85002a9776476dec65f42d1",
+  "nativeRun": 43603521962,
+  "arm64Job": 132473132912,
+  "originalArtifact": 14117761425,
+  "originalArtifactSHA256": "d7779462b73b930c5ab2d78d3c6a2a036ec317264e35befc0f4f77161cc8667b",
+  "originalJSONSHA256": "e012c3b3ffce4032070761ca988ed469f9148f061758b8cabca8680809357f57",
+  "productExecutableSHA256": "5e6c14b6945c31285176382393eb8579ee987382d85cbd1230b1341a39d96aba",
+  "result": "FAILED_CONTROLLED_CHECK",
+  "positiveEvidence": "First screenshot reached application/window/inputDown/onDown/gate/release and original-asset resolveSelection refusal -1744; exact tag/window matched.",
+  "failure": "sentEventNumberMatched=false; random positive 31-bit event number was not equal at receiver. Raw sent/received values were not exported, so exact numbers are unknown.",
+  "independentPublicAPIExperiment": "The same CGEvent API narrows 32768 to -32768, 65536 to 0 and 0x12345678 to 22136 before any post; tested 1...32767 edge values preserve exact CGEvent/NSEvent identity.",
+  "separateConsentBoundary": "Original Edge front window became unavailable after first -1744 refusal; second screenshot was not dispatched. No auto consent or target replacement.",
+  "queue": "Two original private PNGs retained pending/visible, operations=0, upload_starts=0; file changes=0, POST=0.",
+  "commercial": "NOT_RUN / BLOCKED_LOGIN; START=0; completion=0",
+  "olderMissingSecondReceipt": "315978ed failure remains unknown; not retrospectively relabeled.",
+  "originalJobLogSHA256": "e07970ec0cdacf6e415b18160e6b61e8208bb60b7c4d064e6e8f9ed0f6216249"
+}

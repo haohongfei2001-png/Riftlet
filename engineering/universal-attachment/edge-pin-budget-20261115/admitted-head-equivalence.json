@@ -1,0 +1,9 @@
+{
+  "builtSource": "57d8f0dcb9cd17967ab012642378a24b9caff4d8",
+  "admittedHead": "a2c54950a410b0d34d49ba522b2d8cb69155690b",
+  "changedPaths": [
+    "engineering/mainline/source-admission.json"
+  ],
+  "verifiedIdenticalFiles": 1813,
+  "testScope": "Exact G package; all native/test/build inputs identical to admission-only H; no claim package includes later admission JSON"
+}

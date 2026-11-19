@@ -1,0 +1,177 @@
+{
+  "originalRoot": "pr69-resume-20261116 (local, outside checkout)",
+  "files": [
+    {
+      "original": "independent-evidence/independent-audit.json",
+      "originalBytes": 21362,
+      "originalSHA256": "d225848e3e35663de549a2112abe3c40b83fd1dbdc48607c4d16c333fd019439",
+      "published": "independent-audit.json",
+      "publishedBytes": 21362,
+      "publishedSHA256": "d225848e3e35663de549a2112abe3c40b83fd1dbdc48607c4d16c333fd019439",
+      "transformation": "byte-identical"
+    },
+    {
+      "original": "independent-evidence/readonly-operation-state.json",
+      "originalBytes": 3086,
+      "originalSHA256": "9eddc2eaeed6ed806f44d0d446e9d6a995ecaf02b71c9cce90bc980f77a9dc98",
+      "published": "readonly-operation-state.json",
+      "publishedBytes": 3086,
+      "publishedSHA256": "9eddc2eaeed6ed806f44d0d446e9d6a995ecaf02b71c9cce90bc980f77a9dc98",
+      "transformation": "byte-identical"
+    },
+    {
+      "original": "independent-evidence/source-manifest.json",
+      "originalBytes": 35189,
+      "originalSHA256": "5f44bf245e5b3d37fadc0eeebb001aa42ed353e15ad83c7910c6a387c499aaa1",
+      "published": "source-manifest.json",
+      "publishedBytes": 35189,
+      "publishedSHA256": "5f44bf245e5b3d37fadc0eeebb001aa42ed353e15ad83c7910c6a387c499aaa1",
+      "transformation": "byte-identical"
+    },
+    {
+      "original": "independent-evidence/deduplicated-product-trace.jsonl",
+      "originalBytes": 379841,
+      "originalSHA256": "b39d4dcb8234566192db1adb5db87324abbd48f976b7f56dc98d8ae19b5f1e5e",
+      "published": "deduplicated-product-trace.jsonl.gz",
+      "publishedBytes": 10226,
+      "publishedSHA256": "f0fad45d93520fce35a014bc5cb64fb72b173413dab5cf3bdd5f2b944e7addbd",
+      "transformation": "gzip with zero modification time; decompressed bytes identical to canonical, deduplicated trace"
+    },
+    {
+      "original": "temporary-01-1-sent.json",
+      "originalBytes": 1470,
+      "originalSHA256": "efc4eb9bb0d29bc7cce65d5099372b402c40f1c66d22b3342dc6cd46559475b4",
+      "published": "temporary-01-1-sent.json",
+      "publishedBytes": 1470,
+      "publishedSHA256": "efc4eb9bb0d29bc7cce65d5099372b402c40f1c66d22b3342dc6cd46559475b4",
+      "transformation": "byte-identical"
+    },
+    {
+      "original": "temporary-01-1-receipt.json",
+      "originalBytes": 686,
+      "originalSHA256": "a4830166843b0a14d1724c782049860d002dc8b7400a40b050e4f61517b07e3a",
+      "published": "temporary-01-1-receipt.json",
+      "publishedBytes": 686,
+      "publishedSHA256": "a4830166843b0a14d1724c782049860d002dc8b7400a40b050e4f61517b07e3a",
+      "transformation": "byte-identical"
+    },
+    {
+      "original": "temporary-01-1-draft-before.json",
+      "originalBytes": 1240,
+      "originalSHA256": "327d12afb490718bdfde1b5d60fda21dd0cc7937ae839cd96e2b066c96145ee7",
+      "published": "temporary-01-1-draft-before.json",
+      "publishedBytes": 1240,
+      "publishedSHA256": "327d12afb490718bdfde1b5d60fda21dd0cc7937ae839cd96e2b066c96145ee7",
+      "transformation": "byte-identical"
+    },
+    {
+      "original": "temporary-01-1-draft-after.json",
+      "originalBytes": 1233,
+      "originalSHA256": "f078f7f28cbfeb2047def67c56aceddb7b1bd655e9dadd7aab272cfd34817956",
+      "published": "temporary-01-1-draft-after.json",
+      "publishedBytes": 1233,
+      "publishedSHA256": "f078f7f28cbfeb2047def67c56aceddb7b1bd655e9dadd7aab272cfd34817956",
+      "transformation": "byte-identical"
+    },
+    {
+      "original": "temporary-01-2-sent.json",
+      "originalBytes": 1473,
+      "originalSHA256": "804edfe59a9ad9877bdf2bf51d2557768961b328749f1ba5eb975e387f815448",
+      "published": "temporary-01-2-sent.json",
+      "publishedBytes": 1473,
+      "publishedSHA256": "804edfe59a9ad9877bdf2bf51d2557768961b328749f1ba5eb975e387f815448",
+      "transformation": "byte-identical"
+    },
+    {
+      "original": "temporary-01-2-receipt.json",
+      "originalBytes": 688,
+      "originalSHA256": "2118dbaee8654fdd97927b745467d16c6277f22b712dccee66371532a15a2f89",
+      "published": "temporary-01-2-receipt.json",
+      "publishedBytes": 688,
+      "publishedSHA256": "2118dbaee8654fdd97927b745467d16c6277f22b712dccee66371532a15a2f89",
+      "transformation": "byte-identical"
+    },
+    {
+      "original": "temporary-01-2-draft-before.json",
+      "originalBytes": 1240,
+      "originalSHA256": "3e6e3f71936a70f6d1afff91cba378def634f1e7550deb96ffed6c6d082080bd",
+      "published": "temporary-01-2-draft-before.json",
+      "publishedBytes": 1240,
+      "publishedSHA256": "3e6e3f71936a70f6d1afff91cba378def634f1e7550deb96ffed6c6d082080bd",
+      "transformation": "byte-identical"
+    },
+    {
+      "original": "temporary-01-2-draft-after.json",
+      "originalBytes": 1233,
+      "originalSHA256": "1b5ca8beff7400cc55abf8c796628278dd81ef1ab19a3403f291ca61624b155a",
+      "published": "temporary-01-2-draft-after.json",
+      "publishedBytes": 1233,
+      "publishedSHA256": "1b5ca8beff7400cc55abf8c796628278dd81ef1ab19a3403f291ca61624b155a",
+      "transformation": "byte-identical"
+    },
+    {
+      "original": "pair-late-preservation.json",
+      "originalBytes": 1338,
+      "originalSHA256": "12d24398a19f5e99d7a9e4c1c609ea24f05bc315d1a6f440ccd742a441de93e6",
+      "published": "pair-late-preservation.json",
+      "publishedBytes": 1338,
+      "publishedSHA256": "12d24398a19f5e99d7a9e4c1c609ea24f05bc315d1a6f440ccd742a441de93e6",
+      "transformation": "byte-identical"
+    },
+    {
+      "original": "baseline-download-file.json",
+      "originalBytes": 427,
+      "originalSHA256": "edc182343876eeed74ea504b86f27c1c822f74d64c230f030cf9a66022ef3f11",
+      "published": "baseline-download-file.json",
+      "publishedBytes": 427,
+      "publishedSHA256": "edc182343876eeed74ea504b86f27c1c822f74d64c230f030cf9a66022ef3f11",
+      "transformation": "byte-identical"
+    },
+    {
+      "original": "capture-baseline-recovered.json",
+      "originalBytes": 699,
+      "originalSHA256": "d6cbaec02bf236f8e9cfa9330e5741d519c1e8cc04e0cb7511ea16ce44feffdf",
+      "published": "capture-baseline-recovered.json",
+      "publishedBytes": 649,
+      "publishedSHA256": "75ab0c9070306012d63117c5cddd3f059f193086385a4b403c328370336f2cb9",
+      "transformation": "replace two isolated local directory prefixes with named placeholders, reserialize JSON; no other values changed"
+    },
+    {
+      "original": "capture-first.json",
+      "originalBytes": 864,
+      "originalSHA256": "568beb28a6b33b6886cc66acaa3d2947e6ff6f1029b863bb99505d6358f9158e",
+      "published": "capture-first.json",
+      "publishedBytes": 762,
+      "publishedSHA256": "e9e2c0bd2d8441a4c403162661ffce3db20aaa98094ce6fc0091e2c71cae108a",
+      "transformation": "replace two isolated local directory prefixes with named placeholders, reserialize JSON; no other values changed"
+    },
+    {
+      "original": "capture-second.json",
+      "originalBytes": 867,
+      "originalSHA256": "69089907bca8adac79ce53c5e1c8f2225d678a8f15fd9d4628849117a2d30680",
+      "published": "capture-second.json",
+      "publishedBytes": 765,
+      "publishedSHA256": "46a091ad9f039f052e50937b24f2d4cd8a4196d983eb252da760f81e27833004",
+      "transformation": "replace two isolated local directory prefixes with named placeholders, reserialize JSON; no other values changed"
+    },
+    {
+      "original": "runtime-after-app-authorized.json",
+      "originalBytes": 718,
+      "originalSHA256": "5faadbde50a8590b32d83ea03065c3c2a931e21c8b5532390b05e8e59e1d4f47",
+      "published": "runtime-after-app-authorized.json",
+      "publishedBytes": 714,
+      "publishedSHA256": "94588eb29dca471f44181cdc406f3800f3dcadcab844dc03c858c9e6ea57bc23",
+      "transformation": "replace two isolated local directory prefixes with named placeholders, reserialize JSON; no other values changed"
+    },
+    {
+      "original": "runtime-after-app.json",
+      "originalBytes": 90,
+      "originalSHA256": "d910146df390e3571e398c0c9c179814846d8a4ab929a689b8c9acaa1e8a2f92",
+      "published": "runtime-after-app.json",
+      "publishedBytes": 90,
+      "publishedSHA256": "d910146df390e3571e398c0c9c179814846d8a4ab929a689b8c9acaa1e8a2f92",
+      "transformation": "byte-identical"
+    }
+  ],
+  "scope": "Source and public size/SHA-256 for every archived evidence object. source-manifest.json separately lists 211 original hashes, including the 188 snapshots. pair-late-preservation.json was obtained after independent-audit.json and is archived separately. No screenshots, databases or browser profiles included."
+}

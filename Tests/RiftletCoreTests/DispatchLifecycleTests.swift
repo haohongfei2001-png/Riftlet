@@ -415,6 +415,22 @@ final class DispatchLifecycleTests: XCTestCase {
             let calls = await adapter.calls
             XCTAssertEqual(calls, [a.id, b.id])
             let ar = try await db.asset(id: a.id)!, br = try await db.asset(id: b.id)!
+            // select releases the independent input boundary before apply and
+            // recordAppendReturned finish. Wait for each original receipt to be
+            // durable before checking its phase; adapter.calls only counts entry.
+            for operationID in [try XCTUnwrap(ar.activeOperationID), try XCTUnwrap(br.activeOperationID)] {
+                let deadline = ProcessInfo.processInfo.systemUptime + 5
+                var returnedReceipt: TransferReceipt?
+                repeat {
+                    if let data = try await db.checkpoint(for: "transfer-dispatch-call-v1:" + operationID.uuidString) {
+                        returnedReceipt = try JSONDecoder().decode(DispatchCallRecord.self, from: data).returnedReceipt
+                    }
+                    if returnedReceipt != nil { break }
+                    await Task.yield()
+                } while ProcessInfo.processInfo.systemUptime < deadline
+                XCTAssertEqual(returnedReceipt?.operationID, operationID,
+                               "Original append must durably record its receipt within five seconds")
+            }
             let ao = try await db.operation(id: ar.activeOperationID!)!, bo = try await db.operation(id: br.activeOperationID!)!
             XCTAssertNotEqual(ao.id, bo.id)
             XCTAssertEqual(ao.phase, .inputTriggered)

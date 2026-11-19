@@ -1,0 +1,601 @@
+{
+  "authenticatedOriginals": {
+    "612": {
+      "operationFilenameSHA256": "3d2559084f871deef8b65a5d8ecb5655aede8d18a2b4aff91873da7518fad8ea",
+      "serviceFileIDSHA256": "18b1cb86a43bae665c757d839dabb49aeb23bf8862e0afa338ab218c4a6dc193"
+    },
+    "613": {
+      "operationFilenameSHA256": "5b199daa1655b9a16ec7b31a0e65467f3f8cd85dd8c9c6ee9e84fa568ff9094d",
+      "serviceFileIDSHA256": "147236ba0069d7180c302fa12068e432103be8800f70b2133e8ebc0a95547151"
+    },
+    "615": {
+      "operationFilenameSHA256": "946a263454eed9e29aac766e0d719bdd91dd572fc7d40352782bc346d53994b3",
+      "serviceFileIDSHA256": "b7d05c9ad165ed79acc876c4abf0fb01ed03a00f1980c15ae57eb3abedd2eb48"
+    }
+  },
+  "entryIndexBase": 0,
+  "schema": 1,
+  "sources": {
+    "612_613": {
+      "bytes": 8162985,
+      "completeEntries": 68,
+      "coverage": {
+        "capturedAuxiliaryFrames": 0,
+        "firstPartyEntries": 53,
+        "responses_ABSENT_FROM_HAR": 29,
+        "responses_TEXT": 24,
+        "structuredResponsesParsed": 24
+      },
+      "earliestRequest": "2026-11-17T04:05:34.643Z",
+      "files": {
+        "612": {
+          "entries": [
+            {
+              "auxFrameMatched": false,
+              "body": "TEXT",
+              "category": "create_upload",
+              "explicitTerminalSignals": [],
+              "fileStates": [
+                {
+                  "field": "status",
+                  "state": "success"
+                }
+              ],
+              "genericStatuses": [
+                "success"
+              ],
+              "httpStatus": 200,
+              "index": 56,
+              "matchedEvents": [],
+              "method": "POST",
+              "requestExactFileID": false,
+              "requestExactFilename": true,
+              "responseExactFileID": true,
+              "responseExactFilename": false
+            },
+            {
+              "auxFrameMatched": false,
+              "body": "ABSENT_FROM_HAR",
+              "category": "processing_stream",
+              "explicitTerminalSignals": [],
+              "fileStates": [],
+              "genericStatuses": [],
+              "httpStatus": 200,
+              "index": 63,
+              "matchedEvents": [],
+              "method": "POST",
+              "requestExactFileID": true,
+              "requestExactFilename": true,
+              "responseExactFileID": false,
+              "responseExactFilename": false
+            },
+            {
+              "auxFrameMatched": false,
+              "body": "TEXT",
+              "category": "conversation_preparation",
+              "explicitTerminalSignals": [],
+              "fileStates": [],
+              "genericStatuses": [
+                "ok"
+              ],
+              "httpStatus": 200,
+              "index": 65,
+              "matchedEvents": [],
+              "method": "POST",
+              "requestExactFileID": true,
+              "requestExactFilename": false,
+              "responseExactFileID": false,
+              "responseExactFilename": false
+            }
+          ],
+          "explicitFileStatusEntryCount": 0,
+          "explicitTerminalEntryCount": 0,
+          "identityBearingEntryCount": 3,
+          "matchedIndices": [
+            56,
+            63,
+            65
+          ],
+          "serverFileTerminal": "UNKNOWN"
+        },
+        "613": {
+          "entries": [
+            {
+              "auxFrameMatched": false,
+              "body": "TEXT",
+              "category": "create_upload",
+              "explicitTerminalSignals": [],
+              "fileStates": [
+                {
+                  "field": "status",
+                  "state": "success"
+                }
+              ],
+              "genericStatuses": [
+                "success"
+              ],
+              "httpStatus": 200,
+              "index": 60,
+              "matchedEvents": [],
+              "method": "POST",
+              "requestExactFileID": false,
+              "requestExactFilename": true,
+              "responseExactFileID": true,
+              "responseExactFilename": false
+            },
+            {
+              "auxFrameMatched": false,
+              "body": "ABSENT_FROM_HAR",
+              "category": "processing_stream",
+              "explicitTerminalSignals": [],
+              "fileStates": [],
+              "genericStatuses": [],
+              "httpStatus": 200,
+              "index": 64,
+              "matchedEvents": [],
+              "method": "POST",
+              "requestExactFileID": true,
+              "requestExactFilename": true,
+              "responseExactFileID": false,
+              "responseExactFilename": false
+            },
+            {
+              "auxFrameMatched": false,
+              "body": "TEXT",
+              "category": "conversation_preparation",
+              "explicitTerminalSignals": [],
+              "fileStates": [],
+              "genericStatuses": [
+                "ok"
+              ],
+              "httpStatus": 200,
+              "index": 66,
+              "matchedEvents": [],
+              "method": "POST",
+              "requestExactFileID": true,
+              "requestExactFilename": false,
+              "responseExactFileID": false,
+              "responseExactFilename": false
+            }
+          ],
+          "explicitFileStatusEntryCount": 0,
+          "explicitTerminalEntryCount": 0,
+          "identityBearingEntryCount": 3,
+          "matchedIndices": [
+            60,
+            64,
+            66
+          ],
+          "serverFileTerminal": "UNKNOWN"
+        },
+        "615": {
+          "entries": [],
+          "explicitFileStatusEntryCount": 0,
+          "explicitTerminalEntryCount": 0,
+          "identityBearingEntryCount": 0,
+          "matchedIndices": [],
+          "serverFileTerminal": "UNKNOWN"
+        }
+      },
+      "latestRequest": "2026-11-17T07:47:22.028Z",
+      "outerDocumentClosed": true,
+      "sha256": "1b0974cb48d123c0f13d2b76acaea951d02988a4693d66f63e1abed7f3596097"
+    },
+    "615_616": {
+      "bytes": 14134614,
+      "completeEntries": 191,
+      "coverage": {
+        "capturedAuxiliaryFrames": 0,
+        "firstPartyEntries": 124,
+        "responses_ABSENT_FROM_HAR": 30,
+        "responses_TEXT": 94,
+        "structuredResponsesParsed": 94
+      },
+      "earliestRequest": "2026-11-17T04:05:34.643Z",
+      "files": {
+        "612": {
+          "entries": [
+            {
+              "auxFrameMatched": false,
+              "body": "TEXT",
+              "category": "create_upload",
+              "explicitTerminalSignals": [],
+              "fileStates": [
+                {
+                  "field": "status",
+                  "state": "success"
+                }
+              ],
+              "genericStatuses": [
+                "success"
+              ],
+              "httpStatus": 200,
+              "index": 56,
+              "matchedEvents": [],
+              "method": "POST",
+              "requestExactFileID": false,
+              "requestExactFilename": true,
+              "responseExactFileID": true,
+              "responseExactFilename": false
+            },
+            {
+              "auxFrameMatched": false,
+              "body": "ABSENT_FROM_HAR",
+              "category": "processing_stream",
+              "explicitTerminalSignals": [],
+              "fileStates": [],
+              "genericStatuses": [],
+              "httpStatus": 200,
+              "index": 63,
+              "matchedEvents": [],
+              "method": "POST",
+              "requestExactFileID": true,
+              "requestExactFilename": true,
+              "responseExactFileID": false,
+              "responseExactFilename": false
+            },
+            {
+              "auxFrameMatched": false,
+              "body": "TEXT",
+              "category": "conversation_preparation",
+              "explicitTerminalSignals": [],
+              "fileStates": [],
+              "genericStatuses": [
+                "ok"
+              ],
+              "httpStatus": 200,
+              "index": 65,
+              "matchedEvents": [],
+              "method": "POST",
+              "requestExactFileID": true,
+              "requestExactFilename": false,
+              "responseExactFileID": false,
+              "responseExactFilename": false
+            }
+          ],
+          "explicitFileStatusEntryCount": 0,
+          "explicitTerminalEntryCount": 0,
+          "identityBearingEntryCount": 3,
+          "matchedIndices": [
+            56,
+            63,
+            65
+          ],
+          "serverFileTerminal": "UNKNOWN"
+        },
+        "613": {
+          "entries": [
+            {
+              "auxFrameMatched": false,
+              "body": "TEXT",
+              "category": "create_upload",
+              "explicitTerminalSignals": [],
+              "fileStates": [
+                {
+                  "field": "status",
+                  "state": "success"
+                }
+              ],
+              "genericStatuses": [
+                "success"
+              ],
+              "httpStatus": 200,
+              "index": 60,
+              "matchedEvents": [],
+              "method": "POST",
+              "requestExactFileID": false,
+              "requestExactFilename": true,
+              "responseExactFileID": true,
+              "responseExactFilename": false
+            },
+            {
+              "auxFrameMatched": false,
+              "body": "ABSENT_FROM_HAR",
+              "category": "processing_stream",
+              "explicitTerminalSignals": [],
+              "fileStates": [],
+              "genericStatuses": [],
+              "httpStatus": 200,
+              "index": 64,
+              "matchedEvents": [],
+              "method": "POST",
+              "requestExactFileID": true,
+              "requestExactFilename": true,
+              "responseExactFileID": false,
+              "responseExactFilename": false
+            },
+            {
+              "auxFrameMatched": false,
+              "body": "TEXT",
+              "category": "conversation_preparation",
+              "explicitTerminalSignals": [],
+              "fileStates": [],
+              "genericStatuses": [
+                "ok"
+              ],
+              "httpStatus": 200,
+              "index": 66,
+              "matchedEvents": [],
+              "method": "POST",
+              "requestExactFileID": true,
+              "requestExactFilename": false,
+              "responseExactFileID": false,
+              "responseExactFilename": false
+            }
+          ],
+          "explicitFileStatusEntryCount": 0,
+          "explicitTerminalEntryCount": 0,
+          "identityBearingEntryCount": 3,
+          "matchedIndices": [
+            60,
+            64,
+            66
+          ],
+          "serverFileTerminal": "UNKNOWN"
+        },
+        "615": {
+          "entries": [
+            {
+              "auxFrameMatched": false,
+              "body": "TEXT",
+              "category": "create_upload",
+              "explicitTerminalSignals": [],
+              "fileStates": [
+                {
+                  "field": "status",
+                  "state": "success"
+                }
+              ],
+              "genericStatuses": [
+                "success"
+              ],
+              "httpStatus": 200,
+              "index": 122,
+              "matchedEvents": [],
+              "method": "POST",
+              "requestExactFileID": false,
+              "requestExactFilename": true,
+              "responseExactFileID": true,
+              "responseExactFilename": false
+            },
+            {
+              "auxFrameMatched": false,
+              "body": "ABSENT_FROM_HAR",
+              "category": "processing_stream",
+              "explicitTerminalSignals": [],
+              "fileStates": [],
+              "genericStatuses": [],
+              "httpStatus": 200,
+              "index": 126,
+              "matchedEvents": [],
+              "method": "POST",
+              "requestExactFileID": true,
+              "requestExactFilename": true,
+              "responseExactFileID": false,
+              "responseExactFilename": false
+            }
+          ],
+          "explicitFileStatusEntryCount": 0,
+          "explicitTerminalEntryCount": 0,
+          "identityBearingEntryCount": 2,
+          "matchedIndices": [
+            122,
+            126
+          ],
+          "serverFileTerminal": "UNKNOWN"
+        }
+      },
+      "latestRequest": "2026-11-17T13:34:20.559Z",
+      "outerDocumentClosed": true,
+      "sha256": "b9c6fdff2ee7610124304e28061f93fcaa2a3aa4bedc69f3fa0342693097a00f"
+    },
+    "617_618": {
+      "bytes": 14549084,
+      "completeEntries": 200,
+      "coverage": {
+        "capturedAuxiliaryFrames": 0,
+        "firstPartyEntries": 129,
+        "responses_ABSENT_FROM_HAR": 30,
+        "responses_TEXT": 99,
+        "structuredResponsesParsed": 99
+      },
+      "earliestRequest": "2026-11-17T04:05:34.643Z",
+      "files": {
+        "612": {
+          "entries": [
+            {
+              "auxFrameMatched": false,
+              "body": "TEXT",
+              "category": "create_upload",
+              "explicitTerminalSignals": [],
+              "fileStates": [
+                {
+                  "field": "status",
+                  "state": "success"
+                }
+              ],
+              "genericStatuses": [
+                "success"
+              ],
+              "httpStatus": 200,
+              "index": 56,
+              "matchedEvents": [],
+              "method": "POST",
+              "requestExactFileID": false,
+              "requestExactFilename": true,
+              "responseExactFileID": true,
+              "responseExactFilename": false
+            },
+            {
+              "auxFrameMatched": false,
+              "body": "ABSENT_FROM_HAR",
+              "category": "processing_stream",
+              "explicitTerminalSignals": [],
+              "fileStates": [],
+              "genericStatuses": [],
+              "httpStatus": 200,
+              "index": 63,
+              "matchedEvents": [],
+              "method": "POST",
+              "requestExactFileID": true,
+              "requestExactFilename": true,
+              "responseExactFileID": false,
+              "responseExactFilename": false
+            },
+            {
+              "auxFrameMatched": false,
+              "body": "TEXT",
+              "category": "conversation_preparation",
+              "explicitTerminalSignals": [],
+              "fileStates": [],
+              "genericStatuses": [
+                "ok"
+              ],
+              "httpStatus": 200,
+              "index": 65,
+              "matchedEvents": [],
+              "method": "POST",
+              "requestExactFileID": true,
+              "requestExactFilename": false,
+              "responseExactFileID": false,
+              "responseExactFilename": false
+            }
+          ],
+          "explicitFileStatusEntryCount": 0,
+          "explicitTerminalEntryCount": 0,
+          "identityBearingEntryCount": 3,
+          "matchedIndices": [
+            56,
+            63,
+            65
+          ],
+          "serverFileTerminal": "UNKNOWN"
+        },
+        "613": {
+          "entries": [
+            {
+              "auxFrameMatched": false,
+              "body": "TEXT",
+              "category": "create_upload",
+              "explicitTerminalSignals": [],
+              "fileStates": [
+                {
+                  "field": "status",
+                  "state": "success"
+                }
+              ],
+              "genericStatuses": [
+                "success"
+              ],
+              "httpStatus": 200,
+              "index": 60,
+              "matchedEvents": [],
+              "method": "POST",
+              "requestExactFileID": false,
+              "requestExactFilename": true,
+              "responseExactFileID": true,
+              "responseExactFilename": false
+            },
+            {
+              "auxFrameMatched": false,
+              "body": "ABSENT_FROM_HAR",
+              "category": "processing_stream",
+              "explicitTerminalSignals": [],
+              "fileStates": [],
+              "genericStatuses": [],
+              "httpStatus": 200,
+              "index": 64,
+              "matchedEvents": [],
+              "method": "POST",
+              "requestExactFileID": true,
+              "requestExactFilename": true,
+              "responseExactFileID": false,
+              "responseExactFilename": false
+            },
+            {
+              "auxFrameMatched": false,
+              "body": "TEXT",
+              "category": "conversation_preparation",
+              "explicitTerminalSignals": [],
+              "fileStates": [],
+              "genericStatuses": [
+                "ok"
+              ],
+              "httpStatus": 200,
+              "index": 66,
+              "matchedEvents": [],
+              "method": "POST",
+              "requestExactFileID": true,
+              "requestExactFilename": false,
+              "responseExactFileID": false,
+              "responseExactFilename": false
+            }
+          ],
+          "explicitFileStatusEntryCount": 0,
+          "explicitTerminalEntryCount": 0,
+          "identityBearingEntryCount": 3,
+          "matchedIndices": [
+            60,
+            64,
+            66
+          ],
+          "serverFileTerminal": "UNKNOWN"
+        },
+        "615": {
+          "entries": [
+            {
+              "auxFrameMatched": false,
+              "body": "TEXT",
+              "category": "create_upload",
+              "explicitTerminalSignals": [],
+              "fileStates": [
+                {
+                  "field": "status",
+                  "state": "success"
+                }
+              ],
+              "genericStatuses": [
+                "success"
+              ],
+              "httpStatus": 200,
+              "index": 122,
+              "matchedEvents": [],
+              "method": "POST",
+              "requestExactFileID": false,
+              "requestExactFilename": true,
+              "responseExactFileID": true,
+              "responseExactFilename": false
+            },
+            {
+              "auxFrameMatched": false,
+              "body": "ABSENT_FROM_HAR",
+              "category": "processing_stream",
+              "explicitTerminalSignals": [],
+              "fileStates": [],
+              "genericStatuses": [],
+              "httpStatus": 200,
+              "index": 126,
+              "matchedEvents": [],
+              "method": "POST",
+              "requestExactFileID": true,
+              "requestExactFilename": true,
+              "responseExactFileID": false,
+              "responseExactFilename": false
+            }
+          ],
+          "explicitFileStatusEntryCount": 0,
+          "explicitTerminalEntryCount": 0,
+          "identityBearingEntryCount": 2,
+          "matchedIndices": [
+            122,
+            126
+          ],
+          "serverFileTerminal": "UNKNOWN"
+        }
+      },
+      "latestRequest": "2026-11-17T13:53:59.380Z",
+      "outerDocumentClosed": true,
+      "sha256": "535a8db87bd87725f9234e78da8fbe6e54c40df2820856b81818a6500fddf693"
+    }
+  }
+}

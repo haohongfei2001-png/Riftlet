@@ -5,6 +5,41 @@ import Foundation
 /// A label (INPUT/ATTACHED), timeout or send-button state alone is insufficient.
 /// Product ATTACHED may qualify only with independently reviewed, scoped evidence.
 public struct ReceiptPolicy: Sendable {
+    /// A host with calibrated START alone cannot borrow another host's profile
+    /// or its completion, retry and continuation mechanisms.
+    public struct StartOnlyRule: Sendable {
+        public struct Profile: Sendable {
+            public let receiptID: String
+            public let startID: String
+            public let signals: Set<UploadStartSignal>
+
+            public init(receiptID: String, startID: String, signals: Set<UploadStartSignal>) {
+                self.receiptID = receiptID
+                self.startID = startID
+                self.signals = signals
+            }
+        }
+
+        public let adapterID: String
+        public let receiptProfileID: String
+        public let startProfileID: String
+        public let signal: UploadStartSignal
+        public let route: WebDraftRoute
+        public let mediaType: String
+        fileprivate let profiles: [Profile]
+
+        public init(adapterID: String, receiptProfileID: String, startProfileID: String, signal: UploadStartSignal,
+                    mediaType: String, route: WebDraftRoute, additionalProfiles: [Profile] = []) {
+            self.adapterID = adapterID
+            self.receiptProfileID = receiptProfileID
+            self.startProfileID = startProfileID
+            self.signal = signal
+            self.mediaType = mediaType
+            self.route = route
+            self.profiles = [Profile(receiptID: receiptProfileID, startID: startProfileID, signals: [signal])] + additionalProfiles
+        }
+    }
+    public let startOnlyApplications: [String: StartOnlyRule]
     public let admittedProfiles: [String: TargetSurface]
     public let retrySafeProfiles: [String: TargetSurface]
     /// Real-transport acceptance with generated images only. These profiles never
@@ -41,7 +76,9 @@ public struct ReceiptPolicy: Sendable {
                 requiredTerminationEvidenceProfiles: Set<String> = [],
                 platformCompletionProfiles: [String: TargetSurface] = [:],
                 terminationProfiles: [String: TargetSurface] = [:],
-                requiredInputIsolationProfiles: Set<String> = []) {
+                requiredInputIsolationProfiles: Set<String> = [],
+                startOnlyApplications: [String: StartOnlyRule] = [:]) {
+        self.startOnlyApplications = startOnlyApplications
         self.admittedProfiles = admittedProfiles
         self.retrySafeProfiles = retrySafeProfiles
         self.syntheticAcceptanceProfiles = syntheticAcceptanceProfiles
@@ -72,6 +109,19 @@ public struct ReceiptPolicy: Sendable {
               !receipt.hasError, !receipt.positiveReady, !receipt.safeToRetry,
               let attachmentID = receipt.attachmentID, !attachmentID.isEmpty,
               attachmentID.utf8.count <= 1024 else { return false }
+        if let rule = startOnlyApplications[receipt.target.applicationID] {
+            guard receipt.target.adapterID == rule.adapterID,
+                  rule.profiles.contains(where: { $0.receiptID == receipt.profileID && $0.startID == evidence.profileID && $0.signals.contains(evidence.signal) }),
+                  profileOrigins[evidence.profileID]?.contains(asset.origin) == true,
+                  receipt.isUploading == (evidence.signal != .attachmentAccepted),
+                  asset.mediaType.lowercased() == rule.mediaType,
+                  receipt.target.clickBindingID != nil, receipt.target.webDraftRoute == rule.route, receipt.completionEvidence == nil,
+                  receipt.continuationEvidence == nil, receipt.terminationEvidence == nil else { return false }
+        } else if startOnlyApplications.values.contains(where: { rule in
+            rule.profiles.contains { $0.startID == evidence.profileID || $0.receiptID == receipt.profileID }
+        }) {
+            return false
+        }
         if mode == .simulation {
             return asset.origin == .synthetic && receipt.profileID == "simulation-v1"
                 && evidence.profileID == "simulation-upload-start-v1"
@@ -86,7 +136,8 @@ public struct ReceiptPolicy: Sendable {
     }
 
     public func allowsContinuation(receipt: TransferReceipt, asset: ImportedAsset, mode: StoreMode) -> Bool {
-        guard allowsUploadStart(receipt: receipt, asset: asset, mode: mode),
+        guard startOnlyApplications[receipt.target.applicationID] == nil,
+              allowsUploadStart(receipt: receipt, asset: asset, mode: mode),
               let evidence = receipt.continuationEvidence,
               !evidence.evidenceID.isEmpty, evidence.evidenceID.utf8.count <= 256,
               !evidence.profileID.isEmpty, evidence.profileID.utf8.count <= 128 else { return false }
@@ -110,7 +161,7 @@ public struct ReceiptPolicy: Sendable {
     }
 
     public func allowsConsumption(receipt: TransferReceipt, asset: ImportedAsset, mode: StoreMode) -> Bool {
-        guard receipt.outcome == .verifiedReady,
+        guard startOnlyApplications[receipt.target.applicationID] == nil, receipt.outcome == .verifiedReady,
               receipt.positiveReady, receipt.belongsToOriginalDraft,
               !receipt.hasError, !receipt.isUploading,
               let attachmentID = receipt.attachmentID, !attachmentID.isEmpty else { return false }
@@ -135,7 +186,7 @@ public struct ReceiptPolicy: Sendable {
 
     /// A false failure can duplicate an upload, so failure admission is separate from READY.
     public func allowsRetry(receipt: TransferReceipt, asset: ImportedAsset, mode: StoreMode) -> Bool {
-        guard receipt.outcome == .definitiveFailure, receipt.safeToRetry, receipt.hasError,
+        guard startOnlyApplications[receipt.target.applicationID] == nil, receipt.outcome == .definitiveFailure, receipt.safeToRetry, receipt.hasError,
               let attachmentID = receipt.attachmentID, !attachmentID.isEmpty,
               receipt.belongsToOriginalDraft, !receipt.isUploading, !receipt.positiveReady else { return false }
         if let proof = receipt.terminationEvidence {

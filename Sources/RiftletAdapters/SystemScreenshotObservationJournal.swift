@@ -37,7 +37,15 @@ public actor SystemScreenshotObservationJournal {
               operation.phase.isUnresolved || operation.phase == .succeeded else {
             throw SystemScreenshotObservationJournalError.persistentIdentityMismatch
         }
-        let invocations = [envelope.observation.requestEvidence?.invocationID,
+        if let content = envelope.observation.originalDraftContent {
+            guard scope == .productSystem, request.asset.origin == .systemScreenshot,
+                  request.asset.mediaType.lowercased() == "image/png",
+                  request.invocationID == content.invocationID else {
+                throw SystemScreenshotObservationJournalError.persistentIdentityMismatch
+            }
+        }
+        let invocations = [envelope.observation.originalDraftContent?.invocationID,
+            envelope.observation.requestEvidence?.invocationID,
             envelope.observation.completionEvidence?.binding.invocationID,
             envelope.observation.terminationEvidence?.binding.invocationID,
             envelope.observation.continuationEvidence?.binding.invocationID].compactMap { $0 }
@@ -46,6 +54,16 @@ public actor SystemScreenshotObservationJournal {
                   invocations.allSatisfy({ $0 == original }) else {
                 throw SystemScreenshotObservationJournalError.persistentIdentityMismatch
             }
+        }
+        if operation.target.applicationID == EdgeApplicationHost.bundleID {
+            let admission = SystemScreenshotCandidateAdmission(store: store, scope: scope)
+            guard let source = try await admission.registeredObservationSource(for: request),
+                  ChatGPTWebPageProgram.edgeEvidence(for: source) == envelope.provenance.evidenceID else {
+                throw SystemScreenshotObservationJournalError.invalidProvenance
+            }
+        } else if [ChatGPTWebPageProgram.edgeEvidenceID, ChatGPTWebPageProgram.draftContentEvidenceV28, ChatGPTWebPageProgram.draftContentEvidenceV27, ChatGPTWebPageProgram.priorStagedEvidence,
+                   ChatGPTWebPageProgram.priorEncodedEvidence].contains(envelope.provenance.evidenceID) {
+            throw SystemScreenshotObservationJournalError.invalidProvenance
         }
         let slots = Slot.classifyAll(envelope.observation)
         guard !slots.isEmpty else { return }
@@ -64,6 +82,10 @@ public actor SystemScreenshotObservationJournal {
             guard Slot.classifyAll(original.envelope.observation).contains(slot) else {
                 throw SystemScreenshotObservationJournalError.conflictingCheckpoint
             }
+            if slot == .originalDraftContent,
+               original.envelope.observation.originalDraftContent != envelope.observation.originalDraftContent {
+                throw SystemScreenshotObservationJournalError.conflictingCheckpoint
+            }
             if original.envelope.provenance != envelope.provenance {
                 guard readOnly, try await canReadEarlierEntry(original.envelope.provenance,
                     from: envelope.provenance, for: request) else {
@@ -75,19 +97,35 @@ public actor SystemScreenshotObservationJournal {
 
     private func canReadEarlierEntry(_ saved: ObservationProvenance, from current: ObservationProvenance,
                                      for request: TransferRequest) async throws -> Bool {
-        guard saved.source == .integratedDevelopment, current.source == .integratedDevelopment else { return false }
-        let versions = [(ChatGPTWebPageProgram.priorEntrySource, "attachment-entry-20261105-v15"),
-                        (ChatGPTWebPageProgram.priorHandoffSource, "attachment-handoff-20261105-v16"),
-                        (ChatGPTWebPageProgram.priorScreenshotSource, "screenshot-handoff-20261105-v17"),
-                        (ChatGPTWebPageProgram.priorObservationSource, "screenshot-observation-20261118-v18"),
-                        (ChatGPTWebPageProgram.sourceID, "screenshot-card-observation-20261118-v19")]
-        guard let previous = versions.firstIndex(where: { $0.1 == saved.evidenceID }),
-              let observed = versions.firstIndex(where: { $0.1 == current.evidenceID }), previous < observed,
-              let source = try await SystemScreenshotCandidateAdmission(store: store, scope: scope).registeredObservationSource(for: request),
-              let enrolled = versions.firstIndex(where: { $0.0 == source }) else { return false }
-        // Only a forward read of this operation's original, fenced registration
-        // may cross provenance. The first slot retains its exact earlier bytes.
-        return enrolled <= previous
+        guard request.operation.target.applicationID != EdgeApplicationHost.bundleID,
+              saved.source == .integratedDevelopment, current.source == .integratedDevelopment else { return false }
+        guard let source = try await SystemScreenshotCandidateAdmission(store: store, scope: scope)
+            .registeredObservationSource(for: request) else { return false }
+        return Self.permitsHistoricalRead(source: source, saved: saved.evidenceID, observed: current.evidenceID)
+    }
+
+    static func permitsHistoricalRead(source: String, saved: String, observed: String) -> Bool {
+        // A read must travel forward on one real Chrome ancestry, including the
+        // original registration. Main's card observer and the PR's v23 were siblings.
+        let common = ["attachment-entry-20261105-v15", "attachment-handoff-20261105-v16",
+                      "screenshot-handoff-20261105-v17"]
+        let click = ["click-document-witness-20261114-v18", "click-document-witness-20261117-v19",
+                     "click-document-witness-20261117-v20", "click-document-witness-20261117-v21",
+                     "click-document-witness-20261117-v22"]
+        let product = "screenshot-observation-20261118-v18"
+        let unified = "click-document-witness-20261118-v23"
+        let card = "screenshot-card-observation-20261118-v19"
+        let active = "click-document-witness-20261118-v25"
+        let prefix = "chatgpt-web-"
+        guard source.hasPrefix(prefix) else { return false }
+        let registered = String(source.dropFirst(prefix.count))
+        let histories = [common + click + [unified, active],
+                         common + [product, unified, active], common + [product, card, active]]
+        return histories.contains { history in
+            guard let first = history.firstIndex(of: registered), let stored = history.firstIndex(of: saved),
+                  let next = history.firstIndex(of: observed) else { return false }
+            return first <= stored && stored < next
+        }
     }
 
     /// Only an exact original ordinary registration can retain its historical
@@ -112,7 +150,7 @@ public actor SystemScreenshotObservationJournal {
     enum Slot: String, CaseIterable {
         case input, start, attached, ready, errorOrInvalidated, unknown
         case originalRequest, originalRequestTerminal, requestObservationClosed
-        case terminationProof, independentTaskProof
+        case terminationProof, independentTaskProof, originalDraftContent
 
         static func classifyAll(_ item: AttachmentObservation) -> [Slot] {
             var result = classify(item).map { [$0] } ?? []
@@ -123,6 +161,7 @@ public actor SystemScreenshotObservationJournal {
             }
             if item.terminationEvidence != nil { result.append(.terminationProof) }
             if item.continuationEvidence != nil { result.append(.independentTaskProof) }
+            if item.originalDraftContent != nil { result.append(.originalDraftContent) }
             return result
         }
 

@@ -1,0 +1,47 @@
+{
+  "bothEncodedOriginalsMatchedCardByteForByte": true,
+  "browserScriptPreference": {
+    "earlierTestWindow": {
+      "afterAttempt": "OFF",
+      "before": "OFF",
+      "sourceSHA256": "e246946d6a84bdfdeab6469de8587cf12b6e72f427f55205fc1cebd7c6806ca1"
+    },
+    "explicitFreshDefaultProfile": {
+      "finalEnabledMenuItemChecked": true,
+      "finalLiveMenuReceiptSHA256": "7b429201100deaf0e66e928ace52726db64a8a987e0bb78804e4e61b053400c5",
+      "initialReceiptPreferenceWrites": 0,
+      "initialReceiptSHA256": "c01acf052ab681a7958b34c53b8750850aab0a66278daf9aa96f0b150eb6761c",
+      "initialScriptExecutionSucceeded": true,
+      "preferenceWritesDuringThisTest": 0
+    }
+  },
+  "candidateBuild": "1.0.5 (31)",
+  "candidateSource": "d38663dadfc71df3ca4a0f185bd1b53696840c7e",
+  "completeServiceUploadPerOriginal": [
+    "UNKNOWN",
+    "UNKNOWN"
+  ],
+  "isolatedRiftletPerPage": {
+    "original": 3,
+    "previousTemporaryValue": 4,
+    "restorationReceiptSHA256": "fa94d8f5aacd082fda701a7cee09788be693bde1bae88b1b6e47151769b97508",
+    "restored": 3
+  },
+  "knownUnsentDedicatedDraftPreserved": true,
+  "messagesSent": 0,
+  "namedCardScopeProjectionSHA256": "ebf1f68b5d646fab8f84e6ccd522d19fae869164585151d583f933e952d2064c",
+  "normalDevTools": {
+    "enteredUndocked": true,
+    "enteringReceiptSHA256": "caf10ed81c7aa3d6d385f6b9ae93ab37c830c79131cd52d78c9c64daa3edf511",
+    "openedForThisRun": true,
+    "restorationReceiptSHA256": "bda6548fa9ac1fab21e8521b3445195d3b1bd3606068a5eb4b483dfdc0cacf2b",
+    "restoredClosed": true
+  },
+  "normalHARSHA256": "c40d1788ff16f615784f21eb4a1ee2384561396b5df258eca05b04e8bd3a8ffd",
+  "normalProfileExactNewWindow": true,
+  "realNativeProjectionSHA256": "035ea6ec68699f46502d402a9284ce2dbde82711bafbece643ce9249f32950d4",
+  "serviceIndependentAuditSHA256": "b15ba503bcfd0ae52059f8126c6b78efb2fd82c4be8fe773cf852b12bd44a361",
+  "serviceProjectionSHA256": "5fdf917940f7066763f5891f0bec08b445ad648b43db6f0b31275c3fc3e63fa3",
+  "sourceExecutableSHA256": "478dd572ad2164acf6a6ef8e736a0bebbcb52d92e347d776de5e99e5b0437903",
+  "twoPNGPreviewByteComparisonsSHA256": "8b5083803809a853543af8281731b9dcca35f679e80fe785c511cb0fa32ee506"
+}

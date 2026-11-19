@@ -53,14 +53,21 @@ final class ProductScreenshotScopeTests: XCTestCase {
         do { _ = try await body(); XCTFail("Unqualified source/operation accepted", file: file, line: line) } catch {}
     }
 
-    func testOlderFencedRowsAndFirstJournalEntriesSurviveV19ReadOnlyReconciliation() async throws {
+    func testOlderFencedRowsAndFirstJournalEntriesSurviveV25ReadOnlyReconciliation() async throws {
         let program = try ChatGPTWebPageProgram.load()
-        XCTAssertEqual(program.sourceID, "chatgpt-web-screenshot-card-observation-20261118-v19")
+        XCTAssertEqual(program.sourceID, "chatgpt-web-click-document-witness-20261118-v25")
         let scopes: [SystemScreenshotAdmissionScope] = [.candidate, .ordinary, .ordinaryCurrentDraftInternal, .productSystem, .productApplication]
         let versions = [("chatgpt-web-attachment-entry-20261105-v15", "attachment-entry-20261105-v15"),
                         ("chatgpt-web-attachment-handoff-20261105-v16", "attachment-handoff-20261105-v16"),
                         ("chatgpt-web-screenshot-handoff-20261105-v17", "screenshot-handoff-20261105-v17"),
-                        ("chatgpt-web-screenshot-observation-20261118-v18", "screenshot-observation-20261118-v18")]
+                        ("chatgpt-web-click-document-witness-20261114-v18", "click-document-witness-20261114-v18"),
+                        ("chatgpt-web-click-document-witness-20261117-v19", "click-document-witness-20261117-v19"),
+                        ("chatgpt-web-click-document-witness-20261117-v20", "click-document-witness-20261117-v20"),
+                        ("chatgpt-web-click-document-witness-20261117-v21", "click-document-witness-20261117-v21"),
+                        ("chatgpt-web-click-document-witness-20261117-v22", "click-document-witness-20261117-v22"),
+                        ("chatgpt-web-screenshot-observation-20261118-v18", "screenshot-observation-20261118-v18"),
+                        ("chatgpt-web-screenshot-card-observation-20261118-v19", "screenshot-card-observation-20261118-v19"),
+                        ("chatgpt-web-click-document-witness-20261118-v23", "click-document-witness-20261118-v23")]
         for (scope, (source, evidence)) in scopes.flatMap({ scope in versions.map { (scope, $0) } }) {
             let (store, request, database) = try await fixture(origin: scope.origin)
             let identity = envelope(request).observation.identity
@@ -83,7 +90,7 @@ final class ProductScreenshotScopeTests: XCTestCase {
             let prior = AttachmentObservationEnvelope(provenance: .init(source: .integratedDevelopment,
                 evidenceID: evidence), observation: item)
             let current = AttachmentObservationEnvelope(provenance: .init(source: .integratedDevelopment,
-                evidenceID: "screenshot-card-observation-20261118-v19"), observation: item)
+                evidenceID: "click-document-witness-20261118-v25"), observation: item)
             let journal = SystemScreenshotObservationJournal(store: store, scope: scope)
             try await journal.record(prior, for: request)
             let journalKey = SystemScreenshotObservationJournal.checkpointKey(request, slot: .unknown, scope: scope)
@@ -93,20 +100,57 @@ final class ProductScreenshotScopeTests: XCTestCase {
             try await store.markUnknown(request.operation.id, reason: "existing v15 observation")
             let reopened = try QueueStore(databaseURL: database)
             let original = try await refreshed(request, store: reopened)
-            let bridge = V15ReadOnlyBridge(response: try JSONEncoder().encode(current))
+            // The first read is UNKNOWN. A later read invalidates the same
+            // original target. Neither read authorizes new input or a retry.
+            let terminal = AttachmentObservationEnvelope(provenance: prior.provenance, observation:
+                .init(identity: identity, state: .invalidated, belongsToOriginalDraft: false))
+            let bridge = OriginalReadOnlyBridge(first: try JSONEncoder().encode(prior),
+                                                later: try JSONEncoder().encode(terminal))
             let client = WebAttachmentAdapter(mediaDirectory: root, executor: bridge, program: program,
                 mode: scope.isProduct ? .ordinaryProduct : scope == .candidate ? .systemScreenshotCandidate : .ordinarySystemScreenshot,
-                profile: scope.isProduct ? OrdinaryProductScreenshotScope.systemProfile : scope.legacyProfile, polling: .disabled,
+                profile: scope.isProduct ? OrdinaryProductScreenshotScope.systemProfile : scope.legacyProfile,
+                polling: .init(timeout: 3, interval: 0.01),
                 candidateJournal: scope.isProduct ? nil : SystemScreenshotObservationJournal(store: reopened, scope: scope),
                 candidateAdmission: scope.isProduct ? nil : SystemScreenshotCandidateAdmission(store: reopened, scope: scope),
                 productStore: scope.isProduct ? reopened : nil, productOrigins: scope.isProduct ? [scope.origin] : [])
             let receipt = try await client.reconcile(original)
             XCTAssertEqual(receipt.outcome, .unknown); XCTAssertEqual(receipt.profileID, scope.admittedProfile.profileID)
-            let actions = await bridge.actions; XCTAssertEqual(actions, [.observe])
+            if scope.isProduct {
+                // 1.0.5 reconciles one sample per observation tick. Preserve
+                // that boundary even when the historical reader can be polled.
+                let firstActions = await bridge.actions
+                XCTAssertEqual(firstActions, [.observe])
+                let laterReceipt = try await client.reconcile(original)
+                XCTAssertEqual(laterReceipt.outcome, .unknown)
+                XCTAssertEqual(laterReceipt.profileID, scope.admittedProfile.profileID)
+            }
+            let actions = await bridge.actions
+            XCTAssertEqual(actions, [.observe, .observe])
+            let expectedReader = [ChatGPTWebPageProgram.priorClickSource, ChatGPTWebPageProgram.priorOriginSource, ChatGPTWebPageProgram.priorProgressSource, ChatGPTWebPageProgram.priorLabelSource, ChatGPTWebPageProgram.priorEdgeSource, ChatGPTWebPageProgram.priorProductSource, ChatGPTWebPageProgram.priorProductCardSource, ChatGPTWebPageProgram.priorUnifiedSource].contains(source)
+                ? source : ChatGPTWebPageProgram.priorScreenshotSource
+            let readPrograms = await bridge.programIDs; XCTAssertEqual(readPrograms, Array(repeating: expectedReader, count: 2))
             for name in Set([key, fence]) { let saved = try await reopened.checkpoint(for: name); XCTAssertEqual(saved, bytes) }
             let savedJournal = try await reopened.checkpoint(for: journalKey), saved = try await reopened.operation(id: request.operation.id)
             XCTAssertEqual(savedJournal, priorJournal); XCTAssertEqual(saved, original.operation)
             XCTAssertEqual(try Data(contentsOf: request.fileURL), png)
+        }
+    }
+
+    func testParallelChromeObserversCannotReadEachOthersCheckpoints() {
+        let product = "screenshot-observation-20261118-v18"
+        let card = "screenshot-card-observation-20261118-v19"
+        let click = "click-document-witness-20261117-v22"
+        let unified = "click-document-witness-20261118-v23"
+        let active = "click-document-witness-20261118-v25"
+        for (registered, saved, observed) in [(product, card, unified), (click, unified, card),
+                                              (click, card, active), (card, unified, active),
+                                              (unified, unified, "click-document-witness-20261118-v24")] {
+            XCTAssertFalse(SystemScreenshotObservationJournal.permitsHistoricalRead(
+                source: "chatgpt-web-" + registered, saved: saved, observed: observed))
+        }
+        for earlier in [card, unified] {
+            XCTAssertTrue(SystemScreenshotObservationJournal.permitsHistoricalRead(
+                source: "chatgpt-web-" + product, saved: earlier, observed: active))
         }
     }
 
@@ -153,7 +197,7 @@ final class ProductScreenshotScopeTests: XCTestCase {
                 let saved = try await store.checkpoint(for: key), bytes = try XCTUnwrap(saved)
                 let object = try XCTUnwrap(JSONSerialization.jsonObject(with: bytes) as? [String: Any])
                 XCTAssertEqual(object["version"] as? Int, 2)
-                XCTAssertEqual(object["sourceID"] as? String, "chatgpt-web-screenshot-card-observation-20261118-v19")
+                XCTAssertEqual(object["sourceID"] as? String, "chatgpt-web-click-document-witness-20261118-v25")
                 XCTAssertEqual(object["assetOrigin"] as? String, scope.origin.rawValue)
                 let fence = try await store.checkpoint(for: SystemScreenshotCandidateAdmission.checkpointKey(for: request))
                 XCTAssertEqual(fence, bytes)
@@ -302,13 +346,16 @@ final class ProductScreenshotScopeTests: XCTestCase {
     }
 }
 
-private actor V15ReadOnlyBridge: WebBridgeExecutor {
-    let response: Data
+private actor OriginalReadOnlyBridge: WebBridgeExecutor {
+    let first: Data
+    let later: Data
     private(set) var actions: [WebBridgeAction] = []
-    init(response: Data) { self.response = response }
+    private(set) var programIDs: [String] = []
+    init(first: Data, later: Data) { self.first = first; self.later = later }
     func execute(_ command: WebBridgeCommand, program: WebPageProgram) async throws -> Data {
         actions.append(command.action)
+        programIDs.append(program.sourceID)
         guard command.action == .observe else { throw WebAdapterError.invalidRequest }
-        return response
+        return actions.count == 1 ? first : later
     }
 }

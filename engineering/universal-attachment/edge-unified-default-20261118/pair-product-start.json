@@ -1,0 +1,41 @@
+{
+  "automaticRetryCount": 0,
+  "executableSHA256": "eb61c5cfd65487e4a02bf9d125e9ef8853e3f4500b4d4cda887a6a6e3aa0e5c3",
+  "ordinaryRawTraceSHA256": "0eb93b1ac3b5c4a63e081651f3a388db8f089ef70645279bbd27d9ea4938ffa5",
+  "ordinarySnapshotSHA256": "62b14e072d1a571d20697e8db076f0e3f4e1bb12d3d0e6ac469ce8c18b5964b5",
+  "samples": [
+    {
+      "clickBound": true,
+      "decisions": {
+        "fileBlobMissing": 8
+      },
+      "fileLabelOriginalForm": true,
+      "maxBlobMatches": 0,
+      "maxLoadedPreviews": 0,
+      "maxProgressNodes": 0,
+      "maxReadyNodes": 0,
+      "readOnlyObserveInvalidTargetSequences": [
+        100
+      ],
+      "sampleStartCount": 0,
+      "samples": 8,
+      "seed": 619
+    },
+    {
+      "clickBound": true,
+      "decisions": {
+        "fileBlobMissing": 34
+      },
+      "fileLabelOriginalForm": true,
+      "maxBlobMatches": 0,
+      "maxLoadedPreviews": 1,
+      "maxProgressNodes": 0,
+      "maxReadyNodes": 0,
+      "readOnlyObserveInvalidTargetSequences": [],
+      "sampleStartCount": 0,
+      "samples": 34,
+      "seed": 620
+    }
+  ],
+  "source": "8ac2bf1c7129763fce3a1d3ccd1a581e08848df2"
+}

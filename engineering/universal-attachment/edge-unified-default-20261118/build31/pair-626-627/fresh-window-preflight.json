@@ -1,0 +1,40 @@
+{
+  "countNewCGRows": 3,
+  "countVisibleNewCGRows": 0,
+  "AXWindowsCount": 0,
+  "defaultEdgeFrontmost": false,
+  "oldNativeWindowsPreserved": true,
+  "newNativeWindowExists": true,
+  "newWindowIsNativeFirst": false,
+  "tabCountInOriginalNewWindow": 1,
+  "originalTabActiveInOwnWindow": true,
+  "originalTabStillMember": true,
+  "routeMatches": true,
+  "readOnlyNativeSelectionTabMatches": false,
+  "readOnlyNativeSelectionWindowMatches": false,
+  "GUIWrites": 0,
+  "scope": "Read-only display verification after one newly created dedicated temporary window in the already signed-in default Edge. No new commercial screenshots or uploads.",
+  "newRowsMatchingAXMainGeometry": 1,
+  "createdNewWindow": true,
+  "createdOneNewTab": true,
+  "pageScriptConstantReturned": true,
+  "newDraftLoginAndEditorVerified": false,
+  "originalDraftChangedByProbe": false,
+  "measuredCommercialClicks": 0,
+  "newAttachmentInputs": 0,
+  "commercialResult": "NOT_RUN",
+  "sourceEvidenceSHA256": {
+    "before.json": "fdc51d5b78c42cae56c2d63b1e3eca51196e86b4562b689460bd3987a9a41c7f",
+    "created.json": "c4cb7e1fd887589ade651daf64f73fb1ebdf22fa90f2b904c0beeb6153e38c74",
+    "creation-result.json": "89781fd99873d563eaab36a1422deccf41abec23b87c93e51185ca4cbac08a29",
+    "post-refusal-CG.json": "b859db3335312a16077b49e5d47e37f1fa51845e1b8f7f36c87507261da4b018",
+    "stable-CG-and-AX.json": "c475107498610040725fe36941986caac77497830fb12f6edd246c38bbc7d2d6"
+  },
+  "sealedResultSHA256": "a9d2a4cdf53fc1c5312e8b4a575eec50450dfa0f9e164f312e82a76f8dab96b9",
+  "databaseAtClose": {
+    "assets": 30,
+    "operations": 18,
+    "starts": 4
+  },
+  "newTestImagesCreated": 0
+}

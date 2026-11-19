@@ -1,0 +1,77 @@
+{
+  "sourceCommit": "78309aafc08aa831663baa94972e7f71bc7dc76b",
+  "sourceTree": "3e432c409207403d3accd2def1c821ee9934f57e",
+  "sourceArchiveSHA256": "8406446c4d20cd90f14f0ba0dec6350c62f2d5452cd80ab7b47daec7b975799f",
+  "verifiedSourceBlobsAndModesAfterBuild": 1699,
+  "executableSHA256": "dcf146df30f9d9977a6a282bbfa5a03ce103893c57af0f3d3211599be91a632a",
+  "architectures": [
+    "arm64"
+  ],
+  "bundleIdentifier": "com.riftlet.isolated-product-acceptance",
+  "version": "1.0.2",
+  "build": "24",
+  "strictCodeSign": "PASS",
+  "bundleVerifier": "PASS",
+  "nativeBuildInfo": {
+    "builtInUpload": true,
+    "completion": true,
+    "continuation": true,
+    "dataDirectory": "Riftlet-Isolated-Product-Acceptance",
+    "input": true,
+    "internalAcceptance": true,
+    "mode": "capture",
+    "safeRetry": false,
+    "start": true
+  },
+  "metadataRemoved": [],
+  "quarantineRemoved": false,
+  "generatedAppAttributeNamesPresent": false,
+  "appOrBrowserLaunched": false,
+  "scope": "fixed-source-isolated-product-package-only",
+  "notarized": false,
+  "gatekeeper": "NOT_RUN",
+  "logs": {
+    "package.log": "5ef292a7d656a722f836ec3f1d0af7c6744701b74f04551e2a2388722c5f7d04",
+    "codesign-strict.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "codesign-identity.log": "1207d6b97d49a33212116e5b7feee62c4a076a892cf2feb67a681eb52232ac23",
+    "bundle-verifier.log": "b55d94cdde2bd585b278ddff90f4443a04db651eba3e76585ffe66fd039f6d5f",
+    "native-build-info.json": "9ed6b77365e275887bd6b24ba4aa7d7cae3252b46ee078327b90c30dcd274313",
+    "attribute-names.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "architectures.log": "c1669e1d8edca98769c37d494b76442a1d6e5ffffd7b4da1fb63aef8ebaf6f01"
+  },
+  "rawLocalReceiptSHA256": "49e32aa8b0f732e8e3c873e7a4f8f91098fe5ee14486370e5305f7688f4cb679",
+  "subsequentOrdinaryEntry": {
+    "sourceCheckpoint": "78309aafc08aa831663baa94972e7f71bc7dc76b",
+    "normalLaunchServicesEntry": true,
+    "sameOriginalBundle": true,
+    "sameExecutable": true,
+    "appTookFocus": false,
+    "dataDirectory": "Riftlet-Isolated-Product-Acceptance",
+    "preexistingIsolatedDataPreserved": true,
+    "preseededPausedCollector": true,
+    "countsBefore": {
+      "assets": 0,
+      "operations": 0,
+      "upload_starts": 0,
+      "capturePaused": true
+    },
+    "countsAfter": {
+      "assets": 0,
+      "operations": 0,
+      "upload_starts": 0,
+      "capturePaused": true
+    },
+    "normalTerminationRequested": true,
+    "normalTerminationObserved": true,
+    "processCountAfterQuit": 0,
+    "scope": "Paused normal App startup/exit only. No screenshots, commercial file input, START, completion, first-use UX or GUI acceptance."
+  },
+  "entryRawSHA256": {
+    "riftlet-pr69-merged-app-entry.json": "a7230996437b64694d0314fcc1e431fa3b7477fa96c26700ba17381651997181",
+    "riftlet-pr69-merged-app-termination.json": "cbd2f38006a6d3d0ef1a53033876052eeaf08c9e3f83e90b5c67b947f61cfecd",
+    "riftlet-pr69-merged-app-after-quit.txt": "6c24ae55a9a58a2b0bcaa2f7c24c5c6fd79d6ed8bbd2052b792e0ef30a5521e1",
+    "riftlet-pr69-merged-entry-before.json": "b3c96983cca6ab6a6013cfb7f50f9e20b0094d151ed3989d7ac2e01e4a3fb1da",
+    "riftlet-pr69-merged-entry-after.json": "b3c96983cca6ab6a6013cfb7f50f9e20b0094d151ed3989d7ac2e01e4a3fb1da"
+  },
+  "note": "The package-only receipt precedes the separate ordinary entry. Its fixed 78309aaf source and executable identity are retained; subsequent website-only main integration is not relabeled as a fresh package build."
+}

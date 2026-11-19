@@ -117,6 +117,9 @@ public struct LogicalDraftIdentity: Codable, Equatable, Hashable, Sendable {
     }
 }
 
+/// A bounded click-time public route classification. Historical leases omit it.
+public enum WebDraftRoute: String, Codable, Sendable { case chatGPTTemporaryHome }
+
 /// Captured at click time and rechecked atomically with dispatch by the adapter.
 /// Tokens are opaque local identities, never cookies, credentials or chat contents.
 public struct TargetLease: Codable, Equatable, Hashable, Sendable {
@@ -134,17 +137,18 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
     public let historyConversationID: UUID?
     /// Runtime page-issued click capability; absent on all historical leases.
     public let clickBindingID: UUID?
+    public let webDraftRoute: WebDraftRoute?
 
     public init(adapterID: String, surface: TargetSurface, applicationID: String,
                 sessionID: String, windowID: String, tabID: String? = nil,
                 documentID: String, composerID: String, draftGeneration: String,
-                logicalDraftIdentity: LogicalDraftIdentity? = nil, clickBindingID: UUID? = nil, historyConversationID: UUID? = nil) {
+                logicalDraftIdentity: LogicalDraftIdentity? = nil, clickBindingID: UUID? = nil, webDraftRoute: WebDraftRoute? = nil, historyConversationID: UUID? = nil) {
         self.adapterID = adapterID; self.surface = surface; self.applicationID = applicationID
         self.sessionID = sessionID; self.windowID = windowID; self.tabID = tabID
         self.documentID = documentID; self.composerID = composerID; self.draftGeneration = draftGeneration
         self.logicalDraftIdentity = logicalDraftIdentity
         self.historyConversationID = historyConversationID
-        self.clickBindingID = clickBindingID
+        self.clickBindingID = clickBindingID; self.webDraftRoute = webDraftRoute
     }
 
     public var stableKey: String {
@@ -160,13 +164,13 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
     /// Full Equatable/stableKey identity intentionally remains unchanged.
     public func sharesContinuationDraft(with other: TargetLease) -> Bool {
         guard surface == .webChat, other.surface == surface,
-              applicationID == "com.google.Chrome", other.applicationID == applicationID,
+              hasNativeWebTabIdentity, other.applicationID == applicationID,
               !adapterID.isEmpty, adapterID == other.adapterID,
               !sessionID.isEmpty, sessionID == other.sessionID,
               !windowID.isEmpty, windowID == other.windowID,
               let tabID, !tabID.isEmpty, tabID == other.tabID,
               !documentID.isEmpty, documentID == other.documentID,
-              !composerID.isEmpty, composerID == other.composerID,
+              !composerID.isEmpty, composerID == other.composerID, webDraftRoute == other.webDraftRoute,
               !draftGeneration.isEmpty, draftGeneration == other.draftGeneration,
               let draft = logicalDraftIdentity, draft.isRecognized,
               draft == other.logicalDraftIdentity else { return false }
@@ -207,7 +211,7 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
     /// Chrome tab, including rearming, navigation and moving between windows.
     /// Receipt equality still requires every field of the original lease.
     public var serializationKey: String {
-        guard surface == .webChat, applicationID == "com.google.Chrome",
+        guard surface == .webChat, hasNativeWebTabIdentity,
               let tabID, !tabID.isEmpty else { return stableKey }
         return String(data: try! JSONEncoder().encode([adapterID, applicationID, sessionID, tabID]), encoding: .utf8)!
     }
@@ -218,11 +222,15 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
     public func conflictsForDispatch(with other: TargetLease) -> Bool {
         guard serializationKey == other.serializationKey || mixedChromeSessionMayConflict(with: other) else { return false }
         guard surface == .webChat, other.surface == .webChat,
-              applicationID == "com.google.Chrome", other.applicationID == applicationID,
+              hasNativeWebTabIdentity, other.applicationID == applicationID,
               let tabID, !tabID.isEmpty, other.tabID == tabID,
               let a = logicalDraftIdentity, let b = other.logicalDraftIdentity,
               a.isRecognized, b.isRecognized, a.profileID == b.profileID else { return true }
         return a.id.lowercased() == b.id.lowercased()
+    }
+
+    private var hasNativeWebTabIdentity: Bool {
+        applicationID == "com.google.Chrome" || applicationID == "com.microsoft.edgemac"
     }
 
     /// A session spelling upgrade must not unlock an unresolved old operation.

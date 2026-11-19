@@ -1,0 +1,1154 @@
+{
+  "reviewRoles": "Independent passive CI and source composition reviewer. The integrator ran the PR workflow by pushing H; this reviewer issued read-only GitHub queries.",
+  "base": "3f8149e2313fd81bbaee5a7bbbdbb1efca2fc81b",
+  "reviewedSource": "8c129215697c95f36f250fb10a9dbb3761ff8e8b",
+  "reviewedTree": "aa388e963b10770347fe993d60dbda5afa9a9dad",
+  "admissionHead": "8b68c41084b75c0263baa384bfcc87bec412dda7",
+  "admissionTree": "64c4d126abb4a272501662bc89831bc4d1f9cebf",
+  "onlyChangedPathFromG": "engineering/mainline/source-admission.json",
+  "unchangedExceptAdmissionModeObjectPathSHA256": "9ecd5336dfd479bfc858332a3399d56bad6a08de96ba2a046388db94c067a187",
+  "directAdmissionParents": [
+    "8c129215697c95f36f250fb10a9dbb3761ff8e8b"
+  ],
+  "embeddedRawReportBytes": 12418,
+  "embeddedRawReportSHA256": "cecd95e784db8fdfe8557cdf497f5733a42dd15fa9560deda5b6262ade5cfc57",
+  "productionAdmissionEqualToBase": true,
+  "sourceAdmissionRawDiff": ":100644 100644 e077739c23f9cfca147b4591b23f7d3c11beb2de 423f4b04fd55d9d2bb2a103a20979c924bed30a8 M\tengineering/mainline/source-admission.json",
+  "pull": 69,
+  "draftAtRun": true,
+  "testedMerge": "c5aa3ba4900e09d171e0cca91adfd5230312e840",
+  "testedMergeOrderedParents": [
+    "3f8149e2313fd81bbaee5a7bbbdbb1efca2fc81b",
+    "8b68c41084b75c0263baa384bfcc87bec412dda7"
+  ],
+  "testedMergeTree": "64c4d126abb4a272501662bc89831bc4d1f9cebf",
+  "githubSignedMergeObjectIndependentlyReconstructed": true,
+  "originalRawMergeObjectSHA256": "32935f40057b6e0a259721bf2cafc3a564797133f06db344152d1c9b5dbd3075",
+  "pullMergeRef": "refs/pull/69/merge",
+  "result": "PASS_5_REQUIRED_H8_CHECKS",
+  "workflows": [
+    {
+      "id": 44080859117,
+      "name": "Native foundation",
+      "status": "completed",
+      "conclusion": "success",
+      "event": "pull_request",
+      "head_sha": "8b68c41084b75c0263baa384bfcc87bec412dda7",
+      "run_attempt": 1,
+      "created_at": "2026-11-17T12:11:46Z",
+      "updated_at": "2026-11-17T12:30:06Z",
+      "run_started_at": "2026-11-17T12:11:46Z",
+      "html_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44080859117"
+    },
+    {
+      "id": 44080859107,
+      "name": "Feedback v0.1",
+      "status": "completed",
+      "conclusion": "success",
+      "event": "pull_request",
+      "head_sha": "8b68c41084b75c0263baa384bfcc87bec412dda7",
+      "run_attempt": 1,
+      "created_at": "2026-11-17T12:11:46Z",
+      "updated_at": "2026-11-17T12:18:11Z",
+      "run_started_at": "2026-11-17T12:11:46Z",
+      "html_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44080859107"
+    }
+  ],
+  "requiredJobs": [
+    {
+      "id": 134030763991,
+      "name": "Native Intel",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 44080859117,
+      "run_attempt": 1,
+      "started_at": "2026-11-17T12:12:26Z",
+      "completed_at": "2026-11-17T12:29:30Z",
+      "html_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44080859117/job/134030763991",
+      "labels": [
+        "macos-15-intel"
+      ],
+      "runner_name": "GitHub Actions 1000060436",
+      "executedSteps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "number": 2,
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "number": 3,
+          "name": "Record compiler and OS",
+          "conclusion": "success"
+        },
+        {
+          "number": 4,
+          "name": "Replay archived Web evidence offline",
+          "conclusion": "success"
+        },
+        {
+          "number": 5,
+          "name": "Exercise integrated page program with synthetic DOM",
+          "conclusion": "success"
+        },
+        {
+          "number": 6,
+          "name": "Verify search discovery metadata and IndexNow ownership",
+          "conclusion": "success"
+        },
+        {
+          "number": 7,
+          "name": "Verify website analytics privacy guard and download events",
+          "conclusion": "success"
+        },
+        {
+          "number": 8,
+          "name": "Verify native Chrome input resources with an isolated synthetic application",
+          "conclusion": "success"
+        },
+        {
+          "number": 9,
+          "name": "Exercise round-two fault harness offline",
+          "conclusion": "success"
+        },
+        {
+          "number": 10,
+          "name": "Exercise round-three diagnostic probe offline",
+          "conclusion": "success"
+        },
+        {
+          "number": 11,
+          "name": "Verify round-five diagnostic evidence helpers offline",
+          "conclusion": "success"
+        },
+        {
+          "number": 12,
+          "name": "Verify system-screenshot stage-two diagnostic fixtures",
+          "conclusion": "success"
+        },
+        {
+          "number": 13,
+          "name": "Establish and verify actual CI accessibility baseline",
+          "conclusion": "success"
+        },
+        {
+          "number": 14,
+          "name": "Compile screenshot comparison probe and report environment capabilities",
+          "conclusion": "success"
+        },
+        {
+          "number": 15,
+          "name": "Execute native unit and integration tests",
+          "conclusion": "success"
+        },
+        {
+          "number": 16,
+          "name": "Verify offline storage, release and process lifecycle readiness",
+          "conclusion": "success"
+        },
+        {
+          "number": 18,
+          "name": "Verify signed stable feed and update publication rules offline",
+          "conclusion": "success"
+        },
+        {
+          "number": 19,
+          "name": "Verify packaging rejection paths offline",
+          "conclusion": "success"
+        },
+        {
+          "number": 20,
+          "name": "Report software panel lifecycle outcomes",
+          "conclusion": "success"
+        },
+        {
+          "number": 21,
+          "name": "Exercise the production screenshot engine and private import with an owned fixture",
+          "conclusion": "success"
+        },
+        {
+          "number": 22,
+          "name": "Verify strict magnet completion and resource cleanup separately",
+          "conclusion": "success"
+        },
+        {
+          "number": 23,
+          "name": "Package native application",
+          "conclusion": "success"
+        },
+        {
+          "number": 25,
+          "name": "Run packaged executable with synthetic data",
+          "conclusion": "success"
+        },
+        {
+          "number": 26,
+          "name": "Package unified internal Beta with explicit candidate entry",
+          "conclusion": "success"
+        },
+        {
+          "number": 27,
+          "name": "Validate and archive synthetic GUI acceptance helper",
+          "conclusion": "success"
+        },
+        {
+          "number": 28,
+          "name": "Capture isolated native visual evidence at original pixels",
+          "conclusion": "success"
+        },
+        {
+          "number": 29,
+          "name": "Capture additional integrated experience windows at original pixels",
+          "conclusion": "success"
+        },
+        {
+          "number": 30,
+          "name": "Capture Quiet Edge R2 native geometry",
+          "conclusion": "success"
+        },
+        {
+          "number": 31,
+          "name": "Capture R2.1 microimage visual increment",
+          "conclusion": "success"
+        },
+        {
+          "number": 32,
+          "name": "Capture bounded actual system accessibility variants",
+          "conclusion": "success"
+        },
+        {
+          "number": 33,
+          "name": "Reject actual screenshot output failures independently of software tests",
+          "conclusion": "success"
+        },
+        {
+          "number": 35,
+          "name": "Archive evidence",
+          "conclusion": "success"
+        },
+        {
+          "number": 70,
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "number": 71,
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "skippedSteps": [
+        "Verify isolated arrival delta and report native motion outcomes",
+        "Check two ordinary Riftlet actions with an isolated Edge window",
+        "Exercise extension-free attachment candidates with isolated drafts"
+      ],
+      "failedSteps": [],
+      "evidence": {
+        "log": {
+          "name": "native-intel.log",
+          "size": 1189642,
+          "sha256": "fd1248efa7064bb2f3dcdf202da1755df9b39a8cb4e0a82d8d6d36289a13a788"
+        },
+        "checkout": {
+          "line": 235,
+          "text": "2026-11-17T12:12:35.8637690Z c5aa3ba4900e09d171e0cca91adfd5230312e840"
+        },
+        "reportedHostnameArchitecture": "x86_64",
+        "tests": {
+          "partition": {
+            "result": "PASS",
+            "discovered": 1484,
+            "parallel": 1462,
+            "serial": 22,
+            "serialOutcomes": {
+              "passed": 22
+            }
+          },
+          "partitionBlockLine": 9207,
+          "distinctParallelExecutionRows": 1462,
+          "serialPassingRows": 22,
+          "keyNativeExecutions": {
+            "EdgeAppleEventsExecutorTests/testChatGPTOriginIsCheckedBeforeAnyEdgePageExecution": {
+              "line": 7967,
+              "text": "2026-11-17T12:18:11.4530740Z [285/1462] Testing RiftletAdaptersTests.EdgeAppleEventsExecutorTests/testChatGPTOriginIsCheckedBeforeAnyEdgePageExecution"
+            },
+            "EdgeAppleEventsExecutorTests/testRestartReadsV18ThroughV21EdgeWithFrozenProgramsAndNoNewClickOrBootstrap": {
+              "line": 7975,
+              "text": "2026-11-17T12:18:11.6382130Z [293/1462] Testing RiftletAdaptersTests.EdgeAppleEventsExecutorTests/testRestartReadsV18ThroughV21EdgeWithFrozenProgramsAndNoNewClickOrBootstrap"
+            },
+            "EdgeAppleEventsExecutorTests/testTwoClicksRemainIndependentAfterUnknownCommitWithoutReplayingFirst": {
+              "line": 7981,
+              "text": "2026-11-17T12:18:11.9863570Z [299/1462] Testing RiftletAdaptersTests.EdgeAppleEventsExecutorTests/testTwoClicksRemainIndependentAfterUnknownCommitWithoutReplayingFirst"
+            },
+            "EdgeOrdinaryInputTests/testRestartPreservesV21EdgeStartAndUnknownAndReadsOnlyTheOriginalObserver": {
+              "line": 8017,
+              "text": "2026-11-17T12:18:12.7952070Z [335/1462] Testing RiftletAdaptersTests.EdgeOrdinaryInputTests/testRestartPreservesV21EdgeStartAndUnknownAndReadsOnlyTheOriginalObserver"
+            },
+            "EdgeOrdinaryInputTests/testEdgeProgressCannotPromoteOldRegistrationOrBuiltInOriginOrZeroStartingValue": {
+              "line": 8013,
+              "text": "2026-11-17T12:18:12.6506810Z [331/1462] Testing RiftletAdaptersTests.EdgeOrdinaryInputTests/testEdgeProgressCannotPromoteOldRegistrationOrBuiltInOriginOrZeroStartingValue"
+            },
+            "EdgeOrdinaryInputTests/testNewSystemPNGUsesOriginalEdgeOnlyStartWithNoOtherCapability": {
+              "line": 8016,
+              "text": "2026-11-17T12:18:12.7586470Z [334/1462] Testing RiftletAdaptersTests.EdgeOrdinaryInputTests/testNewSystemPNGUsesOriginalEdgeOnlyStartWithNoOtherCapability"
+            },
+            "EdgeOrdinaryInputTests/testLostCommitReplyObservesOriginalUnknownWhileDistinctNextImageCanEnter": {
+              "line": 8014,
+              "text": "2026-11-17T12:18:12.6818840Z [332/1462] Testing RiftletAdaptersTests.EdgeOrdinaryInputTests/testLostCommitReplyObservesOriginalUnknownWhileDistinctNextImageCanEnter"
+            },
+            "MainWorldCommandRelayTests/testOriginalObservationFindsBothV17BuildsAndV18ThroughV21ByExactFunctionAndLease": {
+              "line": 8425,
+              "text": "2026-11-17T12:18:40.5902690Z [743/1462] Testing RiftletAdaptersTests.MainWorldCommandRelayTests/testOriginalObservationFindsBothV17BuildsAndV18ThroughV21ByExactFunctionAndLease"
+            },
+            "MainWorldCommandRelayTests/testHistoricalObservationAmbiguityAbsenceAndDifferentLeaseNeverInstallOrDispatch": {
+              "line": 8412,
+              "text": "2026-11-17T12:18:39.8986360Z [730/1462] Testing RiftletAdaptersTests.MainWorldCommandRelayTests/testHistoricalObservationAmbiguityAbsenceAndDifferentLeaseNeverInstallOrDispatch"
+            },
+            "ProductScreenshotScopeTests/testOlderFencedRowsAndFirstJournalEntriesSurviveV22ReadOnlyReconciliation": {
+              "line": 8564,
+              "text": "2026-11-17T12:18:48.3073610Z [882/1462] Testing RiftletAdaptersTests.ProductScreenshotScopeTests/testOlderFencedRowsAndFirstJournalEntriesSurviveV22ReadOnlyReconciliation"
+            },
+            "BoundedDiagnosticTraceTests/testEdgeProgressDecisionsSurviveTheFinalJSONLFilterOnlyAsKnownStrings": {
+              "line": 7802,
+              "text": "2026-11-17T12:17:59.0962140Z [120/1462] Testing RiftletAdaptersTests.BoundedDiagnosticTraceTests/testEdgeProgressDecisionsSurviveTheFinalJSONLFilterOnlyAsKnownStrings"
+            },
+            "EdgeCalibrationDiagnosticsTests/testProgressDecisionAcceptsOnlyClosedLabelsAndNeverSuppliesAReceipt": {
+              "line": 7999,
+              "text": "2026-11-17T12:18:12.4699880Z [317/1462] Testing RiftletAdaptersTests.EdgeCalibrationDiagnosticsTests/testProgressDecisionAcceptsOnlyClosedLabelsAndNeverSuppliesAReceipt"
+            },
+            "EdgeProgressPolicyTests/testOrdinaryEntryGrantsOnlyEdgeSystemPNGCorrelatedStart": {
+              "line": 8020,
+              "text": "2026-11-17T12:18:12.8960090Z [338/1462] Testing RiftletAppTests.EdgeProgressPolicyTests/testOrdinaryEntryGrantsOnlyEdgeSystemPNGCorrelatedStart"
+            },
+            "EdgeAutomationPermissionTests/testOriginalObservationIsPassiveAndIndependentOfForeground": {
+              "line": 7993,
+              "text": "2026-11-17T12:18:12.4678490Z [311/1462] Testing RiftletAdaptersTests.EdgeAutomationPermissionTests/testOriginalObservationIsPassiveAndIndependentOfForeground"
+            },
+            "EdgeTargetIdentityTests/testDistinctEdgeClickPinsKeepOriginalTabOwnershipConflicts": {
+              "line": 8019,
+              "text": "2026-11-17T12:18:12.8452510Z [337/1462] Testing RiftletCoreTests.EdgeTargetIdentityTests/testDistinctEdgeClickPinsKeepOriginalTabOwnershipConflicts"
+            }
+          },
+          "conditionalSkipsInAdditionalTargetedReruns": [
+            {
+              "line": 10780,
+              "text": "2026-11-17T12:23:39.7721210Z Test Case '-[RiftletUITests.HistoryDisplayStyleTests testCachedGridTextAndBorderResolveActualHighContrastWithinItsAppearance]' skipped (0.001 seconds)."
+            },
+            {
+              "line": 11217,
+              "text": "2026-11-17T12:29:12.0641130Z Test Case '-[RiftletUITests.SettingsNativeStyleTests testSameCachedColorsResolveNativeLightAndDarkWithoutChangingV2Tokens]' skipped (0.007 seconds)."
+            }
+          ],
+          "parallelProtocol": "SwiftPM records Testing for each parallel method; this audit compares its actual unique execution rows with the successful disjoint partition and steps."
+        },
+        "integratedPageTests": {
+          "summary": {
+            "tests": 307,
+            "pass": 307,
+            "fail": 0,
+            "skipped": 0
+          },
+          "keyPassedLines": {
+            "both hosts require a credential-free HTTPS ChatGPT origin at capture and delivery": {
+              "line": 2178,
+              "text": "2026-11-17T12:13:34.2492290Z ok 158 - both hosts require a credential-free HTTPS ChatGPT origin at capture and delivery"
+            },
+            "Edge examines complete local labels in DOM order before attributing progress": {
+              "line": 1829,
+              "text": "2026-11-17T12:13:23.8082220Z ok 104 - Edge examines complete local labels in DOM order before attributing progress"
+            },
+            "Edge refuses uncertain prior text between increasing progress samples": {
+              "line": 1860,
+              "text": "2026-11-17T12:13:23.8088710Z ok 105 - Edge refuses uncertain prior text between increasing progress samples"
+            },
+            "Edge START binds independent in-flight PNGs to their own fresh card, File URL and advancing control": {
+              "line": 975,
+              "text": "2026-11-17T12:13:23.7727760Z ok 94 - Edge START binds independent in-flight PNGs to their own fresh card, File URL and advancing control"
+            },
+            "an extra change inspects the entire bounded FileList for the original operation": {
+              "line": 1750,
+              "text": "2026-11-17T12:13:23.8059780Z ok 103 - an extra change inspects the entire bounded FileList for the original operation"
+            },
+            "the exact original File must be present at change dispatch and capture; the receiver can clear it afterwards": {
+              "line": 1255,
+              "text": "2026-11-17T12:13:23.7849550Z ok 99 - the exact original File must be present at change dispatch and capture; the receiver can clear it afterwards"
+            }
+          }
+        },
+        "controlledNativeChrome": {
+          "namedGroupPassRows": 18,
+          "firstAndLast": [
+            {
+              "line": 2824,
+              "text": "2026-11-17T12:13:41.5836620Z ok 14 - native Chrome independent append {\"name\":\"actual-marked-zh-composer-four-direct-fields\",\"count\":5,\"retained\":true,\"liveComposerShape\":true,\"route\":\"https://chatgpt.com/\"}"
+            },
+            {
+              "line": 2969,
+              "text": "2026-11-17T12:14:32.7708960Z ok 31 - native Chrome independent append handoff-direct, handoff-connected, handoff-detached, handoff-verb-menu, handoff-noun-menu, handoff-no-role, handoff-await-existing, handoff-forced-noun, handoff-forced-no-role, handoff-reused-open, handoff-reused-content, handoff-nested, handoff-short-label, handoff-plain-action, handoff-pointer-open, handoff-detached-showPicker, handoff-renamed-action, handoff-ready-direct, handoff-implicit-submit, handoff-detached-stop, handoff-focusable-menu, handoff-anchor-action, handoff-localized-opener, handoff-await-detached-with-rival, handoff-owned-async-mount, handoff-visible-empty-panel, handoff-inert-entry"
+            }
+          ],
+          "summary": {
+            "tests": 31,
+            "pass": 31,
+            "fail": 0,
+            "skipped": 0
+          }
+        },
+        "controlledOrdinaryEdge": []
+      }
+    },
+    {
+      "id": 134030764498,
+      "name": "Native ARM64",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 44080859117,
+      "run_attempt": 1,
+      "started_at": "2026-11-17T12:11:50Z",
+      "completed_at": "2026-11-17T12:30:05Z",
+      "html_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44080859117/job/134030764498",
+      "labels": [
+        "macos-15"
+      ],
+      "runner_name": "GitHub Actions 1000060440",
+      "executedSteps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "number": 2,
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "number": 3,
+          "name": "Record compiler and OS",
+          "conclusion": "success"
+        },
+        {
+          "number": 4,
+          "name": "Replay archived Web evidence offline",
+          "conclusion": "success"
+        },
+        {
+          "number": 5,
+          "name": "Exercise integrated page program with synthetic DOM",
+          "conclusion": "success"
+        },
+        {
+          "number": 6,
+          "name": "Verify search discovery metadata and IndexNow ownership",
+          "conclusion": "success"
+        },
+        {
+          "number": 7,
+          "name": "Verify website analytics privacy guard and download events",
+          "conclusion": "success"
+        },
+        {
+          "number": 8,
+          "name": "Verify native Chrome input resources with an isolated synthetic application",
+          "conclusion": "success"
+        },
+        {
+          "number": 9,
+          "name": "Exercise round-two fault harness offline",
+          "conclusion": "success"
+        },
+        {
+          "number": 10,
+          "name": "Exercise round-three diagnostic probe offline",
+          "conclusion": "success"
+        },
+        {
+          "number": 11,
+          "name": "Verify round-five diagnostic evidence helpers offline",
+          "conclusion": "success"
+        },
+        {
+          "number": 12,
+          "name": "Verify system-screenshot stage-two diagnostic fixtures",
+          "conclusion": "success"
+        },
+        {
+          "number": 13,
+          "name": "Establish and verify actual CI accessibility baseline",
+          "conclusion": "success"
+        },
+        {
+          "number": 14,
+          "name": "Compile screenshot comparison probe and report environment capabilities",
+          "conclusion": "success"
+        },
+        {
+          "number": 15,
+          "name": "Execute native unit and integration tests",
+          "conclusion": "success"
+        },
+        {
+          "number": 16,
+          "name": "Verify offline storage, release and process lifecycle readiness",
+          "conclusion": "success"
+        },
+        {
+          "number": 18,
+          "name": "Verify signed stable feed and update publication rules offline",
+          "conclusion": "success"
+        },
+        {
+          "number": 19,
+          "name": "Verify packaging rejection paths offline",
+          "conclusion": "success"
+        },
+        {
+          "number": 20,
+          "name": "Report software panel lifecycle outcomes",
+          "conclusion": "success"
+        },
+        {
+          "number": 21,
+          "name": "Exercise the production screenshot engine and private import with an owned fixture",
+          "conclusion": "success"
+        },
+        {
+          "number": 22,
+          "name": "Verify strict magnet completion and resource cleanup separately",
+          "conclusion": "success"
+        },
+        {
+          "number": 23,
+          "name": "Package native application",
+          "conclusion": "success"
+        },
+        {
+          "number": 24,
+          "name": "Check two ordinary Riftlet actions with an isolated Edge window",
+          "conclusion": "success"
+        },
+        {
+          "number": 25,
+          "name": "Run packaged executable with synthetic data",
+          "conclusion": "success"
+        },
+        {
+          "number": 26,
+          "name": "Package unified internal Beta with explicit candidate entry",
+          "conclusion": "success"
+        },
+        {
+          "number": 27,
+          "name": "Validate and archive synthetic GUI acceptance helper",
+          "conclusion": "success"
+        },
+        {
+          "number": 28,
+          "name": "Capture isolated native visual evidence at original pixels",
+          "conclusion": "success"
+        },
+        {
+          "number": 29,
+          "name": "Capture additional integrated experience windows at original pixels",
+          "conclusion": "success"
+        },
+        {
+          "number": 30,
+          "name": "Capture Quiet Edge R2 native geometry",
+          "conclusion": "success"
+        },
+        {
+          "number": 31,
+          "name": "Capture R2.1 microimage visual increment",
+          "conclusion": "success"
+        },
+        {
+          "number": 32,
+          "name": "Capture bounded actual system accessibility variants",
+          "conclusion": "success"
+        },
+        {
+          "number": 33,
+          "name": "Reject actual screenshot output failures independently of software tests",
+          "conclusion": "success"
+        },
+        {
+          "number": 34,
+          "name": "Exercise extension-free attachment candidates with isolated drafts",
+          "conclusion": "success"
+        },
+        {
+          "number": 35,
+          "name": "Archive evidence",
+          "conclusion": "success"
+        },
+        {
+          "number": 70,
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "number": 71,
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "skippedSteps": [
+        "Verify isolated arrival delta and report native motion outcomes"
+      ],
+      "failedSteps": [],
+      "evidence": {
+        "log": {
+          "name": "native-arm64.log",
+          "size": 1278077,
+          "sha256": "63baac1660f8a60f8112317344476c7db1af619a660d23a1788e97e5ef792d07"
+        },
+        "checkout": {
+          "line": 236,
+          "text": "2026-11-17T12:12:07.9111270Z c5aa3ba4900e09d171e0cca91adfd5230312e840"
+        },
+        "reportedHostnameArchitecture": "arm64",
+        "tests": {
+          "partition": {
+            "result": "PASS",
+            "discovered": 1484,
+            "parallel": 1462,
+            "serial": 22,
+            "serialOutcomes": {
+              "passed": 22
+            }
+          },
+          "partitionBlockLine": 9797,
+          "distinctParallelExecutionRows": 1462,
+          "serialPassingRows": 22,
+          "keyNativeExecutions": {
+            "EdgeAppleEventsExecutorTests/testChatGPTOriginIsCheckedBeforeAnyEdgePageExecution": {
+              "line": 8559,
+              "text": "2026-11-17T12:17:31.9787180Z [287/1462] Testing RiftletAdaptersTests.EdgeAppleEventsExecutorTests/testChatGPTOriginIsCheckedBeforeAnyEdgePageExecution"
+            },
+            "EdgeAppleEventsExecutorTests/testRestartReadsV18ThroughV21EdgeWithFrozenProgramsAndNoNewClickOrBootstrap": {
+              "line": 8566,
+              "text": "2026-11-17T12:17:32.1931590Z [294/1462] Testing RiftletAdaptersTests.EdgeAppleEventsExecutorTests/testRestartReadsV18ThroughV21EdgeWithFrozenProgramsAndNoNewClickOrBootstrap"
+            },
+            "EdgeAppleEventsExecutorTests/testTwoClicksRemainIndependentAfterUnknownCommitWithoutReplayingFirst": {
+              "line": 8570,
+              "text": "2026-11-17T12:17:32.3268350Z [298/1462] Testing RiftletAdaptersTests.EdgeAppleEventsExecutorTests/testTwoClicksRemainIndependentAfterUnknownCommitWithoutReplayingFirst"
+            },
+            "EdgeOrdinaryInputTests/testRestartPreservesV21EdgeStartAndUnknownAndReadsOnlyTheOriginalObserver": {
+              "line": 8609,
+              "text": "2026-11-17T12:17:33.3820790Z [337/1462] Testing RiftletAdaptersTests.EdgeOrdinaryInputTests/testRestartPreservesV21EdgeStartAndUnknownAndReadsOnlyTheOriginalObserver"
+            },
+            "EdgeOrdinaryInputTests/testEdgeProgressCannotPromoteOldRegistrationOrBuiltInOriginOrZeroStartingValue": {
+              "line": 8602,
+              "text": "2026-11-17T12:17:33.1816360Z [330/1462] Testing RiftletAdaptersTests.EdgeOrdinaryInputTests/testEdgeProgressCannotPromoteOldRegistrationOrBuiltInOriginOrZeroStartingValue"
+            },
+            "EdgeOrdinaryInputTests/testNewSystemPNGUsesOriginalEdgeOnlyStartWithNoOtherCapability": {
+              "line": 8606,
+              "text": "2026-11-17T12:17:33.2972430Z [334/1462] Testing RiftletAdaptersTests.EdgeOrdinaryInputTests/testNewSystemPNGUsesOriginalEdgeOnlyStartWithNoOtherCapability"
+            },
+            "EdgeOrdinaryInputTests/testLostCommitReplyObservesOriginalUnknownWhileDistinctNextImageCanEnter": {
+              "line": 8605,
+              "text": "2026-11-17T12:17:33.2754370Z [333/1462] Testing RiftletAdaptersTests.EdgeOrdinaryInputTests/testLostCommitReplyObservesOriginalUnknownWhileDistinctNextImageCanEnter"
+            },
+            "MainWorldCommandRelayTests/testOriginalObservationFindsBothV17BuildsAndV18ThroughV21ByExactFunctionAndLease": {
+              "line": 9009,
+              "text": "2026-11-17T12:17:59.9067730Z [737/1462] Testing RiftletAdaptersTests.MainWorldCommandRelayTests/testOriginalObservationFindsBothV17BuildsAndV18ThroughV21ByExactFunctionAndLease"
+            },
+            "MainWorldCommandRelayTests/testHistoricalObservationAmbiguityAbsenceAndDifferentLeaseNeverInstallOrDispatch": {
+              "line": 9001,
+              "text": "2026-11-17T12:17:59.6973430Z [729/1462] Testing RiftletAdaptersTests.MainWorldCommandRelayTests/testHistoricalObservationAmbiguityAbsenceAndDifferentLeaseNeverInstallOrDispatch"
+            },
+            "ProductScreenshotScopeTests/testOlderFencedRowsAndFirstJournalEntriesSurviveV22ReadOnlyReconciliation": {
+              "line": 9149,
+              "text": "2026-11-17T12:18:07.6652670Z [877/1462] Testing RiftletAdaptersTests.ProductScreenshotScopeTests/testOlderFencedRowsAndFirstJournalEntriesSurviveV22ReadOnlyReconciliation"
+            },
+            "BoundedDiagnosticTraceTests/testEdgeProgressDecisionsSurviveTheFinalJSONLFilterOnlyAsKnownStrings": {
+              "line": 8395,
+              "text": "2026-11-17T12:17:21.3240050Z [123/1462] Testing RiftletAdaptersTests.BoundedDiagnosticTraceTests/testEdgeProgressDecisionsSurviveTheFinalJSONLFilterOnlyAsKnownStrings"
+            },
+            "EdgeCalibrationDiagnosticsTests/testProgressDecisionAcceptsOnlyClosedLabelsAndNeverSuppliesAReceipt": {
+              "line": 8591,
+              "text": "2026-11-17T12:17:32.8571110Z [319/1462] Testing RiftletAdaptersTests.EdgeCalibrationDiagnosticsTests/testProgressDecisionAcceptsOnlyClosedLabelsAndNeverSuppliesAReceipt"
+            },
+            "EdgeProgressPolicyTests/testOrdinaryEntryGrantsOnlyEdgeSystemPNGCorrelatedStart": {
+              "line": 8607,
+              "text": "2026-11-17T12:17:33.3680020Z [335/1462] Testing RiftletAppTests.EdgeProgressPolicyTests/testOrdinaryEntryGrantsOnlyEdgeSystemPNGCorrelatedStart"
+            },
+            "EdgeAutomationPermissionTests/testOriginalObservationIsPassiveAndIndependentOfForeground": {
+              "line": 8583,
+              "text": "2026-11-17T12:17:32.6616440Z [311/1462] Testing RiftletAdaptersTests.EdgeAutomationPermissionTests/testOriginalObservationIsPassiveAndIndependentOfForeground"
+            },
+            "EdgeTargetIdentityTests/testDistinctEdgeClickPinsKeepOriginalTabOwnershipConflicts": {
+              "line": 8610,
+              "text": "2026-11-17T12:17:33.4365920Z [338/1462] Testing RiftletCoreTests.EdgeTargetIdentityTests/testDistinctEdgeClickPinsKeepOriginalTabOwnershipConflicts"
+            }
+          },
+          "conditionalSkipsInAdditionalTargetedReruns": [
+            {
+              "line": 11371,
+              "text": "2026-11-17T12:22:58.2984490Z Test Case '-[RiftletUITests.HistoryDisplayStyleTests testCachedGridTextAndBorderResolveActualHighContrastWithinItsAppearance]' skipped (0.001 seconds)."
+            },
+            {
+              "line": 11823,
+              "text": "2026-11-17T12:28:25.2300770Z Test Case '-[RiftletUITests.SettingsNativeStyleTests testSameCachedColorsResolveNativeLightAndDarkWithoutChangingV2Tokens]' skipped (0.005 seconds)."
+            }
+          ],
+          "parallelProtocol": "SwiftPM records Testing for each parallel method; this audit compares its actual unique execution rows with the successful disjoint partition and steps."
+        },
+        "integratedPageTests": {
+          "summary": {
+            "tests": 307,
+            "pass": 307,
+            "fail": 0,
+            "skipped": 0
+          },
+          "keyPassedLines": {
+            "both hosts require a credential-free HTTPS ChatGPT origin at capture and delivery": {
+              "line": 2179,
+              "text": "2026-11-17T12:13:03.4489570Z ok 158 - both hosts require a credential-free HTTPS ChatGPT origin at capture and delivery"
+            },
+            "Edge examines complete local labels in DOM order before attributing progress": {
+              "line": 1830,
+              "text": "2026-11-17T12:12:53.4847020Z ok 104 - Edge examines complete local labels in DOM order before attributing progress"
+            },
+            "Edge refuses uncertain prior text between increasing progress samples": {
+              "line": 1861,
+              "text": "2026-11-17T12:12:53.4849240Z ok 105 - Edge refuses uncertain prior text between increasing progress samples"
+            },
+            "Edge START binds independent in-flight PNGs to their own fresh card, File URL and advancing control": {
+              "line": 976,
+              "text": "2026-11-17T12:12:53.4588430Z ok 94 - Edge START binds independent in-flight PNGs to their own fresh card, File URL and advancing control"
+            },
+            "an extra change inspects the entire bounded FileList for the original operation": {
+              "line": 1751,
+              "text": "2026-11-17T12:12:53.4831090Z ok 103 - an extra change inspects the entire bounded FileList for the original operation"
+            },
+            "the exact original File must be present at change dispatch and capture; the receiver can clear it afterwards": {
+              "line": 1256,
+              "text": "2026-11-17T12:12:53.4663510Z ok 99 - the exact original File must be present at change dispatch and capture; the receiver can clear it afterwards"
+            }
+          }
+        },
+        "controlledNativeChrome": {
+          "namedGroupPassRows": 18,
+          "firstAndLast": [
+            {
+              "line": 2825,
+              "text": "2026-11-17T12:13:11.2077890Z ok 14 - native Chrome independent append {\"name\":\"actual-marked-zh-composer-four-direct-fields\",\"count\":5,\"retained\":true,\"liveComposerShape\":true,\"route\":\"https://chatgpt.com/\"}"
+            },
+            {
+              "line": 2970,
+              "text": "2026-11-17T12:13:45.7796310Z ok 31 - native Chrome independent append handoff-direct, handoff-connected, handoff-detached, handoff-verb-menu, handoff-noun-menu, handoff-no-role, handoff-await-existing, handoff-forced-noun, handoff-forced-no-role, handoff-reused-open, handoff-reused-content, handoff-nested, handoff-short-label, handoff-plain-action, handoff-pointer-open, handoff-detached-showPicker, handoff-renamed-action, handoff-ready-direct, handoff-implicit-submit, handoff-detached-stop, handoff-focusable-menu, handoff-anchor-action, handoff-localized-opener, handoff-await-detached-with-rival, handoff-owned-async-mount, handoff-visible-empty-panel, handoff-inert-entry"
+            }
+          ],
+          "summary": {
+            "tests": 31,
+            "pass": 31,
+            "fail": 0,
+            "skipped": 0
+          }
+        },
+        "controlledOrdinaryEdge": [
+          {
+            "line": 11642,
+            "scope": "ordinary-packaged-app-native-mouse-edge-loopback",
+            "result": "NOT_RUN_SYSTEM_AUTOMATION_CONSENT",
+            "stage": "original_mouse_thumbnail_1",
+            "commercialService": "NOT_RUN",
+            "fixtureFileChanges": 0,
+            "operations": 0,
+            "starts": 0,
+            "automationConsent": "ORIGINAL_EDGE_FOCUS_UNAVAILABLE_DURING_CONSENT",
+            "physicalClicks": false
+          },
+          {
+            "line": 11966,
+            "status": "VERIFIED_EXTERNAL_FIXTURE_HANDOFF",
+            "commercialService": "NOT_RUN"
+          },
+          {
+            "line": 11968,
+            "status": "ENTRY_PRESSED_OWNED_SHEET_UNPROVEN",
+            "commercialService": "NOT_RUN"
+          },
+          {
+            "line": 11970,
+            "scope": "controlled-external-appkit"
+          }
+        ]
+      }
+    },
+    {
+      "id": 134030764526,
+      "name": "Native source admission",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 44080859117,
+      "run_attempt": 1,
+      "started_at": "2026-11-17T12:11:48Z",
+      "completed_at": "2026-11-17T12:12:18Z",
+      "html_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44080859117/job/134030764526",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_name": "GitHub Actions 1000060438",
+      "executedSteps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "number": 2,
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "number": 3,
+          "name": "Verify mainline review, actual merge and immutable inherited audits",
+          "conclusion": "success"
+        },
+        {
+          "number": 4,
+          "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "conclusion": "success"
+        },
+        {
+          "number": 8,
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "number": 9,
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "skippedSteps": [],
+      "failedSteps": [],
+      "evidence": {
+        "log": {
+          "name": "native-admission.log",
+          "size": 5208242,
+          "sha256": "e7d6f7d04899961e2fc4d81c206657bca14d5a1d5a8849f966fda68af3bde3b8"
+        },
+        "checkout": {
+          "line": 252,
+          "text": "2026-11-17T12:11:53.0424902Z c5aa3ba4900e09d171e0cca91adfd5230312e840"
+        },
+        "checkerStartLine": 409,
+        "checkerEndLine": 71547,
+        "mode": "reviewed-two-parent-merge",
+        "event": {
+          "name": "pull_request",
+          "ref": "refs/pull/69/merge",
+          "repository": "haohongfei2001-png/Riftlet",
+          "sha": "c5aa3ba4900e09d171e0cca91adfd5230312e840"
+        },
+        "orderedParents": [
+          "3f8149e2313fd81bbaee5a7bbbdbb1efca2fc81b",
+          "8b68c41084b75c0263baa384bfcc87bec412dda7"
+        ],
+        "tree": "64c4d126abb4a272501662bc89831bc4d1f9cebf",
+        "testedMerge": "c5aa3ba4900e09d171e0cca91adfd5230312e840",
+        "reviewedSource": "8c129215697c95f36f250fb10a9dbb3761ff8e8b",
+        "reviewedTree": "aa388e963b10770347fe993d60dbda5afa9a9dad",
+        "result": "PASS",
+        "eventChecks": {
+          "event:repository": "PASS",
+          "event:checkout": "PASS",
+          "event:pr-ref": "PASS",
+          "event:pr-base": "PASS",
+          "event:pr-head": "PASS",
+          "event:pr-ordered-merge": "PASS"
+        }
+      }
+    },
+    {
+      "id": 134030764215,
+      "name": "Feedback source admission",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 44080859107,
+      "run_attempt": 1,
+      "started_at": "2026-11-17T12:11:48Z",
+      "completed_at": "2026-11-17T12:12:04Z",
+      "html_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44080859107/job/134030764215",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_name": "GitHub Actions 1000060437",
+      "executedSteps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "number": 2,
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "number": 3,
+          "name": "Verify reviewed mainline composition and actual merge",
+          "conclusion": "success"
+        },
+        {
+          "number": 4,
+          "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "conclusion": "success"
+        },
+        {
+          "number": 8,
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "number": 9,
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "skippedSteps": [],
+      "failedSteps": [],
+      "evidence": {
+        "log": {
+          "name": "feedback-admission.log",
+          "size": 5187110,
+          "sha256": "aa57c43a7e89b7adf58d3e0be770a07ee6b359a20b89a9fa27f99fd8e0dc2609"
+        },
+        "checkout": {
+          "line": 252,
+          "text": "2026-11-17T12:11:54.7874248Z c5aa3ba4900e09d171e0cca91adfd5230312e840"
+        },
+        "checkerStartLine": 271,
+        "checkerEndLine": 71409,
+        "mode": "reviewed-two-parent-merge",
+        "event": {
+          "name": "pull_request",
+          "ref": "refs/pull/69/merge",
+          "repository": "haohongfei2001-png/Riftlet",
+          "sha": "c5aa3ba4900e09d171e0cca91adfd5230312e840"
+        },
+        "orderedParents": [
+          "3f8149e2313fd81bbaee5a7bbbdbb1efca2fc81b",
+          "8b68c41084b75c0263baa384bfcc87bec412dda7"
+        ],
+        "tree": "64c4d126abb4a272501662bc89831bc4d1f9cebf",
+        "testedMerge": "c5aa3ba4900e09d171e0cca91adfd5230312e840",
+        "reviewedSource": "8c129215697c95f36f250fb10a9dbb3761ff8e8b",
+        "reviewedTree": "aa388e963b10770347fe993d60dbda5afa9a9dad",
+        "result": "PASS",
+        "eventChecks": {
+          "event:repository": "PASS",
+          "event:checkout": "PASS",
+          "event:pr-ref": "PASS",
+          "event:pr-base": "PASS",
+          "event:pr-head": "PASS",
+          "event:pr-ordered-merge": "PASS"
+        }
+      }
+    },
+    {
+      "id": 134030764503,
+      "name": "Feedback native and service",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 44080859107,
+      "run_attempt": 1,
+      "started_at": "2026-11-17T12:11:49Z",
+      "completed_at": "2026-11-17T12:18:10Z",
+      "html_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44080859107/job/134030764503",
+      "labels": [
+        "macos-15"
+      ],
+      "runner_name": "GitHub Actions 1000060439",
+      "executedSteps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "number": 2,
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "number": 3,
+          "name": "Verify isolation audit regressions",
+          "conclusion": "success"
+        },
+        {
+          "number": 5,
+          "name": "Environment and service fault tests",
+          "conclusion": "success"
+        },
+        {
+          "number": 6,
+          "name": "Native feedback and software AppKit tests",
+          "conclusion": "success"
+        },
+        {
+          "number": 7,
+          "name": "Package isolated offline feedback demo",
+          "conclusion": "success"
+        },
+        {
+          "number": 8,
+          "name": "Archive exact feedback source for reproducibility",
+          "conclusion": "success"
+        },
+        {
+          "number": 9,
+          "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "conclusion": "success"
+        },
+        {
+          "number": 18,
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "number": 19,
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "skippedSteps": [
+        "Verify actual Feedback and current screenshot composition"
+      ],
+      "failedSteps": [],
+      "evidence": {
+        "log": {
+          "name": "feedback-service.log",
+          "size": 370297,
+          "sha256": "bf0d168d0d85dff352ff0634782f0815d91ef175b8afd73e7f58bfd2607fa2de"
+        },
+        "checkout": {
+          "line": 268,
+          "text": "2026-11-17T12:12:02.9653790Z c5aa3ba4900e09d171e0cca91adfd5230312e840"
+        },
+        "isolationSuites": [
+          {
+            "line": 298,
+            "text": "2026-11-17T12:12:05.2222630Z Ran 4 tests in 1.417s"
+          },
+          {
+            "line": 317,
+            "text": "2026-11-17T12:12:21.5905580Z Ran 14 tests in 16.266s"
+          },
+          {
+            "line": 333,
+            "text": "2026-11-17T12:12:23.8721560Z Ran 11 tests in 1.972s"
+          },
+          {
+            "line": 352,
+            "text": "2026-11-17T12:12:29.3568720Z Ran 14 tests in 5.394s"
+          },
+          {
+            "line": 378,
+            "text": "2026-11-17T12:12:41.1208290Z Ran 21 tests in 11.615s"
+          },
+          {
+            "line": 407,
+            "text": "2026-11-17T12:12:56.1220730Z Ran 24 tests in 14.808s"
+          },
+          {
+            "line": 417,
+            "text": "2026-11-17T12:13:00.7608070Z Ran 5 tests in 4.503s"
+          },
+          {
+            "line": 447,
+            "text": "2026-11-17T12:13:24.4036190Z Ran 25 tests in 23.517s"
+          }
+        ],
+        "serviceNode": {
+          "tests": 24,
+          "pass": 24,
+          "fail": 0,
+          "skipped": 0
+        },
+        "serviceSummary": {
+          "line": 625,
+          "text": "2026-11-17T12:13:29.5645580Z # pass 24"
+        },
+        "selectedNativeTests": [
+          {
+            "line": 3162,
+            "text": "2026-11-17T12:16:07.0358020Z \t Executed 54 tests, with 0 failures (0 unexpected) in 9.692 (9.705) seconds"
+          },
+          {
+            "line": 3188,
+            "text": "2026-11-17T12:16:09.9100700Z \t Executed 6 tests, with 0 failures (0 unexpected) in 1.092 (1.096) seconds"
+          },
+          {
+            "line": 3213,
+            "text": "2026-11-17T12:16:12.3086340Z \t Executed 6 tests, with 0 failures (0 unexpected) in 1.042 (1.045) seconds"
+          },
+          {
+            "line": 3238,
+            "text": "2026-11-17T12:16:14.9318220Z \t Executed 6 tests, with 0 failures (0 unexpected) in 0.989 (0.993) seconds"
+          }
+        ],
+        "repeatScope": "54 native/UI XCTest methods; the same 6 close methods repeated 3 times. The repeats are not additional distinct methods.",
+        "archivedFeedback": {
+          "line": 3315,
+          "text": "2026-11-17T12:18:05.2760100Z Artifact feedback-v01-c5aa3ba4900e09d171e0cca91adfd5230312e840.zip successfully finalized. Artifact ID 14327556880"
+        }
+      }
+    }
+  ],
+  "publishedArtifacts": [
+    {
+      "created_at": "2026-11-17T12:29:54Z",
+      "digest": "sha256:ef318a33c3b187c87921afce37f9cc4239c09cd34650c9a1e64114663e1f626f",
+      "expired": false,
+      "id": 14328885614,
+      "name": "native-foundation-macos-15-c5aa3ba4900e09d171e0cca91adfd5230312e840",
+      "size_in_bytes": 8348098
+    },
+    {
+      "created_at": "2026-11-17T12:29:26Z",
+      "digest": "sha256:dc4c2d2bcee4e4a52656f1c224849708252cd82a5616326ca4c68ffce64544cb",
+      "expired": false,
+      "id": 14328277227,
+      "name": "native-foundation-macos-15-intel-c5aa3ba4900e09d171e0cca91adfd5230312e840",
+      "size_in_bytes": 10067907
+    },
+    {
+      "created_at": "2026-11-17T12:12:16Z",
+      "digest": "sha256:7963dd92940086eed2ce71db9d0430be34075df4c5f024a846b83185284795fa",
+      "expired": false,
+      "id": 14327311318,
+      "name": "final-source-admission-c5aa3ba4900e09d171e0cca91adfd5230312e840",
+      "size_in_bytes": 448367
+    },
+    {
+      "created_at": "2026-11-17T12:18:05Z",
+      "digest": "sha256:874b36e5f08cf56a4bc1db87f3f6278a7abb92b58b84f239097c129f1b2847c9",
+      "expired": false,
+      "id": 14327556880,
+      "name": "feedback-v01-c5aa3ba4900e09d171e0cca91adfd5230312e840",
+      "size_in_bytes": 64724013
+    },
+    {
+      "created_at": "2026-11-17T12:12:02Z",
+      "digest": "sha256:74ea0f364d9118ef666ba92dace12275f940f1e2819dd722a54f5f6aebc06ed4",
+      "expired": false,
+      "id": 14326717882,
+      "name": "feedback-source-admission-c5aa3ba4900e09d171e0cca91adfd5230312e840",
+      "size_in_bytes": 444177
+    }
+  ],
+  "notes": [
+    "All job conclusions are for attempt 1 of the exact H8 PR merge. Raw log numbers are 1-based, including initial runner rows; SHA-256 and job URL identify the original.",
+    "Swift parallel execution rows, isolated serial outcomes, later targeted conditional skips and controlled host capability results have separate fields. Job success does not establish a real commercial ChatGPT delivery, completed upload or Gatekeeper release.",
+    "The standalone GitHub artifact digests and sizes are those published by the artifact API. The original job logs and the signature-backed merge object were independently hashed locally; artifacts were not downloaded for this CI conclusion."
+  ]
+}

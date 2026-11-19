@@ -1,0 +1,297 @@
+{
+  "clock": {
+    "anchors": 176,
+    "lastWallUTC": "2026-11-16T20:04:34.854+00:00",
+    "offsetSpreadMS": 0.156,
+    "wallTimeBasis": "sameHostObservedWallMinusUptimeMedian"
+  },
+  "controls": [
+    {
+      "assetIDDigest": "0d9ccc654188e0c9023069a49a44c8b757fe7a69fb46e90701370e21e7f57fbb",
+      "assetPresent": true,
+      "operationCount": 0
+    },
+    {
+      "assetIDDigest": "1be9aaff42c915f2ba76152857c2513e67ac4e104c4efa726b228bc75b05c555",
+      "assetPresent": true,
+      "operationCount": 0
+    }
+  ],
+  "databaseRead": "standaloneDatabase",
+  "destinations": {
+    "allFieldsExceptClickBindingMatch": true,
+    "distinctClickBindings": true
+  },
+  "draft": {
+    "afterOriginalThreeCounts": [
+      1,
+      1,
+      1
+    ],
+    "allPriorOperationNamesRetainedOnce": true,
+    "beforeAndAfterOriginalTemporaryDraft": true,
+    "beforeOriginalThreeCounts": [
+      1,
+      1,
+      1
+    ],
+    "fourPreviouslyOperationNamedImagesMatchedOnceBefore": true,
+    "neutralTextDigestPreserved": true,
+    "newOperationImageCounts": {
+      "607": 1,
+      "608": 0
+    },
+    "selection14Preserved": true
+  },
+  "images": [
+    {
+      "durable": {
+        "assetIDDigest": "558999a9c7079b17abceb81a1960b891e575a22db78a01937fb5080dd516f032",
+        "attempt": 1,
+        "clickBindingIDDigest": "5ee75389dc0eb9112766fbd4bf0fa84565764cf5e9cfb06fdabe31cb87d6db77",
+        "commonDestinationFields": [
+          "adapterID",
+          "applicationID",
+          "composerID",
+          "documentID",
+          "draftGeneration",
+          "sessionID",
+          "surface",
+          "tabID",
+          "webDraftRoute",
+          "windowID"
+        ],
+        "commonDestinationSHA256": "a627d93c1ae3aee80e9937924f389b8b0faee759958dec1fdd659053845658b6",
+        "createdUTC": "2026-11-16T20:03:50.655+00:00",
+        "dispatchExclusive": 0,
+        "edgeTarget": true,
+        "exactOperationFilenameSHA256": "a703129792a562dfe85d82ccd9066dd0ef77e7a30081bb788d3e91183ce19483",
+        "latestReceiptOutcome": "uploadStarted",
+        "operationCount": 1,
+        "operationIDDigest": "10e5182a066ddb5c542da7ade634dbf258c1f7aafbbd28ed73dcafad8cb0eff3",
+        "originalFileBytesSHAAndLengthMatch": true,
+        "phase": "inputTriggered",
+        "pngBytes": 4512802,
+        "pngSHA256": "ec2f0aa3265c79e05a1c93eae1a07d945175e508ac2dca7522e0e46b0eed6f81",
+        "position": 13,
+        "privateImportedBytesSHAAndLengthMatch": true,
+        "startReceipts": [
+          {
+            "belongsToOriginalDraft": true,
+            "correlatedProgressSignal": true,
+            "evidenceIDDigest": "519ae78396ca887033c3f400e703f9c49b5fcf23331b2808b12eb987b5a91752",
+            "identityMatchesOperationPNGAndTarget": true,
+            "inputCount": 1,
+            "profileMatchesV19": true,
+            "proofVersion": 1,
+            "startUTC": "2026-11-16T20:03:57.355+00:00",
+            "uploadStartedOutcome": true
+          }
+        ],
+        "status": "transferring",
+        "systemPNGMetadataMatchesCapture": true,
+        "temporaryHomeRoute": true,
+        "uploadStartRows": 1,
+        "visibility": "swallowed",
+        "visibilityReason": "uploadStarted",
+        "visibilityRevision": 1
+      },
+      "seed": 607,
+      "trace": {
+        "committedVisibility": [
+          {
+            "commitUpperBoundUptime": 43946.85160716667,
+            "reason": "capture",
+            "seq": 33,
+            "visibility": "visible"
+          },
+          {
+            "commitUpperBoundUptime": 43953.55161054167,
+            "reason": "uploadStarted",
+            "seq": 95,
+            "visibility": "swallowed"
+          }
+        ],
+        "exactNativeFieldMatch": true,
+        "explicitReadyPersistenceRows": 0,
+        "explicitStartObservedRows": 1,
+        "intermediateProgressUTCApprox": [
+          "2026-11-16T20:03:57.057+00:00",
+          "2026-11-16T20:03:57.354+00:00"
+        ],
+        "intermediateStrictlyScopedProgressSamples": 2,
+        "nativeTenStageReceipt": true,
+        "observedInputDownEventUptime": 43946.368381791,
+        "observedSelectionCallbackUptime": 43946.467801708335,
+        "originalAssetSelectionRows": 1,
+        "originalAssetSubmissionRows": 1,
+        "originalOperationEntryRows": 7,
+        "presentation": [
+          {
+            "actualDuration": 0.12,
+            "operationDigestMatched": true,
+            "phase": "swallowScheduled",
+            "pixelPresentationMeasured": false,
+            "seq": 96,
+            "uptime": 43953.55210566667
+          },
+          {
+            "actualDuration": 0.12,
+            "operationDigestMatched": true,
+            "phase": "swallowActualStart",
+            "pixelPresentationMeasured": false,
+            "seq": 97,
+            "uptime": 43953.55231491667
+          },
+          {
+            "actualDuration": 0.12,
+            "operationDigestMatched": true,
+            "phase": "swallowClose",
+            "pixelPresentationMeasured": false,
+            "seq": 99,
+            "uptime": 43953.673621500006
+          }
+        ],
+        "retainedChangeReturnedTrueRows": 7,
+        "retainedSetterEnteredTrueRows": 7,
+        "scopedProgressPercentValues": [
+          2,
+          4
+        ],
+        "taggedReceiptSourcePresent": true,
+        "uniqueBoundedDiagnosticSamples": 7
+      }
+    },
+    {
+      "durable": {
+        "assetIDDigest": "eea15e77154db2c6a17c07b07ee82f152d9f72b8100b8cd3f624108bec88b910",
+        "attempt": 1,
+        "clickBindingIDDigest": "3485dfb6774fe59fee785abed48753ebd0e5803388a2616eae70635f66f35619",
+        "commonDestinationFields": [
+          "adapterID",
+          "applicationID",
+          "composerID",
+          "documentID",
+          "draftGeneration",
+          "sessionID",
+          "surface",
+          "tabID",
+          "webDraftRoute",
+          "windowID"
+        ],
+        "commonDestinationSHA256": "a627d93c1ae3aee80e9937924f389b8b0faee759958dec1fdd659053845658b6",
+        "createdUTC": "2026-11-16T20:03:51.239+00:00",
+        "dispatchExclusive": 0,
+        "edgeTarget": true,
+        "exactOperationFilenameSHA256": "811946eb2b9aa7db091ba18aa3c2955a5a2a3c498db7201d271dab533c85b36d",
+        "latestReceiptOutcome": "inputTriggered",
+        "operationCount": 1,
+        "operationIDDigest": "de7d88a326013e31446d920f65146e2adf772f2e3226cacb6c1a6bc7d4f92063",
+        "originalFileBytesSHAAndLengthMatch": true,
+        "phase": "unknown",
+        "pngBytes": 4514379,
+        "pngSHA256": "18ea85a6b5413ad9b3666374ae73e44a8f3c282d59fa46e3ef6e80f2bf94320d",
+        "position": 14,
+        "privateImportedBytesSHAAndLengthMatch": true,
+        "startReceipts": [],
+        "status": "unknown",
+        "systemPNGMetadataMatchesCapture": true,
+        "temporaryHomeRoute": true,
+        "uploadStartRows": 0,
+        "visibility": "visible",
+        "visibilityReason": "capture",
+        "visibilityRevision": 0
+      },
+      "seed": 608,
+      "trace": {
+        "committedVisibility": [
+          {
+            "commitUpperBoundUptime": 43947.43611879167,
+            "reason": "capture",
+            "seq": 51,
+            "visibility": "visible"
+          },
+          {
+            "commitUpperBoundUptime": 43965.78451320834,
+            "reason": "capture",
+            "seq": 179,
+            "visibility": "visible"
+          }
+        ],
+        "exactNativeFieldMatch": true,
+        "explicitReadyPersistenceRows": 0,
+        "explicitStartObservedRows": 0,
+        "intermediateProgressUTCApprox": [],
+        "intermediateStrictlyScopedProgressSamples": 0,
+        "nativeTenStageReceipt": true,
+        "observedInputDownEventUptime": 43946.858171,
+        "observedSelectionCallbackUptime": 43946.950158458334,
+        "originalAssetSelectionRows": 1,
+        "originalAssetSubmissionRows": 1,
+        "originalOperationEntryRows": 87,
+        "presentation": [],
+        "retainedChangeReturnedTrueRows": 87,
+        "retainedSetterEnteredTrueRows": 87,
+        "scopedProgressPercentValues": [],
+        "taggedReceiptSourcePresent": true,
+        "uniqueBoundedDiagnosticSamples": 87
+      }
+    }
+  ],
+  "network": {
+    "ambiguousKnownFileIDCount": 0,
+    "coverage": {
+      "completeEntries": 158,
+      "entriesArrayClosed": false,
+      "outerDocumentClosed": false,
+      "unreadableMetadataRows": 0
+    },
+    "harBytes": 8488153,
+    "harSHA256": "9159f8a36552dca430540ae3b41983eb074757bbaef2681610c368968ddf6c0f",
+    "images": {
+      "607": {
+        "completedSameFileAcrossEntireChain": null,
+        "create": [],
+        "matchedImageGET": [],
+        "originalCreatePutProcessChain": null,
+        "originalStorageHTTP201WithETag": null,
+        "processing": [],
+        "put": [],
+        "uniqueCreateAndProcessFileIDMatch": null
+      },
+      "608": {
+        "completedSameFileAcrossEntireChain": null,
+        "create": [],
+        "matchedImageGET": [],
+        "originalCreatePutProcessChain": null,
+        "originalStorageHTTP201WithETag": null,
+        "processing": [],
+        "put": [],
+        "uniqueCreateAndProcessFileIDMatch": null
+      }
+    },
+    "state": "ARCHIVE_PROJECTED",
+    "unassignedFileEndpointRequestsWithinScope": [],
+    "unassignedScopeEndUTC": "2026-11-16T20:04:35.148+00:00",
+    "unassignedScopeStartUTC": "2026-11-16T20:03:49.762+00:00"
+  },
+  "observedDownEventIntervalMS": 489.789,
+  "productExecutableSHA256": "2f30da8e2ce8851433eea387d6c5083c7dbf2bcb6358c8e98b11a98451a355f4",
+  "runnerReportedOldUnknownOperationsUnchanged": true,
+  "schema": 1,
+  "selectionCallbackIntervalMS": 482.357,
+  "sourceSHA256": {
+    "capture607": "f6b5e5e3c6eb3140bc3bcc009a7d3dc90111e42f7480278284930fbb53b5ea0c",
+    "capture608": "e6f89fe58abbf8bc0e8e01340c2593f307e5e7b5fb953a9266f6b9099d1301a7",
+    "database": "cedd926cdb4e79f8c9afd99a76b0135a7116f7947e83fe90c617a57bfae03895",
+    "mapEpochs": "4cbe08b22121ac841d4ea9b62384831b66ef168771789f23004c557e07c134fd",
+    "outcome": "f9562ea317b54adebb535a677edc410825af6010b4d4145eef473e1717ab85fb",
+    "prepared": "cdaaec635bdc11e8aa7542e025b1a8c52a735b151394db69d797a26588765f62",
+    "sender607": "2e3e404231bcb9d33fbc775e2d438fb2aa69caf073bff38da1df47ccc1f204ac",
+    "sender608": "a95a77838ed3677ff21217fe5c5987f7518fe15f64b8e7040dd24a1da774e837",
+    "trace1": "173f55f916008a799993d0adb2c79adaa4c22e07cea27681e3e6811c6bf4c873"
+  },
+  "traceRowsInPreparedSession": 271,
+  "traceSessionSHA256": "1a77db6fd8fe1eb22fc77c0833c822c99ad10945142567b69d8a8ba579e45166",
+  "unretainedSequenceRanges": []
+}

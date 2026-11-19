@@ -1,0 +1,220 @@
+Fetching https://github.com/sparkle-project/Sparkle.git from cache
+Fetched https://github.com/sparkle-project/Sparkle.git from cache (5.89s)
+Computing version for https://github.com/sparkle-project/Sparkle.git
+Computed https://github.com/sparkle-project/Sparkle.git at 2.10.1 (6.57s)
+Computed https://github.com/sparkle-project/Sparkle.git at 2.10.1 (0.00s)
+Creating working copy for https://github.com/sparkle-project/Sparkle.git
+Working copy of https://github.com/sparkle-project/Sparkle.git resolved at 2.10.1
+Fetching binary artifact https://github.com/sparkle-project/Sparkle/releases/download/2.10.1/Sparkle-for-Swift-Package-Manager.zip from cache
+Fetched https://github.com/sparkle-project/Sparkle/releases/download/2.10.1/Sparkle-for-Swift-Package-Manager.zip from cache (0.35s)
+warning: 'universal-attachment-20261114': failed to retrieve search paths with pkg-config; maybe pkg-config is not installed
+warning: 'universal-attachment-20261114': couldn't find pc file for sqlite3
+Building for debugging...
+[Pre-planning 1 / 241]
+[Planning deferred tasks]
+[65 / 125]
+[70 / 125]
+[72 / 127] RiftletCore
+[83 / 204]
+[93 / 204]
+[95 / 204]
+[100 / 204]
+[104 / 204]
+[108 / 204]
+[110 / 204]
+[111 / 204]
+[112 / 204]
+[119 / 204]
+[120 / 204]
+[125 / 204]
+[126 / 204]
+[128 / 204]
+[130 / 204]
+[142 / 204] RiftletFeedback
+[143 / 204] RiftletCore
+[156 / 204] RiftletFeedback
+[163 / 206] RiftletAdapters
+[163 / 206] RiftletFeedback
+Package.swift: RiftletFeedback: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[165 / 206] RiftletCore
+[174 / 264]
+[184 / 283]
+[193 / 283]
+[199 / 283]
+Package.swift: RiftletCore: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[204 / 283]
+[208 / 283]
+[214 / 283]
+[217 / 283]
+[218 / 283]
+[219 / 283]
+[220 / 283]
+[221 / 283]
+[232 / 283] RiftletCapture
+[235 / 283] RiftletAdapters
+[238 / 283] RiftletCapture
+[243 / 283] RiftletCapture
+[247 / 283] RiftletAdapters
+Sources/RiftletCapture/FolderWatcher.swift:74:46: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+ 56 |     func start() async throws -> OpenedWatch {
+ 57 |         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<OpenedWatch, Error>) in
+ 58 |             queue.async {
+    |                         |- note: 'self' implicitly strongly captured here
+    |                         `- note: add 'self' as a capture list item to silence
+ 59 |                 guard !self.cancelled, self.source == nil else {
+ 60 |                     continuation.resume(throwing: CaptureError.io("watcher-already-started", EINVAL)); return
+    :
+ 72 |                 let live = DispatchSource.makeFileSystemObjectSource(fileDescriptor: fd,
+ 73 |                     eventMask: [.write, .rename, .delete, .revoke, .attrib], queue: self.queue)
+ 74 |                 live.setEventHandler { [weak self] in self?.handleEvent() }
+    |                                              |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+    |                                              `- note: explicitly assign the capture list item to silence
+ 75 |                 live.setCancelHandler { Darwin.close(fd) }
+ 76 |                 self.source = live
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[253 / 283] RiftletAdapters
+[257 / 284]
+[259 / 284] RiftletAdapters
+Sources/RiftletAdapters/ChromeAppleEventsExecutor.swift:100:21: warning: expression is 'async' but is not marked with 'await'; this is an error in the Swift 6 language mode
+ 98 |         // Old UNKNOWN observations must not occupy the input queue. Each
+ 99 |         // request still owns a separate receipt and never resubmits input.
+100 |         let queue = command.action == .observe ? observationQueue : scriptQueue
+    |                     |                            |                  `- note: property access is 'async'
+    |                     |                            `- note: property access is 'async'
+    |                     `- warning: expression is 'async' but is not marked with 'await'; this is an error in the Swift 6 language mode
+101 |         return try await withCheckedThrowingContinuation { continuation in
+102 |             queue.async {
+Package.swift: RiftletCapture: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+Sources/RiftletAdapters/NativePasteboardDriver.swift:192:18: warning: 'filePromise' was deprecated in macOS 10.14 [#DeprecatedDeclaration]
+190 | 
+191 |     private func isFilePromise(_ type: NSPasteboard.PasteboardType) -> Bool {
+192 |         type == .filePromise || NSFilePromiseReceiver.readableDraggedTypes.contains(type.rawValue)
+    |                  `- warning: 'filePromise' was deprecated in macOS 10.14 [#DeprecatedDeclaration]
+193 |     }
+194 | }
+
+[#DeprecatedDeclaration]: <https://docs.swift.org/compiler/documentation/diagnostics/deprecated-declaration>
+[259 / 284] RiftletUI
+[268 / 295] RiftletUI
+[269 / 295] RiftletUI
+[270 / 295] RiftletUI
+Package.swift: RiftletAdapters: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[278 / 295] RiftletUI
+Sources/RiftletUI/HistoryPreviewLoader.swift:222:46: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+218 |         pending = nil; running = true; activeCancellation = work.cancellation
+219 |         let decode = decoder
+220 |         Self.queue.async {
+    |                          |- note: 'self' implicitly strongly captured here
+    |                          `- note: add 'self' as a capture list item to silence
+221 |             let result = Result { try autoreleasepool { try decode(work.request, work.cancellation) } }
+222 |             DispatchQueue.main.async { [weak self] in
+    |                                              |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+    |                                              `- note: explicitly assign the capture list item to silence
+223 |                 guard let self else { return }
+224 |                 self.running = false; self.activeCancellation = nil
+
+Sources/RiftletUI/MagnetFlightPresenter.swift:467:17: warning: capture of 'imageLayer' with non-Sendable type 'CALayer' in a '@Sendable' closure [#SendableClosureCaptures]
+465 |             let imageLayer = active.animatedLayer
+466 |             DispatchQueue.main.async {
+467 |                 imageLayer.removeAllAnimations()
+    |                 `- warning: capture of 'imageLayer' with non-Sendable type 'CALayer' in a '@Sendable' closure [#SendableClosureCaptures]
+468 |                 imageLayer.contents = nil
+469 |                 imageLayer.removeFromSuperlayer()
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX27.0.sdk/System/Library/Frameworks/QuartzCore.framework/Headers/CALayer.h:117:12: note: class 'CALayer' does not conform to the 'Sendable' protocol
+ 115 | 
+ 116 | API_AVAILABLE(macos(10.5), ios(2.0), tvos(9.0)) API_UNAVAILABLE(watchos)
+ 117 | @interface CALayer : NSObject <NSSecureCoding, CAMediaTiming>
+     |            `- note: class 'CALayer' does not conform to the 'Sendable' protocol
+ 118 | 
+ 119 | /** Layer creation and initialization. **/
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+[279 / 296] RiftletUI
+[282 / 299] RiftletFeedbackUI
+[291 / 300] RiftletUI
+[304 / 313] Riftlet-product
+[305 / 313] Riftlet-product
+[306 / 313] Riftlet-product
+Package.swift: RiftletUI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+Package.swift: RiftletFeedbackUI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+Sources/RiftletApp/RiftletMain.swift:495:38: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+ 424 |                     visibilityRevision: revision, timing: timing)
+ 425 |             }
+ 426 |             let submit: @MainActor (UInt64) async -> Void = { ordinal in
+     |                                                             |- note: 'self' implicitly strongly captured here
+     |                                                             `- note: add 'self' as a capture list item to silence
+ 427 |                 var selection: AcceptedSelection?
+ 428 |                 if self.selectionUIOwners[id] == selectionOwner {
+     :
+ 493 |                         // It has already been refused; granting consent never
+ 494 |                         // resumes its input or chooses a later foreground draft.
+ 495 |                         Task { [weak self] in
+     |                                      |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+     |                                 [309 / 313] Riftlet-product
+     `- note: explicitly assign the capture list item to silence
+ 496 |                             guard let self, !self.terminating else { return }
+ 497 |                             let result = await self.edgePermission.requestFromUserAction(expectedSession: session)
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+Sources/RiftletApp/SettingsReviewDriver.swift:1912:29: warning: main actor-isolated property 'isHidden' can not be referenced from a nonisolated context
+1910 |             await self.settle(260)
+1911 |             func buttons(_ view:NSView)->[NSButton] {
+1912 |                 guard !view.isHidden else {return []}
+     |                             `- warning: main actor-isolated property 'isHidden' can not be referenced from a nonisolated context
+1913 |                 return (view as? NSButton).map { [$0] } ?? view.subviews.flatMap(buttons)
+1914 |             }
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX27.0.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSView.h:92:34: note: property declared here
+ 90 | - (nullable NSView *)ancestorSharedWithView:(NSView *)view;
+ 91 | @property (nullable, readonly, assign) NSView *opaqueAncestor;
+ 92 | @property (getter=isHidden) BOOL hidden;
+    |                                  `- note: property declared here
+ 93 | @property (getter=isHiddenOrHasHiddenAncestor, readonly) BOOL hiddenOrHasHiddenAncestor;
+ 94 | 
+
+Sources/RiftletApp/SettingsReviewDriver.swift:1913:65: warning: main actor-isolated property 'subviews' can not be referenced from a nonisolated autoclosure
+1911 |             func buttons(_ view:NSView)->[NSButton] {
+1912 |                 guard !view.isHidden else {return []}
+1913 |                 return (view as? NSButton).map { [$0] } ?? view.subviews.flatMap(buttons)
+     |                                                                 `- warning: main actor-isolated property 'subviews' can not be referenced from a nonisolated autoclosure
+1914 |             }
+1915 |             let visible = NSApp.windows.filter(isDesktopPresentationWindow).compactMap(\.contentView).flatMap(buttons)
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX27.0.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSView.h:88:46: note: property declared here
+ 86 | @property (nullable, readonly, unsafe_unretained) NSWindow *window;
+ 87 | @property (nullable, readonly, unsafe_unretained) NSView *superview;
+ 88 | @property (copy) NSArray<__kindof NSView *> *subviews;
+    |                                              `- note: property declared here
+ 89 | - (BOOL)isDescendantOf:(NSView *)view;
+ 90 | - (nullable NSView *)ancestorSharedWithView:(NSView *)view;
+
+Sources/RiftletApp/SettingsReviewDriver.swift:1925:61: warning: main actor-isolated property 'toolTip' can not be referenced from a nonisolated context
+1923 |             // object, so its mere visibility cannot prove either end state.
+1924 |             func stableKeys() -> [NSButton] {
+1925 |                 let visible = buttons(contents).filter { $0.toolTip != nil }
+     |                                                             `- warning: main actor-isolated property 'toolTip' can not be referenced from a nonisolated context
+1926 |                 return visible.allSatisfy(self.trayKeyHasSettled) ? visible : []
+1927 |             }
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX27.0.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSView.h:313:38: note: property declared here
+311 | - (void)didCloseMenu:(NSMenu *)menu withEvent:(nullable NSEvent *)event API_AVAILABLE(macos(10.11));
+312 | 
+313 | @property (nullable, copy) NSString *toolTip;
+    |                                      `- note: property declared here
+314 | - (NSToolTipTag)addToolTipRect:(NSRect)rect owner:(id)owner userData:(nullable void *)data;
+315 | - (void)removeToolTip:(NSToolTipTag)tag;
+
+Sources/RiftletApp/SettingsReviewDriver.swift:1926:48: warning: converting function value of type '@MainActor (NSButton) -> Bool' to '(NSButton) throws -> Bool' loses global actor 'MainActor'; this is an error in the Swift 6 language mode
+1924 |             func stableKeys() -> [NSButton] {
+1925 |                 let visible = buttons(contents).filter { $0.toolTip != nil }
+1926 |                 return visible.allSatisfy(self.trayKeyHasSettled) ? visible : []
+     |                                                `- warning: converting function value of type '@MainActor (NSButton) -> Bool' to '(NSButton) throws -> Bool' loses global actor 'MainActor'; this is an error in the Swift 6 language mode
+1927 |             }
+1928 |             for cycle in 1...2 {
+[311 / 313] Riftlet-product
+Package.swift: Riftlet-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+Package.swift: Riftlet-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+Build complete! (27.09秒)

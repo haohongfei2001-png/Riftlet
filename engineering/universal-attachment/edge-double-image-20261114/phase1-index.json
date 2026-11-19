@@ -1,0 +1,34 @@
+{
+  "sourceCheckpoint": "275012e547c2a3f0f6dd98626b47c67a72767011",
+  "branchHead": "c9127d52d8febd1a5a567a8d95e2d98b77c65ab8",
+  "run": 43600258337,
+  "job": 132463279758,
+  "artifact": 14116965060,
+  "testedMerge": "82c6ed99850cae80b1c8a5808f6c26f4735ce8c8",
+  "productExecutableSHA256": "3a1ab253373f5fca8759637887a9c5b6494c15eecaf8909e3d111f94b7604eeb",
+  "originalResult": "FAILED_CONTROLLED_CHECK",
+  "ordinaryInputEndToEnd": "FAILED_CONTROLLED_CHECK",
+  "bothTaggedNativeReceiptChains": "PASS: separately correlated application/window/input/onDown/gate/release/selection/refusal",
+  "commercialService": "NOT_RUN",
+  "noInput": true,
+  "nativeMouseNumberHypothesis": "CGEvent allocations default to zero on local isolated allocation-only reproduction; cloud raw number values were not exported. Do not claim raw cloud equality.",
+  "previousJob132335657177": "Only one selection and refusal; second receipt unavailable. Cause remains unconfirmed; not retrospectively passed.",
+  "files": {
+    "riftlet-pr69-phase1-14116965060.zip": {
+      "sha256": "ff8bc106c84d911eb49589e376d02e90f526e6f97d59d5cbf185e8d3380d2f01"
+    },
+    "riftlet-pr69-phase1-job132463279758.log": {
+      "sha256": "8234693cc349860fe45659ea438232b407e6c1919b40b0b40dccf8fbd7620ade"
+    },
+    "riftlet-pr69-phase1-ordinary-edge-host.json": {
+      "sha256": "05ed81128cd74b20e7a2b2198eb4c59922ffba76a9f86ee9d32053cab7accdc7"
+    },
+    "riftlet-pr69-event-number-allocation.swift": {
+      "sha256": "f7da65e4843cc6b06fb998061d1ea6210d6be8d33e666c86b6fb4a765ceb2d04"
+    },
+    "riftlet-pr69-event-number-allocation.log": {
+      "sha256": "123ad5f551d0b13273630b39b435f87d9e37bdf62fe4e8898c47a398f8f2d025"
+    }
+  },
+  "rawArtifactURL": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43600258337/artifacts/14116965060"
+}

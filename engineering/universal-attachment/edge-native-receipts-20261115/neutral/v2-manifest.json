@@ -1,0 +1,135 @@
+{
+  "status": "COMPILED_39_PURE_TESTS_PASS_GUI_NOT_RUN",
+  "observedAt": "2026-11-15T12:55:32.343866+00:00",
+  "author": "mouse_delivery_review",
+  "originalNativeSafetyUnchanged": true,
+  "oldExactMouseSHA256": "ca4999e2488acf40aba2879c185da6e05bb10b399dd35c1bba5f2774b45953ee",
+  "oldExactMouseModified": false,
+  "oldAttemptRecordsModified": false,
+  "guiOrEventPostByThisAgent": false,
+  "files": {
+    "ExactMouseV2.swift": {
+      "sha256": "a944c7dfeeae06a50129e952ca67e7d1bd32b8226c633f513bc4a20c049accf6",
+      "bytes": 17205
+    },
+    "MouseDeliverySafetyV2.swift": {
+      "sha256": "cc8024d2dd0e0ae9458a959371c18ad7ef0efcceaa9fd63aa577db524ceefcc7",
+      "bytes": 10913
+    },
+    "NativeSafety.swift": {
+      "sha256": "86664a8343f672f1b882be19488f493f89f11f36ebe81e55a92f548b4a3421e8",
+      "bytes": 7141
+    },
+    "MouseDeliverySafetyV2Tests.swift": {
+      "sha256": "795ce5d623f3f34c8f50a8635eefeea6f2e7e9d8e1bce62b816aed5c423aef23",
+      "bytes": 9781
+    },
+    "exact-mouse-v2": {
+      "sha256": "faf432ada1ca6a101d2b3aec43163602bffd4cdd6ad360741d4772d19637120b",
+      "bytes": 393824
+    },
+    "mouse-safety-v2-tests": {
+      "sha256": "5acdeb61335f146df7c472964c4da4bde4a2e51175581a62b6206eb0b5a76ad2",
+      "bytes": 269288
+    },
+    "v2-compile.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "v2-test-compile.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "v2-pure-tests.log": {
+      "sha256": "75958a878a21ae7d522de203e122976af94da5034df71e2c82cd92e381a95751",
+      "bytes": 107
+    },
+    "v2-pure-tests-native-context.log": {
+      "sha256": "bf819119868a70cd132d3298f1462552ef38ae60f57b78a23a457f2801555e7c",
+      "bytes": 1231
+    }
+  },
+  "limits": [
+    "Construct-only CGEvent tests first failed under filesystem sandbox because CGEventSource was unavailable; original failure log is retained. Exact tests passed once in normal native context, with no event post or GUI launch.",
+    "The three actual neutral fixture runs were executed by root, independently read by this agent. They do not diagnose historical 315978 or establish a product upload result.",
+    "V2 original receipt wait is a bounded test-orchestration observation, not a product timeout or permission change. No replay is implemented.",
+    "Terminal asset-entry association follows the one exact native selection and its asset-scoped submission/resolution within one diagnostic session; it is not standalone proof of browser draft, bytes, START or completion."
+  ],
+  "priorNeutralRuns": {
+    "run-20261115-01": {
+      "reportSHA256": "377cb54ed76fd35238bcc18c5615ad27f58a271e9c91df7204a2c823289c4a29",
+      "trials": [
+        {
+          "trialID": 1,
+          "waitForReceipt": false,
+          "acknowledged": true,
+          "inputDown": 1,
+          "inputUp": 1,
+          "senderExit": 0,
+          "correlatedObservations": 10,
+          "uncorrelatedObservations": 0
+        },
+        {
+          "trialID": 2,
+          "waitForReceipt": true,
+          "acknowledged": true,
+          "inputDown": 1,
+          "inputUp": 1,
+          "senderExit": 0,
+          "correlatedObservations": 10,
+          "uncorrelatedObservations": 0
+        }
+      ]
+    },
+    "run-20261115-roundtrip-01": {
+      "reportSHA256": "2aff659e3588d7198715e0a677cb32b82ad5889c8ca31147d638167d5fadd38b",
+      "trials": [
+        {
+          "trialID": 1,
+          "waitForReceipt": false,
+          "acknowledged": false,
+          "inputDown": 0,
+          "inputUp": 0,
+          "senderExit": 0,
+          "correlatedObservations": 0,
+          "uncorrelatedObservations": 0
+        },
+        {
+          "trialID": 2,
+          "waitForReceipt": true,
+          "acknowledged": true,
+          "inputDown": 1,
+          "inputUp": 1,
+          "senderExit": 0,
+          "correlatedObservations": 10,
+          "uncorrelatedObservations": 0
+        }
+      ]
+    },
+    "run-20261115-copyreadback-01": {
+      "reportSHA256": "adb53f5903cf2cb7b4a05ae2206dd4ea64d892c862f7c03b5cdb765e27799758",
+      "trials": [
+        {
+          "trialID": 1,
+          "waitForReceipt": false,
+          "acknowledged": true,
+          "inputDown": 1,
+          "inputUp": 1,
+          "senderExit": 0,
+          "correlatedObservations": 10,
+          "uncorrelatedObservations": 0
+        },
+        {
+          "trialID": 2,
+          "waitForReceipt": true,
+          "acknowledged": true,
+          "inputDown": 1,
+          "inputUp": 1,
+          "senderExit": 0,
+          "correlatedObservations": 10,
+          "uncorrelatedObservations": 0
+        }
+      ]
+    }
+  }
+}

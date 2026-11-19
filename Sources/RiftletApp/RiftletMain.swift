@@ -128,12 +128,14 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var permissionActivationObserver: NSObjectProtocol?
     private var permissionWakeObserver: NSObjectProtocol?
     private var reviewEnvironment: SettingsReviewEnvironment?
-    private lazy var captureLocation = reviewEnvironment?.captureLocation ?? SystemCaptureLocationProvider()
+    private lazy var captureLocation: any CaptureLocationProviding = reviewEnvironment?.captureLocation
+        ?? OrdinaryCaptureConfiguration.captureLocation(root: root)
     private lazy var firstUse = FirstUsePreferences(defaults: reviewEnvironment?.defaults ?? .standard, modeName: mode.directoryName)
     private lazy var folderAccess = ScreenshotFolderAccess(defaults: reviewEnvironment?.defaults ?? .standard, modeName: mode.directoryName)
     private var folderNeedingSelection: URL?
     private var folderShownInPicker: URL?
     private var permissionGate: AutomationPermissionGate { .init(requiresChrome: mode.usesWebAdapter) }
+    private let edgePermission = EdgeAutomationPermissionController()
     private var hideItem: NSMenuItem?
     private var pauseItem: NSMenuItem?
     private var archiveItem: NSMenuItem?
@@ -175,12 +177,14 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var originalRecoveryIDs: [UUID]?
     private var originalRecoveryTask: Task<Void, Never>?
     private var startupCompletedIDs = Set<UUID>()
-    private var clickAdapter: WebAttachmentAdapter?
+    private var clickRouter: ConversationClickRouter?
     private var lastForegroundSession: String?
     private var diagnosticTrace: BoundedDiagnosticTrace?
+    private var acceptanceHitMap: AcceptanceHitMap?
+    private var acceptanceMouseEventMonitor: Any?
     private var visibilityTrace = AcceptanceTraceDeduplicator<UUID, [String]>()
     private var readyTrace = AcceptanceTraceDeduplicator<UUID, [String]>()
-    private var frozenPress: (id: UUID, eventUptime: TimeInterval, target: Task<TargetLease, Error>)?
+    private var frozenPress: (id: UUID, eventUptime: TimeInterval, applicationID: String?, nativeSession: String?, target: Task<TargetLease, Error>)?
     private var pendingClickTargets: [UUID: Task<TargetLease, Error>] = [:]
     private let selectionAuthority = SelectionAuthority()
     private let originalReceiverPermission = OriginalReceiverPermission()
@@ -347,6 +351,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
 
     func applicationWillTerminate(_ notification: Notification) {
         terminating = true
+        acceptanceHitMap?.stop()
+        if let acceptanceMouseEventMonitor { NSEvent.removeMonitor(acceptanceMouseEventMonitor) }
         guard let owner = instanceOwnership else { return }
         owner.keepUntilProcessExit()
         permissionResumer?.stop()
@@ -454,9 +460,15 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                                     && self.rift?.selectionRevision(for: id) == revision
                             }
                         selection = resolved
+                        guard resolved.target.applicationID == press.applicationID,
+                              resolved.target.sessionID == press.nativeSession else {
+                            throw WebAdapterError.nativeSelectionChanged
+                        }
                         self.setupIssue = nil
-                        self.lastForegroundSession = resolved.target.sessionID
-                        self.applyAutomationPermission(.granted)
+                        if resolved.target.applicationID == "com.google.Chrome" {
+                            self.lastForegroundSession = resolved.target.sessionID
+                            self.applyAutomationPermission(.granted)
+                        }
                         self.feedback.diagnostics.record(.selectionAccepted)
                         self.recordAcceptance(["event": "click_target_resolved", "assetID": id.uuidString,
                             "selectionID": resolved.id.uuidString, "uptime": ProcessInfo.processInfo.systemUptime])
@@ -472,9 +484,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 } catch is CancellationError {
                     self.cancelOriginalSelection(selection, reason: "submissionCancelled")
                 } catch {
-                    if self.mode.usesWebAdapter {
+                    if self.mode.usesWebAdapter, press?.applicationID != "com.microsoft.edgemac" {
                         self.setupIssue = ProductStatus.clickIssue(error,
-                            frontmostBundleID: NSWorkspace.shared.frontmostApplication?.bundleIdentifier, webAcceptance: true)
+                            frontmostBundleID: press?.applicationID, webAcceptance: true)
                         if self.setupIssue == .permissionDenied { self.applyAutomationPermission(.denied) }
                         if self.setupIssue == .chromeJavaScriptDisabled {
                             self.chromeCheckID = nil
@@ -488,8 +500,21 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     refusal["uptime"] = ProcessInfo.processInfo.systemUptime
                     self.diagnosticTrace?.record(refusal, critical: true)
                     feedback(!self.mode.usesWebAdapter && self.mode == .capture ? "此版本尚未启用真实截图附加；图片保留。"
-                        : (ProductStatus.clickFeedback(error)?.text ?? self.setupIssue?.text
+                        : (ProductStatus.edgeClickFeedback(error, applicationID: press?.applicationID, beforeInput: selection == nil)
+                           ?? ProductStatus.clickFeedback(error)?.text ?? self.setupIssue?.text
                            ?? "当前附件目标暂不可用；图片保留，可在运行状态中查看原因。"), .immediate)
+                    if (error as? WebAdapterError) == .nativeEventFailed(-1744),
+                       press?.applicationID == "com.microsoft.edgemac", let session = press?.nativeSession {
+                        // This explicit click may request first-use OS consent.
+                        // It has already been refused; granting consent never
+                        // resumes its input or chooses a later foreground draft.
+                        Task { [weak self] in
+                            guard let self, !self.terminating else { return }
+                            let result = await self.edgePermission.requestFromUserAction(expectedSession: session)
+                            guard !self.terminating else { return }
+                            self.recordEdgePermission(result, purpose: "explicitClickConsent")
+                        }
+                    }
                     self.feedback.diagnostics.record(.selectionRejected)
                     self.cancelOriginalSelection(selection, reason: "selectionRejected")
                     self.updateSetup()
@@ -520,6 +545,34 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         }
         rift?.setUserHidden(userHidden)
         if let rift {
+            if mode == .capture, diagnosticTrace != nil {
+                acceptanceHitMap = AcceptanceHitMap(panel: rift, directory: root.appendingPathComponent("diagnostics"),
+                    arguments: CommandLine.arguments, buildChannel: Bundle.main.object(forInfoDictionaryKey: "RiftletBuildChannel") as? String)
+                if acceptanceHitMap != nil {
+                    rift.onMouseDispatchBoundary = { [weak self] boundary in
+                        var fields: [String: Any] = ["event": "mouse_dispatch_boundary",
+                            "assetID": boundary.assetID.uuidString, "phase": boundary.stage.rawValue,
+                            "status": boundary.status.rawValue, "eventUptime": boundary.eventUptime,
+                            "eventNumber": boundary.eventNumber, "windowNumber": boundary.windowNumber,
+                            "clickCount": boundary.clickCount, "mouseDown": boundary.isMouseDown]
+                        if let tag = boundary.mouseProbeTag { fields["mouseProbeTag"] = tag }
+                        self?.recordAcceptance(fields)
+                    }
+                    acceptanceMouseEventMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .leftMouseUp]) { [weak self] event in
+                        var fields: [String: Any] = ["event": "mouse_application_event",
+                            "phase": event.type == .leftMouseDown ? "down" : "up",
+                            "eventUptime": event.timestamp, "eventNumber": event.eventNumber,
+                            "windowNumber": event.windowNumber, "clickCount": event.clickCount,
+                            "mouseDown": event.type == .leftMouseDown]
+                        if let tag = event.cgEvent?.getIntegerValueField(.eventSourceUserData),
+                           tag > 0, tag < (1 << 48) {
+                            fields["mouseProbeTag"] = tag
+                        }
+                        self?.recordAcceptance(fields)
+                        return event
+                    }
+                }
+            }
             arrivalCapture = ArrivalCaptureBridge(panel: rift,
                 allowsMetadata: ArrivalSourceProfile.allowsMetadata(arguments: CommandLine.arguments))
         }
@@ -548,7 +601,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 detectedSource = try await captureLocation.currentDirectory()
                 if let detectedSource { _ = restoreCaptureFolder(detectedSource) }
             } catch { receiveCaptureDiagnostic(.classify(error, context: .locationPreference)) }
-            let service = CaptureService(store: store, privateRoot: root, sourceDirectory: detectedSource ?? reviewEnvironment?.source ?? CaptureSource.defaultDirectory(),
+            let service = CaptureService(store: store, privateRoot: root, sourceDirectory: detectedSource ?? reviewEnvironment?.source ?? OrdinaryCaptureConfiguration.initialCaptureSource(root: root),
                                          permitsRead: { [weak self] url in await self?.permitsCaptureRead(url) ?? false },
                                          onChange: { [weak self] in await self?.refresh() },
                                          onImported: { [weak self] record, observation in
@@ -594,7 +647,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 await self?.validateAcceptedSelection(selection) ?? false
             })
         self.transfer = transfer
-        clickAdapter = mode.usesWebAdapter ? adapter as? WebAttachmentAdapter : nil
+        if mode.usesWebAdapter, let clickAdapter = adapter as? any ConversationClickAdapter {
+            clickRouter = ConversationClickRouter(adapters: [clickAdapter])
+        } else {
+            clickRouter = nil
+        }
         // Durable crash recovery remains local even when Automation is denied.
         // No page observation is attempted until a passive check says allowed.
         if adapter is any IndependentFileInputAdapter {
@@ -774,6 +831,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private func mayObserveOriginal(_ target: TargetLease) async -> Bool {
         guard !terminating else { return false }
         guard mode.usesWebAdapter else { return true }
+        if target.applicationID == "com.microsoft.edgemac" {
+            let result = await edgePermission.checkOriginal(session: target.sessionID)
+            recordEdgePermission(result, purpose: "originalObservation")
+            return !terminating && result.state == .granted
+        }
         guard target.applicationID == "com.google.Chrome" else { return false }
         let started = ProcessInfo.processInfo.systemUptime
         let result = await originalReceiverPermission.inspectResolution(session: target.sessionID, gate: permissionGate)
@@ -782,6 +844,18 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             "usableResult": String(describing: result.usable), "published": result.published,
             "askedUser": false, "foregroundRequired": false])
         return !terminating && result.usable == .granted
+    }
+
+    private func recordEdgePermission(_ result: EdgeAutomationPermissionResult, purpose: String) {
+        var fields: [String: Any] = ["event": "edge_automation_permission", "purpose": purpose,
+            "result": result.state.rawValue, "askedUser": result.prompted,
+            "senderSignatureValid": result.sender.signatureValid,
+            "receiverSignatureValid": result.receiver?.signatureValid ?? false,
+            "senderIsOrdinaryApp": result.sender.signingIdentifier == Bundle.main.bundleIdentifier,
+            "receiverIsEdge": result.receiver?.signingIdentifier == "com.microsoft.edgemac",
+            "receiverIsMicrosoft": result.receiver?.teamIdentifier == "UBF8T346G9"]
+        if let status = result.osStatus { fields["osStatus"] = status }
+        recordAcceptance(fields)
     }
 
     private func startOriginalRecovery() {
@@ -957,6 +1031,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func permitsCaptureRead(_ source: URL) -> Bool {
+        #if RIFTLET_ISOLATED_PRODUCT_ACCEPTANCE
+        guard IsolatedProductCaptureLocation.permitsRead(source, root: root) else { return false }
+        #endif
         let allowed = folderAccess.permitsRead(of: source)
         if !allowed, let detectedSource, SourceAccessSelection.matches(selected: source, actualSource: detectedSource) {
             folderNeedingSelection = source
@@ -1218,16 +1295,26 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private func freezePress(_ id: UUID, timestamp: TimeInterval) {
         frozenPress?.target.cancel()
         frozenPress = nil
-        guard !drainingForExit, mode.usesWebAdapter, let web = clickAdapter else { return }
+        guard !drainingForExit, mode.usesWebAdapter, let router = clickRouter else { return }
+        let application = NSWorkspace.shared.frontmostApplication
+        let applicationID = application?.bundleIdentifier
+        let nativeSession = application.flatMap { original in
+            if applicationID == "com.microsoft.edgemac" {
+                return EdgeProcessIdentity.read(pid: original.processIdentifier)?.session
+            }
+            if applicationID == "com.google.Chrome" {
+                return ChromeProcessIdentity.read(pid: original.processIdentifier)?.session
+            }
+            return nil
+        }
         let target: Task<TargetLease, Error>
         do {
-            // Only native window/tab IDs and the route are read synchronously.
-            // DOM discovery and first-use page initialization run off the UI.
-            target = try web.targetForClick()
+            // Mouse-down freezes the receiver, selected tab and original editor.
+            target = try router.targetForClick()
         } catch {
             target = Task { throw error }
         }
-        frozenPress = (id, timestamp, target)
+        frozenPress = (id, timestamp, applicationID, nativeSession, target)
         recordAcceptance(["event": "click_target_requested", "assetID": id.uuidString,
             "originalEventUptime": timestamp, "uptime": ProcessInfo.processInfo.systemUptime])
     }
@@ -1257,6 +1344,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             "callbackUptime": ProcessInfo.processInfo.systemUptime,
             "targetRequested": frozenPress?.id == boundary.assetID]
         if let number = boundary.eventNumber { fields["eventNumber"] = number }
+        if acceptanceHitMap != nil {
+            if let window = boundary.windowNumber { fields["windowNumber"] = window }
+            if let clicks = boundary.clickCount { fields["clickCount"] = clicks }
+            if let tag = boundary.mouseProbeTag, tag > 0, tag < (1 << 48) { fields["mouseProbeTag"] = tag }
+        }
         recordAcceptance(fields)
     }
 
@@ -1358,7 +1450,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 visibleIDs = activeIDs
                 pendingResultCount = reviewCount
                 acceptCaptureStatus(preferenceIssue: preferenceIssue)
-                if clickAdapter == nil {
+                if clickRouter == nil {
                     watchedCompletions.formUnion(successful.map(\.id))
                 }
                 rift?.render(snapshot)

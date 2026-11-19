@@ -1,0 +1,23 @@
+[
+  {
+    "index": 3,
+    "filename": "Riftlet-PR69-20261115-fresh-03.png",
+    "sha256": "93ebfa16e9a82c4dafe498cad1f4c0118f6561019c067f9e3d6c17e5f0b78cc9",
+    "bytes": 62537,
+    "inode": 292733764,
+    "systemScreenshotMarker": true,
+    "captureMethod": "macOS screencapture -x -t png -l own neutral window",
+    "captureReceiptLimitation": "capture succeeded; following Python os.getxattr unavailable, original file retained and metadata read back with xattr"
+  },
+  {
+    "index": 4,
+    "filename": "Riftlet-PR69-20261115-fresh-04.png",
+    "sha256": "fcd3e2c5748e888c8d47363b441d325361823a828f64452859eb0a13526971f8",
+    "bytes": 62508,
+    "inode": 292741158,
+    "systemScreenshotMarker": true,
+    "captureMethod": "macOS screencapture -x -t png -l own neutral window",
+    "windowNumber": 3438,
+    "fixturePID": 54241
+  }
+]

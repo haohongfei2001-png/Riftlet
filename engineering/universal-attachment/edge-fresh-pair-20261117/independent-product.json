@@ -1,0 +1,317 @@
+{
+  "reviewer": "independent_checkpoint_5bd",
+  "result": "PASS_TWO_ORIGINAL_PRODUCT_STARTS_AND_SWALLOWS",
+  "scope": "Read-only review of two software CGEvent/AppKit clicks through the normal isolated signed G7 app and one fresh commercial Edge ChatGPT Temporary draft. This product-only checkpoint certifies original-file input, upload START, native presentation and final draft identity. It does not supply final service processing, physical-mouse/retinal pixel measurements or other targets.",
+  "source": "62ab4b2638f78926a92dd01a0942aa98e72a7614",
+  "sourceTree": "6dda2c9721a026778c287f80ecb6887fb24bef6c",
+  "build": {
+    "version": "1.0.3",
+    "build": "25",
+    "architectures": [
+      "arm64"
+    ],
+    "channel": "isolated-product-acceptance",
+    "codeSignatureRecorded": "Developer ID Application, hardened runtime",
+    "packageArchiveSHA256": "9beba62df7a52f811be3341a69b1b586a9270c455b649776487311c2b6d4fa1c",
+    "sourceArchiveSHA256": "801a2e47975e229ed73773918706e45219a7ba09abb4d9cef4e7f1593e723a73",
+    "productExecutableSHA256": "31613ef46bd7551b14a808c03d2aba2f50a9b6c29d8ca6a9dda7d0bc47370a37",
+    "executableInsideSignedArchiveMatchesPreparedAndBothSenders": true
+  },
+  "captureWindowUTC": {
+    "draftBefore": "2026-11-17T07:46:36Z",
+    "draftAfter": "2026-11-17T07:47:22Z"
+  },
+  "pair": [
+    {
+      "fixture": 612,
+      "originalSHA256": "2c2dccd0092652a9cb39a7d5b0601d076192547c4a46dc214a1b20b9d3decdce",
+      "bytes": 1405603,
+      "pixels": [
+        948,
+        624
+      ],
+      "originalAndImportedBytesMatched": true,
+      "assetDigest": "ae2d2b5e89140eaffd6a4cb45808c41bd53fb8dd36c6900df157a5ec99635677",
+      "operationDigest": "1a2bed6955c5e55c16079e43459e4cf86357879be119f350a2862545fb4c7acc",
+      "exactOperationFilenameDigest": "3d2559084f871deef8b65a5d8ecb5655aede8d18a2b4aff91873da7518fad8ea",
+      "lowercaseOperationFilenameDigest": "9363dd6d6634c709eb8a29132bc5bcebff32385bb1814e59acd854bdd0368b5d",
+      "originalClick": {
+        "nativeStages": [
+          "mouse_application_event/down",
+          "mouse_dispatch_boundary/windowEvent",
+          "mouse_dispatch_boundary/inputDown",
+          "mouse_dispatch_boundary/onDown",
+          "mouse_dispatch_boundary/gate",
+          "selection_boundary/selected",
+          "mouse_application_event/up",
+          "mouse_dispatch_boundary/windowEvent",
+          "mouse_dispatch_boundary/inputUp",
+          "mouse_dispatch_boundary/release"
+        ],
+        "rawSequences": [
+          21,
+          22,
+          23,
+          24,
+          25,
+          28,
+          29,
+          30,
+          31,
+          32
+        ],
+        "sameEventTagWindowAsset": true,
+        "senderConfirmed": "NATIVE_AND_ORIGINAL_ENTRY_OBSERVED",
+        "senderLastPhase": "inputTriggered",
+        "senderReportedSTART": false
+      },
+      "oneShotInput": {
+        "operationCount": 1,
+        "attempt": 1,
+        "beginSequence": 56,
+        "chunks": 6,
+        "commitSequence": 63,
+        "transportReturnedSequence": 65,
+        "inputCountInProof": 1,
+        "retainedSetterAndReturnedChangeEverySample": true,
+        "entryActivations": [
+          0
+        ],
+        "pickerClicks": [
+          0
+        ],
+        "retry": false
+      },
+      "product": {
+        "sourceVersion": "v22",
+        "originalLeaseMatched": true,
+        "durableStartRows": 1,
+        "receiptProfile": "chatgpt-web-edge-temporary-system-input-20261117-v1",
+        "startProfile": "chatgpt-web-edge-temporary-system-png-progress-20261117-v1",
+        "startSignal": "correlatedProgress",
+        "previousPercent": 10.63027907412884,
+        "currentPercent": 11.81142119347649,
+        "journalInputSequence": 1,
+        "journalStartSequence": 3,
+        "startTraceSequence": 112,
+        "observations": 13,
+        "boundedTraceDecisions": {
+          "progressUnavailable": 10,
+          "firstProgress": 2,
+          "started": 1
+        },
+        "matchedFilenameNodesAtStart": 3,
+        "exactFileBlobNodesAtStart": 1,
+        "progressControlsAtStart": 1,
+        "presentationTraceSequences": [
+          114,
+          115,
+          118
+        ],
+        "elapsedMSFromStartTraceToActualSwallow": 4.429042,
+        "elapsedMSFromSwallowStartToClose": 126.077583,
+        "pixelPresentationMeasured": false,
+        "assetStatus": "transferring",
+        "visibility": "swallowed",
+        "durablePhase": "inputTriggered",
+        "latestReceipt": "uploadStarted",
+        "positiveReady": false,
+        "safeToRetry": false,
+        "productCompletionCount": 0
+      },
+      "originalDraftExactOperationFilenameCount": 1
+    },
+    {
+      "fixture": 613,
+      "originalSHA256": "046cba3f086c25a8bd7fcc1e7ec4d1e11e7c9f480ba7ce11349d0df790b1b410",
+      "bytes": 1406330,
+      "pixels": [
+        948,
+        624
+      ],
+      "originalAndImportedBytesMatched": true,
+      "assetDigest": "8d2178b6e038e05907b4fc0832c50294d44655ce5f07760ba26101080c6c4ceb",
+      "operationDigest": "564f44562def8a1230e8cf05768589ddd1c6aa12968f22632b624d6251382c02",
+      "exactOperationFilenameDigest": "5b199daa1655b9a16ec7b31a0e65467f3f8cd85dd8c9c6ee9e84fa568ff9094d",
+      "lowercaseOperationFilenameDigest": "34aa28ac8f91d0e471064223a3934c6cbdd3e06bf818d45f7d771c892838744c",
+      "originalClick": {
+        "nativeStages": [
+          "mouse_application_event/down",
+          "mouse_dispatch_boundary/windowEvent",
+          "mouse_dispatch_boundary/inputDown",
+          "mouse_dispatch_boundary/onDown",
+          "mouse_dispatch_boundary/gate",
+          "selection_boundary/selected",
+          "mouse_application_event/up",
+          "mouse_dispatch_boundary/windowEvent",
+          "mouse_dispatch_boundary/inputUp",
+          "mouse_dispatch_boundary/release"
+        ],
+        "rawSequences": [
+          35,
+          36,
+          37,
+          38,
+          39,
+          42,
+          43,
+          44,
+          45,
+          46
+        ],
+        "sameEventTagWindowAsset": true,
+        "senderConfirmed": "NATIVE_AND_ORIGINAL_ENTRY_OBSERVED",
+        "senderLastPhase": "inputTriggered",
+        "senderReportedSTART": false
+      },
+      "oneShotInput": {
+        "operationCount": 1,
+        "attempt": 1,
+        "beginSequence": 67,
+        "chunks": 6,
+        "commitSequence": 84,
+        "transportReturnedSequence": 85,
+        "inputCountInProof": 1,
+        "retainedSetterAndReturnedChangeEverySample": true,
+        "entryActivations": [
+          0
+        ],
+        "pickerClicks": [
+          0
+        ],
+        "retry": false
+      },
+      "product": {
+        "sourceVersion": "v22",
+        "originalLeaseMatched": true,
+        "durableStartRows": 1,
+        "receiptProfile": "chatgpt-web-edge-temporary-system-input-20261117-v1",
+        "startProfile": "chatgpt-web-edge-temporary-system-png-progress-20261117-v1",
+        "startSignal": "correlatedProgress",
+        "previousPercent": 5.905506131628411,
+        "currentPercent": 15.354315942233871,
+        "journalInputSequence": 2,
+        "journalStartSequence": 4,
+        "startTraceSequence": 132,
+        "observations": 15,
+        "boundedTraceDecisions": {
+          "progressUnavailable": 8,
+          "firstProgress": 6,
+          "started": 1
+        },
+        "matchedFilenameNodesAtStart": 3,
+        "exactFileBlobNodesAtStart": 1,
+        "progressControlsAtStart": 1,
+        "presentationTraceSequences": [
+          134,
+          135,
+          136
+        ],
+        "elapsedMSFromStartTraceToActualSwallow": 3.730083,
+        "elapsedMSFromSwallowStartToClose": 129.555833,
+        "pixelPresentationMeasured": false,
+        "assetStatus": "transferring",
+        "visibility": "swallowed",
+        "durablePhase": "inputTriggered",
+        "latestReceipt": "uploadStarted",
+        "positiveReady": false,
+        "safeToRetry": false,
+        "productCompletionCount": 0
+      },
+      "originalDraftExactOperationFilenameCount": 1
+    }
+  ],
+  "chronology": {
+    "actualApplicationDownIntervalMS": 398.129875,
+    "selectionCallbackIntervalMS": 416.510583,
+    "originalDistinctClickBindingsAndInvocations": true,
+    "sameWindowTabDocumentEditorGenerationAndSession": true,
+    "sameEdgeWindowButFreshTabAndDocumentVersusEarlierExperiment": true,
+    "rawTraceRows": 116,
+    "continuousSingleSessionRange": [
+      21,
+      136
+    ],
+    "nativeBridgeCompletedCommands": {
+      "captureTarget": 2,
+      "validate": 2,
+      "begin": 2,
+      "chunk": 12,
+      "commit": 2,
+      "observe": 26
+    },
+    "firstCommitAndTransportReturnBeforeSecondBegin": true,
+    "secondInputCommitPrecededBothObservedSTARTs": true,
+    "uniqueDurableStarts": 2,
+    "messageSendsInRecordedBridgeActions": 0
+  },
+  "preservation": {
+    "original614ImageCountBeforeAfter": [
+      1,
+      1
+    ],
+    "originalNeutralDraftTextDigestEqual": true,
+    "selectionLocationBeforeAfter": [
+      61,
+      61
+    ],
+    "selectionUTF16LengthBeforeAfter": [
+      14,
+      14
+    ],
+    "directSelectionRangeAndExpectedWordsMatch": true,
+    "editorFocusedBeforeAfter": [
+      false,
+      false
+    ],
+    "originalAttachmentCountBeforeAfter": [
+      1,
+      3
+    ],
+    "unexpectedAttachmentsAtFinal": 0,
+    "previous14AssetRecordsEqualForFrozenColumns": [
+      "id",
+      "sequence",
+      "image metadata",
+      "status",
+      "visibility",
+      "active operation"
+    ],
+    "previous7OperationsAnd1StartExactAllSQLColumns": true,
+    "all16ImportedMediaHashesAndSizesRecomputed": true,
+    "originalSystemScreenshotCopiesAndPrivateImportsMatched": true,
+    "countsAfter": {
+      "assets": 16,
+      "operations": 9,
+      "upload_starts": 3,
+      "compensations": 0
+    },
+    "sqliteReadMode": "fixed copied SQLite, immutable read-only, query_only, transaction; quick_check=ok"
+  },
+  "limits": [
+    "The native sender saw each original inputTriggered, while later product journal, unique START receipt and correlated presentation events establish the stronger result. Local phases remain inputTriggered with latest uploadStarted receipts.",
+    "The product-only data verifies exactly one displayed operation filename per new image, one matching File URL and increasing progress per original. A displayed chip or START is independent of the final server result.",
+    "No retry or external action was initiated during this audit. No plaintext draft, raw image, operation IDs, browser identifier, account, URLs, or signing secrets are included."
+  ],
+  "sourceEvidenceSHA256": {
+    "decisions.jsonl": "1ea895f6edd478fe44b7851e53ee8c7161e1007c015f697daf4be0a4fca293f4",
+    "intent-1.json": "e7bd8d51ff96ff612730bbef473f5edb68ee7a1308383736e2ee57c33ce07bff",
+    "intent-2.json": "02fdf660380b314a0c9f0d1e70f3cd61646e8c3158a323607f18d56407b07580",
+    "map-epochs.jsonl": "d9a0ab2be48bc443f9a7b1185eab36468850737b1ef80b70a1c5650b1ccd6b36",
+    "outcome.json": "351f331da30f32629617486917c5b0dbba2a0c48d414506b2500285f88739235",
+    "prepared.json": "a862ef9f4b74ccccd2cf51e5a1f0b65349c90331b81ca9f7f4d18947f6a450e5",
+    "prior-operations.json": "5423f0b6800ad541fcaf0b0ed7071fc60b2ddd3d7d893a2d46eb92b2b74d0a3a",
+    "raw-events.jsonl": "24de266cfbdd2f86d150abb70cd2a61fe12221a21e188600e178bd7248b456ac",
+    "sender-1.json": "877009b94eb3b1c4ca5cd85b0b8a3ebb1cdad6fd52595805420d1cf450f1f7f0",
+    "sender-1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sender-2.json": "7cfcfba90e9fd00460ee5ed819e7978c8b54df454fd2292438523145468998bf",
+    "sender-2.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "queue-frozen.json": "628d46d4847009b7698f9dded6456ea5f4568b3a503730838abd4a82c63bb7af",
+    "capture-612.json": "f48a60bc792153d48a997804295c1e9c4611babf4ecf38fc652b69e67f6743c4",
+    "capture-613.json": "f791fe3ac4361fccee84525c4aaaa535678a8d4566e5a9021a8bd16299403503",
+    "import-612.json": "3a06cb57bc6070f005a9360c8b86af3528c897e508c8e718e7b48e6906630337",
+    "import-613.json": "59da7b22325bd65dcd660107dfc4d9c65c6d95c03a6f98b857e9b032ed510115",
+    "signed-package-receipt.json": "9518a07e81b2eb74aacc9b2be2110942b2b36d5069f47097009054c21c563eae",
+    "positive-after.sqlite": "4da7b516ba01f485de42e5b4802d729cb72010906c46d7e4dbb56d1c7e9ddc23"
+  }
+}

@@ -1,0 +1,1029 @@
+{
+  "schemaVersion": 1,
+  "recordedAtUTC": "2026-11-15T13:19:25.035114+00:00",
+  "sourceSHA": "d23267fe825f9ad2384b35b03db9fe2692485741",
+  "artifacts": [
+    {
+      "file": "acceptance-recent.jsonl",
+      "scope": "original bounded product diagnostic snapshot; scalar metadata only",
+      "original": {
+        "source": "build/pr69-native-receipts-evidence-20261115/acceptance-recent.jsonl",
+        "bytes": 13915,
+        "sha256": "afe9a08aee43f76ca9aacc81360a92793031b5a43b9259bc481292fdfe719afd"
+      },
+      "published": {
+        "bytes": 13915,
+        "sha256": "afe9a08aee43f76ca9aacc81360a92793031b5a43b9259bc481292fdfe719afd"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "acceptance-failures.jsonl",
+      "scope": "original bounded product diagnostic snapshot; scalar metadata only",
+      "original": {
+        "source": "build/pr69-native-receipts-evidence-20261115/acceptance-failures.jsonl",
+        "bytes": 1335,
+        "sha256": "2d179354c79eb210470f9595d46ad3efdf9d95277a4bd483c5fd0693c8b1df69"
+      },
+      "published": {
+        "bytes": 1335,
+        "sha256": "2d179354c79eb210470f9595d46ad3efdf9d95277a4bd483c5fd0693c8b1df69"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "acceptance-hit-map.json",
+      "scope": "original bounded product diagnostic snapshot; scalar metadata only",
+      "original": {
+        "source": "build/pr69-native-receipts-evidence-20261115/acceptance-hit-map.json",
+        "bytes": 430,
+        "sha256": "e5904029de3b4e82fbbfdf4331fd9525546305246fe08b56fb0ca1998fb6a1b7"
+      },
+      "published": {
+        "bytes": 430,
+        "sha256": "e5904029de3b4e82fbbfdf4331fd9525546305246fe08b56fb0ca1998fb6a1b7"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "calibration-01-config.json",
+      "scope": "original native test preparation/sender/capture metadata, no screenshot bytes",
+      "original": {
+        "source": "build/pr69-runtime-20261115-calibration/calibration-01-config.json",
+        "bytes": 1026,
+        "sha256": "b656b2c54f50f40ffabf970b77319ba59e3bac044864611f9c439a74520cee55"
+      },
+      "published": {
+        "bytes": 933,
+        "sha256": "b1c5aa604ed3c0860998b5b9706ab8e7a71eb5167d69b251eae1a4744c340f31"
+      },
+      "byteIdentical": false,
+      "redaction": "machine-specific home/temporary/app path literals replaced; all other content retained"
+    },
+    {
+      "file": "calibration-01-first-preflight.json",
+      "scope": "original native test preparation/sender/capture metadata, no screenshot bytes",
+      "original": {
+        "source": "build/pr69-runtime-20261115-calibration/calibration-01-first-preflight.json",
+        "bytes": 539,
+        "sha256": "5c7f2a488eec4c235983a3dc0c10c417f2236cbc84ecc206d05065c63473d49e"
+      },
+      "published": {
+        "bytes": 539,
+        "sha256": "5c7f2a488eec4c235983a3dc0c10c417f2236cbc84ecc206d05065c63473d49e"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "calibration-01-second-preflight.json",
+      "scope": "original native test preparation/sender/capture metadata, no screenshot bytes",
+      "original": {
+        "source": "build/pr69-runtime-20261115-calibration/calibration-01-second-preflight.json",
+        "bytes": 540,
+        "sha256": "a2e60a19541ea08837a2e9055bc1f4899003aec8d3cb53b7da847e8a138b709b"
+      },
+      "published": {
+        "bytes": 540,
+        "sha256": "a2e60a19541ea08837a2e9055bc1f4899003aec8d3cb53b7da847e8a138b709b"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "calibration-01-first-preclick-draft.json",
+      "scope": "original native test preparation/sender/capture metadata, no screenshot bytes",
+      "original": {
+        "source": "build/pr69-runtime-20261115-calibration/calibration-01-first-preclick-draft.json",
+        "bytes": 1155,
+        "sha256": "943cbe9c75c71b43a119cd8edf0a218522bcd92d564147ad5bbcd53b4662ba18"
+      },
+      "published": {
+        "bytes": 1155,
+        "sha256": "943cbe9c75c71b43a119cd8edf0a218522bcd92d564147ad5bbcd53b4662ba18"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "calibration-01-second-preclick-draft.json",
+      "scope": "original native test preparation/sender/capture metadata, no screenshot bytes",
+      "original": {
+        "source": "build/pr69-runtime-20261115-calibration/calibration-01-second-preclick-draft.json",
+        "bytes": 1155,
+        "sha256": "05867562ea0e0f1823ca121645b4019f51bace27a9d32b149bbccf3490cc4732"
+      },
+      "published": {
+        "bytes": 1155,
+        "sha256": "05867562ea0e0f1823ca121645b4019f51bace27a9d32b149bbccf3490cc4732"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "calibration-01-sent-1.json",
+      "scope": "original native test preparation/sender/capture metadata, no screenshot bytes",
+      "original": {
+        "source": "build/pr69-runtime-20261115-calibration/calibration-01-sent-1.json",
+        "bytes": 1409,
+        "sha256": "c35b52dce56b2c834a41a9c7f8c67795d7c1b1c30b4adc0fa39d7d87492d8624"
+      },
+      "published": {
+        "bytes": 1409,
+        "sha256": "c35b52dce56b2c834a41a9c7f8c67795d7c1b1c30b4adc0fa39d7d87492d8624"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "calibration-01-sent-2.json",
+      "scope": "original native test preparation/sender/capture metadata, no screenshot bytes",
+      "original": {
+        "source": "build/pr69-runtime-20261115-calibration/calibration-01-sent-2.json",
+        "bytes": 1409,
+        "sha256": "c1d31164ba029bd428d423fbb291788b40d3a1253f2bc8808bf4f8ad34fe6fe3"
+      },
+      "published": {
+        "bytes": 1409,
+        "sha256": "c1d31164ba029bd428d423fbb291788b40d3a1253f2bc8808bf4f8ad34fe6fe3"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "fresh-screenshots.json",
+      "scope": "original native test preparation/sender/capture metadata, no screenshot bytes",
+      "original": {
+        "source": "build/pr69-runtime-20261115-calibration/fresh-screenshots.json",
+        "bytes": 839,
+        "sha256": "12bbe60fea13cdf7f9c0020cad90e6a9a8842b2f35da30938275365fb2675bf2"
+      },
+      "published": {
+        "bytes": 839,
+        "sha256": "12bbe60fea13cdf7f9c0020cad90e6a9a8842b2f35da30938275365fb2675bf2"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "fresh-screenshot-five.json",
+      "scope": "original native test preparation/sender/capture metadata, no screenshot bytes",
+      "original": {
+        "source": "build/pr69-runtime-20261115-calibration/fresh-screenshot-five.json",
+        "bytes": 491,
+        "sha256": "8a7cc70192c9125a3b385dea8450ea6929e08bef71f8c3b37f9d296315fa127a"
+      },
+      "published": {
+        "bytes": 491,
+        "sha256": "8a7cc70192c9125a3b385dea8450ea6929e08bef71f8c3b37f9d296315fa127a"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "calibration-01-receipt-1.json",
+      "scope": "strict read-only reconciliation of the original saved sender identity against the frozen original trace",
+      "original": {
+        "source": "build/pr69-native-receipts-evidence-20261115/calibration-01-receipt-1.json",
+        "bytes": 695,
+        "sha256": "fb09bcfad94d4f8e5ffb5ae568bb6498fb41d0e8ca01d07169c4cad0742f7a94"
+      },
+      "published": {
+        "bytes": 695,
+        "sha256": "fb09bcfad94d4f8e5ffb5ae568bb6498fb41d0e8ca01d07169c4cad0742f7a94"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "calibration-01-receipt-2.json",
+      "scope": "strict read-only reconciliation of the original saved sender identity against the frozen original trace",
+      "original": {
+        "source": "build/pr69-native-receipts-evidence-20261115/calibration-01-receipt-2.json",
+        "bytes": 707,
+        "sha256": "41c5066b6f303d7ea1ffa1823c0994838dcb069e99c3b5c6274c4f15a489d928"
+      },
+      "published": {
+        "bytes": 707,
+        "sha256": "41c5066b6f303d7ea1ffa1823c0994838dcb069e99c3b5c6274c4f15a489d928"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "signed-package-receipt.json",
+      "scope": "package-build-time receipt; its NOT_RUN GUI fields predate later normal launch",
+      "original": {
+        "source": "build/pr69-runtime-20261115-calibration/signed-package-receipt.json",
+        "bytes": 5676,
+        "sha256": "a49e687e6374441b11fda3c6e1c5057b6c70320a7f500009557764259a1c3d90"
+      },
+      "published": {
+        "bytes": 5623,
+        "sha256": "cf90382ebe6af8049e5397f91fa1c40df6577f64d5dc9dfa40e9ef8de6d46bfc"
+      },
+      "byteIdentical": false,
+      "redaction": "machine-specific home/temporary/app path literals replaced; all other content retained"
+    },
+    {
+      "file": "pre-update-state.json",
+      "scope": "original backup summary; images/database remain private",
+      "original": {
+        "source": "build/pr69-runtime-20261115-calibration/pre-update/state.json",
+        "bytes": 429,
+        "sha256": "3f91c3b0ad576df63ad1c2da3c117ceb3a82bb42809b0af4fbbaaedfa4d1cd13"
+      },
+      "published": {
+        "bytes": 429,
+        "sha256": "3f91c3b0ad576df63ad1c2da3c117ceb3a82bb42809b0af4fbbaaedfa4d1cd13"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "runtime-identity-readback.json",
+      "scope": "actual executable SHA recomputed; no launch or GUI by this reader",
+      "original": {
+        "source": "build/pr69-native-receipts-evidence-20261115/runtime-identity-readback.json",
+        "bytes": 556,
+        "sha256": "87d56b4a11494f803a489b346e2c82e74c2c71fad75a3c9c5bbc45ee2c963ce8"
+      },
+      "published": {
+        "bytes": 556,
+        "sha256": "87d56b4a11494f803a489b346e2c82e74c2c71fad75a3c9c5bbc45ee2c963ce8"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "ci/README.md",
+      "scope": "independent H/merge-M CI verification; not commercial acceptance",
+      "original": {
+        "source": "build/pr69-ci-d23267f-20261115/README.md",
+        "bytes": 3353,
+        "sha256": "d6a37c830ecd4f2cea208151bb948fdc52234df4045905411f9fdf388ca6742e"
+      },
+      "published": {
+        "bytes": 3353,
+        "sha256": "d6a37c830ecd4f2cea208151bb948fdc52234df4045905411f9fdf388ca6742e"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "ci/ci-verification.json",
+      "scope": "independent H/merge-M CI verification; not commercial acceptance",
+      "original": {
+        "source": "build/pr69-ci-d23267f-20261115/ci-verification.json",
+        "bytes": 19477,
+        "sha256": "ea02e798291fff5734b3b666018b238e27f2158154ceeb7ebd6c6d1049a54e69"
+      },
+      "published": {
+        "bytes": 19477,
+        "sha256": "ea02e798291fff5734b3b666018b238e27f2158154ceeb7ebd6c6d1049a54e69"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "ci/arm64-ordinary-edge-host-from-log.json",
+      "scope": "independent H/merge-M CI verification; not commercial acceptance",
+      "original": {
+        "source": "build/pr69-ci-d23267f-20261115/arm64-ordinary-edge-host-from-log.json",
+        "bytes": 5496,
+        "sha256": "3bc19e55cad6f78f98fe005b35cf90c375946f9d4da6ab8e8a5e764d067ee22e"
+      },
+      "published": {
+        "bytes": 5496,
+        "sha256": "3bc19e55cad6f78f98fe005b35cf90c375946f9d4da6ab8e8a5e764d067ee22e"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "tool-sources/MouseDeliveryProbe.swift",
+      "scope": "local diagnostic tool source; published path-redacted sources are not claimed byte-identical compiled inputs",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/MouseDeliveryProbe.swift",
+        "bytes": 23316,
+        "sha256": "e3e98c5e78092e8a84d2003c75cf988a957fea8d2e9cd8223f8f57d09c428857"
+      },
+      "published": {
+        "bytes": 23317,
+        "sha256": "f7973212f6839d197f34ff0990e282df83f29ab0ddd2558615cc755ab58926d9"
+      },
+      "byteIdentical": false,
+      "redaction": "machine-specific home/temporary/app path literals replaced; all other content retained"
+    },
+    {
+      "file": "tool-sources/NativeRoundtripProbe.swift",
+      "scope": "local diagnostic tool source; published path-redacted sources are not claimed byte-identical compiled inputs",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/NativeRoundtripProbe.swift",
+        "bytes": 24871,
+        "sha256": "fb2367adb730aa8e049db9d444108ce9f59e1c6fbbe8601e8748e5c4b71b801f"
+      },
+      "published": {
+        "bytes": 24872,
+        "sha256": "5c1523af23df05b0c4c82165c084339b952ade642ec3a32a519e590a333a24dc"
+      },
+      "byteIdentical": false,
+      "redaction": "machine-specific home/temporary/app path literals replaced; all other content retained"
+    },
+    {
+      "file": "tool-sources/NativeCopyReadbackProbe.swift",
+      "scope": "local diagnostic tool source; published path-redacted sources are not claimed byte-identical compiled inputs",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/NativeCopyReadbackProbe.swift",
+        "bytes": 25278,
+        "sha256": "f555f4c931e7917af8ffe1e3670f856e3c0cb1db1cf64737d6bd26f9fa5ab8a0"
+      },
+      "published": {
+        "bytes": 25279,
+        "sha256": "ba7bcc69ef5b5a28b6fdc09119f6128c5ff292a642f411fd45217477f9339dbc"
+      },
+      "byteIdentical": false,
+      "redaction": "machine-specific home/temporary/app path literals replaced; all other content retained"
+    },
+    {
+      "file": "tool-sources/ExactMouseV2.swift",
+      "scope": "local diagnostic tool source; published path-redacted sources are not claimed byte-identical compiled inputs",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/ExactMouseV2.swift",
+        "bytes": 17205,
+        "sha256": "a944c7dfeeae06a50129e952ca67e7d1bd32b8226c633f513bc4a20c049accf6"
+      },
+      "published": {
+        "bytes": 17206,
+        "sha256": "63837f2577d190dd020c15d43fde2fa11041b74c46df74c1ade421884d631abe"
+      },
+      "byteIdentical": false,
+      "redaction": "machine-specific home/temporary/app path literals replaced; all other content retained"
+    },
+    {
+      "file": "tool-sources/MouseDeliverySafetyV2.swift",
+      "scope": "local diagnostic tool source; published path-redacted sources are not claimed byte-identical compiled inputs",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/MouseDeliverySafetyV2.swift",
+        "bytes": 10913,
+        "sha256": "cc8024d2dd0e0ae9458a959371c18ad7ef0efcceaa9fd63aa577db524ceefcc7"
+      },
+      "published": {
+        "bytes": 10913,
+        "sha256": "cc8024d2dd0e0ae9458a959371c18ad7ef0efcceaa9fd63aa577db524ceefcc7"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "tool-sources/MouseDeliverySafetyV2Tests.swift",
+      "scope": "local diagnostic tool source; published path-redacted sources are not claimed byte-identical compiled inputs",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/MouseDeliverySafetyV2Tests.swift",
+        "bytes": 9781,
+        "sha256": "795ce5d623f3f34c8f50a8635eefeea6f2e7e9d8e1bce62b816aed5c423aef23"
+      },
+      "published": {
+        "bytes": 9781,
+        "sha256": "795ce5d623f3f34c8f50a8635eefeea6f2e7e9d8e1bce62b816aed5c423aef23"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "tool-sources/NativeSafety.swift",
+      "scope": "local diagnostic tool source; published path-redacted sources are not claimed byte-identical compiled inputs",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/NativeSafety.swift",
+        "bytes": 7141,
+        "sha256": "86664a8343f672f1b882be19488f493f89f11f36ebe81e55a92f548b4a3421e8"
+      },
+      "published": {
+        "bytes": 7141,
+        "sha256": "86664a8343f672f1b882be19488f493f89f11f36ebe81e55a92f548b4a3421e8"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "tool-sources/receipt.py",
+      "scope": "unchanged strict receipt reader; saved original records only",
+      "original": {
+        "source": "build/pr69-runtime-20261115-restart/native-helper/receipt.py",
+        "bytes": 6356,
+        "sha256": "74844b1e4028682797f2756743c2dfcc0b85868fff53f47391d3ca525b426196"
+      },
+      "published": {
+        "bytes": 6356,
+        "sha256": "74844b1e4028682797f2756743c2dfcc0b85868fff53f47391d3ca525b426196"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/v2-manifest.json",
+      "scope": "source/controlled neutral experiment evidence; original failures retained",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/v2-manifest.json",
+        "bytes": 4733,
+        "sha256": "b81d230dacd4a5cba8f2d8d4f902d525c222ee4488e3a35c1c49da81d3aaa823"
+      },
+      "published": {
+        "bytes": 4733,
+        "sha256": "b81d230dacd4a5cba8f2d8d4f902d525c222ee4488e3a35c1c49da81d3aaa823"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/v2-pure-tests.log",
+      "scope": "source/controlled neutral experiment evidence; original failures retained",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/v2-pure-tests.log",
+        "bytes": 107,
+        "sha256": "75958a878a21ae7d522de203e122976af94da5034df71e2c82cd92e381a95751"
+      },
+      "published": {
+        "bytes": 107,
+        "sha256": "75958a878a21ae7d522de203e122976af94da5034df71e2c82cd92e381a95751"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/v2-pure-tests-native-context.log",
+      "scope": "source/controlled neutral experiment evidence; original failures retained",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/v2-pure-tests-native-context.log",
+        "bytes": 1231,
+        "sha256": "bf819119868a70cd132d3298f1462552ef38ae60f57b78a23a457f2801555e7c"
+      },
+      "published": {
+        "bytes": 1231,
+        "sha256": "bf819119868a70cd132d3298f1462552ef38ae60f57b78a23a457f2801555e7c"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/REVIEW.md",
+      "scope": "source/controlled neutral experiment evidence; original failures retained",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/REVIEW.md",
+        "bytes": 6747,
+        "sha256": "2ee73438ca9fa4ad2d8c0af2191ec1fd82eaceda0618bec5239b1ca3021e85ee"
+      },
+      "published": {
+        "bytes": 6750,
+        "sha256": "46ed3a2f0ba95fc4165dd63910c54efe4e3b4df47e9736dd64bd17cb6904c7f1"
+      },
+      "byteIdentical": false,
+      "redaction": "machine-specific home/temporary/app path literals replaced; all other content retained"
+    },
+    {
+      "file": "neutral/build-receipt.json",
+      "scope": "source/controlled neutral experiment evidence; original failures retained",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/build-receipt.json",
+        "bytes": 616,
+        "sha256": "21a6776bc10696bb0ac285a4cf50c36986d0451cd923f445c5278e1e13d2fe3f"
+      },
+      "published": {
+        "bytes": 616,
+        "sha256": "21a6776bc10696bb0ac285a4cf50c36986d0451cd923f445c5278e1e13d2fe3f"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/roundtrip-build-receipt.json",
+      "scope": "source/controlled neutral experiment evidence; original failures retained",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/roundtrip-build-receipt.json",
+        "bytes": 888,
+        "sha256": "88723d5c6a898fd523b49d9d17a969ca1105a46da1464fb740946859b12429d2"
+      },
+      "published": {
+        "bytes": 888,
+        "sha256": "88723d5c6a898fd523b49d9d17a969ca1105a46da1464fb740946859b12429d2"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/copy-readback-build-receipt.json",
+      "scope": "source/controlled neutral experiment evidence; original failures retained",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/copy-readback-build-receipt.json",
+        "bytes": 807,
+        "sha256": "b56022c773e3113f46643f112ce791e86eaf76f3d95c3a759ad9c4cda815f0fa"
+      },
+      "published": {
+        "bytes": 807,
+        "sha256": "b56022c773e3113f46643f112ce791e86eaf76f3d95c3a759ad9c4cda815f0fa"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-01/report.json",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-01/report.json",
+        "bytes": 9170,
+        "sha256": "377cb54ed76fd35238bcc18c5615ad27f58a271e9c91df7204a2c823289c4a29"
+      },
+      "published": {
+        "bytes": 9170,
+        "sha256": "377cb54ed76fd35238bcc18c5615ad27f58a271e9c91df7204a2c823289c4a29"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-01/trial-1-ack.json",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-01/trial-1-ack.json",
+        "bytes": 236,
+        "sha256": "c1828f224491f87d6d5c987323ae2c6fe49fc22c874d16327a5c450ef751a887"
+      },
+      "published": {
+        "bytes": 236,
+        "sha256": "c1828f224491f87d6d5c987323ae2c6fe49fc22c874d16327a5c450ef751a887"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-01/trial-1-config.json",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-01/trial-1-config.json",
+        "bytes": 353,
+        "sha256": "e9d7c9eecf5a7249017d4d87cb9659f46a221f6a71653735f0218b0fcebe24d4"
+      },
+      "published": {
+        "bytes": 353,
+        "sha256": "e9d7c9eecf5a7249017d4d87cb9659f46a221f6a71653735f0218b0fcebe24d4"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-01/trial-1-reserved.json",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-01/trial-1-reserved.json",
+        "bytes": 257,
+        "sha256": "edaf18426cc60c782c5a0fa78ce5c8037def23cbb17165b7635b4b3ef197375c"
+      },
+      "published": {
+        "bytes": 257,
+        "sha256": "edaf18426cc60c782c5a0fa78ce5c8037def23cbb17165b7635b4b3ef197375c"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-01/trial-1-stderr.txt",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-01/trial-1-stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "published": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-01/trial-1-stdout.txt",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-01/trial-1-stdout.txt",
+        "bytes": 220,
+        "sha256": "869c0b12fc51820efa3ce957e39c312535cbbb9d6e8426830566bd445dbcaf1e"
+      },
+      "published": {
+        "bytes": 220,
+        "sha256": "869c0b12fc51820efa3ce957e39c312535cbbb9d6e8426830566bd445dbcaf1e"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-01/trial-2-ack.json",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-01/trial-2-ack.json",
+        "bytes": 236,
+        "sha256": "9057022d3c4de17ca74def2a0fc4837b1a599294b838a273f74039cdd1910092"
+      },
+      "published": {
+        "bytes": 236,
+        "sha256": "9057022d3c4de17ca74def2a0fc4837b1a599294b838a273f74039cdd1910092"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-01/trial-2-config.json",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-01/trial-2-config.json",
+        "bytes": 352,
+        "sha256": "718fe31e7370f0a1e27b77d27995fb30ea12eec993f3e2802e3b8407b5274064"
+      },
+      "published": {
+        "bytes": 352,
+        "sha256": "718fe31e7370f0a1e27b77d27995fb30ea12eec993f3e2802e3b8407b5274064"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-01/trial-2-reserved.json",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-01/trial-2-reserved.json",
+        "bytes": 257,
+        "sha256": "a1fa89add489e4e8b960e9dd1dc0d5c67be6daf2cea682338f4d6887c671a48c"
+      },
+      "published": {
+        "bytes": 257,
+        "sha256": "a1fa89add489e4e8b960e9dd1dc0d5c67be6daf2cea682338f4d6887c671a48c"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-01/trial-2-stderr.txt",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-01/trial-2-stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "published": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-01/trial-2-stdout.txt",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-01/trial-2-stdout.txt",
+        "bytes": 222,
+        "sha256": "7db4e3df46651b02a178eb5abe01701070f7ff5819b2e571b75db814602494d6"
+      },
+      "published": {
+        "bytes": 222,
+        "sha256": "7db4e3df46651b02a178eb5abe01701070f7ff5819b2e571b75db814602494d6"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-roundtrip-01/report.json",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-roundtrip-01/report.json",
+        "bytes": 6067,
+        "sha256": "2aff659e3588d7198715e0a677cb32b82ad5889c8ca31147d638167d5fadd38b"
+      },
+      "published": {
+        "bytes": 6067,
+        "sha256": "2aff659e3588d7198715e0a677cb32b82ad5889c8ca31147d638167d5fadd38b"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-roundtrip-01/trial-1-config.json",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-roundtrip-01/trial-1-config.json",
+        "bytes": 352,
+        "sha256": "dc85fe8348319e5dbdfff3cd0c6a5affc015dac9ee35320c5d7349636d577dd4"
+      },
+      "published": {
+        "bytes": 352,
+        "sha256": "dc85fe8348319e5dbdfff3cd0c6a5affc015dac9ee35320c5d7349636d577dd4"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-roundtrip-01/trial-1-reserved.json",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-roundtrip-01/trial-1-reserved.json",
+        "bytes": 1932,
+        "sha256": "34ee304e9ebb157fc6bb391e1d2f2b8f05388b517e74cd6af25ed9a6905dd4d5"
+      },
+      "published": {
+        "bytes": 1932,
+        "sha256": "34ee304e9ebb157fc6bb391e1d2f2b8f05388b517e74cd6af25ed9a6905dd4d5"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-roundtrip-01/trial-1-stderr.txt",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-roundtrip-01/trial-1-stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "published": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-roundtrip-01/trial-1-stdout.txt",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-roundtrip-01/trial-1-stdout.txt",
+        "bytes": 1899,
+        "sha256": "b2311d73cf5df50db4dc7e63aecbf9af0301737eb0f015e2b003c4d61f36229a"
+      },
+      "published": {
+        "bytes": 1899,
+        "sha256": "b2311d73cf5df50db4dc7e63aecbf9af0301737eb0f015e2b003c4d61f36229a"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-roundtrip-01/trial-2-ack.json",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-roundtrip-01/trial-2-ack.json",
+        "bytes": 236,
+        "sha256": "1f3abaed0478088c68122e1983cd7ee496016e743a274230715a6b1c03232e77"
+      },
+      "published": {
+        "bytes": 236,
+        "sha256": "1f3abaed0478088c68122e1983cd7ee496016e743a274230715a6b1c03232e77"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-roundtrip-01/trial-2-config.json",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-roundtrip-01/trial-2-config.json",
+        "bytes": 351,
+        "sha256": "9ddbdc2523fb07a69fc4b27743e38dd7839497fe3d8f1b430071957ef5c0f088"
+      },
+      "published": {
+        "bytes": 351,
+        "sha256": "9ddbdc2523fb07a69fc4b27743e38dd7839497fe3d8f1b430071957ef5c0f088"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-roundtrip-01/trial-2-reserved.json",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-roundtrip-01/trial-2-reserved.json",
+        "bytes": 1928,
+        "sha256": "28d635e594acd086c8e6db18e3be7d01be529f07c74f2d81243165c9184d7c3c"
+      },
+      "published": {
+        "bytes": 1928,
+        "sha256": "28d635e594acd086c8e6db18e3be7d01be529f07c74f2d81243165c9184d7c3c"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-roundtrip-01/trial-2-stderr.txt",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-roundtrip-01/trial-2-stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "published": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-roundtrip-01/trial-2-stdout.txt",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-roundtrip-01/trial-2-stdout.txt",
+        "bytes": 1890,
+        "sha256": "9aea30c8d084083718b4eb008ebd5889c80a9e2e12f38988decf78e6f670540a"
+      },
+      "published": {
+        "bytes": 1890,
+        "sha256": "9aea30c8d084083718b4eb008ebd5889c80a9e2e12f38988decf78e6f670540a"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-copyreadback-01/report.json",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-copyreadback-01/report.json",
+        "bytes": 9170,
+        "sha256": "adb53f5903cf2cb7b4a05ae2206dd4ea64d892c862f7c03b5cdb765e27799758"
+      },
+      "published": {
+        "bytes": 9170,
+        "sha256": "adb53f5903cf2cb7b4a05ae2206dd4ea64d892c862f7c03b5cdb765e27799758"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-copyreadback-01/trial-1-ack.json",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-copyreadback-01/trial-1-ack.json",
+        "bytes": 236,
+        "sha256": "c63676c11dd7d07e3a51857d77b8d0133e6250aa233c555f1a702d973d8f1579"
+      },
+      "published": {
+        "bytes": 236,
+        "sha256": "c63676c11dd7d07e3a51857d77b8d0133e6250aa233c555f1a702d973d8f1579"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-copyreadback-01/trial-1-config.json",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-copyreadback-01/trial-1-config.json",
+        "bytes": 353,
+        "sha256": "20edc6b55d1711f32dcac3c228fdd669bb32a65409799eed718e89721895b950"
+      },
+      "published": {
+        "bytes": 353,
+        "sha256": "20edc6b55d1711f32dcac3c228fdd669bb32a65409799eed718e89721895b950"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-copyreadback-01/trial-1-reserved.json",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-copyreadback-01/trial-1-reserved.json",
+        "bytes": 3611,
+        "sha256": "488ebf5b7fce2ba571fcdd4ee8bb4c838056cc68927bd81606d4ff514b9428f9"
+      },
+      "published": {
+        "bytes": 3611,
+        "sha256": "488ebf5b7fce2ba571fcdd4ee8bb4c838056cc68927bd81606d4ff514b9428f9"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-copyreadback-01/trial-1-stderr.txt",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-copyreadback-01/trial-1-stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "published": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-copyreadback-01/trial-1-stdout.txt",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-copyreadback-01/trial-1-stdout.txt",
+        "bytes": 3573,
+        "sha256": "4b4149ebe5089be7ec0a710e66e141267615ed96aabf9a730ab75006866c5801"
+      },
+      "published": {
+        "bytes": 3573,
+        "sha256": "4b4149ebe5089be7ec0a710e66e141267615ed96aabf9a730ab75006866c5801"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-copyreadback-01/trial-2-ack.json",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-copyreadback-01/trial-2-ack.json",
+        "bytes": 236,
+        "sha256": "fdbc87a056e0a555c9a4e79e7591a1d15aaed28e2dde8a50474a45afee454736"
+      },
+      "published": {
+        "bytes": 236,
+        "sha256": "fdbc87a056e0a555c9a4e79e7591a1d15aaed28e2dde8a50474a45afee454736"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-copyreadback-01/trial-2-config.json",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-copyreadback-01/trial-2-config.json",
+        "bytes": 352,
+        "sha256": "cf25de7027769daf2074395a0139024c5f9252c4528b8e77fad6598d86daeb31"
+      },
+      "published": {
+        "bytes": 352,
+        "sha256": "cf25de7027769daf2074395a0139024c5f9252c4528b8e77fad6598d86daeb31"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-copyreadback-01/trial-2-reserved.json",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-copyreadback-01/trial-2-reserved.json",
+        "bytes": 3619,
+        "sha256": "35f9d73cae9ca7aeefb9ba9526fea57171984bf023ea040420e288deaa1807a4"
+      },
+      "published": {
+        "bytes": 3619,
+        "sha256": "35f9d73cae9ca7aeefb9ba9526fea57171984bf023ea040420e288deaa1807a4"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-copyreadback-01/trial-2-stderr.txt",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-copyreadback-01/trial-2-stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "published": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "neutral/run-20261115-copyreadback-01/trial-2-stdout.txt",
+      "scope": "original owned-neutral-window trial; no commercial App or browser inference",
+      "original": {
+        "source": "build/pr69-mouse-delivery-review/run-20261115-copyreadback-01/trial-2-stdout.txt",
+        "bytes": 3584,
+        "sha256": "716a9e86e48a7b640bd3f6db03cda6de54efa3a082a87bc0b21278d4bf65ac0e"
+      },
+      "published": {
+        "bytes": 3584,
+        "sha256": "716a9e86e48a7b640bd3f6db03cda6de54efa3a082a87bc0b21278d4bf65ac0e"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    },
+    {
+      "file": "before-budget-fix-backup.json",
+      "scope": "root original read-only database backup and ten original/private PNG hash manifest; no images or database published",
+      "original": {
+        "source": "build/pr69-runtime-20261115-pinbudget/pre-update/backup-receipt.json",
+        "bytes": 2065,
+        "sha256": "51181d4704650f210086564f4db35a18a1fade3d16f34af77a4c4b4ea986d089"
+      },
+      "published": {
+        "bytes": 2065,
+        "sha256": "51181d4704650f210086564f4db35a18a1fade3d16f34af77a4c4b4ea986d089"
+      },
+      "byteIdentical": true,
+      "redaction": "none"
+    }
+  ],
+  "privacy": "No screenshots, image content, database, browser profile, credentials or chat text are published. Original raw files are retained locally; public path substitutions and both hashes are explicit.",
+  "readOnlyActions": "This evidence worker read saved files/one read-only SQLite transaction, recomputed executable SHA and reconciled existing receipts. No GUI, mouse posts, Apple Events, permission changes or product writes."
+}

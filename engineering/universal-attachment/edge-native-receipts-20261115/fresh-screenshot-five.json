@@ -1,0 +1,12 @@
+{
+  "index": 5,
+  "filename": "Riftlet-PR69-20261115-fresh-05.png",
+  "bytes": 62346,
+  "sha256": "568de2784c37e0c6bfcc2de4b81a8eff4d022d72ded5be772ab80ef4d50c8991",
+  "inode": 292763287,
+  "systemScreenshotMarker": true,
+  "fixturePID": 55869,
+  "windowNumber": 3448,
+  "captureMethod": "macOS screencapture -x -t png -l own neutral window",
+  "reason": "Retain two UNKNOWN assets and unclicked fresh03; fresh04/fresh05 now share normal three-row last page without paging between clicks"
+}

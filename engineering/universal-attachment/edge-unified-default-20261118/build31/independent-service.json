@@ -1,0 +1,652 @@
+{
+  "HAR": {
+    "additionalExportInitiationsByReviewer": 0,
+    "bytes": 34491772,
+    "custodySHA256": "872c9add5014c2f9c7187bf435efc9ec0f2a46f00f650237f45ee91fb946bb56",
+    "directoryMode": "0o700",
+    "entries": 674,
+    "fileMode": "0o600",
+    "normalSanitizedDevToolsExport": true,
+    "officialProjectionSHA256": "a2fac968114f8bd0174723a0874861d8b13e6561abeda8b52f3a4b5bc2fe000d",
+    "originalExportInitiatedByOperator": true,
+    "responseOrEventStreamUIReadByReviewerThisRound": false,
+    "sameTwoChainsIndependentlyCrossChecked": true,
+    "savePressesByReviewer": 1,
+    "sha256": "cd6aa810b1a54e4e91f329f8da0b015829dedf8a1b0f4b2a423389a4dcce89c0"
+  },
+  "artifacts": [
+    {
+      "bytes": 8365,
+      "relativePath": "public-after/actual.json",
+      "sha256": "58adb7788a3243c8e64eb32fe19e33e50aa98c797957ed6eda29d85e7f4463fe"
+    },
+    {
+      "bytes": 845,
+      "relativePath": "joined-original-observations/custody.json",
+      "sha256": "c9dc4d5a7fe567fe36cf86c763e96c0a97d2d9a5fbccedd50ebade20a8ffad53"
+    },
+    {
+      "bytes": 7107,
+      "relativePath": "observations/outcome.json",
+      "sha256": "1f792696b611a0aba71ddb753acb9163fe31b58b36751969368ab0ef2088d54f"
+    },
+    {
+      "bytes": 68846,
+      "relativePath": "observations/raw-events.jsonl",
+      "sha256": "a74f35d720d7a422b1b44bd0433ca1380264ae6e0f2422018c8a1be79ba59a0e"
+    },
+    {
+      "bytes": 76073,
+      "relativePath": "supplement-623/raw-events.jsonl",
+      "sha256": "331fc8b09aa3c53821b6cb7ca4b8faf5191d00f5e50289f93818380306288d88"
+    },
+    {
+      "bytes": 237,
+      "relativePath": "supplement-623/623-native-receipt.json",
+      "sha256": "1cdff42fc072bdcdd7da8979dab2946a7508431d9b3115cb3afb0641f4802434"
+    },
+    {
+      "bytes": 11283,
+      "relativePath": "joined-original-observations/outcome.json",
+      "sha256": "424627675f41513515c51f3dd03c9f5b5cb672844fec931c938ed2a4d5cac57d"
+    },
+    {
+      "bytes": 144919,
+      "relativePath": "joined-original-observations/raw-events.jsonl",
+      "sha256": "133a3ec34e89058158b255ddc939b95ed6fc0741de7753c366329835078902ea"
+    },
+    {
+      "bytes": 61033,
+      "relativePath": "private-preexisting/full-rows.json",
+      "sha256": "4c93d52df3415d314c9e4aed674ed368a972b04f0cc4ea96c25dce923db0df1b"
+    },
+    {
+      "bytes": 71068,
+      "relativePath": "private-after/full-database-rows.json",
+      "sha256": "50acef5ebeb65381142ccb2a56430208841ad95ce7e3f6317be0ff47700841e6"
+    },
+    {
+      "bytes": 69343,
+      "relativePath": "private-after/sqlite-media.json",
+      "sha256": "ff918d9c9eb88b63be65b2becfb39368707680bb353e27ae86d65e773a910534"
+    },
+    {
+      "bytes": 2610,
+      "relativePath": "semantics/observed.json",
+      "sha256": "46b001ca56f74d3d67e401ad4dc0bea7563e21518fa0b0c4b60210a48aa23dbf"
+    },
+    {
+      "bytes": 3452,
+      "relativePath": "semantics-623/observed.json",
+      "sha256": "bb66b7cbfeca38b99dcc88e42664e315d68d51fe6ab93d621ae776ffb2b569b8"
+    },
+    {
+      "bytes": 1455,
+      "relativePath": "public-after/v24-progress-projection.json",
+      "sha256": "547d5bf1a02a0e6fb55d41d92ba330877167e4db606b9f73ab628b6c37a34425"
+    },
+    {
+      "bytes": 219,
+      "relativePath": "network/before-recording.json",
+      "sha256": "2715bad69d2f1c5b150cc5d658eba7028da3879e07ac75947be3ac59dae5fc62"
+    },
+    {
+      "bytes": 475,
+      "relativePath": "network/cua-save-intent.json",
+      "sha256": "824875668da0f0c596a71508a7de9a3ea12d7d83bc99a3d325fa720ba3cb2f01"
+    },
+    {
+      "bytes": 478,
+      "relativePath": "network/cua-save-result.json",
+      "sha256": "56811ab43b0afd9c792e2cc575b479136dc9911e2cd92ae269a594dae65698bf"
+    },
+    {
+      "bytes": 1189,
+      "relativePath": "network/har-projection.json",
+      "sha256": "a2fac968114f8bd0174723a0874861d8b13e6561abeda8b52f3a4b5bc2fe000d"
+    },
+    {
+      "bytes": 431,
+      "relativePath": "network/har-custody.json",
+      "sha256": "872c9add5014c2f9c7187bf435efc9ec0f2a46f00f650237f45ee91fb946bb56"
+    },
+    {
+      "bytes": 34491772,
+      "relativePath": "network/normal-export/original-622-623.har.devtools",
+      "sha256": "cd6aa810b1a54e4e91f329f8da0b015829dedf8a1b0f4b2a423389a4dcce89c0"
+    }
+  ],
+  "conclusions": [
+    "Both original PNGs were preserved locally and each produced one operation and one named draft attachment.",
+    "Both ordinary App operations stayed visible UNKNOWN with zero local durable START and zero swallow; this is not a passing one-click visual lifecycle.",
+    "The original rapid cross-page attempt stopped before 623 input. The later first 623 input does not repair the <=3 second requirement.",
+    "Named-file passive page observers recorded progress from 5 to 100 independently of the App. That is neither App START nor a completed processing entity.",
+    "Each file has one exact filename/create/file_id/allocated HTTPS PUT/process chain, with PUT 201 and ETag.",
+    "Both process entries have HTTP 200, text/event-stream, declared 576 bytes, no exported response body, and net::ERR_ABORTED. Processing terminal and interruption cause remain UNKNOWN.",
+    "The HAR PUT text contains Unicode replacement characters and is not a verifiable complete binary request body. Wire byte-for-byte equality with the original PNG is not established.",
+    "The third untagged selection is disclosed, has unknown origin, and was refused before a second operation/input was observed."
+  ],
+  "files": [
+    {
+      "captureMarkedUnmodifiedSystemScreenshot": true,
+      "independentPassivePageObservation": {
+        "artifactSHA256": "46b001ca56f74d3d67e401ad4dc0bea7563e21518fa0b0c4b60210a48aa23dbf",
+        "notTruncated": true,
+        "processingTerminalMeasured": false,
+        "progressMaximum": 100,
+        "progressValues": [
+          5,
+          10,
+          11,
+          16,
+          22,
+          25,
+          30,
+          35,
+          40,
+          44,
+          49,
+          59,
+          60,
+          68,
+          75,
+          77,
+          82,
+          87,
+          95,
+          100
+        ],
+        "sameKnownFileCardSeen": true,
+        "scope": "Named-file semantic progress only; 100 is not a processing.completed entity or App START."
+      },
+      "native": {
+        "belongsToOriginalDraft": true,
+        "changeReturnedRecorded": true,
+        "durableStartRows": 0,
+        "ledgerPhase": "unknown",
+        "progressDecisionCounts": {
+          "fileBlobMissing": 33
+        },
+        "receiptHasError": false,
+        "receiptIsUploading": false,
+        "receiptOutcome": "inputTriggered",
+        "receiptPositiveReady": false,
+        "receiptSHA256": "323afd7554eb4a8a4b418a3913c6560c12eb61b0beaea086260e93f09da4d180",
+        "receiptSafeToRetry": false,
+        "repeatedObservationSampleCount": 33,
+        "reservedTaggedSender": true,
+        "sampleNumbers": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33
+        ],
+        "senderExit": 0,
+        "setterEnteredRecorded": true,
+        "swallowActualStartCount": 0,
+        "swallowCloseCount": 0,
+        "taggedRows": 10,
+        "traceStartObserved": false,
+        "visibility": "visible"
+      },
+      "operationCount": 1,
+      "operationFilenameSHA256": "4b06952187d4aa0366c127dbdb35ad0ae1b6547712fe28a3328cc11bf7c8f576",
+      "originalDiskPNGAndRetainedMediaHashEqual": true,
+      "originalPNGBytes": 1405054,
+      "originalPNGSHA256": "b1ed462b40fca6485405ab3d537401229b97a8ed4d5573e7e651a667c70c4b0a",
+      "seed": 622,
+      "service": {
+        "HARPutBody": {
+          "encoding": "ABSENT",
+          "losslessBinaryEntityVerifiable": false,
+          "replacementCharacters": 585915,
+          "textPresent": true,
+          "textUTF8Bytes": 2536589
+        },
+        "allocatedHTTPSURLPrivatelyEqualsPutURLIncludingQuery": true,
+        "browserInterruption": "net::ERR_ABORTED_PRESENT",
+        "create": {
+          "browserErrorEnums": [],
+          "browserResourceType": "fetch",
+          "declaredResponseContentBytes": 493,
+          "durationMs": 422.04799997853115,
+          "entryIndex": 531,
+          "method": "POST",
+          "mimeType": "application/json",
+          "responseBodyEncoding": "ABSENT",
+          "responseBodyTextPresent": true,
+          "startedDateTimeUTC": "2026-11-18T03:31:38.662Z",
+          "status": 200
+        },
+        "createBeforePutBeforeProcess": true,
+        "exactAllocationURLPutCount": 1,
+        "expectedUploadBytes": 1386104,
+        "fileIDSHA256": "290b2caea7c2833e3e11e4dea43296cbd6454ee5b482310f109aaa7da61e2d9a",
+        "interruptionCause": "UNKNOWN",
+        "matchedCreateCount": 1,
+        "matchedProcessCount": 1,
+        "operationFilenameToFileIDBinding": "EXACT_TOP_LEVEL_CREATE_AND_PROCESS",
+        "originalPNGBinaryEqualityOnWire": "NOT_VERIFIED",
+        "process": {
+          "browserErrorEnums": [
+            "net::ERR_ABORTED"
+          ],
+          "browserResourceType": "fetch",
+          "declaredResponseContentBytes": 576,
+          "durationMs": 978.5179999889806,
+          "entryIndex": 534,
+          "method": "POST",
+          "mimeType": "text/event-stream",
+          "responseBodyEncoding": "ABSENT",
+          "responseBodyTextPresent": false,
+          "startedDateTimeUTC": "2026-11-18T03:31:43.434Z",
+          "status": 200
+        },
+        "processingEntityComplete": false,
+        "processingFramesAvailableInHAR": false,
+        "processingTerminal": "UNKNOWN",
+        "put": {
+          "browserErrorEnums": [],
+          "browserResourceType": "xhr",
+          "declaredResponseContentBytes": 0,
+          "durationMs": 4341.302000015276,
+          "entryIndex": 532,
+          "method": "PUT",
+          "mimeType": "text/plain",
+          "responseBodyEncoding": "ABSENT",
+          "responseBodyTextPresent": true,
+          "startedDateTimeUTC": "2026-11-18T03:31:39.089Z",
+          "status": 201
+        },
+        "putContentEncoding": "ABSENT",
+        "putContentLength": 1386104,
+        "putContentType": "image/png",
+        "putETagPresentAndNonempty": true,
+        "serverFailureOrSuccessFromAbort": "NOT_INFERRED",
+        "storageResult": "HTTP_201_WITH_ETAG_FOR_EXACT_ALLOCATION",
+        "uploadBytesEqualOriginalDiskBytes": false
+      }
+    },
+    {
+      "captureMarkedUnmodifiedSystemScreenshot": true,
+      "independentPassivePageObservation": {
+        "artifactSHA256": "bb66b7cbfeca38b99dcc88e42664e315d68d51fe6ab93d621ae776ffb2b569b8",
+        "notTruncated": true,
+        "processingTerminalMeasured": false,
+        "progressMaximum": 100,
+        "progressValues": [
+          5,
+          10,
+          11,
+          12,
+          15,
+          16,
+          20,
+          24,
+          28,
+          34,
+          44,
+          49,
+          60,
+          69,
+          73,
+          75,
+          79,
+          83,
+          100
+        ],
+        "sameKnownFileCardSeen": true,
+        "scope": "Named-file semantic progress only; 100 is not a processing.completed entity or App START."
+      },
+      "native": {
+        "belongsToOriginalDraft": true,
+        "changeReturnedRecorded": true,
+        "durableStartRows": 0,
+        "ledgerPhase": "unknown",
+        "progressDecisionCounts": {
+          "fileBlobMissing": 34
+        },
+        "receiptHasError": false,
+        "receiptIsUploading": false,
+        "receiptOutcome": "inputTriggered",
+        "receiptPositiveReady": false,
+        "receiptSHA256": "929814c05021c38848f2127ef1f8a49811941f5ecf0d4261e5fa85355639d1df",
+        "receiptSafeToRetry": false,
+        "repeatedObservationSampleCount": 34,
+        "reservedTaggedSender": true,
+        "sampleNumbers": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34
+        ],
+        "senderExit": 0,
+        "setterEnteredRecorded": true,
+        "swallowActualStartCount": 0,
+        "swallowCloseCount": 0,
+        "taggedRows": 10,
+        "traceStartObserved": false,
+        "visibility": "visible"
+      },
+      "operationCount": 1,
+      "operationFilenameSHA256": "ec8e018e86c4935963514c05b8a84abc783a4f808aa11e0a2fbc96c92ad719ea",
+      "originalDiskPNGAndRetainedMediaHashEqual": true,
+      "originalPNGBytes": 1406895,
+      "originalPNGSHA256": "0e014db73045cf284174f96b20d28f8390e82ae9d50320392dccbde3d10b07af",
+      "seed": 623,
+      "service": {
+        "HARPutBody": {
+          "encoding": "ABSENT",
+          "losslessBinaryEntityVerifiable": false,
+          "replacementCharacters": 585015,
+          "textPresent": true,
+          "textUTF8Bytes": 2535279
+        },
+        "allocatedHTTPSURLPrivatelyEqualsPutURLIncludingQuery": true,
+        "browserInterruption": "net::ERR_ABORTED_PRESENT",
+        "create": {
+          "browserErrorEnums": [],
+          "browserResourceType": "fetch",
+          "declaredResponseContentBytes": 486,
+          "durationMs": 1155.6020000134595,
+          "entryIndex": 576,
+          "method": "POST",
+          "mimeType": "application/json",
+          "responseBodyEncoding": "ABSENT",
+          "responseBodyTextPresent": true,
+          "startedDateTimeUTC": "2026-11-18T03:46:03.313Z",
+          "status": 200
+        },
+        "createBeforePutBeforeProcess": true,
+        "exactAllocationURLPutCount": 1,
+        "expectedUploadBytes": 1386546,
+        "fileIDSHA256": "29ea677e53429ebd2b66bc97daf26707f96d9b837e622e956bf771bb6325bd22",
+        "interruptionCause": "UNKNOWN",
+        "matchedCreateCount": 1,
+        "matchedProcessCount": 1,
+        "operationFilenameToFileIDBinding": "EXACT_TOP_LEVEL_CREATE_AND_PROCESS",
+        "originalPNGBinaryEqualityOnWire": "NOT_VERIFIED",
+        "process": {
+          "browserErrorEnums": [
+            "net::ERR_ABORTED"
+          ],
+          "browserResourceType": "fetch",
+          "declaredResponseContentBytes": 576,
+          "durationMs": 487.4419999832753,
+          "entryIndex": 579,
+          "method": "POST",
+          "mimeType": "text/event-stream",
+          "responseBodyEncoding": "ABSENT",
+          "responseBodyTextPresent": false,
+          "startedDateTimeUTC": "2026-11-18T03:46:18.996Z",
+          "status": 200
+        },
+        "processingEntityComplete": false,
+        "processingFramesAvailableInHAR": false,
+        "processingTerminal": "UNKNOWN",
+        "put": {
+          "browserErrorEnums": [],
+          "browserResourceType": "xhr",
+          "declaredResponseContentBytes": 0,
+          "durationMs": 14521.302000008289,
+          "entryIndex": 577,
+          "method": "PUT",
+          "mimeType": "text/plain",
+          "responseBodyEncoding": "ABSENT",
+          "responseBodyTextPresent": true,
+          "startedDateTimeUTC": "2026-11-18T03:46:04.471Z",
+          "status": 201
+        },
+        "putContentEncoding": "ABSENT",
+        "putContentLength": 1386546,
+        "putContentType": "image/png",
+        "putETagPresentAndNonempty": true,
+        "serverFailureOrSuccessFromAbort": "NOT_INFERRED",
+        "storageResult": "HTTP_201_WITH_ETAG_FOR_EXACT_ALLOCATION",
+        "uploadBytesEqualOriginalDiskBytes": false
+      }
+    }
+  ],
+  "generatedAtUTC": "2026-11-18T04:15:53.814305+00:00",
+  "notEstablished": [
+    "processing.completed or processing.failed entity for either file",
+    "App START or swallow for either file",
+    "<=3 second cross-page two-input success",
+    "complete uninterrupted event history between the two trace segments",
+    "origin of the third untagged click",
+    "reason for browser process interruption",
+    "binary identity of the uploaded wire body",
+    "account-wide quota state",
+    "new CI or physical mouse E2E",
+    "source admission or production completion enablement"
+  ],
+  "package": {
+    "build": "31",
+    "executableSHA256": "f1374e2901bfcf4a96b92fdf368e98dd6e2082bf39ce0d8e3d2e08f78eb61ff8",
+    "producerLaunchReceiptSHA256": "13b7da86eb96074f1796e5c2b31f9ec6a8acd0e76f8d0528fabab24d0c57053a",
+    "signedPackageReceiptSHA256": "838829fcc2ede2618876ca8d66026e9a61576619f27f45d17c806ef2eff95929",
+    "ticketSHA256": "0d8220effa87f267f080d9bc5f840f0e219c0792dbfcc823d0859eec4bff7db7",
+    "version": "1.0.5"
+  },
+  "preservation": {
+    "allPriorMediaDigestSnapshotsEqual": true,
+    "fullRawRows": {
+      "assets": {
+        "after": 26,
+        "allPriorRowsExactlyEqual": true,
+        "before": 24,
+        "newRows": 2
+      },
+      "operations": {
+        "after": 17,
+        "allPriorRowsExactlyEqual": true,
+        "before": 15,
+        "newRows": 2
+      },
+      "starts": {
+        "after": 4,
+        "allPriorRowsExactlyEqual": true,
+        "before": 4,
+        "newRows": 0
+      }
+    },
+    "newOriginalPNGsIndependentlyHashed": true,
+    "oldUNKNOWNNotClearedOrReissuedInComparedRows": true,
+    "priorMediaCount": 24
+  },
+  "publication": {
+    "containsDraftTextOrScreenshots": false,
+    "containsOperationUUIDs": false,
+    "containsRawServiceIDs": false,
+    "containsURLsQueriesHeadersOrCredentials": false,
+    "onlyKnownFileDigestsClosedEnumsCountsAndTimes": true
+  },
+  "reportKind": "INDEPENDENT_SEALED_REAL_PRODUCT_AND_SERVICE_EVIDENCE_REVIEW",
+  "result": "PARTIAL_OBSERVED_PRODUCT_START_AND_PROCESSING_TERMINAL_UNRESOLVED",
+  "reviewedSource": "2979d69868e6d6ef64a55e2b767f202b3747520a",
+  "reviewedTree": "218266327421a3bca61133c25a338bf1314408f6",
+  "reviewer": {
+    "GUIReturnedAfterSave": true,
+    "activities": [
+      "read sealed local originals",
+      "cross-check raw rows and trace",
+      "finish one already-open normal HAR save",
+      "offline bounded file association"
+    ],
+    "agent": "independent_checkpoint_5bd",
+    "authorshipDisclosure": "The operator produced native/capture/passive-page records. This reviewer completed the already-open normal HAR Save panel and authored its save receipts and this independent report.",
+    "noNewAttachmentOrHTTPRequestsByReviewer": true,
+    "notCIOrPhysicalMouseE2E": true,
+    "role": "non-implementation-author evidence reviewer"
+  },
+  "schema": 1,
+  "sourceArtifactPinsVerified": {
+    "allMatch": true,
+    "compressedTraceEqualsJoinedOriginalBytes": true,
+    "count": 28,
+    "joinedTraceEqualsExactTwoSegments": true
+  },
+  "targetAndDraft": {
+    "distinctOriginalClickBindings": true,
+    "drafts": [
+      {
+        "newAttachmentsEachCount": [
+          0,
+          0
+        ],
+        "originalThreeAttachmentsEachOnce": true,
+        "phase": "before",
+        "sameOriginalNativeTarget": true,
+        "sameOriginalTextHash": true,
+        "selection": [
+          61,
+          14
+        ],
+        "totalAttachments": 3,
+        "unexpectedAttachments": 0,
+        "visibleFileLimitAtThisReadback": false
+      },
+      {
+        "newAttachmentsEachCount": [
+          1,
+          1
+        ],
+        "originalThreeAttachmentsEachOnce": true,
+        "phase": "after",
+        "sameOriginalNativeTarget": true,
+        "sameOriginalTextHash": true,
+        "selection": [
+          61,
+          14
+        ],
+        "totalAttachments": 5,
+        "unexpectedAttachments": 0,
+        "visibleFileLimitAtThisReadback": false
+      }
+    ],
+    "messageSubmission": "NOT_PERFORMED_BY_REVIEWER; unchanged unsent test draft evidenced at the two readbacks, not a global network-history assertion",
+    "sameDocumentComposerDraftGeneration": true,
+    "sameSavedNativeTarget": true
+  },
+  "testSequence": {
+    "appSelectionCallbacksObserved": 3,
+    "firstTwoTaggedAppDownIntervalMs": 864672.742,
+    "inputTransportFinishedEvents": 2,
+    "later623FirstInput": {
+      "nativeReceiptSHA256": "1cdff42fc072bdcdd7da8979dab2946a7508431d9b3115cb3afb0641f4802434",
+      "readyReceiptSHA256": "90e9e9398f105e2c40dea0ef043be451e4a7101ae63f992a655982404ade7c6b",
+      "separatelyReserved": true
+    },
+    "noObservedDuplicateFileInputScope": "One durable operation and one original input transport per file, plus one later refused untagged selection. This is not a claim that only two clicks occurred.",
+    "originalRapidAttempt": {
+      "operationCountsBySeed": [
+        {
+          "count": 1,
+          "seed": 622
+        },
+        {
+          "count": 0,
+          "seed": 623
+        }
+      ],
+      "outcomeSHA256": "1f792696b611a0aba71ddb753acb9163fe31b58b36751969368ab0ef2088d54f",
+      "stopReason": "ValueError:awaitingFreshBoundPageMap",
+      "twoReceivedDownsWithin3s": false
+    },
+    "rapidPairRequirementMet": false,
+    "taggedTestSelectionsObserved": 2,
+    "trace": {
+      "continuousCombinedTrace": false,
+      "missingEventsNotInvented": true,
+      "missingSequenceInterval": [
+        152,
+        161
+      ],
+      "oneDiagnosticSession": true,
+      "rows": 215,
+      "segments": [
+        {
+          "firstSequence": 53,
+          "lastSequence": 151,
+          "rows": 99
+        },
+        {
+          "firstSequence": 162,
+          "lastSequence": 277,
+          "rows": 116
+        }
+      ]
+    },
+    "untaggedAdditional623Selection": {
+      "additionalInputTransportObserved": false,
+      "additionalOperationObserved": false,
+      "count": 1,
+      "diagnosticSequence": 270,
+      "error": "nativeEventFailed(-1712)",
+      "millisecondsAfterTagged623Down": 33068.789,
+      "operatorStatement": "Only one 623 test sender was invoked; the later untagged click origin was not identified.",
+      "origin": "UNKNOWN",
+      "phase": "resolveSelection",
+      "refusalSequence": 277
+    }
+  }
+}

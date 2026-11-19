@@ -1,0 +1,107 @@
+{
+  "QARefusal": {
+    "AXBounds": [
+      0,
+      33,
+      1459,
+      923
+    ],
+    "WindowServerBounds": [
+      1307,
+      639,
+      147,
+      174
+    ],
+    "code": "nativeAndAXFrameAmbiguous",
+    "nativeWindowAndTabAndDocumentStillMatched": true,
+    "noNativeSenderReservations": true,
+    "noPairReservation": true,
+    "noProductTrackingLog": true,
+    "stage": "before native sender",
+    "unsentDraftFormSubmitCount": 0
+  },
+  "afterHostResume": {
+    "bothPreviouslyKnownTestWindowsAbsent": true,
+    "readOnlyStop": true,
+    "recentPhysicalInputSeconds": 26,
+    "sameEdgeProcessBirth": true
+  },
+  "applicationVersion": "1.0.5 (31)",
+  "executableSHA256": "2ef4f1abadf7893ca88b58a839092fbdac891942627971949467b46cbf04e3c2",
+  "nativePresentation": {
+    "afterDock": {
+      "originalDocumentVisibility": "visible",
+      "originalNeutralText": true,
+      "sameWindowTabDocumentEditorForm": true,
+      "signedIn": true,
+      "sixOriginalAttachments": true,
+      "windowDimensions": [
+        1459,
+        923
+      ]
+    },
+    "beforeDock": {
+      "originalDocumentVisibility": "hidden",
+      "verifiedForegroundPID": true,
+      "visibleOnscreenBrowserWindows": 0
+    },
+    "freshVerifiedNeutralSelection": [
+      61,
+      14
+    ],
+    "priorSelectionAfterReopening": 0
+  },
+  "queueSetup": {
+    "newPages": [
+      7,
+      7
+    ],
+    "newRanks": [
+      27,
+      28
+    ],
+    "originalVisibleCount": 3,
+    "restoration": {
+      "actualAfter": 3,
+      "otherConfigFieldsUnchanged": true,
+      "productInputs": 0,
+      "restoredPriorCount": 3
+    },
+    "testVisibleCount": 4
+  },
+  "rows": [
+    {
+      "completion": "NOT_RUN",
+      "durableOperations": 0,
+      "ordinaryClicks": 0,
+      "seed": 631,
+      "sourceCaptureReceiptSHA256": "3cff2298f06854902c078da1a42170fda5e2a22aefdab2404215a9353fae29fb",
+      "sourcePNGBytes": 1407216,
+      "sourcePNGSHA256": "9aa82d98d41b863abd88aee441c5b1d317c7fe64dc32c475e7e3d9a41846249e",
+      "uploadSTART": 0
+    },
+    {
+      "completion": "NOT_RUN",
+      "durableOperations": 0,
+      "ordinaryClicks": 0,
+      "seed": 632,
+      "sourceCaptureReceiptSHA256": "d19bac0060c14983faf3858d2382e9945c4fcbf7f995d7ec848b7e0fe80cb5b6",
+      "sourcePNGBytes": 1405903,
+      "sourcePNGSHA256": "f4b5399c991fd97191854b5c8bb2f0dc5bb3d577ba86f39af9a1dbc6e44d4301",
+      "uploadSTART": 0
+    }
+  ],
+  "serviceAcceptance": "NOT_RUN",
+  "source": "cb82a728237504ac9270ee8322144f8f8e793c9b",
+  "sources": {
+    "after-dock.json": "aeee6da0999cf7897a480ea235d3adad8e175975c2e130a6886187ff5bf855ed",
+    "morning-native-before.json": "453f9d74fe8fbcf16828b1145be998f38a282ab46737365caff1b7fcd552805d",
+    "new-six-selection.json": "069f32048868028158f39fe21192310d76dd9012cbe5fd0144b3a91ad4839bb7",
+    "new-two-ordinary.log": "347287392f343587d3f3b596296fdde90b68a5291d59b1a4bce62635cb5acb64",
+    "pre-capture-state.json": "df006e649ee20c31b4c5f324282277fd4001add327daeddcaae8ae3449c5207c",
+    "restored-original-count.json": "fa94d8f5aacd082fda701a7cee09788be693bde1bae88b1b6e47151769b97508",
+    "stage.json": "b7842bbfa3f2d10be347d2c4f29aaa5cc07ad0256a219824510a627ea356a67b"
+  },
+  "status": "REFUSED_BEFORE_PRODUCT_INPUT",
+  "ticketSHA256": "c3cbbd3bf7443c428cf0589437556f0043e073b0b8201ceef4a6ee4422ffccec"
+}

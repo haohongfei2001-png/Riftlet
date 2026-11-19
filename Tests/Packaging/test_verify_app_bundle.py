@@ -38,6 +38,8 @@ class BundleVerificationTests(unittest.TestCase):
         self.resources = self.contents / "Resources"
         self.bundle = self.resources / "Riftlet_RiftletAdapters.bundle"
         self.bundle.mkdir(parents=True)
+        for source in (REPOSITORY / "Resources").glob("*.lproj"):
+            shutil.copytree(source, self.resources / source.name)
         shutil.copy2(REPOSITORY / "Resources/Riftlet.icns", self.resources / "Riftlet.icns")
         for name in VERIFY.PRESENTATION_NAMES:
             shutil.copy2(REPOSITORY / "Resources/Presentation" / name, self.resources / name)
@@ -53,6 +55,10 @@ class BundleVerificationTests(unittest.TestCase):
             info[key] = value
         self.plist.write_bytes(plistlib.dumps(info))
 
+    def remove_product_permission_localizations(self):
+        for folder in self.resources.glob("*.lproj"):
+            shutil.rmtree(folder)
+
     def assert_rejected(self, code, repository=None):
         with self.assertRaisesRegex(VERIFY.VerificationError, "^" + code + "$"):
             VERIFY.verify_bundle(self.app, repository)
@@ -62,6 +68,23 @@ class BundleVerificationTests(unittest.TestCase):
         self.assertEqual(result["channel"], "development")
         self.assertFalse(result["developer_id_signed"])
         self.assertFalse(result["notarized"])
+
+    def test_localized_permission_text_cannot_mask_edge_or_override_internal_channel(self):
+        for language in ("en", "zh-Hans"):
+            path = self.resources / (language + ".lproj") / "InfoPlist.strings"
+            original = path.read_bytes()
+            info = plistlib.loads(original)
+            self.assertIn("Microsoft Edge", info["NSAppleEventsUsageDescription"])
+            path.write_bytes(original.replace(b"Microsoft Edge", b"Chrome"))
+            self.assert_rejected("permission_localization_differs_from_source_" + language + "[.]lproj", REPOSITORY)
+            path.write_bytes(original)
+        (self.resources / "en.lproj/InfoPlist.strings").unlink()
+        self.assert_rejected("permission_localizations_differ_from_source", REPOSITORY)
+        for channel, convert in (("ordinary-acceptance", VERIFY.ordinary_acceptance_plist),
+                                 ("isolated-product-acceptance", VERIFY.isolated_product_acceptance_plist)):
+            self.plist.write_bytes(plistlib.dumps(convert(plistlib.loads((REPOSITORY / "Resources/Info.plist").read_bytes()))))
+            with self.assertRaisesRegex(VERIFY.VerificationError, "^unexpected_internal_permission_localization$"):
+                VERIFY.verify_bundle(self.app, REPOSITORY, channel)
 
     def test_committed_icon_preserves_original_svg_and_generation_identity(self):
         manifest = json.loads((REPOSITORY / "engineering/productization-20261107/icon/generation.json").read_text())
@@ -117,6 +140,7 @@ class BundleVerificationTests(unittest.TestCase):
 
     def test_internal_ordinary_channel_is_explicit_and_exact(self):
         info = plistlib.loads(self.plist.read_bytes())
+        self.remove_product_permission_localizations()
         self.plist.write_bytes(plistlib.dumps(VERIFY.ordinary_acceptance_plist(info)))
         with self.assertRaises(VERIFY.VerificationError):
             VERIFY.verify_bundle(self.app, REPOSITORY)
@@ -132,6 +156,7 @@ class BundleVerificationTests(unittest.TestCase):
     def test_ordinary_channel_does_not_accept_product_bundle_or_weaken_resources(self):
         with self.assertRaisesRegex(VERIFY.VerificationError, "^invalid_CFBundleIdentifier$"):
             VERIFY.verify_bundle(self.app, REPOSITORY, "ordinary-acceptance")
+        self.remove_product_permission_localizations()
         self.plist.write_bytes(plistlib.dumps(VERIFY.ordinary_acceptance_plist(plistlib.loads(self.plist.read_bytes()))))
         (self.bundle / VERIFY.RESOURCE_NAMES[0]).write_text("// changed")
         with self.assertRaisesRegex(VERIFY.VerificationError, "^resource_differs_from_source_"):
@@ -162,7 +187,17 @@ class BundleVerificationTests(unittest.TestCase):
                     VERIFY.verify_ordinary_build_info({**valid, key: value}, "development")
 
     def test_internal_build_mocked_pipeline_preserves_product_and_previous_outputs(self):
+        self._check_internal_build_pipeline("ordinary-acceptance")
+
+    def test_isolated_product_build_mocked_pipeline_preserves_product_and_previous_outputs(self):
+        self._check_internal_build_pipeline("isolated-product-acceptance")
+
+    def _check_internal_build_pipeline(self, channel):
         # Mock Swift and codesign only: this proves orchestration, not native compilation/signing.
+        legacy = channel == "ordinary-acceptance"
+        app_name = "Riftlet Ordinary Test.app" if legacy else "Riftlet Product Test.app"
+        compiler_flag = "RIFTLET_ORDINARY_ACCEPTANCE" if legacy else "RIFTLET_ISOLATED_PRODUCT_ACCEPTANCE"
+        scratch_prefix = ".ordinary-acceptance-swift." if legacy else ".isolated-product-acceptance-swift."
         root = Path(self.temporary.name) / "repo"
         (root / "scripts").mkdir(parents=True)
         for name in ("build-macos.sh", "build-ordinary-acceptance.sh", "verify-app-bundle.py", "sparkle_bundle.py"):
@@ -206,30 +241,33 @@ class BundleVerificationTests(unittest.TestCase):
         responder = ("#!/usr/bin/env python3\nimport json, os, pathlib\n"
             "pathlib.Path(__file__).write_bytes((pathlib.Path(os.environ['RIFTLET_TEST_PRODUCTS']) / 'Riftlet').read_bytes())\n"
             "internal = os.environ.get('RIFTLET_TEST_INTERNAL', '1') == '1'\n"
-            "print(json.dumps({'internalAcceptance': internal, 'mode': 'capture', 'dataDirectory': 'Riftlet-Ordinary-Acceptance' if internal else 'Riftlet', "
-            "'input': True, 'start': True, 'completion': True, 'builtInUpload': not internal, 'safeRetry': False, 'continuation': not internal}))\n")
+            "legacy = internal and os.environ['RIFTLET_TEST_CHANNEL'] == 'ordinary-acceptance'\n"
+            "root = ('Riftlet-Ordinary-Acceptance' if legacy else 'Riftlet-Isolated-Product-Acceptance') if internal else 'Riftlet'\n"
+            "print(json.dumps({'internalAcceptance': internal, 'mode': 'capture', 'dataDirectory': root, "
+            "'input': True, 'start': True, 'completion': True, 'builtInUpload': not legacy, 'safeRetry': False, 'continuation': not legacy}))\n")
         signer = commands / "codesign"
         with signer.open("a") as output:
             output.write("if '--verify' in sys.argv: (pathlib.Path(sys.argv[-1]) / 'Contents/MacOS/Riftlet').write_text(" + repr(responder) + ")\n")
         env = {**os.environ, "PATH": str(commands) + os.pathsep + os.environ["PATH"],
-               "RIFTLET_TEST_LOG": str(log), "RIFTLET_TEST_PRODUCTS": str(fake_product)}
+               "RIFTLET_TEST_LOG": str(log), "RIFTLET_TEST_PRODUCTS": str(fake_product), "RIFTLET_TEST_CHANNEL": channel}
+        internal_command = (["bash", str(root / "scripts/build-ordinary-acceptance.sh")] if legacy else
+                            ["bash", str(root / "scripts/build-macos.sh"), "--isolated-product-acceptance"])
         for _ in range(2):
-            result = subprocess.run(["bash", str(root / "scripts/build-ordinary-acceptance.sh")],
-                                    env=env, text=True, capture_output=True)
+            result = subprocess.run(internal_command, env=env, text=True, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr)
-        outputs = list((root / "build").glob(".riftlet-package.*/Riftlet Ordinary Test.app"))
+        outputs = list((root / "build").glob(".riftlet-package.*/" + app_name))
         self.assertEqual(len(outputs), 2)
         for output in outputs:
-            VERIFY.verify_bundle(output, root, "ordinary-acceptance")
+            VERIFY.verify_bundle(output, root, channel)
         self.assertEqual((product / "sentinel").read_bytes(), b"original production package")
-        self.assertEqual(list((root / "build").glob(".ordinary-acceptance-swift.*")), [])
+        self.assertEqual(list((root / "build").glob(scratch_prefix + "*")), [])
         invocations = [json.loads(line) for line in log.read_text().splitlines()]
         swift = [call for call in invocations if call[0] == "swift"]
         self.assertEqual(len(swift), 4)
         for call in swift:
-            self.assertIn("RIFTLET_ORDINARY_ACCEPTANCE", call)
+            self.assertIn(compiler_flag, call)
             self.assertIn("--scratch-path", call)
-            self.assertIn(".ordinary-acceptance-swift.", call[call.index("--scratch-path") + 1])
+            self.assertIn(scratch_prefix, call[call.index("--scratch-path") + 1])
         self.assertEqual(len([call for call in invocations if call[:3] == ["codesign", "--verify", "--strict"]]), 2)
         # Ordinary packaging must reject an accidentally internal binary before
         # replacing any previous product, even with a development plist.
@@ -240,7 +278,56 @@ class BundleVerificationTests(unittest.TestCase):
                                   env={**env, "RIFTLET_TEST_INTERNAL": "0"}, text=True, capture_output=True)
         self.assertEqual(accepted.returncode, 0, accepted.stderr)
         VERIFY.verify_bundle(product, root)
-        self.assertEqual(len(list((root / "build").glob(".riftlet-package.*/Riftlet Ordinary Test.app"))), 2)
+        self.assertEqual(len(list((root / "build").glob(".riftlet-package.*/" + app_name))), 2)
+
+    def test_isolated_product_binary_has_product_policy_but_never_product_or_legacy_root(self):
+        valid = {"internalAcceptance": True, "mode": "capture", "dataDirectory": "Riftlet-Isolated-Product-Acceptance",
+                 "input": True, "start": True, "completion": True, "builtInUpload": True, "safeRetry": False, "continuation": True}
+        VERIFY.verify_ordinary_build_info(valid, "isolated-product-acceptance")
+        for channel in ("development", "ordinary-acceptance"):
+            with self.assertRaises(VERIFY.VerificationError):
+                VERIFY.verify_ordinary_build_info(valid, channel)
+        for key, value in (("internalAcceptance", False), ("dataDirectory", "Riftlet"),
+                           ("dataDirectory", "Riftlet-Ordinary-Acceptance"), ("mode", "systemScreenshotCandidate"),
+                           ("input", False), ("builtInUpload", False), ("start", 1), ("completion", False),
+                           ("safeRetry", True), ("continuation", False), ("extra", True)):
+            with self.subTest(key=key, value=value):
+                with self.assertRaises(VERIFY.VerificationError):
+                    VERIFY.verify_ordinary_build_info({**valid, key: value}, "isolated-product-acceptance")
+
+    def test_isolated_product_channel_is_exact_and_does_not_weaken_resources(self):
+        self.remove_product_permission_localizations()
+        source = plistlib.loads(self.plist.read_bytes())
+        for convert in (lambda value: value, VERIFY.ordinary_acceptance_plist):
+            self.plist.write_bytes(plistlib.dumps(convert(source)))
+            with self.assertRaises(VERIFY.VerificationError):
+                VERIFY.verify_bundle(self.app, REPOSITORY, "isolated-product-acceptance")
+        self.plist.write_bytes(plistlib.dumps(VERIFY.isolated_product_acceptance_plist(source)))
+        VERIFY.verify_bundle(self.app, REPOSITORY, "isolated-product-acceptance")
+        for channel in ("development", "ordinary-acceptance"):
+            with self.assertRaises(VERIFY.VerificationError):
+                VERIFY.verify_bundle(self.app, REPOSITORY, channel)
+        self.alter_plist("UnexpectedAdmission", True)
+        with self.assertRaisesRegex(VERIFY.VerificationError, "^plist_differs_from_source$"):
+            VERIFY.verify_bundle(self.app, REPOSITORY, "isolated-product-acceptance")
+        self.plist.write_bytes(plistlib.dumps(VERIFY.isolated_product_acceptance_plist(source)))
+        (self.bundle / VERIFY.RESOURCE_NAMES[0]).write_text("// changed")
+        with self.assertRaisesRegex(VERIFY.VerificationError, "^resource_differs_from_source_"):
+            VERIFY.verify_bundle(self.app, REPOSITORY, "isolated-product-acceptance")
+
+    def test_current_and_historical_edge_programs_require_all_packaged_components(self):
+        for name in ("chatgpt-web-edge-v24.js", "edge-encoded-preview.js",
+                  "chatgpt-web-edge-v26.js", "edge-encoded-preview-v26.js",
+                  "chatgpt-web-edge-v27.js", "edge-encoded-preview-v27.js",
+                  "edge-draft-content-owner-v28.js"):
+            with self.subTest(resource=name):
+                path = self.bundle / name
+                original = path.read_bytes()
+                path.unlink()
+                self.assert_rejected("missing_or_ambiguous_" + name, REPOSITORY)
+                path.write_bytes(b"// substituted")
+                self.assert_rejected("resource_differs_from_source_" + name, REPOSITORY)
+                path.write_bytes(original)
 
     def test_mac_resource_bundle_layout_and_post_signing_directory(self):
         nested = self.bundle / "Contents/Resources"

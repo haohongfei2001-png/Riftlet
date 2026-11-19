@@ -1,0 +1,46 @@
+{
+  "closedAtUTC": "2026-11-18T13:14:44.069439+00:00",
+  "commercialCompletionCount": 0,
+  "commercialPass": false,
+  "eachCommercialResult": "NOT_RUN",
+  "failure": "SINGLE_ORIGINAL_NATIVE_AX_WINDOW_REQUIRED",
+  "lastStage": "exact existing Default Edge PID, original selected window/tab and temporary URL checked, unique accessible original standard window unsatisfied before AXRaise",
+  "nativeFileInputCount": 0,
+  "newOriginals": [
+    {
+      "localAssetRows": 1,
+      "operationRows": 0,
+      "originalSHA256": "df09b12427ab73bf821bea9098bc7bf91702a5f918598640531f583f90216ff9",
+      "seed": 626
+    },
+    {
+      "localAssetRows": 1,
+      "operationRows": 0,
+      "originalSHA256": "279b78951d63d723270a5ab75317d45b59de7f99462bbef9238116599161d334",
+      "seed": 627
+    }
+  ],
+  "originalSelectionLength": 14,
+  "originalTabAndSixCardsAtPreflight": true,
+  "packageExecutableSHA256": "2ef4f1abadf7893ca88b58a839092fbdac891942627971949467b46cbf04e3c2",
+  "packageSource": "cb82a728237504ac9270ee8322144f8f8e793c9b",
+  "productClicks": 0,
+  "sealedEvidenceSHA256": {
+    "content-proof/old625/live-readback.json": "37b57f56973d49a4c054d615fc24814355243f8ba8d888b72b988f05eecd1c28",
+    "current31-commands/actual-ordinary-product-attempt.json": "d2646edc407fcf5987a318534230c1564398d42c052cc976522ed912a568a654",
+    "current31-commands/original-restored-preflight.json": "697289102767db140cf6478c982f7fc66036e7e7a8b68e83935117f75b472917",
+    "host/after-passive-idle-presentation.json": "421ad92c47d80d5eaa0f0d1c8b76b8d5308b837aae7abbec01abceb0c92f61f5",
+    "host/ax-cg-after-dock.json": "a5df9c739caab76c7d222a2512607524a89416ecfc1825d5a2c79e92f4dfb36e",
+    "host/ax-window-geometry-projection.json": "23cf517f2ea659009b53e47dd82f7cf6d906e6b7dc6221f601688337faac9d77",
+    "host/current-session-foreground.json": "a596ad2db03fc467b1775cd64a7033d7a5b49fc25d80a550b4a0a3890546312a",
+    "host/native-before-page-presentation.json": "37bd56688a1ce11b5cd13f90269ce72aaf37e55bed410579ef9553daed0ba8a8",
+    "host/normal-ax-original-presentation.json": "d5fa6fc53098d6801155c02920509a2ea05030f36c1368b26d0f81d42dd03d6d",
+    "host/passive-before-ax.json": "2527fa331a5bdfcc419f449bbd83d1f2fcb746c45ad8205bac970520b981c932",
+    "host/passive-before-native.json": "d4c5677c8f040f30116ade5f0a3ed6410835d27290c860e2979323173103df35",
+    "host/passive-window.json": "e7974d22a04847e590ce30b8e3d9efa6145e0f54efee9f9a357767220f8abd15",
+    "host/physical-activity-age.txt": "20fddd7f978b9ee288f461bfc961f7017504c8d806a2fdd45e900ae66faa1553",
+    "network/before-recording.json": "fe6e821f069dd1605ddfef73b7e661e5b767a62ec57f601934bde2fc12efbd0c",
+    "public-after/pre-pause-custody.json": "23d2821995853753edc767231fc9f3f7511052c05d12ec4bf0066693817e42d8",
+    "qa-ticket.json": "cae1c99a89ca68fd18c78aa29042a143c3cb3822112b3bf37e8090915cce57be"
+  }
+}

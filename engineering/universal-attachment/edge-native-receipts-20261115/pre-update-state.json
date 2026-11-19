@@ -1,0 +1,17 @@
+{
+  "assets": 2,
+  "operations": 0,
+  "uploadStarts": 0,
+  "media": [
+    {
+      "name": "e976a817-9bb9-4cf7-b282-0bbc2ee0351b.png",
+      "bytes": 110264,
+      "sha256": "8553e963e07855c87b58c3c87ed02c2ae0ebf798f71bae27b41c6e1693339c0c"
+    },
+    {
+      "name": "d0510bf8-4146-4986-9a54-d1d637b7d869.png",
+      "bytes": 203540,
+      "sha256": "4fe18f85105f1cbdef5fc1c33e98a43bc160582e00117130ab9699655e50e6ca"
+    }
+  ]
+}

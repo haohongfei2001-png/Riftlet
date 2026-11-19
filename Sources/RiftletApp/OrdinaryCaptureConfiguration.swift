@@ -1,6 +1,7 @@
 import Foundation
 import RiftletCore
 import RiftletAdapters
+import RiftletCapture
 
 /// Source-owned review references, never decoded from settings, arguments,
 /// page JSON or an old operation. Valid syntax alone is not review approval.
@@ -109,13 +110,28 @@ struct OrdinaryAttachmentAdmission {
                     continuations[continuation] = .webChat; origins[continuation] = [scope.origin]
                 }
             }
+            let edgeStart = OrdinaryProductScreenshotScope.edgeProgressStartProfileID
+            let edgeAcceptance = ReceiptPolicy.StartOnlyRule.Profile(
+                receiptID: OrdinaryProductScreenshotScope.edgeAttachmentAcceptedProfile.profileID,
+                startID: OrdinaryProductScreenshotScope.edgeAttachmentAcceptedStartProfileID,
+                signals: [.attachmentAccepted, .correlatedProgress])
+            let edgeRule = ReceiptPolicy.StartOnlyRule(adapterID: OrdinaryProductScreenshotScope.edgeProgressProfile.adapterID,
+                receiptProfileID: OrdinaryProductScreenshotScope.edgeProgressProfile.profileID,
+                startProfileID: edgeStart, signal: .correlatedProgress, mediaType: "image/png", route: .chatGPTTemporaryHome,
+                additionalProfiles: [edgeAcceptance])
+            if productOrigins.contains(.systemScreenshot) {
+                for startID in [edgeStart, edgeAcceptance.startID] {
+                    starts[startID] = .webChat
+                    origins[startID] = [.systemScreenshot]
+                }
+            }
             // Old scopes may have registered input-only operations without
             // start/completion approval. Observe their original journal, but do
             // not promote them merely because a new product is now enabled.
             return ReceiptPolicy(admittedProfiles: completions, uploadStartProfiles: starts,
                 continuationProfiles: continuations, profileOrigins: origins,
                 requiredCompletionEvidenceProfiles: Set(completions.keys),
-                requiredInputIsolationProfiles: Set(continuations.keys))
+                requiredInputIsolationProfiles: Set(continuations.keys), startOnlyApplications: ["com.microsoft.edgemac": edgeRule])
         }
         if allowsStart { starts[OrdinarySystemScreenshotScope.admittedUploadStartProfileID] = .webChat }
         if allowsCompletion { completions[OrdinarySystemScreenshotScope.admittedCompletionProfileID] = .webChat }
@@ -130,7 +146,7 @@ struct OrdinaryAttachmentAdmission {
             return "普通启动仅本地收录；真实附加尚待最终 App 端到端验收及独立审查。授权浏览器不会开启上传。"
         }
         if usesUnifiedProduct {
-            return "支持 Chrome 中可编辑的 ChatGPT 新聊天及已有聊天。打开要用的草稿，再点边缘截图。聊天开始接收这张图时，微图会收起，此时可以点下一张。发送由你决定。系统和内置截图均可使用。PNG、JPEG 按原文件附加，其他支持格式通常转为相同分辨率的 PNG。如果转换后过大，会改用原文件，由聊天页面决定能否接收。"
+            return "支持 Chrome 中可编辑的 ChatGPT 新聊天及已有聊天。打开要用的草稿，再点边缘截图。聊天开始接收这张图时，微图会收起，此时可以点下一张。发送由你决定。系统和内置截图均可使用。PNG、JPEG 按原文件附加，其他支持格式通常转为相同分辨率的 PNG。如果转换后过大，会改用原文件，由聊天页面决定能否接收。Edge 的 ChatGPT 临时聊天支持直接点选系统 PNG 截图，图片进入原草稿后微图会收起。"
         }
         let scope = purpose == .internalAcceptance ? "内部普通入口验收（非生产准入）" : "普通附加范围"
         let chats = internalCurrentDrafts ? "已识别业务身份的普通新聊天及已有聊天（含本地身份）" : "普通已有聊天"
@@ -139,10 +155,33 @@ struct OrdinaryAttachmentAdmission {
 }
 
 enum OrdinaryCaptureConfiguration {
+    static func captureLocation(root: URL) -> any CaptureLocationProviding {
+        #if RIFTLET_ISOLATED_PRODUCT_ACCEPTANCE
+        return IsolatedProductCaptureLocation(root: root)
+        #else
+        return SystemCaptureLocationProvider()
+        #endif
+    }
+    static func initialCaptureSource(root: URL, systemDefault: () -> URL = CaptureSource.defaultDirectory) -> URL {
+        #if RIFTLET_ISOLATED_PRODUCT_ACCEPTANCE
+        // A rejected private source must not even read the global preference.
+        return IsolatedProductCaptureLocation.directory(in: root)
+        #else
+        return systemDefault()
+        #endif
+    }
     // One product implementation; the compiler-only acceptance harness retains
     // its isolated root and historical scope. Neither path asserts release or
     // real-page certification from build success or candidate F/H evidence.
-    #if RIFTLET_ORDINARY_ACCEPTANCE
+    #if RIFTLET_ISOLATED_PRODUCT_ACCEPTANCE
+    // Same source-owned ordinary product policy and entry, in a separate
+    // compiler-only harness. No argument or preference can select this root.
+    // isInternalAcceptance also disables login-item registration and updates.
+    static let isInternalAcceptance = true
+    static let admission = OrdinaryAttachmentAdmission.unifiedProduct
+    static let dataDirectoryName = "Riftlet-Isolated-Product-Acceptance"
+    static let menuTitle = "Riftlet PRODUCT TEST"
+    #elseif RIFTLET_ORDINARY_ACCEPTANCE
     static let isInternalAcceptance = true
     static let admission = OrdinaryAttachmentAdmission.internalAcceptance(currentDrafts: true)
     static let dataDirectoryName = "Riftlet-Ordinary-Acceptance"

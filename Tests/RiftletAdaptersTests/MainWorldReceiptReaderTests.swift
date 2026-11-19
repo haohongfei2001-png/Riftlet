@@ -12,6 +12,16 @@ final class MainWorldReceiptReaderTests: XCTestCase {
         return String(decoding: try JSONSerialization.data(withJSONObject: value), as: UTF8.self)
     }
 
+    func testClickSnapshotUsesOneRemainingBudgetAcrossNonRepeatingEvents() throws {
+        let budget = MainWorldReceiptReadBudget.clickSnapshot(start: 10)
+        XCTAssertEqual(try budget.timeout(at: 10), 0.15, accuracy: 0.000_001)
+        XCTAssertEqual(try budget.timeout(at: 10.08), 0.07, accuracy: 0.000_001)
+        XCTAssertThrowsError(try budget.timeout(at: 10.149))
+        XCTAssertNoThrow(try budget.checkReturn(at: 10.149))
+        XCTAssertThrowsError(try budget.checkReturn(at: 10.15))
+        XCTAssertThrowsError(try budget.checkReturn(at: .nan))
+    }
+
     func testImmediateReplyPreservesReceiveTimeWithoutPolling() throws {
         let command = envelope(), raw = try reply(command)
         var now: TimeInterval = 10, reads = 0, sleeps = 0

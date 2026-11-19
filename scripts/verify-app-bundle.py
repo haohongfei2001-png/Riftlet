@@ -27,7 +27,15 @@ class VerificationError(Exception):
     pass
 
 
-RESOURCE_NAMES = ("chatgpt-web-20261027.js", "legacy-web-observe.js")
+RESOURCE_NAMES = ("chatgpt-web-20261027.js", "legacy-web-observe.js", "ConversationSurfaceProbe.js",
+                  "chatgpt-web-observe-v17.js", "chatgpt-web-observe-v17-main.js", "chatgpt-web-observe-v18.js",
+                  "chatgpt-web-observe-v19.js", "chatgpt-web-observe-v20.js", "chatgpt-web-observe-v21.js",
+                  "chatgpt-web-observe-v22.js", "chatgpt-web-observe-product-v18.js",
+                  "chatgpt-web-observe-v23.js", "chatgpt-web-observe-product-v19.js",
+                  "chatgpt-web-edge-v24.js", "edge-encoded-preview.js",
+                  "chatgpt-web-edge-v26.js", "edge-encoded-preview-v26.js",
+                  "chatgpt-web-edge-v27.js", "edge-encoded-preview-v27.js",
+                  "edge-draft-content-owner-v28.js")
 ICON_NAME = "Riftlet.icns"
 PRESENTATION_NAMES = ("glass-study.png", "reading.svg", "error.svg", "riftlet.svg")
 ICON_SLOTS = {b"ic04": 16, b"ic05": 32, b"ic07": 128, b"ic08": 256,
@@ -113,20 +121,39 @@ def ordinary_acceptance_plist(source):
     return {**source, **ORDINARY_ACCEPTANCE_OVERRIDES}
 
 
+ISOLATED_PRODUCT_ACCEPTANCE_OVERRIDES = {
+    "CFBundleIdentifier": "com.riftlet.isolated-product-acceptance",
+    "CFBundleName": "Riftlet Product Test",
+    "CFBundleDisplayName": "Riftlet Product Test",
+    "RiftletBuildChannel": "isolated-product-acceptance",
+    "NSAppleEventsUsageDescription": "Riftlet Product Test 是使用独立数据目录的内部普通产品验收构建，仅在你点击截图后向已授权浏览器的当前受支持 ChatGPT 草稿附加图片，绝不自动发送消息。此构建不代表实际服务兼容性或正式发行已经通过验收。",
+}
+
+
+def isolated_product_acceptance_plist(source):
+    return {**source, **ISOLATED_PRODUCT_ACCEPTANCE_OVERRIDES}
+
+
+CHANNELS = {"development", "ordinary-acceptance", "isolated-product-acceptance"}
+
+
 def verify_ordinary_build_info(info, channel="ordinary-acceptance"):
-    require(channel in {"development", "ordinary-acceptance"}, "invalid_expected_channel")
-    internal = channel == "ordinary-acceptance"
+    require(channel in CHANNELS, "invalid_expected_channel")
+    internal = channel != "development"
+    product_policy = channel != "ordinary-acceptance"
+    root = {"development": "Riftlet", "ordinary-acceptance": "Riftlet-Ordinary-Acceptance",
+            "isolated-product-acceptance": "Riftlet-Isolated-Product-Acceptance"}[channel]
     expected = {"internalAcceptance": internal, "mode": "capture",
-                "dataDirectory": "Riftlet-Ordinary-Acceptance" if internal else "Riftlet", "input": True,
-                "start": True, "completion": True, "builtInUpload": not internal,
-                "safeRetry": False, "continuation": not internal}
+                "dataDirectory": root, "input": True,
+                "start": True, "completion": True, "builtInUpload": product_policy,
+                "safeRetry": False, "continuation": product_policy}
     require(isinstance(info, dict) and set(info) == set(expected), "invalid_ordinary_build_info")
     require(all(type(info[key]) is type(value) and info[key] == value for key, value in expected.items()),
             "invalid_ordinary_build_info")
 
 
 def verify_bundle(app, repository=None, channel="development"):
-    require(channel in {"development", "ordinary-acceptance"}, "invalid_expected_channel")
+    require(channel in CHANNELS, "invalid_expected_channel")
     app = Path(app)
     require(app.suffix == ".app" and app.is_dir() and not app.is_symlink(), "invalid_app_root")
     # Only the exact relative links in the versioned Sparkle framework are valid.
@@ -157,6 +184,8 @@ def verify_bundle(app, repository=None, channel="development"):
     }
     if channel == "ordinary-acceptance":
         exact_values.update(ORDINARY_ACCEPTANCE_OVERRIDES)
+    elif channel == "isolated-product-acceptance":
+        exact_values.update(ISOLATED_PRODUCT_ACCEPTANCE_OVERRIDES)
     for key, value in exact_values.items():
         require(info.get(key) == value, "invalid_" + key)
     for key, value in {"LSUIElement": True, "NSHighResolutionCapable": True,
@@ -182,6 +211,11 @@ def verify_bundle(app, repository=None, channel="development"):
     if uses_updater:
         SPARKLE.validate_layout(app, require)
     resources = contents / "Resources"
+    localized_usage = {p.parent.name: p for p in resources.glob("*.lproj/InfoPlist.strings")}
+    # An internal channel has its own permission explanation in Info.plist.
+    # A localized override must never silently replace that explanation.
+    if channel != "development":
+        require(not localized_usage, "unexpected_internal_permission_localization")
     verify_app_icon(app, info, repository)
     resource_bundle = resources / "Riftlet_RiftletAdapters.bundle"
     require(resource_bundle.is_dir(), "missing_adapter_bundle")
@@ -213,8 +247,16 @@ def verify_bundle(app, repository=None, channel="development"):
             # Only these fixed internal-channel substitutions are permitted.
             # Comparing the complete dictionary rejects added/removed keys too.
             require(info == ordinary_acceptance_plist(plistlib.loads(source_plist)), "plist_differs_from_source")
+        elif channel == "isolated-product-acceptance":
+            require(info == isolated_product_acceptance_plist(plistlib.loads(source_plist)), "plist_differs_from_source")
         else:
             require((contents / "Info.plist").read_bytes() == source_plist, "plist_differs_from_source")
+            source_localized = {p.parent.name: p for p in (repository / "Resources").glob("*.lproj/InfoPlist.strings")}
+            require(set(localized_usage) == set(source_localized), "permission_localizations_differ_from_source")
+            for language, source in source_localized.items():
+                require(read_nonempty(localized_usage[language], "empty_permission_localization") ==
+                        read_nonempty(source, "missing_source_permission_localization"),
+                        "permission_localization_differs_from_source_" + language)
         presentation = repository / "Resources/Presentation"
         if presentation.is_dir():
             for name in PRESENTATION_NAMES:
@@ -240,7 +282,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("app", type=Path)
     parser.add_argument("--repository", type=Path)
-    parser.add_argument("--channel", choices=("development", "ordinary-acceptance"), default="development")
+    parser.add_argument("--channel", choices=sorted(CHANNELS), default="development")
     args = parser.parse_args()
     try:
         result = verify_bundle(args.app, args.repository, args.channel)

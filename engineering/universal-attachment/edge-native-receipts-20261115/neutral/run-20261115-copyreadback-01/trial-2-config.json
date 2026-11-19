@@ -1,0 +1,13 @@
+{
+  "eventNumber" : 23002,
+  "executableSHA256" : "8766c9d0c32b696745c6fbe04f4cc60ee12419911b58bfdeb86c4fc025e852ba",
+  "receiverBirth" : "1794746479:969706",
+  "receiverPID" : 47607,
+  "runID" : "CC19F00C-9D82-4C64-A32F-EE72951E884D",
+  "tag" : 51000000000002,
+  "trialID" : 2,
+  "waitForReceipt" : true,
+  "window" : 3407,
+  "x" : 845,
+  "y" : 493
+}

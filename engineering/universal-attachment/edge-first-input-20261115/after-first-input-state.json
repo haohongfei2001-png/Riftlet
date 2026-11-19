@@ -1,0 +1,31 @@
+{
+  "at": "2026-11-15T14:08:30.696158+00:00",
+  "operations": [
+    {
+      "id": "46A3293A-FD87-4533-B4CB-201AD3777D12",
+      "asset_id": "A86F0DC4-2B0F-4496-9F8A-DA62830DE4A9",
+      "attempt": 1,
+      "phase": "unknown",
+      "reason": "observer-v2:inputTriggered:integratedDevelopment",
+      "dispatch_exclusive": 0,
+      "targetKeys": [
+        "adapterID",
+        "applicationID",
+        "clickBindingID",
+        "composerID",
+        "documentID",
+        "draftGeneration",
+        "sessionID",
+        "surface",
+        "tabID",
+        "windowID"
+      ],
+      "targetSHA256": "2b37e81dd758b1d2c7198d226371faa2f71c6383b6737b4e9763bbc77bcd2749",
+      "applicationID": "com.microsoft.edgemac",
+      "sessionID": "edge-kernel-v1:21038:1794737271:486791",
+      "windowID": "512563178",
+      "tabID": "512563179"
+    }
+  ],
+  "automaticRetry": false
+}

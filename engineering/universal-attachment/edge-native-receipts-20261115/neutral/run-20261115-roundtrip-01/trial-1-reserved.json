@@ -1,0 +1,79 @@
+{
+  "beforePostUptime" : 10307.499917583335,
+  "eventNumber" : 23001,
+  "readbackSnapshots" : [
+    {
+      "after" : {
+        "eventNumber" : 23001,
+        "flags" : 0,
+        "sourcePID" : 45546,
+        "sourceStateID" : 1036140795,
+        "tag" : 51000000000001,
+        "targetPID" : 0,
+        "targetProcessSerialNumber" : 0,
+        "timestamp" : 0,
+        "type" : 1,
+        "windowThatCanHandle" : 0,
+        "windowUnderPointer" : 0,
+        "x" : 625,
+        "y" : 493
+      },
+      "before" : {
+        "eventNumber" : 23001,
+        "flags" : 0,
+        "sourcePID" : 45546,
+        "sourceStateID" : 1036140795,
+        "tag" : 51000000000001,
+        "targetPID" : 0,
+        "targetProcessSerialNumber" : 0,
+        "timestamp" : 0,
+        "type" : 1,
+        "windowThatCanHandle" : 0,
+        "windowUnderPointer" : 0,
+        "x" : 625,
+        "y" : 493
+      }
+    },
+    {
+      "after" : {
+        "eventNumber" : 23001,
+        "flags" : 0,
+        "sourcePID" : 45546,
+        "sourceStateID" : 1036140795,
+        "tag" : 51000000000001,
+        "targetPID" : 0,
+        "targetProcessSerialNumber" : 0,
+        "timestamp" : 0,
+        "type" : 2,
+        "windowThatCanHandle" : 0,
+        "windowUnderPointer" : 0,
+        "x" : 625,
+        "y" : 493
+      },
+      "before" : {
+        "eventNumber" : 23001,
+        "flags" : 0,
+        "sourcePID" : 45546,
+        "sourceStateID" : 1036140795,
+        "tag" : 51000000000001,
+        "targetPID" : 0,
+        "targetProcessSerialNumber" : 0,
+        "timestamp" : 0,
+        "type" : 2,
+        "windowThatCanHandle" : 0,
+        "windowUnderPointer" : 0,
+        "x" : 625,
+        "y" : 493
+      }
+    }
+  ],
+  "runID" : "9507D5E9-82DA-4BE9-91CB-29E7CD9306F8",
+  "senderPID" : 45546,
+  "sourcePID" : 45546,
+  "tag" : 51000000000001,
+  "trialID" : 1,
+  "variant" : "fullNativeCGRoundtrip",
+  "window" : 3397,
+  "x" : 625,
+  "y" : 493
+}

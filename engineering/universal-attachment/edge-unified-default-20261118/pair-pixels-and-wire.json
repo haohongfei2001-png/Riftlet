@@ -1,0 +1,124 @@
+{
+  "files": [
+    {
+      "allPixelsEqual": false,
+      "comparedPixels": 591552,
+      "comparedTopLeftOverlapDimensions": [
+        948,
+        624
+      ],
+      "differentPixels": 25844,
+      "exactPutBytesEqualPreview": "UNVERIFIABLE",
+      "existingPreviewPNGBytes": 1386335,
+      "existingPreviewPNGSHA256": "8472cfeccba9b43e28848c7b251acfa120104f9bc787b81e76086c2eef67852c",
+      "harLossyUTF8ReplacementCount": 586184,
+      "harLossyUTF8SHA256": "5a3b6ee161502479283a3c44947fe6b24295e725a2576bf23b741e2d4da3bfd3",
+      "lossyTextMatchesPreviewProjection": true,
+      "maxAbsoluteDeltaPerChannel": [
+        1,
+        1,
+        1,
+        0
+      ],
+      "nonoverlapOriginalPixels": 0,
+      "nonoverlapPreviewPixels": 0,
+      "originalDimensions": [
+        948,
+        624
+      ],
+      "originalPNGBytes": 1406725,
+      "originalPNGSHA256": "922323e620f744b798cfe55ce985950f0af28c1047b223d5dfcb180c6be019bf",
+      "originalRGBASHA256": "a659f5ba7077b1e8a4bce68b6de788c4db384ac38c01fd7aac9f385917848ea2",
+      "perChannelDifferentSamples": [
+        9251,
+        7821,
+        9247,
+        0
+      ],
+      "previewDimensions": [
+        948,
+        624
+      ],
+      "previewEncodedBytesMatchOriginal": false,
+      "previewLengthMatchesPUT": true,
+      "previewLossyUTF8ReplacementCount": 586184,
+      "previewLossyUTF8SHA256": "5a3b6ee161502479283a3c44947fe6b24295e725a2576bf23b741e2d4da3bfd3",
+      "previewRGBASHA256": "c28767e98e889c8fec83d9848a61bb14edb254f9f69756e9f6a24dbe7d2a0e9d",
+      "processingTerminal": "UNKNOWN",
+      "putContentLength": 1386335,
+      "putEntry": 66,
+      "putStatus": 201,
+      "recoveredPutBinarySHA256": null,
+      "renderedCardDimensions": [
+        948,
+        624
+      ],
+      "renderedCardMatchesDecodedPreview": true,
+      "renderedCardRGBASHA256": "c28767e98e889c8fec83d9848a61bb14edb254f9f69756e9f6a24dbe7d2a0e9d",
+      "seed": 619
+    },
+    {
+      "allPixelsEqual": false,
+      "comparedPixels": 591552,
+      "comparedTopLeftOverlapDimensions": [
+        948,
+        624
+      ],
+      "differentPixels": 25682,
+      "exactPutBytesEqualPreview": "UNVERIFIABLE",
+      "existingPreviewPNGBytes": 1386732,
+      "existingPreviewPNGSHA256": "948f8e30e9a2cb05c1a15be6be110bf868044f82a761718383caf772765216fd",
+      "harLossyUTF8ReplacementCount": 586172,
+      "harLossyUTF8SHA256": "2f64c8a8ea9dd5e0d3b4506d23b8cb12a4a9e90a841e24dc81bfe31d08a9d416",
+      "lossyTextMatchesPreviewProjection": true,
+      "maxAbsoluteDeltaPerChannel": [
+        1,
+        1,
+        1,
+        0
+      ],
+      "nonoverlapOriginalPixels": 0,
+      "nonoverlapPreviewPixels": 0,
+      "originalDimensions": [
+        948,
+        624
+      ],
+      "originalPNGBytes": 1405826,
+      "originalPNGSHA256": "c543f731cff7e357d4fd54c2ea813e474fe76b47f483ac4d1f63cf1fc21f1880",
+      "originalRGBASHA256": "551e62696fd81836e20e31f88660d6d42425f0410c85739faa2a9f691cc05d17",
+      "perChannelDifferentSamples": [
+        9097,
+        7799,
+        9252,
+        0
+      ],
+      "previewDimensions": [
+        948,
+        624
+      ],
+      "previewEncodedBytesMatchOriginal": false,
+      "previewLengthMatchesPUT": true,
+      "previewLossyUTF8ReplacementCount": 586172,
+      "previewLossyUTF8SHA256": "2f64c8a8ea9dd5e0d3b4506d23b8cb12a4a9e90a841e24dc81bfe31d08a9d416",
+      "previewRGBASHA256": "7569995e7650642dce9c004ed1741afa82851980a59827cb85e15efe37184bc7",
+      "processingTerminal": "UNKNOWN",
+      "putContentLength": 1386732,
+      "putEntry": 69,
+      "putStatus": 201,
+      "recoveredPutBinarySHA256": null,
+      "renderedCardDimensions": [
+        948,
+        624
+      ],
+      "renderedCardMatchesDecodedPreview": true,
+      "renderedCardRGBASHA256": "7569995e7650642dce9c004ed1741afa82851980a59827cb85e15efe37184bc7",
+      "seed": 620
+    }
+  ],
+  "limits": "HAR PUT postData.text is a lossy UTF-8 representation. Binary PUT identity and processing completion are unverified.",
+  "renderer": "same_original_Edge_offscreen_2D_sRGB_RGBA8",
+  "sourceClickTicketSHA256": "8b0513022c79ec0e12f8bd501a030a967f09829335deab9a40f5f9941cd2d6e9",
+  "sourceHARChainProjectionSHA256": "7fbe216ef09899a748c8f4682536b0db2423eaf9b4a54ca92d7b1cb8b7910018",
+  "sourceHARSHA256": "49da5d8c111c82850a360e95b7160531d0adec856ed2032e547e1579f9a7855b",
+  "sourcePixelReadbackSHA256": "8f7bf30043460c92898040eaacb87e3cd19acff21417e7d91481a860d3dbba58"
+}

@@ -1,0 +1,23 @@
+{
+  "applications": [
+    {
+      "bundle": "<ISOLATED_TEST_RUNTIME>/Microsoft Edge.app",
+      "bundleID": "com.microsoft.edgemac",
+      "executableSHA256": "39253ce4e2b5243b02385299a6211af56ca6f1e70b986177e0a01d3879b5efef",
+      "frontmost": true,
+      "launch": 1794798551.093221,
+      "pid": 15065
+    },
+    {
+      "bundle": "<ISOLATED_TEST_RUNTIME>/Riftlet Product Test.app",
+      "bundleID": "com.riftlet.isolated-product-acceptance",
+      "executableSHA256": "39b9cd983441533a75a171fe56432de903a9c16e93cd4d367577cc4fd9aaa894",
+      "frontmost": false,
+      "launch": 1794799006.328045,
+      "pid": 15716
+    }
+  ],
+  "at": "2026-11-16T03:21:35Z",
+  "AXTrusted": true,
+  "postEventAccess": true
+}

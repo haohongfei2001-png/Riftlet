@@ -1,0 +1,18 @@
+{
+  "structuralParserSHA256": "3a34cb8fe799f129c0feb7c2f44d5498b36d69f5ae172e3b5f658262f11640a5",
+  "upstreamAcquisition": "All four files were checked byte-for-byte against their GitHub Contents API blobs at the recorded upstream commit. The parser is replayed locally, independently of the installed Edge binary.",
+  "upstreamCommit": "11507ee0d359b94b40acf98bc4cd8e8872acb666",
+  "upstreamFiles": {
+    "LICENSE": "ff11d445fb41a1087c7630e120ab15f1a2cb67c1b707173cb494141805fca35e",
+    "RequestResponseView.ts": "a6bb2917ef62c2dd047af2e9a1099a8b7b323c0b72408de71bc40b7aa3249d60",
+    "ServerSentEvents.ts": "80e900f6fd4920e437071a64cc1a545588fec25fbeb1c1d7369f8ce410bcfd7b",
+    "ServerSentEventsProtocol.ts": "308ff2148942634acc025d8c782e9a47fd86d4bf3f0eae1e034ca69ac3e37511"
+  },
+  "upstreamURL": "https://raw.githubusercontent.com/ChromeDevTools/devtools-frontend/11507ee0d359b94b40acf98bc4cd8e8872acb666/front_end/core/sdk/ServerSentEventsProtocol.ts",
+  "upstreamURLs": {
+    "LICENSE": "https://raw.githubusercontent.com/ChromeDevTools/devtools-frontend/11507ee0d359b94b40acf98bc4cd8e8872acb666/LICENSE",
+    "RequestResponseView.ts": "https://raw.githubusercontent.com/ChromeDevTools/devtools-frontend/11507ee0d359b94b40acf98bc4cd8e8872acb666/front_end/panels/network/RequestResponseView.ts",
+    "ServerSentEvents.ts": "https://raw.githubusercontent.com/ChromeDevTools/devtools-frontend/11507ee0d359b94b40acf98bc4cd8e8872acb666/front_end/core/sdk/ServerSentEvents.ts",
+    "ServerSentEventsProtocol.ts": "https://raw.githubusercontent.com/ChromeDevTools/devtools-frontend/11507ee0d359b94b40acf98bc4cd8e8872acb666/front_end/core/sdk/ServerSentEventsProtocol.ts"
+  }
+}

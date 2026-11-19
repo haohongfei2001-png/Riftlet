@@ -1,0 +1,62 @@
+{
+  "failedTestedMerge": "b9bf6be39d5fa084d85002a9776476dec65f42d1",
+  "failedExecutableSHA256": "5e6c14b6945c31285176382393eb8579ee987382d85cbd1230b1341a39d96aba",
+  "failedResult": "FAILED_CONTROLLED_CHECK",
+  "originalEvidenceUnchanged": true,
+  "nativeFinding": "CGEvent mouseEventNumber allocation uses a signed 16-bit field: 32768 -> -32768, 65536 -> 0. NSEvent preserves that narrowed value.",
+  "cloudBoundary": "Original cloud JSON records sentEventNumberMatched=false but did not export actual sent/received number; no retrospective PASS.",
+  "repair": "Generate 1...32767, per-pair distinct; CLI range reject; pre-post CGEvent+NSEvent readback equality; original receiver matcher exact; export actual test numbers.",
+  "validation": {
+    "pythonTests": 13,
+    "pythonFailures": 0,
+    "nativePositiveNumbers": 32767,
+    "nativeEventTypes": 2,
+    "nativeRejectedBounds": 8,
+    "nativePosts": 0,
+    "GUIActions": 0,
+    "commercialService": "NOT_RUN"
+  },
+  "independentConsentBoundary": "Original -1744 and original Edge lost focus remain observed separately; next click stays stopped/NOT_RUN under unchanged consent logic.",
+  "files": [
+    {
+      "path": "riftlet-pr69-phase2-ordinary-edge-host.json",
+      "sha256": "e012c3b3ffce4032070761ca988ed469f9148f061758b8cabca8680809357f57"
+    },
+    {
+      "path": "riftlet-pr69-phase2-14117761425.zip",
+      "sha256": "d7779462b73b930c5ab2d78d3c6a2a036ec317264e35befc0f4f77161cc8667b"
+    },
+    {
+      "path": "riftlet-pr69-event-number-boundaries.swift",
+      "sha256": "14df5418d017f45767f57bef757e8b5261409d358ae421e4f7e0e1f72d638b55"
+    },
+    {
+      "path": "riftlet-pr69-event-number-boundaries.log",
+      "sha256": "ee518af36e7c088de830847f1da477547ea4e7d0d8952f317de9de0cea93d929"
+    },
+    {
+      "path": "riftlet-pr69-mouse-number-native-range.log",
+      "sha256": "e1f2821d28cbeedb4eb67250f22b8a3c4ba27530bb79fcf7ea963074c53faaf4"
+    },
+    {
+      "path": "riftlet-pr69-mouse-number-range-tests.log",
+      "sha256": "999eaa24860c880b49b2bd7edaa37563719fc99ca783527d9d89fdea9aaedb72"
+    },
+    {
+      "path": "riftlet-pr69-mouse-number-range-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "EdgeHostUI.swift",
+      "sha256": "0d8d33405abc99e51f6de672bb1a27f0534e72241d76906ab7d47e734ce86560"
+    },
+    {
+      "path": "edge_host.py",
+      "sha256": "b29b68c6211ecae4343099d22f25913eb59f791ee6f21331f2220e0059bc5578"
+    },
+    {
+      "path": "test_edge_picker_after_mouse.py",
+      "sha256": "0dd3102930be38b1b4ba1ba8e7ae80bb62569f4a8965a09667b5f35f7da2980e"
+    }
+  ]
+}

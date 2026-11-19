@@ -1,0 +1,371 @@
+{
+  "schemaVersion": 1,
+  "recordedAtUTC": "2026-11-15T12:27:02.571023+00:00",
+  "sourceSHA": "c3278c0bea1c03dc8cfc445fd7678a3de3467ae1",
+  "commercialResult": "NOT_RUN_COMMERCIAL_INPUT; FAILED_MATCHED_NATIVE_RECEIPT_VERIFICATION_FOR_TWO_POSTED_ASSETS",
+  "mergeOrReleaseReady": false,
+  "reboot": {
+    "timeLocal": "2026-11-15 17:46 Asia/Shanghai",
+    "source": "integration-lead observed host restart",
+    "priorTemporaryPackageAndProfile": "UNAVAILABLE_AFTER_RESTART",
+    "originalProcessesAndWindowIdentity": "EXPIRED",
+    "newProfile": "TASK_CREATED_PERSISTENT_ISOLATED_PROFILE_SIGNED_IN",
+    "credentialsCopied": false,
+    "preservedEvidence": [
+      "bounded product traces",
+      "asset database and original/private image hashes",
+      "prior draft preparation records",
+      "independent review and CI metadata"
+    ],
+    "unavailableEvidence": [
+      "original running process and executable revalidation",
+      "original external mouse post/preflight artifacts"
+    ],
+    "sameSourceRebuildDoesNotProveSameExecutableOrSession": true
+  },
+  "preservedPreRestart": {
+    "reviewedAtUTC": "2026-11-15T10:08:00.010930+00:00",
+    "scope": "HISTORICAL_SESSION_ONLY_NOT_RESTARTED_PROCESS_IDENTITY",
+    "firstTaggedClick": {
+      "applicationDownUpCount": 2,
+      "assetIDDigest": "90829a9e3527ab9ee8464ac72fcc20fa803efd98ef9dd96a2d8c1d29323c3b13",
+      "clickTargetResolved": false,
+      "clickTimeEdgeTabDocumentDraftIdentityProvenByThisReceipt": false,
+      "eventNumber": 23591,
+      "externalPostAndPreflightArtifactsAvailableForThisReview": false,
+      "inputWindowNumber": 204344,
+      "mouseProbeTag": 82090728608987,
+      "nativeBoundaryCount": 7,
+      "nativeReceipt": "PASS",
+      "operationCreated": false,
+      "orderedTraceSequences": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        23,
+        24,
+        25,
+        26,
+        27
+      ],
+      "pinNativeIdentitySucceeded": false,
+      "refusal": "nativeEventFailed(-1744)",
+      "refusalPhase": "resolveSelection",
+      "refusalSequence": 30,
+      "scope": "APP_RECEIPT_OF_ONE_TAGGED_NATIVE_PAIR_WITH_EXPLICIT_PRE_INPUT_REFUSAL",
+      "selectionBoundaryCount": 1,
+      "selectionOrdinal": 0,
+      "submissionSequence": 29,
+      "uploadCompleted": false,
+      "uploadStart": false,
+      "uploaded": false
+    },
+    "laterUntaggedSameFirstAsset": {
+      "assetIDDigest": "90829a9e3527ab9ee8464ac72fcc20fa803efd98ef9dd96a2d8c1d29323c3b13",
+      "eventNumber": 31327,
+      "inputWindowNumber": 204344,
+      "isSecondAsset": false,
+      "mouseProbeTag": null,
+      "originOfExternalEvent": "UNKNOWN",
+      "refusal": "browserNotFrontmost",
+      "refusalPhase": "resolveSelection",
+      "sameCauseAsFirstRefusalClaimed": false,
+      "selectionOrdinal": 1,
+      "sequences": [
+        31,
+        32,
+        33,
+        34,
+        35
+      ]
+    },
+    "earlierUnpairedMouseDown": {
+      "assetIDDigest": "90829a9e3527ab9ee8464ac72fcc20fa803efd98ef9dd96a2d8c1d29323c3b13",
+      "cause": "UNKNOWN",
+      "classification": "ON_DOWN_SELECTION_BOUNDARY_WITHOUT_MATCHED_RELEASE_OR_SUBMISSION_EVIDENCE",
+      "completedClickClaimed": false,
+      "eventNumber": 31297,
+      "inputWindowNumber": 204126,
+      "mouseProbeTag": null,
+      "sequences": [
+        14,
+        15
+      ]
+    },
+    "secondAsset": {
+      "assetIDDigest": "b02dad1723e90514c82a652a58da1c438366b673bce9d4ffba65996983ac0de5",
+      "clickAcceptance": "NOT_RUN",
+      "onlyPreservedEvent": "committed_visibility_observed",
+      "onlyPreservedEventSequence": 5,
+      "selectionOrSubmissionRecords": 0,
+      "uploadCompletion": "NOT_RUN",
+      "uploadStart": "NOT_RUN"
+    },
+    "queue": {
+      "assets": 2,
+      "operations": 0,
+      "upload_starts": 0
+    },
+    "assets": [
+      {
+        "activeOperationID": null,
+        "assetIDDigest": "90829a9e3527ab9ee8464ac72fcc20fa803efd98ef9dd96a2d8c1d29323c3b13",
+        "assetUUID": "D0510BF8-4146-4986-9A54-D1D637B7D869",
+        "bytes": 203540,
+        "dbMetadataMatchesBoth": true,
+        "originalAndPrivateBytesEqual": true,
+        "originalInode": 292199250,
+        "originalSystemScreenshotMarker": true,
+        "pixelHeight": 888,
+        "pixelWidth": 1184,
+        "privateInode": 292199260,
+        "sha256": "4fe18f85105f1cbdef5fc1c33e98a43bc160582e00117130ab9699655e50e6ca",
+        "sourceKeyOriginalInodeMatches": true,
+        "status": "pending",
+        "visibility": "visible",
+        "visibilityRevision": 0
+      },
+      {
+        "activeOperationID": null,
+        "assetIDDigest": "b02dad1723e90514c82a652a58da1c438366b673bce9d4ffba65996983ac0de5",
+        "assetUUID": "E976A817-9BB9-4CF7-B282-0BBC2EE0351B",
+        "bytes": 110264,
+        "dbMetadataMatchesBoth": true,
+        "originalAndPrivateBytesEqual": true,
+        "originalInode": 292199258,
+        "originalSystemScreenshotMarker": true,
+        "pixelHeight": 756,
+        "pixelWidth": 1052,
+        "privateInode": 292199265,
+        "sha256": "8553e963e07855c87b58c3c87ed02c2ae0ebf798f71bae27b41c6e1693339c0c",
+        "sourceKeyOriginalInodeMatches": true,
+        "status": "pending",
+        "visibility": "visible",
+        "visibilityRevision": 0
+      }
+    ],
+    "signedPackageIdentity": {
+      "executableHashRecomputedDuringThisReview": false,
+      "originalPackagePresentAtReview": false,
+      "originalProcessCheckedByThisReview": false,
+      "originalProfilePresentAtReview": false,
+      "reportedExecutableSHA256": "756273404896247282bca776822add5b798b937e4f44a5ca1d31d039ff02682d",
+      "reportedIdentitySource": "EXISTING_PR69_BODY_READ_BACK_FROM_GITHUB",
+      "reportedSourceSHA": "561abd62fd30a2a9bef1eb4613e90d257770174f",
+      "signatureReverifiedDuringThisReview": false
+    },
+    "rawEvidence": {
+      "github-metadata.json": {
+        "bytes": 3751,
+        "sha256": "cc8372b44078b0afddcf94e89d28b63cc9c27424a4ab19c81a0be8c315791f5c"
+      },
+      "preserved-acceptance-failures.jsonl": {
+        "bytes": 671,
+        "sha256": "018b097928adccb8f283784c7e99f2420c1a16eb8711689f4aecf7cedad54428"
+      },
+      "preserved-acceptance-hit-map.json": {
+        "bytes": 429,
+        "sha256": "ea6dbc453767d81dc370572c6726c4277bd318c6f7304ace25e203702812f003"
+      },
+      "preserved-acceptance-recent.jsonl": {
+        "bytes": 14500,
+        "sha256": "8b0175e447864b08cdbf2df39bcd74c264259e63066b71c153980ff31ef0d0ee"
+      }
+    },
+    "old315978eSecondReceiptCause": "UNRESOLVED_DO_NOT_INFER_FROM_A_DIFFERENT_ATTEMPT"
+  },
+  "restoredPackage": {
+    "sourceSHA": "c3278c0bea1c03dc8cfc445fd7678a3de3467ae1",
+    "executableSHA256": "d3b8e12c05d989f6b14fa72f1555eedc167ffe10fa77dd71afc0e72ea38ef38e",
+    "archiveSHA256": "6954b5c69437188faaf19e94265724372d13af2317e77f3b3bae0f71c01a1715",
+    "archiveBytes": 18073600,
+    "developerIDSigned": true,
+    "deepStrictVerification": "PASS",
+    "hardenedRuntime": true,
+    "automationEntitlement": true,
+    "containsCalibrationIncrement": false,
+    "receiptScope": "SIGNED_PACKAGE_ARCHIVE_AND_EARLY_EXIT_IDENTITY; LATER_GUI_OBSERVATIONS_RECORDED_SEPARATELY",
+    "notarization": "NOT_RUN",
+    "gatekeeper": "NOT_RUN",
+    "originalReceipt": {
+      "name": "signed-package-final-receipt.json",
+      "bytes": 6275,
+      "sha256": "d35cdd91180bfe2965dd86a129ce326d9fd258c6c7036e5c0555ebfe721c4bb9"
+    }
+  },
+  "authorization": {
+    "userApproval": "EXPLICIT_BOTH_NORMAL_SYSTEM_AUTHORIZATIONS_APPROVED",
+    "approvedScope": "ISOLATED_EDGE_JAVASCRIPT_APPLE_EVENTS_AND_SIGNED_RIFTLET_PRODUCT_TEST_AUTOMATION",
+    "ordinaryAppAutomationReceipt": {
+      "askedUser": true,
+      "javascriptAppleEventsSettingProven": false,
+      "osStatus": 0,
+      "purpose": "explicitClickConsent",
+      "receiverIsEdge": true,
+      "receiverIsMicrosoft": true,
+      "receiverSignatureValid": true,
+      "result": "granted",
+      "scope": "SUCCESSFUL_REPORTED_RESULT_FOR_THAT_ORIGINAL_RUNNING_SESSION_NOT_FUTURE_PROCESS_PERMISSION_PROOF",
+      "senderIsOrdinaryApp": true,
+      "senderSignatureValid": true,
+      "sequence": 36,
+      "uploadedByGrant": false
+    },
+    "currentBrowserJavaScriptSetting": {
+      "observedAt": "2026-11-15T12:00:28Z",
+      "nativeMenuReadbackEnabled": true,
+      "source": {
+        "name": "edge-script-pick-readback.json",
+        "bytes": 1266,
+        "sha256": "a80b2f90edd7be8fde4c8decfde953e2ab9afe5207a753c3d4b02af8f5e92001"
+      }
+    },
+    "tccDatabaseModified": false,
+    "browserExtensionInstalled": false,
+    "authorizationIsNotTargetBindingOrUploadEvidence": true
+  },
+  "currentDraftPreparation": {
+    "record": "restart-01-preclick-draft.json",
+    "observedAt": "2026-11-15T12:16:58Z",
+    "isolatedProfileSignedIn": true,
+    "draft": "NEW_UNSENT_TEST_DRAFT",
+    "neutralTextMatched": true,
+    "textSHA256": "d60bcd4299469a1c5c0f8d2c7ed34dfde67d4631f99ff80de5297d3608407b3b",
+    "selectionLength": 14,
+    "baselineImageCount": 1,
+    "baselineVia": "OFFICIAL_CHATGPT_PICKER_SETUP_ONLY",
+    "productInputStartCompletionProvenByPreparation": false,
+    "latestPreclickRecord": "restart-01-second-preclick-draft.json",
+    "latestPreclickObservedAt": "2026-11-15T12:20:10Z"
+  },
+  "restart01": {
+    "scope": "TWO_DIFFERENT_ASSETS_ONE_POST_EACH_NO_REPOST",
+    "configurationSHA256": "900b3dbd946404c5853de0500c2c2bc081a978960fdab9d7f3e37fb91ea857bc",
+    "diagnosticSessionDigest": "a343f12eed347f6eb0f65aef2dc933f7a4564ffe04d673ae1782608c7aee39fe",
+    "productBinarySHA256": "d3b8e12c05d989f6b14fa72f1555eedc167ffe10fa77dd71afc0e72ea38ef38e",
+    "attempts": [
+      {
+        "postedAtUTC": "2026-11-15T12:16:58Z",
+        "senderRecord": "restart-01-sent-1.json",
+        "preflightRecord": "restart-01-first-preflight.json",
+        "assetIDDigest": "90829a9e3527ab9ee8464ac72fcc20fa803efd98ef9dd96a2d8c1d29323c3b13",
+        "inputWindowNumber": 2823,
+        "mouseProbeTag": 114491094720443,
+        "eventNumber": 28310,
+        "mouseDownUpPairsPosted": 1,
+        "nativeReceipt": "UNCONFIRMED_DO_NOT_REPOST",
+        "productBoundaryCounts": {
+          "application": 0,
+          "window": 0,
+          "inputView": 0,
+          "onDown": 0
+        },
+        "lastDiagnosticSequence": 38,
+        "assetOrdinal": 1,
+        "matchedTagOnly": true,
+        "receiptRecord": "restart-01-receipt-1.json",
+        "receiptArtifact": {
+          "name": "restart-01-receipt-1.json",
+          "bytes": 662,
+          "sha256": "f2ba9c7f184ea078d0544bb9dcf159008f7b97be1acab27acef99f48cbc808c2"
+        }
+      },
+      {
+        "postedAtUTC": "2026-11-15T12:20:10Z",
+        "senderRecord": "restart-01-sent-2.json",
+        "preflightRecord": "restart-01-second-preflight.json",
+        "assetIDDigest": "b02dad1723e90514c82a652a58da1c438366b673bce9d4ffba65996983ac0de5",
+        "inputWindowNumber": 2826,
+        "mouseProbeTag": 107474914874188,
+        "eventNumber": 6389,
+        "mouseDownUpPairsPosted": 1,
+        "nativeReceipt": "UNCONFIRMED_DO_NOT_REPOST",
+        "productBoundaryCounts": {
+          "application": 0,
+          "window": 0,
+          "inputView": 0,
+          "onDown": 0
+        },
+        "lastDiagnosticSequence": 38,
+        "assetOrdinal": 2,
+        "matchedTagOnly": true,
+        "receiptRecord": "restart-01-receipt-2.json",
+        "receiptArtifact": {
+          "name": "restart-01-receipt-2.json",
+          "bytes": 661,
+          "sha256": "8f37e62f5195c7f44a0d702e89e120845e2a2495b7a378df749ddeea09b906b7"
+        }
+      }
+    ],
+    "receiptResult": "FAILED_MATCHED_PRODUCT_RECEIPT_VERIFICATION",
+    "receiptSource": "Original bounded observation followed by read-only reconciliation saved separately for each original tag/event/window/asset; no input was reissued.",
+    "firstRetainedReceiptSnapshot": {
+      "name": "restart-01-first-observed-acceptance-recent.jsonl",
+      "bytes": 18271,
+      "sha256": "1e216ea473d63f75a0e981efb55090a3393b10fc2a71d7be5143c7e70f7fcc21"
+    },
+    "passiveTap": {
+      "raw": {
+        "name": "restart-01-second-passive-events.jsonl",
+        "bytes": 35,
+        "sha256": "23317d0e2b0f9b9561d0ecb189852df76a4ff89d6cba72a750e3011ce47de852"
+      },
+      "ready": true,
+      "tapCount": 2,
+      "exactTagMatches": 0,
+      "inferenceLimit": "A stripped event tag is possible; zero matching records do not prove no event was delivered."
+    },
+    "cause": "UNKNOWN_EVENT_TRANSPORT_INVESTIGATION",
+    "sameCauseAsHistorical1744Claimed": false,
+    "automaticRepeat": false,
+    "afterPostsQueue": {
+      "assets": 2,
+      "operations": 0,
+      "upload_starts": 0,
+      "source": "integration lead read-only snapshot"
+    },
+    "preclickDrafts": [
+      "restart-01-preclick-draft.json",
+      "restart-01-second-preclick-draft.json"
+    ],
+    "commercialAcceptance": "NOT_PASSED",
+    "runningBaselineDiagnosticLimitation": "Positive-tag gating can suppress an untagged actual event; no-delivery is not established by zero matched diagnostic records.",
+    "receiptRawFilesContainNoTimestamp": true
+  },
+  "commercialEvidence": {
+    "confirmedOrdinaryRiftletInputs": 0,
+    "confirmedUploadStarts": 0,
+    "confirmedUploadCompletions": 0,
+    "successfulDoubleImageAcceptance": false,
+    "textSelectionAndBaselineAcrossSuccessfulInputs": "NOT_RUN",
+    "messagesSent": 0,
+    "secondAssetNativePost": "EXECUTED_ONCE_RECEIPT_UNCONFIRMED"
+  },
+  "baseCI": {
+    "sourceSHA": "c3278c0bea1c03dc8cfc445fd7678a3de3467ae1",
+    "scope": "READ_ONLY_JOB_METADATA_NOT_COMMERCIAL_ACCEPTANCE",
+    "successfulJobs": 5,
+    "runs": [
+      "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43629149453",
+      "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43629149389"
+    ],
+    "preserveExistingSkippedSteps": true,
+    "rawMetadata": {
+      "name": "github-metadata.json",
+      "bytes": 3751,
+      "sha256": "cc8372b44078b0afddcf94e89d28b63cc9c27424a4ab19c81a0be8c315791f5c"
+    }
+  },
+  "calibrationIncrement": "../edge-calibration-20261115/summary.json",
+  "remainingAcceptance": {
+    "successfulDoubleImageUpload": "NOT_RUN",
+    "rapidConsecutiveClicks": "NOT_RUN",
+    "switchTabAfterClick": "NOT_RUN",
+    "EdgeTemporarilyUnresponsive": "NOT_RUN",
+    "successfulInputPreservesTextSelectionAndAttachments": "NOT_RUN",
+    "explicitPreInputRefusal": "HISTORICAL_FIRST_ASSET_1744_AND_SEPARATE_BROWSER_NOT_FRONTMOST_ONLY"
+  },
+  "sourceOnlyMouseDiagnosticFollowup": "../edge-calibration-20261115/mouse-diagnostic-visibility-followup.json"
+}

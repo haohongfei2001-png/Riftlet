@@ -5,6 +5,28 @@ import RiftletUI
 import RiftletAdapters
 
 final class ProductStatusTests: XCTestCase {
+    func testEdgeFeedbackDoesNotTurnAnUncertainSubmissionIntoNoInput() throws {
+        for copy in [ProductCopy.simplifiedChinese, .english] {
+            for code in [-1744, -1743, 12, -1712] as [Int32] {
+                let failure = WebAdapterError.nativeEventFailed(code)
+                let before = try XCTUnwrap(ProductStatus.edgeClickFeedback(failure,
+                    applicationID: "com.microsoft.edgemac", beforeInput: true, copy: copy))
+                XCTAssertTrue(before.contains("Microsoft Edge"))
+                let uncertain = try XCTUnwrap(ProductStatus.edgeClickFeedback(failure,
+                    applicationID: "com.microsoft.edgemac", beforeInput: false, copy: copy))
+                XCTAssertTrue(uncertain.contains(copy.text("结果尚未确认", "result is unconfirmed")))
+                XCTAssertFalse(uncertain.contains("本次未附加"))
+                XCTAssertFalse(uncertain.contains("has not been attached"))
+                if copy == .english {
+                    XCTAssertNil(before.range(of: "[\\p{Han}]", options: .regularExpression))
+                    XCTAssertNil(uncertain.range(of: "[\\p{Han}]", options: .regularExpression))
+                }
+                XCTAssertNil(ProductStatus.edgeClickFeedback(failure, applicationID: "com.google.Chrome",
+                    beforeInput: true, copy: copy))
+            }
+        }
+    }
+
     func testAttachmentFeedbackEnglishNeverClaimsUncertainInputWasNotUploaded() {
         for value in ProductStatus.AttachmentFeedback.allCases {
             let english = value.text(in: .english)
@@ -36,6 +58,7 @@ final class ProductStatusTests: XCTestCase {
         for description in ["editable new or existing", "starts receiving", "You choose when to send",
                             "never automatically resubmits", "128 MiB", "macOS 13"] {
             XCTAssertTrue(text.contains(description), description)
+
         }
     }
 

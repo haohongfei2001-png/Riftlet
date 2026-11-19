@@ -1,0 +1,10 @@
+sent=0 cg=0 native=0 backCG=0 tag=100000000000001
+sent=1 cg=1 native=1 backCG=1 tag=100000000000001
+sent=101 cg=101 native=101 backCG=101 tag=100000000000001
+sent=32767 cg=32767 native=32767 backCG=32767 tag=100000000000001
+sent=32768 cg=-32768 native=-32768 backCG=-32768 tag=100000000000001
+sent=65535 cg=-1 native=-1 backCG=-1 tag=100000000000001
+sent=65536 cg=0 native=0 backCG=0 tag=100000000000001
+sent=305419896 cg=22136 native=22136 backCG=22136 tag=100000000000001
+sent=2147483647 cg=-1 native=-1 backCG=-1 tag=100000000000001
+ALLOCATION_ONLY_NO_POST_NO_UI

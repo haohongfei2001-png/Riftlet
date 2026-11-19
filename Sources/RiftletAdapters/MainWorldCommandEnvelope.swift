@@ -116,9 +116,28 @@ struct MainWorldCommandEnvelope {
 }
 
 /// The absolute budget reaches the actual send, after descriptor construction.
-/// It applies only to reading an already submitted command's nonce receipt.
+/// Receipt polling uses short individual reads. Synchronous click snapshot
+/// queries use the remaining one-shot budget and never reissue the request.
 struct MainWorldReceiptReadBudget: Sendable {
     let deadlineUptime: TimeInterval
+    private let maximumEventDuration: TimeInterval
+
+    init(deadlineUptime: TimeInterval, clickSnapshot: Bool = false) {
+        self.deadlineUptime = deadlineUptime
+        maximumEventDuration = clickSnapshot ? 1 : 0.25
+    }
+
+    /// All synchronous native identity and original-document reads share the
+    /// same short mouse-down deadline, including compatibility fallbacks.
+    static func clickSnapshot(start: TimeInterval = ProcessInfo.processInfo.systemUptime) -> Self {
+        Self(deadlineUptime: start + 0.15, clickSnapshot: true)
+    }
+
+    func checkReturn(at uptime: TimeInterval = ProcessInfo.processInfo.systemUptime) throws {
+        guard uptime.isFinite, uptime >= 0, uptime < deadlineUptime else {
+            throw WebAdapterError.nativeEventFailed(-1712)
+        }
+    }
 
     func timeout(at uptime: TimeInterval) throws -> TimeInterval {
         guard uptime.isFinite, uptime >= 0, deadlineUptime.isFinite,
@@ -129,7 +148,7 @@ struct MainWorldReceiptReadBudget: Sendable {
         guard remaining >= 0.05 else { throw WebAdapterError.invalidReply }
         // One quarter of the original one-second budget leaves room to recover
         // a lost read reply; this is a bound, not a measured Chrome latency claim.
-        return min(0.25, remaining)
+        return min(maximumEventDuration, remaining)
     }
 }
 

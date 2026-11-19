@@ -32,9 +32,11 @@ public actor SystemScreenshotCandidateAdmission {
         guard request.operation.phase == .dispatchIntent else { throw WebAdapterError.invalidRequest }
         let key = Self.checkpointKey(for: request, scope: scope)
         guard try await store.checkpoint(for: key) == nil else { throw WebAdapterError.invalidRequest }
-        let registration = Registration(version: scope.isProduct ? 2 : 1, sourceID: SystemScreenshotWebCandidate.sourceID,
-            startProfileID: scope.admittedProfile.uploadStartProfileID!,
-            completionProfileID: scope.admittedProfile.profileID,
+        let source = ChatGPTWebPageProgram.currentSourceID(for: request.operation.target)
+        let profile = scope.registeredProfile(for: request, sourceID: source)
+        let registration = Registration(version: scope.isProduct ? 2 : 1, sourceID: source,
+            startProfileID: profile.uploadStartProfileID!,
+            completionProfileID: profile.profileID,
             identity: Self.identity(for: request), enrollmentID: UUID(), assetOrigin: scope.isProduct ? request.asset.origin : nil)
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
         let proposed = try encoder.encode(registration)
@@ -75,11 +77,12 @@ public actor SystemScreenshotCandidateAdmission {
               let registration = try? JSONDecoder().decode(Registration.self, from: data),
               registration.version == (scope.isProduct ? 2 : 1),
               registration.assetOrigin == (scope.isProduct ? scope.origin : nil),
-              [SystemScreenshotWebCandidate.sourceID, ChatGPTWebPageProgram.priorEntrySource,
-               ChatGPTWebPageProgram.priorHandoffSource, ChatGPTWebPageProgram.priorScreenshotSource,
-               ChatGPTWebPageProgram.priorObservationSource].contains(registration.sourceID),
-              registration.startProfileID == scope.admittedProfile.uploadStartProfileID!,
-              registration.completionProfileID == scope.admittedProfile.profileID,
+              (registration.sourceID == ChatGPTWebPageProgram.edgeSourceID
+                || registration.sourceID == SystemScreenshotWebCandidate.sourceID
+                || ChatGPTWebPageProgram.isHistoricalObserver(registration.sourceID)),
+              (request.operation.target.applicationID == EdgeApplicationHost.bundleID
+                ? ChatGPTWebPageProgram.edgeEvidence(for: registration.sourceID) != nil
+                : !ChatGPTWebPageProgram.isEdgeExclusive(registration.sourceID)),
               registration.identity == Self.identity(for: request),
               request.operation.assetID == request.asset.id, request.operation.phase != .prepared,
               request.operation.phase.isUnresolved || request.operation.phase == .succeeded,
@@ -93,9 +96,11 @@ public actor SystemScreenshotCandidateAdmission {
             throw WebAdapterError.invalidRequest
         }
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
-        guard (try? encoder.encode(registration)) == data else { throw WebAdapterError.invalidRequest }
-        if [SystemScreenshotWebCandidate.sourceID, ChatGPTWebPageProgram.priorScreenshotSource,
-               ChatGPTWebPageProgram.priorObservationSource].contains(registration.sourceID) {
+        let profile = scope.registeredProfile(for: request, sourceID: registration.sourceID)
+        guard (try? encoder.encode(registration)) == data, registration.startProfileID == profile.uploadStartProfileID,
+              registration.completionProfileID == profile.profileID else { throw WebAdapterError.invalidRequest }
+        // The two oldest registrations predate the product screenshot metadata contract.
+        if ![ChatGPTWebPageProgram.priorEntrySource, ChatGPTWebPageProgram.priorHandoffSource].contains(registration.sourceID) {
             try scope.validateMetadata(request.asset)
         } else {
             try SystemScreenshotWebCandidate.validateMetadata(request.asset, expectedOrigin: scope.origin)
@@ -109,12 +114,25 @@ public actor SystemScreenshotCandidateAdmission {
     /// candidate registrations. Malformed current registrations throw. Built-in
     /// product images cannot borrow any system-only historical scope.
     func admittedObservationScope(for request: TransferRequest) async throws -> SystemScreenshotAdmissionScope? {
-        if try await admits(request) { return scope }
+        try await originalRegistration(for: request)?.scope
+    }
+
+    func originalRegistration(for request: TransferRequest) async throws -> (scope: SystemScreenshotAdmissionScope, source: String)? {
+        if let source = try await registeredObservationSource(for: request) { return (scope, source) }
         for original in scope.originalObservationScopes {
             let prior = SystemScreenshotCandidateAdmission(store: store, scope: original)
-            if try await prior.admits(request) { return original }
+            if let source = try await prior.registeredObservationSource(for: request) { return (original, source) }
         }
         return nil
+    }
+
+    func originalObservationProgram(for request: TransferRequest) async throws -> WebPageProgram? {
+        guard let original = try await originalRegistration(for: request) else {
+            if request.operation.target.applicationID == EdgeApplicationHost.bundleID { throw WebAdapterError.invalidRequest }
+            return nil
+        }
+        if original.source == ChatGPTWebPageProgram.edgeSourceID { return try ChatGPTWebPageProgram.edgeProgram.get() }
+        return try ChatGPTWebPageProgram.originalObservationProgram(sourceID: original.source)
     }
 
     static func checkpointKey(for request: TransferRequest, scope: SystemScreenshotAdmissionScope = .candidate) -> String {

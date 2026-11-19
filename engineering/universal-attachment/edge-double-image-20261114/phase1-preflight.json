@@ -1,0 +1,29 @@
+{
+  "baseline": "315978ed843ea7a0b4cc8b22fc19adcfba48c955",
+  "phase": "Event receipt diagnosis and PR101 picker ownership safety",
+  "productDefectFixed": false,
+  "secondSoftwareMouseDispatch": "UNCONFIRMED_UNTIL_HOSTED_TRACE",
+  "localAppKit": {
+    "result": "TWO_OWNED_WINDOW_CHAINS_WITH_REFUSAL_REFRESH_VERIFIED",
+    "scope": "Two self-owned NSPanel.sendEvent paths with first-selection feedback, finishSelection and render before the second event. Does not establish CGEventPost/WindowServer delivery.",
+    "xctest": "NOT_RUN_LOCAL_XCODE_SDK_UNAVAILABLE"
+  },
+  "pageProgram": {
+    "tests": 139,
+    "passed": 139,
+    "failed": 0,
+    "scope": "Synthetic DOM, exact current resource; includes v18 click witnesses and transplanted PR101 picker ownership regressions."
+  },
+  "localHeadlessChrome": {
+    "result": "NOT_RUN_SANDBOX_PROCESS_FAILURE",
+    "detail": "Isolated browser exited SIGABRT before fixture execution; process-group query EPERM. Full native regression remains required in hosted Mac CI."
+  },
+  "commercialAcceptance": {
+    "result": "NOT_RUN",
+    "uploadsStarted": 0,
+    "uploadsCompleted": 0,
+    "messagesSent": 0
+  },
+  "qualitySource": "2048b32a7e7daf70c23f91576e335298a742c864",
+  "transplant": "Only current picker ownership/deadline hunks and four corresponding tests; frozen observe-v17 resource unchanged."
+}

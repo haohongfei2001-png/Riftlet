@@ -1,0 +1,367 @@
+{
+  "schemaVersion": 1,
+  "observedAtUTC": "2026-11-15T13:08:43.810229+00:00",
+  "scope": "READ_ONLY_EXACT_HEAD_CI_VERIFICATION_NOT_COMMERCIAL_ATTACHMENT_ACCEPTANCE",
+  "reviewer": "independent_final_diagnostics_source_review",
+  "pr": {
+    "observedAtUTC": "2026-11-15T13:08:43.553Z",
+    "url": "https://github.com/haohongfei2001-png/Riftlet/pull/69",
+    "base": "b5a412f6d37378b7cfef56e2f1e9524cc9b1ac6e",
+    "head": "d23267fe825f9ad2384b35b03db9fe2692485741",
+    "draft": true,
+    "merged": false,
+    "merge_commit_sha": "5e07809dbcddbdfe914da8e7af75990c990bb639"
+  },
+  "admission": {
+    "admissionHead": "d23267fe825f9ad2384b35b03db9fe2692485741",
+    "parent": "fb081508d5cbe8f7a686446f99946f4f6666e5cb",
+    "reviewedBase": "b5a412f6d37378b7cfef56e2f1e9524cc9b1ac6e",
+    "reviewedTree": "ad0560439c018c575cc7883873121ac2a65087c0",
+    "reportSHA256": "f1a1a6b7b2cd005af458cb00031f392b35fc22c5b8cb68b49c3d61ac7dc29020",
+    "reportBytes": 11388,
+    "exactRawReportPreserved": true,
+    "directAdmissionOnlyChild": true,
+    "productionAdmissionMatchesBase": true
+  },
+  "testMerge": {
+    "sha": "5e07809dbcddbdfe914da8e7af75990c990bb639",
+    "tree": "0644886ffae1f1522683d239b3ef7a039bdbcc4e",
+    "orderedParents": [
+      "b5a412f6d37378b7cfef56e2f1e9524cc9b1ac6e",
+      "d23267fe825f9ad2384b35b03db9fe2692485741"
+    ],
+    "treeEqualsAdmissionHead": true,
+    "source": "GitHub git/commits response and all five actual job checkout logs"
+  },
+  "runs": [
+    {
+      "id": 43715330247,
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43715330247",
+      "headSHA": "d23267fe825f9ad2384b35b03db9fe2692485741",
+      "event": "pull_request",
+      "attempt": 1,
+      "conclusion": "success"
+    },
+    {
+      "id": 43715330351,
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43715330351",
+      "headSHA": "d23267fe825f9ad2384b35b03db9fe2692485741",
+      "event": "pull_request",
+      "attempt": 1,
+      "conclusion": "success"
+    }
+  ],
+  "fiveRequiredJobsPassed": true,
+  "jobs": {
+    "native-arm64": {
+      "jobID": 132815513017,
+      "name": "Native ARM64",
+      "file": "native-arm64.log",
+      "bytes": 1221882,
+      "sha256": "1565cbdd8bd7f6c083a60aa76d8632a6bd4ec33e2734c109ccac66af218192f5",
+      "retrieval": "GitHub connector log text preserved without filtering; UTF-8 including BOM",
+      "matchedTestMerge": "5e07809dbcddbdfe914da8e7af75990c990bb639",
+      "status": "completed",
+      "conclusion": "success",
+      "conditionSkippedSteps": [
+        "Verify isolated arrival delta and report native motion outcomes"
+      ]
+    },
+    "native-source": {
+      "jobID": 132815513237,
+      "name": "Native source admission",
+      "file": "native-source.log",
+      "bytes": 5207502,
+      "sha256": "11f30ed6a19922288f62ad050eb260b0fec0432a0ec1d9481fdb83ab83a0520d",
+      "retrieval": "GitHub connector log text preserved without filtering; UTF-8 including BOM",
+      "matchedTestMerge": "5e07809dbcddbdfe914da8e7af75990c990bb639",
+      "status": "completed",
+      "conclusion": "success",
+      "conditionSkippedSteps": []
+    },
+    "native-intel": {
+      "jobID": 132815513247,
+      "name": "Native Intel",
+      "file": "native-intel.log",
+      "bytes": 1138623,
+      "sha256": "882ff4a02d8684f78ce261900ef15beb5f4f2dd2d0bfaa85002d2827c22b4a29",
+      "retrieval": "GitHub connector log text preserved without filtering; UTF-8 including BOM",
+      "matchedTestMerge": "5e07809dbcddbdfe914da8e7af75990c990bb639",
+      "status": "completed",
+      "conclusion": "success",
+      "conditionSkippedSteps": [
+        "Verify isolated arrival delta and report native motion outcomes",
+        "Check two ordinary Riftlet actions with an isolated Edge window",
+        "Exercise extension-free attachment candidates with isolated drafts"
+      ]
+    },
+    "feedback-source": {
+      "jobID": 132815513345,
+      "name": "Feedback source admission",
+      "file": "feedback-source.log",
+      "bytes": 5186362,
+      "sha256": "7e6c71ab64fd48538318b1e1e80b1cd2336b432a3d0e62d254053ef5d226d60e",
+      "retrieval": "GitHub connector log text preserved without filtering; UTF-8 including BOM",
+      "matchedTestMerge": "5e07809dbcddbdfe914da8e7af75990c990bb639",
+      "status": "completed",
+      "conclusion": "success",
+      "conditionSkippedSteps": []
+    },
+    "feedback-native": {
+      "jobID": 132815513527,
+      "name": "Feedback native and service",
+      "file": "feedback-native.log",
+      "bytes": 367410,
+      "sha256": "c78a7cce3fdd062673f1e131688978c55fefbc34304b36341c4d2828436fbfbe",
+      "retrieval": "GitHub connector log text preserved without filtering; UTF-8 including BOM",
+      "matchedTestMerge": "5e07809dbcddbdfe914da8e7af75990c990bb639",
+      "status": "completed",
+      "conclusion": "success",
+      "conditionSkippedSteps": [
+        "Verify actual Feedback and current screenshot composition"
+      ]
+    }
+  },
+  "targetedXCTestExecution": {
+    "native-arm64": {
+      "newAndUpdatedTests": {
+        "testCompleteLookingCalibrationCannotChangeObservationOrGrantEvidence": {
+          "executionRecord": {
+            "line": 7678,
+            "record": "2026-11-15T12:48:31.4348340Z [302/1435] Testing RiftletAdaptersTests.EdgeCalibrationDiagnosticsTests/testCompleteLookingCalibrationCannotChangeObservationOrGrantEvidence"
+          },
+          "result": "PASS_IN_SUCCESSFUL_PARALLEL_XCTEST_JOB",
+          "scope": "actual 1435-case parallel execution; not discovery list or live commercial acceptance"
+        },
+        "testMalformedOptionalCalibrationPreservesExistingEntryDiagnostics": {
+          "executionRecord": {
+            "line": 7680,
+            "record": "2026-11-15T12:48:31.4872270Z [304/1435] Testing RiftletAdaptersTests.EdgeCalibrationDiagnosticsTests/testMalformedOptionalCalibrationPreservesExistingEntryDiagnostics"
+          },
+          "result": "PASS_IN_SUCCESSFUL_PARALLEL_XCTEST_JOB",
+          "scope": "actual 1435-case parallel execution; not discovery list or live commercial acceptance"
+        },
+        "testStrictShapeAndRangeExcludeUnboundedOrPrivateSidecars": {
+          "executionRecord": {
+            "line": 7682,
+            "record": "2026-11-15T12:48:31.5198230Z [306/1435] Testing RiftletAdaptersTests.EdgeCalibrationDiagnosticsTests/testStrictShapeAndRangeExcludeUnboundedOrPrivateSidecars"
+          },
+          "result": "PASS_IN_SUCCESSFUL_PARALLEL_XCTEST_JOB",
+          "scope": "actual 1435-case parallel execution; not discovery list or live commercial acceptance"
+        },
+        "testTracePublishesOnlyNamespacedCalibrationNumbersAndBooleans": {
+          "executionRecord": {
+            "line": 7683,
+            "record": "2026-11-15T12:48:31.5662700Z [307/1435] Testing RiftletAdaptersTests.EdgeCalibrationDiagnosticsTests/testTracePublishesOnlyNamespacedCalibrationNumbersAndBooleans"
+          },
+          "result": "PASS_IN_SUCCESSFUL_PARALLEL_XCTEST_JOB",
+          "scope": "actual 1435-case parallel execution; not discovery list or live commercial acceptance"
+        },
+        "testOversizedSidecarDoesNotInvalidateTheOriginalObservation": {
+          "executionRecord": {
+            "line": 7681,
+            "record": "2026-11-15T12:48:31.5094930Z [305/1435] Testing RiftletAdaptersTests.EdgeCalibrationDiagnosticsTests/testOversizedSidecarDoesNotInvalidateTheOriginalObservation"
+          },
+          "result": "PASS_IN_SUCCESSFUL_PARALLEL_XCTEST_JOB",
+          "scope": "actual 1435-case parallel execution; not discovery list or live commercial acceptance"
+        },
+        "testUntaggedWindowDispatchRetainsIndependentAssetReceiptsAfterRefresh": {
+          "executionRecord": {
+            "line": 9281,
+            "record": "2026-11-15T12:51:34.0305810Z Test Case '-[RiftletUITests.RiftInputIslandTests testUntaggedWindowDispatchRetainsIndependentAssetReceiptsAfterRefresh]' passed (0.029 seconds)."
+          },
+          "result": "EXPLICIT_XCTEST_PASSED",
+          "scope": "direct AppKit NSWindow.sendEvent/callback behavior; not WindowServer or physical mouse delivery"
+        },
+        "testMouseDiagnosticsDistinguishGeometryAndGateRefusalAndRequireOptIn": {
+          "executionRecord": {
+            "line": 9275,
+            "record": "2026-11-15T12:51:34.0299630Z Test Case '-[RiftletUITests.RiftInputIslandTests testMouseDiagnosticsDistinguishGeometryAndGateRefusalAndRequireOptIn]' passed (0.014 seconds)."
+          },
+          "result": "EXPLICIT_XCTEST_PASSED",
+          "scope": "direct AppKit NSWindow.sendEvent/callback behavior; not WindowServer or physical mouse delivery"
+        }
+      },
+      "existingXCTestSkippedOccurrences": [
+        {
+          "line": 10448,
+          "record": "2026-11-15T12:52:51.4595940Z Test Case '-[RiftletUITests.HistoryDisplayStyleTests testCachedGridTextAndBorderResolveActualHighContrastWithinItsAppearance]' skipped (0.001 seconds)."
+        },
+        {
+          "line": 10894,
+          "record": "2026-11-15T12:57:42.9109980Z Test Case '-[RiftletUITests.SettingsNativeStyleTests testSameCachedColorsResolveNativeLightAndDarkWithoutChangingV2Tokens]' skipped (0.006 seconds)."
+        }
+      ]
+    },
+    "native-intel": {
+      "newAndUpdatedTests": {
+        "testCompleteLookingCalibrationCannotChangeObservationOrGrantEvidence": {
+          "executionRecord": {
+            "line": 7126,
+            "record": "2026-11-15T12:51:23.6816660Z [302/1435] Testing RiftletAdaptersTests.EdgeCalibrationDiagnosticsTests/testCompleteLookingCalibrationCannotChangeObservationOrGrantEvidence"
+          },
+          "result": "PASS_IN_SUCCESSFUL_PARALLEL_XCTEST_JOB",
+          "scope": "actual 1435-case parallel execution; not discovery list or live commercial acceptance"
+        },
+        "testMalformedOptionalCalibrationPreservesExistingEntryDiagnostics": {
+          "executionRecord": {
+            "line": 7128,
+            "record": "2026-11-15T12:51:23.7923520Z [304/1435] Testing RiftletAdaptersTests.EdgeCalibrationDiagnosticsTests/testMalformedOptionalCalibrationPreservesExistingEntryDiagnostics"
+          },
+          "result": "PASS_IN_SUCCESSFUL_PARALLEL_XCTEST_JOB",
+          "scope": "actual 1435-case parallel execution; not discovery list or live commercial acceptance"
+        },
+        "testStrictShapeAndRangeExcludeUnboundedOrPrivateSidecars": {
+          "executionRecord": {
+            "line": 7130,
+            "record": "2026-11-15T12:51:23.8009600Z [306/1435] Testing RiftletAdaptersTests.EdgeCalibrationDiagnosticsTests/testStrictShapeAndRangeExcludeUnboundedOrPrivateSidecars"
+          },
+          "result": "PASS_IN_SUCCESSFUL_PARALLEL_XCTEST_JOB",
+          "scope": "actual 1435-case parallel execution; not discovery list or live commercial acceptance"
+        },
+        "testTracePublishesOnlyNamespacedCalibrationNumbersAndBooleans": {
+          "executionRecord": {
+            "line": 7131,
+            "record": "2026-11-15T12:51:23.8028090Z [307/1435] Testing RiftletAdaptersTests.EdgeCalibrationDiagnosticsTests/testTracePublishesOnlyNamespacedCalibrationNumbersAndBooleans"
+          },
+          "result": "PASS_IN_SUCCESSFUL_PARALLEL_XCTEST_JOB",
+          "scope": "actual 1435-case parallel execution; not discovery list or live commercial acceptance"
+        },
+        "testOversizedSidecarDoesNotInvalidateTheOriginalObservation": {
+          "executionRecord": {
+            "line": 7129,
+            "record": "2026-11-15T12:51:23.7940090Z [305/1435] Testing RiftletAdaptersTests.EdgeCalibrationDiagnosticsTests/testOversizedSidecarDoesNotInvalidateTheOriginalObservation"
+          },
+          "result": "PASS_IN_SUCCESSFUL_PARALLEL_XCTEST_JOB",
+          "scope": "actual 1435-case parallel execution; not discovery list or live commercial acceptance"
+        },
+        "testUntaggedWindowDispatchRetainsIndependentAssetReceiptsAfterRefresh": {
+          "executionRecord": {
+            "line": 8729,
+            "record": "2026-11-15T12:56:12.5479860Z Test Case '-[RiftletUITests.RiftInputIslandTests testUntaggedWindowDispatchRetainsIndependentAssetReceiptsAfterRefresh]' passed (0.059 seconds)."
+          },
+          "result": "EXPLICIT_XCTEST_PASSED",
+          "scope": "direct AppKit NSWindow.sendEvent/callback behavior; not WindowServer or physical mouse delivery"
+        },
+        "testMouseDiagnosticsDistinguishGeometryAndGateRefusalAndRequireOptIn": {
+          "executionRecord": {
+            "line": 8723,
+            "record": "2026-11-15T12:56:12.5457410Z Test Case '-[RiftletUITests.RiftInputIslandTests testMouseDiagnosticsDistinguishGeometryAndGateRefusalAndRequireOptIn]' passed (0.034 seconds)."
+          },
+          "result": "EXPLICIT_XCTEST_PASSED",
+          "scope": "direct AppKit NSWindow.sendEvent/callback behavior; not WindowServer or physical mouse delivery"
+        }
+      },
+      "existingXCTestSkippedOccurrences": [
+        {
+          "line": 9895,
+          "record": "2026-11-15T12:57:43.8019380Z Test Case '-[RiftletUITests.HistoryDisplayStyleTests testCachedGridTextAndBorderResolveActualHighContrastWithinItsAppearance]' skipped (0.001 seconds)."
+        },
+        {
+          "line": 10328,
+          "record": "2026-11-15T13:03:54.0240420Z Test Case '-[RiftletUITests.SettingsNativeStyleTests testSameCachedColorsResolveNativeLightAndDarkWithoutChangingV2Tokens]' skipped (0.007 seconds)."
+        }
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "id": 14163160603,
+      "name": "native-foundation-macos-15-intel-5e07809dbcddbdfe914da8e7af75990c990bb639",
+      "bytes": 9664036,
+      "githubSHA256": "2bfefde36def703e0739dc0b9cf045abb00da7c9db11a4a8c9f133551c025391",
+      "runID": 43715330247,
+      "headSHA": "d23267fe825f9ad2384b35b03db9fe2692485741",
+      "expired": false,
+      "uploadedDigestCrossCheckedWithOriginalJobLog": {
+        "log": "native-intel.log",
+        "line": 10396,
+        "record": "2026-11-15T13:04:14.2384690Z SHA256 digest of uploaded artifact zip is 2bfefde36def703e0739dc0b9cf045abb00da7c9db11a4a8c9f133551c025391"
+      },
+      "localZIPDownloadedAndHashed": false,
+      "localZIPLimitation": "GitHub API redirect download timed out; connector ZIP mirror local TLS connection reset; no repeated attempts after bounded failure"
+    },
+    {
+      "id": 14162668390,
+      "name": "native-foundation-macos-15-5e07809dbcddbdfe914da8e7af75990c990bb639",
+      "bytes": 8334573,
+      "githubSHA256": "890c47e646e36f16c97783d1b23e3c6ded750d4293babd6ec6ecefa5d4e89795",
+      "runID": 43715330247,
+      "headSHA": "d23267fe825f9ad2384b35b03db9fe2692485741",
+      "expired": false,
+      "uploadedDigestCrossCheckedWithOriginalJobLog": {
+        "log": "native-arm64.log",
+        "line": 11043,
+        "record": "2026-11-15T12:59:06.8759760Z SHA256 digest of uploaded artifact zip is 890c47e646e36f16c97783d1b23e3c6ded750d4293babd6ec6ecefa5d4e89795"
+      },
+      "localZIPDownloadedAndHashed": false,
+      "localZIPLimitation": "GitHub API redirect download timed out; connector ZIP mirror local TLS connection reset; no repeated attempts after bounded failure"
+    },
+    {
+      "id": 14162062403,
+      "name": "final-source-admission-5e07809dbcddbdfe914da8e7af75990c990bb639",
+      "bytes": 448381,
+      "githubSHA256": "57edaca57732ff1c09007d7a0dd9ced37a96eabcf08a4dc4911c3d3b2041c976",
+      "runID": 43715330247,
+      "headSHA": "d23267fe825f9ad2384b35b03db9fe2692485741",
+      "expired": false,
+      "uploadedDigestCrossCheckedWithOriginalJobLog": {
+        "log": "native-source.log",
+        "line": 71562,
+        "record": "2026-11-15T12:44:40.0950023Z SHA256 digest of uploaded artifact zip is 57edaca57732ff1c09007d7a0dd9ced37a96eabcf08a4dc4911c3d3b2041c976"
+      },
+      "localZIPDownloadedAndHashed": false,
+      "localZIPLimitation": "GitHub API redirect download timed out; connector ZIP mirror local TLS connection reset; no repeated attempts after bounded failure"
+    },
+    {
+      "id": 14162695962,
+      "name": "feedback-source-admission-5e07809dbcddbdfe914da8e7af75990c990bb639",
+      "bytes": 444191,
+      "githubSHA256": "419941e757a680b3ed23b7af6bb91203f54a2a14dc65f7aaf30e659f3404a35f",
+      "runID": 43715330351,
+      "headSHA": "d23267fe825f9ad2384b35b03db9fe2692485741",
+      "expired": false,
+      "uploadedDigestCrossCheckedWithOriginalJobLog": {
+        "log": "feedback-source.log",
+        "line": 71424,
+        "record": "2026-11-15T12:44:12.1564934Z SHA256 digest of uploaded artifact zip is 419941e757a680b3ed23b7af6bb91203f54a2a14dc65f7aaf30e659f3404a35f"
+      },
+      "localZIPDownloadedAndHashed": false,
+      "localZIPLimitation": "GitHub API redirect download timed out; connector ZIP mirror local TLS connection reset; no repeated attempts after bounded failure"
+    },
+    {
+      "id": 14162232224,
+      "name": "feedback-v01-5e07809dbcddbdfe914da8e7af75990c990bb639",
+      "bytes": 64352933,
+      "githubSHA256": "745a97e80b9432b998352ba9b97a6c89d0241ed471384d1b9abe7d94f89fd47f",
+      "runID": 43715330351,
+      "headSHA": "d23267fe825f9ad2384b35b03db9fe2692485741",
+      "expired": false,
+      "uploadedDigestCrossCheckedWithOriginalJobLog": {
+        "log": "feedback-native.log",
+        "line": 3274,
+        "record": "2026-11-15T12:47:26.8165040Z SHA256 digest of uploaded artifact zip is 745a97e80b9432b998352ba9b97a6c89d0241ed471384d1b9abe7d94f89fd47f"
+      },
+      "localZIPDownloadedAndHashed": false,
+      "localZIPLimitation": "GitHub API redirect download timed out; connector ZIP mirror local TLS connection reset; no repeated attempts after bounded failure"
+    }
+  ],
+  "ordinaryARM64EdgeScope": {
+    "status": "NOT_RUN_SYSTEM_AUTOMATION_CONSENT",
+    "firstImage": "Original asset/window/tag/eventNumber 26135 App product receipt followed by explicit pre-input -1744 refusal; no resolved draft",
+    "secondImage": "NOT_RUN_SYSTEM_AUTOMATION_CONSENT after original Edge lost foreground",
+    "fileChanges": 0,
+    "operations": 0,
+    "starts": 0,
+    "commercialService": "NOT_RUN",
+    "record": "arm64-ordinary-edge-host-from-log.json"
+  },
+  "limitations": [
+    "Five successful CI jobs do not establish commercial Edge two-image acceptance or repair the original external-event delivery failure.",
+    "Edge diagnostic XCTest and direct AppKit tests ran on both architectures. They do not prove system screenshots entered a commercial original draft, actual START/completion or preservation across real uploads.",
+    "Existing conditional workflow skips and two existing appearance-dependent XCTest skipped occurrences on each architecture are retained explicitly, not changed to PASS. Intel ordinary-Edge and extension-free candidate steps remain conditionally skipped.",
+    "The controlled ARM64 ordinary Edge run performed one software mouse pair with an explicit original pre-input permission refusal, and did not perform the second click or commercial input.",
+    "Full unfiltered job log text was retrieved through the GitHub connector and preserved as UTF-8 with exact local SHA256. Artifact ZIP sizes/digests are GitHub API values independently cross-checked against the uploader log; local ZIP byte recomputation is unavailable due the recorded download transport failures.",
+    "No workflow was rerun, cancelled or mutated. Only stalled local read-only download processes were interrupted. No source, ref, browser, user data or release was changed by this CI verification."
+  ]
+}

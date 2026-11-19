@@ -1,0 +1,26 @@
+{
+  "arch": "arm64",
+  "command": "python3 -B Tests/UniversalNativePickerHost/detached.py",
+  "historicalRun": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/43506174510/job/132164311784",
+  "limits": [
+    "Receiver-owned detached AppKit control; both processes prohibited activation; no foreground attachment or server upload claimed.",
+    "Hosted H5 standard-radio AX descriptor returned no AXPress on the matched enabled file choice before any selection. System NSOpenPanel sheet ownership remained unproven.",
+    "First extended detached test reached original choice handler but could not confirm selection through AX. The custom radio needed to publish its NSNumber selection value as well as its AXPress."
+  ],
+  "macOS": "27.0",
+  "result": {
+    "exactReceiverHandlerReceipt": true,
+    "expectedPNGBytes": 69,
+    "expectedPNGSHA256": "b66e803d64b39903b44a26160923bb6ecb3f717dcf7900fe62afdb5fd1e4bac8",
+    "externalService": "NOT_RUN",
+    "observer": "DETACHED_SELECTION_AND_SUBMIT_AXPRESS_ONCE",
+    "scope": "detached-AX-selection-and-confirmation"
+  },
+  "sourceFilesSHA256": {
+    "Tests/UniversalNativePickerHost/AXPickerActionButton.swift": "8f023d339420fdb0e3ccc37c61ec92d3e7fa5f9ff3dc8a0a9701473fe2db9ad0",
+    "Tests/UniversalNativePickerHost/AXPickerDetached.swift": "ca9698f8c38bad1224ae0af3588485734edf4dbaf002007a9a5af9d906956807",
+    "Tests/UniversalNativePickerHost/ax_host.py": "b71d80d59e26b94e4a80e8a475fb83839c9df17970d9dc7ee7443dce6cebe890",
+    "Tests/UniversalNativePickerHost/detached.py": "7a0d204bbabf2bcf0f18a8ceadea910a2f4ea5d5bde5815cf0e9ca969b141415",
+    "Tests/UniversalNativePickerHost/run.py": "10a9dfdecdd8e6271199d98eaefeecafa1f414e2444bdf0f42cd7c28c0be0d21"
+  }
+}

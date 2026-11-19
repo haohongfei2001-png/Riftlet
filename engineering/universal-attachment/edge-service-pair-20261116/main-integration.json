@@ -1,0 +1,13 @@
+{
+  "base": "3f8149e2313fd81bbaee5a7bbbdbb1efca2fc81b",
+  "candidateParent": "d62c6e74f3c2fd5136639a693c02b0f8ff163f8a",
+  "integration": "a59bdff4ecf91ef442b00d2e97ac3e8442df908e",
+  "mainChangesIncluded": [
+    103,
+    105
+  ],
+  "sourceAdmissionAtIntegration": "byte-identical to current main",
+  "quality101": "already in base; no replacement of its production files",
+  "isolatedPackageOnly": true,
+  "publicPackageOrUpdateFeedPublished": false
+}

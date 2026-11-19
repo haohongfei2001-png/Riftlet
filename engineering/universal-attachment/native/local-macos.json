@@ -1,0 +1,48 @@
+{
+  "arch": "arm64",
+  "axTrustedForProbeProcess": true,
+  "draftAcknowledgements": 2,
+  "duplicateHandoffsRefused": 2,
+  "editorUnfocused": true,
+  "externalAX": {
+    "status": "NOT_RUN_HOSTED_CONSOLE_REQUIRED"
+  },
+  "filesReleased": 2,
+  "initialRuns": [
+    "Tool sandbox: AXIsProcessTrusted=false and WindowServer unavailable; no hosted service tested.",
+    "Early experiment: NSPresentation activation policy already prohibited returned false when setting it again. Fixed by checking the actual policy.",
+    "Shared file verifier correctly refused a temporary folder with a noncanonical /private/var spelling. Standardizing the fixture directory before opening its descriptor resolved the refusal."
+  ],
+  "localInvocations": [
+    "python3 -B Tests/UniversalNativePickerHost/run.py --only webkit",
+    "python3 -B Tests/UniversalNativePickerHost/run.py --only external-ax"
+  ],
+  "macOS": "27.0",
+  "openPanelCallbacks": 2,
+  "previousAttachmentsTextSelectionPreserved": true,
+  "priorPNGSHA256": "6a8b5aa1b92b7d78773491354e7bd702ac6503b8d9bed07cb402777bf2fc82e3",
+  "receiverEvents": [
+    "body-start-0",
+    "body-complete-0",
+    "body-start-1",
+    "body-complete-1"
+  ],
+  "sameBytesPathReplacementRefused": true,
+  "scope": "controlled-cooperating-WKWebView",
+  "sha256": [
+    "b66e803d64b39903b44a26160923bb6ecb3f717dcf7900fe62afdb5fd1e4bac8",
+    "91f31ca0451554dbfb9411e80591bab9318a9a2e3805b20efd28568594aba95b"
+  ],
+  "sourceFilesSHA256": {
+    "Sources/RiftletAdapters/AttachmentTransport.swift": "561e6b325f23a761eedae2c68a75c611cf5bb09207e97f8aab1bbdff71f5427d",
+    "Sources/RiftletAdapters/NativeMacAXDriver.swift": "03f3ba0d919e581d6b1a4c86ad62aee9163fa1e9f4cca2c7beb3fe0d3344554d",
+    "Sources/RiftletAdapters/NativePickerFileDelivery.swift": "0265a2fff431cfcf00f2dd06f6b933bb6fc488adaf50218a0ed46353b0d11eb6",
+    "Sources/RiftletAdapters/NativePickerVerifiedFile.swift": "a20bbdd2c636665067725611523e94fe3a4481cd029fa112de2d997e619cf6c6",
+    "Tests/UniversalNativePickerHost/Probe.swift": "3346d3edeaab81a0cbc3eba270dcf43f550e9c63d00526215b5b8d7f55aeedab",
+    "Tests/UniversalNativePickerHost/ax_host.py": "b71d80d59e26b94e4a80e8a475fb83839c9df17970d9dc7ee7443dce6cebe890",
+    "Tests/UniversalNativePickerHost/draft.html": "4e740a9f1715bb8831afb7104d3fb3b2f84b9f6a8181394527d549275a3ed173",
+    "Tests/UniversalNativePickerHost/run.py": "10a9dfdecdd8e6271199d98eaefeecafa1f414e2444bdf0f42cd7c28c0be0d21",
+    "Tests/UniversalNativePickerHost/test_ax_result.py": "a7a34b4668a8903a64a76fdb2cdbba297195e254b58cd8a259b825da9e08b8a9"
+  },
+  "windowNeverOrdered": true
+}

@@ -1,0 +1,93 @@
+{
+  "images": [
+    {
+      "actualSystemPNGBytes": 1406130,
+      "allSamplesNoScanLimitOrSamplingFailure": true,
+      "allSamplesOriginalChangeReturned": true,
+      "allSamplesOriginalSetterEntered": true,
+      "allSamplesOriginalTextSelectionAndDraft": true,
+      "allSamplesRetainedEightBaselineNodes": true,
+      "firstSeq": 66,
+      "lastSeq": 367,
+      "maxReportedNodeCounts": {
+        "edgeBlobMatchedNodes": 0,
+        "edgeChangedMatchedPreviews": 0,
+        "edgeErrorAttributeNodes": 0,
+        "edgeFilenameMatchedNodes": 0,
+        "edgeLoadedImageNodes": 0,
+        "edgeMatchedNodes": 0,
+        "edgeMatchedOriginalFormNodes": 0,
+        "edgeNewMatchedNodes": 0,
+        "edgeProgressNodes": 0
+      },
+      "nativeReaderIndependentlyMatchedOriginalFilenameAndFile": true,
+      "ordinarySequence": {
+        "begin": 1,
+        "commit": 1,
+        "returnedChunks": 6
+      },
+      "positiveStartSamples": 0,
+      "progressDecisions": {
+        "fileBlobMissing": 69,
+        "historyUnavailable": 7
+      },
+      "samples": 76,
+      "seed": 617,
+      "windowMilliseconds": 41699.558
+    },
+    {
+      "actualSystemPNGBytes": 1407109,
+      "allSamplesNoScanLimitOrSamplingFailure": true,
+      "allSamplesOriginalChangeReturned": true,
+      "allSamplesOriginalSetterEntered": true,
+      "allSamplesOriginalTextSelectionAndDraft": true,
+      "allSamplesRetainedEightBaselineNodes": true,
+      "firstSeq": 86,
+      "lastSeq": 352,
+      "maxReportedNodeCounts": {
+        "edgeBlobMatchedNodes": 0,
+        "edgeChangedMatchedPreviews": 0,
+        "edgeErrorAttributeNodes": 0,
+        "edgeFilenameMatchedNodes": 0,
+        "edgeLoadedImageNodes": 0,
+        "edgeMatchedNodes": 0,
+        "edgeMatchedOriginalFormNodes": 0,
+        "edgeNewMatchedNodes": 0,
+        "edgeProgressNodes": 0
+      },
+      "nativeReaderIndependentlyMatchedOriginalFilenameAndFile": true,
+      "ordinarySequence": {
+        "begin": 1,
+        "commit": 1,
+        "returnedChunks": 6
+      },
+      "positiveStartSamples": 0,
+      "progressDecisions": {
+        "fileBlobMissing": 59,
+        "historyUnavailable": 10
+      },
+      "samples": 69,
+      "seed": 618,
+      "windowMilliseconds": 32963.969
+    }
+  ],
+  "priorOutcomeSHA256": "cb0e1c0916f13c44e147bdb094fbfa5cd498caecbc46065c38ab77df042ed5e4",
+  "reader": {
+    "inputFiles": 2,
+    "matchingReaders": 0,
+    "originalCreateJSONMatches": 0,
+    "originalProcessingResponses": 0,
+    "reason": "DEADLINE",
+    "restored": true,
+    "terminalCandidates": 0
+  },
+  "readerStatusSHA256": "7fbbb1ec72ae9778c890638e79b533a1ed313a7cf9aecb750d27e23b41c56e83",
+  "schema": 1,
+  "trace": {
+    "SHA256": "f76c04bb3883dc2b52113593d2bfd6653341b2c307fd1d7b28fb9a050d4d152a",
+    "bytes": 274161,
+    "gzipBytes": 7069,
+    "gzipSHA256": "f850d8c065a4aafd2274074a9fa9dff681d92637547003d27b2a298061e9106b",
+    "rows": 347
+  }
+}

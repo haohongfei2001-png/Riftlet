@@ -1,0 +1,49 @@
+{
+  "base_head": "c3278c0bea1c03dc8cfc445fd7678a3de3467ae1",
+  "reviewed_at_utc": "2026-11-15T12:00:56.097265+00:00",
+  "reviewed_wip_sha256": {
+    "Sources/RiftletAdapters/AttachmentEntryDiagnostics.swift": "38a5144086496d62553bf9bc16263d4e08910b4596b055c6e44f838a4a61ab30",
+    "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js": "c32a45bbe8f6339247d523371193a81e554d770424e86f214ea50e14c29a4ef8",
+    "Tests/WebPageProgram/acceptance-program.test.cjs": "a5511d788e537b9f8f9f95cd24b47e793e91bed120e995bc6b919c4c49ef2850",
+    "Tests/RiftletAdaptersTests/EdgeCalibrationDiagnosticsTests.swift": "d2db276b47df58095ab2a08f5920e7e80d153dc0b4870e7fb065887afe34e5d9",
+    "Tests/WebPageProgram/edge-calibration-diagnostics.test.cjs": "ba5cc11a2ce89248fee16a32bbc93906087eed361fcb79051fc70d497701970c"
+  },
+  "javascript_prior_lines_unchanged": true,
+  "javascript_inserted_lines": 164,
+  "entire_js_sample_function_unchanged": true,
+  "js_sample_sha256": "003120f6769e3f694a600ab4258c74a148b828796f5961b701e5ec0671bbb860",
+  "frozen_sources": {
+    "Sources/RiftletAdapters/WebAttachmentAdapter.swift": {
+      "unchanged_from_head": true,
+      "sha256": "3f479705da890f79471f4f09586bbdf650b6e521e48e0eda294421166c64ee3a"
+    },
+    "Sources/RiftletAdapters/AttachmentObservation.swift": {
+      "unchanged_from_head": true,
+      "sha256": "7dca8bded3878baa1d24634db9cae05bfce61e663d61f8e7b04c368470efbe6e"
+    },
+    "Sources/RiftletAdapters/Resources/chatgpt-web-observe-v17.js": {
+      "unchanged_from_head": true,
+      "sha256": "0daf3f2763e340503b8c957c4ef35a619417c5e486ac48fccbcae3f657ff9a09"
+    },
+    "Sources/RiftletAdapters/ChromeAppleEventsExecutor.swift": {
+      "unchanged_from_head": true,
+      "sha256": "91a57505410ea2724409d58ff25d0fc087dd3d7c46db8027e508facd182c66c4"
+    },
+    "Sources/RiftletAdapters/ConversationClickRouter.swift": {
+      "unchanged_from_head": true,
+      "sha256": "529296e19dda4b62d2f605be1a3ba062c14fdf659042f756142437e7a50c5d5a"
+    },
+    "Sources/RiftletCore/TransferCoordinator.swift": {
+      "unchanged_from_head": true,
+      "sha256": "fc05ce11ef3d278681ccc3370fd362f97da09cee51f382910a610c9dd38d0eb6"
+    },
+    "Sources/RiftletApp/RiftletMain.swift": {
+      "unchanged_from_head": true,
+      "sha256": "0bb5202cb68156754dd834b7e9d683261a6a3d0bb5fc7d36c04f35c4d1b0f3c7"
+    },
+    "Sources/RiftletUI/RiftPanelController.swift": {
+      "unchanged_from_head": true,
+      "sha256": "66a489a60ec92d8ae252cd0718ad42330cf1c7733dd89786a4e12201ac08e1a1"
+    }
+  }
+}

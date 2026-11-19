@@ -5,6 +5,37 @@ import RiftletCore
 
 /// Native window geometry/direct callbacks, not physical WindowServer routing.
 final class R21InputGeometryTests: XCTestCase {
+    @MainActor func testAcceptanceHitRegionBelongsToVisibleImageAndInputWindowInEveryForm() async throws {
+        _ = NSApplication.shared
+        guard NSScreen.main != nil else { throw XCTSkip("No native screen") }
+        let fixtures = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("NativeVisualEvidence/R21Fixtures")
+        let asset = AssetRecord(image: ImportedAsset(id: UUID(), sourceKey: "hit-map", fileName: "codex1.png",
+            sha256: String(repeating: "a", count: 64), byteCount: 0, pixelWidth: 1920, pixelHeight: 1080,
+            mediaType: "image/png", origin: .synthetic), sequence: 1)
+        for form in RiftDesktopForm.allCases {
+            var configuration = RiftConfiguration()
+            configuration.desktopForm = form
+            let panel = RiftPanelController(mediaDirectory: fixtures, configuration: configuration,
+                reduceMotionOverride: { true }, onSelect: { _ in XCTFail("Reading the diagnostic selected a screenshot") })
+            defer { panel.close() }
+            panel.render([asset])
+            let deadline = ProcessInfo.processInfo.systemUptime + 5
+            while panel.diagnosticThumbnailHitRegions.isEmpty, ProcessInfo.processInfo.systemUptime < deadline {
+                try await Task.sleep(nanoseconds: 10_000_000)
+            }
+            let row = try XCTUnwrap(panel.diagnosticSnapshot.rows.first)
+            let hit = try XCTUnwrap(panel.diagnosticThumbnailHitRegions.first, form.rawValue)
+            XCTAssertEqual(hit.assetID, asset.id)
+            XCTAssertEqual(hit.ordinal, row.ordinal)
+            XCTAssertEqual(hit.windowNumber, row.imageInputWindowNumber)
+            XCTAssertTrue(row.imageClipFrame.contains(hit.frame))
+            XCTAssertTrue(row.imageInputFrame.contains(hit.frame))
+            panel.setUserHidden(true)
+            XCTAssertTrue(panel.diagnosticThumbnailHitRegions.isEmpty)
+        }
+    }
+
     @MainActor func testDecorativePaddingNeverMovesInputOrPressTarget() throws {
         _ = NSApplication.shared
         guard let screen = NSScreen.main else { throw XCTSkip("No native screen") }

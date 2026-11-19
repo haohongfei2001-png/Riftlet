@@ -1,9 +1,49 @@
 import XCTest
 import JavaScriptCore
+import CryptoKit
 import RiftletCore
 @testable import RiftletAdapters
 
 final class MainWorldCommandRelayTests: XCTestCase {
+    func testIntegratedProgramKeepsTheOriginalEdgeAndProductObserverResources() throws {
+        let edge = try ChatGPTWebPageProgram.edgeProgram.get()
+        let product = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorProductSource))
+        for (program, digest) in [
+            (try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorEdgeSource)), "1ba873abcdcb614d143cb9cbcc0dc5437e28d89853b4adeb40e4db16d7717d8d"),
+            (try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorUnifiedSource)), "fb97782271e6c52cd6bb10a543d71b6f537f50f8456cf094d98bb19708265295"),
+            (try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorProductCardSource)), "47b2ad88fecd29f91127fd5b04c4279db2db3e77f23a3e4cfd1aee4234c726ee"),
+            (try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorEncodedSource)), "b899943f29c0d4ba4ed6cada951147b578a5e6e57982139c5465af454b49fcc7"),
+            (try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorStagedSource)), "9406e3c627ac09406fc7d61fcf754889bef8fd785f69f85a7653e841097bf0f3"),
+            (try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorDraftContentSource)), "d8d383d077c28b297625837a7e57419392aafb0995e8ffbf0c058063b94200bd"),
+            (try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorRootContentSource)), "7401f5bb27b084fd0602a316fbeab9c6baf4bad731baf4328fecc796c0837f16"),
+            (product, "cca114d1cf23c0e8166d3cc962d0d91148e101a7f42eda6cb2ff22267ec7dcfd")
+        ] {
+            XCTAssertEqual(SHA256.hash(data: Data(program.functionSource.utf8)).map { String(format: "%02x", $0) }.joined(), digest)
+        }
+        XCTAssertEqual(edge.sourceID, ChatGPTWebPageProgram.edgeSourceID)
+        XCTAssertEqual(edge.sourceID, "chatgpt-web-click-document-witness-20261119-v29")
+        XCTAssertEqual(edge.functionSource.utf8.count, 125372)
+        // The ordinary program shipped by Swift must match the page exercised by the DOM suite.
+        XCTAssertEqual(SHA256.hash(data: Data(edge.functionSource.utf8)).map { String(format: "%02x", $0) }.joined(),
+                       "e4a7a3d1bf5e4d006508d5ed0d324872d0e8f700274980428f9edd546e1601f3")
+        XCTAssertTrue(edge.functionSource.contains("function watchEdgeEncodedPreview(file, name)"))
+        XCTAssertFalse(edge.functionSource.contains("/*__RIFTLET_ENCODED_PREVIEW_WATCHER__*/"))
+        XCTAssertNotEqual(edge.sourceID, try ChatGPTWebPageProgram.load().sourceID)
+    }
+
+    func testEdgeAssemblyRequiresExactlyOneSlotAndBoundedWatcher() throws {
+        let marker = "/*__RIFTLET_ENCODED_PREVIEW_WATCHER__*/"
+        let template = ChatGPTWebPageProgram.edgeEvidenceID + marker
+        let watcher = "function watchEdgeEncodedPreview(file, name) { return null; }"
+        XCTAssertEqual(try ChatGPTWebPageProgram.assembleEdgeProgram(template: template, watcher: watcher),
+                       ChatGPTWebPageProgram.edgeEvidenceID + watcher)
+        for (badTemplate, badWatcher) in [(template + marker, watcher), (ChatGPTWebPageProgram.edgeEvidenceID, watcher),
+                                         (marker, watcher), (template, ""), (template, watcher + marker),
+                                         (template, watcher + String(repeating: " ", count: 128 * 1024))] {
+            XCTAssertThrowsError(try ChatGPTWebPageProgram.assembleEdgeProgram(template: badTemplate, watcher: badWatcher))
+        }
+    }
+
     private func context(virtualMachine: JSVirtualMachine? = nil) throws -> JSContext {
         let machine = try XCTUnwrap(virtualMachine ?? JSVirtualMachine())
         let js = try XCTUnwrap(JSContext(virtualMachine: machine))
@@ -214,6 +254,110 @@ final class MainWorldCommandRelayTests: XCTestCase {
         XCTAssertEqual(js.evaluateScript(changed.discovery)?.toString(), "")
         js.evaluateScript("document.documentElement=makeRoot()")
         XCTAssertEqual(js.evaluateScript(next.discovery)?.toString(), "")
+    }
+
+    func testOriginalObservationFindsBothV17BuildsAndV18ThroughV21ByExactFunctionAndLease() throws {
+        let v17 = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorScreenshotSource))
+        let v18 = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorClickSource))
+        let v19 = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorOriginSource))
+        let v20 = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorProgressSource))
+        let v21 = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorLabelSource))
+        let v21Sources = try ChatGPTWebPageProgram.observationRelayFunctions(for: v21)
+        let v20Sources = try ChatGPTWebPageProgram.observationRelayFunctions(for: v20)
+        let v19Sources = try ChatGPTWebPageProgram.observationRelayFunctions(for: v19)
+        let v17Sources = try ChatGPTWebPageProgram.observationRelayFunctions(for: v17)
+        let v18Sources = try ChatGPTWebPageProgram.observationRelayFunctions(for: v18)
+        let hashes = (v17Sources + v18Sources + v19Sources + v20Sources + v21Sources).map { source in
+            SHA256.hash(data: Data(source.utf8)).map { String(format: "%02x", $0) }.joined()
+        }
+        XCTAssertEqual(hashes, ["0daf3f2763e340503b8c957c4ef35a619417c5e486ac48fccbcae3f657ff9a09",
+                                "5fffb4b9fcee31af401a00259b3cf0cdbf7577c8f990dddbbd1ec99bfe16de3f",
+                                "c32a45bbe8f6339247d523371193a81e554d770424e86f214ea50e14c29a4ef8",
+                                "f1a4dfce2e04e5c54ec812e01e33fb90a6a97a839d2b06ce5eed378f77887550",
+                                "0bc928293ba44f84accdb0d19886fedc94c6702383a827fa1a48214eeaebc336",
+                                "58190675ec87b88db2334f0a38a764616e4cc923cbfcb955df33e8c87d303621"])
+        for (program, sources) in [(v17, v17Sources), (v18, v18Sources), (v19, v19Sources), (v20, v20Sources), (v21, v21Sources)] {
+            for function in sources {
+                let hosts = program.sourceID == v17.sourceID ? ["com.google.Chrome"] : ["com.google.Chrome", "com.microsoft.edgemac"]
+                for host in hosts {
+                    let js = try context(), store = MainWorldRelayStore()
+                    let target = TargetLease(adapterID: "chatgpt-web", surface: .webChat, applicationID: host,
+                        sessionID: "current", windowID: "A", tabID: "1", documentID: "d", composerID: "c", draftGeneration: "g")
+                    let identity = ObservationIdentity(operationID: UUID(), assetID: UUID(), attempt: 1,
+                        assetSHA256: String(repeating: "a", count: 64), target: target)
+                    let command = WebBridgeCommand(action: .observe, target: target, identity: identity)
+                    let json = String(decoding: try JSONEncoder().encode(command), as: UTF8.self)
+                    let context = native.replacingOccurrences(of: "com.google.Chrome", with: host)
+                    let legacy = host == "com.google.Chrome" ? "legacy" : nil
+                    let old = MainWorldCommandRelay(function: function, contextJSON: context, legacyObservationSession: legacy)
+                    js.evaluateScript(old.installer)
+                    js.evaluateScript("""
+                        const id=(\(json)).identity;
+                        globalThis.__riftletIndependentFileInput20261104={operations:new Map([[id.operationID,
+                          {identity:id,binding:null,changeReturned:true,inputCount:1}]])};
+                        """)
+                    let recovered = try store.resolve(command, program: program, contextJSON: context, legacyObservationSession: legacy) {
+                        try XCTUnwrap(js.evaluateScript($0)?.toString())
+                    }
+                    XCTAssertEqual(recovered.channel, old.channel)
+                    let request = MainWorldCommandEnvelope(function: program.functionSource, commandJSON: json, contextJSON: context)
+                    js.evaluateScript(recovered.dispatch(request))
+                    let raw = try XCTUnwrap(js.evaluateScript(request.reader)?.toString())
+                    let result = try ObservationDecoder.decode(Data(request.decode(raw).utf8))
+                    XCTAssertEqual(result.observation.identity, identity)
+                    XCTAssertEqual(result.observation.state, .inputTriggered)
+                    XCTAssertNil(result.observation.uploadStart)
+                    XCTAssertNil(js.exception)
+                    XCTAssertNil(store.bound(to: target))
+                    XCTAssertNil(store.relay(function: function, contextJSON: context, allowCreate: false))
+                    XCTAssertThrowsError(try store.resolve(.init(action: .commit, target: target, identity: identity),
+                        program: program, contextJSON: context) { _ in XCTFail("Historical input attempted discovery"); return "" })
+                }
+            }
+        }
+    }
+
+    @MainActor func testChromeHistoricalProgramsCannotPinOrExecuteInputBeforeConsultingBrowser() async throws {
+        let executor = ChromeAppleEventsExecutor()
+        for source in [ChatGPTWebPageProgram.priorScreenshotSource, ChatGPTWebPageProgram.priorClickSource,
+                       ChatGPTWebPageProgram.priorOriginSource, ChatGPTWebPageProgram.priorProgressSource, ChatGPTWebPageProgram.priorLabelSource] {
+            let program = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: source))
+            XCTAssertThrowsError(try executor.targetForClick(program: program)) { XCTAssertEqual($0 as? WebAdapterError, .invalidRequest) }
+            for action in [WebBridgeAction.captureTarget, .validate, .begin, .chunk, .commit, .discard] {
+                do { _ = try await executor.execute(.init(action: action), program: program); XCTFail("Historical command accepted") }
+                catch { XCTAssertEqual(error as? WebAdapterError, .invalidRequest) }
+            }
+        }
+    }
+
+    func testHistoricalObservationAmbiguityAbsenceAndDifferentLeaseNeverInstallOrDispatch() throws {
+        let program = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: ChatGPTWebPageProgram.priorScreenshotSource))
+        let functions = try ChatGPTWebPageProgram.observationRelayFunctions(for: program)
+        let target = TargetLease(adapterID: "chatgpt-web", surface: .webChat, applicationID: "com.google.Chrome",
+            sessionID: "current", windowID: "A", tabID: "1", documentID: "d", composerID: "c", draftGeneration: "g")
+        let identity = ObservationIdentity(operationID: UUID(), assetID: UUID(), attempt: 1,
+            assetSHA256: String(repeating: "a", count: 64), target: target)
+        let command = WebBridgeCommand(action: .observe, target: target, identity: identity)
+        for installed in [[], functions, [functions[0], functions[0]]] {
+            let js = try context(), store = MainWorldRelayStore()
+            for source in installed { js.evaluateScript(MainWorldCommandRelay(function: source, contextJSON: native).installer) }
+            let before = try XCTUnwrap(js.evaluateScript("JSON.stringify(document.documentElement.values)")?.toString())
+            var reads = 0
+            XCTAssertThrowsError(try store.resolve(command, program: program, contextJSON: native) { script in
+                reads += 1
+                return try XCTUnwrap(js.evaluateScript(script)?.toString())
+            }) { XCTAssertEqual($0 as? WebAdapterError, .pageRejected(.bridgeUnavailable)) }
+            XCTAssertEqual(reads, 1)
+            XCTAssertEqual(js.evaluateScript("JSON.stringify(document.documentElement.values)")?.toString(), before)
+            XCTAssertNil(store.bound(to: target))
+        }
+        let another = TargetLease(adapterID: target.adapterID, surface: target.surface, applicationID: target.applicationID,
+            sessionID: target.sessionID, windowID: "other", tabID: target.tabID, documentID: target.documentID,
+            composerID: target.composerID, draftGeneration: target.draftGeneration)
+        XCTAssertThrowsError(try MainWorldRelayStore().resolve(.init(action: .observe, target: another, identity: identity),
+            program: program, contextJSON: native) { _ in XCTFail("Mismatched identity reached the page"); return "" }) {
+                XCTAssertEqual($0 as? WebAdapterError, .invalidRequest)
+            }
     }
     func testNonceIsConsumedBeforeReentrantEvent() throws {
         let js = try context(), id = UUID().uuidString.lowercased()

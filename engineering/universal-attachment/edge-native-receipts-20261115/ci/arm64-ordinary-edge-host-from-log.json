@@ -1,0 +1,173 @@
+{
+  "appWatcherReady": true,
+  "appleEventsTabIdentity": "NOT_MEASURED_IN_MOUSE_PROBE",
+  "automationConsent": "ORIGINAL_EDGE_FOCUS_UNAVAILABLE_DURING_CONSENT",
+  "build": "24",
+  "captures": [
+    {
+      "assetIDDigest": "f4f35c76486627eff5ee941ed66ffe966f984caa31172e2ad2b8363fb4f50491",
+      "captureSequence": 1,
+      "originalPrivateSHA256Matched": true,
+      "sourceSHA256": "cb368d4c54dec47f2f772c5af373b5f246192ca9fe59f8ccf4c4c28cb54e5953"
+    },
+    {
+      "assetIDDigest": "9b89aed50eeed0d3986c93f53b68366ef21008d4b29906307d0101bd414912b2",
+      "captureSequence": 2,
+      "originalPrivateSHA256Matched": true,
+      "sourceSHA256": "2119dd64199cb22e2f76e0fc687035fcb2d564595d2290541a8766d4ed623029"
+    }
+  ],
+  "commercialService": "NOT_RUN",
+  "confirmedDistinctRefusals": 1,
+  "controlledEdgePicker": {
+    "commercialService": "NOT_RUN",
+    "status": "NOT_RUN_SYSTEM_AUTOMATION_CONSENT"
+  },
+  "edgeActivation": "ALREADY_FRONTMOST",
+  "edgeActivationExit": 0,
+  "edgeIdentityExit": 0,
+  "edgeIdentityObservation": "OWN_PID_BUNDLE_EXECUTABLE_AND_KERNEL_BIRTH_CONFIRMED",
+  "edgeLaunch": "OWN_NORMAL_TAB_CHILD_CREATED",
+  "fixtureDocumentGETs": 1,
+  "fixtureFileChanges": 0,
+  "fixturePostRequests": 0,
+  "generatedScreenshotFiles": 2,
+  "lastNativeAction": "window",
+  "lastNativeExit": 2,
+  "lastWindowObservation": "EDGE_NOT_FRONTMOST",
+  "mouseDispatchCalls": 1,
+  "mouseEventNumberRange": "ALL_POSITIVE_SIGNED_16_BIT_VALUES_ROUNDTRIP_WITHOUT_POST",
+  "mouseReceiptObservation": {
+    "dispatches": [
+      {
+        "applicationDownCount": 1,
+        "applicationOriginalWindowCount": 2,
+        "applicationUpCount": 1,
+        "assetMatched": true,
+        "combinedIdentityMatched": true,
+        "criticalRefusal": true,
+        "mouseSourceMatched": true,
+        "nativeEventNumberPresent": true,
+        "nativeStages": {
+          "gate": {
+            "down": 1,
+            "statuses": [
+              "accepted"
+            ],
+            "up": 0
+          },
+          "inputDown": {
+            "down": 1,
+            "statuses": [
+              "received"
+            ],
+            "up": 0
+          },
+          "inputUp": {
+            "down": 0,
+            "statuses": [
+              "received"
+            ],
+            "up": 1
+          },
+          "onDown": {
+            "down": 1,
+            "statuses": [
+              "received"
+            ],
+            "up": 0
+          },
+          "release": {
+            "down": 0,
+            "statuses": [
+              "selected"
+            ],
+            "up": 1
+          },
+          "windowEvent": {
+            "down": 1,
+            "statuses": [
+              "received"
+            ],
+            "up": 1
+          }
+        },
+        "nativeWrongAssetCount": 0,
+        "nativeWrongWindowCount": 0,
+        "oneClickCountMatched": true,
+        "originalResolutionRefusal": true,
+        "receivedEventNumbers": [
+          26135
+        ],
+        "refusalAfterSelection": true,
+        "refusalForOriginalAsset": 1,
+        "refusalStatuses": [
+          "nativeEventFailed(-1744)"
+        ],
+        "sameSession": true,
+        "selectionForOriginalAsset": 1,
+        "sentEventNumber": 26135,
+        "sentEventNumberMatched": true,
+        "sequencePresent": true,
+        "tagMatched": true,
+        "targetRequestedMatched": true,
+        "targetResolvedForOriginalAsset": 0,
+        "windowMatched": true
+      }
+    ],
+    "nativeEventNumbersDistinct": true,
+    "originalReceiptMatcherPassed": true,
+    "refusalCount": 1,
+    "selectionCount": 1,
+    "targetRequestedCount": 1,
+    "targetResolvedCount": 0
+  },
+  "neutralAX": "document",
+  "operations": 0,
+  "originalPrivateSHA256Matches": 2,
+  "osScreenshotMarkersVerified": 2,
+  "physicalClicks": false,
+  "pressAttempts": 1,
+  "productExecutableSHA256": "44b0b314eb31b7da7d848ab59b4d60c6e262b969eb7d9d6a4e4193998ac7defd",
+  "result": "NOT_RUN_SYSTEM_AUTOMATION_CONSENT",
+  "retainedVisibleAssets": 2,
+  "rounds": [
+    {
+      "action": "ONE_GLOBAL_MOUSE_DOWN_UP_POSTED",
+      "actualReceiver": "originalRiftletInput",
+      "assetIDDigest": "f4f35c76486627eff5ee941ed66ffe966f984caa31172e2ad2b8363fb4f50491",
+      "captureSequence": 1,
+      "clickPoint": {
+        "x": 33,
+        "y": 308.48979591836735
+      },
+      "inputWindow": 2638,
+      "mouseProbeTagMatched": true,
+      "ordinal": 1,
+      "originalEdgeWindowAfterReceipt": true,
+      "originalPrivateSHA256Matched": true,
+      "preflight": "verified",
+      "refusalClass": "SYSTEM_AUTOMATION_CONSENT_REQUIRED",
+      "rejection": "ORIGINAL_MOUSE_WINDOW_AND_ASSET_PRODUCT_REFUSAL",
+      "retained": "BOTH_ORIGINAL_ASSETS_VISIBLE_PENDING",
+      "sentEventNumber": 26135,
+      "sentEventNumberMatched": true,
+      "sourceSHA256": "cb368d4c54dec47f2f772c5af373b5f246192ca9fe59f8ccf4c4c28cb54e5953"
+    },
+    {
+      "action": "NOT_RUN",
+      "assetIDDigest": "9b89aed50eeed0d3986c93f53b68366ef21008d4b29906307d0101bd414912b2",
+      "captureSequence": 2,
+      "rejection": "NOT_RUN_SYSTEM_AUTOMATION_CONSENT",
+      "retained": "BOTH_ORIGINAL_ASSETS_VISIBLE_PENDING",
+      "sourceSHA256": "2119dd64199cb22e2f76e0fc687035fcb2d564595d2290541a8766d4ed623029"
+    }
+  ],
+  "scope": "ordinary-packaged-app-native-mouse-edge-loopback",
+  "stage": "original_mouse_thumbnail_1",
+  "starts": 0,
+  "systemRegionCaptureAttempts": 0,
+  "testedMerge": "5e07809dbcddbdfe914da8e7af75990c990bb639",
+  "version": "1.0.2",
+  "windowCapturesWithoutMarker": 0
+}

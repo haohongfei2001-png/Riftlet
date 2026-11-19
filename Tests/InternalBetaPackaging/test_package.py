@@ -39,6 +39,8 @@ class InternalBetaPackagingTests(unittest.TestCase):
         self.addCleanup(pinned_fixture.stop)
         shutil.copy2(REPOSITORY / "Resources/Info.plist", self.contents / "Info.plist")
         (self.contents / "Resources").mkdir()
+        for source in (REPOSITORY / "Resources").glob("*.lproj"):
+            shutil.copytree(source, self.contents / "Resources" / source.name)
         shutil.copy2(REPOSITORY / "Resources/Riftlet.icns", self.contents / "Resources/Riftlet.icns")
         for name in VERIFY.BUNDLE.PRESENTATION_NAMES:
             shutil.copy2(REPOSITORY / "Resources/Presentation" / name, self.contents / "Resources" / name)

@@ -1,0 +1,76 @@
+{
+  "GUIActions": 0,
+  "findings": [
+    {
+      "code": "JS_START_ONLY",
+      "line": 1390,
+      "observation": "After correlated progress sets op.start, it closes progress and ends original observation. observe() subsequently returns the immutable uploadStarted fact; no current Edge branch emits attached/ready or completionEvidence. Diagnostic readyAttributeNodes is not a completion mapping.",
+      "path": "Sources/RiftletAdapters/Resources/chatgpt-web-edge-v26.js",
+      "sourceFileSHA256": "a157e505a2aabcb1ae15a5115932feb4a6a1464eebee0919b35065c12234c413"
+    },
+    {
+      "code": "EDGE_NORMALIZER_ALLOWLIST",
+      "line": 586,
+      "observation": "Except inputTriggered/unknown/invalidated, Edge accepts only strictly qualified uploadStarted with no completionEvidence; attached/ready/failed terminal envelopes are invalidReply.",
+      "path": "Sources/RiftletAdapters/WebAttachmentAdapter.swift",
+      "sourceFileSHA256": "74627613bfd1b81980827ff93bf841984df52fbae5768fde52da1b646cd564c9"
+    },
+    {
+      "code": "REGISTERED_PROFILE_HAS_NO_COMPLETION_MAPPING",
+      "line": 29,
+      "observation": "Qualified new Edge system PNG temporary drafts register edgeProgressProfile; it has no completionSignal. Original registrations stay bound to their original source/profile.",
+      "path": "Sources/RiftletAdapters/OrdinarySystemScreenshotScope.swift",
+      "sourceFileSHA256": "51585c83f07807e37d3d65624709087572ee2961e00a358ca863a0a8829db13e"
+    },
+    {
+      "code": "EDGE_START_ONLY_POLICY",
+      "line": 113,
+      "observation": "Unified product policy installs an Edge StartOnlyRule. Coarse ordinaryCompletion=true is not per-browser Edge completion admission.",
+      "path": "Sources/RiftletApp/OrdinaryCaptureConfiguration.swift",
+      "sourceFileSHA256": "26d24a99155ce31e6645f664faa37b52f442137c60d261fc73dc53d16b6ad1a7"
+    },
+    {
+      "code": "CONSUMPTION_POLICY_REFUSES_EDGE",
+      "line": 140,
+      "observation": "allowsConsumption rejects every startOnlyApplications receiver before any completion claim. Removing only a Core filter cannot authorize Edge completion.",
+      "path": "Sources/RiftletCore/ReceiptPolicy.swift",
+      "sourceFileSHA256": "e54f009f9bb15cb87fdcb2f22b44a851a5f5af46c791034f6ff26b8d0a209c1b"
+    },
+    {
+      "code": "POST_START_CORE_FILTER",
+      "line": 599,
+      "observation": "Independent current-process reconcile with a durable START only applies explicit same-attachment errors. A positive READY returns before store.apply even if another non-Edge policy would admit it. Lead owns the separately tested Core change; this evidence does not patch it.",
+      "path": "Sources/RiftletCore/TransferCoordinator.swift",
+      "sourceFileSHA256": "05835effbfa9f625f6beb99b396cd068291bda65030ae8777aac9e799ff6a63f"
+    },
+    {
+      "code": "BACKGROUND_SCHEDULER_PRESENT",
+      "line": 895,
+      "observation": "The App has a five-second observer loop. Independent file inputs have at most eight backoff reads, only for current-process operations; no timer absence explains the missing terminal.",
+      "path": "Sources/RiftletApp/RiftletMain.swift",
+      "sourceFileSHA256": "96cfdfc76defbcac067148f75fa477e1c9e3f9f40dee9cd88ea22d505f2d89d0"
+    },
+    {
+      "code": "PERSISTENCE_PATH_PRESENT",
+      "line": 783,
+      "observation": "If an admissible bound verifiedReady reaches apply, the store can persist succeeded/used while retaining the original upload_starts audit. The reviewed Edge path cannot currently supply such a receipt.",
+      "path": "Sources/RiftletCore/QueueStore.swift",
+      "sourceFileSHA256": "115cc0c2bd6d8fccc64ce45a0a2c644e0565f0236e965f643543b8053c564280"
+    }
+  ],
+  "method": "Static review of an exact git-archive source snapshot. No Swift XCTest or installed-product test claimed here. Protocol tests and real original HAR replays are separately recorded.",
+  "notAuthorizedByEvidence": [
+    "No Edge completion profile is enabled",
+    "No prior UNKNOWN or START is promoted",
+    "Service event observation is not exact server-original-byte retention",
+    "A successful storage PUT, loaded preview, percent100 or spinner disappearance is not final processing evidence"
+  ],
+  "productionChanges": 0,
+  "publicDiagnosticCapability": "A normal original Request Response view can expose raw NDJSON while available. EventStream parses SSE framing and cannot be assumed to expose raw JSON lines. The ordinary product must not depend on DevTools being open.",
+  "result": "EDGE_COMPLETION_NOT_CONNECTED_OR_ADMITTED",
+  "reviewedSource": "d3f096a6e41d623a4c1c89f5e9164d50035bdf19",
+  "reviewedTree": "9d143f10b2e9ac3c3dbc9a9e69b822f468072884",
+  "reviewer": "independent_checkpoint_5bd",
+  "schema": 1,
+  "targetServiceRequests": 0
+}

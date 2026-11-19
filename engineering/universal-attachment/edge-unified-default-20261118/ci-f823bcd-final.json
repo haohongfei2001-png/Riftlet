@@ -1,0 +1,58 @@
+{
+  "head": "f823bcde3923aaf170a6844d7a027793747a9c29",
+  "jobs": [
+    {
+      "name": "Native source admission",
+      "id": 134481227922,
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44208702018/job/134481227922",
+      "conclusion": "success",
+      "completed": "2026-11-18T00:33:34Z",
+      "failedSteps": []
+    },
+    {
+      "name": "Native Intel",
+      "id": 134481228164,
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44208702018/job/134481228164",
+      "conclusion": "success",
+      "completed": "2026-11-18T00:53:35Z",
+      "failedSteps": []
+    },
+    {
+      "name": "Native ARM64",
+      "id": 134481228504,
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44208702018/job/134481228504",
+      "conclusion": "failure",
+      "completed": "2026-11-18T00:50:35Z",
+      "failedSteps": [
+        "Capture isolated native visual evidence at original pixels"
+      ]
+    },
+    {
+      "name": "Feedback native and service",
+      "id": 134481227958,
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44208702045/job/134481227958",
+      "conclusion": "success",
+      "completed": "2026-11-18T00:38:53Z",
+      "failedSteps": []
+    },
+    {
+      "name": "Feedback source admission",
+      "id": 134481228423,
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44208702045/job/134481228423",
+      "conclusion": "success",
+      "completed": "2026-11-18T00:33:08Z",
+      "failedSteps": []
+    }
+  ],
+  "nativeARM64": {
+    "rawLogSHA256": "0a684695d7e5afd334572453036d90beb40152a2b5398a5bbc27377a782a2426",
+    "failedMotionScenes": {
+      "motion-magnet": "magnetWasNotExercised",
+      "motion-reduce-motion": "nativeSwallowNotObserved",
+      "motion-interrupt": "magnetWasNotExercised",
+      "motion-missing-source": "nativeSwallowNotObserved"
+    },
+    "recordedMovies": 1,
+    "requiredMovies": 5
+  }
+}

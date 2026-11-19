@@ -1,0 +1,106 @@
+{
+  "main": "5b73c755ec1eb6d1aa2ef5b9390da6200b6108b9",
+  "previousPRHead": "464132affd91d08542461f9c31b7862d14e87d46",
+  "mergedUpstreamPR": 101,
+  "upstreamPRHead": "c428881ad28bccac7da8a1faaf46ee4c2311cd01",
+  "integration": "Regular merge from actual main; no direct main write or PR merge",
+  "previousHeadCI": "NOT_RUN: GitHub did not construct a new merge ref because main advanced; earlier ARM failure remains historical",
+  "retainedUpstreamFiles": [
+    {
+      "path": "Sources/RiftletCore/QueueStore.swift",
+      "sha256": "3181f48fe4c92af578462050cc631b16ce49944932289d9d68bfc6dd53ab5d92",
+      "matchesMain": true
+    },
+    {
+      "path": "Sources/RiftletCore/TransferCoordinator.swift",
+      "sha256": "fc05ce11ef3d278681ccc3370fd362f97da09cee51f382910a610c9dd38d0eb6",
+      "matchesMain": true
+    },
+    {
+      "path": "Sources/RiftletCore/HistoryAttachmentState.swift",
+      "sha256": "d0583a6d6af88a73285ce928bf89870984295e82126ee0cc11a34fdb8d19cd76",
+      "matchesMain": true
+    },
+    {
+      "path": "Sources/RiftletApp/RecoverablePreferences.swift",
+      "sha256": "e6b75dcf94b884b744657bfa2c48f05a415557ae280e442c861d428deedfbd23",
+      "matchesMain": true
+    },
+    {
+      "path": "Sources/RiftletCapture/CaptureService.swift",
+      "sha256": "a290bf8a9a5abc8c8526f8cc3b116655d9d612865397b5e35b1e79e9b2827d52",
+      "matchesMain": true
+    },
+    {
+      "path": "Sources/RiftletCapture/PrivateAssetImporter.swift",
+      "sha256": "0f1efe16f7ab3623dc859b0711a861372c0fc899bafb65acdcba7466dda3cb6c",
+      "matchesMain": true
+    }
+  ],
+  "mainResolution": "Retain single CaptureService startup recovery and validation, one TransferCoordinator/ConversationClickRouter, recoverUndispatchedPreparations before input, ordinary observer boundaries; add only Edge original-host routing and passive native mouse diagnostics.",
+  "chromeResolution": "Keep upstream ChromeClickDeadline 150 ms and minimum tick; original native host+tab+document/editor witness uses one deadline; reject late return.",
+  "permissionCopy": "Localized Chrome-or-Edge purpose matches base plist; isolated test channels prohibit localized overrides. Edge result feedback follows ProductCopy without claiming an uncertain input was not attached.",
+  "packageVersion": "1.0.2 (24), inherited from actual main; isolated candidate only",
+  "PR77": "Not merged by this task",
+  "publicReleaseOrFeedChangedByThisTask": false,
+  "commercialEdge": "BLOCKED_LOGIN / NOT_RUN; START and completion remain uncalibrated",
+  "upstreamChromeEvidence": "624e1b5 anonymous Chrome draft: three scoped START/visible attachments, positiveReady=false; not Edge or final upload completion evidence.",
+  "localValidation": [
+    {
+      "name": "swiftBuild",
+      "result": "PASS",
+      "rawLogSHA256": "d4e8a8e2f2e0181e3b75f5ef2f995ff222fcc9f9caa5c33177cfa5258e3e8beb"
+    },
+    {
+      "name": "packaging",
+      "result": "PASS 27 tests",
+      "rawLogSHA256": "2c4827a28478f4c159595fb323be4ef15452dd12090a43501f35886411ef2e1d"
+    },
+    {
+      "name": "mouseContracts",
+      "result": "PASS 13 tests",
+      "rawLogSHA256": "d68e7c8d872ea12342e6c026dda71edcd03568252797325972e9818378b47795"
+    },
+    {
+      "name": "pageSuite",
+      "result": "303 passed; 18 native Chrome tests failed before browser start under exec sandbox (SIGABRT/process-query EPERM); hosted native validation pending",
+      "rawLogSHA256": "8fbd598a9bdd311a9d32a1f49b22f7b2c0b2cb0b5e75c039a8f98a6656c51d65"
+    },
+    {
+      "name": "adapterBuild",
+      "result": "PASS",
+      "rawLogSHA256": "3d2a97c13704ab16bfe86f4acc2e105fede24faa00b88a3a39ad4adf3d4efe49"
+    },
+    {
+      "name": "focusedPage",
+      "result": "PASS 61 tests",
+      "rawLogSHA256": "a6b095d494645c3fde1a339c1228af84d2546d8d6f97dad320d43d2ef3c22f32"
+    },
+    {
+      "name": "chromeTestBodies",
+      "result": "PASS 9 same-source method bodies in assertion runner, not XCTest",
+      "rawLogSHA256": "61b4863a30a16cf876504f0a53318c41c48a93b04e00247c81e8ca2164abab20"
+    }
+  ],
+  "subsequentMainIntegration": {
+    "main": "b5a412f6d37378b7cfef56e2f1e9524cc9b1ac6e",
+    "mergedUpstreamPR": 102,
+    "upstreamPRHead": "ffb9c6bcda16200a4c8b16fbe462e5f9d61eb04b",
+    "previousSourceCheckpoint": "78309aafc08aa831663baa94972e7f71bc7dc76b",
+    "integration": "Regular merge of already merged upstream main; this task neither merged PR 102 nor published or altered its release/feed.",
+    "nativeInputComparison": {
+      "unchanged": true,
+      "paths": [
+        "Sources",
+        "Resources",
+        "Package.swift",
+        "Package.resolved",
+        "ThirdParty",
+        "scripts/build-macos.sh",
+        "scripts/verify-app-bundle.py"
+      ]
+    },
+    "packageEvidence": "merged-package-and-entry.json",
+    "additionalNativeRerun": "Not repeated for documentation/website/feed-only upstream delta; original build/source/executable hashes remain explicit."
+  }
+}

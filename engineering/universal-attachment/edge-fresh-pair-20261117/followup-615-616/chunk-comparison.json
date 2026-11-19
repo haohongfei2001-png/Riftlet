@@ -1,0 +1,141 @@
+[
+  {
+    "attachmentAppearance": [
+      1
+    ],
+    "bytes": 1406330,
+    "chunkLimitBytes": 262144,
+    "chunks": [
+      {
+        "error": null,
+        "ordinal": 1,
+        "phase": "complete",
+        "seq": 70,
+        "success": true
+      },
+      {
+        "error": null,
+        "ordinal": 2,
+        "phase": "complete",
+        "seq": 73,
+        "success": true
+      },
+      {
+        "error": null,
+        "ordinal": 3,
+        "phase": "complete",
+        "seq": 74,
+        "success": true
+      },
+      {
+        "error": null,
+        "ordinal": 4,
+        "phase": "complete",
+        "seq": 77,
+        "success": true
+      },
+      {
+        "error": null,
+        "ordinal": 5,
+        "phase": "complete",
+        "seq": 80,
+        "success": true
+      },
+      {
+        "error": null,
+        "ordinal": 6,
+        "phase": "complete",
+        "seq": 81,
+        "success": true
+      }
+    ],
+    "downIntervalMs": 398.13,
+    "durableStarts": 1,
+    "earliestBoundedStatusAfterFollowingCommand": {
+      "approxUpperBoundAfterDownMs": 8359.803,
+      "seq": 133,
+      "status": "transferring"
+    },
+    "followingCommand": {
+      "action": "commit",
+      "seq": 84,
+      "success": true
+    },
+    "g7SourceTraceSHA256": "24de266cfbdd2f86d150abb70cd2a61fe12221a21e188600e178bd7248b456ac",
+    "guardedSamePairTarget": true,
+    "nativeTaggedRows": 10,
+    "refusal": [],
+    "seed": 613,
+    "separateClickBindings": true,
+    "setterObserved": true
+  },
+  {
+    "attachmentAppearance": [
+      0
+    ],
+    "bytes": 1405361,
+    "chunkLimitBytes": 262144,
+    "chunks": [
+      {
+        "error": null,
+        "ordinal": 1,
+        "phase": "complete",
+        "seq": 239,
+        "success": true
+      },
+      {
+        "error": null,
+        "ordinal": 2,
+        "phase": "complete",
+        "seq": 242,
+        "success": true
+      },
+      {
+        "error": null,
+        "ordinal": 3,
+        "phase": "complete",
+        "seq": 243,
+        "success": true
+      },
+      {
+        "error": null,
+        "ordinal": 4,
+        "phase": "complete",
+        "seq": 246,
+        "success": true
+      },
+      {
+        "error": "invalidTarget",
+        "ordinal": 5,
+        "phase": "process",
+        "seq": 247,
+        "success": false
+      }
+    ],
+    "downIntervalMs": 414.949,
+    "durableStarts": 0,
+    "earliestBoundedStatusAfterFollowingCommand": {
+      "approxUpperBoundAfterDownMs": 3829.627,
+      "seq": 253,
+      "status": "failed"
+    },
+    "followingCommand": {
+      "action": "discard",
+      "seq": 251,
+      "success": true
+    },
+    "g7SourceTraceSHA256": "8e89a7a118dfbba70b05464978f49e2d107ad9c8f66d59da50b1c0e32f24da84",
+    "guardedSamePairTarget": true,
+    "nativeTaggedRows": 10,
+    "refusal": [
+      {
+        "action": "chunk",
+        "error": "invalidTarget",
+        "seq": 248
+      }
+    ],
+    "seed": 616,
+    "separateClickBindings": true,
+    "setterObserved": false
+  }
+]

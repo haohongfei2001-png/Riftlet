@@ -1,0 +1,74 @@
+{
+  "extraction": {
+    "identity.py": "order and accept_sample functions extracted verbatim; no early.py runtime dependencies",
+    "main.swift": "14 original neutral response fixtures and policySelftest; no AppKit initialization or identity configuration",
+    "network_policy.swift": "Originally byte-identical zero-count and payload policy with 38 fixtures; subsequent counter repairs and 34 appended fixtures are recorded below.",
+    "response.swift": "panelProjection extracted verbatim, with Foundation/CryptoKit digest helper",
+    "settled.py": "Originally byte-identical pure input-settlement gate; subsequent duplicate operation UUID rejection is recorded below.",
+    "test_identity.py": "Original 39 fixtures retained in order; import points to pure identity module and neutral seed literals are 101/102; 16 follow-up cases appended."
+  },
+  "includedPreviouslyRunCases": 91,
+  "liveCaptureReliabilityClaimed": false,
+  "omittedCases": 7,
+  "omittedScope": "Case files and before/watch GUI orchestration, including seven before-unavailable integration fixtures; not needed by these pure units.",
+  "originalSourceSHA256": {
+    "early.py": "4ddeebabbf22c302caff44bb42aaab46a061669a91887b144120fb6607d874bd",
+    "main.swift": "de8af566d4acc329482b3fe56ccc5e5d6b4c77fe40834780dc23626542231aaa",
+    "panel.swift": "a655f7d7cadfff2ff95e244e881e1da32e1bc5c46476c25617025c34589a00cd",
+    "policy.swift": "2027eaa8778af627aec628c025d916adaf265f428786728ce84093e4ae951708",
+    "settled.py": "943476d4eeecf98f53fa5c066373d0eec2ad54443b379356c26ace50f4892d65",
+    "test_offline.py": "56f1192d26e8d143397fe1ae5ad14b7f3df7332a439f879486b37d4401969955"
+  },
+  "originalV2TotalCases": 98,
+  "productCompletionAdmission": false,
+  "publicQAFollowup": {
+    "additionalBoundaryAudit": [
+      "All four supported counter-label forms reject numerator greater than denominator; valid filtered and equal totals remain accepted.",
+      "Negative counts, overlong/negative/fractional/extra-segment counts, embedded text and non-ASCII digits remain rejected.",
+      "Operation UUID canonicalization precedes uniqueness and filename construction; lowercase, unhyphenated, braced, URN, whitespace and filename/path aliases are rejected.",
+      "Original Payload digest implementation rejected trailing newline in an executed original-source probe; added regression coverage without changing that implementation."
+    ],
+    "appendedCases": {
+      "inputIdentityAndScheduling": 16,
+      "networkCountAndPayloadPolicy": 34
+    },
+    "currentTotalCases": 141,
+    "date": "2026-11-19",
+    "historicalAcceptanceArtifactsModified": false,
+    "historicalAcceptanceReinterpreted": false,
+    "liveOperatorModified": false,
+    "newGUIActions": 0,
+    "newNetworkRequests": 0,
+    "newProductInput": 0,
+    "originalExtractionCommit": "75fa00182bcb324d0ba9a9ff9e4540d3dbe92d35",
+    "originalExtractionManifestSHA256": "55522cc66966df04d569f1e3b5add569ba4cc1ac0e8fb01cd54fea700d637490",
+    "originalExtractionValidationSHA256": "cd5519f43ca30b22dac4ae49ed13bbd313c559bc8fbd55a406cad1d52f0940fd",
+    "preFixReproducedFindings": [
+      {
+        "after": "REJECT",
+        "before": "EXPLICIT_ZERO_REQUEST_COUNTER",
+        "id": "ratio_numerator_exceeds_denominator",
+        "input": "7 / 0 requests"
+      },
+      {
+        "after": "operation_uuid_reused",
+        "before": "two accepted operations with one identical filename digest",
+        "id": "two_assets_share_operation_uuid",
+        "matchingOperationDiagnostics": true
+      },
+      {
+        "after": "REJECT",
+        "before": "EXPLICIT_ZERO_REQUEST_COUNTER",
+        "headerTableCount": -1,
+        "id": "negative_header_table_count",
+        "totalRequestCounters": [
+          0
+        ]
+      }
+    ],
+    "productCompletionAdmitted": false,
+    "retainedOriginalCases": 91,
+    "scope": "Subsequent public QA repair; not the tool used for historical real acceptance."
+  },
+  "scope": "Portable no-GUI subset extracted from v2, followed by public-QA-only counter and operation-identity repairs; no live operator or product changes."
+}

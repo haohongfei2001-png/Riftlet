@@ -41,20 +41,23 @@ public struct WebBridgeCommand: Encodable, Sendable {
     public let chunkIndex: Int?
     public let chunkBase64: String?
     public let invocationID: UUID?
+    public let clickWitnessID: UUID?
+    public let edgeProgressCandidate: Bool?
     /// Host diagnostics only, deliberately excluded from the page payload.
     public let captureInvocation: CaptureInvocationContext?
 
     private enum CodingKeys: String, CodingKey {
-        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID
+        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID, clickWitnessID, edgeProgressCandidate
     }
 
     init(action: WebBridgeAction, target: TargetLease? = nil, identity: ObservationIdentity? = nil,
          uploadName: String? = nil, mediaType: String? = nil, byteCount: Int64? = nil,
          chunkIndex: Int? = nil, chunkBase64: String? = nil, invocationID: UUID? = nil,
-         captureInvocation: CaptureInvocationContext? = nil) {
+         clickWitnessID: UUID? = nil, edgeProgressCandidate: Bool? = nil, captureInvocation: CaptureInvocationContext? = nil) {
         self.action = action; self.target = target; self.identity = identity
         self.uploadName = uploadName; self.mediaType = mediaType; self.byteCount = byteCount
         self.chunkIndex = chunkIndex; self.chunkBase64 = chunkBase64; self.invocationID = invocationID
+        self.clickWitnessID = clickWitnessID; self.edgeProgressCandidate = edgeProgressCandidate
         self.captureInvocation = captureInvocation
     }
 }
@@ -111,6 +114,7 @@ public enum WebAdapterError: Error, Equatable, Sendable {
 /// operations; historical operations retain their observation-only profiles.
 public actor WebAttachmentAdapter: IndependentFileInputAdapter {
     public nonisolated let id: String
+    public nonisolated let applicationIDs: Set<String>
     private let mediaDirectory: URL
     private nonisolated let executor: any WebBridgeExecutor
     private nonisolated let program: WebPageProgram?
@@ -149,8 +153,10 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
                 candidateAdmission: SystemScreenshotCandidateAdmission? = nil,
                 productStore: QueueStore? = nil, productOrigins: Set<AssetOrigin> = [],
                 onInputTransportFinished: (@Sendable () async -> Void)? = nil,
-                diagnosticTrace: BoundedDiagnosticTrace? = nil) {
+                diagnosticTrace: BoundedDiagnosticTrace? = nil,
+                applicationIDs: Set<String> = ["com.google.Chrome"]) {
         id = profile.adapterID; self.mediaDirectory = mediaDirectory.standardizedFileURL
+        self.applicationIDs = applicationIDs.intersection(["com.google.Chrome", "com.microsoft.edgemac"])
         self.executor = executor; self.program = program; self.mode = mode
         if mode == .ordinarySystemScreenshot || mode == .ordinaryProduct {
             normalizer = ObservationNormalizer(profile: profile, developmentScope: .ordinarySystemScreenshot)
@@ -325,9 +331,14 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         let uploadName = "riftlet-\(request.operation.id.uuidString).\(file.fileExtension)"
         var committing = false
         do {
+            let enrolled = binding(for: request.asset)?.admission.scope.registeredProfile(for: request,
+                sourceID: ChatGPTWebPageProgram.currentSourceID(for: request.operation.target))
+            let edgeProgress = [OrdinaryProductScreenshotScope.edgeProgressStartProfileID,
+                                OrdinaryProductScreenshotScope.edgeAttachmentAcceptedStartProfileID]
+                .contains(enrolled?.uploadStartProfileID ?? "")
             let begin = WebBridgeCommand(action: .begin, target: identity.target, identity: identity,
                 uploadName: uploadName, mediaType: file.mediaType, byteCount: file.byteCount,
-                invocationID: request.invocationID)
+                invocationID: request.invocationID, edgeProgressCandidate: edgeProgress ? true : nil)
             let beginReply = try await perform(begin)
             try acknowledge(beginReply, identity: identity, nextChunk: 0)
             var index = 0
@@ -429,17 +440,18 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
               request.operation.phase != .prepared else { throw WebAdapterError.invalidRequest }
         let identity = ObservationIdentity(operationID: request.operation.id, assetID: request.asset.id,
             attempt: request.operation.attempt, assetSHA256: request.asset.sha256, target: request.operation.target)
-        let data = try await perform(.init(action: .observe, target: identity.target, identity: identity))
+        let priorProgram = try await binding(for: request.asset)?.admission.originalObservationProgram(for: request)
+        let data = try await perform(.init(action: .observe, target: identity.target, identity: identity), observer: priorProgram)
         // Successful operations may only be checked for identity-correlated late
         // errors. A single observation does not start another polling/upload loop.
         if mode == .ordinaryProduct || request.operation.phase == .succeeded {
             return try await normalize(data, for: request)
         }
-        return try await observeCompletion(initial: data, identity: identity, request: request)
+        return try await observeCompletion(initial: data, identity: identity, request: request, observer: priorProgram)
     }
 
     private func observeCompletion(initial: Data, identity: ObservationIdentity,
-                                   request: TransferRequest, liveAppend: Bool = false,
+                                   request: TransferRequest, liveAppend: Bool = false, observer: WebPageProgram? = nil,
                                    inputConfirmed: (@Sendable (TransferReceipt) async -> Void)? = nil) async throws -> TransferReceipt {
         let deadline = ProcessInfo.processInfo.systemUptime + polling.timeout
         var response = initial
@@ -493,7 +505,8 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
             guard ProcessInfo.processInfo.systemUptime < deadline else { return receipt }
             // Observation after an uncertain result can never cause a second
             // input. There is deliberately no commit/begin fallback here.
-            response = try await perform(.init(action: .observe, target: identity.target, identity: identity))
+            response = try await perform(.init(action: .observe, target: identity.target, identity: identity),
+                                         observer: observer)
         }
     }
 
@@ -560,19 +573,30 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
 
     private func normalize(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest,
                            liveAppend: Bool = false) async throws -> TransferReceipt {
-        var scopedNormalizer = normalizer
-        var originalScope: SystemScreenshotAdmissionScope?
         let binding = binding(for: request.asset)
-        if mode == .ordinaryProduct, let binding {
+        let registration = screenshotScope == nil ? nil : try await binding?.admission.originalRegistration(for: request)
+        let originalScope = registration?.scope
+        var scopedNormalizer = normalizer
+        if let registration {
+            let profile = registration.scope.registeredProfile(for: request, sourceID: registration.source)
+            scopedNormalizer = ObservationNormalizer(profile: profile, developmentScope: registration.scope.observationScope)
+        } else if mode == .ordinaryProduct, let binding {
             scopedNormalizer = ObservationNormalizer(profile: binding.admission.scope.legacyProfile,
                 developmentScope: .ordinarySystemScreenshot)
         }
-        if screenshotScope != nil, let binding {
-            originalScope = try await binding.admission.admittedObservationScope(for: request)
-        }
-        if let scope = originalScope {
-            scopedNormalizer = ObservationNormalizer(profile: scope.admittedProfile,
-                developmentScope: scope.observationScope)
+        if request.operation.target.applicationID == "com.microsoft.edgemac",
+           ![.inputTriggered, .unknown, .invalidated].contains(envelope.observation.state) {
+            guard mode == .ordinaryProduct, envelope.observation.state == .uploadStarted,
+                  let source = registration?.source,
+                  [ChatGPTWebPageProgram.edgeSourceID, ChatGPTWebPageProgram.priorRootContentSource, ChatGPTWebPageProgram.priorDraftContentSource, ChatGPTWebPageProgram.priorStagedSource, ChatGPTWebPageProgram.priorEncodedSource, ChatGPTWebPageProgram.priorEdgeSource].contains(source),
+                  let evidence = ChatGPTWebPageProgram.edgeEvidence(for: source),
+                  scopedNormalizer.profile.uploadStartProfileID == (source == ChatGPTWebPageProgram.edgeSourceID
+                    ? OrdinaryProductScreenshotScope.edgeAttachmentAcceptedStartProfileID : OrdinaryProductScreenshotScope.edgeProgressStartProfileID),
+                  envelope.provenance == .init(source: .integratedDevelopment, evidenceID: evidence),
+                  let start = envelope.observation.uploadStart, start.signal == .correlatedProgress, start.previousProgress > 0,
+                  envelope.observation.inputExecutionPending == false, envelope.observation.requestEvidence == nil,
+                  envelope.observation.continuationEvidence == nil, envelope.observation.completionEvidence == nil,
+                  envelope.observation.terminationEvidence == nil else { throw WebAdapterError.invalidReply }
         }
         let receipt = try scopedNormalizer.receipt(from: envelope, for: request, liveAppend: liveAppend)
         if screenshotScope != nil {
@@ -589,14 +613,22 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
                 try await journal.record(envelope, for: request, readOnly: !liveAppend)
             }
         }
+        // Preserve the original page observation and invocation-bound content
+        // checkpoint before returning the new native, local-acceptance receipt.
+        // Historical registrations and their UNKNOWN records never enter this path.
+        if mode == .ordinaryProduct, registration?.scope == .productSystem,
+           registration?.source == ChatGPTWebPageProgram.edgeSourceID {
+            return try EdgeDraftAttachmentAcceptance.receipt(from: envelope, normalized: receipt, for: request)
+        }
         return receipt
     }
 
-    private func perform(_ command: WebBridgeCommand) async throws -> Data {
+    private func perform(_ command: WebBridgeCommand, observer: WebPageProgram? = nil) async throws -> Data {
         try requireEnabled()
         guard let program else { throw WebAdapterError.programUnavailable }
         do {
-            let reply = try await executor.execute(command, program: program)
+            guard observer == nil || command.action == .observe else { throw WebAdapterError.invalidRequest }
+            let reply = try await executor.execute(command, program: observer ?? program)
             guard reply.count <= ObservationDecoder.maximumPayloadBytes else { throw WebAdapterError.invalidReply }
             return reply
         } catch {
@@ -639,7 +671,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
     private func check(_ target: TargetLease) throws {
         guard target.adapterID == id, target.surface == normalizer.profile.surface,
               target.surface == .webChat || target.surface == .webWork,
-              target.applicationID == "com.google.Chrome",
+              applicationIDs.contains(target.applicationID),
               !target.sessionID.isEmpty, !target.windowID.isEmpty, target.tabID?.isEmpty == false,
               !target.documentID.isEmpty, !target.composerID.isEmpty, !target.draftGeneration.isEmpty else {
             throw WebAdapterError.invalidTarget

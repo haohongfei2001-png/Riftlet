@@ -1,0 +1,23 @@
+{
+  "status": "COMPILED_NOT_RUN",
+  "observedAt": "2026-11-15T12:38:05.305168+00:00",
+  "guiExecutionByAgent": false,
+  "baselineSourceSHA256": "e3e98c5e78092e8a84d2003c75cf988a957fea8d2e9cd8223f8f57d09c428857",
+  "baselineBinarySHA256": "1237d9919271b0141eee4af2c31014deb525bf7252396c503a76ea7925d0f936",
+  "baselineRunReportSHA256": "377cb54ed76fd35238bcc18c5615ad27f58a271e9c91df7204a2c823289c4a29",
+  "files": {
+    "NativeRoundtripProbe.swift": {
+      "sha256": "fb2367adb730aa8e049db9d444108ce9f59e1c6fbbe8601e8748e5c4b71b801f",
+      "bytes": 24871
+    },
+    "native-roundtrip-probe": {
+      "sha256": "9c51e0ba72ec1d3e2787f2e0e0542ee7a378c2765d2c3b196287c8863c4bc58f",
+      "bytes": 302264
+    },
+    "roundtrip-compile.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "receiverSourceUnchanged": true
+}

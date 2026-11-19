@@ -1,0 +1,178 @@
+{
+  "entryCount": 38,
+  "files": [
+    {
+      "allocatedWireBytes": 1386443,
+      "bodyState": "ABSENT_FROM_HAR",
+      "browserError": "net::ERR_ABORTED",
+      "createEntry": 16,
+      "createStatus": 200,
+      "declaredProcessContentBytes": 576.0,
+      "originalFilenameSHA256": "ec6db664bcb70a467dc352972e4d95ec20fc4d52f975625c0094ff96889d35ea",
+      "originalPNGBytes": 1405249,
+      "originalPNGSHA256": "471d48b12801871b72600f80cac8e91a91aa4051e3c27d640def4a2d4a90e792",
+      "processEntry": 19,
+      "processMIME": "text/event-stream",
+      "processResourceType": "fetch",
+      "processStatus": 200,
+      "processingFailureProven": false,
+      "processingSuccessProven": false,
+      "productCompletionAdmitted": false,
+      "putETagPresent": true,
+      "putEntry": 17,
+      "putLengthMatchesAllocatedWireBytes": true,
+      "putResourceType": "xhr",
+      "putStatus": 201,
+      "rawPUTBodyRead": false,
+      "responseFormat": "UNDETERMINED_NO_ENTITY",
+      "seed": 634,
+      "serviceFileIDSHA256": "bac1414fd1d19549eca740b904a27613c126e53c67487f5b6022e9108537e90c",
+      "storageOnly": true,
+      "terminal": "UNKNOWN",
+      "uniqueOriginalFilenameAllocationPUTProcessChain": true
+    },
+    {
+      "allocatedWireBytes": 1386678,
+      "bodyState": "ABSENT_FROM_HAR",
+      "browserError": "net::ERR_ABORTED",
+      "createEntry": 20,
+      "createStatus": 200,
+      "declaredProcessContentBytes": 576.0,
+      "originalFilenameSHA256": "4009467fda0feac1bc9f53e6dfd097ec3c57a017133dcd1638f0f7d30d4221a0",
+      "originalPNGBytes": 1406650,
+      "originalPNGSHA256": "76987c78d33561c499a37a1296611986ded1e20050df6fe31080a68cc69a8895",
+      "processEntry": 24,
+      "processMIME": "text/event-stream",
+      "processResourceType": "fetch",
+      "processStatus": 200,
+      "processingFailureProven": false,
+      "processingSuccessProven": false,
+      "productCompletionAdmitted": false,
+      "putETagPresent": true,
+      "putEntry": 22,
+      "putLengthMatchesAllocatedWireBytes": true,
+      "putResourceType": "xhr",
+      "putStatus": 201,
+      "rawPUTBodyRead": false,
+      "responseFormat": "UNDETERMINED_NO_ENTITY",
+      "seed": 635,
+      "serviceFileIDSHA256": "e1f425f420bbd1a62e9ad10bc7dfbe6a66dc85bce3b80bd8b7e304dc2b93db55",
+      "storageOnly": true,
+      "terminal": "UNKNOWN",
+      "uniqueOriginalFilenameAllocationPUTProcessChain": true
+    }
+  ],
+  "independence": "Non-author of product Core/Adapter/JS; author of the offline response verifier and native observation helper, disclosed. Rechecked original HAR against independently captured durable-operation filenames and original retained PNG hashes.",
+  "limits": [
+    "The HAR confirms two distinct acknowledged storage chains; it does not contain either processing entity.",
+    "A 200 status and declared 576 bytes do not prove completion, failure, or NDJSON/SSE framing.",
+    "net::ERR_ABORTED is a browser-side request error and does not establish the final service outcome.",
+    "No new requests, input, replay, clipboard access or browser actions were performed by this reviewer.",
+    "The snapshot has zero durable product START and no completion evidence for both originals."
+  ],
+  "nativeSnapshot": {
+    "draftAfter": {
+      "baseline": 1,
+      "messages": 0,
+      "named": [
+        1,
+        1
+      ],
+      "originalDocument": true,
+      "selectionExact": true,
+      "submitCount": 0,
+      "textExact": true,
+      "totalImages": 3
+    },
+    "files": [
+      {
+        "assetStatus": "unknown",
+        "attachmentEntryDiagnosticCount": 26,
+        "databaseImageDigestMatchesTicket": true,
+        "operationCount": 1,
+        "operations": [
+          {
+            "attempt": 1,
+            "compensations": 0,
+            "completionEvidencePresent": false,
+            "durableStarts": 0,
+            "hasError": false,
+            "operationFilenameSHA256": "ec6db664bcb70a467dc352972e4d95ec20fc4d52f975625c0094ff96889d35ea",
+            "operationIDDigest": "419f7a41c3b081ecd16bf31bd0084cb002743770cc52ba5b8308c99c3363f744",
+            "outcome": "inputTriggered",
+            "phase": "unknown",
+            "positiveReady": false,
+            "safeToRetry": false,
+            "sameNativeTarget": true
+          }
+        ],
+        "originalPNGBytes": 1405249,
+        "originalPNGSHA256": "471d48b12801871b72600f80cac8e91a91aa4051e3c27d640def4a2d4a90e792",
+        "positiveChangeReturnedObserved": true,
+        "retainedMediaExactBytesMatch": true,
+        "seed": 634,
+        "selectionBoundaryCount": 1,
+        "visibility": "visible"
+      },
+      {
+        "assetStatus": "unknown",
+        "attachmentEntryDiagnosticCount": 34,
+        "databaseImageDigestMatchesTicket": true,
+        "operationCount": 1,
+        "operations": [
+          {
+            "attempt": 1,
+            "compensations": 0,
+            "completionEvidencePresent": false,
+            "durableStarts": 0,
+            "hasError": false,
+            "operationFilenameSHA256": "4009467fda0feac1bc9f53e6dfd097ec3c57a017133dcd1638f0f7d30d4221a0",
+            "operationIDDigest": "3ac521dc4435eda0659b1d71a401bbaf239f37fd1959378a909ed2b9ab518ca7",
+            "outcome": "inputTriggered",
+            "phase": "unknown",
+            "positiveReady": false,
+            "safeToRetry": false,
+            "sameNativeTarget": true
+          }
+        ],
+        "originalPNGBytes": 1406650,
+        "originalPNGSHA256": "76987c78d33561c499a37a1296611986ded1e20050df6fe31080a68cc69a8895",
+        "positiveChangeReturnedObserved": true,
+        "retainedMediaExactBytesMatch": true,
+        "seed": 635,
+        "selectionBoundaryCount": 1,
+        "visibility": "visible"
+      }
+    ]
+  },
+  "normalHARBytes": 7612719,
+  "normalHARSHA256": "c40d1788ff16f615784f21eb4a1ee2384561396b5df258eca05b04e8bd3a8ffd",
+  "normalUIObservation": {
+    "armedRecording": true,
+    "beforeAuxiliaryRefusal": "uniqueOriginalRequestTableRequired",
+    "beforeRowBaselineObtained": false,
+    "enteringDevtoolsNodeCount": 0,
+    "laterReadMode": "AFTER_ONLY_NO_BEFORE_BASELINE",
+    "laterReadRefusal": "originalProcessingRowNoLongerSelected",
+    "laterReadSamples": 0,
+    "newWindowRecordingWasStarted": true,
+    "responseEmptyWasNotObserved": true
+  },
+  "productExecutableSHA256": "478dd572ad2164acf6a6ef8e736a0bebbcb52d92e347d776de5e99e5b0437903",
+  "productSource": "d38663dadfc71df3ca4a0f185bd1b53696840c7e",
+  "publicRawURLsOrIDsOrBodies": false,
+  "result": "CONFIRMED_STORAGE_CHAINS_PRODUCT_AND_PROCESSING_TERMINALS_UNKNOWN",
+  "reviewer": "independent_checkpoint_5bd",
+  "reviewerGUIActions": 0,
+  "reviewerNewServiceRequests": 0,
+  "schema": 1,
+  "scope": "Only the two original ordinary clicks and their one existing normal sanitized HAR; offline read-only audit, not CI or live service E2E.",
+  "sourceSHA256": {
+    "afterOnlyPanelRead": "54be371d4dc22a9e3d4082637c56885835e06f13d7101ee3f96dec823926185a",
+    "auditScript": "ed3f3082890c6abef8d368907ab39c1744440b06beec00a86969eef4fa73edf9",
+    "nativeIndependentSnapshot": "4aefb8e539c0398c1797f6c1b2db64f27a7fe133105db9df534bbb540a46c24f",
+    "normalHARCustody": "2b41e1141f3533457843d305cb30997992f0ce7cfa61e64211b29a14a5cd4f30",
+    "operatorServiceProjection": "5fdf917940f7066763f5891f0bec08b445ad648b43db6f0b31275c3fc3e63fa3",
+    "ticket": "c8a8910d9fa363e52ed515dde778eec238f214696ac59336b09bc2fa412fa274"
+  }
+}

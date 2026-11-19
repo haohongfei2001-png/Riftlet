@@ -1,0 +1,232 @@
+{
+  "accountScope": "user-authorized-main-account",
+  "afterDraft": {
+    "available": true,
+    "baselineReadinessAtReadback": true,
+    "eachNewOperationFilenameCount": [
+      1,
+      1
+    ],
+    "exactOriginalSelection": true,
+    "observedAt": "2026-11-18T01:18:40Z",
+    "onlyNamedOriginalsAndNew": true,
+    "originalNativeTabAndWindow": true,
+    "retained621BaselineCounts": [
+      1
+    ],
+    "sameText": true,
+    "selection": [
+      61,
+      14
+    ],
+    "signedIn": true,
+    "totalAttachments": 3,
+    "unknownAttachments": 0,
+    "visibleFileLimit": false
+  },
+  "beforeDraft": {
+    "available": true,
+    "baselineReadinessAtReadback": true,
+    "eachNewOperationFilenameCount": [
+      0,
+      0
+    ],
+    "exactOriginalSelection": true,
+    "observedAt": "2026-11-18T01:17:54Z",
+    "onlyNamedOriginalsAndNew": true,
+    "originalNativeTabAndWindow": true,
+    "retained621BaselineCounts": [
+      1
+    ],
+    "sameText": true,
+    "selection": [
+      61,
+      14
+    ],
+    "signedIn": true,
+    "totalAttachments": 1,
+    "unknownAttachments": 0,
+    "visibleFileLimit": false
+  },
+  "compressedTraceBytes": 3902,
+  "executableSHA256": "eb61c5cfd65487e4a02bf9d125e9ef8853e3f4500b4d4cda887a6a6e3aa0e5c3",
+  "fullOriginalObserverMetadataChanges": [],
+  "historicalEvidence": {
+    "ordinary617EvidenceSHA256": "aef414643a8b13196ee32090d65e9b01c91820496ed8853861023fe25aa4fc2c",
+    "original617LedgerSHA256": "8ce399f6b2a5cc211ac9cc8ae2a8d551e70f69e7c6e7aff68a9b4a8019b9dc8d",
+    "prior617_618ReservationsStillPresent": true,
+    "priorEvidence": {
+      "SHA256": "5360d70c724522794f96a0c42b9c0fee9c2e15bbf11525f6b9e9fc8163207b37",
+      "bytes": 33122893,
+      "files": 73,
+      "latestFrozenLedgerSHA256": "80f8097bbed43fcc1dcb89c64bf4fdd35057115fe0d67b68852eb0ab2cfc9ae1",
+      "latestPairEvidenceSHA256": "b11be33fd717edcd1420ae2f7a1d607c9530eb53a9f3926f75a4faeeff038d54"
+    }
+  },
+  "images": [
+    {
+      "currentVisibility": "visible",
+      "ledgerPhases": [
+        "unknown"
+      ],
+      "localDurableStarts": 0,
+      "localStatus": "unknown",
+      "nativeReceiptError": null,
+      "nativeSelection": true,
+      "nativeTaggedRows": 10,
+      "operationCount": 1,
+      "operationFilenameSHA256s": [
+        "b87b77dcda947b28786bf387dbca22d76e331465c8366af6dc13dfe241fda5f2"
+      ],
+      "operationReasons": [
+        {
+          "code": "observer-v2:inputTriggered:integratedDevelopment",
+          "sha256": "228f4928c0479715852b461eb7497f6db7b33cf9a80881ce02f2dff89241022e"
+        }
+      ],
+      "originalBytes": 1406725,
+      "originalChangeObserved": true,
+      "originalOutcomeVisibility": "visible",
+      "originalPreserved": true,
+      "originalSHA256": "922323e620f744b798cfe55ce985950f0af28c1047b223d5dfcb180c6be019bf",
+      "originalSetterObserved": true,
+      "reserved": true,
+      "seed": 619,
+      "senderExit": 0,
+      "serviceTerminal": "REQUIRES_INDEPENDENT_SERVICE_RECEIPT",
+      "swallowActualStartCount": 0,
+      "swallowCloseCount": 0,
+      "swallowScheduledCount": 0,
+      "traceRefusals": [
+        {
+          "action": "observe",
+          "check": "processIdentity",
+          "error": "invalidTarget",
+          "event": "edge_web_command",
+          "phase": "process",
+          "sequence": 99
+        },
+        {
+          "action": "observe",
+          "error": "invalidTarget",
+          "event": "web_command_refused",
+          "immediatelyPrecedingNativeCommand": {
+            "action": "observe",
+            "check": "processIdentity",
+            "diagnosticSequence": 99,
+            "error": "invalidTarget",
+            "phase": "process"
+          },
+          "sequence": 100
+        }
+      ],
+      "traceStartObserved": false
+    },
+    {
+      "currentVisibility": "visible",
+      "ledgerPhases": [
+        "unknown"
+      ],
+      "localDurableStarts": 0,
+      "localStatus": "unknown",
+      "nativeReceiptError": null,
+      "nativeSelection": true,
+      "nativeTaggedRows": 10,
+      "operationCount": 1,
+      "operationFilenameSHA256s": [
+        "cef59827531913774d80309b00a9e4cd1a99f9cdb9aae35c848222664d2f4f38"
+      ],
+      "operationReasons": [
+        {
+          "code": null,
+          "sha256": "550fceacb5148e6ad57f5469607f9a9bc25856ae93038f79ea74fcf87425854a"
+        }
+      ],
+      "originalBytes": 1405826,
+      "originalChangeObserved": true,
+      "originalOutcomeVisibility": "visible",
+      "originalPreserved": true,
+      "originalSHA256": "c543f731cff7e357d4fd54c2ea813e474fe76b47f483ac4d1f63cf1fc21f1880",
+      "originalSetterObserved": true,
+      "reserved": true,
+      "seed": 620,
+      "senderExit": 0,
+      "serviceTerminal": "REQUIRES_INDEPENDENT_SERVICE_RECEIPT",
+      "swallowActualStartCount": 0,
+      "swallowCloseCount": 0,
+      "swallowScheduledCount": 0,
+      "traceRefusals": [],
+      "traceStartObserved": false
+    }
+  ],
+  "nativeDownIntervalMs": 572.822,
+  "oneDiagnosticSession": true,
+  "ordinaryRunStop": null,
+  "originalLedgerAndMediaPreserved": {
+    "allOriginalOperationPayloadsAndReceipts": true,
+    "allOriginalRawAssetAndStartColumns": true,
+    "assets": true,
+    "originalMedia": true,
+    "starts": true
+  },
+  "originalNativeLeaseChecks": {
+    "bothLeases": true,
+    "edgeTemporaryRoute": true,
+    "newTargetAndDocumentDistinctFromPreviousLeases": true,
+    "sameNewDocumentTabComposerAndGeneration": true,
+    "sameVerifiedNativeTabAndWindow": true,
+    "uniqueIndependentClickBindings": true
+  },
+  "originalObserverMetadataChanges": [],
+  "productRowsAtIndependentRead": {
+    "assets": 24,
+    "operations": 15,
+    "starts": 4
+  },
+  "productRowsBefore": {
+    "assets": 22,
+    "operations": 13,
+    "starts": 4
+  },
+  "profileIsolation": "dedicated_window_in_existing_profile",
+  "rawSequencesContinuous": true,
+  "rawTraceBytes": 96803,
+  "readerMainWorldBeforeInput": null,
+  "schema": 1,
+  "serviceProcessingTerminal": "REQUIRES_INDEPENDENT_HAR_JOIN",
+  "source": "8ac2bf1c7129763fce3a1d3ccd1a581e08848df2",
+  "sourceSHA256": {
+    "afterFullRows": "ba87315d5bfa6fb68076ab9f0f5974982b0ddb29d0a938dd4608452852a83b49",
+    "afterSQLiteAndPriorMedia": "6ede37f5979fbddee3b3e11324a10e6b5df8ad253d36e31fa99a799ceb04573a",
+    "baseline621": "15fa30fac446b7ecfb7a800ad7e0321fce811cb28548a0b8fea8ba6390202195",
+    "baselineCapture": "7b55393440d72a47c11779b2a94afcdd3a7b6f845de857cf2e9a537d1dd36ec5",
+    "beforeSQLite": "a740693ebfc970570d2c0581887eeabea7266e7fa55f89f9f96fcafb982d0949",
+    "capture619": "9004a426fdfab13a5a7830d4ba4c0b22e670ea49e596461fdd1b2c0694728ecb",
+    "capture620": "91fc85256c478e4e7555a6d6f45e228814fa1f64b99a241fc4ae753d2e047414",
+    "compressedOriginalTrace": "2aceadda46fef8e293090134b942b3cc8e638a812a2e70a90cc7a12c1a9c46e4",
+    "import619": "1a8921724e837a30bce08f1910da9d07c885d0fd1a13885ff070269af7ecbb96",
+    "import620": "94600c9dfcf961a54262bef9513c675ff7153ae7dcd4790c742c3b5eceff08f9",
+    "intent1": "a2039cc15d86caae3a3f9436db6854806bf58e619605eff9539b57bdba3bc06a",
+    "intent2": "ce1f7428af8ac9f35df5cd3feac6fb8acd32b873b4414009ac1315fdc4a913ee",
+    "nativeDecisions": "ffa0df0b8eff4c7657707a85e9ec446d12d29388cb8f00f8c095a002f79e3083",
+    "nativeMapEpochs": "8b070adbb4548d8a01d25a18c4093aaa18ba9ff5068cd42c428fcf6401e7df25",
+    "nativeOutcome": "092958b0d714adc3117571fd49f66cebf58ff307edf360464bdc77a4f997a90e",
+    "nativePrepared": "fe8018d418ad2d10b3261a88375b3192c1995eea96a1de775c6b3c34be5d8a5e",
+    "nativeReservation1": "d4b917e6afe0c135d715ee191343513df9e5037093576fe28a31daf42ba160d8",
+    "nativeReservation2": "e5ebcc25e5808ddd4922a1b7af908e0603a97ed848ab75af2c2e82aa30ca423f",
+    "originalArmedSetup": "e872ddf87818cb60dbafde8d2d91970ff772646999fa7eefbf546d9815be96aa",
+    "originalPickerContext": "8805c7686c72c3c36d3d20c45411d49414544c483973563e7378b74aece1b74f",
+    "originalTabCreation": "9fd69b0fa7f411dc0e9f2398715b81df8f212d25291d65ba477a03492b4e083f",
+    "pairReservation": "b8ad4b5f76ea25831fbcb22df74b6892839ab1f1b743bc824f9a8222076cdd9d",
+    "priorFullRows": "2d6255fd7ef8a1df31553e107b95da21dc35f5804dccf9ee3baadd0b493bffcf",
+    "priorOperations": "8c0626c1ce97d0ef0e4b314c54783479318fbd7191daa68a94bb2ec4e983c035",
+    "rawOrdinaryTrace": "0eb93b1ac3b5c4a63e081651f3a388db8f089ef70645279bbd27d9ea4938ffa5",
+    "sender1": "2d1d2fa13dc5baef71914d607edcddfef0772ccd31fb4253a7985f3856640a93",
+    "sender2": "c48fc3e957e7de7f01195f59992615f28fd11f80c60faf77e7257e199b03c603",
+    "systemPNG619": "922323e620f744b798cfe55ce985950f0af28c1047b223d5dfcb180c6be019bf",
+    "systemPNG620": "c543f731cff7e357d4fd54c2ea813e474fe76b47f483ac4d1f63cf1fc21f1880",
+    "ticket": "8b0513022c79ec0e12f8bd501a030a967f09829335deab9a40f5f9941cd2d6e9"
+  },
+  "targetSHA256": "a8ca7090e6fa0848a4c7bd192d7c8a091d41fcfca228db7a3b7dd150d0523e2e",
+  "traceRows": 154
+}

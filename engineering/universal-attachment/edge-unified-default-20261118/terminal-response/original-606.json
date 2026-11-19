@@ -1,0 +1,70 @@
+{
+  "GUIActions": 0,
+  "browserOrServiceRequests": 0,
+  "claims": "Service entity observation is separate from product START/completion and source admission. Missing bodies cannot borrow 606 framing or events.",
+  "entryCount": 498,
+  "files": [
+    {
+      "bodyState": "TEXT",
+      "browserError": null,
+      "createAndProcessStatus": 200,
+      "createEntry": 170,
+      "declaredContentBytes": 576.0,
+      "entity": {
+        "completeKnownSequence": true,
+        "completedFrameObserved": true,
+        "declaredLengthMatches": true,
+        "entityBytes": 576,
+        "entitySHA256": "4d24602342422c30df68389bc2fa06d19891589a93e84c27d0a4ac1a2c275744",
+        "format": "NDJSON",
+        "records": [
+          {
+            "event": "file.processing.started",
+            "progressPercent": 0.0,
+            "sameFileID": true
+          },
+          {
+            "event": "file.processing.file_ready",
+            "progressPercent": 100.0,
+            "sameFileID": true
+          },
+          {
+            "event": "file.processing.completed",
+            "progressPercent": 100.0,
+            "sameFileID": true
+          }
+        ],
+        "sameFileFrames": 3,
+        "sseDataLines": 0,
+        "terminal": "FILE_PROCESSING_COMPLETED"
+      },
+      "fileIDSHA256": "4e8a0824a7cf6c5f328441321217cfd49625d439ebd180ce16d112462fafca2b",
+      "filenameSHA256": "4d22b2c926148a54fa6a78edf63d0b1a988e2ce2f3a03265eda541ecc2d30ca9",
+      "mimeType": "text/event-stream",
+      "originalFilenameCreatePUTProcessChainVerified": true,
+      "processEntry": 174,
+      "productCompletionAdmitted": false,
+      "putETagPresent": true,
+      "putEntry": 171,
+      "putStatus": 201,
+      "resourceType": "fetch",
+      "seed": 606,
+      "terminal": "FILE_PROCESSING_COMPLETED",
+      "upstreamSSEReplay": {
+        "inputBytes": 576,
+        "inputSHA256": "4d24602342422c30df68389bc2fa06d19891589a93e84c27d0a4ac1a2c275744",
+        "installedEdgeRuntimeTest": false,
+        "neutralSSEPositiveControl": 1,
+        "sseEventsByChunkPartition": [
+          0,
+          0,
+          0
+        ]
+      }
+    }
+  ],
+  "harBytes": 31611003,
+  "harSHA256": "4fddbe800991bb3f68ef632b08085f7175344d0aaca47e8d8bda2e37a0a99372",
+  "schema": 1,
+  "scope": "Hash-pinned historical originals only; offline closed-field projection, no private endpoint call"
+}

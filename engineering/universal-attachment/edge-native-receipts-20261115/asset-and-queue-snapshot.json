@@ -1,0 +1,120 @@
+{
+  "observedAtUTC": "2026-11-15T13:09:38.553305+00:00",
+  "readMode": "sqlite URI mode=ro, query_only, one read transaction",
+  "counts": {
+    "assets": 5,
+    "operations": 0,
+    "upload_starts": 0
+  },
+  "assets": [
+    {
+      "sequence": 1,
+      "assetUUID": "D0510BF8-4146-4986-9A54-D1D637B7D869",
+      "assetIDDigest": "90829a9e3527ab9ee8464ac72fcc20fa803efd98ef9dd96a2d8c1d29323c3b13",
+      "sha256": "4fe18f85105f1cbdef5fc1c33e98a43bc160582e00117130ab9699655e50e6ca",
+      "byteCount": 203540,
+      "pixelWidth": 1184,
+      "pixelHeight": 888,
+      "origin": "systemScreenshot",
+      "status": "pending",
+      "visibility": "visible",
+      "visibilityRevision": 0,
+      "activeOperationID": null,
+      "selectionReceiptsInThisSession": 0,
+      "role": "preserved-old-unknown-external-receipt",
+      "captureManifestMatchesMetadata": null,
+      "systemScreenshotMarker": "PREVIOUSLY_RECORDED_NOT_REREAD_BY_THIS_WORKER"
+    },
+    {
+      "sequence": 2,
+      "assetUUID": "E976A817-9BB9-4CF7-B282-0BBC2EE0351B",
+      "assetIDDigest": "b02dad1723e90514c82a652a58da1c438366b673bce9d4ffba65996983ac0de5",
+      "sha256": "8553e963e07855c87b58c3c87ed02c2ae0ebf798f71bae27b41c6e1693339c0c",
+      "byteCount": 110264,
+      "pixelWidth": 1052,
+      "pixelHeight": 756,
+      "origin": "systemScreenshot",
+      "status": "pending",
+      "visibility": "visible",
+      "visibilityRevision": 0,
+      "activeOperationID": null,
+      "selectionReceiptsInThisSession": 0,
+      "role": "preserved-old-unknown-external-receipt",
+      "captureManifestMatchesMetadata": null,
+      "systemScreenshotMarker": "PREVIOUSLY_RECORDED_NOT_REREAD_BY_THIS_WORKER"
+    },
+    {
+      "sequence": 3,
+      "assetUUID": "38DAC70A-0B2C-4B13-8541-30905FC6272B",
+      "assetIDDigest": "7aee191f99d0cbce7cf2353525b11e6e809114a8c0b36c287982d6a9c3473326",
+      "sha256": "93ebfa16e9a82c4dafe498cad1f4c0118f6561019c067f9e3d6c17e5f0b78cc9",
+      "byteCount": 62537,
+      "pixelWidth": 1132,
+      "pixelHeight": 772,
+      "origin": "systemScreenshot",
+      "status": "pending",
+      "visibility": "visible",
+      "visibilityRevision": 0,
+      "activeOperationID": null,
+      "selectionReceiptsInThisSession": 0,
+      "role": "unclicked-fresh-03",
+      "captureManifestMatchesMetadata": true,
+      "systemScreenshotMarker": true
+    },
+    {
+      "sequence": 4,
+      "assetUUID": "A86F0DC4-2B0F-4496-9F8A-DA62830DE4A9",
+      "assetIDDigest": "ece8d8709553c8a0d3e061cd59f7aae7b108d19bed75b9e2450064ed319d62ea",
+      "sha256": "fcd3e2c5748e888c8d47363b441d325361823a828f64452859eb0a13526971f8",
+      "byteCount": 62508,
+      "pixelWidth": 1132,
+      "pixelHeight": 772,
+      "origin": "systemScreenshot",
+      "status": "pending",
+      "visibility": "visible",
+      "visibilityRevision": 0,
+      "activeOperationID": null,
+      "selectionReceiptsInThisSession": 1,
+      "role": "fresh-target",
+      "captureManifestMatchesMetadata": true,
+      "systemScreenshotMarker": true
+    },
+    {
+      "sequence": 5,
+      "assetUUID": "A512DCFC-B06A-4A76-8AE7-2908FC6D365A",
+      "assetIDDigest": "09fd1e0f829fbe2bfb00cdff642a4a0c6315f1b642cb3e0b0984afa5d88aa045",
+      "sha256": "568de2784c37e0c6bfcc2de4b81a8eff4d022d72ded5be772ab80ef4d50c8991",
+      "byteCount": 62346,
+      "pixelWidth": 1132,
+      "pixelHeight": 772,
+      "origin": "systemScreenshot",
+      "status": "pending",
+      "visibility": "visible",
+      "visibilityRevision": 0,
+      "activeOperationID": null,
+      "selectionReceiptsInThisSession": 1,
+      "role": "fresh-target",
+      "captureManifestMatchesMetadata": true,
+      "systemScreenshotMarker": true
+    }
+  ],
+  "metadataMatchesSavedCaptureManifests": true,
+  "originalAndPrivatePNGBytesRereadByThisWorker": false,
+  "oldUnknownIsExternalReceiptClassificationNotDatabaseOperationState": true,
+  "preUpdateDatabaseBackup": {
+    "bytes": 86016,
+    "sha256": "c8f94abf641e2b914bbe845529f9797dcf4d468105cf41f2c46e8da16a65b261",
+    "published": false
+  },
+  "originalSnapshot": {
+    "name": "database-readonly.json",
+    "bytes": 5147,
+    "sha256": "9a6e7f3246c0bd9855688ca881f2cbc773ba47204e79e02d9cbba6a26cdd0be0"
+  },
+  "omittedFields": [
+    "volume/source keys",
+    "local image filenames",
+    "local import/interaction timestamps"
+  ],
+  "databaseOrPNGPublished": false
+}

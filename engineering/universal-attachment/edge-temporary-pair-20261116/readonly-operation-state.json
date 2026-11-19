@@ -1,0 +1,77 @@
+{
+  "at": "2026-11-16T03:40:32.502234+00:00",
+  "access": "sqlite mode=ro, no mutations",
+  "counts": {
+    "assets": 8,
+    "operations": 3,
+    "upload_starts": 0
+  },
+  "operations": [
+    {
+      "id": "46A3293A-FD87-4533-B4CB-201AD3777D12",
+      "asset_id": "A86F0DC4-2B0F-4496-9F8A-DA62830DE4A9",
+      "attempt": 1,
+      "phase": "unknown",
+      "reason": "Background observation unavailable; original operation retained",
+      "dispatch_exclusive": 0,
+      "target": {
+        "adapterID": "chatgpt-web",
+        "applicationID": "com.microsoft.edgemac",
+        "clickBindingID": "46A68F5B-C83A-4D64-B6C8-AE06D281F893",
+        "composerID": "node-1:node-2",
+        "documentID": "75ee99a7-e9db-477a-b555-15c1c26e46af",
+        "draftGeneration": "2170d0a0-ee6c-442f-876c-c2a13e18917e",
+        "sessionID": "edge-kernel-v1:21038:1794737271:486791",
+        "surface": "webChat",
+        "tabID": "512563179",
+        "windowID": "512563178"
+      },
+      "targetKeyRawSHA256": "362cbbe3c487adfb2bc3dad12bc23ef89f4f29fe993839a62a9c0e4a4c91c087",
+      "operationIDDigest": "a4433022f8845946b9c9e0f37d6c4a30dda86f9dca5d3c07f891d9805ddee3e5"
+    },
+    {
+      "id": "B99E0FB7-6A23-4BB4-BABC-E5029C04BA27",
+      "asset_id": "EE44D7C0-2293-4CAD-A6C8-09BAED121707",
+      "attempt": 1,
+      "phase": "unknown",
+      "reason": "observer-v2:inputTriggered:integratedDevelopment",
+      "dispatch_exclusive": 0,
+      "target": {
+        "adapterID": "chatgpt-web",
+        "applicationID": "com.microsoft.edgemac",
+        "clickBindingID": "3A2460E6-0740-4252-ADEE-057C8762CA6B",
+        "composerID": "node-1:node-2",
+        "documentID": "f1b52823-5860-48eb-975a-4bb8d9fd11f0",
+        "draftGeneration": "cf80d0bb-0122-4aad-a16e-122306b316d3",
+        "sessionID": "edge-kernel-v1:15065:1794798551:96568",
+        "surface": "webChat",
+        "tabID": "512563263",
+        "windowID": "512563253"
+      },
+      "targetKeyRawSHA256": "ca9e3878c0139bb629d63eb3b1d08c819ad1c5f7cb450c537a73397ea809a579",
+      "operationIDDigest": "65125d063d4d3a04465a6504c43b99c4dba33c605d102fb60d7cd9914c52ade0"
+    },
+    {
+      "id": "C745AAD4-2AB4-4060-B383-01B65DD0D0BE",
+      "asset_id": "318A7AD9-CB10-43C3-AC44-564E6A3A28AD",
+      "attempt": 1,
+      "phase": "unknown",
+      "reason": "observer-v2:inputTriggered:integratedDevelopment",
+      "dispatch_exclusive": 0,
+      "target": {
+        "adapterID": "chatgpt-web",
+        "applicationID": "com.microsoft.edgemac",
+        "clickBindingID": "EB5D812B-16EE-4A94-ABCC-7F8EAB6462AF",
+        "composerID": "node-1:node-2",
+        "documentID": "f1b52823-5860-48eb-975a-4bb8d9fd11f0",
+        "draftGeneration": "cf80d0bb-0122-4aad-a16e-122306b316d3",
+        "sessionID": "edge-kernel-v1:15065:1794798551:96568",
+        "surface": "webChat",
+        "tabID": "512563263",
+        "windowID": "512563253"
+      },
+      "targetKeyRawSHA256": "6373faf9e51e024843162f59580ce7c74ba0dc9a2d6135fefccc8a3e0a37eea8",
+      "operationIDDigest": "85f0c95987dda2980e8d76b94ae60ccc2bd124b90d03b8d039786c813ca4fd52"
+    }
+  ]
+}

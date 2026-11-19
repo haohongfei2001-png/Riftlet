@@ -1,0 +1,99 @@
+{
+  "base": "f823bcde3923aaf170a6844d7a027793747a9c29",
+  "fix": "4206ac15580ed92e9220f17577e7cef25bc8dcf1",
+  "artifact": 14386805172,
+  "originalZipSHA256": "2d3ee209559328ac4fc2c1b03552af4517048f04c58ec0b72f07b529e8157833",
+  "recordedLastPostedQuartzPoint": {
+    "x": 39.5,
+    "y": 386.80487804878055
+  },
+  "samePointInAppKit": [
+    39.5,
+    381.19512195121945
+  ],
+  "scenes": {
+    "motion-interrupt": {
+      "pointInInitialImageInput": [
+        {
+          "assetSuffix": "003",
+          "rect": {
+            "height": 56,
+            "width": 42,
+            "x": 6,
+            "y": 371
+          }
+        }
+      ],
+      "lateAssetRowAvailable": false,
+      "hasRealSwallowClose": false
+    },
+    "motion-magnet": {
+      "pointInInitialImageInput": [
+        {
+          "assetSuffix": "003",
+          "rect": {
+            "height": 56,
+            "width": 42,
+            "x": 6,
+            "y": 371
+          }
+        }
+      ],
+      "lateAssetRowAvailable": false,
+      "hasRealSwallowClose": false
+    },
+    "motion-missing-source": {
+      "pointInInitialImageInput": [
+        {
+          "assetSuffix": "003",
+          "rect": {
+            "height": 56,
+            "width": 42,
+            "x": 6,
+            "y": 371
+          }
+        }
+      ],
+      "lateAssetRowAvailable": false,
+      "hasRealSwallowClose": false
+    },
+    "motion-reduce-motion": {
+      "pointInInitialImageInput": [
+        {
+          "assetSuffix": "003",
+          "rect": {
+            "height": 56,
+            "width": 42,
+            "x": 6,
+            "y": 371
+          }
+        }
+      ],
+      "lateAssetRowAvailable": false,
+      "hasRealSwallowClose": false
+    }
+  },
+  "tests": {
+    "nativeCursor": {
+      "exit": 0,
+      "log": "nativeCursor.log",
+      "digest": "3c40609cf844fd0c361fefd836eb7757cd7a69f42bb5dcf92bf660d0fe84b0fe"
+    },
+    "visualManifest": {
+      "exit": 0,
+      "log": "visualManifest.log",
+      "digest": "1ecd3da69e69eb4aefddc92da9c6763a0cb198fe4058d24e02c2b901411e4eba"
+    },
+    "nativeHostContracts": {
+      "exit": 0,
+      "log": "nativeHostContracts.log",
+      "digest": "3b1234503d2e235bca26eb44427b9cb8e762773628bf7a5bcc07c56beb76d2a9"
+    },
+    "gitDiffCheck": {
+      "exit": 0,
+      "log": "gitDiffCheck.log",
+      "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "freshHostedCapture": "NOT_RUN_PENDING_NEW_PR_HEAD"
+}

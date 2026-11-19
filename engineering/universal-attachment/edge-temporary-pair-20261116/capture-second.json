@@ -1,0 +1,25 @@
+{
+  "at": "2026-11-16T03:18:45.122325+00:00",
+  "fixture": {
+    "pid": 16745,
+    "windowNumber": 814,
+    "seed": 603,
+    "widthPoints": 768,
+    "heightPoints": 480
+  },
+  "fileName": "resume-20261116-second-603.png",
+  "bytes": 4515606,
+  "sha256": "ecc9f3ffac8751da85415d55da84d1388ff07cbc092a1b06d835fa2dfb1ad115",
+  "systemScreenshotMetadata": true,
+  "captureCommand": [
+    "/usr/sbin/screencapture",
+    "-x",
+    "-t",
+    "png",
+    "-l",
+    "814",
+    "<ISOLATED_RIFTLET_DATA>/capture-source/resume-20261116-second-603.png"
+  ],
+  "properties": "<ISOLATED_RIFTLET_DATA>/capture-source/resume-20261116-second-603.png\n  pixelWidth: 1628\n  pixelHeight: 1052\n  format: png\n  space: RGB\n  profile: Display P3\n",
+  "pngModifiedAfterCapture": false
+}

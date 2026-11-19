@@ -1,0 +1,35 @@
+{
+  "source": "1481c74bbb12e997de1149362a7ed45fdb6b2120",
+  "version": "1.0.5",
+  "build": "31",
+  "bundleIdentifier": "com.riftlet.app",
+  "arch": [
+    "arm64"
+  ],
+  "stage": "SIGNED",
+  "notarization": "NOT_RUN",
+  "ordinaryBuildInfo": {
+    "builtInUpload": true,
+    "completion": true,
+    "continuation": true,
+    "dataDirectory": "Riftlet",
+    "input": true,
+    "internalAcceptance": false,
+    "mode": "capture",
+    "safeRetry": false,
+    "start": true
+  },
+  "archiveSHA256": "c1fbe2b29145cfd8a47e08be71ec5f66eec88f771f920d1721947abb5a025818",
+  "executableSHA256": "dbe927df66505359ae8cd4d65699c7be189b911666ac3f53e448213c2428454e",
+  "manifestSHA256": "3faa9a17735ff3bd7392816471e6b942d8e0d1c4295b60e8418085749c3ec34f",
+  "deepStrictSignatureOfExtractedApp": "PASS",
+  "manifestVerification": {
+    "gatekeeper": "NOT_RUN",
+    "manifestPin": "MATCH",
+    "nativeSignatureCheck": "PASS",
+    "recordedStage": "SIGNED",
+    "status": "OFFLINE_CONTENTS_MATCH"
+  },
+  "personalDataLaunch": "NOT_RUN",
+  "publicRelease": false
+}

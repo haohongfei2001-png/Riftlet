@@ -1,0 +1,16 @@
+{
+  "result": "CONFIRMED_PREINPUT_ONLY_NOT_RUN",
+  "independentReportSHA256": "b5d763c643f5656791bc6ff922c232853866f228e1db9ee70958dce1ae2a2b5b",
+  "source": "cb82a728237504ac9270ee8322144f8f8e793c9b",
+  "verified": [
+    "Both macOS capture originals, screenshot metadata and imported app-owned copies match.",
+    "Both assets are visible and pending. Each has zero operations and zero START.",
+    "No pair reservation or actual input. Before the final refusal, the native process, selected window, tab and temporary URL matched. The final AX guard preceded activate and AXRaise.",
+    "The six prior attachments, draft text and [61,14] selection were verified at preflight. No final re-observation of the draft is claimed."
+  ],
+  "databaseAfter": {
+    "assets": 30,
+    "operations": 18,
+    "starts": 4
+  }
+}

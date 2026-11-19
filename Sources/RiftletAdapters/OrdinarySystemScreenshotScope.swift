@@ -26,6 +26,17 @@ public enum SystemScreenshotAdmissionScope: Sendable, Equatable {
         case .productApplication: return OrdinaryProductScreenshotScope.admittedApplicationProfile
         }
     }
+    func registeredProfile(for request: TransferRequest, sourceID: String) -> ObservationProfile {
+        if self == .productSystem, [ChatGPTWebPageProgram.edgeSourceID, ChatGPTWebPageProgram.priorRootContentSource, ChatGPTWebPageProgram.priorDraftContentSource, ChatGPTWebPageProgram.priorStagedSource, ChatGPTWebPageProgram.priorEncodedSource, ChatGPTWebPageProgram.priorEdgeSource, ChatGPTWebPageProgram.priorProgressSource, ChatGPTWebPageProgram.priorLabelSource].contains(sourceID),
+           request.asset.origin == .systemScreenshot, request.asset.mediaType.lowercased() == "image/png",
+           request.operation.target.applicationID == "com.microsoft.edgemac", request.operation.target.clickBindingID != nil,
+           request.operation.target.webDraftRoute == .chatGPTTemporaryHome {
+            return sourceID == ChatGPTWebPageProgram.edgeSourceID
+                ? OrdinaryProductScreenshotScope.edgeAttachmentAcceptedProfile : OrdinaryProductScreenshotScope.edgeProgressProfile
+        }
+        return admittedProfile
+    }
+
     var observationScope: DevelopmentObservationScope { self == .candidate ? .systemScreenshotCandidate : .ordinarySystemScreenshot }
     var admissionPrefix: String {
         switch self {
@@ -72,7 +83,7 @@ public enum SystemScreenshotAdmissionScope: Sendable, Equatable {
         // The ordinary tool binds the actual native tab, document and composer.
         // Its usable file input is established by the page, without React internals.
         guard target.adapterID == "chatgpt-web", target.surface == .webChat,
-              target.applicationID == "com.google.Chrome",
+              target.applicationID == "com.google.Chrome" || (isProduct && target.applicationID == "com.microsoft.edgemac"),
               !target.sessionID.isEmpty, !target.windowID.isEmpty, target.tabID?.isEmpty == false,
               !target.documentID.isEmpty, !target.composerID.isEmpty, !target.draftGeneration.isEmpty else {
             throw WebAdapterError.invalidTarget
@@ -106,6 +117,13 @@ public enum OrdinarySystemScreenshotScope {
 /// policy must independently admit each profile for its exact asset origin;
 /// merely constructing these values grants no input, start, completion or retry.
 public enum OrdinaryProductScreenshotScope {
+    /// Local original-draft acceptance only. Completion, failure and retry stay separate.
+    public static let edgeAttachmentAcceptedStartProfileID = "chatgpt-web-edge-temporary-system-png-accepted-20261119-v1"
+    public static let edgeAttachmentAcceptedProfile = ObservationProfile(adapterID: "chatgpt-web", surface: .webChat,
+        profileID: "chatgpt-web-edge-temporary-system-input-20261119-v29", uploadStartProfileID: edgeAttachmentAcceptedStartProfileID)
+    public static let edgeProgressStartProfileID = "chatgpt-web-edge-temporary-system-png-progress-20261117-v1"
+    public static let edgeProgressProfile = ObservationProfile(adapterID: "chatgpt-web", surface: .webChat,
+        profileID: "chatgpt-web-edge-temporary-system-input-20261117-v1", uploadStartProfileID: edgeProgressStartProfileID)
     public static let systemContinuationProfileID = "chatgpt-web-product-system-request-owned-20261103-v1"
     public static let applicationContinuationProfileID = "chatgpt-web-product-application-request-owned-20261103-v1"
     public static let systemUploadStartProfileID = "chatgpt-web-product-system-start-20261102-v1"
@@ -126,11 +144,12 @@ public enum OrdinaryProductScreenshotScope {
                 ? (origin == "system" ? systemContinuationProfileID : applicationContinuationProfileID) : nil)
     }
     static func matches(_ candidate: ObservationProfile) -> Bool {
-        [systemProfile, applicationProfile, admittedSystemProfile, admittedApplicationProfile].contains { profile in
+        [systemProfile, applicationProfile, admittedSystemProfile, admittedApplicationProfile, edgeProgressProfile, edgeAttachmentAcceptedProfile].contains { profile in
             candidate.adapterID == profile.adapterID && candidate.surface == profile.surface
                 && candidate.completionSignal == profile.completionSignal && candidate.failureSignal == nil
                 && candidate.profileID == profile.profileID && candidate.uploadStartProfileID == profile.uploadStartProfileID
                 && candidate.continuationProfileID == profile.continuationProfileID
+                && candidate.platformCompletionProfileID == nil && candidate.terminationProfileID == nil
         }
     }
 }

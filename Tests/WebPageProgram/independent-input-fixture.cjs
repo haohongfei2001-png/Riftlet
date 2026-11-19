@@ -9,7 +9,20 @@ const source=fs.readFileSync(process.env.RIFTLET_PAGE_PROGRAM_SOURCE||path.join(
 const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLttAAAAABJRU5ErkJggg==','base64');
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 const native={applicationID:'com.google.Chrome',sessionID:'synthetic-local-session',windowID:'17',tabID:'19'};
-function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focused=true,visible=true,programSource=source,editorTag='div'}={}) {
+const resources = path.join(__dirname, '../../Sources/RiftletAdapters/Resources');
+const encodedPreview = fs.readFileSync(path.join(resources, 'edge-encoded-preview-v27.js'), 'utf8');
+const previousEdgeSource = fs.readFileSync(path.join(resources, 'chatgpt-web-edge-v27.js'), 'utf8')
+  .replace('/*__RIFTLET_ENCODED_PREVIEW_WATCHER__*/', () => encodedPreview);
+const draftOwner = fs.readFileSync(path.join(resources, 'edge-draft-content-owner-v28.js'), 'utf8');
+const edgeSource = previousEdgeSource
+  .replace("const popup = labels.filter(node => node !== scope && node.tagName === 'DIV' &&\n          visual.contains(node) && node.contains(image));",
+    () => "const popup = (" + draftOwner + ")(filename, labels, scope, visual, image, remove);")
+  .replace('__riftletEdgeFileInput20261118v27', '__riftletEdgeFileInput20261119v28')
+  .replace('click-document-witness-20261118-v27', 'click-document-witness-20261119-v28');
+const edgeAttachmentAcceptedSource = edgeSource
+  .replace('__riftletEdgeFileInput20261119v28', '__riftletEdgeFileInput20261119v29')
+  .replace('click-document-witness-20261119-v28', 'click-document-witness-20261119-v29');
+function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focused=true,visible=true,editorTag='div',nativeContext=native,programSource=(nativeContext.applicationID==='com.microsoft.edgemac'?edgeSource:source)}={}) {
  const observers=[],events=new Map();
  function queueMutation(record){
   for(const observer of observers){
@@ -50,23 +63,29 @@ function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focu
   });
  }
  class Node {
-  constructor(tag,attrs={}){this.nodeType=1;this.tagName=tag.toUpperCase();this.attrs={...attrs};this.children=[];this.parentElement=null;this._text='';this.disabled=false;this.listeners=new Map();}
+  constructor(tag,attrs={}){this.nodeType=1;this.tagName=tag.toUpperCase();this.attrs={...attrs};this.childNodes=[];this.parentElement=null;this.disabled=false;this.listeners=new Map();}
   get isConnected(){return this===body||this.parentElement?.isConnected===true;}
-  get childNodes(){return this._text ? [{nodeType:3,nodeValue:this._text},...this.children] : this.children;}
-  get textContent(){return this._text+this.children.map(node=>node.textContent).join('');}
-  set textContent(value){for(const child of [...this.children])child.remove();this._text=String(value);queueMutation({type:'childList',target:this,addedNodes:[],removedNodes:[]});}
+  get children(){return this.childNodes.filter(node=>node.nodeType===1);}
+  get textContent(){return this.childNodes.map(node=>node.nodeType===3?node.data:node.textContent).join('');}
+  set textContent(value){
+   const removedNodes=this.childNodes.splice(0);
+   for(const node of removedNodes)node.parentElement=null;
+   const addedNodes=String(value)?[textNode(this,String(value))]:[];
+   this.childNodes.push(...addedNodes);
+   queueMutation({type:'childList',target:this,addedNodes,removedNodes});
+  }
   get id(){return this.attrs.id||'';} get parentNode(){return this.parentElement;}
   get type(){return this.attrs.type||(this.tagName==='BUTTON'?'submit':'');} get accept(){return this.attrs.accept||'';} get form(){return this.closest('form');}
   get isContentEditable(){return this.attrs.contenteditable==='true';}
   getAttribute(key){return this.attrs[key]??null;} hasAttribute(key){return key in this.attrs;}
-  setAttribute(key,value){this.attrs[key]=String(value);queueMutation({type:'attributes',target:this,attributeName:key});}
-  removeAttribute(key){delete this.attrs[key];queueMutation({type:'attributes',target:this,attributeName:key});}
+  setAttribute(key,value){const oldValue=this.getAttribute(key);this.attrs[key]=String(value);queueMutation({type:'attributes',target:this,attributeName:key,oldValue});}
+  removeAttribute(key){const oldValue=this.getAttribute(key);delete this.attrs[key];queueMutation({type:'attributes',target:this,attributeName:key,oldValue});}
   matches(selector){return matches(this,selector);}
   closest(selector){return this.matches(selector)?this:this.parentElement?.closest?.(selector)||null;}
-  contains(node){return this===node||this.children.some(child=>child.contains(node));}
-  append(...nodes){for(const node of nodes){if(node.parentElement)node.remove();node.parentElement=this;this.children.push(node);queueMutation({type:'childList',target:this,addedNodes:[node],removedNodes:[]});}return nodes[0];}
+  contains(node){return node?.nodeType===3?this.contains(node.parentElement):this===node||this.children.some(child=>child.contains(node));}
+  append(...nodes){for(const node of nodes){if(node.parentElement)node.remove();node.parentElement=this;this.childNodes.push(node);queueMutation({type:'childList',target:this,addedNodes:[node],removedNodes:[]});}return nodes[0];}
   appendChild(node){return this.append(node);}
-  remove(){const parent=this.parentElement;if(!parent)return;parent.children=parent.children.filter(node=>node!==this);this.parentElement=null;queueMutation({type:'childList',target:parent,addedNodes:[],removedNodes:[this]});}
+  remove(){const parent=this.parentElement;if(!parent)return;parent.childNodes.splice(parent.childNodes.indexOf(this),1);this.parentElement=null;queueMutation({type:'childList',target:parent,addedNodes:[],removedNodes:[this]});}
   querySelectorAll(selector){return this.children.flatMap(node=>[node,...node.querySelectorAll('*')]).filter(node=>node.matches(selector));}
   querySelector(selector){return this.querySelectorAll(selector)[0]||null;}
   getClientRects(){for(let node=this;node;node=node.parentElement)if(node.rendered===false||node.hidden)return [];return this.isConnected?[{width:100,height:40}]:[];}
@@ -116,6 +135,20 @@ function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focu
   getElementById:id=>body.querySelectorAll('*').find(node=>node.id===id)||null,getSelection:()=>selection,
   addEventListener:(type,fn,options=false)=>{const list=events.get(type)||[];list.push({fn,capture:options===true||!!options.capture});events.set(type,list);},
   removeEventListener:(type,fn)=>{events.set(type,(events.get(type)||[]).filter(item=>item.fn!==fn));}};
+ // Text nodes can change in place between two page observations, independently
+ // of their element parent and adjacent text fragments.
+ function textNode(parent,value){
+  const text={nodeType:3,parentElement:parent,contains(node){return node===this;},
+   get parentNode(){return this.parentElement;},get isConnected(){return this.parentElement?.isConnected===true;},
+   get data(){return value;},get nodeValue(){return value;},get length(){return value.length;},
+   replace(next,hasOldValue=true){const oldValue=hasOldValue?value:null;value=next;queueMutation({type:'characterData',target:text,oldValue});}};
+  return text;
+ }
+ function appendText(parent,value){
+  const text=textNode(parent,value);
+  parent.childNodes.push(text);queueMutation({type:'childList',target:parent,addedNodes:[text],removedNodes:[]});
+  return text;
+ }
  const blobFiles=new Map();let blobID=0;
  class NativeURL extends URL {static createObjectURL(file){const url='blob:fixture-'+(++blobID);blobFiles.set(url,file);return url;}static revokeObjectURL() {}}
  const context=vm.createContext({console,Uint8Array,Map,Set,WeakMap,WeakSet,Promise,File,Blob,atob,btoa,ArrayBuffer,TextDecoder,URL:NativeURL,
@@ -135,7 +168,7 @@ function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focu
   fetch:()=>{throw Error('network forbidden');}});
  vm.runInContext('globalThis.top=globalThis;globalThis.window=globalThis',context);
  const program=vm.runInContext('('+programSource+')',context);
- const call=command=>program(command,native);
+ const call=command=>program(command,nativeContext);
  const notify=()=>queueMutation({type:'childList',target:form,addedNodes:[],removedNodes:[]});
  function addCard(name,{placeholder=false,progress=true}={}) {
   const card=form.append(new Node('div',{'data-file-name':name,title:name,'aria-label':name,role:'button'}));
@@ -147,13 +180,13 @@ function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focu
   const identity={operationID:id,assetID:webcrypto.randomUUID(),attempt:1,assetSHA256:sha(bytes),target},invocationID=webcrypto.randomUUID();
   return {identity,target,bytes,name:'riftlet-'+id+'.png',invocationID,command:action=>({action,target,identity,invocationID})};
  }
- function stage(op){call({...op.command('begin'),invocationID:op.invocationID,uploadName:op.name,mediaType:'image/png',byteCount:op.bytes.length});call({...op.command('chunk'),chunkIndex:0,chunkBase64:op.bytes.toString('base64')});}
+ function stage(op,begin={}){call({...op.command('begin'),...begin,invocationID:op.invocationID,uploadName:op.name,mediaType:'image/png',byteCount:op.bytes.length});call({...op.command('chunk'),chunkIndex:0,chunkBase64:op.bytes.toString('base64')});}
  const commit=op=>call({...op.command('commit'),chunkIndex:1});
  const observe=op=>call(op.command('observe')).observation;
  const waitFor=async(fn,label='page result')=>{const deadline=Date.now()+2000;do{const value=fn();if(value)return value;await new Promise(r=>setTimeout(r,1));}while(Date.now()<deadline);throw Error('bounded wait expired: '+label);};
- return {call,bind,stage,commit,observe,waitFor,notify,addCard,body,form,editor,input,oldCard,selection,context,document,Node,
+ return {call,bind,stage,commit,observe,waitFor,notify,addCard,appendText,body,form,editor,input,oldCard,selection,context,document,Node,
   setChange:fn=>{onChange=fn;},setSetter:fn=>{onSet=fn;},setAccept:value=>{accept=value;},
   get changes(){return changes;},get setters(){return setters;},get sends(){return sends;},get chooserOpens(){return chooserOpens;},
   setRoute:href=>{context.location.href=href;},setFocused:value=>{focused=value;}};
 }
-module.exports={fixture,png,sha,native};
+module.exports={fixture,png,sha,native,edgeSource,previousEdgeSource,edgeAttachmentAcceptedSource};

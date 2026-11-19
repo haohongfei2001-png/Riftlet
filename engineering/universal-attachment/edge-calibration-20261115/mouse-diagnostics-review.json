@@ -1,0 +1,43 @@
+{
+  "scope": "additional three-file instrumentation-only review; no GUI or XCTest execution",
+  "reviewed_at_utc": "2026-11-15T12:28:21.106046+00:00",
+  "base_head": "c3278c0bea1c03dc8cfc445fd7678a3de3467ae1",
+  "sha256": {
+    "Sources/RiftletApp/RiftletMain.swift": "9992929c45341434c158149432441217a5c1f61f21587d5033e06823895fab17",
+    "Sources/RiftletUI/RiftPanelController.swift": "ff7126b5fdea98fb02955ee743cc12bc47d2868ac3f8d9f06c626e8f0e72a6d8",
+    "Tests/RiftletUITests/RiftInputIslandTests.swift": "cb7d21574687a01add29ceaf51f6dfff06142e54775ff3eaa4cefc9c21e26179"
+  },
+  "original_onDown_block_unchanged": true,
+  "original_recordSelection_unchanged": true,
+  "strict_receipt_helper_unchanged": true,
+  "strict_receipt_probes": [
+    {
+      "case": "selection-tag-missing",
+      "refused": true
+    },
+    {
+      "case": "selection-tag-None",
+      "refused": true
+    },
+    {
+      "case": "selection-tag-0",
+      "refused": true
+    },
+    {
+      "case": "selection-tag--1",
+      "refused": true
+    },
+    {
+      "case": "selection-tag-281474976710656",
+      "refused": true
+    },
+    {
+      "case": "selection-tag-100002",
+      "refused": true
+    },
+    {
+      "case": "unrelated-untagged-boundaries-do-not-change-matched-receipts",
+      "pass": true
+    }
+  ]
+}

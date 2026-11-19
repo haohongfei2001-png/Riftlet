@@ -1,0 +1,17 @@
+{
+  "source": "9d7b9462762da5bca88f5016ae3600358ca31dd1",
+  "sourceTree": "b00cb59ca078d6f6c4cfd4f0f0023c7a48bd7158",
+  "sourceListingSHA256": "e5cc1c3513b25552c7a34a3eba8e1532383a46e3bed2bf6e1e749519690c9808",
+  "shortVersion": "1.0.5",
+  "buildVersion": "31",
+  "buildChannel": "isolated-product-acceptance",
+  "architectures": [
+    "arm64"
+  ],
+  "executableSHA256": "6ddbd10a6a18ddb9540a4c38cc6666b693b9aa69c11cfa4129fcb53e109e87bd",
+  "packageArchiveSHA256": "1e74349576b451b19190dc2c906d253cd4f6519c23fdce4b9b5330564466b17d",
+  "notarization": "NOT_RUN",
+  "release": "NOT_PERFORMED",
+  "signedReceiptSHA256": "1ee4aebc53dcfc7ad69538a81c561b4aecae044445299650e79b922128443db7",
+  "signatureVerification": "codesign --verify --deep --strict --all-architectures"
+}

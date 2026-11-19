@@ -1,0 +1,79 @@
+[
+  {
+    "reviewedSource": "e8f8930d099fe1cabde12134a47b9df175a02150",
+    "reviewedTree": "4030ad903c0c8e2b11b4956fb405d41a9fb41612",
+    "result": "CHANGES_REQUESTED",
+    "findings": [
+      {
+        "id": "G4-01",
+        "priority": "P1",
+        "path": "Sources/RiftletAdapters/ChatGPTWebPageProgram.swift:43",
+        "issue": "The original and new page functions share v19 but only G4 bytes are discoverable for v19. A fresh native reader cannot adopt a live H3 channel. The exact Swift installer/discovery and JavaScriptCore return the resident H3 channel for the H3 function and no channel for G4 in both Chrome and Edge contexts.",
+        "change": "Give G4 a distinct source/provenance and freeze both H3 observation bytes and registration handling. Keep observation limited to the unique original relay.",
+        "evidence": [
+          "v19-relay-probe.swift",
+          "v19-relay-result.json"
+        ]
+      },
+      {
+        "id": "G4-02",
+        "priority": "P1",
+        "path": "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js:967",
+        "issue": "An old progress bar can be recycled into B’s new exact-name/exact-File preview. Changing only A’s retained bar from 10 to 35 makes B report uploadStarted. Reproduced both with input-only A, and with eligible A whose card mounted/left between polls. Two setters, two changes, no retry. A synchronously sampled eligible old bar is correctly refused.",
+        "change": "Keep ownership across independently eligible and input-only operations and async mount/removal between polls, refusing ambiguous reused progress. Do not make this a new input gate.",
+        "evidence": [
+          "detached-reused-bar.cjs",
+          "detached-reused-bar.json",
+          "delayed-reused-bar.cjs",
+          "delayed-reused-bar.json"
+        ]
+      },
+      {
+        "id": "G4-03",
+        "priority": "P1",
+        "path": "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js:853",
+        "issue": "The expected event is counted by identity with no requirement that its FileList still contains the exact one File. A normal synchronous input handler previews the File and clears input.value before change. The upload handler sees zero files. Its local preview bar 10->35 nevertheless grants START.",
+        "change": "Verify the FileList immediately at the responsible change-entry boundary as well as one change dispatch. Respect apps that clear it inside the handler after receiving the File. An uncertain case must never cause a second input.",
+        "evidence": [
+          "empty-change.cjs",
+          "empty-change.json"
+        ]
+      },
+      {
+        "id": "G4-04",
+        "priority": "P2",
+        "path": "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js:861",
+        "issue": "Observation expires 30 seconds from capture even before staging finishes. A 31-second pre-input staging interval suppresses immediate subsequent eligible 10->35 progress, while 29 seconds succeeds. Both inputs execute once and the original click is still valid.",
+        "change": "Preserve capture-time mutations, then bound progress observation relative to the actual handoff.",
+        "evidence": [
+          "slow-stage.cjs",
+          "slow-stage.json"
+        ]
+      }
+    ],
+    "originalReportSHA256": "1673f74cc246278ed323eb429a778096e1059b82172ece65172611f6db8a37d4"
+  },
+  {
+    "reviewedSource": "42edbab3a2ea4b4f5ff74926c359039e5e9dd3e9",
+    "reviewedTree": "d20ba836d24c98a65fac320b215267349daf7d8b",
+    "result": "CHANGES_REQUESTED",
+    "findings": [
+      {
+        "id": "G5-01",
+        "priority": "P1",
+        "path": "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js:1035",
+        "issue": "Two eligible independent files A/B. B has an exactly named new card and B File URL. A fresh nested group and the only progressbar are expressly labelled with A’s real registered filename. Only A’s progress advances 10->35, but G5 grants START to B and leaves A inputTriggered. No reused nodes, two inputs and no sends. Current logic checks contradictory data-file-name only.",
+        "matrix": "23 ownership forms x three alternatives. G5 refused the foreign data-file-name but granted B START for the other 22 explicit foreign associations. These include direct/ancestor/image aria-label/title/alt/description, aria-valuetext, local/external or multiple accessible-name and description references, referenced alt, native progress label for, progress text, local competing aria-owns, and ownership which changed to A during the progress advance.",
+        "resolution": "Reject explicit competing file ownership throughout the calibrated image/card/control relationship and its bounded relevant accessible references, including changes during the evidence interval. A normal localized progress label or percent cannot veto a correctly owned file. Incomplete/unsafe references may remain UNKNOWN. Keep private/accessibility text out of exported diagnostics."
+      },
+      {
+        "id": "G5-02",
+        "priority": "P1",
+        "path": "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js:912",
+        "issue": "A later original-picker change event with [another File, original File] enters the original file into the application a second time. G5 still grants START and reports inputCount=1. A second singleton with only the original is correctly rejected. Five mixed/duplicate positions with the same object reproduced.",
+        "resolution": "Invalidate the original START witness when any entry in a later change is the registered original File object, or when the list is too large to verify. An empty/foreign-only list or distinct File with the same name is not another submission of this original. Do not retry or block the later independent input."
+      }
+    ],
+    "originalReportSHA256": "f31f7178944cb908342986ec7e1ccbfb5f7631ac5b6bd4c9cc166594015f2d67"
+  }
+]

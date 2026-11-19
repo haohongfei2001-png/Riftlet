@@ -1,0 +1,46 @@
+{
+  "observedAt": "2026-11-14T18:38:17.879953+00:00",
+  "previousHead": "db6b5e49a68404fef2deb49783abde160fffc9d9",
+  "commercialResult": "NOT_RUN",
+  "login": "SIGNED_IN_NEW_DRAFT_OBSERVED",
+  "profile": "TASK_CREATED_ISOLATED_PROFILE_NO_CREDENTIAL_COPY",
+  "draftPreparation": {
+    "neutralTextPresent": true,
+    "baselineAttachmentPresent": true,
+    "nonemptySelection": "OBSERVED_14_UTF16_UNITS",
+    "systemScreenshotMarker": true,
+    "baselineSHA256": "675aa51de3d8caf35a3715eda9572c81ac456456fe855b58ebb67b391d7247b9",
+    "baselineUploadedVia": "OFFICIAL_CHATGPT_PICKER_SETUP_ONLY",
+    "platformNotice": "FILE_ADDED_TO_CHAT_LIBRARY_STORAGE_FULL",
+    "libraryDeletion": false,
+    "messageSent": false,
+    "rawAXRecord": "draft-prepared-ax.json"
+  },
+  "ordinaryRiftletInputs": 0,
+  "ordinaryRiftletUploadStarts": 0,
+  "ordinaryRiftletUploadCompletions": 0,
+  "captureIsolationRepair": {
+    "scope": "COMPILER_ONLY_ISOLATED_PRODUCT_PACKAGE",
+    "systemScreenshotPreferenceRead": false,
+    "systemScreenshotPreferenceChanged": false,
+    "productionCaptureProviderChanged": false,
+    "repeatedDirectoryInitializationFailure": "REPRODUCED_COCOA_516_EEXIST_THEN_FIXED",
+    "sourceGuard": "ROOT_AND_SOURCE_CANONICAL_OWNED_PRIVATE_DIRECTORY_RECHECK_BEFORE_READ",
+    "localChecks": "SIX_SAME_SOURCE_TEST_BODIES_PASS_IN_EACH_OF_ISOLATED_AND_ORDINARY_CONFIGURATIONS",
+    "xctest": "NOT_RUN_LOCAL_CLT_MISSING_XCTEST",
+    "productCompile": "PASS_ISOLATED_MACRO"
+  },
+  "next": [
+    "ordinary signed package source-isolated capture",
+    "actual Riftlet Edge Automation consent",
+    "per-asset mouse product receipts",
+    "commercial START and completion calibration"
+  ],
+  "permissionGate": {
+    "browserJavaScriptSetting": "NOT_CONFIRMED_ENABLED",
+    "automaticApproval": "REJECTED_AX_PICK_ENABLE_REQUIRES_ACTION_TIME_CONFIRMATION",
+    "userConfirmation": "REQUESTED_PENDING",
+    "scope": "ISOLATED_EDGE_JAVASCRIPT_APPLE_EVENTS_AND_SIGNED_TEST_APP_AUTOMATION",
+    "bypass": false
+  }
+}

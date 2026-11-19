@@ -1,0 +1,20 @@
+{
+  "package": {
+    "source": "fb4e8fa73746d9cba55362ef099dab4ac3a9b057",
+    "sourceTree": "5280ee8a6911404a8ecfa8df41611054a78a0400",
+    "shortVersion": "1.0.5",
+    "buildVersion": "31",
+    "executableSHA256": "a16719e3f992adab8edf116f478b16c12d5160799a928e4e68fff6d22c7c7c83",
+    "packageArchiveSHA256": "7dabfce04f0ed0750393cb5e0850ec4151bf92cecebfef494f9c900317726efd",
+    "architectures": [
+      "arm64"
+    ],
+    "buildChannel": "isolated-product-acceptance"
+  },
+  "strictSignedPackageReceiptSHA256": "b78009d89d4fd84bea0be383519eed4cd968271a1ad97886629f61b806197e31",
+  "reviewedSource": "fa18635dbc8133d463c502be7555223403b572df",
+  "reviewSHA256": "ef58e2d386c0332084fbf42347a85985bdf0c191adbcc19babd1d68c6a1a6d8e",
+  "reviewedSourceDifferenceFromPackage": "Only a WebCrypto wait in a JS test changed. Runtime sources and bundled resources are identical.",
+  "gatekeeper": "NOT_RUN",
+  "notarization": "NOT_RUN"
+}

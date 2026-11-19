@@ -1,0 +1,130 @@
+{
+  "allIncreasing": true,
+  "earliestV26InvalidatingMutation": "not distinguishable between dropped scope and dropped remove in same replacement",
+  "elapsedTiming": "monotonic milliseconds since observer arm",
+  "fileInputDuringRead": false,
+  "numericNodeToken": 3,
+  "originalSingleNamedCardStructure": [
+    {
+      "bar": "SPAN",
+      "barContainsImage": false,
+      "barParent": "SPAN",
+      "barRole": true,
+      "imageContainsBar": false,
+      "img": "",
+      "imgAndBarSiblings": false,
+      "imgParent": "",
+      "ms": 12045.2,
+      "names": [
+        [
+          "SPAN",
+          [
+            "aria-label"
+          ]
+        ],
+        [
+          "BUTTON",
+          [
+            "aria-label"
+          ]
+        ]
+      ],
+      "removeParent": "DIV",
+      "removeParentChildCount": 2,
+      "root": "DIV",
+      "rootChildren": 2,
+      "stableBar": 3,
+      "stableImage": null,
+      "stableRemove": 2,
+      "stableRemoveParent": 1,
+      "stableRoot": 1
+    },
+    {
+      "bar": "",
+      "barContainsImage": false,
+      "barParent": "",
+      "barRole": false,
+      "imageContainsBar": false,
+      "img": "",
+      "imgAndBarSiblings": false,
+      "imgParent": "",
+      "ms": 20963.2,
+      "names": [
+        [
+          "SPAN",
+          [
+            "aria-label"
+          ]
+        ],
+        [
+          "BUTTON",
+          [
+            "aria-label"
+          ]
+        ]
+      ],
+      "removeParent": "DIV",
+      "removeParentChildCount": 2,
+      "root": "DIV",
+      "rootChildren": 2,
+      "stableBar": null,
+      "stableImage": null,
+      "stableRemove": 2,
+      "stableRemoveParent": 1,
+      "stableRoot": 1
+    },
+    {
+      "bar": "",
+      "barContainsImage": false,
+      "barParent": "",
+      "barRole": false,
+      "imageContainsBar": false,
+      "img": "IMG",
+      "imgAndBarSiblings": false,
+      "imgParent": "SPAN",
+      "ms": 21454.6,
+      "names": [
+        [
+          "DIV",
+          [
+            "aria-label"
+          ]
+        ],
+        [
+          "IMG",
+          [
+            "alt"
+          ]
+        ],
+        [
+          "BUTTON",
+          [
+            "aria-label"
+          ]
+        ]
+      ],
+      "removeParent": "DIV",
+      "removeParentChildCount": 2,
+      "root": "DIV",
+      "rootChildren": 2,
+      "stableBar": null,
+      "stableImage": 6,
+      "stableRemove": 5,
+      "stableRemoveParent": 4,
+      "stableRoot": 4
+    }
+  ],
+  "productDurableStart": false,
+  "range": [
+    5,
+    100
+  ],
+  "rawReceiptSHA256": "19decdc7fb5968c32da56e1146ea3de17b2d7a434fd6d3248185b1fb0db9b182",
+  "removeChangedAcrossPreview": true,
+  "rootAndRemoveStableAtBarRetirement": true,
+  "rootChangedAcrossPreview": true,
+  "sampleCount": 33,
+  "seed": 625,
+  "serviceCompletion": "not inferred from DOM or completed numeric progress",
+  "source": "fb4e8fa73746d9cba55362ef099dab4ac3a9b057"
+}

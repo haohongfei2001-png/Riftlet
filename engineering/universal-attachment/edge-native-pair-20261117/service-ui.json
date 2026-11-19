@@ -1,0 +1,61 @@
+{
+  "testedSource": "7a3f033470b75cc4c97f4322fed3143ff4f96d46",
+  "testedTree": "7f097dd4df83661d30f092a8a53e4295494fae23",
+  "executableSHA256": "2f30da8e2ce8851433eea387d6c5083c7dbf2bcb6358c8e98b11a98451a355f4",
+  "signedArchiveSHA256": "89fd4ddbbe72a7053531ccd2a4e8752883ab9a1fb5c9edb8dec8e40998eb1d7e",
+  "actualDownIntervalMS": 489.789,
+  "selectionCallbackIntervalMS": 482.357,
+  "ordinaryDraftBaselineCount": 5,
+  "source": "Edge DevTools Network through the standard accessibility UI; only exact filename, file-identity digest, assigned transfer locator digest, status, size and terminal enum inspected",
+  "originalAppEventsSHA256": "173f55f916008a799993d0adb2c79adaa4c22e07cea27681e3e6811c6bf4c873",
+  "originalProductTraceRows": 271,
+  "stateReadBackAt": "2026-11-16T20:04:35.148374+00:00",
+  "images": [
+    {
+      "fixture": 607,
+      "operation": "102E77E7-2487-4815-8C62-F757CB35195F",
+      "systemOriginalBytes": 4512802,
+      "productDurableStart": true,
+      "existingFiveTextAndSelectionPreserved": true,
+      "serviceAllocationFilenameMatched": true,
+      "serviceFileIDDigest": "3cf74a9c48be3307b06975475b5076768b33533230d41d52d681fc0fd3a1d365",
+      "assignedStorageLocatorDigest": "8414aa9d21292c2218eb95683f6a20e97a505e96cabdadc25506f394c9597968",
+      "uniqueMatchingStoragePut": true,
+      "createdWithAndSentBytes": 4449966,
+      "storageStatus": 201,
+      "storageETagPresent": true,
+      "processingRequestMatchedFileIDAndOperationName": true,
+      "processingHTTPStatus": 200,
+      "processingResponseBody": "UNAVAILABLE_IN_DEVTOOLS",
+      "terminal": "UNKNOWN",
+      "productTerminal": null
+    },
+    {
+      "fixture": 608,
+      "operation": "93EBF6F6-B302-477C-B9B2-DABBC3B83A22",
+      "systemOriginalBytes": 4514379,
+      "productDurableStart": false,
+      "productPhase": "unknown",
+      "matchingCreateOrPutInDisplayedFirstPartyRows": false,
+      "serviceOutcome": "UNKNOWN",
+      "imageSeenInOriginalDraft": false,
+      "perFileServiceFailure": false,
+      "automaticRetry": false
+    }
+  ],
+  "canonicalExport": {
+    "status": "INCOMPLETE_PREFIX_ONLY",
+    "bytes": 8488153,
+    "sha256": "9159f8a36552dca430540ae3b41983eb074757bbaef2681610c368968ddf6c0f",
+    "newOperationNamesPresent": 0
+  },
+  "queueNavigation": "Both new captures were visible on arrival. The signed upgrade reopened the oldest page. Four guarded native pager presses restored the prepared pair before either screenshot click.",
+  "productStartCountThisTrial": 1,
+  "productCompleteCountThisTrial": 0,
+  "serviceStartsThisTrial": 1,
+  "serviceCompletesThisTrial": 0,
+  "notes": [
+    "The notice does not name a file or state a numeric limit. It confirms a draft-level service limit, not a specific terminal receipt for 608.",
+    "No inference of completion from HTTP 201, processing HTTP 200, a loaded thumbnail, or an unobserved request. The two selected screenshots were never retried."
+  ]
+}

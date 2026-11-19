@@ -1,0 +1,13 @@
+{
+  "at": "2026-11-16T03:18:37.703211+00:00",
+  "fileName": "resume-20261116-baseline-601.png",
+  "bytes": 4514810,
+  "sha256": "ce4bb914eba4b8481fc9b0033f3efdcada7bde47026e2982661508a66eadfce7",
+  "systemScreenshotMetadata": true,
+  "properties": "<ISOLATED_RIFTLET_DATA>/capture-source/resume-20261116-baseline-601.png\n  pixelWidth: 1628\n  pixelHeight: 1052\n  space: RGB\n  profile: Display P3\n",
+  "captureCompleted": true,
+  "postCaptureMetadataCheckFailed": "xattr -p formatted binary as hexadecimal; parsed correctly with -px bytes.fromhex",
+  "originalWindowReceiptPersisted": false,
+  "reCaptured": false,
+  "purpose": "baseline only"
+}

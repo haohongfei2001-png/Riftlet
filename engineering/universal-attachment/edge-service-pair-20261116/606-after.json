@@ -1,0 +1,23 @@
+{
+  "action": "inspect",
+  "editorFocused": false,
+  "exactTemporaryDraft": true,
+  "frontmost": true,
+  "networkRecordingBeforeAction": true,
+  "operationImageNames": [
+    "riftlet-B99E0FB7-6A23-4BB4-BABC-E5029C04BA27.png",
+    "riftlet-C745AAD4-2AB4-4060-B383-01B65DD0D0BE.png",
+    "riftlet-ADD22B55-CA51-4F3B-AA5D-961FB38FC73B.png",
+    "riftlet-AB43217B-B05E-4E0E-A31D-D55742D28D41.png"
+  ],
+  "pid": 15065,
+  "priorImageCounts": [
+    1,
+    1,
+    1
+  ],
+  "selectedWords": true,
+  "selectionLength": 14,
+  "textSHA256": "d60bcd4299469a1c5c0f8d2c7ed34dfde67d4631f99ff80de5297d3608407b3b",
+  "timestamp": "2026-11-16T13:15:10Z"
+}

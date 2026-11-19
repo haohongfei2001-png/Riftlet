@@ -1,0 +1,94 @@
+{
+  "app": "existing dedicated Microsoft Edge DevTools Network panel",
+  "clipboard": {
+    "absoluteGenerations": "Not logged. Relative changeCount after each command is known from the actual code path taken.",
+    "attribution": "UNATTRIBUTED_CLIPBOARD covers either an unacceptable pasteboard item/type/size or a bounded text representation the exact-file projector could not attribute. The recorded return value does not distinguish these branches. The contents, format and emptiness of either result remain unproved.",
+    "changeAtEachCommand": [
+      1,
+      1
+    ],
+    "counterGuard": "After each command, changeCount advanced by exactly one versus the snapshot just before that command. The sampled physical event counters were unchanged at the attribution guard. These observations do not identify the writer. A new user copy is unverified.",
+    "furtherAccess": "No further general-pasteboard reads or writes after the two outcomes.",
+    "originalData": "Before each command, every restorable representation was captured and a replacement set was prepared in the local process memory. No clipboard data or recovery copy was written to a file by the helper. After the helper exited, its in-memory snapshots were gone. No recoverable first snapshot is available from this run.",
+    "restoration": "The guard stopped before clearContents or writeObjects on both outcomes. Restoring a prior snapshot could overwrite a new owner whose identity was unproved. The second authorized Copy response was invoked after the first observation. The pre-test general clipboard was not verified restored."
+  },
+  "dateUtc": "2026-11-17",
+  "evidenceSHA256": {
+    "boundedNativeCommandLog": "121c346586ae2aa777f0a347fba2dd472a46ff6a42245d22303522d6c55a33ac",
+    "exercisedNativeProbeBinary": "7e3612a17c28aa770593cf40fcb4a89fcd05d22bc4d0fe20c062f960c6097f88",
+    "exercisedNativeProbeSource": "9871cce93066d2bdb98fa5d2881c55178d6ac4a7b8614346dee05ec3a91187bf"
+  },
+  "limits": {
+    "attachmentInteractions": 0,
+    "draftSends": 0,
+    "perFileResponseEntitiesAttributed": 0,
+    "perFileTerminalEventsProved": 0,
+    "privateChatBodiesRecorded": 0,
+    "rawClipboardContentRecorded": 0,
+    "reissuedBusinessRequests": 0,
+    "reloadsOrNewTabs": 0,
+    "reuploads": 0,
+    "serviceNoticeDismissals": 0,
+    "webOrDevToolsInternalAPICalls": 0
+  },
+  "normalUI": {
+    "actualVisibleSameEndpointMarkers": 3,
+    "allThreeAppHitTestsVerified": true,
+    "commandExecutionsPerFile": 1,
+    "filesWithCommandExecuted": 2,
+    "menuItemEnabledForBoth": true,
+    "nativeCommand": "复制响应",
+    "repeatCopyAfterFinalTwoOutcomes": 0,
+    "selectedBy": "AX request text, cell and row in the original Network table. A system-wide hit test checked the bound row and process before each physical-layer UI event. A change to the exact displayed Payload, with both SHA-256 pins, established which request was selected.",
+    "verifiedOriginalProcessBirthWindowTabAndDedicatedDraft": true
+  },
+  "originalHAR": {
+    "bytes": 8162985,
+    "entries": 68,
+    "sha256": "1b0974cb48d123c0f13d2b76acaea951d02988a4693d66f63e1abed7f3596097"
+  },
+  "requests": [
+    {
+      "HARContainsResponseContentText": false,
+      "HARResponseError": "net::ERR_ABORTED",
+      "bodyState": "UNATTRIBUTED_CLIPBOARD",
+      "copyGuardDisposition": "NEW_OWNER_PRESERVED",
+      "copyOutcomeObservedUTC": "2026-11-17T14:16:52Z",
+      "dualBindingObservedUTC": "2026-11-17T14:16:51Z",
+      "menuEnabledObservedUTC": "2026-11-17T14:16:51Z",
+      "method": "POST",
+      "originalHARRequestStartUTC": "2026-11-17T07:46:54.429Z",
+      "originalHARZeroBasedIndex": 63,
+      "pasteboardChangeCountDelta": 1,
+      "payloadFileIDSHA256": "18b1cb86a43bae665c757d839dabb49aeb23bf8862e0afa338ab218c4a6dc193",
+      "payloadFileNameSHA256": "3d2559084f871deef8b65a5d8ecb5655aede8d18a2b4aff91873da7518fad8ea",
+      "responseContentSize": 576,
+      "responseStatus": 200,
+      "seed": 612,
+      "standardCopyResponseCommands": 1,
+      "terminal": "UNKNOWN"
+    },
+    {
+      "HARContainsResponseContentText": false,
+      "HARResponseError": "net::ERR_ABORTED",
+      "bodyState": "UNATTRIBUTED_CLIPBOARD",
+      "copyGuardDisposition": "NEW_OWNER_PRESERVED",
+      "copyOutcomeObservedUTC": "2026-11-17T14:16:53Z",
+      "dualBindingObservedUTC": "2026-11-17T14:16:52Z",
+      "menuEnabledObservedUTC": "2026-11-17T14:16:52Z",
+      "method": "POST",
+      "originalHARRequestStartUTC": "2026-11-17T07:46:54.877Z",
+      "originalHARZeroBasedIndex": 64,
+      "pasteboardChangeCountDelta": 1,
+      "payloadFileIDSHA256": "147236ba0069d7180c302fa12068e432103be8800f70b2133e8ebc0a95547151",
+      "payloadFileNameSHA256": "5b199daa1655b9a16ec7b31a0e65467f3f8cd85dd8c9c6ee9e84fa568ff9094d",
+      "responseContentSize": 576,
+      "responseStatus": 200,
+      "seed": 613,
+      "standardCopyResponseCommands": 1,
+      "terminal": "UNKNOWN"
+    }
+  ],
+  "schema": "riftlet.pr69.retained-original-network-copy-response.v1",
+  "scope": "Read retained first-party processing requests for 612 and 613. Each file name and server file ID was verified in the same selected request Payload before using the enabled native Copy response command."
+}

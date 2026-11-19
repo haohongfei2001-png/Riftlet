@@ -98,9 +98,37 @@ enum ProductStatus {
             if web == .nativeEventFailed(12) { return .chromeJavaScriptDisabled }
         }
         if let frontmostBundleID,
-           ["com.apple.Safari", "org.mozilla.firefox", "com.microsoft.edgemac", "com.brave.Browser"]
+           ["com.apple.Safari", "org.mozilla.firefox", "com.microsoft.edgemac", "com.brave.Browser", "company.thebrowser.Browser"]
             .contains(frontmostBundleID) { return .unsupportedBrowser }
         return .targetUnavailable
+    }
+
+    /// Presentation only. No case grants input, retry, admission or a new target.
+    static func edgeClickFeedback(_ error: Error, applicationID: String?, beforeInput: Bool,
+                                  copy: ProductCopy = .current) -> String? {
+        guard applicationID == "com.microsoft.edgemac", error is WebAdapterError else { return nil }
+        guard beforeInput else {
+            return copy.text("本次 Edge 附加结果尚未确认；图片记录保留，不会自动再次附加。",
+                "The Edge attachment result is unconfirmed. Its history is kept; Riftlet will not attach it again automatically.")
+        }
+        switch error as? WebAdapterError {
+        case .nativeEventFailed(-1744)?:
+            return copy.text("首次连接需要允许 Riftlet 自动化 Microsoft Edge；图片保留，本次未附加。",
+                "Allow Riftlet to automate Microsoft Edge to connect for the first time. This image is kept and has not been attached.")
+        case .nativeEventFailed(-1743)?:
+            return copy.text("Microsoft Edge 自动化权限未获准；请在系统设置的自动化权限中检查 Riftlet。图片保留。",
+                "Microsoft Edge automation is not allowed. Check Riftlet under Automation in System Settings. The image is kept.")
+        case .nativeEventFailed(12)?:
+            return copy.text("Microsoft Edge 尚未允许 Apple 事件中的 JavaScript；图片保留，本次未附加。",
+                "Microsoft Edge has not enabled Allow JavaScript from Apple Events. This image is kept and has not been attached.")
+        case .nativeEventFailed(-1712)?:
+            return copy.text("Microsoft Edge 未及时响应，原目标尚未确认；图片保留，不会自动再次附加。",
+                "Microsoft Edge did not respond in time to confirm the original draft. The image is kept and will not be attached again automatically.")
+        case .invalidTarget?, .browserNotFrontmost?, .nativeSelectionChanged?, .pageRejected(.clickPinRefused)?:
+            return copy.text("未能核实点击时的 Microsoft Edge 草稿；图片保留，本次未附加。",
+                "The Microsoft Edge draft at the time of your click could not be verified. This image is kept and has not been attached.")
+        default: return nil
+        }
     }
 
     /// Presentation only. No case grants input, retry, admission or a new target.

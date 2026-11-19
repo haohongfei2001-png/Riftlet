@@ -160,6 +160,12 @@ public final class BoundedDiagnosticTrace: @unchecked Sendable {
         let digests = Set(identifiers.map { $0 + "Digest" }).union(["targetDigest", "diagnosticSessionDigest"])
         var result: [String: Any] = [:]
         for (key, value) in fields where key.utf8.count <= 64 {
+            if key == "edgeProgressDecision" {
+                if let text = value as? String, let reason = AttachmentEntryDiagnostics.EdgeCalibration.ProgressDecision(rawValue: text) {
+                    result[key] = reason.rawValue
+                }
+                continue
+            }
             if let text = value as? String {
                 if identifiers.contains(key), UUID(uuidString: text) != nil {
                     result[key + "Digest"] = SHA256.hash(data: Data(text.lowercased().utf8))
