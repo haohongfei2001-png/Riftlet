@@ -1,0 +1,123 @@
+{
+  "source": "38cbef90ed3370797edf3f902bb8fba87299abda",
+  "product": "38cbef90ed3370797edf3f902bb8fba87299abda",
+  "build": 43,
+  "dmgSHA256": "926c64d904b6c95bfc1ae1bbf50059579aa3681dfa0ae02d99bcf542b5102a06",
+  "executableSHA256": "c876b4173e7470dfde8074fc6db8c236f0d20e11830df69f349586b8d256b65a",
+  "clickToSwallowCommitUpperBoundMS": [
+    2263.6,
+    1651.8,
+    2456.4,
+    1349.1,
+    6260.4,
+    4868.5,
+    1380.7,
+    2164.9
+  ],
+  "cold": 2263.6,
+  "warm": 1651.8,
+  "median": 2214.25,
+  "p95NearestRank": 6260.4,
+  "pairMouseDownIntervalsMS": [
+    424.9,
+    441.6,
+    378.8
+  ],
+  "operations": [
+    {
+      "sequence": 1,
+      "op": "f083e288ec04",
+      "asset": "ec43365d95b6",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "f76492173b29",
+      "draft": "74a4b7cb6356",
+      "card": "17c840f16c41",
+      "belongs": true
+    },
+    {
+      "sequence": 2,
+      "op": "e56fb78b5b70",
+      "asset": "5c9cb3be85d2",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "2fb84ff36700",
+      "draft": "74a4b7cb6356",
+      "card": "00ef4c9cd72f",
+      "belongs": true
+    },
+    {
+      "sequence": 3,
+      "op": "0796a302b201",
+      "asset": "fd0ad7411732",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "3a23bb8c843f",
+      "draft": "74a4b7cb6356",
+      "card": "4560fba2b587",
+      "belongs": true
+    },
+    {
+      "sequence": 4,
+      "op": "6b6847f5b016",
+      "asset": "ee8ef8a1d2e3",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "53cfabdb1884",
+      "draft": "74a4b7cb6356",
+      "card": "639be82f2561",
+      "belongs": true
+    },
+    {
+      "sequence": 5,
+      "op": "f78157cfbc5e",
+      "asset": "08f5bea95cbb",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "b7f94bc92170",
+      "draft": "74a4b7cb6356",
+      "card": "ea735d108c1b",
+      "belongs": true
+    },
+    {
+      "sequence": 6,
+      "op": "61305815e0b6",
+      "asset": "feb11cdfb740",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "22d634fa6c45",
+      "draft": "74a4b7cb6356",
+      "card": "d11d9867f8af",
+      "belongs": true
+    },
+    {
+      "sequence": 7,
+      "op": "499e31bd94ff",
+      "asset": "2375f4adba5c",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "7f34109bbc8b",
+      "draft": "74a4b7cb6356",
+      "card": "763a5ef97913",
+      "belongs": true
+    },
+    {
+      "sequence": 8,
+      "op": "9e8a2338e09e",
+      "asset": "d36da9a879d9",
+      "attempt": 1,
+      "phase": "inputTriggered",
+      "invocation": "464e1437658b",
+      "draft": "74a4b7cb6356",
+      "card": "2b7b79e5c1b2",
+      "belongs": true
+    }
+  ],
+  "positiveSTART": 8,
+  "distinctOperations": 8,
+  "uniqueVisibleFixtureImagesInOriginalOrder": 7,
+  "fixtureLimitation": "original PNG files 7 and 8 are byte-identical; insufficient for third distinct pair",
+  "preservedSelection": true,
+  "unsent": true,
+  "refocusOriginalTab": true
+}
