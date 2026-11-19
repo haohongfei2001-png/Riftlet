@@ -55,9 +55,17 @@ struct NativeAutomationPermissionChecker: AutomationPermissionChecking {
         await check(askUserIfNeeded: askUserIfNeeded, expectedSession: nil)
     }
 
-    @MainActor static func selectBrowser(expectedSession: String?, browsers: [AttachmentBrowser] = [.chrome])
+    /// Only the settings UI has a displayed receiver. An existing session always wins.
+    static func scope(expectedSession: String?, browsers: [AttachmentBrowser], displayed: AttachmentBrowser?) -> [AttachmentBrowser] {
+        guard expectedSession == nil, let displayed else { return browsers }
+        return browsers.filter { $0 == displayed }
+    }
+
+    @MainActor static func selectBrowser(expectedSession: String?, browsers: [AttachmentBrowser] = [.chrome],
+                                         displayed: AttachmentBrowser? = nil)
         -> (AutomationPermissionState?, PermissionBrowserIdentity?) {
-        let installed = browsers.filter { NSWorkspace.shared.urlForApplication(withBundleIdentifier: $0.rawValue) != nil }
+        let scope = scope(expectedSession: expectedSession, browsers: browsers, displayed: displayed)
+        let installed = scope.filter { NSWorkspace.shared.urlForApplication(withBundleIdentifier: $0.rawValue) != nil }
         guard !installed.isEmpty else { return (.browserNotInstalled, nil) }
         let candidates = installed.flatMap { browser in
             NSRunningApplication.runningApplications(withBundleIdentifier: browser.rawValue).compactMap { app in

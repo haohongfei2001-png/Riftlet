@@ -94,6 +94,7 @@ enum ProductStatus {
         }
         if let web = error as? WebAdapterError {
             if web == .invalidPrivateFile { return .imageUnavailable }
+            if web == .nativeEventFailed(-1744) { return .permissionNotRequested }
             if web == .nativeEventFailed(-1743) { return .permissionDenied }
             if web == .nativeEventFailed(12) { return .chromeJavaScriptDisabled }
         }

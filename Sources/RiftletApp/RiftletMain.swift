@@ -498,7 +498,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     let clickIssue = ProductStatus.clickIssue(error, frontmostBundleID: press?.bundleID, webAcceptance: true)
                     if self.mode.usesWebAdapter, press?.receiverEpoch == self.permissionSession {
                         self.setupIssue = clickIssue
-                        if self.setupIssue == .permissionDenied { self.applyAutomationPermission(.denied) }
+                        if clickIssue == .permissionNotRequested { self.applyAutomationPermission(.notRequested) }
+                        if clickIssue == .permissionDenied { self.applyAutomationPermission(.denied) }
                         if self.setupIssue == .chromeJavaScriptDisabled {
                             self.chromeCheckID = nil
                             self.chromeConnection = .javaScriptDisabled
@@ -787,13 +788,20 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                                              requestFromUserAction: Bool = false) async -> AutomationPermissionState {
         let started = ProcessInfo.processInfo.systemUptime
         let foreground = foregroundBrowserSession
-        let receiver = expectedSession ?? foreground ?? lastForegroundSession
+        let expected = expectedSession ?? foreground ?? lastForegroundSession
+        let selection = expected == nil ? NativeAutomationPermissionChecker.selectBrowser(
+            expectedSession: nil, browsers: supportedBrowsers, displayed: setupBrowser) : (nil, nil)
+        let receiver = expected ?? selection.1?.session
         let receiverRequest = receiver.map { originalReceiverPermission.begin(session: $0) }
         let request = permissionPublication.begin(hostEpoch: permissionSession, foregroundSession: foreground,
                                                   receiverSession: receiver)
         let result: AutomationPermissionState
-        if requestFromUserAction { result = await permissionGate.requestFromUserAction(expectedSession: receiver) }
-        else { result = await permissionGate.inspect(expectedSession: receiver) }
+        if let receiver {
+            result = requestFromUserAction ? await permissionGate.requestFromUserAction(expectedSession: receiver)
+                                          : await permissionGate.inspect(expectedSession: receiver)
+        } else {
+            result = selection.0 ?? .unavailable
+        }
         let receiverResolution = receiverRequest.map { originalReceiverPermission.resolve($0, result: result) }
         let resolution = permissionPublication.resolve(request, state: result, hostEpoch: permissionSession,
             foregroundSession: foregroundBrowserSession, terminating: terminating)
@@ -1116,7 +1124,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                                                                 requestFromUserAction: true)
             if permission == .denied { setupIssue = .permissionDenied }
             else if permission == .granted {
-                if setupIssue == .permissionDenied { setupIssue = nil }
+                if setupIssue == .permissionNotRequested || setupIssue == .permissionDenied { setupIssue = nil }
                 do { try await startAttachmentObservationIfPermitted() }
                 catch { setupIssue = .targetUnavailable }
             }
@@ -1130,7 +1138,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         permissionSession = UUID()
         automationPermission = .unavailable
         resetChromeConnection()
-        if setupIssue == .permissionDenied || setupIssue == .unsupportedBrowser || setupIssue == .targetUnavailable { setupIssue = nil }
+        if setupIssue == .permissionNotRequested || setupIssue == .permissionDenied || setupIssue == .unsupportedBrowser || setupIssue == .targetUnavailable { setupIssue = nil }
         updateSetup()
     }
 
@@ -1143,7 +1151,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
 
     private func checkChromeConnection() async {
         guard mode == .capture, mode.usesWebAdapter, initialized, !terminating, chromeCheckID == nil else { return }
-        let (status, choice) = NativeAutomationPermissionChecker.selectBrowser(expectedSession: foregroundBrowserSession ?? lastForegroundSession, browsers: supportedBrowsers)
+        let (status, choice) = NativeAutomationPermissionChecker.selectBrowser(expectedSession: foregroundBrowserSession ?? lastForegroundSession, browsers: supportedBrowsers, displayed: setupBrowser)
         guard let process = choice?.process else {
             applyAutomationPermission(status ?? .unavailable)
             updateSetup()
@@ -1167,7 +1175,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         switch result {
         case .ready:
             chromeConnection = .ready
-            if setupIssue == .chromeJavaScriptDisabled || setupIssue == .permissionDenied { setupIssue = nil }
+            if setupIssue == .chromeJavaScriptDisabled || setupIssue == .permissionNotRequested || setupIssue == .permissionDenied { setupIssue = nil }
         case .permissionDenied: applyAutomationPermission(.denied)
         case .javaScriptDisabled: chromeConnection = .javaScriptDisabled
         case .noWindow: chromeConnection = .noWindow
@@ -1293,8 +1301,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         let bundleID = app?.bundleIdentifier
         let target: Task<TargetLease, Error>
         do {
-            // Only native window/tab IDs and the route are read synchronously.
-            // DOM discovery and first-use page initialization run off the UI.
+            // Bind the receiver and its original editor during the event.
+            // The actual file input is deferred until that binding is rechecked.
             target = try web.targetForClick()
         } catch {
             target = Task { throw error }

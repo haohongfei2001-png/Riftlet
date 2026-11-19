@@ -51,14 +51,14 @@ public enum SetupIssue: Equatable, Sendable {
     case sourceAccess, wrongScreenshotFolder, screenshotFolderNeedsSelection, unsupportedFormat, unsupportedSize, invalidImage
     case insufficientSpace, privateWriteFailed, storageUnavailable, pendingCapture, mediaMaintenance
     case sourceVolumeUnidentified, fileVolumeUnidentified, historicalSourceUnconfirmed
-    case unsupportedBrowser, targetUnavailable, permissionDenied, chromeJavaScriptDisabled, imageUnavailable
+    case unsupportedBrowser, targetUnavailable, permissionNotRequested, permissionDenied, chromeJavaScriptDisabled, imageUnavailable
     case initializationFailed, configurationUnavailable
     case visibilityPreferenceUnsaved, collectionPreferenceUnsaved
     case screenshotPreferenceUnsaved
     case attachmentFormat, attachmentBytes, attachmentPixels, attachmentSource
 
     var isAttachmentConnectionIssue: Bool {
-        self == .unsupportedBrowser || self == .targetUnavailable || self == .chromeJavaScriptDisabled
+        self == .permissionNotRequested || self == .unsupportedBrowser || self == .targetUnavailable || self == .chromeJavaScriptDisabled
     }
 
     public var text: String { text(in: .current) }
@@ -123,6 +123,9 @@ public enum SetupIssue: Equatable, Sendable {
         case .targetUnavailable:
             return copy.text("未能连接到可附加图片的聊天。请在 \(browser.displayName) 前台显示要用的 ChatGPT 草稿，确认其中有添加附件的入口。截图仍在本机。",
                              "Bring your intended ChatGPT draft to the front in \(browser.displayName) and check that attachments are available. The screenshot is still on your Mac.")
+        case .permissionNotRequested:
+            return copy.text("截图已保留。在 Riftlet 设置中检查 \(browser.displayName) 访问权限，然后在 macOS 提示时允许连接。",
+                             "Your screenshot is saved. Check \(browser.displayName) access in Riftlet Settings, then allow the connection when macOS asks.")
         case .permissionDenied:
             return copy.text("\(browser.displayName) 自动化访问被拒绝。请在系统设置的「隐私与安全性 → 自动化」中检查 Riftlet，再重新检查。",
                              "Allow Riftlet to control \(browser.displayName) in System Settings → Privacy & Security → Automation, then check again.")
