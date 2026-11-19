@@ -1066,9 +1066,9 @@ for (const scenario of ['same member','neighbor error','relabel and restore','ne
  });
 }
 
-for(const scenario of ['own retry','wrong figure','global notice','remove action','wrong label','wrong title','fake button',
+for(const scenario of ['own retry','zh retry','zh unrelated action','zh wrong file','zh generic notice','legacy watch','wrong figure','global notice','remove action','wrong label','wrong title','fake button',
  'hidden retry','transparent retry','disabled retry','aria disabled','extra picture','replaced original','relabel and restore',
- 'reparented original','reparent and restore','unmarked figure','no image marker','failed before START']){
+ 'reparented original','reparent and restore','unmarked figure','no image marker','failed before START','disabled failure before START']){
  test('original figure upload retry: '+scenario,()=>{
   const f=fixture({accept:false}),op=f.bind();
   f.stage(op);f.commit(op);
@@ -1076,10 +1076,22 @@ for(const scenario of ['own retry','wrong figure','global notice','remove action
   const card=figure.append(new f.Node('button',{type:'button','data-assistant-image-link':'','aria-label':op.name}));
   const attrs={src:f.context.URL.createObjectURL(f.input.files[0]),alt:op.name,'data-assistant-image':'','data-composer-image-attachment-preview':''};
   const image=card.append(new f.Node('img',attrs));image.currentSrc=attrs.src;
-  const start=scenario==='failed before START'?null:accepted(f,op);
+  const early=scenario.endsWith('before START');
+  const start=early?null:accepted(f,op);
   const host=scenario==='wrong figure'?f.form.append(new f.Node('figure',{'data-composer-image-attachment':''})):figure;
   const retry=host.append(new f.Node(scenario==='fake button'?'div':'button',{type:'button','data-composer-image-upload-retry':'',
    'aria-label':'Retry uploading '+op.name,title:'Failed to upload file.'}));
+  if(scenario.startsWith('zh ')){
+   retry.setAttribute('aria-label','重新上传文件：'+op.name);retry.setAttribute('title','上传未成功');
+   if(scenario==='zh unrelated action')retry.setAttribute('aria-label','查看文件：'+op.name);
+   if(scenario==='zh wrong file')retry.setAttribute('aria-label','重新上传文件：其他.png');
+   if(scenario==='zh generic notice')retry.setAttribute('title','点击重试');
+  }
+  if(scenario==='legacy watch'){
+   const registry=vm.runInContext('globalThis.__riftletIndependentFileInput20261104',f.context);
+   delete registry.operations.get(op.identity.operationID).failureWatch.views[0].figurePreview;
+  }
+  if(scenario==='disabled failure before START')retry.disabled=true;
   if(scenario==='global notice'){retry.remove();f.form.append(new f.Node('span')).textContent='Failed to upload file.';}
   if(scenario==='remove action'){retry.removeAttribute('data-composer-image-upload-retry');retry.setAttribute('data-composer-remove-image','');}
   if(scenario==='wrong label')retry.setAttribute('aria-label','Retry uploading other.png');
@@ -1096,8 +1108,8 @@ for(const scenario of ['own retry','wrong figure','global notice','remove action
   if(scenario==='unmarked figure')figure.removeAttribute('data-composer-image-attachment');
   if(scenario==='no image marker')image.removeAttribute('data-composer-image-attachment-preview');
   const read=live=>f.call({...op.command('observe'),requireLiveOriginal:live}).observation;
-  if(scenario==='failed before START')assert.equal(read(false).state,'inputTriggered');
-  else if(scenario==='own retry'){
+  if(early)assert.equal(read(false).state,'inputTriggered');
+  else if(scenario==='own retry'||scenario==='zh retry'){
    for(const result of [read(false),read(true)]){
     assert.equal(result.state,'failed');assert.equal(result.attachmentID,start.attachmentID);
     assert.equal(result.automaticRetryExcluded,false);

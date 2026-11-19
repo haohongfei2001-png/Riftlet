@@ -808,7 +808,7 @@ function riftletWebAcceptance(command, native) {
   }
   // The real upload error is on a sibling of the image button. Only the
   // figure containing this exact preview can own its filename-specific Retry.
-  function ownUploadRetry(card, image, name) {
+  function ownUploadRetry(card, image, name, requireEnabled = true) {
     if (!composerPreview(card, image, name) || !renderedPreview(card) || !renderedPreview(image)) return false;
     const figure = card.parentElement;
     if (figure.children.length > 3 || !consistentCardLabels(figure, name)
@@ -819,9 +819,14 @@ function riftletWebAcceptance(command, native) {
       if (retry || !child.matches('button[type="button"][data-composer-image-upload-retry]')) return false;
       retry = child;
     }
-    return !!retry && retry.getAttribute('aria-label') === 'Retry uploading ' + name
-      && retry.getAttribute('title') === 'Failed to upload file.'
-      && !retry.disabled && !blocked(retry) && !retry.matches(':disabled') && renderedPreview(retry);
+    if (!retry || !renderedPreview(retry)
+        || (requireEnabled && (retry.disabled || blocked(retry) || retry.matches(':disabled')))) return false;
+    const label = retry.getAttribute('aria-label') || '', title = retry.getAttribute('title') || '';
+    if (label === 'Retry uploading ' + name) return title === 'Failed to upload file.';
+    // The filename must be the complete operand of the localized retry action.
+    // A filename mentioned in a description or a generic retry is insufficient.
+    return label.endsWith(name) && /^(?:重试(?:上传)?|重新上传)(?:文件)?[ ：:]*$/.test(label.slice(0, -name.length))
+      && /^(?:上传未成功|上传失败|上传文件失败|文件上传失败|无法上传文件)。?$/.test(title);
   }
   // Keep only a weak node and a change bit, never a signed URL or inline
   // payload. The narrow observer expires even on documents with older registries.
@@ -1003,9 +1008,9 @@ function riftletWebAcceptance(command, native) {
     if (view.parent.deref() !== card.parentElement) return false;
     if (view.namedCard ? declared !== op.name : declared !== null && declared !== op.name) return false;
     if (card === view.card.deref() && view.unchanged && !view.unchanged()) return false;
-    // Older live operations already retain the original button, figure, and
-    // image. No watch is reconstructed from a name after any of them retires.
-    if (view.figurePreview !== false && card === view.card.deref() && !view.portalParent) {
+    // Old watches did not record whether the button left its figure or the
+    // filename changed and changed back. Do not promote those records.
+    if (view.figurePreview === true && card === view.card.deref() && !view.portalParent) {
       const originalImage = view.opaqueImage?.deref() || retainedPreview;
       if ((view.opaqueImage || originalImage && originalImage.getAttribute('src') === view.src)
           && ownUploadRetry(card, originalImage, op.name)) return true;
@@ -1142,7 +1147,7 @@ function riftletWebAcceptance(command, native) {
       const card = node.closest('[data-file-name],[role="button"],button') || node;
       const errors = '[role="alert"],[data-state="error"],[data-state="failed"]';
       return !!node.closest(errors) || !!card.querySelector(errors) || visibleFailureText(card)
-        || ownUploadRetry(card, card.children[0], op.name);
+        || ownUploadRetry(card, card.children[0], op.name, false);
     };
     const filename = fileNamePattern(op.name);
     const named = node => ['data-file-name', 'aria-label', 'title', 'alt'].some(key => filename.test(node.getAttribute(key) || ''))
