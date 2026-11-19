@@ -74,6 +74,13 @@ jobs:
           mkdir -p test-results
           node --version
           python3 research/web-attachment-handoff-2026-10-27/replay.py 2>&1 | tee test-results/web-handoff-replay.log
+      - name: Validate Edge original-response evidence offline
+        if: matrix.runner == 'macos-15'
+        run: |
+          set -euo pipefail
+          evidence=engineering/universal-attachment/edge-unified-default-20261118
+          python3 -B "$evidence/original-response-qa/verify.py" --output test-results/edge-response-qa.json
+          python3 -B -m unittest discover -s "$evidence/terminal-response" -p 'test_verify.py' -v
       - name: Exercise integrated page program with synthetic DOM
         run: |
           set -o pipefail
