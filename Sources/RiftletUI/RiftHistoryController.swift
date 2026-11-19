@@ -942,12 +942,13 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     }
 
     @objc private func viewOriginalConversation() {
-        guard let url = selectedEntry?.conversationURL else { return }
-        guard let chrome = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.google.Chrome") else {
-            showActionError(copy.text("找不到 Chrome。可查看原图后在原草稿中核对。", "Chrome is unavailable. View the original image and compare it with your draft."))
+        guard let entry = selectedEntry, let url = entry.conversationURL,
+              let browser = entry.currentOperation?.target.attachmentBrowser else { return }
+        guard let app = NSWorkspace.shared.urlForApplication(withBundleIdentifier: browser.rawValue) else {
+            showActionError(copy.text("找不到原来的浏览器。可查看原图后在原草稿中核对。", "The original browser is unavailable. View the original image and compare it with your draft."))
             return
         }
-        NSWorkspace.shared.open([url], withApplicationAt: chrome, configuration: .init()) { [weak self] _, error in
+        NSWorkspace.shared.open([url], withApplicationAt: app, configuration: .init()) { [weak self] _, error in
             if error != nil {
                 Task { @MainActor in self?.showActionError(ProductCopy.text("未能打开原对话。请在原草稿中核对图片。", "Could not open the conversation. Check the image in your original draft.")) }
             }

@@ -37,7 +37,7 @@ public struct RiftHistoryEntry: Identifiable, Equatable, Sendable {
     /// not resume a handoff or identify a live browser tab for input.
     var conversationURL: URL? {
         guard let target = currentOperation?.target, target.adapterID == "chatgpt-web",
-              target.surface == .webChat, target.applicationID == "com.google.Chrome" else { return nil }
+              target.surface == .webChat, target.attachmentBrowser != nil else { return nil }
         let conversation: UUID
         if let id = target.historyConversationID { conversation = id }
         else if let draft = target.logicalDraftIdentity, draft.isRecognized,
@@ -51,7 +51,7 @@ public struct RiftHistoryEntry: Identifiable, Equatable, Sendable {
 
     var canReviewOriginal: Bool {
         guard let target = currentOperation?.target else { return false }
-        return target.adapterID == "chatgpt-web" && target.surface == .webChat && target.applicationID == "com.google.Chrome"
+        return target.adapterID == "chatgpt-web" && target.surface == .webChat && target.attachmentBrowser != nil
     }
 
     var hasRecoveryOptions: Bool {

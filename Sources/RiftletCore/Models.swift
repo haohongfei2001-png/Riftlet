@@ -118,6 +118,12 @@ public struct LogicalDraftIdentity: Codable, Equatable, Hashable, Sendable {
     }
 }
 
+/// Bundle identities supported by the ordinary ChatGPT attachment path.
+public enum AttachmentBrowser: String, CaseIterable, Sendable {
+    case chrome = "com.google.Chrome"
+    case edge = "com.microsoft.edgemac"
+}
+
 /// Captured at click time and rechecked atomically with dispatch by the adapter.
 /// Tokens are opaque local identities, never cookies, credentials or chat contents.
 public struct TargetLease: Codable, Equatable, Hashable, Sendable {
@@ -148,6 +154,8 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
         self.clickBindingID = clickBindingID
     }
 
+    public var attachmentBrowser: AttachmentBrowser? { AttachmentBrowser(rawValue: applicationID) }
+
     public var stableKey: String {
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
         // All fields are strings/enums; encoding cannot fail for a valid lease.
@@ -161,7 +169,7 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
     /// Full Equatable/stableKey identity intentionally remains unchanged.
     public func sharesContinuationDraft(with other: TargetLease) -> Bool {
         guard surface == .webChat, other.surface == surface,
-              applicationID == "com.google.Chrome", other.applicationID == applicationID,
+              attachmentBrowser != nil, other.applicationID == applicationID,
               !adapterID.isEmpty, adapterID == other.adapterID,
               !sessionID.isEmpty, sessionID == other.sessionID,
               !windowID.isEmpty, windowID == other.windowID,
@@ -190,7 +198,7 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
 
     public func hasIndependentInputDocument(from other: TargetLease) -> Bool {
         guard surface == .webChat, other.surface == surface,
-              applicationID == "com.google.Chrome", other.applicationID == applicationID,
+              attachmentBrowser != nil, other.applicationID == applicationID,
               !adapterID.isEmpty, adapterID == other.adapterID,
               !sessionID.isEmpty, sessionID == other.sessionID,
               !windowID.isEmpty, !other.windowID.isEmpty,
@@ -208,7 +216,7 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
     /// Chrome tab, including rearming, navigation and moving between windows.
     /// Receipt equality still requires every field of the original lease.
     public var serializationKey: String {
-        guard surface == .webChat, applicationID == "com.google.Chrome",
+        guard surface == .webChat, attachmentBrowser != nil,
               let tabID, !tabID.isEmpty else { return stableKey }
         return String(data: try! JSONEncoder().encode([adapterID, applicationID, sessionID, tabID]), encoding: .utf8)!
     }
@@ -219,7 +227,7 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
     public func conflictsForDispatch(with other: TargetLease) -> Bool {
         guard serializationKey == other.serializationKey || mixedChromeSessionMayConflict(with: other) else { return false }
         guard surface == .webChat, other.surface == .webChat,
-              applicationID == "com.google.Chrome", other.applicationID == applicationID,
+              attachmentBrowser != nil, other.applicationID == applicationID,
               let tabID, !tabID.isEmpty, other.tabID == tabID,
               let a = logicalDraftIdentity, let b = other.logicalDraftIdentity,
               a.isRecognized, b.isRecognized, a.profileID == b.profileID else { return true }
@@ -232,7 +240,7 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
     /// serialized identity equality deliberately remain exact and unchanged.
     private func mixedChromeSessionMayConflict(with other: TargetLease) -> Bool {
         guard surface == .webChat, other.surface == .webChat,
-              applicationID == "com.google.Chrome", other.applicationID == applicationID,
+              attachmentBrowser == .chrome, other.applicationID == applicationID,
               adapterID == other.adapterID, let tabID, !tabID.isEmpty, other.tabID == tabID,
               let a = Self.chromeSessionSpelling(sessionID),
               let b = Self.chromeSessionSpelling(other.sessionID) else { return false }

@@ -41,22 +41,24 @@ public struct WebBridgeCommand: Encodable, Sendable {
     public let chunkIndex: Int?
     public let chunkBase64: String?
     public let invocationID: UUID?
+    public let clickWitnessID: UUID?
     public let preferStartReceipt: Bool?
     public let requireLiveOriginal: Bool?
     /// Host diagnostics only, deliberately excluded from the page payload.
     public let captureInvocation: CaptureInvocationContext?
 
     private enum CodingKeys: String, CodingKey {
-        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID, requireLiveOriginal, preferStartReceipt
+        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID, clickWitnessID, requireLiveOriginal, preferStartReceipt
     }
 
     init(action: WebBridgeAction, target: TargetLease? = nil, identity: ObservationIdentity? = nil,
          uploadName: String? = nil, mediaType: String? = nil, byteCount: Int64? = nil,
          chunkIndex: Int? = nil, chunkBase64: String? = nil, invocationID: UUID? = nil,
-         requireLiveOriginal: Bool? = nil, preferStartReceipt: Bool? = nil, captureInvocation: CaptureInvocationContext? = nil) {
+         clickWitnessID: UUID? = nil, requireLiveOriginal: Bool? = nil, preferStartReceipt: Bool? = nil, captureInvocation: CaptureInvocationContext? = nil) {
         self.action = action; self.target = target; self.identity = identity
         self.uploadName = uploadName; self.mediaType = mediaType; self.byteCount = byteCount
         self.chunkIndex = chunkIndex; self.chunkBase64 = chunkBase64; self.invocationID = invocationID
+        self.clickWitnessID = clickWitnessID
         self.captureInvocation = captureInvocation
         self.preferStartReceipt = preferStartReceipt
         self.requireLiveOriginal = requireLiveOriginal
@@ -658,7 +660,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
     private func check(_ target: TargetLease) throws {
         guard target.adapterID == id, target.surface == normalizer.profile.surface,
               target.surface == .webChat || target.surface == .webWork,
-              target.applicationID == "com.google.Chrome",
+              target.attachmentBrowser == .chrome || (mode == .ordinaryProduct && target.surface == .webChat && target.attachmentBrowser == .edge),
               !target.sessionID.isEmpty, !target.windowID.isEmpty, target.tabID?.isEmpty == false,
               !target.documentID.isEmpty, !target.composerID.isEmpty, !target.draftGeneration.isEmpty else {
             throw WebAdapterError.invalidTarget
