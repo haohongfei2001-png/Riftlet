@@ -1,0 +1,325 @@
+{
+  "covers/bilibili-16x9.jpg": {
+    "sha256": "803fd73188b875be3b06a6d01ca86e2bf7773740a6ceb6f2501f6b393c452902",
+    "bytes": 625254,
+    "dimensions": [
+      1920,
+      1080
+    ],
+    "format": "JPEG",
+    "fullDecode": true
+  },
+  "covers/press-16x9.jpg": {
+    "sha256": "7a69a7dcd487effc878715fe71d5d678a0d6b49d88c49ff9bcdc4ee57da9b3f5",
+    "bytes": 460774,
+    "dimensions": [
+      1920,
+      1080
+    ],
+    "format": "JPEG",
+    "fullDecode": true
+  },
+  "covers/social-4x5.jpg": {
+    "sha256": "c4421ee810f167fce5819bc080b5d2298cf7f7d639ebd7bbea368f36fa903c18",
+    "bytes": 376332,
+    "dimensions": [
+      1200,
+      1500
+    ],
+    "format": "JPEG",
+    "fullDecode": true
+  },
+  "films/brand-film.mp4": {
+    "sha256": "792c4f9b071286c12677ae1bcce0197ef63f6d2dcf8a4c58fb9809ca70cf8d0f",
+    "bytes": 9944355,
+    "dimensions": [
+      1920,
+      1080
+    ],
+    "codec": "h264",
+    "fps": 24.0,
+    "audioTracks": 1,
+    "frames": 888,
+    "videoDuration": 37.0,
+    "firstPTS": 0.0,
+    "maxPTSDelta": 0.04167,
+    "audio": {
+      "codec": "aac",
+      "rate": 48000,
+      "channels": 2,
+      "firstPTS": 0.0,
+      "endPTS": 37.0,
+      "peak": 0.709759,
+      "rms": 0.10051,
+      "framesWithSignal": 1713,
+      "digitalPeakDbFS": -2.98
+    }
+  },
+  "films/product-demo-native-excerpt.mp4": {
+    "sha256": "b22f7dfe62cc8a8fd57f15535b17e019fa40219da5074476d04efcae4601ae46",
+    "bytes": 1842565,
+    "dimensions": [
+      1920,
+      1080
+    ],
+    "codec": "h264",
+    "fps": 30.0,
+    "audioTracks": 0,
+    "frames": 720,
+    "videoDuration": 24.0,
+    "firstPTS": 0.0,
+    "maxPTSDelta": 0.03333
+  },
+  "films/short-at-hand.mp4": {
+    "sha256": "7a9f6b04cef2ac6e80fc8acca4d8237cb6659d39f9cbbe965d2e812d31ad1d02",
+    "bytes": 565316,
+    "dimensions": [
+      1080,
+      1080
+    ],
+    "codec": "h264",
+    "fps": 24.0,
+    "audioTracks": 1,
+    "frames": 192,
+    "videoDuration": 8.0,
+    "firstPTS": 0.0,
+    "maxPTSDelta": 0.04167,
+    "audio": {
+      "codec": "aac",
+      "rate": 48000,
+      "channels": 2,
+      "firstPTS": 0.0,
+      "endPTS": 8.0,
+      "peak": 0.657393,
+      "rms": 0.12579,
+      "framesWithSignal": 364,
+      "digitalPeakDbFS": -3.64
+    }
+  },
+  "films/short-capture.mp4": {
+    "sha256": "705a9694a3cace95294eadc8b76d5263bb01266e32ff3d4d6fc1c56d87479ef4",
+    "bytes": 2807260,
+    "dimensions": [
+      1080,
+      1920
+    ],
+    "codec": "h264",
+    "fps": 24.0,
+    "audioTracks": 1,
+    "frames": 192,
+    "videoDuration": 8.0,
+    "firstPTS": 0.0,
+    "maxPTSDelta": 0.04167,
+    "audio": {
+      "codec": "aac",
+      "rate": 48000,
+      "channels": 2,
+      "firstPTS": 0.0,
+      "endPTS": 8.0,
+      "peak": 0.681059,
+      "rms": 0.117452,
+      "framesWithSignal": 364,
+      "digitalPeakDbFS": -3.34
+    }
+  },
+  "films/short-draft.mp4": {
+    "sha256": "f824a046e304ccf8691a91d543e47c3f633e0776c7d9ff262eb74e9fa4158aef",
+    "bytes": 490896,
+    "dimensions": [
+      1080,
+      1350
+    ],
+    "codec": "h264",
+    "fps": 24.0,
+    "audioTracks": 1,
+    "frames": 204,
+    "videoDuration": 8.5,
+    "firstPTS": 0.0,
+    "maxPTSDelta": 0.04167,
+    "audio": {
+      "codec": "aac",
+      "rate": 48000,
+      "channels": 2,
+      "firstPTS": 0.0,
+      "endPTS": 8.5,
+      "peak": 0.709855,
+      "rms": 0.116107,
+      "framesWithSignal": 386,
+      "digitalPeakDbFS": -2.98
+    }
+  },
+  "loops/01-select.gif": {
+    "sha256": "29a6cb62835420d4e8156f49a58a16ac6c1d16482c7542d26570a18396f88496",
+    "bytes": 415473,
+    "dimensions": [
+      640,
+      360
+    ],
+    "frames": 26,
+    "distinctFrames": 25,
+    "cycleSeconds": 3.33,
+    "minDelayMs": 80,
+    "maxDelayMs": 1160,
+    "loop": 0,
+    "repeatPixelMatch": true,
+    "meanPixelDifferenceAtSeam": 0.0
+  },
+  "loops/02-arrive.gif": {
+    "sha256": "473e1cd12a3344da5319353f680ef917eecc423e0a1f01dac941c3fbb1fe89ff",
+    "bytes": 1909355,
+    "dimensions": [
+      640,
+      360
+    ],
+    "frames": 38,
+    "distinctFrames": 37,
+    "cycleSeconds": 4.08,
+    "minDelayMs": 80,
+    "maxDelayMs": 1000,
+    "loop": 0,
+    "repeatPixelMatch": true,
+    "meanPixelDifferenceAtSeam": 0.0
+  },
+  "loops/03-pair.gif": {
+    "sha256": "a6361d51170f74e661ec168c64a3ad28bcc3ee598977d73f4290bb87434c9656",
+    "bytes": 4275791,
+    "dimensions": [
+      640,
+      360
+    ],
+    "frames": 49,
+    "distinctFrames": 48,
+    "cycleSeconds": 4.08,
+    "minDelayMs": 80,
+    "maxDelayMs": 90,
+    "loop": 0,
+    "repeatPixelMatch": true,
+    "meanPixelDifferenceAtSeam": 0.0
+  },
+  "loops/04-attach.gif": {
+    "sha256": "379ed93bce3e3a0eddf82bd3b5ba7ba7d015296fa3ffc54f81dd8961e669d234",
+    "bytes": 207470,
+    "dimensions": [
+      640,
+      360
+    ],
+    "frames": 31,
+    "distinctFrames": 29,
+    "cycleSeconds": 3.75,
+    "minDelayMs": 80,
+    "maxDelayMs": 750,
+    "loop": 0,
+    "repeatPixelMatch": true,
+    "meanPixelDifferenceAtSeam": 0.0
+  },
+  "platforms/bilibili-cover.jpg": {
+    "sha256": "094066e1388960771c0d7d9d427647adae78061cd87fe2c2013b5fb3fca41c2b",
+    "bytes": 123168,
+    "dimensions": [
+      1200,
+      900
+    ],
+    "format": "JPEG",
+    "fullDecode": true
+  },
+  "platforms/product-hunt-gallery.jpg": {
+    "sha256": "d922991afff4d0cc1e5e6cd29bd87054fea335a873f0d57600b2887a39478c46",
+    "bytes": 140976,
+    "dimensions": [
+      1270,
+      760
+    ],
+    "format": "JPEG",
+    "fullDecode": true
+  },
+  "platforms/product-hunt-icon.png": {
+    "sha256": "9f2a217276894cccb48363c905a641959a339b3bca4df6e32ce9b5f0581e0cf6",
+    "bytes": 8739,
+    "dimensions": [
+      240,
+      240
+    ],
+    "format": "PNG",
+    "fullDecode": true
+  },
+  "platforms/x-reddit-card.jpg": {
+    "sha256": "55a70751aa86f27a47ea415e75650ff7d249592e629114b1f65b360418367b79",
+    "bytes": 299873,
+    "dimensions": [
+      1600,
+      900
+    ],
+    "format": "JPEG",
+    "fullDecode": true
+  },
+  "platforms/xiaohongshu-cover.jpg": {
+    "sha256": "87f51f94e9ef5fb2df43a58715cc1cff76a2b949c0e52ca55ad93183217f1456",
+    "bytes": 320080,
+    "dimensions": [
+      1080,
+      1440
+    ],
+    "format": "JPEG",
+    "fullDecode": true
+  },
+  "stills/01-observation.jpg": {
+    "sha256": "3e9d84185d3663c66f0cc90baef7f0882132b2269f608284fab0a49554fb2e3f",
+    "bytes": 674034,
+    "dimensions": [
+      2400,
+      1350
+    ],
+    "format": "JPEG",
+    "fullDecode": true
+  },
+  "stills/02-capture.jpg": {
+    "sha256": "3901d69efa5a00c03dae614fdeb02c222417b1a649437a5018a1c22364772c22",
+    "bytes": 893670,
+    "dimensions": [
+      2400,
+      1350
+    ],
+    "format": "JPEG",
+    "fullDecode": true
+  },
+  "stills/03-arrival.jpg": {
+    "sha256": "6ab496c4918f38334939f9454f03e0d149ec09fa57bab9b55efa6f689ba35e72",
+    "bytes": 384233,
+    "dimensions": [
+      2400,
+      1350
+    ],
+    "format": "JPEG",
+    "fullDecode": true
+  },
+  "stills/04-tray.jpg": {
+    "sha256": "cf51243864e328eb78cb402f438f27575bea173d7442af724bfb05998cac5b2e",
+    "bytes": 641226,
+    "dimensions": [
+      2400,
+      1350
+    ],
+    "format": "JPEG",
+    "fullDecode": true
+  },
+  "stills/05-draft.jpg": {
+    "sha256": "11d7fc87ffc9102cb40b9a6087e6798590b0fa4eac0989acfa32201b6d178691",
+    "bytes": 336349,
+    "dimensions": [
+      2400,
+      1350
+    ],
+    "format": "JPEG",
+    "fullDecode": true
+  },
+  "stills/06-edition.jpg": {
+    "sha256": "167e91091dbbd18466b1f436a3d986678b0db5ed0be086a47db9eb03cdabce18",
+    "bytes": 609309,
+    "dimensions": [
+      2400,
+      1350
+    ],
+    "format": "JPEG",
+    "fullDecode": true
+  }
+}

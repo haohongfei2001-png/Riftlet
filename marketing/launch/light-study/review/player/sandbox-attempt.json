@@ -1,0 +1,11 @@
+{
+  "completed" : false,
+  "displaySamples" : 0,
+  "duration" : 0,
+  "endNotification" : false,
+  "failure" : "Cannot Decode",
+  "jpegErrors" : 0,
+  "largestDisplayGap" : 0,
+  "playWallSeconds" : 0.034426833502948284,
+  "sampledSeconds" : 0
+}

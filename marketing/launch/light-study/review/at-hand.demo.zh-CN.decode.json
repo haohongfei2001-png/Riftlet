@@ -1,0 +1,23 @@
+{
+  "sha256": "bef617acf33d8f02b18d515fcc7b8385ece00b2ec7cfaa9239845602337d6ed3",
+  "bytes": 7976168,
+  "resolution": [
+    1920,
+    1080
+  ],
+  "videoFrames": 1380,
+  "videoRate": "60/1",
+  "presentationSeconds": 23.0,
+  "continuousTimestamps": true,
+  "codec": "H.264",
+  "audio": "AAC stereo",
+  "sampleRate": 48000,
+  "peakDBFS": -14.76,
+  "rmsDBFS": -32.51,
+  "illustrativeFlightMovingFrameRatio": 0.9753,
+  "recordedRelease": "1.0.3 (25)",
+  "recordedTrayRate": "30/1",
+  "insetFirstCaptureTime": 3.879,
+  "insetSecondCaptureTime": 8.877,
+  "overlayPhaseBegins": 14.78
+}

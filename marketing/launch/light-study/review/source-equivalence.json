@@ -1,0 +1,27 @@
+{
+  "native_source_sha256": "9860c1cc99d745e102294b7cb6b51b278d1630e85334351d2a053e85af908aeb",
+  "git_master_sha256": "10cf79340cf54522f5c9d5eb65d816428e2782bea54cd49125884138b97b2c25",
+  "identical_decoded_rgb_frames": 720,
+  "identical_frame_times": true,
+  "concatenated_rgb_sha256": "ce071d17c6ff67f2d88ec9047c172945b278fe838c3e3d3442e97c8c705f13d1",
+  "captures": {
+    "low": {
+      "original_file_sha256": "e71d52a9f2c966ab6a8214f39729c68532e8de29a2d6257ce351b8c0f616a6ea",
+      "tracked_sha256": "7366971988ab6808971236c0c5982ba9ba697af76bcb00e2a621e56abbc1f124",
+      "dimensions": [
+        1200,
+        864
+      ],
+      "identical_rgb": true
+    },
+    "high": {
+      "original_file_sha256": "f0efac7df205d54b57d1da99a4267ec6ad62367f2932caaa4be82a13581788a9",
+      "tracked_sha256": "7fa591755eda37217a75151ea431f8f5f21ef39497176f2a0e3edfdf70d2707f",
+      "dimensions": [
+        1200,
+        864
+      ],
+      "identical_rgb": true
+    }
+  }
+}

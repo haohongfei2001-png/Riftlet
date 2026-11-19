@@ -1,0 +1,118 @@
+{
+  "file": "product-demo.zh-CN.mp4",
+  "sha256": "bef617acf33d8f02b18d515fcc7b8385ece00b2ec7cfaa9239845602337d6ed3",
+  "frames": 1380,
+  "duration": 23.0,
+  "fps": 60.0,
+  "pts_min_step": 0.016667,
+  "pts_max_step": 0.016667,
+  "nonmonotonic_pts_count": 0,
+  "summary": {
+    "pairs": 1379,
+    "full_luma_exact_ratio": 0.0087,
+    "near_still_ratio": 0.70921,
+    "moving_central_area_median_over_quarter_second": 0.02886,
+    "broad_motion_over_quarter_second_ratio": 0.75018,
+    "quiet_core_over_quarter_second_ratio": 0.08352
+  },
+  "near_still_runs_s": [
+    [
+      4.05,
+      7.833,
+      3.783
+    ],
+    [
+      13.117,
+      14.8,
+      1.683
+    ],
+    [
+      9.05,
+      10.267,
+      1.217
+    ],
+    [
+      2.75,
+      3.883,
+      1.133
+    ],
+    [
+      0.0,
+      0.967,
+      0.967
+    ],
+    [
+      1.7,
+      2.45,
+      0.75
+    ],
+    [
+      10.283,
+      10.983,
+      0.7
+    ],
+    [
+      8.25,
+      8.9,
+      0.65
+    ]
+  ],
+  "persistent_quiet_core_windows_s": [
+    [
+      13.35,
+      14.65,
+      1.3
+    ]
+  ],
+  "broad_discontinuities_s": [],
+  "shots": {
+    "0-2.77": {
+      "pairs": 152,
+      "full_luma_exact_ratio": 0.0,
+      "near_still_ratio": 0.65789,
+      "moving_central_area_median_over_quarter_second": 0.30372,
+      "broad_motion_over_quarter_second_ratio": 1.0,
+      "quiet_core_over_quarter_second_ratio": 0.0
+    },
+    "2.77-7.84": {
+      "pairs": 289,
+      "full_luma_exact_ratio": 0.0,
+      "near_still_ratio": 0.97924,
+      "moving_central_area_median_over_quarter_second": 0.02406,
+      "broad_motion_over_quarter_second_ratio": 0.6263,
+      "quiet_core_over_quarter_second_ratio": 0.03114
+    },
+    "7.84-12": {
+      "pairs": 234,
+      "full_luma_exact_ratio": 0.0,
+      "near_still_ratio": 0.71368,
+      "moving_central_area_median_over_quarter_second": 0.03095,
+      "broad_motion_over_quarter_second_ratio": 0.69658,
+      "quiet_core_over_quarter_second_ratio": 0.0
+    },
+    "12-14.78": {
+      "pairs": 152,
+      "full_luma_exact_ratio": 0.0,
+      "near_still_ratio": 0.69737,
+      "moving_central_area_median_over_quarter_second": 0.00138,
+      "broad_motion_over_quarter_second_ratio": 0.38816,
+      "quiet_core_over_quarter_second_ratio": 0.53947
+    },
+    "14.78-20.08": {
+      "pairs": 303,
+      "full_luma_exact_ratio": 0.0,
+      "near_still_ratio": 0.45215,
+      "moving_central_area_median_over_quarter_second": 0.02895,
+      "broad_motion_over_quarter_second_ratio": 0.83828,
+      "quiet_core_over_quarter_second_ratio": 0.0132
+    },
+    "20.08-23": {
+      "pairs": 160,
+      "full_luma_exact_ratio": 0.075,
+      "near_still_ratio": 0.8875,
+      "moving_central_area_median_over_quarter_second": 0.03015,
+      "broad_motion_over_quarter_second_ratio": 0.9,
+      "quiet_core_over_quarter_second_ratio": 0.1
+    }
+  }
+}

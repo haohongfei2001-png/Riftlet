@@ -1,0 +1,234 @@
+{
+  "version": "1.0.3 (25)",
+  "tag": "v1.0.3-zip",
+  "releaseExecutableSHA256": "219c3d9febac0ff58ab03bb4d1869f374caff1da9256a0bf9b5968731bce9161",
+  "events": [
+    {
+      "name": "empty-tray",
+      "time": 0.1384,
+      "buttons": [
+        [
+          "展开截图方式",
+          "展开截图方式",
+          "tray.capture.expand"
+        ]
+      ]
+    },
+    {
+      "name": "low-screenshot-command",
+      "time": 2.0052
+    },
+    {
+      "name": "low-system-image-saved",
+      "time": 2.1188,
+      "nativeScreenshotMarker": true
+    },
+    {
+      "name": "low-collector-observed",
+      "time": 2.3288,
+      "count": 1,
+      "status": "pending"
+    },
+    {
+      "name": "high-screenshot-command",
+      "time": 7.0051
+    },
+    {
+      "name": "high-system-image-saved",
+      "time": 7.1147,
+      "nativeScreenshotMarker": true
+    },
+    {
+      "name": "high-collector-observed",
+      "time": 7.327,
+      "count": 2,
+      "status": "pending"
+    },
+    {
+      "name": "open-menu-request",
+      "time": 12.005
+    },
+    {
+      "name": "open-menu-observed",
+      "time": 12.108,
+      "buttons": [
+        [
+          "默认截图，窗口截图",
+          "默认截图，窗口截图",
+          "tray.capture.default"
+        ],
+        [
+          "常用截图 3，未设置",
+          "常用截图 3，未设置",
+          "tray.capture.favorite.3"
+        ],
+        [
+          "常用截图 2，全屏截图",
+          "常用截图 2，全屏截图",
+          "tray.capture.favorite.2"
+        ],
+        [
+          "常用截图 1，区域截图",
+          "常用截图 1，区域截图",
+          "tray.capture.favorite.1"
+        ],
+        [
+          "截图 1，可附加",
+          "截图 1 · 可附加"
+        ],
+        [
+          "截图 2，可附加",
+          "截图 2 · 可附加"
+        ]
+      ]
+    },
+    {
+      "name": "close-menu-request",
+      "time": 15.6404
+    },
+    {
+      "name": "close-menu-observed",
+      "time": 15.8066,
+      "escapePosted": true
+    },
+    {
+      "name": "thumbnail-press-request",
+      "time": 18.7407,
+      "originalLabel": "截图 1，可附加"
+    },
+    {
+      "name": "thumbnail-targeted-down-up-posted",
+      "time": 19.125,
+      "geometry": {
+        "control": "截图 1，可附加",
+        "ownedHitWindowVerified": true
+      },
+      "buttons": [
+        [
+          "展开截图方式",
+          "展开截图方式",
+          "tray.capture.expand"
+        ],
+        [
+          "截图 1，可附加",
+          "截图 1 · 可附加"
+        ],
+        [
+          "截图 2，可附加",
+          "截图 2 · 可附加"
+        ]
+      ]
+    },
+    {
+      "name": "second-thumbnail-accessibility-request",
+      "time": 20.039,
+      "originalLabel": "截图 2，可附加"
+    },
+    {
+      "name": "second-thumbnail-accessibility-returned",
+      "time": 20.1162,
+      "buttons": [
+        [
+          "展开截图方式",
+          "展开截图方式",
+          "tray.capture.expand"
+        ],
+        [
+          "截图 1，可附加",
+          "截图 1 · 可附加"
+        ],
+        [
+          "截图 2，可附加",
+          "截图 2 · 可附加"
+        ]
+      ]
+    },
+    {
+      "name": "after-press",
+      "time": 21.0411,
+      "buttons": [
+        [
+          "展开截图方式",
+          "展开截图方式",
+          "tray.capture.expand"
+        ],
+        [
+          "截图 1，可附加",
+          "截图 1 · 可附加"
+        ],
+        [
+          "截图 2，可附加",
+          "截图 2 · 可附加"
+        ]
+      ],
+      "assets": [
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "name": "recording-complete",
+      "time": 24.0092
+    }
+  ],
+  "sourcePhotos": [
+    {
+      "name": "low",
+      "windowPixels": [
+        1200,
+        864
+      ],
+      "sha256": "e277badaf86f4675c3e3adc445d61d19c98e4e41b46a02ba543b169d63d94c09",
+      "privateCopySHA256": "e277badaf86f4675c3e3adc445d61d19c98e4e41b46a02ba543b169d63d94c09",
+      "deviceSource": "/usr/sbin/screencapture -x -o -l <owned plate window>",
+      "systemMarkerOriginallyPresent": true,
+      "gitFilename": "meridian-low-pixels.png",
+      "gitSHA256": "f22b54d822fcb3e312d097048bd117a28ce152ac09df0049c39e55093e621044",
+      "sameDecodedRGBA": true
+    },
+    {
+      "name": "high",
+      "windowPixels": [
+        1200,
+        864
+      ],
+      "sha256": "d69416d6128e4e3c4bb1c16d035e6e9e2710343ba0237834eded5b3638b757e4",
+      "privateCopySHA256": "d69416d6128e4e3c4bb1c16d035e6e9e2710343ba0237834eded5b3638b757e4",
+      "deviceSource": "/usr/sbin/screencapture -x -o -l <owned plate window>",
+      "systemMarkerOriginallyPresent": true,
+      "gitFilename": "meridian-high-pixels.png",
+      "gitSHA256": "d80932e006cf4e028e9bcfed68abd9c2a46fddbe2ae5ebe0540ce04810b6d25f",
+      "sameDecodedRGBA": true
+    }
+  ],
+  "parameters": {
+    "form": "tray",
+    "placement": "rightMiddle",
+    "theme": "system",
+    "outerInset": 18,
+    "trayOcclusion": 0,
+    "captureEntry": true
+  },
+  "operations": 0,
+  "movie": {
+    "filename": "tray-native.mov",
+    "sha256": "cb30193c030d563bb2dbeda5b8bb397cee85a776de39219f026d81808dee415b",
+    "width": 652,
+    "height": 608,
+    "frames": 720,
+    "timelineFps": 30,
+    "actualCaptureSeconds": 23.934633249999024,
+    "medianFrameInterval": 0.0333144166652346,
+    "maxFrameInterval": 0.05967041666735895,
+    "uniqueCapture": "one fresh PID-window-array sample per stored video frame; lossless RGB",
+    "gitFile": "tray-native-lossless.mp4",
+    "gitFileSHA256": "9b7b52407ed8b3b7343117fc3b833f36aab354d62e10ebbc7979285be6d6ad30",
+    "decodedAllFramesRGBSHA256": "c1770b4420fbd2bbc396dc4c5dd18637d6aabd86537d3ddbe358412061572c98",
+    "matchedFrameTimes": 720
+  },
+  "windowScope": "New review process floating windows and fixture paper window only; system cursor excluded.",
+  "releaseZIP": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.3-zip/Riftlet-1.0.3.zip",
+  "releaseZIP_SHA256": "b9814f1df2fa44a8ae1aef3f491ea76fabbc9ff67ac1c0db41cbb55ed18aa836",
+  "acquisitionDate": "2026-11-17",
+  "execution": "Real macOS WindowServer and actual release executable, isolated UUID settings-review data, Web input disabled."
+}
