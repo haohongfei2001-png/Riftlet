@@ -162,3 +162,16 @@ test('an unowned change in the originating form stops only the preview observer 
   for(let i=0;i<10;i++){await tick();assert.equal(read(item).observation.originalDraftContent,undefined);}
   assert.equal(names,0);noOutcome(read(item));assert.deepEqual([f.setters,f.changes,f.sends],[1,1,0]);
 });
+
+test('an external file control explicitly owned by the original form is refused without reading its FileList',async()=>{
+  const {f,submit,retireLoading,mountedPreview,read}=setup();
+  const item=await submit(), portal=f.body.append(new f.context.HTMLInputElement());
+  let reads=0;
+  // Native form= association differs from the fixture default nearest ancestor.
+  Object.defineProperty(portal,'form',{get(){return f.form;}});
+  Object.defineProperty(portal,'files',{get(){reads++;throw Error('do not read this external file list');}});
+  f.Node.prototype.dispatchEvent.call(portal,new f.context.Event('change',{bubbles:true}));
+  await retireLoading(item);mountedPreview(item.op.name,encoded(png));
+  for(let i=0;i<10;i++){await tick();assert.equal(read(item).observation.originalDraftContent,undefined);}
+  assert.equal(reads,0);noOutcome(read(item));assert.deepEqual([f.setters,f.changes,f.sends],[1,1,0]);
+});

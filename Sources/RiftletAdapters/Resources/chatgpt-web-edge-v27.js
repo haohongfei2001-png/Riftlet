@@ -910,7 +910,10 @@ function riftletWebAcceptance(command, native) {
     function repeated(event) {
       const field = event.target;
       if (!(field instanceof HTMLInputElement) || field.type !== 'file') return;
-      if (field !== op.binding.input && (field.form !== baseline.form || !baseline.form.contains(field))) return;
+      if (field !== op.binding.input) {
+        if (field.form !== baseline.form) return;
+        if (!baseline.form.contains(field)) return stop();
+      }
       const files = field.files;
       if (!files || files.length > 32) return stop();
       if (event === expectedChange) {
@@ -1147,8 +1150,11 @@ function riftletWebAcceptance(command, native) {
       // Capture before a target handler can clear a mixed selection. A rebuilt
       // field in this original draft can also receive the same File again.
       const field = event.target;
-      if (event !== expectedChange && field instanceof HTMLInputElement && field.type === 'file'
-          && (field === input || field.form === form || form.contains(field))) checkExtraChange(field);
+      if (event === expectedChange || !(field instanceof HTMLInputElement) || field.type !== 'file') return;
+      if (field === input) return checkExtraChange(field);
+      const inside = form.contains(field), owned = field.form === form;
+      if (inside !== owned) return close('inputCount');
+      if (owned) checkExtraChange(field);
     };
     const onChange = event => {
       if (event === expectedChange) {
