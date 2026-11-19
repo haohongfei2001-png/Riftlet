@@ -88,3 +88,31 @@ struct ChromeSessionCache<Value> {
         lastSweep = now
     }
 }
+
+/// Cancel work before entering its one native submission. Once entered, the
+/// caller still reads the original reply even if the task has been cancelled.
+final class NativeCommandSubmission: @unchecked Sendable {
+    private let lock = NSLock()
+    private var cancelled = false
+    private var entered = false
+
+    func perform<T: Sendable>(_ body: @escaping @Sendable (CheckedContinuation<T, Error>) -> Void) async throws -> T {
+        try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation(body)
+        } onCancel: { self.cancel() }
+    }
+
+    func cancel() {
+        lock.lock()
+        defer { lock.unlock() }
+        cancelled = true
+    }
+
+    func enter() throws {
+        lock.lock()
+        defer { lock.unlock() }
+        guard !entered else { throw WebAdapterError.invalidRequest }
+        guard !cancelled else { throw CancellationError() }
+        entered = true
+    }
+}

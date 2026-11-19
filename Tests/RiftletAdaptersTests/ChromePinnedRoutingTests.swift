@@ -63,6 +63,17 @@ final class ChromePinnedRoutingTests: XCTestCase {
         }
     }
 
+    func testCancellationCannotDispatchQueuedInputOrReopenCompletedSubmission() throws {
+        let before = NativeCommandSubmission()
+        before.cancel()
+        XCTAssertThrowsError(try before.enter())
+
+        let after = NativeCommandSubmission()
+        try after.enter()
+        after.cancel()
+        XCTAssertThrowsError(try after.enter())
+    }
+
     func testSelectionIsCheckedAtCaptureValidationAndActualInput() {
         for action in [WebBridgeAction.captureTarget, .validate, .commit] {
             XCTAssertTrue(ChromeCommandRouting.requiresSelectionCheck(action))

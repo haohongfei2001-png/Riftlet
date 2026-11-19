@@ -7,8 +7,8 @@ import RiftletCore
 /// start on the first click; no earlier page acknowledgement authorizes input.
 @MainActor
 public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
-    private static let scriptQueue = DispatchQueue(label: "com.riftlet.apple-events", qos: .userInitiated, attributes: .concurrent)
-    private static let observationQueue = DispatchQueue(label: "com.riftlet.apple-events-observation", qos: .utility)
+    private nonisolated static let scriptQueue = DispatchQueue(label: "com.riftlet.apple-events", qos: .userInitiated, attributes: .concurrent)
+    private nonisolated static let observationQueue = DispatchQueue(label: "com.riftlet.apple-events-observation", qos: .utility)
     private let relays = MainWorldRelayStore()
     private let trace: ChromeBridgeTrace
     private var routes = ChromeSessionCache<ChromeClickRoute>()
@@ -88,7 +88,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                 try ChromeClickRoute(window: target.windowID, tab: tab, url: bridge.url(window: target.windowID, tab: tab))
             }.value
             func matches() async throws -> Bool {
-                let data = try await Self.run(.init(action: .validate, target: target), program: program,
+                let data = try await Self.run(.init(action: .validate, target: target, requireLiveOriginal: true), program: program,
                     identity: identity, route: route, relays: relays, trace: trace,
                     requestID: UUID().uuidString, discoverForHistory: true)
                 let result = try JSONDecoder().decode(DraftValidation.self, from: data)
@@ -161,7 +161,8 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         // Old UNKNOWN observations must not occupy the input queue. Each
         // request still owns a separate receipt and never resubmits input.
         let queue = command.action == .observe ? observationQueue : scriptQueue
-        return try await withCheckedThrowingContinuation { continuation in
+        let submission = NativeCommandSubmission()
+        return try await submission.perform { continuation in
             queue.async {
                 let started = ProcessInfo.processInfo.systemUptime
                 var phase = "process"
@@ -221,14 +222,15 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                             install = try bridge.execute(relay.probe, window: window, tab: tab,
                                 receiptBudget: .init(deadlineUptime: ProcessInfo.processInfo.systemUptime + 1)) != "ready"
                         }
-                        // Bootstrap is legal on the first click even when the
-                        // thumbnail changed focus. It addresses this exact tab.
-                        try checkSelection()
                         if identity.applicationID == AttachmentBrowser.edge.rawValue, !discoverForHistory, command.action != .observe {
                             guard let world, try bridge.execute(world.validate, window: window, tab: tab) == "verified" else {
                                 throw WebAdapterError.pageRejected(.clickPinRefused)
                             }
                         }
+                        // The final foreground and tab checks follow all potentially
+                        // blocking world checks and precede the single submission.
+                        try checkSelection()
+                        try submission.enter()
                         try ChromeMainWorldSubmission.submit(relay: relay, envelope: envelope, install: install,
                             bootstrap: { try bridge.submitMainWorld($0, window: window, tab: tab) },
                             dispatch: { try bridge.dispatchMainWorld($0, window: window, tab: tab) })
