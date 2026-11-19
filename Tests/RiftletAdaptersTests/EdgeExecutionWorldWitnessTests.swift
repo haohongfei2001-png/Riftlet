@@ -18,7 +18,7 @@ final class EdgeExecutionWorldWitnessTests: XCTestCase {
         for realm in [main, isolated] {
             realm.setObject(root, forKeyedSubscript: "sharedRoot" as NSString)
             _ = try evaluate("""
-                globalThis.document={documentElement:sharedRoot};
+                globalThis.document={documentElement:sharedRoot,visibilityState:'visible',hasFocus:()=>true};
                 globalThis.navigation={currentEntry:{id:'original-entry'}};
                 globalThis.location={href:'https://chatgpt.com/c/neutral'};
                 globalThis.self=globalThis;globalThis.top=globalThis;
@@ -100,5 +100,36 @@ final class EdgeExecutionWorldWitnessTests: XCTestCase {
         XCTAssertEqual(try evaluate(world.prepareAndBind(ChromeClickDocumentWitness(),
             address: "https://chatgpt.com/c/neutral", program: program), in: isolated), "refused")
         XCTAssertEqual(try evaluate(world.validate, in: isolated), "refused")
+    }
+
+    func testCombinedPinRefusesAlreadyHiddenOrBlurredOriginalPageBeforeCreatingAnyCapability() throws {
+        for state in ["document.visibilityState='hidden';", "document.hasFocus=()=>false;",
+                      "delete document.hasFocus;", "document.hasFocus=()=>1;"] {
+            let (_, isolated) = try realms(), world = EdgeExecutionWorldWitness()
+            let program = WebPageProgram(sourceID: ChatGPTWebPageProgram.edgeSourceID, functionSource:
+                "function(){globalThis.pinCalls=(globalThis.pinCalls||0)+1;return 'bound';}")
+            _ = try evaluate(state, in: isolated)
+            let script = try world.prepareAndBind(ChromeClickDocumentWitness(),
+                address: "https://chatgpt.com/c/neutral", program: program)
+            XCTAssertEqual(try evaluate(script, in: isolated), "refused")
+            XCTAssertEqual(try evaluate("String(globalThis.pinCalls||0)", in: isolated), "0")
+            XCTAssertEqual(try evaluate("String(Object.getOwnPropertyNames(globalThis).filter(k=>k.startsWith('__riftletEdgeExecution_')).length)",
+                                        in: isolated), "0")
+            // Returning to the original tab cannot make the refused capability
+            // valid. The production click never repeats prepareAndBind.
+            _ = try evaluate("document.visibilityState='visible';document.hasFocus=()=>true;'restored'", in: isolated)
+            XCTAssertEqual(try evaluate(world.validate, in: isolated), "refused")
+        }
+    }
+
+    func testCombinedPinAllowsVisibleFocusedDocumentWithoutEditorKeyboardFocus() throws {
+        let (_, isolated) = try realms(), world = EdgeExecutionWorldWitness()
+        _ = try evaluate("document.activeElement={id:'ordinary-composer-control'};'ready'", in: isolated)
+        let program = WebPageProgram(sourceID: ChatGPTWebPageProgram.edgeSourceID, functionSource:
+            "function(){globalThis.pinCalls=(globalThis.pinCalls||0)+1;return 'bound';}")
+        XCTAssertEqual(try evaluate(world.prepareAndBind(ChromeClickDocumentWitness(),
+            address: "https://chatgpt.com/c/neutral", program: program), in: isolated), "bound")
+        XCTAssertEqual(try evaluate("String(pinCalls)", in: isolated), "1")
+        XCTAssertEqual(try evaluate("document.activeElement.id", in: isolated), "ordinary-composer-control")
     }
 }
