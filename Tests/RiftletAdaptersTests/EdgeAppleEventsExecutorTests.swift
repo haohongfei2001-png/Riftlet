@@ -310,7 +310,7 @@ final class EdgeAppleEventsExecutorTests: XCTestCase {
     }
 
     @MainActor func testRestartReadsV18ThroughV21EdgeWithFrozenProgramsAndNoNewClickOrBootstrap() async throws {
-        for source in [ChatGPTWebPageProgram.priorClickSource, ChatGPTWebPageProgram.priorOriginSource, ChatGPTWebPageProgram.priorProgressSource, ChatGPTWebPageProgram.priorLabelSource, ChatGPTWebPageProgram.priorEdgeSource, ChatGPTWebPageProgram.priorEncodedSource] {
+        for source in [ChatGPTWebPageProgram.priorClickSource, ChatGPTWebPageProgram.priorOriginSource, ChatGPTWebPageProgram.priorProgressSource, ChatGPTWebPageProgram.priorLabelSource, ChatGPTWebPageProgram.priorEdgeSource, ChatGPTWebPageProgram.priorEncodedSource, ChatGPTWebPageProgram.priorStagedSource] {
             let old = try XCTUnwrap(ChatGPTWebPageProgram.originalObservationProgram(sourceID: source))
             let driver = EdgeExecutorFixture(), host = driver.host
             let target = TargetLease(adapterID: "chatgpt-web", surface: .webChat, applicationID: EdgeApplicationHost.bundleID,

@@ -37,7 +37,15 @@ public actor SystemScreenshotObservationJournal {
               operation.phase.isUnresolved || operation.phase == .succeeded else {
             throw SystemScreenshotObservationJournalError.persistentIdentityMismatch
         }
-        let invocations = [envelope.observation.requestEvidence?.invocationID,
+        if let content = envelope.observation.originalDraftContent {
+            guard scope == .productSystem, request.asset.origin == .systemScreenshot,
+                  request.asset.mediaType.lowercased() == "image/png",
+                  request.invocationID == content.invocationID else {
+                throw SystemScreenshotObservationJournalError.persistentIdentityMismatch
+            }
+        }
+        let invocations = [envelope.observation.originalDraftContent?.invocationID,
+            envelope.observation.requestEvidence?.invocationID,
             envelope.observation.completionEvidence?.binding.invocationID,
             envelope.observation.terminationEvidence?.binding.invocationID,
             envelope.observation.continuationEvidence?.binding.invocationID].compactMap { $0 }
@@ -53,7 +61,8 @@ public actor SystemScreenshotObservationJournal {
                   ChatGPTWebPageProgram.edgeEvidence(for: source) == envelope.provenance.evidenceID else {
                 throw SystemScreenshotObservationJournalError.invalidProvenance
             }
-        } else if [ChatGPTWebPageProgram.edgeEvidenceID, ChatGPTWebPageProgram.priorEncodedEvidence].contains(envelope.provenance.evidenceID) {
+        } else if [ChatGPTWebPageProgram.edgeEvidenceID, ChatGPTWebPageProgram.priorStagedEvidence,
+                   ChatGPTWebPageProgram.priorEncodedEvidence].contains(envelope.provenance.evidenceID) {
             throw SystemScreenshotObservationJournalError.invalidProvenance
         }
         let slots = Slot.classifyAll(envelope.observation)
@@ -71,6 +80,10 @@ public actor SystemScreenshotObservationJournal {
             let original = try Self.decode(retained)
             try Self.validate(original.envelope, for: request, scope: scope)
             guard Slot.classifyAll(original.envelope.observation).contains(slot) else {
+                throw SystemScreenshotObservationJournalError.conflictingCheckpoint
+            }
+            if slot == .originalDraftContent,
+               original.envelope.observation.originalDraftContent != envelope.observation.originalDraftContent {
                 throw SystemScreenshotObservationJournalError.conflictingCheckpoint
             }
             if original.envelope.provenance != envelope.provenance {
@@ -137,7 +150,7 @@ public actor SystemScreenshotObservationJournal {
     enum Slot: String, CaseIterable {
         case input, start, attached, ready, errorOrInvalidated, unknown
         case originalRequest, originalRequestTerminal, requestObservationClosed
-        case terminationProof, independentTaskProof
+        case terminationProof, independentTaskProof, originalDraftContent
 
         static func classifyAll(_ item: AttachmentObservation) -> [Slot] {
             var result = classify(item).map { [$0] } ?? []
@@ -148,6 +161,7 @@ public actor SystemScreenshotObservationJournal {
             }
             if item.terminationEvidence != nil { result.append(.terminationProof) }
             if item.continuationEvidence != nil { result.append(.independentTaskProof) }
+            if item.originalDraftContent != nil { result.append(.originalDraftContent) }
             return result
         }
 

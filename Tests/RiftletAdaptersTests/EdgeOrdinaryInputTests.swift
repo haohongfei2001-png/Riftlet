@@ -209,11 +209,52 @@ final class EdgeOrdinaryInputTests: XCTestCase {
         XCTAssertEqual(executed.commands.map(\.action), [.observe]); XCTAssertEqual(sources, [frozen.sourceID])
     }
 
+    func testOriginalDraftContentPersistsThroughOrdinaryObservationWithoutStartOrCompletion() async throws {
+        let root = try directory(); defer { try? FileManager.default.removeItem(at: root) }
+        let db = root.appendingPathComponent("queue.sqlite"), store = try QueueStore(databaseURL: db)
+        let request = try await prepare(root: root, store: store, gray: 0.51).0
+        _ = try await seedEdgeRegistration(request, profile: OrdinaryProductScreenshotScope.edgeProgressProfile,
+            source: ChatGPTWebPageProgram.edgeSourceID, store: store)
+        try await store.markUnknown(request.operation.id, reason: "Input returned without an upload receipt")
+        let original = try await refreshed(request, store: store)
+        let bridge = EdgeInputBridge(), client = try adapter(root: root, store: store, bridge: bridge)
+        let key = SystemScreenshotObservationJournal.checkpointKey(request, slot: .originalDraftContent, scope: .productSystem)
+        func content(_ invocation: UUID) -> ObservedDraftImage {
+            .init(version: 1, invocationID: invocation, evidenceID: UUID(), inputSequence: 3, observedSequence: 8,
+                  encodedSHA256: String(repeating: "b", count: 64), encodedByteCount: 187)
+        }
+        let proof = content(try XCTUnwrap(request.invocationID))
+        await bridge.setContent(content(UUID()))
+        do { _ = try await client.reconcile(original); XCTFail("Foreign invocation wrote content") }
+        catch SystemScreenshotObservationJournalError.persistentIdentityMismatch {}
+        let absent = try await store.checkpoint(for: key)
+        XCTAssertNil(absent)
+        await bridge.setContent(proof)
+        let receipt = try await client.reconcile(original)
+        XCTAssertEqual(receipt.outcome, .inputTriggered)
+        XCTAssertNil(receipt.uploadStartEvidence); XCTAssertNil(receipt.completionEvidence)
+        _ = try await store.apply(receipt)
+        let reopened = try QueueStore(databaseURL: db)
+        let raw = try await reopened.checkpoint(for: key)
+        let saved = try JSONDecoder().decode(SystemScreenshotObservationJournal.Entry.self, from: XCTUnwrap(raw))
+        XCTAssertEqual(saved.envelope.observation.originalDraftContent, proof)
+        await bridge.setContent(content(proof.invocationID))
+        do { _ = try await client.reconcile(original); XCTFail("Different content replaced first proof") }
+        catch SystemScreenshotObservationJournalError.conflictingCheckpoint {}
+        let retained = try await reopened.checkpoint(for: key), start = try await reopened.uploadStartReceipt(for: request.operation.id)
+        let op = try await reopened.operation(id: request.operation.id), image = try await reopened.asset(id: request.asset.id)
+        XCTAssertEqual(retained, raw); XCTAssertNil(start); XCTAssertEqual(op?.phase, .unknown)
+        XCTAssertEqual(image?.visibility, .visible)
+        let commands = await bridge.records().commands
+        XCTAssertEqual(commands.map(\.action), [.observe, .observe, .observe])
+    }
+
     func testNeitherHostCanUseTheOtherHostsExclusiveRegistration() async throws {
         let root = try directory(); defer { try? FileManager.default.removeItem(at: root) }
         let store = try QueueStore(databaseURL: root.appendingPathComponent("queue.sqlite"))
         for (host, foreign) in [("com.google.Chrome", ChatGPTWebPageProgram.edgeSourceID),
                                 ("com.google.Chrome", ChatGPTWebPageProgram.priorEncodedSource),
+                                ("com.google.Chrome", ChatGPTWebPageProgram.priorStagedSource),
                                 ("com.microsoft.edgemac", ChatGPTWebPageProgram.sourceID)] {
             let (request, _, _) = try await prepare(root: root, store: store, gray: 0.4, application: host)
             _ = try await seedEdgeRegistration(request, profile: OrdinaryProductScreenshotScope.admittedSystemProfile,
@@ -227,7 +268,7 @@ final class EdgeOrdinaryInputTests: XCTestCase {
     func testEdgeProgressVersionsKeepTheirOwnProgramAndJournalOnRestart() async throws {
         let root = try directory(); defer { try? FileManager.default.removeItem(at: root) }
         let url = root.appendingPathComponent("queue.sqlite")
-        for source in [ChatGPTWebPageProgram.priorEdgeSource, ChatGPTWebPageProgram.priorEncodedSource, ChatGPTWebPageProgram.edgeSourceID] {
+        for source in [ChatGPTWebPageProgram.priorEdgeSource, ChatGPTWebPageProgram.priorEncodedSource, ChatGPTWebPageProgram.priorStagedSource, ChatGPTWebPageProgram.edgeSourceID] {
             let store = try QueueStore(databaseURL: url)
             let (request, _, _) = try await prepare(root: root, store: store, gray: 0.4)
             let identity = try await seedEdgeRegistration(request, profile: OrdinaryProductScreenshotScope.edgeProgressProfile,
@@ -242,7 +283,7 @@ final class EdgeOrdinaryInputTests: XCTestCase {
                 .init(provenance: .init(source: .integratedDevelopment, evidenceID: provenance),
                       observation: .init(identity: identity, state: .unknown, belongsToOriginalDraft: true))
             }
-            for conflicting in [ChatGPTWebPageProgram.priorEncodedEvidence, "click-document-witness-20261118-v25", "click-document-witness-20261118-v23", "click-document-witness-20261117-v22", ChatGPTWebPageProgram.edgeEvidenceID] where conflicting != evidence {
+            for conflicting in [ChatGPTWebPageProgram.priorStagedEvidence, ChatGPTWebPageProgram.priorEncodedEvidence, "click-document-witness-20261118-v25", "click-document-witness-20261118-v23", "click-document-witness-20261117-v22", ChatGPTWebPageProgram.edgeEvidenceID] where conflicting != evidence {
                 do { try await journal.record(packet(conflicting), for: original, readOnly: true); XCTFail("unregistered provenance") }
                 catch { XCTAssertEqual(error as? SystemScreenshotObservationJournalError, .invalidProvenance) }
             }
@@ -376,6 +417,7 @@ private actor EdgeInputBridge: WebBridgeExecutor {
     private let signal: UploadStartSignal
     private let previousProgress: Double
     private let provenanceID: String
+    private var content: ObservedDraftImage?
     init(state: AttachmentObservedState = .inputTriggered, loseCommitReply: Bool = false,
          signal: UploadStartSignal = .attachmentAccepted, previousProgress: Double = 4,
          provenanceID: String = ChatGPTWebPageProgram.edgeEvidenceID) {
@@ -383,6 +425,7 @@ private actor EdgeInputBridge: WebBridgeExecutor {
         self.previousProgress = previousProgress; self.provenanceID = provenanceID
     }
     func setState(_ value: AttachmentObservedState) { state = value }
+    func setContent(_ value: ObservedDraftImage) { content = value }
     func records() -> (commands: [WebBridgeCommand], bytes: [UUID: Data]) { (commands, bytes) }
 
     func execute(_ command: WebBridgeCommand, program: WebPageProgram) async throws -> Data {
@@ -406,9 +449,10 @@ private actor EdgeInputBridge: WebBridgeExecutor {
                 provenance: .init(source: .integratedDevelopment, evidenceID: provenanceID),
                 observation: .init(identity: identity, state: state,
                     attachmentID: [.uploadStarted, .attached, .ready].contains(state) ? "owned-fixture-attachment" : nil,
-                    exactImageIdentity: true, belongsToOriginalDraft: true,
+                    exactImageIdentity: content == nil, belongsToOriginalDraft: true,
                     hasError: state == .failed, isUploading: state == .uploadStarted && signal == .correlatedProgress, attachmentAbsent: state == .failed,
-                    automaticRetryExcluded: state == .failed, uploadStart: start, inputExecutionPending: false)))
+                    automaticRetryExcluded: state == .failed, uploadStart: start, inputExecutionPending: false,
+                    originalDraftContent: content)))
         default: throw WebAdapterError.invalidRequest
         }
     }

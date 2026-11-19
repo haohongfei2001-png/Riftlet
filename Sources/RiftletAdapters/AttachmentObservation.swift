@@ -62,6 +62,18 @@ public struct ObservedUploadStart: Codable, Equatable, Sendable {
     public let startObservedAtMS: Double
 }
 
+/// The original draft rendered a PNG matching Edge's encoding of this input.
+/// Its digest identifies rendered content, independently of upload progress.
+public struct ObservedDraftImage: Codable, Equatable, Sendable {
+    public let version: Int
+    public let invocationID: UUID
+    public let evidenceID: UUID
+    public let inputSequence: Int
+    public let observedSequence: Int
+    public let encodedSHA256: String
+    public let encodedByteCount: Int
+}
+
 /// Page-owned pre-input facts, not an upload failure or retry permission. This
 /// proof can only retire the currently executing append invocation. A missing
 /// change event does not prove that the file setter had no side effects.
@@ -112,6 +124,7 @@ public struct AttachmentObservation: Codable, Equatable, Sendable {
     /// Current command execution only. This does not describe upload progress,
     /// authorize another operation, or upgrade historical observations.
     public let inputExecutionPending: Bool?
+    public let originalDraftContent: ObservedDraftImage?
 
     public init(identity: ObservationIdentity, state: AttachmentObservedState,
                 attachmentID: String? = nil, exactImageIdentity: Bool = false,
@@ -124,7 +137,8 @@ public struct AttachmentObservation: Codable, Equatable, Sendable {
                 terminationEvidence: ObservedAttachmentTermination? = nil,
                 continuationEvidence: ObservedAttachmentContinuation? = nil,
                 reason: AttachmentObservationReason? = nil,
-                resourceRefusalReason: WebPageRejection? = nil, inputExecutionPending: Bool? = nil) {
+                resourceRefusalReason: WebPageRejection? = nil, inputExecutionPending: Bool? = nil,
+                originalDraftContent: ObservedDraftImage? = nil) {
         self.identity = identity; self.state = state; self.attachmentID = attachmentID
         self.exactImageIdentity = exactImageIdentity
         self.belongsToOriginalDraft = belongsToOriginalDraft
@@ -140,6 +154,7 @@ public struct AttachmentObservation: Codable, Equatable, Sendable {
         self.reason = reason
         self.resourceRefusalReason = resourceRefusalReason
         self.inputExecutionPending = inputExecutionPending
+        self.originalDraftContent = originalDraftContent
     }
 }
 
@@ -182,7 +197,7 @@ public enum ObservationDecoder {
                     "belongsToOriginalDraft", "hasError", "isUploading",
                     "attachmentAbsent", "automaticRetryExcluded", "uploadStart", "preInputRetirement",
                     "requestEvidence", "completionEvidence", "terminationEvidence", "continuationEvidence", "reason",
-                    "resourceRefusalReason", "inputExecutionPending"
+                    "resourceRefusalReason", "inputExecutionPending", "originalDraftContent"
                   ])),
                   let identity = observation["identity"] as? [String: Any],
                   Set(identity.keys) == Set(["operationID", "assetID", "attempt", "assetSHA256", "target"]),
@@ -211,6 +226,12 @@ public enum ObservationDecoder {
                 ]) else { throw ObservationError.invalidPayload }
             }
             if let value = observation["requestEvidence"] { try ObservedRequestEvidence.validateShape(value) }
+            if let value = observation["originalDraftContent"] {
+                guard let fields = value as? [String: Any], Set(fields.keys) == Set([
+                    "version", "invocationID", "evidenceID", "inputSequence", "observedSequence",
+                    "encodedSHA256", "encodedByteCount"
+                ]) else { throw ObservationError.invalidPayload }
+            }
             try ObservedAttachmentProofs.validateShape(observation)
             let envelope = try JSONDecoder().decode(AttachmentObservationEnvelope.self, from: data)
             try validate(envelope)
@@ -224,6 +245,24 @@ public enum ObservationDecoder {
         guard [1, 2, 3, 4].contains(envelope.schemaVersion) else { throw ObservationError.unsupportedSchema(envelope.schemaVersion) }
         let item = envelope.observation
         try ObservedAttachmentProofs.validate(envelope)
+        if let content = item.originalDraftContent {
+            let target = item.identity.target
+            guard envelope.schemaVersion == 2, envelope.provenance == .init(source: .integratedDevelopment,
+                      evidenceID: ChatGPTWebPageProgram.draftContentEvidenceV27),
+                  target.adapterID == "chatgpt-web", target.surface == .webChat,
+                  target.applicationID == EdgeApplicationHost.bundleID, target.clickBindingID != nil,
+                  target.webDraftRoute == .chatGPTTemporaryHome,
+                  item.state == .inputTriggered, item.belongsToOriginalDraft, item.inputExecutionPending == false,
+                  !item.exactImageIdentity, !item.hasError, !item.isUploading, !item.automaticRetryExcluded,
+                  !item.attachmentAbsent, item.attachmentID == nil, item.uploadStart == nil,
+                  item.completionEvidence == nil, item.continuationEvidence == nil, item.terminationEvidence == nil,
+                  item.preInputRetirement == nil, item.requestEvidence == nil,
+                  content.version == 1, content.inputSequence > 0, content.observedSequence > content.inputSequence,
+                  (1...(8 * 1024 * 1024)).contains(content.encodedByteCount),
+                  content.encodedSHA256.utf8.count == 64,
+                  content.encodedSHA256.utf8.allSatisfy({ (48...57).contains($0) || (97...102).contains($0) })
+            else { throw ObservationError.invalidField("original draft content") }
+        }
         if item.inputExecutionPending == true {
             guard item.state == .unknown, item.preInputRetirement == nil, item.uploadStart == nil else {
                 throw ObservationError.invalidField("input execution pending")

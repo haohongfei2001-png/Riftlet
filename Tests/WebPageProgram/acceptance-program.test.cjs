@@ -14,6 +14,7 @@ require('./edge-calibration-diagnostics.test.cjs');
 require('./edge-encoded-preview.test.cjs');
 require('./edge-encoded-progress.test.cjs');
 require('./edge-staged-progress.test.cjs');
+require('./edge-original-draft-content.test.cjs');
 
 function accepted(f,op) {
  const observation=f.observe(op);

@@ -17,10 +17,13 @@ public enum ChatGPTWebPageProgram {
     static let priorEdgeSource = "chatgpt-web-click-document-witness-20261117-v22"
     static let priorEncodedSource = "chatgpt-web-click-document-witness-20261118-v24"
     static let priorEncodedEvidence = "click-document-witness-20261118-v24"
-    static let edgeSourceID = "chatgpt-web-click-document-witness-20261118-v26"
-    static let edgeEvidenceID = "click-document-witness-20261118-v26"
+    static let priorStagedSource = "chatgpt-web-click-document-witness-20261118-v26"
+    static let priorStagedEvidence = "click-document-witness-20261118-v26"
+    static let edgeSourceID = "chatgpt-web-click-document-witness-20261118-v27"
+    static let draftContentEvidenceV27 = "click-document-witness-20261118-v27"
+    static let edgeEvidenceID = draftContentEvidenceV27
     static func isEdgeExclusive(_ source: String) -> Bool {
-        source == priorEncodedSource || source == edgeSourceID
+        [priorEncodedSource, priorStagedSource, edgeSourceID].contains(source)
     }
     static let priorProductSource = "chatgpt-web-screenshot-observation-20261118-v18"
     static let priorProductCardSource = "chatgpt-web-screenshot-card-observation-20261118-v19"
@@ -43,6 +46,7 @@ public enum ChatGPTWebPageProgram {
         switch source {
         case edgeSourceID: return edgeEvidenceID
         case priorEncodedSource: return priorEncodedEvidence
+        case priorStagedSource: return priorStagedEvidence
         case priorEdgeSource: return "click-document-witness-20261117-v22"
         case priorLabelSource: return "click-document-witness-20261117-v21"
         case priorProgressSource: return "click-document-witness-20261117-v20"
@@ -53,8 +57,13 @@ public enum ChatGPTWebPageProgram {
     }
 
     static let edgeProgram = Result {
-        try loadEdgeProgram(templateName: "chatgpt-web-edge-v26", watcherName: "edge-encoded-preview-v26",
+        try loadEdgeProgram(templateName: "chatgpt-web-edge-v27", watcherName: "edge-encoded-preview-v27",
                             source: edgeSourceID, evidence: edgeEvidenceID)
+    }
+
+    private static let originalStagedProgram = Result {
+        try loadEdgeProgram(templateName: "chatgpt-web-edge-v26", watcherName: "edge-encoded-preview-v26",
+                            source: priorStagedSource, evidence: priorStagedEvidence)
     }
 
     private static let originalEncodedProgram = Result {
@@ -87,6 +96,7 @@ public enum ChatGPTWebPageProgram {
     static func originalObservationProgram(sourceID: String) throws -> WebPageProgram? {
         switch sourceID {
         case priorEncodedSource: return try originalEncodedProgram.get()
+        case priorStagedSource: return try originalStagedProgram.get()
         case priorEntrySource, priorHandoffSource, priorScreenshotSource:
             // v15/v16 already used the v17 observer at the previous baseline.
             return try load(resource: "chatgpt-web-observe-v17", id: priorScreenshotSource)
@@ -112,7 +122,7 @@ public enum ChatGPTWebPageProgram {
     }
 
     static func isHistoricalObserver(_ sourceID: String) -> Bool {
-        [priorEntrySource, priorHandoffSource, priorScreenshotSource, priorClickSource, priorOriginSource, priorProgressSource, priorLabelSource, priorEdgeSource, priorProductSource, priorProductCardSource, priorUnifiedSource, priorEncodedSource].contains(sourceID)
+        [priorEntrySource, priorHandoffSource, priorScreenshotSource, priorClickSource, priorOriginSource, priorProgressSource, priorLabelSource, priorEdgeSource, priorProductSource, priorProductCardSource, priorUnifiedSource, priorEncodedSource, priorStagedSource].contains(sourceID)
     }
 
     static func observationRelayFunctions(for program: WebPageProgram) throws -> [String] {
