@@ -1,0 +1,50 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 2960,
+      "sha256": "7fb6e8facc8e091385ead53b274d0fa199630beb2570757f1e98113bcfd9aeef"
+    },
+    "identity.py": {
+      "bytes": 1555,
+      "sha256": "f01c2cb2372107a036f2451a1ddbaf52587959b932dc50b024cb0453e33ca61c"
+    },
+    "main.swift": {
+      "bytes": 1372,
+      "sha256": "941d90b9012a44e803c7ec4d7855acfd25ea38fd8c0553a2694464d059319df7"
+    },
+    "network_policy.swift": {
+      "bytes": 4957,
+      "sha256": "2027eaa8778af627aec628c025d916adaf265f428786728ce84093e4ae951708"
+    },
+    "provenance.json": {
+      "bytes": 1620,
+      "sha256": "016621fe326da85c7af09a4cb76005e3256478d7e077389bf2e71c96d6fc2e64"
+    },
+    "response.swift": {
+      "bytes": 2224,
+      "sha256": "b9fddcdfe9a66c30faaa3f33db28c58d1a8263d67f36315d4189c36111b486b8"
+    },
+    "settled.py": {
+      "bytes": 7217,
+      "sha256": "943476d4eeecf98f53fa5c066373d0eec2ad54443b379356c26ace50f4892d65"
+    },
+    "test_identity.py": {
+      "bytes": 8638,
+      "sha256": "979f3a36972c5ac602e6e686206f94f43732d460f9903f2b2322ed9a7a844d41"
+    },
+    "validation.json": {
+      "bytes": 2355,
+      "sha256": "cd5519f43ca30b22dac4ae49ed13bbd313c559bc8fbd55a406cad1d52f0940fd"
+    },
+    "verify.py": {
+      "bytes": 3006,
+      "sha256": "e03a0a88f1fe780f20c0c35de8299eb16b19bb8afa4980bad1d202200056c0ce"
+    }
+  },
+  "privacyAndCapabilityScan": "PASS",
+  "privateOperatorSourcePinsUnchanged": true,
+  "publicFilesOnly": true,
+  "schema": 1,
+  "totalBytesExcludingManifest": 35904,
+  "totalFilesExcludingManifest": 10
+}

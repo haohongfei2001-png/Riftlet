@@ -1,0 +1,285 @@
+{
+  "distinctClickBindingsAndInvocations": true,
+  "draftAfter": {
+    "baseline": 3,
+    "messages": 0,
+    "named": [
+      1,
+      1
+    ],
+    "originalDocument": true,
+    "selectionExact": true,
+    "submitCount": 0,
+    "textExact": true,
+    "totalImages": 5
+  },
+  "draftBefore": {
+    "baselineOnce": true,
+    "documentSubmitCount": 0,
+    "messagesInDraftPage": 0,
+    "sameDoc": true,
+    "selectionExact": true,
+    "textExact": true,
+    "totalAttachments": 3
+  },
+  "files": [
+    {
+      "assetIDDigest": "a360e79de65511fe78d70456624730335d16d3715bf6c6c4b48285803591280d",
+      "assetStatus": "unknown",
+      "attempt": 1,
+      "compensations": 0,
+      "completionEvidencePresent": false,
+      "diagnosticObservations": {
+        "positiveChangeReturnedObserved": true,
+        "progressDecisionCounts": {
+          "fileBlobMissing": 3,
+          "nodeReused": 28,
+          "stagedProgressAwaitingPreview": 2
+        },
+        "rows": 33,
+        "startObserved": false
+      },
+      "dispatchCall": {
+        "decodedCheckpointSHA256": "8e39c84adf10dcf3a2ac117275e11acb9756bc2e5b10f218a57060cd4a44a3ee",
+        "inputExecutionReturned": true,
+        "originalInvocationIDDigest": "d0746aa15d5c3d9784a55cc11371a9f460363f2f20ee47be9eece94916092aed",
+        "returnedOutcome": "inputTriggered"
+      },
+      "durableOperationCount": 1,
+      "durableStarts": 0,
+      "latestReceiptOutcome": "inputTriggered",
+      "operationFilenameSHA256": "05fc108d71b43effdef69a3f3ef044f2d33c8d15221d15772132f38beff94190",
+      "operationIDDigest": "c0842d0996025964077ce121777e15f7e45a5b1cc77b8c641d5f1fd283a090c5",
+      "originalDraftContent": {
+        "decodedCheckpointSHA256": "bf2b380ed7962f6ad0fb7e9086e336c2c13ee450c621b21bbced1c38dcfb2198",
+        "encodedPNGBytes": 1386273,
+        "encodedPNGSHA256": "37f57eb40baa7b805cb3400ae9916fe6149d66d1ca3e52b94ae4f2d949feebd1",
+        "evidenceIDDigest": "e1376ef9638a52c4d12e4e2668fa2ee26f4e0944c49d25ae26499d8edc6c75d9",
+        "firstMatchedDiagnosticSequence": 93,
+        "independentRawPreviewReencodingPerformed": false,
+        "inputSequence": 1,
+        "isUploadStartOrCompletionEvidence": false,
+        "lastMatchedDiagnosticSequence": 196,
+        "observedSequence": 2,
+        "originalDraftTextAndSelectionMatchedInPositiveRows": true,
+        "originalInvocationMatched": true,
+        "originalOperationAssetAttemptTargetMatched": true,
+        "result": "CONFIRMED_DURABLE_ORIGINAL_PAGE_MATCH_REPORT",
+        "sourceEvidence": "click-document-witness-20261119-v28",
+        "traceMatchedRows": 27
+      },
+      "originalFileAndRetainedMediaExactMatch": true,
+      "originalPNGBytes": 1405905,
+      "originalPNGSHA256": "a1616644631bcf01438701959d75a552e44db70ce1689275fb5c220f7ff88dbe",
+      "originalSystemScreenshotMetadataPresent": true,
+      "phase": "unknown",
+      "safeToRetry": false,
+      "seed": 636,
+      "visibility": "visible"
+    },
+    {
+      "assetIDDigest": "de46ca89a9c2546462eb7f28c633c4bb9d0a538877868f9550724703b512e9cb",
+      "assetStatus": "unknown",
+      "attempt": 1,
+      "compensations": 0,
+      "completionEvidencePresent": false,
+      "diagnosticObservations": {
+        "positiveChangeReturnedObserved": true,
+        "progressDecisionCounts": {
+          "fileBlobMissing": 4,
+          "nodeReused": 27,
+          "stagedProgressAwaitingPreview": 2
+        },
+        "rows": 33,
+        "startObserved": false
+      },
+      "dispatchCall": {
+        "decodedCheckpointSHA256": "ef0b1d2caa62397bce09478ec408e70f867365f09f955e3ff7a058cd17850a81",
+        "inputExecutionReturned": true,
+        "originalInvocationIDDigest": "b2fb0e18fdd26e8f3896579db6b0dce8a3544a71abec511ed980dd5839a5361a",
+        "returnedOutcome": "inputTriggered"
+      },
+      "durableOperationCount": 1,
+      "durableStarts": 0,
+      "latestReceiptOutcome": "inputTriggered",
+      "operationFilenameSHA256": "3cbc7f32c9f7d1faaa9d38969c2f5cd1a7a55bef8f9dce236a27fb0cdb2d1d1c",
+      "operationIDDigest": "51f13b823e2f0ebfdd6ee5e209591a0eec6b9aa7ad86d863fab41fd75762345d",
+      "originalDraftContent": {
+        "decodedCheckpointSHA256": "b0de4694fcd9d1cd6dae624a489b7dfd5c5c2e6ac8e3e20f7b58e8d3910e8bc4",
+        "encodedPNGBytes": 1386508,
+        "encodedPNGSHA256": "88be14d4117cfe31e13d0d2d3ffb54c60e483c39478f812a294aa9a8e6067ef9",
+        "evidenceIDDigest": "c3c7c01c63516fdef5ef6bfb17e40b00d03470d85ca1277bb31ffb799899434c",
+        "firstMatchedDiagnosticSequence": 146,
+        "independentRawPreviewReencodingPerformed": false,
+        "inputSequence": 3,
+        "isUploadStartOrCompletionEvidence": false,
+        "lastMatchedDiagnosticSequence": 221,
+        "observedSequence": 4,
+        "originalDraftTextAndSelectionMatchedInPositiveRows": true,
+        "originalInvocationMatched": true,
+        "originalOperationAssetAttemptTargetMatched": true,
+        "result": "CONFIRMED_DURABLE_ORIGINAL_PAGE_MATCH_REPORT",
+        "sourceEvidence": "click-document-witness-20261119-v28",
+        "traceMatchedRows": 24
+      },
+      "originalFileAndRetainedMediaExactMatch": true,
+      "originalPNGBytes": 1405614,
+      "originalPNGSHA256": "e0ded1ac8545b55920fe64504a12d34d63bdcb5c2e5d06ffebcb06ca7aa47bda",
+      "originalSystemScreenshotMetadataPresent": true,
+      "phase": "unknown",
+      "safeToRetry": false,
+      "seed": 637,
+      "visibility": "visible"
+    }
+  ],
+  "limitations": [
+    "The two v28 originalDraftContent checkpoints are actual stored page-match reports bound to the original invocations. Their encoded PNG hashes describe the page comparison; this audit did not revisit the page or independently reconstruct missing preview bytes.",
+    "Original PNG bytes and retained media were rehashed independently. Browser reencoding hashes are not original-file or PUT-body hashes.",
+    "Repeated attachment-entry diagnostics are observations, not separate setter counts. The original sender/trace/dispatch records show one original operation and first attempt for each file.",
+    "No upload START or completion is granted by originalDraftContent or by storage acknowledgement.",
+    "Both processing entities remain absent from the normal HAR; their final service outcomes and framing cannot be inferred from HTTP status or declared body length.",
+    "The observed callback and down intervals exceed three seconds; no sub-three-second pair acceptance is claimed.",
+    "Only this pair was queried in SQLite; no prior queue/history state was rewritten or replayed."
+  ],
+  "nativeInputSettlement": [
+    {
+      "durableOperationCount": 1,
+      "seed": 636,
+      "state": "ORIGINAL_CHANGE_RETURNED"
+    },
+    {
+      "durableOperationCount": 1,
+      "seed": 637,
+      "state": "ORIGINAL_CHANGE_RETURNED"
+    }
+  ],
+  "normalNetwork": {
+    "beforeOriginalProcessRows": 0,
+    "beforeRows": 12,
+    "beforeSHA256": "6a03adf824bd66ddd7cd8a492051e515b64738bd85aab72da7e210f937be5d6b",
+    "beforeTableIdentity": "NONEMPTY_NAMED_NETWORK_TABLE",
+    "responseEmptyWasNotObserved": true,
+    "responseReadElapsedSeconds": 8.348,
+    "responseReadStop": "explicitNetworkCountOrNamedTableRequired",
+    "responseSamples": 0,
+    "viewsSHA256": "9f47f7ce2a0139edb70304e86b37d20c401b15277022378538f959b33956cf4e"
+  },
+  "observedAtUTC": "2026-11-19T03:57:10.165545+00:00",
+  "originalArtifactSHA256": {
+    "captures/636/private-baseline/capture.json": "d47d188f2a719f79b5ea632b270083494453dbc319e61eaf214b57edfc9346fa",
+    "captures/637/private-baseline/capture.json": "d2e0ca9f9a41e867d32f7fd2a89abc3a92e3483fb276157f4652c5b91930acc9",
+    "case.json": "b4d78bb82daae1e3bff87ad37235b568cbc30d1dd4655bc8635809989632faff",
+    "config.json": "1069396e1cacf366e6312719f0f87aa509862b6372b37186f061f9f4c3bba550",
+    "observations/card-events.json": "96743a5b169106d76c5c22e0e3d3b1c0d7062a7aa2a55ff33ed2c068452f13c0",
+    "observations/draft-after.json": "ee802c586e93d89fe45d24740e06c92c0138d996549c525ac8b589359f4c9920",
+    "observations/op-results.json": "a6c6ec69f6a5585ec87124f87c2827ef04447991b4d1482ae5f429ad88ca5a1a",
+    "observations/raw-events.jsonl": "96dbc9ff9963f3b39c88d5a7075761a52904869dec72cdb5cc767e370591ee4e",
+    "observations/sender-1.json": "8ebc515ac74ec24221f7472208272ec903f5e743cf6c65b882d842d1ac391c58",
+    "observations/sender-2.json": "18669852ca6378c63ba6db6ff0a44304a8b50ad60296308bc3bb720d8842dbcf",
+    "observations/stable-draft-before.json": "2f763ebec4b913f74ee9b7918ba676e7f9e69045519402b1429628ccd0ffbc82",
+    "public-after/actual.json": "febd9ee0ad18d693005d1903911c21e7fb1abaab67cc0161c3ba7bf19538037d",
+    "qa-ticket.json": "31ca15e4b69d8bce1590c8aac2f6da8dc1be5e597792f95b97fdad7c73159866"
+  },
+  "rawPrivateIDsURLsBodiesOrMediaPublished": false,
+  "readerGUIActions": 0,
+  "readerNewServiceRequests": 0,
+  "readerProductInputs": 0,
+  "result": "CONFIRMED_ORIGINAL_INPUTS_AND_DRAFT_CONTENT_MATCHES_PROCESSING_TERMINALS_UNKNOWN",
+  "retainedExecutableMatchesTicket": true,
+  "reviewedRuntimeSource": "9d7b9462762da5bca88f5016ae3600358ca31dd1",
+  "reviewedRuntimeSourceTree": "b00cb59ca078d6f6c4cfd4f0f0023c7a48bd7158",
+  "reviewer": "independent_checkpoint_5bd",
+  "reviewerScope": "Non-author of product changes; author of the passive QA tool and pure offline validators, disclosed. Original files, trace and one read-only SQLite transaction independently checked. No new product/browser/service action.",
+  "sameOriginalDraftFields": {
+    "applicationID": true,
+    "composerID": true,
+    "documentID": true,
+    "draftGeneration": true,
+    "sessionID": true,
+    "tabID": true,
+    "webDraftRoute": true,
+    "windowID": true
+  },
+  "schema": 1,
+  "service": {
+    "GUIActions": 0,
+    "browserOrServiceRequests": 0,
+    "claims": "Service entity observation is separate from product START/completion and source admission. Missing bodies cannot borrow 606 framing or events.",
+    "entryCount": 63,
+    "files": [
+      {
+        "bodyState": "ABSENT_FROM_HAR",
+        "browserError": "net::ERR_ABORTED",
+        "createAndProcessStatus": 200,
+        "createEntry": 47,
+        "declaredContentBytes": 576.0,
+        "fileIDSHA256": "7fdbb446a3049ba842e59270a8d21ed6f1ccd8d611ca04fe4b76d19f9d186ca1",
+        "filenameSHA256": "05fc108d71b43effdef69a3f3ef044f2d33c8d15221d15772132f38beff94190",
+        "format": "UNDETERMINED_NO_BODY",
+        "mimeType": "text/event-stream",
+        "originalFilenameCreatePUTProcessChainVerified": true,
+        "processEntry": 50,
+        "productCompletionAdmitted": false,
+        "putETagPresent": true,
+        "putEntry": 48,
+        "putStatus": 201,
+        "resourceType": "fetch",
+        "seed": 636,
+        "terminal": "UNKNOWN"
+      },
+      {
+        "bodyState": "ABSENT_FROM_HAR",
+        "browserError": "net::ERR_ABORTED",
+        "createAndProcessStatus": 200,
+        "createEntry": 53,
+        "declaredContentBytes": 576.0,
+        "fileIDSHA256": "37ec16ecefa16b37f9a8dce8b1b8c3178ab5f707e20f3488ae7eef64daf3293d",
+        "filenameSHA256": "3cbc7f32c9f7d1faaa9d38969c2f5cd1a7a55bef8f9dce236a27fb0cdb2d1d1c",
+        "format": "UNDETERMINED_NO_BODY",
+        "mimeType": "text/event-stream",
+        "originalFilenameCreatePUTProcessChainVerified": true,
+        "processEntry": 57,
+        "productCompletionAdmitted": false,
+        "putETagPresent": true,
+        "putEntry": 54,
+        "putStatus": 201,
+        "resourceType": "fetch",
+        "seed": 637,
+        "terminal": "UNKNOWN"
+      }
+    ],
+    "harBytes": 8305767,
+    "harSHA256": "22763ddc7cb71b6d4069749d8bebf644ba05bac00caf47efc9f04ef8fdb4b28e",
+    "schema": 1,
+    "scope": "Hash-pinned historical originals only; offline closed-field projection, no private endpoint call"
+  },
+  "serviceCustodySHA256": "a02dd468f76eb5165bd8a6a03859ad401530263c9164b1ffcf67732c74f055a4",
+  "serviceProjectionSHA256": "d770a628fccd23329b8c00a22301febe91631eb6c81a157b051cbcb51a86bcac",
+  "sourceFileSHA256": {
+    "Sources/RiftletAdapters/AttachmentObservation.swift": "37e768a3becaa0d53307c9eb97f6c2d2c4e4e534e1e4256744cf305b594c5ef4",
+    "Sources/RiftletAdapters/Resources/chatgpt-web-edge-v27.js": "ab90446fdbe1cb511b3af04856aaeee6b1e229b10450441f6f12640b264d6f47",
+    "Sources/RiftletAdapters/Resources/edge-encoded-preview-v27.js": "0f2f41c60ed43741595e101d2debea95b2a1ee328535231acfb4e5473fe08d95",
+    "Sources/RiftletAdapters/SystemScreenshotObservationJournal.swift": "a67da674d1061b95306b0a1331146f95a7ed64aef11c7f2c1f3bb18e8855ec29"
+  },
+  "ticketAndRetainedBinarySHA256": "6ddbd10a6a18ddb9540a4c38cc6666b693b9aa69c11cfa4129fcb53e109e87bd",
+  "trace": {
+    "callbackIntervalMs": 3101.884,
+    "continuous": true,
+    "firstSequence": 35,
+    "lastSequence": 228,
+    "mouseDownIntervalMs": 3146.415,
+    "oneSession": true,
+    "rows": 194,
+    "selectionCount": 2,
+    "taggedMouseDownUpCount": 4,
+    "webCommandActionCounts": {
+      "begin": 2,
+      "captureTarget": 2,
+      "chunk": 12,
+      "commit": 2,
+      "observe": 68,
+      "validate": 2
+    },
+    "withinThreeSeconds": false
+  }
+}

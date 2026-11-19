@@ -1,0 +1,26 @@
+{
+  "files": [
+    {
+      "bytes": 1386273,
+      "exactEncodedMatch": true,
+      "existingNamedPreviewSHA256": "37f57eb40baa7b805cb3400ae9916fe6149d66d1ca3e52b94ae4f2d949feebd1",
+      "hash": "37f57eb40baa7b805cb3400ae9916fe6149d66d1ca3e52b94ae4f2d949feebd1",
+      "height": 624,
+      "seed": 636,
+      "width": 948
+    },
+    {
+      "bytes": 1386508,
+      "exactEncodedMatch": true,
+      "existingNamedPreviewSHA256": "88be14d4117cfe31e13d0d2d3ffb54c60e483c39478f812a294aa9a8e6067ef9",
+      "hash": "88be14d4117cfe31e13d0d2d3ffb54c60e483c39478f812a294aa9a8e6067ef9",
+      "height": 624,
+      "seed": 637,
+      "width": 948
+    }
+  ],
+  "networkInputs": 0,
+  "originalTicketSHA256": "31ca15e4b69d8bce1590c8aac2f6da8dc1be5e597792f95b97fdad7c73159866",
+  "pageSHA256": "5973aff4870410b8216b9eaf5e7e88dbb5bcb4bb976d5f1d148407ea8cb98f87",
+  "renderer": "isolated local headless Edge HTMLImageElement to canvas default 2D PNG"
+}

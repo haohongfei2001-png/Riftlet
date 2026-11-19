@@ -1,8 +1,12 @@
 # 无扩展附件引擎 · 首轮工程交接
 
+## 11 月 19 日 · 签名修复版在默认 Edge 连续附加 636、637
+
+普通 Riftlet 1.0.5（31）接收两次真实微图点击。两张新系统截图进入同一个临时草稿，原三张变五张，原文字和 14 字符选区保留，消息提交数为零。修复版也首次在两笔原操作中分别持久保存了匹配的图片摘要和字节数。两张分别收到原存储 PUT 201 和 ETag。两笔均缺少产品 START 和最终完成，服务处理请求均未保留终态正文，组合为 **INCOMPLETE**。[逐图实测、源码与服务记录](../engineering/universal-attachment/edge-unified-default-20261118/build31/pair-636-637/REPORT.md)
+
 ## 11 月 19 日 · 默认 Edge 中的原图归属与完成回执
 
-最新实测使用 Developer ID 签名的 1.0.5（31）普通 App。634、635 两张新系统截图均进入默认 Edge 的同一个临时草稿，两次点击相隔 2.723 秒。草稿保留原文字、14 字符选区和首张附件，最后显示三张图，零发送。每张的原始存储请求均有 HTTP 201 和 ETag。两笔产品 START 均缺失，处理响应均缺少可核实的终态，组合结果为 **INCOMPLETE**。[逐图实测及服务证据](../engineering/universal-attachment/edge-unified-default-20261118/build31/pair-634-635/REPORT.md)
+上一组实测使用 Developer ID 签名的 1.0.5（31）普通 App。634、635 两张新系统截图均进入默认 Edge 的同一个临时草稿，两次点击相隔 2.723 秒。草稿保留原文字、14 字符选区和首张附件，最后显示三张图，零发送。每张的原始存储请求均有 HTTP 201 和 ETag。两笔产品 START 均缺失，处理响应均缺少可核实的终态，组合结果为 **INCOMPLETE**。[逐图实测及服务证据](../engineering/universal-attachment/edge-unified-default-20261118/build31/pair-634-635/REPORT.md)
 
 普通 App 在 START 后继续按原操作观察。Core 修复 `aa2ede8` 可分别保存两张图各自已获准入的完成证明，拒绝相邻操作的回执，并保留最初的 START。同一原附件后来出现明确错误时，仍依原有失败策略处理。Edge 当前没有获准入的完成信号。
 

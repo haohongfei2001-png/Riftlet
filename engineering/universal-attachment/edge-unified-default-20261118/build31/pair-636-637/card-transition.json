@@ -1,0 +1,141 @@
+{
+  "sourceSHA256": "96743a5b169106d76c5c22e0e3d3b1c0d7062a7aa2a55ff33ed2c068452f13c0",
+  "files": [
+    {
+      "seed": 636,
+      "slotAudit": {
+        "changes": [],
+        "coverage": "originalFormObserverOnly",
+        "fileHandleCompared": false,
+        "first": {
+          "bar": null,
+          "childCount": 5,
+          "image": 3,
+          "next": 6,
+          "parent": 4,
+          "phase": "namedPreview",
+          "previous": 5,
+          "processing": "unreported",
+          "remove": 2,
+          "root": 1,
+          "slot": 3
+        },
+        "last": {
+          "bar": null,
+          "childCount": 5,
+          "image": 3,
+          "next": 9,
+          "parent": 4,
+          "phase": "namedPreview",
+          "previous": 5,
+          "processing": "unreported",
+          "remove": 2,
+          "root": 1,
+          "slot": 3
+        },
+        "limited": false,
+        "operationReceiptCreated": false,
+        "version": 1
+      }
+    },
+    {
+      "seed": 637,
+      "slotAudit": {
+        "changes": [
+          {
+            "after": {
+              "bar": null,
+              "childCount": 5,
+              "image": 11,
+              "next": null,
+              "parent": 4,
+              "phase": "namedPreview",
+              "previous": 1,
+              "processing": "unreported",
+              "remove": 10,
+              "root": 9,
+              "slot": 4
+            },
+            "atMs": 8430.5,
+            "batch": 18,
+            "before": {
+              "bar": null,
+              "childCount": 5,
+              "image": null,
+              "next": null,
+              "parent": 4,
+              "phase": "namedStatus",
+              "previous": 1,
+              "processing": "unreported",
+              "remove": 7,
+              "root": 6,
+              "slot": 4
+            },
+            "deliveryRecords": 2,
+            "kind": "continuityUncertain",
+            "oldSlotTainted": true,
+            "records": [
+              {
+                "added": [],
+                "addedCount": 0,
+                "next": null,
+                "previous": 1,
+                "removed": [
+                  6
+                ],
+                "removedCount": 1,
+                "seq": 22,
+                "target": 4
+              },
+              {
+                "added": [
+                  9
+                ],
+                "addedCount": 1,
+                "next": null,
+                "previous": 1,
+                "removed": [],
+                "removedCount": 0,
+                "seq": 23,
+                "target": 4
+              }
+            ],
+            "seqEnd": 23,
+            "seqStart": 22
+          }
+        ],
+        "coverage": "originalFormObserverOnly",
+        "fileHandleCompared": false,
+        "first": {
+          "bar": 8,
+          "childCount": 5,
+          "image": null,
+          "next": null,
+          "parent": 4,
+          "phase": "namedProgress",
+          "previous": 1,
+          "processing": "unreported",
+          "remove": 7,
+          "root": 6,
+          "slot": 4
+        },
+        "last": {
+          "bar": null,
+          "childCount": 5,
+          "image": 11,
+          "next": null,
+          "parent": 4,
+          "phase": "namedPreview",
+          "previous": 1,
+          "processing": "unreported",
+          "remove": 10,
+          "root": 9,
+          "slot": 4
+        },
+        "limited": false,
+        "operationReceiptCreated": false,
+        "version": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "extraction": {
+    "identity.py": "order and accept_sample functions extracted verbatim; no early.py runtime dependencies",
+    "main.swift": "14 original neutral response fixtures and policySelftest; no AppKit initialization or identity configuration",
+    "network_policy.swift": "byte-identical zero-count and payload policy with 38 fixtures",
+    "response.swift": "panelProjection extracted verbatim, with Foundation/CryptoKit digest helper",
+    "settled.py": "byte-identical pure input-settlement gate",
+    "test_identity.py": "39 fixtures retained; import points to pure identity module and neutral seed literals changed to 101/102"
+  },
+  "includedPreviouslyRunCases": 91,
+  "liveCaptureReliabilityClaimed": false,
+  "omittedCases": 7,
+  "omittedScope": "Case files and before/watch GUI orchestration, including seven before-unavailable integration fixtures; not needed by these pure units.",
+  "originalSourceSHA256": {
+    "early.py": "4ddeebabbf22c302caff44bb42aaab46a061669a91887b144120fb6607d874bd",
+    "main.swift": "de8af566d4acc329482b3fe56ccc5e5d6b4c77fe40834780dc23626542231aaa",
+    "panel.swift": "a655f7d7cadfff2ff95e244e881e1da32e1bc5c46476c25617025c34589a00cd",
+    "policy.swift": "2027eaa8778af627aec628c025d916adaf265f428786728ce84093e4ae951708",
+    "settled.py": "943476d4eeecf98f53fa5c066373d0eec2ad54443b379356c26ace50f4892d65",
+    "test_offline.py": "56f1192d26e8d143397fe1ae5ad14b7f3df7332a439f879486b37d4401969955"
+  },
+  "originalV2TotalCases": 98,
+  "productCompletionAdmission": false,
+  "scope": "Portable no-GUI subset extracted from v2; exact semantic units preserved."
+}
