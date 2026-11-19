@@ -651,20 +651,28 @@ public actor TransferCoordinator {
             fileURL: mediaDirectory.appendingPathComponent(asset.image.fileName),
             invocationID: invocation, requireLiveOriginal: true)
         do {
-            let receipt = try await adapter.reconcile(request)
-            guard receipt.operationID == op.id, receipt.assetID == asset.id,
-                  receipt.attempt == op.attempt, receipt.assetSHA256 == asset.image.sha256,
-                  receipt.target == op.target, receipt.belongsToOriginalDraft,
-                  !Task.isCancelled, try await store.asset(id: asset.id)?.activeOperationID == op.id else { return .unavailable }
-            if let start = try await store.uploadStartReceipt(for: op.id) {
-                guard receipt.attachmentID != nil, receipt.attachmentID == start.attachmentID else { return .unavailable }
-                // Historical START does not prove that a reported failure resolved.
-                if !receipt.hasError { return .observed }
-                guard [.unknown, .definitiveFailure].contains(receipt.outcome) else { return .unavailable }
-            }
-            if try await store.receipt(for: op.id) != receipt {
-                _ = try await store.apply(receipt, policy: policy)
-                await onChange()
+            for read in 0..<2 {
+                let receipt = try await adapter.reconcile(request)
+                guard receipt.operationID == op.id, receipt.assetID == asset.id,
+                      receipt.attempt == op.attempt, receipt.assetSHA256 == asset.image.sha256,
+                      receipt.target == op.target, receipt.belongsToOriginalDraft,
+                      !Task.isCancelled, try await store.asset(id: asset.id)?.activeOperationID == op.id else { return .unavailable }
+                let previousStart = try await store.uploadStartReceipt(for: op.id)
+                if let start = previousStart {
+                    guard receipt.attachmentID != nil, receipt.attachmentID == start.attachmentID else { return .unavailable }
+                    // Historical START does not prove that a reported failure resolved.
+                    if !receipt.hasError { return .observed }
+                    guard [.unknown, .definitiveFailure].contains(receipt.outcome) else { return .unavailable }
+                }
+                if try await store.receipt(for: op.id) != receipt {
+                    _ = try await store.apply(receipt, policy: policy)
+                    await onChange()
+                }
+                // A page may present a retained START before its live error. Once
+                // Core actually commits that first fact, read the original card once
+                // more so a single user check can also recover its current status.
+                guard read == 0, previousStart == nil, receipt.outcome == .uploadStarted,
+                      try await store.uploadStartReceipt(for: op.id) != nil else { return .observed }
             }
             return .observed
         } catch { return .unavailable }

@@ -62,6 +62,14 @@ public actor SystemScreenshotCandidateAdmission {
         try await registeredObservationSource(for: request) != nil
     }
 
+    /// Ask for a retained original START only until Core has committed that fact.
+    /// Prior source registrations retain their existing read-only behavior.
+    func needsOriginalStart(for request: TransferRequest) async throws -> Bool {
+        guard scope.isProduct,
+              try await registeredObservationSource(for: request) == SystemScreenshotWebCandidate.sourceID else { return false }
+        return try await store.uploadStartReceipt(for: request.operation.id) == nil
+    }
+
     // Only the read path accepts older source identities. New enrollment always uses today's page
     // program and the existing one-shot fence, including after a restart.
     func registeredObservationSource(for request: TransferRequest) async throws -> String? {
