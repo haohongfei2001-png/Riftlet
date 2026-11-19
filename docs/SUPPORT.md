@@ -4,9 +4,9 @@
 
 公开版 1.0.5（31）支持 Chrome 中的 ChatGPT。PR #69 的候选版已在登录的默认 Microsoft Edge 与 ChatGPT 临时聊天中验证系统 PNG 的一键交付。打开要用的草稿，正常截图，再点屏幕边缘的微图；图片出现在该草稿后，微图会收起，用户可以接着点另一张。原有文字、选区和附件保留，由用户发送消息。[开发分支实测](UNIVERSAL_ATTACHMENT.md)
 
-Edge 第一次使用可能需要允许 Riftlet 控制 Microsoft Edge，并在 Edge 的开发人员菜单中启用“允许 Apple 事件中的 JavaScript”。日常无需聚焦编辑器、重选文件或安装扩展。若目标草稿无法唯一确认，图片留在本地。
+Edge 第一次使用可能需要允许 Riftlet 控制 Microsoft Edge，并在 Edge 的开发人员菜单中启用“允许 Apple 事件中的 JavaScript”。日常无需聚焦编辑器、重选文件或安装扩展。若目标草稿无法唯一确认，图片留在本地。Edge 中已保存的聊天尚未取得相同的实测结果。
 
-## 已知范围
+## 个人 Beta 1 的历史验收范围
 
 个人 Beta 1 精确源码 `004741fe25cbdd59b72bf3c04ec061c7a1e2c0d5`，正式 main `b61fc46cf931bdbd14deec1b47d077e92db61e16` 继承其运行源码。已接受的真实证据包括 ChatGPT 五张连续附加，以及最终版冷启动双图；没有用本轮合成测试替代这些证据。
 

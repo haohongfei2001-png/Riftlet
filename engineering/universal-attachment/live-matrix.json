@@ -1,5 +1,5 @@
 {
-  "scope": "Commercial services through the ordinary Riftlet App. In the earlier isolated account, screenshots 612 and 613 each have a durable product START and storage HTTP 201. Service processing is UNKNOWN for each. Screenshots 617 and 618 reached file input without a new attachment or START. Separate rows preserve each dated default-profile trial. In the signed-in default account, 619 and 620 both entered the original temporary draft and have storage HTTP 201. Neither has a product START or an observed processing terminal. On the integrated 1.0.5 (31) ordinary App, 622 and 623 entered the same default-profile draft; their card progress and storage responses were observed. Product START was absent for both, service processing remained UNKNOWN, and the rapid pair failed. The next build 31 candidate received both rapid clicks (624/625) on one tray page. 624 exhausted the old 50 ms minimum before sending the document-binding event. Only 625 entered the original five-attachment draft; the page replaced the complete card before the PNG appeared and the product retained UNKNOWN. The cold-click repair build imported 626 and 627. Their dedicated Default Edge window could not be uniquely presented again before either ordinary click. Both commercial operations are NOT_RUN. A later read of the original 625 attachment matched the browser encoding of its original PNG. The signed v27 pair 634 and 635 entered the same Default Edge temporary draft and each has one storage PUT 201. Each product START is absent and processing is UNKNOWN. The v28 trial in Default Edge (636 and 637) preserved the original three attachments and both new images, each with an original storage PUT 201. Both product START and completion remain absent. Trial 638/639 verifies separate original-draft attachment acceptance and actual window disappearance in Default Edge. The two clicks were 102.637 seconds apart.",
+  "scope": "Commercial services through the ordinary Riftlet App. In the earlier isolated account, screenshots 612 and 613 each have a durable product START and storage HTTP 201. Service processing is UNKNOWN for each. Screenshots 617 and 618 reached file input without a new attachment or START. Separate rows preserve each dated default-profile trial. In the signed-in default account, 619 and 620 both entered the original temporary draft and have storage HTTP 201. Neither has a product START or an observed processing terminal. On the integrated 1.0.5 (31) ordinary App, 622 and 623 entered the same default-profile draft; their card progress and storage responses were observed. Product START was absent for both, service processing remained UNKNOWN, and the rapid pair failed. The next build 31 candidate received both rapid clicks (624/625) on one tray page. 624 exhausted the old 50 ms minimum before sending the document-binding event. Only 625 entered the original five-attachment draft; the page replaced the complete card before the PNG appeared and the product retained UNKNOWN. The cold-click repair build imported 626 and 627. Their dedicated Default Edge window could not be uniquely presented again before either ordinary click. Both commercial operations are NOT_RUN. A later read of the original 625 attachment matched the browser encoding of its original PNG. The signed v27 pair 634 and 635 entered the same Default Edge temporary draft and each has one storage PUT 201. Each product START is absent and processing is UNKNOWN. The v28 trial in Default Edge (636 and 637) preserved the original three attachments and both new images, each with an original storage PUT 201. Both product START and completion remain absent. Trial 638/639 verifies separate original-draft attachment acceptance and actual window disappearance in Default Edge. The two clicks were 102.637 seconds apart. Trial 645/646 verifies rapid one-click handoff and on-screen exit in the explicitly authorized Default Edge temporary draft using source 1481c74. It records no service processing terminal.",
   "latestAcceptanceRecord": "edge-unified-default-20261118/build31/draft-handoff-v29/REPORT.md",
   "previousMatrix": {
     "commit": "d50e1a26a2b75ea24cf92edde5a5a9ce6a02256a",
@@ -947,6 +947,65 @@
       "additionalUserSteps": 0,
       "messagesSent": 0,
       "relatedEvidence": "edge-unified-default-20261118/build31/draft-handoff-v29/640-641-ordinary-app.json"
+    },
+    {
+      "host": "Microsoft Edge",
+      "service": "ChatGPT",
+      "source": "b7a3d4af9e335f19e3ad0d08c9d85426280d9efc",
+      "assets": [
+        643,
+        644
+      ],
+      "result": "FAIL_ORIGINAL_DRAFT_HANDOFF",
+      "clickIntervalMs": 483.286,
+      "pinMs": [
+        102.065,
+        97.814
+      ],
+      "windowAndTab": "PASS_BOTH_ORIGINAL_NATIVE_IDS",
+      "windowAndDraft": "ORIGINAL_PREPARED_EDITOR_AND_GENERATION_CHANGED",
+      "specifiedImage": "643_REJECTED_BEFORE_FILE_INPUT_644_INPUT_ONCE_DELIVERY_TO_AUTHORIZED_DRAFT_UNVERIFIED",
+      "uploadStart": "NO_DURABLE_ACCEPTANCE_OR_START",
+      "finalSuccess": "UNKNOWN",
+      "screenExit": "NEITHER",
+      "relatedEvidence": "edge-unified-default-20261118/build31/draft-handoff-v29/643-644.json"
+    },
+    {
+      "host": "Microsoft Edge",
+      "service": "ChatGPT",
+      "accountScope": "signed-in default profile, newly created dedicated temporary draft",
+      "source": "1481c74bbb12e997de1149362a7ed45fdb6b2120",
+      "assets": [
+        645,
+        646
+      ],
+      "result": "PASS_ONE_CLICK_DRAFT_HANDOFF",
+      "application": "PASS_BOTH_ORDINARY_THUMBNAIL_CLICKS",
+      "windowAndDraft": "SAME_AUTHORIZED_WINDOW_TAB_DOCUMENT_COMPOSER_DRAFT",
+      "entry": "ONE_SETTER_AND_CHANGE_EACH",
+      "specifiedImage": "BOTH_VERIFIED_BY_ORIGINAL_DRAFT_CONTENT_AND_NAMED_IMAGE",
+      "textSelectionPriorAttachments": "PASS_ORIGINAL_TEXT_14_CHARACTER_RANGE_AND_BASELINE_647",
+      "imagesBeforeAfter": [
+        1,
+        3
+      ],
+      "receipt": [
+        "attachmentAccepted",
+        "attachmentAccepted"
+      ],
+      "windowServerExitAfterCallbackMs": [
+        5579.432,
+        6638.798
+      ],
+      "mouseDownIntervalMs": 517.873,
+      "clickCallbackIntervalMs": 505.033,
+      "uploadStart": "NAMED_CARD_PROGRESS_10_TO_100_EACH",
+      "finalSuccess": "SERVER_PROCESSING_UNKNOWN",
+      "replay": 0,
+      "messagesSent": 0,
+      "additionalUserSteps": 0,
+      "scopeGuard": "TEST_ONLY_ORIGINAL_LEASE_VETO_BEFORE_DURABLE_OPERATION",
+      "relatedEvidence": "edge-unified-default-20261118/build31/draft-handoff-v29/645-646-ordinary-app.json"
     }
   ],
   "edgeSpecialistFollowup": "edge-double-image-20261114/isolated-login.json",

@@ -1,0 +1,152 @@
+{
+  "schema": 1,
+  "reviewer": "gate_v27_independent",
+  "scope": "Offline non-author audit of two original ordinary App clicks, their existing signed artifacts, target-bound records, and WindowServer observations. No new browser, upload or message.",
+  "result": "PASS_TWO_ORDINARY_RAPID_HANDOFFS_AND_VISUAL_EXIT",
+  "rapidPairAcceptance": true,
+  "runtimeSource": "1481c74bbb12e997de1149362a7ed45fdb6b2120",
+  "runtimeTree": "b5ecaf844d176beb441fe0b5ccbad06ebe3075fa",
+  "runtimeBinarySHA256": "c1a8722232fb0fe853a83715ea6a0687c71f7f5923aeb1409ef2ee9d5d484f18",
+  "signedArchiveSHA256": "4054a4a238502f30e5cedfdee7688d7a8a477a9a38d96c150c3b88db16bd19c5",
+  "shortVersion": "1.0.5",
+  "buildVersion": "31",
+  "downIntervalMs": 517.873,
+  "callbackIntervalMs": 505.033,
+  "sameClickTimeOriginalProcessWindowTabDocumentComposerDraft": true,
+  "distinctPerClickBindingsAndInvocations": true,
+  "originalAndFinalDraftAttachmentCounts": [
+    1,
+    3
+  ],
+  "retainedTextAndOriginal14CharacterSelection": true,
+  "onePriorAttachmentRetained": true,
+  "nativeInputCounts": [
+    1,
+    1
+  ],
+  "messagesAndSubmissions": 0,
+  "files": [
+    {
+      "seed": 645,
+      "originalPNGBytes": 1406693,
+      "originalPNGSHA256": "7d41c64d02edf970e5a7550d205cda9c484e8d445991e525f97b5f45947eeb10",
+      "systemScreenshotXattr": true,
+      "retainedOriginalBytesMatch": true,
+      "namedLocalDraftPNGBytes": 1386402,
+      "namedLocalDraftPNGSHA256": "9598aace8a4cebd5e380b857bb4aaa14ea7956d86ffb8374e967e31b9394b265",
+      "windowSenderAndOriginalReservationMatched": true,
+      "oneNativeDownUpAndSelection": true,
+      "originalOperations": 1,
+      "attempt": 1,
+      "originalContentInvocationAndAcceptanceEvidenceMatch": true,
+      "persistedAttachmentAcceptedRows": 1,
+      "isUploading": false,
+      "positiveReady": false,
+      "completionEvidence": false,
+      "safeToRetry": false,
+      "visibility": "swallowed",
+      "phase": "inputTriggered",
+      "originalCallbackToContentMs": 5426.145,
+      "contentToVisibilitySnapshotMs": 2.429,
+      "contentToAnimationStartMs": 3.168,
+      "animationStartToCloseMs": 127.6,
+      "windows": [
+        {
+          "kind": "visual",
+          "initiallyVisible": true,
+          "lastOnScreen": false,
+          "firstFadeObservedAfterClickMs": 5458.389,
+          "firstAbsentObservedAfterClickMs": 5579.432,
+          "firstAbsentObservedAfterProofMs": 153.287
+        },
+        {
+          "kind": "input",
+          "initiallyVisible": true,
+          "lastOnScreen": false,
+          "firstFadeObservedAfterClickMs": 5458.389,
+          "firstAbsentObservedAfterClickMs": 5579.432,
+          "firstAbsentObservedAfterProofMs": 153.287
+        }
+      ],
+      "committedInputs": 1,
+      "verifiedOrderedOriginalChunks": 6,
+      "nativeFullRevalidationsPerChunk": 2,
+      "readOnlyCardTransition": [
+        "namedProgress",
+        "namedPreview"
+      ],
+      "serviceProcessing": "unreported"
+    },
+    {
+      "seed": 646,
+      "originalPNGBytes": 1405469,
+      "originalPNGSHA256": "394ee6a58e0baf82b34abdea0988fa44e9630fd8493584e2f947b07e652d6074",
+      "systemScreenshotXattr": true,
+      "retainedOriginalBytesMatch": true,
+      "namedLocalDraftPNGBytes": 1386085,
+      "namedLocalDraftPNGSHA256": "6216028f60f7cb38c92ab01ccb45e9ec633326554bfaa5a74ab050a27f100ee8",
+      "windowSenderAndOriginalReservationMatched": true,
+      "oneNativeDownUpAndSelection": true,
+      "originalOperations": 1,
+      "attempt": 1,
+      "originalContentInvocationAndAcceptanceEvidenceMatch": true,
+      "persistedAttachmentAcceptedRows": 1,
+      "isUploading": false,
+      "positiveReady": false,
+      "completionEvidence": false,
+      "safeToRetry": false,
+      "visibility": "swallowed",
+      "phase": "inputTriggered",
+      "originalCallbackToContentMs": 6489.14,
+      "contentToVisibilitySnapshotMs": 3.848,
+      "contentToAnimationStartMs": 4.976,
+      "animationStartToCloseMs": 123.261,
+      "windows": [
+        {
+          "kind": "visual",
+          "initiallyVisible": true,
+          "lastOnScreen": false,
+          "firstFadeObservedAfterClickMs": 6532.814,
+          "firstAbsentObservedAfterClickMs": 6638.798,
+          "firstAbsentObservedAfterProofMs": 149.657
+        },
+        {
+          "kind": "input",
+          "initiallyVisible": true,
+          "lastOnScreen": false,
+          "firstFadeObservedAfterClickMs": 6532.814,
+          "firstAbsentObservedAfterClickMs": 6638.798,
+          "firstAbsentObservedAfterProofMs": 149.657
+        }
+      ],
+      "committedInputs": 1,
+      "verifiedOrderedOriginalChunks": 6,
+      "nativeFullRevalidationsPerChunk": 2,
+      "readOnlyCardTransition": [
+        "namedProgress",
+        "namedPreview"
+      ],
+      "serviceProcessing": "unreported"
+    }
+  ],
+  "sourceFilesMatchingReadOnlyProductCaptureOracle": 91,
+  "authorizedIndependentDraftWitnessMatchesEachLease": true,
+  "denyOnlyFenceSHA256": "28db6dbb6eb5153b33c10df4dac3b28f29d9458119d6c97b0b59eb9ac05fa8e6",
+  "historicalFourRecordSnapshotUnchanged": true,
+  "backendNetworkObservation": "NOT_RUN",
+  "backendTerminal": "UNKNOWN",
+  "limitations": [
+    "The two initial/last windows were observed via WindowServer window list, on-screen flag and alpha. Recorded timestamps are bounds on observed changes, not refresh-by-refresh display scanout.",
+    "Acceptance is a positive local draft handoff. No raw upload request, network start, service-processing result or server completion was captured. The page-journal PNG SHA belongs to same-browser encoding; it is distinct from the original file SHA."
+  ],
+  "evidenceSHA256": {
+    "observations/raw-events.jsonl": "234d04ec369513fd671b26fde4ef482a8c8d60cb7ef0771662e0f9368453beb1",
+    "observations/windowserver-panels.jsonl": "20b9b8346f984ddafd086c75f5557849a430ee8e2f58c9f96ac7070ba6c3b126",
+    "observations/draft-after.json": "3bb9cdb9d038ae21a172c3ee99ca9590a5d5e16b94999105360d98e61c826d15",
+    "observations/card-events.json": "b95a557db1b5ff8c7840e48babcb92eb4422c9c5f8bb5db82380f980d7565dda",
+    "bound-lease.json": "c3a0c9517553000be3bfe04261eacbf34f569b499cd764fd802033052db8cbe8",
+    "armed-fence.json": "85a0dc458c35c5bc62dcfcf5b536b78ff14cf9ef7ed39d5f4be1aebc8a0bf992",
+    "qa-ticket.json": "407ec7f445814d4a335e42c6c9d53549533678947a0d218ae357a66b41f73644"
+  },
+  "historicalSnapshotSHA256": "c2a9aa537cac6de2d08e76107c37187c385eee15b5814a257ac080fbdc97bb70"
+}

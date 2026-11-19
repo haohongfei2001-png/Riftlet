@@ -1,0 +1,15 @@
+{
+  "source": "1481c74bbb12e997de1149362a7ed45fdb6b2120",
+  "sourceTree": "b5ecaf844d176beb441fe0b5ccbad06ebe3075fa",
+  "shortVersion": "1.0.5",
+  "buildVersion": "31",
+  "buildChannel": "isolated-product-acceptance",
+  "architectures": [
+    "arm64"
+  ],
+  "executableSHA256": "c1a8722232fb0fe853a83715ea6a0687c71f7f5923aeb1409ef2ee9d5d484f18",
+  "packageArchiveSHA256": "4054a4a238502f30e5cedfdee7688d7a8a477a9a38d96c150c3b88db16bd19c5",
+  "notarization": "NOT_RUN",
+  "release": "NOT_PERFORMED",
+  "signedReceiptSHA256": "a1cffff64991cbba323f357e7469587a64a91a412cbb473da3f5e8b52f814ad3"
+}
