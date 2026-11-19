@@ -990,3 +990,29 @@ test('nested decorative icons do not replace the independently named original pr
  const next=accepted(f,b);assert.notEqual(next.attachmentID,start.attachmentID);
  assert.deepEqual([f.setters,f.changes,f.sends],[2,2,0]);
 });
+
+for(const count of [65,257,769])test('current File and prior generation ownership at URL count '+count,()=>{
+ const f=fixture({accept:false}),a=f.bind();f.stage(a);f.commit(a);
+ let retainedForeign,last;
+ for(let i=0;i<count;i++){
+  last=f.context.URL.createObjectURL(f.input.files[0]);
+  if(i===Math.max(0,count-257))retainedForeign=last;
+ }
+ const card=f.addCard(a.name,{progress:false}),image=card.querySelector('img');
+ for(const key of ['data-file-name','title','aria-label'])card.removeAttribute(key);
+ image.removeAttribute('alt');image.setAttribute('src',last);
+ const original=accepted(f,a);card.setAttribute('data-state','failed');
+ assert.equal(f.observe(a).attachmentID,original.attachmentID);assert.equal(f.observe(a).state,'failed');
+ const b=f.bind();f.stage(b);f.commit(b);const second=f.addCard(b.name,{progress:false}),next=second.querySelector('img');
+ next.setAttribute('src',retainedForeign);assert.equal(f.observe(b).state,'inputTriggered');
+ next.setAttribute('src','blob:new-site-created-preview');accepted(f,b);
+ assert.deepEqual([f.setters,f.changes,f.sends],[2,2,0]);
+});
+
+for(const [label,expected] of [['Image preview',true],['上传图片的预览',true],['Help',false],['Logo',false]]){
+ test('single directly owned named member with image description '+label,()=>{
+  const f=fixture({accept:false}),op=f.bind();f.stage(op);f.commit(op);
+  const card=f.addCard(op.name,{progress:false});card.querySelector('img').setAttribute('alt',label);
+  assert.equal(f.observe(op).state,expected?'uploadStarted':'inputTriggered');assert.equal(f.setters,1);
+ });
+}

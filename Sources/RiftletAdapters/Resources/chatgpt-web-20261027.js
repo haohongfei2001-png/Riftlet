@@ -174,14 +174,17 @@ function riftletWebAcceptance(command, native) {
   if (registry && !registry.blobOwners && typeof URL.createObjectURL === 'function') {
     const state = registry, original = URL.createObjectURL;
     state.blobOwners = new Map();
+    state.earlierBlobOwners = new Map();
     try {
       URL.createObjectURL = function (file) {
         const value = Reflect.apply(original, this, arguments);
         const operation = state.files.get(file);
         if (operation && value.startsWith('blob:') && value.length <= 256) {
           if (state.blobOwners.size >= 256) {
-            state.blobOwners.delete(state.blobOwners.keys().next().value);
-            state.blobOwnerEvicted = true;
+            // Retain the previous finite generation. An unrelated later
+            // image never inherits a failure merely because this table rotated.
+            state.earlierBlobOwners = state.blobOwners;
+            state.blobOwners = new Map();
           }
           state.blobOwners.set(value, operation.identity.operationID);
           if (!operation.discarded && !operation.start && operation.urls.size < 64) operation.urls.add(value);
@@ -714,6 +717,14 @@ function riftletWebAcceptance(command, native) {
     return Number.isFinite(min) && Number.isFinite(max) && max > min && current >= min && current <= max
       ? {min, max, current} : true;
   }
+  function blobOwner(src) {
+    if (!src || src.length > 256 || !src.startsWith('blob:')) return undefined;
+    return registry.blobOwners?.get(src) ?? registry.earlierBlobOwners?.get(src);
+  }
+  function currentFileURL(op, src) {
+    const owner = blobOwner(src);
+    return owner === undefined ? op.urls.has(src) : owner === op.identity.operationID;
+  }
   function renderedPreview(node) {
     if (!visible(node)) return false;
     if (typeof node.checkVisibility === 'function') {
@@ -847,7 +858,7 @@ function riftletWebAcceptance(command, native) {
       const src = preview?.getAttribute('src');
       // Only the actual START node may rely on its own filename and preview.
       // A separate view must show an object URL minted from this exact File.
-      const sameFile = !!src && op.urls.has(src);
+      const sameFile = !!src && currentFileURL(op, src);
       if (match !== accepted && !sameFile) continue;
       const opaqueImage = match === accepted && labelledImage && !preview
         && inOriginalCardContainer(card, op.binding) && card.querySelectorAll('img[src]').length === 1;
@@ -971,12 +982,11 @@ function riftletWebAcceptance(command, native) {
       }
       if (node.tagName === 'IMG' && node.getAttribute('src')) {
         const src = node.getAttribute('src');
-        if (node.currentSrc && node.currentSrc !== src && registry.blobOwners?.has(node.currentSrc)
-            && registry.blobOwners.get(node.currentSrc) !== op.identity.operationID) return null;
+        const renderedOwner = blobOwner(node.currentSrc);
+        if (renderedOwner && renderedOwner !== op.identity.operationID) return null;
         if (node.hasAttribute('srcset') && node.currentSrc !== src) return null;
-        const owner = registry.blobOwners?.get(src);
+        const owner = blobOwner(src);
         if (owner && owner !== op.identity.operationID) return null;
-        if (registry.blobOwnerEvicted && src.startsWith('blob:') && !owner && !op.urls.has(src)) return null;
         images.push(node);
       } else if (node.matches('progress,[role="progressbar"]')) {
         meters.push(node);
@@ -995,9 +1005,11 @@ function riftletWebAcceptance(command, native) {
     for (const image of images) {
       const src = image.getAttribute('src').trim();
       if (!src || !renderedPreview(image)) continue;
-      const ownFile = op.urls.has(src) || registry.blobOwners?.get(src) === op.identity.operationID;
+      const ownFile = currentFileURL(op, src);
       const explicitlyNamed = ['data-file-name', 'alt', 'aria-label', 'title'].some(key => filename.test(image.getAttribute(key) || ''));
-      if (!ownFile && !explicitlyNamed && (!labelNode || images.length !== 1 || image.getAttribute('alt')?.trim())) continue;
+      const alt = (image.getAttribute('alt') || '').trim();
+      const genericPreview = !alt || /^(?:(?:uploaded |attachment )?image preview|preview of (?:the )?uploaded image|(?:上传(?:的)?|附件)?(?:图片|图像)(?:的)?预览)$/i.test(alt);
+      if (!ownFile && !explicitlyNamed && (!labelNode || images.length !== 1 || !genericPreview)) continue;
       if (op.previewBaseline ? op.previewBaseline.get(image) === src : op.baseline.has(image)) continue;
       return {node: labelNode || image, preview: image, card};
     }
@@ -1026,7 +1038,7 @@ function riftletWebAcceptance(command, native) {
     const named = node => ['data-file-name', 'aria-label', 'title', 'alt'].some(key => filename.test(node.getAttribute(key) || ''))
       || ((node.hasAttribute('data-file-name') || node.getAttribute('role') === 'button' || node.tagName === 'BUTTON')
         && filename.test(node.textContent || ''));
-    const identifiesFile = node => named(node) || (node.tagName === 'IMG' && op.urls.has(node.getAttribute('src')));
+    const identifiesFile = node => named(node) || (node.tagName === 'IMG' && currentFileURL(op, node.getAttribute('src')));
     const identified = attachmentNodes(op.binding, surface || document).filter(node => node.isConnected && identifiesFile(node));
     if (identified.some(hasError)) return;
     const matches = [];
