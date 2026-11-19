@@ -1,0 +1,28 @@
+{
+  "sha256": "9fcb17a6154c95c6a8a20ee30327723b1d738e1fcbefe21dee796c83d20a9f6d",
+  "bytes": 4164789,
+  "codec": "h264",
+  "profile": "High",
+  "width": 1080,
+  "height": 1920,
+  "fps": 30.0,
+  "pixelFormat": "yuv420p",
+  "durationSeconds": 15.0,
+  "audio": "aac",
+  "audioSeconds": 15.0,
+  "sampleRate": 48000,
+  "layout": "stereo",
+  "decodedFrames": 450,
+  "unbrokenPresentationTimestamps": true,
+  "integratedLUFS": -15.9,
+  "truePeakDBTP": -3.7,
+  "loudnessRangeLU": 2.8,
+  "bt709PrimariesAndMatrix": true,
+  "transfer": "sRGB",
+  "boxes": [
+    "ftyp",
+    "moov",
+    "free",
+    "mdat"
+  ]
+}

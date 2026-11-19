@@ -1,0 +1,151 @@
+{
+  "reviewDate": "2026-11-14",
+  "player": "macOS AVPlayer; uninterrupted host-clock playback at 1x, offline, no visible window",
+  "method": "Watched the presented pictures at the opening, proof, two tray states, selection, attachment, continued typing and held CTA. Compared same-time English and Chinese pictures and read complete separate SRT files.",
+  "audioScope": "Muted picture screening. We compared decoded PCM for every sample to the original no-dialogue edit. Subjective listening was unavailable.",
+  "verdict": "PASS",
+  "editions": [
+    {
+      "file": "films/zh-CN/riftlet-commercial.mp4",
+      "locale": "zh-CN",
+      "sha256": "63becfc037e04623bcc98aeafcf3a10056e441ebfd73a2039820cd76caf66d88",
+      "durationSeconds": 30.0,
+      "finalMediaSeconds": 30.0,
+      "playbackWallSeconds": 30.1789,
+      "playbackRate": 1,
+      "freshFramesRead": 893,
+      "glimpses": 91,
+      "firstGlanceSeconds": 0.0,
+      "lastGlanceSeconds": 29.71,
+      "naturalEnd": true,
+      "playbackError": null,
+      "captions": {
+        "file": "captions/zh-CN/riftlet-commercial.zh-CN.srt",
+        "cueCount": 11,
+        "sha256": "c6a2bdb6475cf12e68f8c9e2f13af07609f2357a3a1915b988d2b6bafce42743",
+        "burnedIn": false,
+        "matchesMovieLanguage": true
+      },
+      "originalScore": {
+        "sourceCommit": "2c4016fe539de0bc6d121a49d811190b0dd0116a",
+        "sampleRateHz": 48000,
+        "format": "24-bit signed PCM, stereo after AAC decoding",
+        "decodedStereoFrames": 1440000,
+        "pcmSHA256": "0ebc9ad8982bc079b131c91bbd7e1cdb1e8afb7a094765433b070f2f08d5869c",
+        "identicalToOriginalApprovedEdit": true
+      },
+      "visualObservations": [
+        "Start card, proof title, photo notes, browser greeting, typed draft, editorial titles, benefit and download line are Simplified Chinese. Proper names, domain names, file extension and genuine keyboard legends remain.",
+        "The rider is the selected and attached screenshot. The blue image stays in the tray, the initial question is retained and “看看车手的倾角。” is appended.",
+        "Final line reads “截屏、点选、继续。” above the website and Chinese macOS beta download invitation."
+      ]
+    },
+    {
+      "file": "films/zh-CN/riftlet-vertical.mp4",
+      "locale": "zh-CN",
+      "sha256": "9fcb17a6154c95c6a8a20ee30327723b1d738e1fcbefe21dee796c83d20a9f6d",
+      "durationSeconds": 15.0,
+      "finalMediaSeconds": 15.0,
+      "playbackWallSeconds": 15.1749,
+      "playbackRate": 1,
+      "freshFramesRead": 444,
+      "glimpses": 46,
+      "firstGlanceSeconds": 0.0,
+      "lastGlanceSeconds": 14.87,
+      "naturalEnd": true,
+      "playbackError": null,
+      "captions": {
+        "file": "captions/zh-CN/riftlet-vertical.zh-CN.srt",
+        "cueCount": 10,
+        "sha256": "0f74038ff3c749bddc3ab96d2442367f64557cc772a01cab357cdde896cdb5a8",
+        "burnedIn": false,
+        "matchesMovieLanguage": true
+      },
+      "originalScore": {
+        "sourceCommit": "2c4016fe539de0bc6d121a49d811190b0dd0116a",
+        "sampleRateHz": 48000,
+        "format": "24-bit signed PCM, stereo after AAC decoding",
+        "decodedStereoFrames": 720000,
+        "pcmSHA256": "119f7053b55ecfc600b16f434f1e330b85b257feb26ff38aca13519d38779a2c",
+        "identicalToOriginalApprovedEdit": true
+      },
+      "visualObservations": [
+        "Start card, proof title, photo notes, browser greeting, typed draft, editorial titles, benefit and download line are Simplified Chinese. Proper names, domain names, file extension and genuine keyboard legends remain.",
+        "The rider is the selected and attached screenshot. The blue image stays in the tray, the initial question is retained and “看看车手的倾角。” is appended.",
+        "Final line reads “截屏、点选、继续。” above the website and Chinese macOS beta download invitation.",
+        "Portrait click cut shows the chosen rider above and matching chip below. The localized title and website fit the narrow frame."
+      ]
+    },
+    {
+      "file": "films/en/riftlet-commercial.mp4",
+      "locale": "en",
+      "sha256": "d97955de53bcadfad33901a19f62714e7abe458faae53c2c31ec69bb22df158c",
+      "durationSeconds": 30.0,
+      "finalMediaSeconds": 30.0,
+      "playbackWallSeconds": 30.1708,
+      "playbackRate": 1,
+      "freshFramesRead": 894,
+      "glimpses": 91,
+      "firstGlanceSeconds": 0.0,
+      "lastGlanceSeconds": 29.7,
+      "naturalEnd": true,
+      "playbackError": null,
+      "captions": {
+        "file": "captions/en/riftlet-commercial.en.srt",
+        "cueCount": 11,
+        "sha256": "555a39754754dbb9ecfc1844f2fa51e42b914cae10d680ca1f0be9dc4ec3f85d",
+        "burnedIn": false,
+        "matchesMovieLanguage": true
+      },
+      "originalScore": {
+        "sourceCommit": "2c4016fe539de0bc6d121a49d811190b0dd0116a",
+        "sampleRateHz": 48000,
+        "format": "24-bit signed PCM, stereo after AAC decoding",
+        "decodedStereoFrames": 1440000,
+        "pcmSHA256": "0ebc9ad8982bc079b131c91bbd7e1cdb1e8afb7a094765433b070f2f08d5869c",
+        "identicalToOriginalApprovedEdit": true
+      },
+      "visualObservations": [
+        "Opening, proof and destination/editor layers show English text; no Simplified Chinese title or subtitle burn remains.",
+        "The rider is the clicked and attached screenshot. The blue image stays in the tray, the existing English question remains and “Look at the lean.” is appended.",
+        "The final brand line and download invitation are English, with riftlet.com held through the end."
+      ]
+    },
+    {
+      "file": "films/en/riftlet-vertical.mp4",
+      "locale": "en",
+      "sha256": "cf190a2f6d2441b5e72f7fe0954a339bf237b727e393cf80543a769ee2043e7f",
+      "durationSeconds": 15.0,
+      "finalMediaSeconds": 15.0,
+      "playbackWallSeconds": 15.1605,
+      "playbackRate": 1,
+      "freshFramesRead": 445,
+      "glimpses": 46,
+      "firstGlanceSeconds": 0.0,
+      "lastGlanceSeconds": 14.88,
+      "naturalEnd": true,
+      "playbackError": null,
+      "captions": {
+        "file": "captions/en/riftlet-vertical.en.srt",
+        "cueCount": 10,
+        "sha256": "5ff3b7b51f715231c4964bf63ace99c7b102dd934dd5df650cbdcfae639dd69b",
+        "burnedIn": false,
+        "matchesMovieLanguage": true
+      },
+      "originalScore": {
+        "sourceCommit": "2c4016fe539de0bc6d121a49d811190b0dd0116a",
+        "sampleRateHz": 48000,
+        "format": "24-bit signed PCM, stereo after AAC decoding",
+        "decodedStereoFrames": 720000,
+        "pcmSHA256": "119f7053b55ecfc600b16f434f1e330b85b257feb26ff38aca13519d38779a2c",
+        "identicalToOriginalApprovedEdit": true
+      },
+      "visualObservations": [
+        "Opening, proof and destination/editor layers show English text; no Simplified Chinese title or subtitle burn remains.",
+        "The rider is the clicked and attached screenshot. The blue image stays in the tray, the existing English question remains and “Look at the lean.” is appended.",
+        "The final brand line and download invitation are English, with riftlet.com held through the end.",
+        "Portrait click cut shows the chosen rider above and matching chip below. The localized title and website fit the narrow frame."
+      ]
+    }
+  ]
+}

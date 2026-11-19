@@ -1,0 +1,22 @@
+{
+  "player": "macOS AVPlayer, uninterrupted 1x run using host-clock AVPlayerItemVideoOutput",
+  "durationSeconds": 15.0,
+  "finalMediaTimeSeconds": 15.0,
+  "elapsedWallSeconds": 15.202140291687101,
+  "freshVideoOutputs": 445,
+  "presentedGlanceCount": 46,
+  "firstPresentedGlanceSeconds": 0.0,
+  "lastPresentedGlanceSeconds": 14.85,
+  "reachedEnd": true,
+  "playbackError": null,
+  "audioScope": "Muted local speaker during picture screening. Audio timeline and levels are verified independently.",
+  "filmSHA256": "6b2538eb4b09702a794f2f3c7b74e086dc6c4b6780fb6192320752b14bfde616",
+  "editorialVerdict": "Pass for portrait delivery. At phone-size the reframe keeps the selected rider, second image, draft, captions and download URL identifiable without relying on the desktop perimeter.",
+  "reviewed": [
+    "The opening shows a visible Mac and current Chrome draft, with “Mac 截图，一点就到 ChatGPT 草稿。”",
+    "During the second region selection at 4.30s the caption reads “再截一张。”; after the second image enters the expanded tray it reads “第二张也在手边。” at 5.28s.",
+    "At 7.60s the pointer is on the orange cyclist. At 7.93s it is an attachment in the current draft, while the blue unselected image remains in the tray.",
+    "During continuation the original question remains, extra words appear and the send button remains idle. The full wordmark, signature and URL remain visible at 14.87s."
+  ],
+  "evidenceScope": "Offline final-file playback and visual presentation review; subjective audience and listening response are outside this record."
+}
