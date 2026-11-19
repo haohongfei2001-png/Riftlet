@@ -1,8 +1,8 @@
 安装 Riftlet
 
 1. 将 Riftlet.app 拖到「应用程序」。如果已安装 Riftlet，先从菜单栏退出旧版，然后替换原安装位置的 App。
-2. 打开安装好的 Riftlet，在引导中确认截图保存位置。如需附加到 ChatGPT，按引导允许 Riftlet 控制 Google Chrome，并在 Chrome「显示 → 开发者」中打开「允许 Apple 事件中的 JavaScript」。
-3. 将截图存为文件，在 Chrome 中打开目标 ChatGPT 草稿，点一下桌面边缘的截图。上传进度显示在草稿中，消息由你发送。
+2. 打开安装好的 Riftlet，在引导中确认截图保存位置。如需附加到 ChatGPT，按引导允许 Riftlet 控制正在使用的 Google Chrome 或 Microsoft Edge，并按浏览器内的引导开启「允许 Apple 事件中的 JavaScript」。
+3. 将截图存为文件，在 Chrome 或 Edge 中打开目标 ChatGPT 草稿，点一下桌面边缘的截图。上传进度显示在草稿中，消息由你发送。
 
 更新前请备份完整的本机截图库。需要回退时，请保留最新数据，确认旧版本兼容后再替换 App。
 
