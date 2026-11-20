@@ -717,7 +717,7 @@ for(const unfiltered of groups){
      const options=group[index];
      try{
       assert.equal(report.passed,true,JSON.stringify(report));
-      if(options.namedErrorCard){assert.equal(report.rejectedShapes,15);assert.equal(report.retiredCases,4);assert.equal(report.nativeChanges,report.nativeSetters);assert.equal(report.automaticSends,0);console.log(JSON.stringify(report));continue;}
+      if(options.namedErrorCard){assert.equal(report.rejectedShapes,23);assert.equal(report.retiredCases,4);assert.equal(report.nativeChanges,report.nativeSetters);assert.equal(report.automaticSends,0);console.log(JSON.stringify(report));continue;}
       if(options.edge){
        assert.equal(report.nativeChanges,2);assert.equal(report.nativeSetters,2);assert.equal(report.observedStarts,1);
        assert.equal(report.networkRequests,0);assert.equal(report.automaticSends,0);

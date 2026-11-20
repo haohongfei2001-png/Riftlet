@@ -4,6 +4,7 @@
 // original error tile; the production resource performs all input/observation.
 async function runOriginalErrorCardCase({form,editor,input,operation,call,check,options,counts}) {
   const el=(tag,cls)=>{const node=document.createElement(tag);if(cls)node.className=cls;return node;};
+  const style=el('style');style.textContent='.pointer-events-none{pointer-events:none}';document.head.append(style);
   const layout=el('div');layout.setAttribute('data-composer-layout','');
   const lane=el('div','ComposerLayoutAttachments-test'),row=el('div','flex');
   form.append(layout);layout.append(editor,lane);lane.append(row);
@@ -13,12 +14,14 @@ async function runOriginalErrorCardCase({form,editor,input,operation,call,check,
     const remove=el('button');remove.type='button';remove.setAttribute('aria-label','移除 '+name);
     remove.textContent='×';remove.style.cssText='opacity:0;pointer-events:none';
     shell.append(surface,remove);
-    const preview=el('span'),status=el('span'),alert=el('span'),message=el('span'),retry=el('button');
+    const preview=el('span','pointer-events-none'),status=el('span'),alert=el('span'),message=el('span'),retry=el('button');
     alert.setAttribute('role','alert');alert.setAttribute('aria-label',name);message.textContent='上传未成功';
     retry.type='button';retry.textContent='Retry';retry.setAttribute('aria-label','Retry uploading '+name);
     const bar=el('span'),filename=el('span','truncate');filename.textContent=name;
     status.append(alert,retry);alert.append(message);preview.append(status);bar.append(filename);surface.append(preview,bar);
-    return {shell,surface,remove,preview,status,alert,message,retry,bar,filename};
+    const ring=el('span','composer-attachment-surface pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-border');
+    surface.append(ring);
+    return {shell,surface,remove,preview,status,alert,message,retry,bar,filename,ring};
   };
   let inputs=0;input.addEventListener('input',()=>inputs++);
   const observe=(op,manual=false)=>call({...op.command('observe'),requireLiveOriginal:manual}).observation;
@@ -35,6 +38,14 @@ async function runOriginalErrorCardCase({form,editor,input,operation,call,check,
   const noPositive=(obs,label)=>check(!obs.uploadStart && !obs.hasError && !obs.originalCardFailureInvocationID &&
       !obs.safeToRetry && obs.state!=='originalCardFailed',label);
   const failures={
+    explicitPointerBlock:t=>()=>{t.retry.style.pointerEvents='none';row.append(t.shell);},
+    noKeyboardAction:t=>()=>{t.retry.tabIndex=-1;row.append(t.shell);},
+    ringText:t=>()=>{t.ring.textContent='Retry';row.append(t.shell);},
+    ringButton:t=>()=>{t.ring.append(el('button'));row.append(t.shell);},
+    ringLabel:t=>()=>{t.ring.setAttribute('aria-label','Other');row.append(t.shell);},
+    ringDuplicate:t=>()=>{t.surface.append(t.ring.cloneNode(true));row.append(t.shell);},
+    ringOrder:t=>()=>{t.surface.prepend(t.ring);row.append(t.shell);},
+    ringUnrelated:t=>()=>{t.ring.classList.remove('ring-inset');row.append(t.shell);},
     oldShell:t=>{row.append(t.shell);return ()=>{};},
     oldRemove:t=>{row.append(t.remove);return ()=>{t.shell.append(t.remove);row.append(t.shell);};},
     conflict:t=>()=>{const label=el('span');label.textContent='riftlet-'+crypto.randomUUID()+'.png';t.bar.append(label);row.append(t.shell);},
@@ -59,6 +70,8 @@ async function runOriginalErrorCardCase({form,editor,input,operation,call,check,
   const accept=(obs,op)=>check(obs.state==='originalCardFailed' && obs.exactImageIdentity && obs.hasError &&
     obs.belongsToOriginalDraft && !obs.inputExecutionPending && !obs.uploadStart && !obs.safeToRetry && !!obs.attachmentID &&
     obs.originalCardFailureInvocationID===op.command('observe').invocationID,'original explicit failure: '+obs.state);
+  const noBorder=await begin(t=>()=>{t.ring.remove();row.append(t.shell);});
+  accept(noBorder.item,noBorder.op);row.replaceChildren();
   for(const mutation of ['reparent','rename','replace','renderSuccess']) {
     const {op,tile,item}=await begin(t=>()=>row.append(t.shell));accept(item,op);
     const reread=observe(op,true);accept(reread,op);check(item.attachmentID===reread.attachmentID,'same original member');

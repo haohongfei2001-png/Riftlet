@@ -1031,6 +1031,17 @@ function riftletWebAcceptance(command, native) {
     const nodes = document.querySelectorAll(selectors.join(','));
     return nodes.length <= 256 ? new WeakSet(nodes) : null;
   }
+  function hasOriginalFailureLanes(surface) {
+    if (surface.children.length === 2) return true;
+    if (surface.children.length !== 3) return false;
+    // The live tile can append an empty, noninteractive border above its two
+    // content lanes. Never ignore arbitrary siblings or their descendants.
+    const ring = surface.lastElementChild;
+    return ring.matches('span.composer-attachment-surface.pointer-events-none.absolute.inset-0.rounded-2xl.ring-1.ring-inset.ring-border')
+      && !ring.childNodes.length
+      && [...ring.attributes].every(attr => attr.name === 'class' || (attr.name === 'aria-hidden' && attr.value === 'true'))
+      && getComputedStyle(ring).pointerEvents === 'none';
+  }
   function currentNamedFailure(op, binding) {
     if (!binding?.target.clickBindingID || !op.oldErrorMembers || op.inputCount !== 1 || !op.changeReturned) return null;
     const [zhRemove, enRemove, retrySelector, alertSelector] = originalMemberSelectors(op.name);
@@ -1039,7 +1050,7 @@ function riftletWebAcceptance(command, native) {
     const alert = alerts[0], status = alert.parentElement, visual = status?.parentElement;
     const surface = visual?.parentElement, shell = surface?.parentElement;
     const parts = failureShellParts(shell, binding, op.name);
-    if (!parts || parts.surface !== surface || !consistentCardLabels(shell, op.name) || surface.children.length !== 2 || surface.children[0] !== visual
+    if (!parts || parts.surface !== surface || !consistentCardLabels(shell, op.name) || !hasOriginalFailureLanes(surface) || surface.children[0] !== visual
         || visual.tagName !== 'SPAN' || visual.children.length !== 1 || status.tagName !== 'SPAN'
         || status.children.length !== 2 || status.children[0] !== alert || alert.children.length !== 1
         || shell.querySelector('img,progress,[role="progressbar"],input,[contenteditable],'+errorShellSelector)
@@ -1050,7 +1061,9 @@ function riftletWebAcceptance(command, native) {
         || message.tagName !== 'SPAN' || message.children.length || !/^(?:上传未成功|上传失败|upload failed)$/i.test(message.textContent.trim())
         || !retry.matches('button[type="button"]') || retry.getAttribute('aria-label') !== 'Retry uploading ' + op.name
         || !/^(?:Retry|重试)$/i.test(retry.textContent.trim()) || retry.disabled || retry.matches(':disabled') || blocked(retry)
-        || getComputedStyle(retry).pointerEvents === 'none'
+        || retry.tabIndex < 0 || (getComputedStyle(retry).pointerEvents === 'none'
+          && (!visual.classList.contains('pointer-events-none') || getComputedStyle(status).pointerEvents !== 'none'
+            || retry.style.pointerEvents === 'none' || retry.classList.contains('pointer-events-none')))
         || ![alert, message, names[0], retry].every(renderedPreview)
         || [shell,surface,alert,names[0],retry,parts.remove].some(el => op.oldErrorMembers.has(el))) return null;
     for (const node of shell.querySelectorAll('[aria-label],[data-file-name],[title]')) {
