@@ -25,6 +25,26 @@ enum ChromeClickSnapshot {
         return Replies(activeTab: absolute, properties: record)
     }
 
+    /// A single queued Apple Event owns this receive right. Late answers for an
+    /// abandoned click cannot be consumed by another click.
+    final class WitnessReply: Sendable {
+        fileprivate let port: mach_port_t
+        fileprivate init(port: mach_port_t) { self.port = port }
+        deinit { mach_port_destroy(mach_task_self_, port) }
+
+        func confirm(before deadline: ChromeClickDeadline) throws {
+            let value = try receive(port: port, id: 3, optional: false, deadline: deadline)?.stringValue
+            if value == "expired" { throw WebAdapterError.nativeEventFailed(Int32(errAETimeout)) }
+            guard value == "bound" else { throw WebAdapterError.pageRejected(.clickPinRefused) }
+        }
+    }
+
+    static func enqueueWitness(_ event: NSAppleEventDescriptor, before deadline: ChromeClickDeadline) throws -> WitnessReply {
+        let reply = WitnessReply(port: try replyPort())
+        try enqueueEvent(event, port: reply.port, deadline: deadline)
+        return reply
+    }
+
     private static func replyPort() throws -> mach_port_t {
         var port: mach_port_t = 0
         guard mach_port_allocate(mach_task_self_, MACH_PORT_RIGHT_RECEIVE, &port) == KERN_SUCCESS else {
@@ -38,6 +58,11 @@ enum ChromeClickSnapshot {
         let request = NSAppleEventDescriptor(eventClass: kAECoreSuite, eventID: kAEGetData,
             targetDescriptor: .init(processIdentifier: pid), returnID: id, transactionID: 0)
         request.setParam(object, forKeyword: keyDirectObject)
+        try enqueueEvent(request, port: port, deadline: deadline)
+    }
+
+    private static func enqueueEvent(_ request: NSAppleEventDescriptor, port: mach_port_t,
+                                     deadline: ChromeClickDeadline) throws {
         var destination = port
         guard AEPutAttributePtr(UnsafeMutablePointer(mutating: request.aeDesc), keyReplyPortAttr,
             typeMachPort, &destination, MemoryLayout<mach_port_t>.size) == noErr else {

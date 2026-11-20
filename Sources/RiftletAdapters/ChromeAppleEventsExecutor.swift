@@ -11,16 +11,20 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
     private nonisolated static let observationQueue = DispatchQueue(label: "com.riftlet.apple-events-observation", qos: .utility)
     private let relays = MainWorldRelayStore()
     private let trace: ChromeBridgeTrace
-    private var routes = ChromeSessionCache<ChromeClickRoute>()
+    private struct ClickDestination {
+        let process: ChromeProcessIdentity
+        let route: ChromeClickRoute
+    }
+    private var routes = ChromeSessionCache<ClickDestination>()
     private var edgeWorlds = ChromeSessionCache<EdgeExecutionWorldWitness>()
 
     public init(traceEnabled: Bool = false, diagnosticTrace: BoundedDiagnosticTrace? = nil) {
         trace = ChromeBridgeTrace(sink: diagnosticTrace ?? BoundedDiagnosticTrace(enabled: traceEnabled))
     }
 
-    /// Only native object IDs and the tab URL are read during mouse-down. This
-    /// fixes the destination before a queued task can observe a different chat.
-    /// JavaScript bootstrap, DOM discovery and receipt waiting run off the UI.
+    /// Read the native destination and enqueue its one document witness during
+    /// mouse-down. The browser must establish it within the same deadline;
+    /// waiting for its reply and validating the result happen off the UI thread.
     public func targetForClick(program: WebPageProgram) throws -> Task<TargetLease, Error> {
         let clickDeadline = ChromeClickDeadline()
         let identity = try clickReceiver()
@@ -32,17 +36,21 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         let world = identity.applicationID == AttachmentBrowser.edge.rawValue ? EdgeExecutionWorldWitness() : nil
         let binding = try world?.prepareAndBind(witness, address: route.address, program: program)
             ?? witness.bindScript(address: route.address, program: program)
-        guard try bridge.execute(binding, window: route.window, tab: route.tab) == "bound" else {
-            throw WebAdapterError.pageRejected(.clickPinRefused)
-        }
-        let selected = try bridge.activeIdentity(check: "document_pin")
-        guard selected.window == route.window, selected.tab == route.tab, Self.foregroundMatches(identity) else {
-            throw WebAdapterError.nativeSelectionChanged
-        }
-        try clickDeadline.checkReturn()
-        guard identity.isCurrent() else { throw WebAdapterError.invalidTarget }
+        let reply = try bridge.enqueueWitness(clickDeadline.guardExecution(of: binding), route: route, deadline: clickDeadline)
         let relays = self.relays, trace = self.trace
+        let confirmation = clickDeadline.confirmation
         return Task { [weak self] in
+            try Task.checkCancellation()
+            try await Task.detached(priority: .userInitiated) {
+                try reply.confirm(before: confirmation)
+                guard identity.isCurrent() else { throw WebAdapterError.invalidTarget }
+                let reader = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: requestID, clickDeadline: confirmation)
+                let selected = try reader.activeIdentity(check: "document_pin")
+                guard selected.window == route.window, selected.tab == route.tab, Self.foregroundMatches(identity) else {
+                    throw WebAdapterError.nativeSelectionChanged
+                }
+                try confirmation.checkReturn()
+            }.value
             try Task.checkCancellation()
             let bytes = try await Self.run(WebBridgeCommand(action: .captureTarget, clickWitnessID: witness.id), program: program,
                 identity: identity, route: route, relays: relays, trace: trace, requestID: requestID, world: world)
@@ -56,7 +64,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                   !target.documentID.isEmpty, !target.composerID.isEmpty, !target.draftGeneration.isEmpty,
                   let self else { throw WebAdapterError.invalidTarget }
             if let world { self.edgeWorlds.store(world, for: target.stableKey) }
-            self.routes.store(route, for: target.stableKey)
+            self.routes.store(ClickDestination(process: identity, route: route), for: target.stableKey)
             return target
         }
     }
@@ -138,19 +146,36 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
             return try JSONEncoder().encode(target)
         }
         guard let target = command.target, ChromeProcessIdentity.supports(target.applicationID),
-              let application = NSRunningApplication.runningApplications(withBundleIdentifier: target.applicationID).first(where: {
-                  ChromeProcessIdentity.read(pid: $0.processIdentifier, applicationID: target.applicationID)?.matches(session: target.sessionID,
-                      allowLegacyObservation: command.action == .observe) == true
-              }), let identity = ChromeProcessIdentity.read(pid: application.processIdentifier, applicationID: target.applicationID),
-              identity.matches(session: target.sessionID, allowLegacyObservation: command.action == .observe),
               let tab = target.tabID, let windowNumber = Int64(target.windowID), windowNumber > 0,
               let tabNumber = Int64(tab), tabNumber > 0 else { throw WebAdapterError.invalidTarget }
-        let route = routes.value(for: target.stableKey)
-        if command.action != .observe, route == nil || relays.bound(to: target) == nil {
-            throw WebAdapterError.invalidTarget
+        let requestID = UUID().uuidString
+        let started = ProcessInfo.processInfo.systemUptime
+        func refuse(_ phase: String) -> WebAdapterError {
+            trace.record(requestID: requestID, action: command.action.rawValue, phase: phase,
+                         enqueued: started, started: started, context: nil, succeeded: false, error: .invalidTarget)
+            return .invalidTarget
         }
+        let destination = routes.value(for: target.stableKey)
+        let identity: ChromeProcessIdentity
+        if let process = destination?.process {
+            guard process.applicationID == target.applicationID, process.matches(session: target.sessionID),
+                  process.isCurrent() else { throw refuse("originalProcessChanged") }
+            identity = process
+        } else {
+            // After restart only observation can locate an existing recipient.
+            guard command.action == .observe else { throw refuse("originalRouteUnavailable") }
+            let original = NSRunningApplication.runningApplications(withBundleIdentifier: target.applicationID)
+                .compactMap { ChromeProcessIdentity.read(pid: $0.processIdentifier, applicationID: target.applicationID) }
+                .first { $0.matches(session: target.sessionID, allowLegacyObservation: true) }
+            guard let original else { throw refuse("originalProcessUnavailable") }
+            identity = original
+        }
+        if command.action != .observe && relays.bound(to: target) == nil {
+            throw refuse("originalRelayUnavailable")
+        }
+        let route = destination?.route
         return try await Self.run(command, program: program, identity: identity, route: route,
-            relays: relays, trace: trace, requestID: UUID().uuidString, world: edgeWorlds.value(for: target.stableKey))
+            relays: relays, trace: trace, requestID: requestID, world: edgeWorlds.value(for: target.stableKey))
     }
 
     private nonisolated static func run(_ command: WebBridgeCommand, program: WebPageProgram,
@@ -406,8 +431,38 @@ enum ChromeActiveTabDescriptor {
 /// navigate to another draft in the same tab. All of these read-only Apple
 /// Events, including the compatibility path, share one short deadline.
 struct ChromeClickDeadline {
+    private static let captureSeconds = 0.15
+    private let start: TimeInterval
     private let end: TimeInterval
-    init(start: TimeInterval = ProcessInfo.processInfo.systemUptime) { end = start + 0.15 }
+    private let wallStartMS: Int64
+
+    init(start: TimeInterval = ProcessInfo.processInfo.systemUptime,
+         wallTime: TimeInterval = Date().timeIntervalSince1970) {
+        self.start = start
+        end = start + Self.captureSeconds
+        wallStartMS = Int64((wallTime * 1000).rounded(.down))
+    }
+
+    private init(capture: Self, end: TimeInterval) {
+        start = capture.start
+        wallStartMS = capture.wallStartMS
+        self.end = end
+    }
+
+    /// Only the receipt of the original event and read-only target checks get
+    /// this budget. It never grants additional time to establish a binding.
+    var confirmation: Self { Self(capture: self, end: start + 1) }
+
+    func guardExecution(of binding: String) -> String {
+        let lastMS = wallStartMS + Int64(Self.captureSeconds * 1000)
+        return """
+        (()=>{const clock=performance,now=()=>clock.timeOrigin+clock.now();
+        const within=()=>now()>=\(wallStartMS)&&now()<=\(lastMS);
+        if(!within()||clock.timeOrigin>\(wallStartMS))return 'expired';
+        if(document.visibilityState!=='visible'||!document.hasFocus())return 'refused';
+        const result=(\(binding));return within()?result:'expired';})()
+        """
+    }
 
     func timeout(at now: TimeInterval = ProcessInfo.processInfo.systemUptime) throws -> TimeInterval {
         let remaining = end - now
@@ -590,6 +645,16 @@ private struct ChromePIDEvents {
         let active = try get(property("acTa", of: window))
         let tabID = try identifier(active)
         return (windowID, tabID)
+    }
+
+    func enqueueWitness(_ source: String, route: ChromeClickRoute, deadline: ChromeClickDeadline) throws -> ChromeClickSnapshot.WitnessReply {
+        let window = try object("cwin", form: "ID  ", key: .init(string: route.window))
+        let tab = try object("CrTb", form: "ID  ", key: .init(string: route.tab), container: window)
+        let event = NSAppleEventDescriptor(eventClass: code("CrSu"), eventID: code("ExJa"),
+            targetDescriptor: .init(processIdentifier: pid), returnID: 3, transactionID: 0)
+        event.setParam(tab, forKeyword: keyDirectObject)
+        event.setParam(.init(string: source), forKeyword: code("JvSc"))
+        return try ChromeClickSnapshot.enqueueWitness(event, before: deadline)
     }
 
     func execute(_ source: String, window: String, tab: String,
