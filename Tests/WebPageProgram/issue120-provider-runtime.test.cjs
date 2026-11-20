@@ -100,11 +100,6 @@ async function cases(catalogEntry) {
   image.src='data:image/png;base64,'+btoa(String.fromCharCode(...body));
   card.append(image);lane.append(card);await image.decode();
   expect(await first.observe({...t,invocation:uid()})==='unavailable','foreign invocation');
-  const unrelated=document.createElement('article');
-  unrelated.ariaLabel='other';
-  old.replaceWith(unrelated);
-  expect(await first.observe(t)==='unknown','new card cannot conceal loss of the previous attachment');
-  unrelated.replaceWith(old);
   expect(await first.observe(t)==='accepted_into_draft','matching payload with prior original card retained');
   const error=document.createElement('div');error.role='alert';error.ariaLabel='Attachment failed';error.textContent='Upload failed';
   old.remove();
@@ -136,7 +131,45 @@ async function cases(catalogEntry) {
   // The deliberate owner removal above can itself reset a browser selection.
   expect(inputs===1 && changes===1 && foreign===0 && sends===0,'event counts');
   first.close();second.close();
-  return {inputs,changes,foreign,sends,selected};
+  const priorCases={};
+  const color = value => {
+    const canvas=document.createElement('canvas');canvas.width=canvas.height=1;
+    const context=canvas.getContext('2d');context.fillStyle=value;context.fillRect(0,0,1,1);
+    return canvas.toDataURL();
+  };
+  const red=color('red'),blue=color('blue');
+  for (const scenario of ['unchanged','card-aba','image-aba','src-aba','responsive-source']) {
+    const prior=document.createElement('article'),preview=new Image(),picture=document.createElement('picture');
+    const source=document.createElement('source');
+    prior.ariaLabel='existing';preview.src=red;
+    if (scenario==='responsive-source') {source.srcset=red+' 1x';picture.append(source);}
+    picture.append(preview);prior.append(picture);lane.replaceChildren(prior);
+    await preview.decode();
+    const request=ticket(),handle=writer().pin(request.click),initial=inputs;
+    const write=await handle.commit(request,makeFile(request));
+    const own=document.createElement('article'),ownImage=new Image();
+    ownImage.alt=own.ariaLabel=makeFile(request).name;
+    ownImage.src='data:image/png;base64,'+btoa(String.fromCharCode(...body));own.append(ownImage);lane.append(own);
+    await ownImage.decode();
+    if (scenario==='card-aba') {prior.remove();lane.prepend(prior);}
+    if (scenario==='image-aba') {
+      const other=preview.cloneNode();preview.replaceWith(other);other.replaceWith(preview);
+    }
+    if (scenario==='src-aba') {
+      preview.src=blue;await preview.decode();preview.src=red;await preview.decode();
+    }
+    if (scenario==='responsive-source') {
+      source.srcset=blue+' 1x';await preview.decode();
+      expect(preview.src===red && preview.currentSrc===blue,'effective responsive resource changed');
+    }
+    const state=await handle.observe(request);
+    expect(write==='input_returned' && inputs-initial===1 && changes===inputs,'independent single input '+scenario);
+    expect(state===(scenario==='unchanged'?'accepted_into_draft':'unknown'),'old preview continuity '+scenario);
+    expect(await handle.observe(request)===state,'read-only repeat '+scenario);
+    await expectError(()=>handle.commit(request,makeFile(request)),'input_fenced');
+    priorCases[scenario]=state;handle.close();
+  }
+  return {inputs,changes,foreign,sends,selected,priorCases};
 }
 
 test('candidate provider resolves a Gemini-shaped local draft and proves its own single attachment in Chrome',
@@ -170,7 +203,9 @@ test('candidate provider resolves a Gemini-shaped local draft and proves its own
       child.once('exit',()=>rejectResult(Error('controlled Chrome exited before report')));
       timer=setTimeout(()=>rejectResult(Error('no controlled Chrome report')),22000);
       const receipt=await result;
-      assert.deepEqual(receipt,{inputs:1,changes:1,foreign:0,sends:0,selected:'rigi'});
+      assert.deepEqual(receipt,{inputs:6,changes:6,foreign:0,sends:0,selected:'rigi',
+        priorCases:{unchanged:'accepted_into_draft','card-aba':'unknown','image-aba':'unknown',
+          'src-aba':'unknown','responsive-source':'unknown'}});
     } finally {
       clearTimeout(timer);
       if(child && child.exitCode===null && child.signalCode===null){

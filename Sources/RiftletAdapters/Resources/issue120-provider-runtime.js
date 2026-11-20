@@ -128,13 +128,55 @@ function createProvider(profile) {
     const watched = [editor,owner,action,picker,lane].filter(Boolean);
     let retired = false, spent = false, original = null, accepted = null, acceptedRetired = false, changed = false;
     const old = new WeakSet(), oldImages = new WeakSet(), removedCards = new WeakSet();
-    const priorCards = new WeakMap();
-    let priorCount = 0;
+    const priorCards = new Map();
+    let priorChanged = false, priorWatcher = null;
+    function releasePrior() {
+      priorWatcher?.disconnect();
+      priorWatcher = null;
+      priorCards.clear();
+      doc.removeEventListener("load",priorPreviewLoaded,true);
+    }
+    function invalidatePrior() {
+      priorChanged = true;
+      releasePrior();
+    }
+    function priorPreviewLoaded(event) {
+      const source = priorCards.get(event.target.closest?.(recipe.card))?.images.get(event.target);
+      if (source !== undefined && event.target.currentSrc !== source) invalidatePrior();
+    }
+    function priorMutations(records) {
+      for (const r of records) {
+        if (r.type === "attributes") {
+          if ((priorCards.has(r.target) && r.attributeName === "aria-label") ||
+              (r.attributeName !== "aria-label" && r.target.matches("img,picture > source"))) {
+            invalidatePrior();
+            return;
+          }
+        } else if ([...r.removedNodes, ...r.addedNodes].some(n =>
+          n.nodeType === 1 && (n.matches("img,source") || n.querySelector("img,source")))) {
+          invalidatePrior();
+          return;
+        }
+      }
+    }
+    function rememberPriorCards() {
+      if (!lane || priorChanged) return;
+      for (const card of lane.children) {
+        if (priorCards.has(card) || !card.matches(recipe.card)) continue;
+        const images = new Map([...card.querySelectorAll("img")].map(img => [img,img.currentSrc]));
+        priorCards.set(card,{label:card.getAttribute("aria-label"),images});
+        priorWatcher ??= new MutationObserver(priorMutations);
+        priorWatcher.observe(card,{childList:true,subtree:true,attributes:true,
+          attributeFilter:["aria-label","src","srcset","sizes","media","type","width","height"]});
+      }
+      if (priorCards.size) doc.addEventListener("load",priorPreviewLoaded,true);
+    }
+    rememberPriorCards();
     const foreground = () => doc.visibilityState === "visible" && doc.hasFocus();
     let mayWrite = foreground();
     const draftMembers = [editor,owner,lane].filter(Boolean);
     let surfaceRetired = false, draftRetired = false;
-    const retire = () => { retired = true; surfaceRetired = true; draftRetired = true; };
+    const retire = () => { retired = true; surfaceRetired = true; draftRetired = true; releasePrior(); };
     // Traversing back can restore the same entry ID and DOM object references.
     // Retirement records the transition itself, including same-URL replacements.
     const lifecycle = new AbortController();
@@ -161,7 +203,10 @@ function createProvider(profile) {
           if (draftMembers.some(v => n === v || n.contains(v))) draftRetired = true;
           if (watched.some(v => n === v || n.contains(v))) retired = true;
           if ([owner,editor,action].some(v => n === v || n.contains(v))) surfaceRetired = true;
-          if (r.target === lane) removedCards.add(n);
+          if (r.target === lane) {
+            removedCards.add(n);
+            if (priorCards.has(n)) invalidatePrior();
+          }
           if (accepted && (n === accepted || n.contains(accepted))) acceptedRetired = true;
         }
       }
@@ -217,13 +262,8 @@ function createProvider(profile) {
       original = Object.freeze({click,operation:ticket.operation,invocation:ticket.invocation,
         originalSHA256:ticket.originalSHA256,payloadSHA256:ticket.payloadSHA256});
       if (await sha256(await file.arrayBuffer()) !== original.payloadSHA256 || !mayWrite || !foreground() || !originalTarget()) throw Error("target_or_payload_changed");
-      for (const child of lane.children) {
-        old.add(child);
-        if (child.matches(recipe.card)) {
-          priorCards.set(child,child.getAttribute("aria-label"));
-          priorCount++;
-        }
-      }
+      rememberPriorCards();
+      for (const child of lane.children) old.add(child);
       for (const img of lane.querySelectorAll("img")) oldImages.add(img);
       const data = new DataTransfer();
       data.items.add(file);
@@ -237,17 +277,20 @@ function createProvider(profile) {
     // Check continuity at the first START only. Later original-card reads remain
     // independent of what the user does with their other attachments.
     function retainsPriorCards() {
-      if (!priorCount) return true;
-      let retained = 0;
-      for (const child of lane.children) {
-        if (priorCards.has(child) && child.matches(recipe.card) &&
-            child.getAttribute("aria-label") === priorCards.get(child)) retained++;
+      priorMutations(priorWatcher?.takeRecords() || []);
+      if (priorChanged) return false;
+      for (const [card,prior] of priorCards) {
+        if (card.parentNode !== lane || !card.matches(recipe.card) || card.getAttribute("aria-label") !== prior.label ||
+            [...prior.images].some(([img,src]) => !card.contains(img) || img.currentSrc !== src)) {
+          invalidatePrior();
+          return false;
+        }
       }
-      return retained === priorCount;
+      return true;
     }
     const observe = async ticket => {
       if (!matches(ticket) || !originalDraftLane() || acceptedRetired) return "unavailable";
-      if (!changed) return "unknown";
+      if (!changed || (!accepted && !retainsPriorCards())) return "unknown";
       const name = "riftlet-"+original.operation+".png";
       const candidates = () => [...lane.children].filter(n =>
         !old.has(n) && !removedCards.has(n) && n.matches(recipe.card) && n.getAttribute("aria-label") === name);
@@ -269,6 +312,7 @@ function createProvider(profile) {
             digest !== original.payloadSHA256 || before.image !== after?.image || before.src !== after?.src ||
             card !== one(candidates()) || errors().length || (!accepted && !retainsPriorCards())) return "unknown";
         accepted = card;
+        releasePrior();
         return "accepted_into_draft";
       } catch { return "unknown"; }
       finally { check.disconnect(); }
