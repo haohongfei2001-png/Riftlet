@@ -1,5 +1,4 @@
 import AppKit
-import Carbon
 import Darwin
 import RiftletCore
 
@@ -36,14 +35,6 @@ public struct ChromeProcessIdentity: Equatable, Sendable {
                                   terminated: app.isTerminated, launchDate: app.launchDate),
               KernelProcessBirth.read(pid: pid) == before else { return nil }
         return identity
-    }
-
-    /// Only the explicit App setup action may prompt. Observation and input
-    /// return the receiver-specific status to the existing recovery interface.
-    func checkAutomationPermission() throws {
-        let receiver = NSAppleEventDescriptor(processIdentifier: pid)
-        let status = AEDeterminePermissionToAutomateTarget(receiver.aeDesc, typeWildCard, typeWildCard, false)
-        guard status == noErr else { throw WebAdapterError.nativeEventFailed(status) }
     }
 
     func matchesForeground(pid: pid_t?, applicationID: String?) -> Bool {

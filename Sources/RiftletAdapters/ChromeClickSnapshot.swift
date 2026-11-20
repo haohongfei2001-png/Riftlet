@@ -5,22 +5,35 @@ import Carbon
 /// port for each reply keeps late answers out of subsequent clicks. Receiving
 /// directly also avoids pumping AppKit events inside the original mouse event.
 enum ChromeClickSnapshot {
+    // Ask macOS to enforce consent on the event itself. A separate wildcard
+    // permission preflight costs an additional IPC round trip during mouse-down.
+    // Only the explicit setup action may ask macOS to display a consent dialog.
+    static let queuedMode = AESendMode(kAEQueueReply | kAENeverInteract | kAEDoNotPromptForUserConsent)
+    static let waitOptions: NSAppleEventDescriptor.SendOptions = [
+        .waitForReply, .neverInteract, .init(rawValue: UInt(kAEDoNotPromptForUserConsent))
+    ]
+
     struct Replies {
         let activeTab: NSAppleEventDescriptor
         let properties: NSAppleEventDescriptor?
     }
 
     static func read(pid: pid_t, active: NSAppleEventDescriptor, properties: NSAppleEventDescriptor,
-                     deadline: ChromeClickDeadline) throws -> Replies {
+                     deadline: ChromeClickDeadline, stage: inout String) throws -> Replies {
+        stage = "create_reply_ports"
         let identityPort = try replyPort()
         defer { mach_port_destroy(mach_task_self_, identityPort) }
         let propertiesPort = try replyPort()
         defer { mach_port_destroy(mach_task_self_, propertiesPort) }
+        stage = "send_identity"
         try enqueue(active, pid: pid, id: 1, port: identityPort, deadline: deadline)
+        stage = "send_properties"
         try enqueue(properties, pid: pid, id: 2, port: propertiesPort, deadline: deadline)
+        stage = "receive_identity"
         guard let absolute = try receive(port: identityPort, id: 1, optional: false, deadline: deadline) else {
             throw WebAdapterError.invalidReply
         }
+        stage = "receive_properties"
         let record = try receive(port: propertiesPort, id: 2, optional: true, deadline: deadline)
         return Replies(activeTab: absolute, properties: record)
     }
@@ -70,7 +83,7 @@ enum ChromeClickSnapshot {
             throw WebAdapterError.nativeExecutionFailed
         }
         let ticks = Int(try deadline.timeout() * 60)
-        let status = AESendMessage(request.aeDesc, nil, AESendMode(kAEQueueReply | kAENeverInteract), ticks)
+        let status = AESendMessage(request.aeDesc, nil, queuedMode, ticks)
         guard status == noErr else { throw WebAdapterError.nativeEventFailed(status) }
     }
 

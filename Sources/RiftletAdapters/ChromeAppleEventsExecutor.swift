@@ -30,7 +30,6 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         let identity = try clickReceiver()
         let requestID = UUID().uuidString
         let bridge = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: requestID, clickDeadline: clickDeadline)
-        try identity.checkAutomationPermission()
         let route = try bridge.clickRoute(deadline: clickDeadline)
         let witness = ChromeClickDocumentWitness()
         let world = identity.applicationID == AttachmentBrowser.edge.rawValue ? EdgeExecutionWorldWitness() : nil
@@ -201,7 +200,6 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                 let result: Result<Data, Error> = Result {
                     try autoreleasepool {
                         guard identity.isCurrent() else { throw WebAdapterError.invalidTarget }
-                        try identity.checkAutomationPermission()
                         let bridge = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: requestID)
                         guard let window = route?.window ?? command.target?.windowID,
                               let tab = route?.tab ?? command.target?.tabID else { throw WebAdapterError.invalidTarget }
@@ -557,7 +555,7 @@ private struct ChromePIDEvents {
             timeout = try clickDeadline.timeout()
         } else { timeout = 5 }
         let reply: NSAppleEventDescriptor
-        do { reply = try request.sendEvent(options: [.waitForReply, .neverInteract], timeout: timeout) }
+        do { reply = try request.sendEvent(options: ChromeClickSnapshot.waitOptions, timeout: timeout) }
         catch {
             // Never surface the native localized description: it can contain
             // script source, user paths or page payload. A numeric OSStatus is
@@ -590,17 +588,20 @@ private struct ChromePIDEvents {
     func clickRoute(deadline: ChromeClickDeadline) throws -> ChromeClickRoute {
         let started = ProcessInfo.processInfo.systemUptime
         var succeeded = false
-        defer { trace.activeIdentity(requestID: requestID, check: "click_selection", route: "queued_click_route",
+        var stage = "create_specifiers"
+        defer { trace.activeIdentity(requestID: requestID, check: "click_selection", route: succeeded ? "queued_click_route" : stage,
                                      started: started, succeeded: succeeded) }
         let front = try object("cwin", form: "indx", key: .init(int32: 1))
         let active = try property("acTa", of: front)
         let reads = try ChromeClickSnapshot.read(pid: pid, active: active, properties: property("pALL", of: active),
-                                                 deadline: deadline)
+                                                 deadline: deadline, stage: &stage)
         // A later front-window lookup could select a different draft. The
         // absolute click-time pair remains mandatory even when pALL is absent.
+        stage = "absolute_identity"
         guard let identity = ChromeActiveTabDescriptor.identity(in: reads.activeTab) else {
             throw WebAdapterError.invalidTarget
         }
+        stage = "original_tab_url"
         let address = try ChromeActiveTabDescriptor.matchedURL(properties: reads.properties, tab: identity.tab)
             ?? url(window: identity.window, tab: identity.tab)
         let route = try ChromeClickRoute.chatGPT(window: identity.window, tab: identity.tab, url: address)

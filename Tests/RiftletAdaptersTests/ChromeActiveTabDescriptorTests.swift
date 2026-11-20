@@ -1,9 +1,18 @@
+import Carbon
 import Foundation
 import JavaScriptCore
 import XCTest
 @testable import RiftletAdapters
 
 final class ChromeActiveTabDescriptorTests: XCTestCase {
+    func testBothBrowserTransportsRequireSystemConsentWithoutPrompting() {
+        let consent = UInt(kAEDoNotPromptForUserConsent)
+        XCTAssertNotEqual(UInt(ChromeClickSnapshot.queuedMode) & consent, 0)
+        XCTAssertTrue(ChromeClickSnapshot.waitOptions.contains(.init(rawValue: consent)))
+        XCTAssertTrue(ChromeClickSnapshot.waitOptions.contains(.neverInteract))
+        XCTAssertNotEqual(ChromeClickSnapshot.queuedMode & AESendMode(kAENeverInteract), 0)
+    }
+
     func testClickIdentityFallbackAndURLShareTheMouseDownDeadline() throws {
         let deadline = ChromeClickDeadline(start: 10)
         XCTAssertEqual(try deadline.timeout(at: 10), 0.15, accuracy: 0.000_001)
