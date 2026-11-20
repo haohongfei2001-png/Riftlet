@@ -42,7 +42,13 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         return Task { [weak self] in
             try Task.checkCancellation()
             try await Task.detached(priority: .userInitiated) {
-                try reply.confirm(before: confirmation)
+                let received = ProcessInfo.processInfo.systemUptime
+                guard try reply.boundWithinClick(before: confirmation) else {
+                    trace.record(requestID: requestID, action: "pinTarget", phase: "lateBrowserExecution",
+                                 enqueued: received, started: received, context: nil, succeeded: false,
+                                 error: .nativeEventFailed(Int32(errAETimeout)))
+                    throw WebAdapterError.nativeEventFailed(Int32(errAETimeout))
+                }
                 guard identity.isCurrent() else { throw WebAdapterError.invalidTarget }
                 let reader = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: requestID, clickDeadline: confirmation)
                 let selected = try reader.activeIdentity(check: "document_pin")
