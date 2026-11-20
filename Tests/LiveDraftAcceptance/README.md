@@ -28,3 +28,16 @@ If Edge shows the generated QA filename but the signed App has no START, `edgePr
 On the normal Mac installation, run `node Tests/LiveDraftAcceptance/installed-controller.cjs` before browser setup. It reports only counts and transport availability. `READY_FOR_RPC_CHECK` requires a running browser, a correct native manifest and an enabled extension in at least one existing profile. Extension state alone cannot establish a trusted connection or tell which profile is connected.
 
 For a fresh Edge diagnostic, use `observeEdgeTimeline({run, readOperation, operation, png, targetSHA256})` from `edge-timeline.cjs` after identifying the single signed-App operation. Supply an asynchronous, time-limited reader of the isolated store through `read-operation.py`. The collector calls only the locked page observer and that reader. Each joined sample requires the same process, native window/tab and original document/composer/generation. A timeout keeps any completed page half and ends the run without another call. Page and store read boundaries use a monotonic clock starting at the first diagnostic read. Stored START and the latest store update have separate times relative to operation creation. A START already present on the first poll is known only to have existed by that read. Page preview shape and a store START row remain separate observations.
+
+### Native permission preflight
+
+Compile the read-only diagnostic in the QA checkout and run it from the same execution context as the proposed native collector.
+
+```sh
+probe_dir="$(mktemp -d)"
+xcrun clang -Wall -Wextra -fobjc-arc -framework AppKit -framework ApplicationServices -framework Carbon \
+  Tests/LiveDraftAcceptance/native-permission-preflight.m -o "$probe_dir/preflight"
+"$probe_dir/preflight"
+```
+
+Keep PIDs local. The result identifies the calling helper, its parent and each already running Chrome/Edge receiver. An empty target list means there was no running receiver to check. AX and CoreGraphics report the helper's current access. An Apple Events result of zero means macOS permits querying that PID with `core/getd`. None of the probes posts events, requests consent, or establishes tab-directed keyboard delivery. macOS keyboard posting accepts a process or application as the destination. Changes to the active tab can occur after a focus check, so the signed-in canary requires the tab-scoped browser client. [Apple AX keyboard API](https://developer.apple.com/documentation/applicationservices/1462057-axuielementpostkeyboardevent) · [Apple CoreGraphics keyboard destination](https://developer.apple.com/documentation/coregraphics/cgevent/posttopid(_:))
