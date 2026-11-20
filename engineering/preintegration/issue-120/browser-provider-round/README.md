@@ -26,3 +26,7 @@
 旧网页资源在上传控件重建后读不到仍在原草稿附件区的原卡。修复后，写操作仍绑定原文件输入，已输入后的只读观察单独核对原编辑器、附件区和原卡。受控 WebKit 夹具实测一次 input、一次 change、零错投、零发送，文字、选区和旧附件保留。非作者用编译资源独立重放五种情况：原卡报错会报告明确失败，同名另一卡报错保持 UNKNOWN，替换后换回编辑器、附件区或历史项均拒绝读回。各组的二次提交均被拒，重建的文件输入保持为空。编译后的 Swift 适配器及 SQLite 验证了重启后只读续查、原 PNG 找回、用户新点击才开始第二次操作。测试站点为本地夹具，焦点和可见性由夹具提供。Claude 和 Gemini 仍缺各自的实站准入。
 
 私有开发 ZIP 含上述修复，已重新解包、验证资源与源码逐字节相符、执行三个自检并通过 deep/strict 签名校验。架构 arm64，ad-hoc 签名，未公证。既有 build 53 DMG 的 SHA-256 重新核对相符。两 PR 均保持 Draft，公开版本仍为 v1.0.5。[开发包收据](development-package.json) · [Safari 独立客机收据](../hosts/safari-epoch/receipt.json)
+
+## 开发 CI
+
+产品提交 `48d25180` 的托管 ARM64 作业因容量不足未分配到 runner。GitHub 记录 workflow 失败，job 取消，执行步骤为零。本机 ARM64 开发包已完成构建、解包验签和自检。相同产品源码在仓库既有的 Intel 机型上完成 Xcode 全套测试、原标签守卫、编译后 Swift/SQLite 恢复、开发 App 构建和包内自检。Intel 验证提交为 `19653417`，相对包源的产品代码、资源和打包脚本一致。[ARM64 作业](https://github.com/haohongfei2001-png/Riftlet/actions/runs/44732590245) · [Intel Xcode 作业](https://github.com/haohongfei2001-png/Riftlet/actions/runs/44734909533)
