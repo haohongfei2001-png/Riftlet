@@ -1,0 +1,45 @@
+<!doctype html><meta charset="utf-8"><title>Riftlet synthetic host fixture</title>
+<form><textarea>synthetic draft</textarea><input type="file" aria-label="Riftlet synthetic file"></form>
+<script>
+(async () => {
+  const url = location.href;
+  const field = document.querySelector('input[type=file]');
+  const editor = document.querySelector('textarea');
+  editor.focus();
+  editor.setSelectionRange(2, 7);
+  const bytes = Uint8Array.of(82, 49, 50, 48, 0, 255);
+  const file = new File([bytes], 'fixture.bin');
+  const transfer = new DataTransfer();
+  transfer.items.add(file);
+  const events = [];
+  field.addEventListener('input', () => events.push('input'));
+  field.addEventListener('change', () => events.push('change'));
+  field.files = transfer.files;
+  field.dispatchEvent(new Event('input', {bubbles: true}));
+  field.dispatchEvent(new Event('change', {bubbles: true}));
+  const received = [...new Uint8Array(await field.files[0].arrayBuffer())];
+  const before = window.navigation?.currentEntry?.id;
+  const historyState = history.state;
+  const length = history.length;
+  history.replaceState(historyState, '', url);
+  const afterReplace = window.navigation?.currentEntry?.id;
+  const legacyReplaceInvisible = location.href === url && history.length === length && history.state === historyState;
+  history.pushState(historyState, '', url);
+  const afterPush = window.navigation?.currentEntry?.id;
+  // A form can replace its editor without modifying either URL or History state.
+  const replacement = editor.cloneNode(true);
+  const selection = [editor.selectionStart, editor.selectionEnd];
+  editor.replaceWith(replacement);
+  const result = {
+    received, events, fileName: field.files[0].name, originalText: editor.value,
+    selection, legacyReplaceInvisible,
+    navigationEntryAvailable: typeof before === 'string' && before.length > 0,
+    replaceChangesEntryID: !!before && afterReplace !== before,
+    pushChangesEntryID: !!afterReplace && afterPush !== afterReplace,
+    sameURLAfterEditorReplacement: location.href === url && !editor.isConnected && replacement.isConnected
+  };
+  await fetch('/receipt' + location.search, {method: 'POST', body: JSON.stringify(result)});
+})().catch(async e => {
+  await fetch('/receipt' + location.search, {method:'POST', body:JSON.stringify({error:e.name})});
+});
+</script>
