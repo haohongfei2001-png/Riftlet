@@ -6,4 +6,4 @@
 
 一次点击只向点击时前台浏览器的原草稿交付本图。后续只能按原操作核对，用户决定是否再次附加及何时发送。接收、服务完成、本地图处置分别记录。
 
-[开发进度](PROGRESS.md) · [49 候选身份与修复](RC_REPORT.md) · [同包最终验收](https://github.com/haohongfei2001-png/Riftlet/pull/119#issuecomment-7028325810)
+[开发进度](PROGRESS.md) · [51 候选身份与修复](RC_REPORT.md) · [同包最终验收](https://github.com/haohongfei2001-png/Riftlet/pull/119#issuecomment-7028325810)
