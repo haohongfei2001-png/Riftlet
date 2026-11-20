@@ -138,23 +138,42 @@ def render(directory):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--package-workspace', type=Path, help='signed release workspace used with --formal-evidence')
+    parser.add_argument('--formal-evidence', type=Path,
+                        help='directory of content-addressed raw evidence; index comes from reviewed GitHub #122')
     parser.add_argument('--fixtures', type=Path, default=HERE / 'evidence')
-    parser.add_argument('--case', choices=list(dict.fromkeys(plan()['requiredLiveCases'] + SHARED)))
+    parser.add_argument('--case', choices=list(dict.fromkeys(plan()['requiredLiveCases'] + SHARED + ['service-recovery'])))
     parser.add_argument('--level', choices=LEVELS)
     parser.add_argument('--browser')
     parser.add_argument('--provider')
     args = parser.parse_args()
     result = render(args.fixtures)
+    if bool(args.formal_evidence) != bool(args.package_workspace):
+        parser.error('supply --formal-evidence and --package-workspace together')
+    if args.formal_evidence:
+        from formal_results import apply_index, remote_index, verify_signed_candidate
+        index, admission = remote_index()
+        verify_signed_candidate(args.package_workspace, index['candidate'])
+        result = apply_index(result, index, args.formal_evidence)
+        result['acceptanceAdmission'] = admission
     if args.case or args.level or args.browser or args.provider:
         rows = []
-        cases = [args.case] if args.case else list(dict.fromkeys(result['requiredLiveCases'] + SHARED))
+        cases = [args.case] if args.case else list(dict.fromkeys(result['requiredLiveCases'] + SHARED + (['service-recovery'] if result['candidate'] else [])))
         for cell in result['cells']:
             if args.browser and args.browser != cell['browser'] or args.provider and args.provider != cell['provider']:
                 continue
             for case in cases:
                 for level in ([args.level] if args.level else LEVELS):
+                    if cell.get('variants'):
+                        for variant in cell['variants']:
+                            facts = {k:v for k,v in variant['cases'][level].items() if k.split('/')[-1] == case}
+                            from formal_results import summarize
+                            rows.append(dict(browser=cell['browser'],provider=cell['provider'],case=case,level=level,
+                                             scope=variant['scope'], status=summarize(list(facts.values())) if facts else 'NOT_RUN',
+                                             details=facts, candidate=result['candidate']))
+                        continue
                     rows.append(dict(browser=cell['browser'], provider=cell['provider'], case=case, level=level,
-                                     **result['defaultCaseResult'], candidate=None,
+                                     **result['defaultCaseResult'], candidate=result['candidate'],
                                      slices=[s for s in cell['slices'] if s['case'] == case and
                                              level == 'L1' and s['scope'] == 'simulated-js']))
         need(rows, 'unplanned matrix selection')
