@@ -128,6 +128,8 @@ function createProvider(profile) {
     const watched = [editor,owner,action,picker,lane].filter(Boolean);
     let retired = false, spent = false, original = null, accepted = null, acceptedRetired = false, changed = false;
     const old = new WeakSet(), oldImages = new WeakSet(), removedCards = new WeakSet();
+    const priorCards = new WeakMap();
+    let priorCount = 0;
     const foreground = () => doc.visibilityState === "visible" && doc.hasFocus();
     let mayWrite = foreground();
     const draftMembers = [editor,owner,lane].filter(Boolean);
@@ -215,7 +217,13 @@ function createProvider(profile) {
       original = Object.freeze({click,operation:ticket.operation,invocation:ticket.invocation,
         originalSHA256:ticket.originalSHA256,payloadSHA256:ticket.payloadSHA256});
       if (await sha256(await file.arrayBuffer()) !== original.payloadSHA256 || !mayWrite || !foreground() || !originalTarget()) throw Error("target_or_payload_changed");
-      for (const child of lane.children) old.add(child);
+      for (const child of lane.children) {
+        old.add(child);
+        if (child.matches(recipe.card)) {
+          priorCards.set(child,child.getAttribute("aria-label"));
+          priorCount++;
+        }
+      }
       for (const img of lane.querySelectorAll("img")) oldImages.add(img);
       const data = new DataTransfer();
       data.items.add(file);
@@ -225,6 +233,18 @@ function createProvider(profile) {
       changed = true;
       return "input_returned";
     };
+    // A replacement can show the new PNG while discarding an earlier attachment.
+    // Check continuity at the first START only. Later original-card reads remain
+    // independent of what the user does with their other attachments.
+    function retainsPriorCards() {
+      if (!priorCount) return true;
+      let retained = 0;
+      for (const child of lane.children) {
+        if (priorCards.has(child) && child.matches(recipe.card) &&
+            child.getAttribute("aria-label") === priorCards.get(child)) retained++;
+      }
+      return retained === priorCount;
+    }
     const observe = async ticket => {
       if (!matches(ticket) || !originalDraftLane() || acceptedRetired) return "unavailable";
       if (!changed) return "unknown";
@@ -247,7 +267,7 @@ function createProvider(profile) {
         const after = visibleOriginalImage(card,name,oldImages);
         if (!originalDraftLane() || acceptedRetired || unstable || check.takeRecords().length ||
             digest !== original.payloadSHA256 || before.image !== after?.image || before.src !== after?.src ||
-            card !== one(candidates()) || errors().length) return "unknown";
+            card !== one(candidates()) || errors().length || (!accepted && !retainsPriorCards())) return "unknown";
         accepted = card;
         return "accepted_into_draft";
       } catch { return "unknown"; }
