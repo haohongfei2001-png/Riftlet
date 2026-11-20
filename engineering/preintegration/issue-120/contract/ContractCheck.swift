@@ -11,7 +11,7 @@ private struct FixtureProvider: ConversationProvider {
 }
 
 @main enum ContractCheck {
-    static func main() throws {
+    @MainActor static func main() async throws {
         let profile = try ProviderProfile(id: "fixture", revision: 1, program: Data("fixture-v1".utf8))
         let provider = FixtureProvider(profile: profile)
         let url = URL(string: "https://fixture.invalid/draft")!
@@ -26,6 +26,7 @@ private struct FixtureProvider: ConversationProvider {
         precondition((try? resolveProvider(url, among: [provider, provider])) == nil)
         let other = try ProviderProfile(id: "fixture", revision: 1, program: Data("changed".utf8))
         precondition(profile != other)
+        try await checkClickBinding(provider: provider)
         print("PASS isolated Swift contract: exact route, source digest, ambiguous receiver and unsupported surfaces")
     }
 }

@@ -5,7 +5,7 @@ import RiftletCore
 enum BindingError: Error { case unsupported, ambiguous, invalidProfile, targetChanged }
 
 /// A digest and revision name one bundled program, including its event recipe.
-struct ProviderProfile: Hashable, Sendable {
+struct ProviderProfile: Codable, Hashable, Sendable {
     let id: String
     let revision: Int
     let digest: String
@@ -75,16 +75,30 @@ struct HostCapabilities: Sendable {
     let epoch: Epoch
     let fileSetterAndDataTransferVerified: Bool
     let maximumPinBytes: Int
+
+    var supportsPin: Bool {
+        world == .page && reply == .originalAsynchronousReply && locator != .unknown &&
+        epoch != .unknown && fileSetterAndDataTransferVerified && maximumPinBytes > 0
+    }
+}
+
+/// Assembled by the host from its original event/reply channel and the
+/// document witness. Copying later active-window state cannot establish these fields.
+struct PinReceipt: Sendable {
+    let click: NativeClick
+    let route: ProviderRoute
+    let target: TargetLease
 }
 
 @MainActor protocol BrowserHost: AnyObject {
     var bundle: String { get }
     var capabilities: HostCapabilities { get }
+    // Settings only. The ordinary click lets the OS decide on the actual event.
     func permissionState() -> OriginalReceiverAccess
     func freezeClick() throws -> NativeClick
     /// Enqueue the lightweight pin here, synchronously at the original click.
     /// Only waiting for that exact, original reply is deferred.
-    func enqueuePin(click: NativeClick, route: ProviderRoute) throws -> Task<TargetLease, Error>
+    func enqueuePin(click: NativeClick, route: ProviderRoute, maximumBytes: Int) throws -> Task<PinReceipt, Error>
 }
 
 struct BoundClick: Sendable {
@@ -93,15 +107,17 @@ struct BoundClick: Sendable {
     let target: TargetLease
 
     @MainActor static func capture(using host: any BrowserHost, providers: [any ConversationProvider]) throws -> Task<Self, Error> {
+        let capabilities = host.capabilities
+        guard capabilities.supportsPin else { throw BindingError.unsupported }
         let click = try host.freezeClick()
         guard click.bundle == host.bundle, click.pid > 0, !click.processBirth.isEmpty,
-              !click.window.isEmpty, !click.tab.isEmpty, !click.session.isEmpty,
-              host.permissionState() == .granted else { throw BindingError.unsupported }
+              !click.window.isEmpty, !click.tab.isEmpty, !click.session.isEmpty else { throw BindingError.unsupported }
         let route = try resolveProvider(click.url, among: providers)
-        let originalReply = try host.enqueuePin(click: click, route: route)
+        let originalReply = try host.enqueuePin(click: click, route: route, maximumBytes: capabilities.maximumPinBytes)
         return Task {
-            let target = try await originalReply.value
-            guard target.applicationID == click.bundle, target.sessionID == click.session,
+            let receipt = try await originalReply.value
+            let target = receipt.target
+            guard receipt.click == click, receipt.route == route, target.applicationID == click.bundle, target.sessionID == click.session,
                   target.windowID == click.window, target.tabID == click.tab,
                   target.surface == .webChat, target.clickBindingID != nil,
                   !target.documentID.isEmpty, !target.composerID.isEmpty,
@@ -123,21 +139,29 @@ struct AdapterAddress: Hashable, Sendable {
     let adapterID: String
 }
 
-/// Never expose a writer through the historical lookup.
+/// These immutable fields come from the original durable dispatch. Historical
+/// rows without this information continue through their existing read-only path.
+struct StoredDispatch: Codable, Sendable {
+    let operationID: UUID
+    let invocationID: UUID
+    let attempt: Int
+    let assetID: UUID
+    let originalSHA256: String
+    let target: TargetLease
+    let profile: ProviderProfile
+}
+
 struct OriginalReader: Sendable {
     private let adapter: any IndependentFileInputAdapter
-    private let operation: TransferOperation
+    private let request: TransferRequest
 
-    fileprivate init(adapter: any IndependentFileInputAdapter, operation: TransferOperation) {
+    fileprivate init(adapter: any IndependentFileInputAdapter, request: TransferRequest) {
         self.adapter = adapter
-        self.operation = operation
+        self.request = request
     }
 
-    func observe(_ request: TransferRequest) async throws -> TransferReceipt {
-        guard request.operation.id == operation.id, request.operation.target == operation.target,
-              request.operation.attempt == operation.attempt, request.operation.assetID == operation.assetID,
-              request.asset.id == operation.assetID else { throw BindingError.targetChanged }
-        return try await adapter.reconcile(request)
+    func observe() async throws -> TransferReceipt {
+        try await adapter.reconcile(request)
     }
 }
 
@@ -149,12 +173,18 @@ struct AdapterResolver: Sendable {
                                         adapterID: click.target.adapterID))
     }
 
-    /// Caller supplies the ORIGINAL stored profile. A missing legacy profile has
-    /// no generic fallback; the legacy read-only decoder remains with build 53.
-    func reader(for operation: TransferOperation, storedProfile: ProviderProfile) throws -> OriginalReader {
-        let address = AdapterAddress(bundle: operation.target.applicationID, profile: storedProfile,
-                                     adapterID: operation.target.adapterID)
-        return try OriginalReader(adapter: exactAdapter(address), operation: operation)
+    func reader(for request: TransferRequest, original: StoredDispatch) throws -> OriginalReader {
+        let op = request.operation
+        guard request.requireLiveOriginal, request.invocationID == original.invocationID,
+              op.phase.isUnresolved, op.phase != .prepared, op.id == original.operationID,
+              op.attempt == original.attempt, op.target == original.target,
+              op.assetID == original.assetID, request.asset.id == original.assetID,
+              request.asset.sha256 == original.originalSHA256 else { throw BindingError.targetChanged }
+        let address = AdapterAddress(bundle: original.target.applicationID, profile: original.profile,
+                                     adapterID: original.target.adapterID)
+        let adapter = try exactAdapter(address)
+        guard adapter.supportsOriginalHandoffChecks else { throw BindingError.unsupported }
+        return OriginalReader(adapter: adapter, request: request)
     }
 
     private func exactAdapter(_ address: AdapterAddress) throws -> any IndependentFileInputAdapter {

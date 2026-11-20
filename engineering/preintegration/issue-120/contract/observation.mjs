@@ -2,13 +2,16 @@
 // necessary for observation. It is never proof of START, failure, or READY.
 export const protocolRevision = 1;
 const fields = Object.freeze([
-  'hostBundle', 'processBirth', 'window', 'tab', 'providerID', 'programDigest',
+  'hostBundle', 'session', 'clickGeneration', 'processBirth', 'window', 'tab', 'providerID', 'programDigest',
   'route', 'surface', 'mode', 'document', 'composer', 'draftEpoch',
   'operation', 'invocation', 'originalSHA256', 'payloadSHA256'
 ]);
 
 export function isOriginalObservation(expected, observed) {
   if (!expected || !observed ||
+      !['protocolRevision', 'pid', 'attempt', 'providerRevision'].every(k => Object.hasOwn(expected, k) && Object.hasOwn(observed, k)) ||
+      !Number.isSafeInteger(expected.pid) || expected.pid <= 0 || expected.pid !== observed.pid ||
+      !['programDigest', 'payloadSHA256', 'originalSHA256'].every(k => typeof expected[k] === 'string' && /^[a-f0-9]{64}$/.test(expected[k])) ||
       expected.protocolRevision !== protocolRevision || observed.protocolRevision !== protocolRevision ||
       !Number.isSafeInteger(expected.providerRevision) || expected.providerRevision <= 0 ||
       expected.providerRevision !== observed.providerRevision ||
