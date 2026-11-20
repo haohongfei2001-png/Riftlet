@@ -16,6 +16,7 @@ public enum WebBridgeAction: String, Codable, CaseIterable, Sendable {
 public struct WebPageProgram: Sendable {
     public let sourceID: String
     public let functionSource: String
+    public let pinSource: String?
     /// Code-owned transport capacity; never negotiated from page JSON. Older
     /// and generic programs retain their 64 KiB default.
     public let maximumChunkBytes: Int
@@ -24,8 +25,9 @@ public struct WebPageProgram: Sendable {
     /// not an upload timeout or a permission to repeat an operation.
     public let inputDiscoveryTimeout: TimeInterval
     public init(sourceID: String, functionSource: String, maximumChunkBytes: Int = 64 * 1024,
-                inputDiscoveryTimeout: TimeInterval = 0) {
+                inputDiscoveryTimeout: TimeInterval = 0, pinSource: String? = nil) {
         self.sourceID = sourceID; self.functionSource = functionSource
+        self.pinSource = pinSource
         self.maximumChunkBytes = maximumChunkBytes
         self.inputDiscoveryTimeout = inputDiscoveryTimeout.isFinite ? min(3, max(0, inputDiscoveryTimeout)) : 0
     }

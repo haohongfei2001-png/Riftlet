@@ -409,6 +409,13 @@ final class WebAttachmentAdapterTests: XCTestCase {
 
     func testBundledProgramAndBoundedObservationReachCompletionWithoutAnotherInput() async throws {
         let bundled = try ChatGPTWebPageProgram.load()
+        let pin = try XCTUnwrap(bundled.pinSource)
+        XCTAssertLessThan(pin.utf8.count, 20 * 1024)
+        XCTAssertFalse(pin.contains("__riftletIndependentFileInput"))
+        XCTAssertFalse(pin.contains("new DataTransfer"))
+        let click = try ChromeClickDocumentWitness().bindScript(address: "https://chatgpt.com/", program: bundled)
+        XCTAssertTrue(click.contains(pin))
+        XCTAssertFalse(click.contains(bundled.functionSource))
         XCTAssertEqual(bundled.sourceID, ChatGPTWebPageProgram.sourceID)
         XCTAssertEqual(bundled.maximumChunkBytes, 256 * 1024)
         XCTAssertEqual(bundled.inputDiscoveryTimeout, 3)

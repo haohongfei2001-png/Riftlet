@@ -38,11 +38,18 @@ public enum ChatGPTWebPageProgram {
         guard let url = resources.url(forResource: "chatgpt-web-20261027", withExtension: "js"),
               let source = try? String(contentsOf: url, encoding: .utf8), !source.isEmpty,
               source.utf8.count <= 128 * 1024 else { throw WebAdapterError.programUnavailable }
+        // The click-time Apple Event transmits only the shared resolver and witness.
+        // Resource layout is verified before either program can run.
+        let sections = source.components(separatedBy: "\n  // RIFTLET_CLICK_PIN_END\n")
+        guard sections.count == 2, !sections[0].isEmpty, !sections[1].isEmpty else {
+            throw WebAdapterError.programUnavailable
+        }
+        let pinSource = sections[0] + "\n  return 'refused';\n}"
         // Ordinary input never executes historical observers. Their registries
         // cannot veto a new handoff; the separate legacy reader remains available
         // only to explicit historical tooling.
         return WebPageProgram(sourceID: sourceID, functionSource: source,
-                              maximumChunkBytes: 256 * 1024, inputDiscoveryTimeout: 3)
+                              maximumChunkBytes: 256 * 1024, inputDiscoveryTimeout: 3, pinSource: pinSource)
     }
 }
 
