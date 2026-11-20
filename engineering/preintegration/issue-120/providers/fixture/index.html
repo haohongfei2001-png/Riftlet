@@ -1,0 +1,10 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Local provider research fixture</title>
+<style>[contenteditable]{display:block;min-height:24px}.member img{width:8px;height:8px}</style>
+<form data-fixture-mode="image-fixture"><fieldset>
+<rich-textarea><div contenteditable="true" role="textbox" class="ql-editor">Original draft 文字</div><div contenteditable="true"></div></rich-textarea>
+<simplified-input-menu><gem-icon-button><button type="button" aria-label="Upload files">Upload</button></gem-icon-button></simplified-input-menu>
+<label data-fixture-linked-image-entry for="fixture-owned">Local fixture image</label><input type="file" hidden id="fixture-owned">
+<div data-fixture-members><article data-fixture-name="old"><span>Older fixture attachment</span></article></div>
+<button type="submit">Send</button></fieldset></form>
+<form><input type="file" id="fixture-foreign"><label for="fixture-foreign">Project files</label></form>
+<script type="module" src="/providers/fixture/cases.mjs"></script></html>

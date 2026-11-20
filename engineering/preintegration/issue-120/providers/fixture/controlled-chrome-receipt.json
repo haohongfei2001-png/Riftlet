@@ -1,0 +1,28 @@
+{
+  "recordedAt": "2026-11-20T04:46:06.139Z",
+  "browser": "Chrome/157.0.8103.79",
+  "scope": "synthetic loopback only",
+  "completedDispatch": {
+    "setters": 4,
+    "changes": 4
+  },
+  "interruptedDispatch": {
+    "setters": 1,
+    "changes": 0,
+    "observation": "unknown"
+  },
+  "nativeSetters": 5,
+  "returnedChanges": 4,
+  "foreignEvents": 0,
+  "sends": 0,
+  "draftSelectionPreserved": true,
+  "unexpectedNetworkRequests": 0,
+  "sourceSHA256": {
+    "run-fixture.cjs": "f4f1fc1234661dda93a2db1fc42094207f3bd8cc15fe6b3aa4bbff89331cb832",
+    "fixture/index.html": "2e3b2f7ac34faab38f05bb84bea9f4e26220fa76ec7752d6ce485c8939df2c68",
+    "fixture/cases.mjs": "23a839947cbb21b214d9baefc63f073233e25370381b69ce74f3c4e5a9eee757",
+    "fixture/synthetic-handoff.mjs": "c93a2ef942504b49aedb6c3d292f511203a2f03d1e6e291c367b64458c3c1b7c",
+    "gemini-surface.mjs": "063f3c1a4572a41036991eab3c8578c5a17751dd80f356a0790e28a9e13a62e5",
+    "../contract/observation.mjs": "32307e31fd83886865c774a0ab545265b494fe5be5042b2c3574021166e05a3b"
+  }
+}
