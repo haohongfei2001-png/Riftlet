@@ -1,0 +1,146 @@
+"""Issue 120 W5. Replay evidence without converting a partial fixture to product acceptance."""
+import argparse
+import json
+import re
+from pathlib import Path
+from fixtures import BROWSERS, HERE, JS, ROOT, SIM, SLICES, SUPPORT, WEB, sha, sources
+
+PLAN = 'a18ef269b63d1682384531a155c425d856b37e5d'
+PLAN_FILE = 'docs/plans/issue-120/compatibility-matrix.json'
+PLAN_DIGEST = '35318faf7eacecf80972a7e47eaca173af15682f7ead047198e79da44cc30658'
+SHARED = 'T01 T02 T03 T04 I01 I02 I03 I04 E01 E02 E03 E04 E05 P01 P02 D01 R01 R02 X01'.split()
+LEVELS = ('L1', 'L2', 'L3')
+
+
+def need(ok, message):
+    if not ok:
+        raise ValueError(message)
+
+
+def no_duplicates(pairs):
+    result = {}
+    for key, value in pairs:
+        need(key not in result, 'duplicate JSON key: ' + key)
+        result[key] = value
+    return result
+
+
+def read_json(data):
+    return json.loads(data, object_pairs_hook=no_duplicates)
+
+
+def plan():
+    raw = (ROOT / PLAN_FILE).read_bytes()
+    need(sha(raw) == PLAN_DIGEST, 'planning matrix digest mismatch')
+    return read_json(raw)
+
+
+def fixture_result(path):
+    rec = read_json(path.read_bytes())
+    keys = {'schema', 'browser', 'provider', 'observedAt', 'platform', 'arch', 'sourceSHA',
+            'candidate', 'versions', 'results', 'kind', 'inputs', 'exitCode', 'transcriptSHA256'}
+    need(set(rec) == keys and rec['schema'] == 1 and rec['candidate'] is None, 'unexpected fixture schema/candidate')
+    need(rec['provider'] == 'chatgpt' and rec['browser'] in BROWSERS, 'wrong fixture scope')
+    need(type(rec['exitCode']) is int and rec['exitCode'] >= 0, 'missing exit code')
+    need(all(isinstance(rec[k], str) and rec[k].strip() for k in ['observedAt', 'arch', 'platform']), 'missing environment')
+    tap_bytes = path.with_suffix('.tap').read_bytes()
+    need(rec['transcriptSHA256'] == sha(tap_bytes), 'transcript digest mismatch')
+    tap = tap_bytes.decode()
+    web = rec['kind'] == 'headless-web-only'
+    if web:
+        mode = 'headless'
+        need(rec['versions'].get('bundle') == BROWSERS[rec['browser']][1] and
+             re.fullmatch(r'[0-9]+(?:\.[0-9]+)+', rec['versions'].get('browser', '')), 'wrong browser binary')
+        files = [JS, WEB, SUPPORT + 'original-error-card-application.cjs', SUPPORT + 'attachment-entry-application.cjs',
+                 SUPPORT + 'native-chrome-cleanup.cjs']
+        expected = {'E04': 'original-failure-card'}
+    else:
+        mode = 'simulation'
+        need(rec['kind'] == 'simulated-js' and rec['browser'] == 'chrome' and
+             re.fullmatch(r'v[0-9]+(?:\.[0-9]+)+', rec['versions'].get('node', '')), 'wrong simulated target')
+        files = [JS, SIM, SUPPORT + 'independent-input-fixture.cjs']
+        expected = SLICES
+    need(path.stem == mode + '-' + rec['browser'], 'wrong evidence filename/receiver')
+    need(rec['inputs'] == sources(files), 'wrong fixture or adapter program bytes')
+    need(re.fullmatch(r'[0-9a-f]{40}', rec['sourceSHA']), 'invalid program source')
+    need(rec['sourceSHA'] == 'ef3f58cb7baf26ee3c0fd7c6b1db9d9d32ca21d0' and
+         rec['inputs'][JS] == '50b0d16d10f38c688ce33189df55ad3da6588b4c7006b710777f30340dc55ed7',
+         'different inherited program provenance')
+    rows = rec['results']
+    need(isinstance(rows, list) and len(rows) == len(expected) and
+         {r['case'] for r in rows} == set(expected), 'missing, duplicate or extra test')
+    replay = []
+    for row in rows:
+        case = row['case']
+        need(row['test'] == expected[case] and type(row['passed']) is bool, 'wrong test or result type')
+        if web:
+            edge = 'true' if rec['browser'] == 'edge' else 'false'
+            pattern = r'^ok \d+ - native Chrome independent append (\{.*\})$'
+            matches = re.findall(pattern, tap, re.M)
+            valid = len(matches) == 1 and read_json(matches[0]) == {
+                'name': 'owned-original-failure-card', 'namedErrorCard': True, 'edge': edge == 'true',
+                'count': 1, 'retained': True, 'route': 'https://chatgpt.com/'}
+            counters = row.get('counters', {})
+            observed = [read_json(v[2:]) for v in tap.splitlines() if v.startswith('# {')]
+            valid = valid and observed == [counters] and counters.get('passed') is True and all(
+                type(counters.get(k)) is int and counters[k] == n for k, n in {
+                    'rejectedShapes': 23, 'retiredCases': 4, 'nativeSetters': 31, 'nativeChanges': 31, 'automaticSends': 0
+                }.items())
+        else:
+            valid = len(re.findall(r'^ok \d+ - ' + re.escape(row['test']) + '$', tap, re.M)) == 1
+        valid = bool(valid and rec['exitCode'] == 0 and re.search(r'^# fail 0$', tap, re.M) and
+                     re.search(r'^# skipped 0$', tap, re.M) and re.search(r'^# cancelled 0$', tap, re.M))
+        need(valid == row['passed'], 'claimed result disagrees with raw transcript')
+        replay.append(dict(case=case, scope=rec['kind'], status='PASS' if valid else 'FAIL',
+                           evidence=path.name, transcriptSHA256=rec['transcriptSHA256']))
+    return (rec['browser'], rec['provider']), replay
+
+
+def render(directory):
+    p = plan()
+    index = {}
+    for filename in sorted(directory.glob('*.json')):
+        cell, rows = fixture_result(filename)
+        index.setdefault(cell, []).extend(rows)
+    cells = []
+    for item in p['cells']:
+        key = item['browserID'], item['providerID']
+        cells.append(dict(browser=key[0], provider=key[1], scope=item['scope'], bundle=item['bundleID'],
+                          candidate=None, status={level: 'NOT_RUN' for level in LEVELS}, enabledForRelease=False,
+                          slices=index.pop(key, [])))
+    need(not index, 'evidence for unplanned combination')
+    return dict(schema=1, planSHA=PLAN, planMatrixSHA256=PLAN_DIGEST, candidate=None,
+                decision='WAITING_FOR_107_BASELINE', coreCells=p['coreCellCount'], coreLivePassed=0,
+                defaultCaseResult={'status': 'NOT_RUN', 'reason': 'No complete next-cycle case on this level.'},
+                requiredLiveCases=p['requiredLiveCases'], sharedCases=SHARED, conditionalHosts=p['conditionalHosts'],
+                cells=cells)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--fixtures', type=Path, default=HERE / 'evidence')
+    parser.add_argument('--case', choices=list(dict.fromkeys(plan()['requiredLiveCases'] + SHARED)))
+    parser.add_argument('--level', choices=LEVELS)
+    parser.add_argument('--browser')
+    parser.add_argument('--provider')
+    args = parser.parse_args()
+    result = render(args.fixtures)
+    if args.case or args.level or args.browser or args.provider:
+        rows = []
+        cases = [args.case] if args.case else list(dict.fromkeys(result['requiredLiveCases'] + SHARED))
+        for cell in result['cells']:
+            if args.browser and args.browser != cell['browser'] or args.provider and args.provider != cell['provider']:
+                continue
+            for case in cases:
+                for level in ([args.level] if args.level else LEVELS):
+                    rows.append(dict(browser=cell['browser'], provider=cell['provider'], case=case, level=level,
+                                     **result['defaultCaseResult'], candidate=None,
+                                     slices=[s for s in cell['slices'] if s['case'] == case and
+                                             level == 'L1' and s['scope'] == 'simulated-js']))
+        need(rows, 'unplanned matrix selection')
+        result = rows
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+
+
+if __name__ == '__main__':
+    main()

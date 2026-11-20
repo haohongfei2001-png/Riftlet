@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "browser": "chrome",
+  "provider": "chatgpt",
+  "observedAt": "2026-11-20T04:35:00+00:00",
+  "platform": "27.0",
+  "arch": "arm64",
+  "sourceSHA": "ef3f58cb7baf26ee3c0fd7c6b1db9d9d32ca21d0",
+  "candidate": null,
+  "versions": {
+    "node": "v26.8.2"
+  },
+  "results": [
+    {
+      "case": "I03",
+      "test": "the activated entry can mount its input synchronously, or later in its own controlled portal",
+      "passed": true
+    },
+    {
+      "case": "I01",
+      "test": "a setter exception is uncertain and never causes a second attachment path",
+      "passed": true
+    },
+    {
+      "case": "E01",
+      "test": "START requires a current new accepted attachment, not setter, change, old card or filename placeholder",
+      "passed": true
+    }
+  ],
+  "kind": "simulated-js",
+  "inputs": {
+    "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js": "50b0d16d10f38c688ce33189df55ad3da6588b4c7006b710777f30340dc55ed7",
+    "Tests/WebPageProgram/acceptance-program.test.cjs": "f7c744494e26a3e00d26dbf97200b80ba4e5d6a4c599dc7b35b6e40d26b72e75",
+    "Tests/WebPageProgram/independent-input-fixture.cjs": "4ebe6618a7e6e95d4e7fcb40beeb878411486a18f24c86572224fd83d469fdcf"
+  },
+  "exitCode": 0,
+  "transcriptSHA256": "5a558610652908eba6dfa036043ba2f94f20dffac2f0108493d0aebcfed53d21"
+}

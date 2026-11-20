@@ -12,3 +12,5 @@
 
 - 8f674c3 的 SQLite 重开与原目标正反例经非作者实际复跑。另在同一台 arm64 Mac 上以 x86_64 编译并通过 Rosetta 执行同一专项；CLT 链接时报告兼容性静态库缺 Intel 切片，测试程序仍成功链接和执行。物理 Intel 及新产品双架构 CI 未运行。macOS 27 上可用 Developer ID Application 身份 1 个，已找到官方 notarytool 和 stapler；此阶段没有新产品包。
 - 从 #121 仅移入原始规划矩阵供无网络、浅克隆重放。该 JSON SHA-256 为 35318faf7eacecf80972a7e47eaca173af15682f7ead047198e79da44cc30658，仍是规划输入。实测结果由 matrix 单独生成。
+
+- W5 已加入 40 格矩阵、逐格 case 查询及同包记录核验。3 个网页模拟子项及 Chrome/Edge 各 1 个真实二进制的受控页面子项留存原始 TAP。两个环境各自确认 31 次 setter、31 次 change、零发送；都没有签名产品入口，不能计 L2/L3。集成人重跑 7 组回放正反例，生成的矩阵与提交内容逐字节一致。

@@ -1,0 +1,651 @@
+{
+  "schema": 1,
+  "planSHA": "a18ef269b63d1682384531a155c425d856b37e5d",
+  "planMatrixSHA256": "35318faf7eacecf80972a7e47eaca173af15682f7ead047198e79da44cc30658",
+  "candidate": null,
+  "decision": "WAITING_FOR_107_BASELINE",
+  "coreCells": 16,
+  "coreLivePassed": 0,
+  "defaultCaseResult": {
+    "status": "NOT_RUN",
+    "reason": "No complete next-cycle case on this level."
+  },
+  "requiredLiveCases": [
+    "F01",
+    "F02",
+    "F03",
+    "F04",
+    "F05",
+    "F06",
+    "T01"
+  ],
+  "sharedCases": [
+    "T01",
+    "T02",
+    "T03",
+    "T04",
+    "I01",
+    "I02",
+    "I03",
+    "I04",
+    "E01",
+    "E02",
+    "E03",
+    "E04",
+    "E05",
+    "P01",
+    "P02",
+    "D01",
+    "R01",
+    "R02",
+    "X01"
+  ],
+  "conditionalHosts": [
+    {
+      "browserID": "firefox",
+      "bundleID": "org.mozilla.firefox",
+      "status": "NOT_RUN",
+      "reason": "Bounded no-extension feasibility spike required; not enabled",
+      "promotionRequires": "native fixture plus all four real core providers and unchanged invariants"
+    }
+  ],
+  "cells": [
+    {
+      "browser": "chrome",
+      "provider": "chatgpt",
+      "scope": "core",
+      "bundle": "com.google.Chrome",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": [
+        {
+          "case": "E04",
+          "scope": "headless-web-only",
+          "status": "PASS",
+          "evidence": "headless-chrome.json",
+          "transcriptSHA256": "b7575aea8a2b15107139391c243fb6ef30c4e7ca847287ee0769d4c66acd5add"
+        },
+        {
+          "case": "I03",
+          "scope": "simulated-js",
+          "status": "PASS",
+          "evidence": "simulation-chrome.json",
+          "transcriptSHA256": "5a558610652908eba6dfa036043ba2f94f20dffac2f0108493d0aebcfed53d21"
+        },
+        {
+          "case": "I01",
+          "scope": "simulated-js",
+          "status": "PASS",
+          "evidence": "simulation-chrome.json",
+          "transcriptSHA256": "5a558610652908eba6dfa036043ba2f94f20dffac2f0108493d0aebcfed53d21"
+        },
+        {
+          "case": "E01",
+          "scope": "simulated-js",
+          "status": "PASS",
+          "evidence": "simulation-chrome.json",
+          "transcriptSHA256": "5a558610652908eba6dfa036043ba2f94f20dffac2f0108493d0aebcfed53d21"
+        }
+      ]
+    },
+    {
+      "browser": "chrome",
+      "provider": "claude",
+      "scope": "core",
+      "bundle": "com.google.Chrome",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "chrome",
+      "provider": "gemini",
+      "scope": "core",
+      "bundle": "com.google.Chrome",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "chrome",
+      "provider": "deepseek",
+      "scope": "core",
+      "bundle": "com.google.Chrome",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "chrome",
+      "provider": "kimi",
+      "scope": "same-cycle-expansion",
+      "bundle": "com.google.Chrome",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "chrome",
+      "provider": "qianwen-cn",
+      "scope": "same-cycle-expansion",
+      "bundle": "com.google.Chrome",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "chrome",
+      "provider": "doubao",
+      "scope": "same-cycle-expansion",
+      "bundle": "com.google.Chrome",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "chrome",
+      "provider": "perplexity",
+      "scope": "same-cycle-expansion",
+      "bundle": "com.google.Chrome",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "chrome",
+      "provider": "qwen-international",
+      "scope": "optional-variant",
+      "bundle": "com.google.Chrome",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "chrome",
+      "provider": "grok",
+      "scope": "optional-expansion",
+      "bundle": "com.google.Chrome",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "edge",
+      "provider": "chatgpt",
+      "scope": "core",
+      "bundle": "com.microsoft.edgemac",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": [
+        {
+          "case": "E04",
+          "scope": "headless-web-only",
+          "status": "PASS",
+          "evidence": "headless-edge.json",
+          "transcriptSHA256": "44c0c6ac53e0ae20acc8ef4e9fe3383d83d30f9503df33b9909df6189b2344ba"
+        }
+      ]
+    },
+    {
+      "browser": "edge",
+      "provider": "claude",
+      "scope": "core",
+      "bundle": "com.microsoft.edgemac",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "edge",
+      "provider": "gemini",
+      "scope": "core",
+      "bundle": "com.microsoft.edgemac",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "edge",
+      "provider": "deepseek",
+      "scope": "core",
+      "bundle": "com.microsoft.edgemac",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "edge",
+      "provider": "kimi",
+      "scope": "same-cycle-expansion",
+      "bundle": "com.microsoft.edgemac",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "edge",
+      "provider": "qianwen-cn",
+      "scope": "same-cycle-expansion",
+      "bundle": "com.microsoft.edgemac",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "edge",
+      "provider": "doubao",
+      "scope": "same-cycle-expansion",
+      "bundle": "com.microsoft.edgemac",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "edge",
+      "provider": "perplexity",
+      "scope": "same-cycle-expansion",
+      "bundle": "com.microsoft.edgemac",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "edge",
+      "provider": "qwen-international",
+      "scope": "optional-variant",
+      "bundle": "com.microsoft.edgemac",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "edge",
+      "provider": "grok",
+      "scope": "optional-expansion",
+      "bundle": "com.microsoft.edgemac",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "safari",
+      "provider": "chatgpt",
+      "scope": "core",
+      "bundle": "com.apple.Safari",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "safari",
+      "provider": "claude",
+      "scope": "core",
+      "bundle": "com.apple.Safari",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "safari",
+      "provider": "gemini",
+      "scope": "core",
+      "bundle": "com.apple.Safari",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "safari",
+      "provider": "deepseek",
+      "scope": "core",
+      "bundle": "com.apple.Safari",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "safari",
+      "provider": "kimi",
+      "scope": "same-cycle-expansion",
+      "bundle": "com.apple.Safari",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "safari",
+      "provider": "qianwen-cn",
+      "scope": "same-cycle-expansion",
+      "bundle": "com.apple.Safari",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "safari",
+      "provider": "doubao",
+      "scope": "same-cycle-expansion",
+      "bundle": "com.apple.Safari",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "safari",
+      "provider": "perplexity",
+      "scope": "same-cycle-expansion",
+      "bundle": "com.apple.Safari",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "safari",
+      "provider": "qwen-international",
+      "scope": "optional-variant",
+      "bundle": "com.apple.Safari",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "safari",
+      "provider": "grok",
+      "scope": "optional-expansion",
+      "bundle": "com.apple.Safari",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "brave",
+      "provider": "chatgpt",
+      "scope": "core",
+      "bundle": "com.brave.Browser",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "brave",
+      "provider": "claude",
+      "scope": "core",
+      "bundle": "com.brave.Browser",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "brave",
+      "provider": "gemini",
+      "scope": "core",
+      "bundle": "com.brave.Browser",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "brave",
+      "provider": "deepseek",
+      "scope": "core",
+      "bundle": "com.brave.Browser",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "brave",
+      "provider": "kimi",
+      "scope": "same-cycle-expansion",
+      "bundle": "com.brave.Browser",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "brave",
+      "provider": "qianwen-cn",
+      "scope": "same-cycle-expansion",
+      "bundle": "com.brave.Browser",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "brave",
+      "provider": "doubao",
+      "scope": "same-cycle-expansion",
+      "bundle": "com.brave.Browser",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "brave",
+      "provider": "perplexity",
+      "scope": "same-cycle-expansion",
+      "bundle": "com.brave.Browser",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "brave",
+      "provider": "qwen-international",
+      "scope": "optional-variant",
+      "bundle": "com.brave.Browser",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    },
+    {
+      "browser": "brave",
+      "provider": "grok",
+      "scope": "optional-expansion",
+      "bundle": "com.brave.Browser",
+      "candidate": null,
+      "status": {
+        "L1": "NOT_RUN",
+        "L2": "NOT_RUN",
+        "L3": "NOT_RUN"
+      },
+      "enabledForRelease": false,
+      "slices": []
+    }
+  ]
+}
