@@ -68,6 +68,7 @@
           "scope": "headless-web-only",
           "status": "PASS",
           "evidence": "headless-chrome.json",
+          "reviewedReceipt": true,
           "transcriptSHA256": "b7575aea8a2b15107139391c243fb6ef30c4e7ca847287ee0769d4c66acd5add"
         },
         {
@@ -75,6 +76,7 @@
           "scope": "simulated-js",
           "status": "PASS",
           "evidence": "simulation-chrome.json",
+          "reviewedReceipt": true,
           "transcriptSHA256": "5a558610652908eba6dfa036043ba2f94f20dffac2f0108493d0aebcfed53d21"
         },
         {
@@ -82,6 +84,7 @@
           "scope": "simulated-js",
           "status": "PASS",
           "evidence": "simulation-chrome.json",
+          "reviewedReceipt": true,
           "transcriptSHA256": "5a558610652908eba6dfa036043ba2f94f20dffac2f0108493d0aebcfed53d21"
         },
         {
@@ -89,6 +92,7 @@
           "scope": "simulated-js",
           "status": "PASS",
           "evidence": "simulation-chrome.json",
+          "reviewedReceipt": true,
           "transcriptSHA256": "5a558610652908eba6dfa036043ba2f94f20dffac2f0108493d0aebcfed53d21"
         }
       ]
@@ -237,6 +241,7 @@
           "scope": "headless-web-only",
           "status": "PASS",
           "evidence": "headless-edge.json",
+          "reviewedReceipt": true,
           "transcriptSHA256": "44c0c6ac53e0ae20acc8ef4e9fe3383d83d30f9503df33b9909df6189b2344ba"
         }
       ]

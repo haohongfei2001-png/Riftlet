@@ -3,6 +3,7 @@ import argparse
 import json
 import math
 import re
+import unicodedata
 from pathlib import Path
 from matrix import need, plan, read_json, sha
 
@@ -17,6 +18,10 @@ def digest(value):
 
 def nonempty(value):
     return isinstance(value, str) and bool(value.strip())
+
+
+def actor(value):
+    return unicodedata.normalize('NFKC', value).strip().casefold()
 
 
 def number(value):
@@ -37,12 +42,13 @@ def check_package(candidate):
 def audit(candidate, run, oracle_bytes):
     check_package(candidate)
     oracle = read_json(oracle_bytes)
-    need(run.get('schema') == oracle.get('schema') == 1 and run.get('candidate') == oracle.get('candidate') == candidate,
+    need(type(run.get('schema')) is int and type(oracle.get('schema')) is int
+         and run['schema'] == oracle['schema'] == 1 and run.get('candidate') == oracle.get('candidate') == candidate,
          'different or missing candidate')
     need(run.get('oracleSHA256') == sha(oracle_bytes), 'unlinked independent observation')
     need(run.get('collector') == 'riftlet-native' and oracle.get('collector') == 'independent-ui-observer'
          and nonempty(run.get('operator')) and nonempty(oracle.get('reviewer'))
-         and run['operator'] != oracle['reviewer'], 'distinct native and independent evidence required')
+         and actor(run['operator']) != actor(oracle['reviewer']), 'distinct native and independent evidence required')
     scope = run.get('scope')
     need(isinstance(scope, dict) and scope == oracle.get('scope'), 'cross-scope oracle')
     keys = {'level','case','browser','bundle','browserVersion','provider','providerRevision','programSHA256',
@@ -105,6 +111,7 @@ def audit(candidate, run, oracle_bytes):
         opmap[label] = op
     need(len({v['invocationSHA256'] for v in expected}) == len(ids), 'replayed invocation')
     seen = set()
+    accepted_cards = set()
     for row in observed:
         label = row.get('operation')
         need(label in ids and label not in seen, 'duplicate/unrelated oracle operation')
@@ -119,6 +126,14 @@ def audit(candidate, run, oracle_bytes):
              'missing draft preservation')
         need(row.get('processing') in ('unknown','ready','failed') and row.get('handoff') in ('accepted','refused'),
              'separate processing and handoff outcomes required')
+        if row['handoff'] == 'accepted':
+            card = row.get('newCardSHA256')
+            need(digest(card) and card not in accepted_cards and row.get('payloadSHA256') == op['payloadSHA256'],
+                 'missing unique newly observed card or submitted payload mismatch')
+            accepted_cards.add(card)
+        else:
+            need(row.get('newCardSHA256') is None and row.get('payloadSHA256') is None,
+                 'refused input cannot have an observed new card or payload')
         if scope['case'] == 'T01':
             need(row.get('switchedSameURLTarget') is True, 'target switch unobserved')
         if scope['case'] == 'T01' and row['handoff'] == 'refused':
@@ -140,6 +155,7 @@ def audit(candidate, run, oracle_bytes):
         pairs = run.get('pairs')
         need(isinstance(pairs, list) and len(pairs) >= 3, 'at least three actual pairs required')
         groups, gaps = set(), []
+        intervals = []
         for pair in pairs:
             need(isinstance(pair, list) and len(pair) == 2 and all(k in ids for k in pair)
                  and len(set(pair)) == 2 and groups.isdisjoint(pair), 'unrelated/reused pair')
@@ -147,17 +163,32 @@ def audit(candidate, run, oracle_bytes):
             need(a['targetSHA256'] == b['targetSHA256'] and a['originalSHA256'] != b['originalSHA256'], 'pair mismatch')
             gap = b['clickMs'] - a['clickMs']
             need(0 < gap < 2000, 'actual click interval outside contract')
+            intervals.append((a['clickMs'], b['clickMs']))
             groups.update(pair)
             gaps.append(gap)
+        intervals.sort()
+        need(all(end < start for (_, end), (start, _) in zip(intervals, intervals[1:])),
+             'rapid pairs must be distinct consecutive clicks')
         need(groups == ids and len({o['originalSHA256'] for o in expected}) == len(ids)
              and any(350 <= g <= 650 for g in gaps) and any(1500 <= g <= 1900 for g in gaps),
              'missing distinct files, ~0.5 s or ~1.7 s coverage')
     elif case == 'F04':
-        need({'new','saved'} <= {r.get('draftKind') for r in observed}, 'new and saved drafts required')
+        kinds = {kind: {r['targetSHA256'] for r in observed if r.get('draftKind') == kind}
+                 for kind in ('new', 'saved')}
+        need(kinds['new'] and kinds['saved'] and kinds['new'].isdisjoint(kinds['saved']),
+             'new and saved drafts require distinct draft identities')
     elif case == 'F05':
         need(any(r.get('richSelectionObserved') is True for r in observed) and
              any(r.get('concurrentEditPreserved') is True for r in observed), 'concurrent edit or rich selection missing')
     elif case == 'F06':
+        same_file = {}
+        for row in observed:
+            op = opmap[row['operation']]
+            same_file.setdefault((op['originalSHA256'], op['targetSHA256']), []).append(row)
+        for rows in same_file.values():
+            if len(rows) > 1:
+                need(all(r.get('explicitNewClick') is True for r in rows),
+                     'repeated same-file input without an explicit click')
         witness = [opmap[r['operation']] for r in observed if r.get('explicitNewClick') is True]
         need(any(a['operation'] != b['operation'] and a['originalSHA256'] == b['originalSHA256'] and
                  a['targetSHA256'] == b['targetSHA256'] and a['clickMs'] < b['clickMs'] and
@@ -167,9 +198,36 @@ def audit(candidate, run, oracle_bytes):
     return 'MATCHED_RECORD_ONLY'
 
 
+def audit_batch(candidate, records):
+    """Cross-check independent runs without promoting caller-supplied records to acceptance."""
+    seen = {name: set() for name in ('run', 'operation', 'invocation', 'click', 'card')}
+    results = []
+    for native, oracle_bytes in records:
+        result = audit(candidate, native, oracle_bytes)
+        oracle = read_json(oracle_bytes)
+        keys = {
+            'run': [native['scope']['runID']],
+            'operation': [op['operation'] for op in native['operations']],
+            'invocation': [op['invocationSHA256'] for op in native['operations']],
+            'click': [row['clickSHA256'] for row in native.get('preIntentRefusals', [])],
+            'card': [row['newCardSHA256'] for row in oracle['operations'] if row['handoff'] == 'accepted'],
+        }
+        for domain, ids in keys.items():
+            need(seen[domain].isdisjoint(ids), 'reused evidence across runs: ' + domain)
+            seen[domain].update(ids)
+        results.append(result)
+    need(results, 'missing native runs')
+    return results
+
+
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
-    for k in ['candidate','run','oracle']:
-        p.add_argument(k, type=Path)
+    p.add_argument('candidate', type=Path)
+    p.add_argument('files', nargs='+', type=Path, metavar='RUN_OR_ORACLE')
     args = p.parse_args()
-    print(audit(read_json(args.candidate.read_bytes()), read_json(args.run.read_bytes()), args.oracle.read_bytes()))
+    if len(args.files) % 2:
+        p.error('supply one or more native-run and independent-oracle file pairs')
+    records = [(read_json(run.read_bytes()), oracle.read_bytes())
+               for run, oracle in zip(args.files[::2], args.files[1::2])]
+    for status in audit_batch(read_json(args.candidate.read_bytes()), records):
+        print(status)

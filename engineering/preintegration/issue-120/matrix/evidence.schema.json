@@ -336,9 +336,58 @@
         },
         "hadPriorText": {
           "type": "boolean"
+        },
+        "payloadSHA256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "newCardSHA256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{64}$"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "handoff": {
+                "const": "accepted"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "payloadSHA256",
+              "newCardSHA256"
+            ],
+            "properties": {
+              "payloadSHA256": {
+                "type": "string"
+              },
+              "newCardSHA256": {
+                "type": "string"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "payloadSHA256": {
+                "type": "null"
+              },
+              "newCardSHA256": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
     },
     "native": {
       "type": "object",

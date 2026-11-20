@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 from fixtures import HERE, sha
 from matrix import fixture_result, read_json, render
-from native_evidence import audit
+from native_evidence import audit, audit_batch
 
 
 def token(k):
@@ -30,7 +30,7 @@ def pair_case(case='F03'):
                   timingsMs=dict(clickToBound=None,clickToInput=None,clickToPositive=None,positiveToHidden=None))
         host['operations'].append(op)
         oracle['operations'].append(dict(operation=op['operation'], targetSHA256=op['targetSHA256'],
-            originalSHA256=op['originalSHA256'], automaticSends=0, changedOtherTargets=0, extraInputs=0,
+            originalSHA256=op['originalSHA256'], payloadSHA256=op['payloadSHA256'], newCardSHA256=token(('card',i)), automaticSends=0, changedOtherTargets=0, extraInputs=0,
             addedMatchingCards=1, priorTextPreserved=True, selectionPreserved=True, priorAttachmentsPreserved=True,
             processing='unknown', handoff='accepted', observedOriginalCard=True))
         if i % 2:
@@ -130,7 +130,8 @@ class MatrixTests(unittest.TestCase):
                     observations[0].update(warmDraft=True,hadPriorAttachment=True)
                 elif case == 'F04':
                     observations[0].update(draftKind='new')
-                    observations[1].update(draftKind='saved')
+                    observations[1].update(draftKind='saved',targetSHA256=token('saved'))
+                    host['operations'][1]['targetSHA256']=observations[1]['targetSHA256']
                 elif case == 'F05':
                     observations[0].update(richSelectionObserved=True)
                     observations[1].update(concurrentEditPreserved=True)
@@ -140,6 +141,84 @@ class MatrixTests(unittest.TestCase):
                     ops[0]['timingsMs']['clickToPositive']=300
                     observations[0]['explicitNewClick']=observations[1]['explicitNewClick']=True
                 self.assertEqual(assess(pkg,host,oracle), 'MATCHED_RECORD_ONLY')
+
+    def test_forged_or_conflicting_fixture_transcript(self):
+        original = HERE/'evidence'/'headless-edge.json'
+        with tempfile.TemporaryDirectory() as d:
+            receipt = Path(d)/original.name
+            rec = read_json(original.read_bytes())
+            rec['versions']['browser'] = '999.0'
+            receipt.write_text(json.dumps(rec))
+            raw = original.with_suffix('.tap').read_bytes()
+            receipt.with_suffix('.tap').write_bytes(raw)
+            self.assertFalse(fixture_result(receipt)[1][0]['reviewedReceipt'])
+            for extra in (b'not ok 2 - failed\n', b'# fail 1\n', b'Bail out!\n'):
+                tap = raw + extra
+                rec['transcriptSHA256'] = sha(tap)
+                receipt.write_text(json.dumps(rec))
+                receipt.with_suffix('.tap').write_bytes(tap)
+                with self.assertRaises(ValueError):
+                    fixture_result(receipt)
+
+    def test_native_counterexamples(self):
+        for label in ('same actor alias','reused card','different observed bytes','untracked card',
+                      'nonconsecutive pair','aliased draft'):
+            with self.subTest(label):
+                pkg, host, oracle = pair_case('F04' if label == 'aliased draft' else 'F03')
+                rows = oracle['operations']
+                if label == 'same actor alias':
+                    oracle['reviewer'] = host['operator'].upper() + ' '
+                elif label == 'reused card':
+                    rows[1]['newCardSHA256'] = rows[0]['newCardSHA256']
+                elif label == 'different observed bytes':
+                    rows[0]['payloadSHA256'] = token('different')
+                elif label == 'untracked card':
+                    del rows[0]['newCardSHA256']
+                elif label == 'aliased draft':
+                    rows[0]['draftKind'], rows[1]['draftKind'] = 'new', 'saved'
+                else:
+                    for op, click in zip(host['operations'], (0,500,100,1800,2000,3000)):
+                        op['clickMs'] = click
+                with self.assertRaises(ValueError):
+                    assess(pkg, host, oracle)
+
+    def test_same_file_extra_unrequested_click(self):
+        pkg, host, oracle = pair_case('F06')
+        ops, rows = host['operations'], oracle['operations']
+        for i in range(3):
+            ops[i]['originalSHA256'] = rows[i]['originalSHA256'] = ops[0]['originalSHA256']
+            ops[i]['payloadSHA256'] = rows[i]['payloadSHA256'] = ops[0]['payloadSHA256']
+        rows[0]['explicitNewClick'] = rows[1]['explicitNewClick'] = True
+        ops[0]['timingsMs']['clickToPositive'] = 300
+        with self.assertRaisesRegex(ValueError,'without an explicit click'):
+            assess(pkg,host,oracle)
+
+    def test_batch_relabelling_and_duplicate_evidence(self):
+        pkg, host, oracle = pair_case()
+        raw = json.dumps(oracle).encode()
+        host['oracleSHA256'] = sha(raw)
+        for domain in ('runID','operation','invocationSHA256','newCardSHA256',None):
+            with self.subTest(domain):
+                native, page = copy.deepcopy((host, oracle))
+                if domain != 'runID':
+                    native['scope']['runID'] = page['scope']['runID'] = 'second'
+                for i, (op, row) in enumerate(zip(native['operations'], page['operations'])):
+                    if domain != 'operation':
+                        op['operation'] = row['operation'] = token(('second-op',i))
+                    if domain != 'invocationSHA256':
+                        op['invocationSHA256'] = token(('second-invoke',i))
+                    if domain != 'newCardSHA256':
+                        row['newCardSHA256'] = token(('second-card',i))
+                ids = [r['operation'] for r in native['operations']]
+                native['pairs'] = [ids[i:i+2] for i in (0,2,4)]
+                raw2 = json.dumps(page).encode()
+                native['oracleSHA256'] = sha(raw2)
+                batch = [(host,raw),(native,raw2)]
+                if domain is None:
+                    self.assertEqual(audit_batch(pkg,batch), ['MATCHED_RECORD_ONLY']*2)
+                else:
+                    with self.assertRaisesRegex(ValueError,'reused evidence across runs'):
+                        audit_batch(pkg,batch)
 
     def test_target_switch_before_durable_operation(self):
         pkg, host, oracle=pair_case('T01')
@@ -161,7 +240,7 @@ class MatrixTests(unittest.TestCase):
         for op in host['operations']:
             op['inputEntered']=0
         for row in oracle['operations']:
-            row.update(handoff='refused',processing='unknown',observedOriginalCard=False,addedMatchingCards=0,switchedSameURLTarget=True,trayRetained=True)
+            row.update(newCardSHA256=None,payloadSHA256=None,handoff='refused',processing='unknown',observedOriginalCard=False,addedMatchingCards=0,switchedSameURLTarget=True,trayRetained=True)
         self.assertEqual(assess(pkg,host,oracle),'MATCHED_RECORD_ONLY')
         row = oracle['operations'][0]
         row['processing'] = 'ready'

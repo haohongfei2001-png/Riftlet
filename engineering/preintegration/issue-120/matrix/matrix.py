@@ -8,6 +8,12 @@ from fixtures import BROWSERS, HERE, JS, ROOT, SIM, SLICES, SUPPORT, WEB, sha, s
 PLAN = 'a18ef269b63d1682384531a155c425d856b37e5d'
 PLAN_FILE = 'docs/plans/issue-120/compatibility-matrix.json'
 PLAN_DIGEST = '35318faf7eacecf80972a7e47eaca173af15682f7ead047198e79da44cc30658'
+# Reviewed receipt bytes at #122 4daab3f. Each receipt binds the matching TAP bytes.
+REVIEWED_RECEIPTS = {
+    'headless-chrome.json': '2b9a5c1275c19ed3ef6541228f718b4d64708630b6dbe8020d762ee01b8fb614',
+    'headless-edge.json': '8edd3850d978ad539f2155cbe60c0850bf2b837b71b2fb83d7cf15be69a533d6',
+    'simulation-chrome.json': '505709dc70edc06dc4a42364d13a32494d808dba537668fd1d4b3916a5fdfd08',
+}
 SHARED = 'T01 T02 T03 T04 I01 I02 I03 I04 E01 E02 E03 E04 E05 P01 P02 D01 R01 R02 X01'.split()
 LEVELS = ('L1', 'L2', 'L3')
 
@@ -36,7 +42,9 @@ def plan():
 
 
 def fixture_result(path):
-    rec = read_json(path.read_bytes())
+    raw = path.read_bytes()
+    rec = read_json(raw)
+    reviewed = sha(raw) == REVIEWED_RECEIPTS.get(path.name)
     keys = {'schema', 'browser', 'provider', 'observedAt', 'platform', 'arch', 'sourceSHA',
             'candidate', 'versions', 'results', 'kind', 'inputs', 'exitCode', 'transcriptSHA256'}
     need(set(rec) == keys and rec['schema'] == 1 and rec['candidate'] is None, 'unexpected fixture schema/candidate')
@@ -69,6 +77,13 @@ def fixture_result(path):
     rows = rec['results']
     need(isinstance(rows, list) and len(rows) == len(expected) and
          {r['case'] for r in rows} == set(expected), 'missing, duplicate or extra test')
+    total = len(expected)
+    summary_ok = (not re.search(r'^(?:not ok |Bail out!)', tap, re.M)
+                  and len(re.findall(r'^ok [0-9]+ - ', tap, re.M)) == total
+                  and re.findall(r'^1\.\.(\d+)$', tap, re.M) == [str(total)]
+                  and all(re.findall(r'^# ' + field + r' (\d+)$', tap, re.M) == [str(count)]
+                          for field, count in (('tests', total), ('pass', total), ('fail', 0),
+                                               ('skipped', 0), ('cancelled', 0), ('todo', 0))))
     replay = []
     for row in rows:
         case = row['case']
@@ -88,19 +103,24 @@ def fixture_result(path):
                 }.items())
         else:
             valid = len(re.findall(r'^ok \d+ - ' + re.escape(row['test']) + '$', tap, re.M)) == 1
-        valid = bool(valid and rec['exitCode'] == 0 and re.search(r'^# fail 0$', tap, re.M) and
-                     re.search(r'^# skipped 0$', tap, re.M) and re.search(r'^# cancelled 0$', tap, re.M))
+        valid = bool(valid and rec['exitCode'] == 0 and summary_ok)
         need(valid == row['passed'], 'claimed result disagrees with raw transcript')
         replay.append(dict(case=case, scope=rec['kind'], status='PASS' if valid else 'FAIL',
-                           evidence=path.name, transcriptSHA256=rec['transcriptSHA256']))
+                           evidence=path.name, reviewedReceipt=reviewed, transcriptSHA256=rec['transcriptSHA256']))
     return (rec['browser'], rec['provider']), replay
 
 
 def render(directory):
     p = plan()
     index = {}
-    for filename in sorted(directory.glob('*.json')):
+    files = sorted(directory.glob('*.json'))
+    canonical = directory.resolve() == (HERE / 'evidence').resolve()
+    if canonical:
+        need({f.name for f in files} == REVIEWED_RECEIPTS.keys(), 'incomplete reviewed receipt set')
+    for filename in files:
         cell, rows = fixture_result(filename)
+        if canonical:
+            need(all(row['reviewedReceipt'] for row in rows), 'canonical receipt differs from reviewed bytes')
         index.setdefault(cell, []).extend(rows)
     cells = []
     for item in p['cells']:
