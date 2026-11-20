@@ -192,3 +192,31 @@ struct AdapterResolver: Sendable {
         return adapter
     }
 }
+
+extension StoredDispatch {
+    private static func key(_ id: UUID) -> String { "issue120.dispatch.v1." + id.uuidString }
+
+    /// Admission belongs to a new, already durable dispatch and the exact fresh
+    /// click. The existing store owns the first-writer transaction.
+    static func register(_ click: BoundClick, request: TransferRequest, store: QueueStore) async throws {
+        let op = request.operation
+        guard op.target == click.target, op.phase == .dispatchIntent,
+              let id = request.invocationID, try await store.dispatchInvocationID(for: op.id) == id
+        else { throw BindingError.targetChanged }
+        let record = Self(operationID: op.id, invocationID: id, attempt: op.attempt,
+                          assetID: request.asset.id, originalSHA256: request.asset.sha256,
+                          target: click.target, profile: click.route.profile)
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        let bytes = try encoder.encode(record)
+        let saved = try await store.claimDispatchCheckpoint(bytes, for: key(op.id), operation: op, asset: request.asset)
+        guard saved == bytes else { throw BindingError.targetChanged }
+    }
+
+    static func load(for id: UUID, store: QueueStore) async throws -> Self? {
+        guard let data = try await store.checkpoint(for: key(id)) else { return nil }
+        let record = try JSONDecoder().decode(Self.self, from: data)
+        guard record.operationID == id else { throw BindingError.targetChanged }
+        return record
+    }
+}

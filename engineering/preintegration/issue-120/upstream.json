@@ -1,0 +1,34 @@
+{
+  "main": "9fd8ad15fca043915069904113e5fb67d82b4948",
+  "pr119Head": "c764246410c2c0c225ac4bb8688c2ae5179f27e9",
+  "pr119Merged": false,
+  "pr119Draft": true,
+  "pr119IncludesBuild49": true,
+  "mainContainsPR119": false,
+  "upstreamChecks": [
+    [
+      "Native ARM64",
+      "success"
+    ],
+    [
+      "Native Intel",
+      "success"
+    ],
+    [
+      "Native source admission",
+      "success"
+    ],
+    [
+      "Feedback native and service",
+      "success"
+    ],
+    [
+      "Feedback source admission",
+      "success"
+    ]
+  ],
+  "upstreamAcceptance": "https://github.com/haohongfei2001-png/Riftlet/pull/119#issuecomment-7028325810",
+  "upstreamAcceptanceSHA256": "738dc0cd402480d2ee31c8825e2008da3c64a142b424ae76ae72eacb63fd47d3",
+  "release": "v1.0.5",
+  "integrationBase": "WAITING_FOR_107_BASELINE"
+}

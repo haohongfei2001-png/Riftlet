@@ -47,6 +47,7 @@ import RiftletCore
         precondition(host.enqueued == host.captured)
         let original = try? await pending.value
         precondition((original != nil) == fault.isEmpty, fault)
+        if let original { try await checkReadOnlyRestart(click: original) }
     }
     precondition(host.enqueued == 4)
 }
