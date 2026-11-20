@@ -1,5 +1,5 @@
 // Read-only measurement from this executable's own permission context.
-// Never launch a receiver, prompt, send a page event, or inspect a browser window.
+// Only the fixture launcher’s own child may receive a native window-count event.
 import AppKit
 import Carbon
 import Darwin

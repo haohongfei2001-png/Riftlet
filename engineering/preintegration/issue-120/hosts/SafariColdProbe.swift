@@ -16,17 +16,18 @@ func runScript(_ source: String) throws -> NSAppleEventDescriptor {
     static func main() throws {
         let args = CommandLine.arguments
         let requestOnGuest = args.count == 4 && args[2] == "--request-on-disposable-vm"
-        guard (args.count == 2 || requestOnGuest),
+        var model = [CChar](repeating: 0, count: 128), size = 128
+        guard sysctlbyname("hw.model", &model, &size, nil, 0) == 0, String(cString: model) == "VirtualMac2,1",
+              (args.count == 2 || requestOnGuest),
               let fixture = URL(string: CommandLine.arguments[1]),
               fixture.isFileURL, fixture.lastPathComponent == "RiftletHostFixture.html",
               fixture.deletingLastPathComponent().lastPathComponent.hasPrefix("riftlet-120-"),
+              fixture.deletingLastPathComponent().deletingLastPathComponent().path == "/private/tmp",
               !fixture.absoluteString.contains("\""),
               let receiver = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.Safari").only else { exit(2) }
         let pidTarget = NSAppleEventDescriptor(processIdentifier: receiver.processIdentifier)
         if requestOnGuest {
-            var model = [CChar](repeating: 0, count: 128), size = 128
-            guard sysctlbyname("hw.model", &model, &size, nil, 0) == 0, String(cString: model) == "VirtualMac2,1",
-                  URL(fileURLWithPath: args[3]).deletingLastPathComponent() == fixture.deletingLastPathComponent()
+            guard URL(fileURLWithPath: args[3]).deletingLastPathComponent() == fixture.deletingLastPathComponent()
             else { exit(2) }
         }
         let before = AEDeterminePermissionToAutomateTarget(pidTarget.aeDesc, typeWildCard, typeWildCard, false)
