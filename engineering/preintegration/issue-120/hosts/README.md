@@ -46,3 +46,11 @@ The Safari cold probe verifies the single local fixture before attempting an ori
 ### Independent second guest
 
 On an independent macOS 27.2 guest, the test sender went through the ordinary macOS Automation consent dialog. With exactly one synthetic draft open, Safari returned a tab object specifier with key form `indx`. Closing that tab made the same captured specifier address another document deliberately opened at the identical URL. The documents had distinct randomly generated titles. The result persisted with Safari's JavaScript preference off, normally enabled, and restored. Only the enabled state could read the page sentinel. The probe neither attached a file nor sent a message. A mutable index cannot qualify for the isolated contract's cold-click path. [Sanitized native receipt](guest-c/safari.json)
+
+### C 客机按权限原样查询浏览器 AX 窗口
+
+在 macOS 27.2 的独立 C 客机普通图形登录会话中，依次用 Safari、Firefox 和 Brave 打开同一合成本地页面。客机的虚拟显示器由无宿主窗口的 VZ 进程驱动。系统 Safari 来自系统 Cryptex；另两个普通浏览器由已验证签名与 Gatekeeper 的专用副本启动，使用默认模式。专用探针通过 Launch Services 运行，对唯一浏览器进程调用 AXIsProcessTrusted 和 AXUIElementCopyAttributeValue(kAXWindowsAttribute)。探针只查询窗口，未请求或获授额外权限。源文件 [AXWindowProbe.swift](AXWindowProbe.swift) 的 SHA256 为 0289ec2feadc5937b32787c996324ebda48b3899461839a1df03f2b57ddb210c，客机实测运行文件 SHA256 为 e2bf7c7abca837f60c9a901a08b27c3423f8966943dda68e9f2215719f3af5dd。
+
+[三份原始收据](guest-c/ax-default.ndjson)中，Safari 27.2 返回 -25211，Firefox 160.0.1 与 Brave 158.1.100.58 返回 -25204。三个目标均显示调用方 AXIsProcessTrusted=false；未获取窗口或草稿。现有窗口外远程控制通道仅 SSH；客机 loopback 5900 无监听，终端检查自身 AX 信任亦为 false。Safari 的 AX 标签替换、导航及 ABA，Firefox 的选择器归属及卡片，以及 Brave 经不同执行环境的原稿回执仍未验证。需由能正常操作隐私设置的隔离图形会话为实际测试 sender 授权后再继续。已有 Safari tab 索引错投反例和 Brave 默认 JS 错误 12 的独立收据仍适用。Riftlet 产品权限、浏览器支持与登录站点均未从此次探针推断。
+
+首次读取系统 Safari 时，探针只接受 /Applications/Safari.app，因实际进程使用系统 Cryptex 路径而未留下收据。增加该系统路径后，对三个目标用同一探针全组采集。关闭采集所用的三个浏览器，核对测试进程为零、移除临时页面与应用副本后，客机执行正常关机。
