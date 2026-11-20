@@ -1,0 +1,25 @@
+{
+  "scope": "macOS 27.2 C disposable guest; standard signed probe GUI consent; default Brave settings; one locally authored file fixture in a purpose-created guest profile.",
+  "browser": "158.1.100.58",
+  "downloadDiskImageSHA256": "0e26fb4c64c42ce7a6b1a1c0e2184d334668b0c51563bcf0831437e4b9920b3f",
+  "gatekeeper": {
+    "result": "accepted",
+    "source": "Notarized Developer ID",
+    "signer": "Brave Software, Inc. (KL8N8XSYF4)"
+  },
+  "signedProbe": "local ad hoc research app",
+  "sourceSHA256": "a414bd005257ea69a0062571685c3883875b2a8e87096bfc9565d3bf6b1642a5",
+  "binarySHA256": "5a253fb43e6518c331877c7e08712f3ad78b9b7b6328606a033ab57cafc148a9",
+  "report": {
+    "defaultJavaScriptRead": "ERROR",
+    "initialNonpromptingStatus": -1744,
+    "nativeNumericWindowAndTabIDs": true,
+    "probeSenderAutomationStatus": 0,
+    "readError": 12,
+    "signedCandidatePermission": "NOT_RUN"
+  },
+  "originalReceiptSHA256": "5f7dd282dc037467d003ff6bbeaa6d4dcc76205d313560ef6a4e529e207a1912",
+  "defaultJS": "No positive data read. No preference change was made.",
+  "signedProductPermission": "NOT_RUN",
+  "authenticatedProviderUpload": "NOT_RUN"
+}
