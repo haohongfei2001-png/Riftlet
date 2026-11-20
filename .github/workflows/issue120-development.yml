@@ -5,6 +5,8 @@ on:
     paths:
       - 'Sources/**'
       - 'Tests/Riftlet*/**'
+      - 'Tests/LiveDraftAcceptance/**'
+      - 'Tests/WebPageProgram/Issue120/**'
       - 'Package.swift'
       - 'Package.resolved'
       - 'scripts/build-macos.sh'
@@ -18,8 +20,10 @@ concurrency:
 jobs:
   native:
     name: Development Swift tests and isolated App
-    runs-on: macos-15
-    timeout-minutes: 20
+    # The integrated dev archive is built and checked on ARM64 locally.
+    # Keep the independent Xcode run on the project's existing Intel image.
+    runs-on: macos-15-intel
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -32,6 +36,10 @@ jobs:
           motion='^RiftletUITests\.ArrivalModesTests/'
           swift test --parallel --skip "$motion"
           swift test --skip-build --no-parallel --filter "$motion"
+      - name: Verify original-tab guard and provider recovery
+        run: |
+          node --test Tests/LiveDraftAcceptance/*.test.cjs
+          bash Tests/WebPageProgram/Issue120/check-compiled.sh --backend-only
       - name: Build the development App and check its isolated runtime
         run: |
           set -euo pipefail

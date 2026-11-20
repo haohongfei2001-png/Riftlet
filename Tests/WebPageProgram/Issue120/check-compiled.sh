@@ -4,10 +4,16 @@
 # is used by the Chrome test. No network permission or account is needed there.
 set -euo pipefail
 cd "$(dirname "$0")/../../.."
-test -x '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' || {
+mode=full
+case "$#" in
+    0) ;;
+    1) [[ "$1" == --backend-only ]] || exit 2; mode=backend ;;
+    *) exit 2 ;;
+esac
+if [[ "$mode" == full && ! -x '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' ]]; then
     echo "NOT_RUN: Google Chrome is unavailable" >&2
     exit 1
-}
+fi
 options=(--configuration debug --disable-automatic-resolution)
 if [[ -n "${RIFTLET_PROVIDER_SCRATCH:-}" ]]; then
     options+=(--scratch-path "$RIFTLET_PROVIDER_SCRATCH")
@@ -26,5 +32,6 @@ else
 fi
 swiftc -parse-as-library "${includes[@]}" Tests/WebPageProgram/Issue120/check-backend.swift "${objects[@]}" -o "$temp/backend"
 "$temp/backend"
+if [[ "$mode" == backend ]]; then exit 0; fi
 swiftc "${includes[@]}" Tests/WebPageProgram/Issue120/export-program.swift "${objects[@]}" -o "$temp/export"
 RIFTLET_TEST_PROVIDER_EXPORTER="$temp/export" node --test Tests/WebPageProgram/issue120-provider-runtime.test.cjs
