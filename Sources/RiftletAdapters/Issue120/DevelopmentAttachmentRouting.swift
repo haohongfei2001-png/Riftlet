@@ -18,7 +18,8 @@ import RiftletCore
         let program = try ChatGPTWebPageProgram.load()
         var hosts = [String: ChatGPTChromiumHost]()
         for browser in AttachmentBrowser.allCases {
-            hosts[browser.rawValue] = try ChatGPTChromiumHost(browser: browser, executor: executor, program: program) {
+            hosts[browser.rawValue] = try ChatGPTChromiumHost(browser: browser, executor: executor, program: program,
+                                                       discoveryCatalog: catalog) {
                 CandidateReceiver.forSettings(browser.rawValue)?.automationState() ?? .unavailable
             }
         }
