@@ -1,0 +1,34 @@
+{
+  "source": "48d25180f2e33e349be396b13e6157a508c02e21",
+  "channel": "provider-development",
+  "bundleID": "com.riftlet.provider-development",
+  "archive": "Riftlet-Provider-Development.zip",
+  "archiveSHA256": "a1ad003a2047fb42688cd38a55cc4d29729b3e9bfb787b1ed53a2db895524f6a",
+  "executableSHA256": "1877491d996a703e8bff811dfd514b8303d2bf79e9c1a157568b96f4fcca4ae3",
+  "architectures": [
+    "arm64"
+  ],
+  "signature": "ad-hoc",
+  "notarized": false,
+  "roundtripCodesignStrictDeep": true,
+  "buildInfo": {
+    "builtInUpload": true,
+    "completion": true,
+    "continuation": true,
+    "dataDirectory": "Riftlet-Provider-Development",
+    "input": true,
+    "internalAcceptance": true,
+    "mode": "capture",
+    "safeRetry": false,
+    "start": true
+  },
+  "checks": {
+    "--self-check": "RIFTLET_SELF_CHECK_PASS: private import, durable upload-start visibility, delayed synthetic completion, restart",
+    "--web-acceptance-self-check": "RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_PASS: bundled page source, synthetic-only start/completion policy, isolated modes; CHROME_NOT_RUN; GUI_NOT_RUN",
+    "--first-use-self-check": "RIFTLET_FIRST_USE_SELF_CHECK_PASS: presentation persistence, disabled-production permission isolation, honest status; PERMISSIONS_NOT_REQUESTED; GUI_NOT_RUN",
+    "--system-screenshot-candidate-self-check": "REFUSED: separate restricted system-screenshot candidate mode is disabled in this internal channel"
+  },
+  "authenticatedSite": "NOT_RUN",
+  "formalCandidate": false,
+  "providerRuntimeSHA256": "f1282a09a0398cf6cefcb386d263d706d98538983d78c2ab40288cb7e43ad82d"
+}

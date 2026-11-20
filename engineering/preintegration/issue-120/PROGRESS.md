@@ -38,3 +38,5 @@
 - 双轨产品 checkpoint `9ea7e7f4`。普通点击已连接原窗口/标签的新站点只读检查；隔离 ARM64 开发 App 已解包验签。Edge 原文件在冻结 build 53 与已知本地卡上 43/202 毫秒确认 START，半尺寸保持未知；实站 G1/G2/G4 与下一版正式登录 0/16 保留未通过。[交付与阻塞](DUAL_TRACK.md) · [原文件收据](../../../Tests/Build53EdgeReplay/receipt.json)
 
 - `504f25dd`。修复客机首启时 macOS 文件夹授权待答复导致应用普通退出持续等待。新 ZIP 已在独立客机证实系统请求仍待决时退出，次秒零进程零自有窗口，原设置/反馈保存决定及截图数据继续受保护。[同包现场](development-guest-final.json) · [包身份](development-app.json)
+
+- 浏览器控制与首个 Provider。Mac 无法在当前可信会话选中浏览器，Edge 现有两个配置也均缺扩展；本轮两个 canary、G1/G2/G4 和登录 Provider 均未执行。已修复专用窗口的身份核对、Edge 原卡与 START 的计时，以及输入控件重建后无法继续读取原卡的产品缺陷。产品提交 `48d25180` 已入私有开发 ZIP。非作者复核了受控 Provider 的原卡失败/错卡反例和 Safari 27.2 三项同窗口旧绑定反例。[验收、证据与恢复入口](browser-provider-round/README.md)
