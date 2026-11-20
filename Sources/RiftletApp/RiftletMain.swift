@@ -12,6 +12,25 @@ import RiftletFeedback
 @main
 enum RiftletMain {
     @MainActor static func main() {
+        #if RIFTLET_PROVIDER_DEVELOPMENT
+        if CommandLine.arguments.contains("--candidate-host-inspection") {
+            do {
+                let data = try JSONEncoder().encode(CandidateHostInspector.inspectForeground())
+                print(String(decoding: data, as: UTF8.self))
+            } catch { exit(1) }
+            return
+        }
+        if CommandLine.arguments.contains("--candidate-provider-inspection") {
+            Task {
+                do {
+                    let observation = try await CandidateProviderInspector.inspectForeground()
+                    print(String(decoding: try JSONEncoder().encode(observation), as: UTF8.self))
+                    exit(0)
+                } catch { fputs("Provider discovery unavailable\n", stderr); exit(1) }
+            }
+            dispatchMain()
+        }
+        #endif
         if CommandLine.arguments.contains("--ordinary-build-info") {
             let value: [String: Any] = ["internalAcceptance": OrdinaryCaptureConfiguration.isInternalAcceptance,
                 "mode": "capture", "dataDirectory": OrdinaryCaptureConfiguration.dataDirectoryName,
@@ -187,6 +206,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var originalRecoveryIDs: [UUID]?
     private var originalRecoveryTask: Task<Void, Never>?
     private var startupCompletedIDs = Set<UUID>()
+    #if RIFTLET_PROVIDER_DEVELOPMENT
+    private var developmentRouting: DevelopmentAttachmentRouting?
+    #endif
     private var clickAdapter: WebAttachmentAdapter?
     private var lastForegroundSession: String?
     private var diagnosticTrace: BoundedDiagnosticTrace?
@@ -610,7 +632,16 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             onInputTransportFinished: { [weak self] in await self?.inputTransportFinished() })
         let adapter = composition.adapter
         let policy = composition.policy
+        var additionalAdapters = [String: any IndependentFileInputAdapter]()
+        #if RIFTLET_PROVIDER_DEVELOPMENT
+        if mode == .capture, let chromeExecutor, adapter is WebAttachmentAdapter {
+            let routing = try DevelopmentAttachmentRouting(executor: chromeExecutor, store: store)
+            developmentRouting = routing
+            additionalAdapters = routing.additionalAdapters
+        }
+        #endif
         let transfer = TransferCoordinator(store: store, adapter: adapter, mediaDirectory: root.appendingPathComponent("media"),
+            additionalAdapters: additionalAdapters,
             policy: policy, onChange: { [weak self] in await self?.refresh() },
             onSelectionSettled: { [weak self] id in await self?.finishPreparedSelection(id) },
             onAcceptedSelectionSettled: { [weak self] selection in
@@ -1304,7 +1335,16 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         do {
             // Bind the receiver and its original editor during the event.
             // The actual file input is deferred until that binding is rechecked.
+            #if RIFTLET_PROVIDER_DEVELOPMENT
+            if let developmentRouting {
+                guard let bundleID else { throw WebAdapterError.browserNotFrontmost }
+                target = try developmentRouting.targetForClick(in: bundleID)
+            } else {
+                target = try web.targetForClick()
+            }
+            #else
             target = try web.targetForClick()
+            #endif
         } catch {
             target = Task { throw error }
         }

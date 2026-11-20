@@ -33,3 +33,4 @@
 - W5 同包导入与汇总已接入矩阵 CLI；按候选、环境及原始测量计算单格结果和独立放行门槛。17 组回归及独立复核通过，真实 #122 仍缺正式基线，0/16。[独审](W5_REVIEW.md)。官网、Release 与签名 feed 核对为公开 build 31。
 
 - 双轨实施。继承 #122 8bf6e42 / #119 build 53，将已审 BrowserHost、ConversationProvider、绑定与原操作只读续查契约移入 RiftletAdapters 产品模块。新宿主与站点保持开发态。上游探索样本已更新：Chrome 一次 START，Edge 一次输入后原稿有预览但无 START，正式 G1/G2/G4 仍缺证据。
+- 候选 App 已接入编译期 provider-development 组合。独立应用标识/数据库目录且不启动更新器，Chrome/Edge 的 ChatGPT 仍走同一 build 53 轻量原窗口 pin。新增站点的配置和 Swift 后端使用各自的实际资源摘要；网页写配方尚未准入。已修正旧点击 nonce 与 profile 错配可通过的问题。Safari、Brave、Firefox 集成了原生能力检查。W5 补齐两次真实输入、原卡与找回图关联。源与受控结果不作为真实网站通过。

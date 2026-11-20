@@ -30,7 +30,7 @@ import RiftletCore
                                  generation: fault == "late" ? UUID() : click.generation, uptime: click.uptime)
         let target = TargetLease(adapterID: "fixture", surface: .webChat, applicationID: bundle,
                                  sessionID: click.session, windowID: click.window, tabID: click.tab,
-                                 documentID: "document", composerID: "composer", draftGeneration: "epoch", clickBindingID: UUID())
+                                 documentID: "document", composerID: "composer", draftGeneration: "epoch", clickBindingID: fault == "stalePin" ? UUID() : click.generation)
         let replyRoute = fault == "mode" ? ProviderRoute(profile: route.profile, route: .init(identity: "draft", surface: "chat", mode: "changed")) : route
         return Task { PinReceipt(click: actual, route: replyRoute, target: target) }
     }
@@ -50,7 +50,7 @@ import RiftletCore
     }
     precondition(host.captured == 0 && host.enqueued == 0)
     host.locator = .stableNativeID
-    for fault in ["late", "birth", "mode", ""] {
+    for fault in ["late", "birth", "mode", "stalePin", ""] {
         host.fault = fault
         let pending = try BoundClick.capture(using: host, providers: [provider])
         precondition(host.enqueued == host.captured)
@@ -58,5 +58,5 @@ import RiftletCore
         precondition((original != nil) == fault.isEmpty, fault)
         if let original { try await checkReadOnlyRestart(click: original) }
     }
-    precondition(host.enqueued == 4)
+    precondition(host.enqueued == 5)
 }

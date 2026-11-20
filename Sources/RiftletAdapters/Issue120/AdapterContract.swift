@@ -129,9 +129,14 @@ struct BoundClick: Sendable {
             let target = receipt.target
             guard receipt.click == click, receipt.route == route, target.applicationID == click.bundle, target.sessionID == click.session,
                   target.windowID == click.window, target.tabID == click.tab,
-                  target.surface == .webChat, target.clickBindingID != nil,
+                  target.surface == .webChat, target.clickBindingID == click.generation,
                   !target.documentID.isEmpty, !target.composerID.isEmpty,
                   !target.draftGeneration.isEmpty else { throw BindingError.targetChanged }
+            // The inherited adapter keys its relay and history by the original lease.
+            if target.adapterID == "chatgpt-web" {
+                guard route.profile.id == "chatgpt" && target.providerBinding == nil else { throw BindingError.invalidProfile }
+                return Self(native: click, route: route, target: target)
+            }
             let binding = WebProviderBinding(providerID: route.profile.id, revision: route.profile.revision,
                 programSHA256: route.profile.digest,
                 routeSHA256: SHA256.hash(data: Data(route.route.identity.utf8)).map { String(format: "%02x", $0) }.joined(),
@@ -200,6 +205,9 @@ struct AdapterResolver: Sendable {
               op.attempt == original.attempt, op.target == original.target,
               op.assetID == original.assetID, request.asset.id == original.assetID,
               request.asset.sha256 == original.originalSHA256 else { throw BindingError.targetChanged }
+        guard let binding = original.target.providerBinding,
+              binding.providerID == original.profile.id, binding.revision == original.profile.revision,
+              binding.programSHA256 == original.profile.digest else { throw BindingError.targetChanged }
         let address = AdapterAddress(bundle: original.target.applicationID, profile: original.profile,
                                      adapterID: original.target.adapterID)
         let adapter = try exactAdapter(address)

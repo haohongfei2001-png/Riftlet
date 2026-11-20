@@ -26,12 +26,35 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
     /// mouse-down. The browser must establish it within the same deadline;
     /// waiting for its reply and validating the result happen off the UI thread.
     public func targetForClick(program: WebPageProgram) throws -> Task<TargetLease, Error> {
-        let clickDeadline = ChromeClickDeadline()
+        let frozen = try freezeChatClick()
+        return try enqueueChatClick(frozen, program: program)
+    }
+
+    fileprivate struct FrozenChatClick {
+        let deadline: ChromeClickDeadline
+        let identity: ChromeProcessIdentity
+        let requestID: String
+        let route: ChromeClickRoute
+        let originalURL: URL
+    }
+
+    fileprivate func freezeChatClick(includeCandidateSites: Bool = false) throws -> FrozenChatClick {
+        let deadline = ChromeClickDeadline()
         let identity = try clickReceiver()
         let requestID = UUID().uuidString
+        let bridge = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: requestID, clickDeadline: deadline)
+        let raw = try bridge.rawClickRoute(deadline: deadline)
+        guard let originalURL = URL(string: raw.url) else { throw WebAdapterError.invalidTarget }
+        let route = includeCandidateSites
+            ? try ChromeClickRoute(window: raw.window, tab: raw.tab, url: raw.url)
+            : try ChromeClickRoute.chatGPT(window: raw.window, tab: raw.tab, url: raw.url)
+        return FrozenChatClick(deadline: deadline, identity: identity, requestID: requestID, route: route, originalURL: originalURL)
+    }
+
+    fileprivate func enqueueChatClick(_ frozen: FrozenChatClick, program: WebPageProgram, witnessID: UUID = UUID()) throws -> Task<TargetLease, Error> {
+        let clickDeadline = frozen.deadline, identity = frozen.identity, requestID = frozen.requestID, route = frozen.route
         let bridge = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: requestID, clickDeadline: clickDeadline)
-        let route = try bridge.clickRoute(deadline: clickDeadline)
-        let witness = ChromeClickDocumentWitness()
+        let witness = ChromeClickDocumentWitness(id: witnessID)
         let world = identity.applicationID == AttachmentBrowser.edge.rawValue ? EdgeExecutionWorldWitness() : nil
         let binding = try world?.prepareAndBind(witness, address: route.address, program: program)
             ?? witness.bindScript(address: route.address, program: program)
@@ -304,6 +327,108 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                 continuation.resume(with: result)
             }
         }
+    }
+}
+
+/// Development composition only. Read the nominated site's closed discovery
+/// result in the originally addressed tab. No chooser, click, pin or input.
+@MainActor public enum CandidateProviderInspector {
+    public static func inspectForeground() async throws -> [String: String] {
+        let catalog = try Issue120ProviderCatalog()
+        let deadline = ChromeClickDeadline()
+        guard let front = NSWorkspace.shared.frontmostApplication, let bundle = front.bundleIdentifier,
+              let identity = ChromeProcessIdentity.read(pid: front.processIdentifier, applicationID: bundle) else {
+            throw BindingError.unsupported
+        }
+        let bridge = ChromePIDEvents(pid: identity.pid, trace: ChromeBridgeTrace(sink: BoundedDiagnosticTrace(enabled: false)),
+                                     requestID: UUID().uuidString, clickDeadline: deadline)
+        let raw = try bridge.rawClickRoute(deadline: deadline)
+        guard let url = URL(string: raw.url) else { throw BindingError.unsupported }
+        let route = try resolveProvider(url, among: catalog.providers)
+        let program = try catalog.program(for: route.profile)
+        let literal = String(decoding: try JSONEncoder().encode(raw.url), as: UTF8.self)
+        let code = "location.href === " + literal + " ? (" + program + ").inspect() : 'other_route'"
+        let address = try ChromeClickRoute(window: raw.window, tab: raw.tab, url: raw.url)
+        let reply = try bridge.enqueueWitness(deadline.guardExecution(of: code), route: address, deadline: deadline)
+        let result = try await Task.detached {
+            try reply.stringWithinClick(before: deadline.confirmation)
+        }.value
+        guard let current = NSWorkspace.shared.frontmostApplication,
+              identity.matchesForeground(pid: current.processIdentifier, applicationID: current.bundleIdentifier),
+              identity.isCurrent(),
+              ["other_route","editor_unavailable","owner_unavailable","upload_control_unavailable",
+               "editor_and_upload_action","owned_input"].contains(result) else { throw BindingError.targetChanged }
+        return ["browser":bundle,"provider":route.profile.id,"programSHA256":route.profile.digest,"discovery":result]
+    }
+}
+
+/// The two existing browser receivers use the original build-53 native pin and
+/// execution-world checks. A second capture invalidates the first pending enqueue.
+@MainActor final class ChatGPTChromiumHost: BrowserHost {
+    let bundle: String
+    let provider: ChatGPTConversationProvider
+    private let executor: ChromeAppleEventsExecutor
+    private let program: WebPageProgram
+    private let inspectPermission: () -> OriginalReceiverAccess
+    private var pending: (NativeClick, ChromeAppleEventsExecutor.FrozenChatClick)?
+
+    init(browser: AttachmentBrowser, executor: ChromeAppleEventsExecutor, program: WebPageProgram,
+         permission: @escaping () -> OriginalReceiverAccess) throws {
+        self.bundle = browser.rawValue
+        self.executor = executor
+        self.program = program
+        self.provider = try ChatGPTConversationProvider(program: program)
+        self.inspectPermission = permission
+    }
+
+    var capabilities: HostCapabilities {
+        .init(world: .page, reply: .originalAsynchronousReply, locator: .stableNativeID,
+              epoch: .navigationEntry, fileSetterAndDataTransferVerified: true,
+              maximumPinBytes: program.pinSource?.utf8.count ?? 0)
+    }
+
+    func permissionState() -> OriginalReceiverAccess { inspectPermission() }
+
+    func freezeClick() throws -> NativeClick {
+        pending = nil
+        let frozen = try executor.freezeChatClick(includeCandidateSites: true)
+        let pid = frozen.identity
+        guard pid.applicationID == bundle else {
+            throw BindingError.targetChanged
+        }
+        let click = NativeClick(bundle: bundle, pid: pid.pid, processBirth: pid.session,
+            session: pid.session, window: frozen.route.window, tab: frozen.route.tab, url: frozen.originalURL,
+            generation: UUID(), uptime: ProcessInfo.processInfo.systemUptime)
+        pending = (click, frozen)
+        return click
+    }
+
+    func enqueuePin(click: NativeClick, route: ProviderRoute, maximumBytes: Int) throws -> Task<PinReceipt, Error> {
+        let saved = pending
+        pending = nil
+        guard route.profile == provider.profile else { throw BindingError.unsupported }
+        guard let saved, saved.0 == click,
+              provider.classify(click.url) == route.route, let pin = program.pinSource,
+              !pin.isEmpty, pin.utf8.count <= maximumBytes else { throw BindingError.targetChanged }
+        let original = try executor.enqueueChatClick(saved.1, program: program, witnessID: click.generation)
+        return Task { try await PinReceipt(click: click, route: route, target: original.value) }
+    }
+}
+
+struct ChatGPTConversationProvider: ConversationProvider {
+    let profile: ProviderProfile
+    let httpsHosts: Set<String> = ["chatgpt.com", "chat.openai.com"]
+
+    init(program: WebPageProgram) throws {
+        guard program.sourceID == ChatGPTWebPageProgram.sourceID else { throw BindingError.invalidProfile }
+        profile = try ProviderProfile(id: "chatgpt", revision: 30, program: Data(program.functionSource.utf8))
+    }
+
+    func classify(_ url: URL) -> DraftRoute? {
+        guard let host = url.host?.lowercased(), httpsHosts.contains(host),
+              let route = try? ChromeClickRoute.chatGPT(window: "1", tab: "1", url: url.absoluteString)
+        else { return nil }
+        return DraftRoute(identity: route.address, surface: "webChat", mode: "chatgpt-web")
     }
 }
 
@@ -587,7 +712,7 @@ private struct ChromePIDEvents {
         return String(number)
     }
 
-    func clickRoute(deadline: ChromeClickDeadline) throws -> ChromeClickRoute {
+    func rawClickRoute(deadline: ChromeClickDeadline) throws -> (window: String, tab: String, url: String) {
         let started = ProcessInfo.processInfo.systemUptime
         var succeeded = false
         var stage = "create_specifiers"
@@ -606,9 +731,8 @@ private struct ChromePIDEvents {
         stage = "original_tab_url"
         let address = try ChromeActiveTabDescriptor.matchedURL(properties: reads.properties, tab: identity.tab)
             ?? url(window: identity.window, tab: identity.tab)
-        let route = try ChromeClickRoute.chatGPT(window: identity.window, tab: identity.tab, url: address)
         succeeded = true
-        return route
+        return (identity.window, identity.tab, address)
     }
 
     func url(window: String, tab: String) throws -> String {

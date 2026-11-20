@@ -783,7 +783,7 @@ private struct WebUploadFile {
     }
 }
 
-private final class PrivateUploadFile {
+final class PrivateUploadFile {
     private let fd: Int32
     private let expectedHash: String
     private let expectedSize: Int64
