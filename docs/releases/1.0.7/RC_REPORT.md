@@ -1,6 +1,6 @@
 # Riftlet 1.0.7（45）验收报告
 
-**暂缓推广。** 候选来源是 `28f4f5979190c0255b97978afdd97c713c39a50b`。通用 App 已由 Developer ID 签名。测试 Mac 锁屏期间，Apple 公证工具无法使用既有凭据，此次没有取得提交号。G1 与 G2 所需的登录草稿逐图实测、正式公证 DMG 和直接升级仍待完成。官网和稳定更新维持 1.0.5（31）。[签名与包内代码身份](evidence/signed-app.json) · [任务与放行条件](https://github.com/haohongfei2001-png/Riftlet/issues/118)
+**暂缓推广。** 候选来源是 `28f4f5979190c0255b97978afdd97c713c39a50b`。通用 App 已由 Developer ID 签名。同一 build 45 的 App 和安装 DMG 均已取得 Apple 公证并装订。DMG 为 13,386,906 字节，SHA-256 为 `112d8a025947b5b684caf125fc7b551c27cb6541acb13075827f17874302bef8`。[公证与 Gatekeeper 收据](evidence/final-dmg.json) G1、G2 登录草稿逐图实测与 31 直接升级按下表记录。官网和稳定更新维持 1.0.5（31）。[签名与包内代码身份](evidence/signed-app.json) · [任务与放行条件](https://github.com/haohongfei2001-png/Riftlet/issues/118)
 
 ## 修复内容
 
@@ -18,7 +18,7 @@
 | G3 目标与权限 | 控制场景覆盖重复标签号、跨浏览器、进程重启、换编辑器、失焦、后台只读返回、取消、原卡移位，以及授权/未授权提示。普通应用已区分首次需同意与已拒绝。 | 新用户实际 TCC 授权、拒绝/恢复与 JS 开关，真实双浏览器切换及多实例组合均为 **NOT_RUN**。 |
 | G4 异常与资料 | 已验证精准原卡失败和一次输入；发行源码的资料移出、重启、还原经过独立进程测试。旧 START 和旧 UNKNOWN 保留，明确重新附加需要新的用户点击。 | 最终普通 App 的真实失败→核对→明确新点击、仅一份媒体移入系统废纸篓再找回均为 **NOT_RUN**。 |
 | G5 界面与性能 | 已从 45 的发行组件离屏渲染 24 张原生界面，覆盖中英文、浅深色、Chrome/Edge 首次权限与 JavaScript 指引，以及 680×480 和 808×492 的管理窗。发行 Core/Capture 核验了 1,000 份真实 PNG 副本，期间另收录 20 张。收录 p50/p95/max 为 6.76/8.04/9.19 ms，进程结束 RSS 为 27,213,824 字节。 | 正式安装后的普通 App 整窗、连续真实截图和界面负载仍为 **NOT_RUN**；组件数据仅代表测量进程。 |
-| G6 安装与发布 | Developer ID 双架构签名深度验证通过，包内网页程序与受审程序哈希一致。arm64 原生和 Rosetta x86_64 自检通过，Sparkle 工具测试 11/11。独立验收机实际启动公开 31，保存 51 张图、2 个操作、1 份 START、86 份文件散列与 3 项偏好。客机普通打开同一份已签名 45 时，Gatekeeper 显示「Riftlet Not Opened」。关闭提示后，旧资料与偏好核对一致。 | Apple 公证/装订、可安装 DMG 的 SHA-256、31→45 的真实 Sparkle 与手工替换 **BLOCKED**。正式 GitHub CI 在审查提交的准入子提交上运行，结果与作业链接记于 PR。 |
+| G6 安装与发布 | Developer ID 双架构签名深度验证通过，包内网页程序与受审程序哈希一致。arm64 原生和 Rosetta x86_64 自检通过，Sparkle 工具测试 11/11。独立验收机实际启动公开 31，保存 51 张图、2 个操作、1 份 START、86 份文件散列与 3 项偏好。公证前客机普通打开已签名 45 时，Gatekeeper 显示「Riftlet Not Opened」。关闭提示后，旧资料与偏好核对一致。 | 公证完成后，正式 DMG 与包内 App 均通过 Gatekeeper，App 内容树与冻结清单一致。31→45 的真实 Sparkle 与手工替换在取得安装后证据前记为 **NOT_RUN**。正式 GitHub CI 在审查提交的准入子提交上运行，结果与作业链接记于 PR。 |
 
 [浏览器受控运行及图像大小](evidence/controlled-browsers.json) · [资料测试与负载](evidence/local-storage.json) · [升级前基线](evidence/upgrade-preflight.json) · [PR #119](https://github.com/haohongfei2001-png/Riftlet/pull/119)
 
