@@ -7,8 +7,10 @@ struct ChromeClickDocumentWitness {
     init(id: UUID = UUID()) { self.id = id }
 
     func bindScript(address: String, program: WebPageProgram) throws -> String {
-        guard program.sourceID == ChatGPTWebPageProgram.sourceID else { throw WebAdapterError.invalidRequest }
+        guard program.sourceID == ChatGPTWebPageProgram.sourceID, let pinSource = program.pinSource else {
+            throw WebAdapterError.invalidRequest
+        }
         let expected = String(decoding: try JSONEncoder().encode(address), as: UTF8.self)
-        return "(()=>{try{return (\(program.functionSource))({action:'pinTarget',clickWitnessID:'\(id.uuidString)',address:\(expected)},{});}catch{return 'refused';}})()"
+        return "(()=>{try{return (\(pinSource))({action:'pinTarget',clickWitnessID:'\(id.uuidString)',address:\(expected)},{});}catch{return 'refused';}})()"
     }
 }

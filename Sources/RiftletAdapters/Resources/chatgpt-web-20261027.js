@@ -6,20 +6,8 @@
  */
 function riftletWebAcceptance(command, native) {
   'use strict';
-  const KEY = '__riftletIndependentFileInput20261104';
-  const MAX_BYTES = 128 * 1024 * 1024, MAX_CHUNK_BYTES = 256 * 1024;
-  const targetKeys = ['adapterID', 'surface', 'applicationID', 'sessionID', 'windowID', 'tabID',
-    'documentID', 'composerID', 'draftGeneration'];
   const fail = code => { throw Error(code); };
   const uuid = value => typeof value === 'string' && /^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i.test(value);
-  const sameTarget = (a, b) => !!a && !!b && targetKeys.every(k => a[k] === b[k])
-    && (a.historyConversationID || '').toLowerCase() === (b.historyConversationID || '').toLowerCase()
-    && (a.clickBindingID || null) === (b.clickBindingID || null);
-  const sameIdentity = (a, b) => !!a && !!b && a.operationID === b.operationID
-    && a.assetID === b.assetID && a.attempt === b.attempt && a.assetSHA256 === b.assetSHA256
-    && sameTarget(a.target, b.target);
-  const contextMatches = target => target && ['applicationID', 'sessionID', 'windowID', 'tabID']
-    .every(key => target[key] === native[key]);
   const route = () => {
     const url = new URL(location.href);
     // Restrict the product to ChatGPT, without a whitelist of conversation or
@@ -140,6 +128,148 @@ function riftletWebAcceptance(command, native) {
     }
     fail('AMBIGUOUS_COMPOSER');
   }
+  const outsidePurpose = (node, binding) => {
+    for (let at = node; at && at !== document.body && at !== binding.form; at = at.parentElement) {
+      if (foreignPurpose.test(hints(at)) || cloudFileWords.test(hints(at))) return true;
+    }
+    return false;
+  };
+  const controlledElements = node => [...new Set([
+    ...referenced(node, ['for', 'aria-controls', 'aria-owns', 'popovertarget']),
+    node.control, node.popoverTargetElement
+  ].filter(Boolean))];
+  function relatedInputs(control) {
+    const found = new Set(control.querySelectorAll('input[type="file"]'));
+    for (const node of controlledElements(control)) {
+      if (node.type === 'file') found.add(node);
+      else for (const input of node.querySelectorAll('input[type="file"]')) found.add(input);
+    }
+    return [...found].filter(usableInput);
+  }
+  function entryControls(binding, available = controls(document)) {
+    const local = control => binding.form !== document.body && binding.form.contains(control);
+    const belongsElsewhere = control => {
+      const owner = control.closest(composerSurface) || control.closest('form');
+      if (!owner || owner.contains(binding.editor) || referenced(control, ['aria-controls', 'aria-owns']).includes(binding.editor)) return false;
+      return editorNodes().some(editor => owner.contains(editor));
+    };
+    const candidates = available.filter(control => !binding.editor.contains(control) && !control.contains(binding.editor)
+      && !control.closest('[data-file-name],[role="menu"],[role="menuitem"]')
+      && !outsidePurpose(control, binding) && !belongsElsewhere(control)
+      && (local(control) || /composer.*(?:plus|attach)/i.test(hints(control))
+        || referenced(control, ['aria-controls']).includes(binding.editor)
+        || (binding.form.parentElement && binding.form.parentElement !== document.body
+          && binding.form.parentElement.contains(control) && !control.closest('form,aside,nav,header'))))
+      .filter(control => {
+        if (!usableControl(control)) return false;
+        const text = description(control);
+        return !foreignPurpose.test(text) && !cloudFileWords.test(text) && !nonFileAction.test(text)
+          && (attachmentWords.test(text) || /composer.*(?:plus|attach)|(?:plus|attach).*composer/i.test(text)
+            || (local(control) && (/^\s*\+\s*$/.test(control.textContent || '')
+              || relatedInputs(control).length > 0
+              || (control.hasAttribute('aria-haspopup') && (fileWords.test(control.getAttribute('aria-controls') || '')
+                || controlledElements(control).some(panel => fileWords.test(description(panel))))))));
+      }).sort((a, b) => Number(local(b)) - Number(local(a)));
+    // A label's association proves which field that label owns. It does
+    // not make an independent subwidget the chat's attachment entry.
+    const primary = candidates.filter(node => /composer.*(?:plus|attach)|(?:plus|attach).*composer/i.test(hints(node))
+      || referenced(node, ['aria-controls']).includes(binding.editor));
+    if (primary.length) return primary;
+    const named = candidates.filter(node => attachmentWords.test(description(node)) || /^\s*\+\s*$/.test(node.textContent || ''));
+    return named.length ? named : candidates;
+  }
+  function hasSeparateOwner(input, binding, ownControls) {
+    if (input.form && input.form !== binding.form && editorNodes().some(editor => input.form.contains(editor))) return true;
+    // Another labelled/controlled application task is positive contrary
+    // evidence. A portal, an unlabelled input or a separate plain form is not.
+    const labels = [...(input.labels || [])];
+    const parentLabel = input.closest('label');
+    if (parentLabel) labels.push(parentLabel);
+    if (input.id) {
+      for (const control of document.querySelectorAll('[for],[aria-controls],[aria-owns]'))
+        if (controlledElements(control).includes(input)) labels.push(control);
+    }
+    return labels.some(label => !ownControls(label));
+  }
+  function otherOwner(input, binding, ownControls) {
+    return outsidePurpose(input, binding) || foreignPurpose.test(description(input))
+      || hasSeparateOwner(input, binding, ownControls);
+  }
+  function directInput(binding, entries, available = document.querySelectorAll('input[type="file"]')) {
+    const own = node => entries.includes(node);
+    const linked = new Set(entries.flatMap(relatedInputs).filter(input => input.isConnected && !otherOwner(input, binding, own)));
+    if (linked.size === 1) return [...linked][0];
+    const local = [...available].filter(input => input.isConnected
+      && usableInput(input) && !input.hasAttribute('capture') && binding.form !== document.body
+      && (input.form === binding.form || (binding.form.contains(input) && (!input.form || input.form.contains(binding.editor))))
+      && !otherOwner(input, binding, own));
+    if (local.length === 1) return local[0];
+    // ChatGPT can expose camera, media library, photo-only and ordinary file
+    // inputs side by side. Prefer the named general file action when present.
+    // Accept is a chooser hint for comparing siblings, never a PNG permission.
+    const fields = linked.size ? [...linked] : local;
+    const general = fields.filter(input => !input.hasAttribute('capture')
+      && (!input.accept.trim() || input.accept.trim() === '*/*') && fileWords.test(description(input)));
+    if (general.length === 1) return general[0];
+    const named = fields.filter(input => !input.hasAttribute('capture') && attachmentWords.test(description(input)));
+    return named.length === 1 ? named[0] : null;
+  }
+
+  if (command.action === 'pinTarget') {
+    if (!uuid(command.clickWitnessID) || command.address !== route() || !globalThis.navigation?.currentEntry)
+      fail('CLICK_PIN_REFUSED');
+    const parts = composer(), root = document.documentElement, address = location.href;
+    const navigationID = navigation.currentEntry.id;
+    const editorEvent = 'riftlet-witness-editor-' + command.clickWitnessID;
+    const formEvent = 'riftlet-witness-form-' + command.clickWitnessID;
+    const removed = records => records.some(record => [...record.removedNodes].some(node =>
+      node.contains(parts.editor) || node.contains(parts.form)));
+    const handle = e => {
+      if (removed(observer.takeRecords())) { dispose(); return; }
+      if (e.target !== (e.type === editorEvent ? parts.editor : parts.form) || document.documentElement !== root
+          || location.href !== address || navigation.currentEntry?.id !== navigationID || !parts.editor.isConnected
+          || !parts.form.isConnected || !parts.form.contains(parts.editor)
+          || (parts.editor.closest(composerSurface) || parts.editor.closest('form') || parts.form) !== parts.form) return;
+      e.preventDefault();
+    };
+    const dispose = () => {
+      clearTimeout(timer);
+      observer.disconnect();
+      navigation.removeEventListener('currententrychange', dispose);
+      globalThis.removeEventListener('pagehide', dispose);
+      globalThis.removeEventListener('blur', dispose);
+      document.removeEventListener('visibilitychange', visibilityChanged);
+      parts.editor.removeEventListener(editorEvent, handle);
+      parts.form.removeEventListener(formEvent, handle);
+    };
+    const observer = new MutationObserver(records => {
+      if (removed(records)) dispose();
+    });
+    const visibilityChanged = () => { if (document.visibilityState !== 'visible') dispose(); };
+    const timer = setTimeout(dispose, 60000);
+    observer.observe(document, {subtree: true, childList: true});
+    navigation.addEventListener('currententrychange', dispose);
+    globalThis.addEventListener('pagehide', dispose);
+    globalThis.addEventListener('blur', dispose);
+    document.addEventListener('visibilitychange', visibilityChanged);
+    parts.editor.addEventListener(editorEvent, handle);
+    parts.form.addEventListener(formEvent, handle);
+    return 'bound';
+  }
+
+  // RIFTLET_CLICK_PIN_END
+  const KEY = '__riftletIndependentFileInput20261104';
+  const MAX_BYTES = 128 * 1024 * 1024, MAX_CHUNK_BYTES = 256 * 1024;
+  const targetKeys = ['adapterID', 'surface', 'applicationID', 'sessionID', 'windowID', 'tabID',
+    'documentID', 'composerID', 'draftGeneration'];
+  const sameTarget = (a, b) => !!a && !!b && targetKeys.every(k => a[k] === b[k])
+    && (a.historyConversationID || '').toLowerCase() === (b.historyConversationID || '').toLowerCase()
+    && (a.clickBindingID || null) === (b.clickBindingID || null);
+  const sameIdentity = (a, b) => !!a && !!b && a.operationID === b.operationID
+    && a.assetID === b.assetID && a.attempt === b.attempt && a.assetSHA256 === b.assetSHA256
+    && sameTarget(a.target, b.target);
+  const contextMatches = target => target && ['applicationID', 'sessionID', 'windowID', 'tabID']
+    .every(key => target[key] === native[key]);
   const blank = (identity, state = 'unknown') => ({schemaVersion: 2,
     provenance: {source: 'integratedDevelopment', evidenceID: 'browser-handoff-20261120-v30'},
     observation: {identity, state, exactImageIdentity: false, belongsToOriginalDraft: false,
@@ -249,92 +379,6 @@ function riftletWebAcceptance(command, native) {
     // interaction or switch to the menu's textbox.
     return sameDraft(binding, true) && (!binding.target.clickBindingID ||
       (document.visibilityState === 'visible' && document.hasFocus() && visible(binding.editor) && !blocked(binding.form)));
-  }
-  const outsidePurpose = (node, binding) => {
-    for (let at = node; at && at !== document.body && at !== binding.form; at = at.parentElement) {
-      if (foreignPurpose.test(hints(at)) || cloudFileWords.test(hints(at))) return true;
-    }
-    return false;
-  };
-  const controlledElements = node => [...new Set([
-    ...referenced(node, ['for', 'aria-controls', 'aria-owns', 'popovertarget']),
-    node.control, node.popoverTargetElement
-  ].filter(Boolean))];
-  function relatedInputs(control) {
-    const found = new Set(control.querySelectorAll('input[type="file"]'));
-    for (const node of controlledElements(control)) {
-      if (node.type === 'file') found.add(node);
-      else for (const input of node.querySelectorAll('input[type="file"]')) found.add(input);
-    }
-    return [...found].filter(usableInput);
-  }
-  function entryControls(binding, available = controls(document)) {
-    const local = control => binding.form !== document.body && binding.form.contains(control);
-    const belongsElsewhere = control => {
-      const owner = control.closest(composerSurface) || control.closest('form');
-      if (!owner || owner.contains(binding.editor) || referenced(control, ['aria-controls', 'aria-owns']).includes(binding.editor)) return false;
-      return editorNodes().some(editor => owner.contains(editor));
-    };
-    const candidates = available.filter(control => !binding.editor.contains(control) && !control.contains(binding.editor)
-      && !control.closest('[data-file-name],[role="menu"],[role="menuitem"]')
-      && !outsidePurpose(control, binding) && !belongsElsewhere(control)
-      && (local(control) || /composer.*(?:plus|attach)/i.test(hints(control))
-        || referenced(control, ['aria-controls']).includes(binding.editor)
-        || (binding.form.parentElement && binding.form.parentElement !== document.body
-          && binding.form.parentElement.contains(control) && !control.closest('form,aside,nav,header'))))
-      .filter(control => {
-        if (!usableControl(control)) return false;
-        const text = description(control);
-        return !foreignPurpose.test(text) && !cloudFileWords.test(text) && !nonFileAction.test(text)
-          && (attachmentWords.test(text) || /composer.*(?:plus|attach)|(?:plus|attach).*composer/i.test(text)
-            || (local(control) && (/^\s*\+\s*$/.test(control.textContent || '')
-              || relatedInputs(control).length > 0
-              || (control.hasAttribute('aria-haspopup') && (fileWords.test(control.getAttribute('aria-controls') || '')
-                || controlledElements(control).some(panel => fileWords.test(description(panel))))))));
-      }).sort((a, b) => Number(local(b)) - Number(local(a)));
-    // A label's association proves which field that label owns. It does
-    // not make an independent subwidget the chat's attachment entry.
-    const primary = candidates.filter(node => /composer.*(?:plus|attach)|(?:plus|attach).*composer/i.test(hints(node))
-      || referenced(node, ['aria-controls']).includes(binding.editor));
-    if (primary.length) return primary;
-    const named = candidates.filter(node => attachmentWords.test(description(node)) || /^\s*\+\s*$/.test(node.textContent || ''));
-    return named.length ? named : candidates;
-  }
-  function hasSeparateOwner(input, binding, ownControls) {
-    if (input.form && input.form !== binding.form && editorNodes().some(editor => input.form.contains(editor))) return true;
-    // Another labelled/controlled application task is positive contrary
-    // evidence. A portal, an unlabelled input or a separate plain form is not.
-    const labels = [...(input.labels || [])];
-    const parentLabel = input.closest('label');
-    if (parentLabel) labels.push(parentLabel);
-    if (input.id) {
-      for (const control of document.querySelectorAll('[for],[aria-controls],[aria-owns]'))
-        if (controlledElements(control).includes(input)) labels.push(control);
-    }
-    return labels.some(label => !ownControls(label));
-  }
-  function otherOwner(input, binding, ownControls) {
-    return outsidePurpose(input, binding) || foreignPurpose.test(description(input))
-      || hasSeparateOwner(input, binding, ownControls);
-  }
-  function directInput(binding, entries, available = document.querySelectorAll('input[type="file"]')) {
-    const own = node => entries.includes(node);
-    const linked = new Set(entries.flatMap(relatedInputs).filter(input => input.isConnected && !otherOwner(input, binding, own)));
-    if (linked.size === 1) return [...linked][0];
-    const local = [...available].filter(input => input.isConnected
-      && usableInput(input) && !input.hasAttribute('capture') && binding.form !== document.body
-      && (input.form === binding.form || (binding.form.contains(input) && (!input.form || input.form.contains(binding.editor))))
-      && !otherOwner(input, binding, own));
-    if (local.length === 1) return local[0];
-    // ChatGPT can expose camera, media library, photo-only and ordinary file
-    // inputs side by side. Prefer the named general file action when present.
-    // Accept is a chooser hint for comparing siblings, never a PNG permission.
-    const fields = linked.size ? [...linked] : local;
-    const general = fields.filter(input => !input.hasAttribute('capture')
-      && (!input.accept.trim() || input.accept.trim() === '*/*') && fileWords.test(description(input)));
-    if (general.length === 1) return general[0];
-    const named = fields.filter(input => !input.hasAttribute('capture') && attachmentWords.test(description(input)));
-    return named.length === 1 ? named[0] : null;
   }
   function preserveSelection(binding) {
     if (binding.editor.tagName === 'TEXTAREA') {
@@ -696,48 +740,6 @@ function riftletWebAcceptance(command, native) {
       }
     }
   }
-  if (command.action === 'pinTarget') {
-    if (!uuid(command.clickWitnessID) || command.address !== route() || !globalThis.navigation?.currentEntry)
-      fail('CLICK_PIN_REFUSED');
-    const parts = composer(), root = document.documentElement, address = location.href;
-    const navigationID = navigation.currentEntry.id;
-    const editorEvent = 'riftlet-witness-editor-' + command.clickWitnessID;
-    const formEvent = 'riftlet-witness-form-' + command.clickWitnessID;
-    const removed = records => records.some(record => [...record.removedNodes].some(node =>
-      node.contains(parts.editor) || node.contains(parts.form)));
-    const handle = e => {
-      if (removed(observer.takeRecords())) { dispose(); return; }
-      if (e.target !== (e.type === editorEvent ? parts.editor : parts.form) || document.documentElement !== root
-          || location.href !== address || navigation.currentEntry?.id !== navigationID || !parts.editor.isConnected
-          || !parts.form.isConnected || !parts.form.contains(parts.editor)
-          || (parts.editor.closest(composerSurface) || parts.editor.closest('form') || parts.form) !== parts.form) return;
-      e.preventDefault();
-    };
-    const dispose = () => {
-      clearTimeout(timer);
-      observer.disconnect();
-      navigation.removeEventListener('currententrychange', dispose);
-      globalThis.removeEventListener('pagehide', dispose);
-      globalThis.removeEventListener('blur', dispose);
-      document.removeEventListener('visibilitychange', visibilityChanged);
-      parts.editor.removeEventListener(editorEvent, handle);
-      parts.form.removeEventListener(formEvent, handle);
-    };
-    const observer = new MutationObserver(records => {
-      if (removed(records)) dispose();
-    });
-    const visibilityChanged = () => { if (document.visibilityState !== 'visible') dispose(); };
-    const timer = setTimeout(dispose, 60000);
-    observer.observe(document, {subtree: true, childList: true});
-    navigation.addEventListener('currententrychange', dispose);
-    globalThis.addEventListener('pagehide', dispose);
-    globalThis.addEventListener('blur', dispose);
-    document.addEventListener('visibilitychange', visibilityChanged);
-    parts.editor.addEventListener(editorEvent, handle);
-    parts.form.addEventListener(formEvent, handle);
-    return 'bound';
-  }
-
   function bindingFor(target) {
     if (!registry || !contextMatches(target)) return null;
     if (target.clickBindingID) {

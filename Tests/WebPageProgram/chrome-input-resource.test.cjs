@@ -83,7 +83,8 @@ function browserFixture(options){
   globalThis.fetch=()=>{applicationNetworkRequests++;throw Error('application network requests forbidden in local fixture');};
   XMLHttpRequest.prototype.send=function(){applicationNetworkRequests++;throw Error('application XHR forbidden in local fixture');};
   const mockLocation={href:options.route};
-  const program=new Function('location','return ('+__SOURCE__+')')(mockLocation);
+  const sourceText=__SOURCE__;
+  const program=new Function('location','return ('+sourceText+')')(mockLocation);
   const native={applicationID:options.edge?'com.microsoft.edgemac':'com.google.Chrome',sessionID:'synthetic-local-profile',windowID:'1',tabID:'1'};
   const call=command=>program(command,native);
   if(options.resident){
@@ -291,8 +292,28 @@ function browserFixture(options){
    const note=new Uint8Array([0,0,0,15,116,69,88,116,70,105,120,116,117,114,101,0,82,105,102,116,108,101,116,179,52,150,103]);
    const original=options.dimensions&&!options.jpeg?new Blob([png.slice(0,-12),note,png.slice(-12)],{type:'image/png'}):png;
    const bytes=new Uint8Array(await original.arrayBuffer()),sha=await hash(bytes);
-   const pin=options.edge?crypto.randomUUID():null;
-   if(pin)check(call({action:'pinTarget',clickWitnessID:pin,address:options.route.split('?')[0]})==='bound','actual click binds original editor');
+   let pin=options.edge?crypto.randomUUID():null;
+   if(options.comparePins && index===0){
+    const parts=sourceText.split('\n  // RIFTLET_CLICK_PIN_END\n');
+    check(parts.length===2,'one read-only boundary');
+    const compact=new Function('location','return ('+parts[0]+"\n return 'refused';\n})")(mockLocation);
+    const registry='__riftletIndependentFileInput20261104';
+    check(!globalThis[registry],'fresh document without upload registry');
+    const createURL=URL.createObjectURL,priorPush=history.pushState;
+    const action={action:'pinTarget',address:options.route.split('?')[0]};
+    const fullID=crypto.randomUUID();pin=crypto.randomUUID();
+    check(compact({...action,clickWitnessID:pin},native)==='bound','compact witness binds');
+    check(program({...action,clickWitnessID:fullID},native)==='bound','full witness binds');
+    for(const kind of ['editor','form']){
+     const owners=id=>[...document.querySelectorAll('*')].filter(node=>
+      !node.dispatchEvent(new Event('riftlet-witness-'+kind+'-'+id,{cancelable:true})));
+     const short=owners(pin),full=owners(fullID);
+     check(short.length===1&&full.length===1&&short[0]===full[0],'identical '+kind+' witness');
+    }
+    check(!globalThis[registry]&&URL.createObjectURL===createURL&&history.pushState===priorPush,'no upload or history hooks during pin');
+    check(compact({action:'commit'},native)==='refused','compact code cannot submit');
+   }
+   if(pin&&!(options.comparePins&&index===0))check(call({action:'pinTarget',clickWitnessID:pin,address:options.route.split('?')[0]})==='bound','actual click binds original editor');
    const target=call({action:'captureTarget',clickWitnessID:pin}),id=crypto.randomUUID();
    const identity={operationID:id,assetID:crypto.randomUUID(),attempt:1,assetSHA256:sha,target},invocationID=crypto.randomUUID();
    const op={identity,target,name:'riftlet-'+id+(options.jpeg?'.jpeg':'.png'),sha,command:action=>({action,identity,target,invocationID})};
@@ -610,14 +631,14 @@ const originalScenarios=[
  {name:'opaque-member-text-failure',count:2,retained:true,decoratedFilename:true,opaqueFailure:true,route:'https://chatgpt.com/'},
  {name:'original-portal-card-failure',count:2,retained:true,portalCards:true,route:'https://chatgpt.com/c/ordinary-thread'},
  {name:'aria-preview-portal-failure',count:2,retained:true,portalCards:true,ariaCardFailure:true,route:'https://chatgpt.com/c/ordinary-thread'},
- {name:'actual-marked-zh-composer-four-direct-fields',count:5,retained:true,liveComposerShape:true,route:'https://chatgpt.com/'},
+ {name:'actual-marked-zh-composer-four-direct-fields',count:5,retained:true,liveComposerShape:true,comparePins:true,route:'https://chatgpt.com/'},
  ...[2,3,5].map(count=>({count,retained:true,route:'https://chatgpt.com/c/ordinary-thread'})),
  {count:3,retained:false,route:'https://chatgpt.com/'},
  {count:3,retained:true,route:'https://chatgpt.com/g/g-p-project/c/project-thread'},
  {count:2,retained:true,route:'https://chatgpt.com/g/g-p-project/project'},
  {count:5,retained:true,replacePicker:true,portalPicker:true,decoratedFilename:true,route:'https://chatgpt.com/c/ordinary-thread'},
  ...['disabled','removed'].map(unavailablePicker=>({count:2,retained:true,unavailablePicker,route:'https://chatgpt.com/c/ordinary-thread'})),
- {name:'no-form-hidden-portal',count:5,retained:true,noForm:true,portalPicker:true,unfamiliarAccept:true,route:'https://chatgpt.com/'},
+ {name:'no-form-hidden-portal',count:5,retained:true,noForm:true,portalPicker:true,unfamiliarAccept:true,comparePins:true,route:'https://chatgpt.com/'},
  {name:'linked-correct-picker-among-many',count:5,retained:true,portalPicker:true,multipleInputs:true,linkedPicker:true,route:'https://chatgpt.com/c/ordinary-thread'},
  {name:'dynamic-menu-click-portal',count:5,retained:true,noForm:true,multipleInputs:true,entryMode:'click',collapseSelectionInChange:true,route:'https://chatgpt.com/c/ordinary-thread'},
  {name:'dynamic-menu-showpicker-owned',count:5,retained:true,multipleInputs:true,entryMode:'showPicker',menuOwnsInput:true,collapseSelectionInChange:true,route:'https://chatgpt.com/g/g-p-project/c/project-thread'},
