@@ -118,7 +118,7 @@ public enum RiftHistoryFilter: String, CaseIterable, Sendable {
         case .attached: return entry.record.status != .missing && entry.attachmentState == .attached
         case .handedOff: return entry.record.status != .missing && entry.attachmentState == .handedOff
         case .archived: return entry.record.visibility == .archived
-        case .failed: return entry.isConfirmedFailure
+        case .failed: return entry.isConfirmedFailure || entry.attachmentState == .originalCardFailed
         case .removed: return entry.record.visibility == .removed
         }
     }

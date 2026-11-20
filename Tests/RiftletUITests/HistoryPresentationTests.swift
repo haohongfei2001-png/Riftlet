@@ -40,6 +40,18 @@ final class HistoryPresentationTests: XCTestCase {
                         hasError: true, safeToRetry: safeToRetry)
     }
 
+    func testOriginalCardErrorAppearsInFailedFilterWithoutGrantingRetry() throws {
+        let record = asset(status: .unknown, operationID: UUID())
+        let op = try operation(for: record, phase: .unknown)
+        let receipt = TransferReceipt(operationID: op.id, assetID: record.id, attempt: op.attempt,
+            assetSHA256: record.image.sha256, target: op.target, outcome: .unknown, profileID: "fixture",
+            attachmentID: "card", belongsToOriginalDraft: true, hasError: true, originalCardFailureInvocationID: UUID())
+        let entry = RiftHistoryEntry(record: record, operation: op, lastReceipt: receipt)
+        XCTAssertTrue(RiftHistoryFilter.failed.includes(entry))
+        XCTAssertTrue(RiftHistoryFilter.needsAttention.includes(entry))
+        XCTAssertFalse(entry.isConfirmedFailure)
+    }
+
     func testVisibilityAndVerificationRemainSeparateHistoryFilters() {
         let visible = RiftHistoryEntry(record: asset())
         let hiddenUnknown = RiftHistoryEntry(record: asset(status: .unknown, visibility: .swallowed))
