@@ -320,6 +320,8 @@ public struct TransferReceipt: Codable, Equatable, Sendable {
     public let belongsToOriginalDraft: Bool
     public let hasError: Bool
     public let isUploading: Bool
+    /// Identifies the input whose original draft displayed a file-specific upload failure.
+    public let originalCardFailureInvocationID: UUID?
     /// True only if the adapter has proved no residual auto-retrying attachment remains.
     public let safeToRetry: Bool
     public let reason: String
@@ -336,12 +338,13 @@ public struct TransferReceipt: Codable, Equatable, Sendable {
                 uploadStartEvidence: UploadStartEvidence? = nil,
                 continuationEvidence: AttachmentContinuationEvidence? = nil,
                 completionEvidence: AttachmentCompletionEvidence? = nil,
-                terminationEvidence: AttachmentTerminationEvidence? = nil) {
+                terminationEvidence: AttachmentTerminationEvidence? = nil, originalCardFailureInvocationID: UUID? = nil) {
         self.operationID = operationID; self.assetID = assetID; self.attempt = attempt
         self.assetSHA256 = assetSHA256; self.target = target; self.outcome = outcome
         self.profileID = profileID; self.attachmentID = attachmentID
         self.positiveReady = positiveReady; self.belongsToOriginalDraft = belongsToOriginalDraft
         self.hasError = hasError; self.isUploading = isUploading; self.safeToRetry = safeToRetry
+        self.originalCardFailureInvocationID = originalCardFailureInvocationID
         self.reason = reason
         self.uploadStartEvidence = uploadStartEvidence
         self.continuationEvidence = continuationEvidence
@@ -353,7 +356,7 @@ public struct TransferReceipt: Codable, Equatable, Sendable {
         case operationID, assetID, attempt, assetSHA256, target, outcome, profileID, attachmentID
         case positiveReady, belongsToOriginalDraft, hasError, isUploading, safeToRetry, reason
         case uploadStartEvidence, continuationEvidence, completionEvidence, terminationEvidence
-        case attachmentAcceptanceEvidence
+        case attachmentAcceptanceEvidence, originalCardFailureInvocationID
     }
 
     public init(from decoder: Decoder) throws {
@@ -383,7 +386,8 @@ public struct TransferReceipt: Codable, Equatable, Sendable {
             uploadStartEvidence: acceptance ?? legacyStart,
             continuationEvidence: try values.decodeIfPresent(AttachmentContinuationEvidence.self, forKey: .continuationEvidence),
             completionEvidence: try values.decodeIfPresent(AttachmentCompletionEvidence.self, forKey: .completionEvidence),
-            terminationEvidence: try values.decodeIfPresent(AttachmentTerminationEvidence.self, forKey: .terminationEvidence))
+            terminationEvidence: try values.decodeIfPresent(AttachmentTerminationEvidence.self, forKey: .terminationEvidence),
+            originalCardFailureInvocationID: try values.decodeIfPresent(UUID.self, forKey: .originalCardFailureInvocationID))
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -402,6 +406,7 @@ public struct TransferReceipt: Codable, Equatable, Sendable {
         try values.encode(isUploading, forKey: .isUploading)
         try values.encode(safeToRetry, forKey: .safeToRetry)
         try values.encode(reason, forKey: .reason)
+        try values.encodeIfPresent(originalCardFailureInvocationID, forKey: .originalCardFailureInvocationID)
         // PR40's strict enum knows only progress/request START. Store the new
         // signal in an additive key its decoder ignores, so the retained App
         // can still read the same database after rollback. Never mislabel this

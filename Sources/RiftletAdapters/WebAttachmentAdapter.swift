@@ -507,7 +507,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
             // independently admits visual exit; subsequent calls only observe.
             if receipt.outcome == .uploadStarted { return receipt }
             switch envelope.observation.state {
-            case .attached, .ready, .failed, .invalidated: return receipt
+            case .attached, .ready, .failed, .originalCardFailed, .invalidated: return receipt
             case .inputTriggered, .uploadStarted, .unknown: break
             }
             let remaining = deadline - ProcessInfo.processInfo.systemUptime

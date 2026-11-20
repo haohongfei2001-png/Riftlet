@@ -139,6 +139,7 @@ public enum HistoryPresentation {
             case .confirmedFailure: state = "Upload failed · ready to try again"
             case .notAttached: state = "Not attached · ready to try again"
             case .needsReview: state = "Needs review · kept locally"
+            case .originalCardFailed: state = "Original draft reported upload failure"
             case .checkDraft: state = "Needs review · check original draft"
             case .preparing: state = "Preparing"
             case .available: state = "Ready"
@@ -160,6 +161,7 @@ public enum HistoryPresentation {
         case .handedOff: return copy.text("已交给 ChatGPT", "Handed to ChatGPT")
         case .attached: return copy.text("已附加", "Attached")
         case .needsReview: return copy.text("结果待核实", "Needs review")
+        case .originalCardFailed: return copy.text("原草稿报告上传失败", "Upload failed in the original draft")
         case .checkDraft: return copy.text("需要检查原对话", "Check the original conversation")
         case .confirmedFailure: return copy.text("已确认失败 · 图片保留", "Failed · image kept")
         case .preparing: return copy.text("准备附加", "Preparing attachment")
@@ -178,12 +180,13 @@ public enum HistoryPresentation {
             switch entry.attachmentState {
             case .handedOff: return copy.text("这张截图已交给 ChatGPT。上传结果见原对话。", "This screenshot was handed to ChatGPT. Check the original conversation for the upload result.")
             case .attached: return copy.text("这张截图已附加。", "This screenshot was attached.")
-            case .checkDraft, .needsReview: return copy.text("请到原对话核对附件。", "Check the attachment in the original conversation.")
+            case .checkDraft, .needsReview, .originalCardFailed: return copy.text("请到原对话核对附件。", "Check the attachment in the original conversation.")
             default: return copy.text("请检查本地截图文件。", "Check the local screenshot file.")
             }
         }
         switch entry.attachmentState {
         case .handedOff: return copy.text("上传结果见原对话。", "Check the original conversation for the upload result.")
+        case .originalCardFailed: return copy.text("原草稿曾显示这张图片上传失败。原图仍在本机，可核对后选择再次附加。", "The original draft reported an upload failure for this image. The original is saved on this Mac. You can check the draft and choose to attach it again.")
         case .checkDraft: return copy.text("原附件报告异常，请到原对话核对。", "The attachment reported a problem. Check the original conversation.")
         case .needsReview: return copy.text("请对照原图，在原草稿中核对附件。Riftlet 不会自动重传。", "Compare the original image with the attachment in your draft. Riftlet won’t upload it again automatically.")
         case .attached: return copy.text("原始系统截图仍然保留。", "The original system screenshot is still saved.")

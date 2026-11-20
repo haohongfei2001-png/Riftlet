@@ -3,6 +3,53 @@ import XCTest
 @testable import RiftletCore
 
 final class AttachmentDispositionTests: XCTestCase {
+    func testNamedDraftFailureWithoutStartSurvivesRestartAndOnlyExplicitDispositionUnlocksCleanup() async throws {
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let path = dir.appendingPathComponent("queue.sqlite")
+        let store = try QueueStore(databaseURL: path)
+        let asset = ImportedAsset(sourceKey: "failed-card", fileName: "image.png", sha256: String(repeating: "a", count: 64),
+            byteCount: 1, pixelWidth: 1, pixelHeight: 1, mediaType: "image/png", origin: .systemScreenshot)
+        _ = try await store.importAsset(asset)
+        let op = try await store.prepare(assetID: asset.id, target: DispositionAdapter().target)
+        let owner = UUID()
+        let invocation = try await store.markIndependentFileInputIntent(op.id, ownerID: owner)
+        func report(_ call: UUID?, card: String? = "original") -> TransferReceipt {
+            .init(operationID: op.id, assetID: asset.id, attempt: op.attempt, assetSHA256: asset.sha256,
+                  target: op.target, outcome: .unknown, profileID: "test", attachmentID: card,
+                  belongsToOriginalDraft: true, hasError: call != nil, originalCardFailureInvocationID: call)
+        }
+        do { _ = try await store.apply(report(UUID())); XCTFail("Wrong invocation accepted") }
+        catch RiftletError.mismatchedReceipt {}
+        let kept = try await store.apply(report(invocation))
+        XCTAssertEqual(kept.visibility, .visible)
+        try await store.recordInputExecutionReturned(operationID: op.id, invocationID: invocation, ownerID: owner)
+        do { _ = try await store.apply(report(invocation, card: "other")); XCTFail("Different card accepted") }
+        catch RiftletError.mismatchedReceipt {}
+        _ = try await store.apply(report(nil, card: nil))
+        let reopened = try QueueStore(databaseURL: path)
+        for filter: HistoryQuery.Filter in [.failed, .needsVerification, .needsAttention] {
+            let page = try await reopened.historyPage(query: .init(filter: filter), offset: 0, throughSequence: nil)
+            XCTAssertEqual(page.records.map(\.attachmentState), [.originalCardFailed])
+        }
+        let start = try await reopened.uploadStartReceipt(for: op.id)
+        XCTAssertNil(start)
+        let state = try await reopened.operation(id: op.id)
+        XCTAssertEqual(state?.phase, .unknown)
+        XCTAssertEqual(state?.attempt, 1)
+        let staged = try await reopened.stageAttachmentForReattach(operationID: op.id)
+        XCTAssertEqual(staged.activeOperationID, op.id)
+        try await reopened.removeFromQueue(asset.id)
+        let protected = try await reopened.cleanableMedia()
+        XCTAssertTrue(protected.isEmpty)
+        try await reopened.markAttachmentHandled(operationID: op.id)
+        let cleanable = try await reopened.cleanableMedia()
+        XCTAssertEqual(cleanable.map(\.id), [asset.id])
+        let persisted = try await reopened.receipt(for: op.id)
+        XCTAssertEqual(persisted, report(invocation))
+    }
+
     func testOriginalStartLocalCleanupAndExplicitNewIntentAcrossRestart() async throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)

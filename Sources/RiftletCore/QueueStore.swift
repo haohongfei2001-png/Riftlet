@@ -55,7 +55,9 @@ public actor QueueStore {
         AND NOT EXISTS (SELECT 1 FROM operations o WHERE o.asset_id=assets.id AND o.phase NOT IN ('succeeded','failed')
             AND NOT (assets.active_operation_id IS NOT NULL AND o.id!=assets.active_operation_id AND EXISTS (SELECT 1 FROM handled_attachments h WHERE h.operation_id=o.id))
             AND NOT (o.id IS assets.active_operation_id AND o.dispatch_exclusive=0 AND o.phase IN ('inputTriggered','attachmentPresent','unknown')
-              AND EXISTS (SELECT 1 FROM upload_starts s WHERE s.operation_id=o.id)))
+              AND (EXISTS (SELECT 1 FROM upload_starts s WHERE s.operation_id=o.id)
+                OR (json_extract(o.receipt_json, '$.originalCardFailureInvocationID') IS NOT NULL
+                  AND EXISTS (SELECT 1 FROM handled_attachments h WHERE h.operation_id=o.id)))))
         """
     }
 
@@ -72,8 +74,9 @@ public actor QueueStore {
               let call = try dispatchCall(id), call.version == 1, call.inputExecutionReturned == true,
               call.operationID == id, call.assetID == record.id, call.attempt == op.attempt,
               call.target == op.target, call.assetSHA256 == record.image.sha256,
-              let start = try uploadStartReceipt(for: id), start.uploadStartEvidence?.signal == .attachmentAccepted,
               let latest = try receipt(for: id) else { return false }
+        if latest.originalCardFailureInvocationID == call.invocationID { return try isAttachmentHandled(id) }
+        guard let start = try uploadStartReceipt(for: id), start.uploadStartEvidence?.signal == .attachmentAccepted else { return false }
         let state = HistoryAttachmentState(record: record, operation: op, receipt: latest, startReceipt: start)
         if state == .handedOff { return !latest.hasError }
         return try state == .checkDraft && isAttachmentHandled(id)
@@ -816,6 +819,22 @@ public actor QueueStore {
             guard op.assetID == receipt.assetID, op.attempt == receipt.attempt,
                   record.image.sha256 == receipt.assetSHA256, op.target == receipt.target,
                   record.activeOperationID == op.id else { throw RiftletError.mismatchedReceipt }
+            if let invocation = receipt.originalCardFailureInvocationID {
+                guard receipt.outcome == .unknown, receipt.belongsToOriginalDraft, receipt.hasError,
+                      !receipt.safeToRetry, !receipt.isUploading, !receipt.positiveReady, receipt.attachmentID?.isEmpty == false,
+                      receipt.target.clickBindingID != nil, receipt.uploadStartEvidence == nil,
+                      receipt.terminationEvidence == nil, receipt.completionEvidence == nil, receipt.continuationEvidence == nil,
+                      invocation == (try dispatchInvocationID(for: op.id)) else { throw RiftletError.mismatchedReceipt }
+            }
+            // A later inconclusive read cannot erase the observed error on the original card.
+            if let previous = try self.receipt(for: op.id), previous.originalCardFailureInvocationID != nil {
+                if receipt.originalCardFailureInvocationID != nil, receipt.attachmentID != previous.attachmentID {
+                    throw RiftletError.mismatchedReceipt
+                }
+                // The original input has already reported its own visible error.
+                // A later page-side retry is a distinct action.
+                return record
+            }
             try validateBoundPostInputEvidence(receipt, operation: op, asset: record.image, policy: policy)
             if let started = try uploadStartReceipt(for: op.id), let attachmentID = receipt.attachmentID,
                attachmentID != started.attachmentID { throw RiftletError.mismatchedReceipt }

@@ -17,11 +17,11 @@ public struct HistoryQuery: Equatable, Sendable {
             switch self {
             case .all: return "1"
             case .desktop: return "a.visibility='visible'"
-            case .needsAttention: return "(a.status='missing' OR (h.operation_id IS NULL AND \(state) IN ('needsReview','checkDraft','confirmedFailure','notAttached')))"
+            case .needsAttention: return "(a.status='missing' OR (h.operation_id IS NULL AND \(state) IN ('needsReview','checkDraft','originalCardFailed','confirmedFailure','notAttached')))"
             case .swallowed, .archived, .removed: return "a.visibility='\(rawValue)'"
             case .missing: return "a.status='missing'"
-            case .needsVerification: return "(h.operation_id IS NULL AND \(state) IN ('needsReview','checkDraft'))"
-            case .failed: return "\(state)='confirmedFailure'"
+            case .needsVerification: return "(h.operation_id IS NULL AND \(state) IN ('needsReview','checkDraft','originalCardFailed'))"
+            case .failed: return "\(state) IN ('confirmedFailure','originalCardFailed')"
             case .attached, .handedOff, .preparing, .notAttached, .available:
                 return "(a.status!='missing' AND \(state)='\(rawValue)')"
             }

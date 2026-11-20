@@ -143,7 +143,7 @@ public actor SystemScreenshotObservationJournal {
                       item.attachmentID != nil, !item.attachmentAbsent, !item.isUploading else { return nil }
                 return item.state == .attached ? .attached : .ready
             case .unknown: return .unknown
-            case .failed, .invalidated: return nil
+            case .failed, .originalCardFailed, .invalidated: return nil
             }
         }
     }
