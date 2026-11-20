@@ -30,14 +30,14 @@ function environment() {
   };
   const browser = {browserId:'extension-edge',tabs:{list:async()=>e.claimed?
     [{id:tab.id,providerTabId:'25'}]:e.existing||[]},
-    user:{openTabs:async()=>e.creates?[blankRef]:[],claimTab:async ref=>{
+    user:{openTabs:async()=>e.creates?[blankRef]:e.existing||[],claimTab:async ref=>{
       assert.equal(ref,blankRef);e.claimed=true;return tab;
     }},
     capabilities:{list:async()=>[{id:'management'}],get:async()=>management}};
   e.browser = browser;
   e.management = management;
   e.options = {
-    bundle,browsers:{list:async()=>[{type:'extension',family:'edge',id:browser.browserId}],get:async()=>browser},
+    bundle,browser,browsers:{list:async()=>[{type:'extension',family:'edge',id:browser.browserId}]},
     readNative:async()=>({bundle,sessionID:s.frontSessionID,windowID:s.frontWindowID,tabID:s.selectedTabID}),
     read:async t=>{assert.equal(t,tab);e.duringRead?.();return {...s,cards:s.cards.slice()}},
     locateNewChat:async()=>({count:async()=>1,isVisible:async()=>true,click:async()=>{
@@ -248,4 +248,32 @@ test('a New chat action without a fresh draft witness cannot start the keyboard 
   e.options.locateNewChat=async()=>({count:async()=>1,isVisible:async()=>true,click:async()=>{}});
   await assert.rejects(e.start(),/no observable fresh draft/);
   assert.deepEqual(e.keys,[]);assert.equal(e.closes,1);
+});
+
+
+test('uses a persistent family-selected handle, no personal tab enumeration during health or keyboard guards',async()=>{
+  const e=environment();
+  e.options.browsers.get=async()=>assert.fail('must reuse the documented Browser');
+  let userLists=0,tabLists=0;
+  const users=e.browser.user.openTabs,tabs=e.browser.tabs.list;
+  e.browser.user.openTabs=async()=>{userLists++;return users()};
+  e.browser.tabs.list=async()=>{tabLists++;return tabs()};
+  assert.equal((await browserHealth(e.options)).status,'AVAILABLE');
+  assert.deepEqual([userLists,tabLists],[0,0]);
+  e.management.windows.create=async()=>{e.creates=1;return {id:20}};
+  const run=await e.start();
+  await run.seed();await run.close();
+  assert.deepEqual([userLists,tabLists],[2,1]);
+});
+
+test('refuses contradictory create reply and pending navigation before accessing the page',async()=>{
+  for (const alter of [
+    e=>{e.management.windows.create=async()=>({id:20,incognito:true})},
+    e=>{e.management.windows.create=async()=>({id:20,tabs:[{id:21}]})},
+    e=>{const q=e.management.tabs.query;e.management.tabs.query=async opts=>(await q(opts))
+      .map(t=>({...t,pendingUrl:'https://example.net/'}))},
+  ]) {
+    const e=environment();alter(e);let reads=0;e.options.read=async()=>{reads++;return e.s};
+    await assert.rejects(e.start());assert.equal(reads,0);assert.equal(e.closes,0);
+  }
 });
