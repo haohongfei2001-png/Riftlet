@@ -132,7 +132,16 @@ struct BoundClick: Sendable {
                   target.surface == .webChat, target.clickBindingID != nil,
                   !target.documentID.isEmpty, !target.composerID.isEmpty,
                   !target.draftGeneration.isEmpty else { throw BindingError.targetChanged }
-            return Self(native: click, route: route, target: target)
+            let binding = WebProviderBinding(providerID: route.profile.id, revision: route.profile.revision,
+                programSHA256: route.profile.digest,
+                routeSHA256: SHA256.hash(data: Data(route.route.identity.utf8)).map { String(format: "%02x", $0) }.joined(),
+                surface: route.route.surface, mode: route.route.mode)
+            guard target.providerBinding == nil || target.providerBinding == binding else { throw BindingError.targetChanged }
+            let bound = TargetLease(adapterID: target.adapterID, surface: target.surface, applicationID: target.applicationID,
+                sessionID: target.sessionID, windowID: target.windowID, tabID: target.tabID, documentID: target.documentID,
+                composerID: target.composerID, draftGeneration: target.draftGeneration, logicalDraftIdentity: target.logicalDraftIdentity,
+                clickBindingID: target.clickBindingID, historyConversationID: target.historyConversationID, providerBinding: binding)
+            return Self(native: click, route: route, target: bound)
         }
     }
 
@@ -152,6 +161,7 @@ struct AdapterAddress: Hashable, Sendable {
 /// These immutable fields come from the original durable dispatch. Historical
 /// rows without this information continue through their existing read-only path.
 struct StoredDispatch: Codable, Sendable {
+    let inputClaim: UUID?
     let operationID: UUID
     let invocationID: UUID
     let attempt: Int
@@ -209,13 +219,22 @@ extension StoredDispatch {
     /// Admission belongs to a new, already durable dispatch and the exact fresh
     /// click. The existing store owns the first-writer transaction.
     static func register(_ click: BoundClick, request: TransferRequest, store: QueueStore) async throws {
+        guard request.operation.target == click.target else { throw BindingError.targetChanged }
+        try await claimInput(profile: click.route.profile, request: request, store: store)
+    }
+
+    static func claimInput(profile: ProviderProfile, request: TransferRequest, store: QueueStore) async throws {
         let op = request.operation
-        guard op.target == click.target, op.phase == .dispatchIntent,
+        guard op.phase == .dispatchIntent, !request.requireLiveOriginal,
+              let owner = op.target.providerBinding, owner.providerID == profile.id,
+              owner.revision == profile.revision, owner.programSHA256 == profile.digest,
               let id = request.invocationID, try await store.dispatchInvocationID(for: op.id) == id
         else { throw BindingError.targetChanged }
-        let record = Self(operationID: op.id, invocationID: id, attempt: op.attempt,
+        // A second contender presents a different claim. Reading the first
+        // writer's checkpoint can authorize observation only, never another append.
+        let record = Self(inputClaim: UUID(), operationID: op.id, invocationID: id, attempt: op.attempt,
                           assetID: request.asset.id, originalSHA256: request.asset.sha256,
-                          target: click.target, profile: click.route.profile)
+                          target: op.target, profile: profile)
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys]
         let bytes = try encoder.encode(record)

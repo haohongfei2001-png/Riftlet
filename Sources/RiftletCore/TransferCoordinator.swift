@@ -31,6 +31,7 @@ public protocol AttachmentAdapter: Sendable {
     /// Local-only eligibility checks, before allocating an operation or acquiring
     /// a target lock. Must never capture a target, contact an app, or input bytes.
     func preflight(asset: ImportedAsset, fileURL: URL) async throws
+    func preflight(asset: ImportedAsset, fileURL: URL, frozenTarget: TargetLease?) async throws
     func captureTarget() async throws -> TargetLease
     func validate(_ target: TargetLease) async throws -> Bool
     func append(_ request: TransferRequest) async throws -> TransferReceipt
@@ -40,6 +41,9 @@ public protocol AttachmentAdapter: Sendable {
 
 public extension AttachmentAdapter {
     func preflight(asset: ImportedAsset, fileURL: URL) async throws {}
+    func preflight(asset: ImportedAsset, fileURL: URL, frozenTarget: TargetLease?) async throws {
+        try await preflight(asset: asset, fileURL: fileURL)
+    }
 }
 
 /// The original append remains the sole owner of input and its live observation.
@@ -100,6 +104,15 @@ public actor TransferCoordinator {
     private let store: QueueStore
     private let dispatchOwnerID = UUID()
     private let adapter: any AttachmentAdapter
+    // New receivers share this coordinator's FIFO, execution lane and durable store.
+    // The inherited primary remains the sole target for calls without a frozen lease.
+    private let additionalAdapters: [String: any IndependentFileInputAdapter]
+    private func adapter(for target: TargetLease) -> (any AttachmentAdapter)? {
+        if target.adapterID == adapter.id { return adapter }
+        guard usesIndependentFileInput, let exact = additionalAdapters[target.adapterID],
+              exact.id == target.adapterID else { return nil }
+        return exact
+    }
     private let mediaDirectory: URL
     private let policy: ReceiptPolicy
     private let onChange: @Sendable () async -> Void
@@ -142,6 +155,7 @@ public actor TransferCoordinator {
     private var usesIndependentFileInput: Bool { adapter is any IndependentFileInputAdapter }
 
     public init(store: QueueStore, adapter: any AttachmentAdapter, mediaDirectory: URL,
+                additionalAdapters: [String: any IndependentFileInputAdapter] = [:],
                 policy: ReceiptPolicy = .init(), onChange: @escaping @Sendable () async -> Void = {},
                 onSelectionSettled: @escaping @Sendable (UUID) async -> Void = { _ in },
                 onAcceptedSelectionSettled: @escaping @Sendable (AcceptedSelection) async -> Void = { _ in },
@@ -149,6 +163,7 @@ public actor TransferCoordinator {
                 observationClock: @escaping @Sendable () -> TimeInterval = { ProcessInfo.processInfo.systemUptime },
                 onAcceptedSelectionFinished: @escaping @Sendable (UUID) async -> Void = { _ in },
                 validateAcceptedSelection: @escaping @Sendable (AcceptedSelection) async -> Bool = { _ in false }) {
+        self.additionalAdapters = additionalAdapters
         self.observationClock = observationClock
         self.store = store; self.adapter = adapter; self.mediaDirectory = mediaDirectory
         self.policy = policy; self.onChange = onChange; self.onSelectionSettled = onSelectionSettled
@@ -174,7 +189,7 @@ public actor TransferCoordinator {
     /// immutable predecessor ID fences delayed and double clicks across attempts.
     public func reattach(_ selection: AcceptedSelection, replacing operationID: UUID) async throws {
         guard usesIndependentFileInput, selection.authorization == .currentClick,
-              selection.target.adapterID == adapter.id, !inputExecutions.contains(operationID) else {
+              adapter(for: selection.target) != nil, !inputExecutions.contains(operationID) else {
             throw RiftletError.invalidTransition
         }
         try await accept(selection, replacing: operationID)
@@ -314,15 +329,22 @@ public actor TransferCoordinator {
             }
             // Existing UNKNOWNs above retain their original read-only recovery
             // even when a newer input profile no longer supports their format.
-            try await adapter.preflight(asset: record.image,
-                fileURL: mediaDirectory.appendingPathComponent(record.image.fileName))
+            let selectedAdapter: any AttachmentAdapter
+            if let frozenTarget {
+                guard let exact = adapter(for: frozenTarget) else { throw RiftletError.mismatchedReceipt }
+                selectedAdapter = exact
+            } else {
+                selectedAdapter = adapter
+            }
+            try await selectedAdapter.preflight(asset: record.image,
+                fileURL: mediaDirectory.appendingPathComponent(record.image.fileName), frozenTarget: frozenTarget)
             try await store.reserveSelection(assetID, visibilityRevision: visibilityRevision)
             reserved = true
             let target: TargetLease
             if let frozenTarget { target = frozenTarget }
             else if allowCapture { target = try await adapter.captureTarget() }
             else { throw RiftletError.adapterUnavailable("No verified target existed at selection; image retained") }
-            guard target.adapterID == adapter.id else { throw RiftletError.mismatchedReceipt }
+            guard target.adapterID == selectedAdapter.id else { throw RiftletError.mismatchedReceipt }
             let op = try await store.prepare(assetID: assetID, target: target, replacing: replacing)
             await store.releaseSelection(assetID); reserved = false
             if let accepted {
@@ -389,7 +411,8 @@ public actor TransferCoordinator {
     public func recoverOriginalObservations(operationIDs: [UUID],
         authorize: @Sendable (TargetLease) async -> Bool = { _ in true }) async throws {
         if usesIndependentFileInput {
-            guard (adapter as? any IndependentFileInputAdapter)?.supportsOriginalHandoffChecks == true else { return }
+            guard !additionalAdapters.isEmpty ||
+                    (adapter as? any IndependentFileInputAdapter)?.supportsOriginalHandoffChecks == true else { return }
             let allowed = Set(try await store.recentOriginalObservationIDs())
             for id in operationIDs.prefix(4) where allowed.contains(id) && !Task.isCancelled {
                 _ = try await recheckOriginal(operationID: id, authorize: authorize)
@@ -464,7 +487,7 @@ public actor TransferCoordinator {
             }
             // Validation failure is before intent: safe to leave retryable, without any input.
             let targetValid: Bool
-            do { targetValid = try await adapter.validate(op.target) }
+            do { targetValid = try await adapter(for: op.target)?.validate(op.target) == true }
             catch {
                 if try await store.operation(id: id)?.phase == .prepared {
                     try await cancelIfPrepared(id, reason: "Target validation unavailable before input")
@@ -521,7 +544,7 @@ public actor TransferCoordinator {
                 }
                 await onChange(); continue
             }
-            if let phased = adapter as? any InputPhasedAttachmentAdapter {
+            if let phased = adapter(for: op.target) as? any InputPhasedAttachmentAdapter {
                 let boundary = InputPhaseBoundary()
                 activeAppends[id] = committedRequest
                 inputExecutions.insert(id)
@@ -635,9 +658,9 @@ public actor TransferCoordinator {
 
     public func recheckOriginal(operationID: UUID,
         inspectAccess: @Sendable (TargetLease) async -> OriginalReceiverAccess) async throws -> OriginalAttachmentCheck {
-        guard (adapter as? any IndependentFileInputAdapter)?.supportsOriginalHandoffChecks == true,
-              let op = try await store.operation(id: operationID),
-              op.phase.isUnresolved, op.phase != .prepared, op.target.adapterID == adapter.id,
+        guard let op = try await store.operation(id: operationID),
+              let adapter = adapter(for: op.target) as? any IndependentFileInputAdapter, adapter.supportsOriginalHandoffChecks,
+              op.phase.isUnresolved, op.phase != .prepared,
               let asset = try await store.asset(id: op.assetID), asset.activeOperationID == op.id,
               let invocation = try await store.dispatchInvocationID(for: op.id) else { return .unavailable }
         switch await inspectAccess(op.target) {
@@ -679,7 +702,7 @@ public actor TransferCoordinator {
     }
 
     private func reconcile(_ op: TransferOperation) async throws {
-        guard op.target.adapterID == adapter.id else { throw RiftletError.adapterUnavailable("Original adapter is unavailable") }
+        guard let adapter = adapter(for: op.target) else { throw RiftletError.adapterUnavailable("Original adapter is unavailable") }
         if usesIndependentFileInput {
             guard currentFileInputs[op.id] != nil, try await !store.isAttachmentHandled(op.id) else { return }
         }
