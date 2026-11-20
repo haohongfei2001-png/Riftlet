@@ -18,6 +18,7 @@ class Bundle:
         self.pkg, _, _ = pair_case()
         self.index = dict(schema=1,candidate=self.pkg,runs=[],observations=[])
         self.counter = 0
+        self.recoveries = {}
 
     def put(self, data):
         raw = json.dumps(data, sort_keys=True).encode()
@@ -56,7 +57,18 @@ class Bundle:
             mutate(n,o)
         n['oracleSHA256'] = self.put(o)
         self.index['runs'].append({'run':self.put(n),'oracle':n['oracleSHA256']})
-        return {k:n['scope'][k] for k in VARIANT}
+        variant = {k:n['scope'][k] for k in VARIANT}
+        if case == 'F06' and level == 'L3':
+            old, new = ops[:2]
+            self.recoveries[tuple(variant.values())] = dict(
+                operation=old['operation'], target=old['targetSHA256'],original=old['originalSHA256'],
+                acceptedCard=rows[0]['newCardSHA256'],failedCard=rows[0]['newCardSHA256'],
+                restoredImage=old['originalSHA256'],retryOperation=new['operation'], retryCard=rows[1]['newCardSHA256'],
+                failureMs=50,restoredMs=100,originalCardServiceFailure=True,availableForNewClick=True,
+                serviceReady=False,automaticInputsAfterFailure=0, retainedUnknownOperation=token('earlier-unknown'),
+                unknownBefore='UNKNOWN',unknownAfter='UNKNOWN',unknownHistoryBefore=token('old-history'),
+                unknownHistoryAfter=token('old-history'),historyRecheckMs=700)
+        return variant
 
     def observation(self, variant, kind, level, case, status='PASS'):
         self.counter += 1
@@ -66,11 +78,7 @@ class Bundle:
             raw = self.put({'synthetic-test-id':[self.counter,role]})
             rec = {k:obs[k] for k in ('candidate','kind','scope','level','case','status')}
             if case == 'service-recovery' and status == 'PASS':
-                t = lambda name: token((self.counter,name))
-                rec['recovery'] = dict(operation=t('op'),target=t('target'),original=t('original'),
-                                       acceptedCard=t('card'),failedCard=t('card'),restoredImage=t('original'),
-                                       originalCardServiceFailure=True,availableForNewClick=True,
-                                       serviceReady=False,automaticInputsAfterFailure=0)
+                rec['recovery'] = self.recoveries[tuple(variant.values())]
             obs[field] = self.put(dict(**rec,role=role,actor=role,artifactSHA256=raw))
         self.index['observations'].append(self.put(obs))
 
@@ -136,7 +144,7 @@ class FormalTests(unittest.TestCase):
     def test_cross_card_recovery_cannot_promote(self):
         with tempfile.TemporaryDirectory() as d:
             b = Bundle(d)
-            v = b.sample('F01')
+            v = b.sample('F06')
             b.observation(v,'cell','L3','service-recovery')
             obs = json.loads((b.root/b.index['observations'][0]).read_bytes())
             raw = json.loads((b.root/obs['observerRaw']).read_bytes())
@@ -145,6 +153,18 @@ class FormalTests(unittest.TestCase):
             b.index['observations'] = [b.put(obs)]
             with self.assertRaisesRegex(ValueError,'original card failure'):
                 b.replay()
+
+    def test_unmatched_or_unrecovered_failure_cannot_pass(self):
+        for field, value in [('operation', token('phantom')), ('retryOperation', token('phantom-retry')),
+                             ('retryCard', token('neighbor')),('restoredMs',500),('unknownAfter','READY'),
+                             ('historyRecheckMs',1)]:
+            with self.subTest(field=field), tempfile.TemporaryDirectory() as d:
+                b = Bundle(d)
+                v = b.sample('F06')
+                b.recoveries[tuple(v.values())][field]=value
+                b.observation(v,'cell','L3','service-recovery')
+                with self.assertRaises(ValueError):
+                    b.replay()
 
     def test_complete_core_and_host_specific_proofs(self):
         with tempfile.TemporaryDirectory() as d:

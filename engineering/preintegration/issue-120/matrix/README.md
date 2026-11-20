@@ -70,3 +70,5 @@ python3 -B -m unittest -q
 计算分别给出每种配置的案例、L1/L2/L3、整包门槛以及 eligibleForReleaseReview。L3 要求同包全部 F01–F06/T01 和该格真实服务恢复；L2 要求签名 App 的首次附加及适用宿主、Provider 和共用反例。Safari 冷定位/执行环境、Brave 默认 Shields/执行环境分别有独立宿主门槛。单格记录通过但缺安装升级、性能、CI 或其他必需证据时，继续标记 PARTIAL。READY_FOR_RELEASE_REVIEW 只表示 16 个核心格记录达到复审条件；计算不启用产品配置、不修改官网或发行状态。
 
 真实 service-recovery 的两份观察还须独立绑定同一 operation、原稿、原始图片与被接受后明确失败的原卡，核对恢复的原图摘要、允许用户新点击、服务未就绪与零自动重传。它可以引用已有的同稿正面样本，不能重复使用另一个用例或另一原稿的卡片。
+
+service-recovery 放行还须在同一产品与观察者共同记录的登录原稿运行内找到两次真实操作。双方须给出 operation、acceptedCard、retryOperation、retryCard、原图与目标摘要，沿用该运行的单调时基记录 failureMs、restoredMs、historyRecheckMs。第一张原卡的正面接收、明确错误、资料找回必须先于用户明确新点击，重附后的新卡必须有独立身份。retainedUnknownOperation 与原 UNKNOWN 记录的前后摘要和状态须在新卡正面接收后核对。不在逐图记录中的操作、邻卡、重复恢复或迟于新点击的恢复不能计为通过。

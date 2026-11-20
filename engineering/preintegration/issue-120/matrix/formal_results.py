@@ -9,7 +9,7 @@ import subprocess
 
 from fixtures import ROOT, sha
 from matrix import need, read_json
-from native_evidence import CASES, audit_batch, check_package, digest, nonempty
+from native_evidence import CASES, audit_batch, check_package, digest, nonempty, number
 
 REPO = 'haohongfei2001-png/Riftlet'
 INDEX = 'engineering/preintegration/issue-120/matrix/acceptance-index.json'
@@ -192,13 +192,11 @@ def apply_index(matrix, index, directory):
         observed = {row['operation']:row for row in read_json(raw)['operations']}
         for op in run['operations']:
             row = observed.get(op['operation'], {})
-            native_cards[op['operation']] = (ident, scope['level'], op['targetSHA256'],
-                                              op['originalSHA256'], row.get('newCardSHA256'))
+            native_cards[op['operation']] = (ident, scope['level'], scope['runID'], op, row)
         cases.setdefault((ident,scope['level'],scope['case']), []).append(outcome)
     if samples:
         audit_batch(candidate, samples)
 
-    card_operations = {info[-1]:operation for operation,info in native_cards.items() if info[-1]}
     gates = {}
     recovery_ids = set()
     for d in index['observations']:
@@ -231,11 +229,35 @@ def apply_index(matrix, index, directory):
         if recoveries:
             proof = recoveries[0]
             need(len(recoveries) == 2 and recoveries[1] == proof, 'different recovery observations')
-            related = (ident,level,proof['target'],proof['original'],proof['acceptedCard'])
-            need(native_cards.get(proof['operation'], related) == related and
-                 card_operations.get(proof['acceptedCard'],proof['operation']) == proof['operation'],
-                 'recovery belongs to different native operation')
-            for token in (('op',proof['operation']),('card',proof['acceptedCard'])):
+            original = native_cards.get(proof['operation'])
+            retry = native_cards.get(proof.get('retryOperation'))
+            need(original and retry and original[:2] == retry[:2] == (ident,level)
+                 and original[2] == retry[2] and original[3]['operation'] != retry[3]['operation'],
+                 'missing matched original and explicit retry from the same live run')
+            old_op, old_ui = original[3:]
+            new_op, new_ui = retry[3:]
+            need(old_op['targetSHA256'] == new_op['targetSHA256'] == proof['target'] and
+                 old_op['originalSHA256'] == new_op['originalSHA256'] == proof['original'] and
+                 old_op['inputEntered'] == new_op['inputEntered'] == 1 and
+                 old_ui['handoff'] == new_ui['handoff'] == 'accepted' and
+                 old_ui.get('newCardSHA256') == proof['acceptedCard'] and
+                 digest(proof.get('retryCard')) and new_ui.get('newCardSHA256') == proof['retryCard']
+                 and proof['retryCard'] != proof['acceptedCard'] and new_ui.get('explicitNewClick') is True,
+                 'recovery belongs to different native operation, draft, image or card')
+            failed, restored = proof.get('failureMs'), proof.get('restoredMs')
+            first_positive, next_positive = (op['timingsMs']['clickToPositive'] for op in (old_op,new_op))
+            need(all(number(t) for t in (failed,restored,first_positive,next_positive)) and
+                 old_op['clickMs'] + first_positive <= failed <= restored < new_op['clickMs'],
+                 'missing original acceptance, failure and recovery before the new click')
+            need(digest(proof.get('retainedUnknownOperation')) and
+                 proof['retainedUnknownOperation'] != proof['retryOperation'] and
+                 proof.get('unknownBefore') == proof.get('unknownAfter') == 'UNKNOWN' and
+                 digest(proof.get('unknownHistoryBefore')) and proof['unknownHistoryBefore'] == proof.get('unknownHistoryAfter')
+                 and number(proof.get('historyRecheckMs')) and
+                 new_op['clickMs'] + next_positive <= proof['historyRecheckMs'],
+                 'missing preserved historical UNKNOWN after the successful manual retry')
+            for token in (('op',proof['operation']),('card',proof['acceptedCard']),
+                          ('op',proof['retryOperation']),('card',proof['retryCard'])):
                 need(token not in recovery_ids, 'reused recovery evidence')
                 recovery_ids.add(token)
         if kind == 'cell' and case in CASES:
