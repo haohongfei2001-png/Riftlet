@@ -70,6 +70,14 @@ function createProvider(profile) {
     const watched = [editor,owner,action,picker,lane].filter(Boolean);
     let retired = false, spent = false, original = null, accepted = null, acceptedRetired = false, changed = false;
     const old = new WeakSet(), oldImages = new WeakSet(), removedCards = new WeakSet();
+    const retire = () => { retired = true; };
+    // Traversing back can restore the same entry ID and DOM object references.
+    // Retirement records the transition itself, including same-URL replacements.
+    const lifecycle = new AbortController();
+    for (const name of ["navigate","currententrychange"]) {
+      win.navigation.addEventListener(name,retire,{capture:true,signal:lifecycle.signal});
+    }
+    win.addEventListener("pagehide",retire,{capture:true,signal:lifecycle.signal});
     function process(records) {
       for (const r of records) {
         if (r.type === "attributes") {
@@ -157,7 +165,7 @@ function createProvider(profile) {
       } catch { return "unknown"; }
       finally { check.disconnect(); }
     };
-    return Object.freeze({current:originalTarget,commit,observe,close(){ retired=true; watcher.disconnect(); }});
+    return Object.freeze({current:originalTarget,commit,observe,close(){ retired=true; watcher.disconnect(); lifecycle.abort(); }});
   }
   return Object.freeze({inspect(){ return resolve().state; },pin});
 }

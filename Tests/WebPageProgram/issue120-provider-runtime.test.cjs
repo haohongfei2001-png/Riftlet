@@ -78,6 +78,16 @@ async function cases(catalogEntry) {
   expect(await first.observe(t)==='unavailable','removed/reinserted card');
   expect(selection.toString() === selected && selection.anchorNode === draft && selection.focusNode === draft &&
     selection.anchorOffset === 1 && selection.focusOffset === 5, 'original selection retained through handoff');
+  const aba=ticket(),stale=writer().pin(aba.click);
+  history.pushState({},'', '/another-draft');
+  const returned=new Promise(resolve=>window.addEventListener('popstate',resolve,{once:true}));
+  history.back();await returned;
+  expect(location.pathname==='/app' && stale.current()===false,'navigation ABA retired');
+  await expectError(()=>stale.commit(aba,makeFile(aba)),'target_or_payload_changed');
+  stale.close();
+  const replace=writer().pin(uid());
+  history.replaceState({},'',location.href);
+  expect(replace.current()===false,'same-URL replace retired'); replace.close();
   const t2=ticket(),second=writer().pin(t2.click);
   owner.remove();document.querySelector('form').append(owner);
   await expectError(()=>second.commit(t2,makeFile(t2)),'target_or_payload_changed');
