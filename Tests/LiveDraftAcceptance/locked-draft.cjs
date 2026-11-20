@@ -19,7 +19,8 @@ function same(a, b, keys) {
 }
 
 function fresh(route) {
-  const url = new URL(route);
+  let url;
+  try { url = new URL(route); } catch { return false; }
   return url.origin === 'https://chatgpt.com' && url.pathname === '/' &&
     !url.username && !url.password && !url.hash &&
     (url.search === '' || url.search === '?temporary-chat=true');
@@ -27,14 +28,38 @@ function fresh(route) {
 
 // read(tab) is read-only. The fallback when native focus or an exact page
 // generation cannot be observed is to stop before a keyboard command.
-async function createLockedDraft({ browser, bundle, read, locateNewChat, locateEditor }) {
+async function createLockedDraft({ browser, bundle, read, locateNewChat, locateEditor, locateOriginalEditor }) {
   requireFact(BUNDLES.has(bundle), 'unsupported receiver');
+  // list() is metadata only. An already open handle can never be owned by this run.
+  const previousIDs = new Set((await browser.tabs.list()).map(t => t.id));
   const tab = await browser.tabs.new({newWindow: true, windowName: 'Riftlet QA'});
   const tabID = tab.id, windowID = tab.windowId;
+  requireFact(!previousIDs.has(tabID), 'backend reused an existing tab');
   requireFact(typeof tabID === 'string' && tabID && typeof windowID === 'string' && windowID,
     'browser supplied no dedicated window identity');
   let native, target, seedProof, invalid = false, keyboardUsed = false;
-  const pending = new WeakSet();
+  const pending = new WeakSet(), qaCards = new Map();
+  let closeRequest, allowedText, landed;
+
+  async function releaseOwned() {
+    invalid = true;
+    if (!native) return 'retainedUnverified';
+    let current;
+    try { current = await read(tab); } catch { return 'retainedUnverified'; }
+    if (!current || current.tabHandle !== tabID || current.windowHandle !== windowID || current.nativeHandleMatched !== true ||
+        !same(current,native,NATIVE)) return 'retainedUnverified';
+    const stillBlank = same(current,native,DRAFT) && current.route === native.route;
+    const permitted = target || landed;
+    const sameEmptyOrSeeded = permitted && same(current,permitted,DRAFT) && fresh(current.route) &&
+      current.signedIn === true && current.messageCount === 0 &&
+      (current.text === '' || (allowedText && allowedText === current.text)) && Array.isArray(current.cards) &&
+      current.cards.every(c => qaCards.has(c.member) && qaCards.get(c.member) === c.payload);
+    if (!stillBlank && !sameEmptyOrSeeded) return 'retainedUnverified';
+    try { await tab.close(); return 'closed'; } catch { return 'closeUnconfirmed'; }
+  }
+
+  // A lost close reply is not retried. Never switch to another tab or close a window.
+  function close() { return closeRequest ||= releaseOwned(); }
 
   async function checked(requireDraft = true) {
     requireFact(!invalid, 'run retired');
@@ -56,22 +81,28 @@ async function createLockedDraft({ browser, bundle, read, locateNewChat, locateE
   }
 
   // Freeze the process/window/tab while it is still the new blank page.
-  native = Object.freeze({...await checked(false)});
-  requireFact(['about:blank','chrome://newtab/','edge://newtab/'].includes(native.route),
-    'backend did not create a blank test tab');
-  await tab.goto('https://chatgpt.com/');
-  const landed = await checked(false);
-  requireFact(fresh(landed.route) && landed.signedIn === true && landed.messageCount === 0 &&
-    landed.text === '' && landed.cards?.length === 0, 'dedicated window opened existing content');
-  const control = await locateNewChat(tab);
-  requireFact(await control.count() === 1 && await control.isVisible(), 'missing genuine New chat control');
-  const previous = await checked(false);
-  requireFact(same(landed, previous, DRAFT) && previous.text === '' && previous.messageCount === 0 &&
-    previous.cards?.length === 0, 'new chat entry changed');
-  await control.click({timeout:1500});
-  target = Object.freeze({...await checked(false)});
-  const first = await checked();
-  requireFact(first.text === '' && first.cards?.length === 0, 'new chat was not empty');
+  try {
+    const initial = Object.freeze({...await checked(false)});
+    requireFact(['about:blank','chrome://newtab/','edge://newtab/'].includes(initial.route),
+      'backend did not create a blank test tab');
+    native = initial;
+    await tab.goto('https://chatgpt.com/');
+    landed = await checked(false);
+    requireFact(fresh(landed.route) && landed.signedIn === true && landed.messageCount === 0 &&
+      landed.text === '' && landed.cards?.length === 0, 'dedicated window opened existing content');
+    const control = await locateNewChat(tab);
+    requireFact(await control.count() === 1 && await control.isVisible(), 'missing genuine New chat control');
+    const previous = await checked(false);
+    requireFact(same(landed, previous, DRAFT) && previous.text === '' && previous.messageCount === 0 &&
+      previous.cards?.length === 0, 'new chat entry changed');
+    await control.click({timeout:1500});
+    target = Object.freeze({...await checked(false)});
+    const first = await checked();
+    requireFact(first.text === '' && first.cards?.length === 0, 'new chat was not empty');
+  } catch (error) {
+    error.cleanup = await close();
+    throw error;
+  }
 
   async function seed() {
     requireFact(!keyboardUsed, 'keyboard phase consumed');
@@ -91,6 +122,7 @@ async function createLockedDraft({ browser, bundle, read, locateNewChat, locateE
           before.cards.length === 0, 'keyboard origin or text changed');
         await tab.cua.keypress({keys:[key]});
         prefix += key;
+        allowedText = prefix;
       }
       const complete = await checked();
       requireFact(complete.text === text && complete.focusedOriginalEditor === true, 'keyboard text missing');
@@ -124,6 +156,7 @@ async function createLockedDraft({ browser, bundle, read, locateNewChat, locateE
       'prior selection or original test attachment missing');
     const receipt = Object.freeze({text:s.text,selection:s.selection,prior:Object.freeze(
       [...prior].map(entry => Object.freeze(entry)))});
+    qaCards.set(requiredPriorCard.member, requiredPriorCard.payload);
     pending.add(receipt);
     return receipt;
   }
@@ -139,6 +172,7 @@ async function createLockedDraft({ browser, bundle, read, locateNewChat, locateE
     }
     requireFact(current.size === 1 && hash(input) && [...current.values()][0] === input,
       'original composer has no single new matching card');
+    for (const [member,payload] of current) qaCards.set(member,payload);
     pending.delete(before);
     return {outcome:'OBSERVED_NEW_CARD_ONLY', member:[...current.keys()][0], payload:input};
   }
@@ -148,10 +182,14 @@ async function createLockedDraft({ browser, bundle, read, locateNewChat, locateE
     requireFact(bundle === 'com.microsoft.edgemac' &&
       /^riftlet-[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}\.(?:png|jpe?g)$/i.test(generatedName),
       'need exact QA operation filename');
-    const before = await checked();
-    requireFact(before.focusedOriginalEditor === true, 'no original focused editor');
-    const shape = await tab.playwright.evaluate(name => {
-      const editor = document.activeElement;
+    await checked();
+    requireFact(typeof locateOriginalEditor === 'function', 'no original editor locator');
+    const pinned = await locateOriginalEditor(tab,target);
+    requireFact(pinned && same(pinned,target,DRAFT) && same(pinned,native,NATIVE) &&
+      pinned.tabHandle === tabID && pinned.windowHandle === windowID &&
+      await pinned.locator.count() === 1 && await pinned.locator.isVisible(), 'original editor unavailable');
+    await checked();
+    const shape = await pinned.locator.evaluate((editor,name) => {
       if (!editor?.matches('[contenteditable="true"],textarea') || !editor.closest('form')) return null;
       const form = editor.closest('form');
       const candidates = [...form.querySelectorAll('img[alt]')].filter(i => i.alt.includes(name) &&
@@ -177,7 +215,17 @@ async function createLockedDraft({ browser, bundle, read, locateNewChat, locateE
     requireFact(shape !== null, 'original editor/form unavailable');
     return shape;
   }
-  return {tab,seed,beforeClick,afterClick,edgePreviewShape};
+  return {tab,seed,beforeClick,afterClick,edgePreviewShape,close};
 }
 
-module.exports = {createLockedDraft};
+async function withLockedDraft(options, execute) {
+  const run = await createLockedDraft(options);
+  let result, failure, cleanup;
+  try { result = await execute(run); }
+  catch (error) { failure = error; }
+  finally { cleanup = await run.close(); }
+  if (failure) { failure.cleanup = cleanup; throw failure; }
+  return {result,cleanup};
+}
+
+module.exports = {createLockedDraft,withLockedDraft};

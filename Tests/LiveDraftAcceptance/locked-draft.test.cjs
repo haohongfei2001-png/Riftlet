@@ -1,7 +1,7 @@
 'use strict';
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {createLockedDraft} = require('./locked-draft.cjs');
+const {createLockedDraft,withLockedDraft} = require('./locked-draft.cjs');
 
 function environment() {
   const prior = {member:'a'.repeat(64),payload:'1'.repeat(64)};
@@ -19,14 +19,17 @@ function environment() {
     else assert.fail('unexpected key');
   }}};
   const e = {tab,bundle,s,prior,next,keys,events};
-  e.start = () => createLockedDraft({
-    bundle,browser:{tabs:{new:async options=>{assert.equal(options.newWindow,true);return tab}}},
+  e.closes = 0;
+  tab.close = async () => { e.closes++; };
+  e.options = {
+    bundle,browser:{tabs:{list:async()=>e.existing||[],new:async options=>{assert.equal(options.newWindow,true);return tab}}},
     read:async t=>{assert.equal(t,tab);e.duringRead?.();return {...s,cards:s.cards.slice()}},
     locateNewChat:async()=>({count:async()=>1,isVisible:async()=>true,click:async()=>{
       events.push('new');s.composerID='fresh';e.afterNew?.();
     }}),
     locateEditor:async()=>({count:async()=>1,isVisible:async()=>true,click:async()=>{s.focusedOriginalEditor=true}}),
-  });
+  };
+  e.start = () => createLockedDraft(e.options);
   return e;
 }
 
@@ -89,4 +92,54 @@ test('prior selection, exact old members and new payload must all survive',async
   e.s.cards=[e.prior,e.next];await assert.rejects(run.afterClick(before,e.prior.payload),/matching/);
   assert.equal((await run.afterClick(before,e.next.payload)).outcome,'OBSERVED_NEW_CARD_ONLY');
   await assert.rejects(run.afterClick(before,e.next.payload),/outstanding/);
+});
+
+test('setup failure closes its confirmed fresh tab, never an existing or repurposed tab',async()=>{
+  const e=environment();
+  e.options.locateNewChat=async()=>{throw Error('missing control')};
+  await assert.rejects(e.start(),err=>err.message==='missing control' && err.cleanup==='closed');
+  assert.equal(e.closes,1);
+  for (const change of [
+    env=>{env.existing=[{id:env.tab.id}];},
+    env=>{env.s.route='https://chatgpt.com/c/private';},
+    env=>{env.tab.goto=async()=>{env.s.route='https://chatgpt.com/c/private'};},
+    env=>{env.tab.goto=async()=>{env.s.route='https://chatgpt.com/';env.s.text='private';};},
+    env=>{env.tab.goto=async()=>{env.s.route='https://chatgpt.com/';env.s.nativeHandleMatched=false;};},
+  ]) {
+    const other=environment(); change(other);
+    await assert.rejects(other.start());assert.equal(other.closes,0);
+  }
+});
+
+test('callback cleanup is once-only, original-tab scoped and preserves unknown contents',async()=>{
+  const e=environment();
+  const value=await withLockedDraft(e.options,async run=>{
+    await run.seed();
+    assert.equal(await run.close(),'closed');return 7;
+  });
+  assert.deepEqual(value,{result:7,cleanup:'closed'});assert.equal(e.closes,1);
+  const failed=environment();
+  await assert.rejects(withLockedDraft(failed.options, async()=>{throw Error('case failed');}),
+    err=>err.message==='case failed' && err.cleanup==='closed');
+  assert.equal(failed.closes,1);
+  const unknown=environment(),run=await unknown.start();unknown.s.text='new personal content';
+  assert.equal(await run.close(),'retainedUnverified');assert.equal(unknown.closes,0);
+  const lost=environment(),leased=await lost.start();lost.tab.close=async()=>{lost.closes++;throw Error('reply lost');};
+  assert.deepEqual(await Promise.all([leased.close(),leased.close()]),['closeUnconfirmed','closeUnconfirmed']);
+  assert.equal(lost.closes,1);
+});
+
+test('Edge shape uses the individually bound original editor even after blur',async()=>{
+  const filename='riftlet-6c4ab72a-1234-5678-9abc-101010101010.png';
+  const e=environment(), form={querySelectorAll:()=>[]};
+  let probes=0;
+  e.options.locateOriginalEditor=async(tab,target)=>({...target,locator:{
+    count:async()=>1,isVisible:async()=>true,
+    evaluate:async(fn,arg)=>{probes++;assert.equal(arg,filename);return fn({matches:()=>true,closest:()=>form},arg);}
+  }});
+  const run=await e.start();e.s.focusedOriginalEditor=false;
+  assert.deepEqual(await run.edgePreviewShape(filename),{matchingPreviewCount:0});assert.equal(probes,1);
+  const bad=environment(); bad.options.locateOriginalEditor=async(tab,target)=>({...target,composerID:'replacement'});
+  await assert.rejects((await bad.start()).edgePreviewShape(filename),/original editor unavailable/);
+  const absent=environment();await assert.rejects((await absent.start()).edgePreviewShape(filename),/no original editor locator/);
 });
