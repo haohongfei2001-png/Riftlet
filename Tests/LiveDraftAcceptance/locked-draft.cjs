@@ -2,10 +2,8 @@
 
 const { randomBytes } = require('node:crypto');
 
-// Only a Tab returned by new({newWindow:true}) can be used for this run.
-// The trusted native observer must resolve that exact handle, independently
-// sample the front process/window/tab, and retain the original page/editor.
-const BUNDLES = new Set(['com.google.Chrome', 'com.microsoft.edgemac']);
+const {openVerifiedWindow} = require('./browser-preflight.cjs');
+
 const NATIVE = ['bundle', 'sessionID', 'windowID', 'tabID'];
 const DRAFT = ['documentID', 'composerID', 'draftGeneration', 'navigationID', 'route'];
 const hash = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
@@ -28,33 +26,34 @@ function fresh(route) {
 
 // read(tab) is read-only. The fallback when native focus or an exact page
 // generation cannot be observed is to stop before a keyboard command.
-async function createLockedDraft({ browser, bundle, read, locateNewChat, locateEditor, locateOriginalEditor }) {
-  requireFact(BUNDLES.has(bundle), 'unsupported receiver');
-  // list() is metadata only. An already open handle can never be owned by this run.
-  const previousIDs = new Set((await browser.tabs.list()).map(t => t.id));
-  const tab = await browser.tabs.new({newWindow: true, windowName: 'Riftlet QA'});
-  const tabID = tab.id, windowID = tab.windowId;
-  requireFact(!previousIDs.has(tabID), 'backend reused an existing tab');
-  requireFact(typeof tabID === 'string' && tabID && typeof windowID === 'string' && windowID,
-    'browser supplied no dedicated window identity');
+async function createLockedDraft(options) {
+  const {bundle, read, locateNewChat, locateEditor, locateOriginalEditor} = options;
+  requireFact([read,locateNewChat,locateEditor].every(f => typeof f === 'function'), 'missing draft observer or locators');
+  const {tab,windowID,guard} = await openVerifiedWindow(options);
+  const tabID = tab.id;
   let native, target, seedProof, invalid = false, keyboardUsed = false;
   const pending = new WeakSet(), qaCards = new Map();
   let closeRequest, allowedText, landed;
 
   async function releaseOwned() {
     invalid = true;
-    if (!native) return 'retainedUnverified';
+    if (!landed && !target) {
+      // Browser-internal new-tab pages cannot be scripted. Reconfirm the
+      // owned blank using the management/native witnesses alone.
+      try { await guard(true); } catch { return 'retainedUnverified'; }
+      try { await tab.close(); return 'closed'; } catch { return 'closeUnconfirmed'; }
+    }
     let current;
-    try { current = await read(tab); } catch { return 'retainedUnverified'; }
+    try { await guard(); current = await read(tab); } catch { return 'retainedUnverified'; }
     if (!current || current.tabHandle !== tabID || current.windowHandle !== windowID || current.nativeHandleMatched !== true ||
         !same(current,native,NATIVE)) return 'retainedUnverified';
-    const stillBlank = same(current,native,DRAFT) && current.route === native.route;
     const permitted = target || landed;
     const sameEmptyOrSeeded = permitted && same(current,permitted,DRAFT) && fresh(current.route) &&
       current.signedIn === true && current.messageCount === 0 &&
       (current.text === '' || (allowedText && allowedText === current.text)) && Array.isArray(current.cards) &&
       current.cards.every(c => qaCards.has(c.member) && qaCards.get(c.member) === c.payload);
-    if (!stillBlank && !sameEmptyOrSeeded) return 'retainedUnverified';
+    if (!sameEmptyOrSeeded) return 'retainedUnverified';
+    try { await guard(); } catch { return 'retainedUnverified'; }
     try { await tab.close(); return 'closed'; } catch { return 'closeUnconfirmed'; }
   }
 
@@ -64,8 +63,9 @@ async function createLockedDraft({ browser, bundle, read, locateNewChat, locateE
   async function checked(requireDraft = true) {
     requireFact(!invalid, 'run retired');
     try {
+      const front = await guard();
       const s = await read(tab);
-      requireFact(s.tabHandle === tabID && s.windowHandle === windowID && s.bundle === bundle &&
+      requireFact(same(s,front,NATIVE) && s.tabHandle === tabID && s.windowHandle === windowID && s.bundle === bundle &&
         s.frontSessionID === s.sessionID && s.frontWindowID === s.windowID &&
         s.selectedTabID === s.tabID && s.nativeHandleMatched === true &&
         same(s, native || s, NATIVE), 'focus or native destination changed');
@@ -82,10 +82,7 @@ async function createLockedDraft({ browser, bundle, read, locateNewChat, locateE
 
   // Freeze the process/window/tab while it is still the new blank page.
   try {
-    const initial = Object.freeze({...await checked(false)});
-    requireFact(['about:blank','chrome://newtab/','edge://newtab/'].includes(initial.route),
-      'backend did not create a blank test tab');
-    native = initial;
+    native = Object.freeze({...await guard(true)});
     await tab.goto('https://chatgpt.com/');
     landed = await checked(false);
     requireFact(fresh(landed.route) && landed.signedIn === true && landed.messageCount === 0 &&
@@ -96,7 +93,9 @@ async function createLockedDraft({ browser, bundle, read, locateNewChat, locateE
     requireFact(same(landed, previous, DRAFT) && previous.text === '' && previous.messageCount === 0 &&
       previous.cards?.length === 0, 'new chat entry changed');
     await control.click({timeout:1500});
-    target = Object.freeze({...await checked(false)});
+    const nextDraft = await checked(false);
+    requireFact(!same(previous,nextDraft,DRAFT), 'New chat produced no observable fresh draft identity');
+    target = Object.freeze({...nextDraft});
     const first = await checked();
     requireFact(first.text === '' && first.cards?.length === 0, 'new chat was not empty');
   } catch (error) {
@@ -108,6 +107,7 @@ async function createLockedDraft({ browser, bundle, read, locateNewChat, locateE
     requireFact(!keyboardUsed, 'keyboard phase consumed');
     keyboardUsed = true; // A lost keyboard reply is never retried.
     const text = 'riftletqa' + randomBytes(8).toString('hex');
+    await checked();
     const editor = await locateEditor(tab);
     requireFact(await editor.count() === 1 && await editor.isVisible(), 'editor not unique');
     await checked();
