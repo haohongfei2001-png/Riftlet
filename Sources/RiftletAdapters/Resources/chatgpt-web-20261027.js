@@ -1003,6 +1003,93 @@ function riftletWebAcceptance(command, native) {
       return visibleFailureText(card, independentMemberContent, renderedPreview) || (!requireError && meters.length === 1 && renderedPreview(meters[0]));
     };
   }
+  const errorShellSelector = 'span[class~="group/composer-attachment"]';
+  function failureShellParts(shell, binding, name) {
+    if (!shell || !binding || !shell.matches(errorShellSelector) || shell.hasAttribute('role')
+        || shell.hasAttribute('aria-label') || shell.hasAttribute('data-file-name') || shell.children.length !== 2
+        || shell.parentElement?.closest(errorShellSelector + ',' + cardSelector + ',[role="dialog"],[role="menu"],article,aside')
+        || !inOriginalCardContainer(shell, binding)) return null;
+    const row = shell.parentElement, lane = row?.parentElement, layout = lane?.parentElement;
+    if (!row?.matches('div.flex') || !lane?.classList || ![...lane.classList].some(c => c.startsWith('ComposerLayoutAttachments-'))
+        || !layout?.matches('[data-composer-layout]') || !layout.contains(binding.editor)
+        || layout !== binding.editor.closest('[data-composer-layout]')) return null;
+    const [surface, remove] = shell.children;
+    if (!surface.matches('span.composer-attachment-surface') || !remove.matches('button[type="button"]')
+        || !['移除 ' + name, 'Remove ' + name].includes(remove.getAttribute('aria-label'))
+        || remove.disabled || remove.matches(':disabled') || blocked(shell) || blocked(remove) || !visible(remove) || !renderedPreview(surface)) return null;
+    return {surface, remove};
+  }
+  function originalMemberSelectors(name) {
+    // begin validates the generated file name before it can reach a selector.
+    return ['button[aria-label="移除 ' + name + '"]', 'button[aria-label="Remove ' + name + '"]',
+      'button[aria-label="Retry uploading ' + name + '"]', 'span[role="alert"][aria-label="' + name + '"]'];
+  }
+  function failureShellBeforeInput(name) {
+    // Remember shells and their individual identifying members, including
+    // ones the page could later reparent into a newly mounted tile.
+    const selectors = [errorShellSelector, 'span.composer-attachment-surface', 'span.truncate', ...originalMemberSelectors(name)];
+    const nodes = document.querySelectorAll(selectors.join(','));
+    return nodes.length <= 256 ? new WeakSet(nodes) : null;
+  }
+  function currentNamedFailure(op, binding) {
+    if (!binding?.target.clickBindingID || !op.oldErrorMembers || op.inputCount !== 1 || !op.changeReturned) return null;
+    const [zhRemove, enRemove, retrySelector, alertSelector] = originalMemberSelectors(op.name);
+    const alerts = document.querySelectorAll(alertSelector);
+    if (alerts.length !== 1) return null;
+    const alert = alerts[0], status = alert.parentElement, visual = status?.parentElement;
+    const surface = visual?.parentElement, shell = surface?.parentElement;
+    const parts = failureShellParts(shell, binding, op.name);
+    if (!parts || parts.surface !== surface || !consistentCardLabels(shell, op.name) || surface.children.length !== 2 || surface.children[0] !== visual
+        || visual.tagName !== 'SPAN' || visual.children.length !== 1 || status.tagName !== 'SPAN'
+        || status.children.length !== 2 || status.children[0] !== alert || alert.children.length !== 1
+        || shell.querySelector('img,progress,[role="progressbar"],input,[contenteditable],'+errorShellSelector)
+        || shell.querySelectorAll('button,[role="button"]').length !== 2 || shell.querySelectorAll('[role="alert"]').length !== 1) return null;
+    const retry = status.children[1], message = alert.children[0], names = surface.children[1].querySelectorAll('span.truncate');
+    if (surface.children[1].tagName !== 'SPAN' || names.length !== 1 || names[0].parentElement !== surface.children[1]
+        || names[0].children.length || names[0].textContent.trim() !== op.name
+        || message.tagName !== 'SPAN' || message.children.length || !/^(?:上传未成功|上传失败|upload failed)$/i.test(message.textContent.trim())
+        || !retry.matches('button[type="button"]') || retry.getAttribute('aria-label') !== 'Retry uploading ' + op.name
+        || !/^(?:Retry|重试)$/i.test(retry.textContent.trim()) || retry.disabled || retry.matches(':disabled') || blocked(retry)
+        || getComputedStyle(retry).pointerEvents === 'none'
+        || ![alert, message, names[0], retry].every(renderedPreview)
+        || [shell,surface,alert,names[0],retry,parts.remove].some(el => op.oldErrorMembers.has(el))) return null;
+    for (const node of shell.querySelectorAll('[aria-label],[data-file-name],[title]')) {
+      if ((node.hasAttribute('aria-label') && ![alert,retry,parts.remove].includes(node))
+          || ['data-file-name','title'].some(attr => node.hasAttribute(attr) && node.getAttribute(attr) !== op.name)) return null;
+    }
+    const sameName = ['aria-label','data-file-name','title','alt'].map(attr => '[' + attr + '="' + op.name + '"]').join(',');
+    if ([...document.querySelectorAll(sameName)].some(node => !shell.contains(node))) return null;
+    const removes = document.querySelectorAll(zhRemove + ',' + enRemove);
+    const retries = document.querySelectorAll(retrySelector);
+    return removes.length === 1 && removes[0] === parts.remove && retries.length === 1 && retries[0] === retry ? shell : null;
+  }
+  // Changing the contents of the surface can legitimately replace a preview
+  // with an error. Losing or reusing the original shell/placement cannot.
+  function liveOriginalFailure(op, binding, retained) {
+    const shell = retained?.();
+    return !!shell && sameDraft(binding) && currentNamedFailure(op, binding) === shell;
+  }
+  function liveAcceptedErrorShell(op) {
+    return liveOriginalFailure(op, op.acceptedErrorBinding?.deref(), op.acceptedErrorShell);
+  }
+  function retainFailureShell(shell, parts) {
+    const weak = new WeakRef(shell), remove = new WeakRef(parts.remove), surface = new WeakRef(parts.surface);
+    const chain = [];
+    for (let node = shell; node; node = node.parentElement) chain.push(new WeakRef(node));
+    let retired = false;
+    const stop = () => { retired = true; observer.disconnect(); clearTimeout(timer); };
+    const check = records => {
+      for (const record of records) {
+        if (record.type === 'attributes' || [...record.removedNodes].some(node =>
+          node === surface.deref() || node === remove.deref() || chain.some(ref => ref.deref() === node))) { stop(); return; }
+      }
+    };
+    const observer = new MutationObserver(check);
+    const timer = setTimeout(stop, 600000); timer?.unref?.();
+    for (const ref of chain) observer.observe(ref.deref(), {childList:true});
+    observer.observe(parts.remove, {attributes:true,attributeFilter:['aria-label']});
+    return () => { check(observer.takeRecords()); return retired ? null : weak.deref(); };
+  }
   function captureFailureWatch(op, accepted, matches) {
     if (typeof WeakRef !== 'function') return;
     const filename = fileNamePattern(op.name), views = [], cards = new Set();
@@ -1378,7 +1465,14 @@ function riftletWebAcceptance(command, native) {
   function sample(op, surface = null) {
     // The app may disable or remove its picker after accepting this file.
     // Observing that handoff needs the original draft, not another input slot.
-    if (op.start || !op.changeReturned || !sameDraft(op.binding)) return;
+    if (op.start || op.reportedCardFailure || !op.changeReturned || !sameDraft(op.binding)) return;
+    const failedShell = currentNamedFailure(op, op.binding);
+    if (failedShell) {
+      op.reportedCardFailure = retainFailureShell(failedShell, failureShellParts(failedShell, op.binding, op.name));
+      op.failureMemberID = registry.documentID + ':' + nodeID(failedShell);
+      op.stopHandoffWatch?.(); op.encodedPreview?.close(); op.encodedPreview = null;
+      return;
+    }
     if (!surface) registry.blobWindowUntil = performance.now() + 10000;
     const hasError = node => {
       const card = node.closest('[data-file-name],[role="button"],button') || node;
@@ -1401,6 +1495,9 @@ function riftletWebAcceptance(command, native) {
       const card = encodedCard || node.closest(cardSelector) || (node.tagName === 'IMG' ? node.parentElement : node);
       if (!card || seen.has(card)) continue;
       seen.add(card);
+      const shell = node.closest(errorShellSelector);
+      if (shell && (!op.oldErrorMembers || op.oldErrorMembers.has(shell)
+          || [...shell.children].some(child => op.oldErrorMembers.has(child)))) continue;
       if (native.applicationID === 'com.microsoft.edgemac' && card.parentElement?.closest('.composer-attachment-surface')) continue;
       if (!inOriginalCardContainer(card, op.binding) && !independentCardPortal(card, op.binding)) continue;
       if (card === document.body || card === document.documentElement || card.contains(op.binding.editor)
@@ -1424,6 +1521,12 @@ function riftletWebAcceptance(command, native) {
     // A retained, same-name card may subsequently expose a local failure. Weak
     // references cannot keep a detached composer, input, or attachment alive.
     captureFailureWatch(op, accepted, matches);
+    const shell = accepted.node.closest(errorShellSelector);
+    const parts = failureShellParts(shell, op.binding, op.name);
+    if (parts && !op.oldErrorMembers?.has(shell)) {
+      op.acceptedErrorShell = retainFailureShell(shell, parts);
+      op.acceptedErrorBinding = new WeakRef(op.binding);
+    }
     op.encodedPreview?.close(); op.encodedPreview = null;
     op.binding = null; op.baseline.clear(); op.previewBaseline = null; op.urls.clear();
   }
@@ -1442,6 +1545,13 @@ function riftletWebAcceptance(command, native) {
       return result;
     }
     if (op.changeReturned) item.state = 'inputTriggered';
+    if (op.reportedCardFailure) {
+      item.state = 'unknown';
+      if (liveOriginalFailure(op, op.binding, op.reportedCardFailure)) {
+        item.state = 'originalCardFailed'; item.hasError = true; item.exactImageIdentity = true;
+        item.attachmentID = op.failureMemberID; item.originalCardFailureInvocationID = op.invocationID;
+      }
+    }
     if (op.start) {
       // A past positive handoff remains true if a later input rerenders cards.
       // This is an immutable acceptance fact, not a current upload-status claim.
@@ -1449,7 +1559,8 @@ function riftletWebAcceptance(command, native) {
       item.attachmentID = op.attachmentID; item.exactImageIdentity = true;
       item.uploadStart = {...op.start};
       const watch = op.failureWatch, original = watch?.binding.deref();
-      if (command.preferStartReceipt !== true && watch && sameDraft(original) && (watch.views || [watch]).some(view => matchesOriginalCard(op, view, original))) {
+      if (command.preferStartReceipt !== true && ((watch && sameDraft(original) && (watch.views || [watch]).some(view => matchesOriginalCard(op, view, original)))
+          || liveAcceptedErrorShell(op))) {
         item.state = 'failed'; item.hasError = true;
         delete item.uploadStart;
       }
@@ -1549,8 +1660,8 @@ function riftletWebAcceptance(command, native) {
       if (!uuid(command.invocationID) || command.invocationID !== op.invocationID) return blank(identity, 'invalidated');
       const watch = op.failureWatch, original = watch?.binding.deref();
       const available = op.start
-        ? watch && sameDraft(original) && (watch.views || [watch]).some(view => matchesOriginalCard(op, view, original, false))
-        : sameDraft(op.binding);
+        ? (watch && sameDraft(original) && (watch.views || [watch]).some(view => matchesOriginalCard(op, view, original, false))) || liveAcceptedErrorShell(op)
+        : op.reportedCardFailure ? liveOriginalFailure(op, op.binding, op.reportedCardFailure) : sameDraft(op.binding);
       if (!available) return blank(identity, 'invalidated');
     }
     return observe(op);
@@ -1615,6 +1726,7 @@ function riftletWebAcceptance(command, native) {
       return retire('attachmentInputNotCreated', 'handoff', 'inputLost');
     if (op.discoveryDeadline && Date.now() >= op.discoveryDeadline)
       return retire('attachmentInputNotCreated', 'handoff', 'timeout');
+    op.oldErrorMembers = failureShellBeforeInput(op.name);
     op.previewBaseline = new WeakMap([...document.querySelectorAll(previewSelector)].map(node => [node, previewValue(node)]));
     if (native.applicationID === 'com.microsoft.edgemac') op.encodedPreview = watchEdgeEncodedPreview(file, op.name);
     registry.files.set(file, op);
@@ -1641,7 +1753,7 @@ function riftletWebAcceptance(command, native) {
     }
     op.executionPending = false;
     const result = observe(op);
-    if (op.changeReturned && !op.start && sameDraft(op.binding)) watchHandoff(op);
+    if (op.changeReturned && !op.start && !op.reportedCardFailure && sameDraft(op.binding)) watchHandoff(op);
     return result;
   };
   const run = () => {

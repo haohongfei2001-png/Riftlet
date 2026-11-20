@@ -9,6 +9,7 @@ const path=require('node:path');
 const http=require('node:http');
 const {spawn}=require('node:child_process');
 const {mountAttachmentEntryCase,readResidentV15Source}=require('./attachment-entry-application.cjs');
+const {runOriginalErrorCardCase}=require('./original-error-card-application.cjs');
 const {bounded,cleanupOwnedChrome,closeLoopbackServer}=require('./native-chrome-cleanup.cjs');
 require('./native-chrome-cleanup.test.cjs');
 const binary=[process.env.RIFTLET_CHROME_BIN,
@@ -119,6 +120,7 @@ function browserFixture(options){
    check(submittedInput===input,'the application receives its own chat picker, never another global input');
    check(list instanceof FileList&&list.length===1&&file instanceof File,'one actual native FileList item');
    inputReceivers.add(submittedInput);
+   if(options.namedErrorCard)return;
    if(options.collapseSelectionInChange){editor.focus();selection.collapse(editor.firstChild,editor.firstChild.textContent.length);}
    if(options.replacePicker){
     const replacement=submittedInput.cloneNode();submittedInput.replaceWith(replacement);input=replacement;
@@ -292,7 +294,7 @@ function browserFixture(options){
    const note=new Uint8Array([0,0,0,15,116,69,88,116,70,105,120,116,117,114,101,0,82,105,102,116,108,101,116,179,52,150,103]);
    const original=options.dimensions&&!options.jpeg?new Blob([png.slice(0,-12),note,png.slice(-12)],{type:'image/png'}):png;
    const bytes=new Uint8Array(await original.arrayBuffer()),sha=await hash(bytes);
-   let pin=options.edge?crypto.randomUUID():null;
+   let pin=(options.edge||options.namedErrorCard)?crypto.randomUUID():null;
    if(options.comparePins && index===0){
     const parts=sourceText.split('\n  // RIFTLET_CLICK_PIN_END\n');
     check(parts.length===2,'one read-only boundary');
@@ -325,6 +327,7 @@ function browserFixture(options){
    }
    op.chunks=chunkIndex;return op;
   }
+  if(options.namedErrorCard)return (__ORIGINAL_ERROR__ )({form,editor,input,operation,call,check,options,counts:()=>({setters,changes,sends})});
   for(let index=0;index<options.count;index++)ops.push(await operation(index));
   const busyProbe=await operation(50);
   let otherTab;
@@ -616,9 +619,10 @@ function browserFixture(options){
  if(next.startsWith('/case/'))location.replace(next);
 })();
 </script>`.replace('__OPTIONS__',()=>JSON.stringify(options)).replace('__MOUNT__',()=>String(mountAttachmentEntryCase))
- .replace('__PREVIOUS__',()=>JSON.stringify(previous)).replace('__SOURCE__',()=>JSON.stringify(source).replace(/<\/script/gi,'<\\/script'));
+ .replace('__ORIGINAL_ERROR__',()=>String(runOriginalErrorCardCase)).replace('__PREVIOUS__',()=>JSON.stringify(previous)).replace('__SOURCE__',()=>JSON.stringify(source).replace(/<\/script/gi,'<\\/script'));
 }
 const originalScenarios=[
+ ...[false,true].map(edge=>({name:'owned-original-failure-card',namedErrorCard:true,edge,count:1,retained:true,route:'https://chatgpt.com/'})),
  ...(process.env.RIFTLET_EDGE_LARGE_TEXTURE==='1'?[{name:'edge-full-display-texture',dimensions:[3840,2160],texture:true,edge:true,count:2,retained:true,route:'https://chatgpt.com/?temporary-chat=true'}]:[]),
  ...[[2560,1664],[3840,2160]].map(dimensions=>({name:'edge-full-display',dimensions,edge:true,count:2,retained:true,route:'https://chatgpt.com/?temporary-chat=true'})),
  ...['nested','no-remove','false-popup'].map(secondarySurface=>({name:'edge-popup-ownership',secondarySurface,composerAttachmentSurface:true,dimensions:[96,64],edge:true,count:2,retained:true,route:'https://chatgpt.com/c/ordinary-thread'})),
@@ -713,6 +717,7 @@ for(const unfiltered of groups){
      const options=group[index];
      try{
       assert.equal(report.passed,true,JSON.stringify(report));
+      if(options.namedErrorCard){assert.equal(report.rejectedShapes,15);assert.equal(report.retiredCases,4);assert.equal(report.nativeChanges,report.nativeSetters);assert.equal(report.automaticSends,0);console.log(JSON.stringify(report));continue;}
       if(options.edge){
        assert.equal(report.nativeChanges,2);assert.equal(report.nativeSetters,2);assert.equal(report.observedStarts,1);
        assert.equal(report.networkRequests,0);assert.equal(report.automaticSends,0);
