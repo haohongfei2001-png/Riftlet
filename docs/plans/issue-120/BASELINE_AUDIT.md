@@ -1,0 +1,60 @@
+# 实际基线、独立源码审查与证据边界
+
+2026-11-20（北京时间）。基线是本次读取时的 GitHub 状态，开工 W0 和最终交付前必须重新读；任何历史版本名都不能代替 Git SHA。
+
+## 1. 实际状态
+
+| 对象 | 本轮读取事实 | 对下一阶段的约束 |
+|---|---|---|
+| [main](https://github.com/haohongfei2001-png/Riftlet/tree/9fd8ad15fca043915069904113e5fb67d82b4948) | `9fd8ad15fca043915069904113e5fb67d82b4948`，#114，公开1.0.5（31）的官网/feed提交 | 规划分支可基于它；实现不可从它重做1.0.7 |
+| [PR #117](https://github.com/haohongfei2001-png/Riftlet/pull/117) | open，未合并；head `cf697d7ece7e052ccaa2ea5c4bca42a16fd0ebdf`；说明为1.0.6 build44 | #118 初始正文的 build42/b40 已过时；以最新源码/报告为准 |
+| [PR #119](https://github.com/haohongfei2001-png/Riftlet/pull/119) | open / draft，base main；head `f27c2473891bd37ac4227ca424c1bb2c4ce56c41` | 本轮只读审查 head；不改其源码、refs、评论、CI或验收 |
+| [#119 验收评论](https://github.com/haohongfei2001-png/Riftlet/pull/119#issuecomment-7028325810) | 报告 build49 产品提交 `b431931eba1d31b5ac7a5fcc110db8613e11ac7d`；此前45漏收、46误认次级卡、47 Chrome绑定超时；49拆分轻量绑定/回执 | GitHub 查询此候选 SHA 返回422/No commit found，未能审查其源码；不能把评论声称的本地候选当已推送head或通过验收 |
+| [Issue #118](https://github.com/haohongfei2001-png/Riftlet/issues/118) | 仍是1.0.7集成、G1–G6标准 | 本规划不覆写它；后续需继承最终通过的行为 |
+| [Issue #120](https://github.com/haohongfei2001-png/Riftlet/issues/120) | 单周期多浏览器/多AI授权 | 本目录深化其架构/验收，不重新拆成多个版本 |
+
+PR #117/#119 的 CI、签名、公证和实机结果属于各自提交/包的原报告，本轮没有重做它们；公开版本仍按当前仓库/PR记录为1.0.5（31），发布前须再核对实际 Release、官网及signed feed。build49未可读不是确认其“尚未实现”，仅表示本轮无法审查。
+
+## 2. 本轮确实执行的验证
+
+- 仓库只读克隆并分离 main / #119 worktree，核对相关 Swift、AppKit/Apple Events、页面 JS、模型、持久化、测试与治理文件。
+- Linux / Node `v24.22.3` 执行：`node --test Tests/WebPageProgram/acceptance-program.test.cjs Tests/WebPageProgram/legacy-web-observe.test.cjs`。
+- 结果：**263 tests / 263 pass / 0 fail / 0 skipped / 0 cancelled**，约60.79秒；源码 `f27c2473891bd37ac4227ca424c1bb2c4ce56c41`。属于 **L1 合成 DOM fixture**，不是浏览器或登录网站测试。
+- 独立审查者也运行上述集合中的 acceptance 单文件（202/202），属于重叠覆盖，不能相加为465项。
+- 未执行 macOS Swift/AppKit、原生Apple Events、新Host、真实已登录网站、签名安装或新版本发行。新核心矩阵的 L2/L3 均 NOT_RUN。
+
+## 3. 源码依据与必须处理的耦合
+
+下表路径及行号全部对应 [#119 已审不可变源码树](https://github.com/haohongfei2001-png/Riftlet/tree/f27c2473891bd37ac4227ca424c1bb2c4ce56c41)。这是**源码事实和扩展约束**；没有将未执行的竞态或网站错误写成已复现缺陷。
+
+| ID | 依据 | 裁决 |
+|---|---|---|
+| C01 | `TransferCoordinator.swift:144–154,325,640` 单 adapter 与id等号 | 增最小 resolver，新旧operation按不可变Provider/adapter revision路由；全产品一个coordinator/store，不伪装chatgpt-web |
+| C02 | `ChromeCommandRouting.swift:21–50`、executor `51,69,85–88,185–197`、JS `23–28` | ChatGPT域名/路径/历史UUID移入Provider；query/hash是否影响草稿由各站决定；新增opaque历史locator且旧字段兼容 |
+| C03 | executor `23–44,408–426`、`ChromeClickDocumentWitness.swift:9–12` | 已审head在MainActor以150ms预算同步送完整JS pin；资源102,511字节。继承最终49+轻量绑定修正，禁止重新造慢首击 |
+| C04 | JS `699–703,1456–1485`、Models `100–119` | pin依赖Navigation API；Safari门槛/替代单独验证。新pin不需React私有树，旧logicalDraft profile仅保留历史兼容 |
+| C05 | executor `173–195,239–245`、JS `246–251,716–736,1599–1605` | AE多次读取不跨进程原子；固定对象、出生身份、pin、写前校验组合防错。必须测same-URL reload/ABA/延迟/重排 |
+| C06 | JS `1571,1618–1621` | committed fence先于setter应保留；input+change事件配方不能对所有站无条件复用，必须验证实际新增附件恰好一个 |
+| C07 | JS `1276–1300,1388–1409,1607` | Edge encoded-preview技术可复用，卡片/移除/失败语义属于ChatGPT Provider；按能力选择内容证明，不按品牌堆业务分支 |
+| C08 | JS `1409,1435–1443`、coordinator `596–598` | START、ready、同卡失败、用户移除、unknown分开；spinner/文件名/计数不独立证明接受 |
+| C09 | JS `197–210,1485`、`ChromeSessionCache`、coordinator `640–662` | 当前页面proof约10分钟；媒体历史持久不等于永久可核验原草稿。证据过期/重启不可凭URL复活旧operation |
+| C10 | adapter `734–780` 与 `verifyAfterRead` | 原件与转码payload分开记hash/MIME/bytes，原件不变；不要把不同字节冒充原字节，也不重做媒体库 |
+| C11 | adapter `521–548,660–666`、`SystemScreenshotCandidateAdmission.swift:25–40,85–101`、ReceiptPolicy `66–156` | 将硬编码准入变成签名包内Provider/profile注册表，不能删除guard变成任意网页布尔回执；旧profile保持只读 |
+| C12 | `AutomationPermission.swift:50–105`、`OriginalReceiverPermission.swift:23–41`、Main `136–137,604,655–657,1292–1310` | 复用确切receiver及异步授权顺序；只在当前浏览器首次使用时引导，权限等待不改投后来前台 |
+
+## 4. 已验证骨架应保留
+
+- QueueStore `562–598,618–664`：事务内 prepared/selection核对、invocation、dispatchIntent、原owner回执。
+- WebAttachmentAdapter `257–299,304–388`：tab输入锁、operation tombstone、begin/chunk/commit、回执丢失后原identity观察。
+- JS `1511–1527,1560–1629`：原operation登记、一次性fence、写入前最后核对、setter后禁止换路径。
+- TransferCoordinator `364–397,586–618`：重启不append、确定未dispatch才恢复、未知保留、观察不长期阻塞下一张。
+- ChromeProcessIdentity `8–78`：PID+kernel birth+bundle，旧session只读兼容。
+- QueueStore `813–879`、ReceiptPolicy `66–85`：保留首个START，完成和重试资格分别判断。
+
+## 5. 最小必要重构及不做的重构
+
+必须做：Host/Provider分层、唯一resolver、版本化target/profile、Provider事件和证据策略、真实浏览器测试入口、来源隔离、按需授权和准确恢复文案。
+
+不做：另建事务引擎、16份独立脚本、删除旧UNKNOWN、重置媒体/SQLite、重新依赖React私有状态、热加载远程执行JS、复制#69数百份历史证据、改托盘外观或引入Nearpane模块。
+
+最终1.0.7可能已修复C03及部分C07；W0以新代码重新判定并复用，不能把本次审查表变成盲目重复施工清单。
