@@ -34,3 +34,11 @@ node --test engineering/preintegration/issue-120/contract/observation.test.mjs
 基线探查返回 WAITING_FOR_107_BASELINE 时，这些文件依然是预集成材料。基线具备后，从新的 main 创建实施工作树，将通过复核的增量按职责接入，沿用原库和原操作的单次输入约束。[短进度](PROGRESS.md)
 
 [独立复核全文](INDEPENDENT_REVIEW.md)记录了问题、修复、复测和最终结论。复核通过范围是共用契约、Provider 隔离夹具和宿主探查。复核者编写的 W5 矩阵由集成人另行检查。
+
+## 1.0.7 收口复核
+
+W0 已改为核对实际签名包、远端五个作业、双来源观测及独立准入。原 build 53 已重新挂载并通过 App/DMG 验签、装订、Gatekeeper 和完整 App 文件树比对。未发现同包已登录原稿点击或真实服务恢复；旧版本样本保持原归属。A、B、C 客机及可见远端资源均已清点。B 通过现有代理可访问登录页；当前正式浏览器控制连接不可用。G1、G2 和 G4 真实服务部分继续阻止 #119 合并。[W0 机器记录与重放](W0.md) · [独立审查](W0_REVIEW.md) · [本轮同包收据](build53-recheck.json) · [服务现场与远端环境](build53-service.json)
+
+W5 的非作者复核发现并修复了同一原稿冒充新建和保存稿、交错点击冒充连续双图、重复卡及跨 run 复用等错误认可。11 组回归通过，重新生成的 40 格矩阵与已提交文件逐字节一致。[矩阵说明及证据边界](matrix/README.md)
+
+C 客机的补测使用实际普通 Safari、Brave 和 Firefox。未获系统辅助功能授权的独立原生探针无法取得窗口列表，不能提供原标签身份。此前 Safari 同 URL 标签替换反例仍成立。客机和测试浏览器已关闭。[三款浏览器 AX 查询原始结果](hosts/guest-c/ax-default.ndjson)
