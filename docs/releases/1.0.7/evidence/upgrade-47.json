@@ -1,0 +1,37 @@
+{
+  "baseline": "public 1.0.5 build 31",
+  "candidateDmgSHA256": "155ef8d523e475232edebc633121063004a862cf5658b78cef320b3c5a0e0cf4",
+  "signingExeSha256": "ca40350caa1761d0bb9dbaf0e80e935b400d68a4291086ac39d04ebcced7e389",
+  "sparkleSource": "Private signed QA feed, ordinary build 31",
+  "manualSource": "Same notarized DMG, independent restoration of 31 snapshot",
+  "results": {
+    "sparkle": {
+      "runningBuild": "47",
+      "gatekeeper": "Notarized Developer ID",
+      "quickCheck": "ok",
+      "originalFileHashesMatched": 86,
+      "preferencesMatched": 3,
+      "originalAssetsPreserved": 51,
+      "originalOperationRecordsPreserved": 2,
+      "originalStartPreserved": 1,
+      "bookmarkMatched": true,
+      "feedbackMatched": true,
+      "assetRowsAfter": 51,
+      "normalTimedArchiveCount": 32
+    },
+    "manual": {
+      "runningBuild": "47",
+      "gatekeeper": "Notarized Developer ID",
+      "quickCheck": "ok",
+      "originalFileHashesMatched": 86,
+      "preferencesMatched": 3,
+      "originalAssetsPreserved": 51,
+      "originalOperationRecordsPreserved": 2,
+      "originalStartPreserved": 1,
+      "bookmarkMatched": true,
+      "feedbackMatched": true,
+      "assetRowsAfter": 51,
+      "normalTimedArchiveCount": 0
+    }
+  }
+}
