@@ -56,6 +56,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                     throw WebAdapterError.nativeSelectionChanged
                 }
                 try confirmation.checkReturn()
+                try confirmation.checkClockAgreement()
             }.value
             try Task.checkCancellation()
             let bytes = try await Self.run(WebBridgeCommand(action: .captureTarget, clickWitnessID: witness.id), program: program,
@@ -459,14 +460,26 @@ struct ChromeClickDeadline {
     /// this budget. It never grants additional time to establish a binding.
     var confirmation: Self { Self(capture: self, end: start + 1) }
 
+    // Native uptime governs the reply. If the wall clock changed during the
+    // request, its browser-side execution timestamp no longer proves the click.
+    private static let clockToleranceMS: Int64 = 5
+    func checkClockAgreement(at now: TimeInterval = ProcessInfo.processInfo.systemUptime,
+                             wallTime: TimeInterval = Date().timeIntervalSince1970) throws {
+        let wallElapsed = wallTime * 1000 - Double(wallStartMS)
+        guard abs(wallElapsed - (now - start) * 1000) <= Double(Self.clockToleranceMS) else {
+            throw WebAdapterError.nativeEventFailed(Int32(errAETimeout))
+        }
+    }
+
     func guardExecution(of binding: String) -> String {
-        let lastMS = wallStartMS + Int64(Self.captureSeconds * 1000)
+        let lastMS = wallStartMS + Int64(Self.captureSeconds * 1000) - Self.clockToleranceMS
         return """
-        (()=>{const clock=performance,now=()=>clock.timeOrigin+clock.now();
-        const within=()=>now()>=\(wallStartMS)&&now()<=\(lastMS);
-        if(!within()||clock.timeOrigin>\(wallStartMS))return 'expired';
+        (()=>{const wall=Date.now(),age=performance.now();
+        if(!Number.isFinite(age)||age<0||wall<\(wallStartMS)||wall>\(lastMS)
+          ||wall-age>\(wallStartMS))return 'expired';
         if(document.visibilityState!=='visible'||!document.hasFocus())return 'refused';
-        const result=(\(binding));return within()?result:'expired';})()
+        const result=(\(binding)),end=Date.now(),spent=performance.now()-age;
+        return end>=wall&&end<=\(lastMS)&&spent>=0&&wall+spent<=\(lastMS)?result:'expired';})()
         """
     }
 

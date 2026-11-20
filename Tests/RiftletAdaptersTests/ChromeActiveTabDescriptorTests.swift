@@ -24,7 +24,7 @@ final class ChromeActiveTabDescriptorTests: XCTestCase {
     func testQueuedPinCanOnlyBindAnAlreadyOpenVisibleDocumentWithinTheClickWindow() throws {
         let context = try XCTUnwrap(JSContext())
         context.evaluateScript("""
-            var wall=1000050, calls=0;
+            var wall=1000050, calls=0; Date.now=()=>wall;
             var performance={timeOrigin: 900000, now: ()=>wall-performance.timeOrigin};
             var document={visibilityState:'visible',hasFocus:()=>true};
             """)
@@ -40,6 +40,24 @@ final class ChromeActiveTabDescriptorTests: XCTestCase {
         XCTAssertEqual(context.evaluateScript("calls")?.toInt32(), 1)
         context.evaluateScript("document.visibilityState='visible'")
         XCTAssertEqual(context.evaluateScript(deadline.guardExecution(of: "(wall=1000200, 'bound')"))?.toString(), "expired")
+    }
+
+    func testAnOldBrowserTimeOriginCannotExtendTheClickAndClockStepsInvalidateTheReply() throws {
+        let deadline = ChromeClickDeadline(start: 10, wallTime: 1000)
+        XCTAssertNoThrow(try deadline.confirmation.checkClockAgreement(at: 10.2, wallTime: 1000.2))
+        XCTAssertThrowsError(try deadline.confirmation.checkClockAgreement(at: 10.2, wallTime: 1000.0))
+        XCTAssertThrowsError(try deadline.confirmation.checkClockAgreement(at: 10.2, wallTime: 1000.4))
+        let context = try XCTUnwrap(JSContext())
+        context.evaluateScript("""
+            var wall=1000040, calls=0, age=9840; Date.now=()=>wall;
+            var performance={timeOrigin:990000,now:()=>age};
+            var document={visibilityState:'visible',hasFocus:()=>true};
+            """)
+        let request = deadline.guardExecution(of: "(++calls, 'bound')")
+        XCTAssertEqual(context.evaluateScript(request)?.toString(), "bound")
+        context.evaluateScript("wall=1000240; age+=200")
+        XCTAssertEqual(context.evaluateScript(request)?.toString(), "expired")
+        XCTAssertEqual(context.evaluateScript("calls")?.toInt32(), 1)
     }
 
     func testConcurrentTabPropertiesCannotSupplyAnotherTabsURL() throws {
