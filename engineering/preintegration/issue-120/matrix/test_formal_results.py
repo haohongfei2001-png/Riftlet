@@ -65,6 +65,12 @@ class Bundle:
         for field,role in [('productRaw','product'),('observerRaw','independent')]:
             raw = self.put({'synthetic-test-id':[self.counter,role]})
             rec = {k:obs[k] for k in ('candidate','kind','scope','level','case','status')}
+            if case == 'service-recovery' and status == 'PASS':
+                t = lambda name: token((self.counter,name))
+                rec['recovery'] = dict(operation=t('op'),target=t('target'),original=t('original'),
+                                       acceptedCard=t('card'),failedCard=t('card'),restoredImage=t('original'),
+                                       originalCardServiceFailure=True,availableForNewClick=True,
+                                       serviceReady=False,automaticInputsAfterFailure=0)
             obs[field] = self.put(dict(**rec,role=role,actor=role,artifactSHA256=raw))
         self.index['observations'].append(self.put(obs))
 
@@ -125,6 +131,19 @@ class FormalTests(unittest.TestCase):
             b.index['runs'].pop()
             (Path(d)/b.index['runs'][0]['oracle']).write_bytes(b'{}')
             with self.assertRaisesRegex(ValueError,'digest mismatch'):
+                b.replay()
+
+    def test_cross_card_recovery_cannot_promote(self):
+        with tempfile.TemporaryDirectory() as d:
+            b = Bundle(d)
+            v = b.sample('F01')
+            b.observation(v,'cell','L3','service-recovery')
+            obs = json.loads((b.root/b.index['observations'][0]).read_bytes())
+            raw = json.loads((b.root/obs['observerRaw']).read_bytes())
+            raw['recovery']['failedCard'] = token('neighbor-card')
+            obs['observerRaw'] = b.put(raw)
+            b.index['observations'] = [b.put(obs)]
+            with self.assertRaisesRegex(ValueError,'original card failure'):
                 b.replay()
 
     def test_complete_core_and_host_specific_proofs(self):

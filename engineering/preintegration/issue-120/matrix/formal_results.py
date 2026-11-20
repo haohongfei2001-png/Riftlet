@@ -177,6 +177,7 @@ def apply_index(matrix, index, directory):
 
     cases = {}
     samples = []
+    native_cards = {}
     for ref in index['runs']:
         need(set(ref) == {'run','oracle'}, 'invalid run link')
         run, raw = read_json(read(ref['run'])), read(ref['oracle'])
@@ -188,11 +189,18 @@ def apply_index(matrix, index, directory):
             if op['inputEntered'] is None or (op['inputEntered'] == 1 and
                     any(v is None for v in op['timingsMs'].values())):
                 outcome = 'UNKNOWN'
+        observed = {row['operation']:row for row in read_json(raw)['operations']}
+        for op in run['operations']:
+            row = observed.get(op['operation'], {})
+            native_cards[op['operation']] = (ident, scope['level'], op['targetSHA256'],
+                                              op['originalSHA256'], row.get('newCardSHA256'))
         cases.setdefault((ident,scope['level'],scope['case']), []).append(outcome)
     if samples:
         audit_batch(candidate, samples)
 
+    card_operations = {info[-1]:operation for operation,info in native_cards.items() if info[-1]}
     gates = {}
+    recovery_ids = set()
     for d in index['observations']:
         r = read_json(read(d))
         need(set(r) == {'candidate','kind','scope','level','case','status','productRaw','observerRaw'} and
@@ -202,7 +210,7 @@ def apply_index(matrix, index, directory):
         ident = key(scope, SCOPE[kind])
         # Raw sources are independently audited by the signer of the index. Summaries alone
         # never establish paired-case PASS, even when they come from an admitted reviewer.
-        actors, outcomes = set(), []
+        actors, outcomes, recoveries = set(), [], []
         for field, role in (('productRaw','product'),('observerRaw','independent')):
             envelope = read_json(read(r[field]))
             need(all(envelope.get(k) == r[k] for k in ('candidate','scope','kind','level','case')) and
@@ -211,7 +219,25 @@ def apply_index(matrix, index, directory):
             actors.add(envelope['actor'].strip().casefold())
             outcomes.append(envelope['status'])
             read(envelope['artifactSHA256'])
+            if kind == 'cell' and case == 'service-recovery' and status == 'PASS':
+                proof = envelope.get('recovery', {})
+                need(all(digest(proof.get(k)) for k in ('operation','target','original','acceptedCard')) and
+                     proof.get('failedCard') == proof['acceptedCard'] and proof.get('restoredImage') == proof['original']
+                     and proof.get('originalCardServiceFailure') is True and proof.get('availableForNewClick') is True and
+                     proof.get('serviceReady') is False and type(proof.get('automaticInputsAfterFailure')) is int and
+                     proof['automaticInputsAfterFailure'] == 0, 'missing original card failure or restored image evidence')
+                recoveries.append(proof)
         need(len(actors) == 2 and status == summarize(outcomes), 'unsubstantiated reviewed outcome')
+        if recoveries:
+            proof = recoveries[0]
+            need(len(recoveries) == 2 and recoveries[1] == proof, 'different recovery observations')
+            related = (ident,level,proof['target'],proof['original'],proof['acceptedCard'])
+            need(native_cards.get(proof['operation'], related) == related and
+                 card_operations.get(proof['acceptedCard'],proof['operation']) == proof['operation'],
+                 'recovery belongs to different native operation')
+            for token in (('op',proof['operation']),('card',proof['acceptedCard'])):
+                need(token not in recovery_ids, 'reused recovery evidence')
+                recovery_ids.add(token)
         if kind == 'cell' and case in CASES:
             need(level in ('L2','L3') and status in NONPASS, 'native PASS requires matched original receipts')
             cases.setdefault((ident,level,case), []).append(status)

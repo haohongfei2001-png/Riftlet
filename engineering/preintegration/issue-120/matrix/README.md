@@ -68,3 +68,5 @@ python3 -B -m unittest -q
 专项观察内的 candidate、kind、scope、level、case、status 绑定 productRaw 和 observerRaw 两份原始记录；双方须各自给出相同的候选与范围、自己的角色 product 或 independent、采集者 actor、实际 status 和独立原件 artifactSHA256。scope 字段按 global、host、provider 或 cell 从 VARIANT 投影。经审查的专项收据可证明共享门槛；即使双方填写 PASS，仍不能替代 F01–F06/T01 的 native/oracle。审核者负责确认原始日志、操作和观察者身份；摘要检查本身无法确认测量来自真实现场。正反例和完整 16 格的合成输入只在 test_formal_results.py 的临时目录生成。
 
 计算分别给出每种配置的案例、L1/L2/L3、整包门槛以及 eligibleForReleaseReview。L3 要求同包全部 F01–F06/T01 和该格真实服务恢复；L2 要求签名 App 的首次附加及适用宿主、Provider 和共用反例。Safari 冷定位/执行环境、Brave 默认 Shields/执行环境分别有独立宿主门槛。单格记录通过但缺安装升级、性能、CI 或其他必需证据时，继续标记 PARTIAL。READY_FOR_RELEASE_REVIEW 只表示 16 个核心格记录达到复审条件；计算不启用产品配置、不修改官网或发行状态。
+
+真实 service-recovery 的两份观察还须独立绑定同一 operation、原稿、原始图片与被接受后明确失败的原卡，核对恢复的原图摘要、允许用户新点击、服务未就绪与零自动重传。它可以引用已有的同稿正面样本，不能重复使用另一个用例或另一原稿的卡片。
