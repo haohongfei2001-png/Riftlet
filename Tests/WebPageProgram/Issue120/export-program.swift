@@ -32,5 +32,5 @@ let production = try catalog.program(for: profile.profile)
 let runtime = try String(contentsOf: runtimeURL, encoding: .utf8)
 let readable = try Issue120ProviderCatalog.bind(runtime: runtime, definition: Fixture(origin: origin, recipe: nil))
 let writable = try Issue120ProviderCatalog.bind(runtime: runtime, definition: Fixture(origin: origin, recipe: .init()))
-print("const compiledProduction = " + production + ";\nconst compiledDiscovery = " + readable
+print("const compiledProduction = () => " + production + ";\nconst compiledDiscovery = () => " + readable
       + ";\nconst compiledWriter = () => " + writable + ";")

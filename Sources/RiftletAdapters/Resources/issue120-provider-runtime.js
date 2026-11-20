@@ -13,7 +13,9 @@ function createProvider(profile) {
   const active = n => visible(n) && !n.matches(':disabled,[aria-disabled="true"]');
   const upload = n => /upload|attach|上传|附件/i.test(n.getAttribute("aria-label") || n.title || n.textContent);
   const semanticOwner = n => n.closest("fieldset,form");
-  const recipe = profile.recipe;
+  // The host supplies an encoded definition. A site-wide prototype extension
+  // must never add input capabilities to a read-only bundled profile.
+  const recipe = Object.hasOwn(profile, "recipe") ? profile.recipe : null;
   function resolve() {
     if (!allowedRoute()) return {state: "other_route"};
     const editor = one([...doc.querySelectorAll(profile.editor)].filter(active));

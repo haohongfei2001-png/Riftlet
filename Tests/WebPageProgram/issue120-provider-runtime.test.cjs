@@ -27,8 +27,10 @@ async function cases(catalogEntry) {
     explicitFailure:'[role=alert][aria-label="Attachment failed"]'};
   const spec = {...catalogEntry,origin:location.origin,paths:['/app']};
   const compiled = typeof compiledProduction !== 'undefined';
-  const production = compiled ? compiledProduction : createProvider(catalogEntry);
-  const discovered = compiled ? compiledDiscovery : createProvider(spec);
+  Object.defineProperty(Object.prototype,'recipe',{value:recipe,configurable:true,writable:true});
+  const production = compiled ? compiledProduction() : createProvider(catalogEntry);
+  const discovered = compiled ? compiledDiscovery() : createProvider(spec);
+  delete Object.prototype.recipe;
   const writer = compiled ? compiledWriter : () => createProvider({...spec,recipe});
   const expect = (value,label) => {if(!value) throw Error(label);};
   const expectError = async (action,label) => {
