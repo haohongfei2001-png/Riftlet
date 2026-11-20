@@ -1,6 +1,6 @@
-# Issue #120 预集成验收
+# Issue #120 双轨实施与验收
 
-**PARTIAL · 新版登录草稿验收 0/16。** 当前没有 #120 签名候选。#119 的 1.0.7 build 53 仍是独立的上游候选。正式产品接线须从包含最终 1.0.7 的实际 main 起步。现有 [Draft PR #122](https://github.com/haohongfei2001-png/Riftlet/pull/122) 以固定的 build 53 比较分支承载准备材料。[执行规范](https://github.com/haohongfei2001-png/Riftlet/issues/120) · [规划交接](https://github.com/haohongfei2001-png/Riftlet/blob/a18ef269b63d1682384531a155c425d856b37e5d/docs/plans/issue-120/CODEX_HANDOFF.md) · [上游候选验收](https://github.com/haohongfei2001-png/Riftlet/pull/119#issuecomment-7028325810)
+**PARTIAL。** #119 的 build 53 尚缺 G1、G2 和真实服务 G4。#122 已在独立工作树将宿主、站点路由和只读续查编入开发 App。正式集成仍等候最终 1.0.7 进入实际 main，新版同一正式签名包的登录草稿结果为 **0/16**。[最新双轨报告](DUAL_TRACK.md) · [#119 原草稿记录](https://github.com/haohongfei2001-png/Riftlet/pull/119#issuecomment-7033486754) · [#122 双轨决定](https://github.com/haohongfei2001-png/Riftlet/pull/122#issuecomment-7033698539)
 
 | 新版核心组合 | ChatGPT | Claude | Gemini | DeepSeek |
 | --- | --- | --- | --- | --- |
@@ -11,7 +11,11 @@
 
 此表指同一最终签名 App 在登录草稿中的 L3。Kimi、国内千问、豆包、Perplexity 及独立的国际 Qwen 变体也尚无已验收组合。[逐格结果及逐项查询](matrix/README.md) · [机器矩阵](matrix/results.json)
 
-| 阶段 | 本轮可复核的交付 | 尚缺 |
+## 建立双轨前的历史基线
+
+下表及本节后续记录归属于预集成阶段；各工作包的当前实现与证据以[双轨报告](DUAL_TRACK.md)为准。
+
+| 阶段 | 预集成时已交付 | 当时尚缺 |
 | --- | --- | --- |
 | W0 | 远端 main、#119、公开版本与实际包字节已核对。临时工作树从 #119 c764246 读取，保留 build 49 至 53 的所有变化。macOS 27 上可找到 Developer ID Application 身份与公证工具。 | 实际 main 仍在 1.0.5。#119 的收口由 #118/#119 管理。 |
 | W1 | 原 RiftletCore、TargetLease、TransferRequest 和 QueueStore 上编译契约；轻量 pin 与异步原回执分离。拒绝跨进程、跨点击或模式的回包。新开 SQLite 连接后只允许原 invocation、原图与资源摘要一致的续查。 | 正式 coordinator/adapter 接线、旧用户数据迁移、签名 manifest 和普通 App 路径。 |

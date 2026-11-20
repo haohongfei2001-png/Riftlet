@@ -1,0 +1,34 @@
+{
+  "scope": "development-loopback",
+  "browserVersion": "157.0.8103.79",
+  "actions": [
+    "pin",
+    "validate",
+    "commit",
+    "observe",
+    "fail",
+    "observe",
+    "finish"
+  ],
+  "observations": [
+    "accepted_into_draft",
+    "original_card_failed"
+  ],
+  "boundProgramSHA256": "ac501f36f84ad17c01d571995aa24d1e693b92343ada3fe6ca08636a0efe96a6",
+  "page": {
+    "action": "finish",
+    "result": "checked",
+    "inputs": 1,
+    "changes": 1,
+    "foreign": 0,
+    "sends": 0,
+    "oldAttachmentsPreserved": true,
+    "textAndSelectionPreserved": true
+  },
+  "productSource": "9ea7e7f412ab2ea2362fddca8e97381dd197a4ef",
+  "pageResourceSHA256": "660cf7a3322b66cd465e65c9410b6bcb59bf518b5b673a7e3080d7ac7ff19a71",
+  "nativeIDs": "fixture",
+  "transport": "test-only",
+  "authenticatedSite": "NOT_RUN",
+  "signedApp": "NOT_RUN"
+}
