@@ -6,10 +6,10 @@ import Carbon
 
 private func code(_ s: String) -> OSType { s.utf8.reduce(0) { ($0 << 8) | OSType($1) } }
 
-private func object(_ type: String, id: String, parent: NSAppleEventDescriptor = .null()) throws -> NSAppleEventDescriptor {
+private func object(_ type: String, id: String, form: String = "ID  ", parent: NSAppleEventDescriptor = .null()) throws -> NSAppleEventDescriptor {
     let spec = NSAppleEventDescriptor.record()
     spec.setDescriptor(.init(typeCode: code(type)), forKeyword: code("want"))
-    spec.setDescriptor(.init(enumCode: code("ID  ")), forKeyword: code("form"))
+    spec.setDescriptor(.init(enumCode: code(form)), forKeyword: code("form"))
     spec.setDescriptor(.init(string: id), forKeyword: code("seld"))
     spec.setDescriptor(parent, forKeyword: code("from"))
     guard let absolute = spec.coerce(toDescriptorType: typeObjectSpecifier) else { throw BindingError.targetChanged }
@@ -42,6 +42,11 @@ private func object(_ type: String, id: String, parent: NSAppleEventDescriptor =
             DispatchQueue.global().async {
                 do {
                     let tab = try object("CrTb", id: "22", parent: object("cwin", id: "11"))
+                    let mutable = try object("CrTb", id: "1", form: "indx", parent: object("cwin", id: "11"))
+                    do {
+                        _ = try BraveBrowserHost.readOriginalURL(mutable, pid: getpid(), deadline: ChromeClickDeadline())
+                        exit(2)
+                    } catch BindingError.targetChanged {}
                     let url = try BraveBrowserHost.readOriginalURL(tab, pid: getpid(), deadline: ChromeClickDeadline())
                     let expired = ChromeClickDeadline(start: ProcessInfo.processInfo.systemUptime - 1)
                     do {
@@ -50,7 +55,7 @@ private func object(_ type: String, id: String, parent: NSAppleEventDescriptor =
                     } catch WebAdapterError.nativeEventFailed(let status) where status == errAETimeout {}
                     DispatchQueue.main.async {
                         guard url == "https://original.test/22", receiver.reads == 1 else { exit(4) }
-                        print("originalWindowAndTab=true ownProcessNativeReads=1 expiredReadBlocked=true")
+                        print("originalWindowAndTab=true ownProcessNativeReads=1 mutableTabBlocked=true expiredReadBlocked=true")
                         exit(0)
                     }
                 } catch {

@@ -65,6 +65,7 @@ import RiftletCore
 
     nonisolated static func readOriginalURL(_ tab: NSAppleEventDescriptor, pid: pid_t,
                                             deadline: ChromeClickDeadline) throws -> String {
+        guard ChromeActiveTabDescriptor.identity(in: tab) != nil else { throw BindingError.targetChanged }
         let event = NSAppleEventDescriptor(eventClass: kAECoreSuite, eventID: kAEGetData,
                                            targetDescriptor: .init(processIdentifier: pid), returnID: -1, transactionID: 0)
         event.setParam(try property("URL ", of: tab), forKeyword: keyDirectObject)
