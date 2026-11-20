@@ -2,6 +2,8 @@
 
 const { createHash, randomBytes } = require('node:crypto');
 
+const {performance} = require('node:perf_hooks');
+const {setTimeout: delay} = require('node:timers/promises');
 const {openVerifiedWindow} = require('./browser-preflight.cjs');
 
 const NATIVE = ['bundle', 'sessionID', 'windowID', 'tabID'];
@@ -33,10 +35,11 @@ async function createLockedDraft(options) {
   const tabID = tab.id;
   let native, target, seedProof, invalid = false, keyboardUsed = false;
   const pending = new WeakSet(), qaCards = new Map();
-  let closeRequest, allowedText, landed;
+  let closeRequest, allowedText, landed, retainWindow = false;
 
   async function releaseOwned() {
     invalid = true;
+    if (retainWindow) return 'retainedUnverified';
     if (!landed && !target) {
       // Browser-internal new-tab pages cannot be scripted. Reconfirm the
       // owned blank using the management/native witnesses alone.
@@ -64,7 +67,9 @@ async function createLockedDraft(options) {
     requireFact(!invalid, 'run retired');
     try {
       const front = await guard();
+      requireFact(!invalid, 'run retired');
       const s = await read(tab);
+      requireFact(!invalid, 'run retired');
       requireFact(same(s,front,NATIVE) && s.tabHandle === tabID && s.windowHandle === windowID && s.bundle === bundle &&
         s.frontSessionID === s.sessionID && s.frontWindowID === s.windowID &&
         s.selectedTabID === s.tabID && s.nativeHandleMatched === true &&
@@ -80,6 +85,37 @@ async function createLockedDraft(options) {
     }
   }
 
+  // New chat may resolve its click before a SPA replaces the blank draft.
+  // Only the single original click is allowed, even when its change never arrives.
+  async function freshAfterClick(previous) {
+    const deadline = performance.now() + 1500;
+    const expired = new Error('New chat produced no observable fresh draft identity');
+    while (performance.now() < deadline) {
+      let timer;
+      let settled = false;
+      try {
+        const result = checked(false).finally(() => { settled = true; });
+        const limit = new Promise((_,reject) => {
+          timer = setTimeout(() => reject(expired), Math.ceil(deadline - performance.now()));
+        });
+        const current = await Promise.race([result,limit]);
+        if (performance.now() >= deadline) throw expired;
+        requireFact(fresh(current.route) && current.route === previous.route && current.signedIn === true &&
+          current.messageCount === 0 && current.text === '' && current.cards?.length === 0,
+          'original fresh signed-in draft changed during New chat');
+        if (current.editorCount === 1 && same(current,current,DRAFT) && !same(current,previous,DRAFT)) {
+          return current;
+        }
+      } catch (error) {
+        if (error !== expired || !settled) { retainWindow = true; invalid = true; }
+        throw error;
+      } finally { clearTimeout(timer); }
+      const remaining = deadline - performance.now();
+      if (remaining > 0) await delay(Math.min(50,remaining));
+    }
+    throw expired;
+  }
+
   // Freeze the process/window/tab while it is still the new blank page.
   try {
     native = Object.freeze({...await guard(true)});
@@ -90,12 +126,10 @@ async function createLockedDraft(options) {
     const control = await locateNewChat(tab);
     requireFact(await control.count() === 1 && await control.isVisible(), 'missing genuine New chat control');
     const previous = await checked(false);
-    requireFact(same(landed, previous, DRAFT) && previous.text === '' && previous.messageCount === 0 &&
+    requireFact(same(landed, previous, DRAFT) && previous.signedIn === true && previous.text === '' && previous.messageCount === 0 &&
       previous.cards?.length === 0, 'new chat entry changed');
     await control.click({timeout:1500});
-    const nextDraft = await checked(false);
-    requireFact(!same(previous,nextDraft,DRAFT), 'New chat produced no observable fresh draft identity');
-    target = Object.freeze({...nextDraft});
+    target = Object.freeze({...await freshAfterClick(previous)});
     const first = await checked();
     requireFact(first.text === '' && first.cards?.length === 0, 'new chat was not empty');
   } catch (error) {

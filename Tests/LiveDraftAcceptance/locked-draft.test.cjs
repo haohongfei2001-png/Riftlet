@@ -277,3 +277,39 @@ test('refuses contradictory create reply and pending navigation before accessing
     await assert.rejects(e.start());assert.equal(reads,0);assert.equal(e.closes,0);
   }
 });
+
+test('a delayed New chat witness settles after two old identities and receives exactly one click',async()=>{
+  const e=environment();
+  let observations=0;
+  e.afterNew=()=>{
+    e.s.composerID='compose';
+    e.duringRead=()=>{if (++observations===3) e.s.composerID='fresh'};
+  };
+  const run=await e.start();
+  assert.ok(observations>=3);assert.deepEqual(e.events,['new']);assert.deepEqual(e.keys,[]);
+  assert.equal(await run.close(),'closed');
+});
+
+test('route, signed-in state and native focus changes retire the wait before another page read',async()=>{
+  for (const alter of [
+    e=>{e.s.route='https://chatgpt.com/?temporary-chat=true'},
+    e=>{e.s.signedIn=false},
+    e=>{e.s.selectedTabID='99'},
+  ]) {
+    const e=environment();
+    let reads=0;e.afterNew=()=>{e.s.composerID='compose';alter(e);e.duringRead=()=>{reads++}};
+    await assert.rejects(e.start());
+    assert.ok(reads<=1);assert.equal(e.closes,0);assert.deepEqual(e.events,['new']);assert.deepEqual(e.keys,[]);
+  }
+});
+
+test('an unresolved post-click page read times out without another read or unsafe cleanup',async()=>{
+  const e=environment(),original=e.options.read;
+  let after=false,reads=0;e.afterNew=()=>{after=true};
+  e.options.read=async tab=>{
+    if (!after) return original(tab);
+    reads++;return new Promise(()=>{});
+  };
+  await assert.rejects(e.start(),err=>/no observable fresh draft/.test(err.message) && err.cleanup==='retainedUnverified');
+  assert.equal(reads,1);assert.equal(e.closes,0);assert.deepEqual(e.events,['new']);assert.deepEqual(e.keys,[]);
+});
