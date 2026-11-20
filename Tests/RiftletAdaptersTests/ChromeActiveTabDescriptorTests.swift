@@ -48,7 +48,7 @@ final class ChromeActiveTabDescriptorTests: XCTestCase {
         XCTAssertEqual(context.evaluateScript(bind)?.toString(), "refused")
         XCTAssertEqual(context.evaluateScript("calls")?.toInt32(), 1)
         context.evaluateScript("document.visibilityState='visible'")
-        XCTAssertEqual(context.evaluateScript(deadline.guardExecution(of: "(wall=1000200, 'bound')"))?.toString(), "expired")
+        XCTAssertEqual(context.evaluateScript(deadline.guardExecution(of: "(globalThis.wall=1000200, 'bound')"))?.toString(), "expired")
     }
 
     func testAnOldBrowserTimeOriginCannotExtendTheClickAndClockStepsInvalidateTheReply() throws {
