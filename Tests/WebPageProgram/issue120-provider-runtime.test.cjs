@@ -1,0 +1,130 @@
+'use strict';
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const {spawn,execFileSync} = require('node:child_process');
+const fs = require('node:fs');
+const http = require('node:http');
+const os = require('node:os');
+const path = require('node:path');
+
+const chrome = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+const resources = path.resolve(__dirname,'../../Sources/RiftletAdapters/Resources');
+const program = fs.readFileSync(path.join(resources,'issue120-provider-runtime.js'),'utf8');
+const profiles = JSON.parse(fs.readFileSync(path.join(resources,'issue120-provider-profiles.json')));
+const gemini = profiles.find(p => p.id === 'gemini');
+
+// This server owns the HTML, the only recipe and the test origin. No request
+// is issued to an AI website, no production manifest contains this recipe.
+const html = `<!doctype html><meta charset=utf-8><form><fieldset>
+<rich-textarea><div role=textbox class=ql-editor contenteditable=true>original draft 原稿</div></rich-textarea>
+<simplified-input-menu><gem-icon-button><button type=button aria-controls=picker aria-label="Upload image">Upload</button>
+</gem-icon-button></simplified-input-menu><section aria-label=attachments><article aria-label=old></article></section>
+<button type=submit>Send</button></fieldset></form><form><input type=file id=foreign></form>
+<script src="/runtime.js"></script><script src="/cases.js"></script>`;
+
+async function cases(catalogEntry) {
+  const recipe = {events:'input-change',lane:'section[aria-label=attachments]',card:'article',maxBytes:65536,
+    explicitFailure:'[role=alert][aria-label="Attachment failed"]'};
+  const spec = {...catalogEntry,origin:location.origin,paths:['/app']};
+  const compiled = typeof compiledProduction !== 'undefined';
+  const production = compiled ? compiledProduction : createProvider(catalogEntry);
+  const discovered = compiled ? compiledDiscovery : createProvider(spec);
+  const writer = compiled ? compiledWriter : () => createProvider({...spec,recipe});
+  const expect = (value,label) => {if(!value) throw Error(label);};
+  const expectError = async (action,label) => {
+    try {await action();} catch(e) {expect(e.message===label,'unexpected '+e.message);return;}
+    throw Error('expected '+label);
+  };
+  const uid = () => crypto.randomUUID();
+  const body = Uint8Array.from(atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+X2ZsAAAAASUVORK5CYII='),c=>c.charCodeAt(0));
+  const hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',body)),b=>b.toString(16).padStart(2,'0')).join('');
+  const ticket = () => ({click:uid(),operation:uid(),invocation:uid(),payloadSHA256:hash,originalSHA256:hash});
+  const makeFile = t=>new File([body],'riftlet-'+t.operation+'.png',{type:'image/png'});
+  const lane=document.querySelector('section'),owner=document.querySelector('fieldset'),editor=owner.querySelector('.ql-editor');
+  const old=lane.firstElementChild, draft=editor.firstChild, selection=getSelection();
+  editor.focus();
+  selection.setBaseAndExtent(draft,1,draft,5);
+  const selected=selection.toString();
+  let inputs=0,changes=0,foreign=0,sends=0;
+  owner.addEventListener('input',e=>{if(e.target.type==='file')inputs++});
+  owner.addEventListener('change',e=>{if(e.target.type==='file')changes++});
+  document.querySelector('#foreign').onchange=()=>foreign++;
+  document.addEventListener('submit',e=>{e.preventDefault();sends++;});
+  expect(production.inspect()==='other_route','production origin');
+  expect(discovered.inspect()==='editor_and_upload_action','Gemini editor/control shape');
+  const t=ticket(),first=writer().pin(t.click);
+  const picker=document.createElement('input');picker.type='file';picker.id='picker';picker.hidden=true;
+  owner.append(picker);
+  expect(discovered.inspect()==='owned_input','explicit linked input appeared');
+  const readOnly=discovered.pin(t.click);
+  await expectError(()=>readOnly.commit(t,makeFile(t)),'unverified_event_recipe');
+  readOnly.close();
+  const replay=writer().pin(t.click);
+  expect(await first.commit(t,makeFile(t))==='input_returned','input result');
+  expect(await first.observe(t)==='unknown','input alone is not acceptance');
+  await expectError(()=>replay.commit(t,makeFile(t)),'input_fenced');
+  const card=document.createElement('article'),image=new Image();
+  image.alt=card.ariaLabel=makeFile(t).name;
+  image.src='data:image/png;base64,'+btoa(String.fromCharCode(...body));
+  card.append(image);lane.append(card);await image.decode();
+  expect(await first.observe({...t,invocation:uid()})==='unavailable','foreign invocation');
+  expect(await first.observe(t)==='accepted_into_draft','matching payload and new original card');
+  const error=document.createElement('div');error.role='alert';error.ariaLabel='Attachment failed';error.textContent='Upload failed';
+  card.replaceChildren(error);
+  expect(await first.observe(t)==='original_card_failed','same original failed');
+  card.remove();lane.append(card);
+  expect(await first.observe(t)==='unavailable','removed/reinserted card');
+  expect(selection.toString() === selected && selection.anchorNode === draft && selection.focusNode === draft &&
+    selection.anchorOffset === 1 && selection.focusOffset === 5, 'original selection retained through handoff');
+  const t2=ticket(),second=writer().pin(t2.click);
+  owner.remove();document.querySelector('form').append(owner);
+  await expectError(()=>second.commit(t2,makeFile(t2)),'target_or_payload_changed');
+  expect(picker.files.length===1 && picker.files[0].name===makeFile(t).name,'one input/file');
+  expect(editor.textContent==='original draft 原稿' && old.parentNode===lane,'retained original data');
+  // The deliberate owner removal above can itself reset a browser selection.
+  expect(inputs===1 && changes===1 && foreign===0 && sends===0,'event counts');
+  first.close();second.close();replay.close();
+  return {inputs,changes,foreign,sends,selected};
+}
+
+test('candidate provider resolves a Gemini-shaped local draft and proves its own single attachment in Chrome',
+  {skip:!fs.existsSync(chrome),timeout:30000},async()=>{
+    const profile=fs.mkdtempSync(path.join(os.tmpdir(),'riftlet-provider-chrome-'));
+    let deliver,rejectResult,child,timer;
+    const result=new Promise((a,b)=>{deliver=a;rejectResult=b;});
+    let bundledProgram=program;
+    const script=`(${cases.toString()})(${JSON.stringify(gemini)}).then(result=>fetch('/result',{method:'POST',body:JSON.stringify(result)})).catch(e=>fetch('/result',{method:'POST',body:JSON.stringify({error:e.message})}));`;
+    const server=http.createServer((req,res)=>{
+      if(req.url==='/result' && req.method==='POST'){
+        let s='';req.setEncoding('utf8');req.on('data',d=>s+=d);req.on('end',()=>{
+          res.end();try{deliver(JSON.parse(s));}catch(e){rejectResult(e);}
+        });return;
+      }
+      const pages={'/app':['text/html',html],'/runtime.js':['text/javascript',bundledProgram],'/cases.js':['text/javascript',script]};
+      const doc=pages[req.url];if(!doc){res.writeHead(404).end();return;}
+      res.writeHead(200,{'Content-Type':doc[0]+'; charset=utf-8','Cache-Control':'no-store',
+        'Content-Security-Policy':"default-src 'none'; script-src 'self'; img-src data:; connect-src 'self'; form-action 'none'"}).end(doc[1]);
+    });
+    try {
+      await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+      if(process.env.RIFTLET_TEST_PROVIDER_EXPORTER) {
+        bundledProgram=execFileSync(process.env.RIFTLET_TEST_PROVIDER_EXPORTER,
+          ['http://127.0.0.1:'+server.address().port],{encoding:'utf8'});
+      }
+      child=spawn(chrome,['--headless','--disable-background-networking','--disable-sync','--disable-extensions',
+        '--no-first-run','--no-default-browser-check','--user-data-dir='+profile,
+        'http://127.0.0.1:'+server.address().port+'/app'],{stdio:'ignore'});
+      child.once('error',rejectResult);
+      child.once('exit',()=>rejectResult(Error('controlled Chrome exited before report')));
+      timer=setTimeout(()=>rejectResult(Error('no controlled Chrome report')),22000);
+      const receipt=await result;
+      assert.deepEqual(receipt,{inputs:1,changes:1,foreign:0,sends:0,selected:'rigi'});
+    } finally {
+      clearTimeout(timer);
+      if(child && child.exitCode===null && child.signalCode===null){
+        const closed=new Promise(resolve=>child.once('exit',resolve));child.kill('SIGTERM');await closed;
+      }
+      server.closeAllConnections();await new Promise(resolve=>server.close(resolve));
+      fs.rmSync(profile,{recursive:true,force:true,maxRetries:3});
+    }
+  });
