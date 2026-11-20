@@ -164,8 +164,10 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         let destination = routes.value(for: target.stableKey)
         let identity: ChromeProcessIdentity
         if let process = destination?.process {
-            guard process.applicationID == target.applicationID, process.matches(session: target.sessionID),
-                  process.isCurrent() else { throw refuse("originalProcessChanged") }
+            guard process.applicationID == target.applicationID, process.matches(session: target.sessionID) else {
+                throw refuse("originalSessionMismatch")
+            }
+            guard process.isCurrent() else { throw refuse("originalProcessChanged") }
             identity = process
         } else {
             // After restart only observation can locate an existing recipient.

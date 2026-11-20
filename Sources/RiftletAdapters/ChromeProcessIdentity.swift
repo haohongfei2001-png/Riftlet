@@ -10,15 +10,17 @@ public struct ChromeProcessIdentity: Equatable, Sendable {
     public let applicationID: String
     let birth: KernelProcessBirth
     let legacyLaunchDate: Date?
+    private let executablePath: String?
 
     public var session: String {
         let browser = applicationID == AttachmentBrowser.chrome.rawValue ? "chrome" : "edge"
         return "\(browser)-kernel-v1:\(pid):\(birth.seconds):\(birth.microseconds)"
     }
 
-    init?(birth: KernelProcessBirth, applicationID: String?, terminated: Bool, launchDate: Date?) {
+    init?(birth: KernelProcessBirth, applicationID: String?, terminated: Bool, launchDate: Date?, executablePath: String? = nil) {
         guard let applicationID, Self.supports(applicationID), !terminated else { return nil }
         self.applicationID = applicationID; pid = birth.pid; self.birth = birth; legacyLaunchDate = launchDate
+        self.executablePath = executablePath
     }
 
     public static func == (lhs: Self, rhs: Self) -> Bool { lhs.birth == rhs.birth && lhs.applicationID == rhs.applicationID }
@@ -32,7 +34,8 @@ public struct ChromeProcessIdentity: Equatable, Sendable {
               let app = NSRunningApplication(processIdentifier: pid),
               app.bundleIdentifier == applicationID,
               let identity = Self(birth: before, applicationID: app.bundleIdentifier,
-                                  terminated: app.isTerminated, launchDate: app.launchDate),
+                                  terminated: app.isTerminated, launchDate: app.launchDate,
+                                  executablePath: kernelExecutablePath(pid)),
               KernelProcessBirth.read(pid: pid) == before else { return nil }
         return identity
     }
@@ -41,7 +44,21 @@ public struct ChromeProcessIdentity: Equatable, Sendable {
         pid == self.pid && applicationID == self.applicationID
     }
 
-    public func isCurrent() -> Bool { Self.read(pid: pid, applicationID: applicationID) == self }
+    private static func kernelExecutablePath(_ pid: pid_t) -> String? {
+        var buffer = [CChar](repeating: 0, count: Int(MAXPATHLEN) * 4)
+        let size = UInt32(buffer.count)
+        guard proc_pidpath(pid, &buffer, size) > 0 else { return nil }
+        return String(validatingUTF8: buffer)
+    }
+
+    /// Launch Services classifies the receiver at acquisition. Rechecking a
+    /// captured receiver needs its kernel birth and executable, even if Launch
+    /// Services temporarily has no application object for the running PID.
+    public func isCurrent() -> Bool {
+        guard let executablePath else { return Self.read(pid: pid, applicationID: applicationID) == self }
+        guard KernelProcessBirth.read(pid: pid) == birth, Self.kernelExecutablePath(pid) == executablePath else { return false }
+        return KernelProcessBirth.read(pid: pid) == birth
+    }
 
     /// Legacy spelling is never inferred from kernel time or rewritten into a
     /// stored operation. It is accepted only for explicitly read-only recovery.
