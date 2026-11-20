@@ -60,6 +60,16 @@ function createProvider(profile) {
 
   function pin(click) {
     if (!uuid.test(click)) throw Error("invalid_click");
+    let ledger;
+    if (recipe) {
+      // Reserve the write-capable click before resolving or waiting. A stale
+      // handle cannot reacquire the document after a focus or navigation ABA.
+      const slot = Symbol.for("com.riftlet.issue120.spent.v1");
+      if (!Object.hasOwn(doc,slot)) Object.defineProperty(doc,slot,{value:new Set()});
+      ledger = doc[slot];
+      if (ledger.size >= 3072 || ledger.has("c:"+click)) throw Error("input_fenced");
+      ledger.add("c:"+click);
+    }
     const url = location.href, entry = win.navigation?.currentEntry?.id;
     const {editor,owner,action,picker:capturedInput} = resolve();
     let picker = capturedInput;
@@ -126,9 +136,7 @@ function createProvider(profile) {
           file.size === 0 || file.size > recipe.maxBytes || !hashPattern.test(ticket.payloadSHA256) ||
           !hashPattern.test(ticket.originalSHA256) || !originalTarget()) throw Error("target_or_payload_changed");
       // Re-evaluating this resource in the same document must not mint another attempt.
-      const slot = Symbol.for("com.riftlet.issue120.spent.v1");
-      if (!Object.hasOwn(doc,slot)) Object.defineProperty(doc,slot,{value:new Set()});
-      const ledger = doc[slot], ids = ["c:"+click,"o:"+ticket.operation,"i:"+ticket.invocation];
+      const ids = ["o:"+ticket.operation,"i:"+ticket.invocation];
       if (spent || ledger.size >= 3072 || ids.some(id => ledger.has(id))) throw Error("input_fenced");
       spent = true;
       for (const id of ids) ledger.add(id);

@@ -61,10 +61,13 @@ async function cases(catalogEntry) {
   const readOnly=discovered.pin(t.click);
   await expectError(()=>readOnly.commit(t,makeFile(t)),'unverified_event_recipe');
   readOnly.close();
-  const replay=writer().pin(t.click);
+  await expectError(()=>writer().pin(t.click),'input_fenced');
   expect(await first.commit(t,makeFile(t))==='input_returned','input result');
   expect(await first.observe(t)==='unknown','input alone is not acceptance');
-  await expectError(()=>replay.commit(t,makeFile(t)),'input_fenced');
+  await expectError(()=>first.commit(t,makeFile(t)),'input_fenced');
+  const extra=uid(),secondHandle=writer().pin(extra);
+  await expectError(()=>secondHandle.commit({...t,click:extra},makeFile(t)),'input_fenced');
+  secondHandle.close();
   const card=document.createElement('article'),image=new Image();
   image.alt=card.ariaLabel=makeFile(t).name;
   image.src='data:image/png;base64,'+btoa(String.fromCharCode(...body));
@@ -85,6 +88,7 @@ async function cases(catalogEntry) {
   expect(location.pathname==='/app' && stale.current()===false,'navigation ABA retired');
   await expectError(()=>stale.commit(aba,makeFile(aba)),'target_or_payload_changed');
   stale.close();
+  await expectError(()=>writer().pin(aba.click),'input_fenced');
   const replace=writer().pin(uid());
   history.replaceState({},'',location.href);
   expect(replace.current()===false,'same-URL replace retired'); replace.close();
@@ -95,7 +99,7 @@ async function cases(catalogEntry) {
   expect(editor.textContent==='original draft 原稿' && old.parentNode===lane,'retained original data');
   // The deliberate owner removal above can itself reset a browser selection.
   expect(inputs===1 && changes===1 && foreign===0 && sends===0,'event counts');
-  first.close();second.close();replay.close();
+  first.close();second.close();
   return {inputs,changes,foreign,sends,selected};
 }
 
