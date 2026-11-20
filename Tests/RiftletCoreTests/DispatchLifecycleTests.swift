@@ -415,6 +415,17 @@ final class DispatchLifecycleTests: XCTestCase {
             let calls = await adapter.calls
             XCTAssertEqual(calls, [a.id, b.id])
             let ar = try await db.asset(id: a.id)!, br = try await db.asset(id: b.id)!
+            // select returns as soon as the independent file-input lane is released.
+            // The final receipt and its operation phase commit in a later transaction.
+            let clock = ContinuousClock()
+            let end = clock.now.advanced(by: .seconds(5))
+            for id in [try XCTUnwrap(ar.activeOperationID), try XCTUnwrap(br.activeOperationID)] {
+                while try await db.receipt(for: id) == nil, clock.now < end {
+                    try await Task.sleep(nanoseconds: 2_000_000)
+                }
+                let saved = try await db.receipt(for: id)
+                XCTAssertNotNil(saved)
+            }
             let ao = try await db.operation(id: ar.activeOperationID!)!, bo = try await db.operation(id: br.activeOperationID!)!
             XCTAssertNotEqual(ao.id, bo.id)
             XCTAssertEqual(ao.phase, .inputTriggered)
