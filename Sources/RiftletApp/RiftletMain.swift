@@ -123,12 +123,13 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var pendingResultCount = 0
     private var initialized = false
     private var initializationTask: Task<Void, Never>?
+    private var startupSourceWatch: Task<Void, Never>?
     private var captureControl = CaptureControlGate()
     private var recheckTask: Task<Void, Never>?
     private var collectionChangePending = false
-    private var captureControlBusy: Bool { captureControl.isBusy || collectionChangePending }
+    private var captureControlBusy: Bool { startupSourceWatch != nil || captureControl.isBusy || collectionChangePending }
     private var canChangeCollection: Bool {
-        mode.collectsSystemScreenshots && initialized && !collectionChangePending && captureControl.acceptsCollectionIntent
+        mode.collectsSystemScreenshots && initialized && startupSourceWatch == nil && !collectionChangePending && captureControl.acceptsCollectionIntent
     }
     private var requestingPermission = false
     private var chromeConnection: OnboardingChromeConnection = .unchecked
@@ -364,8 +365,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     // Keep the instance lock until the OS closes the old process's descriptors.
     private func finishWorkForExit() async {
         drainingForExit = true
-        await recheckTask?.value
+        startupSourceWatch?.cancel()
+        recheckTask?.cancel()
         await sourceBinding?.stop()
+        await startupSourceWatch?.value
+        await recheckTask?.value
         await capture?.finishForApplicationExit()
         await screenshotEntry?.finishForApplicationExit()
         await selectionSubmissions.finishSubmittedWork()
@@ -703,12 +707,6 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 permitsSource: { [weak self] source in await self?.restoreCaptureFolder(source) ?? false },
                 onDiagnostic: { [weak self] value in await self?.receiveCaptureDiagnostic(value) })
             sourceBinding = binding
-            if !captureIsPaused {
-                do { try await binding.start() }
-                catch { receiveCaptureDiagnostic(.classify(error, context: .source)) }
-            }
-            await service.finishApplicationStartup()
-            captureStatus = await service.statusSnapshot()
         } else {
             statusLine?.title = simulation ? "SIMULATION · synthetic images only · no ChatGPT input"
                 : "WEB ACCEPTANCE · generated images · real Chrome input"
@@ -753,6 +751,21 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 screenshotEntry?.onPreferencesChanged = { [weak self] in self?.updateSetup() }
                 screenshotEntry?.setHidden(userHidden)
             } catch { showIssue("截图入口暂不可用，已有截图收录和队列仍保留。") }
+        }
+        // Opening Desktop may wait indefinitely for a macOS consent decision.
+        // Finish restoring the local app and its unsaved-work protections first.
+        if let service = startupCapture, let binding = sourceBinding {
+            startupSourceWatch = Task {
+                if !captureIsPaused && !Task.isCancelled {
+                    do { try await binding.start() }
+                    catch { if !Task.isCancelled { receiveCaptureDiagnostic(.classify(error, context: .source)) } }
+                }
+                await service.finishApplicationStartup()
+                captureStatus = await service.statusSnapshot()
+                startupSourceWatch = nil
+                if !drainingForExit { await refresh() }
+            }
+            if mode == .settingsReview { await startupSourceWatch?.value }
         }
         await refresh()
     }
@@ -1064,7 +1077,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private enum SetupRecheckScope { case setup, source, media }
 
     private func beginSetupRecheck(_ scope: SetupRecheckScope = .setup) {
-        guard !drainingForExit, initialized, !requestingPermission, !collectionChangePending,
+        guard !drainingForExit, initialized, startupSourceWatch == nil, !requestingPermission, !collectionChangePending,
               let token = captureControl.begin(.recheck) else { return }
         updateControlTitles()
         recheckTask = Task {
@@ -1744,7 +1757,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func setCollectionPaused(_ requested: Bool) async throws {
-        guard mode.collectsSystemScreenshots, initialized, !collectionChangePending,
+        guard mode.collectsSystemScreenshots, initialized, startupSourceWatch == nil, !collectionChangePending,
               let store, let binding = sourceBinding else { throw CocoaError(.fileWriteUnknown) }
         // A control can accept this immutable intent just before an activation
         // recheck starts. Wait for that real check rather than reporting a disk
