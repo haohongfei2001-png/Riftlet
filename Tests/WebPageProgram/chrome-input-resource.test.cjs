@@ -147,6 +147,14 @@ function browserFixture(options){
     const visual=document.createElement('span'),remove=document.createElement('button');
     remove.type='button';remove.setAttribute('aria-label','Remove '+file.name);
     visual.append(image);card.append(visual,remove);
+    if(options.composerAttachmentSurface){
+     form.setAttribute('data-composer-layout','');
+     card.className='composer-attachment-surface';
+     card.setAttribute('role','button');card.setAttribute('aria-haspopup','dialog');
+     // Default Edge's visible preview is the named popup. Its remove action can
+     // be hover-only; a non-hovered picture must have the same content proof.
+     remove.style.opacity='0';
+    }
     const wrong=changes===1;
     if(wrong&&!options.dimensions)image.src=priorImage.src;else image.removeAttribute('src');
     if(!wrong||options.dimensions)createImageBitmap(file).then(bitmap=>{
@@ -577,6 +585,7 @@ function browserFixture(options){
 const originalScenarios=[
  ...(process.env.RIFTLET_EDGE_LARGE_TEXTURE==='1'?[{name:'edge-full-display-texture',dimensions:[3840,2160],texture:true,edge:true,count:2,retained:true,route:'https://chatgpt.com/?temporary-chat=true'}]:[]),
  ...[[2560,1664],[3840,2160]].map(dimensions=>({name:'edge-full-display',dimensions,edge:true,count:2,retained:true,route:'https://chatgpt.com/?temporary-chat=true'})),
+ {name:'edge-composer-attachment-surface',composerAttachmentSurface:true,dimensions:[1280,832],edge:true,count:2,retained:true,route:'https://chatgpt.com/?temporary-chat=true'},
  {name:'edge-full-display-jpeg',dimensions:[2560,1664],jpeg:true,edge:true,count:2,retained:true,route:'https://chatgpt.com/?temporary-chat=true'},
  ...['https://chatgpt.com/?temporary-chat=true','https://chatgpt.com/c/12345678-1111-2222-3333-444455556666'].map(route=>({name:'edge-click-and-content',edge:true,count:2,retained:true,route})),
  {name:'original-figure-retry-overlay',count:2,retained:true,retryOverlay:true,route:'https://chatgpt.com/'},

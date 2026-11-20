@@ -1277,6 +1277,15 @@ function riftletWebAcceptance(command, native) {
   // popup. Its named Remove button identifies the outer, single-image tile.
   function edgeImageCard(image, op, filename) {
     if (image.tagName !== 'IMG' || !filename.test(image.getAttribute('alt') || '')) return null;
+    // The live composer exposes the preview as a popup in its own right.
+    // The remove action is separate and can stay hidden until pointer hover.
+    // startMember still requires the new, rendered image and exact file content.
+    const surface = image.parentElement?.parentElement;
+    if (image.parentElement?.tagName === 'SPAN'
+        && surface?.matches('div.composer-attachment-surface[role="button"][aria-haspopup]')
+        && surface.getAttribute('aria-label') === op.name && image.getAttribute('alt') === op.name
+        && inOriginalCardContainer(surface, op.binding) && renderedPreview(surface)
+        && surface.querySelectorAll('img').length === 1 && consistentCardLabels(surface, op.name)) return surface;
     for (let node = image.parentElement, depth = 0; node && depth++ < 8 && node !== op.binding.form; node = node.parentElement) {
       if (node.tagName !== 'DIV' || node.children.length !== 2) continue;
       const remove = [...node.children].find(child => child.matches('button,[role="button"]') &&
