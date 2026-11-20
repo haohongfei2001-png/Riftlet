@@ -15,3 +15,4 @@
 | 真实双图与绑定超时 | 47 在真实 Edge 冷首击正确收起。Chrome 的一组双图相隔 1.726 秒，但第二张在文档绑定阶段超时，零输入、原图保留。两个独立超时和 Edge 的一次输入前拒绝均计入分母。[47 逐组结果](evidence/host-47.json) |
 | 候选 49 | `b431931` 保留 150ms 点击目标冻结，传送约 17KB 的共用只读见证脚本，允许稍后读取同一回执。原进程、窗口、标签和原稿在输入前再核对。独立复核发现并修正 48 中旧页面时钟可能偏移的问题。[同一候选最终验收记录](https://github.com/haohongfei2001-png/Riftlet/pull/119#issuecomment-7028325810) |
 | 候选 51 | `2771969` 移除点击路径上的独立同步权限查询，macOS 逐事件裁决。49 的 Chrome 三组在 1.887、1.666、1.689 秒内取得六个独立 START，同轮 Chrome 和 Edge 各有一次原生路由超时。最终使用新签名包，逐图验收集中在[同一报告](https://github.com/haohongfei2001-png/Riftlet/pull/119#issuecomment-7028325810)。[公证包](evidence/build51.json) |
+| 候选 52 | `9b40a4e` 修复已输入但尚无 START 时，真实原卡明确报错却始终显示待核实的问题。保留原操作、原图以及明确的新点击，并修正快速双图期间对原浏览器进程的重复识别。[独立复核](evidence/independent-card-52.json) · [正式包](evidence/build52.json) · [同包逐图验收](https://github.com/haohongfei2001-png/Riftlet/pull/119#issuecomment-7028325810) |
