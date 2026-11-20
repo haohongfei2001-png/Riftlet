@@ -1,0 +1,21 @@
+{
+  "productCommit": "b431931eba1d31b5ac7a5fcc110db8613e11ac7d",
+  "previousRejectedCommit": "5703334aaf14fc975dac66e45c07faa84202146e",
+  "scope": "Independent bounded software and local native Edge loopback checks, no service draft or real click claimed.",
+  "clockReproduction": "Frozen Swift-produced P48 and P49 JS wrappers, identical test clocks and binding. With a 200ms old-tab wall offset, +40ms changed expired to bound and a +240ms callback changed bound to expired. Both reject a new document, hidden page or work crossing the cutoff.",
+  "nativeBoundaries": "Native monotonic capture stops at 150ms, read-only confirmation stops at 1 second. Native wall/monotonic drift outside tolerance in either direction fails.",
+  "receiverReview": "Existing click route retains its exact PID and kernel process birth. An input cannot discover a new recipient. Read-only observation may find an original process after restart, tied to the saved session.",
+  "headlessEdge": "Six independent ordinary local Chromium process runs. Compact witness bound only the original editor and form among two visible editors. Same-URL full reload, same-URL pushState, replace/restore original editor, replace/restore original form and blur/focus each rejected the stale pin. Compared the pinned P48 and P49 page payloads byte-for-byte.",
+  "pageProgramSHA256": "efb30a094e6488d0642c949b39981410e7e06545d8bf8b899c9587a2ea63a945",
+  "evidenceSHA256": {
+    "actual48.js": "eb607614126934732e6fed04ea5b38b1003675bf4f061f437b47a96c4e48dae2",
+    "actual49.js": "9b378b8fe280914a04d0ee3b6e346e0ccdb8497719adbc18b61302dbc8eae1f9",
+    "window.cjs": "d0211c950999a22fe9880954a7ee92c3468fefd0bc956ab092df450290191030",
+    "results.log": "4a839f694248c57e4ae2f0780d1f032e908e58e1b220a8dededcb22c81894762",
+    "native.swift": "f6d1a0b8a367da3929d3ec24aa6a984142e9f11cae3cec0aa159cbb81bae5b00",
+    "native-result.log": "6a4f5ae86d10d33dbd5b85be4a9a5f761fa1d39a7b96e8527e15ca75219e8a8c",
+    "probe.cjs": "11c784db9426e18a8586d16512bb057a5fe53bf1dccc8dd7b25eb19113fda51c",
+    "mutations.log": "89637e3728abc6385282cfe23e8988b1875d26d9c6135eb1107ee2e7e7798d65",
+    "p48.js": "efb30a094e6488d0642c949b39981410e7e06545d8bf8b899c9587a2ea63a945"
+  }
+}
