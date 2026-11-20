@@ -68,7 +68,7 @@
   "cleanup": {
     "safariRemaining": 0,
     "braveRemaining": 0,
-    "originalBraveProfileAbsent": true,
+    "originalBraveDefaultProfileAbsent": true,
     "fixtureDirectoryRemoved": true,
     "windowlessGuestEvent": "guest-shutdown 2026-11-20T12:07:11Z"
   }
