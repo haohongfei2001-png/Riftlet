@@ -70,6 +70,8 @@ function createProvider(profile) {
     const watched = [editor,owner,action,picker,lane].filter(Boolean);
     let retired = false, spent = false, original = null, accepted = null, acceptedRetired = false, changed = false;
     const old = new WeakSet(), oldImages = new WeakSet(), removedCards = new WeakSet();
+    const foreground = () => doc.visibilityState === "visible" && doc.hasFocus();
+    let mayWrite = foreground();
     const retire = () => { retired = true; };
     // Traversing back can restore the same entry ID and DOM object references.
     // Retirement records the transition itself, including same-URL replacements.
@@ -78,6 +80,12 @@ function createProvider(profile) {
       win.navigation.addEventListener(name,retire,{capture:true,signal:lifecycle.signal});
     }
     win.addEventListener("pagehide",retire,{capture:true,signal:lifecycle.signal});
+    win.addEventListener("blur",event => {
+      if (event.target === win && event.isTrusted) mayWrite = false;
+    },{signal:lifecycle.signal});
+    doc.addEventListener("visibilitychange",() => {
+      if (!foreground()) mayWrite = false;
+    },{signal:lifecycle.signal});
     function process(records) {
       for (const r of records) {
         if (r.type === "attributes") {
@@ -105,7 +113,7 @@ function createProvider(profile) {
     }
     const commit = async (ticket, file) => {
       if (!recipe || recipe.events !== "input-change" || !lane) throw Error("unverified_event_recipe");
-      if (!originalTarget()) throw Error("target_or_payload_changed");
+      if (!mayWrite || !foreground() || !originalTarget()) throw Error("target_or_payload_changed");
       if (!picker) {
         // The original action may acquire its declared control asynchronously.
         // Never open a chooser or switch away from a previously captured input.
@@ -126,7 +134,7 @@ function createProvider(profile) {
       for (const id of ids) ledger.add(id);
       original = Object.freeze({click,operation:ticket.operation,invocation:ticket.invocation,
         originalSHA256:ticket.originalSHA256,payloadSHA256:ticket.payloadSHA256});
-      if (await sha256(await file.arrayBuffer()) !== original.payloadSHA256 || !originalTarget()) throw Error("target_or_payload_changed");
+      if (await sha256(await file.arrayBuffer()) !== original.payloadSHA256 || !mayWrite || !foreground() || !originalTarget()) throw Error("target_or_payload_changed");
       for (const child of lane.children) old.add(child);
       for (const img of lane.querySelectorAll("img")) oldImages.add(img);
       const data = new DataTransfer();
