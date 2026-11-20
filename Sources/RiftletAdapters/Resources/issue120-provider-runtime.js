@@ -16,12 +16,18 @@ function createProvider(profile) {
   // The host supplies an encoded definition. A site-wide prototype extension
   // must never add input capabilities to a read-only bundled profile.
   const recipe = Object.hasOwn(profile, "recipe") ? profile.recipe : null;
-  function resolve() {
+  function resolveDraft() {
     if (!allowedRoute()) return {state: "other_route"};
     const editor = one([...doc.querySelectorAll(profile.editor)].filter(active));
     if (!editor) return {state: "editor_unavailable"};
     const owner = semanticOwner(editor);
     if (!owner) return {state: "owner_unavailable"};
+    return {editor,owner};
+  }
+  function resolve() {
+    const draft = resolveDraft();
+    const {editor,owner} = draft;
+    if (!owner) return draft;
     const actions = [...owner.querySelectorAll(profile.action || 'label,button,[role="button"]')].filter(n =>
       semanticOwner(n) === owner && (!("form" in n) || n.form === editor.closest("form")) && active(n) && upload(n));
     const action = one(actions);
@@ -124,8 +130,9 @@ function createProvider(profile) {
     const old = new WeakSet(), oldImages = new WeakSet(), removedCards = new WeakSet();
     const foreground = () => doc.visibilityState === "visible" && doc.hasFocus();
     let mayWrite = foreground();
-    let surfaceRetired = false;
-    const retire = () => { retired = true; surfaceRetired = true; };
+    const draftMembers = [editor,owner,lane].filter(Boolean);
+    let surfaceRetired = false, draftRetired = false;
+    const retire = () => { retired = true; surfaceRetired = true; draftRetired = true; };
     // Traversing back can restore the same entry ID and DOM object references.
     // Retirement records the transition itself, including same-URL replacements.
     const lifecycle = new AbortController();
@@ -142,12 +149,14 @@ function createProvider(profile) {
     function process(records) {
       for (const r of records) {
         if (r.type === "attributes") {
+          if (draftMembers.some(n => r.target === n || r.target.contains(n))) draftRetired = true;
           if (watched.some(n => r.target === n || r.target.contains(n))) retired = true;
           if ([owner,editor,action].some(n => r.target === n || r.target.contains(n)) &&
               !(r.target === action && r.attributeName === "aria-controls")) surfaceRetired = true;
           if (lane && r.target.parentNode === lane) removedCards.add(r.target);
         }
         for (const n of r.removedNodes) {
+          if (draftMembers.some(v => n === v || n.contains(v))) draftRetired = true;
           if (watched.some(v => n === v || n.contains(v))) retired = true;
           if ([owner,editor,action].some(v => n === v || n.contains(v))) surfaceRetired = true;
           if (r.target === lane) removedCards.add(n);
@@ -164,6 +173,14 @@ function createProvider(profile) {
       return !retired && url === location.href && entry === win.navigation?.currentEntry?.id &&
         current.editor === editor && current.owner === owner && current.action === action && (!picker || current.picker === picker) && (!lane || findLane() === lane);
     };
+    // A site can rebuild its upload controls after input. Subsequent reads use
+    // the pinned draft and lane and never obtain another input or open a picker.
+    function originalDraftLane() {
+      process(watcher.takeRecords());
+      if (draftRetired || url !== location.href || entry !== win.navigation?.currentEntry?.id) return false;
+      const draft = resolveDraft();
+      return draft.editor === editor && draft.owner === owner && !!lane && findLane() === lane;
+    }
     function inspectOriginalEntry() {
       process(watcher.takeRecords());
       if (surfaceRetired || url !== location.href || entry !== win.navigation?.currentEntry?.id)
@@ -209,7 +226,7 @@ function createProvider(profile) {
       return "input_returned";
     };
     const observe = async ticket => {
-      if (!matches(ticket) || !originalTarget() || acceptedRetired) return "unavailable";
+      if (!matches(ticket) || !originalDraftLane() || acceptedRetired) return "unavailable";
       if (!changed) return "unknown";
       const name = "riftlet-"+original.operation+".png";
       const candidates = () => [...lane.children].filter(n =>
@@ -228,7 +245,7 @@ function createProvider(profile) {
         const bytes = Uint8Array.from(atob(before.src.split(",")[1]),c => c.charCodeAt(0));
         const digest = await sha256(bytes);
         const after = visibleOriginalImage(card,name,oldImages);
-        if (!originalTarget() || acceptedRetired || unstable || check.takeRecords().length ||
+        if (!originalDraftLane() || acceptedRetired || unstable || check.takeRecords().length ||
             digest !== original.payloadSHA256 || before.image !== after?.image || before.src !== after?.src ||
             card !== one(candidates()) || errors().length) return "unknown";
         accepted = card;

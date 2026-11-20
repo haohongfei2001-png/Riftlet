@@ -92,6 +92,9 @@ async function cases(catalogEntry) {
   const extra=uid(),secondHandle=writer().pin(extra);
   await expectError(()=>secondHandle.commit({...t,click:extra},makeFile(t)),'input_fenced');
   secondHandle.close();
+  const newPicker=picker.cloneNode(),newTrigger=trigger.cloneNode(true);
+  picker.replaceWith(newPicker);trigger.replaceWith(newTrigger);
+  expect(!first.current(),'original writer retired after controls rebuilt');
   const card=document.createElement('article'),image=new Image();
   image.alt=card.ariaLabel=makeFile(t).name;
   image.src='data:image/png;base64,'+btoa(String.fromCharCode(...body));
@@ -100,7 +103,9 @@ async function cases(catalogEntry) {
   expect(await first.observe(t)==='accepted_into_draft','matching payload and new original card');
   const error=document.createElement('div');error.role='alert';error.ariaLabel='Attachment failed';error.textContent='Upload failed';
   card.replaceChildren(error);
-  expect(await first.observe(t)==='original_card_failed','same original failed');
+  expect(await first.observe(t)==='original_card_failed','same original failed after controls rebuilt');
+  expect(newPicker.files.length===0,'replacement input untouched');
+  newPicker.replaceWith(picker);newTrigger.replaceWith(trigger);
   card.remove();lane.append(card);
   expect(await first.observe(t)==='unavailable','removed/reinserted card');
   expect(selection.toString() === selected && selection.anchorNode === draft && selection.focusNode === draft &&
