@@ -34,6 +34,16 @@
 
 ## 开发 App 与测试
 
-可在开发 Mac 本地解包的 ARM64 ZIP `Riftlet-Provider-Development.zip` 使用产品提交 `9ea7e7f4`，SHA-256 为 `4e3da7c815bf4c5bad0d06c28e47ce8458b2ced324b405aacfc65251d926d42e`。已重新解包，逐项比对资源与源码，验证 deep/strict 签名，执行导入、持久状态、网页策略和首次使用自检。独立的受限系统截屏测试模式在此内部通道按配置拒绝，在普通开发通道通过原自检。ZIP 使用 ad-hoc 签名，未经公证。可公开安装的 Developer ID 交付仍以 W0 为前提。[包身份收据](development-app.json)
+可在开发 Mac 本地解包的 ARM64 ZIP `Riftlet-Provider-Development.zip` 使用产品提交 `504f25dd`，SHA-256 为 `be9f54b98cd6327061a62a68207eb3ef07b63945aa6036abaff7df7269749ea2`。已重新解包，逐项比对资源与源码，验证 deep/strict 签名，执行导入、持久状态、网页策略和首次使用自检。独立的受限系统截屏测试模式在此内部通道按配置拒绝，在普通开发通道通过原自检。ZIP 使用 ad-hoc 签名，未经公证。可公开安装的 Developer ID 交付仍以 W0 为前提。[包身份收据](development-app.json)
 
-本地还运行了 128 项发行校验、26 项存储校验、19 项矩阵校验和 9 项真实草稿工具的隔离测试。独立回环测试覆盖真实 Chrome 页面资源、Swift 适配器、SQLite、重开后的同卡失败观察。完整 Xcode 测试转交实际 macOS CI。[开发分支 CI](https://github.com/haohongfei2001-png/Riftlet/actions/runs/44717916012)
+本地还运行了 128 项发行校验、26 项存储校验、19 项矩阵校验和 9 项真实草稿工具的隔离测试。独立回环测试覆盖真实 Chrome 页面资源、Swift 适配器、SQLite、重开后的同卡失败观察。首次 Xcode 运行暴露测试替身在 JavaScriptCore 中引用错误，复现后改为显式访问全局测试对象；相同产品源码的第二次云端全套测试和开发包自检通过。[原失败](https://github.com/haohongfei2001-png/Riftlet/actions/runs/44717916012) · [修正后的原生 CI](https://github.com/haohongfei2001-png/Riftlet/actions/runs/44718846598)
+
+### 首次系统文件夹权限待决时退出
+
+首个开发包在隔离 macOS 客机中正常启动并建立独立数据库。系统日志证实桌面文件夹授权待答复，提交普通退出请求后进程持续在场超过一分钟；文件夹监视线程停在系统 open。后续没有同一待答复请求时再次启动，普通退出可完成。[首个包的现场记录](development-guest-initial.json)
+
+最终 App 将访问截图目录与本地初始化分开。确认退出时，可以取消正在等待授权的文件夹打开操作；迟到返回的描述符会关闭。原设置、反馈与截图编辑仍先处理保存或放弃决定。独立复核在 100 轮并发打开与取消中未见重复打开、残留描述符或迟到回调。两张新截图按先后收录，人工重查没有重复；暂停后不收新图，重开 SQLite 后原记录 ID、文件和暂停偏好保留。首次权限待答复时，暂停和再次检查的控件仍暂不可用。
+
+在无宿主窗口的独立 macOS 克隆中，已解包并以 Launch Services 普通入口启动最终 ZIP，核对包和可执行文件的摘要。系统 tccd 将桌面文件夹权限请求归属于当前 App 与进程。普通退出请求于 10:39:59 UTC 返回，10:40:00 UTC 查为零进程、零自有窗口；系统权限结果在约 130 秒后才产生，全程没有人为同意。系统通知的独立生命周期仍由 macOS 管理。客机按正常流程关机。稳定 build 53 在这一特定首启退出场景无新现场记录。[同包客机收据](development-guest-final.json) · [同次权限事务的脱敏日志](development-guest-permission.json)
+
+最终产品提交 `504f25dd` 的 macOS Xcode 作业成功。1,402 项并行和 22 项单独运行的原生测试完成，同一提交的开发 App 打包及运行时自检通过。云端自行编译的开发包与本地客机验收包分别记录；实际客机验收以本地 ZIP 的 SHA-256 为准。[最终开发 CI](https://github.com/haohongfei2001-png/Riftlet/actions/runs/44721494954)

@@ -1,10 +1,10 @@
 {
-  "source": "9ea7e7f412ab2ea2362fddca8e97381dd197a4ef",
+  "source": "504f25ddbb4d7c6e01669056e63a2209c5c2c6ac",
   "channel": "provider-development",
   "bundleID": "com.riftlet.provider-development",
   "archive": "Riftlet-Provider-Development.zip",
-  "archiveSHA256": "4e3da7c815bf4c5bad0d06c28e47ce8458b2ced324b405aacfc65251d926d42e",
-  "executableSHA256": "787da40beca0728ed9f704a8446d5d999d19a94e61736c8d8ccd94d5706bd20b",
+  "archiveSHA256": "be9f54b98cd6327061a62a68207eb3ef07b63945aa6036abaff7df7269749ea2",
+  "executableSHA256": "8912b5825230ca31b6f398114017d8937397015b4ea491cd8ba5968293dd588b",
   "architectures": [
     "arm64"
   ],
