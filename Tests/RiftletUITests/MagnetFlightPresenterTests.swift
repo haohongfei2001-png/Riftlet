@@ -87,7 +87,11 @@ final class MagnetFlightPresenterTests: XCTestCase {
 
     @MainActor func testDecorationOwnsOneMouseTransparentNonactivatingWindowAndReleasesSynchronously() throws {
         let (plan, image, scale) = try fixture()
-        let presenter = MagnetFlightPresenter()
+        // Inspect a live window before its first rendered frame. Use a fixed future
+        // CA instant so WindowServer startup and runner preemption cannot consume
+        // this synchronous test's lifetime or remove its native animation.
+        let ready = CACurrentMediaTime() + 60
+        let presenter = MagnetFlightPresenter(mediaTime: { ready })
         defer { presenter.close() }
         let id = UUID()
         var completions: [MagnetFlightCompletion] = []
@@ -241,6 +245,24 @@ final class MagnetFlightPresenterTests: XCTestCase {
             XCTFail("A disconnected or changed screen must fall back")
         })
         XCTAssertEqual(presenter.activePanelCount, 0)
+    }
+
+    @MainActor func testWindowSetupThatOutlastsTheFlightFallsBackWithoutCompletion() throws {
+        let (plan, image, scale) = try fixture()
+        let ready = CACurrentMediaTime()
+        var current = ready
+        let presenter = MagnetFlightPresenter(mediaTime: {
+            defer { current = ready + plan.totalDuration + 1 }
+            return current
+        })
+        defer { presenter.close() }
+
+        XCTAssertFalse(presenter.start(assetID: UUID(), image: image, plan: plan, backingScale: scale) { _ in
+            XCTFail("Expired setup must not manufacture a completion")
+        })
+        XCTAssertNil(presenter.currentAssetID)
+        XCTAssertEqual(presenter.activePanelCount, 0)
+        XCTAssertEqual(presenter.diagnostics.retainedImageCount, 0)
     }
 
     @MainActor func testExpiredOrInvalidReadyClockDoesNotReplayDecoration() throws {

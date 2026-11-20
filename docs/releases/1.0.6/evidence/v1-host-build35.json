@@ -1,0 +1,83 @@
+{
+  "build": 35,
+  "source": "57ebe3d3448df0c4ffc11abeb7607a0cdc415d57",
+  "signedExecutableSHA256": "976bae3e9ba10a71e136d0e15c8cd0a18831bdc6d2b5e0fcf58bc3d72d2b5954",
+  "input": "ordinary CGEvent mouse; no AX invoke or scripted file attachment",
+  "fixtureMetrics": [
+    {
+      "fixture": 1,
+      "mouseToStartMS": 3135.2,
+      "mouseToSwallowCommitMS": 3137.3,
+      "startToAnimationMS": 3.1
+    },
+    {
+      "fixture": 2,
+      "mouseToStartMS": 2802.7,
+      "mouseToSwallowCommitMS": 2805.0,
+      "startToAnimationMS": 3.1
+    },
+    {
+      "fixture": 3,
+      "mouseToStartMS": 5308.1,
+      "mouseToSwallowCommitMS": 5309.4,
+      "startToAnimationMS": 1.8
+    },
+    {
+      "fixture": 4,
+      "mouseToStartMS": 5053.9,
+      "mouseToSwallowCommitMS": 5054.8,
+      "startToAnimationMS": 548.0
+    },
+    {
+      "fixture": 5,
+      "mouseToStartMS": 9956.6,
+      "mouseToSwallowCommitMS": 9958.0,
+      "startToAnimationMS": 1.9
+    },
+    {
+      "fixture": 6,
+      "mouseToStartMS": 6057.8,
+      "mouseToSwallowCommitMS": 6058.7,
+      "startToAnimationMS": 1.3
+    },
+    {
+      "fixture": 7,
+      "mouseToStartMS": 2752.5,
+      "mouseToSwallowCommitMS": 2753.4,
+      "startToAnimationMS": 1.3
+    },
+    {
+      "fixture": 8,
+      "mouseToStartMS": 1387.6,
+      "mouseToSwallowCommitMS": 1389.0,
+      "startToAnimationMS": 2.0
+    },
+    {
+      "fixture": 9,
+      "mouseToStartMS": 3948.7,
+      "mouseToSwallowCommitMS": 3950.4,
+      "startToAnimationMS": 2.5
+    }
+  ],
+  "pairDownIntervalsMS": [
+    335.8,
+    362.0,
+    383.1
+  ],
+  "medianMouseToSwallowCommitMS": 4096.1,
+  "nearestRankP95MouseToSwallowCommitMS": 9958.0,
+  "lastExplicitValidateAfterNinthStartSeconds": 25.7,
+  "environment": "Signed ordinary candidate, existing signed-in Chrome profile, separate real temporary ChatGPT draft, owned QA images and no message sent.",
+  "visibleSequenceAfterPair3": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "selectionAndTextRetained": true,
+  "returnToOriginalFromBlankOtherTab": "FAIL twice after approximately 79 and 26 seconds; tab remained on about:blank."
+}

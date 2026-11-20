@@ -87,13 +87,13 @@ final class BuiltInScreenshotHostTests: XCTestCase {
             rect: .zero, displayID: 7, displayIDs: [7], windowID: nil, pixelWidth: 24, pixelHeight: 12,
             options: .init(editAfter: true), hasSystemScreenshotMetadata: false))
 
-        let window = try XCTUnwrap(NSApp.windows.first { $0.isVisible && $0.title == "截图标注" })
+        let window = try XCTUnwrap(NSApp.windows.first { $0.isVisible && $0.title == ProductCopy.text("截图标注", "Mark Up Screenshot") })
         let content = try XCTUnwrap(window.contentView)
         content.layoutSubtreeIfNeeded()
         func descendants(_ view: NSView) -> [NSView] { [view] + view.subviews.flatMap(descendants) }
         let views = descendants(content)
         let canvas = try XCTUnwrap(views.compactMap { $0 as? ScreenshotMarkupCanvas }.first)
-        let done = try XCTUnwrap(views.compactMap { $0 as? NSButton }.first { $0.title == "完成" })
+        let done = try XCTUnwrap(views.compactMap { $0 as? NSButton }.first { $0.title == ProductCopy.text("完成", "Done") })
         func event(_ type: NSEvent.EventType, fraction: CGFloat) throws -> NSEvent {
             let area = canvas.imageRect
             let local = NSPoint(x: area.minX + fraction * area.width, y: area.minY + fraction * area.height)
@@ -111,8 +111,14 @@ final class BuiltInScreenshotHostTests: XCTestCase {
         try db.execute("CREATE TRIGGER reject_markup BEFORE INSERT ON assets BEGIN SELECT RAISE(ABORT,'test'); END")
         done.performClick(nil)
         let failureDeadline = Date().addingTimeInterval(3)
-        while done.title != "重试保存" && Date() < failureDeadline { try await Task.sleep(nanoseconds: 5_000_000) }
-        XCTAssertEqual(done.title, "重试保存")
+        while done.title != ProductCopy.text("重试保存", "Retry Save") && Date() < failureDeadline { try await Task.sleep(nanoseconds: 5_000_000) }
+        XCTAssertEqual(done.title, ProductCopy.text("重试保存", "Retry Save"))
+        window.setFrame(NSRect(origin: window.frame.origin, size: window.minSize), display: true)
+        content.layoutSubtreeIfNeeded()
+        let hint = try XCTUnwrap(views.compactMap { $0 as? NSTextField }.first { $0.identifier?.rawValue == "markup.hint" })
+        XCTAssertLessThanOrEqual(hint.frame.maxX, content.bounds.maxX)
+        XCTAssertGreaterThanOrEqual(hint.frame.height + 1, hint.cell!.cellSize(forBounds: hint.bounds).height)
+        XCTAssertFalse(canvas.frame.intersects(hint.frame))
         let captures = file.sourceURL.deletingLastPathComponent()
         func derivatives() throws -> [URL] {
             try FileManager.default.contentsOfDirectory(at: captures, includingPropertiesForKeys: nil)

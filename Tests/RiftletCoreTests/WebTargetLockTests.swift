@@ -45,6 +45,17 @@ final class WebTargetLockTests: XCTestCase {
         XCTAssertEqual(retained?.phase, .prepared, file: file, line: line)
     }
 
+    func testIdenticalNativeTabNumbersInChromeAndEdgeRemainIndependent() {
+        let chrome = target()
+        let edge = target(app: AttachmentBrowser.edge.rawValue)
+        let navigated = target(app: AttachmentBrowser.edge.rawValue, document: "replacement")
+        XCTAssertFalse(edge.conflictsForDispatch(with: chrome))
+        XCTAssertFalse(edge.sharesContinuationDraft(with: chrome))
+        XCTAssertTrue(edge.conflictsForDispatch(with: navigated))
+        XCTAssertNotEqual(edge.stableKey, navigated.stableKey)
+        XCTAssertNil(target(app: "com.microsoft.edgemac.Beta").attachmentBrowser)
+    }
+
     func testUnknownBlocksSameTabAfterRearmWindowMoveAndDocumentReplacement() async throws {
         let db = try store(); let original = target()
         let old = try await makeUnknown(db, original)

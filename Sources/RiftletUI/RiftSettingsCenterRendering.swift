@@ -69,7 +69,7 @@ extension RiftSettingsCenterController {
             case .checking: chromeState = ProductCopy.text("检查中", "Checking")
             case .ready: chromeState = ProductCopy.text("已连接", "Connected")
             case .javaScriptDisabled: chromeState = ProductCopy.text("需开启 JavaScript", "Enable JavaScript")
-            case .noWindow: chromeState = ProductCopy.text("请打开 Chrome 窗口", "Open a Chrome Window")
+            case .noWindow: chromeState = ProductCopy.text("请打开 \(product.setup.browser.displayName) 窗口", "Open a Window in \(product.setup.browser.displayName)")
             case .unavailable: chromeState = ProductCopy.text("连接未成功", "Connection Failed")
             }
         }
@@ -78,7 +78,7 @@ extension RiftSettingsCenterController {
         hide("chrome.check", !canTestConnection || product.chromeConnection == .ready)
         enable("chrome.check", canTestConnection && product.capabilities.canRequestAutomation
                && !product.reviewEnvironment && product.chromeConnection != .checking && !product.setup.isChecking)
-        buttonTitle("chrome.check", product.chromeConnection == .checking ? ProductCopy.text("正在检查连接…", "Checking Connection…") : ProductCopy.text("检查 Chrome 连接", "Check Chrome Connection"))
+        buttonTitle("chrome.check", product.chromeConnection == .checking ? ProductCopy.text("正在检查连接…", "Checking Connection…") : ProductCopy.text("检查 \(product.setup.browser.displayName) 连接", "Check \(product.setup.browser.displayName) Connection"))
         enable("source.open.capture", presentation.hasSourceLocation)
         hide("source.open.capture", !presentation.hasSourceLocation)
         select("arrival", index: ArrivalMotionMode.allCases.firstIndex(of: settings.arrivalMode) ?? 0)
@@ -94,10 +94,10 @@ extension RiftSettingsCenterController {
         enable("storage.recheckMedia", product.capabilities.canRecheck && !product.setup.isChecking)
         enable("storage.check", product.capabilities.canCheckStorage && product.setup.storage != .measuring)
         enable("storage.reveal", product.capabilities.initialized)
-        text("automation", presentation.automationStatusText ?? ProductCopy.text("当前模式不需要 Chrome 自动化访问。", "This mode doesn’t need access to control Chrome."))
+        text("automation", presentation.automationStatusText ?? ProductCopy.text("当前模式不需要 \(product.setup.browser.displayName) 自动化访问。", "This mode doesn’t need access to control \(product.setup.browser.displayName)."))
         labels["automation"]?.isHidden = product.setup.permission == .granted
         let scriptInstructions = presentation.chromeScriptInstructions
-            ?? (product.chromeConnection == .javaScriptDisabled ? ChromeAttachmentSetup.instructions : nil)
+            ?? (product.chromeConnection == .javaScriptDisabled ? ChromeAttachmentSetup.instructions(for: product.setup.browser) : nil)
         text("chrome.menu", scriptInstructions ?? "")
         labels["chrome.menu"]?.isHidden = scriptInstructions == nil || !canTestConnection
             || product.chromeConnection != .javaScriptDisabled || product.setup.issue == .chromeJavaScriptDisabled
@@ -105,7 +105,7 @@ extension RiftSettingsCenterController {
         let lastAttachmentProblem = product.setup.issue?.isAttachmentConnectionIssue == true
         labels["attachment"]?.isHidden = supportsConnectionCheck && !lastAttachmentProblem
         text("attachment", presentation.attachmentText)
-        buttonTitle("automation.request", product.setup.permission == .notRunning ? ProductCopy.text("打开 Chrome", "Open Chrome") : presentation.permissionActionTitle)
+        buttonTitle("automation.request", product.setup.permission == .notRunning ? ProductCopy.text("打开 \(product.setup.browser.displayName)", "Open \(product.setup.browser.displayName)") : presentation.permissionActionTitle)
         hide("automation.request", !presentation.canRequestPermission && product.setup.permission != .notRunning)
         enable("automation.request", product.capabilities.canRequestAutomation && (presentation.canRequestPermission || product.setup.permission == .notRunning) && !product.setup.isChecking)
         enable("screen.privacy", settings.entryAvailable)

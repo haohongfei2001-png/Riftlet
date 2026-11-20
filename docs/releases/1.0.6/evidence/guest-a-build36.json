@@ -1,0 +1,45 @@
+{
+  "candidate": {
+    "version": "1.0.6",
+    "build": 36,
+    "source": "4ed6cbede7260fb857d98bc2a23ef9240870c32e",
+    "executableSHA256": "c2524bcdffe400908b13f29a245b4f539a1a6cc3e6ebebadaabc8675e89ba5cb",
+    "dmgSHA256": "9481d9afa784f7bcc723b7888eb7dcbf16f9860ace64e6765adb2b29f02dd727"
+  },
+  "environment": "Isolated Apple Silicon Mac guest A; real Chrome anonymous test draft and synthetic images; ordinary signed App and Sparkle; UI exercised on virtual pointer. No additional attachment or send in this run.",
+  "V2": {
+    "oldUnknownWithoutUsableTarget": "PASS. Needs Attention offered local hide, Mark as Handled, and Attach Again with explicit duplicate warning. Cancel preserved all data. Continue staged a desktop action and required a separate click; no new input operation or START. Hide removed only desktop visibility. Handled changed local marker 0→1 and attention list 3→2; original attempt=1, phase/status unknown and zero START remained. Staged second dispatch not exercised in this guest run.",
+    "originalAfterRestart": "PASS for focus and honest unavailable state. After quitting and restarting the App while Chrome remained alive, the original attachment could no longer be verified more than 8 hours after START. From a different tab, Return still selected the original anonymous ChatGPT draft with its 4 visible cards. Successful card read after expiry was not observed.",
+    "originalTabClosed": "PASS. Closed the confirmed original using Chrome File→Close Tab. Chrome showed about:blank. Same native history record reported original draft not located on Return; Check reported original attachment could no longer be verified. Original operations and START fingerprints unchanged."
+  },
+  "V3": {
+    "manualScope": "PASS. Native review counted 24 copies, identified 6 without verified external originals. Explicit Trash confirmed. 24 rows retired and their private media absent. All 4 previously real-attached screenshots included. Old UNKNOWN without START and 2 pre-input failures retained.",
+    "quitAndRestore": "PASS. Closed actual App; offline inventory exactly matched post-move; reopened signed build36. Restore from Trash (24) restored every private image to its recorded SHA, kept every id, visibility, status and operation/START fingerprint, zero retired rows. Entire final inventory equals build35 backup.",
+    "nativeHarness": "Separate source-bound controlled build36 replay passed six tests plus seed/move/restore in distinct processes, including in-flight, unhandled same-card error, unique external-original/30-day boundaries and import interruptions. Thirty elapsed calendar days and genuine server-side card failure were not reproduced by this GUI run."
+  },
+  "V5": {
+    "31-to-36": {
+      "status": "PASS via normal Check for Updates, Install Update and Install and Relaunch using isolated signed feed",
+      "preservedOriginalFiles": 48,
+      "oldAssets": 19,
+      "oldIdsAndAssetMetadataPresent": true,
+      "oldOperationsAndStartsIntact": true,
+      "existingPrefsBookmarkFeedbackPreserved": true,
+      "integrity": "ok",
+      "existingRowsChangedOnlyByIdleArchive": 5,
+      "addedMatchingUserScreenshots": 9
+    },
+    "35-to-36": {
+      "status": "PASS via normal Check for Updates, Install Update and Install and Relaunch using isolated signed feed",
+      "preservedOriginalFiles": 57,
+      "oldAssets": 28,
+      "oldIdsAndAssetMetadataPresent": true,
+      "oldOperationsAndStartsIntact": true,
+      "existingPrefsBookmarkFeedbackPreserved": true,
+      "integrity": "ok",
+      "existingRowsChangedOnlyByIdleArchive": 0,
+      "addedMatchingUserScreenshots": 0
+    }
+  },
+  "teardown": "Isolated update server stopped, guest HTTPS proxy disabled, App quit, native Shut Down completed. Private VM disk and baseline retained."
+}

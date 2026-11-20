@@ -1,0 +1,191 @@
+{
+  "version": "1.0.6",
+  "build": 42,
+  "sourceSHA": "3ab118d590c911a52e4110094f78ae1f480927f2",
+  "dmgSHA256": "a9037d17d079c2ae6ed62693c4523e2f8b3543d0943dd00e8a79270c9069fde1",
+  "executableSHA256": "b2f67175b8a1d522291c3f5f21c710b6435bd9cde9c00e9a98ff912d2d723080",
+  "environment": "independent disposable macOS Apple Virtualization guest, two vCPUs and 4 GiB, 1024x768 logical Apple virtual display, 2x screenshot capture",
+  "V5manual": {
+    "from": "public 1.0.3 (25) on original QA image",
+    "to": "Developer ID signed, notarized 1.0.6 (42), manual replacement at ordinary installation path",
+    "gatekeeperAndCodeRequirement": "PASS",
+    "originalChecksumsPreserved": 12,
+    "oldRowDigestsAllPresent": {
+      "assets": 5,
+      "operations": 1,
+      "upload_starts": 0,
+      "checkpoints": 3,
+      "compensations": 0,
+      "metadata": 2
+    },
+    "addedCheckpoints": 1,
+    "bookmarkAndFeedbackDraft": "unchanged",
+    "sqliteQuickCheck": "ok"
+  },
+  "V4native": {
+    "observed": [
+      "zh fresh onboarding, Later persists after normal quit/reopen",
+      "four native zh settings pages; dark and light appearance; four en pages captured on upgraded profile",
+      "storage manager updated in place for 0→1 pending orphan, Recover led to 0",
+      "manual review then separate confirmation; 4 original identities and hashes verified in Trash and after Restore; no new upload operation or START",
+      "Screenshot Library native frame 808x492 default and 680x480 minimum, list/grid, keyboard search/empty and Tab focus"
+    ],
+    "limits": [
+      "language/appearance/size combinations sampled independently",
+      "VoiceOver sound recording and multiple physical displays not run"
+    ],
+    "compactEnglishSearch": {
+      "width": 680,
+      "height": 480,
+      "focusedSearchPlaceholder": "Search",
+      "placeholderEvidence": "0.070 0.269 Search",
+      "VoiceOverName": "Search screenshots",
+      "actualCaption": [
+        "0.331 0.816 × Search screenshots Search, search text field"
+      ]
+    },
+    "VoiceOver": {
+      "tested": "Real macOS VoiceOver announced library search name and text-field role, status popup, date popup, selected grid radio (2 of 2); verified display transcript of the native caption panel while Tab moved focus",
+      "spokenAudioRecording": "NOT_RUN",
+      "speechSynthesisOutputHeardByHuman": "NOT_RUN"
+    },
+    "permissionScope": {
+      "PASS": [
+        "fresh user chose Later and normally relaunched without onboarding",
+        "first normal built-in capture encountered missing screen permission and the action opened the correct macOS Screen & System Audio Recording panel"
+      ],
+      "NOT_RUN_on_this_guest": [
+        "post-consent built-in capture and markup (no existing approval on this separate image)",
+        "Chrome Apple Events deny then grant",
+        "physical multi-display and VoiceOver audio recording"
+      ]
+    }
+  },
+  "V6ordinary": {
+    "fixture": {
+      "copies": 1000,
+      "dimensions": "1024x768",
+      "bytesPerPNG": 297060,
+      "method": "separate originals and stored files, repeated deterministic screenshot-sized textured image; real PNGs and SQLite rows on disk"
+    },
+    "UI": "1000 copies to review (297.1 MB), full verification confirmation, canceled",
+    "initialSummaryObservedMs": {
+      "eventToVerified1000CountOCRms": 1357.0992090099026,
+      "includes": "guest delivery, native App, one window capture, host Vision OCR, process overhead"
+    },
+    "duringFullVerificationMs": {
+      "n": 20,
+      "p50": 318.48,
+      "p95": 494.25,
+      "max": 659.53
+    },
+    "duringRuleChangeAndHistoryMs": {
+      "n": 20,
+      "p50": 303.31,
+      "p95": 391.33,
+      "max": 411.36
+    },
+    "fullVerificationBatch": 20,
+    "changeAndHistoryBatch": 20,
+    "all40UniqueRowPrivateAndExternalPNGMatch": true,
+    "ordinaryProfile": [
+      {
+        "files": 2009,
+        "bytes": 298723879,
+        "rows": 1000
+      },
+      {
+        "files": 2049,
+        "bytes": 305376003,
+        "rows": 1020
+      },
+      {
+        "files": 2089,
+        "bytes": 312032332,
+        "rows": 1040
+      }
+    ],
+    "appProcess": {
+      "sampleCount": 300,
+      "durationMs": 61293.497,
+      "rssStartPeakEndBytes": [
+        120602624,
+        131809280,
+        131465216
+      ],
+      "userCPUMs": 2282.791,
+      "systemCPUMs": 818.124,
+      "physicalReadBytes": 349741056,
+      "physicalWriteBytes": 13942784,
+      "scope": "A 300-sample window started before full verification, including the first ingest batch; separate UI and data receipts cover the subsequent policy/history batch."
+    },
+    "caveats": [
+      "collection measured from external copy through SQLite insertion, polled at 50ms",
+      "OS caching influences physical counters",
+      "first-screen stopwatch includes virtual input dispatch, capture and host OCR",
+      "benchmarks are a bounded preliminary sample, not long-duration retention observation"
+    ]
+  },
+  "V6SourceProbe": {
+    "concurrentCollectionMS": {
+      "max": 15.305292,
+      "n": 20,
+      "p50": 10.117084,
+      "p95": 11.874125
+    },
+    "cpuSystemMS": 243.78891666666667,
+    "cpuUserMS": 673.8434583333334,
+    "extraImports": 20,
+    "fileGrowth": 60,
+    "finalRSSBytes": 27148288,
+    "imageSize": "1024x768",
+    "initialCopies": 1000,
+    "initialLogicalBytes": 597027253,
+    "initialProfileAndOriginalFiles": 3003,
+    "initialRSSBytes": 23068672,
+    "initialSummaryMS": 7.031833,
+    "logicalGrowthBytes": 12665233,
+    "physicalDiskReadBytes": 20480,
+    "physicalDiskWriteBytes": 13451264,
+    "summaryHistoryAndRuleMS": {
+      "max": 15.646,
+      "n": 20,
+      "p50": 11.408291,
+      "p95": 15.370208
+    },
+    "syntheticImageBytes": 297060,
+    "verifiedCopies": 1000,
+    "verifyAndConcurrentWorkMS": 750.3015
+  },
+  "localWindowCaptures": {
+    "appearance-en-light.png": "1338f689dcc60d7ab15ddbb9b767bdc66a0e5b4c9ab1b71af622a9d5edae10f7",
+    "appearance-zh-dark.png": "834dcc2a861620c622b2b14a819780b0ecd1c45ad45b4db14311af0df213afac",
+    "appearance-zh-light.png": "e0fcd7c246ff27a51f2d6e5d6b44df564b1d63b6b65a1a07e1d5e30aee7b38eb",
+    "general-en-light.png": "8d116e63dc9c7e4db272121894ac4f8e3ca3d94d42318000f8b06136a5fc137f",
+    "general-zh-light.png": "e90e37eb96bfedfe60157650cabc915d655bfe64c2eb676249ca0cf53897a875",
+    "help-en-light.png": "b6885271e20a4d5fc5454908d4337d2aa49373f4740f2cec875c4158f225d62b",
+    "help-zh-dark.png": "efbe0685c5bacd323d59e8f4a54e293d49ec9e969de39e64b4d7c9421649fe54",
+    "library-en-default.png": "68346a4c53351423eb945c430e42b796d28fcad9885f024a32d5eaf0529a2627",
+    "library-en-min-grid.png": "3c2afccea40fc22d3a315e57855401a98cf1ad8f33b1c583ff828fcbae2bdd2d",
+    "library-en-min-list.png": "a37845f88d8a77e0f3d2e68c1deceabdafbcd416abcf1ceeab6dbc8f1c417693",
+    "library-en-min-search-detail.png": "54c271b16fbe38f24c06cf89d29f2f2b5c6553072c8401c42a64115c34d3a3d0",
+    "library-en-min-search-hint.png": "904f0b6c07eff21e35d0e1e9953b850a5618d68fb7b1dde4985a6b7f656c25c6",
+    "library-en-min-search.png": "17a0d9dad1e5e327f2cb61f97bfd6ecbca47c078e1508a0b51e781d555628c10",
+    "library-en-tab-focus.png": "0ef1b9023cffc5f37d6be7dbf38141728df622596a265fdd1dfe7027114739b3",
+    "manager-en-initial.png": "629cbc7e376839bd293d8527a108b92c0831c705c39093fdb1a5f7871734825c",
+    "manager-en-live-pending.png": "66b2df6ccce27ea7da4ac3b555f37aa77b74715e1e7cdb1311f0ec0411b9e600",
+    "manager-en-recovered.png": "97a9fa7ea9b464e5ce5278770de8813c56b3cd5201dffaa04c04bc4330e19136",
+    "manager-restored.png": "2324062aec3b4c5d8350af29b028d6a9331fc4a7cc10bb5742a692ed2b146a12",
+    "manager-zh-dark.png": "3a9532ef5f1da7369d235a3835da31fc832929247d8d3e92bef2fe70a45a2c24",
+    "onboarding-zh.png": "10ca62462cb7832e489cb5b633f71100f2b5ff6602c5d781f5471971e7a34cb7",
+    "screens-en-light.png": "2e0c9f0a4a3d5431b7468b613880968553555c173507d47dd973836b117f16ea",
+    "screens-zh-dark.png": "51aeae5104edbd4b7e431a015f57e3c4608e6d779ae5355bedeccd7135f68416",
+    "v6-initial-manager.png": "bcb2324bec12a6d928d67cfcaecbd5d3aeac7f3ae53e0acd32696d17ff87f319",
+    "v6-verified-1000.png": "7af541f91ec06d8c78205c34f957e59de444a4ff3a7770798f66ed08eebe775d",
+    "voiceover-search-en.png": "bfdabb11039844df9588639a85be18e97db76a7fed9207a16547d7420a0da038",
+    "voiceover-search.png": "5c6a9ed807822012dd0f96a2a41b11c3f70ab5182e9922f4adf2ae69443e39a6",
+    "voiceover-tab-dates.png": "ab9c3236e4eba88ad80321fbe1e47618afb1cbd94179f83ebc3bdabd0724a329",
+    "voiceover-tab-list.png": "af19c62334c2af2c89a61e24dfd34f0fb21b1c9423a16b104396749ace7c960d",
+    "voiceover-tab-rule.png": "e74ccae1d5cb51dcd53f728ece4fd9cc16a1b395b1927dd4a58eda5bcc14a9f3"
+  }
+}

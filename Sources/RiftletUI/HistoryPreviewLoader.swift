@@ -110,17 +110,18 @@ struct HistoryPreviewImage {
 enum HistoryPreviewDecode {
     static let maximumEncodedBytes = 128 * 1_024 * 1_024
 
-    static func load(_ request: HistoryPreviewRequest, cancellation: HistoryPreviewCancellation) throws -> HistoryPreviewImage {
+    static func verifiedBytes(asset: ImportedAsset, directory: URL, cancellation: HistoryPreviewCancellation = HistoryPreviewCancellation()) throws -> (Data, HistoryPreviewFileIdentity) {
         try cancellation.check()
-        let name = request.asset.fileName
+        let name = asset.fileName
+        let url = directory.appendingPathComponent(name)
         guard !name.isEmpty, name != ".", name != "..",
               name == URL(fileURLWithPath: name).lastPathComponent else { throw HistoryPreviewFailure.invalidFile }
-        let descriptor = Darwin.open(request.url.path, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
+        let descriptor = Darwin.open(url.path, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
         guard descriptor >= 0 else { throw HistoryPreviewFailure.invalidFile }
         defer { Darwin.close(descriptor) }
         let identity = try HistoryPreviewFileIdentity.read(descriptor: descriptor)
         guard identity.size > 0, identity.size <= Int64(maximumEncodedBytes),
-              identity.size == request.asset.byteCount else { throw HistoryPreviewFailure.invalidFile }
+              identity.size == asset.byteCount else { throw HistoryPreviewFailure.invalidFile }
         // Read compressed bytes from this descriptor, rather than let ImageIO
         // reopen a replaceable pathname. No source pixels are eagerly expanded.
         let handle = FileHandle(fileDescriptor: descriptor, closeOnDealloc: false)
@@ -133,10 +134,15 @@ enum HistoryPreviewDecode {
             hasher.update(data: chunk); data.append(chunk)
         }
         let digest = hasher.finalize().map { String(format: "%02x", $0) }.joined()
-        guard Int64(data.count) == identity.size, digest == request.asset.sha256.lowercased(),
+        guard Int64(data.count) == identity.size, digest == asset.sha256.lowercased(),
               try HistoryPreviewFileIdentity.read(descriptor: descriptor) == identity,
-              identity.matches(request.url) else { throw HistoryPreviewFailure.fileChanged }
+              identity.matches(url) else { throw HistoryPreviewFailure.fileChanged }
         try cancellation.check()
+        return (data, identity)
+    }
+
+    static func load(_ request: HistoryPreviewRequest, cancellation: HistoryPreviewCancellation) throws -> HistoryPreviewImage {
+        let (data, identity) = try verifiedBytes(asset: request.asset, directory: request.directory, cancellation: cancellation)
         let sourceOptions = [kCGImageSourceShouldCache: false, kCGImageSourceShouldAllowFloat: false] as CFDictionary
         guard let source = CGImageSourceCreateWithData(data as CFData, sourceOptions),
               CGImageSourceGetStatus(source) == .statusComplete, CGImageSourceGetCount(source) == 1,
@@ -159,8 +165,7 @@ enum HistoryPreviewDecode {
         // a giant image. The controller clears the preview and explains the failure.
         guard HistoryPreviewPlan.accepts(image) else { throw HistoryPreviewFailure.displayBudget }
         try cancellation.check()
-        guard try HistoryPreviewFileIdentity.read(descriptor: descriptor) == identity,
-              identity.matches(request.url) else { throw HistoryPreviewFailure.fileChanged }
+        guard identity.matches(request.url) else { throw HistoryPreviewFailure.fileChanged }
         return HistoryPreviewImage(image: image, sourceSize: plan.sourceSize, identity: identity, url: request.url)
     }
 }

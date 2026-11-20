@@ -204,14 +204,14 @@ extension RiftSettingsCenterController {
 
     func helpContent() -> [NSView] {
         [
-            section(ProductCopy.text("Chrome 连接", "Chrome Connection")), namedLabel("access.chrome", role: "rowTitle"), namedLabel("automation", role: "secondary"),
+            section(ProductCopy.text("浏览器连接", "Browser Connection")), namedLabel("access.chrome", role: "rowTitle"), namedLabel("automation", role: "secondary"),
             namedLabel("chrome.menu", role: "caption"), namedLabel("attachment", role: "caption"),
-            makeButton(ProductCopy.text("允许 Chrome 连接…", "Allow Chrome Connection…"), id:"automation.request") { [weak self] in
+            makeButton(ProductCopy.text("允许浏览器连接…", "Allow Browser Connection…"), id:"automation.request") { [weak self] in
                 guard let self else { return }
                 dispatch(product.setup.permission == .notRunning ? .openChrome : .requestAutomation)
             },
-            makeButton(ProductCopy.text("检查 Chrome 连接", "Check Chrome Connection"), id:"chrome.check") { [weak self] in self?.dispatch(.checkChromeConnection) },
-            section(ProductCopy.text("使用帮助", "Getting Help")), SettingsNativeStyle.label(ProductCopy.text("截一张图，点桌面边缘的缩略图，即可将图片加入当前 Chrome 的 ChatGPT 草稿。确认后由你发送。", "Take a screenshot, then click its thumbnail at the edge of your desktop to attach it to your current ChatGPT draft in Chrome. You choose when to send."), role: "secondary"),
+            makeButton(ProductCopy.text("检查浏览器连接", "Check Browser Connection"), id:"chrome.check") { [weak self] in self?.dispatch(.checkChromeConnection) },
+            section(ProductCopy.text("使用帮助", "Getting Help")), SettingsNativeStyle.label(ProductCopy.text("截一张图，点桌面边缘的缩略图，即可将图片加入当前 Chrome 或 Edge 的 ChatGPT 草稿。确认后由你发送。", "Take a screenshot, then click its thumbnail at the edge of your desktop to attach it to your current ChatGPT draft in Chrome or Edge. You choose when to send."), role: "secondary"),
             makeButton(ProductCopy.text("重新查看引导…", "Open Setup Guide…"), id:"guide.help") { [weak self] in self?.dispatch(.openOnboarding) },
             makeButton(ProductCopy.text("反馈与建议…", "Send Feedback…"), id:"feedback.help") { [weak self] in self?.dispatch(.openFeedback) },
             disclosure(ProductCopy.text("诊断", "Diagnostics"), id:"diagnostics", content: group([namedLabel("support", role:"caption"), namedLabel("build.detail", role:"caption"),

@@ -1,4 +1,5 @@
 import Foundation
+import RiftletCore
 
 /// One ordering domain for every native permission inspection, including future
 /// foreground prebinding and original click validation. This stores results,
@@ -6,7 +7,18 @@ import Foundation
 @MainActor
 final class OriginalReceiverPermission {
     struct Request { let session: String; let ordinal: UInt64 }
-    struct Resolution { let usable: AutomationPermissionState; let published: Bool }
+    struct Resolution {
+        let usable: AutomationPermissionState
+        let published: Bool
+
+        var attachmentAccess: OriginalReceiverAccess {
+            switch usable {
+            case .granted: return .granted
+            case .denied, .notRequested: return .permissionRequired
+            case .browserNotRunning, .browserNotInstalled, .unavailable, .notNeeded: return .unavailable
+            }
+        }
+    }
     private var ordinal: UInt64 = 0
     private var latest: [String: (UInt64, AutomationPermissionState)] = [:]
 

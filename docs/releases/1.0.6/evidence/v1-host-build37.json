@@ -1,0 +1,67 @@
+{
+  "build": 37,
+  "source": "1d5731545564b4a1d5a4b342dba455dc3521bb1f",
+  "samples": [
+    {
+      "click": 1,
+      "assetDigestPrefix": "36f5592befad",
+      "clickToStartMS": 2665.1,
+      "clickToObservedSwallowCommitMS": 2666.6
+    },
+    {
+      "click": 2,
+      "assetDigestPrefix": "9281e08ebd6b",
+      "clickToStartMS": 1965.9,
+      "clickToObservedSwallowCommitMS": 1967.7
+    },
+    {
+      "click": 3,
+      "assetDigestPrefix": "73cdc79527a8",
+      "clickToStartMS": 1691.6,
+      "clickToObservedSwallowCommitMS": 1696.1
+    },
+    {
+      "click": 4,
+      "assetDigestPrefix": "7e9765b83042",
+      "clickToStartMS": 1556.4,
+      "clickToObservedSwallowCommitMS": 1558.3
+    },
+    {
+      "click": 5,
+      "assetDigestPrefix": "03965f0569ee",
+      "clickToStartMS": 1642.9,
+      "clickToObservedSwallowCommitMS": 1645.0
+    },
+    {
+      "click": 6,
+      "assetDigestPrefix": "e8136834041d",
+      "clickToStartMS": 1526.7,
+      "clickToObservedSwallowCommitMS": 1528.7
+    },
+    {
+      "click": 7,
+      "assetDigestPrefix": "25a70348ba0d",
+      "clickToStartMS": 2903.3,
+      "clickToObservedSwallowCommitMS": 2905.5
+    },
+    {
+      "click": 8,
+      "assetDigestPrefix": "fe0bc89513a9",
+      "clickToStartMS": 1575.2,
+      "clickToObservedSwallowCommitMS": 1577.9
+    }
+  ],
+  "rapidPairDownIntervalsMS": [
+    547.1,
+    519.1,
+    473.9
+  ],
+  "swallowCommitUpperBoundMS": {
+    "p50": 1670.5,
+    "p95NearestRank": 2905.5,
+    "max": 2905.5
+  },
+  "liveResult": "Cold, warm and 3 rapid pairs; actual logged-in Chrome temporary draft, eight distinct START operations and eight visible cards in the original draft. Full eight-character body and selected two-character ending preserved. No send.",
+  "fixtureNote": "Two events across adjacent pairs (fourth and fifth cards) used identical file bytes. Both were distinct captures/operations; the two images within each rapid pair differed.",
+  "historyFocus": "From about:blank reselected the existing original window / tab / temporary draft."
+}

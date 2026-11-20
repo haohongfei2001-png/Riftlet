@@ -1,0 +1,15 @@
+{
+  "build": 35,
+  "environment": "Dedicated signed Mac VM, ordinary installed App, normal management window, system Trash, normal App quit/restart. Dedicated QA library.",
+  "libraryRows": 28,
+  "moved": 24,
+  "restored": 24,
+  "soleCopiesDisclosed": 6,
+  "liveChatGPTStartCopiesMovedAndRestored": 4,
+  "allOriginalPrivateBytesAndIDsMatch": true,
+  "originalOperations": 8,
+  "originalStartFacts": 5,
+  "operationAndStartDigestsUnchanged": true,
+  "noStartUnknownProtectedThroughAllThreeSnapshots": true,
+  "sqliteIntegrity": "ok at all three snapshots"
+}

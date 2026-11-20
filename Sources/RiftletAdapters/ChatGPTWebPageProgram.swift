@@ -11,7 +11,14 @@ public enum ChatGPTWebPageProgram {
     static let priorHandoffSource = "chatgpt-web-attachment-handoff-20261105-v16"
     static let priorScreenshotSource = "chatgpt-web-screenshot-handoff-20261105-v17"
     static let priorObservationSource = "chatgpt-web-screenshot-observation-20261118-v18"
-    public static let sourceID = "chatgpt-web-screenshot-card-observation-20261118-v19"
+    static let priorCardObservationSource = "chatgpt-web-screenshot-card-observation-20261118-v19"
+    static let priorOriginalReviewSource = "chatgpt-web-screenshot-original-review-20261118-v20"
+    static let priorMemberStatusSource = "chatgpt-web-screenshot-member-status-20261119-v21"
+    static let priorObservedStartSource = "chatgpt-web-screenshot-observed-start-20261119-v22"
+    static let priorOwnedPreviewSource = "chatgpt-web-screenshot-owned-preview-20261119-v23"
+    static let priorProgressCardSource = "chatgpt-web-screenshot-progress-card-20261119-v24"
+    static let priorRetryOverlaySource = "chatgpt-web-screenshot-retry-overlay-20261119-v25"
+    public static let sourceID = "chatgpt-web-browser-handoff-20261120-v30"
     /// Candidate mapping only; ReceiptPolicy start registries remain separate.
     public static let acceptanceUploadStartProfileID = "chatgpt-web-zh-progress-start-development-20261027-v1"
     public static let acceptanceProfile = ObservationProfile(
@@ -31,11 +38,18 @@ public enum ChatGPTWebPageProgram {
         guard let url = resources.url(forResource: "chatgpt-web-20261027", withExtension: "js"),
               let source = try? String(contentsOf: url, encoding: .utf8), !source.isEmpty,
               source.utf8.count <= 128 * 1024 else { throw WebAdapterError.programUnavailable }
+        // The click-time Apple Event transmits only the shared resolver and witness.
+        // Resource layout is verified before either program can run.
+        let sections = source.components(separatedBy: "\n  // RIFTLET_CLICK_PIN_END\n")
+        guard sections.count == 2, !sections[0].isEmpty, !sections[1].isEmpty else {
+            throw WebAdapterError.programUnavailable
+        }
+        let pinSource = sections[0] + "\n  return 'refused';\n}"
         // Ordinary input never executes historical observers. Their registries
         // cannot veto a new handoff; the separate legacy reader remains available
         // only to explicit historical tooling.
         return WebPageProgram(sourceID: sourceID, functionSource: source,
-                              maximumChunkBytes: 256 * 1024, inputDiscoveryTimeout: 3)
+                              maximumChunkBytes: 256 * 1024, inputDiscoveryTimeout: 3, pinSource: pinSource)
     }
 }
 

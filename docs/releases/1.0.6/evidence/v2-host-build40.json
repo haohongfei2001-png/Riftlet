@@ -1,0 +1,273 @@
+{
+  "candidate": 40,
+  "source": "65398096092e739bb9581244961112b572006465",
+  "dmgSHA256": "4de8e2450c0896e922d386353857008b90590f69d11b5a35aa5e9d9ccff6569f",
+  "scope": "signed DMG on host Chrome, ordinary native clicks driven by CGEvent, unchanged executable, synthetic QA screenshots only, private test home",
+  "operations": [
+    {
+      "sequence": 1,
+      "op": "02bf729d7fd2",
+      "asset": "42e69d591808",
+      "attempt": 1,
+      "invocation": "79f8321835b1",
+      "phase": "inputTriggered",
+      "reason": "observer-v2:uploadStarted:integratedDevelopment",
+      "draft": "43626a295e07",
+      "card": "122fe46ced98",
+      "belongsToOriginalDraft": true,
+      "handled": false
+    },
+    {
+      "sequence": 2,
+      "op": "45816ebc8783",
+      "asset": "119f73cbe3fd",
+      "attempt": 1,
+      "invocation": "cc847b951434",
+      "phase": "inputTriggered",
+      "reason": "observer-v2:uploadStarted:integratedDevelopment",
+      "draft": "43626a295e07",
+      "card": "2dc4ab29689d",
+      "belongsToOriginalDraft": true,
+      "handled": false
+    },
+    {
+      "sequence": 3,
+      "op": "f1cffe83bee3",
+      "asset": "c7628a8eb6f5",
+      "attempt": 1,
+      "invocation": "c4e8651c10b1",
+      "phase": "inputTriggered",
+      "reason": "observer-v2:uploadStarted:integratedDevelopment",
+      "draft": "43626a295e07",
+      "card": "0f0db4a55abb",
+      "belongsToOriginalDraft": true,
+      "handled": false
+    },
+    {
+      "sequence": 4,
+      "op": "f69bcad2fd5f",
+      "asset": "f3faf68e0f9e",
+      "attempt": 1,
+      "invocation": "91f15a6cf63c",
+      "phase": "inputTriggered",
+      "reason": "observer-v2:uploadStarted:integratedDevelopment",
+      "draft": "43626a295e07",
+      "card": "ac6abdb9a4b7",
+      "belongsToOriginalDraft": true,
+      "handled": false
+    },
+    {
+      "sequence": 5,
+      "op": "dea35ec05dbb",
+      "asset": "7b739ae6a008",
+      "attempt": 1,
+      "invocation": "63dd7fb0f563",
+      "phase": "inputTriggered",
+      "reason": "observer-v2:uploadStarted:integratedDevelopment",
+      "draft": "43626a295e07",
+      "card": "51eb7137e465",
+      "belongsToOriginalDraft": true,
+      "handled": false
+    },
+    {
+      "sequence": 6,
+      "op": "d45674950f81",
+      "asset": "81c3b8eaf6ea",
+      "attempt": 1,
+      "invocation": "07a9e70d32cb",
+      "phase": "inputTriggered",
+      "reason": "observer-v2:uploadStarted:integratedDevelopment",
+      "draft": "43626a295e07",
+      "card": "89ba2a6c6fff",
+      "belongsToOriginalDraft": true,
+      "handled": false
+    },
+    {
+      "sequence": 7,
+      "op": "fb0e0b5b328f",
+      "asset": "daeedc703535",
+      "attempt": 1,
+      "invocation": "1cde3e73b26d",
+      "phase": "inputTriggered",
+      "reason": "observer-v2:uploadStarted:integratedDevelopment",
+      "draft": "43626a295e07",
+      "card": "c842456c313b",
+      "belongsToOriginalDraft": true,
+      "handled": false
+    },
+    {
+      "sequence": 8,
+      "op": "da4e87b54615",
+      "asset": "1ce33fc7a0a4",
+      "attempt": 1,
+      "invocation": "85d8454adc9b",
+      "phase": "inputTriggered",
+      "reason": "observer-v2:uploadStarted:integratedDevelopment",
+      "draft": "43626a295e07",
+      "card": "330ff65cfb0a",
+      "belongsToOriginalDraft": true,
+      "handled": false
+    },
+    {
+      "sequence": 9,
+      "op": "2ac1bea733cd",
+      "asset": "c4c17802ce39",
+      "attempt": 1,
+      "invocation": "2a83df60dac2",
+      "phase": "unknown",
+      "reason": "Input observed; conclusive completion is unavailable",
+      "draft": "8a92f6e38d73",
+      "card": null,
+      "belongsToOriginalDraft": null,
+      "handled": true
+    },
+    {
+      "sequence": 10,
+      "op": "3fbe4de4efbe",
+      "asset": "c4c17802ce39",
+      "attempt": 2,
+      "invocation": "673851831ee7",
+      "phase": "inputTriggered",
+      "reason": "observer-v2:uploadStarted:integratedDevelopment",
+      "draft": "8a92f6e38d73",
+      "card": "e741edfda5b8",
+      "belongsToOriginalDraft": true,
+      "handled": false
+    },
+    {
+      "sequence": 11,
+      "op": "9d3a38055ec7",
+      "asset": "d3b41b963dba",
+      "attempt": 1,
+      "invocation": "191026e88044",
+      "phase": "unknown",
+      "reason": "Input observed; conclusive completion is unavailable",
+      "draft": "ddc294aa2f42",
+      "card": null,
+      "belongsToOriginalDraft": null,
+      "handled": false
+    }
+  ],
+  "metrics": {
+    "clickToSwallowCommitUpperBoundMS": [
+      1862.8,
+      2434.1,
+      2780.8,
+      2289.6,
+      2273.1,
+      2988.3,
+      2408.2,
+      1689.9
+    ],
+    "cold": 1862.8,
+    "warm": 2434.1,
+    "median": 2348.8999999999996,
+    "p95NearestRank": 2988.3,
+    "pairMouseDownIntervalsMS": [
+      711.4,
+      645.2,
+      664.3
+    ]
+  },
+  "observations": {
+    "authenticatedV1": "Cold and warm first click and three pairs. Eight distinct pictures were visible in order on the original draft. Synthetic draft text and its nonempty selection were preserved, and no message was sent.",
+    "returnOriginal": "Clicked latest original from second owned about:blank. Exact owned window and original tab became active.",
+    "noDraft": {
+      "status": "PASS",
+      "surface": "owned about:blank",
+      "operationsBefore": 8,
+      "operationsAfter": 8,
+      "startsBefore": 8,
+      "startsAfter": 8,
+      "assetAfter": "pending, visible"
+    },
+    "fileInputFailure": {
+      "status": "PASS for observed UNKNOWN and explicit new intent",
+      "beforeConfirmation": {
+        "operations": 9,
+        "starts": 8
+      },
+      "afterReadOnlyAndConfirmation": {
+        "operations": 9,
+        "starts": 8
+      },
+      "afterSecondNaturalClick": {
+        "operations": 10,
+        "starts": 9
+      },
+      "originalSequence": 9,
+      "nextSequence": 10,
+      "realCardText": "上传未成功 / Retry",
+      "identity": "exact original file basename text, followed by two ancestors and an exact localized error text node, 1 of 1 including while a different healthy card remained"
+    },
+    "realProcessingFailure": {
+      "request": "process_upload_stream",
+      "networkOutcome": "(blocked:devtools)",
+      "exactRuleAffected": 1,
+      "networkScope": "normal Chrome DevTools, only the dedicated temporary test draft inspected, No throttling",
+      "sourceBytes": 2989719,
+      "operationSequence": 11,
+      "at4_5s": {
+        "phase": "dispatchIntent",
+        "hasPositiveStart": false
+      },
+      "at16_6s": {
+        "phase": "unknown",
+        "hasPositiveStart": false
+      },
+      "at35_2s": {
+        "phase": "unknown",
+        "hasPositiveStart": false
+      },
+      "serviceUI": "Real ChatGPT card displayed the original operation filename prefix, 上传未成功 and Retry. No numeric progress or genuine image preview attributable to this operation was observed prior to its error.",
+      "automaticInputCount": 0,
+      "actualInputCount": 1,
+      "postPositiveStartThenFailure": "NOT_OBSERVED; no positive START on this operation. Cannot claim the requested post-START rebirth or restoration.",
+      "at105_3s": {
+        "phase": "unknown",
+        "hasPositiveStart": false,
+        "source": "native SQLite observation"
+      }
+    },
+    "restartAndClosedOriginal": {
+      "status": "PASS for witnessed unavailable result and zero replay",
+      "browserProcessRetained": true,
+      "originalTestTabAbsent": true,
+      "originalOperationSequences": [
+        9,
+        10,
+        11
+      ],
+      "samePhases": [
+        "unknown",
+        "inputTriggered",
+        "unknown"
+      ],
+      "samePositiveStartFlags": [
+        false,
+        true,
+        false
+      ],
+      "beforeAndAfterRestartAndReadOnlyAction": {
+        "operations": 11,
+        "positiveStarts": 9
+      },
+      "nativeNotice": "现已无法核实原附件。你可以查看原图，或结束本地跟踪。"
+    },
+    "teardown": {
+      "qaRequestRuleDeleted": true,
+      "requestBlockingUnchecked": true,
+      "devToolsWindowsAfter": 0,
+      "qaCandidateExited": true,
+      "noThrottlingRestored": true
+    },
+    "promotionDecision": "NO_GO for a wider rollout: genuine on-service post-positive-START error and recovery were not established on this candidate."
+  },
+  "executableSHA256": "60b4a87fe0ef5fa7d228f60163aa099f26eb227b444ee9bc1786ab6db514cddc",
+  "finalCounts": {
+    "operations": 11,
+    "positiveStarts": 9,
+    "uniqueInvocations": 11
+  },
+  "outsiderBoundaries": "All browser interactions used explicit temporary QA tab IDs. One changed page was left alone, one absent QA tab was checked through the private candidate. Only synthetic screenshots were used. No ordinary message send."
+}

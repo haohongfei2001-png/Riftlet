@@ -1,0 +1,46 @@
+{
+  "productCommit": "dc858f314141ddfc45c7e7ff422a9993c657bff1",
+  "jsSHA256": "d5a1989f36abfc8acb50f28b95a9f2b1c12048c666d03f774aea8c13a0035cdc",
+  "controlledBrowser": "local unmodified Microsoft Edge in isolated temporary headless profiles, loopback-only fixture",
+  "build45": "Rejected nested foreign surface, aria-haspopup=false and missing owned Remove with positive second input in each fixture.",
+  "build46": "Admitted all three false STARTs. This checkpoint must not ship.",
+  "build47": "All three rejected individually, ordinary hover-only same-card Remove accepted, altered pixel rejected, no automatic sends or network traffic.",
+  "postAcceptance": {
+    "noFalseFailure": [
+      "replaced image",
+      "changed label then restored original",
+      "detached and reinserted same card",
+      "neighbor retry",
+      "wrong generated filename on retry",
+      "hidden retry control",
+      "hidden whole card"
+    ],
+    "positive": "visible named retry+failure on own unmodified card"
+  },
+  "testCaveat": "An early multipage batch in one process lost the click pin at initialization of one page; that unchanged case passed in an individual process.",
+  "privateArtifactChecksums": {
+    "47-false-single.log": "1376a04759c089bf5a0d99dc8c38abfd6272669632e180e14aaaeccf7631656f",
+    "47-no-owned-remove-single.log": "e5b8cfdc413defa1cffa71b30f4f4a8a21db0a01d4494ad39146edd6327a7199",
+    "47-secondary-popup-single.log": "b0ff43e8a5a9a7248dab514c4c76faa74795743962e9684d8a6cbbdae2ba699e",
+    "47-post-start.log": "703c16a541d3004a07b2f5d8ea2792d488856954711081755dd8dc04796f18b0",
+    "47-real-shape-positive.log": "473aaf6c6b5d24b52b5f33dbf46a96e1538187c131547742d3b244c960ae5ebe",
+    "before-ab.log": "383faf5ac1a27df0552800752706f7a738b3b7827240f5a6aa6a8147d3c4296c",
+    "after-ab.log": "867625ea6aee60e32eef6e894c0e408df6d965bf7a3064878b3300d1ea855d8e",
+    "ab.cjs": "af68ff9318be8d8d1dd95c37bac31fbea2cf5b11ddf8084356522593838e24b3",
+    "post-start.cjs": "a4f12ba59b48cca35aa2b4e26a1adf2365c0719fef66ccc2ad44dbe9b33297cd",
+    "pre47.cjs": "32e6becfe8755b637cda4c7c35261e2aee3330ffdfac806816ef7e83f889de40",
+    "47-pre-start.log": "94a304c9794b179df84db6bbd8d7b8cfe686a3cf3b58495e397dda86a45eba09"
+  },
+  "preAcceptance": {
+    "noFalseStart": [
+      "single-pixel mismatch",
+      "nested under secondary role button",
+      "other dialog",
+      "message-body attachment",
+      "opacity-zero surface",
+      "hidden image",
+      "wrong surface label",
+      "two image children"
+    ]
+  }
+}

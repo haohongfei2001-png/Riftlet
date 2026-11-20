@@ -16,6 +16,7 @@ public enum WebBridgeAction: String, Codable, CaseIterable, Sendable {
 public struct WebPageProgram: Sendable {
     public let sourceID: String
     public let functionSource: String
+    public let pinSource: String?
     /// Code-owned transport capacity; never negotiated from page JSON. Older
     /// and generic programs retain their 64 KiB default.
     public let maximumChunkBytes: Int
@@ -24,8 +25,9 @@ public struct WebPageProgram: Sendable {
     /// not an upload timeout or a permission to repeat an operation.
     public let inputDiscoveryTimeout: TimeInterval
     public init(sourceID: String, functionSource: String, maximumChunkBytes: Int = 64 * 1024,
-                inputDiscoveryTimeout: TimeInterval = 0) {
+                inputDiscoveryTimeout: TimeInterval = 0, pinSource: String? = nil) {
         self.sourceID = sourceID; self.functionSource = functionSource
+        self.pinSource = pinSource
         self.maximumChunkBytes = maximumChunkBytes
         self.inputDiscoveryTimeout = inputDiscoveryTimeout.isFinite ? min(3, max(0, inputDiscoveryTimeout)) : 0
     }
@@ -41,21 +43,27 @@ public struct WebBridgeCommand: Encodable, Sendable {
     public let chunkIndex: Int?
     public let chunkBase64: String?
     public let invocationID: UUID?
+    public let clickWitnessID: UUID?
+    public let preferStartReceipt: Bool?
+    public let requireLiveOriginal: Bool?
     /// Host diagnostics only, deliberately excluded from the page payload.
     public let captureInvocation: CaptureInvocationContext?
 
     private enum CodingKeys: String, CodingKey {
-        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID
+        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID, clickWitnessID, requireLiveOriginal, preferStartReceipt
     }
 
     init(action: WebBridgeAction, target: TargetLease? = nil, identity: ObservationIdentity? = nil,
          uploadName: String? = nil, mediaType: String? = nil, byteCount: Int64? = nil,
          chunkIndex: Int? = nil, chunkBase64: String? = nil, invocationID: UUID? = nil,
-         captureInvocation: CaptureInvocationContext? = nil) {
+         clickWitnessID: UUID? = nil, requireLiveOriginal: Bool? = nil, preferStartReceipt: Bool? = nil, captureInvocation: CaptureInvocationContext? = nil) {
         self.action = action; self.target = target; self.identity = identity
         self.uploadName = uploadName; self.mediaType = mediaType; self.byteCount = byteCount
         self.chunkIndex = chunkIndex; self.chunkBase64 = chunkBase64; self.invocationID = invocationID
+        self.clickWitnessID = clickWitnessID
         self.captureInvocation = captureInvocation
+        self.preferStartReceipt = preferStartReceipt
+        self.requireLiveOriginal = requireLiveOriginal
     }
 }
 
@@ -111,6 +119,7 @@ public enum WebAdapterError: Error, Equatable, Sendable {
 /// operations; historical operations retain their observation-only profiles.
 public actor WebAttachmentAdapter: IndependentFileInputAdapter {
     public nonisolated let id: String
+    public nonisolated var supportsOriginalHandoffChecks: Bool { mode == .ordinaryProduct || mode == .syntheticDevelopment }
     private let mediaDirectory: URL
     private nonisolated let executor: any WebBridgeExecutor
     private nonisolated let program: WebPageProgram?
@@ -284,8 +293,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         } else {
             // Even the first recovery read is observation, not file execution.
             // A delayed/lost reply here must not hold the next screenshot.
-            response = try await perform(.init(action: .observe, target: input.identity.target,
-                identity: input.identity))
+            response = try await readOriginal(input.identity, request: request)
         }
         return try await observeCompletion(initial: response, identity: input.identity,
             request: request, liveAppend: true, inputConfirmed: inputConfirmed)
@@ -343,11 +351,12 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
             try file.verifyAfterRead(hash: hash.finalize().map { String(format: "%02x", $0) }.joined())
             // This is the only command permitted to trigger attachment input. The
             // page function rechecks the target and the complete current payload.
+            let preferStart = try await startPreference(for: request)
             committing = true
             let response: Data
             do {
                 response = try await perform(.init(action: .commit, target: identity.target,
-                    identity: identity, chunkIndex: index, invocationID: request.invocationID))
+                    identity: identity, chunkIndex: index, invocationID: request.invocationID, preferStartReceipt: preferStart))
                 // A malformed/lost transport receipt does not undo a file input.
                 // Recover only by observing this operation, never another commit.
                 _ = try ObservationDecoder.decode(response)
@@ -356,7 +365,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
                 // running. Keep only this current execution's lane until it
                 // settles or its code-owned discovery deadline expires. Never
                 // repeat commit, inspect old uploads, or wait for START here.
-                return (await settleInterruptedInput(identity), identity)
+                return (await settleInterruptedInput(identity, request: request), identity)
             }
             return (response, identity)
         } catch {
@@ -379,7 +388,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         }
     }
 
-    private func settleInterruptedInput(_ identity: ObservationIdentity) async -> Data? {
+    private func settleInterruptedInput(_ identity: ObservationIdentity, request: TransferRequest) async -> Data? {
         guard let timeout = program?.inputDiscoveryTimeout, timeout > 0 else { return nil }
         let deadline = ProcessInfo.processInfo.systemUptime + timeout + 0.5
         var latest: Data?
@@ -388,7 +397,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
             // A transport read can itself stall. A late read remains read-only
             // and cannot extend the absolute execution-recovery budget.
             let read = Task {
-                let data = try? await self.perform(.init(action: .observe, target: identity.target, identity: identity))
+                let data = try? await self.readOriginal(identity, request: request)
                 await slot.finish(data)
             }
             let timer = Task {
@@ -420,6 +429,19 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         return latest
     }
 
+    private func startPreference(for request: TransferRequest) async throws -> Bool? {
+        guard mode == .ordinaryProduct, let binding = productBindings[request.asset.origin],
+              try await binding.admission.needsOriginalStart(for: request) else { return nil }
+        return true
+    }
+
+    private func readOriginal(_ identity: ObservationIdentity, request: TransferRequest) async throws -> Data {
+        let preferStart = try await startPreference(for: request)
+        return try await perform(.init(action: .observe, target: identity.target, identity: identity,
+            invocationID: request.requireLiveOriginal ? request.invocationID : nil,
+            requireLiveOriginal: request.requireLiveOriginal ? true : nil, preferStartReceipt: preferStart))
+    }
+
     public func reconcile(_ request: TransferRequest) async throws -> TransferReceipt {
         try requireEnabled()
         try check(request.operation.target)
@@ -429,10 +451,11 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
               request.operation.phase != .prepared else { throw WebAdapterError.invalidRequest }
         let identity = ObservationIdentity(operationID: request.operation.id, assetID: request.asset.id,
             attempt: request.operation.attempt, assetSHA256: request.asset.sha256, target: request.operation.target)
-        let data = try await perform(.init(action: .observe, target: identity.target, identity: identity))
+        guard !request.requireLiveOriginal || request.invocationID != nil else { throw WebAdapterError.invalidRequest }
+        let data = try await readOriginal(identity, request: request)
         // Successful operations may only be checked for identity-correlated late
         // errors. A single observation does not start another polling/upload loop.
-        if mode == .ordinaryProduct || request.operation.phase == .succeeded {
+        if mode == .ordinaryProduct || request.requireLiveOriginal || request.operation.phase == .succeeded {
             return try await normalize(data, for: request)
         }
         return try await observeCompletion(initial: data, identity: identity, request: request)
@@ -484,7 +507,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
             // independently admits visual exit; subsequent calls only observe.
             if receipt.outcome == .uploadStarted { return receipt }
             switch envelope.observation.state {
-            case .attached, .ready, .failed, .invalidated: return receipt
+            case .attached, .ready, .failed, .originalCardFailed, .invalidated: return receipt
             case .inputTriggered, .uploadStarted, .unknown: break
             }
             let remaining = deadline - ProcessInfo.processInfo.systemUptime
@@ -493,7 +516,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
             guard ProcessInfo.processInfo.systemUptime < deadline else { return receipt }
             // Observation after an uncertain result can never cause a second
             // input. There is deliberately no commit/begin fallback here.
-            response = try await perform(.init(action: .observe, target: identity.target, identity: identity))
+            response = try await readOriginal(identity, request: request)
         }
     }
 
@@ -639,7 +662,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
     private func check(_ target: TargetLease) throws {
         guard target.adapterID == id, target.surface == normalizer.profile.surface,
               target.surface == .webChat || target.surface == .webWork,
-              target.applicationID == "com.google.Chrome",
+              target.attachmentBrowser == .chrome || (mode == .ordinaryProduct && target.surface == .webChat && target.attachmentBrowser == .edge),
               !target.sessionID.isEmpty, !target.windowID.isEmpty, target.tabID?.isEmpty == false,
               !target.documentID.isEmpty, !target.composerID.isEmpty, !target.draftGeneration.isEmpty else {
             throw WebAdapterError.invalidTarget

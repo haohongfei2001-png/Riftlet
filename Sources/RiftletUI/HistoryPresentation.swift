@@ -9,23 +9,25 @@ public struct RiftHistoryEntry: Identifiable, Equatable, Sendable {
     public let operation: TransferOperation?
     public let lastReceipt: TransferReceipt?
     public let attachmentState: HistoryAttachmentState
+    public let isHandled: Bool
     public let canRestore: Bool
     public let detail: String?
 
     public init(record: AssetRecord, operation: TransferOperation? = nil,
                 lastReceipt: TransferReceipt? = nil, startReceipt: TransferReceipt? = nil, canRestore: Bool = false,
-                detail: String? = nil) {
+                isHandled: Bool = false, detail: String? = nil) {
         self.record = record; self.operation = operation; self.lastReceipt = lastReceipt
         attachmentState = HistoryAttachmentState(record: record, operation: operation, receipt: lastReceipt, startReceipt: startReceipt)
+        self.isHandled = isHandled
         self.canRestore = canRestore; self.detail = detail.map { String($0.prefix(512)) }
     }
 
     public init(snapshot: QueueHistoryRecord) {
         self.init(record: snapshot.record, operation: snapshot.operation, lastReceipt: snapshot.receipt,
-                  startReceipt: snapshot.startReceipt, canRestore: snapshot.canRestore, detail: snapshot.reason)
+                  startReceipt: snapshot.startReceipt, canRestore: snapshot.canRestore, isHandled: snapshot.isHandled, detail: snapshot.reason)
     }
 
-    private var currentOperation: TransferOperation? {
+    var currentOperation: TransferOperation? {
         guard let operation, record.activeOperationID == operation.id,
               operation.assetID == record.id else { return nil }
         return operation
@@ -35,7 +37,7 @@ public struct RiftHistoryEntry: Identifiable, Equatable, Sendable {
     /// not resume a handoff or identify a live browser tab for input.
     var conversationURL: URL? {
         guard let target = currentOperation?.target, target.adapterID == "chatgpt-web",
-              target.surface == .webChat, target.applicationID == "com.google.Chrome" else { return nil }
+              target.surface == .webChat, target.attachmentBrowser != nil else { return nil }
         let conversation: UUID
         if let id = target.historyConversationID { conversation = id }
         else if let draft = target.logicalDraftIdentity, draft.isRecognized,
@@ -46,6 +48,15 @@ public struct RiftHistoryEntry: Identifiable, Equatable, Sendable {
 
     public var isConfirmedFailure: Bool { attachmentState == .confirmedFailure }
     public var needsVerification: Bool { attachmentState.needsVerification }
+
+    var canReviewOriginal: Bool {
+        guard let target = currentOperation?.target else { return false }
+        return target.adapterID == "chatgpt-web" && target.surface == .webChat && target.attachmentBrowser != nil
+    }
+
+    var hasRecoveryOptions: Bool {
+        currentOperation?.target.surface == .webChat && attachmentState.needsVerification
+    }
 
     public var canRestoreToRift: Bool {
         guard canRestore,
@@ -101,13 +112,13 @@ public enum RiftHistoryFilter: String, CaseIterable, Sendable {
         switch self {
         case .all: return true
         case .desktop: return entry.record.visibility == .visible
-        case .needsAttention: return entry.record.status == .missing || entry.needsVerification || entry.isConfirmedFailure || entry.attachmentState == .notAttached
+        case .needsAttention: return entry.record.status == .missing || (!entry.isHandled && (entry.needsVerification || entry.isConfirmedFailure || entry.attachmentState == .notAttached))
         case .needsVerification: return entry.needsVerification
         case .swallowed: return entry.record.visibility == .swallowed
         case .attached: return entry.record.status != .missing && entry.attachmentState == .attached
         case .handedOff: return entry.record.status != .missing && entry.attachmentState == .handedOff
         case .archived: return entry.record.visibility == .archived
-        case .failed: return entry.isConfirmedFailure
+        case .failed: return entry.isConfirmedFailure || entry.attachmentState == .originalCardFailed
         case .removed: return entry.record.visibility == .removed
         }
     }
@@ -120,6 +131,7 @@ public enum HistoryPresentation {
     public static func stateText(for entry: RiftHistoryEntry) -> String {
         let state: String
         if entry.record.status == .missing { state = "Private copy unavailable" }
+        else if entry.isHandled { state = "Handled" }
         else {
             switch entry.attachmentState {
             case .handedOff: state = "Handed to ChatGPT"
@@ -127,6 +139,7 @@ public enum HistoryPresentation {
             case .confirmedFailure: state = "Upload failed · ready to try again"
             case .notAttached: state = "Not attached · ready to try again"
             case .needsReview: state = "Needs review · kept locally"
+            case .originalCardFailed: state = "Original draft reported upload failure"
             case .checkDraft: state = "Needs review · check original draft"
             case .preparing: state = "Preparing"
             case .available: state = "Ready"
@@ -143,10 +156,12 @@ public enum HistoryPresentation {
 
     public static func localizedState(for entry: RiftHistoryEntry, copy: ProductCopy = .current) -> String {
         if entry.record.status == .missing { return copy.text("本地副本不可用", "Local copy unavailable") }
+        if entry.isHandled { return copy.text("已处理", "Handled") }
         switch entry.attachmentState {
         case .handedOff: return copy.text("已交给 ChatGPT", "Handed to ChatGPT")
         case .attached: return copy.text("已附加", "Attached")
         case .needsReview: return copy.text("结果待核实", "Needs review")
+        case .originalCardFailed: return copy.text("原草稿报告上传失败", "Upload failed in the original draft")
         case .checkDraft: return copy.text("需要检查原对话", "Check the original conversation")
         case .confirmedFailure: return copy.text("已确认失败 · 图片保留", "Failed · image kept")
         case .preparing: return copy.text("准备附加", "Preparing attachment")
@@ -165,12 +180,13 @@ public enum HistoryPresentation {
             switch entry.attachmentState {
             case .handedOff: return copy.text("这张截图已交给 ChatGPT。上传结果见原对话。", "This screenshot was handed to ChatGPT. Check the original conversation for the upload result.")
             case .attached: return copy.text("这张截图已附加。", "This screenshot was attached.")
-            case .checkDraft, .needsReview: return copy.text("请到原对话核对附件。", "Check the attachment in the original conversation.")
+            case .checkDraft, .needsReview, .originalCardFailed: return copy.text("请到原对话核对附件。", "Check the attachment in the original conversation.")
             default: return copy.text("请检查本地截图文件。", "Check the local screenshot file.")
             }
         }
         switch entry.attachmentState {
         case .handedOff: return copy.text("上传结果见原对话。", "Check the original conversation for the upload result.")
+        case .originalCardFailed: return copy.text("原草稿曾显示这张图片上传失败。原图仍在本机，可核对后选择再次附加。", "The original draft reported an upload failure for this image. The original is saved on this Mac. You can check the draft and choose to attach it again.")
         case .checkDraft: return copy.text("原附件报告异常，请到原对话核对。", "The attachment reported a problem. Check the original conversation.")
         case .needsReview: return copy.text("请对照原图，在原草稿中核对附件。Riftlet 不会自动重传。", "Compare the original image with the attachment in your draft. Riftlet won’t upload it again automatically.")
         case .attached: return copy.text("原始系统截图仍然保留。", "The original system screenshot is still saved.")

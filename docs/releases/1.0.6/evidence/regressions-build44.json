@@ -1,0 +1,21 @@
+{
+  "product": "193009d842b460dbff80ee3416954cb087e4160f",
+  "build": 44,
+  "webProgramSHA256": "3a23e5d6fba1f39945bebce0c07212839527385da3434c4a143c8674882bedab",
+  "independentFigureCases": 20,
+  "independentChineseTwoCardCases": 7,
+  "node": {
+    "tests": 262,
+    "pass": 262,
+    "fail": 0,
+    "skipped": 0
+  },
+  "headlessChrome": {
+    "tests": 37,
+    "pass": 37,
+    "fail": 0,
+    "skipped": 0
+  },
+  "nativeSourceVerification": "Two tracked native test methods ran against current compiled Core and Adapters. Confirmed read-only prior source registrations (including v23 and v24), immutable original START then identity-matched error after an interrupted reply, and no repeat input.",
+  "limits": "Controlled tests. The live failure on 43 is separately recorded. An older registration with no continuous ownership of the figure cannot retroactively acquire it. English and Chinese controlled variants do not establish real service results in both languages."
+}

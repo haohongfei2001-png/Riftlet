@@ -1,0 +1,98 @@
+{
+  "source": "bfd043e2af82fbc64e33a1167e7d4f2245aa2b81",
+  "candidate": "1.0.6 (41)",
+  "environment": "Dedicated ARM64 macOS VM A, stock signed native candidate, ordinary Sparkle UI. Fixture uses four actual screenshots originally attached to the real Chrome test draft using build 35. The original page was definitively closed before this run.",
+  "feed": {
+    "build": "41",
+    "feedSHA256": "0e0601e20b1ab7c2978ccfeb85629654261e5089594134da584a22e183af35af",
+    "dmgSHA256": "fa40e9df09b7e9007aecf802a505ecf21a770fd732b50d16df37c6db77942d6f",
+    "executableSHA256": "ace72bf6d2959b3e6d970308a2b58caf74f7045fa477a990709945bcab8618f6"
+  },
+  "V5": {
+    "31->41": {
+      "installedRunning": "1.0.6 (41), Gatekeeper Notarized Developer ID; feed-exact executable SHA256",
+      "unchangedOriginalFiles": 50,
+      "existingAssets": 19,
+      "existingOperations": 2,
+      "existingStarts": 1,
+      "existingCheckpoints": 6,
+      "newObservedOriginals": 11,
+      "priorAssetsWithVisibilityChange": 5,
+      "prefDraftBookmark": "intact",
+      "sqlite": "ok"
+    },
+    "35->41": {
+      "installedRunning": "1.0.6 (41), Gatekeeper Notarized Developer ID; feed-exact executable SHA256",
+      "unchangedOriginalFiles": 59,
+      "existingAssets": 28,
+      "existingOperations": 8,
+      "existingStarts": 5,
+      "existingCheckpoints": 35,
+      "newObservedOriginals": 2,
+      "priorAssetsWithVisibilityChange": 0,
+      "prefDraftBookmark": "intact",
+      "sqlite": "ok"
+    }
+  },
+  "V3": {
+    "manualScope": 24,
+    "manualOnlyCopiesWithoutVerifiedExternalOriginal": 6,
+    "previouslyRealChatGPTAttachmentsCleaned": 4,
+    "oldUnknownWithoutSTARTProtected": true,
+    "bothPreInputFailuresProtected": true,
+    "actualQuitAndRestart": true,
+    "completeByteAndRowRestoration": true,
+    "assets": 30,
+    "operations": 8,
+    "START": 5,
+    "integrity": "ok",
+    "sourceOnly": "30-day eligibility, change-of-original, in-flight fence, current failure and three import interruption points are separate native source-controlled cases. The GUI did not simulate elapsed calendar days or a service-side failure.",
+    "newWatchedOriginalsDuring35Upgrade": 2
+  },
+  "V2": {
+    "oldUNKNOWN": "Cancel leaves data unchanged; Continue requires a separate fresh click; Hide changes local visibility; Mark as Handled clears attention entry only. Native records unchanged and explicit handling marker persisted. No new operation/START.",
+    "originalMissing": "After relaunch of 41, original Chrome process no longer exists. Return reports draft not located. Check does not input or alter original facts and reports the attachment can no longer be verified, with local recovery guidance.",
+    "livePageThenClosed": "Switched to a blank new tab, restarted the signed application with Chrome retained, checked the original operation and returned to its draft with the single QA image. Closed the original tab in Chrome. Return and Check gave the distinct unavailable notices. 9 operations and 6 STARTs, no replay.",
+    "readBudgetAndPageExpiry": {
+      "source": "Dedicated anonymous live draft, independently received screenshot seq32 with positive START",
+      "automaticReadPairsSinceClickSeconds": [
+        4.04,
+        9.09,
+        19.46,
+        40.06,
+        82.28,
+        164.96,
+        289.99,
+        414.79
+      ],
+      "automaticPairsScope": "Contiguous original-check permission and successful native observe trace events in this isolated session; the native bridge omits the operation ID. No manual checks during this interval.",
+      "firstManualSelection": "The first library selection was seq31. Its original tab had already been closed. Its result is excluded from seq32.",
+      "correctManualSelection": "After restarting the signed app with the same Chrome process, the actual seq32 row and its thumbnail were visibly selected. Before +599.6 seconds, Check reported Checked the original draft. Restart can recreate short-lived native observation state.",
+      "pageExpiry": "After +613 seconds, Check on the same seq32 row (same Chrome document still open) reported the original attachment can no longer be verified. No additional operation or START.",
+      "totals": {
+        "assets": 32,
+        "operations": 10,
+        "START": 7
+      },
+      "automaticReplayObserved": false
+    }
+  },
+  "V1": {
+    "scope": "Anonymous guest A; freshly restarted installed candidate, fresh system screenshot, normal virtual mouse.",
+    "clicks": 1,
+    "assetsWithNewSTART": 1,
+    "visibleNewCards": 1,
+    "draftTextPreserved": true,
+    "sendObserved": false,
+    "route": "queued_click_route",
+    "nativeClickRouteMS": 34.07,
+    "clickToCommittedSwallowObservationUpperBoundMS": 636.08,
+    "selectionOffsets": "not measured in anonymous guest",
+    "rapidPairs": "separate host batch"
+  },
+  "postColdCheckInventory": {
+    "assets": 31,
+    "operations": 9,
+    "starts": 6
+  }
+}

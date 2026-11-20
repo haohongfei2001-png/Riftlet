@@ -1,0 +1,96 @@
+{
+  "build": 47,
+  "DMG": "155ef8d523e475232edebc633121063004a862cf5658b78cef320b3c5a0e0cf4",
+  "clicksSHA256": "76cb79d2adefbda2aa618acb914af4100dbfdfcf19ad33525a1a9ea3d0406a8a",
+  "browserResults": {
+    "Edge": {
+      "receiver": "Edge",
+      "clicks": 5,
+      "operations": 5,
+      "individualStarts": 4,
+      "replayedInputs": 0,
+      "matchedDistinctImages": 4,
+      "timing": {
+        "firstVisibleObservationCount": 4,
+        "medianMS": 4564.3,
+        "p95MS": 5607.2,
+        "maxMS": 5607.2
+      },
+      "groups": {
+        "pair2": {
+          "mouseDownGapMS": 1807.012,
+          "underTwoSeconds": true,
+          "bothMatched": false
+        }
+      }
+    },
+    "Chrome": {
+      "receiver": "Chrome",
+      "clicks": 10,
+      "operations": 8,
+      "individualStarts": 8,
+      "replayedInputs": 0,
+      "matchedDistinctImages": 8,
+      "timing": {
+        "firstVisibleObservationCount": 8,
+        "medianMS": 3665.7,
+        "p95MS": 4700.8,
+        "maxMS": 4700.8
+      },
+      "groups": {
+        "pair1": {
+          "mouseDownGapMS": 2188.365,
+          "underTwoSeconds": false,
+          "bothMatched": true
+        },
+        "pair2": {
+          "mouseDownGapMS": 2403.414,
+          "underTwoSeconds": false,
+          "bothMatched": true
+        },
+        "pair3": {
+          "mouseDownGapMS": 2424.871,
+          "underTwoSeconds": false,
+          "bothMatched": true
+        },
+        "fast1": {
+          "mouseDownGapMS": 1726.386,
+          "underTwoSeconds": true,
+          "bothMatched": false
+        }
+      }
+    }
+  },
+  "observedRefusals": [
+    {
+      "browser": "Edge",
+      "group": "pair2",
+      "phase": "failed",
+      "outcomeReason": "Verified pre-input rejection: localBeforeBegin: fileInputCommandNotInvoked",
+      "status": "failed",
+      "nativeSTART": false,
+      "operation": "F352218A-9881-4CC2-93A6-7F93C7C74A53",
+      "attempt": 1
+    },
+    {
+      "browser": "Chrome",
+      "group": "cold",
+      "phase": null,
+      "outcomeReason": "nativeEventFailed(-1712)",
+      "status": "pending",
+      "nativeSTART": false,
+      "operation": null,
+      "attempt": null
+    },
+    {
+      "browser": "Chrome",
+      "group": "fast1",
+      "phase": null,
+      "outcomeReason": "nativeEventFailed(-1712)",
+      "status": "pending",
+      "nativeSTART": false,
+      "operation": null,
+      "attempt": null
+    }
+  ]
+}

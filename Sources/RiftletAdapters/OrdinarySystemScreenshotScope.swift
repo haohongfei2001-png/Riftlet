@@ -72,7 +72,7 @@ public enum SystemScreenshotAdmissionScope: Sendable, Equatable {
         // The ordinary tool binds the actual native tab, document and composer.
         // Its usable file input is established by the page, without React internals.
         guard target.adapterID == "chatgpt-web", target.surface == .webChat,
-              target.applicationID == "com.google.Chrome",
+              target.attachmentBrowser == .chrome || (isProduct && target.attachmentBrowser == .edge),
               !target.sessionID.isEmpty, !target.windowID.isEmpty, target.tabID?.isEmpty == false,
               !target.documentID.isEmpty, !target.composerID.isEmpty, !target.draftGeneration.isEmpty else {
             throw WebAdapterError.invalidTarget

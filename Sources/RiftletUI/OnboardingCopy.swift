@@ -7,13 +7,13 @@ extension ProductCopy {
     var back: String { text("上一步", "Back") }
     var later: String { text("稍后设置", "Set Up Later") }
     var headline: String { text("让截图出现在桌面边缘", "See screenshots at the edge of your desktop") }
-    var chromeMenuHeading: String { text("在 Chrome 中开启一键附加", "Enable one-click attachments in Chrome") }
+    var chromeMenuHeading: String { text("检查浏览器连接", "Check the browser connection") }
     var checkConnection: String { text("检查连接", "Check Connection") }
     var allowAccess: String { text("允许访问…", "Allow Access…") }
-    var checkPermission: String { text("检查 Chrome 权限…", "Check Chrome Access…") }
+    var checkPermission: String { text("检查浏览器权限…", "Check Browser Access…") }
     var title: String { text("开始使用 Riftlet", "Get Started with Riftlet") }
     var stepFolder: String { text("截图文件夹", "Screenshot Folder") }
-    var stepChrome: String { text("连接 Chrome", "Connect Chrome") }
+    var stepChrome: String { text("连接浏览器", "Connect Browser") }
     var stepPosition: String { text("桌面位置", "Desktop Position") }
     var scrollLabel: String { text("Riftlet 使用引导内容", "Riftlet setup instructions") }
     var folderHeading: String { text("截图保存位置", "Screenshot folder") }
@@ -21,7 +21,7 @@ extension ProductCopy {
     var unhide: String { text("显示桌面截图", "Show Desktop Screenshots") }
     var recheckFolder: String { text("重新检查文件夹", "Check Folder Again") }
     var chromeHeading: String { text("把截图附加到 ChatGPT", "Attach screenshots to ChatGPT") }
-    var automationHeading: String { text("允许 Riftlet 连接 Chrome", "Allow Riftlet to connect to Chrome") }
+    var automationHeading: String { text("允许 Riftlet 连接浏览器", "Allow Riftlet to connect to your browser") }
     var display: String { text("所在显示器", "Display") }
     var retryDisplay: String { text("重试显示器选择", "Retry Display Selection") }
     var retryPosition: String { text("重试位置选择", "Retry Position") }
@@ -32,8 +32,8 @@ extension ProductCopy {
     }
     var rootLabel: String { text("开始使用 Riftlet，两步引导", "Get started with Riftlet in two steps") }
     var introDetail: String {
-        text("截图后，点托盘里的图片即可附加到 Chrome 中当前的 ChatGPT 草稿。",
-             "Take a screenshot, then click its thumbnail in the tray to attach it to your current ChatGPT draft in Chrome.")
+        text("截图后，点托盘里的图片即可附加到 Chrome 或 Edge 中当前的 ChatGPT 草稿。",
+             "Take a screenshot, then click its thumbnail in the tray to attach it to your current ChatGPT draft in Chrome or Edge.")
     }
     var reviewDetail: String {
         text("当前为隔离审核：不连接浏览器或上传。",
@@ -41,7 +41,7 @@ extension ProductCopy {
     }
     var authorizeFolder: String { text("授权读取系统截图文件夹…", "Allow Screenshot Folder Access…") }
     var localOnly: String { text("此模式仅使用本机截图。", "This mode uses local screenshots only.") }
-    var recheckChrome: String { text("重新检查 Chrome", "Check Chrome Again") }
+    var recheckChrome: String { text("重新检查浏览器", "Check Browser Again") }
     var recheckConnection: String { text("重新检查连接", "Check Connection Again") }
     var legacyPosition: String {
         text("沿用之前的桌面位置。选择一个位置即可更改。",
@@ -59,10 +59,10 @@ extension ProductCopy {
         text("请先完成截图文件夹设置，让新截图显示在桌面边缘。",
              "Set up your screenshot folder first so new screenshots can appear at the edge of your desktop.")
     }
-    var finishChrome: String { text("请先完成 Chrome 连接设置。", "Finish connecting to Chrome first.") }
+    var finishChrome: String { text("请先完成浏览器连接设置。", "Finish connecting your browser first.") }
     var finishReady: String {
-        text("截一张图，在 Chrome 打开要使用的 ChatGPT 对话，点一下缩略图。图片会出现在输入框旁，由你决定何时发送。",
-             "Take a screenshot, open your intended ChatGPT conversation in Chrome, then click the thumbnail. The image appears beside your draft. You choose when to send it.")
+        text("截一张图，在 Chrome 或 Edge 打开要使用的 ChatGPT 对话，点一下缩略图。图片会出现在输入框旁，由你决定何时发送。",
+             "Take a screenshot, open your intended ChatGPT conversation in Chrome or Edge, then click the thumbnail. The image appears beside your draft. You choose when to send it.")
     }
     var folderUnreadable: String {
         text("无法读取这个文件夹。请重新选择并允许访问。",
@@ -104,20 +104,20 @@ extension ProductCopy {
         text("选择这个文件夹，允许 Riftlet 读取新截图。",
              "Select this folder to let Riftlet read new screenshots.")
     }
-    var unchecked: String { text("开启后回到这里检查连接。", "Once enabled, come back here to check the connection.") }
-    var checking: String { text("正在检查 Chrome 连接…", "Checking the Chrome connection…") }
-    var connected: String { text("已连接 Chrome。", "Connected to Chrome.") }
+    var unchecked: String { text("点“检查连接”，确认当前浏览器可用。", "Choose Check Connection to verify the current browser.") }
+    var checking: String { text("正在检查浏览器连接…", "Checking the browser connection…") }
+    var connected: String { text("已连接浏览器。", "Browser connected.") }
     var jsDisabled: String {
-        text("Chrome 的这个选项尚未开启。勾选后重新检查。",
-             "This Chrome option is off. Turn it on, then check the connection again.")
+        text("浏览器的这个选项尚未开启。勾选后重新检查。",
+             "This browser option is off. Turn it on, then check the connection again.")
     }
     var noWindow: String {
-        text("请在 Chrome 打开一个普通网页，然后重新检查。",
-             "Open a regular webpage in Chrome, then check the connection again.")
+        text("请在浏览器中打开一个普通网页，然后重新检查。",
+             "Open a regular webpage in your browser, then check the connection again.")
     }
     var unavailable: String {
-        text("未能连接到 Chrome。请打开一个普通网页，然后重新检查。",
-             "Couldn’t connect to Chrome. Open a regular webpage in Chrome, then check the connection again.")
+        text("未能连接到浏览器。请打开一个普通网页，然后重新检查。",
+             "Couldn’t connect to the browser. Open a regular webpage in your browser, then check the connection again.")
     }
     var primaryDisplay: String { text("使用主显示器", "Use Main Display") }
     var disconnectedDisplay: String { text("已选显示器（未连接）", "Selected Display (Disconnected)") }
@@ -166,7 +166,7 @@ extension ProductCopy {
         case .systemScreenshotCandidate:
             return ("Preview screenshot attachments", "This internal build attaches a screenshot after verifying the image and its destination.")
         case .unsupportedBrowser, .targetUnavailable:
-            return ("Open your ChatGPT draft in Chrome", "Your screenshots are saved on this Mac. Bring your intended ChatGPT draft to the front in Google Chrome.")
+            return ("Open your ChatGPT draft in Chrome or Edge", "Your screenshots are saved on this Mac. Bring your intended ChatGPT draft to the front in Chrome or Edge.")
         }
     }
 
@@ -182,35 +182,23 @@ extension ProductCopy {
     }
 
     func automationStatus(_ presentation: SetupPresentation) -> String {
-        guard let status = presentation.automationStatusText else { return localOnly }
-        guard self == .english else { return status }
-        switch presentation.snapshot.permission {
-        case .notNeeded: return localOnly
-        case .notChecked, .notRequested:
-            return "Choose Check Chrome Access, then allow Riftlet to control Google Chrome when macOS asks."
-        case .granted: return "macOS allows Riftlet to communicate with Chrome."
-        case .denied:
-            return "Open System Settings → Privacy & Security → Automation. Under Riftlet, turn on Google Chrome and return here."
-        case .notRunning: return "Open Google Chrome, then choose Check Chrome Again."
-        case .browserUnavailable: return "Riftlet couldn’t find Google Chrome. Install or open Chrome, then check again."
-        case .unavailable: return "Open Google Chrome, then check Chrome access again."
-        }
+        presentation.automationStatusText ?? localOnly
     }
 
     func permissionAction(_ presentation: SetupPresentation) -> String {
         if presentation.snapshot.permission == .denied {
             return text("打开自动化设置…", "Open Automation Settings…")
         }
-        return checkPermission
+        return presentation.permissionActionTitle
     }
 
     func chromeInstructions(_ presentation: SetupPresentation) -> String {
         guard let instructions = presentation.chromeScriptInstructions else { return "" }
-        // Only the host's known Chrome recipe is localized. Custom details have
+        // Only the host's known browser recipe is localized. Custom details have
         // already gone through the presentation’s sanitization and size limit.
-        guard instructions == ChromeAttachmentSetup.instructions(in: .english)
-                || instructions == ChromeAttachmentSetup.instructions(in: .simplifiedChinese) else { return instructions }
-        return ChromeAttachmentSetup.instructions(in: self)
+        guard instructions == ChromeAttachmentSetup.instructions(in: .english, browser: presentation.snapshot.browser)
+                || instructions == ChromeAttachmentSetup.instructions(in: .simplifiedChinese, browser: presentation.snapshot.browser) else { return instructions }
+        return ChromeAttachmentSetup.instructions(in: self, browser: presentation.snapshot.browser)
     }
 }
 

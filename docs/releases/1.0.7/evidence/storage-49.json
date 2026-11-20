@@ -1,0 +1,54 @@
+{
+  "issue": 118,
+  "candidate": "1.0.7 (49)",
+  "productCommit": "b431931eba1d31b5ac7a5fcc110db8613e11ac7d",
+  "dmgSHA256": "67aea5fd067d405701e10cdc512d8657e91db569d0ba6715614a035fb9891023",
+  "executableSHA256": "1f0dc063810645d280a967af8969419dfb32e74bfb02a590df77138ec969e1a9",
+  "install": "Notarized Developer ID accepted. Normal Launch Services open in dedicated macOS guest B. Only guest-directed native clicks and standard menus.",
+  "historicalFixture": "Restored copy of preserved live 1.0.5 (31) QA data, 19 assets, 2 preexisting operations, 1 START, 1 unresolved historical UNKNOWN. No direct DB mutation.",
+  "retirement": {
+    "status": "PASS",
+    "manuallyConfirmed": 12,
+    "verifiedExternalOriginalAbsent": 12,
+    "missingSameHashInActiveMediaDesktopAndCaptures": 6,
+    "trashBytesSHA256Matched": 12,
+    "quitAndRestartKeptTombstones": 12,
+    "restoredBytesSHA256Matched": 12,
+    "allNineteenAppOriginalsMatched": true,
+    "previouslyVisiblePendingRowsArchived": 5
+  },
+  "legacyUnknown": {
+    "status": "PASS_LOCAL_BRANCHES",
+    "cancelKeptOriginal": true,
+    "confirmKeptOriginalAndRequestedSeparateThumbnailClick": true,
+    "explicitClickOnChromeNewTab": "Pre-input Chrome access guidance; image stayed visible and no operation or receipt was created.",
+    "hideKeptPNG": true,
+    "handledSurvivedRestart": true,
+    "previousOperationRowUnchanged": true,
+    "oldAttempt": 1,
+    "oldStartRows": 0,
+    "allOperations": 2,
+    "allStarts": 1
+  },
+  "newScreenshot": {
+    "status": "PASS",
+    "producer": "Normal macOS Screenshot.app toolbar Capture",
+    "newDesktopFiles": 1,
+    "newAppRows": 1,
+    "newRowSequence": 20,
+    "desktopAndPrivateSHA256Matched": true,
+    "stillPresentAfterRelaunch": true
+  },
+  "realService": {
+    "status": "NOT_RUN",
+    "scope": "Fresh submission of recovered image and positive post-accept service failure on original card",
+    "blocker": "Guest exercised an explicit click on a Chrome new-tab page to test the pre-input refusal. No live ChatGPT target or positive service failure was exercised in this guest."
+  },
+  "restoredGuest25": {
+    "status": "PASS",
+    "originalAppStayedInPlace": true,
+    "snapshotDataFeedbackBookmarksAndFilesEqual": true,
+    "fullPreferenceDomainEqual": true
+  },
+  "privateProofManifestSHA256": "a00032051a820806b21936d8e1f02395dc349892728645b7d5e034252769e53a"
+}

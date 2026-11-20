@@ -41,8 +41,8 @@ public final class ChromeActivityObserver {
     /// Uses existing OS authorization; never opens a permission prompt itself.
     @discardableResult
     public func bind(to app: NSRunningApplication?) -> Bool {
-        guard let app, app.bundleIdentifier == "com.google.Chrome",
-              let identity = ChromeProcessIdentity.read(pid: app.processIdentifier), AXIsProcessTrusted() else {
+        guard let app, let bundleID = app.bundleIdentifier,
+              let identity = ChromeProcessIdentity.read(pid: app.processIdentifier, applicationID: bundleID), AXIsProcessTrusted() else {
             stop(); return false
         }
         // A new Chrome process can reuse a PID; its predecessor's observer is

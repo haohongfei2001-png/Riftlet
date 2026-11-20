@@ -1,0 +1,86 @@
+{
+  "product": "28f4f5979190c0255b97978afdd97c713c39a50b",
+  "programSHA256": "3884f51acd2a7cec9a4219559734373a6a6d59bfdbe482c4604dd20e15a055bd",
+  "scope": "Local controlled pages in installed Chrome and Edge executables. No live ChatGPT or Apple Events. Each browser test run includes its own cleanup tests.",
+  "suites": {
+    "node": {
+      "tests": 336,
+      "pass": 336,
+      "fail": 0,
+      "skipped": 0
+    },
+    "chrome": {
+      "tests": 42,
+      "pass": 42,
+      "fail": 0,
+      "skipped": 0
+    },
+    "edge-small": {
+      "tests": 15,
+      "pass": 15,
+      "fail": 0,
+      "skipped": 0
+    },
+    "edge-large": {
+      "tests": 17,
+      "pass": 17,
+      "fail": 0,
+      "skipped": 0
+    }
+  },
+  "edgeLargeCases": [
+    {
+      "dimensions": [
+        3840,
+        2160
+      ],
+      "sourceType": "image/png",
+      "sourceBytes": 12002146,
+      "encodeMS": [
+        60,
+        58
+      ],
+      "inputToPositiveReadMS": 584
+    },
+    {
+      "dimensions": [
+        2560,
+        1664
+      ],
+      "sourceType": "image/png",
+      "sourceBytes": 87975,
+      "encodeMS": [
+        9,
+        10
+      ],
+      "inputToPositiveReadMS": 59
+    },
+    {
+      "dimensions": [
+        3840,
+        2160
+      ],
+      "sourceType": "image/png",
+      "sourceBytes": 164983,
+      "encodeMS": [
+        12,
+        11
+      ],
+      "inputToPositiveReadMS": 91
+    },
+    {
+      "dimensions": [
+        2560,
+        1664
+      ],
+      "sourceType": "image/jpeg",
+      "sourceBytes": 25721,
+      "encodeMS": [
+        10,
+        9
+      ],
+      "inputToPositiveReadMS": 68
+    }
+  ],
+  "wholeEdgeLargeRunPeakRSSBytes": 358154240
+}

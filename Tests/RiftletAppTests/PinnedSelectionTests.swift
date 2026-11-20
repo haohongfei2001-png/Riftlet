@@ -69,6 +69,18 @@ final class PinnedSelectionTests: XCTestCase {
         for _ in 0..<2000 { if await probe.count() == n { return true }; await Task.yield() }
         XCTFail("permission probe did not start"); return false
     }
+    @MainActor func testMissingOriginalReceiverDoesNotSuggestPermissionRepair() {
+        func access(_ state: AutomationPermissionState) -> OriginalReceiverAccess {
+            OriginalReceiverPermission.Resolution(usable: state, published: true).attachmentAccess
+        }
+        XCTAssertEqual(access(.browserNotRunning), .unavailable)
+        XCTAssertEqual(access(.browserNotInstalled), .unavailable)
+        XCTAssertEqual(access(.unavailable), .unavailable)
+        XCTAssertEqual(access(.denied), .permissionRequired)
+        XCTAssertEqual(access(.notRequested), .permissionRequired)
+        XCTAssertEqual(access(.granted), .granted)
+    }
+
     @MainActor func testBPermissionCannotCancelIndependentOriginalAInspection() async {
         let probe = ReceiverProbe(), policy = OriginalReceiverPermission()
         let gate = AutomationPermissionGate(requiresChrome: true, checker: probe)

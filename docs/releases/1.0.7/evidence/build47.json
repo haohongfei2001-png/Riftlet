@@ -1,0 +1,63 @@
+{
+  "source": "dc858f314141ddfc45c7e7ff422a9993c657bff1",
+  "version": "1.0.7",
+  "build": "47",
+  "name": "Riftlet-1.0.7.dmg",
+  "bytes": 13387177,
+  "finalSHA256": "155ef8d523e475232edebc633121063004a862cf5658b78cef320b3c5a0e0cf4",
+  "architectures": [
+    "arm64",
+    "x86_64"
+  ],
+  "appSubmissionID": "97bc19e3-850a-4f7f-b6b9-677392c01280",
+  "submissionID": "28285169-62b4-41b3-8c5c-99e3fabda9f2",
+  "notaryStatus": "Accepted",
+  "embeddedAppTicket": "VALID",
+  "dmgTicket": "VALID",
+  "dmgGatekeeperOpen": "ACCEPTED",
+  "embeddedAppGatekeeperExecute": "ACCEPTED",
+  "appInventory": "PINNED_FULL_TREE_MATCH",
+  "published": false,
+  "executableSHA256": "ca40350caa1761d0bb9dbaf0e80e935b400d68a4291086ac39d04ebcced7e389",
+  "programSHA256": "d5a1989f36abfc8acb50f28b95a9f2b1c12048c666d03f774aea8c13a0035cdc",
+  "selfCheck": [
+    "arm64",
+    "x86_64 via Rosetta",
+    "first-use"
+  ],
+  "controlled": {
+    "node": {
+      "tests": 202,
+      "pass": 202,
+      "fail": 0,
+      "skipped": 0,
+      "logSHA256": "372633c771dec2ac5050a81d8453148107f7d123e1b15ce67e898d1fc3a1efb1"
+    },
+    "legacy": {
+      "tests": 61,
+      "pass": 61,
+      "fail": 0,
+      "skipped": 0,
+      "logSHA256": "063036fd68cd076a7c6bb74315fcb23bdc2e775c7510fe421b1eb4b7de7539b4"
+    },
+    "chrome-all": {
+      "tests": 46,
+      "pass": 46,
+      "fail": 0,
+      "skipped": 0,
+      "logSHA256": "6cb7ec8dda291e93ec3c924fa0871014227c8dcc10306853208392f9451f996f"
+    },
+    "edge-all": {
+      "tests": 23,
+      "pass": 23,
+      "fail": 0,
+      "skipped": 0,
+      "logSHA256": "4906b77310b61b76fa2c6cd77efbf7b45997aac22c8a733fd48729fe0518882b"
+    },
+    "note": "Chrome and Edge runs each include the common runner checks. These were controlled pages."
+  },
+  "offscreenUI": {
+    "images": 24,
+    "receiptSHA256": "b0e3f92328a4a659454a932f9f5a63a2cec2df83b157908e0dde28330d243170"
+  }
+}

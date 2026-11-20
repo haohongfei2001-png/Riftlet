@@ -98,6 +98,29 @@ final class RiftOnboardingControllerTests: XCTestCase {
         XCTAssertFalse(controller.isVisible)
     }
 
+    @MainActor func testEdgeScriptInstructionsAppearAfterARealRefusal() throws {
+        try prepareAppKit()
+        let controller = RiftOnboardingController(copy: .english) { _ in XCTFail("Rendering cannot request permission") }
+        defer { controller.closeForTeardown() }
+        var state = fixture(try model(), source: .accessible, permission: .granted, connection: .unchecked)
+        state.setup = .init(source: .accessible, collection: .collecting, attachment: .available, permission: .granted,
+                            permissionDetail: ChromeAttachmentSetup.instructions(for: .edge), browser: .edge)
+        controller.update(state)
+        XCTAssertTrue(controller.show())
+        try button(controller, "onboarding.next").performClick(nil)
+        let label = try XCTUnwrap(controller.control(identifier: "onboarding.scriptStatus") as? NSTextField)
+        XCTAssertTrue(label.isHiddenOrHasHiddenAncestor)
+        XCTAssertFalse(try button(controller, "onboarding.checkChrome").isHiddenOrHasHiddenAncestor)
+        state = fixture(try model(), revision: 2, connection: .javaScriptDisabled)
+        state.setup = .init(source: .accessible, collection: .collecting, attachment: .available, permission: .granted,
+                            issue: .chromeJavaScriptDisabled, browser: .edge)
+        controller.update(state)
+        XCTAssertFalse(label.isHiddenOrHasHiddenAncestor)
+        XCTAssertTrue(label.stringValue.contains("Microsoft Edge"))
+        XCTAssertFalse(label.stringValue.contains("Chrome"))
+        XCTAssertFalse(try button(controller, "onboarding.next").isEnabled)
+    }
+
     @MainActor func testChromeMenuPathIsVisibleBeforeFirstClickEvenWhenAutomationIsGranted() throws {
         try prepareAppKit()
         let controller = RiftOnboardingController(copy: .simplifiedChinese) { _ in XCTFail("Showing setup must not contact Chrome") }
@@ -358,15 +381,25 @@ final class RiftOnboardingControllerTests: XCTestCase {
         XCTAssertTrue(status.stringValue.contains("Privacy & Security → Automation"))
         XCTAssertTrue(instructions.stringValue.contains("View → Developer → Allow JavaScript from Apple Events"))
         XCTAssertEqual(automation.accessibilityLabel(), "Open Automation Settings…")
-        XCTAssertEqual((controller.control(identifier: "onboarding.connectionStatus") as? NSTextField)?.stringValue,
-                       "Once enabled, come back here to check the connection.")
+        let connection = try XCTUnwrap(controller.control(identifier: "onboarding.connectionStatus") as? NSTextField)
+        let check = try button(controller, "onboarding.checkChrome")
+        XCTAssertTrue(connection.isHiddenOrHasHiddenAncestor)
+        XCTAssertTrue(check.isHiddenOrHasHiddenAncestor)
+        XCTAssertFalse(check.isEnabled)
         XCTAssertFalse(next.isEnabled)
         automation.performClick(nil)
         await assertReceived { actions == ["folder", "automation"] }
-        controller.update(fixture(state, revision: 3, connection: .javaScriptDisabled))
+        controller.update(fixture(state, revision: 3, permission: .granted, connection: .unchecked))
+        XCTAssertFalse(connection.isHiddenOrHasHiddenAncestor)
+        XCTAssertEqual(connection.stringValue, "Choose Check Connection to verify the current browser.")
+        XCTAssertFalse(check.isHiddenOrHasHiddenAncestor)
+        XCTAssertTrue(check.isEnabled)
+        XCTAssertEqual(check.title, "Check Connection")
+        XCTAssertFalse(next.isEnabled)
+        controller.update(fixture(state, revision: 4, connection: .javaScriptDisabled))
         XCTAssertTrue((controller.control(identifier: "onboarding.connectionStatus") as? NSTextField)?.stringValue.contains("option is off") == true)
         XCTAssertFalse(next.isEnabled)
-        controller.update(fixture(state, revision: 4))
+        controller.update(fixture(state, revision: 5))
         XCTAssertEqual(next.accessibilityLabel(), "Get Started")
         XCTAssertTrue(instructions.isHiddenOrHasHiddenAncestor)
         try button(controller, "onboarding.back").performClick(nil)

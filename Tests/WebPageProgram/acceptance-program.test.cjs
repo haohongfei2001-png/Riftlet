@@ -653,7 +653,7 @@ test('history links use only the exact canonical saved conversation path', () =>
  for (const [route,expected] of [
   ['https://chatgpt.com/c/'+id.toLowerCase()+'?x=1#z',id],
   ['https://chatgpt.com/',undefined],['https://chatgpt.com/c/other',undefined],
-  ['https://chatgpt.com/g/other/c/'+id,undefined],['https://chat.openai.com/c/'+id,undefined]]) {
+  ['https://chatgpt.com/g/other/c/'+id,id],['https://chatgpt.com/g/%2F/c/'+id,undefined],['https://chat.openai.com/c/'+id,undefined]]) {
   const target=fixture({route}).call({action:'captureTarget'});
   assert.equal(target.historyConversationID,expected);
   assert.equal(target.logicalDraftIdentity,undefined);
@@ -773,3 +773,351 @@ test('a retained v18 watch can report its own error but conflicting labels veto 
  otherComposer.append(card); accepted(f,a);
  assert.equal(f.setters,1); assert.equal(f.sends,0);
 });
+
+test('on-demand reconciliation binds the original invocation, draft and living attachment card', async () => {
+ const f=fixture(), op=f.bind();
+ f.stage(op); await f.commit(op);
+ const original=op.command('observe');
+ const inspect=extra=>f.call({...original,requireLiveOriginal:true,...extra}).observation;
+ const card=f.document.querySelectorAll('[data-file-name]').find(n=>n.getAttribute('data-file-name')===op.name);
+ assert.equal(inspect().state,'uploadStarted');
+ assert.equal(inspect({invocationID:'00000000-0000-4000-8000-000000000000'}).state,'invalidated');
+ card.setAttribute('data-state','failed');
+ assert.equal(inspect().state,'failed');
+ card.setAttribute('data-file-name','other.png');
+ assert.equal(inspect().state,'invalidated');
+ card.setAttribute('data-file-name',op.name);
+ f.setRoute('https://chatgpt.com/c/other');
+ assert.equal(inspect().state,'invalidated');
+ assert.equal(f.observe(op).state,'uploadStarted');
+ assert.equal(f.setters,1); assert.equal(f.changes,1); assert.equal(f.sends,0);
+});
+
+
+test('returning to an existing hidden temporary draft validates the same editor without input', () => {
+ const f = fixture({route: 'https://chatgpt.com/?temporary-chat=true'});
+ const target = f.call({action: 'captureTarget'});
+ f.document.visibilityState = 'hidden';
+ f.setFocused(false);
+ assert.equal(f.call({action: 'validate', target}).valid, true);
+ f.setRoute('https://chatgpt.com/c/9479e823-49e9-4d49-8822-b9ec96410c96');
+ assert.equal(f.call({action: 'validate', target}).valid, false);
+ assert.deepEqual([f.setters, f.changes, f.sends], [0, 0, 0]);
+});
+
+test('an existing meter starts only when the current file owns its visible advancing progress',()=>{
+ const f=fixture({accept:false}),op=f.bind(),other=f.bind();
+ const card=f.addCard(other.name,{placeholder:true,progress:true}), meter=card.querySelector('[role="progressbar"]');
+ f.stage(op);f.commit(op);
+ for(const key of ['data-file-name','aria-label','title'])card.setAttribute(key,op.name);
+ assert.equal(f.observe(op).state,'inputTriggered');
+ meter.setAttribute('aria-valuemax','50');
+ meter.setAttribute('aria-valuenow','30');
+ assert.equal(f.observe(op).state,'inputTriggered');
+ meter.setAttribute('aria-valuemax','100');
+ meter.setAttribute('aria-valuenow','5');
+ assert.equal(f.observe(op).state,'inputTriggered');
+ meter.setAttribute('aria-valuenow','40');meter.rendered=false;
+ assert.equal(f.observe(op).state,'inputTriggered');
+ meter.rendered=true;const start=accepted(f,op);
+ meter.remove();
+ const feedback=card.append(new f.Node('span'));
+ feedback.textContent='上传未成功';feedback.rendered=false;
+ accepted(f,op);feedback.rendered=true;
+ const failure=f.observe(op);assert.equal(failure.state,'failed');assert.equal(failure.attachmentID,start.attachmentID);
+ assert.equal(failure.automaticRetryExcluded,false);assert.equal(f.setters,1);assert.equal(f.sends,0);
+});
+
+test('visible failure belongs only to the original attachment, including a replaced shell retaining the exact File preview',()=>{
+ const f=fixture({accept:false}), op=f.bind(), other=f.bind();
+ f.stage(op);f.commit(op);
+ const card=f.addCard(op.name), image=card.querySelector('img');
+ image.setAttribute('src',f.context.URL.createObjectURL(f.input.files[0]));
+ const start=accepted(f,op);
+ const neighbor=f.addCard(other.name);
+ neighbor.append(new f.Node('span')).textContent='上传未成功';
+ const action=card.append(new f.Node('button'));action.textContent='上传未成功';
+ accepted(f,op);action.remove();
+ card.remove();
+ const replacement=f.addCard(op.name);
+ const message=replacement.append(new f.Node('span'));message.textContent='上传未成功';
+ // A matching filename and status on another DOM card cannot replace the witness.
+ accepted(f,op);
+ replacement.querySelector('img').remove();replacement.append(image);
+ const failure=f.observe(op);assert.equal(failure.state,'failed');assert.equal(failure.attachmentID,start.attachmentID);
+ replacement.setAttribute('title',other.name);accepted(f,op);
+ assert.equal(f.changes,1);assert.equal(f.sends,0);
+});
+
+test('a non-blob preview keeps the same local member across a named text-only failure',()=>{
+ function mount() {
+  const f=fixture({accept:false}), op=f.bind();
+  f.stage(op);f.commit(op);
+  const shell=f.form.append(new f.Node('div'));
+  const image=shell.append(new f.Node('img',{alt:op.name,src:'/opaque-image'}));
+  const start=accepted(f,op);
+  return {f,op,shell,image,start};
+ }
+ const {f,op,shell,image,start}=mount();
+ const sibling=f.form.append(new f.Node('div'));
+ sibling.append(new f.Node('span')).textContent='上传未成功';
+ sibling.append(new f.Node('span')).textContent=op.name;
+ assert.equal(f.call({...op.command('observe'),requireLiveOriginal:true}).observation.state,'uploadStarted');
+ accepted(f,op);
+ image.remove();shell.append(new f.Node('span')).textContent='上传未成功';
+ const file=shell.append(new f.Node('span')); file.textContent=op.name;
+ const failed=f.observe(op);assert.equal(failed.state,'failed');assert.equal(failed.attachmentID,start.attachmentID);
+ shell.remove();accepted(f,op);
+ const reused=mount();
+ reused.image.remove();reused.shell.append(new reused.f.Node('img',{alt:'other.png',src:'/other'})).remove();
+ reused.shell.append(new reused.f.Node('span')).textContent=reused.op.name;
+ reused.shell.append(new reused.f.Node('span')).textContent='上传未成功';
+ accepted(reused.f,reused.op);
+ for(const key of ['src','alt']) {
+  const {f,op,shell,image}=mount();
+  image.setAttribute(key,key==='alt'?'another.png':'/new-preview');
+  image.remove();
+  shell.append(new f.Node('span')).textContent=op.name;
+  shell.append(new f.Node('span')).textContent='上传未成功';
+  accepted(f,op);assert.equal(f.setters,1);assert.equal(f.sends,0);
+ }
+});
+
+test('a stale named A card cannot claim B’s exact File URL or its failure',()=>{
+ const f=fixture(), a=f.bind(), b=f.bind();
+ f.stage(a);f.commit(a);
+ const start=accepted(f,a);
+ const card=f.form.querySelectorAll('[data-file-name]').find(n=>n.getAttribute('data-file-name')===a.name);
+ f.stage(b);f.commit(b);
+ card.querySelector('img').setAttribute('src',f.context.URL.createObjectURL(f.input.files[0]));
+ card.append(new f.Node('span')).textContent='上传失败';
+ accepted(f,a);accepted(f,b);
+ assert.equal(f.observe(a).attachmentID,start.attachmentID);assert.equal(f.changes,2);assert.equal(f.sends,0);
+});
+
+test('a progress-only A member cannot borrow the later B preview under its old label',()=>{
+ const f=fixture({accept:false}), a=f.bind(), b=f.bind();
+ f.stage(a);f.commit(a);
+ const card=f.addCard(a.name,{placeholder:true,progress:true});const start=accepted(f,a);
+ f.stage(b);f.commit(b);
+ const preview=card.append(new f.Node('img',{src:f.context.URL.createObjectURL(f.input.files[0])}));
+ card.append(new f.Node('span')).textContent='上传失败';
+ accepted(f,a);preview.remove();accepted(f,a);
+ assert.equal(f.observe(a).attachmentID,start.attachmentID);assert.equal(f.setters,2);assert.equal(f.sends,0);
+});
+
+test('two render turns between native reads preserve positive original START and its current error',async()=>{
+ const f=fixture({accept:false}),a=f.bind(),b=f.bind();
+ for(const op of [a,b]){f.stage(op);assert.equal(f.commit(op).observation.state,'inputTriggered');}
+ const first=f.addCard(a.name),second=f.addCard(b.name);
+ await new Promise(done=>setImmediate(done));
+ first.setAttribute('data-state','failed');
+ const read=()=>f.call({...a.command('observe'),preferStartReceipt:true,requireLiveOriginal:true}).observation;
+ const start=read(),afterLostReply=read(),error=f.observe(a);
+ assert.equal(start.state,'uploadStarted');assert.equal(start.uploadStart.evidenceID,afterLostReply.uploadStart.evidenceID);
+ assert.equal(error.state,'failed');assert.equal(start.attachmentID,error.attachmentID);
+ assert.equal(error.automaticRetryExcluded,false);assert.equal(error.attachmentAbsent,false);
+ assert.equal(f.observe(b).state,'uploadStarted');
+ first.removeAttribute('data-state');assert.equal(f.observe(a).state,'uploadStarted');
+ assert.notEqual(second,first);assert.equal(f.setters,2);assert.equal(f.changes,2);assert.equal(f.sends,0);
+});
+
+for(const mode of ['placeholder','hidden','already-failed','foreign-image','navigation','expiry']){
+ test('background handoff sampling declines '+mode,async()=>{
+  const f=fixture({accept:false}),op=f.bind();let expire;
+  const nativeTimer=f.context.setTimeout;
+  f.context.setTimeout=(fn,ms)=>ms===10000?(expire=fn,0):nativeTimer(fn,ms);
+  f.stage(op);f.commit(op);
+  if(mode==='expiry')expire();
+  if(mode==='navigation')f.setRoute('https://chatgpt.com/c/different-draft');
+  const card=f.addCard(op.name,{placeholder:mode==='placeholder',progress:false});
+  if(mode==='hidden')card.rendered=false;
+  if(mode==='foreign-image')card.querySelector('img').setAttribute('alt','riftlet-11111111-1111-1111-1111-111111111111.png');
+  if(mode==='already-failed')card.setAttribute('data-state','failed');
+  await new Promise(done=>setImmediate(done));
+  card.setAttribute('data-state','failed');
+  const result=f.call({...op.command('observe'),preferStartReceipt:true}).observation;
+  assert.notEqual(result.state,'uploadStarted');assert.equal(result.uploadStart,undefined);
+  assert.equal(f.setters,1);assert.equal(f.changes,1);assert.equal(f.sends,0);
+ });
+}
+
+for(const path of ['commit','native-read','mutation']){
+ test('START ownership in '+path+' excludes unrelated or ambiguous members',async()=>{
+  for(const kind of ['hidden','foreign-label','zero','indeterminate','help','keyboard-action','foreign-blob','multiple-anonymous','wrong-composer','nested-only-name']){
+   const f=fixture({accept:false}),b=f.bind(),a=f.bind();
+   f.stage(b);f.commit(b);
+   const foreign=f.context.URL.createObjectURL(f.input.files[0]);
+   const add=()=>{
+    const card=f.addCard(a.name,{placeholder:true,progress:false});
+    const image=(parent,src,alt)=>parent.append(new f.Node('img',alt?{src,alt}:{src}));
+    if(kind==='zero'||kind==='indeterminate')card.append(new f.Node('div',kind==='zero'?{role:'progressbar','aria-valuenow':'0'}:{role:'progressbar'}));
+    else if(kind==='help')image(card.append(new f.Node('button',{'aria-label':'Help'})),'/help-icon','Help');
+    else if(kind==='keyboard-action')image(card.append(new f.Node('span',{tabindex:'0','aria-label':'Help'})),'/help-icon');
+    else if(kind==='multiple-anonymous'){image(card,'/one');image(card,'/two');}
+    else if(kind==='nested-only-name'){
+     for(const key of ['data-file-name','title','aria-label'])card.removeAttribute(key);
+     card.append(new f.Node('button')).textContent=a.name;image(card,'/anonymous');
+    }else {
+     const img=image(card,kind==='foreign-blob'?foreign:'/preview',kind==='foreign-label'?b.name:a.name);
+     if(kind==='hidden')img.rendered=false;
+     if(kind==='wrong-composer')f.body.append(new f.Node('form')).append(card);
+    }
+    return card;
+   };
+   f.stage(a);let result;
+   if(path==='commit'){f.setChange(add);result=f.commit(a).observation;}
+   else {
+    f.commit(a);const card=add();
+    if(path==='mutation'){await new Promise(done=>setImmediate(done));card.setAttribute('data-state','failed');}
+    result=f.call({...a.command('observe'),preferStartReceipt:true}).observation;
+   }
+   assert.equal(result.state,'inputTriggered',kind);assert.equal(result.uploadStart,undefined,kind);
+   assert.deepEqual([f.setters,f.changes,f.sends],[2,2,0],kind);
+  }
+ });
+}
+
+test('nested decorative icons do not replace the independently named original preview',async()=>{
+ const f=fixture({accept:false}),a=f.bind(),b=f.bind();f.stage(a);f.commit(a);
+ const card=f.addCard(a.name,{placeholder:true,progress:false}),help=card.append(new f.Node('button',{'aria-label':'Help'}));
+ help.append(new f.Node('img',{src:'/help-icon',alt:'Help'}));
+ card.append(new f.Node('img',{src:'/decorative'}));
+ const image=card.append(new f.Node('img',{src:f.context.URL.createObjectURL(f.input.files[0]),alt:a.name}));
+ const start=accepted(f,a);image.setAttribute('data-state','failed');
+ const error=f.observe(a);assert.equal(error.state,'failed');assert.equal(error.attachmentID,start.attachmentID);
+ f.stage(b);f.commit(b);const portal=f.body.append(new f.Node('section'));portal.append(f.addCard(b.name));
+ const next=accepted(f,b);assert.notEqual(next.attachmentID,start.attachmentID);
+ assert.deepEqual([f.setters,f.changes,f.sends],[2,2,0]);
+});
+
+for(const count of [65,257,513,1025])test('current File and evicted foreign URL ownership at URL count '+count,()=>{
+ const f=fixture({accept:false}),a=f.bind();f.stage(a);f.commit(a);
+ let retainedForeign,last;
+ for(let i=0;i<count;i++){
+  last=f.context.URL.createObjectURL(f.input.files[0]);
+  if(i===0)retainedForeign=last;
+ }
+ const card=f.addCard(a.name,{progress:false}),image=card.querySelector('img');
+ for(const key of ['data-file-name','title','aria-label'])card.removeAttribute(key);
+ image.removeAttribute('alt');image.setAttribute('src',last);
+ const original=accepted(f,a);card.setAttribute('data-state','failed');
+ assert.equal(f.observe(a).attachmentID,original.attachmentID);assert.equal(f.observe(a).state,'failed');
+ const b=f.bind();f.stage(b);f.commit(b);const second=f.addCard(b.name,{progress:false}),next=second.querySelector('img');
+ next.setAttribute('src',retainedForeign);assert.equal(f.observe(b).state,'inputTriggered');
+ next.setAttribute('src','blob:unwitnessed-older-url');assert.equal(f.observe(b).state,'inputTriggered');
+ next.setAttribute('src',f.context.URL.createObjectURL(new Blob(['derived B'])));accepted(f,b);
+ assert.deepEqual([f.setters,f.changes,f.sends],[2,2,0]);
+});
+
+for(const [label,expected] of [['Image preview',true],['上传图片的预览',true],['Help',false],['Logo',false]]){
+ test('single directly owned named member with image description '+label,()=>{
+  const f=fixture({accept:false}),op=f.bind();f.stage(op);f.commit(op);
+  const card=f.addCard(op.name,{progress:false});card.querySelector('img').setAttribute('alt',label);
+  assert.equal(f.observe(op).state,expected?'uploadStarted':'inputTriggered');assert.equal(f.setters,1);
+ });
+}
+
+for (const scenario of ['same member','neighbor error','relabel and restore','new meter','foreign image removed',
+                         'different parent','remove and reinsert','hidden error','transparent error','link error','empty render','later occupant']) {
+ test('accessible-name progress card aftercare: '+scenario,async()=>{
+  const f=fixture({accept:false}),op=f.bind();
+  f.stage(op);f.commit(op);
+  const card=f.form.append(new f.Node('div',{role:'button','aria-label':op.name}));
+  const meter=card.append(new f.Node('div',{role:'progressbar','aria-valuenow':'4.71'}));
+  const start=accepted(f,op);
+  const manual=()=>f.call({...op.command('observe'),requireLiveOriginal:true}).observation;
+  const other=f.form.append(new f.Node('section'));
+  if(scenario==='relabel and restore'){
+   card.setAttribute('aria-label','else.png');card.setAttribute('aria-label',op.name);
+  }
+  if(scenario==='new meter')card.append(new f.Node('progress',{value:'0.5'})).remove();
+  if(scenario==='foreign image removed')card.append(new f.Node('img',{src:'blob:foreign'})).remove();
+  if(scenario==='different parent')other.append(card);
+  if(scenario==='remove and reinsert'){card.remove();f.form.append(card);}
+  if(scenario==='neighbor error'){
+   other.append(new f.Node('span')).textContent='上传未成功';
+  }else{
+   meter.remove();
+   if(scenario==='empty render'||scenario==='later occupant'){
+    if(scenario==='later occupant')card.append(new f.Node('span')).textContent='Other file';
+    await new Promise(done=>setImmediate(done));
+    assert.equal(manual().state,'invalidated');
+    assert.equal(f.observe(op).state,'uploadStarted');
+    if(scenario==='later occupant')card.textContent='';
+   }
+   const container=scenario==='link error'?card.append(new f.Node('a',{href:'#help'})):card;
+   const error=container.append(new f.Node('span'));
+   error.textContent='上传未成功';
+   if(scenario==='hidden error')error.rendered=false;
+   if(scenario==='transparent error')error.checkVisibility=()=>false;
+  }
+  if(scenario==='same member'||scenario==='empty render'){
+   for(const result of [f.observe(op),manual()]){
+    assert.equal(result.state,'failed');
+    assert.equal(result.attachmentID,start.attachmentID);
+    assert.equal(result.automaticRetryExcluded,false);
+   }
+  }else{
+   assert.equal(f.observe(op).state,'uploadStarted');
+   assert.notEqual(manual().state,'failed');
+  }
+  assert.deepEqual([f.setters,f.changes,f.sends],[1,1,0]);
+ });
+}
+
+for(const scenario of ['own retry','zh retry','zh unrelated action','zh wrong file','zh generic notice','legacy watch','wrong figure','global notice','remove action','wrong label','wrong title','fake button',
+ 'hidden retry','transparent retry','disabled retry','aria disabled','extra picture','replaced original','relabel and restore',
+ 'reparented original','reparent and restore','unmarked figure','no image marker','failed before START','disabled failure before START']){
+ test('original figure upload retry: '+scenario,()=>{
+  const f=fixture({accept:false}),op=f.bind();
+  f.stage(op);f.commit(op);
+  const figure=f.form.append(new f.Node('figure',{'data-composer-image-attachment':''}));
+  const card=figure.append(new f.Node('button',{type:'button','data-assistant-image-link':'','aria-label':op.name}));
+  const attrs={src:f.context.URL.createObjectURL(f.input.files[0]),alt:op.name,'data-assistant-image':'','data-composer-image-attachment-preview':''};
+  const image=card.append(new f.Node('img',attrs));image.currentSrc=attrs.src;
+  const early=scenario.endsWith('before START');
+  const start=early?null:accepted(f,op);
+  const host=scenario==='wrong figure'?f.form.append(new f.Node('figure',{'data-composer-image-attachment':''})):figure;
+  const retry=host.append(new f.Node(scenario==='fake button'?'div':'button',{type:'button','data-composer-image-upload-retry':'',
+   'aria-label':'Retry uploading '+op.name,title:'Failed to upload file.'}));
+  if(scenario.startsWith('zh ')){
+   retry.setAttribute('aria-label','重新上传文件：'+op.name);retry.setAttribute('title','上传未成功');
+   if(scenario==='zh unrelated action')retry.setAttribute('aria-label','查看文件：'+op.name);
+   if(scenario==='zh wrong file')retry.setAttribute('aria-label','重新上传文件：其他.png');
+   if(scenario==='zh generic notice')retry.setAttribute('title','点击重试');
+  }
+  if(scenario==='legacy watch'){
+   const registry=vm.runInContext('globalThis.__riftletIndependentFileInput20261104',f.context);
+   delete registry.operations.get(op.identity.operationID).failureWatch.views[0].figurePreview;
+  }
+  if(scenario==='disabled failure before START')retry.disabled=true;
+  if(scenario==='global notice'){retry.remove();f.form.append(new f.Node('span')).textContent='Failed to upload file.';}
+  if(scenario==='remove action'){retry.removeAttribute('data-composer-image-upload-retry');retry.setAttribute('data-composer-remove-image','');}
+  if(scenario==='wrong label')retry.setAttribute('aria-label','Retry uploading other.png');
+  if(scenario==='wrong title')retry.setAttribute('title','Retry');
+  if(scenario==='hidden retry')retry.rendered=false;
+  if(scenario==='transparent retry')retry.checkVisibility=()=>false;
+  if(scenario==='disabled retry')retry.disabled=true;
+  if(scenario==='aria disabled')retry.setAttribute('aria-disabled','true');
+  if(scenario==='extra picture')figure.append(new f.Node('img',attrs));
+  if(scenario==='replaced original'){image.remove();card.append(new f.Node('img',attrs));}
+  if(scenario==='relabel and restore'){card.setAttribute('aria-label','different.png');card.setAttribute('aria-label',op.name);}
+  if(scenario==='reparented original')host.parentElement.append(new f.Node('figure',{'data-composer-image-attachment':''})).append(card);
+  if(scenario==='reparent and restore'){card.remove();figure.append(card);}
+  if(scenario==='unmarked figure')figure.removeAttribute('data-composer-image-attachment');
+  if(scenario==='no image marker')image.removeAttribute('data-composer-image-attachment-preview');
+  const read=live=>f.call({...op.command('observe'),requireLiveOriginal:live}).observation;
+  if(early)assert.equal(read(false).state,'inputTriggered');
+  else if(scenario==='own retry'||scenario==='zh retry'){
+   for(const result of [read(false),read(true)]){
+    assert.equal(result.state,'failed');assert.equal(result.attachmentID,start.attachmentID);
+    assert.equal(result.automaticRetryExcluded,false);
+   }
+  }else{
+   assert.equal(read(false).state,'uploadStarted');
+   assert.notEqual(read(true).state,'failed');
+  }
+  assert.deepEqual([f.setters,f.changes,f.sends],[1,1,0]);
+ });
+}

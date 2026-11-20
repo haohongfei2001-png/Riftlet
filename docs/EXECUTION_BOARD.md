@@ -1,4 +1,7 @@
-# Riftlet 当前工程队列
+# 2026-11-14 工程队列快照
+
+当前工程以 [Issue #115](https://github.com/haohongfei2001-png/Riftlet/issues/115) 为唯一入口，已发行版本为 1.0.5（31）。以下保留 1.0.1/1.0.2 审计当时的结论。
+
 
 本文件是官网部署前的已审检查点；[最终公网发行与实际更新回执](https://github.com/haohongfei2001-png/Riftlet/pull/101#issuecomment-6879797338)在原 PR 按真实执行结果持续更新。
 

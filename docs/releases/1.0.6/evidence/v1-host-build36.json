@@ -1,0 +1,105 @@
+{
+  "build": 36,
+  "source": "4ed6cbede7260fb857d98bc2a23ef9240870c32e",
+  "signedExecutableSHA256": "c2524bcdffe400908b13f29a245b4f539a1a6cc3e6ebebadaabc8675e89ba5cb",
+  "input": "ordinary CGEvent mouse; no AX invoke or scripted file attachment",
+  "fixtureMetrics": [
+    {
+      "fixture": 1,
+      "mouseToStartMS": 6823.5,
+      "mouseToSwallowCommitMS": 6825.0,
+      "startToAnimationMS": 2.0
+    },
+    {
+      "fixture": 2,
+      "mouseToStartMS": 5981.9,
+      "mouseToSwallowCommitMS": 5982.8,
+      "startToAnimationMS": 1.4
+    },
+    {
+      "fixture": 3,
+      "mouseToStartMS": 4407.7,
+      "mouseToSwallowCommitMS": 4409.3,
+      "startToAnimationMS": 2.6
+    },
+    {
+      "fixture": 4,
+      "mouseToStartMS": 6559.4,
+      "mouseToSwallowCommitMS": 6561.1,
+      "startToAnimationMS": 2.3
+    },
+    {
+      "fixture": 5,
+      "mouseToStartMS": 7097.7,
+      "mouseToSwallowCommitMS": 7098.4,
+      "startToAnimationMS": 1.1
+    },
+    {
+      "fixture": 6,
+      "mouseToStartMS": 4724.5,
+      "mouseToSwallowCommitMS": 4726.1,
+      "startToAnimationMS": 2.2
+    },
+    {
+      "fixture": 7,
+      "mouseToStartMS": 5222.9,
+      "mouseToSwallowCommitMS": 5224.9,
+      "startToAnimationMS": 3.0
+    },
+    {
+      "fixture": 8,
+      "mouseToStartMS": 4956.5,
+      "mouseToSwallowCommitMS": 4958.5,
+      "startToAnimationMS": 565.6
+    }
+  ],
+  "pairDownIntervalsMS": [
+    345.2,
+    326.9,
+    336.0
+  ],
+  "medianMouseToSwallowCommitMS": 5603.9,
+  "nearestRankP95MouseToSwallowCommitMS": 7098.4,
+  "focusOriginalAfterFirstStartSeconds": 34.1,
+  "environment": "Existing signed-in Chrome, independent unsent temporary ChatGPT draft, native pointer events on the ordinary signed application, synthetic screenshots only.",
+  "startCount": 8,
+  "distinctOriginalAttachmentIDs": 8,
+  "attemptsPerFixture": 1,
+  "originalWindowTabDocumentAndDraftForEight": true,
+  "visibleImagesObservedInFirstDraft": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "lastTwoFinalImages": "Two distinct original-card START receipts recorded. Final screenshot of cards 7 and 8 from this original draft unavailable after its window became shared.",
+  "oldDraftFocusAfterFirst": "From about:blank in the same window, the ordinary history action reselected the original tab and raised its original Chrome process.",
+  "supplementalPair": {
+    "sameSignedCandidate": true,
+    "newTestDraft": true,
+    "clickGapMS": 360.9,
+    "visibleInSameCompletedFrame": 2,
+    "distinctStarts": 2,
+    "mouseToSwallowCommitMS": [
+      1791.4,
+      2232.0
+    ]
+  },
+  "tenClickLatencyMS": {
+    "n": 10,
+    "median": 5091.7,
+    "p95NearestRank": 7098.4,
+    "maximum": 7098.4
+  },
+  "supplementalTextSelection": {
+    "build": 36,
+    "singleClick": true,
+    "entireVisibleShortDraftComparedBeforeAndAfter": true,
+    "selectedRange": "final two digits, unchanged",
+    "existingAttachmentCards": 5,
+    "additionalVisibleUploadCard": 1,
+    "sendsObserved": 0
+  }
+}

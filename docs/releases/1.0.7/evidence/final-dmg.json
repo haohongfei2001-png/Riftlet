@@ -1,0 +1,20 @@
+{
+  "name": "Riftlet-1.0.7.dmg",
+  "build": "45",
+  "bytes": 13386906,
+  "source": "28f4f5979190c0255b97978afdd97c713c39a50b",
+  "architectures": [
+    "arm64",
+    "x86_64"
+  ],
+  "finalSHA256": "112d8a025947b5b684caf125fc7b551c27cb6541acb13075827f17874302bef8",
+  "appSubmissionID": "88f89bc6-2a38-4123-bd22-2348d40b8342",
+  "submissionID": "56a1c50b-3cb3-4dca-8a44-6b47ec103ce9",
+  "notaryStatus": "Accepted",
+  "embeddedAppTicket": "VALID",
+  "dmgTicket": "VALID",
+  "dmgGatekeeperOpen": "ACCEPTED",
+  "embeddedAppGatekeeperExecute": "ACCEPTED",
+  "appInventory": "PINNED_FULL_TREE_MATCH",
+  "published": false
+}

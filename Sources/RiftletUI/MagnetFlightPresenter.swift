@@ -177,6 +177,7 @@ public final class MagnetFlightPresenter {
         let completion: (MagnetFlightCompletion) -> Void
     }
 
+    private let mediaTime: () -> CFTimeInterval
     private var flight: Flight?
     private var observers: [(NotificationCenter, NSObjectProtocol)] = []
     private var isClosed = false
@@ -194,7 +195,12 @@ public final class MagnetFlightPresenter {
             sampledFrameCount: flight?.sampledFrameCount ?? 0)
     }
 
-    public init() {
+    public convenience init() {
+        self.init(mediaTime: CACurrentMediaTime)
+    }
+
+    init(mediaTime: @escaping () -> CFTimeInterval) {
+        self.mediaTime = mediaTime
         observe(NSApplication.didChangeScreenParametersNotification, center: .default)
         let workspace = NSWorkspace.shared.notificationCenter
         observe(NSWorkspace.activeSpaceDidChangeNotification, center: workspace)
@@ -220,7 +226,7 @@ public final class MagnetFlightPresenter {
                       windChimeDegrees: CGFloat? = nil,
                       onAnimationObservation: @escaping (MagnetAnimationObservation) -> Void = { _ in },
                       onCompletion: @escaping (MagnetFlightCompletion) -> Void) -> Bool {
-        let invocationCA = CACurrentMediaTime()
+        let invocationCA = mediaTime()
         let assetReadyCA = invocationCA - elapsedSinceAssetReady
         generation &+= 1
         let token = generation
@@ -328,7 +334,7 @@ public final class MagnetFlightPresenter {
         // and normal removal so completion cannot flash back to the source.
         animation.fillMode = .backwards
         animation.delegate = end
-        let remaining = plan.totalDuration - (CACurrentMediaTime() - assetReadyCA)
+        let remaining = plan.totalDuration - (mediaTime() - assetReadyCA)
         guard remaining > 0 else { panel.close(); return false }
         flight = Flight(assetID: assetID, generation: token, panel: panel,
                         rootLayer: root, animatedLayer: animatedLayer, endDelegate: end,
@@ -357,7 +363,7 @@ public final class MagnetFlightPresenter {
         // 560 ms trajectory and live input islands; allow 500 ms to deliver a
         // genuine finished=true callback before reporting timedOut. A timeout
         // never becomes finished and never changes upload/retry authority.
-        DispatchQueue.main.asyncAfter(deadline: .now() + max(0, plan.totalDuration - (CACurrentMediaTime() - assetReadyCA)) + 0.500, execute: timeout)
+        DispatchQueue.main.asyncAfter(deadline: .now() + max(0, plan.totalDuration - (mediaTime() - assetReadyCA)) + 0.500, execute: timeout)
         return true
     }
 

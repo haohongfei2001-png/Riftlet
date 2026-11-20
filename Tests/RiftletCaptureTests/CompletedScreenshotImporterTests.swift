@@ -405,7 +405,9 @@ final class CompletedScreenshotImporterTests: XCTestCase {
         try Data().write(to: empty); try bytes.write(to: complete); try Data(bytes.prefix(46)).write(to: partial)
         try await interrupted.cleanAbandonedStaging()
         XCTAssertFalse(FileManager.default.fileExists(atPath: empty.path))
-        XCTAssertEqual(try Data(contentsOf: complete), bytes)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: complete.path))
+        let orphans = try await interrupted.orphanFiles()
+        XCTAssertEqual(try Data(contentsOf: XCTUnwrap(orphans.first)), bytes)
         XCTAssertFalse(FileManager.default.fileExists(atPath: partial.path))
         let prepublication = captures.appendingPathComponent(".capture-" + UUID().uuidString.lowercased())
         let linked = captures.appendingPathComponent(".capture-" + UUID().uuidString.lowercased())
@@ -444,6 +446,40 @@ final class CompletedScreenshotImporterTests: XCTestCase {
         XCTAssertEqual(Set(history.map(\.id)), [row.id, stageRecord.id])
         XCTAssertEqual(try Data(contentsOf: root.appendingPathComponent("media").appendingPathComponent(row.image.fileName)), bytes)
         XCTAssertFalse(FileManager.default.fileExists(atPath: url.path))
+    }
+
+    func testRetentionEditsPreserveEnrollmentBoundaryAcrossRestarts() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        let db = root.appendingPathComponent("queue.sqlite")
+        let store = try QueueStore(databaseURL: db)
+        let importer = PrivateAssetImporter(privateRoot: root, store: store)
+        try await importer.initializeRetention(newProfile: false)
+        try await importer.setRetention(days: 30, includeExisting: false)
+        let initial = try await importer.retention()
+        XCTAssertNotNil(initial.since)
+        let source = root.appendingPathComponent("source.png")
+        _ = try syntheticPNG(at: source)
+        try markSyntheticScreenshot(source)
+        let record = try await importer.importFile(at: source)
+        try await store.removeFromQueue(record.id)
+        let future = Date().addingTimeInterval(120 * 86_400)
+        for days in [30, 90, 30, 0, 30] {
+            try await importer.setRetention(days: days, includeExisting: false)
+            let reopened = PrivateAssetImporter(privateRoot: root, store: try QueueStore(databaseURL: db))
+            let policy = try await reopened.retention()
+            XCTAssertEqual(policy.since, initial.since)
+            let ids = try await reopened.cleanupItems(rule: policy, now: future).map { $0.record.id }
+            XCTAssertEqual(ids, days == 0 ? [] : [record.id])
+        }
+        try await importer.setRetention(days: 30, includeExisting: true)
+        let expanded = try await importer.retention()
+        XCTAssertNil(expanded.since)
+        try await importer.setRetention(days: 30, includeExisting: false)
+        let restricted = try await importer.retention()
+        let excluded = try await importer.cleanupItems(rule: restricted, now: future)
+        XCTAssertTrue(excluded.isEmpty)
     }
 
     private func generatedPNG() throws -> Data {

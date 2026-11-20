@@ -1,0 +1,231 @@
+{
+  "programSHA256": "ed86b553596a8aa2a63e3031a74f5a017746042d71a2877af1fb7ff89d6e42ad",
+  "scope": "Independent controlled renderer tests, separate from real ChatGPT. Each input used one setter and one change, zero sends.",
+  "baselineBuild41FalseStarts": 11,
+  "updatedFalseStarts": 0,
+  "negativeCases": [
+    {
+      "mode": "hidden",
+      "pathway": "return",
+      "state": "inputTriggered",
+      "started": false,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "hidden",
+      "pathway": "read",
+      "state": "inputTriggered",
+      "started": false,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "hidden",
+      "pathway": "interpoll",
+      "state": "inputTriggered",
+      "started": false,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "foreign",
+      "pathway": "return",
+      "state": "inputTriggered",
+      "started": false,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "foreign",
+      "pathway": "read",
+      "state": "inputTriggered",
+      "started": false,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "foreign",
+      "pathway": "interpoll",
+      "state": "inputTriggered",
+      "started": false,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "unmoved-meter",
+      "pathway": "return",
+      "state": "inputTriggered",
+      "started": false,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "unmoved-meter",
+      "pathway": "read",
+      "state": "inputTriggered",
+      "started": false,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "unmoved-meter",
+      "pathway": "interpoll",
+      "state": "inputTriggered",
+      "started": false,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "indeterminate",
+      "pathway": "return",
+      "state": "inputTriggered",
+      "started": false,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "indeterminate",
+      "pathway": "read",
+      "state": "inputTriggered",
+      "started": false,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "indeterminate",
+      "pathway": "interpoll",
+      "state": "inputTriggered",
+      "started": false,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "nested-action",
+      "pathway": "return",
+      "state": "inputTriggered",
+      "started": false,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "nested-action",
+      "pathway": "read",
+      "state": "inputTriggered",
+      "started": false,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "nested-action",
+      "pathway": "interpoll",
+      "state": "inputTriggered",
+      "started": false,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    }
+  ],
+  "lifetimeAfterTrueEviction": [
+    {
+      "label": "fresh",
+      "state": "uploadStarted",
+      "want": "uploadStarted",
+      "ok": true,
+      "setters": 2,
+      "changes": 2,
+      "sends": 0
+    },
+    {
+      "label": "evictedForeign",
+      "state": "inputTriggered",
+      "want": "inputTriggered",
+      "ok": true,
+      "setters": 2,
+      "changes": 2,
+      "sends": 0
+    },
+    {
+      "label": "liveForeign",
+      "state": "inputTriggered",
+      "want": "inputTriggered",
+      "ok": true,
+      "setters": 2,
+      "changes": 2,
+      "sends": 0
+    },
+    {
+      "label": "ownURL-1",
+      "state": "uploadStarted",
+      "want": "uploadStarted",
+      "ok": true,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "label": "ownURL-64",
+      "state": "uploadStarted",
+      "want": "uploadStarted",
+      "ok": true,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "label": "ownURL-65",
+      "state": "uploadStarted",
+      "want": "uploadStarted",
+      "ok": true,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "label": "preview-alt-Image preview",
+      "state": "uploadStarted",
+      "want": "uploadStarted",
+      "ok": true,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "label": "preview-alt-\u4e0a\u4f20\u56fe\u7247\u7684\u9884\u89c8",
+      "state": "uploadStarted",
+      "want": "uploadStarted",
+      "ok": true,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "label": "preview-alt-riftlet-11111111-1111-1111-1111-111111111111.png",
+      "state": "inputTriggered",
+      "want": "inputTriggered",
+      "ok": true,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    }
+  ],
+  "controlledHeadlessChrome": {
+    "tests": 35,
+    "passed": 35,
+    "scope": "Loopback Chrome; image/selection, original ownership, no replay, child-action icons and transparent ancestor are covered. Real service results are recorded separately."
+  }
+}

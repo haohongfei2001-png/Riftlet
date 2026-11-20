@@ -80,7 +80,14 @@ public actor SystemScreenshotObservationJournal {
                         (ChatGPTWebPageProgram.priorHandoffSource, "attachment-handoff-20261105-v16"),
                         (ChatGPTWebPageProgram.priorScreenshotSource, "screenshot-handoff-20261105-v17"),
                         (ChatGPTWebPageProgram.priorObservationSource, "screenshot-observation-20261118-v18"),
-                        (ChatGPTWebPageProgram.sourceID, "screenshot-card-observation-20261118-v19")]
+                        (ChatGPTWebPageProgram.priorCardObservationSource, "screenshot-card-observation-20261118-v19"),
+                        (ChatGPTWebPageProgram.priorOriginalReviewSource, "screenshot-original-review-20261118-v20"),
+                        (ChatGPTWebPageProgram.priorMemberStatusSource, "screenshot-member-status-20261119-v21"),
+                        (ChatGPTWebPageProgram.priorObservedStartSource, "screenshot-observed-start-20261119-v22"),
+                        (ChatGPTWebPageProgram.priorOwnedPreviewSource, "screenshot-owned-preview-20261119-v23"),
+                        (ChatGPTWebPageProgram.priorProgressCardSource, "screenshot-progress-card-20261119-v24"),
+                        (ChatGPTWebPageProgram.priorRetryOverlaySource, "screenshot-retry-overlay-20261119-v25"),
+                        (ChatGPTWebPageProgram.sourceID, "browser-handoff-20261120-v30")]
         guard let previous = versions.firstIndex(where: { $0.1 == saved.evidenceID }),
               let observed = versions.firstIndex(where: { $0.1 == current.evidenceID }), previous < observed,
               let source = try await SystemScreenshotCandidateAdmission(store: store, scope: scope).registeredObservationSource(for: request),
@@ -136,7 +143,7 @@ public actor SystemScreenshotObservationJournal {
                       item.attachmentID != nil, !item.attachmentAbsent, !item.isUploading else { return nil }
                 return item.state == .attached ? .attached : .ready
             case .unknown: return .unknown
-            case .failed, .invalidated: return nil
+            case .failed, .originalCardFailed, .invalidated: return nil
             }
         }
     }

@@ -117,19 +117,19 @@ public struct RiftControlCenterPresentation {
             recoveryTitle = copy.text("检查截图位置", "Check Screenshot Location"); recoveryPage = .capture
         } else if !owner.collectionPaused, let issue = setup.issue, [.fileVolumeUnidentified, .historicalSourceUnconfirmed].contains(issue) {
             state = .attention; title = copy.text("部分截图暂缓收录", "Some Screenshots Are on Hold")
-            detail = issue.text(in: copy)
+            detail = issue.text(in: copy, browser: setup.browser)
             symbol = "clock"
             recoveryTitle = copy.text("查看收录说明", "Show Collection Details"); recoveryPage = .capture
         } else if usesAutomation && (setup.permission == .denied || setup.issue == .permissionDenied) {
-            state = .attention; title = copy.text("需要允许 Riftlet 控制 Chrome", "Allow Riftlet to Control Chrome")
-            detail = copy.text("在系统设置中允许访问 Chrome，即可继续设置一键附加。", "Allow Chrome access in System Settings, then finish setting up one-click attachments.")
+            state = .attention; title = copy.text("需要允许 Riftlet 控制 \(setup.browser.displayName)", "Allow Riftlet to Control \(setup.browser.displayName)")
+            detail = copy.text("在系统设置中允许访问 \(setup.browser.displayName)，即可继续设置一键附加。", "Allow \(setup.browser.displayName) access in System Settings, then finish setting up one-click attachments.")
             symbol = "exclamationmark.circle"
-            recoveryTitle = copy.text("检查 Chrome 连接", "Check Chrome Connection"); recoveryPage = .help
+            recoveryTitle = copy.text("检查 \(setup.browser.displayName) 连接", "Check \(setup.browser.displayName) Connection"); recoveryPage = .help
         } else if usesAutomation && (setup.issue == .chromeJavaScriptDisabled || snapshot.chromeConnection == .javaScriptDisabled) {
-            state = .attention; title = copy.text("需要开启 Chrome 的 JavaScript 选项", "Enable JavaScript from Apple Events in Chrome")
-            detail = setup.issue == .chromeJavaScriptDisabled ? SetupIssue.chromeJavaScriptDisabled.text(in: copy) : ChromeAttachmentSetup.instructions(in: copy)
+            state = .attention; title = copy.text("需要开启 \(setup.browser.displayName) 的 JavaScript 选项", "Enable JavaScript from Apple Events in \(setup.browser.displayName)")
+            detail = setup.issue == .chromeJavaScriptDisabled ? SetupIssue.chromeJavaScriptDisabled.text(in: copy, browser: setup.browser) : ChromeAttachmentSetup.instructions(in: copy, browser: setup.browser)
             symbol = "globe"
-            recoveryTitle = copy.text("检查 Chrome 连接", "Check Chrome Connection"); recoveryPage = .help
+            recoveryTitle = copy.text("检查 \(setup.browser.displayName) 连接", "Check \(setup.browser.displayName) Connection"); recoveryPage = .help
         } else if setup.issue == .imageUnavailable {
             state = .attention; title = copy.text("找不到这张截图的本地副本", "Local Screenshot Copy Unavailable")
             detail = SetupIssue.imageUnavailable.text(in: copy)
@@ -142,13 +142,13 @@ public struct RiftControlCenterPresentation {
             symbol = "globe"
             recoveryPage = .help
             if snapshot.chromeConnection == .noWindow {
-                title = copy.text("没有可用的 Chrome 窗口", "No Chrome Window Available")
+                title = copy.text("没有可用的 \(setup.browser.displayName) 窗口", "No \(setup.browser.displayName) Window Available")
                 detail = copy.text("打开要使用的 ChatGPT 草稿。", "Open the ChatGPT draft you want to use.")
-                recoveryTitle = copy.text("打开 Chrome", "Open Chrome"); recoveryOverride = .openChrome
+                recoveryTitle = copy.text("打开 \(setup.browser.displayName)", "Open \(setup.browser.displayName)"); recoveryOverride = .openChrome
             } else {
                 title = copy.text("无法连接到当前草稿", "Can’t Connect to the Current Draft")
-                detail = setup.issue?.text(in: copy) ?? copy.text("请检查 Chrome 连接。", "Check the Chrome connection.")
-                recoveryTitle = copy.text("查看 Chrome 连接", "Show Chrome Connection")
+                detail = setup.issue?.text(in: copy, browser: setup.browser) ?? copy.text("请检查 \(setup.browser.displayName) 连接。", "Check the \(setup.browser.displayName) connection.")
+                recoveryTitle = copy.text("查看 \(setup.browser.displayName) 连接", "Show \(setup.browser.displayName) Connection")
             }
         } else if owner.settings.entryEnabled && snapshot.screenRecording == .notGranted {
             state = .attention; title = copy.text("内置截图需要屏幕录制权限", "Allow Screen Recording for Built-in Capture")
@@ -173,9 +173,9 @@ public struct RiftControlCenterPresentation {
             } else if !usesAutomation {
                 detail = setup.visibleCount == 0 ? copy.text("新截图会保存在本机，可从截图仓库查看。", "New screenshots are saved on this Mac. See them in Screenshot Library.") : copy.text("\(setup.visibleCount) 张截图在边缘，可从截图仓库查看。", "Screenshots at the edge: \(setup.visibleCount). See them in Screenshot Library.")
             } else if let issue = setup.issue, issue.isAttachmentConnectionIssue {
-                detail = issue.text(in: copy)
+                detail = issue.text(in: copy, browser: setup.browser)
             } else {
-                detail = setup.visibleCount == 0 ? copy.text("截图后，点一下边缘微图。", "Take a screenshot, then click its thumbnail.") : copy.text("\(setup.visibleCount) 张截图在边缘，打开要用的 Chrome 聊天草稿后点选。", "Screenshots at the edge: \(setup.visibleCount). Open your ChatGPT draft in Chrome and click one.")
+                detail = setup.visibleCount == 0 ? copy.text("截图后，点一下边缘微图。", "Take a screenshot, then click its thumbnail.") : copy.text("\(setup.visibleCount) 张截图在边缘，打开要用的 Chrome 或 Edge 聊天草稿后点选。", "Screenshots at the edge: \(setup.visibleCount). Open your ChatGPT draft in Chrome or Edge and click one.")
             }
             symbol = "checkmark.circle"
             recoveryTitle = nil; recoveryPage = nil

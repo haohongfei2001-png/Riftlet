@@ -7,8 +7,8 @@
 <key>CFBundleDisplayName</key><string>Riftlet</string>
 <key>CFBundleIconFile</key><string>Riftlet.icns</string>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>1.0.5</string>
-<key>CFBundleVersion</key><string>31</string>
+<key>CFBundleShortVersionString</key><string>1.0.7</string>
+<key>CFBundleVersion</key><string>53</string>
 <key>SUFeedURL</key><string>https://riftlet.com/updates/stable.xml</string>
 <key>SUPublicEDKey</key><string>KraptyRutIHdX4XxX5LKIzo7jTdiWZWqDl+UMhK2DgA=</string>
 <key>SURequireSignedFeed</key><true/>
@@ -27,7 +27,7 @@
 <key>RiftletBuildChannel</key><string>development</string>
 <key>RiftletDeveloperIDSigned</key><false/>
 <key>RiftletNotarized</key><false/>
-<key>NSAppleEventsUsageDescription</key><string>允许 Riftlet 检查与 Chrome 的连接，并在你点选截图时将它附加到当前 ChatGPT 草稿。消息由你发送。</string>
+<key>NSAppleEventsUsageDescription</key><string>允许 Riftlet 检查与 Chrome 或 Microsoft Edge 的连接，并在你点选截图时将它附加到当前 ChatGPT 草稿。消息由你发送。</string>
 <key>NSDesktopFolderUsageDescription</key><string>允许 Riftlet 读取保存在桌面中的新截图，在桌面边缘显示缩略图。原图会保留。</string>
 <key>NSDocumentsFolderUsageDescription</key><string>允许 Riftlet 读取保存在文稿中的新截图，在桌面边缘显示缩略图。原图会保留。</string>
 <key>NSDownloadsFolderUsageDescription</key><string>允许 Riftlet 读取保存在下载中的新截图，在桌面边缘显示缩略图。原图会保留。</string>

@@ -1,0 +1,136 @@
+{
+  "candidate": {
+    "version": "1.0.6",
+    "build": 35,
+    "source": "57ebe3d3448df0c4ffc11abeb7607a0cdc415d57",
+    "dmg_sha256": "7fec9b5e5cfff0398ae161f0f45233f86612349b5e746aee721488a209ba48fa",
+    "executable_sha256": "976bae3e9ba10a71e136d0e15c8cd0a18831bdc6d2b5e0fcf58bc3d72d2b5954",
+    "status": "superseded"
+  },
+  "role": "ordinary Developer ID installed application on a disposable macOS VM, Apple virtual display and input",
+  "manualUpgrade": {
+    "oldVersion": "1.0.3 (25)",
+    "newBuild": 35,
+    "unchangedRowsByTable": {
+      "assets": 5,
+      "operations": 1,
+      "upload_starts": 0,
+      "checkpoints": 3,
+      "compensations": 0,
+      "metadata": 2
+    },
+    "unchangedFileDigests": 12,
+    "verified": [
+      "bookmark",
+      "feedbackDraft",
+      "sqlite.quick_check",
+      "Gatekeeper",
+      "designatedRequirement",
+      "executableHash"
+    ]
+  },
+  "nativeUI": {
+    "verified": [
+      "fresh zh onboarding and persistent Later after quit",
+      "actual denied screen recording, menu repair and macOS consent",
+      "four Chinese setting pages / dark and light",
+      "en manager with live 0→1 orphan, recover→0",
+      "manual inspection, confirmation, Trash 4, restore 4 by original identity",
+      "library list+grid default and 680x480, search/empty",
+      "actual screen capture with sRGB display, apply/undo rectangle, Retry Save after reversible failure",
+      "unfinished edits intercept normal quit, Keep Original enqueues exact source bytes"
+    ],
+    "unverified": [
+      "VoiceOver speech",
+      "all language/theme/window-size cross-products",
+      "multiple physical monitors"
+    ]
+  },
+  "ordinaryProcess": {
+    "initialProfile": {
+      "files": 2009,
+      "bytes": 298728034,
+      "rows": 1000
+    },
+    "afterVerifiedBatch": {
+      "files": 2049,
+      "bytes": 305343074,
+      "rows": 1020
+    },
+    "PNGBytes": 297060,
+    "windowObserved": "1000 copies / 297.1 MB; manual cleanup confirmation shown then canceled",
+    "firstVerificationAnd20ArrivalsMS": {
+      "p50": 262.64,
+      "p95": 440.73,
+      "max": 552.37
+    },
+    "secondSimultaneousRule90AndHistory20ArrivalsMS": {
+      "p50": 272.65,
+      "p95": 692.48,
+      "max": 1418.4
+    },
+    "all40IdentitiesAndHashes": true,
+    "physIOscope": "whole Riftlet process since first through last sample, includes UI and ingestion; cache-dependent",
+    "durationMs": 61909.24,
+    "RSSBytes": [
+      121192448,
+      130400256,
+      130039808
+    ],
+    "userCPUMs": 1159.101,
+    "kernelCPUMs": 468.532,
+    "physicalReadBytes": 526438400,
+    "physicalWriteBytes": 6959104
+  },
+  "sameSourceProbe": {
+    "concurrentCollectionMS": {
+      "max": 9.47925,
+      "n": 20,
+      "p50": 7.2715,
+      "p95": 8.4835
+    },
+    "cpuSystemMS": 183.31025,
+    "cpuUserMS": 504.0745833333333,
+    "extraImports": 20,
+    "fileGrowth": 60,
+    "finalRSSBytes": 26132480,
+    "imageSize": "1024x768",
+    "initialCopies": 1000,
+    "initialLogicalBytes": 597361014,
+    "initialProfileAndOriginalFiles": 3003,
+    "initialRSSBytes": 23838720,
+    "initialSummaryMS": 5.62225,
+    "logicalGrowthBytes": 12673477,
+    "physicalDiskReadBytes": 20480,
+    "physicalDiskWriteBytes": 13438976,
+    "summaryHistoryAndRuleMS": {
+      "max": 10.634,
+      "n": 20,
+      "p50": 8.202,
+      "p95": 10.372041
+    },
+    "syntheticImageBytes": 297060,
+    "verifiedCopies": 1000,
+    "verifyAndConcurrentWorkMS": 572.093375
+  },
+  "privateScreens": {
+    "onboarding-zh.png": "8dbfeecc88d412fa23d6abea271dcdf9c7f193f0edae7de1d6d585faea591021",
+    "appearance-zh-dark.png": "fd9a988471d4555c804d45ed77a122d68c7a8921b7629d99d42be9ca2b835072",
+    "help-zh-dark.png": "0bf26afd6fa492d174f152d13aad00cd788bee8ed91c69a33ef8559c19e5ec5a",
+    "screenshots-zh-dark.png": "16dac2b736cb10dcb8ce107a17beb304205dd09c9345d7c8b030e69270285fe7",
+    "general-en.png": "5b394d826d84539b866e4a0b5d10bd5a39114881973a24e2ff45c663db6f33c0",
+    "manager-zh-dark.png": "92fd6eb8e79f0cb0181f20ff71c4d5bb566d239818873a33db6d3ea351d4ba84",
+    "manager-en-live-pending.png": "f336b0a977ddd78e7d3df1b4be99a6ac7a6445f0a4b14ff7a0c1de62b1893e3c",
+    "manager-en-recovered.png": "ee454bc03e1f67be58f8064dcced5d0fdeed401a21bce1854817eb22da8d0cfe",
+    "library-en-default.png": "a242000db8cc6a9936730a7cf650a7997a6f019fbe0b7a183139f97564f658f3",
+    "library-en-min-list.png": "1d6f9f78207113a7fa01870a400ea80dfaf8f3f8e2ef3faf631d5da4e6bdc634",
+    "library-en-min-grid.png": "2747e8e9c8fbd8500eec9fb525fd8d787d855a6ea5c85daf1516cb84b690baf9",
+    "library-en-min-empty.png": "0ed7972cbb7377e8a69d6cf4eca80af6f6a4c4471e65f5cf34742321dd05ba5d",
+    "markup-en-rectangle.png": "61b43d87b211d4cdd1204197daa204cc15f1a33f3e4f2b3368ee20c90ce9d159",
+    "markup-en-undone.png": "69c3f8f47446f8b6280d14faaeeb2c4d4fd10c7fa7f588bbfb2311a6104a29bd",
+    "markup-en-save-error.png": "f707b0b4cdabf860e5df8f8dbbbe2611cc3d359a91a5565d1f8c6a294706c10c",
+    "markup-en-pending-quit.png": "30d36a3fea6845a0176b20d6cd1468e103b43f719df337b4a3e6d1fb26f95ed4",
+    "v6-manager-initial.png": "90943ddd73bdb3c939a57ed758e72075e816f8115db106450bb4a2cd3ca8d6a7",
+    "v6-manual-verified.png": "852d8409ffbc914fcdc646ee0b98d9c20be50e1e045960108b3588c1dfeed738"
+  }
+}

@@ -157,6 +157,10 @@ public struct ObservationNormalizer: Sendable {
                     }
                 }
             }
+        case .originalCardFailed:
+            guard item.originalCardFailureInvocationID == request.invocationID,
+                  OrdinaryProductScreenshotScope.matches(profile) else { throw ObservationError.identityMismatch }
+            // Preserve the local page fact while the service outcome remains unknown.
         case .failed:
             if let observed = item.terminationEvidence, let terminationProfile = profile.terminationProfileID,
                profile.failureSignal != nil, exactMember, item.hasError,
@@ -184,7 +188,8 @@ public struct ObservationNormalizer: Sendable {
             reason: "observer-v\(envelope.schemaVersion):\(item.state.rawValue):\(envelope.provenance.source.rawValue)"
                 + (item.reason.map { ":" + $0.rawValue } ?? ""),
             uploadStartEvidence: uploadStartEvidence, continuationEvidence: continuationEvidence,
-            completionEvidence: item.completionEvidence, terminationEvidence: terminationEvidence)
+            completionEvidence: item.completionEvidence, terminationEvidence: terminationEvidence,
+            originalCardFailureInvocationID: item.originalCardFailureInvocationID)
         if let proof = item.completionEvidence, !proof.validates(receipt: receipt, asset: request.asset) {
             throw ObservationError.invalidField("completion identity chain")
         }

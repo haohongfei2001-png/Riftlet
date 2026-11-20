@@ -1,0 +1,80 @@
+{
+  "build": 47,
+  "dmgSHA256": "155ef8d523e475232edebc633121063004a862cf5658b78cef320b3c5a0e0cf4",
+  "platform": "isolated macOS 27.2",
+  "firstSystemConsent": "Microsoft Edge named in ordinary macOS dialog",
+  "denial": "Don\u2019t Allow -> Access Needed",
+  "recovery": "Open Automation Settings -> Automation -> Riftlet > Microsoft Edge -> turn on -> Connection Not Checked",
+  "jsOff": "Explicit check -> Enable JavaScript with Edge instructions",
+  "jsOn": "Edge View > Developer > Allow JavaScript from Apple Events -> explicit Riftlet check -> Connected",
+  "frontmostRefusals": [
+    {
+      "browser": "Microsoft Edge",
+      "permission": "not previously granted",
+      "screenshot": "same visible pending asset",
+      "operations": 0,
+      "starts": 0,
+      "observedCorrectBrowserInHint": true
+    },
+    {
+      "browser": "Google Chrome",
+      "permission": "not previously granted",
+      "screenshot": "same visible pending asset",
+      "operations": 0,
+      "starts": 0,
+      "observedCorrectBrowserInHint": true
+    }
+  ],
+  "authorizedEdgeUnsupportedPage": {
+    "page": "about:blank",
+    "naturalClick": true,
+    "matchedEdgeDraftHint": true,
+    "latestAssetStayedVisible": true,
+    "operations": 0,
+    "starts": 0
+  },
+  "passiveTabNavigationAndRestart": {
+    "previousTargetWasUnsupported": true,
+    "newPage": "edge://version/",
+    "processLifetimeChanged": true,
+    "pendingAssetStillVisible": true,
+    "operationsBefore": 0,
+    "operationsAfter": 0,
+    "startsBefore": 0,
+    "startsAfter": 0
+  },
+  "nonCovered": [
+    "logged-in live service on VM",
+    "switching away during an accepted attachment"
+  ],
+  "twoRealEdgeInstances": {
+    "sameBundleID": true,
+    "distinctProcessIDs": true,
+    "separateWindowedProfiles": true,
+    "differentKnownLocalTestPages": true,
+    "clicks": [
+      {
+        "instance": "second",
+        "marker": "Beta",
+        "twoDistinctProcesses": true,
+        "testPageStillVisible": true,
+        "onePendingVisibleAsset": true,
+        "operations": 0,
+        "starts": 0
+      },
+      {
+        "instance": "original",
+        "marker": "Alpha",
+        "twoDistinctProcesses": true,
+        "testPageStillVisible": true,
+        "onePendingVisibleAsset": true,
+        "operations": 0,
+        "starts": 0
+      }
+    ],
+    "bothShowedCorrectEdgeDraftRefusal": true,
+    "extraInstanceTerminated": true,
+    "priorLibraryRestored": true,
+    "prior86FileHashesRechecked": true
+  }
+}

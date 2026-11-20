@@ -1,5 +1,8 @@
 # Riftlet 1.0.5：推广前产品收口
 
+1.0.5 历史记录。最终正式版为 build 31。[正式通道验收](https://github.com/haohongfei2001-png/Riftlet/pull/114#issuecomment-6968323045) · [1.0.6 修复任务](https://github.com/haohongfei2001-png/Riftlet/issues/115)
+
+
 **开发交付**　[签名候选 1.0.5（31）与附加、托盘复验](FOLLOW_UP.md) · [build 30 原始验收与升级记录](RC_REPORT.md) · [进度](PROGRESS.md) · [开发 PR #113](https://github.com/haohongfei2001-png/Riftlet/pull/113)
 
 **公开版本**　1.0.5（31）已于 2026-11-18 发布。[官网下载](https://riftlet.com/) · [签名安装包及校验值](https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.5)

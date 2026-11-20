@@ -1,0 +1,60 @@
+{
+  "reviewer": "qa107-independent-web-and-storage-reviewer",
+  "scope": "Frozen build 52 product delta; independent source and controlled test verification, not source governance, G1/G2/G4 live website or package proof",
+  "result": "PASS_WITH_SCOPED_OBSERVATIONS",
+  "sourceBase": "2771969400d76ed82ad120392901d412f03de845",
+  "sourceHead": "9b40a4e71a1b9430db18a86b2efa12ffa550c5c9",
+  "tree": "f249a623c502289bb830ea9e8aab0eeb79511797",
+  "checkedProductSources": [
+    "Sources/RiftletAdapters/AttachmentObservation.swift",
+    "Sources/RiftletAdapters/ChromeAppleEventsExecutor.swift",
+    "Sources/RiftletAdapters/ChromeProcessIdentity.swift",
+    "Sources/RiftletAdapters/ObservationNormalizer.swift",
+    "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js",
+    "Sources/RiftletAdapters/SystemScreenshotObservationJournal.swift",
+    "Sources/RiftletAdapters/WebAttachmentAdapter.swift",
+    "Sources/RiftletCore/HistoryAttachmentState.swift",
+    "Sources/RiftletCore/HistoryQuery.swift",
+    "Sources/RiftletCore/Models.swift",
+    "Sources/RiftletCore/QueueStore.swift",
+    "Sources/RiftletUI/HistoryPresentation.swift"
+  ],
+  "programSHA256": "0e4e66d43f52100cb6162441bc170e803ea2fcbfd452ab36d131b89f30f816ee",
+  "before": [
+    "Build 51 independent loopback Chrome case could not report originalCardFailed on the fresh file-specific failure before any START.",
+    "Initial 52 JS positively identified a shell containing an additional different visible generated filename in the same filename row.",
+    "Initial 52 QueueStore permitted an otherwise matching second typed local failure on another member ID to overwrite the first."
+  ],
+  "after": {
+    "browser": "13 headless native Chrome cases verified on exact frozen program. Native Edge ran 12 directly; its two-card case initially refused at pin before any DOM case check. A separate fresh Edge session reached that case and correctly rejected ambiguous cards. Each completed case counted precisely one setter and one change, no automatic send, no network upload. No blanket Edge pin reliability claim.",
+    "card": [
+      "Exact current operation, invocation and unique fresh original composer failure, enabled same-file retry and named remove validate without upload START. Duplicate commit refuses.",
+      "Baseline shell, duplicate exact member, other composer, neighboring retry, hidden error, disabled retry, second other filename, mixed remove label, changed editor fail closed.",
+      "Detaching then reattaching the shell, changing/restoring the remove name or replacing the original editor invalidates the old live claim. Dedicated manual checks return invalidated."
+    ],
+    "native": "Original PID acquired by allowed application identity; same kernel birth plus saved kernel executable reconfirmed. 3 already-running browser processes, 100 read-only matches each. Independent real sleeping child tested foreign bundle at acquisition, mismatched path/birth, exited PID. The child-only constructor intentionally isolates kernel predicates. PID reuse and browser exec-in-place were not forced. No Apple Event sent.",
+    "storage": [
+      "Actual typed observation wire through closed decoder and ordinary system normalizer: unknown + error only; no START or automatic retry. Wrong invocation rejected; contradictions in seven individual fields rejected.",
+      "Wrong operation, asset, hash, attempt, target and invocation refuse. Once first local failure recorded, a second member cannot replace it. Later inconclusive observation or apparent START cannot overwrite original fact.",
+      "Real private SQLite fixture reopened; failed, needs attention, needs verification filters find the same record; zero START rows; staging and ordinary prepare retain original operation and grant no input. Only explicit replacement picks a fresh target and may create attempt 2; a new invocation is separate.",
+      "Local storage candidates exclude the failed copy when visible, not handled or input still running; hidden + handled + returned input makes it eligible, and showing it again removes eligibility. No website/installation claim."
+    ]
+  },
+  "limitations": [
+    "No live service traffic or private browser state in independent fixtures. They do not establish physical first clicks, upload completion, a terminal network failure, automatic retry permission or promotion readiness.",
+    "Exact binary, packaged delivery and fresh guest-B G4 must be verified independently."
+  ],
+  "privateEvidence": {
+    "Review52.swift": "d23cb549a8c9eb04a82fcac880ad7ee27835d3fd3ae2a2b25feaab40871c298a",
+    "Process.swift": "5d5c0e5a927bb367f371ba2b73008ee3c949afa3212f867452d0b8f16e00140c",
+    "ind-52.cjs": "4ea4265cf406beadc96c2315489c55cd8d793f68fdaada96de8550e4785d02b1",
+    "ind-edge-52.cjs": "a00190209a414791b96300a2a5ee65144bf12cd95ac9a44f0948b19eaf454856",
+    "r107-52-independent-51-before.log": "58fb35fafecf6b2171c29ad38e38de2a3693ff1f11d34fd740c56eef1d4c622c",
+    "r107-review52-swift.log": "30b3cdfa881bf65c57766e951b414f346dcc6ee94d53e636eb7929a7b1597706",
+    "r107-review52-final.log": "908ea171e9896716b46667c31cc2cafdfbd2cb51dbf9c6645476fe04de22b795",
+    "r107-52-independent-web.log": "1b5d1a5be25593e94837d95b644b6056e2f9097dfcb5d8b2f8c79528d23f9d16",
+    "r107-52-independent-web-fixed2.log": "6695503752fe7b66cf5f31d2536839b3ad2b5606e1858ef02d4f2656cb31ff93",
+    "r107-52-independent-edge-final.log": "e3901f8653908f9688bddd5f50ade50e0f58c8b53c595e6e4899892df9ed82a7",
+    "r107-52-independent-edge-two-cards.log": "86c7bc56c37787668bde52c4cc831a8afe95af550e254091ac425026db98c78e"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "build": 35,
+  "environment": "Dedicated ARM64 macOS VM, real Chrome, anonymous ChatGPT, ordinary macOS screenshot capture, virtual pointer, synthetic test-only document",
+  "cold": {
+    "newSTART": 1
+  },
+  "warm": {
+    "newSTART": 1
+  },
+  "pairs": [
+    {
+      "clickIntervalSeconds": 0.548,
+      "newSTART": 2,
+      "visibleAttachmentsAfter": 4
+    },
+    {
+      "clickIntervalSeconds": 0.529,
+      "newSTART": 0,
+      "response": "ChatGPT displayed its sign-in dialog; both attempts failed before START; source images intact"
+    }
+  ],
+  "textPreserved": true,
+  "selectionMeasurement": "NOT_RUN",
+  "sendsObserved": 0,
+  "latency": {
+    "metric": "native click event to first observation of committed swallowed state, upper bound, milliseconds",
+    "samples": [
+      8503.8,
+      618.7,
+      803.2,
+      786.1
+    ],
+    "p50": 794.7,
+    "p95NearestRank": 8503.8,
+    "max": 8503.8
+  },
+  "thirdAnonymousPair": "NOT_RUN; signed-in Chrome used for subsequent independent acceptance"
+}

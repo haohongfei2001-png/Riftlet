@@ -45,7 +45,7 @@ test('a wrapper textbox does not hide the actual nested editing host and its for
   f.input.addEventListener('change',()=>{
     const name=f.input.files[0].name;
     const card=composer.append(new f.Node('div',{'data-file-name':name}));
-    card.append(new f.Node('img',{alt:name,src:'blob:synthetic'}));
+    card.append(new f.Node('img',{alt:name,src:f.context.URL.createObjectURL(f.input.files[0])}));
   });
   const op=f.bind(); f.stage(op);
   assert.equal((await f.commit(op)).observation.state,'uploadStarted');
@@ -91,6 +91,8 @@ test('an accepted preview in a reused slot can start, but renaming an unchanged 
   slot.setAttribute('data-file-name',op.name);image.setAttribute('alt',op.name);
   assert.equal(f.observe(op).state,'inputTriggered');
   image.setAttribute('src',f.context.URL.createObjectURL(f.input.files[0]));
+  assert.equal(f.observe(op).state,'inputTriggered','the previous selected resource is still displayed');
+  image.currentSrc=image.getAttribute('src');
   assert.equal(f.observe(op).state,'uploadStarted');
   assert.equal(f.setters,1);
 });

@@ -2,15 +2,12 @@
 
 Riftlet is a publicly released macOS app. Use actual `main` and the latest stable
 GitHub Release; do not resume an old PR because a historical note calls it current.
-The 2026-11-14 audit baseline is 1.0.1 (23); this is a dated fact, not a future version pin.
+The verified 2026-11-18 release is 1.0.5 (31). Recheck all three distribution channels before release.
 
 ## Read only what the task needs
 
 1. This file and [current product contract](docs/PRODUCT.md).
-2. [1.0.5 current entry](docs/releases/1.0.5/README.md), its audit, product direction
-   and Codex handoff. Read only the relevant work packet.
-   [2026-11-14 evidence](engineering/quality/2026-11-14/progress.json) and the
-   old quality handoff are dated history, not an additional work queue.
+2. [Issue #118](https://github.com/haohongfei2001-png/Riftlet/issues/118) is the 1.0.7 specification. Continue Draft PR #119 from the inherited build 44 source. Record same-candidate results in [the release directory](docs/releases/1.0.7/README.md).
 3. [Current design decisions](docs/quality/DECISIONS.md) and the relevant source/tests.
 4. [Mainline admission](docs/MAINLINE_GOVERNANCE.md) before committing a formal PR.
 
@@ -19,20 +16,12 @@ historical phase restrictions. Old files are retained under `docs/quality/histor
 `engineering/evidence/` and `research/` remain source-bound historical evidence,
 not new permission or a second work queue. Open candidates are not released features.
 
-The active next-version task is [1.0.5 product closeout](docs/releases/1.0.5/CODEX_HANDOFF.md).
-At the 2026-11-18 audit, main was `3f8149e2313fd81bbaee5a7bbbdbb1efca2fc81b`;
-PR #110 held the unmerged 1.0.4 build 27 candidate at
-`f3153b10dac4445720f1c20c8836ddbbea625c49`. Public download was 1.0.3 and the
-repository stable feed was 1.0.2. Re-read actual remote state before implementation.
-Integrate the valid 1.0.4 changes into a separate 1.0.5 worktree; do not restart from
-old main alone or resume already merged PR #101. PR #100/#109 are dated planning;
-#69/#77 are separate candidates, not automatic dependencies. Issue closure, source
-admission, native acceptance and release approval remain distinct.
+Preserve the signed 1.0.5 release, stable feed and review history. Port selected Edge behavior from #69 onto #117’s product lifecycle.
 
 ## Product invariants
 
 - Normal system screenshot → visible edge thumbnail → one explicit click attaches
-  that image to the correct click-time Chrome ChatGPT draft. Never send the message.
+  that image to the correct click-time Chrome or Edge ChatGPT draft. Never send the message.
 - Freeze and revalidate the exact process/window/tab/document/composer. Do not guess
   another conversation or let an unowned file input become eligible merely by timeout.
 - Enter the setter/change path at most once per attempt. After possible external input,
@@ -45,15 +34,13 @@ admission, native acceptance and release approval remain distinct.
   direction. Never invent completion, late-failure proof or retry rights. UNKNOWN
   remains non-resubmitting; displaying an image does not grant input authority.
 - Keep approved tray/wind-chime/micro-slit forms, tray 2×2 and capture-button placement,
-  queue identity, previews and accessibility. Scope settings refinement to the 1.0.5
-  product direction; no destination expansion or unplanned product modules.
+  queue identity, previews and accessibility. Scope settings refinement to Issue #115; no destination expansion or unplanned product modules.
 
 ## Data and release safety
 
 - External original screenshots are read-only. Never reset the current SQLite library,
   replay or clear UNKNOWN, replace current data with an old backup, or repurpose production
-  profiles for a test. Implement 1.0.5 lifecycle/cleanup only within its explicit product
-  direction, preserving active/unknown/only-copy recovery and legacy retention promises.
+  profiles for a test. Apply the explicit media dispositions and verified recovery rules of Issue #115, preserving active/unknown/only-copy recovery and legacy retention promises.
   Audit and tests never delete production media; use isolated synthetic data roots.
 - Preserve journal/media/SQLite recovery ordering, file identity/hash checks, single-instance
   ownership, safe migrations, folder bookmarks, saved preferences and feedback credentials.

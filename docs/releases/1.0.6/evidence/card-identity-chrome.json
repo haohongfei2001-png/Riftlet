@@ -1,0 +1,110 @@
+{
+  "recordedUTC": "2026-11-19T05:57:43+00:00",
+  "scope": "controlled local fixture; product web program with headless Chrome. Live signed-package acceptance is separate.",
+  "sourceCommit": "d1ad33b326b5c6f98df5a2484b893d17ad65b501",
+  "programGitBlob": "f96eca42ce061d3b85ecf6d1d0873557f8cbaa3d",
+  "environment": {
+    "platform": "macOS 27.0 (26A428) arm64",
+    "node": "26.8.2",
+    "chrome": "157.0.8103.79",
+    "transport": "loopback-only"
+  },
+  "controlledNodeSuites": {
+    "counts": {
+      "tests": 206,
+      "pass": 206,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "suites": [
+      "acceptance-program",
+      "ordinary-composer",
+      "attachment-entry-handoff",
+      "original-image-transport"
+    ],
+    "originalDuplicatedPreviewError": "PASS"
+  },
+  "controlledChromeSuite": {
+    "counts": {
+      "tests": 14,
+      "pass": 14,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "scenario": {
+      "scenario": "opaque-member-text-failure",
+      "scope": "real Chrome primitives; controlled local application; NOT live ChatGPT",
+      "passed": true,
+      "phase": "complete",
+      "nativeChanges": 2,
+      "nativeSetters": 2,
+      "networkRequests": 0,
+      "automaticSends": 0,
+      "observedStarts": 2,
+      "inputExecutionMS": [
+        9,
+        13
+      ],
+      "originalFileListsVerified": 2,
+      "applicationIndependentTasksVerified": 2,
+      "retainedNativeSelection": true,
+      "reentrantInputRefused": true,
+      "wrongTargetRefused": true,
+      "lostReplyRecoveredWithoutReplay": true,
+      "textSelectionCardsPreserved": true,
+      "pickerReplacedEachChange": false,
+      "hiddenPortalPicker": false,
+      "decoratedFilenameAccepted": true,
+      "noForm": false,
+      "multipleInputs": false,
+      "avatarPickers": false,
+      "wrongInputChanges": 0,
+      "wrongInputSetters": 0,
+      "entryMode": "direct",
+      "entryPointerDowns": 0,
+      "menuSelections": 0,
+      "createdPickers": 0,
+      "pickerCalls": 0,
+      "pickerClicks": 0,
+      "pickerErrors": 0,
+      "menuOwnsInput": false,
+      "menusClosed": 0,
+      "menuClosedBeforeInput": 0,
+      "missingChooserCancellation": 0,
+      "nativeAwaitContinuations": 0,
+      "nativeAwait": false,
+      "selectionCollapsedByApplication": false,
+      "startBeforePickerRestored": false,
+      "noInputStartRejected": false,
+      "firstSyntheticUploadState": "uploading",
+      "harnessTransport": "loopback-only"
+    },
+    "assertions": [
+      "Each of two original native FileList deliveries preserved its File and START.",
+      "Changing the second image to the first file URL and showing an explicit failure on the second shell produced no failure on either operation.",
+      "Removing the original first preview and adding the full first filename and explicit failure in the same shell, after native mutation delivery, produced a failure with its original attachment ID.",
+      "The second operation stayed started throughout."
+    ]
+  },
+  "independentStaleCardCases": [
+    {
+      "placeholder": false,
+      "first": "uploadStarted",
+      "following": "uploadStarted",
+      "setters": 2,
+      "sends": 0
+    },
+    {
+      "placeholder": true,
+      "first": "uploadStarted",
+      "following": "uploadStarted",
+      "setters": 2,
+      "sends": 0
+    }
+  ],
+  "realAuthenticatedChatGPTStartThenFailure": "NOT_VERIFIED"
+}
