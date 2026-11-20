@@ -27,3 +27,5 @@
 Brave 的可选全属性回包缺失时，现只向原进程和绝对窗口/标签描述符读取 URL 一次。过期、可变索引、错标签和畸形回包拒绝。编译代码在 AppKit 自收发探针上实际运行，独立复核确认正确属性回包不产生补读。Brave 实站页面执行、异步回执及写入仍待验。Safari 沿用上轮同窗口页面替换反例，原生标签定址仍待验；Firefox 维持无扩展验证的原边界。[Brave 宿主证据](../hosts/README.md) · [Safari 客机证据](../hosts/safari-epoch/receipt.json)
 
 新 ZIP 使用独立应用标识、ad-hoc 签名，仅本地交付，未公证。解包后核对可执行文件和网页资源，执行包内自检。正式双架构候选、签名公证、升级和同包登录验收均须先满足 W0 并在实际 main 继承最终 1.0.7。两 PR 保持 Draft，公开版本仍是 v1.0.5。[本包收据](development-b20cefbf.json)
+
+同一产品提交 `b20cefbf` 的 Intel Xcode 作业已通过原生测试、专用标签守卫、Swift/SQLite 恢复回归、开发 App 构建和包内自检。本机 ARM64 实物及上述受控回放使用同一源码。[完成的 Intel CI](https://github.com/haohongfei2001-png/Riftlet/actions/runs/44749097399)
