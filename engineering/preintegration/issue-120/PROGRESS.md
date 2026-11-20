@@ -18,3 +18,6 @@
 - W3/W4 隔离准备已覆盖 8 个新 Provider 的匿名入口。Claude 返回 403，DeepSeek 转至账号页；Gemini 的只读探针在正式匿名 /app 识别到原编辑区和同属的上传入口，未见可归属文件输入。国内千问与国际 Qwen 分开记录。受控站点独立复核修复了响应式图片错认、摘要等待中换卡、非原表单控件，以及重复 pin 再次进入 setter。最终本地运行 4 次完整 setter/change、另 1 次中断后保持未知，零发送、零外部请求。具体见 providers/README.md 与受控回执；后续真实站点写入仍待同包。
 
 - W2/W6 的首批能力收据覆盖实际 Chrome、Edge、Brave、Safari、Firefox 的本地页面。Chrome/Edge 独立进程可按 PID 核对窗口数量；Safari 普通客机验证了同 URL 的导航反例。Brave 的默认 Shields/原稿写入与 Firefox 的无扩展目标、原卡证明未通过产品验收。客机 A 首次脚本权限请求未获得可验证结果，已正常关机。Host 字典、签名、探针身份与证据等级分别记录在 hosts/。
+
+- [Draft PR #122](https://github.com/haohongfei2001-png/Riftlet/pull/122) 已建立，比较分支固定到 #119 准入 c764246，差异只含本轮准备材料。合格 main 到位后在同一 PR 切换基准与产品接线，无需另开实施 PR。
+- 独立 C 客机经正常 Apple Events 授权实测，Safari 27.2 冷捕获的原 tab 描述符是可变索引；关掉原标签后该引用命中另一张同 URL 的页面。共用契约现对单靠索引或已有网页见证的冷点击在 capture/enqueue 前拒绝。这个结论针对所测定位方式，其余 Safari 绑定策略仍需证明。

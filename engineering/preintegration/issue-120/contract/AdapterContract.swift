@@ -67,7 +67,17 @@ func resolveProvider(_ url: URL, among providers: [any ConversationProvider]) th
 struct HostCapabilities: Sendable {
     enum World: Sendable { case page, isolated, unknown }
     enum Reply: Sendable { case originalAsynchronousReply, synchronousOnly, unknown }
-    enum Locator: Sendable { case stableNativeID, pageBoundOpaqueLocator, unknown }
+    enum Locator: Sendable {
+        case stableNativeID, verifiedClickBoundarySnapshot
+        case existingPageWitnessOnly, mutableTabIndex, unknown
+
+        var supportsColdClick: Bool {
+            switch self {
+            case .stableNativeID, .verifiedClickBoundarySnapshot: return true
+            case .existingPageWitnessOnly, .mutableTabIndex, .unknown: return false
+            }
+        }
+    }
     enum Epoch: Sendable { case navigationEntry, verifiedAlternative, unknown }
     let world: World
     let reply: Reply
@@ -77,7 +87,7 @@ struct HostCapabilities: Sendable {
     let maximumPinBytes: Int
 
     var supportsPin: Bool {
-        world == .page && reply == .originalAsynchronousReply && locator != .unknown &&
+        world == .page && reply == .originalAsynchronousReply && locator.supportsColdClick &&
         epoch != .unknown && fileSetterAndDataTransferVerified && maximumPinBytes > 0
     }
 }

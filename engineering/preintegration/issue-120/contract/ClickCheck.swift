@@ -3,13 +3,14 @@ import RiftletCore
 
 @MainActor private final class HostFixture: BrowserHost {
     let bundle = "test.fixture.browser"
+    var locator = HostCapabilities.Locator.stableNativeID
     var available = true
     var fault = ""
     var captured = 0
     var enqueued = 0
     var capabilities: HostCapabilities {
         .init(world: available ? .page : .unknown, reply: .originalAsynchronousReply,
-              locator: .stableNativeID, epoch: .navigationEntry,
+              locator: locator, epoch: .navigationEntry,
               fileSetterAndDataTransferVerified: true, maximumPinBytes: 16_384)
     }
     func permissionState() -> OriginalReceiverAccess { fatalError("Ordinary pin requested a separate permission preflight") }
@@ -41,6 +42,14 @@ import RiftletCore
     precondition((try? BoundClick.capture(using: host, providers: [provider])) == nil)
     precondition(host.captured == 0 && host.enqueued == 0)
     host.available = true
+    // Safari's observed index resolves to a replacement same-URL document. A
+    // nonce first created after that swap or a warm-only witness cannot bind a cold click.
+    for locator in [HostCapabilities.Locator.mutableTabIndex, .existingPageWitnessOnly, .unknown] {
+        host.locator = locator
+        precondition((try? BoundClick.capture(using: host, providers: [provider])) == nil)
+    }
+    precondition(host.captured == 0 && host.enqueued == 0)
+    host.locator = .stableNativeID
     for fault in ["late", "birth", "mode", ""] {
         host.fault = fault
         let pending = try BoundClick.capture(using: host, providers: [provider])
