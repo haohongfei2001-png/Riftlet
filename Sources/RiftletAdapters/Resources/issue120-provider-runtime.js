@@ -28,7 +28,9 @@ function createProvider(profile) {
     if (!action) return {state: "upload_control_unavailable"};
     let picker = null;
     if (action instanceof HTMLLabelElement) {
-      picker = action.control;
+      const id = action.htmlFor;
+      if (id && !/\s/.test(id) && one([...doc.querySelectorAll("#"+CSS.escape(id))]) === action.control)
+        picker = action.control;
     } else {
       const id = action.getAttribute("aria-controls");
       if (id && !/\s/.test(id)) picker = one([...doc.querySelectorAll("#" + CSS.escape(id))]);
@@ -39,6 +41,46 @@ function createProvider(profile) {
         picker.matches(":disabled") || picker.form !== editor.closest("form") ||
         (semanticOwner(picker) && semanticOwner(picker) !== owner)) picker = null;
     return {state: picker ? "owned_input" : "editor_and_upload_action", editor, owner, action, picker};
+  }
+
+  // Inspect a menu already mounted by the website. These observations do
+  // not feed the write resolver. Portals need an explicit, unique relationship
+  // in both directions; proximity and matching labels cannot identify a menu.
+  function inspectAttachmentEntry(surface) {
+    const {state, owner, editor, action, picker} = surface;
+    if (!action) return state;
+    if (picker) return "direct_owned_input";
+    const menuID = action.getAttribute("aria-controls");
+    if (!menuID) return "menu_relation_unavailable";
+    const nodesFor = id => id && !/\s/.test(id) ? [...doc.querySelectorAll("#"+CSS.escape(id))] : [];
+    const menu = one(nodesFor(menuID));
+    if (!menu || menu.role !== "menu" ||
+        one([...doc.querySelectorAll('[aria-controls~="'+CSS.escape(menuID)+'"]')]) !== action)
+      return "menu_relation_ambiguous";
+    if (action.getAttribute("aria-expanded") !== "true" || !visible(menu)) return "menu_not_open";
+    const localOwner = semanticOwner(menu);
+    if (localOwner !== owner) {
+      if (localOwner || !action.id || one(nodesFor(action.id)) !== action ||
+          menu.getAttribute("aria-labelledby") !== action.id) return "menu_owner_unproven";
+    }
+    const items = [...menu.querySelectorAll('[role="menuitem"]')].filter(n =>
+      n.closest('[role="menu"]') === menu && active(n) && upload(n));
+    const item = one(items);
+    if (!item) return items.length ? "menu_items_ambiguous" : "menu_upload_item_unavailable";
+    if ((semanticOwner(item) && semanticOwner(item) !== owner) ||
+        ("form" in item && item.form !== null && item.form !== editor.closest("form")))
+      return "menu_item_owner_unproven";
+    const inputID = item instanceof HTMLLabelElement ? item.htmlFor : item.getAttribute("aria-controls");
+    const input = one(nodesFor(inputID));
+    if (!(input instanceof HTMLInputElement) || input.type !== "file" || input.matches(":disabled") ||
+        (item instanceof HTMLLabelElement && item.control !== input)) return "menu_input_unproven";
+    const references = [...doc.querySelectorAll('[aria-controls~="'+CSS.escape(inputID)+'"],label[for="'+CSS.escape(inputID)+'"]')];
+    if (one(references) !== item) return "menu_input_ambiguous";
+    const form = editor.closest("form"), inputOwner = semanticOwner(input);
+    if ((input.form && input.form !== form) || (inputOwner && inputOwner !== owner)) return "menu_input_owner_unproven";
+    if (input.closest('[role="menu"]') !== menu &&
+        !(inputOwner === owner && input.form === form)) return "menu_input_owner_unproven";
+    return "menu_owned_input_observed";
   }
 
   const hashPattern = /^[a-f0-9]{64}$/;
@@ -82,7 +124,8 @@ function createProvider(profile) {
     const old = new WeakSet(), oldImages = new WeakSet(), removedCards = new WeakSet();
     const foreground = () => doc.visibilityState === "visible" && doc.hasFocus();
     let mayWrite = foreground();
-    const retire = () => { retired = true; };
+    let surfaceRetired = false;
+    const retire = () => { retired = true; surfaceRetired = true; };
     // Traversing back can restore the same entry ID and DOM object references.
     // Retirement records the transition itself, including same-URL replacements.
     const lifecycle = new AbortController();
@@ -100,10 +143,13 @@ function createProvider(profile) {
       for (const r of records) {
         if (r.type === "attributes") {
           if (watched.some(n => r.target === n || r.target.contains(n))) retired = true;
+          if ([owner,editor,action].some(n => r.target === n || r.target.contains(n)) &&
+              !(r.target === action && r.attributeName === "aria-controls")) surfaceRetired = true;
           if (lane && r.target.parentNode === lane) removedCards.add(r.target);
         }
         for (const n of r.removedNodes) {
           if (watched.some(v => n === v || n.contains(v))) retired = true;
+          if ([owner,editor,action].some(v => n === v || n.contains(v))) surfaceRetired = true;
           if (r.target === lane) removedCards.add(n);
           if (accepted && (n === accepted || n.contains(accepted))) acceptedRetired = true;
         }
@@ -118,6 +164,15 @@ function createProvider(profile) {
       return !retired && url === location.href && entry === win.navigation?.currentEntry?.id &&
         current.editor === editor && current.owner === owner && current.action === action && (!picker || current.picker === picker) && (!lane || findLane() === lane);
     };
+    function inspectOriginalEntry() {
+      process(watcher.takeRecords());
+      if (surfaceRetired || url !== location.href || entry !== win.navigation?.currentEntry?.id)
+        return "original_surface_changed";
+      const surface = resolve();
+      if (surface.owner !== owner || surface.editor !== editor || surface.action !== action)
+        return "original_surface_changed";
+      return inspectAttachmentEntry(surface);
+    }
     function matches(ticket) {
       return original && ticket && Object.keys(original).every(key => original[key] === ticket[key]);
     }
@@ -181,7 +236,7 @@ function createProvider(profile) {
       } catch { return "unknown"; }
       finally { check.disconnect(); }
     };
-    return Object.freeze({current:originalTarget,commit,observe,close(){ retired=true; watcher.disconnect(); lifecycle.abort(); }});
+    return Object.freeze({current:originalTarget,inspectAttachmentEntry:inspectOriginalEntry,commit,observe,close(){ retire(); watcher.disconnect(); lifecycle.abort(); }});
   }
   return Object.freeze({inspect(){ return resolve().state; },pin});
 }
