@@ -28,7 +28,10 @@ async function observeEdgeTimeline({run, readOperation, operation, png, targetSH
       const deadline = new Promise((_, reject) => {
         timer = setTimeout(() => reject(expired), Math.ceil(remaining));
       });
-      return await Promise.race([Promise.resolve().then(read), deadline]);
+      const value = await Promise.race([Promise.resolve().then(read), deadline]);
+      // A synchronous collector can delay timer delivery past the deadline.
+      if (performance.now() - start >= durationMs) throw expired;
+      return value;
     } finally { clearTimeout(timer); }
   }
   let stop = 'observationWindowEnded';

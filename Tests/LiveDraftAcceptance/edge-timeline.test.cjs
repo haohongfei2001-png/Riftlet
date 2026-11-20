@@ -61,3 +61,12 @@ test('stored START time is independent of later store updates',async()=>{
   assert.equal(result.samples[0].storeUpdatedAfterCreationMs,100);
   assert.equal(result.samples[0].storedStartAfterCreationMs,50);
 });
+
+test('a synchronous late store response cannot count as an on-time receipt',async()=>{
+  const result=await observeEdgeTimeline({...options,durationMs:20,readOperation:()=>{
+    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,60);
+    return {...original,storedStartCount:1,storedStartAfterCreationSeconds:0.01};
+  }});
+  assert.equal(result.stop,'storeReadTimedOut');
+  assert.equal(result.samples[0].storedStartCount,undefined);
+});
