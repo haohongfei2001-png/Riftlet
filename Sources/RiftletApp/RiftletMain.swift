@@ -2215,11 +2215,19 @@ private enum WebAcceptanceSelfCheck {
         guard !program.sourceID.isEmpty, !program.functionSource.isEmpty,
               program.functionSource.utf8.count <= 128 * 1024,
               try ApplicationMode.resolve([]) == .capture,
-              try ApplicationMode.resolve(["--simulate"]) == .simulation,
-              try ApplicationMode.resolve(["--web-acceptance"]) == .webAcceptance,
               Set([ApplicationMode.capture.directoryName, ApplicationMode.simulation.directoryName,
                    ApplicationMode.webAcceptance.directoryName]).count == 3 else {
             throw RiftletError.modeMismatch
+        }
+        for (argument, mode) in [("--simulate", ApplicationMode.simulation), ("--web-acceptance", .webAcceptance)] {
+            if OrdinaryCaptureConfiguration.isInternalAcceptance {
+                do {
+                    _ = try ApplicationMode.resolve([argument])
+                    throw RiftletError.invalidTransition
+                } catch RiftletError.modeMismatch {}
+            } else {
+                guard try ApplicationMode.resolve([argument]) == mode else { throw RiftletError.modeMismatch }
+            }
         }
         do {
             _ = try ApplicationMode.resolve(["--web-acceptance", "--simulate"])
