@@ -47,6 +47,7 @@ Chromium 当前第一方源码的 AppleScript 执行使用 `ExecuteJavaScriptInI
 
 - 从安装的 Safari `sdef` 读取真实命令和定位形式；不可假设拥有 Chromium 数字 tab ID。
 - 固定 bundle/PID/processBirth、窗口、tab locator、origin 和轻量 document/composer witness。若 tab 仅有索引，索引只作定位提示；被寻址页面必须先匹配已存在 nonce 才能接触 input。
+- **冷首次绑定单独作为 gate**：首次 nonce 生成前，必须有可锁定的 native 对象身份或与 native 目标关联的预存 witness。向后来索引页面新建 nonce，不能倒推原点击身份。须在 freeze→首次pin 间注入同URL标签重排、A→B→A与延迟。只有事后nonce自洽而无法证明原对象时记 `BLOCKED_TECHNICAL`，不能用强制预热/再点一次通过冷首次验收。
 - 标签重排/移动、另开同 URL、切 profile、窗口关闭、浏览器重启、同 URL 重载、A→B→A、SPA 新草稿、BFCache 均不能改投。
 - 只能用原 nonce/draft 证明找到原页面。找不到即身份失效，不能用标题或 URL 唯一匹配来补授权。初次冷启动与暖状态均要覆盖。
 - 执行世界探针须证明跨 AE 调用的状态和页面处理器关联。异步 Promise 回执采用原 invocation 的轮询读取，不重新执行原命令。

@@ -48,6 +48,8 @@ flowchart TD
 
 点击边界先固定进程/窗口/标签和 Provider 路由，及时送出**轻量原编辑器绑定命令**；大脚本安装、图片读取/分块、观察等待放到异步执行。必须继承最终 1.0.7 的轻量绑定修正，不能照已审 build 45 把约 100 KB 程序和回执等待放在主线程。后台缓存只加速，不是第一次点击必须存在的授权条件。
 
+**冷首次绑定不得自证身份。** 特别是 Safari 的索引 locator：必须先证明原生对象可稳定绑定，或存在点击前与该原生目标可靠关联的 witness。若首次异步 pin 只是向后来索引上的页面生成 nonce，其后的 nonce 匹配不能倒推证明它是点击时的页面。在首次 nonce 建立前注入同 URL 标签重排、延迟和 A→B→A，必须停止或仍命中原目标。无法建立此证明则该 Host 的冷首次绑定 `BLOCKED_TECHNICAL`；继续研究可证替代，不能把强制预热或再点一次冒充正常一次点击完成。
+
 传输中的前台变化不改投。输入前最终校验失败则证明零输入并结束；输入可能已发生后，只允许观察原 operation。用户之后可以明确请求“查看原对话”，此动作经原身份核验后才激活窗口；自动观察不抢焦点。
 
 ## 4. Swift 接口草案
@@ -113,7 +115,7 @@ protocol AttachmentAdapterResolver: Sendable {
 1. **Prepare**：验证原目标、当前图片的媒体身份、服务实际能力、图片限制和现有附件；注册有限观察器并冻结输入配方。无法证明入口属于原 composer 则结束，不能遍历多个 input 试运气。
 2. **Durable intent**：沿用现有 SQLite/journal 顺序，在任何可能有副作用的 native dispatch 前记录 `dispatchIntent/mutationPossible`。崩溃窗口宁可留下未知，也不重复输入。
 3. **Stage**：校验每块索引、大小及总长度；只向已锁定页面运行时传字节。`begin/chunk` 不触发上传。丢失 staging 回执不自动重新发 commit。
-4. **Commit once**：页面单线程内先置 committed fence，再最终检查原 document/composer/route 与输入归属，执行已冻结的配方。原生 nonce 与页面 fence 双重防重入。
+4. **Commit once**：页面单线程内先置 committed fence，再最终检查原 document/composer/route、draftEpoch、surface/mode fingerprint、当前图片上传能力及输入归属，执行已冻结的配方。staging 期间同 URL 切模式也必须失效，除非有已认证的同草稿连续性规则；不能自动切回模式。原生 nonce 与页面 fence 双重防重入。
 5. **Observe only**：native 返回丢失、AE 超时、进程取消或网站没显示卡片，均不换 paste/drop/selector/浏览器重发。恢复只读原 identity。`discard` 只释放本操作未交出的字节，不删除网页附件。
 
 当前 ChatGPT 使用 setter + `input` + `change`，可按已验收配方保留。新 Provider 必须验证它自己的事件配方；两个事件可能被网站各处理一次。**setter 只有一次并不能证明网站只添了一张图。** 测试同时计输入次数、事件次数和最终原草稿附件数量。
@@ -121,6 +123,8 @@ protocol AttachmentAdapterResolver: Sendable {
 直接 File/DataTransfer 输入是首选路径：不碰剪贴板、不要求本地路径暴露、不读取登录凭证。菜单/动态 input 发现只允许经过验证的本 composer 入口；picker hook 必须限定操作、互斥并在所有退出路径恢复原 descriptor。不调用未经验证的站内私有 API。
 
 每个草稿的有副作用发现/写入段串行；不同点击有独立 operation，不能靠单一全局 busy 丢第二张图。只读观察走独立通道，旧 UNKNOWN 不阻塞新截图。队列等待后重新验证原目标；不会把排队的图送到后来窗口。
+
+同一托盘项尚在输入/结果未明时的连击不得静默创建第二次输入；不同截图各自排队，不以全局图片hash去重。前次结束后用户明确“再次附加”才创建该图的新operation。两张内容相同但具有不同截图身份的图仍可分别附加。
 
 ## 6. 证据与消费级反馈
 
@@ -159,7 +163,7 @@ protocol AttachmentAdapterResolver: Sendable {
 
 ## 9. 兼容性隔离
 
-Provider manifest 由签名 App 打包，含精确 origin、surface、版本化输入/证据 profile。允许运行时按能力拒绝单个 Host × Provider × surface；不得通过远端脚本热更新降低证据要求。页面更新导致能力探测失败时保持原图，只影响该范围；其他 Provider 继续工作。
+Provider manifest 由签名 App 打包，含精确 origin、surface、版本化输入/证据 profile 和实际资源SHA-256；新operation绑定provider revision及resource digest，不能以同名sourceID推定同字节。已审49与45沿用v30名称却有实际代码增量，本轮以Git SHA区分；历史记录无digest则保留legacy状态，不猜填hash、不升级其回执权限。允许运行时按能力拒绝单个 Host × Provider × surface；不得通过远端脚本热更新降低证据要求。页面更新导致能力探测失败时保持原图，只影响该范围；其他 Provider 继续工作。
 
 不要为了支持 Safari 改弱所有 Host 的 document 证明。**首个 Safari 实施能力门槛定为 Safari 26.2+、官方支持的 macOS 及运行时必要能力通过**：Apple / WebKit 记录 Navigation API 于 26.2 加入，而当前 pin 直接依赖它。Riftlet App 的 macOS 13 最低要求保持不变，不能据此宣称 macOS 13 上的 Safari 可用。旧 Safari 安全 epoch 替代在本周期做有边界验证；未通过就如实保持更窄范围。版本达标仍不等于产品已通过，不能用 WebKit 测试补签真实 Safari。来源见 [BROWSER_SPIKES.md](BROWSER_SPIKES.md)。
 

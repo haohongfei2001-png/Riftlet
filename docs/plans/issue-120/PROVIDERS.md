@@ -70,14 +70,9 @@ struct ProviderCapability: Codable, Sendable {
     let reason: CapabilityReason?
 }
 
-protocol ConversationProvider: Sendable {
-    var manifest: ProviderManifest { get }
-    // 以下为生成/选择打包页面命令的边界，而不是负责发送 Apple Events。
-    func probeCommand() -> ProviderCommand
-    func prepareCommand(operation: OperationID) -> ProviderCommand
-    func observeCommand(ticket: AttachmentTicket) -> ProviderCommand
-}
 ```
+
+`ConversationProvider` 公共协议只在 [ARCHITECTURE.md §4](ARCHITECTURE.md#4-swift-接口草案) 定义；本节不定义第二套并行接口。以下 probe/prepare/observe 是 ProviderProgram 内的页面职责，由共同运行时调用。
 
 不让 Provider 任意调用 native 上传。所有有副作用的入口都必须经过共享运行时的单次输入许可；Provider 只提供被严格校验的目标绑定与证据提取规则。`probe`/`observe` 不得触发文件选择、改文、自动换模式、发送消息或重新赋 file input。
 
