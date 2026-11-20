@@ -67,7 +67,7 @@ class ReleaseTest(unittest.TestCase):
         (self.app / "Contents/Info.plist").write_bytes(plistlib.dumps(info))
         resources = self.app / "Contents/Resources/Riftlet_RiftletAdapters.bundle"
         resources.mkdir()
-        for name in R.BUNDLE.RESOURCE_NAMES:
+        for name in R.BUNDLE.LEGACY_RESOURCE_NAMES:
             (resources / name).write_text("/* synthetic fixture only */\n")
         for name in R.BUNDLE.NOTICE_NAMES:
             path = self.app / "Contents/Resources/ThirdPartyNotices" / name
@@ -89,6 +89,23 @@ class ReleaseTest(unittest.TestCase):
 
     def tearDown(self):
         self.temporary.cleanup()
+
+    def test_candidate_provider_bytes_require_exact_pins_and_old_receipts_still_verify(self):
+        R.verify_package(self.package)
+        bundle = self.app / "Contents/Resources/Riftlet_RiftletAdapters.bundle"
+        for name in R.BUNDLE.PROVIDER_RESOURCE_NAMES:
+            (bundle / name).write_bytes(name.encode())
+        self.save()
+        with self.assertRaisesRegex(R.ReleaseError, "missing_provider_resource_pins"):
+            R.verify_package(self.package)
+        self.receipt["providerResourceSHA256"] = {name: R.digest(bundle / name) for name in R.BUNDLE.PROVIDER_RESOURCE_NAMES}
+        R.write_json(self.app / R.RECEIPT, self.receipt)
+        self.save()
+        R.verify_package(self.package)
+        (bundle / R.BUNDLE.PROVIDER_RESOURCE_NAMES[0]).write_bytes(b"different")
+        self.save()
+        with self.assertRaisesRegex(R.ReleaseError, "provider_resource_digest_mismatch"):
+            R.verify_package(self.package)
 
     def test_icon_is_manifest_bound_and_verified_in_package_and_archive(self):
         icon = self.app / "Contents/Resources/Riftlet.icns"

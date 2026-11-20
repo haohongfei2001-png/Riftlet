@@ -597,9 +597,19 @@ def _verify_package(package, expected_manifest, native_team, *, staple_resume):
     require(set(p.name for p in (app / "Contents").iterdir()) <= contents, "unexpected_app_contents")
     require(set(p.name for p in (app / "Contents/MacOS").iterdir()) == {"Riftlet"}, "unexpected_executable")
     verify_code_layout(app)
-    for name in BUNDLE.RESOURCE_NAMES:
-        matches = list((app / "Contents/Resources/Riftlet_RiftletAdapters.bundle").rglob(name))
+    bundle = app / "Contents/Resources/Riftlet_RiftletAdapters.bundle"
+    pins = receipt.get("providerResourceSHA256")
+    if pins is None:
+        require(not any(list(bundle.rglob(name)) for name in BUNDLE.PROVIDER_RESOURCE_NAMES),
+                "missing_provider_resource_pins")
+    else:
+        require(isinstance(pins, dict) and set(pins) == set(BUNDLE.PROVIDER_RESOURCE_NAMES),
+                "invalid_provider_resource_pins")
+    for name in BUNDLE.RESOURCE_NAMES if pins is not None else BUNDLE.LEGACY_RESOURCE_NAMES:
+        matches = list(bundle.rglob(name))
         require(len(matches) == 1 and matches[0].is_file() and matches[0].stat().st_size > 0, "missing_adapter_resource")
+        if pins is not None and name in pins:
+            require(digest(matches[0]) == pins[name], "provider_resource_digest_mismatch")
     for name in BUNDLE.NOTICE_NAMES:
         require((app / "Contents/Resources/ThirdPartyNotices" / name).is_file(), "missing_notice")
     if native_team:
@@ -751,6 +761,11 @@ def build_candidate(args):
                "infoPlistSHA256": digest(app / "Contents/Info.plist"), "dataCompatibility": "NOT_ASSERTED",
                "preparationInputs": {key: digest(ROOT / key) for key in PREPARATION_INPUTS},
                "swiftVersion": run(["swift", "--version"]).stdout.decode().strip()}
+    adapter_sources = source_dir / "Sources/RiftletAdapters/Resources"
+    if any((adapter_sources / name).exists() for name in BUNDLE.PROVIDER_RESOURCE_NAMES):
+        receipt["providerResourceSHA256"] = {
+            name: digest(adapter_sources / name) for name in BUNDLE.PROVIDER_RESOURCE_NAMES
+        }
     if uses_updater:
         receipt["sparkleVersion"] = SPARKLE.VERSION
         receipt["preparationInputs"]["scripts/sparkle_bundle.py"] = digest(ROOT / "scripts/sparkle_bundle.py")

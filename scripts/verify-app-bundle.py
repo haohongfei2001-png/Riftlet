@@ -27,8 +27,9 @@ class VerificationError(Exception):
     pass
 
 
-RESOURCE_NAMES = ("chatgpt-web-20261027.js", "legacy-web-observe.js",
-                  "issue120-provider-runtime.js", "issue120-provider-profiles.json")
+LEGACY_RESOURCE_NAMES = ("chatgpt-web-20261027.js", "legacy-web-observe.js")
+PROVIDER_RESOURCE_NAMES = ("issue120-provider-runtime.js", "issue120-provider-profiles.json")
+RESOURCE_NAMES = LEGACY_RESOURCE_NAMES + PROVIDER_RESOURCE_NAMES
 ICON_NAME = "Riftlet.icns"
 PRESENTATION_NAMES = ("glass-study.png", "reading.svg", "error.svg", "riftlet.svg")
 ICON_SLOTS = {b"ic04": 16, b"ic05": 32, b"ic07": 128, b"ic08": 256,
