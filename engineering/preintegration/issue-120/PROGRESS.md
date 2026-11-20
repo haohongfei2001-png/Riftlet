@@ -9,3 +9,6 @@
 - d9af149 已链接真实 build 53 的 Core。独立审查指出旧 pin 回包、能力全未知及伪散列仍可通过夹具边界。本次加入发前能力检查、原回执的 native generation/出生身份/ProviderRoute 比对及缺字段反例；设置授权检查仅用于显式设置。读者固定持久操作、原 invocation、原图哈希，只暴露 observe。Swift 与 JS 专项均通过，属于隔离验证。
 
 - eed8c99 之后加入可重跑的实库专项：在独立临时目录通过原 QueueStore 的一次性 dispatch 和 checkpoint 接口登记一条模拟操作。重新打开 SQLite 后，原 reader 只进行一次核对，结果保持 UNKNOWN；错 invocation、未要求原稿核对及同 revision 不同资源均被拒。源程序与生产 SQLite 布局未改。baseline.py 只读复查远端祖先、签名候选所属 PR 检查及公开版本。
+
+- 8f674c3 的 SQLite 重开与原目标正反例经非作者实际复跑。另在同一台 arm64 Mac 上以 x86_64 编译并通过 Rosetta 执行同一专项；CLT 链接时报告兼容性静态库缺 Intel 切片，测试程序仍成功链接和执行。物理 Intel 及新产品双架构 CI 未运行。macOS 27 上可用 Developer ID Application 身份 1 个，已找到官方 notarytool 和 stapler；此阶段没有新产品包。
+- 从 #121 仅移入原始规划矩阵供无网络、浅克隆重放。该 JSON SHA-256 为 35318faf7eacecf80972a7e47eaca173af15682f7ead047198e79da44cc30658，仍是规划输入。实测结果由 matrix 单独生成。
