@@ -39,3 +39,5 @@ python3 native_evidence.py reviewed-candidate.json native-run.json independent-o
 此命令只读，可交叉核对最小 F01–F06/T01 正向与切换验收记录。T01 在建立 durable operation 之前安全拒绝时，记录原点击摘要、目标和本图摘要、零输入及独立页面/托盘观察。此时 operations 为空，preIntentRefusals 必须有双边匹配的真实点击，不能填造 operation ID。成功返回 `MATCHED_RECORD_ONLY`，不会写入矩阵。JSON Schema 负责字段结构；Python 检查跨文件的包、Host/Provider/case/surface/run、独立观察者、操作归属及观测结果。对 L2 要求实际签名隔离 composition、完整 inputEntered；L3 需要正常模式及已登录测试会话。只读核对不能独立证明外部收集者的身份、公证或上游测试是否真实，证据仍需非作者核对。无可见输入计数的 L3 填 null，单独保留原卡增加恰好一张的证据；只要缺少必要事实，即拒绝正向核对。F03 取原生实际点击时刻，检查至少三组小于两秒的不同图片/操作，约 0.5 秒和 1.7 秒分别按 350–650 和 1500–1900 毫秒核对。完整原始时延应随证据保存。F06 检查前一同图的正面回执先于明确新点击。
 
 当前预集成刻意无 L2/L3 输入到 release 的通道。后续 W7/W8 使用正式候选原件、实际原生输入和独立页面观察，再接入正式准入。共享异常、系统资源、升级、分阶段崩溃和签名安装各有后续环境及证据，现有两种文件的结构不替这些项目签发 PASS。每次补测须在独立批次保存旧失败和超时，不能覆盖证据。
+
+目标摘要用于比较是否仍在同一草稿。它覆盖浏览器及进程出生身份、窗口、标签、document、composer、draft epoch 和当前 Provider/profile/surface/mode。点击票据、operation 和 invocation 随每次点击独立记录；将它们纳入跨图比较的草稿摘要会把同稿的两次合法点击误判为切稿。原生各阶段时间使用同一单调时钟，未知值保留 null。明确在输入前拒绝的本图不能同时报告服务就绪、原卡已接收或收起耗时。

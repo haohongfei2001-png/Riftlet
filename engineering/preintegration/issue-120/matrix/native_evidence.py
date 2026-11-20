@@ -94,6 +94,10 @@ def audit(candidate, run, oracle_bytes):
         times = op.get('timingsMs')
         need(isinstance(times, dict) and set(times) == {'clickToBound','clickToInput','clickToPositive','positiveToHidden'}
              and all(v is None or number(v) for v in times.values()), 'unknown timing must be explicit null')
+        # Compare measured event times on a single native monotonic timeline.
+        # A missing milestone stays unknown; never infer it from a later one.
+        ordered = [times[k] for k in ('clickToBound', 'clickToInput', 'clickToPositive') if times[k] is not None]
+        need(ordered == sorted(ordered), 'native milestone times out of order')
         need(number(op.get('clickMs')) and 'inputEntered' in op and
              ((integer(op['inputEntered']) and op['inputEntered'] <= 1) or
               (scope['level'] == 'L3' and op['inputEntered'] is None)),
@@ -118,7 +122,9 @@ def audit(candidate, run, oracle_bytes):
         if scope['case'] == 'T01':
             need(row.get('switchedSameURLTarget') is True, 'target switch unobserved')
         if scope['case'] == 'T01' and row['handoff'] == 'refused':
-            need(op['inputEntered'] == row['addedMatchingCards'] == 0 and row.get('trayRetained') is True,
+            need(op['inputEntered'] == row['addedMatchingCards'] == 0 and row.get('trayRetained') is True
+                 and row['processing'] == 'unknown' and row.get('observedOriginalCard') is not True
+                 and all(op['timingsMs'][k] is None for k in ('clickToInput','clickToPositive','positiveToHidden')),
                  'unsafe target refusal')
         else:
             need(row['handoff'] == 'accepted' and op['inputEntered'] in (1, None) and row['addedMatchingCards'] == 1 and

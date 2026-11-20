@@ -88,6 +88,7 @@ class MatrixTests(unittest.TestCase):
 
     def test_no_empty_wrong_level_cross_package_or_unobserved_pass(self):
         mutations = {
+            'reversed-events':lambda h,o:h['operations'][0]['timingsMs'].update(clickToBound=25,clickToInput=2),
             'cross-build':lambda h,o:o.update(candidate={**o['candidate'],'build':'2'}),
             'wrong-bytes':lambda h,o:o.update(candidate={**o['candidate'],'appSHA256':token(100)}),
             'empty':lambda h,o:h.update(operations=[]),
@@ -160,8 +161,17 @@ class MatrixTests(unittest.TestCase):
         for op in host['operations']:
             op['inputEntered']=0
         for row in oracle['operations']:
-            row.update(handoff='refused',addedMatchingCards=0,switchedSameURLTarget=True,trayRetained=True)
+            row.update(handoff='refused',processing='unknown',observedOriginalCard=False,addedMatchingCards=0,switchedSameURLTarget=True,trayRetained=True)
         self.assertEqual(assess(pkg,host,oracle),'MATCHED_RECORD_ONLY')
+        row = oracle['operations'][0]
+        row['processing'] = 'ready'
+        with self.assertRaises(ValueError):
+            assess(pkg,host,oracle)
+        row['processing'] = 'unknown'
+        host['operations'][0]['timingsMs']['clickToInput'] = 15
+        with self.assertRaises(ValueError):
+            assess(pkg,host,oracle)
+        host['operations'][0]['timingsMs']['clickToInput'] = None
         oracle['operations'][0]['trayRetained']=False
         with self.assertRaises(ValueError):
             assess(pkg,host,oracle)
