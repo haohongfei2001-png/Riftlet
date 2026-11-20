@@ -67,6 +67,20 @@ final class ChromeProcessIdentityTests: XCTestCase {
         XCTAssertFalse(edge.matches(session: "23:100.5", allowLegacyObservation: true))
     }
 
+    func testRecheckUsesOriginalKernelBirthAndExecutableEvenWithoutALaunchServicesObject() throws {
+        let pid = getpid()
+        let birth = try XCTUnwrap(KernelProcessBirth.read(pid: pid))
+        var bytes = [CChar](repeating: 0, count: Int(MAXPATHLEN) * 4)
+        let size = UInt32(bytes.count)
+        XCTAssertGreaterThan(proc_pidpath(pid, &bytes, size), 0)
+        let path = try XCTUnwrap(String(validatingUTF8: bytes))
+        let original = try XCTUnwrap(ChromeProcessIdentity(birth: birth, applicationID: "com.google.Chrome",
+            terminated: false, launchDate: nil, executablePath: path))
+        XCTAssertTrue(original.isCurrent())
+        let wrongImage = try XCTUnwrap(ChromeProcessIdentity(birth: birth, applicationID: "com.google.Chrome",
+            terminated: false, launchDate: nil, executablePath: path + ".another"))
+        XCTAssertFalse(wrongImage.isCurrent())
+    }
     func testKernelBirthCanBeReadForThisProcessWithoutGUIOrChrome() throws {
         let first = try XCTUnwrap(KernelProcessBirth.read(pid: getpid()))
         XCTAssertEqual(KernelProcessBirth.read(pid: getpid()), first)
