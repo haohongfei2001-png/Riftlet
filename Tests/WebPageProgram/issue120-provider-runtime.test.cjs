@@ -138,7 +138,7 @@ async function cases(catalogEntry) {
     return canvas.toDataURL();
   };
   const red=color('red'),blue=color('blue');
-  for (const scenario of ['unchanged','card-aba','image-aba','src-aba','responsive-source']) {
+  for (const scenario of ['unchanged','same-attributes','label-aba','card-aba','image-aba','src-aba','responsive-source']) {
     const prior=document.createElement('article'),preview=new Image(),picture=document.createElement('picture');
     const source=document.createElement('source');
     prior.ariaLabel='existing';preview.src=red;
@@ -151,6 +151,11 @@ async function cases(catalogEntry) {
     ownImage.alt=own.ariaLabel=makeFile(request).name;
     ownImage.src='data:image/png;base64,'+btoa(String.fromCharCode(...body));own.append(ownImage);lane.append(own);
     await ownImage.decode();
+    if (scenario==='same-attributes') {
+      prior.setAttribute('aria-label',prior.getAttribute('aria-label'));
+      preview.setAttribute('src',preview.getAttribute('src'));
+    }
+    if (scenario==='label-aba') {prior.ariaLabel='renamed';prior.ariaLabel='existing';}
     if (scenario==='card-aba') {prior.remove();lane.prepend(prior);}
     if (scenario==='image-aba') {
       const other=preview.cloneNode();preview.replaceWith(other);other.replaceWith(preview);
@@ -164,7 +169,8 @@ async function cases(catalogEntry) {
     }
     const state=await handle.observe(request);
     expect(write==='input_returned' && inputs-initial===1 && changes===inputs,'independent single input '+scenario);
-    expect(state===(scenario==='unchanged'?'accepted_into_draft':'unknown'),'old preview continuity '+scenario);
+    const retained=scenario==='unchanged' || scenario==='same-attributes';
+    expect(state===(retained?'accepted_into_draft':'unknown'),'old preview continuity '+scenario);
     expect(await handle.observe(request)===state,'read-only repeat '+scenario);
     await expectError(()=>handle.commit(request,makeFile(request)),'input_fenced');
     priorCases[scenario]=state;handle.close();
@@ -203,8 +209,8 @@ test('candidate provider resolves a Gemini-shaped local draft and proves its own
       child.once('exit',()=>rejectResult(Error('controlled Chrome exited before report')));
       timer=setTimeout(()=>rejectResult(Error('no controlled Chrome report')),22000);
       const receipt=await result;
-      assert.deepEqual(receipt,{inputs:6,changes:6,foreign:0,sends:0,selected:'rigi',
-        priorCases:{unchanged:'accepted_into_draft','card-aba':'unknown','image-aba':'unknown',
+      assert.deepEqual(receipt,{inputs:8,changes:8,foreign:0,sends:0,selected:'rigi',
+        priorCases:{unchanged:'accepted_into_draft','same-attributes':'accepted_into_draft','label-aba':'unknown','card-aba':'unknown','image-aba':'unknown',
           'src-aba':'unknown','responsive-source':'unknown'}});
     } finally {
       clearTimeout(timer);

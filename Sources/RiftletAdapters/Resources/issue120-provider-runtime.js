@@ -147,6 +147,9 @@ function createProvider(profile) {
     function priorMutations(records) {
       for (const r of records) {
         if (r.type === "attributes") {
+          // Each transition carries its own old value. A→B→A includes B even
+          // when both records arrive together; reassigning A only records A.
+          if (r.oldValue === r.target.getAttribute(r.attributeName)) continue;
           if ((priorCards.has(r.target) && r.attributeName === "aria-label") ||
               (r.attributeName !== "aria-label" && r.target.matches("img,picture > source"))) {
             invalidatePrior();
@@ -166,7 +169,7 @@ function createProvider(profile) {
         const images = new Map([...card.querySelectorAll("img")].map(img => [img,img.currentSrc]));
         priorCards.set(card,{label:card.getAttribute("aria-label"),images});
         priorWatcher ??= new MutationObserver(priorMutations);
-        priorWatcher.observe(card,{childList:true,subtree:true,attributes:true,
+        priorWatcher.observe(card,{childList:true,subtree:true,attributes:true,attributeOldValue:true,
           attributeFilter:["aria-label","src","srcset","sizes","media","type","width","height"]});
       }
       if (priorCards.size) doc.addEventListener("load",priorPreviewLoaded,true);
