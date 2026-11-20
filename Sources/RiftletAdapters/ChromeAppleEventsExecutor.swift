@@ -309,7 +309,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
 /// file input, navigation or attachment relay. No tab identifier leaves this call.
 public enum ChromeSetupConnectionProbe {
     public enum Result: Equatable, Sendable {
-        case ready, javaScriptDisabled, permissionDenied, noWindow, unavailable
+        case ready, javaScriptDisabled, permissionNotRequested, permissionDenied, noWindow, unavailable
     }
 
     public static func check(_ process: ChromeProcessIdentity) async -> Result {
@@ -331,7 +331,7 @@ public enum ChromeSetupConnectionProbe {
         let result: Result
         do { result = try read() == "Riftlet" ? .ready : .unavailable }
         catch WebAdapterError.nativeEventFailed(12) { result = .javaScriptDisabled }
-        catch WebAdapterError.nativeEventFailed(-1744) { result = .permissionDenied }
+        catch WebAdapterError.nativeEventFailed(-1744) { result = .permissionNotRequested }
         catch WebAdapterError.nativeEventFailed(-1743) { result = .permissionDenied }
         catch WebAdapterError.nativeEventFailed(-1728) { result = .noWindow }
         catch { result = .unavailable }

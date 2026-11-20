@@ -10,7 +10,7 @@ final class ChromeSetupConnectionProbeTests: XCTestCase {
 
     func testMenuDisabledAndDeniedAutomationHaveDifferentRecovery() {
         for (code, expected): (Int32, ChromeSetupConnectionProbe.Result) in
-            [(12, .javaScriptDisabled), (-1743, .permissionDenied), (-1728, .noWindow), (-1712, .unavailable)] {
+            [(12, .javaScriptDisabled), (-1744, .permissionNotRequested), (-1743, .permissionDenied), (-1728, .noWindow), (-1712, .unavailable)] {
             XCTAssertEqual(ChromeSetupConnectionProbe.evaluate(read: { throw WebAdapterError.nativeEventFailed(code) },
                 stillCurrent: { true }), expected)
         }

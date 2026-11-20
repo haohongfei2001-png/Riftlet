@@ -1176,6 +1176,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         case .ready:
             chromeConnection = .ready
             if setupIssue == .chromeJavaScriptDisabled || setupIssue == .permissionNotRequested || setupIssue == .permissionDenied { setupIssue = nil }
+        case .permissionNotRequested: applyAutomationPermission(.notRequested)
         case .permissionDenied: applyAutomationPermission(.denied)
         case .javaScriptDisabled: chromeConnection = .javaScriptDisabled
         case .noWindow: chromeConnection = .noWindow
