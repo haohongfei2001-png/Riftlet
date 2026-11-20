@@ -8,7 +8,7 @@
 <key>CFBundleIconFile</key><string>Riftlet.icns</string>
 <key>CFBundlePackageType</key><string>APPL</string>
 <key>CFBundleShortVersionString</key><string>1.0.7</string>
-<key>CFBundleVersion</key><string>46</string>
+<key>CFBundleVersion</key><string>47</string>
 <key>SUFeedURL</key><string>https://riftlet.com/updates/stable.xml</string>
 <key>SUPublicEDKey</key><string>KraptyRutIHdX4XxX5LKIzo7jTdiWZWqDl+UMhK2DgA=</string>
 <key>SURequireSignedFeed</key><true/>

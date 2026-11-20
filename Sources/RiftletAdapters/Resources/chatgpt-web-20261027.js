@@ -1277,15 +1277,6 @@ function riftletWebAcceptance(command, native) {
   // popup. Its named Remove button identifies the outer, single-image tile.
   function edgeImageCard(image, op, filename) {
     if (image.tagName !== 'IMG' || !filename.test(image.getAttribute('alt') || '')) return null;
-    // The live composer exposes the preview as a popup in its own right.
-    // The remove action is separate and can stay hidden until pointer hover.
-    // startMember still requires the new, rendered image and exact file content.
-    const surface = image.parentElement?.parentElement;
-    if (image.parentElement?.tagName === 'SPAN'
-        && surface?.matches('div.composer-attachment-surface[role="button"][aria-haspopup]')
-        && surface.getAttribute('aria-label') === op.name && image.getAttribute('alt') === op.name
-        && inOriginalCardContainer(surface, op.binding) && renderedPreview(surface)
-        && surface.querySelectorAll('img').length === 1 && consistentCardLabels(surface, op.name)) return surface;
     for (let node = image.parentElement, depth = 0; node && depth++ < 8 && node !== op.binding.form; node = node.parentElement) {
       if (node.tagName !== 'DIV' || node.children.length !== 2) continue;
       const remove = [...node.children].find(child => child.matches('button,[role="button"]') &&
@@ -1293,9 +1284,18 @@ function riftletWebAcceptance(command, native) {
           const label = child.getAttribute(key) || '';
           return /(?:\bremove\b|移除|删除)/i.test(label) && filename.test(label);
         }));
-      if (!remove || remove.contains(image) || !renderedPreview(remove) || !renderedPreview(node)
-          || node.querySelectorAll('img[src]').length !== 1 || !consistentCardLabels(node, op.name)) continue;
+      if (!remove || remove.contains(image) || !renderedPreview(node)
+          || node.querySelectorAll('img').length !== 1 || !consistentCardLabels(node, op.name)) continue;
       const visual = [...node.children].find(child => child !== remove);
+      if (node.matches('.composer-attachment-surface')) {
+        // This popup's named Remove button is transparent until hover. The
+        // preview itself must be visible, and both must belong to this tile.
+        if (node.matches('[role="button"][aria-haspopup="dialog"]') && node.getAttribute('aria-label') === op.name
+            && remove.matches('button[type="button"]') && visual.tagName === 'SPAN' && image.parentElement === visual
+            && image.getAttribute('alt') === op.name && renderedPreview(visual)) return node;
+        continue;
+      }
+      if (!renderedPreview(remove)) continue;
       const named = element => ['aria-label','data-file-name','title'].some(key => filename.test(element.getAttribute(key) || ''));
       if (!visual.contains(image) || !renderedPreview(visual)) continue;
       const labels = [node, ...node.querySelectorAll('[aria-label],[alt],[data-file-name],[title]')]
@@ -1399,6 +1399,7 @@ function riftletWebAcceptance(command, native) {
       const card = encodedCard || node.closest(cardSelector) || (node.tagName === 'IMG' ? node.parentElement : node);
       if (!card || seen.has(card)) continue;
       seen.add(card);
+      if (native.applicationID === 'com.microsoft.edgemac' && card.parentElement?.closest('.composer-attachment-surface')) continue;
       if (!inOriginalCardContainer(card, op.binding) && !independentCardPortal(card, op.binding)) continue;
       if (card === document.body || card === document.documentElement || card.contains(op.binding.editor)
           || card.parentElement?.closest(cardSelector + ',a[href],[role="menuitem"],[role="option"]')) continue;

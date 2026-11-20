@@ -160,7 +160,7 @@ function browserFixture(options){
     if(!wrong||options.dimensions)createImageBitmap(file).then(bitmap=>{
       const c=document.createElement('canvas');c.width=bitmap.width;c.height=bitmap.height;
       c.getContext('2d').drawImage(bitmap,0,0);bitmap.close();
-      if(wrong){const ctx=c.getContext('2d');ctx.fillStyle='#00FF00';ctx.fillRect(c.width-1,c.height-1,1,1);}
+      if(wrong&&!options.secondarySurface){const ctx=c.getContext('2d');ctx.fillStyle='#00FF00';ctx.fillRect(c.width-1,c.height-1,1,1);}
       image.src=c.toDataURL('image/png');c.width=c.height=0;
     });
    }
@@ -171,6 +171,17 @@ function browserFixture(options){
     progress.style.cssText='width:80px;height:6px;background:blue';
    }
    let attachment=card;
+   if(changes===1 && options.secondarySurface){
+    if(options.secondarySurface==='nested'){
+     attachment=document.createElement('div');attachment.className='composer-attachment-surface';
+     const otherName='riftlet-aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee.png';
+     attachment.setAttribute('aria-label',otherName);
+     const primary=document.createElement('img');primary.alt=otherName;primary.src=priorImage.src;
+     const remove=document.createElement('button');remove.setAttribute('aria-label','Remove '+otherName);
+     attachment.append(primary,remove,card);
+    }else if(options.secondarySurface==='no-remove')card.lastElementChild.remove();
+    else if(options.secondarySurface==='false-popup')card.setAttribute('aria-haspopup','false');
+   }
    if(options.retryOverlay){
     attachment=document.createElement('figure');attachment.setAttribute('data-composer-image-attachment','');attachment.append(card);
     card.type='button';card.setAttribute('data-assistant-image-link','');card.setAttribute('aria-label',file.name);
@@ -387,7 +398,11 @@ function browserFixture(options){
    await wait(()=>read(1).state==='uploadStarted'&&cardHost.contains(firstPendingCard));
    check(read(0).state==='inputTriggered','same filename with different encoded pixels cannot supply START');
    const accepted=read(1);
-   if(options.dimensions){
+   if(options.secondarySurface){
+    await new Promise(resolve=>setTimeout(resolve,300));
+    check(read(0).state==='inputTriggered','correct pixels on an unowned popup do not supply START');
+   }
+   if(options.dimensions&&!options.secondarySurface){
     await wait(()=>encoding.runs===2&&encoding.active===0);
     await new Promise(resolve=>setTimeout(resolve,250));
     check(read(0).state==='inputTriggered'&&encoding.peak===1,'single-pixel mismatch rejected after both full compares; heavy work is serial');
@@ -585,6 +600,7 @@ function browserFixture(options){
 const originalScenarios=[
  ...(process.env.RIFTLET_EDGE_LARGE_TEXTURE==='1'?[{name:'edge-full-display-texture',dimensions:[3840,2160],texture:true,edge:true,count:2,retained:true,route:'https://chatgpt.com/?temporary-chat=true'}]:[]),
  ...[[2560,1664],[3840,2160]].map(dimensions=>({name:'edge-full-display',dimensions,edge:true,count:2,retained:true,route:'https://chatgpt.com/?temporary-chat=true'})),
+ ...['nested','no-remove','false-popup'].map(secondarySurface=>({name:'edge-popup-ownership',secondarySurface,composerAttachmentSurface:true,dimensions:[96,64],edge:true,count:2,retained:true,route:'https://chatgpt.com/c/ordinary-thread'})),
  {name:'edge-composer-attachment-surface',composerAttachmentSurface:true,dimensions:[1280,832],edge:true,count:2,retained:true,route:'https://chatgpt.com/?temporary-chat=true'},
  {name:'edge-full-display-jpeg',dimensions:[2560,1664],jpeg:true,edge:true,count:2,retained:true,route:'https://chatgpt.com/?temporary-chat=true'},
  ...['https://chatgpt.com/?temporary-chat=true','https://chatgpt.com/c/12345678-1111-2222-3333-444455556666'].map(route=>({name:'edge-click-and-content',edge:true,count:2,retained:true,route})),
