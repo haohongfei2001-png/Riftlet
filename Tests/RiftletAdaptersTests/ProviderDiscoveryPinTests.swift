@@ -8,6 +8,9 @@ final class ProviderDiscoveryPinTests: XCTestCase {
 
     private func context() throws -> JSContext {
         let js = try XCTUnwrap(JSContext())
+        js.exceptionHandler = { _, error in
+            XCTFail("Unexpected discovery script exception: \(error?.toString() ?? "unknown")")
+        }
         js.evaluateScript("""
         var window=this, top=this, self=this, hooks={}, pending=[], reads=0, closes=0, timer;
         var listen=(event,handler)=>{hooks[event]=handler};
@@ -26,11 +29,11 @@ final class ProviderDiscoveryPinTests: XCTestCase {
     func testReadRequiresOriginalPinAndCanOnlyInspectOnce() throws {
         let pin = ProviderDiscoveryPin(id: UUID()), js = try context()
         let bind = try pin.bind(address: url)
-        let read = pin.read(program: "provider")
+        let read = pin.read(program: "globalThis.provider")
         XCTAssertEqual(js.evaluateScript(read)?.toString(), "refused")
         XCTAssertEqual(js.evaluateScript(bind)?.toString(), "bound")
         XCTAssertEqual(js.evaluateScript(bind)?.toString(), "refused")
-        XCTAssertEqual(js.evaluateScript(ProviderDiscoveryPin(id: UUID()).read(program: "provider"))?.toString(), "refused")
+        XCTAssertEqual(js.evaluateScript(ProviderDiscoveryPin(id: UUID()).read(program: "globalThis.provider"))?.toString(), "refused")
         XCTAssertEqual(js.evaluateScript(read)?.toString(), "editor_and_upload_action|menu_owned_input_observed")
         XCTAssertEqual(js.evaluateScript(read)?.toString(), "refused")
         XCTAssertEqual(js.evaluateScript("reads+','+closes")?.toString(), "1,1")
@@ -45,7 +48,7 @@ final class ProviderDiscoveryPinTests: XCTestCase {
             let js = try context()
             XCTAssertEqual(js.evaluateScript(try pin.bind(address: url))?.toString(), "bound", change)
             js.evaluateScript(change)
-            XCTAssertEqual(js.evaluateScript(pin.read(program: "provider"))?.toString(), "refused", change)
+            XCTAssertEqual(js.evaluateScript(pin.read(program: "globalThis.provider"))?.toString(), "refused", change)
             XCTAssertEqual(js.evaluateScript("reads")?.toInt32(), 0, change)
         }
     }
