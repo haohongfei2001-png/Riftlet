@@ -32,16 +32,51 @@ import RiftletCore
                                                     deadline: deadline, stage: &stage)
         // The descriptor's container chain must be ID-based in its entirety.
         // When the two reads straddle a switch, refuse instead of looking up a later tab.
-        guard let ids = ChromeActiveTabDescriptor.identity(in: replies.activeTab),
-              let address = try ChromeActiveTabDescriptor.matchedURL(properties: replies.properties, tab: ids.tab),
-              let url = URL(string: address), url.scheme?.lowercased() == "https", url.host != nil,
-              CandidateReceiver.foreground(bundle) == receiver else { throw BindingError.targetChanged }
+        let route = try Self.frozenRoute(replies) { tab in
+            guard CandidateReceiver.foreground(bundle) == receiver else { throw BindingError.targetChanged }
+            return try Self.readOriginalURL(tab, pid: receiver.birth.pid, deadline: deadline)
+        }
+        guard CandidateReceiver.foreground(bundle) == receiver else { throw BindingError.targetChanged }
         try deadline.checkReturn()
         let click = NativeClick(bundle: bundle, pid: receiver.birth.pid, processBirth: receiver.session,
-                                session: receiver.session, window: ids.window, tab: ids.tab, url: url,
+                                session: receiver.session, window: route.window, tab: route.tab, url: route.url,
                                 generation: UUID(), uptime: start)
         selected = FrozenSelection(click: click, receiver: receiver, absoluteTab: replies.activeTab)
         return click
+    }
+
+    static func frozenRoute(_ replies: ChromeClickSnapshot.Replies,
+                            originalURL: (NSAppleEventDescriptor) throws -> String) throws -> (window: String, tab: String, url: URL) {
+        guard let ids = ChromeActiveTabDescriptor.identity(in: replies.activeTab) else { throw BindingError.targetChanged }
+        let address: String
+        if let properties = replies.properties {
+            guard let matched = try ChromeActiveTabDescriptor.matchedURL(properties: properties, tab: ids.tab)
+            else { throw BindingError.targetChanged }
+            address = matched
+        } else {
+            // pALL includes the page title and can exceed the reply buffer or its
+            // optional wait. Read just the URL from the original absolute object.
+            address = try originalURL(replies.activeTab)
+        }
+        guard let url = URL(string: address), url.scheme?.lowercased() == "https", url.host != nil
+        else { throw BindingError.targetChanged }
+        return (ids.window, ids.tab, url)
+    }
+
+    nonisolated static func readOriginalURL(_ tab: NSAppleEventDescriptor, pid: pid_t,
+                                            deadline: ChromeClickDeadline) throws -> String {
+        let event = NSAppleEventDescriptor(eventClass: kAECoreSuite, eventID: kAEGetData,
+                                           targetDescriptor: .init(processIdentifier: pid), returnID: -1, transactionID: 0)
+        event.setParam(try property("URL ", of: tab), forKeyword: keyDirectObject)
+        let reply = try event.sendEvent(options: ChromeClickSnapshot.waitOptions, timeout: deadline.timeout())
+        try deadline.checkReturn()
+        if let error = reply.paramDescriptor(forKeyword: keyErrorNumber)?.int32Value, error != noErr {
+            throw WebAdapterError.nativeEventFailed(error)
+        }
+        guard let url = reply.paramDescriptor(forKeyword: keyDirectObject)?.stringValue else {
+            throw BindingError.targetChanged
+        }
+        return url
     }
 
     enum ScriptRead: Equatable { case available, browserSettingDisabled, automationRequired }
@@ -82,9 +117,9 @@ import RiftletCore
         throw BindingError.unsupported
     }
 
-    private static func code(_ string: String) -> OSType { string.utf8.reduce(0) { ($0 << 8) | OSType($1) } }
+    private nonisolated static func code(_ string: String) -> OSType { string.utf8.reduce(0) { ($0 << 8) | OSType($1) } }
 
-    private static func object(_ type: String, form: String, key: NSAppleEventDescriptor,
+    private nonisolated static func object(_ type: String, form: String, key: NSAppleEventDescriptor,
                                container: NSAppleEventDescriptor = .null()) throws -> NSAppleEventDescriptor {
         let record = NSAppleEventDescriptor.record()
         record.setDescriptor(.init(typeCode: code(type)), forKeyword: code("want"))
@@ -95,7 +130,7 @@ import RiftletCore
         return object
     }
 
-    private static func property(_ property: String, of owner: NSAppleEventDescriptor) throws -> NSAppleEventDescriptor {
+    private nonisolated static func property(_ property: String, of owner: NSAppleEventDescriptor) throws -> NSAppleEventDescriptor {
         try object("prop", form: "prop", key: .init(typeCode: code(property)), container: owner)
     }
 }
