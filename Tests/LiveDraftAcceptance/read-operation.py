@@ -35,6 +35,7 @@ def read_operation(root, operation, png):
             SELECT o.id,o.attempt,o.target_json,o.receipt_json,o.phase,
                    o.updated_at - o.created_at AS elapsed, a.image_json,
                    (SELECT count(*) FROM upload_starts u WHERE u.operation_id=o.id) AS starts,
+                   (SELECT min(u.started_at) - o.created_at FROM upload_starts u WHERE u.operation_id=o.id) AS stored_start_elapsed,
                    (SELECT count(*) FROM handled_attachments h WHERE h.operation_id=o.id) AS handled
             FROM operations o JOIN assets a ON a.id=o.asset_id WHERE o.id=?
         """, (expected_id,)).fetchone()
@@ -45,14 +46,20 @@ def read_operation(root, operation, png):
         needed = ('sessionID','windowID','tabID','documentID','composerID','draftGeneration','clickBindingID')
         need(all(target.get(key) for key in needed), 'receipt lacks a complete click identity')
         target_hash = sha256(json.dumps(target,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+        # The independently locked page can compute this same tuple without
+        # having the operation, receipt, click binding, or private store.
+        draft_keys = ('applicationID','sessionID','windowID','tabID','documentID','composerID','draftGeneration')
+        draft_hash = sha256(json.dumps([target[k] for k in draft_keys], ensure_ascii=False,
+                                       separators=(',', ':')).encode()).hexdigest()
         # Retain a one-way reference to the target. Never print a conversation ID, text or URL.
         return dict(build='53',operation=expected_id, png=png, pixelWidth=image['pixelWidth'],
                     pixelHeight=image['pixelHeight'], byteCount=image['byteCount'], bundle=target['applicationID'],
-                    targetSHA256=target_hash, onSavedRoute=bool(target.get('historyConversationID')),
+                    targetSHA256=target_hash, lockedDraftSHA256=draft_hash, onSavedRoute=bool(target.get('historyConversationID')),
                     phase=row['phase'], attempted=row['attempt'], lastStoreUpdateSeconds=round(row['elapsed'],3),
                     receiptOutcome=receipt['outcome'], belongsToOriginalDraft=receipt['belongsToOriginalDraft'],
                     positiveReady=receipt['positiveReady'], safeToRetry=receipt['safeToRetry'],
-                    hasError=receipt['hasError'], storedStartCount=row['starts'], handledRows=row['handled'])
+                    hasError=receipt['hasError'], storedStartCount=row['starts'], storedStartAfterCreationSeconds=row['stored_start_elapsed'],
+                    handledRows=row['handled'])
     finally:
         db.close()
 

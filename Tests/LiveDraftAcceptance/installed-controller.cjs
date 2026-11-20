@@ -31,13 +31,14 @@ function inspectInstallation(browser) {
     }
     const selected = extension.profiles.filter(p => p.selected);
     const selectedEnabled = selected.length === 1 && selected[0].installed && selected[0].enabled;
+    const anyEnabled = extension.profiles.some(p => p.installed && p.enabled);
     return {
       running: running.running, nativeManifestCorrect: host.correct,
       existingProfiles: extension.profiles.length,
       extensionInstalledProfiles: extension.profiles.filter(p => p.installed).length,
       extensionEnabledProfiles: extension.profiles.filter(p => p.installed && p.enabled).length,
       selectedProfileExtensionEnabled: selectedEnabled,
-      status: running.running && host.correct && selectedEnabled ? 'READY_FOR_RPC_CHECK' : 'INSTALLATION_BLOCKED',
+      status: running.running && host.correct && anyEnabled ? 'READY_FOR_RPC_CHECK' : 'INSTALLATION_BLOCKED',
     };
   } catch {
     return {status: 'DIAGNOSTIC_UNAVAILABLE'};

@@ -1,6 +1,6 @@
 'use strict';
 
-const { randomBytes } = require('node:crypto');
+const { createHash, randomBytes } = require('node:crypto');
 
 const {openVerifiedWindow} = require('./browser-preflight.cjs');
 
@@ -215,7 +215,16 @@ async function createLockedDraft(options) {
     requireFact(shape !== null, 'original editor/form unavailable');
     return shape;
   }
-  return {tab,seed,beforeClick,afterClick,edgePreviewShape,close};
+  async function edgePreviewSample(generatedName) {
+    const shape = await edgePreviewShape(generatedName);
+    // Match the signed App's independent receipt without exposing window,
+    // process, tab or draft identifiers in the exported timeline.
+    const identity = [target.bundle, target.sessionID, target.windowID, target.tabID,
+      target.documentID, target.composerID, target.draftGeneration];
+    const lockedDraftSHA256 = createHash('sha256').update(JSON.stringify(identity)).digest('hex');
+    return {shape,lockedDraftSHA256};
+  }
+  return {tab,seed,beforeClick,afterClick,edgePreviewShape,edgePreviewSample,close};
 }
 
 async function withLockedDraft(options, execute) {
