@@ -1,0 +1,54 @@
+{
+  "source": "b20cefbf94e78ed89643cc27fa95af91bd140960",
+  "channel": "provider-development",
+  "bundleID": "com.riftlet.provider-development",
+  "archive": "Riftlet-Provider-Development.zip",
+  "archiveSHA256": "617201bebaf7938c7285a30aaf0561dec23782137faf8dfea8bfb6f428ae8fce",
+  "executableSHA256": "0f32d7d26fd0dc18799e5a8ebc0ffece31cc02dabb5d83b0514b186c35c6f981",
+  "architectures": [
+    "arm64"
+  ],
+  "signature": "ad-hoc",
+  "notarized": false,
+  "roundtripCodesignStrictDeep": true,
+  "buildInfo": {
+    "builtInUpload": true,
+    "completion": true,
+    "continuation": true,
+    "dataDirectory": "Riftlet-Provider-Development",
+    "input": true,
+    "internalAcceptance": true,
+    "mode": "capture",
+    "safeRetry": false,
+    "start": true
+  },
+  "checks": {
+    "--self-check": "RIFTLET_SELF_CHECK_PASS: private import, durable upload-start visibility, delayed synthetic completion, restart",
+    "--web-acceptance-self-check": "RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_PASS: bundled page source, synthetic-only start/completion policy, isolated modes; CHROME_NOT_RUN; GUI_NOT_RUN",
+    "--first-use-self-check": "RIFTLET_FIRST_USE_SELF_CHECK_PASS: presentation persistence, disabled-production permission isolation, honest status; PERMISSIONS_NOT_REQUESTED; GUI_NOT_RUN",
+    "--system-screenshot-candidate-self-check": "REFUSED: separate restricted system-screenshot candidate mode is disabled in this internal channel"
+  },
+  "authenticatedSite": "NOT_RUN",
+  "formalCandidate": false,
+  "packagedResources": {
+    "issue120-provider-runtime.js": "7f0f100681c2480a43ae8e82fbf88b1f5c61f382a65359736e63f301078f63b1",
+    "issue120-provider-profiles.json": "051858a3b8f27d2a472f218a01f14c0127108fec44cf981b8e779f891b2cb895"
+  },
+  "controlledPackagedWebKit": {
+    "inputs": 8,
+    "changes": 8,
+    "foreign": 0,
+    "sends": 0,
+    "priorCases": {
+      "unchanged": "accepted_into_draft",
+      "same-attributes": "accepted_into_draft",
+      "label-aba": "unknown",
+      "card-aba": "unknown",
+      "image-aba": "unknown",
+      "src-aba": "unknown",
+      "responsive-source": "unknown"
+    },
+    "selectionPreserved": true,
+    "scope": "Packaged resource in a nonpersistent loopback WKWebView; active/visible state supplied by fixture, no account or system keyboard."
+  }
+}

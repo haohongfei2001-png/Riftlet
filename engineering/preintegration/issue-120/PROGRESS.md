@@ -40,3 +40,5 @@
 - `504f25dd`。修复客机首启时 macOS 文件夹授权待答复导致应用普通退出持续等待。新 ZIP 已在独立客机证实系统请求仍待决时退出，次秒零进程零自有窗口，原设置/反馈保存决定及截图数据继续受保护。[同包现场](development-guest-final.json) · [包身份](development-app.json)
 
 - 浏览器控制与首个 Provider。Mac 无法在当前可信会话选中浏览器，Edge 现有两个配置也均缺扩展；本轮两个 canary、G1/G2/G4 和登录 Provider 均未执行。已修复专用窗口的身份核对、Edge 原卡与 START 的计时，以及输入控件重建后无法继续读取原卡的产品缺陷。产品提交 `48d25180` 已入私有开发 ZIP。非作者复核了受控 Provider 的原卡失败/错卡反例和 Safari 27.2 三项同窗口旧绑定反例。[验收、证据与恢复入口](browser-provider-round/README.md)
+
+- Edge 扩展已在原配置启用。桌面会话及独立新工作者的正式握手仍在窗口创建前失败；原生权限可查询，但无法将真实按键限定到标签。两个 canary、双图、真实 G4 和首个登录 Provider 保持 NOT_RUN。产品 `b20cefbf` 修复旧附件被替换后误判 START，以及 Brave 缺可选属性回包时丢失原标签。已交付私有 ARM64 开发包。[结果与收据](browser-provider-round/AFTER_EXTENSION.md)

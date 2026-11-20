@@ -1,5 +1,7 @@
 # 1.0.7 实站及首个新 Provider 验收
 
+本页记录安装 Edge 扩展之前的一轮验收。最新控制状态、产品提交和包见[安装扩展后的验收](AFTER_EXTENSION.md)。
+
 本轮交付为 PARTIAL。1.0.7 仍在 #119，产品源为 `0dc6780a`，签名包为 build 53，#119 准入头为 `c7642464`。#122 的产品修复在 `48d25180`。本轮没有在已登录的 Chrome、Edge、Claude 或 Gemini 草稿中进行输入。正式支持矩阵继续使用现有 W0、W5 证据，核心实站 0/16。[测量](measurements.json) · [矩阵](../matrix/results.json)
 
 | 项目 | 实际执行 | 结论 |
