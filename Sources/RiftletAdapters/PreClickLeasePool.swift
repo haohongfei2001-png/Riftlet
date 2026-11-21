@@ -32,10 +32,6 @@ struct PreClickLeasePool<Destination> {
         return entries.remove(at: index)
     }
 
-    mutating func makeSpace() -> Entry? {
-        entries.count >= Self.capacity ? entries.removeFirst() : nil
-    }
-
     mutating func removeAll() -> [Entry] {
         defer { entries.removeAll() }
         return entries
@@ -51,12 +47,23 @@ struct PreClickLeasePool<Destination> {
         var retired: [Entry] = []
         if let prior = entries.last,
            prior.arm.hostSession != entry.arm.hostSession ||
-            !prior.arm.target.sharesContinuationDraft(with: entry.arm.target) {
+            !Self.samePreparedDraft(prior.arm.target, entry.arm.target) {
             retired = removeAll()
         }
         if entries.count == Self.capacity { retired.append(entries.removeFirst()) }
         entries.append(entry)
         return retired
+    }
+
+    // Both ACKs came from actual receiver capture. The optional business ID
+    // used by legacy continuation is absent on normal new chats.
+    private static func samePreparedDraft(_ left: TargetLease, _ right: TargetLease) -> Bool {
+        left.adapterID == right.adapterID && left.surface == right.surface &&
+        left.applicationID == right.applicationID && left.sessionID == right.sessionID &&
+        left.windowID == right.windowID && left.tabID == right.tabID &&
+        left.documentID == right.documentID && left.composerID == right.composerID &&
+        left.draftGeneration == right.draftGeneration && left.logicalDraftIdentity == right.logicalDraftIdentity &&
+        left.historyConversationID == right.historyConversationID
     }
 
     mutating func freeze(press: TimeInterval, now: TimeInterval, epoch: UUID,
@@ -82,6 +89,7 @@ struct FrozenAttachmentInvocation {
     private var owner: ObservationIdentity?
     private var invocationID: UUID?
     private var enteredCommit = false
+    var isUnspent: Bool { owner == nil }
 
     mutating func admits(_ command: WebBridgeCommand, for target: TargetLease) -> Bool {
         guard let identity = command.identity, identity.target == target, let invocation = command.invocationID else { return false }

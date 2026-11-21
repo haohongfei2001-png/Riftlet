@@ -93,8 +93,10 @@ final class PreClickLeaseTests: XCTestCase {
             .init(action: action, target: a, identity: identity, invocationID: id)
         }
         var once = FrozenAttachmentInvocation()
+        XCTAssertTrue(once.isUnspent)
         XCTAssertFalse(once.admits(command(.commit, invocation), for: a))
         XCTAssertTrue(once.admits(command(.begin, invocation), for: a))
+        XCTAssertFalse(once.isUnspent)
         XCTAssertFalse(once.admits(command(.begin, UUID()), for: a))
         XCTAssertFalse(once.admits(command(.chunk, UUID()), for: a))
         XCTAssertTrue(once.admits(command(.chunk, invocation), for: a))

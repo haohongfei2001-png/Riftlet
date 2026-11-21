@@ -8,7 +8,7 @@ enum PreClickQAEnvironment {
     private static let flag = "--preclick-qa-profile"
 
     static func resolve(arguments: [String], mode: ApplicationMode, applicationSupport: URL) throws -> SettingsReviewEnvironment? {
-        guard arguments.contains(where: { $0.hasPrefix("--preclick-") }) else { return nil }
+        guard arguments.contains(where: { $0.lowercased().hasPrefix("--preclick") }) else { return nil }
         let flags = arguments.indices.filter { arguments[$0] == flag }
         guard mode == .capture, !OrdinaryCaptureConfiguration.isInternalAcceptance, flags.count == 1,
               let index = flags.first, arguments.indices.contains(index + 1),
@@ -45,9 +45,12 @@ enum PreClickQAEnvironment {
     // Run before acquiring the app lock or reading marker bytes. A legitimate
     // UUID in a path does not establish ownership of an existing directory.
     static func checkOwnership(root: URL, marker: URL, byteCount: Int) throws {
-        let folder = try entry(root), identity = try entry(marker)
-        guard folder.st_mode & S_IFMT == S_IFDIR, folder.st_mode & 0o077 == 0,
-              identity.st_mode & S_IFMT == S_IFREG, identity.st_nlink == 1,
+        let folder = try entry(root)
+        guard folder.st_mode & S_IFMT == S_IFDIR, folder.st_mode & 0o077 == 0 else {
+            throw SettingsReviewEnvironment.Failure.foreignDirectory
+        }
+        let identity = try entry(marker)
+        guard identity.st_mode & S_IFMT == S_IFREG, identity.st_nlink == 1,
               identity.st_size == byteCount else { throw SettingsReviewEnvironment.Failure.foreignDirectory }
         let lock = root.appendingPathComponent("instance.lock")
         var lockInfo = stat()

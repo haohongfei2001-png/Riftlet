@@ -203,8 +203,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var diagnosticTrace: BoundedDiagnosticTrace?
     private var visibilityTrace = AcceptanceTraceDeduplicator<UUID, [String]>()
     private var readyTrace = AcceptanceTraceDeduplicator<UUID, [String]>()
-    private var frozenPress: (id: UUID, eventUptime: TimeInterval, bundleID: String?, receiverEpoch: UUID, target: Task<TargetLease, Error>)?
-    private var pendingClickTargets: [UUID: Task<TargetLease, Error>] = [:]
+    private var frozenPress: (id: UUID, eventUptime: TimeInterval, bundleID: String?, receiverEpoch: UUID, target: Task<TargetLease, Error>, lease: TargetLease?)?
+    private var pendingClickTargets: [UUID: (target: TargetLease, selection: AcceptedSelection?)] = [:]
     private let selectionAuthority = SelectionAuthority()
     private let originalReceiverPermission = OriginalReceiverPermission()
     private let selectionSubmissions = SelectionSubmissionQueue()
@@ -388,7 +388,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         archiveTask?.cancel()
         cancelSelections(reason: "termination")
         selectionSubmissions.stop()
-        frozenPress?.target.cancel(); frozenPress = nil
+        discardFrozenPress()
         if let archiveWakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(archiveWakeObserver) }
         mediaMaintenanceTask?.cancel()
         mediaManager?.close()
@@ -438,6 +438,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         rift = RiftPanelController(mediaDirectory: root.appendingPathComponent("media"), configuration: configuration,
             arrivalMode: arrivalPreferences?.mode ?? .provisionalFallback,
             onPress: { [weak self] id, timestamp in self?.freezePress(id, timestamp: timestamp) },
+            onCancelledPress: { [weak self] id in self?.discardFrozenPress(for: id) },
             onSelectionBoundary: { [weak self] boundary in self?.recordSelection(boundary) },
             onApproach: { [weak self] in self?.prepareBrowser() },
             onPresentationBoundary: { [weak self] boundary in self?.recordPresentation(boundary) },
@@ -453,12 +454,12 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             guard let self, !self.drainingForExit else { return }
             let press = self.frozenPress?.id == id ? self.frozenPress : nil
             let revision = self.rift?.selectionRevision(for: id)
-            self.frozenPress = nil
+            if press == nil { self.discardFrozenPress() } else { self.frozenPress = nil }
             let reattachment = self.reattachmentIntents[id]
             let selectionOwner = UUID()
             let selectedAt = ProcessInfo.processInfo.systemUptime
             self.selectionUIOwners[id] = selectionOwner
-            if let press { self.pendingClickTargets[selectionOwner] = press.target }
+            if let lease = press?.lease { self.pendingClickTargets[selectionOwner] = (lease, nil) }
             let feedback: @MainActor (String?, RiftFeedbackTiming) -> Void = { [weak self] text, timing in
                 guard let self, self.selectionUIOwners[id] == selectionOwner,
                       let revision, self.rift?.selectionRevision(for: id) == revision else { return }
@@ -485,6 +486,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                                     && self.rift?.selectionRevision(for: id) == revision
                             }
                         selection = resolved
+                        self.pendingClickTargets[selectionOwner]?.selection = resolved
                         self.setupIssue = nil
                         if self.foregroundBrowserSession == resolved.target.sessionID, let browser = resolved.target.attachmentBrowser {
                             self.updateSetupReceiver(browser, session: resolved.target.sessionID)
@@ -511,8 +513,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                         feedback(ProductStatus.operationFeedback(reason).text, .immediate)
                     }
                 } catch is CancellationError {
+                    self.retireSelectionTicket(selectionOwner)
                     self.cancelOriginalSelection(selection, reason: "submissionCancelled")
                 } catch {
+                    self.retireSelectionTicket(selectionOwner)
                     let clickIssue = ProductStatus.clickIssue(error, frontmostBundleID: press?.bundleID, webAcceptance: true)
                     if self.mode.usesWebAdapter, press?.receiverEpoch == self.permissionSession {
                         self.setupIssue = clickIssue
@@ -1259,9 +1263,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func finishOriginalSelection(_ assetID: UUID, token: AcceptedSelection?, revision: Int64?, ownerID: UUID? = nil) {
-        guard let owner = token?.id ?? ownerID, selectionUIOwners[assetID] == owner else { return }
+        guard let owner = token?.id ?? ownerID else { return }
+        if token == nil { retireSelectionTicket(owner) }
+        guard selectionUIOwners[assetID] == owner else { return }
         selectionUIOwners.removeValue(forKey: assetID)
-        pendingClickTargets.removeValue(forKey: owner)?.cancel()
         guard let revision, rift?.selectionRevision(for: assetID) == revision else { return }
         rift?.finishSelection(assetID)
         // The committed refresh can be deferred while this exact selection owns
@@ -1287,9 +1292,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         for (imageID, owner) in pendingOwners {
             finishOriginalSelection(imageID, token: nil, revision: rift?.selectionRevision(for: imageID), ownerID: owner)
         }
-        if assetID == nil || frozenPress?.id == assetID {
-            frozenPress?.target.cancel(); frozenPress = nil
-        }
+        discardFrozenPress(for: assetID)
         recordAcceptance(["event": "selection_authority_cancelled", "reason": reason,
             "uptime": ProcessInfo.processInfo.systemUptime, "singleAsset": assetID != nil])
         guard !ids.isEmpty, let transfer else { return }
@@ -1340,24 +1343,39 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         web.prepareForUpcomingClick(invalidate: invalidate, maintain: arriving || !visibleIDs.isEmpty)
     }
 
-    private func freezePress(_ id: UUID, timestamp: TimeInterval) {
-        frozenPress?.target.cancel()
+    private func retireSelectionTicket(_ id: UUID) {
+        guard let ticket = pendingClickTargets.removeValue(forKey: id),
+              ticket.selection?.cancelBeforeDispatch() != false else { return }
+        clickAdapter?.abandonFrozenTarget(ticket.target)
+    }
+
+    private func discardFrozenPress(for id: UUID? = nil) {
+        guard let press = frozenPress, id == nil || press.id == id else { return }
         frozenPress = nil
+        press.target.cancel()
+        if let lease = press.lease { clickAdapter?.abandonFrozenTarget(lease) }
+    }
+
+    private func freezePress(_ id: UUID, timestamp: TimeInterval) {
+        discardFrozenPress()
         guard !drainingForExit, mode.usesWebAdapter, let web = clickAdapter else { return }
         let app = NSWorkspace.shared.frontmostApplication
         let bundleID = app?.bundleIdentifier
         let target: Task<TargetLease, Error>
+        let lease: TargetLease?
         do {
             let frozen = try web.targetForClick(eventUptime: timestamp)
+            lease = frozen
             target = Task { frozen }
         } catch {
+            lease = nil
             target = Task { throw error }
         }
         if let app, let id = bundleID, let browser = AttachmentBrowser(rawValue: id), supportedBrowsers.contains(browser),
            let process = ChromeProcessIdentity.read(pid: app.processIdentifier, applicationID: id) {
             updateSetupReceiver(browser, session: process.session)
         }
-        frozenPress = (id, timestamp, bundleID, permissionSession, target)
+        frozenPress = (id, timestamp, bundleID, permissionSession, target, lease)
         recordAcceptance(["event": "click_target_requested", "assetID": id.uuidString,
             "originalEventUptime": timestamp, "uptime": ProcessInfo.processInfo.systemUptime])
     }
@@ -1369,6 +1387,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func acceptedSelectionFinished(_ id: UUID) {
+        retireSelectionTicket(id)
         selectionAuthority.finish(id)
     }
 
@@ -1743,7 +1762,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         defer { changingHidden = false; updateControlTitles() }
         // Stop displaying immediately; resuming display waits for persistence.
         if requested {
-            cancelSelections(reason: "hidden"); frozenPress = nil
+            cancelSelections(reason: "hidden")
             userHidden = true; screenshotEntry?.setHidden(true); rift?.setUserHidden(true)
             updateControlTitles()
         }
@@ -2128,7 +2147,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         guard let preferences = recoverablePreferences else { throw CocoaError(.fileWriteUnknown) }
         try preferences.saveLayout(config)
         if displayChanged {
-            cancelSelections(reason: "displayPreferenceChanged"); frozenPress = nil
+            cancelSelections(reason: "displayPreferenceChanged")
             screenshotEntry?.cancel()
         }
         arrivalCapture?.cancel()

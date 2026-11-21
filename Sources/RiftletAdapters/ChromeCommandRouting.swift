@@ -18,6 +18,13 @@ public struct QAOriginalBrowserTab: Decodable, Sendable {
     public let windowID: String
     public let tabID: String
 
+    static let temporaryChat = "https://chatgpt.com/?temporary-chat=true"
+
+    func allows(_ target: TargetLease) -> Bool {
+        applicationID == target.applicationID && session == target.sessionID &&
+            windowID == target.windowID && tabID == target.tabID
+    }
+
     public static func decode(_ value: String?) throws -> Self {
         guard let value, value.utf8.count <= 1024 else { throw WebAdapterError.invalidTarget }
         let result = try JSONDecoder().decode(Self.self, from: Data(value.utf8))

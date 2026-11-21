@@ -23,7 +23,7 @@ final class PreClickQAEnvironmentTests: XCTestCase {
         }
         for args in [[flag], [flag,"../Riftlet"], [flag,""], [flag,id.uuidString,flag,id.uuidString],
                      [flag+"="+id.uuidString], [flag,id.uuidString,"--simulate"], [flag,id.uuidString,"--root","/tmp"],
-                     ["--preclick-qa", id.uuidString], [flag,id.uuidString,"extra"], ["--settings-review",id.uuidString,flag,id.uuidString]] {
+                     ["--preclick-qa", id.uuidString], ["--preclick", id.uuidString], ["--PreClick-QA-Profile", id.uuidString], [flag,id.uuidString,"extra"], ["--settings-review",id.uuidString,flag,id.uuidString]] {
             XCTAssertThrowsError(try PreClickQAEnvironment.resolve(arguments: args, mode: .capture, applicationSupport: base), "\(args)")
         }
         XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: base.path), [])

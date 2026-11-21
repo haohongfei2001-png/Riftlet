@@ -63,12 +63,15 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
             }
             // Publish the first complete ACK immediately. A second, different pin
             // prepares an independent rapid click. Hints never submit image data.
-            let batch = self.prepared.count == 0 ? PreClickLeasePool<PreparedDestination>.capacity : 1
-            for _ in 0..<batch {
-                guard self.scheduler.epoch == attempt.epoch, self.scheduler.isRunning else { return }
-                if let old = self.prepared.makeSpace() {
-                    await self.releaseOriginal(old.destination, program: program)
+            // An approach notification while both tickets are occupied must
+            // never evict a good receiver while another press is arriving.
+            if self.prepared.count == PreClickLeasePool<PreparedDestination>.capacity {
+                for entry in self.prepared.armedEntries {
+                    await self.verifyExisting(entry, epoch: attempt.epoch, program: program)
                 }
+            }
+            let missing = PreClickLeasePool<PreparedDestination>.capacity - self.prepared.count
+            for _ in 0..<missing {
                 guard self.scheduler.epoch == attempt.epoch, self.scheduler.isRunning else { return }
                 do {
                     let process = try self.clickReceiver()
@@ -100,30 +103,32 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
             do { try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000)) } catch { return }
             guard let self, !Task.isCancelled, self.scheduler.epoch == epoch else { return }
             for entry in self.prepared.armedEntries {
-                let original = entry.destination
-                let requested = ProcessInfo.processInfo.systemUptime
-                let valid = requested < entry.preparationStarted + 540 &&
-                    Self.foregroundMatches(original.native.process)
-                var confirmed = false
-                if valid {
-                    do {
-                        // Renew on the known relay and original tab. No capture,
-                        // active-tab search or new witness is allowed in this path.
-                        self.relays.bind(original.relay, to: original.target)
-                        let bytes = try await Self.run(.init(action: .renewPreparedTarget, target: original.target),
-                            program: program, identity: original.native.process, route: original.native.route,
-                            relays: self.relays, trace: self.trace, requestID: UUID().uuidString, world: original.world)
-                        let ack = try JSONDecoder().decode(PreparedReceipt.self, from: bytes)
-                        confirmed = ack.valid && ack.target == original.target
-                    } catch { confirmed = false }
-                }
-                guard !Task.isCancelled, self.scheduler.epoch == epoch else { return }
-                let received = ProcessInfo.processInfo.systemUptime
-                if !confirmed || !self.prepared.renew(original.target, epoch: epoch, requested: requested, received: received) {
-                    if let removed = self.prepared.remove(original.target) { self.release(removed.destination, program: program) }
-                }
+                await self.verifyExisting(entry, epoch: epoch, program: program)
             }
             self.scheduleMaintenance(program)
+        }
+    }
+
+    private func verifyExisting(_ entry: PreClickLeasePool<PreparedDestination>.Entry, epoch: UUID, program: WebPageProgram) async {
+        guard scheduler.epoch == epoch, !Task.isCancelled else { return }
+        let original = entry.destination
+        let requested = ProcessInfo.processInfo.systemUptime
+        var confirmed = false
+        if requested < entry.preparationStarted + 540, Self.foregroundMatches(original.native.process) {
+            do {
+                relays.bind(original.relay, to: original.target)
+                let bytes = try await Self.run(.init(action: .renewPreparedTarget, target: original.target), program: program,
+                    identity: original.native.process, route: original.native.route, relays: relays, trace: trace,
+                    requestID: UUID().uuidString, world: original.world, qaOriginalTab: qaOriginalTab)
+                let ack = try JSONDecoder().decode(PreparedReceipt.self, from: bytes)
+                confirmed = ack.valid && ack.target == original.target
+            } catch { confirmed = false }
+        }
+        guard !Task.isCancelled, scheduler.epoch == epoch,
+              prepared.armedEntries.contains(where: { $0.arm.target == original.target && $0.preparationStarted == entry.preparationStarted }) else { return }
+        let received = ProcessInfo.processInfo.systemUptime
+        if !confirmed || !prepared.renew(original.target, epoch: epoch, requested: requested, received: received) {
+            if let removed = prepared.remove(original.target) { await releaseOriginal(removed.destination, program: program) }
         }
     }
 
@@ -146,7 +151,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                 throw WebAdapterError.nativeSelectionChanged
             }
             let url = try bridge.url(window: qaOriginalTab.windowID, tab: qaOriginalTab.tabID)
-            guard url == "https://chatgpt.com/?temporary-chat=true" else { throw WebAdapterError.invalidTarget }
+            guard url == QAOriginalBrowserTab.temporaryChat else { throw WebAdapterError.invalidTarget }
             route = try .chatGPT(window: qaOriginalTab.windowID, tab: qaOriginalTab.tabID, url: url)
         } else {
             route = try bridge.clickRoute(deadline: deadline)
@@ -160,7 +165,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
             throw WebAdapterError.nativeSelectionChanged
         }
         let bytes = try await run(.init(action: .captureTarget, clickWitnessID: witness.id), program: program,
-            identity: process, route: route, relays: relays, trace: trace, requestID: requestID, world: world)
+            identity: process, route: route, relays: relays, trace: trace, requestID: requestID, world: world, qaOriginalTab: qaOriginalTab)
         guard let target = try? JSONDecoder().decode(TargetLease.self, from: bytes),
               target.adapterID == "chatgpt-web", target.surface == .webChat,
               target.applicationID == process.applicationID, target.sessionID == process.session,
@@ -191,7 +196,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         defer { relays.unbind(original.target) }
         _ = try? await Self.run(.init(action: .releasePreparedTarget, target: original.target), program: program,
             identity: original.native.process, route: original.native.route, relays: relays,
-            trace: trace, requestID: UUID().uuidString, world: original.world)
+            trace: trace, requestID: UUID().uuidString, world: original.world, qaOriginalTab: self.qaOriginalTab)
     }
 
     public func targetForClick(eventUptime: TimeInterval) throws -> TargetLease {
@@ -212,12 +217,31 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         return target
     }
 
+    public func abandonFrozenTarget(_ target: TargetLease, program: WebPageProgram) {
+        guard let frozen = routes.value(for: target.stableKey), frozen.invocation.isUnspent,
+              let relay = relays.bound(to: target) else { return }
+        // Retire local entry synchronously before the asynchronous release. A
+        // late coordinator callback cannot enter begin for an abandoned press.
+        let world = edgeWorlds.value(for: target.stableKey)
+        routes.remove(for: target.stableKey)
+        edgeWorlds.remove(for: target.stableKey)
+        let original = PreparedDestination(target: target, native: frozen, world: world, relay: relay,
+            preparationStarted: ProcessInfo.processInfo.systemUptime)
+        let epoch = scheduler.epoch
+        Task {
+            await releaseOriginal(original, program: program)
+            if maintainsVisibleImages, scheduler.isRunning, scheduler.epoch == epoch {
+                requestPreparation(program: program, invalidate: false, maintain: true)
+            }
+        }
+    }
+
     /// Only a user-requested history action calls this path. Validate the stored
     /// document and composer against an existing relay before raising its tab.
     public func focusOriginal(_ operation: TransferOperation) async -> Bool {
         struct DraftValidation: Decodable { let target: TargetLease; let valid: Bool }
         let target = operation.target
-        guard target.surface == .webChat, target.adapterID == "chatgpt-web",
+        guard qaOriginalTab?.allows(target) != false, target.surface == .webChat, target.adapterID == "chatgpt-web",
               ChromeProcessIdentity.supports(target.applicationID), let tab = target.tabID,
               let app = NSRunningApplication.runningApplications(withBundleIdentifier: target.applicationID)
                 .first(where: { ChromeProcessIdentity.read(pid: $0.processIdentifier, applicationID: target.applicationID)?.matches(session: target.sessionID) == true }),
@@ -235,13 +259,16 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         do {
             let program = try ChatGPTWebPageProgram.load()
             let bridge = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: requestID)
+            let restriction = qaOriginalTab
             let route = try await Task.detached {
-                try ChromeClickRoute.chatGPT(window: target.windowID, tab: tab, url: bridge.url(window: target.windowID, tab: tab))
+                let url = try bridge.url(window: target.windowID, tab: tab)
+                guard restriction == nil || url == QAOriginalBrowserTab.temporaryChat else { throw WebAdapterError.invalidTarget }
+                return try ChromeClickRoute.chatGPT(window: target.windowID, tab: tab, url: url)
             }.value
             func matches() async throws -> Bool {
                 let data = try await Self.run(.init(action: .validate, target: target, requireLiveOriginal: true), program: program,
                     identity: identity, route: route, relays: relays, trace: trace,
-                    requestID: UUID().uuidString, discoverForHistory: true)
+                    requestID: UUID().uuidString, discoverForHistory: true, qaOriginalTab: qaOriginalTab)
                 let result = try JSONDecoder().decode(DraftValidation.self, from: data)
                 return result.valid && result.target == target && identity.isCurrent()
             }
@@ -287,7 +314,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         guard ![.pinTarget, .captureTarget, .releasePreparedTarget, .renewPreparedTarget].contains(command.action) else {
             throw WebAdapterError.invalidRequest
         }
-        guard let target = command.target, ChromeProcessIdentity.supports(target.applicationID),
+        guard let target = command.target, qaOriginalTab?.allows(target) != false, ChromeProcessIdentity.supports(target.applicationID),
               let tab = target.tabID, let windowNumber = Int64(target.windowID), windowNumber > 0,
               let tabNumber = Int64(tab), tabNumber > 0 else { throw WebAdapterError.invalidTarget }
         let requestID = UUID().uuidString
@@ -328,12 +355,12 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         }
         let route = destination?.route
         return try await Self.run(command, program: program, identity: identity, route: route,
-            relays: relays, trace: trace, requestID: requestID, world: edgeWorlds.value(for: target.stableKey))
+            relays: relays, trace: trace, requestID: requestID, world: edgeWorlds.value(for: target.stableKey), qaOriginalTab: qaOriginalTab)
     }
 
     private nonisolated static func run(_ command: WebBridgeCommand, program: WebPageProgram,
         identity: ChromeProcessIdentity, route: ChromeClickRoute?, relays: MainWorldRelayStore,
-        trace: ChromeBridgeTrace, requestID: String, discoverForHistory: Bool = false, world: EdgeExecutionWorldWitness? = nil) async throws -> Data {
+        trace: ChromeBridgeTrace, requestID: String, discoverForHistory: Bool = false, world: EdgeExecutionWorldWitness? = nil, qaOriginalTab: QAOriginalBrowserTab? = nil) async throws -> Data {
         let commandJSON = String(decoding: try JSONEncoder().encode(command), as: UTF8.self)
         let enqueued = ProcessInfo.processInfo.systemUptime
         // Old UNKNOWN observations must not occupy the input queue. Each
@@ -350,7 +377,15 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                         let bridge = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: requestID)
                         guard let window = route?.window ?? command.target?.windowID,
                               let tab = route?.tab ?? command.target?.tabID else { throw WebAdapterError.invalidTarget }
+                        func checkQATab() throws {
+                            guard let qaOriginalTab else { return }
+                            guard identity.applicationID == qaOriginalTab.applicationID, identity.session == qaOriginalTab.session,
+                                  window == qaOriginalTab.windowID, tab == qaOriginalTab.tabID,
+                                  try bridge.url(window: window, tab: tab) == QAOriginalBrowserTab.temporaryChat
+                            else { throw WebAdapterError.nativeSelectionChanged }
+                        }
                         func checkSelection() throws {
+                            try checkQATab()
                             guard identity.isCurrent() else { throw WebAdapterError.invalidTarget }
                             guard ChromeCommandRouting.requiresSelectionCheck(command.action) else { return }
                             if !discoverForHistory {
@@ -364,7 +399,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                             guard current == route else { throw WebAdapterError.nativeSelectionChanged }
                         }
                         phase = "selection"
-                        if command.action == .captureTarget { try checkSelection() }
+                        if command.action == .captureTarget { try checkSelection() } else { try checkQATab() }
                         if command.action == .observe || discoverForHistory {
                             // A relaunched App may have no cached route. Read the
                             // exact saved tab's service before any relay discovery.

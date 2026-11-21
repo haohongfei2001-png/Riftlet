@@ -74,6 +74,7 @@ public protocol WebBridgeExecutor: Sendable {
 @MainActor public protocol WebClickTargetPinning: WebBridgeExecutor {
     func requestPreparation(program: WebPageProgram, invalidate: Bool, maintain: Bool)
     func retirePreparation(program: WebPageProgram)
+    func abandonFrozenTarget(_ target: TargetLease, program: WebPageProgram)
     func targetForClick(eventUptime: TimeInterval) throws -> TargetLease
 }
 
@@ -217,6 +218,11 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
     @MainActor public func retirePreparedTargets() {
         guard let program else { return }
         (executor as? any WebClickTargetPinning)?.retirePreparation(program: program)
+    }
+
+    @MainActor public func abandonFrozenTarget(_ target: TargetLease) {
+        guard let program else { return }
+        (executor as? any WebClickTargetPinning)?.abandonFrozenTarget(target, program: program)
     }
 
     @MainActor public func targetForClick(eventUptime: TimeInterval) throws -> TargetLease {

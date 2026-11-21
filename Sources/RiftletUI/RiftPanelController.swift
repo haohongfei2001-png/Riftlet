@@ -572,6 +572,7 @@ public final class RiftPanelController {
     private let cache: ThumbnailCache
     private let onSelect: (UUID) -> Void
     private let onPress: (UUID, TimeInterval) -> Void
+    private let onCancelledPress: (UUID) -> Void
     private let onSelectionBoundary: (RiftSelectionBoundary) -> Void
     private let onApproach: () -> Void
     private let onPresentationBoundary: (RiftPresentationBoundary) -> Void
@@ -733,6 +734,7 @@ public final class RiftPanelController {
                 magnetParameters: MagnetMotionParameters = .init(),
                 reduceMotionOverride: (() -> Bool)? = nil,
                 onPress: @escaping (UUID, TimeInterval) -> Void = { _, _ in },
+                onCancelledPress: @escaping (UUID) -> Void = { _ in },
                 onSelectionBoundary: @escaping (RiftSelectionBoundary) -> Void = { _ in },
                 onApproach: @escaping () -> Void = {},
                 onPresentationBoundary: @escaping (RiftPresentationBoundary) -> Void = { _ in },
@@ -751,6 +753,7 @@ public final class RiftPanelController {
         self.reduceMotionOverride = reduceMotionOverride
         self.onSelect = onSelect
         self.onPress = onPress
+        self.onCancelledPress = onCancelledPress
         self.onSelectionBoundary = onSelectionBoundary
         self.onApproach = onApproach
         self.onPresentationBoundary = onPresentationBoundary
@@ -1832,6 +1835,7 @@ public final class RiftPanelController {
             self.pressRegions.removeValue(forKey: id)
             self.mutateInteraction { $0.releasePointer(accepted: selected != nil) }
             if let held, selected == nil {
+                self.onCancelledPress(held)
                 self.selectionVersions.removeValue(forKey: held)
                 self.returnPress(held)
             }
@@ -2077,7 +2081,7 @@ public final class RiftPanelController {
         generation &+= 1; transitioning = false
         let held = interaction.heldID
         gate.cancel()
-        if let held { selectionVersions.removeValue(forKey: held) }
+        if let held { onCancelledPress(held); selectionVersions.removeValue(forKey: held) }
         lastRecords = pendingRefillRecords ?? deferredRecords ?? lastRecords
         pendingRefillRecords = nil; refillTimer?.invalidate(); refillTimer = nil
         deferredRecords = nil
@@ -2110,6 +2114,7 @@ public final class RiftPanelController {
         guard !closed else { return }
         cancelDecorations(reason: .closed); flight.close()
         finishQueueAnimation = nil; queueTransitionEpoch &+= 1
+        if let held = interaction.heldID { onCancelledPress(held) }
         closed = true; generation &+= 1; gate.cancel()
         pressRegions.removeAll(); shortAnimationTokens.removeAll()
         selectionVersions.removeAll(); hoveredIDs.removeAll(); pointerApproach.update(hovered: []); feedbackStates.removeAll()
