@@ -1,5 +1,9 @@
 # Ordinary browser QA window
 
+Before opening a window, call `resolveController(await agent.browsers.list(), family, selected.browserId)` from [controller.mjs](controller.mjs) with the already documented family handle. Two clients advertising the same family are ambiguous. The optional fourth argument accepts the actual tab-v1 mention attached by the user. Only on that path select the unique inventory match, read that client's full documentation, and use `matchReference(await browser.user.openTabs(), result.reference)` to obtain the exact reference for the official claim. A family name, an apparently numeric reference and a synthesized mention cannot establish the association.
+
+After claiming a dedicated window, [native-marker.swift](native-marker.swift) reads the exact target process's kernel birth, its selected native window/tab and the one-time loopback challenge. It requires the installed application path and the challenge returned independently by the official controller. `sample` is read-only. `activate-owned` may foreground that specific application only after the verified QA tab is already selected. All browser UI operations use the official controller. Record `systemForeground` and `exactLocalMarker` at each sample.
+
 Start the service using the signed candidate's installed page resource and its independently verified SHA-256.
 
 ```sh
