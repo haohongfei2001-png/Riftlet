@@ -1,0 +1,24 @@
+{
+  "sampledBy": "PID-addressed Apple Events to the named installed app and matching kernel process birth; page document UUIDs come from the official controller",
+  "bundle": "com.microsoft.edgemac",
+  "identicalNativeSessionWindowTab": true,
+  "twoDifferentRendererDocuments": true,
+  "bothMatchedPrivateLoopbackMarker": true,
+  "bothSystemForeground": true,
+  "chronologicalEventsUTC": {
+    "serviceCreated": "2026-11-21T14:34:20.827Z",
+    "nativeA": "2026-11-21T14:37:12.147Z",
+    "originalReceipt": "2026-11-21T14:37:22.612Z",
+    "barrier": "2026-11-21T14:37:39.212Z",
+    "nativeB": "2026-11-21T14:37:56.012Z",
+    "completionReceipt": "2026-11-21T14:37:56.409Z"
+  },
+  "fiveDistinctIdentityDomainsCollected": true,
+  "rawDomainEqualityUsedForSelection": false,
+  "pageReceiptSHA256": "e03690ff3b9ef51c9c061553fd1eadf78268298a780b2724971a9d823b3aef2b",
+  "privateJoinSHA256": "55e5ba5d015c83c41e59b80ce89049572456fd1638d07489288744f88cbf1645",
+  "privateNativeASHA256": "350925f2442066fe5c5df87806161b2d66f53055103f8e85794c81a0ec01f9d5",
+  "privateNativeBSHA256": "cfa00b3a2024f29bde03c32dd27414569ab6256a2581f64bb9c1810e8b8ea3c1",
+  "privateFiveDomainRecordSHA256": "e61ae1a9b20a6146b09478a61f4085eebcd2967cfe0f4e21c3eca43f764ef4f6",
+  "scope": "native route correlated with independently displayed page IDs; the OS does not return these document UUIDs"
+}

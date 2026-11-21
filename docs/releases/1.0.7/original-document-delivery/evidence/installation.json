@@ -1,0 +1,58 @@
+{
+  "source": "2717fa6aaa7cb3750041ca1a0779c6dab65961cc",
+  "version": "1.0.7",
+  "build": "56",
+  "architectures": [
+    "arm64",
+    "x86_64"
+  ],
+  "published": false,
+  "sha256": "4d20dc369e6cf548c57def04a1975201333503f5fe69e3b47b7a32fa0ef56b98",
+  "bytes": 13445118,
+  "appSubmissionID": "d7db3238-6ba5-4fa3-82db-4abd802125fd",
+  "dmgSubmissionID": "4f7c2953-dade-400c-8d45-32e2b722ca98",
+  "teamID": "ZB9D4T66QB",
+  "sparkleVersion": "2.10.1",
+  "verifiedUTC": "2026-11-21T14:33:20.141322+00:00",
+  "executableSHA256": "7de11187688214988671eb59aeba30cfd7d0c92389be269934baf3aa711a4131",
+  "resourceSHA256": "61669b502526bd01b71b6c9aead85c224d9f3a50263ff121997769527368e2c5",
+  "checks": {
+    "appSignature": {
+      "exit": 0,
+      "logSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "dmgSignature": {
+      "exit": 0,
+      "logSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "appTicket": {
+      "exit": 0,
+      "logSHA256": "c3dd9a755a40a24e82099e193ccf082e0d48a25b0ca28cb33e012364e2f42675"
+    },
+    "dmgTicket": {
+      "exit": 0,
+      "logSHA256": "f41491d76206dff2ecd3877c3adee2d264326f293497f99d097ede033a727b93"
+    },
+    "appGatekeeper": {
+      "exit": 0,
+      "logSHA256": "be227b60977ddf259c61b89df2a270a86d418ca8f3a30ad482378cb5f1bf422b"
+    },
+    "dmgGatekeeper": {
+      "exit": 0,
+      "logSHA256": "e644738d68f75e3caf60c6c767d8a2a04db0f3c801123b1884f13a5a01aee613"
+    },
+    "appSelfCheck": {
+      "exit": 0,
+      "logSHA256": "9a6cbd54ef6829d86fd7e0cd7ba688aa6387ae15af41a550ffba3e42832b6018"
+    },
+    "webSelfCheck": {
+      "exit": 0,
+      "logSHA256": "a47ac0ed870328c9f158b1ee9fed9eec7fd7aa6e4109c3f3017d307f29dbe15d"
+    },
+    "systemScreenshotSelfCheck": {
+      "exit": 0,
+      "logSHA256": "7333bbcc86dffcf736384773a5dbdf288188e8f97ef55e5803f8cf809e06dc04"
+    }
+  },
+  "installation": "private directory copy from read-only mounted final disk image"
+}

@@ -1,0 +1,2042 @@
+{
+  "family": "chrome",
+  "version": "Chrome/157.0.8103.79",
+  "arch": "arm64",
+  "visible": false,
+  "mode": "owned-headless",
+  "ciRunId": null,
+  "sourceSHA256": "61669b502526bd01b71b6c9aead85c224d9f3a50263ff121997769527368e2c5",
+  "receiverSHA256": "e174cfea4f4383c2c9f159a918a5e620f64fb15e8650b89a2e56f4a9a465abea",
+  "scope": "Isolated loopback renderer, production receiver excerpt, semantic text and real PNG file setter",
+  "cases": [
+    {
+      "mode": "positive",
+      "status": "PASS",
+      "original": {
+        "instance": "afaee6c9-c4c6-4764-ae3b-a379c28f14f0",
+        "editor": "d2743a74-5334-4b82-bc97-0ed138f3fd5d"
+      },
+      "bound": {
+        "instance": "afaee6c9-c4c6-4764-ae3b-a379c28f14f0",
+        "editor": "d2743a74-5334-4b82-bc97-0ed138f3fd5d",
+        "current": [
+          true,
+          true
+        ]
+      },
+      "delivery": {
+        "current": [
+          true,
+          true
+        ],
+        "png": {
+          "setter": true,
+          "input": true,
+          "change": true
+        },
+        "afterPNG": {
+          "instance": "afaee6c9-c4c6-4764-ae3b-a379c28f14f0",
+          "editor": "d2743a74-5334-4b82-bc97-0ed138f3fd5d",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [
+            {
+              "name": "f57330c9-cf65-44eb-831b-5bb5d422885e.png",
+              "size": 68
+            }
+          ],
+          "active": true,
+          "visible": "visible",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            }
+          ],
+          "counts": {
+            "text": 0,
+            "setter": 1,
+            "input": 1,
+            "change": 1,
+            "send": 0
+          },
+          "url": "qa-loopback/positive/draft"
+        },
+        "text": true,
+        "state": {
+          "instance": "afaee6c9-c4c6-4764-ae3b-a379c28f14f0",
+          "editor": "d2743a74-5334-4b82-bc97-0ed138f3fd5d",
+          "text": "f57330c9-cf65-44eb-831b-5bb5d422885ealpha beta gamma",
+          "range": [
+            42,
+            46,
+            "none"
+          ],
+          "priorPreserved": true,
+          "files": [
+            {
+              "name": "f57330c9-cf65-44eb-831b-5bb5d422885e.png",
+              "size": 68
+            }
+          ],
+          "active": true,
+          "visible": "visible",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            }
+          ],
+          "counts": {
+            "text": 1,
+            "setter": 1,
+            "input": 1,
+            "change": 1,
+            "send": 0
+          },
+          "url": "qa-loopback/positive/draft"
+        }
+      },
+      "fileSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+      "replay": {
+        "current": [
+          true,
+          true
+        ],
+        "png": {
+          "setter": false,
+          "input": false,
+          "change": false
+        },
+        "afterPNG": {
+          "instance": "afaee6c9-c4c6-4764-ae3b-a379c28f14f0",
+          "editor": "d2743a74-5334-4b82-bc97-0ed138f3fd5d",
+          "text": "f57330c9-cf65-44eb-831b-5bb5d422885ealpha beta gamma",
+          "range": [
+            42,
+            46,
+            "none"
+          ],
+          "priorPreserved": true,
+          "files": [
+            {
+              "name": "f57330c9-cf65-44eb-831b-5bb5d422885e.png",
+              "size": 68
+            }
+          ],
+          "active": true,
+          "visible": "visible",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            }
+          ],
+          "counts": {
+            "text": 1,
+            "setter": 1,
+            "input": 1,
+            "change": 1,
+            "send": 0
+          },
+          "url": "qa-loopback/positive/draft"
+        },
+        "text": false,
+        "state": {
+          "instance": "afaee6c9-c4c6-4764-ae3b-a379c28f14f0",
+          "editor": "d2743a74-5334-4b82-bc97-0ed138f3fd5d",
+          "text": "f57330c9-cf65-44eb-831b-5bb5d422885ealpha beta gamma",
+          "range": [
+            42,
+            46,
+            "none"
+          ],
+          "priorPreserved": true,
+          "files": [
+            {
+              "name": "f57330c9-cf65-44eb-831b-5bb5d422885e.png",
+              "size": 68
+            }
+          ],
+          "active": true,
+          "visible": "visible",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            }
+          ],
+          "counts": {
+            "text": 1,
+            "setter": 1,
+            "input": 1,
+            "change": 1,
+            "send": 0
+          },
+          "url": "qa-loopback/positive/draft"
+        }
+      }
+    },
+    {
+      "mode": "revoke",
+      "status": "PASS",
+      "original": {
+        "instance": "cfb305fc-3867-4721-bd7a-0b8f762b65ef",
+        "editor": "06a42467-c8a5-435e-bf36-3ec92dae6506"
+      },
+      "bound": {
+        "instance": "cfb305fc-3867-4721-bd7a-0b8f762b65ef",
+        "editor": "06a42467-c8a5-435e-bf36-3ec92dae6506",
+        "current": [
+          true,
+          true
+        ]
+      },
+      "delivery": {
+        "current": [
+          false,
+          false
+        ],
+        "png": {
+          "setter": false,
+          "input": false,
+          "change": false
+        },
+        "afterPNG": {
+          "instance": "cfb305fc-3867-4721-bd7a-0b8f762b65ef",
+          "editor": "06a42467-c8a5-435e-bf36-3ec92dae6506",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            }
+          ],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/revoke/draft"
+        },
+        "text": false,
+        "state": {
+          "instance": "cfb305fc-3867-4721-bd7a-0b8f762b65ef",
+          "editor": "06a42467-c8a5-435e-bf36-3ec92dae6506",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            }
+          ],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/revoke/draft"
+        }
+      }
+    },
+    {
+      "mode": "close",
+      "status": "PASS",
+      "original": {
+        "instance": "e4a03935-c1bc-4839-99b7-5d5a31bdbe9b",
+        "editor": "0dd85438-3633-416c-9678-62efcb42caae"
+      },
+      "bound": {
+        "instance": "e4a03935-c1bc-4839-99b7-5d5a31bdbe9b",
+        "editor": "0dd85438-3633-416c-9678-62efcb42caae",
+        "current": [
+          true,
+          true
+        ]
+      },
+      "delivery": {
+        "current": [
+          false,
+          false
+        ],
+        "png": {
+          "setter": false,
+          "input": false,
+          "change": false
+        },
+        "afterPNG": {
+          "instance": "e4a03935-c1bc-4839-99b7-5d5a31bdbe9b",
+          "editor": "0dd85438-3633-416c-9678-62efcb42caae",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            }
+          ],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/close/draft"
+        },
+        "text": false,
+        "state": {
+          "instance": "e4a03935-c1bc-4839-99b7-5d5a31bdbe9b",
+          "editor": "0dd85438-3633-416c-9678-62efcb42caae",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            }
+          ],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/close/draft"
+        }
+      }
+    },
+    {
+      "mode": "replaceEditor",
+      "status": "PASS",
+      "original": {
+        "instance": "7c80e664-7745-4139-abc2-b49eed5312e2",
+        "editor": "5664798c-3402-482c-b48a-7e94c1b9a4d3"
+      },
+      "bound": {
+        "instance": "7c80e664-7745-4139-abc2-b49eed5312e2",
+        "editor": "5664798c-3402-482c-b48a-7e94c1b9a4d3",
+        "current": [
+          true,
+          true
+        ]
+      },
+      "delivery": {
+        "current": [
+          false,
+          false
+        ],
+        "png": {
+          "setter": false,
+          "input": false,
+          "change": false
+        },
+        "afterPNG": {
+          "instance": "7c80e664-7745-4139-abc2-b49eed5312e2",
+          "editor": "b5549821-6f69-4255-82f6-a4f9ac98e260",
+          "text": "alpha beta gamma",
+          "range": [
+            0,
+            0,
+            "none"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            }
+          ],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/replaceEditor/draft"
+        },
+        "text": false,
+        "state": {
+          "instance": "7c80e664-7745-4139-abc2-b49eed5312e2",
+          "editor": "b5549821-6f69-4255-82f6-a4f9ac98e260",
+          "text": "alpha beta gamma",
+          "range": [
+            0,
+            0,
+            "none"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            }
+          ],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/replaceEditor/draft"
+        }
+      }
+    },
+    {
+      "mode": "moveReturn",
+      "status": "PASS",
+      "original": {
+        "instance": "1caadbc1-b33e-43a4-ab53-11bcf6407464",
+        "editor": "761e3b62-b1da-4204-a592-23ffbc65a684"
+      },
+      "bound": {
+        "instance": "1caadbc1-b33e-43a4-ab53-11bcf6407464",
+        "editor": "761e3b62-b1da-4204-a592-23ffbc65a684",
+        "current": [
+          true,
+          true
+        ]
+      },
+      "delivery": {
+        "current": [
+          false,
+          false
+        ],
+        "png": {
+          "setter": false,
+          "input": false,
+          "change": false
+        },
+        "afterPNG": {
+          "instance": "1caadbc1-b33e-43a4-ab53-11bcf6407464",
+          "editor": "761e3b62-b1da-4204-a592-23ffbc65a684",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            }
+          ],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/moveReturn/draft"
+        },
+        "text": false,
+        "state": {
+          "instance": "1caadbc1-b33e-43a4-ab53-11bcf6407464",
+          "editor": "761e3b62-b1da-4204-a592-23ffbc65a684",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            }
+          ],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/moveReturn/draft"
+        }
+      }
+    },
+    {
+      "mode": "focusABA",
+      "status": "PASS",
+      "original": {
+        "instance": "50c35c2b-9fd6-47fe-af5d-35009a6d5031",
+        "editor": "8563a155-4e85-405a-a41c-d539f4876e27"
+      },
+      "bound": {
+        "instance": "50c35c2b-9fd6-47fe-af5d-35009a6d5031",
+        "editor": "8563a155-4e85-405a-a41c-d539f4876e27",
+        "current": [
+          true,
+          true
+        ]
+      },
+      "delivery": {
+        "current": [
+          false,
+          false
+        ],
+        "png": {
+          "setter": false,
+          "input": false,
+          "change": false
+        },
+        "afterPNG": {
+          "instance": "50c35c2b-9fd6-47fe-af5d-35009a6d5031",
+          "editor": "8563a155-4e85-405a-a41c-d539f4876e27",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            }
+          ],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/focusABA/draft"
+        },
+        "text": false,
+        "state": {
+          "instance": "50c35c2b-9fd6-47fe-af5d-35009a6d5031",
+          "editor": "8563a155-4e85-405a-a41c-d539f4876e27",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            }
+          ],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/focusABA/draft"
+        }
+      }
+    },
+    {
+      "mode": "focusFrameABA",
+      "status": "PASS",
+      "original": {
+        "instance": "98eee660-1e97-47a4-bdb2-986a7bce2145",
+        "editor": "06a1ea88-bc87-4722-81d1-ff40b5fb88d4"
+      },
+      "bound": {
+        "instance": "98eee660-1e97-47a4-bdb2-986a7bce2145",
+        "editor": "06a1ea88-bc87-4722-81d1-ff40b5fb88d4",
+        "current": [
+          true,
+          true
+        ]
+      },
+      "delivery": {
+        "current": [
+          false,
+          false
+        ],
+        "png": {
+          "setter": false,
+          "input": false,
+          "change": false
+        },
+        "afterPNG": {
+          "instance": "98eee660-1e97-47a4-bdb2-986a7bce2145",
+          "editor": "06a1ea88-bc87-4722-81d1-ff40b5fb88d4",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            }
+          ],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/focusFrameABA/draft"
+        },
+        "text": false,
+        "state": {
+          "instance": "98eee660-1e97-47a4-bdb2-986a7bce2145",
+          "editor": "06a1ea88-bc87-4722-81d1-ff40b5fb88d4",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            }
+          ],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/focusFrameABA/draft"
+        }
+      }
+    },
+    {
+      "mode": "historyABA",
+      "status": "PASS",
+      "original": {
+        "instance": "4d661c59-f0b7-4e1b-ba1a-10e46afb6837",
+        "editor": "1ed1e41a-8155-4cac-9049-234e98a7be81"
+      },
+      "bound": {
+        "instance": "4d661c59-f0b7-4e1b-ba1a-10e46afb6837",
+        "editor": "1ed1e41a-8155-4cac-9049-234e98a7be81",
+        "current": [
+          true,
+          true
+        ]
+      },
+      "delivery": {
+        "current": [
+          false,
+          false
+        ],
+        "png": {
+          "setter": false,
+          "input": false,
+          "change": false
+        },
+        "afterPNG": {
+          "instance": "4d661c59-f0b7-4e1b-ba1a-10e46afb6837",
+          "editor": "1ed1e41a-8155-4cac-9049-234e98a7be81",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            },
+            {
+              "type": "currententrychange",
+              "trusted": true
+            },
+            {
+              "type": "currententrychange",
+              "trusted": true
+            }
+          ],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/historyABA/draft"
+        },
+        "text": false,
+        "state": {
+          "instance": "4d661c59-f0b7-4e1b-ba1a-10e46afb6837",
+          "editor": "1ed1e41a-8155-4cac-9049-234e98a7be81",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            },
+            {
+              "type": "currententrychange",
+              "trusted": true
+            },
+            {
+              "type": "currententrychange",
+              "trusted": true
+            }
+          ],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/historyABA/draft"
+        }
+      }
+    },
+    {
+      "mode": "historyBack",
+      "status": "PASS",
+      "original": {
+        "instance": "0f0eba77-2225-4fbb-9ad2-4da747c11cac",
+        "editor": "b704d757-2eb2-4861-9020-f33217fde5d2"
+      },
+      "bound": {
+        "instance": "0f0eba77-2225-4fbb-9ad2-4da747c11cac",
+        "editor": "b704d757-2eb2-4861-9020-f33217fde5d2",
+        "current": [
+          true,
+          true
+        ]
+      },
+      "entries": {
+        "original": "1cb55253-0206-4168-af83-290d48b17b98",
+        "changed": "b00dcf59-3db9-4926-856f-21c87d71c2e8"
+      },
+      "delivery": {
+        "current": [
+          false,
+          false
+        ],
+        "png": {
+          "setter": false,
+          "input": false,
+          "change": false
+        },
+        "afterPNG": {
+          "instance": "0f0eba77-2225-4fbb-9ad2-4da747c11cac",
+          "editor": "b704d757-2eb2-4861-9020-f33217fde5d2",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            },
+            {
+              "type": "currententrychange",
+              "trusted": true
+            },
+            {
+              "type": "currententrychange",
+              "trusted": true
+            }
+          ],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/historyBack/draft"
+        },
+        "text": false,
+        "state": {
+          "instance": "0f0eba77-2225-4fbb-9ad2-4da747c11cac",
+          "editor": "b704d757-2eb2-4861-9020-f33217fde5d2",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            },
+            {
+              "type": "currententrychange",
+              "trusted": true
+            },
+            {
+              "type": "currententrychange",
+              "trusted": true
+            }
+          ],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/historyBack/draft"
+        }
+      }
+    },
+    {
+      "mode": "hash",
+      "status": "PASS",
+      "original": {
+        "instance": "899ede05-6fca-4c83-b2ce-6bf3cf475ed1",
+        "editor": "59c6aadf-6731-4c8d-b7b4-e5599374243f"
+      },
+      "bound": {
+        "instance": "899ede05-6fca-4c83-b2ce-6bf3cf475ed1",
+        "editor": "59c6aadf-6731-4c8d-b7b4-e5599374243f",
+        "current": [
+          true,
+          true
+        ]
+      },
+      "delivery": {
+        "current": [
+          false,
+          false
+        ],
+        "png": {
+          "setter": false,
+          "input": false,
+          "change": false
+        },
+        "afterPNG": {
+          "instance": "899ede05-6fca-4c83-b2ce-6bf3cf475ed1",
+          "editor": "59c6aadf-6731-4c8d-b7b4-e5599374243f",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            },
+            {
+              "type": "currententrychange",
+              "trusted": true
+            }
+          ],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/hash/draft#changed"
+        },
+        "text": false,
+        "state": {
+          "instance": "899ede05-6fca-4c83-b2ce-6bf3cf475ed1",
+          "editor": "59c6aadf-6731-4c8d-b7b4-e5599374243f",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            },
+            {
+              "type": "currententrychange",
+              "trusted": true
+            }
+          ],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/hash/draft#changed"
+        }
+      }
+    },
+    {
+      "mode": "reentrant",
+      "status": "PASS",
+      "original": {
+        "instance": "58522e6a-cc30-455e-8d68-3eecf2bcd792",
+        "editor": "385a7339-1198-42d1-8a5f-b9cd2ec529f6"
+      },
+      "bound": {
+        "instance": "58522e6a-cc30-455e-8d68-3eecf2bcd792",
+        "editor": "385a7339-1198-42d1-8a5f-b9cd2ec529f6",
+        "current": [
+          true,
+          true
+        ]
+      },
+      "insidePermit": {
+        "fired": 1,
+        "delivery": {
+          "current": [
+            false,
+            false
+          ],
+          "png": {
+            "setter": false,
+            "input": false,
+            "change": false
+          },
+          "afterPNG": {
+            "instance": "58522e6a-cc30-455e-8d68-3eecf2bcd792",
+            "editor": "385a7339-1198-42d1-8a5f-b9cd2ec529f6",
+            "text": "alpha beta gamma",
+            "range": [
+              6,
+              10,
+              "forward"
+            ],
+            "priorPreserved": true,
+            "files": [],
+            "active": true,
+            "visible": "visible",
+            "events": [
+              {
+                "type": "pageshow",
+                "trusted": true,
+                "persisted": false
+              }
+            ],
+            "counts": {
+              "text": 0,
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0
+            },
+            "url": "qa-loopback/reentrant/draft"
+          },
+          "text": false,
+          "state": {
+            "instance": "58522e6a-cc30-455e-8d68-3eecf2bcd792",
+            "editor": "385a7339-1198-42d1-8a5f-b9cd2ec529f6",
+            "text": "alpha beta gamma",
+            "range": [
+              6,
+              10,
+              "forward"
+            ],
+            "priorPreserved": true,
+            "files": [],
+            "active": true,
+            "visible": "visible",
+            "events": [
+              {
+                "type": "pageshow",
+                "trusted": true,
+                "persisted": false
+              }
+            ],
+            "counts": {
+              "text": 0,
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0
+            },
+            "url": "qa-loopback/reentrant/draft"
+          }
+        }
+      }
+    },
+    {
+      "mode": "interleave",
+      "status": "PASS",
+      "original": {
+        "instance": "c9434cc0-c3e0-4171-a2c0-5440375b8029",
+        "editor": "99d5188f-db68-4e05-8df5-7dedcc77eba7"
+      },
+      "bound": {
+        "instance": "c9434cc0-c3e0-4171-a2c0-5440375b8029",
+        "editor": "99d5188f-db68-4e05-8df5-7dedcc77eba7",
+        "current": [
+          true,
+          true
+        ]
+      },
+      "interleaved": {
+        "oldEditor": "99d5188f-db68-4e05-8df5-7dedcc77eba7",
+        "freshEditor": "21530a2d-07cd-432c-ad1d-2e30cedd29b5",
+        "old": {
+          "current": [
+            false,
+            false
+          ],
+          "png": {
+            "setter": false,
+            "input": false,
+            "change": false
+          },
+          "afterPNG": {
+            "instance": "c9434cc0-c3e0-4171-a2c0-5440375b8029",
+            "editor": "21530a2d-07cd-432c-ad1d-2e30cedd29b5",
+            "text": "alpha beta gamma",
+            "range": [
+              0,
+              0,
+              "none"
+            ],
+            "priorPreserved": true,
+            "files": [],
+            "active": true,
+            "visible": "visible",
+            "events": [
+              {
+                "type": "pageshow",
+                "trusted": true,
+                "persisted": false
+              }
+            ],
+            "counts": {
+              "text": 0,
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0
+            },
+            "url": "qa-loopback/interleave/draft"
+          },
+          "text": false,
+          "state": {
+            "instance": "c9434cc0-c3e0-4171-a2c0-5440375b8029",
+            "editor": "21530a2d-07cd-432c-ad1d-2e30cedd29b5",
+            "text": "alpha beta gamma",
+            "range": [
+              0,
+              0,
+              "none"
+            ],
+            "priorPreserved": true,
+            "files": [],
+            "active": true,
+            "visible": "visible",
+            "events": [
+              {
+                "type": "pageshow",
+                "trusted": true,
+                "persisted": false
+              }
+            ],
+            "counts": {
+              "text": 0,
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0
+            },
+            "url": "qa-loopback/interleave/draft"
+          }
+        },
+        "fresh": {
+          "current": [
+            true,
+            true
+          ],
+          "png": {
+            "setter": true,
+            "input": true,
+            "change": true
+          },
+          "afterPNG": {
+            "instance": "c9434cc0-c3e0-4171-a2c0-5440375b8029",
+            "editor": "21530a2d-07cd-432c-ad1d-2e30cedd29b5",
+            "text": "alpha beta gamma",
+            "range": [
+              0,
+              0,
+              "none"
+            ],
+            "priorPreserved": true,
+            "files": [
+              {
+                "name": "63c26ab4-d645-432d-a31a-4153df7630d3.png",
+                "size": 68
+              }
+            ],
+            "active": true,
+            "visible": "visible",
+            "events": [
+              {
+                "type": "pageshow",
+                "trusted": true,
+                "persisted": false
+              }
+            ],
+            "counts": {
+              "text": 0,
+              "setter": 1,
+              "input": 1,
+              "change": 1,
+              "send": 0
+            },
+            "url": "qa-loopback/interleave/draft"
+          },
+          "text": true,
+          "state": {
+            "instance": "c9434cc0-c3e0-4171-a2c0-5440375b8029",
+            "editor": "21530a2d-07cd-432c-ad1d-2e30cedd29b5",
+            "text": "63c26ab4-d645-432d-a31a-4153df7630d3alpha beta gamma",
+            "range": [
+              0,
+              0,
+              "none"
+            ],
+            "priorPreserved": true,
+            "files": [
+              {
+                "name": "63c26ab4-d645-432d-a31a-4153df7630d3.png",
+                "size": 68
+              }
+            ],
+            "active": true,
+            "visible": "visible",
+            "events": [
+              {
+                "type": "pageshow",
+                "trusted": true,
+                "persisted": false
+              }
+            ],
+            "counts": {
+              "text": 1,
+              "setter": 1,
+              "input": 1,
+              "change": 1,
+              "send": 0
+            },
+            "url": "qa-loopback/interleave/draft"
+          }
+        },
+        "oldAgain": {
+          "current": [
+            false,
+            false
+          ],
+          "png": {
+            "setter": false,
+            "input": false,
+            "change": false
+          },
+          "afterPNG": {
+            "instance": "c9434cc0-c3e0-4171-a2c0-5440375b8029",
+            "editor": "21530a2d-07cd-432c-ad1d-2e30cedd29b5",
+            "text": "63c26ab4-d645-432d-a31a-4153df7630d3alpha beta gamma",
+            "range": [
+              0,
+              0,
+              "none"
+            ],
+            "priorPreserved": true,
+            "files": [
+              {
+                "name": "63c26ab4-d645-432d-a31a-4153df7630d3.png",
+                "size": 68
+              }
+            ],
+            "active": true,
+            "visible": "visible",
+            "events": [
+              {
+                "type": "pageshow",
+                "trusted": true,
+                "persisted": false
+              }
+            ],
+            "counts": {
+              "text": 1,
+              "setter": 1,
+              "input": 1,
+              "change": 1,
+              "send": 0
+            },
+            "url": "qa-loopback/interleave/draft"
+          },
+          "text": false,
+          "state": {
+            "instance": "c9434cc0-c3e0-4171-a2c0-5440375b8029",
+            "editor": "21530a2d-07cd-432c-ad1d-2e30cedd29b5",
+            "text": "63c26ab4-d645-432d-a31a-4153df7630d3alpha beta gamma",
+            "range": [
+              0,
+              0,
+              "none"
+            ],
+            "priorPreserved": true,
+            "files": [
+              {
+                "name": "63c26ab4-d645-432d-a31a-4153df7630d3.png",
+                "size": 68
+              }
+            ],
+            "active": true,
+            "visible": "visible",
+            "events": [
+              {
+                "type": "pageshow",
+                "trusted": true,
+                "persisted": false
+              }
+            ],
+            "counts": {
+              "text": 1,
+              "setter": 1,
+              "input": 1,
+              "change": 1,
+              "send": 0
+            },
+            "url": "qa-loopback/interleave/draft"
+          }
+        }
+      }
+    },
+    {
+      "mode": "switchInactive",
+      "status": "PASS",
+      "original": {
+        "instance": "42a7c349-548a-413f-b406-e7a340b70af5",
+        "editor": "2fcefe8e-fb66-4642-93f4-21e47b3cae74"
+      },
+      "bound": {
+        "instance": "42a7c349-548a-413f-b406-e7a340b70af5",
+        "editor": "2fcefe8e-fb66-4642-93f4-21e47b3cae74",
+        "current": [
+          true,
+          true
+        ]
+      },
+      "switched": {
+        "a": "42a7c349-548a-413f-b406-e7a340b70af5",
+        "b": "fc2616e1-aa9d-421b-9b36-f65eb7e83a68"
+      },
+      "delivery": {
+        "current": [
+          false,
+          false
+        ],
+        "png": {
+          "setter": false,
+          "input": false,
+          "change": false
+        },
+        "afterPNG": {
+          "instance": "42a7c349-548a-413f-b406-e7a340b70af5",
+          "editor": "2fcefe8e-fb66-4642-93f4-21e47b3cae74",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": false,
+          "visible": "hidden",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            },
+            {
+              "type": "visibilitychange",
+              "trusted": true
+            }
+          ],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/switchInactive/draft"
+        },
+        "text": false,
+        "state": {
+          "instance": "42a7c349-548a-413f-b406-e7a340b70af5",
+          "editor": "2fcefe8e-fb66-4642-93f4-21e47b3cae74",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": false,
+          "visible": "hidden",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            },
+            {
+              "type": "visibilitychange",
+              "trusted": true
+            }
+          ],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/switchInactive/draft"
+        }
+      },
+      "sibling": {
+        "instance": "fc2616e1-aa9d-421b-9b36-f65eb7e83a68",
+        "editor": "2cd50ed4-116b-457d-ae4e-a26d4fcf83e4",
+        "text": "alpha beta gamma",
+        "range": [
+          6,
+          10,
+          "forward"
+        ],
+        "priorPreserved": true,
+        "files": [],
+        "active": true,
+        "visible": "visible",
+        "events": [
+          {
+            "type": "pageshow",
+            "trusted": true,
+            "persisted": false
+          }
+        ],
+        "counts": {
+          "text": 0,
+          "setter": 0,
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "url": "qa-loopback/switchInactive/other"
+      }
+    },
+    {
+      "mode": "switchABA",
+      "status": "PASS",
+      "original": {
+        "instance": "9c43a2a7-7d63-4108-96a9-d5b25b1657ad",
+        "editor": "3596d5cc-1d4b-43a1-900e-64386345a8ed"
+      },
+      "bound": {
+        "instance": "9c43a2a7-7d63-4108-96a9-d5b25b1657ad",
+        "editor": "3596d5cc-1d4b-43a1-900e-64386345a8ed",
+        "current": [
+          true,
+          true
+        ]
+      },
+      "switched": {
+        "a": "9c43a2a7-7d63-4108-96a9-d5b25b1657ad",
+        "b": "66efe440-5a5b-4483-a9b8-3cfc2c4032d5"
+      },
+      "delivery": {
+        "current": [
+          false,
+          false
+        ],
+        "png": {
+          "setter": false,
+          "input": false,
+          "change": false
+        },
+        "afterPNG": {
+          "instance": "9c43a2a7-7d63-4108-96a9-d5b25b1657ad",
+          "editor": "3596d5cc-1d4b-43a1-900e-64386345a8ed",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            },
+            {
+              "type": "visibilitychange",
+              "trusted": true
+            },
+            {
+              "type": "visibilitychange",
+              "trusted": true
+            }
+          ],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/switchABA/draft"
+        },
+        "text": false,
+        "state": {
+          "instance": "9c43a2a7-7d63-4108-96a9-d5b25b1657ad",
+          "editor": "3596d5cc-1d4b-43a1-900e-64386345a8ed",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            },
+            {
+              "type": "visibilitychange",
+              "trusted": true
+            },
+            {
+              "type": "visibilitychange",
+              "trusted": true
+            }
+          ],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/switchABA/draft"
+        }
+      },
+      "sibling": {
+        "instance": "66efe440-5a5b-4483-a9b8-3cfc2c4032d5",
+        "editor": "2c4bd97e-4091-4537-a257-76c9249f838c",
+        "text": "alpha beta gamma",
+        "range": [
+          6,
+          10,
+          "forward"
+        ],
+        "priorPreserved": true,
+        "files": [],
+        "active": false,
+        "visible": "hidden",
+        "events": [
+          {
+            "type": "pageshow",
+            "trusted": true,
+            "persisted": false
+          },
+          {
+            "type": "visibilitychange",
+            "trusted": true
+          }
+        ],
+        "counts": {
+          "text": 0,
+          "setter": 0,
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "url": "qa-loopback/switchABA/other"
+      }
+    },
+    {
+      "mode": "sameURL",
+      "status": "PASS",
+      "original": {
+        "instance": "77f6cd4e-40cf-4412-8ec6-b21354c55490",
+        "editor": "c58931b1-fa3a-4734-95eb-c9cd92ddf931"
+      },
+      "frame": {
+        "before": {
+          "instance": "321336b4-aa73-45ae-815f-c04f9df98ab5",
+          "editor": "21039ef4-94f8-4e13-93ce-e466c9aaf296",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/sameURL/frame"
+        },
+        "current": {
+          "instance": "d55aab34-243e-4650-8ef4-175528d0e2c8",
+          "editor": "9e4cff6b-8868-48a7-b888-d50b94b075b2",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/sameURL/frame"
+        },
+        "old": {
+          "png": {
+            "setter": false,
+            "input": false,
+            "change": false
+          },
+          "text": false,
+          "current": [
+            false,
+            false
+          ]
+        },
+        "afterOldA": {
+          "instance": "321336b4-aa73-45ae-815f-c04f9df98ab5",
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "text": "alpha beta gamma"
+        },
+        "afterOldB": {
+          "instance": "d55aab34-243e-4650-8ef4-175528d0e2c8",
+          "editor": "9e4cff6b-8868-48a7-b888-d50b94b075b2",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/sameURL/frame"
+        },
+        "newCurrent": [
+          true,
+          true
+        ],
+        "fresh": {
+          "png": {
+            "setter": true,
+            "input": true,
+            "change": true
+          },
+          "text": true,
+          "after": {
+            "instance": "d55aab34-243e-4650-8ef4-175528d0e2c8",
+            "editor": "9e4cff6b-8868-48a7-b888-d50b94b075b2",
+            "text": "freshalpha beta gamma",
+            "range": [
+              11,
+              15,
+              "none"
+            ],
+            "priorPreserved": true,
+            "files": [
+              {
+                "name": "fresh.png",
+                "size": 68
+              }
+            ],
+            "active": true,
+            "visible": "visible",
+            "events": [],
+            "counts": {
+              "text": 1,
+              "setter": 1,
+              "input": 1,
+              "change": 1,
+              "send": 0
+            },
+            "url": "qa-loopback/sameURL/frame"
+          }
+        }
+      }
+    },
+    {
+      "mode": "reload",
+      "status": "PASS",
+      "original": {
+        "instance": "99b4cb90-d291-4af2-849e-a7721710d039",
+        "editor": "797de326-6ae3-4078-9030-2450bd34b742"
+      },
+      "frame": {
+        "before": {
+          "instance": "fb6c9a14-7189-43a2-9e16-5d9dcc4dd58d",
+          "editor": "26937431-2988-4099-b597-1b61e4c664e2",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/reload/frame"
+        },
+        "current": {
+          "instance": "a3ae6fa8-f83c-4cdf-ac9e-9b384aebb579",
+          "editor": "61b3f619-6cb6-4f7d-9144-c2c9ed24c48a",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/reload/frame"
+        },
+        "old": {
+          "png": {
+            "setter": false,
+            "input": false,
+            "change": false
+          },
+          "text": false,
+          "current": [
+            false,
+            false
+          ]
+        },
+        "afterOldA": {
+          "instance": "fb6c9a14-7189-43a2-9e16-5d9dcc4dd58d",
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "text": "alpha beta gamma"
+        },
+        "afterOldB": {
+          "instance": "a3ae6fa8-f83c-4cdf-ac9e-9b384aebb579",
+          "editor": "61b3f619-6cb6-4f7d-9144-c2c9ed24c48a",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/reload/frame"
+        },
+        "newCurrent": [
+          true,
+          true
+        ],
+        "fresh": {
+          "png": {
+            "setter": true,
+            "input": true,
+            "change": true
+          },
+          "text": true,
+          "after": {
+            "instance": "a3ae6fa8-f83c-4cdf-ac9e-9b384aebb579",
+            "editor": "61b3f619-6cb6-4f7d-9144-c2c9ed24c48a",
+            "text": "freshalpha beta gamma",
+            "range": [
+              11,
+              15,
+              "none"
+            ],
+            "priorPreserved": true,
+            "files": [
+              {
+                "name": "fresh.png",
+                "size": 68
+              }
+            ],
+            "active": true,
+            "visible": "visible",
+            "events": [],
+            "counts": {
+              "text": 1,
+              "setter": 1,
+              "input": 1,
+              "change": 1,
+              "send": 0
+            },
+            "url": "qa-loopback/reload/frame"
+          }
+        }
+      }
+    },
+    {
+      "mode": "bfcache",
+      "status": "PASS",
+      "original": {
+        "instance": "eacc9f83-4f19-4719-816a-4fc4762bf384",
+        "editor": "83eba910-7552-4af0-a520-6f82306164a5"
+      },
+      "bound": {
+        "instance": "eacc9f83-4f19-4719-816a-4fc4762bf384",
+        "editor": "83eba910-7552-4af0-a520-6f82306164a5",
+        "current": [
+          true,
+          true
+        ]
+      },
+      "away": {
+        "instance": "bb362f84-e850-495b-b3a4-7257f54e9550",
+        "editor": "1b4719c6-3773-4242-a852-7931980cf515",
+        "text": "alpha beta gamma",
+        "range": [
+          6,
+          10,
+          "forward"
+        ],
+        "priorPreserved": true,
+        "files": [],
+        "active": true,
+        "visible": "visible",
+        "events": [],
+        "counts": {
+          "text": 0,
+          "setter": 0,
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "url": "qa-loopback/bfcache/away"
+      },
+      "delivery": {
+        "current": [
+          false,
+          false
+        ],
+        "png": {
+          "setter": false,
+          "input": false,
+          "change": false
+        },
+        "afterPNG": {
+          "instance": "eacc9f83-4f19-4719-816a-4fc4762bf384",
+          "editor": "83eba910-7552-4af0-a520-6f82306164a5",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            },
+            {
+              "type": "pagehide",
+              "trusted": true,
+              "persisted": true
+            },
+            {
+              "type": "visibilitychange",
+              "trusted": true
+            },
+            {
+              "type": "visibilitychange",
+              "trusted": true
+            },
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": true
+            }
+          ],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/bfcache/draft"
+        },
+        "text": false,
+        "state": {
+          "instance": "eacc9f83-4f19-4719-816a-4fc4762bf384",
+          "editor": "83eba910-7552-4af0-a520-6f82306164a5",
+          "text": "alpha beta gamma",
+          "range": [
+            6,
+            10,
+            "forward"
+          ],
+          "priorPreserved": true,
+          "files": [],
+          "active": true,
+          "visible": "visible",
+          "events": [
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": false
+            },
+            {
+              "type": "pagehide",
+              "trusted": true,
+              "persisted": true
+            },
+            {
+              "type": "visibilitychange",
+              "trusted": true
+            },
+            {
+              "type": "visibilitychange",
+              "trusted": true
+            },
+            {
+              "type": "pageshow",
+              "trusted": true,
+              "persisted": true
+            }
+          ],
+          "counts": {
+            "text": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "send": 0
+          },
+          "url": "qa-loopback/bfcache/draft"
+        }
+      }
+    }
+  ]
+}

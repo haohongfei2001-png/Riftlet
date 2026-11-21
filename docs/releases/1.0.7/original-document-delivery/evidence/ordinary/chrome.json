@@ -1,0 +1,13 @@
+{
+  "family": "chrome",
+  "phase": "new",
+  "status": "NOT_RUN",
+  "createdUTC": "2026-11-21T14:34:20.826Z",
+  "events": [],
+  "sourceSHA256": "61669b502526bd01b71b6c9aead85c224d9f3a50263ff121997769527368e2c5",
+  "receiverSHA256": "e174cfea4f4383c2c9f159a918a5e620f64fb15e8650b89a2e56f4a9a465abea",
+  "keyboard": "NOT_RUN",
+  "routeChecks": [],
+  "nativeIdentity": "NOT_VERIFIED_BY_PAGE",
+  "scope": "Same URL, independent top-level QA Documents. Product receiver excerpt; semantic q and PNG. Separate trusted q field."
+}

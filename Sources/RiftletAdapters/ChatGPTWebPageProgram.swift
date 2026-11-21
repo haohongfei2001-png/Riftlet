@@ -44,7 +44,20 @@ public enum ChatGPTWebPageProgram {
         guard sections.count == 2, !sections[0].isEmpty, !sections[1].isEmpty else {
             throw WebAdapterError.programUnavailable
         }
-        let pinSource = sections[0] + "\n  return 'refused';\n}"
+        let pin = sections[0]
+        // The press sends this prefix through a time-bounded Apple Event.
+        // Omit line indentation from the wire, retaining every token and line
+        // break. Preserve literal whitespace if the resource ever introduces
+        // template strings or a continued quoted string.
+        let wirePin: String
+        if pin.contains("`") || pin.contains("\\\n") || pin.contains("\\\r") {
+            wirePin = pin
+        } else {
+            wirePin = pin.split(separator: "\n", omittingEmptySubsequences: false)
+                .map { $0.drop(while: { $0 == " " }) }
+                .joined(separator: "\n")
+        }
+        let pinSource = wirePin + "\n  return 'refused';\n}"
         // Ordinary input never executes historical observers. Their registries
         // cannot veto a new handoff; the separate legacy reader remains available
         // only to explicit historical tooling.

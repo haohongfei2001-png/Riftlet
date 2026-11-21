@@ -1,0 +1,144 @@
+{
+  "family": "edge",
+  "version": "Edg/158.0.4370.33",
+  "resourceSHA256": "61669b502526bd01b71b6c9aead85c224d9f3a50263ff121997769527368e2c5",
+  "utc": "2026-11-21T14:34:28.404Z",
+  "scope": "Complete page resource and native browser DOM in a disposable headless process. Controlled route/native arguments.",
+  "cases": [
+    {
+      "mode": "portalABA",
+      "counts": {
+        "setter": 1,
+        "input": 1,
+        "change": 0,
+        "send": 0
+      },
+      "state": "unknown",
+      "retirement": null,
+      "observed": "unknown",
+      "repeat": "COMMIT_REFUSED",
+      "validBefore": true,
+      "returnedToSameLineage": true,
+      "focusRoundTrip": false,
+      "capturedShadowFocus": false,
+      "capturedShadowBlur": false,
+      "shadowRetargeted": false,
+      "actualPortalFocus": false,
+      "assetSHA256": "0cf4cf38146a9034b341aefced5d7c987e2b292d7114054f3fbadb1fb3ca041c",
+      "draftPreserved": true,
+      "priorCardPreserved": true,
+      "menu": null,
+      "status": "PASS"
+    },
+    {
+      "mode": "focusABA",
+      "counts": {
+        "setter": 0,
+        "input": 0,
+        "change": 0,
+        "send": 0
+      },
+      "state": "invalidated",
+      "retirement": "targetInvalidBeforeInput",
+      "observed": "invalidated",
+      "repeat": "COMMIT_REFUSED",
+      "validBefore": false,
+      "returnedToSameLineage": false,
+      "focusRoundTrip": true,
+      "capturedShadowFocus": false,
+      "capturedShadowBlur": false,
+      "shadowRetargeted": false,
+      "actualPortalFocus": false,
+      "assetSHA256": "0cf4cf38146a9034b341aefced5d7c987e2b292d7114054f3fbadb1fb3ca041c",
+      "draftPreserved": false,
+      "priorCardPreserved": true,
+      "menu": null,
+      "status": "PASS"
+    },
+    {
+      "mode": "closedShadowFocus",
+      "counts": {
+        "setter": 0,
+        "input": 0,
+        "change": 0,
+        "send": 0
+      },
+      "state": "invalidated",
+      "retirement": "targetInvalidBeforeInput",
+      "observed": "invalidated",
+      "repeat": "COMMIT_REFUSED",
+      "validBefore": false,
+      "returnedToSameLineage": false,
+      "focusRoundTrip": true,
+      "capturedShadowFocus": true,
+      "capturedShadowBlur": true,
+      "shadowRetargeted": true,
+      "actualPortalFocus": false,
+      "assetSHA256": "0cf4cf38146a9034b341aefced5d7c987e2b292d7114054f3fbadb1fb3ca041c",
+      "draftPreserved": false,
+      "priorCardPreserved": true,
+      "menu": null,
+      "status": "PASS"
+    },
+    {
+      "mode": "menu",
+      "counts": {
+        "setter": 1,
+        "input": 1,
+        "change": 1,
+        "send": 0
+      },
+      "state": "inputTriggered",
+      "retirement": null,
+      "observed": "inputTriggered",
+      "repeat": "COMMIT_REFUSED",
+      "validBefore": true,
+      "returnedToSameLineage": false,
+      "focusRoundTrip": false,
+      "capturedShadowFocus": false,
+      "capturedShadowBlur": false,
+      "shadowRetargeted": false,
+      "actualPortalFocus": false,
+      "assetSHA256": "0cf4cf38146a9034b341aefced5d7c987e2b292d7114054f3fbadb1fb3ca041c",
+      "draftPreserved": true,
+      "priorCardPreserved": true,
+      "menu": {
+        "opened": 1,
+        "selected": 1,
+        "invoked": 1,
+        "defaultChooserAllowed": 0
+      },
+      "status": "PASS"
+    },
+    {
+      "mode": "unlinkedFocusMenu",
+      "counts": {
+        "setter": 1,
+        "input": 1,
+        "change": 1,
+        "send": 0
+      },
+      "state": "inputTriggered",
+      "retirement": null,
+      "observed": "inputTriggered",
+      "repeat": "COMMIT_REFUSED",
+      "validBefore": true,
+      "returnedToSameLineage": false,
+      "focusRoundTrip": false,
+      "capturedShadowFocus": false,
+      "capturedShadowBlur": false,
+      "shadowRetargeted": false,
+      "actualPortalFocus": true,
+      "assetSHA256": "0cf4cf38146a9034b341aefced5d7c987e2b292d7114054f3fbadb1fb3ca041c",
+      "draftPreserved": true,
+      "priorCardPreserved": true,
+      "menu": {
+        "opened": 1,
+        "selected": 1,
+        "invoked": 1,
+        "defaultChooserAllowed": 0
+      },
+      "status": "PASS"
+    }
+  ]
+}

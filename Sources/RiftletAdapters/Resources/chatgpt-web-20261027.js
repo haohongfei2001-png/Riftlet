@@ -215,45 +215,123 @@ function riftletWebAcceptance(command, native) {
     return named.length === 1 ? named[0] : null;
   }
 
+  // RIFTLET_ORIGINAL_RECEIVER_BEGIN
+  function bindOriginalReceiver(node, permits, trackDraftFocus = false, acceptsAuxiliaryFocus = () => false) {
+    const root = document.documentElement, owner = node.ownerDocument;
+    const parent = item => item.parentNode || (item.nodeType === 11 ? item.host : null) || null;
+    const lineage = [];
+    for (let item = node; item; item = parent(item)) lineage.push(item);
+    const originals = new Set(lineage);
+    const entry = globalThis.navigation?.currentEntry?.id;
+    const moved = records => records.some(record =>
+      Array.from(record.removedNodes).some(item => originals.has(item)) ||
+      Array.from(record.addedNodes).some(item => originals.has(item)));
+    let live = true;
+    const observer = new MutationObserver(records => { if (moved(records)) close(); });
+    // Shadow roots have their own mutation trees. Observe a detached picker
+    // too when its application explicitly handed that exact object to us.
+    const roots = new Set([document]);
+    for (const item of lineage) if (item.nodeType === 11) roots.add(item);
+    if (!node.isConnected) roots.add(lineage[lineage.length - 1]);
+    for (const tree of roots) observer.observe(tree, {childList: true, subtree: true});
+    function visibilityChanged() { if (document.visibilityState !== 'visible') close(); }
+    function focusChanged(event) {
+      const next = event.composedPath?.()[0] || event.target;
+      if (next === node) return;
+      // Even a plain div can be the retargeted host of a closed shadow editor.
+      try { if (!acceptsAuxiliaryFocus(next)) close(); } catch { close(); }
+    }
+    function close() {
+      if (!live) return;
+      live = false;
+      observer.disconnect();
+      globalThis.removeEventListener('pagehide', close);
+      globalThis.navigation?.removeEventListener('currententrychange', close);
+      if (trackDraftFocus) {
+        globalThis.removeEventListener('blur', close);
+        document.removeEventListener('visibilitychange', visibilityChanged);
+        document.removeEventListener('focusin', focusChanged, true);
+      }
+    }
+    globalThis.addEventListener('pagehide', close);
+    globalThis.navigation?.addEventListener('currententrychange', close);
+    if (trackDraftFocus) {
+      globalThis.addEventListener('blur', close);
+      document.addEventListener('visibilitychange', visibilityChanged);
+      document.addEventListener('focusin', focusChanged, true);
+    }
+    function current() {
+      if (!live) return false;
+      // permits may synchronously invoke another event listener. Drain the
+      // mutation queue and check the captured references after it returns.
+      try {
+        if (!permits() || !live || moved(observer.takeRecords()) || document.documentElement !== root ||
+            node.ownerDocument !== owner || owner !== root.ownerDocument ||
+            globalThis.navigation?.currentEntry?.id !== entry ||
+            !lineage.every((item, index) => parent(item) === (lineage[index + 1] || null)) ||
+            (trackDraftFocus && (!node.isConnected || document.visibilityState !== 'visible' || !document.hasFocus()))) close();
+      } catch (error) { close(); throw error; }
+      return live;
+    }
+    return {current, close, once(method) {
+      let used = false;
+      return (...args) => {
+        if (used) return false;
+        used = true;
+        if (!current()) return false;
+        Reflect.apply(method, node, args);
+        return true;
+      };
+    }};
+  }
+  // RIFTLET_ORIGINAL_RECEIVER_END
+
   if (command.action === 'pinTarget') {
     if (!uuid(command.clickWitnessID) || command.address !== route() || !globalThis.navigation?.currentEntry)
       fail('CLICK_PIN_REFUSED');
-    const parts = composer(), root = document.documentElement, address = location.href;
-    const navigationID = navigation.currentEntry.id;
+    const parts = composer(), address = location.href;
     const editorEvent = 'riftlet-witness-editor-' + command.clickWitnessID;
     const formEvent = 'riftlet-witness-form-' + command.clickWitnessID;
-    const removed = records => records.some(record => [...record.removedNodes].some(node =>
-      node.contains(parts.editor) || node.contains(parts.form)));
-    const handle = e => {
-      if (removed(observer.takeRecords())) { dispose(); return; }
-      if (e.target !== (e.type === editorEvent ? parts.editor : parts.form) || document.documentElement !== root
-          || location.href !== address || navigation.currentEntry?.id !== navigationID || !parts.editor.isConnected
-          || !parts.form.isConnected || !parts.form.contains(parts.editor)
-          || (parts.editor.closest(composerSurface) || parts.editor.closest('form') || parts.form) !== parts.form) return;
-      e.preventDefault();
+    const openEvent = 'riftlet-entry-begin-' + command.clickWitnessID;
+    const endEvent = 'riftlet-entry-end-' + command.clickWitnessID;
+    let opening = null;
+    const menuSelector = '[role="menu"],[role="listbox"]';
+    const openingChanged = event => {
+      opening = null;
+      if (event.type === openEvent && entryControls(parts).includes(event.target)) {
+        opening = {entry: event.target, before: new Set(document.querySelectorAll(menuSelector))};
+      }
     };
-    const dispose = () => {
-      clearTimeout(timer);
-      observer.disconnect();
-      navigation.removeEventListener('currententrychange', dispose);
-      globalThis.removeEventListener('pagehide', dispose);
-      globalThis.removeEventListener('blur', dispose);
-      document.removeEventListener('visibilitychange', visibilityChanged);
+    const acceptsAuxiliaryFocus = next => {
+      // These native elements cannot host an author-created closed shadow root.
+      if (!next?.matches?.('button,a[href],label,input[type="file"],li') ||
+          next.isContentEditable || parts.editor.contains(next) || outsidePurpose(next, parts)) return false;
+      const entries = entryControls(parts);
+      if (entries.some(entry => entry === next || controlledElements(entry).some(panel => panel.contains(next)))) return true;
+      if (!opening || !entries.includes(opening.entry) || !usableControl(next) ||
+          !(fileWords.test(description(next)) || attachmentWords.test(description(next)))) return false;
+      const fresh = [...document.querySelectorAll(menuSelector)].filter(menu => !opening.before.has(menu) && visible(menu));
+      return fresh.length === 1 && fresh[0].contains(next) && !fresh[0].contains(parts.editor) &&
+        !fresh[0].closest('[data-file-name],[data-message-author-role],article,aside,nav,header');
+    };
+    const receiver = bindOriginalReceiver(parts.editor, () => location.href === address &&
+      parts.form.isConnected && parts.form.contains(parts.editor) &&
+      (parts.editor.closest(composerSurface) || parts.editor.closest('form') || parts.form) === parts.form, true, acceptsAuxiliaryFocus);
+    if (!receiver.current()) fail('CLICK_PIN_REFUSED');
+    const handle = e => {
+      if (e.target === (e.type === editorEvent ? parts.editor : parts.form) && receiver.current()) e.preventDefault();
+    };
+    setTimeout(() => {
+      receiver.close();
       parts.editor.removeEventListener(editorEvent, handle);
       parts.form.removeEventListener(formEvent, handle);
-    };
-    const observer = new MutationObserver(records => {
-      if (removed(records)) dispose();
-    });
-    const visibilityChanged = () => { if (document.visibilityState !== 'visible') dispose(); };
-    const timer = setTimeout(dispose, 60000);
-    observer.observe(document, {subtree: true, childList: true});
-    navigation.addEventListener('currententrychange', dispose);
-    globalThis.addEventListener('pagehide', dispose);
-    globalThis.addEventListener('blur', dispose);
-    document.addEventListener('visibilitychange', visibilityChanged);
+      document.removeEventListener(openEvent, openingChanged, true);
+      document.removeEventListener(endEvent, openingChanged, true);
+    }, 60000);
     parts.editor.addEventListener(editorEvent, handle);
     parts.form.addEventListener(formEvent, handle);
+    document.addEventListener(openEvent, openingChanged, true);
+    document.addEventListener(endEvent, openingChanged, true);
     return 'bound';
   }
 
@@ -385,8 +463,9 @@ function riftletWebAcceptance(command, native) {
       const editor = binding.editor, value = editor.value, start = editor.selectionStart,
         end = editor.selectionEnd, direction = editor.selectionDirection, active = document.activeElement;
       return () => {
-        if (!sameDraft(binding) || binding.editor !== editor || editor.value !== value || !Number.isInteger(start) || !Number.isInteger(end)) return;
+        if (!validDraft(binding) || binding.editor !== editor || editor.value !== value || !Number.isInteger(start) || !Number.isInteger(end)) return;
         if (active === editor && document.hasFocus()) editor.focus?.({preventScroll: true});
+        if (!validDraft(binding)) return;
         editor.setSelectionRange?.(start, end, direction);
       };
     }
@@ -397,7 +476,7 @@ function riftletWebAcceptance(command, native) {
       anchorOffset: selection.anchorOffset, focusOffset: selection.focusOffset,
       text: binding.editor.textContent, active: document.activeElement};
     return () => {
-      if (!sameDraft(binding) || binding.editor.textContent !== saved.text
+      if (!validDraft(binding) || binding.editor.textContent !== saved.text
           || !binding.editor.contains(saved.anchor) || !binding.editor.contains(saved.focus)) return;
       const current = document.getSelection?.();
       // The caller suppresses restoration after trusted user interaction. A
@@ -405,6 +484,7 @@ function riftletWebAcceptance(command, native) {
       if (current?.anchorNode === saved.anchor && current.focusNode === saved.focus
           && current.anchorOffset === saved.anchorOffset && current.focusOffset === saved.focusOffset) return;
       if (saved.active === binding.editor && document.hasFocus()) binding.editor.focus?.({preventScroll: true});
+      if (!validDraft(binding)) return;
       current?.setBaseAndExtent?.(saved.anchor, saved.anchorOffset, saved.focus, saved.focusOffset);
     };
   }
@@ -505,7 +585,7 @@ function riftletWebAcceptance(command, native) {
     click.preventDefault();
     node.dispatchEvent(click);
   }
-  function pickerHooks(intercept, restores) {
+  function pickerHooks(intercept, canActivate, restores) {
     const clicking = new WeakSet();
     const proto = HTMLInputElement.prototype;
     for (const method of ['click', 'showPicker']) {
@@ -513,7 +593,7 @@ function riftletWebAcceptance(command, native) {
       if (typeof original !== 'function') continue;
       const value = function (...args) {
         if (!intercept(this, method)) return Reflect.apply(original, this, args);
-        if (method === 'showPicker') return;
+        if (method === 'showPicker' || !canActivate()) return;
         if (clicking.has(this)) return;
         clicking.add(this);
         try { clickWithoutDefault(this); }
@@ -543,6 +623,7 @@ function riftletWebAcceptance(command, native) {
     let lastEntryAt = 0, interrupted = false, insideControl = false, handlingForeignEvent = false;
     let menuLocated = false;
     let wake, changed = false;
+    const canActivate = () => !interrupted && validDraft(binding);
     const signal = () => { changed = true; wake?.(); };
     const waitForChange = async () => {
       // A timeout only schedules another DOM check (including CSS visibility).
@@ -603,9 +684,18 @@ function riftletWebAcceptance(command, native) {
     const fire = (control, callback) => {
       scan(); // Account for any preceding independent mutation before attributing this dispatch.
       const previous = new Set(document.querySelectorAll('input[type="file"]'));
+      if (!canActivate() || !control.isConnected) return false;
       insideControl = true;
-      try { return callback(control); }
+      // The pin lives in the Apple Event world. Expose only this exact
+      // opener's synchronous dispatch; a later unrelated portal cannot qualify.
+      const pin = binding.target.clickBindingID;
+      const opening = pin && entries.includes(control);
+      try {
+        if (opening) control.dispatchEvent(new Event('riftlet-entry-begin-' + pin, {bubbles: true}));
+        return callback(control);
+      }
       finally {
+        if (opening) document.dispatchEvent(new Event('riftlet-entry-end-' + pin));
         insideControl = false;
         scan(true);
         for (const input of document.querySelectorAll('input[type="file"]'))
@@ -616,7 +706,7 @@ function riftletWebAcceptance(command, native) {
       const wasOpen = control.getAttribute('aria-expanded'), priorRoots = surfaces.roots.size;
       const advanced = () => {
         scan();
-        return interrupted || !sameDraft(binding) || !control.isConnected || captured.size > 0
+        return !canActivate() || !control.isConnected || captured.size > 0
           || surfaces.roots.size > priorRoots || control.getAttribute('aria-expanded') !== wasOpen;
       };
       // These are programmatic, untrusted events. Pointer-triggered primitives
@@ -641,7 +731,7 @@ function riftletWebAcceptance(command, native) {
           const compat = pointer('pointerdown', 1);
           if (compat && control.isConnected) mouse('mousedown', 1);
           await Promise.resolve();
-          if (interrupted || !sameDraft(binding) || !control.isConnected) return captured.size > 0;
+          if (!canActivate() || !control.isConnected) return captured.size > 0;
           const handledOnDown = advanced();
           pointer('pointerup', 0);
           if (compat && control.isConnected) mouse('mouseup', 0);
@@ -656,7 +746,7 @@ function riftletWebAcceptance(command, native) {
       } finally { control.removeEventListener('click', onControlClick, true); }
     };
     try {
-      pickerHooks(capture, restores);
+      pickerHooks(capture, canActivate, restores);
       observer.observe(document.documentElement, {subtree: true, childList: true, attributes: true, characterData: true});
       document.addEventListener('click', onClick, true);
       document.addEventListener('pointerdown', userInteraction, true);
@@ -664,7 +754,7 @@ function riftletWebAcceptance(command, native) {
       for (const entry of entries) surfaces.linked(entry, false);
       while (true) {
         const ended = Date.now() >= deadline;
-        const valid = sameDraft(binding);
+        const valid = validDraft(binding);
         if (interrupted || !valid) {
           // An entry already started by this operation may finish its own
           // asynchronous picker call after navigation. Cancel just its chooser
@@ -716,7 +806,7 @@ function riftletWebAcceptance(command, native) {
         await waitForChange();
       }
       if (interrupted) return retire('attachmentEntryFailed', diag.stage, 'userInterrupted');
-      if (!sameDraft(binding)) return retire('targetInvalidBeforeInput', diag.stage, 'targetChanged');
+      if (!validDraft(binding)) return retire('targetInvalidBeforeInput', diag.stage, 'targetChanged');
       if (captured.size) return retire('attachmentInputNotCreated', 'picker', 'pickerRejected');
       if (diag.menuActivations) return retire('attachmentInputNotCreated', 'picker', 'pickerNotInvoked');
       if (surfaces.roots.size) return retire('attachmentInputNotCreated', 'menu', menuLocated ? 'menuActionNotRun' : 'menuActionMissing');
@@ -731,9 +821,10 @@ function riftletWebAcceptance(command, native) {
       document.removeEventListener('pointerdown', userInteraction, true);
       document.removeEventListener('keydown', userInteraction, true);
       for (const restore of restores.reverse()) restore();
-      if (!interrupted && sameDraft(binding)) {
+      if (canActivate()) {
         for (const root of [...surfaces.opened].reverse()) if (visible(root)) {
           const target = root.contains(document.activeElement) ? document.activeElement : root;
+          if (!canActivate()) break;
           target.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', code: 'Escape', bubbles: true, cancelable: true}));
         }
         restoreSelection();
@@ -1605,20 +1696,11 @@ function riftletWebAcceptance(command, native) {
       if (registry.clickBindings?.has(pin) || !validDraft(pinned)) fail('CLICK_PIN_REFUSED');
       // The write witness expires on blur. A read may continue on that same
       // document and composer until navigation or removal, including after focus returns.
-      const removed = records => records.some(record => [...record.removedNodes].some(node =>
-        node.contains(parts.editor) || node.contains(parts.form)));
-      let live = true;
-      const stop = () => { live = false; monitor.disconnect(); navigation.removeEventListener('currententrychange', stop); };
-      const monitor = new MutationObserver(records => { if (removed(records)) stop(); });
-      monitor.observe(document, {subtree: true, childList: true});
-      navigation.addEventListener('currententrychange', stop);
-      const entry = navigation.currentEntry.id, href = location.href;
-      pinned.readOriginal = () => {
-        if (removed(monitor.takeRecords())) stop();
-        return live && navigation.currentEntry?.id === entry && location.href === href
-          && parts.form.isConnected && parts.editor.isConnected && parts.form.contains(parts.editor);
-      };
-      setTimeout(() => { stop(); registry.clickBindings.delete(pin); }, 600000)?.unref?.();
+      const href = location.href;
+      const reader = bindOriginalReceiver(parts.editor, () => location.href === href &&
+        parts.form.isConnected && parts.editor.isConnected && parts.form.contains(parts.editor));
+      pinned.readOriginal = reader.current;
+      setTimeout(() => { reader.close(); registry.clickBindings.delete(pin); }, 600000)?.unref?.();
       registry.clickBindings ||= new Map();
       registry.clickBindings.set(pin, pinned);
       return target;
@@ -1747,21 +1829,33 @@ function riftletWebAcceptance(command, native) {
     registry.writingInputs ||= new WeakSet();
     if (registry.busy.has(writingForm) || registry.writingInputs.has(input)) return retire('inputExecutionBusy', 'setter', 'executionBusy');
     registry.busy.add(writingForm); registry.writingInputs.add(input);
+    let receiver;
     try {
-      op.inputCount = 1; op.inputSequence = tick(); op.inputTime = performance.now();
-      op.blobSerialBeforeInput = registry.blobSerial ?? 0;
-      registry.blobWindowUntil = op.inputTime + 10000;
-      diag.stage = 'setter'; diag.setterEntered = true;
-      Reflect.apply(setter, input, [transfer.files]);
+      const originalForm = input.form;
+      receiver = bindOriginalReceiver(input, () => validDraft(op.binding) && usableInput(input) &&
+        input.form === originalForm && (invoked || input.isConnected));
+      const writeFiles = receiver.once(function(files) {
+        op.inputCount = 1; op.inputSequence = tick(); op.inputTime = performance.now();
+        op.blobSerialBeforeInput = registry.blobSerial ?? 0;
+        registry.blobWindowUntil = op.inputTime + 10000;
+        diag.stage = 'setter'; diag.setterEntered = true;
+        Reflect.apply(setter, this, [files]);
+      });
+      const notifyInput = receiver.once(input.dispatchEvent), notifyChange = receiver.once(input.dispatchEvent);
+      if (!writeFiles(transfer.files)) return retire('targetInvalidBeforeInput', 'setter', 'targetChanged');
       diag.stage = 'change';
-      input.dispatchEvent(new Event('input', {bubbles: true, composed: true}));
-      input.dispatchEvent(new Event('change', {bubbles: true}));
-      op.changeReturned = true; diag.changeReturned = true; diag.stage = 'observation';
+      if (notifyInput(new Event('input', {bubbles: true, composed: true})) &&
+          notifyChange(new Event('change', {bubbles: true}))) {
+        op.changeReturned = true; diag.changeReturned = true; diag.stage = 'observation';
+      } else {
+        diag.cause = 'deliveryUncertain';
+      }
     } catch (error) {
       // The native setter or a receiver can have taken effect. Never switch
       // paths after entering it, including after a dropped native receipt.
       diag.exceptionType = exceptionName(error); diag.cause = 'deliveryUncertain';
     } finally {
+      receiver?.close();
       registry.busy.delete(writingForm); registry.writingInputs.delete(input);
     }
     op.executionPending = false;

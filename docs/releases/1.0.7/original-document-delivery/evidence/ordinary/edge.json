@@ -1,0 +1,399 @@
+{
+  "family": "edge",
+  "phase": "done",
+  "status": "PASS",
+  "createdUTC": "2026-11-21T14:34:20.827Z",
+  "events": [
+    {
+      "kind": "original",
+      "utc": "2026-11-21T14:37:22.612Z",
+      "data": {
+        "baseline": {
+          "doc": "e20d4198-9fbb-473c-a4be-18b3d6bd55d8",
+          "editor": "a5867367-b2ca-430c-bbcf-3b149b50d822",
+          "counts": {
+            "semantic": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "submit": 0
+          },
+          "topLevel": true,
+          "navigation": "navigate",
+          "originalText": true,
+          "appendedQ": false,
+          "selection": [
+            6,
+            10,
+            "forward"
+          ],
+          "oldCard": true,
+          "fileCount": 0
+        },
+        "pending": {
+          "doc": "e20d4198-9fbb-473c-a4be-18b3d6bd55d8",
+          "editor": "a5867367-b2ca-430c-bbcf-3b149b50d822",
+          "operation": "7adb437b-0fe4-4954-9eb0-ac8e3e3be9b9"
+        },
+        "heldCurrent": true,
+        "write": {
+          "address": {
+            "doc": "e20d4198-9fbb-473c-a4be-18b3d6bd55d8",
+            "editor": "a5867367-b2ca-430c-bbcf-3b149b50d822",
+            "operation": "092384cd-7ae4-4de8-beb5-06800bd59c9c"
+          },
+          "delivered": {
+            "status": "DELIVERED",
+            "setters": true,
+            "inputEvent": true,
+            "changeEvent": true,
+            "text": true,
+            "selection": true,
+            "afterFile": {
+              "doc": "e20d4198-9fbb-473c-a4be-18b3d6bd55d8",
+              "editor": "a5867367-b2ca-430c-bbcf-3b149b50d822",
+              "counts": {
+                "semantic": 0,
+                "setter": 1,
+                "input": 1,
+                "change": 1,
+                "submit": 0
+              },
+              "topLevel": true,
+              "navigation": "navigate",
+              "originalText": true,
+              "appendedQ": false,
+              "selection": [
+                6,
+                10,
+                "forward"
+              ],
+              "oldCard": true,
+              "fileCount": 1
+            },
+            "after": {
+              "doc": "e20d4198-9fbb-473c-a4be-18b3d6bd55d8",
+              "editor": "a5867367-b2ca-430c-bbcf-3b149b50d822",
+              "counts": {
+                "semantic": 1,
+                "setter": 1,
+                "input": 1,
+                "change": 1,
+                "submit": 0
+              },
+              "topLevel": true,
+              "navigation": "navigate",
+              "originalText": false,
+              "appendedQ": true,
+              "selection": [
+                6,
+                10,
+                "forward"
+              ],
+              "oldCard": true,
+              "fileCount": 1
+            }
+          },
+          "sha256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460"
+        },
+        "keyboard": {
+          "doc": "e20d4198-9fbb-473c-a4be-18b3d6bd55d8",
+          "observed": true,
+          "down": true,
+          "typed": true,
+          "up": true
+        }
+      }
+    },
+    {
+      "kind": "barrier",
+      "utc": "2026-11-21T14:37:39.212Z",
+      "data": {
+        "doc": "e20d4198-9fbb-473c-a4be-18b3d6bd55d8",
+        "pending": {
+          "doc": "e20d4198-9fbb-473c-a4be-18b3d6bd55d8",
+          "editor": "a5867367-b2ca-430c-bbcf-3b149b50d822",
+          "operation": "7adb437b-0fe4-4954-9eb0-ac8e3e3be9b9"
+        },
+        "registryHit": true,
+        "heldCurrent": true
+      }
+    },
+    {
+      "kind": "complete",
+      "utc": "2026-11-21T14:37:56.409Z",
+      "data": {
+        "baseline": {
+          "doc": "2a35d614-c4a2-47d9-bbf9-3a3625e2ff04",
+          "editor": "d9ae28c6-1237-46a0-8e9a-f25dfee2705b",
+          "counts": {
+            "semantic": 0,
+            "setter": 0,
+            "input": 0,
+            "change": 0,
+            "submit": 0
+          },
+          "topLevel": true,
+          "navigation": "reload",
+          "originalText": true,
+          "appendedQ": false,
+          "selection": [
+            6,
+            10,
+            "forward"
+          ],
+          "oldCard": true,
+          "fileCount": 0
+        },
+        "old": {
+          "status": "ORIGINAL_OPERATION_ABSENT",
+          "attempted": {
+            "doc": "e20d4198-9fbb-473c-a4be-18b3d6bd55d8",
+            "editor": "a5867367-b2ca-430c-bbcf-3b149b50d822",
+            "operation": "7adb437b-0fe4-4954-9eb0-ac8e3e3be9b9"
+          },
+          "registryHit": false,
+          "after": {
+            "doc": "2a35d614-c4a2-47d9-bbf9-3a3625e2ff04",
+            "editor": "d9ae28c6-1237-46a0-8e9a-f25dfee2705b",
+            "counts": {
+              "semantic": 0,
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "submit": 0
+            },
+            "topLevel": true,
+            "navigation": "reload",
+            "originalText": true,
+            "appendedQ": false,
+            "selection": [
+              6,
+              10,
+              "forward"
+            ],
+            "oldCard": true,
+            "fileCount": 0
+          }
+        },
+        "fresh": {
+          "address": {
+            "doc": "2a35d614-c4a2-47d9-bbf9-3a3625e2ff04",
+            "editor": "d9ae28c6-1237-46a0-8e9a-f25dfee2705b",
+            "operation": "f3344da3-c2d5-4bb3-95f0-652f9e10e9ca"
+          },
+          "delivered": {
+            "status": "DELIVERED",
+            "setters": true,
+            "inputEvent": true,
+            "changeEvent": true,
+            "text": true,
+            "selection": true,
+            "afterFile": {
+              "doc": "2a35d614-c4a2-47d9-bbf9-3a3625e2ff04",
+              "editor": "d9ae28c6-1237-46a0-8e9a-f25dfee2705b",
+              "counts": {
+                "semantic": 0,
+                "setter": 1,
+                "input": 1,
+                "change": 1,
+                "submit": 0
+              },
+              "topLevel": true,
+              "navigation": "reload",
+              "originalText": true,
+              "appendedQ": false,
+              "selection": [
+                6,
+                10,
+                "forward"
+              ],
+              "oldCard": true,
+              "fileCount": 1
+            },
+            "after": {
+              "doc": "2a35d614-c4a2-47d9-bbf9-3a3625e2ff04",
+              "editor": "d9ae28c6-1237-46a0-8e9a-f25dfee2705b",
+              "counts": {
+                "semantic": 1,
+                "setter": 1,
+                "input": 1,
+                "change": 1,
+                "submit": 0
+              },
+              "topLevel": true,
+              "navigation": "reload",
+              "originalText": false,
+              "appendedQ": true,
+              "selection": [
+                6,
+                10,
+                "forward"
+              ],
+              "oldCard": true,
+              "fileCount": 1
+            }
+          },
+          "sha256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460"
+        },
+        "keyboard": {
+          "doc": "2a35d614-c4a2-47d9-bbf9-3a3625e2ff04",
+          "observed": false,
+          "down": false,
+          "typed": false,
+          "up": false
+        }
+      }
+    }
+  ],
+  "sourceSHA256": "61669b502526bd01b71b6c9aead85c224d9f3a50263ff121997769527368e2c5",
+  "receiverSHA256": "e174cfea4f4383c2c9f159a918a5e620f64fb15e8650b89a2e56f4a9a465abea",
+  "keyboard": "OBSERVED_TRUSTED_Q",
+  "routeChecks": [
+    {
+      "doc": "e20d4198-9fbb-473c-a4be-18b3d6bd55d8",
+      "editor": "a5867367-b2ca-430c-bbcf-3b149b50d822",
+      "action": "pinTarget",
+      "witness": "5dc26ca6-a61c-476a-b78e-b45c729ac140",
+      "error": "PAGE_ROUTE_UNSUPPORTED",
+      "before": {
+        "doc": "e20d4198-9fbb-473c-a4be-18b3d6bd55d8",
+        "editor": "a5867367-b2ca-430c-bbcf-3b149b50d822",
+        "counts": {
+          "semantic": 0,
+          "setter": 0,
+          "input": 0,
+          "change": 0,
+          "submit": 0
+        },
+        "topLevel": true,
+        "navigation": "navigate",
+        "originalText": true,
+        "appendedQ": false,
+        "selection": [
+          6,
+          10,
+          "forward"
+        ],
+        "oldCard": true,
+        "fileCount": 0
+      },
+      "after": {
+        "doc": "e20d4198-9fbb-473c-a4be-18b3d6bd55d8",
+        "editor": "a5867367-b2ca-430c-bbcf-3b149b50d822",
+        "counts": {
+          "semantic": 0,
+          "setter": 0,
+          "input": 0,
+          "change": 0,
+          "submit": 0
+        },
+        "topLevel": true,
+        "navigation": "navigate",
+        "originalText": true,
+        "appendedQ": false,
+        "selection": [
+          6,
+          10,
+          "forward"
+        ],
+        "oldCard": true,
+        "fileCount": 0
+      },
+      "delta": {
+        "setter": 0,
+        "input": 0,
+        "change": 0,
+        "submit": 0,
+        "keyDown": 0,
+        "keyUp": 0
+      },
+      "urlSHA256": "094741ba7df3b0d6930199df6cf1983f548eb15d94dee019b17968bcf0500da3",
+      "sourceSHA256": "61669b502526bd01b71b6c9aead85c224d9f3a50263ff121997769527368e2c5",
+      "utc": "2026-11-21T14:37:22.598Z"
+    },
+    {
+      "doc": "2a35d614-c4a2-47d9-bbf9-3a3625e2ff04",
+      "editor": "d9ae28c6-1237-46a0-8e9a-f25dfee2705b",
+      "action": "pinTarget",
+      "witness": "aff985c2-1d6f-4253-a8b9-b1534383b201",
+      "error": "PAGE_ROUTE_UNSUPPORTED",
+      "before": {
+        "doc": "2a35d614-c4a2-47d9-bbf9-3a3625e2ff04",
+        "editor": "d9ae28c6-1237-46a0-8e9a-f25dfee2705b",
+        "counts": {
+          "semantic": 0,
+          "setter": 0,
+          "input": 0,
+          "change": 0,
+          "submit": 0
+        },
+        "topLevel": true,
+        "navigation": "reload",
+        "originalText": true,
+        "appendedQ": false,
+        "selection": [
+          6,
+          10,
+          "forward"
+        ],
+        "oldCard": true,
+        "fileCount": 0
+      },
+      "after": {
+        "doc": "2a35d614-c4a2-47d9-bbf9-3a3625e2ff04",
+        "editor": "d9ae28c6-1237-46a0-8e9a-f25dfee2705b",
+        "counts": {
+          "semantic": 0,
+          "setter": 0,
+          "input": 0,
+          "change": 0,
+          "submit": 0
+        },
+        "topLevel": true,
+        "navigation": "reload",
+        "originalText": true,
+        "appendedQ": false,
+        "selection": [
+          6,
+          10,
+          "forward"
+        ],
+        "oldCard": true,
+        "fileCount": 0
+      },
+      "delta": {
+        "setter": 0,
+        "input": 0,
+        "change": 0,
+        "submit": 0,
+        "keyDown": 0,
+        "keyUp": 0
+      },
+      "urlSHA256": "094741ba7df3b0d6930199df6cf1983f548eb15d94dee019b17968bcf0500da3",
+      "sourceSHA256": "61669b502526bd01b71b6c9aead85c224d9f3a50263ff121997769527368e2c5",
+      "utc": "2026-11-21T14:37:56.401Z"
+    }
+  ],
+  "nativeIdentity": "NOT_VERIFIED_BY_PAGE",
+  "scope": "Same URL, independent top-level QA Documents. Product receiver excerpt; semantic q and PNG. Separate trusted q field.",
+  "pending": {
+    "doc": "e20d4198-9fbb-473c-a4be-18b3d6bd55d8",
+    "editor": "a5867367-b2ca-430c-bbcf-3b149b50d822",
+    "operation": "7adb437b-0fe4-4954-9eb0-ac8e3e3be9b9"
+  },
+  "firstOperation": "092384cd-7ae4-4de8-beb5-06800bd59c9c",
+  "firstWitnessBoundary": {
+    "originalDocument": "e20d4198-9fbb-473c-a4be-18b3d6bd55d8",
+    "replacementDocument": "2a35d614-c4a2-47d9-bbf9-3a3625e2ff04",
+    "originalEditor": "a5867367-b2ca-430c-bbcf-3b149b50d822",
+    "replacementEditor": "d9ae28c6-1237-46a0-8e9a-f25dfee2705b",
+    "pendingOriginalOperation": "7adb437b-0fe4-4954-9eb0-ac8e3e3be9b9",
+    "freshReplacementOperation": "f3344da3-c2d5-4bb3-95f0-652f9e10e9ca",
+    "oldRegistryPresentInA": true,
+    "oldRegistryPresentInB": false,
+    "newGrantInB": "delivered on B only",
+    "nativeCorrelation": "requires independent before/after receipt",
+    "observation": "A new grant first acquired after replacement addresses B. This QA page did not reproduce a product misdelivery or a physical click."
+  }
+}
