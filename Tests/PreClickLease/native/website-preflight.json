@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-22 Asia/Shanghai",
+  "browser": "Edge",
+  "version": "158.0.4370.33",
+  "status": "PARTIAL",
+  "officialAndNativeTargetMatched": true,
+  "freshTemporaryChatURL": true,
+  "pageTitleChatGPT": true,
+  "controllerNavigationReturned": "loaded",
+  "systemForegroundAfterNavigation": false,
+  "officialScopedVisualQueries": {
+    "evaluate": "Two tool calls exceeded the respective 30 s and 10 s deadlines. Neither returned DOM data.",
+    "locatorCounts": "NO_REPLY at the four-second observation deadline. The tool reached its 15 s execution deadline with no locator counts.",
+    "requestNavigationCount": 1
+  },
+  "positiveEditorEvidence": null,
+  "positiveAttachmentControlEvidence": null,
+  "positiveSignedInEvidence": null,
+  "loginWall": "UNVERIFIED",
+  "accessChallenge": "UNVERIFIED",
+  "proxyFailure": "UNVERIFIED",
+  "credentialsRead": false,
+  "privateConversationOrSidebarRead": false,
+  "keystrokes": 0,
+  "uploads": 0,
+  "sentMessages": 0,
+  "windowClosed": true,
+  "originalWindowSetRestored": true,
+  "macOSPreflight": {
+    "accessibilityTrusted": 1,
+    "screenCapture": true,
+    "postEvent": true,
+    "listenEvent": true,
+    "context": "unsigned QA executable launched by this Codex session",
+    "promptsRequested": 0
+  },
+  "signedCandidateOwnPermissions": "NOT_RUN",
+  "rawArtifactSHA256": {
+    "exclusive-focus.json": "e668cc7e6c8b598f0a8bfcb327774ff205fb6d1487f0d7c3c10dc1167a034476",
+    "official-navigation.json": "33d21da8d5fa90dbef8d4dd03c22984cb27a3395a9dcf4aa1a5418e5e57d8db0",
+    "after-native.json": "002771264b681ddd1ad0ead7fcb9280e69c7537a3aaa00afd7ca1d4f159e538b",
+    "official-locators.json": "99b707f26af6a2ce7b0224305f7c5531a9de2da901c35ae2d5ad0950c738c879",
+    "closed.json": "67df2887ea4921d6abe0aa6b7bb59c500ff20bda935583a0d362af49014e7c48",
+    "after-windows.json": "4f81fc90cf96fc6d1456cfa8200b455a7595f5e8a9a6b3476a52505acaf349a2",
+    "permissions.json": "c3c6a2735b562a90f62818ae07f6d54d24716be296b95f7f6a5d799e4f3ff38e"
+  }
+}

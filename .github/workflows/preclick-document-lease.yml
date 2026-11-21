@@ -1,0 +1,50 @@
+name: Pre-click document lease
+on:
+  push:
+    branches: [codex/riftlet-108-preclick-lease]
+    paths:
+      - 'Sources/**'
+      - 'Resources/**'
+      - 'Tests/Riftlet*Tests/**'
+      - 'Tests/PreClickLease/page/run.cjs'
+      - 'Tests/PreClickLease/page/fixture*'
+      - 'Package.swift'
+      - '.github/workflows/preclick-document-lease.yml'
+permissions:
+  contents: read
+jobs:
+  native:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-15, macos-15-intel]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Native application and full Swift suite
+        run: |
+          set -eo pipefail
+          mkdir -p test-results
+          uname -m | tee test-results/architecture.txt
+          defaults write com.apple.universalaccess reduceMotion -bool false
+          defaults write com.apple.universalaccess reduceTransparency -bool false
+          motion='^RiftletUITests\.ArrivalModesTests/'
+          swift build --product Riftlet
+          swift test --parallel --skip "$motion" 2>&1 | tee test-results/swift-test.log
+          swift test --skip-build --no-parallel --filter "$motion" 2>&1 | tee test-results/arrival-modes-serial.log
+          swift test list --skip-build > test-results/discovered-tests.txt
+          python3 -B scripts/verify-native-test-partitions.py test-results | tee test-results/native-test-partitions.json
+      - name: New lease behavior in the installed Chrome engine
+        run: |
+          set -eo pipefail
+          node Tests/PreClickLease/page/run.cjs chrome "$PWD/Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js" > test-results/preclick-chrome.json
+          node --test Tests/OfflineFaultHarness/*.test.cjs > test-results/fault-recovery.tap
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: lease-${{ matrix.runner }}-${{ github.sha }}
+          path: test-results/
+          retention-days: 14

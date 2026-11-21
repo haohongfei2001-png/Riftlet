@@ -36,11 +36,13 @@ struct EdgeExecutionWorldWitness: Sendable {
           entry=globalThis.navigation?.currentEntry,address=location.href;
         if(top!==self||!root||!entry||Object.prototype.hasOwnProperty.call(globalThis,key))return 'refused';
         const current=()=>document.documentElement===root&&location.href===address&&navigation.currentEntry?.id===entry.id;
-        let verified=false;
+        let verified=false,timer;
+        const retire=()=>{clearTimeout(timer);delete globalThis[key];root.removeAttribute('\(attribute)');};
         const capability=Object.freeze({confirm:()=>{if(current()&&root.getAttribute('\(attribute)')===secret){
-          root.removeAttribute('\(attribute)');verified=true;}return verified&&current();},current:()=>verified&&current()});
+          root.removeAttribute('\(attribute)');verified=true;}return verified&&current();},current:()=>verified&&current(),
+          retain:()=>{if(!verified||!current())return false;clearTimeout(timer);timer=setTimeout(retire,600000);return true;},retire});
         Object.defineProperty(globalThis,key,{value:capability,configurable:true});
-        setTimeout(()=>{delete globalThis[key];root.removeAttribute('\(attribute)');},60000);
+        timer=setTimeout(retire,60000);
         return 'prepared';})()
         """
     }
@@ -56,5 +58,11 @@ struct EdgeExecutionWorldWitness: Sendable {
     }
     var validate: String {
         "/* edge-world-validate */ (()=>globalThis['\(key)']?.current()===true?'verified':'refused')()"
+    }
+    var retain: String {
+        "/* edge-world-retain */ (()=>globalThis['\(key)']?.retain()===true?'retained':'refused')()"
+    }
+    var release: String {
+        "/* edge-world-release */ (()=>{globalThis['\(key)']?.retire();return 'released';})()"
     }
 }

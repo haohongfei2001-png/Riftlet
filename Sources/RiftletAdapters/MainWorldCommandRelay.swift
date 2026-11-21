@@ -61,7 +61,9 @@ struct MainWorldCommandRelay: Sendable {
 
     /// Read-only recovery of an already installed exact-version channel after
     /// native restart. Zero/ambiguous matches do not install or run a command.
-    var discovery: String {
+    var discovery: String { Self.discovery(marker: marker) }
+
+    fileprivate static func discovery(marker: String) -> String {
         """
         (()=>{const root=document.documentElement;if(root.attributes.length>1024)return 'ambiguous';
         const matches=[...root.attributes].filter(a=>a.name.startsWith('data-riftlet-channel-')&&a.value==='\(marker)')
@@ -72,7 +74,11 @@ struct MainWorldCommandRelay: Sendable {
     }
 
     func dispatch(_ envelope: MainWorldCommandEnvelope) -> String {
-        let request = "{nonce:'\(envelope.nonce)',command:\(envelope.commandJSON)}"
+        Self.dispatch(channel: channel, marker: marker, nonce: envelope.nonce, commandJSON: envelope.commandJSON)
+    }
+
+    fileprivate static func dispatch(channel: String, marker: String, nonce: String, commandJSON: String) -> String {
+        let request = "{nonce:'\(nonce)',command:\(commandJSON)}"
         return """
         (()=>{const root=document.documentElement;
         if(root.getAttribute('data-riftlet-channel-\(channel)')!=='\(marker)')throw Error('BRIDGE_UNAVAILABLE');
@@ -80,6 +86,35 @@ struct MainWorldCommandRelay: Sendable {
         root.dispatchEvent(new Event('riftlet-command-\(channel)'));
         root.removeAttribute('data-riftlet-command');return 'submitted';})()
         """
+    }
+}
+
+/// Capability for reading an operation left on the original build 56 document.
+/// This type can neither create a listener nor enter a file input.
+struct Build56ObservationChannel {
+    let marker: String
+    private let owner: ObservationIdentity
+
+    init?(context: String, legacySession: String?, owner: ObservationIdentity) {
+        guard let fingerprint = Build56ObservationCompatibility.marker(contextJSON: context, legacyObservationSession: legacySession)
+        else { return nil }
+        marker = fingerprint
+        self.owner = owner
+    }
+
+    var discovery: String { MainWorldCommandRelay.discovery(marker: marker) }
+
+    func read(channel: String, nonce: String, command: WebBridgeCommand) throws -> String {
+        guard let id = UUID(uuidString: channel), id.uuidString.lowercased() == channel,
+              let receipt = UUID(uuidString: nonce), receipt.uuidString.lowercased() == nonce,
+              command.action == .observe, let target = command.target,
+              let identity = command.identity, identity == owner, owner.target == target
+        else { throw WebAdapterError.invalidTarget }
+        let original = WebBridgeCommand(action: .observe, target: target, identity: identity,
+            invocationID: command.invocationID, requireLiveOriginal: command.requireLiveOriginal,
+            preferStartReceipt: command.preferStartReceipt)
+        let json = String(decoding: try JSONEncoder().encode(original), as: UTF8.self)
+        return MainWorldCommandRelay.dispatch(channel: channel, marker: marker, nonce: nonce, commandJSON: json)
     }
 }
 
@@ -92,6 +127,10 @@ final class MainWorldRelayStore: @unchecked Sendable {
     func bind(_ relay: MainWorldCommandRelay, to target: TargetLease) {
         lock.lock(); defer { lock.unlock() }
         targetRelays.store(relay, for: target.stableKey)
+    }
+    func unbind(_ target: TargetLease) {
+        lock.lock(); defer { lock.unlock() }
+        targetRelays.remove(for: target.stableKey)
     }
     func bound(to target: TargetLease) -> MainWorldCommandRelay? {
         lock.lock(); defer { lock.unlock() }

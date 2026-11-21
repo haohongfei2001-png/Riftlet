@@ -1,0 +1,36 @@
+{
+  "reviewedSource": "3a4bf462cb1e02ae305328b0f1f64792ec14adb8",
+  "scope": "Offline build 56 migration and pre-click pool. The historical signed app supplied the original page program. The fixture DOM has no service connection.",
+  "cases": [
+    {
+      "name": "result.log",
+      "sha256": "2b71814dc0fa2fa92cb18aab3b130e3aad3d36e9ae3fcc96288c2cac44655334",
+      "receipt": "56\nedge archived_relay_equals_compat=true different_from_current=true\nchrome_legacy archived_relay_equals_compat=true different_from_current=true\nchrome archived_relay_equals_compat=true different_from_current=true\nunicode_and_slashes archived_relay_equals_compat=true different_from_current=true\nother_window archived_relay_equals_compat=true different_from_current=true\nother_tab archived_relay_equals_compat=true different_from_current=true\nother_process archived_relay_equals_compat=true different_from_current=true\nresource=good vectors=7 success=true\nresource=corrupt vectors=7 success=true\nresource=missing vectors=7 success=true"
+    },
+    {
+      "name": "case-results.log",
+      "sha256": "b30ff174c793d07088b3cc78df3f0679101806ee0ca9d148509f50c709ebda31",
+      "receipt": "checked-in test methods: archived marker, current read separation, all actions, nonce/channel validity, original target and operation enforcement: 3/3 passed with Swift assertions and real JavaScriptCore"
+    },
+    {
+      "name": "old-operation-pending.log",
+      "sha256": "fa571512cd74103f048e8efacc2a3b3ad668a7b18823aa9191c18f1e11b79ad0",
+      "receipt": "{\"scope\":\"archived real program in controlled node DOM; native Swift old installer and new read bridge\",\"initial\":\"inputTriggered\",\"read\":[{\"name\":\"original\",\"state\":\"inputTriggered\"},{\"name\":\"foreign-invocation\",\"state\":\"invalidated\"},{\"name\":\"again\",\"state\":\"inputTriggered\"}],\"input\":1,\"change\":1,\"send\":0}"
+    },
+    {
+      "name": "old-operation-accepted.log",
+      "sha256": "c3bbacb39d414eccfe62fb6fb12a05d9802e81830868b04d1b09716785e779f0",
+      "receipt": "{\"scope\":\"archived real program in controlled node DOM; native Swift old installer and new read bridge\",\"initial\":\"uploadStarted\",\"read\":[{\"name\":\"original\",\"state\":\"uploadStarted\"},{\"name\":\"foreign-invocation\",\"state\":\"invalidated\"},{\"name\":\"again\",\"state\":\"uploadStarted\"}],\"input\":1,\"change\":1,\"send\":0}"
+    },
+    {
+      "name": "pool-before.log",
+      "sha256": "3833c2d75740de0c6598eb00b6a1b8af0855f68756e70d99662dfbd4c09bfa67",
+      "receipt": "oldLogicalDraft=false firstRetired=0 secondRetired=1 retained=1 firstPress=true secondPress=false"
+    },
+    {
+      "name": "pool-after.log",
+      "sha256": "ef694816675e0424ec06393db99e20b3183330ea31bdd2610910aa57c1def503",
+      "receipt": "oldLogicalDraft=false firstRetired=0 secondRetired=0 retained=2 firstPress=true secondPress=true"
+    }
+  ]
+}

@@ -47,6 +47,16 @@ public final class AcceptedSelection: @unchecked Sendable {
 
     public func cancel() { lock.lock(); defer { lock.unlock() }; cancelled = true }
 
+    /// Return cleanup ownership only before the original SQLite intent writer
+    /// acquired this selection. A later UI completion cannot remove an input
+    /// receiver already handed to its sole invocation.
+    public func cancelBeforeDispatch() -> Bool {
+        lock.lock(); defer { lock.unlock() }
+        guard !dispatched else { return false }
+        cancelled = true
+        return true
+    }
+
     public func isValid(at uptime: TimeInterval = ProcessInfo.processInfo.systemUptime) -> Bool {
         lock.lock(); defer { lock.unlock() }
         return valid(at: uptime)

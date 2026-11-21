@@ -5,7 +5,39 @@ import RiftletCore
 /// still match the original process, window, tab and page before input.
 enum ChromeCommandRouting {
     static func requiresSelectionCheck(_ action: WebBridgeAction) -> Bool {
-        [.captureTarget, .validate, .commit].contains(action)
+        [.captureTarget, .renewPreparedTarget, .validate, .commit].contains(action)
+    }
+}
+
+/// Optional narrowing of the ordinary transport for an isolated QA account on a
+/// shared desktop. In this configuration even preparation may address only the
+/// explicitly attested native window and tab of the original browser process.
+public struct QAOriginalBrowserTab: Decodable, Sendable {
+    public let applicationID: String
+    public let session: String
+    public let windowID: String
+    public let tabID: String
+
+    static let temporaryChat = "https://chatgpt.com/?temporary-chat=true"
+
+    func allows(_ target: TargetLease) -> Bool {
+        applicationID == target.applicationID && session == target.sessionID &&
+            windowID == target.windowID && tabID == target.tabID
+    }
+
+    public static func decode(_ value: String?) throws -> Self {
+        guard let value, value.utf8.count <= 1024 else { throw WebAdapterError.invalidTarget }
+        let result = try JSONDecoder().decode(Self.self, from: Data(value.utf8))
+        let parts = result.session.split(separator: ":", omittingEmptySubsequences: false)
+        let browser = AttachmentBrowser(rawValue: result.applicationID)
+        guard let browser, parts.count == 4,
+              parts[0] == (browser == .chrome ? "chrome-kernel-v1" : "edge-kernel-v1"),
+              let pid = Int32(parts[1]), pid > 0, let seconds = UInt64(parts[2]), seconds > 0,
+              let micros = UInt32(parts[3]), micros < 1_000_000,
+              let window = Int32(result.windowID), window > 0, String(window) == result.windowID,
+              let tab = Int32(result.tabID), tab > 0, String(tab) == result.tabID
+        else { throw WebAdapterError.invalidTarget }
+        return result
     }
 }
 
@@ -78,6 +110,8 @@ struct ChromeSessionCache<Value> {
         sweep(now)
         entries[key] = (value, now)
     }
+
+    mutating func remove(for key: String) { entries.removeValue(forKey: key) }
 
     mutating func value(for key: String, now: TimeInterval = ProcessInfo.processInfo.systemUptime) -> Value? {
         sweep(now)
