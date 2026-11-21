@@ -21,15 +21,26 @@ function environment() {
   const e = {tab,bundle,s,prior,next,keys,events};
   e.closes = 0;
   tab.close = async () => { e.closes++; };
-  const blankRef = {id:'unclaimed',providerTabId:'25',url:'about:blank'};
+  const blankRef = {id:'public-ref:25',providerTabId:'instance/opaque-25',url:'about:blank'};
+  e.reference = blankRef;
   const management = {
     windows:{getAll:async()=>[{id:19}], create:async()=>{
       e.creates=(e.creates||0)+1;return {id:20,incognito:false,type:'normal'};
     }},
-    tabs:{query:async({windowId})=>[{id:25,active:true,incognito:false,windowId,url:s.route}]},
+    tabs:{
+      query:async({windowId})=>[{id:25,active:true,incognito:false,windowId,groupId:e.groupID,url:s.route}],
+      group:async ({tabIds,createProperties})=>{
+        assert.deepEqual(tabIds,[25]);assert.equal(createProperties.windowId,20);
+        e.groupID=7;return e.groupID;
+      },
+    },
+    tabGroups:{
+      query:async({windowId})=>[{id:e.groupID,windowId,title:blankRef.tabGroup}],
+      update:async(id,{title})=>{assert.equal(id,e.groupID);blankRef.tabGroup=title;},
+    },
   };
   const browser = {browserId:'extension-edge',tabs:{list:async()=>e.claimed?
-    [{id:tab.id,providerTabId:'25'}]:e.existing||[]},
+    [{id:tab.id,providerTabId:blankRef.providerTabId,url:s.route}]:e.existing||[]},
     user:{openTabs:async()=>e.creates?[blankRef]:e.existing||[],claimTab:async ref=>{
       assert.equal(ref,blankRef);e.claimed=true;return tab;
     }},
@@ -160,7 +171,7 @@ test('Edge shape uses the individually bound original editor even after blur',as
   const absent=environment();await assert.rejects((await absent.start()).edgePreviewShape(filename),/no original editor locator/);
 });
 
-const {browserHealth} = require('./browser-preflight.cjs');
+const {browserHealth,openVerifiedWindow} = require('./browser-preflight.cjs');
 
 test('startup uses the selected family and reports RPC failure before any window or key',async()=>{
   const cases = [
@@ -199,7 +210,7 @@ test('preflight returns no personal metadata, and canary opens only its one wind
 test('refuses reused window or tab, mismatched foreground and ambiguous provider claim before any content read',async()=>{
   const cases = [
     e=>{e.management.windows.getAll=async()=>[{id:20}]},
-    e=>{const open=e.browser.user.openTabs;e.browser.user.openTabs=async()=>e.creates?open():[{id:'other',providerTabId:'25'}]},
+    e=>{const open=e.browser.user.openTabs;e.browser.user.openTabs=async()=>e.creates?open():[{id:'other',providerTabId:e.reference.providerTabId}]},
     e=>{e.s.frontSessionID='chrome-kernel-v1:7:8:9'},
     e=>{e.s.frontWindowID='19'},
     e=>{const open=e.browser.user.openTabs;e.browser.user.openTabs=async()=>[...await open(),...await open()]},
@@ -251,7 +262,7 @@ test('a New chat action without a fresh draft witness cannot start the keyboard 
 });
 
 
-test('uses a persistent family-selected handle, no personal tab enumeration during health or keyboard guards',async()=>{
+test('uses a persistent family-selected handle, no user-tab enumeration during health or keyboard guards',async()=>{
   const e=environment();
   e.options.browsers.get=async()=>assert.fail('must reuse the documented Browser');
   let userLists=0,tabLists=0;
@@ -263,7 +274,8 @@ test('uses a persistent family-selected handle, no personal tab enumeration duri
   e.management.windows.create=async()=>{e.creates=1;return {id:20}};
   const run=await e.start();
   await run.seed();await run.close();
-  assert.deepEqual([userLists,tabLists],[2,1]);
+  assert.equal(userLists,2);
+  assert.ok(tabLists >= 2 + e.keys.length);
 });
 
 test('refuses contradictory create reply and pending navigation before accessing the page',async()=>{
@@ -341,4 +353,80 @@ test('a lost AX reply spends the seed with no alternate keyboard dispatch', asyn
   await assert.rejects(run.seed(), /consumed/);
   assert.equal(attempts, 1);
   assert.equal(e.keys.length, 0);
+});
+
+// These cases exercise Browser API mapping, not the product file-input fence.
+test('the five IDs come from their own APIs, even with unrelated opaque spellings', async () => {
+  const e = environment();
+  e.reference.id = 'browser-ref:unrelated';
+  e.reference.providerTabId = '["different-instance","25"]';
+  const lease = await openVerifiedWindow(e.options);
+  assert.deepEqual(lease.identity, {
+    nativeWindowID:'20',nativeTabID:'25',browserReferenceID:e.reference.id,
+    providerTabID:e.reference.providerTabId,claimedTabHandleID:'tab',
+  });
+  assert.ok(Object.isFrozen(lease.identity));
+  // An unrelated tab's public reference is allowed to equal the claimed
+  // handle spelling. They have different identifier domains.
+  const collision = environment();
+  collision.browser.tabs.list = async () => collision.claimed
+    ? [{id:'tab',providerTabId:collision.reference.providerTabId,url:collision.s.route}] : [];
+  collision.existing = [{id:'tab',providerTabId:'other-instance'}];
+  await openVerifiedWindow(collision.options);
+});
+
+test('only the exact QA group bridges the management tab to the fresh browser reference', async () => {
+  for (const change of [
+    e => {e.browser.user.openTabs = async () => !e.creates ? [] : [{id:'25',providerTabId:'25',url:'about:blank'}];},
+    e => {e.browser.user.openTabs = async () => !e.creates ? [] : [e.reference,{...e.reference,id:'also-new'}];},
+    e => {e.reference.providerTabId = '';},
+    e => {e.browser.user.openTabs = async () => !e.creates ? [] : [e.reference,
+      {id:e.reference.id,providerTabId:'unrelated',tabGroup:'different'}];},
+    e => {e.browser.user.openTabs = async () => !e.creates ? [] : [e.reference,
+      {id:'unrelated',providerTabId:e.reference.providerTabId,tabGroup:'different'}];},
+  ]) {
+    const e = environment(); change(e);
+    await assert.rejects(openVerifiedWindow(e.options),/UNIQUE_BLANK_TAB_CLAIM_UNAVAILABLE/);
+    assert.equal(e.claimed,undefined);
+    assert.deepEqual(e.keys,[]);
+  }
+});
+
+test('a claim returning a rebound provider or an existing controlled handle is rejected', async () => {
+  for (const change of [
+    e => {e.browser.tabs.list = async () => e.claimed ? [{id:e.tab.id,providerTabId:'replacement',url:e.s.route}] : [];},
+    e => {e.browser.tabs.list = async () => [{id:e.tab.id,providerTabId:e.reference.providerTabId,url:e.s.route}];},
+  ]) {
+    const e = environment(); change(e);
+    await assert.rejects(openVerifiedWindow(e.options),/CONTROLLED_TAB_IDENTITY_LOST|NEW_CONTROLLED_TAB_UNPROVEN/);
+    assert.equal(e.claimed,true);
+    assert.equal(e.closes,0);
+    assert.deepEqual(e.keys,[]);
+  }
+});
+
+test('before actual keyboard dispatch an observed identity loss retires the lease', async () => {
+  for (const change of [
+    e => {e.reference.providerTabId = 'replacement';},
+    e => {e.groupID = 9;},
+    e => {e.reference.tabGroup = 'unrelated';},
+    e => {e.tab.id = 'replacement';},
+    e => {e.s.frontSessionID = 'edge-kernel-v1:11:22:44';},
+    e => {e.s.selectedTabID = '24';},
+    e => {e.browser.tabs.list = async () => [
+      {id:'tab',providerTabId:'instance/opaque-25',url:e.s.route},
+      {id:'different-claim',providerTabId:'instance/opaque-25',url:e.s.route}];},
+  ]) {
+    const e = environment(), lease = await openVerifiedWindow(e.options);
+    const groupTitle = e.reference.tabGroup, list = e.browser.tabs.list;
+    change(e);
+    await assert.rejects(lease.pressKey('x'));
+    e.reference.providerTabId = lease.identity.providerTabID;
+    e.reference.tabGroup = groupTitle;
+    e.groupID = 7; e.tab.id = lease.identity.claimedTabHandleID;
+    e.s.frontSessionID = e.s.sessionID; e.s.selectedTabID = lease.identity.nativeTabID;
+    e.browser.tabs.list = list;
+    await assert.rejects(lease.pressKey('x'),/CONTROLLED_TAB_RETIRED/);
+    assert.deepEqual(e.keys,[]);
+  }
 });
