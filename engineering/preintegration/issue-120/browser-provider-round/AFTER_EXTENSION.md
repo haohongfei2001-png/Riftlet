@@ -29,3 +29,34 @@ Brave 的可选全属性回包缺失时，现只向原进程和绝对窗口/标�
 新 ZIP 使用独立应用标识、ad-hoc 签名，仅本地交付，未公证。解包后核对可执行文件和网页资源，执行包内自检。正式双架构候选、签名公证、升级和同包登录验收均须先满足 W0 并在实际 main 继承最终 1.0.7。两 PR 保持 Draft，公开版本仍是 v1.0.5。[本包收据](development-b20cefbf.json)
 
 同一产品提交 `b20cefbf` 的 Intel Xcode 作业已通过原生测试、专用标签守卫、Swift/SQLite 恢复回归、开发 App 构建和包内自检。本机 ARM64 实物及上述受控回放使用同一源码。[完成的 Intel CI](https://github.com/haohongfei2001-png/Riftlet/actions/runs/44749097399)
+
+## 2026-11-21 addendum — Browser API compatibility and local QA correction
+
+The current ChatGPT Browser API exposes the directed tab keyboard operation as
+tab.ax.pressKey, while the live-draft harness previously required only
+tab.cua.keypress. The harness now prefers the documented AX method and retains
+the CUA method as a compatibility fallback. A failed AX call is never retried
+through CUA or another input path. The focused live-draft, locator and observation
+tests pass 33/33, including AX-only delivery and a lost AX reply.
+
+The compiled provider runner also exposed an incorrect test assumption:
+Chromium's cloneNode() of a file input carries the current FileList into the
+clone. The test now snapshots the replacement control's initial cloned FileList
+and verifies that the old operation does not change that baseline; it no longer
+incorrectly assumes the clone starts empty. The source provider runtime test
+passes 1/1, and Tests/WebPageProgram/Issue120/check-compiled.sh passes: compiled
+Swift provider/SQLite recovery and the compiled Gemini-shaped local Chrome
+fixture both complete. This is a synthetic loopback fixture, not a logged-in
+Gemini or Claude acceptance.
+
+System Settings inspection on the authorized Mac shows ChatGPT.app
+(com.openai.codex) already has Full Disk Access enabled. The earlier
+EPERM reading Chrome's Local State was produced by a Desktop Commander
+remote-shell process, not by a process proven to be running under ChatGPT.app's
+responsible-process identity. Therefore that denial does not establish that
+ChatGPT.app's own Browser/Node REPL process is denied; an in-app-context check
+remains outstanding. No additional app was granted Full Disk Access.
+
+No QA window was created, no browser page was typed into, and no message was
+sent during this addendum. G1/G2/G4 remain NOT_RUN, the same-package core matrix
+remains 0/16, #119/#122 remain Draft, and public release remains v1.0.5.

@@ -93,6 +93,9 @@ async function cases(catalogEntry) {
   await expectError(()=>secondHandle.commit({...t,click:extra},makeFile(t)),'input_fenced');
   secondHandle.close();
   const newPicker=picker.cloneNode(),newTrigger=trigger.cloneNode(true);
+  // Chromium clones the file input's current FileList. Freeze that baseline:
+  // the old operation must not change the replacement control after the clone.
+  const replacementFiles=Array.from(newPicker.files);
   picker.replaceWith(newPicker);trigger.replaceWith(newTrigger);
   expect(!first.current(),'original writer retired after controls rebuilt');
   const card=document.createElement('article'),image=new Image();
@@ -105,7 +108,9 @@ async function cases(catalogEntry) {
   old.remove();
   card.replaceChildren(error);
   expect(await first.observe(t)==='original_card_failed','same original failed after controls rebuilt');
-  expect(newPicker.files.length===0,'replacement input untouched');
+  expect(newPicker.files.length===replacementFiles.length &&
+    replacementFiles.every((file,index)=>newPicker.files[index]===file),
+    'replacement input untouched after clone baseline');
   lane.prepend(old);
   newPicker.replaceWith(picker);newTrigger.replaceWith(trigger);
   card.remove();lane.append(card);

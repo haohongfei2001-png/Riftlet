@@ -313,3 +313,32 @@ test('an unresolved post-click page read times out without another read or unsaf
   await assert.rejects(e.start(),err=>/no observable fresh draft/.test(err.message) && err.cleanup==='retainedUnverified');
   assert.equal(reads,1);assert.equal(e.closes,0);assert.deepEqual(e.events,['new']);assert.deepEqual(e.keys,[]);
 });
+
+
+test('AX-only tab delivers the seed and selection to the already focused editor', async () => {
+  const e = environment();
+  delete e.tab.cua;
+  const sent = [];
+  e.tab.ax = {pressKey: async (index, key) => {
+    assert.equal(index, null);
+    assert.equal(e.s.focusedOriginalEditor, true);
+    sent.push(key);
+    if (key === 'shift+Left') e.s.selection = e.s.text.slice(-1);
+    else { assert.match(key, /^[a-z0-9]$/); e.s.text += key; }
+  }};
+  const run = await e.start();
+  const result = await run.seed();
+  assert.deepEqual(sent, [...result.text, 'shift+Left']);
+  assert.equal(result.selection, result.text.slice(-1));
+});
+
+test('a lost AX reply spends the seed with no alternate keyboard dispatch', async () => {
+  const e = environment();
+  let attempts = 0;
+  e.tab.ax = {pressKey: async () => { attempts++; throw Error('lost AX reply'); }};
+  const run = await e.start();
+  await assert.rejects(run.seed(), /lost AX reply/);
+  await assert.rejects(run.seed(), /consumed/);
+  assert.equal(attempts, 1);
+  assert.equal(e.keys.length, 0);
+});

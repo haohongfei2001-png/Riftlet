@@ -99,9 +99,15 @@ async function openVerifiedWindow(options) {
     check(refsAfterClaim.length === 1 && refsAfterClaim[0].providerTabId === providerID, 'CONTROLLED_TAB_IDENTITY_LOST');
     await guard(true);
     claimed = true;
-    check(typeof tab.cua?.keypress === 'function' && typeof tab.goto === 'function' &&
-      typeof tab.close === 'function', 'DIRECTED_TAB_API_UNAVAILABLE');
-    return {tab,windowID:String(created.id),guard};
+    let pressKey;
+    if (typeof tab.ax?.pressKey === 'function') {
+      pressKey = key => tab.ax.pressKey(null, key);
+    } else if (typeof tab.cua?.keypress === 'function') {
+      pressKey = key => tab.cua.keypress({keys: key === 'shift+Left' ? ['SHIFT', 'LEFT'] : [key]});
+    }
+    check(pressKey && typeof tab.goto === 'function' && typeof tab.close === 'function',
+      'DIRECTED_TAB_API_UNAVAILABLE');
+    return {tab,windowID:String(created.id),guard,pressKey};
   } catch (cause) {
     const error = publicFailure(cause,creationAttempted ? 'QA_WINDOW_OR_CLAIM_REPLY_UNKNOWN' : 'BROWSER_HEALTH_UNAVAILABLE',creationAttempted);
     error.cleanup = creationAttempted ? 'retainedUnverified' : 'none';

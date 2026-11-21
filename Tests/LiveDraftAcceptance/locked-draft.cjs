@@ -31,7 +31,7 @@ function fresh(route) {
 async function createLockedDraft(options) {
   const {bundle, read, locateNewChat, locateEditor, locateOriginalEditor} = options;
   requireFact([read,locateNewChat,locateEditor].every(f => typeof f === 'function'), 'missing draft observer or locators');
-  const {tab,windowID,guard} = await openVerifiedWindow(options);
+  const {tab,windowID,guard,pressKey} = await openVerifiedWindow(options);
   const tabID = tab.id;
   let native, target, seedProof, invalid = false, keyboardUsed = false;
   const pending = new WeakSet(), qaCards = new Map();
@@ -154,13 +154,13 @@ async function createLockedDraft(options) {
         const before = await checked();
         requireFact(before.focusedOriginalEditor === true && before.text === prefix &&
           before.cards.length === 0, 'keyboard origin or text changed');
-        await tab.cua.keypress({keys:[key]});
+        await pressKey(key);
         prefix += key;
         allowedText = prefix;
       }
       const complete = await checked();
       requireFact(complete.text === text && complete.focusedOriginalEditor === true, 'keyboard text missing');
-      await tab.cua.keypress({keys:['SHIFT','LEFT']});
+      await pressKey('shift+Left');
       const selected = await checked();
       requireFact(selected.text === text && selected.selection === text.slice(-1) &&
         selected.focusedOriginalEditor === true, 'real selection missing');
