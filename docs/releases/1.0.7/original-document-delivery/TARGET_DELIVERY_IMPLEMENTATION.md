@@ -1,0 +1,19 @@
+# Build 55 delivery
+
+The one-use receiver is private to the ChatGPT page resource. At click-witness installation it captures the original Document, root, editor, form and complete owner chain, including shadow roots. When an application exposes its file control, a separate receiver captures that particular input object. Calling a bound method consumes that invocation before the method runs. The receiver uses the captured object as the method receiver. It does not look up a later active control.
+
+Removal or reinsertion of an original ancestor, pagehide, navigation, a hidden document, loss of window focus, or movement of focus to another editing context retires write authority. The receiver drains pending DOM mutations synchronously before every effect. A native file setter and the two DOM event dispatches each make a separate guarded call. If the page changes an owner during input, an already-entered setter stays consumed and the operation can report UNKNOWN. No subsequent change event is dispatched to a substituted destination.
+
+The original editor need not have keyboard focus when clicked. A ChatGPT attachment entry may move focus into its own menu. An unlabelled body portal qualifies only in the synchronous dispatch of that click's verified opener, with one new visible menu and an identifiable native file action. The cross-world marker ends in a finally block. Ambiguous focus, including a retargeted closed-shadow editor, permanently retires that click. Observation uses a separate read-only receiver. It cannot mint a new invocation.
+
+TransferCoordinator, QueueStore, PNG storage, the operation/invocation schema and the tray use their existing paths. Build 55 introduces no keyboard injector, browser extension, debug port or clipboard operation. Raw keys on the ordinary-window QA page are measured separately from a semantic edit through a bound textarea method. The production operation delivers a file.
+
+## Non-author source review
+
+Independent review compared the native call chain and actual final resource SHA-256 `61669b502526bd01b71b6c9aead85c224d9f3a50263ff121997769527368e2c5`. Two pre-freeze findings concerned closed-shadow focus retargeting and a dynamically inserted menu without aria-controls. Both were corrected and exercised using pinned clicks in Chrome and Edge. The reviewer cleared this revision for internal signing. The external click to first browser witness and live-service admission remain open. [Full product comparisons](../../../../Tests/OriginalDocumentDelivery/product/source-comparison.json)
+
+## Earliest enforceable identity
+
+An Apple Event can first establish an editor witness when it executes in the browser. The checked-in native target code has no browser-issued editor token sampled atomically with the tray mouse event. A page-load timestamp cannot exclude an editor replacement inside an unchanged document. An unobserved pre-witness change and a click originally intended for the new editor can therefore produce the same replies. This candidate cannot certify the entire interval.
+
+One extension-free design could arm that document and editor before the press, then accept only if the Mac had already received the exact lease acknowledgement before the mouse event timestamp and the identical receiver remained continuously live. A cold click before that acknowledgement must retain the screenshot and decline delivery. Adopting that precondition changes the required cold-first-click experience. A browser-provided document-start participant could observe earlier and maintain editor generations; an extension would add installation and site grants. Neither alternative is enabled or credited here.
