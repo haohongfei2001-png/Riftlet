@@ -3,11 +3,18 @@
 #   product checkout, matching Swift --show-bin-path, new evidence directory
 set -euo pipefail
 [[ $# -eq 3 ]] || { echo "expected product checkout, Swift bin directory, new evidence directory" >&2; exit 2; }
-src=$1
-bin=$2
-evidence=$3
+list_only=false
+if [[ $1 == --check-window-list ]]; then
+    list_only=true
+    src=$2
+    bin=$3
+else
+    src=$1
+    bin=$2
+    evidence=$3
+    mkdir -m 700 "$evidence"
+fi
 here="$(cd "$(dirname "$0")" && pwd)"
-mkdir -m 700 "$evidence"
 scratch="$(mktemp -d)"
 trap 'rm -rf -- "$scratch"' EXIT
 ln -s "$bin/Riftlet_RiftletAdapters.bundle" "$scratch/Riftlet_RiftletAdapters.bundle"
@@ -19,6 +26,10 @@ else
     objects=("$bin/RiftletAdapters.build/"*.o "$bin/RiftletCore.build/"*.o)
 fi
 swiftc -module-cache-path "${RIFTLET_QA_SWIFT_MODULE_CACHE:-$scratch/module-cache}" -parse-as-library "${includes[@]}" "$here/check.swift" "${objects[@]}" -o "$scratch/check"
+if [[ $list_only == true ]]; then
+    "$scratch/check" --check-window-list
+    exit
+fi
 for family in Chrome Edge; do
     if [[ "$family" == Chrome ]]; then app='/Applications/Google Chrome.app'; else app='/Applications/Microsoft Edge.app'; fi
     "$scratch/check" "$app" "$scratch/$family" > "$evidence/$family.json"

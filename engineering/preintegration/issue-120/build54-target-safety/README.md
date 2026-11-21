@@ -23,7 +23,7 @@
 | 封装来源 | #119 build 53 DMG 的 SHA-256 复算为 `9458479641bde6147de37fda8b873507b2a312a153a76c08e166e50903583dee`。build 54 是单独的 arm64/x86_64 Developer ID 候选，其 DMG SHA-256 为 `22e5557bc2a80864263e4e8d9e08a4aef29f81afc088b18a2a6ccf26c2857c5c`。App 与 DMG 的公证票据有效，Gatekeeper 接受。 |
 | 安装修复候选 | 从正式 DMG 只读挂载并复制到独立 QA 目录，验证全部架构签名、票据，并执行安装 App 的截图候选和 Web 启动自检。页面资源 SHA-256 为 `9b9a1ecd12b8433c7a9243ebedb72fefcc7dc8d69fd2602e4caf895c89b7ab36`。[包回执](package.json) |
 | 同包页面程序 | Chrome 157.0.8103.79、Edge 157.0.4341.60 均实际执行安装 App 中的上述资源。覆盖离开标签、标签 ABA、同 URL 替换/reload、Navigation API A→B→A、真实 pagehide/BFCache、编辑器替换、关标签、关整窗与重启。见证已失效的提交均为 0/0/0/0。原稿未变时为 1/1/1/0，文字、选区及旧附件节点保留。只读观察和重复提交没有增加输入。[页面 26 项](installed-54-page.json) · [关窗与重启 4 项](installed-54-host-lifetime.json) |
-| 原生与 SQLite | 用候选对应源码的实际 Core/Adapters、独立数据库及原生 Apple Events 运行旧操作。两款浏览器最终一轮均仅收到一次定向关窗请求，随后原窗口从列表消失，原操作提交/观察被拒。先期未取到窗口或无法确认的轮次分别保留。进程重启后，提交、只读观察、再提交均未进入页面派发。原 operation、invocation、UNKNOWN 与原图保留。记录中的 DOM 计数为 null；上行浏览器实测有独立四项计数。[原生及持久化收据](native-result.json) |
+| 原生与 SQLite | 用候选对应源码的实际 Core/Adapters、独立数据库及原生 Apple Events 运行旧操作。最终一轮分别发出一次定向关窗请求，两款浏览器应答后均以只读查询确认原窗口消失，原操作提交/观察被拒。先期未取到窗口或无法确认的轮次分别保留。进程重启后，提交、只读观察、再提交均未进入页面派发。原 operation、invocation、UNKNOWN 与原图保留。记录中的 DOM 计数为 null；上行浏览器实测有独立四项计数。[原生及持久化收据](native-result.json) |
 | 身份复用边界 | 使用同一组传入的窗口/标签身份测试替换文档，构造同 PID 不同出生时间的反例。真实重启前后 PID 不同。系统自然复用全部数字 ID、前台已缓存点击路由关窗、鼠标按下至首个页面见证建立之前的完整 ABA 均无端到端实测。L2 页面套件通过，完整原生到网站准入仍为 PARTIAL。 |
 
 ## 正式浏览器控制与网站验收

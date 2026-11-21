@@ -354,6 +354,92 @@
       "localRawSHA256": "3d1a85dab5671e6c412e3a46e4172bfefb76745224e276a6d88428762e9889a9",
       "databaseSHA256": "a7f7a1ec4f196300041e33df8b19ded1f068504af6a0cd393e390cf1e788055d",
       "independentSQLiteCheck": "one original operation, same invocation, attempt=1, UNKNOWN, zero START, matching retained PNG"
+    },
+    {
+      "bundle": "com.google.Chrome",
+      "ownedNativeWindowClose": "original native window confirmed absent",
+      "nativeWindowIDSource": "observed in owned process",
+      "closeEvidence": {
+        "childRunningBeforeClose": true,
+        "closeRequests": 1,
+        "kernelBirthMatchedBeforeClose": true,
+        "lastRead": "originalAbsent",
+        "originalWindowReads": 2,
+        "productClassificationMatchedBeforeClose": true,
+        "readOnlySamples": 1,
+        "reply": "acknowledged",
+        "samplesStillPresent": 0,
+        "stage": "verified"
+      },
+      "afterClosedWindowNativePhases": [
+        "originalRouteUnavailable",
+        "selection"
+      ],
+      "observedNativePhases": [
+        "originalRouteUnavailable",
+        "originalProcessUnavailable",
+        "originalRouteUnavailable"
+      ],
+      "oldProcessNoLongerCurrent": true,
+      "newProcessCurrent": true,
+      "constructedSamePIDNewBirthRejected": true,
+      "actualPIDReuse": false,
+      "operationID": "D5787D0E-C90B-40FB-8CEA-5C8A8474A1A2",
+      "invocationID": "33266224-593A-4B7D-B91E-BD45F2229C47",
+      "assetSHA256": "0fd6d0c75748a5abf4c735ec1b4ba7f2d06117cbb863a7cbb00c08d1c4ab294c",
+      "storePhase": "unknown",
+      "pageDispatch": "did not enter native page dispatch",
+      "DOMCounters": null,
+      "cachedRouteAfterWindowClose": "NOT_RUN (requires a foreground click-bound original)",
+      "cachedRouteAfterRestart": "NOT_RUN (requires a foreground click-bound original)",
+      "trial": "native-store-54-strict",
+      "productSource": "95d8cf80a46def6d15076e8e22872fec63f4ce3f",
+      "localRawSHA256": "a230507be108817eda249697006b1411c835b40e1067996c7c81e81daa1ec10f",
+      "databaseSHA256": "42f7113e76280d9e9c5f7c4f6421d12db7d033d7970af8b98f001786beb5bec5",
+      "independentSQLiteCheck": "one original operation, same invocation, attempt=1, UNKNOWN, zero START, matching retained PNG"
+    },
+    {
+      "bundle": "com.microsoft.edgemac",
+      "ownedNativeWindowClose": "original native window confirmed absent",
+      "nativeWindowIDSource": "observed in owned process",
+      "closeEvidence": {
+        "childRunningBeforeClose": true,
+        "closeRequests": 1,
+        "kernelBirthMatchedBeforeClose": true,
+        "lastRead": "originalAbsent",
+        "originalWindowReads": 3,
+        "productClassificationMatchedBeforeClose": true,
+        "readOnlySamples": 1,
+        "reply": "acknowledged",
+        "samplesStillPresent": 0,
+        "stage": "verified"
+      },
+      "afterClosedWindowNativePhases": [
+        "originalRouteUnavailable",
+        "selection"
+      ],
+      "observedNativePhases": [
+        "originalRouteUnavailable",
+        "originalProcessUnavailable",
+        "originalRouteUnavailable"
+      ],
+      "oldProcessNoLongerCurrent": true,
+      "newProcessCurrent": true,
+      "constructedSamePIDNewBirthRejected": true,
+      "actualPIDReuse": false,
+      "operationID": "9963BF0E-8979-4AF7-8932-81E2907A5A91",
+      "invocationID": "740DE948-1807-4BB3-80B5-51DBC3FB48FA",
+      "assetSHA256": "0fd6d0c75748a5abf4c735ec1b4ba7f2d06117cbb863a7cbb00c08d1c4ab294c",
+      "storePhase": "unknown",
+      "pageDispatch": "did not enter native page dispatch",
+      "DOMCounters": null,
+      "cachedRouteAfterWindowClose": "NOT_RUN (requires a foreground click-bound original)",
+      "cachedRouteAfterRestart": "NOT_RUN (requires a foreground click-bound original)",
+      "trial": "native-store-54-strict",
+      "productSource": "95d8cf80a46def6d15076e8e22872fec63f4ce3f",
+      "localRawSHA256": "b9173e99afccad6b6514ea95e4ba8e95136995abbdddd4c681a509715019b9e0",
+      "databaseSHA256": "f77e4c72bc95340241e758dd2ccead9acc164ec3f36158f7f5897f755414ecbe",
+      "independentSQLiteCheck": "one original operation, same invocation, attempt=1, UNKNOWN, zero START, matching retained PNG"
     }
   ]
 }

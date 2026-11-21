@@ -97,19 +97,24 @@ enum NativeWindow {
         return reply
     }
 
-    static func ids(_ pid: pid_t) throws -> [String] {
+    static func ids(_ pid: pid_t) throws -> Set<String> {
         let all = try object("cwin", "indx", ChromeHistoryTabSelection.allTabsOrdinal())
         let property = try object("prop", "prop", .init(typeCode: code("ID  ")), parent: all)
         guard let list = try request(pid, "core", "getd", property).paramDescriptor(forKeyword: keyDirectObject) else {
             throw CheckFailure("window ID list missing")
         }
-        guard list.descriptorType == typeAEList else {
-            throw CheckFailure("unexpected window ID list type " + String(list.descriptorType))
+        return try windowIDs(in: list)
+    }
+
+    static func windowIDs(in list: NSAppleEventDescriptor) throws -> Set<String> {
+        guard list.descriptorType == typeAEList else { throw CheckFailure("expected window ID list") }
+        var ids = Set<String>()
+        for index in 0..<list.numberOfItems {
+            guard let id = list.atIndex(index + 1)?.stringValue,
+                  let numeric = UInt64(id), numeric > 0, String(numeric) == id,
+                  ids.insert(id).inserted else { throw CheckFailure("invalid or duplicate window ID") }
         }
-        return try (0..<list.numberOfItems).map { index in
-            guard let id = list.atIndex(index + 1)?.stringValue else { throw CheckFailure("window ID missing") }
-            return id
-        }
+        return ids
     }
 
     static func active(_ pid: pid_t) throws -> (window: String, tab: String) {
@@ -332,6 +337,15 @@ func nativeEvents(_ directory: URL) throws -> [[String:Any]] {
     }
 
     static func main() async throws {
+        // A malformed reply cannot establish the absence of a window.
+        for (values, valid) in [([], true), (["1", "123"], true), ([""], false),
+                                (["invalid"], false), (["01"], false), (["0"], false), (["2", "2"], false)] {
+            let list = NSAppleEventDescriptor.list()
+            for (index, value) in values.enumerated() { list.insert(.init(string: value), at: index + 1) }
+            let decoded = try? NativeWindow.windowIDs(in: list)
+            try require(valid ? decoded == Set(values) : decoded == nil, "invalid native list evidence")
+        }
+        if CommandLine.arguments.dropFirst() == ["--check-window-list"] { return }
         guard CommandLine.arguments.count == 3 else { throw CheckFailure("supply an installed browser bundle and unique QA directory") }
         let privateDirectory = URL(fileURLWithPath: CommandLine.arguments[2],isDirectory:true)
         try FileManager.default.createDirectory(at: privateDirectory,withIntermediateDirectories:false)
