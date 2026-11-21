@@ -69,22 +69,30 @@ final class AcceptedSelectionQueueTests: XCTestCase {
     }
 
     func testSelectionFinishOnlyReleasesReceiverWhenOriginalIntentWasNeverWritten() async throws {
-        for allowed in [true, false] {
-            let store = try QueueStore(databaseURL: directory.appendingPathComponent("handoff-\(allowed).sqlite"))
+        enum Route: CaseIterable { case valid, targetReplaced, cancelledBeforePreparation }
+        for route in Route.allCases {
+            let handedToInput = route == .valid
+            let store = try QueueStore(databaseURL: directory.appendingPathComponent("handoff-\(route).sqlite"))
             let image = try await asset(store)
             let selection = AcceptedSelection(assetID: image.id, target: target(), visibilityRevision: 0)
             let adapter = ParkAdapter()
+            if route == .targetReplaced { await adapter.invalidateTarget() }
             let settled = expectation(description: "original receiver ownership settled")
             let controller = coordinator(store, adapter, finished: { id in
                 XCTAssertEqual(id, selection.id)
-                XCTAssertEqual(selection.cancelBeforeDispatch(), !allowed)
+                XCTAssertEqual(selection.cancelBeforeDispatch(), !handedToInput)
                 settled.fulfill()
-            }, validator: { _ in allowed })
-            try await controller.select(selection)
+            }, validator: { _ in route != .cancelledBeforePreparation })
+            do {
+                try await controller.select(selection)
+                XCTAssertNotEqual(route, .cancelledBeforePreparation)
+            } catch RiftletError.invalidTransition {
+                XCTAssertEqual(route, .cancelledBeforePreparation)
+            }
             await fulfillment(of: [settled], timeout: 3)
-            if allowed { try await waitForInput(image, adapter) }
+            if handedToInput { try await waitForInput(image, adapter) }
             let inputs = await adapter.inputs()
-            XCTAssertEqual(inputs, allowed ? [image.id] : [])
+            XCTAssertEqual(inputs, handedToInput ? [image.id] : [])
         }
     }
 
