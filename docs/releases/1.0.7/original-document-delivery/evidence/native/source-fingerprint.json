@@ -1,0 +1,29 @@
+{
+  "build": 56,
+  "source": "2717fa6aaa7cb3750041ca1a0779c6dab65961cc",
+  "recordedUTC": "2026-11-21T14:30:29.223282+00:00",
+  "selectedSourceSHA256": {
+    "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js": "61669b502526bd01b71b6c9aead85c224d9f3a50263ff121997769527368e2c5",
+    "Sources/RiftletAdapters/ChatGPTWebPageProgram.swift": "cc5b139d7d79306f0c75eabef9be553a6997d4902c4b64c3e3d0c987f626e594",
+    "Resources/Info.plist": "14342d176ab6f144fdab8364c5721b42c5f7ae996c6bbad4d2ee37883fdf3580"
+  },
+  "loadedResources": {
+    "byteEncoding": "UTF-8",
+    "hashAlgorithm": "SHA256",
+    "pinSourceBytes": 19799,
+    "pinSourceSHA256": "0d4677f873089685306079fc7c025cebeecb9100a1fe4e06a3b82cafeeefcfb3",
+    "resourcePath": "/tmp/riftlet-107-odb-evidence/swift55/out/Products/Debug/Riftlet_RiftletAdapters.bundle/Contents/Resources/chatgpt-web-20261027.js",
+    "sourceBytes": 117213,
+    "sourceID": "chatgpt-web-browser-handoff-20261120-v30",
+    "sourceMatchesSpecifiedBundleResource": true,
+    "sourceSHA256": "61669b502526bd01b71b6c9aead85c224d9f3a50263ff121997769527368e2c5"
+  },
+  "linkedObjectSHA256": {
+    "RiftletCore.o": "5badb5cfe1f25e1b020f95126452fa7883e8b7018dc5a0e7d8dc1f37aa434f17",
+    "RiftletAdapters.o": "b594d73fc3e5b3541a88e99395c7c623398bf4120cf1a4e33d5efffc90074fc1"
+  },
+  "harnessSHA256": {
+    "run.sh": "259d31cecdcfaca1ed041cd733fabbcdacb7c95b9919ceac7eaade210db52a44",
+    "check.swift": "b80df243b5efe18b0e71bb341ebd0a5374fd792a81d9865dc5bbbfd3be1783f3"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "productSource": "2717fa6aaa7cb3750041ca1a0779c6dab65961cc",
+  "dmgSHA256": "4d20dc369e6cf548c57def04a1975201333503f5fe69e3b47b7a32fa0ef56b98",
+  "note": "Hashes identify original local files. Renderer URLs in shared JSON use the placeholder qa-loopback. Live instance values and native databases are archived privately.",
+  "rawFiles": {
+    "installation.json": "a3bf4face787a721cf7c4fb5132c4564a741ea38aeac7f2ba940576eb5d58f05",
+    "inherited-page.json": "b4a3c3cd08a04e1b2c935e75dc6239d1b0ce228f12ebdddeae9fac1af62cf68b",
+    "inherited-host.json": "fc4aa83b7b68754ba3649cf293e42e239f7c6add8c3a40db5bef8d26715788a5",
+    "product-chrome.json": "58bbc07dfb4daf84969aac5aa0bb8de0d1829531be36572307b2475329edb1b1",
+    "product-edge.json": "bcb5d0753f27c9b02e7f6614ca7d749a4d959d9f1b926f3b76ca4e297f678b1f",
+    "controller.tap": "1d18ac3fbbdd6ebfcf3580def0649381a5c8316a6b4b7d57dafe2bc9131114cb",
+    "ordinary/edge.json": "e03690ff3b9ef51c9c061553fd1eadf78268298a780b2724971a9d823b3aef2b",
+    "ordinary/chrome.json": "ad80be6c0ba4ab2fb7e1e2ae39d325d11db909d410e8dfbea88503d6f7702c0b",
+    "renderer-chrome.json": "f8dcf00ac4a1beda671c69be829a0060d08c2453a5182bb0f963e51ce4a9ec65",
+    "renderer-edge.json": "de037dd456ecc5019ec4ed81234c13c667b679edd371cc527cb2b939a5cbd72a",
+    "native/source-fingerprint.json": "3e2299c9508c66e41ed66ddcb3469084f6360412a2cb83030b825cd578b5b454",
+    "native/independent-sqlite.json": "4bb8ec598ca160c2217f463601c067b808816c6dc292607dca3174d970de87bc",
+    "native/pin56.json": "4a402a476905137f2ad434da3f3444898aad6963ab1b1f8034915a99f00aeaf4",
+    "native/raw/Chrome-acceptance-recent.jsonl": "5fedc4f987f88c1340871061cf30019be04d5e4826e6f57f1fa3c49ca733a8be",
+    "native/raw/Chrome-closed-window.jsonl": "1b22e17a9e12700ee43e3942eecc63d6f739b084abf352bb734e194ebe642bde",
+    "native/raw/Chrome-qa.png": "0fd6d0c75748a5abf4c735ec1b4ba7f2d06117cbb863a7cbb00c08d1c4ab294c",
+    "native/raw/Chrome-queue.sqlite": "fad45589596249f617ee99e0513bef2109a09eb5a72127028ad9b024cc5927d4",
+    "native/raw/Chrome.json": "61760e82db382034442fcbddd82f84cc8ab0d951ed8c5d18b58012f1e4a330b3",
+    "native/raw/Edge-acceptance-recent.jsonl": "8750fdcce906b623ebaba1e0ee1dc5f5eeba7898b8c12cef435ee2616475f6d0",
+    "native/raw/Edge-closed-window.jsonl": "4e56b21e5027b63c501f266dc4b2de7e379185fbbbaf0bea0d1b508a6d8347e8",
+    "native/raw/Edge-qa.png": "0fd6d0c75748a5abf4c735ec1b4ba7f2d06117cbb863a7cbb00c08d1c4ab294c",
+    "native/raw/Edge-queue.sqlite": "fc3c664d7127908671c5f11153111d286d0c601e4cd6800faf2058e4d79f4015",
+    "native/raw/Edge.json": "c0bb3282c6dfafabf3554414c23fa104090f251a26cb3dde09ba2ebca06ec8a5"
+  }
+}

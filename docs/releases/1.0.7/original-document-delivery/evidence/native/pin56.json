@@ -1,0 +1,11 @@
+{
+  "byteEncoding" : "UTF-8",
+  "hashAlgorithm" : "SHA256",
+  "pinSourceBytes" : 19799,
+  "pinSourceSHA256" : "0d4677f873089685306079fc7c025cebeecb9100a1fe4e06a3b82cafeeefcfb3",
+  "resourcePath" : "/tmp/riftlet-107-odb-evidence/swift55/out/Products/Debug/Riftlet_RiftletAdapters.bundle/Contents/Resources/chatgpt-web-20261027.js",
+  "sourceBytes" : 117213,
+  "sourceID" : "chatgpt-web-browser-handoff-20261120-v30",
+  "sourceMatchesSpecifiedBundleResource" : true,
+  "sourceSHA256" : "61669b502526bd01b71b6c9aead85c224d9f3a50263ff121997769527368e2c5"
+}

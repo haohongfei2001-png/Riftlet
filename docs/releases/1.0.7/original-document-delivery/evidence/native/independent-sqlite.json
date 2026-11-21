@@ -1,0 +1,111 @@
+{
+  "build": 56,
+  "source": "2717fa6aaa7cb3750041ca1a0779c6dab65961cc",
+  "recordedUTC": "2026-11-21T14:30:29.223282+00:00",
+  "status": "PASS",
+  "scope": "Owned headless browser process/window and read-only evidence of the QA SQLite/PNG. Cached foreground route and website are outside this result.",
+  "browsers": {
+    "Chrome": {
+      "integrity": "ok",
+      "databaseReadMode": "mode=ro&immutable=1",
+      "operations": 1,
+      "attempt": 1,
+      "operationID": "608DF3AA-026A-4020-AD86-0DFC1582A3D3",
+      "invocationID": "6AAEB280-77CC-4CC4-9633-62395D9FB929",
+      "phase": "unknown",
+      "assets": 1,
+      "dispatchCheckpoints": 1,
+      "uploadStarts": 0,
+      "pngBytes": 70,
+      "pngSHA256": "0fd6d0c75748a5abf4c735ec1b4ba7f2d06117cbb863a7cbb00c08d1c4ab294c",
+      "sameTargetInOperationAndInvocation": true,
+      "originalTarget": {
+        "composerID": "isolated-composer",
+        "surface": "webChat",
+        "adapterID": "chatgpt-web",
+        "tabID": "260265040",
+        "applicationID": "com.google.Chrome",
+        "documentID": "isolated-document",
+        "draftGeneration": "one",
+        "sessionID": "chrome-kernel-v1:38840:1795271322:395297",
+        "clickBindingID": "95577811-D8F8-4816-B5CA-FF697B2DD62F",
+        "windowID": "260265039"
+      },
+      "observedNativeWindowRemoved": true,
+      "originalPid": 38840,
+      "newPid": 38866,
+      "closePhases": [
+        "originalRouteUnavailable",
+        "selection"
+      ],
+      "restartPhases": [
+        "originalRouteUnavailable",
+        "originalProcessUnavailable",
+        "originalRouteUnavailable"
+      ],
+      "actualPIDReuse": false,
+      "constructedSamePIDNewBirthRejected": true,
+      "pageEventCounters": null,
+      "cachedForegroundWriteRoute": "NOT_RUN",
+      "authenticatedWebsiteAcceptance": "NOT_RUN",
+      "artifactSHA256": {
+        "Chrome-acceptance-recent.jsonl": "5fedc4f987f88c1340871061cf30019be04d5e4826e6f57f1fa3c49ca733a8be",
+        "Chrome-closed-window.jsonl": "1b22e17a9e12700ee43e3942eecc63d6f739b084abf352bb734e194ebe642bde",
+        "Chrome-qa.png": "0fd6d0c75748a5abf4c735ec1b4ba7f2d06117cbb863a7cbb00c08d1c4ab294c",
+        "Chrome-queue.sqlite": "fad45589596249f617ee99e0513bef2109a09eb5a72127028ad9b024cc5927d4",
+        "Chrome.json": "61760e82db382034442fcbddd82f84cc8ab0d951ed8c5d18b58012f1e4a330b3"
+      }
+    },
+    "Edge": {
+      "integrity": "ok",
+      "databaseReadMode": "mode=ro&immutable=1",
+      "operations": 1,
+      "attempt": 1,
+      "operationID": "E6AAFFEC-A3A6-4236-892F-DEB49F93C73B",
+      "invocationID": "0560886A-ED7F-4E5B-A3FD-58876DBF242D",
+      "phase": "unknown",
+      "assets": 1,
+      "dispatchCheckpoints": 1,
+      "uploadStarts": 0,
+      "pngBytes": 70,
+      "pngSHA256": "0fd6d0c75748a5abf4c735ec1b4ba7f2d06117cbb863a7cbb00c08d1c4ab294c",
+      "sameTargetInOperationAndInvocation": true,
+      "originalTarget": {
+        "clickBindingID": "47050C12-E351-4A9A-A761-4524F19CEEB7",
+        "tabID": "1029683600",
+        "surface": "webChat",
+        "draftGeneration": "one",
+        "documentID": "isolated-document",
+        "composerID": "isolated-composer",
+        "adapterID": "chatgpt-web",
+        "windowID": "1029683598",
+        "applicationID": "com.microsoft.edgemac",
+        "sessionID": "edge-kernel-v1:38874:1795271323:202955"
+      },
+      "observedNativeWindowRemoved": true,
+      "originalPid": 38874,
+      "newPid": 38897,
+      "closePhases": [
+        "originalRouteUnavailable",
+        "selection"
+      ],
+      "restartPhases": [
+        "originalRouteUnavailable",
+        "originalProcessUnavailable",
+        "originalRouteUnavailable"
+      ],
+      "actualPIDReuse": false,
+      "constructedSamePIDNewBirthRejected": true,
+      "pageEventCounters": null,
+      "cachedForegroundWriteRoute": "NOT_RUN",
+      "authenticatedWebsiteAcceptance": "NOT_RUN",
+      "artifactSHA256": {
+        "Edge-acceptance-recent.jsonl": "8750fdcce906b623ebaba1e0ee1dc5f5eeba7898b8c12cef435ee2616475f6d0",
+        "Edge-closed-window.jsonl": "4e56b21e5027b63c501f266dc4b2de7e379185fbbbaf0bea0d1b508a6d8347e8",
+        "Edge-qa.png": "0fd6d0c75748a5abf4c735ec1b4ba7f2d06117cbb863a7cbb00c08d1c4ab294c",
+        "Edge-queue.sqlite": "fc3c664d7127908671c5f11153111d286d0c601e4cd6800faf2058e4d79f4015",
+        "Edge.json": "c0bb3282c6dfafabf3554414c23fa104090f251a26cb3dde09ba2ebca06ec8a5"
+      }
+    }
+  }
+}
