@@ -8,9 +8,10 @@
 | 先收回执再按下 | 两款普通浏览器各 4 个独立原页面凭据，4 次定向软件鼠标事件到达本机 AppKit 视图；事件本身时间均晚于 ACK。普通 Chrome 为 55.431、2.970、2.069、1.513 ms。Edge 为 35.585、1.135、1.107、3.020 ms。 |
 | 双图前置条件 | ARM64 在 1a3bb03d 复现第二张图无可用凭据；已修复，原生池的两次按下可持有两份独立凭据。页面测试核验两张不同的 PNG 字节、文字、选区及旧附件，真实站点各三组另行判定。 |
 | build 56 已有操作 | 在受控页面安装签名 build 56 的原程序。新版的三个新进程按原身份观察，inputTriggered 与 uploadStarted 均保留原状态。错 invocation 返回 invalidated。每组仅最初的 1 次输入及 change，零发送。 |
-| Edge 真实站点前置检查 | 正式控制器打开 Temporary Chat，核对了精确网址、原窗口和标签。窗口随后失去前台，局部编辑器和上传控件读取超时，登录状态未证实。专窗已关闭并核对原有窗口集合。 |
+| 最初的 Edge 站点预检 | 正式控制器打开 Temporary Chat，核对了精确网址、原窗口和标签。该次窗口随后失去前台，局部控件读取超时。专窗已关闭并核对原有窗口集合。 |
+| 真实站点上的自动准备与系统截图 | 同一安装副本分别在普通 Chrome、Edge 的 `chatgpt.com` 临时草稿上获得两份原目标回执。两个回执均先于本地首次可见截图记录，随后各有四次原目标续期成功。两次系统截图均来自独立的纯色窗口，私有资料库中的 PNG 与各自原文件逐字节一致。Chrome 首次准备曾收到 `ATTACHMENT_INPUT_UNAVAILABLE`，其后同一标签已自动准备就绪。两次准备实验各有零次托盘单击和零个投递操作。 |
 
-[原生浏览器与完整采样](../../../Tests/PreClickLease/native/receipt.json) · [受控页面结果](../../../Tests/PreClickLease/page/source-results.json) · [跨版本及快速双图原始回执](evidence/compatibility-and-fast-pair.json) · [真实站点预检](../../../Tests/PreClickLease/native/website-preflight.json)
+[原生浏览器与完整采样](../../../Tests/PreClickLease/native/receipt.json) · [受控页面结果](../../../Tests/PreClickLease/page/source-results.json) · [跨版本及快速双图原始回执](evidence/compatibility-and-fast-pair.json) · [最初的站点预检](../../../Tests/PreClickLease/native/website-preflight.json) · [同包站点回执、截图原件与 SQLite 核验](evidence/website-preclick.json)
 
 ## 独立审查
 

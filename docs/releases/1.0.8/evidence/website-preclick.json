@@ -1,0 +1,95 @@
+{
+  "scope": "Two closed private signed-app processes using ordinary, site-hosted ChatGPT Temporary Chat and new independent QA window captures. Covers preparation and local capture before any attachment input. Website delivery results are separate.",
+  "productCommit": "3a4bf462cb1e02ae305328b0f1f64792ec14adb8",
+  "packageSHA256": "be32c977b1dbf24fd90923d8b26329b1a4f65ab63c706ea2702aceb9243e53dd",
+  "executableSHA256": "0be3aa08d7d597b248428b8abd1fd6adcecf48a1266ddbe53482382aca66eaed",
+  "browsers": {
+    "chrome": {
+      "vendorBundle": "com.google.Chrome",
+      "vendorTeam": "EQHXZ8M8AV",
+      "nativeIdentity": "vendor signature, kernel process birth, exact window and original sole tab, current foreground, exact temporary URL",
+      "version": "1.0.8",
+      "build": 57,
+      "systemWindowCapture": true,
+      "applicationCaptureSource": "separate, opaque, single-colour QA window; OS-generated screenshot marker",
+      "originalAndImportedBytesMatch": true,
+      "pngSHA256": "3f3f2b4312c2d2d4aac679d6a5ea4093629ed57a6889c946c88aa318792f96c3",
+      "pngBytes": 5516,
+      "storedAssets": 1,
+      "finalLocalAssetState": {
+        "status": "pending",
+        "visibility": "archived",
+        "reason": "automaticArchive"
+      },
+      "leaseACKsBeforeFirstVisibleAssetReceipt": 2,
+      "acknowledgementsPrecedeFirstObservedVisibleAssetByMS": [
+        3224.686,
+        2959.605
+      ],
+      "intervalDefinition": "relative to first recorded upper bound for local visible asset, not a click timestamp",
+      "sameTargetRenewalCompletions": 4,
+      "preparationErrorsInFirstSnapshot": [
+        "pageRejected(ATTACHMENT_INPUT_UNAVAILABLE)"
+      ],
+      "operationCountAtClose": 0,
+      "attachmentCommitEvents": 0,
+      "screenshotClicksInThisRun": 0,
+      "rawPrivateEvidenceSHA256": {
+        "product/armed.json": "a6f40ab6e784d73b4b401724e9f8f2e977ae6b39fac8c949fe2922831ea7bde4",
+        "product/prebind.json": "b2a3b328c15cc61f3550cecb3517625c37e922ea4b4612941b4352963e0d7564",
+        "product/capture.json": "c80ceb8c27bb48e92e8ef5a61019b94a2f6423036296e6a12142485e1bd90767",
+        "product/renderer.json": "8e08f5d1aebf141a1a3f2d78794491d28f83b3db34e204d13fdec230f022c408",
+        "product/capture-receiver.json": "2a1ffc8a5feae1d7de906620644acf6febade0767289c42a7d86b188000ca22f",
+        "draft-controls.json": "c4e03ce9a9584dd25b60b707bc1a763fb867cd26728d30cdf760db96af54bb7f",
+        "acceptance-recent.jsonl": "bd2dc5b259ff4107e8793d827d40e588288a37ae159c614f37e37f5665352b11",
+        "original-qa-swatch.png": "3f3f2b4312c2d2d4aac679d6a5ea4093629ed57a6889c946c88aa318792f96c3"
+      },
+      "subsequentOriginalWindowSignInCheck": {
+        "result": "confirmed with the original visible account menu and its enabled logout action",
+        "menuClosed": true,
+        "logoutInvocations": 0,
+        "privateReceiptSHA256": "c234848372bcfeeae558e3bbfc6a40b1fa2674b5c74d73248b7b3c4911de94fd"
+      }
+    },
+    "edge": {
+      "vendorBundle": "com.microsoft.edgemac",
+      "vendorTeam": "UBF8T346G9",
+      "nativeIdentity": "vendor signature, kernel process birth, exact window and original sole tab, current foreground, exact temporary URL",
+      "version": "1.0.8",
+      "build": 57,
+      "systemWindowCapture": true,
+      "applicationCaptureSource": "separate, opaque, single-colour QA window; OS-generated screenshot marker",
+      "originalAndImportedBytesMatch": true,
+      "pngSHA256": "3f3f2b4312c2d2d4aac679d6a5ea4093629ed57a6889c946c88aa318792f96c3",
+      "pngBytes": 5516,
+      "storedAssets": 1,
+      "finalLocalAssetState": {
+        "status": "pending",
+        "visibility": "archived",
+        "reason": "automaticArchive"
+      },
+      "leaseACKsBeforeFirstVisibleAssetReceipt": 2,
+      "acknowledgementsPrecedeFirstObservedVisibleAssetByMS": [
+        4548.288,
+        4215.475
+      ],
+      "intervalDefinition": "relative to first recorded upper bound for local visible asset, not a click timestamp",
+      "sameTargetRenewalCompletions": 4,
+      "preparationErrorsInFirstSnapshot": [],
+      "operationCountAtClose": 0,
+      "attachmentCommitEvents": 0,
+      "screenshotClicksInThisRun": 0,
+      "rawPrivateEvidenceSHA256": {
+        "product/armed.json": "1961e4cfc6f97066f5b97a946b4812145efab067f3a86b1ecf3c7bd798adc8b3",
+        "product/prebind.json": "106514b3ce2749c92a0bcbe56d06b739c5c344a0d918801385df618cedc15a51",
+        "product/capture.json": "a7912081e9ba1031ff859997b0f8ddce78b4fc1ee645a1d5a14c6b64bde5f761",
+        "product/renderer.json": "38608f0a37877d7ca455bfacb1dd8a00d627356795c4bf96aba95550e22ca530",
+        "product/capture-receiver.json": "0e89afba924c191dbcb1bf5795fc947ae4f62745ab509e2909021147fe4ea25d",
+        "draft-controls.json": "df3c2b371ea7c934d7f10b4038fc8a83e665d96f3ca8244382511853edbe9fc0",
+        "acceptance-recent.jsonl": "30a12e7e0ecb5cf84faeca3515147a77c6a332559af90729c4c9a4a8c399dc2d",
+        "original-qa-swatch.png": "3f3f2b4312c2d2d4aac679d6a5ea4093629ed57a6889c946c88aa318792f96c3"
+      }
+    }
+  },
+  "identicalPngBytes": "Both browsers used separately captured instances of the same deterministic swatch; they do not establish two-image or upload acceptance."
+}
