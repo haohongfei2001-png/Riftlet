@@ -27,3 +27,7 @@
 另一位未参与实现的审查人另外挂载同一镜像，复制出第二份 App，独立核对两个架构、签名、硬化运行时、公证票及 Gatekeeper，并运行三个自检。其资源和可执行文件摘要与首次安装一致。受限执行环境起初无法连接系统验证服务，正常 macOS 环境的复核均通过。[独立安装记录](evidence/independent-install.json)
 
 G4 的专用客机 A 在 build 43 曾证明，单独中断该客机的传输可让官方原卡显示失败和 Retry。本次正常启动相同客机且匹配原 SSH 主机密钥，但其专用系统凭据引用已失效，无法进入已登录图形会话或建立只影响该客机的控制链路。此次未造成真实原卡故障。启动器已退出，三台测试客机的磁盘均无占用，未收到客机系统自身的正常关机回执。[当前和历史的 G4 记录](evidence/g4-environment.json)
+
+## 双架构 CI
+
+ARM64 和 Intel 均通过。在测试修订 `1bce2891c510263b5c05dec0857afdea04247f06` 上逐项核对 `Sources`、`Resources`、`Package.swift`、`Package.resolved` 与签名产品提交完全一致。每个架构核对了 1,432 个 Swift 测试的完整分组，另运行本轮 18 项 Chrome 受控页面测试及 8 项离线故障恢复测试。CI 不向真实 ChatGPT 发送图片。[两个 GitHub 作业](https://github.com/haohongfei2001-png/Riftlet/actions/runs/44930670085) · [分组、回归名称和制品哈希](evidence/ci.json)
