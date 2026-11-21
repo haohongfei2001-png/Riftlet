@@ -10,3 +10,5 @@
 | 同包验收 | Chrome 和 Edge 自建页面、实站 G1/G2/G4、签名及独立安装分别记账。 |
 
 初始状态为未运行。两个实验共用按下前 ACK、一次输入、生命周期退休和零发送的判据。上版已验的页面测试保留原始记录。[build 56 的边界与原始证据](../1.0.7/original-document-delivery/TARGET_DELIVERY_ACCEPTANCE.md)
+
+文档启动实验已取得真实 Native Messaging 回执。隔离的 Edge 正式版 158 和 Chrome for Testing 156 均拒绝早于 ACK 的事件，能分别执行三次已授权的附件操作。在丢失页面回复后，重复请求没有产生输入。普通 Chrome 157 打开实验页但未注册未上架的扩展。试验用 AppKit 事件未投递到普通托盘。Safari 的商店和 Developer ID 两种分发途径另列，实机页未运行。[路线 B 原始记录](../../../Experiments/PreClickDocumentStart/receipt.json)
