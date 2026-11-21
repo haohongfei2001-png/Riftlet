@@ -5,12 +5,12 @@
 | 验证项 | A · 无扩展 Apple Events | B · document_start 和 Native Messaging |
 |---|---|---|
 | 冷、暖首个事件 | 两款正常浏览器均在专有测试页确认。Chrome 首个 ACK 至事件 55.431 ms，Edge 35.585 ms。软件产生的事件由测试进程的 AppKit 视图接收。 | 在正式 Edge 158 和 Chrome for Testing 156 的独立配置中，原生 ACK 前的事件被拒绝，ACK 后的冷、暖操作各自完成一次。事件由 AppKit 构造，未投递到桌面。 |
-| 原始文档、编辑器和附件入口 | 接收器保留真实对象及编辑器、草稿、模式的代际。替换文件输入、移出并放回原控件或切换标签后退休。 | 浏览器签发 documentId。文档启动脚本还保留原对象及代际，在编辑器 A→B→A、模式替换及同 URL 新文档时拒绝旧操作。 |
+| 原始文档、编辑器和附件入口 | 接收器保留真实对象及编辑器、草稿、模式的代际。替换文件输入、移出并放回原控件或切换标签后退休。 | 浏览器签发 documentId。文档启动脚本还保留原对象及代际，在编辑器 A→B→A、草稿替换及同 URL 新文档时拒绝旧操作。另以真实两个标签切换，在 B 与返回原 A 时都拒绝旧票。 |
 | 原窗口、标签与两次独立输入 | 原生签名、进程出生时间、窗口 ID 和标签 ID 验证通过；两个独立凭据可并存。原生测试的两次按下相隔 Chrome 116.210 ms、Edge 102.158 ms。页面用例另行校验两份真实 File 字节。 | 收件地址含浏览器实例、原生消息连接、tabId、documentId 和代际；原生 SQLite 先认领，丢失回复不再写入。 |
 | 安装与受测范围 | 继承 build 56 既有 Apple Events 路径。普通 Chrome 与 Edge 已测本地页。Chrome 官方控制器按名称分配时选到 Owl；产品按签名和进程识别普通 Chrome。 | Edge 正式引擎与 Chrome for Testing 跑通原生消息。普通 Chrome 157 打开了测试页，未加载未上架扩展。没有更改浏览器配置或安装策略。 |
 | Safari | 当前脚本字典提供页签对象和 WebContent PID。尚无实机证据把它们与固定文档和编辑器绑定。 | Safari Web Extensions 提供文档身份和原生消息，需签名的包含 App、扩展启用和站点授权；尚未实测。 |
 
-[普通浏览器的原生回执](../../../Tests/PreClickLease/native/receipt.json) · [页面对象与字节证据](../../../Tests/PreClickLease/page/source-results.json) · [扩展实验与浏览器厂商文档](../../../Experiments/PreClickDocumentStart/README.md)
+[普通浏览器的原生回执](../../../Tests/PreClickLease/native/receipt.json) · [页面对象与字节证据](../../../Tests/PreClickLease/page/source-results.json) · [扩展的标签 A→B→A 和原生宿主重启回执](../../../Experiments/PreClickDocumentStart/tab-restart-receipt.json) · [扩展实验与浏览器厂商文档](../../../Experiments/PreClickDocumentStart/README.md)
 
 ## 一次点击的权限边界
 

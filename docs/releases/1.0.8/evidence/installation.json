@@ -1,0 +1,59 @@
+{
+  "source": "3a4bf462cb1e02ae305328b0f1f64792ec14adb8",
+  "version": "1.0.8",
+  "build": "57",
+  "architectures": [
+    "arm64",
+    "x86_64"
+  ],
+  "published": false,
+  "sha256": "be32c977b1dbf24fd90923d8b26329b1a4f65ab63c706ea2702aceb9243e53dd",
+  "bytes": 13661114,
+  "appSubmissionID": "410757ff-6c68-47b9-845f-101841f7199a",
+  "dmgSubmissionID": "37110bf1-dcb1-458b-aac1-8165adb535c7",
+  "teamID": "ZB9D4T66QB",
+  "sparkleVersion": "2.10.1",
+  "verifiedUTC": "2026-11-21T17:31:39.090872+00:00",
+  "executableSHA256": "0be3aa08d7d597b248428b8abd1fd6adcecf48a1266ddbe53482382aca66eaed",
+  "resourceSHA256": "0ac5c59b4856f26a50f5f22d8142314444db361a69753d0ee32cb767d89be87f",
+  "checks": {
+    "appSignature": {
+      "exit": 0,
+      "logSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "dmgSignature": {
+      "exit": 0,
+      "logSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "appTicket": {
+      "exit": 0,
+      "logSHA256": "c8bb5f7a1b1c5ee43cfcb4bb496f309cabc29c51d2c0445e1ef5d159af971e06"
+    },
+    "dmgTicket": {
+      "exit": 0,
+      "logSHA256": "508d9b6851ee6524768705f3e5a6dd3499ed0a1fdc21a6128a33248f89fd59a2"
+    },
+    "appGatekeeper": {
+      "exit": 0,
+      "logSHA256": "e92748d21969d83bec7c579e94ed8cd1f9b9553d13015a6b65352d46eff7d566"
+    },
+    "dmgGatekeeper": {
+      "exit": 0,
+      "logSHA256": "1cffade57bd6eb0ce8bf43dcece923c3292cee50208ecab496ce976cb40a8749"
+    },
+    "appSelfCheck": {
+      "exit": 0,
+      "logSHA256": "9a6cbd54ef6829d86fd7e0cd7ba688aa6387ae15af41a550ffba3e42832b6018"
+    },
+    "webSelfCheck": {
+      "exit": 0,
+      "logSHA256": "a47ac0ed870328c9f158b1ee9fed9eec7fd7aa6e4109c3f3017d307f29dbe15d"
+    },
+    "systemScreenshotSelfCheck": {
+      "exit": 0,
+      "logSHA256": "7333bbcc86dffcf736384773a5dbdf288188e8f97ef55e5803f8cf809e06dc04"
+    }
+  },
+  "compatibilityResourceSHA256": "ed470481df5373d0e702c87087785235d080fb75b85ea27f1e07408e0357ae52",
+  "installation": "private directory copy from read-only mounted final disk image"
+}
