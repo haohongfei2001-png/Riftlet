@@ -1,4 +1,4 @@
-# Build 55 delivery
+# Original-document delivery in build 56
 
 The one-use receiver is private to the ChatGPT page resource. At click-witness installation it captures the original Document, root, editor, form and complete owner chain, including shadow roots. When an application exposes its file control, a separate receiver captures that particular input object. Calling a bound method consumes that invocation before the method runs. The receiver uses the captured object as the method receiver. It does not look up a later active control.
 
@@ -9,6 +9,8 @@ The original editor need not have keyboard focus when clicked. A ChatGPT attachm
 TransferCoordinator, QueueStore, PNG storage, the operation/invocation schema and the tray use their existing paths. Build 55 introduces no keyboard injector, browser extension, debug port or clipboard operation. Raw keys on the ordinary-window QA page are measured separately from a semantic edit through a bound textarea method. The production operation delivers a file.
 
 ## Non-author source review
+
+Build 55 exceeded the existing 20 KiB limit on the click witness. The Swift loader in build 56 omits leading ASCII spaces from its short wire program while preserving every token and every line break. Templates and continued strings take the original-text path. Independent verification compiled both forms and compared all 339 lines. The wire program fell from 21,386 to 19,799 bytes and has SHA-256 `0d4677f873089685306079fc7c025cebeecb9100a1fe4e06a3b82cafeeefcfb3`. The whole Apple Event also carries its native wrapper. The full page resource is byte-identical. The reviewer cleared the new Swift source and version for internal signing.
 
 Independent review compared the native call chain and actual final resource SHA-256 `61669b502526bd01b71b6c9aead85c224d9f3a50263ff121997769527368e2c5`. Two pre-freeze findings concerned closed-shadow focus retargeting and a dynamically inserted menu without aria-controls. Both were corrected and exercised using pinned clicks in Chrome and Edge. The reviewer cleared this revision for internal signing. The external click to first browser witness and live-service admission remain open. [Full product comparisons](../../../../Tests/OriginalDocumentDelivery/product/source-comparison.json)
 
