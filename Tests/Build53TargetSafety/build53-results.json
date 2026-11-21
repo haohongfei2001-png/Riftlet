@@ -1,0 +1,506 @@
+[
+  {
+    "family": "chrome",
+    "version": "Chrome/157.0.8103.79",
+    "completedUTC": "2026-11-21T12:40:41.921Z",
+    "scope": "Disposable real browser loopback fixture; controlled route and native identity arguments",
+    "programSHA256": "50b0d16d10f38c688ce33189df55ad3da6588b4c7006b710777f30340dc55ed7",
+    "cases": [
+      {
+        "mode": "control",
+        "beforeCommit": {
+          "open": true,
+          "write": true,
+          "observation": "unknown"
+        },
+        "commit": "inputTriggered",
+        "totals": {
+          "setter": 1,
+          "input": 1,
+          "change": 1,
+          "send": 0
+        },
+        "draftPreserved": true,
+        "status": "PASS"
+      },
+      {
+        "mode": "tabInactive",
+        "hiddenAndBlurred": true,
+        "beforeCommit": {
+          "open": true,
+          "write": false,
+          "observation": "unknown"
+        },
+        "commit": "targetInvalidBeforeInput",
+        "totals": {
+          "setter": 0,
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "secondCommit": "COMMIT_REFUSED",
+        "status": "PASS"
+      },
+      {
+        "mode": "tabABA",
+        "hiddenAndBlurred": true,
+        "beforeCommit": {
+          "open": true,
+          "write": false,
+          "observation": "unknown"
+        },
+        "commit": "targetInvalidBeforeInput",
+        "totals": {
+          "setter": 0,
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "secondCommit": "COMMIT_REFUSED",
+        "status": "PASS"
+      },
+      {
+        "mode": "sameURLDocument",
+        "sameURLNewDocument": true,
+        "beforeCommit": {
+          "open": false,
+          "write": false,
+          "observation": "invalidated"
+        },
+        "commit": "ORIGINAL_OPERATION_REQUIRED",
+        "totals": {
+          "setter": 0,
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "secondCommit": "ORIGINAL_OPERATION_REQUIRED",
+        "status": "PASS"
+      },
+      {
+        "mode": "reload",
+        "sameURLNewDocument": true,
+        "beforeCommit": {
+          "open": false,
+          "write": false,
+          "observation": "invalidated"
+        },
+        "commit": "ORIGINAL_OPERATION_REQUIRED",
+        "totals": {
+          "setter": 0,
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "secondCommit": "ORIGINAL_OPERATION_REQUIRED",
+        "status": "PASS"
+      },
+      {
+        "mode": "historyABA",
+        "sameDocument": true,
+        "entryChanges": 2,
+        "beforeCommit": {
+          "open": false,
+          "write": false,
+          "observation": "invalidated"
+        },
+        "commit": "targetInvalidBeforeInput",
+        "totals": {
+          "setter": 0,
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "secondCommit": "COMMIT_REFUSED",
+        "status": "PASS"
+      },
+      {
+        "mode": "pagehide",
+        "duringTrustedPagehide": "targetInvalidBeforeInput",
+        "beforeCommit": {
+          "open": false,
+          "write": false,
+          "observation": "invalidated"
+        },
+        "commit": "ORIGINAL_OPERATION_REQUIRED",
+        "totals": {
+          "setter": 0,
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "secondCommit": "ORIGINAL_OPERATION_REQUIRED",
+        "status": "PASS"
+      },
+      {
+        "mode": "bfcache",
+        "bfcacheRestored": true,
+        "beforeCommit": {
+          "open": true,
+          "write": false,
+          "observation": "unknown"
+        },
+        "commit": "targetInvalidBeforeInput",
+        "totals": {
+          "setter": 0,
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "secondCommit": "COMMIT_REFUSED",
+        "status": "PASS"
+      },
+      {
+        "mode": "editorReplacement",
+        "beforeCommit": {
+          "open": false,
+          "write": false,
+          "observation": "invalidated"
+        },
+        "commit": "targetInvalidBeforeInput",
+        "totals": {
+          "setter": 0,
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "secondCommit": "COMMIT_REFUSED",
+        "status": "PASS"
+      },
+      {
+        "mode": "closedTarget",
+        "closedSessionRejected": true,
+        "totals": {
+          "setter": 0,
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "status": "PASS"
+      },
+      {
+        "mode": "menuABA",
+        "hiddenAndBlurred": true,
+        "beforeCommit": {
+          "open": true,
+          "write": false,
+          "observation": "unknown"
+        },
+        "commit": "attachmentInputNotCreated",
+        "totals": {
+          "setter": 0,
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "menu": {
+          "opener": 1,
+          "choice": 1,
+          "escape": 1,
+          "selectionRestoration": 1
+        },
+        "secondCommit": "COMMIT_REFUSED",
+        "status": "FAIL",
+        "reason": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n+   choice: 1,\n+   escape: 1,\n-   choice: 0,\n-   escape: 0,\n    opener: 1,\n+   selectionRestoration: 1\n-   selectionRestoration: 0\n  }\n"
+      },
+      {
+        "mode": "rebuildDuringInput",
+        "beforeCommit": {
+          "open": true,
+          "write": true,
+          "observation": "unknown"
+        },
+        "commit": "inputTriggered",
+        "totals": {
+          "setter": 1,
+          "input": 1,
+          "change": 1,
+          "send": 0
+        },
+        "afterCommit": {
+          "open": false,
+          "write": false,
+          "observation": "invalidated"
+        },
+        "secondCommit": "COMMIT_REFUSED",
+        "status": "FAIL",
+        "reason": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n+   change: 1,\n-   change: 0,\n    input: 1,\n    send: 0,\n    setter: 1\n  }\n"
+      },
+      {
+        "mode": "portalMoveDuringInput",
+        "beforeCommit": {
+          "open": true,
+          "write": true,
+          "observation": "unknown"
+        },
+        "commit": "inputTriggered",
+        "totals": {
+          "setter": 1,
+          "input": 1,
+          "change": 1,
+          "send": 0
+        },
+        "afterCommit": {
+          "open": true,
+          "write": true,
+          "observation": "inputTriggered"
+        },
+        "secondCommit": "COMMIT_REFUSED",
+        "status": "FAIL",
+        "reason": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n+   change: 1,\n-   change: 0,\n    input: 1,\n    send: 0,\n    setter: 1\n  }\n"
+      }
+    ]
+  },
+  {
+    "family": "edge",
+    "version": "Edg/157.0.4341.60",
+    "completedUTC": "2026-11-21T12:40:46.113Z",
+    "scope": "Disposable real browser loopback fixture; controlled route and native identity arguments",
+    "programSHA256": "50b0d16d10f38c688ce33189df55ad3da6588b4c7006b710777f30340dc55ed7",
+    "cases": [
+      {
+        "mode": "control",
+        "beforeCommit": {
+          "open": true,
+          "write": true,
+          "observation": "unknown"
+        },
+        "commit": "inputTriggered",
+        "totals": {
+          "setter": 1,
+          "input": 1,
+          "change": 1,
+          "send": 0
+        },
+        "draftPreserved": true,
+        "status": "PASS"
+      },
+      {
+        "mode": "tabInactive",
+        "hiddenAndBlurred": true,
+        "beforeCommit": {
+          "open": true,
+          "write": false,
+          "observation": "unknown"
+        },
+        "commit": "targetInvalidBeforeInput",
+        "totals": {
+          "setter": 0,
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "secondCommit": "COMMIT_REFUSED",
+        "status": "PASS"
+      },
+      {
+        "mode": "tabABA",
+        "hiddenAndBlurred": true,
+        "beforeCommit": {
+          "open": true,
+          "write": false,
+          "observation": "unknown"
+        },
+        "commit": "targetInvalidBeforeInput",
+        "totals": {
+          "setter": 0,
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "secondCommit": "COMMIT_REFUSED",
+        "status": "PASS"
+      },
+      {
+        "mode": "sameURLDocument",
+        "sameURLNewDocument": true,
+        "beforeCommit": {
+          "open": false,
+          "write": false,
+          "observation": "invalidated"
+        },
+        "commit": "ORIGINAL_OPERATION_REQUIRED",
+        "totals": {
+          "setter": 0,
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "secondCommit": "ORIGINAL_OPERATION_REQUIRED",
+        "status": "PASS"
+      },
+      {
+        "mode": "reload",
+        "sameURLNewDocument": true,
+        "beforeCommit": {
+          "open": false,
+          "write": false,
+          "observation": "invalidated"
+        },
+        "commit": "ORIGINAL_OPERATION_REQUIRED",
+        "totals": {
+          "setter": 0,
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "secondCommit": "ORIGINAL_OPERATION_REQUIRED",
+        "status": "PASS"
+      },
+      {
+        "mode": "historyABA",
+        "sameDocument": true,
+        "entryChanges": 2,
+        "beforeCommit": {
+          "open": false,
+          "write": false,
+          "observation": "invalidated"
+        },
+        "commit": "targetInvalidBeforeInput",
+        "totals": {
+          "setter": 0,
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "secondCommit": "COMMIT_REFUSED",
+        "status": "PASS"
+      },
+      {
+        "mode": "pagehide",
+        "duringTrustedPagehide": "targetInvalidBeforeInput",
+        "beforeCommit": {
+          "open": false,
+          "write": false,
+          "observation": "invalidated"
+        },
+        "commit": "ORIGINAL_OPERATION_REQUIRED",
+        "totals": {
+          "setter": 0,
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "secondCommit": "ORIGINAL_OPERATION_REQUIRED",
+        "status": "PASS"
+      },
+      {
+        "mode": "bfcache",
+        "bfcacheRestored": true,
+        "beforeCommit": {
+          "open": true,
+          "write": false,
+          "observation": "unknown"
+        },
+        "commit": "targetInvalidBeforeInput",
+        "totals": {
+          "setter": 0,
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "secondCommit": "COMMIT_REFUSED",
+        "status": "PASS"
+      },
+      {
+        "mode": "editorReplacement",
+        "beforeCommit": {
+          "open": false,
+          "write": false,
+          "observation": "invalidated"
+        },
+        "commit": "targetInvalidBeforeInput",
+        "totals": {
+          "setter": 0,
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "secondCommit": "COMMIT_REFUSED",
+        "status": "PASS"
+      },
+      {
+        "mode": "closedTarget",
+        "closedSessionRejected": true,
+        "totals": {
+          "setter": 0,
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "status": "PASS"
+      },
+      {
+        "mode": "menuABA",
+        "hiddenAndBlurred": true,
+        "beforeCommit": {
+          "open": true,
+          "write": false,
+          "observation": "unknown"
+        },
+        "commit": "attachmentInputNotCreated",
+        "totals": {
+          "setter": 0,
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "menu": {
+          "opener": 1,
+          "choice": 1,
+          "escape": 1,
+          "selectionRestoration": 1
+        },
+        "secondCommit": "COMMIT_REFUSED",
+        "status": "FAIL",
+        "reason": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n+   choice: 1,\n+   escape: 1,\n-   choice: 0,\n-   escape: 0,\n    opener: 1,\n+   selectionRestoration: 1\n-   selectionRestoration: 0\n  }\n"
+      },
+      {
+        "mode": "rebuildDuringInput",
+        "beforeCommit": {
+          "open": true,
+          "write": true,
+          "observation": "unknown"
+        },
+        "commit": "inputTriggered",
+        "totals": {
+          "setter": 1,
+          "input": 1,
+          "change": 1,
+          "send": 0
+        },
+        "afterCommit": {
+          "open": false,
+          "write": false,
+          "observation": "invalidated"
+        },
+        "secondCommit": "COMMIT_REFUSED",
+        "status": "FAIL",
+        "reason": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n+   change: 1,\n-   change: 0,\n    input: 1,\n    send: 0,\n    setter: 1\n  }\n"
+      },
+      {
+        "mode": "portalMoveDuringInput",
+        "beforeCommit": {
+          "open": true,
+          "write": true,
+          "observation": "unknown"
+        },
+        "commit": "inputTriggered",
+        "totals": {
+          "setter": 1,
+          "input": 1,
+          "change": 1,
+          "send": 0
+        },
+        "afterCommit": {
+          "open": true,
+          "write": true,
+          "observation": "inputTriggered"
+        },
+        "secondCommit": "COMMIT_REFUSED",
+        "status": "FAIL",
+        "reason": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n+   change: 1,\n-   change: 0,\n    input: 1,\n    send: 0,\n    setter: 1\n  }\n"
+      }
+    ]
+  }
+]
