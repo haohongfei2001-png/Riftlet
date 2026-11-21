@@ -7,11 +7,18 @@ const http = require('node:http');
 const os = require('node:os');
 const path = require('node:path');
 
-const chrome = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+const chrome = process.env.RIFTLET_HEADLESS_SHELL || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const resources = path.resolve(__dirname,'../../Sources/RiftletAdapters/Resources');
 const program = fs.readFileSync(path.join(resources,'issue120-provider-runtime.js'),'utf8');
 const profiles = JSON.parse(fs.readFileSync(path.join(resources,'issue120-provider-profiles.json')));
 const gemini = profiles.find(p => p.id === 'gemini');
+
+test('the public Claude manifest is discovery-only and contains no fixture registration',()=>{
+  const claude = profiles.find(p=>p.id==='claude');
+  assert.equal(claude.origin,'https://claude.ai');
+  assert.equal(Object.hasOwn(claude,'recipe'),false);
+  assert.ok(profiles.every(p=>!p.id.startsWith('fixture-') && new URL(p.origin).protocol==='https:'));
+});
 
 // This server owns the HTML, the only recipe and the test origin. No request
 // is issued to an AI website, no production manifest contains this recipe.
@@ -208,6 +215,7 @@ test('candidate provider resolves a Gemini-shaped local draft and proves its own
           ['http://127.0.0.1:'+server.address().port],{encoding:'utf8'});
       }
       child=spawn(chrome,['--headless','--disable-background-networking','--disable-sync','--disable-extensions',
+        '--no-proxy-server','--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1',
         '--no-first-run','--no-default-browser-check','--user-data-dir='+profile,
         'http://127.0.0.1:'+server.address().port+'/app'],{stdio:'ignore'});
       child.once('error',rejectResult);

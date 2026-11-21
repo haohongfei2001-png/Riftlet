@@ -56,8 +56,10 @@ actor Issue120ProviderAdapter: IndependentFileInputAdapter {
     /// isolated loopback route; it cannot be reconstructed from a public URL.
     init(loopback: URL, profile: ProviderProfile, bundle: String, mediaDirectory: URL,
          transport: any Issue120ProviderTransport) throws {
-        guard let port = loopback.port, profile.id == "fixture-gemini-like", profile.revision == 1,
-              loopback.absoluteString == "http://127.0.0.1:\(port)/app" else { throw BindingError.invalidProfile }
+        let paths = ["fixture-gemini-like": "/app", "fixture-claude-like": "/fixture-claude-like"]
+        guard let path = paths[profile.id], profile.revision == 1,
+              let port = loopback.port, (1...65535).contains(port),
+              loopback.absoluteString == "http://127.0.0.1:\(port)\(path)" else { throw BindingError.invalidProfile }
         self.profile = profile; self.bundle = bundle; self.mediaDirectory = mediaDirectory
         self.transport = transport
         admittedScope = WebProviderBinding(providerID: profile.id, revision: profile.revision,

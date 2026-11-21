@@ -11,6 +11,18 @@
 
 此表指同一最终签名 App 在登录草稿中的 L3。Kimi、国内千问、豆包、Perplexity 及独立的国际 Qwen 变体也尚无已验收组合。[逐格结果及逐项查询](matrix/README.md) · [机器矩阵](matrix/results.json)
 
+## 2026-11-21 · Claude 形状的开发 L2 夹具
+
+`fixture-claude-like` 的准入限于 Debug、精确回环端口和 `/fixture-claude-like`。Swift 从构建资源绑定通用网页程序，调用既有 Provider adapter 和 SQLite。合成编辑器、控件、卡片和错误标记均由测试定义。公开 Claude 配置仍仅供发现。
+
+- 原卡失败与丢回包两个 Claude 夹具场景，各有一个持久 invocation、一次原文件赋值、按顺序各一次 input/change、零错投和零发送。两次均在输入后重建控件。唯一新卡的可见预览解码后与请求 PNG 摘要一致才取得 START，原文、选区及旧卡保留。
+- 已接收的原卡随后显示夹具错误。重开 SQLite 后只读核对，持久回执为带原 invocation 的 UNKNOWN。再次开库可以取回同一 PNG 并显示恢复项。另一个场景丢弃输入回包且没有原卡证据，重开前后均为 UNKNOWN。独立的编译 Swift/SQLite 检查通过协调器的显式新选择才写入第 2 次尝试，并保留旧回执。
+- 16 项网页反例覆盖跨端口、错路径、控件歧义和归属、编辑器替换、错误 invocation、其他草稿或邻卡、重复卡、错摘要、响应式预览来源、旧卡消失、导航、同 URL 换文档和原文变动。原文编辑及改后还原由夹具 transport 的草稿代际见证使原 pin 失效。
+
+本机 ARM64 使用独立 headless shell 156.0.8078.4。Swift 到网页的 3/3 条链路通过，16 项反例在其中一条内运行。两个 profile 的 Swift/SQLite 专项均通过。源码和编译资源的 Provider 套件分别 2/2，定位与观察专项 33/33，矩阵回放 19/19。
+
+下一步需要真实宿主对已登录 Claude 原文档和草稿代际的证明，以及该稿的文件控件归属、输入事件、原图接收与原卡失败证据。本次仅取得开发 L2 夹具结果。正式签名 App 的 L2 尚待验，40 格所有 L3 均为 NOT_RUN，核心仍为 0/16。[重跑入口与证据范围](../../../Tests/Issue120Integration/README.md)
+
 ## 建立双轨前的历史基线
 
 下表及本节后续记录归属于预集成阶段；各工作包的当前实现与证据以[双轨报告](DUAL_TRACK.md)为准。

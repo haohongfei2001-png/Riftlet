@@ -10,7 +10,7 @@ case "$#" in
     1) [[ "$1" == --backend-only ]] || exit 2; mode=backend ;;
     *) exit 2 ;;
 esac
-if [[ "$mode" == full && ! -x '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' ]]; then
+if [[ "$mode" == full && ! -x "${RIFTLET_HEADLESS_SHELL:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}" ]]; then
     echo "NOT_RUN: Google Chrome is unavailable" >&2
     exit 1
 fi

@@ -38,14 +38,15 @@ private func exchange(_ cmd: Command) throws -> Reply {
 
 private struct FixtureScope: Encodable {
     struct Recipe: Encodable {
-        let events = "input-change", lane = "section", card = "article"
+        let events = "input-change"
+        let lane: String, card: String
         let explicitFailure = "[role=alert][aria-label=failed]"
         let maxBytes = 65536
     }
     let origin: String
-    let paths = ["/app"]
-    let recipe = Recipe()
-    let editor = "[contenteditable=true]", action = "label"
+    let paths: [String]
+    let recipe: Recipe
+    let editor: String, action: String
 }
 
 // This test transport sends commands through one private loopback page session.
@@ -97,14 +98,20 @@ private actor Browser: Issue120ProviderTransport {
 @main struct Integration {
     static func main() async throws {
         let origin = CommandLine.arguments[1]
-        guard let endpoint = URL(string:origin+"/app"), let port = endpoint.port,
+        let profileID = CommandLine.arguments[2]
+        let paths = ["fixture-gemini-like": "/app", "fixture-claude-like": "/fixture-claude-like"]
+        guard let path = paths[profileID], let endpoint = URL(string:origin+path), let port = endpoint.port,
               origin == "http://127.0.0.1:\(port)", let resourceDir = Bundle.main.resourceURL,
               let bundle = Bundle(url:resourceDir.appendingPathComponent("Riftlet_RiftletAdapters.bundle")),
               let js = bundle.url(forResource:"issue120-provider-runtime",withExtension:"js")
         else { throw BindingError.unsupported }
-        let program = try Issue120ProviderCatalog.bind(runtime:String(contentsOf:js,encoding:.utf8),
-                                                        definition:FixtureScope(origin:origin))
-        let profile = try ProviderProfile(id:"fixture-gemini-like",revision:1,program:Data(program.utf8))
+        let claudeFixture = profileID == "fixture-claude-like"
+        let definition = FixtureScope(origin:origin, paths:[path],
+            recipe:.init(lane:claudeFixture ? "ul[data-fixture-lane]" : "section", card:claudeFixture ? "li" : "article"),
+            editor:claudeFixture ? "[data-fixture-editor][contenteditable=true]" : "[contenteditable=true]",
+            action:claudeFixture ? "button[data-fixture-upload]" : "label")
+        let program = try Issue120ProviderCatalog.bind(runtime:String(contentsOf:js,encoding:.utf8), definition:definition)
+        let profile = try ProviderProfile(id:profileID,revision:1,program:Data(program.utf8))
         let click = UUID()
         let pin = try exchange(.init(action:"pin",program:program,click:click.uuidString.lowercased()))
         guard pin.digest == profile.digest, let document = pin.document, let editor = pin.editor, let epoch = pin.epoch,
@@ -129,27 +136,49 @@ private actor Browser: Issue120ProviderTransport {
         let file = temp.appendingPathComponent("capture.png")
         try png.write(to:file)
         let asset = try await store.importAsset(.init(sourceKey:"generated",fileName:file.lastPathComponent,sha256:hash(png),
-            byteCount:Int64(png.count),pixelWidth:1,pixelHeight:1,mediaType:"image/png"))
+            byteCount:Int64(png.count),pixelWidth:1,pixelHeight:1,mediaType:"image/png",origin:.synthetic))
         try await runtime.preflight(asset:asset.image,fileURL:file,frozenTarget:target)
         let op = try await store.prepare(assetID:asset.id,target:target)
         let owner = UUID()
         let id = try await store.markIndependentFileInputIntent(op.id,ownerID:owner)
         let original = try await store.operation(id:op.id)!
         let request = TransferRequest(operation:original,asset:asset.image,fileURL:file,invocationID:id)
-        let accepted = try await runtime.append(request)
-        guard accepted.outcome == .uploadStarted, accepted.belongsToOriginalDraft, !accepted.safeToRetry,
-              !accepted.positiveReady, let member = accepted.attachmentID else { throw BindingError.targetChanged }
+        let receipt = try await runtime.append(request)
         let repeated = try? await runtime.append(request)
         guard repeated == nil else { throw BindingError.targetChanged }
         try await store.recordInputExecutionReturned(operationID:op.id,invocationID:id,ownerID:owner)
-        guard try exchange(.init(action:"fail")).result == "original-card-updated" else { throw BindingError.unsupported }
+        let policy = ReceiptPolicy(syntheticUploadStartProfiles: [profileID: .webChat])
+        _ = try await store.apply(receipt, policy:policy)
         let reopened = try QueueStore(databaseURL:db)
         let after = ProviderAttachmentRuntime(resolver:resolver,store:reopened)
-        let recovery = try await after.reconcile(request)
+        let replay = try? await after.append(request)
+        guard replay == nil, !receipt.safeToRetry, !receipt.positiveReady else { throw BindingError.targetChanged }
+        if CommandLine.arguments[3] == "lost" {
+            let read = try await after.reconcile(request)
+            guard receipt.outcome == .unknown, receipt.attachmentID == nil, read.outcome == .unknown,
+                  !read.safeToRetry, read.uploadStartEvidence == nil,
+                  try await reopened.uploadStartReceipt(for:op.id) == nil,
+                  try await reopened.asset(id:asset.id)?.visibility == .visible,
+                  try await reopened.dispatchInvocationID(for:op.id) == id,
+                  try exchange(.init(action:"finish")).result == "checked" else { throw BindingError.targetChanged }
+            return
+        }
+        guard receipt.outcome == .uploadStarted, receipt.belongsToOriginalDraft, let member = receipt.attachmentID,
+              try exchange(.init(action:"fail")).result == "original-card-updated" else { throw BindingError.targetChanged }
+        let coordinator = TransferCoordinator(store:reopened,adapter:after,mediaDirectory:temp,policy:policy)
+        let checked = try await coordinator.recheckOriginal(operationID:op.id,authorize:{ $0 == target })
+        let restarted = try QueueStore(databaseURL:db)
+        guard checked == .observed, let recovery = try await restarted.receipt(for:op.id),
+              try await restarted.uploadStartReceipt(for:op.id)?.attachmentID == member else { throw BindingError.targetChanged }
         guard recovery.outcome == .unknown, recovery.hasError, !recovery.safeToRetry, !recovery.positiveReady,
               recovery.originalCardFailureInvocationID == id, recovery.attachmentID == member else {
             throw BindingError.targetChanged
         }
+        let restored = try await restarted.stageAttachmentForReattach(operationID:op.id)
+        let stagedRuntime = ProviderAttachmentRuntime(resolver:resolver,store:restarted)
+        let replayAfterRestore = try? await stagedRuntime.append(request)
+        guard replayAfterRestore == nil, restored.visibility == .visible, restored.activeOperationID == op.id,
+              try Data(contentsOf:file) == png else { throw BindingError.targetChanged }
         guard try exchange(.init(action:"finish")).result == "checked" else { throw BindingError.unsupported }
     }
 }

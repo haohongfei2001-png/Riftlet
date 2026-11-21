@@ -6,6 +6,7 @@ on:
       - 'Sources/**'
       - 'Tests/Riftlet*/**'
       - 'Tests/LiveDraftAcceptance/**'
+      - 'Tests/Issue120Integration/**'
       - 'Tests/WebPageProgram/Issue120/**'
       - 'Package.swift'
       - 'Package.resolved'
@@ -40,6 +41,7 @@ jobs:
         run: |
           node --test Tests/LiveDraftAcceptance/*.test.cjs
           bash Tests/WebPageProgram/Issue120/check-compiled.sh --backend-only
+          bash Tests/Issue120Integration/run.sh
       - name: Build the development App and check its isolated runtime
         run: |
           set -euo pipefail

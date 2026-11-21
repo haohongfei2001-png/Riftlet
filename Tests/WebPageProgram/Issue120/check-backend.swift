@@ -43,21 +43,26 @@ private func hash(_ bytes: Data) -> String { SHA256.hash(data: bytes).map { Stri
 
 @main struct BackendCheck {
     static func main() async throws {
+        try await check(profileID: "fixture-gemini-like", path: "/app")
+        try await check(profileID: "fixture-claude-like", path: "/fixture-claude-like")
+    }
+
+    static func check(profileID: String, path: String) async throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at:directory,withIntermediateDirectories:false)
         defer { try? FileManager.default.removeItem(at:directory) }
         let db = directory.appendingPathComponent("store.sqlite")
         let store = try QueueStore(databaseURL:db)
-        let endpoint = URL(string:"http://127.0.0.1:12345/app")!
-        let profile = try ProviderProfile(id:"fixture-gemini-like",revision:1,program:Data("controlled program".utf8))
+        let endpoint = URL(string:"http://127.0.0.1:12345" + path)!
+        let profile = try ProviderProfile(id:profileID,revision:1,program:Data("controlled program".utf8))
         let binding = WebProviderBinding(providerID:profile.id,revision:profile.revision,programSHA256:profile.digest,
             routeSHA256:hash(Data(endpoint.absoluteString.utf8)),surface:"ordinary-fixture",mode:"image-fixture")
-        func clickTarget() -> TargetLease {
+        func clickTarget(_ scope: WebProviderBinding) -> TargetLease {
             TargetLease(adapterID:"riftlet-web-provider-v1",surface:.webChat,applicationID:"com.google.Chrome",
                 sessionID:"controlled-process-birth",windowID:"1",tabID:"2",documentID:"document",composerID:"editor",
-                draftGeneration:"epoch",clickBindingID:UUID(),providerBinding:binding)
+                draftGeneration:"epoch",clickBindingID:UUID(),providerBinding:scope)
         }
-        let target = clickTarget()
+        let target = clickTarget(binding)
         let policy = ReceiptPolicy(syntheticUploadStartProfiles: [profile.id: .webChat])
         let page = LocalPage(target)
         let backend = try Issue120ProviderAdapter(loopback:endpoint,profile:profile,bundle:target.applicationID,
@@ -65,6 +70,32 @@ private func hash(_ bytes: Data) -> String { SHA256.hash(data: bytes).map { Stri
         let disabled = Issue120ProviderAdapter(profile:profile,bundle:target.applicationID,mediaDirectory:directory,transport:page)
         let permitted = try await disabled.validate(target)
         precondition(!permitted)
+        if profileID == "fixture-claude-like" {
+            let catalog = try Issue120ProviderCatalog()
+            let publicURL = URL(string: "https://claude.ai/new")!
+            let discovery = try resolveProvider(publicURL, among: catalog.providers)
+            precondition(discovery.profile.id == "claude" && discovery.route.mode == "unverified")
+            let publicBinding = WebProviderBinding(providerID: discovery.profile.id, revision: discovery.profile.revision,
+                programSHA256: discovery.profile.digest, routeSHA256: hash(Data(discovery.route.identity.utf8)),
+                surface: discovery.route.surface, mode: discovery.route.mode)
+            let publicAdapter = Issue120ProviderAdapter(profile: discovery.profile, bundle: target.applicationID,
+                mediaDirectory: directory, transport: page)
+            let publicTarget = clickTarget(publicBinding)
+            await page.bind(publicTarget)
+            let publicAllowed = try await publicAdapter.validate(publicTarget)
+            precondition(!publicAllowed)
+            await page.bind(target)
+            for (candidate, url) in [(discovery.profile, endpoint), (discovery.profile, publicURL), (profile, publicURL),
+                (profile, URL(string: "http://localhost:12345" + path)!),
+                (profile, URL(string: "http://127.0.0.1:12345/app")!),
+                (profile, URL(string: endpoint.absoluteString + "?draft=other")!)] {
+                let adapter = try? Issue120ProviderAdapter(loopback: url, profile: candidate, bundle: target.applicationID,
+                    mediaDirectory: directory, transport: page)
+                precondition(adapter == nil)
+            }
+            let fixtureInCatalog = try? resolveProvider(endpoint, among: catalog.providers)
+            precondition(fixtureInCatalog == nil)
+        }
         let address = AdapterAddress(bundle:target.applicationID,profile:profile,adapterID:target.adapterID)
         let resolver = AdapterResolver(adapters:[address:backend])
         let runtime = ProviderAttachmentRuntime(resolver:resolver,store:store)
@@ -79,6 +110,9 @@ private func hash(_ bytes: Data) -> String { SHA256.hash(data: bytes).map { Stri
             let invocation = try await store.markIndependentFileInputIntent(op.id,ownerID:owner)
             let actual = try await store.operation(id:op.id)!
             let req = TransferRequest(operation:actual,asset:imported.image,fileURL:file,invocationID:invocation)
+            let wrongInvocation = TransferRequest(operation:actual,asset:imported.image,fileURL:file,invocationID:UUID())
+            let unauthorized = try? await runtime.append(wrongInvocation)
+            precondition(unauthorized == nil)
             await page.set(i == 1 ? .accepted : .lostCommitReply)
             let receipt = try await runtime.append(req,onInputExecutionReturned:{ await page.returnBoundary() })
             precondition(receipt.outcome == (i == 1 ? .uploadStarted : .unknown) && !receipt.safeToRetry && !receipt.positiveReady)
@@ -89,6 +123,10 @@ private func hash(_ bytes: Data) -> String { SHA256.hash(data: bytes).map { Stri
             precondition(settled.visibility == (i == 1 ? .swallowed : .visible))
             let database = try QueueStore(databaseURL: db)
             let reopened = ProviderAttachmentRuntime(resolver: resolver, store: database)
+            let replay = try? await reopened.append(req)
+            let wrongRead = try? await reopened.reconcile(wrongInvocation)
+            let saved = try await StoredDispatch.load(for: op.id, store: database)
+            precondition(replay == nil && wrongRead == nil && saved?.invocationID == invocation && saved?.inputClaim != nil)
             let modes: [LocalPage.Mode] = i == 1 ? [.wrongKey, .wrongPayload, .failed] : [.wrongKey, .wrongPayload]
             for mode in modes {
                 await page.set(mode)
@@ -113,7 +151,7 @@ private func hash(_ bytes: Data) -> String { SHA256.hash(data: bytes).map { Stri
                 let restored = try Data(contentsOf: file)
                 precondition(before == 1 && restored == png && staged.visibility == .visible && staged.activeOperationID == op.id)
 
-                let freshTarget = clickTarget()
+                let freshTarget = clickTarget(binding)
                 await page.bind(freshTarget)
                 await page.set(.accepted)
                 let click = AcceptedSelection(assetID: imported.id, target: freshTarget, visibilityRevision: staged.visibilityRevision)
@@ -129,11 +167,14 @@ private func hash(_ bytes: Data) -> String { SHA256.hash(data: bytes).map { Stri
                 precondition(after?.attachmentState == .handedOff && after?.record.visibility == .swallowed)
                 let original = try await database.receipt(for: op.id)
                 precondition(original?.originalCardFailureInvocationID == invocation)
+                guard let newOperation = after?.operation else { throw BindingError.targetChanged }
+                let newInvocation = try await database.dispatchInvocationID(for: newOperation.id)
+                precondition(newInvocation != nil && newInvocation != invocation)
                 await page.bind(target)
             }
         }
         let commits = await page.commits, reads = await page.reads, returned = await page.returned
         precondition(commits == 3 && reads == 10 && returned == 2)
-        print("PASS controlled Swift provider and SQLite: original failure survived restart, exact PNG restored without input, explicit new click attached on attempt 2; lost reply and wrong identity never automatically retransmitted")
+        print("PASS \(profileID) Swift/SQLite: persisted failure, explicit reattach, lost reply and wrong identity")
     }
 }
