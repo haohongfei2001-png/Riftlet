@@ -2,6 +2,7 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
 const {createLockedDraft,withLockedDraft} = require('./locked-draft.cjs');
+const {fixtureEntry} = require('./test-support/isolated-draft.cjs');
 
 function environment() {
   const prior = {member:'a'.repeat(64),payload:'1'.repeat(64)};
@@ -56,7 +57,7 @@ function environment() {
     }}),
     locateEditor:async()=>({count:async()=>1,isVisible:async()=>true,click:async()=>{s.focusedOriginalEditor=true}}),
   };
-  e.start = () => createLockedDraft(e.options);
+  Object.assign(e,fixtureEntry(e));
   return e;
 }
 
@@ -95,7 +96,7 @@ test('all native and page mismatches retire this original run',async()=>{
 
 test('lost reply after one key cannot cause another keyboard pass',async()=>{
   const e=environment(),run=await e.start();
-  e.tab.cua.keypress=async ({keys})=>{e.keys.push(keys);throw new Error('lost reply')};
+  e.afterDelivery=()=>{throw new Error('lost reply')};
   await assert.rejects(run.seed(),/lost reply/);
   await assert.rejects(run.seed(),/consumed/);
   assert.equal(e.keys.length,1);
@@ -140,13 +141,13 @@ test('setup failure closes its confirmed fresh tab, never an existing or repurpo
 
 test('callback cleanup is once-only, original-tab scoped and preserves unknown contents',async()=>{
   const e=environment();
-  const value=await withLockedDraft(e.options,async run=>{
+  const value=await e.withRun(async run=>{
     await run.seed();
     assert.equal(await run.close(),'closed');return 7;
   });
   assert.deepEqual(value,{result:7,cleanup:'closed'});assert.equal(e.closes,1);
   const failed=environment();
-  await assert.rejects(withLockedDraft(failed.options, async()=>{throw Error('case failed');}),
+  await assert.rejects(failed.withRun(async()=>{throw Error('case failed');}),
     err=>err.message==='case failed' && err.cleanup==='closed');
   assert.equal(failed.closes,1);
   const unknown=environment(),run=await unknown.start();unknown.s.text='new personal content';
@@ -235,10 +236,23 @@ test('lost creation or claim is UNKNOWN and is never retried',async()=>{
   }
 });
 
-test('missing directed keyboard closes only its witnessed blank tab',async()=>{
-  const e=environment();delete e.tab.cua.keypress;
-  await assert.rejects(e.start(),err=>err.code==='DIRECTED_TAB_API_UNAVAILABLE' && err.cleanup==='closed');
-  assert.equal(e.closes,1);assert.deepEqual(e.events,[]);
+test('real canary rejects both tab-level key APIs before creating a window or choosing a website', async () => {
+  const e = environment();
+  e.tab.ax = {pressKey:() => assert.fail('tab AX must not get called')};
+  const rejectedWriter = {supports:() => true, bind:() => assert.fail('caller must not supply a writer')};
+  e.options.fixture = rejectedWriter;
+  e.options.adapter = rejectedWriter;
+  e.options.resolveOriginalDocumentAdapter = () => rejectedWriter;
+  assert.deepEqual(Object.keys(require('./locked-draft.cjs')).sort(),['createLockedDraft','withLockedDraft']);
+  for (const action of [() => createLockedDraft(e.options,rejectedWriter),
+                        () => withLockedDraft(e.options, () => assert.fail('blocked body'))]) {
+    await assert.rejects(action(), err => err.status === 'BLOCKED' &&
+      err.code === 'ORIGINAL_DOCUMENT_KEYBOARD_UNAVAILABLE' && err.cleanup === 'none');
+  }
+  assert.equal(e.creates,undefined);
+  assert.equal(e.s.route,'about:blank');
+  assert.deepEqual(e.events,[]);
+  assert.deepEqual(e.keys,[]);
 });
 
 test('guard observes native process replacement or extra tab before next page read or key',async()=>{
@@ -327,32 +341,30 @@ test('an unresolved post-click page read times out without another read or unsaf
 });
 
 
-test('AX-only tab delivers the seed and selection to the already focused editor', async () => {
-  const e = environment();
-  delete e.tab.cua;
-  const sent = [];
-  e.tab.ax = {pressKey: async (index, key) => {
-    assert.equal(index, null);
-    assert.equal(e.s.focusedOriginalEditor, true);
-    sent.push(key);
-    if (key === 'shift+Left') e.s.selection = e.s.text.slice(-1);
-    else { assert.match(key, /^[a-z0-9]$/); e.s.text += key; }
-  }};
-  const run = await e.start();
-  const result = await run.seed();
-  assert.deepEqual(sent, [...result.text, 'shift+Left']);
-  assert.equal(result.selection, result.text.slice(-1));
+test('read-only verified window exposes no tab, locator or keyboard and closes its blank once', async () => {
+  const e = environment(), lease = await openVerifiedWindow(e.options);
+  assert.deepEqual(Object.keys(lease).sort(),['closeBlank','guard','identity','windowID']);
+  await Promise.all([lease.closeBlank(),lease.closeBlank()]);
+  assert.equal(e.closes,1);
+  assert.deepEqual(e.keys,[]);
 });
 
-test('a lost AX reply spends the seed with no alternate keyboard dispatch', async () => {
-  const e = environment();
-  let attempts = 0;
-  e.tab.ax = {pressKey: async () => { attempts++; throw Error('lost AX reply'); }};
-  const run = await e.start();
-  await assert.rejects(run.seed(), /lost AX reply/);
-  await assert.rejects(run.seed(), /consumed/);
-  assert.equal(attempts, 1);
-  assert.equal(e.keys.length, 0);
+test('last-preflight race is rejected at fixture delivery with no key to original or replacement', async () => {
+  for (const change of [
+    e => { e.s.documentID = 'replacement at same URL'; },
+    e => { e.s.selectedTabID = 'another tab'; },
+    e => { e.s.navigationID = 'new navigation after ABA'; },
+    e => { e.s.composerID = 'new editor'; },
+  ]) {
+    const e = environment(), run = await e.start();
+    let attempts = 0;
+    e.beforeDelivery = () => { attempts++; change(e); };
+    await assert.rejects(run.seed(),/fixture rejected target at delivery/);
+    await assert.rejects(run.seed(),/consumed/);
+    assert.equal(attempts,1);
+    assert.equal(e.s.text,'');
+    assert.deepEqual(e.keys,[]);
+  }
 });
 
 // These cases exercise Browser API mapping, not the product file-input fence.
@@ -405,7 +417,7 @@ test('a claim returning a rebound provider or an existing controlled handle is r
   }
 });
 
-test('before actual keyboard dispatch an observed identity loss retires the lease', async () => {
+test('an observed identity loss permanently retires the read-only lease', async () => {
   for (const change of [
     e => {e.reference.providerTabId = 'replacement';},
     e => {e.groupID = 9;},
@@ -420,13 +432,37 @@ test('before actual keyboard dispatch an observed identity loss retires the leas
     const e = environment(), lease = await openVerifiedWindow(e.options);
     const groupTitle = e.reference.tabGroup, list = e.browser.tabs.list;
     change(e);
-    await assert.rejects(lease.pressKey('x'));
+    await assert.rejects(lease.guard());
     e.reference.providerTabId = lease.identity.providerTabID;
     e.reference.tabGroup = groupTitle;
     e.groupID = 7; e.tab.id = lease.identity.claimedTabHandleID;
     e.s.frontSessionID = e.s.sessionID; e.s.selectedTabID = lease.identity.nativeTabID;
     e.browser.tabs.list = list;
-    await assert.rejects(lease.pressKey('x'),/CONTROLLED_TAB_RETIRED/);
+    await assert.rejects(lease.guard(),/CONTROLLED_TAB_RETIRED/);
     assert.deepEqual(e.keys,[]);
+  }
+});
+
+test('New chat, editor focus and selection each recheck the document in the action adapter', async () => {
+  for (const action of ['newChat','focusEditor','select']) {
+    const e = environment();
+    let interrupted = 0;
+    e.beforeAction = kind => {
+      if (kind === action) { interrupted++; e.s.documentID = 'new-document-at-same-url'; }
+    };
+    if (action === 'newChat') {
+      await assert.rejects(e.start(),/fixture rejected target at delivery/);
+      assert.deepEqual(e.events,[]);
+    } else {
+      const run = await e.start();
+      await assert.rejects(run.seed(),/fixture rejected target at delivery/);
+      assert.equal(e.s.selection,'');
+      assert.ok(e.keys.every(chord => chord.length === 1));
+      if (action === 'focusEditor') {
+        assert.equal(e.s.focusedOriginalEditor,false);
+        assert.deepEqual(e.keys,[]);
+      }
+    }
+    assert.equal(interrupted,1);
   }
 });

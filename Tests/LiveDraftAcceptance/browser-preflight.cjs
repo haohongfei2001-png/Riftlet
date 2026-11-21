@@ -144,19 +144,16 @@ async function openVerifiedWindow(options) {
       browserReferenceID,providerTabID,claimedTabHandleID:tab.id});
     await guard(true);
     claimed = true;
-    let dispatch;
-    if (typeof tab.ax?.pressKey === 'function') {
-      dispatch = key => tab.ax.pressKey(null, key);
-    } else if (typeof tab.cua?.keypress === 'function') {
-      dispatch = key => tab.cua.keypress({keys: key === 'shift+Left' ? ['SHIFT', 'LEFT'] : [key]});
+    check(typeof tab.close === 'function', 'QA_TAB_CLOSE_UNAVAILABLE');
+    let closing;
+    async function closeOwnedBlank() {
+      await guard(true);
+      return tab.close();
     }
-    check(dispatch && typeof tab.goto === 'function' && typeof tab.close === 'function',
-      'DIRECTED_TAB_API_UNAVAILABLE');
-    async function pressKey(key) {
-      await guard();
-      return dispatch(key);
-    }
-    return {tab,windowID:target.nativeWindowID,identity:target,guard,pressKey};
+    // A tab mapping proves where to observe, not where a future key lands.
+    // Keep the mutable Browser Tab private; cleanup owns one verified blank.
+    return {windowID:target.nativeWindowID,identity:target,guard,
+      closeBlank:() => closing ||= closeOwnedBlank()};
   } catch (cause) {
     const error = publicFailure(cause,creationAttempted ? 'QA_WINDOW_OR_CLAIM_REPLY_UNKNOWN' : 'BROWSER_HEALTH_UNAVAILABLE',creationAttempted);
     error.cleanup = creationAttempted ? 'retainedUnverified' : 'none';

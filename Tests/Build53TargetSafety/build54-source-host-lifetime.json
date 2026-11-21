@@ -1,0 +1,88 @@
+[
+  {
+    "family": "chrome",
+    "version": "Chrome/157.0.8103.79",
+    "programSHA256": "9b9a1ecd12b8433c7a9243ebedb72fefcc7dc8d69fd2602e4caf895c89b7ab36",
+    "completedUTC": "2026-11-21T12:49:49.659Z",
+    "scope": "Isolated headless browser windows and process restart with a persisted loopback fixture ledger",
+    "closeWindow": {
+      "status": "PASS",
+      "distinctBrowserWindowIDs": true,
+      "originalWindowHadSinglePage": true,
+      "originalWindowGone": "Browser window not found",
+      "oldSessionDelivery": "REJECTED",
+      "observerWindowStillExists": true,
+      "originalLedgerStillPresent": true,
+      "totals": {
+        "setter": 0,
+        "input": 0,
+        "change": 0,
+        "send": 0
+      }
+    },
+    "restart": {
+      "status": "PASS",
+      "originalProcessExitedNormally": true,
+      "actualPIDsDistinct": true,
+      "originAndURLPreserved": true,
+      "originalLedgerStillPresent": true,
+      "documentInstanceChanged": true,
+      "stagedIdentityAndInjectedNativeTuplePreserved": true,
+      "read": {
+        "open": false,
+        "write": false,
+        "observation": "invalidated"
+      },
+      "commit": "ORIGINAL_OPERATION_REQUIRED",
+      "totals": {
+        "setter": 0,
+        "input": 0,
+        "change": 0,
+        "send": 0
+      }
+    }
+  },
+  {
+    "family": "edge",
+    "version": "Edg/157.0.4341.60",
+    "programSHA256": "9b9a1ecd12b8433c7a9243ebedb72fefcc7dc8d69fd2602e4caf895c89b7ab36",
+    "completedUTC": "2026-11-21T12:49:50.914Z",
+    "scope": "Isolated headless browser windows and process restart with a persisted loopback fixture ledger",
+    "closeWindow": {
+      "status": "PASS",
+      "distinctBrowserWindowIDs": true,
+      "originalWindowHadSinglePage": true,
+      "originalWindowGone": "Browser window not found",
+      "oldSessionDelivery": "REJECTED",
+      "observerWindowStillExists": true,
+      "originalLedgerStillPresent": true,
+      "totals": {
+        "setter": 0,
+        "input": 0,
+        "change": 0,
+        "send": 0
+      }
+    },
+    "restart": {
+      "status": "PASS",
+      "originalProcessExitedNormally": true,
+      "actualPIDsDistinct": true,
+      "originAndURLPreserved": true,
+      "originalLedgerStillPresent": true,
+      "documentInstanceChanged": true,
+      "stagedIdentityAndInjectedNativeTuplePreserved": true,
+      "read": {
+        "open": false,
+        "write": false,
+        "observation": "invalidated"
+      },
+      "commit": "ORIGINAL_OPERATION_REQUIRED",
+      "totals": {
+        "setter": 0,
+        "input": 0,
+        "change": 0,
+        "send": 0
+      }
+    }
+  }
+]
