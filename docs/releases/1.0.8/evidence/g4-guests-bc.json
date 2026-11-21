@@ -1,0 +1,89 @@
+{
+  "observedUTC": "2026-11-21T18:11:57+00:00",
+  "candidate": {
+    "version": "1.0.8",
+    "build": 57,
+    "candidateInvokedOnGuests": false
+  },
+  "g4Status": "BLOCKED_ENV / NOT_RUN",
+  "scope": "Existing reserved macOS VMs, existing browser profiles, no host GUI. System-script authority is sender-specific.",
+  "guests": {
+    "B": {
+      "startUTC": "2026-11-21T18:06:22Z",
+      "existingOSControlVerified": true,
+      "attestation": "existing pinned SSH host key, VM model, guest user, configured MAC, QA shared nonce and console owner",
+      "existingBrowsers": [
+        "Chrome"
+      ],
+      "nativeReadSender": "guest /usr/bin/osascript, JavaScript for Automation and Foundation, real PID-targeted core/getd version, .neverInteract with kAEDoNotPromptForUserConsent",
+      "nativeReadOSStatus": {
+        "Chrome": -1744
+      },
+      "scriptAXTrusted": false,
+      "scriptScreenCapturePreflight": false,
+      "scriptCanPostPreflight": false,
+      "signedRiftletAutomationPermission": null,
+      "officialController": {
+        "standardManifestCount": 0,
+        "ChatGPTOrCodexDesktopFoundAtStandardLocations": false,
+        "originalNativeWindowTabObtained": false
+      },
+      "guestServiceTransport": {
+        "directHTTP": 0,
+        "directResult": "timeout",
+        "existingGuestLoopbackHTTPSForwardHTTP": 200,
+        "probe": "one guest-only HEAD to ChatGPT through the known NAT SSH forward; no browser session or credentials",
+        "postProbeForwardListenerFound": false
+      },
+      "websiteLogin": null,
+      "accountMenuVisibleLogoutAction": null,
+      "postSTARTOriginalCardFailureObserved": false,
+      "normalVZGuestShutdownUTC": "2026-11-21T18:11:23Z",
+      "ownProcessExited": true,
+      "guestImageOpenAfterStop": false
+    },
+    "C": {
+      "startUTC": "2026-11-21T18:08:34Z",
+      "existingOSControlVerified": true,
+      "attestation": "existing pinned SSH host key, VM model, guest user, configured MAC, QA shared nonce and console owner",
+      "existingBrowsers": [
+        "Chrome",
+        "Edge"
+      ],
+      "nativeReadSender": "guest /usr/bin/osascript, JavaScript for Automation and Foundation, real PID-targeted core/getd version, .neverInteract with kAEDoNotPromptForUserConsent",
+      "nativeReadOSStatus": {
+        "Chrome": -1744,
+        "Edge": -1744
+      },
+      "scriptAXTrusted": false,
+      "scriptScreenCapturePreflight": false,
+      "scriptCanPostPreflight": false,
+      "signedRiftletAutomationPermission": null,
+      "officialController": {
+        "standardManifestCount": 0,
+        "ChatGPTOrCodexDesktopFoundAtStandardLocations": false,
+        "originalNativeWindowTabObtained": false
+      },
+      "guestServiceTransport": {
+        "SSHControlOnGuestLAN": "verified",
+        "browserOrHTTPServiceTransport": null
+      },
+      "websiteLogin": null,
+      "accountMenuVisibleLogoutAction": null,
+      "postSTARTOriginalCardFailureObserved": false,
+      "normalVZGuestShutdownUTC": "2026-11-21T18:11:28Z",
+      "ownProcessExited": true,
+      "guestImageOpenAfterStop": false
+    }
+  },
+  "cleanup": {
+    "allThreeKnownGuestImagesOpenAfterReturn": 0,
+    "forcedVMStops": 0,
+    "newBrowserProfiles": 0,
+    "newBrowserWindows": 0,
+    "hostNetworkOrAccountSettingsChanges": 0,
+    "browserPermissionsChanged": false,
+    "browserUploadAttempts": 0,
+    "sends": 0
+  }
+}

@@ -29,6 +29,8 @@
 
 G4 的专用客机 A 在 build 43 曾证明，单独中断该客机的传输可让官方原卡显示失败和 Retry。本次正常启动相同客机且匹配原 SSH 主机密钥，但其专用系统凭据引用已失效，无法进入已登录图形会话或建立只影响该客机的控制链路。此次未造成真实原卡故障。启动器已退出，三台测试客机的磁盘均无占用，未收到客机系统自身的正常关机回执。[当前和历史的 G4 记录](evidence/g4-environment.json)
 
+非实现者另行启动客机 B 和 C，均通过原主机密钥、控制台和专用系统登录检查。B 的客机专用通道访问 ChatGPT 返回 HTTP 200。两者现有系统控制脚本在禁止弹出授权对话框时查询浏览器均收到 macOS `-1744`，因此未取得可用于 G4 的原始标签。这项结果只适用于发出查询的系统脚本，签名 Riftlet 在客机内的权限仍为未实测。B、C 已各自正常关机，专用通道已关闭，三个客机磁盘均无占用。[客机 B 和 C 的脱敏回执](evidence/g4-guests-bc.json)
+
 ## 双架构 CI
 
 ARM64 和 Intel 均通过。在测试修订 `1bce2891c510263b5c05dec0857afdea04247f06` 上逐项核对 `Sources`、`Resources`、`Package.swift`、`Package.resolved` 与签名产品提交完全一致。每个架构核对了 1,432 个 Swift 测试的完整分组，另运行本轮 18 项 Chrome 受控页面测试及 8 项离线故障恢复测试。CI 不向真实 ChatGPT 发送图片。[两个 GitHub 作业](https://github.com/haohongfei2001-png/Riftlet/actions/runs/44930670085) · [分组、回归名称和制品哈希](evidence/ci.json)
