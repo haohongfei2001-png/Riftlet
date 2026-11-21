@@ -1,0 +1,66 @@
+{
+  "scope": "Same local ARM64 development archive. Ordinary Launch Services, separate development root, native quit during an outstanding guest macOS DesktopFolder request.",
+  "source": "504f25ddbb4d7c6e01669056e63a2209c5c2c6ac",
+  "archiveSHA256": "be9f54b98cd6327061a62a68207eb3ef07b63945aa6036abaff7df7269749ea2",
+  "executableSHA256": "8912b5825230ca31b6f398114017d8937397015b4ea491cd8ba5968293dd588b",
+  "bundleID": "com.riftlet.provider-development",
+  "guestArchiveAndExecutableMatched": true,
+  "strictDeepGuestSignature": true,
+  "signature": "ad-hoc",
+  "gatekeeper": "assessments enabled",
+  "quarantineOnLocallySuppliedApp": false,
+  "isolation": {
+    "dedicatedQAUserWithActiveAquaConsole": true,
+    "independentAPFSCopyOnWriteBootVolume": true,
+    "originalQA_B_offlineUnmodified": true,
+    "freshDevelopmentDataAtStart": true,
+    "AXProbeTrusted": false,
+    "browserOpened": false,
+    "hostWindowsOpened": false,
+    "guestProductLaunchCount": 1
+  },
+  "ordinaryOpen": {
+    "method": "/usr/bin/open extracted application path",
+    "beforeUTC": "2026-11-20T10:39:49Z",
+    "processesBefore": 0,
+    "finishedLaunchingUTC": "2026-11-20T10:39:50Z",
+    "bundleAndExecutableExactPathPID": 812,
+    "windowsOwnedByApp": 1,
+    "separateDataCreated": true
+  },
+  "originalPendingRequest": {
+    "service": "kTCCServiceSystemPolicyDesktopFolder",
+    "tccdMsgID": "162.42",
+    "subjectMatchesBundleAndPID": true,
+    "tccdPromptingUTC": "2026-11-20T10:39:50.939Z",
+    "matchingResultObservedBy10_41_00Z": false,
+    "testerInteractedWithPermissionPrompt": false,
+    "testerGrantedPermission": false,
+    "resultUTC": "2026-11-20T10:42:10.093Z",
+    "terminalAuthValue": 0,
+    "terminalAuthReason": 13,
+    "noResultUntilAfterProcessExit": true,
+    "secondsFromPromptUntilResult": 139.154,
+    "secondsAfterConfirmedAppExitBeforeResult": 130.093,
+    "uiAcknowledgementOrDismissal": "NOT_TESTED",
+    "provenance": "After normal guest shutdown, a read-only restart recovered the original boot unified-log transaction, including its terminal value. The application was not reopened."
+  },
+  "ordinaryQuit": {
+    "method": "NSRunningApplication.terminate() addressed to exact bundle/executable instance",
+    "requestedUTC": "2026-11-20T10:39:59Z",
+    "returnedTrue": true,
+    "sameBundleAndPathProcessCountAt10_40_00Z": 0,
+    "appOwnedWindowsAt10_40_00Z": 0,
+    "sameBundleProcessCountAt10_42_09Z": 0,
+    "observedOrdinaryQuitDuringPendingRequest": "PASS"
+  },
+  "limits": [
+    "Initial in-script log filter missed punctuation after the PID. Independent post-run tccd records attribute the actual pending request to the exact PID and bundle.",
+    "A later attempt to reset only this application on the disposable clone returned OSStatus -10814 before any second launch. No permission grant, no successful reset, no extra product launch.",
+    "A system UserNotificationCenter window remained visible at 10:42:09Z. Its contents and dismissal were not inspected.",
+    "No signed-in browser, first screenshot attachment, visible menu action, notarization, or internet download Gatekeeper assessment was tested."
+  ],
+  "cloneShutdownUTC": "2026-11-20T10:42:15Z",
+  "stableBuild53Control": "NOT_RUN. Clone inherits the same nonempty stable data root of its only verified QA Aqua user. No stable root, signed app, account or authorization history was changed for a comparison.",
+  "disposableQACloneRemovedAfterLastNormalShutdownUTC": "2026-11-20T10:43:22Z"
+}

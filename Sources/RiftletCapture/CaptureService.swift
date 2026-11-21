@@ -89,6 +89,7 @@ public actor CaptureService {
     private var diagnosticRevision = UUID()
     private let now: @Sendable () -> Date
     private var watcher: FolderWatcher?
+    private var openingWatches: [ObjectIdentifier: FolderWatcher] = [:]
     private var watchedSource: FolderWatcher.OpenedWatch?
     private var watchedIdentity: WatchedFileIdentity? { watchedSource?.identity }
     private var parentWatcher: FolderWatcher?
@@ -287,6 +288,8 @@ public actor CaptureService {
         rebindRequest = UUID()
         scanningGeneration = nil
         departuresInProgress.removeAll()
+        for opening in openingWatches.values { opening.cancel() }
+        openingWatches.removeAll()
         watcher?.cancel(); watcher = nil
         watchedSource = nil
         parentWatcher?.cancel(); parentWatcher = nil
@@ -414,7 +417,7 @@ public actor CaptureService {
         let nextGeneration = UUID()
         let next = makeWatcher(directory: destination, token: nextGeneration)
         do {
-            let nextSource = try await next.start()
+            let nextSource = try await openWatch(next)
             guard running, generation == originalGeneration, rebindRequest == request else { next.cancel(); return }
             var nextBaseline: SourceBaseline?
             if let data = try await store.checkpoint(for: Self.checkpointKey(for: destination)) {
@@ -775,7 +778,7 @@ public actor CaptureService {
         let token = generation
         guard try await confirmCurrentSource(generation: token) else { return }
         let next = makeWatcher(directory: sourceDirectory, token: token)
-        let source = try await next.start()
+        let source = try await openWatch(next)
         guard running, generation == token else { next.cancel(); return }
         watcher?.cancel(); watcher = next
         watchedSource = source
@@ -795,6 +798,13 @@ public actor CaptureService {
             throw failure
         }
         return true
+    }
+
+    private func openWatch(_ candidate: FolderWatcher) async throws -> FolderWatcher.OpenedWatch {
+        let id = ObjectIdentifier(candidate)
+        openingWatches[id] = candidate
+        defer { openingWatches[id] = nil }
+        return try await candidate.start()
     }
 
     private func makeWatcher(directory: URL, token: UUID) -> FolderWatcher {
@@ -826,7 +836,7 @@ public actor CaptureService {
                     Task(priority: .utility) { await service.reportLostParent(generation: token) }
                 })
             do {
-                try await parent.start()
+                _ = try await openWatch(parent)
                 guard running, generation == token else { parent.cancel(); return }
                 parentWatcher?.cancel(); parentWatcher = parent
                 // An exchange can finish before the parent watch is armed.

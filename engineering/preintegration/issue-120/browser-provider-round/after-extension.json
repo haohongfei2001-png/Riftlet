@@ -1,0 +1,128 @@
+{
+  "observedUTC": "2026-11-20T13:52:57+00:00",
+  "remoteSetupReport": "https://github.com/haohongfei2001-png/Riftlet/pull/122#issuecomment-7040808463",
+  "installedController": {
+    "chrome": {
+      "running": true,
+      "nativeManifestCorrect": true,
+      "existingProfiles": 4,
+      "extensionInstalledProfiles": 2,
+      "extensionEnabledProfiles": 2,
+      "selectedProfileExtensionEnabled": true,
+      "status": "READY_FOR_RPC_CHECK"
+    },
+    "edge": {
+      "running": true,
+      "nativeManifestCorrect": true,
+      "existingProfiles": 2,
+      "extensionInstalledProfiles": 1,
+      "extensionEnabledProfiles": 1,
+      "selectedProfileExtensionEnabled": true,
+      "status": "READY_FOR_RPC_CHECK"
+    }
+  },
+  "beforeFirstPage": {
+    "desktopPluginVersion": "26.1117.31558",
+    "edgeDesktopManageState": "NOT_OBSERVED",
+    "officialRPC": {
+      "edge": "Trusted RPC service is not configured: browser",
+      "chrome": "Trusted RPC service is not configured: browser"
+    },
+    "desktopSettingsRead": "DENIED_BY_DESKTOP_APP_POLICY",
+    "standaloneManagedAppServerStatus": "CONNECTION_REFUSED",
+    "runningDesktopBrowserServiceReconfigured": false,
+    "registrationCause": "UNKNOWN",
+    "independentFreshWorkerChrome": "Trusted RPC service is not configured: browser"
+  },
+  "nativeQAProbe": {
+    "accessibilityPreflight": true,
+    "cgPostEventPreflight": true,
+    "appleEventGet": [
+      {
+        "bundle": "com.google.Chrome",
+        "instances": 1,
+        "permissionStatus": [
+          0
+        ]
+      },
+      {
+        "bundle": "com.microsoft.edgemac",
+        "instances": 1,
+        "permissionStatus": [
+          0
+        ]
+      }
+    ]
+  },
+  "nativeKeyboardAddressing": {
+    "CGEventPostToPid": "process",
+    "AXUIElementPostKeyboardEvent": "application or system-wide AX element",
+    "tabScopedKeyboardTargetEstablished": false,
+    "permissionsChanged": false,
+    "inspection": "Running installed Chromium scripting dictionaries; macOS SDK AX and CG public API.",
+    "tabbitHost": "Separate Tabbit browser family."
+  },
+  "liveQA": {
+    "freshWindowsCreatedInNormalProfiles": 0,
+    "tabScopedKeysSent": 0,
+    "riftletScreenshotClicks": 0,
+    "authenticatedProviderWrites": 0,
+    "G1": "NOT_RUN",
+    "G2": "NOT_RUN",
+    "G4RealService": "NOT_RUN",
+    "coreSamePackagePassed": 0,
+    "coreTotal": 16
+  },
+  "build53DMG": {
+    "sha256": "9458479641bde6147de37fda8b873507b2a312a153a76c08e166e50903583dee",
+    "gatekeeper": "accepted; Notarized Developer ID",
+    "appBuild": 53,
+    "signedArchitectures": [
+      "x86_64",
+      "arm64"
+    ],
+    "deepStrictAllArchitectures": true,
+    "executableSHA256": "73bea11151f9532c4ab2c3559f3b279e733dbade4c0f0e233e1c1627840e9667"
+  },
+  "independentControlledReview": {
+    "provider": {
+      "firstBeforeFresh": {
+        "unchanged": "accepted_into_draft",
+        "same-src-and-label": "accepted_into_draft",
+        "old-label-back": "unknown",
+        "old-src-back": "unknown",
+        "old-image-back": "unknown",
+        "old-card-back": "unknown"
+      },
+      "oldAfterFresh": {
+        "unchanged": "accepted_into_draft",
+        "same-src-and-label": "accepted_into_draft",
+        "old-label-back": "unknown",
+        "old-src-back": "unknown",
+        "old-image-back": "unknown",
+        "old-card-back": "unknown"
+      },
+      "separateExplicitClickAcceptedAllCases": true,
+      "attemptedOriginalInputIsFencedAllCases": true,
+      "measuredActionCountsPerCase": {
+        "input": 2,
+        "change": 2,
+        "send": 0
+      }
+    },
+    "braveOriginalTab": {
+      "selfAddressedAppKitOriginalReads": 1,
+      "mutableTabRefused": true,
+      "expiredReadRefused": true,
+      "fallbackOnConflictingProperties": 0,
+      "browserWriteCapabilityOpened": false
+    },
+    "sha256ofPrivateOutputs": {
+      "provider-final-a51ed6c3.json": "63180607debd67b39885d84c655720f27ece90e141435d21fb5f6d665b4eb8f4",
+      "final-wk.stdout": "09bea5d3e81a167f46bef85f3c1c593a9e367bbea0472e7050f4caf14b2fdbc1",
+      "after-p1-swift.stdout": "99dbbf776fd3ab53fcfbf1b3778aaf30619d7c76024599ff74da205f8333be08",
+      "brave-route.stdout": "d28da6ad0898a37324ff12cbe433d27c375c9a87598fcb268135564b18892759",
+      "brave-review.stdout": "e23440c0fad5c1b17972a0b72f0d50dc82016cba0e7f7c7d3ceb305f3a305a3b"
+    }
+  }
+}

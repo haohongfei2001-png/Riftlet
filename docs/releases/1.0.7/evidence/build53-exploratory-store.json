@@ -1,0 +1,49 @@
+{
+  "upstream": "https://github.com/haohongfei2001-png/Riftlet/pull/119#issuecomment-7033486754",
+  "build": "53",
+  "scope": "Read-only replay of two previously created QA operations. No new site inputs.",
+  "records": [
+    {
+      "build": "53",
+      "operation": "77C94BE8-D34A-4CE3-BB4F-17B75ADF0BFC",
+      "png": "c33e9a40c402e19f3362288cec50143369a28b57afa5b2c3a32366674210d24c",
+      "pixelWidth": 2104,
+      "pixelHeight": 1652,
+      "byteCount": 687753,
+      "bundle": "com.microsoft.edgemac",
+      "targetSHA256": "a73622d4939b262b0ee97cf12ba9a3ba6d495a1736bb7a91e3921e9e57a661bb",
+      "onSavedRoute": false,
+      "phase": "unknown",
+      "attempted": 1,
+      "lastStoreUpdateSeconds": 10.466,
+      "receiptOutcome": "inputTriggered",
+      "belongsToOriginalDraft": true,
+      "positiveReady": false,
+      "safeToRetry": false,
+      "hasError": false,
+      "storedStartCount": 0,
+      "handledRows": 0
+    },
+    {
+      "build": "53",
+      "operation": "B720E477-34A4-4F21-BF0B-387EEDDEF7EA",
+      "png": "b91eef082d4f720381bfbd855fb8020ba69981191ddb0670d5b61a091c5e2f0d",
+      "pixelWidth": 2380,
+      "pixelHeight": 1652,
+      "byteCount": 1476215,
+      "bundle": "com.google.Chrome",
+      "targetSHA256": "7e79f6331b25e9136459ccaac5dd556c46a8436084408c73b573a23c3e05199e",
+      "onSavedRoute": true,
+      "phase": "inputTriggered",
+      "attempted": 1,
+      "lastStoreUpdateSeconds": 4.626,
+      "receiptOutcome": "uploadStarted",
+      "belongsToOriginalDraft": true,
+      "positiveReady": false,
+      "safeToRetry": false,
+      "hasError": false,
+      "storedStartCount": 1,
+      "handledRows": 0
+    }
+  ]
+}

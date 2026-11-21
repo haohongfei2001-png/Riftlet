@@ -1,0 +1,561 @@
+{
+  "issue": 120,
+  "observedUTC": "2026-11-20T04:37:44Z/2026-11-20T04:53:51Z",
+  "scope": "isolated engineering evidence only",
+  "signedRiftletCandidate": "NOT_RUN",
+  "productL2": "NOT_RUN",
+  "liveL3PairsTested": 0,
+  "enabledNewPairs": [],
+  "installation": {
+    "browserBundles": {
+      "brave": {
+        "JavaScriptCommands": {
+          "execute": {
+            "event": "CrSuExJa",
+            "parameters": [
+              [
+                "direct",
+                "specifier"
+              ],
+              [
+                "javascript",
+                "text"
+              ]
+            ]
+          }
+        },
+        "JavaScriptReceivers": {
+          "tab": [
+            "execute"
+          ]
+        },
+        "additionalStrictSignatureCheck": "FAIL_FINDER_METADATA",
+        "appleScriptEnabledInBundle": true,
+        "build": "200.58",
+        "bundleID": "com.brave.Browser",
+        "cdhash": "f1e88e417232524598be5f441a29fdf623687ee9",
+        "codeSignature": "PASS",
+        "declaredDictionary": "scripting.sdef",
+        "dictionaryHashes": {
+          "scripting.sdef": "cd0453c2e166a0b664f8ea1d1ac04b53a54eed14835569b6104a7823dbb950f2"
+        },
+        "gatekeeperAssessment": "ACCEPTED",
+        "gatekeeperSource": "Notarized Developer ID",
+        "probeSenderOnly": [],
+        "properties": {
+          "tab": {
+            "URL": "URL ",
+            "id": "ID  "
+          },
+          "window": {
+            "active tab": "acTa",
+            "id": "ID  ",
+            "index": "pidx"
+          }
+        },
+        "runningReceiversForExactBundlePath": 0,
+        "scriptingResources": [
+          "scripting.sdef"
+        ],
+        "signedCandidatePermission": "NOT_RUN",
+        "teamIdentifier": "KL8N8XSYF4",
+        "version": "158.1.100.58"
+      },
+      "chrome": {
+        "JavaScriptCommands": {
+          "execute": {
+            "event": "CrSuExJa",
+            "parameters": [
+              [
+                "direct",
+                "specifier"
+              ],
+              [
+                "javascript",
+                "text"
+              ]
+            ]
+          }
+        },
+        "JavaScriptReceivers": {
+          "tab": [
+            "execute"
+          ]
+        },
+        "additionalStrictSignatureCheck": "PASS",
+        "appleScriptEnabledInBundle": true,
+        "build": "8103.79",
+        "bundleID": "com.google.Chrome",
+        "cdhash": "ef9751368c315d7f2c8a1a071d0805b972935a66",
+        "codeSignature": "PASS",
+        "declaredDictionary": "scripting.sdef",
+        "dictionaryHashes": {
+          "scripting.sdef": "cd0453c2e166a0b664f8ea1d1ac04b53a54eed14835569b6104a7823dbb950f2"
+        },
+        "gatekeeperAssessment": "ACCEPTED",
+        "gatekeeperSource": "Notarized Developer ID",
+        "probeSenderOnly": [
+          {
+            "nonPromptingPermissionOSStatus": 0,
+            "stableKernelBirth": true
+          }
+        ],
+        "properties": {
+          "tab": {
+            "URL": "URL ",
+            "id": "ID  "
+          },
+          "window": {
+            "active tab": "acTa",
+            "id": "ID  ",
+            "index": "pidx"
+          }
+        },
+        "runningReceiversForExactBundlePath": 1,
+        "scriptingResources": [
+          "scripting.sdef"
+        ],
+        "signedCandidatePermission": "NOT_RUN",
+        "teamIdentifier": "EQHXZ8M8AV",
+        "version": "157.0.8103.79"
+      },
+      "edge": {
+        "JavaScriptCommands": {
+          "execute": {
+            "event": "CrSuExJa",
+            "parameters": [
+              [
+                "direct",
+                "specifier"
+              ],
+              [
+                "javascript",
+                "text"
+              ]
+            ]
+          }
+        },
+        "JavaScriptReceivers": {
+          "tab": [
+            "execute"
+          ]
+        },
+        "additionalStrictSignatureCheck": "PASS",
+        "appleScriptEnabledInBundle": true,
+        "build": "157.0.4341.60",
+        "bundleID": "com.microsoft.edgemac",
+        "cdhash": "a6bb4a8f9ac1486e7e3c6447c560c6772d9fe2dc",
+        "codeSignature": "PASS",
+        "declaredDictionary": "scripting.sdef",
+        "dictionaryHashes": {
+          "scripting.sdef": "cd0453c2e166a0b664f8ea1d1ac04b53a54eed14835569b6104a7823dbb950f2"
+        },
+        "gatekeeperAssessment": "ACCEPTED",
+        "gatekeeperSource": "Notarized Developer ID",
+        "probeSenderOnly": [
+          {
+            "nonPromptingPermissionOSStatus": 0,
+            "stableKernelBirth": true
+          }
+        ],
+        "properties": {
+          "tab": {
+            "URL": "URL ",
+            "id": "ID  "
+          },
+          "window": {
+            "active tab": "acTa",
+            "id": "ID  ",
+            "index": "pidx"
+          }
+        },
+        "runningReceiversForExactBundlePath": 1,
+        "scriptingResources": [
+          "scripting.sdef"
+        ],
+        "signedCandidatePermission": "NOT_RUN",
+        "teamIdentifier": "UBF8T346G9",
+        "version": "157.0.4341.60"
+      },
+      "firefox": {
+        "JavaScriptCommands": {},
+        "JavaScriptReceivers": {},
+        "additionalStrictSignatureCheck": "PASS",
+        "appleScriptEnabledInBundle": true,
+        "build": "16026.11.16",
+        "bundleID": "org.mozilla.firefox",
+        "cdhash": "78e212a38af1533d57bf3edc7ebfb224cd2df7b9",
+        "codeSignature": "PASS",
+        "declaredDictionary": null,
+        "dictionaryHashes": {},
+        "gatekeeperAssessment": "ACCEPTED",
+        "gatekeeperSource": "Notarized Developer ID",
+        "probeSenderOnly": [],
+        "properties": {},
+        "runningReceiversForExactBundlePath": 0,
+        "scriptingResources": [],
+        "signedCandidatePermission": "NOT_RUN",
+        "teamIdentifier": "43AQ936H96",
+        "version": "160.0.1"
+      },
+      "safari": {
+        "JavaScriptCommands": {
+          "do JavaScript": {
+            "event": "sfridojs",
+            "parameters": [
+              [
+                "direct",
+                "text"
+              ],
+              [
+                "in",
+                [
+                  "document",
+                  "tab"
+                ]
+              ]
+            ]
+          }
+        },
+        "JavaScriptReceivers": {
+          "document": [
+            "do JavaScript"
+          ],
+          "tab": [
+            "do JavaScript"
+          ]
+        },
+        "additionalStrictSignatureCheck": "PASS",
+        "appleScriptEnabledInBundle": "Yes",
+        "build": "22625.1.29.11.27",
+        "bundleID": "com.apple.Safari",
+        "cdhash": "8c547dc26c167989263e294f03a2b426fadb4a29",
+        "codeSignature": "PASS",
+        "declaredDictionary": "Safari.sdef",
+        "dictionaryHashes": {
+          "CocoaStandard.sdef": "11935d4a6ebabc75a45e79d7d3830c47701474b0f34d92937fa32c6eb6a22fcd",
+          "Safari.sdef": "a0a05c6e4a37f30e78545c3e715d57facd6217864b252bcd07fbfd579a62b049"
+        },
+        "gatekeeperAssessment": "ACCEPTED",
+        "gatekeeperSource": "Apple System",
+        "probeSenderOnly": [],
+        "properties": {
+          "document": {
+            "URL": "pURL"
+          },
+          "tab": {
+            "URL": "pURL",
+            "index": "pidx",
+            "pid": "wpid"
+          },
+          "window": {
+            "current tab": "cTab",
+            "id": "ID  ",
+            "index": "pidx"
+          }
+        },
+        "runningReceiversForExactBundlePath": 0,
+        "scriptingResources": [
+          "Safari.sdef"
+        ],
+        "signedCandidatePermission": "NOT_RUN",
+        "teamIdentifier": "not set",
+        "version": "27.0"
+      }
+    },
+    "macOS": "27.0",
+    "systemBuild": "26A428"
+  },
+  "localFixtureExecutions": {
+    "chrome": {
+      "bundle": "com.google.Chrome",
+      "version": "157.0.8103.79",
+      "fixtureReceiver": {
+        "signedCandidatePermission": "NOT_RUN",
+        "probeSenderOnly": [
+          {
+            "stableKernelBirth": true,
+            "nonPromptingPermissionOSStatus": 0,
+            "ownedFixtureNativeCount": {
+              "windowCount": 1
+            }
+          }
+        ],
+        "runningReceiversForExactBundlePath": 1
+      },
+      "nativePickerProbe": null,
+      "mode": "dedicated headless profile",
+      "fixtureMatches": true,
+      "result": {
+        "received": [
+          82,
+          49,
+          50,
+          48,
+          0,
+          255
+        ],
+        "events": [
+          "input",
+          "change"
+        ],
+        "fileName": "fixture.bin",
+        "originalText": "synthetic draft",
+        "selection": [
+          2,
+          7
+        ],
+        "legacyReplaceInvisible": true,
+        "navigationEntryAvailable": true,
+        "replaceChangesEntryID": true,
+        "pushChangesEntryID": true,
+        "sameURLAfterEditorReplacement": true
+      }
+    },
+    "edge": {
+      "bundle": "com.microsoft.edgemac",
+      "version": "157.0.4341.60",
+      "fixtureReceiver": {
+        "probeSenderOnly": [
+          {
+            "ownedFixtureNativeCount": {
+              "windowCount": 1
+            },
+            "nonPromptingPermissionOSStatus": 0,
+            "stableKernelBirth": true
+          }
+        ],
+        "signedCandidatePermission": "NOT_RUN",
+        "runningReceiversForExactBundlePath": 1
+      },
+      "nativePickerProbe": null,
+      "mode": "dedicated headless profile",
+      "fixtureMatches": true,
+      "result": {
+        "received": [
+          82,
+          49,
+          50,
+          48,
+          0,
+          255
+        ],
+        "events": [
+          "input",
+          "change"
+        ],
+        "fileName": "fixture.bin",
+        "originalText": "synthetic draft",
+        "selection": [
+          2,
+          7
+        ],
+        "legacyReplaceInvisible": true,
+        "navigationEntryAvailable": true,
+        "replaceChangesEntryID": true,
+        "pushChangesEntryID": true,
+        "sameURLAfterEditorReplacement": true
+      }
+    },
+    "brave": {
+      "bundle": "com.brave.Browser",
+      "version": "158.1.100.58",
+      "fixtureReceiver": {
+        "runningReceiversForExactBundlePath": 1,
+        "probeSenderOnly": [
+          {
+            "nonPromptingPermissionOSStatus": -1744,
+            "stableKernelBirth": true
+          }
+        ],
+        "signedCandidatePermission": "NOT_RUN"
+      },
+      "nativePickerProbe": null,
+      "mode": "dedicated headless profile",
+      "fixtureMatches": true,
+      "result": {
+        "received": [
+          82,
+          49,
+          50,
+          48,
+          0,
+          255
+        ],
+        "events": [
+          "input",
+          "change"
+        ],
+        "fileName": "fixture.bin",
+        "originalText": "synthetic draft",
+        "selection": [
+          2,
+          7
+        ],
+        "legacyReplaceInvisible": true,
+        "navigationEntryAvailable": true,
+        "replaceChangesEntryID": true,
+        "pushChangesEntryID": true,
+        "sameURLAfterEditorReplacement": true
+      }
+    },
+    "firefox": {
+      "bundle": "org.mozilla.firefox",
+      "version": "160.0.1",
+      "fixtureReceiver": {
+        "signedCandidatePermission": "NOT_RUN",
+        "probeSenderOnly": [
+          {
+            "stableKernelBirth": true,
+            "nonPromptingPermissionOSStatus": -1744
+          }
+        ],
+        "runningReceiversForExactBundlePath": 1
+      },
+      "nativePickerProbe": null,
+      "mode": "dedicated headless profile",
+      "fixtureMatches": true,
+      "result": {
+        "received": [
+          82,
+          49,
+          50,
+          48,
+          0,
+          255
+        ],
+        "events": [
+          "input",
+          "change"
+        ],
+        "fileName": "fixture.bin",
+        "originalText": "synthetic draft",
+        "selection": [
+          2,
+          7
+        ],
+        "legacyReplaceInvisible": true,
+        "navigationEntryAvailable": true,
+        "replaceChangesEntryID": true,
+        "pushChangesEntryID": true,
+        "sameURLAfterEditorReplacement": true
+      }
+    },
+    "safariGuest": {
+      "bundle": "com.apple.Safari",
+      "version": "27.2",
+      "fixtureReceiver": null,
+      "nativePickerProbe": null,
+      "mode": "disposable ordinary Safari",
+      "fixtureMatches": true,
+      "result": {
+        "received": [
+          82,
+          49,
+          50,
+          48,
+          0,
+          255
+        ],
+        "events": [
+          "input",
+          "change"
+        ],
+        "fileName": "fixture.bin",
+        "originalText": "synthetic draft",
+        "selection": [
+          2,
+          7
+        ],
+        "legacyReplaceInvisible": true,
+        "navigationEntryAvailable": true,
+        "replaceChangesEntryID": true,
+        "pushChangesEntryID": true,
+        "sameURLAfterEditorReplacement": true
+      }
+    },
+    "firefoxGuest": {
+      "bundle": "org.mozilla.firefox",
+      "version": "160.0.1",
+      "fixtureReceiver": {
+        "signedCandidatePermission": "NOT_RUN",
+        "probeSenderOnly": [
+          {
+            "stableKernelBirth": true,
+            "nonPromptingPermissionOSStatus": -1744
+          }
+        ],
+        "runningReceiversForExactBundlePath": 1
+      },
+      "nativePickerProbe": {
+        "exactOriginalReceipt": "NOT_RUN",
+        "enteredFilePath": false,
+        "attachmentAccepted": "NOT_RUN",
+        "trusted": false,
+        "stop": "ACCESSIBILITY_NOT_GRANTED",
+        "openedScopedPicker": false
+      },
+      "mode": "disposable ordinary Firefox",
+      "fixtureMatches": true,
+      "result": {
+        "received": [
+          82,
+          49,
+          50,
+          48,
+          0,
+          255
+        ],
+        "events": [
+          "input",
+          "change"
+        ],
+        "fileName": "fixture.bin",
+        "originalText": "synthetic draft",
+        "selection": [
+          2,
+          7
+        ],
+        "legacyReplaceInvisible": true,
+        "navigationEntryAvailable": true,
+        "replaceChangesEntryID": true,
+        "pushChangesEntryID": true,
+        "sameURLAfterEditorReplacement": true
+      }
+    }
+  },
+  "safariCold": {
+    "automationStatusForProbeSender": -1744,
+    "lateSlotBinding": "NOT_RUN",
+    "pageJavaScriptFromAppleEvents": "NOT_RUN",
+    "signedCandidatePermission": "NOT_RUN"
+  },
+  "safariConsentRequest": {
+    "sender": "disposable ad-hoc test app",
+    "request": "standard macOS first-use prompt requested",
+    "consentResult": "UNVERIFIED",
+    "systemNotificationProcessPresent": true,
+    "guestScreenCapture": "could not create image from display",
+    "guestUIScriptingBridgeOSStatus": -1743,
+    "appTerminatedWithoutObservedGrant": true
+  },
+  "olderSafariBelow26_2": "NOT_AVAILABLE",
+  "packages": {
+    "brave": {
+      "version": "v1.100.58",
+      "url": "https://github.com/brave/brave-browser/releases/download/v1.100.58/Brave-Browser-arm64.dmg",
+      "sha256": "0e26fb4c64c42ce7a6b1a1c0e2184d334668b0c51563bcf0831437e4b9920b3f",
+      "comparedWith": "Brave official GitHub stable release asset digest"
+    },
+    "firefox": {
+      "version": "160.0.1",
+      "url": "https://download-installer.cdn.mozilla.net/pub/firefox/releases/160.0.1/mac/en-US/Firefox%20160.0.1.dmg",
+      "sha256": "db9a522291d82cbe9a2b2922822def4db0a79d4fa3e614979039d705b13b1c25",
+      "comparedWith": "https://archive.mozilla.org/pub/firefox/releases/160.0.1/SHA256SUMS"
+    }
+  },
+  "guestNormalShutdownUTC": [
+    "2026-11-20T04:48:12Z",
+    "2026-11-20T04:53:51Z"
+  ]
+}

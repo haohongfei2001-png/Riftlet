@@ -1,0 +1,75 @@
+{
+  "source": "b49bae816ff62fa5fa680729fe3145befd6c0b73",
+  "observedUTC": "2026-11-20",
+  "macOS": "27.2",
+  "safari": "27.2",
+  "run": "ordinary Safari in reserved Windowless Virtualization.framework guest B, existing Safari profile, loopback-only synthetic document",
+  "binarySHA256": "0b22f562ac1d2b2f29b9b6c4dfe74302e4ca8739217dca73d4e5b664041ec12b",
+  "sourceSHA256": {
+    "export.swift": "fc23932c7559128a33f83694ea5a8a3148fd0ec36ef964a5ec1a7d8c9d3f8428",
+    "probe.js": "763a5718aa698a543e05768bd3d18037adbc896cdb57cd0e56cb1267160977af",
+    "run.rb": "5dc9c6ecabc1425db0e7de6c12d3d91aef9f549764a3bb9d59930613a8c723c8"
+  },
+  "firstPreflight": {
+    "nativeWindowCountAppleEvent": -1712,
+    "caller": "guest osascript",
+    "consentChanged": false,
+    "firstFixture": {
+      "visibility": "visible",
+      "hasFocus": false,
+      "bind": "bound",
+      "read": "refused"
+    },
+    "recovery": "normal guest shutdown and restart before the final run"
+  },
+  "final": {
+    "visible": "visible",
+    "focused": true,
+    "original": [
+      "bound",
+      "probe_ran|notReached"
+    ],
+    "editorBind": "bound",
+    "editorRestored": true,
+    "oldFenceAfterEditorABA": "refused",
+    "afterEditor": [
+      "bound",
+      "probe_ran|notReached"
+    ],
+    "historyBind": "bound",
+    "pushedSameURL": true,
+    "originalEntryRestored": true,
+    "oldFenceAfterHistoryABA": "refused",
+    "historyReadWithinLifetime": true,
+    "afterHistory": [
+      "bound",
+      "probe_ran|notReached"
+    ],
+    "reloadBind": "bound",
+    "oldFenceAfterReload": "refused",
+    "newGlobalAfterReload": true,
+    "reloadNavigation": true,
+    "newDocument": [
+      "bound",
+      "probe_ran|notReached"
+    ],
+    "newDocumentPositive": true,
+    "nativeWindowsObserved": 4,
+    "sameNativeReceiverAndWindow": true
+  },
+  "nativeObservation": "Four ordered page checkpoints. CandidateReceiver.foreground and kernel process birth bracket a single visible layer-zero Safari window. WindowServer IDs compared only inside guest.",
+  "unverified": [
+    "Native original-tab addressing at click",
+    "native script injection and reply",
+    "provider editor / attachment / receipt",
+    "Safari product canary",
+    "Brave original async reply"
+  ],
+  "cleanup": {
+    "safariRemaining": 0,
+    "braveRemaining": 0,
+    "originalBraveDefaultProfileAbsent": true,
+    "fixtureDirectoryRemoved": true,
+    "windowlessGuestEvent": "guest-shutdown 2026-11-20T12:07:11Z"
+  }
+}

@@ -1,0 +1,46 @@
+# Issue #120 · 隔离准备
+
+2026-11-21 原目标复核。#119 build 53 在两款浏览器均复现三项旧操作的后续副作用。修复独立交付到 [Draft #123](https://github.com/haohongfei2001-png/Riftlet/pull/123)。build 54 已签名、公证，最终 DMG 内实际页面程序在 Chrome/Edge 各通过 15 个受控场景。正式验收键盘在同标签可向替换文档输入，G1/G2/G4 仍为 NOT_RUN。W0 与公开发行状态维持原判。[完整分层结果与原始收据](build54-target-safety/README.md)
+
+正式产品基线为 WAITING_FOR_107_BASELINE。远端 main 为 9fd8ad15（公开 1.0.5 build 31）。#119 仍是 Draft，已继承 #117 的 cf697d7 和规划审查的 e852af3，现产品 0dc6780、独立审查 f7287e0、准入 c764246。RC 53 的 DMG SHA-256 为 9458479641bde6147de37fda8b873507b2a312a153a76c08e166e50903583dee。五项 CI 通过；登录草稿 G1、G2 及 G4 真实失败恢复仍缺同包实测。详见 [上游验收记录](https://github.com/haohongfei2001-png/Riftlet/pull/119#issuecomment-7028325810)。
+
+此分支从 c764246 建立独立临时工作树，仅供 #121 明确允许的接口验证、夹具与能力探查。contract/check.sh 从该树原有 RiftletCore 源码编译并链接，独立 JS 测试运行在 Node。候选资源身份、同步发送轻量 pin 与异步接收的接口边界、按历史原操作只读定位在此验证。App 接线、旧数据库迁移和新版签名须在实际主线纳入 1.0.7 后做。未拷贝规划准入文件。
+
+宿主、Provider、验收夹具分别写入此目录下 hosts、providers、matrix。生产代码、分支准入与发布渠道仍由正式集成处理。新候选同包 L3 核心 0/16，暂为 PARTIAL。
+
+- d9af149 已链接真实 build 53 的 Core。独立审查指出旧 pin 回包、能力全未知及伪散列仍可通过夹具边界。本次加入发前能力检查、原回执的 native generation/出生身份/ProviderRoute 比对及缺字段反例；设置授权检查仅用于显式设置。读者固定持久操作、原 invocation、原图哈希，只暴露 observe。Swift 与 JS 专项均通过，属于隔离验证。
+
+- eed8c99 之后加入可重跑的实库专项：在独立临时目录通过原 QueueStore 的一次性 dispatch 和 checkpoint 接口登记一条模拟操作。重新打开 SQLite 后，原 reader 只进行一次核对，结果保持 UNKNOWN；错 invocation、未要求原稿核对及同 revision 不同资源均被拒。源程序与生产 SQLite 布局未改。baseline.py 只读复查远端祖先、签名候选所属 PR 检查及公开版本。
+
+- 8f674c3 的 SQLite 重开与原目标正反例经非作者实际复跑。另在同一台 arm64 Mac 上以 x86_64 编译并通过 Rosetta 执行同一专项；CLT 链接时报告兼容性静态库缺 Intel 切片，测试程序仍成功链接和执行。物理 Intel 及新产品双架构 CI 未运行。macOS 27 上可用 Developer ID Application 身份 1 个，已找到官方 notarytool 和 stapler；此阶段没有新产品包。
+- 从 #121 仅移入原始规划矩阵供无网络、浅克隆重放。该 JSON SHA-256 为 35318faf7eacecf80972a7e47eaca173af15682f7ead047198e79da44cc30658，仍是规划输入。实测结果由 matrix 单独生成。
+
+- W5 已加入 40 格矩阵、逐格 case 查询及同包记录核验。3 个网页模拟子项及 Chrome/Edge 各 1 个真实二进制的受控页面子项留存原始 TAP。两个环境各自确认 31 次 setter、31 次 change、零发送；都没有签名产品入口，不能计 L2/L3。集成人重跑 7 组回放正反例，生成的矩阵与提交内容逐字节一致。
+
+- W3/W4 隔离准备已覆盖 8 个新 Provider 的匿名入口。Claude 返回 403，DeepSeek 转至账号页；Gemini 的只读探针在正式匿名 /app 识别到原编辑区和同属的上传入口，未见可归属文件输入。国内千问与国际 Qwen 分开记录。受控站点独立复核修复了响应式图片错认、摘要等待中换卡、非原表单控件，以及重复 pin 再次进入 setter。最终本地运行 4 次完整 setter/change、另 1 次中断后保持未知，零发送、零外部请求。具体见 providers/README.md 与受控回执；后续真实站点写入仍待同包。
+
+- W2/W6 的首批能力收据覆盖实际 Chrome、Edge、Brave、Safari、Firefox 的本地页面。Chrome/Edge 独立进程可按 PID 核对窗口数量；Safari 普通客机验证了同 URL 的导航反例。Brave 的默认 Shields/原稿写入与 Firefox 的无扩展目标、原卡证明未通过产品验收。客机 A 首次脚本权限请求未获得可验证结果，已正常关机。Host 字典、签名、探针身份与证据等级分别记录在 hosts/。
+
+- [Draft PR #122](https://github.com/haohongfei2001-png/Riftlet/pull/122) 已建立，比较分支固定到 #119 准入 c764246，差异只含本轮准备材料。合格 main 到位后在同一 PR 切换基准与产品接线，无需另开实施 PR。
+- 独立 C 客机经正常 Apple Events 授权实测，Safari 27.2 冷捕获的原 tab 描述符是可变索引；关掉原标签后该引用命中另一张同 URL 的页面。共用契约现对单靠索引或已有网页见证的冷点击在 capture/enqueue 前拒绝。这个结论针对所测定位方式，其余 Safari 绑定策略仍需证明。
+
+- C 还独立验证了 Brave 在系统正常授权后可读取原生窗口/标签 ID，默认的页面只读 JS 返回错误 12；Safari 正常开启脚本时能读页面标记，恢复默认后再次返回错误 8。Safari 原索引错投的负例在三种状态均复现。两项 Safari 设置已还原，两个临时探针授权均已撤回，客机正常关机，测试展示窗为零。[C 收据](hosts/guest-c)
+
+- 预集成核验已归档。[状态与逐包交接](STATUS.md) · [非作者复核与修复复测](INDEPENDENT_REVIEW.md) · [40 格矩阵](matrix/results.json)。再次核对远端，main 为 9fd8ad15，#119 仍是 c764246 的 Draft，公开版本 v1.0.5。下一阶段产品没有签名包，核心同包 0/16；#120 保持打开。
+
+- 1.0.7 收口复核。五项 #119 CI 与原签名包核实；A/B/C 及已配置远端无可交接的已登录测试会话。本轮真实点击 0、G4 服务恢复未执行。[收据](build53-service.json)。B、C 正常关机。
+- W0 修复旧脚本在仅有合并关系时错误放行。现核对产品继承、同包、G1–G6 双来源原始材料、证据审核和五个真实作业。13 组离线回归通过，实际运行返回 WAITING_FOR_107_BASELINE。[重放与当前记录](W0.md)
+- W5 非作者复核及集成人回放，11 组通过，40 格重新生成一致。Safari、Brave、Firefox 新增普通窗口的辅助功能查询记录；当前探针无相应授权。#122 仍基于固定比较分支，核心同包登录 0/16，未发布。
+
+- W5 同包导入与汇总已接入矩阵 CLI；按候选、环境及原始测量计算单格结果和独立放行门槛。17 组回归及独立复核通过，真实 #122 仍缺正式基线，0/16。[独审](W5_REVIEW.md)。官网、Release 与签名 feed 核对为公开 build 31。
+
+- 双轨实施。继承 #122 8bf6e42 / #119 build 53，将已审 BrowserHost、ConversationProvider、绑定与原操作只读续查契约移入 RiftletAdapters 产品模块。新宿主与站点保持开发态。上游探索样本已更新：Chrome 一次 START，Edge 一次输入后原稿有预览但无 START，正式 G1/G2/G4 仍缺证据。
+- 候选 App 已接入编译期 provider-development 组合。独立应用标识/数据库目录且不启动更新器，Chrome/Edge 的 ChatGPT 仍走同一 build 53 轻量原窗口 pin。新增站点的配置和 Swift 后端使用各自的实际资源摘要；网页写配方尚未准入。已修正旧点击 nonce 与 profile 错配可通过的问题。Safari、Brave、Firefox 集成了原生能力检查。W5 补齐两次真实输入、原卡与找回图关联。源与受控结果不作为真实网站通过。
+
+- 双轨产品 checkpoint `9ea7e7f4`。普通点击已连接原窗口/标签的新站点只读检查；隔离 ARM64 开发 App 已解包验签。Edge 原文件在冻结 build 53 与已知本地卡上 43/202 毫秒确认 START，半尺寸保持未知；实站 G1/G2/G4 与下一版正式登录 0/16 保留未通过。[交付与阻塞](DUAL_TRACK.md) · [原文件收据](../../../Tests/Build53EdgeReplay/receipt.json)
+
+- `504f25dd`。修复客机首启时 macOS 文件夹授权待答复导致应用普通退出持续等待。新 ZIP 已在独立客机证实系统请求仍待决时退出，次秒零进程零自有窗口，原设置/反馈保存决定及截图数据继续受保护。[同包现场](development-guest-final.json) · [包身份](development-app.json)
+
+- 浏览器控制与首个 Provider。Mac 无法在当前可信会话选中浏览器，Edge 现有两个配置也均缺扩展；本轮两个 canary、G1/G2/G4 和登录 Provider 均未执行。已修复专用窗口的身份核对、Edge 原卡与 START 的计时，以及输入控件重建后无法继续读取原卡的产品缺陷。产品提交 `48d25180` 已入私有开发 ZIP。非作者复核了受控 Provider 的原卡失败/错卡反例和 Safari 27.2 三项同窗口旧绑定反例。[验收、证据与恢复入口](browser-provider-round/README.md)
+
+- Edge 扩展已在原配置启用。桌面会话及独立新工作者的正式握手仍在窗口创建前失败；原生权限可查询，但无法将真实按键限定到标签。两个 canary、双图、真实 G4 和首个登录 Provider 保持 NOT_RUN。产品 `b20cefbf` 修复旧附件被替换后误判 START，以及 Brave 缺可选属性回包时丢失原标签。已交付私有 ARM64 开发包。[结果与收据](browser-provider-round/AFTER_EXTENSION.md)

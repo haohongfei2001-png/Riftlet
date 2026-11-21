@@ -1,0 +1,38 @@
+{
+  "scope": "development-loopback",
+  "browserVersion": "157.0.8103.79",
+  "actions": [
+    "pin",
+    "validate",
+    "commit",
+    "observe",
+    "fail",
+    "observe",
+    "finish"
+  ],
+  "observations": [
+    "accepted_into_draft",
+    "original_card_failed"
+  ],
+  "boundProgramSHA256": "ded56ce9e24fbf4bc0136db1b138b351f3c5f21c74e229ad7b3c71080d8e1f06",
+  "page": {
+    "action": "finish",
+    "result": "checked",
+    "inputs": 1,
+    "changes": 1,
+    "foreign": 0,
+    "sends": 0,
+    "oldAttachmentsPreserved": true,
+    "textAndSelectionPreserved": true
+  },
+  "productSource": "306b20baefb8476cc7ba74a7736ad5bcc49b360f",
+  "pageResourceSHA256": "146f1006495801a76026140b805862f421fb6f85200830183c6972ae60e13445",
+  "driverSHA256": "72f71eaa294a643fa245e490a3e1c7fefeb1701eda31f72444dcef354d3e09bd",
+  "caseSHA256": "124d3e63a7b10258227a78b192268e9f54ed156959306e600b4a12747a793efa",
+  "runnerSHA256": "ea11c7e18e48ddf791ec51d75b0f093440c2e15e40f5d892b91d16c9559f8b23",
+  "duplicateAppendRejected": true,
+  "reopenedSQLiteOriginalRead": true,
+  "signedApp": "NOT_RUN",
+  "authenticatedSite": "NOT_RUN",
+  "nativeClick": "NOT_RUN"
+}

@@ -1,0 +1,155 @@
+{
+  "checkedUTC": "2026-11-20T12:11:50+00:00",
+  "candidate107": {
+    "build": 53,
+    "product": "0dc6780a6bcd9fc5a0e4a670901dd4c7b51322fc",
+    "admission": "c764246410c2c0c225ac4bb8688c2ae5179f27e9",
+    "dmgSHA256": "9458479641bde6147de37fda8b873507b2a312a153a76c08e166e50903583dee"
+  },
+  "installation": {
+    "chrome": {
+      "running": true,
+      "nativeManifestCorrect": true,
+      "existingProfiles": 4,
+      "extensionInstalledProfiles": 2,
+      "extensionEnabledProfiles": 2,
+      "selectedProfileExtensionEnabled": true,
+      "status": "READY_FOR_RPC_CHECK"
+    },
+    "edge": {
+      "running": true,
+      "nativeManifestCorrect": true,
+      "existingProfiles": 2,
+      "extensionInstalledProfiles": 0,
+      "extensionEnabledProfiles": 0,
+      "selectedProfileExtensionEnabled": false,
+      "status": "INSTALLATION_BLOCKED"
+    }
+  },
+  "trustedController": {
+    "diskBrowserServiceDeclared": true,
+    "diskScriptPresent": true,
+    "desktopVersion": "26.1117.31558",
+    "bootstrapResult": "Trusted RPC service is not configured: browser",
+    "stage": "before browser selection or QA window creation",
+    "ownDesktopSettingsAccess": "DENIED_BY_DESKTOP_COMPUTER_USE",
+    "liveServiceRestored": false,
+    "exactCauseOfRegistrationMismatch": "UNKNOWN",
+    "browserProfileLoginsInspected": 0,
+    "newNormalProfileWindows": 0,
+    "tabScopedKeysSent": 0,
+    "newNormalProfileDirectories": 0,
+    "hostLoggedInDraftClicks": 0
+  },
+  "historicalSignedStoreRecheck": {
+    "edge": {
+      "lastUpdateAfterCreationSeconds": 10.466,
+      "startRows": 0
+    },
+    "chrome": {
+      "storedStartAfterCreationSeconds": 4.625975,
+      "lastUpdateAfterCreationSeconds": 4.626205
+    },
+    "newLivePageSample": false
+  },
+  "roundLive": {
+    "chromeCanary": "NOT_RUN",
+    "edgeCanary": "NOT_RUN",
+    "g1": "NOT_RUN",
+    "g2": "NOT_RUN",
+    "g4RealServiceAndRetry": "NOT_RUN",
+    "newAuthenticatedProvider": "NOT_RUN",
+    "coreSamePackagePassed": 0,
+    "coreSamePackageTotal": 16
+  },
+  "controlledProvider": {
+    "scope": "Local fixture; hidden nonpersistent WKWebView; foreground and visibility supplied by fixture",
+    "oldResourceFailsSameTest": true,
+    "input": 1,
+    "change": 1,
+    "otherInput": 0,
+    "send": 0,
+    "selectionPreserved": true,
+    "swiftSQLite": "PASS controlled Swift provider and SQLite: original failure survived restart, exact PNG restored without input, explicit new click attached on attempt 2; lost reply and wrong identity never automatically retransmitted",
+    "nonAuthorControlledReplay": {
+      "same-card": {
+        "write": "input_returned",
+        "accepted": "accepted_into_draft",
+        "read": "original_card_failed",
+        "next": "target_or_payload_changed",
+        "counts": {
+          "input": 1,
+          "change": 1
+        },
+        "untouched": true
+      },
+      "other-card": {
+        "write": "input_returned",
+        "accepted": "accepted_into_draft",
+        "read": "unknown",
+        "next": "target_or_payload_changed",
+        "counts": {
+          "input": 1,
+          "change": 1
+        },
+        "untouched": true
+      },
+      "editor-replaced-and-restored": {
+        "write": "input_returned",
+        "accepted": "accepted_into_draft",
+        "read": "unavailable",
+        "next": "target_or_payload_changed",
+        "counts": {
+          "input": 1,
+          "change": 1
+        },
+        "untouched": true
+      },
+      "lane-replaced-and-restored": {
+        "write": "input_returned",
+        "accepted": "accepted_into_draft",
+        "read": "unavailable",
+        "next": "target_or_payload_changed",
+        "counts": {
+          "input": 1,
+          "change": 1
+        },
+        "untouched": true
+      },
+      "same-url-navigation": {
+        "write": "input_returned",
+        "accepted": "accepted_into_draft",
+        "read": "unavailable",
+        "next": "target_or_payload_changed",
+        "counts": {
+          "input": 1,
+          "change": 1
+        },
+        "untouched": true
+      }
+    }
+  },
+  "developmentCI": {
+    "intel": {
+      "run": 44734909533,
+      "commit": "19653417998cd5ba3b5de1dd2eca6a22418dd6a1",
+      "runner": "macos-15-intel",
+      "conclusion": "success",
+      "completedUTC": "2026-11-20T12:32:11Z",
+      "steps": [
+        "Run native test suites on Xcode",
+        "Verify original-tab guard and provider recovery",
+        "Build the development App and check its isolated runtime"
+      ]
+    },
+    "arm64": {
+      "run": 44732590245,
+      "commit": "48d25180f2e33e349be396b13e6157a508c02e21",
+      "workflowConclusion": "failure",
+      "jobConclusion": "cancelled",
+      "stepsExecuted": 0,
+      "cause": "Hosted ARM64 runner capacity; job never acquired"
+    },
+    "liveAcceptance": "NOT_RUN"
+  }
+}

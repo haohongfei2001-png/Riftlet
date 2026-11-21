@@ -15,6 +15,11 @@ riftlet_scratch=""
 riftlet_swift_args=(-c release)
 case "${1:-}" in
   "") [[ $# == 0 ]] || exit 2 ;;
+  --provider-development)
+    [[ $# == 1 ]] || exit 2
+    riftlet_channel=provider-development
+    riftlet_swift_args+=(--product Riftlet -Xswiftc -DRIFTLET_PROVIDER_DEVELOPMENT)
+    ;;
   --ordinary-acceptance)
     [[ $# == 1 ]] || exit 2
     riftlet_channel=ordinary-acceptance
@@ -31,25 +36,27 @@ riftlet_bin_dir="$(swift build "${riftlet_swift_args[@]}" --show-bin-path)"
 riftlet_app="$riftlet_package_dir/Riftlet.app"
 if [[ "$riftlet_channel" == ordinary-acceptance ]]; then
   riftlet_app="$riftlet_package_dir/Riftlet Ordinary Test.app"
+elif [[ "$riftlet_channel" == provider-development ]]; then
+  riftlet_app="$riftlet_package_dir/Riftlet Provider Development.app"
 fi
 mkdir -p "$riftlet_app/Contents/MacOS" "$riftlet_app/Contents/Resources"
 cp "$riftlet_bin_dir/Riftlet" "$riftlet_app/Contents/MacOS/Riftlet"
 cp Resources/Info.plist "$riftlet_app/Contents/Info.plist"
 # The internal acceptance channel has its own Automation purpose string.
-if [[ "$riftlet_channel" == development ]]; then
+if [[ "$riftlet_channel" != ordinary-acceptance ]]; then
   cp -R Resources/{en,zh-Hans}.lproj "$riftlet_app/Contents/Resources/"
 fi
 if [[ -e Resources/Riftlet.icns || -L Resources/Riftlet.icns ]]; then
   cp Resources/Riftlet.icns "$riftlet_app/Contents/Resources/Riftlet.icns"
 fi
-if [[ "$riftlet_channel" == ordinary-acceptance ]]; then
-  python3 -B - "$riftlet_app/Contents/Info.plist" <<'PYPLIST'
+if [[ "$riftlet_channel" != development ]]; then
+  python3 -B - "$riftlet_app/Contents/Info.plist" "$riftlet_channel" <<'PYPLIST'
 import importlib.util, pathlib, plistlib, sys
 spec = importlib.util.spec_from_file_location("bundle_verifier", "scripts/verify-app-bundle.py")
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 path = pathlib.Path(sys.argv[1])
-path.write_bytes(plistlib.dumps(module.ordinary_acceptance_plist(plistlib.loads(path.read_bytes()))))
+path.write_bytes(plistlib.dumps(module.internal_plist(plistlib.loads(path.read_bytes()), sys.argv[2])))
 PYPLIST
 fi
 cp Resources/Presentation/{glass-study.png,reading.svg,error.svg,riftlet.svg} "$riftlet_app/Contents/Resources/"
@@ -72,11 +79,11 @@ result = subprocess.run([sys.argv[1], "--ordinary-build-info"], capture_output=T
 module.verify_ordinary_build_info(json.loads(result.stdout), sys.argv[2])
 print("RIFTLET_ORDINARY_BINARY_IDENTITY_PASS: " + sys.argv[2] + "; fixed capture policy/root; no automatic retry; continuation=" + str(json.loads(result.stdout)["continuation"]))
 PYIDENTITY
-if [[ "$riftlet_channel" == ordinary-acceptance ]]; then
+if [[ "$riftlet_channel" != development ]]; then
   # Preserve a unique verified output. Never replace the ordinary product or
   # another acceptance binary, including one that may currently be running.
   riftlet_keep_package_dir=true
-  echo "Created $riftlet_app (isolated ordinary acceptance; ad-hoc; NOT_NOTARIZED; no public release)."
+  echo "Created $riftlet_app ($riftlet_channel; ad-hoc; NOT_NOTARIZED; no public release)."
   exit 0
 fi
 # Only publish a complete, validated bundle. Reusing a previous app directory

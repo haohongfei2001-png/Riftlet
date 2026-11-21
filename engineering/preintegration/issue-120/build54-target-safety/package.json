@@ -1,0 +1,31 @@
+{
+  "version": "1.0.7",
+  "build": "54",
+  "source": "95d8cf80a46def6d15076e8e22872fec63f4ce3f",
+  "bytes": 13442076,
+  "finalSHA256": "22e5557bc2a80864263e4e8d9e08a4aef29f81afc088b18a2a6ccf26c2857c5c",
+  "architectures": [
+    "arm64",
+    "x86_64"
+  ],
+  "appSubmissionID": "6e000f04-749e-40ff-8b72-a605835743cb",
+  "submissionID": "4231fe31-c5ef-4bb2-aeac-0068af8c7bd6",
+  "notaryStatus": "Accepted",
+  "dmgTicket": "VALID",
+  "embeddedAppTicket": "VALID",
+  "dmgGatekeeperOpen": "ACCEPTED",
+  "embeddedAppGatekeeperExecute": "ACCEPTED",
+  "stage": "VERIFIED_STAPLED_DMG",
+  "published": false,
+  "installedExecutableSHA256": "e9c735fbd99c1af37170b3439fc543bdc4a501e1da6c91e7c7d97f11443f1631",
+  "installedPageSHA256": "9b9a1ecd12b8433c7a9243ebedb72fefcc7dc8d69fd2602e4caf895c89b7ab36",
+  "installedScope": "Private QA copy taken from final mounted DMG",
+  "installedCodeSignatureDeepStrictBothSlices": "PASS",
+  "installedGatekeeper": "Notarized Developer ID",
+  "installedTicket": "VALID",
+  "installedSelfChecks": {
+    "systemScreenshotCandidate": "PASS",
+    "webAcceptancePreflight": "PASS"
+  },
+  "realWebsite": "NOT_RUN"
+}

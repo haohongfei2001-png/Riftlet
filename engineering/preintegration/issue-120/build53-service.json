@@ -1,0 +1,41 @@
+{
+  "utc": "2026-11-20T05:56:44Z",
+  "scope": "Read-only remote QA inventory and audit of same-candidate service failure receipts",
+  "build": 53,
+  "dmgSHA256": "9458479641bde6147de37fda8b873507b2a312a153a76c08e166e50903583dee",
+  "registeredRepositoryRunners": 0,
+  "repositoryDeploymentEnvironments": [
+    "github-pages"
+  ],
+  "ciRunnerGroup": "GitHub Actions",
+  "observedRunnerLabels": [
+    "macos-15",
+    "macos-15-intel",
+    "ubuntu-latest"
+  ],
+  "ciRuns": [
+    44668259735,
+    44668259741
+  ],
+  "availableRemoteMacDesktopConnector": false,
+  "existingCodespacesList": "HTTP 404; scope unavailable; inventory unknown",
+  "newCloudInstances": 0,
+  "authenticatedDedicatedRemoteMac": "No verified session identified among accessible configured resources",
+  "serviceChecks": {
+    "hostLoggedDraftClickCount": 0,
+    "positiveSiteSTART": null,
+    "originalCardDefiniteServiceFailure": null,
+    "originalOperationRecheck": null,
+    "deliberateFreshReattach": null,
+    "remainingUnknownHistoryAfterSuccessfulReattach": null,
+    "guestBAttempt": "Actual new-tab pre-input rejection after explicit click; no service submission",
+    "guestBRealServiceStatus": "NOT_RUN",
+    "conclusion": "G1 and G2 blocked, G4 real service NOT_RUN. Do not merge #119, keep #118 open. No website or stable feed change."
+  },
+  "sameBuildPrivateEvidenceSHA256": {
+    "host-live/host-live-status.json": "fad5e9241fd6aedb14047502a8c292c58b3a511cc3a850f81f3a6fa2b3163bc3",
+    "guest-b/storage-and-history.json": "60b6600d4fa2fbd8a69f6292461666747f281dfa85c9e28ffd2feee3129d58a7",
+    "gate-findings.md": "bbcdeab223d5c558d83d2d1a9018af08588dfc7a6d77fcbbcc1c5eb2b86aadc0",
+    "independent-review.json": "6b7f1bc0a964ef0ac09024143be89b647cfb75b2badab82fcdb9358f7a997f1f"
+  }
+}

@@ -1,0 +1,572 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Riftlet isolated native evidence interchange",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/native"
+    },
+    {
+      "$ref": "#/$defs/oracle"
+    }
+  ],
+  "$defs": {
+    "candidate": {
+      "type": "object",
+      "required": [
+        "sourceSHA",
+        "appSHA256",
+        "dmgSHA256",
+        "build"
+      ],
+      "properties": {
+        "sourceSHA": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "appSHA256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "dmgSHA256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "build": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "scope": {
+      "type": "object",
+      "required": [
+        "level",
+        "case",
+        "browser",
+        "bundle",
+        "browserVersion",
+        "provider",
+        "providerRevision",
+        "programSHA256",
+        "surface",
+        "mode",
+        "locale",
+        "accountTier",
+        "macOS",
+        "arch",
+        "profileKind",
+        "composition",
+        "runID"
+      ],
+      "properties": {
+        "level": {
+          "enum": [
+            "L2",
+            "L3"
+          ]
+        },
+        "case": {
+          "enum": [
+            "F01",
+            "F02",
+            "F03",
+            "F04",
+            "F05",
+            "F06",
+            "T01"
+          ]
+        },
+        "browser": {
+          "type": "string",
+          "minLength": 1
+        },
+        "bundle": {
+          "type": "string",
+          "minLength": 1
+        },
+        "browserVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "providerRevision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "programSHA256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "surface": {
+          "const": "ordinary-chat"
+        },
+        "mode": {
+          "type": "string",
+          "minLength": 1
+        },
+        "locale": {
+          "type": "string",
+          "minLength": 1
+        },
+        "accountTier": {
+          "type": "string",
+          "minLength": 1
+        },
+        "macOS": {
+          "type": "string",
+          "minLength": 1
+        },
+        "arch": {
+          "type": "string",
+          "minLength": 1
+        },
+        "profileKind": {
+          "enum": [
+            "authenticated-test-session",
+            "acceptance-fixture"
+          ]
+        },
+        "composition": {
+          "enum": [
+            "ordinary-signed-app",
+            "signed-isolated-fixture"
+          ]
+        },
+        "runID": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "operation": {
+      "type": "object",
+      "required": [
+        "operation",
+        "targetSHA256",
+        "originalSHA256",
+        "invocationSHA256",
+        "payloadSHA256",
+        "clickMs",
+        "inputEntered",
+        "timingsMs"
+      ],
+      "properties": {
+        "operation": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "targetSHA256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "originalSHA256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "invocationSHA256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "payloadSHA256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "clickMs": {
+          "type": "number",
+          "minimum": 0
+        },
+        "inputEntered": {
+          "enum": [
+            0,
+            1,
+            null
+          ]
+        },
+        "timingsMs": {
+          "type": "object",
+          "required": [
+            "clickToBound",
+            "clickToInput",
+            "clickToPositive",
+            "positiveToHidden"
+          ],
+          "properties": {
+            "clickToBound": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "clickToInput": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "clickToPositive": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "positiveToHidden": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "independentObservation": {
+      "type": "object",
+      "required": [
+        "operation",
+        "targetSHA256",
+        "originalSHA256",
+        "priorTextPreserved",
+        "selectionPreserved",
+        "priorAttachmentsPreserved",
+        "automaticSends",
+        "changedOtherTargets",
+        "extraInputs",
+        "addedMatchingCards",
+        "processing",
+        "handoff"
+      ],
+      "properties": {
+        "operation": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "targetSHA256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "originalSHA256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "priorTextPreserved": {
+          "type": "boolean"
+        },
+        "selectionPreserved": {
+          "type": "boolean"
+        },
+        "priorAttachmentsPreserved": {
+          "type": "boolean"
+        },
+        "automaticSends": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "changedOtherTargets": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "extraInputs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "addedMatchingCards": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "processing": {
+          "enum": [
+            "unknown",
+            "ready",
+            "failed"
+          ]
+        },
+        "handoff": {
+          "enum": [
+            "accepted",
+            "refused"
+          ]
+        },
+        "switchedSameURLTarget": {
+          "type": "boolean"
+        },
+        "trayRetained": {
+          "type": "boolean"
+        },
+        "observedOriginalCard": {
+          "type": "boolean"
+        },
+        "coldUnprepared": {
+          "type": "boolean"
+        },
+        "nonemptySelection": {
+          "type": "boolean"
+        },
+        "hadPriorAttachment": {
+          "type": "boolean"
+        },
+        "warmDraft": {
+          "type": "boolean"
+        },
+        "richSelectionObserved": {
+          "type": "boolean"
+        },
+        "concurrentEditPreserved": {
+          "type": "boolean"
+        },
+        "explicitNewClick": {
+          "type": "boolean"
+        },
+        "draftKind": {
+          "enum": [
+            "new",
+            "saved",
+            "temporary"
+          ]
+        },
+        "hadPriorText": {
+          "type": "boolean"
+        },
+        "payloadSHA256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "newCardSHA256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "handoff": {
+                "const": "accepted"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "payloadSHA256",
+              "newCardSHA256"
+            ],
+            "properties": {
+              "payloadSHA256": {
+                "type": "string"
+              },
+              "newCardSHA256": {
+                "type": "string"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "payloadSHA256": {
+                "type": "null"
+              },
+              "newCardSHA256": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "native": {
+      "type": "object",
+      "required": [
+        "schema",
+        "candidate",
+        "scope",
+        "collector",
+        "operator",
+        "oracleSHA256",
+        "operations"
+      ],
+      "properties": {
+        "schema": {
+          "const": 1
+        },
+        "candidate": {
+          "$ref": "#/$defs/candidate"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "collector": {
+          "const": "riftlet-native"
+        },
+        "operator": {
+          "type": "string",
+          "minLength": 1
+        },
+        "oracleSHA256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "operations": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "$ref": "#/$defs/operation"
+          }
+        },
+        "pairs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "uniqueItems": true
+          }
+        },
+        "preIntentRefusals": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "clickSHA256",
+              "targetSHA256",
+              "originalSHA256",
+              "inputEntered",
+              "outcome"
+            ],
+            "properties": {
+              "clickSHA256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "targetSHA256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "originalSHA256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "inputEntered": {
+                "const": 0
+              },
+              "outcome": {
+                "const": "refused-before-intent"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "oracle": {
+      "type": "object",
+      "required": [
+        "schema",
+        "candidate",
+        "scope",
+        "collector",
+        "reviewer",
+        "operations"
+      ],
+      "properties": {
+        "schema": {
+          "const": 1
+        },
+        "candidate": {
+          "$ref": "#/$defs/candidate"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "collector": {
+          "const": "independent-ui-observer"
+        },
+        "reviewer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "operations": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "$ref": "#/$defs/independentObservation"
+          }
+        },
+        "preIntentRefusals": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "clickSHA256",
+              "targetSHA256",
+              "originalSHA256",
+              "addedMatchingCards",
+              "changedOtherTargets",
+              "automaticSends",
+              "switchedSameURLTarget",
+              "trayRetained",
+              "priorDraftPreserved"
+            ],
+            "properties": {
+              "clickSHA256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "targetSHA256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "originalSHA256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "addedMatchingCards": {
+                "const": 0
+              },
+              "changedOtherTargets": {
+                "const": 0
+              },
+              "automaticSends": {
+                "const": 0
+              },
+              "switchedSameURLTarget": {
+                "const": true
+              },
+              "trayRetained": {
+                "const": true
+              },
+              "priorDraftPreserved": {
+                "const": true
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

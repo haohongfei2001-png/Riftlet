@@ -1,0 +1,440 @@
+{
+  "scope": "Anonymous read-only public entry, isolated headless real Google Chrome; no menu activation, file selection, send, prompts or raw page content persisted. Labels are coarse matches and file existence is not ownership.",
+  "browser": "Chrome/157.0.8103.79",
+  "results": [
+    {
+      "provider": "claude",
+      "requestedURL": "https://claude.ai/new",
+      "currentEventRecipe": "UNVERIFIED",
+      "originalMemberEvidence": "UNVERIFIED",
+      "authenticatedAcceptance": "NOT_RUN",
+      "releaseEnabled": false,
+      "observations": [
+        {
+          "recordedAt": "2026-11-20T04:33:55.743Z",
+          "httpStatus": 403,
+          "origin": "https://claude.ai",
+          "routeFamily": "new",
+          "result": "page_unavailable",
+          "visibleEditableKinds": [],
+          "visibleLabelGroups": {},
+          "fileInputs": []
+        }
+      ]
+    },
+    {
+      "provider": "gemini",
+      "requestedURL": "https://gemini.google.com/app",
+      "currentEventRecipe": "UNVERIFIED",
+      "originalMemberEvidence": "UNVERIFIED",
+      "authenticatedAcceptance": "NOT_RUN",
+      "releaseEnabled": false,
+      "observations": [
+        {
+          "recordedAt": "2026-11-20T04:33:58.099Z",
+          "httpStatus": 200,
+          "origin": "https://gemini.google.com",
+          "routeFamily": "app",
+          "result": "public_page_observed",
+          "visibleEditableKinds": [
+            "div",
+            "div"
+          ],
+          "visibleLabelGroups": {
+            "upload": 1,
+            "signIn": 3,
+            "image": 1
+          },
+          "fileInputs": []
+        },
+        {
+          "recordedAt": "2026-11-20T04:35:01.285Z",
+          "httpStatus": 200,
+          "origin": "https://gemini.google.com",
+          "routeFamily": "app",
+          "result": "public_page_observed",
+          "visibleEditableKinds": [
+            "div",
+            "div"
+          ],
+          "visibleLabelGroups": {
+            "upload": 1,
+            "signIn": 3,
+            "image": 1
+          },
+          "fileInputs": [],
+          "uploadActionRelationships": [
+            {
+              "sharedAncestor": "div",
+              "editorsInSharedAncestor": 2,
+              "fileInputsInSharedAncestor": 0,
+              "disabled": false
+            }
+          ]
+        },
+        {
+          "recordedAt": "2026-11-20T04:36:53.344Z",
+          "httpStatus": 200,
+          "origin": "https://gemini.google.com",
+          "routeFamily": "app",
+          "result": "public_page_observed",
+          "visibleEditableKinds": [
+            "div",
+            "div"
+          ],
+          "visibleLabelGroups": {
+            "upload": 1,
+            "signIn": 3,
+            "image": 1
+          },
+          "fileInputs": [],
+          "uploadActionRelationships": [
+            {
+              "sharedAncestor": "div",
+              "editorsInSharedAncestor": 2,
+              "fileInputsInSharedAncestor": 0,
+              "disabled": false
+            }
+          ],
+          "observedProviderState": "editor_and_upload_action",
+          "editorTags": [
+            [
+              "div ql-editor",
+              "rich-textarea",
+              "div",
+              "div",
+              "div",
+              "div",
+              "div",
+              "fieldset"
+            ],
+            [
+              "div",
+              "rich-textarea",
+              "div",
+              "div",
+              "div",
+              "div",
+              "div",
+              "fieldset"
+            ]
+          ]
+        },
+        {
+          "recordedAt": "2026-11-20T04:46:39.780Z",
+          "httpStatus": 200,
+          "origin": "https://gemini.google.com",
+          "routeFamily": "app",
+          "result": "public_page_observed",
+          "visibleEditableKinds": [
+            "div",
+            "div"
+          ],
+          "visibleLabelGroups": {
+            "upload": 1,
+            "signIn": 3,
+            "image": 1
+          },
+          "fileInputs": [],
+          "observedProviderState": "editor_and_upload_action",
+          "readOnlyProgramSHA256": "063f3c1a4572a41036991eab3c8578c5a17751dd80f356a0790e28a9e13a62e5"
+        }
+      ]
+    },
+    {
+      "provider": "deepseek",
+      "requestedURL": "https://chat.deepseek.com/",
+      "currentEventRecipe": "UNVERIFIED",
+      "originalMemberEvidence": "UNVERIFIED",
+      "authenticatedAcceptance": "NOT_RUN",
+      "releaseEnabled": false,
+      "observations": [
+        {
+          "recordedAt": "2026-11-20T04:34:00.115Z",
+          "httpStatus": 200,
+          "origin": "https://chat.deepseek.com",
+          "routeFamily": "account",
+          "result": "public_page_observed",
+          "visibleEditableKinds": [],
+          "visibleLabelGroups": {
+            "signIn": 3
+          },
+          "fileInputs": []
+        }
+      ]
+    },
+    {
+      "provider": "kimi",
+      "requestedURL": "https://www.kimi.com/",
+      "currentEventRecipe": "UNVERIFIED",
+      "originalMemberEvidence": "UNVERIFIED",
+      "authenticatedAcceptance": "NOT_RUN",
+      "releaseEnabled": false,
+      "observations": [
+        {
+          "recordedAt": "2026-11-20T04:34:02.067Z",
+          "httpStatus": 200,
+          "origin": "https://www.kimi.com",
+          "routeFamily": "root",
+          "result": "public_page_observed",
+          "visibleEditableKinds": [
+            "div"
+          ],
+          "visibleLabelGroups": {
+            "upload": 1,
+            "signIn": 3,
+            "research": 1
+          },
+          "fileInputs": [
+            {
+              "multiple": true,
+              "disabled": false,
+              "visible": false,
+              "acceptsImageHint": false,
+              "soleEditorInSameActualForm": false
+            }
+          ]
+        },
+        {
+          "recordedAt": "2026-11-20T04:35:03.513Z",
+          "httpStatus": 200,
+          "origin": "https://www.kimi.com",
+          "routeFamily": "root",
+          "result": "public_page_observed",
+          "visibleEditableKinds": [
+            "div"
+          ],
+          "visibleLabelGroups": {
+            "upload": 1,
+            "signIn": 3,
+            "research": 2
+          },
+          "fileInputs": [
+            {
+              "multiple": true,
+              "disabled": false,
+              "visible": false,
+              "acceptsImageHint": false,
+              "soleEditorInSameActualForm": false
+            }
+          ],
+          "uploadActionRelationships": [
+            {
+              "sharedAncestor": "div",
+              "editorsInSharedAncestor": 1,
+              "fileInputsInSharedAncestor": 1,
+              "disabled": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "qianwen-cn",
+      "requestedURL": "https://www.qianwen.com/",
+      "currentEventRecipe": "UNVERIFIED",
+      "originalMemberEvidence": "UNVERIFIED",
+      "authenticatedAcceptance": "NOT_RUN",
+      "releaseEnabled": false,
+      "observations": [
+        {
+          "recordedAt": "2026-11-20T04:34:03.913Z",
+          "httpStatus": 200,
+          "origin": "https://www.qianwen.com",
+          "routeFamily": "root",
+          "result": "public_page_observed",
+          "visibleEditableKinds": [
+            "div"
+          ],
+          "visibleLabelGroups": {
+            "attach": 1,
+            "signIn": 1
+          },
+          "fileInputs": []
+        },
+        {
+          "recordedAt": "2026-11-20T04:35:05.309Z",
+          "httpStatus": 200,
+          "origin": "https://www.qianwen.com",
+          "routeFamily": "root",
+          "result": "public_page_observed",
+          "visibleEditableKinds": [
+            "div"
+          ],
+          "visibleLabelGroups": {
+            "attach": 1,
+            "signIn": 1
+          },
+          "fileInputs": [],
+          "uploadActionRelationships": [
+            {
+              "sharedAncestor": "div",
+              "editorsInSharedAncestor": 1,
+              "fileInputsInSharedAncestor": 0,
+              "disabled": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "doubao",
+      "requestedURL": "https://www.doubao.com/chat/",
+      "currentEventRecipe": "UNVERIFIED",
+      "originalMemberEvidence": "UNVERIFIED",
+      "authenticatedAcceptance": "NOT_RUN",
+      "releaseEnabled": false,
+      "observations": [
+        {
+          "recordedAt": "2026-11-20T04:34:07.398Z",
+          "httpStatus": 200,
+          "origin": "https://www.doubao.com",
+          "routeFamily": "chat",
+          "result": "public_page_observed",
+          "visibleEditableKinds": [
+            "div"
+          ],
+          "visibleLabelGroups": {
+            "signIn": 1,
+            "image": 1
+          },
+          "fileInputs": []
+        },
+        {
+          "recordedAt": "2026-11-20T04:35:08.232Z",
+          "httpStatus": 200,
+          "origin": "https://www.doubao.com",
+          "routeFamily": "chat",
+          "result": "public_page_observed",
+          "visibleEditableKinds": [],
+          "visibleLabelGroups": {},
+          "fileInputs": [],
+          "uploadActionRelationships": []
+        }
+      ]
+    },
+    {
+      "provider": "perplexity",
+      "requestedURL": "https://www.perplexity.ai/",
+      "currentEventRecipe": "UNVERIFIED",
+      "originalMemberEvidence": "UNVERIFIED",
+      "authenticatedAcceptance": "NOT_RUN",
+      "releaseEnabled": false,
+      "observations": [
+        {
+          "recordedAt": "2026-11-20T04:34:10.442Z",
+          "httpStatus": 200,
+          "origin": "https://www.perplexity.ai",
+          "routeFamily": "root",
+          "result": "public_page_observed",
+          "visibleEditableKinds": [
+            "div"
+          ],
+          "visibleLabelGroups": {
+            "attach": 1,
+            "add": 1,
+            "signIn": 1,
+            "search": 3
+          },
+          "fileInputs": [
+            {
+              "multiple": true,
+              "disabled": false,
+              "visible": false,
+              "acceptsImageHint": true,
+              "soleEditorInSameActualForm": false
+            }
+          ]
+        },
+        {
+          "recordedAt": "2026-11-20T04:35:11.052Z",
+          "httpStatus": 200,
+          "origin": "https://www.perplexity.ai",
+          "routeFamily": "root",
+          "result": "public_page_observed",
+          "visibleEditableKinds": [
+            "div"
+          ],
+          "visibleLabelGroups": {
+            "attach": 1,
+            "add": 1,
+            "signIn": 1,
+            "search": 3
+          },
+          "fileInputs": [
+            {
+              "multiple": true,
+              "disabled": false,
+              "visible": false,
+              "acceptsImageHint": true,
+              "soleEditorInSameActualForm": false
+            }
+          ],
+          "uploadActionRelationships": [
+            {
+              "sharedAncestor": "div",
+              "editorsInSharedAncestor": 1,
+              "fileInputsInSharedAncestor": 0,
+              "disabled": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "qwen-international",
+      "requestedURL": "https://chat.qwen.ai/",
+      "currentEventRecipe": "UNVERIFIED",
+      "originalMemberEvidence": "UNVERIFIED",
+      "authenticatedAcceptance": "NOT_RUN",
+      "releaseEnabled": false,
+      "observations": [
+        {
+          "recordedAt": "2026-11-20T04:34:12.481Z",
+          "httpStatus": 200,
+          "origin": "https://chat.qwen.ai",
+          "routeFamily": "root",
+          "result": "public_page_observed",
+          "visibleEditableKinds": [
+            "textarea"
+          ],
+          "visibleLabelGroups": {
+            "signIn": 1
+          },
+          "fileInputs": [
+            {
+              "multiple": true,
+              "disabled": false,
+              "visible": false,
+              "acceptsImageHint": false,
+              "soleEditorInSameActualForm": false
+            }
+          ]
+        },
+        {
+          "recordedAt": "2026-11-20T04:35:13.118Z",
+          "httpStatus": 200,
+          "origin": "https://chat.qwen.ai",
+          "routeFamily": "root",
+          "result": "public_page_observed",
+          "visibleEditableKinds": [
+            "textarea"
+          ],
+          "visibleLabelGroups": {
+            "signIn": 1
+          },
+          "fileInputs": [
+            {
+              "multiple": true,
+              "disabled": false,
+              "visible": false,
+              "acceptsImageHint": false,
+              "soleEditorInSameActualForm": false
+            }
+          ],
+          "uploadActionRelationships": []
+        }
+      ]
+    }
+  ]
+}

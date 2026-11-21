@@ -1,0 +1,17 @@
+TAP version 13
+# {"scope":"real Chrome primitives; controlled local application; NOT live ChatGPT","passed":true,"phase":"initializing","rejectedShapes":23,"retiredCases":4,"nativeSetters":31,"nativeChanges":31,"automaticSends":0}
+# Subtest: native Chrome independent append {"name":"owned-original-failure-card","namedErrorCard":true,"edge":false,"count":1,"retained":true,"route":"https://chatgpt.com/"}
+ok 1 - native Chrome independent append {"name":"owned-original-failure-card","namedErrorCard":true,"edge":false,"count":1,"retained":true,"route":"https://chatgpt.com/"}
+  ---
+  duration_ms: 740.261042
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 784.023

@@ -1,0 +1,61 @@
+{
+  "scope": "Independent recheck of existing build 53 and isolated macOS lab availability",
+  "utc": "2026-11-20T05:54:35Z",
+  "product": "0dc6780a6bcd9fc5a0e4a670901dd4c7b51322fc",
+  "review": "f7287e05aedc11d35692fbd68ae2e269c42d3255",
+  "admission": "c764246410c2c0c225ac4bb8688c2ae5179f27e9",
+  "build": 53,
+  "dmgBytes": 13441719,
+  "dmgSHA256": "9458479641bde6147de37fda8b873507b2a312a153a76c08e166e50903583dee",
+  "executableSHA256": "73bea11151f9532c4ab2c3559f3b279e733dbade4c0f0e233e1c1627840e9667",
+  "appTree": {
+    "algorithm": "sha256 of UTF-8 canonical JSON (sorted keys, compact separators) for release-tool.py inventory(Riftlet.app) including file bytes, mode, symlink targets and relevant xattrs; paths relative to bundle root",
+    "entries": 186,
+    "signedAppTreeSHA256": "1f5fe8af25e6e64b9c64204297aa4f578c44bc3f6e795ab95effc577e536ad6a",
+    "releaseManifestSHA256": "aad9114d7c000eadec9c95b71417d0b1bd3bb25cb29eff7451376c6356dc9d36"
+  },
+  "packageRecheck": {
+    "strictDeepBothArchitectures": true,
+    "embeddedAppGatekeeper": "Notarized Developer ID",
+    "dmgGatekeeper": "Notarized Developer ID",
+    "appStaple": "valid",
+    "dmgStaple": "valid",
+    "architectures": [
+      "arm64",
+      "x86_64"
+    ],
+    "newInstallationThisCheck": false
+  },
+  "gates": {
+    "G1": "NOT_RUN",
+    "G2": "NOT_RUN",
+    "G3": "PASS_FOR_MEASURED_NEGATIVES",
+    "G4": "LOCAL_PARTIAL_REAL_SERVICE_NOT_RUN",
+    "G5": "PASS_FOR_MEASURED_UI_AND_LOAD",
+    "G6": "PASS_FOR_INSTALL_UPGRADE_AND_CI"
+  },
+  "environment": {
+    "ordinaryUsersWithLocalConsole": 1,
+    "qaVMs": [
+      "A",
+      "B",
+      "C"
+    ],
+    "guestA": "Prior guest QA draft receipt contains Log in. No currently verified dedicated signed-in session.",
+    "guestB": "Windowless standard macOS boot, verified candidate executable. Direct Apple HTTPS 200, direct ChatGPT TCP timeout. Existing system proxy carried temporary loopback guest HTTPS HEAD to ChatGPT and login site, both HTTP 200; session contents untested.",
+    "guestC": "Separate team-owned running QA guest; no established signed-in QA receipt.",
+    "officialChromeAndEdgeConnection": "Unavailable to this worker before reading browser state",
+    "guestBNormalShutdownUTC": "2026-11-20T05:52:50Z",
+    "guestSystemOrBrowserPreferencesChanged": false,
+    "userWindowsOpened": 0,
+    "loggedInDraftClicksThisCheck": 0
+  },
+  "sameBuildRecheckedRawReceiptSHA256": {
+    "guest-c/negative-targets-permissions.json": "5b58c66d5333665a1ae93eff2e7712407026ebda5c2c787dd372c3713d09999a",
+    "guest-c/load.json": "0e23ceac84d0bfcbf0b817fb6b33545247182e68cf14c6bede399c233a9634dc",
+    "guest-c/upgrade.json": "2796c6370a757380caed162758028465d17a3e482d0afcfb82f511a4711c8431",
+    "guest-c/same-version-upgrade.json": "c5f9b3c74284fefb8b237bd0e1ffaae57f2c2a0a5fa739cb420662b7c7fa77ba",
+    "guest-c/upgrade-intake-provenance.json": "d7b2506201cd614d84aea5bbcf81ff571fa9a968806e045c3179a5a1048c0dd7",
+    "independent-review.json": "6b7f1bc0a964ef0ac09024143be89b647cfb75b2badab82fcdb9358f7a997f1f"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "browser": "edge",
+  "provider": "chatgpt",
+  "observedAt": "2026-11-20T04:35:12+00:00",
+  "platform": "27.0",
+  "arch": "arm64",
+  "sourceSHA": "ef3f58cb7baf26ee3c0fd7c6b1db9d9d32ca21d0",
+  "candidate": null,
+  "versions": {
+    "bundle": "com.microsoft.edgemac",
+    "browser": "157.0.4341.60"
+  },
+  "results": [
+    {
+      "case": "E04",
+      "test": "original-failure-card",
+      "passed": true,
+      "counters": {
+        "scope": "real Chrome primitives; controlled local application; NOT live ChatGPT",
+        "passed": true,
+        "phase": "initializing",
+        "rejectedShapes": 23,
+        "retiredCases": 4,
+        "nativeSetters": 31,
+        "nativeChanges": 31,
+        "automaticSends": 0
+      }
+    }
+  ],
+  "kind": "headless-web-only",
+  "inputs": {
+    "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js": "50b0d16d10f38c688ce33189df55ad3da6588b4c7006b710777f30340dc55ed7",
+    "Tests/WebPageProgram/chrome-input-resource.test.cjs": "8e82cc72a1173095c8b80e0337cc6106806246374b50d0716f219b393ac57ab2",
+    "Tests/WebPageProgram/original-error-card-application.cjs": "f0ac924404ea7fb81e76c86486e7fd1c6740ee8eae5fd2fa74c2d496fef9dfec",
+    "Tests/WebPageProgram/attachment-entry-application.cjs": "f0b7aefd34f8b776e40670f6d4a3ed0ed84c3e129f51f7e7b7485ceea4b1810e",
+    "Tests/WebPageProgram/native-chrome-cleanup.cjs": "86ab2fca6586e9651a16876d76fa27a1a81864498a07c7ff0c2256f383bb269b"
+  },
+  "exitCode": 0,
+  "transcriptSHA256": "44c0c6ac53e0ae20acc8ef4e9fe3383d83d30f9503df33b9909df6189b2344ba"
+}

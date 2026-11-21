@@ -1,0 +1,1159 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-20",
+  "timezone": "Asia/Shanghai",
+  "planning": true,
+  "implementationStarted": false,
+  "coreCellCount": 16,
+  "decision": "PLANNED_NOT_IMPLEMENTED",
+  "sourceAudit": {
+    "main": "9fd8ad15fca043915069904113e5fb67d82b4948",
+    "pr117": "cf697d7ece7e052ccaa2ea5c4bca42a16fd0ebdf",
+    "pr119": "e852af3996cb6fea17ed107d8fb8073e06f582ae",
+    "initialPR119": "f27c2473891bd37ac4227ca424c1bb2c4ce56c41",
+    "pr119Product": "b431931eba1d31b5ac7a5fcc110db8613e11ac7d"
+  },
+  "allowedStatuses": [
+    "NOT_RUN",
+    "PASS",
+    "FAIL",
+    "BLOCKED_ENV",
+    "BLOCKED_TECHNICAL",
+    "NOT_APPLICABLE"
+  ],
+  "requiredLiveCases": [
+    "F01",
+    "F02",
+    "F03",
+    "F04",
+    "F05",
+    "F06",
+    "T01"
+  ],
+  "sharedCasesDocument": "ACCEPTANCE.md",
+  "cells": [
+    {
+      "browserID": "chrome",
+      "bundleID": "com.google.Chrome",
+      "providerID": "chatgpt",
+      "scope": "core",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "chrome",
+      "bundleID": "com.google.Chrome",
+      "providerID": "claude",
+      "scope": "core",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "chrome",
+      "bundleID": "com.google.Chrome",
+      "providerID": "gemini",
+      "scope": "core",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "chrome",
+      "bundleID": "com.google.Chrome",
+      "providerID": "deepseek",
+      "scope": "core",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "chrome",
+      "bundleID": "com.google.Chrome",
+      "providerID": "kimi",
+      "scope": "same-cycle-expansion",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "chrome",
+      "bundleID": "com.google.Chrome",
+      "providerID": "qianwen-cn",
+      "scope": "same-cycle-expansion",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "chrome",
+      "bundleID": "com.google.Chrome",
+      "providerID": "doubao",
+      "scope": "same-cycle-expansion",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "chrome",
+      "bundleID": "com.google.Chrome",
+      "providerID": "perplexity",
+      "scope": "same-cycle-expansion",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "chrome",
+      "bundleID": "com.google.Chrome",
+      "providerID": "qwen-international",
+      "scope": "optional-variant",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "chrome",
+      "bundleID": "com.google.Chrome",
+      "providerID": "grok",
+      "scope": "optional-expansion",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "edge",
+      "bundleID": "com.microsoft.edgemac",
+      "providerID": "chatgpt",
+      "scope": "core",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "edge",
+      "bundleID": "com.microsoft.edgemac",
+      "providerID": "claude",
+      "scope": "core",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "edge",
+      "bundleID": "com.microsoft.edgemac",
+      "providerID": "gemini",
+      "scope": "core",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "edge",
+      "bundleID": "com.microsoft.edgemac",
+      "providerID": "deepseek",
+      "scope": "core",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "edge",
+      "bundleID": "com.microsoft.edgemac",
+      "providerID": "kimi",
+      "scope": "same-cycle-expansion",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "edge",
+      "bundleID": "com.microsoft.edgemac",
+      "providerID": "qianwen-cn",
+      "scope": "same-cycle-expansion",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "edge",
+      "bundleID": "com.microsoft.edgemac",
+      "providerID": "doubao",
+      "scope": "same-cycle-expansion",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "edge",
+      "bundleID": "com.microsoft.edgemac",
+      "providerID": "perplexity",
+      "scope": "same-cycle-expansion",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "edge",
+      "bundleID": "com.microsoft.edgemac",
+      "providerID": "qwen-international",
+      "scope": "optional-variant",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "edge",
+      "bundleID": "com.microsoft.edgemac",
+      "providerID": "grok",
+      "scope": "optional-expansion",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "safari",
+      "bundleID": "com.apple.Safari",
+      "providerID": "chatgpt",
+      "scope": "core",
+      "browserCapabilityFloor": ">=26.2 plus required runtime capabilities; NOT product-validated",
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "safari",
+      "bundleID": "com.apple.Safari",
+      "providerID": "claude",
+      "scope": "core",
+      "browserCapabilityFloor": ">=26.2 plus required runtime capabilities; NOT product-validated",
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "safari",
+      "bundleID": "com.apple.Safari",
+      "providerID": "gemini",
+      "scope": "core",
+      "browserCapabilityFloor": ">=26.2 plus required runtime capabilities; NOT product-validated",
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "safari",
+      "bundleID": "com.apple.Safari",
+      "providerID": "deepseek",
+      "scope": "core",
+      "browserCapabilityFloor": ">=26.2 plus required runtime capabilities; NOT product-validated",
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "safari",
+      "bundleID": "com.apple.Safari",
+      "providerID": "kimi",
+      "scope": "same-cycle-expansion",
+      "browserCapabilityFloor": ">=26.2 plus required runtime capabilities; NOT product-validated",
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "safari",
+      "bundleID": "com.apple.Safari",
+      "providerID": "qianwen-cn",
+      "scope": "same-cycle-expansion",
+      "browserCapabilityFloor": ">=26.2 plus required runtime capabilities; NOT product-validated",
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "safari",
+      "bundleID": "com.apple.Safari",
+      "providerID": "doubao",
+      "scope": "same-cycle-expansion",
+      "browserCapabilityFloor": ">=26.2 plus required runtime capabilities; NOT product-validated",
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "safari",
+      "bundleID": "com.apple.Safari",
+      "providerID": "perplexity",
+      "scope": "same-cycle-expansion",
+      "browserCapabilityFloor": ">=26.2 plus required runtime capabilities; NOT product-validated",
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "safari",
+      "bundleID": "com.apple.Safari",
+      "providerID": "qwen-international",
+      "scope": "optional-variant",
+      "browserCapabilityFloor": ">=26.2 plus required runtime capabilities; NOT product-validated",
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "safari",
+      "bundleID": "com.apple.Safari",
+      "providerID": "grok",
+      "scope": "optional-expansion",
+      "browserCapabilityFloor": ">=26.2 plus required runtime capabilities; NOT product-validated",
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "brave",
+      "bundleID": "com.brave.Browser",
+      "providerID": "chatgpt",
+      "scope": "core",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "brave",
+      "bundleID": "com.brave.Browser",
+      "providerID": "claude",
+      "scope": "core",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "brave",
+      "bundleID": "com.brave.Browser",
+      "providerID": "gemini",
+      "scope": "core",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "brave",
+      "bundleID": "com.brave.Browser",
+      "providerID": "deepseek",
+      "scope": "core",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "brave",
+      "bundleID": "com.brave.Browser",
+      "providerID": "kimi",
+      "scope": "same-cycle-expansion",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "brave",
+      "bundleID": "com.brave.Browser",
+      "providerID": "qianwen-cn",
+      "scope": "same-cycle-expansion",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "brave",
+      "bundleID": "com.brave.Browser",
+      "providerID": "doubao",
+      "scope": "same-cycle-expansion",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "brave",
+      "bundleID": "com.brave.Browser",
+      "providerID": "perplexity",
+      "scope": "same-cycle-expansion",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "brave",
+      "bundleID": "com.brave.Browser",
+      "providerID": "qwen-international",
+      "scope": "optional-variant",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    },
+    {
+      "browserID": "brave",
+      "bundleID": "com.brave.Browser",
+      "providerID": "grok",
+      "scope": "optional-expansion",
+      "browserCapabilityFloor": null,
+      "surface": "ordinary-chat",
+      "providerRevision": null,
+      "candidateID": null,
+      "enabledForRelease": false,
+      "levels": {
+        "L1": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L2": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        },
+        "L3": {
+          "status": "NOT_RUN",
+          "evidenceRefs": []
+        }
+      },
+      "reason": "No next-cycle candidate tested; historical 1.0.7 evidence does not confer a PASS",
+      "caseResults": []
+    }
+  ],
+  "conditionalHosts": [
+    {
+      "browserID": "firefox",
+      "bundleID": "org.mozilla.firefox",
+      "status": "NOT_RUN",
+      "reason": "Bounded no-extension feasibility spike required; not enabled",
+      "promotionRequires": "native fixture plus all four real core providers and unchanged invariants"
+    }
+  ],
+  "researchEvidence": {
+    "level": "L1",
+    "sourceSHA": "e852af3996cb6fea17ed107d8fb8073e06f582ae",
+    "command": "node --test Tests/WebPageProgram/acceptance-program.test.cjs Tests/WebPageProgram/legacy-web-observe.test.cjs",
+    "node": "v24.22.3",
+    "os": "Linux",
+    "tests": 263,
+    "pass": 263,
+    "fail": 0,
+    "skipped": 0,
+    "cancelled": 0,
+    "durationMs": 51842.216558,
+    "appliesToNextCandidate": false,
+    "note": "Rerun same 263-test collection after build49; do not add duplicate coverage",
+    "rawLogSHA256": "6a560b20aac5fc4733f51672f753e78e07c2301df8cb72e31c72144cdb89428c"
+  },
+  "priorResearchEvidence": [
+    {
+      "level": "L1",
+      "sourceSHA": "f27c2473891bd37ac4227ca424c1bb2c4ce56c41",
+      "command": "node --test Tests/WebPageProgram/acceptance-program.test.cjs Tests/WebPageProgram/legacy-web-observe.test.cjs",
+      "node": "v24.22.3",
+      "os": "Linux",
+      "tests": 263,
+      "pass": 263,
+      "fail": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "durationMs": 60792.070214,
+      "appliesToNextCandidate": false,
+      "note": "Independent acceptance-only 202 tests overlap; do not add counts",
+      "rawLogSHA256": "fc7844457a1b3881d817ceead64269ef53e2f857b40f0aecbeb9e1e3702746a1"
+    }
+  ]
+}

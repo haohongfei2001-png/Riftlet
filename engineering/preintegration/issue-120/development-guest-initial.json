@@ -1,0 +1,89 @@
+{
+  "scope": "Isolated QA macOS B. Native Launch Services and quit on local development archive; no web-site test.",
+  "product": "9ea7e7f412ab2ea2362fddca8e97381dd197a4ef",
+  "archiveSHA256": "4e3da7c815bf4c5bad0d06c28e47ce8458b2ced324b405aacfc65251d926d42e",
+  "guestExecutableSHA256": "787da40beca0728ed9f704a8446d5d999d19a94e61736c8d8ccd94d5706bd20b",
+  "bundleID": "com.riftlet.provider-development",
+  "guestArchiveHashMatches": true,
+  "guestStrictDeepSignatureVerified": true,
+  "systemAssessmentEnabled": true,
+  "quarantineOnLocallyTransferredApp": false,
+  "signature": "ad-hoc",
+  "internetQuarantineOrNotarizedDistribution": "NOT_TESTED",
+  "first": {
+    "before": {
+      "processCount": 0,
+      "developmentDataDirectoryExists": false
+    },
+    "open": "/usr/bin/open <extracted app>, exit 0",
+    "afterFiveSeconds": {
+      "samePathAndExecutablePID": 819,
+      "processCount": 1,
+      "launchFinished": true,
+      "ownedVisibleWindows": 1,
+      "developmentDataCreated": true,
+      "developmentSQLiteRelatedFileCount": 4
+    },
+    "quit": {
+      "api": "NSRunningApplication.terminate() on exact-path app",
+      "requestReturned": true,
+      "delegateDeliveryReceipt": null,
+      "after5seconds": {
+        "pid": 819,
+        "processCount": 1,
+        "visibleOwnedWindows": 1
+      },
+      "subsequentReadTimesApproxUTC": [
+        "10:29:41",
+        "10:30:14",
+        "10:30:43",
+        "10:31:32"
+      ],
+      "subsequentSamePIDAndOneWindow": true,
+      "captureQueueSample": "787 samples on com.riftlet.capture.folder: FolderWatcher.start() -> _fcntl_overlay_open -> open -> __open",
+      "mainThreadSample": "NOT_RETAINED: original temporary sample file was purged by the guest upon boot. No claim of a hung main thread.",
+      "pendingOSPermission": {
+        "daemon": "tccd",
+        "sameBootMessageID": "162.40",
+        "subjectMatchesBundleAndPID": true,
+        "service": "kTCCServiceSystemPolicyDesktopFolder",
+        "promptingUTC": "2026-11-20T10:29:05.243Z",
+        "resultUTC": "2026-11-20T10:31:49.973Z",
+        "systemResultAtNormalShutdown": {
+          "authValue": 0,
+          "authReason": 13
+        },
+        "testerPermissionResponse": "NONE"
+      },
+      "normalVMShutdownUTC": "2026-11-20T10:31:57Z",
+      "ordinaryQuitWhilePromptPending": "DID_NOT_EXIT_IN_OBSERVED_INTERVAL"
+    }
+  },
+  "focusedQuitFollowupOnSameZip": {
+    "dataInitiallyAbsent": true,
+    "testerPermissionChanges": false,
+    "beforeUTC": "2026-11-20T10:33:53Z",
+    "beforeProcessCount": 0,
+    "launchedAndQuitRequestedUTC": "2026-11-20T10:33:58Z",
+    "samePathAndExecutablePID": 826,
+    "launchFinished": true,
+    "visibleOwnedWindows": 2,
+    "ordinaryTerminateReturned": true,
+    "afterUTC": "2026-11-20T10:34:03Z",
+    "afterProcessCount": 0,
+    "afterWindows": 0,
+    "finding": "Ordinary quit completed on this later launch; the first outstanding system permission prompt was no longer the same pending transaction."
+  },
+  "stableBuildComparison": "NOT_RUN: signed build 53 distribution present; existing QA user has populated stable data root.",
+  "releaseOrSupportPromotion": false,
+  "browserInteractions": 0,
+  "windowlessVM": true,
+  "cleanup": {
+    "newDevelopmentDataRemoved": true,
+    "developmentProcessAbsent": true,
+    "stableDataUntouched": true,
+    "coldBootVerifiedExtractedBundleAbsent": true,
+    "coldBootVerifiedDevelopmentDataAbsent": true,
+    "finalNormalGuestShutdownUTC": "2026-11-20T10:37:03Z"
+  }
+}

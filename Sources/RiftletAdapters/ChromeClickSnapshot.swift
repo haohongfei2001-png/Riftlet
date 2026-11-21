@@ -46,10 +46,17 @@ enum ChromeClickSnapshot {
         deinit { mach_port_destroy(mach_task_self_, port) }
 
         func boundWithinClick(before deadline: ChromeClickDeadline) throws -> Bool {
-            let value = try receive(port: port, id: 3, optional: false, deadline: deadline)?.stringValue
+            let value = try stringWithinClick(before: deadline)
             if value == "expired" { return false }
             guard value == "bound" else { throw WebAdapterError.pageRejected(.clickPinRefused) }
             return true
+        }
+
+        func stringWithinClick(before deadline: ChromeClickDeadline) throws -> String {
+            guard let value = try receive(port: port, id: 3, optional: false, deadline: deadline)?.stringValue else {
+                throw WebAdapterError.invalidReply
+            }
+            return value
         }
     }
 

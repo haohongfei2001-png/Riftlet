@@ -27,7 +27,9 @@ class VerificationError(Exception):
     pass
 
 
-RESOURCE_NAMES = ("chatgpt-web-20261027.js", "legacy-web-observe.js")
+LEGACY_RESOURCE_NAMES = ("chatgpt-web-20261027.js", "legacy-web-observe.js")
+PROVIDER_RESOURCE_NAMES = ("issue120-provider-runtime.js", "issue120-provider-profiles.json")
+RESOURCE_NAMES = LEGACY_RESOURCE_NAMES + PROVIDER_RESOURCE_NAMES
 ICON_NAME = "Riftlet.icns"
 PRESENTATION_NAMES = ("glass-study.png", "reading.svg", "error.svg", "riftlet.svg")
 ICON_SLOTS = {b"ic04": 16, b"ic05": 32, b"ic07": 128, b"ic08": 256,
@@ -109,24 +111,41 @@ ORDINARY_ACCEPTANCE_OVERRIDES = {
 }
 
 
+PROVIDER_DEVELOPMENT_OVERRIDES = {
+    "CFBundleIdentifier": "com.riftlet.provider-development",
+    "CFBundleName": "Riftlet Provider Development",
+    "CFBundleDisplayName": "Riftlet Provider Development",
+    "RiftletBuildChannel": "provider-development",
+}
+
+
+def internal_plist(source, channel):
+    if channel == "provider-development":
+        return {**source, **PROVIDER_DEVELOPMENT_OVERRIDES}
+    require(channel == "ordinary-acceptance", "invalid_expected_channel")
+    return ordinary_acceptance_plist(source)
+
+
 def ordinary_acceptance_plist(source):
     return {**source, **ORDINARY_ACCEPTANCE_OVERRIDES}
 
 
 def verify_ordinary_build_info(info, channel="ordinary-acceptance"):
-    require(channel in {"development", "ordinary-acceptance"}, "invalid_expected_channel")
+    require(channel in {"development", "ordinary-acceptance", "provider-development"}, "invalid_expected_channel")
     internal = channel == "ordinary-acceptance"
     expected = {"internalAcceptance": internal, "mode": "capture",
                 "dataDirectory": "Riftlet-Ordinary-Acceptance" if internal else "Riftlet", "input": True,
                 "start": True, "completion": True, "builtInUpload": not internal,
                 "safeRetry": False, "continuation": not internal}
+    if channel == "provider-development":
+        expected.update(internalAcceptance=True, dataDirectory="Riftlet-Provider-Development")
     require(isinstance(info, dict) and set(info) == set(expected), "invalid_ordinary_build_info")
     require(all(type(info[key]) is type(value) and info[key] == value for key, value in expected.items()),
             "invalid_ordinary_build_info")
 
 
 def verify_bundle(app, repository=None, channel="development"):
-    require(channel in {"development", "ordinary-acceptance"}, "invalid_expected_channel")
+    require(channel in {"development", "ordinary-acceptance", "provider-development"}, "invalid_expected_channel")
     app = Path(app)
     require(app.suffix == ".app" and app.is_dir() and not app.is_symlink(), "invalid_app_root")
     # Only the exact relative links in the versioned Sparkle framework are valid.
@@ -157,6 +176,8 @@ def verify_bundle(app, repository=None, channel="development"):
     }
     if channel == "ordinary-acceptance":
         exact_values.update(ORDINARY_ACCEPTANCE_OVERRIDES)
+    elif channel == "provider-development":
+        exact_values.update(PROVIDER_DEVELOPMENT_OVERRIDES)
     for key, value in exact_values.items():
         require(info.get(key) == value, "invalid_" + key)
     for key, value in {"LSUIElement": True, "NSHighResolutionCapable": True,
@@ -209,10 +230,10 @@ def verify_bundle(app, repository=None, channel="development"):
     if repository is not None:
         repository = Path(repository)
         source_plist = read_nonempty(repository / "Resources/Info.plist", "missing_source_plist")
-        if channel == "ordinary-acceptance":
+        if channel != "development":
             # Only these fixed internal-channel substitutions are permitted.
             # Comparing the complete dictionary rejects added/removed keys too.
-            require(info == ordinary_acceptance_plist(plistlib.loads(source_plist)), "plist_differs_from_source")
+            require(info == internal_plist(plistlib.loads(source_plist), channel), "plist_differs_from_source")
         else:
             require((contents / "Info.plist").read_bytes() == source_plist, "plist_differs_from_source")
         presentation = repository / "Resources/Presentation"
@@ -240,7 +261,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("app", type=Path)
     parser.add_argument("--repository", type=Path)
-    parser.add_argument("--channel", choices=("development", "ordinary-acceptance"), default="development")
+    parser.add_argument("--channel", choices=("development", "ordinary-acceptance", "provider-development"), default="development")
     args = parser.parse_args()
     try:
         result = verify_bundle(args.app, args.repository, args.channel)

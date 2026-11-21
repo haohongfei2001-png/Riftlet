@@ -37,7 +37,16 @@ struct WatchedFileIdentity: Codable, Equatable, Sendable {
 
 final class FolderWatcher: @unchecked Sendable {
     typealias OpenedWatch = (identity: WatchedFileIdentity, localAPFSVolume: UUID?)
+    private typealias StartContinuation = CheckedContinuation<OpenedWatch, Error>
+    // Read and mutated only on the watch queue, including task cancellation.
+    private final class StartAttempt: @unchecked Sendable {
+        var waiter: StartContinuation?
+        var cancelled = false
+    }
+
     private let url: URL
+    private let openFile: @Sendable (URL) -> Int32
+    private var opening: StartAttempt?
     private let queue = DispatchQueue(label: "com.riftlet.capture.folder", qos: .utility)
     private let onDirty: @Sendable () -> Void
     private let onLost: @Sendable () -> Void
@@ -47,39 +56,80 @@ final class FolderWatcher: @unchecked Sendable {
     private var cancelled = false
 
     init(url: URL, expectsDirectory: Bool = true,
+         openFile: @escaping @Sendable (URL) -> Int32 = { Darwin.open($0.path, O_EVTONLY | O_NOFOLLOW | O_CLOEXEC) },
          onDirty: @escaping @Sendable () -> Void, onLost: @escaping @Sendable () -> Void) {
-        self.url = url; self.expectsDirectory = expectsDirectory
+        self.url = url; self.expectsDirectory = expectsDirectory; self.openFile = openFile
         self.onDirty = onDirty; self.onLost = onLost
     }
 
     @discardableResult
     func start() async throws -> OpenedWatch {
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<OpenedWatch, Error>) in
-            queue.async {
-                guard !self.cancelled, self.source == nil else {
-                    continuation.resume(throwing: CaptureError.io("watcher-already-started", EINVAL)); return
+        let attempt = StartAttempt()
+        return try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { (continuation: StartContinuation) in
+                queue.async {
+                    guard !attempt.cancelled else { continuation.resume(throwing: CancellationError()); return }
+                    guard !self.cancelled, self.source == nil, self.opening == nil else {
+                        continuation.resume(throwing: CaptureError.io("watcher-already-started", EINVAL)); return
+                    }
+                    attempt.waiter = continuation
+                    self.opening = attempt
+                    self.beginOpen(attempt)
                 }
-                let fd = Darwin.open(self.url.path, O_EVTONLY | O_NOFOLLOW | O_CLOEXEC)
-                guard fd >= 0 else {
-                    continuation.resume(throwing: CaptureError.io("watch-directory", errno)); return
+            }
+        } onCancel: {
+            self.queue.async { self.cancelStartup(attempt) }
+        }
+    }
+
+    // open can wait for a macOS permission prompt indefinitely. The watch queue
+    // must remain available to acknowledge retirement and resume the waiter.
+    private func beginOpen(_ attempt: StartAttempt) {
+        DispatchQueue.global(qos: .utility).async { [weak self, openFile, url, queue] in
+            let fd = openFile(url)
+            let error = errno
+            queue.async { [weak self] in
+                guard let self else {
+                    if fd >= 0 { Darwin.close(fd) }
+                    return
                 }
-                var info = stat()
-                let expectedType = self.expectsDirectory ? S_IFDIR : S_IFREG
-                guard fstat(fd, &info) == 0, info.st_mode & mode_t(S_IFMT) == mode_t(expectedType) else {
-                    Darwin.close(fd)
-                    continuation.resume(throwing: CaptureError.notRegularFile); return
-                }
-                let live = DispatchSource.makeFileSystemObjectSource(fileDescriptor: fd,
-                    eventMask: [.write, .rename, .delete, .revoke, .attrib], queue: self.queue)
-                live.setEventHandler { [weak self] in self?.handleEvent() }
-                live.setCancelHandler { Darwin.close(fd) }
-                self.source = live
-                live.resume()
-                let identity = WatchedFileIdentity(info, descriptor: fd)
-                let localVolume = self.expectsDirectory ? Self.localAPFSVolume(fd, volume: identity.volumeUUID) : nil
-                continuation.resume(returning: (identity, localVolume))
+                self.finishOpen(attempt, fd: fd, error: error)
             }
         }
+    }
+
+    private func cancelStartup(_ attempt: StartAttempt) {
+        attempt.cancelled = true
+        attempt.waiter?.resume(throwing: CancellationError())
+        attempt.waiter = nil
+        // Keep the pending open reserved until its syscall finishes. An unrelated
+        // start task must not start a second open while the prompt is pending.
+    }
+
+    private func finishOpen(_ attempt: StartAttempt, fd: Int32, error: Int32) {
+        assert(opening === attempt)
+        opening = nil
+        guard let waiter = attempt.waiter, !cancelled else {
+            if fd >= 0 { Darwin.close(fd) }
+            return
+        }
+        attempt.waiter = nil
+        guard fd >= 0 else { waiter.resume(throwing: CaptureError.io("watch-directory", error)); return }
+        var info = stat()
+        let expectedType = expectsDirectory ? S_IFDIR : S_IFREG
+        guard fstat(fd, &info) == 0, info.st_mode & mode_t(S_IFMT) == mode_t(expectedType) else {
+            Darwin.close(fd)
+            waiter.resume(throwing: CaptureError.notRegularFile); return
+        }
+        let live = DispatchSource.makeFileSystemObjectSource(fileDescriptor: fd,
+            eventMask: [.write, .rename, .delete, .revoke, .attrib], queue: queue)
+        live.setEventHandler { [weak self] in self?.handleEvent() }
+        live.setCancelHandler { Darwin.close(fd) }
+        source = live
+        live.resume()
+        let identity = WatchedFileIdentity(info, descriptor: fd)
+        let localVolume = expectsDirectory ? Self.localAPFSVolume(fd, volume: identity.volumeUUID) : nil
+        waiter.resume(returning: (identity, localVolume))
     }
 
     static func localAPFSVolume(_ descriptor: Int32, volume: UUID?) -> UUID? {
@@ -132,6 +182,7 @@ final class FolderWatcher: @unchecked Sendable {
     private func cancelOnQueue() {
         guard !cancelled else { return }
         cancelled = true
+        if let opening { cancelStartup(opening) }
         pending?.cancel(); pending = nil
         source?.cancel(); source = nil
     }

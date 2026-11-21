@@ -26,12 +26,60 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
     /// mouse-down. The browser must establish it within the same deadline;
     /// waiting for its reply and validating the result happen off the UI thread.
     public func targetForClick(program: WebPageProgram) throws -> Task<TargetLease, Error> {
-        let clickDeadline = ChromeClickDeadline()
+        let frozen = try freezeChatClick()
+        return try enqueueChatClick(frozen, program: program)
+    }
+
+    fileprivate struct FrozenChatClick {
+        let deadline: ChromeClickDeadline
+        let identity: ChromeProcessIdentity
+        let requestID: String
+        let route: ChromeClickRoute
+        let originalURL: URL
+    }
+
+    fileprivate func freezeChatClick(includeCandidateSites: Bool = false) throws -> FrozenChatClick {
+        let deadline = ChromeClickDeadline()
         let identity = try clickReceiver()
         let requestID = UUID().uuidString
+        let bridge = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: requestID, clickDeadline: deadline)
+        let raw = try bridge.rawClickRoute(deadline: deadline)
+        guard let originalURL = URL(string: raw.url) else { throw WebAdapterError.invalidTarget }
+        let route = includeCandidateSites
+            ? try ChromeClickRoute(window: raw.window, tab: raw.tab, url: raw.url)
+            : try ChromeClickRoute.chatGPT(window: raw.window, tab: raw.tab, url: raw.url)
+        return FrozenChatClick(deadline: deadline, identity: identity, requestID: requestID, route: route, originalURL: originalURL)
+    }
+
+    fileprivate func inspectOriginalProvider(_ frozen: FrozenChatClick, catalog: Issue120ProviderCatalog,
+                                             route: ProviderRoute, id: UUID, maximumBytes: Int) throws -> Task<ReadOnlyProviderResult, Error> {
+        let program = try catalog.program(for: route.profile)
+        let deadline = frozen.deadline, identity = frozen.identity, tab = frozen.route
+        let trace = self.trace
+        let sender = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: frozen.requestID, clickDeadline: deadline)
+        let pin = ProviderDiscoveryPin(id: id)
+        let source = try pin.bind(address: frozen.originalURL.absoluteString, maximumBytes: maximumBytes)
+        let reply = try sender.enqueueWitness(deadline.guardExecution(of: source), route: tab, deadline: deadline)
+        let confirmation = deadline.confirmation
+        return Task.detached(priority: .userInitiated) {
+            guard try reply.boundWithinClick(before: confirmation), Self.foregroundMatches(identity) else {
+                throw BindingError.targetChanged
+            }
+            try confirmation.checkClockAgreement()
+            let reader = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: frozen.requestID, clickDeadline: confirmation)
+            let result = try reader.execute(pin.read(program: program), window: tab.window, tab: tab.tab)
+            guard Self.foregroundMatches(identity) else { throw BindingError.targetChanged }
+            try confirmation.checkReturn()
+            let observed = try ReadOnlyProviderResult(provider: route.profile.id, reply: result)
+            trace.discovery(requestID: frozen.requestID, observation: observed)
+            return observed
+        }
+    }
+
+    fileprivate func enqueueChatClick(_ frozen: FrozenChatClick, program: WebPageProgram, witnessID: UUID = UUID()) throws -> Task<TargetLease, Error> {
+        let clickDeadline = frozen.deadline, identity = frozen.identity, requestID = frozen.requestID, route = frozen.route
         let bridge = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: requestID, clickDeadline: clickDeadline)
-        let route = try bridge.clickRoute(deadline: clickDeadline)
-        let witness = ChromeClickDocumentWitness()
+        let witness = ChromeClickDocumentWitness(id: witnessID)
         let world = identity.applicationID == AttachmentBrowser.edge.rawValue ? EdgeExecutionWorldWitness() : nil
         let binding = try world?.prepareAndBind(witness, address: route.address, program: program)
             ?? witness.bindScript(address: route.address, program: program)
@@ -307,6 +355,182 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
     }
 }
 
+/// A discovery reply cannot be used as a transfer receipt.
+struct ReadOnlyProviderResult: Error {
+    let provider: String
+    let state: String
+    let attachmentEntry: String
+
+    init(provider: String, reply: String) throws {
+        let parts = reply.components(separatedBy: "|")
+        guard parts.count == 2 else { throw BindingError.targetChanged }
+        switch parts[0] {
+        case "owned_input":
+            guard parts[1] == "direct_owned_input" else { throw BindingError.targetChanged }
+        case "editor_and_upload_action":
+            guard ["menu_relation_unavailable", "menu_relation_ambiguous", "menu_owner_unproven",
+                   "menu_input_owner_unproven", "menu_item_owner_unproven", "menu_not_open", "menu_items_ambiguous",
+                   "menu_upload_item_unavailable", "menu_input_ambiguous", "menu_input_unproven",
+                   "menu_owned_input_observed"].contains(parts[1]) else { throw BindingError.targetChanged }
+        case "other_route", "editor_unavailable", "owner_unavailable", "upload_control_unavailable":
+            guard parts[1] == "notReached" else { throw BindingError.targetChanged }
+        default: throw BindingError.targetChanged
+        }
+        self.provider = provider
+        state = parts[0]
+        attachmentEntry = parts[1]
+    }
+}
+
+/// Bind the discovery read to the original document. Mutations or loss of focus
+/// between the click and read can only refuse this diagnostic.
+struct ProviderDiscoveryPin {
+    let id: UUID
+
+    static let maximumSourceBytes = 4096
+
+    func bind(address: String, maximumBytes: Int = Self.maximumSourceBytes) throws -> String {
+        let url = String(decoding: try JSONEncoder().encode(address), as: UTF8.self)
+        let source = """
+        (() => {
+          const key = '__riftletDiscovery_\(id.uuidString)', original = document, root = original.documentElement;
+          const entry = window.navigation?.currentEntry?.id, address = \(url);
+          if (top !== self || location.href !== address || !entry || !root || Object.hasOwn(window, key)) return 'refused';
+          let valid = true, expiry;
+          const listeners = new AbortController();
+          const invalidate = () => { valid = false; };
+          const signals = [[window,'pagehide'], [window,'blur'], [original,'visibilitychange'],
+                           [window.navigation,'navigate'], [window.navigation,'currententrychange']];
+          for (const [target, name] of signals) {
+            target.addEventListener(name, invalidate, {once: true, signal: listeners.signal});
+          }
+          const changes = new MutationObserver(invalidate);
+          changes.observe(original, {subtree: true, childList: true, attributes: true, characterData: true});
+          const release = () => {
+            valid = false;
+            clearTimeout(expiry);
+            listeners.abort();
+            changes.disconnect();
+            delete window[key];
+          };
+          Object.defineProperty(window, key, {configurable: true, value: inspect => {
+            const same = valid && !changes.takeRecords().length && document === original &&
+              document.documentElement === root && document.visibilityState === 'visible' && document.hasFocus() &&
+              location.href === address && window.navigation.currentEntry?.id === entry;
+            release();
+            return same ? inspect() : 'refused';
+          }});
+          expiry = setTimeout(release, 1100);
+          return 'bound';
+        })()
+        """
+        guard source.utf8.count <= min(maximumBytes, Self.maximumSourceBytes) else { throw BindingError.unsupported }
+        return source
+    }
+
+    func read(program: String) -> String {
+        """
+        window['__riftletDiscovery_\(id.uuidString)']?.(() => {
+          const provider = (\(program)), state = provider.inspect();
+          if (state !== 'owned_input' && state !== 'editor_and_upload_action') return state + '|notReached';
+          const handle = provider.pin('\(id.uuidString)');
+          try { return state + '|' + handle.inspectAttachmentEntry(); }
+          finally { handle.close(); }
+        }) ?? 'refused'
+        """
+    }
+}
+
+@MainActor public enum CandidateProviderInspector {
+    public static func inspectForeground() async throws -> [String: String] {
+        let catalog = try Issue120ProviderCatalog()
+        let executor = ChromeAppleEventsExecutor()
+        let frozen = try executor.freezeChatClick(includeCandidateSites: true)
+        let route = try resolveProvider(frozen.originalURL, among: catalog.providers)
+        let result = try await executor.inspectOriginalProvider(frozen, catalog: catalog, route: route,
+                                                               id: UUID(), maximumBytes: ProviderDiscoveryPin.maximumSourceBytes).value
+        return ["browser": frozen.identity.applicationID, "provider": result.provider, "programSHA256": route.profile.digest,
+                "discovery": result.state, "attachmentEntry": result.attachmentEntry]
+    }
+}
+
+/// The two existing browser receivers use the original build-53 native pin and
+/// execution-world checks. A second capture invalidates the first pending enqueue.
+@MainActor final class ChatGPTChromiumHost: BrowserHost {
+    let bundle: String
+    let provider: ChatGPTConversationProvider
+    private let executor: ChromeAppleEventsExecutor
+    private let program: WebPageProgram
+    private let discoveryCatalog: Issue120ProviderCatalog
+    private let inspectPermission: () -> OriginalReceiverAccess
+    private var pending: (NativeClick, ChromeAppleEventsExecutor.FrozenChatClick)?
+
+    init(browser: AttachmentBrowser, executor: ChromeAppleEventsExecutor, program: WebPageProgram,
+         discoveryCatalog: Issue120ProviderCatalog, permission: @escaping () -> OriginalReceiverAccess) throws {
+        self.bundle = browser.rawValue
+        self.executor = executor
+        self.program = program
+        self.provider = try ChatGPTConversationProvider(program: program)
+        self.discoveryCatalog = discoveryCatalog
+        self.inspectPermission = permission
+    }
+
+    var capabilities: HostCapabilities {
+        .init(world: .page, reply: .originalAsynchronousReply, locator: .stableNativeID,
+              epoch: .navigationEntry, fileSetterAndDataTransferVerified: true,
+              maximumPinBytes: program.pinSource?.utf8.count ?? 0)
+    }
+
+    func permissionState() -> OriginalReceiverAccess { inspectPermission() }
+
+    func freezeClick() throws -> NativeClick {
+        pending = nil
+        let frozen = try executor.freezeChatClick(includeCandidateSites: true)
+        let pid = frozen.identity
+        guard pid.applicationID == bundle else {
+            throw BindingError.targetChanged
+        }
+        let click = NativeClick(bundle: bundle, pid: pid.pid, processBirth: pid.session,
+            session: pid.session, window: frozen.route.window, tab: frozen.route.tab, url: frozen.originalURL,
+            generation: UUID(), uptime: ProcessInfo.processInfo.systemUptime)
+        pending = (click, frozen)
+        return click
+    }
+
+    func enqueuePin(click: NativeClick, route: ProviderRoute, maximumBytes: Int) throws -> Task<PinReceipt, Error> {
+        let saved = pending
+        pending = nil
+        guard let saved, saved.0 == click else { throw BindingError.targetChanged }
+        if route.profile != provider.profile {
+            guard try resolveProvider(click.url, among: discoveryCatalog.providers) == route else { throw BindingError.targetChanged }
+            let read = try executor.inspectOriginalProvider(saved.1, catalog: discoveryCatalog, route: route,
+                                                            id: click.generation, maximumBytes: maximumBytes)
+            return Task { throw try await read.value }
+        }
+        guard provider.classify(click.url) == route.route, let pin = program.pinSource,
+              !pin.isEmpty, pin.utf8.count <= maximumBytes else { throw BindingError.targetChanged }
+        let original = try executor.enqueueChatClick(saved.1, program: program, witnessID: click.generation)
+        return Task { try await PinReceipt(click: click, route: route, target: original.value) }
+    }
+}
+
+struct ChatGPTConversationProvider: ConversationProvider {
+    let profile: ProviderProfile
+    let httpsHosts: Set<String> = ["chatgpt.com", "chat.openai.com"]
+
+    init(program: WebPageProgram) throws {
+        guard program.sourceID == ChatGPTWebPageProgram.sourceID else { throw BindingError.invalidProfile }
+        profile = try ProviderProfile(id: "chatgpt", revision: 30, program: Data(program.functionSource.utf8))
+    }
+
+    func classify(_ url: URL) -> DraftRoute? {
+        guard let host = url.host?.lowercased(), httpsHosts.contains(host),
+              let route = try? ChromeClickRoute.chatGPT(window: "1", tab: "1", url: url.absoluteString)
+        else { return nil }
+        return DraftRoute(identity: route.address, surface: "webChat", mode: "chatgpt-web")
+    }
+}
+
 /// Explicit setup check. The program evaluates a constant, with no DOM access,
 /// file input, navigation or attachment relay. No tab identifier leaves this call.
 public enum ChromeSetupConnectionProbe {
@@ -375,6 +599,11 @@ private final class ChromeBridgeTrace: @unchecked Sendable {
             }
         }
         sink.record(fields, critical: !succeeded && action != "captureTarget" && action != "observe")
+    }
+
+    func discovery(requestID: String, observation: ReadOnlyProviderResult) {
+        sink.record(["event": "provider_discovery", "requestID": requestID, "source": observation.provider,
+                     "result": observation.state, "phase": observation.attachmentEntry, "authority": "DIAGNOSTIC_ONLY"])
     }
 
     func activeIdentity(requestID: String, check: String, route: String, started: TimeInterval, succeeded: Bool) {
@@ -587,7 +816,7 @@ private struct ChromePIDEvents {
         return String(number)
     }
 
-    func clickRoute(deadline: ChromeClickDeadline) throws -> ChromeClickRoute {
+    func rawClickRoute(deadline: ChromeClickDeadline) throws -> (window: String, tab: String, url: String) {
         let started = ProcessInfo.processInfo.systemUptime
         var succeeded = false
         var stage = "create_specifiers"
@@ -606,9 +835,8 @@ private struct ChromePIDEvents {
         stage = "original_tab_url"
         let address = try ChromeActiveTabDescriptor.matchedURL(properties: reads.properties, tab: identity.tab)
             ?? url(window: identity.window, tab: identity.tab)
-        let route = try ChromeClickRoute.chatGPT(window: identity.window, tab: identity.tab, url: address)
         succeeded = true
-        return route
+        return (identity.window, identity.tab, address)
     }
 
     func url(window: String, tab: String) throws -> String {

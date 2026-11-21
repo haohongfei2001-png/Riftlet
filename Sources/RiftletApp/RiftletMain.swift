@@ -12,6 +12,25 @@ import RiftletFeedback
 @main
 enum RiftletMain {
     @MainActor static func main() {
+        #if RIFTLET_PROVIDER_DEVELOPMENT
+        if CommandLine.arguments.contains("--candidate-host-inspection") {
+            do {
+                let data = try JSONEncoder().encode(CandidateHostInspector.inspectForeground())
+                print(String(decoding: data, as: UTF8.self))
+            } catch { exit(1) }
+            return
+        }
+        if CommandLine.arguments.contains("--candidate-provider-inspection") {
+            Task {
+                do {
+                    let observation = try await CandidateProviderInspector.inspectForeground()
+                    print(String(decoding: try JSONEncoder().encode(observation), as: UTF8.self))
+                    exit(0)
+                } catch { fputs("Provider discovery unavailable\n", stderr); exit(1) }
+            }
+            dispatchMain()
+        }
+        #endif
         if CommandLine.arguments.contains("--ordinary-build-info") {
             let value: [String: Any] = ["internalAcceptance": OrdinaryCaptureConfiguration.isInternalAcceptance,
                 "mode": "capture", "dataDirectory": OrdinaryCaptureConfiguration.dataDirectoryName,
@@ -104,12 +123,13 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var pendingResultCount = 0
     private var initialized = false
     private var initializationTask: Task<Void, Never>?
+    private var startupSourceWatch: Task<Void, Never>?
     private var captureControl = CaptureControlGate()
     private var recheckTask: Task<Void, Never>?
     private var collectionChangePending = false
-    private var captureControlBusy: Bool { captureControl.isBusy || collectionChangePending }
+    private var captureControlBusy: Bool { startupSourceWatch != nil || captureControl.isBusy || collectionChangePending }
     private var canChangeCollection: Bool {
-        mode.collectsSystemScreenshots && initialized && !collectionChangePending && captureControl.acceptsCollectionIntent
+        mode.collectsSystemScreenshots && initialized && startupSourceWatch == nil && !collectionChangePending && captureControl.acceptsCollectionIntent
     }
     private var requestingPermission = false
     private var chromeConnection: OnboardingChromeConnection = .unchecked
@@ -187,6 +207,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var originalRecoveryIDs: [UUID]?
     private var originalRecoveryTask: Task<Void, Never>?
     private var startupCompletedIDs = Set<UUID>()
+    #if RIFTLET_PROVIDER_DEVELOPMENT
+    private var developmentRouting: DevelopmentAttachmentRouting?
+    #endif
     private var clickAdapter: WebAttachmentAdapter?
     private var lastForegroundSession: String?
     private var diagnosticTrace: BoundedDiagnosticTrace?
@@ -342,8 +365,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     // Keep the instance lock until the OS closes the old process's descriptors.
     private func finishWorkForExit() async {
         drainingForExit = true
-        await recheckTask?.value
+        startupSourceWatch?.cancel()
+        recheckTask?.cancel()
         await sourceBinding?.stop()
+        await startupSourceWatch?.value
+        await recheckTask?.value
         await capture?.finishForApplicationExit()
         await screenshotEntry?.finishForApplicationExit()
         await selectionSubmissions.finishSubmittedWork()
@@ -610,7 +636,16 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             onInputTransportFinished: { [weak self] in await self?.inputTransportFinished() })
         let adapter = composition.adapter
         let policy = composition.policy
+        var additionalAdapters = [String: any IndependentFileInputAdapter]()
+        #if RIFTLET_PROVIDER_DEVELOPMENT
+        if mode == .capture, let chromeExecutor, adapter is WebAttachmentAdapter {
+            let routing = try DevelopmentAttachmentRouting(executor: chromeExecutor, store: store)
+            developmentRouting = routing
+            additionalAdapters = routing.additionalAdapters
+        }
+        #endif
         let transfer = TransferCoordinator(store: store, adapter: adapter, mediaDirectory: root.appendingPathComponent("media"),
+            additionalAdapters: additionalAdapters,
             policy: policy, onChange: { [weak self] in await self?.refresh() },
             onSelectionSettled: { [weak self] id in await self?.finishPreparedSelection(id) },
             onAcceptedSelectionSettled: { [weak self] selection in
@@ -672,12 +707,6 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 permitsSource: { [weak self] source in await self?.restoreCaptureFolder(source) ?? false },
                 onDiagnostic: { [weak self] value in await self?.receiveCaptureDiagnostic(value) })
             sourceBinding = binding
-            if !captureIsPaused {
-                do { try await binding.start() }
-                catch { receiveCaptureDiagnostic(.classify(error, context: .source)) }
-            }
-            await service.finishApplicationStartup()
-            captureStatus = await service.statusSnapshot()
         } else {
             statusLine?.title = simulation ? "SIMULATION · synthetic images only · no ChatGPT input"
                 : "WEB ACCEPTANCE · generated images · real Chrome input"
@@ -722,6 +751,21 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 screenshotEntry?.onPreferencesChanged = { [weak self] in self?.updateSetup() }
                 screenshotEntry?.setHidden(userHidden)
             } catch { showIssue("截图入口暂不可用，已有截图收录和队列仍保留。") }
+        }
+        // Opening Desktop may wait indefinitely for a macOS consent decision.
+        // Finish restoring the local app and its unsaved-work protections first.
+        if let service = startupCapture, let binding = sourceBinding {
+            startupSourceWatch = Task {
+                if !captureIsPaused && !Task.isCancelled {
+                    do { try await binding.start() }
+                    catch { if !Task.isCancelled { receiveCaptureDiagnostic(.classify(error, context: .source)) } }
+                }
+                await service.finishApplicationStartup()
+                captureStatus = await service.statusSnapshot()
+                startupSourceWatch = nil
+                if !drainingForExit { await refresh() }
+            }
+            if mode == .settingsReview { await startupSourceWatch?.value }
         }
         await refresh()
     }
@@ -1033,7 +1077,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private enum SetupRecheckScope { case setup, source, media }
 
     private func beginSetupRecheck(_ scope: SetupRecheckScope = .setup) {
-        guard !drainingForExit, initialized, !requestingPermission, !collectionChangePending,
+        guard !drainingForExit, initialized, startupSourceWatch == nil, !requestingPermission, !collectionChangePending,
               let token = captureControl.begin(.recheck) else { return }
         updateControlTitles()
         recheckTask = Task {
@@ -1304,7 +1348,16 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         do {
             // Bind the receiver and its original editor during the event.
             // The actual file input is deferred until that binding is rechecked.
+            #if RIFTLET_PROVIDER_DEVELOPMENT
+            if let developmentRouting {
+                guard let bundleID else { throw WebAdapterError.browserNotFrontmost }
+                target = try developmentRouting.targetForClick(in: bundleID)
+            } else {
+                target = try web.targetForClick()
+            }
+            #else
             target = try web.targetForClick()
+            #endif
         } catch {
             target = Task { throw error }
         }
@@ -1704,7 +1757,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func setCollectionPaused(_ requested: Bool) async throws {
-        guard mode.collectsSystemScreenshots, initialized, !collectionChangePending,
+        guard mode.collectsSystemScreenshots, initialized, startupSourceWatch == nil, !collectionChangePending,
               let store, let binding = sourceBinding else { throw CocoaError(.fileWriteUnknown) }
         // A control can accept this immutable intent just before an activation
         // recheck starts. Wait for that real check rather than reporting a disk
@@ -2175,11 +2228,19 @@ private enum WebAcceptanceSelfCheck {
         guard !program.sourceID.isEmpty, !program.functionSource.isEmpty,
               program.functionSource.utf8.count <= 128 * 1024,
               try ApplicationMode.resolve([]) == .capture,
-              try ApplicationMode.resolve(["--simulate"]) == .simulation,
-              try ApplicationMode.resolve(["--web-acceptance"]) == .webAcceptance,
               Set([ApplicationMode.capture.directoryName, ApplicationMode.simulation.directoryName,
                    ApplicationMode.webAcceptance.directoryName]).count == 3 else {
             throw RiftletError.modeMismatch
+        }
+        for (argument, mode) in [("--simulate", ApplicationMode.simulation), ("--web-acceptance", .webAcceptance)] {
+            if OrdinaryCaptureConfiguration.isInternalAcceptance {
+                do {
+                    _ = try ApplicationMode.resolve([argument])
+                    throw RiftletError.invalidTransition
+                } catch RiftletError.modeMismatch {}
+            } else {
+                guard try ApplicationMode.resolve([argument]) == mode else { throw RiftletError.modeMismatch }
+            }
         }
         do {
             _ = try ApplicationMode.resolve(["--web-acceptance", "--simulate"])

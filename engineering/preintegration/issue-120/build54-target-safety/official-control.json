@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-21",
+  "observations": [
+    {
+      "utc": "2026-11-21T12:42:34.400Z",
+      "browser": "Chrome",
+      "stage": "ordinary-window creation",
+      "familySelected": "Owl",
+      "error": "Creating browser windows from extensions is not supported in Owl.",
+      "fiveDomainStatusThisRun": "BLOCKED"
+    },
+    {
+      "utc": "2026-11-21T12:45:37.139Z",
+      "browser": "Edge",
+      "scope": "new ordinary blank QA window in existing browser",
+      "beforeClaim": {
+        "nativeProcessWindowAndSelectedTabObserved": true,
+        "normalActive": true,
+        "groupMatches": true,
+        "memberCount": 1,
+        "gotProvider": true
+      },
+      "afterClaim": {
+        "stableClaim": true,
+        "readBlank": true
+      },
+      "actualIdentityFieldsStoredPrivately": [
+        "nativeWindowID",
+        "nativeTabID",
+        "browserReferenceID",
+        "providerTabID",
+        "claimedTabHandleID"
+      ]
+    },
+    {
+      "utc": "2026-11-21T12:52:25.688Z",
+      "browser": "Edge",
+      "scope": "original self-authored loopback text field",
+      "key": "q",
+      "observedOnOriginal": true
+    },
+    {
+      "utc": "2026-11-21T12:52:34.720Z",
+      "browser": "Edge",
+      "scope": "replacement self-authored loopback text field, same claimed tab and provider",
+      "key": "z",
+      "sameTabKeyClosureDeliveredToReplacement": true,
+      "providerReferenceStillBound": true
+    }
+  ],
+  "officialAPIContract": {
+    "targetlessAXKey": "uses current focus",
+    "indexedAXKey": "attempts to focus the element prior to key entry",
+    "atomicOriginalDocumentEditorCondition": "unverified"
+  },
+  "privateOriginalReceiptSHA256": "eb224de1f20e63f276fd1267f0b8f97360d5ac48db16048e4aa7aaed7836a807",
+  "cleanup": "owned ordinary window confirmed absent; local fixture server stopped",
+  "authenticatedSiteActions": 0
+}

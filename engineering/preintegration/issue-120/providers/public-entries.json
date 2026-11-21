@@ -1,0 +1,10 @@
+[
+  {"id":"claude","entry":"https://claude.ai/new"},
+  {"id":"gemini","entry":"https://gemini.google.com/app"},
+  {"id":"deepseek","entry":"https://chat.deepseek.com/"},
+  {"id":"kimi","entry":"https://www.kimi.com/"},
+  {"id":"qianwen-cn","entry":"https://www.qianwen.com/"},
+  {"id":"doubao","entry":"https://www.doubao.com/chat/"},
+  {"id":"perplexity","entry":"https://www.perplexity.ai/"},
+  {"id":"qwen-international","entry":"https://chat.qwen.ai/"}
+]

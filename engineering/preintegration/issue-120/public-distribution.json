@@ -1,0 +1,13 @@
+{
+  "verifiedAt": "2026-11-20T06:01:37+00:00",
+  "verifier": "scripts/release-appcast.py verify-public",
+  "localReceiptBuild": "31",
+  "version": "1.0.5",
+  "build": "31",
+  "bytes": 12686160,
+  "sha256": "99276347932e231adf743664a54cfc782d8e345d89221587d54b7299a5c9f315",
+  "signedFeedSHA256": "da0b17e36b178ae94bcbea6e5720dcc400250350aa766fd31d4fbf8e3f476b52",
+  "site": "https://riftlet.com/",
+  "feed": "https://riftlet.com/updates/stable.xml",
+  "release": "https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.5"
+}

@@ -1,0 +1,68 @@
+{
+  "scope": "Isolated macOS C; ordinary Safari local synthetic single draft. Independent test sender, no attached file, no messages.",
+  "versions": {
+    "macOS": "27.2",
+    "Safari": "27.2"
+  },
+  "hostWindow": {
+    "initialCount": 0,
+    "duringCount": 1,
+    "order": "orderBack",
+    "activationPolicy": "accessory",
+    "inputRoute": "VZVirtualMachineView window-targeted NSEvents only",
+    "capture": "window number gated by test process executable and name"
+  },
+  "probeSourceSHA256": "e63d04f92c563815cac3a8ebfa6b2c3cf0d704733e5b0d79ddc4739538ee6240",
+  "senderExecutableSHA256": "35c44a6afb6d3fe89744965fc7a3a34507c4fc50ef3155fc7624d63e6aff1206",
+  "initialPromptResult": {
+    "automationStatusForProbeSender": 0,
+    "initialNonpromptingStatus": -1744,
+    "lateSlotBinding": "NOT_RUN",
+    "nativeReadError": -2700,
+    "pageJavaScriptFromAppleEvents": "NOT_RUN",
+    "requestedInDisposableVM": true,
+    "signedCandidatePermission": "NOT_RUN"
+  },
+  "extraTabRefusal": "The freshly launched browser automatically added a Start Page. The guard refused with -2700 until ordinary File > Close Tab closed that empty start tab.",
+  "singleTabDefault": {
+    "automationStatusForProbeSender": 0,
+    "initialNonpromptingStatus": 0,
+    "lateSlotBinding": "ORIGINAL_SPECIFIER_NOW_RESOLVES_TO_OTHER_DOCUMENT",
+    "pageJavaScriptFromAppleEvents": {
+      "error": 8
+    },
+    "requestedInDisposableVM": true,
+    "signedCandidatePermission": "NOT_RUN",
+    "tabSpecifierKeyForm": "696e6478"
+  },
+  "singleTabAfterNormalGUIEnableAndOSAuthentication": {
+    "automationStatusForProbeSender": 0,
+    "initialNonpromptingStatus": 0,
+    "lateSlotBinding": "ORIGINAL_SPECIFIER_NOW_RESOLVES_TO_OTHER_DOCUMENT",
+    "pageJavaScriptFromAppleEvents": "READ_PAGE_SENTINEL",
+    "requestedInDisposableVM": true,
+    "signedCandidatePermission": "NOT_RUN",
+    "tabSpecifierKeyForm": "696e6478"
+  },
+  "singleTabAfterPreferencesRestored": {
+    "automationStatusForProbeSender": 0,
+    "initialNonpromptingStatus": 0,
+    "lateSlotBinding": "ORIGINAL_SPECIFIER_NOW_RESOLVES_TO_OTHER_DOCUMENT",
+    "pageJavaScriptFromAppleEvents": {
+      "error": 8
+    },
+    "requestedInDisposableVM": true,
+    "signedCandidatePermission": "NOT_RUN",
+    "tabSpecifierKeyForm": "696e6478"
+  },
+  "decision": "Cold original tab by native specifier alone is unsafe. Original and different same-URL replacement had distinct generated titles; after original tab closed, its specifier resolved to the replacement in all three completed runs.",
+  "signedProductPermission": "NOT_RUN",
+  "authenticatedProviderUpload": "NOT_RUN",
+  "sourceReportsSHA256": {
+    "report": "a4d2f513677c5e019954377f7364bdbaba7f34791f6cbe4ce1e496de319a558d",
+    "default": "2eea569a5366690a7e89f5f1ec0335bb40babcf1d7596171a545e7b293bdf669",
+    "single": "398dc729089860901b96b15a61acc9d33a09d56b876ba1dd78fce65cb513c5a2",
+    "enabled": "04202e602ce9b32260c357c8d55075a8ccc222ff2208f5af340168585e2168c3",
+    "restored": "398dc729089860901b96b15a61acc9d33a09d56b876ba1dd78fce65cb513c5a2"
+  }
+}

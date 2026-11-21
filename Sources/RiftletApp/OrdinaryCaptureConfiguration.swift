@@ -142,7 +142,12 @@ enum OrdinaryCaptureConfiguration {
     // One product implementation; the compiler-only acceptance harness retains
     // its isolated root and historical scope. Neither path asserts release or
     // real-page certification from build success or candidate F/H evidence.
-    #if RIFTLET_ORDINARY_ACCEPTANCE
+    #if RIFTLET_PROVIDER_DEVELOPMENT
+    static let isInternalAcceptance = true
+    static let admission = OrdinaryAttachmentAdmission.unifiedProduct
+    static let dataDirectoryName = "Riftlet-Provider-Development"
+    static let menuTitle = "Riftlet Provider Development"
+    #elseif RIFTLET_ORDINARY_ACCEPTANCE
     static let isInternalAcceptance = true
     static let admission = OrdinaryAttachmentAdmission.internalAcceptance(currentDrafts: true)
     static let dataDirectoryName = "Riftlet-Ordinary-Acceptance"

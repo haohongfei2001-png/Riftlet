@@ -124,6 +124,26 @@ public enum AttachmentBrowser: String, CaseIterable, Sendable {
     case edge = "com.microsoft.edgemac"
 }
 
+/// Versioned owner of a new web attachment. Existing leases decode with no owner.
+public struct WebProviderBinding: Codable, Equatable, Hashable, Sendable {
+    public let providerID: String
+    public let revision: Int
+    public let programSHA256: String
+    public let routeSHA256: String
+    public let surface: String
+    public let mode: String
+
+    public init(providerID: String, revision: Int, programSHA256: String, routeSHA256: String,
+                surface: String, mode: String) {
+        self.providerID = providerID
+        self.revision = revision
+        self.programSHA256 = programSHA256
+        self.routeSHA256 = routeSHA256
+        self.surface = surface
+        self.mode = mode
+    }
+}
+
 /// Captured at click time and rechecked atomically with dispatch by the adapter.
 /// Tokens are opaque local identities, never cookies, credentials or chat contents.
 public struct TargetLease: Codable, Equatable, Hashable, Sendable {
@@ -141,11 +161,14 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
     public let historyConversationID: UUID?
     /// Runtime page-issued click capability; absent on all historical leases.
     public let clickBindingID: UUID?
+    public let providerBinding: WebProviderBinding?
 
     public init(adapterID: String, surface: TargetSurface, applicationID: String,
                 sessionID: String, windowID: String, tabID: String? = nil,
                 documentID: String, composerID: String, draftGeneration: String,
-                logicalDraftIdentity: LogicalDraftIdentity? = nil, clickBindingID: UUID? = nil, historyConversationID: UUID? = nil) {
+                logicalDraftIdentity: LogicalDraftIdentity? = nil, clickBindingID: UUID? = nil, historyConversationID: UUID? = nil,
+                providerBinding: WebProviderBinding? = nil) {
+        self.providerBinding = providerBinding
         self.adapterID = adapterID; self.surface = surface; self.applicationID = applicationID
         self.sessionID = sessionID; self.windowID = windowID; self.tabID = tabID
         self.documentID = documentID; self.composerID = composerID; self.draftGeneration = draftGeneration
@@ -170,7 +193,7 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
     public func sharesContinuationDraft(with other: TargetLease) -> Bool {
         guard surface == .webChat, other.surface == surface,
               attachmentBrowser != nil, other.applicationID == applicationID,
-              !adapterID.isEmpty, adapterID == other.adapterID,
+              !adapterID.isEmpty, adapterID == other.adapterID, providerBinding == other.providerBinding,
               !sessionID.isEmpty, sessionID == other.sessionID,
               !windowID.isEmpty, windowID == other.windowID,
               let tabID, !tabID.isEmpty, tabID == other.tabID,
@@ -199,7 +222,7 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
     public func hasIndependentInputDocument(from other: TargetLease) -> Bool {
         guard surface == .webChat, other.surface == surface,
               attachmentBrowser != nil, other.applicationID == applicationID,
-              !adapterID.isEmpty, adapterID == other.adapterID,
+              !adapterID.isEmpty, adapterID == other.adapterID, providerBinding == other.providerBinding,
               !sessionID.isEmpty, sessionID == other.sessionID,
               !windowID.isEmpty, !other.windowID.isEmpty,
               let tabID, !tabID.isEmpty, let otherTab = other.tabID, !otherTab.isEmpty, tabID != otherTab,

@@ -1,0 +1,11 @@
+[
+  {"id":"claude","origin":"https://claude.ai","paths":["/new"],"editor":"[contenteditable=true][role=textbox],textarea","revision":1},
+  {"id":"gemini","origin":"https://gemini.google.com","paths":["/app"],"editor":"rich-textarea > .ql-editor[role=textbox][contenteditable=true]","action":"simplified-input-menu gem-icon-button button","revision":1},
+  {"id":"deepseek","origin":"https://chat.deepseek.com","paths":["/"],"editor":"textarea,[contenteditable=true][role=textbox]","revision":1},
+  {"id":"kimi","origin":"https://www.kimi.com","paths":["/"],"editor":"[contenteditable=true]","revision":1},
+  {"id":"qianwen-cn","origin":"https://www.qianwen.com","paths":["/"],"editor":"[contenteditable=true]","revision":1},
+  {"id":"doubao","origin":"https://www.doubao.com","paths":["/chat/"],"editor":"[contenteditable=true]","revision":1},
+  {"id":"perplexity","origin":"https://www.perplexity.ai","paths":["/"],"editor":"[contenteditable=true]","revision":1},
+  {"id":"qwen-international","origin":"https://chat.qwen.ai","paths":["/"],"editor":"textarea","revision":1},
+  {"id":"grok","origin":"https://grok.com","paths":["/"],"editor":"textarea,[contenteditable=true][role=textbox]","revision":1}
+]

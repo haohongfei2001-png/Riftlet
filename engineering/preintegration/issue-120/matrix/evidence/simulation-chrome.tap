@@ -1,0 +1,28 @@
+TAP version 13
+# Subtest: the activated entry can mount its input synchronously, or later in its own controlled portal
+ok 1 - the activated entry can mount its input synchronously, or later in its own controlled portal
+  ---
+  duration_ms: 49.4265
+  type: 'test'
+  ...
+# Subtest: a setter exception is uncertain and never causes a second attachment path
+ok 2 - a setter exception is uncertain and never causes a second attachment path
+  ---
+  duration_ms: 4.092083
+  type: 'test'
+  ...
+# Subtest: START requires a current new accepted attachment, not setter, change, old card or filename placeholder
+ok 3 - START requires a current new accepted attachment, not setter, change, old card or filename placeholder
+  ---
+  duration_ms: 2.744417
+  type: 'test'
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 115.569666

@@ -80,6 +80,32 @@ final class ChromeActiveTabDescriptorTests: XCTestCase {
         XCTAssertNil(try ChromeActiveTabDescriptor.matchedURL(properties: nil, tab: "9"))
     }
 
+    @MainActor func testBraveReadsOnlyTheFrozenTabWhenOptionalPropertiesAreMissing() throws {
+        let original = try tab(id: "9")
+        var reads = 0
+        func read(_ captured: NSAppleEventDescriptor) -> String {
+            XCTAssertTrue(captured === original)
+            reads += 1
+            return "https://example.test/fixture"
+        }
+        let route = try BraveBrowserHost.frozenRoute(.init(activeTab: original, properties: nil), originalURL: read)
+        XCTAssertEqual(route.tab, "9")
+        XCTAssertEqual(route.url.absoluteString, "https://example.test/fixture")
+        XCTAssertEqual(reads, 1)
+
+        let properties = NSAppleEventDescriptor.record()
+        properties.setDescriptor(.init(typeCode: code("CrTb")), forKeyword: code("pcls"))
+        properties.setDescriptor(.init(string: "9"), forKeyword: code("ID  "))
+        properties.setDescriptor(.init(string: "https://example.test/from-properties"), forKeyword: code("URL "))
+        let provided = try BraveBrowserHost.frozenRoute(.init(activeTab: original, properties: properties), originalURL: read)
+        XCTAssertEqual(provided.url.path, "/from-properties")
+        properties.setDescriptor(.init(string: "8"), forKeyword: code("ID  "))
+        XCTAssertThrowsError(try BraveBrowserHost.frozenRoute(.init(activeTab: original, properties: properties), originalURL: read))
+        XCTAssertThrowsError(try BraveBrowserHost.frozenRoute(.init(activeTab: original, properties: .list()), originalURL: read))
+        XCTAssertThrowsError(try BraveBrowserHost.frozenRoute(.init(activeTab: .null(), properties: nil), originalURL: read))
+        XCTAssertEqual(reads, 1)
+    }
+
     func testQueuedRepliesShareRemainingClickTime() throws {
         let deadline = ChromeClickDeadline(start: 10)
         XCTAssertTrue((49...50).contains(try deadline.receiveMilliseconds(at: 10.100)))

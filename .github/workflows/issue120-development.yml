@@ -1,0 +1,67 @@
+name: Issue 120 development checks
+on:
+  push:
+    branches: [codex/issue-120-preintegration]
+    paths:
+      - 'Sources/**'
+      - 'Tests/Riftlet*/**'
+      - 'Tests/LiveDraftAcceptance/**'
+      - 'Tests/Build53TargetSafety/**/*.cjs'
+      - 'Tests/Build53NativeTarget/**'
+      - 'Tests/Issue120Integration/**'
+      - 'Tests/WebPageProgram/Issue120/**'
+      - 'Package.swift'
+      - 'Package.resolved'
+      - 'scripts/build-macos.sh'
+      - 'scripts/verify-app-bundle.py'
+      - '.github/workflows/issue120-development.yml'
+permissions:
+  contents: read
+concurrency:
+  group: issue-120-development-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native:
+    name: Development Swift tests and isolated App
+    # The integrated dev archive is built and checked on ARM64 locally.
+    # Keep the independent Xcode run on the project's existing Intel image.
+    runs-on: macos-15-intel
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Run native test suites on Xcode
+        run: |
+          set -euo pipefail
+          defaults write com.apple.universalaccess reduceMotion -bool false
+          defaults write com.apple.universalaccess reduceTransparency -bool false
+          motion='^RiftletUITests\.ArrivalModesTests/'
+          swift test --parallel --skip "$motion"
+          swift test --skip-build --no-parallel --filter "$motion"
+      - name: Verify original-tab guard and provider recovery
+        run: |
+          node --test Tests/LiveDraftAcceptance/*.test.cjs
+          bash Tests/Build53NativeTarget/run.sh --check-window-list "$GITHUB_WORKSPACE" "$(swift build --show-bin-path)"
+          bash Tests/WebPageProgram/Issue120/check-compiled.sh --backend-only
+          bash Tests/Issue120Integration/run.sh
+      - name: Check the reviewed build 54 page in isolated Chrome
+        env:
+          RIFTLET_SAFETY_EXPECT_SHA256: 9b9a1ecd12b8433c7a9243ebedb72fefcc7dc8d69fd2602e4caf895c89b7ab36
+        run: |
+          set -euo pipefail
+          source_commit=95d8cf80a46def6d15076e8e22872fec63f4ce3f
+          git fetch --no-tags --depth=1 origin "$source_commit"
+          export RIFTLET_SAFETY_ASSET_PATH="$RUNNER_TEMP/riftlet-build54-page.js"
+          git show "$source_commit:Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js" > "$RIFTLET_SAFETY_ASSET_PATH"
+          node Tests/Build53TargetSafety/run.cjs chrome
+          node Tests/Build53TargetSafety/run-host-lifetime.cjs chrome
+      - name: Build the development App and check its isolated runtime
+        run: |
+          set -euo pipefail
+          bash scripts/build-macos.sh --provider-development
+          apps=(build/.riftlet-package.*/'Riftlet Provider Development.app')
+          [[ ${#apps[@]} == 1 && -d "${apps[0]}" ]]
+          binary="${apps[0]}/Contents/MacOS/Riftlet"
+          "$binary" --self-check
+          "$binary" --web-acceptance-self-check

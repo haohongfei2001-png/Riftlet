@@ -1,0 +1,83 @@
+[
+  {
+    "utc": "2026-11-20T10:39:50.931Z",
+    "service": [],
+    "event": [],
+    "attributedToDevelopmentApp": false,
+    "attributedToOriginalPID": false,
+    "authValue": [],
+    "authReason": []
+  },
+  {
+    "utc": "2026-11-20T10:39:50.931Z",
+    "service": [
+      "kTCCServiceSystemPolicyDesktopFolder"
+    ],
+    "event": [
+      "AUTHREQ_CTX"
+    ],
+    "attributedToDevelopmentApp": false,
+    "attributedToOriginalPID": false,
+    "authValue": [],
+    "authReason": []
+  },
+  {
+    "utc": "2026-11-20T10:39:50.931Z",
+    "service": [],
+    "event": [
+      "AUTHREQ_ATTRIBUTION"
+    ],
+    "attributedToDevelopmentApp": true,
+    "attributedToOriginalPID": true,
+    "authValue": [],
+    "authReason": []
+  },
+  {
+    "utc": "2026-11-20T10:39:50.932Z",
+    "service": [],
+    "event": [
+      "AUTHREQ_SUBJECT"
+    ],
+    "attributedToDevelopmentApp": true,
+    "attributedToOriginalPID": false,
+    "authValue": [],
+    "authReason": []
+  },
+  {
+    "utc": "2026-11-20T10:39:50.939Z",
+    "service": [
+      "kTCCServiceSystemPolicyDesktopFolder"
+    ],
+    "event": [
+      "AUTHREQ_PROMPTING"
+    ],
+    "attributedToDevelopmentApp": true,
+    "attributedToOriginalPID": true,
+    "authValue": [],
+    "authReason": []
+  },
+  {
+    "utc": "2026-11-20T10:42:10.093Z",
+    "service": [],
+    "event": [
+      "AUTHREQ_RESULT"
+    ],
+    "attributedToDevelopmentApp": false,
+    "attributedToOriginalPID": false,
+    "authValue": [
+      "0"
+    ],
+    "authReason": [
+      "13"
+    ]
+  },
+  {
+    "utc": "2026-11-20T10:42:10.093Z",
+    "service": [],
+    "event": [],
+    "attributedToDevelopmentApp": false,
+    "attributedToOriginalPID": false,
+    "authValue": [],
+    "authReason": []
+  }
+]

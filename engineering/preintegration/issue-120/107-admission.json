@@ -1,0 +1,94 @@
+{
+  "schema": 1,
+  "pr119Head": "c764246410c2c0c225ac4bb8688c2ae5179f27e9",
+  "candidate": {
+    "build": "53",
+    "sourceSHA": "0dc6780a6bcd9fc5a0e4a670901dd4c7b51322fc",
+    "appSHA256": "1f5fe8af25e6e64b9c64204297aa4f578c44bc3f6e795ab95effc577e536ad6a",
+    "dmgSHA256": "9458479641bde6147de37fda8b873507b2a312a153a76c08e166e50903583dee"
+  },
+  "reviewSHA": "f7287e05aedc11d35692fbd68ae2e269c42d3255",
+  "productReviewFile": "independent-exact-card-53.json",
+  "productReviewSHA256": "2dbbc65e1b0df07f29aa2b18f64136f9878de42b9e7a06205e922ef6b639fa81",
+  "mergeSHA": null,
+  "mainlineSHA": null,
+  "packageRecord": {
+    "path": "docs/releases/1.0.7/evidence/build53.json",
+    "commit": "f7287e05aedc11d35692fbd68ae2e269c42d3255",
+    "sha256": "11ffb566e6e993ccfa72815dc73dec74a0d76fade2d61795a368a559456fcd4e"
+  },
+  "checks": {
+    "Native ARM64": {
+      "workflowID": 397402349,
+      "runID": 44668259735,
+      "jobID": 136062770431,
+      "attempt": 1,
+      "conclusion": "success"
+    },
+    "Native Intel": {
+      "workflowID": 397402349,
+      "runID": 44668259735,
+      "jobID": 136062770236,
+      "attempt": 1,
+      "conclusion": "success"
+    },
+    "Native source admission": {
+      "workflowID": 397402349,
+      "runID": 44668259735,
+      "jobID": 136062770053,
+      "attempt": 1,
+      "conclusion": "success"
+    },
+    "Feedback native and service": {
+      "workflowID": 399083617,
+      "runID": 44668259741,
+      "jobID": 136062768395,
+      "attempt": 1,
+      "conclusion": "success"
+    },
+    "Feedback source admission": {
+      "workflowID": 399083617,
+      "runID": 44668259741,
+      "jobID": 136062767857,
+      "attempt": 1,
+      "conclusion": "success"
+    }
+  },
+  "gates": {
+    "G1": {
+      "status": "NOT_RUN",
+      "run": null,
+      "observer": null
+    },
+    "G2": {
+      "status": "NOT_RUN",
+      "run": null,
+      "observer": null
+    },
+    "G3": {
+      "status": "PARTIAL",
+      "run": null,
+      "observer": null
+    },
+    "G4": {
+      "status": "PARTIAL",
+      "run": null,
+      "observer": null
+    },
+    "G5": {
+      "status": "PASS_MEASURED_SCOPE",
+      "run": null,
+      "observer": null
+    },
+    "G6": {
+      "status": "PASS_PRIVATE_UPGRADE",
+      "run": null,
+      "observer": null
+    }
+  },
+  "existingAcceptance": {
+    "url": "https://github.com/haohongfei2001-png/Riftlet/pull/119#issuecomment-7028325810",
+    "sha256": "738dc0cd402480d2ee31c8825e2008da3c64a142b424ae76ae72eacb63fd47d3"
+  },
+  "acceptanceAdmissionSHA": null
+}
