@@ -1,0 +1,107 @@
+{
+  "scope": "Ordinary installed browser, loopback QA page, product original-receiver function, independently attested native receiver, tagged CGEvent posted only to the test process and received in its own AppKit view. The four DOM grant markers are QA diagnostics.",
+  "recordedOn": "2026-11-22 Asia/Shanghai",
+  "pageSourceSHA256": "46966f8b1ec54c8773001c46f274e939f0e0be736702004163ccff927d2419dd",
+  "receiverSHA256": "e174cfea4f4383c2c9f159a918a5e620f64fb15e8650b89a2e56f4a9a465abea",
+  "servedSeriesScriptSHA256": "53881d2cb99e085b705df95abc3b78bac6a2159bf34d5784bebb71c3bfe27e53",
+  "nativeLinkage": "The identity probe reused build 56 debug adapter/core objects for identity/Apple Event decoding and independently checked Apple code requirements. This run did not load a signed 1.0.8 candidate.",
+  "chrome": {
+    "officialController": "BLOCKED_OWL_WINDOW_CREATION",
+    "standardNativeProductTransport": "OBSERVED CrSu/ExJa in explicitly created, signed Google Chrome window",
+    "teamID": "EQHXZ8M8AV",
+    "processBirthAndFixedWindowTabChecked": true,
+    "nativeRoute": {
+      "stampedDelayMS": [
+        55.431,
+        2.97,
+        2.069,
+        1.513
+      ],
+      "callbackDelayMS": [
+        98.751,
+        3.664,
+        3.021,
+        2.157
+      ],
+      "lastTwoDownIntervalMS": 116.21,
+      "distinctRendererGrants": 4,
+      "targetedNativeDownsReceived": 4
+    },
+    "retiredWindow": {
+      "focused": false,
+      "grants": 0,
+      "retired": true,
+      "sameDocument": true
+    },
+    "ownedWindowsRemoved": true,
+    "bundleID": "com.google.Chrome",
+    "version": "157.0.8103.79",
+    "bundleVersion": "8103.79",
+    "path": "/Applications/Google Chrome.app",
+    "executable": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "compiled108IdentityMatchedOriginalProcess": true,
+    "developerIDRequirement": "anchor apple generic and identifier \"com.google.Chrome\" and certificate 1[field.1.2.840.113635.100.6.2.6] exists and certificate leaf[field.1.2.840.113635.100.6.1.13] exists and certificate leaf[subject.OU] = \"EQHXZ8M8AV\"",
+    "officialControllerError": "Creating browser windows from extensions is not supported in Owl."
+  },
+  "edge": {
+    "officialController": "MATCHED_NATIVE_SIGNED_MICROSOFT_EDGE",
+    "teamID": "UBF8T346G9",
+    "processBirthAndFixedWindowTabChecked": true,
+    "nativeRoute": {
+      "stampedDelayMS": [
+        35.585,
+        1.135,
+        1.107,
+        3.02
+      ],
+      "callbackDelayMS": [
+        83.219,
+        1.747,
+        1.571,
+        3.498
+      ],
+      "lastTwoDownIntervalMS": 102.158,
+      "distinctRendererGrants": 4,
+      "targetedNativeDownsReceived": 4
+    },
+    "sameURLReload": {
+      "sameNativeProcessWindowTabAndURL": true,
+      "documentChanged": true,
+      "oldVerify": "NATIVE_WINDOW_TAB_RENDERER_CHALLENGE_CHANGED",
+      "newVerify": "MATCH",
+      "oldCheckWasReadOnly": true
+    },
+    "ownedWindowsRemoved": true,
+    "bundleID": "com.microsoft.edgemac",
+    "version": "158.0.4370.33",
+    "bundleVersion": "158.0.4370.33",
+    "path": "/Applications/Microsoft Edge.app",
+    "executable": "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+    "compiled108IdentityMatchedOriginalProcess": true,
+    "developerIDRequirement": "anchor apple generic and identifier \"com.microsoft.edgemac\" and certificate 1[field.1.2.840.113635.100.6.2.6] exists and certificate leaf[field.1.2.840.113635.100.6.1.13] exists and certificate leaf[subject.OU] = \"UBF8T346G9\""
+  },
+  "notRun": [
+    "physical human mouse",
+    "signed candidate screenshot click",
+    "authenticated ChatGPT",
+    "PNG attachment or rapid image upload",
+    "G1",
+    "G2",
+    "G4"
+  ],
+  "privateReceiptSHA256": {
+    "edge-press.json": "8a3cec64bf2cbd1e88682cd9100556f818b8e64be85dce17d023d054cb41b316",
+    "series/edge-positive.json": "0a138624f55d037d7f3500ad8c6b9759c78ecfcff97023350e8a6a50dbc7c1b3",
+    "series/edge-first-ack.json": "019a8199ba470f60012d9e608af9733b3335b3c5f7e4d25779cb87cb25037ba6",
+    "series/edge-after-reload-old.json": "0dc95e86f54214f7340b38c8e423c2ff5753e27bdfb1223e3fa00abc64602372",
+    "series/edge-after-reload-new.json": "87f1a6d661ed73470322c16973539c815a479cb4fbdd04f82b6302c438d75b1e",
+    "series/chrome-native-js.json": "7678b0bb857309e12741b055c2eb96f8d64c9b5b07c7fa678f98737192056cd9",
+    "series/chrome-repeat-batch.json": "7cb238dda98969021f0ad1c498a5c44f5f2ea217416bb01bfd2f41dd1498adcf",
+    "series/chrome-repeat-close.json": "eec0284429e8a97a5b92c0edfbba72da24d5be2ec7c453f95f71a50b1241b493",
+    "series/edge-final-windows.json": "4f81fc90cf96fc6d1456cfa8200b455a7595f5e8a9a6b3476a52505acaf349a2",
+    "series/chrome-final-windows.json": "1f3a33f352aa7ee94b252f459e8bc7c3580055e0b179e55a9f52295affe21fc3",
+    "series/compiled-108-chrome.json": "f31b35946915db351552ff7f4c543bb9531d391dcdff2ed8e60907d8b066ddec",
+    "series/compiled-108-edge.json": "999066cf17fee89d60dba1a58e72fdaac1f5371e8f10527c5e6f9f7254b296aa"
+  },
+  "laterIdentityRecheck": "After the timing run, the helper was separately linked with the current 1.0.8 debug adapters; both signed running process identities matched the samples. This recheck did not repeat the event measurements."
+}
