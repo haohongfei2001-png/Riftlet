@@ -42,7 +42,7 @@ jobs:
           set -eo pipefail
           node --test --test-concurrency=1 Tests/WebPageProgram/*.test.cjs > test-results/page-program.tap
           node --test Tests/OfflineFaultHarness/*.test.cjs > test-results/fault-recovery.tap
-          node --test Tests/OriginalDocumentDelivery/official/controller.test.mjs > test-results/controller-identity.tap
+          node --test Tests/OriginalDocumentDelivery/official/controller.test.mjs Tests/OriginalDocumentDelivery/official/correlate-native.test.cjs > test-results/controller-identity.tap
           asset=Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js
           node Tests/OriginalDocumentDelivery/product/run.cjs chrome "$PWD/$asset" > test-results/product-chrome.json
           RIFTLET_CI_VISIBLE=1 node Tests/OriginalDocumentDelivery/renderer/run.cjs chrome "$PWD/$asset" > test-results/renderer-chrome.json
