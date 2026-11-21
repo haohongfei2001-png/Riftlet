@@ -546,7 +546,7 @@ private actor FakeWebBridge: WebBridgeExecutor {
         actions.append(command.action)
         if let identity = command.identity { identities.append(identity) }
         switch command.action {
-        case .pinTarget: throw WebAdapterError.invalidRequest
+        case .pinTarget, .releasePreparedTarget, .renewPreparedTarget: throw WebAdapterError.invalidRequest
         case .captureTarget:
             return try JSONEncoder().encode(Self.target)
         case .validate:
@@ -640,7 +640,7 @@ private actor InputBoundaryBridge: WebBridgeExecutor {
         recorded.append(command.action)
         let identity = try XCTUnwrap(command.identity)
         switch command.action {
-        case .pinTarget: throw WebAdapterError.invalidRequest
+        case .pinTarget, .releasePreparedTarget, .renewPreparedTarget: throw WebAdapterError.invalidRequest
         case .begin:
             if fault == .beginReplyLost { throw WebAdapterError.nativeExecutionFailed }
             if fault == .beginCapacity {

@@ -5,7 +5,7 @@ import RiftletCore
 
 public enum WebAdapterMode: Sendable, Equatable { case disabled, syntheticDevelopment, systemScreenshotCandidate, ordinarySystemScreenshot, ordinaryProduct }
 public enum WebBridgeAction: String, Codable, CaseIterable, Sendable {
-    case captureTarget, pinTarget, validate, begin, chunk, commit, observe, discard
+    case captureTarget, pinTarget, releasePreparedTarget, renewPreparedTarget, validate, begin, chunk, commit, observe, discard
 }
 
 /// The sole page function is supplied from reviewed source. It returns a
@@ -72,7 +72,9 @@ public protocol WebBridgeExecutor: Sendable {
 }
 
 @MainActor public protocol WebClickTargetPinning: WebBridgeExecutor {
-    func targetForClick(program: WebPageProgram) throws -> Task<TargetLease, Error>
+    func requestPreparation(program: WebPageProgram, invalidate: Bool, maintain: Bool)
+    func retirePreparation(program: WebPageProgram)
+    func targetForClick(eventUptime: TimeInterval) throws -> TargetLease
 }
 
 public enum WebAdapterError: Error, Equatable, Sendable {
@@ -206,13 +208,20 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         }
     }
 
-    /// Freeze the native destination at the click boundary, then initialize and
-    /// resolve that exact page asynchronously. A first click needs no earlier
-    /// capture, relay or page acknowledgement.
-    @MainActor public func targetForClick() throws -> Task<TargetLease, Error> {
-        guard mode != .disabled, let program,
-              let pinner = executor as? any WebClickTargetPinning else { throw WebAdapterError.disabled }
-        return try pinner.targetForClick(program: program)
+    /// Scheduling a receiver never creates an operation or supplies an input.
+    @MainActor public func prepareForUpcomingClick(invalidate: Bool = false, maintain: Bool) {
+        guard mode != .disabled, let program else { return }
+        (executor as? any WebClickTargetPinning)?.requestPreparation(program: program, invalidate: invalidate, maintain: maintain)
+    }
+
+    @MainActor public func retirePreparedTargets() {
+        guard let program else { return }
+        (executor as? any WebClickTargetPinning)?.retirePreparation(program: program)
+    }
+
+    @MainActor public func targetForClick(eventUptime: TimeInterval) throws -> TargetLease {
+        guard mode != .disabled, let pinner = executor as? any WebClickTargetPinning else { throw WebAdapterError.disabled }
+        return try pinner.targetForClick(eventUptime: eventUptime)
     }
 
     public func captureTarget() async throws -> TargetLease {
