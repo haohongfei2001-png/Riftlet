@@ -319,15 +319,25 @@ function riftletWebAcceptance(command, native) {
       (parts.editor.closest(composerSurface) || parts.editor.closest('form') || parts.form) === parts.form, true, acceptsAuxiliaryFocus);
     if (!receiver.current()) fail('CLICK_PIN_REFUSED');
     const handle = e => {
-      if (e.target === (e.type === editorEvent ? parts.editor : parts.form) && receiver.current()) e.preventDefault();
+      if (e.target !== (e.type === editorEvent ? parts.editor : parts.form)) return;
+      if (!e.cancelable) { close(); return; }
+      if (receiver.current()) {
+        // A bubbling editor acknowledgement transfers expiry to the bounded lease registry.
+        if (e.bubbles && e.type === editorEvent) clearTimeout(timer);
+        e.preventDefault();
+      }
     };
-    setTimeout(() => {
+    const timer = setTimeout(close, 60000);
+    function close() {
+      clearTimeout(timer);
+      globalThis.removeEventListener('pagehide', close);
       receiver.close();
       parts.editor.removeEventListener(editorEvent, handle);
       parts.form.removeEventListener(formEvent, handle);
       document.removeEventListener(openEvent, openingChanged, true);
       document.removeEventListener(endEvent, openingChanged, true);
-    }, 60000);
+    }
+    globalThis.addEventListener('pagehide', close);
     parts.editor.addEventListener(editorEvent, handle);
     parts.form.addEventListener(formEvent, handle);
     document.addEventListener(openEvent, openingChanged, true);
@@ -336,6 +346,9 @@ function riftletWebAcceptance(command, native) {
   }
 
   // RIFTLET_CLICK_PIN_END
+  // Start before any capture/DOM discovery. A delayed acknowledgement cannot extend a lease.
+  const leaseClock = ((command.action === 'captureTarget' && command.clickWitnessID) || command.action === 'renewPreparedTarget')
+    ? {monotonic: performance.now(), wall: Date.now()} : null;
   const KEY = '__riftletIndependentFileInput20261104';
   const MAX_BYTES = 128 * 1024 * 1024, MAX_CHUNK_BYTES = 256 * 1024;
   const targetKeys = ['adapterID', 'surface', 'applicationID', 'sessionID', 'windowID', 'tabID',
@@ -455,8 +468,56 @@ function riftletWebAcceptance(command, native) {
     // The original editor is the destination. Opening its menu can move focus
     // or add search textboxes; reranking editors here would reject that very
     // interaction or switch to the menu's textbox.
-    return sameDraft(binding, true) && (!binding.target.clickBindingID ||
+    return sameDraft(binding, true) && (!binding.prepared || binding.prepared.current()) && (!binding.target.clickBindingID ||
       (document.visibilityState === 'visible' && document.hasFocus() && visible(binding.editor) && !blocked(binding.form)));
+  }
+  // Only declared mode/draft identity on the original composer path is relevant.
+  // Retain the mutation history so moving from one mode to another and back
+  // cannot resurrect an earlier lease, even when all final attributes match.
+  function composerGeneration(parts) {
+    const previous = registry.witnessGeneration;
+    if (previous?.editor === parts.editor && previous.form === parts.form && previous.writable?.()) return previous;
+    previous?.retireWrites?.();
+    const address = location.href, attributes = ['data-composer-mode', 'data-mode', 'data-conversation-id',
+      'data-draft-id', 'data-composer-placement', 'data-chatgpt-composer', 'contenteditable', 'role'];
+    let changed = false, foreground = true, users = 0;
+    const inspect = records => {
+      if (records.some(r => r.oldValue !== r.target.getAttribute(r.attributeName))) changed = true;
+    };
+    const modes = new MutationObserver(inspect);
+    for (let node = parts.editor; node; node = node.parentElement) {
+      modes.observe(node, {attributes: true, attributeOldValue: true, attributeFilter: attributes});
+      if (node === parts.form) break;
+    }
+    const reader = bindOriginalReceiver(parts.editor, () => {
+      inspect(modes.takeRecords());
+      return !changed && location.href === address && parts.form.isConnected && parts.form.contains(parts.editor);
+    });
+    function retireWrites() {
+      foreground = false;
+      globalThis.removeEventListener('blur', retireWrites);
+      document.removeEventListener('visibilitychange', visibility);
+    }
+    function visibility() { if (document.visibilityState !== 'visible') retireWrites(); }
+    globalThis.addEventListener('blur', retireWrites);
+    document.addEventListener('visibilitychange', visibility);
+    const generation = {...parts, id: crypto.randomUUID(), read: reader.current, retireWrites,
+      writable: () => foreground && reader.current(), retain() { users++; }, release() {
+        if (--users > 0) return;
+        retireWrites(); modes.disconnect(); reader.close();
+        if (registry.witnessGeneration === generation) registry.witnessGeneration = null;
+      }};
+    registry.witnessGeneration = generation;
+    return generation;
+  }
+  function prepareAttachment(binding, generation) {
+    const entries = entryControls(binding), field = directInput(binding, entries);
+    const opener = !field && entries.length === 1 ? entries[0] : null;
+    const original = field || opener, owner = field?.form;
+    if (!original) fail('ATTACHMENT_INPUT_UNAVAILABLE');
+    const receiver = bindOriginalReceiver(original, () => original.isConnected &&
+      (!field || (usableInput(field) && field.form === owner && directInput(binding, entryControls(binding)) === field)));
+    return {field, opener, current: () => generation.writable() && receiver.current(), close: receiver.close};
   }
   function preserveSelection(binding) {
     if (binding.editor.tagName === 'TEXTAREA') {
@@ -751,7 +812,7 @@ function riftletWebAcceptance(command, native) {
       document.addEventListener('click', onClick, true);
       document.addEventListener('pointerdown', userInteraction, true);
       document.addEventListener('keydown', userInteraction, true);
-      for (const entry of entries) surfaces.linked(entry, false);
+      if (!binding.prepared) for (const entry of entries) surfaces.linked(entry, false);
       while (true) {
         const ended = Date.now() >= deadline;
         const valid = validDraft(binding);
@@ -774,10 +835,11 @@ function riftletWebAcceptance(command, native) {
           break;
         }
         if (tied.length === 1) return execute(tied[0][0], true);
-        entries = entryControls(binding);
+        if (!binding.prepared) entries = entryControls(binding);
         diag.entryCandidates = Math.max(diag.entryCandidates, entries.length);
         const local = directInput(binding, entries);
-        if (local) return execute(local);
+        if (local && (!binding.prepared || (invoked.size && (syncMounted.has(local) || surfaces.contains(local)))))
+          return execute(local);
         const mounted = [...document.querySelectorAll('input[type="file"]')].filter(input =>
           !beforeInputs.has(input) && usableInput(input) && !otherOwner(input, binding, own));
         const inPopup = mounted.filter(input => surfaces.contains(input));
@@ -835,7 +897,9 @@ function riftletWebAcceptance(command, native) {
     if (!registry || !contextMatches(target)) return null;
     if (target.clickBindingID) {
       const pinned = registry.clickBindings?.get(target.clickBindingID);
-      return sameTarget(pinned?.target, target) ? pinned : null;
+      if (!sameTarget(pinned?.target, target)) return null;
+      if (pinned.expired?.()) { pinned.releasePrepared(); return null; }
+      return pinned;
     }
     return sameTarget(registry.current?.target, target) ? registry.current : null;
   }
@@ -1680,29 +1744,77 @@ function riftletWebAcceptance(command, native) {
       if (!uuid(pin)) fail('CLICK_PIN_REFUSED');
       // Multiple clicks on the same continuously mounted editor share their
       // scheduling generation. The per-click input authority remains distinct.
-      const generation = registry.witnessGeneration;
-      if (!generation || generation.editor !== parts.editor || generation.form !== parts.form
-          || generation.navigationID !== navigation.currentEntry.id || generation.address !== location.href) {
-        registry.witnessGeneration = {editor: parts.editor, form: parts.form, navigationID: navigation.currentEntry.id,
-          address: location.href, id: crypto.randomUUID()};
-      }
+      if (registry.clickBindings?.has(pin)) fail('CLICK_PIN_REFUSED');
+      const generation = composerGeneration(parts);
+      generation.retain();
       const target = {adapterID: 'chatgpt-web', surface: 'webChat', ...native, clickBindingID: pin,
         documentID: registry.documentID, composerID: nodeID(parts.editor) + ':' + nodeID(parts.form),
-        draftGeneration: registry.witnessGeneration.id};
+        draftGeneration: generation.id};
       const address = new URL(route());
       const id = address.origin === 'https://chatgpt.com' && /^\/(?:g\/[a-zA-Z0-9_-]+\/)?c\/([^/]+)\/?$/.exec(address.pathname)?.[1];
       if (uuid(id)) target.historyConversationID = id.toUpperCase();
       const pinned = {...parts, target, route: route(), navigation: registry.navigation};
-      if (registry.clickBindings?.has(pin) || !validDraft(pinned)) fail('CLICK_PIN_REFUSED');
-      // The write witness expires on blur. A read may continue on that same
-      // document and composer until navigation or removal, including after focus returns.
-      const href = location.href;
-      const reader = bindOriginalReceiver(parts.editor, () => location.href === href &&
-        parts.form.isConnected && parts.editor.isConnected && parts.form.contains(parts.editor));
-      pinned.readOriginal = reader.current;
-      setTimeout(() => { reader.close(); registry.clickBindings.delete(pin); }, 600000)?.unref?.();
-      registry.clickBindings ||= new Map();
-      registry.clickBindings.set(pin, pinned);
+      const pending = registry.preparedTargets ||= new Map();
+      const bindings = registry.clickBindings ||= new Map();
+      let epoch = leaseClock, timer, forgotten = false;
+      const remaining = (start = epoch) => 600000 - Math.max(performance.now() - start.monotonic, Date.now() - start.wall);
+      function arm(start) {
+        clearTimeout(timer); epoch = start;
+        function expire() {
+          if (epoch !== start || forgotten || pinned.enrolled) return;
+          const wait = remaining();
+          if (wait <= 0) forget();
+          else { timer = setTimeout(expire, Math.ceil(wait)); timer?.unref?.(); }
+        }
+        expire();
+      }
+      function forget() {
+        if (forgotten) return;
+        forgotten = true; clearTimeout(timer);
+        pending.delete(pin); bindings.delete(pin);
+        pinned.prepared?.close();
+        parts.editor.dispatchEvent(new Event('riftlet-witness-editor-' + pin));
+        generation.release();
+      }
+      try {
+        if (!validDraft(pinned)) fail('CLICK_PIN_REFUSED');
+        pinned.prepared = prepareAttachment(pinned, generation);
+        if (!validDraft(pinned)) fail('CLICK_PIN_REFUSED');
+      } catch (error) { forget(); throw error; }
+      pinned.readOriginal = generation.read;
+      pinned.releasePrepared = forget;
+      pinned.expired = () => !pinned.enrolled && remaining() <= 0;
+      pinned.reclaimable = () => !pinned.enrolled && (pinned.expired() || !pinned.prepared.current() || !sameDraft(pinned, true));
+      pinned.renew = start => {
+        const pendingOriginal = () => !pinned.enrolled && pending.get(pin) === pinned;
+        if (!pendingOriginal()) return false;
+        const opener = pinned.prepared.opener, entries = opener && entryControls(pinned);
+        if (!validDraft(pinned) || (opener && (entries.length !== 1 || entries[0] !== opener)) ||
+            !pendingOriginal() || pinned.expired() || remaining(start) <= 0) {
+          if (pendingOriginal()) forget();
+          return false;
+        }
+        arm(start);
+        return pendingOriginal();
+      };
+      pinned.enroll = () => {
+        if (pinned.expired()) { forget(); fail('TARGET_INVALID'); }
+        pinned.enrolled = true; pending.delete(pin); clearTimeout(timer);
+        timer = setTimeout(forget, 600000); timer?.unref?.();
+      };
+      // A pending lease can already be frozen at mouse-down while begin is queued.
+      // Capacity pressure alone can never revoke it. Reclaim only expired or
+      // irreversibly invalid receivers; older unknown implementations stay protected.
+      if (pending.size >= 3) for (const existing of pending.values()) {
+        if (existing.reclaimable?.()) existing.releasePrepared();
+      }
+      if (pending.size >= 3) { forget(); fail('CLICK_PIN_LIMIT'); }
+      bindings.set(pin, pinned); pending.set(pin, pinned);
+      if (parts.editor.dispatchEvent(new Event('riftlet-witness-editor-' + pin, {bubbles: true, cancelable: true})) || pinned.expired()) {
+        forget(); fail('CLICK_PIN_REFUSED');
+      }
+      arm(leaseClock);
+      if (forgotten) fail('CLICK_PIN_REFUSED');
       return target;
     }
     if (native.applicationID === 'com.microsoft.edgemac') fail('CLICK_PIN_REFUSED');
@@ -1718,6 +1830,12 @@ function riftletWebAcceptance(command, native) {
     return registry.current.target;
   }
   const binding = bindingFor(command.target);
+  if (command.action === 'renewPreparedTarget')
+    return {target: command.target, valid: binding?.renew?.(leaseClock) === true};
+  if (command.action === 'releasePreparedTarget') {
+    if (!binding?.releasePrepared || binding.enrolled) return {released: false};
+    binding.releasePrepared(); return {released: true};
+  }
   if (command.action === 'validate') {
     const readPinnedOriginal = command.requireLiveOriginal === true && binding?.target.clickBindingID;
     return {target: command.target, valid: readPinnedOriginal ? sameDraft(binding) : validDraft(binding)};
@@ -1739,7 +1857,8 @@ function riftletWebAcceptance(command, native) {
       name: command.uploadName, mediaType: command.mediaType, size: command.byteCount, chunks: [], received: 0, nextChunk: 0,
       committed: false, discarded: false, inputCount: 0, changeReturned: false, retirement: null,
       baseline: new Set(), urls: new Set(), start: null};
-    if (binding.target.clickBindingID) binding.enrolled = true;
+    if (binding.enroll) binding.enroll();
+    else if (binding.target.clickBindingID) binding.enrolled = true;
     registry.operations.set(identity.operationID, op);
     registry.scheduleRetirement(registry.operations, identity.operationID, op);
     return acknowledgement(op, 0);
@@ -1867,15 +1986,20 @@ function riftletWebAcceptance(command, native) {
     if (!validDraft(op.binding)) return retire('targetInvalidBeforeInput', 'prepare', 'targetChanged');
     const entries = entryControls(op.binding);
     diag.entryCandidates = entries.length;
+    const prepared = op.binding.prepared;
     const input = directInput(op.binding, entries);
-    if (input) {
+    if (prepared?.field && input !== prepared.field)
+      return retire('targetInvalidBeforeInput', 'prepare', 'targetChanged');
+    if (input && (!prepared || input === prepared.field)) {
       const restore = preserveSelection(op.binding);
       try { diag.stage = 'direct'; return execute(input); }
       finally { restore(); }
     }
     diag.stage = 'entry'; op.executionPending = true;
     op.discoveryDeadline = Date.now() + 3000;
-    return discoverThroughEntry(op, entries, execute, retire);
+    if (prepared && (!prepared.opener || !entries.includes(prepared.opener)))
+      return retire('attachmentEntryUnavailable', 'entry', 'entryUnavailable');
+    return discoverThroughEntry(op, prepared ? [prepared.opener] : entries, execute, retire);
   };
   // One active discovery may observe page-wide picker methods. Another
   // screenshot queues its own original command; discovering the first picker
