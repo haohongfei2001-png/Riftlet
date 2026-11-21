@@ -385,8 +385,9 @@ function riftletWebAcceptance(command, native) {
       const editor = binding.editor, value = editor.value, start = editor.selectionStart,
         end = editor.selectionEnd, direction = editor.selectionDirection, active = document.activeElement;
       return () => {
-        if (!sameDraft(binding) || binding.editor !== editor || editor.value !== value || !Number.isInteger(start) || !Number.isInteger(end)) return;
+        if (!validDraft(binding) || binding.editor !== editor || editor.value !== value || !Number.isInteger(start) || !Number.isInteger(end)) return;
         if (active === editor && document.hasFocus()) editor.focus?.({preventScroll: true});
+        if (!validDraft(binding)) return;
         editor.setSelectionRange?.(start, end, direction);
       };
     }
@@ -397,7 +398,7 @@ function riftletWebAcceptance(command, native) {
       anchorOffset: selection.anchorOffset, focusOffset: selection.focusOffset,
       text: binding.editor.textContent, active: document.activeElement};
     return () => {
-      if (!sameDraft(binding) || binding.editor.textContent !== saved.text
+      if (!validDraft(binding) || binding.editor.textContent !== saved.text
           || !binding.editor.contains(saved.anchor) || !binding.editor.contains(saved.focus)) return;
       const current = document.getSelection?.();
       // The caller suppresses restoration after trusted user interaction. A
@@ -405,6 +406,7 @@ function riftletWebAcceptance(command, native) {
       if (current?.anchorNode === saved.anchor && current.focusNode === saved.focus
           && current.anchorOffset === saved.anchorOffset && current.focusOffset === saved.focusOffset) return;
       if (saved.active === binding.editor && document.hasFocus()) binding.editor.focus?.({preventScroll: true});
+      if (!validDraft(binding)) return;
       current?.setBaseAndExtent?.(saved.anchor, saved.anchorOffset, saved.focus, saved.focusOffset);
     };
   }
@@ -505,7 +507,7 @@ function riftletWebAcceptance(command, native) {
     click.preventDefault();
     node.dispatchEvent(click);
   }
-  function pickerHooks(intercept, restores) {
+  function pickerHooks(intercept, canActivate, restores) {
     const clicking = new WeakSet();
     const proto = HTMLInputElement.prototype;
     for (const method of ['click', 'showPicker']) {
@@ -513,7 +515,7 @@ function riftletWebAcceptance(command, native) {
       if (typeof original !== 'function') continue;
       const value = function (...args) {
         if (!intercept(this, method)) return Reflect.apply(original, this, args);
-        if (method === 'showPicker') return;
+        if (method === 'showPicker' || !canActivate()) return;
         if (clicking.has(this)) return;
         clicking.add(this);
         try { clickWithoutDefault(this); }
@@ -543,6 +545,7 @@ function riftletWebAcceptance(command, native) {
     let lastEntryAt = 0, interrupted = false, insideControl = false, handlingForeignEvent = false;
     let menuLocated = false;
     let wake, changed = false;
+    const canActivate = () => !interrupted && validDraft(binding);
     const signal = () => { changed = true; wake?.(); };
     const waitForChange = async () => {
       // A timeout only schedules another DOM check (including CSS visibility).
@@ -603,6 +606,7 @@ function riftletWebAcceptance(command, native) {
     const fire = (control, callback) => {
       scan(); // Account for any preceding independent mutation before attributing this dispatch.
       const previous = new Set(document.querySelectorAll('input[type="file"]'));
+      if (!canActivate() || !control.isConnected) return false;
       insideControl = true;
       try { return callback(control); }
       finally {
@@ -616,7 +620,7 @@ function riftletWebAcceptance(command, native) {
       const wasOpen = control.getAttribute('aria-expanded'), priorRoots = surfaces.roots.size;
       const advanced = () => {
         scan();
-        return interrupted || !sameDraft(binding) || !control.isConnected || captured.size > 0
+        return !canActivate() || !control.isConnected || captured.size > 0
           || surfaces.roots.size > priorRoots || control.getAttribute('aria-expanded') !== wasOpen;
       };
       // These are programmatic, untrusted events. Pointer-triggered primitives
@@ -641,7 +645,7 @@ function riftletWebAcceptance(command, native) {
           const compat = pointer('pointerdown', 1);
           if (compat && control.isConnected) mouse('mousedown', 1);
           await Promise.resolve();
-          if (interrupted || !sameDraft(binding) || !control.isConnected) return captured.size > 0;
+          if (!canActivate() || !control.isConnected) return captured.size > 0;
           const handledOnDown = advanced();
           pointer('pointerup', 0);
           if (compat && control.isConnected) mouse('mouseup', 0);
@@ -656,7 +660,7 @@ function riftletWebAcceptance(command, native) {
       } finally { control.removeEventListener('click', onControlClick, true); }
     };
     try {
-      pickerHooks(capture, restores);
+      pickerHooks(capture, canActivate, restores);
       observer.observe(document.documentElement, {subtree: true, childList: true, attributes: true, characterData: true});
       document.addEventListener('click', onClick, true);
       document.addEventListener('pointerdown', userInteraction, true);
@@ -664,7 +668,7 @@ function riftletWebAcceptance(command, native) {
       for (const entry of entries) surfaces.linked(entry, false);
       while (true) {
         const ended = Date.now() >= deadline;
-        const valid = sameDraft(binding);
+        const valid = validDraft(binding);
         if (interrupted || !valid) {
           // An entry already started by this operation may finish its own
           // asynchronous picker call after navigation. Cancel just its chooser
@@ -716,7 +720,7 @@ function riftletWebAcceptance(command, native) {
         await waitForChange();
       }
       if (interrupted) return retire('attachmentEntryFailed', diag.stage, 'userInterrupted');
-      if (!sameDraft(binding)) return retire('targetInvalidBeforeInput', diag.stage, 'targetChanged');
+      if (!validDraft(binding)) return retire('targetInvalidBeforeInput', diag.stage, 'targetChanged');
       if (captured.size) return retire('attachmentInputNotCreated', 'picker', 'pickerRejected');
       if (diag.menuActivations) return retire('attachmentInputNotCreated', 'picker', 'pickerNotInvoked');
       if (surfaces.roots.size) return retire('attachmentInputNotCreated', 'menu', menuLocated ? 'menuActionNotRun' : 'menuActionMissing');
@@ -731,9 +735,10 @@ function riftletWebAcceptance(command, native) {
       document.removeEventListener('pointerdown', userInteraction, true);
       document.removeEventListener('keydown', userInteraction, true);
       for (const restore of restores.reverse()) restore();
-      if (!interrupted && sameDraft(binding)) {
+      if (canActivate()) {
         for (const root of [...surfaces.opened].reverse()) if (visible(root)) {
           const target = root.contains(document.activeElement) ? document.activeElement : root;
+          if (!canActivate()) break;
           target.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', code: 'Escape', bubbles: true, cancelable: true}));
         }
         restoreSelection();
@@ -1744,19 +1749,37 @@ function riftletWebAcceptance(command, native) {
     if (native.applicationID === 'com.microsoft.edgemac') op.encodedPreview = watchEdgeEncodedPreview(file, op.name);
     registry.files.set(file, op);
     const writingForm = op.binding.form;
+    // A portal can move as a whole without changing the field's immediate
+    // parent or form. Freeze its complete ancestry, including shadow hosts.
+    const parent = node => node.parentNode || (node.nodeType === 11 ? node.host : null) || null;
+    const lineage = [];
+    for (let node = input; node; node = parent(node)) lineage.push(node);
+    const originalForm = input.form;
+    const mayDeliver = () => usableInput(input) && input.form === originalForm
+      && input.ownerDocument === document.documentElement.ownerDocument && (invoked || input.isConnected)
+      && lineage.every((node, index) => parent(node) === (lineage[index + 1] || null))
+      && validDraft(op.binding);
     registry.writingInputs ||= new WeakSet();
     if (registry.busy.has(writingForm) || registry.writingInputs.has(input)) return retire('inputExecutionBusy', 'setter', 'executionBusy');
     registry.busy.add(writingForm); registry.writingInputs.add(input);
     try {
+      if (!mayDeliver()) return retire('targetInvalidBeforeInput', 'setter', 'targetChanged');
       op.inputCount = 1; op.inputSequence = tick(); op.inputTime = performance.now();
       op.blobSerialBeforeInput = registry.blobSerial ?? 0;
       registry.blobWindowUntil = op.inputTime + 10000;
       diag.stage = 'setter'; diag.setterEntered = true;
       Reflect.apply(setter, input, [transfer.files]);
       diag.stage = 'change';
-      input.dispatchEvent(new Event('input', {bubbles: true, composed: true}));
-      input.dispatchEvent(new Event('change', {bubbles: true}));
-      op.changeReturned = true; diag.changeReturned = true; diag.stage = 'observation';
+      // A site event handler can synchronously replace the composer or move
+      // the field. Once the setter has run, uncertainty never permits retry.
+      const deliverInput = mayDeliver();
+      if (deliverInput) input.dispatchEvent(new Event('input', {bubbles: true, composed: true}));
+      if (deliverInput && mayDeliver()) {
+        input.dispatchEvent(new Event('change', {bubbles: true}));
+        op.changeReturned = true; diag.changeReturned = true; diag.stage = 'observation';
+      } else {
+        diag.cause = 'deliveryUncertain';
+      }
     } catch (error) {
       // The native setter or a receiver can have taken effect. Never switch
       // paths after entering it, including after a dropped native receipt.
