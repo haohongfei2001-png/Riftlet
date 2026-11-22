@@ -7,7 +7,10 @@ import Security
 
 // Only this process's vendor-authenticated standard browser may answer. Existing
 // windows contribute IDs only; the only URL/title read is in a newly added window.
-@main enum Identity {
+#if !ORIGINAL_DRAFT_OBSERVER
+@main
+#endif
+enum Identity {
   struct Refusal: Error {
     let reason: String
     init(_ reason: String) { self.reason = reason }
