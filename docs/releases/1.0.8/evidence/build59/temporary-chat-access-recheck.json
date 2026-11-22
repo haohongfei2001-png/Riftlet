@@ -12,7 +12,8 @@
     "pageObservation": "The supported browser controller could enumerate its QA tab. Both its DOM snapshot and its screenshot returned Debugger unattached.",
     "signedIn": null,
     "editorBound": false,
-    "closeObservation": "Closing through the controller also returned Debugger unattached. Final tab removal was not verified."
+    "closeObservation": "The official controller returned Debugger unattached on close. Its final owned-tab list and open-tab list still contained the same QA tab. No user-owned tab was closed.",
+    "remainingOwnedTemporaryTabsAtLastCheck": 1
   },
   "edge": {
     "bundle": "com.microsoft.edgemac",
