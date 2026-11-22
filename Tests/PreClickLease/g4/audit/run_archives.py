@@ -60,7 +60,7 @@ def check_cancelled(archive, before, old_id, png):
         return cancelled
 
 
-def case(executable, database, png_path, work, digest):
+def case(executable, database, png_path, work, digest, bridge):
     require(not database.is_symlink() and not png_path.is_symlink(), "Plain archived files required")
     require(file_digest(database) == digest, "Incorrect archive fingerprint")
     original_png_digest = file_digest(png_path)
@@ -82,7 +82,7 @@ def case(executable, database, png_path, work, digest):
     before, after = work / "before.sqlite", work / "after.sqlite"
     results = []
     for phase, destination in (("cancel", before), ("complete", after)):
-        completed = subprocess.run([executable, phase, work], capture_output=True, text=True)
+        completed = subprocess.run([executable, phase, work, *bridge], capture_output=True, text=True)
         (work / (phase + ".log")).write_text(completed.stdout + completed.stderr)
         require(completed.returncode == 0, "Controlled phase " + phase + " failed; see its private log")
         results.append(completed.stdout.strip())
@@ -98,7 +98,18 @@ def case(executable, database, png_path, work, digest):
     proof = verify_files(before, after, saved, old, new)
     require(file_digest(database) == digest and file_digest(saved) == original_png_digest == file_digest(png_path),
             "Sealed database or original PNG changed")
-    return {"case": ARCHIVES[digest], "archiveSHA256": digest, "pngSHA256": original_png_digest,
+    browser = {}
+    if bridge:
+        receipt_path = work / "browser-receipt.json"
+        local = json.loads(receipt_path.read_bytes())
+        with snapshot(after) as db:
+            current = read_operation(db, new, saved.read_bytes())
+            require(current["start"]["attachmentID"] == local["attachmentID"] and
+                    current["start"]["attachmentAcceptanceEvidence"]["evidenceID"] == local["evidenceID"],
+                    "Controlled renderer START did not reach the durable SQLite receipt")
+        browser = {"localBrowserReceiptSHA256": file_digest(receipt_path), "loopbackNativeEvents": local["counts"],
+                   "controlledProductWebSTARTReachedSQLite": True}
+    return {**browser, "case": ARCHIVES[digest], "archiveSHA256": digest, "pngSHA256": original_png_digest,
             "beforeSHA256": proof["beforeSHA256"], "afterSHA256": proof["afterSHA256"],
             "originalAndCancelledRowsUnchanged": True, "lateCallbackFamilies": 5,
             "storedAttempts": [historical["identity"]["attempt"] + offset for offset in range(3)],
@@ -109,6 +120,7 @@ def case(executable, database, png_path, work, digest):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--with-headless", action="store_true", help="Use the frozen page program with real Files on a private loopback document")
     ap.add_argument("manifest", type=Path)
     ap.add_argument("output", type=Path)
     args = ap.parse_args()
@@ -121,7 +133,8 @@ def main():
     subprocess.run(["xcrun", "swiftc", "-parse-as-library", "-module-cache-path", str(output / "module-cache"),
                     "-I", ROOT / "Sources/CSQLite", *sorted(core.glob("*.swift")), HERE / "ArchiveRecovery.swift",
                     "-lsqlite3", "-o", binary], check=True)
-    summaries = [case(binary, Path(refs[h]["database"]), Path(refs[h]["png"]), output / name, h)
+    bridge = [HERE / "browser-bridge.cjs"] if args.with_headless else []
+    summaries = [case(binary, Path(refs[h]["database"]), Path(refs[h]["png"]), output / name, h, bridge)
                  for h, name in ARCHIVES.items()]
     report = {"scope": "Archived originating operations and PNGs, actual build 60 Core, controlled adapter",
               "websiteStatus": "NOT_RUN", "cases": summaries}

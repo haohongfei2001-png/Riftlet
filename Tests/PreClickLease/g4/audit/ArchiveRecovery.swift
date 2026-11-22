@@ -19,10 +19,12 @@ private let receiptProfile = "chatgpt-web-product-system-attached-20261102-v1"
 private actor FixtureAdapter: OriginalAttachmentRecoveryChecking {
     nonisolated let id = "chatgpt-web"
     let source: AttachmentRecoverySource
-    var validatesDestination: Bool
+    let bridge: URL?
+    let validatesDestination: Bool
     private(set) var calls = [UUID]()
-    init(_ source: AttachmentRecoverySource, allowInput: Bool) {
+    init(_ source: AttachmentRecoverySource, allowInput: Bool, bridge: URL?) {
         self.source = source
+        self.bridge = bridge
         self.validatesDestination = allowInput
     }
     func captureTarget() throws -> TargetLease { throw AuditError("Unexpected automatic target capture") }
@@ -47,19 +49,61 @@ private actor FixtureAdapter: OriginalAttachmentRecoveryChecking {
         let digest = SHA256.hash(data: bytes).map { String(format:"%02x", $0) }.joined()
         try require(digest == request.asset.sha256 && bytes.count == request.asset.byteCount, "Input PNG changed")
         calls.append(op.id)
-        // Deterministic controlled acceptance. Never publish as a website observation.
+        let member: String, evidence: String
+        if let bridge {
+            (member, evidence) = try verifyInHeadlessBrowser(request, script: bridge)
+        } else {
+            member = "controlled-card-" + op.id.uuidString
+            evidence = "controlled-evidence-" + op.id.uuidString
+        }
         return TransferReceipt(operationID: op.id, assetID: op.assetID, attempt: op.attempt,
             assetSHA256: digest, target: op.target, outcome: .uploadStarted, profileID: receiptProfile,
-            attachmentID: "controlled-card-" + op.id.uuidString, belongsToOriginalDraft: true,
+            attachmentID: member, belongsToOriginalDraft: true,
             uploadStartEvidence: .init(profileID: startProfile, signal: .attachmentAccepted,
-                evidenceID: "controlled-evidence-" + op.id.uuidString, inputCount: 1))
+                evidenceID: evidence, inputCount: 1))
+    }
+    // Core and the loopback page identify the same asset/operation/invocation and
+    // click IDs. Both original and successor on that page use its fresh real DOM
+    // identities. The bridge never passes off the local Document as the historic site.
+    private func verifyInHeadlessBrowser(_ request: TransferRequest, script: URL) throws -> (String,String) {
+        func identity(_ op: TransferOperation, invocation: UUID) throws -> [String:Any] {
+            guard let pin = op.target.clickBindingID else { throw AuditError("Missing click binding") }
+            return ["id":op.id.uuidString.lowercased(), "attempt":op.attempt,
+                    "invocation":invocation.uuidString.lowercased(), "clickBindingID":pin.uuidString.lowercased()]
+        }
+        guard let invocation = request.invocationID else { throw AuditError("Missing dispatch") }
+        let old = source.operation, new = request.operation, file = request.fileURL
+        let root = file.deletingLastPathComponent()
+        let config: [String:Any] = ["old":try identity(old, invocation: source.invocationID),
+            "next":try identity(new, invocation: invocation), "asset":old.assetID.uuidString.lowercased(),
+            "filename":file.lastPathComponent, "sha":request.asset.sha256]
+        try JSONSerialization.data(withJSONObject: config).write(to: root.appendingPathComponent("browser-request.json"), options:.withoutOverwriting)
+        let child = Process()
+        child.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+        child.arguments = ["node",script.path,root.path]
+        try child.run()
+        child.waitUntilExit()
+        try require(child.terminationStatus == 0, "Fresh browser did not prove the controlled input")
+        let raw = try Data(contentsOf: root.appendingPathComponent("browser-receipt.json"))
+        guard let r = try JSONSerialization.jsonObject(with: raw) as? [String:Any],
+              let counts = r["counts"] as? [String:Int], counts == ["setters":2,"inputs":2,"changes":2,"submits":0,"sends":0],
+              r["historicalCardLifecycleSimulated"] as? Bool == true, r["sameBytes"] as? Bool == true,
+              r["priorMemberPreserved"] as? Bool == true,
+              r["originalOperationID"] as? String == old.id.uuidString.lowercased(),
+              r["newOperationID"] as? String == new.id.uuidString.lowercased(),
+              r["newInvocationID"] as? String == invocation.uuidString.lowercased(),
+              let document = r["localOriginalDocument"] as? String, !document.isEmpty, document == r["localNewDocument"] as? String,
+              let editor = r["localOriginalComposer"] as? String, !editor.isEmpty, editor == r["localNewComposer"] as? String,
+              let member = r["attachmentID"] as? String, !member.isEmpty,
+              let evidence = r["evidenceID"] as? String, !evidence.isEmpty else { throw AuditError("Incomplete controlled renderer receipt") }
+        return (member, evidence)
     }
 }
 
 @main private enum ArchiveRecovery {
     static func main() async throws {
         let argv = Array(CommandLine.arguments.dropFirst())
-        guard argv.count == 2, ["cancel", "complete"].contains(argv[0]) else { throw AuditError("Expected phase and private case directory") }
+        guard (2...3).contains(argv.count), ["cancel", "complete"].contains(argv[0]) else { throw AuditError("Expected phase and private case directory") }
         let root = URL(fileURLWithPath: argv[1], isDirectory: true).standardizedFileURL
         let database = root.appendingPathComponent("working.sqlite")
         try require(FileManager.default.fileExists(atPath: root.appendingPathComponent("controlled-copy-only").path),
@@ -78,7 +122,8 @@ private actor FixtureAdapter: OriginalAttachmentRecoveryChecking {
         }
         let orig = try ledger(old.id)
         let allow = argv[0] == "complete"
-        let adapter = FixtureAdapter(source, allowInput: allow)
+        let bridge = argv.count == 3 ? URL(fileURLWithPath: argv[2]) : nil
+        let adapter = FixtureAdapter(source, allowInput: allow, bridge: bridge)
         let policy = ReceiptPolicy(uploadStartProfiles: [startProfile: .webChat], profileOrigins: [startProfile: [.systemScreenshot]])
         let core = TransferCoordinator(store: store, adapter: adapter, mediaDirectory: root, policy: policy,
                                        validateAcceptedSelection: { $0.isValid() })
