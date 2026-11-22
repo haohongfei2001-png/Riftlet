@@ -38,3 +38,5 @@ build 58 已冻结为 c7ef1027。正常退出等待原票释放，同一资料�
 第二张 Edge 原图证明完整操作 UUID 被保留在 .webp 显示名中，两种卡对象真实替换。新候选 build 59 已冻结于 69b76cb0。非作者审查找到的同名失败卡和竞争卡在移除后的错误回执均已修复。Chrome、Edge 各通过 22 项针对改名预览的受控回归。新候选的安装、真实站点和 CI 独立记账。[同包验收](PRECLICK_ACCEPTANCE.md)
 
 build 59 的 App 和 DMG 已通过 Apple 公证，非作者已完成独立安装。签名包页面在 Chrome 和 Edge 各通过 19 项原目标与 22 项改名预览回归，三个旧版本的六个待查操作均保持原结果。私有安装包哈希见[同包验收](PRECLICK_ACCEPTANCE.md)。
+
+普通 Chrome 已登录临时草稿用 build 59 完成冷首图。真实输入、原卡持久化 START 与托盘收起已由非作者从原记录复核。原验收器漏读新字段，原始误报一并保留。[实站收据](evidence/build59/chrome-cold-independent.json)

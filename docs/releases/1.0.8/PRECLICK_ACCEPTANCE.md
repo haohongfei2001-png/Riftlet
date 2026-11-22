@@ -4,9 +4,15 @@
 
 | build 59 同包项目 | 状态 |
 |---|---|
-| G1 普通 Chrome × ChatGPT | NOT_RUN |
+| G1 普通 Chrome × ChatGPT | PARTIAL。已登录临时草稿的冷首图通过，暖首图、三组双图及非空选区尚待单独核验。 |
 | G2 普通 Edge × ChatGPT | NOT_RUN |
 | G4 原卡明确失败、原图找回、显式新点击 | NOT_RUN |
+
+## 普通 Chrome 的真实冷首击
+
+从最终镜像安装的 App 在全新测试资料库启动。测试窗已核对普通 Chrome 厂商签名、进程出生、窗口、标签和账户菜单。第一张系统截图进入托盘后，验收器直接按下其原行，没有等待网页就绪。原始文档和编辑器的回执比 AppKit 收到的鼠标按下早 1,896.793 毫秒。网页收到同一份 5,516 字节 PNG，文件输入和变更各一次，发送和表单提交均为零。图片按原始 330 × 196 像素解码，原卡取得唯一 `attachmentAccepted`，托盘随后收起。鼠标事件由软件定向投递。
+
+原验收器读取旧字段，第一次报告 `POSITIVE_START_NOT_VERIFIED`。非作者从原 SQLite 和现场页面事件读回当前字段 `attachmentAcceptanceEvidence`，核对了同一次操作、调用、卡片及原图。该图没有重投。草稿开场时没有旧附件，本次只计冷首图。[同包操作与证据哈希](evidence/build59/chrome-live-candidate.json) · [独立只读复核](evidence/build59/chrome-cold-independent.json)
 
 ## 已复现和修复的实站缺陷
 
