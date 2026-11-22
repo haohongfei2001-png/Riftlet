@@ -1,0 +1,109 @@
+{
+  "reviewedBase": "9fd8ad15fca043915069904113e5fb67d82b4948",
+  "reviewedSource": "e2324e9d742ec3c3d1045504ed1bfee421efae67",
+  "reviewedTree": "ddc37248d5fa3ac6ed03642ff0937ccd72f45d32",
+  "reviewer": "riftlet_108_60_independent_full_range_nonauthor_source_reviewer",
+  "result": "PASS",
+  "reviewedAtUTC": "2026-11-22T22:56:29.218Z",
+  "scope": "Independent engineering review of the complete main-to-checkpoint change under MAINLINE_GOVERNANCE step 3. I did not author the product, its readiness script, the branch, or its admission commits. My earlier engineering report is recorded as historical supporting evidence. No GitHub account approval is represented.",
+  "verdict": "The missing runtime-module linkage in the standalone process-ownership readiness check is corrected. The new script links the actual frozen adapter and Core objects and runs the unchanged production ownership class and original 12-lifetime assertion. No other new blocking source issue was found in this review. An admission-only child on exactly this checkpoint may be prepared.",
+  "rangeAudit": {
+    "base": "9fd8ad15fca043915069904113e5fb67d82b4948",
+    "priorSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+    "priorReviewSHA256": "5ae2a6694b118a012ddaeb8fed4096d52a68a5ce950aaadcf7d44e192b6a20c0",
+    "priorH": "fe34c3dbb3f7ba00a116612d720003f540739cf5",
+    "G": "e2324e9d742ec3c3d1045504ed1bfee421efae67",
+    "tree": "ddc37248d5fa3ac6ed03642ff0937ccd72f45d32",
+    "checkoutCompared": 2114,
+    "priorPaths": 483,
+    "newFullRangeChanges": 484,
+    "previousDeltaPathsStillIdentical": 482,
+    "strictTreeDelta": [
+      "engineering/mainline/source-admission.json",
+      "scripts/run-readiness-ownership.sh"
+    ],
+    "fullManifestSHA256": "6ebac8a1694984a8c49b23d2217aeffdbc718a5a43ae555e7207107080a07c39",
+    "previousManifestSHA256": "2296bdd6b8c77e0e189485ba66f9e3e153952f0847e93c3fcaba69fdfc9a160a",
+    "twoPathDeltaSHA256": "1aa57a6d3ce1a340c4c926670bfc5a6ccd7ff36a14b36c4889d56f1cba3214fb",
+    "newScript": {
+      "mode": "100755",
+      "blob": "a0cecc2aac1cd16af9cc910464bf5a023ec76053",
+      "sha256": "1d76a8a93cbdeb142d41f6ec359f530a4a79bd01d69b62407db70da3d7b534af"
+    },
+    "admissionRecordBlob": "d684adc94853d66849771adea234f0e2ce87d8a7",
+    "nativeProductsAndWorkflowSourceUnchanged": {
+      "signedProductSources": "1aae0943f6ce71a9bfa49c86ba95589032c1de63",
+      "package": "200a889be151c6c274e9f5cf46e7cdc93c550f23",
+      "dependencies": "5f5f1ebea92ebb344bcaea6f858c1fff33f7ff68",
+      "resources": "15d8184f5b81c1f1d79df041e1654796e43eb60e"
+    },
+    "commits": 277,
+    "merges": 1,
+    "histogram": {
+      "A": 385,
+      "M": 99
+    },
+    "totalLineStats": "484 files changed, 51808 insertions(+), 913 deletions(-)"
+  },
+  "rangeMethod": "I independently rebuilt sorted Git path/mode/blob manifests for B, signed product G0, previous historical admission H and the new G. I compared all 2,114 checkout files and executable/symlink modes with the new Git tree and checked that no untracked or modified file remained. The previous complete 483-path nonauthor review was rehashed against its exact report and B-to-G0 inventory. Of those 483 paths, 482 remain byte- and mode-identical to that review. The old admission file changes to H's exact record, and exactly one additional path changes the readiness script. The direct G0→H→G chain matches these two independent deltas. The exact source trees for product, resources, packaging and dependencies, formal workflows, website and admission verifier were compared. Encoded path signatures use sorted path, TAB, two space-separated old mode/blob fields, TAB, the same new fields, and LF. Missing sides are '- -'.",
+  "inheritedScope": {
+    "referenceSHA256": "5ae2a6694b118a012ddaeb8fed4096d52a68a5ce950aaadcf7d44e192b6a20c0",
+    "source": "49b9204974088c1983cda469910d9a78d8f4c43b",
+    "priorDecision": "PASS for engineering source on the signed 49b92049 candidate, with separate release gates. The later formal Native runs exposed a standalone-tool compilation oversight the preceding source review did not detect. Those former job failures remain factual.",
+    "earlierReviewIncluded": "Adapter, App, Core, UI, capture, SQLite migration and predecessor immutability, target/input lifetime, archival read-only compatibility, evidence provenance, privacy, signing support, distribution and the complete historical QA/documentation span. The independently rerun 48 native headless browser cases and 284 applicable offline checks are source-specific evidence from that review.",
+    "freshReviewNotInferred": "The signed runtime, browser bundle and 5 historical fingerprints are exact G0 bytes. G0's later formal admission is content checked and its productionAdmission equals B. Neither its old report nor either passing source-admission job approves the successor by itself."
+  },
+  "findingAndCorrection": {
+    "oldFormalPR": "https://github.com/haohongfei2001-png/Riftlet/pull/125",
+    "originalWorkflow": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45078297801",
+    "oldFailedJobs": {
+      "arm64": 137380396041,
+      "x86_64": 137380396226
+    },
+    "actualOldFailure": "Sources/RiftletApp/ApplicationInstanceOwnership.swift:4:8: error: no such module 'RiftletAdapters'",
+    "oldSourceLocation": "Sources/RiftletApp/ApplicationInstanceOwnership.swift:4",
+    "oldScriptLocation": "scripts/run-readiness-ownership.sh:7 at 49b92049",
+    "newLocations": [
+      "scripts/run-readiness-ownership.sh:7",
+      "scripts/run-readiness-ownership.sh:8",
+      "scripts/run-readiness-ownership.sh:9",
+      "scripts/run-readiness-ownership.sh:11",
+      "scripts/run-readiness-ownership.sh:13",
+      "Tests/Readiness/InstanceOwnershipProbe.swift:18",
+      "Tests/Readiness/InstanceOwnershipProbe.swift:45",
+      "Tests/Readiness/InstanceOwnershipProbe.swift:56",
+      ".github/workflows/native-foundation.yml:143"
+    ],
+    "analysis": "The owner depends on PreClickPreparationOwner from the production adapter. The old direct swiftc command supplied neither module search path nor the modules' linked objects. I independently reproduced the missing module against the old source, and both actual runner archives contain the same diagnostic. The new script builds RiftletAdapters using the pinned resolution, obtains SwiftPM's current native binary directory, supplies both actual module maps and links RiftletAdapters and RiftletCore objects with sqlite3 before invoking the real lifetime probe. Its original strict shell exit and scratch cleanup are intact. No tests/assertions were removed, replaced, skipped or allowed to fail.",
+    "operatingBoundary": "This script changes the QA compilation environment only. Its test root and children are private, it verifies retained historical marker bytes and tests real process release/retention, and it leaves product data and any running desktop apps untouched."
+  },
+  "independentExecution": {
+    "baseline": {
+      "exit": 1,
+      "missingActualAdapterModule": true,
+      "diagnostic": "Sources/RiftletApp/ApplicationInstanceOwnership.swift:4:8: error: no such module 'RiftletAdapters'"
+    },
+    "successor": {
+      "exit": 0,
+      "scope": "Fresh isolated frozen source archive and fresh product objects, only the exact pinned Sparkle dependency and binary dependency cache pre-seeded.",
+      "readiness": "READINESS_OWNERSHIP_PASS: 12 isolated subprocess lifetimes; normal exit, termination retention, SIGTERM, SIGKILL; original history retained; no App launched",
+      "adapterObjectFiles": 37,
+      "coreObjectFiles": 14,
+      "resolvedSparkle": {
+        "revision": "ab7d71291238df6e0492143b120c9b696a35f603",
+        "version": "2.10.1"
+      },
+      "rawCombinedLogSHA256": "af52eaac1dcd4e19ee768c91782dffec5ea801a9102468b70d342aaf273ac531",
+      "sourceScriptSHA256": "1d76a8a93cbdeb142d41f6ec359f530a4a79bd01d69b62407db70da3d7b534af"
+    },
+    "additionalMethod": "I created a disposable archive from e2324e9d and used a fresh build directory with no candidate module or object files. I checked the Package.resolved revision and reused only the already-pinned third-party dependency checkout/artifact cache. The exact committed executable script built and used 37 adapter objects and 14 Core objects from this source. It then completed the 12 subprocess lifetimes with the real Darwin locks. No ref or tracked checkout file was written. Native SwiftPM required the normal system compiler sandbox to execute its own manifest evaluation.",
+    "localHost": "macOS ARM64 with system Swift/Clang tooling. Actual Intel and formal event-bound five-check verification for a new admission child remain outside this test."
+  },
+  "signedDistributionBoundary": {
+    "signedSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+    "signedDMGSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+    "webProgramSHA256": "2f6e2f6e1d80184813f6f967cc340638b96082abd5bd98c2f9e97b0597f982f2",
+    "releaseTool": "scripts/release-appcast.py:165 checks that the release tag commit belongs to main history. Its target==signed source path permits a future exact tag at G0 after that source reaches main. The script needs admission-only file differences if the tag target differs from the signed source. No tag, main merge, public release or feed update was performed by this reviewer."
+  },
+  "release": "This is an engineering source disposition, without approval of authenticated-site acceptance or product release. The sole same-candidate requirements still include actual G1 and G2, G4-C and either G4-A or independently adjudicated G4-B, formal CI on a new [B,H] prospective tree, and the subsequent distribution checks. The old formal job results must not be presented as new results."
+}

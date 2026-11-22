@@ -93,3 +93,9 @@ PR #125 的第一个正式预合并上，五项检查中三项通过。ARM64 和
 在同一独占锁中核对旧执行者的现场领取数和投递数均为零，随后切入 `staged-v3/interactive`。新执行者绑定同一 build 61 DMG，另可在 Edge G2 原定的第一张普通图片上观察属于原 PNG 的完整 2xx 回执，核对既有 SQLite START 后读取上游明示的 UTC 到期时间。观察器在双图计时前退出。这使大图在页面提前被拒时也有采样机会。该通道的本地 8 项 Python、5 项 Node 测试通过，其中包含 41 个校准器对照和一次实际 Swift 编译。实站到期读数仍待取得，尚无真实过期、上游拒绝或 G4-A/B 的样本。[普通首图钩子复核](evidence/build61/normal-seed-expiry-controls.json)
 
 共记录 7 个调度周期、14 次浏览器检查，均见受保护窗口。常规退避实测约 120、180、270、300 秒；两个监督器交接时紧接的一次只读检查另记。build 61 的专窗、实站点击和文件输入均为零。冻结代码、实际安装、三个版本的执行工具、只读续查器及当时的一致性调度快照已一起私有封存。整档 147,333,120 字节，SHA-256 为 `059e6d8af112de2f4c4029154a199d2efc252a58cd8510db180f9129ee4a6235`。后续独占入口更新为 `staged-v3/interactive` 并沿用上一节的候选参数。现有进程持续等待合格的已登录原窗，当前无需用户动作。[真实调度回执](evidence/build61/gui-supervisor-continuity.json) · [私有工具和安装封存](evidence/build61/issuer-custody.json)
+
+## 06:58（上海）· 覆盖探针修复的正式准入
+
+非作者重新核对实际 main 至修复检查点的全部 484 个变化路径、2,114 个仓库对象及文件模式。独立干净构建实际编译了 37 个适配器及 14 个 Core 对象，12 次真实子进程核验全部通过。书面结论的 SHA-256 是 `867f8f49b804f1046a74b70f15286a152ec6fbf632f147b01fdb9c6628b8054a`。直接准入子提交为 `881589ad19f5e0205846aa265e64df89f2a0b498`。本地主线门禁通过。GitHub 预合并 `31371f52d67cca6678d09712e71aa330a454df4d` 的有序两父为 `9fd8ad15`、`881589ad`，树等于准入树 `6f583ee83337ff4edb1aad1b389042c7e01737ad`。正式五项检查已在该头重新启动。[独立源码审查](evidence/build61/formal-successor-source-review.json) · [原生正式检查](https://github.com/haohongfei2001-png/Riftlet/actions/runs/45080584932) · [Feedback 正式检查](https://github.com/haohongfei2001-png/Riftlet/actions/runs/45080584850)
+
+用原有 `source_matches` 校验器对三个 tag 位置做了隔离预演。当前 main 上的发行请求会被拒绝。受审签名提交 `49b92049` 在正式合并后将是 main 的祖先，届时精确打标可匹配此签名包；QA 脚本提交 `e2324e9d` 作为发行标签会被拒绝。独立预检另通过 19 个内部打包拒绝用例、20 个可视证据清单用例和真实 PR 基线的签名 feed 迁移核验。此次未创建公共标签。下一步在 `gh pr checks 125` 观察全套正式结果，实站由同一已授权进程继续值守。当前无用户动作。[独立下游及标签预演](evidence/build61/downstream-release-preflight.json)
