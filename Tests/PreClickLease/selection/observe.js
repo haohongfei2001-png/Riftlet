@@ -10,8 +10,8 @@ function observeExactQADraft(editor, form, productProof) {
   let initial, witness, baseline;
   function state() {
     const proof = productProof();
-    const observed = {documentID:proof.documentID, composerID:proof.composerID, draftEpoch:proof.draftEpoch};
-    if (!entry || !Object.values(observed).every(x=>typeof x==='string' && x.length>0) ||
+    const observed={entryID:proof.entryID,timeOrigin:proof.timeOrigin,witnessEpoch:proof.witnessEpoch};
+    if (!entry || !(observed.entryID && observed.witnessEpoch && Number.isFinite(observed.timeOrigin)) ||
         !proof.original || (initial && Object.keys(initial).some(k=>initial[k]!==observed[k])) ||
         doc !== document || doc.documentElement!==root || performance.timeOrigin!==opened ||
         navigation.currentEntry?.id!==entry || location.href!=='https://chatgpt.com/?temporary-chat=true' ||
@@ -30,7 +30,16 @@ function observeExactQADraft(editor, form, productProof) {
       return n && editor.contains(n) && n.closest('[contenteditable=true]')===editor;
     });
     if (!hits) throw Error('ORIGINAL_EDITOR_VIEWPORT_GEOMETRY_UNAVAILABLE');
-    return {...observed, geometry, original:true, oldCardsIntact:true, priorCardCount:proof.priorCardCount,
+    const selection=doc.getSelection();
+    const originalCollapsedCaret=Boolean(selection && selection.rangeCount===1 && selection.isCollapsed &&
+      selection.anchorNode && editor.contains(selection.anchorNode) && selection.focusNode===selection.anchorNode &&
+      selection.anchorOffset===selection.focusOffset);
+    let emptyDOMCaretAtStart=false;
+    if(originalCollapsedCaret && editor.textContent==='') {
+      const prefix=doc.createRange();prefix.selectNodeContents(editor);
+      prefix.setEnd(selection.anchorNode,selection.anchorOffset);emptyDOMCaretAtStart=prefix.toString()==='';
+    }
+    return {...observed, geometry, emptyDOMCaretAtStart, original:true, oldCardsIntact:true, priorCardCount:proof.priorCardCount,
       sendClicks:0, formSubmits:0, activeOriginal:doc.activeElement===editor && doc.hasFocus(),
       textState:editor.innerText===text && editor.textContent===text?'expected':
         (editor.innerText==='' || editor.innerText==='\n') && editor.textContent===''?'empty':'other'};

@@ -24,6 +24,48 @@ static CFRange rangeOf(id e) {
             AXValueGetValue((__bridge AXValueRef)value,kAXValueCFRangeType,&r),"RANGE_UNAVAILABLE");
     return r;
 }
+// Chromium may expose the editor's empty block as line break or the mirrored placeholder.
+// The independent original DOM must still be confirmed empty immediately before insertion.
+static NSString *axString(id value) {
+    if ([value isKindOfClass:NSString.class]) return value;
+    if ([value isKindOfClass:NSAttributedString.class]) return [value string];
+    return nil;
+}
+static NSString *displayClass(id value, id placeholderValue, id charCount) {
+    NSString *s=axString(value), *placeholder=axString(placeholderValue);
+    if (!s) return !value && [charCount isKindOfClass:NSNumber.class] && [charCount integerValue]==0
+        ? @"unexposedZeroChars" : @"unexposed";
+    if (s.length==0) return @"empty";
+    if ([s isEqual:@"\n"] || [s isEqual:@"\r"] || [s isEqual:@"\r\n"] ||
+        [s isEqual:@"\u2028"] || [s isEqual:@"\u2029"]) return @"emptyBlock";
+    if ([s isEqual:draft] || [s isEqual:[draft stringByAppendingString:@"\n"]]) return @"expected";
+    if (placeholder.length>0 && [s isEqual:placeholder]) return @"sameAsAXPlaceholder";
+    return @"other";
+}
+static BOOL typingCaret(CFRange r) { return r.location==0 && r.length==0; }
+static void checkKeyboardCaret(id field) {
+    CFRange r=rangeOf(field);
+    NSString *kind=displayClass(attr(field,@"AXValue"),attr(field,@"AXPlaceholderValue"),attr(field,@"AXNumberOfCharacters"));
+    fprintf(stderr,"AX_EMPTY_STATE value=%s caret=%s\n",kind.UTF8String,typingCaret(r)?"atStart":"other");
+    require(typingCaret(r),"ORIGINAL_COLLAPSED_AX_CARET_AT_START_REQUIRED");
+}
+static void postFixedDraft(pid_t pid, void (^checkTarget)(void)) {
+    require(CGPreflightPostEventAccess(),"PROCESS_TARGETED_KEYBOARD_ACCESS_UNAVAILABLE");
+    CGEventSourceRef src=CGEventSourceCreate(kCGEventSourceStatePrivate);
+    require(src!=NULL,"PRIVATE_KEYBOARD_SOURCE_UNAVAILABLE");
+    for(NSUInteger i=0;i<draft.length;i++) {
+        checkTarget();
+        UniChar character=[draft characterAtIndex:i];
+        require(character>=0x20 && character<=0x7e,"FIXED_PRINTABLE_DRAFT_REQUIRED");
+        CGEventRef down=CGEventCreateKeyboardEvent(src,0,true),up=CGEventCreateKeyboardEvent(src,0,false);
+        require(down && up,"KEY_CONSTRUCTION_UNCERTAIN_DO_NOT_REISSUE");
+        CGEventSetFlags(down,0);CGEventSetFlags(up,0);
+        CGEventKeyboardSetUnicodeString(down,1,&character);CGEventKeyboardSetUnicodeString(up,1,&character);
+        CGEventPostToPid(pid,down);CGEventPostToPid(pid,up);
+        CFRelease(down);CFRelease(up);
+    }
+    CFRelease(src);
+}
 static NSDictionary *reply(const char *prompt, NSString *token) {
     puts(prompt); fflush(stdout);
     struct pollfd f={STDIN_FILENO,POLLIN,0}; char buf[4096]={0};
@@ -114,31 +156,31 @@ int main(int argc,const char **argv) {
       if(requireFocus)require([attr(app,@"AXFocusedUIElement") isEqual:field] && [attr(field,@"AXFocused") boolValue],"ORIGINAL_AX_EDITOR_NOT_FOCUSED");
     };
     guardRoute(NO);
-    NSString *writeAttribute = settable(field,@"AXSelectedText") ? @"AXSelectedText" : @"AXValue";
-    require(settable(field,writeAttribute) && settable(field,@"AXSelectedTextRange"),"ORIGINAL_EDITOR_AX_ATTRIBUTES_READ_ONLY");
+    require(settable(field,@"AXSelectedTextRange"),"ORIGINAL_EDITOR_AX_RANGE_READ_ONLY");
     BOOL already=[attr(app,@"AXFocusedUIElement") isEqual:field] && [attr(field,@"AXFocused") boolValue];
     if(!already) {
-      require(settable(field,@"AXFocused") && [attr(field,@"AXValue") isEqual:@""],"MAPPED_EMPTY_EDITOR_CANNOT_FOCUS");
+      require(settable(field,@"AXFocused"),"MAPPED_EMPTY_EDITOR_CANNOT_FOCUS");
       geometry=reply("CAN_FOCUS_ORIGINAL",@"FOCUS_ONCE");guardRoute(NO);
-      require([attr(field,@"AXValue") isEqual:@""] && AXUIElementSetAttributeValue((__bridge AXUIElementRef)field,CFSTR("AXFocused"),kCFBooleanTrue)==kAXErrorSuccess,"MAPPED_FOCUS_UNCONFIRMED");
+      require(AXUIElementSetAttributeValue((__bridge AXUIElementRef)field,CFSTR("AXFocused"),kCFBooleanTrue)==kAXErrorSuccess,"MAPPED_FOCUS_UNCONFIRMED");
     }
-    guardRoute(YES);CFRange r=rangeOf(field);
-    require([attr(field,@"AXValue") isEqual:@""] && r.location==0 && r.length==0,"NOT_EMPTY_ORIGINAL_DRAFT");
-    geometry=reply("READY_EMPTY",@"INSERT_ONCE");guardRoute(YES);
-    r=rangeOf(field);
-    require([attr(field,@"AXValue") isEqual:@""] && r.location==0 && r.length==0,"DRAFT_CHANGED_BEFORE_INSERT");
-    require(AXUIElementSetAttributeValue((__bridge AXUIElementRef)field,(__bridge CFStringRef)writeAttribute,(__bridge CFStringRef)draft)==kAXErrorSuccess,"INSERT_UNCERTAIN_DO_NOT_REISSUE");
-    require([attr(app,@"AXFocusedUIElement") isEqual:field] && [attr(field,@"AXValue") isEqual:draft],"INSERT_UNCONFIRMED_DO_NOT_REISSUE");
+    guardRoute(YES);checkKeyboardCaret(field);
+    require(CGPreflightPostEventAccess(),"PROCESS_TARGETED_KEYBOARD_ACCESS_UNAVAILABLE");
+    geometry=reply("READY_EMPTY",@"INSERT_ONCE");guardRoute(YES);checkKeyboardCaret(field);
+    postFixedDraft(pid,^{
+      require(NSWorkspace.sharedWorkspace.frontmostApplication.processIdentifier==pid &&
+        [attr(app,@"AXFocusedWindow") isEqual:window] && [attr(app,@"AXFocusedUIElement") isEqual:field] &&
+        [attr(field,@"AXFocused") boolValue] && [ancestor(field,@"AXWebArea") isEqual:web],
+        "KEYBOARD_TARGET_LOST_DO_NOT_REISSUE");
+    });
+    // The host requires exact original DOM text before granting this next permission.
     geometry=reply("TEXT_PRESENT",@"SELECT_ONCE");guardRoute(YES);
-    require([attr(field,@"AXValue") isEqual:draft],"DRAFT_CHANGED_BEFORE_SELECTION");
     NSRange expected=[draft rangeOfString:phrase];CFRange selected=CFRangeMake(expected.location,expected.length);
     AXValueRef value = AXValueCreate(kAXValueCFRangeType,&selected);
     require(value!=NULL,"RANGE_CONSTRUCTION_FAILED");
     AXError err=AXUIElementSetAttributeValue((__bridge AXUIElementRef)field,CFSTR("AXSelectedTextRange"),value);
     CFRelease(value);require(err==kAXErrorSuccess,"SELECTION_UNCERTAIN_DO_NOT_REISSUE");
-    guardRoute(YES);r=rangeOf(field);
-    require([attr(field,@"AXValue") isEqual:draft] && [attr(field,@"AXSelectedText") isEqual:phrase] &&
-        r.location==selected.location && r.length==selected.length,"FINAL_RANGE_UNCONFIRMED");
+    guardRoute(YES);CFRange r=rangeOf(field);
+    require(r.location==selected.location && r.length==selected.length,"FINAL_RANGE_UNCONFIRMED");
     puts("SELECTION_PRESENT");return 0;
   }
 }

@@ -1,4 +1,4 @@
-"""Run the selection case on an already admitted, marked QA draft."""
+"""Build 59 private independent selection witness. Only run after seed START and draft-mark."""
 import base64
 import hashlib
 from prepare import prepare
@@ -10,7 +10,7 @@ from pathlib import Path
 
 TEXT='Riftlet QA: preserve this original draft while attaching images.'
 PHRASE='preserve this original draft'
-readonlyKeys=('documentID','composerID','draftEpoch','text','selectedText','start','end','anchor','focus','direction','priorCardCount')
+readonlyKeys=('entryID','timeOrigin','witnessEpoch','text','selectedText','start','end','anchor','focus','direction','priorCardCount')
 
 def require(ok,reason):
     if not ok: raise RuntimeError(reason)
@@ -40,16 +40,21 @@ class SelectionStep:
                 all(native[k]==self.route[k] for k in ('windowID','tabID')) and all(native[k] is True for k in
                 ('dynamicSignature','exactTemporaryURL','originalSelection','originalSoleTab','systemForeground')), 'ORIGINAL_NATIVE_ROUTE_LOST')
         page=native['page']; s=page['selectionProbe']
-        require(page['signedIn'] and page['editor'] and page['uploadEntry'] and s['documentID']==self.claim['documentID'] and
-                s['composerID']==self.claim['composerID'] and s['original'] and s['oldCardsIntact'] and
-                s['sendClicks']==0 and s['formSubmits']==0, 'ORIGINAL_PAGE_OR_PRIOR_CARD_UNVERIFIED')
+        require(page['signedIn'] and s['entryID']==page['entryID'] and s['timeOrigin']==page['timeOrigin'] and s['original'] and
+                s['oldCardsIntact'] and s['sendClicks']==s['formSubmits']==0,'ORIGINAL_PAGE_OR_PRIOR_CARD_UNVERIFIED')
         return native,s
 
     def save(self,name,value):
         with (self.out/name).open('x') as f:
             os.fchmod(f.fileno(),0o600); json.dump(value,f,indent=2);f.write('\n')
 
-    def prepare(self):
+    def prepare(self,pending):
+        require(isinstance(pending,dict) and all(isinstance(pending.get(k),str) and len(pending[k])==64 and
+                all(c in '0123456789abcdef' for c in pending[k]) for k in ('bindingSHA256','assetSHA256')),'NEW_PREACK_AND_FILE_REQUIRED')
+        for key in ('documentID','composerID'):
+            require(not pending.get(key) or pending[key]==self.claim[key],'PENDING_ORIGINAL_TARGET_MISMATCH')
+        self.pending=dict(pending)
+        self.claim.update(pendingFile=self.pending['assetSHA256'])
         old=self.watch()
         require(old['originalDocument'] and old['originalEditor'] and old['allRememberedCardsPresent'] and old['allRememberedNodesPreserved']
                 and old['rememberedCards']>=1 and old['counts']['formSubmit']==old['counts']['sendButtonClicks']==0,'MARKED_OLD_CARDS_REQUIRED')
@@ -63,7 +68,10 @@ class SelectionStep:
         require(base['text']==TEXT and base['selectedText']==PHRASE and (base['start'],base['end'])==(12,40) and
                 (base['direction'],base['anchor'],base['focus']) in (('forward',12,40),('backward',40,12)),'REAL_DIRECTED_SELECTION_REQUIRED')
         self.before=base
-        self.save('selection-before.json',{'baseline':base,'native':result,'priorFiles':self.old_files,'priorCounts':self.old_counts})
+        self.save('selection-before.json',{'baseline':base,
+                  'productEpochFromOriginalSeedBeforeNewInput':self.seed['originalDraftGeneration'],
+                  'productEpochFromPendingSlotBeforeNewInput':self.pending.get('draftEpoch'),
+                  'pending':self.pending,'native':result,'priorFiles':self.old_files,'priorCounts':self.old_counts})
         return base
 
     def read_page(self):
@@ -79,8 +87,12 @@ class SelectionStep:
         require(accepted(new_op) and all(new_op[k]!=self.seed[k] for k in ('id','assetID','invocationID','uniqueStartEvidence','currentAttachmentID')),
                 'NEW_DISTINCT_ORIGINAL_START_REQUIRED')
         page=self.read_page(); after=page['nonemptySelectionSnapshot']
-        require((new_op['originalDocumentID'],new_op['originalComposerID'],new_op['originalDraftGeneration'])==
-                (after['documentID'],after['composerID'],after['draftEpoch']),'NEW_OPERATION_DRAFT_MISMATCH')
+        require(hashlib.sha256(str(uuid.UUID(new_op['clickBindingID'])).encode()).hexdigest()==self.pending['bindingSHA256'],
+                'NEW_OPERATION_DID_NOT_CONSUME_PREPARED_BINDING')
+        require((new_op['originalDocumentID'],new_op['originalComposerID'])==
+                (self.seed['originalDocumentID'],self.seed['originalComposerID']),'NEW_OPERATION_DRAFT_MISMATCH')
+        pre_epoch=self.pending.get('draftEpoch')
+        require(not pre_epoch or pre_epoch==new_op['originalDraftGeneration'],'NEW_OPERATION_PRECLICK_DRAFT_EPOCH_MISMATCH')
         active=page['counts']; old=self.old_counts
         require(active['fileInput']==old['fileInput']+1 and active['fileChange']==old['fileChange']+1 and
                 active['sendButtonClicks']==active['formSubmit']==0,'EXACTLY_ONE_NEW_INPUT_AND_CHANGE_REQUIRED')
@@ -92,10 +104,18 @@ class SelectionStep:
                 and page['allRememberedCardsPresent'] and page['allRememberedNodesPreserved'],'ORIGINAL_AND_NEW_CARDS_REQUIRED')
         events=[e for e in page['observedInputReceipts'] if e.get('knownQAFileName','').lower()=='riftlet-'+new_id+'.png']
         require([e['event'] for e in events]==['input','change'] and all(e['sameInputAsOriginal'] and e.get('sha256') for e in events)
-                and events[0]['sha256']==events[1]['sha256'],'NEW_FILE_ENTRY_NOT_UNIQUE')
+                and events[0]['sha256']==events[1]['sha256']==self.pending['assetSHA256'],'NEW_FILE_ENTRY_NOT_UNIQUE')
         pixels=[r for r in page['pixelEvidence'] if r.get('forLastInput','').lower()=='riftlet-'+new_id+'.png' and r.get('file') and r['file']==r.get('decoded')]
         require(len(pixels)==1,'NEW_FILE_PIXELS_UNCONFIRMED')
-        result={'status':'PASS','passed':True,'before':self.before,'after':after,'oldFiles':self.old_files,'newFile':fresh[0],
+        original_epoch=self.seed['originalDraftGeneration']
+        seed_epoch_preserved=original_epoch==new_op['originalDraftGeneration']
+        result={'status':'PASS' if seed_epoch_preserved else 'PARTIAL','passed':seed_epoch_preserved,'textAndSelectionPassed':True,
+                'originalProductEpochFromSeedComparedToNew':seed_epoch_preserved,
+                'originalProductEpochPreSample':'previously accepted seed SQLite record, read before new input',
+                'pendingSlotEpochDirectlyObservedBeforeNewInput':bool(pre_epoch),
+                'websiteWitnessEpoch':after['witnessEpoch'],'productDraftEpochBefore':pre_epoch or 'NOT_OBSERVED',
+                'productDraftEpochFromNewSQLiteOperation':new_op['originalDraftGeneration'],
+                'seedProductDraftEpoch':self.seed['originalDraftGeneration'],'before':self.before,'after':after,'oldFiles':self.old_files,'newFile':fresh[0],
                 'newOperation':new_op,'sourceSHA256':events[0]['sha256'],'pixelDigest':pixels[0]['file']['digest'],'beforeCounts':old,'afterCounts':active}
         self.save('selection-final.json',result)
         return result

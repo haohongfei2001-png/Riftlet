@@ -9,6 +9,7 @@ CLAIM = '''try check(QAOriginalBrowserTab.temporaryChat)
               var claim = try JSONSerialization.jsonObject(with: data) as? [String: String],
               ["operation","invocation","evidence","documentID","nonce"].allSatisfy({ UUID(uuidString: claim[$0] ?? "") != nil }),
               let composer = claim["composerID"], composer.range(of: "^node-[0-9]+:node-[0-9]+$", options: .regularExpression) != nil,
+              claim["pendingFile"]?.range(of: "^[0-9a-f]{64}$", options: .regularExpression) != nil,
               ["init","state","before","after"].contains(claim["mode"]), claim["marker"] == nil else {
             throw Identity.Refusal("SCOPED_SELECTION_CLAIM_REQUIRED")
         }
@@ -16,13 +17,6 @@ CLAIM = '''try check(QAOriginalBrowserTab.temporaryChat)
         let claimData = try JSONEncoder().encode(claim)
         let script = source.replacingOccurrences(of: "CLAIM_LITERAL", with: String(decoding: claimData, as: UTF8.self))
         let reply = try Owned.request(process,"CrSu","ExJa",["----":tab,"JvSc":.init(string:script)])'''
-PINNED_EDITOR = '''  const pinned = globalThis.__riftletIndependentFileInput20261104;
-  const generation = (pinned?.root === document.documentElement) && pinned.witnessGeneration;
-  const form = generation?.form, editor = generation?.editor;
-  if (!form?.isConnected || !editor?.isConnected || !editor.isContentEditable || !form.contains(editor) ||
-      !visible(editor) || !visible(form) || editor.closest('aside,nav,article,[data-message-author-role]')) return '';
-'''
-
 def replace_once(source, old, new):
     if source.count(old) != 1:
         raise ValueError("Original-tab QA source has changed. Review the integration against that revision.")
@@ -36,9 +30,6 @@ def build(repo, products, output):
     (output / 'SelectionNative.swift').write_text(replace_once(swift, dispatch, CLAIM))
 
     renderer = (sources / 'ReadOriginalDraft.swift').read_text()
-    start = renderer.index('  const forms =')
-    end = renderer.index('  const rawText =', start)
-    renderer = renderer[:start] + PINNED_EDITOR + renderer[end:]
     resources = [
         repo / 'Tests/DerivedPreview/draft-selection.js',
         HERE / 'observe.js',

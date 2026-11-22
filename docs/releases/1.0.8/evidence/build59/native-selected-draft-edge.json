@@ -1,0 +1,114 @@
+{
+  "afterCounts": {
+    "fileChange": 2,
+    "fileInput": 2,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  },
+  "beforeCounts": {
+    "fileChange": 1,
+    "fileInput": 1,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  },
+  "candidate": {
+    "build": "59",
+    "cdHashes": {
+      "arm64": "6f929cd41efefd8695a5f398201d6d04bd6f893e",
+      "x86_64": "66243bf1a07be2689e073dc7d9a513a266d12544"
+    },
+    "executableSHA256": "6fb94534e7b34533f10abb00c2b91369787e6ca1a516ae3c1fe818fe03a53ff7",
+    "resourceSHA256": "b6eee615982d839285ea6af4abb16018939f9be91b18215554e847f4a6eb2215",
+    "sha256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+    "source": "69b76cb025ab552b3480e3af095b627891874712",
+    "version": "1.0.8"
+  },
+  "family": "edge",
+  "inputs": [
+    {
+      "decodedWebsitePixelSHA256": "562087dd523d43f90667979b2ef6262982450f8c0a407f0ee22da5b3ab83c1ac",
+      "invocationIDDigest": "4c4582688d68611320ef5512f8722478c911425d541224c6c2d87a79cb5eb2e0",
+      "operationIDDigest": "22ed94ea5fffc4fffe2dce96bce6b45b87d00a5baaa0d89be994f55eae445e31",
+      "pngSHA256": "1a87d654860814acd16154ae1ef50f77e39237a20bf1dad45b4a6a51171d0bfa",
+      "startEvidenceIDDigest": "cbb0fca6c91dcbaf6f2c2396de2267d5fed866c41def1a1d5e555d0e308e90c1"
+    },
+    {
+      "decodedWebsitePixelSHA256": "107e990a8876caddd278e8e66a427f14a688b11dba6f65f7534ec90ace4077a0",
+      "invocationIDDigest": "aa9b2b210666ee57936f866aa40afb53599197ea93ef3c55537528970ea417a2",
+      "operationIDDigest": "d0277bfc1d78e4452f884a0a389bf08ac902d037032d1308413c6cc38f7eac27",
+      "pngSHA256": "d8a4b512a0e07a19035efc473252a2aa05facd9ab1ee04fe833da8ae056ab21f",
+      "startEvidenceIDDigest": "b5694bd59d187acffd261553455d3f6749f11caead9444c30c4f23002b52b271"
+    }
+  ],
+  "nativePendingACKMatchedConsumedBinding": true,
+  "oldAttachmentNodePreserved": true,
+  "originalEditorAndEndpointNodesPreserved": true,
+  "originalProductDraftEpoch": {
+    "currentPendingSlotDirectlySampledBeforeClick": false,
+    "matchingCommittedEpochSHA256": "ae9163d5960aa18e65514cda1984f8d64db0d72a6356d6fdea8ab04aa0d1c051",
+    "sampleSourceBeforeNewInput": "already accepted seed, original SQLite operation",
+    "seedAndNewCommittedEpochEqual": true
+  },
+  "rawSHA256": {
+    "all-previous-capture-content.json": "1ae244ee29ac75d2c06c465c648a73247d977ced45a69bc395b636b24802a8dc",
+    "baseline-1-before.json": "4091bff401dd69668233425272effc9b30ff35d9b0285f9933f79633dabcdf6d",
+    "baseline-1-watcher.json": "39bc8e9a0e98b4379b9f3a21df0ac1f5d63ece818037b1c34905cfdffe7d9d51",
+    "baseline-2-before.json": "cabe1854c28908b531ff733bf24adb64a77cb45d064f4f02bab74d8959dcf1a0",
+    "baseline-2-watcher.json": "9ab4865c4a5254da820b6607c87bc6598d658641c54ef87fb5f38f0d8bc8371f",
+    "before-selection-prep.json": "498344b2fd2b791513a0703ee78a01bd61d6bb3b055092bfff0e87090c8b6a54",
+    "candidate.stderr": "409fa4c8f31e06ab9afb910b4ebd45ec18115d6e77f2c7ed02a1298c3ddba400",
+    "capture-1.json": "8c4c5a0b87c9998cdc349aa29a5b07bc86b667356e368ebcb06aee428aff2691",
+    "capture-2.json": "d4b8f5f07e37495e2d35a3fa087975a0398d276971d8cafc2fff99ba8f538811",
+    "cards-before-1.json": "39bc8e9a0e98b4379b9f3a21df0ac1f5d63ece818037b1c34905cfdffe7d9d51",
+    "cards-before-2.json": "52a2c7224726d8557a568067a9f04d3b55a007c22b63801b4ae260d286e95af0",
+    "checkpoint-after-1.json": "08a0baba0ceec233d4d9a989ad50495287ed94faaed9984b318355f3da62f6e6",
+    "checkpoint-after-2.json": "78de20b053b71e9b363635384b8d6dae07fca058282d0796e817fc3d85464faa",
+    "child.json": "ed7b4a3f43e37e5f3cd27ceea97e277e177b3c7f084af8caccd791ea6d13caf7",
+    "click-1.json": "b22ff7a45120ca13da212f38765b7f2732bd8f0e2b521bdbd6cd1b40c7e2de4f",
+    "click-2.json": "920311b4af8a6319e0e27210e4f71d7b7b1c1215a794a72ab4d411693b691a33",
+    "db-1.json": "6cbc3e630c962bdb9ac40111c19516b048a8db5dc8b2c30c7f0e0ce899a8bc14",
+    "db-2.json": "6f9e286df6c0e34f7c2661e6f15c7b82bbca68d33676e52a4c0b04fd6aaad07a",
+    "final-db.json": "6f9e286df6c0e34f7c2661e6f15c7b82bbca68d33676e52a4c0b04fd6aaad07a",
+    "final-page.json": "f406470f6d47da8ec042ddf7e4f7e3f5b9a2e200c86d38c82792097494dfd99a",
+    "native-auth-batch-1.json": "4091bff401dd69668233425272effc9b30ff35d9b0285f9933f79633dabcdf6d",
+    "native-auth-batch-2.json": "cabe1854c28908b531ff733bf24adb64a77cb45d064f4f02bab74d8959dcf1a0",
+    "native-auth-press-1.json": "ab69f88531b0ec87ef4d7c37180e33c7357b3dd707d6d9af17535d96d1bfd426",
+    "native-auth-press-2.json": "48827d484da141783c4cd06666d7b9dc3a244882827660a429f8af6b7df4569c",
+    "native-auth-startup.json": "a71ef93dc62f5d91d3c311e3128596bfe953f45697b76c52f3666106b034cea9",
+    "new-source-and-prepared-target.json": "4c0322098069d73d402caadab6788eda20fe417fc1ab7ba6b6f445e2fe8f67fc",
+    "page-after-1.json": "9ab4865c4a5254da820b6607c87bc6598d658641c54ef87fb5f38f0d8bc8371f",
+    "page-after-2.json": "f406470f6d47da8ec042ddf7e4f7e3f5b9a2e200c86d38c82792097494dfd99a",
+    "page-baseline.json": "39bc8e9a0e98b4379b9f3a21df0ac1f5d63ece818037b1c34905cfdffe7d9d51",
+    "page-before-1.json": "39bc8e9a0e98b4379b9f3a21df0ac1f5d63ece818037b1c34905cfdffe7d9d51",
+    "page-before-2.json": "6dfcf5813de3df93c66fbbe4476b405ff187f29c9c1d39c7ad82649da53569be",
+    "positive-1.json": "3bc1a76fa2f5a4e04b26a7e308c360c50504f712c411a0edb7db0dbbb32b3229",
+    "positive-2.json": "1df39e81db014ac893c53f5dca730b50783e4c3509a9246ae12f6ce8fb282da3",
+    "previous-runs.json": "1fc9772a476f9b28496d51e0dc8e191fe979a2981d68f823588f35fa9616c1f4",
+    "prewatch-scope-before.json": "e656aac63ef2b854aa191ca5492a260ca40693b992c80dace20c34a0997c4bc3",
+    "prewatch-scope-page-after.json": "0060a8b1a8d12a7ee16339fe53f221b01312a4446fb944cd0c66dd977471fccf",
+    "result.json": "ed32a64f62b8c17a9e1edd1969c73af8ca972ef8a37fe5c738c33f965abdb67b",
+    "route.json": "c9e1586bcf4c8c1be25f161583f1567b012eca35afff60d276da1b38674c7419",
+    "row-1.json": "271895e42ed5d18b82da4ce0be27f89066475ffdadd51c8d33062c27e86cdb0f",
+    "row-2.json": "08cb1c1c8c2bbe0841b5653d3c43666cd18452ef11971c340d842b4e87f7aa3a",
+    "selection-before.json": "303c734fadb5ff0ee046105b40faac4966fd07487c6226857ea85b938ea43a78",
+    "selection-comparison.json": "c42e9c37ed012b139c3abf846a458faedb8de1fe8008a955f987194652d7928c",
+    "selection-final.json": "6275c46da149f653b5837a97c65a185913b2b4358027841599386cbbbb0941b8",
+    "selection-preparation-once.json": "aecde9d8522d90f965d47c985ae3a5c79aef2d71cf1d81fc566d0d187a3b6b4f",
+    "selection-prepared.json": "6392101ac5fd2cd8cc9fec48996c8905409b6865f46ab2ee4bbaede334fc50b1",
+    "source-pixels-1.json": "9bbf78ed37d40bc606b401f617ac671ad9ede984333c7fd78d56a40341e0edf5",
+    "source-pixels-2.json": "0278074c17a4cd8dfa6723b7796a0758526c2b68080f2245e79da4c1b53f48c2",
+    "watch-closed.json": "a54ac5bb1f80f63e97d0fdea2ed11b5d547130e28378703d643019b310611f98",
+    "watcher-intent.json": "ad58706c6b7cbdda396f338bfbd2777e3a015b095e9466302de4302917966aca"
+  },
+  "selectedText": "preserve this original draft",
+  "selectionUTF16": {
+    "anchor": 12,
+    "direction": "forward",
+    "end": 40,
+    "focus": 40,
+    "start": 12
+  },
+  "textAndSelection": "PASS",
+  "textLength": 64,
+  "textSHA256": "cd8f05688e1c2f02de6687c4ec6283a3f28db17265552ec0283088938098853f"
+}

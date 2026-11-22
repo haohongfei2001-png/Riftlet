@@ -6,9 +6,10 @@ import os
 from pathlib import Path
 import select
 import subprocess
+import time
 
 FAMILIES = {'com.google.Chrome':'chrome','com.microsoft.edgemac':'edge'}
-KEYS = ('documentID','composerID','draftEpoch')
+KEYS = ('entryID','timeOrigin','witnessEpoch')
 
 def check(ok, reason):
     if not ok:
@@ -30,11 +31,15 @@ def prepare(route, native_scope, dom_state, output_dir, executable):
               and all(native.get(k)==route[k] for k in ('windowID','tabID'))
               and all(native.get(k) is True for k in ('dynamicSignature','exactTemporaryURL','originalSelection','originalSoleTab','systemForeground')), 'NATIVE_SCOPE_CHANGED')
         state=dom_state()
+        if text_state=='expected':
+            deadline=time.monotonic()+2
+            while state.get('original') and state.get('textState')!='expected' and time.monotonic()<deadline:
+                time.sleep(0.04);state=dom_state()
         check(state.get('original') is True and (not focused or state.get('activeOriginal') is True) and
               state.get('textState')==text_state and state.get('oldCardsIntact') is True and
               isinstance(state.get('priorCardCount'),int) and state['priorCardCount']>0 and
               all(state.get(k)==0 for k in ('sendClicks','formSubmits')),'ORIGINAL_DOM_SCOPE_CHANGED')
-        check(all(isinstance(state.get(k),str) and state[k] for k in KEYS),'MISSING_DRAFT_IDS')
+        check(isinstance(state.get('timeOrigin'),(float,int)) and all(isinstance(state.get(k),str) and state[k] for k in ('entryID','witnessEpoch')),'MISSING_DRAFT_IDS')
         if previous is not None:
             check(all(state[k]==previous[k] for k in (*KEYS,'priorCardCount')),'ORIGINAL_DRAFT_CHANGED')
         return state
@@ -56,7 +61,7 @@ def prepare(route, native_scope, dom_state, output_dir, executable):
         check(bool(select.select([p.stdout],[],[],15)[0]),'AX_READ_TIMEOUT')
         result=p.stdout.readline().strip()
         if result not in allowed:
-            raise RuntimeError(p.stderr.read(220) if p.poll() is not None or not result else 'UNEXPECTED_AX_REPLY')
+            raise RuntimeError(p.stderr.read(1150).strip() if p.poll() is not None or not result else 'UNEXPECTED_AX_REPLY')
         return result
     def reply(token,proof):
         p.stdin.write(json.dumps({'token':token,'geometry':proof['geometry']},separators=(',',':'))+'\n');p.stdin.flush()
@@ -66,13 +71,16 @@ def prepare(route, native_scope, dom_state, output_dir, executable):
             original=guard('empty',initial,focused=False)
             persist('EXACT_MAPPED_FOCUS_INTENT');reply('FOCUS_ONCE',original)
             expect('READY_EMPTY')
-        original=guard('empty',initial);persist('INSERT_INTENT');reply('INSERT_ONCE',original)
+        original=guard('empty',initial)
+        check(original.get('emptyDOMCaretAtStart') is True,'ORIGINAL_COLLAPSED_DOM_CARET_AT_START_REQUIRED')
+        persist('INSERT_INTENT');reply('INSERT_ONCE',original)
         expect('TEXT_PRESENT')
         original=guard('expected',initial);persist('SELECT_INTENT');reply('SELECT_ONCE',original)
         expect('SELECTION_PRESENT')
         check(p.wait(timeout=2)==0,'AX_EXIT_FAILURE')
         guard('expected',initial);persist('AX_RANGE_CONFIRMED')
-        return {'selectedRangeUTF16':[12,40],'axChecksPassed':True,'domIdRequired':False,'mappedFocusIssued':first=='CAN_FOCUS_ORIGINAL','crossCheckedHitPoints':2,'original':{k:initial[k] for k in KEYS}}
+        diagnostics=p.stderr.read(1150).splitlines()
+        return {'emptyRepresentation':[line for line in diagnostics if line.startswith('AX_EMPTY_STATE ')],'selectedRangeUTF16':[12,40],'inputPreparation':'pidTargetedFixedUnicode','axChecksPassed':True,'domIdRequired':False,'mappedFocusIssued':first=='CAN_FOCUS_ORIGINAL','crossCheckedHitPoints':2,'original':{k:initial[k] for k in KEYS}}
     finally:
         try:
             p.stdin.close()

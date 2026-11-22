@@ -19,9 +19,9 @@ class PreparationTests(unittest.TestCase):
                           originalSelection=True, originalSoleTab=True, systemForeground=True)
         self.script = self.output / 'qa-only'
         self.marker = self.output / 'selection-preparation-once.json'
-        self.state = dict(documentID='doc', composerID='editor', draftEpoch='epoch', original=True,
+        self.state = dict(entryID='entry',timeOrigin=1.25,witnessEpoch='qa-epoch', original=True,
                           oldCardsIntact=True, priorCardCount=1, sendClicks=0, formSubmits=0,
-                          activeOriginal=True, textState='empty', geometry=dict(x=4, y=5))
+                          activeOriginal=True, emptyDOMCaretAtStart=True, textState='empty', geometry=dict(x=4, y=5))
 
     def run_helper(self, source):
         self.script.write_text('#!/usr/bin/env python3\n' + source)
@@ -47,6 +47,12 @@ print('SELECTION_PRESENT',flush=True)
         last = json.loads(self.marker.read_text().splitlines()[-1])
         self.assertEqual(last['steps'], ['INSERT_INTENT','SELECT_INTENT','AX_RANGE_CONFIRMED'])
 
+    def test_wrong_dom_caret_stops_before_keyboard_input_intent(self):
+        self.state['emptyDOMCaretAtStart'] = False
+        with self.assertRaisesRegex(ValueError, 'ORIGINAL_COLLAPSED_DOM_CARET_AT_START_REQUIRED'):
+            self.run_helper("print('READY_EMPTY',flush=True)\ninput()\n")
+        self.assertEqual(self.marker.read_text(), '')
+
     def test_lost_result_keeps_exclusive_write_intent(self):
         source = "print('READY_EMPTY',flush=True)\ninput()\n"
         with self.assertRaises(RuntimeError):
@@ -63,7 +69,7 @@ print('SELECTION_PRESENT',flush=True)
 
 class ComparisonTests(unittest.TestCase):
     def test_changed_direction_or_anchor_rejected_with_unchanged_text(self):
-        row = dict(documentID='doc',composerID='editor',draftEpoch='epoch',text='test case',
+        row = dict(entryID='entry',timeOrigin=1.25,witnessEpoch='qa-epoch',text='test case',
                    selectedText='case',start=5,end=9,anchor=5,focus=9,direction='forward',priorCardCount=1)
         session = object.__new__(SelectionStep)
         session.before = row

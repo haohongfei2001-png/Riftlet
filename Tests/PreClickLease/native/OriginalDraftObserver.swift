@@ -137,7 +137,17 @@ import Foundation
             RunLoop.current.run(until:Date(timeIntervalSinceNow:0.4))
             _ = try Owned.request(process,"core","setd",["----":Identity.property("pmnd",win),"data":.init(boolean:false)])
             _ = try Owned.request(process,"core","setd",["----":Identity.property("pidx",win),"data":.init(int32:1)])
-            RunLoop.current.run(until:Date(timeIntervalSinceNow:0.8))
+            RunLoop.current.run(until:Date(timeIntervalSinceNow:0.45))
+            if NSWorkspace.shared.frontmostApplication?.processIdentifier != process.pid {
+                try require(NSRunningApplication(processIdentifier:process.pid)?.activate(options:[]) == true,"OWNED_RESTORE_REFUSED")
+            }
+            let until = ProcessInfo.processInfo.systemUptime + 1.5
+            while NSWorkspace.shared.frontmostApplication?.processIdentifier != process.pid && ProcessInfo.processInfo.systemUptime < until {
+                RunLoop.current.run(until:Date(timeIntervalSinceNow:0.04))
+            }
+            if try !selected() {
+                _ = try Owned.request(process,"core","setd",["----":Identity.property("pidx",win),"data":.init(int32:1)])
+            }
             try check(QAOriginalBrowserTab.temporaryChat)
         }
         #endif

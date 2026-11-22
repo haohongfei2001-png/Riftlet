@@ -1,46 +1,53 @@
-// Uses fixed per-run identifiers encoded by the native route observer.
-const claim=CLAIM_LITERAL;
-const registry=globalThis.__riftletIndependentFileInput20261104;
-const observerKey='__riftletSelectedDraftQA_'+claim.nonce;
-const rawWatcher=globalThis['__riftletDraftQA_'+claim.marker.toUpperCase().replaceAll('-','')];
-if (!rawWatcher || !registry || registry.root!==document.documentElement || !own ||
-    !gen || !editor || !gen.form.contains(editor) || editor!==gen.editor ||
-    registry.documentID!==claim.documentID || composerID!==claim.composerID) throw Error('ORIGINAL_DRAFT_REQUIRED');
-const ops=registry.operations;
-const seed=ops?.get(claim.operation) || ops?.get(claim.operation.toUpperCase()) || ops?.get(claim.operation.toLowerCase());
-if (!seed || seed.start?.signal!=='attachmentAccepted' || seed.start.inputCount!==1 ||
-    seed.start.evidenceID?.toLowerCase()!==claim.evidence.toLowerCase() ||
-    seed.invocationID?.toLowerCase()!==claim.invocation.toLowerCase() ||
-    seed.identity.target.documentID!==claim.documentID || seed.identity.target.composerID!==claim.composerID)
-  throw Error('SEED_START_MISMATCH');
-if (claim.mode==='init') {
-  if(Object.hasOwn(globalThis,observerKey))throw Error('SELECTION_WATCH_EXISTS');
-  const seedImages=images.slice();
-  if(!seedImages.length || !seedImages.some(im=>im.alt.toLowerCase().startsWith('riftlet-'+claim.operation.toLowerCase()+'.')))throw Error('ORIGINAL_SEED_IMAGE_MISSING');
-  function cardMembers(im) {
-    const match=im.alt.toLowerCase().replace(/\.(png|webp)$/,'');
-    for(let p=im.parentElement;p && p!==gen.form;p=p.parentElement) {
-      const buttons=[...p.querySelectorAll('button[aria-label]')].filter(b=>/remove|移除|删除/i.test(b.getAttribute('aria-label')) &&
-        b.getAttribute('aria-label').toLowerCase().includes(match));
-      if(buttons.length===1 && p.querySelectorAll('img').length===1)return [p,buttons[0]];
-    }
-    throw Error('OLD_CARD_MEMBERS_NOT_ATTRIBUTABLE');
+// The read context holds the original website watcher. The signed App owns a separate product registry.
+const selectionProbe = (() => {
+  const claim = CLAIM_LITERAL;
+  const owner = globalThis['__riftletDraftQA_'+claim.marker.toUpperCase().replaceAll('-','')];
+  if (!owner || typeof owner.state !== 'function') throw Error('ORIGINAL_DRAFT_WATCHER_UNAVAILABLE');
+  const key='__riftletSelectedDraftQA_'+claim.nonce;
+  function currentEditor() {
+    const hosts=[...document.querySelectorAll('#prompt-textarea,[contenteditable],[role="textbox"],textarea')].filter(e=>
+      e.getClientRects().length && e.checkVisibility({checkOpacity:true,checkVisibilityCSS:true}) &&
+      (e.isContentEditable || e.tagName==='TEXTAREA') && !e.closest('article,nav,aside,[role="search"],[data-message-author-role]'));
+    const leaves=hosts.filter(a=>!hosts.some(b=>b!==a && a.contains(b)));
+    const named=leaves.filter(e=>e.id==='prompt-textarea');
+    return named.length===1 ? named[0] : leaves.length===1 ? leaves[0] : null;
   }
-  const saved=seedImages.map(im=>({im,alt:im.alt,src:im.currentSrc,w:im.naturalWidth,h:im.naturalHeight,pair:cardMembers(im)}));
-  const epoch=gen.id;
-  const liveProof=()=>{
-    const raw=JSON.parse(rawWatcher.state());
-    const g=registry.witnessGeneration;
-    const retained=saved.every(({im,src,alt,w,h,pair:[card,button]})=>im.complete && w>0 && h>0 && im.naturalWidth===w && im.naturalHeight===h && im.currentSrc===src && im.alt===alt && im.isConnected && gen.form.contains(card) && card.contains(im) && card.contains(button) && button.getAttribute('aria-label').toLowerCase().includes(alt.toLowerCase().replace(/\.(png|webp)$/,'')));
-    return {documentID:registry.documentID,composerID,draftEpoch:epoch,original:gen.form.contains(editor) && editor.isConnected &&
-      g?.id===epoch && g?.editor===editor && g.form===gen.form && raw.originalDocument===true && raw.originalEditor===true,
-      oldCardsIntact:retained && raw.allRememberedCardsPresent && raw.allRememberedNodesPreserved && raw.rememberedCards>=saved.length,
-      priorCardCount:saved.length,sendClicks:raw.counts.sendButtonClicks,formSubmits:raw.counts.formSubmit};
-  };
-  const witness=observeExactQADraft(editor,gen.form,liveProof);
-  witness.state();
-  Object.defineProperty(globalThis,observerKey,{value:witness,configurable:true});
-}
-const w=globalThis[observerKey];
-if(!w)throw Error('SELECTION_WATCH_LOST');
-const selectionProbe = claim.mode==='before'?w.before():claim.mode==='after'?w.after():w.state();
+  if (claim.mode==='init') {
+    if(Object.hasOwn(globalThis,key))throw Error('SELECTION_WATCH_EXISTS');
+    const initial=JSON.parse(owner.state());
+    // The mounted watcher independently requires currentEditor() === its original editor.
+    const original=currentEditor();
+    const scope=original?.closest('[data-composer-placement],[data-chatgpt-composer],[data-testid="composer"]') || original?.closest('form');
+    if(!initial.originalDocument || !initial.originalEditor || !original || !original.isContentEditable ||
+       !scope || !scope.isConnected || !scope.contains(original))throw Error('ORIGINAL_EDITOR_OR_DOCUMENT_MISSING');
+    const images=[...scope.querySelectorAll('img')].filter(img=>/^riftlet-[a-f0-9-]{36}\.(png|webp)$/i.test(img.alt));
+    const names=images.map(im=>im.alt.toLowerCase()).sort();
+    if(names.length!==initial.rememberedCards || !initial.allRememberedNodesPreserved || !initial.allRememberedCardsPresent ||
+       new Set(names).size!==names.length || !names.some(n=>n.startsWith('riftlet-'+claim.operation.toLowerCase()+'.')))throw Error('ORIGINAL_SEED_CARD_MISSING');
+    function members(im) {
+      const stem=im.alt.toLowerCase().replace(/\.(png|webp)$/,'');
+      for(let p=im.parentElement;p && p!==scope;p=p.parentElement){
+        const buttons=[...p.querySelectorAll('button[aria-label]')].filter(b=>/remove|移除|删除/i.test(b.getAttribute('aria-label')) &&
+          b.getAttribute('aria-label').toLowerCase().includes(stem));
+        if(buttons.length===1 && p.querySelectorAll('img').length===1)return {card:p,button:buttons[0]};
+      }
+      throw Error('OLD_CARD_MEMBERS_NOT_ATTRIBUTABLE');
+    }
+    const saved=images.map(im=>({im,alt:im.alt,src:im.currentSrc,w:im.naturalWidth,h:im.naturalHeight,...members(im)}));
+    const witnessEpoch=crypto.randomUUID(), entry=navigation.currentEntry.id, origin=performance.timeOrigin;
+    const liveProof=()=>{
+      const raw=JSON.parse(owner.state());
+      const retained=saved.every(({im,src,alt,w,h,card,button})=>im.complete && w>0 && h>0 && im.naturalWidth===w &&
+        im.naturalHeight===h && im.currentSrc===src && im.alt===alt && im.isConnected && scope.contains(card) &&
+        card.contains(im) && card.contains(button) && button.getAttribute('aria-label')?.toLowerCase().includes(alt.toLowerCase().replace(/\.(png|webp)$/,'')));
+      return {entryID:entry,timeOrigin:origin,witnessEpoch,original:raw.originalDocument && raw.originalEditor &&
+        navigation.currentEntry?.id===entry && performance.timeOrigin===origin && currentEditor()===original && scope.contains(original),
+        oldCardsIntact:retained && raw.allRememberedCardsPresent && raw.allRememberedNodesPreserved && raw.rememberedCards>=saved.length,
+        priorCardCount:saved.length,sendClicks:raw.counts.sendButtonClicks,formSubmits:raw.counts.formSubmit};
+    };
+    const w=observeExactQADraft(original,scope,liveProof);
+    w.state();Object.defineProperty(globalThis,key,{value:w,configurable:true});
+  }
+  const w=globalThis[key];if(!w)throw Error('SELECTION_WATCH_LOST');
+  return claim.mode==='before'?w.before():claim.mode==='after'?w.after():w.state();
+})();

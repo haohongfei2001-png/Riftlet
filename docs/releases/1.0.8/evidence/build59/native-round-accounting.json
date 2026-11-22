@@ -1,0 +1,22 @@
+{
+  "build": 59,
+  "counts": {
+    "chromeCaptured": 11,
+    "chromeDispatched": 10,
+    "chromeUndispatched": 1,
+    "edgeCaptured": 15,
+    "edgeDispatched": 12,
+    "edgeUndispatched": 3
+  },
+  "createdWindowsClosedAndOriginalSetsRestored": {
+    "chrome": 3,
+    "edge": 7
+  },
+  "formSubmits": 0,
+  "legacyChromeControllerTab": "Left untouched. Its prior creation evidence did not identify the exact native window and tab.",
+  "loopbackChallengeListenersExited": true,
+  "scope": "New native-channel sessions only. Multiple readbacks of one QA profile counted once.",
+  "uniqueOperationsWithInputChangeAndDurableSTART": 22,
+  "uniqueSourcesOnDiskAndInMedia": 26,
+  "websiteSends": 0
+}

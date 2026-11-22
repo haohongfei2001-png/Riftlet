@@ -1,0 +1,13 @@
+# Original nonempty text and selection on build 59
+
+Ordinary Google Chrome and Microsoft Edge each preserved the entire 64-character original QA draft and the same 28-character forward selection during one new screenshot attachment on a signed-in ChatGPT Temporary Chat. In both browsers, the selected text was `preserve this original draft`. Its start and anchor were 12; its exclusive end and focus were 40, in UTF-16 code units. The editor and both endpoint DOM nodes remained the original objects. Each browser kept the already accepted seed attachment. Each new screenshot caused one file input, one change and one new durable attachmentAccepted START. Every observed file matched its original PNG, and its decoded pixels matched the attachment preview. The send and form-submit counts both stayed zero.
+
+The QA script entered the specified draft and established the range through the ordinary editor, and then read the complete string and both endpoints. The original page observer retained and checked their DOM identities. The signed native helper also read the actual page text and directed selection directly before the second AppKit mouseDown. Its receipt contains the original process, window, tab, document entry and renderer time origin. SQLite, the original PNGs, site File receipts and product trace independently tie the second input to its own operation, invocation and START.
+
+The product draft generation recorded before input came from the already accepted seed's SQLite target. Its value equalled the new operation's durable target generation in each browser. The original and new product Document and Composer IDs also matched. A separate read of the unconsumed new slot's private draft generation returned no value before either press. The pre-click acknowledged binding digest later matched the actual consumed binding. The website selection witness has its own lifetime identifier. This audit reports PASS for the observed text and directed selection preservation.
+
+The two `native-selected-draft-*.json` files contain only fixed QA text metadata, aggregate counts, identity digests and raw-receipt hashes. To reproduce a report from either private receipt archive, run the following command on its extracted `run` and `profile` directories. The audit checks the before and after page observations, both capture-source files and stored media, app trace and a consistent SQLite snapshot. The private archive checksums are in `native-selection-archives.json`.
+
+```sh
+python3 -B Tests/PreClickLease/native/audit_selected_draft.py /path/to/extracted/run /path/to/extracted/profile
+```
