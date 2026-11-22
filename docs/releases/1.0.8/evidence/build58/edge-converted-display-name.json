@@ -1,0 +1,31 @@
+{
+  "build": 58,
+  "operationID": "20EEB456-76B0-427E-866D-D26DCB11834A",
+  "invocationID": "10D2615E-D1FB-4C58-A130-939871B16FFB",
+  "sourcePNG_SHA256": "dd956333dde322ef959027d926808e0a9ae83f247794c0efe8a0a2f34989e2a6",
+  "uploadedFileName": "riftlet-20EEB456-76B0-427E-866D-D26DCB11834A.png",
+  "renderedImageAlt": "riftlet-20EEB456-76B0-427E-866D-D26DCB11834A.webp",
+  "renderedRemoveAccessibleName": "移除“riftlet-20EEB456-76B0-427E-866D-D26DCB11834A.webp”",
+  "imageAltSHA256": "b710075f8e29fcf914f7f47b6f3ce29ec4602fdc7565d61838d0a4aa0de475f9",
+  "removeLabelSHA256": "5f6591ab67a2e85de319352cc017a8c8c82da9839a348ed4fbabe4532650b8f5",
+  "replacedEarlyCard": true,
+  "sameParent": true,
+  "realSiteAttachmentIDAvailable": false,
+  "finalImageMIME": "image/png",
+  "originalDimensions": [
+    330,
+    196
+  ],
+  "decodedRGBASHA256": "4016561c66c9b24d06e0908590864e684034a33c60e31f8b7c832b720d13cdfc",
+  "sourceRGBASHA256": "4016561c66c9b24d06e0908590864e684034a33c60e31f8b7c832b720d13cdfc",
+  "timeFromFileInputToPixelReceiptMS": 1751,
+  "earlyRemoveAfterInputMS": 24,
+  "appOutcome": "inputTriggered",
+  "inputAndSendCounts": {
+    "fileChange": 1,
+    "fileInput": 1,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  },
+  "originalReceiptSHA256": "d8b189f48690e073ccabd7175e41dc710470b66148bc744dbad2cdeb1cb6422e"
+}

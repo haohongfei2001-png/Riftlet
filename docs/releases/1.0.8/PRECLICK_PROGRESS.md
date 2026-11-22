@@ -34,3 +34,5 @@ build 58 已冻结为 c7ef1027。正常退出等待原票释放，同一资料�
 同一份 build 58 镜像已公证并独立安装核验，原始冻结提交的 ARM64、Intel CI 均已通过。普通 Chrome 的真实已登录临时草稿首次收到一次文件输入，原图保留，回执为 UNKNOWN。鼠标按下晚于原始凭据 ACK 2,356.714 毫秒。原操作保持只读。[同包实站和镜像](PRECLICK_ACCEPTANCE.md)
 
 普通 Edge 的签名 App 首击也已进入原临时草稿，原生鼠标事件晚于回执 1,072.093 毫秒。网页实际收到的 File 与系统原图逐字节哈希相同；旧观察器没有把早期实名按钮与稍后的可见图片认领为同一张卡，原操作保留 UNKNOWN。[Edge 网站回执时序](evidence/build58/edge-original-card-timing.json)
+
+第二张 Edge 原图证明完整操作 UUID 被保留在 .webp 显示名中，两种卡对象真实替换。新候选 build 59 已冻结于 69b76cb0。非作者审查找到的同名失败卡和竞争卡在移除后的错误回执均已修复。Chrome、Edge 各通过 22 项针对改名预览的受控回归。新候选的安装、真实站点和 CI 独立记账。[同包验收](PRECLICK_ACCEPTANCE.md)
