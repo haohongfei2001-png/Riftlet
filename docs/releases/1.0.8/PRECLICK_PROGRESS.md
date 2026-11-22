@@ -42,3 +42,5 @@ build 59 的 App 和 DMG 已通过 Apple 公证，非作者已完成独立安装
 普通 Chrome 已登录临时草稿用 build 59 完成冷首图。真实输入、原卡持久化 START 与托盘收起已由非作者从原记录复核。原验收器漏读新字段，原始误报一并保留。[实站收据](evidence/build59/chrome-cold-independent.json)
 
 普通 Edge 已登录原稿完成七张唯一回执，两组双图分别为 1.518 秒和 1.575 秒。首轮第三组第二张的鼠标按下未到达 AppKit，原图保留；该格按实际结果登记。[原始现场](evidence/build59/edge-live-candidate.json)
+
+Chrome 接续原稿新增五次正面 START，并保留旧图。原双图实际间隔为 2.508 秒；下一组第二张在投递前停止。G4 本地对照成功，单标签故障隔离未获证实，实站原卡失败仍未运行。[非作者复核](evidence/build59/independent-first-site-series.json)

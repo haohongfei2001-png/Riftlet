@@ -4,7 +4,7 @@
 
 | build 59 同包项目 | 状态 |
 |---|---|
-| G1 普通 Chrome × ChatGPT | PARTIAL。已登录临时草稿的冷首图通过，暖首图、三组双图及非空选区尚待单独核验。 |
+| G1 普通 Chrome × ChatGPT | PARTIAL。冷、暖首图与原有附件保留通过。首轮完整双图为 2.508 秒，未达两秒；另一次在窗口检查阶段停止。非空文字和选区尚未实测。 |
 | G2 普通 Edge × ChatGPT | PARTIAL。冷、暖首图及两组快速双图通过。首轮第三组第二张没有 AppKit 按下回执。 |
 | G4 原卡明确失败、原图找回、显式新点击 | NOT_RUN |
 
@@ -13,6 +13,8 @@
 从最终镜像安装的 App 在全新测试资料库启动。测试窗已核对普通 Chrome 厂商签名、进程出生、窗口、标签和账户菜单。第一张系统截图进入托盘后，验收器直接按下其原行，没有等待网页就绪。原始文档和编辑器的回执比 AppKit 收到的鼠标按下早 1,896.793 毫秒。网页收到同一份 5,516 字节 PNG，文件输入和变更各一次，发送和表单提交均为零。图片按原始 330 × 196 像素解码，原卡取得唯一 `attachmentAccepted`，托盘随后收起。鼠标事件由软件定向投递。
 
 原验收器读取旧字段，第一次报告 `POSITIVE_START_NOT_VERIFIED`。非作者从原 SQLite 和现场页面事件读回当前字段 `attachmentAcceptanceEvidence`，核对了同一次操作、调用、卡片及原图。该图没有重投。草稿开场时没有旧附件，本次只计冷首图。[同包操作与证据哈希](evidence/build59/chrome-live-candidate.json) · [独立只读复核](evidence/build59/chrome-cold-independent.json)
+
+在同一普通 Chrome 临时草稿继续测试时，以已成功的首图作旧附件，并逐像素核对原卡。随后五张新图各取得唯一 START。已完成的一组双图均成功附加，两个真实按下相隔 2,507.972 毫秒，超过两秒。下一组的第二张在 macOS 窗口检查阶段停止，投递标记未创建。余下两张未执行。[接续原始记录](evidence/build59/chrome-live-after-start.json) · [两款浏览器的独立复核](evidence/build59/independent-first-site-series.json)
 
 ## 普通 Edge 的真实草稿
 
@@ -27,6 +29,10 @@
 build 59 对这一种重绘同时核对原草稿、完整操作 UUID、新卡与移除按钮的归属及图像内容。候选卡出现竞争、局部明确失败或在解码中被替换时维持 UNKNOWN。两款真实隔离引擎各通过 22 项受控回归。双图各保留原草稿、选区和旧附件并各自得到独立回执。非作者审查已复核旧操作只读兼容、实际页面程序大小和原生轻量点击路径。[源码对照](evidence/build59/converted-source-regression.json) · [双架构 CI](https://github.com/haohongfei2001-png/Riftlet/actions/runs/44987854131)
 
 [已登录草稿之前的原生路线与浏览器身份](PRECLICK_ARCHITECTURE.md) · [build 57 历史验收](BUILD57_ACCEPTANCE.md)
+
+## G4 真实原卡失败恢复
+
+已登录网站没有出现可归属到原卡的明确失败。两个本地对照标签各自到达同一测试资源。正式浏览器控制器随后在隔离校验中未返回，未能证实只能阻断这一标签且能恢复连接。没有对真实网站施加故障，没有触发旧操作重传。原卡失败、SQLite 保存该失败、找回原图及显式新点击成功附加，四步均为 NOT_RUN。受控恢复和旧版本只读续查各自保留独立证据。[同包现场限制](evidence/build59/g4-environment.json)
 
 ## 同一安装包
 
