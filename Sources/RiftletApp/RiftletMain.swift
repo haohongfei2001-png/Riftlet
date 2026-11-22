@@ -2249,7 +2249,7 @@ private enum WebAcceptanceSelfCheck {
     static func run() async throws {
         let program = try ChatGPTWebPageProgram.load()
         guard !program.sourceID.isEmpty, !program.functionSource.isEmpty,
-              program.functionSource.utf8.count <= 128 * 1024,
+              program.functionSource.utf8.count <= ChatGPTWebPageProgram.maximumSourceBytes,
               try ApplicationMode.resolve([]) == .capture,
               try ApplicationMode.resolve(["--simulate"]) == .simulation,
               try ApplicationMode.resolve(["--web-acceptance"]) == .webAcceptance,

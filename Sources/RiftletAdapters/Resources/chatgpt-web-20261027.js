@@ -1043,9 +1043,10 @@ function riftletWebAcceptance(command, native) {
   }
   // Keep only a weak node and a change bit, never a signed URL or inline
   // payload. The narrow observer expires even on documents with older registries.
-  function unchangedPreview(imageRef, shellRef, name, boundBlob, figurePreview = false, edgeNodes = null) {
+  function unchangedPreview(imageRef, shellRef, name, boundBlob, figurePreview = false, edgeNodes = null, trackAncestors = false) {
     let changed = false;
     let placement;
+    const ancestors = [shellRef];
     const invalidate = () => { changed = true; observer.disconnect(); placement?.disconnect(); clearTimeout(timer); };
     const inspect = records => {
       if (!records.length) return;
@@ -1086,12 +1087,17 @@ function riftletWebAcceptance(command, native) {
     const moved = records => {
       if (!records.length) return;
       if (records.length > 32 || records.some(record => record.type === 'attributes'
-          || record.removedNodes.length > 32 || [...record.removedNodes].includes(shellRef.deref()))) invalidate();
+          || record.removedNodes.length > 32 || [...record.removedNodes].some(node => ancestors.some(ref => ref.deref() === node)))) invalidate();
     };
     if (figurePreview || edgeNodes) {
       placement = new MutationObserver(moved);
       placement.observe(shellRef.deref().parentElement, figurePreview
         ? {childList:true, attributes:true, attributeFilter:['data-composer-image-attachment']} : {childList:true});
+      if (trackAncestors) {
+        for (let node = shellRef.deref().parentElement; node?.parentElement; node = node.parentElement) {
+          ancestors.push(new WeakRef(node)); placement.observe(node.parentElement, {childList:true});
+        }
+      }
     }
     const timer = setTimeout(invalidate, 600000);
     timer?.unref?.();
@@ -1265,10 +1271,18 @@ function riftletWebAcceptance(command, native) {
     // post-START scan beyond 16 candidates or the retained set beyond four.
     for (const match of [accepted, ...matches.slice(0, 16)]) {
       const {node, card} = match;
+      if (!card || cards.has(card)) continue;
       const image = match.preview.tagName === 'IMG' ? match.preview : null;
+      if (match.displayedName && match === accepted) {
+        const members = [card, match.remove, match.visual, image].map(item => new WeakRef(item));
+        const [shell, remove, visual, preview] = members;
+        views.push({convertedName:match.displayedName, card:shell, parent:new WeakRef(card.parentElement),
+          remove, visual, preview, unchanged:unchangedPreview(preview, shell, match.displayedName, null, false, members, true)});
+        cards.add(card);
+        continue;
+      }
       const labelledImage = image && filename.test(image.getAttribute('alt') || '')
         && visible(image) && !!image.getAttribute('src');
-      if (!card || cards.has(card)) continue;
       const local = inOriginalCardContainer(card, op.binding);
       if (!local && (!card.parentElement || !independentCardPortal(card, op.binding))) continue;
 
@@ -1317,6 +1331,18 @@ function riftletWebAcceptance(command, native) {
   function matchesOriginalCard(op, view, binding, requireError = true) {
     let card = view.card.deref();
     const retainedPreview = view.preview?.deref();
+    if (view.convertedName) {
+      const name = view.convertedName, remove = view.remove.deref(), visual = view.visual.deref();
+      if (!card?.isConnected || card.parentElement !== view.parent.deref() || !inOriginalCardContainer(card, binding)
+          || !view.unchanged() || !visual || visual.parentElement !== card || remove?.parentElement !== card
+          || retainedPreview?.parentElement !== visual || retainedPreview.getAttribute('alt') !== name
+          || !renderedPreview(retainedPreview) || !consistentCardLabels(card, name)) return false;
+      if (!requireError) return true;
+      const retries = [...card.children].filter(child => child !== remove && child.matches('button[type="button"]')
+        && namedFailedRetry(child, name));
+      return ['failed','error'].includes(card.getAttribute('data-state')) && retries.length === 1
+        && renderedPreview(retries[0]) && !blocked(retries[0]) && !retries[0].matches(':disabled');
+    }
     if (!card?.isConnected && view.sameFile && retainedPreview?.isConnected
         && retainedPreview.getAttribute('src') === view.src) {
       // A component can replace its shell while moving the very same preview.
@@ -1402,7 +1428,13 @@ function riftletWebAcceptance(command, native) {
     const stop = () => {
       observer.disconnect();
       clearTimeout(timer);
+      surface.removeEventListener('load', loaded, true);
       op.stopHandoffWatch = null;
+    };
+    // Decoding an inline PNG can finish without a second DOM mutation.
+    const loaded = event => {
+      if (op.converted && event.target instanceof HTMLImageElement && event.target.alt === op.converted.name
+          && performance.now() < deadline && op.binding?.form === surface && sameDraft(op.binding)) sample(op, surface);
     };
     const observer = new MutationObserver(() => {
       if (++batches > 64 || performance.now() >= deadline || !surface.isConnected
@@ -1412,6 +1444,7 @@ function riftletWebAcceptance(command, native) {
     const timer = setTimeout(stop, 10000);
     timer?.unref?.();
     op.stopHandoffWatch = stop;
+    if (op.converted) surface.addEventListener('load', loaded, true);
     observer.observe(surface, {subtree: true, childList: true, attributes: true, characterData: true,
       attributeFilter: ['src', 'alt', 'title', 'aria-label', 'role', 'data-file-name', 'value', 'max',
         'aria-valuenow', 'aria-valuemin', 'aria-valuemax', 'hidden', 'class', 'style']});
@@ -1419,7 +1452,7 @@ function riftletWebAcceptance(command, native) {
   const independentMemberContent = cardSelector + ',' + controlSelector
     + ',input,select,textarea,summary,[role="link"],[role="tab"],[role="checkbox"],[role="switch"],[contenteditable="true"]';
   // A derived data URL must encode the exact input image rendered by this browser.
-  function watchEdgeEncodedPreview(file, name) {
+  function watchEncodedPreview(file, name) {
     // The collector permits 128 MiB and 160M pixels. Comparing encoded bytes
     // needs no extra pixel buffer. Re-encoding uses a smaller display budget.
     const maxEncodedBytes = MAX_BYTES, maxRenderPixels = 16 * 1024 * 1024;
@@ -1429,13 +1462,14 @@ function riftletWebAcceptance(command, native) {
         || top !== self) return null;
     const address = location.href, root = document.documentElement, entry = navigation.currentEntry?.id;
     if (!entry) return null;
-    let image = null, source = null, shell = null, monitor = null, state = 'unavailable', closed = false;
+    let image = null, source = null, shell = null, monitor = null, comparison = null, state = 'unavailable', closed = false;
+    const placement = new Set();
     const timer = setTimeout(close, 60000);
     const current = () => !closed && document.documentElement === root && navigation.currentEntry?.id === entry
       && location.href === address;
     function close() {
       clearTimeout(timer); closed = true;
-      monitor?.disconnect(); monitor = null; file = null; image = null; shell = null; source = null; state = 'unavailable';
+      monitor?.disconnect(); monitor = null; placement.clear(); file = null; image = null; shell = null; source = null; state = 'unavailable';
     }
     // Each slice ends on a three-byte boundary. Do not materialize another
     // full-size URL, byte array or digest input in the browser process.
@@ -1472,7 +1506,32 @@ function riftletWebAcceptance(command, native) {
       }
       return null;
     }
-    async function matches(original, url) {
+    // The site may strip metadata or use a different PNG encoder. Compare
+    // the complete decoded image in sRGB using bounded strips, off the input path.
+    async function samePixels(bitmap) {
+      const width = bitmap.width, height = bitmap.height;
+      const strip = Math.min(height, Math.max(1, Math.floor(131072 / width)));
+      const canvas = new OffscreenCanvas(width, strip);
+      try {
+        const context = canvas.getContext('2d', {colorSpace:'srgb', willReadFrequently:true});
+        if (!context) return false;
+        for (let y = 0; y < height; y += strip) {
+          if (!current() || !image || image.currentSrc !== source) return false;
+          const rows = Math.min(strip, height - y);
+          function read(drawable) {
+            context.clearRect(0, 0, width, rows);
+            context.drawImage(drawable, 0, y, width, rows, 0, 0, width, rows);
+            const bytes = context.getImageData(0, 0, width, rows).data;
+            return new Uint32Array(bytes.buffer, bytes.byteOffset, bytes.byteLength / 4);
+          }
+          const original = read(bitmap), preview = read(image);
+          for (let i = 0; i < original.length; i++) if (original[i] !== preview[i]) return false;
+          if (y + strip < height) await new Promise(resolve => setTimeout(resolve, 0));
+        }
+        return current();
+      } finally { canvas.width = canvas.height = 0; }
+    }
+    async function matches(original, url, converted) {
       const originalPrefix = 'data:' + original.type + ';base64,', pngPrefix = 'data:image/png;base64,';
       if (url.startsWith(originalPrefix) && await identical(original, url, originalPrefix)) return true;
       if (!current() || !url.startsWith(pngPrefix) || typeof OffscreenCanvas !== 'function'
@@ -1485,6 +1544,7 @@ function riftletWebAcceptance(command, native) {
       try {
         if (!current() || bitmap.width * bitmap.height !== size[0] * size[1]
             || bitmap.width !== image.naturalWidth || bitmap.height !== image.naturalHeight) return false;
+        if (converted) return await samePixels(bitmap);
         canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
         const context = canvas.getContext('2d', {colorSpace: 'srgb'});
         if (!context) return false;
@@ -1496,29 +1556,37 @@ function riftletWebAcceptance(command, native) {
       }
       return current() && png.type === 'image/png' && identical(png, url, pngPrefix);
     }
-    const altered = record => record.type === 'attributes' || record.target !== shell?.parentElement
-      || [...record.removedNodes, ...record.addedNodes].includes(shell);
-    function inspect(candidate, card, settled) {
+    const altered = record => record.type === 'attributes' || !placement.has(record.target) || record.target === shell
+      || [...record.removedNodes, ...record.addedNodes].some(node => placement.has(node));
+    function inspect(candidate, card, settled, converted = false) {
       try {
         if (!current()) { close(); return 'unavailable'; }
-        if (!(candidate instanceof HTMLImageElement) || !candidate.isConnected
-            || !candidate.complete || candidate.naturalWidth <= 0) return 'unavailable';
+        if (!(candidate instanceof HTMLImageElement) || !candidate.isConnected) return 'unavailable';
+        const decoded = candidate.complete && candidate.naturalWidth > 0;
+        if (!converted && !decoded) return 'unavailable';
         const src = candidate.getAttribute('src');
-        if (image && (candidate !== image || card !== shell || src !== source || monitor.takeRecords().some(altered))) {
+        if (image && (candidate !== image || card !== shell || src !== source || converted !== comparison || monitor.takeRecords().some(altered))) {
           close(); return 'mismatch';
         }
-        if (image) return candidate.currentSrc === source ? state : 'unavailable';
         if (!src || !(src.startsWith('data:image/png;base64,') || src.startsWith('data:image/jpeg;base64,'))
-            || candidate.currentSrc !== src || src.length > 23 + 4 * Math.ceil(maxEncodedBytes / 3)) return 'unavailable';
-        image = candidate; shell = card; source = src; state = 'encoding';
-        monitor = new MutationObserver(records => { if (records.some(altered)) close(); });
-        monitor.observe(shell, {subtree:true, childList:true, attributes:true,
-          attributeFilter:['src','srcset','alt','title','aria-label','data-file-name']});
-        monitor.observe(shell.parentElement, {childList:true});
+            || (candidate.currentSrc && candidate.currentSrc !== src) || src.length > 23 + 4 * Math.ceil(maxEncodedBytes / 3)) return 'unavailable';
+        if (!image) {
+          image = candidate; shell = card; source = src; comparison = converted; state = 'decoding';
+          monitor = new MutationObserver(records => { if (records.some(altered)) close(); });
+          monitor.observe(shell, {subtree:true, childList:true, attributes:true,
+            attributeFilter:['src','srcset','alt','title','aria-label','data-file-name']});
+          placement.add(shell);
+          for (let node = shell.parentElement; node; node = node.parentElement) {
+            placement.add(node); monitor.observe(node, {childList:true});
+          }
+        }
+        if (!decoded || candidate.currentSrc !== source) return 'unavailable';
+        if (state !== 'decoding') return state;
+        state = 'encoding';
         // Never re-read a changed/replaced card and never start another encode for this input.
         // Serialize only the content comparison, never the user's next input.
         // Waiting jobs do not decode pixels and drop their work when retired.
-        const pending = Promise.resolve(registry.edgeComparisonTail).then(() => current() && matches(file, source));
+        const pending = Promise.resolve(registry.edgeComparisonTail).then(() => current() && matches(file, source, converted));
         const tail = pending.catch(() => false);
         registry.edgeComparisonTail = tail;
         tail.then(() => { if (registry.edgeComparisonTail === tail) registry.edgeComparisonTail = null; });
@@ -1563,6 +1631,57 @@ function riftletWebAcceptance(command, native) {
         return node;
     }
     return null;
+  }
+  const convertedTile = 'div.composer-attachment-surface[class~="group/composer-attachment"]';
+  function convertedBaseline(op, file) {
+    if (!op.binding.target.clickBindingID || op.mediaType !== 'image/png'
+        || op.name !== 'riftlet-' + op.identity.operationID + '.png') return null;
+    const nodes = document.querySelectorAll(convertedTile + ',' + convertedTile + ' > *');
+    if (nodes.length > 512) return null;
+    const comparator = watchEncodedPreview(file, op.name);
+    if (!comparator) return null;
+    return {name:'riftlet-' + op.identity.operationID + '.webp', previous:new WeakSet(nodes), comparator};
+  }
+  function convertedMember(op) {
+    const entry = op.converted;
+    if (!entry || entry.conflict) return null;
+    const name = entry.name;
+    // Both names carry the complete operation UUID. The rendered card is
+    // new: the site removes the earlier .png placeholder altogether.
+    const images = document.querySelectorAll('img[alt="' + name + '"]');
+    if (images.length > 1) entry.conflict = true;
+    if (images.length !== 1) return null;
+    const image = images[0], visual = image.parentElement, card = visual?.parentElement;
+    if (!visual?.matches('span.composer-attachment-surface') || !card?.matches(convertedTile)
+        || !inOriginalCardContainer(card, op.binding) || card.parentElement?.closest(convertedTile + ',' + cardSelector)
+        || op.previewBaseline.has(image) || entry.previous.has(card) || entry.previous.has(visual)
+        || !consistentCardLabels(card, name) || card.querySelectorAll('img').length !== 1
+        || image.hasAttribute('srcset') || !image.getAttribute('src')?.startsWith('data:image/png;base64,')
+        || !renderedPreview(visual) || !renderedPreview(card)) return null;
+    const removeNames = ['移除“' + name + '”', 'Remove ' + name, 'Remove “' + name + '”'];
+    const removes = document.querySelectorAll(removeNames.map(value => 'button[aria-label="' + value + '"]').join(','));
+    const remove = removes[0];
+    if (removes.length > 1) entry.conflict = true;
+    if (removes.length !== 1 || remove.parentElement !== card || entry.previous.has(remove)
+        || remove.disabled || blocked(remove) || card.querySelectorAll('button').length !== 1
+        || card.closest('[role="alert"],[data-state="failed"],[data-state="error"]')
+        || card.querySelector('[role="alert"],[data-state="failed"],[data-state="error"]') || visibleFailureText(card)) return null;
+    // A separate failed view can name this converted member through a retry
+    // or alert without mounting an image or a Remove button.
+    const errors = '[role="alert"],[data-state="failed"],[data-state="error"]';
+    const filename = fileNamePattern(name);
+    const mentions = node => ['aria-label','title','data-file-name'].some(key => filename.test(node.getAttribute(key) || ''))
+      || (node.textContent.length <= 1024 && filename.test(node.textContent));
+    for (const node of document.querySelectorAll(errors + ',button[aria-label*="' + name + '"]')) {
+      if (node === remove || !visible(node)) continue;
+      const owner = node.closest(convertedTile + ',' + errorShellSelector + ',[data-file-name],figure') || node;
+      if ((mentions(node) || mentions(owner)) && (node.closest(errors) || namedFailedRetry(node, name)
+          || owner.matches(errors) || owner.querySelector(errors) || visibleFailureText(owner))) {
+        entry.conflict = true; return null;
+      }
+    }
+    if (entry.comparator.inspect(image, card, () => sample(op), true) !== 'matched' || !renderedPreview(image)) return null;
+    return {node:image, preview:image, card, displayedName:name, remove, visual};
   }
   // Labels, pixels and progress belong to one attachment member.
   function startMember(op, card, filename) {
@@ -1639,6 +1758,7 @@ function riftletWebAcceptance(command, native) {
       op.reportedCardFailure = retainFailureShell(failedShell, failureShellParts(failedShell, op.binding, op.name));
       op.failureMemberID = registry.documentID + ':' + nodeID(failedShell);
       op.stopHandoffWatch?.(); op.encodedPreview?.close(); op.encodedPreview = null;
+      op.converted?.comparator.close(); op.converted = null;
       return;
     }
     if (!surface) registry.blobWindowUntil = performance.now() + 10000;
@@ -1674,6 +1794,8 @@ function riftletWebAcceptance(command, native) {
       if (match && native.applicationID === 'com.microsoft.edgemac' && (hasError(card) || visibleFailureText(card))) continue;
       if (match) matches.push(match);
     }
+    const converted = convertedMember(op);
+    if (converted) matches.push(converted);
     if (!matches.length) return;
     // Keep the ordinary whole-document veto for conflicting same-file error
     // views, while unrelated composer edits only inspect the composer.
@@ -1696,7 +1818,8 @@ function riftletWebAcceptance(command, native) {
       op.acceptedErrorBinding = new WeakRef(op.binding);
     }
     op.encodedPreview?.close(); op.encodedPreview = null;
-    op.binding = null; op.baseline.clear(); op.previewBaseline = null; op.urls.clear();
+    op.converted?.comparator.close();
+    op.binding = null; op.baseline.clear(); op.previewBaseline = null; op.converted = null; op.urls.clear();
   }
   function observe(op) {
     sample(op);
@@ -1972,7 +2095,8 @@ function riftletWebAcceptance(command, native) {
       return retire('attachmentInputNotCreated', 'handoff', 'timeout');
     op.oldErrorMembers = failureShellBeforeInput(op.name);
     op.previewBaseline = new WeakMap([...document.querySelectorAll(previewSelector)].map(node => [node, previewValue(node)]));
-    if (native.applicationID === 'com.microsoft.edgemac') op.encodedPreview = watchEdgeEncodedPreview(file, op.name);
+    op.converted = convertedBaseline(op, file);
+    if (native.applicationID === 'com.microsoft.edgemac') op.encodedPreview = watchEncodedPreview(file, op.name);
     registry.files.set(file, op);
     const writingForm = op.binding.form;
     registry.writingInputs ||= new WeakSet();

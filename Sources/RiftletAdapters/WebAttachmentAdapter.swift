@@ -562,7 +562,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
     private func requireEnabled() throws {
         if case .disabled = mode { throw WebAdapterError.disabled }
         guard let program, !program.sourceID.isEmpty, !program.functionSource.isEmpty,
-              program.functionSource.utf8.count <= 128 * 1024,
+              program.functionSource.utf8.count <= ChatGPTWebPageProgram.maximumSourceBytes,
               (64 * 1024...256 * 1024).contains(program.maximumChunkBytes) else { throw WebAdapterError.programUnavailable }
         if mode == .ordinaryProduct {
             guard candidateJournal == nil, candidateAdmission == nil,

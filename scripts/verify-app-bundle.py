@@ -32,6 +32,7 @@ PROGRAM_NAMES = ("chatgpt-web-20261027.js", "legacy-web-observe.js")
 ARCHIVED_FINGERPRINTS = {
     "build56-observation-fingerprint.dat": (57, "ed470481df5373d0e702c87087785235d080fb75b85ea27f1e07408e0357ae52"),
     "build57-observation-fingerprint.dat": (58, "c691e6b7bd848bc8e1fb994aa9efd2dc7419b8b73549c0c1e31eb09499287e8a"),
+    "build58-observation-fingerprint.dat": (59, "d05979dfae4b702d907b1f7f50a6312f9d7c25a5c6b484ed493bbfd39d9f6fbb"),
 }
 RESOURCE_NAMES = PROGRAM_NAMES + tuple(ARCHIVED_FINGERPRINTS)
 
@@ -206,7 +207,8 @@ def verify_bundle(app, repository=None, channel="development"):
             name, "Contents/Resources/" + name
         }, "misplaced_" + name)
         data = read_nonempty(matches[0], "empty_" + name)
-        require(len(data) <= 128 * 1024, "oversized_" + name)
+        maximum = 144 * 1024 if name == PROGRAM_NAMES[0] and int(info["CFBundleVersion"]) >= 59 else 128 * 1024
+        require(len(data) <= maximum, "oversized_" + name)
         if name in ARCHIVED_FINGERPRINTS:
             require(hashlib.sha256(data).hexdigest() == ARCHIVED_FINGERPRINTS[name][1], "incorrect_fingerprint_" + name)
         else:

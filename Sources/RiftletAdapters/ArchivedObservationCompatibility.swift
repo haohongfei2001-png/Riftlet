@@ -27,9 +27,11 @@ enum ArchivedObservationCompatibility {
         guard let build56 = prefix(build: 56, compressed: "ed470481df5373d0e702c87087785235d080fb75b85ea27f1e07408e0357ae52",
                                    source: "61669b502526bd01b71b6c9aead85c224d9f3a50263ff121997769527368e2c5", bytes: 117_213),
               let build57 = prefix(build: 57, compressed: "c691e6b7bd848bc8e1fb994aa9efd2dc7419b8b73549c0c1e31eb09499287e8a",
-                                   source: "0ac5c59b4856f26a50f5f22d8142314444db361a69753d0ee32cb767d89be87f", bytes: 123_906)
+                                   source: "0ac5c59b4856f26a50f5f22d8142314444db361a69753d0ee32cb767d89be87f", bytes: 123_906),
+              let build58 = prefix(build: 58, compressed: "d05979dfae4b702d907b1f7f50a6312f9d7c25a5c6b484ed493bbfd39d9f6fbb",
+                                   source: "43e43df544d4edb6081dfe592b1b18166039f98983ab8f0fac0f31efdf60d166", bytes: 125_752)
         else { return nil }
-        return [build56, build57]
+        return [build56, build57, build58]
     }()
 
     static func markers(contextJSON: String, legacyObservationSession: String?) -> [String]? {

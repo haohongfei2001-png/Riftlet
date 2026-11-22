@@ -8,6 +8,7 @@ on:
       - 'Tests/Riftlet*Tests/**'
       - 'Tests/PreClickLease/page/run.cjs'
       - 'Tests/PreClickLease/page/fixture*'
+      - 'Tests/DerivedPreview/**'
       - 'Package.swift'
       - '.github/workflows/preclick-document-lease.yml'
 permissions:
@@ -41,6 +42,7 @@ jobs:
         run: |
           set -eo pipefail
           node Tests/PreClickLease/page/run.cjs chrome "$PWD/Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js" > test-results/preclick-chrome.json
+          node Tests/DerivedPreview/run.cjs chrome "$PWD/Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js" > test-results/derived-preview-chrome.json
           node --test Tests/OfflineFaultHarness/*.test.cjs > test-results/fault-recovery.tap
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()

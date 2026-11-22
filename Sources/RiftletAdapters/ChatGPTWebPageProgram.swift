@@ -7,6 +7,8 @@ import RiftletCore
 /// remains separate. Generated acceptance and the explicitly isolated original-
 /// screenshot candidate use distinct native scopes; page provenance is unchanged.
 public enum ChatGPTWebPageProgram {
+    /// Full handoff and read-only observation program. The click witness travels separately.
+    public static let maximumSourceBytes = 144 * 1024
     static let priorEntrySource = "chatgpt-web-attachment-entry-20261105-v15"
     static let priorHandoffSource = "chatgpt-web-attachment-handoff-20261105-v16"
     static let priorScreenshotSource = "chatgpt-web-screenshot-handoff-20261105-v17"
@@ -37,7 +39,7 @@ public enum ChatGPTWebPageProgram {
         }
         guard let url = resources.url(forResource: "chatgpt-web-20261027", withExtension: "js"),
               let source = try? String(contentsOf: url, encoding: .utf8), !source.isEmpty,
-              source.utf8.count <= 128 * 1024 else { throw WebAdapterError.programUnavailable }
+              source.utf8.count <= ChatGPTWebPageProgram.maximumSourceBytes else { throw WebAdapterError.programUnavailable }
         // The click-time Apple Event transmits only the shared resolver and witness.
         // Resource layout is verified before either program can run.
         let sections = source.components(separatedBy: "\n  // RIFTLET_CLICK_PIN_END\n")
@@ -58,6 +60,7 @@ public enum ChatGPTWebPageProgram {
                 .joined(separator: "\n")
         }
         let pinSource = wirePin + "\n  return 'refused';\n}"
+        guard pinSource.utf8.count < 20 * 1024 else { throw WebAdapterError.programUnavailable }
         // Ordinary input never executes historical observers. Their registries
         // cannot veto a new handoff; the separate legacy reader remains available
         // only to explicit historical tooling.
