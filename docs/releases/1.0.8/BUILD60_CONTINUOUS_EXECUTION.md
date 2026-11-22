@@ -33,3 +33,13 @@ C2 已从自有的非激活窗口取得 macOS 系统 PNG。它带有系统截图
 2. 对已进入 main 的受审发行提交创建正式标签。发行归档采用签名公证回执中的原 DMG 和同包 SHA-256。发布前先用 `gh release create v1.0.8 --verify-tag --draft --notes-file "$notes" "$archive" "$checksums"` 准备完整草稿，核对附件后将其发布为不可变 stable Release。用于对外的双语正文取自审定后的说明。
 3. 在冻结签名工作区运行 `RIFTLET_APPCAST_GH_AUTH=1 python3 -B scripts/release-appcast.py prepare --tools "$sparkle_bin" --workspace "$signed_workspace" --output "$new_feed"`。更新源要求标签位于 main，且相对已签名源码只容许准入文件差异。官网和生成的完整签名 XML 走常规 PR，复核 Pages 实际字节与现行支持矩阵。[Sparkle 发行流程](../../release/IN_APP_UPDATES.md)
 4. 在官网和 stable feed 生效后，运行 `python3 -B scripts/release-appcast.py verify-public --receipt "$signed_workspace/formal-dmg/dmg-receipt.json"`。独立下载、安装并验签，另用隔离的 1.0.5（31）副本操作实际应用内更新并核对库与版本。
+
+## 06:07（上海）· 同一草稿经过截图仓库的恢复路径
+
+三组受控恢复已进一步将网页实际返回的 attachmentID、START evidenceID 对应到同一次 Core 写入的 SQLite 记录。每组原操作与新操作各有一次文件输入和一次 change，均无发送或提交。[对照结果](evidence/build60/recovery-architecture-audit.md)
+
+Aqua 监督器已在独占锁下实测运行。初始只读进程完成一轮两浏览器有效采样，识别到宿主指纹变化后拒绝使用旧版本。最终宿主通过 16 项调度控制与 6 项宿主控制，启动后连续两轮观察到不满足真实投递条件，已确认零输入登记。[监督器及运行方法](../../../Tests/PreClickLease/g4/supervisor/README.md) · [原生前台回执](evidence/build60/gui-diagnosis-foreground-return.json)
+
+整树非作者审查随后发现截图仓库会激活 Riftlet，而冻结网页程序在浏览器失焦时退休写凭据。回到原文档后，新点击取得的 draftGeneration 与旧 UNKNOWN 的严格比较可能冲突。监督器继续读取环境，build 60 的新投递已暂停，原操作与专窗保留。正在对冻结网页程序复现失焦、返回及显式重选。若证实缺陷，下一候选须重新绑定新的源码、DMG、公证、独立安装和整套站点证据。用户无须操作。
+
+C1 的只读观察器可以从单个已完整归属的正常请求中投影经规范确认的过期时间。历史实站回执仅保留 URL 摘要。当前完成本地对照，真实 PUT 与实际响应继续由对应候选的站点收据决定。[C1 读数、测试及适用范围](../../../Tests/PreClickLease/g4/expiry-observation/README.md)
