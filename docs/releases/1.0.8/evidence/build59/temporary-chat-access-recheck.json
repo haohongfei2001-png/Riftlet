@@ -1,0 +1,36 @@
+{
+  "dateAsiaShanghai": "2026-11-22",
+  "build": 59,
+  "dmgSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+  "processCheck": "The host process-only verifier matched a single registered standard-path main process, the kernel executable path, the live vendor signature and a current process birth for each browser. No window or website observations come from this check.",
+  "chrome": {
+    "bundle": "com.google.Chrome",
+    "teamID": "EQHXZ8M8AV",
+    "processBirthVerified": true,
+    "controllerOwnedTabReturnedExactTemporaryURL": true,
+    "dedicatedNativeWindowAndSelectedTabCorrelated": false,
+    "pageObservation": "The supported browser controller could enumerate its QA tab. Both its DOM snapshot and its screenshot returned Debugger unattached.",
+    "signedIn": null,
+    "editorBound": false,
+    "closeObservation": "Closing through the controller also returned Debugger unattached. Final tab removal was not verified."
+  },
+  "edge": {
+    "bundle": "com.microsoft.edgemac",
+    "teamID": "UBF8T346G9",
+    "processBirthVerified": true,
+    "controllerAvailable": false,
+    "pageObservation": "No Edge browser controller was listed. The named Edge QA-tab creation request returned Browser is not available: edge.",
+    "signedIn": null,
+    "editorBound": false
+  },
+  "newLiveCandidateLaunches": 0,
+  "newLiveRiftletClicks": 0,
+  "newLiveFileInputs": 0,
+  "qaDraftTextEntered": false,
+  "accountMenuActions": 0,
+  "siteNetworkFaultsApplied": 0,
+  "chromeRapid": "BLOCKED_ENV before delivery",
+  "edgeRapidFreshRun": "BLOCKED_ENV before delivery",
+  "nonemptySelectionBoth": "NOT_RUN / BLOCKED_ENV",
+  "g4": "NOT_RUN"
+}
