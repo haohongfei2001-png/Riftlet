@@ -1,0 +1,23 @@
+{
+  "source": "c7ef1027f9475d517abbd4d85ae1819b9351a8cf",
+  "lockImplementationSHA256": "dfa904a6356a475419445007fb7dde61eafcdbae65cd6a9f28d272b2b646ad2b",
+  "actualOSChildProcesses": true,
+  "twoDistinctDirectoriesShareSameLockInode": true,
+  "sameRootRefusedDuringOriginalProcess": true,
+  "linkedRootRefusedDuringOriginalProcess": true,
+  "originalScopeSurvivesRestart": true,
+  "restartGenerationIncreases": true,
+  "differentDataRootScopeDifferent": true,
+  "original": {
+    "scope": "93e121ff622e1713ecaaf92bb3944579bd860eeb6ba656883d467faee82672d1",
+    "generation": "000008a0f8697927"
+  },
+  "successor": {
+    "scope": "93e121ff622e1713ecaaf92bb3944579bd860eeb6ba656883d467faee82672d1",
+    "generation": "000008a0f8736a55"
+  },
+  "otherRoot": {
+    "generation": "000008a0f8760986",
+    "scope": "a9268d472ad870927bf99e5d7ac66d8662e6512db41f112061b7a711e8f28a02"
+  }
+}

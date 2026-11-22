@@ -1,0 +1,64 @@
+{
+  "source": "c7ef1027f9475d517abbd4d85ae1819b9351a8cf",
+  "version": "1.0.8",
+  "build": "58",
+  "architectures": [
+    "arm64",
+    "x86_64"
+  ],
+  "published": false,
+  "sha256": "0f36dbee6665e5687c6c7722574cdeea708ee56ae0ae07d583652a33204c2f7e",
+  "bytes": 13732388,
+  "appSubmissionID": "71b09240-9a4f-4c4f-b019-6e638b74a4e5",
+  "dmgSubmissionID": "0a0d37f7-9772-46a6-9d92-b51aeaf5007f",
+  "teamID": "ZB9D4T66QB",
+  "sparkleVersion": "2.10.1",
+  "verifiedUTC": "2026-11-22T04:36:39.553314+00:00",
+  "executableSHA256": "ac48aac0b6c154ef6208bc61bc19570ab76fbe791d48bae3c18368fe26c0958f",
+  "resourceSHA256": "43e43df544d4edb6081dfe592b1b18166039f98983ab8f0fac0f31efdf60d166",
+  "checks": {
+    "appSignature": {
+      "exit": 0,
+      "logSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "dmgSignature": {
+      "exit": 0,
+      "logSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "appTicket": {
+      "exit": 0,
+      "logSHA256": "cf69706b16c9b129b15f62912569b0d0353da6ad6c423e9fcc22c1e7ea7071d5"
+    },
+    "dmgTicket": {
+      "exit": 0,
+      "logSHA256": "64f37f4b825ed55dd4c6a10bda63217530255643a12093237c803750ac73c9f1"
+    },
+    "appGatekeeper": {
+      "exit": 0,
+      "logSHA256": "35e69d880afa0311ee3a9be9f8692f590b6c3662008934a37c8d04e26f44943c"
+    },
+    "dmgGatekeeper": {
+      "exit": 0,
+      "logSHA256": "a85b6ecba08e7cc7fbb90597d7576e9c3f1ba85c56d2bd9d6388b1c19a498e87"
+    },
+    "appSelfCheck": {
+      "exit": 0,
+      "logSHA256": "9a6cbd54ef6829d86fd7e0cd7ba688aa6387ae15af41a550ffba3e42832b6018"
+    },
+    "webSelfCheck": {
+      "exit": 0,
+      "logSHA256": "a47ac0ed870328c9f158b1ee9fed9eec7fd7aa6e4109c3f3017d307f29dbe15d"
+    },
+    "systemScreenshotSelfCheck": {
+      "exit": 0,
+      "logSHA256": "7333bbcc86dffcf736384773a5dbdf288188e8f97ef55e5803f8cf809e06dc04"
+    }
+  },
+  "cdHashes": {
+    "arm64": "10f24ac3567b7b69a25f5292818c36b815bd85d2",
+    "x86_64": "03b2535cb7d7170a51582f3984d5b8d823cca469"
+  },
+  "build57CompatibilityResourceSHA256": "c691e6b7bd848bc8e1fb994aa9efd2dc7419b8b73549c0c1e31eb09499287e8a",
+  "compatibilityResourceSHA256": "ed470481df5373d0e702c87087785235d080fb75b85ea27f1e07408e0357ae52",
+  "installation": "private directory copy from read-only mounted final disk image"
+}

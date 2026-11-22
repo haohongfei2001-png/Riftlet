@@ -1,0 +1,1315 @@
+{
+  "source": "c7ef1027f9475d517abbd4d85ae1819b9351a8cf",
+  "version": "1.0.8",
+  "build": "58",
+  "DMGSHA256": "0f36dbee6665e5687c6c7722574cdeea708ee56ae0ae07d583652a33204c2f7e",
+  "executableSHA256": "ac48aac0b6c154ef6208bc61bc19570ab76fbe791d48bae3c18368fe26c0958f",
+  "resourceSHA256": "43e43df544d4edb6081dfe592b1b18166039f98983ab8f0fac0f31efdf60d166",
+  "scope": "The exact installed resource in a private headless real engine on an owned page. Native route arguments are controlled. No remote service.",
+  "runs": {
+    "chrome": {
+      "originalRunSHA256": "32fb852e74ea3fa07b4f0e8415bd7ea26b5e943f53be11c3a604c3a86b428dc0",
+      "report": {
+        "family": "chrome",
+        "version": "Chrome/157.0.8103.79",
+        "utc": "2026-11-22T04:38:46.390Z",
+        "resourceSHA256": "43e43df544d4edb6081dfe592b1b18166039f98983ab8f0fac0f31efdf60d166",
+        "scope": "Headless private test process; real DOM and trusted Chromium mouse events on fixture button. Controlled route/native IDs. No macOS click or provider website.",
+        "cases": [
+          {
+            "mode": "fastPair",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "atPress": {
+              "write": true,
+              "read": true
+            },
+            "outcomes": [
+              {
+                "state": "inputTriggered",
+                "reason": null,
+                "operationID": "530eaae0-9030-4ae6-a750-1442dbe52fa7",
+                "invocationID": "cbf6c6d1-a5de-4be6-a893-2ec75b7d2db2",
+                "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+                "repeated": "COMMIT_REFUSED",
+                "renewAfterBegin": false,
+                "releaseAfterBegin": false
+              },
+              {
+                "state": "inputTriggered",
+                "reason": null,
+                "operationID": "25cb0d1b-be36-4177-9c69-d5d1563784d3",
+                "invocationID": "e814c4e3-d25d-49b0-a2f0-081b367b0a9f",
+                "assetSHA256": "60ab59791b371cadb5f903dce2417ebbdd82209a21600322d9180c06926b8993",
+                "repeated": "COMMIT_REFUSED",
+                "renewAfterBegin": false,
+                "releaseAfterBegin": false
+              }
+            ],
+            "counts": {
+              "setter": 2,
+              "input": 2,
+              "change": 2,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [
+              {
+                "trusted": true,
+                "time": 104.89999997615814
+              },
+              {
+                "trusted": true,
+                "time": 110.39999997615814
+              }
+            ],
+            "deliveredHashes": [
+              "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+              "60ab59791b371cadb5f903dce2417ebbdd82209a21600322d9180c06926b8993"
+            ],
+            "stableDraft": true,
+            "intervalMS": 5.5,
+            "status": "PASS"
+          },
+          {
+            "mode": "queuedPairNoEviction",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "atPress": {
+              "write": true,
+              "read": true
+            },
+            "outcomes": [
+              {
+                "state": "inputTriggered",
+                "reason": null,
+                "operationID": "383ebfaa-2fe7-4256-9ce1-29a63a81dc04",
+                "invocationID": "acae3bea-73d6-42eb-8f2a-97162fba4b7f",
+                "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+                "repeated": "COMMIT_REFUSED",
+                "renewAfterBegin": false,
+                "releaseAfterBegin": false
+              },
+              {
+                "state": "inputTriggered",
+                "reason": null,
+                "operationID": "ca8ac99a-b90b-4594-98b3-54a623ef6627",
+                "invocationID": "934e089b-c20a-4194-8645-2a96ab644a9c",
+                "assetSHA256": "60ab59791b371cadb5f903dce2417ebbdd82209a21600322d9180c06926b8993",
+                "repeated": "COMMIT_REFUSED",
+                "renewAfterBegin": false,
+                "releaseAfterBegin": false
+              }
+            ],
+            "queueBeforeBegin": {
+              "presses": 2,
+              "counts": {
+                "setter": 0,
+                "input": 0,
+                "change": 0,
+                "send": 0,
+                "otherSetter": 0,
+                "opened": 0
+              }
+            },
+            "capacity": "CLICK_PIN_LIMIT",
+            "counts": {
+              "setter": 2,
+              "input": 2,
+              "change": 2,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [
+              {
+                "trusted": true,
+                "time": 59.200000047683716
+              },
+              {
+                "trusted": true,
+                "time": 59.90000003576279
+              }
+            ],
+            "deliveredHashes": [
+              "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+              "60ab59791b371cadb5f903dce2417ebbdd82209a21600322d9180c06926b8993"
+            ],
+            "stableDraft": true,
+            "intervalMS": 0.699999988079071,
+            "status": "PASS"
+          },
+          {
+            "mode": "absentBeforeACK",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "prepare": "ATTACHMENT_INPUT_UNAVAILABLE",
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "ambiguousBeforeACK",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "prepare": "ATTACHMENT_INPUT_UNAVAILABLE",
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "invalidReclaim",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "releases": [
+              false,
+              false,
+              false,
+              true
+            ],
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "expiredPending",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "clock": "injected monotonic, wall clock and timer scheduler in the product function scope",
+            "before": {
+              "monotonic": 599999,
+              "wallOffset": 599999,
+              "fired": 0,
+              "remainingTimers": 3
+            },
+            "deadline": {
+              "monotonic": 600000,
+              "wallOffset": 600000,
+              "fired": 0,
+              "remainingTimers": 3
+            },
+            "beginAtDeadline": "TARGET_INVALID",
+            "renewAtDeadline": false,
+            "reaped": {
+              "monotonic": 600000,
+              "wallOffset": 600000,
+              "fired": 1,
+              "remainingTimers": 0
+            },
+            "wallDeadline": {
+              "monotonic": 600000,
+              "wallOffset": 1200000,
+              "fired": 0,
+              "remainingTimers": 1
+            },
+            "beginAfterSleep": "TARGET_INVALID",
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "renewSameLease",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "clock": "injected; full target is cloned across fresh instances of the same product function",
+            "firstRenew": true,
+            "secondRenew": true,
+            "pastOriginalExpiry": {
+              "monotonic": 600001,
+              "wallOffset": 600001,
+              "fired": 0,
+              "remainingTimers": 1
+            },
+            "atPress": {
+              "write": true,
+              "read": true
+            },
+            "outcomes": [
+              {
+                "state": "inputTriggered",
+                "reason": null,
+                "operationID": "6d655590-a2b6-4828-9359-51b600c332b2",
+                "invocationID": "1ecdd5dd-3771-4ae8-97ac-787340d6648a",
+                "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+                "repeated": "COMMIT_REFUSED",
+                "renewAfterBegin": false,
+                "releaseAfterBegin": false
+              }
+            ],
+            "counts": {
+              "setter": 1,
+              "input": 1,
+              "change": 1,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [
+              {
+                "trusted": true,
+                "time": 50.299999952316284
+              }
+            ],
+            "deliveredHashes": [
+              "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460"
+            ],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "renewRetired",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "renewOnMoved": false,
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "replaceField",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "atPress": {
+              "write": false,
+              "read": true
+            },
+            "outcomes": [
+              {
+                "state": "preClickRejected"
+              }
+            ],
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [
+              {
+                "trusted": true,
+                "time": 47.30000001192093
+              }
+            ],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "ancestorRoundTrip",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "atPress": {
+              "write": false,
+              "read": true
+            },
+            "outcomes": [
+              {
+                "state": "preClickRejected"
+              }
+            ],
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [
+              {
+                "trusted": true,
+                "time": 48.39999997615814
+              }
+            ],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "modeRoundTrip",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "atPress": {
+              "write": false,
+              "read": false
+            },
+            "outcomes": [
+              {
+                "state": "preClickRejected"
+              }
+            ],
+            "freshGeneration": true,
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [
+              {
+                "trusted": true,
+                "time": 52
+              }
+            ],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "sameEditorNewDraft",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "atPress": {
+              "write": false,
+              "read": false
+            },
+            "outcomes": [
+              {
+                "state": "preClickRejected"
+              }
+            ],
+            "freshGeneration": true,
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [
+              {
+                "trusted": true,
+                "time": 44.89999997615814
+              }
+            ],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "stagedAncestorRoundTrip",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "atPress": {
+              "write": true,
+              "read": true
+            },
+            "outcomes": [
+              {
+                "state": "invalidated",
+                "reason": "targetInvalidBeforeInput",
+                "operationID": "522b02ad-5ba0-4700-b057-efd4afc546b2",
+                "invocationID": "0250d9eb-6f65-4466-ac16-4fe998a06205",
+                "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+                "repeated": "COMMIT_REFUSED",
+                "renewAfterBegin": false,
+                "releaseAfterBegin": false
+              }
+            ],
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [
+              {
+                "trusted": true,
+                "time": 47.5
+              }
+            ],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "replaceOpener",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "atPress": {
+              "write": false,
+              "read": true
+            },
+            "outcomes": [
+              {
+                "state": "preClickRejected"
+              }
+            ],
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [
+              {
+                "trusted": true,
+                "time": 53.89999997615814
+              }
+            ],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "lateFieldAndOriginalMenu",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "atPress": {
+              "write": true,
+              "read": true
+            },
+            "outcomes": [
+              {
+                "state": "inputTriggered",
+                "reason": null,
+                "operationID": "b8449f6d-b799-4bed-907f-9bf1df29efc1",
+                "invocationID": "11d50205-d1c9-41fd-8911-811f4670b5aa",
+                "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+                "repeated": "COMMIT_REFUSED",
+                "renewAfterBegin": false,
+                "releaseAfterBegin": false
+              }
+            ],
+            "counts": {
+              "setter": 1,
+              "input": 1,
+              "change": 1,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 1
+            },
+            "presses": [
+              {
+                "trusted": true,
+                "time": 50.90000003576279
+              }
+            ],
+            "deliveredHashes": [
+              "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460"
+            ],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "tabRoundTrip",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "atPress": {
+              "write": false,
+              "read": true
+            },
+            "outcomes": [
+              {
+                "state": "preClickRejected"
+              }
+            ],
+            "freshGeneration": true,
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [
+              {
+                "trusted": true,
+                "time": 125.19999998807907
+              }
+            ],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "releaseAndBound",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "capacity": "CLICK_PIN_LIMIT",
+            "releases": [
+              true,
+              false,
+              true,
+              true
+            ],
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "hostRestart",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "enrolledBefore": {
+              "state": "unknown",
+              "original": true
+            },
+            "foreignPressure": "CLICK_PIN_LIMIT",
+            "successor": [
+              "accepted",
+              "accepted"
+            ],
+            "delayedPrior": "CLICK_PIN_REFUSED",
+            "enrolledAfter": {
+              "state": "unknown",
+              "original": true
+            },
+            "lateAfterDrain": "CLICK_PIN_REFUSED",
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "idlePreparedOver60s",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "idleMS": 61000.508917,
+            "atPress": {
+              "write": true,
+              "read": true
+            },
+            "outcomes": [
+              {
+                "state": "inputTriggered",
+                "reason": null,
+                "operationID": "0852e6c6-c34f-409f-a39c-a0af75921529",
+                "invocationID": "e0ea758a-3160-4dbf-af74-f335f6d9813b",
+                "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+                "repeated": "COMMIT_REFUSED",
+                "renewAfterBegin": false,
+                "releaseAfterBegin": false
+              }
+            ],
+            "counts": {
+              "setter": 1,
+              "input": 1,
+              "change": 1,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [
+              {
+                "trusted": true,
+                "time": 61060.60000002384
+              }
+            ],
+            "deliveredHashes": [
+              "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460"
+            ],
+            "stableDraft": true,
+            "status": "PASS"
+          }
+        ]
+      }
+    },
+    "edge": {
+      "originalRunSHA256": "12be3cbfe2c4e4fb63c12b425002d6e001047af73826442a36669b6e1fbfc49d",
+      "report": {
+        "family": "edge",
+        "version": "Edg/158.0.4370.33",
+        "utc": "2026-11-22T04:38:47.669Z",
+        "resourceSHA256": "43e43df544d4edb6081dfe592b1b18166039f98983ab8f0fac0f31efdf60d166",
+        "scope": "Headless private test process; real DOM and trusted Chromium mouse events on fixture button. Controlled route/native IDs. No macOS click or provider website.",
+        "cases": [
+          {
+            "mode": "fastPair",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "atPress": {
+              "write": true,
+              "read": true
+            },
+            "outcomes": [
+              {
+                "state": "inputTriggered",
+                "reason": null,
+                "operationID": "c367976b-67cd-4c94-93c3-0e856d0110d6",
+                "invocationID": "a3a1cf1c-58e8-41c8-9bf3-bd94859b62f4",
+                "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+                "repeated": "COMMIT_REFUSED",
+                "renewAfterBegin": false,
+                "releaseAfterBegin": false
+              },
+              {
+                "state": "inputTriggered",
+                "reason": null,
+                "operationID": "a1bbf35b-c15d-4204-9b18-8ce92702f3fa",
+                "invocationID": "d0ac33a8-7e75-4ed4-93cb-02c1cb17c82e",
+                "assetSHA256": "60ab59791b371cadb5f903dce2417ebbdd82209a21600322d9180c06926b8993",
+                "repeated": "COMMIT_REFUSED",
+                "renewAfterBegin": false,
+                "releaseAfterBegin": false
+              }
+            ],
+            "counts": {
+              "setter": 2,
+              "input": 2,
+              "change": 2,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [
+              {
+                "trusted": true,
+                "time": 116.5
+              },
+              {
+                "trusted": true,
+                "time": 121.20000004768372
+              }
+            ],
+            "deliveredHashes": [
+              "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+              "60ab59791b371cadb5f903dce2417ebbdd82209a21600322d9180c06926b8993"
+            ],
+            "stableDraft": true,
+            "intervalMS": 4.700000047683716,
+            "status": "PASS"
+          },
+          {
+            "mode": "queuedPairNoEviction",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "atPress": {
+              "write": true,
+              "read": true
+            },
+            "outcomes": [
+              {
+                "state": "inputTriggered",
+                "reason": null,
+                "operationID": "bca58f11-1700-481f-ad42-d714a4fbf810",
+                "invocationID": "390a175f-8bbd-4162-9a01-e8ac686d0470",
+                "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+                "repeated": "COMMIT_REFUSED",
+                "renewAfterBegin": false,
+                "releaseAfterBegin": false
+              },
+              {
+                "state": "inputTriggered",
+                "reason": null,
+                "operationID": "991b2027-abb5-45de-8c10-699f8cc6f3e1",
+                "invocationID": "177ebc3e-52a4-4386-9566-7a17981d2bdc",
+                "assetSHA256": "60ab59791b371cadb5f903dce2417ebbdd82209a21600322d9180c06926b8993",
+                "repeated": "COMMIT_REFUSED",
+                "renewAfterBegin": false,
+                "releaseAfterBegin": false
+              }
+            ],
+            "queueBeforeBegin": {
+              "presses": 2,
+              "counts": {
+                "setter": 0,
+                "input": 0,
+                "change": 0,
+                "send": 0,
+                "otherSetter": 0,
+                "opened": 0
+              }
+            },
+            "capacity": "CLICK_PIN_LIMIT",
+            "counts": {
+              "setter": 2,
+              "input": 2,
+              "change": 2,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [
+              {
+                "trusted": true,
+                "time": 69.40000003576279
+              },
+              {
+                "trusted": true,
+                "time": 70.10000002384186
+              }
+            ],
+            "deliveredHashes": [
+              "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+              "60ab59791b371cadb5f903dce2417ebbdd82209a21600322d9180c06926b8993"
+            ],
+            "stableDraft": true,
+            "intervalMS": 0.699999988079071,
+            "status": "PASS"
+          },
+          {
+            "mode": "absentBeforeACK",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "prepare": "ATTACHMENT_INPUT_UNAVAILABLE",
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "ambiguousBeforeACK",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "prepare": "ATTACHMENT_INPUT_UNAVAILABLE",
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "invalidReclaim",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "releases": [
+              false,
+              false,
+              false,
+              true
+            ],
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "expiredPending",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "clock": "injected monotonic, wall clock and timer scheduler in the product function scope",
+            "before": {
+              "monotonic": 599999,
+              "wallOffset": 599999,
+              "fired": 0,
+              "remainingTimers": 3
+            },
+            "deadline": {
+              "monotonic": 600000,
+              "wallOffset": 600000,
+              "fired": 0,
+              "remainingTimers": 3
+            },
+            "beginAtDeadline": "TARGET_INVALID",
+            "renewAtDeadline": false,
+            "reaped": {
+              "monotonic": 600000,
+              "wallOffset": 600000,
+              "fired": 1,
+              "remainingTimers": 0
+            },
+            "wallDeadline": {
+              "monotonic": 600000,
+              "wallOffset": 1200000,
+              "fired": 0,
+              "remainingTimers": 1
+            },
+            "beginAfterSleep": "TARGET_INVALID",
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "renewSameLease",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "clock": "injected; full target is cloned across fresh instances of the same product function",
+            "firstRenew": true,
+            "secondRenew": true,
+            "pastOriginalExpiry": {
+              "monotonic": 600001,
+              "wallOffset": 600001,
+              "fired": 0,
+              "remainingTimers": 1
+            },
+            "atPress": {
+              "write": true,
+              "read": true
+            },
+            "outcomes": [
+              {
+                "state": "inputTriggered",
+                "reason": null,
+                "operationID": "fe424d5c-37c4-4446-8c99-8b51e834f483",
+                "invocationID": "58b4b737-3b10-4a8f-a3c3-2cb88ac3e52e",
+                "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+                "repeated": "COMMIT_REFUSED",
+                "renewAfterBegin": false,
+                "releaseAfterBegin": false
+              }
+            ],
+            "counts": {
+              "setter": 1,
+              "input": 1,
+              "change": 1,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [
+              {
+                "trusted": true,
+                "time": 54.89999997615814
+              }
+            ],
+            "deliveredHashes": [
+              "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460"
+            ],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "renewRetired",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "renewOnMoved": false,
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "replaceField",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "atPress": {
+              "write": false,
+              "read": true
+            },
+            "outcomes": [
+              {
+                "state": "preClickRejected"
+              }
+            ],
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [
+              {
+                "trusted": true,
+                "time": 49
+              }
+            ],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "ancestorRoundTrip",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "atPress": {
+              "write": false,
+              "read": true
+            },
+            "outcomes": [
+              {
+                "state": "preClickRejected"
+              }
+            ],
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [
+              {
+                "trusted": true,
+                "time": 51.80000001192093
+              }
+            ],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "modeRoundTrip",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "atPress": {
+              "write": false,
+              "read": false
+            },
+            "outcomes": [
+              {
+                "state": "preClickRejected"
+              }
+            ],
+            "freshGeneration": true,
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [
+              {
+                "trusted": true,
+                "time": 50.69999998807907
+              }
+            ],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "sameEditorNewDraft",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "atPress": {
+              "write": false,
+              "read": false
+            },
+            "outcomes": [
+              {
+                "state": "preClickRejected"
+              }
+            ],
+            "freshGeneration": true,
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [
+              {
+                "trusted": true,
+                "time": 55.09999996423721
+              }
+            ],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "stagedAncestorRoundTrip",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "atPress": {
+              "write": true,
+              "read": true
+            },
+            "outcomes": [
+              {
+                "state": "invalidated",
+                "reason": "targetInvalidBeforeInput",
+                "operationID": "11ef8673-c31c-4f9d-91f0-677b048cbb09",
+                "invocationID": "f25f5791-2319-4826-89e1-361621877116",
+                "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+                "repeated": "COMMIT_REFUSED",
+                "renewAfterBegin": false,
+                "releaseAfterBegin": false
+              }
+            ],
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [
+              {
+                "trusted": true,
+                "time": 44.69999998807907
+              }
+            ],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "replaceOpener",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "atPress": {
+              "write": false,
+              "read": true
+            },
+            "outcomes": [
+              {
+                "state": "preClickRejected"
+              }
+            ],
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [
+              {
+                "trusted": true,
+                "time": 49.5
+              }
+            ],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "lateFieldAndOriginalMenu",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "atPress": {
+              "write": true,
+              "read": true
+            },
+            "outcomes": [
+              {
+                "state": "inputTriggered",
+                "reason": null,
+                "operationID": "c262653d-fcaf-427b-b153-846fa3aff6c4",
+                "invocationID": "94ccfa3a-94f9-4b2c-b63b-6ce034b0eb0f",
+                "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+                "repeated": "COMMIT_REFUSED",
+                "renewAfterBegin": false,
+                "releaseAfterBegin": false
+              }
+            ],
+            "counts": {
+              "setter": 1,
+              "input": 1,
+              "change": 1,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 1
+            },
+            "presses": [
+              {
+                "trusted": true,
+                "time": 42.10000002384186
+              }
+            ],
+            "deliveredHashes": [
+              "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460"
+            ],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "tabRoundTrip",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "atPress": {
+              "write": false,
+              "read": true
+            },
+            "outcomes": [
+              {
+                "state": "preClickRejected"
+              }
+            ],
+            "freshGeneration": true,
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [
+              {
+                "trusted": true,
+                "time": 87.5
+              }
+            ],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "releaseAndBound",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "capacity": "CLICK_PIN_LIMIT",
+            "releases": [
+              true,
+              false,
+              true,
+              true
+            ],
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "hostRestart",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "enrolledBefore": {
+              "state": "unknown",
+              "original": true
+            },
+            "foreignPressure": "CLICK_PIN_LIMIT",
+            "successor": [
+              "accepted",
+              "accepted"
+            ],
+            "delayedPrior": "CLICK_PIN_REFUSED",
+            "enrolledAfter": {
+              "state": "unknown",
+              "original": true
+            },
+            "lateAfterDrain": "CLICK_PIN_REFUSED",
+            "counts": {
+              "setter": 0,
+              "input": 0,
+              "change": 0,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [],
+            "deliveredHashes": [],
+            "stableDraft": true,
+            "status": "PASS"
+          },
+          {
+            "mode": "idlePreparedOver60s",
+            "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+            "idleMS": 61001.176833,
+            "atPress": {
+              "write": true,
+              "read": true
+            },
+            "outcomes": [
+              {
+                "state": "inputTriggered",
+                "reason": null,
+                "operationID": "0af0ddf4-99cc-479d-aed4-a7d1cba35693",
+                "invocationID": "27942c80-97b2-4917-aa63-c365f65e6f13",
+                "assetSHA256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+                "repeated": "COMMIT_REFUSED",
+                "renewAfterBegin": false,
+                "releaseAfterBegin": false
+              }
+            ],
+            "counts": {
+              "setter": 1,
+              "input": 1,
+              "change": 1,
+              "send": 0,
+              "otherSetter": 0,
+              "opened": 0
+            },
+            "presses": [
+              {
+                "trusted": true,
+                "time": 61045.30000001192
+              }
+            ],
+            "deliveredHashes": [
+              "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460"
+            ],
+            "stableDraft": true,
+            "status": "PASS"
+          }
+        ]
+      }
+    }
+  }
+}
