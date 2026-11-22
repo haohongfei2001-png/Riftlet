@@ -426,6 +426,7 @@ public actor TransferCoordinator {
         for token in acceptedSelections.values { token.cancel() }
         for task in expiryTasks.values { task.cancel() }
         acceptedSelections.removeAll(); operationSelections.removeAll(); expiryTasks.removeAll()
+        recoverySources.removeAll()
         waiting.removeAll(); skippedTickets.removeAll(); drainTicket = nextTicket
         if usesIndependentFileInput {
             // Only local preparations can be released. A new click chooses its own target.

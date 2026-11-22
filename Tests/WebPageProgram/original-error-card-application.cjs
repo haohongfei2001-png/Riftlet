@@ -29,8 +29,8 @@ async function runOriginalErrorCardCase({form,editor,input,operation,call,check,
   let index=0;
   // Each case is an independent fresh click and native input. Never use a
   // second commit to inspect the result of an uncertain input.
-  async function begin(setup) {
-    const op=await operation(index++),tile=makeTile(op.name);
+  async function begin(setup,attempt=1) {
+    const op=await operation(index++,null,false,attempt),tile=makeTile(op.name);
     const install=setup(tile,op);
     input.addEventListener('change',()=>install?.(),{once:true});
     return {op,tile,item:(await commit(op)).observation};
@@ -113,7 +113,7 @@ async function runOriginalErrorCardCase({form,editor,input,operation,call,check,
   row.append(neighbour);
   let recoveryInputs=0;
   const initialIndex=index;
-  for(const mode of ['still-present','gone','no-witness','late-card','ambiguous-new','wrong-source','prior-replaced','prior-relabeled','converted-competitor','unknown-progress','explicit-error','after-start-error','after-start-gone']) {
+  for(const mode of ['still-present','gone','no-witness','late-card','ambiguous-new','wrong-source','prior-replaced','prior-relabeled','converted-competitor','unknown-progress','explicit-error','after-start-error','after-start-gone','attempt-order']) {
     const originalIndex=index;
     let image, errorContents;
     const {op:old,tile,item}=await begin((tile,op)=>()=>{
@@ -125,7 +125,7 @@ async function runOriginalErrorCardCase({form,editor,input,operation,call,check,
       if(mode==='no-witness')return;
       if(mode!=='explicit-error')tile.surface.replaceChildren(el('progress'));
       row.append(tile.shell);
-    });
+    },mode==='attempt-order'?5:1);
     const source={identity:old.identity,invocationID:old.command('observe').invocationID};
     if(mode.startsWith('after-start')){
       await image.decode();const start=observe(old);
@@ -145,13 +145,21 @@ async function runOriginalErrorCardCase({form,editor,input,operation,call,check,
     let outside;
     if(mode==='converted-competitor'){outside=el('img');outside.alt=old.name.replace(/\.png$/i,'.webp');document.body.append(outside);}
     if(mode==='unknown-progress'){outside=el('progress');form.append(outside);}
+    if(mode==='attempt-order'){
+      for(const attempt of [old.identity.attempt,old.identity.attempt-1]){
+        const invalid=await operation(originalIndex,source,true,attempt);
+        let rejected=false;try{invalid.stage();}catch{rejected=true;}
+        check(rejected,'equal or reverse attempt rejected before staging');
+        call({action:'releasePreparedTarget',target:invalid.target});
+      }
+    }
     const next=await operation(originalIndex,source,true);
     const checkSource=value=>call({action:'validate',target:next.target,recoverySource:value});
     check(!checkSource({...source,invocationID:crypto.randomUUID()}).valid,'wrong persisted invocation');
     check(!checkSource({...source,identity:{...source.identity,assetSHA256:'0'.repeat(64)}}).valid,'wrong original hash');
     check(!checkSource({...source,identity:{...source.identity,target:{...source.identity.target,draftGeneration:crypto.randomUUID()}}}).valid,
       'different original epoch at same URL');
-    const allowed=['gone','late-card','explicit-error','after-start-error','after-start-gone'].includes(mode);
+    const allowed=['gone','late-card','explicit-error','after-start-error','after-start-gone','attempt-order'].includes(mode);
     if(source.startEvidenceID)check(!checkSource({...source,startEvidenceID:crypto.randomUUID()}).valid,'wrong original START');
     const decision=checkSource(source);
     check(decision.recoveryChecked && decision.valid===allowed,'explicit recovery decision '+mode);
@@ -159,7 +167,19 @@ async function runOriginalErrorCardCase({form,editor,input,operation,call,check,
       next.stage();
       if(mode==='late-card')row.append(tile.shell);
       const after=(await commit(next)).observation;
-      if(mode==='late-card')check(after.preInputRetirement?.inputCount===0,'returning original blocked at setter');
+      if(mode==='late-card'){
+        check(after.preInputRetirement?.inputCount===0,'returning original blocked at setter');
+        tile.shell.remove();
+        const third=await operation(originalIndex,source,true,next.identity.attempt+1);
+        check(old.identity.attempt===1 && next.identity.attempt===2 && third.identity.attempt===3,
+          'retired attempt remains in the immutable history');
+        check(third.target.clickBindingID!==next.target.clickBindingID &&
+          third.command('observe').invocationID!==next.command('observe').invocationID,'new click and invocation');
+        check(call({action:'validate',target:third.target,recoverySource:source}).valid,'fresh selection rechecks original');
+        third.stage();
+        check((await commit(third)).observation.state==='inputTriggered','higher attempt enters original input once');
+        recoveryInputs++;
+      }
       else {recoveryInputs++;check(after.state==='inputTriggered','eligible replacement actually entered input');}
     } else {
       let refused=false;try{next.stage();}catch{refused=true;}
@@ -169,7 +189,7 @@ async function runOriginalErrorCardCase({form,editor,input,operation,call,check,
     // Unconsumed pins are owned by this isolated fixture.
     call({action:'releasePreparedTarget',target:next.target});
   }
-  check(index-initialIndex===13 && recoveryInputs===4,'recovery cases and explicitly authorized new inputs');
+  check(index-initialIndex===14 && recoveryInputs===6,'recovery cases and explicitly authorized new inputs');
   check(inputs===index+recoveryInputs && counts().setters===inputs && counts().changes===inputs && counts().sends===0,'exactly one input per case; no send');
   return {passed:true,rejectedShapes:Object.keys(failures).length,retiredCases:4,nativeSetters:counts().setters,nativeChanges:inputs,automaticSends:counts().sends};
 }

@@ -2104,7 +2104,7 @@ function riftletWebAcceptance(command, native) {
     const predecessor = command.recoverySource;
     if (predecessor && (!permitsRecovery(predecessor, binding) || predecessor.identity.operationID === identity.operationID ||
         predecessor.invocationID === command.invocationID || predecessor.identity.assetID !== identity.assetID ||
-        predecessor.identity.assetSHA256 !== identity.assetSHA256 || predecessor.identity.attempt + 1 !== identity.attempt))
+        predecessor.identity.assetSHA256 !== identity.assetSHA256 || identity.attempt <= predecessor.identity.attempt))
       fail('TARGET_INVALID');
     const namePrefix = 'riftlet-' + identity.operationID + '.';
     if (op || !uuid(identity.operationID) || !uuid(identity.assetID) || !uuid(command.invocationID)

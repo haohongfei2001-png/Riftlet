@@ -424,8 +424,8 @@ public actor WebAttachmentAdapter: OriginalAttachmentRecoveryChecking {
             if let predecessor {
                 guard mode == .ordinaryProduct, !file.derivedPNG, file.mediaType == "image/png",
                       identity.operationID != predecessor.identity.operationID,
-                      request.invocationID != predecessor.invocationID,
-                      identity.attempt > 1, identity.attempt - 1 == predecessor.identity.attempt else {
+                      let invocation = request.invocationID, invocation != predecessor.invocationID,
+                      identity.attempt > predecessor.identity.attempt else {
                     throw WebAdapterError.invalidRequest
                 }
             }
