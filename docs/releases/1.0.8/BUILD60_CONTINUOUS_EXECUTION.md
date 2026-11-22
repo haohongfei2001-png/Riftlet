@@ -43,3 +43,9 @@ Aqua 监督器已在独占锁下实测运行。初始只读进程完成一轮两
 整树非作者审查随后发现截图仓库会激活 Riftlet，而冻结网页程序在浏览器失焦时退休写凭据。回到原文档后，新点击取得的 draftGeneration 与旧 UNKNOWN 的严格比较可能冲突。监督器继续读取环境，build 60 的新投递已暂停，原操作与专窗保留。正在对冻结网页程序复现失焦、返回及显式重选。若证实缺陷，下一候选须重新绑定新的源码、DMG、公证、独立安装和整套站点证据。用户无须操作。
 
 C1 的只读观察器可以从单个已完整归属的正常请求中投影经规范确认的过期时间。历史实站回执仅保留 URL 摘要。当前完成本地对照，真实 PUT 与实际响应继续由对应候选的站点收据决定。[C1 读数、测试及适用范围](../../../Tests/PreClickLease/g4/expiry-observation/README.md)
+
+## 06:13（上海）· 已确认产品缺陷和独立宿主权限
+
+非作者在冻结程序上用两款真实无界面浏览器的本地隔离页面验证了正常焦点切换。具名错误卡和无卡 UNKNOWN 各测两款浏览器。四次持续前台对照都取得新输入；四次经真实失焦并返回原编辑器的样本均在新输入前被 `TARGET_INVALID` 拒绝，原 Document、navigation entry、form、编辑器和附件均相同。截图仓库的正式入口会将 Riftlet 置于前台。build 60 停止发行，最小修复转入 build 61。所有同包结果将重新取得。
+
+注册 Aqua 服务也已从其实际父进程读取无提示权限查询。会话已登录并解锁、显示器已醒、该执行者有 Accessibility 权限。它向普通 Chrome 和 Edge 发送 Apple Events 均需用户同意。前台是 UserNotificationCenter 的 AXSystemDialog，AXModal 为 false；两款浏览器都有基础窗口，当前可见普通窗口均为零。已记录的系统界面元数据无法确定对话框用途。这份回执描述后台 QA 执行者的权限。下一步是生成新候选、在正常已授权原生上下文比对窗口证据，使用该候选的独立安装和全新专用草稿继续。未要求用户操作。[注册进程现场数据](evidence/build60/registered-aqua-supervisor.json) · [Apple Accessibility 信任查询](https://developer.apple.com/documentation/applicationservices/1459186-axisprocesstrustedwithoptions)
