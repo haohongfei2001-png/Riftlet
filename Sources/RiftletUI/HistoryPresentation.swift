@@ -58,6 +58,11 @@ public struct RiftHistoryEntry: Identifiable, Equatable, Sendable {
         currentOperation?.target.surface == .webChat && attachmentState.needsVerification
     }
 
+    var canRequestReattachment: Bool {
+        guard canReviewOriginal, !isHandled, record.status != .missing else { return false }
+        return hasRecoveryOptions || (attachmentState == .handedOff && currentOperation?.phase == .unknown)
+    }
+
     public var canRestoreToRift: Bool {
         guard canRestore,
               record.visibility == .archived || record.visibility == .removed,
@@ -175,6 +180,11 @@ public enum HistoryPresentation {
         }
     }
 
+    static func uncertainUploadWarning(copy: ProductCopy) -> String {
+        copy.text("上传结果尚未确认，重新附加可能产生重复附件。原图已保留。",
+                  "The upload is unconfirmed. Attaching again may create a duplicate. The original image is saved.")
+    }
+
     public static func detailText(for entry: RiftHistoryEntry, copy: ProductCopy = .current) -> String {
         if entry.record.status == .missing {
             switch entry.attachmentState {
@@ -188,7 +198,7 @@ public enum HistoryPresentation {
         case .handedOff: return copy.text("上传结果见原对话。", "Check the original conversation for the upload result.")
         case .originalCardFailed: return copy.text("原草稿曾显示这张图片上传失败。原图仍在本机，可核对后选择再次附加。", "The original draft reported an upload failure for this image. The original is saved on this Mac. You can check the draft and choose to attach it again.")
         case .checkDraft: return copy.text("原附件报告异常，请到原对话核对。", "The attachment reported a problem. Check the original conversation.")
-        case .needsReview: return copy.text("请对照原图，在原草稿中核对附件。Riftlet 不会自动重传。", "Compare the original image with the attachment in your draft. Riftlet won’t upload it again automatically.")
+        case .needsReview: return uncertainUploadWarning(copy: copy)
         case .attached: return copy.text("原始系统截图仍然保留。", "The original system screenshot is still saved.")
         case .confirmedFailure, .notAttached: return copy.text("图片仍保存在本机。", "The image is still saved on this Mac.")
         case .preparing, .available: return ""

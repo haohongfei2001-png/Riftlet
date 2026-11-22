@@ -8,16 +8,49 @@ public enum OriginalAttachmentCheck: Sendable, Equatable {
     case observed, unavailable, permissionDenied, busy
 }
 
+/// Immutable predecessor evidence for a new, explicitly confirmed click.
+public struct AttachmentRecoverySource: Equatable, Sendable {
+    public let operation: TransferOperation
+    public let invocationID: UUID
+    public let originalStart: TransferReceipt?
+    public let originalReceipt: TransferReceipt?
+
+    public init(operation: TransferOperation, invocationID: UUID, originalStart: TransferReceipt?, originalReceipt: TransferReceipt?) {
+        self.operation = operation
+        self.invocationID = invocationID
+        self.originalStart = originalStart
+        self.originalReceipt = originalReceipt
+    }
+
+    public func permitsDestination(_ destination: TargetLease) -> Bool {
+        let old = operation.target
+        return old.surface == .webChat && destination.surface == old.surface &&
+            old.attachmentBrowser != nil && destination.applicationID == old.applicationID &&
+            !old.adapterID.isEmpty && destination.adapterID == old.adapterID &&
+            !old.sessionID.isEmpty && destination.sessionID == old.sessionID &&
+            !old.windowID.isEmpty && destination.windowID == old.windowID &&
+            old.tabID?.isEmpty == false && destination.tabID == old.tabID &&
+            !old.documentID.isEmpty && destination.documentID == old.documentID &&
+            !old.composerID.isEmpty && destination.composerID == old.composerID &&
+            !old.draftGeneration.isEmpty && destination.draftGeneration == old.draftGeneration &&
+            destination.logicalDraftIdentity == old.logicalDraftIdentity &&
+            destination.historyConversationID == old.historyConversationID &&
+            old.clickBindingID != nil && destination.clickBindingID != nil && destination.clickBindingID != old.clickBindingID
+    }
+}
+
 public struct TransferRequest: Sendable {
     public let operation: TransferOperation
     public let asset: ImportedAsset
     public let fileURL: URL
     public let invocationID: UUID?
 
+    public let recoverySource: AttachmentRecoverySource?
     public let requireLiveOriginal: Bool
 
     public init(operation: TransferOperation, asset: ImportedAsset, fileURL: URL, invocationID: UUID? = nil,
-                requireLiveOriginal: Bool = false) {
+                requireLiveOriginal: Bool = false, recoverySource: AttachmentRecoverySource? = nil) {
+        self.recoverySource = recoverySource
         self.requireLiveOriginal = requireLiveOriginal
         self.operation = operation; self.asset = asset; self.fileURL = fileURL
         self.invocationID = invocationID
@@ -60,6 +93,12 @@ public protocol IndependentFileInputAdapter: InputPhasedAttachmentAdapter {
     var supportsOriginalHandoffChecks: Bool { get }
     func append(_ request: TransferRequest,
                 onInputExecutionReturned: @escaping @Sendable () async -> Void) async throws -> TransferReceipt
+}
+
+/// Check the old invocation and original card without side effects. Append must
+/// repeat this check in the page immediately before it enters the new setter.
+public protocol OriginalAttachmentRecoveryChecking: IndependentFileInputAdapter {
+    func checkRecovery(_ original: TransferRequest, destination: TargetLease) async throws -> Bool
 }
 
 public extension IndependentFileInputAdapter {
@@ -118,6 +157,7 @@ public actor TransferCoordinator {
     private let onAcceptedSelectionFinished: @Sendable (UUID) async -> Void
     private var acceptedSelections: [UUID: AcceptedSelection] = [:]
     private var operationSelections: [UUID: AcceptedSelection] = [:]
+    private var recoverySources: [UUID: AttachmentRecoverySource] = [:]
     private var expiryTasks: [UUID: Task<Void, Never>] = [:]
     private var drainRequested = false
     // Original calls may keep observing START after their input execution ends.
@@ -173,8 +213,8 @@ public actor TransferCoordinator {
     /// Only for the user's explicit new intent on a staged recovery tile. The
     /// immutable predecessor ID fences delayed and double clicks across attempts.
     public func reattach(_ selection: AcceptedSelection, replacing operationID: UUID) async throws {
-        guard usesIndependentFileInput, selection.authorization == .currentClick,
-              selection.target.adapterID == adapter.id, !inputExecutions.contains(operationID) else {
+        guard adapter is any OriginalAttachmentRecoveryChecking, selection.authorization == .currentClick,
+              selection.target.adapterID == adapter.id, activeAppends[operationID] == nil else {
             throw RiftletError.invalidTransition
         }
         try await accept(selection, replacing: operationID)
@@ -323,10 +363,30 @@ public actor TransferCoordinator {
             else if allowCapture { target = try await adapter.captureTarget() }
             else { throw RiftletError.adapterUnavailable("No verified target existed at selection; image retained") }
             guard target.adapterID == adapter.id else { throw RiftletError.mismatchedReceipt }
-            let op = try await store.prepare(assetID: assetID, target: target, replacing: replacing)
+            var source: AttachmentRecoverySource?
+            if let replacing {
+                guard let verifier = adapter as? any OriginalAttachmentRecoveryChecking, let accepted else {
+                    throw RiftletError.invalidTransition
+                }
+                let original = try await store.attachmentRecoverySource(operationID: replacing)
+                guard original.operation.assetID == assetID, original.permitsDestination(target) else {
+                    throw RiftletError.invalidTransition
+                }
+                let check = TransferRequest(operation: original.operation, asset: record.image,
+                    fileURL: mediaDirectory.appendingPathComponent(record.image.fileName),
+                    invocationID: original.invocationID, requireLiveOriginal: true, recoverySource: original)
+                guard try await verifier.checkRecovery(check, destination: target),
+                      accepted.isValid(), await validateAcceptedSelection(accepted), accepted.isValid() else {
+                    throw RiftletError.invalidTransition
+                }
+                source = original
+            }
+            let op = try await store.prepare(assetID: assetID, target: target, replacing: source)
+            if let source { recoverySources[op.id] = source }
             await store.releaseSelection(assetID); reserved = false
             if let accepted {
                 guard accepted.isValid(), acceptedSelections[accepted.id] != nil else {
+                    recoverySources.removeValue(forKey: op.id)
                     try await cancelIfPrepared(op.id, reason: "Selection revoked during preparation; no input occurred")
                     throw RiftletError.invalidTransition
                 }
@@ -476,6 +536,7 @@ public actor TransferCoordinator {
                 try await cancelIfPrepared(id, reason: "Original target changed before input")
                 advanceWaiting(ticket: ticket, id: id, selection: accepted); await onChange(); continue
             }
+            let source = recoverySources[id]
             let request = try await request(for: op)
             guard FileManager.default.fileExists(atPath: request.fileURL.path) else {
                 try await cancelIfPrepared(id, reason: "Private image is missing; no input occurred")
@@ -509,7 +570,7 @@ public actor TransferCoordinator {
             let committedRequest: TransferRequest
             do {
                 guard let committed = try await store.operation(id: id) else { throw RiftletError.operationNotFound }
-                committedRequest = try await self.request(for: committed)
+                committedRequest = try await self.request(for: committed, recoverySource: source)
             } catch {
                 // Intent is already durable and its FIFO slot is retired. A
                 // failed local reread must retain UNKNOWN, never strand an
@@ -620,6 +681,7 @@ public actor TransferCoordinator {
     private func advanceWaiting(ticket: Int, id: UUID, selection: AcceptedSelection?) {
         waiting.removeValue(forKey: ticket)
         operationSelections.removeValue(forKey: id)
+        recoverySources.removeValue(forKey: id)
         if ticket == drainTicket { drainTicket += 1 } else { skippedTickets.insert(ticket) }
         if let selection { finishAcceptedSelection(selection) }
     }
@@ -794,10 +856,10 @@ public actor TransferCoordinator {
         try await store.cancelPreparedIfNeeded(id, reason: reason)
     }
 
-    private func request(for op: TransferOperation) async throws -> TransferRequest {
+    private func request(for op: TransferOperation, recoverySource: AttachmentRecoverySource? = nil) async throws -> TransferRequest {
         guard let asset = try await store.asset(id: op.assetID) else { throw RiftletError.assetNotFound }
         return TransferRequest(operation: op, asset: asset.image, fileURL: mediaDirectory.appendingPathComponent(asset.image.fileName),
-                               invocationID: try await store.dispatchInvocationID(for: op.id))
+                               invocationID: try await store.dispatchInvocationID(for: op.id), recoverySource: recoverySource)
     }
 }
 

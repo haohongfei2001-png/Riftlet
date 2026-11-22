@@ -163,6 +163,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     private lazy var removeButton = NSButton(title: copy.text("从桌面收起", "Hide from Desktop"), target: nil, action: nil)
     public var onCheckOriginal: ((UUID) -> Void)?
     public var onMarkHandled: ((UUID) -> Void)?
+    public var onCheckReattachmentEligibility: ((UUID) async -> Bool)?
     public var onPrepareReattachment: ((UUID, UUID) -> Void)?
     public var onFocusOriginal: ((TransferOperation) async -> Bool)?
     private lazy var checkButton = NSButton(title: copy.text("重新核对状态", "Check Status Again"), target: self, action: #selector(checkOriginal))
@@ -511,7 +512,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         checkButton.isHidden = selectedEntry?.canReviewOriginal != true || onCheckOriginal == nil || selectedEntry?.isHandled == true
         focusButton.isHidden = selectedEntry?.canReviewOriginal != true || onFocusOriginal == nil
         handledButton.isHidden = !actionable || selectedEntry?.isHandled == true || onMarkHandled == nil
-        reattachButton.isHidden = !actionable || onPrepareReattachment == nil
+        reattachButton.isHidden = selectedEntry?.canRequestReattachment != true || onPrepareReattachment == nil
         conversationButton.isHidden = selectedEntry?.conversationURL == nil
         revealButton.isEnabled = selectedEntry != nil
         originalButton.isEnabled = selectedEntry != nil
@@ -920,15 +921,35 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     }
 
     @objc private func prepareReattachment() {
-        guard let entry = selectedEntry, entry.hasRecoveryOptions, let op = entry.currentOperation else { return }
+        guard let entry = selectedEntry, entry.canRequestReattachment, let op = entry.currentOperation,
+              let checkEligibility = onCheckReattachmentEligibility else { return }
+        Task { [weak self] in
+            let eligible = await checkEligibility(op.id)
+            guard let self, self.selectedEntry?.currentOperation?.id == op.id,
+                  self.selectedEntry?.canRequestReattachment == true, self.historyWindow.isVisible,
+                  self.historyWindow.attachedSheet == nil else { return }
+            guard eligible else {
+                self.showActionNotice(self.copy.text("这条记录缺少重新附加所需的原始凭据。可查看原图并核对原草稿。",
+                                                     "This record lacks the original details needed to attach again. View the saved image and check the original draft."))
+                return
+            }
+            self.confirmReattachment(entry, operation: op)
+        }
+    }
+
+    private func confirmReattachment(_ entry: RiftHistoryEntry, operation op: TransferOperation) {
         let alert = NSAlert()
         alert.messageText = copy.text("再次附加这张截图？", "Attach this screenshot again?")
-        alert.informativeText = copy.text("原草稿可能已有这张图。继续后，请打开目标草稿，再点一下桌面上的截图。", "The original draft may already contain this image. Continue, open the draft you want, then click the screenshot on your desktop.")
-        alert.addButton(withTitle: copy.text("继续", "Continue"))
+        let instructions = copy.text("回到原浏览器中的同一草稿，核对已有附件，再点一下桌面上的原图。", "Return to the same draft in the original browser, check its attachments, then click the original screenshot on your desktop.")
+        alert.informativeText = entry.attachmentState == .originalCardFailed
+            ? HistoryPresentation.detailText(for: entry, copy: copy) + "\n\n" + instructions
+            : HistoryPresentation.uncertainUploadWarning(copy: copy) + "\n\n" + instructions
+        alert.addButton(withTitle: copy.text("准备重新附加", "Prepare to Attach Again"))
         alert.addButton(withTitle: copy.text("取消", "Cancel"))
         alert.beginSheetModal(for: historyWindow) { [weak self] response in
-            guard response == .alertFirstButtonReturn else { return }
-            self?.onPrepareReattachment?(entry.id, op.id)
+            guard response == .alertFirstButtonReturn, let self,
+                  self.selectedEntry?.id == entry.id, self.selectedEntry?.currentOperation?.id == op.id else { return }
+            self.onPrepareReattachment?(entry.id, op.id)
         }
     }
 

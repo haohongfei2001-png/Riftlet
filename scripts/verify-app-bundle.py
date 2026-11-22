@@ -33,6 +33,7 @@ ARCHIVED_FINGERPRINTS = {
     "build56-observation-fingerprint.dat": (57, "ed470481df5373d0e702c87087785235d080fb75b85ea27f1e07408e0357ae52"),
     "build57-observation-fingerprint.dat": (58, "c691e6b7bd848bc8e1fb994aa9efd2dc7419b8b73549c0c1e31eb09499287e8a"),
     "build58-observation-fingerprint.dat": (59, "d05979dfae4b702d907b1f7f50a6312f9d7c25a5c6b484ed493bbfd39d9f6fbb"),
+    "build59-observation-fingerprint.dat": (60, "19677788b6a846b2868e0159d8467f9de37544a2ffc24bfd1676b499314580f5"),
 }
 RESOURCE_NAMES = PROGRAM_NAMES + tuple(ARCHIVED_FINGERPRINTS)
 

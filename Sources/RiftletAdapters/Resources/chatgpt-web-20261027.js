@@ -425,7 +425,7 @@ function riftletWebAcceptance(command, native) {
           return;
         }
         operation.discarded = true; operation.chunks = [];
-        operation.binding = null; operation.failureWatch = null;
+        operation.binding = null; operation.failureWatch = null; operation.recoverySurface?.close(); operation.recoverySurface = null;
         operation.urls.clear(); operation.baseline.clear(); operation.previewBaseline = null;
         operations.set(id, {committed: true});
       }
@@ -1749,7 +1749,104 @@ function riftletWebAcceptance(command, native) {
     }
     return null;
   }
+  // Recovery uses only observations from the original upload in this page. A blank
+  // composer after navigation cannot reconstruct this witness.
+  function recoverySurface(op) {
+    const original = op.binding, layout = original.editor.closest('[data-composer-layout]');
+    if (!original.target.clickBindingID || !layout || !original.form.contains(layout)) return null;
+    const laneSelector = '[class*="ComposerLayoutAttachments-"]';
+    const memberSelector = 'img,progress,[role="progressbar"],[data-file-name],[data-composer-image-attachment],'
+      + '[class~="group/composer-attachment"],button[aria-label^="Remove " i],button[aria-label^="移除 "],'
+      + 'button[aria-label^="Retry uploading " i],span.truncate,[role="alert"],[aria-busy="true"]';
+    function lane() {
+      const lanes = layout.querySelectorAll(laneSelector);
+      if (!lanes.length) return {row: null, cards: []};
+      const [box] = lanes;
+      if (lanes.length !== 1 || box.closest('[data-composer-layout]') !== layout || box.children.length !== 1
+          || !box.firstElementChild.matches('div.flex')) return null;
+      const row = box.firstElementChild;
+      return row.children.length <= 32 ? {row, cards: [...row.children]} : null;
+    }
+    const baseline = lane();
+    if (!baseline) return null;
+    const baseRow = baseline.row && new WeakRef(baseline.row);
+    const priorCards = baseline.cards.map(card => new WeakRef(card));
+    const priorMembers = new WeakSet(baseline.cards);
+    const ownNames = [op.name, op.name.replace(/\.png$/i,'.webp')];
+    const selectors = ownNames.flatMap(name => ['[aria-label="Remove '+name+'" i]','[aria-label="移除 '+name+'" i]',
+      '[aria-label="Retry uploading '+name+'" i]','[data-file-name="'+name+'" i]','[alt="'+name+'" i]',
+      '[title="'+name+'" i]','[aria-label="'+name+'" i]']).join(',');
+    if (document.querySelector(selectors)) return null;
+    const removeSelector = ownNames.flatMap(name => ['button[aria-label="Remove '+name+'" i]',
+      'button[aria-label="移除 '+name+'" i]']).join(',');
+    const outsideLane = row => [...original.form.querySelectorAll(memberSelector)].some(n =>
+      !original.editor.contains(n) && !row?.contains(n));
+    if (outsideLane(baseline.row)) return null;
+    // Invalidate existing members in place without retaining filenames, image
+    // bytes, links or editor text. A mutation and reversal remain observable.
+    let priorChanged = false;
+    const mark = records => {
+      if (records.some(r => r.target !== baseRow?.deref() ||
+          [...r.removedNodes].some(n => priorMembers.has(n)))) priorChanged = true;
+    };
+    const watcher = priorCards.length ? new MutationObserver(mark) : null;
+    if (watcher) {
+      watcher.observe(baseline.row,{childList:true});
+      for (const card of baseline.cards) watcher.observe(card,{childList:true,subtree:true,characterData:true,
+        attributes:true,attributeFilter:['data-file-name','aria-label','title','alt','src','data-state','aria-busy','aria-valuenow','value']});
+    }
+    const root = document.documentElement, entry = navigation.currentEntry?.id;
+    let ownCard = null, observedRow = null;
+    function observeMember() {
+      if (ownCard || !op.inputCount || !op.changeReturned || performance.now() - op.inputTime > 10000) return;
+      const snapshot = lane();
+      if (!snapshot?.row) return;
+      const controls = [...snapshot.row.querySelectorAll(removeSelector)];
+      if (controls.length !== 1) return;
+      const card = snapshot.cards.find(n => n.contains(controls[0]));
+      if (card && renderedPreview(card) && !priorMembers.has(card) && card.querySelectorAll(removeSelector).length === 1 &&
+          [...document.querySelectorAll(selectors)].every(n => card.contains(n))) {
+        ownCard = new WeakRef(card); observedRow = new WeakRef(snapshot.row);
+      }
+    }
+    function check(destination, failure) {
+      if (!ownCard || !entry || navigation.currentEntry?.id !== entry || root !== document.documentElement ||
+          original.form !== destination.form || original.editor !== destination.editor || !sameDraft(original) ||
+          !original.form.contains(layout) || original.editor.closest('[data-composer-layout]') !== layout) return false;
+      const snapshot = lane();
+      if (!snapshot || outsideLane(snapshot.row) || (baseRow && baseRow.deref() !== snapshot.row) ||
+          (snapshot.row && snapshot.row !== observedRow.deref())) return false;
+      const card = ownCard.deref();
+      if (failure ? !card || failure !== card || !snapshot.cards.includes(card) : card?.isConnected) return false;
+      const remaining = snapshot.cards.filter(n => n !== failure);
+      if (remaining.length !== priorCards.length || [...document.querySelectorAll(selectors)].some(n => !failure?.contains(n)))
+        return false;
+      if (watcher) mark(watcher.takeRecords());
+      return !priorChanged && remaining.every((member, i) => member === priorCards[i].deref());
+    }
+    return {observeMember,check,close:() => watcher?.disconnect()};
+  }
+
+  function permitsRecovery(source, destination, ownsInputLane = false) {
+    if (!source || !destination || !uuid(source.invocationID) || !source.identity) return false;
+    const owner = source.identity, prior = registry?.operations.get(owner.operationID);
+    if (!prior?.recoverySurface || !sameIdentity(prior.identity, owner) || prior.invocationID !== source.invocationID ||
+        prior.inputCount !== 1 || !prior.changeReturned || prior.executionPending || (!ownsInputLane && registry.busy.has(destination.form)) ||
+        !owner.target.clickBindingID || !destination.target.clickBindingID ||
+        owner.target.clickBindingID === destination.target.clickBindingID ||
+        !sameTarget({...owner.target,clickBindingID:destination.target.clickBindingID}, destination.target)) return false;
+    if ((source.startEvidenceID || null) !== (prior.start?.evidenceID || null)) return false;
+    const observedFailure = prior.reportedCardFailure?.() || prior.acceptedErrorShell?.();
+    const member = currentNamedFailure(prior, destination);
+    if (source.failureAttachmentID != null) {
+      if (!member || member !== observedFailure ||
+          source.failureAttachmentID !== (prior.start ? prior.attachmentID : prior.failureMemberID)) return false;
+      return prior.recoverySurface.check(destination, member);
+    }
+    return !member && !prior.reportedCardFailure && prior.recoverySurface.check(destination, null);
+  }
   function sample(op, surface = null) {
+    op.recoverySurface?.observeMember();
     // The app may disable or remove its picker after accepting this file.
     // Observing that handoff needs the original draft, not another input slot.
     if (op.start || op.reportedCardFailure || !op.changeReturned || !sameDraft(op.binding)) return;
@@ -1982,6 +2079,11 @@ function riftletWebAcceptance(command, native) {
     }
     return registry.current.target;
   }
+  if (command.action === 'validate' && command.recoverySource) {
+    const proposed = registry?.clickBindings?.get(command.target?.clickBindingID);
+    return {target: command.target, valid: sameTarget(proposed?.target,command.target) && sameDraft(proposed)
+      && permitsRecovery(command.recoverySource,proposed), recoveryChecked:true};
+  }
   const binding = bindingFor(command.target);
   if (command.action === 'renewPreparedTarget')
     return {target: command.target, valid: binding?.renew?.(leaseClock) === true};
@@ -1999,6 +2101,11 @@ function riftletWebAcceptance(command, native) {
   let op = registry?.operations.get(identity.operationID);
   if (command.action === 'begin') {
     if (!validDraft(binding) || (binding.target.clickBindingID && binding.enrolled)) fail('TARGET_INVALID');
+    const predecessor = command.recoverySource;
+    if (predecessor && (!permitsRecovery(predecessor, binding) || predecessor.identity.operationID === identity.operationID ||
+        predecessor.invocationID === command.invocationID || predecessor.identity.assetID !== identity.assetID ||
+        predecessor.identity.assetSHA256 !== identity.assetSHA256 || predecessor.identity.attempt + 1 !== identity.attempt))
+      fail('TARGET_INVALID');
     const namePrefix = 'riftlet-' + identity.operationID + '.';
     if (op || !uuid(identity.operationID) || !uuid(identity.assetID) || !uuid(command.invocationID)
         || !Number.isSafeInteger(identity.attempt) || identity.attempt < 1 || !/^[a-f0-9]{64}$/.test(identity.assetSHA256)
@@ -2006,7 +2113,7 @@ function riftletWebAcceptance(command, native) {
         || !/^[a-z0-9]{1,16}$/i.test(command.uploadName.slice(namePrefix.length))
         || typeof command.mediaType !== 'string' || !/^image\/[a-z0-9][a-z0-9.+-]{0,63}$/i.test(command.mediaType)
         || !Number.isSafeInteger(command.byteCount) || command.byteCount < 1 || command.byteCount > MAX_BYTES) fail('BEGIN_REFUSED');
-    op = {identity: JSON.parse(JSON.stringify(identity)), invocationID: command.invocationID, binding,
+    op = {identity: JSON.parse(JSON.stringify(identity)), recoverySource: predecessor, invocationID: command.invocationID, binding,
       name: command.uploadName, mediaType: command.mediaType, size: command.byteCount, chunks: [], received: 0, nextChunk: 0,
       committed: false, discarded: false, inputCount: 0, changeReturned: false, retirement: null,
       baseline: new Set(), urls: new Set(), start: null};
@@ -2014,7 +2121,7 @@ function riftletWebAcceptance(command, native) {
     else if (binding.target.clickBindingID) binding.enrolled = true;
     registry.operations.set(identity.operationID, op);
     registry.scheduleRetirement(registry.operations, identity.operationID, op);
-    return acknowledgement(op, 0);
+    return predecessor ? {...acknowledgement(op, 0), recoveryBoundInvocationID: predecessor.invocationID} : acknowledgement(op, 0);
   }
   if (!op || !sameIdentity(op.identity, identity)) {
     if (command.action === 'observe') return blank(identity, 'invalidated');
@@ -2093,6 +2200,7 @@ function riftletWebAcceptance(command, native) {
       return retire('attachmentInputNotCreated', 'handoff', 'inputLost');
     if (op.discoveryDeadline && Date.now() >= op.discoveryDeadline)
       return retire('attachmentInputNotCreated', 'handoff', 'timeout');
+    op.recoverySurface = op.mediaType === 'image/png' ? recoverySurface(op) : null;
     op.oldErrorMembers = failureShellBeforeInput(op.name);
     op.previewBaseline = new WeakMap([...document.querySelectorAll(previewSelector)].map(node => [node, previewValue(node)]));
     op.converted = convertedBaseline(op, file);
@@ -2107,7 +2215,11 @@ function riftletWebAcceptance(command, native) {
       const originalForm = input.form;
       receiver = bindOriginalReceiver(input, () => validDraft(op.binding) && usableInput(input) &&
         input.form === originalForm && (invoked || input.isConnected));
+      let recoveryRefused = false;
       const writeFiles = receiver.once(function(files) {
+        if (op.recoverySource && !permitsRecovery(op.recoverySource, op.binding, true)) {
+          recoveryRefused = true; return;
+        }
         op.inputCount = 1; op.inputSequence = tick(); op.inputTime = performance.now();
         op.blobSerialBeforeInput = registry.blobSerial ?? 0;
         registry.blobWindowUntil = op.inputTime + 10000;
@@ -2115,7 +2227,7 @@ function riftletWebAcceptance(command, native) {
         Reflect.apply(setter, this, [files]);
       });
       const notifyInput = receiver.once(input.dispatchEvent), notifyChange = receiver.once(input.dispatchEvent);
-      if (!writeFiles(transfer.files)) return retire('targetInvalidBeforeInput', 'setter', 'targetChanged');
+      if (!writeFiles(transfer.files) || recoveryRefused) return retire('targetInvalidBeforeInput', 'setter', 'targetChanged');
       diag.stage = 'change';
       if (notifyInput(new Event('input', {bubbles: true, composed: true})) &&
           notifyChange(new Event('change', {bubbles: true}))) {

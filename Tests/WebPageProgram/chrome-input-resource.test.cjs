@@ -279,7 +279,7 @@ function browserFixture(options){
     });
    }
   }
-  async function operation(index){
+  async function operation(index,recoverySource=null,defer=false){
    if(options.dimensions){canvas.width=options.dimensions[0];canvas.height=options.dimensions[1];}
    const color='rgb('+(20+index*30)+',40,70)';canvas.getContext('2d').fillStyle=color;canvas.getContext('2d').fillRect(0,0,canvas.width,canvas.height);
    if(options.texture && index<2){
@@ -317,15 +317,17 @@ function browserFixture(options){
    }
    if(pin&&!(options.comparePins&&index===0))check(call({action:'pinTarget',clickWitnessID:pin,address:options.route.split('?')[0]})==='bound','actual click binds original editor');
    const target=call({action:'captureTarget',clickWitnessID:pin}),id=crypto.randomUUID();
-   const identity={operationID:id,assetID:crypto.randomUUID(),attempt:1,assetSHA256:sha,target},invocationID=crypto.randomUUID();
+   const identity={operationID:id,assetID:recoverySource?.identity.assetID || crypto.randomUUID(),attempt:recoverySource?recoverySource.identity.attempt+1:1,assetSHA256:sha,target},invocationID=crypto.randomUUID();
    const op={identity,target,name:'riftlet-'+id+(options.jpeg?'.jpeg':'.png'),sha,command:action=>({action,identity,target,invocationID})};
-   call({...op.command('begin'),uploadName:op.name,mediaType:original.type,byteCount:bytes.length});
+   op.stage=()=>{
+   const ack=call({...op.command('begin'),uploadName:op.name,mediaType:original.type,byteCount:bytes.length,recoverySource});
+   if(recoverySource)check(ack.recoveryBoundInvocationID===recoverySource.invocationID,'recovery bound to predecessor');
    let chunkIndex=0;
    for(let offset=0;offset<bytes.length;offset+=48*1024){
     const block=bytes.subarray(offset,offset+48*1024);
     call({...op.command('chunk'),chunkIndex:chunkIndex++,chunkBase64:btoa(String.fromCharCode(...block))});
    }
-   op.chunks=chunkIndex;return op;
+   op.chunks=chunkIndex;};if(!defer)op.stage();return op;
   }
   if(options.namedErrorCard)return (__ORIGINAL_ERROR__ )({form,editor,input,operation,call,check,options,counts:()=>({setters,changes,sends})});
   for(let index=0;index<options.count;index++)ops.push(await operation(index));

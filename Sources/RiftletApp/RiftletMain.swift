@@ -540,7 +540,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     self.diagnosticTrace?.record(refusal, critical: true)
                     feedback(!self.mode.usesWebAdapter && self.mode == .capture ? "此版本尚未启用真实截图附加；图片保留。"
                         : (ProductStatus.clickFeedback(error)?.text ?? clickIssue?.text(in: .current, browser: press?.bundleID.flatMap(AttachmentBrowser.init(rawValue:)) ?? self.setupBrowser)
-                           ?? "当前附件目标暂不可用；图片保留，可在运行状态中查看原因。"), .immediate)
+                           ?? (reattachment == nil ? "当前附件目标暂不可用；图片保留，可在运行状态中查看原因。"
+                               : ProductCopy.text("请核对原草稿和已有附件，再从截图仓库选择重新附加。原图已保留。",
+                                                  "Check the original draft and its attachments, then choose Attach Again in the screenshot library. The original image is saved."))), .immediate)
                     self.feedback.diagnostics.record(.selectionRejected)
                     self.cancelOriginalSelection(selection, reason: "selectionRejected")
                     self.updateSetup()
@@ -657,6 +659,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             }
             history?.onCheckOriginal = { [weak self] id in self?.checkHistoryAttachment(id) }
             history?.onMarkHandled = { [weak self] id in self?.handleHistoryAttachment(id) }
+            history?.onCheckReattachmentEligibility = { operation in
+                (try? await store.attachmentRecoverySource(operationID: operation)) != nil
+            }
             history?.onPrepareReattachment = { [weak self] asset, operation in
                 self?.stageHistoryAttachment(asset: asset, operation: operation)
             }
@@ -1687,7 +1692,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 reattachmentIntents[asset] = ReattachmentIntent(operationID: operation, revision: record.visibilityRevision)
                 await refresh()
                 rift?.showAsset(asset)
-                history?.showActionNotice(ProductCopy.text("打开要附加的 Chrome 或 Edge 草稿，再点这张桌面截图。", "Open the intended draft in Chrome or Edge, then click this screenshot at the desktop edge."))
+                history?.showActionNotice(ProductCopy.text("回到原浏览器中的同一草稿，核对已有附件，再点这张桌面截图。", "Return to the same draft in the original browser, check its attachments, then click this screenshot at the desktop edge."))
             } catch {
                 if (try? await store.isRetiredMedia(asset)) == true {
                     history?.showActionError(ProductCopy.text("请在「设置 → 截图 → 管理截图资料…」中从废纸篓找回副本，然后再选择重新附加。", "Restore the copy from Trash in Settings → Screenshots → Manage Screenshot Storage…, then choose Attach Again."))

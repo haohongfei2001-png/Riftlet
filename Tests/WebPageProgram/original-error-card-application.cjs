@@ -108,7 +108,69 @@ async function runOriginalErrorCardCase({form,editor,input,operation,call,check,
     else check(result.state!=='failed' && result.state!=='originalCardFailed','replacement cannot claim historical start');
     row.replaceChildren();
   }
-  check(inputs===index && counts().setters===index && counts().changes===index && counts().sends===0,'exactly one input per case; no send');
+  // Keep an independently identified neighbour throughout every recovery case.
+  const neighbour=form.querySelector('[data-file-name="existing.png"]');
+  row.append(neighbour);
+  let recoveryInputs=0;
+  const initialIndex=index;
+  for(const mode of ['still-present','gone','no-witness','late-card','ambiguous-new','wrong-source','prior-replaced','prior-relabeled','converted-competitor','unknown-progress','explicit-error','after-start-error','after-start-gone']) {
+    const originalIndex=index;
+    let image, errorContents;
+    const {op:old,tile,item}=await begin((tile,op)=>()=>{
+      if(mode.startsWith('after-start')){
+        errorContents=[...tile.surface.children];
+        image=el('img');image.alt=op.name;image.width=image.height=16;
+        image.src=URL.createObjectURL(input.files[0]);tile.surface.replaceChildren(image);row.append(tile.shell);return;
+      }
+      if(mode==='no-witness')return;
+      if(mode!=='explicit-error')tile.surface.replaceChildren(el('progress'));
+      row.append(tile.shell);
+    });
+    const source={identity:old.identity,invocationID:old.command('observe').invocationID};
+    if(mode.startsWith('after-start')){
+      await image.decode();const start=observe(old);
+      check(!!start.uploadStart,'positive original start');source.startEvidenceID=start.uploadStart.evidenceID;
+      if(mode==='after-start-error'){
+        tile.surface.replaceChildren(...errorContents);const error=observe(old,true);
+        check(error.hasError && error.attachmentID===start.attachmentID,'exact original failed after start');
+        source.failureAttachmentID=error.attachmentID;
+      } else tile.shell.remove();
+    } else if(mode==='explicit-error'){
+      accept(item,old);source.failureAttachmentID=item.attachmentID;
+    } else if(mode!=='still-present')tile.shell.remove();
+    if(mode==='wrong-source')source.invocationID=crypto.randomUUID();
+    if(mode==='ambiguous-new')row.append(el('div'));
+    if(mode==='prior-replaced')neighbour.replaceWith(neighbour.cloneNode(true));
+    if(mode==='prior-relabeled'){neighbour.setAttribute('data-file-name','new.png');neighbour.setAttribute('data-file-name','existing.png');}
+    let outside;
+    if(mode==='converted-competitor'){outside=el('img');outside.alt=old.name.replace(/\.png$/i,'.webp');document.body.append(outside);}
+    if(mode==='unknown-progress'){outside=el('progress');form.append(outside);}
+    const next=await operation(originalIndex,source,true);
+    const checkSource=value=>call({action:'validate',target:next.target,recoverySource:value});
+    check(!checkSource({...source,invocationID:crypto.randomUUID()}).valid,'wrong persisted invocation');
+    check(!checkSource({...source,identity:{...source.identity,assetSHA256:'0'.repeat(64)}}).valid,'wrong original hash');
+    check(!checkSource({...source,identity:{...source.identity,target:{...source.identity.target,draftGeneration:crypto.randomUUID()}}}).valid,
+      'different original epoch at same URL');
+    const allowed=['gone','late-card','explicit-error','after-start-error','after-start-gone'].includes(mode);
+    if(source.startEvidenceID)check(!checkSource({...source,startEvidenceID:crypto.randomUUID()}).valid,'wrong original START');
+    const decision=checkSource(source);
+    check(decision.recoveryChecked && decision.valid===allowed,'explicit recovery decision '+mode);
+    if(allowed) {
+      next.stage();
+      if(mode==='late-card')row.append(tile.shell);
+      const after=(await commit(next)).observation;
+      if(mode==='late-card')check(after.preInputRetirement?.inputCount===0,'returning original blocked at setter');
+      else {recoveryInputs++;check(after.state==='inputTriggered','eligible replacement actually entered input');}
+    } else {
+      let refused=false;try{next.stage();}catch{refused=true;}
+      check(refused,'new begin refused '+mode);
+    }
+    outside?.remove();row.replaceChildren(neighbour);
+    // Unconsumed pins are owned by this isolated fixture.
+    call({action:'releasePreparedTarget',target:next.target});
+  }
+  check(index-initialIndex===13 && recoveryInputs===4,'recovery cases and explicitly authorized new inputs');
+  check(inputs===index+recoveryInputs && counts().setters===inputs && counts().changes===inputs && counts().sends===0,'exactly one input per case; no send');
   return {passed:true,rejectedShapes:Object.keys(failures).length,retiredCases:4,nativeSetters:counts().setters,nativeChanges:inputs,automaticSends:counts().sends};
 }
 module.exports={runOriginalErrorCardCase};

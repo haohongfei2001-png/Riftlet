@@ -65,7 +65,10 @@ class BundleVerificationTests(unittest.TestCase):
         self.assertFalse(result["notarized"])
 
     def test_upgrade_builds_require_their_exact_archived_fingerprints(self):
-        for archived_build in (57, 58):
+        # This test varies the historical bundle version. Use a fixture within every
+        # version’s executable-resource limit while testing the separate archive rule.
+        (self.bundle / VERIFY.PROGRAM_NAMES[0]).write_bytes(b"(function () {})")
+        for archived_build in (57, 58, 59):
             name = f"build{archived_build}-observation-fingerprint.dat"
             archived = self.bundle / name
             data = archived.read_bytes()
