@@ -1,4 +1,4 @@
-"""Drive build-60 Core on independent private copies of the three sealed build-59 failure databases.
+"""Drive the current Core on independent private copies of the three sealed build-59 failure databases.
 
 Usage: python3 -B run_archives.py ARCHIVE_MANIFEST.json NEW_EVIDENCE_DIRECTORY
 The manifest maps each digest listed in ARCHIVES to {"database": "/.../sealed.sqlite", "png": "/.../original.png"}.
@@ -8,6 +8,7 @@ import argparse
 from collections import Counter
 from contextlib import closing
 import json
+import plistlib
 from pathlib import Path
 import shutil
 import sqlite3
@@ -136,7 +137,10 @@ def main():
     bridge = [HERE / "browser-bridge.cjs"] if args.with_headless else []
     summaries = [case(binary, Path(refs[h]["database"]), Path(refs[h]["png"]), output / name, h, bridge)
                  for h, name in ARCHIVES.items()]
-    report = {"scope": "Archived originating operations and PNGs, actual build 60 Core, controlled adapter",
+    info = plistlib.loads((ROOT / "Resources/Info.plist").read_bytes())
+    report = {"scope": "Archived originating operations and PNGs, checked-out Core, controlled adapter",
+              "version": info["CFBundleShortVersionString"], "build": info["CFBundleVersion"],
+              "pageSHA256": file_digest(ROOT / "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js"),
               "websiteStatus": "NOT_RUN", "cases": summaries}
     (output / "summary.json").write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report, indent=2))

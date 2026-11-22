@@ -1,0 +1,119 @@
+{
+  "scope": "Fresh source-built build 61 Core and frozen product Web resource; fresh isolated headless Chrome loopback Documents with recreated original progress/disappearance and archived private PNGs. No signed AppKit event or real ChatGPT operation in this test.",
+  "result": "PASS_CONTROLLED",
+  "version": "1.0.8",
+  "build": 61,
+  "source": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "tree": "70ba40e23a3afa3561525b1943cb0e5ebc825de5",
+  "webResourceSHA256": "2f6e2f6e1d80184813f6f967cc340638b96082abd5bd98c2f9e97b0597f982f2",
+  "swiftCoreTree": "e3dc6977064da425503b440dc035b2bfd9d7aad1",
+  "testedSourceDigestsSHA256": "ea1093e91283f06add80e124932a6d90e1ad8190a2ef045fe142a9c556472f4d",
+  "coreRunnerSHA256": "76cdd276fcb15348dd8b6934fa643bfc95fa29d20b5221d3d9b0bffb284a2df0",
+  "archiveCount": 3,
+  "archiveFilesWritten": 0,
+  "candidateDMGExercised": false,
+  "realSiteStatus": "NOT_RUN",
+  "captureTimeUTC": "2026-11-22T22:26:44.856025+00:00",
+  "cases": [
+    {
+      "case": "after-native-send",
+      "sourceArchiveSHA256": "3f1176fe3da464277c4ae2552c9a4ecee799b8d7aa4d1b5b7337b5b097c1e926",
+      "originalCaptureAndMediaSHA256": "fa734c39ae34bca70281f0f67439349402d7e9099465c6f7010148af77a1b469",
+      "beforeSHA256": "b4918d73912ee40f5a02c59b8016170fe11ae158c758855a8eb757a2117949ac",
+      "afterSHA256": "4e181f24fc3260cd8a5c5f01c57916a87d57f28fd736d5c2afa4ad3f46dc3751",
+      "freshLoopbackReceiptSHA256": "bc1ba27f3a9ab13fcf1d04abe5e46629b1fa98a1a47a20cf6e17355041017132",
+      "freshOperationInvocationAndLocalDocumentComparedWith60": true,
+      "secondVerifierReceiptSHA256": "fa3970cbbacaa551a3e22408683bdabd5acba4b89e64e057edd27f45aff0f8fc",
+      "originalRowsBeforeAfterIdentical": true,
+      "distinctClickBindingIDs": 3,
+      "persistedAttempts": [
+        1,
+        2,
+        3
+      ],
+      "cancelledInvocations": 0,
+      "retainedPredecessorLinks": 2,
+      "originalDurableSTARTs": 0,
+      "successorDurableSTARTs": 1,
+      "originalAndNewNativeEvents": {
+        "setters": 2,
+        "inputs": 2,
+        "changes": 2,
+        "submits": 0,
+        "sends": 0
+      },
+      "originalAndNewInputs": [
+        1,
+        1
+      ],
+      "persistedSuccessorSTARTMatchesLoopbackReceipt": true
+    },
+    {
+      "case": "partial-native-upload",
+      "sourceArchiveSHA256": "ed000599b6b66cdb2196989b140c6d097ed366f68c694cf51ed73707bfc0dd88",
+      "originalCaptureAndMediaSHA256": "20ec24f32a9dc11f7536526a2f2ca0001c728f78c7bb4432d8c65cdec6a26118",
+      "beforeSHA256": "58ece88ed0fd9457232847da0d83620561c40dff9cbf403fabd415bd21e8aace",
+      "afterSHA256": "6b82ff3392169833e2bbdf8a8c99d6d29132f880524db15ecb692f3ca8f7329d",
+      "freshLoopbackReceiptSHA256": "a9c634249d1e529a0e76c4a057297d76764bd5ce85bf98485322ea186e7ba48c",
+      "freshOperationInvocationAndLocalDocumentComparedWith60": true,
+      "secondVerifierReceiptSHA256": "f0fa809185599af87843a3d1d7ed3d63b4194abc30c4f03150626c9ccf44252f",
+      "originalRowsBeforeAfterIdentical": true,
+      "distinctClickBindingIDs": 3,
+      "persistedAttempts": [
+        1,
+        2,
+        3
+      ],
+      "cancelledInvocations": 0,
+      "retainedPredecessorLinks": 2,
+      "originalDurableSTARTs": 0,
+      "successorDurableSTARTs": 1,
+      "originalAndNewNativeEvents": {
+        "setters": 2,
+        "inputs": 2,
+        "changes": 2,
+        "submits": 0,
+        "sends": 0
+      },
+      "originalAndNewInputs": [
+        1,
+        1
+      ],
+      "persistedSuccessorSTARTMatchesLoopbackReceipt": true
+    },
+    {
+      "case": "body-sent-before-response",
+      "sourceArchiveSHA256": "2a7c15697cde5d96927999e6ec9b4766dd5ef79e58dfd0bb46fd5d0c53a498de",
+      "originalCaptureAndMediaSHA256": "7879f08c5ab36c8d9a60fed1f30661117ef17999dc8ab5bf81f2fbab37d974a4",
+      "beforeSHA256": "ba41daa5c6fe8ecefccbd5712ce722b495e3c7f79a2c728237c44165ebdda914",
+      "afterSHA256": "4c7a03aa03f8e9bfe38ab891200a6fb635258886997faf6853096a9356a7a107",
+      "freshLoopbackReceiptSHA256": "579966455263d703f7d25e1e76229af72ae957740337aaf9f188ecdf341b6765",
+      "freshOperationInvocationAndLocalDocumentComparedWith60": true,
+      "secondVerifierReceiptSHA256": "5d654ca1cce58499d1d020549c96f5ae8da853677fb7ed0d4c4c16c13dbdbe2d",
+      "originalRowsBeforeAfterIdentical": true,
+      "distinctClickBindingIDs": 3,
+      "persistedAttempts": [
+        1,
+        2,
+        3
+      ],
+      "cancelledInvocations": 0,
+      "retainedPredecessorLinks": 2,
+      "originalDurableSTARTs": 0,
+      "successorDurableSTARTs": 1,
+      "originalAndNewNativeEvents": {
+        "setters": 2,
+        "inputs": 2,
+        "changes": 2,
+        "submits": 0,
+        "sends": 0
+      },
+      "originalAndNewInputs": [
+        1,
+        1
+      ],
+      "persistedSuccessorSTARTMatchesLoopbackReceipt": true
+    }
+  ],
+  "harnessLabelNote": "The archived harness uses the literal build 60 in its generic summary label. Executed Core, Info.plist and page resource were independently verified against the frozen build 61 Git objects before and after this run."
+}
