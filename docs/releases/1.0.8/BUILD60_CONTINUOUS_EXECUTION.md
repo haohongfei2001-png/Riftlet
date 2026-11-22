@@ -65,3 +65,11 @@ C1 的只读观察器可以从单个已完整归属的正常请求中投影经�
 已从冻结源码生成一个双架构 Developer ID DMG，14,133,998 字节，SHA-256 为 `31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e`。Apple 对 App 和 DMG 接受公证。独立执行者只读挂载，完整复制后比对安装树、两架构代码签名与网页资源，9/9 项签名、staple、Gatekeeper 与程序自检通过，卷已卸载。[签名及 DMG 收据](evidence/build61/signed-candidate.json) · [独立安装回执](evidence/build61/independent-install.json)
 
 完整网页回归 384/384，Chrome 和 Edge 各自的凭据 19/19、图像预览 22/22，受控传输故障 8/8。真实编译的本机兼容模块与 build 56–60 原页面的 15 组历史标记一致。只提交脱敏收据，原 PNG、SQLite 和签名包均保存在私有验收目录。双架构完整 Swift 结果和网站输入单列跟踪。[本机回归](evidence/build61/local-regression.json)
+
+## 06:36（上海）· 正式合并候选与私有证据封存
+
+ARM64 与 Intel 两个独立 Actions 产物均解包核对，Swift 测试各 1,436 项通过，网页程序摘要与独立安装版本一致。非作者完整复核实际 main 至冻结源码的 483 个变更路径和 48 组浏览器对照，书面通过。G 的直接准入子提交 H 为 `fe34c3dbb3f7ba00a116612d720003f540739cf5`。正式 Draft PR #125 的预合并提交 `10ad18831eb356e455401bf26befa5780b6859d0` 由实际 main 与 H 依序组成，树等于 H。原生和 Feedback 的源码准入检查已通过，其他正式 PR 检查继续运行。[双架构产物](evidence/build61/dual-architecture-ci.json) · [完整非作者复核](evidence/build61/mainline-nonauthor-review.json) · [正式 Draft PR](https://github.com/haohongfei2001-png/Riftlet/pull/125)
+
+本次重新从三份 build 59 故障库创建独立副本，用冻结 build 61 在本地原生浏览器内核重走恢复。三次均保留旧 UNKNOWN，新增唯一显式输入及持久化 START。已私有封存 56 个逐件复算的文件，含 6 份 SQLite 一致性备份和 3 份 PNG。私有清单 SHA-256 为 `4c56a993fa1cc5366e819dc65517cab8a8264ff38cb43dd10b56b3bab5855fae`。本次亦用独立安装验证 build 61 与已发布 build 31 的更新源、签名要求、公钥、最低系统版本相同，实收官网和 stable feed 均指向 1.0.5。[原库与恢复核对](evidence/build61/archived-recovery.json) · [发行路径验证](evidence/build61/release-preparation.json)
+
+唯一实站执行者已在原 GUI 锁内移交到新验收驱动，原执行者的实站窗口创建和产品投递计数均为零。新驱动将原卡观察延续至用户重新选择和第二份数据库快照，也允许本轮已验证的 20–30 MiB 私有系统截图经产品通道进入大小测试。两款浏览器 Apple Events 已授权。前台仍为用途无法确定的系统窗口，两款浏览器的屏幕窗口和 AX 窗口数均为零。下一次桌面恢复时，同一执行者先执行 `edge/g4c`，再执行 `chrome/g1`、`edge/g2` 和单次大小实验。核验正式集成检查的命令为 `gh pr checks 125 --repo haohongfei2001-png/Riftlet`。待取得真实 G4-A 或获准 G4-B，以及 G4-C、G1、G2 后再进行发行独立复核。当前无需用户操作。[实际交互宿主回执](evidence/build61/gui-execution-checkpoint.json) · [发行报告](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)

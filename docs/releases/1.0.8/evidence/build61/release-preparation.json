@@ -1,0 +1,43 @@
+{
+  "checkedUTC": "2026-11-22T22:35:10.677542+00:00",
+  "candidate": {
+    "source": "49b9204974088c1983cda469910d9a78d8f4c43b",
+    "build": "61",
+    "archiveSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+    "archiveBytes": 14133998
+  },
+  "formalPR": {
+    "url": "https://github.com/haohongfei2001-png/Riftlet/pull/125",
+    "draft": true,
+    "reviewSHA256": "5ae2a6694b118a012ddaeb8fed4096d52a68a5ce950aaadcf7d44e192b6a20c0",
+    "main": "9fd8ad15fca043915069904113e5fb67d82b4948",
+    "soleAdmissionChild": "fe34c3dbb3f7ba00a116612d720003f540739cf5",
+    "onlyChangedPath": "engineering/mainline/source-admission.json",
+    "observedGitHubMergeRef": "10ad18831eb356e455401bf26befa5780b6859d0",
+    "parentsInOrder": [
+      "9fd8ad15fca043915069904113e5fb67d82b4948",
+      "fe34c3dbb3f7ba00a116612d720003f540739cf5"
+    ],
+    "mergeTree": "405bdfb7748e43ff88321ebb6d3c12c7d1c5866e",
+    "mergeTreeMatchesAdmission": true,
+    "mainMerged": false
+  },
+  "stable": {
+    "tag": "v1.0.5",
+    "build": 31,
+    "githubImmutable": true,
+    "websiteLinksToStableAsset": 2,
+    "websiteSHA256": "70246d64e139efe5b7ab1a22f00b422bc9bc06590b8c815a430c21443ed9037a",
+    "signedFeed": "https://riftlet.com/updates/stable.xml",
+    "feedSHA256": "da0b17e36b178ae94bcbea6e5720dcc400250350aa766fd31d4fbf8e3f476b52",
+    "signedFeedXMLVerified": true,
+    "publicDMGURL": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.5/Riftlet-1.0.5.dmg",
+    "publicDMGSHA256": "99276347932e231adf743664a54cfc782d8e345d89221587d54b7299a5c9f315",
+    "signedDMGVerified": true,
+    "publicDMGBytes": 12686160,
+    "candidateSharesFeedSigningPolicyAndKeyWith31": true,
+    "candidateReleaseKeySHA256": "60d035d2ea7ab6356ea09457d8fb99eb745462dfd02fd8588718faab9267b05d"
+  },
+  "newPublicRelease": "NOT_RUN",
+  "inAppUpdateFrom31To61": "NOT_RUN"
+}
