@@ -1,0 +1,380 @@
+{
+  "scope": "Owned local server and native headless Chrome. HTTP status and original bytes are both observed by that server.",
+  "browser": "Chrome/157.0.8103.79",
+  "result": "PASS",
+  "rows": [
+    {
+      "case": "size limit",
+      "server": {
+        "status": 413,
+        "bytes": 70,
+        "sha256": "8525dce9914db18843536a296f774dbb9822bab237d47e3a2769071d4689d28a",
+        "contentType": "image/png"
+      },
+      "selection": {
+        "input": 1,
+        "change": 1,
+        "sendButton": 0,
+        "submit": 0
+      },
+      "fileCount": 1,
+      "card": "refused",
+      "textUnchanged": true,
+      "events": [
+        {
+          "event": "input",
+          "trusted": true
+        },
+        {
+          "event": "change",
+          "trusted": true
+        },
+        {
+          "event": "readystatechange",
+          "trusted": true,
+          "readyState": 1,
+          "status": 0
+        },
+        {
+          "event": "loadstart",
+          "trusted": true,
+          "readyState": 1,
+          "status": 0
+        },
+        {
+          "event": "readystatechange",
+          "trusted": true,
+          "readyState": 2,
+          "status": 413
+        },
+        {
+          "event": "readystatechange",
+          "trusted": true,
+          "readyState": 3,
+          "status": 413
+        },
+        {
+          "event": "readystatechange",
+          "trusted": true,
+          "readyState": 4,
+          "status": 413
+        },
+        {
+          "event": "load",
+          "trusted": true,
+          "readyState": 4,
+          "status": 413
+        },
+        {
+          "event": "loadend",
+          "trusted": true,
+          "readyState": 4,
+          "status": 413
+        }
+      ]
+    },
+    {
+      "case": "service unavailable",
+      "server": {
+        "status": 503,
+        "bytes": 70,
+        "sha256": "8525dce9914db18843536a296f774dbb9822bab237d47e3a2769071d4689d28a",
+        "contentType": "image/png"
+      },
+      "selection": {
+        "input": 1,
+        "change": 1,
+        "sendButton": 0,
+        "submit": 0
+      },
+      "fileCount": 1,
+      "card": "refused",
+      "textUnchanged": true,
+      "events": [
+        {
+          "event": "input",
+          "trusted": true
+        },
+        {
+          "event": "change",
+          "trusted": true
+        },
+        {
+          "event": "readystatechange",
+          "trusted": true,
+          "readyState": 1,
+          "status": 0
+        },
+        {
+          "event": "loadstart",
+          "trusted": true,
+          "readyState": 1,
+          "status": 0
+        },
+        {
+          "event": "readystatechange",
+          "trusted": true,
+          "readyState": 2,
+          "status": 503
+        },
+        {
+          "event": "readystatechange",
+          "trusted": true,
+          "readyState": 3,
+          "status": 503
+        },
+        {
+          "event": "readystatechange",
+          "trusted": true,
+          "readyState": 4,
+          "status": 503
+        },
+        {
+          "event": "load",
+          "trusted": true,
+          "readyState": 4,
+          "status": 503
+        },
+        {
+          "event": "loadend",
+          "trusted": true,
+          "readyState": 4,
+          "status": 503
+        }
+      ]
+    },
+    {
+      "case": "accepted control",
+      "server": {
+        "status": 201,
+        "bytes": 70,
+        "sha256": "8525dce9914db18843536a296f774dbb9822bab237d47e3a2769071d4689d28a",
+        "contentType": "image/png"
+      },
+      "selection": {
+        "input": 1,
+        "change": 1,
+        "sendButton": 0,
+        "submit": 0
+      },
+      "fileCount": 1,
+      "card": "accepted",
+      "textUnchanged": true,
+      "events": [
+        {
+          "event": "input",
+          "trusted": true
+        },
+        {
+          "event": "change",
+          "trusted": true
+        },
+        {
+          "event": "readystatechange",
+          "trusted": true,
+          "readyState": 1,
+          "status": 0
+        },
+        {
+          "event": "loadstart",
+          "trusted": true,
+          "readyState": 1,
+          "status": 0
+        },
+        {
+          "event": "readystatechange",
+          "trusted": true,
+          "readyState": 2,
+          "status": 201
+        },
+        {
+          "event": "readystatechange",
+          "trusted": true,
+          "readyState": 3,
+          "status": 201
+        },
+        {
+          "event": "readystatechange",
+          "trusted": true,
+          "readyState": 4,
+          "status": 201
+        },
+        {
+          "event": "load",
+          "trusted": true,
+          "readyState": 4,
+          "status": 201
+        },
+        {
+          "event": "loadend",
+          "trusted": true,
+          "readyState": 4,
+          "status": 201
+        }
+      ]
+    },
+    {
+      "case": "unexpired private loopback grant",
+      "server": {
+        "status": 201,
+        "bytes": 70,
+        "sha256": "8525dce9914db18843536a296f774dbb9822bab237d47e3a2769071d4689d28a",
+        "contentType": "image/png"
+      },
+      "selection": {
+        "input": 1,
+        "change": 1,
+        "sendButton": 0,
+        "submit": 0
+      },
+      "fileCount": 1,
+      "grantEvidence": {
+        "scope": "owner-issued loopback grant",
+        "issuedAt": 1795384131920,
+        "expiresAt": 1795384133420,
+        "arrivedAt": 1795384131920,
+        "issuedGrants": 1,
+        "receivedPUTs": 1,
+        "receivedAt": 1795384131920,
+        "sentAt": 1795384131920
+      },
+      "card": "accepted",
+      "textUnchanged": true,
+      "events": [
+        {
+          "event": "input",
+          "trusted": true
+        },
+        {
+          "event": "change",
+          "trusted": true
+        },
+        {
+          "event": "readystatechange",
+          "trusted": true,
+          "readyState": 1,
+          "status": 0
+        },
+        {
+          "event": "loadstart",
+          "trusted": true,
+          "readyState": 1,
+          "status": 0
+        },
+        {
+          "event": "readystatechange",
+          "trusted": true,
+          "readyState": 2,
+          "status": 201
+        },
+        {
+          "event": "readystatechange",
+          "trusted": true,
+          "readyState": 3,
+          "status": 201
+        },
+        {
+          "event": "readystatechange",
+          "trusted": true,
+          "readyState": 4,
+          "status": 201
+        },
+        {
+          "event": "load",
+          "trusted": true,
+          "readyState": 4,
+          "status": 201
+        },
+        {
+          "event": "loadend",
+          "trusted": true,
+          "readyState": 4,
+          "status": 201
+        }
+      ]
+    },
+    {
+      "case": "naturally expired private loopback grant",
+      "server": {
+        "status": 403,
+        "bytes": 70,
+        "sha256": "8525dce9914db18843536a296f774dbb9822bab237d47e3a2769071d4689d28a",
+        "contentType": "image/png"
+      },
+      "selection": {
+        "input": 1,
+        "change": 1,
+        "sendButton": 0,
+        "submit": 0
+      },
+      "fileCount": 1,
+      "grantEvidence": {
+        "scope": "owner-issued loopback grant",
+        "issuedAt": 1795384132001,
+        "expiresAt": 1795384133501,
+        "arrivedAt": 1795384133534,
+        "issuedGrants": 1,
+        "receivedPUTs": 1,
+        "receivedAt": 1795384132001,
+        "sentAt": 1795384133533
+      },
+      "card": "refused",
+      "textUnchanged": true,
+      "events": [
+        {
+          "event": "input",
+          "trusted": true
+        },
+        {
+          "event": "change",
+          "trusted": true
+        },
+        {
+          "event": "readystatechange",
+          "trusted": true,
+          "readyState": 1,
+          "status": 0
+        },
+        {
+          "event": "loadstart",
+          "trusted": true,
+          "readyState": 1,
+          "status": 0
+        },
+        {
+          "event": "readystatechange",
+          "trusted": true,
+          "readyState": 2,
+          "status": 403
+        },
+        {
+          "event": "readystatechange",
+          "trusted": true,
+          "readyState": 3,
+          "status": 403
+        },
+        {
+          "event": "readystatechange",
+          "trusted": true,
+          "readyState": 4,
+          "status": 403
+        },
+        {
+          "event": "load",
+          "trusted": true,
+          "readyState": 4,
+          "status": 403
+        },
+        {
+          "event": "loadend",
+          "trusted": true,
+          "readyState": 4,
+          "status": 403
+        }
+      ]
+    }
+  ],
+  "realChatGPTHTTPStatus": null,
+  "collectedUTC": "2026-11-22T21:49:38.721517+00:00",
+  "rawSHA256": "850ce3d2f659016b59095f4ed173f03a6bb18b2e179dbd7fa11567c76a6d9383"
+}

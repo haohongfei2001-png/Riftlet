@@ -1,0 +1,51 @@
+{
+  "checkedUTC": "2026-11-22T21:55:00.726980+00:00",
+  "candidate": {
+    "version": "1.0.8",
+    "build": "60",
+    "source": "711cee3a1c7033ce4925082a83099b00da7087c6",
+    "tree": "d31485a99ed33d990edfaf258a453fd502358020",
+    "sha256": "5a934119d6e65cbe82a62f5f208a2b95a200fa0cf170225ccd4e9016b1c0b54e",
+    "bytes": 14092837
+  },
+  "integration": {
+    "observedMain": "9fd8ad15fca043915069904113e5fb67d82b4948",
+    "remoteStagingBranch": "codex/release-1.0.8-build60-staging",
+    "remoteStagingHead": "711cee3a1c7033ce4925082a83099b00da7087c6",
+    "mergePreviewTree": "d31485a99ed33d990edfaf258a453fd502358020",
+    "remoteMainContainsCandidate": false,
+    "sourceAdmissionForThisMerge": "PENDING",
+    "formalMerge": "NOT_RUN"
+  },
+  "stableBaseline": {
+    "tag": "v1.0.5",
+    "build": "31",
+    "immutable": true,
+    "dmgSHA256": "99276347932e231adf743664a54cfc782d8e345d89221587d54b7299a5c9f315",
+    "bytes": 12686160,
+    "previouslyDownloadedDMGReverifiedWithCurrentPublicFeed": true,
+    "feedXMLSigVerified": true,
+    "signedEnclosureVerified": true,
+    "currentFeedURL": "https://riftlet.com/updates/stable.xml",
+    "liveFeedSHA256": "da0b17e36b178ae94bcbea6e5720dcc400250350aa766fd31d4fbf8e3f476b52",
+    "liveHomeSHA256": "70246d64e139efe5b7ab1a22f00b422bc9bc06590b8c815a430c21443ed9037a",
+    "currentWebsiteDownloadLinksChecked": 2,
+    "currentDownloadURL": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.5/Riftlet-1.0.5.dmg"
+  },
+  "sparkle": {
+    "minimumSystemVersion": "13.0",
+    "requireSignedFeed": true,
+    "publicKeyFingerprintSHA256": "60d035d2ea7ab6356ea09457d8fb99eb745462dfd02fd8588718faab9267b05d",
+    "sameFeedAndTrustKeyAsTag31": true,
+    "isolatedReleaseToolTestsPassed": 11,
+    "regressionLogSHA256": "6a169432c52a40e14c723e8222ff0f7b9fa73266e4891047aad2a410a6442e7e"
+  },
+  "publication": {
+    "newTag": "NOT_RUN",
+    "newRelease": "NOT_RUN",
+    "webChange": "NOT_RUN",
+    "newPublicFeed": "NOT_RUN",
+    "public60Download": "NOT_RUN",
+    "appUpdate31To60": "NOT_RUN"
+  }
+}

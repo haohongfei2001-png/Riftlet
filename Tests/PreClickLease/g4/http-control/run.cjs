@@ -20,11 +20,13 @@ const html = '<!doctype html><meta charset="utf-8"><title>Loopback attachment co
 const cases = [
   {label: 'size limit', byteLimit: png.length - 1, unavailable: false, expected: 413},
   {label: 'service unavailable', byteLimit: png.length, unavailable: true, expected: 503},
-  {label: 'accepted control', byteLimit: png.length, unavailable: false, expected: 201}
+  {label: 'accepted control', byteLimit: png.length, unavailable: false, expected: 201},
+  {label: 'unexpired private loopback grant', byteLimit: png.length, grant: 'use-now', expected: 201},
+  {label: 'naturally expired private loopback grant', byteLimit: png.length, grant: 'wait', expected: 403}
 ];
 
 function loopbackSite() {
-  const routes = new Map(cases.map(config => ['/case/' + randomUUID(), {config, received: []}]));
+  const routes = new Map(cases.map(config => ['/case/' + randomUUID(), {config, received: [], issued: null, seenGrant: 0}]));
   const unexpected = [];
   const connections = new Set();
   const server = http.createServer((req, res) => {
@@ -33,7 +35,19 @@ function loopbackSite() {
         'Content-Security-Policy': "default-src 'none'; script-src 'self'; connect-src 'self'; form-action 'none'"}).end(body);
     };
     if (req.headers.host !== '127.0.0.1:' + server.address().port) return reply(403, 'text/plain', 'wrong host');
-    if (req.method === 'GET' && routes.has(req.url)) return reply(200, 'text/html; charset=utf-8', html);
+    if (req.method === 'GET' && routes.has(req.url)) {
+      const mode = routes.get(req.url).config.grant;
+      const page = mode ? html.replace('<form>', '<form data-grant="' + mode + '">') : html;
+      return reply(200, 'text/html; charset=utf-8', page);
+    }
+    const grant = req.url.endsWith('/grant') && routes.get(req.url.slice(0, -6));
+    if (req.method === 'POST' && grant?.config.grant) {
+      if (grant.issued) return reply(409, 'text/plain', 'already issued');
+      const issuedAt = Date.now();
+      grant.issued = {issuedAt, expiresAt: issuedAt + 1500, route: req.url.slice(0, -6) + '/png'};
+      grant.seenGrant++;
+      return reply(201, 'application/json', JSON.stringify(grant.issued));
+    }
     if (req.method === 'GET' && req.url === '/fixture.js') return reply(200, 'text/javascript', script);
     if (req.method === 'GET' && req.url === '/favicon.ico') return reply(204, 'text/plain', '');
     const route = req.url.endsWith('/png') && routes.get(req.url.slice(0, -4));
@@ -41,12 +55,15 @@ function loopbackSite() {
       unexpected.push(req.method);
       return reply(404, 'text/plain', 'unknown fixture route');
     }
+    const arrivedAt = Date.now();
     let bytes = 0;
     const hash = createHash('sha256');
     req.on('data', chunk => { bytes += chunk.length; hash.update(chunk); });
     req.on('end', () => {
       const {byteLimit, unavailable} = route.config;
-      const status = bytes > byteLimit ? 413 : unavailable ? 503 : 201;
+      const expired = route.config.grant && (!route.issued || arrivedAt >= route.issued.expiresAt);
+      const status = expired ? 403 : bytes > byteLimit ? 413 : unavailable ? 503 : 201;
+      if (route.issued) route.issued.arrivedAt = arrivedAt;
       const digest = hash.digest('hex');
       const receipt = {status, bytes, sha256: digest};
       route.received.push({...receipt, contentType: req.headers['content-type']});
@@ -108,7 +125,8 @@ async function run() {
     exited = new Promise(resolve => { child.once('exit', resolve); child.once('error', resolve); });
     const driver = new FixtureDriver(child);
     const version = (await driver.call('Browser.getVersion')).product;
-    for (const [url, {config, received}] of site.routes) {
+    for (const [url, route] of site.routes) {
+      const {config, received} = route;
       const tab = await driver.open('http://127.0.0.1:' + site.server.address().port + url);
       try {
         await waitValue(driver, tab, 'window.ready === true');
@@ -118,7 +136,19 @@ async function run() {
         await driver.call('DOM.setFileInputFiles', {nodeId, files: [filename]}, tab.sessionId);
         const row = await waitValue(driver, tab, 'window.control');
         check(row, received, config.expected);
-        rows.push({case: config.label, server: received[0], selection: row.counts, fileCount: row.fileCount,
+        let grantEvidence;
+        if (config.grant) {
+          const {issuedAt, expiresAt, arrivedAt} = route.issued;
+          assert.equal(route.seenGrant, 1);
+          assert.equal(row.grant.expiresAt, expiresAt);
+          assert.equal(row.grant.issuedAt, issuedAt);
+          assert.ok(issuedAt <= row.grant.receivedAt && row.grant.receivedAt < expiresAt);
+          assert.ok(row.grant.receivedAt <= row.grant.sentAt && row.grant.sentAt <= arrivedAt);
+          assert.equal(arrivedAt >= expiresAt, config.grant === 'wait');
+          grantEvidence = {scope: 'owner-issued loopback grant', issuedAt, expiresAt, arrivedAt,
+            issuedGrants: route.seenGrant, receivedPUTs: received.length, ...row.grant};
+        }
+        rows.push({case: config.label, server: received[0], selection: row.counts, fileCount: row.fileCount, grantEvidence,
           card: row.card, textUnchanged: row.textUnchanged, events: row.events});
       } finally {
         await driver.call('Target.closeTarget', {targetId: tab.targetId});
