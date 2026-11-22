@@ -25,3 +25,17 @@ The command contract is shared with the supervisor in the adjacent directory.
 G1 and G2 use the cold first screenshot in the empty draft and the next first screenshot after the original card exists. The latter is also the first member of rapid pair one. The audit requires independent source, pixel, card, input and SQLite proof. G4-C uses its dedicated bound private driver. The B4 size report preserves actual capture, PNG and browser evidence. A size warning by itself supplies no status code for an upstream request; a qualifying G4-B decision remains independent.
 
 Run the six offline controls with `python3 -B -m unittest -q test_gui_host` in this directory. No browser or system notification is opened by these controls.
+
+## Retaining an inconclusive original
+
+A G4-C or B4 attempt with a proven website input can leave its entire original window, watcher and private profile available for read-only investigation. Parking requires the exact supervisor claim and inconclusive terminal, an original-document/original-editor input and change, zero send and submit events, a durable operation, and a matching installed candidate. If the original private candidate remains running, its explicit read-only, no-replay handoff and process/profile identity are also required. A stopped preparation, an intent alone or a protected desktop cannot park a scope.
+
+Under the shared lock the host first writes the immutable parked record, then preserves and retires the active-scope pointer. A crash between those steps is recoverable. The host keeps the actual document, candidate and watcher untouched. Future dispatch rejects both an already parked case and a parked target hash. Distinct cases use fresh documents, pre-click bindings and private candidate profiles. The normal row sender checks the new signed PID, private profile and visual row at the last boundary. Parking never terminates a process, aborts a request or dispatches a file.
+
+## Actual launch context
+
+At each sample the native helper queries Apple Events consent with `askUserIfNeeded=false` for the identified vendor browser and reads the current AX trust. The transition journal distinguishes a foreground system dialog from lack of AX trust or Apple Events authorization. It keeps a separate series for a host whose direct parent matches the PID of the registered Aqua QA supervisor. An interactive terminal or Codex child cannot supply a record for that series.
+
+The private mode-0600 `host-observations.sqlite` retains only changes in the allowlisted metadata, per browser and actual caller context. It records front process/geometry, console and display state, browser AX/CG counts, the twelve predicates and a bounded failure code. An unknown system dialog remains undisturbed. An exact AXRaise requires an unambiguous original native frame among browser windows, one matching standard AX window and one same-process on-screen CG surface. The action is revalidated just before invocation. The ordinary Apple Event activate additionally requires the dedicated tab to be selected. Both request return and post-action foreground/selection have independent fields.
+
+Run all fifteen controls with `python3 -B -m unittest -q test_gui_host test_parking`.

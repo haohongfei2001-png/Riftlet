@@ -6,6 +6,8 @@ import os
 from pathlib import Path
 import re
 import subprocess
+from gui_park import logical
+from gui_telemetry import journal
 
 CHECKS = ('nativeForeground', 'nativeWindowVisible', 'cgWindowOnScreen', 'axOriginalWindow',
           'originalTabSelected', 'documentVisible', 'documentFocused', 'signedIn',
@@ -19,6 +21,8 @@ def command(args, limit=8):
     p = subprocess.run([str(a) for a in args], capture_output=True, timeout=limit)
     if p.returncode:
         msg=p.stderr.decode(errors='replace').strip()
+        if '-1743' in msg:raise ValueError('APPLE_EVENT_DENIED')
+        if '-1744' in msg:raise ValueError('APPLE_EVENT_CONSENT_REQUIRED')
         raise ValueError(msg if re.fullmatch(r'[A-Z_0-9]{1,100}',msg) else 'HOST_OBSERVATION_UNAVAILABLE')
     return json.loads(p.stdout)
 def sample(base, site, family, nonce, keep=None):
@@ -26,10 +30,12 @@ def sample(base, site, family, nonce, keep=None):
         raise ValueError('INVALID_SAMPLE_ARGUMENTS')
     private_scope = base/'active-scope.json'
     scoped = read(private_scope) if private_scope.is_file() else {}
+    parked = logical(base,scoped) if scoped else None
+    if parked: scoped={}
     state = Path(scoped['root'])/'signed60'/family if scoped.get('family') == family else None
     checks=dict.fromkeys(CHECKS,False)
     original, target, cause = {}, None, None
-    exe=base/'window-evidence'
+    exe=Path(__file__).resolve().parent/'window-evidence'
     if state and state.parent.parent.parent.resolve()==base and (state/'original-entry.json').is_file() and not (state/'closed.json').exists():
         try:
             env=command([exe,'original',state,family])
@@ -48,9 +54,11 @@ def sample(base, site, family, nonce, keep=None):
     else:
         env=command([exe,'environment'])
     manager=subprocess.run(['/bin/launchctl','managername'],capture_output=True,text=True,timeout=3).stdout.strip()
-    eligible=env['eligibleForPreparation'] and manager=='Aqua'
+    permission=env.get('browsers',{}).get(family,{}).get('aePermission')
+    eligible=env['eligibleForPreparation'] and manager=='Aqua' and permission=='ALLOWED'
     stable={k:env[k] for k in ['frontBundle','systemDialogOnScreen','protectedForeground','frontHasModal','displayAwake','screenLocked','onConsole','loginDone','consoleUIDMatches','axTrusted']}
     stable['eligibleForPreparation']=eligible;stable['launchManager']=manager
-    stable['browsers']={f:{k:v[k] for k in ['running','hidden','regular','axWindowCount','cgOnScreenCount'] if k in v} for f,v in env['browsers'].items()}
+    stable['browsers']={f:{k:v[k] for k in ['running','hidden','regular','axWindowCount','cgOnScreenCount','aePermission','axWindowAttributeReadable'] if k in v} for f,v in env['browsers'].items()}
+    journal(base,family,env,checks,cause,state is not None,manager,target)
     if keep:keep({'nativeReceipt':env,'checks':checks,'cause':cause,'currentCase':scoped.get('case')})
     return {'schema':1,'nonce':nonce,'family':family,'digest':digest(stable),'environment':{'eligibleForPreparation':eligible,'protectedForeground':env['protectedForeground'],'systemDialogOnScreen':env['systemDialogOnScreen'],'displayAwake':env['displayAwake'],'launchManager':manager},'targetKey':target,'checks':checks,'ready':bool(eligible and all(v is True for v in checks.values())),'heldCase':scoped.get('case') if state and not (state/'closed.json').is_file() else None,'scopeReadError':cause}

@@ -40,6 +40,19 @@ import Foundation
     static func same(_ lhs: CGRect, _ rhs: CGRect) -> Bool {
         zip([lhs.minX,lhs.minY,lhs.width,lhs.height],[rhs.minX,rhs.minY,rhs.width,rhs.height]).allSatisfy { abs($0-$1)<=1.0 }
     }
+    static func aePermission(_ app:NSRunningApplication) -> String {
+        // This API is queried with askUserIfNeeded=false and sends no event.
+        guard let id=app.bundleIdentifier else{return "TARGET_UNAVAILABLE"}
+        let target=NSAppleEventDescriptor(bundleIdentifier:id)
+        let code=AEDeterminePermissionToAutomateTarget(target.aeDesc,typeWildCard,typeWildCard,false)
+        switch code {
+        case noErr: return "ALLOWED"
+        case -1743:return "DENIED"
+        case -1744:return "CONSENT_REQUIRED"
+        case -600:return "TARGET_NOT_RUNNING"
+        default:return "UNKNOWN_OS_STATUS"
+        }
+    }
     static func ownWindows(_ pid: pid_t) -> [AXUIElement]? {
         ax(AXUIElementCreateApplication(pid),kAXWindowsAttribute as String) as? [AXUIElement]
     }
@@ -87,7 +100,7 @@ import Foundation
             }
             if matches.count==1 {
                 let app=matches[0],wins=ownWindows(app.processIdentifier)
-                browsers[family]=["pid":app.processIdentifier,"running":true,"regular":app.activationPolicy == .regular,"hidden":app.isHidden,"active":app.isActive,
+                browsers[family]=["queryWithoutPrompt":true,"aePermission":aePermission(app),"axWindowAttributeReadable":wins != nil,"pid":app.processIdentifier,"running":true,"regular":app.activationPolicy == .regular,"hidden":app.isHidden,"active":app.isActive,
                                   "axWindowCount":wins?.count ?? -1,"cgBaseWindowCount":regular(owned(all,app.processIdentifier)).count,"cgOnScreenCount":regular(owned(on,app.processIdentifier)).count]
             } else {browsers[family]=["running":false,"matchingProcessCount":matches.count]}
         }
@@ -104,6 +117,7 @@ import Foundation
               challenge["windowID"] as? String==wid,challenge["tabID"] as? String==tid,challenge["sessionID"] as? String==birth,
               challenge["dynamicSignature"] as? Bool==true,nav["sourceDoc"] as? String==doc,nav["navigationRequested"] as? Bool==true,
               entry["sourceDoc"] as? String==doc else {throw Identity.Refusal("ORIGINAL_SCOPE_REQUIRED")}
+        try require(browsers[family]?["aePermission"] as? String=="ALLOWED","AE_PERMISSION_NOT_ESTABLISHED_WITHOUT_PROMPT")
         let proc=try Identity.certified(vendor,expectedPID:pid)
         try require(proc.session==birth,"BROWSER_BIRTH_CHANGED")
         let w=try Identity.object("cwin","ID  ",.init(string:wid)),t=try Identity.object("CrTb","ID  ",.init(string:tid),w)

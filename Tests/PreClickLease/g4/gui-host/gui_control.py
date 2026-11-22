@@ -13,6 +13,7 @@ import tempfile
 import time
 from types import SimpleNamespace
 from gui_sample import command, read, sample
+import gui_park
 
 CASES={'chrome':{'g1'},'edge':{'g2','g4c','b4'}}
 PROTECTED=('com.apple.UserNotificationCenter','com.apple.SecurityAgent','com.apple.CoreAuthUI','com.apple.loginwindow')
@@ -54,27 +55,31 @@ def implementation(site):
     installed()
     return coordinator
 def present_held(base,site,family,task,nonce):
-    env=command([base/'window-evidence','environment'])
-    need(env['eligibleForPreparation'],'DESKTOP_PROTECTED')
+    env=command([Path(__file__).resolve().parent/'window-evidence','environment'])
+    need(env['eligibleForPreparation'] and env['browsers'].get(family,{}).get('aePermission')=='ALLOWED','DESKTOP_OR_BROWSER_AUTHORIZATION_UNAVAILABLE')
     scope=read(base/'active-scope.json');root,state=root_of(base,scope,family,task)
     need((state/'ready60.json').is_file() and not (state/'closed.json').exists(),'NO_PREVIOUSLY_VERIFIED_ORIGINAL_DRAFT')
     prepared=base/('presentation-'+nonce+'.json')
     write_new(base/('presentation-intent-'+nonce+'.json'),{'case':task,'source':scope['root']})
     if sample(base,site,family,nonce)['ready']:
         write_new(prepared,{'alreadyReady':True});return
-    result=command([base/'present-original',state,family],limit=12)
+    result=command([Path(__file__).resolve().parent/'present-original',state,family],limit=12)
     write_new(prepared,result)
     need(result['originalSelected'] and result['systemForeground'],'ORIGINAL_NOT_PRESENTED')
 def prepare(base,site,family,task,nonce,fd):
     coord=implementation(site);scope_file=base/'active-scope.json'
+    if scope_file.exists():
+        existing=read(scope_file); proposed=gui_park.logical(base,existing)
+        if proposed:gui_park.install(base,existing,proposed,write_new)
+    need(not gui_park.excludes(base,task=task),'PARKED_CASE_IS_READ_ONLY')
     if scope_file.exists():
         scope=read(scope_file);root,state=root_of(base,scope,family,task)
         need(not any(state.glob('live-*')) and not (root/'business-claim.json').exists(),'ORIGINAL_OPERATION_REQUIRES_OBSERVATION')
         present_held(base,site,family,task,nonce)
     else:
         need(task!='g4c','G4C_ISSUER_HAS_SEPARATELY_PINNED_ORIGINAL_SCOPE')
-        env=command([base/'window-evidence','environment'])
-        need(env['eligibleForPreparation'],'DESKTOP_PROTECTED')
+        env=command([Path(__file__).resolve().parent/'window-evidence','environment'])
+        need(env['eligibleForPreparation'] and env['browsers'].get(family,{}).get('aePermission')=='ALLOWED','DESKTOP_OR_BROWSER_AUTHORIZATION_UNAVAILABLE')
         root=base/(task+'-'+nonce);state=root/'signed60'/family
         need(not root.exists(),'FRESH_SCOPE_REQUIRED')
         write_new(scope_file,{'family':family,'case':task,'root':str(root),'entry':'new-sole-verified-native-window','preInput':True})
@@ -108,6 +113,7 @@ def run_case(base,site,g4driver,family,task,nonce,claimPath,fd):
     prefix={k:j[k] for k in ('attemptID','nonce','family','case','targetKey','dmgSHA256')}
     if terminal.exists():
         done=read(terminal);need(all(done.get(k)==v for k,v in prefix.items()),'MISMATCHED_PREVIOUS_RESULT');return returned(terminal,done)
+    need(not gui_park.excludes(base,task=task,target=j['targetKey']),'PARKED_ORIGINAL_IS_READ_ONLY')
     scope=read(base/'active-scope.json');root,state=root_of(base,scope,family,task)
     lane=root/('admission-'+j['attemptID']);lane.mkdir(mode=0o700)
     receipts=[]
@@ -160,7 +166,10 @@ def run_case(base,site,g4driver,family,task,nonce,claimPath,fd):
     write_new(terminal,done)
     # An unresolved original, or a retained named failure, stays available for independent, read-only review.
     safe_close=(product.get('privateChildExited') is True and not product.get('leaveOriginalWatcherForIndependentRecovery') and product.get('resumeMode')!='ORIGINAL_READ_ONLY')
-    if safe_close:
+    parked=gui_park.logical(base,scope) if done['outcome']=='INCONCLUSIVE' else None
+    if parked:
+        gui_park.install(base,scope,parked,write_new)
+    elif safe_close:
         try:retire_active(base,scope,state,coord)
         except (RuntimeError,ValueError,OSError,KeyError,subprocess.SubprocessError):
             write_new(lane/'close-needs-owned-review.json',{'reason':'EXACT_SCOPE_CLEANUP_INCOMPLETE'})

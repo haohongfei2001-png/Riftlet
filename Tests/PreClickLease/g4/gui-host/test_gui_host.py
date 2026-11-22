@@ -17,7 +17,7 @@ class CheckHost(unittest.TestCase):
            'nativeVisible':True,'cgWindowOnScreen':True,'centerHitOriginalCG':True,'axOriginalWindow':True,
            'selected':True,'singleTab':True,'knownOriginalProcess':True}
         self.env={k:True for k in ('displayAwake','onConsole','loginDone','consoleUIDMatches','axTrusted','eligibleForPreparation')}
-        self.env.update(frontBundle='fixture',systemDialogOnScreen=False,protectedForeground=False,frontHasModal=False,screenLocked=False,browsers={})
+        self.env.update(frontBundle='fixture',systemDialogOnScreen=False,protectedForeground=False,frontHasModal=False,screenLocked=False,browsers={'edge':{'running':True,'aePermission':'ALLOWED'},'chrome':{'running':True,'aePermission':'ALLOWED'}})
         self.payload={'pid':4,'sessionID':'birth','windowID':'w','tabID':'t','family':'edge','exactTemporaryURL':True,
            'systemForeground':True,'originalSelection':True,'originalSoleTab':True,'dynamicSignature':True,
            'page':{'entryID':'e','timeOrigin':1,'editor':True,'uploadEntry':True,'signedIn':True,'observationState':{'focused':True,'visible':True}}}
@@ -27,7 +27,7 @@ class CheckHost(unittest.TestCase):
             if args[0].name=='observer':
                 raw=json.dumps(self.payload).encode();return {'payload':self.payload,'payloadBase64':base64.b64encode(raw).decode(),'sha256':hashlib.sha256(raw).hexdigest()}
             return dict(self.env,original=self.orig)
-        with patch.object(gui_sample,'command',cmd),patch.object(gui_sample.subprocess,'run',return_value=types.SimpleNamespace(stdout='Aqua\n')):
+        with patch.object(gui_sample,'command',cmd),patch.object(gui_sample,'journal'),patch.object(gui_sample.subprocess,'run',return_value=types.SimpleNamespace(stdout='Aqua\n')):
             return gui_sample.sample(self.base,self.base,f,'control')
     def test_source_case_label_never_grants_a_new_target(self):
         first=self.obtain();self.assertTrue(first['ready']);self.assertEqual(len(first['checks']),12)
