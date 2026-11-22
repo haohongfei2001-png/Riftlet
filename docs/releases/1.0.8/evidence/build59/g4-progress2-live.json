@@ -1,0 +1,140 @@
+{
+  "browser": "Microsoft Edge",
+  "candidateDMG": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+  "cleanup": {
+    "networkHooksRestored": true,
+    "originalWindowClosedAndOriginalWindowSetRestored": true,
+    "pageWatcherClosed": true,
+    "privateLoopbackListenerExited": true,
+    "privateSignedCandidateExited": true
+  },
+  "evidence": {
+    "candidate.stderr": "f4cd4145eda37459e7b2b0c042c7abd100d5918da5de28601c66a8e4be5e9168",
+    "capture-1.json": "5b3974c75e66f7e6f8c4d9f83fee3470f418ce817f501cd97398809302c6b2f2",
+    "capturePixels": "dbc6bbc203b1b3ad24b70dd133061c78cd150aec87b5e29aafa731312ef85c76",
+    "final-db.json": "ab20e99a8ec7e639fd7526b0e0f1e8018efed73debdc6b3fe94484c6683b2f20",
+    "final-page.json": "f87c2989e1e8c000262332654c1bbbb312ff3ad580afbe3919830bc860fa1d32",
+    "listenerExit": "5b88585a9a5ef822141a5c0b0a7ec70fff648c78d7429ead29b4560c45352201",
+    "transport-binding.json": "73980ca9ace2bfcf25ded809eff0b7e1e242d5f2841494c52b1a9b7e54884400",
+    "transport-fault-finish.json": "79df2dc30250509d7c73e8763cba887d0b5d42f7b75605b0a880878e981998ce",
+    "transport-fault-sample.json": "79df2dc30250509d7c73e8763cba887d0b5d42f7b75605b0a880878e981998ce",
+    "transport-original-observed.json": "42355472d67eda142024450f695a7acdcbca1e8e7ee48041337c0b7ad8b47953",
+    "watch-closed.json": "a54ac5bb1f80f63e97d0fdea2ed11b5d547130e28378703d643019b310611f98",
+    "window/after.json": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+    "window/before.json": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+    "window/closed.json": "e148ee30b300dcf304cd7e68b337f09025d911a0f3f13fde9285d63fb5857d77",
+    "window/creation.json": "8ccfb2719b32cb05f05f5d69652133a209ed036a3d6ba152150ffff51fbc3b78",
+    "window/original-entry.json": "29a435645da1b5f68581c462da573649dc8b0b89674be3dc68a191c97ad27209",
+    "window/site-navigation-return.json": "547637c7acce19bec776c0978511ba24d5e7b920db1f9d9d0562785fbab097d3"
+  },
+  "frozenSamplerSHA256": "8e29ad64333428a2545a330f260b2fa4411aeb09c36143ba6f9f976257c929c7",
+  "fullSiteAndDatabaseRecoveryGate": "NOT_RUN",
+  "g4Decision": "NOT_RUN",
+  "invocationDigest": "6375429cc6d6e6901b716883079fd535cf41a650618ccd46ff1d9daa29de8114",
+  "mode": "NATIVE_UPLOAD_PARTIAL",
+  "nativeSamplerHostSHA256": "9fc7baf353e68508b31112f6d2ad1b756413af072ef6ad003365c70a9dce2938",
+  "networkObservationBoundary": "The terminal sampler reports the aggregate create-file-mismatch refusal without naming the particular field. It cannot attribute a byte request, method, status or transmitted bytes to this operation. The page input and durable attachmentAccepted START provide no missing network proof.",
+  "originalOperationIDDigest": "d5a2db759dc783f8f997be4f5672105e7b2a3f4a35b132a90d4e912a4c0c3e35",
+  "originalProfileDBBackupSHA256": "11bcd99f1681371f95bb9ad5f74a03379b2e463e09a38f9fd872320208fbf509",
+  "scope": "Independent review of the completed dedicated Edge strategy",
+  "site": {
+    "finalSitePreview": {
+      "encodedPNGMatchesOriginal": false,
+      "siteDecodedPreviewMatchesNativeRGBADigest": false,
+      "websiteDecodedOriginalFileEqualsDecodedPreview": false
+    },
+    "matchingOriginalNameOnVisibleCard": true,
+    "namedFailureInCurrentSample": false,
+    "nativeClicks": 1,
+    "nativeCommits": 1,
+    "nativeDecodedOriginalRGBASHA256": "580cb792501ca746e2ea608ef8575e74243cbaae76a675e9c5488e2194fdaa9d",
+    "originalWindowDocumentComposerVerified": true,
+    "previewMeasurements": [
+      {
+        "centerPixelEqualsInput": true,
+        "dimensionsCard": [
+          1024,
+          768
+        ],
+        "dimensionsInput": [
+          1024,
+          768
+        ],
+        "websiteDecodedInputRGBASHA256": "9a136234ec0d606ef039675a2f3fed50fd05dfcead47ea00efc6cc62d75678fb",
+        "websiteDecodedPreviewRGBASHA256": "2d490a17d627bc19415eb35200fa7a3ccc6f73dc192b95821b23d7466649df52",
+        "websiteEncodedPreviewSHA256": "a3767c4a9025ec3e22226727fd65a44b9b0c4109bd61a4e514f946b8507a24d6"
+      }
+    ],
+    "resourceTimingOnly": [
+      {
+        "initiator": "fetch",
+        "publicPath": "/backend-api/files",
+        "recordedResponseStatus": 200
+      },
+      {
+        "initiator": "fetch",
+        "publicPath": "/backend-api/files/process_upload_stream",
+        "recordedResponseStatus": null
+      }
+    ],
+    "retainedNamedFailureFromOriginalMutation": false,
+    "secondsFromFirstIntentToLastOriginalObservation": 54.884,
+    "websiteCounts": {
+      "fileChange": 1,
+      "fileInput": 1,
+      "formSubmit": 0,
+      "sendButtonClicks": 0
+    }
+  },
+  "sourcePNGBytes": 2255260,
+  "sourcePNGSHA256": "9a46d702008933474e96136e9ef7c6f3832e0b19475175ee2b3ae2d499a55a97",
+  "sqlite": {
+    "counts": {
+      "assets": 1,
+      "operations": 1,
+      "upload_starts": 1
+    },
+    "originalHadSTART": true,
+    "originalHasError": false,
+    "originalNamedFailureAndRecoveryBackups": "NOT_RUN",
+    "originalPhase": "inputTriggered",
+    "originalReceipt": "uploadStarted",
+    "safeToRetry": false
+  },
+  "strategyStatus": "REAL_ATTEMPT_WITHOUT_FAULT",
+  "transport": {
+    "abortCalls": 0,
+    "attributedByteRequests": 0,
+    "attributedNetworkRequest": false,
+    "completeNativeUploadEvent": {
+      "eligibleEvents": 0,
+      "fullProgressCount": 0,
+      "invalidEvents": 0,
+      "lastProgress": null,
+      "partialCount": 0,
+      "progressEvents": 0,
+      "responseStarted": false,
+      "unreadyEvents": 0,
+      "uploadLoad": null,
+      "uploadLoadCount": 0,
+      "windowClosed": null
+    },
+    "controlledAbortObserved": false,
+    "entireOriginalBody": null,
+    "immediateRestoration": true,
+    "pendingNative": false,
+    "qualifyingCreateReceipts": 0,
+    "qualifyingCreateResponses": 0,
+    "restored": true,
+    "sourceBytesClass": null,
+    "terminal": null,
+    "terminationReason": "create-file-mismatch",
+    "trigger": null,
+    "trustedAborts": 0,
+    "trustedLoadends": 0,
+    "urlSHA256": null
+  },
+  "underlyingServerOutcome": "NOT_OBSERVED",
+  "verifiedAgainstRawSystemPNGAndOriginalDatabase": true,
+  "windowClosureAndRestoredOriginalInventory": true
+}
