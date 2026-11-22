@@ -45,11 +45,23 @@ let readOriginalDraft = #"""
     !n.matches(':disabled,[aria-disabled=true]') && /^(Log out|Sign out|Manage account|Manage subscription|退出登录|管理账户|管理订阅)$/i.test(label(n)));
   const explicitPlan = btn && elements(btn,'[aria-label="Current plan"],[aria-label="当前套餐"]').some(n=>/^(?:ChatGPT\s+)?(?:Plus|Pro|Business|Enterprise)$/i.test(n.innerText.trim()));
   const signedIn = !!btn && !signedOut && bootstrapStatus !== 'logged_out' && (bootstrapStatus === 'logged_in' || accountAction || !!explicitPlan);
-  const me = form && editor && globalThis.__riftletIndependentFileInput20261104;
-  const gen = me?.root === document.documentElement ? me.witnessGeneration : null;
-  const own = !!gen && gen.editor === editor && gen.form.contains(editor) && gen.form.isConnected;
-  const nodeIDs = own && me.nodeIDs, eid = nodeIDs && nodeIDs.get(editor), fid = nodeIDs && nodeIDs.get(gen.form);
-  const composerID = eid && fid ? eid + ':' + fid : null;
+  const registry = globalThis.__riftletIndependentFileInput20261104;
+  const me = editor && registry?.root === document.documentElement ? registry : null;
+  const gen = me?.witnessGeneration;
+  const own = !!gen && gen.editor === editor && gen.form?.isConnected && gen.form.contains(editor);
+  const retained = [];
+  if (me?.operations instanceof Map) for (const [id,op] of me.operations) {
+    const b = op.binding, t = b?.target;
+    if (b?.editor !== editor || !editor.isConnected || !b.form?.isConnected || !b.form.contains(editor) ||
+        !t || op.identity?.operationID !== id || op.identity?.target?.documentID !== me.documentID ||
+        op.identity.target.draftGeneration !== t.draftGeneration || op.identity.target.composerID !== t.composerID ||
+        t.documentID !== me.documentID || me.nodeIDs.get(editor) + ':' + me.nodeIDs.get(b.form) !== t.composerID ||
+        typeof t.draftGeneration !== 'string' || op.inputCount !== 1) continue;
+    retained.push({operationID:id,documentID:t.documentID,composerID:t.composerID,draftEpoch:t.draftGeneration});
+  }
+  const active = own ? {documentID:me.documentID,composerID:me.nodeIDs.get(editor)+':'+me.nodeIDs.get(gen.form),draftEpoch:gen.id} : null;
+  const original = active || retained.at(-1);
+  const composerID = original?.composerID ?? null;
   const prepared = [];
   if (own && me.preparedTargets instanceof Map) for (const [key,binding] of me.preparedTargets) {
     const t = binding.target;
@@ -69,7 +81,10 @@ let readOriginalDraft = #"""
   return JSON.stringify({observationState,entryID:navigation.currentEntry.id,timeOrigin:performance.timeOrigin,editor:!!editor,
     uploadEntry,signedIn,authSignals:{bootstrapStatus,accountButtons:account.length,hasAccountAction:accountAction,explicitPlan:!!explicitPlan,signedOut},
     activeEditor:!!editor && document.activeElement === editor,text,selection,
-    documentID:own ? me.documentID : null, composerID,draftEpoch:own ? gen.id : null,pending:prepared,
+    documentID:original?.documentID ?? null, composerID,draftEpoch:original?.draftEpoch ?? null,
+    registryState:{present:!!registry,originalRoot:!!me,hasGeneration:!!gen,activeGenerationOwnsEditor:own,
+        retainedOperationCount:me?.operations instanceof Map ? me.operations.size : null,originalEditorTagged:!!me?.nodeIDs?.has(editor),
+        preparedCount:me?.preparedTargets instanceof Map ? me.preparedTargets.size : null},epochSource:active ? 'preparedGeneration' : original ? 'retainedInputBinding' : null,retainedOriginals:retained,pending:prepared,
     cards:images.map(n=>({file:n.alt,width:n.naturalWidth,height:n.naturalHeight,complete:n.complete}))});
 })()
 """#
