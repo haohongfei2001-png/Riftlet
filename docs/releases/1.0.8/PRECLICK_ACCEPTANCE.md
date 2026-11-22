@@ -5,10 +5,12 @@
 | 同包实站验收 | 状态 | 所需证据 |
 |---|---|---|
 | G1 普通 Chrome × ChatGPT | **PARTIAL，首次投递为 UNKNOWN** | 真实已登录临时草稿，AppKit 收到一次托盘单击。原目标 ACK 早于按下 2,356.714 毫秒。实际网页只收到一次 file input 和一次 change，发送为零。原图仍在，SQLite 保留唯一操作及调用，尚无本图原卡 START。 |
-| G2 普通 Edge × ChatGPT | 待同包核验 | 与 G1 相同，另须核对 Edge 原卡确属当前新图。 |
+| G2 普通 Edge × ChatGPT | **PARTIAL，首次投递为 UNKNOWN** | 已登录临时草稿。原目标 ACK 早于托盘按下 1,072.093 毫秒，原表单接收的 File 与本地 PNG 的 SHA-256 一致。网页实际收到一次 input、一次 change，发送为零。Riftlet 未得到本图原卡 START。 |
 | G4 真实原卡失败与找回 | NOT_RUN | 同一张原卡明确失败、原 PNG 与 SQLite 原操作保留、显式再次点击产生新调用且新图实际附加。 |
 
 Chrome 首图是来自本机专用纯色窗口的系统截图。实际点击经过正常托盘 AppKit 按下与松开、冻结原凭据和持久化投递。草稿初始为空，原文档、编辑器和空选区得到保留。非空文字、选区、已有附件及每款三组双图需另有正面证据。私有记录保存原图和每次原生事件，公开记录列出原图哈希、原稿身份摘要、operation、invocation、回执及网页计数。[Chrome 实站首图](evidence/build58/chrome-live-candidate.json) · [两种真实窗口大小的定向鼠标校准](evidence/build58/mouse-calibration.json)
+
+Edge 的原表单在输入后 32 毫秒显示一个包含本图完整文件名的移除按钮。2,047 毫秒后，草稿内出现新的内嵌图片，2,281 毫秒时已可见且解码尺寸为 330 × 196。此时图像及其旁边的移除按钮均未给出本次文件的精确名称。现场记录保留两阶段时序与原图哈希；这一轮监听器没有保存跨阶段的卡片对象关系。两款浏览器的原操作均留在 SQLite，本地原图的哈希仍与来源一致。[Edge 首次输入](evidence/build58/edge-live-candidate.json) · [原表单的两阶段时间记录](evidence/build58/edge-original-card-timing.json)
 
 ## 已完成的源码与独立复核
 

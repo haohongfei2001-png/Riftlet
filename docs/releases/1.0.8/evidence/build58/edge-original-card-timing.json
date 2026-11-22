@@ -1,0 +1,124 @@
+{
+  "build": "58",
+  "productCommit": "c7ef1027f9475d517abbd4d85ae1819b9351a8cf",
+  "dmgSHA256": "0f36dbee6665e5687c6c7722574cdeea708ee56ae0ae07d583652a33204c2f7e",
+  "operationID": "32187794-E4C3-4C0E-8CD0-B3CDB37421E9",
+  "invocationID": "FAA16B97-309A-404E-9E12-62E7BBF65701",
+  "originalPNG_SHA256": "0f3963a9b659b2b3f53f67b567ffacc4be8c96baf51bbfd87d1bfce4191ce0e9",
+  "rawObservationSHA256": "aacd05cf5be6cb68627a21aa929c8c1db19489cf6ef9d601c974191f6598e798",
+  "verifiedOriginalInputFileSHA256": true,
+  "originalForm": true,
+  "changeAfterInputMS": 5,
+  "counts": {
+    "fileChange": 1,
+    "fileInput": 1,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  },
+  "objectContinuityBetweenStages": "not recorded by this observer",
+  "phase": "unknown",
+  "stages": [
+    {
+      "afterFileInputMS": 0,
+      "exactFilenameRemoveCount": 0,
+      "pictures": [],
+      "localAlerts": {
+        "failed": false,
+        "login": false,
+        "quota": false
+      }
+    },
+    {
+      "afterFileInputMS": 32,
+      "exactFilenameRemoveCount": 1,
+      "pictures": [],
+      "localAlerts": {
+        "failed": false,
+        "login": false,
+        "quota": false
+      }
+    },
+    {
+      "afterFileInputMS": 2047,
+      "exactFilenameRemoveCount": 0,
+      "pictures": [
+        {
+          "source": "dataImage",
+          "width": 0,
+          "height": 0,
+          "decoded": false,
+          "visible": true,
+          "insideForm": true,
+          "altExact": false,
+          "altEmpty": false,
+          "family": [
+            {
+              "previewMarker": false,
+              "remove": 0,
+              "removeExact": false,
+              "tag": "IMG"
+            },
+            {
+              "previewMarker": false,
+              "remove": 0,
+              "removeExact": false,
+              "tag": "SPAN"
+            },
+            {
+              "previewMarker": false,
+              "remove": 1,
+              "removeExact": false,
+              "tag": "DIV"
+            }
+          ]
+        }
+      ],
+      "localAlerts": {
+        "failed": false,
+        "login": false,
+        "quota": false
+      }
+    },
+    {
+      "afterFileInputMS": 2281,
+      "exactFilenameRemoveCount": 0,
+      "pictures": [
+        {
+          "source": "dataImage",
+          "width": 330,
+          "height": 196,
+          "decoded": true,
+          "visible": true,
+          "insideForm": true,
+          "altExact": false,
+          "altEmpty": false,
+          "family": [
+            {
+              "previewMarker": false,
+              "remove": 0,
+              "removeExact": false,
+              "tag": "IMG"
+            },
+            {
+              "previewMarker": false,
+              "remove": 0,
+              "removeExact": false,
+              "tag": "SPAN"
+            },
+            {
+              "previewMarker": false,
+              "remove": 1,
+              "removeExact": false,
+              "tag": "DIV"
+            }
+          ]
+        }
+      ],
+      "localAlerts": {
+        "failed": false,
+        "login": false,
+        "quota": false
+      }
+    }
+  ]
+}
