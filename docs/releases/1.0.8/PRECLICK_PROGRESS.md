@@ -40,3 +40,5 @@ build 58 已冻结为 c7ef1027。正常退出等待原票释放，同一资料�
 build 59 的 App 和 DMG 已通过 Apple 公证，非作者已完成独立安装。签名包页面在 Chrome 和 Edge 各通过 19 项原目标与 22 项改名预览回归，三个旧版本的六个待查操作均保持原结果。私有安装包哈希见[同包验收](PRECLICK_ACCEPTANCE.md)。
 
 普通 Chrome 已登录临时草稿用 build 59 完成冷首图。真实输入、原卡持久化 START 与托盘收起已由非作者从原记录复核。原验收器漏读新字段，原始误报一并保留。[实站收据](evidence/build59/chrome-cold-independent.json)
+
+普通 Edge 已登录原稿完成七张唯一回执，两组双图分别为 1.518 秒和 1.575 秒。首轮第三组第二张的鼠标按下未到达 AppKit，原图保留；该格按实际结果登记。[原始现场](evidence/build59/edge-live-candidate.json)
