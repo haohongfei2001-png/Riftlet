@@ -1,0 +1,52 @@
+{
+  "source": "711cee3a1c7033ce4925082a83099b00da7087c6",
+  "workflowURL": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45045026977",
+  "checkedUTC": "2026-11-22T16:48:21.947238+00:00",
+  "conclusion": "success",
+  "artifacts": [
+    {
+      "architecture": "x86_64",
+      "artifactID": 14763885578,
+      "artifactSHA256": "5f271495dd34ba4c9b38c57313581ac8a85bc248dd3d6cbea41b49035030c7cc",
+      "swiftTestPartitions": {
+        "result": "PASS",
+        "discovered": 1436,
+        "parallel": 1414,
+        "serial": 22,
+        "serialOutcomes": {
+          "passed": 22
+        }
+      },
+      "preclick-chrome.json": {
+        "passed": 19,
+        "resourceSHA256": "a4da18056ed85a5a360f30f22c6965138d917cfde2c404e9aa24422b1f7b8250"
+      },
+      "derived-preview-chrome.json": {
+        "passed": 22,
+        "resourceSHA256": "a4da18056ed85a5a360f30f22c6965138d917cfde2c404e9aa24422b1f7b8250"
+      }
+    },
+    {
+      "architecture": "arm64",
+      "artifactID": 14762923667,
+      "artifactSHA256": "aaf911d6ff344bd5f04f5d0ac1fbe8efffb364fd8854ae75ca8ea5ef35fa2323",
+      "swiftTestPartitions": {
+        "result": "PASS",
+        "discovered": 1436,
+        "parallel": 1414,
+        "serial": 22,
+        "serialOutcomes": {
+          "passed": 22
+        }
+      },
+      "preclick-chrome.json": {
+        "passed": 19,
+        "resourceSHA256": "a4da18056ed85a5a360f30f22c6965138d917cfde2c404e9aa24422b1f7b8250"
+      },
+      "derived-preview-chrome.json": {
+        "passed": 22,
+        "resourceSHA256": "a4da18056ed85a5a360f30f22c6965138d917cfde2c404e9aa24422b1f7b8250"
+      }
+    }
+  ]
+}
