@@ -14,9 +14,11 @@ const families = {
 const negatives = ['otherFileSameBytes','similarName','onePixel','oneAlpha','wrongMIME','oldCard','oldImage','oldSurface','oldRemove',
   'foreignDraft','competing','competingThenRemoved','sameAliasFailure','competingRemove','mismatchedRemove','errorCard','editorReplaced','cardReplaced','cardReplacedDuringDecode','cardRevoked'];
 
-async function run(family, resource, baseline) {
+async function run(family, resource, option) {
+  const baseline = option === '--baseline58';
+  const selectionOnly = option === '--selection';
   assert.ok(Object.hasOwn(families, family) && path.isAbsolute(resource));
-  assert.ok(!baseline || baseline === '--baseline58');
+  assert.ok(!option || baseline || selectionOnly);
   const [binary, bundle] = families[family], source = fs.readFileSync(resource, 'utf8');
   const resourceSHA256 = createHash('sha256').update(source).digest('hex');
   if (baseline) assert.equal(resourceSHA256,'43e43df544d4edb6081dfe592b1b18166039f98983ab8f0fac0f31efdf60d166');
@@ -29,7 +31,8 @@ async function run(family, resource, baseline) {
   const results = [];
   try {
     const version = (await driver.call('Browser.getVersion')).product;
-    for (const mode of (baseline ? ['validPair'] : ['validPair','otherAliasFailure', ...negatives])) {
+    const modes = selectionOnly ? ['forward','backward'] : baseline ? ['validPair'] : ['validPair','otherAliasFailure', ...negatives];
+    for (const mode of modes) {
       const row = {mode}, tab = await driver.open(pathToFileURL(path.join(__dirname,'fixture.html')).href);
       const qa = (method,...args)=>driver.fixture(tab,method,...args);
       try {
@@ -40,6 +43,12 @@ async function run(family, resource, baseline) {
           if (result.value) break;
           if (performance.now()>end) throw Error('private fixture did not become active');
           await new Promise(resolve=>setTimeout(resolve,15));
+        }
+        if (selectionOnly) {
+          assert.equal(await qa('init','nonemptySelection',source,bundle),true);
+          row.selection = await require('./selection-case.cjs')(qa, driver, tab, mode);
+          row.status = 'PASS';
+          continue;
         }
         assert.equal(await qa('init',mode,source,bundle),true);
         const total = mode==='validPair' ? 2 : 1;

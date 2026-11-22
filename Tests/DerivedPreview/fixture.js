@@ -1,7 +1,10 @@
 'use strict';
 window.qa = (() => {
   const form = document.querySelector('form'), lane = document.querySelector('#lane');
-  const field = form.querySelector('input'), editor = form.querySelector('textarea');
+  const field = form.querySelector('input');
+  let editor = form.querySelector('textarea');
+  let selectionWitness, savedCards, sendClicks = 0;
+  form.querySelector('[type=submit]').addEventListener('click', () => sendClicks++);
   const prior = document.querySelector('#prior');
   const operations = [], bytesSeen = [], changeTimes = [];
   const counts = {setter: 0, input: 0, change: 0, send: 0};
@@ -224,9 +227,58 @@ window.qa = (() => {
     const load=js=>new Function('location','return ('+js+')')(location);
     const full=load(source), pin=load(compact);
     call=cmd=>full(cmd,native); callPin=cmd=>pin(cmd,native);
-    editor.focus();editor.setSelectionRange(2,8);
+    if (mode === 'nonemptySelection') {
+      const editable = document.createElement('div');
+      editable.contentEditable = 'true';
+      editable.id = editor.id;
+      editor.replaceWith(editable);
+      editor = editable;
+      editor.focus();
+    } else {
+      editor.focus();
+      editor.setSelectionRange(2,8);
+    }
     return true;
-  }, prepare,commit,publish,settle,summary() {
+  }, prepare,commit,publish,settle,
+  editorReady(expected) {
+    return document.activeElement === editor && editor.isConnected && editor.innerText === expected;
+  },
+  selectionBefore(text, phrase) {
+    selectionWitness = captureDraftSelection(editor, text, phrase);
+    savedCards = Array.from(lane.children, card => ({
+      card, members:[...card.querySelectorAll('*')], markup:card.outerHTML,
+      images:Array.from(card.querySelectorAll('img'), image => ({
+        image, source:image.currentSrc, width:image.naturalWidth, height:image.naturalHeight
+      }))
+    }));
+    return selectionWitness.before;
+  },
+  selectionAfter() {
+    return selectionWitness.after();
+  },
+  selectionContext(index) {
+    const {target} = operations[index];
+    const seed = operations[0];
+    return {documentID:target.documentID, composerID:target.composerID, draftEpoch:target.draftGeneration,
+      cardsExact:lane.childElementCount === savedCards.length + Number(Boolean(operations[index].card)) &&
+        (!operations[index].card || operations[index].card.parentElement === lane),
+      priorCards:savedCards.length, oldCardsIntact:savedCards.every(({card,members,markup,images}) => {
+        const current = [...card.querySelectorAll('*')];
+        return card.parentElement === lane && card.outerHTML === markup && members.length === current.length &&
+          current.every((node, i) => node === members[i]) &&
+          images.every(({image,source,width,height}) => image.complete && width > 0 && height > 0 &&
+            image.currentSrc === source && image.naturalWidth === width && image.naturalHeight === height);
+      }),
+      original:call({action:'validate',target,requireLiveOriginal:true}).valid,
+      seedPresent:seed.card.isConnected && lane.contains(seed.card) && seed.card.contains(seed.image),
+      counts:{...counts}, sendClicks};
+  },
+  reverseSelectionForControl() {
+    const selection = document.getSelection();
+    selection.setBaseAndExtent(selection.focusNode, selection.focusOffset, selection.anchorNode, selection.anchorOffset);
+  },
+  replacePriorForControl() { prior.replaceWith(prior.cloneNode(true)); },
+  summary() {
     return {counts:{...counts},inputIntervalMS:changeTimes.length===2 ? changeTimes[1]-changeTimes[0]:null,originalText:editor.value==='Prior selected draft',originalEditor:editor.isConnected,
       selection:[editor.selectionStart,editor.selectionEnd],priorAttachment:prior.isConnected && prior.parentElement===lane &&
         prior.dataset.fileName==='prior.png' && prior.textContent==='prior.png'};

@@ -14,3 +14,9 @@ The runner opens a temporary browser profile over private pipes. The harness use
 Two distinct original PNGs contain partially transparent pixels and a legal ancillary metadata chunk. The card’s `.webp` display name preserves the original operation UUID, while the decoded preview contains differently encoded PNG bytes. The fixture checks every decoded pixel independently, including all alpha values. The positive pair requires two distinct attachments, two original operations, a single input per image, the prior text, selection and attachment, and zero sends.
 
 The cases include other files sharing the exact bytes, near names, mismatched MIME declarations, single-pixel and alpha changes, reused original components, a foreign draft, competing labels or failed members, and changes while the original receipt is pending. The decoder-bound replacement case waits for the real browser decoder to finish and holds its result until the competing DOM replacement occurs.
+
+## Nonempty contenteditable draft
+
+Pass `--selection` after the signed page resource path to run the forward and backward selection cases. Each case first establishes an accepted image in an isolated fixture. The driver inserts the known QA sentence through the focused editor and holds Shift with the arrow keys to select “preserve this original draft”. The result records both ends of the selection, their direction, the original editor and draft generation, the identities of both attachment operations, file-event counts and send/submit counts. Negative controls collapse and reverse the selection or replace an existing card with an identical clone.
+
+These fixture results calibrate the checks used to interpret a draft. Live acceptance still needs a separately correlated, signed-in Temporary Chat and a click in the installed App.
