@@ -29,3 +29,11 @@ The separate QA-only `once.js` uses the transport observed in the signed build 5
 The original request's trusted abort and loadend close the probe and restore the original functions and event listeners. The host reads the frozen outcome through its original nonce. The existing page card and SQLite verifiers decide whether the application can proceed to an explicit recovery attempt.
 
 Run `node --test once.test.mjs` for the isolated controls. Network cancellation, a named website error card, and an eligible failed operation are separate acceptance results.
+
+## Later upload events
+
+The two additional QA strategies in `late-once.js` use separate reservations on fresh screenshots and operations. The original XHR, native request generation, immutable File, full PNG SHA-256 and returned upload URL must match. Both strategies require native send to have returned and the browser to have observed no response. The partial-progress strategy requires a trusted upload progress event with a positive count strictly below the full PNG length. The second strategy requires a trusted upload load event with the full PNG length. Both decisions are made in the original upload event callback. Neither uses displayed percentages or an elapsed-time threshold.
+
+When an event is missing or ownership is uncertain, the request continues normally. A terminal receipt includes the browser's measured upload counters, any actually observed cancellation, and scoped cleanup. A browser upload counter does not independently prove how many bytes reached a server.
+
+Run `node --test late-once.test.mjs` for the offline controls. Real-site timings, card observations, database snapshots and explicit recovery require separate evidence.
