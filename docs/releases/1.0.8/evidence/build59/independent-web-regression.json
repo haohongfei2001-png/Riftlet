@@ -1,0 +1,89 @@
+{
+  "recordedUTC": "2026-11-22T12:22:32.253335+00:00",
+  "source": "69b76cb025ab552b3480e3af095b627891874712",
+  "build": 59,
+  "dmgSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+  "signedPageSHA256": "b6eee615982d839285ea6af4abb16018939f9be91b18215554e847f4a6eb2215",
+  "offlineSuite": {
+    "files": [
+      "Tests/WebPageProgram/acceptance-program.test.cjs",
+      "Tests/WebPageProgram/legacy-web-observe.test.cjs",
+      "Tests/WebPageProgram/native-chrome-cleanup.test.cjs",
+      "Tests/WebPageProgram/attachment-entry-handoff.test.cjs",
+      "Tests/WebPageProgram/ordinary-composer.test.cjs",
+      "Tests/WebPageProgram/original-image-transport.test.cjs",
+      "Tests/OfflineFaultHarness/round-two-network.test.cjs",
+      "Tests/OriginalDocumentDelivery/official/correlate-native.test.cjs",
+      "Tests/OriginalDocumentDelivery/official/controller.test.mjs"
+    ],
+    "tests": 347,
+    "pass": 347,
+    "fail": 0,
+    "skipped": 0,
+    "exit": 0,
+    "logSHA256": "f3f57bc93ba98a7e4604f503b39dd8dee2a1ee45daf00ed489481649dcdf85ba"
+  },
+  "headlessChrome": {
+    "file": "Tests/WebPageProgram/chrome-input-resource.test.cjs",
+    "loadedSignedAppPage": true,
+    "loopbackFixturesOnly": true,
+    "disposableProfiles": true,
+    "initialRestrictedRun": "Browser startup SIGABRT and process-query EPERM; 13 cleanup units passed, 35 browser groups infrastructure-blocked. Re-executed under normal host services.",
+    "restrictedResultSHA256": "137c06c132732d5ed54dd0f6ed5d274968f93c6ee8a41697adf9763e5dc98248",
+    "nativeHostResult": {
+      "tests": 48,
+      "cleanupTests": 13,
+      "nativeBrowserGroups": 35,
+      "pass": 48,
+      "fail": 0,
+      "skipped": 0,
+      "exit": 0,
+      "logSHA256": "e579287481a2d13cef7f2fbd53fe5b9ce41c5405d66207c8cd62f70c3b262d16"
+    },
+    "additionalOptIn4KTexture": {
+      "tests": 14,
+      "repeatedCleanupTests": 13,
+      "extraNativeBrowserCases": 1,
+      "pass": 14,
+      "fail": 0,
+      "skipped": 0,
+      "exit": 0,
+      "logSHA256": "8b195191591f7b81746934881e192cca8ab8c6750832449b59064bdfef8f2edd"
+    }
+  },
+  "originalDocumentDelivery": [
+    {
+      "engine": "Chrome/157.0.8103.79",
+      "file": "Tests/OriginalDocumentDelivery/product/run.cjs",
+      "caseNames": [
+        "portalABA",
+        "focusABA",
+        "closedShadowFocus",
+        "menu",
+        "unlinkedFocusMenu"
+      ],
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "exit": 0,
+      "privateResultSHA256": "9c0bc27de4e87a7806c7b76e01ad0b5ab86fe15916fa79cc3355048cd0e62d59"
+    },
+    {
+      "engine": "Edg/158.0.4370.33",
+      "file": "Tests/OriginalDocumentDelivery/product/run.cjs",
+      "caseNames": [
+        "portalABA",
+        "focusABA",
+        "closedShadowFocus",
+        "menu",
+        "unlinkedFocusMenu"
+      ],
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "exit": 0,
+      "privateResultSHA256": "724572d56a4244954a13a026fa8d42a4948270302ea109c3ee0b15f94a1d7e89"
+    }
+  ],
+  "scope": "Private repeatable loopback and offline regressions. No authenticated website evidence, AppKit press, or live failure card in this report."
+}
