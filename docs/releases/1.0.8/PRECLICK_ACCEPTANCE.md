@@ -21,3 +21,5 @@ build 59 对这一种重绘同时核对原草稿、完整操作 UUID、新卡与
 私有 DMG 大小为 13,775,789 字节，SHA-256 为 `666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6`。App 和镜像各有独立的 Apple 公证票。另一名工程师从只读镜像另行安装，核实 arm64 与 x86_64 签名、Gatekeeper、三个旧版页面指纹及普通、网页、截图三项自检。[签名与安装](evidence/build59/installation.json) · [独立安装](evidence/build59/independent-install.json)
 
 从同一签名 App 提取页面，在两款隔离引擎分别完成 19 项点击前凭据回归和 22 项改名预览回归。独立进程还分别读回 build 56、57、58 留下的待确认和已 START 两种状态。错误调用均被拒绝，续查没有再次输入。[原目标生命周期](evidence/build59/installed-page-results.json) · [改名预览](evidence/build59/installed-converted-previews.json) · [六个旧操作](evidence/build59/old-operations.json)
+
+GitHub 的 arm64、x86_64 两项 CI 均在冻结提交上通过。每个架构执行 1,434 个 Swift 测试、19 项点击前凭据、22 项改名预览及 8 项离线恢复测试。原始 Actions 归档、架构与散列可逐项核查。[双架构作业记录](evidence/build59/ci.json)
