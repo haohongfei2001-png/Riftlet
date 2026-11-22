@@ -4,7 +4,7 @@ import XCTest
 @testable import RiftletAdapters
 
 final class ArchivedObservationCompatibilityTests: XCTestCase {
-    // Independently computed from the signed build 56/57/58/59 app resources, the exact
+    // Independently computed from the signed build 56/57/58/59/60 app resources, the exact
     // sorted native context bytes, and JSONEncoder's optional-string suffix.
     private let edge = #"{"applicationID":"com.microsoft.edgemac","sessionID":"test-kernel-session","tabID":"34","windowID":"12"}"#
     private let chrome = #"{"applicationID":"com.google.Chrome","sessionID":"test-kernel-session","tabID":"34","windowID":"12"}"#
@@ -14,17 +14,20 @@ final class ArchivedObservationCompatibilityTests: XCTestCase {
                        ["81f4b41dc0ed357dc640b073147db52c37b376b740c790fd13dc3489be1bf249",
                         "7eb2ca13fa0c23519ddb10dac060ad27fae4b309859dbaf8a66687acde6ad6af",
                         "b020534f878138e1b9ba759ade043f05d836437b8443787c95f6fef578aa8ffa",
-                        "9ffc604d00262b2f5a11edbc4fac0bc10da83ad395f19537cbd368fdc538089e"])
+                        "9ffc604d00262b2f5a11edbc4fac0bc10da83ad395f19537cbd368fdc538089e",
+                        "ba648b42bafed93653cdf1f38112e454bb78581e5315499fd673be663976b4d4"])
         XCTAssertEqual(ArchivedObservationCompatibility.markers(contextJSON: chrome, legacyObservationSession: "4321:1712345678.25"),
                        ["7ba0f13b6bffb6fc10ef42bd8d2c6717081e26c373561ed75a49a9530fc3429b",
                         "e9e5127837797a3f920c4c6de184c804ac8e2688be56a0615442426bdb141fae",
                         "15154215eec9605969039abbaadc4f4d59ed6a9f220571742e8572b814788ee2",
-                        "d9ecf712b927baa999700dc1756fa6224d8ab4c2a558ffd71130e54f2bc6b26c"])
+                        "d9ecf712b927baa999700dc1756fa6224d8ab4c2a558ffd71130e54f2bc6b26c",
+                        "758d5e89279bd4d74af1427b34d335c76bf1c8364d71eb0cc763dd345faecf1f"])
         XCTAssertEqual(ArchivedObservationCompatibility.markers(contextJSON: chrome, legacyObservationSession: nil),
                        ["2945bc998ba2aec5a7e33eab4815e848bbd906dff7231408a6fe74981770b8c4",
                         "b3199573cf9928dd0d5403fce2d26a6e399d7e427f14e80143d59f172fc0836c",
                         "19bccd5bf649e51837a213785c23dd4014a748583bb7affaf08a732b37422662",
-                        "bbb22677893d0a6c59efeda92bb4feeda382b9edf1770a17ab41c7be9a4a3b08"])
+                        "bbb22677893d0a6c59efeda92bb4feeda382b9edf1770a17ab41c7be9a4a3b08",
+                        "ea104c3b6da47825fb22d384325194a0ba4e96dbb29aef102088d6c2fa2d6788"])
     }
 
     func testCurrentProgramAndChangedAddressCannotMatchHistoricalRelay() throws {

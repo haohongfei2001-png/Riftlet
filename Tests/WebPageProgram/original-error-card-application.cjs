@@ -35,6 +35,36 @@ async function runOriginalErrorCardCase({form,editor,input,operation,call,check,
     input.addEventListener('change',()=>install?.(),{once:true});
     return {op,tile,item:(await commit(op)).observation};
   }
+  // Without an enrolled PNG, a pending preparation must never carry a draft
+  // generation across focus loss. Releasing all preparations also ends it.
+  const pinOnly=await operation(0,null,true);
+  window.dispatchEvent(new Event('blur'));
+  const freshPin=await operation(0,null,true);
+  check(pinOnly.target.draftGeneration!==freshPin.target.draftGeneration,'pending pin alone cannot retain epoch through blur');
+  for(const pending of [pinOnly,freshPin])call({action:'releasePreparedTarget',target:pending.target});
+  const afterRelease=await operation(0,null,true);
+  check(freshPin.target.draftGeneration!==afterRelease.target.draftGeneration,'all pending preparations released');
+  call({action:'releasePreparedTarget',target:afterRelease.target});
+
+  // Run the real enrolled-pin expiry callbacks using the deterministic fixture
+  // clock boundary. The original binding must be absent before another capture.
+  const timeout=window.setTimeout, expiry=[];
+  window.setTimeout=function(fn,ms,...args){
+    const timer=timeout(fn,ms,...args);
+    if(ms===600000)expiry.push(()=>{clearTimeout(timer);fn(...args);});
+    return timer;
+  };
+  let expired;
+  try {
+    expired=await begin(t=>()=>{t.surface.replaceChildren(el('progress'));row.append(t.shell);});
+  } finally {window.setTimeout=timeout;}
+  expired.tile.shell.remove();
+  check(expiry.length>0,'enrolled expiry was scheduled');
+  for(const run of expiry)run();
+  check(!call({action:'validate',target:expired.op.target,requireLiveOriginal:true}).valid,'expired original reader retired');
+  const afterExpiry=await operation(0,null,true);
+  check(afterExpiry.target.draftGeneration!==expired.op.target.draftGeneration,'expired source cannot restore draft epoch');
+  call({action:'releasePreparedTarget',target:afterExpiry.target});
   const noPositive=(obs,label)=>check(!obs.uploadStart && !obs.hasError && !obs.originalCardFailureInvocationID &&
       !obs.safeToRetry && obs.state!=='originalCardFailed',label);
   const failures={
@@ -113,7 +143,7 @@ async function runOriginalErrorCardCase({form,editor,input,operation,call,check,
   row.append(neighbour);
   let recoveryInputs=0;
   const initialIndex=index;
-  for(const mode of ['still-present','gone','no-witness','late-card','ambiguous-new','wrong-source','prior-replaced','prior-relabeled','converted-competitor','unknown-progress','explicit-error','after-start-error','after-start-gone','attempt-order']) {
+  for(const mode of ['still-present','gone','no-witness','late-card','ambiguous-new','wrong-source','prior-replaced','prior-relabeled','converted-competitor','unknown-progress','explicit-error','after-start-error','after-start-gone','attempt-order','mode-aba','editor-aba','replace-editor','navigation-aba']) {
     const originalIndex=index;
     let image, errorContents;
     const {op:old,tile,item}=await begin((tile,op)=>()=>{
@@ -153,7 +183,59 @@ async function runOriginalErrorCardCase({form,editor,input,operation,call,check,
         call({action:'releasePreparedTarget',target:invalid.target});
       }
     }
+    let replacement;
+    const invalidDraft=['mode-aba','editor-aba','replace-editor','navigation-aba'].includes(mode);
+    if(invalidDraft){
+      window.dispatchEvent(new Event('blur'));
+      if(mode==='mode-aba'){
+        const key='data-composer-mode', original=form.getAttribute(key);
+        form.setAttribute(key,'another-draft');
+        if(original===null)form.removeAttribute(key);else form.setAttribute(key,original);
+      }
+      if(mode==='editor-aba' || mode==='replace-editor'){
+        replacement=editor.cloneNode(true);editor.replaceWith(replacement);
+        if(mode==='editor-aba')replacement.replaceWith(editor);
+      }
+      if(mode==='navigation-aba'){
+        const entry=navigation.currentEntry.id;
+        history.pushState(null,'','#different-draft');
+        check(navigation.currentEntry.id!==entry,'navigation changed actual browser entry');
+        const restored=new Promise(done=>window.addEventListener('popstate',done,{once:true}));
+        history.back();await restored;
+        check(navigation.currentEntry.id===entry,'actual navigation returned to original entry');
+      }
+    }
+    const returnsFromHistory=['gone','explicit-error','after-start-gone','after-start-error'].includes(mode);
+    if(returnsFromHistory) {
+      const stale=await operation(originalIndex,source,true);
+      const before=counts().setters;
+      let lostFocus=false, regainedFocus=false;
+      const blur=e=>{lostFocus=e.isTrusted;}, focus=e=>{regainedFocus=e.isTrusted;};
+      window.addEventListener('blur',blur,{once:true});
+      window.addEventListener('focus',focus,{once:true});
+      const history=window.open('/other-draft','_blank');
+      check(!!history,'controlled second window opened');
+      const until=async f=>{for(let i=0;i<100;i++){if(f())return;await new Promise(done=>setTimeout(done,20));}
+        throw Error('controlled focus transition timed out');};
+      history.focus();
+      try {
+        await until(()=>lostFocus && !document.hasFocus());
+        check(!call({action:'validate',target:stale.target}).valid,'history permanently retired old write');
+      } finally {history.close();window.focus();}
+      await until(()=>regainedFocus && document.hasFocus() && document.visibilityState==='visible');
+      check(!call({action:'validate',target:stale.target}).valid,'return to draft cannot revive old write');
+      let staleRejected=false;try{stale.stage();}catch{staleRejected=true;}
+      check(staleRejected,'old pin cannot stage a new input after History return');
+      call({action:'releasePreparedTarget',target:stale.target});
+      check(counts().setters===before,'focus round trip made no input');
+    }
     const next=await operation(originalIndex,source,true);
+    if(returnsFromHistory){
+      check(next.target.documentID===old.target.documentID && next.target.composerID===old.target.composerID &&
+        next.target.draftGeneration===old.target.draftGeneration,'History return lost the continuously observed original draft epoch');
+      check(next.target.clickBindingID!==old.target.clickBindingID,'History return requires new write pin');
+    }
+    if(invalidDraft)check(next.target.draftGeneration!==old.target.draftGeneration,mode+' retired original epoch');
     const checkSource=value=>call({action:'validate',target:next.target,recoverySource:value});
     check(!checkSource({...source,invocationID:crypto.randomUUID()}).valid,'wrong persisted invocation');
     check(!checkSource({...source,identity:{...source.identity,assetSHA256:'0'.repeat(64)}}).valid,'wrong original hash');
@@ -185,12 +267,13 @@ async function runOriginalErrorCardCase({form,editor,input,operation,call,check,
       let refused=false;try{next.stage();}catch{refused=true;}
       check(refused,'new begin refused '+mode);
     }
+    if(replacement?.isConnected)replacement.replaceWith(editor);
     outside?.remove();row.replaceChildren(neighbour);
     // Unconsumed pins are owned by this isolated fixture.
     call({action:'releasePreparedTarget',target:next.target});
   }
-  check(index-initialIndex===14 && recoveryInputs===6,'recovery cases and explicitly authorized new inputs');
+  check(index-initialIndex===18 && recoveryInputs===6,'recovery cases and explicitly authorized new inputs');
   check(inputs===index+recoveryInputs && counts().setters===inputs && counts().changes===inputs && counts().sends===0,'exactly one input per case; no send');
-  return {passed:true,rejectedShapes:Object.keys(failures).length,retiredCases:4,nativeSetters:counts().setters,nativeChanges:inputs,automaticSends:counts().sends};
+  return {passed:true,rejectedShapes:Object.keys(failures).length,retiredCases:4,historyRoundTrips:4,draftChangeRefusals:4,pendingReleaseAndExpiryChecked:true,nativeSetters:counts().setters,nativeChanges:inputs,automaticSends:counts().sends};
 }
 module.exports={runOriginalErrorCardCase};

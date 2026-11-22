@@ -706,7 +706,7 @@ for(const unfiltered of groups){
     const address=server.address();assert.equal(address.address,'127.0.0.1');
     child=spawn(binary,['--headless=new','--no-sandbox','--disable-gpu','--disable-background-networking',
       '--disable-component-update','--disable-sync','--no-first-run','--no-default-browser-check',
-      ...(group.some(options=>options.switchTabs)?['--disable-popup-blocking']:[]),
+      ...(group.some(options=>options.switchTabs||options.namedErrorCard)?['--disable-popup-blocking']:[]),
       '--user-data-dir='+path.join(temp,'isolated-profile'),'http://127.0.0.1:'+address.port+'/'],
       {detached:true,stdio:['ignore','ignore','pipe']});
     child.stderr.setEncoding('utf8');child.stderr.on('data',part=>{stderr=(stderr+part).slice(-8000);});

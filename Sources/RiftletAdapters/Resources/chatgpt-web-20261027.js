@@ -478,6 +478,13 @@ function riftletWebAcceptance(command, native) {
     const previous = registry.witnessGeneration;
     if (previous?.editor === parts.editor && previous.form === parts.form && previous.writable?.()) return previous;
     previous?.retireWrites?.();
+    // History can take focus without changing the draft. Only an original
+    // enrolled PNG binding with a continuously live reader may carry its epoch
+    // into a fresh write generation. Its retired write witnesses stay retired.
+    const original = registry.recoveryDraft?.deref();
+    const continuous = original && original.editor === parts.editor && original.form === parts.form &&
+      registry.clickBindings?.get(original.target.clickBindingID) === original && sameDraft(original);
+    if (!continuous) delete registry.recoveryDraft;
     const address = location.href, attributes = ['data-composer-mode', 'data-mode', 'data-conversation-id',
       'data-draft-id', 'data-composer-placement', 'data-chatgpt-composer', 'contenteditable', 'role'];
     let changed = false, foreground = true, users = 0;
@@ -501,7 +508,8 @@ function riftletWebAcceptance(command, native) {
     function visibility() { if (document.visibilityState !== 'visible') retireWrites(); }
     globalThis.addEventListener('blur', retireWrites);
     document.addEventListener('visibilitychange', visibility);
-    const generation = {...parts, id: crypto.randomUUID(), read: reader.current, retireWrites,
+    const generation = {...parts, id: continuous ? original.target.draftGeneration : crypto.randomUUID(),
+      read: reader.current, retireWrites,
       writable: () => foreground && reader.current(), retain() { users++; }, release() {
         if (--users > 0) return;
         retireWrites(); modes.disconnect(); reader.close();
@@ -2200,6 +2208,7 @@ function riftletWebAcceptance(command, native) {
       return retire('attachmentInputNotCreated', 'handoff', 'inputLost');
     if (op.discoveryDeadline && Date.now() >= op.discoveryDeadline)
       return retire('attachmentInputNotCreated', 'handoff', 'timeout');
+    const originalBinding = op.binding;
     op.recoverySurface = op.mediaType === 'image/png' ? recoverySurface(op) : null;
     op.oldErrorMembers = failureShellBeforeInput(op.name);
     op.previewBaseline = new WeakMap([...document.querySelectorAll(previewSelector)].map(node => [node, previewValue(node)]));
@@ -2232,6 +2241,8 @@ function riftletWebAcceptance(command, native) {
       if (notifyInput(new Event('input', {bubbles: true, composed: true})) &&
           notifyChange(new Event('change', {bubbles: true}))) {
         op.changeReturned = true; diag.changeReturned = true; diag.stage = 'observation';
+        if (op.recoverySurface && registry.witnessGeneration?.id === originalBinding.target.draftGeneration)
+          registry.recoveryDraft = new WeakRef(originalBinding);
       } else {
         diag.cause = 'deliveryUncertain';
       }
