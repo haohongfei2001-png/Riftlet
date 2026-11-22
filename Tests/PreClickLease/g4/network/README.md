@@ -37,3 +37,5 @@ The two additional QA strategies in `late-once.js` use separate reservations on 
 When an event is missing or ownership is uncertain, the request continues normally. A terminal receipt includes the browser's measured upload counters, any actually observed cancellation, and scoped cleanup. A browser upload counter does not independently prove how many bytes reached a server.
 
 Run `node --test late-once.test.mjs` for the offline controls. Real-site timings, card observations, database snapshots and explicit recovery require separate evidence.
+
+The original two later-timing runs used the sampler at commit `5e33a3c6` (SHA-256 `8e29ad64333428a2545a330f260b2fa4411aeb09c36143ba6f9f976257c929c7`). The partial-progress follow-up used SHA-256 `04d061182dbfff9a789c2295aad958cdce38ea1e922328f584505450ce43d132`. After a rejected create, that revision reports a bounded enum for the reason. The original filename, byte count, URL, method, XHR and event checks still govern cancellation. A receipt from the earlier revision cannot identify which create field differed.

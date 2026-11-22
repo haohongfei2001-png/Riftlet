@@ -92,12 +92,41 @@
       if(active){operationHash=h;sourceVerified=true;}
     });
   });}
+  let createMismatch = null;
+  function describeCreate(json, originalName, originalSize) {
+  if (!json || json.file_name !== originalName) {
+    if (!json || typeof json.file_name !== "string") return {accepted:false, reason:"file-name-missing-or-nonstring"};
+    const generated = /^riftlet-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.(png|webp|jpe?g)$/i;
+    const original = generated.exec(originalName), observed = generated.exec(json.file_name);
+    if (original && observed && original[1].toLowerCase() === observed[1].toLowerCase()) {
+      const ext = observed[2].toLowerCase();
+      return {accepted:false, reason:ext === "png" ? "same-operation-png-spelling" :
+        ext === "webp" ? "same-operation-webp-label" : "same-operation-jpeg-label"};
+    }
+    return {accepted:false, reason:"other-file-name"};
+  }
+  for (const key of ["name","filename"]) {
+    if (Object.hasOwn(json, key)) return {accepted:false, reason:"extra-name-key", field:key};
+  }
+  for (const key of ["size","file_size","file_size_bytes"]) {
+    if (!Object.hasOwn(json,key) || json[key] === originalSize) continue;
+    const value=json[key];
+    const kind=typeof value === "number" ? "different-number" :
+      typeof value === "string" && value === String(originalSize) ? "equal-decimal-string" : "other-type-or-string";
+    return {accepted:false, reason:"size-mismatch", field:key, kind};
+  }
+  return {accepted:true, reason:"exact-match"};
+}
   function validateCreate(body){
     if(typeof body!=="string" || body.length>8192){fail("create-body-unproven");return false;}
     let j;try{j=JSON.parse(body);}catch{fail("create-body-unproven");return false;}
     if(!j || j.file_name!==source.name || Object.hasOwn(j,"name") || Object.hasOwn(j,"filename") ||
         ["size","file_size","file_size_bytes"].some(k=>Object.hasOwn(j,k)&&j[k]!==source.size)){
-      fail("create-file-mismatch");return false;
+      fail("create-file-mismatch");
+      // The original predicate has already refused this request. Only the closed
+      // diagnostic enum and allowlisted field name are retained.
+      guard(()=>{ createMismatch = describeCreate(j,source.name,source.size); });
+      return false;
     }
     creates++;if(creates!==1){fail("repeated-create");return false;}
     return true;
@@ -264,7 +293,7 @@
   const hooks=[wrappedFetch,wrappedOpen,wrappedSend];
   function report(status){
     return {kind:"g4-once-v1",triggerMode:mode,status,reason,
-      uploadObservation:{progressEvents,partialCount,fullProgressCount,uploadLoadCount,invalidEvents,eligibleEvents,unreadyEvents,
+      createMismatch,uploadObservation:{progressEvents,partialCount,fullProgressCount,uploadLoadCount,invalidEvents,eligibleEvents,unreadyEvents,
         lastProgress,uploadLoad,windowClosed,responseStarted},inputs:inputCount,changes:changeCount,creates,responses,byteRequests,
       abortCalls,abortEvents,loadendEvents,cancelledByObserver:abortCalls,observerPending,requestPending:nativePending,
       nativeSendReturned:byteReturned,byteLoadstart:byteStarted,byteLoadstartCount:loadstarts,sourceVerified,operationHash,restored,trigger,

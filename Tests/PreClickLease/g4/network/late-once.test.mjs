@@ -152,3 +152,35 @@ test("frozen opaque, unwitnessed, or retired strategy is refused before installa
     const h=setup({mode,rejected:true});assert.equal(h.armed.status,"BLOCKED_ENV");assert.equal(h.calls.length,0);
   }
 });
+for(const [label,build,detail] of [
+  ["absent",f=>({foo:"private-value"}),{reason:"file-name-missing-or-nonstring"}],
+  ["unbound",f=>({file_name:"private-file.png",file_size_bytes:25}),{reason:"other-file-name"}],
+  ["uppercase",f=>({file_name:f.name.toUpperCase()}),{reason:"same-operation-png-spelling"}],
+  ["webp",f=>({file_name:f.name.replace(".png",".webp")}),{reason:"same-operation-webp-label"}],
+  ["jpeg",f=>({file_name:f.name.replace(".png",".jpeg")}),{reason:"same-operation-jpeg-label"}],
+  ["extra-name",f=>({file_name:f.name,name:"private-value"}),{reason:"extra-name-key",field:"name"}],
+  ["extra-filename",f=>({file_name:f.name,filename:"private-value"}),{reason:"extra-name-key",field:"filename"}],
+  ["different-number",f=>({file_name:f.name,file_size_bytes:1}),{reason:"size-mismatch",field:"file_size_bytes",kind:"different-number"}],
+  ["same-numeric-string",f=>({file_name:f.name,file_size:String(f.size)}),{reason:"size-mismatch",field:"file_size",kind:"equal-decimal-string"}],
+  ["different-type",f=>({file_name:f.name,size:{private:true}}),{reason:"size-mismatch",field:"size",kind:"other-type-or-string"}]
+]){
+  test("refused create: "+label+" returns enum only, zero cancellation",async()=>{
+    const h=setup({mode:MID,hangingClone:true});h.attach();await h.createReq(JSON.stringify(build(h.f)));
+    await delay();const r=h.finish();
+    assert.equal(r.status,"INCONCLUSIVE");assert.equal(r.reason,"create-file-mismatch");
+    assert.deepEqual(JSON.parse(JSON.stringify(r.createMismatch)),{accepted:false,...detail});
+    assert.equal(r.creates,0);assert.equal(r.responses,0);assert.equal(r.byteRequests,0);assert.equal(r.abortCalls,0);
+    assert.equal(h.reading(),false);assert.equal(r.restored,true);assert.deepEqual(h.calls,["fetch"]);
+    assert(!JSON.stringify(r).includes("private-"));assert(!JSON.stringify(r).includes(uuid));
+  });
+}
+test("accepted create carries no mismatch payload",async()=>{
+  const h=await eligible({mode:MID});const x=h.send();ev(x,"progress",2);await delay();const r=h.finish();
+  assert.equal(r.status,"TRANSPORT_FAULT_OBSERVED");assert.equal(r.createMismatch,null);
+});
+test("unrelated request never reports metadata",async()=>{
+  const h=setup({mode:MID,hangingClone:true});h.attach();
+  const init={method:"POST"};Object.defineProperty(init,"body",{get(){throw Error("unrelated accessor read");}});
+  await h.ctx.fetch("https://chatgpt.com/non-upload",init);await delay();const r=h.finish();
+  assert.equal(r.createMismatch,null);assert.equal(r.abortCalls,0);assert.equal(h.reading(),false);
+});
