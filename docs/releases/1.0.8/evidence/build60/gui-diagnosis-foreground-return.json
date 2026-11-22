@@ -1,0 +1,86 @@
+{
+  "authorizationGrantedOrDeniedByHost": false,
+  "browserSurfaces": {
+    "chrome": {
+      "axWindowCount": 0,
+      "cgBaseWindowCount": 9,
+      "cgOnScreenCount": 0,
+      "hidden": false,
+      "regular": true,
+      "running": true
+    },
+    "edge": {
+      "axWindowCount": 0,
+      "cgBaseWindowCount": 11,
+      "cgOnScreenCount": 0,
+      "hidden": false,
+      "regular": true,
+      "running": true
+    }
+  },
+  "businessGUIStartsAtThisStop": 0,
+  "console": {
+    "activeUserIsConsoleOwner": true,
+    "axTrusted": true,
+    "displayAwake": true,
+    "loginDone": true,
+    "screenLocked": false,
+    "sdkOnConsole": true
+  },
+  "dmgSHA256": "5a934119d6e65cbe82a62f5f208a2b95a200fa0cf170225ccd4e9016b1c0b54e",
+  "frontPIDKeptInPrivateReceipt": true,
+  "frontRoleMetadata": [
+    {
+      "bounds": {
+        "height": 303,
+        "width": 260,
+        "x": 605,
+        "y": 181
+      },
+      "modal": false,
+      "role": "AXWindow",
+      "subrole": "AXSystemDialog"
+    }
+  ],
+  "hasRetainedEnrolledOriginalEdgeDraft": true,
+  "issuedFiles": 0,
+  "newWindowsCreatedByThisIntake": 0,
+  "observedHostState": "BEFORE_ANY_PRESENTATION_OR_BUSINESS_INTENT",
+  "observedUTC": "2026-11-22T21:53:33.077366+00:00",
+  "originalAdmissionWasPreviouslyPositiveInThisRound": true,
+  "ownedOriginalRetained": true,
+  "privateOriginalSHA256": "3979f28507c1d1b0da4811f0cfc55f79fae44c732f05a3673b64b6b7d0083441",
+  "processFrontBundle": "com.apple.UserNotificationCenter",
+  "protectedSystemWindows": [
+    {
+      "ax": [
+        {
+          "bounds": {
+            "height": 303,
+            "width": 260,
+            "x": 605,
+            "y": 181
+          },
+          "modal": false,
+          "role": "AXWindow",
+          "subrole": "AXSystemDialog"
+        }
+      ],
+      "cg": [
+        {
+          "bounds": {
+            "height": 303,
+            "width": 260,
+            "x": 605,
+            "y": 181
+          },
+          "layer": 8
+        }
+      ],
+      "ownerBundle": "com.apple.UserNotificationCenter"
+    }
+  ],
+  "purposeOfSystemDialog": "UNDETERMINED",
+  "source": "711cee3a1c7033ce4925082a83099b00da7087c6",
+  "subsequentProtectedDesktopCausedStopBeforeAction": true
+}
