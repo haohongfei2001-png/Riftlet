@@ -1,0 +1,388 @@
+{
+  "scope": "Historical server-error evidence and owned loopback HTTP controls",
+  "liveCandidateReviewed": {
+    "build": 59,
+    "dmgSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6"
+  },
+  "liveG4OriginalCardAndRecovery": "NOT_RUN",
+  "passiveHistoricalReview": {
+    "g4FinalWebsiteSamples": [
+      {
+        "case": "natural",
+        "finalPageSHA256": "924a05357c07bcab2dfa30cbbc148d007346d7e04d3e762934683bb1699eded3",
+        "siteInputChangeSendSubmit": {
+          "fileChange": 1,
+          "fileInput": 1,
+          "formSubmit": 0,
+          "sendButtonClicks": 0
+        },
+        "finalNamedCardFailure": false,
+        "originalDocumentAndEditor": true,
+        "retainedOriginalFailureCount": null,
+        "visibleResourceTimingStatuses": [
+          200,
+          null
+        ]
+      },
+      {
+        "case": "calibration",
+        "finalPageSHA256": "97984acc6d8100b16d7d5ab4846ce2d0886d4d4673883a4bf9564da54aff3aae",
+        "siteInputChangeSendSubmit": {
+          "fileChange": 1,
+          "fileInput": 1,
+          "formSubmit": 0,
+          "sendButtonClicks": 0
+        },
+        "finalNamedCardFailure": false,
+        "originalDocumentAndEditor": true,
+        "retainedOriginalFailureCount": null,
+        "visibleResourceTimingStatuses": [
+          200,
+          null
+        ],
+        "terminalNetworkSHA256": "54a9516ca029c5ce700dfac3e756106b8f84898abbb8582d14a037c9cc69247e",
+        "boundByteRequestCount": 1,
+        "boundByteRequestResponseStatus": 201,
+        "nativeAbortCalls": 0
+      },
+      {
+        "case": "early abort",
+        "finalPageSHA256": "155a8b346f2ee8a8ce7743f50d2e9e9e7179632b7ac23056e2811a860b406f63",
+        "siteInputChangeSendSubmit": {
+          "fileChange": 1,
+          "fileInput": 1,
+          "formSubmit": 0,
+          "sendButtonClicks": 0
+        },
+        "finalNamedCardFailure": false,
+        "originalDocumentAndEditor": true,
+        "retainedOriginalFailureCount": null,
+        "visibleResourceTimingStatuses": [
+          200
+        ],
+        "terminalNetworkSHA256": "1cb60c80b63753d554c3053928717dabc9d4d109f7413178c07832ee0475229d",
+        "boundByteRequestCount": 1,
+        "boundByteRequestResponseStatus": 0,
+        "nativeAbortCalls": 1
+      },
+      {
+        "case": "unbound larger file",
+        "finalPageSHA256": "f87c2989e1e8c000262332654c1bbbb312ff3ad580afbe3919830bc860fa1d32",
+        "siteInputChangeSendSubmit": {
+          "fileChange": 1,
+          "fileInput": 1,
+          "formSubmit": 0,
+          "sendButtonClicks": 0
+        },
+        "finalNamedCardFailure": false,
+        "originalDocumentAndEditor": true,
+        "retainedOriginalFailureCount": 0,
+        "visibleResourceTimingStatuses": [
+          200,
+          null
+        ],
+        "terminalNetworkSHA256": "79df2dc30250509d7c73e8763cba887d0b5d42f7b75605b0a880878e981998ce",
+        "boundByteRequestCount": 0,
+        "boundByteRequestResponseStatus": null,
+        "nativeAbortCalls": 0
+      },
+      {
+        "case": "partial upload abort",
+        "finalPageSHA256": "54c837987f5ae40472b300698b512bc03409d290af1fd07f1e3e14ce7d864e9e",
+        "siteInputChangeSendSubmit": {
+          "fileChange": 1,
+          "fileInput": 1,
+          "formSubmit": 0,
+          "sendButtonClicks": 0
+        },
+        "finalNamedCardFailure": false,
+        "originalDocumentAndEditor": true,
+        "retainedOriginalFailureCount": 0,
+        "visibleResourceTimingStatuses": [
+          200
+        ],
+        "terminalNetworkSHA256": "98650aded6b68e9e04c98e94b89ca5e02850ff595eac5e3021201ae42fbf7541",
+        "boundByteRequestCount": 1,
+        "boundByteRequestResponseStatus": 0,
+        "nativeAbortCalls": 1
+      },
+      {
+        "case": "full upload before response abort",
+        "finalPageSHA256": "d5155ea7418b93aad14195d569e748e61332b6a95baf3d1a7a253926533ad11e",
+        "siteInputChangeSendSubmit": {
+          "fileChange": 1,
+          "fileInput": 1,
+          "formSubmit": 0,
+          "sendButtonClicks": 0
+        },
+        "finalNamedCardFailure": false,
+        "originalDocumentAndEditor": true,
+        "retainedOriginalFailureCount": 0,
+        "visibleResourceTimingStatuses": [
+          200
+        ],
+        "terminalNetworkSHA256": "4285734d89aaf767c532c7369d371cbd537ca2ce8e8166d74399ef0113733ecb",
+        "boundByteRequestCount": 1,
+        "boundByteRequestResponseStatus": 0,
+        "nativeAbortCalls": 1
+      }
+    ],
+    "otherCompletedWebsiteSamples": [
+      {
+        "browser": "chrome",
+        "case": "pairs",
+        "finalPageSHA256": "b6d755742273c96ad827bfd79696850c65d8950b4d421a9b585e9ac7cca77d31",
+        "known200": 7,
+        "statusNotRecorded": 7,
+        "recorded4xx5xx": 0
+      },
+      {
+        "browser": "chrome",
+        "case": "selection",
+        "finalPageSHA256": "4748b330c17779cfb7ef80a7b04b0666ed2405c0993014ae3c504530f5262f27",
+        "known200": 2,
+        "statusNotRecorded": 2,
+        "recorded4xx5xx": 0
+      },
+      {
+        "browser": "edge",
+        "case": "pairs",
+        "finalPageSHA256": "9e9065a3d9c4eccb8d265e37c922297bdb79bc582cc1e301545129e1ed3068b3",
+        "known200": 7,
+        "statusNotRecorded": 7,
+        "recorded4xx5xx": 0
+      },
+      {
+        "browser": "edge",
+        "case": "selection",
+        "finalPageSHA256": "f406470f6d47da8ec042ddf7e4f7e3f5b9a2e200c86d38c82792097494dfd99a",
+        "known200": 2,
+        "statusNotRecorded": 2,
+        "recorded4xx5xx": 0
+      }
+    ],
+    "attributableLiveHTTP4xx5xxObserved": false,
+    "note": "A null resource status was not captured. XHR status zero in three aborted byte requests is a transport event. Neither establishes an HTTP error response.",
+    "olderSourceSHA256": {
+      "docs/releases/1.0.6/PROGRESS.md": "76417ba9ae53d4a17e0c133bc1e4e4c88f225b1c431d4fcbe25d0adcc056326f",
+      "docs/releases/1.0.6/evidence/v2-host-build40.json": "85e68171947f6c14d74c729f7f7420b121929863f1001b729eac351c6bd02861",
+      "docs/releases/1.0.7/RC_REPORT.md": "a967f6d2af15a21dc3c588e0fe54f38511b4517323b5196a3bf9b95a9d87194c",
+      "engineering/evidence/2026-10-27-real-mac-round2/README.md": "568346ebb72a00da05c22f662064d5651d879f6600c493c3e511d9ffe389b27b",
+      "engineering/evidence/2026-10-27-real-mac-round2/post100-network-receipt.json": "81210ad1a339aecc67114619e2d5c737dd1090fa5d9fe020cd34032a4bf68aec",
+      "engineering/evidence/2026-10-27-real-mac-round2/mid-network-receipt.json": "3f497749582ca8a4e658384f1d3d1fe32d72388cc971a90b6da82dd3230d13e8"
+    },
+    "olderCards": "Builds 40/41/42 recorded original site error cards during controlled post-processing failure, with no observed START for that failure path. Build 40 also documents an explicit new intent from UNKNOWN. Build 49 recorded a named upload error on the original card after a scoped tab offline condition. These records establish historical site behavior; none supplies a recorded 4xx/5xx for the build 59 original byte request."
+  },
+  "officialSourceReview": {
+    "sources": [
+      "https://help.openai.com/en/articles/8555545-uploading-files-and-audio-to-chatgpt",
+      "https://help.openai.com/en/articles/8400551-chatgpt-image-inputs-faq",
+      "https://help.openai.com/en/articles/6614161-how-can-i-contact-support"
+    ],
+    "documentedOrdinaryBoundary": "20 MB per image; plan- and account-specific upload quotas also exist.",
+    "documentedNamedCardOrHTTPStatusForOversize": false,
+    "providerOwnedChatGPTRejectionEnvironment": "No operator-provided ChatGPT web attachment rejection sandbox was identified in these public sources or the reviewed project evidence.",
+    "resourceUsage": "No quota exhaustion, live endpoint probes, account changes or changes to production requests were used in this review."
+  },
+  "loopback": {
+    "status": "PASS",
+    "browser": "Chrome/157.0.8103.79",
+    "method": "Fresh headless profile, browser native file selection, XHR PUT, independent HTTP server body hash, final process/listener cleanup.",
+    "sourceSHA256": {
+      "Tests/PreClickLease/g4/http-control/run.cjs": "5a72b2359c22d982b0820191378f6beae63ff94898b388d9341a649496d667af",
+      "Tests/PreClickLease/g4/http-control/fixture.js": "54434ba6836da4c9598cdace564f8bb40b8e86d09657b7d503057fe3c76eebda",
+      "Tests/OriginalDocumentDelivery/renderer/driver.cjs": "cb3dff296a89079c9d222d9caaf27e4e606b949caf225827ad8fbafdce1f8218",
+      "Tests/WebPageProgram/native-chrome-cleanup.cjs": "86ab2fca6586e9651a16876d76fa27a1a81864498a07c7ff0c2256f383bb269b"
+    },
+    "rawTestOutputSHA256": "94bad369b380006286f5b3a9423ea8eca2f93b0145b057607d49496c763694a2",
+    "rows": [
+      {
+        "case": "size limit",
+        "serverResponse": {
+          "status": 413,
+          "bytes": 70,
+          "sha256": "8525dce9914db18843536a296f774dbb9822bab237d47e3a2769071d4689d28a",
+          "contentType": "image/png"
+        },
+        "nativeInputChangeSendSubmit": {
+          "input": 1,
+          "change": 1,
+          "sendButton": 0,
+          "submit": 0
+        },
+        "observedFileCount": 1,
+        "fixtureCard": "refused",
+        "textUnchanged": true,
+        "allRecordedEventsTrusted": true,
+        "nativeEvents": [
+          {
+            "event": "input"
+          },
+          {
+            "event": "change"
+          },
+          {
+            "event": "readystatechange",
+            "readyState": 1,
+            "status": 0
+          },
+          {
+            "event": "loadstart",
+            "readyState": 1,
+            "status": 0
+          },
+          {
+            "event": "readystatechange",
+            "readyState": 2,
+            "status": 413
+          },
+          {
+            "event": "readystatechange",
+            "readyState": 3,
+            "status": 413
+          },
+          {
+            "event": "readystatechange",
+            "readyState": 4,
+            "status": 413
+          },
+          {
+            "event": "load",
+            "readyState": 4,
+            "status": 413
+          },
+          {
+            "event": "loadend",
+            "readyState": 4,
+            "status": 413
+          }
+        ]
+      },
+      {
+        "case": "service unavailable",
+        "serverResponse": {
+          "status": 503,
+          "bytes": 70,
+          "sha256": "8525dce9914db18843536a296f774dbb9822bab237d47e3a2769071d4689d28a",
+          "contentType": "image/png"
+        },
+        "nativeInputChangeSendSubmit": {
+          "input": 1,
+          "change": 1,
+          "sendButton": 0,
+          "submit": 0
+        },
+        "observedFileCount": 1,
+        "fixtureCard": "refused",
+        "textUnchanged": true,
+        "allRecordedEventsTrusted": true,
+        "nativeEvents": [
+          {
+            "event": "input"
+          },
+          {
+            "event": "change"
+          },
+          {
+            "event": "readystatechange",
+            "readyState": 1,
+            "status": 0
+          },
+          {
+            "event": "loadstart",
+            "readyState": 1,
+            "status": 0
+          },
+          {
+            "event": "readystatechange",
+            "readyState": 2,
+            "status": 503
+          },
+          {
+            "event": "readystatechange",
+            "readyState": 3,
+            "status": 503
+          },
+          {
+            "event": "readystatechange",
+            "readyState": 4,
+            "status": 503
+          },
+          {
+            "event": "load",
+            "readyState": 4,
+            "status": 503
+          },
+          {
+            "event": "loadend",
+            "readyState": 4,
+            "status": 503
+          }
+        ]
+      },
+      {
+        "case": "accepted control",
+        "serverResponse": {
+          "status": 201,
+          "bytes": 70,
+          "sha256": "8525dce9914db18843536a296f774dbb9822bab237d47e3a2769071d4689d28a",
+          "contentType": "image/png"
+        },
+        "nativeInputChangeSendSubmit": {
+          "input": 1,
+          "change": 1,
+          "sendButton": 0,
+          "submit": 0
+        },
+        "observedFileCount": 1,
+        "fixtureCard": "accepted",
+        "textUnchanged": true,
+        "allRecordedEventsTrusted": true,
+        "nativeEvents": [
+          {
+            "event": "input"
+          },
+          {
+            "event": "change"
+          },
+          {
+            "event": "readystatechange",
+            "readyState": 1,
+            "status": 0
+          },
+          {
+            "event": "loadstart",
+            "readyState": 1,
+            "status": 0
+          },
+          {
+            "event": "readystatechange",
+            "readyState": 2,
+            "status": 201
+          },
+          {
+            "event": "readystatechange",
+            "readyState": 3,
+            "status": 201
+          },
+          {
+            "event": "readystatechange",
+            "readyState": 4,
+            "status": 201
+          },
+          {
+            "event": "load",
+            "readyState": 4,
+            "status": 201
+          },
+          {
+            "event": "loadend",
+            "readyState": 4,
+            "status": 201
+          }
+        ]
+      }
+    ]
+  },
+  "limits": "Fixture-generated PNG, server, draft and card only. Signed product clicks, ChatGPT original-card rejection, same-PNG explicit recovery, and the before/after recovery SQLite pair are outside the local control."
+}
