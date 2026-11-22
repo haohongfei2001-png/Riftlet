@@ -1,5 +1,7 @@
 # Riftlet 1.0.8 最终候选验收
 
+2026-11-23 的当前候选为 build 60。本文件下文保留 build 59 的历史证据。[build 60 同包结果和发行结论](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)
+
 **总体 PARTIAL。** 当前唯一网站验收候选为 build 59。冻结产品提交 `69b76cb025ab552b3480e3af095b627891874712`，树 `7289c35504d9a2a27b82e240fafe175b4779dd16`，页面 SHA-256 为 `b6eee615982d839285ea6af4abb16018939f9be91b18215554e847f4a6eb2215`。#120 保持打开。
 
 | build 59 已登录实站项目 | 结果 |

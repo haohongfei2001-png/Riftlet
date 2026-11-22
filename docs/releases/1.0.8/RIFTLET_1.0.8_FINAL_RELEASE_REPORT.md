@@ -1,4 +1,42 @@
-# Riftlet 1.0.8 最终发行报告 · 2026-11-22
+# Riftlet 1.0.8 最终发行报告 · 2026-11-23
+
+**RIFTLET 1.0.8 — NOT RELEASED**
+
+当前候选是 build 60。签名包、独立安装和双架构回归均已完成。实站准入在文件输入前停止，G1、G2 和 G4 仍缺少这份签名包的完整证据。公开稳定版本为 1.0.5（31）。
+
+## 2026-11-23 · Build 60
+
+| 同包项目 | 核验结果 |
+| --- | --- |
+| 候选 | 1.0.8（60），产品源码 `711cee3a1c7033ce4925082a83099b00da7087c6`。私有 DMG 为 14,092,837 字节，SHA-256 为 `5a934119d6e65cbe82a62f5f208a2b95a200fa0cf170225ccd4e9016b1c0b54e`。 |
+| 原生与网页回归 | ARM64、Intel 各完成 1,436 个 Swift 测试。完整网页套件 384/384，两款浏览器在独立受控页面各通过 19 个原草稿和 22 个预览用例，另有 8 个故障测试与 24 个打包验证。 |
+| 签署与分发字节 | 统一 App、DMG 的 Developer ID 签名、Apple 公证、staple 及 Gatekeeper 均已确认。非作者从只读镜像独立安装，完整目录树比对通过，两个架构和三个 App 自检通过。 |
+| 历史保留 | 在三份 build 59 实站故障库的独立副本上，迁移、取消、延迟回执及重启后，原操作、调用、收据与 START 记录均保持一致。原存档逐字节摘要不变。 |
+| 用户知情恢复 | 截图仓库在确认前告知潜在重复风险。新的原生点击必须获得同一原窗、标签、Document、Composer 和草稿代际的许可。受控测试验证仍有旧卡、出现不明附件、旧附件被替换或目标变化时均停止输入。首次恢复在输入前撤回后，可以继续发起新的显式选择，旧账本保持只读。 |
+
+[双架构 CI](evidence/build60/dual-architecture-ci.json) · [受控测试](evidence/build60/local-regression.json) · [签名及公证](evidence/build60/signed-candidate.json) · [独立安装](evidence/build60/independent-install.json) · [非作者源码复核](evidence/build60/independent-source-review.json) · [原图与历史库](evidence/build60/g4-page-review.json)
+
+### 实站结果与发行裁决
+
+| 项目 | build 60 结果 | 本轮观察 |
+| --- | --- | --- |
+| Chrome、Edge 冷暖首图、快速双图、非空原文与选区 | NOT_RUN · BLOCKED_ENV | 在这两个浏览器均无法同时证明专窗已选中、位于系统前台、原始页面可见。没有投递第一张图，不能沿用 build 59 的成绩。 |
+| G4-A · 具名原卡失败与恢复 | NOT_RUN | 没有发生可归属的实站文件输入或故障，没有新的原卡错误、旧失败库或成功恢复库可供核对。 |
+| G4-B · 上游 4xx、原卡消失与恢复 | NOT_RUN | 同包实站没有原 PNG 对应的上游 4xx。自有服务器的 413、503 仅用于浏览器网络对照。缺少独立等价放行所必需的上游与恢复证据。 |
+| G4-C · UNKNOWN 的知情重选 | 产品和存储验证通过；实站 NOT_RUN | 正向恢复及原卡仍在时的负向保护均缺少同包真实 AppKit 点击。受控对照与三份历史库已分别审计。 |
+| B4 · 正常图片大小限制 | 受控准备完成；实站 NOT_RUN | 2880×2816 的离线图案编码为 23,329,506 字节。真实系统截图及普通站点上传以原窗可见为前提，本轮没有取得实站限额或响应。 |
+
+本轮共七次专窗准备。Chrome 两次止于自有本机文档；Edge 五次中有两次到达真实 Temporary Chat，验证了浏览器签名、原生窗与标签、登录状态、原编辑器和上传入口。窗口未最小化，页面报告不可见。Mac 会话已登录，显示器已醒，系统前台为 UserNotificationCenter 的系统对话框。浏览器原生活动请求、标准 Apple Event 及厂商新窗途径均未建立可靠前台。Chrome 的新窗及原标签能通过本轮本机文档确认，仍未取得选中、前台、可见的联合证据。WindowServer 采样时这两款浏览器均无可命中的屏上普通窗口。系统对话框用途未确定。所有准备均停在产品文件输入前。
+
+七次均未启动候选的实站 GUI，未触发文件输入、故障注入、发送或表单提交。123 份原始准备与清理记录已单独私有归档并逐件验算，归档 SHA-256 为 `0d3a76182546d9f6af64bea1a763c939f84553d0a056d067c1636414d51b3698`。
+
+七个 QA 监听器均已退出，各自端口均无监听，独立安装路径下的候选 GUI 进程为零。六次恢复原窗口集合。Edge 厂商新窗同时有两个标签，只能证明其中一个来自本轮，已关闭该标签并保留另一个。没有接管个人聊天、点击系统对话框、改变权限、修改登录信息或开启调试。当前连接的远程设备与本机相同，仓库没有已注册的自托管 Actions runner。恢复实站的条件是获得可呈现、可匹配原生窗口的已登录普通浏览器测试会话。
+
+[七次实站与清理回执](evidence/build60/site-and-cleanup.json) · [非作者独立发行裁决](evidence/build60/independent-release-verdict.json) · [Edge 原草稿准入回执](evidence/build60/g4c-edge-preflight.json) · [协议对照与各路线条件](G4_PROTOCOL_AND_STATE_MACHINE.md) · [分支依赖与 PR 状态](evidence/build60/governance.json) · [公开稳定版本、官网及签名更新源](evidence/build60/public-stable-baseline.json)
+
+PR #124 保留 Draft，Issue #120 保持打开。正式合并、1.0.8 Release、官网与 Sparkle 切换、发布后的公开下载及应用内升级验收均未执行。公开下载的 1.0.5 DMG 与 GitHub 资产摘要相符，并已用稳定更新源签名复核。
+
+## 2026-11-22 · Build 59 历史报告
 
 **RIFTLET 1.0.8 — NOT RELEASED**
 
