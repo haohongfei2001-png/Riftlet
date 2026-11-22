@@ -1,0 +1,182 @@
+{
+  "browser": "Microsoft Edge",
+  "candidateDMG": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+  "cleanup": {
+    "networkHooksRestored": true,
+    "originalWindowClosedAndOriginalWindowSetRestored": true,
+    "pageWatcherClosed": true,
+    "privateLoopbackListenerExited": true,
+    "privateSignedCandidateExited": true
+  },
+  "crossRunAccounting": {
+    "distinctEarlierAndCurrentConfirmedAbortTimings": 3,
+    "firstLargeStrategy2CancellationCount": 0,
+    "newControlledCancellations": 2,
+    "newFormSubmitsOrSendClicks": 0,
+    "newSTARTs": 1,
+    "newWebsiteFileChanges": 3,
+    "newWebsiteFileInputs": 3,
+    "observedFailureGate": "No explicit site-rendered failed card was observed in these three new drafts. The evidence does not exercise recovery from that state.",
+    "productDefectDemonstratedByTheseRuns": false,
+    "totalConfirmedAbortsInFourFaultStrategyAttempts": 3,
+    "verifiedDistinctOriginalSitesInCurrentThreeAttempts": 3,
+    "verifiedUniqueOriginalOperationsAndInvocationsInCurrentThreeAttempts": 3
+  },
+  "evidence": {
+    "candidate.stderr": "636df2ab052057c444c169954dfeb2907bb746e0a2167e6c20c24854641c8e82",
+    "capture-1.json": "cf22c4957c5f70e3a332ea5a935f1d04d3ba3f2ba60678d921aeb9f0badf7051",
+    "capturePixels": "9994af8d0c08862fd59a02bd298dbc7c4c7103967c4fa2c4a030c1bc7f11587b",
+    "final-db.json": "d24e39b4bf84090d04bdc779a408f7a4a84d8898b6a1478641d8640597289257",
+    "final-page.json": "54c837987f5ae40472b300698b512bc03409d290af1fd07f1e3e14ce7d864e9e",
+    "listenerExit": "cf5f87e2297726b643444aa8784a83e6aa38fde6f0642fb143d535a5141b17bd",
+    "transport-binding.json": "0cf0cfcdfa200cbcdec8e6a60047c84f9ce7bd2b1914eb54fab7f98ea5914d14",
+    "transport-fault-finish.json": "98650aded6b68e9e04c98e94b89ca5e02850ff595eac5e3021201ae42fbf7541",
+    "transport-fault-sample.json": "98650aded6b68e9e04c98e94b89ca5e02850ff595eac5e3021201ae42fbf7541",
+    "transport-original-observed.json": "649d0a9f400af72427350d82d1a394f8bc41bb231b885f62bf10d3c7a372c524",
+    "watch-closed.json": "a54ac5bb1f80f63e97d0fdea2ed11b5d547130e28378703d643019b310611f98",
+    "window/after.json": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+    "window/before.json": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+    "window/closed.json": "e148ee30b300dcf304cd7e68b337f09025d911a0f3f13fde9285d63fb5857d77",
+    "window/creation.json": "5e60eebe3cb7df99f402801f18b6aee373b61082ce1c9c78b9ef6664829dcc2c",
+    "window/original-entry.json": "77422af79766648ee8156fadef29355003cfe105ee313065ad4add102379365c",
+    "window/site-navigation-return.json": "8b44d5e42615b498dae0526d1acebe5b24342ebaffa9951cd9163c289d9d2073"
+  },
+  "frozenSamplerSHA256": "04d061182dbfff9a789c2295aad958cdce38ea1e922328f584505450ce43d132",
+  "fullSiteAndDatabaseRecoveryGate": "NOT_RUN",
+  "g4Decision": "NOT_RUN",
+  "invocationDigest": "68f010b2d022341725894dd9017a9a8300a340da2936265f0e49156be3d4a013",
+  "mode": "NATIVE_UPLOAD_PARTIAL",
+  "nativeSamplerHostSHA256": "cb3da204b95fea140e02c23714860137fe54c8b2536084a9745b9e528fd126e7",
+  "networkObservationBoundary": "Browser-side transport observations are limited to the original matched request and its reported events.",
+  "originalOperationIDDigest": "358b066917162359f5b660a387792b3c90dc0c31c5b4c0106ab07de99dc92885",
+  "originalProfileDBBackupSHA256": "ed000599b6b66cdb2196989b140c6d097ed366f68c694cf51ed73707bfc0dd88",
+  "scope": "Independent review of the completed dedicated Edge strategy",
+  "site": {
+    "cardObservation": {
+      "exactRemoveControlAppeared": true,
+      "firstObservedRemovalMSAfterAbort": 20.2,
+      "namedSiteFailureSeen": false,
+      "noFinalDecodedImageToCompare": true
+    },
+    "finalSitePreview": {
+      "encodedPNGMatchesOriginal": null,
+      "siteDecodedPreviewMatchesNativeRGBADigest": null,
+      "websiteDecodedOriginalFileEqualsDecodedPreview": null
+    },
+    "matchingOriginalNameOnVisibleCard": false,
+    "namedFailureInCurrentSample": false,
+    "nativeClicks": 1,
+    "nativeCommits": 1,
+    "nativeDecodedOriginalRGBASHA256": "d3eec27eab7a30485072072f40608de56afc050626cc2916e44b717ac65e6c2b",
+    "originalWindowDocumentComposerVerified": true,
+    "previewMeasurements": [],
+    "resourceTimingOnly": [
+      {
+        "initiator": "fetch",
+        "publicPath": "/backend-api/files",
+        "recordedResponseStatus": 200
+      }
+    ],
+    "retainedNamedFailureFromOriginalMutation": false,
+    "secondsFromFirstIntentToLastOriginalObservation": 54.966,
+    "websiteCounts": {
+      "fileChange": 1,
+      "fileInput": 1,
+      "formSubmit": 0,
+      "sendButtonClicks": 0
+    }
+  },
+  "sourcePNGBytes": 188726,
+  "sourcePNGSHA256": "20ec24f32a9dc11f7536526a2f2ca0001c728f78c7bb4432d8c65cdec6a26118",
+  "sqlite": {
+    "counts": {
+      "assets": 1,
+      "operations": 1,
+      "upload_starts": 0
+    },
+    "originalHadSTART": false,
+    "originalHasError": false,
+    "originalNamedFailureAndRecoveryBackups": "NOT_RUN",
+    "originalPhase": "unknown",
+    "originalReceipt": "inputTriggered",
+    "safeToRetry": false
+  },
+  "strategyStatus": "REAL_ATTEMPT_WITH_CONFIRMED_SCOPED_FAULT",
+  "transport": {
+    "abortCalls": 1,
+    "attributedByteRequests": 1,
+    "attributedNetworkRequest": true,
+    "completeNativeUploadEvent": {
+      "eligibleEvents": 1,
+      "fullProgressCount": 0,
+      "invalidEvents": 0,
+      "lastProgress": {
+        "at": 57244.6,
+        "loaded": 81875,
+        "readyState": 1,
+        "status": 0,
+        "total": 188726
+      },
+      "partialCount": 1,
+      "progressEvents": 1,
+      "responseStarted": false,
+      "unreadyEvents": 0,
+      "uploadLoad": null,
+      "uploadLoadCount": 0,
+      "windowClosed": null
+    },
+    "controlledAbortObserved": true,
+    "entireOriginalBody": "entire-body",
+    "immediateRestoration": true,
+    "loadendToAutomaticRestorationMS": 0.2,
+    "pendingNative": false,
+    "percentageReportedByBrowserAtTrigger": 43.383,
+    "qualifyingCreateReceipts": 1,
+    "qualifyingCreateResponses": 1,
+    "restored": true,
+    "sanitizedCreateDiagnostic": null,
+    "sendReturnedToAbortCallMS": 624.7,
+    "sourceBytesClass": "File",
+    "terminal": {
+      "at": 57245,
+      "loaded": 0,
+      "readyState": 4,
+      "status": 0,
+      "total": null
+    },
+    "terminationReason": null,
+    "trigger": {
+      "at": 57244.8,
+      "eventTarget": "original-xhr.upload",
+      "eventTrusted": true,
+      "eventType": "progress",
+      "kind": "NATIVE_UPLOAD_PARTIAL",
+      "lengthComputable": true,
+      "loaded": 81875,
+      "nativeReturnedAt": 56620.1,
+      "nativeSendReturned": true,
+      "observedUploadLoaded": 81875,
+      "readyState": 1,
+      "requestGeneration": 1,
+      "requestGenerationVerified": true,
+      "responseStarted": false,
+      "status": 0,
+      "total": 188726,
+      "uploadProgressEvents": 1,
+      "uploadState": "PARTIAL_PROGRESS_OBSERVED"
+    },
+    "trustedAbortReceipt": {
+      "at": 57245,
+      "loaded": 0,
+      "readyState": 4,
+      "status": 0,
+      "total": null
+    },
+    "trustedAborts": 1,
+    "trustedLoadends": 1,
+    "urlSHA256": "f4ed3300ad08b5846d559a50705d251d84c4645596de287bfff246fdceafaebc"
+  },
+  "underlyingServerOutcome": "NOT_OBSERVED",
+  "verifiedAgainstRawSystemPNGAndOriginalDatabase": true,
+  "windowClosureAndRestoredOriginalInventory": true
+}

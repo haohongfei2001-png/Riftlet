@@ -18,3 +18,7 @@
 非作者独立读取浏览器、AppKit 和 SQLite 原始记录，并独立创建了终态数据库备份。两份终态备份的 SHA-256 相同。非作者确认此次客户端中断成立，原卡错误和恢复均未通过。被动校准与一次性故障工具分别通过 39 项和 35 项离线控制；非作者另以四种 XHR 复用情形验证了对后续请求的保护。
 
 [网络回执](evidence/build59/g4-final-network-receipt.json) · [原卡回执](evidence/build59/g4-final-card-observation.json) · [恢复及快照审计](evidence/build59/g4-final-recovery.json) · [窗口与进程清理](evidence/build59/g4-final-cleanup.json) · [校准非作者复核](evidence/build59/g4-live-passive-audit.json) · [最终非作者复核](evidence/build59/g4-final-independent.json)
+
+## 后续两种真实传输中断
+
+前台恢复后，签名 build 59 在新的已登录 Edge 临时草稿完成另外两种实站中断。一次在受信部分进度 81,875 / 188,726 字节处取消；另一次在受信上传 load 读到 5,516 / 5,516 字节、尚未观察到响应时取消。两次均产生一次 input、一次 change，保留完整 PNG 与原 UNKNOWN。两次均未取得属于原操作的明确错误卡，也未进行显式重选。另一次大图身份比对不符，取消数为零。合计三种真实中断，G4 为 **BLOCKED_TECHNICAL — G4 NOT PROVEN**。逐轮结果见[最终发行报告](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)和[三种策略总账](evidence/build59/g4-final-strategies.json)。
