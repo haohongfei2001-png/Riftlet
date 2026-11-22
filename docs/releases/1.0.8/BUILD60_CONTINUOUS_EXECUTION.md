@@ -73,3 +73,9 @@ ARM64 与 Intel 两个独立 Actions 产物均解包核对，Swift 测试各 1,4
 本次重新从三份 build 59 故障库创建独立副本，用冻结 build 61 在本地原生浏览器内核重走恢复。三次均保留旧 UNKNOWN，新增唯一显式输入及持久化 START。已私有封存 56 个逐件复算的文件，含 6 份 SQLite 一致性备份和 3 份 PNG。私有清单 SHA-256 为 `4c56a993fa1cc5366e819dc65517cab8a8264ff38cb43dd10b56b3bab5855fae`。本次亦用独立安装验证 build 61 与已发布 build 31 的更新源、签名要求、公钥、最低系统版本相同，实收官网和 stable feed 均指向 1.0.5。[原库与恢复核对](evidence/build61/archived-recovery.json) · [发行路径验证](evidence/build61/release-preparation.json)
 
 唯一实站执行者已在原 GUI 锁内移交到新验收驱动，原执行者的实站窗口创建和产品投递计数均为零。新驱动将原卡观察延续至用户重新选择和第二份数据库快照，也允许本轮已验证的 20–30 MiB 私有系统截图经产品通道进入大小测试。两款浏览器 Apple Events 已授权。前台仍为用途无法确定的系统窗口，两款浏览器的屏幕窗口和 AX 窗口数均为零。下一次桌面恢复时，同一执行者先执行 `edge/g4c`，再执行 `chrome/g1`、`edge/g2` 和单次大小实验。核验正式集成检查的命令为 `gh pr checks 125 --repo haohongfei2001-png/Riftlet`。待取得真实 G4-A 或获准 G4-B，以及 G4-C、G1、G2 后再进行发行独立复核。当前无需用户操作。[实际交互宿主回执](evidence/build61/gui-execution-checkpoint.json) · [发行报告](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)
+
+## 06:40（上海）· 可复现的实站执行环境
+
+传入验收入口的源码与 DMG 摘要均已固定。已将私有执行器、正式 DMG、独立 App 和所需工具封存至用户私有档案，重新读取了归档的 452 个文件及 9 个 App 软链接。归档共 140,464,841 字节，SHA-256 为 `9dcdd64485b278d0e091704fc39ffcd5ad526d29d75cf24f19af40f51f5f4725`。现有执行者负责按原收据续查，每一轮按实际桌面重新核对准入条件。该执行者是唯一已授权的交互入口。
+
+宿主当前读到 Stage Manager 的全局偏好为关闭。单独的屏幕采样、AX 读数和这个偏好仍不能定位其他应用的窗口所属 Space。用户会话已解锁，当前授权充足，原窗在屏上可见并具有焦点仍是必要外部条件。单个交互执行者已经运行，常规恢复路径由它自然触发；如原进程已退出，唯一执行者先核对持久 claim、原页与 SHA，再使用私有归档记录的 `staged-v2/interactive --source 49b9204974088c1983cda469910d9a78d8f4c43b --dmg-sha256 31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e`。当前无需用户操作。[私有封存与桌面偏好回执](evidence/build61/issuer-custody.json)
