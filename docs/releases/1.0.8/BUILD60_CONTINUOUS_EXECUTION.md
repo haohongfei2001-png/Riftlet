@@ -79,3 +79,11 @@ ARM64 与 Intel 两个独立 Actions 产物均解包核对，Swift 测试各 1,4
 传入验收入口的源码与 DMG 摘要均已固定。已将私有执行器、正式 DMG、独立 App 和所需工具封存至用户私有档案，重新读取了归档的 452 个文件及 9 个 App 软链接。归档共 140,464,841 字节，SHA-256 为 `9dcdd64485b278d0e091704fc39ffcd5ad526d29d75cf24f19af40f51f5f4725`。现有执行者负责按原收据续查，每一轮按实际桌面重新核对准入条件。该执行者是唯一已授权的交互入口。
 
 宿主当前读到 Stage Manager 的全局偏好为关闭。单独的屏幕采样、AX 读数和这个偏好仍不能定位其他应用的窗口所属 Space。用户会话已解锁，当前授权充足，原窗在屏上可见并具有焦点仍是必要外部条件。单个交互执行者已经运行，常规恢复路径由它自然触发；如原进程已退出，唯一执行者先核对持久 claim、原页与 SHA，再使用私有归档记录的 `staged-v2/interactive --source 49b9204974088c1983cda469910d9a78d8f4c43b --dmg-sha256 31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e`。当前无需用户操作。[私有封存与桌面偏好回执](evidence/build61/issuer-custody.json)
+
+## 06:53（上海）· 正式 PR 的进程探针
+
+PR #125 的第一个正式预合并上，五项检查中三项通过。ARM64 和 Intel 的 1,436 个 Swift 测试分别通过，随后两台 runner 的 127 个发行测试通过。下一步独立编译 `ApplicationInstanceOwnership.swift` 时，旧测试脚本未向 `swiftc` 提供该文件所依赖的实际 `RiftletAdapters` 模块，两个 Native job 均失败。已从两个 Actions 产物及原始日志分别定位。该失败仍保留在正式核验记录中。[首次正式检查](https://github.com/haohongfei2001-png/Riftlet/actions/runs/45078297801)
+
+唯一代码变化是 `scripts/run-readiness-ownership.sh`，使用固定依赖编译真实适配器和 Core，并将其链接到原有进程所有权实现与探针。已在本机验证正常退出、终止时保留所有权、SIGTERM、SIGKILL 各三次，存储耐久测试也通过。新的 QA 检查点是 `e2324e9d742ec3c3d1045504ed1bfee421efae67`。相对签名源码只有这个脚本和前次准入记录不同，`Sources`、`Resources` 及其余文件 Git 对象全部相同。本轮继续使用已安装的同一正式 DMG。[两端错误、Git 对象与本机修复证据](evidence/build61/formal-ownership-probe.json)
+
+下一步将独立复核原文记录在该 QA 检查点的直接子提交，运行 `python3 -B scripts/verify-mainline-composition.py HEAD` 后一次性更新 #125。实站监督器仍按自己的原生条件等待。此刻正式 PR 和实站均未放行，当前无用户动作。

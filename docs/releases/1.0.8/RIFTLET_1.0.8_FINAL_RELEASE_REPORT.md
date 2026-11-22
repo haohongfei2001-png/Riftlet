@@ -11,14 +11,14 @@
 | 候选身份 | 产品源码 `49b9204974088c1983cda469910d9a78d8f4c43b`。私有 DMG 14,133,998 字节，SHA-256 `31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e`。 |
 | 编译、测试与安装 | ARM64、Intel 各通过 1,436 项 Swift 测试。完整网页回归 384/384。App 及 DMG 均获 Apple 公证，Developer ID、staple 和 Gatekeeper 通过，非作者从只读挂载的 DMG 独立安装并通过 9 项检查。 |
 | 原草稿恢复 | 本地普通浏览器内核的源码复核通过 48 组对照，含 8 次显式恢复成功和 8 次旧写票被拒。三份真实历史故障库分别使用新副本取证，6 份一致性快照和原 PNG 已私有封存。 |
-| 正式分支 | 非作者对实际 main 至冻结源码的完整差异给出书面 PASS。准入提交 `fe34c3db` 只变更准入文件。GitHub 生成的两父预合并树与该准入树相同。正式集成在 Draft PR #125。 |
+| 正式分支 | 非作者对实际 main 至冻结源码的完整差异给出书面 PASS。准入提交 `fe34c3db` 只变更准入文件。GitHub 生成的两父预合并树与该准入树相同。首轮正式预合并两个 Native job 在独立探针缺少模块时失败。已完成测试脚本修复及本机 12 次真实子进程验证，正式复验在 Draft PR #125 跟踪。 |
 | Chrome G1、Edge G2 | 均为 **NOT_RUN · BLOCKED_ENV**。本包实站各 0 组快速双图。冷暖首图、非空文字、非折叠选区、旧附件及事件计数仍待现场验证。 |
 | G4-A / G4-B / G4-C | 均为 **NOT_RUN**。目前没有 build 61 实站的具名原卡错误、原 PNG 对应的上游 4xx，或客户端中断后经 AppKit 显式重选的新 START。受控恢复、历史库及本地 HTTP 收据已单列。 |
 | 官网与应用内更新 | 现有官网两个下载入口、stable feed 和已发布 DMG 的签名均指向 1.0.5（31）。独立安装的 build 61 使用相同的更新源与公钥。发布后的公开下载及 31 → 61 应用内升级待发行后核验。 |
 
 当前交互执行者已取得两款浏览器的 Apple Events 和系统 Accessibility 权限。最近读数为当前用户已解锁、显示器已醒，前台窗口归属 `com.apple.UserNotificationCenter`，`AXSubrole=AXSystemDialog`、`AXModal=false`。Chrome、Edge 在当前屏幕上的普通窗口数均为零。允许读取的元数据不足以判定此窗用途。唯一 GUI 执行者核对签名包摘要并使用跨候选的独占锁，按 2–5 分钟退避等待重新准入。当前没有需要用户执行的步骤。
 
-[双架构 CI 原件摘要](evidence/build61/dual-architecture-ci.json) · [受控网页回归](evidence/build61/local-regression.json) · [签名公证](evidence/build61/signed-candidate.json) · [独立安装](evidence/build61/independent-install.json) · [三份历史库恢复](evidence/build61/archived-recovery.json) · [非作者源码复核原文](evidence/build61/mainline-nonauthor-review.json) · [桌面与实站计数](evidence/build61/gui-execution-checkpoint.json) · [正式分支和稳定更新源核对](evidence/build61/release-preparation.json) · [正式 Draft PR #125](https://github.com/haohongfei2001-png/Riftlet/pull/125)
+[双架构 CI 原件摘要](evidence/build61/dual-architecture-ci.json) · [受控网页回归](evidence/build61/local-regression.json) · [签名公证](evidence/build61/signed-candidate.json) · [独立安装](evidence/build61/independent-install.json) · [三份历史库恢复](evidence/build61/archived-recovery.json) · [非作者源码复核原文](evidence/build61/mainline-nonauthor-review.json) · [桌面与实站计数](evidence/build61/gui-execution-checkpoint.json) · [正式分支和稳定更新源核对](evidence/build61/release-preparation.json) · [正式探针修复](evidence/build61/formal-ownership-probe.json) · [正式 Draft PR #125](https://github.com/haohongfei2001-png/Riftlet/pull/125)
 
 ## 2026-11-23 · Build 60
 
