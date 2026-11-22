@@ -1,0 +1,413 @@
+{
+  "schemaVersion": 1,
+  "type": "Independent time-bounded pre-release assessment",
+  "reviewer": "riftlet_108_60_independent_full_range_nonauthor_source_reviewer",
+  "writtenUTC": "2026-11-22T22:58:37.806Z",
+  "releaseVerdict": "HOLD",
+  "releaseAuthorized": false,
+  "candidate": {
+    "version": "1.0.8",
+    "build": 61,
+    "signedSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+    "signedSourceTree": "70ba40e23a3afa3561525b1943cb0e5ebc825de5",
+    "webProgramSHA256": "2f6e2f6e1d80184813f6f967cc340638b96082abd5bd98c2f9e97b0597f982f2",
+    "dmgName": "Riftlet-1.0.8.dmg",
+    "bytes": 14133998,
+    "sha256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+    "teamID": "ZB9D4T66QB",
+    "bundleID": "com.riftlet.app",
+    "distribution": "private"
+  },
+  "decision": "Hold build 61 from release. The private signed candidate and its controlled tests are identifiable and functional within their measured scope. At the recorded time the first formal PR check set had two terminal native failures, while the current originating browser/desktop conditions had produced zero same-package site inputs. The repository has an independently reviewed QA-script correction; no later cloud result is assumed. This is a readiness review, with no final release or GitHub approval.",
+  "sourceReview": {
+    "productSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+    "preexistingSourceDecision": "PASS",
+    "reportSHA256": "5ae2a6694b118a012ddaeb8fed4096d52a68a5ce950aaadcf7d44e192b6a20c0",
+    "formalToolingCorrectionSource": "e2324e9d742ec3c3d1045504ed1bfee421efae67",
+    "correctionTree": "ddc37248d5fa3ac6ed03642ff0937ccd72f45d32",
+    "correctionSourceDecision": "PASS",
+    "correctionReportSHA256": "867f8f49b804f1046a74b70f15286a152ec6fbf632f147b01fdb9c6628b8054a",
+    "signedProductBytesIdentical": true,
+    "oldPredecessor": "The build 60 formal review was CHANGES_REQUESTED, with a different product source, page digest and artifact. Build 61 fixed that original foreground problem. The first build 61 engineering review missed the standalone compiler dependency now exposed by formal PR CI."
+  },
+  "packageVerification": {
+    "actualDMGHashed": true,
+    "actualInstalledExecutableSHA256": "32406ca202fa8eb659abf96930a30ce3c246bb804acfaeeccbc10eaf2fc09387",
+    "installedBundleContentTreeSHA256": "6967c2cc8f41274f1624abca8f1b7f0dd9f89554f7a55b9e14719f5f0f85a324",
+    "installedTreeEntriesRecomputed": 191,
+    "independentInstallationReceiptSHA256": "dff5713dd9c9bec8826cd90bea4cd73b91be11ad9a180d0929600733db4013b9",
+    "formalDMGReceiptSHA256": "8b64e0daaadb854ea3fa82f6bb9663bc195b54e42b6a7402f3388fa0bf41df9c",
+    "architectures": [
+      "arm64",
+      "x86_64"
+    ],
+    "archCDHashes": {
+      "arm64": "217e012b5be8a3d53c6ce351efcb9bbcbe6b4762",
+      "x86_64": "8fa0f3daec62f20694d5511afbb8f8a382834569"
+    },
+    "signedAndNotarized": {
+      "appSubmissionID": "cc15b3d9-fbac-483f-8bae-80ef902f3db1",
+      "dmgSubmissionID": "e747b773-3417-4793-b36e-7077b21ea368",
+      "reportedNotaryStatus": "Accepted",
+      "independentCodesignVerification": {
+        "dmgStrict": 0,
+        "installedAppDeepStrict": 0
+      },
+      "liveMacTrustRechecks": {
+        "dmgGatekeeper": {
+          "exit": 0,
+          "saysValid": null
+        },
+        "appGatekeeper": {
+          "exit": 0,
+          "saysValid": null
+        },
+        "dmgStapledTicket": {
+          "exit": 0,
+          "saysValid": true
+        },
+        "appStapledTicket": {
+          "exit": 0,
+          "saysValid": true
+        }
+      }
+    },
+    "scope": "Hashed the actual DMG, executable and current page, five historical resources and the full installed content tree. Compared the formal and independent receipts, read the executable's architecture signatures and independently reran codesign, Gatekeeper and stapler. All final OS checks exited 0. The independent install receipt records a read-only image mount, detached image, equal install tree and nine checks. I did not relaunch the installed candidate or operate the browser. My first additional Gatekeeper/stapler invocation could not access the system trust verifier inside the command sandbox; the same four read-only checks then completed in the normal system verification context."
+  },
+  "tests": {
+    "local": {
+      "webProgram": {
+        "passed": 384,
+        "rawSHA256": "f65a50b3b4ced225ee25a52cc149f997866ed8cfbb1b256be461777a2325d625"
+      },
+      "offlineFaultHarness": {
+        "passed": 8,
+        "rawSHA256": "a41978a5798b6bba0395d7a0d6bccfbfcf9d42df90ee77672674c84332d0610b"
+      },
+      "packaging": {
+        "passed": 24,
+        "rawSHA256": "57279b24d5d9752271a10e161c3516dfc43cd58d053005d45ada910c3dab86a3"
+      },
+      "chrome-lease": {
+        "passed": 19,
+        "rawSHA256": "bf83ac3457a9124a4c26e07701b86ed8a7d4644db33c0c57e632aeb9b5b1e4d7"
+      },
+      "chrome-preview": {
+        "passed": 22,
+        "rawSHA256": "6f36bbbd0ce156c8d46932a883d4fadff161eb5829ab6f074b56f3d3c127e97d"
+      },
+      "edge-lease": {
+        "passed": 19,
+        "rawSHA256": "2710f7816855b0cc771752c645a9b20946cc9883d1ee252c92570fcd5c0f42fe"
+      },
+      "edge-preview": {
+        "passed": 22,
+        "rawSHA256": "f51d609ff76de32a1af3ae2aaa684aa849de869fca30e3642c5a6bacabeb81b4"
+      }
+    },
+    "localProductBuildLogSHA256": "821575fb7b5a4d9b2987aa885158a69aa2b1a6945c2e77553e88a0abd103020a",
+    "scope": "Checked pass counts and SHA-256 against raw local reports. The preliminary sandboxed full-Web run failed 35 child-browser bootstrap/cleanup cases with SIGABRT/EPERM. The complete independently identifiable rerun, not that preliminary run, passed 384 of 384 with no skip. All these runs used local fixtures.",
+    "independentBrowserRegression": {
+      "cases": 48,
+      "offlineTopLevelCases": 284,
+      "withFreshRenderedAttachmentAcceptedSTART": 8,
+      "staleUnspentBeginRefusalsInFocusControls": 8,
+      "evidence": "5ae2a6694b118a012ddaeb8fed4096d52a68a5ce950aaadcf7d44e192b6a20c0",
+      "applicationScope": "Real headless Chrome and Edge; owned fixture and production page code. No signed-application site receipt."
+    },
+    "sourcePushCI": {
+      "workflowRunID": 45077012085,
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45077012085",
+      "event": "push",
+      "source": "49b9204974088c1983cda469910d9a78d8f4c43b",
+      "result": "success",
+      "artifacts": [
+        {
+          "architecture": "x86_64",
+          "artifactID": 14775837785,
+          "artifactSHA256": "21d5abbac849dd4fc4917dc8cfb9a59e447908ea19571ad909087cc75b583671",
+          "artifactBytes": 89646,
+          "discovered": 1436,
+          "parallelCompleted": 1414,
+          "serialPassed": 22,
+          "serialFailures": 0,
+          "controlledChromeLease": 19,
+          "controlledChromePreview": 22,
+          "offlineFaults": 8
+        },
+        {
+          "architecture": "arm64",
+          "artifactID": 14775344453,
+          "artifactSHA256": "3d7b1ff05a347a69edf81ae7f6846b11d43d49eca97f4ef45c0b5bf65e42d9af",
+          "artifactBytes": 89932,
+          "discovered": 1436,
+          "parallelCompleted": 1414,
+          "serialPassed": 22,
+          "serialFailures": 0,
+          "controlledChromeLease": 19,
+          "controlledChromePreview": 22,
+          "offlineFaults": 8
+        }
+      ],
+      "verification": "Each local ZIP matches the official GitHub artifact digest, byte count and G. Its archive passed CRC verification. I independently counted the entire discovered suite, 1,414 unique parallel case executions, and 22 serial successes in each architecture log; I also checked all 19/22 controlled Chrome results and all eight fault cases. Hosted source-push tests do not report site or formal PR acceptance."
+    }
+  },
+  "historicalDatabaseVerification": {
+    "timeUTC": "2026-11-22T22:46:06.286457+00:00",
+    "frozenInputsRehashed": 26,
+    "controlledVerifierSHA256": "76cdd276fcb15348dd8b6934fa643bfc95fa29d20b5221d3d9b0bffb284a2df0",
+    "sourceRepoDigestsMatch": true,
+    "publicSummarySHA256": "42cc9469f5dfdbc5b5aaf313df574f4c7126edf14bff63e69a73df4e48ffb164",
+    "cases": [
+      {
+        "case": "after-native-send",
+        "sealedOriginalSHA256": "3f1176fe3da464277c4ae2552c9a4ecee799b8d7aa4d1b5b7337b5b097c1e926",
+        "beforeSHA256": "b4918d73912ee40f5a02c59b8016170fe11ae158c758855a8eb757a2117949ac",
+        "afterSHA256": "4e181f24fc3260cd8a5c5f01c57916a87d57f28fd736d5c2afa4ad3f46dc3751",
+        "originalCaptureEqualsMediaAndSealedCopy": true,
+        "schema": [
+          4,
+          7,
+          7
+        ],
+        "activeAttempts": [
+          1,
+          2,
+          3
+        ],
+        "canceledInvocations": 0,
+        "retainedLinks": 2,
+        "STARTsBySnapshot": [
+          0,
+          0,
+          1
+        ],
+        "newBrowserObservationMatchedDurableSTART": true,
+        "freshFromBuild60": true,
+        "siteInputsObservedByAudit": 0
+      },
+      {
+        "case": "partial-native-upload",
+        "sealedOriginalSHA256": "ed000599b6b66cdb2196989b140c6d097ed366f68c694cf51ed73707bfc0dd88",
+        "beforeSHA256": "58ece88ed0fd9457232847da0d83620561c40dff9cbf403fabd415bd21e8aace",
+        "afterSHA256": "6b82ff3392169833e2bbdf8a8c99d6d29132f880524db15ecb692f3ca8f7329d",
+        "originalCaptureEqualsMediaAndSealedCopy": true,
+        "schema": [
+          4,
+          7,
+          7
+        ],
+        "activeAttempts": [
+          1,
+          2,
+          3
+        ],
+        "canceledInvocations": 0,
+        "retainedLinks": 2,
+        "STARTsBySnapshot": [
+          0,
+          0,
+          1
+        ],
+        "newBrowserObservationMatchedDurableSTART": true,
+        "freshFromBuild60": true,
+        "siteInputsObservedByAudit": 0
+      },
+      {
+        "case": "body-sent-before-response",
+        "sealedOriginalSHA256": "2a7c15697cde5d96927999e6ec9b4766dd5ef79e58dfd0bb46fd5d0c53a498de",
+        "beforeSHA256": "ba41daa5c6fe8ecefccbd5712ce722b495e3c7f79a2c728237c44165ebdda914",
+        "afterSHA256": "4c7a03aa03f8e9bfe38ab891200a6fb635258886997faf6853096a9356a7a107",
+        "originalCaptureEqualsMediaAndSealedCopy": true,
+        "schema": [
+          4,
+          7,
+          7
+        ],
+        "activeAttempts": [
+          1,
+          2,
+          3
+        ],
+        "canceledInvocations": 0,
+        "retainedLinks": 2,
+        "STARTsBySnapshot": [
+          0,
+          0,
+          1
+        ],
+        "newBrowserObservationMatchedDurableSTART": true,
+        "freshFromBuild60": true,
+        "siteInputsObservedByAudit": 0
+      }
+    ],
+    "scope": "Three real sealed build 59 failure archives were read using standalone immutable SQLite handles. I rehashed the original source screenshot, original media and isolated PNG copy, checked integrity and foreign keys on all nine database files, compared original operations/checkpoints/START tables across v4 → 7 → 7, reran the frozen original recovery verifier on every before/after pair, and compared new renderer identities with the older build 60 bridge records. Three fresh controlled successor STARTs matched SQLite byte-for-byte evidence identifiers with one controlled input per explicit operation. These closed inputs did not contact, or recreate acceptance by, the live service.",
+    "privateVault": {
+      "filesRehashed": 56,
+      "independentSQLiteBackups": 6,
+      "privateOriginalPNGs": 3,
+      "manifestSHA256": "4c56a993fa1cc5366e819dc65517cab8a8264ff38cb43dd10b56b3bab5855fae",
+      "differences": 0
+    }
+  },
+  "redaction": {
+    "publicEvidenceQualifiedAtGitCommit": "ef2a462817162858b3237359a6979e27394c0514",
+    "files": 13,
+    "aggregateManifestSHA256": "cf5b9729c89322f90262d683ab99fd588c70f6c9d2339f9e6af4b55ac1aec3bb",
+    "names": [
+      "archived-recovery.json",
+      "controlled-focus-recovery.json",
+      "dual-architecture-ci.json",
+      "formal-ownership-probe.json",
+      "gui-execution-checkpoint.json",
+      "gui-supervisor-continuity.json",
+      "independent-install.json",
+      "issuer-custody.json",
+      "local-regression.json",
+      "mainline-nonauthor-review.json",
+      "normal-seed-expiry-controls.json",
+      "release-preparation.json",
+      "signed-candidate.json"
+    ],
+    "privateIdentifiersAndFilenamesCompared": 33,
+    "privateMarkerMatches": 0,
+    "scanPatternMatches": {},
+    "scope": "All 13 build 61 evidence files at this evidence checkpoint are JSON and parse without duplicate keys. Exact source identifiers/filenames drawn from the private historical request/receipt data were absent. Bounded detection found no raw screenshot payload, DB, personal file path, exact individual service conversation URL, signed object URL, cookie, provider token or private key. The raw captures and SQLite backups remain private. A bounded pattern/marker comparison cannot establish the absence of every possible identifying detail."
+  },
+  "formalPR": {
+    "observedFromUTC": "2026-11-22T22:57:04.236038+00:00",
+    "observedThroughUTC": "2026-11-22T22:57:06.269528+00:00",
+    "pr": 125,
+    "state": "open",
+    "draft": true,
+    "merged": false,
+    "main": "9fd8ad15fca043915069904113e5fb67d82b4948",
+    "base": "9fd8ad15fca043915069904113e5fb67d82b4948",
+    "head": "fe34c3dbb3f7ba00a116612d720003f540739cf5",
+    "candidateParents": [
+      "49b9204974088c1983cda469910d9a78d8f4c43b"
+    ],
+    "headTree": "405bdfb7748e43ff88321ebb6d3c12c7d1c5866e",
+    "testMerge": "10ad18831eb356e455401bf26befa5780b6859d0",
+    "testMergeParents": [
+      "9fd8ad15fca043915069904113e5fb67d82b4948",
+      "fe34c3dbb3f7ba00a116612d720003f540739cf5"
+    ],
+    "testMergeTree": "405bdfb7748e43ff88321ebb6d3c12c7d1c5866e",
+    "githubChecks": [
+      {
+        "name": "Native Intel",
+        "status": "completed",
+        "conclusion": "failure",
+        "id": 137380396226,
+        "completed_at": "2026-11-22T22:42:19Z"
+      },
+      {
+        "name": "Feedback native and service",
+        "status": "completed",
+        "conclusion": "success",
+        "id": 137380396222,
+        "completed_at": "2026-11-22T22:36:32Z"
+      },
+      {
+        "name": "Native ARM64",
+        "status": "completed",
+        "conclusion": "failure",
+        "id": 137380396041,
+        "completed_at": "2026-11-22T22:40:23Z"
+      },
+      {
+        "name": "Feedback source admission",
+        "status": "completed",
+        "conclusion": "success",
+        "id": 137380395991,
+        "completed_at": "2026-11-22T22:32:52Z"
+      },
+      {
+        "name": "Native source admission",
+        "status": "completed",
+        "conclusion": "success",
+        "id": 137380395870,
+        "completed_at": "2026-11-22T22:33:18Z"
+      }
+    ],
+    "url": "https://github.com/haohongfei2001-png/Riftlet/pull/125",
+    "composition": "The remote H is G0's direct single-parent, admission-only child. The recorded original review text and hash match the actual H bytes and its productionAdmission values match B. GitHub's prospective test merge has ordered parents [B,H] and the exact H tree; its SHA is not a main merge.",
+    "mainlyNative": "Both Native source admission and Feedback source admission passed, as did Feedback native and service. Native ARM64 and Native Intel completed with failure in the release/process readiness step. This is 3 of 5 successful, with no checks still in flight for that exact first PR head at the sampled time.",
+    "nativeRun": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45078297801",
+    "feedbackRun": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45078297797",
+    "failedJobArtifactEvidence": [
+      {
+        "id": 14776835549,
+        "name": "native-foundation-macos-15-10ad18831eb356e455401bf26befa5780b6859d0",
+        "sha256": "7fd4b8d69f1067a07148c8768f0c29c7d9a34afa43e6a3f2c7249f5cbb7e13b7",
+        "bytes": 145563
+      },
+      {
+        "id": 14776267390,
+        "name": "native-foundation-macos-15-intel-10ad18831eb356e455401bf26befa5780b6859d0",
+        "sha256": "48c73aa1a5670ac24104047c849ea93f214280135aae00f78ee7f56d78ac861f",
+        "bytes": 126974
+      }
+    ],
+    "observedFailure": "Both published Native artifacts match the local copies and each ownership-readiness.log contains ApplicationInstanceOwnership.swift:4:8: error: no such module 'RiftletAdapters'. The original standalone swiftc command omitted the production adapter module. The same diagnostic was independently reproduced against frozen G0.",
+    "repair": "The new engineering source checkpoint e2324e9d corrects the test linker/build invocation. An independent fresh local build produced 37 actual adapter and 14 Core object files and passed all 12 original child lifetimes. This does not replace the required subsequent five checks on the actual PR merge. There was no release-affecting runtime source delta in this correction."
+  },
+  "supervisedSite": {
+    "checkpoint": {
+      "scopeUTC": "2026-11-22T22:53:57.570404+00:00",
+      "receiptSHA256": "4092b894675f015e5abd91a93cf88bf9731b31916a4e807f02b8dbac7c9073c8",
+      "source": "49b9204974088c1983cda469910d9a78d8f4c43b",
+      "dmgSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+      "issuerSHA256": "fdccb84b5de1af8549a388cedc884c893ad799f5751d7d5c4d81ddd301ffcccd",
+      "snapshotHashesVerified": {
+        "host.sqlite": "1649dba679f602a7efadbe298d7ae5bdfa260b06debb3479c928fb9d7c6a96e0",
+        "scheduler.sqlite": "cf134de2a007ffb4f66b5d932158ae41e47f52f06530a28c9b35f81e735820cd"
+      },
+      "ticks": 7,
+      "browserSamples": 14,
+      "ready": 0,
+      "protected": 14,
+      "newScopes": 0,
+      "claims": 0,
+      "siteInputs": 0,
+      "sends": 0,
+      "submits": 0,
+      "frontApp": "com.apple.UserNotificationCenter",
+      "visibleChrome": 0,
+      "visibleEdge": 0
+    },
+    "processWitnessUTC": "2026-11-22T22:55:28.440293+00:00",
+    "matchingInteractiveSupervisors": 1,
+    "matchingAuthorizedHandover": true,
+    "otherMatchingSchedulers": 0,
+    "sameGlobalExclusiveLease": true,
+    "matchingBusinessProcesses": 0,
+    "privateInstalledAppProcesses": 0,
+    "activeV3ComponentDigestsVerified": 62,
+    "siteInstallArtifactDigestsVerified": 52,
+    "currentG4ToolDigestsVerified": 20,
+    "gateStates": {
+      "G1_Chrome": "NOT_RUN",
+      "G2_Edge": "NOT_RUN",
+      "G4_A_original_named_site_failure_and_explicit_recovery": "NOT_RUN",
+      "G4_B_real_upstream_4xx_and_original_card_gone": "NOT_RUN",
+      "G4_B_equivalenceAccepted": false,
+      "G4_C_explicit_original_UNKNOWN_recovery": "NOT_RUN"
+    },
+    "reason": "The two private snapshot hashes, seven heartbeat rows and 14 browser reads matched the published checkpoint. All 14 samples reported a protected system surface and zero eligible targets. Both ordinary browsers had zero visible WindowServer windows. The interactive sender had prior non-prompting Apple Event ALLOWED and AX evidence. The protected dialog's purpose is unknown. The sampled ledger has no preparation attempts, live claims/terminal results, new scope or file inputs. A subsequent direct process-only read found exactly the one newly registered v3 interactive issuer and no private candidate GUI or business child. The passive expiry observation available to an ordinary Edge seed has no live response or expiry reading yet."
+  },
+  "remainingConditions": [
+    "For the repaired integration, obtain a new admission-only H and actual five-job results on GitHub's verified prospective [B,H] merge tree. Recheck actual main and post-merge checks when a merge is authorized.",
+    "On this exact DMG, the authorized issuer needs a normal, unlocked, non-protected foreground with its dedicated signed-in ordinary Chrome/Edge window and selected tab. Require matching native process/window/tab plus WindowServer, AX, document, original editor and attachment-entry evidence before any input.",
+    "Obtain G1/G2 on the actual installation, including cold/warm first attachments, three rapid two-image pairs per browser, and existing draft text/selection/attachments with independent event and no-send/no-submit evidence.",
+    "Obtain G4-C with an enrolled original ambiguous upload, explicit user-equivalent History confirmation/selection, independently bound new operation and persisted START. Also require qualified G4-A on the original named site error card, or original full-PNG-attributable upstream 4xx and documented card disappearance with independent equivalence adjudication for G4-B. Local controls, old historical cases and a client abort alone do not satisfy those conditions.",
+    "Public download, signed stable-feed transition, website, clean-device install and real in-app upgrade remain downstream; check them after their authorized release actions. Latest public GitHub Release in this review remained v1.0.5 and Issue #120 remained open."
+  ],
+  "publicReleaseAtReview": {
+    "tag": "v1.0.5",
+    "url": "https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.5",
+    "issue120": "open"
+  },
+  "assessorLimits": "No browser, signed app UI, personal draft, production database, Git ref or publication was operated by this assessor. The observations and direct reads above use only the displayed exact sources, artifacts and timestamps. The same-candidate gated site work has no valid substitute in this assessment."
+}

@@ -2,7 +2,7 @@
 
 **RIFTLET 1.0.8 — NOT RELEASED**
 
-当前候选是 **1.0.8（61）**。独立审查重现了 build 60 从截图仓库返回同一草稿时的故障，显式重选会在文件输入前被拒。build 61 修复了这个路径，完成同源双架构 CI、签名公证、独立安装及源码审查。普通 Chrome 和 Edge 的新签名包实站输入仍等待原生窗口可见。公开稳定版本为 **1.0.5（31）**。
+当前候选是 **1.0.8（61）**。独立审查重现了 build 60 从截图仓库返回同一草稿时的故障，显式重选会在文件输入前被拒。build 61 修复了这个路径，完成同源双架构 CI、签名公证、独立安装及源码审查。非作者发行裁决为 **HOLD**。普通 Chrome 和 Edge 的新签名包实站输入仍等待原生窗口可见。公开稳定版本为 **1.0.5（31）**。
 
 ## 2026-11-23 · Build 61
 
@@ -18,7 +18,7 @@
 
 当前交互执行者已取得两款浏览器的 Apple Events 和系统 Accessibility 权限。最近读数为当前用户已解锁、显示器已醒，前台窗口归属 `com.apple.UserNotificationCenter`，`AXSubrole=AXSystemDialog`、`AXModal=false`。Chrome、Edge 在当前屏幕上的普通窗口数均为零。允许读取的元数据不足以判定此窗用途。唯一 GUI 执行者核对签名包摘要并使用跨候选的独占锁，按 2–5 分钟退避等待重新准入。当前没有需要用户执行的步骤。
 
-[双架构 CI 原件摘要](evidence/build61/dual-architecture-ci.json) · [受控网页回归](evidence/build61/local-regression.json) · [签名公证](evidence/build61/signed-candidate.json) · [独立安装](evidence/build61/independent-install.json) · [三份历史库恢复](evidence/build61/archived-recovery.json) · [非作者源码复核原文](evidence/build61/mainline-nonauthor-review.json) · [原生桌面元数据](evidence/build61/gui-execution-checkpoint.json) · [实时监督器与实站计数](evidence/build61/gui-supervisor-continuity.json) · [正式分支和稳定更新源核对](evidence/build61/release-preparation.json) · [正式探针修复](evidence/build61/formal-ownership-probe.json) · [后继源码独立复核](evidence/build61/formal-successor-source-review.json) · [正式 Draft PR #125](https://github.com/haohongfei2001-png/Riftlet/pull/125)
+[双架构 CI 原件摘要](evidence/build61/dual-architecture-ci.json) · [受控网页回归](evidence/build61/local-regression.json) · [签名公证](evidence/build61/signed-candidate.json) · [独立安装](evidence/build61/independent-install.json) · [三份历史库恢复](evidence/build61/archived-recovery.json) · [非作者源码复核原文](evidence/build61/mainline-nonauthor-review.json) · [原生桌面元数据](evidence/build61/gui-execution-checkpoint.json) · [实时监督器与实站计数](evidence/build61/gui-supervisor-continuity.json) · [正式分支和稳定更新源核对](evidence/build61/release-preparation.json) · [正式探针修复](evidence/build61/formal-ownership-probe.json) · [后继源码独立复核](evidence/build61/formal-successor-source-review.json) · [06:57 独立发行裁决](evidence/build61/independent-hold-first-checks.json) · [正式 Draft PR #125](https://github.com/haohongfei2001-png/Riftlet/pull/125)
 
 ## 2026-11-23 · Build 60
 
