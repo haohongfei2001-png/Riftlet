@@ -30,5 +30,15 @@
   },
   "windowSpaceIDForOtherApplications": "UNKNOWN",
   "frontDialogPurpose": "UNKNOWN",
-  "interactiveExecution": "Existing authorized session and enrolled native identities required."
+  "interactiveExecution": "Existing authorized session and enrolled native identities required.",
+  "finalArchive": {
+    "activeIssuerSHA256": "fdccb84b5de1af8549a388cedc884c893ad799f5751d7d5c4d81ddd301ffcccd",
+    "archiveBytes": 147333120,
+    "closureIndexSHA256": "6e6f2023171c262582eeba75bc45fcf400a180bc40c87c67d1a63b66c25b89b1",
+    "extractedChecksumValidated": true,
+    "memberCount": 17,
+    "observationSHA256": "4092b894675f015e5abd91a93cf88bf9731b31916a4e807f02b8dbac7c9073c8",
+    "sha256": "059e6d8af112de2f4c4029154a199d2efc252a58cd8510db180f9129ee4a6235",
+    "includesNormalSeedPassiveExpiry": true
+  }
 }

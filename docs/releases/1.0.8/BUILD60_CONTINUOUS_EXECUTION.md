@@ -87,3 +87,9 @@ PR #125 的第一个正式预合并上，五项检查中三项通过。ARM64 和
 唯一代码变化是 `scripts/run-readiness-ownership.sh`，使用固定依赖编译真实适配器和 Core，并将其链接到原有进程所有权实现与探针。已在本机验证正常退出、终止时保留所有权、SIGTERM、SIGKILL 各三次，存储耐久测试也通过。新的 QA 检查点是 `e2324e9d742ec3c3d1045504ed1bfee421efae67`。相对签名源码只有这个脚本和前次准入记录不同，`Sources`、`Resources` 及其余文件 Git 对象全部相同。本轮继续使用已安装的同一正式 DMG。[两端错误、Git 对象与本机修复证据](evidence/build61/formal-ownership-probe.json)
 
 下一步将独立复核原文记录在该 QA 检查点的直接子提交，运行 `python3 -B scripts/verify-mainline-composition.py HEAD` 后一次性更新 #125。实站监督器仍按自己的原生条件等待。此刻正式 PR 和实站均未放行，当前无用户动作。
+
+## 06:55（上海）· 普通首图的只读传输观察
+
+在同一独占锁中核对旧执行者的现场领取数和投递数均为零，随后切入 `staged-v3/interactive`。新执行者绑定同一 build 61 DMG，另可在 Edge G2 原定的第一张普通图片上观察属于原 PNG 的完整 2xx 回执，核对既有 SQLite START 后读取上游明示的 UTC 到期时间。观察器在双图计时前退出。这使大图在页面提前被拒时也有采样机会。该通道的本地 8 项 Python、5 项 Node 测试通过，其中包含 41 个校准器对照和一次实际 Swift 编译。实站到期读数仍待取得，尚无真实过期、上游拒绝或 G4-A/B 的样本。[普通首图钩子复核](evidence/build61/normal-seed-expiry-controls.json)
+
+共记录 7 个调度周期、14 次浏览器检查，均见受保护窗口。常规退避实测约 120、180、270、300 秒；两个监督器交接时紧接的一次只读检查另记。build 61 的专窗、实站点击和文件输入均为零。冻结代码、实际安装、三个版本的执行工具、只读续查器及当时的一致性调度快照已一起私有封存。整档 147,333,120 字节，SHA-256 为 `059e6d8af112de2f4c4029154a199d2efc252a58cd8510db180f9129ee4a6235`。后续独占入口更新为 `staged-v3/interactive` 并沿用上一节的候选参数。现有进程持续等待合格的已登录原窗，当前无需用户动作。[真实调度回执](evidence/build61/gui-supervisor-continuity.json) · [私有工具和安装封存](evidence/build61/issuer-custody.json)
