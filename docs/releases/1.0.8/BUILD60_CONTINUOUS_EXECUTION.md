@@ -59,3 +59,9 @@ C1 的只读观察器可以从单个已完整归属的正常请求中投影经�
 真实无界面 Chrome、Edge 的本地受控测试覆盖具名错误及 UNKNOWN，各自包含 START 前后两条分支。每个程序配置均观测到 56 次 setter、56 次 change、零发送，模式、编辑器或路由发生变化时拒绝写入。非作者另外重跑原 8 组，四个失焦场景均恢复到新输入一次，额外八次旧票写入均被拒绝。开发 App 构建通过，安装包校验器 24 项通过。该 Mac 只有 Command Line Tools，本地 XCTest 编译缺少 XCTest 模块；完整 Swift 套件正在两台正式 Xcode CI 运行。签名、公证、独立安装、G1/G2 和 G4 均按新 SHA 单独取证。[受控测试回执](evidence/build61/controlled-focus-recovery.json) · [双架构 CI](https://github.com/haohongfei2001-png/Riftlet/actions/runs/45077012085) · [同一 QA 二进制的权限对照](evidence/build60/gui-diagnosis-execution-context.json)
 
 下一步在正式 DMG 完成后核验其 SHA-256、公证回执与独立安装，绑定本候选专用的浏览器任务。现有交互宿主对两款浏览器都有已生效的权限，真实投递还需要当前桌面有可见的原窗口并同时满足全部站点身份检查。目前无用户操作。
+
+## 06:25（上海）· Build 61 同包工程结果
+
+已从冻结源码生成一个双架构 Developer ID DMG，14,133,998 字节，SHA-256 为 `31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e`。Apple 对 App 和 DMG 接受公证。独立执行者只读挂载，完整复制后比对安装树、两架构代码签名与网页资源，9/9 项签名、staple、Gatekeeper 与程序自检通过，卷已卸载。[签名及 DMG 收据](evidence/build61/signed-candidate.json) · [独立安装回执](evidence/build61/independent-install.json)
+
+完整网页回归 384/384，Chrome 和 Edge 各自的凭据 19/19、图像预览 22/22，受控传输故障 8/8。真实编译的本机兼容模块与 build 56–60 原页面的 15 组历史标记一致。只提交脱敏收据，原 PNG、SQLite 和签名包均保存在私有验收目录。双架构完整 Swift 结果和网站输入单列跟踪。[本机回归](evidence/build61/local-regression.json)

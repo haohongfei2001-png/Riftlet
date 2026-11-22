@@ -1,0 +1,72 @@
+{
+  "appSubmissionID": "cc15b3d9-fbac-483f-8bae-80ef902f3db1",
+  "architectures": [
+    "arm64",
+    "x86_64"
+  ],
+  "build": "61",
+  "bytes": 14133998,
+  "cdHashes": {
+    "arm64": "217e012b5be8a3d53c6ce351efcb9bbcbe6b4762",
+    "x86_64": "8fa0f3daec62f20694d5511afbb8f8a382834569"
+  },
+  "checks": {
+    "appGatekeeper": {
+      "exit": 0,
+      "logSHA256": "7fa5a1d9f85d03e42922c6be8d0e5a8bf9cecbfdf980e9902909fcbbd82ad2ab"
+    },
+    "appSelfCheck": {
+      "exit": 0,
+      "logSHA256": "9a6cbd54ef6829d86fd7e0cd7ba688aa6387ae15af41a550ffba3e42832b6018"
+    },
+    "appSignature": {
+      "exit": 0,
+      "logSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "appTicket": {
+      "exit": 0,
+      "logSHA256": "425347fb103054622a94231cde9003cf5785914429aa96b1075651d02b05f9b7"
+    },
+    "dmgGatekeeper": {
+      "exit": 0,
+      "logSHA256": "896c13ff1e51aaeb12d09d6551c7038f81719b01d899e53a9447944d74fd1594"
+    },
+    "dmgSignature": {
+      "exit": 0,
+      "logSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "dmgTicket": {
+      "exit": 0,
+      "logSHA256": "f0ac7a9c2041db638d8e5742ff66a3ec8b5db225b69d74d53e00110601283330"
+    },
+    "systemScreenshotSelfCheck": {
+      "exit": 0,
+      "logSHA256": "7333bbcc86dffcf736384773a5dbdf288188e8f97ef55e5803f8cf809e06dc04"
+    },
+    "webSelfCheck": {
+      "exit": 0,
+      "logSHA256": "a47ac0ed870328c9f158b1ee9fed9eec7fd7aa6e4109c3f3017d307f29dbe15d"
+    }
+  },
+  "dmgSubmissionID": "e747b773-3417-4793-b36e-7077b21ea368",
+  "executableSHA256": "32406ca202fa8eb659abf96930a30ce3c246bb804acfaeeccbc10eaf2fc09387",
+  "formalManifestSHA256": "8b64e0daaadb854ea3fa82f6bb9663bc195b54e42b6a7402f3388fa0bf41df9c",
+  "frozenCompatibilityResourceSHA256": {
+    "56": "ed470481df5373d0e702c87087785235d080fb75b85ea27f1e07408e0357ae52",
+    "57": "c691e6b7bd848bc8e1fb994aa9efd2dc7419b8b73549c0c1e31eb09499287e8a",
+    "58": "d05979dfae4b702d907b1f7f50a6312f9d7c25a5c6b484ed493bbfd39d9f6fbb",
+    "59": "19677788b6a846b2868e0159d8467f9de37544a2ffc24bfd1676b499314580f5",
+    "60": "3b0e9863be0e542c816f7688f9a880e1a2811e979d33636a611fa8127b76fde6"
+  },
+  "independentlyComputedBundleTreeSHA256": "6967c2cc8f41274f1624abca8f1b7f0dd9f89554f7a55b9e14719f5f0f85a324",
+  "matchedMountedTree": true,
+  "published": false,
+  "rawInstallationReceiptSHA256": "dff5713dd9c9bec8826cd90bea4cd73b91be11ad9a180d0929600733db4013b9",
+  "readOnlyMountDetached": true,
+  "resourceSHA256": "2f6e2f6e1d80184813f6f967cc340638b96082abd5bd98c2f9e97b0597f982f2",
+  "sha256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "source": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "teamID": "ZB9D4T66QB",
+  "verifiedUTC": "2026-11-22T22:24:01.594555+00:00",
+  "version": "1.0.8"
+}

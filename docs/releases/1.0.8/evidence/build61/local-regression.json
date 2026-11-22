@@ -1,0 +1,59 @@
+{
+  "source": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "sourcePageSHA256": "2f6e2f6e1d80184813f6f967cc340638b96082abd5bd98c2f9e97b0597f982f2",
+  "checkedUTC": "2026-11-22T22:24:10.165383+00:00",
+  "webProgram": {
+    "tests": 384,
+    "pass": 384,
+    "fail": 0,
+    "skipped": 0,
+    "rawSHA256": "f65a50b3b4ced225ee25a52cc149f997866ed8cfbb1b256be461777a2325d625"
+  },
+  "offlineFaultHarness": {
+    "tests": 8,
+    "pass": 8,
+    "fail": 0,
+    "skipped": 0,
+    "rawSHA256": "a41978a5798b6bba0395d7a0d6bccfbfcf9d42df90ee77672674c84332d0610b"
+  },
+  "browsers": {
+    "chrome": {
+      "lease": {
+        "pass": 19,
+        "rawSHA256": "bf83ac3457a9124a4c26e07701b86ed8a7d4644db33c0c57e632aeb9b5b1e4d7"
+      },
+      "preview": {
+        "pass": 22,
+        "rawSHA256": "6f36bbbd0ce156c8d46932a883d4fadff161eb5829ab6f074b56f3d3c127e97d"
+      }
+    },
+    "edge": {
+      "lease": {
+        "pass": 19,
+        "rawSHA256": "2710f7816855b0cc771752c645a9b20946cc9883d1ee252c92570fcd5c0f42fe"
+      },
+      "preview": {
+        "pass": 22,
+        "rawSHA256": "f51d609ff76de32a1af3ae2aaa684aa849de869fca30e3642c5a6bacabeb81b4"
+      }
+    }
+  },
+  "nativeProductBuilt": true,
+  "nativeProductLogSHA256": "821575fb7b5a4d9b2987aa885158a69aa2b1a6945c2e77553e88a0abd103020a",
+  "localXCTest": "Command Line Tools has no XCTest module; formal Xcode tests are tracked in the architecture CI receipts.",
+  "historicalMarkers": {
+    "actualProductLibraryAgainstIndependentlyDecodedHistoricalBytes": 15,
+    "historicalBuilds": [
+      56,
+      57,
+      58,
+      59,
+      60
+    ]
+  },
+  "packaging": {
+    "tests": 24,
+    "rawSHA256": "57279b24d5d9752271a10e161c3516dfc43cd58d053005d45ada910c3dab86a3"
+  },
+  "controlledOnly": true
+}
