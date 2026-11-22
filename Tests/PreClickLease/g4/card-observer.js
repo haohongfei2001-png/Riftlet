@@ -4,18 +4,25 @@ function observeNamedUploadError(editor) {
     const root = doc.documentElement;
     const entry = window.navigation?.currentEntry?.id;
     const qaPage = 'https://chatgpt.com/?temporary-chat=true';
-    const layout = editor.closest('[data-composer-layout]');
-    const form = editor.closest('form');
-    const editors = '[contenteditable="true"],textarea,[role="textbox"]';
+    const ownerSelector = '[data-composer-placement],[data-chatgpt-composer],[data-testid="composer"]';
+    const ownerOf = n => n.closest(ownerSelector) || n.closest('form');
+    const owner = ownerOf(editor);
+    const originalForm = editor.closest('form');
+    const layoutOf = n => n.closest('[data-composer-layout]') || ownerOf(n);
+    const layout = layoutOf(editor);
+    const editors = '#prompt-textarea,[contenteditable],[role="textbox"],textarea';
     const visible = node => node.checkVisibility({opacityProperty: true, visibilityProperty: true}) &&
         node.getClientRects().length > 0;
     const originalDraft = () => {
-        if (!layout || !form || !form.closest('main') || doc.visibilityState !== 'visible' || !visible(editor) ||
-            !editor.isConnected || editor.closest('[data-composer-layout]') !== layout || editor.closest('form') !== form)
+        if (!layout || !owner || owner === doc.body || owner === doc.documentElement ||
+            doc.visibilityState !== 'visible' || !visible(editor) || !editor.isConnected ||
+            layoutOf(editor) !== layout || ownerOf(editor) !== owner || editor.closest('form') !== originalForm)
             return false;
-        const liveEditors = [...doc.querySelectorAll('main form')].flatMap(f =>
-            [...f.querySelectorAll(editors)].filter(e => e.closest('form') === f && visible(e)));
-        return liveEditors.length === 1 && liveEditors[0] === editor;
+        const liveEditors = [...doc.querySelectorAll(editors)].filter(e => visible(e) && ownerOf(e) &&
+            (e.isContentEditable || e.tagName === 'TEXTAREA') &&
+            !e.closest('article,nav,aside,[role="search"],[data-message-author-role]'));
+        const leaves = liveEditors.filter(e => !liveEditors.some(n => n !== e && e.contains(n)));
+        return leaves.length === 1 && leaves[0] === editor;
     };
     if (!entry || location.href !== qaPage || !originalDraft()) throw Error('G4_DRAFT_NOT_BOUND');
 
@@ -48,8 +55,8 @@ function observeNamedUploadError(editor) {
             names.includes(node.getAttribute('aria-label').toLowerCase()) && visible(node));
         if (alerts.length !== 1) return refused;
         const alert = alerts[0], shell = alert.closest(cardRoots);
-        if (!shell || !layout.contains(shell) || !form.contains(shell) || shell.closest('form') !== form ||
-            shell.closest('[data-composer-layout]') !== layout || shell.contains(editor) || editor.contains(shell) ||
+        if (!shell || !layout.contains(shell) || !owner.contains(shell) || ownerOf(shell) !== owner || shell.closest('form') !== originalForm ||
+            layoutOf(shell) !== layout || shell.contains(editor) || editor.contains(shell) ||
             baseline.has(shell) || baseline.has(alert) || shell.querySelectorAll('[role="alert"]').length !== 1)
             return refused;
 

@@ -41,9 +41,9 @@ async function runCases(source,fixtureURL) {
         'baseline preview rebuilt','baseline alert reused','PNG sibling preview','WEBP sibling preview',
         'PNG sibling progress','WEBP sibling progress','text-only competing progress','other operation in shell',
         'nested competing card','duplicate alert','visible progress','missing remove','generic alert','hidden alert',
-        'upload waiting','unrelated previous attachment','baseline ambiguous composer'];
+        'upload waiting','unrelated previous attachment','baseline ambiguous composer','modern without form','modern foreign owner'];
     const positives = new Set(['span shell','converted div','figure','named shell','dialog popup',
-                               'hidden other editor','unrelated previous attachment']);
+                               'hidden other editor','unrelated previous attachment','modern without form']);
     const rows = [];
     const id = 'bb7be9ff-154f-47bc-81e5-c73ce7963a40', other='00112233-4455-4677-8899-aabbccddeeff';
     const png='riftlet-'+id+'.png', webp='riftlet-'+id+'.webp';
@@ -51,6 +51,7 @@ async function runCases(source,fixtureURL) {
     for (const name of caseNames) {
         const main=document.querySelector('main');
         main.innerHTML='<form><div data-composer-layout><div contenteditable="true">draft</div><div class="row"></div></div></form>';
+        if (name.startsWith('modern ')) main.innerHTML='<div data-composer-placement><div contenteditable="true" id="prompt-textarea">draft</div><div class="row"></div></div>';
         const original=main.querySelector('[contenteditable]'), row=main.querySelector('.row');
         const alternateEditor=()=>main.insertAdjacentHTML('beforeend','<form><div data-composer-layout><textarea>x</textarea></div></form>');
         const make=(tag,attr={})=>{const n=document.createElement(tag); for(const [k,v] of Object.entries(attr))n.setAttribute(k,v);return n;};
@@ -92,6 +93,7 @@ async function runCases(source,fixtureURL) {
             const foreign=make(name==='foreign form'?'form':'div',{'data-composer-layout':''});
             row.append(foreign);foreign.append(shell);
         }
+        if (name==='modern foreign owner') {const otherOwner=make('div',{'data-chatgpt-composer':''});row.append(otherOwner);otherOwner.append(shell);}
         if (name==='swapped document entry')fakeWindow.navigation.currentEntry.id='two';
         if (name==='changed URL')fakeLocation.href='https://example.invalid/';
         if (name.endsWith('sibling preview'))preview(name.startsWith('PNG')?png:webp);
