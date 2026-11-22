@@ -12,6 +12,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
     private let relays = MainWorldRelayStore()
     private let trace: ChromeBridgeTrace
     private let qaOriginalTab: QAOriginalBrowserTab?
+    private let preparationOwner: PreClickPreparationOwner?
     private struct ClickDestination: Sendable {
         let process: ChromeProcessIdentity
         let route: ChromeClickRoute
@@ -20,8 +21,10 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
     private var routes = ChromeSessionCache<ClickDestination>()
     private var edgeWorlds = ChromeSessionCache<EdgeExecutionWorldWitness>()
 
-    public init(traceEnabled: Bool = false, diagnosticTrace: BoundedDiagnosticTrace? = nil, qaOriginalTab: QAOriginalBrowserTab? = nil) {
+    public init(traceEnabled: Bool = false, diagnosticTrace: BoundedDiagnosticTrace? = nil,
+                qaOriginalTab: QAOriginalBrowserTab? = nil, preparationOwner: PreClickPreparationOwner? = nil) {
         self.qaOriginalTab = qaOriginalTab
+        self.preparationOwner = preparationOwner
         trace = ChromeBridgeTrace(sink: diagnosticTrace ?? BoundedDiagnosticTrace(enabled: traceEnabled))
     }
 
@@ -37,8 +40,11 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
 
     private var maintainsVisibleImages = false
     private var maintenance: Task<Void, Never>?
+    private var stoppingForExit = false
+    private var releasesInFlight = 0
 
     public func requestPreparation(program: WebPageProgram, invalidate: Bool, maintain: Bool) {
+        guard !stoppingForExit else { return }
         if invalidate { retirePreparation(program: program) }
         maintainsVisibleImages = maintain
         if scheduler.isRunning { scheduler.request() } else { scheduler.start() }
@@ -51,6 +57,22 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         scheduler.stop()
         let retired = prepared.removeAll()
         for entry in retired { release(entry.destination, program: program) }
+    }
+
+    public func stopPreparingForExit(program: WebPageProgram) {
+        stoppingForExit = true
+        retirePreparation(program: program)
+    }
+
+    public func finishRetirementForExit() async {
+        // Only already-issued work is observed here. A slow or closed browser
+        // must not prevent normal Quit. A later lock holder can retire its
+        // predecessor's unconsumed receivers in that original document.
+        let deadline = ProcessInfo.processInfo.systemUptime + 3
+        while scheduler.inFlight != nil || releasesInFlight > 0 {
+            guard !Task.isCancelled, ProcessInfo.processInfo.systemUptime < deadline else { return }
+            try? await Task.sleep(nanoseconds: 20_000_000)
+        }
     }
 
     private func startPreparation(_ program: WebPageProgram) {
@@ -75,7 +97,8 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                 guard self.scheduler.epoch == attempt.epoch, self.scheduler.isRunning else { return }
                 do {
                     let process = try self.clickReceiver()
-                    let result = try await Self.prepareOne(process: process, program: program, relays: self.relays, trace: self.trace, qaOriginalTab: self.qaOriginalTab)
+                    let result = try await Self.prepareOne(process: process, program: program, relays: self.relays,
+                        trace: self.trace, qaOriginalTab: self.qaOriginalTab, owner: self.preparationOwner)
                     guard self.scheduler.epoch == attempt.epoch, self.scheduler.isRunning,
                           Self.foregroundMatches(process) else {
                         self.release(result, program: program)
@@ -128,14 +151,15 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
               prepared.armedEntries.contains(where: { $0.arm.target == original.target && $0.preparationStarted == entry.preparationStarted }) else { return }
         let received = ProcessInfo.processInfo.systemUptime
         if !confirmed || !prepared.renew(original.target, epoch: epoch, requested: requested, received: received) {
-            if let removed = prepared.remove(original.target) { await releaseOriginal(removed.destination, program: program) }
+            if let removed = prepared.remove(original.target) { await release(removed.destination, program: program).value }
         }
     }
 
     private struct PreparedReceipt: Decodable { let target: TargetLease; let valid: Bool }
 
     private nonisolated static func prepareOne(process: ChromeProcessIdentity, program: WebPageProgram,
-        relays: MainWorldRelayStore, trace: ChromeBridgeTrace, qaOriginalTab: QAOriginalBrowserTab?) async throws -> PreparedDestination {
+        relays: MainWorldRelayStore, trace: ChromeBridgeTrace, qaOriginalTab: QAOriginalBrowserTab?,
+        owner: PreClickPreparationOwner?) async throws -> PreparedDestination {
         guard process.isSignedBrowser(), foregroundMatches(process) else { throw WebAdapterError.invalidTarget }
         let started = ProcessInfo.processInfo.systemUptime
         let deadline = ChromeClickDeadline(start: started)
@@ -164,7 +188,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         guard try reply.boundWithinClick(before: deadline.confirmation), foregroundMatches(process) else {
             throw WebAdapterError.nativeSelectionChanged
         }
-        let bytes = try await run(.init(action: .captureTarget, clickWitnessID: witness.id), program: program,
+        let bytes = try await run(.init(action: .captureTarget, clickWitnessID: witness.id, preparationOwner: owner), program: program,
             identity: process, route: route, relays: relays, trace: trace, requestID: requestID, world: world, qaOriginalTab: qaOriginalTab)
         guard let target = try? JSONDecoder().decode(TargetLease.self, from: bytes),
               target.adapterID == "chatgpt-web", target.surface == .webChat,
@@ -184,8 +208,16 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
             world: world, relay: relay, preparationStarted: started)
     }
 
-    private func release(_ original: PreparedDestination, program: WebPageProgram) {
-        Task { await releaseOriginal(original, program: program) }
+    @discardableResult private func release(_ original: PreparedDestination, program: WebPageProgram,
+                                            refillEpoch: UUID? = nil) -> Task<Void, Never> {
+        releasesInFlight += 1
+        return Task {
+            defer { releasesInFlight -= 1 }
+            await releaseOriginal(original, program: program)
+            if let refillEpoch, maintainsVisibleImages, scheduler.isRunning, scheduler.epoch == refillEpoch {
+                requestPreparation(program: program, invalidate: false, maintain: true)
+            }
+        }
     }
 
     private func releaseOriginal(_ original: PreparedDestination, program: WebPageProgram) async {
@@ -227,13 +259,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         edgeWorlds.remove(for: target.stableKey)
         let original = PreparedDestination(target: target, native: frozen, world: world, relay: relay,
             preparationStarted: ProcessInfo.processInfo.systemUptime)
-        let epoch = scheduler.epoch
-        Task {
-            await releaseOriginal(original, program: program)
-            if maintainsVisibleImages, scheduler.isRunning, scheduler.epoch == epoch {
-                requestPreparation(program: program, invalidate: false, maintain: true)
-            }
-        }
+        release(original, program: program, refillEpoch: scheduler.epoch)
     }
 
     /// Only a user-requested history action calls this path. Validate the stored
@@ -421,25 +447,30 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                         let legacySession = (identity.applicationID == AttachmentBrowser.chrome.rawValue ? identity.legacyLaunchDate : nil).flatMap { date in
                             date.timeIntervalSince1970.isFinite ? "\(identity.pid):\(date.timeIntervalSince1970)" : nil
                         }
-                        var relay = command.target.flatMap { relays.bound(to: $0) } ?? relays.relay(function: program.functionSource, contextJSON: context,
-                            allowCreate: false, legacyObservationSession: legacySession)
-                        if relay == nil, command.action == .observe || command.action == .captureTarget || (discoverForHistory && command.action == .validate) {
+                        var relay = command.target.flatMap { relays.bound(to: $0) }
+                        var originalObservation: String?
+                        if relay == nil, command.action == .observe {
+                            // A process/context cache entry can belong to a newer relay on this tab.
+                            // Only a unique current-or-historical receiver may recover the persisted operation.
                             let expected = MainWorldCommandRelay(function: program.functionSource,
                                 contextJSON: context, legacyObservationSession: legacySession)
-                            let channel = try bridge.execute(expected.discovery, window: window, tab: tab,
+                            guard let owner = command.identity, owner.target == command.target,
+                                  let reader = OriginalObservationChannel(context: context, legacySession: legacySession,
+                                      currentMarker: expected.marker, owner: owner) else { throw WebAdapterError.invalidTarget }
+                            let match = try bridge.execute(reader.discovery, window: window, tab: tab,
                                 receiptBudget: .init(deadlineUptime: ProcessInfo.processInfo.systemUptime + 1))
-                            guard channel != "ambiguous" else { throw WebAdapterError.pageRejected(.bridgeUnavailable) }
-                            relay = relays.adopt(function: program.functionSource, contextJSON: context,
-                                channel: channel, legacyObservationSession: legacySession)
-                        }
-                        var originalObservation: String?
-                        if relay == nil, command.action == .observe, let target = command.target,
-                           let owner = command.identity, owner.target == target,
-                           let previous = Build56ObservationChannel(context: context, legacySession: legacySession, owner: owner) {
-                            let channel = try bridge.execute(previous.discovery, window: window, tab: tab,
-                                receiptBudget: .init(deadlineUptime: ProcessInfo.processInfo.systemUptime + 1))
-                            if !channel.isEmpty {
-                                originalObservation = try previous.read(channel: channel, nonce: envelope.nonce, command: command)
+                            originalObservation = try reader.read(match: match, nonce: envelope.nonce, command: command)
+                        } else if relay == nil {
+                            relay = relays.relay(function: program.functionSource, contextJSON: context,
+                                allowCreate: false, legacyObservationSession: legacySession)
+                            if relay == nil, command.action == .captureTarget || (discoverForHistory && command.action == .validate) {
+                                let expected = MainWorldCommandRelay(function: program.functionSource,
+                                    contextJSON: context, legacyObservationSession: legacySession)
+                                let channel = try bridge.execute(expected.discovery, window: window, tab: tab,
+                                    receiptBudget: .init(deadlineUptime: ProcessInfo.processInfo.systemUptime + 1))
+                                guard channel != "ambiguous" else { throw WebAdapterError.pageRejected(.bridgeUnavailable) }
+                                relay = relays.adopt(function: program.functionSource, contextJSON: context,
+                                    channel: channel, legacyObservationSession: legacySession)
                             }
                         }
                         if command.action == .captureTarget, relay == nil {

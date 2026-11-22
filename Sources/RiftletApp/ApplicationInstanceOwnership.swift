@@ -1,5 +1,7 @@
 import Foundation
 import Darwin
+import CryptoKit
+import RiftletAdapters
 
 /// Own the entire App mode before starting any sidecar, UI or store. Separate
 /// subsystem locks still protect their stores, but cannot choose different App
@@ -7,6 +9,7 @@ import Darwin
 final class ApplicationInstanceOwnership {
     enum Failure: Error { case unavailable }
     let root: URL
+    let preparationOwner: PreClickPreparationOwner
     private let createdLock: Bool
     private var descriptor: Int32 = -1
     private var processOwnsDescriptor = false
@@ -28,6 +31,12 @@ final class ApplicationInstanceOwnership {
             throw Failure.unavailable
         }
         descriptor = fd
+        // This inode is shared only by successive holders of this exact lock.
+        // Browser documents cannot survive a reboot of this monotonic clock.
+        let lockIdentity = "riftlet-preparation-v1/" + String(info.st_dev) + "/" + String(info.st_ino)
+            + "/" + String(info.st_birthtimespec.tv_sec) + "/" + String(info.st_birthtimespec.tv_nsec)
+        let scope = SHA256.hash(data: Data(lockIdentity.utf8)).map { String(format: "%02x", $0) }.joined()
+        preparationOwner = PreClickPreparationOwner(scope: scope, generation: mach_absolute_time())
     }
 
     /// Run under the instance lock, before first-use, SQLite, or sidecars write profile evidence.

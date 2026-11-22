@@ -16,15 +16,15 @@ window.qa = (() => {
   document.addEventListener('change',e=>{if(e.target.type==='file')counts.change++;},true);
   form.addEventListener('submit', e=>{counts.send++;e.preventDefault();});
   const base64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
-  const targets = [], presses = [], samples = [], queued = [];
+  const targets = [], presses = [], samples = [], queued = [], begun = new Map();
   const timers = new Map();
   let monotonic = 0, wall = 1700000000000;
   const digest=async bytes=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),x=>x.toString(16).padStart(2,'0')).join('');
   let call, restart, pinCall, mode, opener, result, next = 0;
-  function prepare() {
+  function prepare(preparationOwner = mode==='hostRestart' ? {scope:'a'.repeat(64),generation:'0000000000000001'} : undefined) {
     const pin = crypto.randomUUID();
     if(pinCall({action:'pinTarget',address:'https://chatgpt.com/',clickWitnessID:pin}) !== 'bound') throw Error('pin was not bound');
-    const target = call({action:'captureTarget',clickWitnessID:pin});
+    const target = call({action:'captureTarget',clickWitnessID:pin,preparationOwner});
     if(!target.documentID || !target.composerID || !target.draftGeneration || target.clickBindingID !== pin) throw Error('no complete lease');
     targets.push(target);
     return target.draftGeneration;
@@ -121,7 +121,7 @@ window.qa = (() => {
     }, prepare, mutate, validation(index){return {write:validate(targets[index]),read:validate(targets[index],true)};},
     release(index){return restart({action:'releasePreparedTarget',target:structuredClone(targets[index])}).released;},
     renew(index){return renew(targets[index]);},
-    tryPrepare(){try{prepare();return 'accepted';}catch(error){return error.message;}},
+    tryPrepare(owner){try{prepare(owner);return 'accepted';}catch(error){return error.message;}},
     async drain(){const results=[];for(const begin of queued.splice(0))results.push(await begin());return results;},
     advanceClock(monoDelta,wallDelta,runTimers=false){
       monotonic+=monoDelta;wall+=wallDelta;
@@ -133,7 +133,11 @@ window.qa = (() => {
       const target=targets[index],sample=samples[0],operationID=crypto.randomUUID();
       const identity={target,assetID:crypto.randomUUID(),operationID,assetSHA256:sample.hash,attempt:1};
       const command={action:'begin',target,identity,invocationID:crypto.randomUUID(),uploadName:'riftlet-'+operationID+'.png',byteCount:sample.length,mediaType:'image/png'};
-      try{call(command);return 'accepted';}catch(error){return error.message;}
+      try{call(command);begun.set(index,{action:'observe',target,identity,invocationID:command.invocationID});return 'accepted';}catch(error){return error.message;}
+    },
+    observeBegun(index){
+      const observation=restart(begun.get(index)).observation;
+      return {state:observation.state,original:observation.belongsToOriginalDraft};
     },
     last(){return result;},
     async summary(){

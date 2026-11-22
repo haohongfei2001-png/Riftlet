@@ -12,6 +12,19 @@ final class ApplicationInstanceOwnershipTests: XCTestCase {
     }
     override func tearDownWithError() throws { try FileManager.default.removeItem(at: root) }
 
+    func testOnlySuccessiveHoldersOfTheOriginalKernelLockShareAPreparationScope() throws {
+        let first = try ApplicationInstanceOwnership(root: root)
+        XCTAssertThrowsError(try ApplicationInstanceOwnership(root: root))
+        let other = try ApplicationInstanceOwnership(root: root.appendingPathComponent("independent"))
+        XCTAssertNotEqual(first.preparationOwner.scope, other.preparationOwner.scope)
+        first.close()
+        let successor = try ApplicationInstanceOwnership(root: root)
+        XCTAssertEqual(successor.preparationOwner.scope, first.preparationOwner.scope)
+        XCTAssertGreaterThan(successor.preparationOwner.generation, first.preparationOwner.generation)
+        XCTAssertEqual(successor.preparationOwner.generation.count, 16)
+        XCTAssertEqual(successor.preparationOwner.scope.count, 64)
+    }
+
     func testFreshProfileRequiresBothAnEmptyRootAndEmptyAppDomain() throws {
         let suite = "Riftlet.ProfileTest." + UUID().uuidString
         let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))

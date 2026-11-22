@@ -1802,6 +1802,36 @@ function riftletWebAcceptance(command, native) {
         pinned.enrolled = true; pending.delete(pin); clearTimeout(timer);
         timer = setTimeout(forget, 600000); timer?.unref?.();
       };
+      // The native generation is issued only after taking one profile's
+      // exclusive kernel lock. Retire only pending receivers from a proven
+      // predecessor of that profile. Other live profiles and enrolled
+      // operations retain their original identity and read-only recovery.
+      const owner = command.preparationOwner;
+      if (owner != null) {
+        if (typeof owner.scope !== 'string' || !/^[0-9a-f]{64}$/.test(owner.scope) ||
+            typeof owner.generation !== 'string' || !/^[0-9a-f]{16}$/.test(owner.generation)) {
+          forget(); fail('CLICK_PIN_REFUSED');
+        }
+        const generations = registry.preparationGenerations ||= new Map();
+        const recent = generations.get(owner.scope);
+        const previous = [...pending.values()].filter(item => !item.enrolled && item.preparationOwner?.scope === owner.scope);
+        if ((recent && recent.generation > owner.generation) || previous.some(item => item.preparationOwner.generation > owner.generation)) {
+          forget(); fail('CLICK_PIN_REFUSED');
+        }
+        for (const item of previous) if (item.preparationOwner.generation < owner.generation) item.releasePrepared();
+        if (!recent || recent.generation !== owner.generation) {
+          clearTimeout(recent?.timer);
+          const entry = {generation: owner.generation};
+          generations.set(owner.scope, entry);
+          // An already issued capture has a much shorter native deadline.
+          // Keep the fence even if every pending receiver has been consumed.
+          entry.timer = setTimeout(() => {
+            if (generations.get(owner.scope) === entry) generations.delete(owner.scope);
+          }, 600000);
+          entry.timer?.unref?.();
+        }
+        pinned.preparationOwner = Object.freeze({scope: owner.scope, generation: owner.generation});
+      }
       // A pending lease can already be frozen at mouse-down while begin is queued.
       // Capacity pressure alone can never revoke it. Reclaim only expired or
       // irreversibly invalid receivers; older unknown implementations stay protected.

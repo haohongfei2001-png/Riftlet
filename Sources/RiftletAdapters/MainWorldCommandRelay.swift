@@ -89,32 +89,47 @@ struct MainWorldCommandRelay: Sendable {
     }
 }
 
-/// Capability for reading an operation left on the original build 56 document.
-/// This type can neither create a listener nor enter a file input.
-struct Build56ObservationChannel {
-    let marker: String
+/// Read-only recovery after the native binding is gone. Both historical and
+/// current channels can survive on one document; none has priority over another.
+struct OriginalObservationChannel {
+    let discovery: String
+    private let currentMarker: String
+    private let markers: Set<String>
     private let owner: ObservationIdentity
 
-    init?(context: String, legacySession: String?, owner: ObservationIdentity) {
-        guard let fingerprint = Build56ObservationCompatibility.marker(contextJSON: context, legacyObservationSession: legacySession)
+    init?(context: String, legacySession: String?, currentMarker: String, owner: ObservationIdentity) {
+        guard let archived = ArchivedObservationCompatibility.markers(contextJSON: context, legacyObservationSession: legacySession)
         else { return nil }
-        marker = fingerprint
+        self.currentMarker = currentMarker
         self.owner = owner
+        markers = Set(archived + [currentMarker])
+        let values = String(decoding: try! JSONEncoder().encode(markers.sorted()), as: UTF8.self)
+        discovery = """
+        (()=>{const root=document.documentElement;if(root.attributes.length>1024)return 'ambiguous';
+        const prefix='data-riftlet-channel-',markers=new Set(\(values));
+        const matches=[...root.attributes].filter(a=>a.name.startsWith(prefix)&&markers.has(a.value));
+        if(matches.length!==1)return matches.length?'ambiguous':'';
+        const id=matches[0].name.slice(prefix.length);
+        return /^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(id)?matches[0].value+':'+id:'ambiguous';})()
+        """
     }
 
-    var discovery: String { MainWorldCommandRelay.discovery(marker: marker) }
-
-    func read(channel: String, nonce: String, command: WebBridgeCommand) throws -> String {
-        guard let id = UUID(uuidString: channel), id.uuidString.lowercased() == channel,
+    func read(match: String, nonce: String, command: WebBridgeCommand) throws -> String {
+        let parts = match.components(separatedBy: ":")
+        guard parts.count == 2, markers.contains(parts[0]),
+              let id = UUID(uuidString: parts[1]), id.uuidString.lowercased() == parts[1],
               let receipt = UUID(uuidString: nonce), receipt.uuidString.lowercased() == nonce,
               command.action == .observe, let target = command.target,
-              let identity = command.identity, identity == owner, owner.target == target
+              let identity = command.identity, identity == owner, owner.target == target,
+              parts[0] == currentMarker || command.invocationID != nil
         else { throw WebAdapterError.invalidTarget }
         let original = WebBridgeCommand(action: .observe, target: target, identity: identity,
-            invocationID: command.invocationID, requireLiveOriginal: command.requireLiveOriginal,
+            invocationID: command.invocationID, requireLiveOriginal: parts[0] == currentMarker ? command.requireLiveOriginal : true,
             preferStartReceipt: command.preferStartReceipt)
         let json = String(decoding: try JSONEncoder().encode(original), as: UTF8.self)
-        return MainWorldCommandRelay.dispatch(channel: channel, marker: marker, nonce: nonce, commandJSON: json)
+        let dispatch = MainWorldCommandRelay.dispatch(channel: parts[1], marker: parts[0], nonce: nonce, commandJSON: json)
+        // The document can acquire a second relay between the two native sends.
+        return "(()=>{if(\(discovery)!=='\(match)')throw Error('BRIDGE_UNAVAILABLE');return \(dispatch);})()"
     }
 }
 

@@ -356,6 +356,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     // Keep the instance lock until the OS closes the old process's descriptors.
     private func finishWorkForExit() async {
         drainingForExit = true
+        clickAdapter?.stopPreparingForExit()
         await recheckTask?.value
         await sourceBinding?.stop()
         await capture?.finishForApplicationExit()
@@ -369,6 +370,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         archiveTask?.cancel(); await archiveTask?.value
         completionWatch?.cancel(); await completionWatch?.value
         await originalRecoveryTask?.value
+        cancelSelections(reason: "termination")
+        discardFrozenPress()
+        // AppKit is still dispatching the main run loop here. Once
+        // applicationWillTerminate returns it may never schedule another release.
+        await clickAdapter?.finishRetirementForExit()
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -380,7 +386,6 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         if let permissionActivationObserver { NSWorkspace.shared.notificationCenter.removeObserver(permissionActivationObserver) }
         if let permissionWakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(permissionWakeObserver) }
         preClickActivity.stop()
-        clickAdapter?.retirePreparedTargets()
         for observer in preClickEnvironmentObservers { NSWorkspace.shared.notificationCenter.removeObserver(observer) }
         preClickEnvironmentObservers.removeAll()
         completionWatch?.cancel()
@@ -625,7 +630,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             startupCapture = nil
         }
         let chromeExecutor = mode.usesWebAdapter ? ChromeAppleEventsExecutor(
-            traceEnabled: CommandLine.arguments.contains("--acceptance-trace"), diagnosticTrace: diagnosticTrace, qaOriginalTab: qaOriginalTab) : nil
+            traceEnabled: CommandLine.arguments.contains("--acceptance-trace"), diagnosticTrace: diagnosticTrace,
+            qaOriginalTab: qaOriginalTab, preparationOwner: owner.preparationOwner) : nil
         let composition = try ApplicationAttachmentComposition.make(mode: mode, root: root, store: store,
             executor: chromeExecutor,
             traceEnabled: CommandLine.arguments.contains("--acceptance-trace"),

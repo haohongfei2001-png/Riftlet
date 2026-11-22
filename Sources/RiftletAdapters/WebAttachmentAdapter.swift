@@ -33,6 +33,17 @@ public struct WebPageProgram: Sendable {
     }
 }
 
+/// Issued only after acquiring the app data directory's exclusive instance lock.
+/// This identifies whose unused preparations may be retired, never a delivery target.
+public struct PreClickPreparationOwner: Encodable, Equatable, Sendable {
+    public let scope: String
+    public let generation: String
+    public init(scope: String, generation: UInt64) {
+        self.scope = scope
+        self.generation = String(format: "%016llx", generation)
+    }
+}
+
 public struct WebBridgeCommand: Encodable, Sendable {
     public let action: WebBridgeAction
     public let target: TargetLease?
@@ -44,23 +55,25 @@ public struct WebBridgeCommand: Encodable, Sendable {
     public let chunkBase64: String?
     public let invocationID: UUID?
     public let clickWitnessID: UUID?
+    let preparationOwner: PreClickPreparationOwner?
     public let preferStartReceipt: Bool?
     public let requireLiveOriginal: Bool?
     /// Host diagnostics only, deliberately excluded from the page payload.
     public let captureInvocation: CaptureInvocationContext?
 
     private enum CodingKeys: String, CodingKey {
-        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID, clickWitnessID, requireLiveOriginal, preferStartReceipt
+        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID, clickWitnessID, preparationOwner, requireLiveOriginal, preferStartReceipt
     }
 
     init(action: WebBridgeAction, target: TargetLease? = nil, identity: ObservationIdentity? = nil,
          uploadName: String? = nil, mediaType: String? = nil, byteCount: Int64? = nil,
          chunkIndex: Int? = nil, chunkBase64: String? = nil, invocationID: UUID? = nil,
-         clickWitnessID: UUID? = nil, requireLiveOriginal: Bool? = nil, preferStartReceipt: Bool? = nil, captureInvocation: CaptureInvocationContext? = nil) {
+         clickWitnessID: UUID? = nil, preparationOwner: PreClickPreparationOwner? = nil, requireLiveOriginal: Bool? = nil, preferStartReceipt: Bool? = nil, captureInvocation: CaptureInvocationContext? = nil) {
         self.action = action; self.target = target; self.identity = identity
         self.uploadName = uploadName; self.mediaType = mediaType; self.byteCount = byteCount
         self.chunkIndex = chunkIndex; self.chunkBase64 = chunkBase64; self.invocationID = invocationID
         self.clickWitnessID = clickWitnessID
+        self.preparationOwner = action == .captureTarget ? preparationOwner : nil
         self.captureInvocation = captureInvocation
         self.preferStartReceipt = preferStartReceipt
         self.requireLiveOriginal = requireLiveOriginal
@@ -74,6 +87,8 @@ public protocol WebBridgeExecutor: Sendable {
 @MainActor public protocol WebClickTargetPinning: WebBridgeExecutor {
     func requestPreparation(program: WebPageProgram, invalidate: Bool, maintain: Bool)
     func retirePreparation(program: WebPageProgram)
+    func stopPreparingForExit(program: WebPageProgram)
+    func finishRetirementForExit() async
     func abandonFrozenTarget(_ target: TargetLease, program: WebPageProgram)
     func targetForClick(eventUptime: TimeInterval) throws -> TargetLease
 }
@@ -218,6 +233,15 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
     @MainActor public func retirePreparedTargets() {
         guard let program else { return }
         (executor as? any WebClickTargetPinning)?.retirePreparation(program: program)
+    }
+
+    @MainActor public func stopPreparingForExit() {
+        guard let program else { return }
+        (executor as? any WebClickTargetPinning)?.stopPreparingForExit(program: program)
+    }
+
+    @MainActor public func finishRetirementForExit() async {
+        await (executor as? any WebClickTargetPinning)?.finishRetirementForExit()
     }
 
     @MainActor public func abandonFrozenTarget(_ target: TargetLease) {
@@ -453,7 +477,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
     private func readOriginal(_ identity: ObservationIdentity, request: TransferRequest) async throws -> Data {
         let preferStart = try await startPreference(for: request)
         return try await perform(.init(action: .observe, target: identity.target, identity: identity,
-            invocationID: request.requireLiveOriginal ? request.invocationID : nil,
+            invocationID: request.invocationID,
             requireLiveOriginal: request.requireLiveOriginal ? true : nil, preferStartReceipt: preferStart))
     }
 

@@ -9,7 +9,7 @@ const {cleanupOwnedChrome}=require('../../WebPageProgram/native-chrome-cleanup.c
 const families={chrome:['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome','com.google.Chrome'],
   edge:['/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge','com.microsoft.edgemac']};
 const cases=['fastPair','queuedPairNoEviction','absentBeforeACK','ambiguousBeforeACK','invalidReclaim','expiredPending','renewSameLease','renewRetired','replaceField','ancestorRoundTrip','modeRoundTrip','sameEditorNewDraft','stagedAncestorRoundTrip',
-  'replaceOpener','lateFieldAndOriginalMenu','tabRoundTrip','releaseAndBound','idlePreparedOver60s'];
+  'replaceOpener','lateFieldAndOriginalMenu','tabRoundTrip','releaseAndBound','hostRestart','idlePreparedOver60s'];
 async function until(test) {
   const deadline=performance.now()+5000;
   while (!await test()) {
@@ -43,7 +43,7 @@ async function run(name,resource) {
         const {x,y,assetSHA256}=await qa('init',mode,source,bundle); row.assetSHA256=assetSHA256;
         const pair=mode==='fastPair' || mode==='queuedPairNoEviction';
         const noACK=mode==='absentBeforeACK' || mode==='ambiguousBeforeACK';
-        const management=noACK || ['releaseAndBound','invalidReclaim','expiredPending','renewRetired'].includes(mode);
+        const management=noACK || ['releaseAndBound','hostRestart','invalidReclaim','expiredPending','renewRetired'].includes(mode);
         let first;
         if(!noACK) {
           first=await qa('prepare');
@@ -60,6 +60,28 @@ async function run(name,resource) {
           row.releases=[];
           for(let i=0;i<4;i++)row.releases.push(await qa('release',i));
           assert.deepEqual(row.releases,[true,false,true,true]);
+        } else if(mode==='hostRestart') {
+          const prior={scope:'a'.repeat(64),generation:'0000000000000001'};
+          const successor={...prior,generation:'0000000000000002'};
+          const foreign={scope:'b'.repeat(64),generation:successor.generation};
+          assert.equal(await qa('tryBegin',0),'accepted');
+          row.enrolledBefore=await qa('observeBegun',0);
+          assert.equal(row.enrolledBefore.original,true);
+          await qa('prepare',prior);await qa('prepare',prior);await qa('prepare',foreign);
+          row.foreignPressure=await qa('tryPrepare',foreign);
+          assert.equal(row.foreignPressure,'CLICK_PIN_LIMIT');
+          row.successor=[await qa('tryPrepare',successor),await qa('tryPrepare',successor)];
+          assert.deepEqual(row.successor,['accepted','accepted']);
+          for(const index of [1,2])assert.equal((await qa('validation',index)).write,false);
+          for(const index of [3,4,5])assert.equal((await qa('validation',index)).write,true);
+          row.delayedPrior=await qa('tryPrepare',prior);
+          assert.equal(row.delayedPrior,'CLICK_PIN_REFUSED');
+          row.enrolledAfter=await qa('observeBegun',0);
+          assert.deepEqual(row.enrolledAfter,row.enrolledBefore);
+          assert.equal(await qa('release',0),false);
+          for(const index of [3,4,5])assert.equal(await qa('release',index),true);
+          row.lateAfterDrain=await qa('tryPrepare',prior);
+          assert.equal(row.lateAfterDrain,'CLICK_PIN_REFUSED');
         } else if(mode==='invalidReclaim') {
           await qa('prepare');await qa('prepare');await qa('mutate');await qa('prepare');
           row.releases=[];for(let i=0;i<4;i++)row.releases.push(await qa('release',i));
