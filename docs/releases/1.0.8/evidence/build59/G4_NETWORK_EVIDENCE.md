@@ -1,0 +1,17 @@
+# G4 network evidence before the new calibration
+
+The retained build 59 natural Edge transfer reached one attachmentAccepted START. Its two original page snapshots contain the same two resource timing entries. The first entry records a same-origin fetch at `/backend-api/files` with status 200. The second records a fetch at `/backend-api/files/process_upload_stream`, with no recorded status. The page sampler retained a public pathname, initiator, timestamp, duration and status. It did not retain a full storage upload URL or its digest, HTTP method, request body representation, complete bytes of a network request, a network request identifier or a cancellation handle.
+
+The received File matched the original 5,516-byte system PNG in both input and change events. No recorded byte request in this natural run supplies the corresponding transport hash. No fault was applied. No explicit original-site failure card was observed. The new selection and the pair of SQLite backups for recovery are both NOT_RUN in this series. `g4-natural-transport-audit.json` pins the seven reviewed sources and the seven original run receipts.
+
+The historical POST100 run observed one creation URL in memory, one matching 3,137-byte upload and one XHR abort. Its stored receipt contains the association and event sequence, without the URL value or URL digest. MID used a different file and saw two creation calls and zero bound byte requests. Those separate operations cannot supply a request handle or URL for the build 59 natural transfer.
+
+## Scope of passive browser observation
+
+Chrome and Edge offer the Network panel on an inspected page. Opening it on the one enrolled QA tab allows collection for that tab, subject to separately verifying the original native tab and document. The HAR interface exposes completed requests. The Chrome extension interface documents its `getContent` operation as response-body access. It cannot provide a live cancellation object for a completed request. [Chrome DevTools network API](https://developer.chrome.com/docs/extensions/reference/api/devtools/network) · [Edge Network reference](https://learn.microsoft.com/en-us/microsoft-edge/devtools/network/reference)
+
+The protocol's `Network.requestWillBeSent` can describe the method, request URL and initiator. Request data entries can omit the bytes. `Network.getRequestPostData` omits file content from multipart uploads. Any exact full-body receipt therefore needs explicit byte-length and SHA-256 evidence for the actual operation. [Official DevTools protocol schema](https://raw.githubusercontent.com/ChromeDevTools/devtools-protocol/master/json/browser_protocol.json)
+
+A read-only process check on the two previously enrolled ordinary browser processes found neither remote-debugging-port nor remote-debugging-pipe startup arguments. That observation covers the declared process arguments only. Chrome also documents separate data-directory requirements for those debugging switches. [Chrome remote debugging changes](https://developer.chrome.com/blog/remote-debugging-port)
+
+For any new G4 attempt the transport result, original named failed card, history action, file events and second durable operation need separate evidence. The existing `verify_recovery.py` compares two consistent standalone SQLite backups and the original PNG. Its result covers the database and PNG. For an attempt that stops before an eligible request or an explicit failed card, unexecuted stages retain NOT_RUN and the reason for stopping.
