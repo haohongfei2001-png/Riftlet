@@ -18,11 +18,15 @@ final class ApplicationInstanceOwnership {
         self.root = root
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true,
                                                attributes: [.posixPermissions: 0o700])
-        let path = root.appendingPathComponent("instance.lock").path
+        let directory = Darwin.open(root.path, O_RDONLY | O_DIRECTORY | O_CLOEXEC)
+        guard directory >= 0 else { throw Failure.unavailable }
+        defer { Darwin.close(directory) }
+        var directoryInfo = stat()
+        guard fstat(directory, &directoryInfo) == 0 else { throw Failure.unavailable }
         let flags = O_RDWR | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC
-        let created = Darwin.open(path, O_CREAT | O_EXCL | flags, 0o600)
+        let created = openat(directory, "instance.lock", O_CREAT | O_EXCL | flags, 0o600)
         createdLock = created >= 0
-        let fd = createdLock ? created : (errno == EEXIST ? Darwin.open(path, flags) : -1)
+        let fd = createdLock ? created : (errno == EEXIST ? openat(directory, "instance.lock", flags) : -1)
         guard fd >= 0 else { throw Failure.unavailable }
         var info = stat()
         guard fstat(fd, &info) == 0, info.st_mode & mode_t(S_IFMT) == mode_t(S_IFREG),
@@ -33,8 +37,10 @@ final class ApplicationInstanceOwnership {
         descriptor = fd
         // This inode is shared only by successive holders of this exact lock.
         // Browser documents cannot survive a reboot of this monotonic clock.
-        let lockIdentity = "riftlet-preparation-v1/" + String(info.st_dev) + "/" + String(info.st_ino)
-            + "/" + String(info.st_birthtimespec.tv_sec) + "/" + String(info.st_birthtimespec.tv_nsec)
+        func identity(_ item: stat) -> String {
+            "\(item.st_dev)/\(item.st_ino)/\(item.st_birthtimespec.tv_sec)/\(item.st_birthtimespec.tv_nsec)"
+        }
+        let lockIdentity = "riftlet-preparation-v1/" + identity(directoryInfo) + "/" + identity(info)
         let scope = SHA256.hash(data: Data(lockIdentity.utf8)).map { String(format: "%02x", $0) }.joined()
         preparationOwner = PreClickPreparationOwner(scope: scope, generation: mach_absolute_time())
     }

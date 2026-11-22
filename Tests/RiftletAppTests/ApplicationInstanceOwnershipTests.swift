@@ -25,6 +25,18 @@ final class ApplicationInstanceOwnershipTests: XCTestCase {
         XCTAssertEqual(successor.preparationOwner.scope.count, 64)
     }
 
+    func testDifferentDataDirectoriesRemainDistinctWhenTheirLockFilesAreHardLinked() throws {
+        let secondRoot = root.appendingPathComponent("restored-copy")
+        try FileManager.default.createDirectory(at: secondRoot, withIntermediateDirectories: true)
+        let first = try ApplicationInstanceOwnership(root: root)
+        try FileManager.default.linkItem(at: root.appendingPathComponent("instance.lock"),
+                                         to: secondRoot.appendingPathComponent("instance.lock"))
+        XCTAssertThrowsError(try ApplicationInstanceOwnership(root: secondRoot))
+        first.close()
+        let second = try ApplicationInstanceOwnership(root: secondRoot)
+        XCTAssertNotEqual(first.preparationOwner.scope, second.preparationOwner.scope)
+    }
+
     func testFreshProfileRequiresBothAnEmptyRootAndEmptyAppDomain() throws {
         let suite = "Riftlet.ProfileTest." + UUID().uuidString
         let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
