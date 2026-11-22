@@ -29,3 +29,19 @@ Chrome 157.0.8103.79 and Edge 158.0.4370.33 each delivered four tagged software 
 The official Chrome family selector reached Owl and refused window creation. Standard Google Chrome was independently verified through its vendor-signed native process and newly created QA window. For Edge, the official controller and the signed Microsoft process matched the challenge in the same QA window. A separately verified new Edge window reached the exact ChatGPT temporary-chat URL. The official tab title was ChatGPT. Scoped editor/upload probes timed out, and the OS foreground moved away after navigation. Account status, an editable draft and upload availability remain unverified. No real website input was performed. [Website preflight](website-preflight.json)
 
 The official controller can perform a new, same-tab read of known composer or upload-control locators. A narrowly cropped screenshot requires verified geometry that keeps private content out of the image. A full accessibility tree or an arbitrary viewport screenshot would expose more than the allowed UI. A signed candidate can separately exercise its product read-only prebind in a new temporary test window after its identity and authorization have been independently verified. It must establish its own original identity and receipt under its own process permissions. An unsigned QA process's successful no-prompt checks are recorded separately. [Apple running-code validation](https://developer.apple.com/documentation/security/seccodecheckvalidity(_:_:_:))
+
+## Build 59 pair timing
+
+Run the offline timing reader against a published series manifest and its original private receipts. The final integer is the second image index in the pair. The Chrome series uses index 4, the first Edge series uses indices 4 and 6, and the final Edge series uses index 3.
+
+```sh
+python3 Tests/PreClickLease/native/rapid_timing.py \
+  docs/releases/1.0.8/evidence/build59/chrome-live-after-start.json \
+  "$private_chrome_series" 4
+```
+
+The reader verifies each consumed receipt against its published SHA-256 and matches AppKit, operation, invocation, original PNG, card and durable START. Host timings are milliseconds relative to the first NSEvent timestamp received by AppKit. Both callbacks also have their own host timestamps. Browser input and change use the original document's rounded performance clock. The native commit interval and returned setter flag bound the host observation. Exact renderer setter entry and card acceptance instants were not traced. The tray sample proves the row was available at sampling time. The UI trace records the animation's start and close callbacks.
+
+In the completed Chrome pair, the second row passed its initial hit and pixel checks 2,192.745 ms before the first down. Its press used a pre-click acknowledgement at +1,434.973 ms. The sequential verifier launched separate per-row checks and obtained the last pre-dispatch row sample at +2,487.889 ms. The first image's START reached the host at +2,208.680 ms and its animation closed at +2,338.971 ms. Those activities overlapped the verifier. The original records do not partition the entire 2,507.972 ms interval into exclusive product, browser and verifier costs.
+
+All three Edge pairs registered the second down before the first animation closed. The 582.373 ms pair used the batched verifier, which prepared both rows before the first press, enforced a 260 ms minimum post interval and took 313.568 ms for the second final checks. It rechecked native row, pixels, browser route, editor and process before dispatch. Each posted or ambiguous press retained its original no-replay reservation. These timings quantify the benefit available from scheduling the verifier independently of the first card, while the Chrome result with that verifier is still outstanding. [Four reconstructed pair timelines](../../../docs/releases/1.0.8/evidence/build59/rapid-pair-timing.json)
