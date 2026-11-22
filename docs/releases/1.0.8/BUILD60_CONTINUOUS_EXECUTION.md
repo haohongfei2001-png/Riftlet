@@ -107,3 +107,9 @@ PR #125 的第一个正式预合并上，五项检查中三项通过。ARM64 和
 正式 PR 的两项源码准入、Native ARM64、Native Intel 和 Feedback native/service 全部通过。逐个下载了两个 Native job 的原始日志，在 GitHub 的实际预合并 `31371f52` 上分别核对到 1,436 项 Swift、真实所有权探针 12 次和独立 SQLite 耐久测试。PR #125 实际头为 `881589ad`，GitHub 报告可合并，当前保持 Draft。公开 main 为 `9fd8ad15`，仓库仍无 `v1.0.8` 标签。[完整五项 CI 核验](evidence/build61/formal-merge-ci.json)
 
 已在 GUI 独占锁内对两份只读账本做一致性备份。build 61 的首次原生观察为 06:25:19，调度记录自 06:34:03 至 07:13:12，共 12 轮、24 次浏览器采样，均为受保护前台。07:17:58 完成快照。两款浏览器的无提示 Apple Events 均已通过；仍是 UserNotificationCenter 的系统窗口，WindowServer 未找到可投递的屏上普通浏览器窗口。新 QA 窗口、业务领取、文件输入、发送、表单提交均为零。当前原生 v3 执行者继续退避，桌面变化后依次核对原窗、站点草稿和签名候选。其实际下一动作是条件满足后自动启动 `edge/g4c`。当前无需用户动作。待补的是这份 DMG 的 G1、G2、G4-C，以及 G4-A 或有独立书面裁决的 G4-B。[准入、调度及清理快照](evidence/build61/site-at-formal-ci.json)
+
+## 07:25（上海）· 非作者最终发行裁决
+
+**RIFTLET 1.0.8 — NOT RELEASED**。两套正式云端原始日志、实际 PR 预合并和两父、签名候选、普通用户会话里的唯一监督器，以及公开官网和 stable feed 均已由非作者复核。该 DMG 的同一 Mach-O 另在原生 ARM64 和本机 Rosetta 2 的 Intel 切片各执行三个自检。冻结签名源码仍为 `49b92049`，发布用 DMG SHA-256 为 `31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e`。私有正式日志、调度快照和裁决共封存 26 份文件，清单 SHA-256 为 `7f39216e8bdeefcbeaead038a7a0134b805c62ec428acf00eb4bd9d8bcf745e4`。[同包双切片执行](evidence/build61/signed-slice-execution.json) · [非作者最终裁决](evidence/build61/independent-final-gate.json)
+
+截至 07:23:52，14 轮合计 28 次浏览器采样全部遇到受保护前台，零准入、零实际文件输入，未取得可归属的实站附件和恢复记录。G1、G2、G4-C 以及 G4-A 或获准 G4-B 仍待同包取证。已排除当前宿主缺少普通浏览器 Apple Events 或辅助功能权限。本轮可独立完成的源码、历史库、签名安装、正式 CI、发行分支及更新链核验均已完成。现有 v3 执行者保持 120–300 秒退避，原生窗、原标签及专用草稿身份同时可证后自动进入已登记的测试。当前无需用户操作。PR #124、#125 均为 Draft，Issue #120 打开。官网和签名稳定更新源继续提供 1.0.5（31），公开下载 1.0.8 及 31 → 61 的实际升级留待正式发行。[当前总报告](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md) · [公开稳定更新源](https://riftlet.com/updates/stable.xml)
