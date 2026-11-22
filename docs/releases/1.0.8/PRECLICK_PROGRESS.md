@@ -44,3 +44,5 @@ build 59 的 App 和 DMG 已通过 Apple 公证，非作者已完成独立安装
 普通 Edge 已登录原稿完成七张唯一回执，两组双图分别为 1.518 秒和 1.575 秒。首轮第三组第二张的鼠标按下未到达 AppKit，原图保留；该格按实际结果登记。[原始现场](evidence/build59/edge-live-candidate.json)
 
 Chrome 接续原稿新增五次正面 START，并保留旧图。原双图实际间隔为 2.508 秒；下一组第二张在投递前停止。G4 本地对照成功，单标签故障隔离未获证实，实站原卡失败仍未运行。[非作者复核](evidence/build59/independent-first-site-series.json)
+
+11 月 22 日收口。Edge 在另一个已登录草稿完成第三组双图，间隔 582.373 毫秒。Chrome 补验时确认了登录，但账户菜单关闭后原测试窗已失去选中状态，验收器在图片输入前停止。非作者核对同包证据后，Edge 双图为 3/3，Chrome 为 0/3。两款浏览器的非空原文和选区、实站 G4 均待验。已关闭测试窗并核对原窗口集合，build 59 继续私有验收。[最终矩阵与签名包身份](PRECLICK_ACCEPTANCE.md) · [独立复核](evidence/build59/independent-final-pairs.json)
