@@ -62,7 +62,11 @@ let readOriginalDraft = #"""
   const images = form ? elements(form,'img[alt]').filter(n=>/^riftlet-[0-9a-f-]{36}\.(png|webp)$/i.test(n.alt)) : [];
   const uploadEntry = !!form && ([...form.querySelectorAll('input[type=file]')].some(n=>!n.disabled) ||
      elements(form,'button').some(n=>n.id === 'composer-plus-btn' || /^(Attach|Add files|添加文件)/i.test(label(n))));
-  return JSON.stringify({entryID:navigation.currentEntry.id,timeOrigin:performance.timeOrigin,editor:!!editor,
+  const watcherKey = '__riftletDraftQA_' + QA_ORIGINAL_DOCUMENT_NONCE;
+  const watcher = Object.getOwnPropertyDescriptor(globalThis,watcherKey)?.value;
+  const observationState = {visible:document.visibilityState === 'visible', focused:document.hasFocus(),
+    mounted:!!watcher, stateReadable:typeof watcher?.state === 'function'};
+  return JSON.stringify({observationState,entryID:navigation.currentEntry.id,timeOrigin:performance.timeOrigin,editor:!!editor,
     uploadEntry,signedIn,authSignals:{bootstrapStatus,accountButtons:account.length,hasAccountAction:accountAction,explicitPlan:!!explicitPlan,signedOut},
     activeEditor:!!editor && document.activeElement === editor,text,selection,
     documentID:own ? me.documentID : null, composerID,draftEpoch:own ? gen.id : null,pending:prepared,

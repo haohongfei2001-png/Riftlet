@@ -10,10 +10,11 @@ products=$1
 destination=$2
 native=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 mkdir -p "$destination"
-for target in observer navigate focus; do
+for target in observer navigate focus present; do
     case $target in
         navigate) set -- -D QA_NAVIGATE ;;
         focus) set -- -D QA_FOCUS ;;
+        present) set -- -D QA_PRESENT ;;
         observer) set -- ;;
     esac
     xcrun swiftc -parse-as-library -D ORIGINAL_DRAFT_OBSERVER "$@" \

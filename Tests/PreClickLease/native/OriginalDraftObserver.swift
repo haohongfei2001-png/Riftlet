@@ -85,7 +85,10 @@ import Foundation
         try check(QAOriginalBrowserTab.temporaryChat, requireFront:false)
         let initialSelection = try selected()
         let initialForeground = NSWorkspace.shared.frontmostApplication?.processIdentifier == process.pid
-        let reply = try Owned.request(process,"CrSu","ExJa",["----":tab,"JvSc":.init(string:readOriginalDraft)])
+        guard let nonce = UUID(uuidString:marker) else {throw Identity.Refusal("INVALID_DOCUMENT_NONCE")}
+        let key = nonce.uuidString.replacingOccurrences(of:"-",with:"")
+        let source = readOriginalDraft.replacingOccurrences(of:"QA_ORIGINAL_DOCUMENT_NONCE",with:"'"+key+"'")
+        let reply = try Owned.request(process,"CrSu","ExJa",["----":tab,"JvSc":.init(string:source)])
         try check(QAOriginalBrowserTab.temporaryChat, requireFront:false)
         let finalSelection = try selected()
         let finalForeground = NSWorkspace.shared.frontmostApplication?.processIdentifier == process.pid
@@ -102,18 +105,42 @@ import Foundation
             let pin:Record = ["sourceDoc":marker,"entryID":entry,"timeOrigin":page["timeOrigin"] ?? NSNull()]
             try JSONSerialization.data(withJSONObject:pin).write(to:enrollment,options:.withoutOverwriting)
         }
-        #if QA_FOCUS
+        #if QA_FOCUS || QA_PRESENT
         try require(FileManager.default.fileExists(atPath:enrollment.path) && page["editor"] as? Bool == true,
                     "EDITOR_NOT_BOUND")
-        if try !selected() {
-            _ = try Owned.request(process,"core","setd",["----":Identity.property("pidx",win),"data":.init(int32:1)])
-        }
         if NSWorkspace.shared.frontmostApplication?.processIdentifier != process.pid {
             try require(NSRunningApplication(processIdentifier:process.pid)?.activate(options:[]) == true,"ACTIVATION_REFUSED")
+        }
+        let activationDeadline = ProcessInfo.processInfo.systemUptime + 1.5
+        while NSWorkspace.shared.frontmostApplication?.processIdentifier != process.pid &&
+              ProcessInfo.processInfo.systemUptime < activationDeadline {
+            RunLoop.current.run(until:Date(timeIntervalSinceNow:0.04))
+        }
+        try require(NSWorkspace.shared.frontmostApplication?.processIdentifier == process.pid, "ACTIVATION_REFUSED")
+        if try !selected() {
+            _ = try Owned.request(process,"core","setd",["----":Identity.property("pidx",win),"data":.init(int32:1)])
         }
         let deadline = Date(timeIntervalSinceNow:1.5)
         while try !selected() && Date() < deadline { RunLoop.current.run(until:Date(timeIntervalSinceNow:0.04)) }
         try check(QAOriginalBrowserTab.temporaryChat)
+        #if QA_PRESENT
+        // Only this disposable, already claimed QA window is normalized.
+        // Chromium can report hidden to a selected tab in an occluded native window.
+        if let webState = page["observationState"] as? Record, webState["visible"] as? Bool == false {
+            let bounds = CGDisplayBounds(CGMainDisplayID())
+            let width = min(1040.0, bounds.width - 80), height = min(700.0, bounds.height - 100)
+            try require(width > 400 && height > 300, "DISPLAY_TOO_SMALL")
+            let rect: [Int16] = [52,48,Int16(52+height),Int16(48+width)]
+            let qd = rect.withUnsafeBytes { NSAppleEventDescriptor(descriptorType:typeQDRectangle,bytes:$0.baseAddress,length:$0.count) }!
+            _ = try Owned.request(process,"core","setd",["----":Identity.property("pbnd",win),"data":qd])
+            _ = try Owned.request(process,"core","setd",["----":Identity.property("pmnd",win),"data":.init(boolean:true)])
+            RunLoop.current.run(until:Date(timeIntervalSinceNow:0.4))
+            _ = try Owned.request(process,"core","setd",["----":Identity.property("pmnd",win),"data":.init(boolean:false)])
+            _ = try Owned.request(process,"core","setd",["----":Identity.property("pidx",win),"data":.init(int32:1)])
+            RunLoop.current.run(until:Date(timeIntervalSinceNow:0.8))
+            try check(QAOriginalBrowserTab.temporaryChat)
+        }
+        #endif
         let renewed = try Owned.request(process,"CrSu","ExJa",["----":tab,"JvSc":.init(string:"JSON.stringify([navigation.currentEntry.id,performance.timeOrigin])")])
         guard let raw = renewed.stringValue, let after = try JSONSerialization.jsonObject(with: Data(raw.utf8)) as? [Any],
               after.count == 2, after[0] as? String == entry, after[1] as? Double == page["timeOrigin"] as? Double else {
@@ -129,8 +156,16 @@ import Foundation
                   target["tabID"] as? String == tabID else { return nil }
             return digest(Data(id.lowercased().utf8))
         }
+        let desktop = CGSessionCopyCurrentDictionary() as? [String:Any]
+        let nativeWindow:Record = [
+            "browserHidden":NSRunningApplication(processIdentifier:process.pid)?.isHidden ?? true,
+            "minimized":(try? Identity.get(process,Identity.property("pmnd",win)).booleanValue) as Any? ?? NSNull(),
+            "visible":(try? Identity.get(process,Identity.property("pvis",win)).booleanValue) as Any? ?? NSNull(),
+            "displayAsleep":CGDisplayIsAsleep(CGMainDisplayID()) != 0,
+            "onConsole":desktop?["kCGSessionOnConsoleKey"] ?? NSNull(),
+            "screenLocked":desktop?["CGSSessionScreenIsLocked"] ?? false]
         let payload:Record = ["timestamp":ISO8601DateFormatter().string(from:Date()),"systemUptime":ProcessInfo.processInfo.systemUptime,
-             "family":family,"bundle":vendor.bundle,"pid":process.pid,"sessionID":session,"windowID":windowID,"tabID":tabID,
+             "nativeWindow":nativeWindow,"family":family,"bundle":vendor.bundle,"pid":process.pid,"sessionID":session,"windowID":windowID,"tabID":tabID,
              "dynamicSignature":true,"exactTemporaryURL":true,"originalSelection":initialSelection && finalSelection,"originalSoleTab":true,"systemForeground":initialForeground && finalForeground,"page":page]
         let bytes = try JSONSerialization.data(withJSONObject:payload,options:.sortedKeys)
         return ["payload":payload,"payloadBase64":bytes.base64EncodedString(),"sha256":digest(bytes)]
