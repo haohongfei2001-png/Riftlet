@@ -101,3 +101,9 @@ PR #125 的第一个正式预合并上，五项检查中三项通过。ARM64 和
 用原有 `source_matches` 校验器对三个 tag 位置做了隔离预演。当前 main 上的发行请求会被拒绝。受审签名提交 `49b92049` 在正式合并后将是 main 的祖先，届时精确打标可匹配此签名包；QA 脚本提交 `e2324e9d` 作为发行标签会被拒绝。独立预检另通过 19 个内部打包拒绝用例、20 个可视证据清单用例和真实 PR 基线的签名 feed 迁移核验。此次未创建公共标签。下一步在 `gh pr checks 125` 观察全套正式结果，实站由同一已授权进程继续值守。当前无用户动作。[独立下游及标签预演](evidence/build61/downstream-release-preflight.json)
 
 07:00 补记。独立发行复核者重新验证了私有 DMG 的摘要、安装树的 191 项、App 和 DMG 的公证票据与 Gatekeeper、三份故障原库、六份前后备份及实站调度账本。首次正式 CI 的两个探针失败与真实输入仍有缺口，裁决为 **HOLD**。复核时间早于后继正式五项检查结束。对应的两项源码准入已通过，后继 Native 与 Feedback 的终局继续跟踪。[独立发行裁决原文](evidence/build61/independent-hold-first-checks.json)
+
+## 07:18（上海）· 正式 CI 5/5，实站仍待前台
+
+正式 PR 的两项源码准入、Native ARM64、Native Intel 和 Feedback native/service 全部通过。逐个下载了两个 Native job 的原始日志，在 GitHub 的实际预合并 `31371f52` 上分别核对到 1,436 项 Swift、真实所有权探针 12 次和独立 SQLite 耐久测试。PR #125 实际头为 `881589ad`，GitHub 报告可合并，当前保持 Draft。公开 main 为 `9fd8ad15`，仓库仍无 `v1.0.8` 标签。[完整五项 CI 核验](evidence/build61/formal-merge-ci.json)
+
+已在 GUI 独占锁内对两份只读账本做一致性备份。build 61 的首次原生观察为 06:25:19，调度记录自 06:34:03 至 07:13:12，共 12 轮、24 次浏览器采样，均为受保护前台。07:17:58 完成快照。两款浏览器的无提示 Apple Events 均已通过；仍是 UserNotificationCenter 的系统窗口，WindowServer 未找到可投递的屏上普通浏览器窗口。新 QA 窗口、业务领取、文件输入、发送、表单提交均为零。当前原生 v3 执行者继续退避，桌面变化后依次核对原窗、站点草稿和签名候选。其实际下一动作是条件满足后自动启动 `edge/g4c`。当前无需用户动作。待补的是这份 DMG 的 G1、G2、G4-C，以及 G4-A 或有独立书面裁决的 G4-B。[准入、调度及清理快照](evidence/build61/site-at-formal-ci.json)

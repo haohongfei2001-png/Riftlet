@@ -1,0 +1,93 @@
+{
+  "actualIntervalsSeconds": [
+    120.417,
+    180.433,
+    270.356,
+    300.348,
+    300.446,
+    4.732,
+    120.4,
+    180.385,
+    270.416,
+    300.417,
+    300.432
+  ],
+  "actualIterations": 12,
+  "browserSamples": 24,
+  "businessClaims": 0,
+  "businessGates": {
+    "b4": "NOT_RUN",
+    "g1": "NOT_RUN",
+    "g2": "NOT_RUN",
+    "g4c": "NOT_RUN"
+  },
+  "cadenceCoverage": "Continuous same-candidate GUI execution, including both v2 and v3 where present",
+  "candidateWebsiteStarts": 0,
+  "consistentSnapshotSHA256": {
+    "host.sqlite": "1649dba679f602a7efadbe298d7ae5bdfa260b06debb3479c928fb9d7c6a96e0",
+    "scheduler.sqlite": "7710bd48cd66168734dd768630d777837c5746cfbd5d7fb845c449195d662f92"
+  },
+  "currentProtectedMetadata": {
+    "AXModal": [
+      false
+    ],
+    "AXSubroles": [
+      "AXSystemDialog"
+    ],
+    "frontBundle": "com.apple.UserNotificationCenter",
+    "frontPID": 1046,
+    "protectedSurfaceContentsInspected": false,
+    "systemDialogOnScreen": true
+  },
+  "dmgSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "firstTickUTC": "2026-11-22T22:34:03.393399+00:00",
+  "issuerSHA256": "fdccb84b5de1af8549a388cedc884c893ad799f5751d7d5c4d81ddd301ffcccd",
+  "lastTickUTC": "2026-11-22T23:13:12.176191+00:00",
+  "observedThroughUTC": "2026-11-22T23:17:58.169563+00:00",
+  "originalBuild61MetadataFirstUTC": "2026-11-22T22:25:19.815552+00:00",
+  "originalNewScopes": 0,
+  "protectedSamples": 24,
+  "protectedUIContentRead": false,
+  "qaFormSubmissions": 0,
+  "qaWebsiteSends": 0,
+  "readySamples": 0,
+  "siteFileInputs": 0,
+  "snapshotMethod": "Backed up both ledgers while holding their sole global GUI flock. No GUI/browser call was made for this report.",
+  "source": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "states": {
+    "chrome": {
+      "aePermissionWithoutPrompt": "ALLOWED",
+      "axTrusted": true,
+      "displayAwake": true,
+      "frontBundle": "com.apple.UserNotificationCenter",
+      "lastFailure": "PROTECTED_OR_MODAL_SURFACE",
+      "onConsole": true,
+      "screenLocked": false,
+      "systemDialogOnScreen": true,
+      "visibleCGWindowCount": 0
+    },
+    "edge": {
+      "aePermissionWithoutPrompt": "ALLOWED",
+      "axTrusted": true,
+      "displayAwake": true,
+      "frontBundle": "com.apple.UserNotificationCenter",
+      "lastFailure": "PROTECTED_OR_MODAL_SURFACE",
+      "onConsole": true,
+      "screenLocked": false,
+      "systemDialogOnScreen": true,
+      "visibleCGWindowCount": 0
+    }
+  },
+  "supervisor": {
+    "deployment": "v3",
+    "firstOwnScheduledSampleUTC": "2026-11-22T22:53:40.125253+00:00",
+    "handoverUTC": "2026-11-22T22:53:39.566689+00:00",
+    "issuerSHA256": "fdccb84b5de1af8549a388cedc884c893ad799f5751d7d5c4d81ddd301ffcccd",
+    "lastOwnScheduledSampleUTC": "2026-11-22T23:13:12.176191+00:00",
+    "mode": "interactive same-candidate macOS GUI issuer",
+    "oneHandoverCausedShortIntervalSeconds": 4.732,
+    "ownCompletedCycles": 6,
+    "pid": 73414,
+    "priorClaimsAtHandover": 0
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "verifiedUTC": "2026-11-22T23:18:06.652435+00:00",
+  "pr": "https://github.com/haohongfei2001-png/Riftlet/pull/125",
+  "state": "DRAFT",
+  "signedSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "qaSource": "e2324e9d742ec3c3d1045504ed1bfee421efae67",
+  "formalAdmissionHead": "881589ad19f5e0205846aa265e64df89f2a0b498",
+  "mainBase": "9fd8ad15fca043915069904113e5fb67d82b4948",
+  "githubMergeRef": "31371f52d67cca6678d09712e71aa330a454df4d",
+  "mergeTree": "6f583ee83337ff4edb1aad1b389042c7e01737ad",
+  "mergeParents": [
+    "9fd8ad15fca043915069904113e5fb67d82b4948",
+    "881589ad19f5e0205846aa265e64df89f2a0b498"
+  ],
+  "workflows": [
+    {
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45080584932",
+      "id": 45080584932,
+      "event": "pull_request",
+      "conclusion": "success"
+    },
+    {
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45080584850",
+      "id": 45080584850,
+      "event": "pull_request",
+      "conclusion": "success"
+    }
+  ],
+  "checks": [
+    {
+      "name": "Native source admission",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45080584932/job/137387624613",
+      "conclusion": "success",
+      "completedUTC": "2026-11-22T22:58:31Z"
+    },
+    {
+      "name": "Native ARM64",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45080584932/job/137387624793",
+      "conclusion": "success",
+      "completedUTC": "2026-11-22T23:17:02Z",
+      "testPartition": {
+        "discovered": 1436,
+        "parallel": 1414,
+        "serial": 22
+      },
+      "ownershipSubprocessLifetimes": 12,
+      "isolatedStorageSoak": "PASS",
+      "verifiedJobLogSHA256": "8f38bdadc589c79f27b6df3530fb1bfcb9a764d8620148f260a936afd5a1ed64"
+    },
+    {
+      "name": "Native Intel",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45080584932/job/137387624931",
+      "conclusion": "success",
+      "completedUTC": "2026-11-22T23:17:28Z",
+      "testPartition": {
+        "discovered": 1436,
+        "parallel": 1414,
+        "serial": 22
+      },
+      "ownershipSubprocessLifetimes": 12,
+      "isolatedStorageSoak": "PASS",
+      "verifiedJobLogSHA256": "c0029827bd7b5a948741390d38f8121d90eaba014549fd1fbbeebbaa1634b72b"
+    },
+    {
+      "name": "Feedback source admission",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45080584850/job/137387624506",
+      "conclusion": "success",
+      "completedUTC": "2026-11-22T22:57:59Z"
+    },
+    {
+      "name": "Feedback native and service",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45080584850/job/137387624766",
+      "conclusion": "success",
+      "completedUTC": "2026-11-22T23:02:50Z"
+    }
+  ],
+  "remoteArtifactManifests": [
+    {
+      "id": 14777986690,
+      "name": "native-foundation-macos-15-31371f52d67cca6678d09712e71aa330a454df4d",
+      "bytes": 8261499,
+      "githubArchiveDigest": "sha256:96a7d4a403099165a9c9659ccfbe21f3aecd342cebcdeee170f93868548031bc"
+    },
+    {
+      "id": 14777867120,
+      "name": "native-foundation-macos-15-intel-31371f52d67cca6678d09712e71aa330a454df4d",
+      "bytes": 9932249,
+      "githubArchiveDigest": "sha256:fd5044d39481c4883c8d367006dc5ba08aa48a5dc7fd3d53499cc734cb54bd29"
+    },
+    {
+      "id": 14777410349,
+      "name": "final-source-admission-31371f52d67cca6678d09712e71aa330a454df4d",
+      "bytes": 448392,
+      "githubArchiveDigest": "sha256:639c68f8db8e2e7b2ae6187968193dd27e51234eceaccedca3712a418707e458"
+    },
+    {
+      "id": 14777475123,
+      "name": "feedback-source-admission-31371f52d67cca6678d09712e71aa330a454df4d",
+      "bytes": 444203,
+      "githubArchiveDigest": "sha256:96cd4995c04958918818d7d63a8ddd62c8b2a4b368fa9a499e74e90682cb4b99"
+    },
+    {
+      "id": 14777425402,
+      "name": "feedback-v01-31371f52d67cca6678d09712e71aa330a454df4d",
+      "bytes": 70592414,
+      "githubArchiveDigest": "sha256:2a6eee0c29102b64bca565aca47aaf9a38a211bdc2382f45efdcea8bbec24c7f"
+    }
+  ],
+  "productWebsiteResultsFromThisCI": false,
+  "mergedToMain": false
+}
