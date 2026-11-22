@@ -7,7 +7,7 @@
 | 普通 Chrome 快速双图 | PASS，3/3。两次 AppKit mouseDown 间隔为 552.323、532.494、531.391 ms。 |
 | 普通 Edge 快速双图 | PASS，3/3。本轮同路径间隔为 499.982、485.296、479.162 ms。保留此前同包 3/3。 |
 | Chrome、Edge 非空文字与非折叠选区 | 两款均 PASS。原文、原选区节点、12→40 的正向端点、原编辑器和旧附件均保留。 |
-| G4 原卡明确失败、找回与显式重选 | NOT_RUN。真实自然上传产生了原卡 START，观察期内未见可归属原卡的明确失败。 |
+| G4 原卡明确失败、找回与显式重选 | NOT_RUN。真实唯一 XHR 已受控中断；ChatGPT 移除原进度卡，54.549 秒内未出现原卡明确失败。 |
 
 ### 11 月 22 日最终原生复验
 
@@ -84,6 +84,8 @@ build 59 对这一种重绘同时核对原草稿、完整操作 UUID、新卡与
 [已登录草稿之前的原生路线与浏览器身份](PRECLICK_ARCHITECTURE.md) · [build 57 历史验收](BUILD57_ACCEPTANCE.md)
 
 ## G4 真实原卡失败恢复
+
+本轮 G4 专项实站校准了完整 PNG 请求体，并在另一专用草稿取消一次唯一归属的 XHR。原操作保留，未得到原卡错误收据，未发起显式重选。原图及私有终态 SQLite 已封存。[G4 最终实站报告](G4_FINAL_ACCEPTANCE.md)
 
 在独立的已登录 Edge Temporary Chat 中用签名 build 59 实际附加了一张系统截图。该操作产生一次 AppKit 按下、一次 input、一次 change 和唯一原卡 START。观察 35 秒后，网站原卡与 SQLite 均没有明确失败。保留原 PNG、原操作与媒体副本；显式重试次数为零。此前针对另一条请求的 POST100 试验确有过单个 XHR 中断与恢复，当时未得到明确原卡失败。其实现需要安装页面全局网络钩子；本次只读原生通道没有该字节请求的独占取消句柄。此次未注入网络故障，服务器和传输故障恢复都没有通过记录。[自然上传记录](evidence/build59/g4-native-natural.json) · [非作者复核及故障工具适用范围](evidence/build59/g4-native-natural-independent.json)
 

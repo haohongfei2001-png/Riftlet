@@ -21,3 +21,11 @@ The observer immediately forwards every original method call and returns its nat
 ## Offline checks
 
 Run `node --test calibrate.test.mjs` in this directory. The fixtures are in-process with mocked browser objects, one synthetic ephemeral test PNG and zero outbound requests.
+
+## One controlled XHR cancellation
+
+The separate QA-only `once.js` uses the transport observed in the signed build 59 Edge calibration. The native test host first binds the signed browser process, creation receipt, original window and tab, temporary document, visible original editor, and a new system PNG. It reserves a single fault before arming. Within that document the probe associates the original input File and full SHA-256 with exactly one creation response and the XHR that sends that same immutable File to the returned upload URL. It cancels only after native send returns, with an original trusted loadstart and no observed response. A reopened XHR, a second loadstart, or competing candidates disqualify the request. The receipt records whether positive upload progress was observed. Signed URLs stay in memory.
+
+The original request's trusted abort and loadend close the probe and restore the original functions and event listeners. The host reads the frozen outcome through its original nonce. The existing page card and SQLite verifiers decide whether the application can proceed to an explicit recovery attempt.
+
+Run `node --test once.test.mjs` for the isolated controls. Network cancellation, a named website error card, and an eligible failed operation are separate acceptance results.
