@@ -15,3 +15,9 @@
 build 59 对这一种重绘同时核对原草稿、完整操作 UUID、新卡与移除按钮的归属及图像内容。候选卡出现竞争、局部明确失败或在解码中被替换时维持 UNKNOWN。两款真实隔离引擎各通过 22 项受控回归。双图各保留原草稿、选区和旧附件并各自得到独立回执。非作者审查已复核旧操作只读兼容、实际页面程序大小和原生轻量点击路径。[源码对照](evidence/build59/converted-source-regression.json) · [双架构 CI](https://github.com/haohongfei2001-png/Riftlet/actions/runs/44987854131)
 
 [已登录草稿之前的原生路线与浏览器身份](PRECLICK_ARCHITECTURE.md) · [build 57 历史验收](BUILD57_ACCEPTANCE.md)
+
+## 同一安装包
+
+私有 DMG 大小为 13,775,789 字节，SHA-256 为 `666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6`。App 和镜像各有独立的 Apple 公证票。另一名工程师从只读镜像另行安装，核实 arm64 与 x86_64 签名、Gatekeeper、三个旧版页面指纹及普通、网页、截图三项自检。[签名与安装](evidence/build59/installation.json) · [独立安装](evidence/build59/independent-install.json)
+
+从同一签名 App 提取页面，在两款隔离引擎分别完成 19 项点击前凭据回归和 22 项改名预览回归。独立进程还分别读回 build 56、57、58 留下的待确认和已 START 两种状态。错误调用均被拒绝，续查没有再次输入。[原目标生命周期](evidence/build59/installed-page-results.json) · [改名预览](evidence/build59/installed-converted-previews.json) · [六个旧操作](evidence/build59/old-operations.json)

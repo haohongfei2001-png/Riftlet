@@ -1,0 +1,45 @@
+{
+  "build": "59",
+  "source": "69b76cb025ab552b3480e3af095b627891874712",
+  "dmgSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+  "installedAssetSHA256": "b6eee615982d839285ea6af4abb16018939f9be91b18215554e847f4a6eb2215",
+  "scope": "isolated real headless engine, controlled draft fixture, shipping resource extracted from private signed DMG; live ChatGPT excluded",
+  "results": {
+    "chrome": {
+      "browser": "Chrome/157.0.8103.79",
+      "passes": 22,
+      "receiptSHA256": "5e629d07514c999ca0de6893ca231011a1eb12c66660e4f2e529c5002abe296a",
+      "doubleImageSpacingMS": 3.699999988079071,
+      "doubleImageCounts": {
+        "setter": 2,
+        "input": 2,
+        "change": 2,
+        "send": 0
+      },
+      "doubleImageOriginalDraft": true,
+      "selection": [
+        2,
+        8
+      ],
+      "differentEvidenceIDs": true
+    },
+    "edge": {
+      "browser": "Edg/158.0.4370.33",
+      "passes": 22,
+      "receiptSHA256": "4b577206412ce222197e305c31078e0bb5ea55a61dd25eaa902b5a9f7e4105a5",
+      "doubleImageSpacingMS": 5.699999988079071,
+      "doubleImageCounts": {
+        "setter": 2,
+        "input": 2,
+        "change": 2,
+        "send": 0
+      },
+      "doubleImageOriginalDraft": true,
+      "selection": [
+        2,
+        8
+      ],
+      "differentEvidenceIDs": true
+    }
+  }
+}
