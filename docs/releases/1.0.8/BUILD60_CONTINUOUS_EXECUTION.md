@@ -51,3 +51,11 @@ C1 的只读观察器可以从单个已完整归属的正常请求中投影经�
 注册 Aqua 服务也已从其实际父进程读取无提示权限查询。会话已登录并解锁、显示器已醒、该执行者有 Accessibility 权限。它向普通 Chrome 和 Edge 发送 Apple Events 均需用户同意。前台是 UserNotificationCenter 的 AXSystemDialog，AXModal 为 false；两款浏览器都有基础窗口，当前可见普通窗口均为零。已记录的系统界面元数据无法确定对话框用途。这份回执描述后台 QA 执行者的权限。下一步是生成新候选、在正常已授权原生上下文比对窗口证据，使用该候选的独立安装和全新专用草稿继续。未要求用户操作。[注册进程现场数据](evidence/build60/registered-aqua-supervisor.json) · [Apple Accessibility 信任查询](https://developer.apple.com/documentation/applicationservices/1459186-axisprocesstrustedwithoptions)
 
 完整的非作者源码审查结论为 `CHANGES_REQUESTED`。报告固定了实际 main、build 60 源码和树，逐项核对 437 个变更路径，保存了 8 个本地真实浏览器对照。该源码不会进入正式准入。独立的当前交互任务随后用同一只读二进制查询 Chrome 和 Edge，两个目标均返回 `ALLOWED`；此前后台 Aqua 服务则均返回 `CONSENT_REQUIRED`。两者的 AX 检查均已通过。当时两个执行上下文都观察到同一个系统前台窗口。后续同包实站可由当前已授权的普通执行入口在桌面自然恢复后处理。[build 60 非作者原文报告](evidence/build60/mainline-nonauthor-review.json)
+
+## 06:20（上海）· Build 61 源码冻结
+
+正式候选切换到 1.0.8（61），源码 `49b9204974088c1983cda469910d9a78d8f4c43b`、树 `70ba40e23a3afa3561525b1943cb0e5ebc825de5`、网页资源 `2f6e2f6e1d80184813f6f967cc340638b96082abd5bd98c2f9e97b0597f982f2`。现在只有仍能连续证明原 Document、form、编辑器和路由的已输入 PNG 才能延续原草稿代号。失焦前取得的旧写票仍永久失效。build 60 已签名页面的只读观察指纹已随候选封装。[产品修复](https://github.com/haohongfei2001-png/Riftlet/commit/49b9204974088c1983cda469910d9a78d8f4c43b)
+
+真实无界面 Chrome、Edge 的本地受控测试覆盖具名错误及 UNKNOWN，各自包含 START 前后两条分支。每个程序配置均观测到 56 次 setter、56 次 change、零发送，模式、编辑器或路由发生变化时拒绝写入。非作者另外重跑原 8 组，四个失焦场景均恢复到新输入一次，额外八次旧票写入均被拒绝。开发 App 构建通过，安装包校验器 24 项通过。该 Mac 只有 Command Line Tools，本地 XCTest 编译缺少 XCTest 模块；完整 Swift 套件正在两台正式 Xcode CI 运行。签名、公证、独立安装、G1/G2 和 G4 均按新 SHA 单独取证。[受控测试回执](evidence/build61/controlled-focus-recovery.json) · [双架构 CI](https://github.com/haohongfei2001-png/Riftlet/actions/runs/45077012085) · [同一 QA 二进制的权限对照](evidence/build60/gui-diagnosis-execution-context.json)
+
+下一步在正式 DMG 完成后核验其 SHA-256、公证回执与独立安装，绑定本候选专用的浏览器任务。现有交互宿主对两款浏览器都有已生效的权限，真实投递还需要当前桌面有可见的原窗口并同时满足全部站点身份检查。目前无用户操作。
