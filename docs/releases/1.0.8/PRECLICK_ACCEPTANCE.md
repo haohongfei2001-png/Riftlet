@@ -11,6 +11,10 @@
 | 最初的 Edge 站点预检 | 正式控制器打开 Temporary Chat，核对了精确网址、原窗口和标签。该次窗口随后失去前台，局部控件读取超时。专窗已关闭并核对原有窗口集合。 |
 | 真实站点上的自动准备与系统截图 | 同一安装副本分别在普通 Chrome、Edge 的 `chatgpt.com` 临时草稿上获得两份原目标回执。两个回执均先于本地首次可见截图记录，随后各有四次原目标续期成功。两次系统截图均来自独立的纯色窗口，私有资料库中的 PNG 与各自原文件逐字节一致。Chrome 首次准备曾收到 `ATTACHMENT_INPUT_UNAVAILABLE`，其后同一标签已自动准备就绪。两次准备实验各有零次托盘单击和零个投递操作。 |
 
+随后在一个单独的新 Chrome 临时聊天中确认原账户菜单含可用的退出动作，并关闭了菜单。两份原目标签收后，执行器向已核验的 Riftlet 输入窗口定向投递了一对鼠标事件。AppKit 按下未获确认，SQLite 投递数、网页 file input、change、submit 和发送按钮点击计数均为零。没有原卡 START。原操作未再投递，原有浏览器窗口集合已恢复。[build 57 实站首击诊断](evidence/build57-first-click.json)
+
+在另一次独立受控复核中，真实零窗口 AppKit 正常退出时，两项异步原票释放均未进入执行方法。同一签名包的页面程序在旧票仍在时只接受两份新申请中的一份。先等待两次释放再退出的对照接受两份。两组的输入和发送均为零。这证明正常退出清理存在时序缺陷。此前终止私有 App 的实站驱动使用了 SIGTERM。[退出、双票与正向对照](evidence/build57-quit.json)
+
 [原生浏览器与完整采样](../../../Tests/PreClickLease/native/receipt.json) · [受控页面结果](../../../Tests/PreClickLease/page/source-results.json) · [跨版本及快速双图原始回执](evidence/compatibility-and-fast-pair.json) · [最初的站点预检](../../../Tests/PreClickLease/native/website-preflight.json) · [同包站点回执、截图原件与 SQLite 核验](evidence/website-preclick.json)
 
 ## 独立审查
