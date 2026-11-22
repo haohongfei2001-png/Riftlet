@@ -95,6 +95,13 @@ final class SQLiteDatabase {
                 BEGIN SELECT RAISE(ABORT,'asset already has an unresolved input'); END
                 """)
         }
+        // Even a generic checkpoint writer cannot revise the original call.
+        try execute("""
+            CREATE TRIGGER preserve_recovery_call BEFORE UPDATE ON checkpoints
+            WHEN OLD.key LIKE 'transfer-dispatch-call-v1:%' AND EXISTS(
+                SELECT 1 FROM attachment_reselections WHERE predecessor_id=substr(OLD.key,length('transfer-dispatch-call-v1:')+1))
+            BEGIN SELECT RAISE(ABORT,'original invocation is read-only'); END
+            """)
         try execute("PRAGMA user_version = 7")
     }
 

@@ -246,8 +246,15 @@ final class AttachmentDispositionTests: XCTestCase {
             byteCount: 10, pixelWidth: 1, pixelHeight: 1, mediaType: "image/png", origin: .systemScreenshot)
         _ = try await left.importAsset(image)
         let old = try await left.prepare(assetID: image.id, target: adapter.target)
-        _ = try await left.markIndependentFileInputIntent(old.id, ownerID: UUID())
-        try await left.markUnknown(old.id, reason: "Uncertain original input")
+        let owner = UUID()
+        let invocation = try await left.markIndependentFileInputIntent(old.id, ownerID: owner)
+        let sql = try SQLiteDatabase(url: path)
+        func originalLedger() throws -> [[String?]] {
+            try sql.rows("SELECT * FROM operations WHERE id=?", [old.id.uuidString]) +
+                sql.rows("SELECT * FROM upload_starts WHERE operation_id=?", [old.id.uuidString]) +
+                sql.rows("SELECT * FROM checkpoints WHERE key LIKE ?", ["%" + old.id.uuidString])
+        }
+        let before = try originalLedger()
         let source = try await left.attachmentRecoverySource(operationID: old.id)
         let a = adapter.freshTarget(), b = adapter.freshTarget()
         async let first: TransferOperation? = try? left.prepare(assetID: image.id, target: a, replacing: source)
@@ -262,9 +269,27 @@ final class AttachmentDispositionTests: XCTestCase {
         XCTAssertEqual(noBypass.id, old.id)
         let retained = try await right.operation(id: tentative.id)
         XCTAssertEqual(retained?.phase, .failed)
+        // A different writer still holding the old invocation can deliver these
+        // callbacks after the original becomes the active recovery source again.
+        try await left.markUnknown(old.id, reason: "Late fallback")
+        let late = adapter.start(old, image)
+        _ = try await left.apply(late)
+        do { try await left.recordAppendReturned(late, invocationID: invocation, ownerID: owner); XCTFail("Changed old return") }
+        catch RiftletError.mismatchedReceipt {}
+        do { try await left.recordInputExecutionReturned(operationID: old.id, invocationID: invocation, ownerID: owner); XCTFail("Changed old call") }
+        catch RiftletError.mismatchedReceipt {}
+        let noInput = PreInputRejection(operationID: old.id, assetID: image.id, attempt: old.attempt,
+            assetSHA256: image.sha256, target: old.target, invocationID: invocation, stage: .pageRetiredBeforeCommit)
+        do { try await left.recordPreInputRejection(noInput); XCTFail("Reclassified old invocation") }
+        catch RiftletError.mismatchedReceipt {}
+        do { try await left.saveCheckpoint(Data([0]), for: "transfer-dispatch-call-v1:" + old.id.uuidString); XCTFail("Overwrote original invocation") }
+        catch RiftletError.database {}
+        do { _ = try await left.claimDispatchCheckpoint(Data([1]), for: "late-registration", operation: source.operation, asset: image); XCTFail("Enrolled old dispatch") }
+        catch RiftletError.invalidTransition {}
+        try await left.recoverInterruptedOperations()
+        XCTAssertEqual(try originalLedger(), before)
         let again = try await right.prepare(assetID: image.id, target: adapter.freshTarget(), replacing: source)
         XCTAssertEqual(again.attempt, 3)
-        let sql = try SQLiteDatabase(url: path)
         XCTAssertEqual(try sql.rows("SELECT COUNT(*) FROM attachment_reselections"), [["2"]])
         XCTAssertEqual(try sql.rows("PRAGMA foreign_key_check"), [])
     }

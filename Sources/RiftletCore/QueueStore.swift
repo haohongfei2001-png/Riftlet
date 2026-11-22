@@ -369,7 +369,7 @@ public actor QueueStore {
             throw RiftletError.invalidAsset("Checkpoint exceeds its bounded contract")
         }
         return try database.transaction {
-            guard mode == .production, operation.phase == .dispatchIntent,
+            guard mode == .production, operation.phase == .dispatchIntent, try !hasRecoverySuccessor(operation.id),
                   try self.operation(id: operation.id) == operation,
                   operation.assetID == asset.id,
                   let record = try self.asset(id: asset.id), record.image == asset,
@@ -387,6 +387,10 @@ public actor QueueStore {
         let entry = try historyRecord(row)
         guard entry.attachmentState.needsVerification else { throw RiftletError.invalidTransition }
         return entry
+    }
+
+    private func hasRecoverySuccessor(_ id: UUID) throws -> Bool {
+        try !database.rows("SELECT 1 FROM attachment_reselections WHERE predecessor_id=? LIMIT 1", [id.uuidString]).isEmpty
     }
 
     func isAttachmentHandled(_ id: UUID) throws -> Bool {
@@ -632,7 +636,7 @@ public actor QueueStore {
     public func recordInputExecutionReturned(operationID: UUID, invocationID: UUID, ownerID: UUID) throws {
         try database.transaction {
             guard var call = try dispatchCall(operationID), call.version == 1,
-                  try database.rows("SELECT 1 FROM attachment_reselections WHERE predecessor_id=? LIMIT 1", [operationID.uuidString]).isEmpty,
+                  try !hasRecoverySuccessor(operationID),
                   call.operationID == operationID, call.invocationID == invocationID,
                   call.ownerID == ownerID else { throw RiftletError.mismatchedReceipt }
             guard call.inputExecutionReturned != true else { return }
@@ -646,7 +650,7 @@ public actor QueueStore {
         try database.transaction {
             let op = try requiredOperation(receipt.operationID)
             guard var call = try dispatchCall(op.id), call.version == 1,
-                  try database.rows("SELECT 1 FROM attachment_reselections WHERE predecessor_id=? LIMIT 1", [op.id.uuidString]).isEmpty,
+                  try !hasRecoverySuccessor(op.id),
                   call.invocationID == invocationID, call.ownerID == ownerID,
                   call.operationID == receipt.operationID, call.assetID == receipt.assetID,
                   call.attempt == receipt.attempt, call.assetSHA256 == receipt.assetSHA256,
@@ -663,7 +667,7 @@ public actor QueueStore {
     public func recordPreInputRejection(_ proof: PreInputRejection) throws {
         try database.transaction {
             let op = try requiredOperation(proof.operationID)
-            guard op.phase == .dispatchIntent, let asset = try asset(id: op.assetID),
+            guard op.phase == .dispatchIntent, try !hasRecoverySuccessor(op.id), let asset = try asset(id: op.assetID),
                   asset.activeOperationID == op.id, op.assetID == proof.assetID,
                   op.attempt == proof.attempt, op.target == proof.target,
                   asset.image.sha256 == proof.assetSHA256,
@@ -701,6 +705,7 @@ public actor QueueStore {
     public func markUnknown(_ id: UUID, reason: String) throws {
         try database.transaction {
             let op = try requiredOperation(id)
+            if try hasRecoverySuccessor(id) { return }
             // A corrupt image descriptor can be the reason this fallback is needed.
             // Check ownership directly under the same write transaction.
             guard op.phase.isUnresolved, op.phase != .prepared,
@@ -834,6 +839,9 @@ public actor QueueStore {
             guard op.assetID == receipt.assetID, op.attempt == receipt.attempt,
                   record.image.sha256 == receipt.assetSHA256, op.target == receipt.target,
                   record.activeOperationID == op.id else { throw RiftletError.mismatchedReceipt }
+            // Input-free cancellation can make the predecessor active again.
+            // Its existing ledger is then a recovery source, never writable.
+            if try hasRecoverySuccessor(op.id) { return record }
             if let invocation = receipt.originalCardFailureInvocationID {
                 guard receipt.outcome == .unknown, receipt.belongsToOriginalDraft, receipt.hasError,
                       !receipt.safeToRetry, !receipt.isUploading, !receipt.positiveReady, receipt.attachmentID?.isEmpty == false,
@@ -1055,6 +1063,7 @@ public actor QueueStore {
                 // Already unresolved historical results keep their original reason and
                 // timestamp; another launch is not a new observation.
                 if op.phase == .compensated || op.phase == .unknown { continue }
+                if try hasRecoverySuccessor(op.id) { continue }
                 if op.phase == .prepared {
                     try update(op, phase: .failed, status: .failed, reason: "Restart before dispatch intent; no input occurred")
                     try restoreOriginalAfterNoInput(op)
