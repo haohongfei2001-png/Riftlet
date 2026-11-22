@@ -1,0 +1,29 @@
+{
+  "source": "711cee3a1c7033ce4925082a83099b00da7087c6",
+  "version": "1.0.8",
+  "build": "60",
+  "architectures": [
+    "arm64",
+    "x86_64"
+  ],
+  "archive": "Riftlet-1.0.8.dmg",
+  "bytes": 14092837,
+  "sha256": "5a934119d6e65cbe82a62f5f208a2b95a200fa0cf170225ccd4e9016b1c0b54e",
+  "teamID": "ZB9D4T66QB",
+  "notaryStatus": "Accepted",
+  "dmgTicket": "VALID",
+  "embeddedAppTicket": "VALID",
+  "dmgGatekeeperOpen": "ACCEPTED",
+  "embeddedAppGatekeeperExecute": "ACCEPTED",
+  "mountedReadOnlyDetached": true,
+  "published": false,
+  "scope": "Packager receipt verified against final private DMG. Independent installation and provider acceptance have separate receipts.",
+  "formalReceiptSHA256": "dbb5e718a7f5f7568e843b80e57fca6c0a7ffb02865080663fcd046003e4d24a",
+  "formalInventorySHA256": "b7d0b2c13a8849caa30fbd81647c907b377869bc6abca4c94cba13c1fdddcd5b",
+  "appSubmissionID": "d25ba7e4-9e5c-4022-9ae3-71e1b9a12308",
+  "dmgSubmissionID": "40697f79-9855-4cd5-9251-3b4854fa52c6",
+  "cdHashes": {
+    "arm64": "9742b5d65756c0009ae5348a2ef96d40ddc660cd",
+    "x86_64": "e1027e12d1e6dc2edf4c2ba0069196d2b4e6331c"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "source": "711cee3a1c7033ce4925082a83099b00da7087c6",
+  "previousSignedSource": "69b76cb025ab552b3480e3af095b627891874712",
+  "scope": "Independent static read of frozen predecessor protection, target binding, explicit selection and UI; no live result conferred.",
+  "reviewedFrozenSources": {
+    "Resources/Info.plist": "2a6942ffb7c629e1c5f8f7c4d51cabd8dab0106c36b158df78e70bb810936d45",
+    "Sources/RiftletAdapters/ArchivedObservationCompatibility.swift": "6a5530efb19e48639489da06dea50f12a853a52195463cd0e106199a635196ba",
+    "Sources/RiftletAdapters/Resources/build59-observation-fingerprint.dat": "19677788b6a846b2868e0159d8467f9de37544a2ffc24bfd1676b499314580f5",
+    "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js": "a4da18056ed85a5a360f30f22c6965138d917cfde2c404e9aa24422b1f7b8250",
+    "Sources/RiftletAdapters/WebAttachmentAdapter.swift": "076c89b15a9cee99639ea32873657df80fc2d5479d4276580dd8724e163df8d3",
+    "Sources/RiftletApp/RiftletMain.swift": "3ba88a442cef86e47e3c73f4a14555c12b32e74e79743ca028436dbf9ea417c2",
+    "Sources/RiftletCore/QueueStore.swift": "c96c169dd31a11570107c1251c006a71590083a4fe532e669cec4158085cc7b8",
+    "Sources/RiftletCore/SQLiteDatabase.swift": "5a115bcd439185f32fbc3f0dd02932fe9981c14ff42fbae4fc33c498694d6687",
+    "Sources/RiftletCore/TransferCoordinator.swift": "66d613494f6ae3ea9d888adaf0113889a171b5f87ebd5756b33cc842b21730fc",
+    "Sources/RiftletUI/HistoryPresentation.swift": "ad77cbe93e87549f836dcd6b7f4f3c569825061afe85170372702b5e80cdd62e",
+    "Sources/RiftletUI/RiftHistoryController.swift": "2de3dd683a1b1b4f6c0295cfd849e8c940f524a6608b34b78c504d7e0dcfa40b"
+  },
+  "readFindings": [
+    "History preparation requires a selected original operation and a separate confirmation. A new real click is required; no recovery starts at history inspection.",
+    "Recovery admission requires a fresh click binding on the same browser process, native window/tab, document, composer and original draft generation. A registered predecessor checkpoint and original artifact hash are required.",
+    "The page checks its original operation, successful input count, returned change, original invocation, and original membership or proved disappearance. A fresh/ambiguous page cannot reconstruct the witness.",
+    "The new attempt and predecessor/successor record are written together. Prepared input-free rollback may restore which operation is active. A predecessor already linked to a successor is guarded against new invocation ownership, late receipt writes and restart reconciliation.",
+    "The legacy build-59 observation resource is retained alongside 56/57/58. Reconciliation and a new input have distinct paths."
+  ],
+  "reviewLimits": "Conservative site marker and card requirements may decline recovery on an unobserved layout. Static inspection alone gives no G4 or package PASS."
+}
