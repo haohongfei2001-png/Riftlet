@@ -1,0 +1,67 @@
+{
+  "browserDocumentClockMS": {
+    "change": 17887,
+    "input": 17882,
+    "observedSetterEntry": null
+  },
+  "candidate": {
+    "build": "59",
+    "cdHashes": {
+      "arm64": "6f929cd41efefd8695a5f398201d6d04bd6f893e",
+      "x86_64": "66243bf1a07be2689e073dc7d9a513a266d12544"
+    },
+    "executableSHA256": "6fb94534e7b34533f10abb00c2b91369787e6ca1a516ae3c1fe818fe03a53ff7",
+    "resourceSHA256": "b6eee615982d839285ea6af4abb16018939f9be91b18215554e847f4a6eb2215",
+    "sha256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+    "source": "69b76cb025ab552b3480e3af095b627891874712",
+    "version": "1.0.8"
+  },
+  "counts": {
+    "fileChange": 1,
+    "fileInput": 1,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  },
+  "explicitFailureCardObserved": false,
+  "family": "edge",
+  "hostMSRelativeToMouseDown": {
+    "ack": -2502.024,
+    "appKitCallback": 58.438,
+    "attachmentAcceptedReported": 2636.192,
+    "commitInterval": [
+      405.539,
+      586.836
+    ],
+    "mouseDown": 0,
+    "setterEnteredAndChangeReturnedReported": 589.474,
+    "swallowEnd": 2764.804,
+    "swallowStart": 2639.323
+  },
+  "nextAttempt": {
+    "newInputs": 0,
+    "newMouseDowns": 0,
+    "originalStartPreserved": true,
+    "reason": "ORIGINAL_PAGE_NOT_FOREGROUND"
+  },
+  "originalFileAndDecodedPreviewMatched": true,
+  "originalPrivateReceiptsSHA256": {
+    "continuation/candidate.stderr": "cf1778215137fdbe3e7366d4a2e2436da7d1de7c4afccc3555033d74ea64cd2f",
+    "continuation/child.json": "0c975b98e882a535878e15d1a345fe93b9672d90fbc7f8aa48a722eb1a1cdeaa",
+    "continuation/final-db.json": "92b8eaf6f22f491cc9f78238bd1747b5e8b8bda515f7e4f8d3f835b7fa1bb971",
+    "continuation/final-page.json": "4583e554b791153d9c8d59e1553e33936e7df06704dcea5fce484507ab9d6791",
+    "continuation/native-auth-batch-2.json": "e7695dbdd26f5c6c0b371ccafe1f0636bc28b18a047c8b57e700e67e653febbf",
+    "continuation/result.json": "aeba489f05a62a7ea937fba5dd42cf9bc002620e2b966ec01b53735e7af7afca",
+    "seed/candidate.stderr": "2cf2c1b3b6cd390ce143e99d7ff40334bce45b015f88893dff0a8d0a97f350a1",
+    "seed/capture-1.json": "0121690266da04742b4f21879d296ba1dc6182cc2d57aa3a591e6afc65d67e60",
+    "seed/child.json": "29bbd06ee5c9e5e5b0830c1dfc959e1a698926050402dc73ea2d8045d62a90fd",
+    "seed/click-1.json": "e7d4681c829ce0cfca81ab3a568f5660394ec96aecb443c32d142111ac7b9a0d",
+    "seed/final-db.json": "92b8eaf6f22f491cc9f78238bd1747b5e8b8bda515f7e4f8d3f835b7fa1bb971",
+    "seed/native-auth-press-1.json": "cf5e870ab426d506fd5d4514908e65022fbb65d55838a451fcfaea89e68cf16a",
+    "seed/page-after-1.json": "704c9b6a2385732f7d2268b73c2c60b7e3f260ac9990b05c8f9b0c80ef6dfce7",
+    "seed/positive-1.json": "e103210021f730176ae2b75f43aa8b9222dfc1de37351b0cbeea3b1c8ce98afc",
+    "seed/result.json": "837ea76d0866b37b22c766604f1e8ae4c856da39d6f55ca1af37a628d0ce66b4",
+    "seed/source-pixels-1.json": "bba9b5aac0333996ffb73a56159d67db0d20925ea430f06e42e90325f29855ac"
+  },
+  "rapidPairsObserved": 0,
+  "status": "OBSERVED_SINGLE_SEED"
+}
