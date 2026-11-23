@@ -1,5 +1,9 @@
 # G4 恢复与发行进度
 
+## 2026-11-23 · 两个新建 Temporary Chat
+
+在本地原生回读通过后，普通 Chrome 和 Edge 的已登录专用空草稿各运行签名 build 61 一次。每款均完成两次捕获并建立两枚独立 ARMED，消费与 commit 均为零，两份 SQLite 的操作和 START 均为零。每个原文档均有三次身份读数。独立观察器无法读到产品私有草稿 ID。本轮以空队列结束，未发起上传、故障或显式重选。当前实际 PUT 与原 PNG 之间仍缺完整请求体和进度回执。两扇新空窗和相应进程已清理。[实站回执](evidence/build61/signed-site-empty-prebind.json) · [独立裁决](evidence/build61/signed-site-empty-independent.json)
+
 ## 2026-11-23 · 普通浏览器的原生 bootstrap
 
 Chrome 157 与 Edge 158 在各自新建的自有文件页上，两次通过冻结的 `submitMainWorld` 分别完成标记安装和独立回读。主世界读到了自己的全局和 XHR 原型标记，普通 Apple Events 在同一 DOM 上只读到了共享回执。随后两次原生操作分别清除标记和撤销回执。两款浏览器均未更换原文档或导航条目，本文档 HTTP 资源、CSP 违规和资源计时缓冲区满事件各为零，原窗口集合均已复原。非作者从 39 份封存原件复算了执行程序、源码和每个阶段。[实测回执](evidence/build61/native-bootstrap-local.json) · [本地原生独立复核](evidence/build61/native-bootstrap-local-independent.json)

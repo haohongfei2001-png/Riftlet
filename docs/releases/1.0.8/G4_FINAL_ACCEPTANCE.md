@@ -1,6 +1,6 @@
 # Riftlet 1.0.8 · G4 最终实站验收
 
-**Build 61 当前结论为 PARTIAL。** G4-C 为 **BLOCKED_TECHNICAL**。尚缺同一真实上传请求的完整 PNG 字节、上传进度与可核验的单次中断。G4-A、G4-B 为 **NOT_RUN**。发行需要 G4-C 和 G4-A 均通过，或 G4-C 通过并取得 G4-B 的独立等价放行。[本轮非作者裁决](evidence/build61/world-independent-verdict.json) · [中图原件的独立复核](evidence/build61/medium-final-g4-independent.json)
+**Build 61 当前结论为 PARTIAL。** 原生主世界回读已在两款普通浏览器的自有文件页通过。两份新建的实站空草稿各取得两条签名产品预绑定回执。G4-C 为 **BLOCKED_TECHNICAL**。同一真实上传请求的完整 PNG 字节、进度、中断与显式恢复仍缺证据。G4-A、G4-B 为 **NOT_RUN**。发行需要 G4-C 和 G4-A 均通过，或 G4-C 通过并取得 G4-B 的独立等价放行。[原生对照独立裁决](evidence/build61/native-bootstrap-local-independent.json) · [实站独立裁决](evidence/build61/signed-site-empty-independent.json)
 
 先前的小图在普通 Edge 已产生一条 START，取消次数为零。另一张 23,233,638 字节系统截图留下原 UNKNOWN、完整 PNG 和同名预览，两次备份相同，重选和后继 START 均为零。这两份历史原件继续封存。[先前普通双浏览器验收](evidence/build61/release-gate-after-both-selections.json) · [大图恢复裁决](evidence/build61/size-boundary-independent.json)
 
@@ -19,7 +19,15 @@
 
 两个页面的静态回执节点始终隐藏，页面文字始终为空。本地测试独立封存 39 项原件，归档 SHA-256 为 `bc3359cabe81517bdceb42908e37450713c9661b66eb46457d0cf6f8d13a92e4`。该归档另含一次发生在创建窗口前的准备停止。修正 macOS 临时目录的规范路径比较后才进入本次两项测量。[固定夹具、可执行回执判据及复算说明](../../../Tests/PreClickLease/g4/main-world-bootstrap/README.md)
 
-## Build 61 · 执行世界和实际 PUT 的归属
+## Build 61 · 签名候选在两个全新 Temporary Chat 的结果
+
+普通 Chrome 和 Edge 各新建一份专用、已登录的空草稿，分别启动同一签名候选一次。进入空稿、凭据就绪和关闭前的三次读取中，原窗和标签、导航条目、`timeOrigin`、编辑器及上传入口均符合预期。独立的普通 Apple Events 观察器读不到产品私有的 `documentID`、`composerID` 与 `draftEpoch`。两款浏览器的完整产品追踪各有两次成功的 `captureTarget` 和两枚不同的 ARMED 凭据。每个候选的可执行签名均已现场核对。[两个实站样本及原件摘要](evidence/build61/signed-site-empty-prebind.json)
+
+两次运行的凭据消费和 commit 均为零，两份现场 SQLite 的 assets、operations、upload_starts、attachment_reselections 也均为零。执行器发出的文件输入、发送和表单提交动作为零。本站点步骤沿用既有身份观察器，没有安装额外的网页事件计数器或网络包装器。两扇新空窗均已按原身份关闭。原有窗口集合均已恢复，候选进程及本地监听器均已退出。95 项私有原件及内嵌清单的归档 SHA-256 为 `90e54e93acb59ab0f43abec0b44831002e7ff18f08cfcc17e1486f92726f8129`。[本次签名实站独立复核](evidence/build61/signed-site-empty-independent.json)
+
+原生提交已经能在自有页进入主世界。在真实站点，签名产品的回执证明了草稿预绑定；回执没有实际上传请求的发起环境、所属对象、完整请求体、进度和响应。以往中图的原 PNG 与网页 File 匹配，无法由此还原站点 PUT 的字节或唯一可取消的请求。此次没有上传新图或中断请求，也没有显式重选、后继 START 或恢复前后的两份 SQLite 快照。最后一次旧稿观察仍显示原卡。[原实站上传的采集范围](evidence/build61/recorded-observer-coverage.json) · [原始签名运行的逐事件审计](evidence/build61/recorded-product-command-review.json)
+
+## Build 61 · 此前执行世界和实际 PUT 的归属
 
 | 核验对象 | 直接取得的结果 |
 | --- | --- |
@@ -28,7 +36,7 @@
 | 冻结产品入口 | 已核对七个指定入口。原生提交返回后，产品另外核验原始命令的回执及草稿身份。Edge 的凭据把两个 JavaScript 环境关联到原文档。两条产品路径的回执均无站点 PUT 实例、请求体或终态。[逐入口源码复核](evidence/build61/world-source-and-history.json) |
 | 已封存的 Chrome 实站中图 | 原采集器只查询精确文件创建端点。条目从 0 增到 1，返回 HTTP 200。原图的 7,921,752 字节在 input 与 change 时两次匹配，SQLite 留有原操作唯一 START。采集器未记录上传 PUT，也无法区分上传来自页面、子框架或工作线程。[原运行清单、采集范围及回执](evidence/build61/recorded-observer-coverage.json) |
 
-本轮实站新增访问、文件输入、中断、显式重选、发送和表单提交均为零。实站原卡在上轮最后一次读取时仍在。没有新的恢复操作、后继 START 或故障恢复前后两份 SQLite 快照。当前样本也没有网站具名原卡错误或可归属的上游 4xx。两个普通浏览器的本地对照共封存 19 份私有原件，逐件重算一致，归档 SHA-256 为 `7d3180a10edf9e6c23478acd06b7ee16d31ecd8015122689d423a43035da1503`。[清理与分项读数](evidence/build61/world-local-native.json) · [非作者独立判定](evidence/build61/world-independent-verdict.json)
+该轮本地链接对照的实站新增访问、文件输入、中断、显式重选、发送和表单提交均为零。已封存的普通浏览器对照共 19 份私有原件，逐件重算一致，归档 SHA-256 为 `7d3180a10edf9e6c23478acd06b7ee16d31ecd8015122689d423a43035da1503`。[清理与分项读数](evidence/build61/world-local-native.json) · [该轮非作者判定](evidence/build61/world-independent-verdict.json)
 
 ## Build 61 · 中等大小截图
 
