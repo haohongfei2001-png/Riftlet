@@ -1,0 +1,49 @@
+{
+  "runs": {
+    "arm64": {
+      "logSHA256": "5eb68ea49ded304916a75d0001a2fff4fdf9b337b62393b9edd5c3bb4a147965",
+      "testFailures": [
+        {
+          "file": "RiftletCoreTests/InteractionLifecycleTests.swift:206",
+          "test": "testHistoryUsesOnlyCurrentAdmittedStartAndNeverGrantsRetry",
+          "assertionFailures": 4
+        },
+        {
+          "file": "RiftletAppTests/WebAcceptanceIntegrationTests.swift:254",
+          "test": "testCompletionAndLatePageErrorDoNotResumeAnAcceptedUploadLifecycle",
+          "assertionFailures": 1
+        },
+        {
+          "file": "RiftletAppTests/WebAcceptanceIntegrationTests.swift:207",
+          "test": "testOriginalCardErrorAfterStartSurfacesInHistoryWithoutRetrying",
+          "assertionFailures": 1
+        }
+      ]
+    },
+    "intel": {
+      "logSHA256": "c0ce5beb50ecd1b113e6d09011051f284e7146291e352fd00ea8d6cf0453683f",
+      "testFailures": [
+        {
+          "file": "RiftletCoreTests/InteractionLifecycleTests.swift:206",
+          "test": "testHistoryUsesOnlyCurrentAdmittedStartAndNeverGrantsRetry",
+          "assertionFailures": 4
+        },
+        {
+          "file": "RiftletAppTests/WebAcceptanceIntegrationTests.swift:254",
+          "test": "testCompletionAndLatePageErrorDoNotResumeAnAcceptedUploadLifecycle",
+          "assertionFailures": 1
+        },
+        {
+          "file": "RiftletAppTests/WebAcceptanceIntegrationTests.swift:207",
+          "test": "testOriginalCardErrorAfterStartSurfacesInHistoryWithoutRetrying",
+          "assertionFailures": 1
+        }
+      ]
+    }
+  },
+  "productCommit": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "admission": "5e04471e88745f24e9c795699671d33d4e7b84e2",
+  "testedMergeCommit": "4d633d63481fb8b2b18fb5cac045d1717d04d46b",
+  "status": "FAIL",
+  "diagnosis": "Both native runners report stale expectations for separate uncertain receipts, localized weak error history text and the explicit call to inspect the existing UNKNOWN. No third-party action occurred in these tests. Require corrected tests on the new formal head."
+}

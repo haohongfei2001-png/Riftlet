@@ -1,0 +1,47 @@
+{
+  "reviewedBase": "9fd8ad15fca043915069904113e5fb67d82b4948",
+  "reviewedSource": "68d5f0a05918d97caa3058c9b277c2598b09bcd2",
+  "reviewedTree": "c344dafe1eb559281017310f4d3d068625d8d22f",
+  "reviewer": "independent-build62-recovery-and-mainline-source-reviewer",
+  "result": "PASS",
+  "reviewedAtUTC": "2026-11-23T09:53:30+00:00",
+  "scope": "Independent engineering source admission for B through the exact new source and tree. Recalculated full NUL-delimited raw diff. The previous independently reviewed production G is its ancestor through the verified admission-only H. Reviewed every changed line of H to the new source and both architecture logs. The source decision does not count pending or failed remote tests as passing.",
+  "fullRange": {
+    "paths": 499,
+    "rawDiffSHA256": "01d0eeaa453be3bcaa798ad82484fad21899957ce15d0921de3722384ae51d7d",
+    "priorProduct": "871187f2be5eada68fccf2adcc07d120991e1c15",
+    "priorAdmissionOnlyHead": "5e04471e88745f24e9c795699671d33d4e7b84e2",
+    "priorSourceReviewSHA256": "11f58bbf957ab1f8bfdff833d56461bbcd511d7be6dea708bafcaf5ef8dff5a0",
+    "twoChangedTests": [
+      "Tests/RiftletAppTests/WebAcceptanceIntegrationTests.swift",
+      "Tests/RiftletCoreTests/InteractionLifecycleTests.swift"
+    ]
+  },
+  "testReview": [
+    "Kept the original handoff check before a later explicit uncertainty receipt. Its subsequent needsReview state now exercises the correct filters and count, preserved START, and absence of ordinary restoration. Subsequent weak-error, ready and confirmed-failure controls remain.",
+    "The weak original card retains its historical visibility, draft URL, original bytes, sibling, and single begin/commit checks. Its localized assertion now matches the shipping user-facing unconfirmed-result copy.",
+    "Pinned the exact validate, begin, chunk and commit sequence. The explicit background observation adds exactly one read of the original target/operation, observeCompleted adds no commands, and the later attempted selection of the still unresolved operation adds one read with the exact first ObservationIdentity. That Equatable identity covers operation, asset, attempt, image SHA-256 and original TargetLease. The original operation/receipt, hidden asset, persistent START and no compensation remain asserted."
+  ],
+  "shippingIdentity": {
+    "actualSignedProductSource": "871187f2be5eada68fccf2adcc07d120991e1c15",
+    "actualDMGSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+    "unchanged": [
+      "Sources",
+      "Resources",
+      "Package.swift",
+      "Package.resolved",
+      "ThirdPartyNotices",
+      "packaging",
+      "scripts",
+      "workflows",
+      "web/website code and update feed"
+    ],
+    "packagingPreparationHashesVerified": 5,
+    "manifestProvenance": "Every signed manifest input was verified against its actual G origin. The broad Tests subtree differs at the two XCTest files only. No executable, distribution resource, release script or signing input changed. The existing DMG and controlled/live evidence still identify G.",
+    "controlledNativeIndependentSHA256": "a201614024f08aa18fe865d2e223b5518e87923386ca553de1fe6820354057d6",
+    "historicalMigrationIndependentSHA256": "eed9fa173787374d2f93c8ec5971a295a88f9a719b58032e2355638f8484ae3d",
+    "signedPackageIndependentSHA256": "b1e68175e18fb3ecace649bb1d10253accdcebe505d9b4cc8454c5bc89b6ac23"
+  },
+  "tagContract": "After the reviewed normal merge and independent confirmation that G is an ancestor of official main, create v1.0.8 at the original signed G. The existing release-appcast.py source_matches accepts the exact signed source when it is on main ancestry. A tag at this test-correction tree or its merge would fail the admission-only difference rule. Locally exercised both branches of the production guard with bounded API fixtures; actual remote tag, published Release, signed live feed and upgrade still require their own execution.",
+  "pending": "Corrected full native ARM64 and Intel and formal required checks on new H, signed Chrome/Edge acceptance, review of the eventual actual merge and tag. Release and real public in-app upgrade remain separately gated."
+}

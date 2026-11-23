@@ -1,0 +1,33 @@
+{
+  "family": "edge",
+  "suite": "rapid",
+  "status": "PASS",
+  "source": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "dmgSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "installedExecutableSHA256": "b641a84d1ca48f88cd54825bcc9af64d45915c640b90f8ccdaee3f3b1697ec98",
+  "control": "Targeted software mouse events delivered to the actual AppKit application. Signed, original PID, window/tab, logged-in Temporary Chat, original document/editor checked.",
+  "originalScopeSHA256": "bcd7ea2f6b3e30c99bd41a40244d0970f4d23c43fb3fa7570cab7cb0ca9149c5",
+  "immutableFinalSQLiteSHA256": "029b11e1dd5f9d84d0e7e66e76e85efd192587c7fdaada971cf3922c4ee9dbc6",
+  "pageEventsSHA256": "5e1041dd9f8b9ca3dc118159aa588b6f3487525e433eda606e40b5ab367c6fbe",
+  "sourceVerifierSHA256": "d9ebf49e616d7783f458dfb948033c97195d2d668ac202b6dc71637f09909d21",
+  "originalReceiptsIndependentAuditSHA256": "7c767c70d55469d43d2436a8f26d35459d49eb9cad3eaa8a8167c289e81fb584",
+  "facts": {
+    "firstAndSixLaterInputs": 7,
+    "threeRealAppKitMouseDownIntervalsMS": [
+      568.318,
+      616.109,
+      650.829
+    ],
+    "callbackArrivalIntervalsMS": [
+      553.273,
+      610.679,
+      632.4
+    ],
+    "uniqueOriginalPngOperationsInvocationsAndStarts": 7,
+    "inputs": 7,
+    "changes": 7,
+    "sends": 0,
+    "formSubmits": 0,
+    "baselineAttachmentsAndOriginalNodesPreserved": true
+  }
+}
