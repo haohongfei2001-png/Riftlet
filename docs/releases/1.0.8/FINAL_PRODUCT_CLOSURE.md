@@ -1,44 +1,25 @@
-# Riftlet 1.0.8 product closure
+# Riftlet 1.0.8（62）产品收口
 
-## Release decision
+普通用户照常截图，在桌面边缘点一下微图，即可将原图附加到点击时的可编辑 ChatGPT 草稿。草稿中的原文、选区和已有附件应保留。用户在 ChatGPT 中自行发送。
 
-Build 62 source is [871187f2](https://github.com/haohongfei2001-png/Riftlet/commit/871187f2be5eada68fccf2adcc07d120991e1c15). The independent reviewer approved tree `f5eb856b9faed30a2ff82e906a081d61647b6f04`. Build 61 could hide Attach Again or reject a new click after confirmation when the original attachment remained in the draft.
+本候选的产品源码是 `871187f2be5eada68fccf2adcc07d120991e1c15`，签名 DMG 的 SHA-256 为 `66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49`。build 62 修复了结果不确定时历史入口可能消失，以及用户知情确认后仍无法对原草稿重新附加的问题。公开放行状态与各项证据见[发行报告](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)。
 
-## Acceptance contract
+## 图片在何处，用户可以做什么
 
-One screenshot click hands the original image to the exact draft. A positive, persistent START records the handoff. ChatGPT controls subsequent upload and the user controls sending. A failed preflight leaves the image available. A reliably attributed failure returns the image. An uncertain result preserves the PNG and the original invocation until the user handles it. Reattachment requires a new click bound to the same document, composer and draft generation.
-
-The observed Chrome double-click intervals for build 61 were 581.676, 569.889 and 619.928 ms. The Edge intervals were 551.605, 568.999 and 549.887 ms. These results belong exclusively to build 61.
-
-Real ChatGPT named upstream failure cards and upstream HTTP 4xx lack acceptance evidence. Historic G4 experiments remain archived. The release decision uses the product's recovery behavior, including positive and negative cases, through the native UI, isolated local page and real SQLite. Third-party network fault injection is retired from the required gates.
-
-## Required evidence for build 62
-
-The history action now inspects the original browser process, window, tab, document, composer and draft generation before offering reattachment. If the page still shows a matching card or filename, the default action returns to the draft. Cancellation leaves the old invocation alone. Confirming prepares the image for a separate desktop click with a new operation, invocation and click binding.
-
-The local copy remains protected when the latest observation actually reports uncertainty. A normal accepted handoff still reads “Handed to ChatGPT”. A named failure on the original member returns the image to the queue. A late error for a superseded invocation is recorded against its own operation without changing either attempt or entering the file setter.
-
-The controlled native suite uses the production history window, mouse handling, adapter, coordinator and SQLite. A separate test host supplies the local browser receiver and isolated storage. The signed candidate uses ordinary Chrome and Edge for site acceptance. Raw screenshots and databases are private. The [twelve-question audit and release-scope review](https://github.com/haohongfei2001-png/Riftlet/tree/358320c9976046287c37e35e1bf656e4599241f0/docs/releases/1.0.8/evidence/build62) document the build 61 baseline.
-
-| Gate | Status |
+| 用户实际看到的情况 | Riftlet 的处理 |
 | --- | --- |
-| Native recovery A–H, including cancellation, stale target, late receipt and relaunch | PASS on the frozen build 62 controlled host. Independent review checked 175 production source files, seven completed scenarios and 1,405 archived files. |
-| Original data retention and three historical database copies | PASS. A non-author verified the frozen-source migrations on copies of three sealed build 59 databases, including original operations, invocations, START and PNG identity. |
-| Full Swift and web regression, ARM64 and Intel, non-author source admission | 408 web tests passed. Independent source admission passed. Formal Swift and architecture jobs are tracked on PR #125. |
-| Signed and notarized DMG, staple, Gatekeeper and independent installation | PASS. The independently installed universal app and the mounted archive matched across 193 entries. Both notarizations and staples were verified. |
-| Signed candidate G1 Chrome and G2 Edge on dedicated Temporary Chats | Cold and warm inputs passed on Chrome and Edge. Edge passed three rapid pairs. Chrome passed nonempty text and selection. Chrome rapid pairs and Edge selection are pending. |
-| Formal merge, public artifact, signed update metadata and isolated 1.0.5 (31) in-app upgrade | Pending release gates |
+| 原草稿没有开始接收图片 | 微图留在桌面。原图可查看，用户可以重新点击。 |
+| 原草稿产生了可归属的 START | 微图收起，历史显示已交给 ChatGPT。原图留在本地资料库。 |
+| 原卡明确报告这张图片失败 | 对应原图重新出现在桌面，下一次明确点击会产生独立操作。 |
+| 附加结果尚未确认 | 保留原 PNG、操作和调用。用户可在截图仓库查看原图或返回原草稿检查。若仍要附加，先确认可能重复的提示，再点桌面原图。原目标无法重新核实时，图片继续保留。 |
 
-The frozen-source native run included the same unconfirmed original operation through the warning, cancellation, explicit re-selection and second START. A separate current named failure returned its own image to the tray. One additional run stopped safely before its second click while the window was gaining focus. All owned windows and listeners were closed. [Native receipt](evidence/build62/frozen-native-recovery.json) · [Independent verdict](evidence/build62/frozen-native-independent.json)
+重新附加前会核对原浏览器出生身份、窗口、标签、Document、Composer 和草稿代际。每次显式恢复使用新的操作、调用和点击绑定。迟到的旧收据只能关联原操作。已有同图附件时，风险提示的默认选项返回原草稿。[非作者恢复复核](evidence/build62/frozen-native-independent.json)
 
-The signed DMG contains 14,225,854 bytes. Its SHA-256 is `66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49`. Its product source is `871187f2be5eada68fccf2adcc07d120991e1c15`. [Package receipt](evidence/build62/signed-package.json) · [Independent installation](evidence/build62/signed-package-independent.json) · [Frozen historical data review](evidence/build62/frozen-history-independent.json)
+## 放行记录
 
-The first formal ARM64 and Intel runs failed on the same three XCTest cases. Two expectations still used earlier history states and copy. The third counted the original pending query and a subsequent explicit selection together. The updated case checks each query separately, compares the complete original identity, and verifies that checking completion issues zero browser commands. The correction changes two test files. Formal rerun results are tracked on [PR #125](https://github.com/haohongfei2001-png/Riftlet/pull/125).
+- **用户恢复与数据。** 受控原生 A–H 和三份历史库副本通过。已核对同一 UNKNOWN 经风险提示、取消、显式新点击到新 START，另有原卡明确失败后恢复微图的用例。[原生 A–H](evidence/build62/frozen-native-recovery.json) · [历史库](evidence/build62/frozen-history-independent.json)
+- **实站。** 普通 Chrome 和 Edge 的冷暖首图通过。Edge 三组双图为 568.318、616.109、650.829 ms。Chrome 的 64 字符正文及 12→40 正向选区保留通过。Chrome 三组双图和 Edge 选区正在补验。[浏览器及逐项结果](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)
+- **工程和安装。** ARM64、Intel 及两项源码准入和 Feedback 检查通过。每种架构各通过 1,436 个 Swift 用例，受控网页回归 408/408。正式 DMG 已签名、公证、staple，独立安装核验的 193 个项目与签名包一致。[网页回归](evidence/build62/controlled-web-final.json) · [签名安装](evidence/build62/signed-package-independent.json)
+- **升级。** 发布前需要用正式签名的私有测试源，在保留原数据的隔离 1.0.5（31）副本中完成应用内升级。公开后还须从独立 31 副本验证 stable 更新，并从两个正式下载入口复核实际字节。[升级起始快照](evidence/build62/upgrade-31-baseline.json)
 
-The independent Edge review matched seven original screenshot hashes to seven inputs, changes and persistent START records. The three AppKit intervals were 568.318, 616.109 and 650.829 ms. The original cards remained and both sends and form submissions stayed at zero. [Edge site evidence](evidence/build62/signed-edge-rapid-independent.json)
-
-The notarized archive’s detached EdDSA signature verified with the 1.0.5 and 1.0.8 release keys. The isolated Mac for the public update is prepared with a signed 1.0.5 (31), the official feed, 51 assets, two operations and one original UNKNOWN. [Signed archive](evidence/build62/signed-update-archive.json) · [Upgrade baseline](evidence/build62/upgrade-31-baseline.json)
-
-Chrome retained the complete 64-character unsent draft, the forward range from 12 to 40, the original editor and its prior screenshot. After a delayed receipt the observer read the same tab, compared both PNGs and matched the two unique STARTs with two inputs and changes. It recorded zero sends or submits. [Independent Chrome selection](evidence/build62/signed-chrome-selection-independent.json) · [Chrome cold and warm](evidence/build62/signed-chrome-cold-warm.json) · [Edge cold and warm](evidence/build62/signed-edge-cold-warm.json)
-
-Intel passed all formal steps on the corrected head. On ARM64 a sibling-identity test sampled the original B START before its transaction committed. The test now awaits the existing durable return for each original operation and requires a nonempty matching B START before comparing it byte-for-byte after the late receipts. This change affects only the test baseline. [Independent test review](evidence/build62/durable-start-test-review.json)
+历史实验尚未取得真实 ChatGPT 上游具名失败卡或 HTTP 4xx。A–H 验证的是 Riftlet 自身的恢复行为。实站结果另由最终签名包的普通浏览器记录证明。[G4 验收范围及历史](G4_FINAL_ACCEPTANCE.md)

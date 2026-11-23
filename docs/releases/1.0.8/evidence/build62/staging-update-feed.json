@@ -1,0 +1,21 @@
+{
+  "archiveBytes": 14225854,
+  "archiveSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "bothRequireSignedFeedAndPreExtractionVerification": true,
+  "build": "62",
+  "enclosure": "http://127.0.0.1:48162/Riftlet-1.0.8.dmg",
+  "feed": "http://127.0.0.1:48162/stable.xml",
+  "feedSHA256": "eb09f2e13986d6ce167a0804f7671bd382e3964b7c0d63b8ff8da6dfe1659a16",
+  "inAppUpgradeAtPreparation": "NOT_RUN",
+  "officialSparkleToolsSHA256": {
+    "generate_appcast": "cdc53c1da293c5f89648929678df2072f72a9f18d91744a06fcb8cc0e12a3219",
+    "generate_keys": "c37679f98d9121981cf7b2d18592fdc8b44931bffa604acf10c9e11791b6222e",
+    "sign_update": "43c249771bafc3aa581228abae00731a012d324691b8292860896635050be76b"
+  },
+  "original31DMGSHA256": "99276347932e231adf743664a54cfc782d8e345d89221587d54b7299a5c9f315",
+  "publicKeySHA256": "c8ada620c14bd9ed88653a1097eb6063cd86258d34b5f60d4ed215819b5c1e6b",
+  "publicStableChanged": false,
+  "runBothAppPublicKeySignaturesVerified": true,
+  "scope": "isolated macOS guest IPv4 loopback",
+  "source": "871187f2be5eada68fccf2adcc07d120991e1c15"
+}
