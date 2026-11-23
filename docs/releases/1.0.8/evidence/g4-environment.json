@@ -1,0 +1,83 @@
+{
+  "observedUTC": "2026-11-21T17:38:34+00:00",
+  "scope": "known local Riftlet QA Mac guests only; read-only host process inventory, exact disk holder check and guest launch/stop records",
+  "current": {
+    "recognizedVMProcesses": 0,
+    "knownGuestImages": 3,
+    "knownGuestImagesOpen": 0,
+    "runningDedicatedSignedInQAWindow": false,
+    "browserIdentityAndOriginalTabNow": "NO_WINDOW_OR_TAB_WAS_CREATED_OR_VERIFIED",
+    "currentlyUsableGuestOnlyTransport": "NO_RUNNING_GUEST",
+    "websiteAuthenticationOnPowerOffDisks": "NOT_INSPECTED",
+    "G4GuestControl": "Existing A host key verified but the provisioned guest OS credential path is missing; no supported authenticated SSH control to create or inspect a new existing-profile QA window."
+  },
+  "guests": {
+    "A": {
+      "lastLifecycleEvent": "vm-started",
+      "lastLifecycleUTC": "2026-11-21T17:34:11Z",
+      "activeImageHolder": false,
+      "history": {
+        "build": 43,
+        "officialOriginalCardFailureDisplayed": "Failed to upload file.",
+        "guestOnlyHTTPSRelayStoppedAfterSTARTms": 5.93,
+        "dedicatedControlSurvived": true,
+        "nativeRecovery": "failed at build 43",
+        "websiteSignIn": "unverified; guest QA page showed Log in in later build-53 inventory"
+      },
+      "currentBootAttempt": {
+        "startedUTC": "2026-11-21T17:34:11Z",
+        "start": "Verified known restored A disk, first-boot marker present; Apple Virtualization.framework existing-device configuration, no provisioning or host window.",
+        "attestedStage": "Connection reached the known DHCP address and Ed25519 host key with StrictHostKeyChecking=yes. Local qa-account askpass could not resolve its existing provisioned-account symlink; the server refused authentication. The guest-side nonce assertion was not reached.",
+        "preflightTransient": "One timeout before SSH banner became available at boot.",
+        "controlResult": "AUTHENTICATION_REFUSED",
+        "guestConsoleSignIn": "NOT_VERIFIED",
+        "browserExistingSessionSignIn": "NOT_VERIFIED",
+        "browserWindowOrTagCreated": false,
+        "browserURLOrPageRead": false,
+        "guestOnlyRelayStarted": false,
+        "networkOrPermissionChanges": false,
+        "passwordsOrBrowserAccountFilesRead": false,
+        "cleanup": {
+          "request": "NSRunningApplication.terminate() returned true for our exact launcher executable, PID and prohibited activation policy.",
+          "ownLauncherExited": true,
+          "threeKnownDisksOpen": 0,
+          "gracefulGuestOSShutdownAcknowledged": false,
+          "note": "VZ did not deliver a guest-shutdown event in this boot before the launcher exited. No forced stop was issued."
+        }
+      }
+    },
+    "B": {
+      "lastLifecycleEvent": "guest-shutdown",
+      "lastLifecycleUTC": "2026-11-20T12:07:11Z",
+      "activeImageHolder": false,
+      "history": {
+        "build": 53,
+        "guestControl": "historically available on dedicated guest",
+        "guestServiceTransport": "temporary guest loopback tunnel via the existing system proxy reached the login/service pages",
+        "loginAndG4": "unverified; actual new-tab refusal occurred before input"
+      }
+    },
+    "C": {
+      "lastLifecycleEvent": "guest-shutdown",
+      "lastLifecycleUTC": "2026-11-21T14:02:27Z",
+      "activeImageHolder": false,
+      "history": {
+        "build": 56,
+        "consoleSessionLoggedIn": true,
+        "chromeAndEdgeNativeCreateStatus": -1712,
+        "officialWebsiteSignedIn": "unverified",
+        "qaWindowAndTab": "no returned IDs",
+        "g4": "NOT_RUN"
+      }
+    }
+  },
+  "G4": "BLOCKED_ENV / NOT_RUN for current candidate",
+  "resume": "A designated guest with a valid, pre-existing authorized OS control session or restored managed QA OS credential, existing browser sign-in, an original QA window/tab, and guest-only transport. Current A could boot but lacked OS authentication before browser inspection.",
+  "sources": [
+    "docs/releases/1.0.6/evidence/guest-a-build43.json",
+    "build-53 signed-candidate guest preflight RECHECK.json / REMOTE_AND_G4.json",
+    "Tests/OriginalDocumentDelivery/guest/guest-capabilities.json",
+    "per-guest run-events.jsonl"
+  ],
+  "initialInventoryUTC": "2026-11-21T17:31:26+00:00"
+}

@@ -1,0 +1,31 @@
+{
+  "build": 62,
+  "controlledRecoveryScope": "A–H on owned fixture with product UI and SQLite",
+  "dmgSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "originalVerdictSHA256": "65d71a2659db934e99850c60bbc5e1c4517424c247b1b41a812eb9b3f091815f",
+  "result": "PASS",
+  "reviewer": "independent-build62-recovery-and-mainline-source-reviewer",
+  "signedSource": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "sourceSHA256": {
+    "channel": "cebf434d2a2a583426f31a40c4703e6f6283bd1ecb6f8bc5669cf668f65e2068",
+    "distribution": "7afe542bd7e2386639a24d4e17790dde7e92ada2054c3cf61a0a77a41b54998f",
+    "frozen": "b1ddec26d24b7bd70f5792becbffcd54351aacf8e4a862c18a35d07aaf8373a0",
+    "github": "a6d5c474af3deb43a6f8179354ac19debbedf3bf415ce7fb9e0e9aa84b82d560",
+    "independent": "65d71a2659db934e99850c60bbc5e1c4517424c247b1b41a812eb9b3f091815f",
+    "install": "4d8c7b2c73f6fc5e41c10881a76dc9ed850aee75ff703a8b55a8fa7a1d93f5de",
+    "manual": "80d439be8ff1d6695290b975cfa24f81f40850aca7ff94c53d80cbaef66b4683",
+    "updated": "99455cb77b16d2da3807f58d13ecb35a3ec9bebce6a5dab0eb7363bfed7e9fdd",
+    "upgrade": "8d0fc1c7f027fc7a3a1f637efb5275d2a9d4c342b58600d6ba9e92796550ec89"
+  },
+  "upstreamChatGPTNamedFailureOr4xx": "NOT_OBSERVED",
+  "verifiedPublicEvidence": [
+    "github",
+    "distribution",
+    "channel",
+    "install",
+    "manual",
+    "upgrade",
+    "updated"
+  ],
+  "version": "1.0.8"
+}

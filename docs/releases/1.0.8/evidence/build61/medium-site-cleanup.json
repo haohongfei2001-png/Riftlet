@@ -1,0 +1,96 @@
+{
+  "candidate": {
+    "build": 61,
+    "dmgSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+    "source": "49b9204974088c1983cda469910d9a78d8f4c43b",
+    "version": "1.0.8"
+  },
+  "cleanup": {
+    "allEmployedSignedQAProcessesExited": true,
+    "confirmedClosed": 2,
+    "historicalReadOnlyMonitorOutsideThisRun": true,
+    "liveNetworkCallbacksInstalled": 0,
+    "loopbackListenersExited": 3,
+    "loopbackListenersStarted": 3,
+    "originalDOMObserversClosed": 2,
+    "ownedWindowsCreated": 3,
+    "pendingBusinessRun": false,
+    "preservedSignedInQAWithOriginalAttachment": 1
+  },
+  "edgePreparation": {
+    "enteredTemporaryChat": true,
+    "fileInputs": 0,
+    "initialFileInSourceBaseline": true,
+    "nativeProductMouseDowns": 0,
+    "signedProcessExited": true
+  },
+  "normalProductCalibration": "ORIGINAL_INPUT_CHANGE_AND_START_VERIFIED",
+  "officialNetworkMenuPreflight": {
+    "browserPanelSpecificNetworkTabOrRequestProven": false,
+    "commandReturnedOSStatus": 0,
+    "inspectionOutcome": "BOUND_PANEL_LOST_ORIGINAL_SELECTION_BEFORE_NETWORK_ROWS",
+    "localOnly": true,
+    "nativePanelAreaAfter": 1,
+    "nativePanelAreaBefore": 0,
+    "networkRowsRead": 0,
+    "officialNativeCommandCount": 1,
+    "originalSelectedAfter": false,
+    "productionFileInputs": 0,
+    "uniqueAXOriginalAfter": false
+  },
+  "ordinaryChrome": {
+    "armedBindingMatchedSQLite": true,
+    "decodedOperationNamedPreviews": 1,
+    "formSubmits": 0,
+    "liveFaults": 0,
+    "namedErrorCards": 0,
+    "nativeMouseDowns": 1,
+    "originalChanges": 1,
+    "originalFileBytesMatchedOnBothEvents": true,
+    "originalFileInputs": 1,
+    "phase": "unknown",
+    "realSiteG4": "NOT_RUN",
+    "recovery": "NOT_RUN",
+    "responseForExactCreationPath": {
+      "durationMs": 424,
+      "httpStatus": 200,
+      "initiatorType": "fetch",
+      "methodAndBodyNotExposedByResourceTiming": true,
+      "newEntries": 1,
+      "previousEntries": 0
+    },
+    "sendClicks": 0,
+    "startSignal": "attachmentAccepted",
+    "transferSizeUsedForUploadBytes": false,
+    "uniqueDurableStarts": 1,
+    "uploadBytesSent": null,
+    "uploadPUT": "NOT_ATTRIBUTED",
+    "uploadResponseHTTP": null
+  },
+  "proofSHA256": {
+    "localPanel": "010e92e879d95a48b8e9e748a229f3f4cec9df36493e3a7239f38025763c32d3",
+    "nativeMouse": "80be8c4563cc466dbf01ad15337f4d45b6d197f49f4126c7c8edeec5cb8ed259",
+    "nonceWatcherClosed": "f6404c4f3eb76c737d2371556fa0cf7a02f6c795acb1aba5c312fe359cd136c6",
+    "officialEntryInitialChrome": "6545b7f14ea5d77fb87faf09921416cd182f7e1d32d85b43a16786708cc3591c",
+    "officialEntryInitialEdge": "1e66253498c32afbee80be5a376e36b9afab41fdbd84a7fd12a7200280a3a208",
+    "originalPage": "b4a8e26d91e22438884a384c3c7cf27b0b80e9eeb1b795ad11fb993c9e508a56",
+    "ownedWindowDispositions": "ecf74a6051e3efff0c710114515d293be655fc788f1dbdfbd29bcc75ca9438ee",
+    "signedArmed": "526bdfdd4d36e36423e13ef538c37e82f1558410adf9d21b678c0cb2fa0c13e9",
+    "signedProcessExit": "a798d95f7db7a5c83b58fa94ff289567d11b38cd98d4895d202d402b98435039",
+    "siteFinal": "4be968246f4cbc85da71d00ab2fa04d1384ab6551c04cc5ae5be373116aaaad7",
+    "sqliteAfterDispatch": "428d79bf37868f88e571f17ffc0f723b22ceace21f564539d2b18989c68b232d",
+    "sqliteAfterStart": "3727e8b9e0994bca07146004c8d22ce6c32d39eb824f1ee609e911fd2a8dd831",
+    "sqliteBeforeInput": "329a43b43e91aafbf2986895d9271c0d2364a989bb0f7a4ecd175c570b71affd"
+  },
+  "source": {
+    "bytes": 7921752,
+    "dimensions": [
+      1920,
+      1440
+    ],
+    "ownedWindowOnlySystemCapture": true,
+    "sha256": "66057577de807a2d2a266360b59efdfb80e6301a158d9eb1bd2bf028757dd3a7",
+    "sourceCaptureReceiptSHA256": "b8e17a07c8e0847d1f6f46296fcf1145bec83f06b0d4d66a02df677d7b75356f"
+  },
+  "status": "PARTIAL"
+}

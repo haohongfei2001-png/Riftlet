@@ -1,0 +1,102 @@
+{
+  "reviewer": "Independent nonauthor release reviewer",
+  "scope": "Original native/site/capture material and consistent standalone databases. Private paths, identifiers, page content and PNG bytes excluded.",
+  "artifacts": {
+    "originalCaptureReceipt": {
+      "sha256": "b8e17a07c8e0847d1f6f46296fcf1145bec83f06b0d4d66a02df677d7b75356f",
+      "bytes": 1647
+    },
+    "sourcePNG": {
+      "sha256": "66057577de807a2d2a266360b59efdfb80e6301a158d9eb1bd2bf028757dd3a7",
+      "bytes": 7921752
+    },
+    "profileCapturePNG": {
+      "sha256": "66057577de807a2d2a266360b59efdfb80e6301a158d9eb1bd2bf028757dd3a7",
+      "bytes": 7921752
+    },
+    "productRetainedPNG": {
+      "sha256": "66057577de807a2d2a266360b59efdfb80e6301a158d9eb1bd2bf028757dd3a7",
+      "bytes": 7921752
+    },
+    "siteImportedCaptureReceipt": {
+      "sha256": "bb8958c5cf57daee8539031ceea0596e19d8fe004d7ab0f804426deb540be767",
+      "bytes": 1071
+    },
+    "armedPreclickWitness": {
+      "sha256": "526bdfdd4d36e36423e13ef538c37e82f1558410adf9d21b678c0cb2fa0c13e9",
+      "bytes": 566
+    },
+    "originalClickIntent": {
+      "sha256": "6295e0552c3395e5fffc642dadf57f717c89975965b33c34c56eeb65c066efb3",
+      "bytes": 301
+    },
+    "gate1": {
+      "sha256": "7da828e5f88a4d2663fc019414e9fd3f217ff793afef72c746488a3c26923430",
+      "bytes": 1199
+    },
+    "gate2": {
+      "sha256": "97961d5a0178a00d3baaa486e1428a5ac7e1eb49600e50e6cc1e6246e385a8f1",
+      "bytes": 1199
+    },
+    "macOSMouseReceipt": {
+      "sha256": "80be8c4563cc466dbf01ad15337f4d45b6d197f49f4126c7c8edeec5cb8ed259",
+      "bytes": 1188
+    },
+    "runningSignedImageMetadata": {
+      "sha256": "d01ec56cd119beab110eae011eda3cbc6a54b873585e3a77fffebf476c629384",
+      "bytes": 395
+    },
+    "sourcePixelDigestReceipt": {
+      "sha256": "459e0de6fa59784da3e862a14541a7bb601023450f61f79c160df51819123719",
+      "bytes": 204
+    },
+    "independentSourceColorDecode": {
+      "sha256": "8949fb90a0c0e8aca6370f1bb7181a2937167beaa628382865eb205d092ae760",
+      "bytes": 446
+    },
+    "earlyProductSummary": {
+      "sha256": "fa83fce8e70308f8bf987cd88a2f0f5c49ac38bf114061e4cf4a7a6f35371269",
+      "bytes": 961
+    },
+    "signedTracePrefixThroughVisibilityChange": {
+      "sha256": "460ba541e8de3ca4b4c3b63c57ced348367c79ed685b983eabdfc6902fdecb71",
+      "bytes": 54383
+    },
+    "beforeSelectionPage": {
+      "sha256": "d4283f3e2cb48f2988f70c2e618212262b312b84e8cd846d4e81dd889d7e76df",
+      "bytes": 692
+    },
+    "firstPostClickRead": {
+      "sha256": "d4283f3e2cb48f2988f70c2e618212262b312b84e8cd846d4e81dd889d7e76df",
+      "bytes": 692
+    },
+    "perOriginalReadOnlyHandoff": {
+      "sha256": "a27b95c9d86af1015ecdc9cffa8568c64541ad0aa470dc95e0fc963e5b1f036e",
+      "bytes": 353
+    },
+    "firstPageReadingStop": {
+      "sha256": "6eab79e427d9a50921bf7777ba1b5a94abefc468b5b3d07a0d4e550a7a8e7457",
+      "bytes": 65
+    },
+    "beforeOriginalSQLite": {
+      "sha256": "329a43b43e91aafbf2986895d9271c0d2364a989bb0f7a4ecd175c570b71affd",
+      "bytes": 110592
+    },
+    "earlyDispatchIntentSQLite": {
+      "sha256": "428d79bf37868f88e571f17ffc0f723b22ceace21f564539d2b18989c68b232d",
+      "bytes": 118784
+    },
+    "lateSettledSQLite": {
+      "sha256": "3727e8b9e0994bca07146004c8d22ce6c32d39eb824f1ee609e911fd2a8dd831",
+      "bytes": 122880
+    },
+    "recoveredOriginalPageRead": {
+      "sha256": "b4a8e26d91e22438884a384c3c7cf27b0b80e9eeb1b795ad11fb993c9e508a56",
+      "bytes": 18347
+    },
+    "lateOperatorSummary": {
+      "sha256": "6818d7b8443fc819325e7409e6464dab852bd16a78aa4eaec639b38c05ef87e2",
+      "bytes": 1201
+    }
+  }
+}

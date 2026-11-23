@@ -1,0 +1,24 @@
+{
+  "executionSourceTarSHA256": "fdd2d9ffb003c97ff144e4a420d625d3fc612d0cc7d795b42f8a208440f0d2be",
+  "sealedPriorToLiveExecution": false,
+  "series": {
+    "chrome": {
+      "consistentSQLiteBackupSHA256": "7968465d2487ca6f8596c095a96ecbb3d73fd79d9890a3ad6942e3bf5cbbdefb",
+      "liveSQLiteFileSHA256": {
+        "queue.sqlite": "2e96884c16791c7d4bde90a6db2c9da33c2a2aab3e52088adc148c368552a423",
+        "queue.sqlite-wal": "c553867ad8e5ec06c68f1c9ea494451c6954fd7dd5f9b262fd62b04b513c296f"
+      },
+      "originalReceiptTarSHA256": "b9bd731a4079efcb30eec87ab72cd981b478973c79272a184bc778eb967c5809",
+      "originalRunReceiptCount": 50
+    },
+    "edge": {
+      "consistentSQLiteBackupSHA256": "15f7c0099bc7dea98b4de5765d0270aeb98e7ecc7a82dbc590d9fa2a31a5732a",
+      "liveSQLiteFileSHA256": {
+        "queue.sqlite": "2e96884c16791c7d4bde90a6db2c9da33c2a2aab3e52088adc148c368552a423",
+        "queue.sqlite-wal": "48d63c9b93ded1d07302a1703eb618df709f594c661914025f24a3447731611b"
+      },
+      "originalReceiptTarSHA256": "9cebd4d88daea3f4c2eb236461ee4d0d21dee133ca7258b750b6a8089d05eff7",
+      "originalRunReceiptCount": 50
+    }
+  }
+}

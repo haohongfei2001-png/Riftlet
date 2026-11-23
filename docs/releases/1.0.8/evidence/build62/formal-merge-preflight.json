@@ -1,0 +1,18 @@
+{
+  "reviewer": "independent-build62-recovery-and-mainline-source-reviewer",
+  "gate": "Source admission child and actual GitHub pull request merge candidate",
+  "observedAtUTC": "2026-11-23T09:39:24+00:00",
+  "result": "PASS",
+  "reviewedBase": "9fd8ad15fca043915069904113e5fb67d82b4948",
+  "reviewedSource": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "admissionCommit": "5e04471e88745f24e9c795699671d33d4e7b84e2",
+  "headAndGitHubMergeTree": "85dc894aad5a8e98427d762b8c2cbe2e761b2815",
+  "admissionRecordOnly": true,
+  "embeddedIndependentReportSHA256": "11f58bbf957ab1f8bfdff833d56461bbcd511d7be6dea708bafcaf5ef8dff5a0",
+  "gitHubMergeCandidate": "4d633d63481fb8b2b18fb5cac045d1717d04d46b",
+  "orderedMergeParents": [
+    "9fd8ad15fca043915069904113e5fb67d82b4948",
+    "5e04471e88745f24e9c795699671d33d4e7b84e2"
+  ],
+  "checksAtRead": "Five formal head checks had begun. Results are tracked independently."
+}

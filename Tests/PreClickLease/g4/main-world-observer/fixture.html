@@ -1,0 +1,48 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="connect-src 'none'; img-src 'none'; frame-src 'none'; object-src 'none'; form-action 'none'; base-uri 'none'">
+<title>Riftlet local world ownership fixture</title>
+<div id="shared">Local fixture marker</div>
+<a id="observe" role="button" href="javascript:void(reportOwnedFixtureMarkers())">Read the local page markers</a>
+<script>
+'use strict';
+(() => {
+  if (location.protocol !== 'file:' || window !== top) throw Error('Local fixture required');
+  const node = document.querySelector('#shared');
+  const nonce = crypto.randomUUID();
+  const first = new XMLHttpRequest();
+  const second = new XMLHttpRequest();
+  const prototype = XMLHttpRequest.prototype;
+  // All markers below are data properties. Neither request is opened or sent.
+  first.mainInstanceTag = nonce;
+  prototype.mainPrototypeTag = nonce;
+  node.mainWrapperTag = nonce;
+  node.setAttribute('data-main-tag', nonce);
+  const methods = [window.fetch, prototype.open, prototype.send, prototype.abort];
+  window.ownedMainFixture = Object.freeze({node, nonce, first, second});
+  function read() {
+    return {
+      mainGlobal: window.ownedMainFixture.nonce === nonce,
+      isolatedGlobalAbsent: !Object.hasOwn(window, 'ownedIsolatedFixture'),
+      mainAttributeMatches: node.getAttribute('data-main-tag') === nonce,
+      isolatedAttribute: node.getAttribute('data-isolated-tag'),
+      mainWrapperMatches: Object.hasOwn(node, 'mainWrapperTag') && node.mainWrapperTag === nonce,
+      isolatedWrapperAbsent: !Object.hasOwn(node, 'isolatedWrapperTag'),
+      mainPrototype: Object.hasOwn(prototype, 'mainPrototypeTag') && prototype.mainPrototypeTag === nonce,
+      isolatedPrototypeAbsent: !Object.hasOwn(prototype, 'isolatedPrototypeTag'),
+      originalInstance: first === window.ownedMainFixture.first && first.mainInstanceTag === nonce && !Object.hasOwn(first,'isolatedInstanceTag'),
+      distinctSecondInstance: second !== first && !Object.hasOwn(second, 'mainInstanceTag') && !Object.hasOwn(second,'isolatedInstanceTag'),
+      ownPrototype: Object.getPrototypeOf(first) === prototype && Object.getPrototypeOf(second) === prototype,
+      unopened: first.readyState === 0 && second.readyState === 0 && first.responseURL === '' && second.responseURL === '',
+      methodsUnchanged: [window.fetch, prototype.open, prototype.send, prototype.abort].every((m,i)=>m === methods[i])
+    };
+  }
+  window.readOwnedMainFixture = read;
+  // This pre-authored link only reads local booleans and reports them to this fixture. Returning void preserves the document.
+  window.reportOwnedFixtureMarkers = () => {
+    const r = read();
+    console.info('owned-fixture-static-navigation', r.mainGlobal, r.mainPrototype, r.isolatedGlobalAbsent,
+      r.isolatedPrototypeAbsent, r.originalInstance, r.unopened, r.methodsUnchanged);
+  };
+})();
+</script>

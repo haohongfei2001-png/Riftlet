@@ -1,0 +1,42 @@
+{
+  "actualGUIActionCount": 0,
+  "candidate": "1.0.8+61",
+  "candidateDMGSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "derivedFrom": {
+    "composeSHA256": "980cff1d1dfeb1cb6cd295c88a3a8b84e63589bf2689c9c2fadd42f895df93c5",
+    "existingSizeOnlyHostSHA256": "1ad67a920788dccea1e695458c6785a8db6811c21280cf0666cd1f3a95d143b5",
+    "originalParentControllerSHA256": "891a6f4aec5973a6bb888dd8d30e10d9717cda9ad67bfa8955b088b3d1be6162",
+    "projectionSHA256": "f8c8bd35d96b3ff575d36ec75ea845d3b8ba426bff600257294187e95cf44268",
+    "regularPassiveSHA256": "8f5add018ef46edcb232ef3340340924068c85ea5e7cccf97bf6a21a33693351"
+  },
+  "files": {
+    "README.md": "841d6f585620e0c912d70808bca9dc4276911b29997cf1f6dc2ff4d9fe5a9073",
+    "SeedPassive.swift": "8c0d7a69c37bc256758757962519b775d2a9a3aa9dbe7dbed40fc2d0d5c58407",
+    "build_host.py": "6680551dcb80b5067df12bb788c6088673a4fca9092571c452053c5207ba1be0",
+    "controls.log": "43962aedc4c34113abcd6faf0011c1e088d52a57f9f045334309d0421c1b3cb0",
+    "integrate.patch": "88ed142c34d323012eb8d282933e097ad987d5bc410d55a2b69f854bb0e8c498",
+    "make_integration.py": "d25718b67caec2e38594cc452e9cc3c844caf374b4c1701899526a91bd8def09",
+    "normal_seed.py": "4ebb913264242d0b8aadc26cb0c54bdb89079f9a71f4cbe2155bfd477945b563",
+    "projection.tap": "a8936b1e3db0b4e2627a711cedbbb1f3b96b0270624f072f4143ba8573818e1b",
+    "regular-passive.js": "415ecfad2dc44f8e7a789035e932822a2d0542ef96af042092f9017e9b20138b",
+    "seed-passive": "f845991a1e532226cf524bd35e64a58b1ed882de6797490cacc1c21beea523fd",
+    "test_seed.py": "89f249584ece9415fdc7e3246a689420496345cf26278243aef3e9b45fc6b7d5"
+  },
+  "offline": {
+    "composedSamplerVMControls": 41,
+    "integrationPreviewCompiles": true,
+    "nativeCompiled": true,
+    "nodeTests": 5,
+    "pythonTestCases": 8,
+    "verifiedScope": "g2- plus 32 lowercase hexadecimal characters / signed61 / edge / live-final-round / combined seed [1] only"
+  },
+  "realWebsiteRequestsInitiated": 0,
+  "scope": "OFFLINE_QA_PREPARATION",
+  "signedProductSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "siteResults": {
+    "G4": "NOT_RUN_BY_THIS_REVIEWER",
+    "declaredExpiry": "NOT_OBSERVED",
+    "naturalExpiry": "NOT_RUN",
+    "ordinarySeed": "NOT_RUN_BY_THIS_REVIEWER"
+  }
+}

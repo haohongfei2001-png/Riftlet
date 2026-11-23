@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "type": "Independent read-only bilateral first and rapid site evidence review",
+  "reviewer": "riftlet_108_60_independent_full_range_nonauthor_source_reviewer",
+  "signedSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "dmgSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "version": "1.0.8",
+  "build": 61,
+  "observedUTC": "2026-11-23T02:06:01.220109+00:00",
+  "result": "CHROME_AND_EDGE_SEVEN_IMAGES_AND_RAPID_PAIRS_PASS",
+  "completeG1G2": false,
+  "releaseAuthorized": false,
+  "checks": [
+    {
+      "family": "chrome",
+      "scope": "Cold first screenshot in the empty draft, next screenshot with the first card present, and three independent rapid two-image pairs.",
+      "candidateBound": true,
+      "archiveSHA256": "c1a1cd568b8ab6d71cd5bf87f0b23f02a06e4ed98b957053422155be94a12466",
+      "sqliteSHA256": "9e71f071bbefe0e3245b02c8d560a4bd8764de65ed5ef160818289717c3503da",
+      "appTraceSHA256": "1e51867aab825eb093095e4c2098b88f2ac677365b10d86a327f852c6def6735",
+      "originalArchiveFiles": 148,
+      "sha256MatchedRawMemberCount": 106,
+      "productMouseSource": "targeted software-generated native row mouse events recorded at the AppKit boundary",
+      "physicalUserMouseObserved": false,
+      "admissionSamplesEachPassing12": 2,
+      "positiveOriginalPNGFilesRehashed": 7,
+      "websiteInputAndPreviewEncodedBytesMatchOriginal": 7,
+      "websiteInputFileAndPreviewDecodedCanvasRGBAMatches": 7,
+      "distinctWebsiteRGBADigests": 7,
+      "distinctNativeSRGBDigests": 7,
+      "originalImageIONativeSRGBEqualsBrowserCanvasRGBACount": 6,
+      "crossDecoderMismatchScreenshotIndices": [
+        7
+      ],
+      "distinctAssets": 7,
+      "distinctOriginalClickBindings": 7,
+      "distinctOperations": 7,
+      "distinctInvocations": 7,
+      "distinctDurableStartEvidence": 7,
+      "acceptanceSignal": "attachmentAccepted",
+      "distinctSiteCards": 7,
+      "originalCardCountsBeforeBatches": [
+        0,
+        1,
+        3,
+        5,
+        7
+      ],
+      "siteCardCountsAtPostBatchChecks": [
+        1,
+        3,
+        5,
+        7
+      ],
+      "pairs": [
+        {
+          "indices": [
+            2,
+            3
+          ],
+          "originalAppKitMouseDownDeltaMS": 581.676,
+          "callbackArrivalDeltaMS": 576.794,
+          "samePersistedDraftEpoch": true
+        },
+        {
+          "indices": [
+            4,
+            5
+          ],
+          "originalAppKitMouseDownDeltaMS": 569.889,
+          "callbackArrivalDeltaMS": 563.147,
+          "samePersistedDraftEpoch": true
+        },
+        {
+          "indices": [
+            6,
+            7
+          ],
+          "originalAppKitMouseDownDeltaMS": 619.928,
+          "callbackArrivalDeltaMS": 617.586,
+          "samePersistedDraftEpoch": true
+        }
+      ],
+      "finalDirectBrowserCounts": {
+        "fileChange": 7,
+        "fileInput": 7,
+        "formSubmit": 0,
+        "sendButtonClicks": 0
+      },
+      "priorCardNodesAndNamesPreserved": true,
+      "routeAndOriginalComposerHeld": true,
+      "sqliteAssets": 8,
+      "sqliteOperations": 7,
+      "sqliteUploadStarts": 7,
+      "eighthImageCaptured": true,
+      "eighthImageWasSubmitted": false,
+      "existingNonemptyTextAndSelection": "NOT_RUN",
+      "selectionStop": "ORIGINAL_PAGE_READ_UNAVAILABLE",
+      "subcaseResult": "PASS"
+    },
+    {
+      "family": "edge",
+      "scope": "Cold first screenshot in the empty draft, next screenshot with the first card present, and three independent rapid two-image pairs.",
+      "candidateBound": true,
+      "archiveSHA256": "8920c40f0eca41cbf0803b38692393bc4a25bb0583ce6adf0b8572f51d8a1b58",
+      "sqliteSHA256": "047bb231972ecebbe62d6a98269ab592671ed5742ea0ff5e00bd00d44c578c5f",
+      "appTraceSHA256": "2b89eb2b21dcab68c938da4704b961279a847aa2c0c49f1a2de72bd013ea3f88",
+      "originalArchiveFiles": 150,
+      "sha256MatchedRawMemberCount": 109,
+      "productMouseSource": "targeted software-generated native row mouse events recorded at the AppKit boundary",
+      "physicalUserMouseObserved": false,
+      "admissionSamplesEachPassing12": 2,
+      "positiveOriginalPNGFilesRehashed": 7,
+      "websiteInputAndPreviewEncodedBytesMatchOriginal": 7,
+      "websiteInputFileAndPreviewDecodedCanvasRGBAMatches": 7,
+      "distinctWebsiteRGBADigests": 7,
+      "distinctNativeSRGBDigests": 7,
+      "originalImageIONativeSRGBEqualsBrowserCanvasRGBACount": 7,
+      "crossDecoderMismatchScreenshotIndices": [],
+      "distinctAssets": 7,
+      "distinctOriginalClickBindings": 7,
+      "distinctOperations": 7,
+      "distinctInvocations": 7,
+      "distinctDurableStartEvidence": 7,
+      "acceptanceSignal": "attachmentAccepted",
+      "distinctSiteCards": 7,
+      "originalCardCountsBeforeBatches": [
+        0,
+        1,
+        3,
+        5,
+        7
+      ],
+      "siteCardCountsAtPostBatchChecks": [
+        1,
+        3,
+        5,
+        7
+      ],
+      "pairs": [
+        {
+          "indices": [
+            2,
+            3
+          ],
+          "originalAppKitMouseDownDeltaMS": 551.605,
+          "callbackArrivalDeltaMS": 548.535,
+          "samePersistedDraftEpoch": true
+        },
+        {
+          "indices": [
+            4,
+            5
+          ],
+          "originalAppKitMouseDownDeltaMS": 568.999,
+          "callbackArrivalDeltaMS": 560.723,
+          "samePersistedDraftEpoch": true
+        },
+        {
+          "indices": [
+            6,
+            7
+          ],
+          "originalAppKitMouseDownDeltaMS": 549.887,
+          "callbackArrivalDeltaMS": 533.82,
+          "samePersistedDraftEpoch": true
+        }
+      ],
+      "finalDirectBrowserCounts": {
+        "fileChange": 7,
+        "fileInput": 7,
+        "formSubmit": 0,
+        "sendButtonClicks": 0
+      },
+      "priorCardNodesAndNamesPreserved": true,
+      "routeAndOriginalComposerHeld": true,
+      "sqliteAssets": 8,
+      "sqliteOperations": 7,
+      "sqliteUploadStarts": 7,
+      "eighthImageCaptured": true,
+      "eighthImageWasSubmitted": false,
+      "existingNonemptyTextAndSelection": "NOT_RUN",
+      "selectionStop": "HIT_NOT_ORIGINAL_EDITABLE",
+      "subcaseResult": "PASS"
+    }
+  ],
+  "limits": "Each browser supplied seven actual original native click, browser-input, pixel, database and START chains. The eight-asset databases contain a captured eighth image with no operation. Neither archive proves preservation of a deliberately nonempty selection, final server upload completion, G4 recovery or release approval. Public fields omit original images, content, filenames, temporary route handles and per-operation identifiers."
+}

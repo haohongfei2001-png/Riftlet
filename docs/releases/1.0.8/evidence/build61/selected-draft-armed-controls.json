@@ -1,0 +1,16 @@
+{
+  "scope": "Offline replay of the actual new ARMED gate against a signed build-61 Chrome pool transition with two eligible bindings. This does not add an upload or qualify selection.",
+  "sourceSHA256": "fca25293c5e8a17090c814a2f817dca19f0351ac8f24581824aa4e0a41383381",
+  "rawSignedTraceSHA256": "1e51867aab825eb093095e4c2098b88f2ac677365b10d86a327f852c6def6735",
+  "controls": [
+    "same-current-origin-and-original-row",
+    "newer-signed-binding-blocks-older-entry-before-click",
+    "latest-of-two-before-commit",
+    "no-available-arm-refuses-before-click",
+    "different-source-row-refuses-before-click",
+    "current-original-editor-lost",
+    "page-disagreement-prevents-click"
+  ],
+  "controlsPassed": 7,
+  "newInputs": 0
+}

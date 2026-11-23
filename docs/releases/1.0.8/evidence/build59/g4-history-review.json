@@ -1,0 +1,46 @@
+{
+  "build": 59,
+  "source": "69b76cb025ab552b3480e3af095b627891874712",
+  "dmgSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+  "scope": "Independent read-only inspection of four closed QA profile backups and their retained PNG files. No new site attachment or fault was performed by this check.",
+  "G4": "NOT_RUN",
+  "archive": {
+    "scope": "Offline build 59 QA archives and corresponding saved media only",
+    "archiveSHA256": [
+      "2233dfe7c1db7486c22e12be1ba46fee2fc3f9f6200e6549fc4928771e76ac40",
+      "53bcc6b40da3af7e05cdbcd7ae0bd0eee51285cbd7f85d61a68147c64b0eb7f0",
+      "af18c1255f55cef71dbb6452847c5afeab64dd8d9806bb45f3c225b9accd61e3",
+      "c6d6caa56dc7709d7874b5ebb1e152a6cbe06197485d0937012c5e2af33d417a"
+    ],
+    "browsers": {
+      "Chrome": {
+        "profiles": 2,
+        "operations": 7,
+        "originalStarts": 7,
+        "verifiedPNGs": 10,
+        "storedErrorReceipts": 0,
+        "invocationBoundErrorReceipts": 0
+      },
+      "Edge": {
+        "profiles": 2,
+        "operations": 10,
+        "originalStarts": 10,
+        "verifiedPNGs": 11,
+        "storedErrorReceipts": 0,
+        "invocationBoundErrorReceipts": 0
+      }
+    }
+  },
+  "offlineControls": {
+    "SQLiteUnittests": 4,
+    "negativeCasesWithinSQLiteRefusalsTest": 15,
+    "archivedTransportFixtureNodeTests": 8,
+    "originalCardDOMCases": 33,
+    "originalCardDOMFixture": "Isolated Google Chrome headless, one local file, external network resolution and traffic disabled; 33 cases plus one enclosing Node test passed."
+  },
+  "startProfileRoles": {
+    "verifiedOperations": 17,
+    "receiptProfile": "chatgpt-web-product-system-attached-20261102-v1",
+    "nestedAcceptanceEvidenceProfile": "chatgpt-web-product-system-start-20261102-v1"
+  }
+}

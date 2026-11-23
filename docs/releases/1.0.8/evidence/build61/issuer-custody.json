@@ -1,0 +1,44 @@
+{
+  "checkedUTC": "2026-11-22T22:40:12.791081+00:00",
+  "source": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "dmgSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "handover": {
+    "newIssuerSHA256": "8ea472a1a1b7f358bb9572e3233a5bc866c6511892dfc2668c5b2e2d5850beea",
+    "priorIssuerSHA256": "4cfebeb7296507f0f522809479ade8034ef08806102d2d3e84a7b35d5194a954",
+    "priorClaims": 0,
+    "priorProductInputs": 0,
+    "priorScopeCount": 0
+  },
+  "privateHostClosure": {
+    "archiveSHA256": "9dcdd64485b278d0e091704fc39ffcd5ad526d29d75cf24f19af40f51f5f4725",
+    "bytes": 140464841,
+    "containsLiveBrowserAuthority": false,
+    "filesVerifiedAfterWriting": 452,
+    "manifestSHA256": "4be150badbd33ca7fd60c0d9f63ecf0e25ea52b3fbf5d2ffbfd901399586bca9",
+    "packageAndAppIncluded": true,
+    "symlinks": 9
+  },
+  "archivedRecoveryAndVerification": {
+    "privateFiles": 56,
+    "databaseBackups": 6,
+    "privatePNGs": 3,
+    "manifestSHA256": "4c56a993fa1cc5366e819dc65517cab8a8264ff38cb43dd10b56b3bab5855fae"
+  },
+  "displayPreferences": {
+    "stageManagerGloballyEnabledPreference": "0",
+    "spacesSpanDisplaysPreference": "0"
+  },
+  "windowSpaceIDForOtherApplications": "UNKNOWN",
+  "frontDialogPurpose": "UNKNOWN",
+  "interactiveExecution": "Existing authorized session and enrolled native identities required.",
+  "finalArchive": {
+    "activeIssuerSHA256": "fdccb84b5de1af8549a388cedc884c893ad799f5751d7d5c4d81ddd301ffcccd",
+    "archiveBytes": 147333120,
+    "closureIndexSHA256": "6e6f2023171c262582eeba75bc45fcf400a180bc40c87c67d1a63b66c25b89b1",
+    "extractedChecksumValidated": true,
+    "memberCount": 17,
+    "observationSHA256": "4092b894675f015e5abd91a93cf88bf9731b31916a4e807f02b8dbac7c9073c8",
+    "sha256": "059e6d8af112de2f4c4029154a199d2efc252a58cd8510db180f9129ee4a6235",
+    "includesNormalSeedPassiveExpiry": true
+  }
+}

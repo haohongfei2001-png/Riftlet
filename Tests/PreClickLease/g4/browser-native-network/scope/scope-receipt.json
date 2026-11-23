@@ -1,0 +1,115 @@
+{
+  "browsers": [
+    {
+      "baselineAll201": true,
+      "cleanup": {
+        "conditionRestoredOrNeverSet": true,
+        "exactResourceBlockClearedOrNeverSet": true,
+        "freshProfileRemoved": true,
+        "issuedServerRequestsStillOpen": 0,
+        "ownedProcessGroupExited": true,
+        "ownedTabsCloseAcknowledged": 2,
+        "serverListening": false,
+        "serverSockets": 0
+      },
+      "eventCount": 421,
+      "eventsJSON_SHA256": "44cd3b1f31c441bba0075f2d1212f68e91b5ea80ac4e5aa1bf6ac2bede3e2d7d",
+      "family": "Chrome",
+      "followingRemovalBothControlsAndTarget": "full 64-byte bodies, HTTP 201",
+      "inFlightServerReadBeforeOffline": {
+        "client": 65396,
+        "peer": 65536,
+        "target": 64840
+      },
+      "journalGzipSHA256": "06dff530069e98d594d10efb86b55d4d8e84275a17bea206632762c822753f0d",
+      "journalUncompressedSHA256": "a7b7e2501e10ceeb8dabc09d6d5acd4a249da5f0495ca3b58a867056d460d65a",
+      "newTargetWhileOffline": {
+        "HTTP": null,
+        "browser": "loadingFailed",
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "serverRequestCount": 0
+      },
+      "newTargetWithExactURLBlock": {
+        "HTTP": null,
+        "blockedReason": "inspector",
+        "browser": "loadingFailed",
+        "classification": "CLIENT_REQUEST_BLOCKED_BEFORE_BODY",
+        "requestIDSHA256": "67cf5a2c8cbfd633b2da63432828d352e13182983b5ed93475f50e347aebe814",
+        "serverRequestCount": 0
+      },
+      "otherTabAndClientDuringBothConditions": "full 64-byte bodies, HTTP 201",
+      "product": "Chrome/157.0.8103.79",
+      "rendererPIDMeasured": false,
+      "sameBrowserProcess": true,
+      "sharedURLForExactBlock": true,
+      "targetInFlightEnd": {
+        "HTTP": 201,
+        "actualClientCancellationObserved": false,
+        "bodyMatched": true,
+        "browser": "loadingFinished",
+        "serverBytes": 6291456
+      }
+    },
+    {
+      "baselineAll201": true,
+      "cleanup": {
+        "conditionRestoredOrNeverSet": true,
+        "exactResourceBlockClearedOrNeverSet": true,
+        "freshProfileRemoved": true,
+        "issuedServerRequestsStillOpen": 0,
+        "ownedProcessGroupExited": true,
+        "ownedTabsCloseAcknowledged": 2,
+        "serverListening": false,
+        "serverSockets": 0
+      },
+      "eventCount": 423,
+      "eventsJSON_SHA256": "32e9a263d85693a7b490cb4d5f5c81d718998bc5f87efbf74f01b236047c3b26",
+      "family": "Edge",
+      "followingRemovalBothControlsAndTarget": "full 64-byte bodies, HTTP 201",
+      "inFlightServerReadBeforeOffline": {
+        "client": 65396,
+        "peer": 64781,
+        "target": 16332
+      },
+      "journalGzipSHA256": "2bc7c35dec8fcdcb56e82b020434e0d12208dcc08cf37f74fd50806ac54f3363",
+      "journalUncompressedSHA256": "69c04398f845e3873adb590b32cbe2926a36915d830a435d097f9fbac09d089f",
+      "newTargetWhileOffline": {
+        "HTTP": null,
+        "browser": "loadingFailed",
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "serverRequestCount": 0
+      },
+      "newTargetWithExactURLBlock": {
+        "HTTP": null,
+        "blockedReason": "inspector",
+        "browser": "loadingFailed",
+        "classification": "CLIENT_REQUEST_BLOCKED_BEFORE_BODY",
+        "requestIDSHA256": "a83b7c19eb6af426d94bd24c5350477ca99efa980f95086a682e04258c998f1a",
+        "serverRequestCount": 0
+      },
+      "otherTabAndClientDuringBothConditions": "full 64-byte bodies, HTTP 201",
+      "product": "Edg/158.0.4370.33",
+      "rendererPIDMeasured": false,
+      "sameBrowserProcess": true,
+      "sharedURLForExactBlock": true,
+      "targetInFlightEnd": {
+        "HTTP": 201,
+        "actualClientCancellationObserved": false,
+        "bodyMatched": true,
+        "browser": "loadingFinished",
+        "serverBytes": 6291456
+      }
+    }
+  ],
+  "method": "Inherited private pipe to the vendor Network backend. The graphical DevTools overlay was not opened.",
+  "priorDevelopmentRuns": {
+    "included": false,
+    "reason": "No complete auditable receipt before the loopback server cleanup and per-event journal were fixed."
+  },
+  "receiptSHA256": "055b563fe5cb1e496c015d0d4c425d729d3d5e149a4e92a5a50657f3bee6e2c0",
+  "scope": "Fixed loopback HTTP POSTs; two owned disposable native headless browser processes.",
+  "sources": {
+    "fixture.js": "72f344b3665aaba0350feeb0687692e8ce81a8b7f2ac36bb375ab6e7b1b18776",
+    "run.cjs": "36b37d74d427ed36936778177e94a1287498ee05d34d673327d7e559b343f6a2"
+  }
+}

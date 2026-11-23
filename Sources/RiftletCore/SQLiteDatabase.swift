@@ -42,13 +42,18 @@ final class SQLiteDatabase {
                 fallthrough
             case "3":
                 try migrateDispatchSlots()
-            case "4", "5", "6":
+            case "4", "5", "6", "7":
                 break
             default:
                 throw RiftletError.database("Unsupported schema version \(version); database preserved")
             }
             try execute("CREATE TABLE IF NOT EXISTS retired_media(asset_id TEXT PRIMARY KEY REFERENCES assets(id), batch TEXT NOT NULL)")
             try execute("CREATE TABLE IF NOT EXISTS handled_attachments(operation_id TEXT PRIMARY KEY REFERENCES operations(id))")
+            try execute("""
+                CREATE TABLE IF NOT EXISTS attachment_reselections(
+                    successor_id TEXT PRIMARY KEY NOT NULL REFERENCES operations(id) DEFERRABLE INITIALLY DEFERRED,
+                    predecessor_id TEXT NOT NULL REFERENCES operations(id), CHECK(successor_id != predecessor_id))
+                """)
             if let mode {
                 let storedMode = try rows("SELECT value FROM metadata WHERE key='mode'").first?.first ?? nil
                 if let storedMode {
@@ -59,7 +64,7 @@ final class SQLiteDatabase {
                 // Older collectors cannot interpret volume-qualified source keys.
                 // Commit this format boundary before the production store can
                 // hand out an importer, recover a journal, or write a checkpoint.
-                if mode == .production && !["4","5","6"].contains(version) {
+                if mode == .production && !["4","5","6","7"].contains(version) {
                     try execute("PRAGMA user_version = 4")
                 }
             }
@@ -67,6 +72,37 @@ final class SQLiteDatabase {
                 throw RiftletError.database("Integrity check failed; database preserved")
             }
         }
+    }
+
+    /// Activate only on the first committed recovery. A predecessor remains an
+    /// unresolved historical fact. The link and new head commit atomically.
+    func enableExplicitRecovery() throws {
+        guard try rows("PRAGMA user_version") != [["7"]] else { return }
+        let hasLegacyMarker = try rows("PRAGMA table_info(operations)").contains { $0[1] == "superseded_locally" }
+        let activeLegacy = hasLegacyMarker ? "AND o.superseded_locally=0" : ""
+        try execute("DROP INDEX one_unresolved_per_asset")
+        try execute("CREATE INDEX unresolved_per_asset ON operations(asset_id) WHERE phase NOT IN ('failed','succeeded')")
+        try execute("CREATE INDEX recovery_predecessor ON attachment_reselections(predecessor_id)")
+        for (name, event) in [("insert", "INSERT"), ("update", "UPDATE OF phase,asset_id")] {
+            try execute("""
+                CREATE TRIGGER single_unresolved_\(name) BEFORE \(event) ON operations
+                WHEN NEW.phase NOT IN ('failed','succeeded') AND EXISTS(
+                    SELECT 1 FROM operations o WHERE o.asset_id=NEW.asset_id AND o.id != NEW.id
+                      AND o.phase NOT IN ('failed','succeeded') \(activeLegacy)
+                      AND NOT EXISTS(SELECT 1 FROM attachment_reselections r WHERE r.predecessor_id=o.id
+                        AND (r.successor_id=NEW.id OR o.id IS NOT
+                             (SELECT active_operation_id FROM assets WHERE id=NEW.asset_id))))
+                BEGIN SELECT RAISE(ABORT,'asset already has an unresolved input'); END
+                """)
+        }
+        // Even a generic checkpoint writer cannot revise the original call.
+        try execute("""
+            CREATE TRIGGER preserve_recovery_call BEFORE UPDATE ON checkpoints
+            WHEN OLD.key LIKE 'transfer-dispatch-call-v1:%' AND EXISTS(
+                SELECT 1 FROM attachment_reselections WHERE predecessor_id=substr(OLD.key,length('transfer-dispatch-call-v1:')+1))
+            BEGIN SELECT RAISE(ABORT,'original invocation is read-only'); END
+            """)
+        try execute("PRAGMA user_version = 7")
     }
 
     deinit { if let handle { sqlite3_close(handle) } }

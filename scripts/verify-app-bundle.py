@@ -7,6 +7,7 @@ The build separately runs codesign --verify and packaged executable self-checks.
 """
 
 import argparse
+import hashlib
 import importlib.util
 import os
 from pathlib import Path
@@ -27,7 +28,21 @@ class VerificationError(Exception):
     pass
 
 
-RESOURCE_NAMES = ("chatgpt-web-20261027.js", "legacy-web-observe.js")
+PROGRAM_NAMES = ("chatgpt-web-20261027.js", "legacy-web-observe.js")
+ARCHIVED_FINGERPRINTS = {
+    "build56-observation-fingerprint.dat": (57, "ed470481df5373d0e702c87087785235d080fb75b85ea27f1e07408e0357ae52"),
+    "build57-observation-fingerprint.dat": (58, "c691e6b7bd848bc8e1fb994aa9efd2dc7419b8b73549c0c1e31eb09499287e8a"),
+    "build58-observation-fingerprint.dat": (59, "d05979dfae4b702d907b1f7f50a6312f9d7c25a5c6b484ed493bbfd39d9f6fbb"),
+    "build59-observation-fingerprint.dat": (60, "19677788b6a846b2868e0159d8467f9de37544a2ffc24bfd1676b499314580f5"),
+    "build60-observation-fingerprint.dat": (61, "3b0e9863be0e542c816f7688f9a880e1a2811e979d33636a611fa8127b76fde6"),
+}
+RESOURCE_NAMES = PROGRAM_NAMES + tuple(ARCHIVED_FINGERPRINTS)
+
+
+def resource_names(build):
+    return PROGRAM_NAMES + tuple(name for name, (first, _) in ARCHIVED_FINGERPRINTS.items() if int(build) >= first)
+
+
 ICON_NAME = "Riftlet.icns"
 PRESENTATION_NAMES = ("glass-study.png", "reading.svg", "error.svg", "riftlet.svg")
 ICON_SLOTS = {b"ic04": 16, b"ic05": 32, b"ic07": 128, b"ic08": 256,
@@ -186,7 +201,7 @@ def verify_bundle(app, repository=None, channel="development"):
     resource_bundle = resources / "Riftlet_RiftletAdapters.bundle"
     require(resource_bundle.is_dir(), "missing_adapter_bundle")
     packaged_resources = {}
-    for name in RESOURCE_NAMES:
+    for name in resource_names(info["CFBundleVersion"]):
         matches = list(resource_bundle.rglob(name))
         require(len(matches) == 1 and matches[0].is_file(), "missing_or_ambiguous_" + name)
         # SwiftPM uses one of these two layouts, depending on the host platform.
@@ -194,11 +209,15 @@ def verify_bundle(app, repository=None, channel="development"):
             name, "Contents/Resources/" + name
         }, "misplaced_" + name)
         data = read_nonempty(matches[0], "empty_" + name)
-        require(len(data) <= 128 * 1024, "oversized_" + name)
-        try:
-            data.decode("utf-8")
-        except UnicodeError as error:
-            raise VerificationError("invalid_utf8_" + name) from error
+        maximum = 144 * 1024 if name == PROGRAM_NAMES[0] and int(info["CFBundleVersion"]) >= 59 else 128 * 1024
+        require(len(data) <= maximum, "oversized_" + name)
+        if name in ARCHIVED_FINGERPRINTS:
+            require(hashlib.sha256(data).hexdigest() == ARCHIVED_FINGERPRINTS[name][1], "incorrect_fingerprint_" + name)
+        else:
+            try:
+                data.decode("utf-8")
+            except UnicodeError as error:
+                raise VerificationError("invalid_utf8_" + name) from error
         packaged_resources[name] = data
 
     notices = resources / "ThirdPartyNotices"

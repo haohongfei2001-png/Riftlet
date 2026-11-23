@@ -1,0 +1,30 @@
+{
+  "G1": "PASS",
+  "G2": "PASS",
+  "beforeAndAfterRecoverySnapshots": "NOT_RUN",
+  "candidateDMGSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+  "conclusion": "ACCURATE \u2014 HOLD RELEASE",
+  "explicitRecoverySelectionAndNewInvocation": "NOT_RUN",
+  "independentPreparationOnlyWindowsExcluded": 4,
+  "newChanges": 3,
+  "newControlledAborts": 2,
+  "newFirstLargeFileRun": {
+    "appliedFaults": 0,
+    "attachmentAcceptedSTARTs": 1,
+    "transmittedBodyNotAttributed": true
+  },
+  "newInputs": 3,
+  "newRealDrafts": 3,
+  "newSiteSendsOrSubmits": 0,
+  "observedExplicitNamedOriginalFailures": 0,
+  "publicRelease": "NOT_RELEASED",
+  "realTransportFaultTimingsVerified": 3,
+  "releaseGate": "BLOCKED_TECHNICAL \u2014 G4 NOT PROVEN",
+  "releaseStatus": "PARTIAL",
+  "reviewMethod": "Non-author comparison with original authenticated drafts, native events, source PNGs, database backups, reviewed package/CI and public release channel. All eight pinned G4 evidence file hashes rechecked.",
+  "reviewed": "Final build 59 release report and machine-readable G4 strategy ledger",
+  "reviewedSourceSHA256": {
+    "RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md": "6b2807728535953fd889b34b774519a717f00f35eab5debb436acf4c60fc5e1a",
+    "g4-final-strategies.json": "14ac88ce443e4fea49ed21e64bef701dd404d3d4a987a218f127243d701514c9"
+  }
+}

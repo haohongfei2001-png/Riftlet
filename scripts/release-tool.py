@@ -597,9 +597,12 @@ def _verify_package(package, expected_manifest, native_team, *, staple_resume):
     require(set(p.name for p in (app / "Contents").iterdir()) <= contents, "unexpected_app_contents")
     require(set(p.name for p in (app / "Contents/MacOS").iterdir()) == {"Riftlet"}, "unexpected_executable")
     verify_code_layout(app)
-    for name in BUNDLE.RESOURCE_NAMES:
+    for name in BUNDLE.resource_names(info["CFBundleVersion"]):
         matches = list((app / "Contents/Resources/Riftlet_RiftletAdapters.bundle").rglob(name))
         require(len(matches) == 1 and matches[0].is_file() and matches[0].stat().st_size > 0, "missing_adapter_resource")
+        if name in BUNDLE.ARCHIVED_FINGERPRINTS:
+            require(hashlib.sha256(matches[0].read_bytes()).hexdigest() == BUNDLE.ARCHIVED_FINGERPRINTS[name][1],
+                    "incorrect_adapter_fingerprint")
     for name in BUNDLE.NOTICE_NAMES:
         require((app / "Contents/Resources/ThirdPartyNotices" / name).is_file(), "missing_notice")
     if native_team:

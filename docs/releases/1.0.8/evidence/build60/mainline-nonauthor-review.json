@@ -1,0 +1,521 @@
+{
+  "reviewedBase": "9fd8ad15fca043915069904113e5fb67d82b4948",
+  "reviewedSource": "711cee3a1c7033ce4925082a83099b00da7087c6",
+  "reviewedTree": "d31485a99ed33d990edfaf258a453fd502358020",
+  "reviewer": "riftlet_108_60_independent_full_range_nonauthor_source_reviewer",
+  "result": "CHANGES_REQUESTED",
+  "scope": "Independent engineering source review of the complete B-to-G candidate. I authored none of the candidate's product changes. I inspected the supplied Git objects and evidence, performed independent checks, and exercised the frozen product page in two disposable browsers. This decision belongs to this source only.",
+  "githubReview": "No GitHub account review or GitHub APPROVED event was issued.",
+  "findings": [
+    {
+      "id": "R108-60-R1",
+      "priority": "P1",
+      "title": "Opening the screenshot library revokes the draft generation needed to attach again",
+      "effect": "The ordinary recovery entry opens a key Riftlet window and requires a separate confirmed user action. The original browser window loses focus. Returning to the same unchanged draft gives its fresh click another draftGeneration, so both the Core preflight and the page's predecessor check reject the recovery. Both disappearance of an input-triggered original card and an identified original error card are affected.",
+      "locations": [
+        {
+          "file": "Sources/RiftletUI/RiftHistoryController.swift",
+          "lines": [
+            238,
+            243,
+            246,
+            923,
+            940,
+            949,
+            952
+          ],
+          "meaning": "The library becomes key and Riftlet activates, then the confirmation sheet stages the selected operation."
+        },
+        {
+          "file": "Sources/RiftletApp/RiftletMain.swift",
+          "lines": [
+            503,
+            508,
+            1691,
+            1695
+          ],
+          "meaning": "The user returns to the original browser and the next explicit edge selection calls reattach."
+        },
+        {
+          "file": "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js",
+          "lines": [
+            356,
+            479,
+            496,
+            502,
+            504,
+            505,
+            1837,
+            1972,
+            2084,
+            2105,
+            2220
+          ],
+          "meaning": "A window blur permanently disables writes on the generation. Only a writable generation is reused. A new capture gets a new UUID. The predecessor match includes draftGeneration before staging and again at the setter."
+        },
+        {
+          "file": "Sources/RiftletCore/TransferCoordinator.swift",
+          "lines": [
+            25,
+            35,
+            38,
+            215,
+            371,
+            372,
+            378
+          ],
+          "meaning": "Core requires a different click pin and the original draftGeneration before the read-only Web verification can proceed."
+        },
+        {
+          "file": "Tests/PreClickLease/page/run.cjs",
+          "lines": [
+            116,
+            119,
+            120,
+            138,
+            139,
+            140
+          ],
+          "meaning": "The historical tab-round-trip test explicitly expects a different fresh generation and an old read-only target. It does not exercise recovery with that successor."
+        },
+        {
+          "file": "Tests/WebPageProgram/original-error-card-application.cjs",
+          "lines": [
+            116,
+            138,
+            140,
+            156,
+            164,
+            167
+          ],
+          "meaning": "The earlier recovery regression makes its new synthetic click within the same continuously focused page. Its altered-generation case deliberately mutates the claimed predecessor, which tests a different path."
+        }
+      ],
+      "independentEvidence": "Eight product-resource cases in disposable headless Chrome and Edge. All four foreground-only controls accepted the new input once. All four focus round trips emitted trusted blur and focus, kept the original read valid, retired its old unspent write, preserved all other identity fields, and refused the fresh recovery before a second setter or change. The tests used the existing local application fixture and actual native browser File/FileList/DataTransfer. The URL/native identifiers are local test inputs. The macOS library path was source inspected. No signed-App or ChatGPT trial is implied.",
+      "requiredCorrection": "Keep spent and backgrounded write pins revoked. Model the stable, continuously observed original draft separately from each foreground write authority, so an independently selected new pin can match only that original live Document, navigation entry, composer, mode and card proof after the library round trip. Retain terminal setter revalidation, prevent navigation/mode/editor changes from restoring eligibility, and add end-to-end controlled focus-return tests for both original-card cases. Review the new exact source and corresponding compatibility marker before admission."
+    }
+  ],
+  "controlledBrowserEvidence": {
+    "pageSourceSHA256": "a4da18056ed85a5a360f30f22c6965138d917cfde2c404e9aa24422b1f7b8250",
+    "fixtureFiles": [
+      "Tests/WebPageProgram/chrome-input-resource.test.cjs",
+      "Tests/WebPageProgram/original-error-card-application.cjs",
+      "Tests/OriginalDocumentDelivery/renderer/driver.cjs"
+    ],
+    "method": "A disposable profile and a child-only debugging pipe were used for each headless browser. The test program served the owned fixture on loopback with external DNS blocked. The frozen page source was passed through the same controlled URL/native context harness used by the repository. On each run, one owned input created the original card, and a pre-departure validation established eligibility. The test activated a different owned tab then returned, or stayed on the same tab for the matched control. It examined the original pin and a fresh predecessor-bound begin using the same synthetic PNG. The loopback server and both disposable browsers exited. No user session, real service, private screen capture or production store participated.",
+    "caseCount": 8,
+    "continuousControlInputs": 4,
+    "roundTripExpectedNewInputs": 4,
+    "roundTripObservedNewInputs": 0,
+    "roundTripBeginRejections": 4,
+    "rows": [
+      {
+        "browser": "chrome",
+        "version": "Chrome/157.0.8103.79",
+        "fixture": "gone",
+        "transition": "continuous",
+        "originalObservation": "inputTriggered",
+        "priorValidBeforeSwitch": true,
+        "oldUnspentWriteAfter": true,
+        "oldReadAfter": true,
+        "sameDocument": true,
+        "sameHistoryEntry": true,
+        "sameEditor": true,
+        "sameForm": true,
+        "samePicker": true,
+        "sameRoute": true,
+        "sameMode": true,
+        "samePriorMember": true,
+        "sameOtherTargetFields": true,
+        "sameAssetAndHash": true,
+        "freshClick": true,
+        "distinctOperationAndInvocation": true,
+        "sameDraftGeneration": true,
+        "actualRecoveryValidation": true,
+        "actualBegin": "ACK",
+        "actualSuccessorState": "inputTriggered",
+        "newNativeSetters": 1,
+        "newChangeEvents": 1,
+        "sendOrSubmit": 0,
+        "trustedFocusEvents": [],
+        "userRecoveryAfterReturn": "CONTROL_SUCCEEDED"
+      },
+      {
+        "browser": "chrome",
+        "version": "Chrome/157.0.8103.79",
+        "fixture": "gone",
+        "transition": "focus-round-trip",
+        "originalObservation": "inputTriggered",
+        "priorValidBeforeSwitch": true,
+        "oldUnspentWriteAfter": false,
+        "oldReadAfter": true,
+        "sameDocument": true,
+        "sameHistoryEntry": true,
+        "sameEditor": true,
+        "sameForm": true,
+        "samePicker": true,
+        "sameRoute": true,
+        "sameMode": true,
+        "samePriorMember": true,
+        "sameOtherTargetFields": true,
+        "sameAssetAndHash": true,
+        "freshClick": true,
+        "distinctOperationAndInvocation": true,
+        "sameDraftGeneration": false,
+        "actualRecoveryValidation": false,
+        "actualBegin": "TARGET_INVALID",
+        "actualSuccessorState": null,
+        "newNativeSetters": 0,
+        "newChangeEvents": 0,
+        "sendOrSubmit": 0,
+        "trustedFocusEvents": [
+          {
+            "type": "blur",
+            "isTrusted": true,
+            "visibility": "visible",
+            "hasFocus": false
+          },
+          {
+            "type": "visibilitychange",
+            "isTrusted": true,
+            "visibility": "hidden",
+            "hasFocus": false
+          },
+          {
+            "type": "visibilitychange",
+            "isTrusted": true,
+            "visibility": "visible",
+            "hasFocus": false
+          },
+          {
+            "type": "focus",
+            "isTrusted": true,
+            "visibility": "visible",
+            "hasFocus": true
+          }
+        ],
+        "userRecoveryAfterReturn": "FAIL"
+      },
+      {
+        "browser": "chrome",
+        "version": "Chrome/157.0.8103.79",
+        "fixture": "explicit-error",
+        "transition": "continuous",
+        "originalObservation": "originalCardFailed",
+        "priorValidBeforeSwitch": true,
+        "oldUnspentWriteAfter": true,
+        "oldReadAfter": true,
+        "sameDocument": true,
+        "sameHistoryEntry": true,
+        "sameEditor": true,
+        "sameForm": true,
+        "samePicker": true,
+        "sameRoute": true,
+        "sameMode": true,
+        "samePriorMember": true,
+        "sameOtherTargetFields": true,
+        "sameAssetAndHash": true,
+        "freshClick": true,
+        "distinctOperationAndInvocation": true,
+        "sameDraftGeneration": true,
+        "actualRecoveryValidation": true,
+        "actualBegin": "ACK",
+        "actualSuccessorState": "inputTriggered",
+        "newNativeSetters": 1,
+        "newChangeEvents": 1,
+        "sendOrSubmit": 0,
+        "trustedFocusEvents": [],
+        "userRecoveryAfterReturn": "CONTROL_SUCCEEDED"
+      },
+      {
+        "browser": "chrome",
+        "version": "Chrome/157.0.8103.79",
+        "fixture": "explicit-error",
+        "transition": "focus-round-trip",
+        "originalObservation": "originalCardFailed",
+        "priorValidBeforeSwitch": true,
+        "oldUnspentWriteAfter": false,
+        "oldReadAfter": true,
+        "sameDocument": true,
+        "sameHistoryEntry": true,
+        "sameEditor": true,
+        "sameForm": true,
+        "samePicker": true,
+        "sameRoute": true,
+        "sameMode": true,
+        "samePriorMember": true,
+        "sameOtherTargetFields": true,
+        "sameAssetAndHash": true,
+        "freshClick": true,
+        "distinctOperationAndInvocation": true,
+        "sameDraftGeneration": false,
+        "actualRecoveryValidation": false,
+        "actualBegin": "TARGET_INVALID",
+        "actualSuccessorState": null,
+        "newNativeSetters": 0,
+        "newChangeEvents": 0,
+        "sendOrSubmit": 0,
+        "trustedFocusEvents": [
+          {
+            "type": "blur",
+            "isTrusted": true,
+            "visibility": "visible",
+            "hasFocus": false
+          },
+          {
+            "type": "visibilitychange",
+            "isTrusted": true,
+            "visibility": "hidden",
+            "hasFocus": false
+          },
+          {
+            "type": "visibilitychange",
+            "isTrusted": true,
+            "visibility": "visible",
+            "hasFocus": false
+          },
+          {
+            "type": "focus",
+            "isTrusted": true,
+            "visibility": "visible",
+            "hasFocus": true
+          }
+        ],
+        "userRecoveryAfterReturn": "FAIL"
+      },
+      {
+        "browser": "edge",
+        "version": "Edg/158.0.4370.33",
+        "fixture": "gone",
+        "transition": "continuous",
+        "originalObservation": "inputTriggered",
+        "priorValidBeforeSwitch": true,
+        "oldUnspentWriteAfter": true,
+        "oldReadAfter": true,
+        "sameDocument": true,
+        "sameHistoryEntry": true,
+        "sameEditor": true,
+        "sameForm": true,
+        "samePicker": true,
+        "sameRoute": true,
+        "sameMode": true,
+        "samePriorMember": true,
+        "sameOtherTargetFields": true,
+        "sameAssetAndHash": true,
+        "freshClick": true,
+        "distinctOperationAndInvocation": true,
+        "sameDraftGeneration": true,
+        "actualRecoveryValidation": true,
+        "actualBegin": "ACK",
+        "actualSuccessorState": "inputTriggered",
+        "newNativeSetters": 1,
+        "newChangeEvents": 1,
+        "sendOrSubmit": 0,
+        "trustedFocusEvents": [],
+        "userRecoveryAfterReturn": "CONTROL_SUCCEEDED"
+      },
+      {
+        "browser": "edge",
+        "version": "Edg/158.0.4370.33",
+        "fixture": "gone",
+        "transition": "focus-round-trip",
+        "originalObservation": "inputTriggered",
+        "priorValidBeforeSwitch": true,
+        "oldUnspentWriteAfter": false,
+        "oldReadAfter": true,
+        "sameDocument": true,
+        "sameHistoryEntry": true,
+        "sameEditor": true,
+        "sameForm": true,
+        "samePicker": true,
+        "sameRoute": true,
+        "sameMode": true,
+        "samePriorMember": true,
+        "sameOtherTargetFields": true,
+        "sameAssetAndHash": true,
+        "freshClick": true,
+        "distinctOperationAndInvocation": true,
+        "sameDraftGeneration": false,
+        "actualRecoveryValidation": false,
+        "actualBegin": "TARGET_INVALID",
+        "actualSuccessorState": null,
+        "newNativeSetters": 0,
+        "newChangeEvents": 0,
+        "sendOrSubmit": 0,
+        "trustedFocusEvents": [
+          {
+            "type": "blur",
+            "isTrusted": true,
+            "visibility": "visible",
+            "hasFocus": false
+          },
+          {
+            "type": "visibilitychange",
+            "isTrusted": true,
+            "visibility": "hidden",
+            "hasFocus": false
+          },
+          {
+            "type": "visibilitychange",
+            "isTrusted": true,
+            "visibility": "visible",
+            "hasFocus": false
+          },
+          {
+            "type": "focus",
+            "isTrusted": true,
+            "visibility": "visible",
+            "hasFocus": true
+          }
+        ],
+        "userRecoveryAfterReturn": "FAIL"
+      },
+      {
+        "browser": "edge",
+        "version": "Edg/158.0.4370.33",
+        "fixture": "explicit-error",
+        "transition": "continuous",
+        "originalObservation": "originalCardFailed",
+        "priorValidBeforeSwitch": true,
+        "oldUnspentWriteAfter": true,
+        "oldReadAfter": true,
+        "sameDocument": true,
+        "sameHistoryEntry": true,
+        "sameEditor": true,
+        "sameForm": true,
+        "samePicker": true,
+        "sameRoute": true,
+        "sameMode": true,
+        "samePriorMember": true,
+        "sameOtherTargetFields": true,
+        "sameAssetAndHash": true,
+        "freshClick": true,
+        "distinctOperationAndInvocation": true,
+        "sameDraftGeneration": true,
+        "actualRecoveryValidation": true,
+        "actualBegin": "ACK",
+        "actualSuccessorState": "inputTriggered",
+        "newNativeSetters": 1,
+        "newChangeEvents": 1,
+        "sendOrSubmit": 0,
+        "trustedFocusEvents": [],
+        "userRecoveryAfterReturn": "CONTROL_SUCCEEDED"
+      },
+      {
+        "browser": "edge",
+        "version": "Edg/158.0.4370.33",
+        "fixture": "explicit-error",
+        "transition": "focus-round-trip",
+        "originalObservation": "originalCardFailed",
+        "priorValidBeforeSwitch": true,
+        "oldUnspentWriteAfter": false,
+        "oldReadAfter": true,
+        "sameDocument": true,
+        "sameHistoryEntry": true,
+        "sameEditor": true,
+        "sameForm": true,
+        "samePicker": true,
+        "sameRoute": true,
+        "sameMode": true,
+        "samePriorMember": true,
+        "sameOtherTargetFields": true,
+        "sameAssetAndHash": true,
+        "freshClick": true,
+        "distinctOperationAndInvocation": true,
+        "sameDraftGeneration": false,
+        "actualRecoveryValidation": false,
+        "actualBegin": "TARGET_INVALID",
+        "actualSuccessorState": null,
+        "newNativeSetters": 0,
+        "newChangeEvents": 0,
+        "sendOrSubmit": 0,
+        "trustedFocusEvents": [
+          {
+            "type": "blur",
+            "isTrusted": true,
+            "visibility": "visible",
+            "hasFocus": false
+          },
+          {
+            "type": "visibilitychange",
+            "isTrusted": true,
+            "visibility": "hidden",
+            "hasFocus": false
+          },
+          {
+            "type": "visibilitychange",
+            "isTrusted": true,
+            "visibility": "visible",
+            "hasFocus": false
+          },
+          {
+            "type": "focus",
+            "isTrusted": true,
+            "visibility": "visible",
+            "hasFocus": true
+          }
+        ],
+        "userRecoveryAfterReturn": "FAIL"
+      }
+    ]
+  },
+  "rangeAudit": {
+    "baseTree": "4e2b8ccc74c2683c331a0a6736390057bd66cbde",
+    "candidateSourcesSubtree": "86e683c279c0baf0ae0cee7964d14193f533e718",
+    "candidatePaths": 2068,
+    "checkoutByteOrModeDifferences": 0,
+    "unexpectedCheckoutFiles": 0,
+    "baseIsAncestor": true,
+    "interveningCommits": 255,
+    "changedPaths": 437,
+    "addedPaths": 339,
+    "modifiedPaths": 98,
+    "deletionsOfPaths": 0,
+    "addedLines": 46095,
+    "removedLines": 909,
+    "binaryResources": 4,
+    "partitions": {
+      "unchangedFromPreviouslyAdmitted53": 175,
+      "additionalBuild60ScopedReviewMatches": 11,
+      "otherChangedPaths": 250,
+      "supersededAdmissionJSON": 1
+    },
+    "contributorIndexSHA256": "b74cd060cc75ec3185b30ec1299a54dc41cb8d01d2f9a5818ee51d12807fc7f7",
+    "independentVerification": "Recomputed both trees using git ls-tree -rz. Compared every changed path, mode, object ID, and previous build-53 match to the inventory. Independently hashed the 11 scoped frozen files. Used the checked-in exact-byte checkout audit for all 2,068 entries. Verified 16 historical admission-file edits, including 11 direct admission-only child records and five reversions to an older pin. Verified the embedded UTF-8 report hash, reviewer role, tree and commit references for these records. No old report covers this complete G.",
+    "admitted53": {
+      "source": "f7287e05aedc11d35692fbd68ae2e269c42d3255",
+      "admission": "c764246410c2c0c225ac4bb8688c2ae5179f27e9",
+      "reportSHA256": "26954f872d3d43459c91473477f842174a49d25e86d30a6460fe6011981555ce"
+    },
+    "unmodifiedProtectedAreas": [
+      "formal native-foundation.yml, feedback-v01.yml and release-identity-host.yml",
+      "composition verifier, its historical gates, engineering/evidence and research",
+      "committed website freeze entries, updates, service code, Package.swift and Package.resolved",
+      "productionAdmission field values"
+    ],
+    "groupsReviewed": [
+      "Product source spans 25 Adapter, 13 App, two Capture, seven Core and 11 UI paths. Read the changed flow for original native process/foreground/tab identity, ACK pool and expiry, web and Edge execution witnesses, relay nonce/replies, dynamic file entry, converted preview proof, START and explicit failure. Examined changed recovery Core/store/UI code, including v4/v5/v6-to-v7 activation, reservation and immutable predecessor handling, cancellation, media retention, process ownership, permissions and history presentation. Old admissions support matching earlier code only.",
+      "Review of the test and evidence paths used an inventory of every changed file, targeted source/tests for each feature family, a historical byte-level comparison, and the recorded source-specific runs. The 125 test paths cover Swift suites and owned helper, document, browser, G4 fault and transport fixtures. The eight experimental extension/host files are outside the shipped app targets. Two added candidate workflows have branch-specific push triggers, read-only contents access and pinned Actions. They do not change the five formal checks.",
+      "The six script changes include package verification with frozen archive digests, appcast monotonic build checks and release-channel verification. Reviewed package resources, plist and localizations. Original distribution objects and production fields are untouched. All 228 changed files under docs/releases and the other four changed documentation paths were inventoried. Current evidence levels and the scope of the inherited real-site and build-60 records were checked separately."
+    ],
+    "staticPrivacyInventory": "All 433 changed text files examined by syntax or bounded pattern scans. Parsed all 204 JSON files and ten JSONL records without duplicate keys. No embedded private-key envelope, matched live-provider token pattern, signed object URL, session cookie value, long base64 evidence payload or embedded screenshot was found. UUID-like service links found by the scan occur in the two synthetic Web test files. This scan does not establish exhaustive absence of secrets.",
+    "minorWhitespace": "git diff --check also reports an added blank line at EOF in Tests/OriginalDocumentDelivery/official/controller.mjs:37. This is separate from the blocking finding."
+  },
+  "verification": {
+    "independentlyExecuted": [
+      "146 offline boundary and QA tests passed across the official controller and the three G4 network fixture suites.",
+      "285 tests passed, zero failures or skips, across the acceptance program, ordinary composer, original image transport, legacy observations and offline fault harness.",
+      "A Node EventTarget isolation of the candidate composerGeneration and sameTarget functions confirmed that browser blur alone changes the new generation with no document, editor or mode change. The real headless browser fixtures additionally observed trusted platform blur, visibility and focus transitions."
+    ],
+    "existingEvidenceRead": {
+      "checkout": "88c16d76a09eceef77568b614832aa72fd07f873",
+      "ci": "docs/releases/1.0.8/evidence/build60/dual-architecture-ci.json records 1,436 Swift tests on each architecture, 19 Chrome lease and 22 preview cases on source G. This independent review read the receipt and did not rerun hosted macOS CI.",
+      "local": "docs/releases/1.0.8/evidence/build60/local-regression.json records 384 Web cases and both browsers' local fixture cases. The normal library focus-return sequence is absent from that evidence.",
+      "signing": "docs/releases/1.0.8/evidence/build60/independent-install.json and signed-candidate.json record the private signed, notarized, stapled universal DMG 5a934119d6e65cbe82a62f5f208a2b95a200fa0cf170225ccd4e9016b1c0b54e. The recorded embedded page hash matches G. I did not mount, install, sign or publish the DMG.",
+      "database": "docs/releases/1.0.8/evidence/build60/recovery-architecture-audit.json records three copies of sealed build-59 UNKNOWN databases, isolated Core/SQLite successor selection, pre-input cancellation/restart, and immutable original ledger comparisons. The browser adapter in those tests was controlled.",
+      "site": "docs/releases/1.0.8/evidence/build60/independent-release-verdict.json records two Chrome and five Edge preflights, zero product AppKit selections, zero product inputs and zero recovery invocations. Build-60 G1, G2 and G4-A/B/C remain unexecuted on the authenticated service. Build-59 G1/G2 and three actual client transport aborts have their original narrower scope."
+    }
+  },
+  "admission": "Do not create an admission-only H from this review. Repair the blocking source behavior on a successor and independently review the new B/G/tree.",
+  "release": "The independent site, signing, CI, merge, and publication decisions belong to their exact later identities. This review grants no release approval."
+}

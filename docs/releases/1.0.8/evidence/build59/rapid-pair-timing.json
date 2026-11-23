@@ -1,0 +1,210 @@
+[
+  {
+    "source": "chrome-live-after-start.json",
+    "family": "chrome",
+    "dmgSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+    "oldCardsPreserved": 3,
+    "events": [
+      {
+        "index": 3,
+        "operationID": "AF215E3E-6C41-41C6-8FDA-BDF32E91377B",
+        "priorVerifiedRowMS": -3161.094,
+        "preclickAcknowledgedMS": -4262.35,
+        "mouseDownMS": 0.0,
+        "appKitCallbackMS": 84.732,
+        "leaseConsumedMS": 296.186,
+        "nativeCommitCallIntervalMS": [
+          575.591,
+          821.785
+        ],
+        "setterEnteredAndChangeReturnedHostReceiptMS": 824.591,
+        "browserInputMS": 988336,
+        "browserChangeMS": 988341,
+        "attachmentAcceptedHostReceiptMS": 2208.68,
+        "swallowStartMS": 2212.132,
+        "swallowCloseMS": 2338.971,
+        "qaLastPreDispatchRowSampleMS": -14.917,
+        "qaFinalCheckElapsedMS": null
+      },
+      {
+        "index": 4,
+        "operationID": "DBF64FB8-E2E7-414C-AF67-F28C2AE955F9",
+        "priorVerifiedRowMS": -2192.745,
+        "preclickAcknowledgedMS": 1434.973,
+        "mouseDownMS": 2507.972,
+        "appKitCallbackMS": 2625.378,
+        "leaseConsumedMS": 2867.241,
+        "nativeCommitCallIntervalMS": [
+          3143.789,
+          3371.636
+        ],
+        "setterEnteredAndChangeReturnedHostReceiptMS": 3374.616,
+        "browserInputMS": 990894,
+        "browserChangeMS": 990898,
+        "attachmentAcceptedHostReceiptMS": 4743.239,
+        "swallowStartMS": 4745.546,
+        "swallowCloseMS": 4871.831,
+        "qaLastPreDispatchRowSampleMS": 2487.889,
+        "qaFinalCheckElapsedMS": null
+      }
+    ],
+    "downDeltaMS": 2507.972,
+    "strictlyUnderTwoSeconds": false
+  },
+  {
+    "source": "edge-live-candidate.json",
+    "family": "edge",
+    "dmgSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+    "oldCardsPreserved": 2,
+    "events": [
+      {
+        "index": 3,
+        "operationID": "F2DC164D-6DD4-485B-B53C-A17573BFFABB",
+        "priorVerifiedRowMS": -2325.178,
+        "preclickAcknowledgedMS": -3700.665,
+        "mouseDownMS": 0.0,
+        "appKitCallbackMS": 67.804,
+        "leaseConsumedMS": 186.733,
+        "nativeCommitCallIntervalMS": [
+          384.303,
+          554.558
+        ],
+        "setterEnteredAndChangeReturnedHostReceiptMS": 558.489,
+        "browserInputMS": 22571,
+        "browserChangeMS": 22577,
+        "attachmentAcceptedHostReceiptMS": 2288.111,
+        "swallowStartMS": 2290.733,
+        "swallowCloseMS": 2417.961,
+        "qaLastPreDispatchRowSampleMS": -10.423,
+        "qaFinalCheckElapsedMS": null
+      },
+      {
+        "index": 4,
+        "operationID": "B6C629D6-32C4-450C-8C07-C1FD3B5DD6F5",
+        "priorVerifiedRowMS": -1634.834,
+        "preclickAcknowledgedMS": 903.173,
+        "mouseDownMS": 1517.955,
+        "appKitCallbackMS": 1583.539,
+        "leaseConsumedMS": 1724.277,
+        "nativeCommitCallIntervalMS": [
+          1935.852,
+          2098.803
+        ],
+        "setterEnteredAndChangeReturnedHostReceiptMS": 2101.167,
+        "browserInputMS": 24115,
+        "browserChangeMS": 24120,
+        "attachmentAcceptedHostReceiptMS": 3817.61,
+        "swallowStartMS": 3820.008,
+        "swallowCloseMS": 3949.747,
+        "qaLastPreDispatchRowSampleMS": 1504.779,
+        "qaFinalCheckElapsedMS": null
+      }
+    ],
+    "downDeltaMS": 1517.955,
+    "strictlyUnderTwoSeconds": true
+  },
+  {
+    "source": "edge-live-candidate.json",
+    "family": "edge",
+    "dmgSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+    "oldCardsPreserved": 4,
+    "events": [
+      {
+        "index": 5,
+        "operationID": "1940E180-C56B-489B-8A27-92370D099914",
+        "priorVerifiedRowMS": -2161.19,
+        "preclickAcknowledgedMS": -3330.611,
+        "mouseDownMS": 0.0,
+        "appKitCallbackMS": 58.045,
+        "leaseConsumedMS": 229.441,
+        "nativeCommitCallIntervalMS": [
+          426.134,
+          613.747
+        ],
+        "setterEnteredAndChangeReturnedHostReceiptMS": 615.868,
+        "browserInputMS": 31845,
+        "browserChangeMS": 31851,
+        "attachmentAcceptedHostReceiptMS": 2343.793,
+        "swallowStartMS": 2346.213,
+        "swallowCloseMS": 2475.382,
+        "qaLastPreDispatchRowSampleMS": -8.534,
+        "qaFinalCheckElapsedMS": null
+      },
+      {
+        "index": 6,
+        "operationID": "A9968FA0-C304-4FE0-9629-11DFD58CC1C2",
+        "priorVerifiedRowMS": -1510.393,
+        "preclickAcknowledgedMS": 941.404,
+        "mouseDownMS": 1574.502,
+        "appKitCallbackMS": 1642.322,
+        "leaseConsumedMS": 1761.898,
+        "nativeCommitCallIntervalMS": [
+          1982.104,
+          2164.395
+        ],
+        "setterEnteredAndChangeReturnedHostReceiptMS": 2167.843,
+        "browserInputMS": 33401,
+        "browserChangeMS": 33407,
+        "attachmentAcceptedHostReceiptMS": 3842.735,
+        "swallowStartMS": 3844.933,
+        "swallowCloseMS": 3973.504,
+        "qaLastPreDispatchRowSampleMS": 1564.072,
+        "qaFinalCheckElapsedMS": null
+      }
+    ],
+    "downDeltaMS": 1574.502,
+    "strictlyUnderTwoSeconds": true
+  },
+  {
+    "source": "edge-final-pairs.json",
+    "family": "edge",
+    "dmgSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+    "oldCardsPreserved": 1,
+    "events": [
+      {
+        "index": 2,
+        "operationID": "177942F9-ECAA-47D9-8756-876F813FA142",
+        "priorVerifiedRowMS": -1361.848,
+        "preclickAcknowledgedMS": -2205.969,
+        "mouseDownMS": 0.0,
+        "appKitCallbackMS": 42.737,
+        "leaseConsumedMS": 170.813,
+        "nativeCommitCallIntervalMS": [
+          349.174,
+          513.606
+        ],
+        "setterEnteredAndChangeReturnedHostReceiptMS": 516.359,
+        "browserInputMS": 17896,
+        "browserChangeMS": 17901,
+        "attachmentAcceptedHostReceiptMS": 2594.498,
+        "swallowStartMS": 2597.245,
+        "swallowCloseMS": 2728.073,
+        "qaLastPreDispatchRowSampleMS": null,
+        "qaFinalCheckElapsedMS": 301.96
+      },
+      {
+        "index": 3,
+        "operationID": "F2530DBB-4454-4BF2-9E49-9D4509DC762F",
+        "priorVerifiedRowMS": -869.283,
+        "preclickAcknowledgedMS": -2522.157,
+        "mouseDownMS": 582.373,
+        "appKitCallbackMS": 610.564,
+        "leaseConsumedMS": 785.02,
+        "nativeCommitCallIntervalMS": [
+          985.756,
+          1143.888
+        ],
+        "setterEnteredAndChangeReturnedHostReceiptMS": 1145.176,
+        "browserInputMS": 18527,
+        "browserChangeMS": 18532,
+        "attachmentAcceptedHostReceiptMS": 2844.502,
+        "swallowStartMS": 2846.873,
+        "swallowCloseMS": 2978.151,
+        "qaLastPreDispatchRowSampleMS": null,
+        "qaFinalCheckElapsedMS": 313.568
+      }
+    ],
+    "downDeltaMS": 582.373,
+    "strictlyUnderTwoSeconds": true
+  }
+]

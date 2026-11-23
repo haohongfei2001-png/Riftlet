@@ -1,0 +1,95 @@
+{
+  "verifiedUTC": "2026-11-22T22:35:38.381064+00:00",
+  "candidate": "1.0.8 (61)",
+  "source": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "dmgSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "interactiveIssuerSHA256": "8ea472a1a1b7f358bb9572e3233a5bc866c6511892dfc2668c5b2e2d5850beea",
+  "execution": "Aqua; current authorized interactive task, exclusive native-GUI lock",
+  "latestMetadataTransitionUTC": "2026-11-22T22:25:19.996286+00:00",
+  "lastHeartbeatUTC": "2026-11-22T22:34:03.393399+00:00",
+  "lastHeartbeat": {
+    "browserFamiliesSampled": 2,
+    "eligible": 0,
+    "protectedForeground": 2
+  },
+  "desktop": {
+    "displayAwake": true,
+    "screenLocked": false,
+    "loginDone": true,
+    "onConsole": true,
+    "consoleUIDMatches": true,
+    "axTrusted": true,
+    "frontBundle": "com.apple.UserNotificationCenter",
+    "frontPID": 1046,
+    "frontHasModal": false,
+    "systemDialogOnScreen": true,
+    "frontWindowMetadata": [
+      {
+        "bounds": {
+          "height": 303,
+          "width": 260,
+          "x": 605,
+          "y": 181
+        },
+        "modal": false,
+        "role": "AXWindow",
+        "subrole": "AXSystemDialog"
+      }
+    ]
+  },
+  "frontDialogPurpose": "UNDETERMINED_FROM_ALLOWED_METADATA",
+  "browserStatus": {
+    "chrome": {
+      "active": false,
+      "aePermission": "ALLOWED",
+      "axWindowAttributeReadable": true,
+      "axWindowCount": 0,
+      "cgBaseWindowCount": 9,
+      "cgOnScreenCount": 0,
+      "hidden": false,
+      "queryWithoutPrompt": true,
+      "regular": true,
+      "running": true
+    },
+    "edge": {
+      "active": false,
+      "aePermission": "ALLOWED",
+      "axWindowAttributeReadable": true,
+      "axWindowCount": 0,
+      "cgBaseWindowCount": 11,
+      "cgOnScreenCount": 0,
+      "hidden": false,
+      "queryWithoutPrompt": true,
+      "regular": true,
+      "running": true
+    }
+  },
+  "testedTargetPredicates": {
+    "axOriginalWindow": false,
+    "cgWindowOnScreen": false,
+    "composer": false,
+    "dedicatedSingleTab": false,
+    "documentFocused": false,
+    "documentVisible": false,
+    "nativeForeground": false,
+    "nativeWindowVisible": false,
+    "originalProcessBirth": false,
+    "originalTabSelected": false,
+    "signedIn": false,
+    "uploadEntry": false
+  },
+  "scheduledLanes": [
+    "g4c",
+    "g1",
+    "g2",
+    "b4"
+  ],
+  "durablePresentationAttempts": 0,
+  "durableProductInputClaims": 0,
+  "G1": "NOT_RUN",
+  "G2": "NOT_RUN",
+  "G4A": "NOT_RUN",
+  "G4B": "NOT_RUN",
+  "G4C": "NOT_RUN",
+  "recordScope": "Pre-input eligibility at this checkpoint; all card, network, user selection, event and stable-publication results remain open."
+}

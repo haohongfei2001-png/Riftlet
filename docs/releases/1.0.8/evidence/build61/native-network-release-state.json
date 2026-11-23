@@ -1,0 +1,62 @@
+{
+  "observedUTC": "2026-11-23T07:10:48.103123+00:00",
+  "candidate": {
+    "version": "1.0.8",
+    "build": 61,
+    "productSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+    "dmgBytes": 14133998,
+    "dmgSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+    "sourcesSubtree": "1aae0943f6ce71a9bfa49c86ba95589032c1de63",
+    "evidenceBranchSourcesSubtree": "1aae0943f6ce71a9bfa49c86ba95589032c1de63",
+    "productCommitTree": "70ba40e23a3afa3561525b1943cb0e5ebc825de5"
+  },
+  "formalPR": {
+    "baseRefOid": "9fd8ad15fca043915069904113e5fb67d82b4948",
+    "headRefOid": "881589ad19f5e0205846aa265e64df89f2a0b498",
+    "isDraft": true,
+    "mergedAt": null,
+    "state": "OPEN",
+    "checks": [
+      {
+        "name": "Feedback source admission",
+        "conclusion": "SUCCESS"
+      },
+      {
+        "name": "Native source admission",
+        "conclusion": "SUCCESS"
+      },
+      {
+        "name": "Feedback native and service",
+        "conclusion": "SUCCESS"
+      },
+      {
+        "name": "Native ARM64",
+        "conclusion": "SUCCESS"
+      },
+      {
+        "name": "Native Intel",
+        "conclusion": "SUCCESS"
+      }
+    ]
+  },
+  "publicChannel": {
+    "httpStatus": 200,
+    "stableShortVersion": "1.0.5",
+    "stableBuild": "31",
+    "latestGitHubRelease": {
+      "isDraft": false,
+      "isPrerelease": false,
+      "tagName": "v1.0.5"
+    }
+  },
+  "localNetworkCustody": {
+    "entries": 13,
+    "privateManifestSHA256": "1ee2b560e6568e26d1629c995352c4abe59da4089198894f5740def6a0f0f84e"
+  },
+  "publicReleaseResult": "RIFTLET 1.0.8 — NOT RELEASED",
+  "finalPrivateCustody": {
+    "topLevelFilesIncludingSubdirectories": 29,
+    "manifestSHA256": "cc45611a8b4c256b5b1bf159e18826af4b6aa202b303e1968b8f2652745c5b78",
+    "nonauthorFinalSHA256": "3a7a48816e28f2329c8fce020badfe1a1a755fa35d95f4e6fd6911fbd9e406e1"
+  }
+}

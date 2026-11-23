@@ -1,0 +1,93 @@
+{
+  "appExecutableAllowlist": [
+    "Contents/Frameworks/Sparkle.framework/Versions/B/Autoupdate",
+    "Contents/Frameworks/Sparkle.framework/Versions/B/Sparkle",
+    "Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app/Contents/MacOS/Updater",
+    "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Downloader.xpc/Contents/MacOS/Downloader",
+    "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Installer.xpc/Contents/MacOS/Installer",
+    "Contents/MacOS/Riftlet"
+  ],
+  "appNotary": "Accepted",
+  "architectures": [
+    "arm64",
+    "x86_64"
+  ],
+  "build": "62",
+  "cdHashes": {
+    "arm64": "1fbb1dc4a79713561bcde33307e6e81ed89d3fab",
+    "x86_64": "5329d0fec4220bba36101db3a77b160091b8c187"
+  },
+  "checks": {
+    "appGatekeeper": {
+      "exit": 0,
+      "logSHA256": "6da96639dc5c0a327a925993891b87a43fc691d66383d21e6efc70f564c2ab70"
+    },
+    "appSelfCheck": {
+      "exit": 0,
+      "logSHA256": "9a6cbd54ef6829d86fd7e0cd7ba688aa6387ae15af41a550ffba3e42832b6018"
+    },
+    "appSignature": {
+      "exit": 0,
+      "logSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "appTicket": {
+      "exit": 0,
+      "logSHA256": "4100c287a924a2e31b7ac12b7a497202814cc3b488da1cf99aa4410eff2dbfc7"
+    },
+    "dmgGatekeeper": {
+      "exit": 0,
+      "logSHA256": "4bd79e44f1968145f59224b7538b8e84a285f65b316397bb8d0bd9790f35b8b3"
+    },
+    "dmgSignature": {
+      "exit": 0,
+      "logSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "dmgTicket": {
+      "exit": 0,
+      "logSHA256": "f4c9e2a7e473af143f840530870c24438591a1911f29c3024dd2ecb3de5545ab"
+    },
+    "systemScreenshotSelfCheck": {
+      "exit": 0,
+      "logSHA256": "7333bbcc86dffcf736384773a5dbdf288188e8f97ef55e5803f8cf809e06dc04"
+    },
+    "webSelfCheck": {
+      "exit": 0,
+      "logSHA256": "a47ac0ed870328c9f158b1ee9fed9eec7fd7aa6e4109c3f3017d307f29dbe15d"
+    }
+  },
+  "completeInstalledInventorySHA256": "736620ad69fbb8ac621da3711c4e891189c0f21d62710e64d1185e48ef253dad",
+  "developerIDCertificateFingerprint": "92B7E50A1D43D247EA7EA19A31DCA3E407435A42",
+  "dmgBytes": 14225854,
+  "dmgNotary": "Accepted",
+  "dmgSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "executableSHA256": "b641a84d1ca48f88cd54825bcc9af64d45915c640b90f8ccdaee3f3b1697ec98",
+  "formalDMGReceiptSHA256": "a8fb9d8ab956f3d8a10d0f9e1d46b83e06ae41bc5c61d4e1497aaf8409968186",
+  "independentlyInstalled": "private directory copy from read-only mounted final disk image",
+  "installationReceiptSHA256": "a600aea2c09867f8de1dde82d6f5b472a1853b47c236d193677fa81b32c07111",
+  "installedAdapterResources": {
+    "build56-observation-fingerprint.dat": "ed470481df5373d0e702c87087785235d080fb75b85ea27f1e07408e0357ae52",
+    "build57-observation-fingerprint.dat": "c691e6b7bd848bc8e1fb994aa9efd2dc7419b8b73549c0c1e31eb09499287e8a",
+    "build58-observation-fingerprint.dat": "d05979dfae4b702d907b1f7f50a6312f9d7c25a5c6b484ed493bbfd39d9f6fbb",
+    "build59-observation-fingerprint.dat": "19677788b6a846b2868e0159d8467f9de37544a2ffc24bfd1676b499314580f5",
+    "build60-observation-fingerprint.dat": "3b0e9863be0e542c816f7688f9a880e1a2811e979d33636a611fa8127b76fde6",
+    "build61-observation-fingerprint.dat": "e11bbf207a9649b390944a6024409ba399a638924b0ff4210366c8e0cefdc9c6",
+    "chatgpt-web-20261027.js": "8bdb088559961534c1ac43ec170e02e77e3dcb4eaf1c711a79e43a0fcf854c93",
+    "legacy-web-observe.js": "9a60f99e806289213e9df8bd9812337ebf58e334cd996679ef3a5de394805848"
+  },
+  "installedInventoryEqualsSignedProductManifest": true,
+  "installedMemberCounts": {
+    "directory": 73,
+    "file": 111,
+    "symlink": 9
+  },
+  "matchedMountedBundleTreeSHA256": "f9c2b40104cf582874ed03fca1da28b9a9e3177d314b6591d4b8641c6bce3f66",
+  "originalAppSubmissionID": "454f3ad8-be51-4586-8b24-9e6dda941bdc",
+  "originalDMGSubmissionID": "84d59e65-87ee-45ef-8e20-b4a173ae2166",
+  "publishedAtPackaging": false,
+  "readOnlyMountDetached": true,
+  "releaseManifestSHA256": "ad497332ad2370029f5de809bc2ddffbf3db03de3669eb34149485adc69e122d",
+  "source": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "sourceTree": "f5eb856b9faed30a2ff82e906a081d61647b6f04",
+  "sparkleFrameworkVersion": "2.10.1",
+  "version": "1.0.8"
+}

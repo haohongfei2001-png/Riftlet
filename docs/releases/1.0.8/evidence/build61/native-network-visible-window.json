@@ -1,0 +1,106 @@
+{
+  "actual": {
+    "chrome": 4,
+    "edge": 4,
+    "globalGUILockAvailable": true,
+    "localOwnedWindowsClosedIncludingPrevious": 8,
+    "localOwnedWindowsOpenedIncludingPrevious": 8,
+    "newBrowserProcessCreated": false,
+    "originalDocumentEntryAndTimeBeforeAndAtCleanup": true,
+    "originalSignedEdgeAlreadyRunning": true,
+    "originalWindowSetRestored": true,
+    "soleQAFileTabVerified": true
+  },
+  "lastPresentation": {
+    "allAccessibleWindows": 1,
+    "matchedAccessibilityWindowsAfter": 0,
+    "matchedAccessibilityWindowsBefore": 0,
+    "nativeBoundsMatchInAllCG": 1,
+    "nativeBoundsMatchOnscreenAfter": 0,
+    "nativeBoundsMatchOnscreenBefore": 0,
+    "originalDocumentRereadTwice": true,
+    "originalFingerprintAfterVisualStep": "same original native window, sole tab and file navigation as verified at close",
+    "originalSelectedAfter": false,
+    "otherNativeWindowsSharingBounds": 0,
+    "presentationRequestAcknowledged": true,
+    "vendorForegroundAfter": false
+  },
+  "limits": [
+    "The visually matched local resource establishes attachment of this Network panel to the original self-owned local document; it does not establish CDP TargetId, FrameId, request ownership on another site, or an upload payload.",
+    "The request type and initiator were truncated in the visible row. The status and size reflect the local resource. The request Content-Length was not measured.",
+    "The icon was depicted. Its additional menu and the Protocol Monitor command/experiment were not reached before the verified native window left the visible desktop.",
+    "The configured OCR returned no allowlisted labels for the prior similarly scoped crop. It did not measure total lines. Independent visual review of the retained image confirms a selected Network tab and one matching row."
+  ],
+  "measurement": {
+    "humanVisibleChineseNetworkLabel": true,
+    "menuPhysicalPressCount": 0,
+    "previousOpticalNegativeWasFalse": true,
+    "priorVisionTotalLineCount": null,
+    "priorVisionVocabularyFound": 0,
+    "protocolMonitorSettingChanged": false,
+    "protocolMonitorSettingRead": false,
+    "sourceCGIDNumericNotPersisted": true
+  },
+  "networkPanel": {
+    "displayedDurationMilliseconds": 1,
+    "displayedFileBasenameIsTruncated": true,
+    "displayedRequestCount": 1,
+    "displayedStatus": 200,
+    "displayedTransferSizeBytes": 66,
+    "humanVisualReview": true,
+    "linkedToUniqueLocalResource": true,
+    "localStylesheetBytes": 66,
+    "matchesAcrossAllControlledCSSFiles": 1,
+    "matchingLeadingRandomHex": 16,
+    "matchingStaticCSSContentSHA256": "01b64ec791303e8682a48692d6af5237ce30a52908a520c3e2e3f12d40b92a91",
+    "origin": "self-owned file URL",
+    "perTargetProtocolEventsCaptured": 0,
+    "protocolFrameId": null,
+    "protocolRequestId": null,
+    "protocolTargetId": null,
+    "requestHeaderContentLength": null,
+    "selectedTool": "Network",
+    "viaOrdinaryVendorUI": true
+  },
+  "observedUTC": "2026-11-23T07:30:46.611789+00:00",
+  "ordinaryRealSiteNetworkAdmission": "BLOCKED_TECHNICAL",
+  "photo": {
+    "privacyPermissions": "directory 0700 / PNG 0600",
+    "privateFileRetained": true,
+    "scope": "single original Edge CG window, exclusive DevTools rectangle, browser controls excluded",
+    "sha256": "0813c961c82e0d63b81247f3d92e7ff214bb66587846c10c647c811a6687b04c",
+    "sizePixels": [
+      551,
+      652
+    ],
+    "sourceCGEligibleCount": 1
+  },
+  "previous7WindowPublicSHA256": "275919b5770f3dc614f217f2e8a58d529d75cc7dbbab820da34326b71dcaf04c",
+  "priorArchiveSHA256": "602ec26f4188797875610730ab00b20dbcc4e033be04e1aad97952aca40fa53e",
+  "rawSHA256": {
+    "edge-before.json": "b7530e4db00a44c714c980055d7f4b68559d776f04a867e33aeafac1f0f8115b",
+    "edge-close-intent.json": "821e8bbc4acbd9f42b2c35a35ccb642575cfa4b191989075d51c43c00181e90b",
+    "edge-document.json": "ddb8e1a29041333ada520f868bf3b9f6affc13930f3ef92f34d561b0a6c6b5ec",
+    "edge-new-window.json": "8bd89ed2cd5568b97b0c26780b16649a0597531c2eb18eadc899bb7506807d90",
+    "edge-result.json": "83f0490a648a40def62a7b83640e7f124e815411c10a4e5096c9e4f103b87d70",
+    "image-ready.json": "f78aac387631a62c41cad952d5a44530d3e718ac78ed7e27acac5521bac9d20b",
+    "original-presentation-intent.json": "2dff7da021a4a8b2b11a799c1824d01206bb7dbe116549c44db414551ef98fa5",
+    "plan.json": "b3b8616902488f1f1b5a3aee9df774c7fbae7ac7a626172098540b35cca7419a",
+    "plus-result.json": "3620f3eee1b945d91b8ea47353ca3a9f6aef16c6cdc3c6fb2dd35207ed4a5f44",
+    "plus2-result.json": "52efce445713632acf666b72a0e113b5ceea8393f76d8bd0b45e4fbd41c7c01b",
+    "plus3-result.json": "33fea4467524f31319206b0235b8b1b84e480682f0c2bae3ffcd45502a540a93",
+    "plus4-result.json": "7ec55085e39f91639d39e44cbfcb0d55ea32365f81db7de0e646abcd82ee99e5",
+    "review-decision.json": "2a3aa95767a50d2f41ebeeae77133b305d34cd8970c49c4b159c6c89c27e45ca"
+  },
+  "realChatGPT": {
+    "fileInputs": 0,
+    "formSubmissions": 0,
+    "messages": 0,
+    "requestsInitiatedByThisTest": 0,
+    "requestsObserved": 0,
+    "uploadInvocations": 0,
+    "windows": 0
+  },
+  "schema": 1,
+  "status": "PARTIAL"
+}

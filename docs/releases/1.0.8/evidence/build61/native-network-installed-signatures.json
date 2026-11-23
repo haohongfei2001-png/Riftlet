@@ -1,0 +1,37 @@
+{
+  "utc": "2026-11-23T06:52:01.309462+00:00",
+  "method": "Read-only codesign --verify --verbose=4 on the installed application bundle, with and without the explicit vendor requirement. Signature metadata from codesign -d.",
+  "browsers": [
+    {
+      "browser": "Google Chrome",
+      "bundleVerificationExit": 0,
+      "vendorRequirementExit": 0,
+      "sealedResourcesListedMissing": [],
+      "signatureMetadata": {
+        "Identifier": "com.google.Chrome",
+        "TeamIdentifier": "EQHXZ8M8AV",
+        "CDHash": "ef9751368c315d7f2c8a1a071d0805b972935a66"
+      },
+      "liveProcessCheckedByThisCommand": false,
+      "listedResourceAccess": {}
+    },
+    {
+      "browser": "Microsoft Edge",
+      "bundleVerificationExit": 1,
+      "vendorRequirementExit": 1,
+      "sealedResourcesListedMissing": [
+        "Contents/PlugIns/MicrosoftEdgeWidgets.appex"
+      ],
+      "signatureMetadata": {
+        "Identifier": "com.microsoft.edgemac",
+        "TeamIdentifier": "UBF8T346G9",
+        "CDHash": "217cd563af61cb2314235d32cb17af693b46619e"
+      },
+      "liveProcessCheckedByThisCommand": false,
+      "listedResourceAccess": {
+        "Contents/PlugIns/MicrosoftEdgeWidgets.appex": false
+      }
+    }
+  ],
+  "browserInstallationsChanged": 0
+}

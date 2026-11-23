@@ -1,0 +1,138 @@
+{
+  "build": "59",
+  "productCommit": "69b76cb025ab552b3480e3af095b627891874712",
+  "dmgSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+  "scope": "Ordinary signed macOS browser, dedicated real ChatGPT Temporary Chat, locally imported native screenshots and external, process/window-scoped software mouse.",
+  "family": "chrome",
+  "loggedIn": true,
+  "transcript": "No messages sent by the test. Personal chats were outside its scope.",
+  "operations": [
+    {
+      "operationID": "C3C000F5-8D76-478B-86D7-E39201270DD5",
+      "invocationID": "BC4F5C05-441B-4C54-8841-3C3B9FFE7B7A",
+      "originalPNG_SHA256": "8875dd54bcde9db73c208d8ccfc599195e36c52366d10f70d4e0abdf7f8926c6",
+      "pngBytes": 5516,
+      "originalTargetSHA256": "f606fdb27da086cfe22e7406c66d8a83a22901e89706565f3783bc1555425da4",
+      "documentIDDigest": "0fb7f6f298b05a48a30379658f2c2cdcd90b011ab986385cb37e8d21dd9a36dd",
+      "composerIDDigest": "51067c4eb1ddda77db51bc7a89bb75eb6ef398e803b5b9ce4b6f8084d0c8ad5c",
+      "draftGenerationDigest": "ed20329bd12b49e4a191bc929f88d1c66e3c7c25f955d1c3d37d05aadaeb9171",
+      "originalWitnessIDDigest": "e0f97c2d8433bb04da73f2087ec90057cee7e720d67b3d2e69e9f22dd5c75dad",
+      "assetID": "76FEB895-6EAD-4EA6-8C82-97439CA40FA3",
+      "databasePhase": "inputTriggered",
+      "receiptOutcome": "uploadStarted",
+      "status": "transferring",
+      "visibility": "swallowed",
+      "nativePresses": [
+        {
+          "eventNumber": 15910,
+          "ackToOriginalMouseDownMS": 2816.132,
+          "hostEpochDigest": "17499c73f41ed5d003dc362904e4cb077709e21216ee3309c9a487e43b45ba79",
+          "bindingDigest": "11b0736673a48f0c3f957cdcf319a50cf9e3e8ae880a5a6785b563260b9109f8"
+        }
+      ],
+      "startSignal": "attachmentAccepted",
+      "durableStart": {
+        "attachmentID": "a7c35c55-5933-45d8-adc5-26ea6892f6ba:node-3",
+        "evidenceID": "faaa7c0f-c6de-4b12-8676-b8b53b334855",
+        "inputCount": 1,
+        "startSignal": "attachmentAccepted",
+        "databaseStartedAt": 1795327575.252418,
+        "originalReceiptSHA256": "add1a080fbcc20734aed38dd4b366e944e71da21d1fd9b646d28786338eff90c"
+      }
+    }
+  ],
+  "originalDocumentAndEditor": true,
+  "counts": {
+    "fileChange": 1,
+    "fileInput": 1,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  },
+  "textUnchanged": true,
+  "selectionUnchanged": true,
+  "initialImages": 0,
+  "rememberedImages": 1,
+  "completedBatches": [
+    [
+      1
+    ]
+  ],
+  "result": "STOPPED",
+  "reason": "PAIR_DELIVERY_INCOMPLETE_NO_REPLAY",
+  "appExited": true,
+  "traceSummary": null,
+  "originalRawSHA256": {
+    "capture-1.json": "04f020320779b98cb5a6e312b689dafc475cd3faff25d81d9fd2e66cf1e0ac0c",
+    "capture-2.json": "46111f4937e11c7e2a247666f1b17028367e633ac70f61d4954ad503f410869c",
+    "capture-3.json": "d2c0e5ffb5885b7edc91625da6c2f5a1e443269582fb4697ea5766d4b0a9efb0",
+    "cards-before-1.json": "39bc8e9a0e98b4379b9f3a21df0ac1f5d63ece818037b1c34905cfdffe7d9d51",
+    "cards-before-2.json": "ee93df71c4a548bd8b863d7cdf4bedd1d4241da1ff3cc1c8732cb454b476ff27",
+    "child.json": "958788094ed2f315b5422c6793859f436ef59de5f13bd4e638084d8b20fb2414",
+    "click-1.json": "78abe51a076510cbffb41dfcfbfe8beb1d03b1029f11c838a9f7620bddbfc30a",
+    "click-2.json": "34cae9d1633ea5098e22cfe832bad5cdb9ee53545dfe036fc082c33d6305c27d",
+    "click-3.json": "2d9c8eb797de972c28829a5b1d712bd765f5aedec0655fadad41beadc2ac0a3b",
+    "db-1.json": "ccb3bb69d4931d7e0fa3a66c57ff52caa08a078d712bd3d58d70b000763f589f",
+    "final-db.json": "28c50cc5d27d2b211c25f69f0a20d801594b161256a124d4ee9ad669227bd7ba",
+    "final-page.json": "ee93df71c4a548bd8b863d7cdf4bedd1d4241da1ff3cc1c8732cb454b476ff27",
+    "page-after-1.json": "3ee92cddf5edb90d9048c7e5c2c7a77bd9caa6be7e4cd0194b2c7aa1c73ed0b1",
+    "page-baseline.json": "39bc8e9a0e98b4379b9f3a21df0ac1f5d63ece818037b1c34905cfdffe7d9d51",
+    "page-before-1.json": "39bc8e9a0e98b4379b9f3a21df0ac1f5d63ece818037b1c34905cfdffe7d9d51",
+    "pair-native-2.json": "bcbddeb8bf96e9f0043252eba75b5b1d8eb7e742bc1eb0888f337b0039695b80",
+    "pair-request-2.json": "347a4b1222c7782a63125d578508ac061b49f43df284f2564f1305d47a3177d3",
+    "positive-1.json": "1a4e04bc2f4f8db6a5970db1821cce839c5ab9e350b76ff28191e3f8aa13b4fe",
+    "previous-runs.json": "3c64c3c8238714434647ff3effbf770f1a71f9597d41d4695deb946a2457011d",
+    "result.json": "bb33eae491f841fc611d63f97f89c92d4b6a1fff6d590bfac21798f31c3423b1",
+    "route.json": "d770a6858880224bd28601e46aa9d8a224902da756b1f35d62a9e1b4b129433d",
+    "row-1.json": "8010bee4e53240603748bae8adb3d3d72bcb43c75b6f105441bb816dd4ed49d6",
+    "row-2.json": "e63453f03626e6e030536b9dbdb2d0dc9df3e44af2e0e111f25206af368b477d",
+    "row-3.json": "2f6cc9cb642c86d18e387ccf549e5936f033afdba34ea3cf289c4cd817b4b2d2",
+    "watch-closed.json": "a54ac5bb1f80f63e97d0fdea2ed11b5d547130e28378703d643019b310611f98",
+    "private-trace.jsonl": "78c02a8dc2afc04d4b46495184d7e62bb1d7f9993ab5c1ce990510bc0d28e0a8",
+    "signed-app.stderr": "78c02a8dc2afc04d4b46495184d7e62bb1d7f9993ab5c1ce990510bc0d28e0a8",
+    "account.json": "8f8bbca2bfafdd31f42050d6d21909797c54c52a0949036ed7a11e0dbf186660",
+    "76FEB895-6EAD-4EA6-8C82-97439CA40FA3-original.png": "8875dd54bcde9db73c208d8ccfc599195e36c52366d10f70d4e0abdf7f8926c6",
+    "76FEB895-6EAD-4EA6-8C82-97439CA40FA3-dispatch.json": "993b64b56b1c5298739c6a2c163f4f2780c348a2f197d85adc91722b10390cb9"
+  },
+  "verifiedBatches": [
+    [
+      {
+        "ackUptime": 400961.0045327917,
+        "cardID": "a7c35c55-5933-45d8-adc5-26ea6892f6ba:node-3",
+        "displayName": "riftlet-C3C000F5-8D76-478B-86D7-E39201270DD5.png",
+        "downUptime": 400963.820664875,
+        "eventNumber": 15910,
+        "evidenceID": "faaa7c0f-c6de-4b12-8676-b8b53b334855",
+        "index": 1,
+        "inputName": "riftlet-C3C000F5-8D76-478B-86D7-E39201270DD5.png",
+        "invocationID": "BC4F5C05-441B-4C54-8841-3C3B9FFE7B7A",
+        "operationID": "C3C000F5-8D76-478B-86D7-E39201270DD5",
+        "pixelsSHA256": "2715183d94594f83a43c2a4581232a29dae366d6f06b10e16c7c5ae6c675667c",
+        "previewEncodedSHA256": "8875dd54bcde9db73c208d8ccfc599195e36c52366d10f70d4e0abdf7f8926c6",
+        "requestDigest": "11b0736673a48f0c3f957cdcf319a50cf9e3e8ae880a5a6785b563260b9109f8",
+        "sha256": "8875dd54bcde9db73c208d8ccfc599195e36c52366d10f70d4e0abdf7f8926c6"
+      }
+    ]
+  ],
+  "verifiedOriginalOperations": [
+    {
+      "operationID": "C3C000F5-8D76-478B-86D7-E39201270DD5",
+      "invocationID": "BC4F5C05-441B-4C54-8841-3C3B9FFE7B7A",
+      "assetID": "76FEB895-6EAD-4EA6-8C82-97439CA40FA3",
+      "sourceSHA256": "8875dd54bcde9db73c208d8ccfc599195e36c52366d10f70d4e0abdf7f8926c6",
+      "decodedPixelSHA256": "2715183d94594f83a43c2a4581232a29dae366d6f06b10e16c7c5ae6c675667c",
+      "dimensions": [
+        330,
+        196
+      ],
+      "displayName": "riftlet-C3C000F5-8D76-478B-86D7-E39201270DD5.png",
+      "originalInputEvents": [
+        "input",
+        "change"
+      ],
+      "cardID": "a7c35c55-5933-45d8-adc5-26ea6892f6ba:node-3",
+      "evidenceID": "faaa7c0f-c6de-4b12-8676-b8b53b334855",
+      "ackToMouseDownMS": 2816.132
+    }
+  ],
+  "rapidTimings": []
+}

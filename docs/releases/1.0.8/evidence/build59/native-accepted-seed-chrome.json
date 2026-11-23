@@ -1,0 +1,72 @@
+{
+  "browserDocumentClockMS": {
+    "change": 1439348,
+    "input": 1439346,
+    "observedSetterEntry": null
+  },
+  "candidate": {
+    "build": "59",
+    "cdHashes": {
+      "arm64": "6f929cd41efefd8695a5f398201d6d04bd6f893e",
+      "x86_64": "66243bf1a07be2689e073dc7d9a513a266d12544"
+    },
+    "executableSHA256": "6fb94534e7b34533f10abb00c2b91369787e6ca1a516ae3c1fe818fe03a53ff7",
+    "resourceSHA256": "b6eee615982d839285ea6af4abb16018939f9be91b18215554e847f4a6eb2215",
+    "sha256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+    "source": "69b76cb025ab552b3480e3af095b627891874712",
+    "version": "1.0.8"
+  },
+  "counts": {
+    "fileChange": 1,
+    "fileInput": 1,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  },
+  "explicitFailureCardObserved": false,
+  "family": "chrome",
+  "hostMSRelativeToMouseDown": {
+    "ack": -2093.719,
+    "appKitCallback": 79.968,
+    "attachmentAcceptedReported": 2598.128,
+    "commitInterval": [
+      492.582,
+      701.448
+    ],
+    "mouseDown": 0,
+    "setterEnteredAndChangeReturnedReported": 703.704,
+    "swallowEnd": 2724.442,
+    "swallowStart": 2599.806
+  },
+  "nextAttempt": {
+    "captureHelper": {
+      "exit": 1,
+      "reason": "NO_JSON"
+    },
+    "newInputs": 0,
+    "newMouseDowns": 0,
+    "originalStartPreserved": true,
+    "reason": "FRESH_OWNED_SYSTEM_SCREENSHOT_FAILED"
+  },
+  "originalFileAndDecodedPreviewMatched": true,
+  "originalPrivateReceiptsSHA256": {
+    "continuation/candidate.stderr": "0719ea3c1948434372417b3b5fd642f006f9ed2f83c762ed5857852e45aff068",
+    "continuation/capture-2.json": "e945057fc7ba076d865d05e7dab137b4ccb37b7a827b05b66f8fd3529212e292",
+    "continuation/child.json": "58105315d0bfd91291725a838eac8076b82f59f9e0f2cf4c5ee7ce8623488de5",
+    "continuation/final-db.json": "d4d9e37bb592b9ac2b3f06b92ed9cef4cd84cf810dfe581d78b2cea6dea5e9c8",
+    "continuation/final-page.json": "dd9f1778e0b304ebebb21e5bacbfade76988e298cf47051a7a62e657c401bda7",
+    "continuation/native-auth-batch-2.json": "692cc49579108e0159afabcf086bf17797e618684e0838bf993f8430eb2944dc",
+    "continuation/result.json": "6321b33633e7421dfdece38d2787df57c10a120503407c5bf336a274e24abe3c",
+    "seed/candidate.stderr": "325526920e8c6d71cd0d6c618071743261db7a4e7874e194426ef9622c4c6271",
+    "seed/capture-1.json": "c0e5836a2a2504285ac65ab39097d8bdac1634343d3e7e75be06a4400124df18",
+    "seed/child.json": "df8c35c3a724dd59b20b782fc56eb043e0f250f46cbe81824d0b68198025b3cf",
+    "seed/click-1.json": "9764f10146b4c776f65eceae18c019827363cfbdc81c81f8cd6e30d1f5121442",
+    "seed/final-db.json": "d4d9e37bb592b9ac2b3f06b92ed9cef4cd84cf810dfe581d78b2cea6dea5e9c8",
+    "seed/native-auth-press-1.json": "5030923e3b7e2a41c35a8daf937bab7d183e5ca737585c3372e518cd42067290",
+    "seed/page-after-1.json": "65a1eee734df39e994cba5f16f080b6397ddea42358601da7716d95ec3778431",
+    "seed/positive-1.json": "421b8a2721fe6657b471a1da79c5e79e9d93227ff7fd97740588e16bdbdd8f89",
+    "seed/result.json": "6f5476cc65803bee67f867987a671c924dc9d135373d14adb72d71513dc302a6",
+    "seed/source-pixels-1.json": "2f7a2d6a51591587c4954424fa4946aa76899ac5922f91719b38484116d8a0a7"
+  },
+  "rapidPairsObserved": 0,
+  "status": "OBSERVED_SINGLE_SEED"
+}

@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "type": "Independent pre-specified G4-B equivalence conditions and bounded site disposition",
+  "reviewer": "riftlet_108_60_independent_full_range_nonauthor_source_reviewer",
+  "adjudicatedUTC": "2026-11-23T02:11:35.527615+00:00",
+  "signedSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "signedDMGSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "currentG4B": "HOLD_NO_QUALIFIED_SITE_4XX",
+  "result": "HOLD",
+  "releaseAuthorized": false,
+  "priorProtocol": {
+    "source": "docs/releases/1.0.8/G4_PROTOCOL_AND_STATE_MACHINE.md and G4_AUTONOMOUS_RUNBOOK.md",
+    "decisionBeforeQualifiedSample": "CONDITIONAL_ONLY",
+    "requiredEvidence": [
+      "On the same signed 61 installation and enrolled ordinary live draft, prove the unique original operation, invocation, unmodified full PNG and its exact upload request using durable and independently timed evidence.",
+      "Directly observe and attribute an actual provider-side HTTP 4xx to that complete original PNG upload, with request identity and full File bytes bound to the actual upload endpoint. A local or injected HTTP status, an aborted browser request, a creation-endpoint error or a size-warning banner has a different evidentiary scope.",
+      "Record appearance of the original identified attachment card, its subsequent disappearance and surroundings in the same Document and composer. Preserve other attachments and establish that a same-name replacement, different card or new request cannot account for the transition.",
+      "For a successful recovery claim, preserve the original read-only operation in two correctly timed consistent SQLite snapshots, the explicit AppKit confirmation and new choice, independent click binding, operation and invocation, exactly one new file input and independently persisted START. Existing draft content/attachments and zero chat sends or submits must be evidenced.",
+      "Review the private raw evidence before issuing any equivalence disposition. The separately required G4-C has its own acceptance and cannot be derived from this precondition list."
+    ]
+  },
+  "actualNaturalCandidate": {
+    "source": "completed g4-natural-custody archive and retained read-only SQLite",
+    "sourceRows": {
+      "assets": 1,
+      "operations": 1,
+      "upload_starts": 1
+    },
+    "publicSummarySHA256": "075f410b39481261e5bf9abef8d49d910f43e2e608bb73ae71c017c014bdfad1",
+    "rawArchiveSHA256": "0508a93f73fac2dc757d7ff82c8425a5ef68e177f745a8b778aa84bcde6d278c",
+    "retainedSQLiteSHA256": "5853ed2d0e46d3e47c5efcbd0dcf443a60b256f1299f0afa9c05a1445bc5e62e",
+    "originalCardPresent": true,
+    "namedFailureObserved": false,
+    "originalStartCount": 1,
+    "unknownObserved": false,
+    "businessInput": {
+      "fileChange": 1,
+      "fileInput": 1,
+      "formSubmit": 0,
+      "sendButtonClicks": 0
+    },
+    "terminalReason": "ORIGINAL_MEMBER_PRESENT_THEN_ORIGINAL_ROUTE_OR_SELECTED_TAB_CHANGED",
+    "outcome": "uploadStarted",
+    "qualifiedOriginalUpstream4xx": false,
+    "qualifiedOriginalCardDisappearance": false,
+    "qualifiedSameDocumentRecovery": false
+  },
+  "rationale": "The real interaction retained its original card before the original route or selected tab changed. There is no qualified attributable original upstream 4xx and disappearance plus same-draft recovery in the reviewed evidence. A changed route does not establish that a failure removed the card. No independent equivalence is granted. A future qualified original sample would require a separate dated adjudication."
+}

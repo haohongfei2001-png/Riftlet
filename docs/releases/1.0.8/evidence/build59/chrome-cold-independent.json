@@ -1,0 +1,43 @@
+{
+  "scope": "Independent read-only reclassification of the pre-existing Chrome cold single screenshot. No new input. Old attachment preservation not exercised (baseline zero), no rapid pairs or failure recovery. Original reports retained.",
+  "build": 59,
+  "dmgSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+  "runningCDHash": "6f929cd41efefd8695a5f398201d6d04bd6f893e",
+  "sha256": "0f3963a9b659b2b3f53f67b567ffacc4be8c96baf51bbfd87d1bfce4191ce0e9",
+  "bytes": 5516,
+  "operationID": "AB1C5D50-EB5B-42CA-81F7-54A5BBC9B4A2",
+  "invocationID": "FF6DDC36-27D2-4E91-977C-36881ED769F1",
+  "startEvidenceID": "504f9bf3-eff0-4504-bbc6-6e0d0a48b79b",
+  "attachmentID": "b129269b-787c-419b-9e8f-c0b7645d924a:node-3",
+  "evidenceKey": "attachmentAcceptanceEvidence",
+  "verifiedFullTargetEquality": true,
+  "originalObservationSignal": "attachmentAccepted",
+  "inputCount": 1,
+  "pageCounts": {
+    "fileChange": 1,
+    "fileInput": 1,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  },
+  "nativeSingleCommit": true,
+  "ackUptime": 399256.45495983335,
+  "mouseDownUptime": 399258.351752541,
+  "startedUptime": 399260.5922124167,
+  "swallowActualStartUptime": 399260.59480320837,
+  "databaseStartedAt": 1795325869.749195,
+  "receiptSHA256": "af09aa182e7742e9dac0d79bfa021d425fa6d2f99dc356383e828354fc6b4a72",
+  "zeroExistingImages": true,
+  "originalTextSelectionAndTargetPreserved": true,
+  "matchingPreviewPixelsSHA256": "156ca6a375bf08741b13e3222c9ecbc73cdccb30b73c249cfc7a6bee87eebd3a",
+  "originalEvidenceSHA256": {
+    "candidate.stderr": "84807bf08ab37e7b60a598bfd93789ec725cb57f764efa6b393ba5c5fab6cba3",
+    "child.json": "5ecaad1171c8b76ba73bff1cb6a76c6bf270448e97789604cca911c78f9074c0",
+    "click-1.json": "aabe32e42f930a32ce99939ec3528d32bcb39789fb9355930a2644e240c4fe69",
+    "capture-1.json": "af775d964e03fd01365140cd35b0b92a7143a5bf19f5d4fbfc97fdaf8426e9fb",
+    "cold-readiness-1.json": "fc69a6f7de8706d625b8de52dea6f8ab097c0786136aef4bca477fa071bb9fe2",
+    "db-1.json": "7ce532e73ccebbaf2362f6518759b3214216a5fcf0fb2df60e634b0567553cbe",
+    "result.json": "d3e6afe525ec4a250350d5440951446fc526ce409616104e4ede5dcefb1dc9dc",
+    "page-baseline.json": "39bc8e9a0e98b4379b9f3a21df0ac1f5d63ece818037b1c34905cfdffe7d9d51",
+    "final-page.json": "c18adeb760965a66275269d08595f41ed68b834b7dce94612dc0d389f5069c11"
+  }
+}

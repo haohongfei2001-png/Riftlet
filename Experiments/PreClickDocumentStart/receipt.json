@@ -1,0 +1,82 @@
+{
+  "recordedUTC": "2026-11-21T16:51:58+00:00",
+  "macOS": "27.0",
+  "architecture": "arm64",
+  "event": "Unposted AppKit NSEvent.mouseEvent, native system uptime, no desktop input",
+  "payload": "One generated fixture PNG per operation; test-only unsigned host in a disposable profile",
+  "results": [
+    {
+      "browser": "Microsoft Edge stable",
+      "version": "Microsoft Edge 158.0.4370.33",
+      "os": "macOS",
+      "profile": "disposable",
+      "nativePipe": true,
+      "pageReached": true,
+      "status": "PASS_CONTROLLED",
+      "coldEventBeforeReady": "REFUSED",
+      "firstEventAfterNativeReady": "INPUT_RETURNED",
+      "nextWarmEventSameLease": "INPUT_RETURNED",
+      "wrongWindowTabDocument": "REFUSED",
+      "sameEditorNewDraftGeneration": "REFUSED",
+      "sameDocumentEditorABA": "REFUSED",
+      "sameURLNewDocument": "REFUSED",
+      "browserDocumentIdChanged": true,
+      "lostResult": "UNKNOWN_NO_REPLAY",
+      "nativeOpClaims": 3,
+      "syntheticPageInputs": 3,
+      "sends": 0,
+      "priorTextSelectionAttachmentPreserved": true,
+      "sha256Matches": true
+    },
+    {
+      "browser": "Chrome for Testing",
+      "version": "Google Chrome for Testing 156.0.8078.4",
+      "os": "macOS",
+      "profile": "disposable",
+      "nativePipe": true,
+      "pageReached": true,
+      "status": "PASS_CONTROLLED",
+      "coldEventBeforeReady": "REFUSED",
+      "firstEventAfterNativeReady": "INPUT_RETURNED",
+      "nextWarmEventSameLease": "INPUT_RETURNED",
+      "wrongWindowTabDocument": "REFUSED",
+      "sameEditorNewDraftGeneration": "REFUSED",
+      "sameDocumentEditorABA": "REFUSED",
+      "sameURLNewDocument": "REFUSED",
+      "browserDocumentIdChanged": true,
+      "lostResult": "UNKNOWN_NO_REPLAY",
+      "nativeOpClaims": 3,
+      "syntheticPageInputs": 3,
+      "sends": 0,
+      "priorTextSelectionAttachmentPreserved": true,
+      "sha256Matches": true
+    },
+    {
+      "browser": "Google Chrome stable",
+      "version": "Google Chrome 157.0.8103.79",
+      "os": "macOS",
+      "profile": "disposable",
+      "nativePipe": false,
+      "pageReached": true,
+      "status": "BLOCKED_NO_NATIVE_CHANNEL",
+      "diagnostic": [
+        "--disable-extensions-except is not allowed in Google Chrome, ignoring."
+      ],
+      "documentStages": [],
+      "nativeInvocation": "NOT_STARTED",
+      "isolatedExtensionRegistered": false,
+      "pagesReached": 2
+    }
+  ],
+  "safari": "DOCUMENTATION_ONLY_NOT_RUN",
+  "sourceSHA256": {
+    "Experiments/PreClickDocumentStart/extension/document.js": "d731d3fdbbab3aa83e25ea62a71d268fe331e37143575af674dab8e4ef7c115b",
+    "Experiments/PreClickDocumentStart/extension/manifest.json": "d9ad50372e7907ddcb94e23936f7a36b2ef4b83d0a52ce628d038898a49904a2",
+    "Experiments/PreClickDocumentStart/extension/scope.js": "d4c55cf3c3a95dcd81602ecf57cab4b5b475ba47720fe7263c67a78cf82a094c",
+    "Experiments/PreClickDocumentStart/extension/worker.js": "6d57fc811846b6415d44bce449cbb5020b4a0e62bcf18c6f31881baa5a9e130e",
+    "Experiments/PreClickDocumentStart/native_host.py": "eec5c1cc82d6227ba0e7a61f4ba573bcc1c2298ac8dac47647cde969ea597f24",
+    "Tests/PreClickLease/helper/event.swift": "a3e77a2bf3188be8b407758916999beab6d255ba27c19a293f263977a1dd05c8",
+    "Tests/PreClickLease/helper/fixture.html": "08ee2956562e7e97a0e0b2ecd5c442d4fac8473205b891cb5c69098d0ed2131e",
+    "Tests/PreClickLease/helper/run.py": "09a2420f90fca17a0df203cda87dcef86b3ace41034b8496aee3ac9a4b1d7b1b"
+  }
+}

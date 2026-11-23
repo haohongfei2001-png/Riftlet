@@ -1,0 +1,357 @@
+{
+  "candidate": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "dmgSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "nativeRecovery": {
+    "chromeRejectedSeed": {
+      "failedNativePreparationStatus": -1712,
+      "failurePhase": "resolveSelection",
+      "operations": 0,
+      "originalEventuallyAbsentInVendorInventory": true,
+      "productReason": "adapterUnavailable",
+      "rawRosterSHA256": "6e1ec4546cc8f776aa70a1000244962aa26a99f1dde69dde82820809870de6ea",
+      "realAppKitMouseDown": 1,
+      "webInputs": 0
+    },
+    "chromeUnpresentableQAWindow": {
+      "actualMinimizedReadback": false,
+      "rawSHA256": [
+        "24feaad7b2045b8d62595f239b0d9f365199ce3652f17a407f53007f7e8997c9",
+        "3e5d08ea23f5239dfbe17aa214877ed15d5f8571fb9259b20bf67d0274b7b450"
+      ],
+      "restoreRefusal": "MINIMIZE_READBACK_FAILED",
+      "secondMinimizeOrUndoIssued": false,
+      "setOriginalWindowIndexOSStatus": 0,
+      "setOriginalWindowMinimizedOSStatus": 0,
+      "targetedPlaceOSStatus": 0,
+      "uniqueFrameReadbackConfirmed": true
+    },
+    "edgePriorSeedHeldReadOnly": {
+      "afterOriginalWindowSelected": false,
+      "afterRendererOSStatus": -1712,
+      "beforeRendererOSStatus": -1712,
+      "nativePresentationStatus": 0,
+      "newPeerInputInThatScope": 0,
+      "rawSHA256": "12d5b6d6bee94b96be4fe949f791ccae195b6720256a940d0842e275c081740a"
+    }
+  },
+  "ordinaryBrowserSelection": {
+    "chrome": {
+      "afterDirection": "forward",
+      "afterEndpointOffsets": [
+        12,
+        40
+      ],
+      "beforeDirection": "forward",
+      "beforeEndpointOffsets": [
+        12,
+        40
+      ],
+      "cleanup": {
+        "atUTC": "2026-11-23T03:03:01Z",
+        "closeDisposition": "PRIVATE_UPSTREAM_COMPLETION_NOT_PROVEN_STORED_AS_TRANSFERRING",
+        "currentNativeOriginalTabCount": 1,
+        "currentNativeOriginalWindowPresent": true,
+        "currentWebsiteRead": "ORIGINAL_LIVE_DOCUMENT_UNVERIFIED",
+        "durableAssetStatus": {
+          "transferring": 2
+        },
+        "family": "chrome",
+        "localChallengeListenerConfirmedExited": true,
+        "ongoingProductExecution": false,
+        "originalCloseRequestsThisCheck": 0,
+        "originalFileCount": 2,
+        "sameOriginalSoleTemporaryTab": true,
+        "sendsOnFinalSiteWitness": 0,
+        "signedPrivateTestChildExitedNormally": true,
+        "sitePassiveWatcherClosed": true
+      },
+      "completeScreenshotSourceAndOperationEvidence": "88d421cc9aec07a5ec71e0f3eea95992d7054467da997aab884c53639b068b0e",
+      "dbDocumentAndComposerMatch": true,
+      "directPrivatePendingGenerationReadBeforeSecondPress": false,
+      "emptySeedGenerationEqualsNewOperation": true,
+      "hashes": {
+        "candidate.stderr": "528a4e167a76d153d579ceb5d57bb0c62678c101f063c9a2c8d8dc9c136d8f46",
+        "capture-1.json": "db301b2180537668496cacae352c808c06300f34d97af8a783dc08dd7be2a7ca",
+        "capture-2.json": "a1dbfaa879a3c8cdd00ad9bfab09f4c202756be6d3ade03728d36c40b697633d",
+        "click-1.json": "d5377a2e8820083c46e1753de9e33755a3bff69582cceb2cff54271c11d6277d",
+        "click-2.json": "a74cbdd7bae074497b4cefbd52b2918267b23b9c23777057737592e43c11a861",
+        "db-1.json": "9847601da6469b5047f10817a8e53816316322cd6e7c5c2c6a73c67b3ffc0c3d",
+        "db-2.json": "8cf3621a09a51124a3aaa00fea83d3358b9c38ad2544dc0935e4edf750f95f5d",
+        "final-db.json": "8cf3621a09a51124a3aaa00fea83d3358b9c38ad2544dc0935e4edf750f95f5d",
+        "final-page.json": "5a8ce7b0ffb4976998ae491e7e0ecef9dbac5909a5d290e4bf42316143f6c1b2",
+        "page-after-1.json": "3d0af9371ea0790602661d75c7ddb0c6778c75b01e877746a6e93d496a0348c2",
+        "page-after-2.json": "5a8ce7b0ffb4976998ae491e7e0ecef9dbac5909a5d290e4bf42316143f6c1b2",
+        "page-before-1.json": "39bc8e9a0e98b4379b9f3a21df0ac1f5d63ece818037b1c34905cfdffe7d9d51",
+        "page-before-2.json": "67743650c9731d082c23ac525b33d033ea25b3b2d2afbaecff1961de9c8dfc52",
+        "positive-1.json": "7666eeafd452e972621c78eb63155be72fdb88b4b3330977618eb15631ffafa2",
+        "positive-2.json": "59102adea79d6e0d26189f2a9dce0d5be19b47f14fd0a4c7da3003c9a7c72742",
+        "result.json": "4dfa1a84278938f22d09dec731bc07bdc734b9131c99b0fe3a2e8a262083c303",
+        "row-1.json": "f82e6d5f065645d89cd424a91121e9da1d336e630ff14bb7d0708b75145c6bf9",
+        "row-2.json": "c36398b0058144109835bc160589b314de9a51b74988cd9f8883015f522477e6",
+        "selection-before.json": "85eecf1b4a00197e11e38f9e6768774b7ba47480f7bd2e12bfeb54cd2e80e4d7",
+        "selection-final.json": "88d421cc9aec07a5ec71e0f3eea95992d7054467da997aab884c53639b068b0e",
+        "signed-before-selection-1.json": "b8bdd64f99f552fd22841790b6f6b5c3b8771b087f9ced73b9dd861246fe9167",
+        "signed-before-selection-2.json": "d6aab532bf4a9093bac5d0e2b2ad5b9b77df5d0e59df58ed627630c3074be0de",
+        "signed-final-armed-1.json": "b8bdd64f99f552fd22841790b6f6b5c3b8771b087f9ced73b9dd861246fe9167",
+        "signed-final-armed-2.json": "d6aab532bf4a9093bac5d0e2b2ad5b9b77df5d0e59df58ed627630c3074be0de",
+        "source-pixels-1.json": "3ba00083e98a30d10075236d63f13b8eed2e4450ae9a5386b471195e3d25af76",
+        "source-pixels-2.json": "7f735b97bb2e445b3d43524799c744653eb8a647e680af0b06bd32ebbc49eb3b",
+        "watch-closed.json": "a54ac5bb1f80f63e97d0fdea2ed11b5d547130e28378703d643019b310611f98"
+      },
+      "localFirstDocumentVisible": true,
+      "overallRawRunnerStatus": "PASS",
+      "realTextAndSelectionPassed": true,
+      "sameLiveEditorDocument": true,
+      "sameOriginalOldAttachmentNode": true,
+      "sentenceSHA256": "cd8f05688e1c2f02de6687c4ec6283a3f28db17265552ec0283088938098853f",
+      "sourceFiles": 2,
+      "twoConsumptionLinksConfirmed": true,
+      "twoIndependentSignedARMEDAcks": true,
+      "unchangedWebsiteWitnessEpoch": true,
+      "uniquePersistentStartPerImage": true,
+      "websiteCountsAfter": {
+        "fileChange": 2,
+        "fileInput": 2,
+        "formSubmit": 0,
+        "sendButtonClicks": 0
+      },
+      "websiteCountsBefore": {
+        "fileChange": 1,
+        "fileInput": 1,
+        "formSubmit": 0,
+        "sendButtonClicks": 0
+      }
+    },
+    "edge": {
+      "afterDirection": "forward",
+      "afterEndpointOffsets": [
+        12,
+        40
+      ],
+      "beforeDirection": "forward",
+      "beforeEndpointOffsets": [
+        12,
+        40
+      ],
+      "cleanup": {
+        "atUTC": "2026-11-23T03:03:02Z",
+        "closeDisposition": "PRIVATE_UPSTREAM_COMPLETION_NOT_PROVEN_STORED_AS_TRANSFERRING",
+        "currentNativeOriginalTabCount": 1,
+        "currentNativeOriginalWindowPresent": true,
+        "currentWebsiteRead": "ORIGINAL_LIVE_DOCUMENT_UNVERIFIED",
+        "durableAssetStatus": {
+          "transferring": 2
+        },
+        "family": "edge",
+        "localChallengeListenerConfirmedExited": true,
+        "ongoingProductExecution": false,
+        "originalCloseRequestsThisCheck": 0,
+        "originalFileCount": 2,
+        "sameOriginalSoleTemporaryTab": true,
+        "sendsOnFinalSiteWitness": 0,
+        "signedPrivateTestChildExitedNormally": true,
+        "sitePassiveWatcherClosed": true
+      },
+      "completeScreenshotSourceAndOperationEvidence": "8f98a37f1c9cbdcd815d37f01c1bb34b850ab65d2578de03814d54a8dd04c76d",
+      "dbDocumentAndComposerMatch": true,
+      "directPrivatePendingGenerationReadBeforeSecondPress": false,
+      "emptySeedGenerationEqualsNewOperation": false,
+      "hashes": {
+        "candidate.stderr": "ecdc471820e4ac7bec7b276a1ed7bf2703b81d1312bdf09d5389e3a3043bf1e5",
+        "capture-1.json": "32a0a2c1bd6dec7604af4f0d2edc92888ce3db960f0e2bc37dc8622b8ded8373",
+        "capture-2.json": "c21883a265ba835d3eb70adaf26fdaf6523207e286072eadaee81c7a20a9805d",
+        "click-1.json": "50187e96dd3fc0461bb0b52a2dcc0698406b8e810473e7a97e149d730104649b",
+        "click-2.json": "f8ac16a9102ccbc848fa502e97d6b9422845ed2bcf973a0391b45da2274204dc",
+        "db-1.json": "a1a308b8174b8b5e5ed0a5357302982f3c07dbfc7e3e2be2293ad7072bef7889",
+        "db-2.json": "1d0d212c0f0e0d80b2073b26bdc321ff5be8734a9a6e4a211578b6965eebddd5",
+        "final-db.json": "1d0d212c0f0e0d80b2073b26bdc321ff5be8734a9a6e4a211578b6965eebddd5",
+        "final-page.json": "21573bc1b0c8f5091662bd4d0289cfc9bd599cc5d9af7e20859299aab649210e",
+        "page-after-1.json": "4d11b5ed1cecc5576a9afd40f9e4abca3dee263cb72df5b7dc4ce4039f665167",
+        "page-after-2.json": "21573bc1b0c8f5091662bd4d0289cfc9bd599cc5d9af7e20859299aab649210e",
+        "page-before-1.json": "39bc8e9a0e98b4379b9f3a21df0ac1f5d63ece818037b1c34905cfdffe7d9d51",
+        "page-before-2.json": "1b0e22384308fc848e0a502f8878af095dad8e615399b11eef4348e3e90946e5",
+        "positive-1.json": "306ecea13296e43719227b3fd967b2fb26533d4033d88b781ecdb2aef40b22f3",
+        "positive-2.json": "0d90a3fb099790cb6c6b81ef9a0015d8ccc2f2043cab2ac601905d77dc70ab39",
+        "result.json": "eee4c5210c23610d5c4227bb03638d38dbb2386b4a11b8dc082d2422698e63d4",
+        "row-1.json": "d502052b9e79cb47b6a1fd5e3d29c17b75aff758064048785deb5049397ddfe3",
+        "row-2.json": "b819b61393ee2da1739aea386239550228db40ed91cc2b8c8175249c41353d61",
+        "selection-before.json": "db53a2491a12689084f534ff13ade195c9394ed830ad03ae82bf9cc0ea126a21",
+        "selection-final.json": "8f98a37f1c9cbdcd815d37f01c1bb34b850ab65d2578de03814d54a8dd04c76d",
+        "signed-before-selection-1.json": "855a8dabd90068f2cc2eb7b36f292949ba33daa2fb0d627690897fe101b7b897",
+        "signed-before-selection-2.json": "dc7a05a0192140aa232235d55e26d5c27558da3e29468ba35fe3865a742a9b37",
+        "signed-final-armed-1.json": "855a8dabd90068f2cc2eb7b36f292949ba33daa2fb0d627690897fe101b7b897",
+        "signed-final-armed-2.json": "dc7a05a0192140aa232235d55e26d5c27558da3e29468ba35fe3865a742a9b37",
+        "source-pixels-1.json": "2f2d2883d24b2cd5b543dd90e3a06457c6f453c86e79f973dd86b99dc1e6120d",
+        "source-pixels-2.json": "4ef04685cc5663817e226a258209e832f4dc43fe080588f721705d7a51de7306",
+        "watch-closed.json": "a54ac5bb1f80f63e97d0fdea2ed11b5d547130e28378703d643019b310611f98"
+      },
+      "localFirstDocumentVisible": true,
+      "overallRawRunnerStatus": "PARTIAL",
+      "realTextAndSelectionPassed": true,
+      "sameLiveEditorDocument": true,
+      "sameOriginalOldAttachmentNode": true,
+      "sentenceSHA256": "cd8f05688e1c2f02de6687c4ec6283a3f28db17265552ec0283088938098853f",
+      "sourceFiles": 2,
+      "twoConsumptionLinksConfirmed": true,
+      "twoIndependentSignedARMEDAcks": true,
+      "unchangedWebsiteWitnessEpoch": true,
+      "uniquePersistentStartPerImage": true,
+      "websiteCountsAfter": {
+        "fileChange": 2,
+        "fileInput": 2,
+        "formSubmit": 0,
+        "sendButtonClicks": 0
+      },
+      "websiteCountsBefore": {
+        "fileChange": 1,
+        "fileInput": 1,
+        "formSubmit": 0,
+        "sendButtonClicks": 0
+      }
+    }
+  },
+  "recovery": {
+    "attributedUpstreamStatusForOriginalPNG": null,
+    "clientFaultGeneratedDuring61": 0,
+    "lateB4FactsSHA256": "867940de93becd106e534c1278d32b6cdf34289d7350cb409275f613745cd4e2",
+    "real61NamedExplicitFailureCard": false,
+    "recoveryInvocation": "NOT_RUN"
+  },
+  "status": "PARTIAL",
+  "supervision": {
+    "capturedNativeWorkspaceNotifications": 24,
+    "eventTypesWakingFinalObserver": [
+      "edge/didActivate",
+      "activeSpaceDidChange"
+    ],
+    "exactNamedErrorSignals": {
+      "identityVerified": true,
+      "observedNamedCardMustMatchOriginalOperationAndEditor": true,
+      "rawSnapshotOnlyAtConfirmedOriginal": true,
+      "requiresVisibleAlertAndNoCardProgress": true
+    },
+    "finalMenuMouseWindowAndProductDispatchAvailable": false,
+    "finalMonitoringIsInExistingInteractiveHost": true,
+    "finalReadOnlyScopeFacts": {
+      "b4": {
+        "at": 1795403209.914148,
+        "case": "b4",
+        "database": {
+          "attachment_reselections": 0,
+          "operations": 1,
+          "upload_starts": 0
+        },
+        "family": "edge",
+        "localOwnershipPresent": true,
+        "nativeWindowPresent": true,
+        "originalLoopbackPIDStillRunningNode": false,
+        "originalTabCount": 1,
+        "originalTabPresent": true,
+        "outcome": "CURRENT_ORIGINAL_RENDERER_REFUSED",
+        "ownedLoopbackListenerExited": true,
+        "productDispatchEnabled": false,
+        "rawSHA256": null,
+        "signedChildStillAlive": false,
+        "site": null,
+        "transportHookInstalled": false
+      },
+      "g4c": {
+        "at": 1795403207.7300658,
+        "case": "g4c",
+        "database": {
+          "attachment_reselections": 0,
+          "operations": 1,
+          "upload_starts": 1
+        },
+        "family": "edge",
+        "localOwnershipPresent": false,
+        "nativeWindowPresent": false,
+        "originalLoopbackPIDStillRunningNode": false,
+        "originalTabCount": null,
+        "originalTabPresent": null,
+        "outcome": "ORIGINAL_ROUTE_UNAVAILABLE",
+        "ownedLoopbackListenerExited": true,
+        "productDispatchEnabled": false,
+        "rawSHA256": null,
+        "signedChildStillAlive": false,
+        "site": null,
+        "transportHookInstalled": false
+      }
+    },
+    "handoffSourceRefs": [
+      "bc2ea40852ea8dfdfd4ff69bd268f51e52ebc7607e88c158c54bc01a867581ae",
+      "0efdad49699ff4007875d726448e6a50ae11c6f3709448a81972dadf51e588a0",
+      "a53a84ff569cdcb0c5d4e91c144999ead53787d11636e1fd4d5309518d29fa7e",
+      "86eb5b6bb20008732d131dc9e9100a7a8c61ab97d030e5956a9fb9c56c7dc7fc",
+      "949cdc8ca54a0ba3efb6b5e304b4b0498c2f5accdceb4b6e1a76a2eaf9684d76"
+    ],
+    "handoffs": [
+      {
+        "activeAtCheckpoint": 18462,
+        "prior": 73414
+      },
+      {
+        "activeAtCheckpoint": 53215,
+        "prior": 18462
+      },
+      {
+        "activeAtCheckpoint": 58070,
+        "prior": 53215
+      },
+      {
+        "activeAtCheckpoint": 79160,
+        "prior": 58070
+      },
+      {
+        "activeAtCheckpoint": 81989,
+        "prior": 79160
+      }
+    ],
+    "lastActiveBusinessScheduling": "Both final signed trials admitted separately by family, under the same lock with per-family exclusive series and per-scope ARMED intents. Earlier event scheduler state changes used a combined key and has exited.",
+    "lastMetadataObserverPID": 81996,
+    "loopbackAndProcessFinal": [
+      {
+        "case": "g4c",
+        "portCheck": "lsof TCP LISTEN IPv4 recorded local address",
+        "portQueryReportedErrors": false,
+        "registeredListenerLoggedExit": true,
+        "registeredLoopbackPortCurrentlyListening": false,
+        "registeredPIDCurrentlyOnPort": false,
+        "registeredProductPIDStillExists": false
+      },
+      {
+        "case": "b4",
+        "portCheck": "lsof TCP LISTEN IPv4 recorded local address",
+        "portQueryReportedErrors": false,
+        "registeredListenerLoggedExit": true,
+        "registeredLoopbackPortCurrentlyListening": false,
+        "registeredPIDCurrentlyOnPort": false,
+        "registeredProductPIDStillExists": false
+      },
+      {
+        "case": "chrome-selection",
+        "portCheck": "lsof TCP LISTEN IPv4 recorded local address",
+        "portQueryReportedErrors": false,
+        "registeredListenerLoggedExit": true,
+        "registeredLoopbackPortCurrentlyListening": false,
+        "registeredPIDCurrentlyOnPort": false,
+        "registeredProductPIDStillExists": false
+      },
+      {
+        "case": "edge-selection",
+        "portCheck": "lsof TCP LISTEN IPv4 recorded local address",
+        "portQueryReportedErrors": false,
+        "registeredListenerLoggedExit": true,
+        "registeredLoopbackPortCurrentlyListening": false,
+        "registeredPIDCurrentlyOnPort": false,
+        "registeredProductPIDStillExists": false
+      }
+    ],
+    "loopbackAndProcessRawSHA256": "cefbbdfeede6ade48d6d7ef8999b5541cedb9b9fb64711320b5e490c244433d1",
+    "noRecordOfUserKeysOrContent": true,
+    "onlyOriginalRetention": true,
+    "retentionStateDeduplicatedPerOriginalCase": true,
+    "selectionActionOwnerRetired": true
+  },
+  "utc": "2026-11-23T03:07:51Z"
+}

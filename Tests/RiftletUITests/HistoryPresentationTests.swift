@@ -108,12 +108,18 @@ final class HistoryPresentationTests: XCTestCase {
         let unknown = asset(status: .unknown, operationID: UUID())
         let ambiguous = RiftHistoryEntry(record: unknown, operation: try operation(for: unknown, phase: .unknown, webTarget: chrome))
         XCTAssertTrue(ambiguous.hasRecoveryOptions)
+        XCTAssertTrue(ambiguous.canRequestReattachment)
+        let handled = RiftHistoryEntry(record: unknown, operation: ambiguous.operation, isHandled: true)
+        XCTAssertFalse(handled.canRequestReattachment)
+        let missing = asset(status: .missing, operationID: unknown.activeOperationID, id: unknown.id)
+        XCTAssertFalse(RiftHistoryEntry(record: missing, operation: ambiguous.operation).canRequestReattachment)
         XCTAssertFalse(ambiguous.canRestoreToRift)
         let retiredTarget = TargetLease(adapterID: "legacy-web", surface: .webChat, applicationID: "retired",
                                         sessionID: "old", windowID: "old", documentID: "old",
                                         composerID: "old", draftGeneration: "old")
         let legacy = RiftHistoryEntry(record: unknown, operation: try operation(for: unknown, phase: .unknown, webTarget: retiredTarget))
         XCTAssertFalse(legacy.canReviewOriginal)
+        XCTAssertFalse(legacy.canRequestReattachment)
         XCTAssertTrue(legacy.hasRecoveryOptions)
         XCTAssertFalse(RiftHistoryEntry(record: unknown, operation: try operation(for: unknown, phase: .unknown)).hasRecoveryOptions)
     }
@@ -196,8 +202,8 @@ final class HistoryPresentationTests: XCTestCase {
             XCTAssertEqual(HistoryPresentation.localizedState(for: missing, copy: copy),
                            copy.text("本地副本不可用", "Local copy unavailable"))
             XCTAssertEqual(HistoryPresentation.detailText(for: unknown, copy: copy),
-                           copy.text("请对照原图，在原草稿中核对附件。Riftlet 不会自动重传。",
-                                     "Compare the original image with the attachment in your draft. Riftlet won’t upload it again automatically."))
+                           copy.text("上传结果尚未确认，重新附加可能产生重复附件。原图已保留。",
+                                     "The upload is unconfirmed. Attaching again may create a duplicate. The original image is saved."))
             XCTAssertFalse(unknown.canRestoreToRift)
             XCTAssertEqual(RiftHistoryFilter.needsVerification.title(copy: copy), copy.text("待核实", "Needs Review"))
         }

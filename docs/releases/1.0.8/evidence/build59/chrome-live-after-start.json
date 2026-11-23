@@ -1,0 +1,501 @@
+{
+  "build": "59",
+  "productCommit": "69b76cb025ab552b3480e3af095b627891874712",
+  "dmgSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+  "scope": "Ordinary signed macOS browser, dedicated real ChatGPT Temporary Chat, locally imported native screenshots and external, process/window-scoped software mouse.",
+  "family": "chrome",
+  "loggedIn": true,
+  "transcript": "No messages sent by the test. Personal chats were outside its scope.",
+  "operations": [
+    {
+      "operationID": "AB1C5D50-EB5B-42CA-81F7-54A5BBC9B4A2",
+      "invocationID": "FF6DDC36-27D2-4E91-977C-36881ED769F1",
+      "originalPNG_SHA256": "0f3963a9b659b2b3f53f67b567ffacc4be8c96baf51bbfd87d1bfce4191ce0e9",
+      "pngBytes": 5516,
+      "originalTargetSHA256": "af9ee27649de28a8fc2043149f95554d23e173665847bd17a4e83cc62bba6051",
+      "documentIDDigest": "00dff0f55434ab6b31011e1fd571be4901e8f8e9e1ae43492ca9f5cd8b54c7c0",
+      "composerIDDigest": "51067c4eb1ddda77db51bc7a89bb75eb6ef398e803b5b9ce4b6f8084d0c8ad5c",
+      "draftGenerationDigest": "32d3d358a3f4d23ecd44ef0478c8350edc4e014283b7fc2e0673f94bb563c931",
+      "originalWitnessIDDigest": "a0bcee048391798cba865fa7d24db453005524f159f5899de30cb161a6af057d",
+      "assetID": "E271CBFA-3A07-4093-8988-B1DFDA077865",
+      "databasePhase": "inputTriggered",
+      "receiptOutcome": "uploadStarted",
+      "status": "transferring",
+      "visibility": "swallowed",
+      "nativePresses": [
+        {
+          "eventNumber": 12224,
+          "ackToOriginalMouseDownMS": 1896.793,
+          "hostEpochDigest": "88778d920e833a61741baa2950ea1eb12b5ce127e41130ebadc93b3a073e564c",
+          "bindingDigest": "61de4f2a619d25e16486bd2631a22c11dd69e674c2948f961919de978b4859d4"
+        }
+      ],
+      "startSignal": "attachmentAccepted",
+      "durableStart": {
+        "attachmentID": "b129269b-787c-419b-9e8f-c0b7645d924a:node-3",
+        "evidenceID": "504f9bf3-eff0-4504-bbc6-6e0d0a48b79b",
+        "inputCount": 1,
+        "startSignal": "attachmentAccepted",
+        "databaseStartedAt": 1795325869.749195,
+        "originalReceiptSHA256": "af09aa182e7742e9dac0d79bfa021d425fa6d2f99dc356383e828354fc6b4a72"
+      }
+    },
+    {
+      "operationID": "09A23EEC-A52D-48C0-87AF-18813DB22B89",
+      "invocationID": "F380CD1F-37F2-4CB5-888A-DE5A8ADB5892",
+      "originalPNG_SHA256": "7e50610a7e636e1500471c1ec7b561521267c672a629e9d7c5199e66cdbf4814",
+      "pngBytes": 5516,
+      "originalTargetSHA256": "698984caf66742a9811aa645742b322e51ec3350401b3790a70e4796241b0f47",
+      "documentIDDigest": "00dff0f55434ab6b31011e1fd571be4901e8f8e9e1ae43492ca9f5cd8b54c7c0",
+      "composerIDDigest": "51067c4eb1ddda77db51bc7a89bb75eb6ef398e803b5b9ce4b6f8084d0c8ad5c",
+      "draftGenerationDigest": "47b001b7d07190b351e4280e504f62b2f901d7d5f60b4b8ec6769be47cf96ee1",
+      "originalWitnessIDDigest": "799325778ce1298a5f28fee00c49df58543834b0af672617dce984ee32dcdbab",
+      "assetID": "644E2E84-2D37-4CC5-8B83-2CCFFDE374F4",
+      "databasePhase": "inputTriggered",
+      "receiptOutcome": "uploadStarted",
+      "status": "transferring",
+      "visibility": "swallowed",
+      "nativePresses": [
+        {
+          "eventNumber": 20139,
+          "ackToOriginalMouseDownMS": 3766.274,
+          "hostEpochDigest": "d12326e29a0e1d9e9465c18c5b4c61a95b747c4cbc32bf9df0d44c17629d7e32",
+          "bindingDigest": "ae082bcc87be94b662f8c9a7221f715259525f37be438aeb6fe918f3831b83fb"
+        }
+      ],
+      "startSignal": "attachmentAccepted",
+      "durableStart": {
+        "attachmentID": "b129269b-787c-419b-9e8f-c0b7645d924a:node-4",
+        "evidenceID": "ef28f5f4-0a20-418b-bdab-846b30ae81bc",
+        "inputCount": 1,
+        "startSignal": "attachmentAccepted",
+        "databaseStartedAt": 1795326831.525497,
+        "originalReceiptSHA256": "48b848b66bb8ae924a40af3dc38011c01f1dbc1c2ce07f279f28c6e31a54383a"
+      }
+    },
+    {
+      "operationID": "7BCA5335-0C12-41A2-B6FB-276F5F1810A0",
+      "invocationID": "F1CDE35D-EBF9-4AFF-A057-AFFB0E71356D",
+      "originalPNG_SHA256": "dd956333dde322ef959027d926808e0a9ae83f247794c0efe8a0a2f34989e2a6",
+      "pngBytes": 5516,
+      "originalTargetSHA256": "0275763507b1c2403fde2c2f9259781794cc8d402f8562abfd95c2cda4266c37",
+      "documentIDDigest": "00dff0f55434ab6b31011e1fd571be4901e8f8e9e1ae43492ca9f5cd8b54c7c0",
+      "composerIDDigest": "51067c4eb1ddda77db51bc7a89bb75eb6ef398e803b5b9ce4b6f8084d0c8ad5c",
+      "draftGenerationDigest": "47b001b7d07190b351e4280e504f62b2f901d7d5f60b4b8ec6769be47cf96ee1",
+      "originalWitnessIDDigest": "877c4780a980fb752badb092d584855039d1a79d9db6d42c0a5e4960a317595a",
+      "assetID": "ADFC1F90-B3B2-4E9D-A7BB-52311F57C097",
+      "databasePhase": "inputTriggered",
+      "receiptOutcome": "uploadStarted",
+      "status": "transferring",
+      "visibility": "swallowed",
+      "nativePresses": [
+        {
+          "eventNumber": 6885,
+          "ackToOriginalMouseDownMS": 1483.803,
+          "hostEpochDigest": "d5b4ea33637d0b8e6614253b5237740dc7ea40906581acc399cb8f9f07073f6e",
+          "bindingDigest": "9c42c1ec4615e8f2889e926a906e4e2f9e8517d5bc6d9e7f6f5a4b484457052f"
+        }
+      ],
+      "startSignal": "attachmentAccepted",
+      "durableStart": {
+        "attachmentID": "b129269b-787c-419b-9e8f-c0b7645d924a:node-5",
+        "evidenceID": "aefc8c1d-e067-4160-8b01-8722ba4b294c",
+        "inputCount": 1,
+        "startSignal": "attachmentAccepted",
+        "databaseStartedAt": 1795326838.273487,
+        "originalReceiptSHA256": "540bc4cf301af5b622abe461d2e7116d773d3d6dd21f6ebf91063e8f820e0a03"
+      }
+    },
+    {
+      "operationID": "AF215E3E-6C41-41C6-8FDA-BDF32E91377B",
+      "invocationID": "5BA4A06E-BE70-4676-81E1-80F890589433",
+      "originalPNG_SHA256": "104fc89b816f78cdff771b368f40f59c9e13f624d5d7f316c777460cc7ebb29c",
+      "pngBytes": 5516,
+      "originalTargetSHA256": "683515f40c98410d44c51ef8d8710eb88db782442ae23acb6a459830b1b921d8",
+      "documentIDDigest": "00dff0f55434ab6b31011e1fd571be4901e8f8e9e1ae43492ca9f5cd8b54c7c0",
+      "composerIDDigest": "51067c4eb1ddda77db51bc7a89bb75eb6ef398e803b5b9ce4b6f8084d0c8ad5c",
+      "draftGenerationDigest": "47b001b7d07190b351e4280e504f62b2f901d7d5f60b4b8ec6769be47cf96ee1",
+      "originalWitnessIDDigest": "3f58f46f26e1d0d635f248d4b72eb4773739e23108883fb8ca22087f5ae8c2ba",
+      "assetID": "7714B772-A2B2-4D49-B39F-BCAA731F4EA4",
+      "databasePhase": "inputTriggered",
+      "receiptOutcome": "uploadStarted",
+      "status": "transferring",
+      "visibility": "swallowed",
+      "nativePresses": [
+        {
+          "eventNumber": 13317,
+          "ackToOriginalMouseDownMS": 4262.35,
+          "hostEpochDigest": "0468be777c5aacba768be68d351019258c264b5e276c8562786151dcbd9f7491",
+          "bindingDigest": "81898d1c8a33568548ec0a74c87fcd9d3114c04758057016f430691bbdd67e2e"
+        }
+      ],
+      "startSignal": "attachmentAccepted",
+      "durableStart": {
+        "attachmentID": "b129269b-787c-419b-9e8f-c0b7645d924a:node-6",
+        "evidenceID": "9a0ce869-76a6-4c81-aca7-81c3e2f8ff74",
+        "inputCount": 1,
+        "startSignal": "attachmentAccepted",
+        "databaseStartedAt": 1795326848.82319,
+        "originalReceiptSHA256": "2b7f6bed5d69aa7333c5cd02d098d7e801df04bb06fb0884f1b211f29ec3d788"
+      }
+    },
+    {
+      "operationID": "DBF64FB8-E2E7-414C-AF67-F28C2AE955F9",
+      "invocationID": "D6335E7E-5D93-459A-9828-73DDA0B27DD2",
+      "originalPNG_SHA256": "070f8e2bba03198b39dd695abf80ab25d592935d48754db25bb378e1be5473e6",
+      "pngBytes": 5516,
+      "originalTargetSHA256": "85ace158b41bbdb171c37839286d731b745c0c985bbe4d23c88cf325009c9e4b",
+      "documentIDDigest": "00dff0f55434ab6b31011e1fd571be4901e8f8e9e1ae43492ca9f5cd8b54c7c0",
+      "composerIDDigest": "51067c4eb1ddda77db51bc7a89bb75eb6ef398e803b5b9ce4b6f8084d0c8ad5c",
+      "draftGenerationDigest": "47b001b7d07190b351e4280e504f62b2f901d7d5f60b4b8ec6769be47cf96ee1",
+      "originalWitnessIDDigest": "83e8d5b7fb243505c52629d50d9d98af7e6c8124b27914d73d29c2ad7fd6e0d9",
+      "assetID": "5F1B926F-0730-40DD-9FA1-3D4D60DF5E96",
+      "databasePhase": "inputTriggered",
+      "receiptOutcome": "uploadStarted",
+      "status": "transferring",
+      "visibility": "swallowed",
+      "nativePresses": [
+        {
+          "eventNumber": 14326,
+          "ackToOriginalMouseDownMS": 1072.999,
+          "hostEpochDigest": "0468be777c5aacba768be68d351019258c264b5e276c8562786151dcbd9f7491",
+          "bindingDigest": "fe6bc884a0177e2e1f129d614101a281c6d30e060640cccdd1e67102416bcb04"
+        }
+      ],
+      "startSignal": "attachmentAccepted",
+      "durableStart": {
+        "attachmentID": "b129269b-787c-419b-9e8f-c0b7645d924a:node-7",
+        "evidenceID": "9d2dd520-ecde-4158-a9e9-caa2a42195ea",
+        "inputCount": 1,
+        "startSignal": "attachmentAccepted",
+        "databaseStartedAt": 1795326851.357583,
+        "originalReceiptSHA256": "1b1dafd4cbf178dfccb6ce9798abfc5e960cc4abfe3c50e30c9f655222eda2e6"
+      }
+    },
+    {
+      "operationID": "184AC864-65AB-48F0-981B-38E000054314",
+      "invocationID": "E9DE7193-6793-4A45-A15A-AA8E25630E19",
+      "originalPNG_SHA256": "84790755b6f87b502a1844d81b9c61615459d25add9e2544f740ad132c2dd306",
+      "pngBytes": 5516,
+      "originalTargetSHA256": "3611b41b27a264c9932d6d2fdfe0eb370a747150eb32b50ba8accc687e1e3bca",
+      "documentIDDigest": "00dff0f55434ab6b31011e1fd571be4901e8f8e9e1ae43492ca9f5cd8b54c7c0",
+      "composerIDDigest": "51067c4eb1ddda77db51bc7a89bb75eb6ef398e803b5b9ce4b6f8084d0c8ad5c",
+      "draftGenerationDigest": "47b001b7d07190b351e4280e504f62b2f901d7d5f60b4b8ec6769be47cf96ee1",
+      "originalWitnessIDDigest": "6f1a4236262d5d91945b7b336866f30f9a52f89eb8817e9dd57bd8fa230a056d",
+      "assetID": "D958C32F-501E-427C-AB0C-789CFADF041A",
+      "databasePhase": "inputTriggered",
+      "receiptOutcome": "uploadStarted",
+      "status": "transferring",
+      "visibility": "swallowed",
+      "nativePresses": [
+        {
+          "eventNumber": 27144,
+          "ackToOriginalMouseDownMS": 4609.073,
+          "hostEpochDigest": "1defc8042f1c55fc4a1cb5530cee94d7bd29e2f3a8fccc82bc87caa516e0568d",
+          "bindingDigest": "dfb5362b8096f885e6d5821cd4afb7af8ed17394d78d98a2393e0403579975c3"
+        }
+      ],
+      "startSignal": "attachmentAccepted",
+      "durableStart": {
+        "attachmentID": "b129269b-787c-419b-9e8f-c0b7645d924a:node-8",
+        "evidenceID": "5087d43d-0973-4c6c-b476-367464b682cf",
+        "inputCount": 1,
+        "startSignal": "attachmentAccepted",
+        "databaseStartedAt": 1795326861.5936089,
+        "originalReceiptSHA256": "f0ceb13b1590d23f12b03a8c81565ccdad0212b1d93389d973bc4904f9230eba"
+      }
+    }
+  ],
+  "originalDocumentAndEditor": true,
+  "counts": {
+    "fileChange": 5,
+    "fileInput": 5,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  },
+  "textUnchanged": true,
+  "selectionUnchanged": true,
+  "initialImages": 1,
+  "rememberedImages": 5,
+  "completedBatches": [
+    [
+      1
+    ],
+    [
+      2
+    ],
+    [
+      3,
+      4
+    ]
+  ],
+  "result": "STOPPED",
+  "reason": "MOUSE_SELECTION_UNCONFIRMED_SC_WINDOW_INSPECTION_UNAVAILABLE",
+  "appExited": true,
+  "traceSummary": {
+    "events": 277,
+    "leasePhases": {
+      "armed": 13,
+      "consumed": 5,
+      "frozen": 5,
+      "unavailable": 2
+    },
+    "nativeFailures": [],
+    "nativeStatusCodes": [
+      -1712
+    ],
+    "productCommitEvents": 5,
+    "signedAppPermissionChecks": [
+      {
+        "publication": "publish",
+        "purpose": "startup",
+        "result": "granted",
+        "usableResult": "granted"
+      }
+    ]
+  },
+  "originalRawSHA256": {
+    "capture-1.json": "255757f097ca5dfa7fa7411a53a57c0530f1701e8db5139ba25628cea861480a",
+    "capture-2.json": "940d42b1496a8a41947eef06532dd45a1052b28ba21179bca6c94d07103291e5",
+    "capture-3.json": "64bff382fa1d82ca19e724f509101eb31b15740c44ce30c67ca6b80abd1986c2",
+    "capture-4.json": "9bbbac748b6a2fcf34763305ae2e0e4a4bc26ec4b475851a8d20f87796c43d3c",
+    "capture-5.json": "4e56d7872e32230bbfa45d1b906cb28189f0f03af61d94c41ecc38a822659cb4",
+    "capture-6.json": "bf5193bd2165ccd2c54971ab41db4483e50a12b6567f39dd8fdfe2bc5fcb6866",
+    "cards-before-1.json": "3528dbbf569817a65b0443ac0d3676c894794d74637af55e8d2e007d209f53a7",
+    "cards-before-2.json": "b802684c1bd2e399e8648b76955b0b3b54a5c29ca1f3ca8f59b1f61f57668cef",
+    "cards-before-3.json": "cbad7c4026040dfb26bee844a143cc034d24924af584cc3488b95a0cca32ff98",
+    "cards-before-5.json": "c08ca45b781c87238dab9d47bf7cbf5aa4c37e5ea103e94e8466e208caf3f075",
+    "child.json": "2a01400cc1f9e9bbd5e5ced1e5598dd9e18314504abc8a4b22fdd019b313669b",
+    "click-1.json": "8990b10a3176939276531974da5d1981cc6ad93f323216c1fd0f3ab48aafa0bc",
+    "click-2.json": "6fc6f4562eb17fd98494b58aa5aa47d6a885369e06bff4e3d8e1cf5307e6a700",
+    "click-3.json": "671a4053f0f1eaaa50e843428de1118f29892fd167ab49a42b256d31912b100f",
+    "click-4.json": "e75455cc80e922ace535556ad67dc1fb08ec294cb38651c2d92576ca78cf5334",
+    "click-5.json": "1572bffb7663318381134974243a817c39b3c30330b9f63c0ef656ad8da34d0f",
+    "click-6.json": "51c471a41be9583181babb15d93ca788874b5fd468001a031531cc4feb0339cd",
+    "cold-readiness-1.json": "473893b5c183c10df7a5638870e25ec68fe1e79ace8bb5a7a2d7a82d49ef7884",
+    "cold-readiness-2.json": "00462da303c3128e2ad16ce70dbba1d19f15aed9286e3107ef6aa9e87d148e7a",
+    "cold-readiness-3.json": "435d11a5b4979e0f8d59226678f8cd4c95e40654faf53b58d32aa052f1a6ed59",
+    "cold-readiness-5.json": "bbd6a5fe570b8a1e5623340cd0281f5d326b04b29c088a0c407d68acab6f95ca",
+    "db-1.json": "04195bcd3714b5b0c082f94b0919de0c21d17c765a87b122ced8be037208de51",
+    "db-2.json": "0212be3436fde81dd37a6f510c4e7933144dcce9e7734069814f26757f44d001",
+    "db-4.json": "4a0b9703081197632a6fd319b0fda1424a68e229b5d8c3b43f7392473c87c566",
+    "final-db.json": "de22e561c816bd59eea7d64c1345868f6db275624d7d92bcf6425e245869ddf7",
+    "final-page.json": "1e18d1b01344215817d4bb63cb571cfa23893578efed10153bfa07f3ab8fe100",
+    "original-card-before-candidate.json": "154ee2b9e6263b29631386cda0d69a12d656fb8a9cd1502339b8532a07102144",
+    "original-only-followup-6.json": "52813497cf461324a7fd76cdc7e97b3e8148d8840b448b5fbc065d26ba2a4344",
+    "page-after-1.json": "5025c5b8b0b3412a41093d0887bbcb0e5c7731d53cfae3c48e10ebe8a0261fc2",
+    "page-after-2.json": "25b706cd701b2184496b43f196a00f2425522333a14222973045ce9d63f8bbf7",
+    "page-after-4.json": "d68e161099b599761842119170c6578d593524ac645f942eaf956812d313fdf1",
+    "page-baseline.json": "fae184ab55839c89759be9ff69cc6be5a91024ce212dba9efc08a15110eb47d0",
+    "page-before-1.json": "3528dbbf569817a65b0443ac0d3676c894794d74637af55e8d2e007d209f53a7",
+    "page-before-2.json": "b802684c1bd2e399e8648b76955b0b3b54a5c29ca1f3ca8f59b1f61f57668cef",
+    "page-before-3.json": "cbad7c4026040dfb26bee844a143cc034d24924af584cc3488b95a0cca32ff98",
+    "page-before-4.json": "cbad7c4026040dfb26bee844a143cc034d24924af584cc3488b95a0cca32ff98",
+    "page-before-5.json": "c08ca45b781c87238dab9d47bf7cbf5aa4c37e5ea103e94e8466e208caf3f075",
+    "page-before-6.json": "c08ca45b781c87238dab9d47bf7cbf5aa4c37e5ea103e94e8466e208caf3f075",
+    "positive-1.json": "77a27cba2c287d5307284e1999a0d924a5654b3db943294cd8e24ff297df00f9",
+    "positive-2.json": "611c2cafe4e6882dc4ef159e7e27d4bef62cf01640aea9b8c5a0266af26448bd",
+    "positive-4.json": "74aa49f4767cb125992201e9d75cf967d70030bf9d23ff5dbd281094a4ec9dc0",
+    "previous-proven-start.json": "784ffe65b83a511fcd9765cebb2f2a395ae87fba61d245a16ee7c61f7b26fe27",
+    "result.json": "a42eafc4619c155cd790337634b4804e61e2f77b579ba9716f989deb36a4c2ea",
+    "route.json": "252bfa6303e0f98e8056932f81c5649d6eb3da4b301c5f3738cd6099b441c4ed",
+    "row-1.json": "3a21189a4daf8d63a1e3886142881cbf5b923b207feff77605805b0858f14cb5",
+    "row-2.json": "f53eb06c805ed56f0d05b45aa39c6959941efb29bda38c48f5559ad2a83b0a38",
+    "row-3.json": "03e794dcbd55320a2bfbb892a72afe41b040d03806faddcf0200bbc0c4ea1a85",
+    "row-4.json": "73eb3311e0ec5dd1ad04c968c57e7e0683794b3cfe0d33a5ede429b4618f11ec",
+    "row-5.json": "ac2fbbe64bc10049a3fae4c826394dcecbef7dc5d1aa610fe10b35b360575db5",
+    "row-6.json": "a239913ac6ba2806cf2d49cff6e648092c04ae7c0264449fe4377fe14626520c",
+    "timing-4.json": "b81cdfe4ebe97a2874cd4158007f69a605da14313845ffb8321b8753587b7093",
+    "watch-closed.json": "a54ac5bb1f80f63e97d0fdea2ed11b5d547130e28378703d643019b310611f98",
+    "private-trace.jsonl": "aa59eab33627c72d0a9c85c5c2600779cb7a20d51a2f4799d9c4b9603cb279b1",
+    "signed-app.stderr": "423d391cd31c1b8866d063d6232876b8ececd45f5599dcd7b0ecfb49b16232d2",
+    "account.json": "8f8bbca2bfafdd31f42050d6d21909797c54c52a0949036ed7a11e0dbf186660",
+    "E271CBFA-3A07-4093-8988-B1DFDA077865-original.png": "0f3963a9b659b2b3f53f67b567ffacc4be8c96baf51bbfd87d1bfce4191ce0e9",
+    "E271CBFA-3A07-4093-8988-B1DFDA077865-dispatch.json": "d7e3c1dd841e4c4d36c7db2e93612565955bb0e75174f895b0b42b4623bdb4e5",
+    "644E2E84-2D37-4CC5-8B83-2CCFFDE374F4-original.png": "7e50610a7e636e1500471c1ec7b561521267c672a629e9d7c5199e66cdbf4814",
+    "644E2E84-2D37-4CC5-8B83-2CCFFDE374F4-dispatch.json": "a8fc69b71ffbf5cd0644da8cd666c647e4bcef4b0b608d66a2f655cacd93aa6b",
+    "ADFC1F90-B3B2-4E9D-A7BB-52311F57C097-original.png": "dd956333dde322ef959027d926808e0a9ae83f247794c0efe8a0a2f34989e2a6",
+    "ADFC1F90-B3B2-4E9D-A7BB-52311F57C097-dispatch.json": "cd2167154ff0d190a89af6903425af375fd42f52aa408bfa2e0476ac44cad293",
+    "7714B772-A2B2-4D49-B39F-BCAA731F4EA4-original.png": "104fc89b816f78cdff771b368f40f59c9e13f624d5d7f316c777460cc7ebb29c",
+    "7714B772-A2B2-4D49-B39F-BCAA731F4EA4-dispatch.json": "c1e79de05496a1023ef8807032465ffbb9a55f7bf49110ce6818557f06c41b0a",
+    "5F1B926F-0730-40DD-9FA1-3D4D60DF5E96-original.png": "070f8e2bba03198b39dd695abf80ab25d592935d48754db25bb378e1be5473e6",
+    "5F1B926F-0730-40DD-9FA1-3D4D60DF5E96-dispatch.json": "b9cfe8fd80c301f3552c7cba9e72048783c619ad42c89d4bed71b91da391752d",
+    "D958C32F-501E-427C-AB0C-789CFADF041A-original.png": "84790755b6f87b502a1844d81b9c61615459d25add9e2544f740ad132c2dd306",
+    "D958C32F-501E-427C-AB0C-789CFADF041A-dispatch.json": "7ed70a41697725b8f5f989aace464fb8a577eacde92010516af80cbd4b494a0c"
+  },
+  "verifiedBatches": [
+    [
+      {
+        "ackUptime": 400215.964160375,
+        "cardID": "b129269b-787c-419b-9e8f-c0b7645d924a:node-4",
+        "displayName": "riftlet-09A23EEC-A52D-48C0-87AF-18813DB22B89.png",
+        "downUptime": 400219.730434041,
+        "eventNumber": 20139,
+        "evidenceID": "ef28f5f4-0a20-418b-bdab-846b30ae81bc",
+        "index": 1,
+        "inputName": "riftlet-09A23EEC-A52D-48C0-87AF-18813DB22B89.png",
+        "invocationID": "F380CD1F-37F2-4CB5-888A-DE5A8ADB5892",
+        "operationID": "09A23EEC-A52D-48C0-87AF-18813DB22B89",
+        "pixelsSHA256": "84d77a7ed8da7415606b074d6e19168ecc7ae3797357b168a479405460367685",
+        "previewEncodedSHA256": "7e50610a7e636e1500471c1ec7b561521267c672a629e9d7c5199e66cdbf4814",
+        "requestDigest": "ae082bcc87be94b662f8c9a7221f715259525f37be438aeb6fe918f3831b83fb",
+        "sha256": "7e50610a7e636e1500471c1ec7b561521267c672a629e9d7c5199e66cdbf4814"
+      }
+    ],
+    [
+      {
+        "ackUptime": 400225.560287875,
+        "cardID": "b129269b-787c-419b-9e8f-c0b7645d924a:node-5",
+        "displayName": "riftlet-7BCA5335-0C12-41A2-B6FB-276F5F1810A0.png",
+        "downUptime": 400227.044090583,
+        "eventNumber": 6885,
+        "evidenceID": "aefc8c1d-e067-4160-8b01-8722ba4b294c",
+        "index": 2,
+        "inputName": "riftlet-7BCA5335-0C12-41A2-B6FB-276F5F1810A0.png",
+        "invocationID": "F1CDE35D-EBF9-4AFF-A057-AFFB0E71356D",
+        "operationID": "7BCA5335-0C12-41A2-B6FB-276F5F1810A0",
+        "pixelsSHA256": "4016561c66c9b24d06e0908590864e684034a33c60e31f8b7c832b720d13cdfc",
+        "previewEncodedSHA256": "dd956333dde322ef959027d926808e0a9ae83f247794c0efe8a0a2f34989e2a6",
+        "requestDigest": "9c42c1ec4615e8f2889e926a906e4e2f9e8517d5bc6d9e7f6f5a4b484457052f",
+        "sha256": "dd956333dde322ef959027d926808e0a9ae83f247794c0efe8a0a2f34989e2a6"
+      }
+    ],
+    [
+      {
+        "ackUptime": 400233.1942630417,
+        "cardID": "b129269b-787c-419b-9e8f-c0b7645d924a:node-6",
+        "displayName": "riftlet-AF215E3E-6C41-41C6-8FDA-BDF32E91377B.png",
+        "downUptime": 400237.4566135,
+        "eventNumber": 13317,
+        "evidenceID": "9a0ce869-76a6-4c81-aca7-81c3e2f8ff74",
+        "index": 3,
+        "inputName": "riftlet-AF215E3E-6C41-41C6-8FDA-BDF32E91377B.png",
+        "invocationID": "5BA4A06E-BE70-4676-81E1-80F890589433",
+        "operationID": "AF215E3E-6C41-41C6-8FDA-BDF32E91377B",
+        "pixelsSHA256": "d9e61607d2e0cfab5264e44b5f348eaaa3b125baea8253f938161291dc65784b",
+        "previewEncodedSHA256": "104fc89b816f78cdff771b368f40f59c9e13f624d5d7f316c777460cc7ebb29c",
+        "requestDigest": "81898d1c8a33568548ec0a74c87fcd9d3114c04758057016f430691bbdd67e2e",
+        "sha256": "104fc89b816f78cdff771b368f40f59c9e13f624d5d7f316c777460cc7ebb29c"
+      },
+      {
+        "ackUptime": 400238.89158658334,
+        "cardID": "b129269b-787c-419b-9e8f-c0b7645d924a:node-7",
+        "displayName": "riftlet-DBF64FB8-E2E7-414C-AF67-F28C2AE955F9.png",
+        "downUptime": 400239.964585208,
+        "eventNumber": 14326,
+        "evidenceID": "9d2dd520-ecde-4158-a9e9-caa2a42195ea",
+        "index": 4,
+        "inputName": "riftlet-DBF64FB8-E2E7-414C-AF67-F28C2AE955F9.png",
+        "invocationID": "D6335E7E-5D93-459A-9828-73DDA0B27DD2",
+        "operationID": "DBF64FB8-E2E7-414C-AF67-F28C2AE955F9",
+        "pixelsSHA256": "43b16200102e19ff1e94995f5dc44283518ee44d60801882490ab5af697af219",
+        "previewEncodedSHA256": "070f8e2bba03198b39dd695abf80ab25d592935d48754db25bb378e1be5473e6",
+        "requestDigest": "fe6bc884a0177e2e1f129d614101a281c6d30e060640cccdd1e67102416bcb04",
+        "sha256": "070f8e2bba03198b39dd695abf80ab25d592935d48754db25bb378e1be5473e6"
+      }
+    ]
+  ],
+  "verifiedOriginalOperations": [
+    {
+      "operationID": "09A23EEC-A52D-48C0-87AF-18813DB22B89",
+      "invocationID": "F380CD1F-37F2-4CB5-888A-DE5A8ADB5892",
+      "assetID": "644E2E84-2D37-4CC5-8B83-2CCFFDE374F4",
+      "sourceSHA256": "7e50610a7e636e1500471c1ec7b561521267c672a629e9d7c5199e66cdbf4814",
+      "decodedPixelSHA256": "84d77a7ed8da7415606b074d6e19168ecc7ae3797357b168a479405460367685",
+      "dimensions": [
+        330,
+        196
+      ],
+      "displayName": "riftlet-09A23EEC-A52D-48C0-87AF-18813DB22B89.png",
+      "originalInputEvents": [
+        "input",
+        "change"
+      ],
+      "cardID": "b129269b-787c-419b-9e8f-c0b7645d924a:node-4",
+      "evidenceID": "ef28f5f4-0a20-418b-bdab-846b30ae81bc",
+      "ackToMouseDownMS": 3766.274
+    },
+    {
+      "operationID": "7BCA5335-0C12-41A2-B6FB-276F5F1810A0",
+      "invocationID": "F1CDE35D-EBF9-4AFF-A057-AFFB0E71356D",
+      "assetID": "ADFC1F90-B3B2-4E9D-A7BB-52311F57C097",
+      "sourceSHA256": "dd956333dde322ef959027d926808e0a9ae83f247794c0efe8a0a2f34989e2a6",
+      "decodedPixelSHA256": "4016561c66c9b24d06e0908590864e684034a33c60e31f8b7c832b720d13cdfc",
+      "dimensions": [
+        330,
+        196
+      ],
+      "displayName": "riftlet-7BCA5335-0C12-41A2-B6FB-276F5F1810A0.png",
+      "originalInputEvents": [
+        "input",
+        "change"
+      ],
+      "cardID": "b129269b-787c-419b-9e8f-c0b7645d924a:node-5",
+      "evidenceID": "aefc8c1d-e067-4160-8b01-8722ba4b294c",
+      "ackToMouseDownMS": 1483.803
+    },
+    {
+      "operationID": "AF215E3E-6C41-41C6-8FDA-BDF32E91377B",
+      "invocationID": "5BA4A06E-BE70-4676-81E1-80F890589433",
+      "assetID": "7714B772-A2B2-4D49-B39F-BCAA731F4EA4",
+      "sourceSHA256": "104fc89b816f78cdff771b368f40f59c9e13f624d5d7f316c777460cc7ebb29c",
+      "decodedPixelSHA256": "d9e61607d2e0cfab5264e44b5f348eaaa3b125baea8253f938161291dc65784b",
+      "dimensions": [
+        330,
+        196
+      ],
+      "displayName": "riftlet-AF215E3E-6C41-41C6-8FDA-BDF32E91377B.png",
+      "originalInputEvents": [
+        "input",
+        "change"
+      ],
+      "cardID": "b129269b-787c-419b-9e8f-c0b7645d924a:node-6",
+      "evidenceID": "9a0ce869-76a6-4c81-aca7-81c3e2f8ff74",
+      "ackToMouseDownMS": 4262.35
+    },
+    {
+      "operationID": "DBF64FB8-E2E7-414C-AF67-F28C2AE955F9",
+      "invocationID": "D6335E7E-5D93-459A-9828-73DDA0B27DD2",
+      "assetID": "5F1B926F-0730-40DD-9FA1-3D4D60DF5E96",
+      "sourceSHA256": "070f8e2bba03198b39dd695abf80ab25d592935d48754db25bb378e1be5473e6",
+      "decodedPixelSHA256": "43b16200102e19ff1e94995f5dc44283518ee44d60801882490ab5af697af219",
+      "dimensions": [
+        330,
+        196
+      ],
+      "displayName": "riftlet-DBF64FB8-E2E7-414C-AF67-F28C2AE955F9.png",
+      "originalInputEvents": [
+        "input",
+        "change"
+      ],
+      "cardID": "b129269b-787c-419b-9e8f-c0b7645d924a:node-7",
+      "evidenceID": "9d2dd520-ecde-4158-a9e9-caa2a42195ea",
+      "ackToMouseDownMS": 1072.999
+    },
+    {
+      "operationID": "184AC864-65AB-48F0-981B-38E000054314",
+      "invocationID": "E9DE7193-6793-4A45-A15A-AA8E25630E19",
+      "assetID": "D958C32F-501E-427C-AB0C-789CFADF041A",
+      "sourceSHA256": "84790755b6f87b502a1844d81b9c61615459d25add9e2544f740ad132c2dd306",
+      "decodedPixelSHA256": "48a3f2dbe19ec58f2c4f718b8e61e0b852bbc5c167c186503720f8f27fd57ce4",
+      "dimensions": [
+        330,
+        196
+      ],
+      "displayName": "riftlet-184AC864-65AB-48F0-981B-38E000054314.png",
+      "originalInputEvents": [
+        "input",
+        "change"
+      ],
+      "cardID": "b129269b-787c-419b-9e8f-c0b7645d924a:node-8",
+      "evidenceID": "5087d43d-0973-4c6c-b476-367464b682cf",
+      "ackToMouseDownMS": 4609.073
+    }
+  ],
+  "rapidTimings": [
+    {
+      "inTwoSeconds": false,
+      "originalAppKitDownDeltaMS": 2507.971707964316
+    }
+  ]
+}

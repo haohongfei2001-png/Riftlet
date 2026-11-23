@@ -1,0 +1,69 @@
+{
+  "scope": "Original product resource in native headless browser engines with a loopback fixture. No physical macOS History window, signed package or provider-site input was exercised.",
+  "baselineCommit": "711cee3a1c7033ce4925082a83099b00da7087c6",
+  "build60ResourceSHA256": "a4da18056ed85a5a360f30f22c6965138d917cfde2c404e9aa24422b1f7b8250",
+  "build61ResourceSHA256": "2f6e2f6e1d80184813f6f967cc340638b96082abd5bd98c2f9e97b0597f982f2",
+  "testSourceSHA256": {
+    "chrome-input-resource.test.cjs": "55ba9755c74b150891a871c122c5b8f9c916604f70ee4395da93674cf472102c",
+    "original-error-card-application.cjs": "c68b223b6a21ebe66e65c1bea7b77ead9cd4958d728bc0a9c491153477a07223"
+  },
+  "baseline": {
+    "engine": "Google Chrome",
+    "positiveHistoryCasesFailInBothProductConfigurations": true,
+    "cleanupTestsPassed": 13,
+    "traceSHA256": "0b8872a1eca422709773b9bc909a47f847b5ad12de2a130397731bbe298daede",
+    "failure": "History return lost the continuously observed original draft epoch"
+  },
+  "newRuns": [
+    {
+      "engine": "Google Chrome",
+      "productConfigurations": [
+        "Chrome",
+        "Edge"
+      ],
+      "runnerTestsPassed": 15,
+      "runnerTestsFailed": 0,
+      "perConfiguration": {
+        "trustedBlurFocusRoundTrips": 4,
+        "originalFailureOrUNKNOWNBeforeAndAfterSTART": true,
+        "draftChangeRefusals": 4,
+        "oldWriteStillRetired": true,
+        "pendingOnlyAndExpiredEnrollmentRefused": true,
+        "nativeSetters": 56,
+        "nativeChanges": 56,
+        "automaticSends": 0
+      },
+      "traceSHA256": "ad6443dcd8d75b901647a2d39b8be157b016ff191acdb646aa767abc06ea65b4"
+    },
+    {
+      "engine": "Microsoft Edge",
+      "productConfigurations": [
+        "Chrome",
+        "Edge"
+      ],
+      "runnerTestsPassed": 15,
+      "runnerTestsFailed": 0,
+      "perConfiguration": {
+        "trustedBlurFocusRoundTrips": 4,
+        "originalFailureOrUNKNOWNBeforeAndAfterSTART": true,
+        "draftChangeRefusals": 4,
+        "oldWriteStillRetired": true,
+        "pendingOnlyAndExpiredEnrollmentRefused": true,
+        "nativeSetters": 56,
+        "nativeChanges": 56,
+        "automaticSends": 0
+      },
+      "traceSHA256": "426ec4013e75f5b3b92b737356c53b08ffdfc25bf6b302c1fe462bbb4614ba42"
+    }
+  ],
+  "scopeOfPerCaseCounts": "Every configuration exercises the full set of named-card, UNKNOWN, rejection, and lifecycle controls. Counters cover independent fixture operations, not release-site uploads.",
+  "build59Control": {
+    "originalPageSHA256": "b6eee615982d839285ea6af4abb16018939f9be91b18215554e847f4a6eb2215",
+    "packedFingerprintSHA256": "19677788b6a846b2868e0159d8467f9de37544a2ffc24bfd1676b499314580f5",
+    "case": "edge-composer-attachment-surface",
+    "engine": "Google Chrome",
+    "passed": 14,
+    "failed": 0,
+    "traceSHA256": "166b8c98e908625a1350db806ee9beecbc98154e9da24c2533db12480adae5ba"
+  }
+}

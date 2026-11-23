@@ -1,0 +1,73 @@
+{
+  "build": 59,
+  "dmgSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+  "windowCleanup": {
+    "chrome": {
+      "originalWindowCount": 1,
+      "originalWindowSetRestored": true,
+      "originalBrowserProcessLifetimePreserved": true,
+      "finalOwnedWindowCloseRequests": 1,
+      "finalOwnedWindowClosed": true,
+      "previousFreshWindowAlreadyAbsent": true,
+      "previousDisappearanceCause": "UNKNOWN",
+      "receiptSHA256": {
+        "before.json": "71135d8861cda30d840958f11fa6d8ebd25754929bf8df93fefd760d34d101d8",
+        "after.json": "99fd729e3f1d670f9a6915cb283b5d4db24a53073a80cf7503199bff95c03292",
+        "closed.json": "fdab8e9923fac9dbbd1109304c406a9029b1e280fb47abf383dfafdb3957d073"
+      },
+      "previousFreshComparisonSHA256": "3bc48b642243efed0b11556a9184e082e433f49bc6587348b6ac46de119c0e11"
+    },
+    "edge": {
+      "originalWindowCount": 0,
+      "originalWindowSetRestored": true,
+      "originalBrowserProcessLifetimePreserved": true,
+      "finalOwnedWindowCloseRequests": 1,
+      "finalOwnedWindowClosed": true,
+      "previousFreshWindowAlreadyAbsent": true,
+      "previousDisappearanceCause": "UNKNOWN",
+      "receiptSHA256": {
+        "before.json": "f745f57244cb9fd218433f84094e9c1c413a3d5684457f857c592e01aefeae91",
+        "after.json": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+        "closed.json": "e148ee30b300dcf304cd7e68b337f09025d911a0f3f13fde9285d63fb5857d77"
+      },
+      "previousFreshComparisonSHA256": "3bc48b642243efed0b11556a9184e082e433f49bc6587348b6ac46de119c0e11"
+    }
+  },
+  "localListeners": {
+    "signed59": {
+      "retired": true,
+      "receiptSHA256": "24d298b7b5a5dbf82bf69d94367deed481f7c82cd0535fa47045ccad3ddd130e"
+    },
+    "signed59-fresh-route": {
+      "retired": true,
+      "receiptSHA256": "bd6cb4bc0d9f77e745ee0fbc5518c1fcf299728379b7b18df56f9b8674499390"
+    },
+    "signed59-final-route": {
+      "retired": true,
+      "receiptSHA256": "bd6cb4bc0d9f77e745ee0fbc5518c1fcf299728379b7b18df56f9b8674499390"
+    }
+  },
+  "privateTestRuns": [
+    {
+      "series": "chrome/live-after-start",
+      "originalCandidateProcessAbsent": true
+    },
+    {
+      "series": "chrome/live-candidate",
+      "originalCandidateProcessAbsent": true
+    },
+    {
+      "series": "chrome-fresh/live-rapid-final",
+      "originalCandidateProcessAbsent": true
+    },
+    {
+      "series": "edge/live-candidate",
+      "originalCandidateProcessAbsent": true
+    },
+    {
+      "series": "edge-fresh-second/live-rapid-final",
+      "originalCandidateProcessAbsent": true
+    }
+  ],
+  "privateDatabaseSnapshotsVerified": 4
+}

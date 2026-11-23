@@ -1,0 +1,22 @@
+{
+  "candidateDMGSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "fixedEditorCommandVMControls": 7,
+  "issuerRuntimeManifestSHA256": "776991cacfe344da661ca0584a834fcb0139f06630f0d59a982f9d7e89c5d552",
+  "kind": "OFFLINE_QA_INFRASTRUCTURE",
+  "privatePerBrowserAndSingleNaturalControls": 15,
+  "publicFileSHA256": {
+    "README.md": "a9cb237999520588fc42450694d7f0f862a8b50760a5fc38cfced817d6c9ce72",
+    "issuer_cycle.py": "d9a167c2bb7060fd217d54c9e44ffef2049b1640571968368d6920c3e5eb4c5f",
+    "lanes.py": "435c9284311dc80da6615f6d13a7eb7c881981af86abf270a3a5e8649048033d",
+    "retire_missing.py": "cbf351dd0d2bc777e780d1eab488c3269f1bc691e8ed44f0dcd7fd7e5c8f435b",
+    "test_lanes.py": "5ceed0715489c3e26db1e4f65c8a38691741f3fc87ac9aedf0435a7645ee4f52",
+    "window_hit.py": "90a467cb806efc6bdcfb37c9e571c7e60f2c9a0354b02dac8362bb80fbaf7bba"
+  },
+  "publicPerBrowserControls": 14,
+  "realSiteCasesRunByThisReviewer": 0,
+  "registeredFixtureAdaptation": "signed61, build61 and live-size-61 fixture labels",
+  "registeredHostAndParkingFixtureControls": 15,
+  "scope": "per-browser protected issuer, ordinary selection supplement",
+  "selectionReadAndEditNativeHelpersCompiled": true,
+  "selectionToolManifestSHA256": "54348b7376d4a2d4ce0f31764c074a59796ef8c834a577dfeec6f344ec093cb6"
+}

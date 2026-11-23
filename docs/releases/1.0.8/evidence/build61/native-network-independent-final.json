@@ -1,0 +1,331 @@
+{
+  "attributionWithoutBody": {
+    "currentIndependentJudgment": "The loopback tuple was sufficient for its owned server fixture. In windows eight and nine, local stylesheet-to-document attribution is directly evidenced. The actual site upload tuple, request length and terminal outcome remain unmeasured.",
+    "documentedFrameInformation": {
+      "bound": "The More Information section renders the selected frame ID when the Protocol Monitor experiment is enabled. No such ID or preference state was read on the tested ordinary-window path. This Chromium source is not an Edge runtime measurement.",
+      "chrome157VendorSHA256": "97700bf6518a963b4e2adca62ab382b5cf5fbdfc5f31502c00fdd1e45e946826",
+      "relevantLines": [
+        308,
+        869,
+        871,
+        894
+      ],
+      "url": "https://chromium.googlesource.com/devtools/devtools-frontend/+/6f9a57d502c857e2412a57fe03c96286d7877479/front_end/panels/application/FrameDetailsView.ts"
+    },
+    "mandatoryLinks": [
+      "Signed build, original system PNG full SHA-256 and byte count, one AppKit click and a single original product input/change with the matching full File. Bind the original operation, invocation, browser birth/window/tab, debugger target, frame, loader and document; retain the original composer and draft generation.",
+      "Capture starts before the original action. The one creation POST must be attributable to that same action on that original document. Preserve the creation request identity, actual method, response status and timing. Its own response supplies exactly one upload destination. Filename, shared origin or timing alone is insufficient.",
+      "The one subsequent PUT uses the complete destination supplied in that response. Compare the destination values before redaction, and retain only their identical SHA-256 values and permitted non-sensitive origin labels. No truncated or query-stripped comparison can establish a unique presigned destination.",
+      "Keep the initiating target/frame/loader and request-hop/redirect lineage, compatible initiator and times in the same clock domain, explicit PUT method, and a matching Content-Length from the actual request. Reject competing creates/uploads, replay, unresolved redirect, service worker ambiguity, mismatched generation, fetch from a different target or an identifier reused across sessions. The destination digest and request ID play different roles.",
+      "Record the terminal of that specific PUT hop. Distinguish an actual HTTP response and completion, a browser loading failure with a reason and no observed HTTP status, a pre-send refusal and a server rejection. A created card and durable START independently support the product observations. A creation 200 proves only the creation-endpoint result."
+    ],
+    "privacy": "The pinned requestWillBeSentExtraInfo contract can deliver raw headers and sent or blocked associated cookies including values. Receiving complete frames in QA and discarding unwanted fields later does not establish the required no-cookie observation. The approved ordinary diagnostic path must expose only the permitted original-target fields before they cross the boundary. A custom request Content-Length column is present in pinned Chromium source. No number in that column was observed on an ordinary-window PUT.",
+    "withoutRequestBody": "Conditionally sufficient to attribute one upload to one original product input if all listed independent links agree. Carry payloadHashUnavailable. This attribution does not prove byte-for-byte payload, actual transmitted prefix/server bytes, completed storage or visibility without their own observations."
+  },
+  "currentLiveMeasurement": {
+    "directedFormSubmits": 0,
+    "directedLiveSiteWindows": 0,
+    "directedSends": 0,
+    "directedSignedProductInvocations": 0,
+    "directedWebsiteFileUploads": 0,
+    "directlyObservedSiteFileInputAndChangeCounts": null,
+    "independentlyObservedSiteRequestCount": null,
+    "liveObserverStatus": "NOT_RUN_THIS_ROUND",
+    "newBeforeAndAfterSiteRecoverySQLite": "NOT_RUN",
+    "newConsistentSiteBackupCount": null,
+    "newLiveRecoveryAppKitObservation": null,
+    "providerActualOutgoingBytes": null,
+    "providerCreateHTTP": null,
+    "providerCreatePOST": null,
+    "providerOriginalNamedFailure": null,
+    "providerPUTHTTPOrLoadingFailure": null,
+    "providerPUTRequestID": null,
+    "providerPUTRequestLength": null,
+    "providerStatus413": null,
+    "providerUploadURLHash": null
+  },
+  "evidenceFiles": {
+    "attributionAndCookieContract": {
+      "publicPath": "docs/releases/1.0.8/evidence/build61/native-network-attribution-criteria.json",
+      "sha256": "b01077a808137accb7e04b1f97dd3336f73ac908fbf5c9c90a085a19f34096c7"
+    },
+    "decoderFix": {
+      "publicPath": "docs/releases/1.0.8/evidence/build61/native-network-body-conflict-independent.json",
+      "sha256": "00036bcf4ae6db374a91491563ad8bc3f58a4d24709b8c43b215d64057108db5"
+    },
+    "eighthWindowVisual": {
+      "publicPath": "docs/releases/1.0.8/evidence/build61/native-network-visible-independent.json",
+      "sha256": "4fc52ec3a47ca0ae5f041377927826ba9ee7b816e08fe4f77809de6e1f48e4de"
+    },
+    "historicalLargeImage": {
+      "publicPath": "docs/releases/1.0.8/evidence/build61/native-network-size-independent.json",
+      "sha256": "f618ab545540cf33b0feca4bef75dc852a092a59c8988a61f18dd78e19fa1088"
+    },
+    "initialFourLocalWindows": {
+      "publicPath": "docs/releases/1.0.8/evidence/build61/native-network-ordinary-independent.json",
+      "sha256": "fa499dfd74f857e000ce7c098601ccf4a02e978891986cb9b643b7abaf3eec5a"
+    },
+    "localCreateAndPut": {
+      "publicPath": "docs/releases/1.0.8/evidence/build61/native-network-association-independent.json",
+      "sha256": "5a0835d456ac3463da71d1afa2751d505a905c24c885e21d0d34db563caacb5c"
+    },
+    "localOfflineAndBlocking": {
+      "publicPath": "docs/releases/1.0.8/evidence/build61/native-network-scope-independent.json",
+      "sha256": "269a69ddc04bbfad07221e70123b0cf7c399669fa0f89ce67744120db59a2d73"
+    },
+    "ninthWindowOperator": {
+      "publicPath": "docs/releases/1.0.8/evidence/build61/native-network-ordinary-consecutive.json",
+      "sha256": "57636fb0e1f452e7d88e4acfa60dcfba8b581bbdf8ac00ec3ce36c3bbc1e226e"
+    }
+  },
+  "gates": {
+    "G4A": {
+      "siteMissing": "The signed product still lacks a qualifying named failure positively bound to the original PNG, attachment and invocation on the test site and the corresponding permitted informed recovery.",
+      "status": "HOLD"
+    },
+    "G4B": {
+      "independentEquivalenceApproved": false,
+      "siteMissing": "The large-image case had a live preview and creation-path 200. It lacks an upstream 4xx tied to the correct file-upload request, same-draft original-card disappearance with stable neighbors, and a separately evidenced informed recovery.",
+      "status": "HOLD"
+    },
+    "G4C": {
+      "siteMissing": "No attributable, target-scoped fault on the actual site upload recorded a qualifying failure and UNKNOWN followed by an eligible guarded recovery. The target-limited loopback Offline case completed its in-flight body; the separate resource block demonstrated only pre-body blocking.",
+      "status": "HOLD"
+    },
+    "releaseVerdict": "NOT_RELEASED",
+    "requires": "G4-C and either G4-A or individually and independently approved G4-B"
+  },
+  "independentStatus": "No final release approval. These gates are evidence-specific and do not establish global unavailability of DevTools.",
+  "localControlsAndOrdinaryPanels": {
+    "futureQABodyConflict": "a63d46b7 pure-memory correction verified with 13 independently selected cases plus six repository tests. Conflicting available representations withhold the digest. The old native loopback measurement is unchanged.",
+    "ownedBrowserOfflineAndExactResourceBlock": {
+      "alreadyInFlight": {
+        "serverPrefixAlreadyObservedAtOfflineCommand": {
+          "Chrome": 64840,
+          "Edge": 16332
+        },
+        "sourceBodyBytes": 6291456,
+        "targetActualFinalHTTPStatusBoth": 201,
+        "targetFinalServerBytesBoth": 6291456,
+        "targetInFlightInterruptionProved": false
+      },
+      "browsers": [
+        "Chrome",
+        "Edge"
+      ],
+      "classification": "CLIENT_REQUEST_BLOCKED_BEFORE_BODY",
+      "exactURLBlock": "Target new request loadingFailed with inspector reason; owned endpoint received no target request. Other tab and an independent client reached the exact same URL and returned 201. Restored target returned 201.",
+      "newRequestDuringOffline": "Target-only new request failed with ERR_INTERNET_DISCONNECTED, and the recorded endpoint observed no request. Peer and independent client completed their distinct role-specific checks.",
+      "siteFaultOrAttributable4xx": false
+    },
+    "ownedChromeRawFileAssociation": {
+      "EdgeAssociation": "NOT_RUN; This particular loopback association control stopped before starting Edge. Independent condition-scope and ordinary-window Edge observations are separate cases. A read-only full on-disk bundle verification reported missing MicrosoftEdgeWidgets.appex.",
+      "PUTHTTP": 201,
+      "browserRawPUTBytesHash": null,
+      "browserRawPUTNotAvailable": "One NO_POST_DATA; zero inline entries.",
+      "bytes": 110882,
+      "completeURLHashMatched": true,
+      "createPOSTHTTP": 200,
+      "kind": "Dedicated loopback; controlled headless browser, not an ordinary signed-in site.",
+      "onePUTIdentity": true,
+      "ownedServerWholeBytesMatchPNG": true,
+      "payloadHashUnavailable": true,
+      "requestSizeSource": "ExtraInfo request header only; missing in basic headers."
+    },
+    "privateOwnedWindowEvidence": {
+      "allThreePrivatePackets": {
+        "window8": {
+          "compressedSHA256": "254ddbfd1468d02a4cef253c7cd33a5c4727edd18a1204aea0e4609cca879d77",
+          "embeddedInventoryAlsoMatched": true,
+          "manifestEntriesVerified": 48,
+          "manifestSHA256": "2a81180aa8ce475d4b12f784a16ed7f25f5b80af497e502f80f3c9dbf6955c63",
+          "regularMembersComparedToSource": 49
+        },
+        "window9": {
+          "compressedSHA256": "8ffd00451b1ddde7952ab40141e5f162a1590c29489e0f1ec1f3e33ed39fe2df",
+          "embeddedInventoryAlsoMatched": true,
+          "manifestEntriesVerified": 26,
+          "manifestSHA256": "9e0f4d4dd88c7a10b39548e1a10c0e92f5541a66c01dfc5d1b983e58244731be",
+          "regularMembersComparedToSource": 27
+        },
+        "windows1to7": {
+          "compressedSHA256": "602ec26f4188797875610730ab00b20dbcc4e033be04e1aad97952aca40fa53e",
+          "embeddedInventoryAlsoMatched": true,
+          "manifestEntriesVerified": 122,
+          "manifestSHA256": "d7ed1385a90378b93d94919e0aefa4178267dfa7ce1d6d9df38a5528716a22f9",
+          "regularMembersComparedToSource": 123
+        }
+      },
+      "eightWindowEvidenceSummary": "Independent retained-photograph read in a uniquely owned Edge window bound its original document to a specific local stylesheet request row. The proved Network view supersedes earlier AX/allowlist OCR negatives.",
+      "ninthWindow": {
+        "CSSContentMayBeIdenticalAcrossFixtures": true,
+        "additionalAction": "No subsequent phase decision or additional protocol command was recorded. The original window was rechecked and closed.",
+        "archive": {
+          "boundCGWindowCheckReceipts": {
+            "front-panel-identity.json": "98630f5213aac7f67f2a87a1768c265565fb04566cbfc47543eff47f3e6162ef",
+            "more-tools-intent.json": "badf874dc50521d0af50354d60fb4dd29764798d643a27e7c27769ef4760c2c7",
+            "original-windowserver.json": "820da1233de2f0522755026bababa9691ae12b5edf5c41613348db28e56b7876",
+            "phase-1-ready.json": "580dbcbb84aa6e21caa70fc866e46500a9db247ad0ad70533e0df8f3a1e94205"
+          },
+          "observedPublicSHA256": "57636fb0e1f452e7d88e4acfa60dcfba8b581bbdf8ac00ec3ce36c3bbc1e226e",
+          "rawReceiptDigestsVerified": 10
+        },
+        "bodyNetworkEventsFromThisWindow": 0,
+        "browserWindowSetRestored": true,
+        "commandPaletteIssued": false,
+        "compiledWitnessSHA256": "1d39ca304fa655aebfd84722d1d4aac88153956dc37016ad6fa58555684bcdb2",
+        "control": "The signed PID and bound DevTools AX panel were hit. AX ancestry to the retained window itself did not resolve at that point. The separately pinned onscreen CG window and document matched.",
+        "cssSourceContentSHA256": "01b64ec791303e8682a48692d6af5237ce30a52908a520c3e2e3f12d40b92a91",
+        "dedicatedNetworkTabActivationClickThisCase": false,
+        "distinguishingObservation": "The new filename nonce and enrolled document distinguish the item. The 66-byte stylesheets in windows eight and nine have the same contents.",
+        "documentTimeOriginUTC": "2026-11-23T07:36:57.066200+00:00",
+        "exactOriginalDocumentConfirmedAtClose": true,
+        "family": "edge",
+        "fixtureSHA256": "f851a0015fb9d6dccd024bb8fa476e27a088605806cb45bf56f286f438157ba1",
+        "freshInitialImageSHA256": "2af15927dbcc4d15ba5645af63c334ab2a6aa25234d2295d66d5d3e9f79d8af6",
+        "knownStylesheetReferencesCompared": 16,
+        "literalCGWindowIDPersistedPrivatelyBeforeAnyMoreToolsInput": true,
+        "localResourceCorrespondence": true,
+        "matchingCGWindowCandidates": 1,
+        "matchingPNGColorProfileMetadata": true,
+        "matchingRawRGBAIconAreas": 3,
+        "moreToolsClickPairsIssued": 1,
+        "moreToolsMenuVisibleWithinBoundCrop": false,
+        "nativeProcessBirthWindowTabAndOriginalDocumentTimeMatch": true,
+        "networkTabVisiblyActive": true,
+        "newUniqueNativeWindow": true,
+        "observedDevToolsRegionsInOwnedWindow": 1,
+        "observedTargetFrameLoaderOrRequestID": null,
+        "originalAndPriorPNGWholeImagesDiffer": true,
+        "postClickCroppedImageSHA256": "2af15927dbcc4d15ba5645af63c334ab2a6aa25234d2295d66d5d3e9f79d8af6",
+        "postClickRetainedBytesExactlyIdentical": true,
+        "priorWindowCount": 2,
+        "profilePreferenceChanged": false,
+        "protocolIdentityCommandsSent": 0,
+        "protocolMonitorCommandIssued": false,
+        "protocolMonitorSettingChanged": false,
+        "protocolMonitorSettingRead": false,
+        "records": {
+          "before": "5acd6c617fff264c47374468ec0e6eeda3142183bab95b7cb8dd239afb745ff9",
+          "close-intent": "c32a5d1d49418813238134455c4269907a65d7dc98aa140891596784080be414",
+          "document": "5ba85fddfc01f084d5b9a17a6eddf8d5ec9a22b07453dff5150089ad9a1930c0",
+          "new-window": "97b3f21e412aa2daf02e7ac847f6c887a7dd73cbdc08e9f525c86949200aeaae",
+          "result": "66935347d6670d2bcefab9670a273d704746a2525aa5903ff88680a6ffde28c8"
+        },
+        "refusal": "BOUNDED_LOCAL_REVIEW_COMPLETE",
+        "sameCGIDInAllFourBoundaries": true,
+        "separatePopupPresence": null,
+        "singleNativeTab": true,
+        "siteMeasurementStatus": "NOT_RUN",
+        "sourceSHA256": "4e69a71143ba6abf14f80f1780a8f15c7eeec1fde9c583d431ff67d041f58b39",
+        "structuredProtocolRequestEventsCollected": 0,
+        "visibleFooterRequests": 1,
+        "visiblePrefixUniqueInScope": true,
+        "visuallyIdentifiedLocalRequestRows": 1,
+        "visuallyIndependentlyReviewed": "Active Chinese Network tab with exactly one local stylesheet row (matching 16 hexadecimal filename characters, type displayed as styles…, status 200, 66 B, 1 ms, footer 1)."
+      },
+      "ordinaryWindowTotals": {
+        "actualChromeOpenedAndOriginalSetRecovered": 4,
+        "actualEdgeOpenedAndOriginalSetRecovered": 5,
+        "totalClosed": 9,
+        "totalNewWindows": 9
+      }
+    }
+  },
+  "ordinaryWindowEvidenceThroughUTC": "2026-11-23T07:40:28.522877+00:00",
+  "priorPublicRecords": {
+    "g4b-independent-conditions.json": {
+      "publicPath": "docs/releases/1.0.8/evidence/build61/g4b-independent-conditions.json",
+      "sha256": "872710aac9ff260222120aa86f67273997693bdeef55feca4dbd1b764924e502"
+    },
+    "g4c-independent-original.json": {
+      "publicPath": "docs/releases/1.0.8/evidence/build61/g4c-independent-original.json",
+      "sha256": "44f8a56fcfe2e168ab55de51d86c690b3f0fc795ce6904a8845a03d2d1f89a01"
+    },
+    "g4c-original-live.json": {
+      "publicPath": "docs/releases/1.0.8/evidence/build61/g4c-original-live.json",
+      "sha256": "075f410b39481261e5bf9abef8d49d910f43e2e608bb73ae71c017c014bdfad1"
+    },
+    "medium-chrome-normal.json": {
+      "publicPath": "docs/releases/1.0.8/evidence/build61/medium-chrome-normal.json",
+      "sha256": "6818d7b8443fc819325e7409e6464dab852bd16a78aa4eaec639b38c05ef87e2"
+    },
+    "medium-final-g4-independent.json": {
+      "publicPath": "docs/releases/1.0.8/evidence/build61/medium-final-g4-independent.json",
+      "sha256": "27e8630d33cebb325339c359901682254fd43e888047deee7b5c5c68080f6405"
+    },
+    "native-network-panel-fields.json": {
+      "publicPath": "docs/releases/1.0.8/evidence/build61/native-network-panel-fields.json",
+      "sha256": "5b9887f19605746bab487f34d981e253673479030cfeba320d628d296de9e1f6"
+    }
+  },
+  "remainingFieldPrerequisites": [
+    "Demonstrate the literal protocol TargetId and FrameId for the exact ordinary QA browser tab/Document while satisfying privacy boundaries; bind loader and individual request IDs separately. Browser process/WindowServer window IDs, native tab IDs, original Document and a positively matched file: request row are already proved.",
+    "On a genuinely new signed-in site case, capture a single original product operation and matching creation response, complete destination digest, unique later original PUT requestId and request Content-Length with actual terminal HTTP or loading failure. Ordinary file: response/Size and local server receipts supply none of those site fields.",
+    "Only after verified absence or qualifying failure with no original/same-name/ambiguous member remaining, preserve the source and two consistently timed snapshots, show duplicate risk, obtain a genuinely informed new user choice and AppKit mouseDown, one new invocation/binding/operation with exactly one input/change and START, and original draft, neighbors and history intact with no auto replay, send or submit."
+  ],
+  "result": "NOT_RELEASED",
+  "reviewedAtUTC": "2026-11-23T07:44:37.107654+00:00",
+  "reviewer": "Independent nonauthor for release evidence. Offline custody, private pixels, original event records and source reviewed; no browser interaction or release action by this reviewer.",
+  "schemaVersion": 1,
+  "signedCandidate": {
+    "DMGSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+    "build": 61,
+    "dmgBytes": 14133998,
+    "signedSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+    "signedSourceCommitTree": "70ba40e23a3afa3561525b1943cb0e5ebc825de5",
+    "sourcesSubtree": "1aae0943f6ce71a9bfa49c86ba95589032c1de63",
+    "version": "1.0.8"
+  },
+  "siteGenuineRecoveryEvidence": {
+    "clickBindingAndReselectionForQualifiedRealOriginal": null,
+    "immediateUserActionRequiredNow": false,
+    "newFileBeforeAndAfterRecoverySnapshots": null,
+    "presentAction": "No extant original with an evidenced safe recovery opportunity was admitted in this round. Do not ask the user to repeat attachment or broaden access to turn missing evidence into a pass."
+  },
+  "siteRecordsPredatingThisRound": {
+    "chrome7921752ByteNormalCalibration": {
+      "attributedPUTHTTPStatus": null,
+      "attributedPUTRequestId": null,
+      "creationEndpointTimingHTTP": 200,
+      "durableOutcome": "uploadStarted",
+      "fileChange": 1,
+      "fileInput": 1,
+      "recovery": false,
+      "settledPhase": "unknown",
+      "signedAppKitMouseDowns": 1,
+      "sourcePNG_SHA256": "66057577de807a2d2a266360b59efdfb80e6301a158d9eb1bd2bf028757dd3a7",
+      "starts": 1
+    },
+    "edge23233638ByteBoundary": {
+      "PUTStatus": null,
+      "boundDestinationHash": null,
+      "consistentOriginalSQLiteChecked": 4,
+      "creationMethod": null,
+      "durableStarts": 0,
+      "firstCreationEndpointTimingHTTP": 200,
+      "lateReadUTC": "2026-11-23T02:41:05Z",
+      "oldCardDisappearanceOrExplicitRecoveryProven": false,
+      "originalCardLastDirectlyObservedPresent": true,
+      "originalCardPresentAtLateRead": null,
+      "originalInputAndChangeWithinDatedSamples": true,
+      "originalUnknownPreserved": true,
+      "qualifyingNamedFailureObserved": false,
+      "sourceBytes": 23233638,
+      "sourcePNG_SHA256": "ac2ae9502b81ac77a4f6883ca1eaef7c5f421a9d7e863a0a150dabc6fbaaa500",
+      "upstream413Proved": false
+    },
+    "edgeEarlierG4CProductSeed": {
+      "cardPresentAtLastSuccessfulObservation": true,
+      "explicitRecovery": "NOT_RUN",
+      "namedFailure": false,
+      "outcome": "uploadStarted",
+      "scopeEndReason": "ORIGINAL_MEMBER_PRESENT_THEN_ORIGINAL_ROUTE_OR_SELECTED_TAB_CHANGED",
+      "singleFileInputAndChange": true,
+      "sourcePNG_SHA256": "bc347c5d3e58c3f893b230cae70ef1551bc9295838cbad334e6d78fc32521230",
+      "starts": 1,
+      "terminalUnknownObserved": false,
+      "transportFaultInstalled": false
+    }
+  }
+}

@@ -1,0 +1,233 @@
+{
+  "distinctions": {
+    "boundState": "Only one local file-document stylesheet row is identified. Its visually abbreviated name corroborates the unique file reference, full CSS source digest and 66-byte artifact. The full URL, method, literal protocol IDs and outgoing data remain unobserved.",
+    "directedSiteActivity": 0,
+    "earliestObservedCGID": "The capture API used a unique CG window ID at capture. The numeric ID itself was not independently persisted for subsequent comparisons on this eighth run. The final declared-native-window close rechecked the same enrolled Window/tab, original Document entry and time.",
+    "laterPresentation": "A later native presentation request was acknowledged. The subsequent on-screen geometry check showed zero matching candidates, so the remaining menu actions were skipped. No Protocol Monitor setting was inspected or changed.",
+    "requestSideLengthReadInPanel": null,
+    "requestSideLengthSupport": "Pinned Chromium 157 frontend has a separate custom Request Headers column. The retained image displays Size, which does not identify the request Content-Length.",
+    "siteNetworkEventCountIndependentlyMeasured": null,
+    "structurallyCollectedProtocolEventsInThisRun": 0,
+    "visualLocalResourceRowsInRetainedPicture": 1
+  },
+  "earlierSevenWindowCustody": {
+    "compressedSHA256": "602ec26f4188797875610730ab00b20dbcc4e033be04e1aad97952aca40fa53e",
+    "embeddedInventoryAlsoMatched": true,
+    "manifestEntriesVerified": 122,
+    "manifestSHA256": "d7ed1385a90378b93d94919e0aefa4178267dfa7ce1d6d9df38a5528716a22f9",
+    "regularMembersComparedToSource": 123
+  },
+  "earlierSevenWindowSource": {
+    "manifestSevenWindow": {
+      "entries": 122,
+      "sha256": "d7ed1385a90378b93d94919e0aefa4178267dfa7ce1d6d9df38a5528716a22f9"
+    },
+    "publicSevenWindowSHA256": "275919b5770f3dc614f217f2e8a58d529d75cc7dbbab820da34326b71dcaf04c",
+    "rawDigestsVerified": 37
+  },
+  "firstFourWindowReview": {
+    "publicPath": "docs/releases/1.0.8/evidence/build61/native-network-ordinary-independent.json",
+    "sha256": "fa499dfd74f857e000ce7c098601ccf4a02e978891986cb9b643b7abaf3eec5a"
+  },
+  "nativeWindowsThroughThisObservation": {
+    "allRestored": true,
+    "chromeOpened": 4,
+    "edgeOpened": 4,
+    "liveWebsiteWindowsDirected": 0,
+    "total": 8
+  },
+  "newWebsiteActivity": "NOT_RUN",
+  "newWebsiteObservations": null,
+  "observedAtUTC": "2026-11-23T07:30:46.611789+00:00",
+  "result": "LOCAL_ORIGINAL_DOCUMENT_TO_NETWORK_ROW_CORRESPONDENCE_CONFIRMED",
+  "retainedWindowCustody": {
+    "compressedSHA256": "254ddbfd1468d02a4cef253c7cd33a5c4727edd18a1204aea0e4609cca879d77",
+    "embeddedInventoryAlsoMatched": true,
+    "manifestEntriesVerified": 48,
+    "manifestSHA256": "2a81180aa8ce475d4b12f784a16ed7f25f5b80af497e502f80f3c9dbf6955c63",
+    "regularMembersComparedToSource": 49
+  },
+  "retainedWindowPublicResultSHA256": "3edf6cf59bd87e27d8baae129473aee0e131df3ae2cf2f85f82f95596f0e295d",
+  "reviewedAtUTC": "2026-11-23T07:32:17.453147+00:00",
+  "reviewer": "Independent nonauthor, original native records and private image read offline",
+  "schema": 1,
+  "supersedesScopeOfEarlierNegatives": "The new retained photograph directly establishes the displayed Network panel and its unique local stylesheet row. The prior Edge sample produced zero fixed-vocabulary OCR matches on different non-retained bytes. Its actual text cannot now be independently determined. A negative applies to that method and window alone.",
+  "visualObservations": [
+    {
+      "areaRelationship": "Identical original-page and DevTools AX bounds; capture did not begin.",
+      "browserRequestRowsRead": 0,
+      "browserWindowSetRestored": true,
+      "compiledWitnessSHA256": "82b52eb627328228c0ceb5a37e503f23df94dc8586017b912d1bc7268efa6d5b",
+      "documentTimeOriginUTC": "2026-11-23T07:08:41.978200+00:00",
+      "exactOriginalDocumentConfirmedAtClose": true,
+      "family": "chrome",
+      "fixtureSHA256": "d69a090508dc8ab5496d1cc76592213f5c64b4e9d575c4c9e26915201c45d862",
+      "networkPanelActivated": false,
+      "newUniqueNativeWindow": true,
+      "observedDevToolsRegionsInOwnedWindow": 1,
+      "observedTargetFrameLoaderOrRequestID": null,
+      "priorWindowCount": 1,
+      "records": {
+        "before": "4c5675f2a2d2adcd2ac4d44be5cd26d841c69d9d3320282d12741bb2f6d94c06",
+        "close-intent": "89b508018bae4e1c4e52f3108e1b6fe0aeb08cc3464c199cd629822f31f9566f",
+        "document": "d90fab94fd747af393b3dd9b1ff142af4b6c7ab721921b3daf4f1a90dd2d81a6",
+        "new-window": "e5237a06b2ae60a1094b37d14f57d784047b7e469b8659d7c1967db89b01dbe7",
+        "result": "0bd4dcbd91e5e7c4e78c5a5d98fc9c696e12d3f2ed133e35d16bb4f3991c6b24"
+      },
+      "refusal": "VISIBLE_DEVTOOLS_TOOLBAR_BOUNDS_NOT_PROVEN",
+      "singleNativeTab": true,
+      "sourceSHA256": "2ad41eabb030fd0d9c7a4aab930a99fa7f8ec122895eb42d46d83d7a0c60f25a"
+    },
+    {
+      "areaRelationship": "First Edge visual pass required the original client geometry expected by its witness and stopped before capture.",
+      "browserRequestRowsRead": 0,
+      "browserWindowSetRestored": true,
+      "compiledWitnessSHA256": "08219c2dcf6dcde22e1cb6240a0bb6c8e23bf285b259f44b37a4b0a056be70e7",
+      "documentTimeOriginUTC": "2026-11-23T07:12:06.306900+00:00",
+      "exactOriginalDocumentConfirmedAtClose": true,
+      "family": "edge",
+      "fixtureSHA256": "19e47f61347cc7ec567a09e0345c5947b1f25a7c7a6989c3635b29d7eb7f23e9",
+      "networkPanelActivated": false,
+      "newUniqueNativeWindow": true,
+      "observedDevToolsRegionsInOwnedWindow": 1,
+      "observedTargetFrameLoaderOrRequestID": null,
+      "priorWindowCount": 2,
+      "records": {
+        "before": "a64dbb81c15e91e95ecb0d574d2688a68980d07715849aca9bf903d772a46ad1",
+        "close-intent": "b371bbf841cf52221cf22951997f4582c0a3c66fc6ca5a7db8f675129f077b16",
+        "document": "b688847347a61f47eb8ba48c31288d066c00e22fe5d50e5c21c218dd15e28abf",
+        "new-window": "e57507f6be96ad55b81a368b17f169527e7e20fda8aeea76f863b81b1bb84ec4",
+        "result": "bc592988114d131123c36a8387de3d18d0b837f8789583b95de9c216379bd958"
+      },
+      "refusal": "ORIGINAL_CLIENT_GEOMETRY_UNPROVEN",
+      "singleNativeTab": true,
+      "sourceSHA256": "d379cd6d6fc63b2cbc8cd4415c596fb9a1f71a88c01d1c08b92c746f226cbee9"
+    },
+    {
+      "OCRUnknownTextLineCount": null,
+      "areaRelationship": "Right portion of the bound DevTools AX region excluded the enrolled page and the recorded native chrome regions. The full enrolled window was transiently captured before cropping.",
+      "browserRequestRowsRead": 0,
+      "browserWindowSetRestored": true,
+      "compiledWitnessSHA256": "bd7542b30b49a8f8bf18845bf2ae9eb7fbbde0a9b371de72a6f4b2ce18c9e409",
+      "cropPNGHashInInstrument": "3ce007c61d6a7887ee9fbf5bf7254c275262367319afbdbe68c23f25ed74bc0e",
+      "cropWidthHeight": [
+        551,
+        652
+      ],
+      "directRehashOfThesePixelsPossible": false,
+      "documentTimeOriginUTC": "2026-11-23T07:13:34.042400+00:00",
+      "exactOriginalDocumentConfirmedAtClose": true,
+      "exclusiveRegionalGeometryIndependentlyRecomputed": true,
+      "family": "edge",
+      "fixedOCRMatchClasses": [],
+      "fixtureSHA256": "556955477036028fb388f065c2277c184b6fd62def23c84729c4506385722cf0",
+      "networkPanelActivated": false,
+      "newUniqueNativeWindow": true,
+      "observedDevToolsRegionsInOwnedWindow": 1,
+      "observedTargetFrameLoaderOrRequestID": null,
+      "priorWindowCount": 2,
+      "privateImageFileRetained": false,
+      "reason": "Only the in-process PNG hash survived this use. Raw-image review requires a separate preserved capture.",
+      "records": {
+        "before": "a57cf1c01a3834eafeda5b8a961a6cd0d302cb15e92716cce9a07c163917f4d0",
+        "close-intent": "2e4939c07abdb22e2512995b76405b92a93cb63c1fc3ab4109ac922007201c5e",
+        "document": "a35f0f04c3ccb26877e539230075c7d4a517c00bb2b8cf866392d7b1e293ffb1",
+        "new-window": "bc99ec7f12cce0fb26304638ae7789df9eebd0cc8eb43d4a2109f1900600f3ef",
+        "result": "9ce3f6ce704583c8bbd36d70ea7c6c5032eecddd28e569be953d75c4a620c1bd"
+      },
+      "refusal": "NO_UNIQUE_VISIBLE_NETWORK_TAB_ON_LOCAL_DEVTOOLS_STRIP",
+      "singleNativeTab": true,
+      "sourceSHA256": "62080336ffab1b86aa8aa9e8a7c2ec5530b493d618344de8b9b3d76de418c3b7"
+    },
+    {
+      "backendHTTPServerStatus": null,
+      "bodySHA256ObtainedFromNetwork": false,
+      "browserRequestRowsRead": 0,
+      "browserWindowSetRestored": true,
+      "compiledWitnessSHA256": "1e097e8692201070b8e26f0e9ec2ec32cfc20d5e85363d4313254020077da46e",
+      "documentTimeOriginUTC": "2026-11-23T07:19:34.868000+00:00",
+      "exactOriginalDocumentConfirmedAtClose": true,
+      "family": "edge",
+      "fixtureSHA256": "8c7f26d54e4d643345cf8ebb88857abe094c05229233573228efd7129d0110e7",
+      "footerResourcesBytes": 66,
+      "footerTransferredBytes": 66,
+      "frameID": null,
+      "fullURLVisible": false,
+      "initialReading": "Independent human inspection of the privately retained PNG",
+      "knownFixtureCSSReferencesCrossChecked": 14,
+      "laterScopedMoreToolsChecks": {
+        "plus-result.json": {
+          "onscreenMatchesAfterIfChecked": null,
+          "originalPresentationAcknowledged": null,
+          "result": "OBSERVED_MORE_TOOLS_ICON_CHANGED",
+          "sha256": "3620f3eee1b945d91b8ea47353ca3a9f6aef16c6cdc3c6fb2dd35207ed4a5f44"
+        },
+        "plus2-result.json": {
+          "onscreenMatchesAfterIfChecked": null,
+          "originalPresentationAcknowledged": null,
+          "result": "ORIGINAL_WINDOW_UNIQUE_REQUIRED",
+          "sha256": "52efce445713632acf666b72a0e113b5ceea8393f76d8bd0b45e4fbd41c7c01b"
+        },
+        "plus3-result.json": {
+          "onscreenMatchesAfterIfChecked": null,
+          "originalPresentationAcknowledged": null,
+          "result": "ORIGINAL_WINDOW_UNIQUE_REQUIRED",
+          "sha256": "33fea4467524f31319206b0235b8b1b84e480682f0c2bae3ffcd45502a540a93"
+        },
+        "plus4-result.json": {
+          "onscreenMatchesAfterIfChecked": 0,
+          "originalPresentationAcknowledged": true,
+          "result": "ORIGINAL_WINDOW_UNIQUE_REQUIRED",
+          "sha256": "7ec55085e39f91639d39e44cbfcb0d55ea32365f81db7de0e646abcd82ee99e5"
+        }
+      },
+      "loaderID": null,
+      "networkClickIssuedByExperiment": false,
+      "networkPanelActivated": false,
+      "networkPanelVisiblyActive": true,
+      "newUniqueNativeWindow": true,
+      "observedColumnValues": {
+        "durationMS": 1,
+        "initiatorDisplay": "Other",
+        "name": "Unique 16-hex prefix of the enrolled stylesheet filename, remainder visually truncated by the column.",
+        "sizeBytes": 66,
+        "status": 200,
+        "typeDisplay": "styles…"
+      },
+      "observedDevToolsRegionsInOwnedWindow": 1,
+      "observedTargetFrameLoaderOrRequestID": null,
+      "originalHTMLReferencesOneCSS": true,
+      "originalPNG": {
+        "allPNGChunkChecksumsValid": true,
+        "bytes": 76396,
+        "deflatedImageDataChecked": true,
+        "height": 652,
+        "sha256": "0813c961c82e0d63b81247f3d92e7ff214bb66587846c10c647c811a6687b04c",
+        "width": 551
+      },
+      "priorWindowCount": 2,
+      "privateMaterial": "PNG from a new window, reviewed directly. Previous Edge window had only an in-memory hash, and the two PNG digests differ as expected for separate evidence.",
+      "records": {
+        "before": "b7530e4db00a44c714c980055d7f4b68559d776f04a867e33aeafac1f0f8115b",
+        "close-intent": "821e8bbc4acbd9f42b2c35a35ccb642575cfa4b191989075d51c43c00181e90b",
+        "document": "ddb8e1a29041333ada520f868bf3b9f6affc13930f3ef92f34d561b0a6c6b5ec",
+        "new-window": "8bd89ed2cd5568b97b0c26780b16649a0597531c2eb18eadc899bb7506807d90",
+        "result": "83f0490a648a40def62a7b83640e7f124e815411c10a4e5096c9e4f103b87d70"
+      },
+      "refusal": "REVIEWED_IMAGE_NO_SAFE_CONTROL",
+      "requestContentLength": null,
+      "requestID": null,
+      "requestMethodDirectlyVisible": null,
+      "singleNativeTab": true,
+      "sourceCSSBytes": 66,
+      "sourceCSSSHA256": "01b64ec791303e8682a48692d6af5237ce30a52908a520c3e2e3f12d40b92a91",
+      "sourceSHA256": "04ca2e150d89261ba4f2856aa425fd026b206ec2e350d97633f77d05c7c0e2ac",
+      "structurallyCollectedProtocolEvents": 0,
+      "targetID": null,
+      "uniqueVisiblePrefixMatches": 1,
+      "visibleFooterRequestCount": 1,
+      "visibleNetworkListRows": 1,
+      "visualOriginalPanelResourceCorrespondence": "PASS_FOR_ONE_OWNED_FILE_DOCUMENT_STYLESHEET"
+    }
+  ]
+}

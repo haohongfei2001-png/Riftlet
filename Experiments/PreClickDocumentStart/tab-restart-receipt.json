@@ -1,0 +1,79 @@
+{
+  "recordedUTC": "2026-11-21T17:33:37+00:00",
+  "scope": "Route B controlled macOS headless native messaging experiment. A dedicated test browser, isolated private profile, two local targets A/B and one new local document for the replacement native host. The extension and host are identical to revision 1b3ec8b6. Only the disposable copy of scope.js is assigned the exact loopback URL.",
+  "event": "Unposted AppKit NSEvent timestamp. Browser activation and independently checked page visibility used an inherited pipe from this isolated test process. The receive path used extension document_start and a real browser-launched Native Messaging host.",
+  "disconnect": "The runner checked both the host lock owner PID and the command line against the freshly created private native_host.py before terminating the first host. The original document reported its port disconnect. A fresh document connected a replacement process using the same disposable SQLite database. Same-document reconnect was not observed or required.",
+  "support": "No authenticated service draft, branded stable Chrome, Safari, retail extension installation or production support assessment in this supplement.",
+  "reproduce": "node Tests/PreClickLease/helper/tab-restart.cjs \"/absolute/path/to/browser\" \"browser label\"",
+  "results": [
+    {
+      "browser": "Microsoft Edge stable",
+      "version": "Microsoft Edge 158.0.4370.33",
+      "result": "PASS_CONTROLLED",
+      "realTabSwitches": [
+        "A visible",
+        "B visible; A hidden",
+        "A visible; B hidden"
+      ],
+      "sameOriginalTabWindowDocument": true,
+      "freshTicketAfterReturn": true,
+      "oldTicketOnB": "REFUSED_NO_CLAIM",
+      "oldTicketBackOnA": "REFUSED_NO_CLAIM",
+      "nativeProcessTerminated": true,
+      "originalDocumentObservedDisconnect": true,
+      "replacementNativeProcess": "BROWSER_LAUNCHED_ON_NEW_DOCUMENT",
+      "previousOperationAfterRestart": "UNKNOWN",
+      "sameOperationOnReplacementHost": "ALREADY_CLAIMED",
+      "bothOldTicketsOnReplacementHost": "REFUSED_NO_CLAIM",
+      "newExplicitOperation": "INPUT_RETURNED",
+      "inputs": {
+        "originalA": 1,
+        "otherB": 0,
+        "freshDocument": 1
+      },
+      "textSelectionAndOriginalAttachmentPreserved": true,
+      "bothNewFileHashesMatched": true,
+      "sends": 0
+    },
+    {
+      "browser": "Chrome for Testing",
+      "version": "Google Chrome for Testing 156.0.8078.4",
+      "result": "PASS_CONTROLLED",
+      "realTabSwitches": [
+        "A visible",
+        "B visible; A hidden",
+        "A visible; B hidden"
+      ],
+      "sameOriginalTabWindowDocument": true,
+      "freshTicketAfterReturn": true,
+      "oldTicketOnB": "REFUSED_NO_CLAIM",
+      "oldTicketBackOnA": "REFUSED_NO_CLAIM",
+      "nativeProcessTerminated": true,
+      "originalDocumentObservedDisconnect": true,
+      "replacementNativeProcess": "BROWSER_LAUNCHED_ON_NEW_DOCUMENT",
+      "previousOperationAfterRestart": "UNKNOWN",
+      "sameOperationOnReplacementHost": "ALREADY_CLAIMED",
+      "bothOldTicketsOnReplacementHost": "REFUSED_NO_CLAIM",
+      "newExplicitOperation": "INPUT_RETURNED",
+      "inputs": {
+        "originalA": 1,
+        "otherB": 0,
+        "freshDocument": 1
+      },
+      "textSelectionAndOriginalAttachmentPreserved": true,
+      "bothNewFileHashesMatched": true,
+      "sends": 0
+    }
+  ],
+  "sourceSHA256": {
+    "Experiments/PreClickDocumentStart/extension/document.js": "d731d3fdbbab3aa83e25ea62a71d268fe331e37143575af674dab8e4ef7c115b",
+    "Experiments/PreClickDocumentStart/extension/worker.js": "6d57fc811846b6415d44bce449cbb5020b4a0e62bcf18c6f31881baa5a9e130e",
+    "Experiments/PreClickDocumentStart/extension/manifest.json": "d9ad50372e7907ddcb94e23936f7a36b2ef4b83d0a52ce628d038898a49904a2",
+    "Experiments/PreClickDocumentStart/extension/scope.js": "d4c55cf3c3a95dcd81602ecf57cab4b5b475ba47720fe7263c67a78cf82a094c",
+    "Experiments/PreClickDocumentStart/native_host.py": "eec5c1cc82d6227ba0e7a61f4ba573bcc1c2298ac8dac47647cde969ea597f24",
+    "Tests/PreClickLease/helper/event.swift": "a3e77a2bf3188be8b407758916999beab6d255ba27c19a293f263977a1dd05c8",
+    "Tests/PreClickLease/helper/tab-restart.cjs": "d488758949f5e59938e76cd297f6f22275408b03b563a1906b8490dd8cc18b25",
+    "Tests/PreClickLease/helper/tab-restart-fixture.html": "1e5487a10d624d26cdea533a128d43e4238d203a1f89b643b5cf1ab853d51a6c",
+    "Tests/OriginalDocumentDelivery/renderer/driver.cjs": "cb3dff296a89079c9d222d9caaf27e4e606b949caf225827ad8fbafdce1f8218"
+  }
+}

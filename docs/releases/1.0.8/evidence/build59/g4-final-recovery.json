@@ -1,0 +1,77 @@
+{
+  "afterSTART": {
+    "accepted": false
+  },
+  "appKitFirstClickReceiptSHA256": "acacf7f15350078833db93afc9016813675107de07d13ca97ece4d042067940b",
+  "assetVisibilityAfterObservation": "visible",
+  "beforeSTART": {
+    "accepted": false,
+    "observation": "no durable START and no positive original-card failure"
+  },
+  "candidateDMGSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+  "closedQAProfileAudit": {
+    "closedProfileBackupSHA256": "3f1176fe3da464277c4ae2552c9a4ecee799b8d7aa4d1b5b7337b5b097c1e926",
+    "counts": {
+      "assets": 1,
+      "operations": 1,
+      "upload_starts": 0
+    },
+    "run": "live-g4-transport"
+  },
+  "explicitOriginalFailureAndRecovery": "NOT_RUN",
+  "g4Overall": "PARTIAL",
+  "networkAfterHookTeardown": "Only Riftlet operations, input/change and the original card were monitored after the client fault.",
+  "newAppKitClickCount": 0,
+  "newInvocation": null,
+  "newOperation": null,
+  "operationCount": 1,
+  "originalDatabaseOperation": {
+    "assetID": "9C560E11-FB0D-4DE7-A150-ED5A8F18BEE3",
+    "belongsToOriginalDraft": true,
+    "clickBindingID": "01EFB9D9-1FB3-4E42-842A-A22AF9A0E649",
+    "currentAttachmentID": null,
+    "durableStartedAt": null,
+    "hasError": false,
+    "id": "4F739270-3638-4598-BBAE-C2AFBC37980E",
+    "invocationID": "5CB048BB-88D0-4F93-93EC-B612ED70C3C7",
+    "originalCardFailureInvocationID": null,
+    "originalComposerID": "node-1:node-2",
+    "originalDocumentID": "1b974158-bf72-4148-bdf9-114b159c0491",
+    "originalDraftGeneration": "888972b9-29de-4a56-b408-2d63ea2d237b",
+    "outcome": "inputTriggered",
+    "phase": "unknown",
+    "safeToRetry": false,
+    "startCount": null,
+    "startMatchesOriginal": false,
+    "startSignal": null,
+    "uniqueStartEvidence": null
+  },
+  "originalPNG": {
+    "bytes": 5513,
+    "retainedInPrivateArchive": true,
+    "retainedMediaFileSHA256": "fa734c39ae34bca70281f0f67439349402d7e9099465c6f7010148af77a1b469",
+    "sha256": "fa734c39ae34bca70281f0f67439349402d7e9099465c6f7010148af77a1b469",
+    "sourcePNGFileSHA256": "fa734c39ae34bca70281f0f67439349402d7e9099465c6f7010148af77a1b469"
+  },
+  "pageEvents": {
+    "fileChange": 1,
+    "fileInput": 1,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  },
+  "rawReceiptSHA256": {
+    "final-db.json": "0b9c23d0a345dc8823520a795ec4321e2112d8653e894d17664ff11e4130c38f",
+    "result.json": "8853433c6ed92b2246ac8069f12ce6239159f5ab5796de0b968ea086698491c6",
+    "transport-terminal-queue.json": "0b9c23d0a345dc8823520a795ec4321e2112d8653e894d17664ff11e4130c38f"
+  },
+  "recoveryAfterSnapshot": {
+    "reason": "Explicit recovery was not eligible and was not initiated.",
+    "sha256": null,
+    "status": "NOT_RUN"
+  },
+  "recoveryBeforeSnapshot": {
+    "reason": "No explicit original-card failure or error-bearing UNKNOWN was observed.",
+    "sha256": null,
+    "status": "NOT_RUN"
+  }
+}

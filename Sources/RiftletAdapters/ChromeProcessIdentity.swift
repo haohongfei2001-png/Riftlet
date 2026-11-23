@@ -44,7 +44,7 @@ public struct ChromeProcessIdentity: Equatable, Sendable {
         pid == self.pid && applicationID == self.applicationID
     }
 
-    private static func kernelExecutablePath(_ pid: pid_t) -> String? {
+    static func kernelExecutablePath(_ pid: pid_t) -> String? {
         var buffer = [CChar](repeating: 0, count: Int(MAXPATHLEN) * 4)
         let size = UInt32(buffer.count)
         guard proc_pidpath(pid, &buffer, size) > 0 else { return nil }

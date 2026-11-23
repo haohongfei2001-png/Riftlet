@@ -1,0 +1,148 @@
+{
+  "observationBoundary": "Both preparation entry points persist a site-navigation intent before invoking their fixed navigator. None of the four state directories reached this point. No original real-site editor, product trace, PNG, operation, upload or network hook was reached by these attempts. Website event counts were not measured by a site watcher.",
+  "readOnlyReviewerSourcesSHA256": {
+    "chromeNativeCloseVerifier": "6d9319539adb5a2aeece449f98362764b2fb749dda7ac6ae7354fc5d2e7772f6",
+    "ownedEdgePreparation": "e66f5e4d450824c0e5657a5639f63e655ae299c6a1fa7adca0ebf0594fac1e83",
+    "roundEntry": "b8a3516918c0a2b887b77ef2078e4ba1a0978b4201613134a11b2000c58eda77",
+    "standardPreparation": "3404acf8389a8e260903de0ca708a9332796efd710dcec9423abdcc1dead25a7"
+  },
+  "realWebsiteFaultStrategies": {
+    "nativePartialUploadProgress": "NOT_RUN",
+    "nativeUploadLoadBeforeResponse": "NOT_RUN"
+  },
+  "scope": "Four preparation attempts for the two later upload fault strategies. The previously completed early abort is a separate series.",
+  "status": "BLOCKED_ENV",
+  "totals": {
+    "closedAndRestoredWindowSets": 4,
+    "dedicatedLoopbackListeners": 4,
+    "distinctDedicatedWindows": 4,
+    "exitedListeners": 4,
+    "faultsApplied": 0,
+    "fileInputsIssuedByTheseAttempts": 0,
+    "messagesSentOrFormSubmitsIssuedByTheseAttempts": 0,
+    "networkFaultReservationsOrHooksArmed": 0,
+    "signedRiftletChildrenLaunchedByTheseAttempts": 0,
+    "siteNavigationIntents": 0,
+    "systemCaptures": 0,
+    "trayClicks": 0
+  },
+  "windows": [
+    {
+      "closeRequests": 1,
+      "distinctOwnedWindowVerified": true,
+      "family": "edge",
+      "listenerExitedAndOriginalPIDAbsent": true,
+      "localChallengeArmed": false,
+      "localVisibleReadCount": 0,
+      "loopback": "loopback subject connection recorded; original-document challenge was never armed",
+      "originalBrowserSignatureVerified": true,
+      "originalWindowClosed": true,
+      "originalWindowSetRestored": true,
+      "positiveForegroundAndVisibleSamples": 0,
+      "preparationWithinFamily": 1,
+      "receiptSHA256": {
+        "afterWindowInventory": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+        "beforeWindowInventory": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+        "browserInventory": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+        "close": "e148ee30b300dcf304cd7e68b337f09025d911a0f3f13fde9285d63fb5857d77",
+        "creation": "8fe0251e1daac6d5fb47ecdc39fa2e7e917477bccf633d46b1629fa1f4db1037",
+        "listenerExit": "47dc490a075dd736568e5db586f90c171a5f9dd0ad8ff3f9bcd77e8149974c8a",
+        "listenerStart": "9507a67e41247200aba76948da48eb7b3ca6d042ea9914e6adef9130fff12bc0",
+        "listenerStderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "listenerURLs": "20a4d3fb1e6ec5efdd1ce7a9f7b7798316f1dbbb5700f4c36629226e821543b6",
+        "localConnection": "421efc8568a5a2b7a2119988fa2647951783479b350e16f8977fb4102765bf96"
+      },
+      "restoreProof": "exact before and after native inventories"
+    },
+    {
+      "closeRequests": 1,
+      "distinctOwnedWindowVerified": true,
+      "family": "edge",
+      "listenerExitedAndOriginalPIDAbsent": true,
+      "localChallengeArmed": false,
+      "localVisibleReadCount": 5,
+      "loopback": "loopback subject connection recorded; original-document challenge was never armed",
+      "originalBrowserSignatureVerified": true,
+      "originalWindowClosed": true,
+      "originalWindowSetRestored": true,
+      "positiveForegroundAndVisibleSamples": 0,
+      "preparationWithinFamily": 2,
+      "receiptSHA256": {
+        "afterWindowInventory": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+        "beforeWindowInventory": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+        "browserInventory": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+        "close": "e148ee30b300dcf304cd7e68b337f09025d911a0f3f13fde9285d63fb5857d77",
+        "creation": "5cb236c0d87974b36b6c90fdc02cc29077026da16b589be58ea12a0371da9c6d",
+        "listenerExit": "0c8259da2c9d3f665edb3d3c7c802c01ce49540f7acd10143369ff91dda818d1",
+        "listenerStart": "1e6593b137b28c07e2085d670ade978620476d134154e464566ab1c1e1e22f65",
+        "listenerStderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "listenerURLs": "8c12bc5cee9f1045d295a5a5eaa6f84fca45b11fbf9c769fa52fbc69d10a76bc",
+        "localConnection": "9f40d3550259c993ec9e3a486d83cdfc3806a8711f2abf9ef25add85f2a9e9b4",
+        "localVisibilitySamplesInOrder": [
+          "68f29d0279366c45a869999549565348bc513614fc2d4b6dc65d1b78bf34a395",
+          "7191b8fd630cfc9f33e71f84403b56a72dd1df625d079dd72be3846f8bd0981e",
+          "7191b8fd630cfc9f33e71f84403b56a72dd1df625d079dd72be3846f8bd0981e",
+          "7191b8fd630cfc9f33e71f84403b56a72dd1df625d079dd72be3846f8bd0981e",
+          "7191b8fd630cfc9f33e71f84403b56a72dd1df625d079dd72be3846f8bd0981e"
+        ]
+      },
+      "restoreProof": "exact before and after native inventories"
+    },
+    {
+      "closeRequests": 1,
+      "distinctOwnedWindowVerified": true,
+      "family": "edge",
+      "listenerExitedAndOriginalPIDAbsent": true,
+      "localChallengeArmed": false,
+      "localVisibleReadCount": 1,
+      "loopback": "loopback subject connection recorded; original-document challenge was never armed",
+      "originalBrowserSignatureVerified": true,
+      "originalWindowClosed": true,
+      "originalWindowSetRestored": true,
+      "positiveForegroundAndVisibleSamples": 0,
+      "preparationWithinFamily": 3,
+      "receiptSHA256": {
+        "afterWindowInventory": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+        "beforeWindowInventory": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+        "browserInventory": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+        "close": "e148ee30b300dcf304cd7e68b337f09025d911a0f3f13fde9285d63fb5857d77",
+        "creation": "8cba6b83b592eb8dca025267aeeda7a4cc169d98114a6ad86a08ea1666376887",
+        "listenerExit": "18318310a9b2704766a436ebca330caf1b208e6bb0b52d876f7e6e7fa65dbe10",
+        "listenerStart": "75db75ed0b566b59b45fe5780ce7fa7ef2e4a5405c5b99c6f951240327b8fa89",
+        "listenerStderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "listenerURLs": "12c62ba1fc7d35f1ef91f30a10511068e27253d87a39f0f9520e14c5d5c98c05",
+        "localConnection": "a608acc8917b06302609460c2df08d26004b619480b498dfb9f8a6ef35713508",
+        "localVisibilitySamplesInOrder": [
+          "7191b8fd630cfc9f33e71f84403b56a72dd1df625d079dd72be3846f8bd0981e"
+        ]
+      },
+      "restoreProof": "exact before and after native inventories"
+    },
+    {
+      "closeRequests": 1,
+      "distinctOwnedWindowVerified": true,
+      "family": "chrome",
+      "listenerExitedAndOriginalPIDAbsent": true,
+      "localChallengeArmed": false,
+      "localVisibleReadCount": 0,
+      "loopback": "exact private loopback URL verified on the originally created tab at closure; listener has no subject-connection receipt",
+      "originalBrowserSignatureVerified": true,
+      "originalWindowClosed": true,
+      "originalWindowSetRestored": true,
+      "positiveForegroundAndVisibleSamples": 0,
+      "preparationWithinFamily": 1,
+      "receiptSHA256": {
+        "beforeWindowInventory": "99fd729e3f1d670f9a6915cb283b5d4db24a53073a80cf7503199bff95c03292",
+        "browserInventory": "99fd729e3f1d670f9a6915cb283b5d4db24a53073a80cf7503199bff95c03292",
+        "closeIncludingWindowInventoryComparison": "effd65800f72369eefef1be7fb9cad4b9660961851aa03b02112f681aa414c0c",
+        "creation": "9ec4fe6e952dafc038e1abd0f961c1a91244e818b276c3859f9fd5e06f8fbd6d",
+        "listenerExit": "a0bd3587cae19c39637f42ebae3dd7578d785993ef44db4dc3545179416e9f4e",
+        "listenerStart": "a2085b4a2d8b8d4b25e7394aec0a2e96f3a993e3d9f54c78e476cc46aea0abc8",
+        "listenerStderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "listenerURLs": "0c59ef3f218e7b5ae6eabe3840f5fdd35cb24a99d2b5d69c14ef1458bbdefe45",
+        "originalOwnedLoopbackCloseIntent": "8c7cabb9bf730f95f8720cf9a31aad6876302baadea6c8db9ac3827a5ad50b19"
+      },
+      "restoreProof": "dedicated native close receipt contains originalWindowSetRestored=true after a same-process window set comparison"
+    }
+  ]
+}

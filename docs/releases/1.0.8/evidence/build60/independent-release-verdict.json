@@ -1,0 +1,186 @@
+{
+  "reviewedUTC": "2026-11-22T17:11:49+00:00",
+  "scope": "Independent read-only adjudication of seven dedicated build 60 preflights. This reviewer did not execute them or package the candidate. Non-author product source review is separately recorded.",
+  "candidate": {
+    "source": "711cee3a1c7033ce4925082a83099b00da7087c6",
+    "version": "1.0.8",
+    "build": 60,
+    "dmgSHA256": "5a934119d6e65cbe82a62f5f208a2b95a200fa0cf170225ccd4e9016b1c0b54e",
+    "installedPageProgramSHA256": "a4da18056ed85a5a360f30f22c6965138d917cfde2c404e9aa24422b1f7b8250"
+  },
+  "releaseVerdict": "PARTIAL",
+  "releaseAuthorized": false,
+  "websiteEnvironment": "BLOCKED_ENV",
+  "qualified": [
+    "ARM64 and Intel CI succeeded on the frozen source.",
+    "The independent installation and notarization receipts match the selected DMG and page-program digest."
+  ],
+  "sameCandidateWebsite": {
+    "chromePreflights": 2,
+    "edgePreflights": 5,
+    "admittedProductTrials": 0,
+    "productAppKitSelections": 0,
+    "productFileInputs": 0,
+    "productRecoveryInvocations": 0,
+    "attributableUploadHTTP4xx": 0,
+    "namedOriginalFailureCards": 0,
+    "siteRecoveryBeforeAfterSnapshotPairs": 0,
+    "sendOrSubmitIssuedByQA": 0,
+    "scope": "All counted actions belong to these preflights. The input stage was never entered. Unexecuted trial counters give no behavioral pass."
+  },
+  "gates": {
+    "ChromeRapidPairs": "NOT_RUN",
+    "EdgeRapidPairs": "NOT_RUN",
+    "ChromeNonemptySelection": "NOT_RUN",
+    "EdgeNonemptySelection": "NOT_RUN",
+    "G4_A_originalSiteFailureCardAndExplicitRecovery": "NOT_RUN",
+    "G4_B_attributableSiteRejectionAndCardDisappearance": "NOT_RUN",
+    "G4_B_equivalenceAccepted": false,
+    "G4_C_signedSiteExplicitUNKNOWNRecovery": "NOT_RUN"
+  },
+  "technicalRuling": "Neither browser supplied a foreground, visible, uniquely addressable input destination. Two Edge read-only site envelopes positively establish the signed-in original editor while their native foreground and document visibility checks fail. No product selection crossed that boundary. A website rejection attributable to the original PNG and disposition of its original card remain unobserved. The technical judgment denies G4-B equivalence. Historical client cancellations and owned-loopback HTTP 413/503 cannot supply those missing facts. The unresolved Edge vendor tab was preserved and only the owned loopback challenge tab was closed.",
+  "preflights": [
+    {
+      "browser": "edge",
+      "preparation": "local enrollment 1",
+      "candidateScopeSHA256": "f151e6817026cae95e5233a9ea9d211df6a1b18217b62b9732def9faeb4a8ced",
+      "receiptsSHA256": {
+        "creation.json": "cdeca0cb2b6cf17899ae3cc90e08079d0184df93017ebba5c19a71818f2ee94a",
+        "closed.json": "e148ee30b300dcf304cd7e68b337f09025d911a0f3f13fde9285d63fb5857d77"
+      },
+      "cleanup": {
+        "provenOwnedWindowClosed": true,
+        "inventoryRestored": true
+      }
+    },
+    {
+      "browser": "edge",
+      "preparation": "local enrollment 2",
+      "candidateScopeSHA256": "f151e6817026cae95e5233a9ea9d211df6a1b18217b62b9732def9faeb4a8ced",
+      "receiptsSHA256": {
+        "local-focus.json": "7191b8fd630cfc9f33e71f84403b56a72dd1df625d079dd72be3846f8bd0981e",
+        "closed.json": "e148ee30b300dcf304cd7e68b337f09025d911a0f3f13fde9285d63fb5857d77"
+      },
+      "cleanup": {
+        "provenOwnedWindowClosed": true,
+        "inventoryRestored": true
+      }
+    },
+    {
+      "browser": "edge",
+      "preparation": "signed-in original site target",
+      "candidateScopeSHA256": "f151e6817026cae95e5233a9ea9d211df6a1b18217b62b9732def9faeb4a8ced",
+      "receiptsSHA256": {
+        "site-navigation-return.json": "7f659bfe108a166495ad59721687c606c3fa8c21a5667aabbd5615b43502209f",
+        "failed-presentation-site.json": "bc9d7c3db49db8c995cb96a4bbb5bdedb1670f5941399dd8e79e8b8717d0c6e1",
+        "closed.json": "e148ee30b300dcf304cd7e68b337f09025d911a0f3f13fde9285d63fb5857d77"
+      },
+      "readOnlySiteObservation": {
+        "payloadIntegrityVerified": true,
+        "exactSignedInTemporaryTabSelected": true,
+        "editorAndUploadEntryPresent": true,
+        "documentVisible": false,
+        "systemForeground": false
+      },
+      "cleanup": {
+        "provenOwnedWindowClosed": true,
+        "inventoryRestored": true
+      }
+    },
+    {
+      "browser": "edge",
+      "preparation": "native activation of original site target",
+      "candidateScopeSHA256": "f151e6817026cae95e5233a9ea9d211df6a1b18217b62b9732def9faeb4a8ced",
+      "receiptsSHA256": {
+        "scoped-site.json": "502baca40b84a98a9d0a1b9252ec6d0b21454c76e892bf5bba3c17654237841b",
+        "site-stop-with-original-target.json": "66fa3e7996ab21db7400d7c4b521ba5780eec98782b13ff99846fe8b75d59471",
+        "desktop-surface.json": "92f1f6481aae038cc8b05d1c85f276f7092f177eca8556b84fbf030f41e4286b",
+        "scoped-fresh-stop.json": "a9134cb7e601d09716ac26ba25e66f3f97445211ccf8300035736f2bd6228486",
+        "closed.json": "e148ee30b300dcf304cd7e68b337f09025d911a0f3f13fde9285d63fb5857d77"
+      },
+      "readOnlySiteObservation": {
+        "payloadIntegrityVerified": true,
+        "exactSignedInTemporaryTabSelected": true,
+        "editorAndUploadEntryPresent": true,
+        "documentVisible": false,
+        "systemForeground": false
+      },
+      "desktopObservation": {
+        "onscreenBrowserWindows": 0,
+        "accessibleBrowserWindows": 0,
+        "systemDialogFrontmost": true,
+        "browserOwnsForeground": false,
+        "safeDedicatedTitlebarPoint": false,
+        "mouseClicksIssued": 0
+      },
+      "cleanup": {
+        "provenOwnedWindowClosed": true,
+        "inventoryRestored": true
+      }
+    },
+    {
+      "browser": "edge",
+      "preparation": "browser-requested dedicated window",
+      "candidateScopeSHA256": "f151e6817026cae95e5233a9ea9d211df6a1b18217b62b9732def9faeb4a8ced",
+      "receiptsSHA256": {
+        "vendor-multitab-inventory.json": "ece35a1322dc85b758498e55ac56f65f04f4836b97f4117f8cb9702f3c08f7be",
+        "vendor-stop.json": "43f45fdac36c8982b9ad4bd1d8af0a066d0257a8852e77d098bd63bc53c8f3a4",
+        "vendor-multitab-cleanup.json": "d92dbb90fb048bf2fce81992d9bacfcca7d5ef5728cdd460dab59abef1f3a65a",
+        "vendor-final-inventory.json": "5f1ab581b284196701fe8adb53a2a4b80ecbf6b3c56373f7e7b67d380d144f9b"
+      },
+      "cleanup": {
+        "provenOwnedLocalTabsClosed": 1,
+        "unclassifiedTabsPreserved": 1,
+        "remainingTabsInNewWindow": 1,
+        "allOtherOriginalTabsRetained": true,
+        "wholeWindowClosed": false
+      }
+    },
+    {
+      "browser": "chrome",
+      "preparation": "native window selection",
+      "candidateScopeSHA256": "b05acbf1c83d16e5d4ecb1698a8151b6d86c3898c54baeb06d2ee4236b50422a",
+      "receiptsSHA256": {
+        "scoped-local.json": "92075b860fc75dae7820bf9abcc0bc133ad97ced288d5314e2c380b652c2c283",
+        "scoped-resume-local-stop.json": "1a8a1906609a56288729576f176a217b2b788cf943dbdd56d85445de91425f1e",
+        "closed.json": "7e575dcbd73ee6182a27f24cc3a161e8c782202868f9cccca7ae66778f079d8e"
+      },
+      "cleanup": {
+        "provenOwnedWindowClosed": true,
+        "inventoryRestored": true
+      }
+    },
+    {
+      "browser": "chrome",
+      "preparation": "browser-requested dedicated window",
+      "candidateScopeSHA256": "b05acbf1c83d16e5d4ecb1698a8151b6d86c3898c54baeb06d2ee4236b50422a",
+      "receiptsSHA256": {
+        "vendor-local-before-https.json": "91b9f716ac4fb22c7c2c7418614e112418e2770e0e6ad1d37e12669ecddcde2c",
+        "desktop-surface.json": "64be3f7fcaed38863582cb10e4672d45210e15916445faaef9bb0d2ba9ef71e9",
+        "vendor-stop.json": "619bf98064947020df50865b0171085fac90d4dec38f1563ae49924187fa6689",
+        "closed.json": "fdab8e9923fac9dbbd1109304c406a9029b1e280fb47abf383dfafdb3957d073"
+      },
+      "desktopObservation": {
+        "onscreenBrowserWindows": 0,
+        "accessibleBrowserWindows": 0,
+        "systemDialogFrontmost": true,
+        "browserOwnsForeground": false,
+        "safeDedicatedTitlebarPoint": false,
+        "mouseClicksIssued": 0
+      },
+      "cleanup": {
+        "provenOwnedWindowClosed": true,
+        "inventoryRestored": true
+      }
+    }
+  ],
+  "publicReceiptsSHA256": {
+    "signed-candidate.json": "b6148bd0f7fbf25dff8d4a746127ad403c669d1b17f4ec0d6fba8f9714033c72",
+    "independent-install.json": "6dd1c3b09e02b307862cc5759d83ea25f539bcf55cace1090e3539c46b775736",
+    "dual-architecture-ci.json": "bad3c8a5d6219ffda94f5bfb030b463bb882797edb35a3923467ed4b65278797",
+    "independent-source-review.json": "76157791ffc27b8fbb390a283f3d5bdab6d92d915bb49594fc8a5a3874e1c401",
+    "local-regression.json": "f9fbea4df77cc2bab9766584c8fa5cf2374275053239a0c7a0c93fe0324d7da6",
+    "g4c-edge-preflight.json": "c520dc0dde3298bd28b7983a64aa552c70ef6cf748eb0730299c402ad120b07b",
+    "g4-page-review.json": "555647c599ba865530e49d6b2a4d44b41ecbace8386aa9154a823b585e81e9ae"
+  }
+}

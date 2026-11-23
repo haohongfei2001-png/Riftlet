@@ -1,0 +1,62 @@
+{
+  "gate": "Ordinary signed site first image per fresh application/profile and first new image with an earlier accepted attachment still on the same draft",
+  "status": "PASS",
+  "source": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "dmgSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "families": {
+    "chrome": [
+      {
+        "coldFreshProcess": true,
+        "signedOriginalProcess": true,
+        "preexistingAttachments": 0,
+        "preclickACKLeadMS": 2740.156,
+        "newPNGAndPreviewVerified": true,
+        "distinctOriginalDurableSTART": true,
+        "inputChangeForThisPNG": [
+          1,
+          1
+        ]
+      },
+      {
+        "coldFreshProcess": false,
+        "signedOriginalProcess": true,
+        "preexistingAttachments": 1,
+        "preclickACKLeadMS": 15204.645,
+        "newPNGAndPreviewVerified": true,
+        "distinctOriginalDurableSTART": true,
+        "inputChangeForThisPNG": [
+          1,
+          1
+        ]
+      }
+    ],
+    "edge": [
+      {
+        "coldFreshProcess": true,
+        "signedOriginalProcess": true,
+        "preexistingAttachments": 0,
+        "preclickACKLeadMS": 2049.044,
+        "newPNGAndPreviewVerified": true,
+        "distinctOriginalDurableSTART": true,
+        "inputChangeForThisPNG": [
+          1,
+          1
+        ]
+      },
+      {
+        "coldFreshProcess": false,
+        "signedOriginalProcess": true,
+        "preexistingAttachments": 1,
+        "preclickACKLeadMS": 3514.938,
+        "newPNGAndPreviewVerified": true,
+        "distinctOriginalDurableSTART": true,
+        "inputChangeForThisPNG": [
+          1,
+          1
+        ]
+      }
+    ]
+  },
+  "sends": 0,
+  "submits": 0
+}

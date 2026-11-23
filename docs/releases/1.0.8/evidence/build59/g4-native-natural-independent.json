@@ -1,0 +1,61 @@
+{
+  "reviewMethod": "Independent post-run read-only inspection of original source and private PNG, signed-candidate identity, SQLite transaction, native trace and browser receipts. No fresh browser or product input.",
+  "reviewedPublicReportCommit": "424a999c295b1a2fcdc6fd8c0d795d42faad3845",
+  "reviewedPublicReportSHA256": "abe47897f11255f8054c67ded7503a420584ddb92852702b97cec3f6add53f1d",
+  "matchedPublicReceiptHashes": 7,
+  "build": 59,
+  "dmgSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+  "browser": "Edge",
+  "accountSignal": "logged_in + one account control + no signed-out control",
+  "originalAndSavedPNG": {
+    "sha256": "33715dd287606cfa1584711ad82bcf52dfb966085f1c1b91f9cc40775dc29da1",
+    "bytes": 5516,
+    "width": 330,
+    "height": 196,
+    "matchingMacAndBrowserOriginalAndPreviewRGBA": "c709b93437e5639076f248af65dc2b32bda709f5e9ed0f4bbf6fe2b8f320b36d"
+  },
+  "matchedOperationAndPNGRecordsSHA256": "e4fbf35988c3996acdf596f92d53999e5524fbec5e124e36e31bbd5c58bc580e",
+  "observations": {
+    "originalAppKitMouseDown": 1,
+    "mouseUpAndDownAreOneClick": true,
+    "originalConsumedLease": 1,
+    "returnedFileDispatches": 1,
+    "fileInput": 1,
+    "fileChange": 1,
+    "durableOriginalAttachmentAcceptedSTART": 1,
+    "originalDecodedCards": 1,
+    "additionalInvocations": 0,
+    "sendButtonClicks": 0,
+    "formSubmits": 0,
+    "recognizedOriginalErrorCards": 0,
+    "directSetterTimestampObserved": false
+  },
+  "outcome": "G4 NOT_RUN; the natural transfer reached original attachment acceptance; a failed original card and recovery sequence were not observed.",
+  "faultInjection": {
+    "thisNaturalTransfer": "No fault was injected.",
+    "historicalPOST100": "A previous real MAIN-world session correlated one generated 3137-byte PNG, its unique upload URL and exact XHR bytes, observed UI100 and one native abort/status 0. The archived receipt records restoration and zero pending requests at the deadline. That card detached and did not demonstrate an explicit failed original card.",
+    "historicalMID": "The separate large-image MID trial did not bind its byte request or deliver an abort.",
+    "originalSources": {
+      "engineering/evidence/2026-10-27-real-mac-round2/post100-network-receipt.json": "81210ad1a339aecc67114619e2d5c737dd1090fa5d9fe020cd34032a4bf68aec",
+      "engineering/evidence/2026-10-27-real-mac-round2/mid-network-receipt.json": "3f497749582ca8a4e658384f1d3d1fe32d72388cc971a90b6da82dd3230d13e8",
+      "engineering/evidence/2026-10-27-real-mac-round2/network-fault.template.js": "0ff7a03f5dfe588447df9fcf0efc317a60c18bbd0629c0bb36493bfe1c044d3d"
+    },
+    "compatibilityWithCurrentNativeObserver": "The historical template needs MAIN-world instrumentation: it appends a DOM receipt element and wraps page-global fetch and XMLHttpRequest.open/send. Earlier isolated Apple Events reads missed the page-world upload. The current authorized original-tab observer exposes only read-only page/route facts and cannot cancel a matched request. The current Edge card did report UI100, but resource timing entries do not establish a body hash, a unique pending byte request or a cancellation handle.",
+    "alternateHistoricalTabURLRule": "The prior tab-scoped URL block had no demonstrated single-request limit or completed restoration calibration.",
+    "decision": "No live injection attempted or approved as applicable through the current read-only observer. G4 remains NOT_RUN."
+  },
+  "testWindowClosedAndPriorWindowSetRestored": true,
+  "additionalPrivateReceiptSHA256": {
+    "candidate.stderr": "2782dcdeaa56c16c15b803dc901b02f3607b74cd59724a56e9e7a34a7e4c514a",
+    "source-pixels-1.json": "5428931c33caca65b34b7ce9f4ef25bc7536e8eaab4f20677437615873ce69a1",
+    "g4-no-injection.json": "553b6d722ccf04d8a9849c62da09ebaba64d28cbf7e1c5a7ce55d715396b43d5",
+    "page-before-1.json": "2e2669bd331c2100589b01773ab418f2fccc41ca1c52fc6b775e58f35ba9a250",
+    "g4-native-auth-first-press.json": "fb0cbd9b54c8b8ba0ad6f2fcd1faa5ac2dca88d437522a4a423986f9078e8c49",
+    "row-1.json": "6f249a38eca88f49802769e43e108e55573f5176c56c255f6d2948864ccbd283",
+    "watch-closed.json": "a54ac5bb1f80f63e97d0fdea2ed11b5d547130e28378703d643019b310611f98",
+    "before.json": "62961e85bfa4fd3e5f25bd19c8ec80e40b354ace88d222c2812d9de3ca86b4c4",
+    "after.json": "62961e85bfa4fd3e5f25bd19c8ec80e40b354ace88d222c2812d9de3ca86b4c4",
+    "closed.json": "e148ee30b300dcf304cd7e68b337f09025d911a0f3f13fde9285d63fb5857d77",
+    "site-navigation-return.json": "f95d5b054f72f21ea02de864e45b09eea9942abc8f44a82624f9704629a4143e"
+  }
+}

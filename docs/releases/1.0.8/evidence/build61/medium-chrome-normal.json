@@ -1,0 +1,40 @@
+{
+  "actualNativeBindingMatchesArmed": true,
+  "browser": "chrome",
+  "decodedOriginalPreviews": 1,
+  "dmgSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "durableStarts": 1,
+  "exactResourceTimingAdded": [
+    {
+      "atMS": 85131.60000002384,
+      "durationMS": 424,
+      "endMS": 85555.60000002384,
+      "kind": "fetch",
+      "publicPath": "/backend-api/files",
+      "responseStatus": 200
+    }
+  ],
+  "explicitRecoveryPerformed": false,
+  "fileBytes": 7921752,
+  "inputAndChangeVerified": true,
+  "namedErrors": 0,
+  "networkFaults": 0,
+  "originalImageMatched": true,
+  "originalMouseDowns": 1,
+  "originalStartVerified": true,
+  "preexistingCreateRows": 0,
+  "productOutcome": "uploadStarted",
+  "putAssociation": false,
+  "settledPhase": "unknown",
+  "source": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "sourceSHA256": "66057577de807a2d2a266360b59efdfb80e6301a158d9eb1bd2bf028757dd3a7",
+  "sqliteBackupSHA256": "3727e8b9e0994bca07146004c8d22ce6c32d39eb824f1ee609e911fd2a8dd831",
+  "uploadByteCount": null,
+  "uploadResponseStatus": null,
+  "webInputCounts": {
+    "fileChange": 1,
+    "fileInput": 1,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  }
+}

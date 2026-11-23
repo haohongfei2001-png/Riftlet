@@ -1,0 +1,1036 @@
+{
+  "reviewedBase": "9fd8ad15fca043915069904113e5fb67d82b4948",
+  "reviewedSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "reviewedTree": "70ba40e23a3afa3561525b1943cb0e5ebc825de5",
+  "reviewer": "riftlet_108_60_independent_full_range_nonauthor_source_reviewer",
+  "result": "PASS",
+  "reviewedAtUTC": "2026-11-22T22:27:35.504Z",
+  "reviewType": "Independent engineering source review under docs/MAINLINE_GOVERNANCE.md, step 3",
+  "githubReview": "No formal GitHub APPROVED event was issued by this reviewer.",
+  "independence": {
+    "role": "Same independent reviewer who rejected the frozen build 60 source. I have not authored or edited the candidate product, the build 61 fix, the test implementation, the branch, or its admissions.",
+    "historicalDocument": "I wrote the earlier build 60 review. A different contributor committed an exact copy as historical evidence in 941dc5d49043bc5d87a1060423c3ea9bbe863baa. I compared its complete bytes with my original report. It still says CHANGES_REQUESTED for 711cee3a and was not reused as the decision for this candidate."
+  },
+  "conclusion": "The previously blocking History / Attach Again foreground transition is corrected on this exact source. A new user-selected pin can re-identify the still-proven original draft after focus returns. Old write permissions remain retired. I found no remaining blocking source defect in the reviewed B-to-G range. This PASS is source admission evidence only.",
+  "range": {
+    "B": "9fd8ad15fca043915069904113e5fb67d82b4948",
+    "G": "49b9204974088c1983cda469910d9a78d8f4c43b",
+    "tree": "70ba40e23a3afa3561525b1943cb0e5ebc825de5",
+    "worktreeFilesVerified": 2114,
+    "priorChanged": 437,
+    "sincePrior": 62,
+    "QA": 53,
+    "productCommit": 9,
+    "overlapOfPreviousAndNew": 16,
+    "totalChanges": 483,
+    "status": {
+      "A": 385,
+      "M": 98
+    },
+    "fullScopeManifestSHA256": "2296bdd6b8c77e0e189485ba66f9e3e153952f0847e93c3fcaba69fdfc9a160a",
+    "deltaSinceBuild60SHA256": "3470da6904f1f2f1bfe52e87933e10498dbc389dece303f3959adc4c6ebdf96a",
+    "QAInventorySHA256": "7d79a7018e2dda97380c8be167f2986945cb37648e597b95bde4cdd9bbd6ef9b",
+    "productScopeSHA256": "1750575dd1e3081bde7d46906e4476730aaa473350f64977ff178a73da6eb936",
+    "commitCount": 275,
+    "merges": 1,
+    "build60ReviewSHA256": "53fd83a57e34eddd12e84c640608d2f23bc22005a6ef252b47968b4349c8ffbd",
+    "productionAdmissionUnchanged": true,
+    "workflowAndFeedChanges": [
+      ".github/workflows/original-document-delivery.yml",
+      ".github/workflows/preclick-document-lease.yml"
+    ],
+    "baseTree": "4e2b8ccc74c2683c331a0a6736390057bd66cbde",
+    "sourcesSubtree": "1aae0943f6ce71a9bfa49c86ba95589032c1de63",
+    "addedLines": 51801,
+    "removedLines": 910,
+    "cleanFrozenCheckout": true,
+    "baseIsAncestor": true,
+    "earlierFullReviewSource": "711cee3a1c7033ce4925082a83099b00da7087c6",
+    "qaCheckpoint": "941dc5d49043bc5d87a1060423c3ea9bbe863baa",
+    "candidateParents": [
+      "941dc5d49043bc5d87a1060423c3ea9bbe863baa"
+    ],
+    "carryover": "The previous complete B-to-build-60 review covered 437 changed paths. 421 of those paths are byte-for-byte and mode-for-mode equivalent at G. Sixteen were amended and another 46 paths appeared, giving 62 re-reviewed delta paths and 483 distinct changed paths. The 53 QA/evidence changes are disjoint from the final nine-file product/packaging/test change. Every G checkout entry was hashed as a Git blob and its executable/symlink mode independently compared with the frozen tree. The checkout was clean including untracked files.",
+    "method": "SHA-256 path manifest hashes use sorted paths, each followed by TAB, old mode and Git blob separated by one space, TAB, new mode and Git blob separated by one space, and LF. A missing side is '- -'. No filename in the range contains a tab or newline.",
+    "priorAdmission": "The earlier independently recomputed 437-path partition was 175 unchanged from previously admitted build 53, 11 covered by a narrow later review, 250 other paths, and one superseded admission JSON. Earlier reports corroborate their exact scope only.",
+    "changedPathGroups": {
+      ".github": 2,
+      "AGENTS.md": 1,
+      "Experiments": 8,
+      "Resources": 3,
+      "Sources": 59,
+      "Tests": 148,
+      "docs": 254,
+      "engineering": 1,
+      "packaging": 1,
+      "scripts": 6
+    },
+    "deltaPaths": {
+      "product": [
+        "Resources/Info.plist",
+        "Sources/RiftletAdapters/ArchivedObservationCompatibility.swift",
+        "Sources/RiftletAdapters/Resources/build60-observation-fingerprint.dat",
+        "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js",
+        "Tests/Packaging/test_verify_app_bundle.py",
+        "Tests/RiftletAdaptersTests/ArchivedObservationCompatibilityTests.swift",
+        "Tests/WebPageProgram/chrome-input-resource.test.cjs",
+        "Tests/WebPageProgram/original-error-card-application.cjs",
+        "scripts/verify-app-bundle.py"
+      ],
+      "qa": [
+        "Tests/PreClickLease/g4/audit/ArchiveRecovery.swift",
+        "Tests/PreClickLease/g4/audit/browser-bridge.cjs",
+        "Tests/PreClickLease/g4/audit/controlled-page.cjs",
+        "Tests/PreClickLease/g4/audit/run_archives.py",
+        "Tests/PreClickLease/g4/expiry-observation/README.md",
+        "Tests/PreClickLease/g4/expiry-observation/compose.cjs",
+        "Tests/PreClickLease/g4/expiry-observation/expiry.cjs",
+        "Tests/PreClickLease/g4/expiry-observation/expiry.test.cjs",
+        "Tests/PreClickLease/g4/expiry-observation/integration.test.cjs",
+        "Tests/PreClickLease/g4/gui-host/PresentOriginal.swift",
+        "Tests/PreClickLease/g4/gui-host/README.md",
+        "Tests/PreClickLease/g4/gui-host/WindowEvidence.swift",
+        "Tests/PreClickLease/g4/gui-host/gui_control.py",
+        "Tests/PreClickLease/g4/gui-host/gui_park.py",
+        "Tests/PreClickLease/g4/gui-host/gui_sample.py",
+        "Tests/PreClickLease/g4/gui-host/gui_telemetry.py",
+        "Tests/PreClickLease/g4/gui-host/test_gui_host.py",
+        "Tests/PreClickLease/g4/gui-host/test_parking.py",
+        "Tests/PreClickLease/g4/http-control/README.md",
+        "Tests/PreClickLease/g4/http-control/fixture.js",
+        "Tests/PreClickLease/g4/http-control/run.cjs",
+        "Tests/PreClickLease/g4/supervisor/README.md",
+        "Tests/PreClickLease/g4/supervisor/monitor.py",
+        "Tests/PreClickLease/g4/supervisor/test_monitor.py",
+        "Tests/PreClickLease/g4/test_unknown_recovery.py",
+        "Tests/PreClickLease/g4/verify_unknown_recovery.py",
+        "docs/releases/1.0.8/BUILD60_CONTINUOUS_EXECUTION.md",
+        "docs/releases/1.0.8/G4_AUTONOMOUS_PROGRESS.md",
+        "docs/releases/1.0.8/G4_AUTONOMOUS_RUNBOOK.md",
+        "docs/releases/1.0.8/G4_FINAL_ACCEPTANCE.md",
+        "docs/releases/1.0.8/PRECLICK_ACCEPTANCE.md",
+        "docs/releases/1.0.8/RELEASE_NOTES_DRAFT.md",
+        "docs/releases/1.0.8/RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md",
+        "docs/releases/1.0.8/evidence/build60/dual-architecture-ci.json",
+        "docs/releases/1.0.8/evidence/build60/g4-page-review.json",
+        "docs/releases/1.0.8/evidence/build60/g4c-edge-preflight.json",
+        "docs/releases/1.0.8/evidence/build60/governance.json",
+        "docs/releases/1.0.8/evidence/build60/gui-diagnosis-foreground-return.json",
+        "docs/releases/1.0.8/evidence/build60/gui-diagnosis-initial.json",
+        "docs/releases/1.0.8/evidence/build60/http-expiry-control.json",
+        "docs/releases/1.0.8/evidence/build60/independent-install.json",
+        "docs/releases/1.0.8/evidence/build60/independent-release-verdict.json",
+        "docs/releases/1.0.8/evidence/build60/independent-source-review.json",
+        "docs/releases/1.0.8/evidence/build60/large-system-screenshot.json",
+        "docs/releases/1.0.8/evidence/build60/local-regression.json",
+        "docs/releases/1.0.8/evidence/build60/mainline-nonauthor-review.json",
+        "docs/releases/1.0.8/evidence/build60/public-stable-baseline.json",
+        "docs/releases/1.0.8/evidence/build60/recovery-architecture-audit.json",
+        "docs/releases/1.0.8/evidence/build60/recovery-architecture-audit.md",
+        "docs/releases/1.0.8/evidence/build60/registered-aqua-supervisor.json",
+        "docs/releases/1.0.8/evidence/build60/release-preparation.json",
+        "docs/releases/1.0.8/evidence/build60/signed-candidate.json",
+        "docs/releases/1.0.8/evidence/build60/site-and-cleanup.json"
+      ]
+    }
+  },
+  "functionalReview": [
+    {
+      "area": "Web, target binding and native host",
+      "detail": "The original native process, window, tab and document, prepared receiver, original composer, independent click authority, ACK/expiry, asynchronous entry, once-only setter/change, relay nonce, retained observer, Edge execution witness and converted-preview START logic were reviewed on B-to-build-60. The final delta changes only the enrolled original read anchor and selection of the next writable generation. The strict original target check, stored receiver, read/expiry and duplicate-input logic remain in the actual G.",
+      "references": [
+        "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js:440",
+        "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js:477",
+        "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js:503",
+        "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js:521",
+        "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js:1999",
+        "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js:2110",
+        "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js:2227",
+        "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js:2244"
+      ]
+    },
+    {
+      "area": "Proof of the original attachment",
+      "detail": "Capture reuses an identifier only when the most recently enrolled, eligible PNG binding is still held by its original click map, still has a continuously live original reader, and identifies the same form and editor. The write generation, preparation, native click binding and operation/invocation are fresh. Actual PNG setter plus returned input/change are required to install a continuity anchor. The recovery surface separately requires the original row, own witnessed member or exact named failure, stable ordered neighbors, same history entry and no conflicting member or progress. At the last possible point before the native setter all predecessor conditions are checked again.",
+      "references": [
+        "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js:484",
+        "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js:511",
+        "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js:1762",
+        "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js:1806",
+        "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js:1838",
+        "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js:2212",
+        "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js:2229",
+        "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js:2244"
+      ]
+    },
+    {
+      "area": "Durable data, native UI, migration and independent later clicks",
+      "detail": "Core, store, capture, native host and UI product bytes are unchanged since the preceding full review. Reviewed evidence covers v4-v7 migration, independent operation/invocation, monotonic attempt, predecessor immutability, restore-on-preinput cancellation, delayed replies, once-only START, media retention, native permission and the History duplicate-risk confirmation. History really brings Riftlet to the front. The fresh target passes the same strict Core equality check in G's changed page path. This review neither opened production SQLite nor replayed a stored operation.",
+      "references": [
+        "Sources/RiftletUI/RiftHistoryController.swift:243",
+        "Sources/RiftletUI/RiftHistoryController.swift:246",
+        "Sources/RiftletCore/TransferCoordinator.swift:35",
+        "Sources/RiftletCore/TransferCoordinator.swift:372",
+        "Sources/RiftletCore/TransferCoordinator.swift:378",
+        "Sources/RiftletCore/TransferCoordinator.swift:528",
+        "Sources/RiftletCore/SQLiteDatabase.swift:85",
+        "Sources/RiftletCore/SQLiteDatabase.swift:102",
+        "Tests/PreClickLease/g4/verify_unknown_recovery.py:47"
+      ]
+    },
+    {
+      "area": "Signed build 60 compatibility",
+      "detail": "The new LZFSE resource is a fingerprint prefix only. The native loader checks compressed SHA, decompressed length and source SHA. It retains a SHA-256 state. The archived-channel dispatch requires canonical channel and receipt IDs, an original matching target and operation, the original invocation, exactly one discovered matching relay, observe-only action and a live original receiver. Discovery is rechecked before dispatch. The packaging verifier admits this precise resource from build 61 onward.",
+      "references": [
+        "Sources/RiftletAdapters/ArchivedObservationCompatibility.swift:17",
+        "Sources/RiftletAdapters/ArchivedObservationCompatibility.swift:35",
+        "Sources/RiftletAdapters/ArchivedObservationCompatibility.swift:41",
+        "Sources/RiftletAdapters/MainWorldCommandRelay.swift:109",
+        "Sources/RiftletAdapters/MainWorldCommandRelay.swift:117",
+        "Sources/RiftletAdapters/MainWorldCommandRelay.swift:127",
+        "scripts/verify-app-bundle.py:37",
+        "Tests/RiftletAdaptersTests/ArchivedObservationCompatibilityTests.swift:13",
+        "Tests/RiftletAdaptersTests/ArchivedObservationCompatibilityTests.swift:54"
+      ]
+    },
+    {
+      "area": "Historical QA and source provenance",
+      "detail": "Reviewed all 53 added/modified QA and documentation paths, including the archive-copy audit, verifier and original PNG comparison, same-page renderer and owned loopback bridge, scoped HTTP expiry reader and HTTP controls, GUI original native/AX/CG/DOM reconciliation, parking of original observations, durable supervisor, tests, and 27 release documentation/evidence changes. The supervisor pins build 60 source and DMG, rechecks target and environment, takes the exclusive GUI lease, and persists the issued attempt before calling its host. Existing terminal receipts can only reconcile that issued scope. Archive/expiry/HTTP exercises use local controlled inputs; generic local 403/201 values do not establish an upstream site rejection. The telemetry separates Aqua and interactive permissions. The seven receipt fingerprints cited in independent-release-verdict.json matched the actual repository files. These old QA records establish no new G61 signed app or live results.",
+      "references": [
+        "Tests/PreClickLease/g4/audit/run_archives.py:40",
+        "Tests/PreClickLease/g4/audit/run_archives.py:106",
+        "Tests/PreClickLease/g4/verify_unknown_recovery.py:47",
+        "Tests/PreClickLease/g4/expiry-observation/expiry.cjs:24",
+        "Tests/PreClickLease/g4/gui-host/PresentOriginal.swift:79",
+        "Tests/PreClickLease/g4/gui-host/gui_control.py:123",
+        "Tests/PreClickLease/g4/gui-host/gui_park.py:19",
+        "Tests/PreClickLease/g4/supervisor/monitor.py:23",
+        "Tests/PreClickLease/g4/supervisor/monitor.py:269",
+        "Tests/PreClickLease/g4/supervisor/monitor.py:403"
+      ]
+    },
+    {
+      "area": "Distribution, limits and privacy",
+      "detail": "Checked package/resource pins, matching Info.plist build 61, synthetic bundle tests, untouched productionAdmission values, protected website/feed and formal workflows, unchanged formal composition gate and frozen historical evidence. The two changed workflow paths are candidate-only workflows previously reviewed and do not alter the five formal jobs. The website, service, research, formal history, release feed, package dependencies and previously pinned production scope are unchanged. 478 textual changed files were included in a fresh bounded privacy scan and all 223 JSON files and 10 JSONL records parsed with duplicate-key rejection. The only long base64-like strings flagged were a public extension key and tiny JPEG/HEIC transport fixtures. Service conversation URLs matched only synthetic Web tests. Five binary changes are versioned compressed historical fingerprint resources. No recognized provider key, private key, signed object URL, inline screenshot, private DB or HAR was found by this scan.",
+      "references": [
+        "scripts/verify-app-bundle.py:37",
+        "Tests/Packaging/test_verify_app_bundle.py:71",
+        "engineering/mainline/source-admission.json",
+        "docs/MAINLINE_GOVERNANCE.md"
+      ]
+    }
+  ],
+  "resolvedFinding": {
+    "prior": "R108-60 P1, original draft identity changed across the ordinary History foreground transition",
+    "status": "RESOLVED",
+    "productionPageSHA256": "2f6e2f6e1d80184813f6f967cc340638b96082abd5bd98c2f9e97b0597f982f2",
+    "historicalControl": "53fd83a57e34eddd12e84c640608d2f23bc22005a6ef252b47968b4349c8ffbd",
+    "remainingBlockingFindings": []
+  },
+  "independentVerification": {
+    "browserMethod": "Fresh local executions in native headless Chrome and native headless Edge, isolated disposable profiles, child-only control, loopback origin and site fixture. Kept the prior frozen harness source and injected only the verified build 61 page program. Original operation, FileList, selector, native setter/change, real navigation, trusted blur/focus/visibility, comparator, validation, begin and observe used G. Temporary local PNGs and drafts only. These runs did not present or access the user's browser.",
+    "focusMatrix": {
+      "runID": "86e17989-f990-4f37-93b9-9181193241f3",
+      "executedUTC": "2026-11-22T22:18:09.966Z",
+      "cases": 8,
+      "rows": [
+        {
+          "family": "chrome",
+          "version": "Chrome/157.0.8103.79",
+          "rows": [
+            {
+              "original": "gone",
+              "sequence": "continuous",
+              "originalReceipt": "inputTriggered",
+              "oldPinReadable": true,
+              "oldPinWritable": true,
+              "oldUnspentBeginErrors": [],
+              "sameDocumentEntryEditorFormPicker": true,
+              "sameOtherNativeAndTargetFields": true,
+              "sameProvenDraftGeneration": true,
+              "newClickAndOperationAndInvocation": true,
+              "sameOriginalAssetAndSHA256": true,
+              "newRecoveryValid": true,
+              "newBeginAdmitted": true,
+              "newSetters": 1,
+              "totalSetters": 2,
+              "totalChanges": 2,
+              "sends": 0,
+              "platformEvents": []
+            },
+            {
+              "original": "gone",
+              "sequence": "focus-round-trip",
+              "originalReceipt": "inputTriggered",
+              "oldPinReadable": true,
+              "oldPinWritable": false,
+              "oldUnspentBeginErrors": [
+                "TARGET_INVALID",
+                "TARGET_INVALID"
+              ],
+              "sameDocumentEntryEditorFormPicker": true,
+              "sameOtherNativeAndTargetFields": true,
+              "sameProvenDraftGeneration": true,
+              "newClickAndOperationAndInvocation": true,
+              "sameOriginalAssetAndSHA256": true,
+              "newRecoveryValid": true,
+              "newBeginAdmitted": true,
+              "newSetters": 1,
+              "totalSetters": 2,
+              "totalChanges": 2,
+              "sends": 0,
+              "platformEvents": [
+                {
+                  "type": "blur",
+                  "trusted": true
+                },
+                {
+                  "type": "visibilitychange",
+                  "trusted": true
+                },
+                {
+                  "type": "focus",
+                  "trusted": true
+                },
+                {
+                  "type": "visibilitychange",
+                  "trusted": true
+                }
+              ]
+            },
+            {
+              "original": "explicit-error",
+              "sequence": "continuous",
+              "originalReceipt": "originalCardFailed",
+              "oldPinReadable": true,
+              "oldPinWritable": true,
+              "oldUnspentBeginErrors": [],
+              "sameDocumentEntryEditorFormPicker": true,
+              "sameOtherNativeAndTargetFields": true,
+              "sameProvenDraftGeneration": true,
+              "newClickAndOperationAndInvocation": true,
+              "sameOriginalAssetAndSHA256": true,
+              "newRecoveryValid": true,
+              "newBeginAdmitted": true,
+              "newSetters": 1,
+              "totalSetters": 2,
+              "totalChanges": 2,
+              "sends": 0,
+              "platformEvents": []
+            },
+            {
+              "original": "explicit-error",
+              "sequence": "focus-round-trip",
+              "originalReceipt": "originalCardFailed",
+              "oldPinReadable": true,
+              "oldPinWritable": false,
+              "oldUnspentBeginErrors": [
+                "TARGET_INVALID",
+                "TARGET_INVALID"
+              ],
+              "sameDocumentEntryEditorFormPicker": true,
+              "sameOtherNativeAndTargetFields": true,
+              "sameProvenDraftGeneration": true,
+              "newClickAndOperationAndInvocation": true,
+              "sameOriginalAssetAndSHA256": true,
+              "newRecoveryValid": true,
+              "newBeginAdmitted": true,
+              "newSetters": 1,
+              "totalSetters": 2,
+              "totalChanges": 2,
+              "sends": 0,
+              "platformEvents": [
+                {
+                  "type": "blur",
+                  "trusted": true
+                },
+                {
+                  "type": "visibilitychange",
+                  "trusted": true
+                },
+                {
+                  "type": "focus",
+                  "trusted": true
+                },
+                {
+                  "type": "visibilitychange",
+                  "trusted": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "family": "edge",
+          "version": "Edg/158.0.4370.33",
+          "rows": [
+            {
+              "original": "gone",
+              "sequence": "continuous",
+              "originalReceipt": "inputTriggered",
+              "oldPinReadable": true,
+              "oldPinWritable": true,
+              "oldUnspentBeginErrors": [],
+              "sameDocumentEntryEditorFormPicker": true,
+              "sameOtherNativeAndTargetFields": true,
+              "sameProvenDraftGeneration": true,
+              "newClickAndOperationAndInvocation": true,
+              "sameOriginalAssetAndSHA256": true,
+              "newRecoveryValid": true,
+              "newBeginAdmitted": true,
+              "newSetters": 1,
+              "totalSetters": 2,
+              "totalChanges": 2,
+              "sends": 0,
+              "platformEvents": []
+            },
+            {
+              "original": "gone",
+              "sequence": "focus-round-trip",
+              "originalReceipt": "inputTriggered",
+              "oldPinReadable": true,
+              "oldPinWritable": false,
+              "oldUnspentBeginErrors": [
+                "TARGET_INVALID",
+                "TARGET_INVALID"
+              ],
+              "sameDocumentEntryEditorFormPicker": true,
+              "sameOtherNativeAndTargetFields": true,
+              "sameProvenDraftGeneration": true,
+              "newClickAndOperationAndInvocation": true,
+              "sameOriginalAssetAndSHA256": true,
+              "newRecoveryValid": true,
+              "newBeginAdmitted": true,
+              "newSetters": 1,
+              "totalSetters": 2,
+              "totalChanges": 2,
+              "sends": 0,
+              "platformEvents": [
+                {
+                  "type": "blur",
+                  "trusted": true
+                },
+                {
+                  "type": "visibilitychange",
+                  "trusted": true
+                },
+                {
+                  "type": "visibilitychange",
+                  "trusted": true
+                },
+                {
+                  "type": "focus",
+                  "trusted": true
+                }
+              ]
+            },
+            {
+              "original": "explicit-error",
+              "sequence": "continuous",
+              "originalReceipt": "originalCardFailed",
+              "oldPinReadable": true,
+              "oldPinWritable": true,
+              "oldUnspentBeginErrors": [],
+              "sameDocumentEntryEditorFormPicker": true,
+              "sameOtherNativeAndTargetFields": true,
+              "sameProvenDraftGeneration": true,
+              "newClickAndOperationAndInvocation": true,
+              "sameOriginalAssetAndSHA256": true,
+              "newRecoveryValid": true,
+              "newBeginAdmitted": true,
+              "newSetters": 1,
+              "totalSetters": 2,
+              "totalChanges": 2,
+              "sends": 0,
+              "platformEvents": []
+            },
+            {
+              "original": "explicit-error",
+              "sequence": "focus-round-trip",
+              "originalReceipt": "originalCardFailed",
+              "oldPinReadable": true,
+              "oldPinWritable": false,
+              "oldUnspentBeginErrors": [
+                "TARGET_INVALID",
+                "TARGET_INVALID"
+              ],
+              "sameDocumentEntryEditorFormPicker": true,
+              "sameOtherNativeAndTargetFields": true,
+              "sameProvenDraftGeneration": true,
+              "newClickAndOperationAndInvocation": true,
+              "sameOriginalAssetAndSHA256": true,
+              "newRecoveryValid": true,
+              "newBeginAdmitted": true,
+              "newSetters": 1,
+              "totalSetters": 2,
+              "totalChanges": 2,
+              "sends": 0,
+              "platformEvents": [
+                {
+                  "type": "blur",
+                  "trusted": true
+                },
+                {
+                  "type": "visibilitychange",
+                  "trusted": true
+                },
+                {
+                  "type": "visibilitychange",
+                  "trusted": true
+                },
+                {
+                  "type": "focus",
+                  "trusted": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "negativeAndOwnershipMatrix": {
+      "runID": "dfbcb8bb-2a37-4aa3-bcc0-7568d92caee1",
+      "executedUTC": "2026-11-22T22:21:42.675Z",
+      "cases": 32,
+      "rows": [
+        {
+          "family": "chrome",
+          "rows": [
+            {
+              "case": "pending-only",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": false,
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "staged-then-away",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": true,
+              "recoveryValidated": true,
+              "beginAllowed": true,
+              "staleCommit": "targetInvalidBeforeInput",
+              "newSetters": 1,
+              "newChanges": 1,
+              "sends": 0
+            },
+            {
+              "case": "mode-aba",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": false,
+              "recoveryValidated": false,
+              "beginAllowed": false,
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "editor-aba",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": false,
+              "recoveryValidated": false,
+              "beginAllowed": false,
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "navigation-aba",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": false,
+              "recoveryValidated": false,
+              "beginAllowed": false,
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "original-still-present",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": true,
+              "recoveryValidated": false,
+              "beginAllowed": false,
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "never-observed",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": true,
+              "recoveryValidated": false,
+              "beginAllowed": false,
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "ambiguous-neighbour",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": true,
+              "recoveryValidated": false,
+              "beginAllowed": false,
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "neighbour-replaced",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": true,
+              "recoveryValidated": false,
+              "beginAllowed": false,
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "neighbour-relabeled",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": true,
+              "recoveryValidated": false,
+              "beginAllowed": false,
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "outside-progress",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": true,
+              "recoveryValidated": false,
+              "beginAllowed": false,
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "wrong-invocation",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": true,
+              "recoveryValidated": false,
+              "beginAllowed": false,
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "wrong-asset",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": true,
+              "recoveryValidated": false,
+              "beginAllowed": false,
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "latest-card-back",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": true,
+              "recoveryValidated": true,
+              "beginAllowed": true,
+              "lateRetirement": "targetInvalidBeforeInput",
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "latest-competitor",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": true,
+              "recoveryValidated": true,
+              "beginAllowed": true,
+              "lateRetirement": "targetInvalidBeforeInput",
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "last-png",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": true,
+              "recoveryValidated": true,
+              "beginAllowed": true,
+              "newSetters": 1,
+              "newChanges": 1,
+              "sends": 0,
+              "ownershipAssertions": [
+                "prepared",
+                "staged",
+                "discarded",
+                "next-PNG",
+                "ineligible-PNG",
+                "JPEG"
+              ]
+            }
+          ]
+        },
+        {
+          "family": "edge",
+          "rows": [
+            {
+              "case": "pending-only",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": false,
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "staged-then-away",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": true,
+              "recoveryValidated": true,
+              "beginAllowed": true,
+              "staleCommit": "targetInvalidBeforeInput",
+              "newSetters": 1,
+              "newChanges": 1,
+              "sends": 0
+            },
+            {
+              "case": "mode-aba",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": false,
+              "recoveryValidated": false,
+              "beginAllowed": false,
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "editor-aba",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": false,
+              "recoveryValidated": false,
+              "beginAllowed": false,
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "navigation-aba",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": false,
+              "recoveryValidated": false,
+              "beginAllowed": false,
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "original-still-present",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": true,
+              "recoveryValidated": false,
+              "beginAllowed": false,
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "never-observed",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": true,
+              "recoveryValidated": false,
+              "beginAllowed": false,
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "ambiguous-neighbour",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": true,
+              "recoveryValidated": false,
+              "beginAllowed": false,
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "neighbour-replaced",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": true,
+              "recoveryValidated": false,
+              "beginAllowed": false,
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "neighbour-relabeled",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": true,
+              "recoveryValidated": false,
+              "beginAllowed": false,
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "outside-progress",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": true,
+              "recoveryValidated": false,
+              "beginAllowed": false,
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "wrong-invocation",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": true,
+              "recoveryValidated": false,
+              "beginAllowed": false,
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "wrong-asset",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": true,
+              "recoveryValidated": false,
+              "beginAllowed": false,
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "latest-card-back",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": true,
+              "recoveryValidated": true,
+              "beginAllowed": true,
+              "lateRetirement": "targetInvalidBeforeInput",
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "latest-competitor",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": true,
+              "recoveryValidated": true,
+              "beginAllowed": true,
+              "lateRetirement": "targetInvalidBeforeInput",
+              "newSetters": 0,
+              "newChanges": 0,
+              "sends": 0
+            },
+            {
+              "case": "last-png",
+              "passed": true,
+              "staleBegin": "TARGET_INVALID",
+              "sameDraftGeneration": true,
+              "recoveryValidated": true,
+              "beginAllowed": true,
+              "newSetters": 1,
+              "newChanges": 1,
+              "sends": 0,
+              "ownershipAssertions": [
+                "prepared",
+                "staged",
+                "discarded",
+                "next-PNG",
+                "ineligible-PNG",
+                "JPEG"
+              ]
+            }
+          ]
+        }
+      ],
+      "details": "Each round trip was proved hidden/unfocused in the other tab and visible/focused on return. A negative case could not make a setter or change and recorded zero sends. In staged-then-away the old staged commit retired before any setter; the reported single setter/change belongs to the explicitly captured fresh successor. The most recent eligible PNG became the continuity anchor while pending, staged, discarded, ineligible-layout PNG and actual JPEG operations left it unchanged."
+    },
+    "acceptedAttachmentMatrix": {
+      "runID": "3c20084c-52aa-4bb1-963a-e4d41e42149d",
+      "executedUTC": "2026-11-22T22:25:05.709Z",
+      "cases": 8,
+      "rows": [
+        {
+          "family": "chrome",
+          "rows": [
+            {
+              "case": "unknown-gone",
+              "priorPositiveStart": false,
+              "originalFailure": false,
+              "successorState": "uploadStarted",
+              "successorSignal": "attachmentAccepted",
+              "freshAttachmentAndEvidence": true,
+              "setters": 2,
+              "changes": 2,
+              "sends": 0
+            },
+            {
+              "case": "before-start-error",
+              "priorPositiveStart": false,
+              "originalFailure": true,
+              "successorState": "uploadStarted",
+              "successorSignal": "attachmentAccepted",
+              "freshAttachmentAndEvidence": true,
+              "setters": 2,
+              "changes": 2,
+              "sends": 0
+            },
+            {
+              "case": "after-start-gone",
+              "priorPositiveStart": true,
+              "originalFailure": false,
+              "successorState": "uploadStarted",
+              "successorSignal": "attachmentAccepted",
+              "freshAttachmentAndEvidence": true,
+              "setters": 2,
+              "changes": 2,
+              "sends": 0
+            },
+            {
+              "case": "after-start-error",
+              "priorPositiveStart": true,
+              "originalFailure": true,
+              "successorState": "uploadStarted",
+              "successorSignal": "attachmentAccepted",
+              "freshAttachmentAndEvidence": true,
+              "setters": 2,
+              "changes": 2,
+              "sends": 0
+            }
+          ]
+        },
+        {
+          "family": "edge",
+          "rows": [
+            {
+              "case": "unknown-gone",
+              "priorPositiveStart": false,
+              "originalFailure": false,
+              "successorState": "uploadStarted",
+              "successorSignal": "attachmentAccepted",
+              "freshAttachmentAndEvidence": true,
+              "setters": 2,
+              "changes": 2,
+              "sends": 0
+            },
+            {
+              "case": "before-start-error",
+              "priorPositiveStart": false,
+              "originalFailure": true,
+              "successorState": "uploadStarted",
+              "successorSignal": "attachmentAccepted",
+              "freshAttachmentAndEvidence": true,
+              "setters": 2,
+              "changes": 2,
+              "sends": 0
+            },
+            {
+              "case": "after-start-gone",
+              "priorPositiveStart": true,
+              "originalFailure": false,
+              "successorState": "uploadStarted",
+              "successorSignal": "attachmentAccepted",
+              "freshAttachmentAndEvidence": true,
+              "setters": 2,
+              "changes": 2,
+              "sends": 0
+            },
+            {
+              "case": "after-start-error",
+              "priorPositiveStart": true,
+              "originalFailure": true,
+              "successorState": "uploadStarted",
+              "successorSignal": "attachmentAccepted",
+              "freshAttachmentAndEvidence": true,
+              "setters": 2,
+              "changes": 2,
+              "sends": 0
+            }
+          ]
+        }
+      ],
+      "details": "The local application's decoded PNG produced an observable new attachment node. In every case the production observer returned attachmentAccepted with a fresh evidence ID and a fresh attachment, one input for each of the two explicit selections, and zero sends. No remote network upload, site READY or signed app interaction was inferred."
+    },
+    "archive": {
+      "decodedBytes": 141709,
+      "archivedBytes": 39227,
+      "archiveSHA256": "3b0e9863be0e542c816f7688f9a880e1a2811e979d33636a611fa8127b76fde6",
+      "pageSHA256": "a4da18056ed85a5a360f30f22c6965138d917cfde2c404e9aa24422b1f7b8250",
+      "matchingG60": true,
+      "installedReceiptSHA256": "6dd1c3b09e02b307862cc5759d83ea25f539bcf55cace1090e3539c46b775736",
+      "matchesSignedInstalledResource": true,
+      "markers": [
+        "ba648b42bafed93653cdf1f38112e454bb78581e5315499fd673be663976b4d4",
+        "758d5e89279bd4d74af1427b34d335c76bf1c8364d71eb0cc763dd345faecf1f",
+        "ea104c3b6da47825fb22d384325194a0ba4e96dbb29aef102088d6c2fa2d6788"
+      ],
+      "dmgSHA256": "5a934119d6e65cbe82a62f5f208a2b95a200fa0cf170225ccd4e9016b1c0b54e"
+    },
+    "freshOfflineRuns": [
+      {
+        "suite": "acceptance-program, ordinary-composer, original-image-transport",
+        "passed": 216
+      },
+      {
+        "suite": "build-specific synthetic bundle verification",
+        "passed": 24
+      },
+      {
+        "suite": "G4 unknown and named recovery verifier discovery",
+        "passed": 8
+      },
+      {
+        "suite": "GUI host / original observation parking pure controls",
+        "passed": 15
+      },
+      {
+        "suite": "private supervisor mock-host and persistence controls",
+        "passed": 16
+      },
+      {
+        "suite": "expiry projection and passive harness integration",
+        "passed": 5,
+        "nestedVMAssertionsReported": 41
+      }
+    ],
+    "harnessNote": "The first extra boundary run stopped because my assertion looked for preInputRetirement on the outer bridge response. I corrected the review-only probe to inspect the documented observation field, then ran the entire 32-case matrix fresh. No product bytes changed."
+  },
+  "inheritedEvidenceLimits": {
+    "source": "G60's narrower independent-source-review.json and author-supplied signing/QA records describe G60. Its later full-range review remains CHANGES_REQUESTED. The two records have different scopes. No G60 document was accepted as an approval of this G.",
+    "historicalRelease": "Previously recorded build 60 ARM64/Intel tests, seven same-package site preflights with zero product file inputs, the private signed DMG/independent installation, three sealed build-59 failure archives, and controlled recovery runs are bound to their recorded sources. None satisfies a build 61 release gate.",
+    "minorDocumentation": "Several dated build 60 pages still describe it as that report's current candidate, and the bilingual build 60 release notes are expressly a draft. Use each record's exact source, artifact and date. The historical extra blank line at Tests/OriginalDocumentDelivery/official/controller.mjs:37 produces a git diff --check whitespace warning."
+  },
+  "admission": "The lead may use this unmodified UTF-8 report to form the admission-only direct child of precisely this G under the repository's B/G/H rules. This review did not create H or change main.",
+  "release": "No public-release disposition was granted. Current candidate package, approved source identity, native dual-architecture and formal five-job CI, signing/notarization/stapling and independent install, same-package authenticated G1/G2 and G4-C plus G4-A or independently adjudicated G4-B, and release/update verification remain separate checks. This report did not operate the signed App, the authenticated website or any production data."
+}

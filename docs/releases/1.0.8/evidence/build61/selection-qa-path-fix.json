@@ -1,0 +1,34 @@
+{
+  "documentIdentityChecksPreserved": true,
+  "fixedToolManifest": "c3664385b832122027a810b5d4fa24f5f7c44c32f9472b8be11590f47f259bb1",
+  "oldReason": "SUPPLEMENT_ORIGINAL_SCOPE_REQUIRED",
+  "onDisk": {
+    "STARTs": 1,
+    "change": 1,
+    "formSubmits": 0,
+    "input": 1,
+    "newSecondOperation": 0,
+    "originalPrivateAppReportedExited": true,
+    "originalWatcherClosed": true,
+    "pendingACKContainsCurrentDocumentComposerEpoch": false,
+    "pendingSecondAsset": true,
+    "productOperations": 1,
+    "sends": 0
+  },
+  "original": {
+    "canonicalPOSIXEquality": true,
+    "entry": true,
+    "familyDir": true,
+    "group": true,
+    "legacyFoundationEquality": false,
+    "marker": true,
+    "owner": true,
+    "parent": true,
+    "signed": true,
+    "timeDouble": true
+  },
+  "originalSiteArrival": "UNVERIFIED_CURRENT_STATE",
+  "realCurrentWindowNotObserved": true,
+  "scope": "offline macOS Foundation and Darwin comparison on the enrolled build61 Edge selection state",
+  "symlinkAliasAccepted": false
+}

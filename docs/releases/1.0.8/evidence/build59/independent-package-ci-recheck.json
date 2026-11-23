@@ -1,0 +1,83 @@
+{
+  "verifiedUTC": "2026-11-22T12:19:16.418766+00:00",
+  "role": "Independent non-author package reviewer",
+  "version": "1.0.8",
+  "build": "59",
+  "source": "69b76cb025ab552b3480e3af095b627891874712",
+  "gitTree": "7289c35504d9a2a27b82e240fafe175b4779dd16",
+  "signedManifestInputsMatchGitObjects": true,
+  "dmgSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+  "dmgBytes": 13775789,
+  "installedBinarySHA256": "6fb94534e7b34533f10abb00c2b91369787e6ca1a516ae3c1fe818fe03a53ff7",
+  "installedPageSHA256": "b6eee615982d839285ea6af4abb16018939f9be91b18215554e847f4a6eb2215",
+  "observationFingerprintSHA256": {
+    "56": "ed470481df5373d0e702c87087785235d080fb75b85ea27f1e07408e0357ae52",
+    "57": "c691e6b7bd848bc8e1fb994aa9efd2dc7419b8b73549c0c1e31eb09499287e8a",
+    "58": "d05979dfae4b702d907b1f7f50a6312f9d7c25a5c6b484ed493bbfd39d9f6fbb"
+  },
+  "diskImageAndApp": {
+    "freshCopyFromReadOnlyNobrowseImage": true,
+    "dedicatedMountDetached": true,
+    "codesignStrictBoth": true,
+    "appCodesignDeepAllArchitectures": true,
+    "appAndDmgStapledTicketsValid": true,
+    "appAndDmgGatekeeper": "Notarized Developer ID",
+    "teamID": "ZB9D4T66QB",
+    "architectures": [
+      "arm64",
+      "x86_64"
+    ],
+    "cdHashes": {
+      "arm64": "6f929cd41efefd8695a5f398201d6d04bd6f893e",
+      "x86_64": "66243bf1a07be2689e073dc7d9a513a266d12544"
+    },
+    "executedSelfChecksOn": "arm64",
+    "installedSelfChecksPassed": [
+      "ordinary",
+      "web",
+      "systemScreenshotCandidate"
+    ],
+    "earlierSandboxResults": "App and DMG codesign, lipo and web self-check passed in sandbox. stapler, Gatekeeper and both image-dependent self-checks required normal host services and passed there."
+  },
+  "privateCommandLogSHA256": "cfad7cff52077ca5b9ce80643064eef03c1c5bc977d5c2dfc54b91ab865f4e0e",
+  "ciRun": 44987854131,
+  "ciResultScope": "Freshly downloaded and independently checked original source-run artifacts. Both runners tested the same JS resource as the signed app.",
+  "ciArtifacts": [
+    {
+      "architecture": "x86_64",
+      "artifactID": 14741095872,
+      "artifactSHA256": "32b4d387c216892f3b7732ef513bd2c9782d5cdddfde5461cfd198fed93f3cb3",
+      "nativeTests": {
+        "result": "PASS",
+        "discovered": 1434,
+        "parallel": 1412,
+        "serial": 22,
+        "serialOutcomes": {
+          "passed": 22
+        }
+      },
+      "preclickCases": 19,
+      "convertedPreviewCases": 22,
+      "offlineFaultTests": 8,
+      "jobURL": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44987854131/job/137102244877"
+    },
+    {
+      "architecture": "arm64",
+      "artifactID": 14739774235,
+      "artifactSHA256": "22625ee6cefef6777a438d4a23103b4255e8e858dfb3c4c1ca5d76e13f13ab47",
+      "nativeTests": {
+        "result": "PASS",
+        "discovered": 1434,
+        "parallel": 1412,
+        "serial": 22,
+        "serialOutcomes": {
+          "passed": 22
+        }
+      },
+      "preclickCases": 19,
+      "convertedPreviewCases": 22,
+      "offlineFaultTests": 8,
+      "jobURL": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44987854131/job/137102245118"
+    }
+  ]
+}

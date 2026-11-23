@@ -1,0 +1,66 @@
+{
+  "reviewer": "independent-build62-recovery-and-mainline-source-reviewer",
+  "gate": "Historical recovery with final build 62 Core",
+  "result": "PASS",
+  "reviewedSource": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "suiteDescription": "Recompiled migration and recovery with the final Core tree. The inherited harness hardcodes a historical build-60 heading. The reviewer verified actual Swift, C and QA inputs against G and checked immutable raw SQLite rows and source input hashes. Only disposable isolated copies changed; three original databases and three PNGs were rehashed.",
+  "verifiedCompilationInputs": 20,
+  "runnerSHA256": "6fe97f86fb32985608541254cd805febe590b1e7ef14ca58b4def3226fcea9a2",
+  "rawHarnessReportSHA256": "b94715b219caa693eeeddb7961962c0c46ef8fad5b106ff3baf4481ef33ea061",
+  "cases": {
+    "after-native-send": {
+      "originalSHA256": "3f1176fe3da464277c4ae2552c9a4ecee799b8d7aa4d1b5b7337b5b097c1e926",
+      "beforeSHA256": "b06874fbb7d8a5e080af69f14ec331ff326ea6cfc45ba88cd400d1a09aa4c630",
+      "afterSHA256": "8ceaf393476d42f994a48c3ffa9da4edf28343c926ca85e6b5545cdc552cddca",
+      "pngSHA256": "fa734c39ae34bca70281f0f67439349402d7e9099465c6f7010148af77a1b469",
+      "operationCounts": [
+        1,
+        2,
+        3
+      ],
+      "startCounts": [
+        0,
+        0,
+        1
+      ],
+      "storedRowsPreserved": true,
+      "integrity": true
+    },
+    "partial-native-upload": {
+      "originalSHA256": "ed000599b6b66cdb2196989b140c6d097ed366f68c694cf51ed73707bfc0dd88",
+      "beforeSHA256": "a077a2009abbdfc2c06cf9640bbc7324b7559406be6b10dde7f454e1c694d41a",
+      "afterSHA256": "f5f309b7b2c2810651e5c844b5ca922420f70fc3011770fb5fa697a7622f5c2d",
+      "pngSHA256": "20ec24f32a9dc11f7536526a2f2ca0001c728f78c7bb4432d8c65cdec6a26118",
+      "operationCounts": [
+        1,
+        2,
+        3
+      ],
+      "startCounts": [
+        0,
+        0,
+        1
+      ],
+      "storedRowsPreserved": true,
+      "integrity": true
+    },
+    "body-sent-before-response": {
+      "originalSHA256": "2a7c15697cde5d96927999e6ec9b4766dd5ef79e58dfd0bb46fd5d0c53a498de",
+      "beforeSHA256": "9b8e56c9a36047d0f43a74b2685b51930c66eec46adf7c87300440afe0d2aa9e",
+      "afterSHA256": "2cfc5a7975840e6cb1fd0f0dc1d32abab459249772694a486c5e580f1a634a1f",
+      "pngSHA256": "7879f08c5ab36c8d9a60fed1f30661117ef17999dc8ab5bf81f2fbab37d974a4",
+      "operationCounts": [
+        1,
+        2,
+        3
+      ],
+      "startCounts": [
+        0,
+        0,
+        1
+      ],
+      "storedRowsPreserved": true,
+      "integrity": true
+    }
+  }
+}

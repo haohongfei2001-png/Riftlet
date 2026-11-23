@@ -1,0 +1,66 @@
+{
+  "businessInput": {
+    "fileChange": 1,
+    "fileInput": 1,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  },
+  "candidate": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "cleanup": {
+    "mode": "ORIGINAL_READ_ONLY",
+    "networkOverridesInstalled": false,
+    "ownedLocalChallengeListenerExited": true,
+    "privateProductProcessRetainedAtExit": true,
+    "retainedOriginalWatcher": true,
+    "secondInvocation": false,
+    "sessionClosed": false
+  },
+  "g4cRecovery": "NOT_RUN",
+  "independentReferences": {
+    "before-manifest.json": "d5beea5e0e18ad769da331c51a4a61886ed16be727787c63879cdc300b3531d2",
+    "click-1.json": "e72ca5a6345f09fa44f9f360a1ae1130e8bcbbbe0872fa80d2db5434a63193f7",
+    "final-db.json": "fb8a71c90cd006a0cb773c21b1e82ff513ea793ee073431466f90d763b31df90",
+    "network-finish.json": "b039bebed6d35e6e326122421badf7583eb41a0d99c7622dc4a055db9283c96d",
+    "observation-handoff.json": "2cac9db6b542d7aaba5805dbf23c4b61f90b147065dbb0d1dae22d1d571e3985",
+    "original-click-intent.json": "bd1413da9ce8549448b2d6a85d5e84573a4a5f90970b7a692c86981f2d3d07c4",
+    "original-terminal.json": "8bc1f41ed8a9b6cbb93526bdbe9bd3e7c91ac91a143581e7bd1947a8591544d5",
+    "result.json": "c82247263af2ba34b93fa7ae4f82a06051dc984c470da8b2499ad015e24e21c4"
+  },
+  "namedFailureObserved": false,
+  "normalAppleEventPageWitness": {
+    "activeDocument": true,
+    "originalEditor": true,
+    "originalRealmXHR": true,
+    "productRegistry": false,
+    "siteReactOwner": false,
+    "usedOnlyOrdinaryAppleEvents": true
+  },
+  "originalCardPresent": true,
+  "originalPNG": "bc347c5d3e58c3f893b230cae70ef1551bc9295838cbad334e6d78fc32521230",
+  "originalStartCount": 1,
+  "outcome": "uploadStarted",
+  "phase": "inputTriggered",
+  "rawArchiveSHA256": "0508a93f73fac2dc757d7ff82c8425a5ef68e177f745a8b778aa84bcde6d278c",
+  "reason": "ORIGINAL_MEMBER_PRESENT_THEN_ORIGINAL_ROUTE_OR_SELECTED_TAB_CHANGED",
+  "retainedOperationSQLiteSHA256": "5853ed2d0e46d3e47c5efcbd0dcf443a60b256f1299f0afa9c05a1445bc5e62e",
+  "retainedSnapshotKind": "FORENSIC_POST_OBSERVATION_NO_SECOND_INPUT",
+  "sqliteBeforeSHA256": "f1f745e8a3faaab621f53a0d7da4781b063c5db4a196fdfe9477e1d4e9d7239f",
+  "sqliteCountsAtFinalRead": {
+    "assets": 1,
+    "operations": 1,
+    "upload_starts": 1
+  },
+  "sqliteCountsBefore": {
+    "assets": 1,
+    "operations": 1,
+    "upload_starts": 1
+  },
+  "status": "PARTIAL",
+  "transport": {
+    "abortCalls": 0,
+    "noFaultInstalled": true,
+    "status": "NOT_RUN",
+    "timeoutSets": 0
+  },
+  "unknownObserved": false
+}

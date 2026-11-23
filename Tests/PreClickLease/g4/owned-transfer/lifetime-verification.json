@@ -1,0 +1,47 @@
+{
+  "scope": "local development PNG, current lifetime controls",
+  "rawSHA256": "78b13470327742a47b1eb83f3ee50a42d8b06f12f869032ede3f3755e1900e93",
+  "sourceAndPrefixesIndependentlyRecomputed": true,
+  "summary": [
+    {
+      "mode": "partial",
+      "reason": "native-terminal",
+      "aborts": 1,
+      "pendingAtWithdrawal": 0,
+      "pendingAfterNativeTerminal": 0,
+      "serverHTTP": null
+    },
+    {
+      "mode": "expired",
+      "reason": "expired",
+      "aborts": 0,
+      "pendingAtWithdrawal": 1,
+      "pendingAfterNativeTerminal": 0,
+      "serverHTTP": 201
+    },
+    {
+      "mode": "source-changed",
+      "reason": "source-changed",
+      "aborts": 0,
+      "pendingAtWithdrawal": 1,
+      "pendingAfterNativeTerminal": 0,
+      "serverHTTP": 201
+    },
+    {
+      "mode": "request-released",
+      "reason": "request-changed",
+      "aborts": 0,
+      "pendingAtWithdrawal": 1,
+      "pendingAfterNativeTerminal": 0,
+      "serverHTTP": 201
+    },
+    {
+      "mode": "pagehide",
+      "reason": "pagehide",
+      "aborts": 0,
+      "pendingAtWithdrawal": 1,
+      "pendingAfterNativeTerminal": 0,
+      "serverHTTP": 201
+    }
+  ]
+}

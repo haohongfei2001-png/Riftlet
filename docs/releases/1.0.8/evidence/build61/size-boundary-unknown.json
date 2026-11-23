@@ -1,0 +1,59 @@
+{
+  "archiveSHA256": "ed47dede1567539345a000234f10209f1f9974c77a6b5d0b1c9cff73a8723083",
+  "beforeAnyRecoverySQLiteSHA256": "0b8b98bbf5ec4966ea8d5efa4d6947f292195443f1770b595689f8a501d1fe2c",
+  "candidateSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "claim": "actual response unknown with one named resized preview on original draft",
+  "controlledTransportChanges": 0,
+  "counts": {
+    "fileChange": 1,
+    "fileInput": 1,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  },
+  "distinctOperationRecords": 1,
+  "failureCauseForEarlierLocalCaptureOnly": "2884x2820 did not satisfy fixed 2880x2816 capture assertion",
+  "firstRecoverySelectionIssued": false,
+  "fullyAttributedUpstreamHTTPStatus": null,
+  "mediaBytes": 23233638,
+  "namedError": false,
+  "normalCopyPreservedSourceAttr": true,
+  "observedSeconds": 29.549622374994215,
+  "ordinaryFileInputOnSigned61": true,
+  "originalDraftAndComposerAndGenerationRetained": true,
+  "originalInvocationRetained": true,
+  "originalPNGAndWebsitePreviewPixelEqualityVerified": false,
+  "originalPhase": "unknown",
+  "originalReceipt": "inputTriggered",
+  "recoveryResult": "NOT_RUN",
+  "refs": {
+    "b4-assessment.json": "2dcb5d47a36eedc142443ec4ae4366bad5c4f62df0df435ddac401aa6a78b52f",
+    "b4-network-assessment.json": "0bc1b14907272be84f74d5d6c3c34e1b332b28c2ea8f8128831f5a02b0c80aef",
+    "capture-1.json": "831a31f5ec70711a2a23ab53e32db98ff8a91dab96d5f239ede6863aa9fccac8",
+    "click-1.json": "eb717645b88147190a414bdd4694e96b43568cbd753a9cfcb175f353494b206b",
+    "final-db.json": "9ab939b479de19e62ce7f42ce56252cc9ee0e1789e80ada892683fce743ea546",
+    "final-page.json": "2d539c7e8ead625219859c02515297d476514e11d9eb39fc1d80581d799837b8",
+    "observation-handoff.json": "72789e4826f27d0ac355910ab772d8ed37b911d04c303909c95dd3535e146656",
+    "original-click-intent.json": "f0a350cd8ee0de2afc745598c83f866f7ee8ea5b16ddafd7a029ac5129ec95bf",
+    "result.json": "7f41f5750c82401ac0a98e23d97c69088a8ed8452ccc723a72fa235b20074f05"
+  },
+  "retainedOriginalDocumentAndEditor": true,
+  "samples": 37,
+  "sizeWarningSeen": false,
+  "sourceDimensions": [
+    2880,
+    2816
+  ],
+  "sourceSHA256": "ac2ae9502b81ac77a4f6883ca1eaef7c5f421a9d7e863a0a150dabc6fbaaa500",
+  "sqliteCounts": {
+    "assets": 1,
+    "operations": 1,
+    "upload_starts": 0
+  },
+  "websiteKnownOriginalFilenamePreview": [
+    {
+      "decoded": true,
+      "height": 2002,
+      "width": 2048
+    }
+  ]
+}

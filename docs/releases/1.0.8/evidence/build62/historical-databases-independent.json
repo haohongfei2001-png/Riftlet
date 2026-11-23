@@ -1,0 +1,193 @@
+{
+  "reviewer": "independent non-author, source/ledger reader",
+  "verifiedUTC": "2026-11-23T08:54:27.935743+00:00",
+  "result": "PASS",
+  "build61Source": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "build60and61CoreGitTree": "e3dc6977064da425503b440dc035b2bfd9d7aad1",
+  "scope": "Three actual persisted build 59 origins, six separate schema-7 before/after pairs, real QueueStore on copies plus independently read immutable rows. Browser and GUI actions are outside this database proof.",
+  "inputProofSHA256": "3f825945e2c7106f8a1325aaa1e848000ad30e345ee1472f18b461ee098f67ee",
+  "rerunSummarySHA256": "427ec800628225c52d1e49e0ff17027c388bdf911284fab7ddcc2caefa4e04ed",
+  "readerSHA256": "2c81d5f156d639707e0537f78c18795cc7034b66653cbff10dddc2c1e56b2ca2",
+  "cases": [
+    {
+      "case": "after-native-send",
+      "groups": {
+        "archivedBuild60Regression": {
+          "originalSHA256": "3f1176fe3da464277c4ae2552c9a4ecee799b8d7aa4d1b5b7337b5b097c1e926",
+          "beforeSHA256": "b4918d73912ee40f5a02c59b8016170fe11ae158c758855a8eb757a2117949ac",
+          "afterSHA256": "4e181f24fc3260cd8a5c5f01c57916a87d57f28fd736d5c2afa4ad3f46dc3751",
+          "pngSHA256": "fa734c39ae34bca70281f0f67439349402d7e9099465c6f7010148af77a1b469",
+          "schema": [
+            4,
+            7,
+            7
+          ],
+          "attempts": [
+            1,
+            2,
+            3
+          ],
+          "allOriginalOperationColumnsUnchanged": true,
+          "allOriginalCheckpointsUnchanged": true,
+          "cancelledOperationAllColumnsUnchanged": true,
+          "originalGeneratedImageMetadataUnchanged": true,
+          "oldAndNewInvocationDistinct": true,
+          "cancelledInvocationCount": 0,
+          "successorToOriginalLinks": 2,
+          "originalSTARTCount": 0,
+          "controlledSuccessorSTARTCount": 1,
+          "retainedPNGBytes": 5513,
+          "integrityAndForeignKeysClean": true
+        },
+        "independentBuild61CoreRerun": {
+          "originalSHA256": "3f1176fe3da464277c4ae2552c9a4ecee799b8d7aa4d1b5b7337b5b097c1e926",
+          "beforeSHA256": "c076a2365fda14efb9311f75b511d446b29bc2c5641d160ac6d7cfa010182ae0",
+          "afterSHA256": "115c6c8831aec9db732b2b035c5a818822b283c56178dbaf8110afff8d5e058c",
+          "pngSHA256": "fa734c39ae34bca70281f0f67439349402d7e9099465c6f7010148af77a1b469",
+          "schema": [
+            4,
+            7,
+            7
+          ],
+          "attempts": [
+            1,
+            2,
+            3
+          ],
+          "allOriginalOperationColumnsUnchanged": true,
+          "allOriginalCheckpointsUnchanged": true,
+          "cancelledOperationAllColumnsUnchanged": true,
+          "originalGeneratedImageMetadataUnchanged": true,
+          "oldAndNewInvocationDistinct": true,
+          "cancelledInvocationCount": 0,
+          "successorToOriginalLinks": 2,
+          "originalSTARTCount": 0,
+          "controlledSuccessorSTARTCount": 1,
+          "retainedPNGBytes": 5513,
+          "integrityAndForeignKeysClean": true
+        }
+      },
+      "freshControlledCallbacks": 5
+    },
+    {
+      "case": "partial-native-upload",
+      "groups": {
+        "archivedBuild60Regression": {
+          "originalSHA256": "ed000599b6b66cdb2196989b140c6d097ed366f68c694cf51ed73707bfc0dd88",
+          "beforeSHA256": "58ece88ed0fd9457232847da0d83620561c40dff9cbf403fabd415bd21e8aace",
+          "afterSHA256": "6b82ff3392169833e2bbdf8a8c99d6d29132f880524db15ecb692f3ca8f7329d",
+          "pngSHA256": "20ec24f32a9dc11f7536526a2f2ca0001c728f78c7bb4432d8c65cdec6a26118",
+          "schema": [
+            4,
+            7,
+            7
+          ],
+          "attempts": [
+            1,
+            2,
+            3
+          ],
+          "allOriginalOperationColumnsUnchanged": true,
+          "allOriginalCheckpointsUnchanged": true,
+          "cancelledOperationAllColumnsUnchanged": true,
+          "originalGeneratedImageMetadataUnchanged": true,
+          "oldAndNewInvocationDistinct": true,
+          "cancelledInvocationCount": 0,
+          "successorToOriginalLinks": 2,
+          "originalSTARTCount": 0,
+          "controlledSuccessorSTARTCount": 1,
+          "retainedPNGBytes": 188726,
+          "integrityAndForeignKeysClean": true
+        },
+        "independentBuild61CoreRerun": {
+          "originalSHA256": "ed000599b6b66cdb2196989b140c6d097ed366f68c694cf51ed73707bfc0dd88",
+          "beforeSHA256": "434ab9d2850ab805e4ea3cd3544b415568f4dd91f1f9876eab42d5936ad770bc",
+          "afterSHA256": "27809d9f45986702b6fa72340852bd866eed792588118d87dc42f39daa831446",
+          "pngSHA256": "20ec24f32a9dc11f7536526a2f2ca0001c728f78c7bb4432d8c65cdec6a26118",
+          "schema": [
+            4,
+            7,
+            7
+          ],
+          "attempts": [
+            1,
+            2,
+            3
+          ],
+          "allOriginalOperationColumnsUnchanged": true,
+          "allOriginalCheckpointsUnchanged": true,
+          "cancelledOperationAllColumnsUnchanged": true,
+          "originalGeneratedImageMetadataUnchanged": true,
+          "oldAndNewInvocationDistinct": true,
+          "cancelledInvocationCount": 0,
+          "successorToOriginalLinks": 2,
+          "originalSTARTCount": 0,
+          "controlledSuccessorSTARTCount": 1,
+          "retainedPNGBytes": 188726,
+          "integrityAndForeignKeysClean": true
+        }
+      },
+      "freshControlledCallbacks": 5
+    },
+    {
+      "case": "body-sent-before-response",
+      "groups": {
+        "archivedBuild60Regression": {
+          "originalSHA256": "2a7c15697cde5d96927999e6ec9b4766dd5ef79e58dfd0bb46fd5d0c53a498de",
+          "beforeSHA256": "ba41daa5c6fe8ecefccbd5712ce722b495e3c7f79a2c728237c44165ebdda914",
+          "afterSHA256": "4c7a03aa03f8e9bfe38ab891200a6fb635258886997faf6853096a9356a7a107",
+          "pngSHA256": "7879f08c5ab36c8d9a60fed1f30661117ef17999dc8ab5bf81f2fbab37d974a4",
+          "schema": [
+            4,
+            7,
+            7
+          ],
+          "attempts": [
+            1,
+            2,
+            3
+          ],
+          "allOriginalOperationColumnsUnchanged": true,
+          "allOriginalCheckpointsUnchanged": true,
+          "cancelledOperationAllColumnsUnchanged": true,
+          "originalGeneratedImageMetadataUnchanged": true,
+          "oldAndNewInvocationDistinct": true,
+          "cancelledInvocationCount": 0,
+          "successorToOriginalLinks": 2,
+          "originalSTARTCount": 0,
+          "controlledSuccessorSTARTCount": 1,
+          "retainedPNGBytes": 5516,
+          "integrityAndForeignKeysClean": true
+        },
+        "independentBuild61CoreRerun": {
+          "originalSHA256": "2a7c15697cde5d96927999e6ec9b4766dd5ef79e58dfd0bb46fd5d0c53a498de",
+          "beforeSHA256": "b85f4218bf63ed3883427a278d6b2a00a4404bed180bad997d8b27e79dbc41f3",
+          "afterSHA256": "ca4e3c1afe325f12ed3e2e53af17950824d1f0ab0aa00fcac6604503342bb037",
+          "pngSHA256": "7879f08c5ab36c8d9a60fed1f30661117ef17999dc8ab5bf81f2fbab37d974a4",
+          "schema": [
+            4,
+            7,
+            7
+          ],
+          "attempts": [
+            1,
+            2,
+            3
+          ],
+          "allOriginalOperationColumnsUnchanged": true,
+          "allOriginalCheckpointsUnchanged": true,
+          "cancelledOperationAllColumnsUnchanged": true,
+          "originalGeneratedImageMetadataUnchanged": true,
+          "oldAndNewInvocationDistinct": true,
+          "cancelledInvocationCount": 0,
+          "successorToOriginalLinks": 2,
+          "originalSTARTCount": 0,
+          "controlledSuccessorSTARTCount": 1,
+          "retainedPNGBytes": 5516,
+          "integrityAndForeignKeysClean": true
+        }
+      },
+      "freshControlledCallbacks": 5
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "architectureTestCount": 6,
+  "build": 61,
+  "dmgSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "inspectedAtUTC": "2026-11-22T23:22:32.619229+00:00",
+  "installedMachOSHA256": "32406ca202fa8eb659abf96930a30ce3c246bb804acfaeeccbc10eaf2fc09387",
+  "rows": [
+    {
+      "results": {
+        "--self-check": {
+          "exit": 0,
+          "expectedMarker": "RIFTLET_SELF_CHECK_PASS:",
+          "outputSHA256": "9a6cbd54ef6829d86fd7e0cd7ba688aa6387ae15af41a550ffba3e42832b6018"
+        },
+        "--system-screenshot-candidate-self-check": {
+          "exit": 0,
+          "expectedMarker": "RIFTLET_SYSTEM_SCREENSHOT_CANDIDATE_SELF_CHECK_PASS:",
+          "outputSHA256": "7333bbcc86dffcf736384773a5dbdf288188e8f97ef55e5803f8cf809e06dc04"
+        },
+        "--web-acceptance-self-check": {
+          "exit": 0,
+          "expectedMarker": "RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_PASS:",
+          "outputSHA256": "a47ac0ed870328c9f158b1ee9fed9eec7fd7aa6e4109c3f3017d307f29dbe15d"
+        }
+      },
+      "runningOn": "Apple silicon hardware",
+      "runtimeMachineProbe": "arm64",
+      "selectedSlice": "arm64",
+      "signedCDHash": "217e012b5be8a3d53c6ce351efcb9bbcbe6b4762"
+    },
+    {
+      "results": {
+        "--self-check": {
+          "exit": 0,
+          "expectedMarker": "RIFTLET_SELF_CHECK_PASS:",
+          "outputSHA256": "9a6cbd54ef6829d86fd7e0cd7ba688aa6387ae15af41a550ffba3e42832b6018"
+        },
+        "--system-screenshot-candidate-self-check": {
+          "exit": 0,
+          "expectedMarker": "RIFTLET_SYSTEM_SCREENSHOT_CANDIDATE_SELF_CHECK_PASS:",
+          "outputSHA256": "7333bbcc86dffcf736384773a5dbdf288188e8f97ef55e5803f8cf809e06dc04"
+        },
+        "--web-acceptance-self-check": {
+          "exit": 0,
+          "expectedMarker": "RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_PASS:",
+          "outputSHA256": "a47ac0ed870328c9f158b1ee9fed9eec7fd7aa6e4109c3f3017d307f29dbe15d"
+        }
+      },
+      "runningOn": "Rosetta 2 translation on Apple silicon; physical Intel not measured here",
+      "runtimeMachineProbe": "x86_64",
+      "selectedSlice": "x86_64",
+      "signedCDHash": "8fa0f3daec62f20694d5511afbb8f8a382834569"
+    }
+  ],
+  "scope": "Installed universal executable, three in-process command-line self-checks for each selected architecture. No browser or App UI requests.",
+  "source": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "version": "1.0.8"
+}

@@ -1,0 +1,36 @@
+{
+  "reviewedBase": "9fd8ad15fca043915069904113e5fb67d82b4948",
+  "reviewedSource": "be1467b7e126b23b7074cad4aff665f2bc69c1d1",
+  "reviewedTree": "44b3e8f8a0077519c9cfc1ab9219f39285fbe3ba",
+  "reviewer": "independent-build62-recovery-and-mainline-source-reviewer",
+  "result": "PASS",
+  "reviewedAtUTC": "2026-11-23T10:19:47+00:00",
+  "scope": "Non-author engineering source admission across the complete B to G-double-prime range. The previous exact source and admission were independently reviewed and remain ancestors. This isolated successor strengthens an asynchronous XCTest precondition and accepts no new payload or behavior.",
+  "fullRangeAudit": {
+    "directParent": "4385c9f863f2069a334a959793a4b7c87017765e",
+    "priorReviewedSource": "68d5f0a05918d97caa3058c9b277c2598b09bcd2",
+    "previousExactReportSHA256": "207f01ebeb87698077409cd406740bb630dbe090f900e6e556904a03d77d188a",
+    "signedProductSource": "871187f2be5eada68fccf2adcc07d120991e1c15",
+    "fullRangePaths": 500,
+    "rawFullRangeSHA256": "cf2b46a181de02122fff412bcc3f7d755f59c4e594a01274c51da469dbae2ed0",
+    "changedAfterPriorAdmission": [
+      "Tests/RiftletCoreTests/IndependentAttachmentLifecycleTests.swift"
+    ]
+  },
+  "findingAndCorrection": "The initial snapshot on an ARM64 run read B START as nil. Its later counterpart held the correctly attributed, durable B START. Existing select only promises the input boundary. The fixture records B\u2019s request before its asynchronous append establishes the durable reference. The single corrected test now waits on the preexisting bounded returnedDispatchCall helper for each exact operation, requires a present B START with matching B operation ID, then compares that full persisted object at the end. In finishOriginalAppend the store applies START before recording returnedReceipt. The checks rejecting borrowed pin, invocation and attachment, independent sibling histories, compensation and input ordering remain intact. No fixed sleep, retries, amended product assertion, production code, UI or package tool was added.",
+  "evidence": {
+    "originalARM64FailureSHA256": "d44e2fc60048918e2554bd8048fe13652e900bfd06d302b5c65c5fc259ee1c4b",
+    "firstCorrectionIntelStatus": "PASSED on preceding QA source, separate from new H checks",
+    "reviewMethod": "Read raw Git diffs, failing hosted XCTest log, fixture and coordinator lifecycle ordering. Verified the actual admission predecessor report and all shipping preparation inputs. New dual-architecture tests are required on the new admission."
+  },
+  "shippingAndTag": {
+    "finalSignedDMGSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+    "manifestSource": "871187f2be5eada68fccf2adcc07d120991e1c15",
+    "signedInputEquivalence": "The complete G-to-current file delta consists solely of three XCTest files and the source admission record. Production, all distribution and signing scripts/resources, Swift package declarations, entitlement and release configuration objects are identical. The broad Tests provenance tree is different; the signed DMG still records its real G origin.",
+    "tag": "After actual normal merge and verification that G is an ancestor of main, target v1.0.8 at exact G. The unchanged appcast verifier permits that ancestry relation. The test-correction tree cannot replace the recorded signed source in product metadata.",
+    "packagingIndependentSHA256": "b1e68175e18fb3ecace649bb1d10253accdcebe505d9b4cc8454c5bc89b6ac23",
+    "controlledUIIndependentSHA256": "a201614024f08aa18fe865d2e223b5518e87923386ca553de1fe6820354057d6",
+    "historicalIndependentSHA256": "eed9fa173787374d2f93c8ec5971a295a88f9a719b58032e2355638f8484ae3d"
+  },
+  "releaseGate": "The new admission-only H and its official five checks, outstanding same-package live Chrome/Edge categories and independent final prepublication decision are still required. Tag, public download, live signed feed and real in-app 1.0.5 upgrade are separate."
+}

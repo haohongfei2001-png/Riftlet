@@ -1,0 +1,369 @@
+{
+  "allRetainedCandidateTraces": [
+    {
+      "captureCompleteSequences": [
+        7,
+        13
+      ],
+      "captureTransportRefusals": [],
+      "case": "Edge size-boundary preflight",
+      "commitCompleteSequences": [],
+      "family": "Edge",
+      "signedRunManifestSHA256": "8e4be031806bf1bb4cc949d2cb7e6f5840c3c0b53751594af493265dd24d328a",
+      "traceSHA256": "34898d4a27fe7571f7394ffbd888e90f46fe948d87f86e358141d26342723efd"
+    },
+    {
+      "captureCompleteSequences": [
+        7,
+        14,
+        130
+      ],
+      "captureTransportRefusals": [],
+      "case": "Edge size-boundary original",
+      "commitCompleteSequences": [
+        122
+      ],
+      "family": "Edge",
+      "signedRunManifestSHA256": "23ca6f2f34e2d2ab26d10091a5e89854d98ad8c41dc562eb18453c0409c3f64b",
+      "traceSHA256": "8a9dfe5e349efeb1f324e6e4c5c3f478460673581d0ce6abf4ae86390c526cce"
+    },
+    {
+      "captureCompleteSequences": [
+        7,
+        14,
+        80
+      ],
+      "captureTransportRefusals": [],
+      "case": "Chrome original G4 medium",
+      "commitCompleteSequences": [
+        72
+      ],
+      "family": "Chrome",
+      "signedRunManifestSHA256": "1fbdf50b74aaca02cae7ea4dcf40770ffaf4d27de93c4a5c15a95942e5184d40",
+      "traceSHA256": "7452af63fd708c45800a7e9dab403df075ae87e5c50483885fa5c07962dba65a"
+    },
+    {
+      "captureCompleteSequences": [
+        7,
+        13
+      ],
+      "captureTransportRefusals": [],
+      "case": "Edge medium preflight",
+      "commitCompleteSequences": [],
+      "family": "Edge",
+      "signedRunManifestSHA256": "20b7254813d5a23b92912913a6c763255ac1d34a0d9e498f7ef8dc56f46a332f",
+      "traceSHA256": "be82349ce480a7ac45583ac8187425785deff967bd8294a07dc62c7bcdd56e69"
+    },
+    {
+      "captureCompleteSequences": [
+        7,
+        13,
+        45,
+        64,
+        71,
+        110,
+        125,
+        157,
+        167,
+        205,
+        219,
+        251,
+        258,
+        302,
+        317,
+        341,
+        347
+      ],
+      "captureTransportRefusals": [],
+      "case": "Chrome seven original attachments",
+      "commitCompleteSequences": [
+        38,
+        93,
+        117,
+        187,
+        211,
+        284,
+        308
+      ],
+      "family": "Chrome",
+      "signedRunManifestSHA256": "76136acf28e4def96614a8eb839f51e201147382381c7ba219bc998e58b4297a",
+      "traceSHA256": "1e51867aab825eb093095e4c2098b88f2ac677365b10d86a327f852c6def6735"
+    },
+    {
+      "captureCompleteSequences": [
+        7,
+        14,
+        41,
+        61,
+        68,
+        108,
+        122,
+        152,
+        164,
+        207,
+        220,
+        252,
+        259,
+        305,
+        317,
+        345,
+        351
+      ],
+      "captureTransportRefusals": [],
+      "case": "Edge seven original attachments",
+      "commitCompleteSequences": [
+        34,
+        90,
+        114,
+        188,
+        212,
+        285,
+        309
+      ],
+      "family": "Edge",
+      "signedRunManifestSHA256": "7a5a808250e2a8728111704d06e176cae54b8148c2698ba54a69a8041c5b8b30",
+      "traceSHA256": "2b89eb2b21dcab68c938da4704b961279a847aa2c0c49f1a2de72bd013ea3f88"
+    },
+    {
+      "captureCompleteSequences": [
+        7,
+        13,
+        45,
+        67,
+        73
+      ],
+      "captureTransportRefusals": [],
+      "case": "Edge original G4 small",
+      "commitCompleteSequences": [
+        38
+      ],
+      "family": "Edge",
+      "signedRunManifestSHA256": "71180b548f42257ea4cd7f20bdcef7ea0117a4c06dade3b5247af18fb34e016c",
+      "traceSHA256": "a914f151178302f1d1b4a7bc3664e722cccf1aafb5f7617ad0bad348ab144604"
+    },
+    {
+      "captureCompleteSequences": [
+        7,
+        14,
+        41,
+        60,
+        66,
+        97,
+        115,
+        121
+      ],
+      "captureTransportRefusals": [],
+      "case": "Chrome selected-draft original",
+      "commitCompleteSequences": [
+        34,
+        90
+      ],
+      "family": "Chrome",
+      "signedRunManifestSHA256": "f5dac92fcb62a90ac42ba3897d3abcfe841157dd9ce53cd0df432ec9c487140b",
+      "traceSHA256": "528a4e167a76d153d579ceb5d57bb0c62678c101f063c9a2c8d8dc9c136d8f46"
+    },
+    {
+      "captureCompleteSequences": [],
+      "captureTransportRefusals": [],
+      "case": "Chrome earlier selection preflight",
+      "commitCompleteSequences": [],
+      "family": "Chrome",
+      "signedRunManifestSHA256": "f35ef03270a3e6abce74e18c258e8bec3ff65016d826de095594bf08bef313eb",
+      "traceSHA256": "783b884d69d739830bacc1f2c9137beaddb7fd0766b6ba661dd3bcd33b0d9f44"
+    },
+    {
+      "captureCompleteSequences": [
+        7,
+        14,
+        42,
+        64,
+        70
+      ],
+      "captureTransportRefusals": [],
+      "case": "Edge earlier selection seed",
+      "commitCompleteSequences": [
+        34
+      ],
+      "family": "Edge",
+      "signedRunManifestSHA256": "b8c908309994b3546caab7e5795dba535bef3547c1644f68ec525136e8703fb9",
+      "traceSHA256": "dfd0843787340ffda97962ed094dc04e7d0f54acf933dd9df68a4b60d15f9ac3"
+    },
+    {
+      "captureCompleteSequences": [
+        7,
+        14,
+        41,
+        68,
+        74,
+        105
+      ],
+      "captureTransportRefusals": [
+        {
+          "error": "pageRejected(CLICK_PIN_REFUSED)",
+          "phase": "receipt",
+          "seq": 60
+        }
+      ],
+      "case": "Edge selected-draft original",
+      "commitCompleteSequences": [
+        34,
+        98
+      ],
+      "family": "Edge",
+      "signedRunManifestSHA256": "9f1a71b023ed86d3889464400f086d1510aaf1b1b0436034d632ef84fd5df200",
+      "traceSHA256": "ecdc471820e4ac7bec7b276a1ed7bf2703b81d1312bdf09d5389e3a3043bf1e5"
+    }
+  ],
+  "frozenSourceFilesSHA256": {
+    "Sources/RiftletAdapters/BoundedDiagnosticTrace.swift": "ac18eb2b79e88e368dc3d2cf3960752d722814ee5f70ff4aea229da02970c956",
+    "Sources/RiftletAdapters/ChromeAppleEventsExecutor.swift": "00b1f7b637aad2ce00cc9b766c923ad5c4f25c3d0d08e8cf7306983ddb386140",
+    "Sources/RiftletAdapters/ChromeClickSnapshot.swift": "0a26e7dc24456fefc3f297c0ca36ae751dd3004b66e7b31e3d1a2fd92f1182ec",
+    "Sources/RiftletAdapters/EdgeExecutionWorldWitness.swift": "89348e4558ef8e0d31bfa1a673c315d972ab9a48495c3ff7e3622837d6076cd2",
+    "Sources/RiftletAdapters/MainWorldCommandEnvelope.swift": "df74d1b671a0c1253b93b516b5ec8fa4f442163998f6314b4d78100f1f062e2c",
+    "Sources/RiftletAdapters/MainWorldCommandRelay.swift": "5f8eeb27be047cbe0345b184c38f5c9d24fcfddaaf7be1c6658630a03d865828",
+    "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js": "2f6e2f6e1d80184813f6f967cc340638b96082abd5bd98c2f9e97b0597f982f2"
+  },
+  "limits": {
+    "G4A": "HOLD",
+    "G4B": "HOLD_NO_APPROVED_EQUIVALENCE",
+    "G4C": "HOLD",
+    "newLocalNativeControl": "Independent of this report",
+    "newSiteActions": 0,
+    "originalProviderPUTIdentified": false,
+    "release": "NOT_RELEASED"
+  },
+  "measurement": {
+    "chrome": "Only capture probes whether to install the product relay. The trace lacks that result. A specific Chrome capture cold install is not directly distinguished by its complete row. Ordinary commit always dispatches to the existing relay and reads its own nonce-matched receipt.",
+    "direct": "The archived process diagnostic contains per-command action, request digest, sequence, complete phase and transportSucceeded. The two original SQLite backups also contain a matching durable START.",
+    "edge": "Before capture, the combined preparation must bind the foreground original. Every successful original Edge capture includes its own native script-URL witness submission, a verified return from the actual confirm check, separate current-target validation and a positive capture command receipt. Emitting armed also requires admission of the typed target, binding to its relay, retained witness and a current foreground scheduler epoch.",
+    "negativeControl": "Edge selection sequence 60 reached the receipt phase and rejected this individual capture with pageRejected(CLICK_PIN_REFUSED). Its earlier witness confirmation, validation and submission had already run. There is no successful capture result for this event.",
+    "proofGrade": "The Edge confirm return is compelled by the recorded complete event and the frozen executable control flow. There is no dedicated logged confirm return, browser engine context ID or provider object in the trace.",
+    "siteRealm": "The Edge product witness confirms a per-document distinction and expected round trip. Neither product command success nor a second QA view of the original DOM and its own XHR constructor identifies the actual website upload object, body, progress or terminal status.",
+    "successfulReceiptSemantics": "After submission, the executor can record complete only after the same command nonce and positive result envelope passed validation, process identity remained current and size limits passed. The raw envelope, nonce, OS descriptor and return text are absent. Subsequent typed observations establish application-level consequences.",
+    "traceAuthority": "The opt-in diagnostics originate from the signed executable. Their stored bytes are pinned here by SHA-256. Individual diagnostic events do not carry independent cryptographic signatures."
+  },
+  "productSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "result": "SIGNED_SITE_PRODUCT_COMMAND_RECEIPTS_AND_EDGE_CONFIRM_BRANCH_ESTABLISHED",
+  "reviewedAtUTC": "2026-11-23T05:43:10.709661+00:00",
+  "reviewer": "Independent nonauthor source and evidence reviewer",
+  "schemaVersion": 1,
+  "scope": "Read-only inspection of frozen source, previously captured signed build 61 site traces and retained immutable databases. No browser, new upload, fault or test rerun was used.",
+  "signedDMGSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "signedProductExecutableSHA256": "32406ca202fa8eb659abf96930a30ce3c246bb804acfaeeccbc10eaf2fc09387",
+  "sourceReferences": [
+    "ChromeAppleEventsExecutor.swift:98–110,183–208",
+    "ChromeClickSnapshot.swift:47–53",
+    "EdgeExecutionWorldWitness.swift:21–63",
+    "ChromeAppleEventsExecutor.swift:428–445,476–511,514–539,585–593,620–633,938–966",
+    "MainWorldCommandEnvelope.swift:98–114,140–182",
+    "MainWorldCommandRelay.swift:7–25,138–172",
+    "BoundedDiagnosticTrace.swift:152–167"
+  ],
+  "surveyTotals": {
+    "Chrome": {
+      "captureComplete": 28,
+      "commitComplete": 10,
+      "receiptPhaseCaptureRefusals": 0
+    },
+    "Edge": {
+      "captureComplete": 40,
+      "commitComplete": 12,
+      "receiptPhaseCaptureRefusals": 1
+    }
+  },
+  "tree": "70ba40e23a3afa3561525b1943cb0e5ebc825de5",
+  "twoFocusedOriginalRuns": [
+    {
+      "archivedOperationPhase": "inputTriggered",
+      "case": "Edge original G4 small",
+      "durableOriginalAttachmentAcceptedSTARTs": 1,
+      "linkageQualification": "Arm, freeze, consume and the SQLite target share a binding digest. Consume and the entry diagnostics join to the archived operation. The capture command request ID differs from the arm binding ID. Their direct chronological association uses adjacency and monotonic times.",
+      "matchedRunningArm64CDHash": "217e012b5be8a3d53c6ce351efcb9bbcbe6b4762",
+      "originalHashesSHA256": {
+        "ordinaryQAWorldObservation": "0b98e7190da90a67a14fba88654c7a0493081cd3a443a0fb74fae2740928fb25",
+        "originalFaultReceipt": "ba9ebc1a6711f9e2718a73ca6c92af33b0441d7b45ce0779707d46293818b777",
+        "retainedSQLiteBackup": "5853ed2d0e46d3e47c5efcbd0dcf443a60b256f1299f0afa9c05a1445bc5e62e",
+        "runningCodeIdentity": "96b2b39a11f213af985a880a4443ac95332d2d12d0c6d5636e512adfa65e4475",
+        "savedRoute": "a3dd7af585d76b3e24382efa727b8b573e555311bf9e68ca87fbf8d5699406fc",
+        "signedRunManifest": "71180b548f42257ea4cd7f20bdcef7ea0117a4c06dade3b5247af18fb34e016c",
+        "siteSummary": "c82247263af2ba34b93fa7ae4f82a06051dc984c470da8b2499ad015e24e21c4",
+        "terminalDatabaseSummary": "fb8a71c90cd006a0cb773c21b1e82ff513ea793ee073431466f90d763b31df90",
+        "trace": "a914f151178302f1d1b4a7bc3664e722cccf1aafb5f7617ad0bad348ab144604"
+      },
+      "originalPinAssetOperationAndRouteRecomputedFromSQLite": true,
+      "qaNetworkWrites": 0,
+      "separateOrdinaryQARead": {
+        "activeDocument": true,
+        "originalEditor": true,
+        "originalRealmXHR": true,
+        "productRegistry": false,
+        "siteReactOwner": false,
+        "usedOnlyOrdinaryAppleEvents": true
+      },
+      "sequences": {
+        "armed": 14,
+        "beginComplete": 35,
+        "commitComplete": 38,
+        "consumed": 34,
+        "frozen": 25,
+        "inputTriggered": 40,
+        "nearestPrecedingCaptureComplete": 13,
+        "successfulChunkCount": 1,
+        "uploadStartedEntryDiagnostic": 54,
+        "validateComplete": 33
+      },
+      "successfulBridgeEvents": {
+        "begin": 1,
+        "captureTarget": 5,
+        "chunk": 1,
+        "commit": 1,
+        "observe": 11,
+        "releasePreparedTarget": 4,
+        "renewPreparedTarget": 6,
+        "validate": 1
+      }
+    },
+    {
+      "archivedOperationPhase": "unknown",
+      "case": "Chrome original G4 medium",
+      "durableOriginalAttachmentAcceptedSTARTs": 1,
+      "linkageQualification": "Arm, freeze, consume and the SQLite target share a binding digest. Consume and the entry diagnostics join to the archived operation. The capture command request ID differs from the arm binding ID. Their direct chronological association uses adjacency and monotonic times.",
+      "matchedRunningArm64CDHash": "217e012b5be8a3d53c6ce351efcb9bbcbe6b4762",
+      "observedCreationFetchHTTP": 200,
+      "originalHashesSHA256": {
+        "lateOriginalPage": "b4a8e26d91e22438884a384c3c7cf27b0b80e9eeb1b795ad11fb993c9e508a56",
+        "latePageSummary": "6818d7b8443fc819325e7409e6464dab852bd16a78aa4eaec639b38c05ef87e2",
+        "retainedSQLiteBackup": "3727e8b9e0994bca07146004c8d22ce6c32d39eb824f1ee609e911fd2a8dd831",
+        "runningCodeIdentity": "d01ec56cd119beab110eae011eda3cbc6a54b873585e3a77fffebf476c629384",
+        "savedRoute": "ba73eca4bc198e3688c3290a9de3b5f7b0cfc5ed91fe7c0a562573131ea7b79a",
+        "signedRunManifest": "1fbdf50b74aaca02cae7ea4dcf40770ffaf4d27de93c4a5c15a95942e5184d40",
+        "siteSummary": "fa83fce8e70308f8bf987cd88a2f0f5c49ac38bf114061e4cf4a7a6f35371269",
+        "terminalDatabaseSummary": "4e03744d52a5f4dbd8b15152d125188f1ed27377f75b2865e130fd1a1cf30b56",
+        "trace": "7452af63fd708c45800a7e9dab403df075ae87e5c50483885fa5c07962dba65a"
+      },
+      "originalPinAssetOperationAndRouteRecomputedFromSQLite": true,
+      "sequences": {
+        "armed": 15,
+        "beginComplete": 39,
+        "commitComplete": 72,
+        "consumed": 38,
+        "frozen": 29,
+        "inputTriggered": 74,
+        "nearestPrecedingCaptureComplete": 14,
+        "successfulChunkCount": 31,
+        "uploadStartedEntryDiagnostic": null,
+        "validateComplete": 37
+      },
+      "successfulBridgeEvents": {
+        "begin": 1,
+        "captureTarget": 3,
+        "chunk": 31,
+        "commit": 1,
+        "observe": 35,
+        "releasePreparedTarget": 2,
+        "renewPreparedTarget": 6,
+        "validate": 1
+      }
+    }
+  ]
+}

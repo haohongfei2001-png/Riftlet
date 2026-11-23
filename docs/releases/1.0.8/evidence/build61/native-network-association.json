@@ -1,0 +1,153 @@
+{
+  "scope": "Owned synthetic PNG, disposable headless profiles, private inherited pipes, public loopback object only",
+  "observedAtUTC": "2026-11-23T06:51:01.724Z",
+  "resultCounts": {
+    "passed": 1,
+    "total": 2
+  },
+  "browsers": [
+    {
+      "family": "Chrome",
+      "status": "LOCAL_CORRELATION_PASS",
+      "vendorBundle": "com.google.Chrome",
+      "vendorSignatureVerified": true,
+      "version": "Chrome/157.0.8103.79",
+      "revision": "@6dc9bc3bdaea5c35ed6d41fceab2f7a3a2227c4f",
+      "processBirthFingerprint": "8983df6b2712fb6aaa9aad54b725782ceb03a7bad3c8c23aab33f9948fff3b7e",
+      "original": {
+        "targetId": "2DE30C8381F401706BEB661782CBBAF5",
+        "attachedSessionId": "73122A65F9626F45D780C2DB5433BAA3",
+        "protocolWindowId": 1107855829,
+        "frameId": "2DE30C8381F401706BEB661782CBBAF5",
+        "loaderId": "1B901611F927C9BF8B1E5103E78D3451",
+        "documentSHA256": "dece873787742014399580d9ab8c15ad4e484d73cc506e22232b17aa3bb293e2",
+        "pageURLSHA256": "0afa262ca54185e2d4e861173c591e6fd7ed077198a1e64dd6ba55b88a661d75"
+      },
+      "after": {
+        "targetId": "2DE30C8381F401706BEB661782CBBAF5",
+        "attachedSessionId": "73122A65F9626F45D780C2DB5433BAA3",
+        "protocolWindowId": 1107855829,
+        "frameId": "2DE30C8381F401706BEB661782CBBAF5",
+        "loaderId": "1B901611F927C9BF8B1E5103E78D3451",
+        "documentSHA256": "dece873787742014399580d9ab8c15ad4e484d73cc506e22232b17aa3bb293e2",
+        "pageURLSHA256": "0afa262ca54185e2d4e861173c591e6fd7ed077198a1e64dd6ba55b88a661d75"
+      },
+      "fileSelection": "single disposable local file input",
+      "page": {
+        "input": 1,
+        "change": 1,
+        "fileSHA256": "e75f3202d3f4b94bb462a58bf097836088855ab39ee47777826e5a60b1004a0e",
+        "terminalStatus": 201
+      },
+      "create": {
+        "requestId": "46760.2",
+        "fetchNetworkId": null,
+        "frameId": "2DE30C8381F401706BEB661782CBBAF5",
+        "loaderId": "1B901611F927C9BF8B1E5103E78D3451",
+        "method": "POST",
+        "resourceType": "Fetch",
+        "initiatorType": "script",
+        "initiatorIsLocalPage": true,
+        "urlSHA256": "331884141eadc95584bcf7a6d1b310206d80c20cba0e04b052f8edadd0482b3a",
+        "requestTime": 476341.264207,
+        "responseTime": 476341.266305,
+        "terminalTime": 476341.266237,
+        "requestSequence": 8,
+        "responseSequence": 11,
+        "terminalSequence": 13,
+        "requestContentLength": 66,
+        "basicRequestContentLength": null,
+        "extraInfoRequestContentLength": 66,
+        "status": 200,
+        "terminal": "Network.loadingFinished",
+        "hasPostData": true
+      },
+      "put": {
+        "requestId": "46760.3",
+        "fetchNetworkId": null,
+        "frameId": "2DE30C8381F401706BEB661782CBBAF5",
+        "loaderId": "1B901611F927C9BF8B1E5103E78D3451",
+        "method": "PUT",
+        "resourceType": "XHR",
+        "initiatorType": "script",
+        "initiatorIsLocalPage": true,
+        "urlSHA256": "c4bea81ec9fddb5830b062d2f091ba60cf1b99a52138f3262645a9eb5af78eca",
+        "requestTime": 476341.266628,
+        "responseTime": 476341.267829,
+        "terminalTime": 476341.267781,
+        "requestSequence": 14,
+        "responseSequence": 17,
+        "terminalSequence": 18,
+        "requestContentLength": 110882,
+        "basicRequestContentLength": null,
+        "extraInfoRequestContentLength": 110882,
+        "status": 201,
+        "terminal": "Network.loadingFinished",
+        "hasPostData": true
+      },
+      "creationResponse": {
+        "readable": true,
+        "host": "127.0.0.1",
+        "destinationURLSHA256": "c4bea81ec9fddb5830b062d2f091ba60cf1b99a52138f3262645a9eb5af78eca",
+        "fullDestinationComparedInMemory": true
+      },
+      "payload": {
+        "lookupCount": 1,
+        "lookupResult": "NO_POST_DATA",
+        "returnedTextBytes": null,
+        "inlineEntryCount": 0,
+        "payloadHashUnavailable": true,
+        "observedPUTBodySHA256": null
+      },
+      "candidateCreates": 1,
+      "candidatePUTs": 1,
+      "otherWrites": 0,
+      "server": {
+        "creates": [
+          {
+            "bytes": 66,
+            "bodySHA256": "031c28c66ddc935e635803a2ac354b0b23e949ffc1fd2cef47296d058cf6f4b2",
+            "originalNameMatches": true,
+            "originalSizeMatches": true
+          }
+        ],
+        "puts": [
+          {
+            "status": 201,
+            "bytes": 110882,
+            "bodySHA256": "e75f3202d3f4b94bb462a58bf097836088855ab39ee47777826e5a60b1004a0e",
+            "requestContentLength": 110882
+          }
+        ]
+      },
+      "source": {
+        "sha256": "e75f3202d3f4b94bb462a58bf097836088855ab39ee47777826e5a60b1004a0e",
+        "bytes": 110882
+      },
+      "maxPostDataSize": 4194304,
+      "limits": "The server confirmed receipt separately. Only browser-exposed bytes can populate observedPUTBodySHA256.",
+      "cleanup": {
+        "ownedProcessGroupExited": true,
+        "listenerClosed": true,
+        "profileRemoved": true
+      }
+    },
+    {
+      "family": "Edge",
+      "vendorBundle": "com.microsoft.edgemac",
+      "status": "NOT_RUN_INSTALLED_BUNDLE_VERIFICATION",
+      "verificationExit": 1,
+      "vendorSignatureVerified": false,
+      "browserStarted": false,
+      "missingSealedResource": null
+    }
+  ],
+  "authenticatedWebsiteTests": 0,
+  "signedStorageURLsRead": 0,
+  "accountHeadersPersisted": 0,
+  "faultInjections": 0,
+  "sources": {
+    "fixture.cjs": "2f0ed0752fdfdcc57a6b82828105245092a834ef0cb1dd081dd27337fca455be",
+    "run.cjs": "9cab2e3c7b7092332e85bfc3e0b8f99ecd9a27473532846dbfdd216f7022b2ca"
+  }
+}

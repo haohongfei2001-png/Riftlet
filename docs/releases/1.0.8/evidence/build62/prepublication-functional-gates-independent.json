@@ -1,0 +1,36 @@
+{
+  "gate": "Pre-publication product, real-site, package, engineering and real staging-upgrade functional acceptance",
+  "result": "PASS",
+  "reviewer": "independent-build62-recovery-and-mainline-source-reviewer",
+  "signedSource": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "dmgSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "evidenceSHA256": {
+    "ordinaryRealSites": "b2d641b911ca3f9606284d15ed2325b518a8a4a20f0afacafde9c937e73d7d1b",
+    "controlledProductRecoveryAthroughH": "a201614024f08aa18fe865d2e223b5518e87923386ca553de1fe6820354057d6",
+    "threeHistoricalDatabases": "eed9fa173787374d2f93c8ec5971a295a88f9a719b58032e2355638f8484ae3d",
+    "offlineFullWebAndArchitectureTests": "80a74923f5a396d14f410e2bb6955a2bf50353fb8478f1fabd03fe2ffdb57cc1",
+    "signedAndNotarizedIndependentInstall": "b1e68175e18fb3ecace649bb1d10253accdcebe505d9b4cc8454c5bc89b6ac23",
+    "stage13of13": "e8e47d26ea157b8f68c453a41024ad1751364ffa9fce4af01cc05443e165d78e",
+    "latestCompletedDocsArchitectureCounts": "64753817b7a84c8213e58ee01301559e9f787c3044e70b703a7c1f9000089376",
+    "latestCompletedFormalFiveChecks": "c2ee371aa8cdc17c06e4e232d3b3a04a1690b885364b2f4b1e3d47c18f3f677c",
+    "previousSourceAdmission": "7dccb4d5fb1de66b4e2ba32c4c9b22c82dcfc4cf034b5d6c4d01fbe2ea187956"
+  },
+  "outcome": {
+    "ChromeAndEdgeColdWarmThreeRapidPairsAndNonemptySelections": "PASS",
+    "UNKNOWN_A_through_H_ControlledNativeUI": "PASS",
+    "historicalDatabases": 3,
+    "ARM64Swift": 1436,
+    "IntelSwift": 1436,
+    "webRegression": 408,
+    "signedInstallationInventory": 193,
+    "stagedInAppUpgradeThirteenCriteria": "PASS"
+  },
+  "productCoverage": "Two authenticated real-site browser suites, ordinary upgraded local UI and a separate offline positive attachment are distinguished in the source receipts. Natural third-party named error card and HTTP 4xx were never established; the approved product-level recovery contract governs.",
+  "otherReleaseActions": {
+    "futureFinalDocumentationSourcePinAndFiveGitHubChecks": "separate governance gate",
+    "mergeTagAndPublish": "NOT_RUN",
+    "publicSiteAndGitHubDownloadSameBytes": "NOT_RUN",
+    "newIndependent31ViaPublicStableActualUpgrade": "NOT_RUN"
+  },
+  "overallPublication": "NOT_RELEASED"
+}

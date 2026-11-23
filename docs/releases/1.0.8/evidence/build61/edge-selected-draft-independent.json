@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "type": "independent-ordinary-selected-draft-site-evidence",
+  "reviewer": "Independent nonauthor source and live-evidence reviewer. All review operations were read-only with respect to the installed App, browser and source database.",
+  "atUTC": "2026-11-23T03:05:07.719+00:00",
+  "candidate": {
+    "version": "1.0.8",
+    "build": 61,
+    "signedSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+    "privateDMGSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+    "signedWebProgramSHA256": "2f6e2f6e1d80184813f6f967cc340638b96082abd5bd98c2f9e97b0597f982f2"
+  },
+  "family": "edge",
+  "publicDecision": {
+    "gate": "G2",
+    "behavioralRequirements": "PASS",
+    "firstOrdinaryImageAndThreeRapidPairs": "PASS_IN_SEPARATE_EARLIER_7_IMAGE_RUN",
+    "deliberateNonemptyOriginalTextAndForwardSelectionPreservation": "PASS_ON_THIS_SEPARATE_ENROLLED_REAL_RUN",
+    "productTargetGenerationForSameFormalClick": "PASS_BY_RETROSPECTIVE_ATTRIBUTION",
+    "directIndependentPrePressProductGenerationReading": "NOT_OBSERVED",
+    "rawDriverGrade": "PARTIAL",
+    "rawDriverSeedToNewEquality": false,
+    "releaseAuthorized": false
+  },
+  "stage1": {
+    "observedEmptyEditorAtSeed": true,
+    "preSeedVisibleQACards": 0,
+    "postSeedVisibleQACards": 1,
+    "postSeedWebsiteCounts": {
+      "fileInput": 1,
+      "fileChange": 1,
+      "formSubmit": 0,
+      "sendButtonClicks": 0
+    },
+    "seedProductGenerationUsedAsNewPrePressValue": false,
+    "seed": {
+      "stage": "EMPTY_DRAFT_SEED",
+      "rawPNGSHA256": "f206e06627db660fd10de4f03057cbc40b6865c8bd43f164cac7667bfadea4b5",
+      "privateMediaMatches": true,
+      "sourceBytes": 5516,
+      "dimensions": [
+        330,
+        196
+      ],
+      "nativeImageIOSRGBSHA256": "981052a21efd66fa1fe5f5fadf68746456c3499478407d79565c92f3477aaef2",
+      "websiteFileAndPreviewCanvasRGBASHA256": "981052a21efd66fa1fe5f5fadf68746456c3499478407d79565c92f3477aaef2",
+      "nativeAndBrowserRGBAEqual": true,
+      "websiteFileAndEncodedPreviewEqualOriginal": true,
+      "browserFileAndPreviewRenderedRGBAEqual": true,
+      "systemScreenshotMarkerVerified": true,
+      "singleSignedAppKitMouseDown": true,
+      "nativeMouseEventsPosted": 2,
+      "signedApplicationCDHashMatched": true,
+      "nativeMouseDownUptime": 462213.651529541,
+      "acknowledgedUptime": 462210.0003460417,
+      "frozenUptime": 462213.70416870835,
+      "consumedUptime": 462213.81916125,
+      "clickBindingDigest": "55bc1e40848204a0e775aa75f46a8032fe023d110335f3209e10c895fc864eb8",
+      "operationDigest": "a6e29c30398b92c6151ee684ab260b076da91c36b98df96d0c2c97c8c37903f9",
+      "persistentDraftGenerationSHA256Lowercase": "9badaddcd2a6546c358f29c0742eaec1ac1b5e31c629e030fe4ae326245e08c6",
+      "websiteInputEvents": 1,
+      "websiteChangeEvents": 1,
+      "independentDurableSTARTs": 1,
+      "signal": "attachmentAccepted",
+      "SQLiteOperationDispatchAndSTARTTargetAgree": true
+    }
+  },
+  "stage2": {
+    "method": "One ordinary browser native text insertion with a trusted input event in the verified original editable; setBaseAndExtent selected the specified range.",
+    "trustedNormalInsertEvents": 1,
+    "utf16TextLength": 64,
+    "utf16SelectedLength": 28,
+    "beforeFormalAttachment": {
+      "start": 12,
+      "end": 40,
+      "anchor": 12,
+      "focus": 40,
+      "direction": "forward",
+      "priorNamedCardCount": 1,
+      "newAssetAlreadyPrepared": true,
+      "existingTextAndSelectionDirectlyRead": true,
+      "originalEditableActive": true
+    },
+    "rawDraftTextPublished": false
+  },
+  "stage3": {
+    "sitePageBeforeArchiveUTC": "2026-11-23T02:55:46.345+00:00",
+    "sitePageAfterArchiveUTC": "2026-11-23T02:55:49.798+00:00",
+    "finalPageArchiveUTC": "2026-11-23T02:55:50.728+00:00",
+    "formal": {
+      "stage": "ATTACH_WITH_EXISTING_NONEMPTY_SELECTION",
+      "rawPNGSHA256": "a308afa83ca4e91ee62d0c9d7063b86cd3f740d1ed19077ad89140c0b20b3443",
+      "privateMediaMatches": true,
+      "sourceBytes": 5516,
+      "dimensions": [
+        330,
+        196
+      ],
+      "nativeImageIOSRGBSHA256": "26d956b1e8fedeadd6443b419e5cc3e689479729ef1e2b5c8b6221fc98ee9b60",
+      "websiteFileAndPreviewCanvasRGBASHA256": "26d956b1e8fedeadd6443b419e5cc3e689479729ef1e2b5c8b6221fc98ee9b60",
+      "nativeAndBrowserRGBAEqual": true,
+      "websiteFileAndEncodedPreviewEqualOriginal": true,
+      "browserFileAndPreviewRenderedRGBAEqual": true,
+      "systemScreenshotMarkerVerified": true,
+      "singleSignedAppKitMouseDown": true,
+      "nativeMouseEventsPosted": 2,
+      "signedApplicationCDHashMatched": true,
+      "nativeMouseDownUptime": 462226.610442916,
+      "acknowledgedUptime": 462218.61311675,
+      "frozenUptime": 462226.6571229167,
+      "consumedUptime": 462226.771013875,
+      "clickBindingDigest": "fa10fad010d70f0fc106646812f0ac0f49a968c3e66d0d51381a725d4fd3f9f3",
+      "operationDigest": "7ff2754a061a6f994bd5ebb4bbed1f352f658103df3f0e7a20943e9a0b3d7156",
+      "persistentDraftGenerationSHA256Lowercase": "0e04a83b2bdc8b1d7aa447e003491c997d80cf251830a8b8107f96a293f20359",
+      "websiteInputEvents": 1,
+      "websiteChangeEvents": 1,
+      "independentDurableSTARTs": 1,
+      "signal": "attachmentAccepted",
+      "SQLiteOperationDispatchAndSTARTTargetAgree": true
+    },
+    "beforeCounts": {
+      "fileInput": 1,
+      "fileChange": 1,
+      "formSubmit": 0,
+      "sendButtonClicks": 0
+    },
+    "afterCounts": {
+      "fileInput": 2,
+      "fileChange": 2,
+      "formSubmit": 0,
+      "sendButtonClicks": 0
+    },
+    "exactTextBytesAndSelectionTextPreserved": true,
+    "sameAnchorAndFocusNodeObjectAndLocalOffsets": true,
+    "sameOriginalDocumentRootNavigationEntryTimeOriginComposerAndQASelectionWitness": true,
+    "selectionAfter": {
+      "anchor": 12,
+      "focus": 40,
+      "direction": "forward",
+      "utf16RangeLength": 28
+    },
+    "oldNamedCardAndOriginalNodePreserved": true,
+    "exactlyOneNewNamedDecodedCard": true,
+    "latestSiteCardCount": 2,
+    "pageFocusedBeforeAndAfter": true,
+    "editorActiveBefore": true,
+    "editorActiveAfter": true,
+    "sendClicks": 0,
+    "formSubmits": 0,
+    "physicalUserMouseObserved": false
+  },
+  "generationEvidence": {
+    "seedVsFormalGenerationEqual": false,
+    "seedVsFormalProductDocumentAndComposerEqual": true,
+    "seedIsDifferentOperation": true,
+    "independentDirectPrePressGenerationForFormalOperation": null,
+    "postHocGenerationAttributionToFormalPrePressTicket": {
+      "proven": true,
+      "normalizedGenerationDigest": "0e04a83b2bdc8b1d7aa447e003491c997d80cf251830a8b8107f96a293f20359",
+      "proof": "Unique signed armed and frozen request digest for the original mouse-down, then consumed with that same binding digest and the exact operation digest. The prepared and final-armed QA packets independently recorded the same binding digest. The immutable original operation, durable dispatch and START all carry the matching complete target, including draft generation. The signed implementation returns the same lease frozen at that mouse-down and the page validates the exact target before writing.",
+      "traceContainsLiteralProductGeneration": false,
+      "invocationDigestRecordedInConsumedTrace": false,
+      "invocationSource": "Distinct dispatch checkpoint matched the unique native-to-page operation and the independent positive START record."
+    },
+    "chronologyOfAnyGenerationTransition": "UNKNOWN",
+    "causeOfAnyTransition": "UNKNOWN",
+    "websiteWitnessEpochIsProductGeneration": false,
+    "interpretation": "Preparing a blank seed and subsequently making a normal edit are separate stages. The seed row reports its own target. The archived independent pre-press observer found no draft-generation scalar for the second ticket. The second operation is attributable to its pre-press ticket through the signed trace and immutable product identity."
+  },
+  "evidence": {
+    "freshReadOnlySQLiteOnlineBackup": {
+      "startedUTC": "2026-11-23T02:59:12.969385+00:00",
+      "completedUTC": "2026-11-23T02:59:12.993037+00:00",
+      "sha256": "3baba74eb4c960c648bd4196a17c6b4ad2aca9d56416d8089b83a12e1d7e8e97",
+      "byteCount": 135168,
+      "counts": {
+        "assets": 2,
+        "operations": 2,
+        "upload_starts": 2,
+        "attachment_reselections": 0,
+        "compensations": 0
+      },
+      "integrity": "ok",
+      "foreignKeyViolations": 0
+    },
+    "traceSHA256": "ecdc471820e4ac7bec7b276a1ed7bf2703b81d1312bdf09d5389e3a3043bf1e5",
+    "nativeEditProofSHA256": "db0a4b84998a6e3ff32cc633bd2cd8fc9436b0e96422f77410417c5688e3d368",
+    "beforeNativePressEnvelopeSHA256": "1b51bc778c1dbe4524d9288a23fe46dd87b9d04663af736a8fa909d180e56abf",
+    "selectionBeforeSHA256": "db53a2491a12689084f534ff13ade195c9394ed830ad03ae82bf9cc0ea126a21",
+    "pageBeforeFormalSHA256": "1b0e22384308fc848e0a502f8878af095dad8e615399b11eef4348e3e90946e5",
+    "clickReceiptSHA256": "f8ac16a9102ccbc848fa502e97d6b9422845ed2bcf973a0391b45da2274204dc",
+    "pageAfterFormalSHA256": "21573bc1b0c8f5091662bd4d0289cfc9bd599cc5d9af7e20859299aab649210e",
+    "finalPageSHA256": "21573bc1b0c8f5091662bd4d0289cfc9bd599cc5d9af7e20859299aab649210e",
+    "comparisonSHA256": "ddbfa852aeaf0eee0122b908e69b2cb848c14573ba6ba4058a7ea222d069f97f",
+    "originalDriverResultSHA256": "eee4c5210c23610d5c4227bb03638d38dbb2386b4a11b8dc082d2422698e63d4",
+    "earlierSevenBrowserResultSHA256": "672d38dc5698a186130dd0d537bff78cb3d99355e0547cc5ff9ac9f0ec61d514"
+  },
+  "sourceReferences": {
+    "native": "ChromeAppleEventsExecutor.swift L107–110, L191–208, L234–249, L374–379, L599–611. PreClickLeasePool.swift L42–55, L69–82.",
+    "durability": "Models.swift L129–143, L159–162. TransferCoordinator.swift L361–365, L384. QueueStore.swift L469–471.",
+    "page": "chatgpt-web-20261027.js L354–361, L904–911, L2106–2112.",
+    "range": "Tests/DerivedPreview/draft-selection.js L26–37 and Tests/PreClickLease/selection/observe.js L47–57. Their readback checks exact original anchor/focus nodes, offsets and text."
+  },
+  "limits": "The selected-form run uses one seed plus one formal selected attachment. The two operations are not a rapid pair. Hardware-person mouse and provider final file storage are unverified. The earlier rapid run retains its own separate cold/warm and three-pair evidence."
+}

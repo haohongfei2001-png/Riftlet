@@ -1,0 +1,82 @@
+{
+  "analysisScope": "Prior real signed build 59 natural transfer only",
+  "authenticatedOriginalTemporaryChat": true,
+  "beforeAndAfterRecoverySQLite": "NOT_RUN",
+  "browser": "Microsoft Edge",
+  "checkedRawSHA256": {
+    "capture-1.json": "16e0c5d629b608e708fde9d2ceba78617fcb28fc8438690d8449fc2656048d26",
+    "child.json": "ee64ed99466d36bee6e5b61ebdf5990d039f28da222ac0bc44e6d99cee9dc8bf",
+    "click-1.json": "64adf0faddf34211752932ed183abcb1baeecaded34ac6715047d95d7d086a3c",
+    "final-db.json": "747a32037a2c4f1a388449325007b50b158bc43c990955db11b7ed7a8eb170c1",
+    "final-page.json": "924a05357c07bcab2dfa30cbbc148d007346d7e04d3e762934683bb1699eded3",
+    "g4-original-observed.json": "2f8e76ae7472d355bf3e0b828e90d97e7673af732a01403e7525b74f4ea88ba7",
+    "result.json": "04f800c8ae42034808ef8907ca5c8da9f1a101e990591768cd0306c5310bfdf4"
+  },
+  "controlledFault": "NOT_RUN",
+  "dmgSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+  "failureRecovery": "NOT_RUN",
+  "historicalOtherOperations": {
+    "mid": {
+      "abortRequests": 0,
+      "creationRequests": 2,
+      "exactRequestBodyHashMatched": false,
+      "inputBytes": 3147775,
+      "nativeByteRequests": 0,
+      "requestTransport": null,
+      "storedTransferURLOrURLHash": false,
+      "uniqueCreationURLWasObservedInMemory": true
+    },
+    "post100": {
+      "abortRequests": 1,
+      "creationRequests": 1,
+      "exactRequestBodyHashMatched": true,
+      "inputBytes": 3137,
+      "nativeByteRequests": 1,
+      "requestTransport": "xhr",
+      "storedTransferURLOrURLHash": false,
+      "uniqueCreationURLWasObservedInMemory": true
+    }
+  },
+  "independentlyReviewedSources": {
+    "Tests/PreClickLease/g4/README.md": "f600b569faab5a31da8daaa35fa7ee043e45c0bc62d6bcfc2b8d149d3b0d3704",
+    "Tests/PreClickLease/g4/card-observer.js": "121f44273d83256592db9b53dcff1befb2c1e9d31a92a0a67e991516cd77c1df",
+    "Tests/PreClickLease/g4/test_recovery.py": "20fd8ac1c511786bbdda91dabf67214a04a5b3da4432aa95767485f661fe4348",
+    "Tests/PreClickLease/g4/verify_recovery.py": "32eeb9568f466374d71a1d4fc61428106648d141148f4b0fc7fd537c0a6fb96b",
+    "engineering/evidence/2026-10-27-real-mac-round2/mid-network-receipt.json": "3f497749582ca8a4e658384f1d3d1fe32d72388cc971a90b6da82dd3230d13e8",
+    "engineering/evidence/2026-10-27-real-mac-round2/network-fault.template.js": "0ff7a03f5dfe588447df9fcf0efc317a60c18bbd0629c0bb36493bfe1c044d3d",
+    "engineering/evidence/2026-10-27-real-mac-round2/post100-network-receipt.json": "81210ad1a339aecc67114619e2d5c737dd1090fa5d9fe020cd34032a4bf68aec"
+  },
+  "inputPNGBytes": 5516,
+  "originalFileSHA256": "33715dd287606cfa1584711ad82bcf52dfb966085f1c1b91f9cc40775dc29da1",
+  "site": {
+    "explicitOriginalErrorCards": 0,
+    "fileChanges": 1,
+    "fileInputs": 1,
+    "originalAttachmentAcceptedSTARTs": 1,
+    "sends": 0,
+    "submits": 0
+  },
+  "timingRowsFromSameOriginPerformanceEntries": [
+    {
+      "atMS": 12718,
+      "durationMS": 333,
+      "kind": "fetch",
+      "publicPath": "/backend-api/files",
+      "responseStatus": 200
+    },
+    {
+      "atMS": 13943,
+      "durationMS": 406,
+      "kind": "fetch",
+      "publicPath": "/backend-api/files/process_upload_stream",
+      "responseStatus": null
+    }
+  ],
+  "uploadRequest": {
+    "completeURLOrHash": "NOT_OBSERVED",
+    "fullPayloadMatchedToOriginalPNG": "NOT_OBSERVED",
+    "liveSingleRequestCancellationHandle": "NOT_OBSERVED",
+    "method": "NOT_OBSERVED",
+    "requestBodyRepresentation": "NOT_OBSERVED"
+  }
+}

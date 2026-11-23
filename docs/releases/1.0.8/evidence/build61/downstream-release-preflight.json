@@ -1,0 +1,63 @@
+{
+  "scope": "Read-only downstream formal-CI preflight on a detached private copy; selected source/fixture checks, no hosted architecture or GUI claim.",
+  "source": "e2324e9d742ec3c3d1045504ed1bfee421efae67",
+  "reviewedSignedProduct": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "pullRequest": 125,
+  "failedNativeRun": 45078297801,
+  "actualMainBase": "9fd8ad15fca043915069904113e5fb67d82b4948",
+  "originalTagCheck": {
+    "validator": "scripts/release-appcast.py::source_matches",
+    "validatorSHA256": "d451b9c76a1b3fc64950bbe72ad5a53fc33985186d5c70fabdb1290914265dcd",
+    "signedSourceAncestorOfG2": true,
+    "baseAncestorOfG2": true,
+    "productSourcesResourcesManifestAndResolutionIdentical": true,
+    "modeledLocalUnreferencedMergeParents": [
+      "9fd8ad15fca043915069904113e5fb67d82b4948",
+      "e2324e9d742ec3c3d1045504ed1bfee421efae67"
+    ],
+    "modeledMergeObject": "f0e564ce174460b8e813a805a66d318acade2082",
+    "compensatingG2Delta": [
+      "engineering/mainline/source-admission.json",
+      "scripts/run-readiness-ownership.sh"
+    ],
+    "tests": [
+      {
+        "tagTarget": "49b9204974088c1983cda469910d9a78d8f4c43b",
+        "modeledMain": "9fd8ad15fca043915069904113e5fb67d82b4948",
+        "result": "release tag is outside the official main history"
+      },
+      {
+        "tagTarget": "49b9204974088c1983cda469910d9a78d8f4c43b",
+        "modeledMain": "f0e564ce174460b8e813a805a66d318acade2082",
+        "result": "accepted"
+      },
+      {
+        "tagTarget": "e2324e9d742ec3c3d1045504ed1bfee421efae67",
+        "modeledMain": "f0e564ce174460b8e813a805a66d318acade2082",
+        "result": "release tag differs from signed product source"
+      }
+    ],
+    "result": "Once the signed source lies on official main history, a tag at that exact signed commit meets this source predicate.",
+    "publicRefWrites": 0,
+    "localTagsCreated": 0,
+    "publicTagCreated": false,
+    "releaseCreated": false
+  },
+  "laterJobChecks": {
+    "packagingRejectionPaths": "The internal-beta rejection suite passed 19/19. The previously proven 24 packaging tests were not rebuilt.",
+    "nativeVisualManifest": "20/20 passed",
+    "supplementalVisualSelfCheck": "6 static cases, 84 invalid observations rejected, 46 original cases/5 movies retained",
+    "stableFeedVerification": "10 passed, 1 optional Sparkle-generator/ephemeral-DMG test skipped. The signed-feed transition check separately passed with the actual PR base and G2 checkout.",
+    "actualPackageOrGUI": "Not run in this preflight. AppKit/windowed, hosted-only, full packaging and real distribution evidence is separate."
+  },
+  "testLogSHA256": {
+    "tag-proof.json": "2dc44a462abd4f2a7ee599f04bc33f9ab20374af93466ea57c4514959ab706a1",
+    "pr125.json": "09a1d2eb157b892b0df1a61c11ed250cc2172117d873532d36d4499d8c60c8f8",
+    "internal-beta.log": "6b9c52fd3abecd3b8be082fa265ab03dee53f49f05d1207acf913db5c910236a",
+    "manifest.log": "bc3bb926af62e3a4ff0190df6122807f126248eb8a79da72644a0b2011e70882",
+    "supplemental.log": "a8a28ce9cab34368120ce75bd188ba848112dc60c430cc3def2b6d35573655d0",
+    "feed.log": "2ff64b1f576290f4b82fd9bb8dd7839d411d3f08b074a434c17aa9008343450a",
+    "feed-transition.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "checkedUTC": "2026-11-22T22:56:07.267112+00:00"
+}

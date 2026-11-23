@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Original website observation after upgrading the native app from build 61",
+  "status": "PASS",
+  "archivedProgramVerification": [
+    {
+      "build": 56,
+      "source": "2717fa6aaa7cb3750041ca1a0779c6dab65961cc",
+      "functionBytes": 117213,
+      "functionSHA256": "61669b502526bd01b71b6c9aead85c224d9f3a50263ff121997769527368e2c5",
+      "archiveBytes": 33176,
+      "archiveSHA256": "ed470481df5373d0e702c87087785235d080fb75b85ea27f1e07408e0357ae52",
+      "signedAppMatchesGitAndDecodedArchive": true
+    },
+    {
+      "build": 57,
+      "source": "3a4bf462cb1e02ae305328b0f1f64792ec14adb8",
+      "functionBytes": 123906,
+      "functionSHA256": "0ac5c59b4856f26a50f5f22d8142314444db361a69753d0ee32cb767d89be87f",
+      "archiveBytes": 34888,
+      "archiveSHA256": "c691e6b7bd848bc8e1fb994aa9efd2dc7419b8b73549c0c1e31eb09499287e8a",
+      "signedAppMatchesGitAndDecodedArchive": true
+    },
+    {
+      "build": 58,
+      "source": "c7ef1027f9475d517abbd4d85ae1819b9351a8cf",
+      "functionBytes": 125752,
+      "functionSHA256": "43e43df544d4edb6081dfe592b1b18166039f98983ab8f0fac0f31efdf60d166",
+      "archiveBytes": 35382,
+      "archiveSHA256": "d05979dfae4b702d907b1f7f50a6312f9d7c25a5c6b484ed493bbfd39d9f6fbb",
+      "signedAppMatchesGitAndDecodedArchive": true
+    },
+    {
+      "build": 59,
+      "source": "69b76cb025ab552b3480e3af095b627891874712",
+      "functionBytes": 133936,
+      "functionSHA256": "b6eee615982d839285ea6af4abb16018939f9be91b18215554e847f4a6eb2215",
+      "archiveBytes": 37339,
+      "archiveSHA256": "19677788b6a846b2868e0159d8467f9de37544a2ffc24bfd1676b499314580f5",
+      "signedAppMatchesGitAndDecodedArchive": true
+    },
+    {
+      "build": 60,
+      "source": "711cee3a1c7033ce4925082a83099b00da7087c6",
+      "functionBytes": 141709,
+      "functionSHA256": "a4da18056ed85a5a360f30f22c6965138d917cfde2c404e9aa24422b1f7b8250",
+      "archiveBytes": 39227,
+      "archiveSHA256": "3b0e9863be0e542c816f7688f9a880e1a2811e979d33636a611fa8127b76fde6",
+      "signedAppMatchesGitAndDecodedArchive": true
+    },
+    {
+      "build": 61,
+      "source": "49b9204974088c1983cda469910d9a78d8f4c43b",
+      "functionBytes": 142523,
+      "functionSHA256": "2f6e2f6e1d80184813f6f967cc340638b96082abd5bd98c2f9e97b0597f982f2",
+      "archiveBytes": 39480,
+      "archiveSHA256": "e11bbf207a9649b390944a6024409ba399a638924b0ff4210366c8e0cefdc9c6",
+      "signedAppMatchesGitAndDecodedArchive": true
+    }
+  ],
+  "knownMarkerControls": {
+    "browserAndLegacyEncodingVectors": 18,
+    "archiveCount": 6,
+    "JavaScriptCoreRan": true,
+    "allActionsExceptObserveRejectedForEachArchive": true,
+    "wrongOriginalIdentityRejected": true,
+    "changedProcessWindowTabRefused": true,
+    "ambiguousCurrentAndHistoricalChannelRejected": true,
+    "dispatchedOriginalRequiresLiveOriginal": true,
+    "testMethods": 3,
+    "execution": "Compiled production compatibility and native relay sources, JavaScriptCore and test method bodies; a local assertion driver supplied XCTest primitives on the Command Line Tools host. CI runs the XCTest target."
+  },
+  "packagingControls": {
+    "tests": 24,
+    "passed": 24,
+    "includesMissingAndModifiedArchiveForBuilds56Through61": true,
+    "logSHA256": "fcd9514808c61563ee3155597e5ebc2d3fae5632d20da93668a98aa5a52b7f44"
+  },
+  "files": {
+    "Sources/RiftletAdapters/ArchivedObservationCompatibility.swift": "81256a87860125e6f7c5c52bd080498ad11f1f9d3417057b17d63ecfba2c60e1",
+    "Sources/RiftletAdapters/Resources/build61-observation-fingerprint.dat": "e11bbf207a9649b390944a6024409ba399a638924b0ff4210366c8e0cefdc9c6",
+    "Tests/RiftletAdaptersTests/ArchivedObservationCompatibilityTests.swift": "2669da618464c1b367230cb956c0e803c0f7b11f9a348c370e007f0e111516e8",
+    "scripts/verify-app-bundle.py": "398a3ee59ba477c184ac85e0414d3058cb0908637e1a6eda2e6b7923835b9533",
+    "Tests/Packaging/test_verify_app_bundle.py": "aed97e296d89d9f27de9a2f1ac8846dc57d9e44d8b70570baa2b504d4d7ccd5b"
+  },
+  "currentPageProgramSHA256": "8bdb088559961534c1ac43ec170e02e77e3dcb4eaf1c711a79e43a0fcf854c93",
+  "controlLogSHA256": "641c9c9382aa4e6147a1d3b338c93aa6765a32edce375933282097dddd82f21f"
+}

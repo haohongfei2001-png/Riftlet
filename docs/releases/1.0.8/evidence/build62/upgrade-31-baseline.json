@@ -1,0 +1,36 @@
+{
+  "appOwnedPreferenceDigests": 3,
+  "applicationDataIdenticalToHistorical31Snapshot": true,
+  "baseAppBuild": "31",
+  "baseAppVersion": "1.0.5",
+  "baseDeveloperIDAndGatekeeperPassed": true,
+  "baseProcessStoppedBeforeRelease": true,
+  "baseQuickCheck": "ok",
+  "baseTableRows": {
+    "assets": 51,
+    "checkpoints": 6,
+    "compensations": 0,
+    "metadata": 2,
+    "operations": 2,
+    "upload_starts": 1
+  },
+  "baselineBinaryReadbackSHA256": "0cc7c1db3474ab91c5b54103bb74ae9efbfd2cd999284f8d6f1fe35adf618e85",
+  "baselinePreferencesSHA256": "0050733a70568113183350994f2b8a4158a5789ee9191881c6bc04cac20454f1",
+  "baselineReadbackSHA256": "41e70d494b89ee0b5a23d77e6e037f08ee20eede72b1fc075d11aebe5c4dce37",
+  "bookmarkAndFeedbackDigestsMatchHistorical31": true,
+  "mode": "isolated Apple Virtualization guest; original ordinary public 1.0.5 (31) application",
+  "originalPhaseCounts": {
+    "inputTriggered": 1,
+    "unknown": 1
+  },
+  "priorGuestStateArchivedSeparately": true,
+  "priorWholeDiskClone": "macOS clonefile",
+  "publicFeedEmbeddedAndNoPrivateOverride": true,
+  "publicUpgradeAtBaseline": "NOT_RUN",
+  "reportedScope": "The setup copies an old public installation and saved product data into the isolated guest. The updater is stopped until the official publication signal.",
+  "scopedHistoricalFileDigests": 86,
+  "scopedPNGFiles": 83,
+  "sourceDMGSHA256": "99276347932e231adf743664a54cfc782d8e345d89221587d54b7299a5c9f315",
+  "sourceExecutableSHA256": "9408b891e805c141108b64019e523a45e30221a03a10c2b91ae97bb16cb66207",
+  "updateCheckIssuedAtBaseline": false
+}

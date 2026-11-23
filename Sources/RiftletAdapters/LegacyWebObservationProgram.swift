@@ -25,7 +25,7 @@ public enum LegacyWebObservationProgram {
           return (\(current.functionSource))(command,native);
         }
         """
-        guard source.utf8.count <= 128 * 1024 else { throw WebAdapterError.programUnavailable }
+        guard source.utf8.count <= ChatGPTWebPageProgram.maximumSourceBytes else { throw WebAdapterError.programUnavailable }
         // Keep the current input program's public source identifier. Historical
         // observation responses carry their own explicit v6/v7/v8/v9/v10/v11/v12 evidence IDs.
         return WebPageProgram(sourceID: current.sourceID, functionSource: source,

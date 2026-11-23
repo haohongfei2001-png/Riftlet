@@ -319,15 +319,25 @@ function riftletWebAcceptance(command, native) {
       (parts.editor.closest(composerSurface) || parts.editor.closest('form') || parts.form) === parts.form, true, acceptsAuxiliaryFocus);
     if (!receiver.current()) fail('CLICK_PIN_REFUSED');
     const handle = e => {
-      if (e.target === (e.type === editorEvent ? parts.editor : parts.form) && receiver.current()) e.preventDefault();
+      if (e.target !== (e.type === editorEvent ? parts.editor : parts.form)) return;
+      if (!e.cancelable) { close(); return; }
+      if (receiver.current()) {
+        // A bubbling editor acknowledgement transfers expiry to the bounded lease registry.
+        if (e.bubbles && e.type === editorEvent) clearTimeout(timer);
+        e.preventDefault();
+      }
     };
-    setTimeout(() => {
+    const timer = setTimeout(close, 60000);
+    function close() {
+      clearTimeout(timer);
+      globalThis.removeEventListener('pagehide', close);
       receiver.close();
       parts.editor.removeEventListener(editorEvent, handle);
       parts.form.removeEventListener(formEvent, handle);
       document.removeEventListener(openEvent, openingChanged, true);
       document.removeEventListener(endEvent, openingChanged, true);
-    }, 60000);
+    }
+    globalThis.addEventListener('pagehide', close);
     parts.editor.addEventListener(editorEvent, handle);
     parts.form.addEventListener(formEvent, handle);
     document.addEventListener(openEvent, openingChanged, true);
@@ -336,6 +346,9 @@ function riftletWebAcceptance(command, native) {
   }
 
   // RIFTLET_CLICK_PIN_END
+  // Start before any capture/DOM discovery. A delayed acknowledgement cannot extend a lease.
+  const leaseClock = ((command.action === 'captureTarget' && command.clickWitnessID) || command.action === 'renewPreparedTarget')
+    ? {monotonic: performance.now(), wall: Date.now()} : null;
   const KEY = '__riftletIndependentFileInput20261104';
   const MAX_BYTES = 128 * 1024 * 1024, MAX_CHUNK_BYTES = 256 * 1024;
   const targetKeys = ['adapterID', 'surface', 'applicationID', 'sessionID', 'windowID', 'tabID',
@@ -412,7 +425,7 @@ function riftletWebAcceptance(command, native) {
           return;
         }
         operation.discarded = true; operation.chunks = [];
-        operation.binding = null; operation.failureWatch = null;
+        operation.binding = null; operation.failureWatch = null; operation.recoverySurface?.close(); operation.recoverySurface = null;
         operation.urls.clear(); operation.baseline.clear(); operation.previewBaseline = null;
         operations.set(id, {committed: true});
       }
@@ -455,8 +468,64 @@ function riftletWebAcceptance(command, native) {
     // The original editor is the destination. Opening its menu can move focus
     // or add search textboxes; reranking editors here would reject that very
     // interaction or switch to the menu's textbox.
-    return sameDraft(binding, true) && (!binding.target.clickBindingID ||
+    return sameDraft(binding, true) && (!binding.prepared || binding.prepared.current()) && (!binding.target.clickBindingID ||
       (document.visibilityState === 'visible' && document.hasFocus() && visible(binding.editor) && !blocked(binding.form)));
+  }
+  // Only declared mode/draft identity on the original composer path is relevant.
+  // Retain the mutation history so moving from one mode to another and back
+  // cannot resurrect an earlier lease, even when all final attributes match.
+  function composerGeneration(parts) {
+    const previous = registry.witnessGeneration;
+    if (previous?.editor === parts.editor && previous.form === parts.form && previous.writable?.()) return previous;
+    previous?.retireWrites?.();
+    // History can take focus without changing the draft. Only an original
+    // enrolled PNG binding with a continuously live reader may carry its epoch
+    // into a fresh write generation. Its retired write witnesses stay retired.
+    const original = registry.recoveryDraft?.deref();
+    const continuous = original && original.editor === parts.editor && original.form === parts.form &&
+      registry.clickBindings?.get(original.target.clickBindingID) === original && sameDraft(original);
+    if (!continuous) delete registry.recoveryDraft;
+    const address = location.href, attributes = ['data-composer-mode', 'data-mode', 'data-conversation-id',
+      'data-draft-id', 'data-composer-placement', 'data-chatgpt-composer', 'contenteditable', 'role'];
+    let changed = false, foreground = true, users = 0;
+    const inspect = records => {
+      if (records.some(r => r.oldValue !== r.target.getAttribute(r.attributeName))) changed = true;
+    };
+    const modes = new MutationObserver(inspect);
+    for (let node = parts.editor; node; node = node.parentElement) {
+      modes.observe(node, {attributes: true, attributeOldValue: true, attributeFilter: attributes});
+      if (node === parts.form) break;
+    }
+    const reader = bindOriginalReceiver(parts.editor, () => {
+      inspect(modes.takeRecords());
+      return !changed && location.href === address && parts.form.isConnected && parts.form.contains(parts.editor);
+    });
+    function retireWrites() {
+      foreground = false;
+      globalThis.removeEventListener('blur', retireWrites);
+      document.removeEventListener('visibilitychange', visibility);
+    }
+    function visibility() { if (document.visibilityState !== 'visible') retireWrites(); }
+    globalThis.addEventListener('blur', retireWrites);
+    document.addEventListener('visibilitychange', visibility);
+    const generation = {...parts, id: continuous ? original.target.draftGeneration : crypto.randomUUID(),
+      read: reader.current, retireWrites,
+      writable: () => foreground && reader.current(), retain() { users++; }, release() {
+        if (--users > 0) return;
+        retireWrites(); modes.disconnect(); reader.close();
+        if (registry.witnessGeneration === generation) registry.witnessGeneration = null;
+      }};
+    registry.witnessGeneration = generation;
+    return generation;
+  }
+  function prepareAttachment(binding, generation) {
+    const entries = entryControls(binding), field = directInput(binding, entries);
+    const opener = !field && entries.length === 1 ? entries[0] : null;
+    const original = field || opener, owner = field?.form;
+    if (!original) fail('ATTACHMENT_INPUT_UNAVAILABLE');
+    const receiver = bindOriginalReceiver(original, () => original.isConnected &&
+      (!field || (usableInput(field) && field.form === owner && directInput(binding, entryControls(binding)) === field)));
+    return {field, opener, current: () => generation.writable() && receiver.current(), close: receiver.close};
   }
   function preserveSelection(binding) {
     if (binding.editor.tagName === 'TEXTAREA') {
@@ -751,7 +820,7 @@ function riftletWebAcceptance(command, native) {
       document.addEventListener('click', onClick, true);
       document.addEventListener('pointerdown', userInteraction, true);
       document.addEventListener('keydown', userInteraction, true);
-      for (const entry of entries) surfaces.linked(entry, false);
+      if (!binding.prepared) for (const entry of entries) surfaces.linked(entry, false);
       while (true) {
         const ended = Date.now() >= deadline;
         const valid = validDraft(binding);
@@ -774,10 +843,11 @@ function riftletWebAcceptance(command, native) {
           break;
         }
         if (tied.length === 1) return execute(tied[0][0], true);
-        entries = entryControls(binding);
+        if (!binding.prepared) entries = entryControls(binding);
         diag.entryCandidates = Math.max(diag.entryCandidates, entries.length);
         const local = directInput(binding, entries);
-        if (local) return execute(local);
+        if (local && (!binding.prepared || (invoked.size && (syncMounted.has(local) || surfaces.contains(local)))))
+          return execute(local);
         const mounted = [...document.querySelectorAll('input[type="file"]')].filter(input =>
           !beforeInputs.has(input) && usableInput(input) && !otherOwner(input, binding, own));
         const inPopup = mounted.filter(input => surfaces.contains(input));
@@ -835,7 +905,9 @@ function riftletWebAcceptance(command, native) {
     if (!registry || !contextMatches(target)) return null;
     if (target.clickBindingID) {
       const pinned = registry.clickBindings?.get(target.clickBindingID);
-      return sameTarget(pinned?.target, target) ? pinned : null;
+      if (!sameTarget(pinned?.target, target)) return null;
+      if (pinned.expired?.()) { pinned.releasePrepared(); return null; }
+      return pinned;
     }
     return sameTarget(registry.current?.target, target) ? registry.current : null;
   }
@@ -979,9 +1051,10 @@ function riftletWebAcceptance(command, native) {
   }
   // Keep only a weak node and a change bit, never a signed URL or inline
   // payload. The narrow observer expires even on documents with older registries.
-  function unchangedPreview(imageRef, shellRef, name, boundBlob, figurePreview = false, edgeNodes = null) {
+  function unchangedPreview(imageRef, shellRef, name, boundBlob, figurePreview = false, edgeNodes = null, trackAncestors = false) {
     let changed = false;
     let placement;
+    const ancestors = [shellRef];
     const invalidate = () => { changed = true; observer.disconnect(); placement?.disconnect(); clearTimeout(timer); };
     const inspect = records => {
       if (!records.length) return;
@@ -1022,12 +1095,17 @@ function riftletWebAcceptance(command, native) {
     const moved = records => {
       if (!records.length) return;
       if (records.length > 32 || records.some(record => record.type === 'attributes'
-          || record.removedNodes.length > 32 || [...record.removedNodes].includes(shellRef.deref()))) invalidate();
+          || record.removedNodes.length > 32 || [...record.removedNodes].some(node => ancestors.some(ref => ref.deref() === node)))) invalidate();
     };
     if (figurePreview || edgeNodes) {
       placement = new MutationObserver(moved);
       placement.observe(shellRef.deref().parentElement, figurePreview
         ? {childList:true, attributes:true, attributeFilter:['data-composer-image-attachment']} : {childList:true});
+      if (trackAncestors) {
+        for (let node = shellRef.deref().parentElement; node?.parentElement; node = node.parentElement) {
+          ancestors.push(new WeakRef(node)); placement.observe(node.parentElement, {childList:true});
+        }
+      }
     }
     const timer = setTimeout(invalidate, 600000);
     timer?.unref?.();
@@ -1201,10 +1279,18 @@ function riftletWebAcceptance(command, native) {
     // post-START scan beyond 16 candidates or the retained set beyond four.
     for (const match of [accepted, ...matches.slice(0, 16)]) {
       const {node, card} = match;
+      if (!card || cards.has(card)) continue;
       const image = match.preview.tagName === 'IMG' ? match.preview : null;
+      if (match.displayedName && match === accepted) {
+        const members = [card, match.remove, match.visual, image].map(item => new WeakRef(item));
+        const [shell, remove, visual, preview] = members;
+        views.push({convertedName:match.displayedName, card:shell, parent:new WeakRef(card.parentElement),
+          remove, visual, preview, unchanged:unchangedPreview(preview, shell, match.displayedName, null, false, members, true)});
+        cards.add(card);
+        continue;
+      }
       const labelledImage = image && filename.test(image.getAttribute('alt') || '')
         && visible(image) && !!image.getAttribute('src');
-      if (!card || cards.has(card)) continue;
       const local = inOriginalCardContainer(card, op.binding);
       if (!local && (!card.parentElement || !independentCardPortal(card, op.binding))) continue;
 
@@ -1253,6 +1339,18 @@ function riftletWebAcceptance(command, native) {
   function matchesOriginalCard(op, view, binding, requireError = true) {
     let card = view.card.deref();
     const retainedPreview = view.preview?.deref();
+    if (view.convertedName) {
+      const name = view.convertedName, remove = view.remove.deref(), visual = view.visual.deref();
+      if (!card?.isConnected || card.parentElement !== view.parent.deref() || !inOriginalCardContainer(card, binding)
+          || !view.unchanged() || !visual || visual.parentElement !== card || remove?.parentElement !== card
+          || retainedPreview?.parentElement !== visual || retainedPreview.getAttribute('alt') !== name
+          || !renderedPreview(retainedPreview) || !consistentCardLabels(card, name)) return false;
+      if (!requireError) return true;
+      const retries = [...card.children].filter(child => child !== remove && child.matches('button[type="button"]')
+        && namedFailedRetry(child, name));
+      return ['failed','error'].includes(card.getAttribute('data-state')) && retries.length === 1
+        && renderedPreview(retries[0]) && !blocked(retries[0]) && !retries[0].matches(':disabled');
+    }
     if (!card?.isConnected && view.sameFile && retainedPreview?.isConnected
         && retainedPreview.getAttribute('src') === view.src) {
       // A component can replace its shell while moving the very same preview.
@@ -1338,7 +1436,13 @@ function riftletWebAcceptance(command, native) {
     const stop = () => {
       observer.disconnect();
       clearTimeout(timer);
+      surface.removeEventListener('load', loaded, true);
       op.stopHandoffWatch = null;
+    };
+    // Decoding an inline PNG can finish without a second DOM mutation.
+    const loaded = event => {
+      if (op.converted && event.target instanceof HTMLImageElement && event.target.alt === op.converted.name
+          && performance.now() < deadline && op.binding?.form === surface && sameDraft(op.binding)) sample(op, surface);
     };
     const observer = new MutationObserver(() => {
       if (++batches > 64 || performance.now() >= deadline || !surface.isConnected
@@ -1348,6 +1452,7 @@ function riftletWebAcceptance(command, native) {
     const timer = setTimeout(stop, 10000);
     timer?.unref?.();
     op.stopHandoffWatch = stop;
+    if (op.converted) surface.addEventListener('load', loaded, true);
     observer.observe(surface, {subtree: true, childList: true, attributes: true, characterData: true,
       attributeFilter: ['src', 'alt', 'title', 'aria-label', 'role', 'data-file-name', 'value', 'max',
         'aria-valuenow', 'aria-valuemin', 'aria-valuemax', 'hidden', 'class', 'style']});
@@ -1355,7 +1460,7 @@ function riftletWebAcceptance(command, native) {
   const independentMemberContent = cardSelector + ',' + controlSelector
     + ',input,select,textarea,summary,[role="link"],[role="tab"],[role="checkbox"],[role="switch"],[contenteditable="true"]';
   // A derived data URL must encode the exact input image rendered by this browser.
-  function watchEdgeEncodedPreview(file, name) {
+  function watchEncodedPreview(file, name) {
     // The collector permits 128 MiB and 160M pixels. Comparing encoded bytes
     // needs no extra pixel buffer. Re-encoding uses a smaller display budget.
     const maxEncodedBytes = MAX_BYTES, maxRenderPixels = 16 * 1024 * 1024;
@@ -1365,13 +1470,14 @@ function riftletWebAcceptance(command, native) {
         || top !== self) return null;
     const address = location.href, root = document.documentElement, entry = navigation.currentEntry?.id;
     if (!entry) return null;
-    let image = null, source = null, shell = null, monitor = null, state = 'unavailable', closed = false;
+    let image = null, source = null, shell = null, monitor = null, comparison = null, state = 'unavailable', closed = false;
+    const placement = new Set();
     const timer = setTimeout(close, 60000);
     const current = () => !closed && document.documentElement === root && navigation.currentEntry?.id === entry
       && location.href === address;
     function close() {
       clearTimeout(timer); closed = true;
-      monitor?.disconnect(); monitor = null; file = null; image = null; shell = null; source = null; state = 'unavailable';
+      monitor?.disconnect(); monitor = null; placement.clear(); file = null; image = null; shell = null; source = null; state = 'unavailable';
     }
     // Each slice ends on a three-byte boundary. Do not materialize another
     // full-size URL, byte array or digest input in the browser process.
@@ -1408,7 +1514,32 @@ function riftletWebAcceptance(command, native) {
       }
       return null;
     }
-    async function matches(original, url) {
+    // The site may strip metadata or use a different PNG encoder. Compare
+    // the complete decoded image in sRGB using bounded strips, off the input path.
+    async function samePixels(bitmap) {
+      const width = bitmap.width, height = bitmap.height;
+      const strip = Math.min(height, Math.max(1, Math.floor(131072 / width)));
+      const canvas = new OffscreenCanvas(width, strip);
+      try {
+        const context = canvas.getContext('2d', {colorSpace:'srgb', willReadFrequently:true});
+        if (!context) return false;
+        for (let y = 0; y < height; y += strip) {
+          if (!current() || !image || image.currentSrc !== source) return false;
+          const rows = Math.min(strip, height - y);
+          function read(drawable) {
+            context.clearRect(0, 0, width, rows);
+            context.drawImage(drawable, 0, y, width, rows, 0, 0, width, rows);
+            const bytes = context.getImageData(0, 0, width, rows).data;
+            return new Uint32Array(bytes.buffer, bytes.byteOffset, bytes.byteLength / 4);
+          }
+          const original = read(bitmap), preview = read(image);
+          for (let i = 0; i < original.length; i++) if (original[i] !== preview[i]) return false;
+          if (y + strip < height) await new Promise(resolve => setTimeout(resolve, 0));
+        }
+        return current();
+      } finally { canvas.width = canvas.height = 0; }
+    }
+    async function matches(original, url, converted) {
       const originalPrefix = 'data:' + original.type + ';base64,', pngPrefix = 'data:image/png;base64,';
       if (url.startsWith(originalPrefix) && await identical(original, url, originalPrefix)) return true;
       if (!current() || !url.startsWith(pngPrefix) || typeof OffscreenCanvas !== 'function'
@@ -1421,6 +1552,7 @@ function riftletWebAcceptance(command, native) {
       try {
         if (!current() || bitmap.width * bitmap.height !== size[0] * size[1]
             || bitmap.width !== image.naturalWidth || bitmap.height !== image.naturalHeight) return false;
+        if (converted) return await samePixels(bitmap);
         canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
         const context = canvas.getContext('2d', {colorSpace: 'srgb'});
         if (!context) return false;
@@ -1432,29 +1564,37 @@ function riftletWebAcceptance(command, native) {
       }
       return current() && png.type === 'image/png' && identical(png, url, pngPrefix);
     }
-    const altered = record => record.type === 'attributes' || record.target !== shell?.parentElement
-      || [...record.removedNodes, ...record.addedNodes].includes(shell);
-    function inspect(candidate, card, settled) {
+    const altered = record => record.type === 'attributes' || !placement.has(record.target) || record.target === shell
+      || [...record.removedNodes, ...record.addedNodes].some(node => placement.has(node));
+    function inspect(candidate, card, settled, converted = false) {
       try {
         if (!current()) { close(); return 'unavailable'; }
-        if (!(candidate instanceof HTMLImageElement) || !candidate.isConnected
-            || !candidate.complete || candidate.naturalWidth <= 0) return 'unavailable';
+        if (!(candidate instanceof HTMLImageElement) || !candidate.isConnected) return 'unavailable';
+        const decoded = candidate.complete && candidate.naturalWidth > 0;
+        if (!converted && !decoded) return 'unavailable';
         const src = candidate.getAttribute('src');
-        if (image && (candidate !== image || card !== shell || src !== source || monitor.takeRecords().some(altered))) {
+        if (image && (candidate !== image || card !== shell || src !== source || converted !== comparison || monitor.takeRecords().some(altered))) {
           close(); return 'mismatch';
         }
-        if (image) return candidate.currentSrc === source ? state : 'unavailable';
         if (!src || !(src.startsWith('data:image/png;base64,') || src.startsWith('data:image/jpeg;base64,'))
-            || candidate.currentSrc !== src || src.length > 23 + 4 * Math.ceil(maxEncodedBytes / 3)) return 'unavailable';
-        image = candidate; shell = card; source = src; state = 'encoding';
-        monitor = new MutationObserver(records => { if (records.some(altered)) close(); });
-        monitor.observe(shell, {subtree:true, childList:true, attributes:true,
-          attributeFilter:['src','srcset','alt','title','aria-label','data-file-name']});
-        monitor.observe(shell.parentElement, {childList:true});
+            || (candidate.currentSrc && candidate.currentSrc !== src) || src.length > 23 + 4 * Math.ceil(maxEncodedBytes / 3)) return 'unavailable';
+        if (!image) {
+          image = candidate; shell = card; source = src; comparison = converted; state = 'decoding';
+          monitor = new MutationObserver(records => { if (records.some(altered)) close(); });
+          monitor.observe(shell, {subtree:true, childList:true, attributes:true,
+            attributeFilter:['src','srcset','alt','title','aria-label','data-file-name']});
+          placement.add(shell);
+          for (let node = shell.parentElement; node; node = node.parentElement) {
+            placement.add(node); monitor.observe(node, {childList:true});
+          }
+        }
+        if (!decoded || candidate.currentSrc !== source) return 'unavailable';
+        if (state !== 'decoding') return state;
+        state = 'encoding';
         // Never re-read a changed/replaced card and never start another encode for this input.
         // Serialize only the content comparison, never the user's next input.
         // Waiting jobs do not decode pixels and drop their work when retired.
-        const pending = Promise.resolve(registry.edgeComparisonTail).then(() => current() && matches(file, source));
+        const pending = Promise.resolve(registry.edgeComparisonTail).then(() => current() && matches(file, source, converted));
         const tail = pending.catch(() => false);
         registry.edgeComparisonTail = tail;
         tail.then(() => { if (registry.edgeComparisonTail === tail) registry.edgeComparisonTail = null; });
@@ -1499,6 +1639,57 @@ function riftletWebAcceptance(command, native) {
         return node;
     }
     return null;
+  }
+  const convertedTile = 'div.composer-attachment-surface[class~="group/composer-attachment"]';
+  function convertedBaseline(op, file) {
+    if (!op.binding.target.clickBindingID || op.mediaType !== 'image/png'
+        || op.name !== 'riftlet-' + op.identity.operationID + '.png') return null;
+    const nodes = document.querySelectorAll(convertedTile + ',' + convertedTile + ' > *');
+    if (nodes.length > 512) return null;
+    const comparator = watchEncodedPreview(file, op.name);
+    if (!comparator) return null;
+    return {name:'riftlet-' + op.identity.operationID + '.webp', previous:new WeakSet(nodes), comparator};
+  }
+  function convertedMember(op) {
+    const entry = op.converted;
+    if (!entry || entry.conflict) return null;
+    const name = entry.name;
+    // Both names carry the complete operation UUID. The rendered card is
+    // new: the site removes the earlier .png placeholder altogether.
+    const images = document.querySelectorAll('img[alt="' + name + '"]');
+    if (images.length > 1) entry.conflict = true;
+    if (images.length !== 1) return null;
+    const image = images[0], visual = image.parentElement, card = visual?.parentElement;
+    if (!visual?.matches('span.composer-attachment-surface') || !card?.matches(convertedTile)
+        || !inOriginalCardContainer(card, op.binding) || card.parentElement?.closest(convertedTile + ',' + cardSelector)
+        || op.previewBaseline.has(image) || entry.previous.has(card) || entry.previous.has(visual)
+        || !consistentCardLabels(card, name) || card.querySelectorAll('img').length !== 1
+        || image.hasAttribute('srcset') || !image.getAttribute('src')?.startsWith('data:image/png;base64,')
+        || !renderedPreview(visual) || !renderedPreview(card)) return null;
+    const removeNames = ['移除“' + name + '”', 'Remove ' + name, 'Remove “' + name + '”'];
+    const removes = document.querySelectorAll(removeNames.map(value => 'button[aria-label="' + value + '"]').join(','));
+    const remove = removes[0];
+    if (removes.length > 1) entry.conflict = true;
+    if (removes.length !== 1 || remove.parentElement !== card || entry.previous.has(remove)
+        || remove.disabled || blocked(remove) || card.querySelectorAll('button').length !== 1
+        || card.closest('[role="alert"],[data-state="failed"],[data-state="error"]')
+        || card.querySelector('[role="alert"],[data-state="failed"],[data-state="error"]') || visibleFailureText(card)) return null;
+    // A separate failed view can name this converted member through a retry
+    // or alert without mounting an image or a Remove button.
+    const errors = '[role="alert"],[data-state="failed"],[data-state="error"]';
+    const filename = fileNamePattern(name);
+    const mentions = node => ['aria-label','title','data-file-name'].some(key => filename.test(node.getAttribute(key) || ''))
+      || (node.textContent.length <= 1024 && filename.test(node.textContent));
+    for (const node of document.querySelectorAll(errors + ',button[aria-label*="' + name + '"]')) {
+      if (node === remove || !visible(node)) continue;
+      const owner = node.closest(convertedTile + ',' + errorShellSelector + ',[data-file-name],figure') || node;
+      if ((mentions(node) || mentions(owner)) && (node.closest(errors) || namedFailedRetry(node, name)
+          || owner.matches(errors) || owner.querySelector(errors) || visibleFailureText(owner))) {
+        entry.conflict = true; return null;
+      }
+    }
+    if (entry.comparator.inspect(image, card, () => sample(op), true) !== 'matched' || !renderedPreview(image)) return null;
+    return {node:image, preview:image, card, displayedName:name, remove, visual};
   }
   // Labels, pixels and progress belong to one attachment member.
   function startMember(op, card, filename) {
@@ -1566,7 +1757,104 @@ function riftletWebAcceptance(command, native) {
     }
     return null;
   }
+  // Recovery uses only observations from the original upload in this page. A blank
+  // composer after navigation cannot reconstruct this witness.
+  function recoverySurface(op) {
+    const original = op.binding, layout = original.editor.closest('[data-composer-layout]');
+    if (!original.target.clickBindingID || !layout || !original.form.contains(layout)) return null;
+    const laneSelector = '[class*="ComposerLayoutAttachments-"]';
+    const memberSelector = 'img,progress,[role="progressbar"],[data-file-name],[data-composer-image-attachment],'
+      + '[class~="group/composer-attachment"],button[aria-label^="Remove " i],button[aria-label^="移除 "],'
+      + 'button[aria-label^="Retry uploading " i],span.truncate,[role="alert"],[aria-busy="true"]';
+    function lane() {
+      const lanes = layout.querySelectorAll(laneSelector);
+      if (!lanes.length) return {row: null, cards: []};
+      const [box] = lanes;
+      if (lanes.length !== 1 || box.closest('[data-composer-layout]') !== layout || box.children.length !== 1
+          || !box.firstElementChild.matches('div.flex')) return null;
+      const row = box.firstElementChild;
+      return row.children.length <= 32 ? {row, cards: [...row.children]} : null;
+    }
+    const baseline = lane();
+    if (!baseline) return null;
+    const baseRow = baseline.row && new WeakRef(baseline.row);
+    const priorCards = baseline.cards.map(card => new WeakRef(card));
+    const priorMembers = new WeakSet(baseline.cards);
+    const ownNames = [op.name, op.name.replace(/\.png$/i,'.webp')];
+    const selectors = ownNames.flatMap(name => ['[aria-label="Remove '+name+'" i]','[aria-label="移除 '+name+'" i]',
+      '[aria-label="Retry uploading '+name+'" i]','[data-file-name="'+name+'" i]','[alt="'+name+'" i]',
+      '[title="'+name+'" i]','[aria-label="'+name+'" i]']).join(',');
+    if (document.querySelector(selectors)) return null;
+    const removeSelector = ownNames.flatMap(name => ['button[aria-label="Remove '+name+'" i]',
+      'button[aria-label="移除 '+name+'" i]']).join(',');
+    const outsideLane = row => [...original.form.querySelectorAll(memberSelector)].some(n =>
+      !original.editor.contains(n) && !row?.contains(n));
+    if (outsideLane(baseline.row)) return null;
+    // Invalidate existing members in place without retaining filenames, image
+    // bytes, links or editor text. A mutation and reversal remain observable.
+    let priorChanged = false;
+    const mark = records => {
+      if (records.some(r => r.target !== baseRow?.deref() ||
+          [...r.removedNodes].some(n => priorMembers.has(n)))) priorChanged = true;
+    };
+    const watcher = priorCards.length ? new MutationObserver(mark) : null;
+    if (watcher) {
+      watcher.observe(baseline.row,{childList:true});
+      for (const card of baseline.cards) watcher.observe(card,{childList:true,subtree:true,characterData:true,
+        attributes:true,attributeFilter:['data-file-name','aria-label','title','alt','src','data-state','aria-busy','aria-valuenow','value']});
+    }
+    const root = document.documentElement, entry = navigation.currentEntry?.id;
+    let ownCard = null, observedRow = null;
+    function observeMember() {
+      if (ownCard || !op.inputCount || !op.changeReturned || performance.now() - op.inputTime > 10000) return;
+      const snapshot = lane();
+      if (!snapshot?.row) return;
+      const controls = [...snapshot.row.querySelectorAll(removeSelector)];
+      if (controls.length !== 1) return;
+      const card = snapshot.cards.find(n => n.contains(controls[0]));
+      if (card && renderedPreview(card) && !priorMembers.has(card) && card.querySelectorAll(removeSelector).length === 1 &&
+          [...document.querySelectorAll(selectors)].every(n => card.contains(n))) {
+        ownCard = new WeakRef(card); observedRow = new WeakRef(snapshot.row);
+      }
+    }
+    function check(destination, failure) {
+      if (!ownCard || !entry || navigation.currentEntry?.id !== entry || root !== document.documentElement ||
+          original.form !== destination.form || original.editor !== destination.editor || !sameDraft(original) ||
+          !original.form.contains(layout) || original.editor.closest('[data-composer-layout]') !== layout) return false;
+      const snapshot = lane();
+      if (!snapshot || outsideLane(snapshot.row) || (baseRow && baseRow.deref() !== snapshot.row) ||
+          (snapshot.row && snapshot.row !== observedRow.deref())) return false;
+      const card = ownCard.deref();
+      if (failure ? !card || failure !== card || !snapshot.cards.includes(card) : card?.isConnected) return false;
+      const remaining = snapshot.cards.filter(n => n !== failure);
+      if (remaining.length !== priorCards.length || [...document.querySelectorAll(selectors)].some(n => !failure?.contains(n)))
+        return false;
+      if (watcher) mark(watcher.takeRecords());
+      return !priorChanged && remaining.every((member, i) => member === priorCards[i].deref());
+    }
+    return {observeMember,check,close:() => watcher?.disconnect()};
+  }
+
+  function permitsRecovery(source, destination, ownsInputLane = false) {
+    if (!source || !destination || !uuid(source.invocationID) || !source.identity) return false;
+    const owner = source.identity, prior = registry?.operations.get(owner.operationID);
+    if (!prior?.recoverySurface || !sameIdentity(prior.identity, owner) || prior.invocationID !== source.invocationID ||
+        prior.inputCount !== 1 || !prior.changeReturned || prior.executionPending || (!ownsInputLane && registry.busy.has(destination.form)) ||
+        !owner.target.clickBindingID || !destination.target.clickBindingID ||
+        owner.target.clickBindingID === destination.target.clickBindingID ||
+        !sameTarget({...owner.target,clickBindingID:destination.target.clickBindingID}, destination.target)) return false;
+    if ((source.startEvidenceID || null) !== (prior.start?.evidenceID || null)) return false;
+    const observedFailure = prior.reportedCardFailure?.() || prior.acceptedErrorShell?.();
+    const member = currentNamedFailure(prior, destination);
+    if (source.failureAttachmentID != null) {
+      if (!member || member !== observedFailure ||
+          source.failureAttachmentID !== (prior.start ? prior.attachmentID : prior.failureMemberID)) return false;
+      return prior.recoverySurface.check(destination, member);
+    }
+    return !member && !prior.reportedCardFailure && prior.recoverySurface.check(destination, null);
+  }
   function sample(op, surface = null) {
+    op.recoverySurface?.observeMember();
     // The app may disable or remove its picker after accepting this file.
     // Observing that handoff needs the original draft, not another input slot.
     if (op.start || op.reportedCardFailure || !op.changeReturned || !sameDraft(op.binding)) return;
@@ -1575,6 +1863,7 @@ function riftletWebAcceptance(command, native) {
       op.reportedCardFailure = retainFailureShell(failedShell, failureShellParts(failedShell, op.binding, op.name));
       op.failureMemberID = registry.documentID + ':' + nodeID(failedShell);
       op.stopHandoffWatch?.(); op.encodedPreview?.close(); op.encodedPreview = null;
+      op.converted?.comparator.close(); op.converted = null;
       return;
     }
     if (!surface) registry.blobWindowUntil = performance.now() + 10000;
@@ -1610,6 +1899,8 @@ function riftletWebAcceptance(command, native) {
       if (match && native.applicationID === 'com.microsoft.edgemac' && (hasError(card) || visibleFailureText(card))) continue;
       if (match) matches.push(match);
     }
+    const converted = convertedMember(op);
+    if (converted) matches.push(converted);
     if (!matches.length) return;
     // Keep the ordinary whole-document veto for conflicting same-file error
     // views, while unrelated composer edits only inspect the composer.
@@ -1632,7 +1923,8 @@ function riftletWebAcceptance(command, native) {
       op.acceptedErrorBinding = new WeakRef(op.binding);
     }
     op.encodedPreview?.close(); op.encodedPreview = null;
-    op.binding = null; op.baseline.clear(); op.previewBaseline = null; op.urls.clear();
+    op.converted?.comparator.close();
+    op.binding = null; op.baseline.clear(); op.previewBaseline = null; op.converted = null; op.urls.clear();
   }
   function observe(op) {
     sample(op);
@@ -1680,29 +1972,107 @@ function riftletWebAcceptance(command, native) {
       if (!uuid(pin)) fail('CLICK_PIN_REFUSED');
       // Multiple clicks on the same continuously mounted editor share their
       // scheduling generation. The per-click input authority remains distinct.
-      const generation = registry.witnessGeneration;
-      if (!generation || generation.editor !== parts.editor || generation.form !== parts.form
-          || generation.navigationID !== navigation.currentEntry.id || generation.address !== location.href) {
-        registry.witnessGeneration = {editor: parts.editor, form: parts.form, navigationID: navigation.currentEntry.id,
-          address: location.href, id: crypto.randomUUID()};
-      }
+      if (registry.clickBindings?.has(pin)) fail('CLICK_PIN_REFUSED');
+      const generation = composerGeneration(parts);
+      generation.retain();
       const target = {adapterID: 'chatgpt-web', surface: 'webChat', ...native, clickBindingID: pin,
         documentID: registry.documentID, composerID: nodeID(parts.editor) + ':' + nodeID(parts.form),
-        draftGeneration: registry.witnessGeneration.id};
+        draftGeneration: generation.id};
       const address = new URL(route());
       const id = address.origin === 'https://chatgpt.com' && /^\/(?:g\/[a-zA-Z0-9_-]+\/)?c\/([^/]+)\/?$/.exec(address.pathname)?.[1];
       if (uuid(id)) target.historyConversationID = id.toUpperCase();
       const pinned = {...parts, target, route: route(), navigation: registry.navigation};
-      if (registry.clickBindings?.has(pin) || !validDraft(pinned)) fail('CLICK_PIN_REFUSED');
-      // The write witness expires on blur. A read may continue on that same
-      // document and composer until navigation or removal, including after focus returns.
-      const href = location.href;
-      const reader = bindOriginalReceiver(parts.editor, () => location.href === href &&
-        parts.form.isConnected && parts.editor.isConnected && parts.form.contains(parts.editor));
-      pinned.readOriginal = reader.current;
-      setTimeout(() => { reader.close(); registry.clickBindings.delete(pin); }, 600000)?.unref?.();
-      registry.clickBindings ||= new Map();
-      registry.clickBindings.set(pin, pinned);
+      const pending = registry.preparedTargets ||= new Map();
+      const bindings = registry.clickBindings ||= new Map();
+      let epoch = leaseClock, timer, forgotten = false;
+      const remaining = (start = epoch) => 600000 - Math.max(performance.now() - start.monotonic, Date.now() - start.wall);
+      function arm(start) {
+        clearTimeout(timer); epoch = start;
+        function expire() {
+          if (epoch !== start || forgotten || pinned.enrolled) return;
+          const wait = remaining();
+          if (wait <= 0) forget();
+          else { timer = setTimeout(expire, Math.ceil(wait)); timer?.unref?.(); }
+        }
+        expire();
+      }
+      function forget() {
+        if (forgotten) return;
+        forgotten = true; clearTimeout(timer);
+        pending.delete(pin); bindings.delete(pin);
+        pinned.prepared?.close();
+        parts.editor.dispatchEvent(new Event('riftlet-witness-editor-' + pin));
+        generation.release();
+      }
+      try {
+        if (!validDraft(pinned)) fail('CLICK_PIN_REFUSED');
+        pinned.prepared = prepareAttachment(pinned, generation);
+        if (!validDraft(pinned)) fail('CLICK_PIN_REFUSED');
+      } catch (error) { forget(); throw error; }
+      pinned.readOriginal = generation.read;
+      pinned.releasePrepared = forget;
+      pinned.expired = () => !pinned.enrolled && remaining() <= 0;
+      pinned.reclaimable = () => !pinned.enrolled && (pinned.expired() || !pinned.prepared.current() || !sameDraft(pinned, true));
+      pinned.renew = start => {
+        const pendingOriginal = () => !pinned.enrolled && pending.get(pin) === pinned;
+        if (!pendingOriginal()) return false;
+        const opener = pinned.prepared.opener, entries = opener && entryControls(pinned);
+        if (!validDraft(pinned) || (opener && (entries.length !== 1 || entries[0] !== opener)) ||
+            !pendingOriginal() || pinned.expired() || remaining(start) <= 0) {
+          if (pendingOriginal()) forget();
+          return false;
+        }
+        arm(start);
+        return pendingOriginal();
+      };
+      pinned.enroll = () => {
+        if (pinned.expired()) { forget(); fail('TARGET_INVALID'); }
+        pinned.enrolled = true; pending.delete(pin); clearTimeout(timer);
+        timer = setTimeout(forget, 600000); timer?.unref?.();
+      };
+      // The native generation is issued only after taking one profile's
+      // exclusive kernel lock. Retire only pending receivers from a proven
+      // predecessor of that profile. Other live profiles and enrolled
+      // operations retain their original identity and read-only recovery.
+      const owner = command.preparationOwner;
+      if (owner != null) {
+        if (typeof owner.scope !== 'string' || !/^[0-9a-f]{64}$/.test(owner.scope) ||
+            typeof owner.generation !== 'string' || !/^[0-9a-f]{16}$/.test(owner.generation)) {
+          forget(); fail('CLICK_PIN_REFUSED');
+        }
+        const generations = registry.preparationGenerations ||= new Map();
+        const recent = generations.get(owner.scope);
+        const previous = [...pending.values()].filter(item => !item.enrolled && item.preparationOwner?.scope === owner.scope);
+        if ((recent && recent.generation > owner.generation) || previous.some(item => item.preparationOwner.generation > owner.generation)) {
+          forget(); fail('CLICK_PIN_REFUSED');
+        }
+        for (const item of previous) if (item.preparationOwner.generation < owner.generation) item.releasePrepared();
+        if (!recent || recent.generation !== owner.generation) {
+          clearTimeout(recent?.timer);
+          const entry = {generation: owner.generation};
+          generations.set(owner.scope, entry);
+          // An already issued capture has a much shorter native deadline.
+          // Keep the fence even if every pending receiver has been consumed.
+          entry.timer = setTimeout(() => {
+            if (generations.get(owner.scope) === entry) generations.delete(owner.scope);
+          }, 600000);
+          entry.timer?.unref?.();
+        }
+        pinned.preparationOwner = Object.freeze({scope: owner.scope, generation: owner.generation});
+      }
+      // A pending lease can already be frozen at mouse-down while begin is queued.
+      // Capacity pressure alone can never revoke it. Reclaim only expired or
+      // irreversibly invalid receivers; older unknown implementations stay protected.
+      if (pending.size >= 3) for (const existing of pending.values()) {
+        if (existing.reclaimable?.()) existing.releasePrepared();
+      }
+      if (pending.size >= 3) { forget(); fail('CLICK_PIN_LIMIT'); }
+      bindings.set(pin, pinned); pending.set(pin, pinned);
+      if (parts.editor.dispatchEvent(new Event('riftlet-witness-editor-' + pin, {bubbles: true, cancelable: true})) || pinned.expired()) {
+        forget(); fail('CLICK_PIN_REFUSED');
+      }
+      arm(leaseClock);
+      if (forgotten) fail('CLICK_PIN_REFUSED');
       return target;
     }
     if (native.applicationID === 'com.microsoft.edgemac') fail('CLICK_PIN_REFUSED');
@@ -1717,7 +2087,18 @@ function riftletWebAcceptance(command, native) {
     }
     return registry.current.target;
   }
+  if (command.action === 'validate' && command.recoverySource) {
+    const proposed = registry?.clickBindings?.get(command.target?.clickBindingID);
+    return {target: command.target, valid: sameTarget(proposed?.target,command.target) && sameDraft(proposed)
+      && permitsRecovery(command.recoverySource,proposed), recoveryChecked:true};
+  }
   const binding = bindingFor(command.target);
+  if (command.action === 'renewPreparedTarget')
+    return {target: command.target, valid: binding?.renew?.(leaseClock) === true};
+  if (command.action === 'releasePreparedTarget') {
+    if (!binding?.releasePrepared || binding.enrolled) return {released: false};
+    binding.releasePrepared(); return {released: true};
+  }
   if (command.action === 'validate') {
     const readPinnedOriginal = command.requireLiveOriginal === true && binding?.target.clickBindingID;
     return {target: command.target, valid: readPinnedOriginal ? sameDraft(binding) : validDraft(binding)};
@@ -1728,6 +2109,11 @@ function riftletWebAcceptance(command, native) {
   let op = registry?.operations.get(identity.operationID);
   if (command.action === 'begin') {
     if (!validDraft(binding) || (binding.target.clickBindingID && binding.enrolled)) fail('TARGET_INVALID');
+    const predecessor = command.recoverySource;
+    if (predecessor && (!permitsRecovery(predecessor, binding) || predecessor.identity.operationID === identity.operationID ||
+        predecessor.invocationID === command.invocationID || predecessor.identity.assetID !== identity.assetID ||
+        predecessor.identity.assetSHA256 !== identity.assetSHA256 || identity.attempt <= predecessor.identity.attempt))
+      fail('TARGET_INVALID');
     const namePrefix = 'riftlet-' + identity.operationID + '.';
     if (op || !uuid(identity.operationID) || !uuid(identity.assetID) || !uuid(command.invocationID)
         || !Number.isSafeInteger(identity.attempt) || identity.attempt < 1 || !/^[a-f0-9]{64}$/.test(identity.assetSHA256)
@@ -1735,14 +2121,15 @@ function riftletWebAcceptance(command, native) {
         || !/^[a-z0-9]{1,16}$/i.test(command.uploadName.slice(namePrefix.length))
         || typeof command.mediaType !== 'string' || !/^image\/[a-z0-9][a-z0-9.+-]{0,63}$/i.test(command.mediaType)
         || !Number.isSafeInteger(command.byteCount) || command.byteCount < 1 || command.byteCount > MAX_BYTES) fail('BEGIN_REFUSED');
-    op = {identity: JSON.parse(JSON.stringify(identity)), invocationID: command.invocationID, binding,
+    op = {identity: JSON.parse(JSON.stringify(identity)), recoverySource: predecessor, invocationID: command.invocationID, binding,
       name: command.uploadName, mediaType: command.mediaType, size: command.byteCount, chunks: [], received: 0, nextChunk: 0,
       committed: false, discarded: false, inputCount: 0, changeReturned: false, retirement: null,
       baseline: new Set(), urls: new Set(), start: null};
-    if (binding.target.clickBindingID) binding.enrolled = true;
+    if (binding.enroll) binding.enroll();
+    else if (binding.target.clickBindingID) binding.enrolled = true;
     registry.operations.set(identity.operationID, op);
     registry.scheduleRetirement(registry.operations, identity.operationID, op);
-    return acknowledgement(op, 0);
+    return predecessor ? {...acknowledgement(op, 0), recoveryBoundInvocationID: predecessor.invocationID} : acknowledgement(op, 0);
   }
   if (!op || !sameIdentity(op.identity, identity)) {
     if (command.action === 'observe') return blank(identity, 'invalidated');
@@ -1821,9 +2208,12 @@ function riftletWebAcceptance(command, native) {
       return retire('attachmentInputNotCreated', 'handoff', 'inputLost');
     if (op.discoveryDeadline && Date.now() >= op.discoveryDeadline)
       return retire('attachmentInputNotCreated', 'handoff', 'timeout');
+    const originalBinding = op.binding;
+    op.recoverySurface = op.mediaType === 'image/png' ? recoverySurface(op) : null;
     op.oldErrorMembers = failureShellBeforeInput(op.name);
     op.previewBaseline = new WeakMap([...document.querySelectorAll(previewSelector)].map(node => [node, previewValue(node)]));
-    if (native.applicationID === 'com.microsoft.edgemac') op.encodedPreview = watchEdgeEncodedPreview(file, op.name);
+    op.converted = convertedBaseline(op, file);
+    if (native.applicationID === 'com.microsoft.edgemac') op.encodedPreview = watchEncodedPreview(file, op.name);
     registry.files.set(file, op);
     const writingForm = op.binding.form;
     registry.writingInputs ||= new WeakSet();
@@ -1834,7 +2224,11 @@ function riftletWebAcceptance(command, native) {
       const originalForm = input.form;
       receiver = bindOriginalReceiver(input, () => validDraft(op.binding) && usableInput(input) &&
         input.form === originalForm && (invoked || input.isConnected));
+      let recoveryRefused = false;
       const writeFiles = receiver.once(function(files) {
+        if (op.recoverySource && !permitsRecovery(op.recoverySource, op.binding, true)) {
+          recoveryRefused = true; return;
+        }
         op.inputCount = 1; op.inputSequence = tick(); op.inputTime = performance.now();
         op.blobSerialBeforeInput = registry.blobSerial ?? 0;
         registry.blobWindowUntil = op.inputTime + 10000;
@@ -1842,11 +2236,13 @@ function riftletWebAcceptance(command, native) {
         Reflect.apply(setter, this, [files]);
       });
       const notifyInput = receiver.once(input.dispatchEvent), notifyChange = receiver.once(input.dispatchEvent);
-      if (!writeFiles(transfer.files)) return retire('targetInvalidBeforeInput', 'setter', 'targetChanged');
+      if (!writeFiles(transfer.files) || recoveryRefused) return retire('targetInvalidBeforeInput', 'setter', 'targetChanged');
       diag.stage = 'change';
       if (notifyInput(new Event('input', {bubbles: true, composed: true})) &&
           notifyChange(new Event('change', {bubbles: true}))) {
         op.changeReturned = true; diag.changeReturned = true; diag.stage = 'observation';
+        if (op.recoverySurface && registry.witnessGeneration?.id === originalBinding.target.draftGeneration)
+          registry.recoveryDraft = new WeakRef(originalBinding);
       } else {
         diag.cause = 'deliveryUncertain';
       }
@@ -1867,15 +2263,20 @@ function riftletWebAcceptance(command, native) {
     if (!validDraft(op.binding)) return retire('targetInvalidBeforeInput', 'prepare', 'targetChanged');
     const entries = entryControls(op.binding);
     diag.entryCandidates = entries.length;
+    const prepared = op.binding.prepared;
     const input = directInput(op.binding, entries);
-    if (input) {
+    if (prepared?.field && input !== prepared.field)
+      return retire('targetInvalidBeforeInput', 'prepare', 'targetChanged');
+    if (input && (!prepared || input === prepared.field)) {
       const restore = preserveSelection(op.binding);
       try { diag.stage = 'direct'; return execute(input); }
       finally { restore(); }
     }
     diag.stage = 'entry'; op.executionPending = true;
     op.discoveryDeadline = Date.now() + 3000;
-    return discoverThroughEntry(op, entries, execute, retire);
+    if (prepared && (!prepared.opener || !entries.includes(prepared.opener)))
+      return retire('attachmentEntryUnavailable', 'entry', 'entryUnavailable');
+    return discoverThroughEntry(op, prepared ? [prepared.opener] : entries, execute, retire);
   };
   // One active discovery may observe page-wide picker methods. Another
   // screenshot queues its own original command; discovering the first picker

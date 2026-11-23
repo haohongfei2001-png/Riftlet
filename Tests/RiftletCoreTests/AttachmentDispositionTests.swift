@@ -104,11 +104,14 @@ final class AttachmentDispositionTests: XCTestCase {
         let original = try await reopened.operation(id: first.id)
         XCTAssertEqual(staged.visibility, .visible)
         XCTAssertEqual(original?.phase, .unknown)
-        let selection = AcceptedSelection(assetID: asset.id, target: adapter.target, visibilityRevision: staged.visibilityRevision)
+        let selection = AcceptedSelection(assetID: asset.id, target: adapter.freshTarget(), visibilityRevision: staged.visibilityRevision)
         try await core.reattach(selection, replacing: first.id)
         for _ in 0..<100 where await core.hasInFlightAttachmentWork { try await Task.sleep(nanoseconds: 2_000_000) }
         let attempts = await adapter.attempts
         XCTAssertEqual(attempts, [2])
+        let appendedSources = await adapter.appendedSources
+        XCTAssertEqual(appendedSources.map(\.invocationID), [invocation])
+        XCTAssertEqual(appendedSources.first?.originalStart, accepted)
         let previousReceipt = try await reopened.uploadStartReceipt(for: first.id)
         let previousCall = try await reopened.dispatchInvocationID(for: first.id)
         let previousOperation = try await reopened.operation(id: first.id)
@@ -144,14 +147,14 @@ final class AttachmentDispositionTests: XCTestCase {
         let stillProtected = try await reopened.cleanableMedia()
         XCTAssertTrue(stillProtected.isEmpty)
         let staged = try await reopened.stageAttachmentForReattach(operationID: old.id)
-        let wrong = AcceptedSelection(assetID: asset.id, target: adapter.target, visibilityRevision: staged.visibilityRevision - 1)
+        let wrong = AcceptedSelection(assetID: asset.id, target: adapter.freshTarget(), visibilityRevision: staged.visibilityRevision - 1)
         do {
             try await core.reattach(wrong, replacing: old.id)
             XCTFail("A stale click initiated a replacement")
         } catch RiftletError.invalidTransition {}
         let unchanged = try await reopened.operation(id: old.id)
         XCTAssertEqual(unchanged?.phase, .dispatchIntent)
-        let click = AcceptedSelection(assetID: asset.id, target: adapter.target, visibilityRevision: staged.visibilityRevision)
+        let click = AcceptedSelection(assetID: asset.id, target: adapter.freshTarget(), visibilityRevision: staged.visibilityRevision)
         try await core.reattach(click, replacing: old.id)
         for _ in 0..<100 where await core.hasInFlightAttachmentWork { try await Task.sleep(nanoseconds: 2_000_000) }
         let attempts = await adapter.attempts
@@ -166,13 +169,151 @@ final class AttachmentDispositionTests: XCTestCase {
         XCTAssertEqual(nowCleanable.map(\.id), [asset.id])
     }
 
+    func testUnknownReselectionRequiresNewPinSameDraftAndLivePermission() async throws {
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let url = dir.appendingPathComponent("queue.sqlite")
+        let store = try QueueStore(databaseURL: url)
+        let adapter = DispositionAdapter()
+        let image = ImportedAsset(sourceKey: "unknown", fileName: "original.png", sha256: String(repeating: "1", count: 64),
+            byteCount: 1, pixelWidth: 1, pixelHeight: 1, mediaType: "image/png", origin: .synthetic)
+        try Data([1]).write(to: dir.appendingPathComponent(image.fileName))
+        _ = try await store.importAsset(image)
+        let old = try await store.prepare(assetID: image.id, target: adapter.target)
+        let owner = UUID()
+        let invocation = try await store.markIndependentFileInputIntent(old.id, ownerID: owner)
+        let policy = ReceiptPolicy(syntheticUploadStartProfiles: ["fixture-start": .webChat])
+        let start = adapter.start(old, image)
+        _ = try await store.apply(start, policy: policy)
+        try await store.recordAppendReturned(start, invocationID: invocation, ownerID: owner)
+        try await store.markUnknown(old.id, reason: "Original result uncertain")
+        let sql = try SQLiteDatabase(url: url)
+        func originalLedger() throws -> [[String?]] {
+            try sql.rows("SELECT * FROM operations WHERE id=?", [old.id.uuidString]) +
+                sql.rows("SELECT * FROM upload_starts WHERE operation_id=?", [old.id.uuidString]) +
+                sql.rows("SELECT * FROM checkpoints WHERE key=?", ["transfer-dispatch-call-v1:" + old.id.uuidString])
+        }
+        let before = try originalLedger()
+        let staged = try await store.stageAttachmentForReattach(operationID: old.id)
+        let core = TransferCoordinator(store: store, adapter: adapter, mediaDirectory: dir, policy: policy,
+            validateAcceptedSelection: { $0.isValid() })
+        func click(_ target: TargetLease) -> AcceptedSelection {
+            AcceptedSelection(assetID: image.id, target: target, visibilityRevision: staged.visibilityRevision)
+        }
+        for denied in [old.target, adapter.freshTarget(document: "another"), adapter.freshTarget(epoch: "renewed")] {
+            do { try await core.reattach(click(denied), replacing: old.id); XCTFail("Stale or different draft accepted") }
+            catch RiftletError.invalidTransition {}
+        }
+        await adapter.setCanRecover(false)
+        do { try await core.reattach(click(adapter.freshTarget()), replacing: old.id); XCTFail("Original card still present") }
+        catch RiftletError.invalidTransition {}
+        XCTAssertEqual(try originalLedger(), before)
+        XCTAssertEqual(try sql.rows("SELECT COUNT(*) FROM operations"), [["1"]])
+        await adapter.setCanRecover(true)
+        let first = click(adapter.freshTarget()), second = click(adapter.freshTarget())
+        async let selectionOne: Void? = try? core.reattach(first, replacing: old.id)
+        async let selectionTwo: Void? = try? core.reattach(second, replacing: old.id)
+        _ = await (selectionOne, selectionTwo)
+        for _ in 0..<100 where await core.hasInFlightAttachmentWork { try await Task.sleep(nanoseconds: 2_000_000) }
+        let asset = try await store.asset(id: image.id)
+        let newID = try XCTUnwrap(asset?.activeOperationID)
+        XCTAssertNotEqual(newID, old.id)
+        let newInvocation = try await store.dispatchInvocationID(for: newID)
+        XCTAssertNotNil(newInvocation)
+        XCTAssertNotEqual(invocation, newInvocation)
+        XCTAssertEqual(try originalLedger(), before)
+        XCTAssertEqual(try sql.rows("SELECT successor_id,predecessor_id FROM attachment_reselections"), [[newID.uuidString, old.id.uuidString]])
+        XCTAssertEqual(try sql.rows("SELECT COUNT(*) FROM upload_starts"), [["2"]])
+        let attempts = await adapter.attempts
+        XCTAssertEqual(attempts, [2])
+        let reopened = try QueueStore(databaseURL: url)
+        let nextCoordinator = TransferCoordinator(store: reopened, adapter: adapter, mediaDirectory: dir)
+        try await nextCoordinator.recover()
+        XCTAssertEqual(try originalLedger(), before)
+        XCTAssertEqual(try sql.rows("SELECT COUNT(*) FROM operations"), [["2"]])
+    }
+
+    func testPreInputCancellationRestoresOriginalGuardAndConcurrentStoresCannotSpendSameRecovery() async throws {
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let path = dir.appendingPathComponent("queue.sqlite")
+        let left = try QueueStore(databaseURL: path)
+        let right = try QueueStore(databaseURL: path)
+        let adapter = DispositionAdapter()
+        let image = ImportedAsset(sourceKey: "original", fileName: "original.png", sha256: String(repeating: "a", count: 64),
+            byteCount: 10, pixelWidth: 1, pixelHeight: 1, mediaType: "image/png", origin: .systemScreenshot)
+        _ = try await left.importAsset(image)
+        let old = try await left.prepare(assetID: image.id, target: adapter.target)
+        let owner = UUID()
+        let invocation = try await left.markIndependentFileInputIntent(old.id, ownerID: owner)
+        let sql = try SQLiteDatabase(url: path)
+        func originalLedger() throws -> [[String?]] {
+            try sql.rows("SELECT * FROM operations WHERE id=?", [old.id.uuidString]) +
+                sql.rows("SELECT * FROM upload_starts WHERE operation_id=?", [old.id.uuidString]) +
+                sql.rows("SELECT * FROM checkpoints WHERE key LIKE ?", ["%" + old.id.uuidString])
+        }
+        let before = try originalLedger()
+        let source = try await left.attachmentRecoverySource(operationID: old.id)
+        let a = adapter.freshTarget(), b = adapter.freshTarget()
+        async let first: TransferOperation? = try? left.prepare(assetID: image.id, target: a, replacing: source)
+        async let other: TransferOperation? = try? right.prepare(assetID: image.id, target: b, replacing: source)
+        let attempts = await [first, other].compactMap { $0 }
+        XCTAssertEqual(attempts.count, 1)
+        let tentative = try XCTUnwrap(attempts.first)
+        try await right.recoverUndispatchedPreparations()
+        let restored = try await right.asset(id: image.id)
+        XCTAssertEqual(restored?.activeOperationID, old.id)
+        let noBypass = try await right.prepare(assetID: image.id, target: adapter.freshTarget(document: "different"))
+        XCTAssertEqual(noBypass.id, old.id)
+        let retained = try await right.operation(id: tentative.id)
+        XCTAssertEqual(retained?.phase, .failed)
+        // A different writer still holding the old invocation can deliver these
+        // callbacks after the original becomes the active recovery source again.
+        try await left.markUnknown(old.id, reason: "Late fallback")
+        let late = adapter.start(old, image)
+        _ = try await left.apply(late)
+        do { try await left.recordAppendReturned(late, invocationID: invocation, ownerID: owner); XCTFail("Changed old return") }
+        catch RiftletError.mismatchedReceipt {}
+        do { try await left.recordInputExecutionReturned(operationID: old.id, invocationID: invocation, ownerID: owner); XCTFail("Changed old call") }
+        catch RiftletError.mismatchedReceipt {}
+        let noInput = PreInputRejection(operationID: old.id, assetID: image.id, attempt: old.attempt,
+            assetSHA256: image.sha256, target: old.target, invocationID: invocation, stage: .pageRetiredBeforeCommit)
+        do { try await left.recordPreInputRejection(noInput); XCTFail("Reclassified old invocation") }
+        catch RiftletError.mismatchedReceipt {}
+        do { try await left.saveCheckpoint(Data([0]), for: "transfer-dispatch-call-v1:" + old.id.uuidString); XCTFail("Overwrote original invocation") }
+        catch RiftletError.database {}
+        do { _ = try await left.claimDispatchCheckpoint(Data([1]), for: "late-registration", operation: source.operation, asset: image); XCTFail("Enrolled old dispatch") }
+        catch RiftletError.invalidTransition {}
+        try await left.recoverInterruptedOperations()
+        XCTAssertEqual(try originalLedger(), before)
+        let again = try await right.prepare(assetID: image.id, target: adapter.freshTarget(), replacing: source)
+        XCTAssertEqual(again.attempt, 3)
+        XCTAssertEqual(try sql.rows("SELECT COUNT(*) FROM attachment_reselections"), [["2"]])
+        XCTAssertEqual(try sql.rows("PRAGMA foreign_key_check"), [])
+    }
+
 }
 
-private actor DispositionAdapter: IndependentFileInputAdapter {
+private actor DispositionAdapter: OriginalAttachmentRecoveryChecking {
     nonisolated let id = "test-adapter"
     nonisolated let supportsOriginalHandoffChecks = true
     nonisolated let target = TargetLease(adapterID: "test-adapter", surface: .webChat, applicationID: "com.google.Chrome",
         sessionID: "fixture", windowID: "1", tabID: "1", documentID: "doc", composerID: "composer", draftGeneration: "1", clickBindingID: UUID())
+    nonisolated func freshTarget(document: String = "doc", epoch: String = "1") -> TargetLease {
+        TargetLease(adapterID: id, surface: .webChat, applicationID: target.applicationID,
+                    sessionID: target.sessionID, windowID: target.windowID, tabID: target.tabID,
+                    documentID: document, composerID: target.composerID, draftGeneration: epoch, clickBindingID: UUID())
+    }
+    var canRecover = true
+    func setCanRecover(_ value: Bool) { canRecover = value }
+    func checkRecovery(_ original: TransferRequest, destination: TargetLease) -> Bool {
+        guard let source = original.recoverySource else { return false }
+        return canRecover && original.requireLiveOriginal && original.operation == source.operation &&
+            original.invocationID == source.invocationID && source.permitsDestination(destination)
+    }
+    var appendedSources = [AttachmentRecoverySource]()
     var attempts = [Int]()
     var observedInvocations = [UUID]()
     nonisolated func start(_ op: TransferOperation, _ asset: ImportedAsset) -> TransferReceipt {
@@ -182,8 +323,9 @@ private actor DispositionAdapter: IndependentFileInputAdapter {
                 evidenceID: "fixture", inputCount: 1))
     }
     func captureTarget() throws -> TargetLease { throw RiftletError.invalidTransition }
-    func validate(_ target: TargetLease) -> Bool { target == self.target }
+    func validate(_ target: TargetLease) -> Bool { target.documentID == self.target.documentID && target.draftGeneration == self.target.draftGeneration }
     func append(_ request: TransferRequest) -> TransferReceipt {
+        if let original = request.recoverySource { appendedSources.append(original) }
         attempts.append(request.operation.attempt)
         return start(request.operation, request.asset)
     }

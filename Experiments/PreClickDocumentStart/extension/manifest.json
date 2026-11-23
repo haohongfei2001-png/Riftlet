@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Riftlet original document experiment",
+  "version": "0.1.0",
+  "minimum_chrome_version": "106",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAslklR7+z1KZLTQakHF479mugSTcRqvB7U0hmyoYFprE90sfBFnMR3A5Gp++dErGqSUsqFw56xzut1g2DhKOQzkQP5Mgc+zsfhExrmeIow4GYZPWrH0Nq+YRr+yAo+hyU9g+rogSfav2N3s5KgffSv7kMcWhN15EmUX7KduBQ5RuywStlHXs5i1UY38DvTxMAUdkZ0e/nT2IKOWraHtoDVS+srL3fR/SLV58YYL1lGU3AbmUSetrHYdjsl9cAHkj0Q3DAb6UxODZNuDB33XeBHhiJdklZ7Lv/rB1XE8u7T+0q51RA3aGn6G8KFgXIpyHCyHsuxUG/JBhkoXU9OeledwIDAQAB",
+  "permissions": [
+    "nativeMessaging"
+  ],
+  "background": {
+    "service_worker": "worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://127.0.0.1/*"
+      ],
+      "js": [
+        "scope.js",
+        "document.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": false,
+      "world": "ISOLATED"
+    }
+  ]
+}

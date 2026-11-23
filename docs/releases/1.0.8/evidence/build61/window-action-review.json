@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "type": "Independent targeted QA presentation and observation source review",
+  "reviewer": "riftlet_108_60_independent_full_range_nonauthor_source_reviewer",
+  "observedUTC": "2026-11-23T02:14:54.207001+00:00",
+  "result": "PASS_FOR_ENROLLED_QA_PRESENTATION_AND_READ_ONLY_OBSERVATION",
+  "releaseAuthorized": false,
+  "reviewedFiles": {
+    "PresentOriginal.swift": "ace65cb8bc753a78923cbf957e862ecef988ddf6b88049a273dd4aff8f5c0179",
+    "WindowEvidence.swift": "3a2dd13ca2e3865a94ff12b1e7c5a90ce1a4670ed9818577b0ee5c6bdd8f9fcc",
+    "gui_sample.py": "54afef71fceb06e9e178f4b42d5d6f21a6d2b25a4d0caa5b2ce7846b0e87d8ec",
+    "gui_control.py": "ded82aa8d47665536534464bbec22c2d01304ee9ed1049a14d07c90352c0df5e",
+    "test_gui_host.py": "4c2d30172607d6299ff1113df5dec97e84dc5908a13e90cb7bc05231b20094e2"
+  },
+  "typedControls": {
+    "swiftTypecheck": {
+      "PresentOriginal.swift": 0,
+      "WindowEvidence.swift": 0
+    },
+    "existingOfflineSuitePassed": 17,
+    "independentHostGateCases": 7,
+    "beforeControlSHA256": "48bd534b011bc07f8e28102b2d5a2062cd27d89cb0058780a4486838c8517b43",
+    "afterControlSHA256": "75eb7693cf667bce8d6e7959b1793d29da8ee8cf3051d59b37f4436461215a59"
+  },
+  "findingsResolved": [
+    "A protected front or actual protected hit now defeats either geometry admission route. A failed AX hit over the known system capture rectangle stays blocked; a regular, transparent rectangle with original-window hits can pass. An absent native proof remains closed.",
+    "A validated native window setter records its call boundary after the current/proposed desktop check. Native OSStatus, bridged Swift error codes and post-action foreground are reported separately.",
+    "Current native window inventory controls app-wide options. With peers already in front, NS activation is skipped; with peers and background, only ordinary activation is requested. The original implementation\u2019s previously issued broad call remains historical."
+  ],
+  "newPreselectionAXRaise": {
+    "lines": "PresentOriginal.swift 222\u2013241, 264\u2013296",
+    "scope": "The native ID-index request addresses only the original window. If the native front tab still differs, a single AXRaise targets the unique AXStandardWindow of the signed enrolled browser whose bounds match that original native window and no other scriptable peer. Both target acquisitions must return the same AX object. The helper rechecks the original Document/local QA challenge, PID/birth and protected desktop before the action. Positive selection of the precise original native window/tab is mandatory before either application activation. A prior preselection raise prevents a second raise.",
+    "limits": "AX identity here is a cross-checked geometry association. macOS exposes no documented direct public crosswalk between an AX window and a Chromium scripting window ID. Activation results or restored geometry alone do not grant a product input; the host and dedicated issuer separately verify all gates. This reviewer did not present any window or issue a live gesture."
+  },
+  "windowSnapshots": [
+    {
+      "scope": "Chrome",
+      "rawPrivateReceiptSHA256": "cc9e119c08bada3b49895fccaac50607267d0fe523c963ecc9f8ba535a5f1fff",
+      "observedThroughUTC": "2026-11-23T01:43:36Z",
+      "signedPIDAndKernelBirthProved": true,
+      "active": true,
+      "hidden": false,
+      "activationPolicy": "regular",
+      "nativeWindowVisible": true,
+      "nativeWindowMinimized": false,
+      "boundsStableAcrossReads": true,
+      "nativeBoundsWhollyOrPartiallyOnScreen": true,
+      "nativeCenterInVisibleFrame": true,
+      "appKitToQuartzFrameValidated": true,
+      "matchingAXWindows": 1,
+      "ownedCGAll": 18,
+      "ownedCGOnScreen": 4,
+      "matchingEnrolledLayerZeroAcrossAll": 1,
+      "matchingEnrolledLayerZeroOnScreen": 1,
+      "centerRectangleOutcome": "OTHER_RECTANGLE_FIRST",
+      "firstRectangleLayer": 24,
+      "frontAtEndIsBrowser": true,
+      "sameConsoleUIDAndBrowserUID": true,
+      "exactAuditSessionMatch": null,
+      "auditQueryErrno": [
+        1,
+        1
+      ]
+    },
+    {
+      "scope": "Edge B4",
+      "rawPrivateReceiptSHA256": "f7035821748e286e8c9cd80de07461777e007063518a7a0be0947804bdcbfeee",
+      "observedThroughUTC": "2026-11-23T02:05:37Z",
+      "signedPIDAndKernelBirthProved": true,
+      "active": false,
+      "hidden": false,
+      "activationPolicy": "regular",
+      "nativeWindowVisible": true,
+      "nativeWindowMinimized": false,
+      "boundsStableAcrossReads": true,
+      "nativeBoundsWhollyOrPartiallyOnScreen": true,
+      "nativeCenterInVisibleFrame": true,
+      "appKitToQuartzFrameValidated": true,
+      "matchingAXWindows": 0,
+      "ownedCGAll": 11,
+      "ownedCGOnScreen": 0,
+      "matchingEnrolledLayerZeroAcrossAll": 1,
+      "matchingEnrolledLayerZeroOnScreen": 0,
+      "centerRectangleOutcome": "NO_MATCHING_ONSCREEN_GEOMETRY",
+      "firstRectangleLayer": 24,
+      "frontAtEndIsBrowser": false,
+      "sameConsoleUIDAndBrowserUID": true,
+      "exactAuditSessionMatch": null,
+      "auditQueryErrno": [
+        1,
+        1
+      ]
+    },
+    {
+      "scope": "Edge G4C",
+      "rawPrivateReceiptSHA256": "cbd2f9ce0b5961bb7d27432af50224f1a22b6e5115493209b74805770600f2cb",
+      "observedThroughUTC": "2026-11-23T02:05:38Z",
+      "signedPIDAndKernelBirthProved": true,
+      "active": false,
+      "hidden": false,
+      "activationPolicy": "regular",
+      "nativeWindowVisible": true,
+      "nativeWindowMinimized": false,
+      "boundsStableAcrossReads": true,
+      "nativeBoundsWhollyOrPartiallyOnScreen": true,
+      "nativeCenterInVisibleFrame": true,
+      "appKitToQuartzFrameValidated": true,
+      "matchingAXWindows": 0,
+      "ownedCGAll": 11,
+      "ownedCGOnScreen": 0,
+      "matchingEnrolledLayerZeroAcrossAll": 1,
+      "matchingEnrolledLayerZeroOnScreen": 0,
+      "centerRectangleOutcome": "NO_MATCHING_ONSCREEN_GEOMETRY",
+      "firstRectangleLayer": 24,
+      "frontAtEndIsBrowser": false,
+      "sameConsoleUIDAndBrowserUID": true,
+      "exactAuditSessionMatch": null,
+      "auditQueryErrno": [
+        1,
+        1
+      ]
+    }
+  ],
+  "additionalChromeHitEvidence": {
+    "rawRectangleReceiptSHA256": "7beb72cc3de882e11dae1749d954d9aa6f2dc1339c21ebc0ba698d15170db3bf",
+    "rawAXReceiptSHA256": "54b99a53bf7add75610c0e658184203be349b893c47cf43708ef48f68ca662b0",
+    "firstRectangleBundle": "com.apple.screencaptureui",
+    "layer": 24,
+    "rectangularPoints": 5,
+    "actualAXPointsBelongingToOriginalWindow": 5,
+    "liveRawCenterRectangleBelongsToOriginal": false,
+    "originalPositiveAlphaCGWindowOnScreen": true
+  },
+  "boundedActionEvidence": {
+    "edgeOriginalActionLedgerSHA256": "944e7b7da15d98e150d2a90c5f4b305d64583e9e367f2c9002977515f1a88ecd",
+    "chromeNarrowPresentationReceiptSHA256": "eb60878a181ea9847c8ca53f574d8c1fd2fd942214835757785ed216999a94ad",
+    "chromeNarrowTwoNativeWindows": true,
+    "chromeNarrowNSActivationIssued": false,
+    "chromeNarrowAXRaiseIssued": true,
+    "chromeNarrowAXReturn": 0,
+    "chromeNarrowAEActivationReturn": 0,
+    "chromeNarrowFinalOriginalSelectedAndForeground": true
+  },
+  "AthroughH": {
+    "A_otherSpace": "Chrome had a matching on-screen original. Edge had matching off-screen inventory geometry but no on-screen owned surface at the reported background samples. Exact Space and Stage Manager membership are unknown.",
+    "B_offscreenCoordinates": "Rejected for the three enrolled rectangles at the supplied times. The verified primary-display conversion puts the center inside AppKit visibleFrame in every case.",
+    "C_minimized": "All three enrolled native windows reported minimized=false at their snapshots. The Chrome main AX window independently reported the same.",
+    "D_hidden": "Both browsers reported hidden=false, regular activation policy. Edge was inactive during its geometry samples.",
+    "E_NSActivationDidNotSucceed": "The retained Edge original action receipt has NS activation issued, return true and subsequent foreground true. Other observations do not establish a global activation failure.",
+    "F_AXRaiseHadNoEffect": "The two old complete Edge receipts issued no AXRaise. The later narrow Chrome receipt has an exact AXRaise return 0, later selected original and foreground true; a causal effect of that call alone is not isolated.",
+    "G_systemUIBlocksForeground": "The original 09:43 Chrome observation showed an Apple ScreenCaptureUI layer-24 rectangle over all five sampled points, while all five real accessibility hits belonged to Chrome\u2019s original window and Chrome was foreground. The rectangle caused a false negative in the old bounds test. A genuine protected foreground observed at other times is a separate condition whose contents were not inspected.",
+    "H_otherUserOrSession": "The signed browser, caller and active console UID agree. Unprivileged audit-session queries returned EPERM for both processes in all three snapshots. Exact audit-session identity is unknown."
+  }
+}

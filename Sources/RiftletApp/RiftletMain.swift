@@ -128,13 +128,17 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var permissionActivationObserver: NSObjectProtocol?
     private var permissionWakeObserver: NSObjectProtocol?
     private var reviewEnvironment: SettingsReviewEnvironment?
+    private var qaOriginalTab: QAOriginalBrowserTab?
     private lazy var captureLocation = reviewEnvironment?.captureLocation ?? SystemCaptureLocationProvider()
     private lazy var firstUse = FirstUsePreferences(defaults: reviewEnvironment?.defaults ?? .standard, modeName: mode.directoryName)
     private lazy var folderAccess = ScreenshotFolderAccess(defaults: reviewEnvironment?.defaults ?? .standard, modeName: mode.directoryName)
     private var folderNeedingSelection: URL?
     private var folderShownInPicker: URL?
     private var setupBrowser: AttachmentBrowser = .chrome
-    private var supportedBrowsers: [AttachmentBrowser] { mode == .capture ? AttachmentBrowser.allCases : [.chrome] }
+    private var supportedBrowsers: [AttachmentBrowser] {
+        if let qaOriginalTab, let allowed = AttachmentBrowser(rawValue: qaOriginalTab.applicationID) { return [allowed] }
+        return mode == .capture ? AttachmentBrowser.allCases : [.chrome]
+    }
     private var permissionGate: AutomationPermissionGate {
         .init(requiresChrome: mode.usesWebAdapter, checker: NativeAutomationPermissionChecker(browsers: supportedBrowsers))
     }
@@ -169,7 +173,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var historyGeneration: UInt64 = 0
     private var history: RiftHistoryController?
     // Root ownership is established before installSetup first reads this owner.
-    private lazy var historyDisplayPreferences = HistoryDisplayPreferences.make(mode: mode, root: root)
+    private lazy var historyDisplayPreferences: HistoryDisplayPreferences = {
+        if let env = reviewEnvironment, env.isPreClickQA { return .init(defaults: env.defaults) }
+        return .make(mode: mode, root: root)
+    }()
     private var historyWatermark: Int64?
     private var historyOffset = 0
     private var userHidden = false
@@ -188,12 +195,16 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var originalRecoveryTask: Task<Void, Never>?
     private var startupCompletedIDs = Set<UUID>()
     private var clickAdapter: WebAttachmentAdapter?
+    private lazy var preClickActivity = ChromeActivityObserver { [weak self] reason in
+        self?.prepareBrowser(invalidate: ChromeActivityHintPolicy.invalidatesTarget(reason))
+    }
+    private var preClickEnvironmentObservers: [NSObjectProtocol] = []
     private var lastForegroundSession: String?
     private var diagnosticTrace: BoundedDiagnosticTrace?
     private var visibilityTrace = AcceptanceTraceDeduplicator<UUID, [String]>()
     private var readyTrace = AcceptanceTraceDeduplicator<UUID, [String]>()
-    private var frozenPress: (id: UUID, eventUptime: TimeInterval, bundleID: String?, receiverEpoch: UUID, target: Task<TargetLease, Error>)?
-    private var pendingClickTargets: [UUID: Task<TargetLease, Error>] = [:]
+    private var frozenPress: (id: UUID, eventUptime: TimeInterval, bundleID: String?, receiverEpoch: UUID, target: Task<TargetLease, Error>, lease: TargetLease?)?
+    private var pendingClickTargets: [UUID: (target: TargetLease, selection: AcceptedSelection?)] = [:]
     private let selectionAuthority = SelectionAuthority()
     private let originalReceiverPermission = OriginalReceiverPermission()
     private let selectionSubmissions = SelectionSubmissionQueue()
@@ -215,7 +226,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         // state, open a sidecar, or pump an already queued feedback report.
         do {
             let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-            if mode == .settingsReview {
+            if let environment = try PreClickQAEnvironment.resolve(arguments: CommandLine.arguments, mode: mode, applicationSupport: base) {
+                qaOriginalTab = try QAOriginalBrowserTab.decode(ProcessInfo.processInfo.environment["RIFTLET_QA_NATIVE_ROUTE"])
+                try environment.prepare(); reviewEnvironment = environment
+            } else if mode == .settingsReview {
                 let environment = SettingsReviewEnvironment(identifier: try SettingsReviewEnvironment.identifier(in: CommandLine.arguments), applicationSupport: base)
                 try environment.prepare(); reviewEnvironment = environment
             }
@@ -235,7 +249,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             NSApp.terminate(nil)
             return
         }
-        if mode == .capture, !OrdinaryCaptureConfiguration.isInternalAcceptance, Bundle.main.bundleURL.pathExtension == "app" {
+        if mode == .capture, reviewEnvironment == nil, !OrdinaryCaptureConfiguration.isInternalAcceptance, Bundle.main.bundleURL.pathExtension == "app" {
             updater = ApplicationUpdater { [weak self] in self?.updateSetup() }
         }
         installMenu()
@@ -243,7 +257,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         installSetup()
         // The first ordinary launch explains collection before its first source
         // read. Acceptance mode must not steal the test browser's focus.
-        if mode.collectsSystemScreenshots, firstUse.needsAutomaticPresentation,
+        if reviewEnvironment?.isPreClickQA != true, mode.collectsSystemScreenshots, firstUse.needsAutomaticPresentation,
            mode != .settingsReview || !firstUse.hasPresented {
             updateSetup()
             if settingsHost?.showOnboarding() == true { firstUse.recordPresentation() }
@@ -342,6 +356,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     // Keep the instance lock until the OS closes the old process's descriptors.
     private func finishWorkForExit() async {
         drainingForExit = true
+        clickAdapter?.stopPreparingForExit()
         await recheckTask?.value
         await sourceBinding?.stop()
         await capture?.finishForApplicationExit()
@@ -355,6 +370,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         archiveTask?.cancel(); await archiveTask?.value
         completionWatch?.cancel(); await completionWatch?.value
         await originalRecoveryTask?.value
+        cancelSelections(reason: "termination")
+        discardFrozenPress()
+        // AppKit is still dispatching the main run loop here. Once
+        // applicationWillTerminate returns it may never schedule another release.
+        await clickAdapter?.finishRetirementForExit()
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -365,12 +385,15 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         if let chromeTerminationObserver { NSWorkspace.shared.notificationCenter.removeObserver(chromeTerminationObserver) }
         if let permissionActivationObserver { NSWorkspace.shared.notificationCenter.removeObserver(permissionActivationObserver) }
         if let permissionWakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(permissionWakeObserver) }
+        preClickActivity.stop()
+        for observer in preClickEnvironmentObservers { NSWorkspace.shared.notificationCenter.removeObserver(observer) }
+        preClickEnvironmentObservers.removeAll()
         completionWatch?.cancel()
         originalRecoveryTask?.cancel()
         archiveTask?.cancel()
         cancelSelections(reason: "termination")
         selectionSubmissions.stop()
-        frozenPress?.target.cancel(); frozenPress = nil
+        discardFrozenPress()
         if let archiveWakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(archiveWakeObserver) }
         mediaMaintenanceTask?.cancel()
         mediaManager?.close()
@@ -420,7 +443,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         rift = RiftPanelController(mediaDirectory: root.appendingPathComponent("media"), configuration: configuration,
             arrivalMode: arrivalPreferences?.mode ?? .provisionalFallback,
             onPress: { [weak self] id, timestamp in self?.freezePress(id, timestamp: timestamp) },
+            onCancelledPress: { [weak self] id in self?.discardFrozenPress(for: id) },
             onSelectionBoundary: { [weak self] boundary in self?.recordSelection(boundary) },
+            onApproach: { [weak self] in self?.prepareBrowser() },
             onPresentationBoundary: { [weak self] boundary in self?.recordPresentation(boundary) },
             onArrivalBoundary: { [weak self] boundary in
                 var fields: [String: Any] = ["event": boundary.phase.rawValue, "assetID": boundary.assetID.uuidString,
@@ -434,12 +459,12 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             guard let self, !self.drainingForExit else { return }
             let press = self.frozenPress?.id == id ? self.frozenPress : nil
             let revision = self.rift?.selectionRevision(for: id)
-            self.frozenPress = nil
+            if press == nil { self.discardFrozenPress() } else { self.frozenPress = nil }
             let reattachment = self.reattachmentIntents[id]
             let selectionOwner = UUID()
             let selectedAt = ProcessInfo.processInfo.systemUptime
             self.selectionUIOwners[id] = selectionOwner
-            if let press { self.pendingClickTargets[selectionOwner] = press.target }
+            if let lease = press?.lease { self.pendingClickTargets[selectionOwner] = (lease, nil) }
             let feedback: @MainActor (String?, RiftFeedbackTiming) -> Void = { [weak self] text, timing in
                 guard let self, self.selectionUIOwners[id] == selectionOwner,
                       let revision, self.rift?.selectionRevision(for: id) == revision else { return }
@@ -459,14 +484,14 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                         guard let press, let revision, let transfer = self.transfer else {
                             throw WebAdapterError.invalidTarget
                         }
-                        // This is the read started by this click, including a cold
-                        // first click. No background ACK or second click is needed.
+                        // mouseDown already consumed a particular acknowledged browser receiver.
                         let resolved = try await self.selectionAuthority.accept(id: selectionOwner,
                             assetID: id, visibilityRevision: revision, selectedAt: selectedAt, target: press.target) {
                                 self.selectionUIOwners[id] == selectionOwner && !self.userHidden && !self.terminating
                                     && self.rift?.selectionRevision(for: id) == revision
                             }
                         selection = resolved
+                        self.pendingClickTargets[selectionOwner]?.selection = resolved
                         self.setupIssue = nil
                         if self.foregroundBrowserSession == resolved.target.sessionID, let browser = resolved.target.attachmentBrowser {
                             self.updateSetupReceiver(browser, session: resolved.target.sessionID)
@@ -493,8 +518,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                         feedback(ProductStatus.operationFeedback(reason).text, .immediate)
                     }
                 } catch is CancellationError {
+                    self.retireSelectionTicket(selectionOwner)
                     self.cancelOriginalSelection(selection, reason: "submissionCancelled")
                 } catch {
+                    self.retireSelectionTicket(selectionOwner)
                     let clickIssue = ProductStatus.clickIssue(error, frontmostBundleID: press?.bundleID, webAcceptance: true)
                     if self.mode.usesWebAdapter, press?.receiverEpoch == self.permissionSession {
                         self.setupIssue = clickIssue
@@ -513,7 +540,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     self.diagnosticTrace?.record(refusal, critical: true)
                     feedback(!self.mode.usesWebAdapter && self.mode == .capture ? "此版本尚未启用真实截图附加；图片保留。"
                         : (ProductStatus.clickFeedback(error)?.text ?? clickIssue?.text(in: .current, browser: press?.bundleID.flatMap(AttachmentBrowser.init(rawValue:)) ?? self.setupBrowser)
-                           ?? "当前附件目标暂不可用；图片保留，可在运行状态中查看原因。"), .immediate)
+                           ?? (reattachment == nil ? "当前附件目标暂不可用；图片保留，可在运行状态中查看原因。"
+                               : ProductCopy.text("请核对原草稿和已有附件，再从截图仓库选择重新附加。原图已保留。",
+                                                  "Check the original draft and its attachments, then choose Attach Again in the screenshot library. The original image is saved."))), .immediate)
                     self.feedback.diagnostics.record(.selectionRejected)
                     self.cancelOriginalSelection(selection, reason: "selectionRejected")
                     self.updateSetup()
@@ -582,6 +611,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                                                  // demand, never a click or input authorization.
                                                  // Start prebinding before preview work and the
                                                  // later multi-read refresh/source lookup.
+                                                 self.prepareBrowser(arriving: true)
                                                  self.recordArrivalTrace(["event": "captureDurableObserved",
                                                     "assetID": record.id.uuidString, "uptime": observation.readyUptime,
                                                     "firstSeenWallTime": record.image.firstSeenAt.timeIntervalSince1970])
@@ -602,7 +632,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             startupCapture = nil
         }
         let chromeExecutor = mode.usesWebAdapter ? ChromeAppleEventsExecutor(
-            traceEnabled: CommandLine.arguments.contains("--acceptance-trace"), diagnosticTrace: diagnosticTrace) : nil
+            traceEnabled: CommandLine.arguments.contains("--acceptance-trace"), diagnosticTrace: diagnosticTrace,
+            qaOriginalTab: qaOriginalTab, preparationOwner: owner.preparationOwner) : nil
         let composition = try ApplicationAttachmentComposition.make(mode: mode, root: root, store: store,
             executor: chromeExecutor,
             traceEnabled: CommandLine.arguments.contains("--acceptance-trace"),
@@ -628,6 +659,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             }
             history?.onCheckOriginal = { [weak self] id in self?.checkHistoryAttachment(id) }
             history?.onMarkHandled = { [weak self] id in self?.handleHistoryAttachment(id) }
+            history?.onCheckReattachmentEligibility = { operation in
+                (try? await store.attachmentRecoverySource(operationID: operation)) != nil
+            }
             history?.onPrepareReattachment = { [weak self] asset, operation in
                 self?.stageHistoryAttachment(asset: asset, operation: operation)
             }
@@ -661,6 +695,16 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 setupBrowser = installed
             }
             installPassivePermissionRecovery()
+            let workspace = NSWorkspace.shared.notificationCenter
+            preClickEnvironmentObservers.append(workspace.addObserver(forName: NSWorkspace.willSleepNotification,
+                object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated { self?.clickAdapter?.retirePreparedTargets() }
+            })
+            preClickEnvironmentObservers.append(workspace.addObserver(forName: NSWorkspace.activeSpaceDidChangeNotification,
+                object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated { self?.prepareBrowser(invalidate: true) }
+            })
+            prepareBrowser()
             _ = await inspectAutomationPermission(reason: "startup")
         }
         // Original read-only observers perform their own receiver-bound checks;
@@ -715,7 +759,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     importer: startupCapture?.importer,
                     onChange: { [weak self] in await self?.refresh() },
                     onIssue: { [weak self] message in self?.showIssue(message) },
-                    allowsSystemCapture: mode != .settingsReview)
+                    allowsSystemCapture: mode != .settingsReview && reviewEnvironment?.isPreClickQA != true)
                 screenshotEntry?.onScreenPermissionRequired = { [weak self] in self?.settingsHost?.recordScreenPermissionFailure() }
                 screenshotEntry?.onOutstandingCaptureChanged = { [weak self] in self?.mediaManager?.hostStateChanged() }
                 screenshotEntry?.onCaptureImportFailed = { [weak self] in self?.captureNeedsRecovery = true; self?.updateSetup() }
@@ -745,8 +789,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         permissionActivationObserver = NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { [weak self] note in
                 MainActor.assumeIsolated {
-                    guard let self,
-                          let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
+                    guard let self else { return }
+                    self.prepareBrowser(invalidate: true)
+                    guard let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
                           let bundle = app.bundleIdentifier, let browser = AttachmentBrowser(rawValue: bundle),
                           self.supportedBrowsers.contains(browser),
                           let receiver = ChromeProcessIdentity.read(pid: app.processIdentifier, applicationID: bundle),
@@ -774,6 +819,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { [weak self] _ in
                 MainActor.assumeIsolated {
                     guard let self else { return }
+                    self.prepareBrowser(invalidate: true)
                     self.permissionResumer?.request()
                 }
             }
@@ -920,7 +966,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 owner: nextSettingsOwner(), adapter: SettingsPersistenceClosures { [weak self] request in
                     guard let self else { return .unconfirmed(nil, .ownerUnavailable) }
                     return await self.saveSettings(request)
-                }, historyDisplay: historyDisplayPreferences,
+                }, login: reviewEnvironment?.isPreClickQA == true ? .live(mode: .settingsReview) : nil, historyDisplay: historyDisplayPreferences,
                 updaterPresentation: { [weak self] in self?.updater?.presentation },
                 onDeferOnboarding: { [weak self] in self?.firstUse.deferPresentation() },
                 onRefresh: { [weak self] in self?.updateSetup() },
@@ -967,7 +1013,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         capabilities.canCapture = mode != .settingsReview && screenshotEntry?.isEnabled == true && !userHidden
         capabilities.canRecheck = initialized && !captureControlBusy && !requestingPermission
         capabilities.canRequestAutomation = mode.usesWebAdapter && initialized && !requestingPermission
-        capabilities.canChooseSource = mode.collectsSystemScreenshots && initialized && mode != .settingsReview
+        capabilities.canChooseSource = mode.collectsSystemScreenshots && initialized && mode != .settingsReview && reviewEnvironment?.isPreClickQA != true
         capabilities.canOpenHistory = store != nil
         capabilities.canClearVisible = store != nil && !visibleIDs.isEmpty
         capabilities.canCheckStorage = root != nil && storageMeasurement == nil
@@ -1197,7 +1243,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     @objc private func launchSimulation() {
-        guard !OrdinaryCaptureConfiguration.isInternalAcceptance, mode.collectsSystemScreenshots, Bundle.main.bundleURL.pathExtension == "app" else { return }
+        guard reviewEnvironment == nil, !OrdinaryCaptureConfiguration.isInternalAcceptance, mode.collectsSystemScreenshots, Bundle.main.bundleURL.pathExtension == "app" else { return }
         let configuration = NSWorkspace.OpenConfiguration()
         configuration.arguments = ["--simulate"]
         configuration.createsNewApplicationInstance = true
@@ -1210,7 +1256,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     /// macOS launch acknowledgement is not candidate readiness. Keep the
     /// ordinary collector and its data intact if candidate initialization fails.
     @objc private func launchSystemScreenshotCandidate() {
-        guard !OrdinaryCaptureConfiguration.isInternalAcceptance, mode == .capture, Bundle.main.bundleURL.pathExtension == "app" else { return }
+        guard reviewEnvironment == nil, !OrdinaryCaptureConfiguration.isInternalAcceptance, mode == .capture, Bundle.main.bundleURL.pathExtension == "app" else { return }
         let alert = NSAlert()
         alert.messageText = "打开真实截图内部候选？"
         alert.informativeText = "这是受限的内部候选：新系统截图保存在独立本地目录，仅支持 Chrome 中文 ChatGPT 普通已有聊天中的原样 8-bit RGBA PNG。只使用你愿意附加的新截图。真实开始后快速吞噬，独立完成证明到达后后台记录成功；旧待核实操作保持原状，安全失败与重试仍关闭。普通实例继续保留；请在「Riftlet REAL TEST」菜单查看候选状态，需要时再退出普通实例。"
@@ -1228,9 +1274,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func finishOriginalSelection(_ assetID: UUID, token: AcceptedSelection?, revision: Int64?, ownerID: UUID? = nil) {
-        guard let owner = token?.id ?? ownerID, selectionUIOwners[assetID] == owner else { return }
+        guard let owner = token?.id ?? ownerID else { return }
+        if token == nil { retireSelectionTicket(owner) }
+        guard selectionUIOwners[assetID] == owner else { return }
         selectionUIOwners.removeValue(forKey: assetID)
-        pendingClickTargets.removeValue(forKey: owner)?.cancel()
         guard let revision, rift?.selectionRevision(for: assetID) == revision else { return }
         rift?.finishSelection(assetID)
         // The committed refresh can be deferred while this exact selection owns
@@ -1256,9 +1303,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         for (imageID, owner) in pendingOwners {
             finishOriginalSelection(imageID, token: nil, revision: rift?.selectionRevision(for: imageID), ownerID: owner)
         }
-        if assetID == nil || frozenPress?.id == assetID {
-            frozenPress?.target.cancel(); frozenPress = nil
-        }
+        discardFrozenPress(for: assetID)
         recordAcceptance(["event": "selection_authority_cancelled", "reason": reason,
             "uptime": ProcessInfo.processInfo.systemUptime, "singleAsset": assetID != nil])
         guard !ids.isEmpty, let transfer else { return }
@@ -1294,35 +1339,66 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         return ChromeProcessIdentity.read(pid: app.processIdentifier, applicationID: id)?.session
     }
 
-    private func freezePress(_ id: UUID, timestamp: TimeInterval) {
-        frozenPress?.target.cancel()
+    private func prepareBrowser(invalidate: Bool = false, arriving: Bool = false) {
+        guard let web = clickAdapter else { return }
+        guard !userHidden, !terminating, !drainingForExit, let front = NSWorkspace.shared.frontmostApplication,
+              let bundle = front.bundleIdentifier, let browser = AttachmentBrowser(rawValue: bundle),
+              supportedBrowsers.contains(browser) else {
+            preClickActivity.stop()
+            web.retirePreparedTargets()
+            return
+        }
+        // The optional AX observer subscribes only with existing consent.
+        // Arrival, activation and tray entry work independently of AX.
+        preClickActivity.bind(to: front)
+        web.prepareForUpcomingClick(invalidate: invalidate, maintain: arriving || !visibleIDs.isEmpty)
+    }
+
+    private func retireSelectionTicket(_ id: UUID) {
+        guard let ticket = pendingClickTargets.removeValue(forKey: id),
+              ticket.selection?.cancelBeforeDispatch() != false else { return }
+        clickAdapter?.abandonFrozenTarget(ticket.target)
+    }
+
+    private func discardFrozenPress(for id: UUID? = nil) {
+        guard let press = frozenPress, id == nil || press.id == id else { return }
         frozenPress = nil
+        press.target.cancel()
+        if let lease = press.lease { clickAdapter?.abandonFrozenTarget(lease) }
+    }
+
+    private func freezePress(_ id: UUID, timestamp: TimeInterval) {
+        discardFrozenPress()
         guard !drainingForExit, mode.usesWebAdapter, let web = clickAdapter else { return }
         let app = NSWorkspace.shared.frontmostApplication
         let bundleID = app?.bundleIdentifier
         let target: Task<TargetLease, Error>
+        let lease: TargetLease?
         do {
-            // Bind the receiver and its original editor during the event.
-            // The actual file input is deferred until that binding is rechecked.
-            target = try web.targetForClick()
+            let frozen = try web.targetForClick(eventUptime: timestamp)
+            lease = frozen
+            target = Task { frozen }
         } catch {
+            lease = nil
             target = Task { throw error }
         }
         if let app, let id = bundleID, let browser = AttachmentBrowser(rawValue: id), supportedBrowsers.contains(browser),
            let process = ChromeProcessIdentity.read(pid: app.processIdentifier, applicationID: id) {
             updateSetupReceiver(browser, session: process.session)
         }
-        frozenPress = (id, timestamp, bundleID, permissionSession, target)
+        frozenPress = (id, timestamp, bundleID, permissionSession, target, lease)
         recordAcceptance(["event": "click_target_requested", "assetID": id.uuidString,
             "originalEventUptime": timestamp, "uptime": ProcessInfo.processInfo.systemUptime])
     }
 
     private func inputTransportFinished() {
+        if !visibleIDs.isEmpty { prepareBrowser() }
         recordAcceptance(["event": "input_transport_finished", "observationOnly": true,
             "uptime": ProcessInfo.processInfo.systemUptime])
     }
 
     private func acceptedSelectionFinished(_ id: UUID) {
+        retireSelectionTicket(id)
         selectionAuthority.finish(id)
     }
 
@@ -1440,7 +1516,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                             "exactCommitMeasured": false])
                     }
                 }
+                let hasNewlyVisible = !activeIDs.isSubset(of: visibleIDs)
+                let emptied = activeIDs.isEmpty && !visibleIDs.isEmpty
                 visibleIDs = activeIDs
+                if hasNewlyVisible { prepareBrowser() }
+                if emptied { clickAdapter?.retirePreparedTargets() }
                 pendingResultCount = reviewCount
                 acceptCaptureStatus(preferenceIssue: preferenceIssue)
                 if clickAdapter == nil {
@@ -1612,7 +1692,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 reattachmentIntents[asset] = ReattachmentIntent(operationID: operation, revision: record.visibilityRevision)
                 await refresh()
                 rift?.showAsset(asset)
-                history?.showActionNotice(ProductCopy.text("打开要附加的 Chrome 或 Edge 草稿，再点这张桌面截图。", "Open the intended draft in Chrome or Edge, then click this screenshot at the desktop edge."))
+                history?.showActionNotice(ProductCopy.text("回到原浏览器中的同一草稿，核对已有附件，再点这张桌面截图。", "Return to the same draft in the original browser, check its attachments, then click this screenshot at the desktop edge."))
             } catch {
                 if (try? await store.isRetiredMedia(asset)) == true {
                     history?.showActionError(ProductCopy.text("请在「设置 → 截图 → 管理截图资料…」中从废纸篓找回副本，然后再选择重新附加。", "Restore the copy from Trash in Settings → Screenshots → Manage Screenshot Storage…, then choose Attach Again."))
@@ -1693,13 +1773,14 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         defer { changingHidden = false; updateControlTitles() }
         // Stop displaying immediately; resuming display waits for persistence.
         if requested {
-            cancelSelections(reason: "hidden"); frozenPress = nil
+            cancelSelections(reason: "hidden")
             userHidden = true; screenshotEntry?.setHidden(true); rift?.setUserHidden(true)
             updateControlTitles()
         }
         do { try await store.setUserHidden(requested); visibilitySettingFailed = false }
         catch { visibilitySettingFailed = true; throw error }
         userHidden = requested; rift?.setUserHidden(requested); screenshotEntry?.setHidden(requested)
+        prepareBrowser(invalidate: true)
         await refresh()
     }
 
@@ -2077,7 +2158,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         guard let preferences = recoverablePreferences else { throw CocoaError(.fileWriteUnknown) }
         try preferences.saveLayout(config)
         if displayChanged {
-            cancelSelections(reason: "displayPreferenceChanged"); frozenPress = nil
+            cancelSelections(reason: "displayPreferenceChanged")
             screenshotEntry?.cancel()
         }
         arrivalCapture?.cancel()
@@ -2173,7 +2254,7 @@ private enum WebAcceptanceSelfCheck {
     static func run() async throws {
         let program = try ChatGPTWebPageProgram.load()
         guard !program.sourceID.isEmpty, !program.functionSource.isEmpty,
-              program.functionSource.utf8.count <= 128 * 1024,
+              program.functionSource.utf8.count <= ChatGPTWebPageProgram.maximumSourceBytes,
               try ApplicationMode.resolve([]) == .capture,
               try ApplicationMode.resolve(["--simulate"]) == .simulation,
               try ApplicationMode.resolve(["--web-acceptance"]) == .webAcceptance,

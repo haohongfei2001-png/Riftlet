@@ -1,0 +1,147 @@
+{
+  "scope": "Independent offline QA presentation controls for candidate 61",
+  "sampleType": "Original Swift admission and restoration functions compiled with deterministic macOS boundary substitutes. No browser was operated.",
+  "source": "Tests/PreClickLease/g4/gui-host/PresentOriginal.swift",
+  "sourceSHA256": "b2f1acb79fa549932a0e5d0c911ee4dfb91620393f5561ec17130ecf5eb18799",
+  "tests": [
+    {
+      "source": "Tests/PreClickLease/g4/gui-host/test_original_restore.py",
+      "sha256": "61e1dce526a855fcf60362e8942f9cc38764a6ea3bafed90819a4ce2d27a546c",
+      "controls": [
+        {
+          "case": "single-same-original-cycle-and-completed-reentry",
+          "passed": true,
+          "fixtureActions": [
+            "index",
+            "min",
+            "unmin"
+          ]
+        },
+        {
+          "case": "second-sample-failure-does-not-repeat-index-or-start-minimize",
+          "passed": true,
+          "fixtureActions": [
+            "index"
+          ]
+        },
+        {
+          "case": "changed-cg-id-or-geometry-never-minimizes",
+          "passed": true,
+          "fixtureActions": [
+            "index",
+            "index"
+          ]
+        },
+        {
+          "case": "interrupted-and-confirmed-current-owner-may-only-undo",
+          "passed": true,
+          "fixtureActions": [
+            "index",
+            "min",
+            "unmin"
+          ]
+        },
+        {
+          "case": "foreign-owner-cannot-clean-up",
+          "passed": true,
+          "fixtureActions": [
+            "index",
+            "min"
+          ]
+        },
+        {
+          "case": "expired-or-future-readback-no-mutation",
+          "passed": true,
+          "fixtureActions": [
+            "index",
+            "min"
+          ]
+        },
+        {
+          "case": "unknown-undo-ownership-and-interleaved-manual-minimize",
+          "passed": true,
+          "fixtureActions": [
+            "index",
+            "min"
+          ]
+        },
+        {
+          "case": "changed-original-document-no-new-action",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "source": "Tests/PreClickLease/g4/gui-host/test_restore_surface.py",
+      "sha256": "aaf0af14bc354bf9425c0dc30a7c742afd6c9f63cd243d07c819a0f8d661dc32",
+      "controls": [
+        {
+          "case": "one-complete-offscreen-source",
+          "passed": true
+        },
+        {
+          "case": "wrong-native-active-tab",
+          "passed": true
+        },
+        {
+          "case": "another-native-window-same-rect",
+          "passed": true
+        },
+        {
+          "case": "unknown-AX-role-subrole-or-frame",
+          "passed": true
+        },
+        {
+          "case": "missing-AX-subrole",
+          "passed": true
+        },
+        {
+          "case": "unreadable-standard-window-frame",
+          "passed": true
+        },
+        {
+          "case": "existing-original-AX-window",
+          "passed": true
+        },
+        {
+          "case": "two-CG-owners-for-frame",
+          "passed": true
+        },
+        {
+          "case": "same-CG-number-onscreen-after-move",
+          "passed": true
+        },
+        {
+          "case": "onscreen-at-enrolled-frame-with-other-number",
+          "passed": true
+        },
+        {
+          "case": "unreadable-browser-CG-row",
+          "passed": true
+        },
+        {
+          "case": "missing-CG-inventory",
+          "passed": true
+        }
+      ]
+    }
+  ],
+  "passedCount": 20,
+  "observedRegressionsUnderPriorSource": [
+    "A failed second surface observation allowed a new index request and a later minimize cycle.",
+    "An interrupted undo could apply after a later independent minimization of the same window."
+  ],
+  "finalRecoveryObservations": [
+    "An interruption after persisted positive original minimize readback and before the first undo allowed one compensating original-window setter.",
+    "An applied undo with a lost reply followed by independent re-minimization produced zero further setter calls.",
+    "When the original minimize was issued but positive original readback was lost, ownership was unresolved and recovery stayed read-only."
+  ],
+  "limitations": [
+    "Native window inventory, accessibility, WindowServer, protected desktop state and Apple Event transport used scripted test values. A visible original window still requires independent fresh live proof.",
+    "An application-level frontmost state and a current site attachment or selection were outside this review."
+  ],
+  "reproducing": [
+    "python3 Tests/PreClickLease/g4/gui-host/test_original_restore.py",
+    "python3 Tests/PreClickLease/g4/gui-host/test_restore_surface.py"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "distinctFromInstalledDMGCopyByFileIdentity": true,
+  "dmgSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "executableSHA256": "b641a84d1ca48f88cd54825bcc9af64d45915c640b90f8ccdaee3f3b1697ec98",
+  "guestActualDraftAdmission": "AE_TIMEOUT_MINUS_1712_NO_VERIFIED_SCOPE",
+  "hostAppKitClicks": 0,
+  "hostCaptures": 0,
+  "hostCheckedExportSignatureBothSlices": true,
+  "hostFileInputs": 0,
+  "hostPrivateCandidateLaunches": 0,
+  "hostReason": "automatic approval review denied this separate post-upgrade real-site upload as outside the approved two formal DMG cases",
+  "hostSends": 0,
+  "hostSmoke": "NOT_RUN",
+  "hostWindowCreations": 0,
+  "independentHostVerifiedExactExportInventoryMembers": 193,
+  "postSparkleGuestExportSHA256": "29cfaa3088f7e0338e8d7668374ad180f6d2514dba8be1ea2f3434927fd6ed2e",
+  "postUpgradeReceiptSHA256": "3942996a955863cfa580dda3128737e84674737098cc3ced7bc80f2291ec5934",
+  "source": "871187f2be5eada68fccf2adcc07d120991e1c15"
+}

@@ -5,7 +5,7 @@ import RiftletCore
 
 public enum WebAdapterMode: Sendable, Equatable { case disabled, syntheticDevelopment, systemScreenshotCandidate, ordinarySystemScreenshot, ordinaryProduct }
 public enum WebBridgeAction: String, Codable, CaseIterable, Sendable {
-    case captureTarget, pinTarget, validate, begin, chunk, commit, observe, discard
+    case captureTarget, pinTarget, releasePreparedTarget, renewPreparedTarget, validate, begin, chunk, commit, observe, discard
 }
 
 /// The sole page function is supplied from reviewed source. It returns a
@@ -33,6 +33,50 @@ public struct WebPageProgram: Sendable {
     }
 }
 
+/// Issued only after acquiring the app data directory's exclusive instance lock.
+/// This identifies whose unused preparations may be retired, never a delivery target.
+public struct PreClickPreparationOwner: Encodable, Equatable, Sendable {
+    public let scope: String
+    public let generation: String
+    public init(scope: String, generation: UInt64) {
+        self.scope = scope
+        self.generation = String(format: "%016llx", generation)
+    }
+}
+
+struct WebRecoveryPredecessor: Encodable, Sendable {
+    let identity: ObservationIdentity
+    let invocationID: UUID
+    let startEvidenceID: String?
+    let failureAttachmentID: String?
+
+    init(_ source: AttachmentRecoverySource, asset: ImportedAsset, destination: TargetLease) throws {
+        let op = source.operation
+        guard op.assetID == asset.id, source.permitsDestination(destination) else {
+            throw WebAdapterError.invalidTarget
+        }
+        for receipt in [source.originalReceipt, source.originalStart].compactMap({ $0 }) {
+            guard receipt.operationID == op.id, receipt.assetID == asset.id, receipt.attempt == op.attempt,
+                  receipt.assetSHA256 == asset.sha256, receipt.target == op.target else { throw WebAdapterError.invalidRequest }
+        }
+        self.identity = ObservationIdentity(operationID: op.id, assetID: asset.id, attempt: op.attempt,
+                                           assetSHA256: asset.sha256, target: op.target)
+        self.invocationID = source.invocationID
+        self.startEvidenceID = source.originalStart?.uploadStartEvidence?.evidenceID
+        guard source.originalStart == nil || startEvidenceID != nil else { throw WebAdapterError.invalidRequest }
+        if let error = source.originalReceipt, error.hasError {
+            guard error.belongsToOriginalDraft, !error.isUploading, let member = error.attachmentID,
+                  !member.isEmpty, error.originalCardFailureInvocationID == invocationID ||
+                    (startEvidenceID != nil && source.originalStart?.attachmentID == member) else {
+                throw WebAdapterError.invalidRequest
+            }
+            failureAttachmentID = member
+        } else {
+            failureAttachmentID = nil
+        }
+    }
+}
+
 public struct WebBridgeCommand: Encodable, Sendable {
     public let action: WebBridgeAction
     public let target: TargetLease?
@@ -44,23 +88,27 @@ public struct WebBridgeCommand: Encodable, Sendable {
     public let chunkBase64: String?
     public let invocationID: UUID?
     public let clickWitnessID: UUID?
+    let preparationOwner: PreClickPreparationOwner?
     public let preferStartReceipt: Bool?
     public let requireLiveOriginal: Bool?
+    let recoverySource: WebRecoveryPredecessor?
     /// Host diagnostics only, deliberately excluded from the page payload.
     public let captureInvocation: CaptureInvocationContext?
 
     private enum CodingKeys: String, CodingKey {
-        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID, clickWitnessID, requireLiveOriginal, preferStartReceipt
+        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID, clickWitnessID, preparationOwner, requireLiveOriginal, preferStartReceipt, recoverySource
     }
 
     init(action: WebBridgeAction, target: TargetLease? = nil, identity: ObservationIdentity? = nil,
          uploadName: String? = nil, mediaType: String? = nil, byteCount: Int64? = nil,
          chunkIndex: Int? = nil, chunkBase64: String? = nil, invocationID: UUID? = nil,
-         clickWitnessID: UUID? = nil, requireLiveOriginal: Bool? = nil, preferStartReceipt: Bool? = nil, captureInvocation: CaptureInvocationContext? = nil) {
+         clickWitnessID: UUID? = nil, preparationOwner: PreClickPreparationOwner? = nil, requireLiveOriginal: Bool? = nil, preferStartReceipt: Bool? = nil, captureInvocation: CaptureInvocationContext? = nil, recoverySource: WebRecoveryPredecessor? = nil) {
         self.action = action; self.target = target; self.identity = identity
         self.uploadName = uploadName; self.mediaType = mediaType; self.byteCount = byteCount
         self.chunkIndex = chunkIndex; self.chunkBase64 = chunkBase64; self.invocationID = invocationID
         self.clickWitnessID = clickWitnessID
+        self.preparationOwner = action == .captureTarget ? preparationOwner : nil
+        self.recoverySource = recoverySource
         self.captureInvocation = captureInvocation
         self.preferStartReceipt = preferStartReceipt
         self.requireLiveOriginal = requireLiveOriginal
@@ -72,7 +120,12 @@ public protocol WebBridgeExecutor: Sendable {
 }
 
 @MainActor public protocol WebClickTargetPinning: WebBridgeExecutor {
-    func targetForClick(program: WebPageProgram) throws -> Task<TargetLease, Error>
+    func requestPreparation(program: WebPageProgram, invalidate: Bool, maintain: Bool)
+    func retirePreparation(program: WebPageProgram)
+    func stopPreparingForExit(program: WebPageProgram)
+    func finishRetirementForExit() async
+    func abandonFrozenTarget(_ target: TargetLease, program: WebPageProgram)
+    func targetForClick(eventUptime: TimeInterval) throws -> TargetLease
 }
 
 public enum WebAdapterError: Error, Equatable, Sendable {
@@ -117,7 +170,7 @@ public enum WebAdapterError: Error, Equatable, Sendable {
 /// One transport shared by source-scoped ordinary and isolated test compositions.
 /// Each start/completion scope is assigned only to registered new
 /// operations; historical operations retain their observation-only profiles.
-public actor WebAttachmentAdapter: IndependentFileInputAdapter {
+public actor WebAttachmentAdapter: OriginalAttachmentRecoveryChecking {
     public nonisolated let id: String
     public nonisolated var supportsOriginalHandoffChecks: Bool { mode == .ordinaryProduct || mode == .syntheticDevelopment }
     private let mediaDirectory: URL
@@ -206,13 +259,34 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         }
     }
 
-    /// Freeze the native destination at the click boundary, then initialize and
-    /// resolve that exact page asynchronously. A first click needs no earlier
-    /// capture, relay or page acknowledgement.
-    @MainActor public func targetForClick() throws -> Task<TargetLease, Error> {
-        guard mode != .disabled, let program,
-              let pinner = executor as? any WebClickTargetPinning else { throw WebAdapterError.disabled }
-        return try pinner.targetForClick(program: program)
+    /// Scheduling a receiver never creates an operation or supplies an input.
+    @MainActor public func prepareForUpcomingClick(invalidate: Bool = false, maintain: Bool) {
+        guard mode != .disabled, let program else { return }
+        (executor as? any WebClickTargetPinning)?.requestPreparation(program: program, invalidate: invalidate, maintain: maintain)
+    }
+
+    @MainActor public func retirePreparedTargets() {
+        guard let program else { return }
+        (executor as? any WebClickTargetPinning)?.retirePreparation(program: program)
+    }
+
+    @MainActor public func stopPreparingForExit() {
+        guard let program else { return }
+        (executor as? any WebClickTargetPinning)?.stopPreparingForExit(program: program)
+    }
+
+    @MainActor public func finishRetirementForExit() async {
+        await (executor as? any WebClickTargetPinning)?.finishRetirementForExit()
+    }
+
+    @MainActor public func abandonFrozenTarget(_ target: TargetLease) {
+        guard let program else { return }
+        (executor as? any WebClickTargetPinning)?.abandonFrozenTarget(target, program: program)
+    }
+
+    @MainActor public func targetForClick(eventUptime: TimeInterval) throws -> TargetLease {
+        guard mode != .disabled, let pinner = executor as? any WebClickTargetPinning else { throw WebAdapterError.disabled }
+        return try pinner.targetForClick(eventUptime: eventUptime)
     }
 
     public func captureTarget() async throws -> TargetLease {
@@ -232,6 +306,17 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         try check(target)
         try checkNewInputScope(target)
         return target
+    }
+
+    public func checkRecovery(_ original: TransferRequest, destination: TargetLease) async throws -> Bool {
+        guard mode == .ordinaryProduct, let source = original.recoverySource, original.operation == source.operation,
+              original.invocationID == source.invocationID else { return false }
+        try check(destination)
+        try checkNewInputScope(destination)
+        let predecessor = try WebRecoveryPredecessor(source, asset: original.asset, destination: destination)
+        let data = try await perform(.init(action: .validate, target: destination, recoverySource: predecessor))
+        let response = try decode(ValidationReply.self, from: data)
+        return response.target == destination && response.recoveryChecked == true && response.valid
     }
 
     public func validate(_ target: TargetLease) async throws -> Bool {
@@ -333,11 +418,26 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         let uploadName = "riftlet-\(request.operation.id.uuidString).\(file.fileExtension)"
         var committing = false
         do {
+            let predecessor = try request.recoverySource.map {
+                try WebRecoveryPredecessor($0, asset: request.asset, destination: identity.target)
+            }
+            if let predecessor {
+                guard mode == .ordinaryProduct, !file.derivedPNG, file.mediaType == "image/png",
+                      identity.operationID != predecessor.identity.operationID,
+                      let invocation = request.invocationID, invocation != predecessor.invocationID,
+                      identity.attempt > predecessor.identity.attempt else {
+                    throw WebAdapterError.invalidRequest
+                }
+            }
             let begin = WebBridgeCommand(action: .begin, target: identity.target, identity: identity,
                 uploadName: uploadName, mediaType: file.mediaType, byteCount: file.byteCount,
-                invocationID: request.invocationID)
+                invocationID: request.invocationID, recoverySource: predecessor)
             let beginReply = try await perform(begin)
             try acknowledge(beginReply, identity: identity, nextChunk: 0)
+            if let predecessor {
+                let ack = try decode(Acknowledgement.self, from: beginReply)
+                guard ack.recoveryBoundInvocationID == predecessor.invocationID else { throw WebAdapterError.invalidReply }
+            }
             var index = 0
             var hash = SHA256()
             while let chunk = try file.nextChunk(maximumBytes: maximumChunkBytes) {
@@ -438,7 +538,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
     private func readOriginal(_ identity: ObservationIdentity, request: TransferRequest) async throws -> Data {
         let preferStart = try await startPreference(for: request)
         return try await perform(.init(action: .observe, target: identity.target, identity: identity,
-            invocationID: request.requireLiveOriginal ? request.invocationID : nil,
+            invocationID: request.invocationID,
             requireLiveOriginal: request.requireLiveOriginal ? true : nil, preferStartReceipt: preferStart))
     }
 
@@ -523,7 +623,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
     private func requireEnabled() throws {
         if case .disabled = mode { throw WebAdapterError.disabled }
         guard let program, !program.sourceID.isEmpty, !program.functionSource.isEmpty,
-              program.functionSource.utf8.count <= 128 * 1024,
+              program.functionSource.utf8.count <= ChatGPTWebPageProgram.maximumSourceBytes,
               (64 * 1024...256 * 1024).contains(program.maximumChunkBytes) else { throw WebAdapterError.programUnavailable }
         if mode == .ordinaryProduct {
             guard candidateJournal == nil, candidateAdmission == nil,
@@ -697,8 +797,9 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         diagnosticTrace.record(fields, critical: result.retirement != nil || (deliveryUncertain && !result.startObserved))
     }
 
-    private struct ValidationReply: Decodable { let target: TargetLease; let valid: Bool }
+    private struct ValidationReply: Decodable { let target: TargetLease; let valid: Bool; let recoveryChecked: Bool? }
     private struct Acknowledgement: Decodable {
+        let recoveryBoundInvocationID: UUID?
         let operationID: UUID
         let attempt: Int
         let nextChunk: Int

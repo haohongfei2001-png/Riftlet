@@ -1,0 +1,401 @@
+{
+  "baselineEvidence": "740018eb60a1592c2a5755f3847faaa38feebe20",
+  "browsers": {
+    "chrome": {
+      "endedUTC": "2026-11-23T05:53:09Z",
+      "installedInfoPlistSHA256": "13a0537768bbb394eaa14f65ffc1b84571ba37ee9457ca5211df76732be89968",
+      "installedVersion": "157.0.8103.79",
+      "projection": {
+        "browser": "chrome",
+        "entry": "native-set",
+        "evidenceSHA256": {
+          "after": "844b8060ca43311a9dee131cff6017f3cd72304be3743b0602154099e6cabf33",
+          "before": "817a79ce57329f0ece1a609e129d0582772f4f8cc710f72f9aeae4900d383b02",
+          "cleanup": "1f40718d7acd60fdbb9b9144695c6ec9ec1bfc2979ac794314d6a86bd830cae5",
+          "effect": "898aa8fafe5e85c6505f10b4d007290866c7e2b1cf8532d10a9e97250e7eefd0",
+          "isolated": "898aa8fafe5e85c6505f10b4d007290866c7e2b1cf8532d10a9e97250e7eefd0",
+          "main": "dce6ec660a10b990fec4a6e166b3cc88969e93922c914dccc645b22ee8d4ddd5",
+          "network": "1f40718d7acd60fdbb9b9144695c6ec9ec1bfc2979ac794314d6a86bd830cae5",
+          "set": "8de8d99a49a18074d7fd4c9332670f3067d2be411240948137a1aec945393076"
+        },
+        "run": {
+          "after": {
+            "document": "a22e2ae4cccba96f041810762e8492098daccff51708c787ca7fc815528a7a86",
+            "route": "e171ca787123d349a039b0a75b442722462f4ed1ba4748136fc070835e04ccd5"
+          },
+          "before": {
+            "document": "a22e2ae4cccba96f041810762e8492098daccff51708c787ca7fc815528a7a86",
+            "markerAbsent": true,
+            "route": "e171ca787123d349a039b0a75b442722462f4ed1ba4748136fc070835e04ccd5"
+          },
+          "challenge": "50ca9b041d81c2673a5d59e0d7a435e6a451cd0dd9c4fac2d0937ed70456c34a",
+          "cleanup": {
+            "document": "a22e2ae4cccba96f041810762e8492098daccff51708c787ca7fc815528a7a86",
+            "globalAbsent": true,
+            "mainContextVerified": true,
+            "sharedMarkerAbsent": true,
+            "xhrAbsent": true
+          },
+          "effect": {
+            "challenge": "50ca9b041d81c2673a5d59e0d7a435e6a451cd0dd9c4fac2d0937ed70456c34a",
+            "document": "a22e2ae4cccba96f041810762e8492098daccff51708c787ca7fc815528a7a86",
+            "via": "native-set"
+          },
+          "isolated": {
+            "contextVerified": true,
+            "document": "a22e2ae4cccba96f041810762e8492098daccff51708c787ca7fc815528a7a86",
+            "globalVisible": false,
+            "sharedChallenge": "50ca9b041d81c2673a5d59e0d7a435e6a451cd0dd9c4fac2d0937ed70456c34a",
+            "xhrVisible": false
+          },
+          "main": {
+            "contextVerified": true,
+            "document": "a22e2ae4cccba96f041810762e8492098daccff51708c787ca7fc815528a7a86",
+            "globalChallenge": "50ca9b041d81c2673a5d59e0d7a435e6a451cd0dd9c4fac2d0937ed70456c34a",
+            "unopened": true,
+            "xhrChallenge": "50ca9b041d81c2673a5d59e0d7a435e6a451cd0dd9c4fac2d0937ed70456c34a"
+          },
+          "network": {
+            "coverage": "page-resource-timing",
+            "cspViolations": 0,
+            "localPage": {
+              "connectionAndWorkerSourcesDenied": true,
+              "continuousCountersOnOriginalDocument": true,
+              "counterOverflowOrLoss": false,
+              "fileScheme": true,
+              "fixedFixtureSHA256": "d81ff9a494d2cf535094ab0f3463b0b5fd76e6f48fe66ccd950ff07e89eb0f8a",
+              "fixtureHashMatched": true,
+              "policyActiveFromPreparationThroughCleanup": true,
+              "remoteSubresourcesAndFormDenied": true
+            },
+            "requests": null,
+            "resourceEntries": 0,
+            "uploads": null
+          },
+          "set": {
+            "challenge": "50ca9b041d81c2673a5d59e0d7a435e6a451cd0dd9c4fac2d0937ed70456c34a",
+            "osStatus": 0,
+            "route": "e171ca787123d349a039b0a75b442722462f4ed1ba4748136fc070835e04ccd5"
+          }
+        },
+        "schema": 1,
+        "scope": "owned-local"
+      },
+      "startedUTC": "2026-11-23T05:53:01Z",
+      "summary": {
+        "blockers": [],
+        "closureStop": null,
+        "environmentAdmitted": true,
+        "exactNativeOrder": true,
+        "fixtureCallsOnly": 0,
+        "lastWhileWaitingCspCount": null,
+        "lastWhileWaitingCspDirective": null,
+        "measurementStop": null,
+        "nativeIntents": {
+          "clear": 1,
+          "install": 1,
+          "read": 1,
+          "retire": 1
+        },
+        "nativeSuccessfulReplies": {
+          "clear": true,
+          "install": true,
+          "read": true,
+          "retire": true
+        },
+        "observedStages": [
+          "clear",
+          "close-intent",
+          "closed",
+          "creation-intent",
+          "environment",
+          "final-independent-read",
+          "installed",
+          "isolated",
+          "main-read",
+          "ready",
+          "retired",
+          "run",
+          "window-created"
+        ],
+        "ownedWindowClosureVerified": true,
+        "ownedWindowVerified": true,
+        "preparationStop": null,
+        "sameOriginalStillReadyAfterSet": false,
+        "sourceAndManifestVerified": true,
+        "sourceArtifactSHA256": {
+          "build-manifest": "ed64ecd873fcfee463abd1026990cd3143292d0c9cef30db116e0288fc49fb7a",
+          "clear": "1f40718d7acd60fdbb9b9144695c6ec9ec1bfc2979ac794314d6a86bd830cae5",
+          "close-intent": "116d2d6d5d3c5bc8819d5b4125e8be5bc62e3dbe627bc7541cdb66f1063fd26a",
+          "closed": "8c808b36997bef23fcf753af347b31c6a19f3b2425387183b22e25193f39a383",
+          "creation-intent": "63a53c90cc301774b1f523846ebfb550dbeccd7e495353594cac8371a4141559",
+          "environment": "92a00ad3bc2da792b845589a101524cd2815c9697143a003890de6f3ab9312cc",
+          "final-independent-read": "1f40718d7acd60fdbb9b9144695c6ec9ec1bfc2979ac794314d6a86bd830cae5",
+          "installed": "898aa8fafe5e85c6505f10b4d007290866c7e2b1cf8532d10a9e97250e7eefd0",
+          "isolated": "898aa8fafe5e85c6505f10b4d007290866c7e2b1cf8532d10a9e97250e7eefd0",
+          "main-read": "dce6ec660a10b990fec4a6e166b3cc88969e93922c914dccc645b22ee8d4ddd5",
+          "ready": "817a79ce57329f0ece1a609e129d0582772f4f8cc710f72f9aeae4900d383b02",
+          "retired": "844b8060ca43311a9dee131cff6017f3cd72304be3743b0602154099e6cabf33",
+          "run": "8de8d99a49a18074d7fd4c9332670f3067d2be411240948137a1aec945393076",
+          "window-created": "e95159ee7b7268d62644cd9e3fdf2972aac5efe7d2cec85b2d9df1b1c790be5c"
+        },
+        "stageCount": 13
+      },
+      "verdict": {
+        "browser": "chrome",
+        "checks": {
+          "afterOriginalRouteAndDocument": true,
+          "allStagesReferenced": true,
+          "baselineMarkerAbsent": true,
+          "cleanedInOriginalMain": true,
+          "fixedLocalPageContinuouslyCovered": true,
+          "measuredZeroWholeAttemptRequestsAndUploads": false,
+          "nativeSetBoundToOriginalRouteAndChallenge": true,
+          "nativeSetEffectInOriginalDocument": true,
+          "nativeSetReplySucceeded": true,
+          "originalIsolatedSeesSharedMarkerOnly": true,
+          "originalMainSeesOwnUnopenedXHRAndGlobal": true,
+          "worldEvidenceReferenced": true
+        },
+        "effectSource": "native-set",
+        "entry": "native-set",
+        "localExecutionWorld": "PASS",
+        "missingStageReferences": [],
+        "network": {
+          "coverage": "page-resource-timing",
+          "cspViolations": 0,
+          "localPage": {
+            "connectionAndWorkerSourcesDenied": true,
+            "continuousCountersOnOriginalDocument": true,
+            "counterOverflowOrLoss": false,
+            "fileScheme": true,
+            "fixedFixtureSHA256": "d81ff9a494d2cf535094ab0f3463b0b5fd76e6f48fe66ccd950ff07e89eb0f8a",
+            "fixtureHashMatched": true,
+            "policyActiveFromPreparationThroughCleanup": true,
+            "remoteSubresourcesAndFormDenied": true
+          },
+          "requests": null,
+          "resourceEntries": 0,
+          "uploads": null
+        },
+        "observedOSStatus": 0,
+        "originalDocumentResourcesNoHTTP": true,
+        "overall": "PASS",
+        "overallScope": "owned-local-original-document",
+        "schema": 1,
+        "scope": "owned-local",
+        "wholeNetworkObserved": false,
+        "worldVerified": true
+      }
+    },
+    "edge": {
+      "endedUTC": "2026-11-23T05:53:16Z",
+      "installedInfoPlistSHA256": "40e09a26da7c4bc3b6a9339ad50282f7f82d9439d7914dc12acf129bed409ae5",
+      "installedVersion": "158.0.4370.33",
+      "projection": {
+        "browser": "edge",
+        "entry": "native-set",
+        "evidenceSHA256": {
+          "after": "0982bda01b7735c9c27c1cbd36f3bdc1c0b0ac3d948d10602ac143df893bfbf8",
+          "before": "1124e405c77ebaae37847eef776539d5f0d7a67477cf78a56d1f14af04a8a0e8",
+          "cleanup": "ea385a5c5375509099372ad4b63bf4881575e4a79be4227782752a547d6bd0f9",
+          "effect": "77aa7452bb36fc83689a219b7912f55ab00092c52366bb63216c0d3b733bde6a",
+          "isolated": "77aa7452bb36fc83689a219b7912f55ab00092c52366bb63216c0d3b733bde6a",
+          "main": "7cba505e9b9a8b465bb5f878593e56b20c3803eaca4fd15a3212e624eb1d6d8e",
+          "network": "ea385a5c5375509099372ad4b63bf4881575e4a79be4227782752a547d6bd0f9",
+          "set": "9b50190e8b62238874d03d579da1dff51d75049eac42421fa198e3af5db5af76"
+        },
+        "run": {
+          "after": {
+            "document": "da7bcb7e3a1424760ca78b12b818ff775b32f88312feea00f6a3fb6514cd3cfe",
+            "route": "33ce6f3869edcb8b571babfe71818f0fb933ff22a3ab10fe6d278041d46c58be"
+          },
+          "before": {
+            "document": "da7bcb7e3a1424760ca78b12b818ff775b32f88312feea00f6a3fb6514cd3cfe",
+            "markerAbsent": true,
+            "route": "33ce6f3869edcb8b571babfe71818f0fb933ff22a3ab10fe6d278041d46c58be"
+          },
+          "challenge": "74b9e59a660ede5cd4c0c77bb7f4313479ea66fe495379aabc6b90070bdac82f",
+          "cleanup": {
+            "document": "da7bcb7e3a1424760ca78b12b818ff775b32f88312feea00f6a3fb6514cd3cfe",
+            "globalAbsent": true,
+            "mainContextVerified": true,
+            "sharedMarkerAbsent": true,
+            "xhrAbsent": true
+          },
+          "effect": {
+            "challenge": "74b9e59a660ede5cd4c0c77bb7f4313479ea66fe495379aabc6b90070bdac82f",
+            "document": "da7bcb7e3a1424760ca78b12b818ff775b32f88312feea00f6a3fb6514cd3cfe",
+            "via": "native-set"
+          },
+          "isolated": {
+            "contextVerified": true,
+            "document": "da7bcb7e3a1424760ca78b12b818ff775b32f88312feea00f6a3fb6514cd3cfe",
+            "globalVisible": false,
+            "sharedChallenge": "74b9e59a660ede5cd4c0c77bb7f4313479ea66fe495379aabc6b90070bdac82f",
+            "xhrVisible": false
+          },
+          "main": {
+            "contextVerified": true,
+            "document": "da7bcb7e3a1424760ca78b12b818ff775b32f88312feea00f6a3fb6514cd3cfe",
+            "globalChallenge": "74b9e59a660ede5cd4c0c77bb7f4313479ea66fe495379aabc6b90070bdac82f",
+            "unopened": true,
+            "xhrChallenge": "74b9e59a660ede5cd4c0c77bb7f4313479ea66fe495379aabc6b90070bdac82f"
+          },
+          "network": {
+            "coverage": "page-resource-timing",
+            "cspViolations": 0,
+            "localPage": {
+              "connectionAndWorkerSourcesDenied": true,
+              "continuousCountersOnOriginalDocument": true,
+              "counterOverflowOrLoss": false,
+              "fileScheme": true,
+              "fixedFixtureSHA256": "d81ff9a494d2cf535094ab0f3463b0b5fd76e6f48fe66ccd950ff07e89eb0f8a",
+              "fixtureHashMatched": true,
+              "policyActiveFromPreparationThroughCleanup": true,
+              "remoteSubresourcesAndFormDenied": true
+            },
+            "requests": null,
+            "resourceEntries": 0,
+            "uploads": null
+          },
+          "set": {
+            "challenge": "74b9e59a660ede5cd4c0c77bb7f4313479ea66fe495379aabc6b90070bdac82f",
+            "osStatus": 0,
+            "route": "33ce6f3869edcb8b571babfe71818f0fb933ff22a3ab10fe6d278041d46c58be"
+          }
+        },
+        "schema": 1,
+        "scope": "owned-local"
+      },
+      "startedUTC": "2026-11-23T05:53:10Z",
+      "summary": {
+        "blockers": [],
+        "closureStop": null,
+        "environmentAdmitted": true,
+        "exactNativeOrder": true,
+        "fixtureCallsOnly": 0,
+        "lastWhileWaitingCspCount": null,
+        "lastWhileWaitingCspDirective": null,
+        "measurementStop": null,
+        "nativeIntents": {
+          "clear": 1,
+          "install": 1,
+          "read": 1,
+          "retire": 1
+        },
+        "nativeSuccessfulReplies": {
+          "clear": true,
+          "install": true,
+          "read": true,
+          "retire": true
+        },
+        "observedStages": [
+          "clear",
+          "close-intent",
+          "closed",
+          "creation-intent",
+          "environment",
+          "final-independent-read",
+          "installed",
+          "isolated",
+          "main-read",
+          "ready",
+          "retired",
+          "run",
+          "window-created"
+        ],
+        "ownedWindowClosureVerified": true,
+        "ownedWindowVerified": true,
+        "preparationStop": null,
+        "sameOriginalStillReadyAfterSet": false,
+        "sourceAndManifestVerified": true,
+        "sourceArtifactSHA256": {
+          "build-manifest": "ed64ecd873fcfee463abd1026990cd3143292d0c9cef30db116e0288fc49fb7a",
+          "clear": "ea385a5c5375509099372ad4b63bf4881575e4a79be4227782752a547d6bd0f9",
+          "close-intent": "0f019489dccd3d40c38250967ac7956d02d7f7fc93d2cf356d3cfaa7e68b2945",
+          "closed": "8c808b36997bef23fcf753af347b31c6a19f3b2425387183b22e25193f39a383",
+          "creation-intent": "f141e46078b5c302a2b61321ed8f3cf627d3816af471c0bc270741114ce1213d",
+          "environment": "92a00ad3bc2da792b845589a101524cd2815c9697143a003890de6f3ab9312cc",
+          "final-independent-read": "ea385a5c5375509099372ad4b63bf4881575e4a79be4227782752a547d6bd0f9",
+          "installed": "77aa7452bb36fc83689a219b7912f55ab00092c52366bb63216c0d3b733bde6a",
+          "isolated": "77aa7452bb36fc83689a219b7912f55ab00092c52366bb63216c0d3b733bde6a",
+          "main-read": "7cba505e9b9a8b465bb5f878593e56b20c3803eaca4fd15a3212e624eb1d6d8e",
+          "ready": "1124e405c77ebaae37847eef776539d5f0d7a67477cf78a56d1f14af04a8a0e8",
+          "retired": "0982bda01b7735c9c27c1cbd36f3bdc1c0b0ac3d948d10602ac143df893bfbf8",
+          "run": "9b50190e8b62238874d03d579da1dff51d75049eac42421fa198e3af5db5af76",
+          "window-created": "991dd9fb76e8d1aba67c1f958cb0d40b411318705ed1203eef3250f748b6c73e"
+        },
+        "stageCount": 13
+      },
+      "verdict": {
+        "browser": "edge",
+        "checks": {
+          "afterOriginalRouteAndDocument": true,
+          "allStagesReferenced": true,
+          "baselineMarkerAbsent": true,
+          "cleanedInOriginalMain": true,
+          "fixedLocalPageContinuouslyCovered": true,
+          "measuredZeroWholeAttemptRequestsAndUploads": false,
+          "nativeSetBoundToOriginalRouteAndChallenge": true,
+          "nativeSetEffectInOriginalDocument": true,
+          "nativeSetReplySucceeded": true,
+          "originalIsolatedSeesSharedMarkerOnly": true,
+          "originalMainSeesOwnUnopenedXHRAndGlobal": true,
+          "worldEvidenceReferenced": true
+        },
+        "effectSource": "native-set",
+        "entry": "native-set",
+        "localExecutionWorld": "PASS",
+        "missingStageReferences": [],
+        "network": {
+          "coverage": "page-resource-timing",
+          "cspViolations": 0,
+          "localPage": {
+            "connectionAndWorkerSourcesDenied": true,
+            "continuousCountersOnOriginalDocument": true,
+            "counterOverflowOrLoss": false,
+            "fileScheme": true,
+            "fixedFixtureSHA256": "d81ff9a494d2cf535094ab0f3463b0b5fd76e6f48fe66ccd950ff07e89eb0f8a",
+            "fixtureHashMatched": true,
+            "policyActiveFromPreparationThroughCleanup": true,
+            "remoteSubresourcesAndFormDenied": true
+          },
+          "requests": null,
+          "resourceEntries": 0,
+          "uploads": null
+        },
+        "observedOSStatus": 0,
+        "originalDocumentResourcesNoHTTP": true,
+        "overall": "PASS",
+        "overallScope": "owned-local-original-document",
+        "schema": 1,
+        "scope": "owned-local",
+        "wholeNetworkObserved": false,
+        "worldVerified": true
+      }
+    }
+  },
+  "build": {
+    "builderSHA256": "07a41de12c5fd966f90f432c8694efe2b970e673e075f7f97916761a84a7e1e3",
+    "compiledSourceSHA256": "b4209bd09d29acde5d01ff3e2a31299a01b8eb27d1dc0b0f01fd2c950e6fc2ba",
+    "executableSHA256": "5cf8c6f3d45d16d732b1029c1daa67de72738fb5e8c7f25dcd9e5c9b76641433",
+    "fixtureSHA256": "d81ff9a494d2cf535094ab0f3463b0b5fd76e6f48fe66ccd950ff07e89eb0f8a",
+    "frozenCommit": "49b9204974088c1983cda469910d9a78d8f4c43b",
+    "runnerSHA256": "79769177935f570804a2e0ae7091160211d43329a8e8a197d3ea05ad5ffc3e7f",
+    "transportPrefixSHA256": "00b1f7b637aad2ce00cc9b766c923ad5c4f25c3d0d08e8cf7306983ddb386140"
+  },
+  "privateArchive": {
+    "archiveSHA256": "bc3359cabe81517bdceb42908e37450713c9661b66eb46457d0cf6f8d13a92e4",
+    "indexSHA256": "7d68ae199ff773b852d0535eab1ab05fd814ec8a1134cc58ccdd8939cfeb700c",
+    "items": 39
+  },
+  "schema": 1,
+  "scope": "Real macOS native integration using a fixed first-party file and a QA executable, compiled with the intact frozen transport as its source prefix. No new product candidate.",
+  "signedCandidateSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "signedDMGSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "signedSiteRequestOwner": "UNMEASURED_BY_LOCAL_PAGE",
+  "siteUploads": 0,
+  "sourceBuild": 61,
+  "status": "PASS_LOCAL_NATIVE_BOOTSTRAP"
+}

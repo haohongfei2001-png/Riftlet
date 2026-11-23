@@ -1,0 +1,88 @@
+{
+  "version": "1.0.8",
+  "build": 61,
+  "dmgSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "signedSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "family": "edge",
+  "status": "RAPID_PAIRS_PASS",
+  "ordinaryTemporaryChat": true,
+  "mouseDownIntervalsMS": [
+    551.605,
+    568.999,
+    549.887
+  ],
+  "earlierCardsPreservedForEachPair": [
+    1,
+    3,
+    5
+  ],
+  "finalPageCounters": {
+    "fileChange": 7,
+    "fileInput": 7,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  },
+  "independentFilesAndStarts": [
+    {
+      "durableStartEvidenceIDDigest": "007948f5a98707084d9918995f825fba6fd30de99615f64f6756973e1da3b831",
+      "invocationIDDigest": "faddbae773ec7a1ff709264c93d58ed7e04bc5b689bd59896dbb4e914585d1e7",
+      "operationIDDigest": "fb82988f4db5379257aa2672b2f7905ae4f9a4fc0c78aad346de6df193bdf160",
+      "photo": 1,
+      "pngSHA256": "42d47187543ee7c18f43efd2f5941f68b7857d7c39a7a12eaa69daeb094b1225",
+      "webDecodedPixelsSHA256": "ba727da6e6c3995ea0e3a42bc0badb7c972df4cbef27f46f71e59b5dc37007c5"
+    },
+    {
+      "durableStartEvidenceIDDigest": "732fcbdc74bb46c1f22f939ac143a56789ad9ca86511364d25a64f7332b26fb7",
+      "invocationIDDigest": "21e46a6a5d29a9df01c43fc73dfd921aa203d91eddd1772e8ec0c398b6f61bcd",
+      "operationIDDigest": "9c5e669c3b1cedc0f168854f4cdd202a8776ec315eb20c31fa7d286cb423af56",
+      "photo": 2,
+      "pngSHA256": "f22a8c83faed40f1976924d910c275f9e987608e3eedb90cd50eb25d0708a454",
+      "webDecodedPixelsSHA256": "50c1f4fbf983c89645f184938fdecea98e11c8a1e483eb417f0855bc6bd1999a"
+    },
+    {
+      "durableStartEvidenceIDDigest": "aafc579c035167dc6cb35cc12e815967251483915f64a4aed5c036f1a33eed03",
+      "invocationIDDigest": "0371d2fcc9bace13b3e8d015b4930b1d46f054e1b5595a4a87646a85d09e3733",
+      "operationIDDigest": "f034aeae0abda60d9885576e42545265609bfe620a92d794a09cb584ce209072",
+      "photo": 3,
+      "pngSHA256": "4f8398801caafb95b8d2022f3f1f45a62abc8cfb69f68d52635185133db7af57",
+      "webDecodedPixelsSHA256": "adbc918733c9a841799aedd51ce13c2a3ecf21e4e61164f0c901496045f043ce"
+    },
+    {
+      "durableStartEvidenceIDDigest": "d58c46d4a437b63f482bd3be6d6f6f6068d99d9ca885ba8877ab48fa5ba51101",
+      "invocationIDDigest": "3d08ecdd845179b0293f00e891c895e051ee14521d927af698d6585df33ef3d2",
+      "operationIDDigest": "0aa75d428d14c0fe9c3badfcf3b6e8d12f8e56570672484c461e41ed73383a1f",
+      "photo": 4,
+      "pngSHA256": "9ac04125e1f4768e64b3984167d96569c1a0ef16f2ec2a8c4911d6589829932e",
+      "webDecodedPixelsSHA256": "b475d2e6e4575bcfe35ad56a9d670588c6d4066179818d68a3ab332c2717689f"
+    },
+    {
+      "durableStartEvidenceIDDigest": "dba373d90968f2da488c77e5d65568aaa4af5a8e6eda340e0068cd4b3b966fb2",
+      "invocationIDDigest": "4607394e5a07cc246a528533176474d1fd79f844af7197568b9e264987db432f",
+      "operationIDDigest": "9477d6703a049defd8757ebf26cd64e7026a34550ac901be1260238110e3d13c",
+      "photo": 5,
+      "pngSHA256": "417b8d972a5e1b620417a4f019a163f2566d71584808ee20f1152c32ab928a04",
+      "webDecodedPixelsSHA256": "138117efb93eef0be7a0e3da794d186afe873f6e075dd04d48d252e522fd1c45"
+    },
+    {
+      "durableStartEvidenceIDDigest": "acb81fe238a483034143db51ca0accc19934a44ee5db239cfae3f428f341d2de",
+      "invocationIDDigest": "f65560b722f679aa3029bb3b5c7bb191384687eae94278bf472fb58a20298cd2",
+      "operationIDDigest": "450c6d6b9b594edb8c62d6fd4e2141685ee69ded83c31b4743c2162cba369285",
+      "photo": 6,
+      "pngSHA256": "5ccfe72e4d68377179d3d1c40d1a0dc9b12ae6cfb26df322b89fae856d75e48a",
+      "webDecodedPixelsSHA256": "b9ac590b96eb6d07de46c3c8122b0a40115bc514ce8a65883a460607d937b562"
+    },
+    {
+      "durableStartEvidenceIDDigest": "d70bc750eba344d8e16e8e0f2f6c059d30a44b625e803cd2429cf2876cbab97b",
+      "invocationIDDigest": "dad4d82912145489beec37b42c998eb590b02efa66e24bb3741b6db54fd7904c",
+      "operationIDDigest": "62262fec26a1abe8172b9f364e48e170d48f8443fb0d90a25ad826124ba34ceb",
+      "photo": 7,
+      "pngSHA256": "ca72d5adff8f186a9150f8f7a0378d57993cd9224536c56cc336afbc3666ba32",
+      "webDecodedPixelsSHA256": "b0beb5114bac11859d3cad17a9b6818353e3a6ed48e6d04f69c4b0669ab5947e"
+    }
+  ],
+  "traceSHA256": "2b89eb2b21dcab68c938da4704b961279a847aa2c0c49f1a2de72bd013ea3f88",
+  "independentSQLiteSHA256": "047bb231972ecebbe62d6a98269ab592671ed5742ea0ff5e00bd00d44c578c5f",
+  "custodyArchiveSHA256": "8920c40f0eca41cbf0803b38692393bc4a25bb0583ce6adf0b8572f51d8a1b58",
+  "auditSHA256": "e77acf6ccc2eba8f6871f04ed0a2cca980658c3d76571fd75b8adc44fed37b56",
+  "selection": "First editor accessibility check stopped with HIT_NOT_ORIGINAL_EDITABLE before any editor input or eighth product click. The rapid-pair result counts only the original seven product selections."
+}

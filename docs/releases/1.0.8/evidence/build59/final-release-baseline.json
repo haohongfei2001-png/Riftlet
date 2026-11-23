@@ -1,0 +1,344 @@
+{
+  "ancestry": {
+    "PR122ExclusiveChangeSummary": "Parallel development/isolated-app track for additional hosts and provider adapter; not in the PR 124 ancestor chain.",
+    "PR122FixedBaseIs119": true,
+    "PR122IsAncestorOf124": false,
+    "PR122Versus124MergeBase": "c764246410c2c0c225ac4bb8688c2ae5179f27e9",
+    "mainTo119To123To124": true
+  },
+  "deployedStableUpdateFeed": {
+    "DMGEnclosureEd25519VerifiedUsingSameKey": true,
+    "HTTPStatus": 200,
+    "PR124FeedIdenticalToMain": true,
+    "automaticInstallationEnabled": false,
+    "build": "31",
+    "bundleIdentifier": "com.riftlet.app",
+    "dailyAutomaticChecks": true,
+    "entireSparkleConfigurationSameAsFrozenCandidate": true,
+    "equalToMainFeedBytes": true,
+    "feedEd25519VerifiedUsingMainAppPublicKey": true,
+    "fileSHA256": "da0b17e36b178ae94bcbea6e5720dcc400250350aa766fd31d4fbf8e3f476b52",
+    "minimumSystemVersion": "13.0",
+    "requiresFeedSignature": true,
+    "shortVersion": "1.0.5",
+    "url": "https://riftlet.com/updates/stable.xml",
+    "verifyUpdateBeforeExtraction": true
+  },
+  "deployedWebsite": {
+    "HTTPStatus": 200,
+    "PR124IndexIdenticalToMain": true,
+    "deploymentState": "success",
+    "equalsMainIndexBytes": true,
+    "htmlSHA256": "70246d64e139efe5b7ab1a22f00b422bc9bc06590b8c815a430c21443ed9037a",
+    "pagesBranch": {
+      "branch": "main",
+      "path": "/"
+    },
+    "pagesDeploymentSHA": "9fd8ad15fca043915069904113e5fb67d82b4948",
+    "supportClaim": "Editable ChatGPT drafts in Google Chrome, macOS 13+, Apple silicon and Intel. Site excludes other browsers, the desktop app and read-only chats.",
+    "url": "https://riftlet.com/"
+  },
+  "limits": [
+    "GitHub submitted review counts exclude independent technical evidence in engineering reports and issue comments.",
+    "Current PR 124 evidence-only head has no platform CI check run. The two green native jobs have source SHA 69b76cb0.",
+    "No public deployment, installation or update was performed as part of this read-only audit."
+  ],
+  "main": {
+    "checks": [
+      [
+        "report-build-status",
+        "success"
+      ],
+      [
+        "deploy",
+        "success"
+      ],
+      [
+        "build",
+        "success"
+      ],
+      [
+        "Native Intel",
+        "success"
+      ],
+      [
+        "Feedback source admission",
+        "success"
+      ],
+      [
+        "Native ARM64",
+        "success"
+      ],
+      [
+        "Native source admission",
+        "success"
+      ],
+      [
+        "Feedback native and service",
+        "success"
+      ]
+    ],
+    "reportedProtected": false,
+    "sha": "9fd8ad15fca043915069904113e5fb67d82b4948",
+    "source": "https://api.github.com/repos/haohongfei2001-png/Riftlet/branches/main"
+  },
+  "observedUTC": "2026-11-22T15:12:31+00:00",
+  "product": {
+    "candidateDMGSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+    "candidateRuntimeTreeIDs": {
+      "Package.resolved": "5f5f1ebea92ebb344bcaea6f858c1fff33f7ff68",
+      "Package.swift": "200a889be151c6c274e9f5cf46e7cdc93c550f23",
+      "Resources": "770b4cbc62d8c4dfdffb5c36504058261d94229c",
+      "Sources": "6de855475069f223c9ecffe21c7303e9ae69b7cf",
+      "packaging": "e4ffec75b0dd99f42883fbf17050bef4ccc16a91",
+      "scripts": "8cc513221bea6bd67bd6c0f368e098d3cdffbf08"
+    },
+    "frozenSourceCI": {
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "69b76cb025ab552b3480e3af095b627891874712",
+      "html_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44987854131",
+      "id": 44987854131,
+      "name": "Pre-click document lease",
+      "status": "completed"
+    },
+    "frozenSourceJobs": [
+      {
+        "conclusion": "success",
+        "name": "native (macos-15)",
+        "state": "completed",
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44987854131/job/137102245118"
+      },
+      {
+        "conclusion": "success",
+        "name": "native (macos-15-intel)",
+        "state": "completed",
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44987854131/job/137102244877"
+      }
+    ],
+    "githubCheckRunCountAtPR124Head": 0,
+    "mainToPR124": {
+      "changedRoots": [
+        ".github",
+        "AGENTS.md",
+        "Experiments",
+        "Resources",
+        "Sources",
+        "Tests",
+        "docs",
+        "engineering",
+        "packaging",
+        "scripts"
+      ],
+      "files": 419,
+      "pathsSortedSHA256": "d5d5f906c8aad1baee686a417b6b7d7bbf6e920a27f3448091ebe691b8f7a65a",
+      "resources": 3,
+      "runtimePathsIdentical": false,
+      "runtimeSwiftOrJavaScript": 57
+    },
+    "releaseApproval": "G4 and subsequent formal integration gates still outstanding.",
+    "signedProductToPR124": {
+      "changedRoots": [
+        "Tests",
+        "docs"
+      ],
+      "files": 99,
+      "pathsSortedSHA256": "eea7a58909d45f398338e26c2c15b656d5548d8b1d20426751b666018fbbeb4c",
+      "resources": 0,
+      "runtimePathsIdentical": true,
+      "runtimeSwiftOrJavaScript": 0
+    },
+    "signedSource": "69b76cb025ab552b3480e3af095b627891874712"
+  },
+  "publicRelease": {
+    "GitHubReportedAssetDigest": "sha256:99276347932e231adf743664a54cfc782d8e345d89221587d54b7299a5c9f315",
+    "assetComparedUsing": "retained formal distribution bytes independently matched to current public release digest and live appcast signature",
+    "bytes": 12686160,
+    "download": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.5/Riftlet-1.0.5.dmg",
+    "downloadedOrRetainedArtifactSHA256": "99276347932e231adf743664a54cfc782d8e345d89221587d54b7299a5c9f315",
+    "draft": false,
+    "higherPublishedVersionObserved": false,
+    "immutable": true,
+    "prerelease": false,
+    "publishedAt": "2026-11-18T02:50:46Z",
+    "source": "fe9c227a3b89a082b9da39dc5bb1f5c0b955c2ee",
+    "tag": "v1.0.5",
+    "url": "https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.5"
+  },
+  "pullRequests": [
+    {
+      "base": "9fd8ad15fca043915069904113e5fb67d82b4948",
+      "baseBranch": "main",
+      "baseIsAncestorOfHead": true,
+      "checkRollup": [
+        {
+          "name": "Feedback source admission",
+          "result": "SUCCESS",
+          "source": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44668259741/job/136062767857"
+        },
+        {
+          "name": "Native source admission",
+          "result": "SUCCESS",
+          "source": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44668259735/job/136062770053"
+        },
+        {
+          "name": "Feedback native and service",
+          "result": "SUCCESS",
+          "source": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44668259741/job/136062768395"
+        },
+        {
+          "name": "Native ARM64",
+          "result": "SUCCESS",
+          "source": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44668259735/job/136062770431"
+        },
+        {
+          "name": "Native Intel",
+          "result": "SUCCESS",
+          "source": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44668259735/job/136062770236"
+        }
+      ],
+      "commitDistanceFromBase": 185,
+      "diff": {
+        "changedRoots": [
+          "AGENTS.md",
+          "Resources",
+          "Sources",
+          "Tests",
+          "docs",
+          "engineering",
+          "packaging",
+          "scripts"
+        ],
+        "files": 195,
+        "pathsSortedSHA256": "53844e314e7264c4e64c3206173c61985d5a0be9ccb14c9396f187631c31709d",
+        "resources": 3,
+        "runtimePathsIdentical": false,
+        "runtimeSwiftOrJavaScript": 43
+      },
+      "draft": true,
+      "githubReviewDecision": null,
+      "githubSubmittedReviews": 0,
+      "head": "c764246410c2c0c225ac4bb8688c2ae5179f27e9",
+      "headBranch": "codex/riftlet-1.0.7-edge-integration-20261119",
+      "mergeability": "MERGEABLE",
+      "number": 119,
+      "pendingReviewRequests": 0,
+      "state": "OPEN",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/pull/119"
+    },
+    {
+      "base": "c764246410c2c0c225ac4bb8688c2ae5179f27e9",
+      "baseBranch": "codex/issue-120-compare-build53",
+      "baseIsAncestorOfHead": true,
+      "checkRollup": [
+        {
+          "name": "Development Swift tests and isolated App",
+          "result": "SUCCESS",
+          "source": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44907950050/job/136857518075"
+        }
+      ],
+      "commitDistanceFromBase": 70,
+      "diff": {
+        "changedRoots": [
+          ".github",
+          "Sources",
+          "Tests",
+          "docs",
+          "engineering",
+          "scripts"
+        ],
+        "files": 161,
+        "pathsSortedSHA256": "8d1375bd7a9742a1c067447201fd11d8ff3e63089ab858a196a23488a20c678c",
+        "resources": 0,
+        "runtimePathsIdentical": false,
+        "runtimeSwiftOrJavaScript": 19
+      },
+      "draft": true,
+      "githubReviewDecision": null,
+      "githubSubmittedReviews": 0,
+      "head": "a9a1c03c9bd0b0d834cc6f9a4f99492cbfa12db2",
+      "headBranch": "codex/issue-120-preintegration",
+      "mergeability": "MERGEABLE",
+      "number": 122,
+      "pendingReviewRequests": 0,
+      "state": "OPEN",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/pull/122"
+    },
+    {
+      "base": "c764246410c2c0c225ac4bb8688c2ae5179f27e9",
+      "baseBranch": "codex/riftlet-1.0.7-edge-integration-20261119",
+      "baseIsAncestorOfHead": true,
+      "checkRollup": [
+        {
+          "name": "candidate (macos-15)",
+          "result": "SUCCESS",
+          "source": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44916928661/job/136884427731"
+        },
+        {
+          "name": "candidate (macos-15-intel)",
+          "result": "SUCCESS",
+          "source": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44916928661/job/136884427979"
+        }
+      ],
+      "commitDistanceFromBase": 8,
+      "diff": {
+        "changedRoots": [
+          ".github",
+          "Resources",
+          "Sources",
+          "Tests",
+          "docs"
+        ],
+        "files": 55,
+        "pathsSortedSHA256": "e1a24c42b847876aa53f79f79c50c8b9b1645d7b9670550abdb61b9fe12ef339",
+        "resources": 1,
+        "runtimePathsIdentical": false,
+        "runtimeSwiftOrJavaScript": 2
+      },
+      "draft": true,
+      "githubReviewDecision": null,
+      "githubSubmittedReviews": 0,
+      "head": "f126a211833ccecd17664a1a2bc6cbe83134eaf3",
+      "headBranch": "codex/build53-original-target-fence-20261121",
+      "mergeability": "MERGEABLE",
+      "number": 123,
+      "pendingReviewRequests": 0,
+      "state": "OPEN",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/pull/123"
+    },
+    {
+      "base": "f126a211833ccecd17664a1a2bc6cbe83134eaf3",
+      "baseBranch": "codex/build53-original-target-fence-20261121",
+      "baseIsAncestorOfHead": true,
+      "checkRollup": [],
+      "commitDistanceFromBase": 50,
+      "diff": {
+        "changedRoots": [
+          ".github",
+          "Experiments",
+          "Resources",
+          "Sources",
+          "Tests",
+          "docs",
+          "scripts"
+        ],
+        "files": 182,
+        "pathsSortedSHA256": "41d41904d7b91ab27c17b41a4c5ebc778000ea35267de8438ca0de97fc8ef4bf",
+        "resources": 1,
+        "runtimePathsIdentical": false,
+        "runtimeSwiftOrJavaScript": 22
+      },
+      "draft": true,
+      "githubReviewDecision": null,
+      "githubSubmittedReviews": 0,
+      "head": "72450a70858e6c305c5ccd64de57aee8b2b8b34f",
+      "headBranch": "codex/riftlet-108-preclick-lease",
+      "mergeability": "MERGEABLE",
+      "number": 124,
+      "pendingReviewRequests": 0,
+      "state": "OPEN",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/pull/124"
+    }
+  ],
+  "scope": "Read-only public-state and Git object audit. No merge, build, deployment or publication requested."
+}

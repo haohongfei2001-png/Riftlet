@@ -1,0 +1,88 @@
+{
+  "source": "711cee3a1c7033ce4925082a83099b00da7087c6",
+  "dmgSHA256": "5a934119d6e65cbe82a62f5f208a2b95a200fa0cf170225ccd4e9016b1c0b54e",
+  "installLockSHA256": "11f2f98aea01e84395cb6d5f19fabf34cd669eec072289b0bf041cff85db544f",
+  "g4c": "NOT_RUN",
+  "environment": "BLOCKED_ENV",
+  "duplicatePreventionOnSite": "NOT_RUN",
+  "trustedTimeoutOnSite": "NOT_RUN",
+  "totalProductFileInputs": 0,
+  "formSubmits": 0,
+  "messagesSent": 0,
+  "outcomes": [
+    {
+      "independentInstallationSHA256": "5a934119d6e65cbe82a62f5f208a2b95a200fa0cf170225ccd4e9016b1c0b54e",
+      "preparation": 1,
+      "appLaunched": false,
+      "windowCloseRequests": 1,
+      "explicitProductInputs": 0,
+      "transportArmed": false,
+      "siteNavigation": false,
+      "receiptSHA256": {
+        "before.json": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+        "creation.json": "cdeca0cb2b6cf17899ae3cc90e08079d0184df93017ebba5c19a71818f2ee94a",
+        "closed.json": "e148ee30b300dcf304cd7e68b337f09025d911a0f3f13fde9285d63fb5857d77",
+        "after.json": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e"
+      }
+    },
+    {
+      "independentInstallationSHA256": "5a934119d6e65cbe82a62f5f208a2b95a200fa0cf170225ccd4e9016b1c0b54e",
+      "preparation": 2,
+      "appLaunched": false,
+      "windowCloseRequests": 1,
+      "explicitProductInputs": 0,
+      "transportArmed": false,
+      "siteNavigation": false,
+      "receiptSHA256": {
+        "before.json": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+        "creation.json": "b58f36e39982fbc0c20c660bac7a9d19849e3ac85663e6ba614e39ae106205e4",
+        "local-focus.json": "7191b8fd630cfc9f33e71f84403b56a72dd1df625d079dd72be3846f8bd0981e",
+        "closed.json": "e148ee30b300dcf304cd7e68b337f09025d911a0f3f13fde9285d63fb5857d77",
+        "after.json": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e"
+      }
+    },
+    {
+      "independentInstallationSHA256": "5a934119d6e65cbe82a62f5f208a2b95a200fa0cf170225ccd4e9016b1c0b54e",
+      "preparation": 3,
+      "appLaunched": false,
+      "windowCloseRequests": 1,
+      "explicitProductInputs": 0,
+      "transportArmed": false,
+      "siteNavigation": true,
+      "receiptSHA256": {
+        "before.json": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+        "creation.json": "88a6bb731e447a2e1ca70cdf94ef1b47d14b11391fcb1fb25d6461f101d4f70d",
+        "challenge.json": "80e45805cd3a456ec16969d58ebe50cda9ca74d5945dc661ab562fe4ecf1bffc",
+        "site-navigation-return.json": "7f659bfe108a166495ad59721687c606c3fa8c21a5667aabbd5615b43502209f",
+        "original-entry.json": "c5348a1d0ebe0fb606c86e94197c3ad460ddac6650198c5d946168b6c5c64b6d",
+        "pre-presentation-site.json": "1fb6dc08d904a2d459a6c13e5b60215030b90e9a05662aec664edfe106e164c4",
+        "failed-presentation-site.json": "bc9d7c3db49db8c995cb96a4bbb5bdedb1670f5941399dd8e79e8b8717d0c6e1",
+        "closed.json": "e148ee30b300dcf304cd7e68b337f09025d911a0f3f13fde9285d63fb5857d77",
+        "after.json": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e"
+      },
+      "verifiedSignedBrowser": true,
+      "selectedOriginalTab": true,
+      "singleOriginalTab": true,
+      "exactTemporaryURL": true,
+      "signedIn": true,
+      "editor": true,
+      "uploadEntry": true,
+      "sameOriginalDocument": true,
+      "originalDraftEmpty": true,
+      "applicationForeground": false,
+      "documentVisible": false,
+      "documentFocused": true,
+      "browserHidden": false,
+      "windowMinimized": false,
+      "nativeWindowVisible": true,
+      "screenLocked": false,
+      "displayAsleep": false,
+      "hostResult": "ACTIVATION_REFUSED"
+    }
+  ],
+  "offline": {
+    "fixedTimeoutBranch": 22,
+    "historicalReadbackAndDriverAdmission": 5,
+    "controlsOnly": true
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "type": "Independent offline color comparison of the original Chrome QA PNGs",
+  "reviewer": "riftlet_108_60_independent_full_range_nonauthor_source_reviewer",
+  "observedUTC": "2026-11-23T02:08:20.584323+00:00",
+  "chromeVersion": "157.0.8103.79",
+  "session": "headless ephemeral local file; network deny CSP; no product or external site",
+  "sourceEncoding": "Both copies are the original 8-bit RGBA single-frame PNG. The archived website File, visible preview blob and source share SHA-256.",
+  "test": [
+    {
+      "index": 6,
+      "width": 330,
+      "height": 196,
+      "canvasColorSpace": "srgb",
+      "nativeColorSyncRGBA": "06258c3737cd982578f8380db5e86d9127d07682284a454e3cf09673b4ba25ca",
+      "actualArchivedBrowserRGBA": "06258c3737cd982578f8380db5e86d9127d07682284a454e3cf09673b4ba25ca",
+      "offlineFileRGBA": "06258c3737cd982578f8380db5e86d9127d07682284a454e3cf09673b4ba25ca",
+      "offlineImagePreviewRGBA": "06258c3737cd982578f8380db5e86d9127d07682284a454e3cf09673b4ba25ca",
+      "offlineFileEqualsArchivedWebsite": true,
+      "offlinePreviewEqualsOfflineFile": true,
+      "differingPixelCountVersusColorSync": 0,
+      "changedChannelsRGBA": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "maxAbsoluteChannelDifferenceRGBA": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "opaquePixelsInBoth": 64680,
+      "fileAndPreviewEncodedSHA256": "ffb341b0f75f299ee40749730d0bfffb164a9e94b497e473ab46ee2e695f3e05"
+    },
+    {
+      "index": 7,
+      "width": 330,
+      "height": 196,
+      "canvasColorSpace": "srgb",
+      "nativeColorSyncRGBA": "9095bc585f34f022fc5dcf23cfe006f34ab8bf2cf07044bbd8a3d9ade3ed2a28",
+      "actualArchivedBrowserRGBA": "a7f1bc7980d79e0eb481d49c73624f4f5e21d21323f750d8e2875ba4b12e38e6",
+      "offlineFileRGBA": "a7f1bc7980d79e0eb481d49c73624f4f5e21d21323f750d8e2875ba4b12e38e6",
+      "offlineImagePreviewRGBA": "a7f1bc7980d79e0eb481d49c73624f4f5e21d21323f750d8e2875ba4b12e38e6",
+      "offlineFileEqualsArchivedWebsite": true,
+      "offlinePreviewEqualsOfflineFile": true,
+      "differingPixelCountVersusColorSync": 64680,
+      "changedChannelsRGBA": [
+        0,
+        0,
+        64680,
+        0
+      ],
+      "maxAbsoluteChannelDifferenceRGBA": [
+        0,
+        0,
+        1,
+        0
+      ],
+      "opaquePixelsInBoth": 64680,
+      "fileAndPreviewEncodedSHA256": "18e22ef89d9b4a504a546d626814268a493663a3d173e537b8c6de544991a199"
+    }
+  ]
+}

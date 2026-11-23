@@ -1,0 +1,392 @@
+{
+  "schemaVersion": 1,
+  "type": "Independent final-gate supplement for Riftlet 1.0.8 build 61",
+  "reviewer": "riftlet_108_60_independent_full_range_nonauthor_source_reviewer",
+  "writtenUTC": "2026-11-22T23:25:38.616345+00:00",
+  "releaseVerdict": "NOT RELEASED",
+  "result": "NOT RELEASED",
+  "releaseAuthorized": false,
+  "formalPRChecks": "5/5 SUCCESS",
+  "gateSummary": "The repaired prospective main merge passed all five GitHub checks. The signed application has no qualified live G1, G2 or G4 result on the dedicated installation. Public distribution remains on 1.0.5 (31).",
+  "priorAssessment": {
+    "file": "release-verdict.json",
+    "sha256": "2d1d06c75a73808dabd01cd4683f3c6b8dd0216bf88375e7e5a2f49d7be441dd",
+    "writtenUTC": "2026-11-22T22:58:37.806Z",
+    "preserved": "Full package trust, local controlled suites, signed-source push CI, archived raw SQLite and public redaction were independently assessed there. The original first PR run failed both native ownership jobs. This supplement records the successor run and current gate state."
+  },
+  "candidate": {
+    "version": "1.0.8",
+    "build": 61,
+    "scope": "private signed universal DMG",
+    "name": "Riftlet-1.0.8.dmg",
+    "bytes": 14133998,
+    "sha256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+    "signedSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+    "signedSourceTree": "70ba40e23a3afa3561525b1943cb0e5ebc825de5",
+    "installedExecutableSHA256": "32406ca202fa8eb659abf96930a30ce3c246bb804acfaeeccbc10eaf2fc09387",
+    "installedPageProgramSHA256": "2f6e2f6e1d80184813f6f967cc340638b96082abd5bd98c2f9e97b0597f982f2",
+    "checkedFormalDMGReceiptSHA256": "8b64e0daaadb854ea3fa82f6bb9663bc195b54e42b6a7402f3388fa0bf41df9c",
+    "checkedIndependentInstallReceiptSHA256": "dff5713dd9c9bec8826cd90bea4cd73b91be11ad9a180d0929600733db4013b9",
+    "refreshedCodesignStrictExit": {
+      "installedApp": 0,
+      "DMG": 0
+    },
+    "packageTrust": "Earlier independent direct Gatekeeper and stapled-ticket verification passed on the same artifact and installed App. In this supplement the actual image, installed executable and page, formal and installation receipts were rehashed, bundle version and build were read, and strict DMG and deep strict installed-App codesign both passed."
+  },
+  "sourceAdmission": {
+    "signedSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+    "independentFullRangeProductSourceReview": "PASS",
+    "productReportSHA256": "5ae2a6694b118a012ddaeb8fed4096d52a68a5ce950aaadcf7d44e192b6a20c0",
+    "formalReviewedBase": "9fd8ad15fca043915069904113e5fb67d82b4948",
+    "formalReviewedSource": "e2324e9d742ec3c3d1045504ed1bfee421efae67",
+    "formalReviewedTree": "ddc37248d5fa3ac6ed03642ff0937ccd72f45d32",
+    "formalSuccessorIndependentFullRangeReview": "PASS",
+    "formalSourceReviewSHA256": "867f8f49b804f1046a74b70f15286a152ec6fbf632f147b01fdb9c6628b8054a",
+    "formalHeadExactlyEmbedsIndependentRawUTF8Report": true,
+    "signedToFormalHeadChangedPaths": [
+      "engineering/mainline/source-admission.json",
+      "scripts/run-readiness-ownership.sh"
+    ],
+    "formalReviewedSourceToHeadChangedPaths": [
+      "engineering/mainline/source-admission.json"
+    ],
+    "unchangedSourcesTree": "1aae0943f6ce71a9bfa49c86ba95589032c1de63",
+    "unchangedPackageManifestBlob": "200a889be151c6c274e9f5cf46e7cdc93c550f23",
+    "note": "G0 is the source of the existing signed binary. The later checkpoint adds a real dependency link to the native ownership probe. H is its direct admission-only child. The independent engineering reports are distinct from a GitHub-account APPROVED review."
+  },
+  "formalPR": {
+    "observedUTC": "2026-11-22T23:22:19.479097+00:00",
+    "number": 125,
+    "url": "https://github.com/haohongfei2001-png/Riftlet/pull/125",
+    "draft": true,
+    "state": "open",
+    "merged": false,
+    "mergeableState": "clean",
+    "main": "9fd8ad15fca043915069904113e5fb67d82b4948",
+    "head": "881589ad19f5e0205846aa265e64df89f2a0b498",
+    "headParents": [
+      "e2324e9d742ec3c3d1045504ed1bfee421efae67"
+    ],
+    "headTree": "6f583ee83337ff4edb1aad1b389042c7e01737ad",
+    "prospectiveMergeRef": "31371f52d67cca6678d09712e71aa330a454df4d",
+    "prospectiveMergeParents": [
+      "9fd8ad15fca043915069904113e5fb67d82b4948",
+      "881589ad19f5e0205846aa265e64df89f2a0b498"
+    ],
+    "prospectiveMergeTree": "6f583ee83337ff4edb1aad1b389042c7e01737ad",
+    "orderedParentsMatchBaseThenHead": true,
+    "headAndProspectiveMergeTreeEqual": true,
+    "githubSource": "Live GitHub REST pull, main ref, pull/125/merge ref, commit objects, Checks API and both workflow jobs APIs. Both native checkout logs print the prospective merge SHA immediately after git log -1 --format=%H.",
+    "runs": [
+      {
+        "id": 45080584932,
+        "name": "Native foundation",
+        "event": "pull_request",
+        "pr": {
+          "base": "9fd8ad15fca043915069904113e5fb67d82b4948",
+          "head": "881589ad19f5e0205846aa265e64df89f2a0b498",
+          "number": 125
+        },
+        "head": "881589ad19f5e0205846aa265e64df89f2a0b498",
+        "status": "completed",
+        "conclusion": "success",
+        "updatedUTC": "2026-11-22T23:17:29Z",
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45080584932"
+      },
+      {
+        "id": 45080584850,
+        "name": "Feedback v0.1",
+        "event": "pull_request",
+        "pr": {
+          "base": "9fd8ad15fca043915069904113e5fb67d82b4948",
+          "head": "881589ad19f5e0205846aa265e64df89f2a0b498",
+          "number": 125
+        },
+        "head": "881589ad19f5e0205846aa265e64df89f2a0b498",
+        "status": "completed",
+        "conclusion": "success",
+        "updatedUTC": "2026-11-22T23:02:50Z",
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45080584850"
+      }
+    ],
+    "jobs": [
+      {
+        "id": 137387624931,
+        "name": "Native Intel",
+        "conclusion": "success",
+        "completedUTC": "2026-11-22T23:17:28Z",
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45080584932/job/137387624931"
+      },
+      {
+        "id": 137387624793,
+        "name": "Native ARM64",
+        "conclusion": "success",
+        "completedUTC": "2026-11-22T23:17:02Z",
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45080584932/job/137387624793"
+      },
+      {
+        "id": 137387624766,
+        "name": "Feedback native and service",
+        "conclusion": "success",
+        "completedUTC": "2026-11-22T23:02:50Z",
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45080584850/job/137387624766"
+      },
+      {
+        "id": 137387624613,
+        "name": "Native source admission",
+        "conclusion": "success",
+        "completedUTC": "2026-11-22T22:58:31Z",
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45080584932/job/137387624613"
+      },
+      {
+        "id": 137387624506,
+        "name": "Feedback source admission",
+        "conclusion": "success",
+        "completedUTC": "2026-11-22T22:57:59Z",
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45080584850/job/137387624506"
+      }
+    ],
+    "remoteArtifactManifests": [
+      {
+        "id": 14777986690,
+        "name": "native-foundation-macos-15-31371f52d67cca6678d09712e71aa330a454df4d",
+        "bytes": 8261499,
+        "githubSHA256": "96a7d4a403099165a9c9659ccfbe21f3aecd342cebcdeee170f93868548031bc"
+      },
+      {
+        "id": 14777867120,
+        "name": "native-foundation-macos-15-intel-31371f52d67cca6678d09712e71aa330a454df4d",
+        "bytes": 9932249,
+        "githubSHA256": "fd5044d39481c4883c8d367006dc5ba08aa48a5dc7fd3d53499cc734cb54bd29"
+      },
+      {
+        "id": 14777410349,
+        "name": "final-source-admission-31371f52d67cca6678d09712e71aa330a454df4d",
+        "bytes": 448392,
+        "githubSHA256": "639c68f8db8e2e7b2ae6187968193dd27e51234eceaccedca3712a418707e458"
+      },
+      {
+        "id": 14777475123,
+        "name": "feedback-source-admission-31371f52d67cca6678d09712e71aa330a454df4d",
+        "bytes": 444203,
+        "githubSHA256": "96cd4995c04958918818d7d63a8ddd62c8b2a4b368fa9a499e74e90682cb4b99"
+      },
+      {
+        "id": 14777425402,
+        "name": "feedback-v01-31371f52d67cca6678d09712e71aa330a454df4d",
+        "bytes": 70592414,
+        "githubSHA256": "2a6eee0c29102b64bca565aca47aaf9a38a211bdc2382f45efdcea8bbec24c7f"
+      }
+    ],
+    "postMergeMainCI": "NOT_RUN on this candidate; actual main remains B."
+  },
+  "repairedNativeJobs": [
+    {
+      "job": 137387624793,
+      "architecture": "arm64",
+      "hostedOriginalLogReadUTC": "2026-11-22T23:22:21.806359+00:00",
+      "hostedOriginalLogSHA256": "8f38bdadc589c79f27b6df3530fb1bfcb9a764d8620148f260a936afd5a1ed64",
+      "matchingPreviouslyHeldRawLog": true,
+      "checkout": "31371f52d67cca6678d09712e71aa330a454df4d",
+      "discovered": 1436,
+      "parallelUniqueCompleted": 1414,
+      "serialPassed": 22,
+      "serialFailures": 0,
+      "offlineReadinessWorkflowStep": "success",
+      "processOwnership": {
+        "result": "PASS",
+        "isolatedSubprocessLifetimes": 12,
+        "exits": [
+          "normal exit",
+          "termination retention",
+          "SIGTERM",
+          "SIGKILL"
+        ],
+        "originalHistoryRetained": true
+      },
+      "storageSoak": {
+        "result": "PASS",
+        "capturesAtReportedSamples": [
+          40,
+          80,
+          120,
+          160
+        ],
+        "method": "temporary real files, ImageIO and SQLite"
+      },
+      "scope": "Directly retrieved the full GitHub job log and compared bytes. The process probe launches isolated child processes. Storage and ownership results exercise offline readiness."
+    },
+    {
+      "job": 137387624931,
+      "architecture": "x86_64",
+      "hostedOriginalLogReadUTC": "2026-11-22T23:22:22.126810+00:00",
+      "hostedOriginalLogSHA256": "c0029827bd7b5a948741390d38f8121d90eaba014549fd1fbbeebbaa1634b72b",
+      "matchingPreviouslyHeldRawLog": true,
+      "checkout": "31371f52d67cca6678d09712e71aa330a454df4d",
+      "discovered": 1436,
+      "parallelUniqueCompleted": 1414,
+      "serialPassed": 22,
+      "serialFailures": 0,
+      "offlineReadinessWorkflowStep": "success",
+      "processOwnership": {
+        "result": "PASS",
+        "isolatedSubprocessLifetimes": 12,
+        "exits": [
+          "normal exit",
+          "termination retention",
+          "SIGTERM",
+          "SIGKILL"
+        ],
+        "originalHistoryRetained": true
+      },
+      "storageSoak": {
+        "result": "PASS",
+        "capturesAtReportedSamples": [
+          40,
+          80,
+          120,
+          160
+        ],
+        "method": "temporary real files, ImageIO and SQLite"
+      },
+      "scope": "Directly retrieved the full GitHub job log and compared bytes. The process probe launches isolated child processes. Storage and ownership results exercise offline readiness."
+    }
+  ],
+  "site": {
+    "observedUTC": "2026-11-22T23:23:52.280141+00:00",
+    "candidateSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+    "dmgSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+    "executor": {
+      "processObservationUTC": "2026-11-22T23:22:22.779334+00:00",
+      "matchingCurrentV3Supervisors": 1,
+      "exclusiveHandoverPIDMatched": true,
+      "recordedHandoverUTC": "2026-11-22T22:53:39.566689+00:00",
+      "sameGlobalLease": true,
+      "executionAndArtifactOwnershipBound": true,
+      "otherMatchingSchedulers": 0,
+      "concurrentBusinessProcesses": 0,
+      "issuerManifestSHA256": "fdccb84b5de1af8549a388cedc884c893ad799f5751d7d5c4d81ddd301ffcccd",
+      "allManifestComponentsRehashed": 62,
+      "launcherSHA256": "288b8285ed18e4e81cb52ccb145e5f2a8004922d1ac8705b12fc151be4af5d5f",
+      "v3CyclesSinceHandover": 8
+    },
+    "immutableCheckpoint": {
+      "identifier": "checkpoint-1795389478154918000",
+      "publicJSONSHA256": "710c39b9f2e5c5b38d78fac2b2839d09d3b9b2c28b902b46a849ab79c2330245",
+      "observedThroughUTC": "2026-11-22T23:17:58.169563+00:00",
+      "verifiedSQLiteSHA256": {
+        "scheduler.sqlite": "7710bd48cd66168734dd768630d777837c5746cfbd5d7fb845c449195d662f92",
+        "host.sqlite": "1649dba679f602a7efadbe298d7ae5bdfa260b06debb3479c928fb9d7c6a96e0"
+      },
+      "scheduler": {
+        "cycles": 12,
+        "samples": 24,
+        "ready": 0,
+        "protected": 24,
+        "firstTickUTC": "2026-11-22T22:34:03.393399+00:00",
+        "lastTickUTC": "2026-11-22T23:13:12.176191+00:00",
+        "businessAttempts": 0
+      }
+    },
+    "directLiveScheduler": {
+      "cycles": 14,
+      "samples": 28,
+      "ready": 0,
+      "protected": 28,
+      "firstTickUTC": "2026-11-22T22:34:03.393399+00:00",
+      "lastTickUTC": "2026-11-22T23:23:12.918627+00:00",
+      "businessAttempts": 0
+    },
+    "liveLedgersReadOnly": true,
+    "latestHostObservations": {
+      "transitionRowCount": 2,
+      "states": {
+        "edge": {
+          "frontBundle": "com.apple.UserNotificationCenter",
+          "axTrusted": true,
+          "systemDialogOnScreen": true,
+          "screenLocked": false,
+          "onConsole": true,
+          "displayAwake": true,
+          "visibleCGWindowCount": 0,
+          "aePermissionWithoutPrompt": "ALLOWED",
+          "lastFailure": "PROTECTED_OR_MODAL_SURFACE"
+        },
+        "chrome": {
+          "frontBundle": "com.apple.UserNotificationCenter",
+          "axTrusted": true,
+          "systemDialogOnScreen": true,
+          "screenLocked": false,
+          "onConsole": true,
+          "displayAwake": true,
+          "visibleCGWindowCount": 0,
+          "aePermissionWithoutPrompt": "ALLOWED",
+          "lastFailure": "PROTECTED_OR_MODAL_SURFACE"
+        }
+      }
+    },
+    "privateGateReceiptCounts": {
+      "originalScopeCreation": 0,
+      "businessReceipts": 0,
+      "activeScopes": 0,
+      "claimedTransitions": 0,
+      "terminalTransitions": 0,
+      "freshSiteEvents": 0
+    },
+    "candidateEventCountsAtImmutableCheckpoint": {
+      "originalNewScopes": 0,
+      "siteFileInputs": 0,
+      "candidateWebsiteStarts": 0,
+      "qaWebsiteSends": 0,
+      "qaFormSubmissions": 0
+    },
+    "ordinaryChromeG1": "NOT_RUN",
+    "ordinaryEdgeG2": "NOT_RUN",
+    "G4C": "NOT_RUN",
+    "G4A": "NO_QUALIFIED_ORIGINAL_SITE_CARD",
+    "G4B": "NO_QUALIFIED_ORIGINAL_SITE_FAILURE",
+    "protectedUIContentsInspected": false,
+    "interpretation": "The accumulated scheduler counts include earlier deployment cycles and current v3. Every sampled browser state was protected. Both last host records report a visible system dialog, zero on-screen ordinary browser windows, a session on console and unlocked, AX trusted and nonprompt AppleEvents allowed. The prompt contents and the current browser login state are unknown."
+  },
+  "publicStable": {
+    "observedUTC": "2026-11-22T23:19:49.391291+00:00",
+    "githubLatest": {
+      "id": 449460970,
+      "tag": "v1.0.5",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.5",
+      "immutable": true,
+      "publishedUTC": "2026-11-18T02:50:46Z",
+      "assetID": 761603555,
+      "assetSHA256": "99276347932e231adf743664a54cfc782d8e345d89221587d54b7299a5c9f315",
+      "assetBytes": 12686160
+    },
+    "homepage": "https://riftlet.com/",
+    "homepageSHA256": "70246d64e139efe5b7ab1a22f00b422bc9bc06590b8c815a430c21443ed9037a",
+    "downloadLinksToStableAsset": 2,
+    "stableFeed": "https://riftlet.com/updates/stable.xml",
+    "stableFeedSHA256": "da0b17e36b178ae94bcbea6e5720dcc400250350aa766fd31d4fbf8e3f476b52",
+    "version": "1.0.5",
+    "build": 31,
+    "signed61PresentInFeed": false,
+    "publishedImage": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.5/Riftlet-1.0.5.dmg",
+    "publishedImageSHA256": "99276347932e231adf743664a54cfc782d8e345d89221587d54b7299a5c9f315",
+    "publishedImageBytes": 12686160,
+    "localImageVerification": "previously downloaded public asset, rehashed and verified against current signed enclosure",
+    "expectedAppKeySHA256": "60d035d2ea7ab6356ea09457d8fb99eb745462dfd02fd8588718faab9267b05d",
+    "feedAndStableImageEd25519VerificationExit": [
+      0,
+      0
+    ],
+    "unchangedFromRecordedBaseline": true,
+    "issue120": "open"
+  },
+  "outstanding": {
+    "ordinarySite": "The installed candidate requires a normal, accessible, signed-in dedicated Chrome or Edge window at its original selected ChatGPT draft. Native window and tab, page, editor and attachment entry must agree at the click. At observation the relevant browser windows were not on screen and the system surface remained protected.",
+    "G1G2": "Collect the signed candidate's real ordinary Chrome and Edge cold/warm first attachments, three rapid two-image pairs per browser, preserved existing draft text, selection and attachments, and independent event evidence for each target, with zero chat sends or form submissions.",
+    "G4C": "On a real enrolled ambiguous original operation, capture explicit AppKit History confirmation/selection, a separately bound new operation and its persisted START. Historical UNKNOWN remains attached to its original operation.",
+    "G4AorB": "Also obtain an explicit site error bound to the original named card for G4-A, or a genuine original full-PNG-attributable upstream 4xx and observed card disappearance with independent equivalence adjudication for G4-B. A provider-side qualifying failure remains unobserved.",
+    "releaseAdministration": "The actual protected main merge and its post-merge checks, release/tag publication and build-61 stable distribution, public install and ordinary in-app update remain downstream. The current portfolio of results provides no release authorization.",
+    "userActionNow": "No user-only login or permission action is established. The executor is waiting for the protected system surface to clear and for the dedicated signed-in browser to be visible in ordinary use. Its uninspected system dialog has no verified action to request from the user."
+  },
+  "assessorLimits": "All live-site observations used read-only scheduler/host metadata, the authorized handover and private receipt presence. This assessor did not control a browser, interact with the system dialog, operate a draft, or modify refs, release assets or stable distribution. This dated assessment reports evidence available at the timestamps above."
+}

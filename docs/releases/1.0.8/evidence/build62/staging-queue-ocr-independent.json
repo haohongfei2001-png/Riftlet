@@ -1,0 +1,27 @@
+{
+  "scope": "Separate Apple Vision pass by independent verifier on three saved isolated VM window bitmaps only",
+  "reviewer": "independent-build62-recovery-and-mainline-source-reviewer",
+  "fileRecognitionOnly": true,
+  "programSHA256": "78dabd47b331ca4b98fd3fb170fce229eba488a49af67dbb20ca9f3cf683f99d",
+  "outputsInOriginalOrder": [
+    {
+      "imageSHA256": "bcbf6545fc9bde4687b4c4e1ab3d0b622808c92dd3d49e48302a8fa01d3a59db",
+      "recognisedProductDraftPrompt": false,
+      "recognisedLocalKeepText": false,
+      "recognisedReadyToAttach": true
+    },
+    {
+      "imageSHA256": "16439188226c32d7ffa587d2b63949c23ea943a57feaa20942c3b53185447de1",
+      "recognisedProductDraftPrompt": true,
+      "recognisedLocalKeepText": true,
+      "recognisedReadyToAttach": true
+    },
+    {
+      "imageSHA256": "16439188226c32d7ffa587d2b63949c23ea943a57feaa20942c3b53185447de1",
+      "recognisedProductDraftPrompt": true,
+      "recognisedLocalKeepText": true,
+      "recognisedReadyToAttach": true
+    }
+  ],
+  "result": "PASS"
+}

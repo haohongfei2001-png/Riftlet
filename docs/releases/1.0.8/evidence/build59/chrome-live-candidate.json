@@ -1,0 +1,123 @@
+{
+  "build": "59",
+  "productCommit": "69b76cb025ab552b3480e3af095b627891874712",
+  "dmgSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+  "scope": "Ordinary signed macOS browser, dedicated real ChatGPT Temporary Chat, locally imported native screenshots and external, process/window-scoped software mouse.",
+  "family": "chrome",
+  "loggedIn": true,
+  "transcript": "No messages sent by the test. Personal chats were outside its scope.",
+  "operations": [
+    {
+      "operationID": "AB1C5D50-EB5B-42CA-81F7-54A5BBC9B4A2",
+      "invocationID": "FF6DDC36-27D2-4E91-977C-36881ED769F1",
+      "originalPNG_SHA256": "0f3963a9b659b2b3f53f67b567ffacc4be8c96baf51bbfd87d1bfce4191ce0e9",
+      "pngBytes": 5516,
+      "originalTargetSHA256": "af9ee27649de28a8fc2043149f95554d23e173665847bd17a4e83cc62bba6051",
+      "documentIDDigest": "00dff0f55434ab6b31011e1fd571be4901e8f8e9e1ae43492ca9f5cd8b54c7c0",
+      "composerIDDigest": "51067c4eb1ddda77db51bc7a89bb75eb6ef398e803b5b9ce4b6f8084d0c8ad5c",
+      "draftGenerationDigest": "32d3d358a3f4d23ecd44ef0478c8350edc4e014283b7fc2e0673f94bb563c931",
+      "originalWitnessIDDigest": "a0bcee048391798cba865fa7d24db453005524f159f5899de30cb161a6af057d",
+      "assetID": "E271CBFA-3A07-4093-8988-B1DFDA077865",
+      "databasePhase": "inputTriggered",
+      "receiptOutcome": "uploadStarted",
+      "status": "transferring",
+      "visibility": "swallowed",
+      "nativePresses": [
+        {
+          "eventNumber": 12224,
+          "ackToOriginalMouseDownMS": 1896.793,
+          "hostEpochDigest": "88778d920e833a61741baa2950ea1eb12b5ce127e41130ebadc93b3a073e564c",
+          "bindingDigest": "61de4f2a619d25e16486bd2631a22c11dd69e674c2948f961919de978b4859d4"
+        }
+      ],
+      "startSignal": "attachmentAccepted",
+      "durableStart": {
+        "attachmentID": "b129269b-787c-419b-9e8f-c0b7645d924a:node-3",
+        "evidenceID": "504f9bf3-eff0-4504-bbc6-6e0d0a48b79b",
+        "inputCount": 1,
+        "startSignal": "attachmentAccepted",
+        "databaseStartedAt": 1795325869.749195,
+        "originalReceiptSHA256": "af09aa182e7742e9dac0d79bfa021d425fa6d2f99dc356383e828354fc6b4a72"
+      }
+    }
+  ],
+  "originalDocumentAndEditor": true,
+  "counts": {
+    "fileChange": 1,
+    "fileInput": 1,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  },
+  "textUnchanged": true,
+  "selectionUnchanged": true,
+  "initialImages": 0,
+  "rememberedImages": 0,
+  "completedBatches": [],
+  "result": "STOPPED",
+  "reason": "POSITIVE_START_NOT_VERIFIED",
+  "appExited": true,
+  "traceSummary": {
+    "events": 59,
+    "leasePhases": {
+      "armed": 3,
+      "consumed": 1,
+      "frozen": 1
+    },
+    "nativeFailures": [],
+    "nativeStatusCodes": [],
+    "productCommitEvents": 1,
+    "signedAppPermissionChecks": [
+      {
+        "publication": "publish",
+        "purpose": "startup",
+        "result": "granted",
+        "usableResult": "granted"
+      }
+    ]
+  },
+  "originalRawSHA256": {
+    "capture-1.json": "af775d964e03fd01365140cd35b0b92a7143a5bf19f5d4fbfc97fdaf8426e9fb",
+    "cards-before-1.json": "39bc8e9a0e98b4379b9f3a21df0ac1f5d63ece818037b1c34905cfdffe7d9d51",
+    "child.json": "5ecaad1171c8b76ba73bff1cb6a76c6bf270448e97789604cca911c78f9074c0",
+    "click-1.json": "aabe32e42f930a32ce99939ec3528d32bcb39789fb9355930a2644e240c4fe69",
+    "cold-readiness-1.json": "fc69a6f7de8706d625b8de52dea6f8ab097c0786136aef4bca477fa071bb9fe2",
+    "db-1.json": "7ce532e73ccebbaf2362f6518759b3214216a5fcf0fb2df60e634b0567553cbe",
+    "final-db.json": "7ce532e73ccebbaf2362f6518759b3214216a5fcf0fb2df60e634b0567553cbe",
+    "final-page.json": "c18adeb760965a66275269d08595f41ed68b834b7dce94612dc0d389f5069c11",
+    "page-after-1.json": "c18adeb760965a66275269d08595f41ed68b834b7dce94612dc0d389f5069c11",
+    "page-baseline.json": "39bc8e9a0e98b4379b9f3a21df0ac1f5d63ece818037b1c34905cfdffe7d9d51",
+    "page-before-1.json": "39bc8e9a0e98b4379b9f3a21df0ac1f5d63ece818037b1c34905cfdffe7d9d51",
+    "result.json": "d3e6afe525ec4a250350d5440951446fc526ce409616104e4ede5dcefb1dc9dc",
+    "route.json": "252bfa6303e0f98e8056932f81c5649d6eb3da4b301c5f3738cd6099b441c4ed",
+    "row-1.json": "9c92297cf35567f72ec5c5546a2d75d23bce1e1460ff17b03499cd3666f25345",
+    "watch-closed.json": "a54ac5bb1f80f63e97d0fdea2ed11b5d547130e28378703d643019b310611f98",
+    "private-trace.jsonl": "84807bf08ab37e7b60a598bfd93789ec725cb57f764efa6b393ba5c5fab6cba3",
+    "signed-app.stderr": "84807bf08ab37e7b60a598bfd93789ec725cb57f764efa6b393ba5c5fab6cba3",
+    "account.json": "8f8bbca2bfafdd31f42050d6d21909797c54c52a0949036ed7a11e0dbf186660",
+    "E271CBFA-3A07-4093-8988-B1DFDA077865-original.png": "0f3963a9b659b2b3f53f67b567ffacc4be8c96baf51bbfd87d1bfce4191ce0e9",
+    "E271CBFA-3A07-4093-8988-B1DFDA077865-dispatch.json": "d7e3c1dd841e4c4d36c7db2e93612565955bb0e75174f895b0b42b4623bdb4e5"
+  },
+  "verifiedBatches": [],
+  "verifiedOriginalOperations": [
+    {
+      "operationID": "AB1C5D50-EB5B-42CA-81F7-54A5BBC9B4A2",
+      "invocationID": "FF6DDC36-27D2-4E91-977C-36881ED769F1",
+      "assetID": "E271CBFA-3A07-4093-8988-B1DFDA077865",
+      "sourceSHA256": "0f3963a9b659b2b3f53f67b567ffacc4be8c96baf51bbfd87d1bfce4191ce0e9",
+      "decodedPixelSHA256": "156ca6a375bf08741b13e3222c9ecbc73cdccb30b73c249cfc7a6bee87eebd3a",
+      "dimensions": [
+        330,
+        196
+      ],
+      "displayName": "riftlet-AB1C5D50-EB5B-42CA-81F7-54A5BBC9B4A2.png",
+      "originalInputEvents": [
+        "input",
+        "change"
+      ],
+      "cardID": "b129269b-787c-419b-9e8f-c0b7645d924a:node-3",
+      "evidenceID": "504f9bf3-eff0-4504-bbc6-6e0d0a48b79b",
+      "ackToMouseDownMS": 1896.793
+    }
+  ],
+  "rapidTimings": []
+}

@@ -1,0 +1,44 @@
+{
+  "binding": {
+    "clickBindingID": "01EFB9D9-1FB3-4E42-842A-A22AF9A0E649",
+    "originalComposerID": "node-1:node-2",
+    "originalDocumentID": "1b974158-bf72-4148-bdf9-114b159c0491",
+    "originalDraftGeneration": "888972b9-29de-4a56-b408-2d63ea2d237b"
+  },
+  "boundCardSamples": 2,
+  "classification": "NOT_RUN_NO_EXPLICIT_ORIGINAL_ERROR_CARD",
+  "firstOriginalProgressCardMS": 674884,
+  "initialAttachmentCount": 0,
+  "matchingOperationSampleCount": 1,
+  "observationSecondsFromClickIntent": 54.549,
+  "originalCardObserverBoundBeforeClick": true,
+  "originalCardRemovalObservedMS": 675257,
+  "originalDocument": true,
+  "originalEditor": true,
+  "originalOperationID": "4F739270-3638-4598-BBAE-C2AFBC37980E",
+  "originalPNGDecodedRGBASHA256": "2a1f302c8fb55999b03cb542e2a85469298ace9d6cb4bf1257bebb0a7b6ac577",
+  "originalTileLocalNode": 2,
+  "pageEvents": {
+    "fileChange": 1,
+    "fileInput": 1,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  },
+  "positiveFailureInvocationReceived": false,
+  "positiveNamedOriginalCardSamples": [],
+  "priorCardsPreserved": true,
+  "rawReceiptSHA256": {
+    "final-db.json": "0b9c23d0a345dc8823520a795ec4321e2112d8653e894d17664ff11e4130c38f",
+    "final-page.json": "155a8b346f2ee8a8ce7743f50d2e9e9e7179632b7ac23056e2811a860b406f63",
+    "page-baseline.json": "2e2669bd331c2100589b01773ab418f2fccc41ca1c52fc6b775e58f35ba9a250",
+    "transport-original-observed.json": "3ac6ac40e58f0b99d87b54bf981869f6686983ef763f4cdaf0948b7f04078d8d",
+    "transport-terminal-site.json": "155a8b346f2ee8a8ce7743f50d2e9e9e7179632b7ac23056e2811a860b406f63"
+  },
+  "scopedCardSamples": 3,
+  "scopedFailureSignalSeen": false,
+  "siteDecodedOriginalPreviewObserved": false,
+  "timeBase": "performance.now milliseconds in original document",
+  "timeFromAbortToObservedRemovalMS": 11.6,
+  "unchangedSelection": true,
+  "unchangedText": true
+}

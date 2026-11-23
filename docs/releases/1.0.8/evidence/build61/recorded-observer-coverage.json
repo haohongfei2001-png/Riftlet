@@ -1,0 +1,50 @@
+{
+  "checkedUTC": "2026-11-23T05:04:26+00:00",
+  "subject": "Read-only reinspection of the recorded signed build 61 Chrome run",
+  "signedSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "dmgSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "priorEvidenceCommit": "77ad0602959740f0ab815a0a826a1d741c2fec08",
+  "archiveSHA256": "3cb2b916ef120781e34f8644b320eb4c9d367987b9af92191a9ec88473b4d60c",
+  "archiveInventorySHA256": "02863871abe2f497cc3f717111aa160bf7b7c0415c6bd01b725f3daa2a0dd515",
+  "priorRunFilesSHA256": {
+    "source": "e3333c253574781d879a28d19a359b57ea6f306f74958323c970adae5f2d0e98",
+    "binary": "d47b643e368db1a2f9a94b661f77527ede0f85665c5984648543c85c371d369b",
+    "runManifest": "0d9b96c0bad4841c0914e0d4ba22a0c15e6680f99d3a7817491536170a1e66bd",
+    "before": "d4283f3e2cb48f2988f70c2e618212262b312b84e8cd846d4e81dd889d7e76df",
+    "late": "4be968246f4cbc85da71d00ab2fa04d1384ab6551c04cc5ae5be373116aaaad7"
+  },
+  "recordedCollector": {
+    "binaryMatchesRunManifest": true,
+    "observedEndpoint": "/backend-api/files",
+    "scope": "Exact same-origin Resource Timing lookup. Source and runtime receipts agree.",
+    "beforeEntries": 0,
+    "lateEntries": 1,
+    "initiatorType": "fetch",
+    "creationEndpointHTTP": 200,
+    "creationRequestMethodCaptured": false,
+    "creationResponseBodyCaptured": false,
+    "PUTSensorInstalled": false,
+    "siteRequestHandle": null,
+    "putBodySHA256": null,
+    "positivePUTProgress": null,
+    "PUTResponseStatus": null
+  },
+  "sameInputDocument": {
+    "originalDocument": true,
+    "originalEditor": true,
+    "sha256AtBothFileEvents": "66057577de807a2d2a266360b59efdfb80e6301a158d9eb1bd2bf028757dd3a7",
+    "bytesAtEachEvent": 7921752,
+    "counts": {
+      "fileChange": 1,
+      "fileInput": 1,
+      "formSubmit": 0,
+      "sendButtonClicks": 0
+    },
+    "recordedDurableSTARTs": 1
+  },
+  "diagnosis": "The archived collector queried only the creation endpoint. A missing PUT in its output does not establish a failed main-world delivery, a site override, an iframe or worker, or a change of transport.",
+  "newSiteVisits": 0,
+  "newSiteFileInputs": 0,
+  "newSiteFaults": 0,
+  "releaseCredit": false
+}

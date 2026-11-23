@@ -1,0 +1,30 @@
+<!doctype html><meta charset="utf-8"><title>Riftlet isolated helper test</title>
+<form data-riftlet-draft="fixture"><textarea>original fixture text</textarea><label for="owned">Local fixture file</label><input id="owned" type="file"><div><span id="prior">previous attachment</span></div></form>
+<script>
+(async()=>{
+  const form=document.forms[0], picker=form.querySelector("input"), editor=form.querySelector("textarea"),
+    prior=document.querySelector("#prior"), route=location.pathname, oldText=editor.value;
+  editor.focus();editor.setSelectionRange(2,8);
+  let inputs=0,changes=0,sends=0;
+  const post = data=>fetch(route+"/report",{method:"POST",body:JSON.stringify(data)});
+  form.onsubmit=e=>{e.preventDefault();sends++;};
+  form.addEventListener("input",e=>{if(e.target===picker) inputs++;});
+  form.addEventListener("change",async e=>{
+    if(e.target!==picker) return;
+    changes++;
+    const digest=await crypto.subtle.digest("SHA-256",await picker.files[0].arrayBuffer());
+    await post({action:"input",input:inputs,change:changes,send:sends,fileCount:picker.files.length,
+        old:prior.isConnected && prior.parentNode.parentNode===form,text:editor.value===oldText,
+        selection:editor.selectionStart===2 && editor.selectionEnd===8,
+        sha256:Array.from(new Uint8Array(digest),x=>x.toString(16).padStart(2,"0")).join("")});
+  });
+  await post({action:"open"});
+  for(;;) {
+    const cmd=await (await fetch(route+"/next")).json();
+    if(cmd==="editor-aba"){const alt=editor.cloneNode();editor.replaceWith(alt);alt.replaceWith(editor);}
+    if(cmd==="draft"){form.dataset.riftletDraft="fixture-new";}
+    if(cmd==="reload"){location.reload();return;}
+    await new Promise(r=>setTimeout(r,70));
+  }
+})()
+</script>

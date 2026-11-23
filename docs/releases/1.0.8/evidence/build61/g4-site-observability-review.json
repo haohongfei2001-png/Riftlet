@@ -1,0 +1,294 @@
+{
+  "observedAtUTC": "2026-11-23T03:54:25.578354+00:00",
+  "reviewer": "Independent nonauthor release reviewer",
+  "candidate": {
+    "signedSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+    "dmgSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+    "webSHA256": "2f6e2f6e1d80184813f6f967cc340638b96082abd5bd98c2f9e97b0597f982f2"
+  },
+  "scope": "G4 only. Offline original PNGs, product media, four standalone archival SQLite reads, native input and page receipts, latest original-only event monitor and installed Apple event dictionaries. No GUI operations, new site requests or CI run for this review.",
+  "protocolHashes": {
+    "G4_PROTOCOL_AND_STATE_MACHINE.md": "ce2515013eec3c3bde6697782ba34cf41ee85b18376239ab511f328e0d661c06",
+    "g4c-original-live.json": "075f410b39481261e5bf9abef8d49d910f43e2e608bb73ae71c017c014bdfad1",
+    "size-boundary-unknown.json": "f192534a7ae767e2a7d61c5bc4f0b7e37e75e27d4289c731ead2e83aaf22e691",
+    "size-boundary-independent.json": "69bc0caa20611c61c0d4a43153b7ac565b2c30bee0526396f5071a0c2da5450d",
+    "g4b-independent-conditions.json": "872710aac9ff260222120aa86f67273997693bdeef55feca4dbd1b764924e502"
+  },
+  "installedNativeInterfaces": {
+    "Google Chrome": {
+      "version": "157.0.8103.79",
+      "appleEventDictionarySHA256": "cd0453c2e166a0b664f8ea1d1ac04b53a54eed14835569b6104a7823dbb950f2"
+    },
+    "Microsoft Edge": {
+      "version": "158.0.4370.33",
+      "appleEventDictionarySHA256": "cd0453c2e166a0b664f8ea1d1ac04b53a54eed14835569b6104a7823dbb950f2"
+    }
+  },
+  "originalSmall": {
+    "pngSHA256": "bc347c5d3e58c3f893b230cae70ef1551bc9295838cbad334e6d78fc32521230",
+    "byteCount": 5513,
+    "dimensions": [
+      330,
+      196
+    ],
+    "sourceEqualsStoredMedia": true,
+    "before": {
+      "sha256": "f1f745e8a3faaab621f53a0d7da4781b063c5db4a196fdfe9477e1d4e9d7239f",
+      "schema": 4,
+      "integrity": "ok",
+      "counts": {
+        "assets": 1,
+        "operations": 1,
+        "upload_starts": 1,
+        "attachment_reselections": 0,
+        "compensations": 0
+      },
+      "phase": "inputTriggered",
+      "outcome": "uploadStarted",
+      "originalFailureInvocationRecorded": false,
+      "originalCallReturned": true,
+      "originalCallAndLatestReceiptBindSourceAndTarget": true,
+      "operationIDCommitment": "65751b5c47ef62f9e6500a84da4bda3ad1cdc6a29da17fe8bc4e529fccadc491",
+      "invocationIDCommitment": "417530892fcc6ebb22311b924328e129c4c1f45c24e19fb713424108d5f8f600"
+    },
+    "retained": {
+      "sha256": "5853ed2d0e46d3e47c5efcbd0dcf443a60b256f1299f0afa9c05a1445bc5e62e",
+      "schema": 4,
+      "integrity": "ok",
+      "counts": {
+        "assets": 1,
+        "operations": 1,
+        "upload_starts": 1,
+        "attachment_reselections": 0,
+        "compensations": 0
+      },
+      "phase": "inputTriggered",
+      "outcome": "uploadStarted",
+      "originalFailureInvocationRecorded": false,
+      "originalCallReturned": true,
+      "originalCallAndLatestReceiptBindSourceAndTarget": true,
+      "operationIDCommitment": "65751b5c47ef62f9e6500a84da4bda3ad1cdc6a29da17fe8bc4e529fccadc491",
+      "invocationIDCommitment": "417530892fcc6ebb22311b924328e129c4c1f45c24e19fb713424108d5f8f600"
+    },
+    "siteInputCounts": {
+      "fileChange": 1,
+      "fileInput": 1,
+      "formSubmit": 0,
+      "sendButtonClicks": 0
+    },
+    "retainedSiteEvidenceSHA256": "ca102c12b83fdf016c4c46288e06df91e07b772e23f8e790f84e7b67b2769fe2",
+    "lastVisibleOriginalReadUTC": "2026-11-23T01:57:34.170131+00:00",
+    "lastProvenExactPreviewDimensions": [
+      330,
+      196
+    ],
+    "exactNamedPreviewAndRemoveAtLastVisibleRead": true,
+    "siteFileAtInputAndChangeEqualsPNG": true,
+    "transportReceiptSHA256": "b039bebed6d35e6e326122421badf7583eb41a0d99c7622dc4a055db9283c96d",
+    "abortCalls": 0,
+    "timeoutSets": 0,
+    "originalCardNamedFailure": false,
+    "upstreamStatusAttributableToFullPNG": null,
+    "unknownObserved": false,
+    "recoveryInputCount": 0,
+    "ordinaryPageWitness": {
+      "activeDocument": true,
+      "originalEditor": true,
+      "originalRealmXHR": true,
+      "productRegistry": false,
+      "siteReactOwner": false,
+      "usedOnlyOrdinaryAppleEvents": true
+    }
+  },
+  "originalOversize": {
+    "pngSHA256": "ac2ae9502b81ac77a4f6883ca1eaef7c5f421a9d7e863a0a150dabc6fbaaa500",
+    "byteCount": 23233638,
+    "dimensions": [
+      2880,
+      2816
+    ],
+    "sourceEqualsStoredMedia": true,
+    "before": {
+      "sha256": "0b8b98bbf5ec4966ea8d5efa4d6947f292195443f1770b595689f8a501d1fe2c",
+      "schema": 4,
+      "integrity": "ok",
+      "counts": {
+        "assets": 1,
+        "operations": 1,
+        "upload_starts": 0,
+        "attachment_reselections": 0,
+        "compensations": 0
+      },
+      "phase": "unknown",
+      "outcome": "inputTriggered",
+      "originalFailureInvocationRecorded": false,
+      "originalCallReturned": true,
+      "originalCallAndLatestReceiptBindSourceAndTarget": true,
+      "operationIDCommitment": "b0baf017326508f2fc03587c799fc310172fec02ddcf98278b74a60d523c3e2a",
+      "invocationIDCommitment": "5405c4c40fd41ac4d0049ae4b6e832ccd06c9b99d861380d80383db8cb86c54f"
+    },
+    "retained": {
+      "sha256": "0b8b98bbf5ec4966ea8d5efa4d6947f292195443f1770b595689f8a501d1fe2c",
+      "schema": 4,
+      "integrity": "ok",
+      "counts": {
+        "assets": 1,
+        "operations": 1,
+        "upload_starts": 0,
+        "attachment_reselections": 0,
+        "compensations": 0
+      },
+      "phase": "unknown",
+      "outcome": "inputTriggered",
+      "originalFailureInvocationRecorded": false,
+      "originalCallReturned": true,
+      "originalCallAndLatestReceiptBindSourceAndTarget": true,
+      "operationIDCommitment": "b0baf017326508f2fc03587c799fc310172fec02ddcf98278b74a60d523c3e2a",
+      "invocationIDCommitment": "5405c4c40fd41ac4d0049ae4b6e832ccd06c9b99d861380d80383db8cb86c54f"
+    },
+    "siteInputCounts": {
+      "fileChange": 1,
+      "fileInput": 1,
+      "formSubmit": 0,
+      "sendButtonClicks": 0
+    },
+    "exactInputAndChangeFileBytesEqualOriginal": true,
+    "sitePreviewDimensions": [
+      2048,
+      2002
+    ],
+    "sitePreviewOriginalByteEquality": null,
+    "directPageSamples": 37,
+    "elapsedSeconds": 29.549622374994215,
+    "firstRawSampleUTC": "2026-11-23T02:22:25.306533+00:00",
+    "lastRawSampleUTC": "2026-11-23T02:22:54.857054+00:00",
+    "observedPageSummary": "Initial progress nodes were replaced. The original operation filename was still identified on one visible preview and one remove control on the dedicated draft at last direct read.",
+    "lastSampleSHA256": "1bdd144e7bac2ee2edbc46373d6ff24d146f9c4a543d3abee9f500826617db11",
+    "terminalPageSHA256": "2d539c7e8ead625219859c02515297d476514e11d9eb39fc1d80581d799837b8",
+    "scopedNamedFailure": false,
+    "controlledInterruptions": 0,
+    "requestBodyWireSHA256": null,
+    "upstreamHTTPForPNG": null,
+    "explicitRecoveryIssued": false,
+    "directLateReadUTC": "2026-11-23T02:41:05Z",
+    "lateNativeSameWindowAndTab": true,
+    "lateSiteState": "ORIGINAL_DOCUMENT_READ_NOT_AVAILABLE",
+    "laterSiteState": "UNOBSERVED_WHEN_RENDERER_UNAVAILABLE"
+  },
+  "originalOnlyMonitor": {
+    "launchUTC": "2026-11-23T03:06:47.644402+00:00",
+    "scriptSHA256": "95987dadcca32608501df4e3e668aa6d2c198f88db1587d36562f4b91c6d4517",
+    "selectionDispatchRetired": true,
+    "fileInputAvailable": false,
+    "windowManipulationAvailable": false,
+    "businessClaims": 0,
+    "independentlyCheckedProcessAndEventChild": true,
+    "lastEventUTCInArchive": "2026-11-23T03:45:26.121360+00:00",
+    "latestDistinctPerOriginal": [
+      {
+        "case": "g4c",
+        "lastDistinctReadUTC": "2026-11-23T03:06:47.730066+00:00",
+        "outcome": "ORIGINAL_ROUTE_UNAVAILABLE",
+        "originalNativeWindowPresent": false,
+        "originalTabPresent": null,
+        "readableSiteAtThisObservation": false,
+        "originalSignedChildActive": false,
+        "relevantLocalListenerExited": true,
+        "transportHookInstalled": false,
+        "productDispatchEnabled": false,
+        "recordSHA256": "b7bfe544b2347f381126186476886872812d24bd2fe78d0f495bf5400ad5f781"
+      },
+      {
+        "case": "b4",
+        "lastDistinctReadUTC": "2026-11-23T03:06:49.914148+00:00",
+        "outcome": "CURRENT_ORIGINAL_RENDERER_REFUSED",
+        "originalNativeWindowPresent": true,
+        "originalTabPresent": true,
+        "readableSiteAtThisObservation": false,
+        "originalSignedChildActive": false,
+        "relevantLocalListenerExited": true,
+        "transportHookInstalled": false,
+        "productDispatchEnabled": false,
+        "recordSHA256": "770a1ad0a4c9c9ad471f5afdc194f7973fc58b73a5c7d244948c09cd37c66dfc"
+      }
+    ],
+    "scope": "Activation or Space events and timed rechecks wake the supervisor. Identical outcomes are deduplicated; an activation timestamp is not a new observed page state."
+  },
+  "passiveCapabilities": [
+    {
+      "interface": "Dedicated original file input and ordinary DOM",
+      "fullRequestBody": "Directly hash the selected Web File at input/change. The subsequent request serialization and any separately generated preview may differ.",
+      "httpStatus": "None from DOM image/Remove/progress.",
+      "exactCancellationHandle": "None. Presence of a native XHR constructor does not identify an existing instance.",
+      "sources": [
+        "https://www.w3.org/TR/FileAPI/#arraybuffer-method",
+        "https://xhr.spec.whatwg.org/#the-abort()-method"
+      ]
+    },
+    {
+      "interface": "Ordinary Chrome DevTools Network on a prospectively recorded original",
+      "fullRequestBody": "The Payload tab documents binary decoding. A complete captured original PUT with independently decoded byte count and matching digest can establish browser-side serialized bytes for that request. The current site records lack such a body. A HAR, upload length or matching filename alone is insufficient.",
+      "httpStatus": "A real HTTP status for the same recorded PUT is useful if upstream versus cache, service worker, local override and creation response are distinguished. Browser-side bytes do not quantify what an upstream server read after interruption.",
+      "exactCancellationHandle": "A read-only HTTP record exposes no live application-owned XHR/AbortController instance.",
+      "sources": [
+        "https://developer.chrome.com/docs/devtools/network/reference#binary-payload",
+        "https://developer.chrome.com/docs/devtools/network/reference#analyze",
+        "https://xhr.spec.whatwg.org/#the-abort()-method"
+      ]
+    },
+    {
+      "interface": "Ordinary Edge DevTools Network",
+      "fullRequestBody": "The official reference documents payload and source views. A full binary File body for the actual installed Edge, selected request and tested size has not been captured or established. Query fields, a binary placeholder and response content are insufficient.",
+      "httpStatus": "Status and response for an actually recorded request can be inspected; exact original PUT attribution and real upstream provenance remain required.",
+      "exactCancellationHandle": "No site-owned live cancel handle has been established.",
+      "sources": [
+        "https://learn.microsoft.com/en-us/microsoft-edge/devtools/network/reference#view-request-payload-query-string-parameters-and-form-data",
+        "https://xhr.spec.whatwg.org/#the-abort()-method"
+      ]
+    },
+    {
+      "interface": "Resource Timing",
+      "fullRequestBody": "Request bytes are absent; transferSize and body-size metrics describe the response.",
+      "httpStatus": "responseStatus may expose a response code. Opaque responses can yield zero; one entry does not bind a PNG body or confirm upstream receipt.",
+      "exactCancellationHandle": "No per-XHR live object or cancel action.",
+      "sources": [
+        "https://www.w3.org/TR/resource-timing/#dom-performanceresourcetiming-responsestatus"
+      ]
+    },
+    {
+      "interface": "Installed ordinary Chrome and Edge Apple event tab dictionaries",
+      "fullRequestBody": "No native request-byte enumeration; execute supports the available document JavaScript surface.",
+      "httpStatus": "No per-upload response accessor in either dictionary.",
+      "exactCancellationHandle": "The stop command acts on tab loading. The existing scoped ordinary sampler saw the original document/editor and a native constructor but could not identify a site-owned request instance.",
+      "sources": [
+        "https://chromium.googlesource.com/chromium/src/+/refs/heads/main/chrome/browser/ui/cocoa/applescript/scripting.sdef",
+        "https://xhr.spec.whatwg.org/#the-abort()-method"
+      ]
+    }
+  ],
+  "G4A": {
+    "verdict": "HOLD_NO_NAMED_SITE_FAILURE_AND_RECOVERY",
+    "evidenceNeeded": "Named failure attributable to this signed candidate original plus informed explicit recovery, independent durable successor and original-site member."
+  },
+  "G4B": {
+    "verdict": "HOLD_NO_QUALIFIED_UPSTREAM_HTTP_4XX",
+    "independentEquivalenceApproved": false,
+    "criteria": [
+      "On the same signed 61 installation and enrolled ordinary live draft, prove the unique original operation, invocation, unmodified full PNG and its exact upload request using durable and independently timed evidence.",
+      "Directly observe and attribute an actual provider-side HTTP 4xx to that complete original PNG upload, with request identity and full File bytes bound to the actual upload endpoint. A local or injected HTTP status, an aborted browser request, a creation-endpoint error or a size-warning banner has a different evidentiary scope.",
+      "Record appearance of the original identified attachment card, its subsequent disappearance and surroundings in the same Document and composer. Preserve other attachments and establish that a same-name replacement, different card or new request cannot account for the transition.",
+      "For a successful recovery claim, preserve the original read-only operation in two correctly timed consistent SQLite snapshots, the explicit AppKit confirmation and new choice, independent click binding, operation and invocation, exactly one new file input and independently persisted START. Existing draft content/attachments and zero chat sends or submits must be evidenced.",
+      "Review the private raw evidence before issuing any equivalence disposition. The separately required G4-C has its own acceptance and cannot be derived from this precondition list."
+    ],
+    "sizeCaseDisposition": "Matching visible attachment remains at last read, no upstream HTTP for the full original and no explicit recovery."
+  },
+  "G4C": {
+    "verdict": "HOLD_NO_CONTROLLED_SITE_INTERRUPTION_AND_COMPLETED_INFORMED_RECOVERY",
+    "siteMediumNormalOrControlledBranchAdmitted": false,
+    "conditions": "An authorized original needs an independently identifiable request and actual partial-byte interruption, documented disappearance on the same draft, then informed formal AppKit re-selection, new request identity and one durable START."
+  },
+  "ownLoopbackControlSHA256": "baecdd37c28886fc3d7e192db8d4a7aee95bd1eef84483f72d63ec88c6d3d35d",
+  "releaseAuthorized": false,
+  "verdict": "NOT_RELEASED",
+  "ordinaryUserAction": "No recovery action is admitted on either preserved record. A different source of authorized site-level evidence or a genuine qualifying natural result is required."
+}

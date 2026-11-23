@@ -1,0 +1,56 @@
+{
+  "scope": "offline recomputation of original file and distinct local request receipts",
+  "rawReceiptSHA256": "5573712c551ecf4c90a355c962a5bca0c3323727d0f100b3376569d3548394f5",
+  "pngSHA256": "66057577de807a2d2a266360b59efdfb80e6301a158d9eb1bd2bf028757dd3a7",
+  "singleLoopbackOriginMatchesBothDigests": true,
+  "evidence": [
+    {
+      "mode": "complete",
+      "serverBytes": 7921752,
+      "serverDigest": "66057577de807a2d2a266360b59efdfb80e6301a158d9eb1bd2bf028757dd3a7",
+      "endpointDigestVerified": true,
+      "terminal": {
+        "request": {
+          "loadstart": 1,
+          "load": 1,
+          "abort": 0,
+          "error": 0,
+          "timeout": 0,
+          "loadend": 1
+        },
+        "upload": {
+          "loadstart": 1,
+          "load": 1,
+          "abort": 0,
+          "error": 0,
+          "timeout": 0,
+          "loadend": 1
+        }
+      }
+    },
+    {
+      "mode": "partial",
+      "serverBytes": 1376256,
+      "serverDigest": "87a9dbb663d52ad162ceefff9fa2c32ee2a545a782bb1d39fa08bfcba7270210",
+      "endpointDigestVerified": true,
+      "terminal": {
+        "request": {
+          "loadstart": 1,
+          "load": 0,
+          "abort": 1,
+          "error": 0,
+          "timeout": 0,
+          "loadend": 1
+        },
+        "upload": {
+          "loadstart": 1,
+          "load": 0,
+          "abort": 1,
+          "error": 0,
+          "timeout": 0,
+          "loadend": 1
+        }
+      }
+    }
+  ]
+}

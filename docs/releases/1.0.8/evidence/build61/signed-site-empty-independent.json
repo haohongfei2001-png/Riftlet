@@ -1,0 +1,164 @@
+{
+  "absenceBoundaries": {
+    "attribution": "The separate observation could see the original page, editor and attachment entry. Its private product IDs are null. The frozen Edge capture guard supports a product confirm inference. Neither the empty site run nor the successful local native control identifies an actual provider upload object.",
+    "recovery": "No upload was initiated, no failure or controlled transport interruption occurred, and no explicit recovery or successor START was exercised.",
+    "testActions": "Four signed product prepare/arm results, zero capture-file entries, no recorded business selection, consume or commit. No file input, form submission or send action was issued by the QA driver.",
+    "webEventCounts": "A separate website input/change/send/submit event counter was not installed. Counts of those independent site events are unmeasured.",
+    "websiteScriptScope": "The ordinary fixed identity probe and frozen product preparation code ran in the two enrolled empty tabs. This campaign added no new QA request observer or network instrumentation."
+  },
+  "archive": {
+    "allRegularMembers": 96,
+    "alsoMatchedLiveRetainedFilesAtReview": 95,
+    "basename": "raw-evidence.tar.gz",
+    "dataMembersChecked": 95,
+    "embeddedIdenticalInventoryMembers": 1,
+    "inventoryBasename": "private-inventory.json",
+    "inventorySHA256": "4f0b6f3634752c346f107f462c0744d0bbf99b6b4eaaf80060284f6688e3b9f6",
+    "originalPublicProjectionSHA256": "7fd5220df5ee955616fb41e12e116accf9733f063c828197f039dfc78972c7a0",
+    "sha256": "90e54e93acb59ab0f43abec0b44831002e7ff18f08cfcc17e1486f92726f8129"
+  },
+  "families": [
+    {
+      "actualNativeProductCaptureReceipt": "CONFIRMED",
+      "actualProviderRequestOwnerBodyBytesProgressHTTP": null,
+      "armedSequences": [
+        8,
+        14
+      ],
+      "captureCompleteSequences": [
+        7,
+        13
+      ],
+      "directSignedProcessTraceEvents": 14,
+      "distinctRecordedArmedBindings": 2,
+      "edgeProductWitnessConfirm": "NOT_APPLICABLE",
+      "family": "chrome",
+      "firstResultArmedBindings": 1,
+      "frozenCandidateMatches": true,
+      "independentSiteFileInputOrSendEventCounts": null,
+      "issuedFileInputSendAndFormSubmitActions": [
+        0,
+        0,
+        0
+      ],
+      "observedOriginalSiteFromUTC": "2026-11-23T05:55:40Z",
+      "observedOriginalSiteThroughUTC": "2026-11-23T05:55:44Z",
+      "originalWindowCloseRequests": 1,
+      "originalWindowGoneAndPreviousWindowSetRestored": true,
+      "productInputSelectionConsumeCommitRecords": 0,
+      "rawEngineContextIDOrSeparateConfirmStringRecorded": false,
+      "rawEvidenceSHA256": {
+        "actualOriginalClose": "2220ba5fffab3b70f51dd82f5aa2c6322ec4f89a582950022fd9a8108a0f15c8",
+        "beforeFirstCapture": "a4be72b0d133a6b7e04a9e336b74136b26b114f5ab1a51f8d9c711745ee99cac",
+        "completeTrace": "a6962cf031e03f9ecb8e720641fae56bd144b375ad1c9f11865200d6643af47c",
+        "driverResult": "2823aedfcba1c9ed3a64f4c4dc4c54791c057211034441c5972b0f8123912459",
+        "finalDatabase": "54c644fc16cb7685190900c114fd4f286d1800a7ee58a75c6e6b5a7d1a7d3984",
+        "finalPrivatePrebind": "65d98dc8489da8a911de2b150acb3b4e6e2174517d310ca511e06bd5264c0b0c",
+        "finalWindowIDs": "500194b09cce6470339d68e22d967473b702488f34d19f2c10d61c6682e87641",
+        "firstArmed": "0c56d73808c60d59534e9eb2502c704d712680be28a841bcd4be24a3e48593c5",
+        "newWindowCreation": "8326526acb5387c5b1f181cfa0966c47729b924a5927eeb4b49def685e2d3dfd",
+        "originalBeforeClose": "dff436d9b514bdfb7dc6012f71fc25f6148fbef49b9d907d6ee6a72ac5a72e6f",
+        "ownedListenerClosed": "1d7a5db9c4ff4b86a0efc28821ecd94d6d1c6bf2515bf344db210a68eaec6eee",
+        "priorWindowIDs": "99fd729e3f1d670f9a6915cb283b5d4db24a53073a80cf7503199bff95c03292",
+        "signedOriginalIdentity": "a07e3181f20b972a26a596bdef95b1e38e59179e14876c1081f9304a2b29bc3d",
+        "siteWhileArmed": "0cba67f0acb768862c6a7e53f0b646d883fb60ebaf64a2b07bd021aef07152a2"
+      },
+      "separateObserverPrivateDocumentIDComposerIDDraftEpoch": [
+        null,
+        null,
+        null
+      ],
+      "separateObserverProductRegistryPresent": false,
+      "signedInEmptyComposerAndUploadEntryAtEachRead": true,
+      "signedPrivateAppAndOwnedLocalPreflightListenerExited": true,
+      "sqliteTableCounts": {
+        "assets": 0,
+        "attachment_reselections": 0,
+        "operations": 0,
+        "upload_starts": 0
+      },
+      "stableOriginalDocumentOnly": "Snapshots at three times, with the same navigation entry and time origin; retained signed-product private document/composer/generation identifiers are not visible through this separate fixed observation.",
+      "threeOriginalDocumentObservationsJoinedBySignedBrowserBirthWindowTabNavigationEntryAndTimeOrigin": true
+    },
+    {
+      "actualNativeProductCaptureReceipt": "CONFIRMED",
+      "actualProviderRequestOwnerBodyBytesProgressHTTP": null,
+      "armedSequences": [
+        8,
+        14
+      ],
+      "captureCompleteSequences": [
+        7,
+        13
+      ],
+      "directSignedProcessTraceEvents": 14,
+      "distinctRecordedArmedBindings": 2,
+      "edgeProductWitnessConfirm": "REQUIRED_BY_FROZEN_CODE_FOR_BOTH_COMPLETE_CAPTURE_EVENTS",
+      "family": "edge",
+      "firstResultArmedBindings": 1,
+      "frozenCandidateMatches": true,
+      "independentSiteFileInputOrSendEventCounts": null,
+      "issuedFileInputSendAndFormSubmitActions": [
+        0,
+        0,
+        0
+      ],
+      "observedOriginalSiteFromUTC": "2026-11-23T05:55:49Z",
+      "observedOriginalSiteThroughUTC": "2026-11-23T05:55:52Z",
+      "originalWindowCloseRequests": 1,
+      "originalWindowGoneAndPreviousWindowSetRestored": true,
+      "productInputSelectionConsumeCommitRecords": 0,
+      "rawEngineContextIDOrSeparateConfirmStringRecorded": false,
+      "rawEvidenceSHA256": {
+        "actualOriginalClose": "7ac9d9c7a13ad40d6025a6e3af285654f9f0c21714eb479b3f708a6cc4055e6b",
+        "beforeFirstCapture": "da72cea2effcadc48084575b114aadcdbf7e2ef411708a5743bc294c85a61ef5",
+        "completeTrace": "47565cb811667e801d52b9ecbea626fd6380f88845fce18d95a233eee7f7aa2b",
+        "driverResult": "af87034ee5cc44d801f1a5b340a1758fd57933e551aacb9567b8aee449123b30",
+        "finalDatabase": "fe00f52e3db2ff36ae880d870e1fc78a9296e29d089e84cfed2945303061b02d",
+        "finalPrivatePrebind": "47af2d0cbcd5134d525280cb045b9d9e7291bc0de023c73acac2b20e7363802c",
+        "finalWindowIDs": "55424cafa47f8be5def3af2931197696011a17a88fb7830fe003a94c67b3df93",
+        "firstArmed": "e8e73cfc61807f6965de6f28bd20f4658040cb219aca8ad0cbb877f59b98d8b8",
+        "newWindowCreation": "b71b5f77c8ae640eaceadba4c46a6922ae0c95e8653045b0cef7fab04f4e7e8a",
+        "originalBeforeClose": "b80b18d8690133c1aec67a21e2d12cec840caad209b31321281513b0b8825144",
+        "ownedListenerClosed": "1da5fb3d1f8f4ed5a8f0e5c7ac3cd69e8a2e696750dc54ac62df1c0e908df28e",
+        "priorWindowIDs": "bc9ab8f66502f704e234155ab23d2b344c983c0726faa9fe902614792cd7f3f3",
+        "signedOriginalIdentity": "1cbafe0584269dafbff20fb01fd71f459f7c0dbfe5e335bbda81fd7475567832",
+        "siteWhileArmed": "8cd67b0f42a58183de46ef90f56319cdc72eb9375c17a73816b32cf38c629f43"
+      },
+      "separateObserverPrivateDocumentIDComposerIDDraftEpoch": [
+        null,
+        null,
+        null
+      ],
+      "separateObserverProductRegistryPresent": false,
+      "signedInEmptyComposerAndUploadEntryAtEachRead": true,
+      "signedPrivateAppAndOwnedLocalPreflightListenerExited": true,
+      "sqliteTableCounts": {
+        "assets": 0,
+        "attachment_reselections": 0,
+        "operations": 0,
+        "upload_starts": 0
+      },
+      "stableOriginalDocumentOnly": "Snapshots at three times, with the same navigation entry and time origin; retained signed-product private document/composer/generation identifiers are not visible through this separate fixed observation.",
+      "threeOriginalDocumentObservationsJoinedBySignedBrowserBirthWindowTabNavigationEntryAndTimeOrigin": true
+    }
+  ],
+  "gates": {
+    "G4A": "HOLD_NO_QUALIFYING_ORIGINAL_NAMED_FAILURE",
+    "G4B": "HOLD_NO_QUALIFYING_AND_INDEPENDENTLY_APPROVED_EQUIVALENT",
+    "G4C": "HOLD_NO_ORIGINAL_CONTROLLED_FAULT_AND_EXPLICIT_RECOVERY",
+    "release": "NOT_RELEASED",
+    "required": "G4-C plus G4-A or independently accepted G4-B"
+  },
+  "method": "Read-only offline verification of the archived original site receipts, base64 payload checksums, frozen source control-flow evidence, finished native traces, original immutable SQLite databases and closure. No new browser operation by the reviewer.",
+  "priorEvidence": {
+    "ownedNativeWorldControlSHA256": "9b124b0fb840b2b3a3ee25d289166e34bad7feab3584f0f96b7cc683cfc53e5f",
+    "productReceiptAndEdgeConfirmSemanticsSHA256": "b1a945d14ea5a4d30ee8417eff5f3dd14ada9458b0662b6d099f3787cc78e96c"
+  },
+  "result": "PASS_SIGNED_PRODUCT_PREBINDING_ONLY",
+  "reviewedAtUTC": "2026-11-23T06:00:19.118316+00:00",
+  "reviewer": "Independent nonauthor source and original-evidence reviewer",
+  "schemaVersion": 1,
+  "signedDMGSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "source": "49b9204974088c1983cda469910d9a78d8f4c43b"
+}

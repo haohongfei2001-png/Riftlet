@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-AQe7uuj7E0P7jQTgG5mcneCjPFddcqzFOCga4iIco8E='; connect-src 'none'; child-src 'none'; frame-src 'none'; worker-src 'none'; form-action 'none'; img-src 'none'; object-src 'none'; base-uri 'none'; style-src 'none'; font-src 'none'; media-src 'none'; manifest-src 'none'">
+<title>Riftlet local execution context fixture</title>
+</head>
+<body>
+<output hidden id="riftlet-owned-bootstrap-receipt"></output>
+<script>
+(() => {
+  'use strict';
+
+  const receipt = document.getElementById('riftlet-owned-bootstrap-receipt');
+  const ownDocument = document;
+  const ownGlobal = globalThis;
+  const ownRoot = document.documentElement;
+  const ownURL = location.href;
+  const ownTimeOrigin = performance.timeOrigin;
+  const url = new URL(ownURL);
+  const suffix = '/Tests/PreClickLease/g4/main-world-bootstrap/fixture.html';
+  if (ownGlobal !== ownGlobal.top || url.protocol !== 'file:' || url.host ||
+      url.search || url.hash || !url.pathname.endsWith(suffix)) {
+    receipt.dataset.result = JSON.stringify({schema: 1, phase: 'refused', ok: false});
+    return;
+  }
+
+  const OwnXHR = ownGlobal.XMLHttpRequest;
+  const ownXHRPrototype = OwnXHR.prototype;
+  const ownDescriptor = Object.getOwnPropertyDescriptor;
+  const ownOpen = ownDescriptor(ownXHRPrototype, 'open');
+  const ownSend = ownDescriptor(ownXHRPrototype, 'send');
+  const ownAbort = ownDescriptor(ownXHRPrototype, 'abort');
+  const ownFetch = ownDescriptor(ownGlobal, 'fetch');
+  const nonce = crypto.randomUUID();
+  const globalKey = '__riftlet_fixture_global_' + crypto.randomUUID().replaceAll('-', '');
+  const prototypeKey = '__riftlet_fixture_xhr_' + crypto.randomUUID().replaceAll('-', '');
+  const globalValue = Object.freeze({});
+  const prototypeValue = Object.freeze({});
+  const tempID = 'riftlet-owned-bootstrap-temporary';
+
+  let phase = 'ready';
+  let temporary = null;
+  let nativeChallenge = null;
+  let cspViolations = 0;
+  const cspObservationAvailable = typeof ownGlobal.SecurityPolicyViolationEvent === 'function';
+  let cspListenerActive = cspObservationAvailable;
+  const knownDirectives = new Set([
+    'default-src', 'script-src', 'script-src-elem', 'script-src-attr', 'connect-src',
+    'child-src', 'frame-src', 'worker-src', 'form-action', 'img-src', 'object-src',
+    'base-uri', 'style-src', 'style-src-elem', 'style-src-attr', 'font-src',
+    'media-src', 'manifest-src', 'require-trusted-types-for', 'trusted-types'
+  ]);
+  const onViolation = event => {
+    if (!event.isTrusted || event.currentTarget !== ownDocument) return;
+    receipt.dataset.cspViolations = String(++cspViolations);
+    if (knownDirectives.has(event.effectiveDirective)) {
+      receipt.dataset.cspEffectiveDirective = event.effectiveDirective;
+    } else {
+      delete receipt.dataset.cspEffectiveDirective;
+    }
+  };
+  if (cspListenerActive) {
+    receipt.dataset.cspViolations = '0';
+    ownDocument.addEventListener('securitypolicyviolation', onViolation);
+  }
+
+  const resourceBufferFullSupported = 'onresourcetimingbufferfull' in performance &&
+    typeof performance.addEventListener === 'function' &&
+    typeof performance.removeEventListener === 'function';
+  let resourceBufferListenerActive = resourceBufferFullSupported;
+  let resourceBufferFullEvents = 0;
+  const onBufferFull = event => {
+    if (event.isTrusted && event.currentTarget === performance) {
+      receipt.dataset.resourceBufferFullEvents = String(++resourceBufferFullEvents);
+    }
+  };
+  if (resourceBufferListenerActive) {
+    receipt.dataset.resourceBufferFullEvents = '0';
+    performance.addEventListener('resourcetimingbufferfull', onBufferFull);
+  }
+
+  function sameDescriptor(a, b) {
+    return (!a || !b) ? a === b :
+      a.value === b.value && a.get === b.get && a.set === b.set &&
+      a.configurable === b.configurable && a.enumerable === b.enumerable &&
+      a.writable === b.writable;
+  }
+
+  function markerMatches(descriptor, value) {
+    return descriptor?.value === value && descriptor.configurable === true &&
+      descriptor.enumerable === false && descriptor.writable === false;
+  }
+
+  function documentMatches() {
+    return globalThis === ownGlobal && ownGlobal.top === ownGlobal &&
+      ownGlobal.document === ownDocument && ownDocument.documentElement === ownRoot &&
+      ownDocument.getElementById(receipt.id) === receipt && receipt.isConnected &&
+      location.href === ownURL && performance.timeOrigin === ownTimeOrigin;
+  }
+
+  function httpResources() {
+    try {
+      return performance.getEntriesByType('resource')
+        .filter(entry => /^https?:/i.test(entry.name)).length;
+    } catch {
+      return null;
+    }
+  }
+
+  function makeReceipt(globalMatches, prototypeMatches, unopenedXHRMatches = null) {
+    const gp = ownDescriptor(ownGlobal, globalKey);
+    const xp = ownDescriptor(ownXHRPrototype, prototypeKey);
+    const tempInDoc = ownDocument.getElementById(tempID);
+    const sharedMarkerMatches = !!temporary && temporary === tempInDoc &&
+      temporary.isConnected && temporary.dataset.documentNonce === nonce;
+    const noTemporaryNodes = !temporary && tempInDoc === null;
+    const descriptorRestored = gp === undefined && xp === undefined;
+    const resourceEntries = httpResources();
+    const hasBoth = markerMatches(gp, globalValue) && markerMatches(xp, prototypeValue);
+    const methodsUnchanged = sameDescriptor(ownOpen, ownDescriptor(ownXHRPrototype, 'open')) &&
+      sameDescriptor(ownSend, ownDescriptor(ownXHRPrototype, 'send')) &&
+      sameDescriptor(ownAbort, ownDescriptor(ownXHRPrototype, 'abort')) &&
+      sameDescriptor(ownFetch, ownDescriptor(ownGlobal, 'fetch'));
+    const clean = phase === 'cleared' && descriptorRestored && noTemporaryNodes &&
+      !cspListenerActive && !resourceBufferListenerActive;
+    const matched = phase === 'ready' ? descriptorRestored && noTemporaryNodes :
+      (phase === 'cleared' ? clean : hasBoth && sharedMarkerMatches);
+    const row = {
+      schema: 1, documentNonce: nonce, timeOrigin: ownTimeOrigin, phase,
+      ok: !!(matched && globalMatches && prototypeMatches && documentMatches() && methodsUnchanged &&
+        (phase !== 'read' || unopenedXHRMatches === true)),
+      globalMatches, prototypeMatches, documentMatches: documentMatches(),
+      globalMarkerPresent: !!gp, prototypeMarkerPresent: !!xp,
+      nonEnumerable: gp && xp ? !gp.enumerable && !xp.enumerable : null,
+      globalMarkerIdentityMatches: markerMatches(gp, globalValue),
+      prototypeMarkerIdentityMatches: markerMatches(xp, prototypeValue),
+      unopenedXHRMatches, methodsUnchanged, noTemporaryNodes, sharedMarkerMatches,
+      descriptorRestored, cleanupVerified: clean, cspObservationAvailable, cspListenerActive,
+      cspViolations: cspObservationAvailable ? cspViolations : null,
+      resourceEntries, resourceEntriesAvailable: resourceEntries !== null,
+      resourceBufferFullEvents: resourceBufferFullSupported ? resourceBufferFullEvents : null,
+      resourceBufferListenerActive,
+      networkCalls: 0, networkCountScope: 'fixtureSourceCalls',
+      timerCount: 0
+    };
+    if (phase === 'installed' || phase === 'read') {
+      row.nativeChallenge = nativeChallenge;
+      row.globalMarkerKey = globalKey;
+      row.prototypeMarkerKey = prototypeKey;
+    }
+    if (phase === 'ready') row.nativeChallenge = null;
+    return row;
+  }
+
+  function publish(row) {
+    receipt.dataset.result = JSON.stringify(row);
+    return row;
+  }
+
+  function removeOwnedState() {
+    if (markerMatches(ownDescriptor(ownXHRPrototype, prototypeKey), prototypeValue)) {
+      Reflect.deleteProperty(ownXHRPrototype, prototypeKey);
+    }
+    if (markerMatches(ownDescriptor(ownGlobal, globalKey), globalValue)) {
+      Reflect.deleteProperty(ownGlobal, globalKey);
+    }
+    if (temporary) { temporary.remove(); temporary = null; }
+    if (resourceBufferListenerActive) {
+      performance.removeEventListener('resourcetimingbufferfull', onBufferFull);
+      resourceBufferListenerActive = false;
+    }
+    if (cspListenerActive) {
+      ownDocument.removeEventListener('securitypolicyviolation', onViolation);
+      cspListenerActive = false;
+    }
+  }
+
+  function run(action, callerGlobal, callerXhrPrototype, challenge) {
+    const g = callerGlobal === ownGlobal;
+    const x = callerXhrPrototype === ownXHRPrototype && ownGlobal.XMLHttpRequest === OwnXHR &&
+      OwnXHR.prototype === ownXHRPrototype;
+    const validChallenge = typeof challenge === 'string' &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(challenge);
+    if (!g || !x || !documentMatches() || !validChallenge ||
+        (nativeChallenge !== null && nativeChallenge !== challenge) ||
+        !['install', 'read', 'clear', 'retire'].includes(action)) {
+      return {schema: 1, phase: 'refused', ok: false, globalMatches: g, prototypeMatches: x};
+    }
+    if (action === 'retire') {
+      if (phase !== 'cleared' || nativeChallenge !== challenge ||
+          !makeReceipt(g, x).cleanupVerified) {
+        return {schema: 1, phase: 'refused', ok: false};
+      }
+      delete receipt.dataset.result;
+      delete receipt.dataset.cspViolations;
+      delete receipt.dataset.cspEffectiveDirective;
+      delete receipt.dataset.resourceBufferFullEvents;
+      nativeChallenge = null;
+      phase = 'retired';
+      return {schema: 1, phase, ok: true};
+    }
+    if (action === 'install') {
+      if (phase !== 'ready' || ownDescriptor(ownGlobal, globalKey) ||
+          ownDescriptor(ownXHRPrototype, prototypeKey) || ownDocument.getElementById(tempID)) {
+        return {schema: 1, phase: 'refused', ok: false};
+      }
+      try {
+        nativeChallenge = challenge;
+        const flags = {enumerable: false, writable: false, configurable: true};
+        Object.defineProperty(ownGlobal, globalKey, {...flags, value: globalValue});
+        Object.defineProperty(ownXHRPrototype, prototypeKey, {...flags, value: prototypeValue});
+        temporary = ownDocument.createElement('span');
+        temporary.id = tempID;
+        temporary.hidden = true;
+        temporary.dataset.documentNonce = nonce;
+        ownDocument.body.appendChild(temporary);
+        phase = 'installed';
+      } catch {
+        removeOwnedState();
+        phase = 'installFailed';
+        return publish({...makeReceipt(g, x), ok: false});
+      }
+      return publish(makeReceipt(g, x));
+    }
+    if (action === 'read') {
+      if (phase === 'cleared') return makeReceipt(g, x);
+      if (phase !== 'installed' && phase !== 'read') {
+        return {schema: 1, phase: 'refused', ok: false};
+      }
+      const xhr = new OwnXHR();
+      const matches = Object.getPrototypeOf(xhr) === ownXHRPrototype &&
+        xhr.readyState === OwnXHR.UNSENT && xhr[prototypeKey] === prototypeValue;
+      phase = 'read';
+      return publish(makeReceipt(g, x, matches));
+    }
+    if (phase === 'cleared') return makeReceipt(g, x);
+    if (!['installed', 'read', 'installFailed'].includes(phase)) {
+      return {schema: 1, phase: 'refused', ok: false};
+    }
+    removeOwnedState();
+    phase = 'cleared';
+    return publish(makeReceipt(g, x));
+  }
+
+  if (Object.hasOwn(ownGlobal, 'riftletOwnedBootstrapFixture')) {
+    removeOwnedState();
+    return;
+  }
+  Object.defineProperty(ownGlobal, 'riftletOwnedBootstrapFixture', {
+    value: run, enumerable: false, configurable: false, writable: false
+  });
+  publish(makeReceipt(true, true));
+})();
+</script>
+</body>
+</html>

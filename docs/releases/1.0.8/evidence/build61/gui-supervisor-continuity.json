@@ -1,0 +1,62 @@
+{
+  "actualIntervalsSeconds": [
+    120.417,
+    180.433,
+    270.356,
+    300.348,
+    300.446,
+    4.732
+  ],
+  "actualIterations": 7,
+  "browserSamples": 14,
+  "businessClaims": 0,
+  "businessGates": {
+    "b4": "NOT_RUN",
+    "g1": "NOT_RUN",
+    "g2": "NOT_RUN",
+    "g4c": "NOT_RUN"
+  },
+  "cadenceCoverage": "Continuous same-candidate GUI execution, including both v2 and v3 where present",
+  "candidateWebsiteStarts": 0,
+  "consistentSnapshotSHA256": {
+    "host.sqlite": "1649dba679f602a7efadbe298d7ae5bdfa260b06debb3479c928fb9d7c6a96e0",
+    "scheduler.sqlite": "cf134de2a007ffb4f66b5d932158ae41e47f52f06530a28c9b35f81e735820cd"
+  },
+  "dmgSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "firstTickUTC": "2026-11-22T22:34:03.393399+00:00",
+  "issuerSHA256": "fdccb84b5de1af8549a388cedc884c893ad799f5751d7d5c4d81ddd301ffcccd",
+  "lastTickUTC": "2026-11-22T22:53:40.125253+00:00",
+  "observedThroughUTC": "2026-11-22T22:53:57.570404+00:00",
+  "originalNewScopes": 0,
+  "protectedSamples": 14,
+  "protectedUIContentRead": false,
+  "qaFormSubmissions": 0,
+  "qaWebsiteSends": 0,
+  "readySamples": 0,
+  "siteFileInputs": 0,
+  "source": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "states": {
+    "chrome": {
+      "aePermissionWithoutPrompt": "ALLOWED",
+      "axTrusted": true,
+      "displayAwake": true,
+      "frontBundle": "com.apple.UserNotificationCenter",
+      "lastFailure": "PROTECTED_OR_MODAL_SURFACE",
+      "onConsole": true,
+      "screenLocked": false,
+      "systemDialogOnScreen": true,
+      "visibleCGWindowCount": 0
+    },
+    "edge": {
+      "aePermissionWithoutPrompt": "ALLOWED",
+      "axTrusted": true,
+      "displayAwake": true,
+      "frontBundle": "com.apple.UserNotificationCenter",
+      "lastFailure": "PROTECTED_OR_MODAL_SURFACE",
+      "onConsole": true,
+      "screenLocked": false,
+      "systemDialogOnScreen": true,
+      "visibleCGWindowCount": 0
+    }
+  }
+}

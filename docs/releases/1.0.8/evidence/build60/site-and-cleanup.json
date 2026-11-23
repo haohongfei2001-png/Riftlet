@@ -1,0 +1,352 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "cleanup": {
+        "closeRequests": 1,
+        "dedicatedWindowClosed": true,
+        "originalWindowSetRestored": true
+      },
+      "evidenceSHA256": {
+        "after.json": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+        "before.json": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+        "closed.json": "e148ee30b300dcf304cd7e68b337f09025d911a0f3f13fde9285d63fb5857d77",
+        "listener-ended.json": "9fbe037ec0105c6b3f904fb76845a9e820c074c8e69bdedd642a0760e78fded2"
+      },
+      "family": "edge",
+      "intendedUse": "G4-C",
+      "localListeningPortEmptyOnRecheck": true,
+      "oldListenerProcessAbsentOnRecheck": true,
+      "originalRawTreeSHA256": "ac1c164054267850dddead2cf5a40aed64d4092e7879e83d59e3e8aa35019563",
+      "productFileInputs": 0,
+      "productGUIProcessLaunched": false,
+      "productMouseDown": 0,
+      "qaListenerEnded": true,
+      "qaSendOrSubmitActions": 0,
+      "reachedOriginalTemporaryChat": false,
+      "result": "BLOCKED_ENV",
+      "signedBrowserAndKernelBirthVerified": true,
+      "stop": "LOCAL_ANNOUNCEMENT_NOT_OBSERVED",
+      "transportInjections": 0
+    },
+    {
+      "attempt": 2,
+      "cleanup": {
+        "closeRequests": 1,
+        "dedicatedWindowClosed": true,
+        "originalWindowSetRestored": true
+      },
+      "evidenceSHA256": {
+        "after.json": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+        "before.json": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+        "closed.json": "e148ee30b300dcf304cd7e68b337f09025d911a0f3f13fde9285d63fb5857d77",
+        "listener-ended.json": "a607795ad8fae3d3710adf94cffeddb19020678d01c3076e5cc2bfd1a6e7b76d"
+      },
+      "family": "edge",
+      "intendedUse": "G4-C",
+      "localDraftForeground": false,
+      "localListeningPortEmptyOnRecheck": true,
+      "oldListenerProcessAbsentOnRecheck": true,
+      "originalRawTreeSHA256": "fe9a9c078e38a109951cc94185637b77fe3d4d9badf6096e6469d98679243533",
+      "productFileInputs": 0,
+      "productGUIProcessLaunched": false,
+      "productMouseDown": 0,
+      "qaListenerEnded": true,
+      "qaSendOrSubmitActions": 0,
+      "reachedOriginalTemporaryChat": false,
+      "result": "BLOCKED_ENV",
+      "signedBrowserAndKernelBirthVerified": true,
+      "stop": "LOCAL_PAGE_NOT_VISIBLE",
+      "transportInjections": 0
+    },
+    {
+      "attempt": 3,
+      "cleanup": {
+        "closeRequests": 1,
+        "dedicatedWindowClosed": true,
+        "originalWindowSetRestored": true
+      },
+      "evidenceSHA256": {
+        "after.json": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+        "before.json": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+        "closed.json": "e148ee30b300dcf304cd7e68b337f09025d911a0f3f13fde9285d63fb5857d77",
+        "failed-presentation-site.json": "bc9d7c3db49db8c995cb96a4bbb5bdedb1670f5941399dd8e79e8b8717d0c6e1",
+        "listener-ended.json": "4a2119f97ba7cb6a1231bceb8a516dd0b44569fc49603b8f0d2884200dad8cea",
+        "site-navigation-return.json": "7f659bfe108a166495ad59721687c606c3fa8c21a5667aabbd5615b43502209f"
+      },
+      "family": "edge",
+      "intendedUse": "G4-C",
+      "localListeningPortEmptyOnRecheck": true,
+      "oldListenerProcessAbsentOnRecheck": true,
+      "originalRawTreeSHA256": "e755dd1a1d8e2e829b4eb041460231c8c060704f86b8a142879e77693cb74e6c",
+      "productFileInputs": 0,
+      "productGUIProcessLaunched": false,
+      "productMouseDown": 0,
+      "qaListenerEnded": true,
+      "qaSendOrSubmitActions": 0,
+      "reachedOriginalTemporaryChat": true,
+      "realSite": {
+        "draftEmpty": true,
+        "exactTemporaryURL": true,
+        "originalAttachmentEntry": true,
+        "originalEditor": true,
+        "originalNativeSelection": true,
+        "originalSiteInputEventCounts": "NOT_INSTRUMENTED",
+        "pageVisible": false,
+        "passiveProductEventWatcherMounted": false,
+        "signedIn": true,
+        "soleOriginalTab": true,
+        "systemForeground": false
+      },
+      "result": "BLOCKED_ENV",
+      "signedBrowserAndKernelBirthVerified": true,
+      "stop": "NATIVE_PRESENTATION_REFUSED",
+      "transportInjections": 0
+    },
+    {
+      "attempt": 4,
+      "cleanup": {
+        "closeRequests": 1,
+        "dedicatedWindowClosed": true,
+        "originalWindowSetRestored": true
+      },
+      "evidenceSHA256": {
+        "after.json": "99fd729e3f1d670f9a6915cb283b5d4db24a53073a80cf7503199bff95c03292",
+        "before.json": "99fd729e3f1d670f9a6915cb283b5d4db24a53073a80cf7503199bff95c03292",
+        "closed.json": "7e575dcbd73ee6182a27f24cc3a161e8c782202868f9cccca7ae66778f079d8e",
+        "listener-ended.json": "702a3e272cd6209615002a28c0935e7026ffd0269b59e786c749aeb6e6745bdd"
+      },
+      "family": "chrome",
+      "intendedUse": "G1/G2",
+      "localListeningPortEmptyOnRecheck": true,
+      "normalWindowSelection": {
+        "accessibilityRaiseIssued": false,
+        "applicationActivationIssued": false,
+        "originalWindowSelected": false,
+        "windowIndexRequestIssued": true
+      },
+      "oldListenerProcessAbsentOnRecheck": true,
+      "originalRawTreeSHA256": "9d205bae8fe9838cc2454fd0eaee548433ea2b3dc17912eb6d9a12377850e4df",
+      "productFileInputs": 0,
+      "productGUIProcessLaunched": false,
+      "productMouseDown": 0,
+      "qaListenerEnded": true,
+      "qaSendOrSubmitActions": 0,
+      "reachedOriginalTemporaryChat": false,
+      "result": "BLOCKED_ENV",
+      "signedBrowserAndKernelBirthVerified": true,
+      "stop": "ORIGINAL_NEW_WINDOW_NOT_SELECTED",
+      "transportInjections": 0
+    },
+    {
+      "attempt": 5,
+      "cleanup": {
+        "closeRequests": 1,
+        "dedicatedWindowClosed": true,
+        "originalWindowSetRestored": true
+      },
+      "desktop": {
+        "browserAXWindows": 0,
+        "browserBaseWindows": 8,
+        "browserOnscreenBaseWindows": 0,
+        "dedicatedSafeTitlebarPointProven": false,
+        "mouseClicksIssued": 0,
+        "systemDialogFrontmost": true
+      },
+      "evidenceSHA256": {
+        "after.json": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+        "before.json": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+        "closed.json": "e148ee30b300dcf304cd7e68b337f09025d911a0f3f13fde9285d63fb5857d77",
+        "desktop-surface.json": "92f1f6481aae038cc8b05d1c85f276f7092f177eca8556b84fbf030f41e4286b",
+        "failed-presentation-site.json": "9a422358fac3e19d96402b52e23528e26c159632805c58fbadf979704b11e5d2",
+        "listener-ended.json": "c10be3d1387282184c49ded5f5d893a2b9452957a9b026a80d378213b06ddc6b",
+        "scoped-site.json": "502baca40b84a98a9d0a1b9252ec6d0b21454c76e892bf5bba3c17654237841b",
+        "site-navigation-return.json": "61ee7da81aa90832abee411f745ee3bd49243196bcc7aad20916032b148bdd37"
+      },
+      "family": "edge",
+      "intendedUse": "combined normal presentation",
+      "localListeningPortEmptyOnRecheck": true,
+      "normalSystemActivation": {
+        "accessibilityRaiseIssued": false,
+        "browserAcknowledged": true,
+        "browserBecameForeground": false
+      },
+      "oldListenerProcessAbsentOnRecheck": true,
+      "originalRawTreeSHA256": "1dea73bef64678e6607440fbb3e0b5a55be53fcf90fb78d9f0bfe2c38a0c2706",
+      "productFileInputs": 0,
+      "productGUIProcessLaunched": false,
+      "productMouseDown": 0,
+      "qaListenerEnded": true,
+      "qaSendOrSubmitActions": 0,
+      "reachedOriginalTemporaryChat": true,
+      "realSite": {
+        "draftEmpty": true,
+        "exactTemporaryURL": true,
+        "originalAttachmentEntry": true,
+        "originalEditor": true,
+        "originalNativeSelection": true,
+        "originalSiteInputEventCounts": "NOT_INSTRUMENTED",
+        "pageVisible": false,
+        "passiveProductEventWatcherMounted": false,
+        "signedIn": true,
+        "soleOriginalTab": true,
+        "systemForeground": false
+      },
+      "result": "BLOCKED_ENV",
+      "signedBrowserAndKernelBirthVerified": true,
+      "stop": "ORIGINAL_NATIVE_SURFACE_NOT_FOREGROUND",
+      "transportInjections": 0
+    },
+    {
+      "attempt": 6,
+      "cleanup": {
+        "closeRequests": 1,
+        "closedProvedLocalTab": true,
+        "newWindowTabCount": 2,
+        "originalWindowSetRestored": false,
+        "otherTabContentOrOriginRecorded": false,
+        "provedLocalQATabCount": 1,
+        "unclassifiedNondefaultTabsPreserved": 1
+      },
+      "evidenceSHA256": {
+        "before.json": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+        "listener-ended.json": "1e83d8c76a1e1572902230219b074b789b513bde61fbc7b2c30446744eefe8dd",
+        "vendor-after.json": "5f1ab581b284196701fe8adb53a2a4b80ecbf6b3c56373f7e7b67d380d144f9b",
+        "vendor-multitab-cleanup.json": "d92dbb90fb048bf2fce81992d9bacfcca7d5ef5728cdd460dab59abef1f3a65a"
+      },
+      "family": "edge",
+      "intendedUse": "vendor new-window",
+      "localListeningPortEmptyOnRecheck": true,
+      "oldListenerProcessAbsentOnRecheck": true,
+      "originalRawTreeSHA256": "d6069f1e6e8d482e1b01c476b312f8775b0e8f8cce80a2faff98e534e0a88a52",
+      "productFileInputs": 0,
+      "productGUIProcessLaunched": false,
+      "productMouseDown": 0,
+      "qaListenerEnded": true,
+      "qaSendOrSubmitActions": 0,
+      "reachedOriginalTemporaryChat": false,
+      "result": "BLOCKED_ENV",
+      "signedBrowserAndKernelBirthVerified": true,
+      "stop": "NEW_WINDOW_NOT_SINGLE_TAB",
+      "transportInjections": 0,
+      "vendorNewWindowRequests": 1
+    },
+    {
+      "attempt": 7,
+      "cleanup": {
+        "closeRequests": 1,
+        "dedicatedWindowClosed": true,
+        "originalWindowSetRestored": true
+      },
+      "desktop": {
+        "browserAXWindows": 0,
+        "browserBaseWindows": 12,
+        "browserOnscreenBaseWindows": 0,
+        "dedicatedSafeTitlebarPointProven": false,
+        "mouseClicksIssued": 0,
+        "systemDialogFrontmost": true
+      },
+      "evidenceSHA256": {
+        "after.json": "99fd729e3f1d670f9a6915cb283b5d4db24a53073a80cf7503199bff95c03292",
+        "before.json": "99fd729e3f1d670f9a6915cb283b5d4db24a53073a80cf7503199bff95c03292",
+        "closed.json": "fdab8e9923fac9dbbd1109304c406a9029b1e280fb47abf383dfafdb3957d073",
+        "desktop-surface.json": "64be3f7fcaed38863582cb10e4672d45210e15916445faaef9bb0d2ba9ef71e9",
+        "listener-ended.json": "08aa1c3311647d7d7ec13d0e0f463ada005f26c3e88443e545c45beded917fe0",
+        "vendor-local-before-https.json": "91b9f716ac4fb22c7c2c7418614e112418e2770e0e6ad1d37e12669ecddcde2c"
+      },
+      "family": "chrome",
+      "intendedUse": "vendor new-window",
+      "localListeningPortEmptyOnRecheck": true,
+      "oldListenerProcessAbsentOnRecheck": true,
+      "originalRawTreeSHA256": "cd31e73172342682ba8d2f9623cddc643f089ee544c502eaafe769693ff8e43d",
+      "productFileInputs": 0,
+      "productGUIProcessLaunched": false,
+      "productMouseDown": 0,
+      "qaListenerEnded": true,
+      "qaSendOrSubmitActions": 0,
+      "reachedOriginalTemporaryChat": false,
+      "result": "BLOCKED_ENV",
+      "signedBrowserAndKernelBirthVerified": true,
+      "stop": "NEW_WINDOW_NOT_VISIBLE_AND_FOREGROUND",
+      "transportInjections": 0,
+      "vendorLocalOriginal": {
+        "focused": false,
+        "selected": false,
+        "systemForeground": false,
+        "visible": false
+      },
+      "vendorNewWindowRequests": 1
+    }
+  ],
+  "build": 60,
+  "dmgSHA256": "5a934119d6e65cbe82a62f5f208a2b95a200fa0cf170225ccd4e9016b1c0b54e",
+  "installLockSHA256": "11f2f98aea01e84395cb6d5f19fabf34cd669eec072289b0bf041cff85db544f",
+  "installationReceiptSHA256": "6dd1c3b09e02b307862cc5759d83ea25f539bcf55cace1090e3539c46b775736",
+  "lastDesktopReadOnlyWitness": {
+    "accessibilityTrusted": true,
+    "awake": true,
+    "frontRoleMetadata": [
+      {
+        "modal": false,
+        "role": "AXWindow",
+        "subrole": "AXSystemDialog"
+      }
+    ],
+    "locked": false,
+    "onConsole": null,
+    "originalAXWindowCount": 1,
+    "systemFront": "com.apple.UserNotificationCenter",
+    "windowSurfaces": [
+      {
+        "height": 303,
+        "layer": 8,
+        "width": 260
+      }
+    ]
+  },
+  "noEarlierBuildResultsPromoted": true,
+  "releaseGates": {
+    "B4.normalLargeSystemPNG": "NOT_RUN",
+    "G1.Chrome.threeFastPairs": "NOT_RUN",
+    "G1.Edge.threeFastPairs": "NOT_RUN",
+    "G2.Chrome.nonemptySelectedDraft": "NOT_RUN",
+    "G2.Edge.nonemptySelectedDraft": "NOT_RUN",
+    "G4-A.realOriginalCardAndExplicitRecovery": "NOT_RUN",
+    "G4-B.serverRejectionOfCompleteOriginalUpload": "NOT_RUN",
+    "G4-C.originalTransferTimeoutAndExplicitRecovery": "NOT_RUN",
+    "G4.failureSnapshotBeforeRechoice": "NOT_RUN",
+    "G4.positiveOriginalCard": "NOT_RUN",
+    "G4.recoverySnapshotAfterNewInvocation": "NOT_RUN"
+  },
+  "siteHTTPStatusForOriginalPNG": "NOT_OBSERVED",
+  "sitePreparationStatus": "BLOCKED_ENV",
+  "source": "711cee3a1c7033ce4925082a83099b00da7087c6",
+  "status": "PARTIAL",
+  "summary": {
+    "chromeOfficialDraftsReached": 0,
+    "chromePreparations": 2,
+    "edgeOfficialDraftsReached": 2,
+    "edgePreparations": 5,
+    "frozenInstalledCandidateProcessesAtCloseout": 0,
+    "ownedListenersConfirmedClosed": 7,
+    "preparations": 7,
+    "privateCandidateGUIStartsDuringPreparation": 0,
+    "privateProductSQLiteCreatedByPreparations": false,
+    "qaFormSubmits": 0,
+    "qaSendActions": 0,
+    "qualifiedExplicitRecoverySelections": 0,
+    "qualifiedOriginalFailureCards": 0,
+    "realRiftletProductFileInputsChrome": 0,
+    "realRiftletProductFileInputsEdge": 0,
+    "rootWindowInventoryRestoredInSixAttempts": true,
+    "siteDraftsWithVerifiedForegroundAndVisibility": 0,
+    "unknownNondefaultEdgeTabPreservedInOneAttempt": true
+  },
+  "systemDialogClassification": {
+    "fixedClasses": [],
+    "inspectedKnownSystemDialog": true,
+    "nodeCount": 8
+  },
+  "version": "1.0.8",
+  "websiteSendOrSubmitCounter": "NOT_INSTRUMENTED"
+}

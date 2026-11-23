@@ -1,0 +1,54 @@
+{
+  "TCCChanges": 0,
+  "actualDeveloperIDSignedProductAuthorization": "NOT_MEASURED",
+  "aquaSupervisor": {
+    "awake": true,
+    "axTrusted": true,
+    "browserAEWithoutPrompt": {
+      "chrome": "CONSENT_REQUIRED",
+      "edge": "CONSENT_REQUIRED"
+    },
+    "browserOnscreenWindowCount": {
+      "chrome": 0,
+      "edge": 0
+    },
+    "confirmedCaller": "REGISTERED_AQUA_SUPERVISOR",
+    "frontBundle": "com.apple.UserNotificationCenter",
+    "frontPIDKeptPrivate": true,
+    "loginDone": true,
+    "onConsole": true,
+    "screenLocked": false,
+    "systemDialogOnScreen": true,
+    "timeUTC": "2026-11-22T22:15:27.275029+00:00",
+    "transitionSHA256": "aaf667ace0558822d1de8ff7d84e07700c309cd381608e91fd04da9f24269bd3"
+  },
+  "comparison": "Identical native QA evidence executable queried Automation with askUserIfNeeded=false. No Apple Event was sent by this environmental probe.",
+  "directInteractive": {
+    "awake": true,
+    "axTrusted": true,
+    "browserAEWithoutPrompt": {
+      "chrome": "ALLOWED",
+      "edge": "ALLOWED"
+    },
+    "browserOnscreenWindowCount": {
+      "chrome": 0,
+      "edge": 0
+    },
+    "frontBundle": "com.apple.UserNotificationCenter",
+    "frontPIDKeptPrivate": true,
+    "loginDone": true,
+    "onConsole": true,
+    "rawSHA256": "ff7211a91a60e60501c8a766443129295392b7ff5c4ed1e4aa5f81e7a552c088",
+    "screenLocked": false,
+    "systemDialogOnScreen": true,
+    "timeUTC": "2026-11-22T22:16:29.373590+00:00"
+  },
+  "dmgSHA256": "5a934119d6e65cbe82a62f5f208a2b95a200fa0cf170225ccd4e9016b1c0b54e",
+  "fileInputs": 0,
+  "nativeProbeSHA256": "44f8af10398a912f07e93488d68aac42be8e84a8f0047e1b59e1ec768fbb68ba",
+  "permissionPromptsRequested": 0,
+  "productStarts": 0,
+  "sameForegroundPIDInBothSamples": true,
+  "source": "711cee3a1c7033ce4925082a83099b00da7087c6",
+  "windowActions": 0
+}

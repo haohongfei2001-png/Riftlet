@@ -1,0 +1,63 @@
+{
+  "checkedUTC": "2026-11-22T22:53:28.424694+00:00",
+  "signedProduct": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "dmgSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "originalFormalRun": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45078297801",
+  "originalAdmissionHead": "fe34c3dbb3f7ba00a116612d720003f540739cf5",
+  "originalMergeRef": "10ad18831eb356e455401bf26befa5780b6859d0",
+  "architectures": [
+    {
+      "job": "Native ARM64",
+      "jobID": 137380396041,
+      "result": "failure",
+      "passedSwiftTests": 1436,
+      "failedSteps": [
+        "Verify offline storage, release and process lifecycle readiness"
+      ],
+      "error": "Sources/RiftletApp/ApplicationInstanceOwnership.swift:4:8: error: no such module 'RiftletAdapters'",
+      "artifactID": 14776835549,
+      "artifactSHA256": "7fd4b8d69f1067a07148c8768f0c29c7d9a34afa43e6a3f2c7249f5cbb7e13b7",
+      "rawLogSHA256": "308429a1f2fa5800331333d8868a6116e4ee612ed76164ae3ed834ee7a0cca32"
+    },
+    {
+      "job": "Native Intel",
+      "jobID": 137380396226,
+      "result": "failure",
+      "passedSwiftTests": 1436,
+      "failedSteps": [
+        "Verify offline storage, release and process lifecycle readiness"
+      ],
+      "error": "Sources/RiftletApp/ApplicationInstanceOwnership.swift:4:8: error: no such module 'RiftletAdapters'",
+      "artifactID": 14776267390,
+      "artifactSHA256": "48c73aa1a5670ac24104047c849ea93f214280135aae00f78ee7f56d78ac861f",
+      "rawLogSHA256": "0658a45009a34c9adaacd88da5f372ec78becaf4c13b1b6878724f1ac1a6c872"
+    }
+  ],
+  "testHarnessRepair": {
+    "source": "e2324e9d742ec3c3d1045504ed1bfee421efae67",
+    "tree": "ddc37248d5fa3ac6ed03642ff0937ccd72f45d32",
+    "differenceComparedToSignedSource": [
+      "engineering/mainline/source-admission.json",
+      "scripts/run-readiness-ownership.sh"
+    ],
+    "differenceComparedToPriorAdmission": [
+      "scripts/run-readiness-ownership.sh"
+    ],
+    "unchangedSourcesTree": "1aae0943f6ce71a9bfa49c86ba95589032c1de63",
+    "unchangedResourcesTree": "15d8184f5b81c1f1d79df041e1654796e43eb60e",
+    "actualProductionOwnerAndAdapterLinked": true,
+    "verifiedChildLifetimes": 12,
+    "cases": [
+      "ordinary exit",
+      "keep lock through termination",
+      "SIGTERM",
+      "SIGKILL"
+    ],
+    "allCheckedOriginalHistoryRetained": true,
+    "probeLogSHA256": "70ee496a0f328b22310d123d7f703d037f9643141dff2533a1b4ee776cc602de",
+    "isolatedStorageSoak": "PASS",
+    "soakLogSHA256": "5967a4cd89f2d5527c4f752460ab5014c04d3485a68f24f0c145aff8cbb03b22",
+    "signedArtifactReplaced": false
+  },
+  "requiredNext": "Independent review of the QA checkpoint, direct admission-only child, and full formal merge-candidate CI."
+}

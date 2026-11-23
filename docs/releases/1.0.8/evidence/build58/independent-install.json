@@ -1,0 +1,51 @@
+{
+  "recordedUTC": "2026-11-22T04:38:25.664517+00:00",
+  "version": "1.0.8",
+  "build": 58,
+  "sourceRevision": "c7ef1027f9475d517abbd4d85ae1819b9351a8cf",
+  "sourceTree": "cb96a4e157eadb5bffd2ab1f79c1b252485dfcbc",
+  "allRecordedGitInputsMatch": true,
+  "diskImageSHA256": "0f36dbee6665e5687c6c7722574cdeea708ee56ae0ae07d583652a33204c2f7e",
+  "diskImageBytes": 13732388,
+  "executableSHA256": "ac48aac0b6c154ef6208bc61bc19570ab76fbe791d48bae3c18368fe26c0958f",
+  "architectures": [
+    "x86_64",
+    "arm64"
+  ],
+  "CDHash": {
+    "arm64": "10f24ac3567b7b69a25f5292818c36b815bd85d2",
+    "x86_64": "03b2535cb7d7170a51582f3984d5b8d823cca469"
+  },
+  "teamID": "ZB9D4T66QB",
+  "hardenedRuntimeBothArchitectures": true,
+  "pageProgramSHA256": "43e43df544d4edb6081dfe592b1b18166039f98983ab8f0fac0f31efdf60d166",
+  "archivedObservationResources": {
+    "56": {
+      "compressedSha256": "ed470481df5373d0e702c87087785235d080fb75b85ea27f1e07408e0357ae52",
+      "decompressedSha256": "61669b502526bd01b71b6c9aead85c224d9f3a50263ff121997769527368e2c5",
+      "decompressedLength": 117213,
+      "matchesOriginalFrozenProgram": true
+    },
+    "57": {
+      "compressedSha256": "c691e6b7bd848bc8e1fb994aa9efd2dc7419b8b73549c0c1e31eb09499287e8a",
+      "decompressedSha256": "0ac5c59b4856f26a50f5f22d8142314444db361a69753d0ee32cb767d89be87f",
+      "decompressedLength": 123906,
+      "matchesOriginalFrozenProgram": true
+    }
+  },
+  "checks": {
+    "privateInstallFromReadOnlyMount": true,
+    "appCodeSignature": "verified deep strict all architectures",
+    "diskImageCodeSignature": "verified strict",
+    "appGatekeeper": "accepted Notarized Developer ID",
+    "diskImageGatekeeper": "accepted Notarized Developer ID",
+    "appStapledTicket": "valid",
+    "diskImageStapledTicket": "valid",
+    "ordinaryBuildInfo": "matches signed build manifest",
+    "ordinarySelfCheck": "PASS",
+    "webSelfCheck": "PASS",
+    "systemScreenshotCandidateSelfCheck": "PASS",
+    "ownMountDetached": true
+  },
+  "scope": "Private installation, arm64 native no-UI self-checks; no personal installation, GUI, live browser, or authenticated-site interaction."
+}

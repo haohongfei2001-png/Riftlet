@@ -1,0 +1,25 @@
+{
+  "build": 59,
+  "dmgSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+  "family": "chrome",
+  "status": "BLOCKED_BEFORE_CANDIDATE",
+  "originalOrdinaryBrowserValidated": true,
+  "dedicatedWindowAndSoleTabValidated": true,
+  "exactTemporaryWebsite": true,
+  "emptyOriginalEditorObserved": true,
+  "authenticatedAccountControlObserved": true,
+  "accountMenuCloseRequest": "pointerPairToOriginal",
+  "accountMenuFinalRead": "nativeScopeLost",
+  "subsequentKnownOriginalTabSelected": false,
+  "targetChangeCause": "UNKNOWN",
+  "candidateLaunched": false,
+  "screenshotInputAttempts": 0,
+  "sourceEvidenceSHA256": {
+    "site-original-arrival.json": "2e46fbe8295cd3d3c6d98e5894c5f6d65d7e47a11c2a5195f203ec3289d531df",
+    "draft-controls.json": "7df75b0f60345fa8e15999f5d98292648faf2bdd5df561b2953293da61e82f15",
+    "empty-verified.json": "38d174e0eb1b1d2e45ace88a9791f2e7186092420d162eee70c0a222ff22f2c5",
+    "account-pointer.json": "e393cce7f77260d0750267e555b6736bef75a1cf9d898926eb521b5f468111ad",
+    "original-controls-diagnosis.json": "5de38fd8fd631b14811231d0cabf7426fff4543f0eaa00e33cd2a13cf0e4838b",
+    "post-menu-original-scope.json": "c09ec87405d19f76c3305551655ad4ad76f9a02e2f86ff9c54cce7c8537dafdb"
+  }
+}

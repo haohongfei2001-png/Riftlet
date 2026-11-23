@@ -1,0 +1,91 @@
+{
+  "attribution": {
+    "appHiddenOrMinimizedExplainsPreviousEdgeStop": false,
+    "currentConsoleFieldCorrection": "The public kCGSessionOnConsoleKey resolves to kCGSSessionOnConsoleKey. The historical literal lookup returned null. Current host uses the SDK key and tests the console UID.",
+    "historicalFrontDialogPurposeKnown": false,
+    "nativeWindowIDTreatedAsCGWindowNumber": false,
+    "nonAquaBootstrapConfirmed": false,
+    "operationsOnOtherSpacesProved": false,
+    "stageManagerCauseProved": false
+  },
+  "currentUnattendedDesktop": {
+    "anyFrontAXModal": false,
+    "bootstrapManager": "Aqua",
+    "frontRoles": [
+      {
+        "modal": false,
+        "role": "AXWindow",
+        "subrole": "AXDialog"
+      },
+      {
+        "modal": false,
+        "role": "AXWindow",
+        "subrole": "AXStandardWindow"
+      }
+    ],
+    "mainDisplayAwake": true,
+    "managerUIDEqualsConsoleDeviceUID": true,
+    "notificationCenterStillFrontmost": false,
+    "screenLocked": false,
+    "systemForegroundBundle": "com.openai.codex"
+  },
+  "dmgSHA256": "5a934119d6e65cbe82a62f5f208a2b95a200fa0cf170225ccd4e9016b1c0b54e",
+  "freshEdgeScope": {
+    "actualProductFileInputsAtThisStage": 0,
+    "newOwnedSingleTab": true,
+    "normalizedBothForegroundSamples": true,
+    "positiveSignedInEditorAndUploadEntry": true,
+    "productAcceptance": "NOT_RUN_AT_PREPARATION",
+    "productLaunchedDuringPreparation": false,
+    "sameOriginalTabAndEntry": true,
+    "twoFocusedVisiblePageSamples": true
+  },
+  "observedUTC": "2026-11-22T21:52:18.621677+00:00",
+  "previousPresentationPaths": {
+    "chromeLocalEnrollment": {
+      "axRaiseIssued": false,
+      "axReason": "The unique AX candidate test did not pass.",
+      "nativeWindowIndexRequested": true,
+      "originalSelectedAfterIndexRequest": false,
+      "processActivationIssued": false,
+      "reason": "The local setup branch returns after determining selection. Whole-process activation requires an already-proved original tab."
+    },
+    "edgeOrdinaryPresentation": {
+      "nsRunningApplicationActivateReturned": false,
+      "processActivationIssued": true,
+      "stop": "ACTIVATION_REFUSED"
+    },
+    "edgeScopedPresentation": {
+      "availableAXWindows": 0,
+      "axRaiseIssued": false,
+      "browserBecameForeground": false,
+      "nativeAppleEventActivateIssued": true,
+      "onscreenBrowserBaseWindows": 0,
+      "originalSelected": true,
+      "replyAcknowledged": true
+    }
+  },
+  "priorFinalReceiptSHA256": "dca557a7e2f03a6cc49d25b1a7e9c72f2c72d5407dd042f047765f8a9aa1b7c7",
+  "priorForeground": {
+    "authorizationPromptConfirmed": false,
+    "axModal": false,
+    "bundle": "com.apple.UserNotificationCenter",
+    "frontRole": "AXWindow",
+    "frontSubrole": "AXSystemDialog",
+    "height": 303,
+    "systemDialogPurpose": "UNDETERMINED_FROM_METADATA",
+    "width": 260
+  },
+  "privacy": "Current host reads role, subrole, modal flag, bounds and window ownership only. No titles, button labels, notification text, cookies, account strings or private site addresses are kept here.",
+  "privateReceiptSHA256": {
+    "admission-sample-1.json": "7d9b8a0730d1a6ca1b2d0d5f7fe3282b5bf99a582a4ca826409e62cc2ef059c1",
+    "admission-sample-2.json": "626482bf9fbb941e9d6abf9b1b99218b8ba03a13b18802f220d392310ab4199d",
+    "before.json": "5f1ab581b284196701fe8adb53a2a4b80ecbf6b3c56373f7e7b67d380d144f9b",
+    "challenge.json": "d3fd892bcbfce3697c1881a344314f623ad060aaf4598137014845d820e36ffb",
+    "desktop-before-first.json": "b15121e1c3bb6db09bcdf333ad94d77853daa745e891302c6ec4761d6ec660c4",
+    "pre-presentation-site.json": "6e7d2f6403d150199fbdbf5fe878b377e84c3686020489933bed36291541842a",
+    "ready60.json": "51b9e236ca9697b84901cc7274285b99838e4a9fa2a821089ba8362e9c849851",
+    "site-navigation-return.json": "199fc5f16545a48e06c24d261a6d22f213f3c15820af014e8015e4bfec145b33"
+  },
+  "source": "711cee3a1c7033ce4925082a83099b00da7087c6"
+}

@@ -1,0 +1,109 @@
+{
+  "bounds": {
+    "newRealSiteG4Calibration": "NOT_RUN",
+    "newRealSiteG4Fault": "NOT_RUN",
+    "pageOwnedAndIsolatedJSWrappersDiffer": true,
+    "productionChatGPTBootstrapWorld": "NOT_DIRECTLY_MEASURED_BY_THIS_CONTROL",
+    "productionMainWorldXHRAdmission": false,
+    "realSiteRecovery": "NOT_RUN",
+    "siteCouldLaterReplaceMethod": "NOT_OBSERVED",
+    "siteUsesAnyPatchedPrototype": "NOT_TESTED"
+  },
+  "browsers": {
+    "chrome": {
+      "actualAppleEventsCommand": "CrSu/ExJa",
+      "guardedNewSoleTab": true,
+      "localWindowClosed": true,
+      "networkMethodReplacements": 0,
+      "ordinaryAppleEventsCanReadThatPrototypeMarker": false,
+      "ordinaryInstalledBrowser": true,
+      "originalBrowserWindowSetRestored": true,
+      "pageAuthoredLocalLinkSawItsFixtureMarker": true,
+      "pageLinkActivation": "Once by the fixed local fixture itself using its own link. No script URL was submitted by native automation.",
+      "pageOwnedXHRPrototypeMarker": true,
+      "rawReceiptSHA256": "9c3d586dc7822e5f25028fa33f322dfd1f26d553e1a42fc118d606162f54ef7f",
+      "sameOriginalDocumentMarker": true,
+      "sameProcessAndNewWindowRechecked": true,
+      "scriptingDictionarySHA256": "cd0453c2e166a0b664f8ea1d1ac04b53a54eed14835569b6104a7823dbb950f2",
+      "stableSamples": 2,
+      "version": "157.0.8103.79"
+    },
+    "edge": {
+      "actualAppleEventsCommand": "CrSu/ExJa",
+      "guardedNewSoleTab": true,
+      "localWindowClosed": true,
+      "networkMethodReplacements": 0,
+      "ordinaryAppleEventsCanReadThatPrototypeMarker": false,
+      "ordinaryInstalledBrowser": true,
+      "originalBrowserWindowSetRestored": true,
+      "pageAuthoredLocalLinkSawItsFixtureMarker": true,
+      "pageLinkActivation": "Once by the fixed local fixture itself using its own link. No script URL was submitted by native automation.",
+      "pageOwnedXHRPrototypeMarker": true,
+      "rawReceiptSHA256": "c4df5d8906530f16aafef126667c8cc9b7a500e5a3d600c64d4c9e5119628bfa",
+      "sameOriginalDocumentMarker": true,
+      "sameProcessAndNewWindowRechecked": true,
+      "scriptingDictionarySHA256": "cd0453c2e166a0b664f8ea1d1ac04b53a54eed14835569b6104a7823dbb950f2",
+      "stableSamples": 2,
+      "version": "158.0.4370.33"
+    }
+  },
+  "fixture": {
+    "chatgptNavigations": 0,
+    "fileInputs": 0,
+    "listenerProcessesStarted": 0,
+    "nativeJavascriptURLOrProductBootstrapExecuted": false,
+    "networkAPIInvocations": 0,
+    "networkMeasurementLevel": "Source and execution receipts for this fixture only. Other browser traffic was neither observed nor included.",
+    "networkMethodsModified": false,
+    "normalPageAuthoredFixedLinkOnly": true,
+    "permissionOrPolicyChanges": 0,
+    "productProcessesLaunched": 0,
+    "sameDocumentValidatedBy": "Exact owned file URL, immutable fixture hash, unique document nonce, stable performance.timeOrigin, window reply and single tab in same signed browser birth.",
+    "sendsOrFormSubmits": 0,
+    "staticLocalSources": 2,
+    "xhrInstanceCreatedWithoutOpenOrSend": true
+  },
+  "frozenProductSourceSHA256": {
+    "Sources/RiftletAdapters/ChromeAppleEventsExecutor.swift": "00b1f7b637aad2ce00cc9b766c923ad5c4f25c3d0d08e8cf7306983ddb386140",
+    "Sources/RiftletAdapters/EdgeExecutionWorldWitness.swift": "89348e4558ef8e0d31bfa1a673c315d972ab9a48495c3ff7e3622837d6076cd2",
+    "Sources/RiftletAdapters/MainWorldCommandRelay.swift": "5f8eeb27be047cbe0345b184c38f5c9d24fcfddaaf7be1c6658630a03d865828"
+  },
+  "historicalSigned61": {
+    "chrome": {
+      "actualPUTBodyHashProgressAndTerminalObserved": false,
+      "completeOriginalFileMatchedOnInputAndChange": true,
+      "durableAttachmentStartCount": 1,
+      "nativeWorldTaggedSiteXHRWitness": false,
+      "observableCreationResourceTimingHTTPStatus": 200,
+      "originalPageSHA256": "b4a8e26d91e22438884a384c3c7cf27b0b80e9eeb1b795ad11fb993c9e508a56",
+      "qaDirectProductWritingObjectSeen": [
+        false,
+        false
+      ],
+      "qaReadProductSetterTimestamp": [
+        null,
+        null
+      ],
+      "signedSetterAndReturnedChangeSequence": 74,
+      "traceSHA256": "7452af63fd708c45800a7e9dab403df075ae87e5c50483885fa5c07962dba65a"
+    },
+    "dmgSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+    "edge": {
+      "activeOriginalDocumentAndEditor": true,
+      "actualPUTBodyHashProgressAndTerminalObserved": false,
+      "durableAttachmentStartCount": 1,
+      "ordinaryAppleEventsOwnRealmHasXHR": true,
+      "qaNetworkWrites": 0,
+      "qaSawProductRegistry": false,
+      "qaSawWebsiteReactOwner": false,
+      "realmProbeSHA256": "0b98e7190da90a67a14fba88654c7a0493081cd3a443a0fb74fae2740928fb25",
+      "signedAcceptedStartSequence": 54,
+      "signedSetterAndReturnedChangeSequence": 40,
+      "traceSHA256": "a914f151178302f1d1b4a7bc3664e722cccf1aafb5f7617ad0bad348ab144604"
+    },
+    "source": "49b9204974088c1983cda469910d9a78d8f4c43b"
+  },
+  "scope": "First-party local file documents observed through normal vendor macOS Apple Events. Prior real-site evidence is separately identified.",
+  "status": "LOCAL_NATIVE_WORLD_DIFFERENCE_OBSERVED",
+  "testedAtUTC": "2026-11-23T05:04:00.500231+00:00"
+}

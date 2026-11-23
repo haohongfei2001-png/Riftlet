@@ -1,0 +1,114 @@
+{
+  "product": "69b76cb025ab552b3480e3af095b627891874712",
+  "scope": "Isolated headless Chrome and Edge, controlled DOM, ordinary page-program pin/begin/chunk/commit/observe. No live site result.",
+  "comparison": {
+    "58-final": {
+      "chrome": {
+        "version": "Chrome/157.0.8103.79",
+        "pageSHA256": "43e43df544d4edb6081dfe592b1b18166039f98983ab8f0fac0f31efdf60d166",
+        "count": {
+          "BASELINE_MISSING_START_REPRODUCED": 1
+        },
+        "bad": [],
+        "pairIntervalMS": 2.5,
+        "pair": [
+          [
+            "inputTriggered",
+            null
+          ],
+          [
+            "inputTriggered",
+            null
+          ]
+        ],
+        "inputEvents": {
+          "setter": 2,
+          "input": 2,
+          "change": 2,
+          "send": 0
+        },
+        "semitransparentPixels": 288
+      },
+      "edge": {
+        "version": "Edg/158.0.4370.33",
+        "pageSHA256": "43e43df544d4edb6081dfe592b1b18166039f98983ab8f0fac0f31efdf60d166",
+        "count": {
+          "BASELINE_MISSING_START_REPRODUCED": 1
+        },
+        "bad": [],
+        "pairIntervalMS": 5.100000023841858,
+        "pair": [
+          [
+            "inputTriggered",
+            null
+          ],
+          [
+            "inputTriggered",
+            null
+          ]
+        ],
+        "inputEvents": {
+          "setter": 2,
+          "input": 2,
+          "change": 2,
+          "send": 0
+        },
+        "semitransparentPixels": 288
+      }
+    },
+    "59-b6eee615": {
+      "chrome": {
+        "version": "Chrome/157.0.8103.79",
+        "pageSHA256": "b6eee615982d839285ea6af4abb16018939f9be91b18215554e847f4a6eb2215",
+        "count": {
+          "PASS": 22
+        },
+        "bad": [],
+        "pairIntervalMS": 2.400000035762787,
+        "pair": [
+          [
+            "uploadStarted",
+            1
+          ],
+          [
+            "uploadStarted",
+            1
+          ]
+        ],
+        "inputEvents": {
+          "setter": 2,
+          "input": 2,
+          "change": 2,
+          "send": 0
+        },
+        "semitransparentPixels": 288
+      },
+      "edge": {
+        "version": "Edg/158.0.4370.33",
+        "pageSHA256": "b6eee615982d839285ea6af4abb16018939f9be91b18215554e847f4a6eb2215",
+        "count": {
+          "PASS": 22
+        },
+        "bad": [],
+        "pairIntervalMS": 2.300000011920929,
+        "pair": [
+          [
+            "uploadStarted",
+            1
+          ],
+          [
+            "uploadStarted",
+            1
+          ]
+        ],
+        "inputEvents": {
+          "setter": 2,
+          "input": 2,
+          "change": 2,
+          "send": 0
+        },
+        "semitransparentPixels": 288
+      }
+    }
+  }
+}

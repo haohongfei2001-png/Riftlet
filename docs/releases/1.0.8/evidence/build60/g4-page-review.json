@@ -1,0 +1,162 @@
+{
+  "productSource": "711cee3a1c7033ce4925082a83099b00da7087c6",
+  "productSourcesGitTree": "86e683c279c0baf0ae0cee7964d14193f533e718",
+  "scope": "Pre-signature source review for build 60. Core and SQLite were reviewed by a contributor who did not author them. The page-program author replayed the web controls. Separate independent review and signed-candidate website receipts own their respective gates.",
+  "sourceSigningRecommendation": "READY_FOR_SIGNING",
+  "filesSHA256": {
+    "Sources/RiftletAdapters/WebAttachmentAdapter.swift": "076c89b15a9cee99639ea32873657df80fc2d5479d4276580dd8724e163df8d3",
+    "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js": "a4da18056ed85a5a360f30f22c6965138d917cfde2c404e9aa24422b1f7b8250",
+    "Sources/RiftletAdapters/ArchivedObservationCompatibility.swift": "6a5530efb19e48639489da06dea50f12a853a52195463cd0e106199a635196ba",
+    "Sources/RiftletAdapters/Resources/build59-observation-fingerprint.dat": "19677788b6a846b2868e0159d8467f9de37544a2ffc24bfd1676b499314580f5",
+    "Sources/RiftletCore/QueueStore.swift": "c96c169dd31a11570107c1251c006a71590083a4fe532e669cec4158085cc7b8",
+    "Sources/RiftletCore/SQLiteDatabase.swift": "5a115bcd439185f32fbc3f0dd02932fe9981c14ff42fbae4fc33c498694d6687",
+    "Sources/RiftletCore/TransferCoordinator.swift": "66d613494f6ae3ea9d888adaf0113889a171b5f87ebd5756b33cc842b21730fc",
+    "Sources/RiftletApp/RiftletMain.swift": "3ba88a442cef86e47e3c73f4a14555c12b32e74e79743ca028436dbf9ea417c2",
+    "Tests/RiftletCoreTests/AttachmentDispositionTests.swift": "8e031ab39a10e4e7464f16091c2420237ada038a15e21e926a624be51484f8e8",
+    "Tests/RiftletAdaptersTests/ArchivedObservationCompatibilityTests.swift": "57d84b6dd9ca579f1cd5e704c300889d2fc4bc5b0a248eaf144c7e122359728b",
+    "Tests/WebPageProgram/chrome-input-resource.test.cjs": "0c1bfdc77ad436a508f25ae18d2793827be68a26e5d275b2406cc3e34422c55c"
+  },
+  "coreAndSQLite": {
+    "suite": "Tests/RiftletCoreTests/AttachmentDispositionTests.swift",
+    "method": "Compiled unchanged test bodies directly with frozen production Core sources and system SQLite. Plain assertions executed the five tests with the local Swift toolchain.",
+    "passed": 5,
+    "failed": 0,
+    "validated": [
+      "An explicit retry accepts a fresh click capability for the identical native window, tab, document, composer and draft generation.",
+      "Two concurrent writers yield a single successor. A second attempt retired before input restores the original and a new selection receives attempt 3.",
+      "After restoration a late UNKNOWN, START, append return, execution return, pre-input rejection, invocation checkpoint overwrite, dispatch enrollment and restart left every original operation / upload-start / matching checkpoint cell identical.",
+      "An independent restart preserved the original operation, invocation and pre-existing START after a successful controlled successor."
+    ]
+  },
+  "retainedBuild59DatabaseCopies": {
+    "method": "Three independently SHA-pinned terminal databases from dedicated website QA. A new scratch copy was used per trial. Production QueueStore was compiled from the indicated source.",
+    "openOnly": [
+      {
+        "sample": "after-native-send",
+        "inputArchiveSHA256": "3f1176fe3da464277c4ae2552c9a4ecee799b8d7aa4d1b5b7337b5b097c1e926",
+        "originalArchiveUnmodified": true,
+        "originalRowsIdentical": true,
+        "preservedTableCount": 8,
+        "preservedTablesSHA256": "b97115b435841abff5ef285242a6443465e2acd84e0deccb66d4bfa703100b32",
+        "userVersionBefore": 4,
+        "userVersionAfterOpen": 4,
+        "newEmptyReselectionsTable": true,
+        "originalInvocationReadable": true,
+        "originalInputTriggeredReceiptReadable": true,
+        "originalStartPresent": false,
+        "foreignKeyViolations": 0
+      },
+      {
+        "sample": "native-upload-partial",
+        "inputArchiveSHA256": "ed000599b6b66cdb2196989b140c6d097ed366f68c694cf51ed73707bfc0dd88",
+        "originalArchiveUnmodified": true,
+        "originalRowsIdentical": true,
+        "preservedTableCount": 8,
+        "preservedTablesSHA256": "55c4af805c10964590b5c8df0f2101a52369ca7a0da0691a8a2afaeee1604df5",
+        "userVersionBefore": 4,
+        "userVersionAfterOpen": 4,
+        "newEmptyReselectionsTable": true,
+        "originalInvocationReadable": true,
+        "originalInputTriggeredReceiptReadable": true,
+        "originalStartPresent": false,
+        "foreignKeyViolations": 0
+      },
+      {
+        "sample": "body-sent-before-response",
+        "inputArchiveSHA256": "2a7c15697cde5d96927999e6ec9b4766dd5ef79e58dfd0bb46fd5d0c53a498de",
+        "originalArchiveUnmodified": true,
+        "originalRowsIdentical": true,
+        "preservedTableCount": 8,
+        "preservedTablesSHA256": "ecd1a78606ee6ed1b0c6f12d4e75edbbf9fec2129de11b302de482dd835b24c5",
+        "userVersionBefore": 4,
+        "userVersionAfterOpen": 4,
+        "newEmptyReselectionsTable": true,
+        "originalInvocationReadable": true,
+        "originalInputTriggeredReceiptReadable": true,
+        "originalStartPresent": false,
+        "foreignKeyViolations": 0
+      }
+    ],
+    "controlledFirstReselection": {
+      "sampleCount": 3,
+      "passed": 3,
+      "startUserVersion": 4,
+      "afterExplicitPrepareUserVersion": 7,
+      "oldInputReceipt": "inputTriggered",
+      "oldPhase": "unknown",
+      "oldSTARTs": 0,
+      "newFileInputs": 0,
+      "perSampleNewOperationsPrepared": 2,
+      "perSampleNewOperationsRetiredBeforeDispatch": 2,
+      "perSampleNewPredecessorLinks": 2,
+      "oldOperationStartAndCheckpointRowsIdenticalAfterRestart": true,
+      "foreignKeyViolations": 0,
+      "archiveHashesUnchanged": true,
+      "scope": "Controlled storage exercise invoked the internal preparation API on scratch copies. No page, signed installed app or user click participated."
+    }
+  },
+  "pageControls": {
+    "fixture": "Tests/WebPageProgram/chrome-input-resource.test.cjs",
+    "case": "owned-original-failure-card",
+    "engine": "Headless Google Chrome on loopback",
+    "pageSHA256": "a4da18056ed85a5a360f30f22c6965138d917cfde2c404e9aa24422b1f7b8250",
+    "passingRunnerTests": 15,
+    "failed": 0,
+    "configurations": [
+      {
+        "productConfiguration": "chrome",
+        "nativeSettersAcrossAllFixtureCases": 51,
+        "nativeChangesAcrossAllFixtureCases": 51,
+        "automaticSends": 0
+      },
+      {
+        "productConfiguration": "edge",
+        "nativeSettersAcrossAllFixtureCases": 51,
+        "nativeChangesAcrossAllFixtureCases": 51,
+        "automaticSends": 0
+      }
+    ],
+    "scope": "The suite used both product configurations on Chrome. Fixture counts combine distinct operations and negative cases.",
+    "checked": [
+      "The source operation, invocation, PNG identity, original live DOM references, draft generation and prior attachment identities are checked before allowing recovery and again immediately before input.",
+      "Original member still present, competing members, inability to prove prior member ownership and changed baseline fail closed.",
+      "A retained named failure can authorize a new explicit operation when its original error and inactive state are verified.",
+      "A fresh attempt 3 can follow an attempt 2 retired before input. Equal and decreasing attempts are denied."
+    ]
+  },
+  "archivedObserver": {
+    "build59OriginalPageBytes": 133936,
+    "sha256": "b6eee615982d839285ea6af4abb16018939f9be91b18215554e847f4a6eb2215",
+    "packedResourcesBytes": 37339,
+    "packedResourceSHA256": "19677788b6a846b2868e0159d8467f9de37544a2ffc24bfd1676b499314580f5",
+    "historicalReadOnly": true
+  },
+  "siteEvidence": {
+    "build59EvidenceSHA256": {
+      "g4-final-strategies.json": "14ac88ce443e4fea49ed21e64bef701dd404d3d4a987a218f127243d701514c9",
+      "g4-http-control.json": "bdf4352758d6eef1ccea419bda7f05eba5a00a2a0a8fbe4234658f452d503920",
+      "g4-live-passive-audit.json": "20a4a034fd0f80345fef7b78b5189b7670d65633afc881717d35fa5abe039f85"
+    },
+    "G4_A": {
+      "status": "NOT_RUN",
+      "eligibleOriginalFailureCardsInReviewedWebsiteSamples": 0,
+      "recoveryInvocations": 0
+    },
+    "G4_B": {
+      "status": "NOT_RUN",
+      "attributedWebsiteHTTP4xxOr5xx": 0,
+      "attributedClientAborts": 3,
+      "clientAbortHTTPStatus": 0,
+      "siteServerOutcome": "unknown",
+      "loopbackHTTPRejectStatuses": [
+        413,
+        503
+      ]
+    },
+    "G4_C": {
+      "signedBuild60WebsiteResultInThisReceipt": "NOT_RUN",
+      "controlledSourceAndSQLCoverage": "PASS"
+    }
+  },
+  "releaseDecision": "PARTIAL"
+}

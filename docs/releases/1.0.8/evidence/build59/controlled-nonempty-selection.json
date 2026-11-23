@@ -1,0 +1,327 @@
+{
+  "source": "69b76cb025ab552b3480e3af095b627891874712",
+  "dmgSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+  "scope": "Isolated headless file fixtures, signed installed page resource. Live selection cases remain NOT_RUN. The edited QA program does not ship in Riftlet.",
+  "browsers": [
+    {
+      "family": "chrome",
+      "engine": "Chrome/157.0.8103.79",
+      "pageSHA256": "b6eee615982d839285ea6af4abb16018939f9be91b18215554e847f4a6eb2215",
+      "pairedSelectionResults": [
+        {
+          "mode": "forward",
+          "selection": {
+            "before": {
+              "text": "Riftlet QA: preserve this original draft while attaching images.",
+              "selectedText": "preserve this original draft",
+              "start": 12,
+              "end": 40,
+              "anchor": 12,
+              "focus": 40,
+              "direction": "forward"
+            },
+            "after": {
+              "text": "Riftlet QA: preserve this original draft while attaching images.",
+              "selectedText": "preserve this original draft",
+              "start": 12,
+              "end": 40,
+              "anchor": 12,
+              "focus": 40,
+              "direction": "forward"
+            },
+            "prior": {
+              "documentID": "726b85ac-ead3-4771-810a-170e7c3ca870",
+              "composerID": "node-1:node-2",
+              "draftEpoch": "71f70687-6681-44c7-a7d9-5954f132994b",
+              "cardsExact": true,
+              "priorCards": 2,
+              "oldCardsIntact": true,
+              "original": true,
+              "seedPresent": true,
+              "counts": {
+                "setter": 1,
+                "input": 1,
+                "change": 1,
+                "send": 0
+              },
+              "sendClicks": 0
+            },
+            "final": {
+              "documentID": "726b85ac-ead3-4771-810a-170e7c3ca870",
+              "composerID": "node-1:node-2",
+              "draftEpoch": "71f70687-6681-44c7-a7d9-5954f132994b",
+              "cardsExact": true,
+              "priorCards": 2,
+              "oldCardsIntact": true,
+              "original": true,
+              "seedPresent": true,
+              "counts": {
+                "setter": 2,
+                "input": 2,
+                "change": 2,
+                "send": 0
+              },
+              "sendClicks": 0
+            },
+            "seed": {
+              "operation": "a2a678ea-9065-4833-8819-3cf1db9c1324",
+              "invocation": "add77a95-90f6-403d-92e7-1fa44f1b0ecc",
+              "fileSHA256": "87df9b27471662f5eb5376f037feaf896a09561c719d20e018e65c06316c1fac",
+              "attachmentID": "726b85ac-ead3-4771-810a-170e7c3ca870:node-3",
+              "evidenceID": "2f32e2af-40d5-42aa-ae1a-e8d11b39f99e"
+            },
+            "added": {
+              "operation": "3ad2eeaf-d195-41d5-bb9b-13cbe2e22da1",
+              "invocation": "e98e7199-9746-40dc-800d-393decb9635d",
+              "fileSHA256": "a1cdb1e170384462a16623d476eb2cb3e647a89ff82a108cadeb1c0db1690685",
+              "attachmentID": "726b85ac-ead3-4771-810a-170e7c3ca870:node-4",
+              "evidenceID": "be068bb5-67f9-4460-a261-f7937a46449e"
+            },
+            "collapsedSelectionRejectedBeforeAndAfter": true,
+            "identicalPriorCardCloneRejected": true,
+            "reversedDirectionRejected": true
+          },
+          "status": "PASS"
+        },
+        {
+          "mode": "backward",
+          "selection": {
+            "before": {
+              "text": "Riftlet QA: preserve this original draft while attaching images.",
+              "selectedText": "preserve this original draft",
+              "start": 12,
+              "end": 40,
+              "anchor": 40,
+              "focus": 12,
+              "direction": "backward"
+            },
+            "after": {
+              "text": "Riftlet QA: preserve this original draft while attaching images.",
+              "selectedText": "preserve this original draft",
+              "start": 12,
+              "end": 40,
+              "anchor": 40,
+              "focus": 12,
+              "direction": "backward"
+            },
+            "prior": {
+              "documentID": "6e1fd833-bb23-4560-bf89-f9f022ac3c79",
+              "composerID": "node-1:node-2",
+              "draftEpoch": "5944b8e6-2774-44e2-bc80-aa10079cb37f",
+              "cardsExact": true,
+              "priorCards": 2,
+              "oldCardsIntact": true,
+              "original": true,
+              "seedPresent": true,
+              "counts": {
+                "setter": 1,
+                "input": 1,
+                "change": 1,
+                "send": 0
+              },
+              "sendClicks": 0
+            },
+            "final": {
+              "documentID": "6e1fd833-bb23-4560-bf89-f9f022ac3c79",
+              "composerID": "node-1:node-2",
+              "draftEpoch": "5944b8e6-2774-44e2-bc80-aa10079cb37f",
+              "cardsExact": true,
+              "priorCards": 2,
+              "oldCardsIntact": true,
+              "original": true,
+              "seedPresent": true,
+              "counts": {
+                "setter": 2,
+                "input": 2,
+                "change": 2,
+                "send": 0
+              },
+              "sendClicks": 0
+            },
+            "seed": {
+              "operation": "bf192867-6173-47c9-92e2-cfec2371f3fc",
+              "invocation": "3b6b9653-b101-4967-9aa4-8fbc20d7f0cf",
+              "fileSHA256": "87df9b27471662f5eb5376f037feaf896a09561c719d20e018e65c06316c1fac",
+              "attachmentID": "6e1fd833-bb23-4560-bf89-f9f022ac3c79:node-3",
+              "evidenceID": "6f40a04f-f12b-42b3-a1bc-184049730362"
+            },
+            "added": {
+              "operation": "4b5872bd-9958-419f-9b9d-bf245f46dad6",
+              "invocation": "35d80205-c3e1-41f7-bfd0-b22586f9190a",
+              "fileSHA256": "a1cdb1e170384462a16623d476eb2cb3e647a89ff82a108cadeb1c0db1690685",
+              "attachmentID": "6e1fd833-bb23-4560-bf89-f9f022ac3c79:node-4",
+              "evidenceID": "c1e0bf72-1169-4a0a-a633-c0cf7f5d5c67"
+            },
+            "collapsedSelectionRejectedBeforeAndAfter": true,
+            "identicalPriorCardCloneRejected": true,
+            "reversedDirectionRejected": true
+          },
+          "status": "PASS"
+        }
+      ],
+      "selectionOutputSHA256": "962f75611a7ead52573bd695e9b5c00dbf812b1da3adae67df22fd3bd9d2f7fd",
+      "existingDerivedPreviewCasesPassed": 22,
+      "existingSuiteOutputSHA256": "0aa3ab27013166884fd196b23be43c6c0a3ea463c12b01c0db2a0015238d47d0"
+    },
+    {
+      "family": "edge",
+      "engine": "Edg/158.0.4370.33",
+      "pageSHA256": "b6eee615982d839285ea6af4abb16018939f9be91b18215554e847f4a6eb2215",
+      "pairedSelectionResults": [
+        {
+          "mode": "forward",
+          "selection": {
+            "before": {
+              "text": "Riftlet QA: preserve this original draft while attaching images.",
+              "selectedText": "preserve this original draft",
+              "start": 12,
+              "end": 40,
+              "anchor": 12,
+              "focus": 40,
+              "direction": "forward"
+            },
+            "after": {
+              "text": "Riftlet QA: preserve this original draft while attaching images.",
+              "selectedText": "preserve this original draft",
+              "start": 12,
+              "end": 40,
+              "anchor": 12,
+              "focus": 40,
+              "direction": "forward"
+            },
+            "prior": {
+              "documentID": "f101c68c-be1a-4346-b46f-bafbfc4b0f31",
+              "composerID": "node-1:node-2",
+              "draftEpoch": "9a71546f-cf9d-4e1f-8ef1-81901cc7abbd",
+              "cardsExact": true,
+              "priorCards": 2,
+              "oldCardsIntact": true,
+              "original": true,
+              "seedPresent": true,
+              "counts": {
+                "setter": 1,
+                "input": 1,
+                "change": 1,
+                "send": 0
+              },
+              "sendClicks": 0
+            },
+            "final": {
+              "documentID": "f101c68c-be1a-4346-b46f-bafbfc4b0f31",
+              "composerID": "node-1:node-2",
+              "draftEpoch": "9a71546f-cf9d-4e1f-8ef1-81901cc7abbd",
+              "cardsExact": true,
+              "priorCards": 2,
+              "oldCardsIntact": true,
+              "original": true,
+              "seedPresent": true,
+              "counts": {
+                "setter": 2,
+                "input": 2,
+                "change": 2,
+                "send": 0
+              },
+              "sendClicks": 0
+            },
+            "seed": {
+              "operation": "eada6a53-0606-43e4-9e8c-72472a667b55",
+              "invocation": "16162ac7-5dae-4346-a9f5-38d784db6b85",
+              "fileSHA256": "87df9b27471662f5eb5376f037feaf896a09561c719d20e018e65c06316c1fac",
+              "attachmentID": "f101c68c-be1a-4346-b46f-bafbfc4b0f31:node-3",
+              "evidenceID": "e41d770a-6aac-4a5c-a4db-ab6dd0a2f327"
+            },
+            "added": {
+              "operation": "bf888c8d-dcd1-4fac-aced-149fe48ec84e",
+              "invocation": "b0536810-3de7-4123-9beb-7f427e076ac7",
+              "fileSHA256": "a1cdb1e170384462a16623d476eb2cb3e647a89ff82a108cadeb1c0db1690685",
+              "attachmentID": "f101c68c-be1a-4346-b46f-bafbfc4b0f31:node-4",
+              "evidenceID": "87ca8e72-aef3-4cd8-9ff1-87dc8f79417b"
+            },
+            "collapsedSelectionRejectedBeforeAndAfter": true,
+            "identicalPriorCardCloneRejected": true,
+            "reversedDirectionRejected": true
+          },
+          "status": "PASS"
+        },
+        {
+          "mode": "backward",
+          "selection": {
+            "before": {
+              "text": "Riftlet QA: preserve this original draft while attaching images.",
+              "selectedText": "preserve this original draft",
+              "start": 12,
+              "end": 40,
+              "anchor": 40,
+              "focus": 12,
+              "direction": "backward"
+            },
+            "after": {
+              "text": "Riftlet QA: preserve this original draft while attaching images.",
+              "selectedText": "preserve this original draft",
+              "start": 12,
+              "end": 40,
+              "anchor": 40,
+              "focus": 12,
+              "direction": "backward"
+            },
+            "prior": {
+              "documentID": "941da1b0-f86c-4175-9994-e019cdf81136",
+              "composerID": "node-1:node-2",
+              "draftEpoch": "ebfb5e96-5147-4ffb-b76d-75e3a8acb8ec",
+              "cardsExact": true,
+              "priorCards": 2,
+              "oldCardsIntact": true,
+              "original": true,
+              "seedPresent": true,
+              "counts": {
+                "setter": 1,
+                "input": 1,
+                "change": 1,
+                "send": 0
+              },
+              "sendClicks": 0
+            },
+            "final": {
+              "documentID": "941da1b0-f86c-4175-9994-e019cdf81136",
+              "composerID": "node-1:node-2",
+              "draftEpoch": "ebfb5e96-5147-4ffb-b76d-75e3a8acb8ec",
+              "cardsExact": true,
+              "priorCards": 2,
+              "oldCardsIntact": true,
+              "original": true,
+              "seedPresent": true,
+              "counts": {
+                "setter": 2,
+                "input": 2,
+                "change": 2,
+                "send": 0
+              },
+              "sendClicks": 0
+            },
+            "seed": {
+              "operation": "911d8795-8ebd-4d07-9789-3a56632ab285",
+              "invocation": "840d1f72-56b8-4b95-bb84-a3557b426f84",
+              "fileSHA256": "87df9b27471662f5eb5376f037feaf896a09561c719d20e018e65c06316c1fac",
+              "attachmentID": "941da1b0-f86c-4175-9994-e019cdf81136:node-3",
+              "evidenceID": "ef8faf13-36db-4887-b800-8d1c8c8425a7"
+            },
+            "added": {
+              "operation": "cf59d465-03a0-4be6-abc4-72f6030ab73a",
+              "invocation": "7eb1edc1-f291-4f01-a91f-5e669b142438",
+              "fileSHA256": "a1cdb1e170384462a16623d476eb2cb3e647a89ff82a108cadeb1c0db1690685",
+              "attachmentID": "941da1b0-f86c-4175-9994-e019cdf81136:node-4",
+              "evidenceID": "98a08dc8-1081-41e5-8101-f8ab75eacb61"
+            },
+            "collapsedSelectionRejectedBeforeAndAfter": true,
+            "identicalPriorCardCloneRejected": true,
+            "reversedDirectionRejected": true
+          },
+          "status": "PASS"
+        }
+      ],
+      "selectionOutputSHA256": "73a052e6a0908f9a45b80cac2440fde8960a651bbee4c79806cb74bbbc2cecae",
+      "existingDerivedPreviewCasesPassed": 22,
+      "existingSuiteOutputSHA256": "3b4ce0a4c060ac2c2ccf10c8e17ce9c5bef73566851fa19e65ce7b0888a1a571"
+    }
+  ]
+}

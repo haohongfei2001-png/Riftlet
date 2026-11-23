@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import plistlib
 import re
 import stat
 import subprocess
@@ -76,7 +77,7 @@ def package_hashes(package):
     result = {ENTRY: digest(package / ENTRY), README: digest(package / README),
               "Riftlet.app/Contents/MacOS/Riftlet": digest(app / "Contents/MacOS/Riftlet"),
               "Riftlet.app/Contents/Info.plist": digest(app / "Contents/Info.plist")}
-    for name in BUNDLE.RESOURCE_NAMES:
+    for name in BUNDLE.resource_names(plistlib.loads((app / "Contents/Info.plist").read_bytes())["CFBundleVersion"]):
         matches = list((app / "Contents/Resources/Riftlet_RiftletAdapters.bundle").rglob(name))
         require(len(matches) == 1, "ambiguous_adapter_resource")
         result[matches[0].relative_to(package).as_posix()] = digest(matches[0])

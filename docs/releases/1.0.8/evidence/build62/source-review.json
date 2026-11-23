@@ -1,0 +1,71 @@
+{
+  "reviewedBase": "9fd8ad15fca043915069904113e5fb67d82b4948",
+  "reviewedSource": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "reviewedTree": "f5eb856b9faed30a2ff82e906a081d61647b6f04",
+  "reviewer": "independent-build62-recovery-and-mainline-source-reviewer",
+  "result": "PASS",
+  "reviewedAtUTC": "2026-11-23T09:34:03+00:00",
+  "decision": "Engineering source admission for the exact base, source and tree. The reviewer did not author or modify the source, control a browser or operate the packaging or release lane.",
+  "rangeAudit": {
+    "fullRangePathCount": 498,
+    "fullRangeByDirectory": {
+      ".github": 2,
+      "AGENTS.md": 1,
+      "Experiments": 8,
+      "Resources": 3,
+      "Sources": 60,
+      "Tests": 160,
+      "docs": 255,
+      "engineering": 1,
+      "packaging": 1,
+      "scripts": 7
+    },
+    "fullRangeRawDiffSHA256": "e15491652d937bf8199fe3945404d0e5ee4616918b75c830505946e0d4cc59e3",
+    "incrementPathCount": 41,
+    "priorIndependentReportSHA256": "867f8f49b804f1046a74b70f15286a152ec6fbf632f147b01fdb9c6628b8054a",
+    "priorReviewedSource": "e2324e9d742ec3c3d1045504ed1bfee421efae67",
+    "priorReviewAdmission": "881589ad19f5e0205846aa265e64df89f2a0b498"
+  },
+  "method": "Reviewed the full base-to-source path inventory and protected seams. Recomputed the embedded independent base-to-previous-source report digest and verified its direct admission-only child. Examined the 41-path successor diff, product and QA code, original release contract, build-61 evidence, packaging rules and safety boundaries. Recomputed a SHA-256 of the full NUL-delimited raw diff with full-length blob identities and no renames.",
+  "productionReview": [
+    "A positive original attachment START remains durable. The ordinary history shows an accepted handoff; uncertain or weakly errored originals stay retained for inspection. A strongly attributed named original failure can return the asset. No positive final upload or send is inferred.",
+    "The history inspection uses the original browser process birth identity, native window/tab, document, composer and draft generation. Its page validation does not enter a file setter. Presence is advisory even when only a matching name remains. The warning permits returning to the draft or cancellation. An informed reselection still requires its own actual tray click, new operation, invocation and click binding.",
+    "Rechecked renderer and native action paths, explicit consent scope, generation and editor identity after asynchronous work, unique setter/change, persistence of old history, weak-error versus exact-original-card attribution, and read-only original observation after restart. The predecessor-only late record verifies original operation, PNG, target, invocation and known card, and cannot update the successor or invoke a setter.",
+    "The ongoing source preserves existing guarded transport and SQLite paths. Isolated AppKit/WebKit composition, fixtures and recovery controls live under Tests. No new release-browser interception, retry worker, cookie access, third-party request manipulation, product permission, vendor entitlement or automatic sending is introduced by this increment.",
+    "Read-only historical observation fingerprints for builds 56 through 61 are checked compressed and decoded. Historical executable JavaScript is not evaluated by this path. Build 62 resource validation pins the new archive and bounds the shipping page program."
+  ],
+  "independentEvidence": {
+    "controlledScope": "Production UI, AppKit callbacks, coordinator, adapter, SQLite and system screenshot bytes with a test-only local page and isolated composition. The S4 source snapshot differs from the frozen shipping Sources tree only in the self-contained historical fingerprint loader and new build-61 fingerprint. The snapshot independently agrees with G on all other production files. QA driver formatting changed after the capture.",
+    "controlledCoverage": "Checked immutable SQLite backups against original captured JSON rows and the Mac screenshot metadata and stored bytes, AppKit events, attributed input/change, START receipts, retained draft and selection. Covered no-input refusal; uncertain retention; explicit reattachment after an attributed weak original error; present original warning; draft change; old-only late receipt; restart without replay; cancellation. Existing attachment retained, zero sends or forms. Checked the additional weak-error-to-new-START chain against old and new operation, SHA, binding, invocation and original draft, with one input under each click.",
+    "rawProductUIGroupedSHA256": "89d27647c74dd705fb0f3e5187bfc609c4fada2fc60a5ce4f2993c36481e3e6c",
+    "controlledHostSourceArchiveSHA256": "7c4e1ba8802fa4fcaf9f22b6e50d3964cc5e761bd585b8aac6f52b0bc8bfc22e",
+    "localSQLiteAppKitAuditSHA256": "b058f7f6b20c6196e3e71b7c8ccc59eb590667a4bd78f12c070198b4856a84ab",
+    "webSuite": {
+      "passed": 408,
+      "total": 408,
+      "skipped": 0,
+      "shippingProgramSHA256": "8bdb088559961534c1ac43ec170e02e77e3dcb4eaf1c711a79e43a0fcf854c93",
+      "rawResultSHA256": "eaae060026d6fb560bfd4e1b76ec6807dc9397932352eb28a772c96ddeacece8",
+      "method": "Rehashed primary test output, checked its actual terminal counts and compared all recorded source file hashes to the frozen tree."
+    },
+    "historicalCopies": "Verified three before/after immutable historical database pairs against sealed snapshot and PNG hashes, full old operation/checkpoint/START rows, one new operation and START, database integrity and foreign keys. These historical runs used an earlier source snapshot. HistoryAttachmentState.swift and QueueStore.swift subsequently changed. The frozen-tree controlled runs and final architecture regression apply to the current source separately.",
+    "archivedCompatibility": {
+      "builds": [
+        56,
+        57,
+        58,
+        59,
+        60,
+        61
+      ],
+      "receiptSHA256": "8216f0ff9048b939ab5327417106864a5c500c93391802fa46e6b061bf6e48b8",
+      "method": "Independently decompressed all six G resources and compared byte lengths, SHA-256 and complete bytes with the corresponding release Git blobs. Rehashed the JavaScriptCore control log and compatibility sources. Legacy actions have read-only observe admission."
+    },
+    "independentlyExecutedTests": "10 recovery-verifier regression tests passed in the reviewer process."
+  },
+  "releaseGate": {
+    "decision": "PENDING_VERIFICATION",
+    "required": "Final H as the direct admission-only child of G; actual merge-tree identity and required ARM64, Intel, Swift, web and Feedback checks; exact signed/notarized/stapled candidate, independent installation and same-candidate Chrome and Edge live acceptance. Follow release authorization only after those gates, including public asset, Sparkle signature and real isolated 1.0.5 (31) upgrade verification at the appropriate release phase.",
+    "externalFailureEvidence": "The upstream named ChatGPT failure and upstream HTTP 4xx remain unobserved. Product-controlled recovery acceptance is the current requirement. No build-61 live browser interval has been counted for the changed binary."
+  }
+}

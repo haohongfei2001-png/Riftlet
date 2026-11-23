@@ -1,0 +1,47 @@
+{
+  "recorded": "2026-11-21T17:34:55.256363+00:00",
+  "scope": "Private directory installation from independent read-only mount. No GUI or live website. Self-checks use generated data.",
+  "source": "3a4bf462cb1e02ae305328b0f1f64792ec14adb8",
+  "tree": "31893f0fbe4139bb5f3d315527c7675a636e2cc9",
+  "version": "1.0.8",
+  "build": "57",
+  "appID": "com.riftlet.app",
+  "team": "ZB9D4T66QB",
+  "diskImageSHA256": "be32c977b1dbf24fd90923d8b26329b1a4f65ab63c706ea2702aceb9243e53dd",
+  "bytes": 13661114,
+  "executableSHA256": "0be3aa08d7d597b248428b8abd1fd6adcecf48a1266ddbe53482382aca66eaed",
+  "architectures": [
+    "x86_64",
+    "arm64"
+  ],
+  "bundledPageSHA256": "0ac5c59b4856f26a50f5f22d8142314444db361a69753d0ee32cb767d89be87f",
+  "oldCompressedSHA256": "ed470481df5373d0e702c87087785235d080fb75b85ea27f1e07408e0357ae52",
+  "oldDecompressedSHA256": "61669b502526bd01b71b6c9aead85c224d9f3a50263ff121997769527368e2c5",
+  "oldDecompressedBytes": 117213,
+  "oldPageMatchesBuild56GitBlob": true,
+  "sourceTreeAndAllRecordedInputsVerified": true,
+  "ordinaryBuildInfo": {
+    "builtInUpload": true,
+    "completion": true,
+    "continuation": true,
+    "dataDirectory": "Riftlet",
+    "input": true,
+    "internalAcceptance": false,
+    "mode": "capture",
+    "safeRetry": false,
+    "start": true
+  },
+  "rawPrivateReportSHA256": "4c60b08779411c7e9449c4b31dc1f99dd8658741259fe7cc4ccc7e3f07e11f45",
+  "observedChecks": {
+    "appSignature": "PASS deep strict hardened runtime",
+    "dmgSignature": "PASS strict",
+    "appGatekeeper": "PASS Notarized Developer ID",
+    "dmgGatekeeper": "PASS Notarized Developer ID",
+    "appStapledTicket": "PASS",
+    "dmgStapledTicket": "PASS",
+    "ordinarySelfCheck": "PASS macOS system execution",
+    "webSelfCheck": "PASS generated fixtures",
+    "systemScreenshotCandidateSelfCheck": "PASS generated fixtures, macOS system execution"
+  },
+  "restrictedAttempt": "First restricted execution could not reach the macOS verification and image services. Checks passed in the regular macOS verification environment."
+}

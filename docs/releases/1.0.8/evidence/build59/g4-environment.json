@@ -1,0 +1,24 @@
+{
+  "build": 59,
+  "packageSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+  "gate": "G4",
+  "siteStatus": "NOT_RUN",
+  "realServiceFailureCard": false,
+  "originalOperationReissued": false,
+  "loopbackControl": {
+    "subject": "reachable",
+    "sibling": "reachable",
+    "secondStepProduced": false,
+    "completedIsolationCalibration": false,
+    "ruleApplied": "UNKNOWN",
+    "ruleCleared": "UNKNOWN",
+    "elapsedSecondsBeforeInterruption": 1321.2,
+    "samePackageServerFailureCreated": false
+  },
+  "publicEvidenceScope": "Only two dedicated local pages requested the nonce-specific control. No site traffic block was applied by this run.",
+  "sourceSHA256": {
+    "officialHandOff": "5b9af90a7bd949a219b5ca212d92d64377bd949655b55ecadea3d78bd753ae0b",
+    "controlSubject": "175d24eb23f6e131b68f659692117d36244cdfbbd68a52cbc3a02476b844846f",
+    "controlSibling": "49c651b4763e1f5d30b07ca609c3ee874e90bc6610421651b67f995019aab465"
+  }
+}
