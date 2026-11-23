@@ -213,8 +213,12 @@ final class IndependentAttachmentLifecycleTests: XCTestCase {
         try await coordinator.select(try await selection(b, store))
         let aRequests = await adapter.requests(for: a.id), bRequests = await adapter.requests(for: b.id)
         let ar = try XCTUnwrap(aRequests.last), br = try XCTUnwrap(bRequests.last)
+        _ = try await returnedDispatchCall(ar.operation.id, store)
+        _ = try await returnedDispatchCall(br.operation.id, store)
         let beforeA = try await operation(a, store), beforeB = try await operation(b, store)
-        let originalBStart = try await store.uploadStartReceipt(for: beforeB.id)
+        let storedBStart = try await store.uploadStartReceipt(for: beforeB.id)
+        let originalBStart = try XCTUnwrap(storedBStart)
+        XCTAssertEqual(originalBStart.operationID, br.operation.id)
         for wrong in ["pin", "invocation", "attachment"] {
             let good = IndependentLifecycleAdapter.receipt(ar, state: .complete)
             var json = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(good)) as? [String: Any])
