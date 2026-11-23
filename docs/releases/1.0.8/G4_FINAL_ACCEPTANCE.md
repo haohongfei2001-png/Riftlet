@@ -17,6 +17,8 @@
 
 真实 ChatGPT 上游具名失败卡和 HTTP 4xx 缺少实站证据。已批准的 1.0.8 恢复门槛采用上述产品级结果。普通 Chrome 与 Edge 的双图、选区、工程 CI、签名安装及两阶段 31→62 升级另见[同包发行报告](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)。
 
+build 59–61 的完整历史实验、当时的停止位置及逐轮证据链接保存在固定提交中。[完整历史 G4 报告](https://github.com/haohongfei2001-png/Riftlet/blob/ff380f90ccc586c90f561125d088428f7b0fd18e/docs/releases/1.0.8/G4_FINAL_ACCEPTANCE.md)
+
 <details>
 <summary>历史归档 · build 59 在真实 ChatGPT 页面的传输实验</summary>
 

@@ -1,0 +1,48 @@
+{
+  "scope": "Independently reconciled Swift discovery on both official macOS architectures, raw archived test partition execution, complete web regression and shipping SHA equivalence",
+  "result": "PASS",
+  "formalSourceHead": "2babf8cafcfd924abdddaa0ba43a1d099af1acb7",
+  "mergeCommit": "ec35fdf19d98e5223c94137bf6c77fecdf0e5976",
+  "mergeTree": "afb57c676b297895e3f30277b489ff07a8f5926c",
+  "signedSource": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "architectures": [
+    "arm64",
+    "x86_64"
+  ],
+  "sameSwiftTestsOnBothArchitectures": true,
+  "distinctSwiftTests": 1436,
+  "actualPerArchitecture": {
+    "x86_64": {
+      "result": "PASS",
+      "discovered": 1436,
+      "parallel": 1414,
+      "serial": 22,
+      "serialOutcomes": {
+        "passed": 22
+      }
+    },
+    "arm64": {
+      "result": "PASS",
+      "discovered": 1436,
+      "parallel": 1414,
+      "serial": 22,
+      "serialOutcomes": {
+        "passed": 22
+      }
+    }
+  },
+  "totalArchitectureSlots": 2872,
+  "identicalActualDiscoveryNamesSHA256": "d7d8eef0df87cbc3fc4280c8b723e2f8c10b4a906127c4fbcadc812ef49fff4d",
+  "testsWereNotRerun": true,
+  "webResult": {
+    "passed": 408,
+    "discovered": 408,
+    "failed": 0,
+    "skipped": 0,
+    "cancelled": 0,
+    "rawResultSHA256": "eaae060026d6fb560bfd4e1b76ec6807dc9397932352eb28a772c96ddeacece8",
+    "productAndQAHashCount": 8
+  },
+  "finalCIIndependentVerdictSHA256": "192b340546cd12618a9e1441c7bfecebd770ffd7660f3843f44cbc698b59564b",
+  "shippingAndWebIndependentVerdictSHA256": "ea6bb80c094b6d56bf499ce8721e8fe19b129ab26adb0f4369c3cc2f61f28c3b"
+}
