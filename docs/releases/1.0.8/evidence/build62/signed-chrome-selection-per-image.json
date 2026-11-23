@@ -1,0 +1,91 @@
+{
+  "gate": "signed real Temporary Chat, prepared nonempty draft and directed range",
+  "family": "chrome",
+  "reviewer": "independent-build62-recovery-and-mainline-source-reviewer",
+  "result": "PASS",
+  "signedProductSource": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "dmgSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "installedExecutableSHA256": "b641a84d1ca48f88cd54825bcc9af64d45915c640b90f8ccdaee3f3b1697ec98",
+  "actualTextAndDirectedRange": {
+    "originalCharacters": 64,
+    "originalUTF8SHA256": "cd8f05688e1c2f02de6687c4ec6283a3f28db17265552ec0283088938098853f",
+    "selectedText": "preserve this original draft",
+    "anchor": 12,
+    "anchorOffset": 12,
+    "focus": 40,
+    "focusOffset": 40,
+    "start": 12,
+    "end": 40,
+    "direction": "forward",
+    "beforeAndAfterMatch": true,
+    "sameOriginalDocumentAndEditorObjects": true,
+    "sameOriginalAttachmentNodes": true,
+    "underlyingSelectionTextNodeObjectIndependentlyIdentified": false
+  },
+  "newInput": {
+    "alreadyAcceptedCards": 1,
+    "additionalConfirmedCards": 1,
+    "additionalFileInput": 1,
+    "additionalFileChange": 1,
+    "additionalDurableSTART": 1,
+    "sends": 0,
+    "submits": 0
+  },
+  "draftGeneration": {
+    "priorEvidence": "seed-only SQLite row and one durable attachmentAccepted START exported before the selected draft preparation and recorded separately in selection-before.json",
+    "oldSeedSnapshotSHA256": "c70a25654d5ce595f77668d771fb878b9d3dcac8e6504eea98977cf89a65960f",
+    "beforePreparedRangeReceiptSHA256": "1be4210b44f502854e09ad10c52e758a8dc11763a9cc0f73855923ced57aad27",
+    "originalAcceptedBeforeEditAndNewAppKitEvent": true,
+    "oldAndNewStoredTargetDocumentComposerDraftMatch": true,
+    "unchangedGenerationDigest": "6de326dd6f151062fb18aa3b688b22005d239bae5e509f9cd94799d3010bcc89",
+    "prePressNewPendingSlotDirectlyReadable": false,
+    "pageWorldDirectlyExposedGeneration": false
+  },
+  "nativeScope": {
+    "browserForegroundAtBothPressChecks": true,
+    "originalNativeProcessWindowTabCheckedBeforeAndAfter": true,
+    "signedInAndExactTemporaryChat": true,
+    "lastReadSystemForeground": true,
+    "lastReadDocumentVisible": false,
+    "lastReadOriginalSelectedTab": true,
+    "lastReadOnly": true
+  },
+  "bothImages": [
+    {
+      "index": 1,
+      "sourcePNGSHA256": "48a96f888a1e2505853bb32c2777c8c7bd232cd11ffb97c96242238d8565da02",
+      "decodedSourceAndWebsiteRGBA": "26be705641554d667aed207044bbed849b3bc9663a2c07cdd6fae1bce6791863",
+      "appKitEventNumber": 29981,
+      "appKitMouseDownSystemUptime": 487558.811873958,
+      "originalAssetDigest": "56ed001e231f89090f04eb53e976d64c328c2686e281160c522a0609c95531fb",
+      "operationDigest": "6d00cec632c6b70bcf900cc8ad6dc07e845e438ca16861566e3cfbdeb35e4235",
+      "invocationDigest": "de40d17eef75372368f1dece8dbc86d2ce0ce38f228d87d6d9488e5b07aed7d7",
+      "bindingDigest": "e0af5b9945d4826c5fb40e3f9604d743d2ceb4975cbdc0416d4adf3e1675c1ed",
+      "cardDigest": "809c4eb8d1e95cedad740552bef6aba6b3f43ba34106229df86ba5b3767ca5e6",
+      "startEvidenceDigest": "3e7c46ed92414ebc9c95c27158aabfa1259ca58080a263b11ee3cc1cf57c340e",
+      "fileInputs": 1,
+      "fileChanges": 1,
+      "durableStarts": 1
+    },
+    {
+      "index": 2,
+      "sourcePNGSHA256": "b9cdad4a623e79b58c465b25b0bcc11942cbd048652d2a6cd3ad9b2782b9b207",
+      "decodedSourceAndWebsiteRGBA": "44087152b45c7ab1fa2c0262ecbfca1bd96285ec10a6c3cb8133a10e387c3c54",
+      "appKitEventNumber": 9786,
+      "appKitMouseDownSystemUptime": 487579.746012375,
+      "originalAssetDigest": "5ff86d4fea39f151f519c488ed6c693d1af64d32244c21a4b13dff5f642843d2",
+      "operationDigest": "959a4695d4dbad0504e2352e6462898c42b8afaf495288d52b680820b18c33a2",
+      "invocationDigest": "e3780b7e7870084457e309c14eb578d44a3153a13a403df6b8f1a0a7462a54a3",
+      "bindingDigest": "7e5c55990d7b8cd70a2026fbbfd678c8289a36c10add05f97907661e11105b87",
+      "cardDigest": "a5331d7f41af5b04a3796423994de39c27f10a916d43b83bf2a53bf81e01132c",
+      "startEvidenceDigest": "0071ef0d8162eea4729428dcc0010f61452ea356cf3c01fbda381e15fb3b38cf",
+      "fileInputs": 1,
+      "fileChanges": 1,
+      "durableStarts": 1
+    }
+  ],
+  "immutableFinalSQLiteSHA256": "1dac732fa483f34fbd5d9c472886926ce59182af7ca520ee38a4fd74b92c9d85",
+  "lastNativeReceiptSHA256": "cf8280ce975e89e962719cbeac2787a48425846ac362edecb44cc836e333e808",
+  "lastOriginalPageReceiptSHA256": "1c089656aa8f37326b01663d3bed6a9ed4d8f3dd1dcb9bb4e8a97e75c7c1597b",
+  "archivalTraceSHA256": "55f7559dc1a42333ea9f11b415c68dce5fc9563292e324e65352ecf46d551523"
+}

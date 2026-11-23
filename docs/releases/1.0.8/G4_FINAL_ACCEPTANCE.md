@@ -1,6 +1,26 @@
-# Riftlet 1.0.8 build 59 · G4 最终实站验收
+# Riftlet 1.0.8（62）恢复验收
 
-2026-11-23 的当前候选为 build 60。本文件下文保留 build 59 的历史证据。[build 60 同包结果和发行结论](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)
+**产品级恢复 A–H 通过。** 使用产品源码 `871187f2be5eada68fccf2adcc07d120991e1c15` 的原生 UI、点击处理、传输协调器和 SQLite，在独立受控宿主提供确定性的页面结果。另行完成普通浏览器实站项目的签名 DMG 为 `66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49`。[受控原件摘要](evidence/build62/frozen-native-recovery.json) · [非作者判定](evidence/build62/frozen-native-independent.json)
+
+| 用例 | 观察结果 |
+| --- | --- |
+| A · 输入前失败 | 原操作零输入，原图保留。用户再次点击后产生一次新输入和一条 START。 |
+| B · 结果不确定 | 原操作与 PNG 保留，历史提示结果尚未确认。继续观察期间没有自动重试。 |
+| C · 知情恢复 | 同一不确定操作经确认和独立 AppKit 点击，新增一次 invocation、一次输入和一条 START，旧操作保留。 |
+| D · 草稿已有原卡 | 原卡保留；对话框提示重复风险，默认返回原草稿检查。 |
+| E · 原始草稿变化 | 尝试恢复时新增操作与输入均为零。 |
+| F · 旧收据迟到 | 只增加原操作的审计记录，新操作保持原样，没有额外输入。 |
+| G · 应用重启 | 两次独立应用进程验证状态保留，重启时自动输入为零，再次明确选择可以恢复。 |
+| H · 用户取消 | 新 invocation、输入和 START 均为零。 |
+
+另一个可归属于原卡的明确失败用例证明，已收起的截图能重新出现在桌面，保留原 PNG，由新的点击完成一次附加。三份历史数据库的原件摘要、旧操作、旧收据与原 PNG 均通过独立审计。[历史数据库审计](evidence/build62/frozen-history-independent.json)
+
+真实 ChatGPT 上游具名失败卡和 HTTP 4xx 缺少实站证据。已批准的 1.0.8 恢复门槛采用上述产品级结果。普通 Chrome 与 Edge 的双图、选区、工程 CI、签名安装及两阶段 31→62 升级另见[同包发行报告](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)。
+
+build 59–61 的完整历史实验、当时的停止位置及逐轮证据链接保存在固定提交中。[完整历史 G4 报告](https://github.com/haohongfei2001-png/Riftlet/blob/ff380f90ccc586c90f561125d088428f7b0fd18e/docs/releases/1.0.8/G4_FINAL_ACCEPTANCE.md)
+
+<details>
+<summary>历史归档 · build 59 在真实 ChatGPT 页面的传输实验</summary>
 
 **放行结论为 PARTIAL。** 已在已登录的普通 Edge Temporary Chat 中中断唯一一条发送原 PNG 的真实 XHR。ChatGPT 随后移除了原进度卡。观察期内没有出现属于该操作的明确失败卡，Riftlet 也没有记录原卡错误收据。因此 G4 的原卡失败及显式恢复保留为 **NOT_RUN**。
 
@@ -24,3 +44,5 @@
 ## 后续两种真实传输中断
 
 前台恢复后，签名 build 59 在新的已登录 Edge 临时草稿完成另外两种实站中断。一次在受信部分进度 81,875 / 188,726 字节处取消；另一次在受信上传 load 读到 5,516 / 5,516 字节、尚未观察到响应时取消。两次均产生一次 input、一次 change，保留完整 PNG 与原 UNKNOWN。两次均未取得属于原操作的明确错误卡，也未进行显式重选。另一次大图身份比对不符，取消数为零。合计三种真实中断，G4 为 **BLOCKED_TECHNICAL — G4 NOT PROVEN**。逐轮结果见[最终发行报告](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)和[三种策略总账](evidence/build59/g4-final-strategies.json)。
+
+</details>

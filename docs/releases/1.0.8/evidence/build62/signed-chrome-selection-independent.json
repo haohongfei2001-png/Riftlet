@@ -1,0 +1,35 @@
+{
+  "gate": "Nonempty existing draft and noncollapsed directed selection, actual signed website candidate",
+  "family": "chrome",
+  "status": "PASS",
+  "comparison": "The passive page observer was installed on the empty seed draft. Compared actual native before/after text and directed selection in the original editor with the prepared nonempty snapshot, rather than comparing to the pre-preparation baseline.",
+  "mode": "Read-only completion on the originally claimed tab after the initial final observation lost focus. Independently reconciled the final DB, original signed running identity, before/after stable document and exact editor and original selection. No extra click, file setter or network fault.",
+  "signedProductSource": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "dmgSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "installationExecutableSHA256": "b641a84d1ca48f88cd54825bcc9af64d45915c640b90f8ccdaee3f3b1697ec98",
+  "textSHA256": "cd8f05688e1c2f02de6687c4ec6283a3f28db17265552ec0283088938098853f",
+  "characters": 64,
+  "selection": {
+    "start": 12,
+    "end": 40,
+    "anchor": 12,
+    "focus": 40,
+    "direction": "forward"
+  },
+  "seedEpochAndNewCommittedEpochMatch": true,
+  "prePressTargetSlotEpochDirectlyReadable": false,
+  "originalCardNodesRetained": 1,
+  "twoDistinctPNGsAndInvocations": true,
+  "oldAndNewStarts": 2,
+  "newAttachmentCount": 1,
+  "counts": {
+    "fileChange": 2,
+    "fileInput": 2,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  },
+  "finalIndependentSQLiteSHA256": "1dac732fa483f34fbd5d9c472886926ce59182af7ca520ee38a4fd74b92c9d85",
+  "finalNativeReadSHA256": "cf8280ce975e89e962719cbeac2787a48425846ac362edecb44cc836e333e808",
+  "finalPageSHA256": "1c089656aa8f37326b01663d3bed6a9ed4d8f3dd1dcb9bb4e8a97e75c7c1597b",
+  "initialSelectionSHA256": "1be4210b44f502854e09ad10c52e758a8dc11763a9cc0f73855923ced57aad27"
+}
