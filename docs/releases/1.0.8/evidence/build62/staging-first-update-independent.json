@@ -1,0 +1,138 @@
+{
+  "gate": "Independently audited private signed staging appcast, actual native Sparkle update and retained data",
+  "result": "PARTIAL_DATA_ATTRIBUTION_PENDING",
+  "updaterTransportRelaunchAndCompleteSignedApp": "PASS",
+  "reviewer": "independent-build62-recovery-and-mainline-source-reviewer",
+  "signedSource": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "from": "1.0.5 (31)",
+  "to": "1.0.8 (62)",
+  "sourcePublic31DMGSHA256": "99276347932e231adf743664a54cfc782d8e345d89221587d54b7299a5c9f315",
+  "sourceSignedExecutableSHA256": "9408b891e805c141108b64019e523a45e30221a03a10c2b91ae97bb16cb66207",
+  "candidateDMGSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "displayedUpdaterControls": {
+    "check": {
+      "control": "\u00a9 View Update 1.0.8...",
+      "receiptSHA256": "798a320f5ab91af42cff2ac87411549a0d7845194103a88c3921944755185a1b",
+      "screenshotSHA256": "50ffdc978d059646c25e74b2e2d3f294d540f0bd7333943cb4e9afb50b58e916"
+    },
+    "install": {
+      "control": "Install Update",
+      "receiptSHA256": "b879710e3a732b14f21226f6b27c74dff7e794b568f21da76a2dbd1ce1db29e4",
+      "screenshotSHA256": "009d6d05911ea0821b560465e3a5a5fe68d0b7d1ac84c2c8b94e789f5efac2ff"
+    },
+    "relaunch": {
+      "control": "Install and Relaunch",
+      "receiptSHA256": "e3d183cd978710b330342e9edb320f21ba77b0f52ec68bd212ed817d98697543",
+      "screenshotSHA256": "26680fbc62ef7e0ad6326387f83ce8ec95a6b182a708c8f6e06830ea4ce8f822"
+    }
+  },
+  "twoDistinctProcessesAtSameInstalledApplicationPath": true,
+  "actualSuccessfulGETs": {
+    "/stable.xml": {
+      "requests": 1,
+      "sha256": "eb09f2e13986d6ce167a0804f7671bd382e3964b7c0d63b8ff8da6dfe1659a16",
+      "sparkleUserAgentObserved": true
+    },
+    "/Riftlet-1.0.8.dmg": {
+      "requests": 1,
+      "sha256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+      "sparkleUserAgentObserved": true
+    }
+  },
+  "completeSignedApplicationInventoryMatches": 193,
+  "updatedExecutableSHA256": "b641a84d1ca48f88cd54825bcc9af64d45915c640b90f8ccdaee3f3b1697ec98",
+  "upgradedGuestAppExportSHA256": "29cfaa3088f7e0338e8d7668374ad180f6d2514dba8be1ea2f3434927fd6ed2e",
+  "serverStopped": true,
+  "priorRows": {
+    "assets": {
+      "before": 51,
+      "after": 83,
+      "missing": 0,
+      "identicalOriginalFields": 19,
+      "ordinaryAutomaticArchive": 32,
+      "otherDifferencesByColumn": {}
+    },
+    "operations": {
+      "before": 2,
+      "after": 2,
+      "missing": 0,
+      "identicalOriginalFields": 2,
+      "ordinaryAutomaticArchive": 0,
+      "otherDifferencesByColumn": {},
+      "unknown": {
+        "before": 1,
+        "exact": 1
+      }
+    },
+    "upload_starts": {
+      "before": 1,
+      "after": 1,
+      "missing": 0,
+      "identicalOriginalFields": 1,
+      "ordinaryAutomaticArchive": 0,
+      "otherDifferencesByColumn": {}
+    },
+    "checkpoints": {
+      "before": 6,
+      "after": 6,
+      "missing": 0,
+      "identicalOriginalFields": 6,
+      "ordinaryAutomaticArchive": 0,
+      "otherDifferencesByColumn": {}
+    },
+    "compensations": {
+      "before": 0,
+      "after": 0,
+      "missing": 0,
+      "identicalOriginalFields": 0,
+      "ordinaryAutomaticArchive": 0,
+      "otherDifferencesByColumn": {}
+    },
+    "metadata": {
+      "before": 2,
+      "after": 2,
+      "missing": 0,
+      "identicalOriginalFields": 2,
+      "ordinaryAutomaticArchive": 0,
+      "otherDifferencesByColumn": {}
+    }
+  },
+  "schemaBeforeAndAfter": [
+    5,
+    5
+  ],
+  "preexistingFilesUnchanged": 86,
+  "preexistingSettingsRetained": 3,
+  "feedbackDraftAndBookmarkRetained": true,
+  "newOperationsOrStartsWithoutUserInput": 0,
+  "inventory": {
+    "193AllStoredPermissionsIncludingSymlinksAgreeInOriginalZip": true,
+    "193ExtractedOrdinaryUmaskMatchOriginalIncludingExtendedAttributes": true,
+    "signatureGatekeeperAndStapleIndependentlyValidated": true
+  },
+  "newAssetEvidence": {
+    "oldAssets": 51,
+    "newAssets": 83,
+    "newLibraryPNGFiles": 32,
+    "allAdditionalFilesWereAlreadyPresentInOriginalLibrary": true,
+    "newAssetMediaSHAMultisetEqualsEntire31Desktop": true,
+    "uniqueHashesAmong32NewFiles": 31,
+    "oldRowsOnlyNormallyArchived": 32,
+    "folderSetup": "The pre-update preparation moved the prior Desktop PNGs and restored a separate golden/Desktop with ditto before 31 first launch. The two versions have byte-identical FileValidation.swift and CaptureService.swift, including their inode/birth-based source keys.",
+    "atTimeOfVerdict": "Cold snapshot to after-update comparison alone cannot identify whether 31 or 62 imported the restored desktop. No-duplicates upgrade judgement is withheld."
+  },
+  "snapshotReceiptSHA256": {
+    "31-before.json": "41e70d494b89ee0b5a23d77e6e037f08ee20eede72b1fc075d11aebe5c4dce37",
+    "62-after.json": "a262cd2dc7a0462a8b71d5eed77730c4910a1ed61b9ba46a396d97e2ec65d84c",
+    "31-preferences.json": "0050733a70568113183350994f2b8a4158a5789ee9191881c6bc04cac20454f1",
+    "62-preferences.json": "0050733a70568113183350994f2b8a4158a5789ee9191881c6bc04cac20454f1",
+    "62-projected-original-fields.json": "f8d4da382eb1afa2a6866790400eec326c606a42c50c85769fac599250bad84d",
+    "server-events.jsonl": "b568968f319ad31c4662c49d99ed4cf2cd3688b9f2cce5cad76e581ad55a0b18",
+    "end.txt": "a058c886bcdcfd21c5f9b6df04ac791d9c14e729f0ab28b26257141f1d33a6d6",
+    "start.txt": "95fa82076bd3fe80498e09de7b0c288c9a4e9d36462cc6b27a1fa2d5fcc26112"
+  },
+  "separateScopes": [
+    "guest history UI and optional deliberate new test attachment have separate evidence",
+    "post-publication ordinary public stable-feed 31 copy remains a separate gate"
+  ]
+}

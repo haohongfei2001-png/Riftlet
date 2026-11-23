@@ -1,0 +1,38 @@
+{
+  "scope": "First real signed private feed 31 to 62 update: independent attribution of additional asset rows only",
+  "result": "PASS_ATTRIBUTION_FIRST_RUN",
+  "reviewer": "independent-build62-recovery-and-mainline-source-reviewer",
+  "signedSource": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "dmgSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "firstRunColdBaselineToFinalAssetCount": [
+    51,
+    83
+  ],
+  "sourceFixture": "Guest setup moved the original Desktop objects and copied historical files into their names before opening build 31. Source keys include volume, inode and birth time.",
+  "sourceKeyAndOccurrenceCounts": {
+    "priorDeskObjectsMatchingOldRows": 32,
+    "currentDeskObjectsMatchingOldRows": 0,
+    "currentDeskObjectsMatchingNewRows": 32,
+    "priorDeskObjectsMatchingNewRows": 0,
+    "newRowsSharingOldPersistedSourceKey": 0,
+    "newMediaFilesAndPersistedAssetIDsIndependentlyMatched": 32,
+    "allMediaAlsoPresentInOldLibrary": true,
+    "numberOfDifferentImageSHA256": 31
+  },
+  "firstAndLastImportUTC": [
+    "2026-11-23T11:29:06.912456Z",
+    "2026-11-23T11:29:07.315587Z"
+  ],
+  "secondsFromLast31ImportToEarliestSignedCandidateDownload": 110.684,
+  "newRowsBeforeAnyInstallControl": 32,
+  "newRowsDuringOrAfter62Relaunch": 0,
+  "allOriginalSettingsAndHistoricalOperationSTARTUNKNOWNPreserved": true,
+  "unchangedCaptureImplementationSHA256": {
+    "Sources/RiftletCapture/FileValidation.swift": "37ce01f1710b2141cef1c63e783c7cc1e228ffba7e723fc4f55ea639966309be",
+    "Sources/RiftletCapture/CaptureService.swift": "9853459fe017965b2f2bb4615632beff49014c32492da505df4eccba8f9dcb22"
+  },
+  "firstTransportAndInstallReviewSHA256": "495904aa38ad375332044a7b6c34033810d584896c937c4cb8462ab6189dad87",
+  "rawAttributionSHA256": "31f95d8554d2f71c956df2a4cb313fa8fd3b382b33ba02f5972d0c0a5052bc8c",
+  "auditSQLReaderSHA256": "e7fcf5063b3b38891054368378caae6a493249a0e81d561833b5ec563bb82bcd",
+  "releaseGate": "Pending separate real 51-to-51 update from a fixture that retains the original file identities."
+}

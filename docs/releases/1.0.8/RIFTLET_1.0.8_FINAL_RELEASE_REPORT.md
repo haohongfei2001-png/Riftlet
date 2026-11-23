@@ -30,6 +30,8 @@ Edge 先在已有首图的原草稿中录入指定正文并选中 `preserve this
 
 六张组内截图和一张基准截图各有一次 input、一次 change 和一条持久化 START。三组分别保留原有 1、3、5 个附件节点，发送点击和表单提交均为零。七个预览的编码字节与各自原 PNG 完全一致，Chrome 对网页 File 和对应预览的解码像素也全部一致。第 4 张在本机 CoreGraphics 与 Chromium 两种解码器下的 RGBA 摘要有差异。[逐图完整机器回执](evidence/build62/signed-chrome-rapid-timeline.json) · [非作者逐图复算](evidence/build62/signed-chrome-rapid-independent.json) · [两款浏览器同包总表](evidence/build62/signed-browsers-complete.json)
 
+已按原窗口、标签和草稿身份关闭完成验收的专窗。九个临时监听均已退出，测试版应用进程为零。早先有一个未点击的 Chrome 标签发生页面重载，原 Document 身份已失效，保留了该窗口。1,387 个原件保存在本机私有验收存档。[清理与私有归档摘要](evidence/build62/signed-browsers-archive-and-cleanup.json)
+
 ## 恢复、兼容性与工程验证
 
 | 项目 | build 62 的证据 |
@@ -45,7 +47,7 @@ Edge 先在已有首图的原草稿中录入指定正文并选中 `preserve this
 
 | 通道 | 结果 |
 | --- | --- |
-| 发布前，隔离测试 appcast | 已用 31 和 62 的正式公钥验证隔离 feed 和 DMG，应用内更新待执行。起点为正式签名 31，保留 51 个资产、2 个操作（含 1 条 UNKNOWN）、1 条 START、3 项设置及 86 个文件摘要。 [起始快照](evidence/build62/upgrade-31-baseline.json) · [隔离更新源](evidence/build62/staging-update-feed.json) |
+| 发布前，隔离测试 appcast | 首次实际升级已发现、下载并安装 build 62，再次启动成功。原 51 个资产、2 条操作（含 1 条 UNKNOWN）、1 条 START、3 项设置及原 86 个文件均保留。该副本从 51 行增加到 83 行，新增的 32 个媒体逐字节对应准备阶段复制回桌面的 32 个文件。32 条均由 31 登记，最后一条早于首次下载 62 安装包 110.684 秒。新文件身份与桌面副本逐一匹配。正在另一份隔离副本中按原文件身份复验 51→51。[首次实际升级独立审计](evidence/build62/staging-first-update-independent.json) · [逐行归因](evidence/build62/staging-first-update-attribution.json) · [起始快照](evidence/build62/upgrade-31-baseline.json) · [隔离更新源](evidence/build62/staging-update-feed.json) |
 | 发布后，从官网下载、GitHub 下载及公开 stable 应用内更新 | NOT_RUN。须从新的隔离 31 副本验证，并独立核对安装后身份、数据和设置。 |
 
 [产品收口记录](FINAL_PRODUCT_CLOSURE.md) · [发行说明](RELEASE_NOTES_DRAFT.md) · [build 59–61 完整历史报告](https://github.com/haohongfei2001-png/Riftlet/blob/ff380f90ccc586c90f561125d088428f7b0fd18e/docs/releases/1.0.8/RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md) · [历史 build 60 报告](https://github.com/haohongfei2001-png/Riftlet/blob/2babf8cafcfd924abdddaa0ba43a1d099af1acb7/docs/releases/1.0.8/RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)
