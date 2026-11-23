@@ -1,0 +1,41 @@
+{
+  "checks": {
+    "Feedback native and service": {
+      "conclusion": "success",
+      "jobID": 137657719738,
+      "runID": 45164461702,
+      "status": "completed"
+    },
+    "Feedback source admission": {
+      "conclusion": "success",
+      "jobID": 137657719260,
+      "runID": 45164461702,
+      "status": "completed"
+    },
+    "Native ARM64": {
+      "conclusion": "success",
+      "jobID": 137657719415,
+      "runID": 45164461642,
+      "status": "completed"
+    },
+    "Native Intel": {
+      "conclusion": "success",
+      "jobID": 137657719411,
+      "runID": 45164461642,
+      "status": "completed"
+    },
+    "Native source admission": {
+      "conclusion": "success",
+      "jobID": 137657719038,
+      "runID": 45164461642,
+      "status": "completed"
+    }
+  },
+  "gate": "Official GitHub checks for product documentation admission",
+  "head": "b680d23a2c75276b91c79e22a2ab744b235b3c7c",
+  "mergeCommit": "45b3faace5b92b7fd3ec22ca826bd0d3099b5123",
+  "noWorkflowDispatchOrRerun": true,
+  "result": "PASS",
+  "samePRHeadAtCompletion": true,
+  "tree": "5cdc8c4b7cf46840b1cb17207787992f46738823"
+}

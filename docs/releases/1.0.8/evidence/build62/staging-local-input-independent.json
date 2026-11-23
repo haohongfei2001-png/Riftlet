@@ -1,0 +1,66 @@
+{
+  "result": "PASS",
+  "scope": "Actual DOM input from the unmodified web page program extracted from a real post-Sparkle signed bundle into an offline authored file-page fixture",
+  "reviewer": "independent-build62-recovery-and-mainline-source-reviewer",
+  "signedSource": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "signedDMGSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "guestExportArchiveSHA256": "c3acc74c3ae868c3efc1261ae9bd1a28ef992543dc59a8f16b2efb326dd35404",
+  "independentProductResourceSHA256": "8bdb088559961534c1ac43ec170e02e77e3dcb4eaf1c711a79e43a0fcf854c93",
+  "resourceRawFromUpgradedZipInstalledExportFrozenGitAndSingleEmbeddingMatches": true,
+  "localFixtureScriptsMatchFrozenGit": true,
+  "rawBrowserBeforeAndAfter": {
+    "fileSetterEntered": 1,
+    "nativeSetterReturned": 1,
+    "input": 1,
+    "change": 1,
+    "foreignInput": 0,
+    "duplicates": 0,
+    "sendClicked": 0,
+    "submitted": 0,
+    "originalDocumentComposerPreexistingAttachmentTextAndSelectionPreserved": true,
+    "originalSelectionAnchorFocus": [
+      12,
+      40
+    ],
+    "returnedAndReadOnlyObservationExactSameIdentityAndCard": true,
+    "pageSignal": "attachmentAccepted"
+  },
+  "inputProvenance": {
+    "guestScreenshotDatabaseAndRetainedPNGAndActualFileInputBytesMatch": true,
+    "sourceAndBrowserFileSHA256": "5b555218410c1ff8bc85afa0a5130a1e07098d04dcacce111791e6ddb557a7a8",
+    "bytes": 177315,
+    "dimensions": [
+      768,
+      576
+    ],
+    "independentCoreGraphicsAndRendererFileAndActualPreviewRGBA": "c5c46b4dc33b099c050bedc67857b28b412794a2ae9c79de03c121023d76f453",
+    "fixtureCreatesSeparateAssetAndOperationIDs": true,
+    "sharesOriginalImageBytesWithGuest": true
+  },
+  "connectionEvidence": {
+    "topLevelFilePage": true,
+    "browserCDPSetOfflineBeforeNavigation": true,
+    "contentSecurityPolicyDisablesConnectionsAndForms": true,
+    "rawNetLogEventCount": 6,
+    "actualNetLogTypes": [
+      "COOKIE_STORE_ALIVE",
+      "QUIC_SESSION_POOL_CLOSE_ALL_SESSIONS"
+    ],
+    "externalRequests": 0,
+    "socketConnections": 0,
+    "processNetworkKernelSandboxAppliedInSuccessfulAttempt": false,
+    "scope": "Chromium NetLog and page performance counters, not a system-wide packet capture"
+  },
+  "executedOnActualChatGPTInThisTest": false,
+  "upgradedAppNativeInvocationOrDurableSTARTInThisPageTest": false,
+  "rawReceiptSHA256": {
+    "public.json": "bd8e23ed24842cadf10e9ea9e9ef0fb45e80efdc979f42952c35a5debc3a3e59",
+    "pre-commit.json": "c8e34acd675566e8de8041306394ce631a34ea7ca4f36e9f6bbf748ec2eb33b8",
+    "returned-commit.json": "bcc8aa70e84e176c4c58b3fdb8fe086fb0844f82a694b84af61e6ae6987346a3",
+    "page-after.json": "cb47e50380c498eb9ec2d78617298be2b7fa9a5ec349518863899cc5ccad9c97",
+    "product-observation.json": "b9caf2a662bd56127a1555691e759efc1f4bc9e6c5cbc66eb710a2caf24b0ce2",
+    "decoded-preview.json": "e0b3f959290ec08b6ea9fc67ed27bb98f37e389257b8337a31cd5401c0e147a7",
+    "isolated-shell-netlog.json": "14f4a7f9c09c61fcbff34ef368df9fc5e31e22823d54835e7bbc4adbba211d05"
+  },
+  "driverSHA256": "375998fafb9c641448e7f9197e0ce4353deb239a5e611433472177eb09969b38"
+}

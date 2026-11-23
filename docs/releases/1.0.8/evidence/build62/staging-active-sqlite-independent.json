@@ -1,0 +1,82 @@
+{
+  "gate": "Independent byte-for-byte active SQLite row comparison across two saved same-guest Sparkle update snapshots",
+  "reviewer": "independent-build62-recovery-and-mainline-source-reviewer",
+  "result": "PASS",
+  "source": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "signedDMGSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "onlineBackupSHA256": {
+    "running31": "3ba4c0c6be22920a0edcae3b79673569f85809c80a308cd872b958dca93de12b",
+    "running62": "90b26df5dd7db8f019312ab0ab88fbde202358bc8bf1b19fa0aa2e774a033002"
+  },
+  "readonlyImmutableOpen": true,
+  "sqliteIntegrityAndForeignKeysBothValid": true,
+  "legacyTables": {
+    "assets": {
+      "rows": 51,
+      "allOldColumnsRowidsAndTypedBytesEqual": true,
+      "orderedRowsSHA256": "94b7c0460b19ffee2866b60a37d303938e96c98e10608d065533ded510df2da3"
+    },
+    "checkpoints": {
+      "rows": 6,
+      "allOldColumnsRowidsAndTypedBytesEqual": true,
+      "orderedRowsSHA256": "6bb963fc81bbea2213bcfb853ed03195bd0ba9df28a88237cea088710571180a"
+    },
+    "compensations": {
+      "rows": 0,
+      "allOldColumnsRowidsAndTypedBytesEqual": true,
+      "orderedRowsSHA256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "metadata": {
+      "rows": 2,
+      "allOldColumnsRowidsAndTypedBytesEqual": true,
+      "orderedRowsSHA256": "58a04f3a317e61736eac81050140188cc446efab2fe26a72f0d812c7c3244f0d"
+    },
+    "operations": {
+      "rows": 2,
+      "allOldColumnsRowidsAndTypedBytesEqual": true,
+      "orderedRowsSHA256": "2026bb4ea36db8a7dea6958de33c7bc36547be91944d962c0763dda8a8257a96"
+    },
+    "retired_media": {
+      "rows": 0,
+      "allOldColumnsRowidsAndTypedBytesEqual": true,
+      "orderedRowsSHA256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "upload_starts": {
+      "rows": 1,
+      "allOldColumnsRowidsAndTypedBytesEqual": true,
+      "orderedRowsSHA256": "e7aa75a957adb09e46ea250549b374111db1784933a80449bf83ba55ae525a3c"
+    }
+  },
+  "newBuild62SchemaTables": {
+    "attachment_reselections": {
+      "rowCount": 0,
+      "foreignKeyColumns": [
+        "predecessor_id",
+        "successor_id"
+      ],
+      "createSQLDigest": "cf7354253405b7fbe61b28b03399d4d5ec1acb1d401c6dc0e8aa0cbee999c5ad"
+    },
+    "handled_attachments": {
+      "rowCount": 0,
+      "foreignKeyColumns": [
+        "operation_id"
+      ],
+      "createSQLDigest": "a12a03d393f0761c3ff7e300b75aba6b94554acae6f9444e8293d71b8bb584f9"
+    }
+  },
+  "oldTableColumnsAndIndexesPreserved": true,
+  "priorAutoincrementCountersUnchanged": true,
+  "userVersion31": 5,
+  "userVersion62": 5,
+  "schemaBehavior": "Ordinary opening installs the two empty recovery tables. The original format version only advances to 7 on the first explicitly committed recovery.",
+  "originalUNKNOWNAndInvocationUnchanged": true,
+  "addedAssets": 0,
+  "addedOperations": 0,
+  "addedSTART": 0,
+  "unchanged51LibraryImagesAllLinkedByIDAndSHA256": true,
+  "unchangedFiles": 86,
+  "unchangedSettingsDigests": 3,
+  "unchangedOriginalBookmarkAndFeedback": true,
+  "sensitiveOriginals": "Private archive only",
+  "originalSTARTRowsUnchanged": 1
+}

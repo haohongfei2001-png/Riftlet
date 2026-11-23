@@ -1,0 +1,83 @@
+{
+  "gate": "Actual post-Sparkle ordinary native queue selection with a verified nonbrowser foreground, followed by explicit product feedback and persistent data review",
+  "reviewer": "independent-build62-recovery-and-mainline-source-reviewer",
+  "result": "PASS",
+  "signedSource": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "newOriginalPNGSHA256": "5b555218410c1ff8bc85afa0a5130a1e07098d04dcacce111791e6ddb557a7a8",
+  "independentlyRecomputedComparisons": {
+    "library": {
+      "meanAbsoluteRGBDifference0to255At48x36": 1.6966,
+      "closestOf51OldPNGs": 78.7981,
+      "originalScreenSHA256": "12dffa92f794ab6cd7dec92689444ee6251905fead9c2f07477144b6081f7b9e"
+    },
+    "tray": {
+      "meanAbsoluteRGBDifference0to255At48x36": 9.7098,
+      "closestOf51OldPNGs": 82.3689,
+      "originalScreenSHA256": "bcbf6545fc9bde4687b4c4e1ab3d0b622808c92dd3d49e48302a8fa01d3a59db"
+    }
+  },
+  "newGuestScreenshotVerifiedFromOriginalDatabase": true,
+  "verifiedOwnedNativeWindowAndInsideHit": true,
+  "actualGuestViewOneNativePointerAction": {
+    "count": 1,
+    "source": "Virtualization.framework view pointer event, one mouse down and up in VM input implementation; the guest delivered visible product feedback",
+    "virtualizationEventUTC": "2026-11-23T12:17:26Z",
+    "upgradedOrdinaryProcessContinued": true,
+    "businessHandlerRawNSEventTraceInGuest": false
+  },
+  "visibleProductResult": {
+    "beforePresent": false,
+    "afterFramesWithPromptPrefix": 5,
+    "afterFramesWithFullFirstLine": 4,
+    "messagePrefix": "Bring your intended ChatGPT draft to the front",
+    "priorStatus": "visible, userRestored, pending",
+    "postClickReadback": "ready to attach; local screenshot retained",
+    "laterDatabaseStatus": "pending, archived by the ordinary idle rule",
+    "allFivePrivateImageAndOCRPairs": [
+      {
+        "receiptSHA256": "38968d26c7898281158da071cf25b35e0f5a2c5654896e5756bfe6272145a453",
+        "imageSHA256": "588387a35eafc69bc16fe4773b8555465937f8aa0ca281078c29da356d70fc38",
+        "fullFirstLine": false
+      },
+      {
+        "receiptSHA256": "c6648022e2c73cb3fd2180e938be4efd23e864862d668596e7fedffb26306def",
+        "imageSHA256": "16439188226c32d7ffa587d2b63949c23ea943a57feaa20942c3b53185447de1",
+        "fullFirstLine": true
+      },
+      {
+        "receiptSHA256": "c6648022e2c73cb3fd2180e938be4efd23e864862d668596e7fedffb26306def",
+        "imageSHA256": "16439188226c32d7ffa587d2b63949c23ea943a57feaa20942c3b53185447de1",
+        "fullFirstLine": true
+      },
+      {
+        "receiptSHA256": "13db96877b28b61a63cb22883315da542fff80e1e423d8d730e746e3581e75fa",
+        "imageSHA256": "ee273887d539aab04fbf4931db9963d0275799225df38d3ad4d5da784e1f55fd",
+        "fullFirstLine": true
+      },
+      {
+        "receiptSHA256": "c6648022e2c73cb3fd2180e938be4efd23e864862d668596e7fedffb26306def",
+        "imageSHA256": "16439188226c32d7ffa587d2b63949c23ea943a57feaa20942c3b53185447de1",
+        "fullFirstLine": true
+      }
+    ]
+  },
+  "postClickSQLite": {
+    "beforeSHA256": "3a7194f9e74ec466a0edae4a443066acb37c925a60c9d6c4d88b7c0bd255530a",
+    "afterSHA256": "0a8545e9dce6fc8ce45af7d6758a17c488c6d2a75431b4e4e4a1de6d3ae8d9d5",
+    "assetsBeforeAndAfter": 52,
+    "unchangedOldRows": 51,
+    "newOperations": 0,
+    "newSTARTs": 0,
+    "oldOperationsAndUNKNOWNAndExistingSTARTUnchanged": true,
+    "newAssetDataAndPNGStillIntact": true
+  },
+  "guestNetworkScope": {
+    "twoAlreadyRunningBrowsersUnpromptedConsentResult": -1744,
+    "browserAppleEventsInConsentProbe": 0,
+    "guestFileInputsOnThisRoute": 0,
+    "actualChatGPTUploadAfterUpgrade": false,
+    "guestDOMSendCounterObserved": false
+  },
+  "rawChoiceSHA256": "06976e881177bb0b3ef4734c1854597cc8b46247a94202dc3292b8395131e3c7",
+  "rawAfterWitnessSHA256": "46da084d46a6c7249a545c8b7adfa273a153e07fbecb458473f09c42b46289c9"
+}

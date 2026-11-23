@@ -1,0 +1,50 @@
+{
+  "gate": "Post-Sparkle actual OS screenshot and ordinary build profile before a queue click",
+  "reviewer": "independent-build62-recovery-and-mainline-source-reviewer",
+  "result": "PASS",
+  "candidateArchiveSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "nativeScreenCapture": {
+    "observedNormalSystemCaptureControl": true,
+    "sameUpgradedPIDAndPrivateLibrary": true,
+    "activeDatabaseBeforeSHA256": "90b26df5dd7db8f019312ab0ab88fbde202358bc8bf1b19fa0aa2e774a033002",
+    "activeDatabaseAfterSHA256": "3a7194f9e74ec466a0edae4a443066acb37c925a60c9d6c4d88b7c0bd255530a",
+    "beforeAfterAssets": [
+      51,
+      52
+    ],
+    "newAssetIDHash": "5952c7ff69defae6ee1b51b5939139cc10ecf711fd5ec69808e35762da25fe70",
+    "newOriginalPNGBytes": 177315,
+    "dimensions": [
+      768,
+      576
+    ],
+    "originalPNGFileSHA256": "5b555218410c1ff8bc85afa0a5130a1e07098d04dcacce111791e6ddb557a7a8",
+    "allPrevious51RowsByteEqual": true,
+    "newOrigin": "systemScreenshot",
+    "newVisiblePending": true,
+    "allOldOtherTablesUnchanged": true,
+    "preservedCounts": {
+      "operations": 2,
+      "upload_starts": 1,
+      "checkpoints": 6,
+      "handled_attachments": 0,
+      "attachment_reselections": 0
+    },
+    "matchingDesktopAndPrivateBytesAndMacScreenshotAttributeAttestedInGuest": true,
+    "guestObservationSHA256": "f1a093c8e81e99336ae0521abe2cd1939dc651a62cf4790c4d0a48c08df0a1cf",
+    "actualCaptureControlReceiptSHA256": "6286f057c50193c26156d6c49329f98178a687f7f3a5ec7cf41582cb517fb6e0"
+  },
+  "ordinaryProfileReadDirectlyFromGuestExportedSignedExecutable": {
+    "builtInUpload": true,
+    "completion": true,
+    "continuation": true,
+    "dataDirectory": "Riftlet",
+    "input": true,
+    "internalAcceptance": false,
+    "mode": "capture",
+    "safeRetry": false,
+    "start": true
+  },
+  "executableSHA256": "b641a84d1ca48f88cd54825bcc9af64d45915c640b90f8ccdaee3f3b1697ec98",
+  "bounds": "This interval ends before selection. No browser was instrumented in the guest. Capture/import and the packaged software self-check are separately scoped from actual browser input."
+}

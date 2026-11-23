@@ -1,0 +1,20 @@
+{
+  "archiveAccess": "owner-private",
+  "archiveBytes": 21604294,
+  "archivedMembers": 1387,
+  "cleanup": {
+    "bothSuccessfulScopesRestoreOriginalRosters": true,
+    "enrolledCases": 9,
+    "liveCandidateProcesses": 0,
+    "nonceServerExited": 9,
+    "otherPreviouslyEnrolledWindowIDsNoLongerPresent": 4,
+    "retainedWindowReason": "original tab and navigation entry still existed; two later original-tab observations showed a new document time origin, so no close or input was issued there",
+    "retiredChromeOriginalWindowKept": 1,
+    "verifiedOwnWindowsClosed": 4
+  },
+  "dmgSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "memberManifestSHA256": "507a7cb1e8b010636ad6f57e5ee9cd8defb46e7eba5faa90837ff46ab2de2d33",
+  "rawReceiptSHA256": "3379adc2b85599bd0c06fcb9d1be2354dfcc0f04bf0579cbada050214ad74432",
+  "restrictedArchiveSHA256": "5e84e6dae03a4947da3d84fa2692790f6ababfb416f171bf8a57b3cd52ba2d05",
+  "source": "871187f2be5eada68fccf2adcc07d120991e1c15"
+}
