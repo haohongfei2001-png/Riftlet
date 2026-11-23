@@ -1,0 +1,54 @@
+{
+  "candidateBuild": 61,
+  "currentReadOnlyAtReport": {
+    "failedChecks": [
+      "axOriginalWindow",
+      "cgWindowOnScreen",
+      "documentFocused",
+      "documentVisible",
+      "originalTabSelected"
+    ],
+    "outcome": {
+      "businessInputsIssued": 0,
+      "reason": "VERIFIED_ORIGINAL_NOT_FRONTMOST",
+      "status": "ORIGINAL_ONLY"
+    }
+  },
+  "nativeOriginal": {
+    "soleOriginalTabPresent": true,
+    "sourceBirthVerified": true,
+    "windowPresent": true
+  },
+  "offlineControls": 14,
+  "originalSeed": {
+    "START": 1,
+    "change": 1,
+    "input": 1,
+    "send": 0,
+    "submit": 0
+  },
+  "pendingOnlyManifest": "cd61993d0405460c68def6a9de0989a0f4a837fae6a290d5397d03c7c29ddf2d",
+  "postcondition": "The original window and sole tab still existed at sampling. Retained original product binding and the remounted original draft require two new positive observations before the only available pending input.",
+  "previousObserver": "closed",
+  "previousQAApp": "exited normally",
+  "realInputByReviewer": 0,
+  "recovery": "BLOCKED_ENV at this observation",
+  "retainedSources": {
+    "edge-membership.json": "1e88ae2ef7dc4834c8e2e59b88cbf6ac5c72504ef6b88cdbc10602f143ea9a89",
+    "edge-original-native.json": "8ae2550adf471c7ec995a5d8dff41ca007f330b49b5b06a1f9077597af8ed6bc",
+    "edge-selection-continuity.json": "75e21349a4e18e15eed4312e3a7e0281936d32b024d1796877395b34ba1520e4",
+    "pins.json": "c3664385b832122027a810b5d4fa24f5f7c44c32f9472b8be11590f47f259bb1",
+    "scope-fix-review.json": "58065c33eec86ca66e3c7c238f7574843a74e798739074ec3b2953ca195629ff",
+    "test_handoff.py": "24545df9e3026755604570170f80dd17cf729c6bba0c3a65033a007823aeba8d"
+  },
+  "second": {
+    "originalPNGOnDisk": true,
+    "priorACKDirectProductIdentity": false,
+    "priorDispatches": 0,
+    "priorEdits": 0,
+    "priorNativeACK": true,
+    "priorStarts": 0
+  },
+  "selection": "NOT_RUN",
+  "sha256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e"
+}

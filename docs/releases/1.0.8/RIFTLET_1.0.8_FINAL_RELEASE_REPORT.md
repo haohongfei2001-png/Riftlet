@@ -2,13 +2,17 @@
 
 **RIFTLET 1.0.8 — NOT RELEASED**
 
-当前候选是 **1.0.8（61）**。独立审查重现了 build 60 从截图仓库返回同一草稿时的故障，显式重选会在文件输入前被拒。build 61 修复了这个路径，完成同源双架构 CI、签名公证、独立安装及源码审查。07:25 的非作者最终发行裁决为 **NOT RELEASED**。普通 Chrome 和 Edge 各完成本包七张实站输入。独立复核确认两者均通过冷暖首图及三组快速双图。公开稳定版本为 **1.0.5（31）**。
+当前候选是 **1.0.8（61）**。独立审查重现了 build 60 从截图仓库返回同一草稿时的故障，显式重选会在文件输入前被拒。build 61 修复了这个路径，完成同源双架构 CI、签名公证、独立安装及源码审查。10:50 的非作者综合复核维持 **NOT RELEASED**。[综合裁决](evidence/build61/release-gate-at-1050.json)普通 Chrome 和 Edge 各完成本包七张实站输入。独立复核确认两者均通过冷暖首图及三组快速双图。公开稳定版本为 **1.0.5（31）**。
 
 09:40，将已绑定的普通 Chrome 专窗放入当前显示器可见区域。AXRaise 和 Apple Events 激活均返回 0，原文档、编辑器及登录态有效。09:43，WindowServer 报告唯一原窗在屏上；系统截图组件的高层矩形覆盖屏幕，系统实际命中在中心和四个象限均指向原 Chrome 窗。旧 Edge 窗在两次同出生进程签名清单中均已消失。详细逐窗记录保存在私有验收档案。[窗口恢复与证据摘要](evidence/build61/original-window-recovery.json) · [逐窗元数据](evidence/build61/per-window-inventory.json)
 
 非作者从两份原始归档核验十四次 AppKit 输入、网页事件、原 PNG、既有卡及独立 START。Chrome 第七张的上传文件和预览编码字节与原 PNG 完全相同，浏览器对两者的全部 RGBA 像素核对一致。离线复验定位到同一 Display-P3 图片在 ColorSync 与 Chrome 下的 B 通道相差一个色阶，R、G、A 一致。[十四图独立复核](evidence/build61/independent-fourteen-uploads.json) · [色彩复验](evidence/build61/color-decoder-comparison.json) · [逐图时序](evidence/build61/rapid-event-timelines.json)
 
 同一签名候选随后在另一专用 Edge 原稿输入了 23,233,638 字节的真实系统截图。完整网站 File 的 SHA-256 与原 PNG 一致，观察到一次 input 和 change。SQLite 保留一个 UNKNOWN，START 为零。该草稿仍显示同名 2048×2002 预览，尚无具名失败或可归属的上游 HTTP 状态。非作者确认早期进度节点已更换，原附件的同名预览和移除按钮仍在。02:26 和 02:32 UTC 的两次一致性备份字节相同，均早于任何恢复输入。[实站边界与原操作](evidence/build61/size-boundary-unknown.json) · [独立裁决](evidence/build61/size-boundary-independent.json)
+
+非空选区另行取证。新建的 Chrome 专窗在本地挑战页和 Temporary Chat 均通过了前台身份核验。签名 App 收到一次准备旧附件的 mouseDown；三次预绑定均未就绪，含一次 Apple Events 超时。产品在文件输入前返回 `adapterUnavailable`，网页和 SQLite 均为零输入、零操作。这次没有建立待测原文或选区。Edge 的补验已取得一次旧附件输入和 START，第二张在准备阶段仍未投递。[Chrome 拒绝证据](evidence/build61/chrome-seed-refused-before-input.json) · [Edge 两张图片的独立状态](evidence/build61/edge-seed-and-pending-selection.json)
+
+10:41 的只读复查仍能核实原生专窗与唯一原标签；网页观察器无法再次确认原草稿，故当时的卡状态未知。私有候选子进程已退出，数据库行与最初备份逐项相同。[晚期只读回执](evidence/build61/size-boundary-late-read.json)
 
 ## 2026-11-23 · Build 61
 

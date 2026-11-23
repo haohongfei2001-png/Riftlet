@@ -1,0 +1,82 @@
+{
+  "fixedFullWitnessScopes": [
+    {
+      "edgeOnly": true,
+      "exactOriginalRoundOnly": true,
+      "swiftSourceSHA256": "8eda12df71906168b6ab8c7b979e35bc4bfef7dffa73186a14c3140312550977"
+    },
+    {
+      "edgeOnly": true,
+      "exactOriginalRoundOnly": true,
+      "swiftSourceSHA256": "2c5ffc62af9b6e5155ce556d8119dc7843ce5188521c9e592681228d17d9e5c6"
+    }
+  ],
+  "networkCalls": 0,
+  "newBrowserInteractions": 0,
+  "ordinaryOriginalDocumentObserverSHA256": "805952842915f802f3fb056d40d5b62f091c4275688956bbe96423dc6be26ce3",
+  "projectionSHA256": "ab37b0086567a65afa8da73fb53434cd852ba05ee31173f66a9568836086cb6d",
+  "result": "Chrome registry not present in the three exact ordinary original-document samples. An equivalent admitted Chrome-scope full transport witness was not found.",
+  "samples": [
+    {
+      "phase": "native-auth-startup",
+      "projection": {
+        "authenticatedAndOriginal": true,
+        "currentDocumentRegistry": false,
+        "currentEditor": true,
+        "generationOwnsEditor": false,
+        "liveAtProjection": false,
+        "originalRequestHandleObserved": null,
+        "preparedBindingDigestVisible": false,
+        "productRegistry": false,
+        "receiptSHA256": "8c21ae63e1da6dc30fc992e188cd73a3eeabce50a03856fa236101b0fed04da8",
+        "retainedProductOriginal": false,
+        "siteReactOwnerObserved": null
+      },
+      "rawEnvelopeSHA256": "5d09984023adc778e07189ffa404f61524c8d99b4ee95faffd027a877115c6e3"
+    },
+    {
+      "phase": "native-auth-batch-1",
+      "projection": {
+        "authenticatedAndOriginal": true,
+        "currentDocumentRegistry": false,
+        "currentEditor": true,
+        "generationOwnsEditor": false,
+        "liveAtProjection": false,
+        "originalRequestHandleObserved": null,
+        "preparedBindingDigestVisible": false,
+        "productRegistry": false,
+        "receiptSHA256": "febdf44aecb39571671f4e1cea195caa72d0381f52c394cba8e4054ea820f54c",
+        "retainedProductOriginal": false,
+        "siteReactOwnerObserved": null
+      },
+      "rawEnvelopeSHA256": "da23ef150752463b475fe66afd7aa07b1a458108aa2ecc104d1dbcde4eac89e9"
+    },
+    {
+      "phase": "native-auth-press-1",
+      "projection": {
+        "authenticatedAndOriginal": true,
+        "currentDocumentRegistry": false,
+        "currentEditor": true,
+        "generationOwnsEditor": false,
+        "liveAtProjection": false,
+        "originalRequestHandleObserved": null,
+        "preparedBindingDigestVisible": false,
+        "productRegistry": false,
+        "receiptSHA256": "f7e3829b4071fe3ce338dda8724264599d3fdfe6b1fb5703eabaa6430bd0c8ab",
+        "retainedProductOriginal": false,
+        "siteReactOwnerObserved": null
+      },
+      "rawEnvelopeSHA256": "0806708918df841a3762f8a60b0e756ffd170527eb3ad1900201f4fe76966263"
+    }
+  ],
+  "stateAtClosure": {
+    "acknowledgedAppKitSelection": true,
+    "finalPageCounts": {
+      "fileChange": 0,
+      "fileInput": 0,
+      "formSubmit": 0,
+      "sendButtonClicks": 0
+    },
+    "operations": 0
+  }
+}

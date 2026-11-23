@@ -1,0 +1,41 @@
+{
+  "candidateSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "decision": "HOLD_ORIGINAL_NAMED_ATTACHMENT_RETAINED_AT_LAST_CONFIRMED_OBSERVATION",
+  "fullSourceAndStoredPNGMatch": true,
+  "lastConfirmedCounts": {
+    "fileChange": 1,
+    "fileInput": 1,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  },
+  "lastConfirmedPreview": [
+    {
+      "decoded": true,
+      "height": 2002,
+      "width": 2048
+    }
+  ],
+  "lateBoundedWatcherError": "ORIGINAL_TEMPORARY_TAB_REQUIRED",
+  "lateReadUTC": "2026-11-23T02:41:05Z",
+  "lateRoute": "1e88ae2ef7dc4834c8e2e59b88cbf6ac5c72504ef6b88cdbc10602f143ea9a89",
+  "lateSiteState": "ORIGINAL_DOCUMENT_READ_NOT_AVAILABLE",
+  "lateSnapshotSHA256": "0b8b98bbf5ec4966ea8d5efa4d6947f292195443f1770b595689f8a501d1fe2c",
+  "networkChanges": 0,
+  "originalPNGAndMediaSHA256": "ac2ae9502b81ac77a4f6883ca1eaef7c5f421a9d7e863a0a150dabc6fbaaa500",
+  "originalWatcherRetirementObserved": false,
+  "priorSnapshotSHA256": "0b8b98bbf5ec4966ea8d5efa4d6947f292195443f1770b595689f8a501d1fe2c",
+  "priorWatcherRawSHA256": "2d539c7e8ead625219859c02515297d476514e11d9eb39fc1d80581d799837b8",
+  "privateChildPIDStillExists": false,
+  "recoveryInputIssued": false,
+  "retainedPrivateSignedProductProcessAlive": false,
+  "sameDedicatedWindowAndTab": true,
+  "sqliteCounts": {
+    "assets": 1,
+    "attachment_reselections": 0,
+    "operations": 1,
+    "upload_starts": 0
+  },
+  "sqliteRowsIdentical": true,
+  "timeUTC": "2026-11-23T02:39:00Z",
+  "transportListenerInstalled": false
+}

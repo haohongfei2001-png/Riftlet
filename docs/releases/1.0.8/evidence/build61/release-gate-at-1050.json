@@ -1,0 +1,415 @@
+{
+  "schemaVersion": 1,
+  "type": "independent-time-bounded-signed-build61-release-verdict",
+  "reviewer": {
+    "role": "independent nonauthor source and acceptance evidence reviewer",
+    "method": "Verified the existing candidate and installation, queried current GitHub refs/checks and public channels, compared sealed site evidence, read four SQLite snapshots and the later original-target control receipts. The reviewer did not issue GUI input or rerun CI."
+  },
+  "writtenUTC": "2026-11-23T02:50:14.131+00:00",
+  "observationBeganUTC": "2026-11-23T02:50:10.826+00:00",
+  "releaseVerdict": "NOT_RELEASED",
+  "releaseAuthorized": false,
+  "formalSourceReview": "PASS",
+  "prospectiveMergeCI": "PASS",
+  "productAcceptance": "PARTIAL",
+  "candidate": {
+    "version": "1.0.8",
+    "build": 61,
+    "privateDMGBytes": 14133998,
+    "privateDMGSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+    "signedSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+    "signedTree": "70ba40e23a3afa3561525b1943cb0e5ebc825de5",
+    "actualInstalledExecutableSHA256": "32406ca202fa8eb659abf96930a30ce3c246bb804acfaeeccbc10eaf2fc09387",
+    "actualInstalledPageSHA256": "2f6e2f6e1d80184813f6f967cc340638b96082abd5bd98c2f9e97b0597f982f2",
+    "strictDMGCodesign": 0,
+    "deepStrictInstalledAppCodesign": 0,
+    "priorSameIdentityCustody": {
+      "notaryReportedStatus": "Accepted",
+      "gatekeeperAndStapledTicket": "Previously independently checked on this exact private DMG and installed App.",
+      "receiptSHA256": "2d1d06c75a73808dabd01cd4683f3c6b8dd0216bf88375e7e5a2f49d7be441dd"
+    }
+  },
+  "formal": {
+    "observedUTC": "2026-11-23T02:50:13.722+00:00",
+    "pr": "https://github.com/haohongfei2001-png/Riftlet/pull/125",
+    "state": "open",
+    "draft": true,
+    "merged": false,
+    "actualMain": "9fd8ad15fca043915069904113e5fb67d82b4948",
+    "reviewedFormalSource": "e2324e9d742ec3c3d1045504ed1bfee421efae67",
+    "reviewedFormalTree": "ddc37248d5fa3ac6ed03642ff0937ccd72f45d32",
+    "sourceReviewReportSHA256": "867f8f49b804f1046a74b70f15286a152ec6fbf632f147b01fdb9c6628b8054a",
+    "head": "881589ad19f5e0205846aa265e64df89f2a0b498",
+    "headTree": "6f583ee83337ff4edb1aad1b389042c7e01737ad",
+    "headParents": [
+      "e2324e9d742ec3c3d1045504ed1bfee421efae67"
+    ],
+    "prospectiveMerger": "31371f52d67cca6678d09712e71aa330a454df4d",
+    "prospectiveTree": "6f583ee83337ff4edb1aad1b389042c7e01737ad",
+    "prospectiveParentsOrdered": [
+      "9fd8ad15fca043915069904113e5fb67d82b4948",
+      "881589ad19f5e0205846aa265e64df89f2a0b498"
+    ],
+    "unchangedProductSourcesTree": "1aae0943f6ce71a9bfa49c86ba95589032c1de63",
+    "signedSourceToFormalHeadChangedOnly": [
+      "engineering/mainline/source-admission.json",
+      "scripts/run-readiness-ownership.sh"
+    ],
+    "githubChecks": [
+      {
+        "completedAt": "2026-11-22T23:17:28Z",
+        "link": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45080584932/job/137387624931",
+        "name": "Native Intel",
+        "state": "SUCCESS",
+        "workflow": "Native foundation"
+      },
+      {
+        "completedAt": "2026-11-22T23:02:50Z",
+        "link": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45080584850/job/137387624766",
+        "name": "Feedback native and service",
+        "state": "SUCCESS",
+        "workflow": "Feedback v0.1"
+      },
+      {
+        "completedAt": "2026-11-22T23:17:02Z",
+        "link": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45080584932/job/137387624793",
+        "name": "Native ARM64",
+        "state": "SUCCESS",
+        "workflow": "Native foundation"
+      },
+      {
+        "completedAt": "2026-11-22T22:57:59Z",
+        "link": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45080584850/job/137387624506",
+        "name": "Feedback source admission",
+        "state": "SUCCESS",
+        "workflow": "Feedback v0.1"
+      },
+      {
+        "completedAt": "2026-11-22T22:58:31Z",
+        "link": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45080584932/job/137387624613",
+        "name": "Native source admission",
+        "state": "SUCCESS",
+        "workflow": "Native foundation"
+      }
+    ],
+    "workflowRuns": [
+      {
+        "id": 45080584932,
+        "runAttempt": 1,
+        "event": "pull_request",
+        "head": "881589ad19f5e0205846aa265e64df89f2a0b498",
+        "result": "success",
+        "completedUTC": "2026-11-22T23:17:29Z"
+      },
+      {
+        "id": 45080584850,
+        "runAttempt": 1,
+        "event": "pull_request",
+        "head": "881589ad19f5e0205846aa265e64df89f2a0b498",
+        "result": "success",
+        "completedUTC": "2026-11-22T23:02:50Z"
+      }
+    ],
+    "previouslyIndependentlyVerifiedJobCheckout": "31371f52d67cca6678d09712e71aa330a454df4d",
+    "checkScope": "All five required checks passed on this existing prospective merge workflow. A protected main merge and its post-merge jobs have not taken place.",
+    "engineeringReviewScope": "The signed product and the formal source successor independently passed their full-range source reviews. These are engineering reviews.",
+    "previousHostedLogAuditSHA256": "a2e77f4181ec267a323501ed2085c8240fb54741b6305dee325c4197330f2dd9"
+  },
+  "functionalEvidence": {
+    "priorLocalPassed": {
+      "webProgram": 384,
+      "offlineFaultHarness": 8,
+      "packaging": 24,
+      "chrome-lease": 19,
+      "chrome-preview": 22,
+      "edge-lease": 19,
+      "edge-preview": 22
+    },
+    "hostedNativeBothArchitectures": {
+      "architectures": [
+        "arm64",
+        "x86_64"
+      ],
+      "discoveredPerArchitecture": 1436,
+      "parallelUniqueCompletedPerArchitecture": 1414,
+      "serialPassedPerArchitecture": 22,
+      "serialFailuresPerArchitecture": 0,
+      "realOwnershipSubprocessesPerArchitecture": 12,
+      "storageSoakReachedCapturesPerArchitecture": 160
+    },
+    "independentHistoricalDatabaseCopies": [
+      {
+        "name": "after-native-send",
+        "schemas": [
+          4,
+          7,
+          7
+        ],
+        "startsBySnapshot": [
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "partial-native-upload",
+        "schemas": [
+          4,
+          7,
+          7
+        ],
+        "startsBySnapshot": [
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "body-sent-before-response",
+        "schemas": [
+          4,
+          7,
+          7
+        ],
+        "startsBySnapshot": [
+          0,
+          0,
+          1
+        ]
+      }
+    ],
+    "historicalScope": "Previously verified v4 to v7 migration and retention on the three archived cases. Their controlled inputs belong to those signed candidate test cases."
+  },
+  "currentPublicStable": {
+    "observedUTC": "2026-11-23T02:50:13.722+00:00",
+    "version": "1.0.5",
+    "build": 31,
+    "releasePage": "https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.5",
+    "publishedUTC": "2026-11-18T02:50:46Z",
+    "releaseDMGBytes": 12686160,
+    "releaseDMGSHA256": "99276347932e231adf743664a54cfc782d8e345d89221587d54b7299a5c9f315",
+    "home": "https://riftlet.com/",
+    "homeSHA256": "70246d64e139efe5b7ab1a22f00b422bc9bc06590b8c815a430c21443ed9037a",
+    "stableDownloadLinksOnHome": 2,
+    "feed": "https://riftlet.com/updates/stable.xml",
+    "feedSHA256": "da0b17e36b178ae94bcbea6e5720dcc400250350aa766fd31d4fbf8e3f476b52",
+    "candidatePresentInStableFeed": false
+  },
+  "ordinarySite": {
+    "mode": "Signed AppKit software-targeted native mouse events in ordinary enrolled signed-in Chrome and Edge Temporary Chat windows. A physical mouse and the provider final server storage state were not verified.",
+    "families": {
+      "chrome": {
+        "singleAndRapidPairs": "PASS",
+        "originalFullPNGFiles": 7,
+        "distinctProductClicks": 7,
+        "distinctInvocations": 7,
+        "persistentSTARTs": 7,
+        "fileAndSitePreviewEncodedBytesMatchOriginal": 7,
+        "browserFileAndPreviewRenderedRGBAAgree": 7,
+        "originalNativeMouseDownIntervalsMS": [
+          581.676,
+          569.889,
+          619.928
+        ],
+        "originalSiteCardsAfterBatches": [
+          1,
+          3,
+          5,
+          7
+        ],
+        "priorCardNamesAndNodesPreserved": true,
+        "siteCounts": {
+          "fileChange": 7,
+          "fileInput": 7,
+          "formSubmit": 0,
+          "sendButtonClicks": 0
+        },
+        "selectionResultAtOriginalRun": "NOT_RUN",
+        "selectionOriginalStop": "ORIGINAL_PAGE_READ_UNAVAILABLE",
+        "eighthPNGCaptured": true,
+        "originalCaseEighthProductMouseOrFileInput": false,
+        "independentRawArchiveSHA256": "c1a1cd568b8ab6d71cd5bf87f0b23f02a06e4ed98b957053422155be94a12466",
+        "privateSQLiteSHA256": "9e71f071bbefe0e3245b02c8d560a4bd8764de65ed5ef160818289717c3503da",
+        "originalSelectionReceiptSHA256": "d63dfe53f107d276b5fdc9603efccc6ef50b81bab69480e95d608e369edeaf66"
+      },
+      "edge": {
+        "singleAndRapidPairs": "PASS",
+        "originalFullPNGFiles": 7,
+        "distinctProductClicks": 7,
+        "distinctInvocations": 7,
+        "persistentSTARTs": 7,
+        "fileAndSitePreviewEncodedBytesMatchOriginal": 7,
+        "browserFileAndPreviewRenderedRGBAAgree": 7,
+        "originalNativeMouseDownIntervalsMS": [
+          551.605,
+          568.999,
+          549.887
+        ],
+        "originalSiteCardsAfterBatches": [
+          1,
+          3,
+          5,
+          7
+        ],
+        "priorCardNamesAndNodesPreserved": true,
+        "siteCounts": {
+          "fileChange": 7,
+          "fileInput": 7,
+          "formSubmit": 0,
+          "sendButtonClicks": 0
+        },
+        "selectionResultAtOriginalRun": "NOT_RUN",
+        "selectionOriginalStop": "HIT_NOT_ORIGINAL_EDITABLE",
+        "eighthPNGCaptured": true,
+        "originalCaseEighthProductMouseOrFileInput": false,
+        "independentRawArchiveSHA256": "8920c40f0eca41cbf0803b38692393bc4a25bb0583ce6adf0b8572f51d8a1b58",
+        "privateSQLiteSHA256": "047bb231972ecebbe62d6a98269ab592671ed5742ea0ff5e00bd00d44c578c5f",
+        "originalSelectionReceiptSHA256": "b6c520730f93ad1fdf8a8a19ca27d2ab77e6732fdc102ca787c64e50ee61908a"
+      }
+    },
+    "fourteenIndependentProductAttachments": 14,
+    "totalSTARTsInTheseTwoOrdinaryRuns": 14,
+    "pairsPerBrowser": 3,
+    "zeroChatSendsAndFormSubmits": true,
+    "browserSelection": {
+      "chrome": {
+        "result": "NOT_DEMONSTRATED",
+        "firstStop": "ORIGINAL_PAGE_READ_UNAVAILABLE",
+        "firstEighthProductClick": false,
+        "nativeFollowUpUTC": "2026-11-23T02:42:48.748+00:00",
+        "latestOriginalNativeReceiptSHA256": "a566578340bac74ce3ff38f543ee994f9b601a1f495d90ac04e4475889e75f82",
+        "framePlacementIssued": true,
+        "originalAXFrameConfirmed": false,
+        "originalGatesReadyAfterPlacement": false,
+        "restoreReadback": "MINIMIZE_READBACK_FAILED",
+        "newSelectionEvidence": "No verified nonempty text/range and eighth site START in these receipts."
+      },
+      "edge": {
+        "result": "NOT_DEMONSTRATED",
+        "firstStop": "HIT_NOT_ORIGINAL_EDITABLE",
+        "firstEditorInputIssued": false,
+        "firstEighthProductClick": false,
+        "nativeFollowUpUTC": "2026-11-23T02:48:01.378+00:00",
+        "latestOriginalNativeReceiptSHA256": "089a99e2b9ae24597f6ec52c7889f2c06a13d7e5ebd3df62ff6a6c53457e277c",
+        "latestOriginalPresentation": "NATIVE_PRESENTATION_ERROR",
+        "nativeErrorCode": -1712,
+        "permissionQueryOSStatus": 0,
+        "selectionRequestIssuedInLatestNativeCheck": false,
+        "newSelectionEvidence": "Exact editor hit was refused in the original run. The later presentation/read receipts add no confirmed nonempty range or eighth upload."
+      }
+    },
+    "fullG1": "INCOMPLETE_NONEMPTY_SELECTION",
+    "fullG2": "INCOMPLETE_NONEMPTY_SELECTION",
+    "color": {
+      "result": "PASS_ORIGINAL_FILE_AND_RENDERED_PREVIEW_FIDELITY",
+      "chromeSeventhNativeVsBrowser": "The original File and site preview bytes match. Both rendered the same browser pixels. On Chrome image 7 only, native color conversion differed by one blue level in 64,680 pixels.",
+      "independentOfflineEvidenceSHA256": "e2c47f2cb4a03074182198ec3a549c3760528b27fa614cb274c49179913e9384"
+    },
+    "rawFourteenReviewSHA256": "672d38dc5698a186130dd0d537bff78cb3d99355e0547cc5ff9ac9f0ec61d514"
+  },
+  "edgeG4CFirstRealAttempt": {
+    "verdict": "PARTIAL_NO_QUALIFYING_RECOVERY",
+    "originalSourcePNGBytes": 5513,
+    "originalPNGSHA256": "bc347c5d3e58c3f893b230cae70ef1551bc9295838cbad334e6d78fc32521230",
+    "websiteCounts": {
+      "fileChange": 1,
+      "fileInput": 1,
+      "formSubmit": 0,
+      "sendButtonClicks": 0
+    },
+    "originalSTARTs": 1,
+    "receiptOutcome": "uploadStarted",
+    "operationPhase": "inputTriggered",
+    "originalMemberPresentAtLastBoundRead": true,
+    "positiveNamedFailure": false,
+    "UNKNOWNObserved": false,
+    "normalAppleEventWitness": {
+      "activeDocument": true,
+      "originalEditor": true,
+      "originalRealmXHR": true,
+      "productRegistry": false,
+      "siteReactOwner": false,
+      "usedOnlyOrdinaryAppleEvents": true
+    },
+    "controlledCancellationOrTimeout": "NOT_RUN",
+    "timeoutSets": 0,
+    "abortCalls": 0,
+    "stop": "An ordinary original-page witness lacked the site transport owner. No fault was installed. The original selection/route subsequently changed and the runner stopped.",
+    "successorOperations": 0,
+    "privateArchiveSHA256": "0508a93f73fac2dc757d7ff82c8425a5ef68e177f745a8b778aa84bcde6d278c",
+    "privateFinalSQLiteSHA256": "5853ed2d0e46d3e47c5efcbd0dcf443a60b256f1299f0afa9c05a1445bc5e62e",
+    "rawTerminalSHA256": "8bc1f41ed8a9b6cbb93526bdbe9bd3e7c91ac91a143581e7bd1947a8591544d5",
+    "independentScopeReviewSHA256": "44f8a56fcfe2e168ab55de51d86c690b3f0fc795ce6904a8845a03d2d1f89a01"
+  },
+  "edgeB4NaturalSize": {
+    "verdict": "ORIGINAL_UNKNOWN_NO_RECOVERY",
+    "originalBytes": 23233638,
+    "originalPNGSHA256": "ac2ae9502b81ac77a4f6883ca1eaef7c5f421a9d7e863a0a150dabc6fbaaa500",
+    "websiteFullFileMatchesSourceAndPrivateMedia": true,
+    "siteCounts": {
+      "fileChange": 1,
+      "fileInput": 1,
+      "formSubmit": 0,
+      "sendButtonClicks": 0
+    },
+    "originalSTARTs": 0,
+    "positiveNamedFailure": false,
+    "HTTPStatusForCompleteOriginalFile": null,
+    "originalOutcome": "inputTriggered",
+    "operationPhase": "unknown",
+    "originalReportedSafeToRetry": false,
+    "samples": {
+      "finalPageArchiveUTC": "2026-11-23T02:22:55.772438+00:00",
+      "firstArchiveUTC": "2026-11-23T02:22:25.306533+00:00",
+      "firstFileInputReceiptPageClockMS": 16263,
+      "firstNamedDecodedPreviewSample": 34,
+      "firstNamedMemberSample": 10,
+      "lastArchiveUTC": "2026-11-23T02:22:54.857054+00:00",
+      "lastDistinctDOMShapePageClockMS": 36613,
+      "monotonicDurationSeconds": 29.549622374994215,
+      "sampleCount": 37
+    },
+    "lastPositiveMember": "The early progress shell and Remove node were replaced. The original form still showed a decoded 2048 x 2002 preview with the same complete operation-specific filename and a Remove control at the last readable site observation.",
+    "latestBoundedRecheck": {
+      "attemptUTC": "2026-11-23T02:41:05Z",
+      "sameDedicatedNativeWindowAndTab": true,
+      "originalPageState": "ORIGINAL_DOCUMENT_READ_NOT_AVAILABLE",
+      "readRefusal": "ORIGINAL_TEMPORARY_TAB_REQUIRED",
+      "privateSignedCaseChildAlive": false,
+      "watcherRetirementDirectlyObserved": false,
+      "currentMemberAtLateRead": "UNKNOWN",
+      "latestPositivePresenceStillDated": "2026-11-23T02:22:55.772438+00:00",
+      "lateSQLiteSHA256": "0b8b98bbf5ec4966ea8d5efa4d6947f292195443f1770b595689f8a501d1fe2c",
+      "lateCounts": {
+        "assets": 1,
+        "attachment_reselections": 0,
+        "operations": 1,
+        "upload_starts": 0
+      },
+      "sameOriginalDatabaseRowsAsEarlier": true,
+      "recoveryInputIssued": false,
+      "siteOrNetworkChangesIssued": 0
+    },
+    "currentOrdinaryRecovery": "DENIED_ON_THIS_EVIDENCE",
+    "independentOriginalReviewSHA256": "69bc0caa20611c61c0d4a43153b7ac565b2c30bee0526396f5071a0c2da5450d",
+    "latePublicReceiptSHA256": "867940de93becd106e534c1278d32b6cdf34289d7350cb409275f613745cd4e2"
+  },
+  "acrossExactlyTheseFourSealedDatabases": {
+    "independentlyDistinctDurableOperations": 16,
+    "originalWebsiteInputs": 16,
+    "originalWebsiteChanges": 16,
+    "durableStarts": 15,
+    "reselectionSuccessors": 0,
+    "chatSendClicks": 0,
+    "formSubmits": 0,
+    "scope": "Four nonoverlapping operations sets. The Chrome/Edge seven-image runs, first Edge G4-C case, and natural B4 case retain separate verdicts."
+  },
+  "releaseConditions": {
+    "G1G2": "Each browser still needs an original visible signed-in editor, a deliberately nonempty text selection, then ordinary exact-target attachment with the original text/selection and earlier attachments intact, a new independent START and zero chat sends/submits.",
+    "G4C": "Prove the controlled original interruption and supported UNKNOWN recovery on a qualifying same-build case. Require the same original draft and full PNG, guarded confirmed disposition, actual informed History action, a different bound operation/invocation, one new input and durable START, with both databases and preserved old history.",
+    "G4AorG4B": "Additionally obtain a product-recognized genuine named failure bound to the original card, or a genuine provider 4xx attributable to the full original PNG, subsequent disappearance with preserved original membership, and independent equivalence adjudication. B4 does not meet the G4-B conditions.",
+    "currentlyRequiredUserAction": "No verified user-only credential, permission or confirmation requirement is established in the inspected receipts.",
+    "downstream": "Protected standard main merge and post-merge verification, tag and public DMG/feed, public install and ordinary upgrade from 31 remain downstream of site acceptance and release authorization."
+  },
+  "custodyLimits": "All statuses are bound to their observation times. The older all-zero pre-site assessment is used only for already completed package, source and CI evidence. No site contents, raw case identifiers, operator private paths or authorization tokens are included."
+}
