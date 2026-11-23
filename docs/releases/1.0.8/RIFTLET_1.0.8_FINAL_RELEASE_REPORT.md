@@ -14,7 +14,7 @@
 | 编译、测试与安装 | ARM64、Intel 各通过 1,436 项 Swift 测试。完整网页回归 384/384。App 及 DMG 均获 Apple 公证，Developer ID、staple 和 Gatekeeper 通过，非作者从只读挂载的 DMG 独立安装并通过 9 项检查。同一签名可执行文件的 ARM64 切片原生运行、Intel 切片经本机 Rosetta 2 运行，各通过 3 个自检入口。 |
 | 原草稿恢复 | 本地普通浏览器内核的源码复核通过 48 组对照，含 8 次显式恢复成功和 8 次旧写票被拒。三份真实历史故障库分别使用新副本取证，6 份一致性快照和原 PNG 已私有封存。 |
 | 正式分支 | 签名源码和后继测试脚本修复均获独立审查。正式 Draft PR #125 的准入头为 `881589ad`，实际预合并为 `31371f52`。五项检查全部通过，两个 Native job 均实测 1,436 项 Swift 测试、12 次进程生命周期及存储耐久测试。 |
-| Chrome G1、Edge G2 | Chrome 冷暖首图及三组快速双图已取得实站证据。两次 AppKit mouseDown 的间隔为 581.676, 569.889, 619.928 ms。七张均有唯一 START，旧附件保留，七次文件输入及 change，零发送、零表单提交。选区准备在第八张点击前停止。Edge 仍待实站。[Chrome 七图核验](evidence/build61/chrome-rapid-live.json) |
+| Chrome G1、Edge G2 | Chrome 冷暖首图及三组快速双图已取得实站证据。两次 AppKit mouseDown 的间隔为 581.676, 569.889, 619.928 ms。七张均有唯一 START，旧附件保留，七次文件输入及 change，零发送、零表单提交。选区准备在第八张点击前停止。Edge 也完成本包冷暖首图和三组双图，间隔为 551.605、568.999、549.887 ms，另有七次文件输入及七条独立 START，零发送、零提交。两个浏览器的选区均待补验。[Edge 七图核验](evidence/build61/edge-rapid-live.json) [Chrome 七图核验](evidence/build61/chrome-rapid-live.json) |
 | G4-A / G4-B / G4-C | 均为 **NOT_RUN**。目前没有 build 61 实站的具名原卡错误、原 PNG 对应的上游 4xx，或客户端中断后经 AppKit 显式重选的新 START。受控恢复、历史库及本地 HTTP 收据已单列。 |
 | 官网与应用内更新 | 现有官网两个下载入口、stable feed 和已发布 DMG 的签名均指向 1.0.5（31）。独立安装的 build 61 使用相同的更新源与公钥。发布后的公开下载及 31 → 61 应用内升级待发行后核验。 |
 
