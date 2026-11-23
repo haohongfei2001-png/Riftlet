@@ -1,0 +1,192 @@
+{
+  "family": "edge",
+  "reviewer": "independent-build62-recovery-and-mainline-source-reviewer",
+  "result": "PASS",
+  "signedProductSource": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "dmgSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "scope": "three two-screenshot batches following a separate positive seed, real ordinary signed-in site; all timing derives from AppKit mouseDown in signed app",
+  "pairs": [
+    {
+      "indices": [
+        2,
+        3
+      ],
+      "appKitMouseDownIntervalMS": 568.318,
+      "appKitCallbackIntervalMS": 553.273,
+      "independentCredentialsArmedBeforeFirstMouseDown": 2,
+      "priorAttachmentNodesRetained": 1
+    },
+    {
+      "indices": [
+        4,
+        5
+      ],
+      "appKitMouseDownIntervalMS": 616.109,
+      "appKitCallbackIntervalMS": 610.679,
+      "independentCredentialsArmedBeforeFirstMouseDown": 2,
+      "priorAttachmentNodesRetained": 3
+    },
+    {
+      "indices": [
+        6,
+        7
+      ],
+      "appKitMouseDownIntervalMS": 650.829,
+      "appKitCallbackIntervalMS": 632.4,
+      "independentCredentialsArmedBeforeFirstMouseDown": 2,
+      "priorAttachmentNodesRetained": 5
+    }
+  ],
+  "images": [
+    {
+      "image": 1,
+      "pngSHA256": "9544e067849144ad9f77ebbf7da4b4a61a0b9f973d363fe7b9762f144130132d",
+      "independentlyDecodedCoreGraphicsRGBA": "82ce42706a1095bf5f246d73ad545a39cbbfba5f18ac02f1e440a817f50f5f29",
+      "webInputAndPreviewDecodedRGBA": "c5072ee85ae122d2608a5a16792e00e5df47055aed01da81cca57b5aeafb3d3d",
+      "nativeAndWebDecodedAgree": false,
+      "previewEncodedBytesSameAsOriginal": true,
+      "appKitMouseDownSystemUptime": 487348.518445375,
+      "appKitCallbackSystemUptime": 487348.6102668334,
+      "eventNumber": 3729,
+      "bindingDigest": "125d533f56c1432aa0db8e3ca5e6442f847c2bdbb0f490b664524274775b277e",
+      "operationDigest": "187da8f5e2f6053b40c55a27acc92412b01060a8316af8ba7f98cdc800b13c0f",
+      "invocationDigest": "9c3fb7d19d3d9e99828b846fe8ab042f55f47c41b94dbba8a68a5be8de412e15",
+      "attachmentCardDigest": "a841480d41015df6b98a6d449a7b088c8594e160d2a2f6afcd8a4c382396a85c",
+      "durableSTARTEvidenceDigest": "28d0e103a4e2aaf0c4b41d072b31db47bc8fdf360e54aa9b4ba1121a72c8f815",
+      "fileInputs": 1,
+      "fileChanges": 1,
+      "durableSTART": 1
+    },
+    {
+      "image": 2,
+      "pngSHA256": "20b637fb6ee9f8cff67669bc6b75687061c12c4095430ccfb53caaeccfb1bc2a",
+      "independentlyDecodedCoreGraphicsRGBA": "24aaba72afb33409cd319a6a9833b63a30dc2d11e2fc6785b5320df98c2e3cf3",
+      "webInputAndPreviewDecodedRGBA": "24aaba72afb33409cd319a6a9833b63a30dc2d11e2fc6785b5320df98c2e3cf3",
+      "nativeAndWebDecodedAgree": true,
+      "previewEncodedBytesSameAsOriginal": true,
+      "appKitMouseDownSystemUptime": 487356.651520666,
+      "appKitCallbackSystemUptime": 487356.683029,
+      "eventNumber": 10190,
+      "bindingDigest": "52886a9efa7a2c0600dcf9a0c0eeb5aea454108b51576be48ebe7d39a88c83d0",
+      "operationDigest": "3c4a61f71cf33475ea65afeaa78e74d143bff64d90ffc4c1e18778ff69245811",
+      "invocationDigest": "371770ecd3c0a35ae87bf48ca6907f749887a4f608a1cac3177aadf34afb232e",
+      "attachmentCardDigest": "d548a9bb560a26a27b699f77f2842473f5d187bf19683a95e8345963ff3f1663",
+      "durableSTARTEvidenceDigest": "ad141de187d58937216e8559c4b0bfd64cb5c4ba4a4667ef88b4000cb38745f7",
+      "fileInputs": 1,
+      "fileChanges": 1,
+      "durableSTART": 1
+    },
+    {
+      "image": 3,
+      "pngSHA256": "b3e27785edd3b00583e7cf3aad5089ecfda66e55fc6183fc69578cbef3a4c263",
+      "independentlyDecodedCoreGraphicsRGBA": "4aa5a566b2a8089fcc924639283834b69fd7df23090dfb5f5c6ad9757ec741cd",
+      "webInputAndPreviewDecodedRGBA": "4aa5a566b2a8089fcc924639283834b69fd7df23090dfb5f5c6ad9757ec741cd",
+      "nativeAndWebDecodedAgree": true,
+      "previewEncodedBytesSameAsOriginal": true,
+      "appKitMouseDownSystemUptime": 487357.219838541,
+      "appKitCallbackSystemUptime": 487357.2363024167,
+      "eventNumber": 10607,
+      "bindingDigest": "4298252213f18c91e328634c2462eee7b8661056271fcad67d701e246e01aafc",
+      "operationDigest": "2daa8334b66ddd45cc14396b7f95fb6699e39312cf405fccefb4fa80bfcd2891",
+      "invocationDigest": "4bbba3764efc9b8648f6bb1ae70f0049fe8437637883239469caf43f8d0a815f",
+      "attachmentCardDigest": "a35f3ed16f155f123f3717b4e78697d4e87bc449db58f75193a41f8f0f056433",
+      "durableSTARTEvidenceDigest": "3b26693f5dcb1c08c49f814f78589a78482d1c9dc467517e3ab482efe650e713",
+      "fileInputs": 1,
+      "fileChanges": 1,
+      "durableSTART": 1
+    },
+    {
+      "image": 4,
+      "pngSHA256": "216cee326b8fa8a238ee97f130bcd5adccc1da3f4c22301ff6c10ff341b76592",
+      "independentlyDecodedCoreGraphicsRGBA": "8145e29b2f25b72bacb9c355e55393646f8fd5426c62e67b2fa685c6549c1640",
+      "webInputAndPreviewDecodedRGBA": "8145e29b2f25b72bacb9c355e55393646f8fd5426c62e67b2fa685c6549c1640",
+      "nativeAndWebDecodedAgree": true,
+      "previewEncodedBytesSameAsOriginal": true,
+      "appKitMouseDownSystemUptime": 487364.288695125,
+      "appKitCallbackSystemUptime": 487364.3249266667,
+      "eventNumber": 11408,
+      "bindingDigest": "fb12f236475a3d50d272d757d72bd522e727ff56349ac98de7953ce8182ebbfe",
+      "operationDigest": "208c117c97bd7e1cf04aeaae65a3e1e1ba50f56c32bb25afe08165ef94433549",
+      "invocationDigest": "953099bddbb7f142151b2fa3cb0eb8ff8ce0ed910db885c6b1074a68ba2bd341",
+      "attachmentCardDigest": "90428263cc3f0543ae16539819e02f40f686f52d610fc098b114c3660fddf8aa",
+      "durableSTARTEvidenceDigest": "b3df6a1e59faf91ab38e6ad7b03bc4736eeadb7ddbd14348dbac5ae110120cf7",
+      "fileInputs": 1,
+      "fileChanges": 1,
+      "durableSTART": 1
+    },
+    {
+      "image": 5,
+      "pngSHA256": "6867c061b5334114ae22e1439da8836ea3684b59a197ee0c45dc4c0c89ac4636",
+      "independentlyDecodedCoreGraphicsRGBA": "99163d532c88d47cf564de0b78ed94ccd4392dc056af67f47961474627f6da31",
+      "webInputAndPreviewDecodedRGBA": "99163d532c88d47cf564de0b78ed94ccd4392dc056af67f47961474627f6da31",
+      "nativeAndWebDecodedAgree": true,
+      "previewEncodedBytesSameAsOriginal": true,
+      "appKitMouseDownSystemUptime": 487364.904803916,
+      "appKitCallbackSystemUptime": 487364.9356054167,
+      "eventNumber": 21870,
+      "bindingDigest": "9f145e15f63219021bd8646cef2781e80636947f6cdf6e95b8ef513d57612be9",
+      "operationDigest": "7bedeb05939f42bad5d77e94c9d37b840f79b93767dbee9031ea16a218eeab67",
+      "invocationDigest": "650752e1dc150cf2a03d4ae676c598a7ef0447801d1c175b658ce2a7a2ca1897",
+      "attachmentCardDigest": "b966a3052e4c44a09a10b0ae45fe9a01c1f621bd7c46f6367c043fb441af58ce",
+      "durableSTARTEvidenceDigest": "2346393d2127d268230b93f74932ca599a18e706cd0a4518d67138bf3f183d90",
+      "fileInputs": 1,
+      "fileChanges": 1,
+      "durableSTART": 1
+    },
+    {
+      "image": 6,
+      "pngSHA256": "4aa0414a6d66d44ec4ffbc239e7f0f0572dfc5cde091e7439680e168748da771",
+      "independentlyDecodedCoreGraphicsRGBA": "2af27af78034253c185bdd8b9488997f17ef57ecee04924ca85f7af4ee1a23ed",
+      "webInputAndPreviewDecodedRGBA": "2af27af78034253c185bdd8b9488997f17ef57ecee04924ca85f7af4ee1a23ed",
+      "nativeAndWebDecodedAgree": true,
+      "previewEncodedBytesSameAsOriginal": true,
+      "appKitMouseDownSystemUptime": 487372.288986125,
+      "appKitCallbackSystemUptime": 487372.33690933336,
+      "eventNumber": 18589,
+      "bindingDigest": "7cc63c519a420618f3376bd46ea1c455d0c22092ac758e121c4c311bb329094f",
+      "operationDigest": "3956d8bb7cb40132fa217d025798be0ad93f7beba170068c6172ca09884ba00a",
+      "invocationDigest": "62df4e11f56909be7d666db2a535e5219ae238121d79f7b433c345f8b8a8b1a6",
+      "attachmentCardDigest": "7a7b8f8d19366494b2893027c3622f372a91eadcb6366cd63a7aac25985d944b",
+      "durableSTARTEvidenceDigest": "ebda77856c1a648e420ec80908ac96786048776addc439386f2ae729f5426d17",
+      "fileInputs": 1,
+      "fileChanges": 1,
+      "durableSTART": 1
+    },
+    {
+      "image": 7,
+      "pngSHA256": "5bae63b3804acc281e4ed702e2eb85aa3ff5b4e1dd8ad29662e3c9338548d729",
+      "independentlyDecodedCoreGraphicsRGBA": "517dec7b6b32fce0fec306024e76a85c63412a601c6fbfb84b634f9ad40a4670",
+      "webInputAndPreviewDecodedRGBA": "517dec7b6b32fce0fec306024e76a85c63412a601c6fbfb84b634f9ad40a4670",
+      "nativeAndWebDecodedAgree": true,
+      "previewEncodedBytesSameAsOriginal": true,
+      "appKitMouseDownSystemUptime": 487372.939815416,
+      "appKitCallbackSystemUptime": 487372.96930925,
+      "eventNumber": 28429,
+      "bindingDigest": "8d9d47443b95d5747ba9af76abcea932395d1773a0c56d38aabc5778c1531080",
+      "operationDigest": "4c7da8d06ada7f4676e2076fb3196cee1c1c108e288ad37f2950adbd49182322",
+      "invocationDigest": "feee53ad83b9726bbb2f6f3c2f6d9bfa6e0f58eaafc6fcf82f5ebdb9584cf6f4",
+      "attachmentCardDigest": "0b7e666fb0144ffc9cdfc9dae604136f44f89e89847c7fd43e86a1cbdb70e02f",
+      "durableSTARTEvidenceDigest": "31745aee4bf07256f69cbf32698c8c14c1ebcf2c633e64f2324c2db059c29eb8",
+      "fileInputs": 1,
+      "fileChanges": 1,
+      "durableSTART": 1
+    }
+  ],
+  "originalProductTarget": {
+    "documentDigest": "5328a91e68a8fd1e68e305d69b0ff19f89884133bf0b3de4f529a8089225dee3",
+    "composerDigest": "51067c4eb1ddda77db51bc7a89bb75eb6ef398e803b5b9ce4b6f8084d0c8ad5c",
+    "draftGenerationDigest": "fdf1f908902ff463656389a32b31a9bdb69df94028a117d8ab611960fa0a51e9"
+  },
+  "pageTotals": {
+    "fileChange": 7,
+    "fileInput": 7,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  },
+  "immutableFinalSQLiteSHA256": "029b11e1dd5f9d84d0e7e66e76e85efd192587c7fdaada971cf3922c4ee9dbc6",
+  "allNativeOriginalsRecomputedAndWebsiteInputPixelsEqualRenderedPreview": true,
+  "sameCoreGraphicsAndWebRGBAForAllSixRapidImages": true,
+  "signedTraceSHA256": "bfcc2fad0069d1cd89ba61f3dabf64d3d1c0b8bef5edb4e55f196dcc6458d30d",
+  "originalPageSHA256": "5e1041dd9f8b9ca3dc118159aa588b6f3487525e433eda606e40b5ab367c6fbe",
+  "nativeAndWebTimingsIndependentSHA256": "7c767c70d55469d43d2436a8f26d35459d49eb9cad3eaa8a8167c289e81fb584"
+}

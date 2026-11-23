@@ -1,0 +1,110 @@
+{
+  "scope": "Independent full normal-site acceptance of the one signed installed build, containing actual ordinary Chrome and Edge Temporary Chats. Software-targeted events reached AppKit mouseDown. Controlled recovery, staging update and public delivery are separate gates.",
+  "reviewer": "independent-build62-recovery-and-mainline-source-reviewer",
+  "result": "PASS",
+  "signedSource": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "dmgSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "coldAndWarmIndependentSHA256": "d53eba856c31fede193968f0ad9ba0e015f6881032be93153410268686223293",
+  "families": {
+    "chrome": {
+      "status": "PASS",
+      "coldAndWarmSource": "signed-browsers-cold-warm-independent.json",
+      "rapidAppKitMouseDownIntervalsMS": [
+        586.197,
+        602.573,
+        599.56
+      ],
+      "retainedRapidOldNodes": [
+        1,
+        3,
+        5
+      ],
+      "sevenDistinctRapidsIncludingPositiveSeed": true,
+      "perImageFileInputsAndChangesAndDurableSTART": true,
+      "rapidSends": 0,
+      "rapidSubmits": 0,
+      "nativeAndSiteRGBADifferOnIndices": [
+        4
+      ],
+      "allWebsiteInputAndDecodedCardPixelsMatch": true,
+      "allEncodedPreviewsEqualSystemOriginals": true,
+      "sevenImageIndependentSHA256": "f71e940ff4365b55e4060f2d28c77b07ddcf1909b372cdb777ed9c987ba945e1",
+      "nonemptyDirectedSelection": {
+        "originalCharacters": 64,
+        "originalUTF8SHA256": "cd8f05688e1c2f02de6687c4ec6283a3f28db17265552ec0283088938098853f",
+        "selectedText": "preserve this original draft",
+        "anchor": 12,
+        "anchorOffset": 12,
+        "focus": 40,
+        "focusOffset": 40,
+        "start": 12,
+        "end": 40,
+        "direction": "forward",
+        "beforeAndAfterMatch": true,
+        "sameOriginalDocumentAndEditorObjects": true,
+        "sameOriginalAttachmentNodes": true,
+        "underlyingSelectionTextNodeObjectIndependentlyIdentified": false
+      },
+      "selectionEvents": {
+        "alreadyAcceptedCards": 1,
+        "additionalConfirmedCards": 1,
+        "additionalFileInput": 1,
+        "additionalFileChange": 1,
+        "additionalDurableSTART": 1,
+        "sends": 0,
+        "submits": 0
+      },
+      "selectionEvidenceSHA256": "26acbdc0f96fcdb1c6299ba61eb0aa0fc5e2d28ff96851ac65c17bb084ec6570"
+    },
+    "edge": {
+      "status": "PASS",
+      "coldAndWarmSource": "signed-browsers-cold-warm-independent.json",
+      "rapidAppKitMouseDownIntervalsMS": [
+        568.318,
+        616.109,
+        650.829
+      ],
+      "retainedRapidOldNodes": [
+        1,
+        3,
+        5
+      ],
+      "sevenDistinctRapidsIncludingPositiveSeed": true,
+      "perImageFileInputsAndChangesAndDurableSTART": true,
+      "rapidSends": 0,
+      "rapidSubmits": 0,
+      "nativeAndSiteRGBADifferOnIndices": [
+        1
+      ],
+      "allWebsiteInputAndDecodedCardPixelsMatch": true,
+      "allEncodedPreviewsEqualSystemOriginals": true,
+      "sevenImageIndependentSHA256": "c3ff875e5ed0fcb73a6d6a263f5e1f567f9877c29672a23984b0ca133689ecc3",
+      "nonemptyDirectedSelection": {
+        "originalCharacters": 64,
+        "originalUTF8SHA256": "cd8f05688e1c2f02de6687c4ec6283a3f28db17265552ec0283088938098853f",
+        "selectedText": "preserve this original draft",
+        "anchor": 12,
+        "anchorOffset": 12,
+        "focus": 40,
+        "focusOffset": 40,
+        "start": 12,
+        "end": 40,
+        "direction": "forward",
+        "beforeAndAfterMatch": true,
+        "sameOriginalDocumentAndEditorObjects": true,
+        "sameOriginalAttachmentNodes": true,
+        "underlyingSelectionTextNodeObjectIndependentlyIdentified": false
+      },
+      "selectionEvents": {
+        "alreadyAcceptedCards": 1,
+        "additionalConfirmedCards": 1,
+        "additionalFileInput": 1,
+        "additionalFileChange": 1,
+        "additionalDurableSTART": 1,
+        "sends": 0,
+        "submits": 0
+      },
+      "selectionEvidenceSHA256": "168c220d2fce5311c9b2ca2370dd654fa52436e72a2a1481cb4c58d57f75766e"
+    }
+  }
+}

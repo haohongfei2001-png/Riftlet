@@ -1,0 +1,196 @@
+{
+  "family": "chrome",
+  "reviewer": "independent-build62-recovery-and-mainline-source-reviewer",
+  "result": "PASS",
+  "signedProductSource": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "dmgSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "scope": "three two-screenshot batches following a separate positive seed, real ordinary signed-in site; all timing derives from AppKit mouseDown in signed app",
+  "pairs": [
+    {
+      "indices": [
+        2,
+        3
+      ],
+      "appKitMouseDownIntervalMS": 586.197,
+      "appKitCallbackIntervalMS": 580.364,
+      "independentCredentialsArmedBeforeFirstMouseDown": 2,
+      "priorAttachmentNodesRetained": 1
+    },
+    {
+      "indices": [
+        4,
+        5
+      ],
+      "appKitMouseDownIntervalMS": 602.573,
+      "appKitCallbackIntervalMS": 586.11,
+      "independentCredentialsArmedBeforeFirstMouseDown": 2,
+      "priorAttachmentNodesRetained": 3
+    },
+    {
+      "indices": [
+        6,
+        7
+      ],
+      "appKitMouseDownIntervalMS": 599.56,
+      "appKitCallbackIntervalMS": 599.426,
+      "independentCredentialsArmedBeforeFirstMouseDown": 2,
+      "priorAttachmentNodesRetained": 5
+    }
+  ],
+  "images": [
+    {
+      "image": 1,
+      "pngSHA256": "4264844e52fa123fea81fbabcdaf5316e97fbabff122fc513239bde42d8b3330",
+      "independentlyDecodedCoreGraphicsRGBA": "d0ffd7e1f27d680397f61fd01e316822741f04788dc0e1c4a60ee79d830abb0e",
+      "webInputAndPreviewDecodedRGBA": "d0ffd7e1f27d680397f61fd01e316822741f04788dc0e1c4a60ee79d830abb0e",
+      "nativeAndWebDecodedAgree": true,
+      "previewEncodedBytesSameAsOriginal": true,
+      "appKitMouseDownSystemUptime": 492700.319310583,
+      "appKitCallbackSystemUptime": 492700.401234625,
+      "eventNumber": 26915,
+      "bindingDigest": "aa249b119158eed2415e8419ba826803846e0dab9adcb3215366e9c8b8cfb02d",
+      "operationDigest": "9f4de3aae36e211517eb4e36d83222bf56513c8d40a90ffc63022c01dd28c177",
+      "invocationDigest": "63345d0410b847dde286af2a600865e9ed03441f8994fdde8e271b7e78e42e3e",
+      "attachmentCardDigest": "7ff37bc2a37f7ab5003f77f8b866d486e2e0016a698f66f62ffd14fe3d93b3ba",
+      "durableSTARTEvidenceDigest": "846e5251eb40a42efc4de51dbc6ac5c936941d9694acbf82895b70e5323fa80b",
+      "fileInputs": 1,
+      "fileChanges": 1,
+      "durableSTART": 1
+    },
+    {
+      "image": 2,
+      "pngSHA256": "489c7749c87a2ecde9a31960c98766b49c7c8366f609e2745f897a496cf9f632",
+      "independentlyDecodedCoreGraphicsRGBA": "e062678c574247ead468b54e7af58a5dfb308fd408016bc79de373c8f6e55884",
+      "webInputAndPreviewDecodedRGBA": "e062678c574247ead468b54e7af58a5dfb308fd408016bc79de373c8f6e55884",
+      "nativeAndWebDecodedAgree": true,
+      "previewEncodedBytesSameAsOriginal": true,
+      "appKitMouseDownSystemUptime": 492708.620248916,
+      "appKitCallbackSystemUptime": 492708.655315875,
+      "eventNumber": 7426,
+      "bindingDigest": "2cda06ae44b313dbbd2014ef352be0cce3c425875a2d9ed41a5211ff0f80509f",
+      "operationDigest": "5ee829804978283867371fe9a846abcaaf9d3ca15203845ba931bc146ab964b1",
+      "invocationDigest": "4eec1d567c034b0f2c4c5723cb7c2fcaea826864418965076b6ab4a72c7825d4",
+      "attachmentCardDigest": "d3f703ddc78066519ff6bebe3947951f047f5211906329841e0328dac51e21d3",
+      "durableSTARTEvidenceDigest": "df2dacdc7184a6cb289bea8a03fd6dd1acf2e34ba2a820071a4bf58a8d083420",
+      "fileInputs": 1,
+      "fileChanges": 1,
+      "durableSTART": 1
+    },
+    {
+      "image": 3,
+      "pngSHA256": "89a6a1f047cc6df0b16e362291ae881504af908ceba107ea6de44e055dfbd91c",
+      "independentlyDecodedCoreGraphicsRGBA": "2fe00f8cc50f7fac53fddb4becb8307d075d3495b5b5c9b3f0f8630a6d6c4e52",
+      "webInputAndPreviewDecodedRGBA": "2fe00f8cc50f7fac53fddb4becb8307d075d3495b5b5c9b3f0f8630a6d6c4e52",
+      "nativeAndWebDecodedAgree": true,
+      "previewEncodedBytesSameAsOriginal": true,
+      "appKitMouseDownSystemUptime": 492709.206445541,
+      "appKitCallbackSystemUptime": 492709.23567995836,
+      "eventNumber": 29366,
+      "bindingDigest": "e681574c7036594a5f2a48275d2a7bc31b021a1e29a87f919f9aa6575a21e784",
+      "operationDigest": "1fd41c42ea6a8df45041561c90c79035e17cb33f9aa25638019ff2696c0d3e76",
+      "invocationDigest": "53dea813acb7fecc57be57339190be60c1fbf86ace85e6198d2174d4e2e172ce",
+      "attachmentCardDigest": "39b6537c5a6982eb5cc8450f4d1c816a9eff0d999e53653aa7bd4f2089c049c3",
+      "durableSTARTEvidenceDigest": "ce7d89e770d5629f848ce124a56df0c96280cc51de6c248836252b069280d579",
+      "fileInputs": 1,
+      "fileChanges": 1,
+      "durableSTART": 1
+    },
+    {
+      "image": 4,
+      "pngSHA256": "66047eeeaa3ebd3462ea9074283f8154185134cb2bd0693f686e866ef6bdb7b3",
+      "independentlyDecodedCoreGraphicsRGBA": "738123e1dacb8cc355989e175d80bc904ec24aa2ced66a71cf5e82b9959ceafa",
+      "webInputAndPreviewDecodedRGBA": "f197e6c7d56db49bad4dafb331f52e53a8fd68e51eba78eafa67b03ce8b0816e",
+      "nativeAndWebDecodedAgree": false,
+      "previewEncodedBytesSameAsOriginal": true,
+      "appKitMouseDownSystemUptime": 492717.017789,
+      "appKitCallbackSystemUptime": 492717.06688208337,
+      "eventNumber": 8651,
+      "bindingDigest": "f15b66b867da49c44e71de1edd88dd3d7591fe4c391e88d5ac05f9e41e0afc5b",
+      "operationDigest": "5fdabdfc2f25d1aa9c0e55a066a6bd969a54dc531092fec514eda005bd4d775d",
+      "invocationDigest": "432f71fbe0907082eed3a5757c3ecf8522e0f70c16bc43df9c4009d7a234ebfa",
+      "attachmentCardDigest": "64a95701c738172a002cabd656a84678685c6154d5ebf4df1e0a06189c0fbcd0",
+      "durableSTARTEvidenceDigest": "d3269541d04b3b6caa8ebe903f2ef24f740a81636c8e28a4f845ec1a0477d5ef",
+      "fileInputs": 1,
+      "fileChanges": 1,
+      "durableSTART": 1
+    },
+    {
+      "image": 5,
+      "pngSHA256": "8d2daaf3c0127942cb470a45e073afc4c9630d4bc791fb1cd770445d56d5c48f",
+      "independentlyDecodedCoreGraphicsRGBA": "70b37a91a50725363497bd84ff12390ec892da15f005019c5096e580e8861492",
+      "webInputAndPreviewDecodedRGBA": "70b37a91a50725363497bd84ff12390ec892da15f005019c5096e580e8861492",
+      "nativeAndWebDecodedAgree": true,
+      "previewEncodedBytesSameAsOriginal": true,
+      "appKitMouseDownSystemUptime": 492717.620361791,
+      "appKitCallbackSystemUptime": 492717.6529924584,
+      "eventNumber": 5946,
+      "bindingDigest": "12bd2cdaceade0e29eabe55b22569ef6af86bed05b2650a7f13f18ae5891b93c",
+      "operationDigest": "a1ff8654947926b7fb19869203985011b618c25c11cf87fea038b5ba994f8a44",
+      "invocationDigest": "f5e569a4b6442d7632fee08f63afc2fb2a8ea943e512c89b849c27a65b6eb813",
+      "attachmentCardDigest": "2cca565a785f82116944ce3d1a89bab34728e775f1ac9bf312d8a8c5ee258991",
+      "durableSTARTEvidenceDigest": "e6b2623e3841c7cbf329bd6602b926185bb3422f1f82e68865f05be7852a76d5",
+      "fileInputs": 1,
+      "fileChanges": 1,
+      "durableSTART": 1
+    },
+    {
+      "image": 6,
+      "pngSHA256": "1a2bf276335c925093f4c982b7da305f0ff21b266185fd13f597258034ff2b20",
+      "independentlyDecodedCoreGraphicsRGBA": "b76a112a6314d9e0050aa71165b729621d9f49acf1e0ba610750bbfa52518a17",
+      "webInputAndPreviewDecodedRGBA": "b76a112a6314d9e0050aa71165b729621d9f49acf1e0ba610750bbfa52518a17",
+      "nativeAndWebDecodedAgree": true,
+      "previewEncodedBytesSameAsOriginal": true,
+      "appKitMouseDownSystemUptime": 492725.685980083,
+      "appKitCallbackSystemUptime": 492725.71922562504,
+      "eventNumber": 3259,
+      "bindingDigest": "9f321c1bd5479d36745271d2e2da9216255e9d8f1f7a1794f68b787f37eed4b5",
+      "operationDigest": "17d678c15eeae395b13cdc565971802dc6226cc9773b09d154c7331cc0b0e58b",
+      "invocationDigest": "6e18328ef522de3e50b2d0cc1df44a15e9d4bdd75a5fc49266fdd2c51d0c6dfc",
+      "attachmentCardDigest": "14d3923d0d78fa3699029f13794ade80152ce7125e4f92a8ee3f81e9e01819c8",
+      "durableSTARTEvidenceDigest": "8e870fd9016457eccdc9ad7ed302776be6776c362c37ec6bd066f907fcaf4e95",
+      "fileInputs": 1,
+      "fileChanges": 1,
+      "durableSTART": 1
+    },
+    {
+      "image": 7,
+      "pngSHA256": "9e83ef8244c104e74f9c6044d61418aa9b5c6cdbab6087fa94890c82e0a8ebc7",
+      "independentlyDecodedCoreGraphicsRGBA": "eb2cb4ef0a65e26a9a47b2ae7c1508453a2aeb3aeb693cc1c383f7ba816ee288",
+      "webInputAndPreviewDecodedRGBA": "eb2cb4ef0a65e26a9a47b2ae7c1508453a2aeb3aeb693cc1c383f7ba816ee288",
+      "nativeAndWebDecodedAgree": true,
+      "previewEncodedBytesSameAsOriginal": true,
+      "appKitMouseDownSystemUptime": 492726.285539625,
+      "appKitCallbackSystemUptime": 492726.31865145836,
+      "eventNumber": 621,
+      "bindingDigest": "a90f60c6cf8a289265ba363529e5df768ac82e3411f1f9eb5b120bc104e29ab7",
+      "operationDigest": "d3767cded5173927c347ef278e452dbaa023f1de7c603fc614684ba4b61ea3e8",
+      "invocationDigest": "fd89344ae9d0296df03b7bf728e873b37dba1e85f589d3552ce950cebe8ebc5c",
+      "attachmentCardDigest": "be433383ea033d6ababbca6c2d73aa68fe302abc9b829680a890845e3fafba4d",
+      "durableSTARTEvidenceDigest": "3d71d754d3d304e1961c40e841bf605a4f25748981a88f24ed8b95e98fba8506",
+      "fileInputs": 1,
+      "fileChanges": 1,
+      "durableSTART": 1
+    }
+  ],
+  "originalProductTarget": {
+    "documentDigest": "535d7c34ea1baecfd5805105bc699fb37580ea8ef48c363304476141fb7162e0",
+    "composerDigest": "51067c4eb1ddda77db51bc7a89bb75eb6ef398e803b5b9ce4b6f8084d0c8ad5c",
+    "draftGenerationDigest": "d404f04171759a251c0e30f1168d950489caab61558b560f1606a6e2d5c7c371"
+  },
+  "pageTotals": {
+    "fileChange": 7,
+    "fileInput": 7,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  },
+  "immutableFinalSQLiteSHA256": "4adb3322fb34e8b963d678d2f933cd1be0363af141f307e8ebccb58e43e28493",
+  "allNativeOriginalsRecomputedAndWebsiteInputPixelsEqualRenderedPreview": true,
+  "sameCoreGraphicsAndWebRGBAForAllSixRapidImages": false,
+  "fullEncodedPreviewIdenticalToOriginalForEveryImage": true,
+  "crossDecoderDifferences": [
+    4
+  ],
+  "signedTraceSHA256": "9aeeea19b6c188c1cbf722d48dd3c9bf9400baa60366bf25b14bbe90f2f92c9b",
+  "originalPageSHA256": "22bbce17e39c9142e9a70779680a1282de15b308fdd715d6bfa44c0100e6a943",
+  "nativeAndWebTimingsIndependentSHA256": "db06cdfa8dbbbc4bcf6b9ce2778f46786f2ab191332d498a30d91b4aec2065fc"
+}

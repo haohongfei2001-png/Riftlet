@@ -8,12 +8,27 @@
 
 | 普通浏览器 × ChatGPT Temporary Chat | 冷首图、暖首图 | 三组双图，两次 AppKit mouseDown 间隔 | 非空文字、非折叠选区与旧附件 |
 | --- | --- | --- | --- |
-| Google Chrome | PASS | PENDING | PASS。64 字符逐字相同，原编辑器的正向选区保持 12→40，旧卡保留。 |
+| Google Chrome | PASS | PASS。586.197、602.573、599.560 ms。 | PASS。64 字符逐字相同，原编辑器的正向选区保持 12→40，旧卡保留。 |
 | Microsoft Edge | PASS | PASS。568.318、616.109、650.829 ms。 | PASS。64 字符逐字相同，原编辑器、12→40 正向选区和旧卡均保留。 |
 
-Edge 双图的首张已有附件和六张组内截图分别对应 7 次 input、7 次 change 和 7 条持久化 START。Chrome 选区测试核对了原附件与新附件的像素、文件输入和原草稿。两项的发送点击和表单提交均为零。[冷暖首图](evidence/build62/signed-browsers-cold-warm-independent.json) · [Edge 三组双图](evidence/build62/signed-edge-rapid-independent.json) · [Chrome 选区](evidence/build62/signed-chrome-selection-independent.json)
+Edge 双图的首张已有附件和六张组内截图分别对应 7 次 input、7 次 change 和 7 条持久化 START。Chrome 选区测试核对了原附件与新附件的像素、文件输入和原草稿。两项的发送点击和表单提交均为零。[冷暖首图](evidence/build62/signed-browsers-cold-warm-independent.json) · [Edge 三组双图](evidence/build62/signed-edge-rapid-independent.json) · [Edge 逐图核对](evidence/build62/signed-edge-rapid-per-image.json) · [Chrome 选区](evidence/build62/signed-chrome-selection-per-image.json)
 
 Edge 先在已有首图的原草稿中录入指定正文并选中 `preserve this original draft`。第二次真实点击只附加一张新截图，产生一次 input、一次 change 和一条新 START。首图的原始 Document、Composer、draftGeneration 已在输入前记录，与新操作一致。后验在同一原标签只读完成，两张图的解码像素各自匹配预览，零发送、零表单提交。[Edge 非空选区独立复核](evidence/build62/signed-edge-selection-independent.json)
+
+## Chrome 逐图时间线
+
+每组第一张收到的 AppKit mouseDown 为 0 ms。宿主时间以毫秒计；表中网页 input / change 取自原 Document 的独立时钟，只在该时钟内比较。两张截图的原图、凭据及托盘可点区域均在首次点击前核实。setter 只能定位到原生调用区间。
+
+| 组 / 图 | mouseDown | 凭据消费 | 原生 commit / setter 区间 | 网页 input / change | 原卡 accepted | 托盘动画开始 / 结束 |
+| --- | ---: | ---: | --- | --- | ---: | --- |
+| 1 / 1 | 0.000 | 138.047 | 267.505–403.081 | 120397 / 120399 | 2049.421 | 2052.324 / 2174.829 |
+| 1 / 2 | 586.197 | 856.921 | 1006.668–1123.646 | 121130 / 121133 | 2616.138 | 2617.569 / 2752.255 |
+| 2 / 1 | 0.000 | 192.547 | 323.896–453.309 | 128850 / 128852 | 2037.819 | 2039.738 / 2170.290 |
+| 2 / 2 | 602.573 | 871.781 | 1036.831–1160.387 | 129564 / 129567 | 2600.112 | 2601.556 / 2723.247 |
+| 3 / 1 | 0.000 | 137.021 | 267.705–414.289 | 137463 / 137465 | 2017.165 | 2036.267 / 2158.183 |
+| 3 / 2 | 599.560 | 883.916 | 1052.356–1177.914 | 138248 / 138251 | 2631.472 | 2632.650 / 2757.229 |
+
+六张组内截图和一张基准截图各有一次 input、一次 change 和一条持久化 START。三组分别保留原有 1、3、5 个附件节点，发送点击和表单提交均为零。七个预览的编码字节与各自原 PNG 完全一致，Chrome 对网页 File 和对应预览的解码像素也全部一致。第 4 张在本机 CoreGraphics 与 Chromium 两种解码器下的 RGBA 摘要有差异。[逐图完整机器回执](evidence/build62/signed-chrome-rapid-timeline.json) · [非作者逐图复算](evidence/build62/signed-chrome-rapid-independent.json) · [两款浏览器同包总表](evidence/build62/signed-browsers-complete.json)
 
 ## 恢复、兼容性与工程验证
 
