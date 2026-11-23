@@ -5,8 +5,8 @@ const http = require('node:http');
 const {setTimeout: delay} = require('node:timers/promises');
 const sha = value => createHash('sha256').update(value).digest('hex');
 
-function localSite(original, script) {
-  const routes = new Map(['complete', 'partial'].map(mode => [mode, {mode, creates: 0, puts: 0, pending: 0}]));
+function localSite(original, script, cases = ['complete', 'partial']) {
+  const routes = new Map(cases.map(mode => [mode, {mode, creates: 0, puts: 0, pending: 0}]));
   const sockets = new Set(), unexpected = [];
   const headers = {'Cache-Control': 'no-store', 'Connection': 'close',
     'Content-Security-Policy': "default-src 'none'; script-src 'self'; connect-src 'self'; form-action 'none'; frame-ancestors 'none'"};

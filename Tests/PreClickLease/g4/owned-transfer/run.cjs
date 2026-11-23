@@ -51,8 +51,38 @@ function verify(row, route, original) {
     assert.equal(row.events.filter(e=>e.phase==='request' && (e.status!==0 || e.readyState===2 || e.readyState===3)).length,0);
   }
 }
+function verifyWithdrawal(browser, route, original) {
+  const {disposition, nativeTerminal, counts} = browser;
+  assert.equal(disposition.reason, route.mode === 'request-released' ? 'request-changed' : route.mode);
+  if (route.mode === 'pagehide') assert.equal(disposition.pagehideTrusted, false, 'fixture-dispatched lifecycle control');
+  assert.equal(disposition.pendingXHRAtWithdrawal, 1, 'An already-running PUT must remain pending at withdrawal');
+  assert.equal(disposition.pendingCreatesAtWithdrawal, 0);
+  assert.ok(disposition.listenersRemoved > 0 && disposition.mutationObserverDisconnected);
+  assert.equal(disposition.observerListenersRemaining, 0);
+  assert.equal(browser.listenersRemaining, 0);
+  assert.equal(browser.pendingXHR, 0);
+  assert.equal(browser.abortReturned, false);
+  assert.equal(browser.trigger, null);
+  assert.deepEqual(counts, {input:1,change:1,create:1,sends:1,abortCalls:0,formSubmit:0,sendButton:0});
+  if (route.mode === 'expired') assert.ok(disposition.atMS >= disposition.deadlineMS, 'Independent monotonic deadline');
+  assert.deepEqual(nativeTerminal, {type:'loadend',trusted:true,originalInstance:true,status:201});
+  assert.ok(!browser.events.some(event => event.type === 'loadend'), 'Observation stopped before the native terminal');
+  assert.equal(route.evidence.httpBodyComplete, true);
+  assert.equal(route.evidence.httpStatus, 201);
+  assert.equal(route.evidence.bytesRead, original.length);
+  assert.equal(route.evidence.bytesSHA256, sha(original));
+  assert.equal(browser.requestID, route.requestID);
+  assert.equal(browser.urlSHA256, route.urlSHA256);
+  assert.equal(route.creates, 1);
+  assert.equal(route.puts, 1);
+  assert.equal(route.pending, 0);
+}
 async function run() {
-  const [png,provenance]=process.argv.slice(2);assert.ok(png,'Pass a local 5–15 MiB QA PNG and optional capture receipt');
+  const args = process.argv.slice(2);
+  const controls = args[0] === '--lifetime-controls';
+  if (controls) args.shift();
+  assert.ok(args.length >= 1 && args.length <= 2, 'Expected one PNG and an optional capture receipt');
+  const [png,provenance]=args;assert.ok(png,'Pass a local 5–15 MiB QA PNG and optional capture receipt');
   process.umask(0o077);
   const original=fs.readFileSync(png);
   assert.ok(original.length>=5*1024**2 && original.length<=15*1024**2);
@@ -71,7 +101,8 @@ async function run() {
       c.systemScreenshotMarker && c.nonactivatingPanel && c.measuredFixture);
     source={...source,scope:'macOS system screenshot of QA-owned nonactivating pattern window',captureReceiptSHA256:sha(data)};
   }
-  const site=localSite(original,fs.readFileSync(path.join(__dirname,'page.js')));
+  const modes = controls ? ['partial', 'expired', 'source-changed', 'request-released', 'pagehide'] : ['complete', 'partial'];
+  const site=localSite(original,fs.readFileSync(path.join(__dirname,'page.js')),modes);
   await new Promise((resolve,reject)=>{site.server.once('error',reject);site.server.listen(0,'127.0.0.1',resolve);});
   const root=fs.mkdtempSync(path.join(os.tmpdir(),'riftlet-owned-transfer-')), pngLocal=path.join(root,'control.png');
   const rows=[];let child,exited,version;
@@ -100,7 +131,10 @@ async function run() {
         await delay(300);
         const admitted={mode,browser,server:{...route.evidence,creates:route.creates,puts:route.puts,pending:route.pending}};
         rows.push(admitted);
-        verify(browser,route,original);
+        if (['complete', 'partial'].includes(mode)) verify(browser,route,original);
+        else verifyWithdrawal(browser,route,original);
+        assert.equal(browser.normalCompletionHandlerRemoved,true);
+        assert.equal(browser.pendingCreates,0);
       } finally {await driver.call('Target.closeTarget',{targetId:tab.targetId});}
     }
     assert.deepEqual(site.unexpected,[]);
@@ -112,7 +146,7 @@ async function run() {
     finally {await closeLoopbackServer(site.server,site.sockets);}
   }
   assert.equal(site.server.listening,false);assert.equal(fs.existsSync(root),false);
-  return {scope:'QA-owned IPv4 loopback only',status:'PASS',browser:version,source,rows,
+  return {scope:'QA-owned IPv4 loopback only',schemaVersion:2,caseSet:controls?'lifetime-controls':'complete-and-partial',status:'PASS',browser:version,source,rows,
     cleanup:{ownedHeadlessProcessGroupExited:true,disposableProfileRemoved:true,listenerClosed:true,pendingPUTs:[...site.routes.values()].reduce((n,r)=>n+r.pending,0)},
     limitations:'Native browser file selection and local HTTP. This does not exercise Riftlet AppKit, SQLite, a ChatGPT upload, or a ChatGPT failure card.'};
 }

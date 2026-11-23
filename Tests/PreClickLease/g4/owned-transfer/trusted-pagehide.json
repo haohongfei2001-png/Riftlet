@@ -1,0 +1,30 @@
+{
+  "scope": "trusted same-origin headless navigation before any selected File",
+  "browser": "Chrome/157.0.8103.79",
+  "witness": {
+    "isTrusted": true,
+    "after": {
+      "refused": "pagehide",
+      "disposition": {
+        "reason": "pagehide",
+        "atMS": 44.40000003576279,
+        "deadlineMS": 8022.900000035763,
+        "listenersRemoved": 5,
+        "observerListenersRemaining": 0,
+        "mutationObserverDisconnected": true,
+        "pendingXHRAtWithdrawal": 0,
+        "pendingCreatesAtWithdrawal": 0,
+        "pagehideTrusted": true
+      },
+      "pendingCreates": 0,
+      "pendingXHR": 0
+    }
+  },
+  "creates": 0,
+  "puts": 0,
+  "cleanup": {
+    "processGroupExited": true,
+    "listenerClosed": true,
+    "pendingPUTs": 0
+  }
+}

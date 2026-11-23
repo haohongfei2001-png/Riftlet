@@ -28,3 +28,26 @@ node Tests/PreClickLease/g4/owned-transfer/verify.cjs "$RESULT" "$QA_PNG"
 ```
 
 The browser progress count and the server's application-read count measure different points in the transfer. The fixed page, receiver and all responses belong to this loopback test. Signed Riftlet input, ChatGPT transport, real failure-card rendering and original-draft recovery require their own evidence.
+
+## Observer lifetime controls
+
+The primary system-screenshot receipt above was produced with the fixture source at commit `c5f1f51db11985c9699fca4dfd4823e085cf7650`. The newer controls use a different, 7,563,763-byte local development PNG. Their results are recorded separately.
+
+The cancellation observer has an eight-second monotonic deadline. The expiry control shortens the remaining deadline to 12 milliseconds after native send returns. Each observer callback checks the deadline, source document, unique input, selected File, original transfer record and sole native request. The owning page observes DOM changes and rechecks every 25 milliseconds while armed. A changed source or transfer, expiry or pagehide withdraws eligibility and immediately removes the observer's event listeners, mutation observer, timer and poll. An in-flight PUT keeps its ordinary completion handler until the original trusted loadend, when the page removes the handler and updates the actual pending-request set.
+
+| New development case | At withdrawal | Observed result |
+| --- | --- | --- |
+| Eligible partial upload | Trusted progress at 18.4120% | One native abort and terminal loadend |
+| Expired deadline | One pending PUT | Zero aborts, all bytes received, HTTP 201 |
+| Original file input replaced | One pending PUT | Zero aborts, all bytes received, HTTP 201 |
+| Page relinquished its request reservation | One pending PUT | Zero aborts, all bytes received, HTTP 201 |
+| Fixture-dispatched pagehide during PUT | One pending PUT | Zero aborts, all bytes received, HTTP 201 |
+| Native same-origin navigation before file selection | Trusted browser pagehide | All observation listeners removed, zero creation requests and zero PUTs |
+
+All five upload cases ended with zero pending requests. The in-flight pagehide case deliberately dispatches a lifecycle event in the fixture to keep the page alive for its normal 201 readback. The separate navigation control records a genuine Chrome pagehide in a disposable tab. [Upload controls](lifetime-controls.json) · [Offline verification](lifetime-verification.json) · [Trusted navigation receipt](trusted-pagehide.json)
+
+```sh
+node Tests/PreClickLease/g4/owned-transfer/run.cjs --lifetime-controls "$DEVELOPMENT_PNG" > "$RESULT"
+node Tests/PreClickLease/g4/owned-transfer/verify-lifetime.cjs "$RESULT" "$DEVELOPMENT_PNG"
+node Tests/PreClickLease/g4/owned-transfer/trusted-hide.cjs
+```

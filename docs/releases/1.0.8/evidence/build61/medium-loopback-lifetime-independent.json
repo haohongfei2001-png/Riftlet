@@ -1,0 +1,101 @@
+{
+  "reviewedAtUTC": "2026-11-23T03:57:35.221483+00:00",
+  "reviewer": "Independent nonauthor release reviewer",
+  "verdict": "PASS_LOCAL_LIFETIME_CONTROLS",
+  "originalSystemPNGReceiptAtSourceCommit": "c5f1f51db11985c9699fca4dfd4823e085cf7650",
+  "originalSystemPNGReportSHA256": "5573712c551ecf4c90a355c962a5bca0c3323727d0f100b3376569d3548394f5",
+  "newScope": "Actual new lifetime controls used the synthetic development image, plus a separate trusted same-origin navigation before file selection. The archived 7.9 MB macOS image was not sent again.",
+  "developmentPNG": {
+    "bytes": 7563763,
+    "sha256": "13f35f7ec658107037fff61fefc61701052fe135650bf6d55a5e0127708619ed"
+  },
+  "rawFiveCasesSHA256": "78b13470327742a47b1eb83f3ee50a42d8b06f12f869032ede3f3755e1900e93",
+  "realNavigationRawSHA256": "eba068d46e8eab90101529e2a1b1267e618147aa266c45b1ac590606a9680a98",
+  "reconstructedSingleLoopbackOrigin": true,
+  "cases": [
+    {
+      "mode": "partial",
+      "withdrawal": "native-terminal",
+      "listenersRemoved": 20,
+      "pendingAtWithdrawal": 0,
+      "observerListenersRemaining": 0,
+      "finalNativeLoadend": true,
+      "aborts": 1,
+      "serverHTTP": null,
+      "actualServerBytes": 1376256,
+      "actualBytesSHA256": "fce282949f82df6f213517c342778e39556cefc4f35a51aa123b158e3e48e5a7",
+      "triggerProgress": 0.18411999424096182
+    },
+    {
+      "mode": "expired",
+      "withdrawal": "expired",
+      "listenersRemoved": 20,
+      "pendingAtWithdrawal": 1,
+      "observerListenersRemaining": 0,
+      "finalNativeLoadend": true,
+      "aborts": 0,
+      "serverHTTP": 201,
+      "actualServerBytes": 7563763,
+      "actualBytesSHA256": "13f35f7ec658107037fff61fefc61701052fe135650bf6d55a5e0127708619ed",
+      "triggerProgress": null
+    },
+    {
+      "mode": "source-changed",
+      "withdrawal": "source-changed",
+      "listenersRemoved": 20,
+      "pendingAtWithdrawal": 1,
+      "observerListenersRemaining": 0,
+      "finalNativeLoadend": true,
+      "aborts": 0,
+      "serverHTTP": 201,
+      "actualServerBytes": 7563763,
+      "actualBytesSHA256": "13f35f7ec658107037fff61fefc61701052fe135650bf6d55a5e0127708619ed",
+      "triggerProgress": null
+    },
+    {
+      "mode": "request-released",
+      "withdrawal": "request-changed",
+      "listenersRemoved": 20,
+      "pendingAtWithdrawal": 1,
+      "observerListenersRemaining": 0,
+      "finalNativeLoadend": true,
+      "aborts": 0,
+      "serverHTTP": 201,
+      "actualServerBytes": 7563763,
+      "actualBytesSHA256": "13f35f7ec658107037fff61fefc61701052fe135650bf6d55a5e0127708619ed",
+      "triggerProgress": null
+    },
+    {
+      "mode": "pagehide",
+      "withdrawal": "pagehide",
+      "listenersRemoved": 20,
+      "pendingAtWithdrawal": 1,
+      "observerListenersRemaining": 0,
+      "finalNativeLoadend": true,
+      "aborts": 0,
+      "serverHTTP": 201,
+      "actualServerBytes": 7563763,
+      "actualBytesSHA256": "13f35f7ec658107037fff61fefc61701052fe135650bf6d55a5e0127708619ed",
+      "triggerProgress": null
+    }
+  ],
+  "trustedNativeNavigation": {
+    "event": "pagehide",
+    "nativeTrusted": true,
+    "fileSelection": false,
+    "creates": 0,
+    "puts": 0,
+    "pending": 0,
+    "removedListeners": 5,
+    "mutationDisconnected": true
+  },
+  "limit": "The in-flight pagehide control used an explicitly synthetic pagehide event on its owned page. The separate genuinely trusted navigation had no upload in progress. These records do not establish the outcome of a real navigation during an active site PUT.",
+  "sourceSHA256": {
+    "page.js": "d3b443583b44cca0eb8a865a1a65a1e26eb85e95fb8ccd7d942a540e0bbadcde",
+    "server.cjs": "82514d0df405bbe9edf72db31d4f2f131c7bbadc5534729c23f759897ef62003",
+    "run.cjs": "b2b03ff040ae5bbd2480460a462473c4e1d2514e1fe5dcc6d55b9ca7ab5be049",
+    "trusted-hide.cjs": "6080df99ecc03d332bd2981dc185c6974808abdd604609a4877231c924ebd2fc",
+    "verify-lifetime.cjs": "d32741014ac10d8edca45e6b42e4f3a73c72b804d27dd69c08c303717ec41990"
+  },
+  "siteGatesCredited": []
+}

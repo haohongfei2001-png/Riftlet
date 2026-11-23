@@ -1,5 +1,9 @@
 # G4 恢复与发行进度
 
+## 2026-11-23 · Build 61 中等大小截图
+
+新系统截图为 7,921,752 字节。普通 Chrome 的隔离回环用例先完整上传并取得 HTTP 201，再在独立请求的 17.9936% 进度中止一次。非作者从私有原图和收件服务记录重算了整图及实际读到的前缀。此项完成了工作包 A 的回环对照。当前实站放行条件仍为 G4-C，加 G4-A 或经独立书面认可的 G4-B。[本轮原图与网络审计](evidence/build61/medium-loopback-independent.json) · [G4 最终验收](G4_FINAL_ACCEPTANCE.md)
+
 ## 2026-11-23 · 起点
 
 PR #124 仍为 Draft，提交 `1c83ca91e6dd26cb064627adc59167fdccb6a38c`。Issue #120 打开。main 为 `9fd8ad15fca043915069904113e5fb67d82b4948`。冻结 build 59 的双架构 CI 成功，公开版本为 1.0.5（31）。[既有同包报告](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)

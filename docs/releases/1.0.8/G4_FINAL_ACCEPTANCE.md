@@ -1,8 +1,21 @@
-# Riftlet 1.0.8 build 59 · G4 最终实站验收
+# Riftlet 1.0.8 · G4 最终实站验收
 
 2026-11-23 的当前候选为 build 61。新候选在普通 Edge 已取得一次原图附加和一条 START。受控故障次数为零，原操作的结果为 uploadStarted。另一次 23,233,638 字节的真实系统截图上传留下原 UNKNOWN、完整 PNG 和同名预览。两次独立数据库备份相同，没有重选或新 START，G4 仍未放行。非作者已独立确认 build 61 两款浏览器的普通实站验收通过。当前发行条件为 G4-C，加 G4-A 或独立接受的 G4-B。[最新发行裁决](evidence/build61/release-gate-after-both-selections.json) [build 61 大图与恢复裁决](evidence/build61/size-boundary-independent.json)
 
-本文下方为 build 59 的历史证据。[build 61 实站原操作](evidence/build61/g4c-original-live.json) · [当前发行报告](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)
+## Build 61 · 中等大小截图
+
+本轮新图是 macOS 对专用图案窗口的系统截图，1920×1440，7,921,752 字节，SHA-256 为 `66057577de807a2d2a266360b59efdfb80e6301a158d9eb1bd2bf028757dd3a7`。非作者重新读取原 PNG，核验系统截图标记及全部 492 个 PNG 数据块的 CRC。原图保存在私有验收档案。这个样本低于 ChatGPT 公布的单图 20 MB 限制。[原件与传输独立复核](evidence/build61/medium-loopback-independent.json) · [官方上传限额](https://help.openai.com/en/articles/8555545-uploading-files-and-audio-to-chatgpt)
+
+| 同一张图在自有回环端点的两次测量 | 浏览器 | 收件服务 |
+| --- | --- | --- |
+| 完整上传 | 一次 PUT，收到 HTTP 201 | 完整读取 7,921,752 字节，SHA-256 匹配原图 |
+| 单次中断 | 上传进度事件报告 1,425,408 字节（17.9936%），随后原 XHR 各产生一次 abort 和 loadend | 实收前 1,376,256 字节，逐字节匹配原图前缀，随后 ECONNRESET，无 HTTP 响应 |
+
+两个用例使用独立请求，结束时在途请求为零。实站 G4 的裁决另需签名产品、原卡、原草稿和用户显式恢复。[浏览器与收件服务原始回执](../../../Tests/PreClickLease/g4/owned-transfer/system-result.json) · [离线复算](../../../Tests/PreClickLease/g4/owned-transfer/offline-result.json)
+
+## Build 59 · 历史验收
+
+本文下方保留 build 59 的历史证据。[build 61 实站原操作](evidence/build61/g4c-original-live.json) · [当前发行报告](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)
 
 **放行结论为 PARTIAL。** 已在已登录的普通 Edge Temporary Chat 中中断唯一一条发送原 PNG 的真实 XHR。ChatGPT 随后移除了原进度卡。观察期内没有出现属于该操作的明确失败卡，Riftlet 也没有记录原卡错误收据。因此 G4 的原卡失败及显式恢复保留为 **NOT_RUN**。
 

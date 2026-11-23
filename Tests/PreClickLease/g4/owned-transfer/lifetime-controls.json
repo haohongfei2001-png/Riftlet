@@ -1,0 +1,645 @@
+{
+  "scope": "QA-owned IPv4 loopback only",
+  "schemaVersion": 2,
+  "caseSet": "lifetime-controls",
+  "status": "PASS",
+  "browser": "Chrome/157.0.8103.79",
+  "source": {
+    "scope": "local-development-PNG",
+    "sha256": "13f35f7ec658107037fff61fefc61701052fe135650bf6d55a5e0127708619ed",
+    "bytes": 7563763,
+    "dimensions": [
+      1800,
+      1400
+    ]
+  },
+  "rows": [
+    {
+      "mode": "partial",
+      "browser": {
+        "mode": "partial",
+        "requestID": "4c705ebe-2932-4d96-8cbd-62b47519152f",
+        "urlSHA256": "4a385c8343bb71d690be210fb6bae9c96beb7a953516aac1397fab64e12f5121",
+        "fileSHA256": "13f35f7ec658107037fff61fefc61701052fe135650bf6d55a5e0127708619ed",
+        "fileBytes": 7563763,
+        "createStatus": 201,
+        "counts": {
+          "input": 1,
+          "change": 1,
+          "create": 1,
+          "sends": 1,
+          "abortCalls": 1,
+          "formSubmit": 0,
+          "sendButton": 0
+        },
+        "inputEvents": [
+          {
+            "type": "input",
+            "trusted": true
+          },
+          {
+            "type": "change",
+            "trusted": true
+          }
+        ],
+        "events": [
+          {
+            "phase": "request",
+            "type": "readystatechange",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 73,
+            "readyState": 1,
+            "status": 0
+          },
+          {
+            "phase": "request",
+            "type": "loadstart",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 73,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 0,
+            "total": 0,
+            "lengthComputable": false
+          },
+          {
+            "phase": "upload",
+            "type": "loadstart",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 73,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 0,
+            "total": 4294967295,
+            "lengthComputable": true
+          },
+          {
+            "phase": "upload",
+            "type": "progress",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 178,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 1392640,
+            "total": 7563763,
+            "lengthComputable": true
+          },
+          {
+            "phase": "request",
+            "type": "readystatechange",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 178,
+            "readyState": 4,
+            "status": 0
+          },
+          {
+            "phase": "upload",
+            "type": "abort",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 178,
+            "readyState": 4,
+            "status": 0,
+            "loaded": 1392640,
+            "total": 7563763,
+            "lengthComputable": true
+          },
+          {
+            "phase": "upload",
+            "type": "loadend",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 178,
+            "readyState": 4,
+            "status": 0,
+            "loaded": 1392640,
+            "total": 7563763,
+            "lengthComputable": true
+          },
+          {
+            "phase": "request",
+            "type": "abort",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 178,
+            "readyState": 4,
+            "status": 0,
+            "loaded": 0,
+            "total": 0,
+            "lengthComputable": false
+          },
+          {
+            "phase": "request",
+            "type": "loadend",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 178,
+            "readyState": 4,
+            "status": 0,
+            "loaded": 0,
+            "total": 0,
+            "lengthComputable": false
+          }
+        ],
+        "trigger": {
+          "phase": "upload",
+          "type": "progress",
+          "trusted": true,
+          "sameTarget": true,
+          "elapsedMS": 178,
+          "readyState": 1,
+          "status": 0,
+          "loaded": 1392640,
+          "total": 7563763,
+          "lengthComputable": true,
+          "fraction": 0.18411999424096182,
+          "sendReturned": true,
+          "originalFile": true,
+          "originalInstance": true
+        },
+        "sendReturned": true,
+        "abortReturned": true,
+        "disposition": {
+          "reason": "native-terminal",
+          "atMS": 177.69999998807907,
+          "deadlineMS": 8031.699999988079,
+          "listenersRemoved": 20,
+          "observerListenersRemaining": 0,
+          "mutationObserverDisconnected": true,
+          "pendingXHRAtWithdrawal": 0,
+          "pendingCreatesAtWithdrawal": 0
+        },
+        "nativeTerminal": {
+          "type": "loadend",
+          "trusted": true,
+          "originalInstance": true,
+          "status": 0
+        },
+        "pendingCreates": 0,
+        "listenersRemoved": 20,
+        "listenersRemaining": 0,
+        "pendingXHR": 0,
+        "normalCompletionHandlerRemoved": true,
+        "terminalEvent": "loadend"
+      },
+      "server": {
+        "requestID": "4c705ebe-2932-4d96-8cbd-62b47519152f",
+        "urlSHA256": "4a385c8343bb71d690be210fb6bae9c96beb7a953516aac1397fab64e12f5121",
+        "declaredBytes": 7563763,
+        "bytesRead": 1376256,
+        "bytesSHA256": "fce282949f82df6f213517c342778e39556cefc4f35a51aa123b158e3e48e5a7",
+        "originalPrefixSHA256": "fce282949f82df6f213517c342778e39556cefc4f35a51aa123b158e3e48e5a7",
+        "prefixMatches": true,
+        "httpBodyComplete": false,
+        "ending": "ECONNRESET",
+        "aborted": true,
+        "httpStatus": null,
+        "requestClosed": true,
+        "creates": 1,
+        "puts": 1,
+        "pending": 0
+      }
+    },
+    {
+      "mode": "expired",
+      "browser": {
+        "mode": "expired",
+        "requestID": "2ca83225-e88f-4c5f-886c-2df087f5e120",
+        "urlSHA256": "aa04e4dd60813bb6db035dc37772f073263b2d78a95d921aa0535256ca2f154f",
+        "fileSHA256": "13f35f7ec658107037fff61fefc61701052fe135650bf6d55a5e0127708619ed",
+        "fileBytes": 7563763,
+        "createStatus": 201,
+        "counts": {
+          "input": 1,
+          "change": 1,
+          "create": 1,
+          "sends": 1,
+          "abortCalls": 0,
+          "formSubmit": 0,
+          "sendButton": 0
+        },
+        "inputEvents": [
+          {
+            "type": "input",
+            "trusted": true
+          },
+          {
+            "type": "change",
+            "trusted": true
+          }
+        ],
+        "events": [
+          {
+            "phase": "request",
+            "type": "readystatechange",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 42,
+            "readyState": 1,
+            "status": 0
+          },
+          {
+            "phase": "request",
+            "type": "loadstart",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 42,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 0,
+            "total": 0,
+            "lengthComputable": false
+          },
+          {
+            "phase": "upload",
+            "type": "loadstart",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 42,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 0,
+            "total": 4294967295,
+            "lengthComputable": true
+          }
+        ],
+        "trigger": null,
+        "sendReturned": true,
+        "abortReturned": false,
+        "disposition": {
+          "reason": "expired",
+          "atMS": 54.89999997615814,
+          "deadlineMS": 54.5,
+          "listenersRemoved": 20,
+          "observerListenersRemaining": 0,
+          "mutationObserverDisconnected": true,
+          "pendingXHRAtWithdrawal": 1,
+          "pendingCreatesAtWithdrawal": 0
+        },
+        "nativeTerminal": {
+          "type": "loadend",
+          "trusted": true,
+          "originalInstance": true,
+          "status": 201
+        },
+        "pendingCreates": 0,
+        "listenersRemoved": 20,
+        "listenersRemaining": 0,
+        "pendingXHR": 0,
+        "normalCompletionHandlerRemoved": true,
+        "terminalEvent": "loadend"
+      },
+      "server": {
+        "requestID": "2ca83225-e88f-4c5f-886c-2df087f5e120",
+        "urlSHA256": "aa04e4dd60813bb6db035dc37772f073263b2d78a95d921aa0535256ca2f154f",
+        "declaredBytes": 7563763,
+        "bytesRead": 7563763,
+        "bytesSHA256": "13f35f7ec658107037fff61fefc61701052fe135650bf6d55a5e0127708619ed",
+        "originalPrefixSHA256": "13f35f7ec658107037fff61fefc61701052fe135650bf6d55a5e0127708619ed",
+        "prefixMatches": true,
+        "httpBodyComplete": true,
+        "ending": "complete",
+        "aborted": false,
+        "httpStatus": 201,
+        "requestClosed": true,
+        "creates": 1,
+        "puts": 1,
+        "pending": 0
+      }
+    },
+    {
+      "mode": "source-changed",
+      "browser": {
+        "mode": "source-changed",
+        "requestID": "046cfcaa-f831-4ec1-8caa-a62a0d50864f",
+        "urlSHA256": "c4d8043dcb8d1ec044317172d787983198075c1af9c90a683934c5e1c59f78f3",
+        "fileSHA256": "13f35f7ec658107037fff61fefc61701052fe135650bf6d55a5e0127708619ed",
+        "fileBytes": 7563763,
+        "createStatus": 201,
+        "counts": {
+          "input": 1,
+          "change": 1,
+          "create": 1,
+          "sends": 1,
+          "abortCalls": 0,
+          "formSubmit": 0,
+          "sendButton": 0
+        },
+        "inputEvents": [
+          {
+            "type": "input",
+            "trusted": true
+          },
+          {
+            "type": "change",
+            "trusted": true
+          }
+        ],
+        "events": [
+          {
+            "phase": "request",
+            "type": "readystatechange",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 77,
+            "readyState": 1,
+            "status": 0
+          },
+          {
+            "phase": "request",
+            "type": "loadstart",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 77,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 0,
+            "total": 0,
+            "lengthComputable": false
+          },
+          {
+            "phase": "upload",
+            "type": "loadstart",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 77,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 0,
+            "total": 4294967295,
+            "lengthComputable": true
+          }
+        ],
+        "trigger": null,
+        "sendReturned": true,
+        "abortReturned": false,
+        "disposition": {
+          "reason": "source-changed",
+          "atMS": 77.19999998807907,
+          "deadlineMS": 8026.399999976158,
+          "listenersRemoved": 20,
+          "observerListenersRemaining": 0,
+          "mutationObserverDisconnected": true,
+          "pendingXHRAtWithdrawal": 1,
+          "pendingCreatesAtWithdrawal": 0
+        },
+        "nativeTerminal": {
+          "type": "loadend",
+          "trusted": true,
+          "originalInstance": true,
+          "status": 201
+        },
+        "pendingCreates": 0,
+        "listenersRemoved": 20,
+        "listenersRemaining": 0,
+        "pendingXHR": 0,
+        "normalCompletionHandlerRemoved": true,
+        "terminalEvent": "loadend"
+      },
+      "server": {
+        "requestID": "046cfcaa-f831-4ec1-8caa-a62a0d50864f",
+        "urlSHA256": "c4d8043dcb8d1ec044317172d787983198075c1af9c90a683934c5e1c59f78f3",
+        "declaredBytes": 7563763,
+        "bytesRead": 7563763,
+        "bytesSHA256": "13f35f7ec658107037fff61fefc61701052fe135650bf6d55a5e0127708619ed",
+        "originalPrefixSHA256": "13f35f7ec658107037fff61fefc61701052fe135650bf6d55a5e0127708619ed",
+        "prefixMatches": true,
+        "httpBodyComplete": true,
+        "ending": "complete",
+        "aborted": false,
+        "httpStatus": 201,
+        "requestClosed": true,
+        "creates": 1,
+        "puts": 1,
+        "pending": 0
+      }
+    },
+    {
+      "mode": "request-released",
+      "browser": {
+        "mode": "request-released",
+        "requestID": "46f254f3-8b5d-473a-a9a8-f118e946b6bd",
+        "urlSHA256": "ba3a661065755ff02a41371d11762b27099cb70645754b4f6f305f8f2a5fea1c",
+        "fileSHA256": "13f35f7ec658107037fff61fefc61701052fe135650bf6d55a5e0127708619ed",
+        "fileBytes": 7563763,
+        "createStatus": 201,
+        "counts": {
+          "input": 1,
+          "change": 1,
+          "create": 1,
+          "sends": 1,
+          "abortCalls": 0,
+          "formSubmit": 0,
+          "sendButton": 0
+        },
+        "inputEvents": [
+          {
+            "type": "input",
+            "trusted": true
+          },
+          {
+            "type": "change",
+            "trusted": true
+          }
+        ],
+        "events": [
+          {
+            "phase": "request",
+            "type": "readystatechange",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 42,
+            "readyState": 1,
+            "status": 0
+          },
+          {
+            "phase": "request",
+            "type": "loadstart",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 42,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 0,
+            "total": 0,
+            "lengthComputable": false
+          },
+          {
+            "phase": "upload",
+            "type": "loadstart",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 42,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 0,
+            "total": 4294967295,
+            "lengthComputable": true
+          }
+        ],
+        "trigger": null,
+        "sendReturned": true,
+        "abortReturned": false,
+        "disposition": {
+          "reason": "request-changed",
+          "atMS": 42.40000003576279,
+          "deadlineMS": 8023.300000011921,
+          "listenersRemoved": 20,
+          "observerListenersRemaining": 0,
+          "mutationObserverDisconnected": true,
+          "pendingXHRAtWithdrawal": 1,
+          "pendingCreatesAtWithdrawal": 0
+        },
+        "nativeTerminal": {
+          "type": "loadend",
+          "trusted": true,
+          "originalInstance": true,
+          "status": 201
+        },
+        "pendingCreates": 0,
+        "listenersRemoved": 20,
+        "listenersRemaining": 0,
+        "pendingXHR": 0,
+        "normalCompletionHandlerRemoved": true,
+        "terminalEvent": "loadend"
+      },
+      "server": {
+        "requestID": "46f254f3-8b5d-473a-a9a8-f118e946b6bd",
+        "urlSHA256": "ba3a661065755ff02a41371d11762b27099cb70645754b4f6f305f8f2a5fea1c",
+        "declaredBytes": 7563763,
+        "bytesRead": 7563763,
+        "bytesSHA256": "13f35f7ec658107037fff61fefc61701052fe135650bf6d55a5e0127708619ed",
+        "originalPrefixSHA256": "13f35f7ec658107037fff61fefc61701052fe135650bf6d55a5e0127708619ed",
+        "prefixMatches": true,
+        "httpBodyComplete": true,
+        "ending": "complete",
+        "aborted": false,
+        "httpStatus": 201,
+        "requestClosed": true,
+        "creates": 1,
+        "puts": 1,
+        "pending": 0
+      }
+    },
+    {
+      "mode": "pagehide",
+      "browser": {
+        "mode": "pagehide",
+        "requestID": "013311c9-b54d-4ded-bec9-738a58ac7678",
+        "urlSHA256": "99897371f5fb3df76a942b07bf66658faa64da0010e947a5d523a6564583233d",
+        "fileSHA256": "13f35f7ec658107037fff61fefc61701052fe135650bf6d55a5e0127708619ed",
+        "fileBytes": 7563763,
+        "createStatus": 201,
+        "counts": {
+          "input": 1,
+          "change": 1,
+          "create": 1,
+          "sends": 1,
+          "abortCalls": 0,
+          "formSubmit": 0,
+          "sendButton": 0
+        },
+        "inputEvents": [
+          {
+            "type": "input",
+            "trusted": true
+          },
+          {
+            "type": "change",
+            "trusted": true
+          }
+        ],
+        "events": [
+          {
+            "phase": "request",
+            "type": "readystatechange",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 43,
+            "readyState": 1,
+            "status": 0
+          },
+          {
+            "phase": "request",
+            "type": "loadstart",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 43,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 0,
+            "total": 0,
+            "lengthComputable": false
+          },
+          {
+            "phase": "upload",
+            "type": "loadstart",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 43,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 0,
+            "total": 4294967295,
+            "lengthComputable": true
+          }
+        ],
+        "trigger": null,
+        "sendReturned": true,
+        "abortReturned": false,
+        "disposition": {
+          "reason": "pagehide",
+          "atMS": 42.89999997615814,
+          "deadlineMS": 8024.800000011921,
+          "listenersRemoved": 20,
+          "observerListenersRemaining": 0,
+          "mutationObserverDisconnected": true,
+          "pendingXHRAtWithdrawal": 1,
+          "pendingCreatesAtWithdrawal": 0,
+          "pagehideTrusted": false
+        },
+        "nativeTerminal": {
+          "type": "loadend",
+          "trusted": true,
+          "originalInstance": true,
+          "status": 201
+        },
+        "pendingCreates": 0,
+        "listenersRemoved": 20,
+        "listenersRemaining": 0,
+        "pendingXHR": 0,
+        "normalCompletionHandlerRemoved": true,
+        "terminalEvent": "loadend"
+      },
+      "server": {
+        "requestID": "013311c9-b54d-4ded-bec9-738a58ac7678",
+        "urlSHA256": "99897371f5fb3df76a942b07bf66658faa64da0010e947a5d523a6564583233d",
+        "declaredBytes": 7563763,
+        "bytesRead": 7563763,
+        "bytesSHA256": "13f35f7ec658107037fff61fefc61701052fe135650bf6d55a5e0127708619ed",
+        "originalPrefixSHA256": "13f35f7ec658107037fff61fefc61701052fe135650bf6d55a5e0127708619ed",
+        "prefixMatches": true,
+        "httpBodyComplete": true,
+        "ending": "complete",
+        "aborted": false,
+        "httpStatus": 201,
+        "requestClosed": true,
+        "creates": 1,
+        "puts": 1,
+        "pending": 0
+      }
+    }
+  ],
+  "cleanup": {
+    "ownedHeadlessProcessGroupExited": true,
+    "disposableProfileRemoved": true,
+    "listenerClosed": true,
+    "pendingPUTs": 0
+  },
+  "limitations": "Native browser file selection and local HTTP. This does not exercise Riftlet AppKit, SQLite, a ChatGPT upload, or a ChatGPT failure card."
+}

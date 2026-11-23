@@ -4,6 +4,8 @@
 
 普通 Chrome 和 Edge 已在同一份 **1.0.8（61）** 签名候选上完成冷暖首图、各三组快速双图、真实非空原文与非折叠选区、已有附件保留。**发行仍受 G4 阻塞**。原图保留和 UNKNOWN 已有实站证据，原操作发生真实故障后显式重选并成功附加尚未得到证明。正式 PR #125 保持 Draft，公开稳定版本为 **1.0.5（31）**。[11:08 非作者最终发行裁决](evidence/build61/release-gate-after-both-selections.json)
 
+本轮用新的 7,921,752 字节系统截图，在自有收件服务测得一次整图 HTTP 201、一次部分传输后中断。非作者逐项复核了浏览器进度、服务端实收字节和原图。该对照具备可复算的证据，实站故障和恢复单独裁决。[独立传输复核](evidence/build61/medium-loopback-independent.json) · [当前 G4 报告](G4_FINAL_ACCEPTANCE.md)
+
 09:40，将已绑定的普通 Chrome 专窗放入当前显示器可见区域。AXRaise 和 Apple Events 激活均返回 0，原文档、编辑器及登录态有效。09:43，WindowServer 报告唯一原窗在屏上；系统截图组件的高层矩形覆盖屏幕，系统实际命中在中心和四个象限均指向原 Chrome 窗。旧 Edge 窗在两次同出生进程签名清单中均已消失。详细逐窗记录保存在私有验收档案。[窗口恢复与证据摘要](evidence/build61/original-window-recovery.json) · [逐窗元数据](evidence/build61/per-window-inventory.json)
 
 非作者从两份原始归档核验十四次 AppKit 输入、网页事件、原 PNG、既有卡及独立 START。Chrome 第七张的上传文件和预览编码字节与原 PNG 完全相同，浏览器对两者的全部 RGBA 像素核对一致。离线复验定位到同一 Display-P3 图片在 ColorSync 与 Chrome 下的 B 通道相差一个色阶，R、G、A 一致。[十四图独立复核](evidence/build61/independent-fourteen-uploads.json) · [色彩复验](evidence/build61/color-decoder-comparison.json) · [逐图时序](evidence/build61/rapid-event-timelines.json)
