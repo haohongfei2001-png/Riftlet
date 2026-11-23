@@ -15,7 +15,7 @@
 
 另一个可归属于原卡的明确失败用例证明，已收起的截图能重新出现在桌面，保留原 PNG，由新的点击完成一次附加。三份历史数据库的原件摘要、旧操作、旧收据与原 PNG 均通过独立审计。[历史数据库审计](evidence/build62/frozen-history-independent.json)
 
-真实 ChatGPT 上游具名失败卡和 HTTP 4xx 缺少实站证据。已批准的 1.0.8 恢复门槛采用上述产品级结果。同一正式签名包已通过普通 Chrome 与 Edge 三组快速双图、64 字符原文、12→40 非折叠选区和冷暖首图。隔离 31 经 Sparkle 更新为 62，两份在线数据库核对确认原 UNKNOWN、两条操作及其 START 全部保留。公开通道的核验单独记录。[实站与升级报告](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md) · [活动数据库独立核对](evidence/build62/staging-active-sqlite-independent.json)
+真实 ChatGPT 上游具名失败卡和 HTTP 4xx 缺少实站证据。已批准的 1.0.8 恢复门槛采用上述产品级结果。同一正式签名包已通过普通 Chrome 与 Edge 三组快速双图、64 字符原文、12→40 非折叠选区和冷暖首图。隔离 31 经 Sparkle 更新为 62，两份在线数据库核对确认原 UNKNOWN、两条操作及其 START 全部保留。公开 stable 更新采用另一份 31 副本，实际升级与重启后的原历史核验另有记录。[公开 stable 升级及前后 SQLite](evidence/build62/public-stable-upgrade.json)。[实站与升级报告](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md) · [活动数据库独立核对](evidence/build62/staging-active-sqlite-independent.json)
 
 build 59–61 的完整历史实验、当时的停止位置及逐轮证据链接保存在固定提交中。[完整历史 G4 报告](https://github.com/haohongfei2001-png/Riftlet/blob/ff380f90ccc586c90f561125d088428f7b0fd18e/docs/releases/1.0.8/G4_FINAL_ACCEPTANCE.md)
 
