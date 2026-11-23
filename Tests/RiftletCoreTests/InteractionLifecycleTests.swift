@@ -203,7 +203,7 @@ final class InteractionLifecycleTests: XCTestCase {
         _ = try await begin(db, asset, op: op)
         try await check(.handedOff, hasStart: true)
         _ = try await db.apply(receipt(op, asset, outcome: .unknown), policy: admitted)
-        try await check(.handedOff, hasStart: true)
+        try await check(.needsReview, hasStart: true)
         _ = try await db.apply(receipt(op, asset, outcome: .unknown, error: true), policy: admitted)
         try await check(.checkDraft, hasStart: true)
         _ = try await db.apply(receipt(op, asset, outcome: .verifiedReady), policy: admitted)
