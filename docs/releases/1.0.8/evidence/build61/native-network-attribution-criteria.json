@@ -1,0 +1,81 @@
+{
+  "absentBody": {
+    "label": "payloadHashUnavailable",
+    "negativeCases": "An unavailable request body or NO_POST_DATA is a measurement limitation. An empty digest, filename, size alone, or an input File SHA copied into a PUT field is not payload verification. Response bytes such as loadingFinished.encodedDataLength represent received data. A declared request length is independent of successful transfer.",
+    "noInventedRequirement": "Full PUT hash is optional only for the narrowed request-attribution claim authorized in the latest request. A UI or server-outcome claim still needs its own direct evidence. If server-side byte receipt is claimed, require actual server confirmation or equivalent direct evidence for those bytes.",
+    "permittedConclusion": "If all the matching source, creation, full destination, request length, original target, uniqueness and terminal checks hold, the reviewer can attribute that one PUT to the original upload action. Record separately the actual terminal status or browser failure.",
+    "unproven": [
+      "Exact PUT content or on-wire payload SHA-256",
+      "Whether equal-length different content was substituted or re-encoded",
+      "Number of body bytes actually sent or read by the server for a failed request",
+      "Durable provider storage, deduplication, or subsequent conversation completion"
+    ]
+  },
+  "criteriaForIndependentAttribution": [
+    "Signed build, original system PNG full SHA-256 and byte count, one AppKit click and a single original product input/change with the matching full File. Bind the original operation, invocation, browser birth/window/tab, debugger target, frame, loader and document; retain the original composer and draft generation.",
+    "Capture starts before the original action. The one creation POST must be attributable to that same action on that original document. Preserve the creation request identity, actual method, response status and timing. Its own response supplies exactly one upload destination. Filename, shared origin or timing alone is insufficient.",
+    "The one subsequent PUT uses the complete destination supplied in that response. Compare the destination values before redaction, and retain only their identical SHA-256 values and permitted non-sensitive origin labels. No truncated or query-stripped comparison can establish a unique presigned destination.",
+    "Keep the initiating target/frame/loader and request-hop/redirect lineage, compatible initiator and times in the same clock domain, explicit PUT method, and a matching Content-Length from the actual request. Reject competing creates/uploads, replay, unresolved redirect, service worker ambiguity, mismatched generation, fetch from a different target or an identifier reused across sessions. The destination digest and request ID play different roles.",
+    "Record the terminal of that specific PUT hop. Distinguish an actual HTTP response and completion, a browser loading failure with a reason and no observed HTTP status, a pre-send refusal and a server rejection. A created card and durable START independently support the product observations. A creation 200 proves only the creation-endpoint result."
+  ],
+  "frozenPageProgramSHA256": "2f6e2f6e1d80184813f6f967cc340638b96082abd5bd98c2f9e97b0597f982f2",
+  "gates": {
+    "G4A": "Qualifying positive named product failure on the same PNG, original operation/invocation, current original draft and uniquely attributable failed member/receipt. A general banner or naturally missing card does not establish this. Verify the applicable product recovery and new-click conditions before any credit; the latest instruction prohibits reattaching while the original card remains.",
+    "G4B": "A real upstream 4xx attached to the original upload request and correct source/service, then observed disappearance of that original card on the same original draft with original neighbors and no competing member, followed by an independently checked recovery. A 4xx on creation is a separate creation-stage refusal and does not establish a PNG PUT 4xx. Local 413, site-side validation, client ERR_BLOCKED/HTTP 0, ordinary expiry, and a published limit do not establish this gate. An individual written independent equivalence decision is required.",
+    "G4C": "A real target-scoped, authorized fault must first be attributable to the original site operation with a verified actual effect and stage. An already-in-flight request that later returns 201 was not interrupted. A request blocked before body is labelled CLIENT_REQUEST_BLOCKED_BEFORE_BODY. Preserve UNKNOWN, use the original card/member and draft checks, make the risk of duplicate remote storage explicit, and record a genuinely informed new AppKit click/reselection only when eligible. Distinct new operation/invocation/binding, same PNG/document/composer/generation, exactly one new input/change and START and a new visible attachment, before-and-after consistent SQLite, untouched old history, no auto replay, send or form submission are required.",
+    "release": "G4-C plus G4-A or independently approved G4-B. No live gate is granted by these criteria."
+  },
+  "historicalLargeSizeDecision": {
+    "publicFile": "historical-size-boundary.json",
+    "sha256": "f618ab545540cf33b0feca4bef75dc852a092a59c8988a61f18dd78e19fa1088"
+  },
+  "issuedAtUTC": "2026-11-23T06:45:58.842226+00:00",
+  "kind": "Prospective criteria, separate from each measured verdict",
+  "latestRequestSHA256": "f3e4e99a0eb5211c6a8ec3efbc85fa5c57fd4f5d533300bd983ad91f7d675c5e",
+  "officialReferences": [
+    {
+      "lines": {
+        "cookies": "575–580,769–772",
+        "enable": "1038 onward",
+        "extraInfo": "1706–1746",
+        "requestAndIDs": "39–43,176–197",
+        "requestBodyCommand": "1107–1114",
+        "terminalAndIdentity": "1277–1338,1364 onward"
+      },
+      "rawPDLSHA256": "55b16f8887a9f61b277676f243d5fc26278b4e1db622147f2802faf7256edfc7",
+      "revision": "Chromium 157.0.8103.79",
+      "url": "https://chromium.googlesource.com/chromium/src/+/refs/tags/157.0.8103.79/third_party/blink/public/devtools_protocol/domains/Network.pdl"
+    },
+    {
+      "inspectedSchemaSHA256": "31ff96c1f575b2b6cee875c9e85bed5eb9eb1553f36b9da444b2fa0f9188e476",
+      "url": "https://raw.githubusercontent.com/ChromeDevTools/devtools-protocol/master/json/browser_protocol.json"
+    },
+    {
+      "scope": "Browser UI network recording and default HAR behavior",
+      "url": "https://developer.chrome.com/docs/devtools/network/reference/#save-all-as-har"
+    },
+    {
+      "scope": "OpenAI documents 20 MB per image; enforcement point, method, error status and original object are not specified by that limit.",
+      "url": "https://help.openai.com/en/articles/8555545-uploading-files-and-audio-to-chatgpt"
+    }
+  ],
+  "privacyAndTarget": {
+    "historicalRule": "A localhost control has its own process, target and server custody. Reusing its successful associations or privacy claim for the signed-in website is not admissible.",
+    "limitsOfHAR": "Vendor default sanitization can remove some sensitive headers. It does not alone guarantee removal of signed URL query data, response bodies, names, or unrelated requests. No unfiltered HAR or export was examined.",
+    "noCookieAdmission": "A QA component that receives or materializes unsanitized event envelopes, header maps or cookie objects cannot attest to having received no credentials just by redacting its output. A normal browser may internally handle credentials. Independent evidence is needed that only allowlisted, original-target fields cross into the QA operator or extractor. A UI view, adapter or sanitized export may be considered only for the particular fields and target coverage it can actually substantiate.",
+    "ordinaryEvents": "Ordinary request data also includes headers, and response extra info may contain raw headers, rejected/exception cookie records and Set-Cookie. Neither a dedicated target nor a request-method filter renders raw protocol envelopes safe to hand to a QA collector.",
+    "protocolFieldLimits": "In the cited schema Network.enable offers no field-level suppression of cookies, headers or other data. The getResponseBody and getRequestPostData names are read commands, not spontaneous events. The latter can omit files in multipart and is not a guaranteed raw-body oracle.",
+    "requestExtraInfo": "The official contract contains a required associatedCookies array (potentially sent and blocked cookies), whose Cookie has name and value, plus a required raw outgoing headers map. It can arrive before or after its paired request; its absence is also permitted.",
+    "targetIdentity": "An origin string, tab title or selected window alone does not establish DevTools inspected the same enrolled target. An exact session/target/frame/document and continuity record is required, while other tabs remain unread. If the allowlisted source cannot establish request Content-Length or route/terminal, that association remains unresolved."
+  },
+  "productSourceAnchors": [
+    "chatgpt-web-20261027.js:1214,1250,1848,1861,1946,2146",
+    "docs/releases/1.0.8/G4_PROTOCOL_AND_STATE_MACHINE.md:11–26"
+  ],
+  "realSiteActionsByReviewer": 0,
+  "result": "CONDITIONAL_ACCEPTANCE_FOR_BOUND_REQUEST_IDENTITY_ONLY",
+  "reviewer": "Independent nonauthor source and evidence reviewer",
+  "schemaVersion": 1,
+  "signedBuild": 61,
+  "signedSource": "49b9204974088c1983cda469910d9a78d8f4c43b"
+}

@@ -1,0 +1,168 @@
+{
+  "conclusion": "In the two observed runs, enabling Offline after the server had consumed a prefix did not interrupt the original in-flight request. All three roles finished their 6 MiB bodies with HTTP 201 before the offline condition was removed. Fresh target requests failed while offline. Separately, an exact-resource block prevented the one target request from reaching the local server while the peer and independent client succeeded at the same exact URL.",
+  "families": [
+    {
+      "allPhasesAndCallerCases": 18,
+      "appendJournalSHA256": "a7b7e2501e10ceeb8dabc09d6d5acd4a249da5f0495ca3b58a867056d460d65a",
+      "browserUIOrRendererPIDMeasured": false,
+      "cleanup": {
+        "conditionRestoredOrNeverSet": true,
+        "exactResourceBlockClearedOrNeverSet": true,
+        "freshProfileRemoved": true,
+        "issuedServerRequestsStillOpen": 0,
+        "ownedProcessGroupExited": true,
+        "ownedTabsCloseAcknowledged": 2,
+        "serverListening": false,
+        "serverSockets": 0
+      },
+      "family": "Chrome",
+      "fixedExactURLBlock": {
+        "afterRuleRemovalTargetPeerClientHTTP": [
+          201,
+          201,
+          201
+        ],
+        "blockedReason": "inspector",
+        "independentClientSameExactURLHTTP": 201,
+        "matchingBrowserTerminal": "loadingFailed",
+        "peerSameExactURLHTTP": 201,
+        "serverBytes": 0,
+        "serverRequestEntries": 0,
+        "target": "CLIENT_REQUEST_BLOCKED_BEFORE_BODY"
+      },
+      "fullServerHashMatches": 16,
+      "inFlightHTTPStatusByRole": {
+        "client": 201,
+        "peer": 201,
+        "target": 201
+      },
+      "journalEventsIndependentlyJoined": 421,
+      "originalTargetAndPeerDifferentDocumentsAndSessions": true,
+      "peerAndIndependentClientNewWhileOffline": {
+        "http": [
+          201,
+          201
+        ],
+        "paths": "Same loopback origin, role-specific paths"
+      },
+      "product": "Chrome/157.0.8103.79",
+      "rawEventListSHA256": "44cd3b1f31c441bba0075f2d1212f68e91b5ea80ac4e5aa1bf6ac2bede3e2d7d",
+      "scopeLifecycleJournalSequences": {
+        "before-offline": 32,
+        "completed": 421,
+        "offline-applied": 35,
+        "online-restored": 355,
+        "release-in-flight-readers": 53,
+        "single-exact-resource-block-cleared": 397,
+        "single-exact-resource-block-enabled": 379
+      },
+      "serverActualBytesBeforeOffline": {
+        "client": 65396,
+        "peer": 65536,
+        "target": 64840
+      },
+      "serverFinalInFlightBytesByRole": {
+        "client": 6291456,
+        "peer": 6291456,
+        "target": 6291456
+      },
+      "targetNewWhileOffline": {
+        "browser": "ERR_INTERNET_DISCONNECTED",
+        "serverBytes": 0,
+        "serverRequestEntries": 0
+      }
+    },
+    {
+      "allPhasesAndCallerCases": 18,
+      "appendJournalSHA256": "69c04398f845e3873adb590b32cbe2926a36915d830a435d097f9fbac09d089f",
+      "browserUIOrRendererPIDMeasured": false,
+      "cleanup": {
+        "conditionRestoredOrNeverSet": true,
+        "exactResourceBlockClearedOrNeverSet": true,
+        "freshProfileRemoved": true,
+        "issuedServerRequestsStillOpen": 0,
+        "ownedProcessGroupExited": true,
+        "ownedTabsCloseAcknowledged": 2,
+        "serverListening": false,
+        "serverSockets": 0
+      },
+      "family": "Edge",
+      "fixedExactURLBlock": {
+        "afterRuleRemovalTargetPeerClientHTTP": [
+          201,
+          201,
+          201
+        ],
+        "blockedReason": "inspector",
+        "independentClientSameExactURLHTTP": 201,
+        "matchingBrowserTerminal": "loadingFailed",
+        "peerSameExactURLHTTP": 201,
+        "serverBytes": 0,
+        "serverRequestEntries": 0,
+        "target": "CLIENT_REQUEST_BLOCKED_BEFORE_BODY"
+      },
+      "fullServerHashMatches": 16,
+      "inFlightHTTPStatusByRole": {
+        "client": 201,
+        "peer": 201,
+        "target": 201
+      },
+      "journalEventsIndependentlyJoined": 423,
+      "originalTargetAndPeerDifferentDocumentsAndSessions": true,
+      "peerAndIndependentClientNewWhileOffline": {
+        "http": [
+          201,
+          201
+        ],
+        "paths": "Same loopback origin, role-specific paths"
+      },
+      "product": "Edg/158.0.4370.33",
+      "rawEventListSHA256": "32e9a263d85693a7b490cb4d5f5c81d718998bc5f87efbf74f01b236047c3b26",
+      "scopeLifecycleJournalSequences": {
+        "before-offline": 32,
+        "completed": 423,
+        "offline-applied": 35,
+        "online-restored": 357,
+        "release-in-flight-readers": 53,
+        "single-exact-resource-block-cleared": 399,
+        "single-exact-resource-block-enabled": 381
+      },
+      "serverActualBytesBeforeOffline": {
+        "client": 65396,
+        "peer": 64781,
+        "target": 16332
+      },
+      "serverFinalInFlightBytesByRole": {
+        "client": 6291456,
+        "peer": 6291456,
+        "target": 6291456
+      },
+      "targetNewWhileOffline": {
+        "browser": "ERR_INTERNET_DISCONNECTED",
+        "serverBytes": 0,
+        "serverRequestEntries": 0
+      }
+    }
+  ],
+  "fixtureSourceSHA256": {
+    "fixture.js": "72f344b3665aaba0350feeb0687692e8ce81a8b7f2ac36bb375ab6e7b1b18776",
+    "run.cjs": "36b37d74d427ed36936778177e94a1287498ee05d34d673327d7e559b343f6a2"
+  },
+  "gates": {
+    "G4A": "HOLD",
+    "G4B": "HOLD",
+    "G4C": "HOLD",
+    "release": "NOT_RELEASED"
+  },
+  "limits": [
+    "Source and server covered fixed loopback POSTs using synthetic bytes. This was not an authenticated provider PUT, an image upload, a real product click, an unsupported-policy work-around, or evidence that site controls have the same scope.",
+    "The fixed-URL block proves local refusal before any request reached that server. A site-side pre-body refusal must not be treated as a partial upload or upstream rejection. The other two clients sharing the same exact URL were checked in the fixed-block phase. Offline used distinct role-specific paths.",
+    "No visible panel operation, renderer PID mapping or whole-host/whole-browser traffic inspection was measured. This control supplies no real-site gate credit."
+  ],
+  "measurement": "Two disposable vendor headless processes. Both target and peer were dedicated controlled tabs of the same owned process and a third, independent client used the owned loopback server. The raw journals were compared with JSON arrays and compressed custody exports. Each server chunk accumulation, deterministic synthetic body digest, terminal and closure was rechecked.",
+  "rawReceiptSHA256": "055b563fe5cb1e496c015d0d4c425d729d3d5e149a4e92a5a50657f3bee6e2c0",
+  "result": "PASS_OWNED_LOCAL_CONTROL_SCOPE_ONLY",
+  "reviewedAtUTC": "2026-11-23T06:49:28.602677+00:00",
+  "reviewer": "Independent nonauthor reviewer of original logs and frozen QA source",
+  "schemaVersion": 1
+}

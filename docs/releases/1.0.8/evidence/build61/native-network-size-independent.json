@@ -1,0 +1,133 @@
+{
+  "candidateSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "checkedAttributionMethod": "Only original records were consulted. No new browser or upload was used.",
+  "gates": {
+    "G4A": "HOLD_NO_NAMED_FAILURE",
+    "G4B": "HOLD_NO_ATTRIBUTED_GENUINE_4XX_OR_ORIGINAL_CARD_LOSS",
+    "G4C": "HOLD_NO_TARGET_SCOPED_CONTROLLED_FAILURE_OR_EXPLICIT_RECOVERY",
+    "release": "NOT_RELEASED"
+  },
+  "immutableLedger": {
+    "counts": {
+      "assets": 1,
+      "attachment_reselections": 0,
+      "operations": 1,
+      "upload_starts": 0
+    },
+    "newRecoveryInput": 0,
+    "operationPhase": "unknown",
+    "originalReceipt": "inputTriggered",
+    "safeToRetry": false,
+    "sameOriginalInvocationTargetAndPNG": true,
+    "sameRowsAcrossCopies": true,
+    "verifiedDatabaseCopies": 4
+  },
+  "network": {
+    "attributedActualPUTStatus": null,
+    "controlledFaults": 0,
+    "createPOSTMethod": null,
+    "createResponseOrSignedDestinationDigest": null,
+    "description": "The original page recorded creation-endpoint fetch timing/status 200, then processing-stream timing without a status. The raw timing entries have no method or creation-response destination. The raw records cannot decide whether there was a POST, a byte-carrying PUT, or an HTTP 413 for this upload.",
+    "directBrowserRequestIDsCaptured": 0,
+    "namedUpstreamFailure": false,
+    "originalPUTMethodOrFullBodyOrLength": null,
+    "originalResourceTimingRows": [
+      {
+        "initiatorType": "fetch",
+        "pageClockMS": 16554,
+        "publicPath": "/backend-api/files",
+        "responseStatus": 200
+      },
+      {
+        "initiatorType": "fetch",
+        "pageClockMS": 35408,
+        "publicPath": "/backend-api/files/process_upload_stream",
+        "responseStatus": null
+      }
+    ],
+    "server413Proven": false,
+    "siteLocalPrevalidationCause": null,
+    "uniqueOriginalPUTRequestID": null
+  },
+  "page": {
+    "actualTransportTranscoding": null,
+    "counts": {
+      "fileChange": 1,
+      "fileInput": 1,
+      "formSubmit": 0,
+      "sendButtonClicks": 0
+    },
+    "firstDecodedPreviewSampleZeroBased": 34,
+    "firstNamedCardSampleZeroBased": 10,
+    "hashAndBytesAtBothOriginalFileEventsMatchSource": true,
+    "independentFullPreviewPixelsMatchSource": null,
+    "inputAndChangePageClockMS": [
+      16263,
+      16268
+    ],
+    "lastConfirmedNamedVisiblePreviewDimensions": [
+      2048,
+      2002
+    ],
+    "lateReadStatus": "ORIGINAL_DOCUMENT_READ_NOT_AVAILABLE",
+    "lateReadUTC": "2026-11-23T02:41:05Z",
+    "originalCardDisappearedInObservedWindow": false,
+    "originalCardStillPresentAtLateRead": null,
+    "originalRouteReadRefused": "ORIGINAL_TEMPORARY_TAB_REQUIRED",
+    "previewResizedRelativeToSource": true,
+    "priorRecordedWindow": {
+      "finalPageArchiveUTC": "2026-11-23T02:22:55.772438+00:00",
+      "firstArchiveUTC": "2026-11-23T02:22:25.306533+00:00",
+      "firstFileInputReceiptPageClockMS": 16263,
+      "firstNamedDecodedPreviewSample": 34,
+      "firstNamedMemberSample": 10,
+      "lastArchiveUTC": "2026-11-23T02:22:54.857054+00:00",
+      "lastDistinctDOMShapePageClockMS": 36613,
+      "monotonicDurationSeconds": 29.549622374994215,
+      "sampleCount": 37
+    },
+    "qualifyingNamedFailures": 0,
+    "sameOriginalDocumentAndEditorAcrossSamples": 37,
+    "warningClasses": 0
+  },
+  "productPageProgramSHA256": "2f6e2f6e1d80184813f6f967cc340638b96082abd5bd98c2f9e97b0597f982f2",
+  "result": "RETAIN_ORIGINAL_UNKNOWN_NO_REQUEST_ATTRIBUTION_OR_RECOVERY",
+  "reviewedAtUTC": "2026-11-23T06:44:42.340284+00:00",
+  "reviewer": "Independent nonauthor source and original-evidence reviewer",
+  "schemaVersion": 1,
+  "signedDMGSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "sourcePNG": {
+    "bytes": 23233638,
+    "dimensions": [
+      2880,
+      2816
+    ],
+    "freshCaptureInThisHistoricalB4Run": false,
+    "originalCaptureUTC": "2026-11-22T21:58:03.195363+00:00",
+    "originalSourceCopyArchivedFileAndPrivateAppMediaFullFileMatch": true,
+    "provenance": "Previously sealed native QA-owned system screenshot delivered to the isolated signed product file watcher. It is not a new size-boundary screenshot for this round.",
+    "sha256": "ac2ae9502b81ac77a4f6883ca1eaef7c5f421a9d7e863a0a150dabc6fbaaa500",
+    "systemCaptureXattrOnOriginalAndSourceCopy": true
+  },
+  "sources": {
+    "37SortedSampleHashesSHA256": "6cfd144e05e7f1f8331f0c4cfdf124d4d77d5f9c51164a9eaf6d29057fec3307",
+    "captureDeliveryReceiptSHA256": "831a31f5ec70711a2a23ab53e32db98ff8a91dab96d5f239ede6863aa9fccac8",
+    "captureSourceReceiptSHA256": "db17ea0a394bc78cca05a75137dedd75179a33c64c2a85edabd41ceb4e5e8fba",
+    "frozenEarlyAndFinalPageSHA256": [
+      "d4283f3e2cb48f2988f70c2e618212262b312b84e8cd846d4e81dd889d7e76df",
+      "2d539c7e8ead625219859c02515297d476514e11d9eb39fc1d80581d799837b8"
+    ],
+    "lateReadSHA256": "867940de93becd106e534c1278d32b6cdf34289d7350cb409275f613745cd4e2",
+    "networkAssessmentSHA256": "0bc1b14907272be84f74d5d6c3c34e1b332b28c2ea8f8128831f5a02b0c80aef",
+    "originalArchiveSHA256": "ed47dede1567539345a000234f10209f1f9974c77a6b5d0b1c9cff73a8723083",
+    "originalAuditSHA256": "f192534a7ae767e2a7d61c5bc4f0b7e37e75e27d4289c731ead2e83aaf22e691",
+    "ownershipRecordSHA256": "7cb45dc185d2c50bd00431f42f7c135e377d8ca5ddbd1db65497bcb648d84a67",
+    "regularArchiveFilesRead": 104,
+    "snapshotSHA256": {
+      "before-any-recovery.sqlite": "0b8b98bbf5ec4966ea8d5efa4d6947f292195443f1770b595689f8a501d1fe2c",
+      "late-before-any-recovery.sqlite": "0b8b98bbf5ec4966ea8d5efa4d6947f292195443f1770b595689f8a501d1fe2c",
+      "reviewer-after-hold.sqlite": "0b8b98bbf5ec4966ea8d5efa4d6947f292195443f1770b595689f8a501d1fe2c",
+      "reviewer-predecision.sqlite": "0b8b98bbf5ec4966ea8d5efa4d6947f292195443f1770b595689f8a501d1fe2c"
+    }
+  }
+}

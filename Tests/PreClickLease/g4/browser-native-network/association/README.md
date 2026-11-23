@@ -1,0 +1,9 @@
+# Native request identity on an owned upload
+
+The fixture generates one valid PNG, selects it once in an authored local document and serves one creation response and one upload on loopback. The browser runs in a new account-free profile over its inherited pipe. The runner accepts no addresses, files, target identifiers or connection arguments. The browser recorder sees events only from the fixture session. It receives ordinary protocol envelopes in that process. Authenticated profiles are outside the scope of this fixture.
+
+Run `node run.cjs` on macOS. Each browser gets its own result. The process returns a nonzero exit if either installed application fails verification or a required assertion fails.
+
+On Chrome 157, one creation request returned 200. The full destination from that response matched the destination of one later PUT from the same frame, loader and document. The PUT had a request Content-Length of 110,882 and completed with HTTP 201. In the recorded event sequence the create response preceded the PUT request. Network event timestamps describe different measurement points, so delivery sequence is also retained. The server independently measured and hashed all 110,882 received bytes. The browser returned `NO_POST_DATA` on its single lookup, with no inline body entries. Its PUT payload hash remains unknown. [Recorded local result](../../../../../docs/releases/1.0.8/evidence/build61/native-network-association.json)
+
+The Edge run stopped before launching a profile when macOS could not validate the installed application bundle. A separate static verification identified the missing sealed widget extension. The two-browser condition-scope experiment has its own execution records. [Installed signature check](../../../../../docs/releases/1.0.8/evidence/build61/native-network-installed-signatures.json) · [Condition experiment](../scope/README.md)
