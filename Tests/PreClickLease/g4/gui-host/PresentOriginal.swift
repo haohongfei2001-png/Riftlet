@@ -146,7 +146,7 @@ import Foundation
     @MainActor static func execute(_ result: inout Row) throws {
         var args = Array(CommandLine.arguments.dropFirst())
         let mode = args.count == 2 ? "present" : (args.isEmpty ? "" : args.removeFirst())
-        try require(args.count == 2 && ["present", "place"].contains(mode), "USE_PRESENT_OR_PLACE_WITH_ENROLLED_SCOPE")
+        try require(args.count == 2 && ["present", "place", "restore"].contains(mode), "ENROLLED_PRESENTATION_MODE_REQUIRED")
         let state = URL(fileURLWithPath: args[0], isDirectory: true), family = args[1]
         let c = try read(state, "creation.json"), before = try read(state, "before.json"), local = try read(state, "challenge.json")
         guard let vendor = Identity.families[family], c["family"] as? String == family, let pid = c["pid"] as? Int32,
@@ -219,16 +219,75 @@ import Foundation
             _ = try Owned.request(proc, "core", "setd", ["----": property, "data": value])
             result[flag + "ReturnOSStatus"] = 0
         }
-        func matchingAX() throws -> AXUIElement {
+        func matchingAX(complete: Bool = false) throws -> AXUIElement {
             let frame = try bounds(win)
             try require(try !peerBounds().contains(where: { same($0, frame) }), "NATIVE_FRAME_AMBIGUOUS")
             guard let windows = ax(AXUIElementCreateApplication(pid), kAXWindowsAttribute) as? [AXUIElement] else {
                 throw Identity.Refusal("AX_WINDOWS_UNAVAILABLE")
             }
-            let exact = windows.filter { ax($0, kAXRoleAttribute) as? String == "AXWindow" &&
-                ax($0, kAXSubroleAttribute) as? String == "AXStandardWindow" && axFrame($0).map { same($0, frame) } == true }
+            var exact = [AXUIElement]()
+            for candidate in windows {
+                let role = ax(candidate, kAXRoleAttribute) as? String
+                if complete { try require(role != nil, "AX_WINDOW_ROLE_UNAVAILABLE") }
+                guard role == "AXWindow" else { continue }
+                let subrole = ax(candidate, kAXSubroleAttribute) as? String
+                if complete { try require(subrole != nil, "AX_WINDOW_SUBROLE_UNAVAILABLE") }
+                guard subrole == "AXStandardWindow" else { continue }
+                let observed = axFrame(candidate)
+                if complete { try require(observed != nil, "AX_WINDOW_BOUNDS_UNAVAILABLE") }
+                if let observed, same(observed, frame) { exact.append(candidate) }
+            }
             guard exact.count == 1 else { throw Identity.Refusal(exact.isEmpty ? "AX_FRAME_MISSING" : "AX_FRAME_AMBIGUOUS") }
             return exact[0]
+        }
+        func minimized() throws -> Bool {
+            let value = try Identity.get(proc, Identity.property("pmnd", win))
+            try require([typeTrue, typeFalse, typeBoolean].contains(value.descriptorType), "MINIMIZED_STATE_UNAVAILABLE")
+            return value.booleanValue
+        }
+        // Identify a missing screen surface by the native bounds, peer inventory,
+        // and actual CG window number. A private Space identifier is never needed.
+        func offscreenOriginal() throws -> (CGRect, CGWindowID) {
+            try check()
+            let activeInOriginal = try ChromeActiveTabDescriptor.identity(in: Identity.get(proc, Identity.property("acTa", win)))
+            try require(activeInOriginal?.window == wid && activeInOriginal?.tab == tid, "ORIGINAL_WINDOW_ACTIVE_TAB_CHANGED")
+            let frame = try bounds(win)
+            try require(!app.isHidden && (try !minimized()), "WINDOW_HIDDEN_OR_MINIMIZED")
+            guard let primary = NSScreen.screens.first(where: {
+                ($0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value == CGMainDisplayID()
+            }) else { throw Identity.Refusal("NO_PRIMARY_DISPLAY") }
+            let inVisibleFrame = NSScreen.screens.contains { screen in
+                let visible = screen.visibleFrame
+                let quartz = CGRect(x: visible.minX, y: primary.frame.maxY - visible.maxY,
+                                    width: visible.width, height: visible.height)
+                return quartz.contains(frame)
+            }
+            try require(inVisibleFrame, "WINDOW_OUTSIDE_VISIBLE_FRAME")
+            do {
+                _ = try matchingAX(complete: true)
+                throw Identity.Refusal("AX_ORIGINAL_ALREADY_AVAILABLE")
+            } catch let error as Identity.Refusal where error.reason == "AX_FRAME_MISSING" {}
+            func surfaces(_ options: CGWindowListOption) throws -> [(CGWindowID, CGRect)] {
+                guard let rows = CGWindowListCopyWindowInfo([options, .excludeDesktopElements], kCGNullWindowID) as? [Row] else {
+                    throw Identity.Refusal("WINDOWSERVER_UNAVAILABLE")
+                }
+                var regular = [(CGWindowID, CGRect)]()
+                for row in rows where (row[kCGWindowOwnerPID as String] as? Int32) == pid {
+                    guard let layer = row[kCGWindowLayer as String] as? Int else { throw Identity.Refusal("CG_LAYER_UNAVAILABLE") }
+                    guard layer == 0 else { continue }
+                    guard let id = row[kCGWindowNumber as String] as? CGWindowID, id != kCGNullWindowID,
+                          let dict = row[kCGWindowBounds as String] as? NSDictionary,
+                          let candidate = CGRect(dictionaryRepresentation: dict) else { throw Identity.Refusal("CG_WINDOW_UNREADABLE") }
+                    regular.append((id, candidate))
+                }
+                return regular
+            }
+            let all = try surfaces(.optionAll).filter { same($0.1, frame) }
+            guard all.count == 1, let number = all.first?.0,
+                  try !surfaces(.optionOnScreenOnly).contains(where: { $0.0 == number || same($0.1, frame) }) else {
+                throw Identity.Refusal("NO_UNIQUE_OFFSCREEN_ORIGINAL_CG_WINDOW")
+            }
+            return (frame, number)
         }
         func raiseOriginal(record flag: String) throws {
             try check()
@@ -246,7 +305,77 @@ import Foundation
         result["beforeSelected"] = try selected()
         result["beforeForeground"] = foreground()
         result["beforeBounds"] = coords(try bounds(win))
-        if try Identity.get(proc, Identity.property("pmnd", win)).booleanValue {
+        if mode == "restore" {
+            // Exclusive intent survives a lost reply or process exit. Re-entry can
+            // only undo this exact window's minimization, never toggle it again.
+            let claimName = "original-window-restore-intent.json"
+            let claim = state.appendingPathComponent(claimName)
+            let owner = ["family": family, "birth": birth, "window": wid, "tab": tid,
+                         "document": entry?["entryID"] as? String ?? marker]
+            let done = state.appendingPathComponent("original-window-restore-complete.json")
+            let proofName = "original-window-minimized-readback.json"
+            func finishRestore() throws {
+                try original()
+                if try minimized() {
+                    // Every path that may issue the compensating setter comes
+                    // through this exact-origin, time-limited positive readback.
+                    let proof = try read(state, proofName)
+                    let age = ProcessInfo.processInfo.systemUptime - (proof["atUptime"] as? Double ?? -.infinity)
+                    try require(proof["owner"] as? [String: String] == owner && age >= 0 && age <= 15,
+                                "INTERRUPTED_MINIMIZE_OWNERSHIP_UNCONFIRMED")
+                    try check()
+                    try require(try minimized(), "MINIMIZED_STATE_CHANGED_BEFORE_UNDO")
+                    let undo = state.appendingPathComponent("original-window-undo-intent.json")
+                    try require(!FileManager.default.fileExists(atPath: undo.path), "PRIOR_RESTORE_REPLY_UNCONFIRMED")
+                    let intent: Row = ["owner": owner, "utc": ISO8601DateFormatter().string(from: Date())]
+                    try JSONSerialization.data(withJSONObject: intent).write(to: undo, options: .withoutOverwriting)
+                    try setWindow("pmnd", .init(boolean: false), record: "undoMinimizeIssued")
+                    settle()
+                }
+                try original()
+                let ended = try minimized()
+                result["minimizedAtEnd"] = ended
+                try require(!ended, "RESTORE_MINIMIZED_READBACK_FAILED")
+                let completion: Row = ["owner": owner, "minimized": ended, "utc": ISO8601DateFormatter().string(from: Date())]
+                try JSONSerialization.data(withJSONObject: completion).write(to: done, options: .withoutOverwriting)
+            }
+            if FileManager.default.fileExists(atPath: claim.path) {
+                let saved = try read(state, claimName)
+                try require(saved["owner"] as? [String: String] == owner, "RESTORE_OWNER_CHANGED")
+                result["cleanupOnly"] = true
+                if FileManager.default.fileExists(atPath: done.path) {
+                    let completed = try read(state, done.lastPathComponent)
+                    try require(completed["owner"] as? [String: String] == owner &&
+                                completed["minimized"] as? Bool == false, "RESTORE_COMPLETION_UNREADABLE")
+                    result["alreadyRestored"] = true
+                } else { try finishRestore() }
+                return
+            }
+            let first = try offscreenOriginal()
+            let intent: Row = ["owner": owner, "utc": ISO8601DateFormatter().string(from: Date())]
+            try JSONSerialization.data(withJSONObject: intent).write(to: claim, options: .withoutOverwriting)
+            // pidx is addressed only to the immutable original. Its native active
+            // tab is reconfirmed even if the application-level front window differs.
+            try setWindow("pidx", .init(int32: 1), record: "selectionRequestIssued")
+            settle()
+            let second = try offscreenOriginal()
+            try require(first.0 == second.0 && first.1 == second.1, "OFFSCREEN_ORIGINAL_CHANGED")
+            result["offscreenOriginalCGID"] = second.1
+            result["selectedAfterIndexRequest"] = try selected()
+            try setWindow("pmnd", .init(boolean: true), record: "minimizeIssued")
+            settle()
+            try original()
+            let observed = try minimized()
+            result["minimizedReadback"] = observed
+            try require(observed, "MINIMIZE_READBACK_FAILED")
+            let readback: Row = ["owner": owner, "atUptime": ProcessInfo.processInfo.systemUptime]
+            try JSONSerialization.data(withJSONObject: readback).write(to: state.appendingPathComponent(proofName), options: .withoutOverwriting)
+            try finishRestore()
+            result["originalSelected"] = try selected()
+            result["systemForeground"] = foreground()
+            result["endingBounds"] = coords(try bounds(win))
+            return
+        } else if try minimized() {
             try setWindow("pmnd", .init(boolean: false), record: "restoreMinimizedIssued")
             settle()
         }
