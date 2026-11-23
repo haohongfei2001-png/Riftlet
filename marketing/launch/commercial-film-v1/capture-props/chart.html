@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>分日访问量</title>
+<style>
+:root{color-scheme:light;background:#dce7df}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:grid;place-items:center;padding:5vmin}
+main{width:min(960px,100%,134vh);line-height:0;background:#f7f7ef;box-shadow:0 12px 40px #243e2a15}
+img{display:block;width:100%;height:auto}
+</style>
+<main><img id="trend" src="trend-zh-CN.svg" width="960" height="600" alt="周一到周五的分日访问量为 86、91、54、78 和 95 次。"></main>
+<script>
+if(new URLSearchParams(location.search).get('lang')==='en'){
+ document.documentElement.lang='en';
+ document.title='Visits by day';
+ const graph=document.getElementById('trend');
+ graph.src='trend-en.svg';
+ graph.alt='Visits from Monday to Friday were 86, 91, 54, 78 and 95.';
+}
+</script>
+</html>

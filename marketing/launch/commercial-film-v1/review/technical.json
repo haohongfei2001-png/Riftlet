@@ -1,0 +1,110 @@
+[
+  {
+    "file": "film/zh-CN/master.mp4",
+    "sha256": "15b691cdb4cb75e0e2c80a82ed21c7e6ad82dbf17bc00e10a006256aff107169",
+    "size_bytes": 2651775,
+    "dimensions": [
+      1920,
+      1080
+    ],
+    "duration_seconds": 20,
+    "frame_count": 600,
+    "fps": 30,
+    "video_codec": "H.264",
+    "pixel_format": "yuv420p",
+    "profile": "High",
+    "encoded_colour_tags": {
+      "matrix_coefficients": 1,
+      "colour_primaries": 2,
+      "transfer_characteristics": 2,
+      "range": 1
+    },
+    "fast_start": true,
+    "audio_codec": "AAC stereo",
+    "sample_rate": 48000,
+    "decoded_audio_samples": 960000,
+    "integrated_lufs": -16.0,
+    "true_peak_dbtp": -3.2
+  },
+  {
+    "file": "film/en/master.mp4",
+    "sha256": "82589a1294c867b1134e8673e4464e351fabae5af70bf1a65c35ad73a0b1976a",
+    "size_bytes": 3019811,
+    "dimensions": [
+      1920,
+      1080
+    ],
+    "duration_seconds": 20,
+    "frame_count": 600,
+    "fps": 30,
+    "video_codec": "H.264",
+    "pixel_format": "yuv420p",
+    "profile": "High",
+    "encoded_colour_tags": {
+      "matrix_coefficients": 1,
+      "colour_primaries": 2,
+      "transfer_characteristics": 2,
+      "range": 1
+    },
+    "fast_start": true,
+    "audio_codec": "AAC stereo",
+    "sample_rate": 48000,
+    "decoded_audio_samples": 960000,
+    "integrated_lufs": -16.0,
+    "true_peak_dbtp": -3.2
+  },
+  {
+    "file": "film/zh-CN/vertical.mp4",
+    "sha256": "a0670fffc2c7791ffad97f4f7638d2c2e6da09311e30d2bf4c098e1a2e62b8ac",
+    "size_bytes": 1762304,
+    "dimensions": [
+      1080,
+      1920
+    ],
+    "duration_seconds": 15,
+    "frame_count": 450,
+    "fps": 30,
+    "video_codec": "H.264",
+    "pixel_format": "yuv420p",
+    "profile": "High",
+    "encoded_colour_tags": {
+      "matrix_coefficients": 1,
+      "colour_primaries": 2,
+      "transfer_characteristics": 2,
+      "range": 1
+    },
+    "fast_start": true,
+    "audio_codec": "AAC stereo",
+    "sample_rate": 48000,
+    "decoded_audio_samples": 720000,
+    "integrated_lufs": -16.3,
+    "true_peak_dbtp": -3.2
+  },
+  {
+    "file": "film/en/vertical.mp4",
+    "sha256": "e7e976e894d9c901a0fbca528f519612288c51f9e79d5e2c7f8d811c2708719a",
+    "size_bytes": 2342361,
+    "dimensions": [
+      1080,
+      1920
+    ],
+    "duration_seconds": 15,
+    "frame_count": 450,
+    "fps": 30,
+    "video_codec": "H.264",
+    "pixel_format": "yuv420p",
+    "profile": "High",
+    "encoded_colour_tags": {
+      "matrix_coefficients": 1,
+      "colour_primaries": 2,
+      "transfer_characteristics": 2,
+      "range": 1
+    },
+    "fast_start": true,
+    "audio_codec": "AAC stereo",
+    "sample_rate": 48000,
+    "decoded_audio_samples": 720000,
+    "integrated_lufs": -16.3,
+    "true_peak_dbtp": -3.2
+  }
+]

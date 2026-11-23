@@ -1,0 +1,27 @@
+1
+00:00:00,000 --> 00:00:01,299
+One more chart.
+
+2
+00:00:01,300 --> 00:00:02,932
+Take a Mac screenshot.
+
+3
+00:00:02,933 --> 00:00:04,799
+Click its edge thumbnail.
+
+4
+00:00:04,800 --> 00:00:06,932
+Now attached. Same draft.
+
+5
+00:00:06,933 --> 00:00:10,632
+Keep writing. Send when ready.
+
+6
+00:00:10,633 --> 00:00:12,049
+No file hunting. No dragging.
+
+7
+00:00:12,050 --> 00:00:15,000
+Riftlet for Mac · riftlet.com
