@@ -1,0 +1,24 @@
+{
+  "chrome": {
+    "assets": 1,
+    "candidateSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+    "consistentDatabaseSHA256": "3b9b56d086899aedd0f0727a37057323e40f3f9474d0948c0f6af3cba3c24654",
+    "distinctOriginalPNGs": 1,
+    "operations": 0,
+    "privateCandidateExited": true,
+    "privateOriginalArchiveSHA256": "7c228e73edd1dc90c8f5f503379054d531a54bde9c999f439d568db2422c6ecc",
+    "selectionPreservationClaim": false,
+    "uploadStarts": 0
+  },
+  "edge": {
+    "assets": 2,
+    "candidateSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+    "consistentDatabaseSHA256": "990f836c2352b6d19b2cc6095ef4406aa4cfdcc4871c1d0b1eaedb7aaff98f8f",
+    "distinctOriginalPNGs": 2,
+    "operations": 1,
+    "privateCandidateExited": true,
+    "privateOriginalArchiveSHA256": "1c44179d296542e7705beba8aac95f07ba6730471a43eace602f230f6e596317",
+    "selectionPreservationClaim": false,
+    "uploadStarts": 1
+  }
+}

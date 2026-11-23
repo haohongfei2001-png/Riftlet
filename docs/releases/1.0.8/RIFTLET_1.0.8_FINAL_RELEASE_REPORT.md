@@ -2,7 +2,7 @@
 
 **RIFTLET 1.0.8 — NOT RELEASED**
 
-当前候选是 **1.0.8（61）**。独立审查重现了 build 60 从截图仓库返回同一草稿时的故障，显式重选会在文件输入前被拒。build 61 修复了这个路径，完成同源双架构 CI、签名公证、独立安装及源码审查。10:50 的非作者综合复核维持 **NOT RELEASED**。[综合裁决](evidence/build61/release-gate-at-1050.json)普通 Chrome 和 Edge 各完成本包七张实站输入。独立复核确认两者均通过冷暖首图及三组快速双图。公开稳定版本为 **1.0.5（31）**。
+普通 Chrome 和 Edge 已在同一份 **1.0.8（61）** 签名候选上完成冷暖首图、各三组快速双图、真实非空原文与非折叠选区、已有附件保留。**发行仍受 G4 阻塞**。原图保留和 UNKNOWN 已有实站证据，原操作发生真实故障后显式重选并成功附加尚未得到证明。正式 PR #125 保持 Draft，公开稳定版本为 **1.0.5（31）**。
 
 09:40，将已绑定的普通 Chrome 专窗放入当前显示器可见区域。AXRaise 和 Apple Events 激活均返回 0，原文档、编辑器及登录态有效。09:43，WindowServer 报告唯一原窗在屏上；系统截图组件的高层矩形覆盖屏幕，系统实际命中在中心和四个象限均指向原 Chrome 窗。旧 Edge 窗在两次同出生进程签名清单中均已消失。详细逐窗记录保存在私有验收档案。[窗口恢复与证据摘要](evidence/build61/original-window-recovery.json) · [逐窗元数据](evidence/build61/per-window-inventory.json)
 
@@ -10,7 +10,11 @@
 
 同一签名候选随后在另一专用 Edge 原稿输入了 23,233,638 字节的真实系统截图。完整网站 File 的 SHA-256 与原 PNG 一致，观察到一次 input 和 change。SQLite 保留一个 UNKNOWN，START 为零。该草稿仍显示同名 2048×2002 预览，尚无具名失败或可归属的上游 HTTP 状态。非作者确认早期进度节点已更换，原附件的同名预览和移除按钮仍在。02:26 和 02:32 UTC 的两次一致性备份字节相同，均早于任何恢复输入。[实站边界与原操作](evidence/build61/size-boundary-unknown.json) · [独立裁决](evidence/build61/size-boundary-independent.json)
 
-非空选区另行取证。新建的 Chrome 专窗在本地挑战页和 Temporary Chat 均通过了前台身份核验。签名 App 收到一次准备旧附件的 mouseDown；三次预绑定均未就绪，含一次 Apple Events 超时。产品在文件输入前返回 `adapterUnavailable`，网页和 SQLite 均为零输入、零操作。这次没有建立待测原文或选区。Edge 的补验已取得一次旧附件输入和 START，第二张在准备阶段仍未投递。[Chrome 拒绝证据](evidence/build61/chrome-seed-refused-before-input.json) · [Edge 两张图片的独立状态](evidence/build61/edge-seed-and-pending-selection.json)
+较早的独立准备实验留下两种可区分的结果。Chrome 收到一次真实 AppKit mouseDown，三次预绑定均未就绪，其中一次 Apple Events 超时。产品在文件输入前返回 `adapterUnavailable`，网页收到零次输入，SQLite 新增零个操作。Edge 的早期种子有一次输入及一条 START，第二张在准备阶段停止。两轮原图和快照均已私有封存。[Chrome 准备记录](evidence/build61/chrome-seed-refused-before-input.json) · [Edge 准备记录](evidence/build61/edge-seed-and-pending-selection.json) · [私有原件摘要](evidence/build61/selection-initial-seed-custody.json)
+
+正式选区补验分别使用新专窗与独立的新图片。第一张形成既有附件，随后在网页原编辑器输入 64 个字符的未发送原文并选中 `preserve this original draft`。第二张的 AppKit mouseDown 触发了一次文件输入及一条持久 START。两个浏览器都保留了逐字符相同的原文、原编辑器、原 Document、原附件及同一前向非折叠选区（anchor 12、focus 40）。两轮均记录零发送与零提交。[Chrome 非作者选区审计](evidence/build61/chrome-selected-draft-independent.json) · [Edge 非作者选区审计](evidence/build61/edge-selected-draft-independent.json) · [正式实站原件摘要](evidence/build61/selected-draft-private-custody.json)
+
+网页观察器在正式附加前后读取到相同的网页代际、全文、选区端点对象与方向。Chrome 终态网页仍聚焦，键盘焦点已离开编辑器；Edge 终态键盘焦点仍在编辑器。第二张图的产品 draftGeneration 可由点击前签票的摘要、实际冻结、消费、SQLite 原操作及 START 回溯。两个浏览器的独立观察器都没有在点击前直接读出该产品私有值。空稿种子与第二操作的持久化代际在 Chrome 相同，在 Edge 不同；现有证据无法确定 Edge 代际变化的时点。
 
 10:41 的只读复查仍能核实原生专窗与唯一原标签；网页观察器无法再次确认原草稿，故当时的卡状态未知。私有候选子进程已退出，数据库行与最初备份逐项相同。[晚期只读回执](evidence/build61/size-boundary-late-read.json)
 
@@ -22,8 +26,8 @@
 | 编译、测试与安装 | ARM64、Intel 各通过 1,436 项 Swift 测试。完整网页回归 384/384。App 及 DMG 均获 Apple 公证，Developer ID、staple 和 Gatekeeper 通过，非作者从只读挂载的 DMG 独立安装并通过 9 项检查。同一签名可执行文件的 ARM64 切片原生运行、Intel 切片经本机 Rosetta 2 运行，各通过 3 个自检入口。 |
 | 原草稿恢复 | 本地普通浏览器内核的源码复核通过 48 组对照，含 8 次显式恢复成功和 8 次旧写票被拒。三份真实历史故障库分别使用新副本取证，6 份一致性快照和原 PNG 已私有封存。 |
 | 正式分支 | 签名源码和后继测试脚本修复均获独立审查。正式 Draft PR #125 的准入头为 `881589ad`，实际预合并为 `31371f52`。五项检查全部通过，两个 Native job 均实测 1,436 项 Swift 测试、12 次进程生命周期及存储耐久测试。 |
-| Chrome G1、Edge G2 | Chrome 冷暖首图及三组快速双图已取得实站证据。两次 AppKit mouseDown 的间隔为 581.676, 569.889, 619.928 ms。七张均有唯一 START，旧附件保留，七次文件输入及 change，零发送、零表单提交。选区准备在第八张点击前停止。Edge 也完成本包冷暖首图和三组双图，间隔为 551.605、568.999、549.887 ms，另有七次文件输入及七条独立 START，零发送、零提交。两个浏览器的选区均待补验。[Edge 七图核验](evidence/build61/edge-rapid-live.json) [Chrome 七图核验](evidence/build61/chrome-rapid-live.json) |
-| G4-A / G4-B / G4-C | G4-C 的普通 Edge 原图有一次 input、一次 change 及一条持久 START。这个专窗的普通 Apple Events 能识别原文档和编辑器，但缺少网站上传请求归属证明；实际 timeout 和 abort 均为零，原卡在场。故障后 UNKNOWN 和知情重选仍为 **NOT_RUN**。G4-A 无具名原卡错误，G4-B 无原 PNG 对应的上游 4xx。[G4-C 原始结果与留存记录](evidence/build61/g4c-original-live.json) · [G4-B 非作者裁决](evidence/build61/g4b-independent-conditions.json) |
+| Chrome G1、Edge G2 | 两款浏览器均完成冷暖首图。Chrome 三组双图的两次 AppKit mouseDown 分别间隔 581.676、569.889、619.928 ms。Edge 分别为 551.605、568.999、549.887 ms。两个七图样本共 14 次输入、14 条独立 START。另行完成的两份非空选区样本各包含两次输入、两条独立 START。旧附件保留，发送与表单提交均为零。[Chrome 快速双图](evidence/build61/chrome-rapid-live.json) · [Edge 快速双图](evidence/build61/edge-rapid-live.json) · [非空选区私有原件摘要](evidence/build61/selected-draft-private-custody.json) |
+| G4-A / G4-B / G4-C | G4-C 的普通 Edge 原图有一次 input、一次 change 及一条持久 START。这个专窗的普通 Apple Events 能识别原文档和编辑器，但缺少网站上传请求归属证明；实际 timeout 和 abort 均为零，原卡在场。该操作没有遭遇受控中断。独立的大图样本保留 UNKNOWN 和同名预览，未实施重选。完整故障恢复为 **NOT_RUN**。G4-A 无具名原卡错误，G4-B 无原 PNG 对应的上游 4xx。[G4-C 原始结果与留存记录](evidence/build61/g4c-original-live.json) · [G4-B 非作者裁决](evidence/build61/g4b-independent-conditions.json) |
 | 官网与应用内更新 | 现有官网两个下载入口、stable feed 和已发布 DMG 的签名均指向 1.0.5（31）。独立安装的 build 61 使用相同的更新源与公钥。发布后的公开下载及 31 → 61 应用内升级待发行后核验。 |
 
 截至北京时间 07:23:52 的历史快照，独立复核共查得 14 个调度周期、28 次受保护桌面读数、0 次准入和 0 次业务投递。实站文件输入、发送及表单提交均为零。当前交互执行者已取得两款浏览器的 Apple Events 和系统 Accessibility 权限。最近读数为当前用户已解锁、显示器已醒，前台窗口归属 `com.apple.UserNotificationCenter`，`AXSubrole=AXSystemDialog`、`AXModal=false`。Chrome、Edge 在当前屏幕上的普通窗口数均为零。允许读取的元数据不足以判定此窗用途。唯一 GUI 执行者核对签名包摘要并使用跨候选的独占锁，按 2–5 分钟退避等待重新准入。此后已换成独立浏览器调度，两款浏览器分别完成上述实站投递。
