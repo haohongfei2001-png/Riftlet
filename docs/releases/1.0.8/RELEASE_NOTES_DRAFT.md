@@ -22,4 +22,4 @@ Requires macOS 13 or later on Apple silicon or Intel. Web attachment is for edit
 
 产品提交为 `871187f2be5eada68fccf2adcc07d120991e1c15`。DMG 为 `Riftlet-1.0.8.dmg`，14,225,854 字节，SHA-256 为 `66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49`。ARM64 和 Intel 各 1,436 项 Swift 用例、408 项网页回归、Developer ID、公证、staple、Gatekeeper 与独立安装通过。[工程与安装回执](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)
 
-产品级 A–H 与三份历史数据库副本通过。实际 ChatGPT 上游具名失败卡及 HTTP 4xx 缺少实站证据。Edge 三组双图以及 Chrome、Edge 的非空原文和选区均有同包实站证据。Chrome 三组双图及发布前隔离 31→62 升级正在验收。正式发行范围以发行报告为准。[浏览器和升级状态](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md) · [恢复行为](G4_FINAL_ACCEPTANCE.md)
+产品级 A–H 与三份历史数据库副本通过。实际 ChatGPT 上游具名失败卡及 HTTP 4xx 缺少实站证据。Chrome 和 Edge 均已通过三组双图、非空原文与选区，并取得非作者同包实站复核。发布前隔离 31→62 升级正在验收。正式发行范围以发行报告为准。[浏览器和升级状态](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md) · [恢复行为](G4_FINAL_ACCEPTANCE.md)
