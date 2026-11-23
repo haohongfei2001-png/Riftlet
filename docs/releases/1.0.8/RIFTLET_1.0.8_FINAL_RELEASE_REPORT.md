@@ -9,9 +9,11 @@
 | 普通浏览器 × ChatGPT Temporary Chat | 冷首图、暖首图 | 三组双图，两次 AppKit mouseDown 间隔 | 非空文字、非折叠选区与旧附件 |
 | --- | --- | --- | --- |
 | Google Chrome | PASS | PENDING | PASS。64 字符逐字相同，原编辑器的正向选区保持 12→40，旧卡保留。 |
-| Microsoft Edge | PASS | PASS。568.318、616.109、650.829 ms。 | PENDING |
+| Microsoft Edge | PASS | PASS。568.318、616.109、650.829 ms。 | PASS。64 字符逐字相同，原编辑器、12→40 正向选区和旧卡均保留。 |
 
 Edge 双图的首张已有附件和六张组内截图分别对应 7 次 input、7 次 change 和 7 条持久化 START。Chrome 选区测试核对了原附件与新附件的像素、文件输入和原草稿。两项的发送点击和表单提交均为零。[冷暖首图](evidence/build62/signed-browsers-cold-warm-independent.json) · [Edge 三组双图](evidence/build62/signed-edge-rapid-independent.json) · [Chrome 选区](evidence/build62/signed-chrome-selection-independent.json)
+
+Edge 先在已有首图的原草稿中录入指定正文并选中 `preserve this original draft`。第二次真实点击只附加一张新截图，产生一次 input、一次 change 和一条新 START。首图的原始 Document、Composer、draftGeneration 已在输入前记录，与新操作一致。后验在同一原标签只读完成，两张图的解码像素各自匹配预览，零发送、零表单提交。[Edge 非空选区独立复核](evidence/build62/signed-edge-selection-independent.json)
 
 ## 恢复、兼容性与工程验证
 

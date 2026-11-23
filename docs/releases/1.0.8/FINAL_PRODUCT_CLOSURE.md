@@ -18,7 +18,7 @@
 ## 放行记录
 
 - **用户恢复与数据。** 受控原生 A–H 和三份历史库副本通过。已核对同一 UNKNOWN 经风险提示、取消、显式新点击到新 START，另有原卡明确失败后恢复微图的用例。[原生 A–H](evidence/build62/frozen-native-recovery.json) · [历史库](evidence/build62/frozen-history-independent.json)
-- **实站。** 普通 Chrome 和 Edge 的冷暖首图通过。Edge 三组双图为 568.318、616.109、650.829 ms。Chrome 的 64 字符正文及 12→40 正向选区保留通过。Chrome 三组双图和 Edge 选区正在补验。[浏览器及逐项结果](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)
+- **实站。** 普通 Chrome 和 Edge 的冷暖首图通过。Edge 三组双图为 568.318、616.109、650.829 ms。Chrome 和 Edge 均保留 64 字符正文、12→40 正向选区及原附件。Chrome 三组双图正在补验。[浏览器及逐项结果](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)
 - **工程和安装。** ARM64、Intel 及两项源码准入和 Feedback 检查通过。每种架构各通过 1,436 个 Swift 用例，受控网页回归 408/408。正式 DMG 已签名、公证、staple，独立安装核验的 193 个项目与签名包一致。[网页回归](evidence/build62/controlled-web-final.json) · [签名安装](evidence/build62/signed-package-independent.json)
 - **升级。** 发布前需要用正式签名的私有测试源，在保留原数据的隔离 1.0.5（31）副本中完成应用内升级。公开后还须从独立 31 副本验证 stable 更新，并从两个正式下载入口复核实际字节。[升级起始快照](evidence/build62/upgrade-31-baseline.json)
 
