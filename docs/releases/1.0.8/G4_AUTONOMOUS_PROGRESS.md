@@ -1,5 +1,9 @@
 # G4 恢复与发行进度
 
+## 2026-11-23 · 签名候选的原生提交回执
+
+非作者重新读取 build 61 的 11 份既有浏览器运行记录。Edge 共记录 40 次成功的 `captureTarget`，其中原 G4 专窗有 5 次。冻结的 Edge 代码只有在原生提交后通过执行世界确认和后续校验，且收到原命令回执，才记录成功。日志单独保留的一个反例在完成世界确认后收到了 `CLICK_PIN_REFUSED`。Chrome 的中图亦有对应的 commit 回执、一次 input 和一条持久 START。两款浏览器的实站记录都缺少原 PNG 对应的 PUT 对象及终态。世界确认属于代码与实测事件联合推定，日志没有单独保存浏览器的执行环境编号或确认字符串。[原始运行逐事件独立审计](evidence/build61/recorded-product-command-review.json)
+
 ## 2026-11-23 · Build 61 执行世界核验
 
 两款浏览器分别在自有本地文件页验证了同一底层 DOM 节点能被两个 JavaScript 环境读取。两边各自创建的 XHR 使用各自的原型。页面预置的固定链接在原页面环境执行。替换页面自己的无行为标记后，旧标记校验立即失败；重载后，原文档身份和隔离环境均失效。每款浏览器的测试标签都记录到零 HTTP 请求。非作者另核对了冻结源码的七个指定入口及其回执范围。[双浏览器回执](../../../Tests/PreClickLease/g4/main-world-observer/receipt.json) · [冻结源码审计](evidence/build61/world-source-and-history.json)
