@@ -4,6 +4,8 @@
 
 新系统截图为 7,921,752 字节。普通 Chrome 的隔离回环用例先完整上传并取得 HTTP 201，再在独立请求的 17.9936% 进度中止一次。非作者从私有原图和收件服务记录重算了整图及实际读到的前缀。此项完成了工作包 A 的回环对照。当前实站放行条件仍为 G4-C，加 G4-A 或经独立书面认可的 G4-B。[本轮原图与网络审计](evidence/build61/medium-loopback-independent.json) · [G4 最终验收](G4_FINAL_ACCEPTANCE.md)
 
+首笔显式重选提交时，build 61 才将现场数据库从 v4 升至 v7。两个快照核验命令现可核对这个过渡及已在 v7 上继续的重选，逐项比对原操作、原调用、原 START、补偿记录及新旧卡身份。14 项针对性测试通过。非作者以真实表结构和独立数据运行了 22 项命令行对照，并重算三组既有的受控恢复归档。实站故障及重选的两份快照另须从同一次现场恢复取得。[非作者 SQLite 工具复核](evidence/build61/recovery-snapshot-verifier-independent.json)
+
 ## 2026-11-23 · 起点
 
 PR #124 仍为 Draft，提交 `1c83ca91e6dd26cb064627adc59167fdccb6a38c`。Issue #120 打开。main 为 `9fd8ad15fca043915069904113e5fb67d82b4948`。冻结 build 59 的双架构 CI 成功，公开版本为 1.0.5（31）。[既有同包报告](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)

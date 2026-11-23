@@ -8,7 +8,7 @@ import uuid
 from copy import deepcopy
 from contextlib import closing
 
-from verify_recovery import ATTACHMENT_PROFILE, START_PROFILE, verify
+from verify_recovery import ATTACHMENT_PROFILE, START_PROFILE, verify_legacy as verify
 
 
 def key():

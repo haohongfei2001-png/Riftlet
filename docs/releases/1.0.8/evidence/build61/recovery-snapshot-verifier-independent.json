@@ -1,0 +1,255 @@
+{
+  "reviewedAtUTC": "2026-11-23T03:59:20.731352+00:00",
+  "reviewer": "Independent nonauthor release reviewer",
+  "result": "PASS_QA_RECOVERY_DATABASE_AND_PNG_COMMANDS",
+  "signedSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "signedDMGSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "scope": "Both build 61 QA public CLI entry points. Independent offline golden and negative records, different frozen schema sources, archive originals, code and fourteen focused QA unittest methods. The observed actual site database remains read-only.",
+  "toolSourceSHA256": {
+    "recovery_snapshot.py": "116db73ecc46c5ccf91c8c77268b354b143fe8e28f338cdea1605a5184299221",
+    "verify_recovery.py": "6437cc751f6edd76bf9f10fb4314e85a626bbffa2baad2eca60c583885563011",
+    "verify_unknown_recovery.py": "542af0f8ef02aa7ff279c758a98457c875c5156fc207b5c4ecde6c29f6f2b28c",
+    "test_unknown_recovery.py": "42aed9f5a1281ab8a1068b2a1641ec533e21cc272b6052032b4cab1a23a4c7c1",
+    "test_recovery.py": "39d094ca6fb90ad867d8b41842ebbbbb0195b5b4d5eeb929185218a5cb2eea93",
+    "test_schema7.sql": "f0b9d174a1f3800103e3b0b3a051870d89b5cdd22b3fcb8c8c0ceab6e7e90ef5",
+    "audit_history.py": "8e78f111629b4dd01ad2e4ae19ad4037e729419e096f06741956227ff495245f"
+  },
+  "focusedUnitMethods": 14,
+  "actualV4SiteSchema": {
+    "sourceKind": "dedicated live natural boundary archive, DDL only used in generated controls",
+    "sourceDBSHA256": "0b8b98bbf5ec4966ea8d5efa4d6947f292195443f1770b595689f8a501d1fe2c",
+    "schemaInventorySHA256": "0cc22a96f11f379ab23220924e3a7a3b243da86ea1ad58b19006f49ffff2601f"
+  },
+  "actualV7Schema": {
+    "sourceKind": "archived originating operations, controlled recovery adapter",
+    "sourceDBSHA256": "4e181f24fc3260cd8a5c5f01c57916a87d57f28fd736d5c2afa4ad3f46dc3751",
+    "schemaInventorySHA256": "4b832826cba24b149362dc8369cad4fff2f766411dcf6eecd776e36c02ae70c2"
+  },
+  "blindProductionSchemaPairs": [
+    {
+      "branch": "named",
+      "originalSTART": 0,
+      "inputSchema": [
+        4,
+        7
+      ],
+      "selectedCommand": "PASS",
+      "otherBranch": "REFUSED"
+    },
+    {
+      "branch": "named",
+      "originalSTART": 1,
+      "inputSchema": [
+        4,
+        7
+      ],
+      "selectedCommand": "PASS",
+      "otherBranch": "REFUSED"
+    },
+    {
+      "branch": "neutral",
+      "originalSTART": 0,
+      "inputSchema": [
+        4,
+        7
+      ],
+      "selectedCommand": "PASS",
+      "otherBranch": "REFUSED"
+    },
+    {
+      "branch": "neutral",
+      "originalSTART": 1,
+      "inputSchema": [
+        4,
+        7
+      ],
+      "selectedCommand": "PASS",
+      "otherBranch": "REFUSED"
+    }
+  ],
+  "independentCLIControlsStages": [
+    "first revision with operation timestamp check",
+    "first-recovery, table and compensation fix",
+    "returned successor card and evidence fix"
+  ],
+  "independentCLIControlsPassAtEachStage": {
+    "named:valid-v7": [
+      true,
+      true,
+      true
+    ],
+    "named:valid-first-v4": [
+      false,
+      true,
+      true
+    ],
+    "named:valid-first-v5": [
+      false,
+      true,
+      true
+    ],
+    "named:valid-first-v6": [
+      false,
+      true,
+      true
+    ],
+    "named:old-created-time": [
+      false,
+      false,
+      false
+    ],
+    "named:late-old-compensation": [
+      true,
+      false,
+      false
+    ],
+    "named:removed-old-link-table": [
+      true,
+      false,
+      false
+    ],
+    "named:retired-valid-v7": [
+      true,
+      true,
+      true
+    ],
+    "named:stale-before-downgrade": [
+      false,
+      false,
+      false
+    ],
+    "neutral:valid-v7": [
+      true,
+      true,
+      true
+    ],
+    "neutral:valid-first-v4": [
+      false,
+      true,
+      true
+    ],
+    "neutral:valid-first-v5": [
+      false,
+      true,
+      true
+    ],
+    "neutral:valid-first-v6": [
+      false,
+      true,
+      true
+    ],
+    "neutral:old-created-time": [
+      false,
+      false,
+      false
+    ],
+    "neutral:late-old-compensation": [
+      true,
+      false,
+      false
+    ],
+    "neutral:removed-old-link-table": [
+      true,
+      false,
+      false
+    ],
+    "neutral:retired-valid-v7": [
+      true,
+      true,
+      true
+    ],
+    "neutral:stale-before-downgrade": [
+      false,
+      false,
+      false
+    ],
+    "named:contradictory-returned-successor-card": [
+      null,
+      true,
+      false
+    ],
+    "named:contradictory-returned-start-evidence": [
+      null,
+      true,
+      false
+    ],
+    "neutral:contradictory-returned-successor-card": [
+      null,
+      true,
+      false
+    ],
+    "neutral:contradictory-returned-start-evidence": [
+      null,
+      true,
+      false
+    ]
+  },
+  "untouchedInputsCheckedForEveryCLI": true,
+  "oldNamedCLIOnMutatedOriginalCreatedAt": "ACCEPTED_BEFORE_PATCH",
+  "latestBothCLIsOnMutatedOriginalCreatedAt": "REFUSED",
+  "finalTargetedIndependentCLIControls": 22,
+  "archivedV7PairsRun": [
+    {
+      "case": "after-native-send",
+      "beforeSHA256": "b4918d73912ee40f5a02c59b8016170fe11ae158c758855a8eb757a2117949ac",
+      "afterSHA256": "4e181f24fc3260cd8a5c5f01c57916a87d57f28fd736d5c2afa4ad3f46dc3751",
+      "pngSHA256": "fa734c39ae34bca70281f0f67439349402d7e9099465c6f7010148af77a1b469",
+      "schema": [
+        7,
+        7
+      ],
+      "priorRetiredAttempt": 2,
+      "acceptedSuccessorAttempt": 3,
+      "newOperation": 1,
+      "newInvocation": 1,
+      "newSTART": 1,
+      "neutralCommand": "PASS",
+      "namedCommand": "REFUSED"
+    },
+    {
+      "case": "partial-native-upload",
+      "beforeSHA256": "58ece88ed0fd9457232847da0d83620561c40dff9cbf403fabd415bd21e8aace",
+      "afterSHA256": "6b82ff3392169833e2bbdf8a8c99d6d29132f880524db15ecb692f3ca8f7329d",
+      "pngSHA256": "20ec24f32a9dc11f7536526a2f2ca0001c728f78c7bb4432d8c65cdec6a26118",
+      "schema": [
+        7,
+        7
+      ],
+      "priorRetiredAttempt": 2,
+      "acceptedSuccessorAttempt": 3,
+      "newOperation": 1,
+      "newInvocation": 1,
+      "newSTART": 1,
+      "neutralCommand": "PASS",
+      "namedCommand": "REFUSED"
+    },
+    {
+      "case": "body-sent-before-response",
+      "beforeSHA256": "ba41daa5c6fe8ecefccbd5712ce722b495e3c7f79a2c728237c44165ebdda914",
+      "afterSHA256": "4c7a03aa03f8e9bfe38ab891200a6fb635258886997faf6853096a9356a7a107",
+      "pngSHA256": "7879f08c5ab36c8d9a60fed1f30661117ef17999dc8ab5bf81f2fbab37d974a4",
+      "schema": [
+        7,
+        7
+      ],
+      "priorRetiredAttempt": 2,
+      "acceptedSuccessorAttempt": 3,
+      "newOperation": 1,
+      "newInvocation": 1,
+      "newSTART": 1,
+      "neutralCommand": "PASS",
+      "namedCommand": "REFUSED"
+    }
+  ],
+  "archiveSourcePinCountCheckedAgainstFrozen61": 26,
+  "archiveSourcePinsSHA256": "ea1093e91283f06add80e124932a6d90e1ad8190a2ef045fe142a9c556472f4d",
+  "archiveOriginalDescription": "Archived originating operations and PNGs, actual build 60 Core, controlled adapter",
+  "archiveWebsiteStatus": "NOT_RUN",
+  "limits": [
+    "Database checks can prove byte-preserved prior rows, source linkage, the declared schema and individual durable successors. They cannot prove the browser input count, site disappearance, applicant choice, actual AppKit event, or card membership.",
+    "Schema checks inspect known table/column, index and trigger identities and selected index shape. Forensic provenance remains based on the preserved runtime sources and backup chain; a fabricated database cannot authenticate itself.",
+    "The four independent 4→7 pairs use actual database definitions and newly generated synthetic rows. The three separate v7 archive pairs have historical controlled adapters; neither is a new build 61 signed-site recovery."
+  ],
+  "signedSiteG4Admission": "UNCHANGED_NO_PASS",
+  "publicReleaseAuthorized": false
+}
