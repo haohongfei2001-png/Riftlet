@@ -230,6 +230,16 @@ import Foundation
             guard exact.count == 1 else { throw Identity.Refusal(exact.isEmpty ? "AX_FRAME_MISSING" : "AX_FRAME_AMBIGUOUS") }
             return exact[0]
         }
+        func raiseOriginal(record flag: String) throws {
+            try check()
+            let target = try matchingAX()
+            try check()
+            let second = try matchingAX()
+            try require(CFEqual(target, second), "AX_TARGET_CHANGED_BEFORE_RAISE")
+            result[flag + "Issued"] = true
+            result[flag + "ReturnCode"] = AXUIElementPerformAction(second, kAXRaiseAction as CFString).rawValue
+            settle()
+        }
         func settle() { RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.22)) }
         func foreground() -> Bool { NSWorkspace.shared.frontmostApplication?.processIdentifier == pid }
         try check()
@@ -258,6 +268,13 @@ import Foundation
             settle()
         }
         try check()
+        if try !selected() {
+            // pidx can succeed before Chromium brings its exact window forward.
+            // This AX operation addresses only the proved window; application-wide
+            // activation stays unavailable until the native front-tab read agrees.
+            try raiseOriginal(record: "preselectionAXRaise")
+            try check()
+        }
         try require(try selected(), "ORIGINAL_TAB_NOT_SELECTED_FOR_ACTIVATION")
         let currentWindows = try Identity.windows(proc)
         try require(currentWindows.contains(wid), "ORIGINAL_WINDOW_MISSING")
@@ -276,15 +293,10 @@ import Foundation
         }
         result["afterNSForeground"] = foreground()
         try check()
-        do {
-            let target = try matchingAX()
-            try check()
-            let second = try matchingAX()
-            try require(CFEqual(target, second), "AX_TARGET_CHANGED_BEFORE_RAISE")
-            result["axRaiseIssued"] = true
-            result["axRaiseReturnCode"] = AXUIElementPerformAction(second, kAXRaiseAction as CFString).rawValue
-            settle()
-        } catch let error as Identity.Refusal { result["axDisposition"] = error.reason }
+        if result["preselectionAXRaiseIssued"] as? Bool != true {
+            do { try raiseOriginal(record: "axRaise") }
+            catch let error as Identity.Refusal { result["axDisposition"] = error.reason }
+        } else { result["axDisposition"] = "EXACT_ORIGINAL_ALREADY_RAISED_BEFORE_ACTIVATION" }
         result["afterAXForeground"] = foreground()
         try check()
         try require(try selected(), "ORIGINAL_TAB_NOT_SELECTED_FOR_APPLE_EVENT")

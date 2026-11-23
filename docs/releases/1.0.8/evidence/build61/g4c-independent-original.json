@@ -1,0 +1,107 @@
+{
+  "candidateDMGSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "current61": {
+    "network": {
+      "abortCalls": 0,
+      "noFaultInstalled": true,
+      "status": "NOT_RUN",
+      "timeoutSets": 0
+    },
+    "noExistingQualifiedSingleRequestCancellation": "CONFIRMED_WITHIN_AUDITED_CHANNELS",
+    "ordinaryWitness": {
+      "activeDocument": true,
+      "originalEditor": true,
+      "originalRealmXHR": true,
+      "productRegistry": false,
+      "siteReactOwner": false,
+      "usedOnlyOrdinaryAppleEvents": true
+    },
+    "originalRequestHandle": "NOT_ESTABLISHED",
+    "untouchedRequestStatus": "NOT_OBSERVED",
+    "upstream4xx": "NOT_OBSERVED",
+    "useWholeTabStop": false
+  },
+  "databases": {
+    "beforeSHA256": "f1f745e8a3faaab621f53a0d7da4781b063c5db4a196fdfe9477e1d4e9d7239f",
+    "bothIntegrityChecks": "ok",
+    "countsInEach": {
+      "assets": 1,
+      "attachment_reselections": 0,
+      "checkpoints": 8,
+      "compensations": 0,
+      "handled_attachments": 0,
+      "metadata": 2,
+      "operations": 1,
+      "retired_media": 0,
+      "sqlite_sequence": 2,
+      "upload_starts": 1
+    },
+    "everyRecordedRowEqual": true,
+    "originalDispatchCheckpointMatched": true,
+    "originalDraftAndClickBindingMatched": true,
+    "originalInvocationMatched": true,
+    "retainedSHA256": "5853ed2d0e46d3e47c5efcbd0dcf443a60b256f1299f0afa9c05a1445bc5e62e",
+    "retainedSnapshotWasExplicitRecovery": false
+  },
+  "historical59": {
+    "carryOverRequestHandle": false,
+    "explicitNamedFailures": 0,
+    "matchedOriginalClientXHRAborts": 3,
+    "receiptSHA256": "14ac88ce443e4fea49ed21e64bef701dd404d3d4a987a218f127243d701514c9"
+  },
+  "ordinaryNativeControl": {
+    "Google Chrome": {
+      "exposedIndividualRequestCancellation": false,
+      "hasTabStop": true,
+      "vendorSdefSHA256": "cd0453c2e166a0b664f8ea1d1ac04b53a54eed14835569b6104a7823dbb950f2",
+      "version": "157.0.8103.79"
+    },
+    "Microsoft Edge": {
+      "exposedIndividualRequestCancellation": false,
+      "hasTabStop": true,
+      "vendorSdefSHA256": "cd0453c2e166a0b664f8ea1d1ac04b53a54eed14835569b6104a7823dbb950f2",
+      "version": "158.0.4370.33"
+    }
+  },
+  "original": {
+    "AppKitSelections": 1,
+    "G4Recovery": "NOT_RUN",
+    "STARTs": 1,
+    "UNKNOWNObserved": false,
+    "automaticReplay": false,
+    "browserCounts": {
+      "fileChange": 1,
+      "fileInput": 1,
+      "formSubmit": 0,
+      "sendButtonClicks": 0
+    },
+    "captureAndPreservedMediaHashesMatch": true,
+    "directSetterTimestampObserved": false,
+    "memberStillPresentAtLastBoundRead": true,
+    "namedErrorCardObserved": false,
+    "originalPNGBytes": 5513,
+    "originalPNGHash": "bc347c5d3e58c3f893b230cae70ef1551bc9295838cbad334e6d78fc32521230",
+    "outcome": "uploadStarted",
+    "phase": "inputTriggered",
+    "signal": "attachmentAccepted",
+    "subsequentTargetReadStopped": true,
+    "successorCount": 0,
+    "websitePixelsMatchOriginal": true
+  },
+  "resumption": "Original case is read-only. Recovery requires a freshly verified original draft, the same PNG and positive evidence for the named failure or guarded missing-UNKNOWN branch, then a new explicit choice. A separate authorized fresh case has its own identities and is not a retry of this operation. No new test was launched in this review.",
+  "scope": "offline non-inputting original operation review",
+  "sourceHashes": {
+    "before-manifest.json": "d5beea5e0e18ad769da331c51a4a61886ed16be727787c63879cdc300b3531d2",
+    "click-1.json": "e72ca5a6345f09fa44f9f360a1ae1130e8bcbbbe0872fa80d2db5434a63193f7",
+    "controlled-timeout-not-run.json": "ba9ebc1a6711f9e2718a73ca6c92af33b0441d7b45ce0779707d46293818b777",
+    "final-db.json": "fb8a71c90cd006a0cb773c21b1e82ff513ea793ee073431466f90d763b31df90",
+    "main-world-witness.json": "0b98e7190da90a67a14fba88654c7a0493081cd3a443a0fb74fae2740928fb25",
+    "network-finish.json": "b039bebed6d35e6e326122421badf7583eb41a0d99c7622dc4a055db9283c96d",
+    "observation-handoff.json": "2cac9db6b542d7aaba5805dbf23c4b61f90b147065dbb0d1dae22d1d571e3985",
+    "original-click-intent.json": "bd1413da9ce8549448b2d6a85d5e84573a4a5f90970b7a692c86981f2d3d07c4",
+    "original-terminal.json": "8bc1f41ed8a9b6cbb93526bdbe9bd3e7c91ac91a143581e7bd1947a8591544d5",
+    "publishedOriginalReceipt": "075f410b39481261e5bf9abef8d49d910f43e2e608bb73ae71c017c014bdfad1",
+    "result.json": "c82247263af2ba34b93fa7ae4f82a06051dc984c470da8b2499ad015e24e21c4"
+  },
+  "status": "PARTIAL"
+}

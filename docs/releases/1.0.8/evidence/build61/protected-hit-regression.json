@@ -1,0 +1,79 @@
+{
+  "overlap-control-before.json": {
+    "sha256": "48bd534b011bc07f8e28102b2d5a2062cd27d89cb0058780a4486838c8517b43",
+    "observed": {
+      "GUIOperations": 0,
+      "fixtureOnly": true,
+      "result": {
+        "foreign_normal_floating_surface_at_center": {
+          "checksPassing": 12,
+          "ready": true
+        },
+        "interactive_system_capture_owner_at_center": {
+          "checksPassing": 12,
+          "ready": true
+        },
+        "surface_visible_but_every_hit_is_foreign": {
+          "checksPassing": 11,
+          "ready": false
+        }
+      },
+      "sourceSHA256": {
+        "WindowEvidence.swift": "90b7d0025989386c20d68d4d2a0b3be44db2b7cbc0d1ea62e7ca43a7c6fe766a",
+        "gui_sample.py": "7d8045a4547562710ae8e068e376a2c6df27b96346b37ee8119bef7358574d99",
+        "test_gui_host.py": "f38d2bdb135d622b43e3298a19613749f5e5820034d3e92a52b6f50efba895bd"
+      }
+    }
+  },
+  "overlap-control-after-public.json": {
+    "sha256": "75eb7693cf667bce8d6e7959b1793d29da8ee8cf3051d59b37f4436461215a59",
+    "observed": {
+      "schemaVersion": 1,
+      "type": "Independent verification of protected-surface regression in the host sampling entry point",
+      "reviewer": "riftlet_108_60_independent_full_range_nonauthor_source_reviewer",
+      "result": "PASS",
+      "observedUTC": "2026-11-23T02:12:25.558187+00:00",
+      "filesAtVerification": {
+        "WindowEvidence.swift": "3a2dd13ca2e3865a94ff12b1e7c5a90ce1a4670ed9818577b0ee5c6bdd8f9fcc",
+        "gui_sample.py": "54afef71fceb06e9e178f4b42d5d6f21a6d2b25a4d0caa5b2ce7846b0e87d8ec",
+        "test_gui_host.py": "4c2d30172607d6299ff1113df5dec97e84dc5908a13e90cb7bc05231b20094e2",
+        "gui_control.py": "ded82aa8d47665536534464bbec22c2d01304ee9ed1049a14d07c90352c0df5e"
+      },
+      "originalFailingControlSHA256": "48bd534b011bc07f8e28102b2d5a2062cd27d89cb0058780a4486838c8517b43",
+      "conditions": {
+        "ordinaryOverlayWithThreeOriginalQuadrants": {
+          "ready": true,
+          "checksPassing": 12
+        },
+        "knownProtectedCenterWithThreeOriginalQuadrants": {
+          "ready": false,
+          "checksPassing": 11
+        },
+        "knownProtectedHitWithRawCenterAlsoTrue": {
+          "ready": false,
+          "checksPassing": 11
+        },
+        "unresolvedHitOverCaptureGeometry": {
+          "ready": false,
+          "checksPassing": 11
+        },
+        "missingProtectionWitness": {
+          "ready": false,
+          "checksPassing": 11
+        },
+        "ordinaryOriginalRawCenter": {
+          "ready": true,
+          "checksPassing": 12
+        },
+        "noOriginalHit": {
+          "ready": false,
+          "checksPassing": 11
+        }
+      },
+      "repositoryOfflineControlsPassed": 17,
+      "coverage": "Seven case projections through the real gui_sample entry point with synthetic native and site receipts; independently read Swift owner/window classification, protected PID and intersecting capture rectangle failure logic. The fail-closed bit guards both the direct CG-center and the AX-quorum alternatives. Direct source inspection and a compile check separately cover the native components.",
+      "actualGUIOperations": 0,
+      "releaseAuthorized": false
+    }
+  }
+}

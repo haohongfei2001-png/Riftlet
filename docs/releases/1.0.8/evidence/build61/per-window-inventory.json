@@ -1,0 +1,975 @@
+{
+  "build": 61,
+  "schemaVersion": 1,
+  "scope": "Allowlisted geometry and flags for every WindowServer and AX window belonging to the signed browser at each capture. Native tabs outside the enrolled QA window are not inspected. Unknown AX identifiers stay null.",
+  "cases": [
+    {
+      "case": "chrome-rapid",
+      "sourceReceiptSHA256": "cc9e119c08bada3b49895fccaac50607267d0fe523c963ecc9f8ba535a5f1fff",
+      "observedUTC": "2026-11-23T01:43:36Z",
+      "process": {
+        "pid": 49381,
+        "bundleID": "com.google.Chrome",
+        "signedTeamID": "EQHXZ8M8AV",
+        "active": true,
+        "hidden": false,
+        "activationPolicy": "regular",
+        "verifiedLiveSignatureAndBirth": true,
+        "birthSHA256": "ed368a08dd4787575ff7b8ebd34ee15b2aefe84e02b939c7a3938e11168e31bb"
+      },
+      "enrolled": {
+        "visible": true,
+        "minimized": false,
+        "topLeftBounds": {
+          "height": 660,
+          "width": 1000,
+          "x": 216,
+          "y": 154
+        },
+        "originalSoleTabIDsMatch": true,
+        "originalTabSelectedInEnrolledWindow": true,
+        "appleEventPermissionWithoutPromptOSStatus": 0,
+        "nativeWindowIDSHA256": "9f6d1e64f7c1f9f73e5193bd1649064feca7f19d3285b82a136746191319bc3e",
+        "nativeTabIDSHA256": "f13bdef0f8e18ea345685c398573833f63ccca3d2ade35c9344ab03764836eef"
+      },
+      "session": {
+        "browserAuditQueryErrno": 1,
+        "browserUIDMatchesCaller": true,
+        "browserUIDMatchesConsole": true,
+        "callerAuditQueryErrno": 1,
+        "callerUIDMatchesConsole": true,
+        "displayAwake": true,
+        "exactBrowserAuditSessionMatch": null,
+        "frontAtEndIsBrowser": true,
+        "frontAtEndIsKnownProtected": false,
+        "loginDone": true,
+        "onConsole": true
+      },
+      "displays": [
+        {
+          "actualQuartzDisplayBounds": {
+            "height": 956,
+            "width": 1470,
+            "x": 0,
+            "y": 0
+          },
+          "backingScale": 2,
+          "cocoaFrame": {
+            "height": 956,
+            "width": 1470,
+            "x": 0,
+            "y": 0
+          },
+          "cocoaVisibleFrame": {
+            "height": 923,
+            "width": 1470,
+            "x": 0,
+            "y": 0
+          },
+          "displayID": 1,
+          "enrolledCenterInDisplay": true,
+          "enrolledCenterInVisibleFrame": true,
+          "enrolledIntersectsDisplay": true,
+          "enrolledIntersectsVisibleFrame": true,
+          "mappingAgreesWithinOnePoint": true,
+          "quartzFrameFromCocoa": {
+            "height": 956,
+            "width": 1470,
+            "x": 0,
+            "y": 0
+          },
+          "quartzVisibleFrameFromCocoa": {
+            "height": 923,
+            "width": 1470,
+            "x": 0,
+            "y": 33
+          }
+        }
+      ],
+      "axWindowCount": 3,
+      "axReadStatus": 0,
+      "axWindows": [
+        {
+          "status": "OWNED_AX_WINDOW",
+          "role": "AXWindow",
+          "subrole": "AXDialog",
+          "main": false,
+          "focused": false,
+          "minimized": false,
+          "modal": false,
+          "quartzBounds": {
+            "height": 20,
+            "width": 66,
+            "x": 10,
+            "y": 7
+          },
+          "identifierTokenWithinObservation": "9fd42b9d43a07372646a06b634c2c4eda15237c8370807803bbc44cbf1ebae5c",
+          "sameBoundsLayerZeroCGNumbers": [
+            71147
+          ],
+          "withinOnePointOfEnrolled": false,
+          "readStatus": {
+            "focused": 0,
+            "identifier": 0,
+            "main": 0,
+            "minimized": 0,
+            "modal": 0,
+            "position": 0,
+            "role": 0,
+            "size": 0,
+            "subrole": 0
+          }
+        },
+        {
+          "status": "OWNED_AX_WINDOW",
+          "role": "AXWindow",
+          "subrole": "AXUnknown",
+          "main": false,
+          "focused": false,
+          "minimized": false,
+          "modal": false,
+          "quartzBounds": {
+            "height": 47,
+            "width": 1000,
+            "x": 0,
+            "y": -221
+          },
+          "identifierTokenWithinObservation": null,
+          "sameBoundsLayerZeroCGNumbers": [
+            71125
+          ],
+          "withinOnePointOfEnrolled": false,
+          "readStatus": {
+            "focused": 0,
+            "identifier": -25212,
+            "main": 0,
+            "minimized": 0,
+            "modal": 0,
+            "position": 0,
+            "role": 0,
+            "size": 0,
+            "subrole": 0
+          }
+        },
+        {
+          "status": "OWNED_AX_WINDOW",
+          "role": "AXWindow",
+          "subrole": "AXStandardWindow",
+          "main": true,
+          "focused": false,
+          "minimized": false,
+          "modal": false,
+          "quartzBounds": {
+            "height": 660,
+            "width": 1000,
+            "x": 216,
+            "y": 154
+          },
+          "identifierTokenWithinObservation": null,
+          "sameBoundsLayerZeroCGNumbers": [
+            71124
+          ],
+          "withinOnePointOfEnrolled": true,
+          "readStatus": {
+            "focused": 0,
+            "identifier": -25212,
+            "main": 0,
+            "minimized": 0,
+            "modal": 0,
+            "position": 0,
+            "role": 0,
+            "size": 0,
+            "subrole": 0
+          }
+        }
+      ],
+      "cgAllWindowCount": 18,
+      "cgWindows": [
+        {
+          "cgWindowNumber": 71147,
+          "layer": 0,
+          "alpha": 0,
+          "quartzBounds": {
+            "height": 20,
+            "width": 66,
+            "x": 10,
+            "y": 7
+          },
+          "isOnscreenKey": true,
+          "inSeparateOnScreenList": true,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 71124,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 660,
+            "width": 1000,
+            "x": 216,
+            "y": 154
+          },
+          "isOnscreenKey": true,
+          "inSeparateOnScreenList": true,
+          "withinOnePointOfEnrolled": true
+        },
+        {
+          "cgWindowNumber": 64133,
+          "layer": 999,
+          "alpha": 1.2501275705290027e-05,
+          "quartzBounds": {
+            "height": 50,
+            "width": 310,
+            "x": 580,
+            "y": 45
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 64127,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 115,
+            "width": 1470,
+            "x": 0,
+            "y": 33
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 33548,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 1,
+            "width": 1,
+            "x": 0,
+            "y": 0
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 33547,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 47,
+            "width": 1470,
+            "x": 0,
+            "y": -79
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 28891,
+          "layer": 103,
+          "alpha": 0.10000000149011612,
+          "quartzBounds": {
+            "height": 35,
+            "width": 258,
+            "x": 762,
+            "y": 121
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 16398,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 33,
+            "width": 1470,
+            "x": 0,
+            "y": 0
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 16397,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 33,
+            "width": 1470,
+            "x": 0,
+            "y": 0
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 16396,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 33,
+            "width": 1470,
+            "x": 0,
+            "y": 0
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 16394,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 33,
+            "width": 1470,
+            "x": 0,
+            "y": 0
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 71127,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 115,
+            "width": 1470,
+            "x": 0,
+            "y": 33
+          },
+          "isOnscreenKey": true,
+          "inSeparateOnScreenList": true,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 33546,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 923,
+            "width": 1470,
+            "x": 0,
+            "y": 33
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 71125,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 47,
+            "width": 1000,
+            "x": 0,
+            "y": -221
+          },
+          "isOnscreenKey": true,
+          "inSeparateOnScreenList": true,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 71130,
+          "layer": 999,
+          "alpha": 0.0004980548401363194,
+          "quartzBounds": {
+            "height": 50,
+            "width": 310,
+            "x": 580,
+            "y": 45
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 71126,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 1,
+            "width": 1,
+            "x": 0,
+            "y": 0
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 19468,
+          "layer": 3,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 64,
+            "width": 64,
+            "x": 499,
+            "y": 614
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 47269,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 89,
+            "width": 1020,
+            "x": 135,
+            "y": -94
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        }
+      ],
+      "onscreenWindowNumbers": [
+        71147,
+        71125,
+        71127,
+        71124
+      ],
+      "centerRectangleEvidence": {
+        "centerHitOriginalCG": false,
+        "matchingCGNumbers": [
+          71124
+        ],
+        "matchingEnrolledPIDLayerZeroCount": 1,
+        "status": "OTHER_RECTANGLE_FIRST",
+        "topRectangleLayer": 24,
+        "topRectangleOwner": "OTHER_PROCESS"
+      }
+    },
+    {
+      "case": "edge-boundary",
+      "sourceReceiptSHA256": "f7035821748e286e8c9cd80de07461777e007063518a7a0be0947804bdcbfeee",
+      "observedUTC": "2026-11-23T02:05:37Z",
+      "process": {
+        "pid": 48228,
+        "bundleID": "com.microsoft.edgemac",
+        "signedTeamID": "UBF8T346G9",
+        "active": false,
+        "hidden": false,
+        "activationPolicy": "regular",
+        "verifiedLiveSignatureAndBirth": true,
+        "birthSHA256": "572984e7fdb784d4cd0a8a69c779a770a089c85819aad8a1734d7a22d77bec5d"
+      },
+      "enrolled": {
+        "visible": true,
+        "minimized": false,
+        "topLeftBounds": {
+          "height": 700,
+          "width": 1040,
+          "x": 48,
+          "y": 52
+        },
+        "originalSoleTabIDsMatch": true,
+        "originalTabSelectedInEnrolledWindow": true,
+        "appleEventPermissionWithoutPromptOSStatus": 0,
+        "nativeWindowIDSHA256": "0645d489d0ef17098ac8d62e11eb5a89455f31d1ab3bb79f5420e079fa912595",
+        "nativeTabIDSHA256": "f0ca98ac8d3d2f66a9ead4be1562476b1e5cb5282f756c378d039217679d645b"
+      },
+      "session": {
+        "browserAuditQueryErrno": 1,
+        "browserUIDMatchesCaller": true,
+        "browserUIDMatchesConsole": true,
+        "callerAuditQueryErrno": 1,
+        "callerUIDMatchesConsole": true,
+        "displayAwake": true,
+        "exactBrowserAuditSessionMatch": null,
+        "frontAtEndIsBrowser": false,
+        "frontAtEndIsKnownProtected": false,
+        "loginDone": true,
+        "onConsole": true
+      },
+      "displays": [
+        {
+          "actualQuartzDisplayBounds": {
+            "height": 956,
+            "width": 1470,
+            "x": 0,
+            "y": 0
+          },
+          "backingScale": 2,
+          "cocoaFrame": {
+            "height": 956,
+            "width": 1470,
+            "x": 0,
+            "y": 0
+          },
+          "cocoaVisibleFrame": {
+            "height": 923,
+            "width": 1470,
+            "x": 0,
+            "y": 0
+          },
+          "displayID": 1,
+          "enrolledCenterInDisplay": true,
+          "enrolledCenterInVisibleFrame": true,
+          "enrolledIntersectsDisplay": true,
+          "enrolledIntersectsVisibleFrame": true,
+          "mappingAgreesWithinOnePoint": true,
+          "quartzFrameFromCocoa": {
+            "height": 956,
+            "width": 1470,
+            "x": 0,
+            "y": 0
+          },
+          "quartzVisibleFrameFromCocoa": {
+            "height": 923,
+            "width": 1470,
+            "x": 0,
+            "y": 33
+          }
+        }
+      ],
+      "axWindowCount": 0,
+      "axReadStatus": 0,
+      "axWindows": [],
+      "cgAllWindowCount": 11,
+      "cgWindows": [
+        {
+          "cgWindowNumber": 71356,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 1,
+            "width": 1,
+            "x": 0,
+            "y": 0
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 71355,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 1,
+            "width": 1,
+            "x": 0,
+            "y": 0
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 71354,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 700,
+            "width": 1040,
+            "x": 70,
+            "y": 74
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 71268,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 1,
+            "width": 1,
+            "x": 0,
+            "y": 0
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 71267,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 1,
+            "width": 1,
+            "x": 0,
+            "y": 0
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 71266,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 700,
+            "width": 1040,
+            "x": 48,
+            "y": 52
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": true
+        },
+        {
+          "cgWindowNumber": 63794,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 33,
+            "width": 1470,
+            "x": 0,
+            "y": 0
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 63793,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 33,
+            "width": 1470,
+            "x": 0,
+            "y": 0
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 63792,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 33,
+            "width": 1470,
+            "x": 0,
+            "y": 0
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 63791,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 33,
+            "width": 1470,
+            "x": 0,
+            "y": 0
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 65126,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 64,
+            "width": 64,
+            "x": 0,
+            "y": 456
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        }
+      ],
+      "onscreenWindowNumbers": [],
+      "centerRectangleEvidence": {
+        "centerHitOriginalCG": null,
+        "matchingCGNumbers": [],
+        "matchingEnrolledPIDLayerZeroCount": 0,
+        "status": "NO_MATCHING_ONSCREEN_GEOMETRY",
+        "topRectangleLayer": 24,
+        "topRectangleOwner": "OTHER_PROCESS"
+      }
+    },
+    {
+      "case": "edge-recovery",
+      "sourceReceiptSHA256": "cbd2f9ce0b5961bb7d27432af50224f1a22b6e5115493209b74805770600f2cb",
+      "observedUTC": "2026-11-23T02:05:38Z",
+      "process": {
+        "pid": 48228,
+        "bundleID": "com.microsoft.edgemac",
+        "signedTeamID": "UBF8T346G9",
+        "active": false,
+        "hidden": false,
+        "activationPolicy": "regular",
+        "verifiedLiveSignatureAndBirth": true,
+        "birthSHA256": "572984e7fdb784d4cd0a8a69c779a770a089c85819aad8a1734d7a22d77bec5d"
+      },
+      "enrolled": {
+        "visible": true,
+        "minimized": false,
+        "topLeftBounds": {
+          "height": 700,
+          "width": 1040,
+          "x": 70,
+          "y": 74
+        },
+        "originalSoleTabIDsMatch": true,
+        "originalTabSelectedInEnrolledWindow": true,
+        "appleEventPermissionWithoutPromptOSStatus": 0,
+        "nativeWindowIDSHA256": "ef39f4d67f4f94992c1a5cb3807f4ac96505625fd00cc7ff2bf55f984f7de168",
+        "nativeTabIDSHA256": "ddd9889158afd7a757be686ea10fe842fb753467c67b0b059249c2bdbfd5e780"
+      },
+      "session": {
+        "browserAuditQueryErrno": 1,
+        "browserUIDMatchesCaller": true,
+        "browserUIDMatchesConsole": true,
+        "callerAuditQueryErrno": 1,
+        "callerUIDMatchesConsole": true,
+        "displayAwake": true,
+        "exactBrowserAuditSessionMatch": null,
+        "frontAtEndIsBrowser": false,
+        "frontAtEndIsKnownProtected": false,
+        "loginDone": true,
+        "onConsole": true
+      },
+      "displays": [
+        {
+          "actualQuartzDisplayBounds": {
+            "height": 956,
+            "width": 1470,
+            "x": 0,
+            "y": 0
+          },
+          "backingScale": 2,
+          "cocoaFrame": {
+            "height": 956,
+            "width": 1470,
+            "x": 0,
+            "y": 0
+          },
+          "cocoaVisibleFrame": {
+            "height": 923,
+            "width": 1470,
+            "x": 0,
+            "y": 0
+          },
+          "displayID": 1,
+          "enrolledCenterInDisplay": true,
+          "enrolledCenterInVisibleFrame": true,
+          "enrolledIntersectsDisplay": true,
+          "enrolledIntersectsVisibleFrame": true,
+          "mappingAgreesWithinOnePoint": true,
+          "quartzFrameFromCocoa": {
+            "height": 956,
+            "width": 1470,
+            "x": 0,
+            "y": 0
+          },
+          "quartzVisibleFrameFromCocoa": {
+            "height": 923,
+            "width": 1470,
+            "x": 0,
+            "y": 33
+          }
+        }
+      ],
+      "axWindowCount": 0,
+      "axReadStatus": 0,
+      "axWindows": [],
+      "cgAllWindowCount": 11,
+      "cgWindows": [
+        {
+          "cgWindowNumber": 71356,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 1,
+            "width": 1,
+            "x": 0,
+            "y": 0
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 71355,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 1,
+            "width": 1,
+            "x": 0,
+            "y": 0
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 71354,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 700,
+            "width": 1040,
+            "x": 70,
+            "y": 74
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": true
+        },
+        {
+          "cgWindowNumber": 71268,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 1,
+            "width": 1,
+            "x": 0,
+            "y": 0
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 71267,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 1,
+            "width": 1,
+            "x": 0,
+            "y": 0
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 71266,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 700,
+            "width": 1040,
+            "x": 48,
+            "y": 52
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 63794,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 33,
+            "width": 1470,
+            "x": 0,
+            "y": 0
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 63793,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 33,
+            "width": 1470,
+            "x": 0,
+            "y": 0
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 63792,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 33,
+            "width": 1470,
+            "x": 0,
+            "y": 0
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 63791,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 33,
+            "width": 1470,
+            "x": 0,
+            "y": 0
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        },
+        {
+          "cgWindowNumber": 65126,
+          "layer": 0,
+          "alpha": 1,
+          "quartzBounds": {
+            "height": 64,
+            "width": 64,
+            "x": 0,
+            "y": 456
+          },
+          "isOnscreenKey": null,
+          "inSeparateOnScreenList": false,
+          "withinOnePointOfEnrolled": false
+        }
+      ],
+      "onscreenWindowNumbers": [],
+      "centerRectangleEvidence": {
+        "centerHitOriginalCG": null,
+        "matchingCGNumbers": [],
+        "matchingEnrolledPIDLayerZeroCount": 0,
+        "status": "NO_MATCHING_ONSCREEN_GEOMETRY",
+        "topRectangleLayer": 24,
+        "topRectangleOwner": "OTHER_PROCESS"
+      }
+    }
+  ],
+  "findings": {
+    "A_otherSpace": "Not established. Public metadata reports display intersection and current onscreen membership. A missing current-Space surface does not identify its Space.",
+    "B_offDisplay": "Enrolled window bounds and actual visible-screen bounds are recorded per sample. The accepted Chrome window was inside the primary visible frame.",
+    "C_minimized": "The enrolled Chrome and two enrolled Edge windows reported not minimized at their listed samples.",
+    "D_hidden": "Both browser processes reported hidden=false at these samples.",
+    "E_activation": "Edge returned true on native activation before the initial enrolled window disappeared. Chrome returned true and remained foreground after placement.",
+    "F_raise": "Chrome exact AXRaise returned 0. Its window remained selected and foreground. The topmost covering rectangle did not change.",
+    "G_systemUI": "At the early protected samples AXModal=false did not determine intent or causality. Later Chrome was foreground with one matching layer-zero CG window and five system accessibility hits on the original window. The first covering rectangle belonged to ScreenCaptureUI at layer 24.",
+    "H_session": "Caller, browser and console UIDs matched in the three observations. Audit-session identity could not be read without additional privilege; the independent field stays null."
+  }
+}
