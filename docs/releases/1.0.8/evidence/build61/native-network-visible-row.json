@@ -1,0 +1,38 @@
+{
+  "scope": "Signed running ordinary Edge, dedicated local file tab, operating-system single-window image cropped to the DevTools exclusive region",
+  "image": {
+    "pngBytes": 76396,
+    "dimensions": [
+      551,
+      652
+    ],
+    "sha256": "0813c961c82e0d63b81247f3d92e7ff214bb66587846c10c647c811a6687b04c",
+    "privateArchive": true
+  },
+  "visualRead": {
+    "selectedTab": "网络",
+    "visibleRequestCount": 1,
+    "visibleResource": "owned stylesheet",
+    "visibleUniqueFilenamePrefix": "style-aeccecf32d6140be",
+    "rowStatus": 200,
+    "rowSizeBytes": 66,
+    "rowTimeMilliseconds": 1,
+    "sizeSource": "displayed response Size column",
+    "originalDocumentHasExactlyOneMatchingLocalStylesheet": true,
+    "operatorAndNonAuthorIndependentlyReadPixels": true
+  },
+  "localSources": {
+    "pageSHA256": "8c7f26d54e4d643345cf8ebb88857abe094c05229233573228efd7129d0110e7",
+    "stylesheetSHA256": "01b64ec791303e8682a48692d6af5237ce30a52908a520c3e2e3f12d40b92a91",
+    "stylesheetBytes": 66
+  },
+  "evidenceAtThisFrame": {
+    "literalProtocolTargetId": null,
+    "literalProtocolFrameId": null,
+    "literalProtocolLoaderId": null,
+    "literalNetworkRequestId": null,
+    "actualUploadRequestContentLength": null,
+    "authenticatedWebsiteAccesses": 0
+  },
+  "classification": "ORIGINAL_LOCAL_DOCUMENT_NETWORK_PANEL_CORRELATION_CONFIRMED"
+}

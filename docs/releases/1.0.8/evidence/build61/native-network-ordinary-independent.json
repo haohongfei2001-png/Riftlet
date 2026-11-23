@@ -1,0 +1,164 @@
+{
+  "limits": [
+    "The reviewed process and local-file Document are traced by native IDs, vendor process birth, unique fixture and original navigation identity. No causal read of that nonce from the selected Elements row or raw protocol FrameId, TargetId, LoaderId or RequestId was recorded.",
+    "Raw headers, cookies, authenticated traffic, upload columns, file traffic, actual site operations and upstream responses were outside these local-window readings. No auth or header row was collected.",
+    "The observations describe the exact retained frontend, installed native dictionary and scoped AX searches. The matched Chromium source supports a custom request Content-Length column; numeric request length in the approved UI and local target/request identity remain empirical prerequisites."
+  ],
+  "localRuns": [
+    {
+      "attempt": "coordinate hit",
+      "browser": "chrome",
+      "browserRowsSampled": 0,
+      "documentIdentitySHA256": "d247ca5f4bad18dc485d598b7d1a7761a24de756602ccb7927e73e46fd390964",
+      "localReadyDocumentRechecked": true,
+      "nativeIdentitySHA256": "05cd75e9a3234686f3a7e81cb4659c44fa7970304dbc457f2be9389ced1d5888",
+      "originalWindowSetRestored": true,
+      "ownedFixtureSHA256": "7b3f177c04c20c867a0129b114d7d336aa3466597773fa925e8ab4ae510e7f5c"
+    },
+    {
+      "attempt": "coordinate hit",
+      "browser": "edge",
+      "browserRowsSampled": 0,
+      "documentIdentitySHA256": "d1be56718845ca417c088760b2a28d166dc701254c551cdd6c4d04be076160a6",
+      "localReadyDocumentRechecked": true,
+      "nativeIdentitySHA256": "88e5a0693fb49e23d366b24e0abccc03f9fe226677b2ec7a7e9de2a8dc5446ae",
+      "originalWindowSetRestored": true,
+      "ownedFixtureSHA256": "71534daa1da7111c412088ec295fa50d927b5d8babe08f704dcd497fd278e65a"
+    },
+    {
+      "attempt": "element context Inspect",
+      "browser": "chrome",
+      "browserRowsSampled": 0,
+      "documentIdentitySHA256": "4947f8144e256fdf3d9017e13d95f3fd3d6c7656587500dc66382ea306cc0eff",
+      "localReadyDocumentRechecked": true,
+      "nativeIdentitySHA256": "bc705b2544884e090fbd49b53ceb22de0eeb25c87e136f1ea74e2bb935e287e2",
+      "originalWindowSetRestored": true,
+      "ownedFixtureSHA256": "6dfd94e6ffaf718790742a5936485029fb1b99d9b60a832c57f3f061fa325b92"
+    },
+    {
+      "attempt": "DevTools menu and Network controls",
+      "browser": "chrome",
+      "browserRowsSampled": 0,
+      "documentIdentitySHA256": "8385ce3548745afe84623f602ee268e590816dbc9aabbb7bf867fe238c018655",
+      "localReadyDocumentRechecked": true,
+      "nativeIdentitySHA256": "55fc9c6aa883754b3e8d4cfdcd8b1fee3cb810e01149dc4071f4b05de008fa7a",
+      "originalWindowSetRestored": true,
+      "ownedFixtureSHA256": "d319c0a7176556c5f8ff13b130a64e34d1e25f835ef5e4c93eb5027ccf1f7840"
+    }
+  ],
+  "manifestSHA256": "33b8bc32776f0e68cfd0a67825cfd01197fc65761fdbd694878cce650ba99b4c",
+  "networkMenu": {
+    "DevToolsCommandOSStatus": 0,
+    "completedAXScans": 7,
+    "devtoolsAreasInEnrolledWindow": 1,
+    "explicitFrameOrTargetURLParameter": false,
+    "explicitTargetOrFrameFrontendAXAttributes": false,
+    "frameID": null,
+    "lastScanRoleCounts": {
+      "AXGroup": 6,
+      "AXWebArea": 1
+    },
+    "loaderID": null,
+    "networkPanelActivated": false,
+    "networkPanelControlMatches": 0,
+    "networkRowsRead": 0,
+    "requestContentLength": null,
+    "requestHTTPStatus": null,
+    "requestID": null,
+    "scopedParameterizedSearchAdvertised": true,
+    "targetID": null
+  },
+  "observedPackageUTC": "2026-11-23T06:59:51.842090+00:00",
+  "officialTabProvider": {
+    "elapsedSeconds": 30.104,
+    "result": "JS_EXECUTION_TIMED_OUT_KERNEL_RESET",
+    "returnedTargetOrDocument": false
+  },
+  "pointHit": "Both coordinate runs declined before any context-menu command because the system hit was not the enrolled original button.",
+  "privateManifestEntriesVerified": 66,
+  "publicProjectionSHA256": "78277904a53c7ec7fce9c4f1658c9ee5a5a815433cb205265ac5ca3d3d84026d",
+  "rawReceiptDigestsVerified": {
+    "chrome-before.json": "6414f5052b0af1fd892842ad5936653f8bc778b56aaca5114b120f7eea8f8553",
+    "chrome-close-intent.json": "dbe1838e89b1e3b4e7d314900adee77481710d75f6a022d3f6220f7516b8fb18",
+    "chrome-document.json": "21d3334c62b8b3e45b1cd7f0d1dd86682d85d78b65d08c7c4a3829f01576ec7b",
+    "chrome-new-window.json": "9fd0c4b857611d98da7a83e7e4af16350499bee6b7c8b54de99afde14f9f9250",
+    "chrome-result.json": "2bf61f177f9dde47fa202ea2cce1c77583fb5ebe85f8ac1fd35a4c2fe6492bfe",
+    "edge-before.json": "b9255295223389985adf19391b38b74d590398deeb003f4d0d117ae31bc1c27c",
+    "edge-close-intent.json": "175964ef22e9e414aae21069e9c9afb7734e062382eaa79892eb5261066e4a89",
+    "edge-document.json": "b11690cc6a251a4a79ff9b59089d13c996921d7b9c6a329aecb15d7d03f1cbdd",
+    "edge-new-window.json": "99e6ecfae19a6f015296c75d81a216ea20de21d2d4e65bfae85a05edc9c8f1d7",
+    "edge-result.json": "58bf058b60786255e35e4857a373a8b5949373e9b5a0e4161cc5a489a9e1baa4",
+    "network/chrome-before.json": "2977fb34cee35b3513f64432dcd667eb5cdc1941c5ebdadd68a1490282834f9e",
+    "network/chrome-close-intent.json": "73c8b5faee8758365e53ee535858cbc35ec0795b022d87923b305d2fb784287a",
+    "network/chrome-document.json": "3171e6653ff0d56f050f48e44549eb3eace973c0c483da74b6bbf8876c0a2b5a",
+    "network/chrome-new-window.json": "d448b0beda38c2e12804d28ec4635939e33dc3fb0bca1edaa008f4e481d27373",
+    "network/chrome-result.json": "91dfc167515a486c65f2bbd9f82a4a3c0bb5ab7ae04fd57c8f4c4ae7965a6079",
+    "semantic/chrome-before.json": "d944557227149613981e1d5ad7bb0778853f3c4e230852064afe938cae9fc441",
+    "semantic/chrome-document.json": "7c9022758420050ee1df39c517251b521013a8def43a73fee2ce3012c007c887",
+    "semantic/chrome-new-window.json": "f584e6b5d8f808768e3f1b8d055d15a39624cd58365082473e426942679cf1e4",
+    "semantic/chrome-result.json": "b16a1ffa16744c743495ca66b7e54f0e81e6c2d258eb51c2614bf6c68e1f7245",
+    "semantic/chrome-resume-close-intent.json": "2ee75879baf82ac93bacd63a8dc3fdf368d945852f27ec33d76d1c4735bbdbb8",
+    "semantic/chrome-resume-result.json": "c5885a88c52a72174d610f7472968df306dace9340792a9d239103c686265f27",
+    "tab-channel-done.json": "4253101d962506fc5d1774fcd12950dde996654628b0521dea392dfdf5c6e3aa"
+  },
+  "realSiteActions": 0,
+  "result": "BOUND_NATIVE_WINDOWS_CONFIRMED_PROTOCOL_ADMISSION_NOT_ESTABLISHED",
+  "reviewedAtUTC": "2026-11-23T07:12:35.107985+00:00",
+  "reviewer": "Independent nonauthor, offline review of preserved originals",
+  "schemaVersion": 1,
+  "scope": "Initial four ordinary installed browser windows with exclusive local fixtures; subsequent visual attempts have separate records.",
+  "semanticInspect": {
+    "AXShownMenuDirectLinkObserved": false,
+    "InspectOSStatus": 0,
+    "devtoolsAreasInEnrolledWindow": 1,
+    "exactOriginalButtonMenuIssued": true,
+    "firstClose": "CLOSE_NOT_VERIFIED",
+    "menuCommandMatches": 1,
+    "menuLinkedByOriginalButtonGeometry": true,
+    "originalPageSelectedAfterInspect": false,
+    "originalSystemHitRole": "AXWebArea",
+    "originalSystemHitWasButton": false,
+    "sameOriginalDocumentAfterInspect": true,
+    "sameOriginalRetainedAndClosedOnResume": true,
+    "selectedElementsRowsRead": 0,
+    "selectedOriginalNonceInPanel": false
+  },
+  "vendorDataContract": {
+    "chromium": "157.0.8103.79",
+    "customRequestHeaderColumn": true,
+    "numericRequestContentLengthMayBeDisplayedIfSupplied": true,
+    "observedInTheseWindows": false,
+    "requestColumnEvidenceLines": {
+      "NetworkDataGridNode.ts": [
+        1346
+      ],
+      "NetworkLogViewColumns.ts": [
+        714,
+        724,
+        760,
+        771,
+        842,
+        852
+      ]
+    },
+    "revision": "6f9a57d502c857e2412a57fe03c96286d7877479",
+    "scriptableTabCrossReferenceSHA256": "cd0453c2e166a0b664f8ea1d1ac04b53a54eed14835569b6104a7823dbb950f2",
+    "scriptableTabIDIsProtocolTargetProof": false,
+    "scriptableTabIDPresent": true,
+    "tagDEPS": "https://chromium.googlesource.com/chromium/src/+/refs/tags/157.0.8103.79/DEPS",
+    "vendorSources": {
+      "NetworkDataGridNode.ts": {
+        "sha256": "865d773da67b56a6305016f9c293b4856648d78b5296d0916c8daf6532eb19bf",
+        "url": "https://chromium.googlesource.com/devtools/devtools-frontend/+/6f9a57d502c857e2412a57fe03c96286d7877479/front_end/panels/network/NetworkDataGridNode.ts"
+      },
+      "NetworkLogView.ts": {
+        "sha256": "8a242555405f976d97d357f08ddb6797fbc24aca690a2939409203609f858e0f",
+        "url": "https://chromium.googlesource.com/devtools/devtools-frontend/+/6f9a57d502c857e2412a57fe03c96286d7877479/front_end/panels/network/NetworkLogView.ts"
+      },
+      "NetworkLogViewColumns.ts": {
+        "sha256": "7381b94f4fc80aef3a95f1de7b4055f5cd2a068011784f09020d9778a5717b25",
+        "url": "https://chromium.googlesource.com/devtools/devtools-frontend/+/6f9a57d502c857e2412a57fe03c96286d7877479/front_end/panels/network/NetworkLogViewColumns.ts"
+      }
+    }
+  }
+}
