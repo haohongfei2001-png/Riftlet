@@ -48,7 +48,13 @@ def sample(base, site, family, nonce, keep=None):
                 web['entryID']==entry['entryID'] and web['timeOrigin']==entry['timeOrigin'] and
                 p['family']==family and p['exactTemporaryURL']):raise ValueError('ORIGINAL_ROUTE_CHANGED')
             target=digest([p['sessionID'],p['windowID'],p['tabID'],web['entryID'],web['timeOrigin'],entry['sourceDoc'],read(base/'candidate.json')['dmgSHA256']])
-            checks=dict(zip(CHECKS,[original['systemForeground'] and p['systemForeground'],original['nativeVisible'],original['cgWindowOnScreen'] and original['centerHitOriginalCG'],original['axOriginalWindow'],original['selected'] and p['originalSelection'],flags['visible'],flags['focused'],web['signedIn'],web['editor'],web['uploadEntry'],original['singleTab'] and p['originalSoleTab'],original['knownOriginalProcess'] and p['dynamicSignature']]))
+            # Keep the raw WindowServer proof and require an independent hit on
+            # the surface. An overlay's rectangular bounds can cover clear pixels.
+            hit_proof = original.get('originalAXHits', {})
+            surface_hit = hit_proof.get('blockedByProtectedSurface') is False and (
+                original['centerHitOriginalCG'] is True or (
+                    original.get('originalAXHitQuorum') is True and original['axOriginalWindow'] is True))
+            checks=dict(zip(CHECKS,[original['systemForeground'] and p['systemForeground'],original['nativeVisible'],original['cgWindowOnScreen'] and surface_hit,original['axOriginalWindow'],original['selected'] and p['originalSelection'],flags['visible'],flags['focused'],web['signedIn'],web['editor'],web['uploadEntry'],original['singleTab'] and p['originalSoleTab'],original['knownOriginalProcess'] and p['dynamicSignature']]))
         except (KeyError,ValueError,OSError,subprocess.SubprocessError) as e:
             env=command([exe,'environment']);cause=str(e)[:100]
     else:

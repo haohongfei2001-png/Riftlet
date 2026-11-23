@@ -1,0 +1,88 @@
+{
+  "version": "1.0.8",
+  "build": 61,
+  "dmgSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "signedSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "family": "chrome",
+  "status": "RAPID_PAIRS_PASS",
+  "ordinaryTemporaryChat": true,
+  "mouseDownIntervalsMS": [
+    581.676,
+    569.889,
+    619.928
+  ],
+  "earlierCardsPreservedForEachPair": [
+    1,
+    3,
+    5
+  ],
+  "finalPageCounters": {
+    "fileChange": 7,
+    "fileInput": 7,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  },
+  "independentFilesAndStarts": [
+    {
+      "durableStartEvidenceIDDigest": "265163d0475fd90a2b9b223903f66473ed47347eeb5f0a5a58a49e0de1d3bd52",
+      "invocationIDDigest": "aad35c7257d9603494d030d72f22295b921cf4551b06a9fe3350edeaefad9c32",
+      "operationIDDigest": "65048f9093a842f00ccdf19597d05ff8d6fe53c27df4619c7a794ab72f1c6e91",
+      "photo": 1,
+      "pngSHA256": "8de767a2261616b7d680e96fa3710b5fd31a5e2fe354114ae08fec444c3646ea",
+      "webDecodedPixelsSHA256": "9636fddec93c33004e4a03cb65457b45d6963c1a36a1651484764f576e23f1c2"
+    },
+    {
+      "durableStartEvidenceIDDigest": "f03732731a33806914d07137f5727f6f180f69f6fbd91d4b3299cb01956bc569",
+      "invocationIDDigest": "0dad2b2088595ce64707ddd49916f07eb622a8d2026b73b22ee8b4ff0077fa41",
+      "operationIDDigest": "b8d025448c701563fa8a2525f6e86604f1fe18b106e29db93155268eead16bc1",
+      "photo": 2,
+      "pngSHA256": "1255676a1379a1e672b4a63e269490547de476b1116dfa30c1d60a091030a660",
+      "webDecodedPixelsSHA256": "2577f7baaf54628aa6a6fc104be7dfeb525d3f6ee304a6764f683bdaf4f31af3"
+    },
+    {
+      "durableStartEvidenceIDDigest": "834b0862e9a37cc8360311a9d19ebcc11acf70f35cbeb7fb5fc5e3cf2e35df0e",
+      "invocationIDDigest": "01bf5cf293ef49b3b30cbafd4933f9b0f66a74aa81d3c0fb77495feb50f45306",
+      "operationIDDigest": "276288c61cd48c83c38a42a89fec2b7e1addcc45d576937b93d07bf98e6f240e",
+      "photo": 3,
+      "pngSHA256": "5e21647bdef939969fca7e0e4bf5d4860f44acaf554808ea0a96c8cf8fb04fd5",
+      "webDecodedPixelsSHA256": "9419608871d104cb5398152a71a67d703d3748341b431a39b99ea77a965241e2"
+    },
+    {
+      "durableStartEvidenceIDDigest": "08afdfec9340ed105d359f56c6f7be50a37e7479087048d7929b1e794180bdd0",
+      "invocationIDDigest": "735cf307c0832742e51290c115f00d90a654128086586a990c9d1a19ae0284eb",
+      "operationIDDigest": "a94362c8488795a008c67b9e9f7b5e07c5ca5a79e6d28c7c7ed0bb1c17fbcdc1",
+      "photo": 4,
+      "pngSHA256": "7d38197c6d2fa10552be2329f2bfa777a1c6731ba11923648884518d1966462f",
+      "webDecodedPixelsSHA256": "a4f85d2d458d4f431516684f116650b8d3fd11fd9effd59e1680c527c29de239"
+    },
+    {
+      "durableStartEvidenceIDDigest": "77bc084391a0f9a60b25711cc99c876c82f565464fbc1e6c432058925c92ecca",
+      "invocationIDDigest": "df1f6051034dd55ee0fd9ae193fb2c1a8830930386667d62267539a25f117b79",
+      "operationIDDigest": "b3dbdc384a4e27f5e437feea20f3c32c94a519bc57c9b50d249276e831c82965",
+      "photo": 5,
+      "pngSHA256": "fdd91fbfad60b4f6cb7f8e608aa98c80e1f37dcf17886d58d68a8b258c421f8b",
+      "webDecodedPixelsSHA256": "bad9c683207a130c6adea0c2b6c5b97079ec77f6e842ac3c786243041a2fabab"
+    },
+    {
+      "durableStartEvidenceIDDigest": "310d4b41b55ea717dd382641a091d92442d0faabf056f2a92ab3ed2718a32bd8",
+      "invocationIDDigest": "7c7bf490521722235c59c450007b231c819eb149d52f8b4c48f7332eb19286b1",
+      "operationIDDigest": "851e5941292510cb6f821098bb6ebc23f320dd3bd9feaf424f21f1d8ab57cdf7",
+      "photo": 6,
+      "pngSHA256": "ffb341b0f75f299ee40749730d0bfffb164a9e94b497e473ab46ee2e695f3e05",
+      "webDecodedPixelsSHA256": "06258c3737cd982578f8380db5e86d9127d07682284a454e3cf09673b4ba25ca"
+    },
+    {
+      "durableStartEvidenceIDDigest": "c2b8a51b006fc57c405a88677d3fea921d7ab3c355fc8771fd8146570c0458c4",
+      "invocationIDDigest": "3692cd50530990d4b35bf93af5cb4d987e2104d65ae920b9b0dc8c5030b73be5",
+      "operationIDDigest": "b404ac23851dee9340fa4b25d606428bcf215fcfa707b63308c43ba5411972e6",
+      "photo": 7,
+      "pngSHA256": "18e22ef89d9b4a504a546d626814268a493663a3d173e537b8c6de544991a199",
+      "webDecodedPixelsSHA256": "a7f1bc7980d79e0eb481d49c73624f4f5e21d21323f750d8e2875ba4b12e38e6"
+    }
+  ],
+  "traceSHA256": "1e51867aab825eb093095e4c2098b88f2ac677365b10d86a327f852c6def6735",
+  "independentSQLiteSHA256": "9e71f071bbefe0e3245b02c8d560a4bd8764de65ed5ef160818289717c3503da",
+  "custodyArchiveSHA256": "c1a1cd568b8ab6d71cd5bf87f0b23f02a06e4ed98b957053422155be94a12466",
+  "auditSHA256": "fc578252b40c204736c78ca48861c5fca64099b83deea9648f7d77d135eea956",
+  "selection": "The separate eighth screenshot was captured and prepared locally. Original-page observation stopped before selection setup, mouseDown or file input. No selection test is credited in this rapid-pair run."
+}

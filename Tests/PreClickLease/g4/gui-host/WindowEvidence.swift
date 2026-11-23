@@ -40,6 +40,38 @@ import Foundation
     static func same(_ lhs: CGRect, _ rhs: CGRect) -> Bool {
         zip([lhs.minX,lhs.minY,lhs.width,lhs.height],[rhs.minX,rhs.minY,rhs.width,rhs.height]).allSatisfy { abs($0-$1)<=1.0 }
     }
+    // CG bounds can include transparent or non-interactive portions of an overlay.
+    // Ask the system which window would receive input at distinct interior points.
+    // No input is posted. Only fetch a window attribute after the hit PID matches.
+    static func accessibleHits(in rect: CGRect, original: AXUIElement, pid: pid_t,
+                               protectedPIDs: Set<pid_t>, captureRects: [CGRect],
+                               protectedForeground: Bool) -> Row {
+        let system = AXUIElementCreateSystemWide()
+        let samples = [(0.50, 0.50), (0.25, 0.30), (0.75, 0.30), (0.25, 0.70), (0.75, 0.70)]
+        var unresolvedOnCapture = false
+        let classifications: [String] = samples.map { x, y in
+            let point = CGPoint(x: rect.minX + rect.width * x, y: rect.minY + rect.height * y)
+            var hit: AXUIElement?, hitPID: pid_t = -1
+            let code = AXUIElementCopyElementAtPosition(system, Float(point.x), Float(point.y), &hit)
+            guard code == .success, let hit, AXUIElementGetPid(hit, &hitPID) == .success else {
+                if captureRects.contains(where: { $0.contains(point) }) { unresolvedOnCapture = true }
+                return "UNAVAILABLE"
+            }
+            if protectedPIDs.contains(hitPID) { return "KNOWN_PROTECTED" }
+            guard hitPID == pid else { return "OTHER" }
+            if CFEqual(hit, original) { return "ORIGINAL" }
+            guard let window = ax(hit, kAXWindowAttribute as String), CFGetTypeID(window) == AXUIElementGetTypeID() else {
+                if captureRects.contains(where: { $0.contains(point) }) { unresolvedOnCapture = true }
+                return "UNAVAILABLE"
+            }
+            return CFEqual(window, original) ? "ORIGINAL" : "OTHER"
+        }
+        let hits = classifications.map { $0 == "ORIGINAL" }
+        let blocked = protectedForeground || unresolvedOnCapture || classifications.contains("KNOWN_PROTECTED")
+        return ["center": hits[0], "quadrants": Array(hits.dropFirst()), "classifications": classifications,
+                "blockedByProtectedSurface": blocked, "unresolvedOnCaptureRectangle": unresolvedOnCapture,
+                "quorum": !blocked && hits.dropFirst().filter { $0 }.count >= 3]
+    }
     static func aePermission(_ app:NSRunningApplication) -> String {
         // This API is queried with askUserIfNeeded=false and sends no event.
         guard let id=app.bundleIdentifier else{return "TARGET_UNAVAILABLE"}
@@ -84,7 +116,7 @@ import Foundation
         }
         // Loginwindow occasionally owns the background desktop. Only a displayed
         // system dialog, modal, or a protected foreground counts as an input blocker.
-        let protectedFront=front?.bundleIdentifier.map{protected.contains($0)} ?? true
+        let protectedFront=front?.bundleIdentifier.map{protected.contains($0) || $0.lowercased()=="com.apple.screencaptureui"} ?? true
         let dialog=surfaces.contains{row in
             (row["ax"] as? [Row] ?? []).contains{($0["modal"] as? Bool)==true || $0["subrole"] as? String=="AXSystemDialog"}
         }
@@ -145,13 +177,25 @@ import Foundation
         }
         let originalAX=candidates.count==1 && ax(candidates[0],kAXMainAttribute as String) as? Bool==true
         let cgID=nativeCG.count==1 ? nativeCG[0][kCGWindowNumber as String] as? Int:nil
+        let cgOpaque = nativeCG.count == 1 && (nativeCG[0][kCGWindowAlpha as String] as? Double ?? 0) > 0
+        var pointEvidence: Row = ["center": false, "quadrants": [false, false, false, false],
+                                  "blockedByProtectedSurface": true, "quorum": false]
+        if originalAX && cgOpaque && firstForeground && firstSelected && nativeVisible && !isMini {
+            let captureApps = NSWorkspace.shared.runningApplications.filter { $0.bundleIdentifier?.lowercased() == "com.apple.screencaptureui" }
+            let capturePIDs = Set(captureApps.map(\.processIdentifier))
+            let captureRects = on.filter { capturePIDs.contains($0[kCGWindowOwnerPID as String] as? Int32 ?? -1) &&
+                                           ($0[kCGWindowAlpha as String] as? Double ?? 1) > 0 }.compactMap(cgFrame)
+            let protectedPIDs = capturePIDs.union(knownSystem.map(\.processIdentifier))
+            pointEvidence = accessibleHits(in: nframe, original: candidates[0], pid: pid, protectedPIDs: protectedPIDs,
+                                          captureRects: captureRects, protectedForeground: protectedFront)
+        }
         let center=CGPoint(x:nframe.midX,y:nframe.midY)
         let hit=on.first{r in (r[kCGWindowAlpha as String] as? Double ?? 1)>0 && cgFrame(r)?.contains(center)==true}
         let sameHit=cgID != nil && hit?[kCGWindowNumber as String] as? Int==cgID
         try exact()
         let finalSelected=try selected(); let stable=firstSelected && finalSelected
         let actualForeground=firstForeground && NSWorkspace.shared.frontmostApplication?.processIdentifier==pid
-        total["original"]=["pid":pid,"birth":birth,"nativeWindowID":wid,"nativeTabID":tid,"knownOriginalProcess":true,"selected":stable,"nativeVisible":nativeVisible && !isMini,"systemForeground":actualForeground,"singleTab":true,"nativeBounds":coords(nframe),"matchingAXStandard":candidates.count,"uniqueMainAX":originalAX,"matchingCGOnScreen":nativeCG.count,"cgWindowNumber":cgID as Any? ?? NSNull(),"centerHitOriginalCG":sameHit,"cgWindowOnScreen":cgID != nil,"axOriginalWindow":originalAX]
+        total["original"]=["pid":pid,"birth":birth,"nativeWindowID":wid,"nativeTabID":tid,"knownOriginalProcess":true,"selected":stable,"nativeVisible":nativeVisible && !isMini,"systemForeground":actualForeground,"singleTab":true,"nativeBounds":coords(nframe),"matchingAXStandard":candidates.count,"uniqueMainAX":originalAX,"matchingCGOnScreen":nativeCG.count,"cgWindowNumber":cgID as Any? ?? NSNull(),"centerHitOriginalCG":sameHit,"originalAXHits":pointEvidence,"originalAXHitQuorum":pointEvidence["quorum"] as? Bool == true,"cgWindowOnScreen":cgID != nil && cgOpaque,"axOriginalWindow":originalAX]
         return total
     }
     @MainActor static func main(){do{

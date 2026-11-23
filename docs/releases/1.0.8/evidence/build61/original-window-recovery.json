@@ -1,0 +1,102 @@
+{
+  "candidate": {
+    "version": "1.0.8",
+    "build": 61,
+    "source": "49b9204974088c1983cda469910d9a78d8f4c43b",
+    "dmgSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e"
+  },
+  "purpose": "Window recovery and admission checkpoint before the first Chrome product input. Product and recovery results have their own records.",
+  "observedThroughUTC": "2026-11-23T01:43:36Z",
+  "edgeOriginal": {
+    "processBirthConsistent": true,
+    "verifiedLiveSignature": true,
+    "nativeWindowCounts": [
+      0,
+      0
+    ],
+    "oldWindowInEither": false,
+    "priorNativeReadOSStatus": -1728,
+    "originalOutcome": "Original window absent; preserved evidence."
+  },
+  "chromeOriginal": {
+    "originalGateChecksPassed": [
+      11,
+      11
+    ],
+    "originalGateChecksTotal": 12,
+    "earlierNativeWindowCountAtNewWindowCreation": 1,
+    "signedAndOriginal": true,
+    "onConsole": true,
+    "consoleUIDMatchesCallerAndBrowser": true,
+    "exactAuditSessionEquality": null,
+    "auditSessionErrno": 1,
+    "minimized": false,
+    "hidden": false,
+    "activationPolicy": "regular",
+    "screen": {
+      "height": 923,
+      "width": 1470,
+      "x": 0,
+      "y": 33
+    },
+    "beforeBounds": [
+      0,
+      33,
+      1470,
+      923
+    ],
+    "requestedBounds": [
+      216,
+      154,
+      1000,
+      660
+    ],
+    "readbackBounds": [
+      216,
+      154,
+      1000,
+      660
+    ],
+    "nsActivationReturned": true,
+    "axRaiseOSStatus": 0,
+    "appleEventActivateOSStatus": 0,
+    "originalSelectedAfter": true,
+    "systemForegroundAfter": true,
+    "uniqueOnscreenLayerZero": 1,
+    "standardAXMatches": 1,
+    "nativeCGOnscreen": true,
+    "centerRectangleMatchesOriginal": false,
+    "firstRectangleOwner": "com.apple.screencaptureui",
+    "firstRectangleLayer": 24,
+    "firstRectangleBounds": [
+      0,
+      0,
+      1470,
+      956
+    ],
+    "systemAXHits": {
+      "center": true,
+      "quadrants": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "quorum": true
+    },
+    "disposition": "The screen capture component was ahead in rectangle order; system accessibility resolved five actual positions to the same enrolled Chrome AX window. Its controls were left untouched.",
+    "presentationReview": "At 01:40:45Z the first helper used NS all-windows activation while a prior window existed. Only the enrolled window was addressed by AXRaise, geometry writes and tab selection. The successor checks twice that this is the only browser window before requesting all-windows activation."
+  },
+  "sha256OfPrivateOriginals": {
+    "edgeOriginalInventory1": "c3c5585a135f70dbcc6c3b3929eaa97369f35f209fe0e169f26a7e23efd1c05e",
+    "edgeOriginalInventory2": "c3c5585a135f70dbcc6c3b3929eaa97369f35f209fe0e169f26a7e23efd1c05e",
+    "chromeGateBefore": "4f86e857fcbd5d649bd251087e185904484a2cb950c91a881847064fa7717c8a",
+    "chromeGateConfirmed": "97ab4fc734c1fb204fecbdd257150c3dfe67fb015718531b99c0c0771ead7c9f",
+    "chromePlacement": "3c20d8e486beaa640ac603635449a5ba362d96dc794d0d5d6070aac379b65f7f",
+    "chromeRawCGAfter": "976f44be8a0b9906b846f7cf98ce1de5fed8aec3a7d9e7a1320bfb8668e3beb9",
+    "chromeDetailedWindows": "cc9e119c08bada3b49895fccaac50607267d0fe523c963ecc9f8ba535a5f1fff",
+    "chromeCoveringRects": "7beb72cc3de882e11dae1749d954d9aa6f2dc1339c21ebc0ba698d15170db3bf",
+    "chromeAccessibilityHits": "54b99a53bf7add75610c0e658184203be349b893c47cf43708ef48f68ca662b0"
+  },
+  "releaseGate": "All checks here concern window identity and presentation. G1, G2 and G4 require separate same-candidate product evidence."
+}

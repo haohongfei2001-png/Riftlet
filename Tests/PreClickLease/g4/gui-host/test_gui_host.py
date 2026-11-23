@@ -14,7 +14,7 @@ class CheckHost(unittest.TestCase):
         self.save(self.base/'candidate.json',{'dmgSHA256':'d'*64})
         self.save(self.state/'original-entry.json',{'entryID':'e','timeOrigin':1,'sourceDoc':'owned'})
         self.orig={'pid':4,'birth':'birth','nativeWindowID':'w','nativeTabID':'t','systemForeground':True,
-           'nativeVisible':True,'cgWindowOnScreen':True,'centerHitOriginalCG':True,'axOriginalWindow':True,
+           'nativeVisible':True,'cgWindowOnScreen':True,'centerHitOriginalCG':True,'originalAXHits':{'blockedByProtectedSurface':False},'axOriginalWindow':True,
            'selected':True,'singleTab':True,'knownOriginalProcess':True}
         self.env={k:True for k in ('displayAwake','onConsole','loginDone','consoleUIDMatches','axTrusted','eligibleForPreparation')}
         self.env.update(frontBundle='fixture',systemDialogOnScreen=False,protectedForeground=False,frontHasModal=False,screenLocked=False,browsers={'edge':{'running':True,'aePermission':'ALLOWED'},'chrome':{'running':True,'aePermission':'ALLOWED'}})
@@ -40,6 +40,21 @@ class CheckHost(unittest.TestCase):
             self.payload['page'][key]=False;self.assertFalse(self.obtain()['ready']);self.payload['page'][key]=True
         for key in ['visible','focused']:
             self.payload['page']['observationState'][key]=False;self.assertFalse(self.obtain()['ready']);self.payload['page']['observationState'][key]=True
+    def test_window_identity_with_occluded_center(self):
+        self.orig.update(centerHitOriginalCG=False, originalAXHitQuorum=True)
+        self.assertTrue(self.obtain()['ready'])
+        for key in ['cgWindowOnScreen', 'axOriginalWindow', 'systemForeground', 'selected']:
+            with self.subTest(key=key):
+                self.orig[key]=False
+                self.assertFalse(self.obtain()['ready'])
+                self.orig[key]=True
+        self.orig['originalAXHitQuorum']=False
+        self.assertFalse(self.obtain()['ready'])
+    def test_protected_hit_overrides_center_and_quorum(self):
+        self.orig.update(centerHitOriginalCG=True, originalAXHitQuorum=True)
+        for proof in [{}, {'blockedByProtectedSurface':True}]:
+            self.orig['originalAXHits']=proof
+            self.assertFalse(self.obtain()['ready'])
     def test_disjoint_or_closed_scopes_are_not_held(self):
         self.assertIsNone(self.obtain('chrome')['heldCase']);(self.state/'closed.json').write_text('{}')
         result=self.obtain();self.assertIsNone(result['heldCase']);self.assertFalse(result['ready'])
