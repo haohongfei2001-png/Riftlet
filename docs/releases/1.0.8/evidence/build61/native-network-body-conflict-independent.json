@@ -1,0 +1,51 @@
+{
+  "code": {
+    "Tests/PreClickLease/g4/browser-native-network/association/payload.test.cjs": "20d80efe484bf638b91a4d1dee84e2fd90740f4318e1da2c68e721c1d4cfa41e",
+    "Tests/PreClickLease/g4/browser-native-network/association/run.cjs": "b991a37be31dedfeb3ca94c0156605c2c6cc7aa4fe623ebf4da4ef0bb94c576c"
+  },
+  "independentCounterexampleDriverSHA256": "62bcb61d30b9a6c9e86afc7898b8541edd3d01589273efbe7f7f0270d9574774",
+  "independentPostFixCases": [
+    "agree",
+    "disagree lookup",
+    "disagree inline",
+    "prefix inline",
+    "prefix lookup",
+    "agree wrong",
+    "no data",
+    "inline only",
+    "lookup only",
+    "one unsupplied inline entry",
+    "no data inline prefix",
+    "same empty buffers",
+    "partial list missing part plus good lookup"
+  ],
+  "negativeTests": {
+    "fullOrPartialDistinctByteArraysWhenBothRepresentationsAreAvailable": "conflict true; observed hash null, unavailable true",
+    "partialInlineOnly": "source match false; observed hash null",
+    "secondInlineEntryUnspecified": "inline source remains unknown; one separate full positive lookup may independently establish the digest",
+    "twoIdenticalWrongArrays": "source match false; observed hash null"
+  },
+  "networkRequestsMadeByThisReview": 0,
+  "originalChromeBodyHashFromBrowser": null,
+  "originalChromeFileBodyLookupResult": "NO_POST_DATA",
+  "originalLoopbackReceiptSHA256": "4bdf2e155f181baa66244ca78b91ae64fbf1010163ff1ee56c651432eaffc7b7",
+  "positiveTests": "Agreement on full bytes and single full available raw representation were distinguished. Lookup count independently asserted once per case.",
+  "previousBehaviorReproduced": {
+    "sourcePNGMatchInOnlyOneOfTwoContradictoryCompleteReturns": {
+      "inlineMatchAndLookupDiffers": "incorrectly issued shared hash",
+      "lookupMatchAndInlineDiffers": "incorrectly issued shared hash"
+    }
+  },
+  "realSiteActions": 0,
+  "repoTests": {
+    "failed": 0,
+    "kind": "Pure in-memory suite rerun from the reviewed source.",
+    "passed": 6
+  },
+  "result": "PASS_FOR_BINARY_BODY_REPRESENTATION_CONFLICT",
+  "reviewedAtUTC": "2026-11-23T07:41:25.489934+00:00",
+  "reviewedQACheckpoint": "a63d46b7e9027e6df4ce1e348697d193b27a750a",
+  "reviewer": "Independent nonauthor, offline pure-memory verification",
+  "schema": 1,
+  "scope": "Pure-memory decoder behavior for legitimate protocol responses. The archived one-shot Chrome measurement and absent independent real-site PUT remain unchanged."
+}

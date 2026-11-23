@@ -1,0 +1,94 @@
+{
+  "cleanup": {
+    "chrome": 4,
+    "edge": 5,
+    "exclusiveLockAvailableAtSeal": true,
+    "originalDocumentConfirmedAtClose": true,
+    "priorWindowSetRestored": true,
+    "scopeProcessExitCode": 0,
+    "totalClosed": 9,
+    "totalOwnedLocalWindows": 9
+  },
+  "endedUTC": "2026-11-23T07:40:28.522877+00:00",
+  "limits": [
+    "The local Network table was visibly and independently matched to a uniquely named local stylesheet. The images show the response/transfer size for a local file. No HTTP upload occurred.",
+    "The same-window crop cannot establish the absence or presence of a separate popup surface. No menu item or scoped protocol search field was verified after the pointer event.",
+    "Neither the native browser tab identifier, the WindowServer number, nor the navigation entry was used as the CDP TargetId or FrameId."
+  ],
+  "liveGate": "NOT_RUN",
+  "localNetworkPanelPass": true,
+  "localSource": {
+    "localPanelRows": 1,
+    "localStatusShown": 200,
+    "localStylesheetBytes": 66,
+    "localTimeMilliseconds": 1,
+    "localTransferSizeBytes": 66,
+    "matchedCGWindows": 1,
+    "ownResourceFilenamePrefixMatched": true,
+    "photoSHA256": "2af15927dbcc4d15ba5645af63c334ab2a6aa25234d2295d66d5d3e9f79d8af6",
+    "preciseNativeWindowTabAndDocumentProven": true,
+    "preciseWindowServerSourcePersistedBeforeInteraction": true,
+    "signedExistingEdgeAndBirthVerified": true,
+    "uniquePrefixLengthHex": 16
+  },
+  "officialAction": {
+    "beforeAndAfterExactPNGsEqual": true,
+    "commandPaletteSent": false,
+    "detachedPopupSurfaceObserved": null,
+    "firstFrameMatched": true,
+    "identityCommandsSent": 0,
+    "menuIndependentlySeen": false,
+    "moreToolsMouseDownUpIssued": 1,
+    "nonoverlappingPanelSizePixels": [
+      551,
+      652
+    ],
+    "pointerHitOriginalDevToolsRegion": true,
+    "pointerHitSignedBrowserPID": true,
+    "profileExperimentPreferenceChanged": false,
+    "protocolMonitorSettingTouched": false,
+    "referenceCanonicalRGBAAbsoluteMeanError": [
+      0,
+      0,
+      0
+    ],
+    "referenceCompared": [
+      "more tools",
+      "network label",
+      "settings"
+    ],
+    "scopedFrameComparedAfterMilliseconds": 450
+  },
+  "ordinaryBrowserDiagnosticStatus": "PARTIAL",
+  "ordinaryProtocolAdmission": "BLOCKED_TECHNICAL",
+  "precompiledNativeBinarySHA256": "1d39ca304fa655aebfd84722d1d4aac88153956dc37016ad6fa58555684bcdb2",
+  "previousPublicSHA256": "3edf6cf59bd87e27d8baae129473aee0e131df3ae2cf2f85f82f95596f0e295d",
+  "rawReceiptSHA256": {
+    "edge-before.json": "5acd6c617fff264c47374468ec0e6eeda3142183bab95b7cb8dd239afb745ff9",
+    "edge-close-intent.json": "c32a5d1d49418813238134455c4269907a65d7dc98aa140891596784080be414",
+    "edge-document.json": "5ba85fddfc01f084d5b9a17a6eddf8d5ec9a22b07453dff5150089ad9a1930c0",
+    "edge-new-window.json": "97b3f21e412aa2daf02e7ac847f6c887a7dd73cbdc08e9f525c86949200aeaae",
+    "edge-result.json": "66935347d6670d2bcefab9670a273d704746a2525aa5903ff88680a6ffde28c8",
+    "front-panel-identity.json": "98630f5213aac7f67f2a87a1768c265565fb04566cbfc47543eff47f3e6162ef",
+    "more-tools-intent.json": "badf874dc50521d0af50354d60fb4dd29764798d643a27e7c27769ef4760c2c7",
+    "original-windowserver.json": "820da1233de2f0522755026bababa9691ae12b5edf5c41613348db28e56b7876",
+    "phase-1-ready.json": "580dbcbb84aa6e21caa70fc866e46500a9db247ad0ad70533e0df8f3a1e94205",
+    "plan.json": "70d2a15cde0c3fd9a4047e32064f19a22dbe9089ae8189fb27db3366a73d8b98"
+  },
+  "realChatGPT": {
+    "deliberateWebsiteRequests": 0,
+    "fileInputs": 0,
+    "formSubmissions": 0,
+    "messages": 0,
+    "observedWebsiteRequests": 0,
+    "uploadOperations": 0,
+    "windows": 0
+  },
+  "schema": 1,
+  "unobserved": {
+    "protocolFrameId": null,
+    "protocolRequestId": null,
+    "protocolTargetId": null,
+    "requestContentLength": null
+  }
+}

@@ -53,5 +53,10 @@
     "entries": 13,
     "privateManifestSHA256": "1ee2b560e6568e26d1629c995352c4abe59da4089198894f5740def6a0f0f84e"
   },
-  "publicReleaseResult": "RIFTLET 1.0.8 — NOT RELEASED"
+  "publicReleaseResult": "RIFTLET 1.0.8 — NOT RELEASED",
+  "finalPrivateCustody": {
+    "topLevelFilesIncludingSubdirectories": 29,
+    "manifestSHA256": "cc45611a8b4c256b5b1bf159e18826af4b6aa202b303e1968b8f2652745c5b78",
+    "nonauthorFinalSHA256": "3a7a48816e28f2329c8fce020badfe1a1a755fa35d95f4e6fd6911fbd9e406e1"
+  }
 }

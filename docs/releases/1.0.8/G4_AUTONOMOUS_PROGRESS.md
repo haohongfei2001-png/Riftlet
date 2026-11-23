@@ -8,6 +8,8 @@
 
 历史大图的独立复查新增了两条可定位的站点资源计时，并确认最后一次可读的同名卡仍在。未取得该图 PUT 或上游 4xx，原 UNKNOWN 保留。[大图原件复核](evidence/build61/native-network-size-independent.json) · [具体验收门槛](G4_FINAL_ACCEPTANCE.md)
 
+第九扇本地专窗将签名、原生 CGWindowID、工具栏图案和菜单动作合在同一持锁周期内完成。系统命中原面板，450 毫秒后的原窗图像相同，未能证实菜单展开或读取协议身份。九窗均已关闭。正常实站校准、故障、恢复和新快照仍待执行。QA 正文冲突修正另经非作者 13 项断言复核。[第九窗回执](evidence/build61/native-network-ordinary-consecutive.json) · [纯内存回归复核](evidence/build61/native-network-body-conflict-independent.json) · [G4 裁决](evidence/build61/native-network-independent-final.json)
+
 ## 2026-11-23 · 两个新建 Temporary Chat
 
 在本地原生回读通过后，普通 Chrome 和 Edge 的已登录专用空草稿各运行签名 build 61 一次。每款均完成两次捕获并建立两枚独立 ARMED，消费与 commit 均为零，两份 SQLite 的操作和 START 均为零。每个原文档均有三次身份读数。独立观察器无法读到产品私有草稿 ID。本轮以空队列结束，未发起上传、故障或显式重选。当前实际 PUT 与原 PNG 之间仍缺完整请求体和进度回执。两扇新空窗和相应进程已清理。[实站回执](evidence/build61/signed-site-empty-prebind.json) · [独立裁决](evidence/build61/signed-site-empty-independent.json)

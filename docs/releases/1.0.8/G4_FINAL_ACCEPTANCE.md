@@ -20,6 +20,21 @@
 
 Chrome 157 自带的表格支持单独添加请求头列。默认的 Content-Length 列读取响应头，Size 读取响应传输量。只有实际请求的 Content-Length 可用于本次归属。该版本 Fetch 协议的两个阶段分别位于请求发出前与取得响应后；它们本身不计量已发出的正文前缀。[安装版本与官方字段定义](evidence/build61/native-network-panel-fields.json)
 
+### 普通浏览器准入与当前实站结果
+
+普通 Edge 内置 Network 与原 QA 文档的对应已获独立读图确认。随后在一扇新的同类专窗中，验收器预先编译，进入原窗时保存真实 CGWindowID。三处工具栏图案与已审阅图像像素一致。定点按下与抬起命中该签名进程的 DevTools 区域。450 毫秒后原窗裁剪逐字节相同，未能确认菜单已展开。没有取得协议 Target ID、Frame ID、Loader ID 或请求 ID，未对未知视图输入命令。此次共创建四扇 Chrome、五扇 Edge 的本地专窗，全部按原身份关闭。原窗口集合已恢复。[可审阅图像的独立结果](evidence/build61/native-network-visible-independent.json) · [原窗状态及精确收尾](evidence/build61/native-network-visible-window.json) · [连续动作与九窗总账](evidence/build61/native-network-ordinary-consecutive.json)
+
+| 实站步骤 | 本轮结果 |
+| --- | --- |
+| B · 正常单图校准 | **NOT_RUN**。真实 Temporary Chat 的唯一创建响应、PUT requestId、请求长度和终态均未取得。没有重复空稿预绑定。 |
+| C · G4-C 故障与知情恢复 | **BLOCKED_TECHNICAL**。真实站点的原 PUT 尚未归属，站点故障注入和显式重选均为零。恢复前和成功后的 SQLite 快照均为 **NOT_RUN**，散列均为 `null`。 |
+| D · G4-A / G4-B | 均为 **NOT_RUN**。缺少新操作对应的具名原卡失败，或真实上游 4xx、原卡消失及完整恢复。非作者未签发 G4-B 的等价放行。 |
+| 站点操作与发布 | 本轮发起的真实站点访问、文件输入、发送和表单提交均为 0。现有个人浏览器的后台流量未采集。公开站点及 stable appcast 继续提供 1.0.5（31）。 |
+
+当前复核要求在原 QA 窗内取得确切协议身份和允许读取的字段，再通过正常产品输入进行实站校准。面板显示的一条本地资源已取得原文档归属；其 66 B 响应大小与原 PNG 的上传请求长度属于不同读数。[非作者 G4 分项裁决](evidence/build61/native-network-independent-final.json) · [正式 PR、公开版本和 DMG](evidence/build61/native-network-release-state.json)
+
+私有总清单覆盖 29 个文件，含三份分批封存的 GUI 原件归档，清单 SHA-256 为 `cc45611a8b4c256b5b1bf159e18826af4b6aa202b303e1968b8f2652745c5b78`。最终非作者裁决 SHA-256 为 `3a7a48816e28f2329c8fce020badfe1a1a755fa35d95f4e6fd6911fbd9e406e1`。[私有归档与候选指纹](evidence/build61/native-network-release-state.json)
+
 ## Build 61 · 原生提交后的双世界回读
 
 **普通 Chrome 157.0.8103.79 和 Edge 158.0.4370.33 的自有本地页均通过。** QA 可执行文件从 `49b92049` 的 Core 和 Adapters 编译。原生执行器原文件作为编译输入前缀，SHA-256 为 `00b1f7b637aad2ce00cc9b766c923ad5c4f25c3d0d08e8cf7306983ddb386140`。运行器新建浏览器专窗，通过现有 `ChromePIDEvents.submitMainWorld` 调用该本地文件预置的固定函数。每步同时留存原生返回和独立的页面读数。[逐浏览器回执与源指纹](evidence/build61/native-bootstrap-local.json)
