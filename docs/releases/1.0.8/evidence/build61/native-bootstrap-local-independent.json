@@ -1,0 +1,210 @@
+{
+  "binaryAndSource": {
+    "QAEntrySHA256": "79769177935f570804a2e0ae7091160211d43329a8e8a197d3ea05ad5ffc3e7f",
+    "additionalFrozenNativeHelpersCompared": 3,
+    "artifactType": "Local arm64 QA executable containing the frozen transport verbatim. The archived real-site runs used the signed product application.",
+    "buildManifestSHA256": "ed64ecd873fcfee463abd1026990cd3143292d0c9cef30db116e0288fc49fb7a",
+    "builderSHA256": "07a41de12c5fd966f90f432c8694efe2b970e673e075f7f97916761a84a7e1e3",
+    "compiledTransportSHA256": "b4209bd09d29acde5d01ff3e2a31299a01b8eb27d1dc0b0f01fd2c950e6fc2ba",
+    "debugProductCopyAndInvokedBinaryMatch": true,
+    "frozenProductionTransportPrefixSHA256": "00b1f7b637aad2ce00cc9b766c923ad5c4f25c3d0d08e8cf7306983ddb386140",
+    "frozenSourceFilesRecomputedFromGit": 59,
+    "hostChecksExecutableDigestBeforeInvocation": true,
+    "hostRunnerSHA256": "0811ab9e3081e18389372ca3bc89a86672335a01dec45d7cdea1ec674ca6e686",
+    "localQAExecutableSHA256": "5cf8c6f3d45d16d732b1029c1daa67de72738fb5e8c7f25dcd9e5c9b76641433",
+    "oneFileUsesByteIdenticalFrozenPrefixWithAppendedFixedQAEntry": true,
+    "ownedFixtureSHA256": "d81ff9a494d2cf535094ab0f3463b0b5fd76e6f48fe66ccd950ff07e89eb0f8a",
+    "unmodifiedCoreAdapterAndCSQLiteFiles": 58,
+    "unmodifiedProductionPrefixLengthBytes": 59945
+  },
+  "families": [
+    {
+      "browser": "chrome",
+      "cleanedAndReadBackInOriginalDocument": true,
+      "controlledOriginalIdentity": {
+        "sameDocumentNonceAndPerformanceTimeOriginAndNavigationEntry": true,
+        "signedRunningVendorValidatedByFrozenIdentityHelper": true,
+        "topLevelFileURLPinnedAndSoleNewTabGuardsApplied": true,
+        "vendorProcessBirthAndRegisteredWindowAndTabJoined": true
+      },
+      "docHttpResourceEntriesAtSixSampleStages": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "endedUTC": "2026-11-23T05:53:09Z",
+      "installedVersionFromPlistAtReview": "157.0.8103.79",
+      "nativeChallengeMatchedMainAndSharedReceipt": true,
+      "ordinaryAppleEventSeesPageFixtureFunctionOrEitherPrivateProperty": false,
+      "ordinaryAppleEventSeesSharedDocumentReceipt": true,
+      "ownedWindowClosedAndOriginalWindowIDSetRestored": true,
+      "pageConstructedUnopenedXHRInheritedMarkedPrototype": true,
+      "pageGlobalAndXHRPrototypeHadMatchingPrivateDataProperties": true,
+      "priorPreparationStop": "FIXTURE_CHANGED before creating a browser window or attempting script navigation",
+      "rawSourceSHA256": {
+        "clear": "1f40718d7acd60fdbb9b9144695c6ec9ec1bfc2979ac794314d6a86bd830cae5",
+        "close-intent": "116d2d6d5d3c5bc8819d5b4125e8be5bc62e3dbe627bc7541cdb66f1063fd26a",
+        "closed": "8c808b36997bef23fcf753af347b31c6a19f3b2425387183b22e25193f39a383",
+        "creation-intent": "63a53c90cc301774b1f523846ebfb550dbeccd7e495353594cac8371a4141559",
+        "environment": "92a00ad3bc2da792b845589a101524cd2815c9697143a003890de6f3ab9312cc",
+        "final-independent-read": "1f40718d7acd60fdbb9b9144695c6ec9ec1bfc2979ac794314d6a86bd830cae5",
+        "installed": "898aa8fafe5e85c6505f10b4d007290866c7e2b1cf8532d10a9e97250e7eefd0",
+        "isolated": "898aa8fafe5e85c6505f10b4d007290866c7e2b1cf8532d10a9e97250e7eefd0",
+        "main-read": "dce6ec660a10b990fec4a6e166b3cc88969e93922c914dccc645b22ee8d4ddd5",
+        "ready": "817a79ce57329f0ece1a609e129d0582772f4f8cc710f72f9aeae4900d383b02",
+        "retired": "844b8060ca43311a9dee131cff6017f3cd72304be3743b0602154099e6cabf33",
+        "run": "8de8d99a49a18074d7fd4c9332670f3067d2be411240948137a1aec945393076",
+        "window-created": "e95159ee7b7268d62644cd9e3fdf2972aac5efe7d2cec85b2d9df1b1c790be5c"
+      },
+      "realNativeStepsInOrder": [
+        "install",
+        "read",
+        "clear",
+        "retire"
+      ],
+      "receiptAndTemporaryNodesRetired": true,
+      "resourceTimingBufferFullEventsAtSixSampleStages": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "returnedNativeStatusByStep": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "startedUTC": "2026-11-23T05:53:01Z",
+      "successfulNativeReturnCount": 4,
+      "trustedCSPViolationsAtSixSampleStages": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "wholeProcessHTTPAndUploads": null
+    },
+    {
+      "browser": "edge",
+      "cleanedAndReadBackInOriginalDocument": true,
+      "controlledOriginalIdentity": {
+        "sameDocumentNonceAndPerformanceTimeOriginAndNavigationEntry": true,
+        "signedRunningVendorValidatedByFrozenIdentityHelper": true,
+        "topLevelFileURLPinnedAndSoleNewTabGuardsApplied": true,
+        "vendorProcessBirthAndRegisteredWindowAndTabJoined": true
+      },
+      "docHttpResourceEntriesAtSixSampleStages": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "endedUTC": "2026-11-23T05:53:16Z",
+      "installedVersionFromPlistAtReview": "158.0.4370.33",
+      "nativeChallengeMatchedMainAndSharedReceipt": true,
+      "ordinaryAppleEventSeesPageFixtureFunctionOrEitherPrivateProperty": false,
+      "ordinaryAppleEventSeesSharedDocumentReceipt": true,
+      "ownedWindowClosedAndOriginalWindowIDSetRestored": true,
+      "pageConstructedUnopenedXHRInheritedMarkedPrototype": true,
+      "pageGlobalAndXHRPrototypeHadMatchingPrivateDataProperties": true,
+      "priorPreparationStop": "FIXTURE_CHANGED before creating a browser window or attempting script navigation",
+      "rawSourceSHA256": {
+        "clear": "ea385a5c5375509099372ad4b63bf4881575e4a79be4227782752a547d6bd0f9",
+        "close-intent": "0f019489dccd3d40c38250967ac7956d02d7f7fc93d2cf356d3cfaa7e68b2945",
+        "closed": "8c808b36997bef23fcf753af347b31c6a19f3b2425387183b22e25193f39a383",
+        "creation-intent": "f141e46078b5c302a2b61321ed8f3cf627d3816af471c0bc270741114ce1213d",
+        "environment": "92a00ad3bc2da792b845589a101524cd2815c9697143a003890de6f3ab9312cc",
+        "final-independent-read": "ea385a5c5375509099372ad4b63bf4881575e4a79be4227782752a547d6bd0f9",
+        "installed": "77aa7452bb36fc83689a219b7912f55ab00092c52366bb63216c0d3b733bde6a",
+        "isolated": "77aa7452bb36fc83689a219b7912f55ab00092c52366bb63216c0d3b733bde6a",
+        "main-read": "7cba505e9b9a8b465bb5f878593e56b20c3803eaca4fd15a3212e624eb1d6d8e",
+        "ready": "1124e405c77ebaae37847eef776539d5f0d7a67477cf78a56d1f14af04a8a0e8",
+        "retired": "0982bda01b7735c9c27c1cbd36f3bdc1c0b0ac3d948d10602ac143df893bfbf8",
+        "run": "9b50190e8b62238874d03d579da1dff51d75049eac42421fa198e3af5db5af76",
+        "window-created": "991dd9fb76e8d1aba67c1f958cb0d40b411318705ed1203eef3250f748b6c73e"
+      },
+      "realNativeStepsInOrder": [
+        "install",
+        "read",
+        "clear",
+        "retire"
+      ],
+      "receiptAndTemporaryNodesRetired": true,
+      "resourceTimingBufferFullEventsAtSixSampleStages": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "returnedNativeStatusByStep": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "startedUTC": "2026-11-23T05:53:10Z",
+      "successfulNativeReturnCount": 4,
+      "trustedCSPViolationsAtSixSampleStages": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "wholeProcessHTTPAndUploads": null
+    }
+  ],
+  "frozenProductSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "gates": {
+    "G4A": "HOLD",
+    "G4B": "HOLD_NO_APPROVED_EQUIVALENCE",
+    "G4C": "HOLD",
+    "release": "NOT_RELEASED"
+  },
+  "measurementScope": {
+    "authenticatedWebsiteVisitedByThisControl": false,
+    "networkMethodMutation": false,
+    "originalOwnedDocumentResources": "The pinned single-script file denied connections, workers, subresources and form submissions. Browser Resource Timing samples count original-document HTTP(S) resources. The checked script had no call to a network API. Trusted CSP and Resource Timing buffer-full listeners were active from initial ready through the clearing step, then removed. Both reported zero across recorded samples.",
+    "signedProductCommandOrSitePUTCreditFromThisControl": false,
+    "wholeBrowserOrNetworkInterface": "UNMEASURED"
+  },
+  "privateArchive": {
+    "allRegularMembersRehashed": 39,
+    "archiveBasename": "native-local-originals.tar.gz",
+    "manifestBasename": "native-local-originals.sha256.json",
+    "manifestSHA256": "7d68ae199ff773b852d0535eab1ab05fd814ec8a1134cc58ccdd8939cfeb700c",
+    "preparationStopFilesAndSuccessfulRunSourcesKeptSeparate": true,
+    "sha256": "bc3359cabe81517bdceb42908e37450713c9661b66eb46457d0cf6f8d13a92e4"
+  },
+  "relatedRealSiteReview": {
+    "file": "recorded-product-command-review.json",
+    "scope": "Signed product command receipts and the Edge product witness in earlier real-site runs. These local fixtures add no real-site provider object, permission or request evidence.",
+    "sha256": "b1a945d14ea5a4d30ee8417eff5f3dd14ada9458b0662b6d099f3787cc78e96c"
+  },
+  "result": "PASS_OWNED_LOCAL_NATIVE_SCRIPT_NAVIGATION_AND_WORLD_IDENTITY_BOTH_BROWSERS",
+  "reviewedAtUTC": "2026-11-23T05:57:05.741865+00:00",
+  "reviewer": "Independent nonauthor source and original-evidence reviewer",
+  "schemaVersion": 1,
+  "scope": "The reviewer rehashed original files, archive and frozen source and checked each raw stage offline. The reviewer did not operate a browser.",
+  "signedBuild": 61,
+  "signedDMGSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "startupAndCausality": {
+    "entry": "All positive phases after ready require one of four fixed local native actions. No fixed page link, onload action, event timer or self-call produced the challenged result. The externally generated challenge and page nonce differ. The source checks caller global and XHR prototype against identities captured at original page load. After the run, the raw main-read sample confirms its original unopened XHR instance inherited the marked page prototype.",
+    "finish": "The two transient private properties, temporary node, listeners and retained diagnostic fields were cleared or retired. The immutable fixture-defined function and static hidden element were part of the original page. Closing the sole owned window ended that page.",
+    "startupAutomaticReadyOnly": true,
+    "statusMeaning": "Per-step successful OS status is logged by the native caller after the frozen function returned without error. The independent DOM reads establish the effects. No raw OS descriptor or Chromium numeric execution-context identifier was recorded."
+  }
+}

@@ -1,5 +1,9 @@
 # G4 恢复与发行进度
 
+## 2026-11-23 · 普通浏览器的原生 bootstrap
+
+Chrome 157 与 Edge 158 在各自新建的自有文件页上，两次通过冻结的 `submitMainWorld` 分别完成标记安装和独立回读。主世界读到了自己的全局和 XHR 原型标记，普通 Apple Events 在同一 DOM 上只读到了共享回执。随后两次原生操作分别清除标记和撤销回执。两款浏览器均未更换原文档或导航条目，本文档 HTTP 资源、CSP 违规和资源计时缓冲区满事件各为零，原窗口集合均已复原。非作者从 39 份封存原件复算了执行程序、源码和每个阶段。[实测回执](evidence/build61/native-bootstrap-local.json) · [本地原生独立复核](evidence/build61/native-bootstrap-local-independent.json)
+
 ## 2026-11-23 · 签名候选的原生提交回执
 
 非作者重新读取 build 61 的 11 份既有浏览器运行记录。Edge 共记录 40 次成功的 `captureTarget`，其中原 G4 专窗有 5 次。冻结的 Edge 代码只有在原生提交后通过执行世界确认和后续校验，且收到原命令回执，才记录成功。日志单独保留的一个反例在完成世界确认后收到了 `CLICK_PIN_REFUSED`。Chrome 的中图亦有对应的 commit 回执、一次 input 和一条持久 START。两款浏览器的实站记录都缺少原 PNG 对应的 PUT 对象及终态。世界确认属于代码与实测事件联合推定，日志没有单独保存浏览器的执行环境编号或确认字符串。[原始运行逐事件独立审计](evidence/build61/recorded-product-command-review.json)

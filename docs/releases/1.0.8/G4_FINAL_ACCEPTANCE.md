@@ -4,12 +4,27 @@
 
 先前的小图在普通 Edge 已产生一条 START，取消次数为零。另一张 23,233,638 字节系统截图留下原 UNKNOWN、完整 PNG 和同名预览，两次备份相同，重选和后继 START 均为零。这两份历史原件继续封存。[先前普通双浏览器验收](evidence/build61/release-gate-after-both-selections.json) · [大图恢复裁决](evidence/build61/size-boundary-independent.json)
 
+## Build 61 · 原生提交后的双世界回读
+
+**普通 Chrome 157.0.8103.79 和 Edge 158.0.4370.33 的自有本地页均通过。** QA 可执行文件从 `49b92049` 的 Core 和 Adapters 编译。原生执行器原文件作为编译输入前缀，SHA-256 为 `00b1f7b637aad2ce00cc9b766c923ad5c4f25c3d0d08e8cf7306983ddb386140`。运行器新建浏览器专窗，通过现有 `ChromePIDEvents.submitMainWorld` 调用该本地文件预置的固定函数。每步同时留存原生返回和独立的页面读数。[逐浏览器回执与源指纹](evidence/build61/native-bootstrap-local.json)
+
+| 直接测量 | Chrome | Edge |
+| --- | --- | --- |
+| 安装随机标记、再次主世界回读、清除标记、撤销回执 | 四次原生返回，四步页内效果 | 四次原生返回，四步页内效果 |
+| 主世界读到原全局对象、原 XHR 原型，新的未打开 XHR 继承该标记 | 通过 | 通过 |
+| 普通 Apple Event 能读到共享回执，在自己的全局对象及 XHR 原型中查找同名标记 | 两个私有标记均不可见 | 两个私有标记均不可见 |
+| 原窗、原标签、Document、URL、导航条目与 `timeOrigin` | 全部一致 | 全部一致 |
+| 本文档 HTTP(S) 资源、CSP 违规、资源缓冲区满事件 | 0 / 0 / 0 | 0 / 0 / 0 |
+| 收尾 | 原型与描述符复原，监听器、临时节点及 DOM 回执移除，原窗口集合复原 | 同项通过 |
+
+两个页面的静态回执节点始终隐藏，页面文字始终为空。本地测试独立封存 39 项原件，归档 SHA-256 为 `bc3359cabe81517bdceb42908e37450713c9661b66eb46457d0cf6f8d13a92e4`。该归档另含一次发生在创建窗口前的准备停止。修正 macOS 临时目录的规范路径比较后才进入本次两项测量。[固定夹具、可执行回执判据及复算说明](../../../Tests/PreClickLease/g4/main-world-bootstrap/README.md)
+
 ## Build 61 · 执行世界和实际 PUT 的归属
 
 | 核验对象 | 直接取得的结果 |
 | --- | --- |
 | 普通 Chrome 157 与 Edge 158 的 Apple Events | 在各自新建、已核实身份的本地专窗中，连续两次读到同一原文档的 DOM 标记。页面自己创建的 XHR 能从原型读到标记，Apple Events 所见的 XHR 原型没有该标记。两款浏览器都关闭了本轮专窗并恢复原窗口集合。[普通浏览器原生回执](evidence/build61/world-local-native.json) |
-| 本地页面自带的固定脚本链接 | 在独立的无界面对照中，浏览器报告该链接在原页面的默认环境执行。两个环境的底层 DOM 节点相同，私有对象和原型标记各自独立。替换无行为标记与重新加载分别使旧标记、旧环境失效。原生 URL 属性提交和 ChatGPT 站点的实际请求执行环境在本轮均为 **NOT_RUN**。[双浏览器对照与源文件指纹](../../../Tests/PreClickLease/g4/main-world-observer/receipt.json) |
+| 本地页面自带的固定脚本链接 | 在此前独立的无界面对照中，浏览器报告该链接在原页面的默认环境执行。两个环境的底层 DOM 节点相同，私有对象和原型标记各自独立。替换无行为标记与重新加载分别使旧标记、旧环境失效。原生 URL 属性提交的后续实测见上节。ChatGPT 实际上传请求的执行环境仍缺直接证据。[页面自带链接的回执](../../../Tests/PreClickLease/g4/main-world-observer/receipt.json) |
 | 冻结产品入口 | 已核对七个指定入口。原生提交返回后，产品另外核验原始命令的回执及草稿身份。Edge 的凭据把两个 JavaScript 环境关联到原文档。两条产品路径的回执均无站点 PUT 实例、请求体或终态。[逐入口源码复核](evidence/build61/world-source-and-history.json) |
 | 已封存的 Chrome 实站中图 | 原采集器只查询精确文件创建端点。条目从 0 增到 1，返回 HTTP 200。原图的 7,921,752 字节在 input 与 change 时两次匹配，SQLite 留有原操作唯一 START。采集器未记录上传 PUT，也无法区分上传来自页面、子框架或工作线程。[原运行清单、采集范围及回执](evidence/build61/recorded-observer-coverage.json) |
 
