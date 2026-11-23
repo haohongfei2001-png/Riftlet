@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 1,
+  "scope": "Final controlled page test suite using private headless browsers and local fixtures",
+  "productResourceSHA256": "8bdb088559961534c1ac43ec170e02e77e3dcb4eaf1c711a79e43a0fcf854c93",
+  "sourceFiles": {
+    "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js": "8bdb088559961534c1ac43ec170e02e77e3dcb4eaf1c711a79e43a0fcf854c93",
+    "Tests/ProductRecoveryAcceptance/Fixture/README.md": "c5c007de2e27851fc9cfd694c47024b00f31a876d51d7abd96c5cd5fb338b845",
+    "Tests/ProductRecoveryAcceptance/Fixture/bridge.cjs": "3b5b3171d64ee9961a727e690b215fcf0af062798ed89f4a1e4ed156e32f45e8",
+    "Tests/ProductRecoveryAcceptance/Fixture/fixture.js": "7c4922989a476c7d19f769ce4f6b835dfe5682ee5709b4ec53f8cc2c76fc2934",
+    "Tests/ProductRecoveryAcceptance/Fixture/index.html": "44f965b658de759c1bd8b11580c334dd0a2f12f85ac87e8bdd38aec30a937840",
+    "Tests/WebPageProgram/explicit-recovery-fixture.test.cjs": "af147141dc3d8227fc2576250927915b365371e62394085aa31914a540fcd992",
+    "Tests/WebPageProgram/original-error-card-application.cjs": "048e32de11f644a298635d2e2132db7cdf378ff899a723fad085366ca9c05136",
+    "Tests/WebPageProgram/chrome-input-resource.test.cjs": "b115839b6945ba374534b4252239ca1d632addf4901fa0c5db14419ceb00ef4e"
+  },
+  "testSourceChangesSinceV3": {
+    "Tests/ProductRecoveryAcceptance/Fixture/README.md": {
+      "v3": "4410745ad273e9d9b7db33ce663156719544142ee933a4439b1c725925e25dce",
+      "v4": "c5c007de2e27851fc9cfd694c47024b00f31a876d51d7abd96c5cd5fb338b845"
+    },
+    "Tests/ProductRecoveryAcceptance/Fixture/fixture.js": {
+      "v3": "397fa01e7e09e323868ef778da70004fbe1726e11cd27c9fc0c14b3ab72c03f8",
+      "v4": "7c4922989a476c7d19f769ce4f6b835dfe5682ee5709b4ec53f8cc2c76fc2934"
+    },
+    "Tests/WebPageProgram/explicit-recovery-fixture.test.cjs": {
+      "v3": "5cff73a44b88762fd592297d33b772cc13bcbf32cfa620867433b5d32b0fd79e",
+      "v4": "af147141dc3d8227fc2576250927915b365371e62394085aa31914a540fcd992"
+    }
+  },
+  "fullWeb": {
+    "rawFile": "web-final-after-ambiguous.tap",
+    "rawSHA256": "eaae060026d6fb560bfd4e1b76ec6807dc9397932352eb28a772c96ddeacece8",
+    "tests": 408,
+    "pass": 408,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "command": "RIFTLET_REQUIRE_CHROME=1 node --test --test-concurrency=1 Tests/WebPageProgram/*.test.cjs",
+  "browserVersions": {
+    "chrome": "157.0.8103.79",
+    "edge": "158.0.4370.33"
+  },
+  "isolatedRecoverySubset": {
+    "rawFile": "web-ambiguous.tap",
+    "rawSHA256": "604eeb7c47956d275b107520cb798f3eb3463b4150d6fdfabc785f30d172a1b0",
+    "tests": 24,
+    "pass": 24,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "recoveryScenariosPerBrowser": 11,
+  "recoveryBrowsers": [
+    "chrome",
+    "edge"
+  ],
+  "genericAndNamedFailuresSeparated": true,
+  "independentPriorRun": {
+    "receiptFile": "public-summary.json",
+    "receiptSHA256": "a0a5de1295f40378b8124a55afb6b0afd31c7965307c5fb90b7efd2e3b08c72f",
+    "unchangedProductResource": true,
+    "untouchedOtherSuites": [
+      {
+        "artifact": "faults.tap",
+        "sha256": "000a1fdb8335daf6986ef81ddf08e847acd89c8518c3c4b5ddb5a1c6bf656202",
+        "command": "node --test Tests/OfflineFaultHarness/*.test.cjs",
+        "tests": 8,
+        "pass": 8,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      {
+        "artifact": "controller.tap",
+        "sha256": "8757d6074bbcece468334dedc6e4808326a0af102a0d06bedc154863f814e3d3",
+        "command": "node --test Tests/OriginalDocumentDelivery/official/controller.test.mjs Tests/OriginalDocumentDelivery/official/correlate-native.test.cjs",
+        "tests": 3,
+        "pass": 3,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      {
+        "artifact": "website.tap",
+        "sha256": "89e634d4237cc0a5ce01e859afa9fef38af0b0553a6ce134cc56f4897f32c590",
+        "command": "node --test website/test-search-indexing.cjs website/test-analytics.cjs",
+        "tests": 9,
+        "pass": 9,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      {
+        "artifact": "archived-helpers.tap",
+        "sha256": "e2760bc8db73afcb12ca5776b3388b47707d36a03af59c4c9e2f63b003cf075c",
+        "command": "node --test engineering/evidence/2026-10-27-real-mac-round3/network-probe.test.cjs engineering/evidence/2026-10-27-real-mac-round5/{page-evidence-helper,progress-diagnostic-probe,versioned-progress-diagnostic-probe}.test.cjs engineering/evidence/2026-10-28-system-screenshot-stage2/*.test.cjs",
+        "tests": 28,
+        "pass": 28,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      {
+        "artifact": "preclick.json",
+        "sha256": "fffdd17db8f9f7569726090c2c6bc92c1523f193ca7ff3aac93e35d5dac069d0",
+        "command": "node Tests/PreClickLease/page/run.cjs chrome \"$PWD/Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js\"",
+        "tests": 19,
+        "passed": 19,
+        "failed": 0
+      },
+      {
+        "artifact": "preview.json",
+        "sha256": "284da07eb5a863b7e75ed2d3f63de58c94f247f3be1fe57242b4dbf4f51d76bf",
+        "command": "node Tests/DerivedPreview/run.cjs chrome \"$PWD/Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js\"",
+        "tests": 22,
+        "passed": 22,
+        "failed": 0
+      },
+      {
+        "artifact": "product.json",
+        "sha256": "44a9705dbbd67579aad00a55748aea146e3de1d3abcb611ded4eeefcc93a4ea1",
+        "command": "node Tests/OriginalDocumentDelivery/product/run.cjs chrome \"$PWD/Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js\"",
+        "tests": 5,
+        "passed": 5,
+        "failed": 0
+      },
+      {
+        "artifact": "renderer.json",
+        "sha256": "5233eaf14d48ca2a850d1f12f15e24052e63a1f61acc60035e7ac1e5fb6b5c6d",
+        "command": "node Tests/OriginalDocumentDelivery/renderer/run.cjs chrome \"$PWD/Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js\"",
+        "tests": 17,
+        "passed": 17,
+        "failed": 0
+      }
+    ],
+    "archivedReplay": {
+      "command": "python3 -B research/web-attachment-handoff-2026-10-27/replay.py",
+      "artifact": "archived-replay.log",
+      "sha256": "da117edaf42eafd6dcfcbc10434bcf146bdbde20418c647d102f7d63419ea446",
+      "packageFilesVerified": 55,
+      "historicalTests": 19,
+      "tracePrefixes": 89,
+      "newBrowserInputs": 0
+    },
+    "benchmark": {
+      "command": "swiftc -parse-as-library -O -target arm64-apple-macosx13.0 scripts/benchmark-builtin-capture.swift -o <scratch>/capture-bench && <scratch>/capture-bench --self-check",
+      "artifact": "capture-bench-selfcheck.log",
+      "sha256": "4dfb2e09060d09ca24f73d73194f5e2feca20be594af49dab3d6b424b42cfe5e",
+      "syntheticChecks": 8,
+      "status": "PASS",
+      "windowServerCaptureBenchmark": "NOT_RUN locally (dedicated headless lane); use isolated native CI or native GUI owner"
+    }
+  },
+  "excluded": [
+    "Old web.tap was captured across a source transition.",
+    "The signed native UI, public website and Apple notarization have separate receipts."
+  ]
+}
