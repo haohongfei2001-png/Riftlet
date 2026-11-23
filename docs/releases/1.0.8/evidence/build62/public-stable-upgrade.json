@@ -46,6 +46,20 @@
   "filesPreserved": 86,
   "installedFrom": "1.0.5 (31)",
   "installedTo": "1.0.8 (62)",
+  "observedUpdateControls": {
+    "check": {
+      "label": "View Update 1.0.8…",
+      "receiptSHA256": "d550f6ebc9ab0bd3f231c8d5e8315878f3971edc8a64859c08d940b4430bb17a"
+    },
+    "install": {
+      "label": "Install Update",
+      "receiptSHA256": "4fd1c17c8924db44942f4b8d478b1a49de35447263734fc0b0a15ca5684f32e4"
+    },
+    "relaunch": {
+      "label": "Install and Relaunch",
+      "receiptSHA256": "424ae0909c06182cdc48caa3726cc2817b7fa2caa318e53bb3c4128576b948d3"
+    }
+  },
   "oldRowsByTable": {
     "assets": {
       "added": 0,

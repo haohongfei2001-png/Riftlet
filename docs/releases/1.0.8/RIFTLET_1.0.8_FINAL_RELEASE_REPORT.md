@@ -54,9 +54,9 @@ Edge 先在已有首图的原草稿中录入指定正文并选中 `preserve this
 | 发布前，隔离测试 appcast | **十三项全部 PASS。** [逐项独立裁决](evidence/build62/staging-thirteen-requirements-independent.json)  活动的正式 31 通过 Sparkle 发现、下载、安装并重启为 62。应用菜单的三次原始记录、签名 feed、14,225,854 字节下载及安装后 193 项全部核验。51 个资产、2 条操作（含 1 条 UNKNOWN）、1 条 START、6 条检查点及全部旧列逐值相等，原 86 个文件与 3 项设置完整。 [实际升级和两份 SQLite 摘要](evidence/build62/staging-31-to-62-migration.json) · [逐行独立审计](evidence/build62/staging-active-sqlite-independent.json) · [更新和签名安装独立复核](evidence/build62/staging-51-to-51-independent.json) · [旧版基线](evidence/build62/upgrade-31-baseline.json) · [签名测试源](evidence/build62/staging-update-feed.json) |
 | 发布后，GitHub 匿名下载和经官网按钮下载 | 两次分别取得 14,225,854 字节的完整 DMG，SHA-256 均为 `66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49`。公开校验和文件相符。[公开下载与来源核对](evidence/build62/public-distribution.json) |
 | 发布后，公开下载件的独立安装与普通启动 | App 和 DMG 的 Developer ID、staple 和 Gatekeeper 核对通过。另在隔离环境普通启动该公开副本，版本 1.0.8、build 62。两种架构的代码签名和全部 193 项文件、目录与符号链接都与签名清单匹配。[公开下载件独立安装与普通启动](evidence/build62/public-installation.json) |
-| 发布后，另一份活动 31 副本经正式 stable 应用内更新 | 使用普通「检查更新」、安装和重新启动，版本从 1.0.5（31）升到 1.0.8（62）。51 个资产、2 条操作、1 条 UNKNOWN、1 条 START 和 6 条检查点保留，86 个文件、51 个 PNG 与 3 项设置核对相符。另外实测更新器缓存包含同 SHA 的完整 DMG。 [公开 stable 升级及前后 SQLite](evidence/build62/public-stable-upgrade.json) |
+| 发布后，另一份活动 31 副本经正式 stable 应用内更新 | 从 Riftlet 菜单打开已发现的「View Update 1.0.8…」，依次选择「Install Update」和「Install and Relaunch」，版本从 1.0.5（31）升到 1.0.8（62）。51 个资产、2 条操作、1 条 UNKNOWN、1 条 START 和 6 条检查点保留，86 个文件、51 个 PNG 与 3 项设置核对相符。另外实测更新器缓存包含同 SHA 的完整 DMG。 [公开 stable 升级及前后 SQLite](evidence/build62/public-stable-upgrade.json) |
 
-本次公开 stable 验证在点击「检查更新」前，对同一运行中的 31 先后备份两次。其间 32 个已有资产从可见转为自动归档。51 个资产的身份保持一致，2 条操作、1 条 UNKNOWN 和 1 条 START 均原样保留。下文首轮 staging 的 32 次导入来自复制文件后产生的新 inode，发生在另一份试验副本。 [公开 stable 升级及前后 SQLite](evidence/build62/public-stable-upgrade.json)
+本次公开 stable 验证在打开已发现的更新前，对同一运行中的 31 先后备份两次。其间 32 个已有资产从可见转为自动归档。51 个资产的身份保持一致，2 条操作、1 条 UNKNOWN 和 1 条 START 均原样保留。下文首轮 staging 的 32 次导入来自复制文件后产生的新 inode，发生在另一份试验副本。 [公开 stable 升级及前后 SQLite](evidence/build62/public-stable-upgrade.json)
 
 首份试验副本从冷态 51 行变为 83 行。准备时复制回桌面的 32 个文件有新的 macOS 文件身份，31 在下载更新前就完成了全部 32 次导入。最后一条早于下载 110.684 秒。后续副本按原 inode、出生时刻和 SHA 恢复这 32 个文件，数据库未经修改，在运行中的 31 和 62 均测得 51 行。[首轮原始审计](evidence/build62/staging-first-update-independent.json) · [逐行归因](evidence/build62/staging-first-update-attribution.json)
 
