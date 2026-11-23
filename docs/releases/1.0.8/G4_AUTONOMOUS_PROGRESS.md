@@ -6,6 +6,12 @@
 
 首笔显式重选提交时，build 61 才将现场数据库从 v4 升至 v7。两个快照核验命令现可核对这个过渡及已在 v7 上继续的重选，逐项比对原操作、原调用、原 START、补偿记录及新旧卡身份。14 项针对性测试通过。非作者以真实表结构和独立数据运行了 22 项命令行对照，并重算三组既有的受控恢复归档。实站故障及重选的两份快照另须从同一次现场恢复取得。[非作者 SQLite 工具复核](evidence/build61/recovery-snapshot-verifier-independent.json)
 
+Edge 在首批目录扫描把新截图收入启动基线，验收器在产品输入前停止。修正后的准备先验证初始清单为空，随后在普通 Chrome 的新 QA 草稿取得一次真实点击、一次完整的原图输入和一条晚到的 START。原卡可见，操作 history 为 UNKNOWN。精确文件创建端点在该草稿新增一条 HTTP 200 的 fetch。实际 PUT 的归属和状态尚缺。[实站回执](evidence/build61/medium-chrome-normal.json)
+
+收尾时网页还返回了原 File 和预览的全幅 RGBA。两者尺寸与中心像素相同，完整像素摘要不同；原 PNG 交付字节一致。Chrome 的原卡及原草稿已保留，本轮的两个产品进程和两个网页观察器已退出。[实站像素与独立裁决](G4_FINAL_ACCEPTANCE.md) · [清理凭据](evidence/build61/medium-site-cleanup.json)
+
+非作者逐项验证 263 个归档载荷、内嵌清单、8 个主文件及 17 个补充文件。G4-C 的实站中断和知情重选仍缺证据，G4-A 的具名错误和 G4-B 的上游拒绝也未成立。正式 PR #125 保持 Draft，公开 stable feed 返回 1.0.5（31）。[本轮独立发行裁决](evidence/build61/medium-final-g4-independent.json) · [公开更新源](https://riftlet.com/updates/stable.xml)
+
 ## 2026-11-23 · 起点
 
 PR #124 仍为 Draft，提交 `1c83ca91e6dd26cb064627adc59167fdccb6a38c`。Issue #120 打开。main 为 `9fd8ad15fca043915069904113e5fb67d82b4948`。冻结 build 59 的双架构 CI 成功，公开版本为 1.0.5（31）。[既有同包报告](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)

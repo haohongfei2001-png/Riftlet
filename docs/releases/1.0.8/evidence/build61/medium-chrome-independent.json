@@ -1,0 +1,180 @@
+{
+  "reviewedAtUTC": "2026-11-23T04:06:03.631871+00:00",
+  "originalLateReadUTC": "2026-11-23T03:59:40.677102+00:00",
+  "reviewer": "Independent nonauthor release reviewer",
+  "candidate": {
+    "signedSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+    "dmgSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+    "runtimeCodeDirectoryHash": "217e012b5be8a3d53c6ce351efcb9bbcbe6b4762"
+  },
+  "site": "One authenticated ordinary Chrome dedicated Temporary Chat. One targeted software-generated AppKit mouseDown completed in the signed application.",
+  "preClick": {
+    "strictNativeAndPageChecksPerSample": 12,
+    "consecutivePassingSamples": 2,
+    "originalSiteDocumentAndEditor": true,
+    "directProductDocumentComposerGenerationValuesReadBeforeClick": false,
+    "originalBeforeAppKitCounts": {
+      "fileInput": 0,
+      "fileChange": 0,
+      "formSubmit": 0,
+      "sendButtonClicks": 0
+    },
+    "afterClickFastScopedCounts": {
+      "fileChange": 0,
+      "fileInput": 0,
+      "formSubmit": 0,
+      "sendButtonClicks": 0
+    },
+    "cutoff": "The first retained post-click observation had no File events or Network entries; its route then became unavailable."
+  },
+  "retainedOriginal": {
+    "pngSHA256": "66057577de807a2d2a266360b59efdfb80e6301a158d9eb1bd2bf028757dd3a7",
+    "bytes": 7921752,
+    "dimensions": [
+      1920,
+      1440
+    ],
+    "sourceAndCandidateMediaExactBytes": true,
+    "originalSystemCaptureEvidenceSHA256": "b8e17a07c8e0847d1f6f46296fcf1145bec83f06b0d4d66a02df677d7b75356f"
+  },
+  "binding": {
+    "hashEncoding": "UUID commitments use SHA-256 of lowercase UTF-8; opaque document, composer and draft generation use SHA-256 of exact stored UTF-8.",
+    "originalOperation": "87478d63c4afce494f2f067fab1e49148d8b074efede1808b61b6ca66c6386f5",
+    "originalInvocation": "5b1a10067a4d4ca7081d2034ed971da169f3c4e3e47547ef14108f396047f8b0",
+    "originalClickBinding": "5a4914d0dae12c5b4463d07b43dcaf1f103e0d90b7dde48bd078fadcce96f88f",
+    "originalAsset": "0d1dda9ee0e2c854d15ee61814bd2ad852809e4a3668ed5ae870005909415053",
+    "document": "4f6b3ddeddb746f5d4fdc7824c94aba7c6ac35f727b673d30b2eca0598b312f1",
+    "composer": "51067c4eb1ddda77db51bc7a89bb75eb6ef398e803b5b9ce4b6f8084d0c8ad5c",
+    "draftGeneration": "47ea73c4f1f175b66fd4623256bc33eb68d3244331ae35ba7c121f6d9092477c",
+    "preClickPinMatchedSignedArmedFrozenConsumed": true,
+    "consumedOperationMatchedDatabase": true,
+    "appKitEventNumberAndMonotonicTimeMatchedSignedCallback": true,
+    "postHocAttribution": "The same binding digest appears in the armed pre-click witness, freeze at the original mouse event and consumption against the durable operation. The target including the three draft identifiers was read retrospectively from its immutable target and signed dispatch checkpoint."
+  },
+  "nativeProduct": {
+    "mouseDowns": 1,
+    "origin": "software targeted to candidate window",
+    "fileSetterEntered": true,
+    "changeReturned": true,
+    "signedFirstResult": "inputTriggered",
+    "atFirstReturnSTART": false,
+    "durableLaterSTART": 1,
+    "admittedSignal": "attachmentAccepted",
+    "admittedInputCount": 1,
+    "laterAssetVisibility": "swallowed",
+    "originalRecordLocked": true,
+    "safeToRetry": false,
+    "originalNamedFailure": false
+  },
+  "sqliteStages": {
+    "before": {
+      "artifactSHA256": "329a43b43e91aafbf2986895d9271c0d2364a989bb0f7a4ecd175c570b71affd",
+      "schema": 4,
+      "integrityCheck": "ok",
+      "assets": 1,
+      "operations": 0,
+      "upload_starts": 0,
+      "compensations": 0,
+      "attachment_reselections": 0,
+      "phase": null,
+      "latestOutcome": null,
+      "returnedReceiptOutcome": null,
+      "assetStatus": "pending",
+      "visibility": "visible",
+      "visibilityReason": "capture"
+    },
+    "earlyAfter": {
+      "artifactSHA256": "428d79bf37868f88e571f17ffc0f723b22ceace21f564539d2b18989c68b232d",
+      "schema": 4,
+      "integrityCheck": "ok",
+      "assets": 1,
+      "operations": 1,
+      "upload_starts": 0,
+      "compensations": 0,
+      "attachment_reselections": 0,
+      "phase": "dispatchIntent",
+      "latestOutcome": null,
+      "returnedReceiptOutcome": null,
+      "assetStatus": "transferring",
+      "visibility": "visible",
+      "visibilityReason": "capture"
+    },
+    "matureIndependentBackup": {
+      "artifactSHA256": "3727e8b9e0994bca07146004c8d22ce6c32d39eb824f1ee609e911fd2a8dd831",
+      "schema": 4,
+      "integrityCheck": "ok",
+      "assets": 1,
+      "operations": 1,
+      "upload_starts": 1,
+      "compensations": 0,
+      "attachment_reselections": 0,
+      "phase": "unknown",
+      "latestOutcome": "uploadStarted",
+      "returnedReceiptOutcome": "inputTriggered",
+      "assetStatus": "unknown",
+      "visibility": "swallowed",
+      "visibilityReason": "uploadStarted"
+    }
+  },
+  "lateOriginalPage": {
+    "originalDocumentWitness": true,
+    "originalEditorWitness": true,
+    "focusedAtRead": false,
+    "visibleDocumentAtRead": false,
+    "localAttachmentMemberVisibleAtLastSample": true,
+    "fileAndChangeBothReadFullOriginalBytes": true,
+    "originalFileInputCounts": {
+      "fileChange": 1,
+      "fileInput": 1,
+      "formSubmit": 0,
+      "sendButtonClicks": 0
+    },
+    "visibleDecodedExactFilenameMembers": 1,
+    "scopedExactRemoveControls": 1,
+    "previewDimensions": [
+      1920,
+      1440
+    ],
+    "previewReference": "image/png data-image member",
+    "fullOriginalRGBA_SHA256_sRGB": "d2b68a29a0619da92ec3f6c022bb2cf0671010523ed8d1c150b5edfea6b1d300",
+    "sourceEmbeddedColorSpace": "kCGColorSpaceDisplayP3",
+    "originalCenterSRGBA": [
+      206,
+      58,
+      9,
+      255
+    ],
+    "sourceAllPixelsOpaque": true,
+    "fullOriginalRGBA_SHA256_sourceTagged": "9f0a3cfd99c60dac3ee6e6f25f1655c61613918226a64a8106c22ff38a09b8e6",
+    "websitePreviewRGBAHash": null,
+    "websitePreviewPixelEquality": null,
+    "colorEvidence": "The exact File digests and dimensions are known. The retained webpage contained no preview byte stream, canvas pixel sample or full preview fingerprint. Page-side re-encoding and pixel equality are unestablished."
+  },
+  "transport": {
+    "resourceTimingCreateEndpoint": "/backend-api/files",
+    "typeObserved": "fetch",
+    "creationEndpointResponseStatus": 200,
+    "creationMethodCaptured": false,
+    "observedCreationRowsBefore": 0,
+    "observedCreationRowsAfter": 1,
+    "creationResponseBodyOrSignedDestinationBound": false,
+    "requestBodyAtActualPUT": null,
+    "serverBytesAtActualPUT": null,
+    "actualPUTResponseStatus": null,
+    "serverFinalState": "UNKNOWN",
+    "siteAbortCalls": 0,
+    "networkFaultInstalled": false
+  },
+  "result": "NORMAL_PRODUCT_INPUT_AND_ATTACHMENT_STARTED; NORMAL_UPSTREAM_PUT_201_NOT_ESTABLISHED",
+  "g4Disposition": {
+    "A": "HOLD_NO_NAMED_ORIGINAL_SITE_ERROR_AND_RECOVERY",
+    "B": "HOLD_NO_ATTRIBUTABLE_UPSTREAM_4XX_OR_DISAPPEARANCE",
+    "C": "HOLD_NO_CONTROLLED_SITE_INTERRUPTION_AND_COMPLETED_EXPLICIT_RECOVERY",
+    "reattachThisOriginal": false,
+    "release": "NOT_RELEASED",
+    "externalCondition": "The site-level evidence still lacks exact PUT identity/bytes/status and a separately authorized recovery after qualifying failure or disappearance."
+  },
+  "previouslyAdjudicatedG4EvidenceSHA256": "2796c31a0a2371015a81b0854a131f819661d96d09371347a275d30b33142ded",
+  "publicCustodyManifestSHA256": "28aa9509367e08fc95dbb781b2a6aea520110489b4d85a15167472f5eaf36c35",
+  "releaseAuthorized": false
+}

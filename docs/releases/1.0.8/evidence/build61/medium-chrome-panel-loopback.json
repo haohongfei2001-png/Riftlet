@@ -1,0 +1,99 @@
+{
+  "scope": "single synthetic owned local File PUT; exact installed network backend pre-enabled; no user-visible Network panel interaction",
+  "source": {
+    "bytes": 7563763,
+    "sha256": "13f35f7ec658107037fff61fefc61701052fe135650bf6d55a5e0127708619ed"
+  },
+  "browser": "Chrome/157.0.8103.79",
+  "network": {
+    "create": {
+      "method": "POST",
+      "endpointSHA256": "53dbc3d31a264c79912a622f9e4ab046b3af0d22d76a67e6a70b78b771a19cd5",
+      "xhrType": "Fetch",
+      "hasPostData": true,
+      "inlineBody": {
+        "representation": "text",
+        "characters": 97,
+        "bytes": 97,
+        "sha256": "e4c7b37b8860536167ca6deac4a004aee7e08a70ec1bfc0e10fae4e6c806ec2b",
+        "equalsOriginal": true
+      },
+      "entryCount": 1,
+      "entries": [
+        {
+          "representation": "base64",
+          "characters": 132,
+          "bytes": 97,
+          "sha256": "e4c7b37b8860536167ca6deac4a004aee7e08a70ec1bfc0e10fae4e6c806ec2b",
+          "equalsOriginal": true
+        }
+      ],
+      "responseStatus": 201,
+      "loadingFinished": true,
+      "bodyLookupDuring": {
+        "result": "reply",
+        "explicitBase64Flag": false,
+        "representation": "text",
+        "characters": 97,
+        "bytes": 97,
+        "sha256": "e4c7b37b8860536167ca6deac4a004aee7e08a70ec1bfc0e10fae4e6c806ec2b",
+        "equalsOriginal": true
+      },
+      "bodyLookupAfter": {
+        "result": "reply",
+        "explicitBase64Flag": false,
+        "representation": "text",
+        "characters": 97,
+        "bytes": 97,
+        "sha256": "e4c7b37b8860536167ca6deac4a004aee7e08a70ec1bfc0e10fae4e6c806ec2b",
+        "equalsOriginal": true
+      }
+    },
+    "put": {
+      "method": "PUT",
+      "endpointSHA256": "e5e69a5a15035bac8ea22366f5199ac91eaf869c5379cf577250c448efca6124",
+      "xhrType": "XHR",
+      "hasPostData": true,
+      "inlineBody": {
+        "representation": "absent",
+        "bytes": 0,
+        "equalsOriginal": false
+      },
+      "entryCount": null,
+      "entries": [],
+      "responseStatus": 201,
+      "loadingFinished": true,
+      "bodyLookupDuring": {
+        "result": "backend error",
+        "reason": "NO_POST_DATA",
+        "errorDigest": "f0bc2500c5ee30d70201a2b5ec07b0325025c112d4bcf941aaea4b67551c6694",
+        "equalsOriginal": false
+      },
+      "bodyLookupAfter": {
+        "result": "backend error",
+        "reason": "NO_POST_DATA",
+        "errorDigest": "f0bc2500c5ee30d70201a2b5ec07b0325025c112d4bcf941aaea4b67551c6694",
+        "equalsOriginal": false
+      }
+    }
+  },
+  "server": {
+    "creates": 1,
+    "puts": 1,
+    "bytes": 7563763,
+    "sha256": "13f35f7ec658107037fff61fefc61701052fe135650bf6d55a5e0127708619ed",
+    "status": 201
+  },
+  "web": {
+    "input": 1,
+    "change": 1,
+    "requestSends": 1,
+    "pending": 0
+  },
+  "networkDomainEnabledBeforeFileSelection": true,
+  "cleanup": {
+    "listenerClosed": true,
+    "privateBrowserExited": true,
+    "pendingPuts": 0
+  }
+}

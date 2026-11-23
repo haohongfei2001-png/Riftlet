@@ -2,9 +2,11 @@
 
 **RIFTLET 1.0.8 — NOT RELEASED**
 
-普通 Chrome 和 Edge 已在同一份 **1.0.8（61）** 签名候选上完成冷暖首图、各三组快速双图、真实非空原文与非折叠选区、已有附件保留。**发行仍受 G4 阻塞**。原图保留和 UNKNOWN 已有实站证据，原操作发生真实故障后显式重选并成功附加尚未得到证明。正式 PR #125 保持 Draft，公开稳定版本为 **1.0.5（31）**。[11:08 非作者最终发行裁决](evidence/build61/release-gate-after-both-selections.json)
+普通 Chrome 和 Edge 已在同一份 **1.0.8（61）** 签名候选上完成冷暖首图、各三组快速双图、真实非空原文与非折叠选区、已有附件保留。**发行仍受 G4 阻塞**。原图保留和 UNKNOWN 已有实站证据，原操作发生真实故障后显式重选并成功附加尚未得到证明。正式 PR #125 保持 Draft，公开稳定版本为 **1.0.5（31）**。[本轮非作者最终发行裁决](evidence/build61/medium-final-g4-independent.json) · [11:08 双浏览器验收](evidence/build61/release-gate-after-both-selections.json)
 
-本轮用新的 7,921,752 字节系统截图，在自有收件服务测得一次整图 HTTP 201、一次部分传输后中断。非作者逐项复核了浏览器进度、服务端实收字节和原图。该对照具备可复算的证据，实站故障和恢复单独裁决。[独立传输复核](evidence/build61/medium-loopback-independent.json) · [当前 G4 报告](G4_FINAL_ACCEPTANCE.md)
+本轮在普通 Chrome 的新 Temporary Chat 中，通过签名 build 61 附加了一张 7,921,752 字节的真实系统截图。一次 AppKit 点击对应一次 input、一次 change、一条持久 START 和一张新卡，零发送、零表单提交。完整网页 File 与原 PNG 的 SHA-256 一致。文件创建端点返回 HTTP 200。该样本的 PUT、HTTP 201、受控中断和显式重选仍缺实站证据。相同 PNG 在自有回环端点的两次测量取得了完整 HTTP 201 和一次 17.9936% 进度中断。非作者从 24 项原件重算后，维持未发行裁决。[Chrome 独立复核](evidence/build61/medium-chrome-independent.json) · [回环独立复核](evidence/build61/medium-loopback-independent.json) · [当前 G4 报告](G4_FINAL_ACCEPTANCE.md)
+
+该实站样本的最后一次网页读数显示，原 File 和网站预览尺寸、中心像素一致，全幅 RGBA 摘要不同。预览的编码字节和 PUT 数据均未取得，差异原因仍待证实。[现场像素与取证范围](G4_FINAL_ACCEPTANCE.md)
 
 09:40，将已绑定的普通 Chrome 专窗放入当前显示器可见区域。AXRaise 和 Apple Events 激活均返回 0，原文档、编辑器及登录态有效。09:43，WindowServer 报告唯一原窗在屏上；系统截图组件的高层矩形覆盖屏幕，系统实际命中在中心和四个象限均指向原 Chrome 窗。旧 Edge 窗在两次同出生进程签名清单中均已消失。详细逐窗记录保存在私有验收档案。[窗口恢复与证据摘要](evidence/build61/original-window-recovery.json) · [逐窗元数据](evidence/build61/per-window-inventory.json)
 

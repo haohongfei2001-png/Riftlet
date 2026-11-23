@@ -1,6 +1,8 @@
 # Riftlet 1.0.8 · G4 最终实站验收
 
-2026-11-23 的当前候选为 build 61。新候选在普通 Edge 已取得一次原图附加和一条 START。受控故障次数为零，原操作的结果为 uploadStarted。另一次 23,233,638 字节的真实系统截图上传留下原 UNKNOWN、完整 PNG 和同名预览。两次独立数据库备份相同，没有重选或新 START，G4 仍未放行。非作者已独立确认 build 61 两款浏览器的普通实站验收通过。当前发行条件为 G4-C，加 G4-A 或独立接受的 G4-B。[最新发行裁决](evidence/build61/release-gate-after-both-selections.json) [build 61 大图与恢复裁决](evidence/build61/size-boundary-independent.json)
+**Build 61 当前结论为 PARTIAL。** 普通 Chrome 的中图校准取得原图输入和持久 START。实站受控故障和显式重选均为零。G4-C 因无法核实上传请求体和精确取消句柄而阻塞，G4-A、G4-B 尚未取得合格样本。发行需 G4-C 加 G4-A，或 G4-C 加独立认可的 G4-B。[本轮非作者最终裁决](evidence/build61/medium-final-g4-independent.json)
+
+先前的小图在普通 Edge 已产生一条 START，取消次数为零。另一张 23,233,638 字节系统截图留下原 UNKNOWN、完整 PNG 和同名预览，两次备份相同，重选和后继 START 均为零。这两份历史原件继续封存。[先前普通双浏览器验收](evidence/build61/release-gate-after-both-selections.json) · [大图恢复裁决](evidence/build61/size-boundary-independent.json)
 
 ## Build 61 · 中等大小截图
 
@@ -12,6 +14,28 @@
 | 单次中断 | 上传进度事件报告 1,425,408 字节（17.9936%），随后原 XHR 各产生一次 abort 和 loadend | 实收前 1,376,256 字节，逐字节匹配原图前缀，随后 ECONNRESET，无 HTTP 响应 |
 
 两个用例使用独立请求，结束时在途请求为零。实站 G4 的裁决另需签名产品、原卡、原草稿和用户显式恢复。[浏览器与收件服务原始回执](../../../Tests/PreClickLease/g4/owned-transfer/system-result.json) · [离线复算](../../../Tests/PreClickLease/g4/owned-transfer/offline-result.json)
+
+### 同一原图在普通 Chrome Temporary Chat 的结果
+
+签名 build 61 在专用草稿收到一次真实 AppKit mouseDown。网页随后记录一次 input、一次 change，各自读取到完整的 7,921,752 字节，两个 SHA-256 均匹配原 PNG。原 Document 和编辑器继续有效，网站显示一张以原操作命名的已解码 1920×1440 预览。发送按钮点击和表单提交均为零。[同包现场回执](evidence/build61/medium-chrome-normal.json) · [11:59 原件的非作者复算](evidence/build61/medium-chrome-independent.json) · [24 项私有原件指纹](evidence/build61/medium-chrome-original-fingerprints.json)
+
+12:01:42（北京时间），清理观察器之前，原页面完成了全幅像素核对。File 与预览均为 1920×1440，中心 RGBA 都是 `[206,58,9,255]`。两者的完整 RGBA SHA-256 分别为 `388de40ed2c3f4df79b6edf02ca6318baff2737dc69126ae841b3508e6d0eb9f` 和 `5fe929839e4a7b006456295bfe4919c86b0cde1c4a60804ecf96c339da9c45b8`，全幅像素不同。未取得预览编码的字节，差异来源未知。原文件输入的两次完整字节核对均通过。[非作者对两次网页读数及完整归档的复核](evidence/build61/medium-final-g4-independent.json)
+
+点击后约 3.67 秒取到的第一份 SQLite 后备份仍是 `dispatchIntent`，没有 START。晚期备份已持久化一条 `attachmentAccepted` START，原操作 phase 为 `unknown`，最新收据为 `uploadStarted`。晚期备份 SHA-256 为 `3727e8b9e0994bca07146004c8d22ce6c32d39eb824f1ee609e911fd2a8dd831`。三份快照覆盖正常校准的点击前、点击后早期和晚期。显式重选的前后快照尚缺。
+
+精确同源 `/backend-api/files` 的 Resource Timing 条目在输入前为零，之后出现一条 fetch，耗时 424 ms，返回 HTTP 200。该接口记录了文件创建端点的响应。实际上传地址、PUT 请求体、进度、线路字节及上传响应状态仍未知。已知原卡仍在，现场取消、具名错误及显式重新附加的次数均为零。[浏览器接口与网络证据边界](evidence/build61/g4-site-observability-review.json) · [Resource Timing](https://www.w3.org/TR/resource-timing/)
+
+Chrome 157 对应版本的实现将 Apple Events 的 JavaScript 放在独立脚本环境。此通道能读取原始 DOM File 和草稿状态，本轮无法从中识别并取消网站持有的唯一 XHR。另在一个本地空白专窗调用官方开发者工具菜单后，能看到新面板，但原标签的选中状态与原 AX 窗复核都未通过。执行器在读取网络行前停止。[已安装版本的 Chromium 实现](https://github.com/chromium/chromium/blob/157.0.8103.79/chrome/browser/ui/cocoa/applescript/tab_applescript.mm#L397-L398)
+
+独立的回环对照在选择文件前已启用 Chrome 157 随附 Network 面板使用的数据源。自有服务端收齐另一张 7,563,763 字节的合成 PNG 并返回 201。该数据源能读出同一次测试的 97 字节创建请求、PUT 的请求类型与响应状态，但在原 PUT 开始和结束后按同一请求 ID 读取正文，均得到 `NO_POST_DATA`。这次测量用的是面板的数据源，实际可见面板的占位文字没有采集。再新建实站草稿重复同一读法，仍缺少本次要求的完整请求体归属证据。[对照与所用版本](evidence/build61/medium-chrome-panel-capability.json) · [收件端和浏览器原始记录](evidence/build61/medium-chrome-panel-loopback.json)
+
+| 独立放行项目 | Build 61 结果 |
+| --- | --- |
+| G4-C 用户知情恢复 | **BLOCKED_TECHNICAL**。实站唯一可取消 PUT 的原图归属和正字节进度均未取得。原卡在最后一次原草稿读取时仍可见，故障、显式重选和恢复 START 均为零。 |
+| G4-A 具名失败卡 | **NOT_RUN**。本次无网站原卡错误、对应的错误收据及后继成功操作。 |
+| G4-B 上游拒绝 | **NOT_RUN**。缺少归属于完整原 PNG 的真实上游 4xx、原卡消失和恢复。非作者没有签发等价放行。 |
+
+本轮创建的三扇 QA 窗口中，本地面板窗和 Edge 零输入空窗均在重验原身份后关闭。带有原附件的 Chrome Temporary Chat 保留。两份 DOM 观察器、两个签名 QA 进程和三个本地监听器均已退出。私有 GUI 档案含 263 个有指纹的文件及内嵌清单，归档 SHA-256 为 `3cb2b916ef120781e34f8644b320eb4c9d367987b9af92191a9ec88473b4d60c`。原 PNG、三份正常校准 SQLite 备份和原草稿证据均已封存。[签名运行与清理](evidence/build61/medium-site-cleanup.json) · [两个面板环境的独立判定](evidence/build61/medium-panel-independent.json)
 
 ## Build 59 · 历史验收
 

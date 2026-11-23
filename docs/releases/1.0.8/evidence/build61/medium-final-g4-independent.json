@@ -1,0 +1,208 @@
+{
+  "reviewedAtUTC": "2026-11-23T04:13:21.716483+00:00",
+  "reviewer": "Independent nonauthor release reviewer",
+  "candidate": {
+    "build": 61,
+    "dmgSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+    "source": "49b9204974088c1983cda469910d9a78d8f4c43b",
+    "version": "1.0.8"
+  },
+  "verdict": "NOT_RELEASED",
+  "scope": "G4 exact build 61 only. All archive members were hashed offline after cleanup. No live browser input, no replay, no CI rerun and no publication.",
+  "formalCustody": {
+    "primaryCustodyFilesChecked": 8,
+    "additionalFiledControlsAndProofsMatched": 17,
+    "inventoryPayloads": 263,
+    "uniqueSafeRegularTarMembers": 264,
+    "additionalTarMember": "inventory.json exactly matches the standalone inventory",
+    "totalInventoriedBytes": 109253801,
+    "all263PayloadLengthsAndSHA256Verified": true,
+    "sourceReceiptAndPNGVerified": true,
+    "allThreeIndependentSQLiteCopiesVerified": true,
+    "officialFilesSHA256": {
+      "medium-gui-custody-inventory.json": "02863871abe2f497cc3f717111aa160bf7b7c0415c6bd01b725f3daa2a0dd515",
+      "medium-normal-calibration-and-cleanup.json": "a7a7020922c6c38bd950007b5cc3b0a57d2752667135ec291f291dd87713d025",
+      "medium-normal-queue-before.sqlite": "329a43b43e91aafbf2986895d9271c0d2364a989bb0f7a4ecd175c570b71affd",
+      "medium-normal-queue-dispatched.sqlite": "428d79bf37868f88e571f17ffc0f723b22ceace21f564539d2b18989c68b232d",
+      "medium-normal-queue-started.sqlite": "3727e8b9e0994bca07146004c8d22ce6c32d39eb824f1ee609e911fd2a8dd831",
+      "medium-normal-web-raw-bundle.tar.gz": "3cb2b916ef120781e34f8644b320eb4c9d367987b9af92191a9ec88473b4d60c",
+      "medium-original-system-capture.json": "b8e17a07c8e0847d1f6f46296fcf1145bec83f06b0d4d66a02df677d7b75356f",
+      "original.png": "66057577de807a2d2a266360b59efdfb80e6301a158d9eb1bd2bf028757dd3a7"
+    },
+    "additionalFiledSHA256": {
+      "development-loopback-source.png": "13f35f7ec658107037fff61fefc61701052fe135650bf6d55a5e0127708619ed",
+      "ledger-tools-independent.json": "4908a92e07136e3334c9bacf761b4fca507fc15d3a79af91d656eb90ff138368",
+      "local-panel-http-receipt.json": "c8ed9f5244f826941ae10e5b3b2f411265dda65989cf1657fc3d2556c6e3a449",
+      "local-panel-loopback-code.cjs": "da823c572ec2355b2274cc306208ecd05905c0e6afd660ea80bcb62ac4e76415",
+      "local-panel-source-proof.json": "dc9883200478eaef55da3ee7fd2f66c5f78f89a016cfb0d0259a261465244359",
+      "medium-site-custody-manifest.json": "28aa9509367e08fc95dbb781b2a6aea520110489b4d85a15167472f5eaf36c35",
+      "medium-site-independent.json": "0a59ec9312ecf0a9590fb2f789d6f9438f5f6da6d6666c3c825c7c9c0dc0d7d3",
+      "owned-lifetime-controls.json": "78b13470327742a47b1eb83f3ee50a42d8b06f12f869032ede3f3755e1900e93",
+      "owned-lifetime-independent.json": "558841f4df6c7770e7d8acd940f03207d4164545c222311b64862fc501735542",
+      "owned-native-pagehide.json": "eba068d46e8eab90101529e2a1b1267e618147aa266c45b1ac590606a9680a98",
+      "owned-offline-transfer.json": "817bdc377299993870223bf902f3fb8e23b7ce7f543cce1c6a9165710f57a3a7",
+      "owned-original-transfer.json": "5573712c551ecf4c90a355c962a5bca0c3323727d0f100b3376569d3548394f5",
+      "owned-transfer-independent.json": "baecdd37c28886fc3d7e192db8d4a7aee95bd1eef84483f72d63ec88c6d3d35d",
+      "panel-data-independent.json": "eed168a83614b4073ccaea05946fbc56be8490b7b817b5de09c9969f797ec652",
+      "pre-calibration-site-review.json": "2796c31a0a2371015a81b0854a131f819661d96d09371347a275d30b33142ded",
+      "reference-source-colors.json": "8949fb90a0c0e8aca6370f1bb7181a2937167beaa628382865eb205d092ae760",
+      "trace-through-normal-start.jsonl": "460ba541e8de3ca4b4c3b63c57ced348367c79ed685b983eabdfc6902fdecb71"
+    }
+  },
+  "originalMedium": {
+    "pngSHA256": "66057577de807a2d2a266360b59efdfb80e6301a158d9eb1bd2bf028757dd3a7",
+    "bytes": 7921752,
+    "nativeOriginalClick": 1,
+    "originalInputEvents": 1,
+    "originalChangeEvents": 1,
+    "webpageFullOriginalByteSHAEach": true,
+    "oldOperationCount": 1,
+    "durableAttachmentAcceptedSTARTs": 1,
+    "settledPhase": "unknown",
+    "latestReceiptOutcome": "uploadStarted",
+    "noAutomaticReplay": true,
+    "sendClicks": 0,
+    "formSubmits": 0,
+    "normalTransport": "EXACT_CREATION_ENDPOINT_FETCH_200_ONLY",
+    "actualPUTBound": false,
+    "fullWirePNGSHA": null,
+    "remoteBytes": null,
+    "PUTResponseStatus": null,
+    "namedOriginalFailure": false,
+    "explicitRecovery": false,
+    "mouseAndBindingEvidenceSHA256": "0a59ec9312ecf0a9590fb2f789d6f9438f5f6da6d6666c3c825c7c9c0dc0d7d3"
+  },
+  "websitePixelsAtTwoTimes": [
+    {
+      "utc": "2026-11-23T03:59:40.677102+00:00",
+      "siteOriginalSHA256": "b4a8e26d91e22438884a384c3c7cf27b0b80e9eeb1b795ad11fb993c9e508a56",
+      "originalFileAndPreviewDimensions": [
+        1920,
+        1440
+      ],
+      "webPixelEvidenceCount": 0
+    },
+    {
+      "utcFromRetainedLastPageFile": "2026-11-23T04:01:42.118033+00:00",
+      "pageClockMS": 192086,
+      "siteOriginalSHA256": "4be968246f4cbc85da71d00ab2fa04d1384ab6551c04cc5ae5be373116aaaad7",
+      "webPixelEvidenceCount": 1,
+      "webFileRGBA_SHA256": "388de40ed2c3f4df79b6edf02ca6318baff2737dc69126ae841b3508e6d0eb9f",
+      "previewRGBA_SHA256": "5fe929839e4a7b006456295bfe4919c86b0cde1c4a60804ecf96c339da9c45b8",
+      "bothDimensions": [
+        1920,
+        1440
+      ],
+      "bothCenterRGBA": [
+        206,
+        58,
+        9,
+        255
+      ],
+      "wholeBrowserReadbackPixelsEqual": false,
+      "previewEncodedSHA256": null,
+      "observedPreviewMIME": "image/png",
+      "exactMethod": "Full OffscreenCanvas 2D getImageData over 1920×1440. File uses createImageBitmap(File) and image member uses createImageBitmap(HTMLImageElement). Both records identify the same input operation.",
+      "offlineEquivalentPreviewDecodePossible": false
+    }
+  ],
+  "pixelDisposition": "Two complete browser-readback raster hashes differ despite identical dimensions and center samples. The selected File at both DOM events is exactly the source PNG. No encoded preview bytes, common-reference offline comparison of both objects, upstream body or cause was observed. The visual difference cannot be attributed to the signed product.",
+  "priorG4Originals": {
+    "smallEdge": {
+      "bytes": 5513,
+      "durableSTART": 1,
+      "cancel": 0,
+      "controlledInterruption": false
+    },
+    "oversizedEdge": {
+      "bytes": 23233638,
+      "durableSTART": 0,
+      "phase": "unknown",
+      "documentedNamedPreviewAndRemovePresent": true,
+      "upstreamHTTP": null
+    }
+  },
+  "loopbackControl": {
+    "systemOriginalFullPUTHTTP": 201,
+    "systemOriginalPartialBrowserFraction": 0.17993595356178785,
+    "systemOriginalBytesActuallyReadBeforeDisconnect": 1376256,
+    "partialHTTP": null,
+    "appliesTo": "owned loopback servers and browser only"
+  },
+  "platformObservability": {
+    "headlessNetworkBackendLocalPUTHTTP": 201,
+    "headlessNetworkBackendLocalPNGBodyUnavailable": true,
+    "preEnabledLocalDataPathRawBodyErrors": 2,
+    "separateNativeInspectorReadRows": 0,
+    "initialBoundInspectorAppeared": true,
+    "initialGuardedCloseRefusedUTC": "2026-11-23T04:04:54Z",
+    "laterWindowLifecycle": {
+      "localPanel": {
+        "verifiedBeforeUTC": "2026-11-23T04:07:10Z",
+        "absenceVerifiedUTC": "2026-11-23T04:07:10Z",
+        "sameDocumentAndRouteRecheckedTwice": true,
+        "originalTabCountBefore": 1,
+        "targetedCloseRequestCount": 1,
+        "originalWindowAbsentUnderSameProcessBirth": true,
+        "disposition": "CLOSED_PREVIOUSLY_BOUND_OWNED_EMPTY"
+      },
+      "emptyRetiredEdge": {
+        "verifiedBeforeUTC": "2026-11-23T04:07:10Z",
+        "absenceVerifiedUTC": "2026-11-23T04:07:11Z",
+        "sameDocumentAndRouteRecheckedTwice": true,
+        "originalTabCountBefore": 1,
+        "targetedCloseRequestCount": 1,
+        "originalWindowAbsentUnderSameProcessBirth": true,
+        "disposition": "CLOSED_PREVIOUSLY_BOUND_OWNED_EMPTY"
+      },
+      "successfulChrome": {
+        "atUTC": "2026-11-23T04:07:10Z",
+        "sameDocumentAndRouteRecheckedTwice": true,
+        "originalPresent": true,
+        "unsentEditorEmpty": true,
+        "visibleImages": 1,
+        "removeControls": 1,
+        "disposition": "PRESERVED_ORIGINAL_CHROME_DRAFT"
+      }
+    }
+  },
+  "cleanup": {
+    "allEmployedSignedQAProcessesExited": true,
+    "confirmedClosed": 2,
+    "historicalReadOnlyMonitorOutsideThisRun": true,
+    "liveNetworkCallbacksInstalled": 0,
+    "loopbackListenersExited": 3,
+    "loopbackListenersStarted": 3,
+    "originalDOMObserversClosed": 2,
+    "ownedWindowsCreated": 3,
+    "pendingBusinessRun": false,
+    "preservedSignedInQAWithOriginalAttachment": 1,
+    "scope": "Three dedicated preparation/calibration/local-inspector windows for this run. The two previous Edge records have a separate read-only monitor.",
+    "asOfLastExactSignedInChromeWindowReadUTC": "2026-11-23T04:07:10Z",
+    "latestVerifiedOriginalAttachmentMembers": 1
+  },
+  "databaseVerifier": {
+    "scopedStatus": "PASS_QA_ONLY",
+    "fourteenQAUnittestMethods": true,
+    "independentBlind4To7Pairs": 4,
+    "independentRealArchive7To7Pairs": 3
+  },
+  "gates": {
+    "A": "HOLD_NO_SAME_SIGNED_SITE_NAMED_FAILURE_AND_INFORMED_RECOVERY",
+    "B": "HOLD_NO_ATTRIBUTABLE_UPSTREAM_4XX_FOR_ORIGINAL_PNG_AND_DISAPPEARANCE",
+    "independentBEquivalenceApproved": false,
+    "C": "HOLD_NO_SEPARATE_QUALIFYING_SITE_INTERRUPTION_AND_INFORMED_RECOVERY",
+    "decision": "G4-C plus G4-A or a separately accepted G4-B remain required. Preserve the original Chrome draft and existing Edge data. No currently admitted repeat input on these originals."
+  },
+  "partialControlsOnly": true,
+  "publicReleaseAuthorized": false,
+  "independentReportSHA256": {
+    "owned-transfer-independent-public.json": "baecdd37c28886fc3d7e192db8d4a7aee95bd1eef84483f72d63ec88c6d3d35d",
+    "lifecycle-independent-public.json": "558841f4df6c7770e7d8acd940f03207d4164545c222311b64862fc501735542",
+    "sqlite-recovery-independent-public.json": "4908a92e07136e3334c9bacf761b4fca507fc15d3a79af91d656eb90ff138368",
+    "g4-site-and-observability-independent-public.json": "2796c31a0a2371015a81b0854a131f819661d96d09371347a275d30b33142ded",
+    "medium-normal-site-independent-public.json": "0a59ec9312ecf0a9590fb2f789d6f9438f5f6da6d6666c3c825c7c9c0dc0d7d3",
+    "medium-normal-custody-manifest-public.json": "28aa9509367e08fc95dbb781b2a6aea520110489b4d85a15167472f5eaf36c35",
+    "panel-datapath-independent-public.json": "eed168a83614b4073ccaea05946fbc56be8490b7b817b5de09c9969f797ec652"
+  }
+}

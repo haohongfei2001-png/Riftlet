@@ -1,0 +1,163 @@
+{
+  "scope": "One normal native raw-File XHR PUT on a QA-owned loopback origin, a fresh empty headless Chrome profile and an inherited private pipe.",
+  "browser": {
+    "product": "Chrome/157.0.8103.79",
+    "installedVersion": "157.0.8103.79",
+    "SCMRevision": "6dc9bc3bdaea5c35ed6d41fceab2f7a3a2227c4f-refs/branch-heads/8103@{#1574}"
+  },
+  "directObservations": {
+    "networkBackend": {
+      "used": true,
+      "preEnabledBeforeFileSelection": true,
+      "params": {
+        "maxPostDataSize": 65536,
+        "maxTotalBufferSize": 262144000,
+        "reportDirectSocketTraffic": true
+      },
+      "createJSON": {
+        "method": "POST",
+        "endpointSHA256": "53dbc3d31a264c79912a622f9e4ab046b3af0d22d76a67e6a70b78b771a19cd5",
+        "xhrType": "Fetch",
+        "hasPostData": true,
+        "inlineBody": {
+          "representation": "text",
+          "characters": 97,
+          "bytes": 97,
+          "sha256": "e4c7b37b8860536167ca6deac4a004aee7e08a70ec1bfc0e10fae4e6c806ec2b",
+          "equalsOriginal": true
+        },
+        "entryCount": 1,
+        "entries": [
+          {
+            "representation": "base64",
+            "characters": 132,
+            "bytes": 97,
+            "sha256": "e4c7b37b8860536167ca6deac4a004aee7e08a70ec1bfc0e10fae4e6c806ec2b",
+            "equalsOriginal": true
+          }
+        ],
+        "responseStatus": 201,
+        "loadingFinished": true,
+        "bodyLookupDuring": {
+          "result": "reply",
+          "explicitBase64Flag": false,
+          "representation": "text",
+          "characters": 97,
+          "bytes": 97,
+          "sha256": "e4c7b37b8860536167ca6deac4a004aee7e08a70ec1bfc0e10fae4e6c806ec2b",
+          "equalsOriginal": true
+        },
+        "bodyLookupAfter": {
+          "result": "reply",
+          "explicitBase64Flag": false,
+          "representation": "text",
+          "characters": 97,
+          "bytes": 97,
+          "sha256": "e4c7b37b8860536167ca6deac4a004aee7e08a70ec1bfc0e10fae4e6c806ec2b",
+          "equalsOriginal": true
+        }
+      },
+      "rawFilePUT": {
+        "method": "PUT",
+        "endpointSHA256": "e5e69a5a15035bac8ea22366f5199ac91eaf869c5379cf577250c448efca6124",
+        "xhrType": "XHR",
+        "hasPostData": true,
+        "inlineBody": {
+          "representation": "absent",
+          "bytes": 0,
+          "equalsOriginal": false
+        },
+        "entryCount": null,
+        "entries": [],
+        "responseStatus": 201,
+        "loadingFinished": true,
+        "bodyLookupDuring": {
+          "result": "backend error",
+          "reason": "NO_POST_DATA",
+          "errorDigest": "f0bc2500c5ee30d70201a2b5ec07b0325025c112d4bcf941aaea4b67551c6694",
+          "equalsOriginal": false
+        },
+        "bodyLookupAfter": {
+          "result": "backend error",
+          "reason": "NO_POST_DATA",
+          "errorDigest": "f0bc2500c5ee30d70201a2b5ec07b0325025c112d4bcf941aaea4b67551c6694",
+          "equalsOriginal": false
+        }
+      },
+      "sameBackendErrorMessageAtBothReads": "No post data available for the request",
+      "readTiming": {
+        "begin": "The original requestWillBeSent event directly triggered the first lookup for its request ID. The lookup completion time relative to the wire transfer was not measured.",
+        "terminal": "The second lookup used the same request ID after native loadend, browser loadingFinished and server body completion."
+      }
+    },
+    "nativeFileAndServer": {
+      "original": {
+        "bytes": 7563763,
+        "sha256": "13f35f7ec658107037fff61fefc61701052fe135650bf6d55a5e0127708619ed"
+      },
+      "server": {
+        "creates": 1,
+        "puts": 1,
+        "bytes": 7563763,
+        "sha256": "13f35f7ec658107037fff61fefc61701052fe135650bf6d55a5e0127708619ed",
+        "status": 201
+      },
+      "browserFileCounters": {
+        "input": 1,
+        "change": 1,
+        "requestSends": 1,
+        "pending": 0
+      }
+    },
+    "installedFrontendSource": {
+      "bundleResourceSHA256": "52cd66a75f371cd07e49261f793c89d2a30acad6380efbfb52abb51b7531c0c2",
+      "resourceValues": [
+        {
+          "role": "Network manager/model",
+          "pakResourceID": 53475,
+          "decodedJS_SHA256": "eda244761ac6c4b693614abe5093477a27cf1cf3e46c95792e56af34bc3cba84"
+        },
+        {
+          "role": "Network details / request payload view",
+          "pakResourceID": 53870,
+          "decodedJS_SHA256": "c4d8e8a69c79b16e4cb432d75a839e3ff1586579cd1e240cc0f11ccc2fd88182"
+        }
+      ],
+      "sourceChecks": {
+        "managerEnabledInlineLimit65536TotalLimit262144000": true,
+        "networkModelReadsRequestInlineTextOrAsksBackend": true,
+        "noBackendBodyPreventsCreatingBinaryContent": true,
+        "modelUsesSelectedRequestsBackendID": true,
+        "UIObtainsSelectedRequestBodyFromThatModel": true,
+        "binaryPayloadViewNeedsNonErrorNonTextBase64Content": true
+      }
+    }
+  },
+  "visibleDevToolsUI": {
+    "opened": false,
+    "NetworkTabManuallyInspected": false,
+    "payloadPaneRenderedOrScreenshotted": false,
+    "status201ObservedBy": "network backend and independent loopback receiver",
+    "UIPlaceholderOrTruncationText": "NOT_OBSERVED",
+    "sourceBasedInference": "The selected-request binary payload view depends on the same backend read. Both lookups returned no body; the installed code cannot supply the verified original PNG bytes to that view for this sample."
+  },
+  "decision": {
+    "completeRawFileBytesRecoverableThroughThisPreEnabledPanelDataPath": false,
+    "networkStatus201Recoverable": true,
+    "basisForAnotherLiveDraftSolelyToObtainCompleteBytesFromThisPanel": "NO_GO",
+    "scopeLimit": "One Chrome version and one native File-backed PUT. Site transport and other request representations were not exercised."
+  },
+  "cleanup": {
+    "listenerClosed": true,
+    "privateBrowserExited": true,
+    "pendingPuts": 0
+  },
+  "sourceSHA256": {
+    "fixedLocalProbe": "da823c572ec2355b2274cc306208ecd05905c0e6afd660ea80bcb62ac4e76415",
+    "rawNetworkReceipt": "c8ed9f5244f826941ae10e5b3b2f411265dda65989cf1657fc3d2556c6e3a449",
+    "fixturePage": "d3b443583b44cca0eb8a865a1a65a1e26eb85e95fb8ccd7d942a540e0bbadcde",
+    "fixtureServer": "82514d0df405bbe9edf72db31d4f2f131c7bbadc5534729c23f759897ef62003",
+    "fixtureDriver": "cb3dff296a89079c9d222d9caaf27e4e606b949caf225827ad8fbafdce1f8218",
+    "ownedChromeCleanup": "86ab2fca6586e9651a16876d76fa27a1a81864498a07c7ff0c2256f383bb269b"
+  }
+}
