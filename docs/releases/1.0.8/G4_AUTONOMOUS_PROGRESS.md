@@ -2,7 +2,7 @@
 
 ## 2026-11-23 · 浏览器原生 Network
 
-普通 Chrome 157 的自有回环校准取得唯一创建响应、同一原文档发起的唯一 PUT、110,882 字节请求长度和 201 终态。独立收件端核对原字节，浏览器回报 `NO_POST_DATA`。两款浏览器的隔离作用范围实验分别验证了在途传输、新请求、精确 URL 阻止及撤销。改正本地读数器对 base64 正文的解析后，四个纯内存回归通过。原采样的源码及其指纹单独保留。[正常关联](evidence/build61/native-network-association-independent.json) · [独立作用范围核验](evidence/build61/native-network-scope-independent.json)
+普通 Chrome 157 的自有回环校准取得唯一创建响应、同一原文档发起的唯一 PUT、110,882 字节请求长度和 201 终态。独立收件端核对原字节，浏览器回报 `NO_POST_DATA`。两款浏览器的隔离作用范围实验分别验证了在途传输、新请求、精确 URL 阻止及撤销。改正本地读数器对 base64 正文的解析后，非作者发现两个正文来源发生冲突时仍可能给出原图摘要。现已分别比较来源，只要两者不一致便保留未知。六个纯内存回归通过。原采样的源码及其指纹单独保留。[正常关联](evidence/build61/native-network-association-independent.json) · [独立作用范围核验](evidence/build61/native-network-scope-independent.json)
 
 普通 Edge 的已运行进程通过厂商签名和出生身份核对。在单标签本地专窗的私有裁剪中，实际可见蓝色「网络」、一条 200 记录和 66 B。该记录的随机样式表前缀与原文档唯一引用一致。非作者独立看图后确认了这一步。截图文件为 76,396 字节，SHA-256 为 `0813c961c82e0d63b81247f3d92e7ff214bb66587846c10c647c811a6687b04c`。该行的 66 B 是响应大小。[原窗像素与样式表对应](evidence/build61/native-network-visible-row.json)
 

@@ -96,22 +96,26 @@ function describe(row, stream) {
 }
 
 async function payloadAssessment(cmd, request, png) {
-  let result = 'unavailable', returnedBodyBytes = null, observedHash = null;
+  let result = 'unavailable', lookupBytes = null, inlineBytes = null;
   if (request.inlineEntryBytes.length && request.inlineEntryBytes.every(v => typeof v === 'string')) {
-    const bytes = Buffer.concat(request.inlineEntryBytes.map(v => Buffer.from(v, 'base64')));
-    if (bytes.equals(png)) observedHash = sha(bytes);
+    inlineBytes = Buffer.concat(request.inlineEntryBytes.map(v => Buffer.from(v, 'base64')));
   }
   try {
     const response = await cmd('Network.getRequestPostData', {requestId:request.id});
     const encoding = response.base64Encoded ? 'base64' : 'utf8';
-    const bytes = Buffer.from(response.postData, encoding);
-    returnedBodyBytes = bytes.length;
+    lookupBytes = Buffer.from(response.postData, encoding);
     result = encoding + ' returned';
-    if (bytes.equals(png)) observedHash = sha(bytes);
   } catch (error) {
     result = /no post data/i.test(error.message) ? 'NO_POST_DATA' : 'backend error';
   }
-  return {lookupCount:1, lookupResult:result, returnedBodyBytes, inlineEntryCount:request.inlineEntryBytes.length,
+  const representationsDisagree = inlineBytes !== null && lookupBytes !== null && !inlineBytes.equals(lookupBytes);
+  const inlineMatchesSource = inlineBytes?.equals(png) ?? null;
+  const lookupMatchesSource = lookupBytes?.equals(png) ?? null;
+  const observed = inlineBytes ?? lookupBytes;
+  const observedHash = observed && !representationsDisagree && observed.equals(png) ? sha(observed) : null;
+  return {lookupCount:1, lookupResult:result, returnedBodyBytes:lookupBytes?.length ?? null,
+    inlineEntryCount:request.inlineEntryBytes.length, inlineBytesRead:inlineBytes?.length ?? null,
+    inlineMatchesSource, lookupMatchesSource, representationsDisagree,
     payloadHashUnavailable:observedHash === null, observedPUTBodySHA256:observedHash};
 }
 

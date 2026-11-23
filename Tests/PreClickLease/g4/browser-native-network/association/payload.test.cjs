@@ -49,3 +49,23 @@ test('a full set of identical inline bytes can independently establish the diges
   assert.equal(result.lookupResult, 'NO_POST_DATA');
   assert.equal(result.observedPUTBodySHA256, sha(bytes));
 });
+
+test('contradictory inline and lookup results cannot certify a digest in either direction', async () => {
+  const original = Buffer.from('file'), other = Buffer.from('also');
+  for (const [inline, lookup] of [[original, other], [other, original], [original, original.subarray(0, 2)]]) {
+    const result = await assess(original, {postData:lookup.toString('base64'), base64Encoded:true},
+      [inline.toString('base64')]);
+    assert.equal(result.inlineMatchesSource, inline.equals(original));
+    assert.equal(result.lookupMatchesSource, lookup.equals(original));
+    assert.equal(result.representationsDisagree, true);
+    assert.equal(result.payloadHashUnavailable, true);
+    assert.equal(result.observedPUTBodySHA256, null);
+  }
+});
+
+test('identical complete inline and lookup bytes agree on the digest', async () => {
+  const original = Buffer.from([0xff, 0x00, 0xef]), encoded = original.toString('base64');
+  const result = await assess(original, {postData:encoded, base64Encoded:true}, [encoded]);
+  assert.equal(result.representationsDisagree, false);
+  assert.equal(result.observedPUTBodySHA256, sha(original));
+});
