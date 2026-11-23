@@ -1,8 +1,22 @@
 # Riftlet 1.0.8 · G4 最终实站验收
 
-**Build 61 当前结论为 PARTIAL。** 原生主世界回读已在两款普通浏览器的自有文件页通过。两份新建的实站空草稿各取得两条签名产品预绑定回执。G4-C 为 **BLOCKED_TECHNICAL**。同一真实上传请求的完整 PNG 字节、进度、中断与显式恢复仍缺证据。G4-A、G4-B 为 **NOT_RUN**。发行需要 G4-C 和 G4-A 均通过，或 G4-C 通过并取得 G4-B 的独立等价放行。[原生对照独立裁决](evidence/build61/native-bootstrap-local-independent.json) · [实站独立裁决](evidence/build61/signed-site-empty-independent.json)
+**Build 61 当前结论为 PARTIAL。** G4-C 为 **BLOCKED_TECHNICAL**。G4-A、G4-B 为 **NOT_RUN**。真实站点缺少可归属于原操作的 PUT 请求和终态，也未取得故障后显式重新选择的成功记录。非作者已认可在特定条件下通过请求元数据归属一次 PUT。浏览器无法提供正文时，使用 `payloadHashUnavailable`，实际上传字节摘要保持未知。[当前独立归属标准](evidence/build61/native-network-attribution-criteria.json)
 
 先前的小图在普通 Edge 已产生一条 START，取消次数为零。另一张 23,233,638 字节系统截图留下原 UNKNOWN、完整 PNG 和同名预览，两次备份相同，重选和后继 START 均为零。这两份历史原件继续封存。[先前普通双浏览器验收](evidence/build61/release-gate-after-both-selections.json) · [大图恢复裁决](evidence/build61/size-boundary-independent.json)
+
+## Build 61 · 浏览器原生 Network 归属与故障范围
+
+| 测量 | 结果 |
+| --- | --- |
+| Chrome 157，自有无登录页面 | 一个 PNG、一次 input/change、一次创建 POST 200。创建响应中的完整目的地址与随后唯一 PUT 地址一致。原 target、frame、loader、Document 均已核对。请求长度为 110,882 字节，PUT 得到 201；收件端收齐后逐字节核对。浏览器对原 PUT 的单次查询返回 `NO_POST_DATA`。[原始回执](evidence/build61/native-network-association.json) · [非作者复算](evidence/build61/native-network-association-independent.json) |
+| 两款浏览器，自有页目标级 Offline | 服务器已对 Chrome / Edge 分别读入 64,840 / 16,332 字节时启用 Offline。两次 6 MiB 的请求仍在恢复在线前收齐并返回 201。其后仅目标标签的新请求报网络断开。同浏览器另一标签和独立客户端均返回 201。[原始事件日志及作用范围](../../../Tests/PreClickLease/g4/browser-native-network/scope/README.md) |
+| 两款浏览器，精确本地 URL 阻止 | 两个目标均产生请求 ID，随后 `loadingFailed`、`blockedReason=inspector`。服务器没有收到目标请求。对照标签、独立客户端访问同一 URL 均为 201。归类为 `CLIENT_REQUEST_BLOCKED_BEFORE_BODY`。撤销后各方均成功，退出时无待处理服务器请求或连接。[非作者逐事件复核](evidence/build61/native-network-scope-independent.json) |
+| Edge 158，本机安装检查 | Edge 的外层安装包在 macOS 静态验签中报告缺少 `Contents/PlugIns/MicrosoftEdgeWidgets.appex`。本轮额外的正常关联测试在启动 Edge 前结束。先前两款浏览器的目标作用域测试单独列账。Chrome 通过外层签名和厂商要求验证。[静态验签回执](evidence/build61/native-network-installed-signatures.json) |
+| 历史 Edge 23,233,638 字节实站大图 | 37 份原文档样本记录一次 input、一次 change、零发送与提交。文件创建端点的资源计时有 200，稍后的处理端点有计时但无状态。无创建响应正文、存储 PUT ID 或上游 413。原图为 2880×2816，最后可读样本仍显示 2048×2002 同名预览。四份私有数据库备份一致，保留原 UNKNOWN，重选和 START 均为零。[原图、卡片和四份快照独立复核](evidence/build61/native-network-size-independent.json) |
+
+网页产生卡片、浏览器给创建端点返回 200 和存储 PUT 的终态分别判断。实站归属需要同一原操作的一次文件输入、唯一创建响应、完整目的地址相等、唯一 PUT requestId、匹配的请求长度、原目标与时序及真实终态。声明请求长度不证明失败前传出了多少字节。公开记录只保留允许的目的地址摘要。本地实验和独立复核的 13 份私有原件清单 SHA-256 为 `1ee2b560e6568e26d1629c995352c4abe59da4089198894f5740def6a0f0f84e`。[归属及数据范围裁决](evidence/build61/native-network-attribution-criteria.json)
+
+Chrome 157 自带的表格支持单独添加请求头列。默认的 Content-Length 列读取响应头，Size 读取响应传输量。只有实际请求的 Content-Length 可用于本次归属。该版本 Fetch 协议的两个阶段分别位于请求发出前与取得响应后；它们本身不计量已发出的正文前缀。[安装版本与官方字段定义](evidence/build61/native-network-panel-fields.json)
 
 ## Build 61 · 原生提交后的双世界回读
 

@@ -4,6 +4,8 @@
 
 普通 Chrome 和 Edge 已在同一份 **1.0.8（61）** 签名候选上完成冷暖首图、各三组快速双图、真实非空原文与非折叠选区、已有附件保留。**发行仍受 G4 阻塞**。原图保留和 UNKNOWN 已有实站证据，原操作发生真实故障后显式重选并成功附加尚未得到证明。正式 PR #125 保持 Draft，五项正式检查成功，GitHub Release 和 Sparkle stable 的公开版本为 **1.0.5（31）**。[本轮实站独立裁决](evidence/build61/signed-site-empty-independent.json) · [双浏览器验收](evidence/build61/release-gate-after-both-selections.json) · [正式 PR](https://github.com/haohongfei2001-png/Riftlet/pull/125) · [稳定更新源](https://riftlet.com/updates/stable.xml)
 
+最新一轮在 Chrome 157 的自有无登录页面证明了唯一创建响应、PUT 请求 ID、请求长度和 HTTP 201 的完整关联。浏览器返回 `NO_POST_DATA`，收件服务独立核对原始 110,882 字节。Chrome 和 Edge 的本地 Offline 均未中断已经开始的 6 MiB 请求。两款浏览器的精确 URL 阻止均发生在正文发送之前。此前 23,233,638 字节的真实截图有创建端点的 200 记录、原 UNKNOWN 和同名预览，仍缺可归属的 PUT 终态。原始安装候选继续冻结。[本轮 G4 报告](G4_FINAL_ACCEPTANCE.md) · [网络独立复核](evidence/build61/native-network-association-independent.json) · [历史实站大图复核](evidence/build61/native-network-size-independent.json)
+
 本轮从冻结源码编译 QA 程序，在普通 Chrome 157 与 Edge 158 的独立本地专窗内实际执行了原生 `submitMainWorld`。在原文档中，页面回读证实调用者持有原全局对象和 XHR 原型的两个随机标记。普通 Apple Events 只看到共享 DOM 回执。清理后两个标记、临时节点、监听器和回执均已撤销。非作者完成了 39 项原件的核对。[本地原生独立裁决](evidence/build61/native-bootstrap-local-independent.json)
 
 随后在 Chrome、Edge 的全新已登录 Temporary Chat 各运行签名 build 61 一次，每款各有两次 `captureTarget` 成功、两枚 ARMED、零消费、零 commit。每个原文档有三次一致的身份读数。两扇空窗均已关闭。完整实际 PUT 的请求体、发起环境与进度仍无可归属回执。**G4-C 为 BLOCKED_TECHNICAL，G4-A 与 G4-B 为 NOT_RUN**。本轮没有新上传、中断或显式重选，也没有恢复前后的两份 SQLite 快照。[签名候选实站回执](evidence/build61/signed-site-empty-prebind.json) · [G4 验收报告](G4_FINAL_ACCEPTANCE.md)

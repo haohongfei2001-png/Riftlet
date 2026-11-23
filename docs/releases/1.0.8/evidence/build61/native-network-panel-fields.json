@@ -1,0 +1,21 @@
+{
+  "checkedChrome": "157.0.8103.79",
+  "pinnedFrontendRevision": "6f9a57d502c857e2412a57fe03c96286d7877479",
+  "columnDefinitionSHA256": "7381b94f4fc80aef3a95f1de7b4055f5cd2a068011784f09020d9778a5717b25",
+  "vendorSources": {
+    "frontendPin": "https://github.com/chromium/chromium/blob/157.0.8103.79/DEPS",
+    "columns": "https://github.com/ChromeDevTools/devtools-frontend/blob/6f9a57d502c857e2412a57fe03c96286d7877479/front_end/panels/network/NetworkLogViewColumns.ts",
+    "fetchStages": "https://github.com/chromium/chromium/blob/157.0.8103.79/third_party/blink/public/devtools_protocol/domains/Fetch.pdl#L15-L21",
+    "protocolMonitor": "https://developer.chrome.com/docs/devtools/protocol-monitor/",
+    "networkPanel": "https://developer.chrome.com/docs/devtools/network/reference/"
+  },
+  "sourceFindings": {
+    "defaultContentLength": "The built-in response-header-content-length column uses response headers. The Size cell includes response transfer data.",
+    "requestLength": "The pinned implementation supports separate custom Request Headers columns. A request Content-Length column is possible in this version. Source support alone does not measure any request.",
+    "connectionID": "The connection ID identifies a network connection. It cannot substitute for the original requestId, frameId or targetId.",
+    "fetchStages": "The documented stages occur before the request is sent or after a response is available. Neither stage on its own measures a nonzero outgoing prefix.",
+    "monitor": "The vendor instructions describe an experiment and a recording view. There is no target, website request or cookie exposure claim from this source audit."
+  },
+  "websiteRequestsRead": 0,
+  "sourceReviewOnly": true
+}
