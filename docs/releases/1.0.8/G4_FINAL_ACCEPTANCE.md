@@ -1,6 +1,6 @@
 # Riftlet 1.0.8 build 59 · G4 最终实站验收
 
-2026-11-23 的当前候选为 build 60。本文件下文保留 build 59 的历史证据。[build 60 同包结果和发行结论](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)
+2026-11-23 的当前候选为 build 61。新候选在普通 Edge 已取得一次原图附加和一条 START。受控故障次数为零，原操作的结果为 uploadStarted。本文下方为 build 59 的历史证据。[build 61 实站原操作](evidence/build61/g4c-original-live.json) · [当前发行报告](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)
 
 **放行结论为 PARTIAL。** 已在已登录的普通 Edge Temporary Chat 中中断唯一一条发送原 PNG 的真实 XHR。ChatGPT 随后移除了原进度卡。观察期内没有出现属于该操作的明确失败卡，Riftlet 也没有记录原卡错误收据。因此 G4 的原卡失败及显式恢复保留为 **NOT_RUN**。
 

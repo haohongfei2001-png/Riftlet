@@ -15,7 +15,7 @@
 | 原草稿恢复 | 本地普通浏览器内核的源码复核通过 48 组对照，含 8 次显式恢复成功和 8 次旧写票被拒。三份真实历史故障库分别使用新副本取证，6 份一致性快照和原 PNG 已私有封存。 |
 | 正式分支 | 签名源码和后继测试脚本修复均获独立审查。正式 Draft PR #125 的准入头为 `881589ad`，实际预合并为 `31371f52`。五项检查全部通过，两个 Native job 均实测 1,436 项 Swift 测试、12 次进程生命周期及存储耐久测试。 |
 | Chrome G1、Edge G2 | Chrome 冷暖首图及三组快速双图已取得实站证据。两次 AppKit mouseDown 的间隔为 581.676, 569.889, 619.928 ms。七张均有唯一 START，旧附件保留，七次文件输入及 change，零发送、零表单提交。选区准备在第八张点击前停止。Edge 也完成本包冷暖首图和三组双图，间隔为 551.605、568.999、549.887 ms，另有七次文件输入及七条独立 START，零发送、零提交。两个浏览器的选区均待补验。[Edge 七图核验](evidence/build61/edge-rapid-live.json) [Chrome 七图核验](evidence/build61/chrome-rapid-live.json) |
-| G4-A / G4-B / G4-C | 均为 **NOT_RUN**。目前没有 build 61 实站的具名原卡错误、原 PNG 对应的上游 4xx，或客户端中断后经 AppKit 显式重选的新 START。受控恢复、历史库及本地 HTTP 收据已单列。 |
+| G4-A / G4-B / G4-C | G4-C 的普通 Edge 原图有一次 input、一次 change 及一条持久 START。这个专窗的普通 Apple Events 能识别原文档和编辑器，但缺少网站上传请求归属证明；实际 timeout 和 abort 均为零，原卡在场。故障后 UNKNOWN 和知情重选仍为 **NOT_RUN**。G4-A 无具名原卡错误，G4-B 无原 PNG 对应的上游 4xx。[G4-C 原始结果与留存记录](evidence/build61/g4c-original-live.json) |
 | 官网与应用内更新 | 现有官网两个下载入口、stable feed 和已发布 DMG 的签名均指向 1.0.5（31）。独立安装的 build 61 使用相同的更新源与公钥。发布后的公开下载及 31 → 61 应用内升级待发行后核验。 |
 
 截至北京时间 07:23:52，独立复核共查得 14 个调度周期、28 次受保护桌面读数、0 次准入和 0 次业务投递。实站文件输入、发送及表单提交均为零。当前交互执行者已取得两款浏览器的 Apple Events 和系统 Accessibility 权限。最近读数为当前用户已解锁、显示器已醒，前台窗口归属 `com.apple.UserNotificationCenter`，`AXSubrole=AXSystemDialog`、`AXModal=false`。Chrome、Edge 在当前屏幕上的普通窗口数均为零。允许读取的元数据不足以判定此窗用途。唯一 GUI 执行者核对签名包摘要并使用跨候选的独占锁，按 2–5 分钟退避等待重新准入。当前没有需要用户执行的步骤。
