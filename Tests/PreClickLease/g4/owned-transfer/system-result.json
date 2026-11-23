@@ -1,0 +1,505 @@
+{
+  "scope": "QA-owned IPv4 loopback only",
+  "status": "PASS",
+  "browser": "Chrome/157.0.8103.79",
+  "source": {
+    "scope": "macOS system screenshot of QA-owned nonactivating pattern window",
+    "sha256": "66057577de807a2d2a266360b59efdfb80e6301a158d9eb1bd2bf028757dd3a7",
+    "bytes": 7921752,
+    "dimensions": [
+      1920,
+      1440
+    ],
+    "captureReceiptSHA256": "b8e17a07c8e0847d1f6f46296fcf1145bec83f06b0d4d66a02df677d7b75356f"
+  },
+  "rows": [
+    {
+      "mode": "complete",
+      "browser": {
+        "mode": "complete",
+        "requestID": "eb4d748f-c17c-4b74-8e5a-19f9930a2999",
+        "urlSHA256": "9166888b1d19276b4b7447bf50c484e4964aca85d87da2ae6957c722349c9940",
+        "fileSHA256": "66057577de807a2d2a266360b59efdfb80e6301a158d9eb1bd2bf028757dd3a7",
+        "fileBytes": 7921752,
+        "createStatus": 201,
+        "counts": {
+          "input": 1,
+          "change": 1,
+          "create": 1,
+          "sends": 1,
+          "abortCalls": 0,
+          "formSubmit": 0,
+          "sendButton": 0
+        },
+        "inputEvents": [
+          {
+            "type": "input",
+            "trusted": true
+          },
+          {
+            "type": "change",
+            "trusted": true
+          }
+        ],
+        "events": [
+          {
+            "phase": "request",
+            "type": "readystatechange",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 53,
+            "readyState": 1,
+            "status": 0
+          },
+          {
+            "phase": "request",
+            "type": "loadstart",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 53,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 0,
+            "total": 0,
+            "lengthComputable": false
+          },
+          {
+            "phase": "upload",
+            "type": "loadstart",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 53,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 0,
+            "total": 4294967295,
+            "lengthComputable": true
+          },
+          {
+            "phase": "upload",
+            "type": "progress",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 166,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 1392640,
+            "total": 7921752,
+            "lengthComputable": true
+          },
+          {
+            "phase": "upload",
+            "type": "progress",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 273,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 1998848,
+            "total": 7921752,
+            "lengthComputable": true
+          },
+          {
+            "phase": "upload",
+            "type": "progress",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 380,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 2572288,
+            "total": 7921752,
+            "lengthComputable": true
+          },
+          {
+            "phase": "upload",
+            "type": "progress",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 487,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 3358720,
+            "total": 7921752,
+            "lengthComputable": true
+          },
+          {
+            "phase": "upload",
+            "type": "progress",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 595,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 3883008,
+            "total": 7921752,
+            "lengthComputable": true
+          },
+          {
+            "phase": "upload",
+            "type": "progress",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 704,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 5095424,
+            "total": 7921752,
+            "lengthComputable": true
+          },
+          {
+            "phase": "upload",
+            "type": "progress",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 812,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 5734400,
+            "total": 7921752,
+            "lengthComputable": true
+          },
+          {
+            "phase": "upload",
+            "type": "progress",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 920,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 6668288,
+            "total": 7921752,
+            "lengthComputable": true
+          },
+          {
+            "phase": "upload",
+            "type": "progress",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 1028,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 6995968,
+            "total": 7921752,
+            "lengthComputable": true
+          },
+          {
+            "phase": "upload",
+            "type": "progress",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 1137,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 7585792,
+            "total": 7921752,
+            "lengthComputable": true
+          },
+          {
+            "phase": "upload",
+            "type": "progress",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 1245,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 7921752,
+            "total": 7921752,
+            "lengthComputable": true
+          },
+          {
+            "phase": "upload",
+            "type": "load",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 1245,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 7921752,
+            "total": 7921752,
+            "lengthComputable": true
+          },
+          {
+            "phase": "upload",
+            "type": "loadend",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 1245,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 7921752,
+            "total": 7921752,
+            "lengthComputable": true
+          },
+          {
+            "phase": "request",
+            "type": "readystatechange",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 1502,
+            "readyState": 2,
+            "status": 201
+          },
+          {
+            "phase": "request",
+            "type": "readystatechange",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 1502,
+            "readyState": 3,
+            "status": 201
+          },
+          {
+            "phase": "request",
+            "type": "progress",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 1502,
+            "readyState": 3,
+            "status": 201,
+            "loaded": 144,
+            "total": 0,
+            "lengthComputable": false
+          },
+          {
+            "phase": "request",
+            "type": "readystatechange",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 1502,
+            "readyState": 4,
+            "status": 201
+          },
+          {
+            "phase": "request",
+            "type": "load",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 1502,
+            "readyState": 4,
+            "status": 201,
+            "loaded": 144,
+            "total": 0,
+            "lengthComputable": false
+          },
+          {
+            "phase": "request",
+            "type": "loadend",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 1502,
+            "readyState": 4,
+            "status": 201,
+            "loaded": 144,
+            "total": 0,
+            "lengthComputable": false
+          }
+        ],
+        "trigger": null,
+        "sendReturned": true,
+        "abortReturned": false,
+        "listenersRemoved": 19,
+        "listenersRemaining": 0,
+        "pendingXHR": 0,
+        "terminalEvent": "loadend"
+      },
+      "server": {
+        "requestID": "eb4d748f-c17c-4b74-8e5a-19f9930a2999",
+        "urlSHA256": "9166888b1d19276b4b7447bf50c484e4964aca85d87da2ae6957c722349c9940",
+        "declaredBytes": 7921752,
+        "bytesRead": 7921752,
+        "bytesSHA256": "66057577de807a2d2a266360b59efdfb80e6301a158d9eb1bd2bf028757dd3a7",
+        "originalPrefixSHA256": "66057577de807a2d2a266360b59efdfb80e6301a158d9eb1bd2bf028757dd3a7",
+        "prefixMatches": true,
+        "httpBodyComplete": true,
+        "ending": "complete",
+        "aborted": false,
+        "httpStatus": 201,
+        "requestClosed": true,
+        "creates": 1,
+        "puts": 1,
+        "pending": 0
+      }
+    },
+    {
+      "mode": "partial",
+      "browser": {
+        "mode": "partial",
+        "requestID": "79e72422-617f-4c0f-87cf-69bc77b8e6de",
+        "urlSHA256": "9202ea4148bcf409bec9aa3ea79cd76ca8e8ebf4d60ae90cdbcd2c3ba2bc945d",
+        "fileSHA256": "66057577de807a2d2a266360b59efdfb80e6301a158d9eb1bd2bf028757dd3a7",
+        "fileBytes": 7921752,
+        "createStatus": 201,
+        "counts": {
+          "input": 1,
+          "change": 1,
+          "create": 1,
+          "sends": 1,
+          "abortCalls": 1,
+          "formSubmit": 0,
+          "sendButton": 0
+        },
+        "inputEvents": [
+          {
+            "type": "input",
+            "trusted": true
+          },
+          {
+            "type": "change",
+            "trusted": true
+          }
+        ],
+        "events": [
+          {
+            "phase": "request",
+            "type": "readystatechange",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 47,
+            "readyState": 1,
+            "status": 0
+          },
+          {
+            "phase": "request",
+            "type": "loadstart",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 47,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 0,
+            "total": 0,
+            "lengthComputable": false
+          },
+          {
+            "phase": "upload",
+            "type": "loadstart",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 47,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 0,
+            "total": 4294967295,
+            "lengthComputable": true
+          },
+          {
+            "phase": "upload",
+            "type": "progress",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 156,
+            "readyState": 1,
+            "status": 0,
+            "loaded": 1425408,
+            "total": 7921752,
+            "lengthComputable": true
+          },
+          {
+            "phase": "request",
+            "type": "readystatechange",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 156,
+            "readyState": 4,
+            "status": 0
+          },
+          {
+            "phase": "upload",
+            "type": "abort",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 156,
+            "readyState": 4,
+            "status": 0,
+            "loaded": 1425408,
+            "total": 7921752,
+            "lengthComputable": true
+          },
+          {
+            "phase": "upload",
+            "type": "loadend",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 156,
+            "readyState": 4,
+            "status": 0,
+            "loaded": 1425408,
+            "total": 7921752,
+            "lengthComputable": true
+          },
+          {
+            "phase": "request",
+            "type": "abort",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 156,
+            "readyState": 4,
+            "status": 0,
+            "loaded": 0,
+            "total": 0,
+            "lengthComputable": false
+          },
+          {
+            "phase": "request",
+            "type": "loadend",
+            "trusted": true,
+            "sameTarget": true,
+            "elapsedMS": 156,
+            "readyState": 4,
+            "status": 0,
+            "loaded": 0,
+            "total": 0,
+            "lengthComputable": false
+          }
+        ],
+        "trigger": {
+          "phase": "upload",
+          "type": "progress",
+          "trusted": true,
+          "sameTarget": true,
+          "elapsedMS": 156,
+          "readyState": 1,
+          "status": 0,
+          "loaded": 1425408,
+          "total": 7921752,
+          "lengthComputable": true,
+          "fraction": 0.17993595356178785,
+          "sendReturned": true,
+          "originalFile": true,
+          "originalInstance": true
+        },
+        "sendReturned": true,
+        "abortReturned": true,
+        "listenersRemoved": 19,
+        "listenersRemaining": 0,
+        "pendingXHR": 0,
+        "terminalEvent": "loadend"
+      },
+      "server": {
+        "requestID": "79e72422-617f-4c0f-87cf-69bc77b8e6de",
+        "urlSHA256": "9202ea4148bcf409bec9aa3ea79cd76ca8e8ebf4d60ae90cdbcd2c3ba2bc945d",
+        "declaredBytes": 7921752,
+        "bytesRead": 1376256,
+        "bytesSHA256": "87a9dbb663d52ad162ceefff9fa2c32ee2a545a782bb1d39fa08bfcba7270210",
+        "originalPrefixSHA256": "87a9dbb663d52ad162ceefff9fa2c32ee2a545a782bb1d39fa08bfcba7270210",
+        "prefixMatches": true,
+        "httpBodyComplete": false,
+        "ending": "ECONNRESET",
+        "aborted": true,
+        "httpStatus": null,
+        "requestClosed": true,
+        "creates": 1,
+        "puts": 1,
+        "pending": 0
+      }
+    }
+  ],
+  "cleanup": {
+    "ownedHeadlessProcessGroupExited": true,
+    "disposableProfileRemoved": true,
+    "listenerClosed": true,
+    "pendingPUTs": 0
+  },
+  "limitations": "Native browser file selection and local HTTP. This does not exercise Riftlet AppKit, SQLite, a ChatGPT upload, or a ChatGPT failure card."
+}

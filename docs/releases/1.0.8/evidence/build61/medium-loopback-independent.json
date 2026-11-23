@@ -1,0 +1,104 @@
+{
+  "reviewedAtUTC": "2026-11-23T03:43:19.613073+00:00",
+  "reviewer": "Independent nonauthor release reviewer",
+  "verdict": "PASS_OWNED_LOOPBACK_CONTROL_ONLY",
+  "candidateSignedSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "candidateDMGSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "method": "Independent offline reconstruction from original macOS PNG, capture receipt, native browser events and the local server records. No browser or network replay.",
+  "browser": "Chrome/157.0.8103.79",
+  "source": {
+    "pngSHA256": "66057577de807a2d2a266360b59efdfb80e6301a158d9eb1bd2bf028757dd3a7",
+    "byteCount": 7921752,
+    "dimensions": [
+      1920,
+      1440
+    ],
+    "colorType": "RGBA8",
+    "interlaced": false,
+    "checkedPNGChunkCRCs": 492,
+    "macOSScreenCapturePlistTrue": true,
+    "systemCaptureMarkerBytes": 42,
+    "receiptSHA256": "b8e17a07c8e0847d1f6f46296fcf1145bec83f06b0d4d66a02df677d7b75356f"
+  },
+  "rawReceiptSHA256": "5573712c551ecf4c90a355c962a5bca0c3323727d0f100b3376569d3548394f5",
+  "cases": {
+    "complete": {
+      "matchedUniqueLoopbackEndpoint": true,
+      "urlSHA256": "9166888b1d19276b4b7447bf50c484e4964aca85d87da2ae6957c722349c9940",
+      "trustedInput": 1,
+      "trustedChange": 1,
+      "createHTTP": 201,
+      "xhrSends": 1,
+      "putRequests": 1,
+      "messageSends": 0,
+      "formSubmits": 0,
+      "responseHTTP": 201,
+      "serverBytes": 7921752,
+      "serverBytesSHA256": "66057577de807a2d2a266360b59efdfb80e6301a158d9eb1bd2bf028757dd3a7",
+      "serverTerminal": "complete",
+      "serverBodyComplete": true,
+      "abortCalls": 0,
+      "trustedProgressBytesAtAbort": null,
+      "fractionAtAbort": null,
+      "nativeRequestAndUploadTerminals": [
+        "load",
+        "loadend"
+      ],
+      "trustedAndOnExactEmitter": true,
+      "nativeErrors": 0,
+      "timeOuts": 0,
+      "registeredCallbacksRemoved": 19,
+      "pendingXHR": 0
+    },
+    "partial": {
+      "matchedUniqueLoopbackEndpoint": true,
+      "urlSHA256": "9202ea4148bcf409bec9aa3ea79cd76ca8e8ebf4d60ae90cdbcd2c3ba2bc945d",
+      "trustedInput": 1,
+      "trustedChange": 1,
+      "createHTTP": 201,
+      "xhrSends": 1,
+      "putRequests": 1,
+      "messageSends": 0,
+      "formSubmits": 0,
+      "responseHTTP": null,
+      "serverBytes": 1376256,
+      "serverBytesSHA256": "87a9dbb663d52ad162ceefff9fa2c32ee2a545a782bb1d39fa08bfcba7270210",
+      "serverTerminal": "ECONNRESET",
+      "serverBodyComplete": false,
+      "abortCalls": 1,
+      "trustedProgressBytesAtAbort": 1425408,
+      "fractionAtAbort": 0.17993595356178785,
+      "nativeRequestAndUploadTerminals": [
+        "abort",
+        "loadend"
+      ],
+      "trustedAndOnExactEmitter": true,
+      "nativeErrors": 0,
+      "timeOuts": 0,
+      "registeredCallbacksRemoved": 19,
+      "pendingXHR": 0
+    }
+  },
+  "oneSharedLoopbackOriginIndependentlyReconstructed": true,
+  "rawCleanup": {
+    "ownedHeadlessProcessGroupExited": true,
+    "disposableProfileRemoved": true,
+    "listenerClosed": true,
+    "pendingPUTs": 0
+  },
+  "sourceFilesSHA256": {
+    "page.js": "79c284e638134e385094f8f93e3ea5a7b4466794e7bf41f73208daf80ea27ca3",
+    "server.cjs": "7ff1c6fb981aa93fbcbf4f2cbc351ee0c16a17c7ea734177265c0d284f5c876f",
+    "run.cjs": "a36cc89e4f6e1e5e981e5f65f1daf2972199686868398d4edefbc443b571b521",
+    "verify.cjs": "7cd7f3315d17220a0c0d3d107a1e2cab965018d6bc9df048a889c00a5b49eb82"
+  },
+  "controls": "Owned singleton file input and File, one created XHR/upload object and its native events, exact server-chosen path per case, loopback server bound to IPv4. Fresh headless test profile, same-origin CSP and redirected fetch refused. Trigger checks original objects and trusted 10–50% real progress before any response.",
+  "limits": [
+    "Source and response terminate on the controlled host. This package does not issue a signed Riftlet click or run the ChatGPT frontend.",
+    "The partial request has no HTTP response. The server prefix and browser progress counters describe different boundaries.",
+    "No signed-site normal, interruption, named error, upstream rejection, original-card disappearance or explicit recovery is established by this package."
+  ],
+  "G4A": "NO_SITE_CREDIT",
+  "G4B": "NO_SITE_CREDIT",
+  "G4C": "NO_SITE_CREDIT"
+}
