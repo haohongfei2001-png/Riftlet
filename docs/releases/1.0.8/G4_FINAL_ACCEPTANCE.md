@@ -1,8 +1,19 @@
 # Riftlet 1.0.8 · G4 最终实站验收
 
-**Build 61 当前结论为 PARTIAL。** 普通 Chrome 的中图校准取得原图输入和持久 START。实站受控故障和显式重选均为零。G4-C 因无法核实上传请求体和精确取消句柄而阻塞，G4-A、G4-B 尚未取得合格样本。发行需 G4-C 加 G4-A，或 G4-C 加独立认可的 G4-B。[本轮非作者最终裁决](evidence/build61/medium-final-g4-independent.json)
+**Build 61 当前结论为 PARTIAL。** G4-C 为 **BLOCKED_TECHNICAL**。尚缺同一真实上传请求的完整 PNG 字节、上传进度与可核验的单次中断。G4-A、G4-B 为 **NOT_RUN**。发行需要 G4-C 和 G4-A 均通过，或 G4-C 通过并取得 G4-B 的独立等价放行。[本轮非作者裁决](evidence/build61/world-independent-verdict.json) · [中图原件的独立复核](evidence/build61/medium-final-g4-independent.json)
 
 先前的小图在普通 Edge 已产生一条 START，取消次数为零。另一张 23,233,638 字节系统截图留下原 UNKNOWN、完整 PNG 和同名预览，两次备份相同，重选和后继 START 均为零。这两份历史原件继续封存。[先前普通双浏览器验收](evidence/build61/release-gate-after-both-selections.json) · [大图恢复裁决](evidence/build61/size-boundary-independent.json)
+
+## Build 61 · 执行世界和实际 PUT 的归属
+
+| 核验对象 | 直接取得的结果 |
+| --- | --- |
+| 普通 Chrome 157 与 Edge 158 的 Apple Events | 在各自新建、已核实身份的本地专窗中，连续两次读到同一原文档的 DOM 标记。页面自己创建的 XHR 能从原型读到标记，Apple Events 所见的 XHR 原型没有该标记。两款浏览器都关闭了本轮专窗并恢复原窗口集合。[普通浏览器原生回执](evidence/build61/world-local-native.json) |
+| 本地页面自带的固定脚本链接 | 在独立的无界面对照中，浏览器报告该链接在原页面的默认环境执行。两个环境的底层 DOM 节点相同，私有对象和原型标记各自独立。替换无行为标记与重新加载分别使旧标记、旧环境失效。原生 URL 属性提交和 ChatGPT 站点的实际请求执行环境在本轮均为 **NOT_RUN**。[双浏览器对照与源文件指纹](../../../Tests/PreClickLease/g4/main-world-observer/receipt.json) |
+| 冻结产品入口 | 已核对七个指定入口。原生提交返回后，产品另外核验原始命令的回执及草稿身份。Edge 的凭据把两个 JavaScript 环境关联到原文档。两条产品路径的回执均无站点 PUT 实例、请求体或终态。[逐入口源码复核](evidence/build61/world-source-and-history.json) |
+| 已封存的 Chrome 实站中图 | 原采集器只查询精确文件创建端点。条目从 0 增到 1，返回 HTTP 200。原图的 7,921,752 字节在 input 与 change 时两次匹配，SQLite 留有原操作唯一 START。采集器未记录上传 PUT，也无法区分上传来自页面、子框架或工作线程。[原运行清单、采集范围及回执](evidence/build61/recorded-observer-coverage.json) |
+
+本轮实站新增访问、文件输入、中断、显式重选、发送和表单提交均为零。实站原卡在上轮最后一次读取时仍在。没有新的恢复操作、后继 START 或故障恢复前后两份 SQLite 快照。当前样本也没有网站具名原卡错误或可归属的上游 4xx。两个普通浏览器的本地对照共封存 19 份私有原件，逐件重算一致，归档 SHA-256 为 `7d3180a10edf9e6c23478acd06b7ee16d31ecd8015122689d423a43035da1503`。[清理与分项读数](evidence/build61/world-local-native.json) · [非作者独立判定](evidence/build61/world-independent-verdict.json)
 
 ## Build 61 · 中等大小截图
 

@@ -1,0 +1,318 @@
+{
+  "acceptanceBaseline": "77ad0602959740f0ab815a0a826a1d741c2fec08",
+  "acceptanceBaselineTree": "0ba743b0eba97faed40a419f96beb65b77e45095",
+  "crossCheck": {
+    "documentAndOriginalLiveRequest": "Signed 61 original page/editor/File linkage is present in the archived operations. A provider-owned request or its owning document/frame/worker has no matching realm and request identity in those receipts. Shared DOM visibility does not supply that relationship.",
+    "oldPositive": "The signed build 59 Edge 5,516-byte normal case had a matched complete File PUT HTTP 201. Earlier original operations, local fixtures and three distinct historical client aborts have their own lifetimes. No current build 61 PUT handle or status follows from them.",
+    "pageInstanceUsesWhatWasActuallyTested": "Locally constructed, unopened requests inherited the inert marker on their own realm prototype. No network function replacement or provider request object was tested.",
+    "sameDOMDifferentJSObjectEvidence": "Both families shared a local underlying DOM while the isolated view lacked the local page prototype marker. The headless test separately identified the default and isolated contexts. The native measurement identified a marker boundary on each installed browser.",
+    "scriptURLProductEvidence": "Locally pre-authored links reached the local page marker. No new measurement ran the signed product native script-navigation bootstrap or a QA transport observer on an authenticated site. Product nonce-bound command outcomes remain limited to their declared command."
+  },
+  "existingLiveBuild61": [
+    {
+      "actualAbort": 0,
+      "case": "Signed build 61 Edge original",
+      "ordinaryWitness": {
+        "activeDocument": true,
+        "originalEditor": true,
+        "originalRealmXHR": true,
+        "productRegistry": false,
+        "siteReactOwner": false,
+        "usedOnlyOrdinaryAppleEvents": true
+      },
+      "originalRequestHandleEstablished": false,
+      "originalSTART": 1
+    },
+    {
+      "actualPUTStatus": null,
+      "bytes": 7921752,
+      "case": "Signed build 61 Chrome medium original",
+      "coincidentDOMAndTransportInstanceProven": false,
+      "creationEndpointFetchHTTP": 200,
+      "durableSTART": 1,
+      "fullFileMatchedAtBothPageEvents": true,
+      "realRequestOwnerWindowOrWorkerRealm": null
+    }
+  ],
+  "existingProviderEvidencePath": "The archived original contains timestamped signed action and File data. Provider support can correlate an existing record if it has a provider request ID or other matching provider-side evidence. The reviewed receipts contain no provider PUT identifier, provider-confirmed full-body hash or authenticated Temporary Chat test capability. No external party was contacted.",
+  "headless": {
+    "apiScope": "Both worlds created two independent, unopened requests. Both retained the references for fetch/open/send/abort. The stale-data control altered only an inert test property. A method descriptor or reference sample does not attest to future method identity.",
+    "appleEventsHere": "NOT_RUN",
+    "cases": [
+      {
+        "browserProduct": "Chrome/157.0.8103.79",
+        "checkedMethodDescriptorsPerWorld": 4,
+        "contextIDs": [
+          2,
+          3,
+          2
+        ],
+        "distinctWorldNoncesAndReplacementNonce": true,
+        "family": "Chrome",
+        "methodDescriptorFlags": {
+          "accessor": false,
+          "configurable": true,
+          "enumerable": true,
+          "ownOnReceiver": true,
+          "referenceMatchesOwnDescriptor": true,
+          "writable": true
+        },
+        "observedOriginalTargetHTTPRequests": 0,
+        "observedOriginalTargetHTTPUploads": 0,
+        "originalAndReloadedLoaderHashesDiffer": true,
+        "originalMainIsolatedAndReloadedBackendNodeIDs": [
+          3,
+          3,
+          5
+        ],
+        "ownGlobalsWrappersPrototypesAndSeparateUnopenedInstances": true,
+        "processGroupExitAndProfileRemoval": true,
+        "reloadedOriginalIsolatedContextRejected": true,
+        "sameUnderlyingDOMNodeAndBidirectionalDOMAttributes": true,
+        "staleInertMarkerRejected": true,
+        "staticPageLinkConsoleEventsInOriginalDefaultContext": 1
+      },
+      {
+        "browserProduct": "Edg/158.0.4370.33",
+        "checkedMethodDescriptorsPerWorld": 4,
+        "contextIDs": [
+          2,
+          3,
+          2
+        ],
+        "distinctWorldNoncesAndReplacementNonce": true,
+        "family": "Edge",
+        "methodDescriptorFlags": {
+          "accessor": false,
+          "configurable": true,
+          "enumerable": true,
+          "ownOnReceiver": true,
+          "referenceMatchesOwnDescriptor": true,
+          "writable": true
+        },
+        "observedOriginalTargetHTTPRequests": 0,
+        "observedOriginalTargetHTTPUploads": 0,
+        "originalAndReloadedLoaderHashesDiffer": true,
+        "originalMainIsolatedAndReloadedBackendNodeIDs": [
+          3,
+          3,
+          6
+        ],
+        "ownGlobalsWrappersPrototypesAndSeparateUnopenedInstances": true,
+        "processGroupExitAndProfileRemoval": true,
+        "reloadedOriginalIsolatedContextRejected": true,
+        "sameUnderlyingDOMNodeAndBidirectionalDOMAttributes": true,
+        "staleInertMarkerRejected": true,
+        "staticPageLinkConsoleEventsInOriginalDefaultContext": 1
+      }
+    ],
+    "contextIDOrder": [
+      "original default",
+      "original disposable isolated",
+      "fixed page link console event"
+    ],
+    "fixedLinkActivation": "Headless local input events activated a fixed link authored by the local file. One console result bore the original default context ID.",
+    "fixedSourceSHA256": {
+      "fixture.html": "56d877185aae5d9836b04e6a8d5953fbec949a5e9669ea4eb5a4d29745a97f3d",
+      "isolated.js": "971a4e6e159d9ef25c72d2b48174bb567791e7bdbd10b42c7dcbfd18baa07f4a",
+      "run.cjs": "cb2f9f94026d4866cb7d92ef9d02a6e5287ede0d20e136d05757a8dcf70668d7"
+    },
+    "networkScope": "Network.requestWillBeSent was enabled before the owned local target navigation. Counts apply to observed HTTP(S) in this disposable target.",
+    "publicRepositoryPath": "Tests/PreClickLease/g4/main-world-observer/receipt.json",
+    "rawSHA256": "2133181896fbba32a407b4a8b719db83bc7f8147fc0910d3f969008b46b37e43",
+    "sourceLineReferences": [
+      "fixture.html:13–37",
+      "isolated.js:5–32",
+      "run.cjs:34–55,87–124,126–150,154–171,184–213"
+    ]
+  },
+  "independentMethod": "Read-only inspection of original local outputs, fixed sources and archived site records, with independent hash checks, raw field joins, consistency and negative-control checks. The reviewer launched zero browser processes or site actions.",
+  "installedNative": {
+    "allPrivateOriginPinsMatched": 26,
+    "assessedAtUTC": "2026-11-23T05:04:00.500231+00:00",
+    "cases": [
+      {
+        "OSAutomationNoPromptPermissionStatus": 0,
+        "actualReadCommand": "CrSu/ExJa",
+        "creationAndClosureUseSameObservedProcessBirthWindowAndSoleTab": true,
+        "exactFileURLUniqueMarkerAndTimeOriginStableAcrossTwoReads": true,
+        "family": "chrome",
+        "fixedPageAuthoredLinkSawMarker": true,
+        "fixtureActionAndOwnershipReceiptSHA256": {
+          "before": "1a70b3b9ceae4044ab215279ee33b3c27ec07553b9ee73c34a01b65f2b53e7c7",
+          "close-intent": "c9578d14bed18e181dd0c7826a518493f0d1d521ae415aa560d64725c4f943f4",
+          "new-window": "ddbf63e2c10560c6637aa3924a99782f6560c40369fbadd1ded670f752b9cbf6"
+        },
+        "fixtureSHA256": "c44ef77dd898366a85f1a719ecea8348fbe2b4e9e5ed1bb4076882358d3ac83b",
+        "installedVendorVersion": "157.0.8103.79",
+        "nativeBackendNodeIDOrExecutionContextIDCaptured": false,
+        "nativeScriptURLNavigations": 0,
+        "networkAPICallsInReviewedFixtureSource": 0,
+        "networkEventsCapturedByNativeControl": null,
+        "newWindowClosedAndOriginalIDSetRestored": true,
+        "ordinaryAppleEventOwnXHRPrototypeHadMarker": false,
+        "pageAuthoredXHRInheritsMarkedPrototype": true,
+        "productBootstrapExecuted": false,
+        "resultSHA256": "9c3d586dc7822e5f25028fa33f322dfd1f26d553e1a42fc118d606162f54ef7f"
+      },
+      {
+        "OSAutomationNoPromptPermissionStatus": 0,
+        "actualReadCommand": "CrSu/ExJa",
+        "creationAndClosureUseSameObservedProcessBirthWindowAndSoleTab": true,
+        "exactFileURLUniqueMarkerAndTimeOriginStableAcrossTwoReads": true,
+        "family": "edge",
+        "fixedPageAuthoredLinkSawMarker": true,
+        "fixtureActionAndOwnershipReceiptSHA256": {
+          "before": "1f197fb69fd9cd0a3a4145bafbd65dbc29be554c706a18ef8c0f5c867ce252fd",
+          "close-intent": "d5b336aa48148ab4508906f4ab6a8d2d7c95e6b98c178704034d0879076ca362",
+          "new-window": "bd09d2a0163c3d346bd951dd327a11d07e9d13fe78f473ac5eb9f9cab9bb6f25"
+        },
+        "fixtureSHA256": "f080fe3a95f67e6b418324a19717f4e4b99061cc16595a82b54e66efa8401de2",
+        "installedVendorVersion": "158.0.4370.33",
+        "nativeBackendNodeIDOrExecutionContextIDCaptured": false,
+        "nativeScriptURLNavigations": 0,
+        "networkAPICallsInReviewedFixtureSource": 0,
+        "networkEventsCapturedByNativeControl": null,
+        "newWindowClosedAndOriginalIDSetRestored": true,
+        "ordinaryAppleEventOwnXHRPrototypeHadMarker": false,
+        "pageAuthoredXHRInheritsMarkedPrototype": true,
+        "productBootstrapExecuted": false,
+        "resultSHA256": "c4df5d8906530f16aafef126667c8cc9b7a500e5a3d600c64d4c9e5119628bfa"
+      }
+    ],
+    "fixedLinkActivation": "The fixed local page activated its own previously authored marker link. Native navigation only opened the owned file. The Apple Event read the original DOM plus its own XHR prototype.",
+    "manifestSHA256": "7ca9d5ab5c7eb3157ac415e672596caac3a87ed2f0f5eb272599db33595c10fb",
+    "measurementScope": "The local fixture created an unopened XHR and checked open/send function identity during setup. Source review established absence of network method calls. The native summary zero-call fields are declared operation scope, without a target network-event sensor.",
+    "nativeScriptURLPropertyControl": {
+      "observedBrowserDenial": false,
+      "observedSuccess": false,
+      "providerPageObserverExecuted": false,
+      "providerPageObserverInstalled": false,
+      "status": "NOT_RUN"
+    },
+    "originalArchiveCustody": {
+      "alsoVerifiedAgainstAvailableOriginalWorkingFiles": 19,
+      "archiveBasename": "native-file-worlds.tar.gz",
+      "archiveSHA256": "7d3180a10edf9e6c23478acd06b7ee16d31ecd8015122689d423a43035da1503",
+      "independentlyRehashedRegularMembers": 19,
+      "manifestBasename": "native-file-worlds.sha256.json",
+      "manifestSHA256": "458a6efa532de9a898ac01297427be88fd1e70aea40ab683a1ea61b993754b01",
+      "privateArchiveOpenedReadOnly": true
+    },
+    "publicRepositoryPath": "docs/releases/1.0.8/evidence/build61/world-local-native.json",
+    "rawPublicSummarySHA256": "2a9fda5ac3d6b129e279585202e54a1bd6f44e1191bcc658ff999ef094d4b0e2",
+    "sameDocumentCriteria": "Original signed process birth/window/single tab, immutable fixed file URL and hash, page marker and two byte-identical observations including timeOrigin. The raw records contain no protocol execution context IDs.",
+    "sourceLineReferences": [
+      "WorldRead.swift:18–45,49–70,76",
+      "make_fixture.py:9–22"
+    ],
+    "toolAndMeasurementSourceSHA256": {
+      "WorldRead.swift": "4e7954cb8815f2ffb8d6f5c338a84e6a27ae5b7fa74d0f1c95913310a6e94db7",
+      "assess.py": "db7b7a7783174ee7e0a35ca1c430d8c4bfe0ba127fffa16fe4ef9dddc4a3e361",
+      "make_fixture.py": "97b197ba253a84302d4f38e8c27d476dece66508b047d8c1a62770a9583f26e5",
+      "run_once.py": "27224472b55d90a2bdb0d40f7148418f38f25c3a8010b2b69eafe6f21bee9ef2",
+      "world-read": "049e2be413ca0b91227260c72da58e763cd6bc9cdd66cbf2141af228f1816978"
+    }
+  },
+  "productSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "productTree": "70ba40e23a3afa3561525b1943cb0e5ebc825de5",
+  "recordedSigned61Collector": {
+    "archiveSHA256": "3cb2b916ef120781e34f8644b320eb4c9d367987b9af92191a9ec88473b4d60c",
+    "beforeAndLateOriginalDocumentAndEditor": true,
+    "binaryMatchesRecordedRunManifest": true,
+    "creationInitiatorAndStatus": [
+      "fetch",
+      200
+    ],
+    "creationRequestMethod": null,
+    "creationResponseBody": null,
+    "exactOriginalPNGSHA256": "66057577de807a2d2a266360b59efdfb80e6301a158d9eb1bd2bf028757dd3a7",
+    "externalAndEmbeddedInventorySHA256": "02863871abe2f497cc3f717111aa160bf7b7c0415c6bd01b725f3daa2a0dd515",
+    "fileBytesAtInputAndChange": [
+      7921752,
+      7921752
+    ],
+    "independentlyVerifiedInventoryMembers": 263,
+    "inputChangeSubmitSendCounts": [
+      1,
+      1,
+      0,
+      0
+    ],
+    "interpretation": "The archived measurement covered the creation endpoint. Its absence of PUT data gives no evidence that the browser blocked a bootstrap, that the site overwrote a method, or that a frame, worker or different transport sent the file.",
+    "matchingAttachmentAcceptedSTARTs": 1,
+    "originalPUTBodyHash": null,
+    "originalPUTProgress": null,
+    "originalPUTStatus": null,
+    "originalSiteRequestHandle": null,
+    "recordedOperationPhase": "unknown",
+    "recordedReselections": 0,
+    "resourceEntriesBeforeAndLate": [
+      0,
+      1
+    ],
+    "resourceLookup": "Exact same-origin /backend-api/files Resource Timing entry, including initiator and status. Source and pre/late original records agree.",
+    "sitePUTSensorPresentInOriginalCollector": false,
+    "sourceBinaryRunManifestAndSamplesSHA256": {
+      "before": "d4283f3e2cb48f2988f70c2e618212262b312b84e8cd846d4e81dd889d7e76df",
+      "binary": "d47b643e368db1a2f9a94b661f77527ede0f85665c5984648543c85c371d369b",
+      "late": "4be968246f4cbc85da71d00ab2fa04d1384ab6551c04cc5ae5be373116aaaad7",
+      "runManifest": "0d9b96c0bad4841c0914e0d4ba22a0c15e6680f99d3a7817491536170a1e66bd",
+      "source": "e3333c253574781d879a28d19a359b57ea6f306f74958323c970adae5f2d0e98"
+    },
+    "sourceReference": "Archived CalWatch.swift:257",
+    "verifiedPublicReport": "docs/releases/1.0.8/evidence/build61/recorded-observer-coverage.json",
+    "verifiedPublicReportSHA256": "7b9417e7cf4919eeb4576a4169196947727b98cc3e9b7b1846d6a62c0ef0c527",
+    "verifiedSQLiteBackupSHA256": "3727e8b9e0994bca07146004c8d22ce6c32d39eb824f1ee609e911fd2a8dd831"
+  },
+  "releaseGates": {
+    "G4A": "HOLD",
+    "G4B": "HOLD_NO_APPROVED_EQUIVALENCE",
+    "G4C": "HOLD",
+    "release": "NOT_RELEASED",
+    "required": "G4-C plus either G4-A or an independently accepted G4-B"
+  },
+  "result": "PASS_LOCAL_WORLD_CONTROLS_ONLY",
+  "reviewedAtUTC": "2026-11-23T05:10:10.667067+00:00",
+  "reviewer": "Independent nonauthor source and acceptance reviewer",
+  "schemaVersion": 1,
+  "signedBuild": 61,
+  "signedDMGSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "sourceAndHistoricalReview": {
+    "file": "frozen-world-source-and-history.json",
+    "independentlyRehashedFrozenSourceFiles": 7,
+    "publicRepositoryPath": "docs/releases/1.0.8/evidence/build61/world-source-and-history.json",
+    "sevenSymbolsReviewed": 7,
+    "sha256": "1264a54ace81ab1e181610f4b465bbd00471a5f3969eeeddf0634f1d32c7b77a"
+  },
+  "unmeasured": [
+    "Authenticated site request launcher realm and specific live request",
+    "Full actual build61 PUT body hash and byte count bound to that request",
+    "Matched PUT upload progress, server response and an authorized one-request cancel handle",
+    "Site replacement of a method after initialization or use of a cached function, frame or worker",
+    "Qualifying named failure or independently approved original server rejection and the guarded explicit recovery closeout"
+  ],
+  "vendorSources": [
+    {
+      "rawSHA256": "417302bf02e4d8e3e707c309b7d56a6997d3adb3d9f208dd26cba9454f4ffde1",
+      "subject": "Exact Chrome implementation, lines 384 and 397–398",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/157.0.8103.79/chrome/browser/ui/cocoa/applescript/tab_applescript.mm"
+    },
+    {
+      "subject": "Isolated JS environments can share DOM",
+      "url": "https://developer.chrome.com/docs/extensions/develop/concepts/content-scripts#work_in_isolated_worlds"
+    },
+    {
+      "subject": "Document setting under script navigation",
+      "url": "https://html.spec.whatwg.org/multipage/browsing-the-web.html#javascript-protocol"
+    },
+    {
+      "subject": "XMLHttpRequest is exposed to window and worker contexts",
+      "url": "https://xhr.spec.whatwg.org/#xmlhttprequest"
+    },
+    {
+      "subject": "OpenAI upload support accepts timestamps, platform and an available provider request ID",
+      "url": "https://help.openai.com/en/articles/8555545-uploading-files-and-audio-to-chatgpt"
+    }
+  ]
+}

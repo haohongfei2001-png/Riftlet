@@ -2,9 +2,11 @@
 
 **RIFTLET 1.0.8 — NOT RELEASED**
 
-普通 Chrome 和 Edge 已在同一份 **1.0.8（61）** 签名候选上完成冷暖首图、各三组快速双图、真实非空原文与非折叠选区、已有附件保留。**发行仍受 G4 阻塞**。原图保留和 UNKNOWN 已有实站证据，原操作发生真实故障后显式重选并成功附加尚未得到证明。正式 PR #125 保持 Draft，公开稳定版本为 **1.0.5（31）**。[本轮非作者最终发行裁决](evidence/build61/medium-final-g4-independent.json) · [11:08 双浏览器验收](evidence/build61/release-gate-after-both-selections.json)
+普通 Chrome 和 Edge 已在同一份 **1.0.8（61）** 签名候选上完成冷暖首图、各三组快速双图、真实非空原文与非折叠选区、已有附件保留。**发行仍受 G4 阻塞**。原图保留和 UNKNOWN 已有实站证据，原操作发生真实故障后显式重选并成功附加尚未得到证明。正式 PR #125 保持 Draft，五项正式检查成功，GitHub Release 和 Sparkle stable 的公开版本为 **1.0.5（31）**。[本轮非作者最终发行裁决](evidence/build61/world-independent-verdict.json) · [双浏览器验收](evidence/build61/release-gate-after-both-selections.json) · [正式 PR](https://github.com/haohongfei2001-png/Riftlet/pull/125) · [稳定更新源](https://riftlet.com/updates/stable.xml)
 
-本轮在普通 Chrome 的新 Temporary Chat 中，通过签名 build 61 附加了一张 7,921,752 字节的真实系统截图。一次 AppKit 点击对应一次 input、一次 change、一条持久 START 和一张新卡，零发送、零表单提交。完整网页 File 与原 PNG 的 SHA-256 一致。文件创建端点返回 HTTP 200。该样本的 PUT、HTTP 201、受控中断和显式重选仍缺实站证据。相同 PNG 在自有回环端点的两次测量取得了完整 HTTP 201 和一次 17.9936% 进度中断。非作者从 24 项原件重算后，维持未发行裁决。[Chrome 独立复核](evidence/build61/medium-chrome-independent.json) · [回环独立复核](evidence/build61/medium-loopback-independent.json) · [当前 G4 报告](G4_FINAL_ACCEPTANCE.md)
+本轮在两款普通浏览器用自有本地页面验证了 Apple Events 共享 DOM、隔离 XHR 原型的行为。原实站验收器只采集了文件创建端点。没有证据把原 PNG、站点 PUT 及其进度归属到同一请求。**G4-C 为 BLOCKED_TECHNICAL，G4-A 与 G4-B 为 NOT_RUN**。本轮新增实站文件输入、中断及重选均为零，故障恢复的两份 SQLite 快照仍缺。[原生对照](evidence/build61/world-local-native.json) · [实站采集范围](evidence/build61/recorded-observer-coverage.json) · [G4 验收报告](G4_FINAL_ACCEPTANCE.md)
+
+前次中图校准在普通 Chrome 的专用 Temporary Chat 中，通过签名 build 61 附加了一张 7,921,752 字节的真实系统截图。一次 AppKit 点击对应一次 input、一次 change、一条持久 START 和一张新卡，零发送、零表单提交。完整网页 File 与原 PNG 的 SHA-256 一致。文件创建端点返回 HTTP 200。该样本的 PUT、HTTP 201、受控中断和显式重选仍缺实站证据。相同 PNG 在自有回环端点的两次测量取得了完整 HTTP 201 和一次 17.9936% 进度中断。[Chrome 独立复核](evidence/build61/medium-chrome-independent.json) · [回环独立复核](evidence/build61/medium-loopback-independent.json)
 
 该实站样本的最后一次网页读数显示，原 File 和网站预览尺寸、中心像素一致，全幅 RGBA 摘要不同。预览的编码字节和 PUT 数据均未取得，差异原因仍待证实。[现场像素与取证范围](G4_FINAL_ACCEPTANCE.md)
 
