@@ -23,10 +23,14 @@ The controlled native suite uses the production history window, mouse handling, 
 | Gate | Status |
 | --- | --- |
 | Native recovery A–H, including cancellation, stale target, late receipt and relaunch | PASS on the frozen build 62 controlled host. Independent review checked 175 production source files, seven completed scenarios and 1,405 archived files. |
-| Original data retention and three historical database copies | Independent migrations and retention controls passed. Match the final source before release. |
+| Original data retention and three historical database copies | PASS. A non-author verified the frozen-source migrations on copies of three sealed build 59 databases, including original operations, invocations, START and PNG identity. |
 | Full Swift and web regression, ARM64 and Intel, non-author source admission | 408 web tests passed. Independent source admission passed. Formal Swift and architecture jobs are tracked on PR #125. |
-| Signed and notarized DMG, staple, Gatekeeper and independent installation | Pending |
+| Signed and notarized DMG, staple, Gatekeeper and independent installation | PASS. The independently installed universal app and the mounted archive matched across 193 entries. Both notarizations and staples were verified. |
 | Signed candidate G1 Chrome and G2 Edge on dedicated Temporary Chats | Pending |
 | Formal merge, public artifact, signed update metadata and isolated 1.0.5 (31) in-app upgrade | Pending release gates |
 
 The frozen-source native run included the same unconfirmed original operation through the warning, cancellation, explicit re-selection and second START. A separate current named failure returned its own image to the tray. One additional run stopped safely before its second click while the window was gaining focus. All owned windows and listeners were closed. [Native receipt](evidence/build62/frozen-native-recovery.json) · [Independent verdict](evidence/build62/frozen-native-independent.json)
+
+The signed DMG contains 14,225,854 bytes. Its SHA-256 is `66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49`. Its product source is `871187f2be5eada68fccf2adcc07d120991e1c15`. [Package receipt](evidence/build62/signed-package.json) · [Independent installation](evidence/build62/signed-package-independent.json) · [Frozen historical data review](evidence/build62/frozen-history-independent.json)
+
+The first formal ARM64 and Intel runs failed on the same three XCTest cases. Two expectations still used earlier history states and copy. The third counted the original pending query and a subsequent explicit selection together. The updated case checks each query separately, compares the complete original identity, and verifies that checking completion issues zero browser commands. The correction changes two test files. Formal rerun results are tracked on [PR #125](https://github.com/haohongfei2001-png/Riftlet/pull/125).
