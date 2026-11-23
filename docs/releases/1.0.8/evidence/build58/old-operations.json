@@ -1,0 +1,100 @@
+{
+  "product": "c7ef1027f9475d517abbd4d85ae1819b9351a8cf",
+  "candidateDMG": "0f36dbee6665e5687c6c7722574cdeea708ee56ae0ae07d583652a33204c2f7e",
+  "currentInstalledPage": "43e43df544d4edb6081dfe592b1b18166039f98983ab8f0fac0f31efdf60d166",
+  "scope": "Frozen signed 56 and 57 page programs on a controlled offline document; independent native reader from the frozen 58 reader logic using the installed 58 page bytes. The host executable is a verification harness.",
+  "archived": {
+    "56": [
+      {
+        "scope": "archived real program in controlled node DOM; native Swift old installer and new read bridge",
+        "initial": "uploadStarted",
+        "read": [
+          {
+            "name": "original",
+            "state": "uploadStarted"
+          },
+          {
+            "name": "foreign-invocation",
+            "state": "invalidated"
+          },
+          {
+            "name": "again",
+            "state": "uploadStarted"
+          }
+        ],
+        "input": 1,
+        "change": 1,
+        "send": 0,
+        "rawSHA256": "c3bbacb39d414eccfe62fb6fb12a05d9802e81830868b04d1b09716785e779f0"
+      },
+      {
+        "scope": "archived real program in controlled node DOM; native Swift old installer and new read bridge",
+        "initial": "inputTriggered",
+        "read": [
+          {
+            "name": "original",
+            "state": "inputTriggered"
+          },
+          {
+            "name": "foreign-invocation",
+            "state": "invalidated"
+          },
+          {
+            "name": "again",
+            "state": "inputTriggered"
+          }
+        ],
+        "input": 1,
+        "change": 1,
+        "send": 0,
+        "rawSHA256": "fa571512cd74103f048e8efacc2a3b3ad668a7b18823aa9191c18f1e11b79ad0"
+      }
+    ],
+    "57": [
+      {
+        "scope": "archived real program in controlled node DOM; native Swift old installer and new read bridge",
+        "initial": "uploadStarted",
+        "read": [
+          {
+            "name": "original",
+            "state": "uploadStarted"
+          },
+          {
+            "name": "foreign-invocation",
+            "state": "invalidated"
+          },
+          {
+            "name": "again",
+            "state": "uploadStarted"
+          }
+        ],
+        "input": 1,
+        "change": 1,
+        "send": 0,
+        "rawSHA256": "c3bbacb39d414eccfe62fb6fb12a05d9802e81830868b04d1b09716785e779f0"
+      },
+      {
+        "scope": "archived real program in controlled node DOM; native Swift old installer and new read bridge",
+        "initial": "inputTriggered",
+        "read": [
+          {
+            "name": "original",
+            "state": "inputTriggered"
+          },
+          {
+            "name": "foreign-invocation",
+            "state": "invalidated"
+          },
+          {
+            "name": "again",
+            "state": "inputTriggered"
+          }
+        ],
+        "input": 1,
+        "change": 1,
+        "send": 0,
+        "rawSHA256": "fa571512cd74103f048e8efacc2a3b3ad668a7b18823aa9191c18f1e11b79ad0"
+      }
+    ]
+  }
+}

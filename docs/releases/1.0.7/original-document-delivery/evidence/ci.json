@@ -1,0 +1,102 @@
+{
+  "source": "2717fa6aaa7cb3750041ca1a0779c6dab65961cc",
+  "run": 44914124179,
+  "architectures": {
+    "arm": {
+      "architecture": "arm64",
+      "swift": {
+        "result": "PASS",
+        "discovered": 1415,
+        "parallel": 1393,
+        "serial": 22,
+        "serialOutcomes": {
+          "passed": 22
+        }
+      },
+      "pageProgram": {
+        "tests": 384,
+        "pass": 384,
+        "fail": 0,
+        "skipped": 0
+      },
+      "faultRecovery": {
+        "tests": 8,
+        "pass": 8,
+        "fail": 0,
+        "skipped": 0
+      },
+      "isolatedGUIChrome": {
+        "browser": "Chrome/158.0.8127.37",
+        "scenarios": 17,
+        "allPassed": true,
+        "receiptSHA256": "470e4c581acb80d601df8a5ed69dd8db405543fd9665e637b2a29002a8dbcaa5"
+      },
+      "artifactSHA256": {
+        "swift-test.log": "097dca82b73896a142e5c0d8bea92d455647144562cdf309a00e6431eeebec81",
+        "app-build.log": "1860bce4613ccf16bbae71670e20a4d8fa20f8a4755c207320aa0d140bf3b0fe",
+        "Packaging.log": "2263916061cbb47bc4b644d511b6de0a5c7dd32f102a388f996d61b7fcec051d",
+        "product-chrome.json": "b7fc3849177f78692e1e0c9e583e9ae4e5f20c0ee6b62193d962645dfdab884a",
+        "native-test-partitions.json": "fe492d3040a6678b7458010f357f0a840b549307c3dca9c7daf1c7babbe0a851",
+        "ReleaseReadiness.log": "c9b721ee27b863a9261b5bba61e4b5845ee5664f458b85459e8f339b44728701",
+        "renderer-chrome.json": "470e4c581acb80d601df8a5ed69dd8db405543fd9665e637b2a29002a8dbcaa5",
+        "discovered-tests.txt": "4630d6f212a5af2c3f34c809e812a4139cfa8af815642b791a635c188b4d8e68",
+        "ownership.log": "85ef5638aeaaa8863d527d84dd8991bc2e81c1a6b52f168506702f7071f0a539",
+        "page-program.tap": "764513ba7055d67166e5108a80a3528c44ef12f35277a9b04990e2a91b2f8dfd",
+        "StorageReadiness.log": "70f5dffc2f255a0dd3d0897ed22ecc4e315ad98977c84d204a57f88044a09eff",
+        "arrival-modes-serial.log": "5c48b5565d3d4f778ddfd6a48b88d3a1a5b6b35cf48a47998109852fea295e9e",
+        "architecture.txt": "c1669e1d8edca98769c37d494b76442a1d6e5ffffd7b4da1fb63aef8ebaf6f01",
+        "InternalBetaPackaging.log": "32c65ded2e5e87e2fdc1c39fbbb4f738784ca261064a2cf6c1dd05edc36a62b2",
+        "soak.log": "6d3411d5db463e51e1e09503619ff82768af4e799df48f413401e99518ffd526",
+        "fault-recovery.tap": "ca3bb1b7cba7d165183034ef0b3ac126b19c211f554cafcc137357972ef11104"
+      }
+    },
+    "intel": {
+      "architecture": "x86_64",
+      "swift": {
+        "result": "PASS",
+        "discovered": 1415,
+        "parallel": 1393,
+        "serial": 22,
+        "serialOutcomes": {
+          "passed": 22
+        }
+      },
+      "pageProgram": {
+        "tests": 384,
+        "pass": 384,
+        "fail": 0,
+        "skipped": 0
+      },
+      "faultRecovery": {
+        "tests": 8,
+        "pass": 8,
+        "fail": 0,
+        "skipped": 0
+      },
+      "isolatedGUIChrome": {
+        "browser": "Chrome/151.0.7922.174",
+        "scenarios": 17,
+        "allPassed": true,
+        "receiptSHA256": "f93847f1327bafac43c5786e3ff66a553d5e4c0478dff6cd40fcea19ade17893"
+      },
+      "artifactSHA256": {
+        "swift-test.log": "b82d08ee70e3fb3445413aab33b25ae7d1f5d095ddf9ed80d1062912b0881404",
+        "app-build.log": "f99b1c6b80757f83adcab94eea5337221a5f0fae6632a2e875aa0c5f60fffc2c",
+        "Packaging.log": "b23e7f12d9053b80c50069ecb8fdf90c07d8a89bb1c43dcbe79be21a9b4d4c31",
+        "product-chrome.json": "06be5a0586839902d42d3a5b38ff8408cb7b4a61367612e24b87595817888abb",
+        "native-test-partitions.json": "fe492d3040a6678b7458010f357f0a840b549307c3dca9c7daf1c7babbe0a851",
+        "ReleaseReadiness.log": "9d369cf3acb4fc0ffce14a7abfa647b29a71f47df1ddb879fab6cd9d5416645b",
+        "renderer-chrome.json": "f93847f1327bafac43c5786e3ff66a553d5e4c0478dff6cd40fcea19ade17893",
+        "discovered-tests.txt": "4630d6f212a5af2c3f34c809e812a4139cfa8af815642b791a635c188b4d8e68",
+        "ownership.log": "85ef5638aeaaa8863d527d84dd8991bc2e81c1a6b52f168506702f7071f0a539",
+        "page-program.tap": "692c25613ee04382e78128ffb282a1de5c83f08a199efcb566565b09506447d8",
+        "StorageReadiness.log": "165a5dba7183ade4e338686e110e2ae34da3dd2dacc98c374e4997df3b808356",
+        "arrival-modes-serial.log": "ecdde5c420862369c3c16af6513f0b31a3b96e10423fc146ce06781714ba594d",
+        "architecture.txt": "aaf631698ae5160ceb04a97681a14887fdcab47cd6e0f163c87485b3b1340b62",
+        "InternalBetaPackaging.log": "5be03073f2bdbb92b338d0b7b3594b32e04a0f711659076e768297ffd6f8d679",
+        "soak.log": "d7d6629b826e704b3c635b6dfdc3fb576779e233bd25ff2e2b6ac011c5824bb2",
+        "fault-recovery.tap": "89c30d60337a01e6f69329b2ae876f579a84f7be5144f72a4fdd01d028ff2b08"
+      }
+    }
+  }
+}

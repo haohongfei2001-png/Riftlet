@@ -53,6 +53,34 @@ final class ChromeProcessIdentityTests: XCTestCase {
         XCTAssertFalse(withDate.matches(session: "23:100.500", allowLegacyObservation: true))
         XCTAssertFalse(withDate.matches(session: "23:100.000007", allowLegacyObservation: true))
     }
+    func testClickRequiresCurrentForegroundBrowserAndOriginalInstance() throws {
+        let chrome = try identity()
+        let edge = try XCTUnwrap(ChromeProcessIdentity(birth: chrome.birth, applicationID: "com.microsoft.edgemac",
+            terminated: false, launchDate: Date(timeIntervalSince1970: 100.5)))
+        XCTAssertEqual(edge.session, "edge-kernel-v1:23:100:7")
+        XCTAssertNotEqual(chrome, edge)
+        XCTAssertTrue(edge.matchesForeground(pid: 23, applicationID: "com.microsoft.edgemac"))
+        XCTAssertFalse(edge.matchesForeground(pid: 27, applicationID: "com.microsoft.edgemac"))
+        XCTAssertFalse(edge.matchesForeground(pid: 23, applicationID: "com.google.Chrome"))
+        XCTAssertFalse(edge.matchesForeground(pid: nil, applicationID: nil))
+        XCTAssertFalse(edge.matches(session: chrome.session, allowLegacyObservation: true))
+        XCTAssertFalse(edge.matches(session: "23:100.5", allowLegacyObservation: true))
+    }
+
+    func testRecheckUsesOriginalKernelBirthAndExecutableEvenWithoutALaunchServicesObject() throws {
+        let pid = getpid()
+        let birth = try XCTUnwrap(KernelProcessBirth.read(pid: pid))
+        var bytes = [CChar](repeating: 0, count: Int(MAXPATHLEN) * 4)
+        let size = UInt32(bytes.count)
+        XCTAssertGreaterThan(proc_pidpath(pid, &bytes, size), 0)
+        let path = try XCTUnwrap(String(validatingUTF8: bytes))
+        let original = try XCTUnwrap(ChromeProcessIdentity(birth: birth, applicationID: "com.google.Chrome",
+            terminated: false, launchDate: nil, executablePath: path))
+        XCTAssertTrue(original.isCurrent())
+        let wrongImage = try XCTUnwrap(ChromeProcessIdentity(birth: birth, applicationID: "com.google.Chrome",
+            terminated: false, launchDate: nil, executablePath: path + ".another"))
+        XCTAssertFalse(wrongImage.isCurrent())
+    }
     func testKernelBirthCanBeReadForThisProcessWithoutGUIOrChrome() throws {
         let first = try XCTUnwrap(KernelProcessBirth.read(pid: getpid()))
         XCTAssertEqual(KernelProcessBirth.read(pid: getpid()), first)

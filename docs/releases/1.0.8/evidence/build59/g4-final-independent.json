@@ -1,0 +1,93 @@
+{
+  "G4": "NOT_RUN",
+  "browser": "Edge",
+  "calibrationFinishSHA256": "54a9516ca029c5ce700dfac3e756106b8f84898abbb8582d14a037c9cc69247e",
+  "candidate": {
+    "build": "1.0.8 (59)",
+    "dmgSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+    "source": "69b76cb025ab552b3480e3af095b627891874712"
+  },
+  "cleanup": {
+    "QAWindowClosedAndOriginalWindowSetRestored": true,
+    "networkHooksAutomaticallyRestored": true,
+    "passivePageWatcherClosed": true,
+    "privateSignedChildExitedNormally": true
+  },
+  "controlledTransportFault": {
+    "URLSHA256": "0f6d0275f489236cf0463fb2621fb91042e07d564e553d646bda63030d4560df",
+    "XHRStatus": 0,
+    "automaticRestorationMSAfterLoadend": 0.1,
+    "classification": "client XMLHttpRequest.abort() after native send returned and before an observed response",
+    "createHTTPStatus": 200,
+    "entirePNGBytes": 5513,
+    "generation": 1,
+    "nativeAbortCalls": 1,
+    "nativeLoadstarts": 1,
+    "observedUploadProgressEvents": 0,
+    "originalFileSHA256": "fa734c39ae34bca70281f0f67439349402d7e9099465c6f7010148af77a1b469",
+    "pendingAtRestoration": 0,
+    "sameOriginalFileObject": true,
+    "serverErrorClaimed": false,
+    "status": "OBSERVED",
+    "trustedAborts": 1,
+    "trustedLoadends": 1,
+    "uploadMethod": "PUT",
+    "wireByteCount": "NOT_OBSERVED"
+  },
+  "evidence": {
+    "browserInventoryAfterSHA256": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+    "browserInventoryBeforeSHA256": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+    "calibrationAndFaultUseDifferentDocument": true,
+    "frozenQAScriptSHA256": "7fe1d2a90902a14ea9a1cc16a71a32fd1d11fe4b9f71dd88848051c05d195510",
+    "lastPageSHA256": "155a8b346f2ee8a8ce7743f50d2e9e9e7179632b7ac23056e2811a860b406f63",
+    "lastQueueViewSHA256": "0b9c23d0a345dc8823520a795ec4321e2112d8653e894d17664ff11e4130c38f",
+    "nativeApplicationTraceSHA256": "b312908bc2209e59f87153552aeec0888cf051a12f3c82ce7b2cfb0d8b941423",
+    "nativeQAHostSHA256": "1285260e3a53a265b10bb754134877dd1c775956cafeb7a49d94e5766739d059",
+    "networkFinishSHA256": "1cb60c80b63753d554c3053928717dabc9d4d109f7413178c07832ee0475229d",
+    "networkSampleSHA256": "1cb60c80b63753d554c3053928717dabc9d4d109f7413178c07832ee0475229d",
+    "originalPageObservationSHA256": "3ac6ac40e58f0b99d87b54bf981869f6686983ef763f4cdaf0948b7f04078d8d",
+    "originalPageWatcherCloseSHA256": "a54ac5bb1f80f63e97d0fdea2ed11b5d547130e28378703d643019b310611f98",
+    "privateRunFileManifestSHA256": "a852bf5ce630d771a92bad9b1f1c315d7d093010991b7c6348c903e7a641d6a3",
+    "standaloneFinalDatabaseSHA256": "3f1176fe3da464277c4ae2552c9a4ecee799b8d7aa4d1b5b7337b5b097c1e926",
+    "windowCloseSHA256": "e148ee30b300dcf304cd7e68b337f09025d911a0f3f13fde9285d63fb5857d77"
+  },
+  "laterProductActivity": {
+    "additionalAutomaticInvocationsOrInputsThroughFinalRead": 0,
+    "beforeAfterRecoverySQLite": "NOT_RUN",
+    "explicitReattach": "NOT_RUN",
+    "originalCardFailure": "NOT_OBSERVED",
+    "recoverySTART": "NOT_RUN"
+  },
+  "originalDraft": {
+    "fileChanges": 1,
+    "fileInputs": 1,
+    "formSubmits": 0,
+    "lastVisibleScopedAttachmentFiles": 0,
+    "namedSiteErrorCards": 0,
+    "nativeMouseDowns": 1,
+    "observationSecondsFromClickIntent": 54.549,
+    "originalDocumentAndEditorPreserved": true,
+    "sends": 0,
+    "signedAppCommits": 1
+  },
+  "review": {
+    "independentControlledSameXHRReuseCases": 4,
+    "laterRequestCancelledInTheseCases": 0,
+    "offlineSingleFaultCasesPassed": 35
+  },
+  "sqlite": {
+    "STARTs": 0,
+    "eligibilityForExplicitRecovery": "unproven",
+    "invocationSHA256": "6e240a4c4924e1daacefd15e0123f8ee177b1a470b89cf32c99521cc93553578",
+    "invocations": 1,
+    "operationSHA256": "691ca1e887b2a9185572ea5887b54f9583c10f62884d097ce39dbbeef2b5abec",
+    "operations": 1,
+    "originalHasError": false,
+    "originalPhase": "unknown",
+    "originalReceipt": "inputTriggered",
+    "queueVisibility": "visible",
+    "retainedOriginalPNGMatchesCapture": true,
+    "safeToRetry": false
+  },
+  "status": "PARTIAL"
+}

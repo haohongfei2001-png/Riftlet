@@ -1,0 +1,20 @@
+{
+  "checkedReadOnlyAfterTimeout": true,
+  "durableStarts": 7,
+  "eighthAssetID": "231EA23D-3B16-4D08-AE81-A0F7E34DF89C",
+  "eighthMouseDown": "NOT_OBSERVED",
+  "eighthNotReissued": true,
+  "eighthOperation": null,
+  "eighthSHA256": "86747e2f6fcc65645f716f992720281a20192b2ba9cc3f59199fd792c78d9852",
+  "issuedPairsOfEvents": 8,
+  "operations": 7,
+  "originalMouseDowns": 7,
+  "runnerWindowSeconds": 40,
+  "siteCounts": {
+    "fileChange": 7,
+    "fileInput": 7,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  },
+  "sourcePreserved": true
+}

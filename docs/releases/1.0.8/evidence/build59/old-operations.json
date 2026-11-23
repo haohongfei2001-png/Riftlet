@@ -1,0 +1,114 @@
+{
+  "source": "69b76cb025ab552b3480e3af095b627891874712",
+  "version": "1.0.8",
+  "build": "59",
+  "verificationUTC": "2026-11-22T05:11:24.662057+00:00",
+  "scope": "Controlled, offline read-only recovery using the exact installed build 59 page and fingerprint resources. A separate native reader compiled against frozen release-source adapter/core modules generated each discovery and observe command. The signed product executable was identity-verified. Its ordinary UI and a live service were not invoked in this test.",
+  "newArtifact": {
+    "dmgSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+    "executableSHA256": "6fb94534e7b34533f10abb00c2b91369787e6ca1a516ae3c1fe818fe03a53ff7",
+    "resourceSHA256": "b6eee615982d839285ea6af4abb16018939f9be91b18215554e847f4a6eb2215",
+    "cdHashes": {
+      "arm64": "6f929cd41efefd8695a5f398201d6d04bd6f893e",
+      "x86_64": "66243bf1a07be2689e073dc7d9a513a266d12544"
+    },
+    "installationReceiptSHA256": "493b0f4201fd4b1375958b7ad2124c677f5d464faf23a561d2d34858623a7796",
+    "publicationAtVerification": false
+  },
+  "controlledExecution": {
+    "runtime": "Node VM with existing local controlled DOM; each old release installed its original Swift-generated MAIN relay and signed page program. One synthetic PNG operation per case.",
+    "independentNativeDiscoveryProcessesPerOriginalOperation": 3,
+    "independentNativeObserveProcessesPerOriginalOperation": 3,
+    "bundledSource": "ChatGPTWebPageProgram.load() and ArchivedObservationCompatibility loaded the verified installed app resource bundle from each separate reader process.",
+    "readerSourceSHA256": "1f5afc0cc66c2680f2a094120f23185384c180dd7bb4a6b1a85f5289ddbe7069",
+    "frozenAdaptersSHA256": "d16c156659079366f0d4bbe94dde57ef0867d30025a379dd5a47a5bc70b51718",
+    "fixtureSHA256": "4ebe6618a7e6e95d4e7fcb40beeb878411486a18f24c86572224fd83d469fdcf",
+    "replayHarnessSHA256": "e73871bfcb75d14be64b6a3e1f53d6ec31ccc26d68956a26973213b57c40ac66"
+  },
+  "status": "PASS_CONTROLLED_SAME_PACKAGE_RESOURCES",
+  "historicalOperations": [
+    {
+      "originalBuild": 56,
+      "originalSignedPackageVerified": true,
+      "installedArchiveSHA256": "ed470481df5373d0e702c87087785235d080fb75b85ea27f1e07408e0357ae52",
+      "archivedProgramSHA256": "61669b502526bd01b71b6c9aead85c224d9f3a50263ff121997769527368e2c5",
+      "archiveBytesEqualHistoricalSignedProgram": true,
+      "cases": [
+        {
+          "originalState": "inputTriggered",
+          "firstOriginalRead": "inputTriggered",
+          "wrongInvocation": "invalidated",
+          "nextOriginalRead": "inputTriggered",
+          "explicitOriginalInputCount": 1,
+          "changeCount": 1,
+          "sendCount": 0
+        },
+        {
+          "originalState": "uploadStarted",
+          "firstOriginalRead": "uploadStarted",
+          "wrongInvocation": "invalidated",
+          "nextOriginalRead": "uploadStarted",
+          "explicitOriginalInputCount": 1,
+          "changeCount": 1,
+          "sendCount": 0
+        }
+      ]
+    },
+    {
+      "originalBuild": 57,
+      "originalSignedPackageVerified": true,
+      "installedArchiveSHA256": "c691e6b7bd848bc8e1fb994aa9efd2dc7419b8b73549c0c1e31eb09499287e8a",
+      "archivedProgramSHA256": "0ac5c59b4856f26a50f5f22d8142314444db361a69753d0ee32cb767d89be87f",
+      "archiveBytesEqualHistoricalSignedProgram": true,
+      "cases": [
+        {
+          "originalState": "inputTriggered",
+          "firstOriginalRead": "inputTriggered",
+          "wrongInvocation": "invalidated",
+          "nextOriginalRead": "inputTriggered",
+          "explicitOriginalInputCount": 1,
+          "changeCount": 1,
+          "sendCount": 0
+        },
+        {
+          "originalState": "uploadStarted",
+          "firstOriginalRead": "uploadStarted",
+          "wrongInvocation": "invalidated",
+          "nextOriginalRead": "uploadStarted",
+          "explicitOriginalInputCount": 1,
+          "changeCount": 1,
+          "sendCount": 0
+        }
+      ]
+    },
+    {
+      "originalBuild": 58,
+      "originalSignedPackageVerified": true,
+      "installedArchiveSHA256": "d05979dfae4b702d907b1f7f50a6312f9d7c25a5c6b484ed493bbfd39d9f6fbb",
+      "archivedProgramSHA256": "43e43df544d4edb6081dfe592b1b18166039f98983ab8f0fac0f31efdf60d166",
+      "archiveBytesEqualHistoricalSignedProgram": true,
+      "cases": [
+        {
+          "originalState": "inputTriggered",
+          "firstOriginalRead": "inputTriggered",
+          "wrongInvocation": "invalidated",
+          "nextOriginalRead": "inputTriggered",
+          "explicitOriginalInputCount": 1,
+          "changeCount": 1,
+          "sendCount": 0
+        },
+        {
+          "originalState": "uploadStarted",
+          "firstOriginalRead": "uploadStarted",
+          "wrongInvocation": "invalidated",
+          "nextOriginalRead": "uploadStarted",
+          "explicitOriginalInputCount": 1,
+          "changeCount": 1,
+          "sendCount": 0
+        }
+      ]
+    }
+  ],
+  "replayInputs": 0,
+  "automaticSends": 0
+}

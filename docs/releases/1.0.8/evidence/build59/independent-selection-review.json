@@ -1,0 +1,41 @@
+{
+  "reviewedUTC": "2026-11-22T12:27:54.645729+00:00",
+  "reviewer": "non-author independent package reviewer",
+  "qaCommit": "5afe89ddc4b2e427acf4f764435c903eac5203f5",
+  "signedPackageSource": "69b76cb025ab552b3480e3af095b627891874712",
+  "dmgSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+  "signedPageSHA256": "b6eee615982d839285ea6af4abb16018939f9be91b18215554e847f4a6eb2215",
+  "observations": [
+    {
+      "family": "chrome",
+      "engine": "Chrome/157.0.8103.79",
+      "independentRunSHA256": "9f2e8f1a51f1fb98635e4396f45f044e2fbcd700d7d08052de718a6dd94b474b",
+      "cases": [
+        {
+          "direction": "forward",
+          "status": "PASS"
+        },
+        {
+          "direction": "backward",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "family": "edge",
+      "engine": "Edg/158.0.4370.33",
+      "independentRunSHA256": "f3730505780ce5b3b0d9d07993106fa5ec556a2bb13faffe4d1bc663e6078195",
+      "cases": [
+        {
+          "direction": "forward",
+          "status": "PASS"
+        },
+        {
+          "direction": "backward",
+          "status": "PASS"
+        }
+      ]
+    }
+  ],
+  "reviewDecision": "APPROVED for controlled selection QA. Both review findings corrected. The authenticated website gates remain distinct."
+}

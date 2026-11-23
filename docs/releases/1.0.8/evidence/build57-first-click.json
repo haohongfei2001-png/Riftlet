@@ -1,0 +1,61 @@
+{
+  "version": "1.0.8",
+  "build": "57",
+  "scope": "one bounded software mouse attempt on an empty authenticated ordinary Google Chrome Temporary Chat",
+  "accountMenu": {
+    "bound": "originalBound",
+    "close": "pointerPairToOriginal",
+    "finalMenu": "closed",
+    "logoutActions": 0,
+    "menuCloseRequests": 1,
+    "menuOpenRequests": 1,
+    "observed": "logoutAvailable",
+    "open": "openedOriginalObject"
+  },
+  "executableSHA256": "0be3aa08d7d597b248428b8abd1fd6adcecf48a1266ddbe53482382aca66eaed",
+  "sourcePNG": {
+    "sha256": "0f3963a9b659b2b3f53f67b567ffacc4be8c96baf51bbfd87d1bfce4191ce0e9",
+    "bytes": 5516,
+    "realSystemMarker": true,
+    "ownedWindowVerified": true
+  },
+  "issuedBySignedApp": {
+    "armed": 2
+  },
+  "mouseEventNumber": 15234,
+  "mouseEventsPosted": 2,
+  "appKitMouseDown": "UNCONFIRMED",
+  "actualBrowserCounts": {
+    "fileChange": 0,
+    "fileInput": 0,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  },
+  "originalEditor": true,
+  "originalDocument": true,
+  "draftTextUnchanged": true,
+  "draftSelectionUnchanged": true,
+  "privateSQLiteOperationsAfterExit": 0,
+  "realCardReceipt": "NOT_OBSERVED",
+  "automaticRetry": false,
+  "laterDelivery": "UNVERIFIED; driver ended its private App shortly after its fast receipt window",
+  "existingWindowSetRestored": true,
+  "loopbackClosed": true,
+  "rawSHA256": {
+    "chrome/live-first-click/route.json": "5ccdefee88109f32d2e333909fdd3d15bfea7de894cd8e6635d0c88151c78cba",
+    "chrome/live-first-click/child.json": "b46b510cbc2181d3295c183a138a27ce4fd5c3600ec392cb4d5cba8ae4f7df1d",
+    "chrome/live-first-click/capture-1.json": "460a655b98412d83938af2c10cdd29a9c675fc4240e23e4ee4dda588f83cd066",
+    "chrome/live-first-click/row-1.json": "769edb7ed683dfa559db9ea2c5421b30bfce456b3e94689d30ddd564e522aa42",
+    "chrome/live-first-click/click-1.json": "be06c0ec61e51a38d692ab28ab4b4671f2847ddb7c8274d5958262db1c2c75c7",
+    "chrome/live-first-click/final-db.json": "67aa66f2960186de20697dd609d521345edfaa4bc6b7b8800bc6e065facf1c89",
+    "chrome/live-first-click/final-page.json": "4a9f72420796c73c727f1c29dc72244f4396a55331dd60132bccc78b35f771d1",
+    "chrome/live-first-click/post-exit-audit.json": "6902e804fb1c5d500e56b18daa1d889ed6572bcb7dea9469e2475c540cbdc794",
+    "chrome/live-first-click/candidate.stderr": "6d20376f8c86ad79e84064bfff4854cb3abcbed49304e69b7ee9b78900173ff8",
+    "chrome/live-first-click/result.json": "a679d544b8b071ee03dfa4eaa97b88f6139421c6a6e819e4937b80aa33b38644",
+    "chrome/account-pointer.json": "8f8bbca2bfafdd31f42050d6d21909797c54c52a0949036ed7a11e0dbf186660",
+    "chrome/closed.json": "fdab8e9923fac9dbbd1109304c406a9029b1e280fb47abf383dfafdb3957d073",
+    "chrome/before.json": "99fd729e3f1d670f9a6915cb283b5d4db24a53073a80cf7503199bff95c03292",
+    "chrome/after.json": "99fd729e3f1d670f9a6915cb283b5d4db24a53073a80cf7503199bff95c03292",
+    "service-cleanup.json": "24d298b7b5a5dbf82bf69d94367deed481f7c82cd0535fa47045ccad3ddd130e"
+  }
+}

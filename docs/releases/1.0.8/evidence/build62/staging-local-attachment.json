@@ -1,0 +1,58 @@
+{
+  "case": "owned offline headless page of the real post-Sparkle build 62 web resource",
+  "status": "PASS",
+  "source": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "upgradedExportReceiptSHA256": "784fdd41a1a061198f7abc98213f74b7a1da27baafc49d34870eb38ed41553c8",
+  "postSparkleZIP": "c3acc74c3ae868c3efc1261ae9bd1a28ef992543dc59a8f16b2efb326dd35404",
+  "resourceSHA256": "8bdb088559961534c1ac43ec170e02e77e3dcb4eaf1c711a79e43a0fcf854c93",
+  "singleExactEmbedding": true,
+  "sourcePNG": "5b555218410c1ff8bc85afa0a5130a1e07098d04dcacce111791e6ddb557a7a8",
+  "sourcePNGBytes": 177315,
+  "guestCaptureReceiptSHA256": "f1a093c8e81e99336ae0521abe2cd1939dc651a62cf4790c4d0a48c08df0a1cf",
+  "width": 768,
+  "height": 576,
+  "decodedReferenceAndActualPreviewRGBASHA256": "c5c46b4dc33b099c050bedc67857b28b412794a2ae9c79de03c121023d76f453",
+  "checks": {
+    "originalDocumentAndEditor": true,
+    "existingAttachmentPreserved": true,
+    "nonemptyTextAndSelectionPreserved": true,
+    "pinAndCaptureTarget": true,
+    "commits": 1,
+    "nativeDOMSetterEntered": 1,
+    "nativeDOMSetterReturned": 1,
+    "fileInput": 1,
+    "fileChange": 1,
+    "foreignSetter": 0,
+    "duplicates": 0,
+    "formSubmits": 0,
+    "sendButtonClicks": 0,
+    "pageAdapterOriginalAttachmentAccepted": true
+  },
+  "scope": {
+    "runtime": "separate cached Chromium headless shell and new temporary profile; local inherited pipes",
+    "context": "owned file fixture with a test-only logical draft address",
+    "networkIsolation": "isolated Chromium renderer offline before file navigation, every http/https/ws/wss/ftp URL blocked, private file CSP connect-src none; headless background networking and name resolution disabled; default NetLog checked after exit",
+    "httpResourceEntries": 0,
+    "literalUpgradedRiftletAppLaunches": 0,
+    "ordinaryBrowserLaunches": 0,
+    "thirdPartyWebsiteInputs": 0,
+    "durableProductSQLiteFromThisPageTest": false,
+    "networkLogCounts": {
+      "TCP_CONNECT": 0,
+      "TCP_CONNECT_ATTEMPT": 0,
+      "UDP_CONNECT": 0,
+      "QUIC_SESSION": 0,
+      "HOST_RESOLVER_DNS_TASK": 0,
+      "externalURLRequest": 0
+    },
+    "networkLogSHA256": "14f4a7f9c09c61fcbff34ef368df9fc5e31e22823d54835e7bbc4adbba211d05",
+    "ownHeadlessChildExited": true
+  },
+  "bindings": {
+    "headlessSHA256": "77d8278b1ac9d0687fad4e817ea83023ede09b1deef36e1864b49ba194ac9634",
+    "testDriverSHA256": "375998fafb9c641448e7f9197e0ce4353deb239a5e611433472177eb09969b38",
+    "fixtureInputObserverSHA256": "7c4922989a476c7d19f769ce4f6b835dfe5682ee5709b4ec53f8cc2c76fc2934",
+    "wrappedResourceSHA256": "201f084029a04ac559e3002d709d9fad01858101ebd40eea46053476a82f5aa1",
+    "pageCSPSHA256": "d1c34b3e361aedbe87475922ce45dc677b31f98b7a28ce3f5f51b2fa03ba1173"
+  }
+}

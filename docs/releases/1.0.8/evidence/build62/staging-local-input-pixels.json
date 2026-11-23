@@ -1,0 +1,16 @@
+{
+  "fileFixtureDecodedSourceAndPreviewEqualNative": true,
+  "guestQueueRouteAndLiveHostBrowserCountsAreSeparate": true,
+  "hostNormalChromeLaunch": false,
+  "localNativeSourcePixelProgramSHA256": "690d5be5c8c39eaaff325a5d1f0f2e174f49492d9e224c5459ab75df0de0ea3b",
+  "observedChangeCount": 1,
+  "observedInputCount": 1,
+  "observedSetterCount": 1,
+  "observedSiteNetworkRequests": 0,
+  "originalPNG": "5b555218410c1ff8bc85afa0a5130a1e07098d04dcacce111791e6ddb557a7a8",
+  "pixelsCompared": 442368,
+  "publicFixtureReceiptSHA256": "bd8e23ed24842cadf10e9ea9e9ef0fb45e80efdc979f42952c35a5debc3a3e59",
+  "realUpgradedAppLaunchOnHost": false,
+  "sourceBytes": 177315,
+  "sourceDecodedIndependentMacOSRGBA256": "c5c46b4dc33b099c050bedc67857b28b412794a2ae9c79de03c121023d76f453"
+}

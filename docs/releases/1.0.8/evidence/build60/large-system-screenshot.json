@@ -1,0 +1,23 @@
+{
+  "observedUTC": "2026-11-22T21:58:03.195363+00:00",
+  "case": "C2 screenshot origin and size",
+  "source": "macOS /usr/sbin/screencapture -x -o -l, one nonactivating QA-owned AppKit pattern window",
+  "sha256": "ac2ae9502b81ac77a4f6883ca1eaef7c5f421a9d7e863a0a150dabc6fbaaa500",
+  "bytes": 23233638,
+  "dimensions": [
+    2880,
+    2816
+  ],
+  "verifiedCenterSamples": 9,
+  "systemScreenshotMarker": true,
+  "windowOwnershipConfirmed": true,
+  "foregroundPIDUnchanged": true,
+  "privateCaptureReceiptSHA256": "db17ea0a394bc78cca05a75137dedd75179a33c64c2a85edabd41ceb4e5e8fba",
+  "officialChatGPTImageLimit": "20 MB per image",
+  "officialSource": "https://help.openai.com/en/articles/8555545-uploading-files-and-audio-to-chatgpt",
+  "signedAppInputCountDuringCapture": 0,
+  "candidateTransferBytes": null,
+  "upstreamRequest": null,
+  "upstreamStatus": null,
+  "siteVerdict": "NOT_RUN"
+}

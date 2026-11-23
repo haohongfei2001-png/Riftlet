@@ -1,17 +1,19 @@
 import Foundation
 import RiftletCapture
 
-/// Explicit native review environment in the same installable binary. It has
-/// real local persistence/collection, but no browser, capture or cloud authority.
+/// Storage for separately owned sessions in the installable binary. The App
+/// mode, independently of these paths, chooses the adapter and capture policy.
 struct SettingsReviewEnvironment {
     enum Failure: Error { case invalidIdentifier, foreignDirectory }
     let identifier: UUID
     let root: URL
-    var source: URL { root.appendingPathComponent("fixture-source", isDirectory: true) }
-    var suiteName: String { "com.riftlet.settings-review." + identifier.uuidString.lowercased() }
+    let isPreClickQA: Bool
+    var source: URL { root.appendingPathComponent(isPreClickQA ? "capture-source" : "fixture-source", isDirectory: true) }
+    var suiteName: String { (isPreClickQA ? "com.riftlet.preclick-qa." : "com.riftlet.settings-review.") + identifier.uuidString.lowercased() }
     var defaults: UserDefaults { UserDefaults(suiteName: suiteName)! }
-    var captureLocation: SystemCaptureLocationProvider {
-        .init(preferencesFile: root.appendingPathComponent("fixture-location.plist"), fallbackDirectory: source)
+    var captureLocation: any CaptureLocationProviding {
+        if isPreClickQA { return PreClickQAEnvironment.FixedSource(directory: source) }
+        return SystemCaptureLocationProvider(preferencesFile: root.appendingPathComponent("fixture-location.plist"), fallbackDirectory: source)
     }
 
     static func identifier(in arguments: [String]) throws -> UUID {
@@ -23,10 +25,11 @@ struct SettingsReviewEnvironment {
 
     static func directoryName(for identifier: UUID) -> String { "Riftlet-Settings-Review-" + identifier.uuidString.lowercased() }
 
-    init(identifier: UUID, applicationSupport: URL) {
+    init(identifier: UUID, applicationSupport: URL, isPreClickQA: Bool = false) {
         self.identifier = identifier
-        root = applicationSupport.standardizedFileURL.resolvingSymlinksInPath()
-            .appendingPathComponent(Self.directoryName(for: identifier), isDirectory: true)
+        self.isPreClickQA = isPreClickQA
+        let name = isPreClickQA ? "Riftlet-PreClick-QA-" + identifier.uuidString.lowercased() : Self.directoryName(for: identifier)
+        root = applicationSupport.standardizedFileURL.resolvingSymlinksInPath().appendingPathComponent(name, isDirectory: true)
     }
 
     func prepare() throws {
@@ -34,6 +37,7 @@ struct SettingsReviewEnvironment {
         let marker = root.appendingPathComponent("settings-review-identity.txt")
         let expected = Data((identifier.uuidString.lowercased() + "\n").utf8)
         if manager.fileExists(atPath: root.path) {
+            if isPreClickQA { try PreClickQAEnvironment.checkOwnership(root: root, marker: marker, byteCount: expected.count) }
             guard root.resolvingSymlinksInPath().standardizedFileURL.path == root.standardizedFileURL.path,
                   marker.resolvingSymlinksInPath().standardizedFileURL.path == marker.standardizedFileURL.path,
                   try Data(contentsOf: marker) == expected else { throw Failure.foreignDirectory }
@@ -47,11 +51,13 @@ struct SettingsReviewEnvironment {
     /// second launch may validate identity but cannot change an in-use fixture.
     func prepareFixtures() throws {
         let manager = FileManager.default
+        if isPreClickQA { try PreClickQAEnvironment.checkTree(root: root) }
         // Foundation may change a nonexistent directory URL's directory hint
         // while resolving it. Compare canonical filesystem paths, not that
         // metadata; actual links must still resolve to a different path.
         guard source.resolvingSymlinksInPath().standardizedFileURL.path == source.standardizedFileURL.path else { throw Failure.foreignDirectory }
         try manager.createDirectory(at: source, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
+        if isPreClickQA { return }
         // Never read the macOS Screenshot preference domain, even if a fixture
         // preference is later absent. A malformed preference fails closed.
         let preferences = root.appendingPathComponent("fixture-location.plist")

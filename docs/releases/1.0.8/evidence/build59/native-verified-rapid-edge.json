@@ -1,0 +1,387 @@
+{
+  "candidate": {
+    "build": "59",
+    "cdHashes": {
+      "arm64": "6f929cd41efefd8695a5f398201d6d04bd6f893e",
+      "x86_64": "66243bf1a07be2689e073dc7d9a513a266d12544"
+    },
+    "executableSHA256": "6fb94534e7b34533f10abb00c2b91369787e6ca1a516ae3c1fe818fe03a53ff7",
+    "resourceSHA256": "b6eee615982d839285ea6af4abb16018939f9be91b18215554e847f4a6eb2215",
+    "sha256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+    "source": "69b76cb025ab552b3480e3af095b627891874712",
+    "version": "1.0.8"
+  },
+  "family": "edge",
+  "finalWebsiteCounts": {
+    "fileChange": 7,
+    "fileInput": 7,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  },
+  "originalRawReceiptSHA256": {
+    "all-previous-capture-content.json": "1ae244ee29ac75d2c06c465c648a73247d977ced45a69bc395b636b24802a8dc",
+    "baseline-1-before.json": "f163324d43487ddf417cd1ae25a918b3612922b75cff9b92b6d16b86585db255",
+    "baseline-1-watcher.json": "39bc8e9a0e98b4379b9f3a21df0ac1f5d63ece818037b1c34905cfdffe7d9d51",
+    "baseline-2-before.json": "e203b7f2191d5d8ca7c67d796d91cd07ed828b674a04e4181e508523a6686b4d",
+    "baseline-2-watcher.json": "3d5e81c385d131f112805cdc0a367d876044b3ee6a0e64a8aca686dc692da3fe",
+    "baseline-4-before.json": "10c1c8c196e108ed536db532b081c6642cd940ba608224b3c7b63a3d2d63abee",
+    "baseline-4-watcher.json": "215b5a21fe3ebf5289079ea65ba80e2437bbf5d22c3858437df5c372a5ad3e4e",
+    "baseline-6-before.json": "ee606251f000caf8a33014c9825961a539d514d78824d0c026ee9de165217ed0",
+    "baseline-6-watcher.json": "4f0673ff187981cb926e3b0ddf6abcd1d1554f45289cedaecbebbdb03efe52a4",
+    "baseline-8-before.json": "0259bf19565e4d5c26de604bc2febc58d0d61a6bdd553b79e1b35ef02ad15bec",
+    "baseline-8-watcher.json": "01adcfa70715e5f9ede5c046f02e3505c59a4c73aa56d33960b12410c093cb74",
+    "before-selection-prep.json": "9e9065a3d9c4eccb8d265e37c922297bdb79bc582cc1e301545129e1ed3068b3",
+    "capture-1.json": "bc533e7005d6bd4525447969b6bdac9a153145054b6362e89aa9ad568d6c2131",
+    "capture-2.json": "c0a3e08241ad2b8d2aa9ef837769cc2c456c78c64d84a7ef0d9de93e7ffa104a",
+    "capture-3.json": "4c2ff36628862def0a495790c08d8456ce7919098f2ba922fa40aa113426cc61",
+    "capture-4.json": "87c33b81ae8ecc0dc8cdb46159c7b38a49ca39a2fc8b32d7b2276eaea403ecac",
+    "capture-5.json": "6962932647e92024a441e6190d59bfbaf18dd6807c8170b28c663eb4230c8995",
+    "capture-6.json": "baa68ce43bf8105f6f93d3e8547fc95d57af3724efc1dda4b2d324dd3068e08e",
+    "capture-7.json": "4fed9a32dcf1c083e817a73d76680a586f3716229d5c931a79617c045d2911a4",
+    "capture-8.json": "6ff064ff3d6478da65669f718947f85ffcfb08a6beec28b9fd2e193368907345",
+    "cards-before-1.json": "39bc8e9a0e98b4379b9f3a21df0ac1f5d63ece818037b1c34905cfdffe7d9d51",
+    "cards-before-2.json": "7e8ba910f5f6f56e3ed120bfcabf29639680afa955ebc11fa2d07886a78ba557",
+    "cards-before-4.json": "1c544e1451c487577e0944bdd65a4fbe524663b9554e46dfeac7a4e7b113eef1",
+    "cards-before-6.json": "1863a5a65dcff2b73cc5dfad10be55983814dfabc3a443ee2a8e4077ceff8dfc",
+    "checkpoint-after-1.json": "08a0baba0ceec233d4d9a989ad50495287ed94faaed9984b318355f3da62f6e6",
+    "checkpoint-after-3.json": "aec7d2dd89efb415e83915aaec627fc96daeab8787b9248c30dc5f55bd257115",
+    "checkpoint-after-5.json": "6ffe9f3251cb2c188f9b7a068aec91aa0c86c18bccec9cb254886bf0c2493269",
+    "checkpoint-after-7.json": "bd71f65143b24cf7a1e3afaebae20ff2408d37de865c6b5bacfaf6f92eaeff9d",
+    "child.json": "09f40776a5eb121d5027d0c6eed857cd48f12ecd8656e6b9f8a06b8ef5baf2ed",
+    "click-1.json": "c4326ad4f16b6dccf5df0379df270532a2a533de8950be3047ed7c24cf16f415",
+    "click-2.json": "43856995366b6a22f28542f948b831b949308ea90918ace93f10e6ee9309ae28",
+    "click-3.json": "36e261b98c0cca27815c45cc737d6ebcf2f1e4e6a814a3f1bf623b5dd3018462",
+    "click-4.json": "e4140bf83c234eccf2d1c999a148a48cbb53c5772fd274e1fc4fb97958474285",
+    "click-5.json": "635f856a7f8f98f9ef5c7285e6f22d9cfc7aa8d147128858dfe323ce88b1f776",
+    "click-6.json": "dde373bbec886cf2e28add05d91a911c65129b03dbc19e30478e2986b466c7ef",
+    "click-7.json": "3bd482123324810bff4240b4775c2229961d6fcbb5c2cb115425480b1c77bee5",
+    "confirmed-pair-2.json": "af609dc1c47bdb19ea3c63f2c92a8567f959d12c9586675f0908080c6c7155e5",
+    "confirmed-pair-4.json": "65d0151ca6b2430260cba4fce59633ab593f39fd83354086fe4e56c1f77ac501",
+    "confirmed-pair-6.json": "548e055aa5d0699dcc81a38753c83ecdea45f8005754b43a23be88b472aa68b7",
+    "db-1.json": "c521766b9ebf48d9ec2861b7b3625079ed6697fc59b6a59a6f82694c6ddebef8",
+    "db-3.json": "79ac75661774083bc2c1a63f5f2b41c9d41902bb4268516a436f9c50ccb5f8c8",
+    "db-5.json": "0e64f34cb27671eee8f9e1f52944f8d20f6f9da9903cf2bccabf276a5c85d536",
+    "db-7.json": "cca8ca89a28736fc082477114e6fe77613fa26cf42cd129bd6604dcc349d34e9",
+    "final-db.json": "78aa4f20f16f43d4493cb32c50e80c904524f21f4cc9274482306c5820160ddc",
+    "final-page.json": "9e9065a3d9c4eccb8d265e37c922297bdb79bc582cc1e301545129e1ed3068b3",
+    "native-auth-batch-1.json": "f163324d43487ddf417cd1ae25a918b3612922b75cff9b92b6d16b86585db255",
+    "native-auth-batch-2.json": "e203b7f2191d5d8ca7c67d796d91cd07ed828b674a04e4181e508523a6686b4d",
+    "native-auth-batch-4.json": "10c1c8c196e108ed536db532b081c6642cd940ba608224b3c7b63a3d2d63abee",
+    "native-auth-batch-6.json": "ee606251f000caf8a33014c9825961a539d514d78824d0c026ee9de165217ed0",
+    "native-auth-batch-8.json": "0259bf19565e4d5c26de604bc2febc58d0d61a6bdd553b79e1b35ef02ad15bec",
+    "native-auth-press-1.json": "d17e0a813a4d8919dd371f1a8eb8d9f2f500e846f2c1b9fb639b7141b1a21415",
+    "native-auth-press-2.json": "f7a6d383e749f2a0df139f78798531d023f233cde0ac2fd6a9b03a2c82439a40",
+    "native-auth-press-4.json": "bc92c7b639f148a8318b82b9fcc38f58d774e3b3a450c307ab935b340637fe03",
+    "native-auth-press-6.json": "786538f8d839ed77009fa1407f59f24c8744b0f6e808658aa40f8b4a0eec8bdc",
+    "native-auth-startup.json": "76127bc1f7551cc2ab048e529bf02010cc0568199d0eff3025a1e1913fd5f5d9",
+    "new-source-and-prepared-target.json": "cb5ae78e11c967571a501366b4e06cf0caea78cf59d53c9dd69e28df9f5a07ad",
+    "page-after-1.json": "3d5e81c385d131f112805cdc0a367d876044b3ee6a0e64a8aca686dc692da3fe",
+    "page-after-3.json": "215b5a21fe3ebf5289079ea65ba80e2437bbf5d22c3858437df5c372a5ad3e4e",
+    "page-after-5.json": "4f0673ff187981cb926e3b0ddf6abcd1d1554f45289cedaecbebbdb03efe52a4",
+    "page-after-7.json": "01adcfa70715e5f9ede5c046f02e3505c59a4c73aa56d33960b12410c093cb74",
+    "page-baseline.json": "39bc8e9a0e98b4379b9f3a21df0ac1f5d63ece818037b1c34905cfdffe7d9d51",
+    "page-before-1.json": "39bc8e9a0e98b4379b9f3a21df0ac1f5d63ece818037b1c34905cfdffe7d9d51",
+    "pair-native-2.json": "0aa89c857db5d56068e029410f501f1a3d881aa0101fcf4a9b98759e8649fcc6",
+    "pair-native-4.json": "135eaae1fc64a0fad066a4e5284f36190df93a625f22a99ba03289a50c300018",
+    "pair-native-6.json": "73ceb0e589bc42bae8f9db4a0b875157b0eccdabebb51f68f37d809fc31dfb66",
+    "pair-request-2.json": "6413a3922db989548ac0cf0d517c5df080cca4e127128fa2153cc64bef3d5fe2",
+    "pair-request-4.json": "2a7ee48047098b8f96700764f7562734d308e3e7d556bc6377751fd36bf0ff9d",
+    "pair-request-6.json": "bed1ae36410d8c0e4e225ec8feae8c2bea44be3776ffefa71bc7cc7add71ab11",
+    "positive-1.json": "d574d28b7cccb2141146e344efc14feec879eb0385c30bc2e5e0af0848dc18ef",
+    "positive-3.json": "05105a4a016bc4fec045b406aec1cf7e024cc860739738413267f23e19de1319",
+    "positive-5.json": "42169aff28c771157b163856473ff2b2687ab6217e2581972f1935e4052e693d",
+    "positive-7.json": "94d6eb316ccf384a1ddc754435a3611703c90c834f2368bb1d9628ccf232ab5a",
+    "preclick-pair-2.json": "6b2d31b9fa04830e89eb4ecf3638bb07a8ffcf3326a8a39d51df19d13da93f7d",
+    "preclick-pair-4.json": "b72982e62bbe50e411d4ff16b866395b8b60f8fca0fc3ae3c3535f3b9e13a27b",
+    "preclick-pair-6.json": "d62e0d5507f78dab08fbd9733b48dd240dc10cbd315a100736350e84afe33e78",
+    "previous-runs.json": "919de94e7c0af287d09a8f3f63d81c12e94729d30cc4f3bb80e45c1790c6045d",
+    "prewatch-scope-before.json": "84e322b67362bf7b92ed4b2b6a15a8989cf7eef6845307b0f69f0d4804d14bc8",
+    "prewatch-scope-page-after.json": "c61f73ceb5f9d0e47bae8e36b8c98e7cbd9561dd309b5545ddfdeec6a9b081fc",
+    "result.json": "0bed32a554b73c89fa6cd7d3824c1e34a010dc8b14b926fad6961d6ffbcc205d",
+    "route.json": "cc46be32e2e0ba01fe8e52176511e6fe4c74736bf792695d10a16fe5aa3508eb",
+    "row-1.json": "ef64e37b4c9c32b21d7335fcdf93770ce1153a5db808ad9690780d2f04e55a5b",
+    "row-2.json": "c5d85b50d1ea7fa6cd7d2b2ec2adafcec0dd26f64d37a8f397801dfb7cc2fcda",
+    "row-3.json": "ddc1e00c3b6af97a511d124e350a4a1690f71a28e419d98cba242dde8d0e2740",
+    "row-4.json": "e672bc36116e25faa2847145db7582d4bee5f184f0e34b075bd2094beb411793",
+    "row-5.json": "e1249a4c9d1d62f2f65af5ed15fc5d0b2d532d2759e3aa9c08050e026c53ca9d",
+    "row-6.json": "17cf15a076cefa36e5066b6db33950a3ac438b33519cf5b844a203ec9930ab87",
+    "row-7.json": "3cd441731b1c83670a3261685a85a75501622284933f54996d4470f7c6709bc5",
+    "row-8.json": "2ac1d2e1b98df5fb3cd0ff4120132eeed5b43df342566c507cfc1e00abb5bd49",
+    "selection-preparation-once.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sender-elapsed-2.json": "8ae6d5057b9cce4ac165888cef08f86c471e287be3c16340d2b947956575e9d2",
+    "sender-elapsed-4.json": "30b33f5828614490e1e78e21973a9d1218774f32ea98a28cd9c41689561b521b",
+    "sender-elapsed-6.json": "945c3cc565c437b6dd6003c58741c03c5596327273bb54155710634e7fe28d4c",
+    "signed-app.stderr": "e64ccb77be3464f1093f6763707c07a1b1db0b3d5f1a1c86e117d89072c2e223",
+    "source-pixels-1.json": "537b55c236adbf42c6de95df9be1766a3e27c8cd7acb6aaf41efb55abe143bec",
+    "source-pixels-2.json": "988b9bb9c16c662e30b0fcabc4d355a59b5e38f0ab9c6fd0bdab99c411cc40e2",
+    "source-pixels-3.json": "f715e29a50262a610da331f011d6a5f9a6f715b264c25942061d5318a06224de",
+    "source-pixels-4.json": "48c2cd4857fd36d04bf1533139a33ad423807f419dd5e526676a3b25941a73b5",
+    "source-pixels-5.json": "0529ebe10bc9318a52bdf58f56a2810c0804e1c694f0ae4f0f6e83a221b5cdc1",
+    "source-pixels-6.json": "5aa0e7b9efa0c437e4c2681d7551c49eb83b3ef5cf31c87e4e41b600baf66b9b",
+    "source-pixels-7.json": "c0600460e45c1c309b6a225218b075fff5aa8b1040c2d74e38fb3c05b7ff77e5",
+    "source-pixels-8.json": "aefca2b41ba4f522ad60ab42f91983a13c3e6be9947ab26f8ab0f546d81c26e6",
+    "timing-3.json": "f03aa0614262dd694e91f5b1063afcd4189cdde486e80d115b9a9810064910e0",
+    "timing-5.json": "ad3be2b762427cae9883340d5c36eed6f974c45b9023392e5616f2c8ed887cdc",
+    "timing-7.json": "019fca71172be0418eb83bd0c80156b4820778cd893e9743731519f69477bb5f",
+    "watch-closed.json": "a54ac5bb1f80f63e97d0fdea2ed11b5d547130e28378703d643019b310611f98",
+    "watcher-intent.json": "f68fc87eb6503626fa6ed0ca5bc8d1477a50b59df641ca631503a263e279eb1f"
+  },
+  "pairs": [
+    {
+      "bothOriginalOperationsShareDraftEpoch": true,
+      "callbackArrivalDeltaMS": 502.126,
+      "documentEpochDirectlyReadBeforePair": false,
+      "events": [
+        {
+          "appKitCallbackMS": 28.189,
+          "attachmentAcceptedHostReceiptMS": 2560.576,
+          "browserChangeMS": 16615,
+          "browserInputMS": 16611,
+          "index": 2,
+          "leaseConsumedMS": 149.943,
+          "mouseDownMS": 0.0,
+          "nativeCommitCallIntervalMS": [
+            332.222,
+            494.723
+          ],
+          "preclickAcknowledgedMS": -2575.229,
+          "priorVerifiedRowMS": -2212.136,
+          "qaFinalCheckCompletedAndPostingBeganMS": 0.32,
+          "qaFinalCheckElapsedMS": 253.91,
+          "qaFinalCheckStartedMS": -253.59,
+          "setterEnteredAndChangeReturnedHostReceiptMS": 497.108,
+          "swallowCloseMS": 2694.202,
+          "swallowStartMS": 2564.338
+        },
+        {
+          "appKitCallbackMS": 530.315,
+          "attachmentAcceptedHostReceiptMS": 2781.525,
+          "browserChangeMS": 17169,
+          "browserInputMS": 17164,
+          "index": 3,
+          "leaseConsumedMS": 654.423,
+          "mouseDownMS": 499.982,
+          "nativeCommitCallIntervalMS": [
+            887.845,
+            1040.68
+          ],
+          "preclickAcknowledgedMS": -2906.963,
+          "priorVerifiedRowMS": -1896.486,
+          "qaFinalCheckCompletedAndPostingBeganMS": 500.174,
+          "qaFinalCheckElapsedMS": 227.108,
+          "qaFinalCheckStartedMS": 273.066,
+          "setterEnteredAndChangeReturnedHostReceiptMS": 1043.392,
+          "swallowCloseMS": 2926.295,
+          "swallowStartMS": 2784.851
+        }
+      ],
+      "indices": [
+        2,
+        3
+      ],
+      "originalMouseDownDeltaMS": 499.982,
+      "previousCardsPreserved": 1,
+      "verifierAdmissionIntervalMS": [
+        -899.084,
+        -668.76
+      ],
+      "verifierBetweenPostsBeforeSecondFinalCheckMS": 272.746,
+      "verifierSenderIntervalMS": [
+        -668.342,
+        533.932
+      ]
+    },
+    {
+      "bothOriginalOperationsShareDraftEpoch": true,
+      "callbackArrivalDeltaMS": 468.404,
+      "documentEpochDirectlyReadBeforePair": false,
+      "events": [
+        {
+          "appKitCallbackMS": 29.419,
+          "attachmentAcceptedHostReceiptMS": 2896.939,
+          "browserChangeMS": 23683,
+          "browserInputMS": 23678,
+          "index": 4,
+          "leaseConsumedMS": 153.991,
+          "mouseDownMS": 0.0,
+          "nativeCommitCallIntervalMS": [
+            332.472,
+            491.62
+          ],
+          "preclickAcknowledgedMS": -2590.199,
+          "priorVerifiedRowMS": -2220.071,
+          "qaFinalCheckCompletedAndPostingBeganMS": 0.309,
+          "qaFinalCheckElapsedMS": 250.521,
+          "qaFinalCheckStartedMS": -250.212,
+          "setterEnteredAndChangeReturnedHostReceiptMS": 500.08,
+          "swallowCloseMS": 3028.126,
+          "swallowStartMS": 2906.557
+        },
+        {
+          "appKitCallbackMS": 497.823,
+          "attachmentAcceptedHostReceiptMS": 2728.129,
+          "browserChangeMS": 24217,
+          "browserInputMS": 24213,
+          "index": 5,
+          "leaseConsumedMS": 657.813,
+          "mouseDownMS": 485.296,
+          "nativeCommitCallIntervalMS": [
+            868.082,
+            1024.663
+          ],
+          "preclickAcknowledgedMS": -2905.216,
+          "priorVerifiedRowMS": -1909.688,
+          "qaFinalCheckCompletedAndPostingBeganMS": 485.648,
+          "qaFinalCheckElapsedMS": 214.007,
+          "qaFinalCheckStartedMS": 271.64,
+          "setterEnteredAndChangeReturnedHostReceiptMS": 1026.707,
+          "swallowCloseMS": 2852.467,
+          "swallowStartMS": 2731.47
+        }
+      ],
+      "indices": [
+        4,
+        5
+      ],
+      "originalMouseDownDeltaMS": 485.296,
+      "previousCardsPreserved": 3,
+      "verifierAdmissionIntervalMS": [
+        -917.434,
+        -683.445
+      ],
+      "verifierBetweenPostsBeforeSecondFinalCheckMS": 271.331,
+      "verifierSenderIntervalMS": [
+        -683.106,
+        518.084
+      ]
+    },
+    {
+      "bothOriginalOperationsShareDraftEpoch": true,
+      "callbackArrivalDeltaMS": 468.414,
+      "documentEpochDirectlyReadBeforePair": false,
+      "events": [
+        {
+          "appKitCallbackMS": 29.482,
+          "attachmentAcceptedHostReceiptMS": 2217.24,
+          "browserChangeMS": 30752,
+          "browserInputMS": 30746,
+          "index": 6,
+          "leaseConsumedMS": 150.994,
+          "mouseDownMS": 0.0,
+          "nativeCommitCallIntervalMS": [
+            331.926,
+            497.562
+          ],
+          "preclickAcknowledgedMS": -2483.119,
+          "priorVerifiedRowMS": -2175.364,
+          "qaFinalCheckCompletedAndPostingBeganMS": 0.296,
+          "qaFinalCheckElapsedMS": 248.911,
+          "qaFinalCheckStartedMS": -248.615,
+          "setterEnteredAndChangeReturnedHostReceiptMS": 500.538,
+          "swallowCloseMS": 2345.849,
+          "swallowStartMS": 2219.519
+        },
+        {
+          "appKitCallbackMS": 497.896,
+          "attachmentAcceptedHostReceiptMS": 2794.599,
+          "browserChangeMS": 31337,
+          "browserInputMS": 31332,
+          "index": 7,
+          "leaseConsumedMS": 680.22,
+          "mouseDownMS": 479.162,
+          "nativeCommitCallIntervalMS": [
+            905.167,
+            1100.324
+          ],
+          "preclickAcknowledgedMS": -2821.679,
+          "priorVerifiedRowMS": -1872.417,
+          "qaFinalCheckCompletedAndPostingBeganMS": 479.411,
+          "qaFinalCheckElapsedMS": 217.163,
+          "qaFinalCheckStartedMS": 262.248,
+          "setterEnteredAndChangeReturnedHostReceiptMS": 1102.499,
+          "swallowCloseMS": 2930.822,
+          "swallowStartMS": 2797.023
+        }
+      ],
+      "indices": [
+        6,
+        7
+      ],
+      "originalMouseDownDeltaMS": 479.162,
+      "previousCardsPreserved": 5,
+      "verifierAdmissionIntervalMS": [
+        -870.595,
+        -666.538
+      ],
+      "verifierBetweenPostsBeforeSecondFinalCheckMS": 261.952,
+      "verifierSenderIntervalMS": [
+        -666.223,
+        511.296
+      ]
+    }
+  ],
+  "sevenIndependentInputsAndStarts": [
+    {
+      "durableStartEvidenceIDDigest": "deda25d068d2241d5f82ae932627fd9cbecc70a35d93719c4b15f0938b0ed26b",
+      "invocationIDDigest": "c081202d756def3eedd1406e70b517d6ebc738ea4798bb6facb6817525bf3062",
+      "operationIDDigest": "c918c399784586476facd750b80ff4f46215de92431e30d06a707c2c5993520a",
+      "photo": 1,
+      "pngSHA256": "65fc562bc395ffc641ca01bcb3bf2825ad05792ac9e11bf0d438451add46fcf0",
+      "webDecodedPixelsSHA256": "b5ccbfe1e34d6a68dc10f2bd8c9233d8337ccd0b7ee39af6e2809e363df53802"
+    },
+    {
+      "durableStartEvidenceIDDigest": "d3ac8d5246d6019bb853563eb1d95dfc5fd6c5907180b01e91a7688ce9e21aa1",
+      "invocationIDDigest": "a77e08ab1cc2ca1c1fdb077688bb414468ab93707a743e2a354764216869a351",
+      "operationIDDigest": "12fb9849d9b30a8332fb2ea78bd454fd51f378851efa124ee4f62c1700e2a587",
+      "photo": 2,
+      "pngSHA256": "cab4ca3836debccffaceafec0fb639f5b7a2d24c19bf5a9f81b326727262f928",
+      "webDecodedPixelsSHA256": "6daf5a32438ad3b46f7db34e108c3955758db053fcf25321049e064ace6a1ff6"
+    },
+    {
+      "durableStartEvidenceIDDigest": "2fd9f120cdae9f057a7660e692d8f07e97d284e8d68d9636a822693a6294b9bb",
+      "invocationIDDigest": "fafea2615966f6fe0b1e940795c0db3566fd6e63ffdc49c8bd4b7898ed691dbb",
+      "operationIDDigest": "f5fc30895f8123fae418e7ab860b954d58acd7b9b95e86a44cb8a80830e33b14",
+      "photo": 3,
+      "pngSHA256": "a3887b7b9165657e6f9f6a024556fa261010e3583871dd47b7cc26a5fd73366f",
+      "webDecodedPixelsSHA256": "944bcb776695027524be8756592c3ac2cc41ea7f6069f78de770e23479724496"
+    },
+    {
+      "durableStartEvidenceIDDigest": "4d6af6576749099305c8f24bfb6fdde7d64e46ade37bacec778c9f7c4efc9322",
+      "invocationIDDigest": "742a725c77a341957b45e04fbd44f4cadab5920264fe2b45eaa88f56d56d94f0",
+      "operationIDDigest": "70323a4093d3eab575e7be9813422f06001b97040188664a7d78e8b2c83d6701",
+      "photo": 4,
+      "pngSHA256": "2dd053f7f03c3cac1acb5fe6cb963e126ef4252204a8d4efac4e076895bd80b8",
+      "webDecodedPixelsSHA256": "fea9fa4a348d5468d04342dc5a01f8c5237ada4d941e2bd2d85291a315097143"
+    },
+    {
+      "durableStartEvidenceIDDigest": "62c44f4b655a801a9b3154a4200f00b9b7f9be0ea5884beca5cad9104ec13811",
+      "invocationIDDigest": "3ffe2cffef3ab592287206eb38e45106ad50d802f5be873558dca89a764f3810",
+      "operationIDDigest": "e74afade3276318a35f8f0e843158d31f09217d9f2ef5559e3825e40eb54da53",
+      "photo": 5,
+      "pngSHA256": "4c03ca49af3ec38faa6b87c1082c719dd39e13896f5fd79c918dcf09b09dd422",
+      "webDecodedPixelsSHA256": "8d17860496d1ded1e1c63a737c1464f6856d4080b3f91e1afd105ffc7d50731d"
+    },
+    {
+      "durableStartEvidenceIDDigest": "f0bb28ed83c6330928beb04201264364056bea7e72b0a608d92280765e033789",
+      "invocationIDDigest": "55f9649dca2b2ddd1a329698c9dc4875556e0c79da388ad97a96956a119e75b3",
+      "operationIDDigest": "4d305967a0072a75a124bd9cfcae8f62a441e5d9b6bf50846673610760cb5cbf",
+      "photo": 6,
+      "pngSHA256": "f39fddef003f13f54c4048a087db8157fd4db63374f4dc0b864c6710aa0979e1",
+      "webDecodedPixelsSHA256": "f8cefeca7048ca61a80dcfb9411ff01f0dca53d64d778b7699c9b448609682b0"
+    },
+    {
+      "durableStartEvidenceIDDigest": "b1c9a3339ea16c8bf4a0a4d25159a91af027a25a147d1765de4ad7406d44efd4",
+      "invocationIDDigest": "122a1a3b939ed9778f1e6aec764695e7e76cf773cefedd6f7523735849ea07be",
+      "operationIDDigest": "61fe206ef6b9a37ddffea0280bd1bfe0d6e2ee9506def1d20979c248e9f5baeb",
+      "photo": 7,
+      "pngSHA256": "b87fca7c6dc38116853c7d1cd652a651bff62a8afdd4c586de37a17ea04c6bfc",
+      "webDecodedPixelsSHA256": "7935f24efc31c418fbe7a562b1eb5fd6b9954b15e5303fc3eab0a498b05db9fc"
+    }
+  ],
+  "sqliteCounts": {
+    "assets": 8,
+    "operations": 7,
+    "upload_starts": 7
+  },
+  "status": "RAPID_PAIRS_PASS"
+}

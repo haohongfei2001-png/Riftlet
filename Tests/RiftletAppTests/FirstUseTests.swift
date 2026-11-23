@@ -200,6 +200,7 @@ final class FirstUseTests: XCTestCase {
         XCTAssertNil(ProductStatus.clickIssue(WebAdapterError.disabled, frontmostBundleID: "com.apple.Safari", webAcceptance: false))
         XCTAssertEqual(ProductStatus.clickIssue(WebAdapterError.browserNotFrontmost, frontmostBundleID: "com.apple.Safari", webAcceptance: true), .unsupportedBrowser)
         XCTAssertEqual(ProductStatus.clickIssue(WebAdapterError.invalidTarget, frontmostBundleID: "com.google.Chrome", webAcceptance: true), .targetUnavailable)
+        XCTAssertEqual(ProductStatus.clickIssue(WebAdapterError.nativeEventFailed(-1744), frontmostBundleID: "com.microsoft.edgemac", webAcceptance: true), .permissionNotRequested)
         XCTAssertEqual(ProductStatus.clickIssue(WebAdapterError.nativeEventFailed(-1743), frontmostBundleID: "com.google.Chrome", webAcceptance: true), .permissionDenied)
         XCTAssertEqual(ProductStatus.clickIssue(WebAdapterError.invalidPrivateFile, frontmostBundleID: nil, webAcceptance: true), .imageUnavailable)
     }

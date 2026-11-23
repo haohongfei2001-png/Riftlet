@@ -1,0 +1,44 @@
+{
+  "calibration": {
+    "closeSHA256": "e148ee30b300dcf304cd7e68b337f09025d911a0f3f13fde9285d63fb5857d77",
+    "inventoryAfterSHA256": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+    "oneCloseRequest": true,
+    "originalWindowSetRestored": true,
+    "ownedLoopbackListenerExited": true,
+    "privateCandidateProcessesExited": {
+      "live-g4-calibration": true,
+      "preclick-calibration-admission-1": true,
+      "preclick-calibration-admission-2": true
+    },
+    "sameBrowserBirth": true,
+    "windowClosed": true
+  },
+  "fault": {
+    "closeSHA256": "e148ee30b300dcf304cd7e68b337f09025d911a0f3f13fde9285d63fb5857d77",
+    "inventoryAfterSHA256": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+    "oneCloseRequest": true,
+    "originalWindowSetRestored": true,
+    "ownedLoopbackListenerExited": true,
+    "privateCandidateProcessesExited": {
+      "live-g4-transport": true
+    },
+    "sameBrowserBirth": true,
+    "windowClosed": true
+  },
+  "faultBoundary": {
+    "normalQuitReceipt": {
+      "accepted": true,
+      "pidBirthVerified": true,
+      "scopedNormalTerminationRequested": true,
+      "verifiedRunningCode": true
+    },
+    "observerJobsPending": 0,
+    "ownedRequestPending": false,
+    "watchClosed": true
+  },
+  "faultHooksRestored": true,
+  "privateArchiveManifestSHA256": {
+    "cal1": "1b471bf9de251ae9ad3eb113ceebf793053204efc3aa81d63e016ffa98e817fc",
+    "fault1": "c69196151a1cb5b55801353f8cb5037bf2fd41a332b4937a73ad64cdfbed9c6b"
+  }
+}

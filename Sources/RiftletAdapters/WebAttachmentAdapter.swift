@@ -5,7 +5,7 @@ import RiftletCore
 
 public enum WebAdapterMode: Sendable, Equatable { case disabled, syntheticDevelopment, systemScreenshotCandidate, ordinarySystemScreenshot, ordinaryProduct }
 public enum WebBridgeAction: String, Codable, CaseIterable, Sendable {
-    case captureTarget, pinTarget, validate, begin, chunk, commit, observe, discard
+    case captureTarget, pinTarget, releasePreparedTarget, renewPreparedTarget, validate, begin, chunk, commit, observe, discard
 }
 
 /// The sole page function is supplied from reviewed source. It returns a
@@ -16,6 +16,7 @@ public enum WebBridgeAction: String, Codable, CaseIterable, Sendable {
 public struct WebPageProgram: Sendable {
     public let sourceID: String
     public let functionSource: String
+    public let pinSource: String?
     /// Code-owned transport capacity; never negotiated from page JSON. Older
     /// and generic programs retain their 64 KiB default.
     public let maximumChunkBytes: Int
@@ -24,10 +25,58 @@ public struct WebPageProgram: Sendable {
     /// not an upload timeout or a permission to repeat an operation.
     public let inputDiscoveryTimeout: TimeInterval
     public init(sourceID: String, functionSource: String, maximumChunkBytes: Int = 64 * 1024,
-                inputDiscoveryTimeout: TimeInterval = 0) {
+                inputDiscoveryTimeout: TimeInterval = 0, pinSource: String? = nil) {
         self.sourceID = sourceID; self.functionSource = functionSource
+        self.pinSource = pinSource
         self.maximumChunkBytes = maximumChunkBytes
         self.inputDiscoveryTimeout = inputDiscoveryTimeout.isFinite ? min(3, max(0, inputDiscoveryTimeout)) : 0
+    }
+}
+
+/// Issued only after acquiring the app data directory's exclusive instance lock.
+/// This identifies whose unused preparations may be retired, never a delivery target.
+public struct PreClickPreparationOwner: Encodable, Equatable, Sendable {
+    public let scope: String
+    public let generation: String
+    public init(scope: String, generation: UInt64) {
+        self.scope = scope
+        self.generation = String(format: "%016llx", generation)
+    }
+}
+
+struct WebRecoveryPredecessor: Encodable, Sendable {
+    let identity: ObservationIdentity
+    let invocationID: UUID
+    let startEvidenceID: String?
+    let failureAttachmentID: String?
+    let userConfirmedDuplicateRisk: Bool
+
+    init(_ source: AttachmentRecoverySource, asset: ImportedAsset, destination: TargetLease? = nil,
+         userConfirmedDuplicateRisk: Bool = false) throws {
+        let op = source.operation
+        guard op.assetID == asset.id, destination.map(source.permitsDestination) != false else {
+            throw WebAdapterError.invalidTarget
+        }
+        self.userConfirmedDuplicateRisk = destination != nil && userConfirmedDuplicateRisk
+        for receipt in [source.originalReceipt, source.originalStart].compactMap({ $0 }) {
+            guard receipt.operationID == op.id, receipt.assetID == asset.id, receipt.attempt == op.attempt,
+                  receipt.assetSHA256 == asset.sha256, receipt.target == op.target else { throw WebAdapterError.invalidRequest }
+        }
+        self.identity = ObservationIdentity(operationID: op.id, assetID: asset.id, attempt: op.attempt,
+                                           assetSHA256: asset.sha256, target: op.target)
+        self.invocationID = source.invocationID
+        self.startEvidenceID = source.originalStart?.uploadStartEvidence?.evidenceID
+        guard source.originalStart == nil || startEvidenceID != nil else { throw WebAdapterError.invalidRequest }
+        if let error = source.originalReceipt, error.hasError {
+            guard error.belongsToOriginalDraft, !error.isUploading, let member = error.attachmentID,
+                  !member.isEmpty, error.originalCardFailureInvocationID == invocationID ||
+                    (startEvidenceID != nil && source.originalStart?.attachmentID == member) else {
+                throw WebAdapterError.invalidRequest
+            }
+            failureAttachmentID = member
+        } else {
+            failureAttachmentID = nil
+        }
     }
 }
 
@@ -41,21 +90,33 @@ public struct WebBridgeCommand: Encodable, Sendable {
     public let chunkIndex: Int?
     public let chunkBase64: String?
     public let invocationID: UUID?
+    public let clickWitnessID: UUID?
+    let preparationOwner: PreClickPreparationOwner?
+    public let preferStartReceipt: Bool?
+    public let requireLiveOriginal: Bool?
+    public let recoveryInspection: Bool?
+    let recoverySource: WebRecoveryPredecessor?
     /// Host diagnostics only, deliberately excluded from the page payload.
     public let captureInvocation: CaptureInvocationContext?
 
     private enum CodingKeys: String, CodingKey {
-        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID
+        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID, clickWitnessID, preparationOwner, requireLiveOriginal, preferStartReceipt, recoverySource, recoveryInspection
     }
 
     init(action: WebBridgeAction, target: TargetLease? = nil, identity: ObservationIdentity? = nil,
          uploadName: String? = nil, mediaType: String? = nil, byteCount: Int64? = nil,
          chunkIndex: Int? = nil, chunkBase64: String? = nil, invocationID: UUID? = nil,
-         captureInvocation: CaptureInvocationContext? = nil) {
+         clickWitnessID: UUID? = nil, preparationOwner: PreClickPreparationOwner? = nil, requireLiveOriginal: Bool? = nil, preferStartReceipt: Bool? = nil, captureInvocation: CaptureInvocationContext? = nil, recoverySource: WebRecoveryPredecessor? = nil, recoveryInspection: Bool? = nil) {
         self.action = action; self.target = target; self.identity = identity
         self.uploadName = uploadName; self.mediaType = mediaType; self.byteCount = byteCount
         self.chunkIndex = chunkIndex; self.chunkBase64 = chunkBase64; self.invocationID = invocationID
+        self.clickWitnessID = clickWitnessID
+        self.preparationOwner = action == .captureTarget ? preparationOwner : nil
+        self.recoverySource = recoverySource
+        self.recoveryInspection = recoveryInspection
         self.captureInvocation = captureInvocation
+        self.preferStartReceipt = preferStartReceipt
+        self.requireLiveOriginal = requireLiveOriginal
     }
 }
 
@@ -64,7 +125,12 @@ public protocol WebBridgeExecutor: Sendable {
 }
 
 @MainActor public protocol WebClickTargetPinning: WebBridgeExecutor {
-    func targetForClick(program: WebPageProgram) throws -> Task<TargetLease, Error>
+    func requestPreparation(program: WebPageProgram, invalidate: Bool, maintain: Bool)
+    func retirePreparation(program: WebPageProgram)
+    func stopPreparingForExit(program: WebPageProgram)
+    func finishRetirementForExit() async
+    func abandonFrozenTarget(_ target: TargetLease, program: WebPageProgram)
+    func targetForClick(eventUptime: TimeInterval) throws -> TargetLease
 }
 
 public enum WebAdapterError: Error, Equatable, Sendable {
@@ -109,8 +175,9 @@ public enum WebAdapterError: Error, Equatable, Sendable {
 /// One transport shared by source-scoped ordinary and isolated test compositions.
 /// Each start/completion scope is assigned only to registered new
 /// operations; historical operations retain their observation-only profiles.
-public actor WebAttachmentAdapter: IndependentFileInputAdapter {
+public actor WebAttachmentAdapter: OriginalAttachmentRecoveryChecking {
     public nonisolated let id: String
+    public nonisolated var supportsOriginalHandoffChecks: Bool { mode == .ordinaryProduct || mode == .syntheticDevelopment }
     private let mediaDirectory: URL
     private nonisolated let executor: any WebBridgeExecutor
     private nonisolated let program: WebPageProgram?
@@ -197,13 +264,34 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         }
     }
 
-    /// Freeze the native destination at the click boundary, then initialize and
-    /// resolve that exact page asynchronously. A first click needs no earlier
-    /// capture, relay or page acknowledgement.
-    @MainActor public func targetForClick() throws -> Task<TargetLease, Error> {
-        guard mode != .disabled, let program,
-              let pinner = executor as? any WebClickTargetPinning else { throw WebAdapterError.disabled }
-        return try pinner.targetForClick(program: program)
+    /// Scheduling a receiver never creates an operation or supplies an input.
+    @MainActor public func prepareForUpcomingClick(invalidate: Bool = false, maintain: Bool) {
+        guard mode != .disabled, let program else { return }
+        (executor as? any WebClickTargetPinning)?.requestPreparation(program: program, invalidate: invalidate, maintain: maintain)
+    }
+
+    @MainActor public func retirePreparedTargets() {
+        guard let program else { return }
+        (executor as? any WebClickTargetPinning)?.retirePreparation(program: program)
+    }
+
+    @MainActor public func stopPreparingForExit() {
+        guard let program else { return }
+        (executor as? any WebClickTargetPinning)?.stopPreparingForExit(program: program)
+    }
+
+    @MainActor public func finishRetirementForExit() async {
+        await (executor as? any WebClickTargetPinning)?.finishRetirementForExit()
+    }
+
+    @MainActor public func abandonFrozenTarget(_ target: TargetLease) {
+        guard let program else { return }
+        (executor as? any WebClickTargetPinning)?.abandonFrozenTarget(target, program: program)
+    }
+
+    @MainActor public func targetForClick(eventUptime: TimeInterval) throws -> TargetLease {
+        guard mode != .disabled, let pinner = executor as? any WebClickTargetPinning else { throw WebAdapterError.disabled }
+        return try pinner.targetForClick(eventUptime: eventUptime)
     }
 
     public func captureTarget() async throws -> TargetLease {
@@ -223,6 +311,29 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         try check(target)
         try checkNewInputScope(target)
         return target
+    }
+
+    public func inspectOriginalForReattachment(_ source: AttachmentRecoverySource, asset: ImportedAsset) async throws -> OriginalAttachmentPresence? {
+        guard mode == .ordinaryProduct else { return nil }
+        let target = source.operation.target
+        try check(target)
+        let original = try WebRecoveryPredecessor(source, asset: asset)
+        let data = try await perform(.init(action: .validate, target: target, recoverySource: original, recoveryInspection: true))
+        let reply = try decode(ValidationReply.self, from: data)
+        guard reply.valid, reply.target == target, reply.recoveryChecked == true else { return nil }
+        return reply.attachmentPresence
+    }
+
+    public func checkRecovery(_ original: TransferRequest, destination: TargetLease) async throws -> Bool {
+        guard mode == .ordinaryProduct, let source = original.recoverySource, original.operation == source.operation,
+              original.invocationID == source.invocationID else { return false }
+        try check(destination)
+        try checkNewInputScope(destination)
+        let predecessor = try WebRecoveryPredecessor(source, asset: original.asset, destination: destination,
+            userConfirmedDuplicateRisk: original.userConfirmedDuplicateRisk)
+        let data = try await perform(.init(action: .validate, target: destination, recoverySource: predecessor))
+        let response = try decode(ValidationReply.self, from: data)
+        return response.target == destination && response.recoveryChecked == true && response.valid
     }
 
     public func validate(_ target: TargetLease) async throws -> Bool {
@@ -284,8 +395,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         } else {
             // Even the first recovery read is observation, not file execution.
             // A delayed/lost reply here must not hold the next screenshot.
-            response = try await perform(.init(action: .observe, target: input.identity.target,
-                identity: input.identity))
+            response = try await readOriginal(input.identity, request: request)
         }
         return try await observeCompletion(initial: response, identity: input.identity,
             request: request, liveAppend: true, inputConfirmed: inputConfirmed)
@@ -325,11 +435,27 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         let uploadName = "riftlet-\(request.operation.id.uuidString).\(file.fileExtension)"
         var committing = false
         do {
+            let predecessor = try request.recoverySource.map {
+                try WebRecoveryPredecessor($0, asset: request.asset, destination: identity.target,
+                    userConfirmedDuplicateRisk: request.userConfirmedDuplicateRisk)
+            }
+            if let predecessor {
+                guard mode == .ordinaryProduct, !file.derivedPNG, file.mediaType == "image/png",
+                      identity.operationID != predecessor.identity.operationID,
+                      let invocation = request.invocationID, invocation != predecessor.invocationID,
+                      identity.attempt > predecessor.identity.attempt else {
+                    throw WebAdapterError.invalidRequest
+                }
+            }
             let begin = WebBridgeCommand(action: .begin, target: identity.target, identity: identity,
                 uploadName: uploadName, mediaType: file.mediaType, byteCount: file.byteCount,
-                invocationID: request.invocationID)
+                invocationID: request.invocationID, recoverySource: predecessor)
             let beginReply = try await perform(begin)
             try acknowledge(beginReply, identity: identity, nextChunk: 0)
+            if let predecessor {
+                let ack = try decode(Acknowledgement.self, from: beginReply)
+                guard ack.recoveryBoundInvocationID == predecessor.invocationID else { throw WebAdapterError.invalidReply }
+            }
             var index = 0
             var hash = SHA256()
             while let chunk = try file.nextChunk(maximumBytes: maximumChunkBytes) {
@@ -343,11 +469,12 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
             try file.verifyAfterRead(hash: hash.finalize().map { String(format: "%02x", $0) }.joined())
             // This is the only command permitted to trigger attachment input. The
             // page function rechecks the target and the complete current payload.
+            let preferStart = try await startPreference(for: request)
             committing = true
             let response: Data
             do {
                 response = try await perform(.init(action: .commit, target: identity.target,
-                    identity: identity, chunkIndex: index, invocationID: request.invocationID))
+                    identity: identity, chunkIndex: index, invocationID: request.invocationID, preferStartReceipt: preferStart))
                 // A malformed/lost transport receipt does not undo a file input.
                 // Recover only by observing this operation, never another commit.
                 _ = try ObservationDecoder.decode(response)
@@ -356,7 +483,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
                 // running. Keep only this current execution's lane until it
                 // settles or its code-owned discovery deadline expires. Never
                 // repeat commit, inspect old uploads, or wait for START here.
-                return (await settleInterruptedInput(identity), identity)
+                return (await settleInterruptedInput(identity, request: request), identity)
             }
             return (response, identity)
         } catch {
@@ -379,7 +506,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         }
     }
 
-    private func settleInterruptedInput(_ identity: ObservationIdentity) async -> Data? {
+    private func settleInterruptedInput(_ identity: ObservationIdentity, request: TransferRequest) async -> Data? {
         guard let timeout = program?.inputDiscoveryTimeout, timeout > 0 else { return nil }
         let deadline = ProcessInfo.processInfo.systemUptime + timeout + 0.5
         var latest: Data?
@@ -388,7 +515,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
             // A transport read can itself stall. A late read remains read-only
             // and cannot extend the absolute execution-recovery budget.
             let read = Task {
-                let data = try? await self.perform(.init(action: .observe, target: identity.target, identity: identity))
+                let data = try? await self.readOriginal(identity, request: request)
                 await slot.finish(data)
             }
             let timer = Task {
@@ -420,6 +547,19 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         return latest
     }
 
+    private func startPreference(for request: TransferRequest, readingOriginal: Bool = false) async throws -> Bool? {
+        guard mode == .ordinaryProduct, let binding = productBindings[request.asset.origin],
+              try await binding.admission.needsOriginalStart(for: request, readingOriginal: readingOriginal) else { return nil }
+        return true
+    }
+
+    private func readOriginal(_ identity: ObservationIdentity, request: TransferRequest) async throws -> Data {
+        let preferStart = try await startPreference(for: request, readingOriginal: true)
+        return try await perform(.init(action: .observe, target: identity.target, identity: identity,
+            invocationID: request.invocationID,
+            requireLiveOriginal: request.requireLiveOriginal ? true : nil, preferStartReceipt: preferStart))
+    }
+
     public func reconcile(_ request: TransferRequest) async throws -> TransferReceipt {
         try requireEnabled()
         try check(request.operation.target)
@@ -429,10 +569,11 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
               request.operation.phase != .prepared else { throw WebAdapterError.invalidRequest }
         let identity = ObservationIdentity(operationID: request.operation.id, assetID: request.asset.id,
             attempt: request.operation.attempt, assetSHA256: request.asset.sha256, target: request.operation.target)
-        let data = try await perform(.init(action: .observe, target: identity.target, identity: identity))
+        guard !request.requireLiveOriginal || request.invocationID != nil else { throw WebAdapterError.invalidRequest }
+        let data = try await readOriginal(identity, request: request)
         // Successful operations may only be checked for identity-correlated late
         // errors. A single observation does not start another polling/upload loop.
-        if mode == .ordinaryProduct || request.operation.phase == .succeeded {
+        if mode == .ordinaryProduct || request.requireLiveOriginal || request.operation.phase == .succeeded {
             return try await normalize(data, for: request)
         }
         return try await observeCompletion(initial: data, identity: identity, request: request)
@@ -484,7 +625,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
             // independently admits visual exit; subsequent calls only observe.
             if receipt.outcome == .uploadStarted { return receipt }
             switch envelope.observation.state {
-            case .attached, .ready, .failed, .invalidated: return receipt
+            case .attached, .ready, .failed, .originalCardFailed, .invalidated: return receipt
             case .inputTriggered, .uploadStarted, .unknown: break
             }
             let remaining = deadline - ProcessInfo.processInfo.systemUptime
@@ -493,14 +634,14 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
             guard ProcessInfo.processInfo.systemUptime < deadline else { return receipt }
             // Observation after an uncertain result can never cause a second
             // input. There is deliberately no commit/begin fallback here.
-            response = try await perform(.init(action: .observe, target: identity.target, identity: identity))
+            response = try await readOriginal(identity, request: request)
         }
     }
 
     private func requireEnabled() throws {
         if case .disabled = mode { throw WebAdapterError.disabled }
         guard let program, !program.sourceID.isEmpty, !program.functionSource.isEmpty,
-              program.functionSource.utf8.count <= 128 * 1024,
+              program.functionSource.utf8.count <= ChatGPTWebPageProgram.maximumSourceBytes,
               (64 * 1024...256 * 1024).contains(program.maximumChunkBytes) else { throw WebAdapterError.programUnavailable }
         if mode == .ordinaryProduct {
             guard candidateJournal == nil, candidateAdmission == nil,
@@ -568,7 +709,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
                 developmentScope: .ordinarySystemScreenshot)
         }
         if screenshotScope != nil, let binding {
-            originalScope = try await binding.admission.admittedObservationScope(for: request)
+            originalScope = try await binding.admission.admittedObservationScope(for: request, readingOriginal: !liveAppend)
         }
         if let scope = originalScope {
             scopedNormalizer = ObservationNormalizer(profile: scope.admittedProfile,
@@ -639,7 +780,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
     private func check(_ target: TargetLease) throws {
         guard target.adapterID == id, target.surface == normalizer.profile.surface,
               target.surface == .webChat || target.surface == .webWork,
-              target.applicationID == "com.google.Chrome",
+              target.attachmentBrowser == .chrome || (mode == .ordinaryProduct && target.surface == .webChat && target.attachmentBrowser == .edge),
               !target.sessionID.isEmpty, !target.windowID.isEmpty, target.tabID?.isEmpty == false,
               !target.documentID.isEmpty, !target.composerID.isEmpty, !target.draftGeneration.isEmpty else {
             throw WebAdapterError.invalidTarget
@@ -674,8 +815,14 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         diagnosticTrace.record(fields, critical: result.retirement != nil || (deliveryUncertain && !result.startObserved))
     }
 
-    private struct ValidationReply: Decodable { let target: TargetLease; let valid: Bool }
+    private struct ValidationReply: Decodable {
+        let target: TargetLease
+        let valid: Bool
+        let recoveryChecked: Bool?
+        let attachmentPresence: OriginalAttachmentPresence?
+    }
     private struct Acknowledgement: Decodable {
+        let recoveryBoundInvocationID: UUID?
         let operationID: UUID
         let attempt: Int
         let nextChunk: Int

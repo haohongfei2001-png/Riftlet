@@ -1,0 +1,63 @@
+{
+  "defaultBranchRef": {
+    "name": "main",
+    "target": {
+      "oid": "9fd8ad15fca043915069904113e5fb67d82b4948"
+    }
+  },
+  "issue": {
+    "state": "OPEN"
+  },
+  "pr119": {
+    "number": 119,
+    "state": "OPEN",
+    "isDraft": true,
+    "baseRefName": "main",
+    "headRefName": "codex/riftlet-1.0.7-edge-integration-20261119",
+    "headRefOid": "c764246410c2c0c225ac4bb8688c2ae5179f27e9",
+    "reviews": {
+      "totalCount": 0
+    }
+  },
+  "pr123": {
+    "number": 123,
+    "state": "OPEN",
+    "isDraft": true,
+    "baseRefName": "codex/riftlet-1.0.7-edge-integration-20261119",
+    "headRefName": "codex/build53-original-target-fence-20261121",
+    "headRefOid": "f126a211833ccecd17664a1a2bc6cbe83134eaf3",
+    "reviews": {
+      "totalCount": 0
+    }
+  },
+  "pr124": {
+    "number": 124,
+    "state": "OPEN",
+    "isDraft": true,
+    "baseRefName": "codex/build53-original-target-fence-20261121",
+    "headRefName": "codex/riftlet-108-preclick-lease",
+    "headRefOid": "7bdf114f0db792bdeb160b400e85e37b25b1ceeb",
+    "reviews": {
+      "totalCount": 0
+    }
+  },
+  "pr122": {
+    "number": 122,
+    "state": "OPEN",
+    "isDraft": true,
+    "baseRefName": "codex/issue-120-compare-build53",
+    "headRefName": "codex/issue-120-preintegration",
+    "headRefOid": "a9a1c03c9bd0b0d834cc6f9a4f99492cbfa12db2",
+    "reviews": {
+      "totalCount": 0
+    }
+  },
+  "checkedUTC": "2026-11-22T17:07:48.474771+00:00",
+  "candidateSource": "711cee3a1c7033ce4925082a83099b00da7087c6",
+  "sourceAncestry": {
+    "pr119": true,
+    "pr123": true,
+    "pr122": false
+  },
+  "sourceOnImplementationPR": true
+}

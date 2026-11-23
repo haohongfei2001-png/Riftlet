@@ -1,0 +1,363 @@
+{
+  "build": 43,
+  "product": "38cbef90ed3370797edf3f902bb8fba87299abda",
+  "dmgSHA256": "926c64d904b6c95bfc1ae1bbf50059579aa3681dfa0ae02d99bcf542b5102a06",
+  "lateAssetBytes": 6415081,
+  "realProcessingFailure": {
+    "scope": "ordinary non-temporary originally dedicated new draft, Slow 4G, blocked only original observed processing request in dedicated DevTools with menu dismissed at click",
+    "operation": 11,
+    "operationData": {
+      "sequence": 11,
+      "op": "ca3962872bea",
+      "asset": "0751d103cd62",
+      "attempt": 1,
+      "phase": "unknown",
+      "invocation": "05c1c8185923",
+      "draft": "8f47eaaef50a",
+      "card": null,
+      "belongs": null
+    },
+    "samples": [
+      {
+        "t": 1.5,
+        "row": [
+          [
+            11,
+            "dispatchIntent",
+            0,
+            "visible"
+          ]
+        ],
+        "capture": "000.png",
+        "observed": "504 Retry"
+      },
+      {
+        "t": 2.16,
+        "row": [
+          [
+            11,
+            "dispatchIntent",
+            0,
+            "visible"
+          ]
+        ],
+        "capture": "001.png",
+        "observed": "150 Retry"
+      },
+      {
+        "t": 3.01,
+        "row": [
+          [
+            11,
+            "dispatchIntent",
+            0,
+            "visible"
+          ]
+        ],
+        "capture": "002.png",
+        "observed": "150 Retry"
+      },
+      {
+        "t": 5.01,
+        "row": [
+          [
+            11,
+            "dispatchIntent",
+            0,
+            "visible"
+          ]
+        ],
+        "capture": "003.png",
+        "observed": "150 Retry"
+      },
+      {
+        "t": 7.01,
+        "row": [
+          [
+            11,
+            "dispatchIntent",
+            0,
+            "visible"
+          ]
+        ],
+        "capture": "004.png",
+        "observed": "150 Retry"
+      },
+      {
+        "t": 10.01,
+        "row": [
+          [
+            11,
+            "dispatchIntent",
+            0,
+            "visible"
+          ]
+        ],
+        "capture": "005.png",
+        "observed": "150 Retry"
+      },
+      {
+        "t": 15.0,
+        "row": [
+          [
+            11,
+            "unknown",
+            0,
+            "visible"
+          ]
+        ],
+        "capture": "006.png",
+        "observed": "150 Retry"
+      },
+      {
+        "t": 20.0,
+        "row": [
+          [
+            11,
+            "unknown",
+            0,
+            "visible"
+          ]
+        ],
+        "capture": "007.png",
+        "observed": "150 Retry"
+      },
+      {
+        "t": 27.0,
+        "row": [
+          [
+            11,
+            "unknown",
+            0,
+            "visible"
+          ]
+        ],
+        "capture": "008.png",
+        "observed": "150 Retry"
+      },
+      {
+        "t": 35.01,
+        "row": [
+          [
+            11,
+            "unknown",
+            0,
+            "visible"
+          ]
+        ],
+        "capture": "009.png",
+        "observed": "150 Retry"
+      },
+      {
+        "t": 45.0,
+        "row": [
+          [
+            11,
+            "unknown",
+            0,
+            "visible"
+          ]
+        ],
+        "capture": "010.png",
+        "observed": "150 Retry"
+      },
+      {
+        "t": 55.0,
+        "row": [
+          [
+            11,
+            "unknown",
+            0,
+            "visible"
+          ]
+        ],
+        "capture": "011.png",
+        "observed": "150 Retry"
+      },
+      {
+        "t": 65.01,
+        "row": [
+          [
+            11,
+            "unknown",
+            0,
+            "visible"
+          ]
+        ],
+        "capture": "012.png",
+        "observed": "150 Retry"
+      },
+      {
+        "t": 75.0,
+        "row": [
+          [
+            11,
+            "unknown",
+            0,
+            "visible"
+          ]
+        ],
+        "capture": "013.png",
+        "observed": "150 Retry"
+      },
+      {
+        "t": 85.01,
+        "row": [
+          [
+            11,
+            "unknown",
+            0,
+            "visible"
+          ]
+        ],
+        "capture": "014.png",
+        "observed": "150 Retry"
+      },
+      {
+        "t": 90.01,
+        "row": [
+          [
+            11,
+            "unknown",
+            0,
+            "visible"
+          ]
+        ],
+        "capture": "015.png",
+        "observed": "150 Retry"
+      },
+      {
+        "t": 95.01,
+        "row": [
+          [
+            11,
+            "unknown",
+            0,
+            "visible"
+          ]
+        ],
+        "capture": "016.png",
+        "observed": "150 Retry"
+      },
+      {
+        "t": 100.01,
+        "row": [
+          [
+            11,
+            "unknown",
+            0,
+            "visible"
+          ]
+        ],
+        "capture": "017.png",
+        "observed": "150 Retry"
+      },
+      {
+        "t": 107.01,
+        "row": [
+          [
+            11,
+            "unknown",
+            0,
+            "visible"
+          ]
+        ],
+        "capture": "018.png",
+        "observed": "150 Retry"
+      },
+      {
+        "t": 115.01,
+        "row": [
+          [
+            11,
+            "unknown",
+            0,
+            "visible"
+          ]
+        ],
+        "capture": "019.png",
+        "observed": "150 Retry"
+      },
+      {
+        "t": 125.01,
+        "row": [
+          [
+            11,
+            "unknown",
+            0,
+            "visible"
+          ]
+        ],
+        "capture": "020.png",
+        "observed": "150 Retry"
+      },
+      {
+        "t": 145.01,
+        "row": [
+          [
+            11,
+            "unknown",
+            0,
+            "visible"
+          ]
+        ],
+        "capture": "021.png",
+        "observed": "150 Retry"
+      },
+      {
+        "t": 165.0,
+        "row": [
+          [
+            11,
+            "unknown",
+            0,
+            "visible"
+          ]
+        ],
+        "capture": "022.png",
+        "observed": "150 Retry"
+      }
+    ],
+    "hitInformation": "302 process_upload_stream\n324 process_upload_stream\n326 blocked:devtools\n556 process_upload_stream\n555 affected\n",
+    "sameCardVerifiedPositiveStart": false,
+    "nativePostSTARTrecovery": "NOT_VERIFIED on this host trial",
+    "redCardFirstConfirmedWithSourceNameSeconds": 85.01,
+    "lastConfirmedSeconds": 165.0,
+    "visibleStateBeforeRed": "Unlabelled gray placeholder. No attributable numeric progress or cancel-in-flight control observed.",
+    "hitCount": 1
+  },
+  "manualRecovery": {
+    "prior": {
+      "sequence": 9,
+      "op": "a06704ef2571",
+      "asset": "21fb203a9e95",
+      "attempt": 1,
+      "phase": "unknown",
+      "invocation": "7f191ed8c112",
+      "draft": "8f47eaaef50a",
+      "card": null,
+      "belongs": null
+    },
+    "fresh": {
+      "sequence": 10,
+      "op": "ca2cf52df006",
+      "asset": "21fb203a9e95",
+      "attempt": 2,
+      "phase": "inputTriggered",
+      "invocation": "2ea8fdbb2497",
+      "draft": "8f47eaaef50a",
+      "card": "6bad697a830d",
+      "belongs": true
+    },
+    "countsBeforeAndAfterReadAndConfirmation": [
+      9,
+      8
+    ],
+    "afterFreshClick": [
+      10,
+      9
+    ]
+  },
+  "teardown": "Original request rule removed, blocking off, no throttling, private App exited and dedicated QA windows closed.",
+  "v1Scope": "Original fixture #7 and #8 bytes were identical. The draft received 8 operations/STARTs but this batch has only seven different original images."
+}

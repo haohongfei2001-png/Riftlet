@@ -1,0 +1,32 @@
+{
+  "build": "47",
+  "candidateDmgSHA256": "155ef8d523e475232edebc633121063004a862cf5658b78cef320b3c5a0e0cf4",
+  "fixture": "1000 independently imported screenshot PNGs, separate sources and private media",
+  "ordinaryStorageReviewCount": 1000,
+  "storageOpenToOCRUpperBoundMS": 1610,
+  "measuredArrivals": 40,
+  "taggedImportLatencyMS": {
+    "p50": 278.97,
+    "p95": 610.2,
+    "max": 924.55
+  },
+  "CPUPercent": {
+    "p50": 11.5,
+    "p95": 46.2,
+    "max": 50.4
+  },
+  "rssKiB": {
+    "p50": 114240,
+    "p95": 132384,
+    "max": 132464
+  },
+  "processSamples": 50,
+  "originalPrivateAndDBVerified": 40,
+  "librarySizeAfter": 1040,
+  "macOSNativeCaptureAndPrivateHashMatched": 3,
+  "nativeClickToManagedObservedUpperBoundMS": [
+    6506,
+    6056,
+    6394
+  ]
+}

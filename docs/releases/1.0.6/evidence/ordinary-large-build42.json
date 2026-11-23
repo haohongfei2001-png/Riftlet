@@ -1,0 +1,33 @@
+{
+  "build": 42,
+  "product": "3ab118d590c911a52e4110094f78ae1f480927f2",
+  "dmgSHA256": "a9037d17d079c2ae6ed62693c4523e2f8b3543d0943dd00e8a79270c9069fde1",
+  "target": "Dedicated ordinary unsent new draft; temporary chat off. Placeholder confirmed before entering synthetic test marker. A single new valid system screenshot from own QA fixture window.",
+  "bytes": 6416753,
+  "inputSHA256": "9970e8406dcaad8c3ec9cefabd9768826179f94a1ba88d89731d0aa36edb4113",
+  "sequence": 1,
+  "operationDigest": "4d3b54ee01f4",
+  "attachmentDigest": "fee368068e39",
+  "attempt": 1,
+  "operations": 1,
+  "positiveStarts": 1,
+  "statusAtQuit": {
+    "phase": "unknown",
+    "visibility": "swallowed",
+    "belongsToOriginalDraft": true,
+    "receiptIsUploading": false,
+    "receiptPositiveReady": false
+  },
+  "timeline": {
+    "timeOrigin": "durable operation creation; seconds unless stated",
+    "inputToDurableSTART": 141.599,
+    "observedRealOriginalPreviewAt": 115.695,
+    "verifiedOfflineAfterDurableSTART": 53.095,
+    "preSTART": "Input received, operation UNKNOWN and asset visible. Browser DevTools menu temporarily kept open in preparation for offline switching. Apple Event queries to the window then stalled. After dismissing the menu, the distinct normal image and unsent marker were visible while there was still no persisted START. An explicit original read-only check returned the original positive START; asset subsequently swallowed. No second click or setter was issued.",
+    "numericProgress": "Not observed on this run. Temporary menu and incomplete sampling prevent a claim of absence.",
+    "later": "Native UI verified target offline. First subsequent check on saved original window failed with native Chrome Apple Event -1728; an independent exact exists-window-ID query returned false. A later application-name-targeted exists query produced a contradictory true and the following absolute retrieval failed; another ordinary application query reported -600. Two Chrome PIDs were present. These checks establish temporary loss of verifiable original-target access, not closure or the cause. Could not verify appearance of the original card after going offline."
+  },
+  "postStartSameCardRealError": "NOT_OBSERVED",
+  "postStartSameCardRestoration": "NOT_VERIFIED",
+  "teardown": "No throttling restored on the identified target DevTools before closing it. Zero DevTools windows remained; isolated candidate exited. No rule created and no message sent."
+}

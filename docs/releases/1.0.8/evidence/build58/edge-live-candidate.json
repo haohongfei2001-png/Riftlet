@@ -1,0 +1,93 @@
+{
+  "build": "58",
+  "productCommit": "c7ef1027f9475d517abbd4d85ae1819b9351a8cf",
+  "dmgSHA256": "0f36dbee6665e5687c6c7722574cdeea708ee56ae0ae07d583652a33204c2f7e",
+  "scope": "Ordinary signed macOS browser, dedicated real ChatGPT Temporary Chat, locally imported native screenshots and external, process/window-scoped software mouse.",
+  "family": "edge",
+  "loggedIn": true,
+  "transcript": "No messages sent by the test. Personal chats were outside its scope.",
+  "operations": [
+    {
+      "operationID": "32187794-E4C3-4C0E-8CD0-B3CDB37421E9",
+      "invocationID": "FAA16B97-309A-404E-9E12-62E7BBF65701",
+      "originalPNG_SHA256": "0f3963a9b659b2b3f53f67b567ffacc4be8c96baf51bbfd87d1bfce4191ce0e9",
+      "pngBytes": 5516,
+      "originalTargetSHA256": "946286b8d43434e5dd492c5e9dc86e6678cb0a4c572e6b747d86115cf316279f",
+      "documentIDDigest": "c430ec7654863d6871074d37efb525bed41a3d585c3019b5c46b862f251a8bec",
+      "composerIDDigest": "51067c4eb1ddda77db51bc7a89bb75eb6ef398e803b5b9ce4b6f8084d0c8ad5c",
+      "draftGenerationDigest": "8a42daab184acb28b6f951d6e7d3d05ded6aed30370c9e18ab6c9f9fa3e7d2d2",
+      "originalWitnessIDDigest": "f6579cd99f0c560947dd96a80a755a064e0de1e4749e13203864c7370669e048",
+      "assetID": "38D02CEA-1774-444D-8EB4-7764FF56FECA",
+      "databasePhase": "unknown",
+      "receiptOutcome": "inputTriggered",
+      "status": "unknown",
+      "visibility": "visible",
+      "nativePresses": [
+        {
+          "eventNumber": 11073,
+          "ackToOriginalMouseDownMS": 1072.093,
+          "hostEpochDigest": "c0e70639301d8bce1138cb0725f0522ed82a9d4a3cf2436f9d5b927fcf276fc0",
+          "bindingDigest": "5877891610e884d038fbc3e1bc610aa34c925d69b742967a5437206ab41ba7bc"
+        }
+      ],
+      "startSignal": null
+    }
+  ],
+  "originalDocumentAndEditor": true,
+  "counts": {
+    "fileChange": 1,
+    "fileInput": 1,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  },
+  "textUnchanged": true,
+  "selectionUnchanged": true,
+  "initialImages": 0,
+  "rememberedImages": 0,
+  "completedBatches": [],
+  "result": "STOPPED",
+  "reason": "POSITIVE_START_NOT_VERIFIED",
+  "appExited": true,
+  "traceSummary": {
+    "events": 89,
+    "leasePhases": {
+      "armed": 3,
+      "consumed": 1,
+      "frozen": 1
+    },
+    "nativeFailures": [],
+    "nativeStatusCodes": [],
+    "productCommitEvents": 1,
+    "signedAppPermissionChecks": [
+      {
+        "publication": "publish",
+        "purpose": "startup",
+        "result": "granted",
+        "usableResult": "granted"
+      }
+    ]
+  },
+  "originalRawSHA256": {
+    "capture-1.json": "d65635d60994fe3c6f036423b938de09180d99f46c561f5dc9c2fa56bc3427e8",
+    "cards-before-1.json": "dac0940e08c68b84f0c2c433f13d949bf99f5926e80040cb59e7a4837dfb9684",
+    "child.json": "3a379168f117506c943c69301610569a2349d867c2083fb541cd196c429ba255",
+    "click-1.json": "335d745b8a735a48021c1bcdc80962c4aa56de1d6f71abc49fd79d682418e91e",
+    "db-1.json": "1c0300152755133db811b5b1a82ff8335bb969f36d764e90f66adc7076d7c7a1",
+    "final-db.json": "1c0300152755133db811b5b1a82ff8335bb969f36d764e90f66adc7076d7c7a1",
+    "final-page.json": "aacd05cf5be6cb68627a21aa929c8c1db19489cf6ef9d601c974191f6598e798",
+    "original-post-card-396419989237916.json": "2f8c93dbc4eb468145406fdfe05a9f6217b1d549163ceaab6fe3ee59a5dd75a5",
+    "page-after-1.json": "aacd05cf5be6cb68627a21aa929c8c1db19489cf6ef9d601c974191f6598e798",
+    "page-baseline.json": "dac0940e08c68b84f0c2c433f13d949bf99f5926e80040cb59e7a4837dfb9684",
+    "page-before-1.json": "dac0940e08c68b84f0c2c433f13d949bf99f5926e80040cb59e7a4837dfb9684",
+    "post-expect.json": "2b24f3d3effc07a14522b7f3c452a83281c8aad9dbf42c5750706bba17fd948f",
+    "refocus-existing-owned.json": "1e6c2cd6d85f81f33ca220bbc66291233e6b419b5cf345a96797baa62cb64a98",
+    "result.json": "7e9ae38b5d0fdd84aa3172ab836f04aec1a859df207ebbe3aa0666e46b6d0293",
+    "route.json": "57ce60d8ef73739c4883bf1d59260031954155c77b28e6e554cd02ae4ae7a5b8",
+    "row-1.json": "c55fadc7c90b95049836c888c01a7552135f7201e0a855d00d1c318041d24b82",
+    "watch-closed.json": "a54ac5bb1f80f63e97d0fdea2ed11b5d547130e28378703d643019b310611f98",
+    "private-trace.jsonl": "f15a27a461eab10c677f34f2b0daa139690133d215c0326109657657e3d7f752",
+    "account.json": "8f8bbca2bfafdd31f42050d6d21909797c54c52a0949036ed7a11e0dbf186660",
+    "38D02CEA-1774-444D-8EB4-7764FF56FECA-original.png": "0f3963a9b659b2b3f53f67b567ffacc4be8c96baf51bbfd87d1bfce4191ce0e9",
+    "38D02CEA-1774-444D-8EB4-7764FF56FECA-dispatch.json": "29fca74f2699269023ab27e10c47e558e52dd809db64cad1c3843a4f3d2b1e30"
+  }
+}

@@ -1300,6 +1300,9 @@ final class SettingsReviewDriver {
         try await ready("trash")
         try require(!FileManager.default.fileExists(atPath: pending.path), "captureNotRecovered")
         try click("media.manage.trash", window: window)
+        try await wait { window.attachedSheet != nil }
+        guard let sheet = window.attachedSheet else { throw Failure.encoding }
+        try click("media.manage.confirmTrash", window: sheet)
         try await ready("restore")
         try require(try await store.isRetiredMedia(external.id), "cleanupMissingRetirement")
         try require(!FileManager.default.fileExists(atPath: media.path), "cleanupDidNotMoveMedia")

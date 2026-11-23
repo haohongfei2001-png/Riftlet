@@ -1,0 +1,62 @@
+{
+  "productSource": "711cee3a1c7033ce4925082a83099b00da7087c6",
+  "version": "1.0.8",
+  "build": 60,
+  "sourcePageSHA256": "a4da18056ed85a5a360f30f22c6965138d917cfde2c404e9aa24422b1f7b8250",
+  "scope": "Developer build and controlled local browser tests. Live site, CI, signed DMG and release have separate receipts.",
+  "capturedUTC": "2026-11-22T16:41:27.344297+00:00",
+  "controlledBrowsers": {
+    "chrome": {
+      "lease": {
+        "passed": 19,
+        "total": 19,
+        "rawSHA256": "3532b916c2212a45ba9f6e38c1ec8232211d5b703485553399504818ab70f465",
+        "engineVersion": "Chrome/157.0.8103.79"
+      },
+      "preview": {
+        "passed": 22,
+        "total": 22,
+        "rawSHA256": "9350ef5e264d84486d7146084d553b35668ab6123fbb36fead9de19725f2a7c8",
+        "engineVersion": "Chrome/157.0.8103.79"
+      }
+    },
+    "edge": {
+      "lease": {
+        "passed": 19,
+        "total": 19,
+        "rawSHA256": "a1c32f1e3b32aa946bfb5ccb5f24c4439b4898a9cc108bc2a731745573fca575",
+        "engineVersion": "Edg/158.0.4370.33"
+      },
+      "preview": {
+        "passed": 22,
+        "total": 22,
+        "rawSHA256": "7620e498571f95f175f3ac6b46d6cb2957fac0bf3ea86129b4f7b7bf6de67bf1",
+        "engineVersion": "Edg/158.0.4370.33"
+      }
+    }
+  },
+  "localTests": {
+    "webPageProgram": {
+      "tests": 384,
+      "pass": 384,
+      "fail": 0,
+      "skipped": 0,
+      "rawSHA256": "0bb2e649b57bf18bb69037c6c9bb0970382e85a9a75ec8381d377738af9d56c5"
+    },
+    "offlineFaultHarness": {
+      "tests": 8,
+      "pass": 8,
+      "fail": 0,
+      "skipped": 0,
+      "rawSHA256": "1ab21d7b4735c69e1beb519ca5a428f736103defaaf61969065b1f27c12ff796"
+    },
+    "bundleVerification": {
+      "passed": 24,
+      "rawSHA256": "6491a89ddf3863ebc08b9b9ecfe8fa8c06f75d5a400e4919e9b912f6e1627afa"
+    },
+    "debugRiftletProduct": {
+      "built": true,
+      "rawSHA256": "8d18d55e5927b60c7ffebbf58ffd57c305f0ff2a6cf29dc612ff4a571b597cb8"
+    }
+  }
+}

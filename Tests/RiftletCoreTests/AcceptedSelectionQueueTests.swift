@@ -68,6 +68,34 @@ final class AcceptedSelectionQueueTests: XCTestCase {
         }
     }
 
+    func testSelectionFinishOnlyReleasesReceiverWhenOriginalIntentWasNeverWritten() async throws {
+        enum Route: CaseIterable { case valid, targetReplaced, cancelledBeforePreparation }
+        for route in Route.allCases {
+            let handedToInput = route == .valid
+            let store = try QueueStore(databaseURL: directory.appendingPathComponent("handoff-\(route).sqlite"))
+            let image = try await asset(store)
+            let selection = AcceptedSelection(assetID: image.id, target: target(), visibilityRevision: 0)
+            let adapter = ParkAdapter()
+            if route == .targetReplaced { await adapter.invalidateTarget() }
+            let settled = expectation(description: "original receiver ownership settled")
+            let controller = coordinator(store, adapter, finished: { id in
+                XCTAssertEqual(id, selection.id)
+                XCTAssertEqual(selection.cancelBeforeDispatch(), !handedToInput)
+                settled.fulfill()
+            }, validator: { _ in route != .cancelledBeforePreparation })
+            do {
+                try await controller.select(selection)
+                XCTAssertNotEqual(route, .cancelledBeforePreparation)
+            } catch RiftletError.invalidTransition {
+                XCTAssertEqual(route, .cancelledBeforePreparation)
+            }
+            await fulfillment(of: [settled], timeout: 3)
+            if handedToInput { try await waitForInput(image, adapter) }
+            let inputs = await adapter.inputs()
+            XCTAssertEqual(inputs, handedToInput ? [image.id] : [])
+        }
+    }
+
     func testFirstClickCreatesOperationWithoutHistoricalAcknowledgement() async throws {
         for ack in [0, ProcessInfo.processInfo.systemUptime + 10, Double.nan, -1] {
             let s = try QueueStore(databaseURL: directory.appendingPathComponent("cold-\(UUID()).sqlite"))

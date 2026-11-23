@@ -537,7 +537,8 @@ final class HistoryDisplayStyleTests: XCTestCase {
             controller.show()
             XCTAssertEqual(controller.window.title, copy.text("截图仓库", "Screenshot Library"))
             let search: NSSearchField = try find("history.search", in: controller.window)
-            XCTAssertEqual(search.placeholderString, copy.text("搜索截图", "Search screenshots"))
+            XCTAssertEqual(search.placeholderString, copy.text("搜索", "Search"))
+            XCTAssertEqual(search.accessibilityLabel(), copy.text("搜索截图", "Search screenshots"))
             search.stringValue = image.id.uuidString
             controller.controlTextDidChange(Notification(name: NSControl.textDidChangeNotification, object: search))
             let table: NSTableView = try find("history.current.table", in: controller.window)

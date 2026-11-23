@@ -1,4 +1,5 @@
 import AppKit
+import UniformTypeIdentifiers
 import RiftletCore
 
 private final class HistoryTextCell: NSTableCellView {
@@ -160,7 +161,17 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     private let countLabel = NSTextField(labelWithString: "")
     private lazy var restoreButton = NSButton(title: copy.text("恢复到托盘", "Restore to Tray"), target: nil, action: nil)
     private lazy var removeButton = NSButton(title: copy.text("从桌面收起", "Hide from Desktop"), target: nil, action: nil)
-    private lazy var conversationButton = NSButton(title: copy.text("查看原对话", "View Original Conversation"), target: nil, action: nil)
+    public var onCheckOriginal: ((UUID) -> Void)?
+    public var onMarkHandled: ((UUID) -> Void)?
+    public var onInspectReattachment: ((UUID) async -> OriginalAttachmentPresence?)?
+    public var onPrepareReattachment: ((UUID, UUID) -> Void)?
+    public var onFocusOriginal: ((TransferOperation) async -> Bool)?
+    private lazy var checkButton = NSButton(title: copy.text("重新核对状态", "Check Status Again"), target: self, action: #selector(checkOriginal))
+    private lazy var handledButton = NSButton(title: copy.text("标为已处理", "Mark as Handled"), target: self, action: #selector(markHandled))
+    private lazy var reattachButton = NSButton(title: copy.text("重新附加…", "Attach Again…"), target: self, action: #selector(prepareReattachment))
+    private lazy var exportButton = NSButton(title: copy.text("导出原图…", "Export Original…"), target: self, action: #selector(exportOriginal))
+    private lazy var focusButton = NSButton(title: copy.text("返回原草稿", "Return to Original Draft"), target: self, action: #selector(focusOriginal))
+    private lazy var conversationButton = NSButton(title: copy.text("打开会话记录", "Open Conversation History"), target: nil, action: nil)
     private lazy var revealButton = NSButton(title: copy.text("在 Finder 中显示", "Show in Finder"), target: nil, action: nil)
     private lazy var originalButton = NSButton(title: copy.text("查看原图", "View Original"), target: nil, action: nil)
     private lazy var newerButton = NSButton(title: copy.text("上一页", "Previous Page"), target: nil, action: nil)
@@ -291,7 +302,8 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
 
     private func configureContent() {
         guard let content = historyWindow.contentView else { return }
-        search.placeholderString = copy.text("搜索截图", "Search screenshots"); search.setAccessibilityLabel(copy.text("搜索截图", "Search screenshots"))
+        search.placeholderString = copy.text("搜索", "Search")
+        search.setAccessibilityLabel(copy.text("搜索截图", "Search screenshots"))
         search.delegate = self; search.sendsSearchStringImmediately = true
         let list = NSVisualEffectView()
         list.material = .sidebar
@@ -313,11 +325,14 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         tableScroll = scroll
         scroll.drawsBackground = false; scroll.documentView = table
         let paging = NSStackView(views: [newerButton, olderButton]); paging.spacing = 8
-        for button in [restoreButton, removeButton, revealButton, originalButton, conversationButton, newerButton, olderButton] {
+        for button in [restoreButton, removeButton, revealButton, originalButton, conversationButton, newerButton, olderButton, checkButton, handledButton, reattachButton, focusButton, exportButton] {
             RiftVisualStyle.style(button); button.target = self
         }
         restoreButton.action = #selector(restoreSelected); removeButton.action = #selector(removeSelected)
         revealButton.action = #selector(revealSelected); newerButton.action = #selector(previousPage); olderButton.action = #selector(nextPage)
+        for (button, id) in [(exportButton, "exportOriginal"), (focusButton, "focusOriginal"), (checkButton, "checkOriginal"), (handledButton, "markHandled"), (reattachButton, "reattach")] {
+            button.identifier = .init("history." + id)
+        }
         conversationButton.action = #selector(viewOriginalConversation)
         conversationButton.identifier = .init("history.conversation")
         originalButton.action = #selector(previewSelected)
@@ -342,12 +357,11 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         gridFilter.setAccessibilityLabel(copy.text("筛选截图状态", "Filter screenshots by status"))
         gridTitle.font = .systemFont(ofSize: 23, weight: .semibold); gridTitle.textColor = .labelColor
         configureDateFilters()
-        let tools = NSStackView(views: [gridTitle, NSView(), search, gridFilter, dateFilter, styleSelector])
+        let tools = NSStackView(views: [search, gridFilter, dateFilter, NSView(), styleSelector])
         tools.spacing = 8
         search.widthAnchor.constraint(greaterThanOrEqualToConstant: 106).isActive = true
         let preferredSearchWidth = search.widthAnchor.constraint(equalToConstant: 138)
         preferredSearchWidth.priority = .defaultHigh; preferredSearchWidth.isActive = true
-        gridTitle.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         notice.identifier = .init("history.notice")
         notice.font = RiftVisualStyle.bodyFont
         noticeAction.identifier = .init("history.notice.action")
@@ -355,7 +369,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         RiftVisualStyle.style(noticeAction)
         noticeControls.addArrangedSubview(notice); noticeControls.addArrangedSubview(noticeAction)
         noticeControls.isHidden = true
-        let heading = NSStackView(views: [tools, dateControls, noticeControls])
+        let heading = NSStackView(views: [gridTitle, tools, dateControls, noticeControls])
         heading.orientation = .vertical; heading.alignment = .leading; heading.spacing = 8
         tools.widthAnchor.constraint(equalTo: heading.widthAnchor).isActive = true
         for view in [scroll, grid.scrollView, paging, countLabel] {
@@ -405,7 +419,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         let viewActions = NSStackView(views: [originalButton, revealButton])
         let queueActions = NSStackView(views: [restoreButton, removeButton])
         let detail = RiftVisualStyle.documentStack([surface, detailTitle, detailMetadata, detailState,
-                                                   viewActions, conversationButton, queueActions, actionNote], spacing: 8)
+                                                   viewActions, exportButton, focusButton, conversationButton, checkButton, handledButton, reattachButton, queueActions, actionNote], spacing: 8)
         detail.edgeInsets = NSEdgeInsets(top: 17, left: 18, bottom: 16, right: 18)
         for view in [surface, detailTitle, detailMetadata, detailState, actionNote] {
             view.widthAnchor.constraint(equalTo: detail.widthAnchor, constant: -36).isActive = true
@@ -493,6 +507,12 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     private func updateActions() {
         restoreButton.isEnabled = selectedEntry?.canRestoreToRift == true
         removeButton.isEnabled = selectedEntry?.canRemoveFromRift == true
+        let actionable = selectedEntry?.hasRecoveryOptions == true
+        exportButton.isHidden = !actionable
+        checkButton.isHidden = selectedEntry?.canReviewOriginal != true || onCheckOriginal == nil || selectedEntry?.isHandled == true
+        focusButton.isHidden = selectedEntry?.canReviewOriginal != true || onFocusOriginal == nil
+        handledButton.isHidden = !actionable || selectedEntry?.isHandled == true || onMarkHandled == nil
+        reattachButton.isHidden = selectedEntry?.canRequestReattachment != true || onPrepareReattachment == nil
         conversationButton.isHidden = selectedEntry?.conversationURL == nil
         revealButton.isEnabled = selectedEntry != nil
         originalButton.isEnabled = selectedEntry != nil
@@ -755,7 +775,16 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         showActionError(copy.text("未能读取截图仓库。", "Your library could not be read."))
     }
 
+    public func showActionNotice(_ message: String) {
+        failedRead = false
+        announceNotice(message)
+    }
+
     public func showActionError(_ message: String) {
+        announceNotice(message)
+    }
+
+    private func announceNotice(_ message: String) {
         let announce = message != issueText
         issueText = message; refreshNotice()
         if announce && historyWindow.isVisible {
@@ -853,13 +882,100 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         onRemove(entry.id)
     }
 
+    @objc private func exportOriginal() {
+        guard let entry = selectedEntry else { return }
+        let panel = NSSavePanel()
+        let suffix = URL(fileURLWithPath: entry.record.image.fileName).pathExtension
+        if let type = UTType(filenameExtension: suffix) { panel.allowedContentTypes = [type] }
+        panel.nameFieldStringValue = copy.text("截图", "Screenshot") + "." + suffix
+        panel.beginSheetModal(for: historyWindow) { [weak self] result in
+            guard result == .OK, let url = panel.url, let self else { return }
+            let directory = self.mediaDirectory
+            Task {
+                do {
+                    try await Task.detached {
+                        let (bytes, _) = try HistoryPreviewDecode.verifiedBytes(asset: entry.record.image, directory: directory)
+                        let dest = url.resolvingSymlinksInPath().standardizedFileURL
+                        guard !dest.path.hasPrefix(directory.resolvingSymlinksInPath().standardizedFileURL.path + "/") else {
+                            throw HistoryPreviewFailure.invalidFile
+                        }
+                        try bytes.write(to: url, options: .atomic)
+                    }.value
+                    self.showActionNotice(self.copy.text("已导出原图。", "Original image exported."))
+                } catch {
+                    self.showActionError(self.copy.text("无法导出原图。请检查本机副本和保存位置。", "Could not export the original. Check the local copy and the save location."))
+                }
+            }
+        }
+    }
+
+    @objc private func checkOriginal() {
+        guard let op = selectedEntry?.currentOperation else { return }
+        onCheckOriginal?(op.id)
+    }
+
+    @objc private func markHandled() {
+        guard let entry = selectedEntry, entry.hasRecoveryOptions, !entry.isHandled,
+              let op = entry.currentOperation else { return }
+        onMarkHandled?(op.id)
+    }
+
+    @objc private func prepareReattachment() {
+        guard let entry = selectedEntry, entry.canRequestReattachment, let op = entry.currentOperation,
+              let inspect = onInspectReattachment else { return }
+        Task { [weak self] in
+            let presence = await inspect(op.id)
+            guard let self, self.selectedEntry?.currentOperation?.id == op.id,
+                  self.selectedEntry?.canRequestReattachment == true, self.historyWindow.isVisible,
+                  self.historyWindow.attachedSheet == nil else { return }
+            guard let presence else {
+                self.showActionNotice(self.copy.text("暂时无法核实原草稿。原图已保留，可以查看原图或返回原草稿检查。",
+                                                     "The original draft could not be verified. Your image is saved. View it or return to the original draft to check."))
+                return
+            }
+            self.confirmReattachment(entry, operation: op, presence: presence)
+        }
+    }
+
+    private func confirmReattachment(_ entry: RiftHistoryEntry, operation op: TransferOperation, presence: OriginalAttachmentPresence) {
+        let alert = NSAlert()
+        alert.messageText = copy.text("再次附加这张截图？", "Attach this screenshot again?")
+        let instructions = copy.text("回到原浏览器中的同一草稿，核对已有附件，再点一下桌面上的原图。", "Return to the same draft in the original browser, check its attachments, then click the original screenshot on your desktop.")
+        if presence == .present {
+            alert.messageText = copy.text("原草稿中可能已有这张附件", "This attachment may already be in the original draft")
+            alert.informativeText = copy.text("再次附加可能产生重复附件。你可以先返回原草稿检查。", "Attaching again may add a duplicate. You can return to the original draft to check first.") + "\n\n" + instructions
+            alert.addButton(withTitle: copy.text("返回原草稿", "Return to Original Draft"))
+        } else {
+            alert.informativeText = HistoryPresentation.uncertainUploadWarning(copy: copy) + "\n\n" + instructions
+        }
+        alert.addButton(withTitle: copy.text("取消", "Cancel")).keyEquivalent = "\u{1b}"
+        alert.addButton(withTitle: copy.text("仍要重新附加", "Attach Again Anyway"))
+        let confirmButton: NSApplication.ModalResponse = presence == .present ? .alertThirdButtonReturn : .alertSecondButtonReturn
+        alert.beginSheetModal(for: historyWindow) { [weak self] response in
+            guard let self,
+                  self.selectedEntry?.id == entry.id, self.selectedEntry?.currentOperation?.id == op.id else { return }
+            if presence == .present && response == .alertFirstButtonReturn { self.focusOriginal() }
+            if response == confirmButton { self.onPrepareReattachment?(entry.id, op.id) }
+        }
+    }
+
+    @objc private func focusOriginal() {
+        guard let op = selectedEntry?.currentOperation, let onFocusOriginal else { return }
+        Task { [weak self] in
+            let focused = await onFocusOriginal(op)
+            guard !focused, let self, self.selectedEntry?.currentOperation?.id == op.id else { return }
+            self.showActionError(self.copy.text("未能定位原草稿。可查看原图，或打开已有的会话记录。", "The original draft could not be located. View the image or open the conversation history if available."))
+        }
+    }
+
     @objc private func viewOriginalConversation() {
-        guard let url = selectedEntry?.conversationURL else { return }
-        guard let chrome = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.google.Chrome") else {
-            showActionError(copy.text("找不到 Chrome。可查看原图后在原草稿中核对。", "Chrome is unavailable. View the original image and compare it with your draft."))
+        guard let entry = selectedEntry, let url = entry.conversationURL,
+              let browser = entry.currentOperation?.target.attachmentBrowser else { return }
+        guard let app = NSWorkspace.shared.urlForApplication(withBundleIdentifier: browser.rawValue) else {
+            showActionError(copy.text("找不到原来的浏览器。可查看原图后在原草稿中核对。", "The original browser is unavailable. View the original image and compare it with your draft."))
             return
         }
-        NSWorkspace.shared.open([url], withApplicationAt: chrome, configuration: .init()) { [weak self] _, error in
+        NSWorkspace.shared.open([url], withApplicationAt: app, configuration: .init()) { [weak self] _, error in
             if error != nil {
                 Task { @MainActor in self?.showActionError(ProductCopy.text("未能打开原对话。请在原草稿中核对图片。", "Could not open the conversation. Check the image in your original draft.")) }
             }

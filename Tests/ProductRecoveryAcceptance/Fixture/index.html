@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; img-src blob: data:; style-src 'unsafe-inline'; form-action 'none'; connect-src 'none'; base-uri 'none'">
+<title>CONTROLLED_PRODUCT_RECOVERY_FIXTURE</title>
+<style>
+body { font: 16px system-ui; padding: 12px; } [contenteditable] { border: 1px solid; padding: 8px; }
+.flex { display:flex; gap:6px; } .composer-attachment-surface,.group-card { display:inline-block; min-width:24px; min-height:20px }
+img { width:24px; height:24px; } button { min-width:20px; min-height:20px; }
+</style>
+<h1>Controlled product recovery</h1>
+<main><form data-composer-mode="normal" data-draft-id="original"><div data-composer-layout>
+<div id="prompt-textarea" role="textbox" contenteditable="true">Riftlet QA: preserve this original draft while attaching images.</div>
+<div class="ComposerLayoutAttachments-qa"><div class="flex"><span data-file-name="previous.png">previous.png</span></div></div></div>
+<input type="file" accept="image/png" hidden><button type="submit">Send</button></form></main>
+<script src="shipping-adapter.js"></script><script src="fixture.js"></script>
+</html>

@@ -1,0 +1,183 @@
+{
+  "scope": "Archived originating operations and PNGs, actual build 60 Core, controlled adapter",
+  "websiteStatus": "NOT_RUN",
+  "cases": [
+    {
+      "case": "after-native-send",
+      "archiveSHA256": "3f1176fe3da464277c4ae2552c9a4ecee799b8d7aa4d1b5b7337b5b097c1e926",
+      "pngSHA256": "fa734c39ae34bca70281f0f67439349402d7e9099465c6f7010148af77a1b469",
+      "beforeSHA256": "f59974897e226d965f722514a738454dde960708b73194a2894a856589acf0f4",
+      "afterSHA256": "a92d2283a7c4416c6bc910b5915a035bbd1524fa3ddb19e081ee1db4eebf9a67",
+      "originalAndCancelledRowsUnchanged": true,
+      "lateCallbackFamilies": 5,
+      "storedAttempts": [
+        1,
+        2,
+        3
+      ],
+      "oldAndNewDispatchInvocations": 2,
+      "cancelledDispatchInvocations": 0,
+      "relationshipCount": 2,
+      "controlledAcceptedSTARTs": 1,
+      "originalSTARTs": 0,
+      "realSignedAppInputsDuringAudit": 0,
+      "coreOutput": [
+        "phase=cancel controlledAppends=0 persistedLinks=1",
+        "phase=complete controlledAppends=1 persistedLinks=2"
+      ]
+    },
+    {
+      "case": "partial-native-upload",
+      "archiveSHA256": "ed000599b6b66cdb2196989b140c6d097ed366f68c694cf51ed73707bfc0dd88",
+      "pngSHA256": "20ec24f32a9dc11f7536526a2f2ca0001c728f78c7bb4432d8c65cdec6a26118",
+      "beforeSHA256": "f20bd07faef7e930b3c4690d6b1236ddab605ada8669570560bd0bc3b7b19803",
+      "afterSHA256": "50cd700d318f4511eddd7282bef8b84b14a17a2c821bf6cb16b41c3591ff3280",
+      "originalAndCancelledRowsUnchanged": true,
+      "lateCallbackFamilies": 5,
+      "storedAttempts": [
+        1,
+        2,
+        3
+      ],
+      "oldAndNewDispatchInvocations": 2,
+      "cancelledDispatchInvocations": 0,
+      "relationshipCount": 2,
+      "controlledAcceptedSTARTs": 1,
+      "originalSTARTs": 0,
+      "realSignedAppInputsDuringAudit": 0,
+      "coreOutput": [
+        "phase=cancel controlledAppends=0 persistedLinks=1",
+        "phase=complete controlledAppends=1 persistedLinks=2"
+      ]
+    },
+    {
+      "case": "body-sent-before-response",
+      "archiveSHA256": "2a7c15697cde5d96927999e6ec9b4766dd5ef79e58dfd0bb46fd5d0c53a498de",
+      "pngSHA256": "7879f08c5ab36c8d9a60fed1f30661117ef17999dc8ab5bf81f2fbab37d974a4",
+      "beforeSHA256": "1a601a76c061966a6a0918a5eb5d5b85eaa6e4102c29d033fa23eece60a907bf",
+      "afterSHA256": "db83e254d075299d266b2b2e730774634a5e438f31f2d57c0e2eefd4ff31240d",
+      "originalAndCancelledRowsUnchanged": true,
+      "lateCallbackFamilies": 5,
+      "storedAttempts": [
+        1,
+        2,
+        3
+      ],
+      "oldAndNewDispatchInvocations": 2,
+      "cancelledDispatchInvocations": 0,
+      "relationshipCount": 2,
+      "controlledAcceptedSTARTs": 1,
+      "originalSTARTs": 0,
+      "realSignedAppInputsDuringAudit": 0,
+      "coreOutput": [
+        "phase=cancel controlledAppends=0 persistedLinks=1",
+        "phase=complete controlledAppends=1 persistedLinks=2"
+      ]
+    }
+  ],
+  "controlledRendererRun": {
+    "scope": "Private loopback headless Chrome. Production page resource, fresh local Document and simulated historical progress card lifecycle. Each attributable new START is read back through the real SQLite database.",
+    "siteStatus": "NOT_RUN",
+    "cases": [
+      {
+        "localBrowserReceiptSHA256": "12908d204824634b6f26e881a40533b10606b74a8f30e2c0fcd9dfc7e4bf6928",
+        "loopbackNativeEvents": {
+          "setters": 2,
+          "inputs": 2,
+          "changes": 2,
+          "submits": 0,
+          "sends": 0
+        },
+        "controlledProductWebSTARTReachedSQLite": true,
+        "case": "after-native-send",
+        "archiveSHA256": "3f1176fe3da464277c4ae2552c9a4ecee799b8d7aa4d1b5b7337b5b097c1e926",
+        "pngSHA256": "fa734c39ae34bca70281f0f67439349402d7e9099465c6f7010148af77a1b469",
+        "beforeSHA256": "4deeb2a34e51b7382454101dc0c296f7bf32517a1d53e6b889f0178ef481c2ec",
+        "afterSHA256": "e6367f0245af7d36bc2e4a220fe0830c2da188ad8d9c3b440176fe24c4d74e7e",
+        "originalAndCancelledRowsUnchanged": true,
+        "lateCallbackFamilies": 5,
+        "storedAttempts": [
+          1,
+          2,
+          3
+        ],
+        "oldAndNewDispatchInvocations": 2,
+        "cancelledDispatchInvocations": 0,
+        "relationshipCount": 2,
+        "controlledAcceptedSTARTs": 1,
+        "originalSTARTs": 0,
+        "realSignedAppInputsDuringAudit": 0,
+        "coreOutput": [
+          "phase=cancel controlledAppends=0 persistedLinks=1",
+          "phase=complete controlledAppends=1 persistedLinks=2"
+        ]
+      },
+      {
+        "localBrowserReceiptSHA256": "7d99f3781caa9895023363db52cad0eba215f9a06f61bfc2d382a08c64f300c8",
+        "loopbackNativeEvents": {
+          "setters": 2,
+          "inputs": 2,
+          "changes": 2,
+          "submits": 0,
+          "sends": 0
+        },
+        "controlledProductWebSTARTReachedSQLite": true,
+        "case": "partial-native-upload",
+        "archiveSHA256": "ed000599b6b66cdb2196989b140c6d097ed366f68c694cf51ed73707bfc0dd88",
+        "pngSHA256": "20ec24f32a9dc11f7536526a2f2ca0001c728f78c7bb4432d8c65cdec6a26118",
+        "beforeSHA256": "d01384dceb185580b2323a3a7765a904b118c40dab96a14461ac64c2d7bb6b28",
+        "afterSHA256": "32b70c3b92a1d549ef4c0193677fac399015ef38e39968f845d10879f5165dc7",
+        "originalAndCancelledRowsUnchanged": true,
+        "lateCallbackFamilies": 5,
+        "storedAttempts": [
+          1,
+          2,
+          3
+        ],
+        "oldAndNewDispatchInvocations": 2,
+        "cancelledDispatchInvocations": 0,
+        "relationshipCount": 2,
+        "controlledAcceptedSTARTs": 1,
+        "originalSTARTs": 0,
+        "realSignedAppInputsDuringAudit": 0,
+        "coreOutput": [
+          "phase=cancel controlledAppends=0 persistedLinks=1",
+          "phase=complete controlledAppends=1 persistedLinks=2"
+        ]
+      },
+      {
+        "localBrowserReceiptSHA256": "1720c9bcdae546c9ade4768d0f382957dd0741487bf51fb631df07816ffbb531",
+        "loopbackNativeEvents": {
+          "setters": 2,
+          "inputs": 2,
+          "changes": 2,
+          "submits": 0,
+          "sends": 0
+        },
+        "controlledProductWebSTARTReachedSQLite": true,
+        "case": "body-sent-before-response",
+        "archiveSHA256": "2a7c15697cde5d96927999e6ec9b4766dd5ef79e58dfd0bb46fd5d0c53a498de",
+        "pngSHA256": "7879f08c5ab36c8d9a60fed1f30661117ef17999dc8ab5bf81f2fbab37d974a4",
+        "beforeSHA256": "0196ccd18d23548bedc905fe15e41b0bd61fb8e148c81c849cc4dc7430d73286",
+        "afterSHA256": "37fd5f679ce98f3a14fb613ce88f78c21a1674e980f5d8b7d24bba8a29bd5f25",
+        "originalAndCancelledRowsUnchanged": true,
+        "lateCallbackFamilies": 5,
+        "storedAttempts": [
+          1,
+          2,
+          3
+        ],
+        "oldAndNewDispatchInvocations": 2,
+        "cancelledDispatchInvocations": 0,
+        "relationshipCount": 2,
+        "controlledAcceptedSTARTs": 1,
+        "originalSTARTs": 0,
+        "realSignedAppInputsDuringAudit": 0,
+        "coreOutput": [
+          "phase=cancel controlledAppends=0 persistedLinks=1",
+          "phase=complete controlledAppends=1 persistedLinks=2"
+        ]
+      }
+    ]
+  }
+}

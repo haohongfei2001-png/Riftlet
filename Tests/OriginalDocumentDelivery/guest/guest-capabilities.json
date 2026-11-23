@@ -1,0 +1,72 @@
+{
+  "scope": "Ordinary Chrome/Edge on the separately provisioned Virtualization.framework macOS QA guest C. No personal browser, no remote-debug port, no extension-based control. Only bootstrap and native preflight were attempted.",
+  "outcome": "BLOCKED_SECURITY",
+  "guest": {
+    "macOS": "27.2",
+    "existingQAConsole": true,
+    "windowlessLauncher": true,
+    "vmStartedUTC": "2026-11-21T13:50:01Z",
+    "vmShutdownUTC": "2026-11-21T14:02:27Z",
+    "launcherExitStatus": 0
+  },
+  "bootstrap": {
+    "nonceProtectedLoopbackHTTPReachable": true,
+    "desktopSessionLoggedIn": true,
+    "lockReported": false,
+    "frontBundle": "com.apple.UserNotificationCenter",
+    "systemNotificationPanelCount": 1,
+    "desktopProbeAXTrusted": false,
+    "desktopProbeScreenCapturePreflight": false,
+    "noPromptAEAuthorizationQuery": "NO_REPLY_WITHIN_100S",
+    "causalAttribution": "No individual alert text or prompt owner was confirmed. Historical product approvals are not evidence of approval for this SSH-launched diagnostic."
+  },
+  "browsers": [
+    {
+      "family": "chrome",
+      "bundle": "com.google.Chrome",
+      "version": "157.0.8103.79",
+      "isolatedGuestPID": 423,
+      "ownedNormalProcessCount": 1,
+      "headless": false,
+      "remoteDebugging": false,
+      "nativeCreateRequests": 1,
+      "nativeCreateReplyCode": -1712,
+      "initialNativeWindowAndTab": "UNKNOWN",
+      "pageExecution": "NOT_RUN"
+    },
+    {
+      "family": "edge",
+      "bundle": "com.microsoft.edgemac",
+      "version": "156.0.4314.58",
+      "isolatedGuestPID": 420,
+      "ownedNormalProcessCount": 1,
+      "headless": false,
+      "remoteDebugging": false,
+      "nativeCreateRequests": 1,
+      "nativeCreateReplyCode": -1712,
+      "initialNativeWindowAndTab": "UNKNOWN",
+      "pageExecution": "NOT_RUN"
+    }
+  ],
+  "measurements": {
+    "nativeKeyboardDelivery": "NOT_RUN",
+    "rawAXOriginalElementSelectedTextWritable": "NOT_RUN",
+    "staleAXMutation": "NOT_RUN",
+    "originalReceiverSemanticTextMutation": "NOT_RUN",
+    "localAppFileSetter": "NOT_RUN",
+    "signedInWebsite": "NOT_RUN",
+    "nativeFormSubmissionAttempts": 0,
+    "keyboardRequests": 0,
+    "fileAttachmentRequests": 0,
+    "permissionsChanged": false
+  },
+  "cleanup": {
+    "guestOwnFixtureProcessStopped": true,
+    "guestOwnProbeProcessesStopped": true,
+    "ownedTemporaryGuestDirectoryRemoved": true,
+    "unconfirmedWindowCreationWasNotRepeated": true,
+    "unverifiedWindowsExplicitlyClosed": false,
+    "normalShutdownAcknowledged": true,
+    "guestShutdownDelegateObserved": true
+  }
+}

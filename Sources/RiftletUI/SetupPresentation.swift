@@ -1,5 +1,6 @@
 import Foundation
 import RiftletCapture
+import RiftletCore
 
 public enum SetupSourceState: Equatable, Sendable { case checking, notChecked, notApplicable, accessible, unavailable, notConfigured }
 public enum SetupCollectionState: Equatable, Sendable { case starting, collecting, waitingForSource, paused, stopped }
@@ -13,7 +14,14 @@ public enum SetupStorageState: Equatable, Sendable {
     case notMeasured, measuring, measured(bytes: UInt64, complete: Bool, screenshotCopies: UInt64? = nil), insufficientSpace, writeFailed, unavailable
 }
 
-/// The menu belongs to Chrome. Its instructions never represent a permission observation.
+public typealias SetupBrowser = AttachmentBrowser
+
+extension AttachmentBrowser {
+    var displayName: String { self == .edge ? "Edge" : "Chrome" }
+    var applicationName: String { self == .edge ? "Microsoft Edge" : "Google Chrome" }
+}
+
+/// The menu belongs to the receiving browser. Its instructions never represent a permission observation.
 public enum ChromeAttachmentSetup {
     public static var menuPath: String { menuPath(in: .current) }
     public static var instructions: String { instructions(in: .current) }
@@ -22,7 +30,15 @@ public enum ChromeAttachmentSetup {
         copy.text("显示 → 开发者 → 允许 Apple 事件中的 JavaScript", "View → Developer → Allow JavaScript from Apple Events")
     }
 
-    static func instructions(in copy: ProductCopy) -> String {
+    public static func instructions(for browser: SetupBrowser) -> String {
+        instructions(in: .current, browser: browser)
+    }
+
+    static func instructions(in copy: ProductCopy, browser: SetupBrowser = .chrome) -> String {
+        if browser == .edge {
+            return copy.text("在 Microsoft Edge 菜单栏中勾选“允许 Apple 事件中的 JavaScript”，然后重新检查连接。",
+                             "In the Microsoft Edge menu bar, enable Allow JavaScript from Apple Events, then check the connection again.")
+        }
         let path = menuPath(in: copy)
         return copy.text("在 Chrome 菜单栏勾选“\(path)”。已获 Chrome 自动化权限的应用可执行网页脚本。",
                          "In Chrome, enable \(path). Apps allowed to control Chrome can then run scripts on webpages.")
@@ -35,19 +51,19 @@ public enum SetupIssue: Equatable, Sendable {
     case sourceAccess, wrongScreenshotFolder, screenshotFolderNeedsSelection, unsupportedFormat, unsupportedSize, invalidImage
     case insufficientSpace, privateWriteFailed, storageUnavailable, pendingCapture, mediaMaintenance
     case sourceVolumeUnidentified, fileVolumeUnidentified, historicalSourceUnconfirmed
-    case unsupportedBrowser, targetUnavailable, permissionDenied, chromeJavaScriptDisabled, imageUnavailable
+    case unsupportedBrowser, targetUnavailable, permissionNotRequested, permissionDenied, chromeJavaScriptDisabled, imageUnavailable
     case initializationFailed, configurationUnavailable
     case visibilityPreferenceUnsaved, collectionPreferenceUnsaved
     case screenshotPreferenceUnsaved
     case attachmentFormat, attachmentBytes, attachmentPixels, attachmentSource
 
     var isAttachmentConnectionIssue: Bool {
-        self == .unsupportedBrowser || self == .targetUnavailable || self == .chromeJavaScriptDisabled
+        self == .permissionNotRequested || self == .unsupportedBrowser || self == .targetUnavailable || self == .chromeJavaScriptDisabled
     }
 
     public var text: String { text(in: .current) }
 
-    public func text(in copy: ProductCopy) -> String {
+    public func text(in copy: ProductCopy, browser: SetupBrowser = .chrome) -> String {
         switch self {
         case .attachmentSource:
             return copy.text("这张图片来自不支持一键附加的来源。请在 ChatGPT 中手动选择原图。",
@@ -102,16 +118,19 @@ public enum SetupIssue: Equatable, Sendable {
             return copy.text("暂时无法检查私有存储，不能确认保存状态。已有记录与系统原图保留。",
                              "Riftlet could not check local storage. Existing history and original files are safe.")
         case .unsupportedBrowser:
-            return copy.text("请用 Google Chrome 打开要附加图片的 ChatGPT 草稿。截图仍在本机。",
-                             "Open the ChatGPT draft you want in Google Chrome. Your screenshot is saved locally.")
+            return copy.text("请用 Chrome 或 Edge 打开要附加图片的 ChatGPT 草稿。截图仍在本机。",
+                             "Open the ChatGPT draft you want in Chrome or Edge. Your screenshot is saved locally.")
         case .targetUnavailable:
-            return copy.text("未能连接到可附加图片的聊天。请在 Chrome 前台显示要用的 ChatGPT 草稿，确认其中有添加附件的入口。截图仍在本机。",
-                             "Bring your intended ChatGPT draft to the front in Chrome and check that attachments are available. The screenshot is still on your Mac.")
+            return copy.text("未能连接到可附加图片的聊天。请在 \(browser.displayName) 前台显示要用的 ChatGPT 草稿，确认其中有添加附件的入口。截图仍在本机。",
+                             "Bring your intended ChatGPT draft to the front in \(browser.displayName) and check that attachments are available. The screenshot is still on your Mac.")
+        case .permissionNotRequested:
+            return copy.text("截图已保留。在 Riftlet 设置中检查 \(browser.displayName) 访问权限，然后在 macOS 提示时允许连接。",
+                             "Your screenshot is saved. Check \(browser.displayName) access in Riftlet Settings, then allow the connection when macOS asks.")
         case .permissionDenied:
-            return copy.text("Chrome 自动化访问被拒绝。请在系统设置的「隐私与安全性 → 自动化」中检查 Riftlet，再重新检查。",
-                             "Allow Riftlet to control Chrome in System Settings → Privacy & Security → Automation, then check again.")
+            return copy.text("\(browser.displayName) 自动化访问被拒绝。请在系统设置的「隐私与安全性 → 自动化」中检查 Riftlet，再重新检查。",
+                             "Allow Riftlet to control \(browser.displayName) in System Settings → Privacy & Security → Automation, then check again.")
         case .chromeJavaScriptDisabled:
-            return copy.text("Chrome 拒绝了这次附加，截图仍在本机。", "Chrome declined the attachment. The screenshot is saved on your Mac. ") + ChromeAttachmentSetup.instructions(in: copy)
+            return copy.text("\(browser.displayName) 拒绝了这次附加，截图仍在本机。", "\(browser.displayName) declined the attachment. The screenshot is saved on your Mac. ") + ChromeAttachmentSetup.instructions(in: copy, browser: browser)
         case .imageUnavailable:
             return copy.text("这张截图的私有副本暂不可用。没有重新附加，也没有删除系统原图。",
                              "The local copy is unavailable. The original screenshot is safe and Riftlet has not attached it again.")
@@ -147,6 +166,7 @@ public struct SetupSnapshot: Equatable, Sendable {
     public let pendingCount: Int
     public let attachment: SetupAttachmentState
     public let permission: SetupPermissionState
+    public let browser: SetupBrowser
     public let permissionDetail: String?
     public let storage: SetupStorageState
     public let issue: SetupIssue?
@@ -166,7 +186,9 @@ public struct SetupSnapshot: Equatable, Sendable {
                 permission: SetupPermissionState = .notNeeded, permissionDetail: String? = nil,
                 storage: SetupStorageState = .notMeasured, issue: SetupIssue? = nil,
                 supportDescription: String = "", isChecking: Bool = false,
-                builtInScreenshotEnabled: Bool? = nil, defaultScreenshotMode: ScreenshotMode = .window) {
+                builtInScreenshotEnabled: Bool? = nil, defaultScreenshotMode: ScreenshotMode = .window,
+                browser: SetupBrowser = .chrome) {
+        self.browser = browser
         self.sourceLocation = sourceLocation; self.source = source; self.collection = collection
         self.isHidden = isHidden; self.visibleCount = max(0, visibleCount); self.pendingCount = max(0, pendingCount)
         self.attachment = attachment; self.permission = permission; self.permissionDetail = permissionDetail
@@ -220,7 +242,7 @@ public struct SetupPresentation: Equatable, Sendable {
         case .systemScreenshotCandidate:
             return "截图自然地停在桌面边缘。内部候选只在目标与图片均通过核验后，附加到当前聊天草稿。"
         case .available:
-            return "新截图出现在桌面边缘。打开 Chrome 中的 ChatGPT 对话，点一下截图就能附加。"
+            return "新截图出现在桌面边缘。打开 Chrome 或 Edge 中的 ChatGPT 对话，点一下截图就能附加。"
         case .unsupportedBrowser, .targetUnavailable:
             return "截图自然地停在桌面边缘。当前附加目标不可用，图片留在本机。"
         }
@@ -248,7 +270,7 @@ public struct SetupPresentation: Equatable, Sendable {
         case .systemScreenshotCandidate:
             return "仅在获准的内部验收中，使用新截图与受支持的 Chrome 普通已有对话。无需先聚焦发言框；目标和原样图片仍须通过核验。"
         case .available:
-            return "在 Chrome 中打开要使用的 ChatGPT 对话，截一张图，再点桌面边缘的缩略图。"
+            return "在 Chrome 或 Edge 中打开要使用的 ChatGPT 对话，截一张图，再点桌面边缘的缩略图。"
         case .unsupportedBrowser, .targetUnavailable:
             return "先检查当前浏览器与聊天草稿。截图继续保留，不会切换到其他窗口或自动再次附加。"
         }
@@ -289,7 +311,7 @@ public struct SetupPresentation: Equatable, Sendable {
         case .starting: return copy.text("正在准备收录新截图。", "Preparing to collect new screenshots.")
         case .collecting:
             if let issue = snapshot.issue, [.sourceVolumeUnidentified, .fileVolumeUnidentified, .historicalSourceUnconfirmed].contains(issue) {
-                return issue.text(in: copy)
+                return issue.text(in: copy, browser: snapshot.browser)
             }
             return copy.text("正在收录新截图。", "Collecting new screenshots.")
         case .waitingForSource: return copy.text("收录开关已开启。请确认 Riftlet 可以访问截图文件夹。", "Collection is on. Allow Riftlet to read your screenshot folder.")
@@ -313,7 +335,7 @@ public struct SetupPresentation: Equatable, Sendable {
 
     public var attachmentText: String {
         if let issue = snapshot.issue, hasAutomationCapability, issue.isAttachmentConnectionIssue {
-            return issue.text(in: copy)
+            return issue.text(in: copy, browser: snapshot.browser)
         }
         switch snapshot.attachment {
         case .productionDisabled:
@@ -325,7 +347,7 @@ public struct SetupPresentation: Equatable, Sendable {
         case .offlineSimulation:
             return copy.text("当前是离线模拟，仅演示生成图片的显示与状态变化；没有连接 ChatGPT。", "This offline preview uses generated images and does not connect to ChatGPT.")
         case .available:
-            return copy.text("在 Chrome 中打开要使用的 ChatGPT 对话，点击桌面边缘的截图即可附加。消息由你发送。", "Open your intended ChatGPT conversation in Chrome, then click the screenshot at the desktop edge. You decide when to send.")
+            return copy.text("在 Chrome 或 Edge 中打开要使用的 ChatGPT 对话，点击桌面边缘的截图即可附加。消息由你发送。", "Open your intended ChatGPT conversation in Chrome or Edge, then click the screenshot at the desktop edge. You decide when to send.")
         case .unsupportedBrowser:
             return copy.text("当前浏览器不受支持。截图保留，不会切换到其他浏览器或聊天。", "This browser is not supported. Your screenshot is saved locally. Riftlet will not switch browsers or chats.")
         case .targetUnavailable:
@@ -339,13 +361,13 @@ public struct SetupPresentation: Equatable, Sendable {
         guard hasAutomationCapability else { return nil }
         switch snapshot.permission {
         case .notNeeded: return nil
-        case .notChecked: return copy.text("尚未检查 Chrome 自动化权限。点“检查 Chrome 权限…”按 macOS 提示操作。", "Choose Check Chrome Access and follow the macOS prompt.")
-        case .notRequested: return copy.text("点“检查 Chrome 权限…”，在 macOS 提示中允许 Riftlet 控制 Chrome。", "Choose Check Chrome Access, then allow Riftlet to control Chrome in the macOS prompt.")
-        case .granted: return copy.text("macOS 已允许 Riftlet 与 Chrome 通信。", "macOS allows Riftlet to communicate with Chrome.")
-        case .denied: return copy.text("Chrome 自动化访问被拒绝。打开“系统设置 → 隐私与安全性 → 自动化”，在 Riftlet 下允许 Google Chrome，再回到这里点“重新检查”。", "Open System Settings → Privacy & Security → Automation. Under Riftlet, enable Google Chrome, then return and check again.")
-        case .notRunning: return copy.text("Chrome 尚未运行。请打开 Google Chrome，再点“重新检查”。", "Open Google Chrome, then check again.")
-        case .browserUnavailable: return copy.text("没有找到受支持的 Google Chrome 应用。", "A supported Google Chrome installation could not be found.")
-        case .unavailable: return copy.text("打开 Google Chrome，再点“重新检查”查看自动化权限。", "Open Google Chrome, then check its automation permission again.")
+        case .notChecked: return copy.text("尚未检查 \(snapshot.browser.displayName) 自动化权限。点“检查 \(snapshot.browser.displayName) 权限…”按 macOS 提示操作。", "Choose Check \(snapshot.browser.displayName) Access and follow the macOS prompt.")
+        case .notRequested: return copy.text("点“检查 \(snapshot.browser.displayName) 权限…”，在 macOS 提示中允许 Riftlet 控制 \(snapshot.browser.displayName)。", "Choose Check \(snapshot.browser.displayName) Access, then allow Riftlet to control \(snapshot.browser.displayName) in the macOS prompt.")
+        case .granted: return copy.text("macOS 已允许 Riftlet 与 \(snapshot.browser.displayName) 通信。", "macOS allows Riftlet to communicate with \(snapshot.browser.displayName).")
+        case .denied: return copy.text("\(snapshot.browser.displayName) 自动化访问被拒绝。打开“系统设置 → 隐私与安全性 → 自动化”，在 Riftlet 下允许 \(snapshot.browser.applicationName)，再回到这里点“重新检查”。", "Open System Settings → Privacy & Security → Automation. Under Riftlet, enable \(snapshot.browser.applicationName), then return and check again.")
+        case .notRunning: return copy.text("\(snapshot.browser.displayName) 尚未运行。请打开 \(snapshot.browser.applicationName)，再点“重新检查”。", "Open \(snapshot.browser.applicationName), then check again.")
+        case .browserUnavailable: return copy.text("没有找到受支持的 \(snapshot.browser.applicationName) 应用。", "A supported \(snapshot.browser.applicationName) installation could not be found.")
+        case .unavailable: return copy.text("打开 \(snapshot.browser.applicationName)，再点“重新检查”查看自动化权限。", "Open \(snapshot.browser.applicationName), then check its automation permission again.")
         }
     }
 
@@ -392,10 +414,10 @@ public struct SetupPresentation: Equatable, Sendable {
         if !hasAutomationCapability && (issue == .permissionDenied || issue.isAttachmentConnectionIssue) {
             return nil
         }
-        return issue.text(in: copy)
+        return issue.text(in: copy, browser: snapshot.browser)
     }
     public var permissionActionTitle: String {
-        snapshot.permission == .denied ? copy.text("打开自动化设置…", "Open Automation Settings…") : copy.text("检查 Chrome 权限…", "Check Chrome Access…")
+        snapshot.permission == .denied ? copy.text("打开自动化设置…", "Open Automation Settings…") : copy.text("检查 \(snapshot.browser.displayName) 权限…", "Check \(snapshot.browser.displayName) Access…")
     }
     public var canRequestPermission: Bool {
         guard hasAutomationCapability else { return false }

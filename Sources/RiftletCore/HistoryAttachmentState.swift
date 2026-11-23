@@ -1,11 +1,16 @@
 import Foundation
 
+/// Result of inspecting an attachment in its verified original draft.
+public enum OriginalAttachmentPresence: String, Codable, Sendable {
+    case present, absent, unknown, failed
+}
+
 /// A read-only description of a capture's current handoff. Never authorizes
 /// input, retry, queue restoration, or a database transition.
 public enum HistoryAttachmentState: String, Equatable, Sendable {
-    case available, preparing, needsReview, checkDraft, handedOff, attached, confirmedFailure, notAttached
+    case available, preparing, needsReview, checkDraft, originalCardFailed, handedOff, attached, confirmedFailure, notAttached
 
-    public var needsVerification: Bool { self == .needsReview || self == .checkDraft }
+    public var needsVerification: Bool { self == .needsReview || self == .checkDraft || self == .originalCardFailed }
 
     public init(record: AssetRecord, operation: TransferOperation?, receipt: TransferReceipt?,
                 startReceipt: TransferReceipt?) {
@@ -37,6 +42,10 @@ public enum HistoryAttachmentState: String, Equatable, Sendable {
                last.belongsToOriginalDraft, !last.isUploading, !last.positiveReady {
                 self = .confirmedFailure
             } else { self = .notAttached }
+        } else if let last, last.originalCardFailureInvocationID != nil, last.outcome == .unknown, last.hasError,
+                  !last.safeToRetry, last.belongsToOriginalDraft, last.attachmentID != nil,
+                  phase?.isUnresolved == true {
+            self = .originalCardFailed
         } else if phase == .compensated {
             self = .checkDraft
         } else if let start, let last, last.hasError, !last.positiveReady, last.belongsToOriginalDraft,
@@ -45,6 +54,9 @@ public enum HistoryAttachmentState: String, Equatable, Sendable {
             self = .checkDraft
         } else if phase == .succeeded {
             self = .attached
+        } else if phase == .unknown, let last, last.outcome == .unknown, !last.hasError,
+                  last.belongsToOriginalDraft, last.attachmentID == nil || last.attachmentID == start?.attachmentID {
+            self = .needsReview
         } else if start != nil {
             self = .handedOff
         } else if phase == .prepared && status == .transferring {

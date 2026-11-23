@@ -1,0 +1,126 @@
+{
+  "source": "c7ef1027f9475d517abbd4d85ae1819b9351a8cf",
+  "testRevision": "c7ef1027f9475d517abbd4d85ae1819b9351a8cf",
+  "run": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44985432085",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "runner": "macos-15",
+      "architecture": "arm64",
+      "job": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44985432085/job/137094843254",
+      "conclusion": "success",
+      "artifactID": 14739389569,
+      "artifactSHA256": "8665bd928073b42780164c6d1466ddaad306e4a7778ddb54d890d1a736cd5833",
+      "native": {
+        "result": "PASS",
+        "discovered": 1434,
+        "parallel": 1412,
+        "serial": 22,
+        "serialOutcomes": {
+          "passed": 22
+        }
+      },
+      "page": {
+        "family": "chrome",
+        "version": "Chrome/158.0.8127.37",
+        "utc": "2026-11-22T04:36:31.999Z",
+        "resourceSHA256": "43e43df544d4edb6081dfe592b1b18166039f98983ab8f0fac0f31efdf60d166",
+        "scope": "Headless private test process; real DOM and trusted Chromium mouse events on fixture button. Controlled route/native IDs. No macOS click or provider website.",
+        "caseCount": 19
+      },
+      "faultRecovery": {
+        "tests": 8,
+        "pass": 8,
+        "fail": 0,
+        "skipped": 0
+      },
+      "swiftLogSHA256": "cd028219a81f05f19f018184a21f072f03026ff892ad64c4489dcebf419bfb4c",
+      "newTestNames": [
+        "AcceptedSelectionQueueTests/testSelectionFinishOnlyReleasesReceiverWhenOriginalIntentWasNeverWritten",
+        "RiftletAdaptersTests.ArchivedObservationCompatibilityTests/testArchivedMarkersMatchBothBrowsersAndOriginalLegacyEncoding",
+        "RiftletAdaptersTests.ArchivedObservationCompatibilityTests/testCurrentProgramAndChangedAddressCannotMatchHistoricalRelay",
+        "RiftletAdaptersTests.ArchivedObservationCompatibilityTests/testOnlyOriginalObservationCanDispatchOnCanonicalChannelAndNonce",
+        "RiftletAdaptersTests.PreClickLeaseTests/testBeginAndCommitCanOnlyBeEnteredOncePerExactInvocation",
+        "RiftletAdaptersTests.PreClickLeaseTests/testExpiredTicketCannotBeRevivedOrFrozen",
+        "RiftletAdaptersTests.PreClickLeaseTests/testNewDraftOrEpochCannotReuseOriginal",
+        "RiftletAdaptersTests.PreClickLeaseTests/testNoPendingOrLateReplyCanGrantAnEarlierPress",
+        "RiftletAdaptersTests.PreClickLeaseTests/testPrivateQARestrictionRequiresOneCanonicalBrowserSessionAndNativeTab",
+        "RiftletAdaptersTests.PreClickLeaseTests/testRenewalExtendsOnlyAStillArmedOriginalWithoutChangingItsFirstAcknowledgement",
+        "RiftletAdaptersTests.PreClickLeaseTests/testTwoDistinctPressesGetDifferentPreAcknowledgedReceivers",
+        "RiftletAppTests.ApplicationInstanceOwnershipTests/testCloseIsIdempotentAndAllowsNextOwnerWithoutDeletingHistory",
+        "RiftletAppTests.ApplicationInstanceOwnershipTests/testDifferentDataDirectoriesRemainDistinctWhenTheirLockFilesAreHardLinked",
+        "RiftletAppTests.ApplicationInstanceOwnershipTests/testFreshProfileRequiresBothAnEmptyRootAndEmptyAppDomain",
+        "RiftletAppTests.ApplicationInstanceOwnershipTests/testHistoricalFeedbackFirstOrderingCanSplitRealStoreAndAppLocks",
+        "RiftletAppTests.ApplicationInstanceOwnershipTests/testModesRemainIndependentAndLinkedLockIsRefusedWithoutChangingTarget",
+        "RiftletAppTests.ApplicationInstanceOwnershipTests/testOnlySuccessiveHoldersOfTheOriginalKernelLockShareAPreparationScope",
+        "RiftletAppTests.ApplicationInstanceOwnershipTests/testOwnershipBeforeSidecarsRejectsLoserWithoutOpeningItsFeedbackStore",
+        "RiftletAppTests.ApplicationInstanceOwnershipTests/testTerminationRetainsOwnershipAfterObjectDestructionWhileSidecarLives",
+        "RiftletAppTests.PreClickQAEnvironmentTests/testForeignStorageAndLinkedSourceAreRefusedBeforeOpeningData",
+        "RiftletAppTests.PreClickQAEnvironmentTests/testIsolatedIdentityPreferencesAndImmutableCaptureSource",
+        "RiftletAppTests.PreClickQAEnvironmentTests/testOrdinaryLaunchAndConflictingArguments",
+        "RiftletUITests.PreClickPressCancellationTests/testRebuildingHeldViewCancelsOnlyOldPressForSameAsset",
+        "RiftletUITests.PreClickPressCancellationTests/testReleaseInsideSelectsExactlyOnceWithoutCancellation",
+        "RiftletUITests.PreClickPressCancellationTests/testReleaseOutsideCancelsOriginalPressAndAllowsNextClick"
+      ]
+    },
+    {
+      "runner": "macos-15-intel",
+      "architecture": "x86_64",
+      "job": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/44985432085/job/137094843427",
+      "conclusion": "success",
+      "artifactID": 14740360158,
+      "artifactSHA256": "524472de311fbc887070fd8c22c531a29af9a09770d769a462aecdd964865ad7",
+      "native": {
+        "result": "PASS",
+        "discovered": 1434,
+        "parallel": 1412,
+        "serial": 22,
+        "serialOutcomes": {
+          "passed": 22
+        }
+      },
+      "page": {
+        "family": "chrome",
+        "version": "Chrome/151.0.7922.174",
+        "utc": "2026-11-22T04:40:05.330Z",
+        "resourceSHA256": "43e43df544d4edb6081dfe592b1b18166039f98983ab8f0fac0f31efdf60d166",
+        "scope": "Headless private test process; real DOM and trusted Chromium mouse events on fixture button. Controlled route/native IDs. No macOS click or provider website.",
+        "caseCount": 19
+      },
+      "faultRecovery": {
+        "tests": 8,
+        "pass": 8,
+        "fail": 0,
+        "skipped": 0
+      },
+      "swiftLogSHA256": "694ba2750f72a33f6ef1f25b39a696c77f8bfe73358fd59a8b2f4426eda28da0",
+      "newTestNames": [
+        "AcceptedSelectionQueueTests/testSelectionFinishOnlyReleasesReceiverWhenOriginalIntentWasNeverWritten",
+        "RiftletAdaptersTests.ArchivedObservationCompatibilityTests/testArchivedMarkersMatchBothBrowsersAndOriginalLegacyEncoding",
+        "RiftletAdaptersTests.ArchivedObservationCompatibilityTests/testCurrentProgramAndChangedAddressCannotMatchHistoricalRelay",
+        "RiftletAdaptersTests.ArchivedObservationCompatibilityTests/testOnlyOriginalObservationCanDispatchOnCanonicalChannelAndNonce",
+        "RiftletAdaptersTests.PreClickLeaseTests/testBeginAndCommitCanOnlyBeEnteredOncePerExactInvocation",
+        "RiftletAdaptersTests.PreClickLeaseTests/testExpiredTicketCannotBeRevivedOrFrozen",
+        "RiftletAdaptersTests.PreClickLeaseTests/testNewDraftOrEpochCannotReuseOriginal",
+        "RiftletAdaptersTests.PreClickLeaseTests/testNoPendingOrLateReplyCanGrantAnEarlierPress",
+        "RiftletAdaptersTests.PreClickLeaseTests/testPrivateQARestrictionRequiresOneCanonicalBrowserSessionAndNativeTab",
+        "RiftletAdaptersTests.PreClickLeaseTests/testRenewalExtendsOnlyAStillArmedOriginalWithoutChangingItsFirstAcknowledgement",
+        "RiftletAdaptersTests.PreClickLeaseTests/testTwoDistinctPressesGetDifferentPreAcknowledgedReceivers",
+        "RiftletAppTests.ApplicationInstanceOwnershipTests/testCloseIsIdempotentAndAllowsNextOwnerWithoutDeletingHistory",
+        "RiftletAppTests.ApplicationInstanceOwnershipTests/testDifferentDataDirectoriesRemainDistinctWhenTheirLockFilesAreHardLinked",
+        "RiftletAppTests.ApplicationInstanceOwnershipTests/testFreshProfileRequiresBothAnEmptyRootAndEmptyAppDomain",
+        "RiftletAppTests.ApplicationInstanceOwnershipTests/testHistoricalFeedbackFirstOrderingCanSplitRealStoreAndAppLocks",
+        "RiftletAppTests.ApplicationInstanceOwnershipTests/testModesRemainIndependentAndLinkedLockIsRefusedWithoutChangingTarget",
+        "RiftletAppTests.ApplicationInstanceOwnershipTests/testOnlySuccessiveHoldersOfTheOriginalKernelLockShareAPreparationScope",
+        "RiftletAppTests.ApplicationInstanceOwnershipTests/testOwnershipBeforeSidecarsRejectsLoserWithoutOpeningItsFeedbackStore",
+        "RiftletAppTests.ApplicationInstanceOwnershipTests/testTerminationRetainsOwnershipAfterObjectDestructionWhileSidecarLives",
+        "RiftletAppTests.PreClickQAEnvironmentTests/testForeignStorageAndLinkedSourceAreRefusedBeforeOpeningData",
+        "RiftletAppTests.PreClickQAEnvironmentTests/testIsolatedIdentityPreferencesAndImmutableCaptureSource",
+        "RiftletAppTests.PreClickQAEnvironmentTests/testOrdinaryLaunchAndConflictingArguments",
+        "RiftletUITests.PreClickPressCancellationTests/testRebuildingHeldViewCancelsOnlyOldPressForSameAsset",
+        "RiftletUITests.PreClickPressCancellationTests/testReleaseInsideSelectsExactlyOnceWithoutCancellation",
+        "RiftletUITests.PreClickPressCancellationTests/testReleaseOutsideCancelsOriginalPressAndAllowsNextClick"
+      ]
+    }
+  ]
+}

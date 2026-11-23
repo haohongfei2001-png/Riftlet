@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<title>Riftlet 原草稿验收</title>
+<style>
+body{font:17px system-ui;color:#182023;background:#f2f5f4;margin:2rem auto;padding:0 1.2rem;max-width:48rem}main{background:white;border:1px solid #cdd7d3;border-radius:.8rem;padding:1.4rem}label,p,output{display:block;margin:.8rem 0}textarea,input,button{font:inherit}textarea{width:95%;height:4rem}button{padding:.5rem .8rem;border-radius:.4rem;border:1px solid #627770;background:#eff5f1;color:inherit}input{max-width:12rem}button:disabled{opacity:.45}img{width:18px;height:18px;vertical-align:middle}output{min-height:1.5rem}
+</style>
+<main><h1>Riftlet 原草稿验收</h1>
+<p id="doc"></p>
+<label for="keyboard">独立按键框（可选，仅按一次小写 q）</label>
+<input id="keyboard" autocomplete="off" spellcheck="false"><span id="keyResult"></span>
+<form id="draft"><label for="editor">测试草稿</label><textarea id="editor">alpha beta gamma</textarea>
+<p id="prior"><img id="priorImage" alt="已有 QA 附件"> existing-qa.png</p>
+<input type="file" id="png" hidden><p id="fileResult"></p>
+<button type="button" id="original" disabled>1. 验证原稿并挂起旧操作</button>
+<button type="button" id="replace" disabled>2. 更换文档</button>
+<button type="button" id="replacement" disabled>3. 验证旧操作与新草稿</button></form>
+<p id="routeResult"></p><output id="result" aria-live="polite">载入验收状态…</output></main>
+<script src="./product.js" integrity="PRODUCT_SRI"></script><script src="./receiver.js"></script><script src="./page.js"></script></html>

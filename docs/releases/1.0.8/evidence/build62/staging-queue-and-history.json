@@ -1,0 +1,113 @@
+{
+  "app": "Riftlet 1.0.8 (62)",
+  "correctedUpgrade": {
+    "assetCounts": [
+      51,
+      51
+    ],
+    "fileDigests": 86,
+    "historyWindow": {
+      "archivedVisible": true,
+      "library": true,
+      "originalScreenshotSHA256": "e7fa4f833973154ca95a554a5f44ed72b3e74ecad4a902ea98ea9560767541a3",
+      "page1Count": 51
+    },
+    "imagesOnDiskIncluding32DesktopSources": 83,
+    "matchingOriginalAssetRows": 51,
+    "publicUpgradeColdBackupSHA256": "31beb41e396b8f268e6fda787acfff10891594e41789c49c17f914fbe4e8a2cb",
+    "snapshotsSHA256": {
+      "31-before.json": "3ce3a78fe4016d94dd0e0ff7b5622f38f8220c0db7571a09eaf7c6615e493ca5",
+      "31-checked.sqlite": "3ba4c0c6be22920a0edcae3b79673569f85809c80a308cd872b958dca93de12b",
+      "31-preferences.json": "0050733a70568113183350994f2b8a4158a5789ee9191881c6bc04cac20454f1",
+      "62-after.json": "3ce3a78fe4016d94dd0e0ff7b5622f38f8220c0db7571a09eaf7c6615e493ca5",
+      "62-checked.sqlite": "90b26df5dd7db8f019312ab0ab88fbde202358bc8bf1b19fa0aa2e774a033002",
+      "62-preferences.json": "0050733a70568113183350994f2b8a4158a5789ee9191881c6bc04cac20454f1",
+      "end.txt": "525dfb9792623493d925f2c86d72661bda4266908a92ba20e1080863793e3a6b",
+      "server-events.jsonl": "187d1be01bcbd3e4ed462b514eeff8105a2a3b90960c0a70b77e8cdd0dcadbb0",
+      "source-repair.json": "e1eb2f59ae11bd3b71aeca0dade2bb913b5653c857d64c8bbf0022fedfb7c24e"
+    },
+    "unchangedOperationRows": 2,
+    "unchangedStarts": 1,
+    "unchangedUnknownRows": 1,
+    "userSettings": 3
+  },
+  "earlierRun": {
+    "actual31To62": true,
+    "addedAtOldBuild31": 32,
+    "cause": "The QA setup copied 32 source images to new file identities; all originals remained and the correction preserved their original inodes",
+    "provenanceSHA256": "eb2877efcf0ecc0d98564ca30aa17b38ee36ca59d9e8b2ce0a587d99b29cb866"
+  },
+  "independentGuestExportSHA256": "784fdd41a1a061198f7abc98213f74b7a1da27baafc49d34870eb38ed41553c8",
+  "measurementProofScope": "local routine functionality; browser site tests and offline DOM exercise have separate receipts",
+  "networkSiteInThisGuest": {
+    "authStatus": "not observed",
+    "cannotDetermineOriginalTimeoutCause": true,
+    "diagnosticCallerNoPromptEventConsent": {
+      "chrome": -1744,
+      "edge": -1744
+    },
+    "earlierNativeWindowCreationOSStatus": -1712,
+    "originalDocumentVerified": false,
+    "processesAlreadyRunning": {
+      "chrome": 1,
+      "edge": 1
+    },
+    "status": "NOT_RUN",
+    "websiteInputAttempted": false,
+    "wholeNetworkObserved": false
+  },
+  "ordinaryTraySelection": {
+    "action": "restore the single matching local screenshot, then choose its thumbnail once while the host of this screenshot history is foreground",
+    "actualReadback": "Bring your intended ChatGPT draft to the front",
+    "assetStateAfter": {
+      "active_operation_id": null,
+      "status": "pending",
+      "visibility": "archived",
+      "visibility_reason": "automaticArchive"
+    },
+    "frontmostWasSupportedBrowser": false,
+    "nearestAmong51OlderImagesError255": 83.35607537361923,
+    "newOperations": 0,
+    "newStarts": 0,
+    "numberOfFramesWithExactReadback": 4,
+    "oldRowsPreserved": true,
+    "onceOnlyMouseAction": "06976e881177bb0b3ef4734c1854597cc8b46247a94202dc3292b8395131e3c7",
+    "postClickSQLiteSHA256": "0a8545e9dce6fc8ce45af7d6758a17c488c6d2a75431b4e4e4a1de6d3ae8d9d5",
+    "screenshotPixelError255": 12.02534113060429,
+    "sourceStillPresent": true,
+    "status": "PASS"
+  },
+  "postUpdateCapture": {
+    "actualSignedBuildInfo": {
+      "builtInUpload": true,
+      "completion": true,
+      "continuation": true,
+      "dataDirectory": "Riftlet",
+      "input": true,
+      "internalAcceptance": false,
+      "mode": "capture",
+      "safeRetry": false,
+      "start": true
+    },
+    "assetCounts": [
+      51,
+      52
+    ],
+    "newOperationsOrSTARTs": 0,
+    "oldAssetRowsChanged": 0,
+    "pngBytes": 177315,
+    "privateCopyEqualsSource": true,
+    "sourceSHA256": "5b555218410c1ff8bc85afa0a5130a1e07098d04dcacce111791e6ddb557a7a8",
+    "systemCaptureMarkerVerified": true,
+    "systemUIAndIngestion": "PASS"
+  },
+  "postUpdatePrivateFixture": {
+    "scope": "binary self-check, generated images, software inputs only",
+    "sha256": "7333bbcc86dffcf736384773a5dbdf288188e8f97ef55e5803f8cf809e06dc04",
+    "status": "PASS"
+  },
+  "released": false,
+  "scope": "isolated macOS guest updated by native Sparkle using the signed staged feed; ordinary local screenshot and unsupported-front selection afterwards",
+  "source": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "stagingUpgradeAndData": "PASS"
+}

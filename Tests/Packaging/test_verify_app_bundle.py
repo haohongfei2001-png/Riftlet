@@ -2,6 +2,7 @@
 
 import importlib.util
 import hashlib
+import re
 import json
 import os
 import subprocess
@@ -62,6 +63,24 @@ class BundleVerificationTests(unittest.TestCase):
         self.assertEqual(result["channel"], "development")
         self.assertFalse(result["developer_id_signed"])
         self.assertFalse(result["notarized"])
+
+    def test_upgrade_builds_require_their_exact_archived_fingerprints(self):
+        # This test varies the historical bundle version. Use a fixture within every
+        # version’s executable-resource limit while testing the separate archive rule.
+        (self.bundle / VERIFY.PROGRAM_NAMES[0]).write_bytes(b"(function () {})")
+        for archived_build in (56, 57, 58, 59, 60, 61):
+            name = f"build{archived_build}-observation-fingerprint.dat"
+            archived = self.bundle / name
+            data = archived.read_bytes()
+            archived.unlink()
+            self.alter_plist("CFBundleVersion", str(archived_build))
+            VERIFY.verify_bundle(self.app)
+            self.alter_plist("CFBundleVersion", str(archived_build + 1))
+            self.assert_rejected("missing_or_ambiguous_" + re.escape(name))
+            archived.write_bytes(b"wrong archived fingerprint")
+            self.assert_rejected("incorrect_fingerprint_" + re.escape(name))
+            archived.write_bytes(data)
+            VERIFY.verify_bundle(self.app)
 
     def test_committed_icon_preserves_original_svg_and_generation_identity(self):
         manifest = json.loads((REPOSITORY / "engineering/productization-20261107/icon/generation.json").read_text())

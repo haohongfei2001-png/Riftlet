@@ -1,0 +1,35 @@
+{
+  "clickToSwallowCommitUpperBoundMS": [
+    2030.3,
+    2870.9,
+    1721.1,
+    2553.9,
+    1940.9,
+    2439.0,
+    2176.6,
+    2644.1
+  ],
+  "cold": 2030.3,
+  "warm": 2870.9,
+  "median": 2307.8,
+  "p95NearestRank": 2870.9,
+  "pairMouseDownIntervalsMS": [
+    611.1,
+    769.8,
+    586.1
+  ],
+  "product": "7e44fd3040af32dc8e53bffac5256ac3cc992767",
+  "build": 38,
+  "environment": "Authenticated ordinary Chrome, dedicated unsent ChatGPT draft, normal signed App, native pointer, generated QA images.",
+  "sourceOrder": "Eight different labeled originals in order on the same captured draft.",
+  "tried": 8,
+  "positiveSTART": 8,
+  "distinctOperations": 8,
+  "distinctOriginalCards": 8,
+  "attemptsPerImage": 1,
+  "originalTextAndSelectionPreserved": true,
+  "automaticSend": false,
+  "correctOriginalFocusFromAnotherTab": true,
+  "noInputOnAboutBlank": true,
+  "timing": "Upper bound on natural mouse-down to observed committed swallow. Nearest-rank p95 for n=8 is the maximum."
+}

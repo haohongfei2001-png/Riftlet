@@ -1,0 +1,127 @@
+{
+  "build": 38,
+  "feed": {
+    "scope": "isolated QA loopback signed feed; bit-identical notarized DMG",
+    "code": "7e44fd3040af32dc8e53bffac5256ac3cc992767",
+    "version": "1.0.6",
+    "build": "38",
+    "feedSHA256": "3d9372316bf18b8f523bb9dabdbc9defe086b1a23592a225b9628080faa8290e",
+    "dmgSHA256": "14085326e9ed36dde6a370f36e9cfd1a65ae688f37159fc2a67527d1fa406b28",
+    "executableSHA256": "47a5a203719cec88ca76e4e27eb6cbaa7805ba46b673919aaab5ef367119851a",
+    "minimumOS": "13.0"
+  },
+  "runs": {
+    "31": {
+      "userActions": [
+        "Check for Updates",
+        "Install Update",
+        "Install and Relaunch"
+      ],
+      "verifiedRunningInstalled38": true,
+      "comparison": {
+        "tables": {
+          "assets": {
+            "before": 19,
+            "after": 28,
+            "allOriginalRowsIdentical": true
+          },
+          "operations": {
+            "before": 2,
+            "after": 2,
+            "allOriginalRowsIdentical": true
+          },
+          "upload_starts": {
+            "before": 1,
+            "after": 1,
+            "allOriginalRowsIdentical": true
+          },
+          "checkpoints": {
+            "before": 6,
+            "after": 6,
+            "allOriginalRowsIdentical": true
+          },
+          "compensations": {
+            "before": 0,
+            "after": 0,
+            "allOriginalRowsIdentical": true
+          },
+          "metadata": {
+            "before": 2,
+            "after": 2,
+            "allOriginalRowsIdentical": true
+          }
+        },
+        "originalFileCount": 48,
+        "missingOrChangedOriginalFiles": 0,
+        "existingFolderBookmarkIdentical": true,
+        "feedbackDraftIdentical": true,
+        "integrity": "ok"
+      },
+      "originalImages": {
+        "originals": 19,
+        "originalIDsPresent": true,
+        "metadataIntact": true,
+        "newCount": 9,
+        "newSystemOrigins": 9,
+        "newMatchingUserOriginals": 9
+      },
+      "visibilityChanges": 0
+    },
+    "35": {
+      "userActions": [
+        "Check for Updates",
+        "Install Update",
+        "Install and Relaunch"
+      ],
+      "verifiedRunningInstalled38": true,
+      "comparison": {
+        "tables": {
+          "assets": {
+            "before": 28,
+            "after": 28,
+            "allOriginalRowsIdentical": true
+          },
+          "operations": {
+            "before": 8,
+            "after": 8,
+            "allOriginalRowsIdentical": true
+          },
+          "upload_starts": {
+            "before": 5,
+            "after": 5,
+            "allOriginalRowsIdentical": true
+          },
+          "checkpoints": {
+            "before": 35,
+            "after": 35,
+            "allOriginalRowsIdentical": true
+          },
+          "compensations": {
+            "before": 0,
+            "after": 0,
+            "allOriginalRowsIdentical": true
+          },
+          "metadata": {
+            "before": 2,
+            "after": 2,
+            "allOriginalRowsIdentical": true
+          }
+        },
+        "originalFileCount": 57,
+        "missingOrChangedOriginalFiles": 0,
+        "existingFolderBookmarkIdentical": true,
+        "feedbackDraftIdentical": true,
+        "integrity": "ok"
+      },
+      "originalImages": {
+        "originals": 28,
+        "originalIDsPresent": true,
+        "metadataIntact": true,
+        "newCount": 0,
+        "newSystemOrigins": 0,
+        "newMatchingUserOriginals": 0
+      },
+      "visibilityChanges": 0
+    }
+  }
+}

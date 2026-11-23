@@ -1,0 +1,41 @@
+{
+  "baseProduct": "b431931eba1d31b5ac7a5fcc110db8613e11ac7d",
+  "reviewedProducts": [
+    "d2d4871698d27c1d83469504fc1ff5d101124eb8",
+    "2771969400d76ed82ad120392901d412f03de845"
+  ],
+  "finalProductTree": "9e6440ab4acea524ec19c8c0bc4a923da1cb78f7",
+  "reviewer": "riftlet_107_independent_native_automation_permission_reviewer",
+  "result": "PASS_SOURCE_AND_SCOPED_TESTS",
+  "sdk": {
+    "source": "AppleEvents.h from installed macOS SDK",
+    "permissionFlag": 131072,
+    "availableSince": "macOS 10.14",
+    "queuedModeRaw": 131090,
+    "waitModeRaw": 131091,
+    "documentedFirstRequestStatus": -1744
+  },
+  "productionReview": [
+    "Every Carbon queued send (including snapshot and document witness) and Cocoa waited send enforces OS no-consent-prompt for the exact original PID. The synchronous wildcard queries were removed from the mouse-down path and executor commands. App-level original receiver and setup checks still exist; explicit setup remains the sole permission request. No cached consent is substituted.",
+    "Queued send OSStatus and reply errn, and synchronous NSError OSStatus and reply errn, retain numeric permission codes. Build 51 classifies permission not requested (-1744), permission denied (-1743), JavaScript disabled (12), no window (-1728) and unavailable/timeouts. A changed receiver cannot publish.",
+    "No new browser selection or upload path. Original click-time process, route, pin and setter fences preserved. P49 and P51 full attachment JavaScript are byte-identical."
+  ],
+  "independentChecks": {
+    "unconsentedPeer": "ACTUAL OS -1744 on queued and waited sends. Two dedicated no-window processes; no browser, grant request or private data. All six protected sends were refused before the receiver could return its scripted result.",
+    "sameProcessSynchronous": "ACTUAL self-directed read roundtrip: success reply and simulated receiver error -1743/-1744 returned. This is separate from actual OS-permission testing.",
+    "sameProcessQueued": "TIMEOUT (-1712) in the same-process private-port harness. It is distinct from the separate-process OS -1744. Not a positive queued roundtrip.",
+    "queuedReplyDecoding": "Compiled product decoder with three genuine native reply descriptors: allowed bound, -1743 and -1744 preserved.",
+    "setup": "Compiled product evaluator tested five numeric states, successful original and changed receiver.",
+    "serviceAcceptance": "Actual permitted Chrome/Edge input, real denial, setup approval and JavaScript off/on are final-package G1-G3. This source report does not assert them."
+  },
+  "privateProofDigests": {
+    "Snapshot.swift": "85a0d2fb2c7660cf1c9fd85656f2bd0a6074096367ff9f573aa367b352cbefda",
+    "main.swift": "8c465da1d7bd4b694e7d67684c5880e8372c30d0421bc73f9c06dbe48c431100",
+    "peer.log": "07b79b47a63d4415ba7e94c89697d106e758c3baaacef8b024ad0f2b3b5e1c13",
+    "result.log": "0c73229225f015ac87c228855e8d76a7c82452f51c8a9fbaa1e081f77ccfd21d",
+    "setup51.swift": "dd6ee83b5485a5ac8935d6a6cc504636683c63b293d6a4f3a2078a4138d141bc",
+    "setup51.log": "4fda2666187cbc0ecdf3741b7bab79d84fa8869351142af156ea3a9a162558c3",
+    "queue-body.swift": "aef1624093e33a9a6b050c3a9b6513cad5f0be18dfcddcbc76173ea77df07524",
+    "queue-body.log": "bd47d72466d808e4b7bf5aaa3539ab68a44dd4b6f24d0c67dd745e7f8f0ada00"
+  }
+}

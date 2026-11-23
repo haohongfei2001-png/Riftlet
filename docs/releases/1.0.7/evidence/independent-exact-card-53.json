@@ -1,0 +1,26 @@
+{
+  "reviewer": "qa107-independent-exact-file-card53",
+  "product": "0dc6780a6bcd9fc5a0e4a670901dd4c7b51322fc",
+  "tree": "cd6e347ac5bfa0f47f80b1a4480f13a2169ca4b8",
+  "programSHA256": "50b0d16d10f38c688ce33189df55ad3da6588b4c7006b710777f30340dc55ed7",
+  "result": "PASS_WITH_SCOPED_OBSERVATIONS",
+  "scope": "Independent review of the frozen 53 product delta; controlled native browser tests, not live service, delivery readiness or Gatekeeper.",
+  "before": "Exact original filename, visible local error, same-file Retry/Remove, pointer-blocking inherited from preview, plus trailing empty named border: independent native Chrome, 52 could not produce its local failure hint before START.",
+  "after": [
+    "29 independent native Chrome loopback cases on frozen 53 passed. Edge native loopback reached 26/29 cases in the batch; pre-existing card, neighboring retry and disabled retry each refused at click pin before reaching the intended negative check. Each of those three independently passed in its own fresh Edge session. These initial pre-input refusals are retained; no web fixture is a claim of real first-click reliability.",
+    "Positive with all three original lanes and same-file status, with the earlier two-lane form, and with an aria-hidden=true decorative ring. Each tests one actual native setter/change, zero sends and no fabricated START or automated retry. No remote site traffic.",
+    "Rejected ring at the wrong position, extra/repeated/foreign or nonempty ring, nested actionable button, focusable or labeled ring, disabled or unfocusable Retry, disabled pointer by inline style or known class, inert member, hidden status, wrong or duplicate generated name, pre-existing and wrong-composer cards. The retained original card becomes unavailable on shell removal/reinsertion, rename and restore, or editor replacement.",
+    "History .failed in-memory predicate now includes originalCardFailed, matching previously independently tested SQLite search. No change to stored receipt schema/handling, admissible completion/START/auto-retry, browser acquisition, or existing once-only dispatch."
+  ],
+  "limitations": [
+    "Separate real G4 from a valid service draft is still required; replay of an actual observed DOM form in a private fixture cannot establish real service behavior.",
+    "On isolated B, normal DNS and HTTPS control sites were healthy. Direct chatgpt.com:443 timed out; normal Chrome rendered ERR_CONNECTION_TIMED_OUT. No draft, no input, no network changes, no account transfer."
+  ],
+  "evidenceDigests": {
+    "53-chrome-all.log": "2870ec90c57f82672170fb715a8453a30e3c1a351b0fac52f5ff644904d23836",
+    "53-edge-all.log": "896fbe3391503afb42f058e8dd623fcafe0d966321e959a483c66dd567f9d186",
+    "53-edge-retry-neighbor.log": "df9afb8fc5d3a78c830456078bc9e1715aeaf20faa51e96bc1c87434ad3d3ed2",
+    "53-edge-retry-disabled.log": "79725bb3755c5ed3fa0f73f12f3726ae3ef891d22c347ed67c416f0750cb5b93",
+    "53-edge-preexisting.log": "857e0d8964f1fdd93a119641b1555585e7dda152338437b3d1b1e2202197d60d"
+  }
+}

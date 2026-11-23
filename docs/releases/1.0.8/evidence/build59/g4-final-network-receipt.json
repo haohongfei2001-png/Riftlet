@@ -1,0 +1,142 @@
+{
+  "boundBrowser": {
+    "exactTemporaryChatAndLoggedInEditor": true,
+    "family": "edge",
+    "originalNativeProofSHA256": "712793b032e6abb21c8ed726b9e0df683dd02dcab33934b01162868e71afd784",
+    "ownedOriginalWindowAndSoleTab": true,
+    "vendorSignatureAndProcessBirthVerified": true
+  },
+  "calibrationSourceSHA256": "8f5add018ef46edcb232ef3340340924068c85ea5e7cccf97bf6a21a33693351",
+  "candidate": {
+    "build": "59",
+    "cdHashes": {
+      "arm64": "6f929cd41efefd8695a5f398201d6d04bd6f893e",
+      "x86_64": "66243bf1a07be2689e073dc7d9a513a266d12544"
+    },
+    "executableSHA256": "6fb94534e7b34533f10abb00c2b91369787e6ca1a516ae3c1fe818fe03a53ff7",
+    "resourceSHA256": "b6eee615982d839285ea6af4abb16018939f9be91b18215554e847f4a6eb2215",
+    "sha256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+    "source": "69b76cb025ab552b3480e3af095b627891874712",
+    "version": "1.0.8"
+  },
+  "classification": "CONTROLLED_CLIENT_XHR_ABORT",
+  "clientFault": {
+    "abortCalls": 1,
+    "abortEvents": 1,
+    "abortReceipt": {
+      "at": 675245.4,
+      "loaded": 0,
+      "readyState": 4,
+      "status": 0,
+      "total": null
+    },
+    "autoRestored": true,
+    "byteLoadstart": true,
+    "byteLoadstartCount": 1,
+    "byteRequests": 1,
+    "bytes": {
+      "bodyScope": "entire-body",
+      "bodySize": 5513,
+      "bodyType": "File",
+      "method": "PUT",
+      "pngSHA256": "fa734c39ae34bca70281f0f67439349402d7e9099465c6f7010148af77a1b469",
+      "responseStatus": 0,
+      "sameFile": true,
+      "transport": "xhr",
+      "urlSHA256": "0f6d0275f489236cf0463fb2621fb91042e07d564e553d646bda63030d4560df"
+    },
+    "cancelledByObserver": 1,
+    "changes": 1,
+    "create": {
+      "fileNameField": "file_name",
+      "method": "POST",
+      "path": "/backend-api/files",
+      "responseStatus": 200,
+      "transport": "fetch",
+      "uploadURLField": "upload_url",
+      "urlSHA256": "8fc09ba23b5a947a35819cc2d94fff110e5222228f1425a821fd71e0b296e309"
+    },
+    "creates": 1,
+    "inputs": 1,
+    "kind": "g4-once-v1",
+    "loadendEvents": 1,
+    "nativeSendReturned": true,
+    "observerPending": 0,
+    "operationHash": "691ca1e887b2a9185572ea5887b54f9583c10f62884d097ce39dbbeef2b5abec",
+    "reason": null,
+    "requestPending": false,
+    "responses": 1,
+    "restored": true,
+    "sourceVerified": true,
+    "status": "TRANSPORT_FAULT_OBSERVED",
+    "stoppedAt": 675245.5,
+    "teardownCause": "ORIGINAL_ABORT_AND_LOADEND",
+    "terminal": {
+      "at": 675245.4,
+      "loaded": 0,
+      "readyState": 4,
+      "status": 0,
+      "total": null
+    },
+    "trigger": {
+      "at": 675245.4,
+      "kind": "AFTER_NATIVE_SEND_BEFORE_RESPONSE",
+      "loaded": null,
+      "nativeReturnedAt": 675245.3,
+      "nativeSendReturned": true,
+      "observedUploadLoaded": 0,
+      "readyState": 1,
+      "requestGeneration": 1,
+      "requestGenerationVerified": true,
+      "status": 0,
+      "total": null,
+      "uploadProgressEvents": 0,
+      "uploadState": "NO_POSITIVE_PROGRESS_OBSERVED"
+    }
+  },
+  "faultSourceSHA256": "7fe1d2a90902a14ea9a1cc16a71a32fd1d11fe4b9f71dd88848051c05d195510",
+  "observationTimestampUTC": "2026-11-22T14:58:45Z",
+  "onWireTransferredByteCount": null,
+  "originalAssetID": "9C560E11-FB0D-4DE7-A150-ED5A8F18BEE3",
+  "originalInvocationID": "5CB048BB-88D0-4F93-93EC-B612ED70C3C7",
+  "originalOperationID": "4F739270-3638-4598-BBAE-C2AFBC37980E",
+  "passiveCalibration": {
+    "bytes": {
+      "bodyScope": "entire-body",
+      "bodySize": 5516,
+      "bodyType": "File",
+      "method": "PUT",
+      "pngBytes": 5516,
+      "pngSHA256": "9e56d9f41976afa73b61146d1b0ca860d62b6763819d0e4e950163b1b6af3b31",
+      "responseStatus": 201,
+      "transport": "xhr",
+      "urlSHA256": "44484f9bdc12bf8a28763ef0f3889e68ee0542f5c7598ac662f0326f81341c42"
+    },
+    "create": {
+      "fileNameField": "file_name",
+      "method": "POST",
+      "path": "/backend-api/files",
+      "responseStatus": 200,
+      "transport": "fetch",
+      "uploadURLField": "upload_url",
+      "urlSHA256": "8fc09ba23b5a947a35819cc2d94fff110e5222228f1425a821fd71e0b296e309"
+    },
+    "exactPNGTransportClassified": true,
+    "networkFaults": 0,
+    "operationHash": "bc9df4edd1be759514f574f737d8240e4924e816b9bafaa211cd2d20648777c7",
+    "sameFileObject": true
+  },
+  "passiveCalibrationFinishSHA256": "54a9516ca029c5ce700dfac3e756106b8f84898abbb8582d14a037c9cc69247e",
+  "positiveUploadProgressObserved": false,
+  "providerServerErrorClaimed": false,
+  "rawReceiptSHA256": {
+    "click-1.json": "acacf7f15350078833db93afc9016813675107de07d13ca97ece4d042067940b",
+    "main-world-witness.json": "87c0b5e5e0076df9bb41c8867a40010e2f5977283a8542743c50b4710856f61a",
+    "native-single-fault-reservation.json": "ba2b3457472912b0dcd51ded78a4c000e9ac0ae3e3b358126e5e4cb5c5e54fd6",
+    "source-pixels-1.json": "ee43874cefc7e48bbf31a0013fde679025943871b0c743342e314f8e57e0078b",
+    "transport-fault-finish.json": "1cb60c80b63753d554c3053928717dabc9d4d109f7413178c07832ee0475229d",
+    "transport-fault-sample.json": "1cb60c80b63753d554c3053928717dabc9d4d109f7413178c07832ee0475229d"
+  },
+  "schemaVersion": 1,
+  "serverResponseForPUT": null
+}

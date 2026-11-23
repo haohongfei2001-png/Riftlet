@@ -17,11 +17,11 @@ public struct HistoryQuery: Equatable, Sendable {
             switch self {
             case .all: return "1"
             case .desktop: return "a.visibility='visible'"
-            case .needsAttention: return "(a.status='missing' OR \(state) IN ('needsReview','checkDraft','confirmedFailure','notAttached'))"
+            case .needsAttention: return "(a.status='missing' OR (h.operation_id IS NULL AND \(state) IN ('needsReview','checkDraft','originalCardFailed','confirmedFailure','notAttached')))"
             case .swallowed, .archived, .removed: return "a.visibility='\(rawValue)'"
             case .missing: return "a.status='missing'"
-            case .needsVerification: return "\(state) IN ('needsReview','checkDraft')"
-            case .failed: return "\(state)='confirmedFailure'"
+            case .needsVerification: return "(h.operation_id IS NULL AND \(state) IN ('needsReview','checkDraft','originalCardFailed'))"
+            case .failed: return "\(state) IN ('confirmedFailure','originalCardFailed')"
             case .attached, .handedOff, .preparing, .notAttached, .available:
                 return "(a.status!='missing' AND \(state)='\(rawValue)')"
             }
@@ -37,7 +37,7 @@ public struct HistoryQuery: Equatable, Sendable {
             case .preparing: return "准备附加 preparing attachment"
             case .notAttached: return "未附加 not attached"
             case .missing: return "本地副本不可用 local copy unavailable missing"
-            case .needsVerification: return "待核实 结果待核实 需要检查原对话 needs review check original conversation"
+            case .needsVerification: return "待核实 结果待核实 结果尚未确认 需要检查原对话 needs review result unconfirmed check original conversation"
             case .failed: return "明确失败 已确认失败 confirmed failure failed"
             case .archived: return "已归档 archived"
             case .removed: return "已移出 从桌面收起 removed from desktop"

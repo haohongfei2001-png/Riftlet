@@ -1,0 +1,80 @@
+{
+  "source": "65398096092e739bb9581244961112b572006465",
+  "candidate": "1.0.6 (40)",
+  "environment": "Dedicated ARM64 macOS VM A, stock signed native candidate, ordinary Sparkle UI. Fixture uses four actual screenshots originally attached to the real Chrome test draft using build 35. The original page was definitively closed before this run. The V2 live/closed case used a separate fresh anonymous draft and a new screenshot attached by build 40.",
+  "feed": {
+    "build": "40",
+    "feedSHA256": "88eff2753b9ca662cfc2096d7c1b1055e2ea922f59cc577a5be87ed197383924",
+    "dmgSHA256": "4de8e2450c0896e922d386353857008b90590f69d11b5a35aa5e9d9ccff6569f",
+    "executableSHA256": "60b4a87fe0ef5fa7d228f60163aa099f26eb227b444ee9bc1786ab6db514cddc"
+  },
+  "V5": {
+    "31->40": {
+      "installedRunning": "1.0.6 (40), Gatekeeper Notarized Developer ID; feed-exact executable SHA256",
+      "unchangedOriginalFiles": 49,
+      "existingAssets": 19,
+      "existingOperations": 2,
+      "existingStarts": 1,
+      "existingCheckpoints": 6,
+      "newObservedOriginals": 10,
+      "priorAssetsWithVisibilityChange": 0,
+      "prefDraftBookmark": "intact",
+      "sqlite": "ok"
+    },
+    "35->40": {
+      "installedRunning": "1.0.6 (40), Gatekeeper Notarized Developer ID; feed-exact executable SHA256",
+      "unchangedOriginalFiles": 58,
+      "existingAssets": 28,
+      "existingOperations": 8,
+      "existingStarts": 5,
+      "existingCheckpoints": 35,
+      "newObservedOriginals": 1,
+      "priorAssetsWithVisibilityChange": 0,
+      "prefDraftBookmark": "intact",
+      "sqlite": "ok"
+    }
+  },
+  "V3": {
+    "manualScope": 24,
+    "manualOnlyCopiesWithoutVerifiedExternalOriginal": 6,
+    "previouslyRealChatGPTAttachmentsCleaned": 4,
+    "oldUnknownWithoutSTARTProtected": true,
+    "bothPreInputFailuresProtected": true,
+    "actualQuitAndRestart": true,
+    "completeByteAndRowRestoration": true,
+    "assets": 29,
+    "operations": 8,
+    "START": 5,
+    "integrity": "ok",
+    "sourceOnly": "30-day eligibility, change-of-original, in-flight fence, current failure and three import interruption points are separate native source-controlled cases. The GUI did not simulate elapsed calendar days or a service-side failure.",
+    "newWatchedOriginalDuring35Upgrade": 1
+  },
+  "V2": {
+    "oldUNKNOWN": "Cancel leaves data unchanged; Continue requires a separate fresh click; Hide changes local visibility; Mark as Handled clears attention entry only. Native records unchanged and explicit handling marker persisted. No new operation/START.",
+    "originalMissing": "After relaunch of 40, original Chrome process no longer exists. Return reports draft not located. Check does not input or alter original facts and reports the attachment can no longer be verified, with local recovery guidance.",
+    "livePageThenClosed": "Switched to about:blank, quit and relaunched build 40 with original Chrome process alive. Check read the original seq30 card and reported checked; Return switched back to the original anonymous draft containing the same visible image. Closed the verified tab using Chrome File > Close Tab. The same row then reported original draft not located on Return, and original attachment unverifiable on Check; no permission prompt or new operation/START."
+  },
+  "V1": {
+    "scope": "Anonymous Chrome / ChatGPT in isolated Mac A; freshly restarted build 40; one mouse click on newly captured synthetic screenshot, first click of the native process.",
+    "clicks": 1,
+    "assetsWithNewSTART": 1,
+    "visibleNewCards": 1,
+    "draftTextPreserved": true,
+    "sendObserved": false,
+    "nativeClickRouteMS": 91.57,
+    "route": "queued_click_route",
+    "clickToCommittedSwallowObservationUpperBoundMS": 2507.09,
+    "selectionOffsets": "not measured in this guest",
+    "rapidPairs": "not run in anonymous A; see separately recorded signed-in batch"
+  },
+  "finalInventory": {
+    "assets": 30,
+    "operations": 9,
+    "starts": 6,
+    "integrity": [
+      {
+        "quick_check": "ok"
+      }
+    ]
+  }
+}

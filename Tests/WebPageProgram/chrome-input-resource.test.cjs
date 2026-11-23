@@ -9,6 +9,7 @@ const path=require('node:path');
 const http=require('node:http');
 const {spawn}=require('node:child_process');
 const {mountAttachmentEntryCase,readResidentV15Source}=require('./attachment-entry-application.cjs');
+const {runOriginalErrorCardCase}=require('./original-error-card-application.cjs');
 const {bounded,cleanupOwnedChrome,closeLoopbackServer}=require('./native-chrome-cleanup.cjs');
 require('./native-chrome-cleanup.test.cjs');
 const binary=[process.env.RIFTLET_CHROME_BIN,
@@ -83,8 +84,9 @@ function browserFixture(options){
   globalThis.fetch=()=>{applicationNetworkRequests++;throw Error('application network requests forbidden in local fixture');};
   XMLHttpRequest.prototype.send=function(){applicationNetworkRequests++;throw Error('application XHR forbidden in local fixture');};
   const mockLocation={href:options.route};
-  const program=new Function('location','return ('+__SOURCE__+')')(mockLocation);
-  const native={applicationID:'com.google.Chrome',sessionID:'synthetic-local-profile',windowID:'1',tabID:'1'};
+  const sourceText=__SOURCE__;
+  const program=new Function('location','return ('+sourceText+')')(mockLocation);
+  const native={applicationID:options.edge?'com.microsoft.edgemac':'com.google.Chrome',sessionID:'synthetic-local-profile',windowID:'1',tabID:'1'};
   const call=command=>program(command,native);
   if(options.resident){
    const oldProgram=new Function('location','return ('+__PREVIOUS__+')')(mockLocation);
@@ -95,6 +97,14 @@ function browserFixture(options){
   editor.focus();const selection=getSelection(),range=document.createRange();range.setStart(editor.firstChild,2);range.setEnd(editor.firstChild,7);selection.removeAllRanges();selection.addRange(range);
   if(options.liveComposerShape)editor.blur();
   const text=editor.textContent,anchor=selection.anchorNode,focus=selection.focusNode,anchorOffset=selection.anchorOffset,focusOffset=selection.focusOffset;
+  const encoding={active:0,peak:0,runs:0,ms:[]};
+  if(options.dimensions){
+   const encode=OffscreenCanvas.prototype.convertToBlob;
+   OffscreenCanvas.prototype.convertToBlob=async function(...args){
+    const t=performance.now();encoding.runs++;encoding.peak=Math.max(encoding.peak,++encoding.active);
+    try{return await Reflect.apply(encode,this,args);}finally{encoding.active--;encoding.ms.push(Math.round(performance.now()-t));}
+   };
+  }
   let changes=0,setters=0,sends=0,reentrant=null,reentrantRefused=false,firstPendingCard=null;
   let startBeforePickerRestored=false,noInputStartRejected=false;
   const nativeFiles=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'files');
@@ -110,6 +120,7 @@ function browserFixture(options){
    check(submittedInput===input,'the application receives its own chat picker, never another global input');
    check(list instanceof FileList&&list.length===1&&file instanceof File,'one actual native FileList item');
    inputReceivers.add(submittedInput);
+   if(options.namedErrorCard)return;
    if(options.collapseSelectionInChange){editor.focus();selection.collapse(editor.firstChild,editor.firstChild.textContent.length);}
    if(options.replacePicker){
     const replacement=submittedInput.cloneNode();submittedInput.replaceWith(replacement);input=replacement;
@@ -117,11 +128,11 @@ function browserFixture(options){
    }
    if(reentrant){
     const next=reentrant;reentrant=null;
-    const refusal=call({...next.command('commit'),chunkIndex:1}).observation;
+    const refusal=call({...next.command('commit'),chunkIndex:next.chunks}).observation;
     reentrantRefused=refusal.preInputRetirement?.reason==='inputExecutionBusy'&&refusal.preInputRetirement.inputCount===0;
     check(reentrantRefused&&submittedInput.files[0]===file,'reentrant input cannot overwrite current native control');
    }
-   const card=document.createElement('div');card.setAttribute('role','button');card.setAttribute('data-file-name',file.name);card.title=file.name;
+   const card=document.createElement(options.retryOverlay?'button':'div');card.setAttribute('role','button');card.setAttribute('data-file-name',file.name);card.title=file.name;
    const image=document.createElement('img');image.alt=file.name;image.src=URL.createObjectURL(file);card.append(image);
    if(options.ariaCardFailure){
     card.removeAttribute('data-file-name');
@@ -133,12 +144,59 @@ function browserFixture(options){
     card.removeAttribute('data-file-name');card.title='正在上传 '+file.name+' (PNG image)';
     image.alt='Preview '+file.name+' (uploading)';image.src=canvas.toDataURL('image/png');
    }
-   const progress=document.createElement('div');progress.setAttribute('role','progressbar');progress.setAttribute('aria-valuenow','10');card.append(progress);
+   if(options.edge){
+    card.removeAttribute('role');card.removeAttribute('data-file-name');card.removeAttribute('title');
+    card.setAttribute('aria-label',file.name);
+    const visual=document.createElement('span'),remove=document.createElement('button');
+    remove.type='button';remove.setAttribute('aria-label','Remove '+file.name);
+    visual.append(image);card.append(visual,remove);
+    if(options.composerAttachmentSurface){
+     form.setAttribute('data-composer-layout','');
+     card.className='composer-attachment-surface';
+     card.setAttribute('role','button');card.setAttribute('aria-haspopup','dialog');
+     // Default Edge's visible preview is the named popup. Its remove action can
+     // be hover-only; a non-hovered picture must have the same content proof.
+     remove.style.opacity='0';
+    }
+    const wrong=changes===1;
+    if(wrong&&!options.dimensions)image.src=priorImage.src;else image.removeAttribute('src');
+    if(!wrong||options.dimensions)createImageBitmap(file).then(bitmap=>{
+      const c=document.createElement('canvas');c.width=bitmap.width;c.height=bitmap.height;
+      c.getContext('2d').drawImage(bitmap,0,0);bitmap.close();
+      if(wrong&&!options.secondarySurface){const ctx=c.getContext('2d');ctx.fillStyle='#00FF00';ctx.fillRect(c.width-1,c.height-1,1,1);}
+      image.src=c.toDataURL('image/png');c.width=c.height=0;
+    });
+   }
+   const progress=document.createElement('div');progress.setAttribute('role','progressbar');progress.setAttribute('aria-valuenow','10');if(!options.edge)card.append(progress);
+   if(options.meterCard){
+    card.removeAttribute('data-file-name');card.removeAttribute('title');
+    card.setAttribute('aria-label',file.name);image.remove();
+    progress.style.cssText='width:80px;height:6px;background:blue';
+   }
+   let attachment=card;
+   if(changes===1 && options.secondarySurface){
+    if(options.secondarySurface==='nested'){
+     attachment=document.createElement('div');attachment.className='composer-attachment-surface';
+     const otherName='riftlet-aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee.png';
+     attachment.setAttribute('aria-label',otherName);
+     const primary=document.createElement('img');primary.alt=otherName;primary.src=priorImage.src;
+     const remove=document.createElement('button');remove.setAttribute('aria-label','Remove '+otherName);
+     attachment.append(primary,remove,card);
+    }else if(options.secondarySurface==='no-remove')card.lastElementChild.remove();
+    else if(options.secondarySurface==='false-popup')card.setAttribute('aria-haspopup','false');
+   }
+   if(options.retryOverlay){
+    attachment=document.createElement('figure');attachment.setAttribute('data-composer-image-attachment','');attachment.append(card);
+    card.type='button';card.setAttribute('data-assistant-image-link','');card.setAttribute('aria-label',file.name);
+    for(const key of ['role','data-file-name','title'])card.removeAttribute(key);
+    image.setAttribute('data-assistant-image','');image.setAttribute('data-composer-image-attachment-preview','');
+    progress.remove();
+   }
    const task={file,list,card,image,progress,state:'uploading'};tasks.push(task);
    // The first acceptance is deliberately delayed; its input return is dropped.
    // A second input is allowed while A has no observed START yet.
    if(options.unavailablePicker){cardHost.append(card);makePickerUnavailable();}
-   else if(changes===1)firstPendingCard=card;else{cardHost.append(card);if(changes===2)setTimeout(()=>cardHost.append(firstPendingCard),0);}
+   else if(changes===1)firstPendingCard=attachment;else{cardHost.append(attachment);if(changes===2)setTimeout(()=>cardHost.append(firstPendingCard),0);}
    if(!options.retained)submittedInput.value='';
   };
   input.addEventListener('change',changed);
@@ -221,16 +279,57 @@ function browserFixture(options){
     });
    }
   }
-  async function operation(index){
-   const color='rgb('+(20+index*30)+',40,70)';canvas.getContext('2d').fillStyle=color;canvas.getContext('2d').fillRect(0,0,2,2);
-   const png=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
-   const bytes=new Uint8Array(await png.arrayBuffer()),sha=await hash(bytes);
-   const target=call({action:'captureTarget'}),id=crypto.randomUUID();
-   const identity={operationID:id,assetID:crypto.randomUUID(),attempt:1,assetSHA256:sha,target},invocationID=crypto.randomUUID();
-   const op={identity,target,name:'riftlet-'+id+'.png',sha,command:action=>({action,identity,target,invocationID})};
-   call({...op.command('begin'),uploadName:op.name,mediaType:'image/png',byteCount:bytes.length});
-   call({...op.command('chunk'),chunkIndex:0,chunkBase64:btoa(String.fromCharCode(...bytes))});return op;
+  async function operation(index,recoverySource=null,defer=false,attempt=recoverySource?recoverySource.identity.attempt+1:1){
+   if(options.dimensions){canvas.width=options.dimensions[0];canvas.height=options.dimensions[1];}
+   const color='rgb('+(20+index*30)+',40,70)';canvas.getContext('2d').fillStyle=color;canvas.getContext('2d').fillRect(0,0,canvas.width,canvas.height);
+   if(options.texture && index<2){
+    const ctx=canvas.getContext('2d'), noise=ctx.createImageData(canvas.width,900);
+    for(let i=0;i<noise.data.length;i+=65536)crypto.getRandomValues(noise.data.subarray(i,i+65536));
+    for(let i=3;i<noise.data.length;i+=4)noise.data[i]=255;
+    ctx.putImageData(noise,0,0);
+   }
+   const png=await new Promise(resolve=>canvas.toBlob(resolve,options.jpeg?'image/jpeg':'image/png'));
+   // Valid tEXt chunk "Fixture: Riftlet", including its CRC, before IEND.
+   // Metadata forces the correct preview through re-encoding equality.
+   const note=new Uint8Array([0,0,0,15,116,69,88,116,70,105,120,116,117,114,101,0,82,105,102,116,108,101,116,179,52,150,103]);
+   const original=options.dimensions&&!options.jpeg?new Blob([png.slice(0,-12),note,png.slice(-12)],{type:'image/png'}):png;
+   const bytes=new Uint8Array(await original.arrayBuffer()),sha=await hash(bytes);
+   let pin=(options.edge||options.namedErrorCard)?crypto.randomUUID():null;
+   if(options.comparePins && index===0){
+    const parts=sourceText.split('\n  // RIFTLET_CLICK_PIN_END\n');
+    check(parts.length===2,'one read-only boundary');
+    const compact=new Function('location','return ('+parts[0]+"\n return 'refused';\n})")(mockLocation);
+    const registry='__riftletIndependentFileInput20261104';
+    check(!globalThis[registry],'fresh document without upload registry');
+    const createURL=URL.createObjectURL,priorPush=history.pushState;
+    const action={action:'pinTarget',address:options.route.split('?')[0]};
+    const fullID=crypto.randomUUID();pin=crypto.randomUUID();
+    check(compact({...action,clickWitnessID:pin},native)==='bound','compact witness binds');
+    check(program({...action,clickWitnessID:fullID},native)==='bound','full witness binds');
+    for(const kind of ['editor','form']){
+     const owners=id=>[...document.querySelectorAll('*')].filter(node=>
+      !node.dispatchEvent(new Event('riftlet-witness-'+kind+'-'+id,{cancelable:true})));
+     const short=owners(pin),full=owners(fullID);
+     check(short.length===1&&full.length===1&&short[0]===full[0],'identical '+kind+' witness');
+    }
+    check(!globalThis[registry]&&URL.createObjectURL===createURL&&history.pushState===priorPush,'no upload or history hooks during pin');
+    check(compact({action:'commit'},native)==='refused','compact code cannot submit');
+   }
+   if(pin&&!(options.comparePins&&index===0))check(call({action:'pinTarget',clickWitnessID:pin,address:options.route.split('?')[0]})==='bound','actual click binds original editor');
+   const target=call({action:'captureTarget',clickWitnessID:pin}),id=crypto.randomUUID();
+   const identity={operationID:id,assetID:recoverySource?.identity.assetID || crypto.randomUUID(),attempt,assetSHA256:sha,target},invocationID=crypto.randomUUID();
+   const op={identity,target,name:'riftlet-'+id+(options.jpeg?'.jpeg':'.png'),sha,command:action=>({action,identity,target,invocationID})};
+   op.stage=()=>{
+   const ack=call({...op.command('begin'),uploadName:op.name,mediaType:original.type,byteCount:bytes.length,recoverySource});
+   if(recoverySource)check(ack.recoveryBoundInvocationID===recoverySource.invocationID,'recovery bound to predecessor');
+   let chunkIndex=0;
+   for(let offset=0;offset<bytes.length;offset+=48*1024){
+    const block=bytes.subarray(offset,offset+48*1024);
+    call({...op.command('chunk'),chunkIndex:chunkIndex++,chunkBase64:btoa(String.fromCharCode(...block))});
+   }
+   op.chunks=chunkIndex;};if(!defer)op.stage();return op;
   }
+  if(options.namedErrorCard)return (__ORIGINAL_ERROR__ )({form,editor,input,operation,call,check,options,counts:()=>({setters,changes,sends})});
   for(let index=0;index<options.count;index++)ops.push(await operation(index));
   const busyProbe=await operation(50);
   let otherTab;
@@ -277,7 +376,7 @@ function browserFixture(options){
    if(index===2)tasks[0].state='unknown'; // Synthetic app lifecycle; deliberately irrelevant to native permission.
    if(foreignAction)setTimeout(foreignAction,0);
    const started=performance.now();
-   const receipt=await call({...op.command('commit'),chunkIndex:1});
+   const receipt=await call({...op.command('commit'),chunkIndex:op.chunks});
    inputExecutionMS.push(Math.round(performance.now()-started));
    // Only transport counters are inspected for diagnostics. Recover the product
    // receipt by observe, never by a second commit.
@@ -286,6 +385,9 @@ function browserFixture(options){
    check(changes===index+1,'one change per screenshot');
    check(setters===index+1,'one native files setter per screenshot');
    if(options.unavailablePicker){
+    // A new image can still have zero dimensions in the dispatch turn.
+    // Wait for the real preview to render while the picker remains unavailable.
+    await wait(()=>tasks[index].image.getBoundingClientRect().width>0);
     const observed=call(op.command('observe')).observation;
     check(input.disabled||!input.isConnected,'picker remains unavailable while START is observed');
     check(observed.state==='uploadStarted'&&observed.belongsToOriginalDraft,'accepted START does not wait for picker restoration or COMPLETE');
@@ -297,18 +399,91 @@ function browserFixture(options){
      &&!failed.uploadStart&&setters===index+1&&changes===index+1,'actual unavailable execution is retained without input or START');
     startBeforePickerRestored=true;restorePicker();
    }else if(index===0)check(call(op.command('observe')).observation.state==='inputTriggered','first input completed before START');
+   if(options.memberOwnership && index===0){
+    const shell=tasks[0].card.cloneNode(false);
+    const button=document.createElement('button');button.setAttribute('aria-label','Help');
+    const icon=tasks[0].image.cloneNode();icon.removeAttribute('alt');button.append(icon);shell.append(button);
+    cardHost.append(shell);
+    await new Promise(done=>setTimeout(done,20));
+    const state=()=>call({...op.command('observe'),preferStartReceipt:true}).observation.state;
+    check(state()==='inputTriggered','a nested Help icon cannot substantiate a handoff');
+    shell.replaceChildren(tasks[0].image.cloneNode());
+    shell.style.opacity='0';
+    await new Promise(done=>setTimeout(done,20));
+    check(state()==='inputTriggered','real layout of an opacity-zero ancestor cannot substantiate a handoff');
+    shell.remove();
+   }
    if(index>0)await wait(()=>call(op.command('observe')).observation.state==='uploadStarted');
    check(editor.textContent===text&&selection.anchorNode===anchor&&selection.focusNode===focus&&selection.anchorOffset===anchorOffset&&selection.focusOffset===focusOffset,'draft text and selection preserved');
    check(form.contains(priorCard),'existing attachment preserved');
   }
-  let busyRetired=false;try{call({...busyProbe.command('commit'),chunkIndex:1});}catch(error){busyRetired=error.message==='COMMIT_REFUSED';}
+  let busyRetired=false;try{call({...busyProbe.command('commit'),chunkIndex:busyProbe.chunks});}catch(error){busyRetired=error.message==='COMMIT_REFUSED';}
   check(busyRetired,'retired concurrent operation cannot later submit');
+  if(options.edge){
+   const read=index=>call(ops[index].command('observe')).observation;
+   await wait(()=>read(1).state==='uploadStarted'&&cardHost.contains(firstPendingCard));
+   check(read(0).state==='inputTriggered','same filename with different encoded pixels cannot supply START');
+   const accepted=read(1);
+   if(options.secondarySurface){
+    await new Promise(resolve=>setTimeout(resolve,300));
+    check(read(0).state==='inputTriggered','correct pixels on an unowned popup do not supply START');
+   }
+   if(options.dimensions&&!options.secondarySurface){
+    await wait(()=>encoding.runs===2&&encoding.active===0);
+    await new Promise(resolve=>setTimeout(resolve,250));
+    check(read(0).state==='inputTriggered'&&encoding.peak===1,'single-pixel mismatch rejected after both full compares; heavy work is serial');
+    if(options.texture)check(tasks[1].file.size>8*1024*1024,'full-size input exceeds former byte limit');
+    report.largePNG={dimensions:options.dimensions,sourceType:tasks[1].file.type,sourceBytes:tasks[1].file.size,
+     encodeMS:encoding.ms,inputToPositiveReadMS:Math.round(accepted.uploadStart.startObservedAtMS-accepted.uploadStart.inputObservedAtMS)};
+   }
+   check(accepted.uploadStart.signal==='attachmentAccepted'&&!accepted.isUploading&&!accepted.automaticRetryExcluded,'handoff only');
+   check(accepted.identity.target.clickBindingID===ops[1].target.clickBindingID,'original signed-invocation binding');
+   check(ops[0].target.clickBindingID!==ops[1].target.clickBindingID,'distinct click witnesses');
+   check(ops[0].target.draftGeneration===ops[1].target.draftGeneration,'same composing surface across clicks');
+   const shell=tasks[1].card, retry=document.createElement('button');
+   retry.type='button';retry.title='Failed to upload file.';retry.textContent='Retry';
+   tasks[0].card.setAttribute('data-state','failed');retry.setAttribute('aria-label','Retry uploading '+ops[0].name);tasks[0].card.append(retry);
+   check(!read(1).hasError,'neighbor retry cannot mark the accepted image failed');
+   shell.setAttribute('data-state','failed');retry.setAttribute('aria-label','Retry uploading '+ops[1].name);retry.hidden=true;shell.append(retry);
+   check(!read(1).hasError,'hidden retry cannot mark the accepted image failed');
+   retry.hidden=false;
+   check(read(1).hasError && !read(0).hasError,'explicit failure and exact retry on the original Edge image');
+   const third=await operation(70);
+   let duplicate=false;try{call({...third.command('begin'),identity:{...third.identity,operationID:crypto.randomUUID()}});}catch{duplicate=true;}
+   check(duplicate,'one click cannot enroll another operation');
+   // Blurring retires the write witness. History can still locate the same
+   // original before activating its tab; even then the old click cannot write.
+   globalThis.dispatchEvent(new Event('blur'));
+   check(!call({action:'validate',target:third.target}).valid,'blurred input witness retired');
+   check(call({action:'validate',target:third.target,requireLiveOriginal:true}).valid,'read-only original survives blur');
+   editor.replaceWith(editor.cloneNode(true));
+   check(!call({action:'validate',target:third.target,requireLiveOriginal:true}).valid,'read-only locate rejects replaced editor');
+   const retired=await call({...third.command('commit'),chunkIndex:third.chunks});
+   check(retired.observation.preInputRetirement?.inputCount===0,'replaced editor vetoes staged input');
+   check(call({...ops[1].command('observe'),requireLiveOriginal:true}).observation.state==='invalidated','replaced draft cannot authorize original inspection');
+   return {passed:true,nativeChanges:changes,nativeSetters:setters,automaticSends:sends,networkRequests:applicationNetworkRequests,observedStarts:1};
+  }
+  if(options.betweenReads){
+   // First card was rendered after commit, and its error arrives in a later
+   // task before the native host asks for its first positive observation.
+   await wait(()=>cardHost.contains(firstPendingCard));
+   await new Promise(done=>setTimeout(done,20));
+   firstPendingCard.dataset.state='failed';
+   const read=preferStartReceipt=>call({...ops[0].command('observe'),preferStartReceipt}).observation;
+   const start=read(true), replay=read(true), error=read(false);
+   check(start.state==='uploadStarted'&&start.uploadStart.evidenceID===replay.uploadStart.evidenceID,
+    'original positive evidence survives a lost reply');
+   check(error.state==='failed'&&error.attachmentID===start.attachmentID&&!error.originalCardFailureInvocationID&&!error.automaticRetryExcluded,
+    'same-card error is independently readable after durable START');
+   check(call(ops[1].command('observe')).observation.state==='uploadStarted','second member keeps its own START');
+   delete firstPendingCard.dataset.state;
+  }
   await stage('observing-starts');
   for(const op of ops){
    await wait(()=>call(op.command('observe')).observation.state==='uploadStarted');
    const observation=call(op.command('observe')).observation;
    check(observation.identity.operationID===op.identity.operationID&&observation.uploadStart.signal==='attachmentAccepted'&&observation.uploadStart.inputCount===1,'current operation gets independent accepted START');
-   let rejected=false;try{call({...op.command('commit'),chunkIndex:1});}catch(error){rejected=error.message==='COMMIT_REFUSED';}
+   let rejected=false;try{call({...op.command('commit'),chunkIndex:op.chunks});}catch(error){rejected=error.message==='COMMIT_REFUSED';}
    check(rejected&&changes===options.count,'duplicate commit never submits again');
   }
   for(let index=0;index<tasks.length;index++){
@@ -317,11 +492,67 @@ function browserFixture(options){
    check(task.list instanceof FileList,'application observed actual native FileList');
    if(options.retained)check(task.list.length===1&&task.list[0]===task.file,'retained prior FileList independent from replacement');
   }
+  if(options.meterCard){
+   const inspect=(index,live=false)=>call({...ops[index].command('observe'),requireLiveOriginal:live}).observation;
+   const original=inspect(0,true);
+   check(original.state==='uploadStarted','accessible-name card retains its active progress member');
+   const error=document.createElement('span');error.textContent='Upload failed';
+   tasks[0].progress.remove();
+   await new Promise(done=>setTimeout(done,20));
+   check(inspect(0).state==='uploadStarted'&&inspect(0,true).state==='invalidated',
+    'an empty render is neither a failure nor proof that the original attachment is still visible');
+   tasks[0].card.append(error);
+   tasks[1].card.setAttribute('aria-label','another.png');
+   tasks[1].card.setAttribute('aria-label',tasks[1].file.name);
+   tasks[1].card.replaceChildren(error.cloneNode(true));
+   await new Promise(done=>setTimeout(done,0));
+   for(const live of [false,true]){
+    const result=inspect(0,live);
+    check(result.state==='failed'&&result.attachmentID===original.attachmentID&&!result.automaticRetryExcluded,
+     'the exact original accessible-name progress card now shows a failure');
+   }
+   check(inspect(1).state==='uploadStarted'&&inspect(1,true).state==='invalidated',
+    'the reused neighbor cannot claim a later error');
+  }
+  if(options.retryOverlay){
+   const read=(index,live=false)=>call({...ops[index].command('observe'),requireLiveOriginal:live}).observation;
+   const initial=read(0,true);
+   const retry=document.createElement('button');retry.type='button';retry.textContent='↻';
+   retry.setAttribute('data-composer-image-upload-retry','');retry.setAttribute('aria-label','Retry uploading '+tasks[0].file.name);
+   retry.title='Failed to upload file.';
+   tasks[1].card.parentElement.append(retry);
+   check(read(0).state==='uploadStarted'&&read(1).state==='uploadStarted','neighbour does not report another image failure');
+   tasks[0].card.parentElement.append(retry);
+   for(const live of [false,true]){
+    const result=read(0,live);
+    check(result.state==='failed'&&result.attachmentID===initial.attachmentID&&!result.automaticRetryExcluded,
+     'original file-specific retry overlay is readable without clicking or sending');
+   }
+   check(read(1).state==='uploadStarted','unaffected second picture');
+  }
+  if(options.opaqueFailure){
+   const first=tasks[0], second=tasks[1];
+   const read=index=>call(ops[index].command('observe')).observation;
+   const start=read(0).attachmentID;
+   const status=document.createElement('span');status.textContent='上传未成功';
+   second.image.src=URL.createObjectURL(first.file);
+   second.card.append(status.cloneNode(true));
+   await new Promise(done=>setTimeout(done,0));
+   check(read(1).state==='uploadStarted','a reused named shell cannot claim another File preview');
+   check(read(0).state==='uploadStarted','the neighbour’s error cannot migrate');
+   const name=document.createElement('span');name.textContent=first.file.name;
+   first.card.replaceChildren(status,name);
+   await new Promise(done=>setTimeout(done,0));
+   const failed=read(0);
+   check(failed.state==='failed'&&failed.attachmentID===start&&!failed.automaticRetryExcluded,
+    'native mutation delivery preserves the exact local text-only failure');
+   check(read(1).state==='uploadStarted','replacement in A does not change B');
+  }
   if(options.portalCards){
    const failedNode=options.ariaCardFailure?tasks[0].image:tasks[0].card;
    failedNode.dataset.state='failed';
    const observed=call(ops[0].command('observe')).observation;
-   check(observed.state==='failed'&&observed.hasError&&!observed.automaticRetryExcluded&&!observed.attachmentAbsent,'portalled failure bound to its accepted file');
+   check(observed.state==='failed'&&observed.hasError&&!observed.originalCardFailureInvocationID&&!observed.automaticRetryExcluded&&!observed.attachmentAbsent,'portalled failure bound to its accepted file');
    check(call(ops[1].command('observe')).observation.state==='uploadStarted','other card unaffected');
    const unrelated=document.createElement('form');document.body.append(unrelated);unrelated.append(cardHost);
    check(call(ops[0].command('observe')).observation.state==='uploadStarted','moved portal cannot attribute failure');
@@ -390,19 +621,30 @@ function browserFixture(options){
  if(next.startsWith('/case/'))location.replace(next);
 })();
 </script>`.replace('__OPTIONS__',()=>JSON.stringify(options)).replace('__MOUNT__',()=>String(mountAttachmentEntryCase))
- .replace('__PREVIOUS__',()=>JSON.stringify(previous)).replace('__SOURCE__',()=>JSON.stringify(source).replace(/<\/script/gi,'<\\/script'));
+ .replace('__ORIGINAL_ERROR__',()=>String(runOriginalErrorCardCase)).replace('__PREVIOUS__',()=>JSON.stringify(previous)).replace('__SOURCE__',()=>JSON.stringify(source).replace(/<\/script/gi,'<\\/script'));
 }
 const originalScenarios=[
+ ...[false,true].map(edge=>({name:'owned-original-failure-card',namedErrorCard:true,edge,count:1,retained:true,route:'https://chatgpt.com/'})),
+ ...(process.env.RIFTLET_EDGE_LARGE_TEXTURE==='1'?[{name:'edge-full-display-texture',dimensions:[3840,2160],texture:true,edge:true,count:2,retained:true,route:'https://chatgpt.com/?temporary-chat=true'}]:[]),
+ ...[[2560,1664],[3840,2160]].map(dimensions=>({name:'edge-full-display',dimensions,edge:true,count:2,retained:true,route:'https://chatgpt.com/?temporary-chat=true'})),
+ ...['nested','no-remove','false-popup'].map(secondarySurface=>({name:'edge-popup-ownership',secondarySurface,composerAttachmentSurface:true,dimensions:[96,64],edge:true,count:2,retained:true,route:'https://chatgpt.com/c/ordinary-thread'})),
+ {name:'edge-composer-attachment-surface',composerAttachmentSurface:true,dimensions:[1280,832],edge:true,count:2,retained:true,route:'https://chatgpt.com/?temporary-chat=true'},
+ {name:'edge-full-display-jpeg',dimensions:[2560,1664],jpeg:true,edge:true,count:2,retained:true,route:'https://chatgpt.com/?temporary-chat=true'},
+ ...['https://chatgpt.com/?temporary-chat=true','https://chatgpt.com/c/12345678-1111-2222-3333-444455556666'].map(route=>({name:'edge-click-and-content',edge:true,count:2,retained:true,route})),
+ {name:'original-figure-retry-overlay',count:2,retained:true,retryOverlay:true,route:'https://chatgpt.com/'},
+ {name:'accessible-name-progress-aftercare',count:2,retained:true,meterCard:true,route:'https://chatgpt.com/'},
+ {name:'positive-preview-between-native-reads',count:2,retained:true,betweenReads:true,memberOwnership:true,route:'https://chatgpt.com/'},
+ {name:'opaque-member-text-failure',count:2,retained:true,decoratedFilename:true,opaqueFailure:true,route:'https://chatgpt.com/'},
  {name:'original-portal-card-failure',count:2,retained:true,portalCards:true,route:'https://chatgpt.com/c/ordinary-thread'},
  {name:'aria-preview-portal-failure',count:2,retained:true,portalCards:true,ariaCardFailure:true,route:'https://chatgpt.com/c/ordinary-thread'},
- {name:'actual-marked-zh-composer-four-direct-fields',count:5,retained:true,liveComposerShape:true,route:'https://chatgpt.com/'},
+ {name:'actual-marked-zh-composer-four-direct-fields',count:5,retained:true,liveComposerShape:true,comparePins:true,route:'https://chatgpt.com/'},
  ...[2,3,5].map(count=>({count,retained:true,route:'https://chatgpt.com/c/ordinary-thread'})),
  {count:3,retained:false,route:'https://chatgpt.com/'},
  {count:3,retained:true,route:'https://chatgpt.com/g/g-p-project/c/project-thread'},
  {count:2,retained:true,route:'https://chatgpt.com/g/g-p-project/project'},
  {count:5,retained:true,replacePicker:true,portalPicker:true,decoratedFilename:true,route:'https://chatgpt.com/c/ordinary-thread'},
  ...['disabled','removed'].map(unavailablePicker=>({count:2,retained:true,unavailablePicker,route:'https://chatgpt.com/c/ordinary-thread'})),
- {name:'no-form-hidden-portal',count:5,retained:true,noForm:true,portalPicker:true,unfamiliarAccept:true,route:'https://chatgpt.com/'},
+ {name:'no-form-hidden-portal',count:5,retained:true,noForm:true,portalPicker:true,unfamiliarAccept:true,comparePins:true,route:'https://chatgpt.com/'},
  {name:'linked-correct-picker-among-many',count:5,retained:true,portalPicker:true,multipleInputs:true,linkedPicker:true,route:'https://chatgpt.com/c/ordinary-thread'},
  {name:'dynamic-menu-click-portal',count:5,retained:true,noForm:true,multipleInputs:true,entryMode:'click',collapseSelectionInChange:true,route:'https://chatgpt.com/c/ordinary-thread'},
  {name:'dynamic-menu-showpicker-owned',count:5,retained:true,multipleInputs:true,entryMode:'showPicker',menuOwnsInput:true,collapseSelectionInChange:true,route:'https://chatgpt.com/g/g-p-project/c/project-thread'},
@@ -464,7 +706,7 @@ for(const unfiltered of groups){
     const address=server.address();assert.equal(address.address,'127.0.0.1');
     child=spawn(binary,['--headless=new','--no-sandbox','--disable-gpu','--disable-background-networking',
       '--disable-component-update','--disable-sync','--no-first-run','--no-default-browser-check',
-      ...(group.some(options=>options.switchTabs)?['--disable-popup-blocking']:[]),
+      ...(group.some(options=>options.switchTabs||options.namedErrorCard)?['--disable-popup-blocking']:[]),
       '--user-data-dir='+path.join(temp,'isolated-profile'),'http://127.0.0.1:'+address.port+'/'],
       {detached:true,stdio:['ignore','ignore','pipe']});
     child.stderr.setEncoding('utf8');child.stderr.on('data',part=>{stderr=(stderr+part).slice(-8000);});
@@ -477,6 +719,12 @@ for(const unfiltered of groups){
      const options=group[index];
      try{
       assert.equal(report.passed,true,JSON.stringify(report));
+      if(options.namedErrorCard){assert.equal(report.rejectedShapes,23);assert.equal(report.retiredCases,4);assert.equal(report.nativeChanges,report.nativeSetters);assert.equal(report.automaticSends,0);console.log(JSON.stringify(report));continue;}
+      if(options.edge){
+       assert.equal(report.nativeChanges,2);assert.equal(report.nativeSetters,2);assert.equal(report.observedStarts,1);
+       assert.equal(report.networkRequests,0);assert.equal(report.automaticSends,0);
+       if(options.dimensions)console.log(JSON.stringify(report.largePNG));continue;
+      }
       if(options.expectUnowned){
        assert.equal(report.preInputRetirement,'attachmentInputNotCreated');assert.equal(report.nativeChanges,0);assert.equal(report.nativeSetters,0);
        assert.equal(report.emptyFileLists,true);assert.equal(report.networkRequests,0);assert.equal(report.automaticSends,0);

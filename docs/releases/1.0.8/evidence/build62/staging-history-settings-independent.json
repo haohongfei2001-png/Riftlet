@@ -1,0 +1,37 @@
+{
+  "gate": "Post-update private payloads, original user settings and normal Library window",
+  "result": "PASS",
+  "reviewer": "independent-build62-recovery-and-mainline-source-reviewer",
+  "runningBuilds": [
+    31,
+    62
+  ],
+  "retainedPNGBytes": {
+    "libraryRows": 51,
+    "archivePNGs": 51,
+    "allOriginalAssetUUIDsByteSizesFullSHA256DimensionsMatch": true,
+    "sidecarAppleDoubleFiles": 7,
+    "zipSHA256": "7eac37e6273f63d79241145353430fb3b3075060be55dde06d6f906f5bfe35ea",
+    "active62DatabaseSHA256": "90b26df5dd7db8f019312ab0ab88fbde202358bc8bf1b19fa0aa2e774a033002"
+  },
+  "settings": {
+    "originalProductKeysVerifiedFromActualExport": 3,
+    "allOriginalKeysAndValueDigestsPreserved": true,
+    "settingsManifestBeforeSHA256": "0050733a70568113183350994f2b8a4158a5789ee9191881c6bc04cac20454f1",
+    "settingsManifestAfterSHA256": "0050733a70568113183350994f2b8a4158a5789ee9191881c6bc04cac20454f1",
+    "originalPreferenceValueContents": "Private only"
+  },
+  "upgradedProcessNormalHistoryUI": {
+    "observedVisibleMenu": "Screenshot Library",
+    "observedWindowElements": [
+      "Screenshot Library",
+      "All Screenshots",
+      "Archived",
+      "Search"
+    ],
+    "rawBeforeMenuWindowScreensVerified": 3,
+    "originalActionReceiptSHA256": "88ed9e56183d3996b8807b99cf8dba02ebe2d0a6d920e732624807d00c7199c3"
+  },
+  "browserUIAndNewScreenshotInput": "Not evaluated by this receipt",
+  "sensitiveOriginals": "Private archive only"
+}

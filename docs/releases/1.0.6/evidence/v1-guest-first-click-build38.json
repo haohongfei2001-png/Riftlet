@@ -1,0 +1,22 @@
+{
+  "assetSequence": 29,
+  "failure": {
+    "event": "click_input_refused",
+    "phase": "resolveSelection",
+    "error": "nativeEventFailed(-1712)",
+    "diagnosticSequence": 16,
+    "uptime": 1811.8277438333334
+  },
+  "nativeIdentityLiveRead": {
+    "check": "click_selection",
+    "route": "descriptor_fast",
+    "succeeded": true,
+    "elapsedMS": 116.94,
+    "scope": "successful window/tab identifier lookup, observed from the live native ring before App restart; not total failed-call time"
+  },
+  "frozenClickDeadlineMS": 150,
+  "preAndPostSQLiteSnapshotsIdentical": true,
+  "distinctUserClicksSpacingSeconds": 82.63,
+  "newSTARTAfterFirstClick": 0,
+  "detailedTiming": "Original native event ring rotated on restart. The durable refusal stores end uptime only, without a subcall or elapsed field. URL read and returning within the remaining frozen-click deadline are consistent with the observed event ordering. No separate timing/status of the URL Apple Event or deadline post-check was captured."
+}

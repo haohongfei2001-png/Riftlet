@@ -1,0 +1,14 @@
+{
+  "version": "1.0.5",
+  "build": "31",
+  "publicDownload": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.5/Riftlet-1.0.5.dmg",
+  "retrieval": "GitHub release-asset endpoint, asset 761603555",
+  "sha256": "99276347932e231adf743664a54cfc782d8e345d89221587d54b7299a5c9f315",
+  "bytes": 12686160,
+  "stableFeed": "https://riftlet.com/updates/stable.xml",
+  "stableFeedSHA256": "da0b17e36b178ae94bcbea6e5720dcc400250350aa766fd31d4fbf8e3f476b52",
+  "homepageSHA256": "70246d64e139efe5b7ab1a22f00b422bc9bc06590b8c815a430c21443ed9037a",
+  "feedAndEnclosureEd25519Verified": true,
+  "websiteDownloadButtonsAndLatestGitHubReleaseAgree": true,
+  "checkedUTC": "2026-11-22T17:02:41.094096+00:00"
+}

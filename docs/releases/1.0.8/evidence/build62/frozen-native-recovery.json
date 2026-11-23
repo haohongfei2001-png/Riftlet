@@ -1,0 +1,189 @@
+{
+  "additionalStop": {
+    "case": "G",
+    "mouseDownOnSecondSelection": 0,
+    "newInputs": 0,
+    "replacedWithFreshControlledCase": true,
+    "stage": "afterOriginalRestartAndConsentBeforeSecondClick",
+    "temporaryFocusRead": false
+  },
+  "candidate": {
+    "build": 62,
+    "commit": "871187f2be5eada68fccf2adcc07d120991e1c15",
+    "compositionDiffSHA256": "0bee3a9c8a10b1a9ed12c8c7eb0a070ffedc7795d10ac521ee62ea255f9a9173",
+    "controlledAppSHA256": "2ed35fd3be6da2b3b331a09fe747c03e2a49edfe59faf5e2c8c4e705b578f39d",
+    "siteJavaScriptSHA256": "8bdb088559961534c1ac43ec170e02e77e3dcb4eaf1c711a79e43a0fcf854c93",
+    "tree": "f5eb856b9faed30a2ff82e906a081d61647b6f04"
+  },
+  "cleanup": {
+    "activeListeners": 0,
+    "additionalStoppedCases": 1,
+    "allOwnedProcessLifetimesExited": true,
+    "finishedScopes": 8,
+    "fullCases": 7,
+    "openOwnedWindows": 0,
+    "unrelatedBrowserWindows": 0
+  },
+  "completionUTC": "2026-11-23T09:33:09.140242+00:00",
+  "confirmedFailureRebirth": {
+    "automaticInputs": 0,
+    "newInputs": 1,
+    "newStarts": 1,
+    "originalErrorPreserved": true,
+    "status": "PASS"
+  },
+  "formSubmits": 0,
+  "literalSignedPackage": false,
+  "normalObservation": {
+    "cardStillPresentShowedNormalHandoff": true,
+    "weakOriginalErrorProducedUserFacingUnconfirmed": true
+  },
+  "receiptSHA256": {
+    "A": {
+      "A-after.json": "b0e4d7fceaf046aaf6076b3be8926a119ee8131b2e13bdaac3ca8b9e0839d825",
+      "A-after.sqlite": "fd0a1c89c5be4bb33188045f2e6a6441834453245a754ce7e39165b191d1f725",
+      "A-initial.json": "c91eb35964df51dd665b7b1694ba717af3729c263e9cf67593cad6df6d68f1bc",
+      "A-initial.sqlite": "02773ba841c04f7897899eb2fdf9804c86678236dfd590439791d66a6284590d",
+      "binary-manifest.json": "b6b6c02257bb57e54e7a80688c7f55c4922457e2e7041586e534e46cc8b97392",
+      "screenshot.json": "3e1a726ad197c3b3a2c4d2d4b02ae70c89a51b5185b3653b6daab836686d4761"
+    },
+    "B": {
+      "B-neutral-later.json": "133111938ece414645a2f70f5fe8f876f45178181a11ab346aab597e3cdced43",
+      "B-neutral-later.sqlite": "8a33ad14e3550ec108355434ec3112c2c832b0769fe098f989079cc68c089cd9",
+      "B-neutral-unknown.json": "133111938ece414645a2f70f5fe8f876f45178181a11ab346aab597e3cdced43",
+      "B-neutral-unknown.sqlite": "8a33ad14e3550ec108355434ec3112c2c832b0769fe098f989079cc68c089cd9",
+      "B-unknown.json": "12e55b1bec516d8a4f3f85c382b102201fddfe2458cac23f105164b978791fa5",
+      "B-unknown.sqlite": "833391c7623c7390d88410a30a409768597e9b16e00b83ce2e8d59242dc542c9",
+      "binary-manifest.json": "b6b6c02257bb57e54e7a80688c7f55c4922457e2e7041586e534e46cc8b97392",
+      "screenshot.json": "769ec57a1555beebc7f48ba1a9e222cd41935addc8f61d29ab8ff930a89ee999"
+    },
+    "C": {
+      "B-neutral-later.json": "bef4960901586bfec423091da9308e8aa978ee3d932af4e82897f05c6ff2d189",
+      "B-neutral-later.sqlite": "25fe491a682fce3e8d8c981c06d62c4bef2f86528102dd4e9beca877b2601995",
+      "B-neutral-unknown.json": "bef4960901586bfec423091da9308e8aa978ee3d932af4e82897f05c6ff2d189",
+      "B-neutral-unknown.sqlite": "25fe491a682fce3e8d8c981c06d62c4bef2f86528102dd4e9beca877b2601995",
+      "B-unknown.json": "4ade1dd00f98f07701c71b45c711289540341ceac3ce2ce9248bd6e72695a5a8",
+      "B-unknown.sqlite": "7f4a787610a611a0b0c5448d317e462438e27c6a73b7694c3336972be7ef6e2d",
+      "C-explicit.json": "0d7b88a8cff6a63a9f2cff272c0f3ec2eb1788532a6732da6a6c6ecd2b89699d",
+      "C-explicit.sqlite": "eeceaefba62348733857dab2efd791db707ff78102fcee406cc4573d422d0ea8",
+      "D-existing.json": "bef4960901586bfec423091da9308e8aa978ee3d932af4e82897f05c6ff2d189",
+      "D-existing.sqlite": "25fe491a682fce3e8d8c981c06d62c4bef2f86528102dd4e9beca877b2601995",
+      "D-warning.json": "33e4326c0e21d29e15d2ad8dd1316f8fec3824d9597aa1e0a15f051730d7639f",
+      "H-cancel.json": "bef4960901586bfec423091da9308e8aa978ee3d932af4e82897f05c6ff2d189",
+      "H-cancel.sqlite": "25fe491a682fce3e8d8c981c06d62c4bef2f86528102dd4e9beca877b2601995",
+      "binary-manifest.json": "b6b6c02257bb57e54e7a80688c7f55c4922457e2e7041586e534e46cc8b97392",
+      "screenshot.json": "88ff567a181f07495103c12cfe67d463e2f83911d6e6712c31bcf8a75c4d47cb"
+    },
+    "E": {
+      "B-unknown.json": "7ed11df7f9c0e3c4f5302752601682bb2435b58a5708f28c0491bc69dfe544de",
+      "B-unknown.sqlite": "0628ddcb0fffd88cc9cde28c1f4cc03cfcc6529ca2b803f30ef846a548611350",
+      "D-existing.json": "0991964f7eff308de4cb8538c08e4ed3c63b4159dc6ef09845e8604eedb73a57",
+      "D-existing.sqlite": "0628ddcb0fffd88cc9cde28c1f4cc03cfcc6529ca2b803f30ef846a548611350",
+      "D-warning.json": "ac4aa89a425ea669d006c4a0df67d064b262099b7bc2fd33ae012b53fdb96ac9",
+      "E-final.json": "52c161071b89d47e184c9e2f366dbc942b6bb31aa1568c6b2cf814e5778d8305",
+      "E-final.sqlite": "d1674cd42171b5e7982e75a7d7aa2e24b54213b5223f62bd2e0c482fda2c2d5d",
+      "H-cancel.json": "0991964f7eff308de4cb8538c08e4ed3c63b4159dc6ef09845e8604eedb73a57",
+      "H-cancel.sqlite": "0628ddcb0fffd88cc9cde28c1f4cc03cfcc6529ca2b803f30ef846a548611350",
+      "binary-manifest.json": "b6b6c02257bb57e54e7a80688c7f55c4922457e2e7041586e534e46cc8b97392",
+      "screenshot.json": "be4317df1810394d3676ab11addc7ecb7b91f3a016d93647d6552a41899891ed"
+    },
+    "F": {
+      "B-unknown.json": "eb8bc4797b5ad387b7f8230c010262e64bb7f932c9b041900c40e40a550a8ee9",
+      "B-unknown.sqlite": "a7cf1e3a7070795a465ebc91dcd100d0be15ca6b69d6635fa1bf7a228946de50",
+      "C-explicit.json": "d783f3b967b8daaca6018ed24e1781eb6ef0631c9a00911bcd68c6892d3028cc",
+      "C-explicit.sqlite": "e48e1f175d4dac6f290d2e41014ab81c9fde6d2a0f626c26d6583513cc47cd2b",
+      "D-existing.json": "b2f33f02b5199952abded7c50c06f0a17b6d2766b910491f32a1467281db470f",
+      "D-existing.sqlite": "a7cf1e3a7070795a465ebc91dcd100d0be15ca6b69d6635fa1bf7a228946de50",
+      "D-warning.json": "65816d42f5386a60b51248d0aea71283fe5628007e4484f9a2d32d50e9a57253",
+      "F-late.json": "537e654fb678650b62e0c0f472d45fc9999b8595043bd7aebe363a6ed41e5438",
+      "F-late.sqlite": "d7bef7a56784187b97763a846b15717f78bd26019fd906cbd729bed389d7d77b",
+      "H-cancel.json": "b2f33f02b5199952abded7c50c06f0a17b6d2766b910491f32a1467281db470f",
+      "H-cancel.sqlite": "a7cf1e3a7070795a465ebc91dcd100d0be15ca6b69d6635fa1bf7a228946de50",
+      "binary-manifest.json": "b6b6c02257bb57e54e7a80688c7f55c4922457e2e7041586e534e46cc8b97392",
+      "screenshot.json": "544f1d7b3cd438dad1b13f8d9be3fa1c9b8daa5cb4e133536e4dc2b7ce064688"
+    },
+    "G": {
+      "B-unknown.json": "53d4c222e41262bd52b84f2972dc672041ca22dc2f36c088d7c601520692b04e",
+      "B-unknown.sqlite": "9b2faf9b01a4257d2692baf1611f77ea9a8a3f4f33c34348ba3fa3574291d521",
+      "C-explicit.json": "b4365771c6b560d8bb9bc18e604c0630e51f44f747af99e0ef1e4e369b5effea",
+      "C-explicit.sqlite": "b70645ef6347c9b72b9af0b844669c562887eb7ba30a2b893a8abecf40466988",
+      "D-existing.json": "92499c6ede63d2b8efa006f011420518ffb8cfca0fdd65f0532fa885fd1d7714",
+      "D-existing.sqlite": "9b2faf9b01a4257d2692baf1611f77ea9a8a3f4f33c34348ba3fa3574291d521",
+      "D-warning.json": "32dc44ed4c384eb5bc61f3eacf6c1aa43a435fd0c691b33ce01a15c6d7d2a3b1",
+      "G-restart.json": "bbd6d77e305519bc01146c9de50cc2ead6d9e7243f7896fa91c42b9f36226f6a",
+      "G-restart.sqlite": "9b2faf9b01a4257d2692baf1611f77ea9a8a3f4f33c34348ba3fa3574291d521",
+      "H-cancel.json": "92499c6ede63d2b8efa006f011420518ffb8cfca0fdd65f0532fa885fd1d7714",
+      "H-cancel.sqlite": "9b2faf9b01a4257d2692baf1611f77ea9a8a3f4f33c34348ba3fa3574291d521",
+      "binary-manifest.json": "b6b6c02257bb57e54e7a80688c7f55c4922457e2e7041586e534e46cc8b97392",
+      "screenshot.json": "dcbbd94e06ca645491e3b7d9ce0377ed983f23482c929ca1b151f3fdf8a322fd"
+    },
+    "rebirth": {
+      "B-unknown.json": "5fe175f88ffc46356d3914a30f30eeb6a7cac78edcc78645e069513925a5aae7",
+      "B-unknown.sqlite": "af923023d5c93f511f71eb500f7ebbb7b1261069a0f3940246ba4d04be1901ec",
+      "Reborn-attached.json": "08b7033e1ff98b02c7a1d462879126f03419874bf14081b472d4595c062ce006",
+      "Reborn-attached.sqlite": "0b0a012aaa1a1eaa1fdf3bdae24799eb1aa474f407dd8295e9fd510b05f254e1",
+      "Reborn-visible.json": "97ba8decc844a66e46b4adc3ebd8d8b50f596d703590c0d020c50810872a73de",
+      "Reborn-visible.sqlite": "afac60840927d7f5e33d5de5a773da4e9bb3bd8e64ba9bb0147ac2d9cd075002",
+      "binary-manifest.json": "b6b6c02257bb57e54e7a80688c7f55c4922457e2e7041586e534e46cc8b97392",
+      "screenshot.json": "f93ceb777dfd1e74f067cc1651493687ee2d9ecdedc2e9592bc4aa535a0fc504"
+    }
+  },
+  "results": {
+    "A": {
+      "newInputs": 1,
+      "newStarts": 1,
+      "originalInputs": 0,
+      "originalRetained": true,
+      "status": "PASS"
+    },
+    "B": {
+      "continuedWithoutRetry": true,
+      "handled": false,
+      "phase": "unknown",
+      "starts": 1,
+      "status": "PASS",
+      "userVisibleNeutralError": true
+    },
+    "C": {
+      "newInputs": 1,
+      "newInvocations": 1,
+      "newStarts": 1,
+      "oldOperationPreserved": true,
+      "sourceHadAttributedUnconfirmedError": true,
+      "status": "PASS"
+    },
+    "D": {
+      "duplicateRiskShown": true,
+      "originalCardPresent": true,
+      "status": "PASS"
+    },
+    "E": {
+      "attemptedOnNewDraft": true,
+      "newFileInputs": 0,
+      "newOperations": 0,
+      "status": "PASS"
+    },
+    "F": {
+      "extraInputs": 0,
+      "independentLateRecord": 1,
+      "newOperationChanged": false,
+      "status": "PASS"
+    },
+    "G": {
+      "applicationProcesses": 2,
+      "automaticInputs": 0,
+      "explicitRecoveryAfterRestart": true,
+      "status": "PASS"
+    },
+    "H": {
+      "newInputs": 0,
+      "newInvocations": 0,
+      "newStarts": 0,
+      "status": "PASS"
+    }
+  },
+  "sends": 0,
+  "sourceArchiveSHA256": "569f475566818e2745a3cb4519d368053d8a673e62aa0fdd7bf7c8cdc6220964",
+  "suite": "CONTROLLED_PRODUCT_RECOVERY_FIXTURE",
+  "thirdPartyRequests": 0
+}

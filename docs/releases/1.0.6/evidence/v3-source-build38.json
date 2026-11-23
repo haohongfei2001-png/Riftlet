@@ -1,0 +1,28 @@
+{
+  "product": "7e44fd3040af32dc8e53bffac5256ac3cc992767",
+  "build": 38,
+  "role": "source-bound native test bodies and isolated Core/Capture SQLite/PNG processes; no real ChatGPT requests",
+  "swiftLanguageMode": "5 (package tools 5.9)",
+  "tests": [
+    "cleanup / changed external original / undo",
+    "batch undo without Trash directory read access",
+    "T1 T2 T3 retention enrollment and restart",
+    "durable import boundary / repeated restart",
+    "original START, handled and explicit new intent",
+    "crash with missing returned receipt / no automatic replay"
+  ],
+  "stateMatrix": [
+    "ordinary started",
+    "no START unknown",
+    "current input execution",
+    "unhandled same-card error",
+    "only copy",
+    "verified external system original"
+  ],
+  "regressions": "PASS",
+  "independentProcesses": [
+    "seed PASS pid 99909",
+    "move PASS pid 99910",
+    "restore PASS pid 99911"
+  ]
+}

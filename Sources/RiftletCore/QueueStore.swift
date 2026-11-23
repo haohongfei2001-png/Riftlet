@@ -50,9 +50,14 @@ public actor QueueStore {
 
     private var cleanablePredicate: String {
         """
-        visibility!='visible' AND status IN ('pending','used')
+        visibility!='visible' AND status IN ('pending','used','transferring','unknown')
         AND id NOT IN (SELECT asset_id FROM retired_media)
-        AND NOT EXISTS (SELECT 1 FROM operations o WHERE o.asset_id=assets.id AND o.phase NOT IN ('succeeded','failed'))
+        AND NOT EXISTS (SELECT 1 FROM operations o WHERE o.asset_id=assets.id AND o.phase NOT IN ('succeeded','failed')
+            AND NOT (assets.active_operation_id IS NOT NULL AND o.id!=assets.active_operation_id AND EXISTS (SELECT 1 FROM handled_attachments h WHERE h.operation_id=o.id))
+            AND NOT (o.id IS assets.active_operation_id AND o.dispatch_exclusive=0 AND o.phase IN ('inputTriggered','attachmentPresent','unknown')
+              AND (EXISTS (SELECT 1 FROM upload_starts s WHERE s.operation_id=o.id)
+                OR (json_extract(o.receipt_json, '$.originalCardFailureInvocationID') IS NOT NULL
+                  AND EXISTS (SELECT 1 FROM handled_attachments h WHERE h.operation_id=o.id)))))
         """
     }
 
@@ -60,18 +65,32 @@ public actor QueueStore {
         let age = cutoff == nil ? "" : " AND last_interaction_at<=?"
         return try database.rows("SELECT \(assetColumns) FROM assets WHERE " + cleanablePredicate + age,
                                  cutoff.map { [String($0.timeIntervalSince1970)] } ?? []).map(decodeAsset)
-            .filter { !selectionReservations.contains($0.id) }
+            .filter { try eligibleReturnedInput($0) && !selectionReservations.contains($0.id) }
+    }
+
+    private func eligibleReturnedInput(_ record: AssetRecord) throws -> Bool {
+        guard record.status == .transferring || record.status == .unknown else { return true }
+        guard let id = record.activeOperationID, let op = try operation(id: id),
+              let call = try dispatchCall(id), call.version == 1, call.inputExecutionReturned == true,
+              call.operationID == id, call.assetID == record.id, call.attempt == op.attempt,
+              call.target == op.target, call.assetSHA256 == record.image.sha256,
+              let latest = try receipt(for: id) else { return false }
+        if latest.originalCardFailureInvocationID == call.invocationID { return try isAttachmentHandled(id) }
+        guard let start = try uploadStartReceipt(for: id), start.uploadStartEvidence?.signal == .attachmentAccepted else { return false }
+        let state = HistoryAttachmentState(record: record, operation: op, receipt: latest, startReceipt: start)
+        if state == .handedOff { return !latest.hasError }
+        return try state.needsVerification && isAttachmentHandled(id)
     }
 
     /// Keep the immutable asset, source occurrence and operation rows. This transaction
     /// fences stale Restore buttons and excludes newly active or unresolved work.
     public func retireMedia(_ id: UUID, revision: Int64, batch: UUID) throws {
         try database.transaction {
-            guard !selectionReservations.contains(id),
+            guard !selectionReservations.contains(id), let record = try asset(id: id), try eligibleReturnedInput(record),
                   try !database.rows("SELECT 1 FROM assets WHERE id=? AND visibility_revision=? AND " + cleanablePredicate,
                                      [id.uuidString, String(revision)]).isEmpty else { throw RiftletError.invalidTransition }
             // A 1.0.4 opener must refuse before recovering deliberately moved copies as missing.
-            if mode == .production { try database.execute("PRAGMA user_version = 5") }
+            if mode == .production, try database.rows("PRAGMA user_version").first?.first == "4" { try database.execute("PRAGMA user_version = 5") }
             try database.execute("INSERT INTO retired_media(asset_id,batch) VALUES(?,?)", [id.uuidString, batch.uuidString])
         }
     }
@@ -124,10 +143,11 @@ public actor QueueStore {
         """
         SELECT a.sequence,a.image_json,a.status,a.active_operation_id,a.visibility,a.visibility_revision,
                a.visibility_reason,a.last_interaction_at,o.id,o.asset_id,o.attempt,o.target_json,
-               o.phase,o.created_at,o.updated_at,o.receipt_json,s.receipt_json,o.reason
+               o.phase,o.created_at,o.updated_at,o.receipt_json,s.receipt_json,o.reason,h.operation_id
         FROM assets a
         LEFT JOIN operations o ON o.id=a.active_operation_id AND o.asset_id=a.id
         LEFT JOIN upload_starts s ON s.operation_id=o.id
+        LEFT JOIN handled_attachments h ON h.operation_id=o.id
         """
     }
 
@@ -139,12 +159,19 @@ public actor QueueStore {
         }
         return QueueHistoryRecord(record: record, operation: operation, receipt: try receipt(15),
                                   startReceipt: try receipt(16), canRestore: canRestoreToQueue(record, operation: operation),
-                                  reason: row[17])
+                                  isHandled: row[18] != nil, reason: row[17])
     }
+
+    // A card error may be discovered after local cleanup won the transaction.
+    // Keep that outstanding decision reachable even while the bytes are in Trash.
+    private let historyVisibility = """
+        (a.id NOT IN (SELECT asset_id FROM retired_media) OR
+         (a.status='unknown' AND h.operation_id IS NULL AND s.operation_id IS NOT NULL))
+        """
 
     public func historySnapshot(limit: Int = 200, offset: Int = 0) throws -> [QueueHistoryRecord] {
         try database.transaction {
-            try database.rows(historyProjectionSQL + " WHERE a.id NOT IN (SELECT asset_id FROM retired_media) ORDER BY a.sort_at DESC,a.sequence DESC LIMIT ? OFFSET ?",
+            try database.rows(historyProjectionSQL + " WHERE " + historyVisibility + " ORDER BY a.sort_at DESC,a.sequence DESC LIMIT ? OFFSET ?",
                               [String(max(0, min(limit, 201))), String(max(0, offset))]).map(historyRecord)
         }
     }
@@ -159,7 +186,7 @@ public actor QueueStore {
             }
             let ceiling = throughSequence ?? latest
             let filter = query.predicate(through: ceiling)
-            let sql = historyProjectionSQL + " WHERE a.id NOT IN (SELECT asset_id FROM retired_media) AND " + filter.sql +
+            let sql = historyProjectionSQL + " WHERE " + historyVisibility + " AND " + filter.sql +
                 " ORDER BY a.sort_at DESC,a.sequence DESC LIMIT 201 OFFSET ?"
             let rows = try database.rows(sql, filter.values + [String(max(0, offset))])
             return LibraryHistoryPage(records: try rows.prefix(200).map(historyRecord),
@@ -187,7 +214,7 @@ public actor QueueStore {
         }
         let pending = try rows.compactMap { row -> UUID? in
             let entry = try historyRecord(row)
-            return entry.attachmentState.needsVerification ? entry.record.id : nil
+            return !entry.isHandled && entry.attachmentState.needsVerification ? entry.record.id : nil
         }
         if reload { reviewIDs = Set(pending) }
         else {
@@ -291,12 +318,14 @@ public actor QueueStore {
             try fence.withArchivePermit(expectedRevision: revision) {
                 let records = try database.rows("""
                     SELECT \(assetColumns) FROM assets
-                    WHERE visibility='visible' AND status IN ('pending','failed') AND last_interaction_at<=?
+                    WHERE visibility='visible' AND (status IN ('pending','failed') OR
+                      (status='unknown' AND visibility_reason='safeFailure')) AND last_interaction_at<=?
                     ORDER BY sort_at,sequence LIMIT ?
                     """, [String(cutoff.timeIntervalSince1970), String(max(0, min(limit, 32)))]).map(decodeAsset)
                 var archived: [UUID] = []
                 for record in records where !selectionReservations.contains(record.id) {
-                    if let id = record.activeOperationID, let op = try operation(id: id), op.phase.isUnresolved { continue }
+                    if let id = record.activeOperationID, let op = try operation(id: id), op.phase.isUnresolved,
+                       try record.visibilityReason != .safeFailure || receipt(for: id)?.originalCardFailureInvocationID == nil { continue }
                     try setVisibility(record, .archived, reason: .automaticArchive, touch: false)
                     archived.append(record.id)
                 }
@@ -342,7 +371,7 @@ public actor QueueStore {
             throw RiftletError.invalidAsset("Checkpoint exceeds its bounded contract")
         }
         return try database.transaction {
-            guard mode == .production, operation.phase == .dispatchIntent,
+            guard mode == .production, operation.phase == .dispatchIntent, try !hasRecoverySuccessor(operation.id),
                   try self.operation(id: operation.id) == operation,
                   operation.assetID == asset.id,
                   let record = try self.asset(id: asset.id), record.image == asset,
@@ -353,20 +382,99 @@ public actor QueueStore {
         }
     }
 
+    private func actionableAttachment(_ id: UUID) throws -> QueueHistoryRecord {
+        guard let row = try database.rows(historyProjectionSQL + " WHERE o.id=? AND o.phase!='prepared'", [id.uuidString]).first else {
+            throw RiftletError.invalidTransition
+        }
+        let entry = try historyRecord(row)
+        guard entry.attachmentState.needsVerification else { throw RiftletError.invalidTransition }
+        return entry
+    }
+
+    private func hasRecoverySuccessor(_ id: UUID) throws -> Bool {
+        try !database.rows("SELECT 1 FROM attachment_reselections WHERE predecessor_id=? LIMIT 1", [id.uuidString]).isEmpty
+    }
+
+    /// A read of a superseded handoff must still carry the invocation that
+    /// was durably assigned before the original file input.
+    public func isRecoveryPredecessor(operationID: UUID, invocationID: UUID?) throws -> Bool {
+        guard let invocationID, try hasRecoverySuccessor(operationID) else { return false }
+        return try dispatchInvocationID(for: operationID) == invocationID
+    }
+
+    func isAttachmentHandled(_ id: UUID) throws -> Bool {
+        try !database.rows("SELECT 1 FROM handled_attachments WHERE operation_id=?", [id.uuidString]).isEmpty
+    }
+
+    public func markAttachmentHandled(operationID: UUID) throws {
+        try database.transaction {
+            let entry = try actionableAttachment(operationID)
+            try database.execute("INSERT OR IGNORE INTO handled_attachments(operation_id) VALUES(?)", [operationID.uuidString])
+            invalidateAttachmentReview(entry.record.id)
+        }
+    }
+
+    /// Local history identifies the original input. Only a new explicit click
+    /// plus live Web verification can authorize another attempt.
+    public func attachmentRecoverySource(operationID id: UUID) throws -> AttachmentRecoverySource {
+        let op = try requiredOperation(id)
+        guard [.dispatchIntent, .inputTriggered, .attachmentPresent, .unknown].contains(op.phase),
+              let asset = try asset(id: op.assetID), asset.activeOperationID == id,
+              op.target.attachmentBrowser != nil, op.target.clickBindingID != nil,
+              try database.rows("SELECT dispatch_exclusive FROM operations WHERE id=?", [id.uuidString]) == [["0"]],
+              let call = try dispatchCall(id), call.version == 1, call.operationID == id,
+              call.assetID == asset.id, call.assetSHA256 == asset.image.sha256,
+              call.attempt == op.attempt, call.target == op.target else { throw RiftletError.invalidTransition }
+        return try AttachmentRecoverySource(operation: op, invocationID: call.invocationID,
+            originalStart: uploadStartReceipt(for: id), originalReceipt: receipt(for: id))
+    }
+
+    /// Showing a recovery tile leaves the original operation active. The application
+    /// separately binds the subsequent, explicitly confirmed click to a new target.
+    public func stageAttachmentForReattach(operationID: UUID) throws -> AssetRecord {
+        try database.transaction {
+            let original = try attachmentRecoverySource(operationID: operationID)
+            guard let record = try asset(id: original.operation.assetID), record.status != .missing, try !isRetiredMedia(record.id) else { throw RiftletError.invalidTransition }
+            if record.status == .transferring {
+                try database.execute("UPDATE assets SET status='unknown' WHERE id=?", [record.id.uuidString])
+                invalidateAttachmentReview(record.id)
+            }
+            if record.visibility != .visible { try setVisibility(record, .visible, reason: .userRestored) }
+            guard let staged = try asset(id: record.id) else { throw RiftletError.assetNotFound }
+            return staged
+        }
+    }
+
     /// Duplicate clicks return the unresolved operation instead of allocating a new attempt.
     public func prepare(assetID: UUID, target: TargetLease) throws -> TransferOperation {
+        try prepare(assetID: assetID, target: target, replacing: nil)
+    }
+
+    func prepare(assetID: UUID, target: TargetLease, replacing source: AttachmentRecoverySource?) throws -> TransferOperation {
         try database.transaction {
             guard let record = try asset(id: assetID) else { throw RiftletError.assetNotFound }
-            if let activeID = record.activeOperationID, let existing = try operation(id: activeID), existing.phase.isUnresolved {
-                return existing
+            let id = UUID()
+            if let source {
+                guard record.visibility == .visible, record.status != .missing, try !isRetiredMedia(assetID),
+                      source.operation.assetID == assetID, source.permitsDestination(target),
+                      try attachmentRecoverySource(operationID: source.operation.id) == source else {
+                    throw RiftletError.invalidTransition
+                }
+                try database.enableExplicitRecovery()
+                try database.execute("INSERT INTO attachment_reselections(successor_id, predecessor_id) VALUES(?,?)",
+                                     [id.uuidString, source.operation.id.uuidString])
+            } else {
+                if let activeID = record.activeOperationID, let existing = try operation(id: activeID), existing.phase.isUnresolved {
+                    return existing
+                }
+                guard record.visibility == .visible,
+                      record.status == .pending || record.status == .failed else { throw RiftletError.invalidTransition }
             }
-            guard record.visibility == .visible,
-                  record.status == .pending || record.status == .failed else { throw RiftletError.invalidTransition }
             guard mode != .simulation || (target.surface == .simulation && target.adapterID == "simulation") else { throw RiftletError.modeMismatch }
             guard mode != .production || target.surface != .simulation else { throw RiftletError.modeMismatch }
             let count = try database.rows("SELECT COALESCE(MAX(attempt),0) FROM operations WHERE asset_id=?", [assetID.uuidString]).first?[0] ?? "0"
             let next = (Int(count) ?? 0) + 1
-            let id = UUID(); let now = String(Date().timeIntervalSince1970)
+            let now = String(Date().timeIntervalSince1970)
             try database.execute("INSERT INTO operations(id,asset_id,attempt,target_key,target_json,phase,created_at,updated_at) VALUES(?,?,?,?,?,'prepared',?,?)", [
                 id.uuidString, assetID.uuidString, String(next), target.stableKey, try json(target), now, now
             ])
@@ -404,15 +512,29 @@ public actor QueueStore {
         return try JSONDecoder().decode(TransferCompensation.self, from: Data(raw.utf8))
     }
 
+    /// The page's short-lived operation records cannot be rediscovered by
+    /// searching drafts. Probe only a small recent tail on an authorized launch.
+    public func recentOriginalObservationIDs(now: Date = Date()) throws -> [UUID] {
+        let rows = try database.rows("""
+            SELECT o.id FROM (SELECT * FROM operations ORDER BY sequence DESC LIMIT 16) o
+            JOIN assets a ON a.id=o.asset_id AND a.active_operation_id=o.id
+            LEFT JOIN handled_attachments h ON h.operation_id=o.id
+            WHERE o.created_at>=? AND o.dispatch_exclusive=0 AND o.phase NOT IN ('prepared','failed','succeeded')
+              AND h.operation_id IS NULL AND a.id NOT IN (SELECT asset_id FROM retired_media)
+            ORDER BY o.sequence DESC LIMIT 4
+            """, [String(now.addingTimeInterval(-600).timeIntervalSince1970)])
+        return rows.compactMap { $0[0].flatMap(UUID.init(uuidString:)) }
+    }
+
     public func unresolvedOperations() throws -> [TransferOperation] {
-        try database.rows("SELECT id,asset_id,attempt,target_json,phase,created_at,updated_at FROM operations WHERE phase NOT IN ('failed','succeeded') ORDER BY sequence").map(decodeOperation)
+        try database.rows("SELECT id,asset_id,attempt,target_json,phase,created_at,updated_at FROM operations WHERE id IN (SELECT active_operation_id FROM assets) AND phase NOT IN ('failed','succeeded') ORDER BY sequence").map(decodeOperation)
     }
 
     /// Read lightweight facts for the desktop. Old attachment targets are needed
     /// by the coordinator on restart, never to render a queue badge.
     public func unresolvedPhaseCounts() throws -> [OperationPhase: Int] {
         let rows = try database.rows("""
-            SELECT phase,COUNT(*) FROM operations WHERE phase NOT IN ('failed','succeeded') GROUP BY phase
+            SELECT phase,COUNT(*) FROM operations WHERE id IN (SELECT active_operation_id FROM assets) AND phase NOT IN ('failed','succeeded') GROUP BY phase
             """)
         var counts: [OperationPhase: Int] = [:]
         for row in rows {
@@ -523,6 +645,7 @@ public actor QueueStore {
     public func recordInputExecutionReturned(operationID: UUID, invocationID: UUID, ownerID: UUID) throws {
         try database.transaction {
             guard var call = try dispatchCall(operationID), call.version == 1,
+                  try !hasRecoverySuccessor(operationID),
                   call.operationID == operationID, call.invocationID == invocationID,
                   call.ownerID == ownerID else { throw RiftletError.mismatchedReceipt }
             guard call.inputExecutionReturned != true else { return }
@@ -536,6 +659,7 @@ public actor QueueStore {
         try database.transaction {
             let op = try requiredOperation(receipt.operationID)
             guard var call = try dispatchCall(op.id), call.version == 1,
+                  try !hasRecoverySuccessor(op.id),
                   call.invocationID == invocationID, call.ownerID == ownerID,
                   call.operationID == receipt.operationID, call.assetID == receipt.assetID,
                   call.attempt == receipt.attempt, call.assetSHA256 == receipt.assetSHA256,
@@ -544,6 +668,13 @@ public actor QueueStore {
             call.returnedReceipt = receipt
             call.inputExecutionReturned = true
             try saveCheckpoint(JSONEncoder().encode(call), for: callKey(op.id))
+            // The web handoff finished locally. Its unique START remains the
+            // user-facing fact while the final remote outcome is unknown.
+            if op.target.adapterID == "chatgpt-web", op.phase == .inputTriggered || op.phase == .attachmentPresent,
+               receipt.outcome == .uploadStarted, receipt.uploadStartEvidence?.signal == .attachmentAccepted,
+               try uploadStartReceipt(for: op.id) == receipt, try self.receipt(for: op.id) == receipt {
+                try update(op, phase: .unknown, status: .unknown, reason: "Handed to the draft; final outcome unconfirmed")
+            }
         }
     }
 
@@ -552,7 +683,7 @@ public actor QueueStore {
     public func recordPreInputRejection(_ proof: PreInputRejection) throws {
         try database.transaction {
             let op = try requiredOperation(proof.operationID)
-            guard op.phase == .dispatchIntent, let asset = try asset(id: op.assetID),
+            guard op.phase == .dispatchIntent, try !hasRecoverySuccessor(op.id), let asset = try asset(id: op.assetID),
                   asset.activeOperationID == op.id, op.assetID == proof.assetID,
                   op.attempt == proof.attempt, op.target == proof.target,
                   asset.image.sha256 == proof.assetSHA256,
@@ -566,6 +697,7 @@ public actor QueueStore {
             let detail = proof.reason.map { ": " + String($0.prefix(128)) } ?? ""
             try update(op, phase: .failed, status: .failed,
                 reason: "Verified pre-input rejection: " + proof.stage.rawValue + detail)
+            try restoreOriginalAfterNoInput(op)
         }
     }
 
@@ -582,13 +714,21 @@ public actor QueueStore {
             let op = try requiredOperation(id)
             guard op.phase == .prepared else { throw RiftletError.invalidTransition }
             try update(op, phase: .failed, status: .failed, reason: reason)
+            try restoreOriginalAfterNoInput(op)
         }
     }
 
     public func markUnknown(_ id: UUID, reason: String) throws {
         try database.transaction {
             let op = try requiredOperation(id)
-            guard op.phase.isUnresolved, op.phase != .prepared else { throw RiftletError.invalidTransition }
+            if try hasRecoverySuccessor(id) { return }
+            // A corrupt image descriptor can be the reason this fallback is needed.
+            // Check ownership directly under the same write transaction.
+            guard op.phase.isUnresolved, op.phase != .prepared,
+                  try !database.rows("SELECT 1 FROM assets WHERE id=? AND active_operation_id=?",
+                                     [op.assetID.uuidString, id.uuidString]).isEmpty else {
+                throw RiftletError.invalidTransition
+            }
             try update(op, phase: op.phase == .compensated ? .compensated : .unknown, status: .unknown, reason: reason)
         }
     }
@@ -713,8 +853,44 @@ public actor QueueStore {
             let op = try requiredOperation(receipt.operationID)
             guard let record = try asset(id: op.assetID) else { throw RiftletError.assetNotFound }
             guard op.assetID == receipt.assetID, op.attempt == receipt.attempt,
-                  record.image.sha256 == receipt.assetSHA256, op.target == receipt.target,
-                  record.activeOperationID == op.id else { throw RiftletError.mismatchedReceipt }
+                  record.image.sha256 == receipt.assetSHA256, op.target == receipt.target else {
+                throw RiftletError.mismatchedReceipt
+            }
+            if let invocation = receipt.originalCardFailureInvocationID {
+                guard receipt.outcome == .unknown, receipt.belongsToOriginalDraft, receipt.hasError,
+                      !receipt.safeToRetry, !receipt.isUploading, !receipt.positiveReady, receipt.attachmentID?.isEmpty == false,
+                      receipt.target.clickBindingID != nil, receipt.uploadStartEvidence == nil,
+                      receipt.terminationEvidence == nil, receipt.completionEvidence == nil, receipt.continuationEvidence == nil,
+                      invocation == (try dispatchInvocationID(for: op.id)) else { throw RiftletError.mismatchedReceipt }
+            }
+            if try hasRecoverySuccessor(op.id) {
+                // The original handoff remains immutable. A newly observed error
+                // on its own card is audit evidence only, including after restart.
+                if receipt.originalCardFailureInvocationID != nil {
+                    let originalCard = try uploadStartReceipt(for: op.id)?.attachmentID ?? self.receipt(for: op.id)?.attachmentID
+                    guard originalCard == nil || originalCard == receipt.attachmentID else { throw RiftletError.mismatchedReceipt }
+                    let key = "transfer-late-original-card-v1:" + op.id.uuidString
+                    let data = try JSONEncoder().encode(receipt)
+                    guard data.count <= 64 * 1024 else { throw RiftletError.mismatchedReceipt }
+                    if let saved = try checkpoint(for: key) {
+                        let first = try JSONDecoder().decode(TransferReceipt.self, from: saved)
+                        guard first.attachmentID == receipt.attachmentID else { throw RiftletError.mismatchedReceipt }
+                    } else {
+                        try database.execute("INSERT INTO checkpoints(key,value) VALUES(?,?)", [key, data.base64EncodedString()])
+                    }
+                } else if record.activeOperationID != op.id { throw RiftletError.mismatchedReceipt }
+                return record
+            }
+            guard record.activeOperationID == op.id else { throw RiftletError.mismatchedReceipt }
+            // A later inconclusive read cannot erase the observed error on the original card.
+            if let previous = try self.receipt(for: op.id), previous.originalCardFailureInvocationID != nil {
+                if receipt.originalCardFailureInvocationID != nil, receipt.attachmentID != previous.attachmentID {
+                    throw RiftletError.mismatchedReceipt
+                }
+                // The original input has already reported its own visible error.
+                // A later page-side retry is a distinct action.
+                return record
+            }
             try validateBoundPostInputEvidence(receipt, operation: op, asset: record.image, policy: policy)
             if let started = try uploadStartReceipt(for: op.id), let attachmentID = receipt.attachmentID,
                attachmentID != started.attachmentID { throw RiftletError.mismatchedReceipt }
@@ -794,6 +970,7 @@ public actor QueueStore {
                 } else { phase = .unknown; status = .unknown }
             case .unknown:
                 phase = .unknown; status = .unknown
+                if receipt.originalCardFailureInvocationID != nil { try reviveSafely(record) }
             }
             try update(op, phase: phase, status: status, reason: receipt.reason)
             try database.execute("UPDATE operations SET receipt_json=? WHERE id=?", [try json(receipt), op.id.uuidString])
@@ -906,8 +1083,9 @@ public actor QueueStore {
                     ('transfer-dispatch-call-v1:' || o.id,'transfer-no-input-v1:' || o.id))
                 """)
             for row in rows {
-                try update(decodeOperation(row), phase: .failed, status: .failed,
-                           reason: "Restart before dispatch intent; no input occurred")
+                let op = try decodeOperation(row)
+                try update(op, phase: .failed, status: .failed, reason: "Restart before dispatch intent; no input occurred")
+                try restoreOriginalAfterNoInput(op)
             }
         }
     }
@@ -919,8 +1097,10 @@ public actor QueueStore {
                 // Already unresolved historical results keep their original reason and
                 // timestamp; another launch is not a new observation.
                 if op.phase == .compensated || op.phase == .unknown { continue }
+                if try hasRecoverySuccessor(op.id) { continue }
                 if op.phase == .prepared {
                     try update(op, phase: .failed, status: .failed, reason: "Restart before dispatch intent; no input occurred")
+                    try restoreOriginalAfterNoInput(op)
                 } else {
                     try update(op, phase: .unknown, status: .unknown, reason: "Restart after dispatch intent; reconcile original operation")
                 }
@@ -969,6 +1149,7 @@ public actor QueueStore {
     private func reviveSafely(_ record: AssetRecord) throws {
         // A user removal/archive overrides automatic visibility changes even
         // though the true failure fact is still recorded in operation history.
+        if let id = record.activeOperationID, try isAttachmentHandled(id) { return }
         if record.visibility == .visible || record.visibility == .swallowed {
             try setVisibility(record, .visible, reason: .safeFailure)
         }
@@ -991,6 +1172,14 @@ public actor QueueStore {
         // success may still commit used; only verified file recovery clears other cases.
         try database.execute("UPDATE assets SET status=CASE WHEN status='missing' AND ? != 'used' THEN 'missing' ELSE ? END WHERE id=?",
                              [status.rawValue, status.rawValue, op.assetID.uuidString])
+    }
+
+    private func restoreOriginalAfterNoInput(_ op: TransferOperation) throws {
+        guard let predecessor = try database.rows("SELECT predecessor_id FROM attachment_reselections WHERE successor_id=?",
+                                                   [op.id.uuidString]).first?.first ?? nil else { return }
+        try database.execute("UPDATE assets SET active_operation_id=?, status=CASE WHEN status='missing' THEN status ELSE 'unknown' END WHERE id=? AND active_operation_id=?",
+                             [predecessor, op.assetID.uuidString, op.id.uuidString])
+        invalidateAttachmentReview(op.assetID)
     }
 
     private func requiredOperation(_ id: UUID) throws -> TransferOperation {

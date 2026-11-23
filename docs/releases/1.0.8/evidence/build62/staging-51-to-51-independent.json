@@ -1,0 +1,146 @@
+{
+  "gate": "Independent, real 51-to-51 signed Sparkle application update in corrected isolated macOS guest",
+  "result": "PASS",
+  "reviewer": "independent-build62-recovery-and-mainline-source-reviewer",
+  "signedSource": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "sourcePublic31DMGSHA256": "99276347932e231adf743664a54cfc782d8e345d89221587d54b7299a5c9f315",
+  "sourceSignedExecutableSHA256": "9408b891e805c141108b64019e523a45e30221a03a10c2b91ae97bb16cb66207",
+  "candidateDMGSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "cold31Active31Final62AssetCounts": [
+    51,
+    51,
+    51
+  ],
+  "originRestoration": {
+    "preservedVolumeFileIDAndBytesCount": 32,
+    "beforeAfterRepairedOldAssetRows": 51,
+    "uniqueRestoredObjectIDs": 32,
+    "coldBaselineByteEquivalentToHistorical31": true,
+    "rawDigest": "e1eb2f59ae11bd3b71aeca0dade2bb913b5653c857d64c8bbf0022fedfb7c24e"
+  },
+  "ordinaryNativeSparkle": {
+    "from": "1.0.5 (31)",
+    "to": "1.0.8 (62)",
+    "visibleActions": {
+      "check": {
+        "control": "\u00a9 View Update 1.0.8...",
+        "receiptSHA256": "d22aff601f0145bd636d49bb31ad4e03633048a0da9ea26319847cd6075ad68a",
+        "screenshotSHA256": "f878f93add0c251e94497c926e66f02b830d3be17dcb9320954e808555040b77"
+      },
+      "install": {
+        "control": "Install Update",
+        "receiptSHA256": "844ce5a2cdb17174be478f9cbf0abf5765092a8376c76c34a8ac95a1a7824c3f",
+        "screenshotSHA256": "d901452cc4cb207c468e64e91b0cba494a3ad86535321425611baae902c594bd"
+      },
+      "relaunch": {
+        "control": "Install and Relaunch",
+        "receiptSHA256": "b5ccdf96095774c155bc843eab9990294bfd0fbc2511537e56f1b2f059a0a502",
+        "screenshotSHA256": "4772ffd7e22769e0425f0d413023cdfb2851080129d746b45cf28ce90543e67f"
+      }
+    },
+    "signedFeedAndDMGRequests": {
+      "/stable.xml": {
+        "requests": 1,
+        "sha256": "eb09f2e13986d6ce167a0804f7671bd382e3964b7c0d63b8ff8da6dfe1659a16",
+        "sparkleUserAgentObserved": true
+      },
+      "/Riftlet-1.0.8.dmg": {
+        "requests": 1,
+        "sha256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+        "sparkleUserAgentObserved": true
+      }
+    },
+    "distinctProcessesAtSameInstalledPath": true,
+    "guestServerStopped": true
+  },
+  "signedProduct": {
+    "exportArchiveSHA256": "c3acc74c3ae868c3efc1261ae9bd1a28ef992543dc59a8f16b2efb326dd35404",
+    "executableSHA256": "b641a84d1ca48f88cd54825bcc9af64d45915c640b90f8ccdaee3f3b1697ec98",
+    "completelyMatchingZipAndInstalledInventoryMembers": 193,
+    "allModesAndSymlinksMatch": true,
+    "nonTransportExtendedAttributesMatch": true,
+    "developerIDAllArchitectures": true,
+    "gatekeeperAndStapleIndependent": true
+  },
+  "persistedData": {
+    "unchangedFileCount": 86,
+    "unchangedPNGCount": 83,
+    "retainedLibraryPNGCount": 51,
+    "addedScreenshotsOrMedia": 0,
+    "addedOperationsOrSTART": 0,
+    "assetsFullySameRowDigestsComparingActive31With62": true,
+    "allOriginalSourceFieldsAccountedFor": true,
+    "fullOriginalUNKNOWNRowsUnchanged": 1,
+    "retainedSettings": 3,
+    "sameBookmarkAndFeedback": true,
+    "coldTo62SourceRowProjection": {
+      "assets": {
+        "before": 51,
+        "after": 51,
+        "missing": 0,
+        "identicalOriginalFields": 19,
+        "ordinaryAutomaticArchive": 32,
+        "otherDifferencesByColumn": {}
+      },
+      "operations": {
+        "before": 2,
+        "after": 2,
+        "missing": 0,
+        "identicalOriginalFields": 2,
+        "ordinaryAutomaticArchive": 0,
+        "otherDifferencesByColumn": {},
+        "unknown": {
+          "before": 1,
+          "exact": 1
+        }
+      },
+      "upload_starts": {
+        "before": 1,
+        "after": 1,
+        "missing": 0,
+        "identicalOriginalFields": 1,
+        "ordinaryAutomaticArchive": 0,
+        "otherDifferencesByColumn": {}
+      },
+      "checkpoints": {
+        "before": 6,
+        "after": 6,
+        "missing": 0,
+        "identicalOriginalFields": 6,
+        "ordinaryAutomaticArchive": 0,
+        "otherDifferencesByColumn": {}
+      },
+      "compensations": {
+        "before": 0,
+        "after": 0,
+        "missing": 0,
+        "identicalOriginalFields": 0,
+        "ordinaryAutomaticArchive": 0,
+        "otherDifferencesByColumn": {}
+      },
+      "metadata": {
+        "before": 2,
+        "after": 2,
+        "missing": 0,
+        "identicalOriginalFields": 2,
+        "ordinaryAutomaticArchive": 0,
+        "otherDifferencesByColumn": {}
+      },
+      "userVersion31": 5,
+      "userVersion62": 5
+    }
+  },
+  "rawReceiptSHA256": {
+    "31-cold.json": "41e70d494b89ee0b5a23d77e6e037f08ee20eede72b1fc075d11aebe5c4dce37",
+    "31-before.json": "3ce3a78fe4016d94dd0e0ff7b5622f38f8220c0db7571a09eaf7c6615e493ca5",
+    "62-after.json": "3ce3a78fe4016d94dd0e0ff7b5622f38f8220c0db7571a09eaf7c6615e493ca5",
+    "31-preferences.json": "0050733a70568113183350994f2b8a4158a5789ee9191881c6bc04cac20454f1",
+    "62-preferences.json": "0050733a70568113183350994f2b8a4158a5789ee9191881c6bc04cac20454f1",
+    "62-projected-original-fields.json": "fd2e9c94beb77e4183fc8888d43db85b51e942e110d3c67fc64b872c27b662c4",
+    "server-events.jsonl": "187d1be01bcbd3e4ed462b514eeff8105a2a3b90960c0a70b77e8cdd0dcadbb0",
+    "end.txt": "525dfb9792623493d925f2c86d72661bda4266908a92ba20e1080863793e3a6b",
+    "start.txt": "17df890ac693414d3c353c18e8cdf7d3c7f3addebc49cdad7d211d2478fa7017"
+  },
+  "firstAttemptAttributionSHA256": "e4eb8bf9f1682c55c82e8d957f95e08ac948625989c66c22ce0acaba760d2fce",
+  "otherGates": "Postpublication ordinary public-feed upgrade plus independent public download are separate. Guest archive UI or explicit post-upgrade attachment requires its own direct evidence."
+}

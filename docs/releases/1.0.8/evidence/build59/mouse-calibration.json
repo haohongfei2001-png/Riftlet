@@ -1,0 +1,57 @@
+{
+  "build": 59,
+  "source": "69b76cb025ab552b3480e3af095b627891874712",
+  "privateDMG_SHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+  "executableSHA256": "6fb94534e7b34533f10abb00c2b91369787e6ca1a516ae3c1fe818fe03a53ff7",
+  "archCDHashes": {
+    "arm64": "6f929cd41efefd8695a5f398201d6d04bd6f893e",
+    "x86_64": "66243bf1a07be2689e073dc7d9a513a266d12544"
+  },
+  "toolSHA256": {
+    "row-proof": "3d1cf1fb4536729eb9ab39b07896117a3008909971c1593e775119e622775e81",
+    "row-proof.py": "8e4f77855681f6a6dbbf8e90ecabd6b7a787a54d34cc17bcbbc2e8142cd6b41a",
+    "row-proof.swift": "0d45744fb5db54fa59e925b0704bc4fa841e20bd5082cb356e22944a41e1ec20"
+  },
+  "calibration": [
+    {
+      "case": "3c380b98-6060-479f-a79e-1d272163839b",
+      "windowSize": [
+        50,
+        30
+      ],
+      "local": [
+        25.0,
+        15.0
+      ],
+      "screenCenter": [
+        1403,
+        29
+      ],
+      "viewDown": 1,
+      "viewUp": 1,
+      "foregroundUnchanged": true,
+      "receiverSHA256": "6713943250d483e8ed677a253db9eba7a1f84c60dfdc89dc3d9c8011e34a7ed0"
+    },
+    {
+      "case": "51a6a36c-dba6-4e28-84c8-dea98149025d",
+      "windowSize": [
+        82,
+        46
+      ],
+      "local": [
+        41.0,
+        23.0
+      ],
+      "screenCenter": [
+        86,
+        399
+      ],
+      "viewDown": 1,
+      "viewUp": 1,
+      "foregroundUnchanged": true,
+      "receiverSHA256": "0c7c6673938840668edf3bff5dde1abd2b446ffcc88925bf80b78cdd649a3a59"
+    }
+  ],
+  "defaultEventsPosted": 0,
+  "actualCandidateClick": "NOT_RUN"
+}

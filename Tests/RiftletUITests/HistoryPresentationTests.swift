@@ -20,8 +20,8 @@ final class HistoryPresentationTests: XCTestCase {
                     composerID: "fixture", draftGeneration: "1")
     }
 
-    private func operation(for record: AssetRecord, phase: OperationPhase, attempt: Int = 1) throws -> TransferOperation {
-        let targetObject = try JSONSerialization.jsonObject(with: JSONEncoder().encode(target()))
+    private func operation(for record: AssetRecord, phase: OperationPhase, attempt: Int = 1, webTarget: TargetLease? = nil) throws -> TransferOperation {
+        let targetObject = try JSONSerialization.jsonObject(with: JSONEncoder().encode(webTarget ?? target()))
         let object: [String: Any] = [
             "id": (record.activeOperationID ?? UUID()).uuidString,
             "assetID": record.id.uuidString, "attempt": attempt, "target": targetObject,
@@ -38,6 +38,18 @@ final class HistoryPresentationTests: XCTestCase {
                         target: lease ?? operation.target, outcome: .definitiveFailure,
                         profileID: "simulation-v1", attachmentID: "synthetic-history", belongsToOriginalDraft: true,
                         hasError: true, safeToRetry: safeToRetry)
+    }
+
+    func testOriginalCardErrorAppearsInFailedFilterWithoutGrantingRetry() throws {
+        let record = asset(status: .unknown, operationID: UUID())
+        let op = try operation(for: record, phase: .unknown)
+        let receipt = TransferReceipt(operationID: op.id, assetID: record.id, attempt: op.attempt,
+            assetSHA256: record.image.sha256, target: op.target, outcome: .unknown, profileID: "fixture",
+            attachmentID: "card", belongsToOriginalDraft: true, hasError: true, originalCardFailureInvocationID: UUID())
+        let entry = RiftHistoryEntry(record: record, operation: op, lastReceipt: receipt)
+        XCTAssertTrue(RiftHistoryFilter.failed.includes(entry))
+        XCTAssertTrue(RiftHistoryFilter.needsAttention.includes(entry))
+        XCTAssertFalse(entry.isConfirmedFailure)
     }
 
     func testVisibilityAndVerificationRemainSeparateHistoryFilters() {
@@ -81,6 +93,35 @@ final class HistoryPresentationTests: XCTestCase {
         XCTAssertTrue(HistoryPresentation.detailText(for: missingEntry, copy: .simplifiedChinese).contains("已交给"))
         XCTAssertFalse(RiftHistoryFilter.handedOff.includes(missingEntry))
         XCTAssertFalse(missingEntry.canRestoreToRift)
+    }
+
+    func testAmbiguousWebInputOffersLocalDispositionIndependentOfOriginalBrowserSupport() throws {
+        let chrome = TargetLease(adapterID: "chatgpt-web", surface: .webChat, applicationID: "com.google.Chrome",
+                                 sessionID: "session", windowID: "window", documentID: "doc",
+                                 composerID: "composer", draftGeneration: "generation")
+        let failed = asset(status: .failed, visibility: .archived, operationID: UUID())
+        let prior = try operation(for: failed, phase: .failed, webTarget: chrome)
+        let ordinary = RiftHistoryEntry(record: failed, operation: prior, canRestore: true)
+        XCTAssertTrue(ordinary.canReviewOriginal)
+        XCTAssertTrue(ordinary.canRestoreToRift)
+        XCTAssertFalse(ordinary.hasRecoveryOptions)
+        let unknown = asset(status: .unknown, operationID: UUID())
+        let ambiguous = RiftHistoryEntry(record: unknown, operation: try operation(for: unknown, phase: .unknown, webTarget: chrome))
+        XCTAssertTrue(ambiguous.hasRecoveryOptions)
+        XCTAssertTrue(ambiguous.canRequestReattachment)
+        let handled = RiftHistoryEntry(record: unknown, operation: ambiguous.operation, isHandled: true)
+        XCTAssertFalse(handled.canRequestReattachment)
+        let missing = asset(status: .missing, operationID: unknown.activeOperationID, id: unknown.id)
+        XCTAssertFalse(RiftHistoryEntry(record: missing, operation: ambiguous.operation).canRequestReattachment)
+        XCTAssertFalse(ambiguous.canRestoreToRift)
+        let retiredTarget = TargetLease(adapterID: "legacy-web", surface: .webChat, applicationID: "retired",
+                                        sessionID: "old", windowID: "old", documentID: "old",
+                                        composerID: "old", draftGeneration: "old")
+        let legacy = RiftHistoryEntry(record: unknown, operation: try operation(for: unknown, phase: .unknown, webTarget: retiredTarget))
+        XCTAssertFalse(legacy.canReviewOriginal)
+        XCTAssertFalse(legacy.canRequestReattachment)
+        XCTAssertTrue(legacy.hasRecoveryOptions)
+        XCTAssertFalse(RiftHistoryEntry(record: unknown, operation: try operation(for: unknown, phase: .unknown)).hasRecoveryOptions)
     }
 
     func testPreInputCancellationIsNotPresentedAsRemoteUploadFailure() throws {
@@ -157,16 +198,16 @@ final class HistoryPresentationTests: XCTestCase {
         let missing = RiftHistoryEntry(record: asset(status: .missing))
         for copy in [ProductCopy.simplifiedChinese, .english] {
             XCTAssertEqual(HistoryPresentation.localizedState(for: unknown, copy: copy),
-                           copy.text("结果待核实", "Needs review"))
+                           copy.text("结果尚未确认", "Result unconfirmed"))
             XCTAssertEqual(HistoryPresentation.localizedState(for: missing, copy: copy),
                            copy.text("本地副本不可用", "Local copy unavailable"))
             XCTAssertEqual(HistoryPresentation.detailText(for: unknown, copy: copy),
-                           copy.text("请对照原图，在原草稿中核对附件。Riftlet 不会自动重传。",
-                                     "Compare the original image with the attachment in your draft. Riftlet won’t upload it again automatically."))
+                           copy.text("上传结果尚未确认，重新附加可能产生重复附件。原图已保留。",
+                                     "The upload is unconfirmed. Attaching again may create a duplicate. The original image is saved."))
             XCTAssertFalse(unknown.canRestoreToRift)
             XCTAssertEqual(RiftHistoryFilter.needsVerification.title(copy: copy), copy.text("待核实", "Needs Review"))
         }
-        for query in ["结果待核实", "Needs review", unknown.id.uuidString] {
+        for query in ["结果尚未确认", "Result unconfirmed", "结果待核实", "Needs review", unknown.id.uuidString] {
             XCTAssertEqual(HistoryPresentation.matching([unknown, missing], query: query).map(\.id), [unknown.id])
         }
     }

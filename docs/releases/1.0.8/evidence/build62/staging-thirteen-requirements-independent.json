@@ -1,0 +1,168 @@
+{
+  "scope": "Independent pre-publication private staged real Sparkle upgrade, itemized against all thirteen Section 6 requirements",
+  "reviewer": "independent-build62-recovery-and-mainline-source-reviewer",
+  "signedProduct": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "dmgSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "result": "PASS",
+  "checksPassed": 13,
+  "checks": [
+    {
+      "index": 1,
+      "criterion": "1.0.5 能发现 1.0.8。",
+      "result": "PASS",
+      "evidenceInterpretation": "Private guest native Sparkle displayed View Update 1.0.8 in the running ordinary 1.0.5 (31) menu.",
+      "evidenceRefs": [
+        "migration"
+      ]
+    },
+    {
+      "index": 2,
+      "criterion": "更新元数据签名有效。",
+      "result": "PASS",
+      "evidenceInterpretation": "Both 31 and 62 require signed feeds. Both embedded keys validate the private appcast and the candidate archive, and actual Sparkle accepted this feed.",
+      "evidenceRefs": [
+        "signedApplicationUpdateMetadata",
+        "normalPackageUpdateSignature",
+        "migration"
+      ]
+    },
+    {
+      "index": 3,
+      "criterion": "下载的 DMG 与正式候选 SHA-256 一致。",
+      "result": "PASS",
+      "evidenceInterpretation": "The actual guest Sparkle GET served the full 14,225,854-byte formal archive with the pinned SHA-256, and the installed export matched all 193 signed inventory entries.",
+      "evidenceRefs": [
+        "migration",
+        "signingAndInstall"
+      ]
+    },
+    {
+      "index": 4,
+      "criterion": "安装更新成功。",
+      "result": "PASS",
+      "evidenceInterpretation": "Install Update and Install and Relaunch were observed on the real private guest. PID 871 was replaced by PID 1360 at the same ordinary application path.",
+      "evidenceRefs": [
+        "migration"
+      ]
+    },
+    {
+      "index": 5,
+      "criterion": "版本号为 1.0.8。",
+      "result": "PASS",
+      "evidenceInterpretation": "The live guest and its exported verified app report short version 1.0.8 and build 62.",
+      "evidenceRefs": [
+        "migration"
+      ]
+    },
+    {
+      "index": 6,
+      "criterion": "原有 51 个资产等历史数据完整。",
+      "result": "PASS",
+      "evidenceInterpretation": "All seven preexisting tables, all 51 asset rows, their source and 51 retained PNGs, including original SHA-256, bytes and dimensions, survive. Active 31 and active 62 both have 51 assets.",
+      "evidenceRefs": [
+        "originalSQLite",
+        "retainedBytesSettingsHistory",
+        "migration"
+      ]
+    },
+    {
+      "index": 7,
+      "criterion": "原有 operation 和 UNKNOWN 完整。",
+      "result": "PASS",
+      "evidenceInterpretation": "Both operations and all original typed fields, invocations, the one UNKNOWN, the existing START and six checkpoints match the original. The update initialized two empty recovery tables.",
+      "evidenceRefs": [
+        "originalSQLite",
+        "nativeQueue"
+      ]
+    },
+    {
+      "index": 8,
+      "criterion": "设置保留。",
+      "result": "PASS",
+      "evidenceInterpretation": "All three original user-owned Riftlet preference keys and values, bookmark and feedback projection are preserved. Values were independently rehashed from the exported post-update preferences.",
+      "evidenceRefs": [
+        "retainedBytesSettingsHistory",
+        "originalSQLite"
+      ]
+    },
+    {
+      "index": 9,
+      "criterion": "历史界面可用。",
+      "result": "PASS",
+      "evidenceInterpretation": "The normal updated process opened Screenshot Library from its menu with All Screenshots, Archived and Search. Later the specific new library row could be selected and restored.",
+      "evidenceRefs": [
+        "retainedBytesSettingsHistory",
+        "nativeQueue"
+      ]
+    },
+    {
+      "index": 10,
+      "criterion": "截图附加功能可用。",
+      "result": "PASS",
+      "evidenceInterpretation": "Composite functional availability. The updated app acquired the actual OS screenshot, displayed and restored the same image, and its normal queue click returned the no-current-draft message. Its exact post-update page resource separately performed one native DOM file setter, input, change and matching attachmentAccepted using this same PNG in an offline document. Both actual signed-in Chrome/Edge transfers of the exact same signed 193-member product passed independently. No new real-site upload was undertaken after upgrading. The guest rejection has zero inputs and STARTs. The offline fixture has its own image/operation identities and no guest START.",
+      "evidenceRefs": [
+        "realNewScreenshot",
+        "nativeQueue",
+        "nativePromptIndependentOSRecognition",
+        "offlineDOM",
+        "liveBrowsers",
+        "migration"
+      ]
+    },
+    {
+      "index": 11,
+      "criterion": "不自动重试。",
+      "result": "PASS",
+      "evidenceInterpretation": "No old transfer, invocation or START changed across all four online backups through the explicit unsupported-target click. The idle application created no operation. The file-page transfer had one explicit commit.",
+      "evidenceRefs": [
+        "originalSQLite",
+        "realNewScreenshot",
+        "nativeQueue",
+        "offlineDOM"
+      ]
+    },
+    {
+      "index": 12,
+      "criterion": "不自动发送。",
+      "result": "PASS",
+      "evidenceInterpretation": "Both actual-site browser suites and the controlled receiver measured zero send clicks and zero form submissions. No guest browser target or file dispatch existed on the unsupported-foreground route. The guest OS route does not expose a live DOM send counter.",
+      "evidenceRefs": [
+        "liveBrowsers",
+        "nativeQueue",
+        "offlineDOM"
+      ]
+    },
+    {
+      "index": 13,
+      "criterion": "不产生重复截图。",
+      "result": "PASS",
+      "evidenceInterpretation": "Corrected input remained 51 through update. One intentional new system capture produced only the 52nd asset. After the ordinary queue click the database still had 52, all 51 old rows unchanged and the same new PNG. The other 32 in the first test were the result of copied source identities imported by version 31 before it downloaded 62.",
+      "evidenceRefs": [
+        "migration",
+        "realNewScreenshot",
+        "nativeQueue",
+        "previousAttemptAttribution"
+      ]
+    }
+  ],
+  "evidenceSHA256": {
+    "migration": "38406e54f720841dccda195bca5a9d17cded878c1009ba96976539e8f5b0586f",
+    "originalSQLite": "0bebcf99b64297c34ad094d2e297affe1ae37c5bc8011cd3246dd9a216fdbc08",
+    "retainedBytesSettingsHistory": "b87f4c03f83be22c7bae7f60d3f80cda0caab41cc36be41ced222c558bd10a42",
+    "realNewScreenshot": "6d157dfb19e19bd08def5ef5b14b8f1f05650c186f7693f896a6bbfc077cddb2",
+    "nativeQueue": "045bb389cbbd79e7122222f92ed8d866941eb7469bc028f9357ab5352c0b172e",
+    "nativePromptIndependentOSRecognition": "2a4ffdde94f232d5dce0c287db9263131a9d94accb7106e3a1fa6301b18e3134",
+    "offlineDOM": "14e00e72978683c8c1f52fc13fc5c15c780bb0f1226fbe66d2176f9122835797",
+    "liveBrowsers": "b2d641b911ca3f9606284d15ed2325b518a8a4a20f0afacafde9c937e73d7d1b",
+    "signingAndInstall": "b1e68175e18fb3ecace649bb1d10253accdcebe505d9b4cc8454c5bc89b6ac23",
+    "signedApplicationUpdateMetadata": "d767b8b9d9bbca1d56231c44508c6e4c37008f4bdf21b95c688398c0b5aa7474",
+    "previousAttemptAttribution": "e4eb8bf9f1682c55c82e8d957f95e08ac948625989c66c22ce0acaba760d2fce",
+    "normalPackageUpdateSignature": "f5ec1efe65cfb1eae057f03fe8f0e82b1cf043e0d7b566f7f1d5779315e7d00e"
+  },
+  "limits": {
+    "thirdRealSiteTransferPostUpgrade": false,
+    "separatePostPublicationIndependent31To62ViaPublicStableFeed": "NOT_RUN",
+    "thisIsReleasePublication": false,
+    "privateRawDatabasePNGsAndBrowserSessions": "private only"
+  }
+}

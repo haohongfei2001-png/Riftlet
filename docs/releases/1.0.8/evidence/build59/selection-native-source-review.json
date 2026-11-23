@@ -1,0 +1,53 @@
+{
+  "verifiedUTC": "2026-11-22T13:50:27.080505+00:00",
+  "dmgSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+  "scope": "Real signed build 59, native software-targeted AppKit mouseDown. Input and change counters from real site observer. Independent verification against a query-only SQLite connection.",
+  "chrome": {
+    "selection": "PASS",
+    "characters": 64,
+    "selectedUTF16": [
+      12,
+      40
+    ],
+    "direction": "forward",
+    "existingCards": 1,
+    "newCards": 1,
+    "newInput": 1,
+    "newChange": 1,
+    "uniqueNewDurableSTART": 1,
+    "originalDocumentAndEditorVerified": true,
+    "originalSeedEpochRecordedBeforeNewInputAndEqualsNewCommittedEpoch": true,
+    "directSlotEpochBeforeClick": "NOT_OBSERVED",
+    "preservedOriginalAndNewPNGsAndDecodedPixelsVerified": true,
+    "sends": 0,
+    "formSubmits": 0,
+    "scopeProofSHA256": "690a5f5ca276fdc82a388710f800ec89f8d88068f73bdf1b20e7646a96faa80e",
+    "selectionReceiptSHA256": "dedcf9fe456ead9ab6799ceb96bf0000ca4c012823b7e498885bf9ab25f84683",
+    "inputBoundaryReceiptSHA256": "df93c7292a6565478180dedcac7b573b5b12fb728c65b281f34bbec0861141b1",
+    "candidateResultSHA256": "4dfa1a84278938f22d09dec731bc07bdc734b9131c99b0fe3a2e8a262083c303"
+  },
+  "edge": {
+    "selection": "PASS",
+    "characters": 64,
+    "selectedUTF16": [
+      12,
+      40
+    ],
+    "direction": "forward",
+    "existingCards": 1,
+    "newCards": 1,
+    "newInput": 1,
+    "newChange": 1,
+    "uniqueNewDurableSTART": 1,
+    "originalDocumentAndEditorVerified": true,
+    "originalSeedEpochRecordedBeforeNewInputAndEqualsNewCommittedEpoch": true,
+    "directSlotEpochBeforeClick": "NOT_OBSERVED",
+    "preservedOriginalAndNewPNGsAndDecodedPixelsVerified": true,
+    "sends": 0,
+    "formSubmits": 0,
+    "scopeProofSHA256": "48827d484da141783c4cd06666d7b9dc3a244882827660a429f8af6b7df4569c",
+    "selectionReceiptSHA256": "6275c46da149f653b5837a97c65a185913b2b4358027841599386cbbbb0941b8",
+    "inputBoundaryReceiptSHA256": "409fa4c8f31e06ab9afb910b4ebd45ec18115d6e77f2c7ed02a1298c3ddba400",
+    "candidateResultSHA256": "ed32a64f62b8c17a9e1edd1969c73af8ca972ef8a37fe5c738c33f965abdb67b"
+  }
+}

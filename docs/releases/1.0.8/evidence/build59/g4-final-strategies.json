@@ -1,0 +1,79 @@
+{
+  "auditedAtUTC": "2026-11-22T15:39:32.355660+00:00",
+  "source": "69b76cb025ab552b3480e3af095b627891874712",
+  "build": 59,
+  "candidateDMGSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+  "status": "BLOCKED_TECHNICAL — G4 NOT PROVEN",
+  "release": "NOT_RELEASED",
+  "strategyRuns": [
+    {
+      "strategy": 1,
+      "attempt": "original-loadstart",
+      "network": "g4-final-network-receipt.json",
+      "site": "g4-final-card-observation.json",
+      "state": "g4-final-recovery.json",
+      "independent": "g4-final-independent.json",
+      "cancelled": 1,
+      "elapsedFromClickIntentS": 54.549,
+      "terminalOnlySQLiteSHA256": "3f1176fe3da464277c4ae2552c9a4ecee799b8d7aa4d1b5b7337b5b097c1e926"
+    },
+    {
+      "strategy": 2,
+      "independent": "g4-progress2-live.json",
+      "sourcePNGBytes": 2255260,
+      "sourcePNGSHA256": "9a46d702008933474e96136e9ef7c6f3832e0b19475175ee2b3ae2d499a55a97",
+      "cancelled": 0,
+      "attributedByteRequests": 0,
+      "elapsedFromClickIntentS": 54.884,
+      "terminalOnlySQLiteSHA256": "11bcd99f1681371f95bb9ad5f74a03379b2e463e09a38f9fd872320208fbf509"
+    },
+    {
+      "strategy": 3,
+      "independent": "g4-body3-live.json",
+      "sourcePNGBytes": 5516,
+      "sourcePNGSHA256": "7879f08c5ab36c8d9a60fed1f30661117ef17999dc8ab5bf81f2fbab37d974a4",
+      "cancelled": 1,
+      "attributedByteRequests": 1,
+      "elapsedFromClickIntentS": 54.918,
+      "terminalOnlySQLiteSHA256": "2a7c15697cde5d96927999e6ec9b4766dd5ef79e58dfd0bb46fd5d0c53a498de"
+    },
+    {
+      "strategy": 2,
+      "independent": "g4-midproof-live.json",
+      "sourcePNGBytes": 188726,
+      "sourcePNGSHA256": "20ec24f32a9dc11f7536526a2f2ca0001c728f78c7bb4432d8c65cdec6a26118",
+      "cancelled": 1,
+      "attributedByteRequests": 1,
+      "elapsedFromClickIntentS": 54.966,
+      "terminalOnlySQLiteSHA256": "ed000599b6b66cdb2196989b140c6d097ed366f68c694cf51ed73707bfc0dd88"
+    }
+  ],
+  "realDistinctOriginalXHRFaultTimings": 3,
+  "actualScopedXHRAborts": 3,
+  "supplementaryOriginalsWithoutFault": 1,
+  "newLiveTemporaryDraftsThisRun": 3,
+  "newLiveFileInputsThisRun": 3,
+  "newLiveChangesThisRun": 3,
+  "newLiveAbortsThisRun": 2,
+  "newLiveSendClicksThisRun": 0,
+  "newLiveFormSubmitsThisRun": 0,
+  "namedExplicitOriginalCardFailures": 0,
+  "eligibleBeforeOrAfterSTARTRecoveryBranches": [],
+  "explicitOriginalReselection": "NOT_RUN",
+  "recoveryInvocationCount": 0,
+  "eligibleBeforeSQLiteSHA256": null,
+  "eligibleAfterSQLiteSHA256": null,
+  "observedOldReplayCount": 0,
+  "serverOutcome": "unknown",
+  "faultSource": "Scoped client transport cancellation. No server-side error established.",
+  "publicReceiptDigests": {
+    "g4-final-card-observation.json": "836178ff1eac7d7ced80a0b005319a7e5a2d4a0551789f55d7da7897295a8915",
+    "g4-final-network-receipt.json": "f7c40cbc8e0c55358c7428c335497cded2cf3e152cabb22e5cd4422327ddf133",
+    "g4-final-recovery.json": "5b8c6146da737e546aed4d530803ad1e267b5d665bb1f41795a6560552f40655",
+    "g4-final-independent.json": "661b9b7e002cca0814fbff5614016641fe0293c6fd4e1d520f5ccd3398009668",
+    "g4-unattended-preparation.json": "a88334c9d76a16b69b642a91f7e2edf7cf63a23e4d7247e0dd5d09a1573b7a85",
+    "g4-progress2-live.json": "9c6d428c6862617729bb1ef234ef2a0fd8b4b3dd94bf6f358ad440899d0468a9",
+    "g4-body3-live.json": "80a9df65ff6c36268cf0a213479e1609e05770aae76c1eb012108fbfc5d04237",
+    "g4-midproof-live.json": "4aebf98af7bb588c0192798c8c2b4a2cb8260492732e39f9290af86395bf611f"
+  }
+}

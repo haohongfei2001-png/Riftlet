@@ -1,0 +1,23 @@
+{
+  "source": "193009d842b460dbff80ee3416954cb087e4160f",
+  "build": 44,
+  "stage": "SIGNED",
+  "teamID": "ZB9D4T66QB",
+  "architectures": [
+    "arm64",
+    "x86_64"
+  ],
+  "executableSHA256": "cb4a172f78b2294cc894a2d2a9a6f81b8545baa4c81dee33b1126ec2a711ba21",
+  "webProgramSHA256": "3a23e5d6fba1f39945bebce0c07212839527385da3434c4a143c8674882bedab",
+  "codesign": "Verified deep strict all architectures",
+  "nativeSelfCheck": [
+    "arm64",
+    "x86_64 via Rosetta"
+  ],
+  "sparkleToolTests": 11,
+  "atCheckpoint": {
+    "notarization": "NOT_SUBMITTED",
+    "guestGatekeeper": "Unnotarized Developer ID",
+    "realChatGPT44": "NOT_RUN"
+  }
+}

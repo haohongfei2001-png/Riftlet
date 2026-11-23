@@ -127,7 +127,15 @@ final class WebAcceptanceIntegrationTests: XCTestCase {
         XCTAssertEqual(finalReceipt, firstReceipt)
         XCTAssertEqual(finalAudit, audit)
         let afterRecovery = await bridge.recordedCommands()
-        XCTAssertEqual(afterRecovery.count, afterStart.count, "Recovery must not ask the page about historical uploads")
+        let recoveryCommands = Array(afterRecovery.dropFirst(afterStart.count))
+        XCTAssertEqual(recoveryCommands.map(\.action), [.observe])
+        let check = try XCTUnwrap(recoveryCommands.first)
+        let originalBegin = try XCTUnwrap(afterStart.first { $0.action == .begin })
+        let invocation = try XCTUnwrap(originalBegin.invocationID)
+        XCTAssertEqual(check.requireLiveOriginal, true)
+        XCTAssertEqual(check.invocationID, invocation)
+        XCTAssertEqual(check.identity, originalBegin.identity)
+        XCTAssertEqual(check.target, target)
 
         let second = try await image(in: reopened)
         await bridge.setObservation(.uploadStarted)
@@ -196,7 +204,7 @@ final class WebAcceptanceIntegrationTests: XCTestCase {
         XCTAssertEqual(row.record.visibility, .swallowed)
         let entry = RiftHistoryEntry(snapshot: row)
         XCTAssertEqual(entry.attachmentState, .checkDraft)
-        XCTAssertEqual(HistoryPresentation.localizedState(for: entry, copy: .simplifiedChinese), "需要检查原对话")
+        XCTAssertEqual(HistoryPresentation.localizedState(for: entry, copy: .simplifiedChinese), "结果尚未确认，请检查原草稿")
         XCTAssertFalse(entry.canRestoreToRift)
         let conversationID = try XCTUnwrap(target.historyConversationID)
         XCTAssertEqual(entry.conversationURL?.absoluteString, "https://chatgpt.com/c/" + conversationID.uuidString.lowercased())
@@ -230,8 +238,15 @@ final class WebAcceptanceIntegrationTests: XCTestCase {
             if await bridge.recordedCommands().last?.action == .observe { break }
             try await Task.sleep(nanoseconds: 2_000_000)
         }
+        let afterPending = await bridge.recordedCommands()
+        XCTAssertEqual(afterPending.map(\.action), afterStart.map(\.action) + [.observe])
+        let originalIdentity = try XCTUnwrap(afterPending.last?.identity)
+        XCTAssertEqual(originalIdentity.operationID, operationID)
+        XCTAssertEqual(originalIdentity.target, target)
         await bridge.setObservation(.attached, error: true)
         let observedCompletion = try await transfer.observeCompleted(operationID: operationID)
+        let afterCompleted = await bridge.recordedCommands()
+        XCTAssertEqual(afterCompleted.map(\.action), afterPending.map(\.action))
         let retainedOperation = try await store.operation(id: operationID)
         let hidden = try await store.asset(id: asset.id)
         let compensation = try await store.compensation(for: operationID)
@@ -243,9 +258,8 @@ final class WebAcceptanceIntegrationTests: XCTestCase {
         let retained = try await store.uploadStartReceipt(for: operationID)
         let commands = await bridge.recordedCommands()
         XCTAssertEqual(retained, audit)
-        XCTAssertEqual(commands.map(\.action), afterStart.map(\.action) + [.observe])
-        XCTAssertEqual(commands.last?.identity?.operationID, operationID)
-        XCTAssertEqual(commands.last?.identity?.target, target)
+        XCTAssertEqual(commands.map(\.action), afterCompleted.map(\.action) + [.observe])
+        XCTAssertEqual(commands.last?.identity, originalIdentity)
     }
 
     func testPermissionAwaitKeepsOriginalTargetAndRejectsChangedDraft() async throws {

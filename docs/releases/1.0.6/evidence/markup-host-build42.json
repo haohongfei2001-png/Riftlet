@@ -1,0 +1,30 @@
+{
+  "originalSHA256": "32d156a1ed1602c0d77e61568c8d44af24fa18638ec28284497bd36eabcab5df",
+  "derivedSHA256": "68da2e5025d2991c7159ba8e69fcc7f747f7c179e923733749dcabe8b26c0a71",
+  "retainedOriginal": true,
+  "storedNewAssets": 1,
+  "hostPermission": "preexisting exact enabled Riftlet toggle in Screen Recording Settings",
+  "actions": [
+    "selected only the owned QA window",
+    "draw rectangle",
+    "undo",
+    "draw rectangle again",
+    "quit guard",
+    "retry after temporary capture directory save denial"
+  ],
+  "englishActions": [
+    "select own QA window",
+    "draw rectangle",
+    "Quit with unfinished changes",
+    "temporary private save failure",
+    "Keep Original"
+  ],
+  "englishOriginalSHA256": "32d156a1ed1602c0d77e61568c8d44af24fa18638ec28284497bd36eabcab5df",
+  "englishEnqueuedOriginalBytesExact": true,
+  "englishNewAssets": 1,
+  "build": 42,
+  "product": "3ab118d590c911a52e4110094f78ae1f480927f2",
+  "dmgSHA256": "a9037d17d079c2ae6ed62693c4523e2f8b3543d0943dd00e8a79270c9069fde1",
+  "executableSHA256": "b2f67175b8a1d522291c3f5f21c710b6435bd9cde9c00e9a98ff912d2d723080",
+  "hostScope": "Signed ordinary candidate isolated home, exact existing Screen Recording permission enabled, screenshot target restricted to owned synthetic color window, both languages. No permission or user preference modified."
+}

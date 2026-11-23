@@ -62,9 +62,19 @@ public actor SystemScreenshotCandidateAdmission {
         try await registeredObservationSource(for: request) != nil
     }
 
+    /// Ask for a retained original START only until Core has committed that fact.
+    /// These two earlier sources already enforced the same positive handoff rules.
+    func needsOriginalStart(for request: TransferRequest, readingOriginal: Bool = false) async throws -> Bool {
+        guard scope.isProduct,
+              let source = try await registeredObservationSource(for: request, readingOriginal: readingOriginal),
+              [SystemScreenshotWebCandidate.sourceID, ChatGPTWebPageProgram.priorOwnedPreviewSource,
+               ChatGPTWebPageProgram.priorProgressCardSource, ChatGPTWebPageProgram.priorRetryOverlaySource].contains(source) else { return false }
+        return try await store.uploadStartReceipt(for: request.operation.id) == nil
+    }
+
     // Only the read path accepts older source identities. New enrollment always uses today's page
     // program and the existing one-shot fence, including after a restart.
-    func registeredObservationSource(for request: TransferRequest) async throws -> String? {
+    func registeredObservationSource(for request: TransferRequest, readingOriginal: Bool = false) async throws -> String? {
         guard let data = try await store.checkpoint(for: Self.checkpointKey(for: request, scope: scope)) else { return nil }
         if scope != .candidate {
             guard try await store.checkpoint(for: Self.checkpointKey(for: request)) == data else {
@@ -77,7 +87,10 @@ public actor SystemScreenshotCandidateAdmission {
               registration.assetOrigin == (scope.isProduct ? scope.origin : nil),
               [SystemScreenshotWebCandidate.sourceID, ChatGPTWebPageProgram.priorEntrySource,
                ChatGPTWebPageProgram.priorHandoffSource, ChatGPTWebPageProgram.priorScreenshotSource,
-               ChatGPTWebPageProgram.priorObservationSource].contains(registration.sourceID),
+               ChatGPTWebPageProgram.priorObservationSource, ChatGPTWebPageProgram.priorCardObservationSource,
+               ChatGPTWebPageProgram.priorOriginalReviewSource, ChatGPTWebPageProgram.priorMemberStatusSource,
+               ChatGPTWebPageProgram.priorObservedStartSource, ChatGPTWebPageProgram.priorOwnedPreviewSource,
+               ChatGPTWebPageProgram.priorProgressCardSource, ChatGPTWebPageProgram.priorRetryOverlaySource].contains(registration.sourceID),
               registration.startProfileID == scope.admittedProfile.uploadStartProfileID!,
               registration.completionProfileID == scope.admittedProfile.profileID,
               registration.identity == Self.identity(for: request),
@@ -85,17 +98,24 @@ public actor SystemScreenshotCandidateAdmission {
               request.operation.phase.isUnresolved || request.operation.phase == .succeeded,
               await store.mode == .production,
               let asset = try await store.asset(id: request.asset.id), asset.image == request.asset,
-              asset.activeOperationID == request.operation.id,
               let operation = try await store.operation(id: request.operation.id),
               operation.assetID == request.asset.id, operation.attempt == request.operation.attempt,
               operation.target == request.operation.target, operation.phase != .prepared,
               operation.phase.isUnresolved || operation.phase == .succeeded else {
             throw WebAdapterError.invalidRequest
         }
+        if asset.activeOperationID != operation.id {
+            guard scope.isProduct, readingOriginal,
+                  try await store.isRecoveryPredecessor(operationID: operation.id, invocationID: request.invocationID)
+            else { throw WebAdapterError.invalidRequest }
+        }
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
         guard (try? encoder.encode(registration)) == data else { throw WebAdapterError.invalidRequest }
         if [SystemScreenshotWebCandidate.sourceID, ChatGPTWebPageProgram.priorScreenshotSource,
-               ChatGPTWebPageProgram.priorObservationSource].contains(registration.sourceID) {
+               ChatGPTWebPageProgram.priorObservationSource, ChatGPTWebPageProgram.priorCardObservationSource,
+               ChatGPTWebPageProgram.priorOriginalReviewSource, ChatGPTWebPageProgram.priorMemberStatusSource,
+               ChatGPTWebPageProgram.priorObservedStartSource, ChatGPTWebPageProgram.priorOwnedPreviewSource,
+               ChatGPTWebPageProgram.priorProgressCardSource, ChatGPTWebPageProgram.priorRetryOverlaySource].contains(registration.sourceID) {
             try scope.validateMetadata(request.asset)
         } else {
             try SystemScreenshotWebCandidate.validateMetadata(request.asset, expectedOrigin: scope.origin)
@@ -108,11 +128,11 @@ public actor SystemScreenshotCandidateAdmission {
     /// App in this same store. Never enrolls, repairs partial fences or borrows
     /// candidate registrations. Malformed current registrations throw. Built-in
     /// product images cannot borrow any system-only historical scope.
-    func admittedObservationScope(for request: TransferRequest) async throws -> SystemScreenshotAdmissionScope? {
-        if try await admits(request) { return scope }
+    func admittedObservationScope(for request: TransferRequest, readingOriginal: Bool = false) async throws -> SystemScreenshotAdmissionScope? {
+        if try await registeredObservationSource(for: request, readingOriginal: readingOriginal) != nil { return scope }
         for original in scope.originalObservationScopes {
             let prior = SystemScreenshotCandidateAdmission(store: store, scope: original)
-            if try await prior.admits(request) { return original }
+            if try await prior.registeredObservationSource(for: request, readingOriginal: readingOriginal) != nil { return original }
         }
         return nil
     }

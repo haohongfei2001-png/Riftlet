@@ -1,0 +1,81 @@
+{
+  "verifiedUTC": "2026-11-22T13:28:21.857711+00:00",
+  "candidateSource": "69b76cb025ab552b3480e3af095b627891874712",
+  "dmgSHA256": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+  "scope": "Independent read-only verification of these named runs. Later runs are not included.",
+  "chrome": {
+    "scopeReceipts": [
+      {
+        "receipt": "native-auth-batch-1.json",
+        "payloadSHA256": "89e21f9d561764b8825023df3c0cc7434f2d2855d5fdf3f2b7ab5b45c208fe9a",
+        "sourceReceiptSHA256": "5867d8a4d30508615fca96a43259982a83a86577c950c77134bddb4e11b29c4d",
+        "attachmentPreparationIDObserved": false,
+        "productDocumentIDVisibleThroughScopeReader": false
+      },
+      {
+        "receipt": "native-auth-press-1.json",
+        "payloadSHA256": "99bf5a79d947ebb4bb9f664c4f7c5bb56ed572616af7b39a455b2a8ca22c51a7",
+        "sourceReceiptSHA256": "5030923e3b7e2a41c35a8daf937bab7d183e5ca737585c3372e518cd42067290",
+        "attachmentPreparationIDObserved": false,
+        "productDocumentIDVisibleThroughScopeReader": false
+      },
+      {
+        "receipt": "native-auth-startup.json",
+        "payloadSHA256": "9a47de75c3a7b0959602a6f1f1faf7d13602e607c1039e375eb183d3187b9b4d",
+        "sourceReceiptSHA256": "9b279d19b0a4af43b2c66c8b3d500ecec0b861f897b6dc5747c630aec3850f02",
+        "attachmentPreparationIDObserved": false,
+        "productDocumentIDVisibleThroughScopeReader": false
+      }
+    ],
+    "ownedWindowTabBirthAndPrivateDocumentMatched": true,
+    "loggedInOriginalTemporaryChat": true,
+    "claimedFromNewLoopbackWindow": true,
+    "initialCardCount": 0,
+    "seed": {
+      "inputCount": 1,
+      "changeCount": 1,
+      "durableSTARTCount": 1,
+      "startSignal": "attachmentAccepted",
+      "sends": 0,
+      "formSubmits": 0,
+      "sameOriginalReceiptAndSQLiteOperation": true,
+      "samePNGInCaptureSourceAndPrivateMedia": true,
+      "sha256": "331f5a51fd7345299687f3fc4ad291c57c84a0cbb1b02db420553ef959bcd50a",
+      "byteCount": 5516,
+      "browserFileAndCardPixelSHA256": "993a09490bc6533715eda56af6f600bffc0a83291956094bdece81e1fb92d6b3",
+      "appKitDownMinusAckMS": 2093.719,
+      "originalTrayAssetSwallowed": true,
+      "originalDraftWasEmptyAtEntry": true,
+      "resultReceiptSHA256": "6f5476cc65803bee67f867987a671c924dc9d135373d14adb72d71513dc302a6"
+    },
+    "rapid": "NOT_RUN",
+    "selection": "NOT_RUN",
+    "reasonAtEndOfThisRun": "original QA route or sole selected tab changed",
+    "completedBatches": [
+      [
+        1
+      ]
+    ],
+    "resultReceiptSHA256": "6f5476cc65803bee67f867987a671c924dc9d135373d14adb72d71513dc302a6"
+  },
+  "edge": {
+    "scopeReceipts": [
+      {
+        "receipt": "native-auth-startup.json",
+        "payloadSHA256": "c6bdaf8a86fc2e44cae3ba7b47d1d968ff57520c9ba00b0a2afbd67961eacc2a",
+        "sourceReceiptSHA256": "68490de10d8038cbfb0d9744a69c425c22ece093f5198a7230230dbed6949ddc",
+        "attachmentPreparationIDObserved": false,
+        "productDocumentIDVisibleThroughScopeReader": false
+      }
+    ],
+    "ownedWindowTabBirthAndPrivateDocumentMatched": true,
+    "loggedInOriginalTemporaryChat": true,
+    "claimedFromNewLoopbackWindow": true,
+    "initialCardCount": 0,
+    "rapid": "NOT_RUN",
+    "selection": "NOT_RUN",
+    "reasonAtEndOfThisRun": "ORIGINAL_TEST_DOCUMENT_DID_NOT_RESPOND",
+    "completedBatches": [],
+    "resultReceiptSHA256": "b5fa5345bcf30a8d9a3fa8af7605d9579eb0d064f55edfbda06e78c621cd567c"
+  }
+}

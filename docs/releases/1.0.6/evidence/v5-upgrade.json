@@ -1,0 +1,114 @@
+{
+  "feed": {
+    "scope": "isolated QA loopback signed feed; bit-identical notarized DMG",
+    "code": "57ebe3d3448df0c4ffc11abeb7607a0cdc415d57",
+    "version": "1.0.6",
+    "build": "35",
+    "feedSHA256": "d9d74c253a8500711984ad7822d4f2e8f12c7c0fb3948718acd0f6eccc17bf3f",
+    "dmgSHA256": "7fec9b5e5cfff0398ae161f0f45233f86612349b5e746aee721488a209ba48fa",
+    "executableSHA256": "976bae3e9ba10a71e136d0e15c8cd0a18831bdc6d2b5e0fcf58bc3d72d2b5954",
+    "minimumOS": "13.0"
+  },
+  "runs": {
+    "31": {
+      "userActions": [
+        "Check for Updates",
+        "Install Update",
+        "Install and Relaunch"
+      ],
+      "versionBefore": "1.0.5",
+      "versionAfter": "1.0.6",
+      "buildAfter": 35,
+      "executableSHA256": "976bae3e9ba10a71e136d0e15c8cd0a18831bdc6d2b5e0fcf58bc3d72d2b5954",
+      "privateFilesBefore": 39,
+      "changedOrMissingOriginalFiles": 0,
+      "allOriginalAssetRowsIdentical": true,
+      "assetMetadata": {
+        "originals": 19,
+        "originalIDsPresent": true,
+        "metadataIntact": true,
+        "changedOriginals": [],
+        "newCount": 0,
+        "newSystemOrigins": 0,
+        "newMatchingUserOriginals": 0
+      },
+      "bookmarksAndFeedbackDraftIntact": true,
+      "existingPreferencesUnchanged": 2,
+      "operationsIntact": 2,
+      "startIntact": 1,
+      "unresolvedUNKNOWN": 1,
+      "sqliteIntegrity": "ok",
+      "normalRelaunch": true
+    },
+    "32": {
+      "userActions": [
+        "Check for Updates",
+        "Install Update",
+        "Install and Relaunch"
+      ],
+      "versionBefore": "1.0.6",
+      "versionAfter": "1.0.6",
+      "buildAfter": 35,
+      "executableSHA256": "976bae3e9ba10a71e136d0e15c8cd0a18831bdc6d2b5e0fcf58bc3d72d2b5954",
+      "privateFilesBefore": 39,
+      "changedOrMissingOriginalFiles": 0,
+      "allOriginalAssetRowsIdentical": true,
+      "assetMetadata": {
+        "originals": 19,
+        "originalIDsPresent": true,
+        "metadataIntact": true,
+        "changedOriginals": [],
+        "newCount": 0,
+        "newSystemOrigins": 0,
+        "newMatchingUserOriginals": 0
+      },
+      "bookmarksAndFeedbackDraftIntact": true,
+      "existingPreferencesUnchanged": 2,
+      "operationsIntact": 2,
+      "startIntact": 1,
+      "unresolvedUNKNOWN": 1,
+      "sqliteIntegrity": "ok",
+      "normalRelaunch": true
+    }
+  },
+  "package": {
+    "appCertificateFingerprints": {
+      "arm64": "92B7E50A1D43D247EA7EA19A31DCA3E407435A42",
+      "x86_64": "92B7E50A1D43D247EA7EA19A31DCA3E407435A42"
+    },
+    "appSubmissionID": "240993a1-b6af-4231-b111-4c5e50bb2a82",
+    "architectures": [
+      "arm64",
+      "x86_64"
+    ],
+    "build": "35",
+    "bytes": 13276461,
+    "dmgCertificateFingerprint": "92B7E50A1D43D247EA7EA19A31DCA3E407435A42",
+    "dmgSubmissionID": "132bce19-096b-4a6a-b5c0-93df65c69985",
+    "nestedCodeVerified": [
+      "Contents/Frameworks/Sparkle.framework",
+      "Contents/Frameworks/Sparkle.framework/Versions/B/Autoupdate",
+      "Contents/Frameworks/Sparkle.framework/Versions/B/Updater.app",
+      "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Downloader.xpc",
+      "Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices/Installer.xpc"
+    ],
+    "published": false,
+    "sha256": "7fec9b5e5cfff0398ae161f0f45233f86612349b5e746aee721488a209ba48fa",
+    "sparkleVersion": "2.10.1",
+    "status": "VERIFIED_FOR_PUBLICATION_REVIEW",
+    "teamID": "ZB9D4T66QB",
+    "version": "1.0.6",
+    "notaryAppAndDMG": "Apple Accepted and Apple stapler validation over exact signed objects on isolated macOS guest; code signature, Gatekeeper and package inventory verified by release pipeline.",
+    "candidateSource": "57ebe3d3448df0c4ffc11abeb7607a0cdc415d57",
+    "slices": [
+      "x86_64",
+      "arm64"
+    ],
+    "minimumOS": "13.0"
+  },
+  "verifiedPlatform": "ARM64 VirtualMac2,1, macOS 27.2; one virtual 1024x768 display",
+  "livePublic106": "NOT_RUN: release gate pending; private signed loopback delivered the exact candidate DMG from 1.0.5(31) and 1.0.6(32)",
+  "minimumMacOSRuntime": "NOT_RUN",
+  "physicalIntel": "NOT_RUN",
+  "multiplePhysicalScreens": "NOT_RUN"
+}

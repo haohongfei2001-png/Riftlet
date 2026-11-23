@@ -1,0 +1,172 @@
+{
+  "browser": "Microsoft Edge",
+  "candidateDMG": "666324176aadc4ffb9fd6fbfd0ca38772a169eb06394401f7abede374f7d3ee6",
+  "cleanup": {
+    "networkHooksRestored": true,
+    "originalWindowClosedAndOriginalWindowSetRestored": true,
+    "pageWatcherClosed": true,
+    "privateLoopbackListenerExited": true,
+    "privateSignedCandidateExited": true
+  },
+  "evidence": {
+    "candidate.stderr": "e399deeac283308608f1b6654fe35af88b345945bbfb2d88a62cc74c870c3e01",
+    "capture-1.json": "d4bea48ea3b6c892ad17c7fc8dcba16699551c21da128493311fe7c61324a939",
+    "capturePixels": "f6499a0bd13bbcecc5ae97450c082b637d1cbe10f410f2cb879ac07097c2112d",
+    "final-db.json": "f70c172d0c8947daee062f13e1900b81781532fa1e8b0ad9f67a9519d8c32541",
+    "final-page.json": "d5155ea7418b93aad14195d569e748e61332b6a95baf3d1a7a253926533ad11e",
+    "listenerExit": "70436bea872d700f5e9e5b424366cceb1cf2bd64c49f6bcd0654ba241149bbe8",
+    "transport-binding.json": "0a8775170307765e090c08f183579c8779251f02a5bdcdf3847347481ae740fd",
+    "transport-fault-finish.json": "4285734d89aaf767c532c7369d371cbd537ca2ce8e8166d74399ef0113733ecb",
+    "transport-fault-sample.json": "4285734d89aaf767c532c7369d371cbd537ca2ce8e8166d74399ef0113733ecb",
+    "transport-original-observed.json": "c15e3e26059544ce266481c5b6e2441a3223269c4c573a3991e97cfd19adfeee",
+    "watch-closed.json": "a54ac5bb1f80f63e97d0fdea2ed11b5d547130e28378703d643019b310611f98",
+    "window/after.json": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+    "window/before.json": "8d279969af5df57db020c4a57006697917facc6c2b2391b04835aebb1e2f7a4e",
+    "window/closed.json": "e148ee30b300dcf304cd7e68b337f09025d911a0f3f13fde9285d63fb5857d77",
+    "window/creation.json": "c49a63e8988493dec331ccf36479406415b8af41105072ddd8f22273e1062c23",
+    "window/original-entry.json": "d2e7f1ffe731b1a1a889213f8c3ff866d18946ed4c6f872c3427b7a7415ccba2",
+    "window/site-navigation-return.json": "c292a8a34585712bf5d4425724d8cc13a9f40fa84a7913b201d147df594a220f"
+  },
+  "frozenSamplerSHA256": "8e29ad64333428a2545a330f260b2fa4411aeb09c36143ba6f9f976257c929c7",
+  "fullSiteAndDatabaseRecoveryGate": "NOT_RUN",
+  "g4Decision": "NOT_RUN",
+  "invocationDigest": "888616b381d0e202c8ae9bff1b3e1917638df3deba341b050c9168145f13799b",
+  "mode": "NATIVE_UPLOAD_LOAD_BEFORE_RESPONSE",
+  "nativeSamplerHostSHA256": "9fc7baf353e68508b31112f6d2ad1b756413af072ef6ad003365c70a9dce2938",
+  "networkObservationBoundary": "Browser-side transport observations are limited to the original matched request and its reported events.",
+  "originalOperationIDDigest": "1e95e4be55e103d7ade339b565e0a37aab12101f664211d58fc40cb1a7d33e5d",
+  "originalProfileDBBackupSHA256": "2a7c15697cde5d96927999e6ec9b4766dd5ef79e58dfd0bb46fd5d0c53a498de",
+  "scope": "Independent review of the completed dedicated Edge strategy",
+  "site": {
+    "cardObservation": {
+      "exactRemoveControlAppeared": true,
+      "firstObservedRemovalMSAfterAbort": 21.9,
+      "namedSiteFailureSeen": false,
+      "noFinalDecodedImageToCompare": true
+    },
+    "finalSitePreview": {
+      "encodedPNGMatchesOriginal": null,
+      "siteDecodedPreviewMatchesNativeRGBADigest": null,
+      "websiteDecodedOriginalFileEqualsDecodedPreview": null
+    },
+    "matchingOriginalNameOnVisibleCard": false,
+    "namedFailureInCurrentSample": false,
+    "nativeClicks": 1,
+    "nativeCommits": 1,
+    "nativeDecodedOriginalRGBASHA256": "2cba3592cd60a2a24bdfcf2d6b32ebb8ff0d039f796f40466e4917bdfdaa58fb",
+    "originalWindowDocumentComposerVerified": true,
+    "previewMeasurements": [],
+    "resourceTimingOnly": [
+      {
+        "initiator": "fetch",
+        "publicPath": "/backend-api/files",
+        "recordedResponseStatus": 200
+      }
+    ],
+    "retainedNamedFailureFromOriginalMutation": false,
+    "secondsFromFirstIntentToLastOriginalObservation": 54.918,
+    "websiteCounts": {
+      "fileChange": 1,
+      "fileInput": 1,
+      "formSubmit": 0,
+      "sendButtonClicks": 0
+    }
+  },
+  "sourcePNGBytes": 5516,
+  "sourcePNGSHA256": "7879f08c5ab36c8d9a60fed1f30661117ef17999dc8ab5bf81f2fbab37d974a4",
+  "sqlite": {
+    "counts": {
+      "assets": 1,
+      "operations": 1,
+      "upload_starts": 0
+    },
+    "originalHadSTART": false,
+    "originalHasError": false,
+    "originalNamedFailureAndRecoveryBackups": "NOT_RUN",
+    "originalPhase": "unknown",
+    "originalReceipt": "inputTriggered",
+    "safeToRetry": false
+  },
+  "strategyStatus": "REAL_ATTEMPT_WITH_CONFIRMED_SCOPED_FAULT",
+  "transport": {
+    "abortCalls": 1,
+    "attributedByteRequests": 1,
+    "attributedNetworkRequest": true,
+    "completeNativeUploadEvent": {
+      "eligibleEvents": 1,
+      "fullProgressCount": 1,
+      "invalidEvents": 0,
+      "lastProgress": {
+        "at": 77787.7,
+        "loaded": 5516,
+        "readyState": 1,
+        "status": 0,
+        "total": 5516
+      },
+      "partialCount": 0,
+      "progressEvents": 1,
+      "responseStarted": false,
+      "unreadyEvents": 0,
+      "uploadLoad": {
+        "at": 77787.8,
+        "loaded": 5516,
+        "readyState": 1,
+        "status": 0,
+        "total": 5516
+      },
+      "uploadLoadCount": 1,
+      "windowClosed": null
+    },
+    "controlledAbortObserved": true,
+    "entireOriginalBody": "entire-body",
+    "immediateRestoration": true,
+    "loadendToAutomaticRestorationMS": 0.2,
+    "pendingNative": false,
+    "qualifyingCreateReceipts": 1,
+    "qualifyingCreateResponses": 1,
+    "restored": true,
+    "sendReturnedToAbortCallMS": 624.7,
+    "sourceBytesClass": "File",
+    "terminal": {
+      "at": 77788.2,
+      "loaded": 0,
+      "readyState": 4,
+      "status": 0,
+      "total": null
+    },
+    "terminationReason": null,
+    "trigger": {
+      "at": 77788.1,
+      "eventTarget": "original-xhr.upload",
+      "eventTrusted": true,
+      "eventType": "load",
+      "kind": "NATIVE_UPLOAD_LOAD_BEFORE_RESPONSE",
+      "lengthComputable": true,
+      "loaded": 5516,
+      "nativeReturnedAt": 77163.4,
+      "nativeSendReturned": true,
+      "observedUploadLoaded": 5516,
+      "readyState": 1,
+      "requestGeneration": 1,
+      "requestGenerationVerified": true,
+      "responseStarted": false,
+      "status": 0,
+      "total": 5516,
+      "uploadProgressEvents": 1,
+      "uploadState": "NATIVE_UPLOAD_LOAD_OBSERVED"
+    },
+    "trustedAbortReceipt": {
+      "at": 77788.1,
+      "loaded": 0,
+      "readyState": 4,
+      "status": 0,
+      "total": null
+    },
+    "trustedAborts": 1,
+    "trustedLoadends": 1,
+    "urlSHA256": "9093e53320e29414f3d1045b441d699a9f2b6bc3a74727f4068c18d30353cc51"
+  },
+  "underlyingServerOutcome": "NOT_OBSERVED",
+  "verifiedAgainstRawSystemPNGAndOriginalDatabase": true,
+  "windowClosureAndRestoredOriginalInventory": true
+}

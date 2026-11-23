@@ -1,0 +1,70 @@
+{
+  "source": "081f1944714e30e3e047ec81495cea7874651e5a",
+  "environment": "Disposable Apple Silicon VM; macOS 27.2, Chrome 157.0.8103.79; synthetic local file URLs only. No real draft uploads.",
+  "nativeReplySchema": {
+    "activeTab": "absolute window ID and tab ID",
+    "tabProperties": "record with class, ID, URL, title, loading; no window ID",
+    "singleListOfSpecifiers": "Chrome returned -1700 to both tested getd list shapes"
+  },
+  "alternateTrialMs": {
+    "serial": [
+      31,
+      32,
+      32,
+      34,
+      33,
+      32,
+      33,
+      32,
+      33,
+      32,
+      33,
+      33
+    ],
+    "queued": [
+      16,
+      17,
+      16,
+      15,
+      15,
+      16,
+      16,
+      16,
+      16,
+      16,
+      16,
+      16
+    ]
+  },
+  "finalVerifiedSourceLocalMatchingMs": [
+    3,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    15,
+    16,
+    16,
+    17,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    17,
+    16,
+    16,
+    16,
+    16,
+    16
+  ],
+  "race": "5 of 5 forced A/B switches returned different native tab IDs and parser refused.",
+  "largeTitle": "2 MiB synthetic HTML title was limited by Chrome to 4096 UTF-8 bytes in pALL. Received 32768 byte Mach record and verified the short original route; 24/24 local checks succeeded.",
+  "validation": "Native app built; eight source test bodies passed with stand-alone native assert harness. Local swift test discovery could not import XCTest from CLT.",
+  "integratedCommit": "443fe0f",
+  "scope": "Native endpoint and deadlines on local fixture URLs. Final signed app and real Chrome drafts tested separately."
+}

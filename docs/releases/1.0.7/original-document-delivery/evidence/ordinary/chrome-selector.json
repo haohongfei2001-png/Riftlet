@@ -1,0 +1,16 @@
+{
+  "status": "NOT_RUN",
+  "formalFamily": "chrome",
+  "connectedFamilyClients": 2,
+  "officialLaunch": "standard installed Google Chrome, existing Default profile, launcher returned opened",
+  "sameNativeIdentityVisibleThroughSelectedController": false,
+  "supportedFamilyReselection": "same controller after ordinary-profile launch",
+  "healthBeforeMutation": "AMBIGUOUS_BROWSER_FAMILY",
+  "healthObservedUTC": "2026-11-21T14:41:15.255Z",
+  "controllerOpenedOrdinaryQAWindow": false,
+  "originalPageOperations": 0,
+  "rawKeys": 0,
+  "siteUploads": 0,
+  "earlierOwlError": "recorded on build 54, not replayed on another client in this run",
+  "resume": "official selection identifies one standard client, or a genuine user-attached tab-v1 reference for a dedicated standard Chrome blank"
+}

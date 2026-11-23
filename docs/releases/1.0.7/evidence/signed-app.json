@@ -1,0 +1,25 @@
+{
+  "version": "1.0.7",
+  "build": 45,
+  "product": "28f4f5979190c0255b97978afdd97c713c39a50b",
+  "stage": "SIGNED",
+  "team": "ZB9D4T66QB",
+  "architectures": [
+    "arm64",
+    "x86_64"
+  ],
+  "executableSHA256": "1dad33dce3156287abba11667c5e8f25e8ad01ddce7ad286348f512ca65790c7",
+  "programSHA256": "3884f51acd2a7cec9a4219559734373a6a6d59bfdbe482c4604dd20e15a055bd",
+  "deepStrictAllArchitectures": true,
+  "packageSelfCheck": [
+    "arm64",
+    "x86_64 via Rosetta"
+  ],
+  "firstUseSelfCheck": true,
+  "atCheckpoint": {
+    "notarySubmission": "NOT_SUBMITTED",
+    "installableStapledDMG": "BLOCKED_NOTARY_AUTH_OR_SERVICE",
+    "liveChrome": "NOT_RUN",
+    "liveEdge": "NOT_RUN"
+  }
+}

@@ -19,6 +19,7 @@ final class ScreenshotEntryHost {
     private let savePreferences: (ScreenshotEntryPreferences, URL) throws -> Void
     private let allowsSystemCapture: Bool
     var onScreenPermissionRequired: (() -> Void)?
+    var onOutstandingCaptureChanged: (() -> Void)?
     var onCaptureImportFailed: (() -> Void)?
     var onPreferencesChanged: (() -> Void)?
     var isEnabled: Bool { preferences.builtInScreenshotEnabled }
@@ -26,14 +27,14 @@ final class ScreenshotEntryHost {
     private(set) var preferenceSaveFailed = false
     private var userHidden = false
     private var menuOpen = false
-    private var editor: ScreenshotMarkupController?
+    private var editor: ScreenshotMarkupController? { didSet { onOutstandingCaptureChanged?() } }
     private var editorID: UUID?
     private var cancelling = false
     private var closed = false
     var hasOutstandingCapture: Bool { capture.isActive || editor != nil || !imports.isEmpty }
     private var finishingForExit = false
     private var deferredUpdateCheck: (@MainActor () -> Void)?
-    private var imports: [UUID: Task<Void, Never>] = [:]
+    private var imports: [UUID: Task<Void, Never>] = [:] { didSet { onOutstandingCaptureChanged?() } }
     private var screenObserver: NSObjectProtocol?
     private var windowCloseObserver: NSObjectProtocol?
     private var otherSuppressedWindows: [NSWindow] = []
@@ -116,7 +117,9 @@ final class ScreenshotEntryHost {
             self.menuOpen = open; self.updateSuspension()
         }
         capture.onCancel = { [weak self] in self?.cancel() }
-        capture.onStateChange = { [weak self] _ in self?.updateCapturePresentation() }
+        capture.onStateChange = { [weak self] _ in
+            self?.updateCapturePresentation(); self?.onOutstandingCaptureChanged?()
+        }
         capture.onError = { [weak self] error in
             guard let self, self.isEnabled, !self.closed else { return }
             if error == .screenRecordingPermissionRequired { self.onScreenPermissionRequired?() }

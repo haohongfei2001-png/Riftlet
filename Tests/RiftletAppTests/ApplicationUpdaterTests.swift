@@ -21,11 +21,13 @@ final class ApplicationUpdaterTests: XCTestCase {
         }
     }
 
-    func testBothPublicVersionAndBuildAdvanceForAnUpgrade() {
+    func testIncreasingBuildAndNondecreasingPublicVersionForAnUpgrade() {
         for (oldVersion, oldBuild, newVersion, newBuild, expected) in [
             ("1.0.0", "22", "1.0.1", "23", true),
             ("1.9.9", "29", "1.10.0", "31", true),
-            ("1.0.1", "23", "1.0.1", "24", false),
+            ("1.0.1", "23", "1.0.1", "24", true),
+            ("1.0.1", "23", "1.0.1", "23", false),
+            ("1.0.1", "23", "1.0.1", "22", false),
             ("1.0.1", "23", "1.0.0", "24", false),
             ("1.0.1", "23", "1.1.0", "23", false),
             ("1.0.1", "23", "1.1.0", "22", false),

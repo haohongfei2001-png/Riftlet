@@ -1,0 +1,143 @@
+{
+  "build": 41,
+  "product": "bfd043e2af82fbc64e33a1167e7d4f2245aa2b81",
+  "scope": "Independent controlled renderer fixture using the ordinary build 41 web program; no ChatGPT traffic",
+  "expected": "No START in each cell",
+  "cases": [
+    {
+      "mode": "hidden",
+      "pathway": "return",
+      "state": "uploadStarted",
+      "started": true,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "hidden",
+      "pathway": "read",
+      "state": "uploadStarted",
+      "started": true,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "hidden",
+      "pathway": "interpoll",
+      "state": "inputTriggered",
+      "started": false,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "foreign",
+      "pathway": "return",
+      "state": "uploadStarted",
+      "started": true,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "foreign",
+      "pathway": "read",
+      "state": "uploadStarted",
+      "started": true,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "foreign",
+      "pathway": "interpoll",
+      "state": "inputTriggered",
+      "started": false,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "unmoved-meter",
+      "pathway": "return",
+      "state": "uploadStarted",
+      "started": true,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "unmoved-meter",
+      "pathway": "read",
+      "state": "uploadStarted",
+      "started": true,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "unmoved-meter",
+      "pathway": "interpoll",
+      "state": "inputTriggered",
+      "started": false,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "indeterminate",
+      "pathway": "return",
+      "state": "uploadStarted",
+      "started": true,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "indeterminate",
+      "pathway": "read",
+      "state": "uploadStarted",
+      "started": true,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "indeterminate",
+      "pathway": "interpoll",
+      "state": "inputTriggered",
+      "started": false,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "nested-action",
+      "pathway": "return",
+      "state": "uploadStarted",
+      "started": true,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "nested-action",
+      "pathway": "read",
+      "state": "uploadStarted",
+      "started": true,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    },
+    {
+      "mode": "nested-action",
+      "pathway": "interpoll",
+      "state": "uploadStarted",
+      "started": true,
+      "setters": 1,
+      "changes": 1,
+      "sends": 0
+    }
+  ]
+}

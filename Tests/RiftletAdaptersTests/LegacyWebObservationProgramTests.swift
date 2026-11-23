@@ -184,7 +184,7 @@ final class LegacyWebObservationProgramTests: XCTestCase {
 
     func testCombinedSourceRetainsTransportBound() throws {
         XCTAssertThrowsError(try LegacyWebObservationProgram.wrapping(
-            WebPageProgram(sourceID: "oversized", functionSource: String(repeating: " ", count: 128 * 1024)))) {
+            WebPageProgram(sourceID: "oversized", functionSource: String(repeating: " ", count: ChatGPTWebPageProgram.maximumSourceBytes)))) {
             XCTAssertEqual($0 as? WebAdapterError, .programUnavailable)
         }
         XCTAssertThrowsError(try LegacyWebObservationProgram.wrapping(WebPageProgram(sourceID: "empty", functionSource: "")))

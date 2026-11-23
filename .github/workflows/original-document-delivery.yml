@@ -1,0 +1,71 @@
+name: Original document candidate
+on:
+  push:
+    branches: [codex/build53-original-target-fence-20261121]
+    paths:
+      - 'Sources/**'
+      - 'Resources/**'
+      - 'Tests/**'
+      - 'Package.swift'
+      - '.github/workflows/original-document-delivery.yml'
+permissions:
+  contents: read
+jobs:
+  candidate:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-15, macos-15-intel]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Run the complete native suite and verify test partitions
+        run: |
+          set -eo pipefail
+          mkdir -p test-results
+          uname -m | tee test-results/architecture.txt
+          defaults write com.apple.universalaccess reduceMotion -bool false
+          defaults write com.apple.universalaccess reduceTransparency -bool false
+          motion='^RiftletUITests\.ArrivalModesTests/'
+          swift test --parallel --skip "$motion" 2>&1 | tee test-results/swift-test.log
+          swift test --skip-build --no-parallel --filter "$motion" 2>&1 | tee test-results/arrival-modes-serial.log
+          swift test list --skip-build > test-results/discovered-tests.txt
+          python3 -B scripts/verify-native-test-partitions.py test-results | tee test-results/native-test-partitions.json
+      - name: Exercise the page program, fault recovery and original receivers
+        env:
+          RIFTLET_REQUIRE_CHROME: '1'
+        run: |
+          set -eo pipefail
+          node --test --test-concurrency=1 Tests/WebPageProgram/*.test.cjs > test-results/page-program.tap
+          node --test Tests/OfflineFaultHarness/*.test.cjs > test-results/fault-recovery.tap
+          node --test Tests/OriginalDocumentDelivery/official/controller.test.mjs Tests/OriginalDocumentDelivery/official/correlate-native.test.cjs > test-results/controller-identity.tap
+          asset=Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js
+          node Tests/OriginalDocumentDelivery/product/run.cjs chrome "$PWD/$asset" > test-results/product-chrome.json
+          RIFTLET_CI_VISIBLE=1 node Tests/OriginalDocumentDelivery/renderer/run.cjs chrome "$PWD/$asset" > test-results/renderer-chrome.json
+      - name: Verify storage, packaging, update rules and application entry
+        env:
+          RIFTLET_SPARKLE_TEST_BIN: ${{ github.workspace }}/.build/artifacts/sparkle/Sparkle/bin
+        run: |
+          set -eo pipefail
+          for suite in StorageReadiness ReleaseReadiness Packaging InternalBetaPackaging; do
+            python3 -B -m unittest discover -s "Tests/$suite" -v > "test-results/$suite.log" 2>&1
+          done
+          bash scripts/run-readiness-ownership.sh > test-results/ownership.log
+          bash scripts/run-readiness-soak.sh > test-results/soak.log
+          python3 -B scripts/test-release-appcast.py
+          python3 -B scripts/release-appcast.py verify-transition
+          bash scripts/build-macos.sh > test-results/app-build.log
+          app="$PWD/build/Riftlet.app/Contents/MacOS/Riftlet"
+          "$app" --self-check
+          "$app" --web-acceptance-self-check
+          "$app" --system-screenshot-candidate-self-check
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: original-document-${{ matrix.runner }}-${{ github.sha }}
+          path: test-results/
+          retention-days: 14

@@ -1,0 +1,26 @@
+{
+  "scope": "1.0.7 isolated macOS VM preflight; final candidate not yet exercised",
+  "publicSourceVersion": "1.0.5",
+  "publicSourceBuild": 31,
+  "publicDMGSHA256": "99276347932e231adf743664a54cfc782d8e345d89221587d54b7299a5c9f315",
+  "ordinary31BootAndQuit": "installed public 31, normal process started and quit, independent golden profile saved",
+  "priorRows": {
+    "assets": 51,
+    "operations": 2,
+    "upload_starts": 1,
+    "checkpoints": 6,
+    "compensations": 0,
+    "metadata": 2
+  },
+  "fileDigests": 86,
+  "preferenceKeys": 3,
+  "bookmarkDigestPresent": true,
+  "feedbackDigestPresent": true,
+  "targetBrowser": "Microsoft Edge 156.0.4314.58",
+  "targetBrowserGatekeeper": "source=Notarized Developer ID",
+  "newGuestStatus": "running at preflight",
+  "notaryProfilePreflight": "notarytool could not access Riftlet-Notary while host was locked",
+  "upgradeInto107": "NOT_RUN",
+  "ordinary107performance": "NOT_RUN",
+  "liveBrowser107": "NOT_RUN"
+}

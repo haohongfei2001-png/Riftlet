@@ -1,0 +1,102 @@
+{
+  "DMGSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "PNGCount": 83,
+  "actualUserControls": {
+    "check": {
+      "observed": "\u00a9 View Update 1.0.8...",
+      "originalSHA256": "d22aff601f0145bd636d49bb31ad4e03633048a0da9ea26319847cd6075ad68a",
+      "utc": 1795434864.4578612
+    },
+    "install": {
+      "observed": "Install Update",
+      "originalSHA256": "844ce5a2cdb17174be478f9cbf0abf5765092a8376c76c34a8ac95a1a7824c3f",
+      "utc": 1795435012.9655418
+    },
+    "relaunch": {
+      "observed": "Install and Relaunch",
+      "originalSHA256": "b5ccdf96095774c155bc843eab9990294bfd0fbc2511537e56f1b2f059a0a502",
+      "utc": 1795435016.449204
+    }
+  },
+  "checks": {
+    "active31To62OriginalColumnsAndCounts": true,
+    "actual62Relaunched": true,
+    "actualOrdinary31Active": true,
+    "actualUserCheckInstallRelaunch": true,
+    "allActiveFilesIdentical": true,
+    "allUserSettingKeysAndValues": true,
+    "exactSignedDMGObserved": true,
+    "exactSignedStagingFeedObserved": true,
+    "feedbackIdentical": true,
+    "guestStagingServerStopped": true,
+    "unknownOriginal": true,
+    "watchBookmarkIdentical": true
+  },
+  "feedSHA256": "eb09f2e13986d6ce167a0804f7671bd382e3964b7c0d63b8ff8da6dfe1659a16",
+  "fileCount": 86,
+  "originalColumnsByTable": {
+    "afterUnknown": 1,
+    "assets": {
+      "after": 51,
+      "before": 51,
+      "differences": {},
+      "matchedOriginalFields": 51,
+      "missing": 0
+    },
+    "checkpoints": {
+      "after": 6,
+      "before": 6,
+      "differences": {},
+      "matchedOriginalFields": 6,
+      "missing": 0
+    },
+    "compensations": {
+      "after": 0,
+      "before": 0,
+      "differences": {},
+      "matchedOriginalFields": 0,
+      "missing": 0
+    },
+    "metadata": {
+      "after": 2,
+      "before": 2,
+      "differences": {},
+      "matchedOriginalFields": 2,
+      "missing": 0
+    },
+    "operations": {
+      "after": 2,
+      "before": 2,
+      "differences": {},
+      "matchedOriginalFields": 2,
+      "missing": 0
+    },
+    "priorUnknown": 1,
+    "upload_starts": {
+      "after": 1,
+      "before": 1,
+      "differences": {},
+      "matchedOriginalFields": 1,
+      "missing": 0
+    }
+  },
+  "publicFeedUsed": false,
+  "rawSHA256": {
+    "31-before.json": "3ce3a78fe4016d94dd0e0ff7b5622f38f8220c0db7571a09eaf7c6615e493ca5",
+    "31-checked.sqlite": "3ba4c0c6be22920a0edcae3b79673569f85809c80a308cd872b958dca93de12b",
+    "31-preferences.json": "0050733a70568113183350994f2b8a4158a5789ee9191881c6bc04cac20454f1",
+    "62-after.json": "3ce3a78fe4016d94dd0e0ff7b5622f38f8220c0db7571a09eaf7c6615e493ca5",
+    "62-checked.sqlite": "90b26df5dd7db8f019312ab0ab88fbde202358bc8bf1b19fa0aa2e774a033002",
+    "62-preferences.json": "0050733a70568113183350994f2b8a4158a5789ee9191881c6bc04cac20454f1",
+    "end.txt": "525dfb9792623493d925f2c86d72661bda4266908a92ba20e1080863793e3a6b",
+    "server-events.jsonl": "187d1be01bcbd3e4ed462b514eeff8105a2a3b90960c0a70b77e8cdd0dcadbb0",
+    "source-repair.json": "e1eb2f59ae11bd3b71aeca0dade2bb913b5653c857d64c8bbf0022fedfb7c24e"
+  },
+  "schema": [
+    5,
+    5
+  ],
+  "scope": "ordinary staging Sparkle update and migrated local state; guest offline self-check and new capture separately measured",
+  "settingsKeys": 3,
+  "status": "PASS"
+}

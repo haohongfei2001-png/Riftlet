@@ -53,14 +53,21 @@ final class ProductScreenshotScopeTests: XCTestCase {
         do { _ = try await body(); XCTFail("Unqualified source/operation accepted", file: file, line: line) } catch {}
     }
 
-    func testOlderFencedRowsAndFirstJournalEntriesSurviveV19ReadOnlyReconciliation() async throws {
+    func testOlderFencedRowsAndFirstJournalEntriesSurviveCurrentReadOnlyReconciliation() async throws {
         let program = try ChatGPTWebPageProgram.load()
-        XCTAssertEqual(program.sourceID, "chatgpt-web-screenshot-card-observation-20261118-v19")
+        XCTAssertEqual(program.sourceID, "chatgpt-web-browser-handoff-20261120-v30")
         let scopes: [SystemScreenshotAdmissionScope] = [.candidate, .ordinary, .ordinaryCurrentDraftInternal, .productSystem, .productApplication]
         let versions = [("chatgpt-web-attachment-entry-20261105-v15", "attachment-entry-20261105-v15"),
                         ("chatgpt-web-attachment-handoff-20261105-v16", "attachment-handoff-20261105-v16"),
                         ("chatgpt-web-screenshot-handoff-20261105-v17", "screenshot-handoff-20261105-v17"),
-                        ("chatgpt-web-screenshot-observation-20261118-v18", "screenshot-observation-20261118-v18")]
+                        ("chatgpt-web-screenshot-observation-20261118-v18", "screenshot-observation-20261118-v18"),
+                        ("chatgpt-web-screenshot-card-observation-20261118-v19", "screenshot-card-observation-20261118-v19"),
+                        ("chatgpt-web-screenshot-original-review-20261118-v20", "screenshot-original-review-20261118-v20"),
+                        ("chatgpt-web-screenshot-member-status-20261119-v21", "screenshot-member-status-20261119-v21"),
+                        ("chatgpt-web-screenshot-observed-start-20261119-v22", "screenshot-observed-start-20261119-v22"),
+                        ("chatgpt-web-screenshot-owned-preview-20261119-v23", "screenshot-owned-preview-20261119-v23"),
+                        ("chatgpt-web-screenshot-progress-card-20261119-v24", "screenshot-progress-card-20261119-v24"),
+                        ("chatgpt-web-screenshot-retry-overlay-20261119-v25", "screenshot-retry-overlay-20261119-v25")]
         for (scope, (source, evidence)) in scopes.flatMap({ scope in versions.map { (scope, $0) } }) {
             let (store, request, database) = try await fixture(origin: scope.origin)
             let identity = envelope(request).observation.identity
@@ -78,12 +85,15 @@ final class ProductScreenshotScopeTests: XCTestCase {
                 _ = try await store.claimDispatchCheckpoint(bytes, for: name, operation: request.operation, asset: request.asset)
             }
             let admission = SystemScreenshotCandidateAdmission(store: store, scope: scope)
+            let retainedStart = try await admission.needsOriginalStart(for: request)
+            XCTAssertEqual(retainedStart, scope.isProduct && [ChatGPTWebPageProgram.priorOwnedPreviewSource,
+                ChatGPTWebPageProgram.priorProgressCardSource, ChatGPTWebPageProgram.priorRetryOverlaySource].contains(source))
             await reject { try await admission.enroll(request) }
             let item = AttachmentObservation(identity: identity, state: .unknown, belongsToOriginalDraft: true)
             let prior = AttachmentObservationEnvelope(provenance: .init(source: .integratedDevelopment,
                 evidenceID: evidence), observation: item)
             let current = AttachmentObservationEnvelope(provenance: .init(source: .integratedDevelopment,
-                evidenceID: "screenshot-card-observation-20261118-v19"), observation: item)
+                evidenceID: "browser-handoff-20261120-v30"), observation: item)
             let journal = SystemScreenshotObservationJournal(store: store, scope: scope)
             try await journal.record(prior, for: request)
             let journalKey = SystemScreenshotObservationJournal.checkpointKey(request, slot: .unknown, scope: scope)
@@ -153,7 +163,7 @@ final class ProductScreenshotScopeTests: XCTestCase {
                 let saved = try await store.checkpoint(for: key), bytes = try XCTUnwrap(saved)
                 let object = try XCTUnwrap(JSONSerialization.jsonObject(with: bytes) as? [String: Any])
                 XCTAssertEqual(object["version"] as? Int, 2)
-                XCTAssertEqual(object["sourceID"] as? String, "chatgpt-web-screenshot-card-observation-20261118-v19")
+                XCTAssertEqual(object["sourceID"] as? String, "chatgpt-web-browser-handoff-20261120-v30")
                 XCTAssertEqual(object["assetOrigin"] as? String, scope.origin.rawValue)
                 let fence = try await store.checkpoint(for: SystemScreenshotCandidateAdmission.checkpointKey(for: request))
                 XCTAssertEqual(fence, bytes)

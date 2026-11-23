@@ -1,0 +1,63 @@
+{
+  "sourceSHA256": "0ac5c59b4856f26a50f5f22d8142314444db361a69753d0ee32cb767d89be87f",
+  "appkit": {
+    "ordinary": {
+      "code": 0,
+      "events": [
+        "windows 0",
+        "quit",
+        "willTerminate",
+        "willTerminateReturned"
+      ]
+    },
+    "await": {
+      "code": 0,
+      "events": [
+        "windows 0",
+        "release 0",
+        "release 1",
+        "quit",
+        "willTerminate",
+        "willTerminateReturned"
+      ]
+    }
+  },
+  "rows": [
+    {
+      "mode": "ordinary",
+      "releases": [],
+      "newHost": [
+        "accepted",
+        "CLICK_PIN_LIMIT"
+      ],
+      "counts": {
+        "setter": 0,
+        "input": 0,
+        "change": 0,
+        "send": 0,
+        "otherSetter": 0,
+        "opened": 0
+      }
+    },
+    {
+      "mode": "await",
+      "releases": [
+        0,
+        1
+      ],
+      "newHost": [
+        "accepted",
+        "accepted"
+      ],
+      "counts": {
+        "setter": 0,
+        "input": 0,
+        "change": 0,
+        "send": 0,
+        "otherSetter": 0,
+        "opened": 0
+      }
+    }
+  ],
+  "version": "Chrome/157.0.8103.79"
+}

@@ -27,6 +27,12 @@ private actor BoundPermissionProbe: AutomationPermissionChecking {
 }
 
 final class AutomationPermissionTests: XCTestCase {
+    func testSettingsScopesOnlyAnUnboundPermissionRequestToItsDisplayedBrowser() {
+        XCTAssertEqual(NativeAutomationPermissionChecker.scope(expectedSession: nil, browsers: [.chrome, .edge], displayed: .edge), [.edge])
+        XCTAssertEqual(NativeAutomationPermissionChecker.scope(expectedSession: "original", browsers: [.chrome, .edge], displayed: .edge), [.chrome, .edge])
+        XCTAssertEqual(NativeAutomationPermissionChecker.scope(expectedSession: nil, browsers: [.chrome], displayed: .edge), [])
+    }
+
     func testOrdinaryCaptureCannotProbeOrRequestChrome() async {
         let probe = PermissionProbe([.granted])
         let gate = AutomationPermissionGate(requiresChrome: false, checker: probe)

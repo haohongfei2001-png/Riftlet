@@ -1,46 +1,29 @@
 import XCTest
+import AppKit
 import RiftletCore
 @testable import RiftletAdapters
 
 final class ChromePinnedRoutingTests: XCTestCase {
-    func testColdClickUsesForegroundOrUniqueChromeWithoutEarlierCapture() {
-        XCTAssertEqual(ChromeReceiverSelection.choose(frontmost: 20, lastForeground: nil,
-            running: [10, 20]), 20)
-        XCTAssertEqual(ChromeReceiverSelection.choose(frontmost: nil, lastForeground: nil,
-            running: [10]), 10)
+    func testHistoryTabEnumerationMatchesAppleScriptAbsoluteOrdinal() throws {
+        // The reference targets an in-process list. It sends no browser events.
+        let script = try XCTUnwrap(NSAppleScript(source: "return a reference to every item of {1,2}"))
+        var error: NSDictionary?
+        let reference = script.executeAndReturnError(&error)
+        XCTAssertNil(error)
+        let selector = try XCTUnwrap(reference.forKeyword(AEKeyword(keyAEKeyData)))
+        let native = try ChromeHistoryTabSelection.allTabsOrdinal()
+        XCTAssertEqual(native.descriptorType, selector.descriptorType)
+        XCTAssertEqual(native.data, selector.data)
     }
 
-    func testColdClickRejectsUnknownProcessEvenWhenAnotherChromeWindowIsVisible() {
-        // Process 10 was last used but is minimized/on another Space. Process
-        // 20 remains visible. Neither z-order nor visibility establishes which
-        // chat the user meant, so the receiver never accepts window metadata.
-        XCTAssertNil(ChromeReceiverSelection.choose(frontmost: 900, lastForeground: nil,
-            running: [10, 20]))
-        XCTAssertNil(ChromeReceiverSelection.choose(frontmost: nil, lastForeground: nil,
-            running: [20, 10]))
-    }
-
-    func testClickUsesLastActualChromeAfterThumbnailChangesApplicationFocus() {
-        XCTAssertEqual(ChromeReceiverSelection.choose(frontmost: 900, lastForeground: 20,
-            running: [10, 20]), 20)
-        XCTAssertEqual(ChromeReceiverSelection.choose(frontmost: 10, lastForeground: 20,
-            running: [10, 20]), 10)
-        // A dead remembered process cannot select either remaining profile.
-        XCTAssertNil(ChromeReceiverSelection.choose(frontmost: nil, lastForeground: 30,
-            running: [10, 20]))
-    }
-
-    func testExitedLastChromeDoesNotFallBackToTheOnlyRemainingProfile() {
-        XCTAssertNil(ChromeReceiverSelection.choose(frontmost: nil, lastForeground: 30,
-            running: [20]))
-        XCTAssertNil(ChromeReceiverSelection.choose(frontmost: 900, lastForeground: 30,
-            running: [20]))
-        // A currently foreground Chrome is a new explicit user destination.
-        XCTAssertEqual(ChromeReceiverSelection.choose(frontmost: 20, lastForeground: 30,
-            running: [20]), 20)
-        // Sole-process fallback remains available only without any history.
-        XCTAssertEqual(ChromeReceiverSelection.choose(frontmost: nil, lastForeground: nil,
-            running: [20]), 20)
+    func testProductionClickAcceptsOnlyCanonicalChatGPTOrigins() throws {
+        for url in ["https://chatgpt.com/", "https://chat.openai.com:443/c/chat"] {
+            XCTAssertNoThrow(try ChromeClickRoute.chatGPT(window: "11", tab: "12", url: url))
+        }
+        for url in ["https://example.org/", "https://chatgpt.com.example.org/",
+                    "https://name@chatgpt.com/", "https://chatgpt.com:444/", "http://chatgpt.com/"] {
+            XCTAssertThrowsError(try ChromeClickRoute.chatGPT(window: "11", tab: "12", url: url))
+        }
     }
 
     func testNativeSnapshotDetectsTabWindowAndSameTabConversationChanges() throws {
@@ -49,6 +32,23 @@ final class ChromePinnedRoutingTests: XCTestCase {
         XCTAssertNotEqual(original, try ChromeClickRoute(window: "11", tab: "13", url: original.address))
         XCTAssertNotEqual(original, try ChromeClickRoute(window: "11", tab: "12", url: "https://chatgpt.com/c/next"))
         XCTAssertNotEqual(original, try ChromeClickRoute(window: "11", tab: "12", url: "https://other.example/c/original"))
+    }
+
+    func testSavedConversationLinksAcceptOnlyScopedUUIDPaths() throws {
+        let id = UUID()
+        for (path, expected) in [("/g/g-example/c/", id), ("/c/", id), ("/g//c/", nil), ("/g/%2F/c/", nil), ("/unrelated/c/", nil)] {
+            let route = try ChromeClickRoute(window: "1", tab: "2", url: "https://chatgpt.com" + path + id.uuidString)
+            XCTAssertEqual(route.historyConversationID, expected)
+        }
+    }
+
+    func testRestartReadOnlyDiscoveryRejectsDifferentSavedChatAndCachedRoute() throws {
+        let id = UUID(), other = UUID()
+        let saved = try ChromeClickRoute.chatGPT(window: "1", tab: "2", url: "https://chatgpt.com/c/" + id.uuidString)
+        let navigated = try ChromeClickRoute.chatGPT(window: "1", tab: "2", url: "https://chatgpt.com/c/" + other.uuidString)
+        XCTAssertTrue(saved.matchesOriginal(route: nil, savedConversation: id))
+        XCTAssertFalse(navigated.matchesOriginal(route: nil, savedConversation: id))
+        XCTAssertFalse(navigated.matchesOriginal(route: saved, savedConversation: nil))
     }
 
     func testSnapshotHasNoNewChatOrProjectPathWhitelist() throws {
@@ -70,6 +70,17 @@ final class ChromePinnedRoutingTests: XCTestCase {
         for url in ["javascript:void(0)", "file:///tmp/chat", "about:blank", "not a URL"] {
             XCTAssertThrowsError(try ChromeClickRoute(window: "11", tab: "12", url: url))
         }
+    }
+
+    func testCancellationCannotDispatchQueuedInputOrReopenCompletedSubmission() throws {
+        let before = NativeCommandSubmission()
+        before.cancel()
+        XCTAssertThrowsError(try before.enter())
+
+        let after = NativeCommandSubmission()
+        try after.enter()
+        after.cancel()
+        XCTAssertThrowsError(try after.enter())
     }
 
     func testSelectionIsCheckedAtCaptureValidationAndActualInput() {

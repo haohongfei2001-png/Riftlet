@@ -36,7 +36,7 @@ public struct ObservationIdentity: Codable, Equatable, Sendable {
 
 /// These are observer facts, not queue states or admission decisions.
 public enum AttachmentObservedState: String, Codable, Sendable {
-    case inputTriggered, uploadStarted, attached, ready, failed, unknown, invalidated
+    case inputTriggered, uploadStarted, attached, ready, failed, originalCardFailed, unknown, invalidated
 }
 
 /// Bounded diagnostic facts, never page text or permission to complete/retry.
@@ -94,6 +94,7 @@ public struct AttachmentObservation: Codable, Equatable, Sendable {
     public let state: AttachmentObservedState
     public let attachmentID: String?
     /// Must come from the independently validated observer, not an echoed request name.
+    public let originalCardFailureInvocationID: UUID?
     public let exactImageIdentity: Bool
     public let belongsToOriginalDraft: Bool
     public let hasError: Bool
@@ -124,8 +125,10 @@ public struct AttachmentObservation: Codable, Equatable, Sendable {
                 terminationEvidence: ObservedAttachmentTermination? = nil,
                 continuationEvidence: ObservedAttachmentContinuation? = nil,
                 reason: AttachmentObservationReason? = nil,
-                resourceRefusalReason: WebPageRejection? = nil, inputExecutionPending: Bool? = nil) {
+                resourceRefusalReason: WebPageRejection? = nil, inputExecutionPending: Bool? = nil,
+                originalCardFailureInvocationID: UUID? = nil) {
         self.identity = identity; self.state = state; self.attachmentID = attachmentID
+        self.originalCardFailureInvocationID = originalCardFailureInvocationID
         self.exactImageIdentity = exactImageIdentity
         self.belongsToOriginalDraft = belongsToOriginalDraft
         self.hasError = hasError; self.isUploading = isUploading
@@ -182,7 +185,7 @@ public enum ObservationDecoder {
                     "belongsToOriginalDraft", "hasError", "isUploading",
                     "attachmentAbsent", "automaticRetryExcluded", "uploadStart", "preInputRetirement",
                     "requestEvidence", "completionEvidence", "terminationEvidence", "continuationEvidence", "reason",
-                    "resourceRefusalReason", "inputExecutionPending"
+                    "resourceRefusalReason", "inputExecutionPending", "originalCardFailureInvocationID"
                   ])),
                   let identity = observation["identity"] as? [String: Any],
                   Set(identity.keys) == Set(["operationID", "assetID", "attempt", "assetSHA256", "target"]),
@@ -247,6 +250,16 @@ public enum ObservationDecoder {
             // Version 3 is narrowly reserved for an explicit retirement. Normal
             // START/COMPLETE observations continue to use their original schema.
             throw ObservationError.invalidField("missing pre-input retirement")
+        }
+        if item.state == .originalCardFailed || item.originalCardFailureInvocationID != nil {
+            guard item.state == .originalCardFailed, envelope.schemaVersion == 2,
+                  item.originalCardFailureInvocationID != nil, item.identity.target.clickBindingID != nil,
+                  item.hasError, item.exactImageIdentity, item.belongsToOriginalDraft, item.attachmentID?.isEmpty == false,
+                  !item.attachmentAbsent, !item.isUploading, !item.automaticRetryExcluded, item.inputExecutionPending != true,
+                  item.preInputRetirement == nil, item.uploadStart == nil, item.requestEvidence == nil,
+                  item.continuationEvidence == nil, item.terminationEvidence == nil, item.completionEvidence == nil else {
+                throw ObservationError.invalidField("original card failure")
+            }
         }
         if envelope.schemaVersion == 1, item.uploadStart != nil || item.state == .uploadStarted {
             throw ObservationError.invalidField("legacy upload start")

@@ -1,0 +1,32 @@
+{
+  "reviewer": "independent-build62-recovery-and-mainline-source-reviewer",
+  "timestampUTC": "2026-11-23T09:36:39+00:00",
+  "gate": "Controlled product UI recovery, case A through H plus currently visible confirmed original failure and explicit normal click",
+  "result": "PASS",
+  "source": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "tree": "f5eb856b9faed30a2ff82e906a081d61647b6f04",
+  "independentExecution": "Compared all 175 archived product sources byte for byte with G. Read every case receipt in the aggregate against its frozen hash, seven raw AppKit/SQLite/page/screenshot groups and exact card inputs. Recovered old and fresh immutable operations and bindings, original bytes, two PID restart, refused stale target, zero-write cancellation, independent late original checkpoint. Reconciled the confirmed failure receipt to its own invocation, the visible return to the queue, fresh mouseDown, one new attachment START and retained old receipt. No sends or forms in the local suite. Recomputed all 1405 private archive members against the manifest.",
+  "controlledUIReceiptSHA256": "81d9c55bccc93b7d69017e70d18e0a40037744eb485bf1607369657cacb8d0df",
+  "privateArchiveSHA256": "91882c9ea4989ba330020dd3f6c40d391b49f26d43ef2345e54f558d60397c3f",
+  "privateManifestSHA256": "79330ba483a89ea2b6cc0b98e1cb3f72494b187c71346690309c82cb302b2e9e",
+  "recomputedCaseRowsDigest": "70bc9fba475ce118cadce955574be26f453261acae49c88d724e5cef8d23fe8e",
+  "composition": "The local page and test-only browser adapter are a controlled native executable. The release executable requires separate signing, installation, and real Chrome/Edge acceptance.",
+  "extraStoppedAttempt": {
+    "case": "G",
+    "mouseDownOnSecondSelection": 0,
+    "newInputs": 0,
+    "replacedWithFreshControlledCase": true,
+    "stage": "afterOriginalRestartAndConsentBeforeSecondClick",
+    "temporaryFocusRead": false
+  },
+  "cleanup": {
+    "activeListeners": 0,
+    "additionalStoppedCases": 1,
+    "allOwnedProcessLifetimesExited": true,
+    "finishedScopes": 8,
+    "fullCases": 7,
+    "openOwnedWindows": 0,
+    "unrelatedBrowserWindows": 0
+  },
+  "releaseStatus": "PENDING_SIGNED_CANDIDATE_AND_LIVE_ACCEPTANCE"
+}

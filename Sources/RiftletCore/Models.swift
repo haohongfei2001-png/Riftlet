@@ -87,6 +87,7 @@ public struct QueueHistoryRecord: Sendable {
     /// Immutable, admitted first START for the active operation.
     public let startReceipt: TransferReceipt?
     public let canRestore: Bool
+    public let isHandled: Bool
     public let reason: String?
 
     public var attachmentState: HistoryAttachmentState {
@@ -115,6 +116,12 @@ public struct LogicalDraftIdentity: Codable, Equatable, Hashable, Sendable {
             return false
         }
     }
+}
+
+/// Bundle identities supported by the ordinary ChatGPT attachment path.
+public enum AttachmentBrowser: String, CaseIterable, Sendable {
+    case chrome = "com.google.Chrome"
+    case edge = "com.microsoft.edgemac"
 }
 
 /// Captured at click time and rechecked atomically with dispatch by the adapter.
@@ -147,6 +154,8 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
         self.clickBindingID = clickBindingID
     }
 
+    public var attachmentBrowser: AttachmentBrowser? { AttachmentBrowser(rawValue: applicationID) }
+
     public var stableKey: String {
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
         // All fields are strings/enums; encoding cannot fail for a valid lease.
@@ -160,7 +169,7 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
     /// Full Equatable/stableKey identity intentionally remains unchanged.
     public func sharesContinuationDraft(with other: TargetLease) -> Bool {
         guard surface == .webChat, other.surface == surface,
-              applicationID == "com.google.Chrome", other.applicationID == applicationID,
+              attachmentBrowser != nil, other.applicationID == applicationID,
               !adapterID.isEmpty, adapterID == other.adapterID,
               !sessionID.isEmpty, sessionID == other.sessionID,
               !windowID.isEmpty, windowID == other.windowID,
@@ -189,7 +198,7 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
 
     public func hasIndependentInputDocument(from other: TargetLease) -> Bool {
         guard surface == .webChat, other.surface == surface,
-              applicationID == "com.google.Chrome", other.applicationID == applicationID,
+              attachmentBrowser != nil, other.applicationID == applicationID,
               !adapterID.isEmpty, adapterID == other.adapterID,
               !sessionID.isEmpty, sessionID == other.sessionID,
               !windowID.isEmpty, !other.windowID.isEmpty,
@@ -207,7 +216,7 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
     /// Chrome tab, including rearming, navigation and moving between windows.
     /// Receipt equality still requires every field of the original lease.
     public var serializationKey: String {
-        guard surface == .webChat, applicationID == "com.google.Chrome",
+        guard surface == .webChat, attachmentBrowser != nil,
               let tabID, !tabID.isEmpty else { return stableKey }
         return String(data: try! JSONEncoder().encode([adapterID, applicationID, sessionID, tabID]), encoding: .utf8)!
     }
@@ -218,7 +227,7 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
     public func conflictsForDispatch(with other: TargetLease) -> Bool {
         guard serializationKey == other.serializationKey || mixedChromeSessionMayConflict(with: other) else { return false }
         guard surface == .webChat, other.surface == .webChat,
-              applicationID == "com.google.Chrome", other.applicationID == applicationID,
+              attachmentBrowser != nil, other.applicationID == applicationID,
               let tabID, !tabID.isEmpty, other.tabID == tabID,
               let a = logicalDraftIdentity, let b = other.logicalDraftIdentity,
               a.isRecognized, b.isRecognized, a.profileID == b.profileID else { return true }
@@ -231,7 +240,7 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
     /// serialized identity equality deliberately remain exact and unchanged.
     private func mixedChromeSessionMayConflict(with other: TargetLease) -> Bool {
         guard surface == .webChat, other.surface == .webChat,
-              applicationID == "com.google.Chrome", other.applicationID == applicationID,
+              attachmentBrowser == .chrome, other.applicationID == applicationID,
               adapterID == other.adapterID, let tabID, !tabID.isEmpty, other.tabID == tabID,
               let a = Self.chromeSessionSpelling(sessionID),
               let b = Self.chromeSessionSpelling(other.sessionID) else { return false }
@@ -311,6 +320,8 @@ public struct TransferReceipt: Codable, Equatable, Sendable {
     public let belongsToOriginalDraft: Bool
     public let hasError: Bool
     public let isUploading: Bool
+    /// Identifies the input whose original draft displayed a file-specific upload failure.
+    public let originalCardFailureInvocationID: UUID?
     /// True only if the adapter has proved no residual auto-retrying attachment remains.
     public let safeToRetry: Bool
     public let reason: String
@@ -327,12 +338,13 @@ public struct TransferReceipt: Codable, Equatable, Sendable {
                 uploadStartEvidence: UploadStartEvidence? = nil,
                 continuationEvidence: AttachmentContinuationEvidence? = nil,
                 completionEvidence: AttachmentCompletionEvidence? = nil,
-                terminationEvidence: AttachmentTerminationEvidence? = nil) {
+                terminationEvidence: AttachmentTerminationEvidence? = nil, originalCardFailureInvocationID: UUID? = nil) {
         self.operationID = operationID; self.assetID = assetID; self.attempt = attempt
         self.assetSHA256 = assetSHA256; self.target = target; self.outcome = outcome
         self.profileID = profileID; self.attachmentID = attachmentID
         self.positiveReady = positiveReady; self.belongsToOriginalDraft = belongsToOriginalDraft
         self.hasError = hasError; self.isUploading = isUploading; self.safeToRetry = safeToRetry
+        self.originalCardFailureInvocationID = originalCardFailureInvocationID
         self.reason = reason
         self.uploadStartEvidence = uploadStartEvidence
         self.continuationEvidence = continuationEvidence
@@ -344,7 +356,7 @@ public struct TransferReceipt: Codable, Equatable, Sendable {
         case operationID, assetID, attempt, assetSHA256, target, outcome, profileID, attachmentID
         case positiveReady, belongsToOriginalDraft, hasError, isUploading, safeToRetry, reason
         case uploadStartEvidence, continuationEvidence, completionEvidence, terminationEvidence
-        case attachmentAcceptanceEvidence
+        case attachmentAcceptanceEvidence, originalCardFailureInvocationID
     }
 
     public init(from decoder: Decoder) throws {
@@ -374,7 +386,8 @@ public struct TransferReceipt: Codable, Equatable, Sendable {
             uploadStartEvidence: acceptance ?? legacyStart,
             continuationEvidence: try values.decodeIfPresent(AttachmentContinuationEvidence.self, forKey: .continuationEvidence),
             completionEvidence: try values.decodeIfPresent(AttachmentCompletionEvidence.self, forKey: .completionEvidence),
-            terminationEvidence: try values.decodeIfPresent(AttachmentTerminationEvidence.self, forKey: .terminationEvidence))
+            terminationEvidence: try values.decodeIfPresent(AttachmentTerminationEvidence.self, forKey: .terminationEvidence),
+            originalCardFailureInvocationID: try values.decodeIfPresent(UUID.self, forKey: .originalCardFailureInvocationID))
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -393,6 +406,7 @@ public struct TransferReceipt: Codable, Equatable, Sendable {
         try values.encode(isUploading, forKey: .isUploading)
         try values.encode(safeToRetry, forKey: .safeToRetry)
         try values.encode(reason, forKey: .reason)
+        try values.encodeIfPresent(originalCardFailureInvocationID, forKey: .originalCardFailureInvocationID)
         // PR40's strict enum knows only progress/request START. Store the new
         // signal in an additive key its decoder ignores, so the retained App
         // can still read the same database after rollback. Never mislabel this

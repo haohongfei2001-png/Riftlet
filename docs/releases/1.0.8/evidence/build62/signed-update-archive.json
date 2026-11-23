@@ -1,0 +1,10 @@
+{
+  "build": 62,
+  "dmgSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "archiveBytes": 14225854,
+  "edSignature": "dDekwhQ/b8RQwAP8If4B3NiRlFBGsasWvwEQ3fhBVRQJs0HTwi2hMA84OAOdkOZxPy1tBhi00x4GGhn3CK3wDA==",
+  "build31SourceAndInstalled62PublicKeysMatch": true,
+  "detachedArchiveSignatureVerified": true,
+  "verifier": "Pinned Sparkle sign_update and independent CryptoKit public key check for 31 and 62",
+  "scope": "Detached archive signature. The production feed and public in-app update are separate checks."
+}

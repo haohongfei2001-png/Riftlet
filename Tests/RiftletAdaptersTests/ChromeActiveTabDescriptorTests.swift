@@ -1,8 +1,18 @@
+import Carbon
 import Foundation
+import JavaScriptCore
 import XCTest
 @testable import RiftletAdapters
 
 final class ChromeActiveTabDescriptorTests: XCTestCase {
+    func testBothBrowserTransportsRequireSystemConsentWithoutPrompting() {
+        let consent = UInt(kAEDoNotPromptForUserConsent)
+        XCTAssertNotEqual(UInt(ChromeClickSnapshot.queuedMode) & consent, 0)
+        XCTAssertTrue(ChromeClickSnapshot.waitOptions.contains(.init(rawValue: consent)))
+        XCTAssertTrue(ChromeClickSnapshot.waitOptions.contains(.neverInteract))
+        XCTAssertNotEqual(ChromeClickSnapshot.queuedMode & AESendMode(kAENeverInteract), 0)
+    }
+
     func testClickIdentityFallbackAndURLShareTheMouseDownDeadline() throws {
         let deadline = ChromeClickDeadline(start: 10)
         XCTAssertEqual(try deadline.timeout(at: 10), 0.15, accuracy: 0.000_001)
@@ -10,6 +20,70 @@ final class ChromeActiveTabDescriptorTests: XCTestCase {
         XCTAssertThrowsError(try deadline.timeout(at: 10.149))
         XCTAssertNoThrow(try deadline.checkReturn(at: 10.149))
         XCTAssertThrowsError(try deadline.checkReturn(at: 10.151))
+    }
+
+    func testPinRepliesCanArriveLateWithoutExtendingTheOriginalClick() throws {
+        let capture = ChromeClickDeadline(start: 10, wallTime: 1000)
+        XCTAssertThrowsError(try capture.checkReturn(at: 10.151))
+        XCTAssertNoThrow(try capture.confirmation.checkReturn(at: 10.8))
+        XCTAssertThrowsError(try capture.confirmation.checkReturn(at: 11.001))
+        XCTAssertEqual(capture.guardExecution(of: "'bound'"), capture.confirmation.guardExecution(of: "'bound'"))
+    }
+
+    func testQueuedPinCanOnlyBindAnAlreadyOpenVisibleDocumentWithinTheClickWindow() throws {
+        let context = try XCTUnwrap(JSContext())
+        context.evaluateScript("""
+            var wall=1000050, calls=0; Date.now=()=>wall;
+            var performance={timeOrigin: 900000, now: ()=>wall-performance.timeOrigin};
+            var document={visibilityState:'visible',hasFocus:()=>true};
+            """)
+        let deadline = ChromeClickDeadline(start: 10, wallTime: 1000)
+        let bind = deadline.guardExecution(of: "(++calls, 'bound')")
+        XCTAssertEqual(context.evaluateScript(bind)?.toString(), "bound")
+        context.evaluateScript("wall=1000200")
+        XCTAssertEqual(context.evaluateScript(bind)?.toString(), "expired")
+        context.evaluateScript("wall=1000050; performance.timeOrigin=1000020")
+        XCTAssertEqual(context.evaluateScript(bind)?.toString(), "expired")
+        context.evaluateScript("performance.timeOrigin=900000; document.visibilityState='hidden'")
+        XCTAssertEqual(context.evaluateScript(bind)?.toString(), "refused")
+        XCTAssertEqual(context.evaluateScript("calls")?.toInt32(), 1)
+        context.evaluateScript("document.visibilityState='visible'")
+        XCTAssertEqual(context.evaluateScript(deadline.guardExecution(of: "(globalThis.wall=1000200, 'bound')"))?.toString(), "expired")
+    }
+
+    func testAnOldBrowserTimeOriginCannotExtendTheClickAndClockStepsInvalidateTheReply() throws {
+        let deadline = ChromeClickDeadline(start: 10, wallTime: 1000)
+        XCTAssertNoThrow(try deadline.confirmation.checkClockAgreement(at: 10.2, wallTime: 1000.2))
+        XCTAssertThrowsError(try deadline.confirmation.checkClockAgreement(at: 10.2, wallTime: 1000.0))
+        XCTAssertThrowsError(try deadline.confirmation.checkClockAgreement(at: 10.2, wallTime: 1000.4))
+        let context = try XCTUnwrap(JSContext())
+        context.evaluateScript("""
+            var wall=1000040, calls=0, age=9840; Date.now=()=>wall;
+            var performance={timeOrigin:990000,now:()=>age};
+            var document={visibilityState:'visible',hasFocus:()=>true};
+            """)
+        let request = deadline.guardExecution(of: "(++calls, 'bound')")
+        XCTAssertEqual(context.evaluateScript(request)?.toString(), "bound")
+        context.evaluateScript("wall=1000240; age+=200")
+        XCTAssertEqual(context.evaluateScript(request)?.toString(), "expired")
+        XCTAssertEqual(context.evaluateScript("calls")?.toInt32(), 1)
+    }
+
+    func testConcurrentTabPropertiesCannotSupplyAnotherTabsURL() throws {
+        let record = NSAppleEventDescriptor.record()
+        record.setDescriptor(.init(typeCode: code("CrTb")), forKeyword: code("pcls"))
+        record.setDescriptor(.init(string: "9"), forKeyword: code("ID  "))
+        record.setDescriptor(.init(string: "https://chatgpt.com/c/test"), forKeyword: code("URL "))
+        XCTAssertEqual(try ChromeActiveTabDescriptor.matchedURL(properties: record, tab: "9"), "https://chatgpt.com/c/test")
+        XCTAssertThrowsError(try ChromeActiveTabDescriptor.matchedURL(properties: record, tab: "8"))
+        XCTAssertNil(try ChromeActiveTabDescriptor.matchedURL(properties: .list(), tab: "9"))
+        XCTAssertNil(try ChromeActiveTabDescriptor.matchedURL(properties: nil, tab: "9"))
+    }
+
+    func testQueuedRepliesShareRemainingClickTime() throws {
+        let deadline = ChromeClickDeadline(start: 10)
+        XCTAssertTrue((49...50).contains(try deadline.receiveMilliseconds(at: 10.100)))
+        XCTAssertThrowsError(try deadline.receiveMilliseconds(at: 10.150))
     }
 
     private func code(_ text: String) -> UInt32 { text.utf8.reduce(0) { ($0 << 8) | UInt32($1) } }

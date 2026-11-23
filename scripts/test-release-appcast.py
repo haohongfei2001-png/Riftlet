@@ -58,7 +58,8 @@ class StableFeedTests(unittest.TestCase):
     def test_stable_upgrade_orders_both_numbers_numerically(self):
         last = ((1, 0, 9), 28)
         m.require_successor(last, '1.0.10', '29')
-        for v, b in [('1.0.10', '28'), ('1.0.9', '29'), ('1.0.8', '30'), ('1.1.0', '24'),
+        m.require_successor(last, '1.0.9', '29')
+        for v, b in [('1.0.10', '28'), ('1.0.9', '28'), ('1.0.9', '27'), ('1.0.8', '30'), ('1.1.0', '24'),
                      ('1.0.10-beta', '30'), ('1.0.09', '30'), ('1.1.0', '0'), ('1.1.0', '30.5')]:
             with self.subTest(v=v, b=b), self.assertRaises(ValueError):
                 m.require_successor(last, v, b)
@@ -113,10 +114,10 @@ class StableFeedTests(unittest.TestCase):
         # Signature verification itself is exercised by the previous independent public-key test.
         empty, current, future = feed(), feed('1.0.1', '23'), feed('1.0.2', '24')
         with mock.patch.object(m, 'verify'):
-            for previous, new in [(None, empty), (empty, empty), (empty, current), (current, current), (current, future)]:
+            for previous, new in [(None, empty), (empty, empty), (empty, current), (current, current), (current, future), (future, feed('1.0.2', '25'))]:
                 m.verify_transition(previous, new)
             for previous, new in [(None, current), (future, current), (future, empty),
-                                  (future, feed('1.0.3', '24')), (future, feed('1.0.2', '25'))]:
+                                  (future, feed('1.0.3', '24')), (future, feed('1.0.1', '25'))]:
                 with self.subTest(previous=previous, new=new), self.assertRaises(ValueError):
                     m.verify_transition(previous, new)
 

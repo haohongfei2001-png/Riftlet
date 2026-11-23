@@ -3,6 +3,7 @@
 import argparse
 import base64
 import hashlib
+from html.parser import HTMLParser
 import importlib.util
 import json
 import os
@@ -116,7 +117,7 @@ def previous_version(feed):
 
 def require_successor(previous, v, build):
     old_v, old_b = previous
-    check(version(v) > old_v and number(build) > old_b, 'both marketing version and build must increase')
+    check(version(v) >= old_v and number(build) > old_b, 'build must increase and marketing version must not decrease')
 
 
 def validate_item(feed, v, build, size, body):
@@ -186,8 +187,8 @@ def verify_transition(old, new):
         return
     verify(old)
     previous = previous_version(old)
-    check(latest[0] > previous[0] and latest[1] > previous[1],
-          'feed replacement must increase both stable version and build')
+    check(latest[0] >= previous[0] and latest[1] > previous[1],
+          'feed replacement requires a newer build with no marketing version downgrade')
 
 
 def verify_github_transition():
@@ -301,6 +302,64 @@ def prepare(args, tmp):
     return feed
 
 
+class WebsiteDownloads(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.buttons = {}
+        self.marker = None
+        self.application = None
+        self.in_schema = False
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if tag == 'meta' and attrs.get('name') == 'riftlet-website-version':
+            self.marker = attrs.get('content')
+        if tag == 'a' and attrs.get('data-umami-event') == 'download_dmg':
+            place = attrs.get('data-umami-event-placement')
+            check(place not in self.buttons, 'duplicate website download placement')
+            self.buttons[place] = (attrs.get('href'), attrs.get('data-umami-event-version'))
+        if tag == 'script':
+            self.in_schema = attrs.get('type') == 'application/ld+json'
+
+    def handle_data(self, data):
+        if self.in_schema:
+            schema = json.loads(data)
+            if schema.get('@type') == 'SoftwareApplication' and schema.get('name') == 'Riftlet':
+                self.application = schema
+
+    def handle_endtag(self, tag):
+        if tag == 'script':
+            self.in_schema = False
+
+
+def verify_public_distribution(receipt_path):
+    receipt = read_json(receipt_path)
+    check(receipt['stage'] == 'VERIFIED_STAPLED_DMG' and receipt['teamID'] == TEAM,
+          'use the final notarized DMG receipt')
+    v, build = receipt['version'], receipt['build']
+    digest, size = receipt['sha256'], receipt['bytes']
+    link, notes = published_release(v, digest, size)
+    check(git_api('/releases/latest')['tag_name'] == 'v' + v, 'latest GitHub release differs')
+    with tempfile.TemporaryDirectory() as directory:
+        folder = Path(directory)
+        home, feed, dmg = folder / 'index.html', folder / 'stable.xml', folder / name_for(v)
+        fetch('https://riftlet.com/', home, 2 * 1024 * 1024)
+        page = WebsiteDownloads()
+        page.feed(home.read_text())
+        page.close()
+        check(page.marker == 'riftlet-' + v and page.application
+              and page.application.get('softwareVersion') == v and page.application.get('downloadUrl') == link,
+              'website release metadata differs')
+        check(page.buttons == {'header': (link, v), 'primary': (link, v)}, 'website download buttons differ')
+        fetch(FEED, feed, 2 * 1024 * 1024)
+        verify(feed)
+        signature = validate_item(feed, v, build, size, notes)
+        fetch(page.buttons['primary'][0], dmg, size)
+        check(dmg.stat().st_size == size and sha(dmg) == digest, 'downloaded DMG differs from receipt')
+        verify(dmg, signature)
+        print(json.dumps(dict(version=v, build=build, bytes=size, sha256=digest, signedFeedSHA256=sha(feed))))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     modes = parser.add_subparsers(dest='mode', required=True)
@@ -311,7 +370,12 @@ def main():
         if name == 'prepare':
             p.add_argument('--workspace', type=Path, required=True, help='completed release-macos.py workspace')
     modes.add_parser('verify-transition', help='verify the release feed against the actual GitHub event base')
+    public = modes.add_parser('verify-public', help='check the live website, latest release and signed feed together')
+    public.add_argument('--receipt', type=Path, required=True, help='final notarized dmg-receipt.json')
     args = parser.parse_args()
+    if args.mode == 'verify-public':
+        verify_public_distribution(args.receipt)
+        return
     if args.mode == 'verify-transition':
         verify_github_transition()
         return

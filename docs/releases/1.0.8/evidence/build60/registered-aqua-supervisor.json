@@ -1,0 +1,94 @@
+{
+  "observedUTC": "2026-11-22T22:14:28.652434+00:00",
+  "candidate": "1.0.8 (60)",
+  "source": "711cee3a1c7033ce4925082a83099b00da7087c6",
+  "observer": "Parent PID independently compared with registered Aqua launchd job before logging",
+  "inputsStarted": 0,
+  "currentWorkerPID": 27431,
+  "workerMode": "read-only; product intake disabled after non-author recovery finding",
+  "probes": {
+    "chrome": {
+      "attemptedSamples": 8,
+      "validHostReplies": 6,
+      "lastAttemptUTC": "2026-11-22T22:13:25+00:00"
+    },
+    "edge": {
+      "attemptedSamples": 8,
+      "validHostReplies": 6,
+      "lastAttemptUTC": "2026-11-22T22:13:26+00:00"
+    }
+  },
+  "samples": {
+    "chrome": {
+      "observedUTC": "2026-11-22T22:13:25.265229+00:00",
+      "metadataSHA256": "b0f143f72596316d95332f35c06c7ad331441e010cdee38b0ed1c6c727443a25",
+      "frontPID": 1046,
+      "frontBundle": "com.apple.UserNotificationCenter",
+      "windows": [
+        {
+          "bounds": {
+            "height": 303,
+            "width": 260,
+            "x": 605,
+            "y": 181
+          },
+          "modal": false,
+          "role": "AXWindow",
+          "subrole": "AXSystemDialog"
+        }
+      ],
+      "frontHasModal": false,
+      "systemDialogOnScreen": true,
+      "displayAwake": true,
+      "screenLocked": false,
+      "onConsole": true,
+      "loginDone": true,
+      "consoleUIDMatches": true,
+      "axTrusted": true,
+      "appRunning": true,
+      "baseWindows": 9,
+      "onScreen": 0,
+      "axWindows": 0,
+      "appleEventsNonprompting": "CONSENT_REQUIRED",
+      "launchManager": "Aqua"
+    },
+    "edge": {
+      "observedUTC": "2026-11-22T22:13:26.480708+00:00",
+      "metadataSHA256": "fbcea469709a56e598bf7cc5c2efbd4b5497890a3087739df6d70d7d91d7898f",
+      "frontPID": 1046,
+      "frontBundle": "com.apple.UserNotificationCenter",
+      "windows": [
+        {
+          "bounds": {
+            "height": 303,
+            "width": 260,
+            "x": 605,
+            "y": 181
+          },
+          "modal": false,
+          "role": "AXWindow",
+          "subrole": "AXSystemDialog"
+        }
+      ],
+      "frontHasModal": false,
+      "systemDialogOnScreen": true,
+      "displayAwake": true,
+      "screenLocked": false,
+      "onConsole": true,
+      "loginDone": true,
+      "consoleUIDMatches": true,
+      "axTrusted": true,
+      "appRunning": true,
+      "baseWindows": 11,
+      "onScreen": 0,
+      "axWindows": 0,
+      "appleEventsNonprompting": "CONSENT_REQUIRED",
+      "launchManager": "Aqua"
+    }
+  },
+  "attribution": {
+    "systemDialogPurpose": "undetermined from allowed metadata",
+    "signedRiftletAppleEventsPermission": "not measured by QA launchd job",
+    "stageManagerOrOtherSpaceCauseProven": false
+  }
+}
