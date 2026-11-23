@@ -4,29 +4,39 @@ IMPORTANT: This file was signed by Sparkle. Any modifications to this file requi
     <channel>
         <title>Riftlet</title>
         <item>
-            <title>1.0.5</title>
-            <pubDate>Wed, 18 Nov 2026 10:59:39 +0800</pubDate>
+            <title>1.0.8</title>
+            <pubDate>Mon, 23 Nov 2026 21:30:09 +0800</pubDate>
             <link>https://riftlet.com/</link>
-            <sparkle:version>31</sparkle:version>
-            <sparkle:shortVersionString>1.0.5</sparkle:shortVersionString>
+            <sparkle:version>62</sparkle:version>
+            <sparkle:shortVersionString>1.0.8</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
-            <description sparkle:format="plain-text"><![CDATA[Riftlet 1.0.5 (31)
+            <description sparkle:format="plain-text"><![CDATA[# Riftlet 1.0.8（build 62）发行说明
 
-截图资料现在可以按留存期整理，也可以手动移入系统废纸篓，再从 Riftlet 找回。旧用户沿用原有留存策略，系统截图原件保留。内置截图在收录中断后可从菜单进入「管理」找回。设置与截图仓库增加了对应的恢复入口，大图库会优先载入可见图片。
+## 中文
 
-如果原附件在原草稿中明确报错，截图可在「需要处理」中找到，并可在有原对话记录时返回核对。Riftlet 不会自动发送消息或重新上传状态不明的截图。真实 ChatGPT 首次、连续双图及服务端终止后的恢复，在本版隔离验收中因未能连接到可用草稿而未验证。
+- 点击桌面边缘的截图时，Riftlet 会核对原来的浏览器窗口、标签和 ChatGPT 草稿。连续点击两张截图时，每张图片分别核对和附加。
+- 上传结果尚未确认时，可以在截图仓库查看原图、返回原草稿或选择「重新附加」。如果草稿中可能已有这张图片，Riftlet 会提示重复风险。只有确认后再次点击桌面的原图，才会发起新的附加。原窗口或草稿已关闭时，仍可在仓库查看原图。
+- 如果原草稿明确报告这张截图上传失败，Riftlet 会让已收起的截图重新出现。关掉并重新打开 Riftlet 后，原图和原操作记录依然保留。
+- 改进了 ChatGPT 将预览显示为 WebP 时对原截图的识别。消息仍由你在 ChatGPT 中发送。
 
-下载 Riftlet-1.0.5.dmg，打开后将 Riftlet 拖入「应用程序」。手动升级时先退出旧版，再替换原安装位置的 App。支持 Apple Silicon 与 Intel；最低系统要求为 macOS 13。应用与磁盘映像均已通过 Apple 公证。
+适用于 macOS 13 或更高版本的 Apple 芯片和 Intel Mac。网页附加支持普通 Google Chrome 和 Microsoft Edge 中可编辑的 ChatGPT 草稿。可从 Riftlet 菜单选择「检查更新…」。
 
-Riftlet can now move eligible private screenshot copies to the system Trash and restore them. Existing libraries keep their retention settings. Interrupted captures can be recovered from Manage, and large libraries load visible screenshots first.
+## English
 
-When the original attachment reports an error, Needs Attention helps you find the screenshot and check its saved conversation. Riftlet never sends messages or automatically uploads an uncertain attachment again. The isolated release test could not reach a live ChatGPT draft, so first-click, rapid two-image attachment and recovery from a server-side terminal failure remain unverified on the live service.
+- Clicking a screenshot at the desktop edge checks its original browser window, tab, and ChatGPT draft. When you select two screenshots in succession, Riftlet checks and attaches each one separately.
+- When an upload result is uncertain, your library lets you view the original, return to the draft or choose **Attach Again**. If the image may already be there, Riftlet warns about a duplicate. Confirm and click the desktop screenshot to attach it again. The original remains available after you close the draft.
+- A screenshot reappears when the original draft reports an identifiable failure for that image. Its saved copy and transfer record survive an app restart.
+- Riftlet recognizes the original screenshot when ChatGPT displays its preview as WebP. You send the message from ChatGPT.
 
-Open Riftlet-1.0.5.dmg and drag Riftlet to Applications. For a manual update, quit the old app and replace it in the same location. The app and disk image are notarized by Apple. The universal app supports Apple Silicon and Intel and requires macOS 13 or later.]]></description>
-            <enclosure url="https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.5/Riftlet-1.0.5.dmg" length="12686160" type="application/octet-stream" sparkle:edSignature="pJS/n937O7vwcRz0zDaWaZLPz+k2nR2I/g7tJiVL0dUyn6r8wjQm7l6DyL3tlCYiJjN6ASyJDBOwIf21xLYABg=="></enclosure>
+Requires macOS 13 or later on Apple silicon or Intel. Web attachment works in editable ChatGPT drafts in ordinary Google Chrome and Microsoft Edge. Use **Check for Updates…** in the Riftlet menu to update.
+
+**SHA-256** · `Riftlet-1.0.8.dmg`
+
+`66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49`]]></description>
+            <enclosure url="https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.8/Riftlet-1.0.8.dmg" length="14225854" type="application/octet-stream" sparkle:edSignature="dDekwhQ/b8RQwAP8If4B3NiRlFBGsasWvwEQ3fhBVRQJs0HTwi2hMA84OAOdkOZxPy1tBhi00x4GGhn3CK3wDA=="></enclosure>
         </item>
     </channel>
 </rss><!-- sparkle-signatures:
-edSignature: 42+5zxo1cH8y/BXBQXSDhY5SUjdutn1OnlYtK4NFo6GWrYhH8yya2949QuKlJ8uilcS6DKlqpSMiq5feK+IxDw==
-length: 3050
+edSignature: /g1TBKUGVrNYIaYnH29Fn2a5zc5RN4oyP3ENaYTm7lNvt/NB789Y+1tI1Mc6tA2+Bg3nDCjMX5oAU2E49uMDCQ==
+length: 3344
 -->
