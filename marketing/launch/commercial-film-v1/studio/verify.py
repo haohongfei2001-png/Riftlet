@@ -23,7 +23,18 @@ def inspect_video(path, expected_size, seconds):
         assert a.codec_context.name == "aac" and a.codec_context.sample_rate == 48000
         assert a.codec_context.channels == 2
         assert Fraction(v.duration) * v.time_base == seconds
-        stamps = [frame.pts * frame.time_base for frame in container.decode(v)]
+        frames = container.decode(v)
+        first = next(frames)
+        color = {
+            "matrix_coefficients": int(first.colorspace),
+            "colour_primaries": int(first.color_primaries),
+            "transfer_characteristics": int(first.color_trc),
+            "range": int(first.color_range),
+        }
+        assert color["matrix_coefficients"] == 1 and color["range"] == 1
+        profile = v.codec_context.profile
+        stamps = [first.pts * first.time_base]
+        stamps.extend(frame.pts * frame.time_base for frame in frames)
         assert stamps == [Fraction(i, 30) for i in range(seconds * 30)]
     with av.open(path) as container:
         audio = container.streams.audio[0]
@@ -64,7 +75,8 @@ def inspect_video(path, expected_size, seconds):
         "fps": 30,
         "video_codec": "H.264",
         "pixel_format": "yuv420p",
-        "profile": v.codec_context.profile,
+        "profile": profile,
+        "encoded_colour_tags": color,
         "fast_start": True,
         "audio_codec": "AAC stereo",
         "sample_rate": 48000,

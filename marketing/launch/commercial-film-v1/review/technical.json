@@ -13,6 +13,12 @@
     "video_codec": "H.264",
     "pixel_format": "yuv420p",
     "profile": "High",
+    "encoded_colour_tags": {
+      "matrix_coefficients": 1,
+      "colour_primaries": 2,
+      "transfer_characteristics": 2,
+      "range": 1
+    },
     "fast_start": true,
     "audio_codec": "AAC stereo",
     "sample_rate": 48000,
@@ -34,6 +40,12 @@
     "video_codec": "H.264",
     "pixel_format": "yuv420p",
     "profile": "High",
+    "encoded_colour_tags": {
+      "matrix_coefficients": 1,
+      "colour_primaries": 2,
+      "transfer_characteristics": 2,
+      "range": 1
+    },
     "fast_start": true,
     "audio_codec": "AAC stereo",
     "sample_rate": 48000,
@@ -55,6 +67,12 @@
     "video_codec": "H.264",
     "pixel_format": "yuv420p",
     "profile": "High",
+    "encoded_colour_tags": {
+      "matrix_coefficients": 1,
+      "colour_primaries": 2,
+      "transfer_characteristics": 2,
+      "range": 1
+    },
     "fast_start": true,
     "audio_codec": "AAC stereo",
     "sample_rate": 48000,
@@ -76,6 +94,12 @@
     "video_codec": "H.264",
     "pixel_format": "yuv420p",
     "profile": "High",
+    "encoded_colour_tags": {
+      "matrix_coefficients": 1,
+      "colour_primaries": 2,
+      "transfer_characteristics": 2,
+      "range": 1
+    },
     "fast_start": true,
     "audio_codec": "AAC stereo",
     "sample_rate": 48000,
