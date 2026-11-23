@@ -6,7 +6,13 @@
 
 GitHub 于 2026 年 11 月 23 日 21:18:30（北京时间）发布 v1.0.8。PR #125 的合并提交为 `bbcbac2455697b874a2aca79be92b113630a93f0`，PR 与 main 各五项正式检查通过。官网两个下载按钮和公开更新源均指向同一签名 DMG。[公开下载与来源核对](evidence/build62/public-distribution.json) · [发布后非作者裁决](evidence/build62/public-independent-verdict.json)
 
-官网 PR #127 的首次 ARM64 作业在隔离 Chrome 初始化时超时，受控用例通过 47/48。同一云端工作流的 ARM64 第 2 次作业通过。Intel、Native 源码准入、Feedback 源码准入及 Feedback 测试均在首次执行时通过。[首次失败的云端日志](https://github.com/haohongfei2001-png/Riftlet/actions/runs/45186045048/job/137731799406) · [ARM64 最终作业](https://github.com/haohongfei2001-png/Riftlet/actions/runs/45186045048/job/137744706398) · [公开下载与来源核对](evidence/build62/public-distribution.json)
+11 月 24 日 00:50（北京时间），在使用全新配置的无界面 Google Chrome 157 中，点击一次官网主下载按钮。GitHub 返回 HTTP 302，资产服务器返回 HTTP 200。点击后 7.611 秒，首次同时观察到下载管理器显示完成和完整文件落盘。下载记录仅一项，危险标记和中断原因均为 0，文件摘要与上方 SHA-256 相同。另一路 HTTPS 客户端前两次在收到正文前遇到传输错误，第三次取得完整 DMG 并通过校验。[浏览器单击、下载记录与独立 HTTP 核对](evidence/build62/public-website-click.json)
+
+官网 PR #127 的首次 ARM64 作业在隔离 Chrome 的原卡恢复用例上达到 34 秒总时限，48 项受控用例通过 47 项。页面已向本地服务器报告 `initializing`。完整用例要求 56 次文件输入和 4 次焦点往返，旧验收器只记录这个阶段名，无法确定该次执行到了哪一步。同一提交的第二次 ARM64 作业通过，Intel、两项源码准入和 Feedback 测试均在首次执行时通过。[首次失败日志](https://github.com/haohongfei2001-png/Riftlet/actions/runs/45186045048/job/137731799406) · [ARM64 通过记录](https://github.com/haohongfei2001-png/Riftlet/actions/runs/45186045048/job/137744706398) · [公开下载核对](evidence/build62/public-distribution.json)
+
+发布后报告 PR #128 的前两次 ARM64 调度均未分配到运行机。第三次获配运行机后复现了同一用例超时，另外 47 项通过。该次 ARM64 的 Swift 测试、打包和自检均未执行。签名发行包的双架构结果见下文。[前两次容量记录](https://github.com/haohongfei2001-png/Riftlet/pull/128#issuecomment-7107283347) · [第三次 ARM64 原始日志](https://github.com/haohongfei2001-png/Riftlet/actions/runs/45206156569/job/137846535971)
+
+本地原卡恢复验收器现对每个子场景报告进度，这一整组用例的执行上限为 120 秒。图片解码、浏览器的真实焦点切换和历史返回均有独立时限。完整本地套件 48/48 通过。另一次对照在首次输入前将本地回执延迟 36.002 秒，单次运行在 37.548 秒内完成，产生 56 次 setter、56 次 input、56 次 change 和零发送，四次真实焦点往返均通过。[定向对照与完整套件回执](evidence/build62/native-chrome-fixture-timing.json) · [原卡用例](../../../Tests/WebPageProgram/original-error-card-application.cjs) · [原生 Chrome 验收器](../../../Tests/WebPageProgram/chrome-input-resource.test.cjs)
 
 ## 正式签名包的实站结果
 
