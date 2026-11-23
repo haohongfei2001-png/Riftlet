@@ -2,7 +2,7 @@
 
 ## Release decision
 
-Public stable remains 1.0.5 (31). Build 61 has a confirmed recovery defect. Choosing Attach Again after the duplicate warning can still refuse a fresh click when the original attachment remains on the same draft. The history action checks local records before the warning and does not inspect the original card. A source fix requires a new signed candidate, build 62.
+Build 62 source is [871187f2](https://github.com/haohongfei2001-png/Riftlet/commit/871187f2be5eada68fccf2adcc07d120991e1c15). The independent reviewer approved tree `f5eb856b9faed30a2ff82e906a081d61647b6f04`. Build 61 could hide Attach Again or reject a new click after confirmation when the original attachment remained in the draft.
 
 ## Acceptance contract
 
@@ -22,9 +22,11 @@ The controlled native suite uses the production history window, mouse handling, 
 
 | Gate | Status |
 | --- | --- |
-| Native recovery A–H, including cancellation, stale target, late receipt and relaunch | Eight cases passed on the build 62 controlled host. Match the final source and independent audit before release. |
+| Native recovery A–H, including cancellation, stale target, late receipt and relaunch | PASS on the frozen build 62 controlled host. Independent review checked 175 production source files, seven completed scenarios and 1,405 archived files. |
 | Original data retention and three historical database copies | Independent migrations and retention controls passed. Match the final source before release. |
-| Full Swift and web regression, ARM64 and Intel, non-author source admission | 408 web tests passed. Formal Swift, both architecture jobs and the source decision are tracked on PR #125. |
+| Full Swift and web regression, ARM64 and Intel, non-author source admission | 408 web tests passed. Independent source admission passed. Formal Swift and architecture jobs are tracked on PR #125. |
 | Signed and notarized DMG, staple, Gatekeeper and independent installation | Pending |
 | Signed candidate G1 Chrome and G2 Edge on dedicated Temporary Chats | Pending |
 | Formal merge, public artifact, signed update metadata and isolated 1.0.5 (31) in-app upgrade | Pending release gates |
+
+The frozen-source native run included the same unconfirmed original operation through the warning, cancellation, explicit re-selection and second START. A separate current named failure returned its own image to the tray. One additional run stopped safely before its second click while the window was gaining focus. All owned windows and listeners were closed. [Native receipt](evidence/build62/frozen-native-recovery.json) · [Independent verdict](evidence/build62/frozen-native-independent.json)
