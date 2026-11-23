@@ -1,0 +1,41 @@
+{
+  "version": "1.0.8",
+  "build": 62,
+  "family": "edge",
+  "source": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "dmgSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "coldScope": "new signed Riftlet process and clean QA profile with zero prior operations, browser already signed in",
+  "warmScope": "same signed Riftlet process and Temporary Chat as its successful seed; existing accepted attachment",
+  "results": [
+    {
+      "case": "first image in fresh signed process, empty original draft",
+      "index": 1,
+      "privateChildIdentitySHA256": "04be74e39a1816dd000efd173d082939e6c2826afb75f110152f99f29fc28af2",
+      "preclickACKBeforeMouseDownMS": 2049.044,
+      "mouseDown": 1,
+      "fileInput": 1,
+      "change": 1,
+      "durableOriginalStart": 1,
+      "pixelMatch": true,
+      "sends": 0,
+      "submits": 0,
+      "inputPNG_SHA256": "9544e067849144ad9f77ebbf7da4b4a61a0b9f973d363fe7b9762f144130132d",
+      "originalInvocationSHA256": "9c3fb7d19d3d9e99828b846fe8ab042f55f47c41b94dbba8a68a5be8de412e15"
+    },
+    {
+      "case": "first image of next batch; original process, positive old attachment",
+      "index": 2,
+      "privateChildIdentitySHA256": "04be74e39a1816dd000efd173d082939e6c2826afb75f110152f99f29fc28af2",
+      "preclickACKBeforeMouseDownMS": 3514.938,
+      "mouseDown": 1,
+      "fileInput": 1,
+      "change": 1,
+      "durableOriginalStart": 1,
+      "pixelMatch": true,
+      "sends": 0,
+      "submits": 0,
+      "inputPNG_SHA256": "20b637fb6ee9f8cff67669bc6b75687061c12c4095430ccfb53caaeccfb1bc2a",
+      "originalInvocationSHA256": "371770ecd3c0a35ae87bf48ca6907f749887a4f608a1cac3177aadf34afb232e"
+    }
+  ]
+}

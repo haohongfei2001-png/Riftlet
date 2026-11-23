@@ -1,0 +1,41 @@
+{
+  "version": "1.0.8",
+  "build": 62,
+  "family": "chrome",
+  "source": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "dmgSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "coldScope": "new signed Riftlet process and clean QA profile with zero prior operations, browser already signed in",
+  "warmScope": "same signed Riftlet process and Temporary Chat as its successful seed; existing accepted attachment",
+  "results": [
+    {
+      "case": "first image in fresh signed process, empty original draft",
+      "index": 1,
+      "privateChildIdentitySHA256": "bec921c862e47512a2535b1625b0a699fcb2a8942444d64a3e706cab7aa78b1c",
+      "preclickACKBeforeMouseDownMS": 2740.156,
+      "mouseDown": 1,
+      "fileInput": 1,
+      "change": 1,
+      "durableOriginalStart": 1,
+      "pixelMatch": true,
+      "sends": 0,
+      "submits": 0,
+      "inputPNG_SHA256": "799affee4ba4b63992e3a4bcd39b358d5f990164d15d6b8872c70a2d9ad798f9",
+      "originalInvocationSHA256": "63df511ecb6f251c0fe9d26e3569fcbfdfb7adc4aabaf37c9dca240624be951e"
+    },
+    {
+      "case": "first new image after accepted seed in same signed process; old card and nonempty selection",
+      "index": 2,
+      "privateChildIdentitySHA256": "77c139758d02faa6698c9b85eb4c20e2d7c1217a35e11e7a86fe1cccfba7ff3d",
+      "preclickACKBeforeMouseDownMS": 15204.645,
+      "mouseDown": 1,
+      "fileInput": 1,
+      "change": 1,
+      "durableOriginalStart": 1,
+      "pixelMatch": true,
+      "sends": 0,
+      "submits": 0,
+      "inputPNG_SHA256": "b9cdad4a623e79b58c465b25b0bcc11942cbd048652d2a6cd3ad9b2782b9b207",
+      "originalInvocationSHA256": "e3780b7e7870084457e309c14eb578d44a3153a13a403df6b8f1a0a7462a54a3"
+    }
+  ]
+}
