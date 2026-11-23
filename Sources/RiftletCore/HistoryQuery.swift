@@ -37,7 +37,7 @@ public struct HistoryQuery: Equatable, Sendable {
             case .preparing: return "准备附加 preparing attachment"
             case .notAttached: return "未附加 not attached"
             case .missing: return "本地副本不可用 local copy unavailable missing"
-            case .needsVerification: return "待核实 结果待核实 需要检查原对话 needs review check original conversation"
+            case .needsVerification: return "待核实 结果待核实 结果尚未确认 需要检查原对话 needs review result unconfirmed check original conversation"
             case .failed: return "明确失败 已确认失败 confirmed failure failed"
             case .archived: return "已归档 archived"
             case .removed: return "已移出 从桌面收起 removed from desktop"

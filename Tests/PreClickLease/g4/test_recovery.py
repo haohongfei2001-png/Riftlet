@@ -76,6 +76,24 @@ class RecoveryTests(unittest.TestCase):
     def test_after_start(self):
         self.assertEqual(self.verify(True)['errorObserved'], 'afterSTART')
 
+    def test_successor_with_unknown_remote_outcome(self):
+        for case in ('matching-start', 'missing-start', 'later-unknown', 'different-start', 'failed-phase'):
+            def change(old, new):
+                new['phase'] = 'failed' if case == 'failed-phase' else 'unknown'
+                new['call']['returnedReceipt'] = deepcopy(new['receipt'])
+                if case == 'missing-start':
+                    new['start'] = None
+                elif case == 'later-unknown':
+                    new['receipt']['outcome'] = 'unknown'
+                elif case == 'different-start':
+                    new['receipt']['reason'] = 'a different observation'
+            with self.subTest(case=case):
+                if case == 'matching-start':
+                    self.assertEqual(self.verify(True, change)['newOriginalSTARTs'], 1)
+                else:
+                    with self.assertRaises(ValueError):
+                        self.verify(True, change)
+
     def test_refusals(self):
         negatives = [
             (False, lambda o,n: o['receipt'].pop('originalCardFailureInvocationID')),

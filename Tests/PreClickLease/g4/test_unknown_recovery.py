@@ -67,6 +67,28 @@ def pair(root, previous_start=False, retired=False):
 
 
 class UnknownRecoveryTests(unittest.TestCase):
+    def test_successor_with_unknown_remote_outcome(self):
+        for case in ('matching-start', 'missing-start', 'later-unknown', 'different-start', 'failed-phase'):
+            with self.subTest(case=case), tempfile.TemporaryDirectory() as folder:
+                files = pair(Path(folder))
+                successor = files[-1]
+                with closing(sqlite3.connect(files[1])) as db:
+                    latest = json.loads(db.execute('SELECT receipt_json FROM operations WHERE id=?', (successor,)).fetchone()[0])
+                    phase = 'failed' if case == 'failed-phase' else 'unknown'
+                    if case == 'missing-start':
+                        db.execute('DELETE FROM upload_starts WHERE operation_id=?', (successor,))
+                    elif case == 'later-unknown':
+                        latest['outcome'] = 'unknown'
+                    elif case == 'different-start':
+                        latest['reason'] = 'a different observation'
+                    db.execute('UPDATE operations SET phase=?,receipt_json=? WHERE id=?', (phase, json.dumps(latest), successor))
+                    db.commit()
+                if case == 'matching-start':
+                    self.assertEqual(verify_files(*files)['addedAttachmentAcceptedSTARTs'], 1)
+                else:
+                    with self.assertRaises(ValueError):
+                        verify_files(*files)
+
     def test_clean_unmodified_backups(self):
         for started, retired in [(False,False),(True,False),(False,True)]:
             with self.subTest(original_start=started,retired=retired), tempfile.TemporaryDirectory() as folder:

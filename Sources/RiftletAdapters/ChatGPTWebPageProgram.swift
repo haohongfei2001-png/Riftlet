@@ -8,7 +8,7 @@ import RiftletCore
 /// screenshot candidate use distinct native scopes; page provenance is unchanged.
 public enum ChatGPTWebPageProgram {
     /// Full handoff and read-only observation program. The click witness travels separately.
-    public static let maximumSourceBytes = 144 * 1024
+    public static let maximumSourceBytes = 152 * 1024
     static let priorEntrySource = "chatgpt-web-attachment-entry-20261105-v15"
     static let priorHandoffSource = "chatgpt-web-attachment-handoff-20261105-v16"
     static let priorScreenshotSource = "chatgpt-web-screenshot-handoff-20261105-v17"

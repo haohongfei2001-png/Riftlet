@@ -473,7 +473,7 @@ function browserFixture(options){
    const start=read(true), replay=read(true), error=read(false);
    check(start.state==='uploadStarted'&&start.uploadStart.evidenceID===replay.uploadStart.evidenceID,
     'original positive evidence survives a lost reply');
-   check(error.state==='failed'&&error.attachmentID===start.attachmentID&&!error.automaticRetryExcluded,
+   check(error.state==='failed'&&error.attachmentID===start.attachmentID&&!error.originalCardFailureInvocationID&&!error.automaticRetryExcluded,
     'same-card error is independently readable after durable START');
    check(call(ops[1].command('observe')).observation.state==='uploadStarted','second member keeps its own START');
    delete firstPendingCard.dataset.state;
@@ -552,7 +552,7 @@ function browserFixture(options){
    const failedNode=options.ariaCardFailure?tasks[0].image:tasks[0].card;
    failedNode.dataset.state='failed';
    const observed=call(ops[0].command('observe')).observation;
-   check(observed.state==='failed'&&observed.hasError&&!observed.automaticRetryExcluded&&!observed.attachmentAbsent,'portalled failure bound to its accepted file');
+   check(observed.state==='failed'&&observed.hasError&&!observed.originalCardFailureInvocationID&&!observed.automaticRetryExcluded&&!observed.attachmentAbsent,'portalled failure bound to its accepted file');
    check(call(ops[1].command('observe')).observation.state==='uploadStarted','other card unaffected');
    const unrelated=document.createElement('form');document.body.append(unrelated);unrelated.append(cardHost);
    check(call(ops[0].command('observe')).observation.state==='uploadStarted','moved portal cannot attribute failure');

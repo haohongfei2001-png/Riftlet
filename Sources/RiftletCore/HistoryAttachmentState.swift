@@ -1,5 +1,10 @@
 import Foundation
 
+/// Result of inspecting an attachment in its verified original draft.
+public enum OriginalAttachmentPresence: String, Codable, Sendable {
+    case present, absent, unknown, failed
+}
+
 /// A read-only description of a capture's current handoff. Never authorizes
 /// input, retry, queue restoration, or a database transition.
 public enum HistoryAttachmentState: String, Equatable, Sendable {
@@ -49,6 +54,9 @@ public enum HistoryAttachmentState: String, Equatable, Sendable {
             self = .checkDraft
         } else if phase == .succeeded {
             self = .attached
+        } else if phase == .unknown, let last, last.outcome == .unknown, !last.hasError,
+                  last.belongsToOriginalDraft, last.attachmentID == nil || last.attachmentID == start?.attachmentID {
+            self = .needsReview
         } else if start != nil {
             self = .handedOff
         } else if phase == .prepared && status == .transferring {

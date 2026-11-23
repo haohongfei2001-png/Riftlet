@@ -111,6 +111,8 @@ final class AttachmentDispositionTests: XCTestCase {
         XCTAssertEqual(attempts, [2])
         let appendedSources = await adapter.appendedSources
         XCTAssertEqual(appendedSources.map(\.invocationID), [invocation])
+        let consent = await adapter.recoveryConfirmations
+        XCTAssertEqual(consent, [true])
         XCTAssertEqual(appendedSources.first?.originalStart, accepted)
         let previousReceipt = try await reopened.uploadStartReceipt(for: first.id)
         let previousCall = try await reopened.dispatchInvocationID(for: first.id)
@@ -230,6 +232,24 @@ final class AttachmentDispositionTests: XCTestCase {
         let reopened = try QueueStore(databaseURL: url)
         let nextCoordinator = TransferCoordinator(store: reopened, adapter: adapter, mediaDirectory: dir)
         try await nextCoordinator.recover()
+        func lateFailure(invocationID: UUID, attachmentID: String?) -> TransferReceipt {
+            .init(operationID: old.id, assetID: image.id, attempt: old.attempt, assetSHA256: image.sha256,
+                target: old.target, outcome: .unknown, profileID: start.profileID, attachmentID: attachmentID,
+                belongsToOriginalDraft: true, hasError: true, originalCardFailureInvocationID: invocationID)
+        }
+        let latestNew = try await reopened.receipt(for: newID)
+        for invalid in [lateFailure(invocationID: UUID(), attachmentID: start.attachmentID),
+                        lateFailure(invocationID: invocation, attachmentID: "other-card")] {
+            do { _ = try await reopened.apply(invalid); XCTFail("Misattributed late error accepted") }
+            catch RiftletError.mismatchedReceipt {}
+        }
+        let late = lateFailure(invocationID: invocation, attachmentID: start.attachmentID)
+        _ = try await reopened.apply(late)
+        _ = try await reopened.apply(late)
+        let data = try await reopened.checkpoint(for: "transfer-late-original-card-v1:" + old.id.uuidString)
+        XCTAssertEqual(try JSONDecoder().decode(TransferReceipt.self, from: XCTUnwrap(data)), late)
+        let afterLate = try await reopened.receipt(for: newID)
+        XCTAssertEqual(afterLate, latestNew)
         XCTAssertEqual(try originalLedger(), before)
         XCTAssertEqual(try sql.rows("SELECT COUNT(*) FROM operations"), [["2"]])
     }
@@ -314,6 +334,7 @@ private actor DispositionAdapter: OriginalAttachmentRecoveryChecking {
             original.invocationID == source.invocationID && source.permitsDestination(destination)
     }
     var appendedSources = [AttachmentRecoverySource]()
+    var recoveryConfirmations = [Bool]()
     var attempts = [Int]()
     var observedInvocations = [UUID]()
     nonisolated func start(_ op: TransferOperation, _ asset: ImportedAsset) -> TransferReceipt {
@@ -325,7 +346,10 @@ private actor DispositionAdapter: OriginalAttachmentRecoveryChecking {
     func captureTarget() throws -> TargetLease { throw RiftletError.invalidTransition }
     func validate(_ target: TargetLease) -> Bool { target.documentID == self.target.documentID && target.draftGeneration == self.target.draftGeneration }
     func append(_ request: TransferRequest) -> TransferReceipt {
-        if let original = request.recoverySource { appendedSources.append(original) }
+        if let original = request.recoverySource {
+            appendedSources.append(original)
+            recoveryConfirmations.append(request.userConfirmedDuplicateRisk)
+        }
         attempts.append(request.operation.attempt)
         return start(request.operation, request.asset)
     }

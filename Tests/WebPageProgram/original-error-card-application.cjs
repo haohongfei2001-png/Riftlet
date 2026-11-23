@@ -61,9 +61,11 @@ async function runOriginalErrorCardCase({form,editor,input,operation,call,check,
   expired.tile.shell.remove();
   check(expiry.length>0,'enrolled expiry was scheduled');
   for(const run of expiry)run();
-  check(!call({action:'validate',target:expired.op.target,requireLiveOriginal:true}).valid,'expired original reader retired');
+  check(call({action:'validate',target:expired.op.target,requireLiveOriginal:true}).valid,'spent pin retains only the real enrolled draft reader');
+  check(!call({action:'validate',target:expired.op.target}).valid,'expired pin cannot write');
   const afterExpiry=await operation(0,null,true);
-  check(afterExpiry.target.draftGeneration!==expired.op.target.draftGeneration,'expired source cannot restore draft epoch');
+  check(afterExpiry.target.draftGeneration===expired.op.target.draftGeneration && afterExpiry.target.clickBindingID!==expired.op.target.clickBindingID,
+    'new write pin keeps the continuously observed original draft');
   call({action:'releasePreparedTarget',target:afterExpiry.target});
   const noPositive=(obs,label)=>check(!obs.uploadStart && !obs.hasError && !obs.originalCardFailureInvocationID &&
       !obs.safeToRetry && obs.state!=='originalCardFailed',label);
@@ -134,7 +136,12 @@ async function runOriginalErrorCardCase({form,editor,input,operation,call,check,
     if(scenario==='sameShell')tile.surface.replaceChildren(...errorContents);
     else tile.shell.replaceWith(makeTile(op.name).shell);
     const result=observe(op,true);
-    if(scenario==='sameShell')check(result.state==='failed' && result.attachmentID===start.attachmentID && !result.originalCardFailureInvocationID,'only same accepted shell can fail');
+    if(scenario==='sameShell'){
+      accept(result,op);
+      check(result.attachmentID===start.attachmentID,'the same named failed card retains its original member');
+      const originalStart=call({...op.command('observe'),preferStartReceipt:true}).observation.uploadStart;
+      check(originalStart?.evidenceID===start.uploadStart.evidenceID,'failure preserves independent historical START');
+    }
     else check(result.state!=='failed' && result.state!=='originalCardFailed','replacement cannot claim historical start');
     row.replaceChildren();
   }

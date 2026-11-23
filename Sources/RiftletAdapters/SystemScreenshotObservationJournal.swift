@@ -47,6 +47,11 @@ public actor SystemScreenshotObservationJournal {
                 throw SystemScreenshotObservationJournalError.persistentIdentityMismatch
             }
         }
+        if readOnly, try await store.isRecoveryPredecessor(operationID: operation.id, invocationID: request.invocationID) {
+            // The predecessor's original journal stays frozen. Core records
+            // a newly attributable late card error against that invocation.
+            return
+        }
         let slots = Slot.classifyAll(envelope.observation)
         guard !slots.isEmpty else { return }
         let wrapper = Entry(schemaVersion: 1, envelope: envelope)
@@ -109,7 +114,8 @@ public actor SystemScreenshotObservationJournal {
     func recordForOriginalScope(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest,
                                 originalScope: SystemScreenshotAdmissionScope, readOnly: Bool = false) async throws {
         guard scope.originalObservationScopes.contains(originalScope),
-              try await SystemScreenshotCandidateAdmission(store: store, scope: originalScope).admits(request) else {
+              try await SystemScreenshotCandidateAdmission(store: store, scope: originalScope)
+                .registeredObservationSource(for: request, readingOriginal: readOnly) != nil else {
             throw SystemScreenshotObservationJournalError.invalidOperation
         }
         try await SystemScreenshotObservationJournal(store: store, scope: originalScope).record(envelope, for: request, readOnly: readOnly)

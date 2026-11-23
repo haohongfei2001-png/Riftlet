@@ -47,10 +47,14 @@ public struct TransferRequest: Sendable {
 
     public let recoverySource: AttachmentRecoverySource?
     public let requireLiveOriginal: Bool
+    /// Applies to the new click only. Never part of the predecessor's durable evidence.
+    public let userConfirmedDuplicateRisk: Bool
 
     public init(operation: TransferOperation, asset: ImportedAsset, fileURL: URL, invocationID: UUID? = nil,
-                requireLiveOriginal: Bool = false, recoverySource: AttachmentRecoverySource? = nil) {
+                requireLiveOriginal: Bool = false, recoverySource: AttachmentRecoverySource? = nil,
+                userConfirmedDuplicateRisk: Bool = false) {
         self.recoverySource = recoverySource
+        self.userConfirmedDuplicateRisk = userConfirmedDuplicateRisk
         self.requireLiveOriginal = requireLiveOriginal
         self.operation = operation; self.asset = asset; self.fileURL = fileURL
         self.invocationID = invocationID
@@ -157,7 +161,7 @@ public actor TransferCoordinator {
     private let onAcceptedSelectionFinished: @Sendable (UUID) async -> Void
     private var acceptedSelections: [UUID: AcceptedSelection] = [:]
     private var operationSelections: [UUID: AcceptedSelection] = [:]
-    private var recoverySources: [UUID: AttachmentRecoverySource] = [:]
+    private var recoverySources: [UUID: (source: AttachmentRecoverySource, confirmed: Bool)] = [:]
     private var expiryTasks: [UUID: Task<Void, Never>] = [:]
     private var drainRequested = false
     // Original calls may keep observing START after their input execution ends.
@@ -318,11 +322,18 @@ public actor TransferCoordinator {
                let op = try await store.operation(id: activeID), op.phase.isUnresolved {
                 originalOperation = op
             } else { originalOperation = nil }
+            var predecessor = replacing
+            if predecessor == nil, let accepted, accepted.authorization == .currentClick,
+               record.visibility == .visible, record.visibilityReason == .safeFailure,
+               let op = originalOperation, activeAppends[op.id] == nil,
+               let receipt = try await store.receipt(for: op.id), receipt.originalCardFailureInvocationID != nil {
+                predecessor = op.id
+            }
             // A click may observe an existing UNKNOWN instead of preparing new
             // input. It still needs the original selection's fresh permission
             // and host checks before any transport call.
             if let accepted {
-                if let originalOperation, replacing == nil {
+                if let originalOperation, predecessor == nil {
                     // The App checks permission for the selection's exact
                     // process. That result cannot authorize observation in a
                     // different still-running browser session. Leave that old
@@ -337,7 +348,7 @@ public actor TransferCoordinator {
                     throw RiftletError.invalidTransition
                 }
             }
-            if let op = originalOperation, replacing == nil {
+            if let op = originalOperation, predecessor == nil {
                 if op.phase == .unknown || op.phase == .compensated {
                     if usesIndependentFileInput, try await store.ownsDispatchedOperation(op.id, ownerID: dispatchOwnerID) {
                         currentFileInputs[op.id] = InputWatch(registeredAt: observationClock())
@@ -364,17 +375,18 @@ public actor TransferCoordinator {
             else { throw RiftletError.adapterUnavailable("No verified target existed at selection; image retained") }
             guard target.adapterID == adapter.id else { throw RiftletError.mismatchedReceipt }
             var source: AttachmentRecoverySource?
-            if let replacing {
+            if let predecessor {
                 guard let verifier = adapter as? any OriginalAttachmentRecoveryChecking, let accepted else {
                     throw RiftletError.invalidTransition
                 }
-                let original = try await store.attachmentRecoverySource(operationID: replacing)
+                let original = try await store.attachmentRecoverySource(operationID: predecessor)
                 guard original.operation.assetID == assetID, original.permitsDestination(target) else {
                     throw RiftletError.invalidTransition
                 }
                 let check = TransferRequest(operation: original.operation, asset: record.image,
                     fileURL: mediaDirectory.appendingPathComponent(record.image.fileName),
-                    invocationID: original.invocationID, requireLiveOriginal: true, recoverySource: original)
+                    invocationID: original.invocationID, requireLiveOriginal: true, recoverySource: original,
+                    userConfirmedDuplicateRisk: replacing != nil)
                 guard try await verifier.checkRecovery(check, destination: target),
                       accepted.isValid(), await validateAcceptedSelection(accepted), accepted.isValid() else {
                     throw RiftletError.invalidTransition
@@ -382,7 +394,7 @@ public actor TransferCoordinator {
                 source = original
             }
             let op = try await store.prepare(assetID: assetID, target: target, replacing: source)
-            if let source { recoverySources[op.id] = source }
+            if let source { recoverySources[op.id] = (source, replacing != nil) }
             await store.releaseSelection(assetID); reserved = false
             if let accepted {
                 guard accepted.isValid(), acceptedSelections[accepted.id] != nil else {
@@ -571,7 +583,8 @@ public actor TransferCoordinator {
             let committedRequest: TransferRequest
             do {
                 guard let committed = try await store.operation(id: id) else { throw RiftletError.operationNotFound }
-                committedRequest = try await self.request(for: committed, recoverySource: source)
+                committedRequest = try await self.request(for: committed, recoverySource: source?.source,
+                    userConfirmedDuplicateRisk: source?.confirmed ?? false)
             } catch {
                 // Intent is already durable and its FIFO slot is retired. A
                 // failed local reread must retain UNKNOWN, never strand an
@@ -857,10 +870,12 @@ public actor TransferCoordinator {
         try await store.cancelPreparedIfNeeded(id, reason: reason)
     }
 
-    private func request(for op: TransferOperation, recoverySource: AttachmentRecoverySource? = nil) async throws -> TransferRequest {
+    private func request(for op: TransferOperation, recoverySource: AttachmentRecoverySource? = nil,
+                         userConfirmedDuplicateRisk: Bool = false) async throws -> TransferRequest {
         guard let asset = try await store.asset(id: op.assetID) else { throw RiftletError.assetNotFound }
         return TransferRequest(operation: op, asset: asset.image, fileURL: mediaDirectory.appendingPathComponent(asset.image.fileName),
-                               invocationID: try await store.dispatchInvocationID(for: op.id), recoverySource: recoverySource)
+                               invocationID: try await store.dispatchInvocationID(for: op.id), recoverySource: recoverySource,
+                               userConfirmedDuplicateRisk: userConfirmedDuplicateRisk)
     }
 }
 

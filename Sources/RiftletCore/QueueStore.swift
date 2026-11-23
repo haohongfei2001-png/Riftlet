@@ -79,7 +79,7 @@ public actor QueueStore {
         guard let start = try uploadStartReceipt(for: id), start.uploadStartEvidence?.signal == .attachmentAccepted else { return false }
         let state = HistoryAttachmentState(record: record, operation: op, receipt: latest, startReceipt: start)
         if state == .handedOff { return !latest.hasError }
-        return try state == .checkDraft && isAttachmentHandled(id)
+        return try state.needsVerification && isAttachmentHandled(id)
     }
 
     /// Keep the immutable asset, source occurrence and operation rows. This transaction
@@ -318,12 +318,14 @@ public actor QueueStore {
             try fence.withArchivePermit(expectedRevision: revision) {
                 let records = try database.rows("""
                     SELECT \(assetColumns) FROM assets
-                    WHERE visibility='visible' AND status IN ('pending','failed') AND last_interaction_at<=?
+                    WHERE visibility='visible' AND (status IN ('pending','failed') OR
+                      (status='unknown' AND visibility_reason='safeFailure')) AND last_interaction_at<=?
                     ORDER BY sort_at,sequence LIMIT ?
                     """, [String(cutoff.timeIntervalSince1970), String(max(0, min(limit, 32)))]).map(decodeAsset)
                 var archived: [UUID] = []
                 for record in records where !selectionReservations.contains(record.id) {
-                    if let id = record.activeOperationID, let op = try operation(id: id), op.phase.isUnresolved { continue }
+                    if let id = record.activeOperationID, let op = try operation(id: id), op.phase.isUnresolved,
+                       try record.visibilityReason != .safeFailure || receipt(for: id)?.originalCardFailureInvocationID == nil { continue }
                     try setVisibility(record, .archived, reason: .automaticArchive, touch: false)
                     archived.append(record.id)
                 }
@@ -391,6 +393,13 @@ public actor QueueStore {
 
     private func hasRecoverySuccessor(_ id: UUID) throws -> Bool {
         try !database.rows("SELECT 1 FROM attachment_reselections WHERE predecessor_id=? LIMIT 1", [id.uuidString]).isEmpty
+    }
+
+    /// A read of a superseded handoff must still carry the invocation that
+    /// was durably assigned before the original file input.
+    public func isRecoveryPredecessor(operationID: UUID, invocationID: UUID?) throws -> Bool {
+        guard let invocationID, try hasRecoverySuccessor(operationID) else { return false }
+        return try dispatchInvocationID(for: operationID) == invocationID
     }
 
     func isAttachmentHandled(_ id: UUID) throws -> Bool {
@@ -659,6 +668,13 @@ public actor QueueStore {
             call.returnedReceipt = receipt
             call.inputExecutionReturned = true
             try saveCheckpoint(JSONEncoder().encode(call), for: callKey(op.id))
+            // The web handoff finished locally. Its unique START remains the
+            // user-facing fact while the final remote outcome is unknown.
+            if op.target.adapterID == "chatgpt-web", op.phase == .inputTriggered || op.phase == .attachmentPresent,
+               receipt.outcome == .uploadStarted, receipt.uploadStartEvidence?.signal == .attachmentAccepted,
+               try uploadStartReceipt(for: op.id) == receipt, try self.receipt(for: op.id) == receipt {
+                try update(op, phase: .unknown, status: .unknown, reason: "Handed to the draft; final outcome unconfirmed")
+            }
         }
     }
 
@@ -837,11 +853,9 @@ public actor QueueStore {
             let op = try requiredOperation(receipt.operationID)
             guard let record = try asset(id: op.assetID) else { throw RiftletError.assetNotFound }
             guard op.assetID == receipt.assetID, op.attempt == receipt.attempt,
-                  record.image.sha256 == receipt.assetSHA256, op.target == receipt.target,
-                  record.activeOperationID == op.id else { throw RiftletError.mismatchedReceipt }
-            // Input-free cancellation can make the predecessor active again.
-            // Its existing ledger is then a recovery source, never writable.
-            if try hasRecoverySuccessor(op.id) { return record }
+                  record.image.sha256 == receipt.assetSHA256, op.target == receipt.target else {
+                throw RiftletError.mismatchedReceipt
+            }
             if let invocation = receipt.originalCardFailureInvocationID {
                 guard receipt.outcome == .unknown, receipt.belongsToOriginalDraft, receipt.hasError,
                       !receipt.safeToRetry, !receipt.isUploading, !receipt.positiveReady, receipt.attachmentID?.isEmpty == false,
@@ -849,6 +863,25 @@ public actor QueueStore {
                       receipt.terminationEvidence == nil, receipt.completionEvidence == nil, receipt.continuationEvidence == nil,
                       invocation == (try dispatchInvocationID(for: op.id)) else { throw RiftletError.mismatchedReceipt }
             }
+            if try hasRecoverySuccessor(op.id) {
+                // The original handoff remains immutable. A newly observed error
+                // on its own card is audit evidence only, including after restart.
+                if receipt.originalCardFailureInvocationID != nil {
+                    let originalCard = try uploadStartReceipt(for: op.id)?.attachmentID ?? self.receipt(for: op.id)?.attachmentID
+                    guard originalCard == nil || originalCard == receipt.attachmentID else { throw RiftletError.mismatchedReceipt }
+                    let key = "transfer-late-original-card-v1:" + op.id.uuidString
+                    let data = try JSONEncoder().encode(receipt)
+                    guard data.count <= 64 * 1024 else { throw RiftletError.mismatchedReceipt }
+                    if let saved = try checkpoint(for: key) {
+                        let first = try JSONDecoder().decode(TransferReceipt.self, from: saved)
+                        guard first.attachmentID == receipt.attachmentID else { throw RiftletError.mismatchedReceipt }
+                    } else {
+                        try database.execute("INSERT INTO checkpoints(key,value) VALUES(?,?)", [key, data.base64EncodedString()])
+                    }
+                } else if record.activeOperationID != op.id { throw RiftletError.mismatchedReceipt }
+                return record
+            }
+            guard record.activeOperationID == op.id else { throw RiftletError.mismatchedReceipt }
             // A later inconclusive read cannot erase the observed error on the original card.
             if let previous = try self.receipt(for: op.id), previous.originalCardFailureInvocationID != nil {
                 if receipt.originalCardFailureInvocationID != nil, receipt.attachmentID != previous.attachmentID {
@@ -937,6 +970,7 @@ public actor QueueStore {
                 } else { phase = .unknown; status = .unknown }
             case .unknown:
                 phase = .unknown; status = .unknown
+                if receipt.originalCardFailureInvocationID != nil { try reviveSafely(record) }
             }
             try update(op, phase: phase, status: status, reason: receipt.reason)
             try database.execute("UPDATE operations SET receipt_json=? WHERE id=?", [try json(receipt), op.id.uuidString])

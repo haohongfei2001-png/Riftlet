@@ -659,8 +659,12 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             }
             history?.onCheckOriginal = { [weak self] id in self?.checkHistoryAttachment(id) }
             history?.onMarkHandled = { [weak self] id in self?.handleHistoryAttachment(id) }
-            history?.onCheckReattachmentEligibility = { operation in
-                (try? await store.attachmentRecoverySource(operationID: operation)) != nil
+            history?.onInspectReattachment = { [weak self] operation in
+                guard let self, let web = adapter as? WebAttachmentAdapter,
+                      let source = try? await store.attachmentRecoverySource(operationID: operation),
+                      await self.mayObserveOriginal(source.operation.target),
+                      let asset = try? await store.asset(id: source.operation.assetID) else { return nil }
+                return try? await web.inspectOriginalForReattachment(source, asset: asset.image)
             }
             history?.onPrepareReattachment = { [weak self] asset, operation in
                 self?.stageHistoryAttachment(asset: asset, operation: operation)

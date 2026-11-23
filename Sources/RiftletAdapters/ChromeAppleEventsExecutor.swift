@@ -262,17 +262,29 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         release(original, program: program, refillEpoch: scheduler.epoch)
     }
 
+    private func originalRoute(_ target: TargetLease, requestID: String) async throws -> (ChromeProcessIdentity, ChromeClickRoute) {
+        guard qaOriginalTab?.allows(target) != false, target.surface == .webChat, target.adapterID == "chatgpt-web",
+              ChromeProcessIdentity.supports(target.applicationID), let tab = target.tabID,
+              let identity = NSRunningApplication.runningApplications(withBundleIdentifier: target.applicationID)
+                .compactMap({ ChromeProcessIdentity.read(pid: $0.processIdentifier, applicationID: target.applicationID) })
+                .first(where: { $0.matches(session: target.sessionID) }), identity.isSignedBrowser() else {
+            throw WebAdapterError.invalidTarget
+        }
+        let bridge = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: requestID)
+        let restriction = qaOriginalTab
+        let route = try await Task.detached {
+            let url = try bridge.url(window: target.windowID, tab: tab)
+            guard restriction == nil || url == QAOriginalBrowserTab.temporaryChat else { throw WebAdapterError.invalidTarget }
+            return try ChromeClickRoute.chatGPT(window: target.windowID, tab: tab, url: url)
+        }.value
+        return (identity, route)
+    }
+
     /// Only a user-requested history action calls this path. Validate the stored
     /// document and composer against an existing relay before raising its tab.
     public func focusOriginal(_ operation: TransferOperation) async -> Bool {
         struct DraftValidation: Decodable { let target: TargetLease; let valid: Bool }
         let target = operation.target
-        guard qaOriginalTab?.allows(target) != false, target.surface == .webChat, target.adapterID == "chatgpt-web",
-              ChromeProcessIdentity.supports(target.applicationID), let tab = target.tabID,
-              let app = NSRunningApplication.runningApplications(withBundleIdentifier: target.applicationID)
-                .first(where: { ChromeProcessIdentity.read(pid: $0.processIdentifier, applicationID: target.applicationID)?.matches(session: target.sessionID) == true }),
-              let identity = ChromeProcessIdentity.read(pid: app.processIdentifier, applicationID: target.applicationID),
-              identity.matches(session: target.sessionID) else { return false }
         let requestID = UUID().uuidString
         let start = ProcessInfo.processInfo.systemUptime
         var phase = "readOriginalTab"
@@ -284,13 +296,8 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         }
         do {
             let program = try ChatGPTWebPageProgram.load()
+            let (identity, route) = try await originalRoute(target, requestID: requestID)
             let bridge = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: requestID)
-            let restriction = qaOriginalTab
-            let route = try await Task.detached {
-                let url = try bridge.url(window: target.windowID, tab: tab)
-                guard restriction == nil || url == QAOriginalBrowserTab.temporaryChat else { throw WebAdapterError.invalidTarget }
-                return try ChromeClickRoute.chatGPT(window: target.windowID, tab: tab, url: url)
-            }.value
             func matches() async throws -> Bool {
                 let data = try await Self.run(.init(action: .validate, target: target, requireLiveOriginal: true), program: program,
                     identity: identity, route: route, relays: relays, trace: trace,
@@ -308,7 +315,10 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
             phase = "validateAfterSelection"
             guard try await matches() else { return false }
             phase = "activateOriginalProcess"
-            succeeded = app.activate(options: [.activateIgnoringOtherApps])
+            guard let app = NSRunningApplication(processIdentifier: identity.pid),
+                  app.activate(options: [.activateIgnoringOtherApps]) else { return false }
+            let selected = try await Task.detached { try bridge.activeIdentity(check: "history_activated") }.value
+            succeeded = Self.foregroundMatches(identity) && selected.window == route.window && selected.tab == route.tab
             return succeeded
         } catch {
             failure = error as? WebAdapterError
@@ -345,6 +355,15 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
               let tabNumber = Int64(tab), tabNumber > 0 else { throw WebAdapterError.invalidTarget }
         let requestID = UUID().uuidString
         let started = ProcessInfo.processInfo.systemUptime
+        if command.recoveryInspection == true {
+            guard command.action == .validate, let original = command.recoverySource,
+                  !original.userConfirmedDuplicateRisk, original.identity.target == target else {
+                throw WebAdapterError.invalidRequest
+            }
+            let (identity, route) = try await originalRoute(target, requestID: requestID)
+            return try await Self.run(command, program: program, identity: identity, route: route,
+                relays: relays, trace: trace, requestID: requestID, discoverForHistory: true, qaOriginalTab: qaOriginalTab)
+        }
         func refuse(_ phase: String) -> WebAdapterError {
             trace.record(requestID: requestID, action: command.action.rawValue, phase: phase,
                          enqueued: started, started: started, context: nil, succeeded: false, error: .invalidTarget)

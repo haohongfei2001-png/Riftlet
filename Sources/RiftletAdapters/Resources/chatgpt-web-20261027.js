@@ -427,7 +427,15 @@ function riftletWebAcceptance(command, native) {
         operation.discarded = true; operation.chunks = [];
         operation.binding = null; operation.failureWatch = null; operation.recoverySurface?.close(); operation.recoverySurface = null;
         operation.urls.clear(); operation.baseline.clear(); operation.previewBaseline = null;
-        operations.set(id, {committed: true});
+        // Keep the predecessor's immutable identity after its DOM observations retire.
+        // Ordinary observation still sees only the spent-operation fence.
+        const tombstone = {committed:true};
+        if (operation.mediaType === 'image/png' && operation.identity.target.clickBindingID
+            && operation.inputCount === 1 && operation.changeReturned) {
+          tombstone.recovery = {identity:operation.identity, invocationID:operation.invocationID, name:operation.name,
+            startEvidenceID:operation.start?.evidenceID, failureAttachmentID:operation.start ? operation.attachmentID : operation.failureMemberID};
+        }
+        operations.set(id, tombstone);
       }
       setTimeout(expire, idleBudget)?.unref?.();
     };
@@ -471,6 +479,40 @@ function riftletWebAcceptance(command, native) {
     return sameDraft(binding, true) && (!binding.prepared || binding.prepared.current()) && (!binding.target.clickBindingID ||
       (document.visibilityState === 'visible' && document.hasFocus() && visible(binding.editor) && !blocked(binding.form)));
   }
+  // A PNG that actually crossed the input boundary can be inspected from History
+  // for the lifetime of this original draft. Retain one reader per document,
+  // independently of the short-lived pin, staged bytes, and card observers.
+  function rememberEnrolledDraft(binding, generation) {
+    if (!binding.target.clickBindingID || !generation || generation.id !== binding.target.draftGeneration) return;
+    const previous = registry.historyDraft;
+    if (previous?.generation === generation) return;
+    generation.retain();
+    const draft = {target:binding.target, editor:binding.editor, form:binding.form,
+      route:binding.route, navigation:binding.navigation, readOriginal:generation.read, generation, close};
+    function close() {
+      if (registry.historyDraft !== draft) return;
+      delete registry.historyDraft;
+      globalThis.removeEventListener('pagehide', close);
+      generation.release();
+    }
+    previous?.close();
+    registry.historyDraft = draft;
+    globalThis.addEventListener('pagehide', close);
+  }
+  function liveHistoryDraft(target) {
+    const draft = registry?.historyDraft;
+    return draft && sameTarget({...draft.target, clickBindingID:target?.clickBindingID},target)
+      && sameDraft(draft) ? draft : null;
+  }
+  function historyTargetWasEnrolled(target) {
+    if (!uuid(target?.clickBindingID) || !liveHistoryDraft(target)) return false;
+    for (const op of registry.operations.values()) {
+      const record = op.recovery || op;
+      if (sameTarget(record.identity?.target,target) && (op.recovery ||
+          (op.mediaType === 'image/png' && op.inputCount === 1 && op.changeReturned))) return true;
+    }
+    return false;
+  }
   // Only declared mode/draft identity on the original composer path is relevant.
   // Retain the mutation history so moving from one mode to another and back
   // cannot resurrect an earlier lease, even when all final attributes match.
@@ -481,10 +523,11 @@ function riftletWebAcceptance(command, native) {
     // History can take focus without changing the draft. Only an original
     // enrolled PNG binding with a continuously live reader may carry its epoch
     // into a fresh write generation. Its retired write witnesses stay retired.
-    const original = registry.recoveryDraft?.deref();
+    const original = registry.historyDraft || registry.recoveryDraft?.deref();
     const continuous = original && original.editor === parts.editor && original.form === parts.form &&
-      registry.clickBindings?.get(original.target.clickBindingID) === original && sameDraft(original);
-    if (!continuous) delete registry.recoveryDraft;
+      (original === registry.historyDraft || registry.clickBindings?.get(original.target.clickBindingID) === original)
+      && sameDraft(original);
+    if (!continuous) { registry.historyDraft?.close(); delete registry.recoveryDraft; }
     const address = location.href, attributes = ['data-composer-mode', 'data-mode', 'data-conversation-id',
       'data-draft-id', 'data-composer-placement', 'data-chatgpt-composer', 'contenteditable', 'role'];
     let changed = false, foreground = true, users = 0;
@@ -1835,7 +1878,49 @@ function riftletWebAcceptance(command, native) {
     return {observeMember,check,close:() => watcher?.disconnect()};
   }
 
+  // Inspect the original operation without minting a pin or changing a receiver.
+  // The live generation's reader covers focus loss and records editor/route/mode ABA.
+  function originalRecoveryDraft(source) {
+    const owner = source?.identity, target = owner?.target, operation = registry?.operations.get(owner?.operationID);
+    const prior = operation?.recovery || operation;
+    const generation = liveHistoryDraft(target)?.generation || registry?.witnessGeneration;
+    if (!uuid(source?.invocationID) || !uuid(target?.clickBindingID) || !sameIdentity(prior?.identity, owner)
+        || prior.invocationID !== source.invocationID || (!operation.recovery && (prior.mediaType !== 'image/png'
+          || prior.inputCount !== 1 || !prior.changeReturned || prior.executionPending || prior.discarded))
+        || registry.root !== document.documentElement || !contextMatches(target)
+        || target.documentID !== registry.documentID || !generation || generation.id !== target.draftGeneration
+        || target.composerID !== registry.nodeIDs.get(generation.editor) + ':' + registry.nodeIDs.get(generation.form)
+        || !generation.read?.() || (source.startEvidenceID != null && source.startEvidenceID !==
+          (operation.recovery ? prior.startEvidenceID : prior.start?.evidenceID))
+        || (source.failureAttachmentID != null && source.failureAttachmentID !==
+          (operation.recovery ? prior.failureAttachmentID : prior.start ? prior.attachmentID : prior.failureMemberID))) return null;
+    return {prior, target, editor:generation.editor, form:generation.form};
+  }
+
+  function attachmentPresence(original) {
+    if (!original) return 'unknown';
+    const {prior} = original;
+    if (liveAcceptedErrorShell(prior) || liveOriginalFailure(prior, prior.binding, prior.reportedCardFailure)) return 'failed';
+    const watch = prior.failureWatch, owner = watch?.binding.deref();
+    if (watch && sameDraft(owner) && (watch.views || [watch]).some(view => matchesOriginalCard(prior,view,owner)))
+      return 'present';
+    const names = [prior.name, prior.name.replace(/\.png$/i, '.webp')];
+    const named = original.form.querySelectorAll('img[alt],button[aria-label],[data-file-name],[title]');
+    if ([...named].some(node => inOriginalCardContainer(node,original) && visible(node) && names.some(name =>
+      ['data-file-name','alt','title'].some(key => node.getAttribute(key) === name)
+      || ['Remove '+name,'移除 '+name].includes(node.getAttribute('aria-label'))))) return 'present';
+    return prior.recoverySurface?.check(original,null) ? 'absent' : 'unknown';
+  }
+
   function permitsRecovery(source, destination, ownsInputLane = false) {
+    if (source?.userConfirmedDuplicateRisk === true) {
+      const original = originalRecoveryDraft(source);
+      return !!original && !!destination && uuid(destination.target?.clickBindingID)
+        && destination.target.clickBindingID !== original.target.clickBindingID
+        && destination.form === original.form && destination.editor === original.editor
+        && sameTarget({...original.target, clickBindingID:destination.target.clickBindingID}, destination.target)
+        && (ownsInputLane || !registry.busy.has(destination.form));
+    }
     if (!source || !destination || !uuid(source.invocationID) || !source.identity) return false;
     const owner = source.identity, prior = registry?.operations.get(owner.operationID);
     if (!prior?.recoverySurface || !sameIdentity(prior.identity, owner) || prior.invocationID !== source.invocationID ||
@@ -1955,10 +2040,15 @@ function riftletWebAcceptance(command, native) {
       item.attachmentID = op.attachmentID; item.exactImageIdentity = true;
       item.uploadStart = {...op.start};
       const watch = op.failureWatch, original = watch?.binding.deref();
-      if (command.preferStartReceipt !== true && ((watch && sameDraft(original) && (watch.views || [watch]).some(view => matchesOriginalCard(op, view, original)))
-          || liveAcceptedErrorShell(op))) {
-        item.state = 'failed'; item.hasError = true;
-        delete item.uploadStart;
+      if (command.preferStartReceipt !== true) {
+        if (liveAcceptedErrorShell(op)) {
+          item.state = 'originalCardFailed'; item.hasError = true;
+          item.originalCardFailureInvocationID = op.invocationID;
+          delete item.uploadStart;
+        } else if (watch && sameDraft(original) && (watch.views || [watch]).some(view => matchesOriginalCard(op, view, original))) {
+          item.state = 'failed'; item.hasError = true;
+          delete item.uploadStart;
+        }
       }
     }
     return result;
@@ -2087,10 +2177,16 @@ function riftletWebAcceptance(command, native) {
     }
     return registry.current.target;
   }
+  if (command.action === 'validate' && command.recoveryInspection === true) {
+    const original = originalRecoveryDraft(command.recoverySource);
+    const valid = !!original && sameTarget(original.target,command.target);
+    return {target:command.target, valid, recoveryChecked:true, attachmentPresence:valid ? attachmentPresence(original) : 'unknown'};
+  }
   if (command.action === 'validate' && command.recoverySource) {
     const proposed = registry?.clickBindings?.get(command.target?.clickBindingID);
-    return {target: command.target, valid: sameTarget(proposed?.target,command.target) && sameDraft(proposed)
-      && permitsRecovery(command.recoverySource,proposed), recoveryChecked:true};
+    const validReceiver = sameTarget(proposed?.target,command.target) && (command.recoverySource.userConfirmedDuplicateRisk === true
+      ? !proposed.enrolled && !proposed.expired?.() && validDraft(proposed) : sameDraft(proposed));
+    return {target:command.target, valid:validReceiver && permitsRecovery(command.recoverySource,proposed), recoveryChecked:true};
   }
   const binding = bindingFor(command.target);
   if (command.action === 'renewPreparedTarget')
@@ -2100,8 +2196,10 @@ function riftletWebAcceptance(command, native) {
     binding.releasePrepared(); return {released: true};
   }
   if (command.action === 'validate') {
-    const readPinnedOriginal = command.requireLiveOriginal === true && binding?.target.clickBindingID;
-    return {target: command.target, valid: readPinnedOriginal ? sameDraft(binding) : validDraft(binding)};
+    if (command.requireLiveOriginal === true && command.target?.clickBindingID) {
+      return {target:command.target, valid:sameDraft(binding) || historyTargetWasEnrolled(command.target)};
+    }
+    return {target:command.target, valid:validDraft(binding)};
   }
   const identity = command.identity;
   if (!identity || !sameTarget(identity.target, command.target)) fail('TARGET_INVALID');
@@ -2121,7 +2219,7 @@ function riftletWebAcceptance(command, native) {
         || !/^[a-z0-9]{1,16}$/i.test(command.uploadName.slice(namePrefix.length))
         || typeof command.mediaType !== 'string' || !/^image\/[a-z0-9][a-z0-9.+-]{0,63}$/i.test(command.mediaType)
         || !Number.isSafeInteger(command.byteCount) || command.byteCount < 1 || command.byteCount > MAX_BYTES) fail('BEGIN_REFUSED');
-    op = {identity: JSON.parse(JSON.stringify(identity)), recoverySource: predecessor, invocationID: command.invocationID, binding,
+    op = {identity: JSON.parse(JSON.stringify(identity)), recoverySource: predecessor ? JSON.parse(JSON.stringify(predecessor)) : null, invocationID: command.invocationID, binding,
       name: command.uploadName, mediaType: command.mediaType, size: command.byteCount, chunks: [], received: 0, nextChunk: 0,
       committed: false, discarded: false, inputCount: 0, changeReturned: false, retirement: null,
       baseline: new Set(), urls: new Set(), start: null};
@@ -2241,8 +2339,7 @@ function riftletWebAcceptance(command, native) {
       if (notifyInput(new Event('input', {bubbles: true, composed: true})) &&
           notifyChange(new Event('change', {bubbles: true}))) {
         op.changeReturned = true; diag.changeReturned = true; diag.stage = 'observation';
-        if (op.recoverySurface && registry.witnessGeneration?.id === originalBinding.target.draftGeneration)
-          registry.recoveryDraft = new WeakRef(originalBinding);
+        if (op.mediaType === 'image/png') rememberEnrolledDraft(originalBinding,registry.witnessGeneration);
       } else {
         diag.cause = 'deliveryUncertain';
       }

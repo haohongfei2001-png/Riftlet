@@ -163,7 +163,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     private lazy var removeButton = NSButton(title: copy.text("从桌面收起", "Hide from Desktop"), target: nil, action: nil)
     public var onCheckOriginal: ((UUID) -> Void)?
     public var onMarkHandled: ((UUID) -> Void)?
-    public var onCheckReattachmentEligibility: ((UUID) async -> Bool)?
+    public var onInspectReattachment: ((UUID) async -> OriginalAttachmentPresence?)?
     public var onPrepareReattachment: ((UUID, UUID) -> Void)?
     public var onFocusOriginal: ((TransferOperation) async -> Bool)?
     private lazy var checkButton = NSButton(title: copy.text("重新核对状态", "Check Status Again"), target: self, action: #selector(checkOriginal))
@@ -922,34 +922,40 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
 
     @objc private func prepareReattachment() {
         guard let entry = selectedEntry, entry.canRequestReattachment, let op = entry.currentOperation,
-              let checkEligibility = onCheckReattachmentEligibility else { return }
+              let inspect = onInspectReattachment else { return }
         Task { [weak self] in
-            let eligible = await checkEligibility(op.id)
+            let presence = await inspect(op.id)
             guard let self, self.selectedEntry?.currentOperation?.id == op.id,
                   self.selectedEntry?.canRequestReattachment == true, self.historyWindow.isVisible,
                   self.historyWindow.attachedSheet == nil else { return }
-            guard eligible else {
-                self.showActionNotice(self.copy.text("这条记录缺少重新附加所需的原始凭据。可查看原图并核对原草稿。",
-                                                     "This record lacks the original details needed to attach again. View the saved image and check the original draft."))
+            guard let presence else {
+                self.showActionNotice(self.copy.text("暂时无法核实原草稿。原图已保留，可以查看原图或返回原草稿检查。",
+                                                     "The original draft could not be verified. Your image is saved. View it or return to the original draft to check."))
                 return
             }
-            self.confirmReattachment(entry, operation: op)
+            self.confirmReattachment(entry, operation: op, presence: presence)
         }
     }
 
-    private func confirmReattachment(_ entry: RiftHistoryEntry, operation op: TransferOperation) {
+    private func confirmReattachment(_ entry: RiftHistoryEntry, operation op: TransferOperation, presence: OriginalAttachmentPresence) {
         let alert = NSAlert()
         alert.messageText = copy.text("再次附加这张截图？", "Attach this screenshot again?")
         let instructions = copy.text("回到原浏览器中的同一草稿，核对已有附件，再点一下桌面上的原图。", "Return to the same draft in the original browser, check its attachments, then click the original screenshot on your desktop.")
-        alert.informativeText = entry.attachmentState == .originalCardFailed
-            ? HistoryPresentation.detailText(for: entry, copy: copy) + "\n\n" + instructions
-            : HistoryPresentation.uncertainUploadWarning(copy: copy) + "\n\n" + instructions
-        alert.addButton(withTitle: copy.text("准备重新附加", "Prepare to Attach Again"))
-        alert.addButton(withTitle: copy.text("取消", "Cancel"))
+        if presence == .present {
+            alert.messageText = copy.text("原草稿中可能已有这张附件", "This attachment may already be in the original draft")
+            alert.informativeText = copy.text("再次附加可能产生重复附件。你可以先返回原草稿检查。", "Attaching again may add a duplicate. You can return to the original draft to check first.") + "\n\n" + instructions
+            alert.addButton(withTitle: copy.text("返回原草稿", "Return to Original Draft"))
+        } else {
+            alert.informativeText = HistoryPresentation.uncertainUploadWarning(copy: copy) + "\n\n" + instructions
+        }
+        alert.addButton(withTitle: copy.text("取消", "Cancel")).keyEquivalent = "\u{1b}"
+        alert.addButton(withTitle: copy.text("仍要重新附加", "Attach Again Anyway"))
+        let confirmButton: NSApplication.ModalResponse = presence == .present ? .alertThirdButtonReturn : .alertSecondButtonReturn
         alert.beginSheetModal(for: historyWindow) { [weak self] response in
-            guard response == .alertFirstButtonReturn, let self,
+            guard let self,
                   self.selectedEntry?.id == entry.id, self.selectedEntry?.currentOperation?.id == op.id else { return }
-            self.onPrepareReattachment?(entry.id, op.id)
+            if presence == .present && response == .alertFirstButtonReturn { self.focusOriginal() }
+            if response == confirmButton { self.onPrepareReattachment?(entry.id, op.id) }
         }
     }
 

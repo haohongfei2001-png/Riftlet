@@ -60,7 +60,7 @@ public struct RiftHistoryEntry: Identifiable, Equatable, Sendable {
 
     var canRequestReattachment: Bool {
         guard canReviewOriginal, !isHandled, record.status != .missing else { return false }
-        return hasRecoveryOptions || (attachmentState == .handedOff && currentOperation?.phase == .unknown)
+        return hasRecoveryOptions || (attachmentState == .handedOff && currentOperation?.phase.isUnresolved == true)
     }
 
     public var canRestoreToRift: Bool {
@@ -165,9 +165,9 @@ public enum HistoryPresentation {
         switch entry.attachmentState {
         case .handedOff: return copy.text("已交给 ChatGPT", "Handed to ChatGPT")
         case .attached: return copy.text("已附加", "Attached")
-        case .needsReview: return copy.text("结果待核实", "Needs review")
+        case .needsReview: return copy.text("结果尚未确认", "Result unconfirmed")
         case .originalCardFailed: return copy.text("原草稿报告上传失败", "Upload failed in the original draft")
-        case .checkDraft: return copy.text("需要检查原对话", "Check the original conversation")
+        case .checkDraft: return copy.text("结果尚未确认，请检查原草稿", "Result unconfirmed. Check the original draft")
         case .confirmedFailure: return copy.text("已确认失败 · 图片保留", "Failed · image kept")
         case .preparing: return copy.text("准备附加", "Preparing attachment")
         case .notAttached: return copy.text("未附加 · 图片保留", "Not attached · image kept")
@@ -223,7 +223,7 @@ public enum HistoryPresentation {
             let asset = entry.record.image
             let text = [entry.id.uuidString, asset.fileName, String(entry.record.sequence),
                         formatter.string(from: captureDate(for: entry)), stateText(for: entry), localizedState(for: entry, copy: .simplifiedChinese),
-                        localizedState(for: entry, copy: .english),
+                        localizedState(for: entry, copy: .english), entry.attachmentState == .needsReview ? "结果待核实" : "",
                         "\(asset.pixelWidth)×\(asset.pixelHeight)", entry.detail ?? ""].joined(separator: " ")
             return text.range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
         }.sorted { lhs, rhs in

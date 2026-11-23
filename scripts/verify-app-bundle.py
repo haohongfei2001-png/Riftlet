@@ -35,6 +35,7 @@ ARCHIVED_FINGERPRINTS = {
     "build58-observation-fingerprint.dat": (59, "d05979dfae4b702d907b1f7f50a6312f9d7c25a5c6b484ed493bbfd39d9f6fbb"),
     "build59-observation-fingerprint.dat": (60, "19677788b6a846b2868e0159d8467f9de37544a2ffc24bfd1676b499314580f5"),
     "build60-observation-fingerprint.dat": (61, "3b0e9863be0e542c816f7688f9a880e1a2811e979d33636a611fa8127b76fde6"),
+    "build61-observation-fingerprint.dat": (62, "e11bbf207a9649b390944a6024409ba399a638924b0ff4210366c8e0cefdc9c6"),
 }
 RESOURCE_NAMES = PROGRAM_NAMES + tuple(ARCHIVED_FINGERPRINTS)
 
@@ -209,7 +210,13 @@ def verify_bundle(app, repository=None, channel="development"):
             name, "Contents/Resources/" + name
         }, "misplaced_" + name)
         data = read_nonempty(matches[0], "empty_" + name)
-        maximum = 144 * 1024 if name == PROGRAM_NAMES[0] and int(info["CFBundleVersion"]) >= 59 else 128 * 1024
+        maximum = 128 * 1024
+        if name == PROGRAM_NAMES[0]:
+            build = int(info["CFBundleVersion"])
+            if build >= 62:
+                maximum = 152 * 1024
+            elif build >= 59:
+                maximum = 144 * 1024
         require(len(data) <= maximum, "oversized_" + name)
         if name in ARCHIVED_FINGERPRINTS:
             require(hashlib.sha256(data).hexdigest() == ARCHIVED_FINGERPRINTS[name][1], "incorrect_fingerprint_" + name)

@@ -14,7 +14,7 @@ import json
 from pathlib import Path
 from uuid import UUID
 
-from verify_recovery import ATTACHMENT_PROFILE, read_operation, require, snapshot
+from verify_recovery import ATTACHMENT_PROFILE, accepted_successor_phase, read_operation, require, snapshot
 
 
 def rows(db, sql, params=()):
@@ -87,7 +87,7 @@ def verify(before, after, png, original, recovered):
     require(old['phase'] == 'unknown' and old['receipt']['outcome'] in ('inputTriggered','unknown','uploadStarted') and
             old['receipt'].get('safeToRetry') is False and old['receipt'].get('positiveReady') is False,
             'Original operation is outside the UNKNOWN branch')
-    require(new['phase'] in ('inputTriggered','attachmentPresent','succeeded') and new['start'] is not None and
+    require(accepted_successor_phase(new) and new['start'] is not None and
             new['receipt']['outcome'] in ('uploadStarted','verifiedReady') and
             new['receipt'].get('attachmentID') == new['start']['attachmentID'],
             'Missing accepted successor')

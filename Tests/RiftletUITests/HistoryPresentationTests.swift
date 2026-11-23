@@ -198,7 +198,7 @@ final class HistoryPresentationTests: XCTestCase {
         let missing = RiftHistoryEntry(record: asset(status: .missing))
         for copy in [ProductCopy.simplifiedChinese, .english] {
             XCTAssertEqual(HistoryPresentation.localizedState(for: unknown, copy: copy),
-                           copy.text("结果待核实", "Needs review"))
+                           copy.text("结果尚未确认", "Result unconfirmed"))
             XCTAssertEqual(HistoryPresentation.localizedState(for: missing, copy: copy),
                            copy.text("本地副本不可用", "Local copy unavailable"))
             XCTAssertEqual(HistoryPresentation.detailText(for: unknown, copy: copy),
@@ -207,7 +207,7 @@ final class HistoryPresentationTests: XCTestCase {
             XCTAssertFalse(unknown.canRestoreToRift)
             XCTAssertEqual(RiftHistoryFilter.needsVerification.title(copy: copy), copy.text("待核实", "Needs Review"))
         }
-        for query in ["结果待核实", "Needs review", unknown.id.uuidString] {
+        for query in ["结果尚未确认", "Result unconfirmed", "结果待核实", "Needs review", unknown.id.uuidString] {
             XCTAssertEqual(HistoryPresentation.matching([unknown, missing], query: query).map(\.id), [unknown.id])
         }
     }

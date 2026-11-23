@@ -80,6 +80,15 @@ def classify_error(old):
     return 'afterSTART'
 
 
+def accepted_successor_phase(operation):
+    # Build 61 ordinarily leaves a positive handoff in inputTriggered.
+    # Build 62 may close local observation with an unknown remote outcome.
+    # read_operation validated the independent upload_starts row and its identity.
+    if operation['phase'] == 'unknown':
+        return operation['start'] is not None and operation['receipt'] == operation['start']
+    return operation['phase'] in ('inputTriggered', 'attachmentPresent', 'succeeded')
+
+
 def verify(db_before, db_after, png, original, recovered):
     old = read_operation(db_before, original, png)
     ordering = classify_error(old)
@@ -89,7 +98,8 @@ def verify(db_before, db_after, png, original, recovered):
     require(recovered not in before and after == before | {recovered}, 'Expected one additional operation')
     new = read_operation(db_after, recovered, png)
     a, b = old['identity'], new['identity']
-    require(new['start'] is not None and not new['receipt'].get('hasError') and a['assetID'] == b['assetID'] and
+    require(accepted_successor_phase(new) and new['start'] is not None and
+            not new['receipt'].get('hasError') and a['assetID'] == b['assetID'] and
             b['attempt'] == a['attempt'] + 1 and new['call']['invocationID'] != old['call']['invocationID'] and
             a['target']['clickBindingID'] != b['target']['clickBindingID'] and
             all(a['target'][k] == b['target'][k] for k in DRAFT_KEYS) and

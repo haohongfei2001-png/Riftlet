@@ -49,12 +49,15 @@ struct WebRecoveryPredecessor: Encodable, Sendable {
     let invocationID: UUID
     let startEvidenceID: String?
     let failureAttachmentID: String?
+    let userConfirmedDuplicateRisk: Bool
 
-    init(_ source: AttachmentRecoverySource, asset: ImportedAsset, destination: TargetLease) throws {
+    init(_ source: AttachmentRecoverySource, asset: ImportedAsset, destination: TargetLease? = nil,
+         userConfirmedDuplicateRisk: Bool = false) throws {
         let op = source.operation
-        guard op.assetID == asset.id, source.permitsDestination(destination) else {
+        guard op.assetID == asset.id, destination.map(source.permitsDestination) != false else {
             throw WebAdapterError.invalidTarget
         }
+        self.userConfirmedDuplicateRisk = destination != nil && userConfirmedDuplicateRisk
         for receipt in [source.originalReceipt, source.originalStart].compactMap({ $0 }) {
             guard receipt.operationID == op.id, receipt.assetID == asset.id, receipt.attempt == op.attempt,
                   receipt.assetSHA256 == asset.sha256, receipt.target == op.target else { throw WebAdapterError.invalidRequest }
@@ -91,24 +94,26 @@ public struct WebBridgeCommand: Encodable, Sendable {
     let preparationOwner: PreClickPreparationOwner?
     public let preferStartReceipt: Bool?
     public let requireLiveOriginal: Bool?
+    public let recoveryInspection: Bool?
     let recoverySource: WebRecoveryPredecessor?
     /// Host diagnostics only, deliberately excluded from the page payload.
     public let captureInvocation: CaptureInvocationContext?
 
     private enum CodingKeys: String, CodingKey {
-        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID, clickWitnessID, preparationOwner, requireLiveOriginal, preferStartReceipt, recoverySource
+        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID, clickWitnessID, preparationOwner, requireLiveOriginal, preferStartReceipt, recoverySource, recoveryInspection
     }
 
     init(action: WebBridgeAction, target: TargetLease? = nil, identity: ObservationIdentity? = nil,
          uploadName: String? = nil, mediaType: String? = nil, byteCount: Int64? = nil,
          chunkIndex: Int? = nil, chunkBase64: String? = nil, invocationID: UUID? = nil,
-         clickWitnessID: UUID? = nil, preparationOwner: PreClickPreparationOwner? = nil, requireLiveOriginal: Bool? = nil, preferStartReceipt: Bool? = nil, captureInvocation: CaptureInvocationContext? = nil, recoverySource: WebRecoveryPredecessor? = nil) {
+         clickWitnessID: UUID? = nil, preparationOwner: PreClickPreparationOwner? = nil, requireLiveOriginal: Bool? = nil, preferStartReceipt: Bool? = nil, captureInvocation: CaptureInvocationContext? = nil, recoverySource: WebRecoveryPredecessor? = nil, recoveryInspection: Bool? = nil) {
         self.action = action; self.target = target; self.identity = identity
         self.uploadName = uploadName; self.mediaType = mediaType; self.byteCount = byteCount
         self.chunkIndex = chunkIndex; self.chunkBase64 = chunkBase64; self.invocationID = invocationID
         self.clickWitnessID = clickWitnessID
         self.preparationOwner = action == .captureTarget ? preparationOwner : nil
         self.recoverySource = recoverySource
+        self.recoveryInspection = recoveryInspection
         self.captureInvocation = captureInvocation
         self.preferStartReceipt = preferStartReceipt
         self.requireLiveOriginal = requireLiveOriginal
@@ -308,12 +313,24 @@ public actor WebAttachmentAdapter: OriginalAttachmentRecoveryChecking {
         return target
     }
 
+    public func inspectOriginalForReattachment(_ source: AttachmentRecoverySource, asset: ImportedAsset) async throws -> OriginalAttachmentPresence? {
+        guard mode == .ordinaryProduct else { return nil }
+        let target = source.operation.target
+        try check(target)
+        let original = try WebRecoveryPredecessor(source, asset: asset)
+        let data = try await perform(.init(action: .validate, target: target, recoverySource: original, recoveryInspection: true))
+        let reply = try decode(ValidationReply.self, from: data)
+        guard reply.valid, reply.target == target, reply.recoveryChecked == true else { return nil }
+        return reply.attachmentPresence
+    }
+
     public func checkRecovery(_ original: TransferRequest, destination: TargetLease) async throws -> Bool {
         guard mode == .ordinaryProduct, let source = original.recoverySource, original.operation == source.operation,
               original.invocationID == source.invocationID else { return false }
         try check(destination)
         try checkNewInputScope(destination)
-        let predecessor = try WebRecoveryPredecessor(source, asset: original.asset, destination: destination)
+        let predecessor = try WebRecoveryPredecessor(source, asset: original.asset, destination: destination,
+            userConfirmedDuplicateRisk: original.userConfirmedDuplicateRisk)
         let data = try await perform(.init(action: .validate, target: destination, recoverySource: predecessor))
         let response = try decode(ValidationReply.self, from: data)
         return response.target == destination && response.recoveryChecked == true && response.valid
@@ -419,7 +436,8 @@ public actor WebAttachmentAdapter: OriginalAttachmentRecoveryChecking {
         var committing = false
         do {
             let predecessor = try request.recoverySource.map {
-                try WebRecoveryPredecessor($0, asset: request.asset, destination: identity.target)
+                try WebRecoveryPredecessor($0, asset: request.asset, destination: identity.target,
+                    userConfirmedDuplicateRisk: request.userConfirmedDuplicateRisk)
             }
             if let predecessor {
                 guard mode == .ordinaryProduct, !file.derivedPNG, file.mediaType == "image/png",
@@ -529,14 +547,14 @@ public actor WebAttachmentAdapter: OriginalAttachmentRecoveryChecking {
         return latest
     }
 
-    private func startPreference(for request: TransferRequest) async throws -> Bool? {
+    private func startPreference(for request: TransferRequest, readingOriginal: Bool = false) async throws -> Bool? {
         guard mode == .ordinaryProduct, let binding = productBindings[request.asset.origin],
-              try await binding.admission.needsOriginalStart(for: request) else { return nil }
+              try await binding.admission.needsOriginalStart(for: request, readingOriginal: readingOriginal) else { return nil }
         return true
     }
 
     private func readOriginal(_ identity: ObservationIdentity, request: TransferRequest) async throws -> Data {
-        let preferStart = try await startPreference(for: request)
+        let preferStart = try await startPreference(for: request, readingOriginal: true)
         return try await perform(.init(action: .observe, target: identity.target, identity: identity,
             invocationID: request.invocationID,
             requireLiveOriginal: request.requireLiveOriginal ? true : nil, preferStartReceipt: preferStart))
@@ -691,7 +709,7 @@ public actor WebAttachmentAdapter: OriginalAttachmentRecoveryChecking {
                 developmentScope: .ordinarySystemScreenshot)
         }
         if screenshotScope != nil, let binding {
-            originalScope = try await binding.admission.admittedObservationScope(for: request)
+            originalScope = try await binding.admission.admittedObservationScope(for: request, readingOriginal: !liveAppend)
         }
         if let scope = originalScope {
             scopedNormalizer = ObservationNormalizer(profile: scope.admittedProfile,
@@ -797,7 +815,12 @@ public actor WebAttachmentAdapter: OriginalAttachmentRecoveryChecking {
         diagnosticTrace.record(fields, critical: result.retirement != nil || (deliveryUncertain && !result.startObserved))
     }
 
-    private struct ValidationReply: Decodable { let target: TargetLease; let valid: Bool; let recoveryChecked: Bool? }
+    private struct ValidationReply: Decodable {
+        let target: TargetLease
+        let valid: Bool
+        let recoveryChecked: Bool?
+        let attachmentPresence: OriginalAttachmentPresence?
+    }
     private struct Acknowledgement: Decodable {
         let recoveryBoundInvocationID: UUID?
         let operationID: UUID

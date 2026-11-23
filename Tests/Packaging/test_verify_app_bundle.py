@@ -68,7 +68,7 @@ class BundleVerificationTests(unittest.TestCase):
         # This test varies the historical bundle version. Use a fixture within every
         # version’s executable-resource limit while testing the separate archive rule.
         (self.bundle / VERIFY.PROGRAM_NAMES[0]).write_bytes(b"(function () {})")
-        for archived_build in (57, 58, 59, 60):
+        for archived_build in (56, 57, 58, 59, 60, 61):
             name = f"build{archived_build}-observation-fingerprint.dat"
             archived = self.bundle / name
             data = archived.read_bytes()
