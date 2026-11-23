@@ -1,0 +1,72 @@
+{
+  "checkedUTC": "2026-11-23T02:33:16.269Z",
+  "browser": "Playwright Chromium headless shell 156.0.8078.4",
+  "method": "Opened each integrated HTML using file://; followed its visible Watch link in a fresh browser page; decoded OG image and sampled native video playback.",
+  "script": "web/check-media.cjs",
+  "command": "NODE_PATH=<path-to-playwright-node_modules> CHROMIUM_BIN=<path-to-chromium-headless-shell> node web/check-media.cjs <campaign/web> <output.json>",
+  "results": [
+    {
+      "lang": "zh-CN",
+      "entry": "web/index.html",
+      "share": {
+        "path": "social/share/zh-CN.jpg",
+        "sha256": "51ba7536fcbca23e9913372f8d952ee93f20d026abf80de4248d8ca81cac6ce8",
+        "width": 1200,
+        "height": 630,
+        "sameTwitter": true
+      },
+      "movie": {
+        "expected": "film/zh-CN/master.mp4",
+        "link": "film/zh-CN/master.mp4",
+        "sha256": "15b691cdb4cb75e0e2c80a82ed21c7e6ad82dbf17bc00e10a006256aff107169",
+        "h264": "probably",
+        "aac": "probably",
+        "navigation": "film/zh-CN/master.mp4",
+        "download": null,
+        "source": "native media document",
+        "duration": 20,
+        "width": 1920,
+        "height": 1080,
+        "currentTime": 0.430509,
+        "decodedFrames": 18,
+        "droppedFrames": 0,
+        "readyState": 4,
+        "mediaError": null,
+        "playError": null
+      },
+      "passed": true
+    },
+    {
+      "lang": "en",
+      "entry": "web/en.html",
+      "share": {
+        "path": "social/share/en.jpg",
+        "sha256": "5f150d4910634f2b8025731a87bab7ba14cb8a9ea7fd78781991527b5eff3bce",
+        "width": 1200,
+        "height": 630,
+        "sameTwitter": true
+      },
+      "movie": {
+        "expected": "film/en/master.mp4",
+        "link": "film/en/master.mp4",
+        "sha256": "82589a1294c867b1134e8673e4464e351fabae5af70bf1a65c35ad73a0b1976a",
+        "h264": "probably",
+        "aac": "probably",
+        "navigation": "film/en/master.mp4",
+        "download": null,
+        "source": "native media document",
+        "duration": 20,
+        "width": 1920,
+        "height": 1080,
+        "currentTime": 0.407148,
+        "decodedFrames": 17,
+        "droppedFrames": 0,
+        "readyState": 4,
+        "mediaError": null,
+        "playError": null
+      },
+      "passed": true
+    }
+  ],
+  "passed": true
+}
