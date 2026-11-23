@@ -58,7 +58,7 @@ async function verify(browser,lang,entry) {
 }
 (async()=>{
   const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_BIN || undefined});
-  const report={checkedUTC:new Date().toISOString(),browser:'Playwright Chromium headless shell '+browser.version(),method:'Opened each integrated HTML using file://; followed its visible Watch link in a fresh browser page; decoded OG image and sampled native video playback.',script:basename(__filename),command:'NODE_PATH=<path-to-playwright-node_modules> CHROMIUM_BIN=<path-to-chromium-headless-shell> node riftlet-web-integrated.cjs <campaign/web> <output.json>'};
+  const report={checkedUTC:new Date().toISOString(),browser:'Playwright Chromium headless shell '+browser.version(),method:'Opened each integrated HTML using file://; followed its visible Watch link in a fresh browser page; decoded OG image and sampled native video playback.',script:basename(__filename),command:'NODE_PATH=<path-to-playwright-node_modules> CHROMIUM_BIN=<path-to-chromium-headless-shell> node web/check-media.cjs <campaign/web> <output.json>'};
   try{report.results=await Promise.all([verify(browser,'zh-CN','index.html'),verify(browser,'en','en.html')]);}
   finally{await browser.close();}
   report.passed=report.results.every(r=>r.passed);
