@@ -1,0 +1,566 @@
+{
+  "schemaVersion": 1,
+  "type": "independent-build61-release-verdict-after-both-selected-draft-runs",
+  "reviewer": {
+    "role": "independent nonauthor source and acceptance evidence reviewer",
+    "method": "Verified the existing candidate and installation, queried current GitHub refs/checks and public channels, compared sealed site evidence, read four SQLite snapshots and the later original-target control receipts. The reviewer did not issue GUI input or rerun CI."
+  },
+  "writtenUTC": "2026-11-23T03:08:06.056+00:00",
+  "observationBeganUTC": "2026-11-23T03:08:03.384+00:00",
+  "releaseVerdict": "NOT_RELEASED",
+  "releaseAuthorized": false,
+  "formalSourceReview": "PASS",
+  "prospectiveMergeCI": "PASS",
+  "productAcceptance": "G1_G2_BEHAVIORAL_PASS__G4_INCOMPLETE",
+  "candidate": {
+    "version": "1.0.8",
+    "build": 61,
+    "privateDMGBytes": 14133998,
+    "privateDMGSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+    "signedSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+    "signedTree": "70ba40e23a3afa3561525b1943cb0e5ebc825de5",
+    "actualInstalledExecutableSHA256": "32406ca202fa8eb659abf96930a30ce3c246bb804acfaeeccbc10eaf2fc09387",
+    "actualInstalledPageSHA256": "2f6e2f6e1d80184813f6f967cc340638b96082abd5bd98c2f9e97b0597f982f2",
+    "strictDMGCodesign": 0,
+    "deepStrictInstalledAppCodesign": 0,
+    "priorSameIdentityCustody": {
+      "notaryReportedStatus": "Accepted",
+      "gatekeeperAndStapledTicket": "Previously independently checked on this exact private DMG and installed App.",
+      "receiptSHA256": "2d1d06c75a73808dabd01cd4683f3c6b8dd0216bf88375e7e5a2f49d7be441dd"
+    },
+    "privateDMGRehashedUTC": "2026-11-23T03:08:06.041+00:00"
+  },
+  "formal": {
+    "observedUTC": "2026-11-23T03:08:06.029+00:00",
+    "pr": "https://github.com/haohongfei2001-png/Riftlet/pull/125",
+    "state": "open",
+    "draft": true,
+    "merged": false,
+    "actualMain": "9fd8ad15fca043915069904113e5fb67d82b4948",
+    "reviewedFormalSource": "e2324e9d742ec3c3d1045504ed1bfee421efae67",
+    "reviewedFormalTree": "ddc37248d5fa3ac6ed03642ff0937ccd72f45d32",
+    "sourceReviewReportSHA256": "867f8f49b804f1046a74b70f15286a152ec6fbf632f147b01fdb9c6628b8054a",
+    "head": "881589ad19f5e0205846aa265e64df89f2a0b498",
+    "headTree": "6f583ee83337ff4edb1aad1b389042c7e01737ad",
+    "headParents": [
+      "e2324e9d742ec3c3d1045504ed1bfee421efae67"
+    ],
+    "prospectiveMerger": "31371f52d67cca6678d09712e71aa330a454df4d",
+    "prospectiveTree": "6f583ee83337ff4edb1aad1b389042c7e01737ad",
+    "prospectiveParentsOrdered": [
+      "9fd8ad15fca043915069904113e5fb67d82b4948",
+      "881589ad19f5e0205846aa265e64df89f2a0b498"
+    ],
+    "unchangedProductSourcesTree": "1aae0943f6ce71a9bfa49c86ba95589032c1de63",
+    "signedSourceToFormalHeadChangedOnly": [
+      "engineering/mainline/source-admission.json",
+      "scripts/run-readiness-ownership.sh"
+    ],
+    "githubChecks": [
+      {
+        "completedAt": "2026-11-22T23:17:28Z",
+        "link": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45080584932/job/137387624931",
+        "name": "Native Intel",
+        "state": "SUCCESS",
+        "workflow": "Native foundation"
+      },
+      {
+        "completedAt": "2026-11-22T23:02:50Z",
+        "link": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45080584850/job/137387624766",
+        "name": "Feedback native and service",
+        "state": "SUCCESS",
+        "workflow": "Feedback v0.1"
+      },
+      {
+        "completedAt": "2026-11-22T23:17:02Z",
+        "link": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45080584932/job/137387624793",
+        "name": "Native ARM64",
+        "state": "SUCCESS",
+        "workflow": "Native foundation"
+      },
+      {
+        "completedAt": "2026-11-22T22:57:59Z",
+        "link": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45080584850/job/137387624506",
+        "name": "Feedback source admission",
+        "state": "SUCCESS",
+        "workflow": "Feedback v0.1"
+      },
+      {
+        "completedAt": "2026-11-22T22:58:31Z",
+        "link": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45080584932/job/137387624613",
+        "name": "Native source admission",
+        "state": "SUCCESS",
+        "workflow": "Native foundation"
+      }
+    ],
+    "workflowRuns": [
+      {
+        "id": 45080584932,
+        "runAttempt": 1,
+        "event": "pull_request",
+        "head": "881589ad19f5e0205846aa265e64df89f2a0b498",
+        "result": "success",
+        "completedUTC": "2026-11-22T23:17:29Z"
+      },
+      {
+        "id": 45080584850,
+        "runAttempt": 1,
+        "event": "pull_request",
+        "head": "881589ad19f5e0205846aa265e64df89f2a0b498",
+        "result": "success",
+        "completedUTC": "2026-11-22T23:02:50Z"
+      }
+    ],
+    "previouslyIndependentlyVerifiedJobCheckout": "31371f52d67cca6678d09712e71aa330a454df4d",
+    "checkScope": "All five required checks passed on this existing prospective merge workflow. A protected main merge and its post-merge jobs have not taken place.",
+    "engineeringReviewScope": "The signed product and the formal source successor independently passed their full-range source reviews. These are engineering reviews.",
+    "previousHostedLogAuditSHA256": "a2e77f4181ec267a323501ed2085c8240fb54741b6305dee325c4197330f2dd9"
+  },
+  "functionalEvidence": {
+    "priorLocalPassed": {
+      "webProgram": 384,
+      "offlineFaultHarness": 8,
+      "packaging": 24,
+      "chrome-lease": 19,
+      "chrome-preview": 22,
+      "edge-lease": 19,
+      "edge-preview": 22
+    },
+    "hostedNativeBothArchitectures": {
+      "architectures": [
+        "arm64",
+        "x86_64"
+      ],
+      "discoveredPerArchitecture": 1436,
+      "parallelUniqueCompletedPerArchitecture": 1414,
+      "serialPassedPerArchitecture": 22,
+      "serialFailuresPerArchitecture": 0,
+      "realOwnershipSubprocessesPerArchitecture": 12,
+      "storageSoakReachedCapturesPerArchitecture": 160
+    },
+    "independentHistoricalDatabaseCopies": [
+      {
+        "name": "after-native-send",
+        "schemas": [
+          4,
+          7,
+          7
+        ],
+        "startsBySnapshot": [
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "partial-native-upload",
+        "schemas": [
+          4,
+          7,
+          7
+        ],
+        "startsBySnapshot": [
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "body-sent-before-response",
+        "schemas": [
+          4,
+          7,
+          7
+        ],
+        "startsBySnapshot": [
+          0,
+          0,
+          1
+        ]
+      }
+    ],
+    "historicalScope": "Previously verified v4 to v7 migration and retention on the three archived cases. Their controlled inputs belong to those signed candidate test cases."
+  },
+  "currentPublicStable": {
+    "observedUTC": "2026-11-23T03:08:06.029+00:00",
+    "version": "1.0.5",
+    "build": 31,
+    "releasePage": "https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.5",
+    "publishedUTC": "2026-11-18T02:50:46Z",
+    "releaseDMGBytes": 12686160,
+    "releaseDMGSHA256": "99276347932e231adf743664a54cfc782d8e345d89221587d54b7299a5c9f315",
+    "home": "https://riftlet.com/",
+    "homeSHA256": "70246d64e139efe5b7ab1a22f00b422bc9bc06590b8c815a430c21443ed9037a",
+    "stableDownloadLinksOnHome": 2,
+    "feed": "https://riftlet.com/updates/stable.xml",
+    "feedSHA256": "da0b17e36b178ae94bcbea6e5720dcc400250350aa766fd31d4fbf8e3f476b52",
+    "candidatePresentInStableFeed": false
+  },
+  "ordinarySite": {
+    "mode": "Signed AppKit software-targeted native mouse events in ordinary enrolled signed-in Chrome and Edge Temporary Chat windows. A physical mouse and the provider final server storage state were not verified.",
+    "families": {
+      "chrome": {
+        "singleAndRapidPairs": "PASS",
+        "originalFullPNGFiles": 7,
+        "distinctProductClicks": 7,
+        "distinctInvocations": 7,
+        "persistentSTARTs": 7,
+        "fileAndSitePreviewEncodedBytesMatchOriginal": 7,
+        "browserFileAndPreviewRenderedRGBAAgree": 7,
+        "originalNativeMouseDownIntervalsMS": [
+          581.676,
+          569.889,
+          619.928
+        ],
+        "originalSiteCardsAfterBatches": [
+          1,
+          3,
+          5,
+          7
+        ],
+        "priorCardNamesAndNodesPreserved": true,
+        "siteCounts": {
+          "fileChange": 7,
+          "fileInput": 7,
+          "formSubmit": 0,
+          "sendButtonClicks": 0
+        },
+        "selectionResultAtOriginalRun": "NOT_RUN",
+        "selectionOriginalStop": "ORIGINAL_PAGE_READ_UNAVAILABLE",
+        "eighthPNGCaptured": true,
+        "originalCaseEighthProductMouseOrFileInput": false,
+        "independentRawArchiveSHA256": "c1a1cd568b8ab6d71cd5bf87f0b23f02a06e4ed98b957053422155be94a12466",
+        "privateSQLiteSHA256": "9e71f071bbefe0e3245b02c8d560a4bd8764de65ed5ef160818289717c3503da",
+        "originalSelectionReceiptSHA256": "d63dfe53f107d276b5fdc9603efccc6ef50b81bab69480e95d608e369edeaf66"
+      },
+      "edge": {
+        "singleAndRapidPairs": "PASS",
+        "originalFullPNGFiles": 7,
+        "distinctProductClicks": 7,
+        "distinctInvocations": 7,
+        "persistentSTARTs": 7,
+        "fileAndSitePreviewEncodedBytesMatchOriginal": 7,
+        "browserFileAndPreviewRenderedRGBAAgree": 7,
+        "originalNativeMouseDownIntervalsMS": [
+          551.605,
+          568.999,
+          549.887
+        ],
+        "originalSiteCardsAfterBatches": [
+          1,
+          3,
+          5,
+          7
+        ],
+        "priorCardNamesAndNodesPreserved": true,
+        "siteCounts": {
+          "fileChange": 7,
+          "fileInput": 7,
+          "formSubmit": 0,
+          "sendButtonClicks": 0
+        },
+        "selectionResultAtOriginalRun": "NOT_RUN",
+        "selectionOriginalStop": "HIT_NOT_ORIGINAL_EDITABLE",
+        "eighthPNGCaptured": true,
+        "originalCaseEighthProductMouseOrFileInput": false,
+        "independentRawArchiveSHA256": "8920c40f0eca41cbf0803b38692393bc4a25bb0583ce6adf0b8572f51d8a1b58",
+        "privateSQLiteSHA256": "047bb231972ecebbe62d6a98269ab592671ed5742ea0ff5e00bd00d44c578c5f",
+        "originalSelectionReceiptSHA256": "b6c520730f93ad1fdf8a8a19ca27d2ab77e6732fdc102ca787c64e50ee61908a"
+      }
+    },
+    "fourteenIndependentProductAttachments": 14,
+    "totalSTARTsInTheseTwoOrdinaryRuns": 14,
+    "pairsPerBrowser": 3,
+    "zeroChatSendsAndFormSubmits": true,
+    "browserSelection": {
+      "chrome": {
+        "result": "PASS_REAL_NONEMPTY_SELECTION_AND_ORIGINAL_ATTACHMENT_PRESERVATION",
+        "independentFamilyReportSHA256": "699ec96d1dd519885ca9c9eba6c768e2c7047fb0869bdaaeeeec652ee76f9e93",
+        "independentFamilySQLiteSHA256": "0412ea35eea54e952f64e42e317dbd0cf21ab0cabb867d4eac9a1abe62a90674",
+        "priorIndependentFamilyArchiveCustodyDBHashMatches": true,
+        "sourceClipNativeMouse": true,
+        "stage1": "An empty original editor received one seed, which generated one local persistent START and one site attachment.",
+        "stage2": {
+          "originalWebsiteTextUTF16Length": 64,
+          "selectedUTF16Length": 28,
+          "directedRangeBefore": [
+            12,
+            40
+          ],
+          "nativeInsertEvents": 1,
+          "trusted": true,
+          "rangeSetup": "setBaseAndExtent",
+          "beforeFormalAttachments": 1
+        },
+        "stage3": {
+          "originalText": true,
+          "originalAnchorAndFocusDOMNodesAndOffsets": true,
+          "originalEditorDocumentAndSiteWitness": true,
+          "directedRangeAfter": [
+            12,
+            40
+          ],
+          "direction": "forward",
+          "pageFocusedAfter": true,
+          "editorActiveAfter": false,
+          "originalCardPreserved": true,
+          "namedCardsAfter": 2,
+          "webInputsForSecondImage": 1,
+          "webChangesForSecondImage": 1,
+          "durableSTARTsForSecondImage": 1,
+          "PNGOriginalSiteFileAndPreviewEncodedBytesEqual": true,
+          "sourceAndSitePixelsAgree": true,
+          "chatSends": 0,
+          "formSubmits": 0,
+          "lastDirectPageArchiveUTC": "2026-11-23T02:58:56.491+00:00"
+        },
+        "draftGeneration": {
+          "actualRawHarnessGrade": "PASS",
+          "seedEqualsNewProductGeneration": true,
+          "secondOperationGenerationIndependentlyReadDirectlyBeforePress": false,
+          "secondOperationGenerationRetrospectivelyProvenForSamePrePressTicket": true,
+          "generationDigestOfTheFormalLease": "6dedc4139f687440854672f384d50f59e1c1d763568ec01c0077406fd9d1c8b9",
+          "transitionTime": "UNKNOWN",
+          "transitionCause": "UNKNOWN",
+          "scope": "The signed ACK, freeze and consume use the same unique binding. The immutable second operation, dispatch and START match that full target. The seed, host scheduler epoch and website witness are separate identities."
+        }
+      },
+      "edge": {
+        "result": "PASS_REAL_NONEMPTY_SELECTION_AND_ORIGINAL_ATTACHMENT_PRESERVATION",
+        "independentFamilyReportSHA256": "78e6f200b0dd69197951f380ff7a0ad4f9b4d7f3dda902f12fcd558b9c92a539",
+        "independentFamilySQLiteSHA256": "3baba74eb4c960c648bd4196a17c6b4ad2aca9d56416d8089b83a12e1d7e8e97",
+        "priorIndependentFamilyArchiveCustodyDBHashMatches": true,
+        "sourceClipNativeMouse": true,
+        "stage1": "An empty original editor received one seed, which generated one local persistent START and one site attachment.",
+        "stage2": {
+          "originalWebsiteTextUTF16Length": 64,
+          "selectedUTF16Length": 28,
+          "directedRangeBefore": [
+            12,
+            40
+          ],
+          "nativeInsertEvents": 1,
+          "trusted": true,
+          "rangeSetup": "setBaseAndExtent",
+          "beforeFormalAttachments": 1
+        },
+        "stage3": {
+          "originalText": true,
+          "originalAnchorAndFocusDOMNodesAndOffsets": true,
+          "originalEditorDocumentAndSiteWitness": true,
+          "directedRangeAfter": [
+            12,
+            40
+          ],
+          "direction": "forward",
+          "pageFocusedAfter": true,
+          "editorActiveAfter": true,
+          "originalCardPreserved": true,
+          "namedCardsAfter": 2,
+          "webInputsForSecondImage": 1,
+          "webChangesForSecondImage": 1,
+          "durableSTARTsForSecondImage": 1,
+          "PNGOriginalSiteFileAndPreviewEncodedBytesEqual": true,
+          "sourceAndSitePixelsAgree": true,
+          "chatSends": 0,
+          "formSubmits": 0,
+          "lastDirectPageArchiveUTC": "2026-11-23T02:55:50.728+00:00"
+        },
+        "draftGeneration": {
+          "actualRawHarnessGrade": "PARTIAL",
+          "seedEqualsNewProductGeneration": false,
+          "secondOperationGenerationIndependentlyReadDirectlyBeforePress": false,
+          "secondOperationGenerationRetrospectivelyProvenForSamePrePressTicket": true,
+          "generationDigestOfTheFormalLease": "0e04a83b2bdc8b1d7aa447e003491c997d80cf251830a8b8107f96a293f20359",
+          "transitionTime": "UNKNOWN",
+          "transitionCause": "UNKNOWN",
+          "scope": "The signed ACK, freeze and consume use the same unique binding. The immutable second operation, dispatch and START match that full target. The seed, host scheduler epoch and website witness are separate identities."
+        }
+      }
+    },
+    "fullG1": "PASS_OBSERVED_PRODUCT_BEHAVIOR",
+    "fullG2": "PASS_OBSERVED_PRODUCT_BEHAVIOR",
+    "color": {
+      "result": "PASS_ORIGINAL_FILE_AND_RENDERED_PREVIEW_FIDELITY",
+      "chromeSeventhNativeVsBrowser": "The original File and site preview bytes match. Both rendered the same browser pixels. On Chrome image 7 only, native color conversion differed by one blue level in 64,680 pixels.",
+      "independentOfflineEvidenceSHA256": "e2c47f2cb4a03074182198ec3a549c3760528b27fa614cb274c49179913e9384"
+    },
+    "rawFourteenReviewSHA256": "672d38dc5698a186130dd0d537bff78cb3d99355e0547cc5ff9ac9f0ec61d514",
+    "behavioralAssessment": "Chrome and Edge separately passed empty-draft first image, subsequent ordinary images, all three rapid pairs, original-card retention, and attachment while preserving an existing nonempty forward range in the original live editor. The raw Edge selection driver retained PARTIAL for its extra cross-operation seed-epoch comparison. No independent direct pre-press draft-generation scalar was recorded for either formal click.",
+    "totalActualProductInputsInSevenImageAndCompletedSelectionRuns": 18,
+    "durableStartsInSevenImageAndCompletedSelectionRuns": 18,
+    "earlierSeparateSelectionAttempts": {
+      "chrome": {
+        "originalOnly": "ATTEMPT_STOPPED_BEFORE_SELECTED_ATTACHMENT",
+        "seedWebsiteInputs": 0,
+        "seedWebsiteChanges": 0,
+        "sendClicks": 0,
+        "formSubmits": 0,
+        "durableOperations": 0,
+        "durableSTARTs": 0,
+        "captureOnlyAssets": 1,
+        "caseSelectionResult": "NOT_RUN",
+        "originalResultSHA256": "e38435e7b76a74d0b591980511e3d754dc54dae39d8c368ce6d70c7138a528e9",
+        "freshIndependentInitialSeedSQLiteSHA256": "3b9b56d086899aedd0f0727a37057323e40f3f9474d0948c0f6af3cba3c24654"
+      },
+      "edge": {
+        "originalOnly": "ATTEMPT_STOPPED_BEFORE_SELECTED_ATTACHMENT",
+        "seedWebsiteInputs": 1,
+        "seedWebsiteChanges": 1,
+        "sendClicks": 0,
+        "formSubmits": 0,
+        "durableOperations": 1,
+        "durableSTARTs": 1,
+        "captureOnlyAssets": 1,
+        "caseSelectionResult": "NOT_RUN",
+        "originalResultSHA256": "260ac6611df562d2295e93e8eafc4764aa8e8dbf775ebb5e547e9b27ed5c08a3",
+        "freshIndependentInitialSeedSQLiteSHA256": "990f836c2352b6d19b2cc6095ef4406aa4cfdcc4871c1d0b1eaedb7aaff98f8f"
+      }
+    }
+  },
+  "edgeG4CFirstRealAttempt": {
+    "verdict": "PARTIAL_NO_QUALIFYING_RECOVERY",
+    "originalSourcePNGBytes": 5513,
+    "originalPNGSHA256": "bc347c5d3e58c3f893b230cae70ef1551bc9295838cbad334e6d78fc32521230",
+    "websiteCounts": {
+      "fileChange": 1,
+      "fileInput": 1,
+      "formSubmit": 0,
+      "sendButtonClicks": 0
+    },
+    "originalSTARTs": 1,
+    "receiptOutcome": "uploadStarted",
+    "operationPhase": "inputTriggered",
+    "originalMemberPresentAtLastBoundRead": true,
+    "positiveNamedFailure": false,
+    "UNKNOWNObserved": false,
+    "normalAppleEventWitness": {
+      "activeDocument": true,
+      "originalEditor": true,
+      "originalRealmXHR": true,
+      "productRegistry": false,
+      "siteReactOwner": false,
+      "usedOnlyOrdinaryAppleEvents": true
+    },
+    "controlledCancellationOrTimeout": "NOT_RUN",
+    "timeoutSets": 0,
+    "abortCalls": 0,
+    "stop": "An ordinary original-page witness lacked the site transport owner. No fault was installed. The original selection/route subsequently changed and the runner stopped.",
+    "successorOperations": 0,
+    "privateArchiveSHA256": "0508a93f73fac2dc757d7ff82c8425a5ef68e177f745a8b778aa84bcde6d278c",
+    "privateFinalSQLiteSHA256": "5853ed2d0e46d3e47c5efcbd0dcf443a60b256f1299f0afa9c05a1445bc5e62e",
+    "rawTerminalSHA256": "8bc1f41ed8a9b6cbb93526bdbe9bd3e7c91ac91a143581e7bd1947a8591544d5",
+    "independentScopeReviewSHA256": "44f8a56fcfe2e168ab55de51d86c690b3f0fc795ce6904a8845a03d2d1f89a01"
+  },
+  "edgeB4NaturalSize": {
+    "verdict": "ORIGINAL_UNKNOWN_NO_RECOVERY",
+    "originalBytes": 23233638,
+    "originalPNGSHA256": "ac2ae9502b81ac77a4f6883ca1eaef7c5f421a9d7e863a0a150dabc6fbaaa500",
+    "websiteFullFileMatchesSourceAndPrivateMedia": true,
+    "siteCounts": {
+      "fileChange": 1,
+      "fileInput": 1,
+      "formSubmit": 0,
+      "sendButtonClicks": 0
+    },
+    "originalSTARTs": 0,
+    "positiveNamedFailure": false,
+    "HTTPStatusForCompleteOriginalFile": null,
+    "originalOutcome": "inputTriggered",
+    "operationPhase": "unknown",
+    "originalReportedSafeToRetry": false,
+    "samples": {
+      "finalPageArchiveUTC": "2026-11-23T02:22:55.772438+00:00",
+      "firstArchiveUTC": "2026-11-23T02:22:25.306533+00:00",
+      "firstFileInputReceiptPageClockMS": 16263,
+      "firstNamedDecodedPreviewSample": 34,
+      "firstNamedMemberSample": 10,
+      "lastArchiveUTC": "2026-11-23T02:22:54.857054+00:00",
+      "lastDistinctDOMShapePageClockMS": 36613,
+      "monotonicDurationSeconds": 29.549622374994215,
+      "sampleCount": 37
+    },
+    "lastPositiveMember": "The early progress shell and Remove node were replaced. The original form still showed a decoded 2048 x 2002 preview with the same complete operation-specific filename and a Remove control at the last readable site observation.",
+    "latestBoundedRecheck": {
+      "attemptUTC": "2026-11-23T02:41:05Z",
+      "sameDedicatedNativeWindowAndTab": true,
+      "originalPageState": "ORIGINAL_DOCUMENT_READ_NOT_AVAILABLE",
+      "readRefusal": "ORIGINAL_TEMPORARY_TAB_REQUIRED",
+      "privateSignedCaseChildAlive": false,
+      "watcherRetirementDirectlyObserved": false,
+      "currentMemberAtLateRead": "UNKNOWN",
+      "latestPositivePresenceStillDated": "2026-11-23T02:22:55.772438+00:00",
+      "lateSQLiteSHA256": "0b8b98bbf5ec4966ea8d5efa4d6947f292195443f1770b595689f8a501d1fe2c",
+      "lateCounts": {
+        "assets": 1,
+        "attachment_reselections": 0,
+        "operations": 1,
+        "upload_starts": 0
+      },
+      "sameOriginalDatabaseRowsAsEarlier": true,
+      "recoveryInputIssued": false,
+      "siteOrNetworkChangesIssued": 0
+    },
+    "currentOrdinaryRecovery": "DENIED_ON_THIS_EVIDENCE",
+    "independentOriginalReviewSHA256": "69bc0caa20611c61c0d4a43153b7ac565b2c30bee0526396f5071a0c2da5450d",
+    "latePublicReceiptSHA256": "867940de93becd106e534c1278d32b6cdf34289d7350cb409275f613745cd4e2"
+  },
+  "releaseConditions": {
+    "G1G2": "Both browser product-behavior gates passed in the signed ordinary live cases. The literal independent pending-slot product epoch was unavailable in both browsers. Each formal click’s pre-press generation is attributable through its signed binding and immutable full target. The initial seed is a different operation.",
+    "G4C": "Prove the controlled original interruption and supported UNKNOWN recovery on a qualifying same-build case. Require the same original draft and full PNG, guarded confirmed disposition, actual informed History action, a different bound operation/invocation, one new input and durable START, with both databases and preserved old history.",
+    "G4AorG4B": "Additionally obtain a product-recognized genuine named failure bound to the original card, or a genuine provider 4xx attributable to the full original PNG, subsequent disappearance with preserved original membership, and independent equivalence adjudication. B4 does not meet the G4-B conditions.",
+    "currentlyRequiredUserAction": "No verified user-only credential, permission or confirmation requirement is established in the inspected receipts.",
+    "downstream": "Protected standard main merge and post-merge verification, tag and public DMG/feed, public install and ordinary upgrade from 31 remain downstream of site acceptance and release authorization."
+  },
+  "custodyLimits": "Domain-specific direct and reconstructed evidence remain separate. The older 07:25 site snapshot is historical. The current assessment is time-bounded, uses independent read-only SQLite copies and recorded signed native and live site evidence, and does not issue a release or change the GUI or CI.",
+  "previousVerdict": {
+    "writtenUTC": "2026-11-23T02:50:14.131+00:00",
+    "sha256": "eacfdd0874277e8133ed5912233b98ac6d0212fb1ef5d719239d3cf5e20947e3",
+    "selectionSnapshotScope": "The earlier report predated both completed selected-draft runs. Earlier original site and database records keep their dates and interpretation."
+  },
+  "acrossEightEnumeratedSiteDatabases": {
+    "totalDistinctDurableOperations": 21,
+    "totalWebsiteFileInputEvents": 21,
+    "totalWebsiteFileChangeEvents": 21,
+    "durableSTARTs": 20,
+    "reselectionSuccessors": 0,
+    "webChatSendClicks": 0,
+    "formSubmits": 0,
+    "perCase": {
+      "chromeInitialSelectionAttempt": {
+        "operationCount": 0,
+        "durableSTARTs": 0
+      },
+      "chromeCompletedSelection": {
+        "operationCount": 2,
+        "durableSTARTs": 2
+      },
+      "edgeInitialSelectionAttempt": {
+        "operationCount": 1,
+        "durableSTARTs": 1
+      },
+      "edgeCompletedSelection": {
+        "operationCount": 2,
+        "durableSTARTs": 2
+      },
+      "chromeOrdinarySeven": {
+        "operationCount": 7,
+        "durableSTARTs": 7
+      },
+      "edgeOrdinarySeven": {
+        "operationCount": 7,
+        "durableSTARTs": 7
+      },
+      "edgeG4CFirst": {
+        "operationCount": 1,
+        "durableSTARTs": 1
+      },
+      "edgeNaturalSizeB4": {
+        "operationCount": 1,
+        "durableSTARTs": 0
+      }
+    },
+    "scope": "Two seven-image runs, two initial selection attempts, two completed seed/selected-attachment runs, the first Edge G4-C case and the Edge natural B4 UNKNOWN. Each durable operation ID is unique across these eight databases. Only the two completed nonempty selections supply the selection result."
+  },
+  "remainingNonreplaceableAcceptance": "G4-C is mandatory. It additionally requires either G4-A’s genuine bound failure or independently accepted G4-B equivalence. The actual first Edge G4-C yielded one START, a retained original card, and no controlled interruption or successor. B4 had zero STARTs; the last readable original page had a same-operation preview; the later original-page read refused. Neither case satisfies those open gates."
+}

@@ -1,6 +1,6 @@
 # Riftlet 1.0.8 build 59 · G4 最终实站验收
 
-2026-11-23 的当前候选为 build 61。新候选在普通 Edge 已取得一次原图附加和一条 START。受控故障次数为零，原操作的结果为 uploadStarted。另一次 23,233,638 字节的真实系统截图上传留下原 UNKNOWN、完整 PNG 和同名预览。两次独立数据库备份相同，没有重选或新 START，G4 仍未放行。[build 61 大图与恢复裁决](evidence/build61/size-boundary-independent.json)
+2026-11-23 的当前候选为 build 61。新候选在普通 Edge 已取得一次原图附加和一条 START。受控故障次数为零，原操作的结果为 uploadStarted。另一次 23,233,638 字节的真实系统截图上传留下原 UNKNOWN、完整 PNG 和同名预览。两次独立数据库备份相同，没有重选或新 START，G4 仍未放行。非作者已独立确认 build 61 两款浏览器的普通实站验收通过。当前发行条件为 G4-C，加 G4-A 或独立接受的 G4-B。[最新发行裁决](evidence/build61/release-gate-after-both-selections.json) [build 61 大图与恢复裁决](evidence/build61/size-boundary-independent.json)
 
 本文下方为 build 59 的历史证据。[build 61 实站原操作](evidence/build61/g4c-original-live.json) · [当前发行报告](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)
 
