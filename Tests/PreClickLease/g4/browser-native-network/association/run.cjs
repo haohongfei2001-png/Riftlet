@@ -96,21 +96,22 @@ function describe(row, stream) {
 }
 
 async function payloadAssessment(cmd, request, png) {
-  let result = 'unavailable', returnedTextBytes = null, observedHash = null;
+  let result = 'unavailable', returnedBodyBytes = null, observedHash = null;
   if (request.inlineEntryBytes.length && request.inlineEntryBytes.every(v => typeof v === 'string')) {
     const bytes = Buffer.concat(request.inlineEntryBytes.map(v => Buffer.from(v, 'base64')));
     if (bytes.equals(png)) observedHash = sha(bytes);
   }
   try {
     const response = await cmd('Network.getRequestPostData', {requestId:request.id});
-    const bytes = Buffer.from(response.postData, 'utf8');
-    returnedTextBytes = bytes.length;
-    result = 'text returned';
+    const encoding = response.base64Encoded ? 'base64' : 'utf8';
+    const bytes = Buffer.from(response.postData, encoding);
+    returnedBodyBytes = bytes.length;
+    result = encoding + ' returned';
     if (bytes.equals(png)) observedHash = sha(bytes);
   } catch (error) {
     result = /no post data/i.test(error.message) ? 'NO_POST_DATA' : 'backend error';
   }
-  return {lookupCount:1, lookupResult:result, returnedTextBytes, inlineEntryCount:request.inlineEntryBytes.length,
+  return {lookupCount:1, lookupResult:result, returnedBodyBytes, inlineEntryCount:request.inlineEntryBytes.length,
     payloadHashUnavailable:observedHash === null, observedPUTBodySHA256:observedHash};
 }
 
@@ -195,7 +196,7 @@ async function run(family) {
   const verification = spawnSync('/usr/bin/codesign', ['--verify','--verbose=4','-R='+requirement,bundle], {encoding:'utf8'});
   if (verification.status !== 0) {
     const prefix = 'file missing: ' + bundle + '/';
-    const missing = (verification.stderr ?? '').split('\n').find(line => line.startsWith(prefix));
+    const missing = [verification.stdout, verification.stderr].join('\n').split('\n').find(line => line.startsWith(prefix));
     return {family:family.name, vendorBundle:family.bundle, status:'NOT_RUN_INSTALLED_BUNDLE_VERIFICATION',
       verificationExit:verification.status, vendorSignatureVerified:false, browserStarted:false,
       missingSealedResource:missing ? missing.slice(prefix.length) : null};
@@ -244,7 +245,11 @@ async function main() {
     sources:Object.fromEntries(['fixture.cjs','run.cjs'].map(n => [n, sha(fs.readFileSync(path.join(__dirname,n)))]))};
 }
 
-main().then(result => {
-  console.log(JSON.stringify(result,null,2));
-  if (result.resultCounts.passed !== result.resultCounts.total) process.exitCode = 1;
-}, error => { console.error(error.message); process.exitCode=1; });
+if (require.main === module) {
+  main().then(result => {
+    console.log(JSON.stringify(result,null,2));
+    if (result.resultCounts.passed !== result.resultCounts.total) process.exitCode = 1;
+  }, error => { console.error(error.message); process.exitCode=1; });
+}
+
+module.exports = {payloadAssessment};

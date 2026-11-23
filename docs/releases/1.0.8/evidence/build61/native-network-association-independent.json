@@ -1,0 +1,112 @@
+{
+  "chrome": {
+    "body": {
+      "browserInlinePayloadEntries": 0,
+      "browserLookup": "NO_POST_DATA",
+      "browserLookupCount": 1,
+      "browserMeasuredPUTSHA256": null,
+      "ownedServerMeasuredPUTSHA256": "e75f3202d3f4b94bb462a58bf097836088855ab39ee47777826e5a60b1004a0e",
+      "ownedServerReceivedBytes": 110882,
+      "payloadHashUnavailable": true,
+      "server201AfterWholeBodyEquality": true
+    },
+    "chronology": {
+      "createRequestResponseFinishThenPutRequestResponseFinishSequences": [
+        8,
+        11,
+        13,
+        14,
+        17,
+        18
+      ],
+      "creationResponseToPUTStartMicroseconds": 323,
+      "finishMinusResponseCallbackTimestampMicroseconds": [
+        -68,
+        -48
+      ],
+      "scope": "Protocol event delivery order and the owned page traversal establish creation before PUT. Recorded finish timestamps in each request are slightly earlier than response-event timestamps. No claim that all timestamp values increase in protocol delivery order."
+    },
+    "cleanup": {
+      "listenerClosed": true,
+      "ownedProcessGroupExited": true,
+      "profileRemoved": true
+    },
+    "create": {
+      "bodyLength": 66,
+      "initiator": "script",
+      "method": "POST",
+      "requestIdentityDistinctFromPut": true,
+      "status": 200,
+      "type": "Fetch"
+    },
+    "put": {
+      "basicEventLength": null,
+      "destinationDigestFromCreationMatchesPut": "c4bea81ec9fddb5830b062d2f091ba60cf1b99a52138f3262645a9eb5af78eca",
+      "extraInformationLength": 110882,
+      "httpStatus": 201,
+      "method": "PUT",
+      "requestContentLength": 110882,
+      "terminal": "Network.loadingFinished",
+      "type": "XHR",
+      "uniqueCandidate": true,
+      "wholeDestinationComparedInMemory": true
+    },
+    "roles": "Controlled, cookie-free local fixture and owned server in a fresh headless vendor profile. No signed product click.",
+    "sameOriginalTargetSessionFrameLoaderAndDocument": true,
+    "singleBrowserFileInputChange": [
+      1,
+      1
+    ],
+    "syntheticPNG": {
+      "dimensions": [
+        192,
+        192
+      ],
+      "sha256": "e75f3202d3f4b94bb462a58bf097836088855ab39ee47777826e5a60b1004a0e",
+      "size": 110882
+    },
+    "version": "Chrome/157.0.8103.79"
+  },
+  "edge": {
+    "browserStartedByThisCase": false,
+    "localAssociation": "NOT_RUN",
+    "samplingProgramVerificationExit": 1,
+    "sealedDiagnosticSHA256": "b549b22455a90c71ba6e5720c90c2f1c64b4ef69f7d9923655c8da0570f860c3",
+    "separateInstalledBundleCheck": [
+      {
+        "absentSealedResource": null,
+        "family": "Google Chrome",
+        "independentInstalledBundleVerifyExit": 0
+      },
+      {
+        "absentSealedResource": "Contents/PlugIns/MicrosoftEdgeWidgets.appex",
+        "family": "Microsoft Edge",
+        "independentInstalledBundleVerifyExit": 1
+      }
+    ]
+  },
+  "gates": {
+    "G4A": "HOLD",
+    "G4B": "HOLD",
+    "G4C": "HOLD",
+    "release": "NOT_RELEASED"
+  },
+  "limits": [
+    "The complete source file and owned receiving server agree byte for byte on this local request. The browser did not return a File body. A live provider does not supply this controlled server-side checksum by analogy.",
+    "The random destination URL and create filename were deliberately omitted. Their raw value and original 66-byte metadata body cannot be reconstructed from the public digest alone. The source establishes volatile full-value equality, the retained create/PUT destination digests agree, and no competing write was observed.",
+    "The only recorded PUT Content-Length came from ExtraInfo. This local fixture parses the raw protocol frame before selecting properties. This is not an admitted no-cookie extraction path for a signed-in third-party tab.",
+    "The sampled body lookup treats returned text as UTF-8. The protocol supports base64-encoded replies; this run took NO_POST_DATA. Any subsequent pure decoding check is a separate measurement.",
+    "This sample used an owned file input and synthetic PNG. It did not measure a signed product AppKit action, a provider request, an authenticated-site terminal, a named failure or an explicit recovery. Earlier independent Edge scope trials are distinct from this Edge association preflight."
+  ],
+  "method": "Original browser/server projections and frozen sampling source were checked offline. An independent PNG encoder reproduced CRCs, RGB pixels, zlib data, all 110882 bytes and the full digest. Installed vendor app bundles were inspected read-only; no new browser was run.",
+  "observedAtUTC": "2026-11-23T06:51:01.724Z",
+  "receiptSHA256": "4bdf2e155f181baa66244ca78b91ae64fbf1010163ff1ee56c651432eaffc7b7",
+  "result": "CHROME_LOCAL_REQUEST_ASSOCIATION_PASS_EDGE_ASSOCIATION_NOT_RUN",
+  "reviewedAtUTC": "2026-11-23T06:55:09.508617+00:00",
+  "reviewer": "Independent nonauthor reviewer of original local association records",
+  "sampledProgramSourcesSHA256": {
+    "fixture.cjs": "2f0ed0752fdfdcc57a6b82828105245092a834ef0cb1dd081dd27337fca455be",
+    "run.cjs": "9cab2e3c7b7092332e85bfc3e0b8f99ecd9a27473532846dbfdd216f7022b2ca"
+  },
+  "schemaVersion": 1
+}
