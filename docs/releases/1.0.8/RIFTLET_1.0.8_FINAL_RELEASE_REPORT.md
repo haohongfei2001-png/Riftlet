@@ -1,12 +1,14 @@
 # Riftlet 1.0.8（build 62）发行报告
 
-**RIFTLET 1.0.8 — NOT RELEASED**
+**RIFTLET 1.0.8 — RELEASED**
 
-正式候选的产品提交为 `871187f2be5eada68fccf2adcc07d120991e1c15`。通用安装包 `Riftlet-1.0.8.dmg` 共 14,225,854 字节，SHA-256 为 `66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49`。当前公开稳定版为 1.0.5（31）。[独立安装及验签](evidence/build62/signed-package-independent.json)
+正式版 1.0.8（62）的标签指向产品提交 `871187f2be5eada68fccf2adcc07d120991e1c15`。通用安装包 `Riftlet-1.0.8.dmg` 共 14,225,854 字节，SHA-256 为 `66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49`。[GitHub Release](https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.8) · [下载 DMG](https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.8/Riftlet-1.0.8.dmg) · [SHA256SUMS.txt](https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.8/SHA256SUMS.txt) · [官网下载](https://riftlet.com/#release) · [Sparkle stable](https://riftlet.com/updates/stable.xml)
 
-非作者已复核发布前的产品、双浏览器实站、签名安装及隔离升级，功能门槛全部通过。正式合并、公开下载和单独一份 31 副本的公开 stable 升级须取得各自的发行回执。[发布前独立裁决](evidence/build62/prepublication-functional-gates-independent.json)
+GitHub 于 2026 年 11 月 23 日 21:18:30（北京时间）发布 v1.0.8。PR #125 的合并提交为 `bbcbac2455697b874a2aca79be92b113630a93f0`，PR 与 main 各五项正式检查通过。官网两个下载按钮和公开更新源均指向同一签名 DMG。[公开下载与来源核对](evidence/build62/public-distribution.json) · [发布后非作者裁决](evidence/build62/public-independent-verdict.json)
 
-## 签名候选的实站结果
+官网 PR #127 的首次 ARM64 作业在隔离 Chrome 初始化时超时，受控用例通过 47/48。同一云端工作流的 ARM64 第 2 次作业通过。Intel、Native 源码准入、Feedback 源码准入及 Feedback 测试均在首次执行时通过。[首次失败的云端日志](https://github.com/haohongfei2001-png/Riftlet/actions/runs/45186045048/job/137731799406) · [ARM64 最终作业](https://github.com/haohongfei2001-png/Riftlet/actions/runs/45186045048/job/137744706398) · [公开下载与来源核对](evidence/build62/public-distribution.json)
+
+## 正式签名包的实站结果
 
 | 普通浏览器 × ChatGPT Temporary Chat | 冷首图、暖首图 | 三组双图，两次 AppKit mouseDown 间隔 | 非空文字、非折叠选区与旧附件 |
 | --- | --- | --- | --- |
@@ -50,7 +52,11 @@ Edge 先在已有首图的原草稿中录入指定正文并选中 `preserve this
 | 通道 | 结果 |
 | --- | --- |
 | 发布前，隔离测试 appcast | **十三项全部 PASS。** [逐项独立裁决](evidence/build62/staging-thirteen-requirements-independent.json)  活动的正式 31 通过 Sparkle 发现、下载、安装并重启为 62。应用菜单的三次原始记录、签名 feed、14,225,854 字节下载及安装后 193 项全部核验。51 个资产、2 条操作（含 1 条 UNKNOWN）、1 条 START、6 条检查点及全部旧列逐值相等，原 86 个文件与 3 项设置完整。 [实际升级和两份 SQLite 摘要](evidence/build62/staging-31-to-62-migration.json) · [逐行独立审计](evidence/build62/staging-active-sqlite-independent.json) · [更新和签名安装独立复核](evidence/build62/staging-51-to-51-independent.json) · [旧版基线](evidence/build62/upgrade-31-baseline.json) · [签名测试源](evidence/build62/staging-update-feed.json) |
-| 发布后，从官网下载、GitHub 下载及公开 stable 应用内更新 | NOT_RUN。须从新的隔离 31 副本验证，并独立核对安装后身份、数据和设置。 |
+| 发布后，GitHub 匿名下载和经官网按钮下载 | 两次分别取得 14,225,854 字节的完整 DMG，SHA-256 均为 `66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49`。公开校验和文件相符。[公开下载与来源核对](evidence/build62/public-distribution.json) |
+| 发布后，公开下载件的独立安装与普通启动 | App 和 DMG 的 Developer ID、staple 和 Gatekeeper 核对通过。另在隔离环境普通启动该公开副本，版本 1.0.8、build 62。两种架构的代码签名和全部 193 项文件、目录与符号链接都与签名清单匹配。[公开下载件独立安装与普通启动](evidence/build62/public-installation.json) |
+| 发布后，另一份活动 31 副本经正式 stable 应用内更新 | 使用普通「检查更新」、安装和重新启动，版本从 1.0.5（31）升到 1.0.8（62）。51 个资产、2 条操作、1 条 UNKNOWN、1 条 START 和 6 条检查点保留，86 个文件、51 个 PNG 与 3 项设置核对相符。另外实测更新器缓存包含同 SHA 的完整 DMG。 [公开 stable 升级及前后 SQLite](evidence/build62/public-stable-upgrade.json) |
+
+本次公开 stable 验证在点击「检查更新」前，对同一运行中的 31 先后备份两次。其间 32 个已有资产从可见转为自动归档。51 个资产的身份保持一致，2 条操作、1 条 UNKNOWN 和 1 条 START 均原样保留。下文首轮 staging 的 32 次导入来自复制文件后产生的新 inode，发生在另一份试验副本。 [公开 stable 升级及前后 SQLite](evidence/build62/public-stable-upgrade.json)
 
 首份试验副本从冷态 51 行变为 83 行。准备时复制回桌面的 32 个文件有新的 macOS 文件身份，31 在下载更新前就完成了全部 32 次导入。最后一条早于下载 110.684 秒。后续副本按原 inode、出生时刻和 SHA 恢复这 32 个文件，数据库未经修改，在运行中的 31 和 62 均测得 51 行。[首轮原始审计](evidence/build62/staging-first-update-independent.json) · [逐行归因](evidence/build62/staging-first-update-attribution.json)
 
@@ -62,6 +68,10 @@ Edge 先在已有首图的原草稿中录入指定正文并选中 `preserve this
 
 首次升级后，独立提取的 App 与签名清单的 193 个成员完全匹配。隔离机的 Edge 专窗 Apple Events 查询返回 `-1712`。宿主备用单图实测因自动审批限制，在创建进程和窗口前停止，实测输入为零。[升级后单图的实际执行范围](evidence/build62/upgrade-attachment-scope-first-run.json)
 
+**发布前的隔离升级档案**
+
 两轮原始升级记录、四份运行中 SQLite 快照、私有媒体与菜单回执共封存 168 件。私有 ZIP 的 SHA-256 为 `5bfea6a8ee0a2cd413e6ee9267e17e07486713d6b04387a5e762b03cfe95ed4c`，文件清单摘要为 `6247d67be91be717f11a654250e2b13fcac4f0c7638718098af787f2c889a0b9`。
 
-[产品收口记录](FINAL_PRODUCT_CLOSURE.md) · [发行说明](RELEASE_NOTES_DRAFT.md) · [build 59–61 完整历史报告](https://github.com/haohongfei2001-png/Riftlet/blob/ff380f90ccc586c90f561125d088428f7b0fd18e/docs/releases/1.0.8/RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md) · [历史 build 60 报告](https://github.com/haohongfei2001-png/Riftlet/blob/2babf8cafcfd924abdddaa0ba43a1d099af1acb7/docs/releases/1.0.8/RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)
+发布后封存了两个公开下载入口取得的完整 DMG，以及 31 初始、31 归档后和 62 更新后的三份 SQLite 快照。私有归档 SHA-256 为 `e36c6038b9cb5ceaaaa941285487b1705992b97e56850c9b3c147428f7456fb6`。[公开安装与升级原件封存摘要](evidence/build62/public-install-upgrade-custody.json)
+
+[产品收口记录](FINAL_PRODUCT_CLOSURE.md) · [发行说明](RELEASE_NOTES.md) · [build 59–61 完整历史报告](https://github.com/haohongfei2001-png/Riftlet/blob/ff380f90ccc586c90f561125d088428f7b0fd18e/docs/releases/1.0.8/RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md) · [历史 build 60 报告](https://github.com/haohongfei2001-png/Riftlet/blob/2babf8cafcfd924abdddaa0ba43a1d099af1acb7/docs/releases/1.0.8/RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)

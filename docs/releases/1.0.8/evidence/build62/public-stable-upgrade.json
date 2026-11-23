@@ -1,0 +1,117 @@
+{
+  "activeBaselineCounts": {
+    "assets": 51,
+    "checkpoints": 6,
+    "compensations": 0,
+    "operations": 2,
+    "unknown": 1,
+    "upload_starts": 1
+  },
+  "beforePublicUpdate": {
+    "assetIDsAndNonLifecycleFieldsPreserved": true,
+    "beforeAndAfterCounts": {
+      "assets": 51,
+      "checkpoints": 6,
+      "compensations": 0,
+      "operations": 2,
+      "unknown": 1,
+      "upload_starts": 1
+    },
+    "beforeFirstUpdateAction": true,
+    "change": {
+      "visibility": [
+        "visible",
+        "archived"
+      ],
+      "visibilityReason": [
+        "capture",
+        "automaticArchive"
+      ],
+      "visibilityRevision": [
+        0,
+        1
+      ]
+    },
+    "existingAssetsAutomaticallyArchived": 32,
+    "initialBackupSHA256": "8bfd032c59b7cc674ceb33f665e943c548c68afcecfe8e88908cd35bdd82413b",
+    "newImportsInPublicPreUpdateInterval": 0,
+    "sameRunningBuild31": true,
+    "settledPreUpdateBackupSHA256": "3ba4c0c6be22920a0edcae3b79673569f85809c80a308cd872b958dca93de12b"
+  },
+  "build": 62,
+  "checkInstallRelaunchObserved": true,
+  "dmgSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "feedSHA256": "41af8877b5565b8c8e6edf07c350e4bd4c9faf9a7ecb086347d1cfe566af9cdf",
+  "feedURL": "https://riftlet.com/updates/stable.xml",
+  "filesPreserved": 86,
+  "installedFrom": "1.0.5 (31)",
+  "installedTo": "1.0.8 (62)",
+  "oldRowsByTable": {
+    "assets": {
+      "added": 0,
+      "after": 51,
+      "before": 51,
+      "missing": 0,
+      "unchangedOldRows": 51
+    },
+    "checkpoints": {
+      "added": 0,
+      "after": 6,
+      "before": 6,
+      "missing": 0,
+      "unchangedOldRows": 6
+    },
+    "compensations": {
+      "added": 0,
+      "after": 0,
+      "before": 0,
+      "missing": 0,
+      "unchangedOldRows": 0
+    },
+    "metadata": {
+      "added": 0,
+      "after": 2,
+      "before": 2,
+      "missing": 0,
+      "unchangedOldRows": 2
+    },
+    "operations": {
+      "added": 0,
+      "after": 2,
+      "before": 2,
+      "missing": 0,
+      "unchangedOldRows": 2
+    },
+    "upload_starts": {
+      "added": 0,
+      "after": 1,
+      "before": 1,
+      "missing": 0,
+      "unchangedOldRows": 1
+    }
+  },
+  "ordinaryDefaultFeed": true,
+  "privateOriginalPNGsPreserved": 51,
+  "relaunchExportSHA256": "46b38fa1c8dcbf473faea080cf90c806feb1a19ee94ddb9d73a855cac860f8c7",
+  "schemaAfter": 5,
+  "schemaBefore": 5,
+  "signedMembers": 193,
+  "signedSource": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "sourceSHA256": {
+    "baseline": "9eeb9003a4d87c053dcb97fa8c3d38b9aa69a87206f1b65c228aeeea95b41c6e",
+    "channel": "cebf434d2a2a583426f31a40c4703e6f6283bd1ecb6f8bc5669cf668f65e2068",
+    "db31": "3ba4c0c6be22920a0edcae3b79673569f85809c80a308cd872b958dca93de12b",
+    "db31First": "8bfd032c59b7cc674ceb33f665e943c548c68afcecfe8e88908cd35bdd82413b",
+    "db62": "90b26df5dd7db8f019312ab0ab88fbde202358bc8bf1b19fa0aa2e774a033002",
+    "first31Review": "1e3d9f1037c0770dd4cf660bf048547e46661eecc8f71b6b5bb14915462248b3",
+    "guestFeed": "41af8877b5565b8c8e6edf07c350e4bd4c9faf9a7ecb086347d1cfe566af9cdf",
+    "relaunch": "26c540d02e39ba8231485073bd449dff264b1086fc0a7a85a613705221916ba1",
+    "running31": "19d6606c7c3961bef714a940ca76fcb50440307e61df5599361cf98f30a77aba",
+    "settled31": "e648a380193a2273c332e44c131b70b1b29d6111e1942e11b533dca32c92301f",
+    "updated": "99455cb77b16d2da3807f58d13ecb35a3ec9bebce6a5dab0eb7363bfed7e9fdd",
+    "upgrade": "8d0fc1c7f027fc7a3a1f637efb5275d2a9d4c342b58600d6ba9e92796550ec89"
+  },
+  "updaterCacheStatus": "OBSERVED",
+  "userSettingsPreserved": 3,
+  "version": "1.0.8"
+}

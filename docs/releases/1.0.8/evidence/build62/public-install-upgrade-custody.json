@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "archiveSHA256": "e36c6038b9cb5ceaaaa941285487b1705992b97e56850c9b3c147428f7456fb6",
+  "archiveBytes": 142118291,
+  "evidenceFiles": 70,
+  "manifestSHA256": "d26f2b5663141fdb26805e531b071f926cc6ababe543aa2cad6437a067f34ce4",
+  "firstActive31BackupSHA256": "8bfd032c59b7cc674ceb33f665e943c548c68afcecfe8e88908cd35bdd82413b",
+  "active31BackupSHA256": "3ba4c0c6be22920a0edcae3b79673569f85809c80a308cd872b958dca93de12b",
+  "settledBaselineUsedForUpgradeComparison": true,
+  "olderVisibleItemsArchivedBeforeUpdate": 32,
+  "updated62BackupSHA256": "90b26df5dd7db8f019312ab0ab88fbde202358bc8bf1b19fa0aa2e774a033002",
+  "macOSReleaseDMGSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "privateArchiveDirectoryMode": "0700",
+  "privateArchiveFileMode": "0600"
+}

@@ -1,0 +1,42 @@
+{
+  "appNotarization": "Accepted",
+  "architectureCDHashes": {
+    "arm64": "1fbb1dc4a79713561bcde33307e6e81ed89d3fab",
+    "x86_64": "5329d0fec4220bba36101db3a77b160091b8c187"
+  },
+  "build": 62,
+  "dmgNotarization": "Accepted",
+  "dmgSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "downloadURL": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.8/Riftlet-1.0.8.dmg",
+  "executableSHA256": "b641a84d1ca48f88cd54825bcc9af64d45915c640b90f8ccdaee3f3b1697ec98",
+  "independentlyLaunchedPublicCopy": {
+    "build": 62,
+    "exportSHA256": "3c9a9f9645fcde523975d87bb58c2d708c0d69c8f689d083dacc19476df075fa",
+    "matchingMembers": 193,
+    "ordinaryLaunch": true,
+    "version": "1.0.8"
+  },
+  "signedInstallInventorySHA256": "736620ad69fbb8ac621da3711c4e891189c0f21d62710e64d1185e48ef253dad",
+  "signedMembers": 193,
+  "signedSource": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "sourceSHA256": {
+    "directDMG": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+    "http": "0e3a9855288436885c29671b7a81df0be862ca098d3dcd9bc08a5df1ec386f92",
+    "install": "4d8c7b2c73f6fc5e41c10881a76dc9ed850aee75ff703a8b55a8fa7a1d93f5de",
+    "installSummary": "cea1c92e2c985850fea11385e01dbdbdee966ddcade6ac97aee87b0d794c4f0f",
+    "manual": "80d439be8ff1d6695290b975cfa24f81f40850aca7ff94c53d80cbaef66b4683",
+    "manualLaunch": "15b26489da5e5b5d22ce230f2ab3755402f2bdf25ccd7a73bf93f3f588c7ce80"
+  },
+  "sourceTree": "f5eb856b9faed30a2ff82e906a081d61647b6f04",
+  "verificationExitCodes": {
+    "appCodeSignature": 0,
+    "appGatekeeper": 0,
+    "appStaple": 0,
+    "buildInfo": 0,
+    "dmgCodeSignature": 0,
+    "dmgGatekeeper": 0,
+    "dmgStaple": 0
+  },
+  "verifiedSymlinks": 9,
+  "version": "1.0.8"
+}

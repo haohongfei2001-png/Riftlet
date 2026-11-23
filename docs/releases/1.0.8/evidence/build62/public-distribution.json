@@ -1,0 +1,257 @@
+{
+  "build": 62,
+  "bytes": 14225854,
+  "checksumAssetID": 783022825,
+  "dmgSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "downloadAssetID": 783022827,
+  "feedAndEnclosureSignaturesVerifiedByInstalledBuilds": [
+    31,
+    62
+  ],
+  "feedSHA256": "41af8877b5565b8c8e6edf07c350e4bd4c9faf9a7ecb086347d1cfe566af9cdf",
+  "githubTransfer": {
+    "completeBytes": 14225854,
+    "finalHTTPStatus": 206
+  },
+  "immutable": true,
+  "publicWebsiteObservedUTC": "2026-11-23T14:24:53.380259+00:00",
+  "publishedUTC": "2026-11-23T13:18:30Z",
+  "releaseID": 455452651,
+  "signedSource": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "sourceIntegration": {
+    "mainChecks": {
+      "Feedback native and service": {
+        "attempt": 1,
+        "conclusion": "success",
+        "job": 137706647990,
+        "name": "Feedback native and service",
+        "run": 45178724064,
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45178724064/job/137706647990"
+      },
+      "Feedback source admission": {
+        "attempt": 1,
+        "conclusion": "success",
+        "job": 137706648420,
+        "name": "Feedback source admission",
+        "run": 45178724064,
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45178724064/job/137706648420"
+      },
+      "Native ARM64": {
+        "attempt": 1,
+        "conclusion": "success",
+        "job": 137706646514,
+        "name": "Native ARM64",
+        "run": 45178723835,
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45178723835/job/137706646514"
+      },
+      "Native Intel": {
+        "attempt": 1,
+        "conclusion": "success",
+        "job": 137706647055,
+        "name": "Native Intel",
+        "run": 45178723835,
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45178723835/job/137706647055"
+      },
+      "Native source admission": {
+        "attempt": 1,
+        "conclusion": "success",
+        "job": 137706646961,
+        "name": "Native source admission",
+        "run": 45178723835,
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45178723835/job/137706646961"
+      }
+    },
+    "merge": "bbcbac2455697b874a2aca79be92b113630a93f0",
+    "orderedParents": [
+      "9fd8ad15fca043915069904113e5fb67d82b4948",
+      "3e969bb7988c195e7e9ab23798048ee75fceaee4"
+    ],
+    "prChecks": {
+      "Feedback native and service": {
+        "attempt": 1,
+        "conclusion": "success",
+        "job": 137693364686,
+        "name": "Feedback native and service",
+        "run": 45174857436,
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45174857436/job/137693364686"
+      },
+      "Feedback source admission": {
+        "attempt": 1,
+        "conclusion": "success",
+        "job": 137693364043,
+        "name": "Feedback source admission",
+        "run": 45174857436,
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45174857436/job/137693364043"
+      },
+      "Native ARM64": {
+        "attempt": 1,
+        "conclusion": "success",
+        "job": 137693364663,
+        "name": "Native ARM64",
+        "run": 45174857439,
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45174857439/job/137693364663"
+      },
+      "Native Intel": {
+        "attempt": 1,
+        "conclusion": "success",
+        "job": 137693364299,
+        "name": "Native Intel",
+        "run": 45174857439,
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45174857439/job/137693364299"
+      },
+      "Native source admission": {
+        "attempt": 1,
+        "conclusion": "success",
+        "job": 137693364944,
+        "name": "Native source admission",
+        "run": 45174857439,
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45174857439/job/137693364944"
+      }
+    },
+    "pullRequest": "https://github.com/haohongfei2001-png/Riftlet/pull/125",
+    "testedMainTree": "5ce8d368ced4a146d4719c32ba0569a745c35abc",
+    "websiteMainChecks": {
+      "Feedback native and service": {
+        "attempt": 1,
+        "conclusion": "success",
+        "job": 137758522256,
+        "name": "Feedback native and service",
+        "run": 45193729229,
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45193729229/job/137758522256"
+      },
+      "Feedback source admission": {
+        "attempt": 1,
+        "conclusion": "success",
+        "job": 137758522734,
+        "name": "Feedback source admission",
+        "run": 45193729229,
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45193729229/job/137758522734"
+      },
+      "Native ARM64": {
+        "attempt": 1,
+        "conclusion": "success",
+        "job": 137758511952,
+        "name": "Native ARM64",
+        "run": 45193729372,
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45193729372/job/137758511952"
+      },
+      "Native Intel": {
+        "attempt": 1,
+        "conclusion": "success",
+        "job": 137758512487,
+        "name": "Native Intel",
+        "run": 45193729372,
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45193729372/job/137758512487"
+      },
+      "Native source admission": {
+        "attempt": 1,
+        "conclusion": "success",
+        "job": 137758512529,
+        "name": "Native source admission",
+        "run": 45193729372,
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45193729372/job/137758512529"
+      }
+    },
+    "websiteMainEarlierAttempts": [],
+    "websiteMerge": "e73265bf63e17c216e1557845e1f35fe9d3bee70",
+    "websiteOriginalARM64Failure": {
+      "attempt": 1,
+      "completeLogSHA256": "c84856df24a052a43332a9785bbdc9c053f3eb11ab6eb80a77dd28d799629c61",
+      "conclusion": "failure",
+      "diagnosisSHA256": "b39735841a0c920ab138b3c57da42d1ec890e606af8a1947481ce24eba58b451",
+      "firstFailure": "CHROME_FIXTURE_TIMEOUT phase=initializing",
+      "fixtureCount": 48,
+      "fixturePass": 47,
+      "job": 137731799406,
+      "name": "Native ARM64",
+      "run": 45186045048,
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45186045048/job/137731799406"
+    },
+    "websitePRChecks": {
+      "Feedback native and service": {
+        "attempt": 1,
+        "conclusion": "success",
+        "job": 137731800236,
+        "name": "Feedback native and service",
+        "run": 45186045120,
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45186045120/job/137731800236"
+      },
+      "Feedback source admission": {
+        "attempt": 1,
+        "conclusion": "success",
+        "job": 137731799171,
+        "name": "Feedback source admission",
+        "run": 45186045120,
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45186045120/job/137731799171"
+      },
+      "Native ARM64": {
+        "attempt": 2,
+        "conclusion": "success",
+        "job": 137744706398,
+        "name": "Native ARM64",
+        "run": 45186045048,
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45186045048/job/137744706398"
+      },
+      "Native Intel": {
+        "attempt": 1,
+        "conclusion": "success",
+        "job": 137731800060,
+        "name": "Native Intel",
+        "run": 45186045048,
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45186045048/job/137731800060"
+      },
+      "Native source admission": {
+        "attempt": 1,
+        "conclusion": "success",
+        "job": 137731799667,
+        "name": "Native source admission",
+        "run": 45186045048,
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45186045048/job/137731799667"
+      }
+    },
+    "websitePREarlierAttempts": [
+      {
+        "attempt": 1,
+        "conclusion": "failure",
+        "job": 137731799406,
+        "name": "Native ARM64",
+        "run": 45186045048,
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45186045048/job/137731799406"
+      }
+    ],
+    "websitePullRequest": "https://github.com/haohongfei2001-png/Riftlet/pull/127"
+  },
+  "sourceSHA256": {
+    "channel": "cebf434d2a2a583426f31a40c4703e6f6283bd1ecb6f8bc5669cf668f65e2068",
+    "checksumFile": "05f2a653af7ac4baa9d05bbdd9d3520a5fd02aebf46e19c1ace90c0ff39e9454",
+    "directDMG": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+    "distribution": "7afe542bd7e2386639a24d4e17790dde7e92ada2054c3cf61a0a77a41b54998f",
+    "feed": "41af8877b5565b8c8e6edf07c350e4bd4c9faf9a7ecb086347d1cfe566af9cdf",
+    "github": "a6d5c474af3deb43a6f8179354ac19debbedf3bf415ce7fb9e0e9aa84b82d560",
+    "githubMeta": "e33c57bf7baba8c12d5d1ef345e1d8a029badc7aaf866f243a9233c10bdc7faf",
+    "http": "0e3a9855288436885c29671b7a81df0be862ca098d3dcd9bc08a5df1ec386f92",
+    "mainChecks": "675baf04b8e5532afdafce473a323f30e71322feef05e3ebf72b4c7c5d27ba2e",
+    "mainIdentity": "dbc918dfc0b6d1b454a04d5068cdf7e157b7c615317e2a114ba44e48108d1a60",
+    "prChecks": "30e5838f4996097718c119ad3a67776c71fbc1ec32770fb05cbe3f0b3d7a0333",
+    "release": "e2840015574bcc00cdb3182ac37db522d893b3465067c0d056753523c1aa3ef1",
+    "siteARMFirstFailure": "b39735841a0c920ab138b3c57da42d1ec890e606af8a1947481ce24eba58b451",
+    "siteARMFirstLog": "c84856df24a052a43332a9785bbdc9c053f3eb11ab6eb80a77dd28d799629c61",
+    "siteAudit": "ad580fdb03649ab504116d1c5fb669e2cf7a34296d5a5dbd786cbc6c9432d797",
+    "siteMain": "e96afd53306ad1411aab9f5941d109d7a9f29416f0d290f3d4193c7c02c2681c",
+    "sitePR": "d1d2e83e7d4cf670d37937c8c9efa677b6b97d25b9946d5cc3a42a7b7e6aa6da",
+    "siteSourceReview": "550f74c102ec400f55dd54e0bc42ab5be86d19550d44fa120b7b808a7be9ef35",
+    "websiteDMG": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+    "websitePage": "0f1de13a3f69020b2e75b66aba68b0f076c00d2168edf38e9604e7d98b28318c"
+  },
+  "tagTarget": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "urls": {
+    "checksums": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.8/SHA256SUMS.txt",
+    "gitHubDownload": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.8/Riftlet-1.0.8.dmg",
+    "publicRelease": "https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.8",
+    "stable": "https://riftlet.com/updates/stable.xml",
+    "websiteDownload": "https://riftlet.com/#release"
+  },
+  "version": "1.0.8",
+  "websiteLinkedAssetSameAsGithub": true,
+  "websiteReviewedSource": "55142570a5ce1e6a12629676cde16f7470b000a6"
+}

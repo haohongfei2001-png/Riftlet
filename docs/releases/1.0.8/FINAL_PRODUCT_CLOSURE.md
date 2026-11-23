@@ -2,7 +2,7 @@
 
 普通用户照常截图，在桌面边缘点一下微图，即可将原图附加到点击时的可编辑 ChatGPT 草稿。草稿中的原文、选区和已有附件应保留。用户在 ChatGPT 中自行发送。
 
-本候选的产品源码是 `871187f2be5eada68fccf2adcc07d120991e1c15`，签名 DMG 的 SHA-256 为 `66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49`。build 62 修复了结果不确定时历史入口可能消失，以及用户知情确认后仍无法对原草稿重新附加的问题。公开放行状态与各项证据见[发行报告](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)。
+正式版的产品源码是 `871187f2be5eada68fccf2adcc07d120991e1c15`，签名 DMG 的 SHA-256 为 `66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49`。build 62 修复了结果不确定时历史入口可能消失，以及用户知情确认后仍无法对原草稿重新附加的问题。公开放行状态与各项证据见[发行报告](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)。
 
 ## 图片在何处，用户可以做什么
 
@@ -21,6 +21,6 @@
 - **实站。** 普通 Chrome 和 Edge 的冷暖首图通过。Edge 三组双图为 568.318、616.109、650.829 ms。Chrome 和 Edge 均保留 64 字符正文、12→40 正向选区及原附件。Chrome 三组双图为 586.197、602.573、599.560 ms。两款浏览器均已由非作者从原始回执复核，零发送、零提交。[浏览器及逐项结果](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)
 - **工程和安装。** ARM64、Intel 及两项源码准入和 Feedback 检查通过。每种架构各通过 1,436 个 Swift 用例，受控网页回归 408/408。正式 DMG 已签名、公证、staple，独立安装核验的 193 个项目与签名包一致。[网页回归](evidence/build62/controlled-web-final.json) · [签名安装](evidence/build62/signed-package-independent.json)
 - **升级。** 隔离 1.0.5（31）已通过正式签名的测试源实际升级至 62，原操作与 UNKNOWN 保留。首份隔离副本准备时重新复制了 32 个桌面文件，31 在下载 62 前已把这批新文件身份登记入库。第二份隔离副本按原 inode 恢复 32 个文件，实际测得 51→51。旧字段、2 条操作、UNKNOWN、START、86 个文件和 3 项设置逐一相同。普通截图入库、托盘点击和受控文件输入已核验，非作者对升级十三项全部判定通过。[升级裁决](evidence/build62/staging-thirteen-requirements-independent.json)
-- **公开验证。** 公开后还须从独立 31 副本验证 stable 更新，并从两个正式下载入口复核实际字节。[升级起始快照](evidence/build62/upgrade-31-baseline.json)
+- **公开验证。** 官网下载与 GitHub 下载字节一致。独立安装的公开副本已正常启动。另一份活动 31 经正式 stable 更新并重启为 62，历史操作、UNKNOWN、原图和用户设置保留。[公开下载与来源核对](evidence/build62/public-distribution.json) · [公开下载件独立安装与普通启动](evidence/build62/public-installation.json) · [公开 stable 升级及前后 SQLite](evidence/build62/public-stable-upgrade.json) · [发布后非作者裁决](evidence/build62/public-independent-verdict.json)
 
 历史实验尚未取得真实 ChatGPT 上游具名失败卡或 HTTP 4xx。A–H 验证的是 Riftlet 自身的恢复行为。实站结果另由最终签名包的普通浏览器记录证明。[G4 验收范围及历史](G4_FINAL_ACCEPTANCE.md)
