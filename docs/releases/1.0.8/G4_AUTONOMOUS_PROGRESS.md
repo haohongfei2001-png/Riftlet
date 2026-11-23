@@ -1,5 +1,11 @@
 # G4 恢复与发行进度
 
+## 2026-11-23 · Build 61 执行世界核验
+
+两款浏览器分别在自有本地文件页验证了同一底层 DOM 节点能被两个 JavaScript 环境读取。两边各自创建的 XHR 使用各自的原型。页面预置的固定链接在原页面环境执行。替换页面自己的无行为标记后，旧标记校验立即失败；重载后，原文档身份和隔离环境均失效。每款浏览器的测试标签都记录到零 HTTP 请求。非作者另核对了冻结源码的七个指定入口及其回执范围。[双浏览器回执](../../../Tests/PreClickLease/g4/main-world-observer/receipt.json) · [冻结源码审计](evidence/build61/world-source-and-history.json)
+
+已将上轮 Chrome 验收器源码、二进制指纹与实站运行清单对齐。它只采集精确文件创建端点的 Resource Timing，输入前为零条，随后为一条 HTTP 200。原 PNG 在 input、change 的两次哈希都一致。实际 PUT 的请求体、进度和终态均未采集。本轮没有重新投递原图。[原验收器覆盖范围](evidence/build61/recorded-observer-coverage.json)
+
 ## 2026-11-23 · Build 61 中等大小截图
 
 新系统截图为 7,921,752 字节。普通 Chrome 的隔离回环用例先完整上传并取得 HTTP 201，再在独立请求的 17.9936% 进度中止一次。非作者从私有原图和收件服务记录重算了整图及实际读到的前缀。此项完成了工作包 A 的回环对照。当前实站放行条件仍为 G4-C，加 G4-A 或经独立书面认可的 G4-B。[本轮原图与网络审计](evidence/build61/medium-loopback-independent.json) · [G4 最终验收](G4_FINAL_ACCEPTANCE.md)

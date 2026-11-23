@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "reviewedAtUTC": "2026-11-23T05:03:08.999920+00:00",
+  "reviewer": "Independent nonauthor source and acceptance reviewer",
+  "productSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "sourceTree": "70ba40e23a3afa3561525b1943cb0e5ebc825de5",
+  "acceptanceSource": "77ad0602959740f0ab815a0a826a1d741c2fec08",
+  "acceptanceTree": "0ba743b0eba97faed40a419f96beb65b77e45095",
+  "signedDMGSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "productSourcesAndResourcesIdenticalBetweenGitCommits": true,
+  "sourceFilesSHA256": {
+    "Sources/RiftletAdapters/ChromeAppleEventsExecutor.swift": "00b1f7b637aad2ce00cc9b766c923ad5c4f25c3d0d08e8cf7306983ddb386140",
+    "Sources/RiftletAdapters/EdgeExecutionWorldWitness.swift": "89348e4558ef8e0d31bfa1a673c315d972ab9a48495c3ff7e3622837d6076cd2",
+    "Sources/RiftletAdapters/MainWorldCommandRelay.swift": "5f8eeb27be047cbe0345b184c38f5c9d24fcfddaaf7be1c6658630a03d865828",
+    "Sources/RiftletAdapters/MainWorldCommandEnvelope.swift": "df74d1b671a0c1253b93b516b5ec8fa4f442163998f6314b4d78100f1f062e2c",
+    "Sources/RiftletAdapters/ChromeClickDocumentWitness.swift": "e020b83710c2f5aaaed713b7ba42e8556176fa54f9f89261b9be12547e23e413",
+    "Sources/RiftletAdapters/WebAttachmentAdapter.swift": "076c89b15a9cee99639ea32873657df80fc2d5479d4276580dd8724e163df8d3",
+    "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js": "2f6e2f6e1d80184813f6f967cc340638b96082abd5bd98c2f9e97b0597f982f2"
+  },
+  "sevenRequestedSymbols": [
+    {
+      "requestedSymbol": "ChromeAppleEventsExecutor.execute",
+      "actualDeclaration": "ChromeAppleEventsExecutor.execute(_:program:)",
+      "path": "Sources/RiftletAdapters/ChromeAppleEventsExecutor.swift",
+      "line": 337,
+      "responsibility": "Routes a typed product command to its saved target and checks browser identity, original recipient and invocation as required. Observation after restart has its own read-only route.",
+      "whatSuccessfulReturnProves": "At the successful run return, an envelope for the original command was decoded; each action still has its own typed result and downstream qualification.",
+      "scopeLimit": "The public entry refuses externally submitted prepare/pin lifecycle actions. Its raw string executor is a different, private symbol at line 938."
+    },
+    {
+      "requestedSymbol": "ChromeAppleEventsExecutor.dispatchMainWorld",
+      "actualDeclaration": "ChromePIDEvents.dispatchMainWorld(_:window:tab:)",
+      "path": "Sources/RiftletAdapters/ChromeAppleEventsExecutor.swift",
+      "line": 949,
+      "responsibility": "Asks the exact tab to issue a product relay dispatch via the browser ordinary scripting interface.",
+      "whatSuccessfulReturnProves": "Requires the submission acknowledgment from the dispatch expression.",
+      "scopeLimit": "The acknowledgment does not assert listener completion, the command outcome, the execution world of arbitrary code, or a network receipt."
+    },
+    {
+      "requestedSymbol": "ChromeAppleEventsExecutor.submitMainWorld",
+      "actualDeclaration": "ChromePIDEvents.submitMainWorld(_:window:tab:)",
+      "path": "Sources/RiftletAdapters/ChromeAppleEventsExecutor.swift",
+      "line": 957,
+      "responsibility": "Requests native URL-navigation submission against the specific tab during the product cold path.",
+      "whatSuccessfulReturnProves": "The addressed native operation returned without a reported error. There is no separate page result in this method.",
+      "scopeLimit": "Page evaluation is subject to browser/document policy. The current helper return alone supplies neither a world witness nor an observer or request identity."
+    },
+    {
+      "requestedSymbol": "ChromeMainWorldSubmission",
+      "actualDeclaration": "ChromeMainWorldSubmission.submit(relay:envelope:install:bootstrap:dispatch:)",
+      "path": "Sources/RiftletAdapters/ChromeAppleEventsExecutor.swift",
+      "line": 584,
+      "responsibility": "Selects one of the two product submission paths for first use versus an existing relay.",
+      "whatSuccessfulReturnProves": "The selected callback returned successfully. The helper does not independently validate execution or read the command receipt.",
+      "scopeLimit": "A callback failure is not retried through the other path. A later original-command receipt is checked by the caller."
+    },
+    {
+      "requestedSymbol": "EdgeExecutionWorldWitness.prepareAndBind",
+      "actualDeclaration": "EdgeExecutionWorldWitness.prepareAndBind(_:address:program:)",
+      "path": "Sources/RiftletAdapters/EdgeExecutionWorldWitness.swift",
+      "line": 21,
+      "responsibility": "Constructs the fixed preparation expression for the original foreground tab and associated click-document witness.",
+      "whatSuccessfulReturnProves": "Swift return means expression construction. The later native bound reply is evidence of local preparation for an eligible visible document.",
+      "scopeLimit": "Preparation alone does not distinguish two realms or bind the website network object."
+    },
+    {
+      "requestedSymbol": "EdgeExecutionWorldWitness.bootstrap",
+      "actualDeclaration": "EdgeExecutionWorldWitness.bootstrap (computed property)",
+      "path": "Sources/RiftletAdapters/EdgeExecutionWorldWitness.swift",
+      "line": 49,
+      "responsibility": "Produces the fixed second-context part of an Edge witness for a particular click.",
+      "whatSuccessfulReturnProves": "Reading this property returns text only. A separate native confirmation is required during actual capture (ChromeAppleEventsExecutor.swift:438–442); later product phases revalidate the witness.",
+      "scopeLimit": "A positive confirmation supports different JS globals over the original root/navigation entry for this product path. It is neither provider authentication nor proof that a particular XHR belongs to that global."
+    },
+    {
+      "requestedSymbol": "MainWorldCommandRelay",
+      "actualDeclaration": "MainWorldCommandRelay",
+      "path": "Sources/RiftletAdapters/MainWorldCommandRelay.swift",
+      "line": 9,
+      "responsibility": "Hosts a preselected product page program under a document-bound relay. It limits admitted commands, consumes each command identity once, and publishes a single settled result.",
+      "whatSuccessfulReturnProves": "A validated original-command reply can establish that the corresponding product program returned its typed outcome on the originating document.",
+      "scopeLimit": "The shared DOM correlation and source marker are not an authentication boundary against code on that same page. It does not enumerate page-owned original requests or their bytes."
+    }
+  ],
+  "companionRawExecute": {
+    "actualDeclaration": "ChromePIDEvents.execute(_:window:tab:receiptBudget:)",
+    "line": 938,
+    "responsibility": "Returns the ordinary scripting expression result as text for the exact window/tab, or refuses. The meaning depends on the expression. A string result is not a transport receipt."
+  },
+  "additionalReceiptBoundaries": [
+    {
+      "action": "capture / validate / renew",
+      "scope": "Target, draft and eligibility checks have their own typed results. They do not imply a File was submitted.",
+      "source": "WebAttachmentAdapter.swift:298,322; chatgpt-web-20261027.js:1966,2090,2096,2102"
+    },
+    {
+      "action": "begin / chunk",
+      "scope": "Acknowledgments cover local staging and expected chunk ordering, together with the original operation/invocation. A staged or complete local buffer does not establish a network PUT.",
+      "source": "WebAttachmentAdapter.swift:432–459; chatgpt-web-20261027.js:2110,2156"
+    },
+    {
+      "action": "commit / observe",
+      "scope": "An input return, a later durable attachmentAccepted START, and a provider upload terminal are distinct observations. Original observation never sends or reissues a File.",
+      "source": "ChromeAppleEventsExecutor.swift:429,503–511; chatgpt-web-20261027.js:2138,2165"
+    },
+    {
+      "action": "discard / release",
+      "scope": "Conditions on the local reservation or uncommitted command determine the returned disposition. These are not an upstream cancellation or an assertion of file rejection.",
+      "source": "chatgpt-web-20261027.js:2098,2152"
+    },
+    {
+      "action": "own receipt after submission",
+      "scope": "The receipt reader validates the expected nonce, permitted shape, result or known error and bounded payload. Lost/empty receipts are read by the original identity within the timeout; the reader has no submit operation.",
+      "source": "MainWorldCommandEnvelope.swift:98–114,136–172; ChromeAppleEventsExecutor.swift:503–531"
+    }
+  ],
+  "realmFindings": {
+    "chromeOrdinary": "Chrome 157.0.8103.79 upstream source dispatches ordinary AppleScript JavaScript to the primary frame in its AppleScript-specific isolated world. A document/node can be shared while its JavaScript wrappers and prototype objects are separate.",
+    "edgeOrdinary": "The Edge scripting dictionary does not specify a realm contract. The signed product tests a per-target relationship and original identity rather than assuming Chrome semantics solely from the family.",
+    "javascriptNavigation": "The HTML special-case evaluation uses the target active document’s relevant settings object if evaluation is allowed. A native property-set return alone does not prove evaluation or identify the page-owned transport.",
+    "objectRelevance": "A page-created object has its actual prototype chain in the realm that created it. A direct read of a different world’s constructor or an original DOM node does not supply that live object. A value captured once does not attest to the same method identity later. Other frames or workers are also distinct contexts; none is adjudicated as the actual source of the build 61 PUT.",
+    "producerAndDocument": "The build 61 receipts prove the original signed product action and DOM File on a particular document/composer. They contain no joined provider request identity or proof the site-owned request ran in that JavaScript realm."
+  },
+  "historicalEvidence": [
+    {
+      "case": "Prior generated PNG, POST100",
+      "scope": "Recorded real earlier single operation, one matching create and client abort, no pending request at the stop point; detached card without a named failure. Its separate MID comparison had two creates and no qualified client fault. No identities carry to build 61.",
+      "rawPositiveSHA256": "81210ad1a339aecc67114619e2d5c737dd1090fa5d9fe020cd34032a4bf68aec",
+      "rawNegativeSHA256": "3f497749582ca8a4e658384f1d3d1fe32d72388cc971a90b6da82dd3230d13e8"
+    },
+    {
+      "case": "Prior original bound localhost Apple Events",
+      "scope": "Real macOS Chrome Apple Events; owned localhost HTML and synthetic 3-byte File only. Not ChatGPT, PNG upload, native thumbnail, uploadStarted or final attachment acceptance.",
+      "providerAcceptance": false
+    },
+    {
+      "case": "Signed build 59 Edge",
+      "normalOriginalBytes": 5516,
+      "normalFullFileSHA256": "9e56d9f41976afa73b61146d1b0ca860d62b6763819d0e4e950163b1b6af3b31",
+      "creationHTTP": 200,
+      "originalFilePUTHTTP": 201,
+      "threeDistinctOriginalClientAborts": 3,
+      "namedOriginalFailures": 0,
+      "recoveries": 0,
+      "providerFinalStateOfAbortedRequests": "UNKNOWN"
+    },
+    {
+      "case": "Signed build 61 Edge original",
+      "ordinaryWitness": {
+        "activeDocument": true,
+        "originalEditor": true,
+        "originalRealmXHR": true,
+        "productRegistry": false,
+        "siteReactOwner": false,
+        "usedOnlyOrdinaryAppleEvents": true
+      },
+      "originalSTART": 1,
+      "actualAbort": 0,
+      "originalRequestHandleEstablished": false
+    },
+    {
+      "case": "Signed build 61 Chrome medium original",
+      "bytes": 7921752,
+      "fullFileMatchedAtBothPageEvents": true,
+      "durableSTART": 1,
+      "creationEndpointFetchHTTP": 200,
+      "actualPUTStatus": null,
+      "realRequestOwnerWindowOrWorkerRealm": null,
+      "coincidentDOMAndTransportInstanceProven": false
+    }
+  ],
+  "evidenceFilesSHA256": {
+    "docs/releases/1.0.8/evidence/build59/g4-native-natural-independent.json": "9a17d848788a360e3b2bc1313650df170ec4482645592df129074f126d692163",
+    "docs/releases/1.0.8/evidence/build59/g4-final-network-receipt.json": "f7c40cbc8e0c55358c7428c335497cded2cf3e152cabb22e5cd4422327ddf133",
+    "docs/releases/1.0.8/evidence/build59/g4-final-strategies.json": "14ac88ce443e4fea49ed21e64bef701dd404d3d4a987a218f127243d701514c9",
+    "docs/releases/1.0.8/evidence/build61/g4c-original-live.json": "075f410b39481261e5bf9abef8d49d910f43e2e608bb73ae71c017c014bdfad1",
+    "docs/releases/1.0.8/evidence/build61/medium-final-g4-independent.json": "27e8630d33cebb325339c359901682254fd43e888047deee7b5c5c68080f6405",
+    "engineering/evidence/2026-10-27-real-mac-round2/post100-network-receipt.json": "81210ad1a339aecc67114619e2d5c737dd1090fa5d9fe020cd34032a4bf68aec",
+    "engineering/evidence/2026-10-27-real-mac-round2/mid-network-receipt.json": "3f497749582ca8a4e658384f1d3d1fe32d72388cc971a90b6da82dd3230d13e8",
+    "engineering/evidence/2026-11-01-pinned-click/native-background-transport.json": "4bf10b1a5a964538bccc918a55e48aa48ab7395749d9dad9dab0cd41ab5868a7"
+  },
+  "vendorSources": [
+    {
+      "subject": "Exact Chrome implementation, lines 384 and 397–398",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/157.0.8103.79/chrome/browser/ui/cocoa/applescript/tab_applescript.mm",
+      "rawSHA256": "417302bf02e4d8e3e707c309b7d56a6997d3adb3d9f208dd26cba9454f4ffde1"
+    },
+    {
+      "subject": "Isolated JS environments can share DOM",
+      "url": "https://developer.chrome.com/docs/extensions/develop/concepts/content-scripts#work_in_isolated_worlds"
+    },
+    {
+      "subject": "Document setting under script navigation",
+      "url": "https://html.spec.whatwg.org/multipage/browsing-the-web.html#javascript-protocol"
+    },
+    {
+      "subject": "XMLHttpRequest is exposed to window and worker contexts",
+      "url": "https://xhr.spec.whatwg.org/#xmlhttprequest"
+    },
+    {
+      "subject": "OpenAI upload support accepts timestamps, platform and an available provider request ID",
+      "url": "https://help.openai.com/en/articles/8555545-uploading-files-and-audio-to-chatgpt"
+    }
+  ],
+  "supportedExistingEvidencePath": "The archived original contains timestamped signed action and File data. Provider support can correlate an existing record if it has a provider request ID or other matching provider-side evidence. The reviewed receipts contain no provider PUT identifier, provider-confirmed full-body hash or authenticated Temporary Chat test capability. No external party was contacted.",
+  "verdict": "ORIGINAL_DOM_AND_PRODUCT_COMMAND_PROVEN; CURRENT_PROVIDER_REQUEST_REALM_AND_HANDLE_UNESTABLISHED",
+  "G4A": "HOLD",
+  "G4B": "HOLD_NO_APPROVED_EQUIVALENCE",
+  "G4C": "HOLD",
+  "release": "NOT_RELEASED",
+  "newBrowserOperationsByReviewer": 0
+}

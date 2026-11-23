@@ -1,0 +1,308 @@
+{
+  "scope": "Local file in two fresh ordinary vendor headless profiles using an inherited private pipe",
+  "status": "PASS",
+  "sources": {
+    "fixture.html": "56d877185aae5d9836b04e6a8d5953fbec949a5e9669ea4eb5a4d29745a97f3d",
+    "isolated.js": "971a4e6e159d9ef25c72d2b48174bb567791e7bdbd10b42c7dcbfd18baa07f4a",
+    "run.cjs": "cb2f9f94026d4866cb7d92ef9d02a6e5287ede0d20e136d05757a8dcf70668d7"
+  },
+  "results": [
+    {
+      "family": "Chrome",
+      "product": "Chrome/157.0.8103.79",
+      "revision": "@6dc9bc3bdaea5c35ed6d41fceab2f7a3a2227c4f",
+      "userAgentHasEdgeVersion": false,
+      "httpRequestsInOriginalTab": 0,
+      "httpUploadsInOriginalTab": 0,
+      "proof": {
+        "mainProof": {
+          "mainGlobal": true,
+          "isolatedGlobalAbsent": true,
+          "mainAttributeMatches": true,
+          "mainWrapperMatches": true,
+          "isolatedWrapperAbsent": true,
+          "mainPrototype": true,
+          "isolatedPrototypeAbsent": true,
+          "originalInstance": true,
+          "distinctSecondInstance": true,
+          "ownPrototype": true,
+          "unopened": true,
+          "methodsUnchanged": true
+        },
+        "isolatedProof": {
+          "isolatedGlobal": true,
+          "mainGlobalAbsent": true,
+          "mainReaderAbsent": true,
+          "isolatedAttributeMatches": true,
+          "mainWrapperAbsent": true,
+          "isolatedWrapperMatches": true,
+          "mainPrototypeAbsent": true,
+          "isolatedPrototype": true,
+          "originalInstance": true,
+          "distinctSecondInstance": true,
+          "ownPrototype": true,
+          "unopened": true,
+          "methodsUnchanged": true
+        },
+        "originalMethodDescriptors": {
+          "defaultMain": {
+            "fetch": {
+              "ownOnReceiver": true,
+              "accessor": false,
+              "writable": true,
+              "configurable": true,
+              "enumerable": true,
+              "referenceMatchesOwnDescriptor": true
+            },
+            "open": {
+              "ownOnReceiver": true,
+              "accessor": false,
+              "writable": true,
+              "configurable": true,
+              "enumerable": true,
+              "referenceMatchesOwnDescriptor": true
+            },
+            "send": {
+              "ownOnReceiver": true,
+              "accessor": false,
+              "writable": true,
+              "configurable": true,
+              "enumerable": true,
+              "referenceMatchesOwnDescriptor": true
+            },
+            "abort": {
+              "ownOnReceiver": true,
+              "accessor": false,
+              "writable": true,
+              "configurable": true,
+              "enumerable": true,
+              "referenceMatchesOwnDescriptor": true
+            }
+          },
+          "devToolsIsolated": {
+            "fetch": {
+              "ownOnReceiver": true,
+              "accessor": false,
+              "writable": true,
+              "configurable": true,
+              "enumerable": true,
+              "referenceMatchesOwnDescriptor": true
+            },
+            "open": {
+              "ownOnReceiver": true,
+              "accessor": false,
+              "writable": true,
+              "configurable": true,
+              "enumerable": true,
+              "referenceMatchesOwnDescriptor": true
+            },
+            "send": {
+              "ownOnReceiver": true,
+              "accessor": false,
+              "writable": true,
+              "configurable": true,
+              "enumerable": true,
+              "referenceMatchesOwnDescriptor": true
+            },
+            "abort": {
+              "ownOnReceiver": true,
+              "accessor": false,
+              "writable": true,
+              "configurable": true,
+              "enumerable": true,
+              "referenceMatchesOwnDescriptor": true
+            }
+          }
+        },
+        "staleFixturePrototypeMarker": {
+          "mainOldNonceRejected": true,
+          "isolatedMarkPreserved": true,
+          "originalMethodsPreserved": true
+        },
+        "mainTagSHA256": "70961ae28cf623f66a31d8994bafa3d411f8103052ee2454b48a66101cf235f8",
+        "isolatedTagSHA256": "95adf9770658a2394b3c5699519ed1dbebb20b2b58bddc4ea79c4635ee2e419d",
+        "newMainTagSHA256": "2033da197e1f7b7a29490dee8c84b733780fd967558e3378484eacdcacb40a5d",
+        "sameOriginalBackendDOMNode": true,
+        "attributesSharedBothWays": true,
+        "protocolEvidence": {
+          "originalMainContext": 2,
+          "originalIsolatedContext": 3,
+          "staticLinkConsoleContext": 2,
+          "mainBackendNode": 3,
+          "isolatedBackendNode": 3,
+          "reloadedBackendNode": 5,
+          "originalDocumentLoaderSHA256": "aa7e1c5ee38b8fb1244acadf9d74314c813f2277c5adbdd8e6db2bdc59f28dcb",
+          "newDocumentLoaderSHA256": "5b2c950b8285d44c386496e9fe7798fe68f8e5f5536cf67e010bd9e997b1be4a"
+        },
+        "distinctIsolatedContext": true,
+        "staticLink": {
+          "consoleEventCount": 1,
+          "executedInOriginalDefaultContext": true,
+          "originalNodeDocumentAndBothInstancesPreserved": true
+        },
+        "reload": {
+          "newNonce": true,
+          "differentBackendNode": true,
+          "oldIsolatedDOMAttributeAbsent": true,
+          "oldIsolatedContextRejected": true
+        }
+      },
+      "cleanup": {
+        "ownedChildProcessGroupExited": true,
+        "disposableProfileRemoved": true
+      }
+    },
+    {
+      "family": "Edge",
+      "product": "Edg/158.0.4370.33",
+      "revision": "@56b8f691820060b6e15f702165117f203442943f",
+      "userAgentHasEdgeVersion": true,
+      "httpRequestsInOriginalTab": 0,
+      "httpUploadsInOriginalTab": 0,
+      "proof": {
+        "mainProof": {
+          "mainGlobal": true,
+          "isolatedGlobalAbsent": true,
+          "mainAttributeMatches": true,
+          "mainWrapperMatches": true,
+          "isolatedWrapperAbsent": true,
+          "mainPrototype": true,
+          "isolatedPrototypeAbsent": true,
+          "originalInstance": true,
+          "distinctSecondInstance": true,
+          "ownPrototype": true,
+          "unopened": true,
+          "methodsUnchanged": true
+        },
+        "isolatedProof": {
+          "isolatedGlobal": true,
+          "mainGlobalAbsent": true,
+          "mainReaderAbsent": true,
+          "isolatedAttributeMatches": true,
+          "mainWrapperAbsent": true,
+          "isolatedWrapperMatches": true,
+          "mainPrototypeAbsent": true,
+          "isolatedPrototype": true,
+          "originalInstance": true,
+          "distinctSecondInstance": true,
+          "ownPrototype": true,
+          "unopened": true,
+          "methodsUnchanged": true
+        },
+        "originalMethodDescriptors": {
+          "defaultMain": {
+            "fetch": {
+              "ownOnReceiver": true,
+              "accessor": false,
+              "writable": true,
+              "configurable": true,
+              "enumerable": true,
+              "referenceMatchesOwnDescriptor": true
+            },
+            "open": {
+              "ownOnReceiver": true,
+              "accessor": false,
+              "writable": true,
+              "configurable": true,
+              "enumerable": true,
+              "referenceMatchesOwnDescriptor": true
+            },
+            "send": {
+              "ownOnReceiver": true,
+              "accessor": false,
+              "writable": true,
+              "configurable": true,
+              "enumerable": true,
+              "referenceMatchesOwnDescriptor": true
+            },
+            "abort": {
+              "ownOnReceiver": true,
+              "accessor": false,
+              "writable": true,
+              "configurable": true,
+              "enumerable": true,
+              "referenceMatchesOwnDescriptor": true
+            }
+          },
+          "devToolsIsolated": {
+            "fetch": {
+              "ownOnReceiver": true,
+              "accessor": false,
+              "writable": true,
+              "configurable": true,
+              "enumerable": true,
+              "referenceMatchesOwnDescriptor": true
+            },
+            "open": {
+              "ownOnReceiver": true,
+              "accessor": false,
+              "writable": true,
+              "configurable": true,
+              "enumerable": true,
+              "referenceMatchesOwnDescriptor": true
+            },
+            "send": {
+              "ownOnReceiver": true,
+              "accessor": false,
+              "writable": true,
+              "configurable": true,
+              "enumerable": true,
+              "referenceMatchesOwnDescriptor": true
+            },
+            "abort": {
+              "ownOnReceiver": true,
+              "accessor": false,
+              "writable": true,
+              "configurable": true,
+              "enumerable": true,
+              "referenceMatchesOwnDescriptor": true
+            }
+          }
+        },
+        "staleFixturePrototypeMarker": {
+          "mainOldNonceRejected": true,
+          "isolatedMarkPreserved": true,
+          "originalMethodsPreserved": true
+        },
+        "mainTagSHA256": "ac9e62cf0c55913ff2ae1a6dad67f27e3fe0e90d46bcfdde5a2260adda1c9390",
+        "isolatedTagSHA256": "7f09855b537bdaf68a88604126ab59a8bbe36ea0767638c00c18e8fabc10630c",
+        "newMainTagSHA256": "0c74275001b4d5e27e81a835d7c6b11766ebe3a8e75aa5f2f403cd4bb36f0183",
+        "sameOriginalBackendDOMNode": true,
+        "attributesSharedBothWays": true,
+        "protocolEvidence": {
+          "originalMainContext": 2,
+          "originalIsolatedContext": 3,
+          "staticLinkConsoleContext": 2,
+          "mainBackendNode": 3,
+          "isolatedBackendNode": 3,
+          "reloadedBackendNode": 6,
+          "originalDocumentLoaderSHA256": "499e3d3720639256b7ebf3a769b8da161224960879809ae05b6c9fe16c4bef3e",
+          "newDocumentLoaderSHA256": "433a3d915c22746e12c9326bb4e8a2eab2b8b2f2ffe46736a6aee7a24722d9dd"
+        },
+        "distinctIsolatedContext": true,
+        "staticLink": {
+          "consoleEventCount": 1,
+          "executedInOriginalDefaultContext": true,
+          "originalNodeDocumentAndBothInstancesPreserved": true
+        },
+        "reload": {
+          "newNonce": true,
+          "differentBackendNode": true,
+          "oldIsolatedDOMAttributeAbsent": true,
+          "oldIsolatedContextRejected": true
+        }
+      },
+      "cleanup": {
+        "ownedChildProcessGroupExited": true,
+        "disposableProfileRemoved": true
+      }
+    }
+  ],
+  "executionContexts": {
+    "defaultMain": "Owner-authored local file",
+    "isolated": "Chromium Page.createIsolatedWorld",
+    "macOSAppleScript": "NOT_RUN"
+  },
+  "methodLifetime": "Descriptor flags are direct reads. Methods were never assigned. Writable or configurable flags permit later changes; lasting ownership is unproven.",
+  "limits": "These observations apply to these two local documents. Website visibility, extension and Apple Event execution contexts, authenticated sessions and transport ownership were not tested."
+}
