@@ -1,0 +1,13 @@
+{
+  "atUTC": "2026-11-23T02:15:38.372720+00:00",
+  "servedVersion": "1.0.5",
+  "servedBuild": "31",
+  "homeSHA256": "70246d64e139efe5b7ab1a22f00b422bc9bc06590b8c815a430c21443ed9037a",
+  "homePublicDMGLinks": 2,
+  "feedSHA256": "da0b17e36b178ae94bcbea6e5720dcc400250350aa766fd31d4fbf8e3f476b52",
+  "verifiedWithInstalledCandidatePublicKey": true,
+  "stableArchiveSHA256": "99276347932e231adf743664a54cfc782d8e345d89221587d54b7299a5c9f315",
+  "stableArchiveBytes": 12686160,
+  "verifiedImageSource": "Previously downloaded official stable image, matched against the current immutable GitHub asset digest and signed enclosure.",
+  "releaseCandidateUpgradedOrPublished": false
+}

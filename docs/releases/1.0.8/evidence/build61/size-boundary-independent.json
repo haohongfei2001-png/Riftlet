@@ -1,0 +1,235 @@
+{
+  "adjudicatedUTC": "2026-11-23T02:32:28.077726+00:00",
+  "custody": {
+    "all37IndividualSourcesManifestSHA256": "6cfd144e05e7f1f8331f0c4cfdf124d4d77d5f9c51164a9eaf6d29057fec3307",
+    "manifestDefinition": "Ascending b4-sample-NNN.json filenames, each line consisting of lowercase SHA-256, two spaces, filename and LF, UTF-8.",
+    "privateMaterials": "Raw PNGs, SQLite, raw operation/asset/invocation identifiers, native and browser IDs, request details, source paths and browser content stay private. The comparison uses timestamped digests, scoped counts and card geometry or membership facts.",
+    "sourceArchivesSHA256": {
+      "b4-assessment.json": "2dcb5d47a36eedc142443ec4ae4366bad5c4f62df0df435ddac401aa6a78b52f",
+      "b4-network-assessment.json": "0bc1b14907272be84f74d5d6c3c34e1b332b28c2ea8f8128831f5a02b0c80aef",
+      "b4-samples.json": "1334e4129753ff8135d7eef1793fb14dd4bd61370bd109ebea7bc39a4a11963d",
+      "capture-1.json": "831a31f5ec70711a2a23ab53e32db98ff8a91dab96d5f239ede6863aa9fccac8",
+      "final-page.json": "2d539c7e8ead625219859c02515297d476514e11d9eb39fc1d80581d799837b8",
+      "native-auth-press-1.json": "dd3e629e89c1cfe4b99ff39e82b9288aca83289cb28c955f51b1099e691d00a0",
+      "observation-handoff.json": "72789e4826f27d0ac355910ab772d8ed37b911d04c303909c95dd3535e146656",
+      "source-pixels-1.json": "6d3aa4810d3fdb1a8eb41143708e231bc12923f540ffee90226f3d1dfe5617e3",
+      "terminal-attachment.sqlite": "0b8b98bbf5ec4966ea8d5efa4d6947f292195443f1770b595689f8a501d1fe2c"
+    }
+  },
+  "durability": {
+    "asset": "unknown",
+    "attempt": 1,
+    "compensations": 0,
+    "durableSTARTCount": 0,
+    "exactImageIdentityInProductObservation": false,
+    "operationPhase": "unknown",
+    "originalAttachmentAbsentRecorded": false,
+    "reselectionCount": 0,
+    "returnedInputExecution": true,
+    "returnedReceipt": "inputTriggered",
+    "safeToRetry": false
+  },
+  "gates": {
+    "G4A": {
+      "reason": "The observed operation has neither a recognized named failed member nor a durable original-card-failure receipt.",
+      "verdict": "NO_QUALIFYING_SAMPLE"
+    },
+    "G4B": {
+      "conditionsForIndependentConsideration": [
+        "A genuine provider 4xx attributed to the actual complete original File upload and request, on this signed build.",
+        "The uniquely identified original card subsequently leaves the same original document, composer and draft generation. No same-name replacement or other alteration can explain that departure.",
+        "For a successful recovery claim, preserve original full PNG and two correctly timed database snapshots, explicit informed choice, fresh binding/operation/invocation, one new input and independently durable START, original draft/attachments and zero send/submit.",
+        "Review the attributable raw evidence before conferring equivalence."
+      ],
+      "currentQualifiedHTTP4xx": false,
+      "originalAttachmentHasGone": false,
+      "priorProtocolSHA256": "872710aac9ff260222120aa86f67273997693bdeef55feca4dbd1b764924e502",
+      "reason": "The native sampler yielded no response attributable to the complete original PNG and the final scoped page read still contained its named attachment. File size and client input are insufficient.",
+      "verdict": "EQUIVALENCE_REFUSED_FOR_THIS_SAMPLE"
+    },
+    "G4C": {
+      "ordinaryRecoveryRoute": "Separately evaluated and denied on the recorded current page.",
+      "reason": "This natural size sample had no controlled interruption. The required disappearance and qualified informed recovery were not observed.",
+      "verdict": "NOT_ACCEPTED"
+    }
+  },
+  "image": {
+    "bothEventsOnOriginalFormAndInput": true,
+    "bothFileNamesCarryExactOperationUUID": true,
+    "dimensions": [
+      2880,
+      2816
+    ],
+    "originalByteCount": 23233638,
+    "privateAppMediaFullBytesMatch": true,
+    "sha256": "ac2ae9502b81ac77a4f6883ca1eaef7c5f421a9d7e863a0a150dabc6fbaaa500",
+    "stagedSeedReused": true,
+    "systemScreenshotMarkerVerified": true,
+    "websiteFileInputAndChangeBothHashIdentical": true,
+    "websitePreview": {
+      "altMatchesFullOperationFilename": true,
+      "decodedDimensions": [
+        2048,
+        2002
+      ],
+      "inOriginalForm": true,
+      "independentPreviewEncodedBytesOrPixelsVerified": false,
+      "mimeFromDataURL": "image/png",
+      "visible": true
+    }
+  },
+  "independentFreshSQLite": {
+    "archives": [
+      {
+        "beganUTC": "2026-11-23T02:26:45.777208+00:00",
+        "byteCount": 118784,
+        "completedUTC": "2026-11-23T02:26:45.838589+00:00",
+        "counts": {
+          "assets": 1,
+          "attachment_reselections": 0,
+          "compensations": 0,
+          "handled_attachments": 0,
+          "operations": 1,
+          "upload_starts": 0
+        },
+        "foreignKeyViolations": 0,
+        "purpose": "BEFORE_INDEPENDENT_HOLD",
+        "sha256": "0b8b98bbf5ec4966ea8d5efa4d6947f292195443f1770b595689f8a501d1fe2c",
+        "sqliteIntegrity": "ok"
+      },
+      {
+        "beganUTC": "2026-11-23T02:32:28.028158+00:00",
+        "byteCount": 118784,
+        "completedUTC": "2026-11-23T02:32:28.042217+00:00",
+        "counts": {
+          "assets": 1,
+          "attachment_reselections": 0,
+          "compensations": 0,
+          "handled_attachments": 0,
+          "operations": 1,
+          "upload_starts": 0
+        },
+        "foreignKeyViolations": 0,
+        "purpose": "AFTER_INDEPENDENT_HOLD_WITHOUT_RESELECTION",
+        "sha256": "0b8b98bbf5ec4966ea8d5efa4d6947f292195443f1770b595689f8a501d1fe2c",
+        "sqliteIntegrity": "ok"
+      }
+    ],
+    "copyMethod": "SQLite online backup API with committed transactions and WAL visibility",
+    "equalOriginalAssetOperationDispatchAndObservationAcrossArchivedTerminalAndBothNewCopies": true,
+    "scope": "First backup taken before the independent disposition, second after issuing the HOLD. Both precede any authorized new input. They document unchanged history. A future successful choice would require its own before/after custody.",
+    "sourceOpenedReadOnly": true
+  },
+  "observedWindow": {
+    "finalPageArchiveUTC": "2026-11-23T02:22:55.772438+00:00",
+    "firstArchiveUTC": "2026-11-23T02:22:25.306533+00:00",
+    "firstFileInputReceiptPageClockMS": 16263,
+    "firstNamedDecodedPreviewSample": 34,
+    "firstNamedMemberSample": 10,
+    "lastArchiveUTC": "2026-11-23T02:22:54.857054+00:00",
+    "lastDistinctDOMShapePageClockMS": 36613,
+    "monotonicDurationSeconds": 29.549622374994215,
+    "sampleCount": 37
+  },
+  "origin": {
+    "attempt": 1,
+    "birthBoundVendorSessionWindowTabEqualAtCreationAdmissionOriginalClickAndHandoff": true,
+    "coldClickNativePageRegistryIDsWereUnset": true,
+    "currentProductRegistryDraftGenerationReadByReviewer": false,
+    "generatedOperationIdentifiersLowercaseUTF8SHA256": {
+      "assetID": "5da767ebb3c974090dee06c6845001d65d7e6632e583b2b0afd1b00f5980758a",
+      "invocationID": "3d990e4bf30f20a0d078cd5495d637ace5556a1996003bae094ff94677bd72b2",
+      "operationID": "b1cf861829148276153c336b69bcc42667d965eb4bbb841d339a16991e126e99"
+    },
+    "nativePressAndEnrolledSiteEntryTimeMatched": true,
+    "nativeSignatureValidAtOriginalClick": true,
+    "originalDocumentAndEditorAll37AndFinal": true,
+    "originalIdentifiersSHA256UTF8": {
+      "clickBindingID": "2d9c8089759e1b5a0049f2c37d7b8a53dff1a39ea712fe46b0240c4a7ebf0ed3",
+      "composerID": "51067c4eb1ddda77db51bc7a89bb75eb6ef398e803b5b9ce4b6f8084d0c8ad5c",
+      "documentID": "9bc462c6aa0f10f413ca1cc6cd005da7bbc81333335e1c9fb7b8d2e36b096a17",
+      "draftGeneration": "0b3be9b9ce8012abeb0466fcbbe005d6f71e087ac5278e100eba11130f25d2f7"
+    },
+    "persistedOperationDispatchReceiptObservationTargetAndIdentityAgree": true
+  },
+  "originalRecoveryDecision": {
+    "automaticReplayPermitted": false,
+    "duplicateRiskAcknowledgementOrHistorySelectionPerformed": false,
+    "ordinaryInformedNewSelectionAdmissible": false,
+    "reason": "The original early tile was replaced. A visible, decoded image with the same complete operation-specific name remains in the original form alongside a matching Remove control. The required departure and return to the original membership are unproven. The original observation records attachmentAbsent=false.",
+    "reconsiderOnlyOnNewEvidence": "An independently witnessed natural disappearance on the same original, a retained product witness and complete unchanged original membership, an affirmative current product preflight and a separate informed new AppKit choice. The ordinary product path rechecks immediately before the setter. Removal, reopening or replay to create this state was never authorized here.",
+    "result": "DENIED_ON_CURRENT_EVIDENCE",
+    "successorOperationOrInputPerformed": false
+  },
+  "releaseAuthorized": false,
+  "reviewer": {
+    "independentOfSiteOperator": true,
+    "method": "Offline inspection of original site receipts plus independent SQLite online backups through a read-only connection. No GUI input during this review.",
+    "role": "independent nonauthor source and evidence reviewer"
+  },
+  "schemaVersion": 1,
+  "scopeEvidence": {
+    "HTTPStatusAttributedToCompleteOriginalPNG": null,
+    "afterLastArchivedPageRead": "No extrapolation of page state. A later natural transition needs a new read on this original.",
+    "categoryOfInputProof": "Original form input and change returned the full original File. Production durable receipt is inputTriggered.",
+    "clearReturnToOriginalMembership": false,
+    "distinctShapes": [
+      {
+        "newImages": 0,
+        "pageClockMS": 16263,
+        "removeControlContainingCompleteOperationFileName": 0
+      },
+      {
+        "newImages": 0,
+        "pageClockMS": 16295,
+        "removeControlContainingCompleteOperationFileName": 1
+      },
+      {
+        "newImages": 1,
+        "pageClockMS": 35858,
+        "removeControlContainingCompleteOperationFileName": 1
+      },
+      {
+        "newImages": 1,
+        "pageClockMS": 36613,
+        "removeControlContainingCompleteOperationFileName": 1
+      }
+    ],
+    "earlyProgressTileSameAsFinal": false,
+    "earlyRemoveButtonSurvived": false,
+    "finalRemoveControlContainsFullOperationFilename": true,
+    "finalVisibleExactNamedImages": 1,
+    "numberOfRemovedEarlyNodesWitnessed": 2,
+    "originalApplicationCardAndMembershipBaseline": {
+      "exactPriorMembershipAtThisReview": null,
+      "qaImagesAtBaseline": 0,
+      "rememberedQACardsAtBaseline": 0
+    },
+    "originalCardStatusAtLastSealedPageRead": "EARLY_PROGRESS_NODES_REPLACED__SAME_OPERATION_NAMED_VISIBLE_ATTACHMENT_STILL_PRESENT",
+    "productionNamedFailureObserved": false,
+    "qaCancelledOriginalRequest": 0,
+    "scopedWatcherRetainedNamedFailures": 0,
+    "serverUltimateOutcome": "UNKNOWN",
+    "textAndSelectionPreservedOnAllArchivedReads": true,
+    "watcherCountsAtFinalRead": {
+      "fileChange": 1,
+      "fileInput": 1,
+      "formSubmit": 0,
+      "sendButtonClicks": 0
+    }
+  },
+  "signedCandidate": {
+    "build": "61",
+    "resourceSHA256": "2f6e2f6e1d80184813f6f967cc340638b96082abd5bd98c2f9e97b0597f982f2",
+    "sha256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+    "source": "49b9204974088c1983cda469910d9a78d8f4c43b",
+    "version": "1.0.8"
+  },
+  "siteCase": "One Edge signed-in dedicated Temporary Chat. Natural oversized PNG.",
+  "sourceAnchors": {
+    "core": "Sources/RiftletCore/TransferCoordinator.swift L371-384",
+    "product": "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js L1808-1833, L1838-1854, L2093, L2113, L2229",
+    "protocol": "docs/releases/1.0.8/G4_PROTOCOL_AND_STATE_MACHINE.md L19-26"
+  },
+  "type": "signed61-independent-natural-B4-original-UNKNOWN-adjudication"
+}

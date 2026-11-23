@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "reviewer": "riftlet_108_60_independent_full_range_nonauthor_source_reviewer",
+  "type": "Independent Chrome source-to-File-to-preview color disposition",
+  "signedSource": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "dmgSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+  "reviewedUTC": "2026-11-23T02:15:28.344181+00:00",
+  "result": "PASS_ORIGINAL_FILE_AND_RENDERED_PREVIEW_FIDELITY",
+  "releaseAuthorized": false,
+  "archivedWebsiteFileInputAndChangeFullSHA256": "18e22ef89d9b4a504a546d626814268a493663a3d173e537b8c6de544991a199",
+  "archivedNativeOriginalSHA256": "18e22ef89d9b4a504a546d626814268a493663a3d173e537b8c6de544991a199",
+  "archivedPreviewEncodedSHA256": "18e22ef89d9b4a504a546d626814268a493663a3d173e537b8c6de544991a199",
+  "imageMetadata": {
+    "iCCPProfileSHA256": "828420e2e58094be9bee67ed15dceea475d5df258666dd12439c5cda6d3aae65",
+    "cICPBytesDecimal": [
+      12,
+      13,
+      0,
+      1
+    ],
+    "iCCPProfileDescription": "Display",
+    "cICPMeaning": "full-range Display-P3 primaries and sRGB transfer function",
+    "PNGSpecification": "https://www.w3.org/TR/png-3/#cICP-chunk",
+    "sourceFormat": "PNG; 8-bit RGBA; 330 by 196; all 64,680 pixels fully opaque",
+    "previewFormat": "PNG; preview encoded SHA-256 equals original PNG. No WebP re-encoding was observed."
+  },
+  "methods": {
+    "watcherSourceSHA256": "b51ce9a3b13d8cdc82785fc0e03ac0a911e6605d560cafcf70003b3fdb0677ef",
+    "siteFile": "The original input File is hashed via arrayBuffer. createImageBitmap(File) is drawn into a default 2D OffscreenCanvas and the full getImageData RGBA buffer is hashed.",
+    "sitePreview": "The existing scoped card image is decoded via createImageBitmap(HTMLImageElement) and drawn to the same Canvas helper. The watcher separately hashes the bytes of the actual data/blob preview URL.",
+    "native": "Independent byte/control-file CRC check and PNG scanline decoding, then system ImageIO renders the source into an explicit sRGB big-endian premultiplied-last RGBA bitmap. Opacity is verified before comparing.",
+    "offline": "A new isolated headless Chrome opened only a local archived PNG fixture. No product, personal session, live site or upload was exercised. The File and image elements were decoded separately. The page hash attested by the real site was reproduced."
+  },
+  "offlineComparisonSHA256": "1e8afe85c9686e949396ba0612b58f9a672a95c78e627c1cff890594d861585c",
+  "offlineChromeVersion": "157.0.8103.79",
+  "offlineComparisons": [
+    {
+      "index": 6,
+      "width": 330,
+      "height": 196,
+      "canvasColorSpace": "srgb",
+      "nativeColorSyncRGBA": "06258c3737cd982578f8380db5e86d9127d07682284a454e3cf09673b4ba25ca",
+      "actualArchivedBrowserRGBA": "06258c3737cd982578f8380db5e86d9127d07682284a454e3cf09673b4ba25ca",
+      "offlineFileRGBA": "06258c3737cd982578f8380db5e86d9127d07682284a454e3cf09673b4ba25ca",
+      "offlineImagePreviewRGBA": "06258c3737cd982578f8380db5e86d9127d07682284a454e3cf09673b4ba25ca",
+      "offlineFileEqualsArchivedWebsite": true,
+      "offlinePreviewEqualsOfflineFile": true,
+      "differingPixelCountVersusColorSync": 0,
+      "changedChannelsRGBA": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "maxAbsoluteChannelDifferenceRGBA": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "opaquePixelsInBoth": 64680,
+      "fileAndPreviewEncodedSHA256": "ffb341b0f75f299ee40749730d0bfffb164a9e94b497e473ab46ee2e695f3e05"
+    },
+    {
+      "index": 7,
+      "width": 330,
+      "height": 196,
+      "canvasColorSpace": "srgb",
+      "nativeColorSyncRGBA": "9095bc585f34f022fc5dcf23cfe006f34ab8bf2cf07044bbd8a3d9ade3ed2a28",
+      "actualArchivedBrowserRGBA": "a7f1bc7980d79e0eb481d49c73624f4f5e21d21323f750d8e2875ba4b12e38e6",
+      "offlineFileRGBA": "a7f1bc7980d79e0eb481d49c73624f4f5e21d21323f750d8e2875ba4b12e38e6",
+      "offlineImagePreviewRGBA": "a7f1bc7980d79e0eb481d49c73624f4f5e21d21323f750d8e2875ba4b12e38e6",
+      "offlineFileEqualsArchivedWebsite": true,
+      "offlinePreviewEqualsOfflineFile": true,
+      "differingPixelCountVersusColorSync": 64680,
+      "changedChannelsRGBA": [
+        0,
+        0,
+        64680,
+        0
+      ],
+      "maxAbsoluteChannelDifferenceRGBA": [
+        0,
+        0,
+        1,
+        0
+      ],
+      "opaquePixelsInBoth": 64680,
+      "fileAndPreviewEncodedSHA256": "18e22ef89d9b4a504a546d626814268a493663a3d173e537b8c6de544991a199"
+    }
+  ],
+  "decision": "The original byte stream received by the signed-in website and its preview were identical, and the site File and preview rendered to identical pixels. The independent offline comparison reproduced the one-level blue-channel difference between native and browser color conversion on Chrome image 7. Its 64,680 pixels remain fully opaque and the other three channels agree. Chrome image 6 is a zero-difference control. The archived evidence establishes the conversion-path difference; attributing its internal implementation to a particular rounding routine is beyond the measurements."
+}

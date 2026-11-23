@@ -2,11 +2,13 @@
 
 **RIFTLET 1.0.8 — NOT RELEASED**
 
-当前候选是 **1.0.8（61）**。独立审查重现了 build 60 从截图仓库返回同一草稿时的故障，显式重选会在文件输入前被拒。build 61 修复了这个路径，完成同源双架构 CI、签名公证、独立安装及源码审查。07:25 的非作者最终发行裁决为 **NOT RELEASED**。09:43 已通过普通 Chrome 原窗的实际命中核验，并完成本包 G1 的七张实站输入。原先的 Edge 专窗已从同一进程消失。公开稳定版本为 **1.0.5（31）**。
+当前候选是 **1.0.8（61）**。独立审查重现了 build 60 从截图仓库返回同一草稿时的故障，显式重选会在文件输入前被拒。build 61 修复了这个路径，完成同源双架构 CI、签名公证、独立安装及源码审查。07:25 的非作者最终发行裁决为 **NOT RELEASED**。普通 Chrome 和 Edge 各完成本包七张实站输入。独立复核确认两者均通过冷暖首图及三组快速双图。公开稳定版本为 **1.0.5（31）**。
 
 09:40，将已绑定的普通 Chrome 专窗放入当前显示器可见区域。AXRaise 和 Apple Events 激活均返回 0，原文档、编辑器及登录态有效。09:43，WindowServer 报告唯一原窗在屏上；系统截图组件的高层矩形覆盖屏幕，系统实际命中在中心和四个象限均指向原 Chrome 窗。旧 Edge 窗在两次同出生进程签名清单中均已消失。详细逐窗记录保存在私有验收档案。[窗口恢复与证据摘要](evidence/build61/original-window-recovery.json) · [逐窗元数据](evidence/build61/per-window-inventory.json)
 
 非作者从两份原始归档核验十四次 AppKit 输入、网页事件、原 PNG、既有卡及独立 START。Chrome 第七张的上传文件和预览编码字节与原 PNG 完全相同，浏览器对两者的全部 RGBA 像素核对一致。离线复验定位到同一 Display-P3 图片在 ColorSync 与 Chrome 下的 B 通道相差一个色阶，R、G、A 一致。[十四图独立复核](evidence/build61/independent-fourteen-uploads.json) · [色彩复验](evidence/build61/color-decoder-comparison.json) · [逐图时序](evidence/build61/rapid-event-timelines.json)
+
+同一签名候选随后在另一专用 Edge 原稿输入了 23,233,638 字节的真实系统截图。完整网站 File 的 SHA-256 与原 PNG 一致，观察到一次 input 和 change。SQLite 保留一个 UNKNOWN，START 为零。该草稿仍显示同名 2048×2002 预览，尚无具名失败或可归属的上游 HTTP 状态。非作者确认早期进度节点已更换，原附件的同名预览和移除按钮仍在。02:26 和 02:32 UTC 的两次一致性备份字节相同，均早于任何恢复输入。[实站边界与原操作](evidence/build61/size-boundary-unknown.json) · [独立裁决](evidence/build61/size-boundary-independent.json)
 
 ## 2026-11-23 · Build 61
 
@@ -20,9 +22,9 @@
 | G4-A / G4-B / G4-C | G4-C 的普通 Edge 原图有一次 input、一次 change 及一条持久 START。这个专窗的普通 Apple Events 能识别原文档和编辑器，但缺少网站上传请求归属证明；实际 timeout 和 abort 均为零，原卡在场。故障后 UNKNOWN 和知情重选仍为 **NOT_RUN**。G4-A 无具名原卡错误，G4-B 无原 PNG 对应的上游 4xx。[G4-C 原始结果与留存记录](evidence/build61/g4c-original-live.json) · [G4-B 非作者裁决](evidence/build61/g4b-independent-conditions.json) |
 | 官网与应用内更新 | 现有官网两个下载入口、stable feed 和已发布 DMG 的签名均指向 1.0.5（31）。独立安装的 build 61 使用相同的更新源与公钥。发布后的公开下载及 31 → 61 应用内升级待发行后核验。 |
 
-截至北京时间 07:23:52，独立复核共查得 14 个调度周期、28 次受保护桌面读数、0 次准入和 0 次业务投递。实站文件输入、发送及表单提交均为零。当前交互执行者已取得两款浏览器的 Apple Events 和系统 Accessibility 权限。最近读数为当前用户已解锁、显示器已醒，前台窗口归属 `com.apple.UserNotificationCenter`，`AXSubrole=AXSystemDialog`、`AXModal=false`。Chrome、Edge 在当前屏幕上的普通窗口数均为零。允许读取的元数据不足以判定此窗用途。唯一 GUI 执行者核对签名包摘要并使用跨候选的独占锁，按 2–5 分钟退避等待重新准入。当前没有需要用户执行的步骤。
+截至北京时间 07:23:52 的历史快照，独立复核共查得 14 个调度周期、28 次受保护桌面读数、0 次准入和 0 次业务投递。实站文件输入、发送及表单提交均为零。当前交互执行者已取得两款浏览器的 Apple Events 和系统 Accessibility 权限。最近读数为当前用户已解锁、显示器已醒，前台窗口归属 `com.apple.UserNotificationCenter`，`AXSubrole=AXSystemDialog`、`AXModal=false`。Chrome、Edge 在当前屏幕上的普通窗口数均为零。允许读取的元数据不足以判定此窗用途。唯一 GUI 执行者核对签名包摘要并使用跨候选的独占锁，按 2–5 分钟退避等待重新准入。此后已换成独立浏览器调度，两款浏览器分别完成上述实站投递。
 
-[双架构 CI 原件摘要](evidence/build61/dual-architecture-ci.json) · [受控网页回归](evidence/build61/local-regression.json) · [签名公证](evidence/build61/signed-candidate.json) · [独立安装](evidence/build61/independent-install.json) · [同一签名文件的双切片执行](evidence/build61/signed-slice-execution.json) · [三份历史库恢复](evidence/build61/archived-recovery.json) · [非作者源码复核原文](evidence/build61/mainline-nonauthor-review.json) · [原生桌面元数据](evidence/build61/gui-execution-checkpoint.json) · [监督器连续性](evidence/build61/gui-supervisor-continuity.json) · [正式 CI 完成时的实站计数](evidence/build61/site-at-formal-ci.json) · [正式分支和稳定更新源核对](evidence/build61/release-preparation.json) · [正式探针修复](evidence/build61/formal-ownership-probe.json) · [后继源码独立复核](evidence/build61/formal-successor-source-review.json) · [06:57 独立预审](evidence/build61/independent-hold-first-checks.json) · [正式预合并五项 CI](evidence/build61/formal-merge-ci.json) · [07:25 非作者最终发行裁决](evidence/build61/independent-final-gate.json) · [正式 Draft PR #125](https://github.com/haohongfei2001-png/Riftlet/pull/125)
+[双架构 CI 原件摘要](evidence/build61/dual-architecture-ci.json) · [受控网页回归](evidence/build61/local-regression.json) · [签名公证](evidence/build61/signed-candidate.json) · [独立安装](evidence/build61/independent-install.json) · [同一签名文件的双切片执行](evidence/build61/signed-slice-execution.json) · [三份历史库恢复](evidence/build61/archived-recovery.json) · [非作者源码复核原文](evidence/build61/mainline-nonauthor-review.json) · [原生桌面元数据](evidence/build61/gui-execution-checkpoint.json) · [监督器连续性](evidence/build61/gui-supervisor-continuity.json) · [正式 CI 完成时的实站计数](evidence/build61/site-at-formal-ci.json) · [正式分支和稳定更新源核对](evidence/build61/release-preparation.json) · [实站期间公开下载与签名](evidence/build61/public-channel-during-acceptance.json) · [正式探针修复](evidence/build61/formal-ownership-probe.json) · [后继源码独立复核](evidence/build61/formal-successor-source-review.json) · [06:57 独立预审](evidence/build61/independent-hold-first-checks.json) · [正式预合并五项 CI](evidence/build61/formal-merge-ci.json) · [07:25 非作者最终发行裁决](evidence/build61/independent-final-gate.json) · [正式 Draft PR #125](https://github.com/haohongfei2001-png/Riftlet/pull/125)
 
 ## 2026-11-23 · Build 60
 
