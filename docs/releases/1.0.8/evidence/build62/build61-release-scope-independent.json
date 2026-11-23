@@ -1,0 +1,152 @@
+{
+  "reviewer": {
+    "role": "independent non-author source and product evidence reviewer",
+    "contributedCandidateCode": false
+  },
+  "verifiedUTC": "2026-11-23T08:58:03.682966+00:00",
+  "source": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "tree": "70ba40e23a3afa3561525b1943cb0e5ebc825de5",
+  "sourcesTree": "1aae0943f6ce71a9bfa49c86ba95589032c1de63",
+  "version": "1.0.8",
+  "build": 61,
+  "result": "BUILD61_NOT_RELEASABLE_UNDER_REVISED_PRODUCT_CONTRACT",
+  "p0": [
+    {
+      "topic": "First use",
+      "result": "SOURCE_AND_EXISTING_NATIVE_COVERAGE",
+      "scope": "First-use preferences, localized onboarding and launch wiring explain native screenshot → current Chrome/Edge draft and manual send. Existing package/UI receipts are used; this audit did not rerun a new first-launch GUI.",
+      "evidence": "RiftletMain.swift:259; FirstUsePreferences.swift:12; OnboardingCopy.swift:35,64; documented quality/1.0.5 UI evidence"
+    },
+    {
+      "topic": "Permissions",
+      "result": "SOURCE_AND_SIGNED_BROWSER_COVERAGE",
+      "scope": "Passive permission inspection is distinct from user-triggered requests and uses the browser's signed process identity. The original-target check does not inherit permissions from the foreground browser.",
+      "evidence": "RiftletMain.swift:842,846,878,889,1169; ChromeAppleEventsExecutor.swift:267; independent G1/G2 sites"
+    },
+    {
+      "topic": "Chrome ChatGPT",
+      "result": "BUILD61_REAL_SITE_PASS",
+      "scope": "Single and three rapid pairs, then selected-draft evidence on the signed build. Seven original files/STARTs, seven input/change, zero sends in the first sequence. Nonempty text, selection, and prior attachment preserved in the separate selected-draft evidence.",
+      "evidence": "release-gate-after-both-selections.json; OnboardingCopy.swift:35,64"
+    },
+    {
+      "topic": "Edge ChatGPT",
+      "result": "BUILD61_REAL_SITE_PASS",
+      "scope": "Single and three rapid pairs, then selected-draft evidence on the signed build. Seven original files/STARTs, seven input/change, zero sends in the first sequence. Other browsers, AI providers and desktop clients have no 1.0.8 release claim.",
+      "evidence": "release-gate-after-both-selections.json; ProductStatus.swift:35,50"
+    },
+    {
+      "topic": "History and originals",
+      "result": "PARTIAL",
+      "scope": "Local history and original-byte preview/export work from the asset. Returning to an unchanged original tab can fail after writable-pin expiry.",
+      "evidence": "RiftHistoryController.swift:575,705,906,956; build61-product-audit.json"
+    },
+    {
+      "topic": "Uncertain-result recovery",
+      "result": "CHANGES_REQUESTED",
+      "scope": "Informed new operation, original identity and duplicate warning exist on limited inputs. Uncertain existing-card results, genuine neutral late observations, return lifetime and attributable failures need repair and native A–H acceptance.",
+      "evidence": "build61-product-audit.json; historical-databases-independent.json"
+    },
+    {
+      "topic": "Common screenshot formats and fidelity",
+      "result": "SCOPE_VERIFIED",
+      "scope": "Collects single-frame PNG, JPEG, HEIC, HEIF and TIFF. Published limits are 128 MiB, 160 million pixels and 50,000 per side. Ordinary PNG/JPEG pass through, and other supported formats can use full-resolution PNG. Signed site receipts here establish genuine PNG handling. No release claim about HDR equivalence or all five formats on both sites.",
+      "evidence": "ProductStatus.swift:35,36,50; original PNG hashes in evidence"
+    },
+    {
+      "topic": "Retention and cleanup",
+      "result": "CHANGES_REQUESTED",
+      "scope": "Three historical unstarted UNKNOWNs and current B4 remain protected, and ordinary completed handoff is distinguishable. The specific later neutral UNKNOWN following a START was cleanable without explicit treatment.",
+      "evidence": "QueueStore.swift:51,64,71,88; build61-product-audit.json"
+    },
+    {
+      "topic": "Feedback and privacy",
+      "result": "EXISTING_SOURCE_AND_HISTORICAL_DELIVERY",
+      "scope": "Feedback owns a distinct SQLite/Keychain/HTTPS path, separate from screenshot attachments and with isolated review transport disabled. Existing private delivery evidence is distinct from guaranteeing delivery of every report. No actual feedback or data was sent during this audit.",
+      "evidence": "FeedbackHost.swift:19,28,31; engineering/evidence/2026-10-29-feedback-cloud/README.md"
+    },
+    {
+      "topic": "Signing, notarization and updates",
+      "result": "PRIVATE_BUILD61_PASS",
+      "scope": "Deep-strict app and strict DMG signatures were checked during this audit. The archived same-exact-file installation record covers stapling, Gatekeeper, and both architectures. Sparkle lives in the ordinary app. Publishing its signed stable appcast entry and the release DMG is separate.",
+      "evidence": "private installation and DMG receipts; ApplicationUpdater.swift:30,48; Resources/Info.plist"
+    },
+    {
+      "topic": "Install and upgrade",
+      "result": "PRIVATE_INSTALL_PASS_PUBLIC_UPGRADE_PENDING",
+      "scope": "The same exact artifact was privately installed from its read-only mounted DMG. The current stable 1.0.5 (31) → final public 1.0.8 in-app upgrade, publicly downloaded final DMG identity, preservation of user history/settings/UNKNOWN and release metadata remain distinct post-publish checks.",
+      "evidence": "private independent-install/installation.json; docs/releases/1.0.5/PRODUCT_DIRECTION.md"
+    }
+  ],
+  "existingActualSiteReceipt": {
+    "file": "release-gate-after-both-selections.json",
+    "sha256": "b3a62546f84c9564fd41186c871a0607c4bcabc4ca867df19acd854926156ca4"
+  },
+  "actualRapidPairMS": {
+    "chrome": [
+      581.676,
+      569.889,
+      619.928
+    ],
+    "edge": [
+      551.605,
+      568.999,
+      549.887
+    ]
+  },
+  "package": {
+    "dmgSHA256": "31df54cdc036dd67da3369eef9b9a4d130db67540fe5973920834b6c6a65d92e",
+    "bytes": 14133998,
+    "executableSHA256": "32406ca202fa8eb659abf96930a30ce3c246bb804acfaeeccbc10eaf2fc09387",
+    "strictDMGCodesign": 0,
+    "deepStrictAppCodesign": 0,
+    "releaseMetadataBuild": "61",
+    "architectures": [
+      "arm64",
+      "x86_64"
+    ],
+    "teamID": "ZB9D4T66QB",
+    "notaryStatus": "Accepted",
+    "independentInstall": {
+      "file": "installation.json",
+      "sha256": "dff5713dd9c9bec8826cd90bea4cd73b91be11ad9a180d0929600733db4013b9"
+    },
+    "dmgReceipt": {
+      "file": "dmg-receipt.json",
+      "sha256": "8b64e0daaadb854ea3fa82f6bb9663bc195b54e42b6a7402f3388fa0bf41df9c"
+    },
+    "packagedAppResourceScripts": [
+      {
+        "name": "chatgpt-web-20261027.js",
+        "sha256": "2f6e2f6e1d80184813f6f967cc340638b96082abd5bd98c2f9e97b0597f982f2"
+      },
+      {
+        "name": "legacy-web-observe.js",
+        "sha256": "9a60f99e806289213e9df8bd9812337ebf58e334cd996679ef3a5de394805848"
+      }
+    ],
+    "knownInternalEntryPoints": [
+      "--self-check",
+      "--system-screenshot-candidate-self-check",
+      "--settings-review"
+    ],
+    "testOnlyRepositoryRunnersEmbedded": false,
+    "XCTestBundlesEmbedded": false
+  },
+  "formalAtBaseline": {
+    "main": "9fd8ad15fca043915069904113e5fb67d82b4948",
+    "#125": {
+      "state": "open draft",
+      "head": "881589ad19f5e0205846aa265e64df89f2a0b498",
+      "fiveChecks": "SUCCESS"
+    },
+    "#124": {
+      "state": "open draft",
+      "head": "d8302f603eea00e68cd4c70dd95c43b19c7a0cce"
+    },
+    "stable": "1.0.5 (31)",
+    "mainProtectedAtRead": false,
+    "applicableRulesetsListed": 0
+  },
+  "successorRequirement": "Actual product changes require build 62 or later with its own Swift/Web, actual product UI recovery, historical DBs, Chrome/Edge real sites, dual-native CI, nonauthor source admission, signed/notarized/stapled independent install and upgrade verification."
+}

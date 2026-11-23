@@ -1,0 +1,314 @@
+{
+  "reviewer": {
+    "role": "independent non-author source and product evidence reviewer",
+    "contributedCandidateCode": false
+  },
+  "verifiedUTC": "2026-11-23T08:58:03.682966+00:00",
+  "source": "49b9204974088c1983cda469910d9a78d8f4c43b",
+  "tree": "70ba40e23a3afa3561525b1943cb0e5ebc825de5",
+  "sourcesTree": "1aae0943f6ce71a9bfa49c86ba95589032c1de63",
+  "version": "1.0.8",
+  "build": 61,
+  "result": "CHANGES_REQUESTED",
+  "scope": "Re-evaluation of the frozen predecessor against the user's latest product contract, not a GitHub review event.",
+  "contracts": [
+    {
+      "path": "docs/PRODUCT.md",
+      "sha256": "391c67cc0f92c65c7b1ad80cf9cefd8a73aeca8e673db01229f9d67d5689b1e2"
+    },
+    {
+      "path": "docs/RELEASE_UX_REQUIREMENTS_2026-10-27.md",
+      "sha256": "a12d115ceff3f91bdcebdf067c0374c8a56f81c7ca68827460148918c7fe6994"
+    },
+    {
+      "path": "docs/releases/1.0.5/PRODUCT_DIRECTION.md",
+      "sha256": "b59a7a8b39edc395619441dbcfb3c3946cc390298a6a5f5e895bc7b33119fb56"
+    },
+    {
+      "path": "docs/quality/DECISIONS.md",
+      "sha256": "e6f923b44a24be70f25eb1ba96c9e7460bf953fee3141c8648f16ac20bba0e2f"
+    },
+    {
+      "path": "docs/quality/ISSUE_REGISTER.md",
+      "sha256": "5e50a60aabad536b1208ed779664534fc8886a95ac0c5ca43f0a72cdb76c1f8c"
+    },
+    {
+      "path": "docs/MAINLINE_GOVERNANCE.md",
+      "sha256": "11e2ce3634e69f3218015476992e84fa07850acde7f7df6662000bde02259b1a"
+    }
+  ],
+  "governingScope": "Accepted ordinary START is a handoff, never evidence of provider completion or message send. Recovery testing is the product's own UI and durable state machine. Forced provider errors, internal payloads and G4-A/B/C are retired as gates.",
+  "questions": [
+    {
+      "number": 1,
+      "topic": "Original PNG retention",
+      "result": "CHANGES_REQUESTED",
+      "observation": "Unstarted unconfirmed B4 is protected and visible. An actual normal START remains handed off under ordinary policy. Starting from an actual normal SQLite clone, a subsequent explicit neutral unknown left the private original eligible for cleanup before user handling. Both history and cleanup must protect this third state.",
+      "evidence": "QueueStore.swift:51,64,71,80,88; HistoryAttachmentState.swift:46,52"
+    },
+    {
+      "number": 2,
+      "topic": "History entry",
+      "result": "PARTIAL",
+      "observation": "The library supports needs-attention filters, view original, return, reattach and user handling. A neutral late unknown after a START is misclassified, affecting discoverability. The existing confirmation cannot disclose a present card reported by the page.",
+      "evidence": "HistoryPresentation.swift:52,56,60,142; RiftHistoryController.swift:515,705,921,940"
+    },
+    {
+      "number": 3,
+      "topic": "Return to original draft",
+      "result": "CHANGES_REQUESTED",
+      "observation": "History selects and revalidates the original browser process, window/tab and page program. The ten-minute writable pin teardown also deletes its read-only draft anchor, so a continuously living draft becomes unreachable. The last native activation Boolean alone can report success before the chosen window/tab is foreground. Opening the saved conversation URL is an explicitly separate navigation/read action.",
+      "evidence": "ChromeAppleEventsExecutor.swift:267,295,307,311,879; chatgpt-web-20261027.js:419,2028; RiftHistoryController.swift:956,969"
+    },
+    {
+      "number": 4,
+      "topic": "Original Document and Composer",
+      "result": "SUPPORTED_WITH_LIFETIME_DEFECT",
+      "observation": "The new click must match the exact prior receiving browser incarnation, window, tab, Document, Composer and draftGeneration, carry a distinct clickBinding and pass independent live page checks again at the setter boundary. Reload, another draft or a lost continuity anchor safely denies writing. The ten-minute read lifetime also denies legitimate returns.",
+      "evidence": "TransferCoordinator.swift:12,25,356,574; chatgpt-web-20261027.js:1839,2019,2102,2200"
+    },
+    {
+      "number": 5,
+      "topic": "Identify original attachment",
+      "result": "CHANGES_REQUESTED",
+      "observation": "The page tracks its originating named member and qualifying failure in a bound region. A healthy still-present original and never-observed original are both refused even after the user knowingly accepts duplicate risk. The UI receives only a durable eligibility Boolean, so cannot distinguish present, absent, and uncertain before offering recovery.",
+      "evidence": "RiftletMain.swift:662; RiftHistoryController.swift:927,943; chatgpt-web-20261027.js:1821,1828,1854"
+    },
+    {
+      "number": 6,
+      "topic": "A new operation after confirmation",
+      "result": "PASS_ON_ADMITTED_CASE",
+      "observation": "The confirmation stages the original item. A new actual desktop press with a fresh revision and destination creates a fresh transfer operation and dispatch invocation on the admitted route. Cancel before the risk confirmation creates neither. Rows created by a subsequently cancelled prepared click are distinct from cancelling the sheet.",
+      "evidence": "RiftHistoryController.swift:940,950; RiftletMain.swift:463,483,1682; TransferCoordinator.swift:213,355; QueueStore.swift:444"
+    },
+    {
+      "number": 7,
+      "topic": "Predecessor/successor independence",
+      "result": "PASS",
+      "observation": "A new operation, invocation and clickBinding replace neither the previous row nor returned dispatch credential. The stable asset bytes and original destination are checked jointly and the relation is persisted transactionally. Independent underlying DB proof covers six before/after pairs.",
+      "evidence": "QueueStore.swift:410,444,472; TransferCoordinator.swift:25,355; historical-databases-independent.json"
+    },
+    {
+      "number": 8,
+      "topic": "Preserve original UNKNOWN",
+      "result": "PASS_WITH_LATE_FACT_GAP",
+      "observation": "All columns of the original operation and dispatch checkpoint, including the original UNKNOWN and original invocation, survive cancel, subsequent invocation, restart and migration. A later attributable observation arriving after a successor lacks an append-only place on the original.",
+      "evidence": "QueueStore.swift:835,839,1039,1060; historical-databases-independent.json"
+    },
+    {
+      "number": 9,
+      "topic": "Cancellation, restart and late receipts",
+      "result": "CHANGES_REQUESTED",
+      "observation": "Cancel and reopen do not redispatch. Five stale callback families cannot change the new operation. The original can be silently ignored or rejected once it has a successor, including genuinely attributable later facts. This falls short of recording a new old-operation fact independently while keeping the original failure/UNKNOWN and the new operation immutable.",
+      "evidence": "AcceptedSelection.swift:48,53,60; QueueStore.swift:839,843,1039,1060; ReceiptRetentionAudit.swift"
+    },
+    {
+      "number": 10,
+      "topic": "Excess recovery restrictions",
+      "result": "CHANGES_REQUESTED",
+      "observation": "Observed card disappearance and the short writable-pin lifetime currently control informed user recovery. An original-card failure that passes the invocation/receipt guard is recorded with neutral operation phase and does not revive a previously swallowed screenshot. User-suppressed tiles need their ordinary visibility semantics respected.",
+      "evidence": "QueueStore.swift:845,935,939; chatgpt-web-20261027.js:1828,1854,2028"
+    },
+    {
+      "number": 11,
+      "topic": "Unused settings and test-only facilities",
+      "result": "QUALIFIED",
+      "observation": "User settings have consumers. Ordinary launch resolves to capture; history, permissions, update choices and feedback are real. The signed Mach-O also contains explicit diagnostic/review code paths (self-check, settings-review and controlled pre-click facilities). Dedicated XCTest bundles and repository-only G4 Network/DevTools runners are absent. Broad claims that no QA code exists in build 61 would be inaccurate.",
+      "evidence": "ApplicationMode.swift:8,19,29; SettingsReviewEnvironment.swift:10,31,39,52; RiftletMain.swift:15,46,2259; Package.swift:26,30,35"
+    },
+    {
+      "number": 12,
+      "topic": "Repeated state or recovery flows",
+      "result": "NO_UNNECESSARY_SCHEMA_REWRITE",
+      "observation": "Current operation state, immutable per-operation START, returned invocation, user-handled decision, screenshot visibility and successor relation represent different durable facts. The history projection and retention classifier must agree about the neutral UNKNOWN; a new state machine or database rewrite is unnecessary. Explicit reattachment, reviewing the existing original, returning to the tab and opening a saved conversation have different side effects.",
+      "evidence": "HistoryAttachmentState.swift:10,29; HistoryPresentation.swift:36,56; QueueStore.swift:51,71,400,410,835; RiftHistoryController.swift:912,940,956,969"
+    }
+  ],
+  "independentOfflineControlledCore": {
+    "oldAfterRecovery-late": {
+      "test": "late",
+      "before": {
+        "attempt": 3,
+        "cleanable": false,
+        "currentPhase": "inputTriggered",
+        "currentStatus": "transferring",
+        "handled": false,
+        "history": "handedOff",
+        "latest": "uploadStarted",
+        "recognizedStart": true,
+        "visible": "swallowed"
+      },
+      "after": {
+        "attempt": 3,
+        "cleanable": false,
+        "currentPhase": "inputTriggered",
+        "currentStatus": "transferring",
+        "handled": false,
+        "history": "handedOff",
+        "latest": "uploadStarted",
+        "recognizedStart": true,
+        "visible": "swallowed"
+      },
+      "applied": false,
+      "staleRejected": true,
+      "originalSHA256": "115c6c8831aec9db732b2b035c5a818822b283c56178dbaf8110afff8d5e058c",
+      "unchangedOriginal": true
+    },
+    "realEdgeNormalStarted-read": {
+      "test": "read",
+      "before": {
+        "attempt": 1,
+        "cleanable": true,
+        "currentPhase": "inputTriggered",
+        "currentStatus": "transferring",
+        "handled": false,
+        "history": "handedOff",
+        "latest": "uploadStarted",
+        "recognizedStart": true,
+        "visible": "swallowed"
+      },
+      "after": {
+        "attempt": 1,
+        "cleanable": true,
+        "currentPhase": "inputTriggered",
+        "currentStatus": "transferring",
+        "handled": false,
+        "history": "handedOff",
+        "latest": "uploadStarted",
+        "recognizedStart": true,
+        "visible": "swallowed"
+      },
+      "applied": false,
+      "staleRejected": false,
+      "originalSHA256": "5853ed2d0e46d3e47c5efcbd0dcf443a60b256f1299f0afa9c05a1445bc5e62e",
+      "unchangedOriginal": true
+    },
+    "realNormal-bound-error": {
+      "test": "bound-error",
+      "before": {
+        "attempt": 1,
+        "cleanable": true,
+        "currentPhase": "unknown",
+        "currentStatus": "unknown",
+        "handled": false,
+        "history": "handedOff",
+        "latest": "uploadStarted",
+        "recognizedStart": true,
+        "visible": "swallowed"
+      },
+      "after": {
+        "attempt": 1,
+        "cleanable": false,
+        "currentPhase": "unknown",
+        "currentStatus": "unknown",
+        "handled": false,
+        "history": "checkDraft",
+        "latest": "unknown",
+        "recognizedStart": true,
+        "visible": "swallowed"
+      },
+      "applied": true,
+      "staleRejected": false,
+      "originalSHA256": "3727e8b9e0994bca07146004c8d22ce6c32d39eb824f1ee609e911fd2a8dd831",
+      "unchangedOriginal": true
+    },
+    "realNormal-neutral": {
+      "test": "neutral",
+      "before": {
+        "attempt": 1,
+        "cleanable": true,
+        "currentPhase": "unknown",
+        "currentStatus": "unknown",
+        "handled": false,
+        "history": "handedOff",
+        "latest": "uploadStarted",
+        "recognizedStart": true,
+        "visible": "swallowed"
+      },
+      "after": {
+        "attempt": 1,
+        "cleanable": true,
+        "currentPhase": "unknown",
+        "currentStatus": "unknown",
+        "handled": false,
+        "history": "handedOff",
+        "latest": "unknown",
+        "recognizedStart": true,
+        "visible": "swallowed"
+      },
+      "applied": true,
+      "staleRejected": false,
+      "originalSHA256": "3727e8b9e0994bca07146004c8d22ce6c32d39eb824f1ee609e911fd2a8dd831",
+      "unchangedOriginal": true
+    },
+    "realNormal-read": {
+      "test": "read",
+      "before": {
+        "attempt": 1,
+        "cleanable": true,
+        "currentPhase": "unknown",
+        "currentStatus": "unknown",
+        "handled": false,
+        "history": "handedOff",
+        "latest": "uploadStarted",
+        "recognizedStart": true,
+        "visible": "swallowed"
+      },
+      "after": {
+        "attempt": 1,
+        "cleanable": true,
+        "currentPhase": "unknown",
+        "currentStatus": "unknown",
+        "handled": false,
+        "history": "handedOff",
+        "latest": "uploadStarted",
+        "recognizedStart": true,
+        "visible": "swallowed"
+      },
+      "applied": false,
+      "staleRejected": false,
+      "originalSHA256": "3727e8b9e0994bca07146004c8d22ce6c32d39eb824f1ee609e911fd2a8dd831",
+      "unchangedOriginal": true
+    },
+    "realPreStartUnknown-read": {
+      "test": "read",
+      "before": {
+        "attempt": 1,
+        "cleanable": false,
+        "currentPhase": "unknown",
+        "currentStatus": "unknown",
+        "handled": false,
+        "history": "needsReview",
+        "latest": "inputTriggered",
+        "recognizedStart": false,
+        "visible": "visible"
+      },
+      "after": {
+        "attempt": 1,
+        "cleanable": false,
+        "currentPhase": "unknown",
+        "currentStatus": "unknown",
+        "handled": false,
+        "history": "needsReview",
+        "latest": "inputTriggered",
+        "recognizedStart": false,
+        "visible": "visible"
+      },
+      "applied": false,
+      "staleRejected": false,
+      "originalSHA256": "0b8b98bbf5ec4966ea8d5efa4d6947f292195443f1770b595689f8a501d1fe2c",
+      "unchangedOriginal": true
+    }
+  },
+  "privateOriginalWrites": 0,
+  "freshBuild61SiteChecks": 0,
+  "frozenDatabaseEvidence": {
+    "file": "historical-databases-independent.json",
+    "sha256": "4d84deda49972bfdcde152dd650fe41245f95fc66eaf4f94fa85f02f99e81374"
+  },
+  "probeSource": {
+    "file": "ReceiptRetentionAudit.swift",
+    "sha256": "87af277a82295fa0cd603b112dbba2676e60863538d8ffc74f3bcf97311317d2"
+  },
+  "scopeLimits": "Offline controlled injection is a Core counterexample and cannot establish A–H native UI acceptance. The signed build61 real-site successes remain version specific."
+}
