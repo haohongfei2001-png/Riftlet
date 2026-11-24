@@ -4,29 +4,25 @@ IMPORTANT: This file was signed by Sparkle. Any modifications to this file requi
     <channel>
         <title>Riftlet</title>
         <item>
-            <title>1.0.9</title>
-            <pubDate>Tue, 24 Nov 2026 19:06:17 +0800</pubDate>
+            <title>1.0.10</title>
+            <pubDate>Wed, 25 Nov 2026 01:02:38 +0800</pubDate>
             <link>https://riftlet.com/</link>
-            <sparkle:version>64</sparkle:version>
-            <sparkle:shortVersionString>1.0.9</sparkle:shortVersionString>
+            <sparkle:version>65</sparkle:version>
+            <sparkle:shortVersionString>1.0.10</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
-            <description sparkle:format="plain-text"><![CDATA[# Riftlet 1.0.9
+            <description sparkle:format="plain-text"><![CDATA[# Riftlet 1.0.10
 
-- 第一次打开时，先确认 Mac 的截图保存位置，即可去试一张截图。需要附加时再连接当前浏览器。首张截图进入草稿后，快速入门自动完成；以后可从帮助重看。
-- 设置改为原生侧边栏。浏览器权限和连接集中在「附加」，桌面位置、样式和闲置时间在「截图托盘」，截图来源和仓库在「截图」。
-- 修复首次授权前保存的系统截图可能漏收，以及旧图库已有完整原图却提示暂缓收录的问题。普通鼠标滚轮一格即可翻页。
-- 安装窗口并排显示 Riftlet 和「应用程序」。可通过应用内「检查更新…」升级，并继续使用原有偏好和截图库。
+点击截图发起附加后，它会从当前托盘移入最近截图。无论草稿接收图片、附加失败或结果暂时无法确认，都可以在历史中找回这张图。
 
-For Google Chrome and Microsoft Edge with ChatGPT on macOS 13 or later, on Apple silicon and Intel.
+在托盘上向上滑动查看最近截图，向下滑动返回当前托盘。需要再附加时，先查看当前草稿里已有的附件，再点击历史中的截图。Riftlet 仅在你选择图片时发起附加，消息仍由你发送。
 
-- Try a screenshot before configuring a browser. Quick Start finishes when your first screenshot appears in the draft and is always available in Help.
-- Use the native Settings sidebar for browser access, tray placement and appearance, screenshot collection, or help.
-- Screenshots saved while first granting folder access are collected afterwards. Verified originals from an older library stay quiet. Each mouse-wheel notch now turns a tray page.
-- Drag Riftlet to Applications in the updated installer, or choose Check for Updates in Riftlet to keep your existing library and preferences.]]></description>
-            <enclosure url="https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.9/Riftlet-1.0.9.dmg" length="13858541" type="application/octet-stream" sparkle:edSignature="lvk+wpJ+Q2t079l+QFbYZuvx/MsIKzDDD86Ezh2G+5vS+9PFbVkcbWeW9Be4Gt+LUTfonh1VrhfKSQ1NGEc5Dg=="></enclosure>
+Click a screenshot to attach it and move it from the active tray into recent history. It stays in history whether the draft accepts it, the attachment fails, or the outcome is uncertain.
+
+Scroll up over the tray for recent screenshots, and scroll down to return to the active tray. To attach an image again, check the attachments already in your draft and click the image in history. Sending the message stays in your hands.]]></description>
+            <enclosure url="https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.10/Riftlet-1.0.10.dmg" length="13939797" type="application/octet-stream" sparkle:edSignature="c9q/1AP0ViKekloKzZEP00OxBirZ7uzRfQcVTz2tfclUSCShZpXUMYVKNqllP8LlcdnS/3SXYuMgeoG7h1E8Aw=="></enclosure>
         </item>
     </channel>
 </rss><!-- sparkle-signatures:
-edSignature: DWypfTM/G7KPP2V9Rc6353fSuPYLj/wZr2tEY2fmtOJIcACNNVs/SbITaZE8Y9PEYDZvdPSMKJ2/dOiypO6SBg==
-length: 2595
+edSignature: QhAMFwpGTS8R9eFfwyx7L5FCnxtLLWxWlskjYhxPyiuREp3XYlboL6UTULB4IG5QQ/J8g55XI+2bqTkRzFYABg==
+length: 2048
 -->

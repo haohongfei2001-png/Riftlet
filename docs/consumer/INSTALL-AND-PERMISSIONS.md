@@ -1,6 +1,6 @@
 # 安装与权限
 
-Riftlet 1.0.9 的安装包名为 `Riftlet-1.0.9.dmg`，支持 macOS 13 及以上的 Apple 芯片和 Intel Mac。从 [riftlet.com](https://riftlet.com/) 下载 DMG 文件。如需校验，可在[版本说明](https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.9)查看 SHA-256。开发者团队 ID 为 `ZB9D4T66QB`。
+Riftlet 1.0.10 的安装包名为 `Riftlet-1.0.10.dmg`，支持 macOS 13 及以上的 Apple 芯片和 Intel Mac。从 [riftlet.com](https://riftlet.com/) 下载 DMG 文件。如需校验，可在[版本说明](https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.10)查看 SHA-256。开发者团队 ID 为 `ZB9D4T66QB`。
 
 1. 双击下载的磁盘映像，将 **Riftlet.app** 拖入 **Applications（应用程序）**。如果无法写入共享的「应用程序」，可以在 Finder 的个人主文件夹中创建 `Applications` 文件夹，将 App 拖入那里。升级时先退出旧版、备份截图库，再替换原安装位置的 App。[更新与恢复](RECOVERY-AND-FAQ.md)
 2. 从安装位置打开 Riftlet。macOS 首次询问是否打开下载的应用时，核对应用名并点「打开」。若系统提示已损坏或无法验证开发者，请停止安装并核对下载来源。
@@ -9,7 +9,7 @@ Riftlet 1.0.9 的安装包名为 `Riftlet-1.0.9.dmg`，支持 macOS 13 及以上
 | 想用的功能 | 设置方法 | 检查结果 |
 | --- | --- | --- |
 | 收录 macOS 截图 | 引导会显示 Mac 的截图保存位置。需要访问权限时选择同一个文件夹。若想核对系统设置，打开 macOS「截屏」App，在「选项」查看保存位置。 | 新截一张图片并存为文件，桌面边缘和截图历史中应出现这张图。仅复制到剪贴板的截图没有生成文件。 |
-| 点截图附加到 ChatGPT | 在普通 Google Chrome 或 Microsoft Edge 中将要用的 ChatGPT 草稿置于前台。在快速入门或「设置 → 附加」按当前浏览器的提示授权。在该浏览器菜单栏中开启「允许 Apple 事件中的 JavaScript」，然后回到原草稿再点一次截图。Chrome 的开关位于「显示 → 开发者」。 | 在该浏览器前台准备一个可编辑的 ChatGPT 草稿，点一次缩略图。图片应出现在当前草稿的附件区。 |
+| 点截图附加到 ChatGPT | 在普通 Google Chrome 或 Microsoft Edge 中将要用的 ChatGPT 草稿置于前台。在快速入门或「设置 → 附加」按当前浏览器的提示授权。在该浏览器菜单栏中开启「允许 Apple 事件中的 JavaScript」，然后回到原草稿，在托盘上向上滑动并点选刚才的截图。Chrome 的开关位于「显示 → 开发者」。 | 在该浏览器前台准备一个可编辑的 ChatGPT 草稿，点一次缩略图。图片应出现在当前草稿的附件区。 |
 | 用 Riftlet 自带的截图按钮 | 在「设置 → 截图」开启桌面截图入口。首次使用时，根据 macOS 提示授予「屏幕录制」或「屏幕与系统音频录制」权限。系统要求重启时，退出再打开 Riftlet。 | 从桌面截图入口截取一个窗口、区域或全屏，在「截图仓库」中查看。用 macOS 自带的「截屏」保存文件时无需向 Riftlet 授予录屏权限。 |
 | 登录时启动 | 在设置中开启「登录时启动 Riftlet」。若显示待批准，打开系统设置的「通用 → 登录项」或「登录项与扩展」确认。 | 在设置中查看登录项是否已启用。 |
 

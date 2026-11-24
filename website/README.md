@@ -5,8 +5,8 @@ The official public homepage is served at https://riftlet.com/ from the reposito
 ## Current site state
 
 - **Design baseline:** 2026-10-30 v2. The approved typography, composition, palette, artwork, responsive layout and interaction remain the active design.
-- **Latest content update:** 2026-11-24. The bilingual homepage and installation dialog identify Riftlet 1.0.9, with direct links to its versioned disk image and release notes.
-- **Website source marker:** `riftlet-1.0.9` in the `riftlet-website-version` meta tag.
+- **Latest content update:** 2026-11-25. The bilingual homepage and installation dialog identify Riftlet 1.0.10, with direct links to its versioned disk image and release notes.
+- **Website source marker:** `riftlet-1.0.10` in the `riftlet-website-version` meta tag.
 
 The 2026-10-30 design release record remains historical and documents the original v2 publication. It is not the current native-app release status.
 
@@ -26,9 +26,9 @@ Old `site.*`, `website-product.*`, `website-hero.*` and `website-locale.js` file
 
 ## Native product availability and support boundary
 
-**Riftlet 1.0.9** is available from the homepage as `Riftlet-1.0.9.dmg`. The universal Mac package supports macOS 13 or later on Apple silicon and Intel. The current one-click attachment target is an editable ChatGPT draft in ordinary Google Chrome or Microsoft Edge. A standard macOS user can install it in the Applications folder under their home directory. Riftlet has included in-app update checks since 1.0.1. Choose **Check for Updates…** from the Riftlet menu to update an installed copy. For a manual installation, quit Riftlet and replace the app in its existing location. Other browsers, the ChatGPT desktop app and read-only drafts are unsupported.
+**Riftlet 1.0.10** is available from the homepage as `Riftlet-1.0.10.dmg`. The universal Mac package supports macOS 13 or later on Apple silicon and Intel. The current one-click attachment target is an editable ChatGPT draft in ordinary Google Chrome or Microsoft Edge. A standard macOS user can install it in the Applications folder under their home directory. Riftlet has included in-app update checks since 1.0.1. Choose **Check for Updates…** from the Riftlet menu to update an installed copy. For a manual installation, quit Riftlet and replace the app in its existing location. Other browsers, the ChatGPT desktop app and read-only drafts are unsupported.
 
-The website's interactive demo is separate from the native app. It does not expand native support or claim real ChatGPT upload acceptance. Refer to the current [consumer support matrix](../docs/consumer/SUPPORT-MATRIX.md), [installation and permissions guide](../docs/consumer/INSTALL-AND-PERMISSIONS.md), and [release notes](https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.9) for the authoritative product details.
+The website's interactive demo is separate from the native app. It does not expand native support or claim real ChatGPT upload acceptance. Refer to the current [consumer support matrix](../docs/consumer/SUPPORT-MATRIX.md), [installation and permissions guide](../docs/consumer/INSTALL-AND-PERMISSIONS.md), and [release notes](https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.10) for the authoritative product details.
 
 ## Demo boundaries
 
@@ -52,6 +52,6 @@ See [RELEASE_2026-10-30.md](RELEASE_2026-10-30.md) for the original v2 design re
 
 ## Search engine discovery
 
-- The homepage declares Riftlet as the macOS screenshot application with the official canonical URL and minimal schema.org `SoftwareApplication` structured data. The sitemap was updated with its 2026-11-24 modification date. Robots allow search crawling.
+- The homepage declares Riftlet as the macOS screenshot application with the official canonical URL and minimal schema.org `SoftwareApplication` structured data. The sitemap was updated with its 2026-11-25 modification date. Robots allow search crawling.
 - Bing and other IndexNow search engines can be notified using the public root ownership key file. See [SEARCH_INDEXING.md](SEARCH_INDEXING.md). IndexNow receipt is not an indexing guarantee.
 - Google Search Console ownership and URL inspection require an authorized Google-account property; the site itself can be deployed and verified without asking the owner to edit code. Do not claim Google indexing without Search Console evidence.
