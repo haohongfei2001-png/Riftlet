@@ -7,6 +7,9 @@ public enum OnboardingChromeConnection: Equatable, Sendable {
 
 public extension SettingsProductSnapshot {
     var onboardingReady: Bool { !reviewEnvironment && firstIncompleteOnboardingStep == nil }
+    var canTryFirstAttachment: Bool {
+        !reviewEnvironment && setup.attachment == .available && firstIncompleteOnboardingStep != 0
+    }
 
     fileprivate var firstIncompleteOnboardingStep: Int? {
         guard capabilities.initialized, setup.source == .accessible, setup.collection == .collecting,
@@ -43,7 +46,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
     private var busy: Set<SettingsDomain> = []
     private var controls: [String: NSView] = [:]
     private var pages: [NSView] = []
-    private let progress = SettingsNativeStyle.stack([], vertical: false, spacing: 9)
+    private let progress = SettingsNativeStyle.label("", role: "caption")
     private let content = RiftVisualStyle.documentStack([], spacing: 16)
     private let scroll = RiftVisualStyle.topAlignedScrollView()
     private lazy var next = SettingsNativeStyle.button(copy.continueButton)
@@ -94,12 +97,15 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
     /// The host records the first presentation separately from successful setup.
     /// This never writes a first-use/completion preference itself.
     @discardableResult
-    public func show() -> Bool {
+    public func show(browserAccess: Bool = false) -> Bool {
         guard snapshot != nil, let screen = window.screen ?? NSScreen.main ?? NSScreen.screens.first else { return false }
         let previousFrame = window.frame
         if !isVisible {
             presentationID = UUID()
-            currentStep = 0; finishing = false; didDefer = false
+            currentStep = browserAccess ? 1 : 0; finishing = false; didDefer = false
+            refreshStep()
+        } else if browserAccess && currentStep != 1 {
+            currentStep = 1
             refreshStep()
         }
         if !hasPresented {
@@ -151,20 +157,6 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
         scroll.translatesAutoresizingMaskIntoConstraints = false
         content.translatesAutoresizingMaskIntoConstraints = false
         root.addSubview(progress); root.addSubview(scroll)
-        for (index, title) in [copy.stepFolder, copy.stepChrome].enumerated() {
-            if index > 0 {
-                let separator = NSImageView()
-                separator.image = NSImage(systemSymbolName: "chevron.right", accessibilityDescription: nil)?
-                    .withSymbolConfiguration(.init(pointSize: 9, weight: .regular))
-                separator.contentTintColor = .tertiaryLabelColor
-                separator.setAccessibilityElement(false)
-                progress.addArrangedSubview(separator)
-            }
-            let label = SettingsNativeStyle.label(title, role: "caption")
-            label.tag = index
-            label.identifier = .init("onboarding.progress.\(index)")
-            progress.addArrangedSubview(label)
-        }
         scroll.documentView = content
         scroll.setAccessibilityLabel(copy.scrollLabel)
         // Stacks align button bezels by their alignment rect. Give the scroll view
@@ -176,7 +168,8 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
         back.identifier = .init("onboarding.back"); back.target = self; back.action = #selector(previousStep)
         later.identifier = .init("onboarding.later"); later.target = self; later.action = #selector(deferSetup)
         later.keyEquivalent = "\u{1b}"
-        let footer = SettingsNativeStyle.stack([back, later, NSView(), next], vertical: false, spacing: 12)
+        let browserSetup = actionButton(copy.stepChrome, id: "onboarding.browserSetup")
+        let footer = SettingsNativeStyle.stack([back, later, NSView(), browserSetup, next], vertical: false, spacing: 12)
         footer.translatesAutoresizingMaskIntoConstraints = false
         footer.arrangedSubviews[2].setContentHuggingPriority(.defaultLow, for: .horizontal)
         root.addSubview(footer)
@@ -395,13 +388,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
         let preservedFrame = hasPresented ? window.frame : nil
         defer { if let preservedFrame { layout(keeping: preservedFrame) } }
         for (index, page) in pages.enumerated() { page.isHidden = index != currentStep }
-        for view in progress.arrangedSubviews {
-            guard let label = view as? NSTextField else { continue }
-            let index = label.tag
-            label.textColor = SettingsNativeStyle.color(index == currentStep ? .accentInk : .secondary)
-            label.font = .systemFont(ofSize: 11, weight: index == currentStep ? .semibold : .regular)
-        }
-        progress.setAccessibilityLabel(copy.progress(step: currentStep + 1))
+        progress.stringValue = currentStep == 0 ? copy.quickStart : copy.stepChrome
         back.isHidden = currentStep == 0
         refreshNext()
         scroll.contentView.scroll(to: .zero); scroll.reflectScrolledClipView(scroll.contentView)
@@ -413,9 +400,12 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
     private func refreshNext() {
         let incomplete = snapshot?.firstIncompleteOnboardingStep
         let preview = snapshot?.reviewEnvironment == true
+        let canTry = snapshot?.canTryFirstAttachment == true
+        configureAction("onboarding.browserSetup", visible: currentStep == 0 && canTry,
+                        enabled: !finishing)
         if currentStep == 0 {
-            next.title = copy.continueButton
-            next.isEnabled = snapshot != nil && (preview || incomplete != 0)
+            next.title = preview ? copy.continueButton : copy.tryScreenshot
+            next.isEnabled = !finishing && (preview || canTry)
         } else {
             next.title = preview ? copy.endPreview : incomplete == 0 ? copy.setUpFolder : copy.getStarted
             next.isEnabled = !finishing && snapshot != nil && (preview || incomplete != 1)
@@ -429,19 +419,19 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
     @objc private func previousStep() { guard currentStep > 0 else { return }; currentStep -= 1; refreshStep() }
     @objc private func nextStep() {
         guard next.isEnabled, let snapshot else { return }
-        if currentStep == 0 {
+        if currentStep == 0 && snapshot.reviewEnvironment {
             currentStep = 1; refreshStep(); return
         }
         if snapshot.reviewEnvironment { closeForTeardown(); return }
-        if let step = snapshot.firstIncompleteOnboardingStep {
+        if currentStep == 1, let step = snapshot.firstIncompleteOnboardingStep {
             currentStep = step; refreshStep(); return
         }
-        guard snapshot.onboardingReady, !finishing else { return }
+        guard snapshot.canTryFirstAttachment, !finishing else { return }
         finishing = true; refreshNext()
         let session = presentationID
         Task {
             guard session == presentationID, isVisible else { return }
-            await onAction(.finishOnboarding)
+            await onAction(.tryFirstAttachment)
             guard session == presentationID else { return }
             finishing = false; refreshNext()
         }
@@ -453,6 +443,8 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
     @objc private func actionPressed(_ sender: NSButton) {
         guard sender.isEnabled, !sender.isHiddenOrHasHiddenAncestor, let snapshot else { return }
         switch sender.identifier?.rawValue {
+        case "onboarding.browserSetup":
+            currentStep = 1; refreshStep()
         case "onboarding.sourceAccess":
             guard snapshot.capabilities.canChooseSource else { return }; send(.chooseSourceAccess)
         case "onboarding.filePrivacy": send(.openFilePrivacy)

@@ -6,7 +6,9 @@ extension ProductCopy {
     var continueButton: String { text("继续", "Continue") }
     var back: String { text("上一步", "Back") }
     var later: String { text("稍后设置", "Set Up Later") }
-    var headline: String { text("读取 Mac 上的截图", "Read screenshots saved on your Mac") }
+    var quickStart: String { text("快速入门", "Quick Start") }
+    var tryScreenshot: String { text("去试一张截图", "Try a Screenshot") }
+    var headline: String { text("把第一张截图附加到草稿", "Attach your first screenshot") }
     var chromeMenuHeading: String { text("检查浏览器连接", "Check the browser connection") }
     var checkConnection: String { text("检查连接", "Check Connection") }
     var allowAccess: String { text("允许访问…", "Allow Access…") }
@@ -30,10 +32,10 @@ extension ProductCopy {
         text("新截图会从所选的屏幕边缘出现。之后可以在设置中调整。",
              "New screenshots appear at the edge you choose. You can change this later in Settings.")
     }
-    var rootLabel: String { text("开始使用 Riftlet，两步引导", "Get started with Riftlet in two steps") }
+    var rootLabel: String { quickStart }
     var introDetail: String {
-        text("Riftlet 从截图文件夹读取新图。点托盘里的图片，就能将它附加到 Chrome 或 Edge 中的 ChatGPT 草稿。",
-             "Riftlet reads new images from your screenshot folder. Click a thumbnail in the tray to add it to your ChatGPT draft in Chrome or Edge.")
+        text("在 Chrome 或 Edge 打开 ChatGPT 草稿，用 Mac 平常的方式截屏。点桌面边缘托盘里的图片，截图就会附加到这份草稿。",
+             "Open your ChatGPT draft in Chrome or Edge and take a screenshot as usual. Click its thumbnail at the edge of your desktop to attach it to that draft.")
     }
     var reviewDetail: String {
         text("当前为隔离审核：不连接浏览器或上传。",

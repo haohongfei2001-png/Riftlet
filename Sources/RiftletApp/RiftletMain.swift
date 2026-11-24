@@ -132,6 +132,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var qaOriginalTab: QAOriginalBrowserTab?
     private lazy var captureLocation = reviewEnvironment?.captureLocation ?? SystemCaptureLocationProvider()
     private lazy var firstUse = FirstUsePreferences(defaults: reviewEnvironment?.defaults ?? .standard, modeName: mode.directoryName)
+    private var checkedFirstAttachmentEpoch: UUID?
+    private var offeredFirstAttachmentHelp = false
     private lazy var folderAccess = ScreenshotFolderAccess(defaults: reviewEnvironment?.defaults ?? .standard, modeName: mode.directoryName)
     private var folderNeedingSelection: URL?
     private var folderShownInPicker: URL?
@@ -168,6 +170,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var arrivalCapture: ArrivalCaptureBridge?
     private var root: URL!
     private var visibleIDs = Set<UUID>()
+    private var firstUseClickBindings: [UUID: UUID] = [:]
     private var refreshRunning = false
     private var refreshRequested = false
     private var refreshWaiters: [CheckedContinuation<Void, Never>] = []
@@ -258,8 +261,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         installSetup()
         // The first ordinary launch explains collection before its first source
         // read. Acceptance mode must not steal the test browser's focus.
-        if reviewEnvironment?.isPreClickQA != true, mode.collectsSystemScreenshots, firstUse.needsAutomaticPresentation,
-           mode != .settingsReview || !firstUse.hasPresented {
+        if newProfile, reviewEnvironment?.isPreClickQA != true, mode.collectsSystemScreenshots,
+           firstUse.needsAutomaticPresentation {
             updateSetup()
             if settingsHost?.showOnboarding() == true { firstUse.recordPresentation() }
         }
@@ -501,6 +504,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                         self.feedback.diagnostics.record(.selectionAccepted)
                         self.recordAcceptance(["event": "click_target_resolved", "assetID": id.uuidString,
                             "selectionID": resolved.id.uuidString, "uptime": ProcessInfo.processInfo.systemUptime])
+                        if self.mode == .capture, self.reviewEnvironment == nil, self.firstUse.awaitingFirstAttachment {
+                            self.firstUseClickBindings[id] = resolved.target.clickBindingID
+                        }
                         if let reattachment {
                             guard self.reattachmentIntents[id] == reattachment, reattachment.revision == revision else {
                                 throw CancellationError()
@@ -547,6 +553,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     self.feedback.diagnostics.record(.selectionRejected)
                     self.cancelOriginalSelection(selection, reason: "selectionRejected")
                     self.updateSetup()
+                    if let press {
+                        self.offerFirstAttachmentHelp(after: clickIssue, epoch: press.receiverEpoch, bundle: press.bundleID)
+                    }
                 }
                 self.finishOriginalSelection(id, token: selection, revision: revision, ownerID: selectionOwner)
                 await self.refresh()
@@ -1063,7 +1072,30 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
     @objc private func showOnboarding() {
         screenshotEntry?.cancel(); updateSetup()
-        if settingsHost?.showOnboarding() == true { firstUse.recordPresentation() }
+        settingsHost?.showOnboarding()
+    }
+
+    private func offerFirstAttachmentHelp(after issue: SetupIssue?, epoch: UUID, bundle: String?) {
+        guard mode == .capture, reviewEnvironment == nil, firstUse.awaitingFirstAttachment,
+              !offeredFirstAttachmentHelp, epoch == permissionSession, bundle == setupBrowser.rawValue,
+              let session = lastForegroundSession, session == foregroundBrowserSession,
+              [.targetUnavailable, .permissionDenied, .permissionNotRequested, .chromeJavaScriptDisabled].contains(issue)
+        else { return }
+        if issue == .targetUnavailable {
+            guard checkedFirstAttachmentEpoch != epoch else { return }
+            checkedFirstAttachmentEpoch = epoch
+        }
+        Task { [weak self] in
+            guard let self, !terminating, epoch == permissionSession, session == foregroundBrowserSession else { return }
+            // A missing prepared target alone reveals nothing about authorization.
+            // The existing read-only connection probe neither requests access nor attaches a file.
+            if issue == .targetUnavailable { await checkChromeConnection() }
+            guard !terminating, !offeredFirstAttachmentHelp, epoch == permissionSession,
+                  session == foregroundBrowserSession, firstUse.awaitingFirstAttachment,
+                  automationPermission == .notRequested || automationPermission == .denied || chromeConnection == .javaScriptDisabled
+            else { return }
+            offeredFirstAttachmentHelp = settingsHost?.showOnboarding(browserAccess: true) == true
+        }
     }
 
     private func restoreCaptureFolder(_ source: URL) -> Bool {
@@ -1214,7 +1246,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         checkedChrome = process
         chromeConnection = .checking
         updateSetup()
-        // Read only on an explicit setup action. A status grant covers this
+        // Read only after a setup action or a first-use attachment refusal. A status grant covers this
         // receiver only and never becomes a condition for ordinary thumbnail clicks.
         let grant = await permissionGate.inspect(expectedSession: process.session)
         guard chromeCheckID == id, !terminating else { return }
@@ -1501,6 +1533,19 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     catch { detectedSource = nil; preferenceIssue = .classify(error, context: .locationPreference) }
                 }
                 if refreshRequested { continue }
+                if !firstUseClickBindings.isEmpty {
+                    // Only a click accepted during this run can finish the guide. A
+                    // queued file, a restored historical START or a different click cannot.
+                    for record in snapshot {
+                        guard let binding = firstUseClickBindings[record.id],
+                              let id = record.activeOperationID,
+                              let start = try? await store.uploadStartReceipt(for: id),
+                              firstUse.finishAfterFirstAttachment(start, clickedBinding: binding) else { continue }
+                        settingsHost?.onboarding.closeForTeardown()
+                        break
+                    }
+                    firstUseClickBindings = firstUseClickBindings.filter { firstUse.awaitingFirstAttachment && activeIDs.contains($0.key) }
+                }
                 if mode.usesWebAdapter, CommandLine.arguments.contains("--acceptance-trace") {
                     for record in snapshot {
                         let signature = [record.status.rawValue, record.visibility.rawValue,
@@ -2040,9 +2085,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             } else { showActionIssue(ProductCopy.text("没有找到这个浏览器。", "The browser could not be found.")) }
             updateSetup()
         case .checkChromeConnection: await checkChromeConnection()
-        case .finishOnboarding:
-            guard let host = settingsHost, host.onboarding.isVisible, host.snapshot.onboardingReady else { return }
-            firstUse.recordCompletion()
+        case .tryFirstAttachment:
+            guard let host = settingsHost, host.onboarding.isVisible, host.snapshot.canTryFirstAttachment else { return }
             host.onboarding.closeForTeardown()
         case .openFilePrivacy: openFilePrivacySettings()
         case .openScreenRecordingPrivacy:

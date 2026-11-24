@@ -43,8 +43,9 @@ enum FirstUseSelfCheck {
         let first = FirstUsePreferences(defaults: defaults, modeName: "isolated")
         guard first.needsAutomaticPresentation else { throw RiftletError.invalidTransition }
         first.recordPresentation()
-        guard first.needsAutomaticPresentation else { throw RiftletError.invalidTransition }
-        first.recordCompletion()
+        guard first.awaitingFirstAttachment, !first.needsAutomaticPresentation,
+              !first.finishAfterFirstAttachment(nil, clickedBinding: UUID()) else { throw RiftletError.invalidTransition }
+        first.deferPresentation()
         guard !FirstUsePreferences(defaults: defaults, modeName: "isolated").needsAutomaticPresentation else {
             throw RiftletError.invalidTransition
         }
