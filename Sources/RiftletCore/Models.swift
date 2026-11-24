@@ -30,6 +30,7 @@ public struct TraySelection: Equatable, Sendable {
     public let assetID: UUID
     public let originalRevision: Int64
     public let historyRevision: Int64
+    let requiredPredecessor: UUID?
     public let fromHistory: Bool
 }
 

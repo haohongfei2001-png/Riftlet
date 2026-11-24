@@ -41,6 +41,21 @@ final class AttachmentDispositionTests: XCTestCase {
         XCTAssertEqual(state?.attempt, 1)
         let staged = try await reopened.stageAttachmentForReattach(operationID: op.id)
         XCTAssertEqual(staged.activeOperationID, op.id)
+        let afterRestart = try QueueStore(databaseURL: path)
+        let clicked = try await afterRestart.beginTraySelection(assetID: asset.id, expectedRevision: staged.visibilityRevision, fromHistory: false)
+        let other = TargetLease(adapterID: op.target.adapterID, surface: op.target.surface,
+            applicationID: op.target.applicationID, sessionID: op.target.sessionID, windowID: "other",
+            documentID: "different", composerID: "different", draftGeneration: "different")
+        do {
+            _ = try await afterRestart.prepare(assetID: asset.id, target: other, replacing: nil, traySelection: clicked)
+            XCTFail("A staged original cannot switch drafts after restart")
+        } catch RiftletError.invalidTransition {}
+        await afterRestart.endTraySelection(clicked)
+        let ledger = try SQLiteDatabase(url: path, mode: .production)
+        XCTAssertEqual(try ledger.rows("SELECT COUNT(*) FROM operations"), [["1"]])
+        let historical = try await afterRestart.recentTrayHistory()
+        XCTAssertEqual(historical.map(\.id), [asset.id])
+        _ = try await reopened.stageAttachmentForReattach(operationID: op.id)
         try await reopened.removeFromQueue(asset.id)
         let protected = try await reopened.cleanableMedia()
         XCTAssertTrue(protected.isEmpty)

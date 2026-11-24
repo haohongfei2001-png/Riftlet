@@ -141,9 +141,11 @@ public actor QueueStore {
         let ticket = try database.transaction {
             guard let record = try asset(id: assetID), record.status != .missing,
                   try !isRetiredMedia(assetID), try !userHidden() else { throw RiftletError.invalidTransition }
-            if let activeID = record.activeOperationID, try operation(id: activeID)?.phase == .prepared {
-                throw RiftletError.invalidTransition
-            }
+            let original = try record.activeOperationID.flatMap { try operation(id: $0) }
+            guard original?.phase != .prepared else { throw RiftletError.invalidTransition }
+            // The library can stage an unresolved original on the desktop. A restart
+            // or cancelled confirmation cannot turn that into a fresh-draft selection.
+            let requiredPredecessor = !fromHistory && original?.phase.isUnresolved == true ? original?.id : nil
             if fromHistory {
                 guard expectedRevision == record.visibilityRevision,
                       try !database.rows("SELECT 1 WHERE ? IN (SELECT id FROM assets WHERE " + recentTrayPredicate + ")",
@@ -158,7 +160,8 @@ public actor QueueStore {
             }
             try setVisibility(record, .swallowed, reason: .traySelection, touch: !fromHistory)
             return TraySelection(id: UUID(), assetID: assetID, originalRevision: expectedRevision,
-                                 historyRevision: record.visibilityRevision + 1, fromHistory: fromHistory)
+                                 historyRevision: record.visibilityRevision + 1, requiredPredecessor: requiredPredecessor,
+                                 fromHistory: fromHistory)
         }
         trayReservations[assetID] = ticket
         return ticket
@@ -505,6 +508,9 @@ public actor QueueStore {
             guard let record = try asset(id: assetID) else { throw RiftletError.assetNotFound }
             let id = UUID()
             if let traySelection {
+                if let required = traySelection.requiredPredecessor {
+                    guard source?.operation.id == required else { throw RiftletError.invalidTransition }
+                }
                 guard trayReservations[assetID] == traySelection, record.visibility == .swallowed,
                       record.visibilityReason == .traySelection, record.visibilityRevision == traySelection.historyRevision,
                       record.status != .missing, try !isRetiredMedia(assetID) else { throw RiftletError.invalidTransition }
