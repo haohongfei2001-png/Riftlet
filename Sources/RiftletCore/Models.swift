@@ -21,7 +21,16 @@ public enum QueueStatus: String, Codable, Sendable {
 /// Presentation is independent of external upload/completion facts.
 public enum QueueVisibility: String, Codable, Sendable { case visible, swallowed, archived, removed }
 public enum QueueVisibilityReason: String, Codable, Sendable {
-    case capture, uploadStarted, legacyCompletion, automaticArchive, userRemoved, userRestored, safeFailure
+    case capture, uploadStarted, legacyCompletion, automaticArchive, userRemoved, userRestored, safeFailure, traySelection
+}
+
+/// Issued by the store for one explicit click on a specific version of a tray row.
+public struct TraySelection: Equatable, Sendable {
+    let id: UUID
+    public let assetID: UUID
+    public let originalRevision: Int64
+    public let historyRevision: Int64
+    public let fromHistory: Bool
 }
 
 /// A capture occurrence, not a content-hash identity. Same pixels captured twice stay separate.

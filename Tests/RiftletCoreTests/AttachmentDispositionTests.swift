@@ -12,9 +12,10 @@ final class AttachmentDispositionTests: XCTestCase {
         let asset = ImportedAsset(sourceKey: "failed-card", fileName: "image.png", sha256: String(repeating: "a", count: 64),
             byteCount: 1, pixelWidth: 1, pixelHeight: 1, mediaType: "image/png", origin: .systemScreenshot)
         _ = try await store.importAsset(asset)
-        let op = try await store.prepare(assetID: asset.id, target: DispositionAdapter().target)
+        let ticket = try await store.beginTraySelection(assetID: asset.id, expectedRevision: 0, fromHistory: false)
+        let op = try await store.prepare(assetID: asset.id, target: DispositionAdapter().target, replacing: nil, traySelection: ticket)
         let owner = UUID()
-        let invocation = try await store.markIndependentFileInputIntent(op.id, ownerID: owner)
+        let invocation = try await store.markIndependentFileInputIntent(op.id, ownerID: owner, traySelection: ticket)
         func report(_ call: UUID?, card: String? = "original") -> TransferReceipt {
             .init(operationID: op.id, assetID: asset.id, attempt: op.attempt, assetSHA256: asset.sha256,
                   target: op.target, outcome: .unknown, profileID: "test", attachmentID: card,
@@ -23,7 +24,7 @@ final class AttachmentDispositionTests: XCTestCase {
         do { _ = try await store.apply(report(UUID())); XCTFail("Wrong invocation accepted") }
         catch RiftletError.mismatchedReceipt {}
         let kept = try await store.apply(report(invocation))
-        XCTAssertEqual(kept.visibility, .visible)
+        XCTAssertEqual(kept.visibility, .swallowed)
         try await store.recordInputExecutionReturned(operationID: op.id, invocationID: invocation, ownerID: owner)
         do { _ = try await store.apply(report(invocation, card: "other")); XCTFail("Different card accepted") }
         catch RiftletError.mismatchedReceipt {}

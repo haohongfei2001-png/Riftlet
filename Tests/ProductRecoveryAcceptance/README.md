@@ -1,5 +1,7 @@
 # Controlled product recovery acceptance
 
+The cases below document the 1.0.8 and 1.0.9 recovery contract. From 1.0.10 a click moves the screenshot directly into recent history. The former automatic rebirth case describes only those earlier builds.
+
 This macOS test runs a separately launched AppKit application and a separate, local WKWebView. The production application's tray, control center, screenshot library, risk sheet, selection handling, capture service, coordinator, original PNG store, SQLite transactions and web page program all participate. The live DOM receives the actual File. macOS captures only the owned WKWebView window. The document blocks connections and form submission and preserves a pre-existing attachment and a nonempty selected phrase.
 
 The application binary is a test composition of the supplied source revision. Its test transport addresses one local document with a controlled browser-shaped route. This suite measures product recovery. Developer ID, installation and real ChatGPT have separate acceptance records.

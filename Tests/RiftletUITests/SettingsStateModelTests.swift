@@ -673,7 +673,7 @@ final class SettingsStateModelTests: XCTestCase {
         let configuration = try personalized()
         XCTAssertNil(configuration.placement); XCTAssertEqual(configuration.outerInset, 14)
         let owner = Owner(configuration: configuration); let model = try model(owner)
-        await model.perform(.edit(.fitWidth, "96")); await model.perform(.edit(.returnDuration, "240")); await model.perform(.applyLayout)
+        await model.perform(.edit(.fitWidth, "96")); await model.perform(.edit(.shiftDuration, "240")); await model.perform(.applyLayout)
         for page in [SettingsDraftPage.display, .motion] {
             await model.perform(.restoreDefaults(page)); await model.perform(.applyLayout)
             XCTAssertEqual(compatibility(owner.value.settings.configuration), compatibility(configuration))
@@ -684,7 +684,7 @@ final class SettingsStateModelTests: XCTestCase {
         }
         XCTAssertEqual(owner.value.settings.configuration.hiddenFraction, 0.25, "Restore uses actual main defaults, not the 0% design recommendation")
         XCTAssertEqual(owner.value.settings.configuration.fitWidth, 72)
-        XCTAssertEqual(owner.value.settings.configuration.returnDuration, 0.18)
+        XCTAssertEqual(owner.value.settings.configuration.shiftDuration, RiftConfiguration().shiftDuration)
     }
 
     @MainActor func testPrimaryChoiceIsConcreteAndFallbackObservationNeverPersists() async throws {

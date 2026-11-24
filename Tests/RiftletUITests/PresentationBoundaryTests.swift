@@ -36,7 +36,6 @@ final class PresentationBoundaryTests: XCTestCase {
         configuration.pressDuration = 0.01
         configuration.swallowDuration = 0.02
         configuration.shiftDuration = 0.01
-        configuration.returnDuration = 0.01
         configuration.reducedMotionDuration = 0.02
         return RiftPanelController(mediaDirectory: FileManager.default.temporaryDirectory,
             configuration: configuration, arrivalMode: .magnet, onSelectionBoundary: onSelection,
@@ -245,44 +244,32 @@ final class PresentationBoundaryTests: XCTestCase {
         XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), before.map(\.assetID))
     }
 
-    @MainActor func testOnlyConfirmedFailureRevealsSoleSwallowedUUIDAboveEmptyTrayMenu() throws {
+    @MainActor func testCommittedSelectionLeavesTrayBeforeFinishAndOnlyExplicitHistoryClickAttachesAgain() throws {
         var selections: [UUID] = []
-        var boundaries: [RiftPresentationBoundary] = []
-        let panel = try controller(onBoundary: { boundaries.append($0) }, onSelect: { selections.append($0) })
+        let panel = try controller(holdsSelection: true, onSelect: { selections.append($0) })
         defer { panel.close() }
-        var config = panel.configuration
-        config.desktopForm = .tray
-        config.swallowDuration = 0
-        config.shiftDuration = 0
-        try panel.updateConfiguration(config)
-        panel.setTrayCapture(enabled: true, defaultMode: .window)
-        let a = record(), operation = UUID()
-        let historical = record(2, status: .unknown, operationID: UUID(), visibility: .swallowed,
-                                revision: 1, reason: .uploadStarted)
-        panel.render([a, historical])
-        let started = record(image: a.image, status: .transferring, operationID: operation,
-                             visibility: .swallowed, revision: 1, reason: .uploadStarted)
-        panel.render([started, historical])
-        advanceQuietEdgeRefill(panel)
-        panel.setTrayExpanded(true)
-        let surface = try XCTUnwrap(NSApp.windows.first { $0.isVisible && $0.contentView is RiftTraySurfaceView })
-        let compact = surface.frame
-        let uncertain = record(image: a.image, status: .unknown, operationID: operation,
-                               visibility: .swallowed, revision: 1, reason: .uploadStarted)
-        panel.render([uncertain, historical])
+        let asset = record(revision: 7)
+        panel.render([asset], recentHistory: [])
+        XCTAssertTrue(try rowView(asset.id, in: panel).accessibilityPerformPress())
+        let retained = record(image: asset.image, status: .failed, operationID: UUID(),
+            visibility: .swallowed, revision: 8, reason: .traySelection)
+        panel.render([], recentHistory: [retained])
         XCTAssertTrue(panel.diagnosticSnapshot.rows.isEmpty)
-        XCTAssertEqual(surface.frame, compact)
-        let returned = record(image: a.image, status: .failed, operationID: operation,
-                              revision: 2, reason: .safeFailure)
-        panel.render([returned, historical])
-        advanceQuietEdgeRefill(panel)
-        XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [a.id])
-        XCTAssertGreaterThan(surface.frame.height, compact.height)
-        XCTAssertEqual(boundaries.map(\.phase), [.swallowScheduled, .swallowActualStart, .swallowClose])
-        XCTAssertTrue(boundaries.allSatisfy { $0.assetID == a.id && $0.operationID == operation })
-        XCTAssertTrue(selections.isEmpty)
-        XCTAssertTrue(try rowView(a.id, in: panel).accessibilityPerformPress())
-        XCTAssertEqual(selections, [a.id])
+        XCTAssertEqual(panel.selectionRevision(for: asset.id), 7)
+        XCTAssertFalse(panel.selectionIsFromRecentHistory(for: asset.id))
+        panel.showRecentHistory(true)
+        XCTAssertFalse(try rowView(asset.id, in: panel).accessibilityPerformPress())
+        XCTAssertEqual(selections, [asset.id])
+        panel.finishSelection(asset.id)
+        XCTAssertTrue(try rowView(asset.id, in: panel).accessibilityPerformPress())
+        XCTAssertEqual(panel.selectionRevision(for: asset.id), 8)
+        XCTAssertTrue(panel.selectionIsFromRecentHistory(for: asset.id))
+        panel.render([], recentHistory: [retained])
+        XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [asset.id])
+        XCTAssertEqual(selections, [asset.id, asset.id])
+        panel.finishSelection(asset.id)
+        XCTAssertNil(panel.selectionRevision(for: asset.id))
+        XCTAssertFalse(panel.selectionIsFromRecentHistory(for: asset.id))
     }
 
     @MainActor func testSwitchFormsRetainsAcceptedSelectionUntilItsOwnerFinishes() throws {
@@ -307,29 +294,69 @@ final class PresentationBoundaryTests: XCTestCase {
         XCTAssertEqual(selected, [a.id])
     }
 
-    @MainActor func testOlderReturnedAssetIsReachableAfterCompactionInAllForms() throws {
+    @MainActor func testNativeWheelBrowsesRecentPagesAndReturnsToEmptyTrayInEveryForm() throws {
+        func wheel(_ delta: Int32, on view: NSView, momentum: Bool = false) throws {
+            let cg = try XCTUnwrap(CGEvent(scrollWheelEvent2Source: nil, units: .line, wheelCount: 1,
+                wheel1: delta, wheel2: 0, wheel3: 0))
+            if momentum { cg.setIntegerValueField(.scrollWheelEventMomentumPhase, value: 2) }
+            view.scrollWheel(with: try XCTUnwrap(NSEvent(cgEvent: cg)))
+        }
         for form in RiftDesktopForm.allCases where form.isAvailable {
-            var selections: [UUID] = []
-            let panel = try controller(onSelect: { selections.append($0) })
-            defer { panel.close() }
-            var config = panel.configuration
+            _ = NSApplication.shared
+            guard !NSScreen.screens.isEmpty else { throw XCTSkip("WindowServer required") }
+            var config = RiftConfiguration()
             config.desktopForm = form
-            config.swallowDuration = 0
-            config.shiftDuration = 0
-            try panel.updateConfiguration(config)
-            let first = record(), rest = (2...5).map { record(Int64($0)) }
-            panel.render([first] + rest)
-            let op = UUID()
-            panel.render([record(image: first.image, status: .transferring, operationID: op,
-                                 visibility: .swallowed, revision: 1, reason: .uploadStarted)] + rest)
+            let panel = RiftPanelController(mediaDirectory: FileManager.default.temporaryDirectory,
+                configuration: config, reduceMotionOverride: { true },
+                onSelect: { _ in XCTFail("Scrolling must never attach") })
+            defer { panel.close() }
+            panel.setTrayCapture(enabled: false, defaultMode: .window)
+            let recent = (1...11).map { record(Int64($0), status: .used,
+                visibility: .swallowed, revision: 1, reason: .legacyCompletion) }
+            let active = (1...11).map { record(Int64($0)) }
+            panel.render(active, recentHistory: recent)
+            panel.showLatest()
+            var seenActive: Set<UUID> = []
+            for _ in 0...active.count where !panel.isShowingRecentHistory {
+                let rows = panel.diagnosticSnapshot.rows
+                seenActive.formUnion(rows.map(\.assetID))
+                try wheel(1, on: rowView(try XCTUnwrap(rows.first?.assetID), in: panel))
+            }
+            XCTAssertEqual(seenActive, Set(active.map(\.id)))
+            XCTAssertTrue(panel.isShowingRecentHistory)
+            panel.showRecentHistory(false)
+            panel.render([], recentHistory: recent)
             advanceQuietEdgeRefill(panel)
-            panel.render(rest)  // Normal host snapshots can omit a retired UUID.
-            panel.render([record(image: first.image, status: .failed, operationID: op,
-                                 revision: 2, reason: .safeFailure)] + rest)
-            advanceQuietEdgeRefill(panel)
-            XCTAssertTrue(selections.isEmpty)
-            XCTAssertTrue(try rowView(first.id, in: panel).accessibilityPerformPress())
-            XCTAssertEqual(selections, [first.id])
+            func historyButton() throws -> NSView {
+                try XCTUnwrap(NSApp.windows.first { $0.isVisible &&
+                    $0.contentView?.accessibilityIdentifier() == "riftlet.recentHistory" }?.contentView)
+            }
+            XCTAssertTrue(panel.diagnosticSnapshot.rows.isEmpty)
+            try wheel(1, on: historyButton())
+            XCTAssertTrue(panel.isShowingRecentHistory)
+            let newest = try XCTUnwrap(panel.diagnosticSnapshot.rows.first?.assetID)
+            XCTAssertEqual(newest, recent.first?.id)
+            try wheel(1, on: rowView(newest, in: panel), momentum: true)
+            XCTAssertEqual(panel.visibleRange.lowerBound, 0)
+            var seen: Set<UUID> = []
+            var pageCount = 0
+            while pageCount < recent.count {
+                let rows = panel.diagnosticSnapshot.rows
+                seen.formUnion(rows.map(\.assetID))
+                if seen.count == recent.count { break }
+                try wheel(1, on: rowView(try XCTUnwrap(rows.first?.assetID), in: panel))
+                pageCount += 1
+            }
+            XCTAssertEqual(seen, Set(recent.map(\.id)))
+            for _ in 0...pageCount { try wheel(-1, on: historyButton()) }
+            XCTAssertFalse(panel.isShowingRecentHistory)
+            XCTAssertTrue(panel.diagnosticSnapshot.rows.isEmpty)
+            XCTAssertTrue(try historyButton().accessibilityPerformPress())
+            XCTAssertTrue(panel.isShowingRecentHistory)
+            panel.render([], recentHistory: [])
+            XCTAssertTrue(panel.diagnosticSnapshot.rows.isEmpty)
+            XCTAssertTrue(try historyButton().accessibilityPerformPress())
+            XCTAssertFalse(panel.isShowingRecentHistory)
         }
     }
 
@@ -349,8 +376,9 @@ final class PresentationBoundaryTests: XCTestCase {
         panel.showLatest()
         let page = panel.diagnosticSnapshot.rows.map(\.assetID)
         XCTAssertFalse(page.contains(first.id))
-        panel.render([record(image: first.image, status: .failed, operationID: op,
-                             revision: 2, reason: .safeFailure)] + rest)
+        let failed = record(image: first.image, status: .failed, operationID: op,
+                            visibility: .swallowed, revision: 2, reason: .uploadStarted)
+        panel.render(rest, recentHistory: [failed])
         XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), page)
     }
 

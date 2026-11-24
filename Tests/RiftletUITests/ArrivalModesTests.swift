@@ -201,7 +201,7 @@ final class ArrivalModesTests: XCTestCase {
         XCTAssertEqual(selected, [record.id], "Returning the visual pose must not replay input")
     }
 
-    @MainActor func testNoneRetainsFastSwallowCompactionAndBusinessDrivenRebirthWithoutUnknownReplay() async throws {
+    @MainActor func testNoneRetainsFastLegacySwallowAndStoresFailedScreenshotInHistory() async throws {
         let (root, _, configuration) = try environment()
         defer { try? FileManager.default.removeItem(at: root) }
         let first = try generated(1, directory: root), second = try generated(2, directory: root)
@@ -232,29 +232,13 @@ final class ArrivalModesTests: XCTestCase {
         XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [second.id])
         XCTAssertEqual(phases.count, 3, "UNKNOWN is not a second start or visual replay")
         XCTAssertTrue(selected.isEmpty, "Rendering observations never authorizes an input")
-        let failed = state(first, status: .failed, visibility: .visible, reason: .safeFailure, revision: 2)
-        panel.render([failed, second])
-        advanceQuietEdgeRefill(panel)
-        try await eventually("Rebirth layout must settle before ordinary click") { !panel.diagnosticSnapshot.isTransitioning }
-        // Both items fit R2 capacity, so the complete remaining queue is visible.
-        panel.showAsset(first.id)
-        try assertStatic(panel, id: first.id)
-        XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [first.id, second.id])
-        let reborn = try row(panel, id: first.id)
-        let pressNotBefore = ProcessInfo.processInfo.systemUptime + configuration.pressDuration + 0.08
-        XCTAssertTrue(reborn.2.accessibilityPerformPress())
-        XCTAssertEqual(selected, [first.id], "The reborn row keeps the same asset and can be selected normally")
-        let rebornImage = reborn.3
-        try await eventually("Reborn screenshot press feedback did not settle", diagnostics: {
-            "modelX=\(rebornImage.affineTransform().tx), presentationX=\(String(describing: rebornImage.presentation()?.affineTransform().tx)), "
-                + "animations=\(rebornImage.animationKeys() ?? []), interaction=\(panel.interactionSnapshot)"
-        }) {
-            self.completedPressIsSettled(rebornImage, panel: panel, notBefore: pressNotBefore)
-        }
-        try assertStatic(panel, id: first.id, completedPressNotBefore: pressNotBefore)
-        let settled = try row(panel, id: first.id)
-        XCTAssertEqual(settled.0, reborn.0, "Returning the reborn press cannot replace or move its original input windows")
-        XCTAssertTrue(settled.3 === rebornImage)
+        let failed = state(first, status: .failed, visibility: .swallowed, reason: .uploadStarted, revision: 2)
+        panel.render([second], recentHistory: [failed])
+        XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [second.id])
+        XCTAssertTrue(selected.isEmpty)
+        panel.showRecentHistory(true)
+        XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [first.id])
+        XCTAssertTrue(try row(panel, id: first.id).2.accessibilityPerformPress())
         XCTAssertEqual(selected, [first.id])
     }
 

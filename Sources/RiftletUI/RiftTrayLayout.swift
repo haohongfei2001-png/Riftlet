@@ -40,12 +40,14 @@ enum RiftTrayLayout {
     static func make(records: [AssetRecord], visibleFrame: CGRect,
                      configuration c: RiftConfiguration, firstVisibleIndex: Int,
                      backingScale: Double, captureEnabled: Bool, menu: RiftTrayMenuState? = nil,
-                     displayFrame: CGRect? = nil) -> RiftLayoutResult {
-        let active = records.filter { $0.visibility == .visible }
+                     displayFrame: CGRect? = nil, recentHistory: Bool = false) -> RiftLayoutResult {
+        let active = recentHistory ? records : records.filter { $0.visibility == .visible }
         let menu = captureEnabled ? menu : nil
         let menuOpen = menu != nil
         let capacity = min(menuOpen ? 2 : 4, c.visibleCountPreference)
-        let first = min(max(firstVisibleIndex, 0), max(0, active.count - min(capacity, captureEnabled ? 3 : 4)))
+        let lastStart = recentHistory ? RiftLayout.lastPageStart(totalCount: active.count, capacity: capacity)
+            : max(0, active.count - min(capacity, captureEnabled ? 3 : 4))
+        let first = min(max(firstVisibleIndex, 0), lastStart)
         var result = RiftLayoutResult(rows: [], lineFrame: .zero, firstVisibleIndex: first,
                                       capacity: capacity, totalCount: active.count)
         guard visibleFrame.width > 0, visibleFrame.height > 0, captureEnabled || !active.isEmpty else { return result }
@@ -57,8 +59,6 @@ enum RiftTrayLayout {
         let width = min(visibleFrame.width, max(1 / px, snap(display.width / 8)))
         let unit = width / 246
         let verticalUnit = min(unit, visibleFrame.height / 212)
-        // An explicitly revealed safe failure can be the sole visible row too.
-        // Its existing UUID is not a new capture and never changes that latch.
         let twoRows = active.count >= 2 || (active.count == 1 && menu.map {
             $0.receivedCapture || $0.openingRows.count >= 2 || $0.priorityIDs.contains(active[0].id)
         } == true)

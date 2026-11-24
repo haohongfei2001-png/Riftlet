@@ -42,7 +42,7 @@ enum RiftWindChimeLayout {
 
     static func make(records: [AssetRecord], visibleFrame: CGRect, configuration c: RiftConfiguration,
                      firstVisibleIndex: Int = 0, backingScale: CGFloat = 1, highContrast: Bool = false,
-                     displayFrame: CGRect? = nil) -> RiftLayoutResult {
+                     displayFrame: CGRect? = nil, recentHistory: Bool = false) -> RiftLayoutResult {
         // Keep the existing six anchors, pager, visible-record filter and number
         // metrics. The R2 string stops at the images, clear of camera and arrows.
         let display = displayFrame ?? visibleFrame
@@ -64,7 +64,7 @@ enum RiftWindChimeLayout {
                                    height: max(0, area.height - bottomReserve - topReserve))
         let baseline = RiftLayout.make(records: records, visibleFrame: placementArea, configuration: spacing,
                                        firstVisibleIndex: firstVisibleIndex, backingScale: backingScale,
-                                       highContrast: highContrast)
+                                       highContrast: highContrast, recentHistory: recentHistory)
         let left = c.placement?.side == .left
         let edge = left ? area.minX : area.maxX
         let scale = max(1, backingScale)

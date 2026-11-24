@@ -114,8 +114,8 @@ public enum RiftLayout {
 
     public static func make(records: [AssetRecord], visibleFrame: CGRect,
                             configuration c: RiftConfiguration, firstVisibleIndex: Int = 0,
-                            backingScale: Double = 1, highContrast: Bool = false) -> RiftLayoutResult {
-        let active = records.filter { $0.visibility == .visible }
+                            backingScale: Double = 1, highContrast: Bool = false, recentHistory: Bool = false) -> RiftLayoutResult {
+        let active = recentHistory ? records : records.filter { $0.visibility == .visible }
         let height = max(c.fitHeight, c.minimumHitHeight)
         // Preserve a genuine empty strip between row windows even for experimental dimensions.
         let pitch = max(c.rowPitch, height + 4)

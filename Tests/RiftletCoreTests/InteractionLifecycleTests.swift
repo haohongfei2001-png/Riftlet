@@ -124,7 +124,7 @@ final class InteractionLifecycleTests: XCTestCase {
         XCTAssertNil(saved)
     }
 
-    func testSyntheticRetryAdmissionIsIndependentAndCannotRebirthSystemScreenshot() async throws {
+    func testSyntheticTerminationAdmissionNeverRestoresEitherImageToTray() async throws {
         let retryOnly = ReceiptPolicy(syntheticRetrySafeProfiles: [profile: .webChat])
         let withoutRetry = ReceiptPolicy(syntheticAcceptanceProfiles: [profile: .webChat],
             syntheticUploadStartProfiles: [profile: .webChat])
@@ -150,11 +150,11 @@ final class InteractionLifecycleTests: XCTestCase {
             XCTAssertEqual(unadmitted.visibility, .swallowed)
             let result = try await db.apply(failure, policy: withRetry)
             XCTAssertEqual(result.status, origin == .synthetic ? .failed : .unknown)
-            XCTAssertEqual(result.visibility, origin == .synthetic ? .visible : .swallowed)
-            let selected = try await db.prepare(assetID: asset.id, target: target())
-            XCTAssertEqual(selected.attempt, origin == .synthetic ? 2 : 1)
-            if origin == .synthetic { XCTAssertNotEqual(selected.id, op.id) }
-            else { XCTAssertEqual(selected.id, op.id) }
+            XCTAssertEqual(result.visibility, .swallowed)
+            let ticket = try await db.beginTraySelection(assetID: asset.id, expectedRevision: result.visibilityRevision, fromHistory: true)
+            let selected = try await db.prepare(assetID: asset.id, target: target(), replacing: nil, traySelection: ticket)
+            XCTAssertEqual(selected.attempt, 2)
+            XCTAssertNotEqual(selected.id, op.id)
             XCTAssertTrue(FileManager.default.fileExists(atPath: directory.appendingPathComponent(asset.fileName).path))
         }
     }
@@ -213,8 +213,10 @@ final class InteractionLifecycleTests: XCTestCase {
         _ = try await db.apply(receipt(op, asset, outcome: .definitiveFailure), policy: admitted)
         try await check(.confirmedFailure, hasStart: true)
 
-        let next = try await db.prepare(assetID: asset.id, target: target("second-attempt"))
-        try await db.markDispatchIntent(next.id)
+        let history = try await db.recentTrayHistory()
+        let ticket = try await db.beginTraySelection(assetID: asset.id, expectedRevision: try XCTUnwrap(history.first?.visibilityRevision), fromHistory: true)
+        let next = try await db.prepare(assetID: asset.id, target: target("second-attempt"), replacing: nil, traySelection: ticket)
+        try await db.markDispatchIntent(next.id, traySelection: ticket)
         _ = try await db.apply(receipt(next, asset, outcome: .unknown), policy: admitted)
         try await check(.needsReview, hasStart: false)
         let reopened = try store()
@@ -387,15 +389,16 @@ final class InteractionLifecycleTests: XCTestCase {
         XCTAssertNil(start)
     }
 
-    func testStrongSafeFailureRebirthsAnOrdinaryClickableScreenshot() async throws {
+    func testStrongSafeFailureStaysInHistoryUntilAnExplicitNewSelection() async throws {
         let db = try store(), asset = try image()
         let op = try await prepare(db, asset)
         _ = try await begin(db, asset, op: op)
         let failed = try await db.apply(receipt(op, asset, outcome: .definitiveFailure), policy: admitted)
-        XCTAssertEqual(failed.visibility, .visible)
-        XCTAssertEqual(failed.visibilityReason, .safeFailure)
+        XCTAssertEqual(failed.visibility, .swallowed)
+        XCTAssertEqual(failed.visibilityReason, .uploadStarted)
         XCTAssertEqual(failed.status, .failed)
-        let next = try await db.prepare(assetID: asset.id, target: target())
+        let ticket = try await db.beginTraySelection(assetID: asset.id, expectedRevision: failed.visibilityRevision, fromHistory: true)
+        let next = try await db.prepare(assetID: asset.id, target: target(), replacing: nil, traySelection: ticket)
         XCTAssertEqual(next.attempt, 2)
         XCTAssertNotEqual(next.id, op.id)
         do {
@@ -445,12 +448,12 @@ final class InteractionLifecycleTests: XCTestCase {
         XCTAssertNotNil(audit)
         let restored = try await db.apply(receipt(op, asset, outcome: .definitiveFailure), policy: admitted)
         let retainedAudit = try await db.compensation(for: op.id)
-        XCTAssertEqual(restored.visibility, .visible)
+        XCTAssertEqual(restored.visibility, .swallowed)
         XCTAssertEqual(restored.status, .failed)
         XCTAssertEqual(retainedAudit, audit)
     }
 
-    func testAlreadySafeLateFailureRebirthsOnItsFirstProvedObservation() async throws {
+    func testLateTerminalFailureIsRecordedInHistory() async throws {
         let db = try store(), asset = try image()
         let op = try await prepare(db, asset)
         _ = try await begin(db, asset, op: op)
@@ -458,11 +461,12 @@ final class InteractionLifecycleTests: XCTestCase {
         let restored = try await db.apply(receipt(op, asset, outcome: .definitiveFailure), policy: admitted)
         let audit = try await db.compensation(for: op.id)
         let phase = try await db.operation(id: op.id)
-        XCTAssertEqual(restored.visibility, .visible)
+        XCTAssertEqual(restored.visibility, .swallowed)
         XCTAssertEqual(restored.status, .failed)
         XCTAssertEqual(phase?.phase, .failed)
         XCTAssertNotNil(audit)
-        let next = try await db.prepare(assetID: asset.id, target: target())
+        let ticket = try await db.beginTraySelection(assetID: asset.id, expectedRevision: restored.visibilityRevision, fromHistory: true)
+        let next = try await db.prepare(assetID: asset.id, target: target(), replacing: nil, traySelection: ticket)
         XCTAssertEqual(next.attempt, 2)
     }
 
@@ -667,25 +671,42 @@ final class InteractionLifecycleTests: XCTestCase {
         XCTAssertEqual(archived, [asset.id])
     }
 
-    func testSafeFailureResetsIdleLifetimeBeforeNormalArchiveCanRun() async throws {
+    func testFailedHistoryItemIsUnaffectedByActiveTrayArchive() async throws {
         let db = try store(), asset = try image()
         let op = try await prepare(db, asset)
-        _ = try await begin(db, asset, op: op)
-        let beforeFailure = Date().addingTimeInterval(-1)
+        let started = try await begin(db, asset, op: op)
         let failed = try await db.apply(receipt(op, asset, outcome: .definitiveFailure), policy: admitted)
-        let fence = QueueInteractionFence(), snapshot = fence.snapshot()
-        let archived = try await db.archiveIdle(before: beforeFailure, fence: fence,
-            revision: snapshot.revision)
+        let fence = QueueInteractionFence()
+        let archived = try await db.archiveIdle(before: Date().addingTimeInterval(60), fence: fence, revision: fence.snapshot().revision)
+        let recent = try await db.recentTrayHistory()
         XCTAssertTrue(archived.isEmpty)
-        XCTAssertGreaterThan(failed.lastInteractionAt, beforeFailure)
-        let later = try await db.archiveIdle(before: Date().addingTimeInterval(60), fence: fence,
-            revision: snapshot.revision)
-        let record = try await db.asset(id: asset.id)
-        let restorable = try await db.canRestoreToQueue(asset.id)
-        XCTAssertEqual(later, [asset.id])
-        XCTAssertEqual(record?.visibility, .archived)
-        XCTAssertEqual(record?.status, .failed)
-        XCTAssertTrue(restorable)
+        XCTAssertEqual(failed.lastInteractionAt, started.lastInteractionAt)
+        XCTAssertEqual(recent.map(\.id), [asset.id])
+        XCTAssertEqual(failed.visibility, .swallowed)
+    }
+
+    func testRecentlyShelvedCapacityIncludesAnOlderCaptureWithoutDeletingEvictedImages() async throws {
+        let db = try store()
+        var captures: [ImportedAsset] = []
+        for index in 0..<23 {
+            let capture = try image(Double(index))
+            _ = try await db.importAsset(capture)
+            captures.append(capture)
+        }
+        for capture in captures.dropFirst().reversed() {
+            let click = try await db.beginTraySelection(assetID: capture.id, expectedRevision: 0, fromHistory: false)
+            await db.endTraySelection(click)
+        }
+        let oldest = try await db.beginTraySelection(assetID: captures[0].id, expectedRevision: 0, fromHistory: false)
+        await db.endTraySelection(oldest)
+        let reopened = try store()
+        let recent = try await reopened.recentTrayHistory(limit: 200)
+        XCTAssertEqual(recent.map(\.id), captures.prefix(20).reversed().map(\.id))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: directory.appendingPathComponent(captures[22].fileName).path))
+        do {
+            _ = try await reopened.beginTraySelection(assetID: captures[22].id, expectedRevision: 1, fromHistory: true)
+            XCTFail("A stale row outside the bounded history authorized a click")
+        } catch RiftletError.invalidTransition {}
     }
 
     func testArchiveIsBoundedDurableAndDoesNotChangeHiddenIntentOrDeleteFiles() async throws {
@@ -715,7 +736,10 @@ final class InteractionLifecycleTests: XCTestCase {
         for asset in images { _ = try await db.importAsset(asset) }
         let adapter = LifecycleCountingAdapter()
         let coordinator = TransferCoordinator(store: db, adapter: adapter, mediaDirectory: directory)
-        for asset in images { try await coordinator.select(asset.id) }
+        for asset in images {
+            let click = try await db.beginTraySelection(assetID: asset.id, expectedRevision: 0, fromHistory: false)
+            try await coordinator.select(click)
+        }
         let started = try await db.assets(includeUsed: true)
         let before = await adapter.counts()
         XCTAssertEqual(started.map(\.visibility), [.swallowed, .swallowed, .swallowed])
@@ -726,10 +750,11 @@ final class InteractionLifecycleTests: XCTestCase {
         try await coordinator.observePending()
         let settled = try await db.assets(includeUsed: true)
         XCTAssertEqual(settled.map(\.status), [.used, .failed, .unknown])
-        XCTAssertEqual(settled.map(\.visibility), [.swallowed, .visible, .swallowed])
+        XCTAssertEqual(settled.map(\.visibility), [.swallowed, .swallowed, .swallowed])
         // The independent third fixture's UNKNOWN never blocks an explicit
         // new user attempt for the safely failed second fixture.
-        try await coordinator.select(images[1].id)
+        let ticket = try await db.beginTraySelection(assetID: images[1].id, expectedRevision: settled[1].visibilityRevision, fromHistory: true)
+        try await coordinator.select(ticket)
         try await coordinator.observePending()
         let retried = try await db.asset(id: images[1].id)
         let operationID = try XCTUnwrap(retried?.activeOperationID)
@@ -839,7 +864,7 @@ final class InteractionLifecycleTests: XCTestCase {
         }
     }
 
-    func testSafelyRebornImageCanSettleNewSelectionWhileOriginalDrainAwaitsAnotherImage() async throws {
+    func testExplicitHistorySelectionCanQueueWhileOriginalDrainAwaitsAnotherImage() async throws {
         let db = try store(), firstAsset = try image(1), secondAsset = try image(2)
         for asset in [firstAsset, secondAsset] { _ = try await db.importAsset(asset) }
         let firstStarted = expectation(description: "First image input held before safe failure")
@@ -849,18 +874,21 @@ final class InteractionLifecycleTests: XCTestCase {
         let settled = LifecycleSettlementRecorder()
         let coordinator = TransferCoordinator(store: db, adapter: adapter, mediaDirectory: directory,
             policy: admitted, onSelectionSettled: { id in await settled.record(id) })
-        let originalSelection = Task { try await coordinator.select(firstAsset.id) }
+        let firstClick = try await db.beginTraySelection(assetID: firstAsset.id, expectedRevision: 0, fromHistory: false)
+        let originalSelection = Task { try await coordinator.select(firstClick) }
         await fulfillment(of: [firstStarted], timeout: 3)
         try await coordinator.select(secondAsset.id) // Prepare the next drain item.
         await adapter.releaseFirst()
         await fulfillment(of: [secondStarted], timeout: 3)
-        let reborn = try await db.asset(id: firstAsset.id)
-        XCTAssertEqual(reborn?.visibility, .visible)
-        XCTAssertEqual(reborn?.status, .failed)
+        let history = try await db.asset(id: firstAsset.id)
+        XCTAssertEqual(history?.visibility, .swallowed)
+        XCTAssertEqual(history?.status, .failed)
 
         // The original select(firstAsset) still awaits the shared drain. Its UI
         // selection already settled, so it must not suppress this new click.
-        try await coordinator.select(firstAsset.id)
+        let historyClick = try await db.beginTraySelection(assetID: firstAsset.id,
+            expectedRevision: try XCTUnwrap(history?.visibilityRevision), fromHistory: true)
+        try await coordinator.select(historyClick)
         let selected = try await db.asset(id: firstAsset.id)
         let operationID = try XCTUnwrap(selected?.activeOperationID)
         let retry = try await db.operation(id: operationID)

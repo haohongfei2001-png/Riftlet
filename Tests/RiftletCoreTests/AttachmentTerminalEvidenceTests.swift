@@ -228,7 +228,7 @@ final class AttachmentTerminalEvidenceTests: XCTestCase {
         let call = try await store.dispatchInvocationID(for: f.operation.id); XCTAssertNil(call)
     }
 
-    func testRetirementNeedsIndependentProfileAndRevivesOnlyExactOriginal() async throws {
+    func testTerminalFailureNeedsIndependentProfileAndKeepsOriginalInHistory() async throws {
         let f = try await fixture()
         _ = try await f.store.apply(receipt(f, outcome: .uploadStarted), policy: policy())
         let noProof = try await f.store.apply(receipt(f, outcome: .definitiveFailure), policy: policy())
@@ -236,9 +236,10 @@ final class AttachmentTerminalEvidenceTests: XCTestCase {
         let failure = receipt(f, outcome: .definitiveFailure, termination: termination(f))
         let notAdmitted = try await f.store.apply(failure, policy: policy(retirement: false))
         XCTAssertEqual(notAdmitted.status, .unknown); XCTAssertEqual(notAdmitted.visibility, .swallowed)
-        let revived = try await f.store.apply(failure, policy: policy())
-        XCTAssertEqual(revived.status, .failed); XCTAssertEqual(revived.visibility, .visible)
-        let retry = try await f.store.prepare(assetID: f.asset.id, target: target())
+        let failed = try await f.store.apply(failure, policy: policy())
+        XCTAssertEqual(failed.status, .failed); XCTAssertEqual(failed.visibility, .swallowed)
+        let ticket = try await f.store.beginTraySelection(assetID: f.asset.id, expectedRevision: failed.visibilityRevision, fromHistory: true)
+        let retry = try await f.store.prepare(assetID: f.asset.id, target: target(), replacing: nil, traySelection: ticket)
         XCTAssertNotEqual(retry.id, f.operation.id); XCTAssertEqual(retry.attempt, 2)
         try await reject(receipt(f, completion: completion(f)), fixture: f)
     }
@@ -254,7 +255,7 @@ final class AttachmentTerminalEvidenceTests: XCTestCase {
         }
         try await reject(receipt(f, outcome: .definitiveFailure, termination: different), fixture: f)
         let restored = try await f.store.apply(receipt(f, outcome: .definitiveFailure, termination: termination(f)), policy: policy())
-        XCTAssertEqual(restored.status, .failed); XCTAssertEqual(restored.visibility, .visible)
+        XCTAssertEqual(restored.status, .failed); XCTAssertEqual(restored.visibility, .swallowed)
         let retained = try await f.store.compensation(for: f.operation.id)
         XCTAssertEqual(retained?.originalSuccess, compensation?.originalSuccess)
     }

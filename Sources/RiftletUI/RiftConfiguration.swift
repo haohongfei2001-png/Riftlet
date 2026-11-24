@@ -122,7 +122,6 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
     /// Adjustable engineering starting value, not an approved timing specification.
     public var swallowDuration: Double = 0.120
     public var shiftDuration: Double = 0.160
-    public var returnDuration: Double = 0.180
     public var reducedMotionDuration: Double = 0.080
     /// A stable CGDirectDisplayID selected in setup. Never inferred from a late file event.
     public var preferredDisplayID: UInt32? = nil
@@ -289,7 +288,7 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
     public init() {}
 
 
-    private enum CodingKeys: String, CodingKey { case fitWidth, fitHeight, hiddenFraction, rowPitch, lineWidth, lineExtension, emptyTraceLength, outerInset, firstCenterFromTop, screenPadding, numberFontSize, numberGap, leftPadding, minimumHitWidth, minimumHitHeight, arrivalDuration, pressDuration, inwardDistance, swallowDuration, shiftDuration, returnDuration, reducedMotionDuration, preferredDisplayID, visibleCountPreference, placement, placementSource, preferredDisplayUUID
+    private enum CodingKeys: String, CodingKey { case fitWidth, fitHeight, hiddenFraction, rowPitch, lineWidth, lineExtension, emptyTraceLength, outerInset, firstCenterFromTop, screenPadding, numberFontSize, numberGap, leftPadding, minimumHitWidth, minimumHitHeight, arrivalDuration, pressDuration, inwardDistance, swallowDuration, shiftDuration, reducedMotionDuration, preferredDisplayID, visibleCountPreference, placement, placementSource, preferredDisplayUUID
         case storedWindChimeArrangement = "windChimeArrangement", storedWindChimeLineInset = "windChimeLineInset"
         case storedTransparency = "trayBackgroundTransparency", storedCameraColor = "trayCameraBodyColor"
         case storedForm = "desktopForm", storedTrayTheme = "trayTheme", storedTrayOcclusion = "trayOcclusion"
@@ -336,7 +335,6 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
         inwardDistance = try values.decodeIfPresent(Double.self, forKey: .inwardDistance) ?? 1.5
         swallowDuration = try values.decodeIfPresent(Double.self, forKey: .swallowDuration) ?? 0.120
         shiftDuration = try values.decodeIfPresent(Double.self, forKey: .shiftDuration) ?? 0.160
-        returnDuration = try values.decodeIfPresent(Double.self, forKey: .returnDuration) ?? 0.180
         reducedMotionDuration = try values.decodeIfPresent(Double.self, forKey: .reducedMotionDuration) ?? 0.080
         preferredDisplayID = try values.decodeIfPresent(UInt32.self, forKey: .preferredDisplayID)
         visibleCountPreference = try values.decodeIfPresent(Int.self, forKey: .visibleCountPreference) ?? 3
@@ -351,7 +349,7 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
                         numberFontSize, minimumHitWidth, minimumHitHeight]
         let nonnegative = [lineExtension, outerInset, firstCenterFromTop, screenPadding,
                            numberGap, leftPadding, arrivalDuration, pressDuration,
-                           inwardDistance, swallowDuration, shiftDuration, returnDuration,
+                           inwardDistance, swallowDuration, shiftDuration,
                            reducedMotionDuration]
         guard positive.allSatisfy({ $0.isFinite && $0 > 0 }),
               nonnegative.allSatisfy({ $0.isFinite && $0 >= 0 }),
@@ -362,7 +360,7 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
               minimumHitWidth <= 256, minimumHitHeight <= 256,
               lineWidth <= 8, outerInset <= 256, screenPadding <= 256,
               [arrivalDuration, pressDuration, swallowDuration, shiftDuration,
-               returnDuration, reducedMotionDuration].allSatisfy({ $0 <= 3 }) else {
+               reducedMotionDuration].allSatisfy({ $0 <= 3 }) else {
             throw RiftConfigurationError.invalidGeometry
         }
     }

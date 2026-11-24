@@ -5,6 +5,7 @@ public actor QueueStore {
     public let mode: StoreMode
     private let database: SQLiteDatabase
     private var selectionReservations = Set<UUID>()
+    private var trayReservations: [UUID: TraySelection] = [:]
     private var reviewDataVersion: String?
     private var reviewIDs = Set<UUID>()
     private var changedReviewIDs = Set<UUID>()
@@ -65,7 +66,7 @@ public actor QueueStore {
         let age = cutoff == nil ? "" : " AND last_interaction_at<=?"
         return try database.rows("SELECT \(assetColumns) FROM assets WHERE " + cleanablePredicate + age,
                                  cutoff.map { [String($0.timeIntervalSince1970)] } ?? []).map(decodeAsset)
-            .filter { try eligibleReturnedInput($0) && !selectionReservations.contains($0.id) }
+            .filter { try eligibleReturnedInput($0) && !selectionReservations.contains($0.id) && trayReservations[$0.id] == nil }
     }
 
     private func eligibleReturnedInput(_ record: AssetRecord) throws -> Bool {
@@ -86,7 +87,7 @@ public actor QueueStore {
     /// fences stale Restore buttons and excludes newly active or unresolved work.
     public func retireMedia(_ id: UUID, revision: Int64, batch: UUID) throws {
         try database.transaction {
-            guard !selectionReservations.contains(id), let record = try asset(id: id), try eligibleReturnedInput(record),
+            guard !selectionReservations.contains(id), trayReservations[id] == nil, let record = try asset(id: id), try eligibleReturnedInput(record),
                   try !database.rows("SELECT 1 FROM assets WHERE id=? AND visibility_revision=? AND " + cleanablePredicate,
                                      [id.uuidString, String(revision)]).isEmpty else { throw RiftletError.invalidTransition }
             // A 1.0.4 opener must refuse before recovering deliberately moved copies as missing.
@@ -115,6 +116,56 @@ public actor QueueStore {
         // queue is now selected exclusively by durable visibility.
         let filter = includeUsed ? "WHERE id NOT IN (SELECT asset_id FROM retired_media)" : "WHERE visibility='visible'"
         return try database.rows("SELECT \(assetColumns) FROM assets \(filter) ORDER BY sort_at,sequence").map(decodeAsset)
+    }
+
+    private let recentTrayPredicate = """
+        visibility IN ('swallowed','archived') AND status!='missing'
+        AND id NOT IN (SELECT asset_id FROM retired_media)
+        ORDER BY last_interaction_at DESC,sequence DESC LIMIT ?
+        """
+    private static let trayHistoryCapacity = 20
+
+    public func recentTrayHistory(limit: Int = 20) throws -> [AssetRecord] {
+        // Choose the most recently shelved captures, then display them in capture order.
+        try database.rows("SELECT \(assetColumns) FROM assets WHERE id IN (SELECT id FROM assets WHERE "
+                          + recentTrayPredicate + ") ORDER BY sort_at DESC,sequence DESC",
+                          [String(max(0, min(limit, Self.trayHistoryCapacity)))]).map(decodeAsset)
+    }
+
+    /// Complete a UI click before any asynchronous target lookup. Upload
+    /// receipts describe the operation and never decide where this row lives.
+    public func beginTraySelection(assetID: UUID, expectedRevision: Int64, fromHistory: Bool) throws -> TraySelection {
+        guard trayReservations[assetID] == nil, !selectionReservations.contains(assetID) else {
+            throw RiftletError.invalidTransition
+        }
+        let ticket = try database.transaction {
+            guard let record = try asset(id: assetID), record.status != .missing,
+                  try !isRetiredMedia(assetID), try !userHidden() else { throw RiftletError.invalidTransition }
+            if let activeID = record.activeOperationID, try operation(id: activeID)?.phase == .prepared {
+                throw RiftletError.invalidTransition
+            }
+            if fromHistory {
+                guard expectedRevision == record.visibilityRevision,
+                      try !database.rows("SELECT 1 WHERE ? IN (SELECT id FROM assets WHERE " + recentTrayPredicate + ")",
+                                         [assetID.uuidString, String(Self.trayHistoryCapacity)]).isEmpty else {
+                    throw RiftletError.invalidTransition
+                }
+            } else {
+                let selectedVisible = record.visibility == .visible && expectedRevision == record.visibilityRevision
+                let archivedDuringClick = record.visibility == .archived && record.visibilityReason == .automaticArchive
+                    && expectedRevision == record.visibilityRevision - 1
+                guard selectedVisible || archivedDuringClick else { throw RiftletError.invalidTransition }
+            }
+            try setVisibility(record, .swallowed, reason: .traySelection, touch: !fromHistory)
+            return TraySelection(id: UUID(), assetID: assetID, originalRevision: expectedRevision,
+                                 historyRevision: record.visibilityRevision + 1, fromHistory: fromHistory)
+        }
+        trayReservations[assetID] = ticket
+        return ticket
+    }
+
+    public func endTraySelection(_ ticket: TraySelection) {
+        if trayReservations[ticket.assetID] == ticket { trayReservations.removeValue(forKey: ticket.assetID) }
     }
 
     public func missingAssetIDs() throws -> Set<UUID> {
@@ -318,14 +369,12 @@ public actor QueueStore {
             try fence.withArchivePermit(expectedRevision: revision) {
                 let records = try database.rows("""
                     SELECT \(assetColumns) FROM assets
-                    WHERE visibility='visible' AND (status IN ('pending','failed') OR
-                      (status='unknown' AND visibility_reason='safeFailure')) AND last_interaction_at<=?
+                    WHERE visibility='visible' AND status IN ('pending','failed') AND last_interaction_at<=?
                     ORDER BY sort_at,sequence LIMIT ?
                     """, [String(cutoff.timeIntervalSince1970), String(max(0, min(limit, 32)))]).map(decodeAsset)
                 var archived: [UUID] = []
                 for record in records where !selectionReservations.contains(record.id) {
-                    if let id = record.activeOperationID, let op = try operation(id: id), op.phase.isUnresolved,
-                       try record.visibilityReason != .safeFailure || receipt(for: id)?.originalCardFailureInvocationID == nil { continue }
+                    if let id = record.activeOperationID, try operation(id: id)?.phase.isUnresolved == true { continue }
                     try setVisibility(record, .archived, reason: .automaticArchive, touch: false)
                     archived.append(record.id)
                 }
@@ -450,25 +499,36 @@ public actor QueueStore {
         try prepare(assetID: assetID, target: target, replacing: nil)
     }
 
-    func prepare(assetID: UUID, target: TargetLease, replacing source: AttachmentRecoverySource?) throws -> TransferOperation {
-        try database.transaction {
+    func prepare(assetID: UUID, target: TargetLease, replacing source: AttachmentRecoverySource?,
+                 traySelection: TraySelection? = nil) throws -> TransferOperation {
+        let prepared = try database.transaction {
             guard let record = try asset(id: assetID) else { throw RiftletError.assetNotFound }
             let id = UUID()
+            if let traySelection {
+                guard trayReservations[assetID] == traySelection, record.visibility == .swallowed,
+                      record.visibilityReason == .traySelection, record.visibilityRevision == traySelection.historyRevision,
+                      record.status != .missing, try !isRetiredMedia(assetID) else { throw RiftletError.invalidTransition }
+            }
+            var predecessor: UUID?
             if let source {
-                guard record.visibility == .visible, record.status != .missing, try !isRetiredMedia(assetID),
-                      source.operation.assetID == assetID, source.permitsDestination(target),
+                guard traySelection != nil || record.visibility == .visible, record.status != .missing,
+                      try !isRetiredMedia(assetID), source.operation.assetID == assetID, source.permitsDestination(target),
                       try attachmentRecoverySource(operationID: source.operation.id) == source else {
                     throw RiftletError.invalidTransition
                 }
-                try database.enableExplicitRecovery()
-                try database.execute("INSERT INTO attachment_reselections(successor_id, predecessor_id) VALUES(?,?)",
-                                     [id.uuidString, source.operation.id.uuidString])
-            } else {
-                if let activeID = record.activeOperationID, let existing = try operation(id: activeID), existing.phase.isUnresolved {
-                    return existing
-                }
+                predecessor = source.operation.id
+            } else if let activeID = record.activeOperationID, let existing = try operation(id: activeID), existing.phase.isUnresolved {
+                guard traySelection != nil else { return existing }
+                guard existing.phase != .prepared else { throw RiftletError.invalidTransition }
+                predecessor = activeID
+            } else if traySelection == nil {
                 guard record.visibility == .visible,
                       record.status == .pending || record.status == .failed else { throw RiftletError.invalidTransition }
+            }
+            if let predecessor {
+                try database.enableExplicitRecovery()
+                try database.execute("INSERT INTO attachment_reselections(successor_id, predecessor_id) VALUES(?,?)",
+                                     [id.uuidString, predecessor.uuidString])
             }
             guard mode != .simulation || (target.surface == .simulation && target.adapterID == "simulation") else { throw RiftletError.modeMismatch }
             guard mode != .production || target.surface != .simulation else { throw RiftletError.modeMismatch }
@@ -482,6 +542,8 @@ public actor QueueStore {
             try database.execute("UPDATE assets SET status='transferring',active_operation_id=? WHERE id=?", [id.uuidString, assetID.uuidString])
             return try requiredOperation(id)
         }
+        if let traySelection { endTraySelection(traySelection) }
+        return prepared
     }
 
     public func operation(id: UUID) throws -> TransferOperation? {
@@ -572,9 +634,9 @@ public actor QueueStore {
     /// browser file inputs use markIndependentFileInputIntent instead.
     @discardableResult
     public func markDispatchIntent(_ id: UUID, selection: AcceptedSelection? = nil,
-                                   ownerID: UUID? = nil, policy: ReceiptPolicy = .init()) throws -> UUID {
+                                   ownerID: UUID? = nil, policy: ReceiptPolicy = .init(), traySelection: TraySelection? = nil) throws -> UUID {
         try database.transaction {
-            let op = try validatedDispatchOperation(id, selection: selection)
+            let op = try validatedDispatchOperation(id, selection: selection, traySelection: traySelection)
             guard try !unresolvedOperations().contains(where: {
                 $0.id != op.id && $0.phase != .prepared && $0.target.conflictsForDispatch(with: op.target)
             }) else { throw RiftletError.targetBusy }
@@ -587,21 +649,29 @@ public actor QueueStore {
     /// consulted. The coordinator and browser own only transient input execution.
     @discardableResult
     public func markIndependentFileInputIntent(_ id: UUID, selection: AcceptedSelection? = nil,
-                                               ownerID: UUID) throws -> UUID {
+                                               ownerID: UUID, traySelection: TraySelection? = nil) throws -> UUID {
         try database.transaction {
-            let op = try validatedDispatchOperation(id, selection: selection)
+            let op = try validatedDispatchOperation(id, selection: selection, traySelection: traySelection)
             return try commitDispatchIntent(op, selection: selection, ownerID: ownerID, exclusive: false)
         }
     }
 
-    private func validatedDispatchOperation(_ id: UUID, selection: AcceptedSelection?) throws -> TransferOperation {
+    private func validatedDispatchOperation(_ id: UUID, selection: AcceptedSelection?, traySelection: TraySelection?) throws -> TransferOperation {
         let op = try requiredOperation(id)
-        guard op.phase == .prepared, let record = try asset(id: op.assetID),
-              record.visibility == .visible else { throw RiftletError.invalidTransition }
+        guard op.phase == .prepared, let record = try asset(id: op.assetID), record.activeOperationID == id else {
+            throw RiftletError.invalidTransition
+        }
+        if let traySelection {
+            guard traySelection.assetID == op.assetID, record.visibility == .swallowed,
+                  record.visibilityReason == .traySelection, record.visibilityRevision == traySelection.historyRevision,
+                  try !userHidden() else { throw RiftletError.invalidTransition }
+        } else {
+            guard record.visibility == .visible else { throw RiftletError.invalidTransition }
+        }
         if let selection {
             guard selection.assetID == op.assetID, selection.target == op.target,
-                  selection.visibilityRevision == record.visibilityRevision,
-                  record.activeOperationID == op.id, try !userHidden() else { throw RiftletError.invalidTransition }
+                  selection.visibilityRevision == (traySelection?.originalRevision ?? record.visibilityRevision),
+                  try !userHidden() else { throw RiftletError.invalidTransition }
         }
         return op
     }
@@ -918,7 +988,6 @@ public actor QueueStore {
                 try database.execute("INSERT INTO compensations(operation_id,evidence_json) VALUES(?,?)", [op.id.uuidString, try json(evidence)])
                 if policy.allowsRetry(receipt: receipt, asset: record.image, mode: mode) {
                     try update(op, phase: .failed, status: .failed, reason: receipt.reason)
-                    try reviveSafely(record)
                 } else {
                     try update(op, phase: .compensated, status: .unknown, reason: "Identity-correlated late error; termination not proved")
                     if record.visibility == .visible { try setVisibility(record, .swallowed, reason: .legacyCompletion) }
@@ -928,13 +997,11 @@ public actor QueueStore {
                 return restored
             }
             if op.phase == .compensated {
-                // Preserve the internal audit and keep observing. Only a separately
-                // admitted safe failure may revive a normal clickable screenshot.
+                // Preserve the internal audit. Only a separately admitted failure can settle this operation.
                 guard let evidence = try compensation(for: op.id),
                       correlatedFailure(receipt, success: evidence.originalSuccess),
                       policy.allowsRetry(receipt: receipt, asset: record.image, mode: mode) else { return record }
                 try update(op, phase: .failed, status: .failed, reason: receipt.reason)
-                try reviveSafely(record)
                 try database.execute("UPDATE operations SET receipt_json=? WHERE id=?", [try json(receipt), op.id.uuidString])
                 guard let restored = try asset(id: op.assetID) else { throw RiftletError.assetNotFound }
                 return restored
@@ -966,11 +1033,9 @@ public actor QueueStore {
             case .definitiveFailure:
                 if policy.allowsRetry(receipt: receipt, asset: record.image, mode: mode) {
                     phase = .failed; status = .failed
-                    try reviveSafely(record)
                 } else { phase = .unknown; status = .unknown }
             case .unknown:
                 phase = .unknown; status = .unknown
-                if receipt.originalCardFailureInvocationID != nil { try reviveSafely(record) }
             }
             try update(op, phase: phase, status: status, reason: receipt.reason)
             try database.execute("UPDATE operations SET receipt_json=? WHERE id=?", [try json(receipt), op.id.uuidString])
@@ -1144,15 +1209,6 @@ public actor QueueStore {
             && failure.profileID == success.profileID
             && failure.attachmentID == success.attachmentID
             && !(success.attachmentID?.isEmpty ?? true)
-    }
-
-    private func reviveSafely(_ record: AssetRecord) throws {
-        // A user removal/archive overrides automatic visibility changes even
-        // though the true failure fact is still recorded in operation history.
-        if let id = record.activeOperationID, try isAttachmentHandled(id) { return }
-        if record.visibility == .visible || record.visibility == .swallowed {
-            try setVisibility(record, .visible, reason: .safeFailure)
-        }
     }
 
     private func setVisibility(_ record: AssetRecord, _ visibility: QueueVisibility,

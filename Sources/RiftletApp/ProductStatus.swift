@@ -33,7 +33,7 @@ enum ProductStatus {
         if copy == .english && admission.usesUnifiedProduct {
             return """
             Riftlet collects single-frame PNG, JPEG, HEIC, HEIF and TIFF screenshots saved by macOS. Limits are 128 MiB, 160 million pixels and 50,000 pixels per side. Clipboard-only images, animated images and PDFs are excluded. Originals are preserved. HDR display has not been verified.
-            Open an editable new or existing ChatGPT draft in Chrome or Edge. Click a desktop thumbnail to add its screenshot. When the draft starts receiving it, you can click the next one. You choose when to send. PNG and JPEG are attached as saved. Other supported formats usually become a full-resolution PNG; if it is too large, the original format is offered to the page instead.
+            Open an editable new or existing ChatGPT draft in Chrome or Edge. Click a desktop thumbnail to add its screenshot. The screenshot moves to recent history as soon as you click it. Scroll up over the tray to find it and click it again if needed. You choose when to send. PNG and JPEG are attached as saved. Other supported formats usually become a full-resolution PNG; if it is too large, the original format is offered to the page instead.
             Check the original draft for an uncertain attachment. Riftlet keeps it in history and never automatically resubmits it. ChatGPT attachment availability can vary by page, account and chat mode.
             Requires macOS 13 or later. Release notes list tested environments. To keep Riftlet out of a screenshot, you can hide desktop thumbnails while collection continues.
             """

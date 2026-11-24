@@ -33,7 +33,7 @@ final class ProductStatusTests: XCTestCase {
 
     func testEnglishProductHelpDistinguishesReceiptFromSendingAndPreservesUncertainHistory() {
         let text = ProductStatus.supportDescription(for: .unifiedProduct, copy: .english)
-        for description in ["editable new or existing", "starts receiving", "You choose when to send",
+        for description in ["editable new or existing", "moves to recent history", "Scroll up over the tray", "You choose when to send",
                             "never automatically resubmits", "128 MiB", "macOS 13"] {
             XCTAssertTrue(text.contains(description), description)
         }
