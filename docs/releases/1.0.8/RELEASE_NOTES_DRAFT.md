@@ -1,4 +1,4 @@
-# Riftlet 1.0.8（build 62）发行说明草稿
+# Riftlet 1.0.8（build 62）发行说明
 
 ## 中文
 
@@ -18,8 +18,10 @@
 
 Requires macOS 13 or later on Apple silicon or Intel. Web attachment is for editable ChatGPT drafts in ordinary Google Chrome and Microsoft Edge. Use **Check for Updates…** in the Riftlet menu to update.
 
-## 候选核验记录
+## 正式版核验记录
 
 产品提交为 `871187f2be5eada68fccf2adcc07d120991e1c15`。DMG 为 `Riftlet-1.0.8.dmg`，14,225,854 字节，SHA-256 为 `66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49`。ARM64 和 Intel 各 1,436 项 Swift 用例、408 项网页回归、Developer ID、公证、staple、Gatekeeper 与独立安装通过。[工程与安装回执](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md)
 
-产品级 A–H 与三份历史数据库副本通过。实际 ChatGPT 上游具名失败卡及 HTTP 4xx 缺少实站证据。Chrome 和 Edge 均已通过三组双图、非空原文与选区，并取得非作者同包实站复核。隔离 31→62 已实际安装、重启，51 个资产与所有原操作均保留。发布前升级十三项已获独立通过。正式公开通道状态见发行报告。[浏览器和升级状态](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md) · [恢复行为](G4_FINAL_ACCEPTANCE.md)
+产品级 A–H 与三份历史数据库副本通过。实际 ChatGPT 上游具名失败卡及 HTTP 4xx 缺少实站证据。Chrome 和 Edge 均已通过三组双图、非空原文与选区，并取得非作者同包实站复核。隔离 31→62 已实际安装、重启，51 个资产与所有原操作均保留。发布前升级十三项已获独立通过。正式公开下载件已独立安装并普通启动，另一份 31 已经公开 stable 应用内更新并保留原数据。[浏览器和升级状态](RIFTLET_1.0.8_FINAL_RELEASE_REPORT.md) · [恢复行为](G4_FINAL_ACCEPTANCE.md)
+
+[GitHub Release](https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.8) · [下载 DMG](https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.8/Riftlet-1.0.8.dmg) · [SHA256SUMS.txt](https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.8/SHA256SUMS.txt) · [官网下载](https://riftlet.com/#release) · [Sparkle stable](https://riftlet.com/updates/stable.xml)

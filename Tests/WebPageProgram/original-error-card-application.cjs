@@ -2,7 +2,33 @@
 
 // A site-owned fixture. It receives the picker events and draws the redacted
 // original error tile; the production resource performs all input/observation.
-async function runOriginalErrorCardCase({form,editor,input,operation,call,check,options,counts}) {
+async function runOriginalErrorCardCase({form,editor,input,operation,call,check,stage,counts}) {
+  // The Node host also enforces an independent wall-clock budget if the renderer stops running.
+  async function within(label,promise) {
+    const limit=8000, deadline=performance.now()+limit;
+    const timeoutError=()=>Error('named-card wait expired: '+label);
+    let timer;
+    try {
+      const result=await Promise.race([promise,new Promise((_,reject)=>{
+        timer=setTimeout(()=>reject(timeoutError()),limit);
+      })]);
+      if(performance.now()>deadline)throw timeoutError();
+      return result;
+    } finally {clearTimeout(timer);}
+  }
+  async function waitForFocusState(label,ready) {
+    const listeners=new AbortController();
+    let poll;
+    try {
+      await within(label,new Promise(resolve=>{
+        const sample=()=>{if(ready())resolve();};
+        for(const event of ['focus','blur'])window.addEventListener(event,sample,{signal:listeners.signal});
+        document.addEventListener('visibilitychange',sample,{signal:listeners.signal});
+        poll=setInterval(sample,50);
+        sample();
+      }));
+    } finally {listeners.abort();clearInterval(poll);}
+  }
   const el=(tag,cls)=>{const node=document.createElement(tag);if(cls)node.className=cls;return node;};
   const style=el('style');style.textContent='.pointer-events-none{pointer-events:none}';document.head.append(style);
   const layout=el('div');layout.setAttribute('data-composer-layout','');
@@ -37,6 +63,7 @@ async function runOriginalErrorCardCase({form,editor,input,operation,call,check,
   }
   // Without an enrolled PNG, a pending preparation must never carry a draft
   // generation across focus loss. Releasing all preparations also ends it.
+  await stage('named-card/pending-pins');
   const pinOnly=await operation(0,null,true);
   window.dispatchEvent(new Event('blur'));
   const freshPin=await operation(0,null,true);
@@ -48,6 +75,7 @@ async function runOriginalErrorCardCase({form,editor,input,operation,call,check,
 
   // Run the real enrolled-pin expiry callbacks using the deterministic fixture
   // clock boundary. The original binding must be absent before another capture.
+  await stage('named-card/expiry');
   const timeout=window.setTimeout, expiry=[];
   window.setTimeout=function(fn,ms,...args){
     const timer=timeout(fn,ms,...args);
@@ -96,15 +124,18 @@ async function runOriginalErrorCardCase({form,editor,input,operation,call,check,
       body.setAttribute('data-composer-layout','');otherRow.append(t.shell);otherLane.append(otherRow);body.append(otherLane);other.append(body);document.body.append(other);},
   };
   for(const [reason,prepare] of Object.entries(failures)) {
+    await stage('named-card/reject/'+reason);
     const {op,item}=await begin(prepare);noPositive(item,reason);noPositive(observe(op,true),reason+' reread');
     row.replaceChildren();
   }
   const accept=(obs,op)=>check(obs.state==='originalCardFailed' && obs.exactImageIdentity && obs.hasError &&
     obs.belongsToOriginalDraft && !obs.inputExecutionPending && !obs.uploadStart && !obs.safeToRetry && !!obs.attachmentID &&
     obs.originalCardFailureInvocationID===op.command('observe').invocationID,'original explicit failure: '+obs.state);
+  await stage('named-card/no-border');
   const noBorder=await begin(t=>()=>{t.ring.remove();row.append(t.shell);});
   accept(noBorder.item,noBorder.op);row.replaceChildren();
   for(const mutation of ['reparent','rename','replace','renderSuccess']) {
+    await stage('named-card/retire/'+mutation);
     const {op,tile,item}=await begin(t=>()=>row.append(t.shell));accept(item,op);
     const reread=observe(op,true);accept(reread,op);check(item.attachmentID===reread.attachmentID,'same original member');
     const wrong=call({...op.command('observe'),requireLiveOriginal:true,invocationID:crypto.randomUUID()}).observation;
@@ -120,6 +151,7 @@ async function runOriginalErrorCardCase({form,editor,input,operation,call,check,
     noPositive(observe(op),mutation);row.replaceChildren();
   }
   for(const scenario of ['sameShell','replacedShell','oldShell']) {
+    await stage('named-card/preview/'+scenario);
     let image, errorContents;
     const {op,tile}=await begin((t,op)=>{
       errorContents=[...t.surface.children];t.surface.replaceChildren();
@@ -129,7 +161,7 @@ async function runOriginalErrorCardCase({form,editor,input,operation,call,check,
         image.src=URL.createObjectURL(input.files[0]);t.surface.append(image);row.append(t.shell);
       };
     });
-    await image.decode();
+    await within('preview/'+scenario+'/decode',image.decode());
     const start=observe(op);
     if(scenario==='oldShell'){noPositive(start,'existing shell with new positive image');row.replaceChildren();continue;}
     check(!!start.uploadStart && !!start.attachmentID, 'original strong positive start '+scenario+' '+start.state);
@@ -151,6 +183,7 @@ async function runOriginalErrorCardCase({form,editor,input,operation,call,check,
   let recoveryInputs=0;
   const initialIndex=index;
   for(const mode of ['still-present','gone','no-witness','late-card','ambiguous-new','wrong-source','prior-replaced','prior-relabeled','converted-competitor','unknown-progress','explicit-error','after-start-error','after-start-gone','attempt-order','mode-aba','editor-aba','replace-editor','navigation-aba']) {
+    await stage('named-card/recovery/'+mode);
     const originalIndex=index;
     let image, errorContents;
     const {op:old,tile,item}=await begin((tile,op)=>()=>{
@@ -165,7 +198,7 @@ async function runOriginalErrorCardCase({form,editor,input,operation,call,check,
     },mode==='attempt-order'?5:1);
     const source={identity:old.identity,invocationID:old.command('observe').invocationID};
     if(mode.startsWith('after-start')){
-      await image.decode();const start=observe(old);
+      await within('recovery/'+mode+'/decode',image.decode());const start=observe(old);
       check(!!start.uploadStart,'positive original start');source.startEvidenceID=start.uploadStart.evidenceID;
       if(mode==='after-start-error'){
         tile.surface.replaceChildren(...errorContents);const error=observe(old,true);
@@ -207,29 +240,36 @@ async function runOriginalErrorCardCase({form,editor,input,operation,call,check,
         const entry=navigation.currentEntry.id;
         history.pushState(null,'','#different-draft');
         check(navigation.currentEntry.id!==entry,'navigation changed actual browser entry');
-        const restored=new Promise(done=>window.addEventListener('popstate',done,{once:true}));
-        history.back();await restored;
+        const listeners=new AbortController();
+        try {
+          const restored=new Promise(done=>window.addEventListener('popstate',event=>{
+            if(event.isTrusted)done();
+          },{signal:listeners.signal}));
+          history.back();
+          await within(mode+'/popstate',restored);
+        } finally {listeners.abort();}
         check(navigation.currentEntry.id===entry,'actual navigation returned to original entry');
       }
     }
     const returnsFromHistory=['gone','explicit-error','after-start-gone','after-start-error'].includes(mode);
     if(returnsFromHistory) {
+      await stage('named-card/recovery/'+mode+'/focus-round-trip');
       const stale=await operation(originalIndex,source,true);
       const before=counts().setters;
       let lostFocus=false, regainedFocus=false;
-      const blur=e=>{lostFocus=e.isTrusted;}, focus=e=>{regainedFocus=e.isTrusted;};
-      window.addEventListener('blur',blur,{once:true});
-      window.addEventListener('focus',focus,{once:true});
-      const history=window.open('/other-draft','_blank');
-      check(!!history,'controlled second window opened');
-      const until=async f=>{for(let i=0;i<100;i++){if(f())return;await new Promise(done=>setTimeout(done,20));}
-        throw Error('controlled focus transition timed out');};
-      history.focus();
+      const listeners=new AbortController();
+      window.addEventListener('blur',e=>{if(e.isTrusted)lostFocus=true;},{signal:listeners.signal});
+      window.addEventListener('focus',e=>{if(e.isTrusted && lostFocus)regainedFocus=true;},{signal:listeners.signal});
       try {
-        await until(()=>lostFocus && !document.hasFocus());
-        check(!call({action:'validate',target:stale.target}).valid,'history permanently retired old write');
-      } finally {history.close();window.focus();}
-      await until(()=>regainedFocus && document.hasFocus() && document.visibilityState==='visible');
+        const history=window.open('/other-draft','_blank');
+        check(!!history,'controlled second window opened');
+        try {
+          history.focus();
+          await waitForFocusState(mode+'/blur',()=>lostFocus && !document.hasFocus());
+          check(!call({action:'validate',target:stale.target}).valid,'history permanently retired old write');
+        } finally {history.close();window.focus();}
+        await waitForFocusState(mode+'/focus',()=>regainedFocus && document.hasFocus() && document.visibilityState==='visible');
+      } finally {listeners.abort();}
       check(!call({action:'validate',target:stale.target}).valid,'return to draft cannot revive old write');
       let staleRejected=false;try{stale.stage();}catch{staleRejected=true;}
       check(staleRejected,'old pin cannot stage a new input after History return');
@@ -281,6 +321,7 @@ async function runOriginalErrorCardCase({form,editor,input,operation,call,check,
   }
   check(index-initialIndex===18 && recoveryInputs===6,'recovery cases and explicitly authorized new inputs');
   check(inputs===index+recoveryInputs && counts().setters===inputs && counts().changes===inputs && counts().sends===0,'exactly one input per case; no send');
+  await stage('named-card/complete');
   return {passed:true,rejectedShapes:Object.keys(failures).length,retiredCases:4,historyRoundTrips:4,draftChangeRefusals:4,pendingReleaseAndExpiryChecked:true,nativeSetters:counts().setters,nativeChanges:inputs,automaticSends:counts().sends};
 }
 module.exports={runOriginalErrorCardCase};

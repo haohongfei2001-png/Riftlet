@@ -1,0 +1,81 @@
+{
+  "version": "1.0.8",
+  "build": 62,
+  "result": "PASS",
+  "signedSource": "871187f2be5eada68fccf2adcc07d120991e1c15",
+  "bytes": 14225854,
+  "dmgSHA256": "66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49",
+  "website": "https://riftlet.com/",
+  "assetURL": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.8/Riftlet-1.0.8.dmg",
+  "normalBrowser": {
+    "name": "Google Chrome",
+    "version": "157.0.8103.79",
+    "mode": "headless installed Google Chrome with fresh profile",
+    "homeHTTP": 200,
+    "visibleButton": true,
+    "clicks": 1,
+    "clickUTC": "2026-11-23T16:50:17.616Z",
+    "firstCompleteSampleUTC": "2026-11-23T16:50:25.227Z",
+    "secondsToFirstCompleteSample": 7.611,
+    "httpResponses": [
+      {
+        "host": "github.com",
+        "http": 302
+      },
+      {
+        "host": "release-assets.githubusercontent.com",
+        "http": 200
+      }
+    ],
+    "browserDownloadPolicy": "browser default",
+    "completedFileCount": 1,
+    "bytesReceived": 14225854,
+    "totalBytes": 14225854,
+    "interruptReason": 0,
+    "dangerType": 0,
+    "navigationHandoff": "The navigation observer reported net::ERR_ABORTED after CDN HTTP 200. The same browser download manager recorded completion with interrupt reason 0 and both byte counts equal to the verified file.",
+    "isolatedBrowserClosed": true,
+    "temporaryProfileRemoved": true
+  },
+  "independentHTTPSClient": {
+    "startedUTC": "2026-11-23T16:36:16.008317+00:00",
+    "finishedUTC": "2026-11-23T16:45:10.098739+00:00",
+    "buttons": [
+      {
+        "placement": "header",
+        "url": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.8/Riftlet-1.0.8.dmg",
+        "version": "1.0.8"
+      },
+      {
+        "placement": "primary",
+        "url": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.8/Riftlet-1.0.8.dmg",
+        "version": "1.0.8"
+      }
+    ],
+    "earlierAssetAttempts": [
+      {
+        "bytes": 0,
+        "curlExit": 16,
+        "redirectsFollowed": 0,
+        "status": null
+      },
+      {
+        "bytes": 0,
+        "curlExit": 56,
+        "redirectsFollowed": 0,
+        "status": null
+      }
+    ],
+    "finalResponse": 200,
+    "actualChecksumFileSHA256": "05f2a653af7ac4baa9d05bbdd9d3520a5fd02aebf46e19c1ace90c0ff39e9454",
+    "matchedChecksumFile": true,
+    "matchedSignedCandidate": true,
+    "matchedStableURLAndLength": true,
+    "stableFeedSHA256": "41af8877b5565b8c8e6edf07c350e4bd4c9faf9a7ecb086347d1cfe566af9cdf"
+  },
+  "privateReceiptsSHA256": {
+    "ordinaryBrowser": "1ecab0f1bb6b105d43dc2ab1baeeb0ed59218706b16b8476b8cf4e8ebc178e51",
+    "downloadManagerSamples": "61c70b11a73d8aa93353f5dfc611bd98e2dab3c937997657214c7e1d8b1ec774",
+    "independentHTTPSClient": "bd4e8dd82d86ba90bcdfb6658a225f6556184d899c7f52b9dff1f9adcc4eb991"
+  }
+}

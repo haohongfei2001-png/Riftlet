@@ -1,0 +1,87 @@
+{
+  "scope": "Synthetic application on loopback, actual Chrome File/FileList, focus and history. This receipt covers the QA harness.",
+  "priorCloudLogs": [
+    "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45186045048/job/137731799406",
+    "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45206156569/job/137846535971"
+  ],
+  "oldDeadlineMS": 34000,
+  "newNamedCaseDeadlineMS": 120000,
+  "individualNativeWaitDeadlineMS": 8000,
+  "fullLocalSuite": {
+    "passed": 48,
+    "failed": 0,
+    "skipped": 0,
+    "nativeChromeVersion": "157.0.8103.79",
+    "nodeVersion": "v26.8.2"
+  },
+  "normalColdCases": [
+    {
+      "modeledRoute": "chrome",
+      "durationMS": 1508.695292,
+      "rejectedShapes": 23,
+      "retiredCases": 4,
+      "trustedHistoryFocusRoundTrips": 4,
+      "draftChangeRefusals": 4,
+      "realFileSetters": 56,
+      "realFileInputs": 56,
+      "realFileChanges": 56,
+      "automaticSends": 0,
+      "terminalStage": "named-card/complete"
+    },
+    {
+      "modeledRoute": "edge",
+      "durationMS": 1447.075833,
+      "rejectedShapes": 23,
+      "retiredCases": 4,
+      "trustedHistoryFocusRoundTrips": 4,
+      "draftChangeRefusals": 4,
+      "realFileSetters": 56,
+      "realFileInputs": 56,
+      "realFileChanges": 56,
+      "automaticSends": 0,
+      "terminalStage": "named-card/complete"
+    }
+  ],
+  "boundedTimerAndFocusControls": {
+    "passed": 5,
+    "cases": [
+      "immediate completion and canceled timer",
+      "late completion after wall deadline rejected",
+      "missing popstate expires",
+      "focus and visibility require ready predicate and release listeners",
+      "missing blur expires and releases all observers"
+    ]
+  },
+  "oneDelayedCase": {
+    "status": "PASS",
+    "preInputPhase": "named-card/pending-pins",
+    "delayBeganUTC": "2026-11-23T16:54:19.127Z",
+    "ackAtUTC": "2026-11-23T16:54:55.129Z",
+    "measuredDelayMS": 36002,
+    "coldCaseDurationMS": 37547.741917,
+    "oldWholeFixtureBudgetMS": 34000,
+    "originalControlRoute": "Chrome",
+    "onceOnlyBusinessTests": 1,
+    "realFileSetters": 56,
+    "realFileInputs": 56,
+    "realFileChanges": 56,
+    "automaticSends": 0,
+    "irrevocablyRejectedShapes": 23,
+    "retiredCases": 4,
+    "realFocusRoundTrips": 4,
+    "changedDraftRefusals": 4,
+    "passedTestsIncludingOwnedCleanup": 14,
+    "exitCode": 0,
+    "actualFinalPhase": "named-card/complete",
+    "rawTAPSHA256": "54f67c9b261ad18418ad32816e72206d0c6a789c08a573c9aa157d14964f9f4c"
+  },
+  "fixedHarnessSHA256": {
+    "Tests/WebPageProgram/chrome-input-resource.test.cjs": "48639ae6cedc28b0982930cc086cb835ee2aeba2e4ac598f10ae874d3c4f55d8",
+    "Tests/WebPageProgram/original-error-card-application.cjs": "e1e1d34ce34f1f5c6c15335adead3c9c40684d06f480ba5338ccbe407fd92147"
+  },
+  "sourceReceiptsSHA256": {
+    "coldCasesAndControls": "1095deed9083b8d268055510f0f74d16bba9b3294242e00b6274451448c2ad79",
+    "delayedCase": "57003ab4e6ed04a08a9357c0e6259b0e60a3c61e14ee2cb55f68a62f278aaeec",
+    "completeSuite": "0cd7f2c41342b8cf8d109c0bdb08db7886c98590b4d89a5dfb2bd4f63f1b6401"
+  }
+}

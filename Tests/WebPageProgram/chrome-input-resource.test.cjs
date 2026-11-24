@@ -329,7 +329,7 @@ function browserFixture(options){
    }
    op.chunks=chunkIndex;};if(!defer)op.stage();return op;
   }
-  if(options.namedErrorCard)return (__ORIGINAL_ERROR__ )({form,editor,input,operation,call,check,options,counts:()=>({setters,changes,sends})});
+  if(options.namedErrorCard)return (__ORIGINAL_ERROR__ )({form,editor,input,operation,call,check,stage,counts:()=>({setters,changes,sends})});
   for(let index=0;index<options.count;index++)ops.push(await operation(index));
   const busyProbe=await operation(50);
   let otherTab;
@@ -664,8 +664,11 @@ const groups=[...originalScenarios.map(scenario=>[scenario]),handoffScenarios];
 for(const unfiltered of groups){
  const group=unfiltered.filter(options=>!process.env.RIFTLET_NATIVE_CASE||JSON.stringify(options).includes(process.env.RIFTLET_NATIVE_CASE));
  if(!group.length)continue;
+ // Named-card cases perform 56 independent file inputs, including four real popup round trips.
+ // The outer test keeps its original extra 30 seconds for process, socket and profile cleanup.
+ const reportBudgetMS=group.some(options=>options.namedErrorCard)?120000:30000+4000*group.length;
  test('native Chrome independent append '+(group.length===1?JSON.stringify(group[0]):group.map(item=>item.name).join(', ')),{
- skip:!binary&&!required?'CHROME_NOT_RUN: no native Chrome binary in this executor':false,timeout:60000+4000*group.length
+ skip:!binary&&!required?'CHROME_NOT_RUN: no native Chrome binary in this executor':false,timeout:reportBudgetMS+30000
 },async t=>{
 
   assert.ok(binary,'CHROME_REQUIRED_BUT_UNAVAILABLE: native Chrome must run in this CI job');
@@ -714,7 +717,7 @@ for(const unfiltered of groups){
     exit=new Promise(resolve=>child.once('exit',(code,signal)=>{
       resolve();if(!completed)rejectReport(Error('Chrome exited before result; code='+code+' signal='+signal+' phase='+lastPhase+' stderr='+stderr));
     }));
-    await bounded(finished,30000+4000*group.length,()=> 'CHROME_FIXTURE_TIMEOUT phase='+lastPhase+' stderr='+stderr,t.signal);
+    await bounded(finished,reportBudgetMS,()=> 'CHROME_FIXTURE_TIMEOUT phase='+lastPhase+' stderr='+stderr,t.signal);
     for(const [index,report] of reports.entries()){
      const options=group[index];
      try{
