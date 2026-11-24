@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "reviewedBase": "e73265bf63e17c216e1557845e1f35fe9d3bee70",
-  "reviewedSource": "fc4b5f3c4ad2ea76b48a4636957dbb9403ea0b4c",
-  "reviewedTree": "5b20ba04e68fa2321e2a934dd9cf0d5e78269a92",
+  "reviewedBase": "871df3f81957686f6ec2e3bae78fcc447963113c",
+  "reviewedSource": "14c220eb06302ef8702c675924477ae7bb513d96",
+  "reviewedTree": "4a550294b11e20473a5bd3c1e8410bff226c7908",
   "authorRole": "riftlet_108_product_recovery_integration",
   "reviews": [
     {
-      "reviewer": "independent-build62-recovery-and-mainline-source-reviewer",
-      "source": "fc4b5f3c4ad2ea76b48a4636957dbb9403ea0b4c",
-      "tree": "5b20ba04e68fa2321e2a934dd9cf0d5e78269a92",
+      "reviewer": "independent-post108-capture-settings-source-reviewer",
+      "source": "14c220eb06302ef8702c675924477ae7bb513d96",
+      "tree": "4a550294b11e20473a5bd3c1e8410bff226c7908",
       "result": "PASS",
-      "sha256": "7df258a61690fe035135296c39ee34f0ffd7bb9b83b8b866c4443de8760fcb00",
-      "report": "{\n  \"reviewedBase\": \"e73265bf63e17c216e1557845e1f35fe9d3bee70\",\n  \"reviewedSource\": \"fc4b5f3c4ad2ea76b48a4636957dbb9403ea0b4c\",\n  \"reviewedTree\": \"5b20ba04e68fa2321e2a934dd9cf0d5e78269a92\",\n  \"reviewer\": \"independent-build62-recovery-and-mainline-source-reviewer\",\n  \"result\": \"PASS\"\n}\n"
+      "sha256": "7b016bb06948680cf8a068cde7d6b1155fb2c750d094d93203015d4bcc2f81f3",
+      "report": "{\n  \"reviewedBase\": \"871df3f81957686f6ec2e3bae78fcc447963113c\",\n  \"reviewedSource\": \"14c220eb06302ef8702c675924477ae7bb513d96\",\n  \"reviewedTree\": \"4a550294b11e20473a5bd3c1e8410bff226c7908\",\n  \"reviewer\": \"independent-post108-capture-settings-source-reviewer\",\n  \"result\": \"PASS\"\n}\n"
     }
   ],
   "productionAdmission": {
