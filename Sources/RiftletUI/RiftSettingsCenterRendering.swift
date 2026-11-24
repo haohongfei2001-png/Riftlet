@@ -41,8 +41,8 @@ extension RiftSettingsCenterController {
         captureOptions.isHidden = !settings.entryEnabled && ![SettingsDomain.captureMode, .trayFavorite1, .trayFavorite2, .trayFavorite3].contains { model.snapshot.domains[$0]?.hasIssue == true }
         trayFavorites.isHidden = settings.configuration.desktopForm != .tray && !RiftTrayFavoriteSlot.allCases.contains { model.snapshot.domains[$0.settingsDomain]?.hasIssue == true }
         text("source.capture", presentation.sourceText)
-        text("sourcePath.capture", presentation.hasSourceLocation ? URL(fileURLWithPath: presentation.sourcePath).lastPathComponent : "")
-        labels["sourcePath.capture"]?.toolTip = presentation.sourcePath
+        text("sourcePath.capture", presentation.hasSourceLocation ? (presentation.sourcePath as NSString).abbreviatingWithTildeInPath : "")
+        labels["sourcePath.capture"]?.toolTip = presentation.hasSourceLocation ? presentation.sourcePath : nil
         hide("source.access.capture", !presentation.needsSourceAccess)
         enable("source.access.capture", product.capabilities.canChooseSource && presentation.needsSourceAccess)
         text("screen.capture", screenRecordingText)

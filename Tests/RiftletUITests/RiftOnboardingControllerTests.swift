@@ -100,6 +100,8 @@ final class RiftOnboardingControllerTests: XCTestCase {
         let recheck = try button(controller, "onboarding.recheck")
         XCTAssertTrue(status.stringValue.contains("Checking your screenshot folder"))
         XCTAssertTrue(status.stringValue.contains("choose Allow"))
+        let preview = try XCTUnwrap(controller.control(identifier: "onboarding.workflowPreview"))
+        XCTAssertFalse(preview.isHidden)
         XCTAssertTrue(grant.isHidden && privacy.isHidden && recheck.isHidden)
         var denied = fixture(state, revision: 2)
         denied.setup = .init(sourceLocation: "/fixture/Desktop", source: .unavailable,
@@ -110,10 +112,17 @@ final class RiftOnboardingControllerTests: XCTestCase {
         XCTAssertFalse(grant.isHiddenOrHasHiddenAncestor)
         XCTAssertFalse(privacy.isHiddenOrHasHiddenAncestor)
         XCTAssertTrue(privacy.isEnabled)
+        XCTAssertTrue(preview.isHidden)
+        controller.window.contentView?.layoutSubtreeIfNeeded()
+        for action in [grant, privacy] {
+            let clip = try XCTUnwrap(action.enclosingScrollView?.contentView)
+            XCTAssertTrue(clip.bounds.contains(action.convert(action.bounds, to: clip)))
+        }
         privacy.performClick(nil)
         await assertReceived { actions == ["privacy"] }
         controller.update(fixture(state, revision: 3, permission: .notRequested, connection: .unchecked))
         XCTAssertTrue(privacy.isHidden && grant.isHidden)
+        XCTAssertFalse(preview.isHidden)
         let next = try button(controller, "onboarding.next")
         XCTAssertTrue(next.isEnabled)
         next.performClick(nil)

@@ -49,6 +49,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
     private lazy var next = SettingsNativeStyle.button(copy.continueButton)
     private lazy var back = SettingsNativeStyle.button(copy.back)
     private lazy var later = SettingsNativeStyle.button(copy.later)
+    private lazy var workflowPreview = RiftOnboardingPlacementPreview(workflow: true, copy: copy)
     private lazy var introTitle = SettingsNativeStyle.label(copy.headline, role: "title")
     private let introDescription = SettingsNativeStyle.label("")
     private let introCapability = SettingsNativeStyle.label("", role: "secondary")
@@ -212,6 +213,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
         controls["onboarding.sourceStatus"] = sourceDetail
         controls["onboarding.automationStatus"] = automationDetail
         controls["onboarding.connectionStatus"] = connectionStatus
+        controls["onboarding.workflowPreview"] = workflowPreview
         let intro = page([
             introTitle, introDescription,
             section(copy.folderHeading, symbol: "folder", views: [
@@ -221,7 +223,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
                 actionButton(copy.unhide, id: "onboarding.unhide"),
                 actionButton(copy.recheckFolder, id: "onboarding.recheck")
             ]),
-            introCapability, RiftOnboardingPlacementPreview(workflow: true, copy: copy)
+            introCapability, workflowPreview
         ])
         let connections = page([
             SettingsNativeStyle.label(copy.chromeHeading, role: "title"),
@@ -290,6 +292,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
         sourceAccess.isEnabled = snapshot.capabilities.canChooseSource && !snapshot.setup.isChecking && !sourceAccess.isHidden
         configureAction("onboarding.filePrivacy", visible: snapshot.setup.issue == .sourceAccess && !snapshot.reviewEnvironment,
                         enabled: snapshot.capabilities.canChooseSource && !snapshot.setup.isChecking)
+        workflowPreview.isHidden = !sourceAccess.isHidden || controls["onboarding.filePrivacy"]?.isHidden == false
         configureAction("onboarding.resume", visible: snapshot.state.owner.collectionPaused,
                         enabled: snapshot.capabilities.canChangeCollection && !busy.contains(.collection))
         configureAction("onboarding.unhide", visible: snapshot.state.owner.isHidden,

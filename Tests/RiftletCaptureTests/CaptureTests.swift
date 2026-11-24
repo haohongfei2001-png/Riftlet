@@ -325,6 +325,30 @@ final class CaptureTests: XCTestCase {
         await service.stop()
     }
 
+    func testMismatchedLegacyJournalCannotSuppressFileWithAnotherDatabaseIdentity() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let file = f.source.appendingPathComponent("candidate.png")
+        let other = f.source.appendingPathComponent("other.png")
+        try makePNG(at: file); try markScreenshot(file)
+        try Data(contentsOf: file).write(to: other); try markScreenshot(other)
+        let signature = try FileSignature.read(at: file)
+        let unrelated = try FileSignature.read(at: other)
+        XCTAssertNotEqual(signature.fileID, unrelated.fileID)
+        let manifest = try journal(file, key: "\(signature.device):\(signature.fileID)", in: f)
+        let record = ImportedAsset(id: manifest.id, sourceKey: "\(unrelated.device):\(unrelated.fileID)",
+            fileName: manifest.fileName, sha256: manifest.sha256, byteCount: manifest.byteCount,
+            pixelWidth: manifest.pixelWidth, pixelHeight: manifest.pixelHeight, mediaType: manifest.mediaType)
+        _ = try await f.store.importAsset(record)
+        let recovered = try await f.importer.recover()
+        XCTAssertEqual(recovered.invalid, [manifest.id])
+        do {
+            _ = try await f.importer.importFile(at: file)
+            XCTFail("A conflicting old journal must not identify these bytes as collected")
+        } catch CaptureError.historicalSourceUnconfirmed {}
+        let rows = try await f.store.assets(includeUsed: true)
+        XCTAssertEqual(rows.map(\.image), [record])
+    }
+
     func testHistoricalHoldCachingRequiresLocalAPFS() {
         func filesystem(_ name: String, local: Bool) -> statfs {
             var result = statfs()

@@ -363,7 +363,9 @@ public actor PrivateAssetImporter {
         try PrivateFiles.promote(temporary, to: stage)
     }
 
-    var legacyFileIDs: Set<String> { Set(legacyAssetIDs.keys) }
+    // Dictionary.Keys shares its backing storage; taking a scan snapshot does
+    // not enumerate the archive when the watched folder has few or no files.
+    var legacyFileIDs: Dictionary<String, Set<UUID>>.Keys { legacyAssetIDs.keys }
 
     private func rememberEarlierEvidence(_ image: ImportedAsset) {
         guard let fileID = FileSignature.legacyFileID(image.sourceKey) else { return }
@@ -379,7 +381,9 @@ public actor PrivateAssetImporter {
         guard initial.signature == signature else { throw CaptureError.unstableFile }
         var sourceHash: String?
         for id in ids {
-            guard let record = try await store.asset(id: id), record.image.byteCount == signature.size,
+            guard let record = try await store.asset(id: id),
+                  FileSignature.legacyFileID(record.image.sourceKey) == signature.fileID,
+                  record.image.byteCount == signature.size,
                   Self.isValidBasename(record.image.fileName), record.image.origin == .systemScreenshot,
                   try await !store.isRetiredMedia(id) else { continue }
             if sourceHash == nil {

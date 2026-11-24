@@ -131,6 +131,26 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertTrue(h.requests.isEmpty)
     }
 
+    @MainActor func testScreenshotFolderShowsItsLocationAndPreservesTheFullPathAtMinimumWidth() throws {
+        let h = try host()
+        defer { h.controller.closeForTeardown() }
+        var snapshot = h.controller.product
+        let path = NSHomeDirectory() + "/Pictures/" + String(repeating: "Example Folder/", count: 20) + "Screenshots"
+        snapshot.setup = .init(sourceLocation: path, source: .accessible, collection: .collecting)
+        h.controller.update(snapshot)
+        h.controller.show(page: .capture)
+        h.controller.window.setContentSize(SettingsNativeStyle.settingsMinimumSize)
+        h.controller.window.contentView?.layoutSubtreeIfNeeded()
+        let folder = try XCTUnwrap(h.controller.labels["sourcePath.capture"])
+        XCTAssertEqual(folder.stringValue, (path as NSString).abbreviatingWithTildeInPath)
+        XCTAssertEqual(folder.toolTip, path)
+        XCTAssertEqual(folder.lineBreakMode, .byTruncatingMiddle)
+        let open = try XCTUnwrap(h.controller.controls["source.open.capture"])
+        let clip = h.controller.scroll.contentView
+        XCTAssertTrue(clip.bounds.contains(open.convert(open.bounds, to: clip)))
+        XCTAssertLessThanOrEqual(folder.bounds.width, clip.bounds.width)
+    }
+
     @MainActor func testFolderFailureNeedsRecoveryWhileAnIndividualFileIssueStaysInScreenshotSettings() throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
         for issue in [SetupIssue.sourceVolumeUnidentified, .fileVolumeUnidentified, .historicalSourceUnconfirmed] {
