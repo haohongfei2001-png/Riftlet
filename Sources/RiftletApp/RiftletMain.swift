@@ -102,6 +102,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var captureDiagnostic: CaptureDiagnostic?
     private var detectedSource: URL?
     private var pendingResultCount = 0
+    private let launchedAt = Date()
     private var initialized = false
     private var initializationTask: Task<Void, Never>?
     private var captureControl = CaptureControlGate()
@@ -623,7 +624,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                                          },
                                          onDiagnostic: { [weak self] value in await self?.receiveCaptureDiagnostic(value) })
             if mode == .systemScreenshotCandidate || (mode == .capture && mode.usesWebAdapter) {
-                try await service.prepareApplicationStartup {
+                let collectionRequestedAt = mode == .capture && !captureIsPaused ? launchedAt : nil
+                try await service.prepareApplicationStartup(collectionRequestedAt: collectionRequestedAt) {
                     try await SystemScreenshotCandidateConfiguration.validateStore(store)
                 }
             }
@@ -1174,7 +1176,6 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                                                                 requestFromUserAction: true)
             if permission == .denied { setupIssue = .permissionDenied }
             else if permission == .granted {
-                if setupIssue == .permissionNotRequested || setupIssue == .permissionDenied { setupIssue = nil }
                 do { try await startAttachmentObservationIfPermitted() }
                 catch { setupIssue = .targetUnavailable }
             }
@@ -1316,6 +1317,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
 
     private func applyAutomationPermission(_ state: AutomationPermissionState) {
         automationPermission = state
+        if state == .granted, setupIssue == .permissionDenied || setupIssue == .permissionNotRequested {
+            setupIssue = nil
+        }
         if state != .granted { resetChromeConnection() }
         if mode.usesWebAdapter, state != .granted { feedback.diagnostics.record(.permissionUnavailable) }
         // Setup status cannot veto an explicit click. The actual addressed Apple

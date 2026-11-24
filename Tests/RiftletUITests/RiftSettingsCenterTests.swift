@@ -131,7 +131,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertTrue(h.requests.isEmpty)
     }
 
-    @MainActor func testControlCenterAndBothSettingsPagesExplainVolumeAndIndividualCaptureProblems() throws {
+    @MainActor func testFolderFailureNeedsRecoveryWhileAnIndividualFileIssueStaysInScreenshotSettings() throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
         for issue in [SetupIssue.sourceVolumeUnidentified, .fileVolumeUnidentified, .historicalSourceUnconfirmed] {
             h.revision += 1
@@ -140,20 +140,22 @@ final class RiftSettingsCenterTests: XCTestCase {
             let snapshot = SettingsProductSnapshot(revision: h.revision, setup: setup, state: h.model.snapshot)
             h.controller.update(snapshot)
             let status = RiftControlCenterPresentation(snapshot)
-            XCTAssertEqual(status.state, .attention)
-            XCTAssertEqual(status.recoveryPage, .capture)
-            XCTAssertEqual(status.detail, issue.text)
+            let setupView = SetupPresentation(snapshot: setup)
             if issue == .sourceVolumeUnidentified {
+                XCTAssertEqual(status.state, .attention)
+                XCTAssertEqual(status.recoveryPage, .capture)
                 XCTAssertEqual(status.title, ProductCopy.text("当前截图位置无法收录", "Can’t Collect from This Location"))
-                XCTAssertTrue(status.detail.contains(ProductCopy.text("选择其他保存位置", "choose another save location")))
+                XCTAssertEqual(status.detail, issue.text)
+                XCTAssertEqual(setupView.collectionText, issue.text)
             } else {
-                XCTAssertEqual(status.title, ProductCopy.text("部分截图暂缓收录", "Some Screenshots Are on Hold"))
-                XCTAssertTrue(status.detail.contains(ProductCopy.text("其他新截图仍可收录", "Other new screenshots can still be collected")))
+                XCTAssertEqual(status.state, .collecting)
+                XCTAssertNil(status.recovery(snapshot))
+                XCTAssertEqual(setupView.collectionText, ProductCopy.text("正在收录新截图。", "Collecting new screenshots."))
             }
-            XCTAssertEqual(h.controller.labels["source.capture"]?.stringValue, issue.text)
+            let source = try XCTUnwrap(h.controller.labels["source.capture"])
+            XCTAssertFalse(source.isHidden)
+            XCTAssertEqual(source.stringValue, issue.text)
             XCTAssertNil(h.controller.labels["source.help"])
-            XCTAssertEqual(SetupPresentation(snapshot: setup).collectionText, issue.text)
-
         }
     }
 
@@ -1113,7 +1115,9 @@ final class RiftSettingsCenterTests: XCTestCase {
         h.controller.show(page: .general)
         h.controller.window.contentView?.layoutSubtreeIfNeeded()
         let update: NSButton = try control(h, "updates.check")
-        let row = try XCTUnwrap(h.controller.actionContainers["updates.check"])
+        let row = try XCTUnwrap(update.superview as? NSStackView)
+        XCTAssertTrue(try XCTUnwrap(h.controller.labels["version"]).isDescendant(of: row),
+                      "The current version and its update action belong in one row")
         XCTAssertLessThan(update.bounds.width, row.bounds.width - 40, "A short action must not stretch across the page")
         XCTAssertEqual(update.alignmentRect(forFrame: update.frame).midY, row.bounds.midY, accuracy: 1)
         XCTAssertEqual(update.alignmentRect(forFrame: update.frame).maxX, row.bounds.maxX, accuracy: 1)

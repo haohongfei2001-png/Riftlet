@@ -10,6 +10,19 @@ public struct CaptureRecoveryReport: Sendable {
     public var invalid: [UUID] = []
 }
 
+/// A byte-for-byte copy already exists under an older identity. This is a
+/// local collection result, never a binding to that asset or its operations.
+struct RetainedLegacyContents: Error {
+    let url: URL
+    let signature: FileSignature
+    let changedAt: Duration
+
+    func isUnchanged() -> Bool {
+        guard let current = try? FileSignature.observe(at: url) else { return false }
+        return current.signature == signature && current.changedAt == changedAt
+    }
+}
+
 struct ImportManifest: Codable {
     let version: Int
     let image: ImportedAsset
@@ -51,7 +64,7 @@ public actor PrivateAssetImporter {
     private var outstandingRecoveryIDs = Set<UUID>()
     // Pre-volume assets and journals contain no original URL or volume UUID.
     // Their evidence can hold a possible duplicate, never identify a new file as an old asset.
-    private var earlierFileIDs = Set<String>()
+    private var legacyAssetIDs: [String: Set<UUID>] = [:]
     private var loadedEarlierEvidence = false
     private let fault: ImportFaultHook?
     private let capacityCheck: ImportCapacityCheck
@@ -131,10 +144,10 @@ public actor PrivateAssetImporter {
         if origin == .systemScreenshot, try !CaptureSource.isScreenshot(descriptor: descriptor) {
             throw CaptureError.notScreenshot
         }
-        // An original can be edited in place while retaining its inode and birth
-        // time. Neither different bytes nor an old mount number proves a new file.
-        guard !earlierFileIDs.contains(signature.fileID) else { throw CaptureError.historicalSourceUnconfirmed }
         guard signature.size > 0, signature.size <= ValidatedImage.maximumBytes else { throw CaptureError.imageTooLarge }
+        if let ids = legacyAssetIDs[signature.fileID] {
+            try await checkLegacyContents(ids, source: descriptor, url: url, signature: signature)
+        }
         try capacityCheck(stagingDirectory, signature.size)
 
         let id = UUID()
@@ -350,9 +363,40 @@ public actor PrivateAssetImporter {
         try PrivateFiles.promote(temporary, to: stage)
     }
 
+    var legacyFileIDs: Set<String> { Set(legacyAssetIDs.keys) }
+
     private func rememberEarlierEvidence(_ image: ImportedAsset) {
         guard let fileID = FileSignature.legacyFileID(image.sourceKey) else { return }
-        earlierFileIDs.insert(fileID)
+        legacyAssetIDs[fileID, default: []].insert(image.id)
+    }
+
+    /// A legacy inode/birth match alone cannot identify the current occurrence.
+    /// Suppress only the duplicate notice after checking both complete files.
+    /// Never return the historical record to a new screenshot click.
+    private func checkLegacyContents(_ ids: Set<UUID>, source: Int32, url: URL,
+                                     signature: FileSignature) async throws {
+        let initial = try FileSignature.observe(descriptor: source)
+        guard initial.signature == signature else { throw CaptureError.unstableFile }
+        var sourceHash: String?
+        for id in ids {
+            guard let record = try await store.asset(id: id), record.image.byteCount == signature.size,
+                  Self.isValidBasename(record.image.fileName), record.image.origin == .systemScreenshot,
+                  try await !store.isRetiredMedia(id) else { continue }
+            if sourceHash == nil {
+                sourceHash = try PrivateFiles.hashContents(descriptor: source, operation: "read-source")
+            }
+            guard sourceHash == record.image.sha256 else { continue }
+            let copy = mediaDirectory.appendingPathComponent(record.image.fileName)
+            guard let observed = try? FileSignature.observe(at: copy),
+                  observed.signature.size == signature.size,
+                  try PrivateFiles.hashFile(copy) == sourceHash else { continue }
+            let retained = RetainedLegacyContents(url: copy, signature: observed.signature, changedAt: observed.changedAt)
+            guard retained.isUnchanged(), try FileSignature.observe(descriptor: source) == initial,
+                  try FileSignature.observe(at: url) == initial, try CaptureSource.isScreenshot(descriptor: source)
+            else { throw CaptureError.unstableFile }
+            throw retained
+        }
+        throw CaptureError.historicalSourceUnconfirmed
     }
 
     private func ensureDirectories() throws {
@@ -441,6 +485,12 @@ enum PrivateFiles {
         guard initial.size <= ValidatedImage.maximumBytes else {
             throw CaptureError.imageTooLarge
         }
+        let digest = try hashContents(descriptor: descriptor, operation: "hash-private-copy")
+        guard try privateSignature(descriptor: descriptor) == initial else { throw CaptureError.unstableFile }
+        return digest
+    }
+
+    static func hashContents(descriptor: Int32, operation: String) throws -> String {
         var hash = SHA256()
         var buffer = [UInt8](repeating: 0, count: 64 * 1024)
         var total: Int64 = 0
@@ -448,14 +498,13 @@ enum PrivateFiles {
             let count = buffer.withUnsafeMutableBytes { Darwin.read(descriptor, $0.baseAddress, $0.count) }
             if count < 0 {
                 if errno == EINTR { continue }
-                throw CaptureError.io("hash-private-copy", errno)
+                throw CaptureError.io(operation, errno)
             }
             if count == 0 { break }
             total += Int64(count)
             guard total <= ValidatedImage.maximumBytes else { throw CaptureError.imageTooLarge }
             hash.update(data: Data(buffer.prefix(count)))
         }
-        guard try privateSignature(descriptor: descriptor) == initial else { throw CaptureError.unstableFile }
         return hash.finalize().map { String(format: "%02x", $0) }.joined()
     }
 

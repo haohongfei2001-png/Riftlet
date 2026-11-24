@@ -9,7 +9,7 @@ extension RiftSettingsCenterController {
         let presentation = SetupPresentation(snapshot: product.setup)
         for (page, button) in navigation {
             button.state = page == selectedPage ? .on : .off
-            button.contentTintColor = page == selectedPage ? SettingsNativeStyle.color(.accentInk) : .secondaryLabelColor
+            button.contentTintColor = page == selectedPage ? SettingsNativeStyle.color(.accentInk) : .labelColor
             button.setAccessibilityValue(page == selectedPage ? ProductCopy.text("已选中", "Selected") : "")
         }
         for (domain, row) in preferenceRecoveryRows {

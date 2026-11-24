@@ -86,7 +86,7 @@ struct FileSignature: Codable, Equatable, Sendable {
         try observe(descriptor: descriptor).signature
     }
 
-    private static func observe(descriptor: Int32) throws -> (signature: FileSignature, changedAt: Duration) {
+    static func observe(descriptor: Int32) throws -> (signature: FileSignature, changedAt: Duration) {
         var value = stat()
         guard fstat(descriptor, &value) == 0 else { throw CaptureError.io("stat-source", errno) }
         let changedAt = Duration.seconds(value.st_ctimespec.tv_sec) + .nanoseconds(value.st_ctimespec.tv_nsec)
@@ -120,6 +120,14 @@ public enum CaptureSource {
     }
 
     static let metadataName = "com.apple.metadata:kMDItemIsScreenCapture"
+
+    static func isScreenshot(at url: URL, matching signature: FileSignature) throws -> Bool {
+        let fd = Darwin.open(url.path, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
+        guard fd >= 0 else { throw CaptureError.io("open-source", errno) }
+        defer { Darwin.close(fd) }
+        guard try FileSignature.read(descriptor: fd) == signature else { throw CaptureError.unstableFile }
+        return try isScreenshot(descriptor: fd)
+    }
 
     /// Missing metadata is retryable. A present false/nonboolean value is never a screenshot.
     static func isScreenshot(descriptor: Int32) throws -> Bool {

@@ -115,11 +115,6 @@ public struct RiftControlCenterPresentation {
             detail = SetupIssue.sourceVolumeUnidentified.text(in: copy)
             symbol = "folder.badge.questionmark"
             recoveryTitle = copy.text("检查截图位置", "Check Screenshot Location"); recoveryPage = .capture
-        } else if !owner.collectionPaused, let issue = setup.issue, [.fileVolumeUnidentified, .historicalSourceUnconfirmed].contains(issue) {
-            state = .attention; title = copy.text("部分截图暂缓收录", "Some Screenshots Are on Hold")
-            detail = issue.text(in: copy, browser: setup.browser)
-            symbol = "clock"
-            recoveryTitle = copy.text("查看收录说明", "Show Collection Details"); recoveryPage = .capture
         } else if usesAutomation && (setup.permission == .denied || setup.issue == .permissionDenied) {
             state = .attention; title = copy.text("需要允许 Riftlet 控制 \(setup.browser.displayName)", "Allow Riftlet to Control \(setup.browser.displayName)")
             detail = copy.text("在系统设置中允许访问 \(setup.browser.displayName)，即可继续设置一键附加。", "Allow \(setup.browser.displayName) access in System Settings, then finish setting up one-click attachments.")

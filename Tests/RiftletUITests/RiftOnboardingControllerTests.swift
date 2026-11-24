@@ -79,6 +79,50 @@ final class RiftOnboardingControllerTests: XCTestCase {
         XCTAssertEqual(controller.window.identifier, RiftOnboardingController.windowIdentifier)
     }
 
+    @MainActor func testFolderDiscoveryThenDeniedAccessAndReturnFromPrivacySettings() async throws {
+        try prepareAppKit()
+        var actions: [String] = []
+        let controller = RiftOnboardingController(copy: .english) { action in
+            switch action {
+            case .openFilePrivacy: actions.append("privacy")
+            default: XCTFail("Showing or refreshing guidance cannot request access")
+            }
+        }
+        defer { controller.closeForTeardown() }
+        let state = try model()
+        var startup = fixture(state)
+        startup.setup = .init(source: .notConfigured, collection: .starting, isChecking: true)
+        startup.capabilities.initialized = false
+        controller.update(startup)
+        let status = try XCTUnwrap(controller.control(identifier: "onboarding.sourceStatus") as? NSTextField)
+        let grant = try button(controller, "onboarding.sourceAccess")
+        let privacy = try button(controller, "onboarding.filePrivacy")
+        let recheck = try button(controller, "onboarding.recheck")
+        XCTAssertTrue(status.stringValue.contains("Checking your screenshot folder"))
+        XCTAssertTrue(status.stringValue.contains("choose Allow"))
+        XCTAssertTrue(grant.isHidden && privacy.isHidden && recheck.isHidden)
+        var denied = fixture(state, revision: 2)
+        denied.setup = .init(sourceLocation: "/fixture/Desktop", source: .unavailable,
+                             collection: .waitingForSource, issue: .sourceAccess)
+        controller.update(denied)
+        XCTAssertTrue(controller.show())
+        XCTAssertTrue(status.stringValue.contains("Files and Folders"))
+        XCTAssertFalse(grant.isHiddenOrHasHiddenAncestor)
+        XCTAssertFalse(privacy.isHiddenOrHasHiddenAncestor)
+        XCTAssertTrue(privacy.isEnabled)
+        privacy.performClick(nil)
+        await assertReceived { actions == ["privacy"] }
+        controller.update(fixture(state, revision: 3, permission: .notRequested, connection: .unchecked))
+        XCTAssertTrue(privacy.isHidden && grant.isHidden)
+        let next = try button(controller, "onboarding.next")
+        XCTAssertTrue(next.isEnabled)
+        next.performClick(nil)
+        let browser = try button(controller, "onboarding.automation")
+        XCTAssertEqual(browser.title, "Allow Access to Chrome…")
+        XCTAssertTrue(browser.isEnabled)
+        XCTAssertEqual(actions, ["privacy"])
+    }
+
     @MainActor func testReviewGuidanceKeepsProductFlowSeparateFromCurrentNoUploadCapability() throws {
         try prepareAppKit()
         let controller = RiftOnboardingController(copy: .simplifiedChinese) { _ in XCTFail("Reading guidance cannot issue a command") }

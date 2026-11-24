@@ -278,10 +278,18 @@ final class RiftControlCenterControllerTests: XCTestCase {
             controller.update(state)
             controller.contentView.layoutSubtreeIfNeeded()
             XCTAssertEqual(controller.contextMenu.items.filter { !$0.isSeparatorItem }.count, state.revision == states.first?.revision ? 4 : 6)
+            if state.revision != states.first?.revision {
+                let heading = try XCTUnwrap(controller.contextMenu.items.first)
+                let label = try XCTUnwrap(heading.view?.subviews.first as? NSTextField)
+                XCTAssertEqual(label.stringValue, RiftControlCenterPresentation(state).title)
+                XCTAssertEqual(label.textColor, .labelColor)
+                XCTAssertNil(heading.action)
+            }
             var rectangles: [NSRect] = []
             for control in controls {
                 XCTAssertFalse(control.isHiddenOrHasHiddenAncestor)
                 XCTAssertEqual(control.accessibilityLabel(), control.title)
+                XCTAssertEqual(control.contentTintColor, control.isEnabled ? .labelColor : nil)
                 let rect = control.convert(control.bounds, to: controller.contentView)
                 XCTAssertGreaterThanOrEqual(rect.width, 200, "The whole row remains clickable")
                 XCTAssertGreaterThanOrEqual(rect.height, 30)

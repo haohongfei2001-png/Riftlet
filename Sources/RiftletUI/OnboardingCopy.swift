@@ -6,7 +6,7 @@ extension ProductCopy {
     var continueButton: String { text("继续", "Continue") }
     var back: String { text("上一步", "Back") }
     var later: String { text("稍后设置", "Set Up Later") }
-    var headline: String { text("让截图出现在桌面边缘", "See screenshots at the edge of your desktop") }
+    var headline: String { text("读取 Mac 上的截图", "Read screenshots saved on your Mac") }
     var chromeMenuHeading: String { text("检查浏览器连接", "Check the browser connection") }
     var checkConnection: String { text("检查连接", "Check Connection") }
     var allowAccess: String { text("允许访问…", "Allow Access…") }
@@ -32,8 +32,8 @@ extension ProductCopy {
     }
     var rootLabel: String { text("开始使用 Riftlet，两步引导", "Get started with Riftlet in two steps") }
     var introDetail: String {
-        text("截图后，点托盘里的图片即可附加到 Chrome 或 Edge 中当前的 ChatGPT 草稿。",
-             "Take a screenshot, then click its thumbnail in the tray to attach it to your current ChatGPT draft in Chrome or Edge.")
+        text("Riftlet 从截图文件夹读取新图。点托盘里的图片，就能将它附加到 Chrome 或 Edge 中的 ChatGPT 草稿。",
+             "Riftlet reads new images from your screenshot folder. Click a thumbnail in the tray to add it to your ChatGPT draft in Chrome or Edge.")
     }
     var reviewDetail: String {
         text("当前为隔离审核：不连接浏览器或上传。",
@@ -60,14 +60,15 @@ extension ProductCopy {
              "Set up your screenshot folder first so new screenshots can appear at the edge of your desktop.")
     }
     var finishChrome: String { text("请先完成浏览器连接设置。", "Finish connecting your browser first.") }
-    var finishReady: String {
-        text("截一张图，在 Chrome 或 Edge 打开要使用的 ChatGPT 对话，点一下缩略图。图片会出现在输入框旁，由你决定何时发送。",
-             "Take a screenshot, open your intended ChatGPT conversation in Chrome or Edge, then click the thumbnail. The image appears beside your draft. You choose when to send it.")
+    func finishReady(browser: SetupBrowser) -> String {
+        text("已连接 \(browser.displayName)。截一张图，在 \(browser.displayName) 打开要使用的 ChatGPT 草稿，点桌面边缘的缩略图即可附加。",
+             "\(browser.displayName) is connected. Take a screenshot, open your ChatGPT draft in \(browser.displayName), then click the thumbnail at the edge of your desktop to attach it.")
     }
     var folderUnreadable: String {
-        text("无法读取这个文件夹。请重新选择并允许访问。",
-             "Riftlet can’t read this folder. Select it again and allow access.")
+        text("请确认截图文件夹仍可用。如果曾在 macOS 提示中拒绝访问，请在“文件与文件夹”中允许 Riftlet 读取这个位置，再回到这里。",
+             "Check that your screenshot folder is available. If you denied access in macOS, allow Riftlet to read this location in Files and Folders, then return here.")
     }
+    var filePrivacy: String { text("打开“文件与文件夹”设置…", "Open Files and Folders Settings…") }
     var wrongFolder: String {
         text("请在选择窗口中确认上面显示的截图文件夹。",
              "In the folder picker, select the screenshot folder shown above.")
@@ -94,7 +95,10 @@ extension ProductCopy {
     }
     var collecting: String { text("正在收录这个文件夹里的新截图。", "Collecting new screenshots from this folder.") }
     var starting: String { text("正在准备收录。", "Preparing to collect screenshots.") }
-    var checkingFolder: String { text("正在检查截图保存位置。", "Checking where your Mac saves screenshots.") }
+    var checkingFolder: String {
+        text("正在检查截图文件夹。如果 macOS 询问是否允许 Riftlet 访问这个位置，请点“允许”。",
+             "Checking your screenshot folder. If macOS asks whether Riftlet can access this location, choose Allow.")
+    }
     var unusedFolder: String { text("此模式不读取系统截图文件夹。", "This mode doesn’t read your Mac’s screenshot folder.") }
     var configureFolder: String {
         text("在 Mac 的“截屏”应用中打开“选项”，将保存位置设为文件夹，然后重新检查。",
@@ -183,13 +187,6 @@ extension ProductCopy {
 
     func automationStatus(_ presentation: SetupPresentation) -> String {
         presentation.automationStatusText ?? localOnly
-    }
-
-    func permissionAction(_ presentation: SetupPresentation) -> String {
-        if presentation.snapshot.permission == .denied {
-            return text("打开自动化设置…", "Open Automation Settings…")
-        }
-        return presentation.permissionActionTitle
     }
 
     func chromeInstructions(_ presentation: SetupPresentation) -> String {

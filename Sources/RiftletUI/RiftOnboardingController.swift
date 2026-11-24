@@ -216,6 +216,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
             introTitle, introDescription,
             section(copy.folderHeading, symbol: "folder", views: [
                 sourcePath, sourceDetail, sourceAccess,
+                actionButton(copy.filePrivacy, id: "onboarding.filePrivacy"),
                 actionButton(copy.resume, id: "onboarding.resume"),
                 actionButton(copy.unhide, id: "onboarding.unhide"),
                 actionButton(copy.recheckFolder, id: "onboarding.recheck")
@@ -280,23 +281,25 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
         introCapability.isHidden = introCapability.stringValue.isEmpty
         sourceDetail.stringValue = sourceStatus(snapshot)
         sourcePath.stringValue = presentation.hasSourceLocation
-            ? URL(fileURLWithPath: presentation.sourcePath).lastPathComponent : ""
+            ? (presentation.sourcePath as NSString).abbreviatingWithTildeInPath : ""
         sourcePath.toolTip = presentation.sourcePath
         sourcePath.isHidden = !presentation.hasSourceLocation
         sourceAccess.title = copy.authorizeFolder
         sourceAccess.setAccessibilityLabel(sourceAccess.title)
-        sourceAccess.isHidden = !presentation.needsSourceAccess
-        sourceAccess.isEnabled = snapshot.capabilities.canChooseSource && !sourceAccess.isHidden
+        sourceAccess.isHidden = !snapshot.capabilities.initialized || snapshot.setup.source == .checking || !presentation.needsSourceAccess
+        sourceAccess.isEnabled = snapshot.capabilities.canChooseSource && !snapshot.setup.isChecking && !sourceAccess.isHidden
+        configureAction("onboarding.filePrivacy", visible: snapshot.setup.issue == .sourceAccess && !snapshot.reviewEnvironment,
+                        enabled: snapshot.capabilities.canChooseSource && !snapshot.setup.isChecking)
         configureAction("onboarding.resume", visible: snapshot.state.owner.collectionPaused,
                         enabled: snapshot.capabilities.canChangeCollection && !busy.contains(.collection))
         configureAction("onboarding.unhide", visible: snapshot.state.owner.isHidden,
                         enabled: snapshot.capabilities.canChangeVisibility && !busy.contains(.visibility))
-        configureAction("onboarding.recheck", visible: snapshot.firstIncompleteOnboardingStep == 0 && sourceAccess.isHidden && !snapshot.state.owner.collectionPaused && !snapshot.state.owner.isHidden,
+        configureAction("onboarding.recheck", visible: snapshot.capabilities.initialized && !snapshot.setup.isChecking && snapshot.firstIncompleteOnboardingStep == 0 && sourceAccess.isHidden && !snapshot.state.owner.collectionPaused && !snapshot.state.owner.isHidden,
                         enabled: snapshot.capabilities.canRecheck)
         automationDetail.stringValue = copy.automationStatus(presentation)
-        automation.title = copy.permissionAction(presentation)
+        automation.title = presentation.permissionActionTitle
         automation.setAccessibilityLabel(automation.title)
-        automation.isHidden = snapshot.setup.permission == .notNeeded || snapshot.setup.permission == .granted
+        automation.isHidden = !presentation.canRequestPermission && snapshot.setup.permission != .notRunning
         automation.isEnabled = !automation.isHidden && snapshot.capabilities.canRequestAutomation && presentation.canRequestPermission
         if snapshot.setup.permission == .notRunning {
             automation.title = copy.text("打开 \(snapshot.setup.browser.displayName)", "Open \(snapshot.setup.browser.displayName)")
@@ -310,7 +313,8 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
         chromeMenuSection.isHidden = snapshot.setup.permission != .granted || presentation.automationStatusText == nil
         scriptDetail.isHidden = scriptDetail.stringValue.isEmpty || snapshot.chromeConnection == .ready
             || (snapshot.setup.browser == .edge && !scriptDisabled)
-        connectionStatus.stringValue = chromeStatus(snapshot.chromeConnection)
+        connectionStatus.stringValue = snapshot.onboardingReady
+            ? copy.finishReady(browser: snapshot.setup.browser) : chromeStatus(snapshot.chromeConnection)
         let chromeCheck = controls["onboarding.checkChrome"] as? NSButton
         chromeCheck?.title = snapshot.chromeConnection == .unchecked ? copy.checkConnection : copy.recheckConnection
         if let chromeCheck { chromeCheck.setAccessibilityLabel(chromeCheck.title) }
@@ -323,7 +327,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
     private var firstAction: NSButton {
         let ids: [String]
         switch currentStep {
-        case 0: ids = ["onboarding.resume", "onboarding.unhide", "onboarding.sourceAccess", "onboarding.recheck"]
+        case 0: ids = ["onboarding.resume", "onboarding.unhide", "onboarding.sourceAccess", "onboarding.filePrivacy", "onboarding.recheck"]
         case 1: ids = ["onboarding.automation", "onboarding.checkChrome"]
         default: ids = []
         }
@@ -352,6 +356,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
         }
         if snapshot.state.owner.collectionPaused { return copy.paused }
         if snapshot.state.owner.isHidden { return copy.hidden }
+        guard snapshot.capabilities.initialized else { return copy.checkingFolder }
         switch snapshot.setup.source {
         case .accessible: return snapshot.setup.collection == .collecting ? copy.collecting : copy.starting
         case .checking, .notChecked: return copy.checkingFolder
@@ -442,6 +447,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
         switch sender.identifier?.rawValue {
         case "onboarding.sourceAccess":
             guard snapshot.capabilities.canChooseSource else { return }; send(.chooseSourceAccess)
+        case "onboarding.filePrivacy": send(.openFilePrivacy)
         case "onboarding.resume": send(.settings(.setCollectionPaused(false)), domain: .collection)
         case "onboarding.unhide": send(.settings(.setHidden(false)), domain: .visibility)
         case "onboarding.automation":
@@ -454,7 +460,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
             guard snapshot.setup.permission == .granted, snapshot.chromeConnection != .checking else { return }
             send(.checkChromeConnection)
         case "onboarding.recheck":
-            guard snapshot.capabilities.canRecheck else { return }; send(.recheck)
+            guard snapshot.capabilities.canRecheck else { return }; send(.recheckSource)
         default: break
         }
     }
