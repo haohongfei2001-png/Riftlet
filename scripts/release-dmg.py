@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Build and verify the notarized outer DMG of an already stapled Riftlet release."""
 import argparse
+from contextlib import contextmanager
 import fcntl
 import importlib.util
 import json
@@ -18,6 +19,9 @@ import uuid
 spec = importlib.util.spec_from_file_location("riftlet_release", Path(__file__).with_name("release-tool.py"))
 R = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(R)
+spec = importlib.util.spec_from_file_location("riftlet_finder", Path(__file__).with_name("finder-layout.py"))
+FINDER = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(FINDER)
 require = R.require
 DMG_ID = "com.riftlet.app.distribution-dmg"
 
@@ -84,26 +88,63 @@ def build_image(app, manifest, image, attempt):
     R.copy_distribution_tree("--rsrc", "--extattr", app, source / R.APP, log=attempt / "copy.log")
     verify_app_tree(source / R.APP, manifest)
     (source / "Applications").symlink_to("/Applications")
-    # The source directory becomes the mounted volume root. Its parent is the
-    # private attempt directory; do not change any workspace or submission modes.
+    background = source / FINDER.BACKGROUND
+    background.parent.mkdir(mode=0o755)
+    background.parent.chmod(0o755)
+    shutil.copyfile(FINDER.ARTWORK / "Install.tiff", background)
+    background.chmod(0o644)
+    # Reserve the Finder file before the filesystem receives its own catalog IDs.
+    settings = source / ".DS_Store"
+    shutil.copyfile(FINDER.ARTWORK / "FinderLayout.bin", settings)
+    settings.chmod(0o644)
     source.chmod(0o755)
     os.lchmod(source / "Applications", 0o755)
-    R.run(["/usr/bin/hdiutil", "create", "-format", "UDZO", "-fs", "HFS+", "-volname", "Riftlet",
-           "-srcfolder", source, image], timeout=300, log=attempt / "image-create.log")
+    working = attempt / "layout-working.dmg"
+    R.run(["/usr/bin/hdiutil", "create", "-format", "UDRW", "-fs", "HFS+", "-volname", "Riftlet",
+           "-srcfolder", source, working], timeout=300, log=attempt / "image-create.log")
+    with mounted_image(working, attempt, readonly=False) as mount:
+        (mount / ".DS_Store").write_bytes(FINDER.settings(mount))
+    # Conversion preserves the original catalog, including the background's ID.
+    R.run(["/usr/bin/hdiutil", "convert", working, "-format", "UDZO", "-o", image],
+          timeout=300, log=attempt / "image-compress.log")
+
+
+@contextmanager
+def mounted_image(image, attempt, *, readonly):
+    mode = "readonly" if readonly else "readwrite"
+    mount = new_attempt(attempt, "mount-")
+    try:
+        reply = R.run(["/usr/bin/hdiutil", "attach", "-" + mode, "-nobrowse", "-noautoopen",
+                       "-mountpoint", mount, "-plist", image], log=attempt / (mode + "-mount.log"))
+        points = [e["mount-point"] for e in plistlib.loads(reply.stdout)["system-entities"] if e.get("mount-point")]
+        require(points == [str(mount)] and os.path.ismount(mount)
+                and bool(os.statvfs(mount).f_flag & os.ST_RDONLY) == readonly, "dmg_wrong_mount_mode")
+        yield mount
+    finally:
+        if os.path.ismount(mount):
+            R.run(["/usr/bin/hdiutil", "detach", mount], log=attempt / (mode + "-detach.log"))
+        require(not os.path.ismount(mount), "dmg_mount_still_attached")
+
+
+def verify_layout(mount):
+    expected = {R.APP, "Applications", ".DS_Store", ".background"}
+    require({p.name for p in mount.iterdir()} == expected, "dmg_unexpected_root_entries")
+    folder = mount / ".background"
+    require(folder.is_dir() and not folder.is_symlink() and stat.S_IMODE(folder.stat().st_mode) == 0o755
+            and {p.name for p in folder.iterdir()} == {"Install.tiff"}, "dmg_background_folder_mismatch")
+    image = mount / FINDER.BACKGROUND
+    same_bytes(image, R.digest(FINDER.ARTWORK / "Install.tiff"))
+    settings = mount / ".DS_Store"
+    require(settings.is_file() and not settings.is_symlink() and stat.S_IMODE(settings.stat().st_mode) == 0o644
+            and stat.S_IMODE(image.stat().st_mode) == 0o644 and settings.read_bytes() == FINDER.settings(mount),
+            "dmg_finder_settings_mismatch")
 
 
 def inspect_image(image, manifest, attempt):
     R.run(["/usr/bin/hdiutil", "verify", image], log=attempt / "image-verify.log")
-    mount = new_attempt(attempt, "mount-")
-    try:
-        reply = R.run(["/usr/bin/hdiutil", "attach", "-readonly", "-nobrowse", "-noautoopen",
-                       "-mountpoint", mount, "-plist", image], log=attempt / "mount.log")
-        points = [e["mount-point"] for e in plistlib.loads(reply.stdout)["system-entities"] if e.get("mount-point")]
-        require(points == [str(mount)] and os.path.ismount(mount)
-                and os.statvfs(mount).f_flag & os.ST_RDONLY, "dmg_wrong_or_writable_mount")
+    with mounted_image(image, attempt, readonly=True) as mount:
         require(stat.S_IMODE(mount.stat().st_mode) == 0o755, "dmg_volume_root_mode_mismatch")
-        entries = {p.name for p in mount.iterdir()}
-        require(entries == {R.APP, "Applications"}, "dmg_unexpected_root_entries")
+        verify_layout(mount)
         link = mount / "Applications"
         require(link.is_symlink() and os.readlink(link) == "/Applications", "dmg_applications_link_mismatch")
         require(stat.S_IMODE(link.lstat().st_mode) == 0o755, "dmg_applications_link_mode_mismatch")
@@ -114,10 +155,6 @@ def inspect_image(image, manifest, attempt):
                 "dmg_embedded_app_signature_mismatch")
         ticket(app, attempt / "embedded-ticket.log")
         assess(app, "execute", attempt)
-    finally:
-        if os.path.ismount(mount):
-            R.run(["/usr/bin/hdiutil", "detach", mount], log=attempt / "detach.log")
-        require(not os.path.ismount(mount), "dmg_mount_still_attached")
 
 
 def create(args, folder, package, manifest, identity):
