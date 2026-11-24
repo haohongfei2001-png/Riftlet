@@ -32,7 +32,7 @@ public enum SettingsDraftPage: Equatable, Sendable { case display, motion }
 public enum SettingsField: String, CaseIterable, Hashable, Sendable {
     case fitWidth, fitHeight, hiddenFraction, trayOcclusion, trayTintHue, trayTintStrength, rowPitch, outerInset, windChimeLineInset, firstCenterFromTop
     case numberFontSize, numberGap, leftPadding, minimumHitWidth, minimumHitHeight, visibleCountPreference
-    case pressDuration, swallowDuration, shiftDuration, returnDuration
+    case pressDuration, swallowDuration, shiftDuration
 
     static let publicNumbers: [Self] = [.visibleCountPreference, .outerInset, .hiddenFraction, .windChimeLineInset, .trayOcclusion, .trayTintHue, .trayTintStrength]
     /// Numeric presentation fields that an existing user can explicitly restore.
@@ -44,7 +44,7 @@ public enum SettingsField: String, CaseIterable, Hashable, Sendable {
 
     public var page: SettingsDraftPage {
         switch self {
-        case .pressDuration, .swallowDuration, .shiftDuration, .returnDuration: return .motion
+        case .pressDuration, .swallowDuration, .shiftDuration: return .motion
         default: return .display
         }
     }
@@ -76,7 +76,6 @@ public enum SettingsField: String, CaseIterable, Hashable, Sendable {
         case .pressDuration: return c.pressDuration
         case .swallowDuration: return c.swallowDuration
         case .shiftDuration: return c.shiftDuration
-        case .returnDuration: return c.returnDuration
         }
     }
 
@@ -114,7 +113,6 @@ public enum SettingsField: String, CaseIterable, Hashable, Sendable {
         case .pressDuration: c.pressDuration = value
         case .swallowDuration: c.swallowDuration = value
         case .shiftDuration: c.shiftDuration = value
-        case .returnDuration: c.returnDuration = value
         }
     }
 }

@@ -13,11 +13,15 @@ final class SQLiteWALInitializationTests: XCTestCase {
 
     private func fixture(_ suffix: String) throws -> (URL, OpaquePointer) {
         let url = directory.appendingPathComponent("\(suffix).sqlite")
+        // Start with the actual extended v3 schema, including its asset indexes.
+        do {
+            let seed = try SQLiteDatabase(url: url)
+            try seed.execute("INSERT INTO metadata(key,value) VALUES('wal-fixture','1')")
+        }
         var raw: OpaquePointer?
         guard sqlite3_open(url.path, &raw) == SQLITE_OK, let raw else { throw RiftletError.database("fixture open") }
-        // Already-extended v3 isolates journal initialization from migration.
-        // Deliberately retain DELETE mode to exercise the formerly failing path.
-        guard sqlite3_exec(raw, "CREATE TABLE operations(dispatch_exclusive INTEGER); INSERT INTO operations VALUES(1); PRAGMA user_version=3", nil, nil, nil) == SQLITE_OK else {
+        // The openers under test must acquire WAL while a reader owns this file.
+        guard sqlite3_exec(raw, "PRAGMA journal_mode=DELETE", nil, nil, nil) == SQLITE_OK else {
             sqlite3_close(raw); throw RiftletError.database("fixture schema")
         }
         return (url, raw)
@@ -52,7 +56,7 @@ final class SQLiteWALInitializationTests: XCTestCase {
             let opened = try results.get()
             XCTAssertEqual(opened.count, 2)
             XCTAssertEqual(try opened[0].rows("PRAGMA journal_mode"), [["wal"]])
-            XCTAssertEqual(try opened[1].rows("SELECT dispatch_exclusive FROM operations"), [["1"]])
+            XCTAssertEqual(try opened[1].rows("SELECT value FROM metadata WHERE key='wal-fixture'"), [["1"]])
             XCTAssertEqual(try opened[1].rows("PRAGMA busy_timeout"), [["3000"]])
         }
     }
@@ -92,7 +96,7 @@ final class SQLiteWALInitializationTests: XCTestCase {
             sqlite3_close(raw); return XCTFail("Could not establish exclusive fixture lock")
         }
         var statement: OpaquePointer?
-        guard sqlite3_prepare_v2(raw, "SELECT * FROM operations", -1, &statement, nil) == SQLITE_OK,
+        guard sqlite3_prepare_v2(raw, "SELECT value FROM metadata WHERE key='wal-fixture'", -1, &statement, nil) == SQLITE_OK,
               let cursor = statement else {
             if let statement { sqlite3_finalize(statement) }
             sqlite3_exec(raw, "ROLLBACK", nil, nil, nil); sqlite3_close(raw)
@@ -152,14 +156,14 @@ final class SQLiteWALInitializationTests: XCTestCase {
             XCTAssertEqual(sqlite3_column_int(timeoutStatement, 0), 3000)
         }
         let recovered = try SQLiteDatabase(url: url)
-        XCTAssertEqual(try recovered.rows("SELECT dispatch_exclusive FROM operations"), [["1"]])
+        XCTAssertEqual(try recovered.rows("SELECT value FROM metadata WHERE key='wal-fixture'"), [["1"]])
         XCTAssertEqual(try recovered.rows("PRAGMA busy_timeout"), [["3000"]])
     }
 
     func testHeldReaderBoundsBusyInitializationAndPreservesOriginalDatabase() throws {
         let (url, raw) = try fixture("held-reader")
         defer { sqlite3_exec(raw, "ROLLBACK", nil, nil, nil); sqlite3_close(raw) }
-        XCTAssertEqual(sqlite3_exec(raw, "BEGIN; SELECT * FROM operations", nil, nil, nil), SQLITE_OK)
+        XCTAssertEqual(sqlite3_exec(raw, "BEGIN; SELECT value FROM metadata WHERE key='wal-fixture'", nil, nil, nil), SQLITE_OK)
         let start = ProcessInfo.processInfo.systemUptime
         XCTAssertThrowsError(try SQLiteDatabase(url: url)) { error in
             guard case RiftletError.database(let message) = error else { return XCTFail("Unexpected \(error)") }
@@ -170,7 +174,7 @@ final class SQLiteWALInitializationTests: XCTestCase {
         XCTAssertLessThan(elapsed, 5)
         XCTAssertEqual(sqlite3_exec(raw, "ROLLBACK", nil, nil, nil), SQLITE_OK)
         let recovered = try SQLiteDatabase(url: url)
-        XCTAssertEqual(try recovered.rows("SELECT dispatch_exclusive FROM operations"), [["1"]])
+        XCTAssertEqual(try recovered.rows("SELECT value FROM metadata WHERE key='wal-fixture'"), [["1"]])
         XCTAssertEqual(try recovered.rows("PRAGMA busy_timeout"), [["3000"]])
     }
 

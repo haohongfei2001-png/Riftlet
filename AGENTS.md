@@ -1,3 +1,7 @@
+# Current desktop screenshot history — 1.0.10
+
+A completed user click moves its screenshot from the active tray into recent history even if the browser target is unavailable or the attachment fails. Scrolling up reaches recent screenshots and scrolling down returns to the active tray. Only an explicit new selection can attach the same image again. Keep the original screenshot and operation receipts, the frozen click target and once-only file input. Upload START remains evidence of actual draft acceptance. This decision supersedes older tray-exit and automatic rebirth rules below.
+
 # Riftlet — current engineering instructions
 
 Riftlet is a publicly released macOS app. Use actual `main` and the latest stable

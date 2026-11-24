@@ -12,9 +12,10 @@ final class AttachmentDispositionTests: XCTestCase {
         let asset = ImportedAsset(sourceKey: "failed-card", fileName: "image.png", sha256: String(repeating: "a", count: 64),
             byteCount: 1, pixelWidth: 1, pixelHeight: 1, mediaType: "image/png", origin: .systemScreenshot)
         _ = try await store.importAsset(asset)
-        let op = try await store.prepare(assetID: asset.id, target: DispositionAdapter().target)
+        let ticket = try await store.beginTraySelection(assetID: asset.id, expectedRevision: 0, fromHistory: false)
+        let op = try await store.prepare(assetID: asset.id, target: DispositionAdapter().target, replacing: nil, traySelection: ticket)
         let owner = UUID()
-        let invocation = try await store.markIndependentFileInputIntent(op.id, ownerID: owner)
+        let invocation = try await store.markIndependentFileInputIntent(op.id, ownerID: owner, traySelection: ticket)
         func report(_ call: UUID?, card: String? = "original") -> TransferReceipt {
             .init(operationID: op.id, assetID: asset.id, attempt: op.attempt, assetSHA256: asset.sha256,
                   target: op.target, outcome: .unknown, profileID: "test", attachmentID: card,
@@ -23,7 +24,7 @@ final class AttachmentDispositionTests: XCTestCase {
         do { _ = try await store.apply(report(UUID())); XCTFail("Wrong invocation accepted") }
         catch RiftletError.mismatchedReceipt {}
         let kept = try await store.apply(report(invocation))
-        XCTAssertEqual(kept.visibility, .visible)
+        XCTAssertEqual(kept.visibility, .swallowed)
         try await store.recordInputExecutionReturned(operationID: op.id, invocationID: invocation, ownerID: owner)
         do { _ = try await store.apply(report(invocation, card: "other")); XCTFail("Different card accepted") }
         catch RiftletError.mismatchedReceipt {}
@@ -40,6 +41,21 @@ final class AttachmentDispositionTests: XCTestCase {
         XCTAssertEqual(state?.attempt, 1)
         let staged = try await reopened.stageAttachmentForReattach(operationID: op.id)
         XCTAssertEqual(staged.activeOperationID, op.id)
+        let afterRestart = try QueueStore(databaseURL: path)
+        let clicked = try await afterRestart.beginTraySelection(assetID: asset.id, expectedRevision: staged.visibilityRevision, fromHistory: false)
+        let other = TargetLease(adapterID: op.target.adapterID, surface: op.target.surface,
+            applicationID: op.target.applicationID, sessionID: op.target.sessionID, windowID: "other",
+            documentID: "different", composerID: "different", draftGeneration: "different")
+        do {
+            _ = try await afterRestart.prepare(assetID: asset.id, target: other, replacing: nil, traySelection: clicked)
+            XCTFail("A staged original cannot switch drafts after restart")
+        } catch RiftletError.invalidTransition {}
+        await afterRestart.endTraySelection(clicked)
+        let ledger = try SQLiteDatabase(url: path, mode: .production)
+        XCTAssertEqual(try ledger.rows("SELECT COUNT(*) FROM operations"), [["1"]])
+        let historical = try await afterRestart.recentTrayHistory()
+        XCTAssertEqual(historical.map(\.id), [asset.id])
+        _ = try await reopened.stageAttachmentForReattach(operationID: op.id)
         try await reopened.removeFromQueue(asset.id)
         let protected = try await reopened.cleanableMedia()
         XCTAssertTrue(protected.isEmpty)

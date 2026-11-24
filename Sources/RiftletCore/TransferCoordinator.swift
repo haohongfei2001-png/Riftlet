@@ -160,6 +160,7 @@ public actor TransferCoordinator {
     private let maximumPendingSelections: Int
     private let onAcceptedSelectionFinished: @Sendable (UUID) async -> Void
     private var acceptedSelections: [UUID: AcceptedSelection] = [:]
+    private var traySelections: [UUID: TraySelection] = [:]
     private var operationSelections: [UUID: AcceptedSelection] = [:]
     private var recoverySources: [UUID: (source: AttachmentRecoverySource, confirmed: Bool)] = [:]
     private var expiryTasks: [UUID: Task<Void, Never>] = [:]
@@ -208,6 +209,11 @@ public actor TransferCoordinator {
         try await select(assetID, target: nil, allowCapture: true, visibilityRevision: visibilityRevision)
     }
 
+    public func select(_ ticket: TraySelection) async throws {
+        try await select(ticket.assetID, target: nil, allowCapture: true, visibilityRevision: ticket.originalRevision,
+                         traySelection: ticket)
+    }
+
     /// A caller that has already resolved a destination uses that exact target.
     /// Missing targets here never cause a later unrelated tab to be selected.
     public func select(_ assetID: UUID, frozenTarget: TargetLease?, visibilityRevision: Int64? = nil) async throws {
@@ -216,19 +222,24 @@ public actor TransferCoordinator {
 
     /// Only for the user's explicit new intent on a staged recovery tile. The
     /// immutable predecessor ID fences delayed and double clicks across attempts.
-    public func reattach(_ selection: AcceptedSelection, replacing operationID: UUID) async throws {
+    public func reattach(_ selection: AcceptedSelection, replacing operationID: UUID, traySelection: TraySelection? = nil) async throws {
         guard adapter is any OriginalAttachmentRecoveryChecking, selection.authorization == .currentClick,
               selection.target.adapterID == adapter.id, activeAppends[operationID] == nil else {
             throw RiftletError.invalidTransition
         }
-        try await accept(selection, replacing: operationID)
+        try await accept(selection, replacing: operationID, traySelection: traySelection)
     }
 
-    public func select(_ selection: AcceptedSelection) async throws {
-        try await accept(selection, replacing: nil)
+    public func select(_ selection: AcceptedSelection, traySelection: TraySelection? = nil) async throws {
+        try await accept(selection, replacing: nil, traySelection: traySelection)
     }
 
-    private func accept(_ selection: AcceptedSelection, replacing predecessor: UUID?) async throws {
+    private func accept(_ selection: AcceptedSelection, replacing predecessor: UUID?, traySelection: TraySelection?) async throws {
+        if let traySelection {
+            guard traySelection.assetID == selection.assetID, traySelection.originalRevision == selection.visibilityRevision else {
+                throw RiftletError.invalidTransition
+            }
+        }
         guard selection.isValid(), acceptedSelections[selection.id] == nil,
               selection.authorization == .currentClick || acceptedSelections.count < maximumPendingSelections else { throw RiftletError.invalidTransition }
         acceptedSelections[selection.id] = selection
@@ -247,7 +258,8 @@ public actor TransferCoordinator {
         }
         do {
             try await select(selection.assetID, target: selection.target, allowCapture: false,
-                             visibilityRevision: selection.visibilityRevision, accepted: selection, replacing: predecessor)
+                             visibilityRevision: selection.visibilityRevision, accepted: selection, replacing: predecessor,
+                             traySelection: traySelection)
         } catch {
             finishAcceptedSelection(selection)
             throw error
@@ -297,7 +309,8 @@ public actor TransferCoordinator {
     }
 
     private func select(_ assetID: UUID, target frozenTarget: TargetLease?, allowCapture: Bool,
-                        visibilityRevision: Int64?, accepted: AcceptedSelection? = nil, replacing: UUID? = nil) async throws {
+                        visibilityRevision: Int64?, accepted: AcceptedSelection? = nil, replacing: UUID? = nil,
+                        traySelection: TraySelection? = nil) async throws {
         // Covers reentrancy while captureTarget awaits a transport reply.
         // Only the selection owner may release its UI reservation. A duplicate
         // invocation cannot settle the original while captureTarget still awaits.
@@ -322,18 +335,18 @@ public actor TransferCoordinator {
                let op = try await store.operation(id: activeID), op.phase.isUnresolved {
                 originalOperation = op
             } else { originalOperation = nil }
-            var predecessor = replacing
-            if predecessor == nil, let accepted, accepted.authorization == .currentClick,
-               record.visibility == .visible, record.visibilityReason == .safeFailure,
-               let op = originalOperation, activeAppends[op.id] == nil,
-               let receipt = try await store.receipt(for: op.id), receipt.originalCardFailureInvocationID != nil {
-                predecessor = op.id
+            if traySelection != nil, let activeID = record.activeOperationID {
+                // A new user choice may supersede an old receipt, never a call
+                // still being executed by this coordinator.
+                guard activeAppends[activeID] == nil else { throw RiftletError.invalidTransition }
+                if try await store.ownsDispatchedOperation(activeID, ownerID: dispatchOwnerID),
+                   try await store.inputExecutionIsActive(for: activeID) { throw RiftletError.invalidTransition }
             }
             // A click may observe an existing UNKNOWN instead of preparing new
             // input. It still needs the original selection's fresh permission
             // and host checks before any transport call.
             if let accepted {
-                if let originalOperation, predecessor == nil {
+                if let originalOperation, replacing == nil, traySelection == nil {
                     // The App checks permission for the selection's exact
                     // process. That result cannot authorize observation in a
                     // different still-running browser session. Leave that old
@@ -348,7 +361,7 @@ public actor TransferCoordinator {
                     throw RiftletError.invalidTransition
                 }
             }
-            if let op = originalOperation, predecessor == nil {
+            if let op = originalOperation, replacing == nil, traySelection == nil {
                 if op.phase == .unknown || op.phase == .compensated {
                     if usesIndependentFileInput, try await store.ownsDispatchedOperation(op.id, ownerID: dispatchOwnerID) {
                         currentFileInputs[op.id] = InputWatch(registeredAt: observationClock())
@@ -367,15 +380,17 @@ public actor TransferCoordinator {
             // even when a newer input profile no longer supports their format.
             try await adapter.preflight(asset: record.image,
                 fileURL: mediaDirectory.appendingPathComponent(record.image.fileName))
-            try await store.reserveSelection(assetID, visibilityRevision: visibilityRevision)
-            reserved = true
+            if traySelection == nil {
+                try await store.reserveSelection(assetID, visibilityRevision: visibilityRevision)
+                reserved = true
+            }
             let target: TargetLease
             if let frozenTarget { target = frozenTarget }
             else if allowCapture { target = try await adapter.captureTarget() }
             else { throw RiftletError.adapterUnavailable("No verified target existed at selection; image retained") }
             guard target.adapterID == adapter.id else { throw RiftletError.mismatchedReceipt }
             var source: AttachmentRecoverySource?
-            if let predecessor {
+            if let predecessor = replacing {
                 guard let verifier = adapter as? any OriginalAttachmentRecoveryChecking, let accepted else {
                     throw RiftletError.invalidTransition
                 }
@@ -393,9 +408,10 @@ public actor TransferCoordinator {
                 }
                 source = original
             }
-            let op = try await store.prepare(assetID: assetID, target: target, replacing: source)
+            let op = try await store.prepare(assetID: assetID, target: target, replacing: source, traySelection: traySelection)
+            if traySelection != nil, let originalOperation { currentFileInputs.removeValue(forKey: originalOperation.id) }
             if let source { recoverySources[op.id] = (source, replacing != nil) }
-            await store.releaseSelection(assetID); reserved = false
+            if reserved { await store.releaseSelection(assetID); reserved = false }
             if let accepted {
                 guard accepted.isValid(), acceptedSelections[accepted.id] != nil else {
                     recoverySources.removeValue(forKey: op.id)
@@ -404,12 +420,12 @@ public actor TransferCoordinator {
                 }
                 operationSelections[op.id] = accepted
             }
+            traySelections[op.id] = traySelection
             waiting[ticket] = op.id
             enqueued = true
             await onChange()
             // Selection ownership ends at durable preparation, not when the
-            // shared input drain finishes work for every queued image. A safely
-            // reborn image may receive a new user click while that drain runs.
+            // shared input drain finishes work for every queued image.
             selecting.remove(assetID); ownsSelection = false; settled = true
             await settleSelection(assetID, accepted: accepted)
             try await drain()
@@ -437,7 +453,7 @@ public actor TransferCoordinator {
     public func recover() async throws {
         for token in acceptedSelections.values { token.cancel() }
         for task in expiryTasks.values { task.cancel() }
-        acceptedSelections.removeAll(); operationSelections.removeAll(); expiryTasks.removeAll()
+        acceptedSelections.removeAll(); operationSelections.removeAll(); traySelections.removeAll(); expiryTasks.removeAll()
         recoverySources.removeAll()
         waiting.removeAll(); skippedTickets.removeAll(); drainTicket = nextTicket
         if usesIndependentFileInput {
@@ -564,10 +580,10 @@ public actor TransferCoordinator {
             }
             do {
                 if usesIndependentFileInput {
-                    try await store.markIndependentFileInputIntent(id, selection: accepted, ownerID: dispatchOwnerID)
+                    try await store.markIndependentFileInputIntent(id, selection: accepted, ownerID: dispatchOwnerID, traySelection: traySelections[id])
                     currentFileInputs[id] = InputWatch(registeredAt: observationClock())
                 } else {
-                    try await store.markDispatchIntent(id, selection: accepted, ownerID: dispatchOwnerID)
+                    try await store.markDispatchIntent(id, selection: accepted, ownerID: dispatchOwnerID, traySelection: traySelections[id])
                 }
             } catch RiftletError.targetBusy {
                 try await cancelIfPrepared(id, reason: "This adapter still owns the target; no input occurred")
@@ -603,6 +619,8 @@ public actor TransferCoordinator {
                 Task { await self.runPhasedAppend(committedRequest, adapter: phased, boundary: boundary) }
                 if !usesIndependentFileInput || accepted?.authorization != .currentClick { try await boundary.wait() }
             } else {
+                activeAppends[id] = committedRequest
+                defer { activeAppends.removeValue(forKey: id) }
                 try await finishOriginalAppend(committedRequest) { try await self.adapter.append(committedRequest) }
                 await onChange()
             }
@@ -663,7 +681,8 @@ public actor TransferCoordinator {
         let id = committedRequest.operation.id
         do {
             let receipt = try await append()
-            _ = try await store.apply(receipt, policy: policy)
+            let record = try await store.apply(receipt, policy: policy)
+            try await finishTrayObservationIfSettled(record, receipt: receipt)
 
             if let invocationID = committedRequest.invocationID {
                 try await store.recordAppendReturned(receipt, invocationID: invocationID, ownerID: dispatchOwnerID)
@@ -692,9 +711,21 @@ public actor TransferCoordinator {
         }
     }
 
+    /// History selections need a bounded read only while the original handoff
+    /// is uncertain. A user can still inspect the original operation explicitly.
+    private func finishTrayObservationIfSettled(_ record: AssetRecord, receipt: TransferReceipt) async throws {
+        guard currentFileInputs[receipt.operationID] != nil, record.visibilityReason == .traySelection else { return }
+        if record.status == .failed || record.status == .used || receipt.originalCardFailureInvocationID != nil {
+            currentFileInputs.removeValue(forKey: receipt.operationID)
+        } else if try await store.uploadStartReceipt(for: receipt.operationID) != nil {
+            currentFileInputs.removeValue(forKey: receipt.operationID)
+        }
+    }
+
     private func advanceWaiting(ticket: Int, id: UUID, selection: AcceptedSelection?) {
         waiting.removeValue(forKey: ticket)
         operationSelections.removeValue(forKey: id)
+        traySelections.removeValue(forKey: id)
         recoverySources.removeValue(forKey: id)
         if ticket == drainTicket { drainTicket += 1 } else { skippedTickets.insert(ticket) }
         if let selection { finishAcceptedSelection(selection) }
@@ -775,6 +806,7 @@ public actor TransferCoordinator {
             guard try await store.receipt(for: op.id) != receipt else { return }
         }
         let updated = try await store.apply(receipt, policy: policy)
+        try await finishTrayObservationIfSettled(updated, receipt: receipt)
         if usesIndependentFileInput, updated.status == .failed {
             currentFileInputs.removeValue(forKey: op.id)
         }

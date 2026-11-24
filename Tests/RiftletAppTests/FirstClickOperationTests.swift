@@ -36,6 +36,8 @@ final class FirstClickOperationTests: XCTestCase {
             })
         var targets: [UUID: Task<TargetLease, Error>] = [:]
         var panel: RiftPanelController!
+        let archived = expectation(description: "both clicks are in history while the frozen target read is waiting")
+        archived.expectedFulfillmentCount = 2
         let submitted = expectation(description: "both native AppKit callback paths submitted")
         submitted.expectedFulfillmentCount = 2
         panel = RiftPanelController(mediaDirectory: root, arrivalMode: .none,
@@ -47,11 +49,19 @@ final class FirstClickOperationTests: XCTestCase {
                 let task = targets.removeValue(forKey: asset)!
                 let revision = panel.selectionRevision(for: asset)!
                 let owner = UUID(), selectedAt = ProcessInfo.processInfo.systemUptime
+                let history = panel.selectionIsFromRecentHistory(for: asset)
+                let claim = Task {
+                    let ticket = try await store.beginTraySelection(assetID: asset, expectedRevision: revision, fromHistory: history)
+                    archived.fulfill()
+                    return ticket
+                }
                 queue.enqueue(selectionID: owner, deadline: selectedAt + 30, cancelled: {}) { _ in
                     do {
+                        let ticket = try await claim.value
                         let selection = try await authority.accept(id: owner, assetID: asset,
                             visibilityRevision: revision, selectedAt: selectedAt, target: task) { true }
-                        try await coordinator.select(selection)
+                        try await coordinator.select(selection, traySelection: ticket)
+                        await store.endTraySelection(ticket)
                     } catch { XCTFail("The click failed before/at operation creation: \(error)") }
                     panel.finishSelection(asset)
                     submitted.fulfill()
@@ -73,6 +83,9 @@ final class FirstClickOperationTests: XCTestCase {
             view.mouseDown(with: try event(.leftMouseDown))
             view.mouseUp(with: try event(.leftMouseUp))
         }
+        await fulfillment(of: [archived], timeout: 5)
+        let waitingHistory = try await store.recentTrayHistory()
+        XCTAssertEqual(Set(waitingHistory.map(\.id)), Set(images.map(\.id)))
         for image in images {
             let before = try await store.asset(id: image.id)
             XCTAssertNil(before?.activeOperationID, "Target read is deliberately still pending")

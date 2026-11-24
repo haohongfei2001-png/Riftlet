@@ -162,7 +162,6 @@ final class RiftLifecycleTests: XCTestCase {
         configuration.pressDuration = 0.01
         configuration.swallowDuration = 0.015
         configuration.shiftDuration = 0.01
-        configuration.returnDuration = 0.01
         return RiftPanelController(mediaDirectory: FileManager.default.temporaryDirectory,
                                    configuration: configuration, arrivalMode: .magnet, reduceMotionOverride: { false }, onSelect: { _ in })
     }
@@ -300,7 +299,7 @@ final class RiftLifecycleTests: XCTestCase {
         XCTAssertTrue(panel.diagnosticSnapshot.rows.contains { $0.assetID == fresh.id })
     }
 
-    @MainActor func testFailureRebirthDoesNotAutoFollowNewestAndExplicitHistoryRevealFindsAnOldItem() async throws {
+    @MainActor func testSelectedPageSurvivesHistoryReceiptAndExplicitLibraryRestoreRevealsOldItem() async throws {
         let panel = try controller()
         defer { panel.close() }
         let records = (1...100).map { record($0) }
@@ -308,13 +307,15 @@ final class RiftLifecycleTests: XCTestCase {
         initial[0] = record(image: records[0].image, status: .unknown,
                             visibility: .swallowed, reason: .uploadStarted)
         panel.render(initial)
-        var revived = records
-        revived[0] = record(image: records[0].image, status: .failed, reason: .safeFailure)
-        panel.render(revived)
+        let failed = record(image: records[0].image, status: .failed, visibility: .swallowed, reason: .uploadStarted)
+        panel.render(Array(records.dropFirst()), recentHistory: [failed])
         XCTAssertEqual(panel.diagnosticSnapshot.rows.first?.assetID, records[1].id,
-                       "Rebirth before the visible anchor cannot silently move the user's current page")
+                       "Updating history preserves the current active page")
         panel.showAsset(records[99].id)
         XCTAssertTrue(panel.diagnosticSnapshot.rows.contains { $0.assetID == records[99].id })
+        var restored = records
+        restored[0] = record(image: records[0].image, status: .failed, reason: .userRestored)
+        panel.render(restored, recentHistory: [])
         panel.showAsset(records[0].id)
         XCTAssertTrue(panel.diagnosticSnapshot.rows.contains { $0.assetID == records[0].id })
     }

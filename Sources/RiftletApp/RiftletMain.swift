@@ -52,7 +52,7 @@ enum RiftletMain {
         }
         if CommandLine.arguments.contains("--self-check") {
             Task {
-                do { try await SelfCheck.run(); print("RIFTLET_SELF_CHECK_PASS: private import, durable upload-start visibility, delayed synthetic completion, restart"); exit(0) }
+                do { try await SelfCheck.run(); print("RIFTLET_SELF_CHECK_PASS: private PNG, recent history on click, synthetic success and failure, explicit selection, restart"); exit(0) }
                 catch { fputs("RIFTLET_SELF_CHECK_FAIL: \(error)\n", stderr); exit(1) }
             }
             dispatchMain()
@@ -152,10 +152,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var captureMaintenanceIssue = false { didSet { updateSetup() } }
     private var captureNeedsRecovery = false
     // Confirmation alone cannot submit. A later click must match this visible revision.
-    private struct ReattachmentIntent: Equatable {
+    private struct ReattachmentIntent {
         let operationID: UUID
         let revision: Int64
-        let nonce = UUID()
     }
     private var reattachmentIntents: [UUID: ReattachmentIntent] = [:]
 
@@ -170,6 +169,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var arrivalCapture: ArrivalCaptureBridge?
     private var root: URL!
     private var visibleIDs = Set<UUID>()
+    private var hasRecentScreenshots = false
     private var refreshRunning = false
     private var refreshRequested = false
     private var refreshWaiters: [CheckedContinuation<Void, Never>] = []
@@ -193,10 +193,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var oldestArchiveCandidate: Date?
     private var archiveNotBefore: TimeInterval = 0
     private var archiveClock: (wall: Date, uptime: TimeInterval)?
-    private var completionWatch: Task<Void, Never>?
+    private var pendingObservationTask: Task<Void, Never>?
     private var originalRecoveryIDs: [UUID]?
     private var originalRecoveryTask: Task<Void, Never>?
-    private var startupCompletedIDs = Set<UUID>()
     private var clickAdapter: WebAttachmentAdapter?
     private lazy var preClickActivity = ChromeActivityObserver { [weak self] reason in
         self?.prepareBrowser(invalidate: ChromeActivityHintPolicy.invalidatesTarget(reason))
@@ -214,8 +213,6 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var selectionUIOwners: [UUID: UUID] = [:]
     private var preparedFeedbackOperations: [UUID: UUID] = [:]
     private var permissionSession = UUID()
-    private var watchedCompletions = Set<UUID>()
-    private var observationBackoff: [UUID: (failures: Int, next: Date)] = [:]
     private var instanceOwnership: ApplicationInstanceOwnership?
     private var newProfile = false
     private let mode: ApplicationMode
@@ -371,7 +368,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             try? await Task.sleep(nanoseconds: 100_000_000)
         }
         archiveTask?.cancel(); await archiveTask?.value
-        completionWatch?.cancel(); await completionWatch?.value
+        pendingObservationTask?.cancel(); await pendingObservationTask?.value
         await originalRecoveryTask?.value
         cancelSelections(reason: "termination")
         discardFrozenPress()
@@ -391,7 +388,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         preClickActivity.stop()
         for observer in preClickEnvironmentObservers { NSWorkspace.shared.notificationCenter.removeObserver(observer) }
         preClickEnvironmentObservers.removeAll()
-        completionWatch?.cancel()
+        pendingObservationTask?.cancel()
         originalRecoveryTask?.cancel()
         archiveTask?.cancel()
         cancelSelections(reason: "termination")
@@ -459,18 +456,28 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             holdsSelectionUntilFinished: true, interactionFence: interactionFence,
             onRemove: { [weak self] id in self?.removeVisible(id) },
             onOpenOriginal: { [weak self] id in self?.openOriginal(id) }) { [weak self] id in
-            guard let self, !self.drainingForExit else { return }
+            guard let self, !self.drainingForExit, self.selectionUIOwners[id] == nil,
+                  let revision = self.rift?.selectionRevision(for: id),
+                  let store = self.store else { return }
+            let fromHistory = self.rift?.selectionIsFromRecentHistory(for: id) == true
             let press = self.frozenPress?.id == id ? self.frozenPress : nil
-            let revision = self.rift?.selectionRevision(for: id)
             if press == nil { self.discardFrozenPress() } else { self.frozenPress = nil }
-            let reattachment = self.reattachmentIntents[id]
+            let staged = self.reattachmentIntents.removeValue(forKey: id)
+            let reattachment = fromHistory ? nil : staged
             let selectionOwner = UUID()
             let selectedAt = ProcessInfo.processInfo.systemUptime
             self.selectionUIOwners[id] = selectionOwner
             if let lease = press?.lease { self.pendingClickTargets[selectionOwner] = (lease, nil) }
+            // Consume the click independently of slower, ordered browser submissions.
+            // The original press still owns its frozen destination and revision.
+            let claim = Task {
+                let ticket = try await store.beginTraySelection(assetID: id, expectedRevision: revision, fromHistory: fromHistory)
+                Task { await self.refresh() }
+                return ticket
+            }
             let feedback: @MainActor (String?, RiftFeedbackTiming) -> Void = { [weak self] text, timing in
                 guard let self, self.selectionUIOwners[id] == selectionOwner,
-                      let revision, self.rift?.selectionRevision(for: id) == revision else { return }
+                      self.rift?.selectionRevision(for: id) == revision else { return }
                 self.rift?.setFeedback(text, for: id, owner: .selection(selectionOwner),
                     visibilityRevision: revision, timing: timing)
             }
@@ -483,15 +490,17 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 self.recordAcceptance(["event": "selection_submission_started", "selectionOrdinal": ordinal,
                     "assetID": id.uuidString, "uptime": ProcessInfo.processInfo.systemUptime])
                 do {
+                    let ticket = try await claim.value
+                    guard let transfer = self.transfer, self.selectionUIOwners[id] == selectionOwner,
+                          !self.terminating, !self.userHidden else { throw CancellationError() }
                     if self.mode.usesWebAdapter {
-                        guard let press, let revision, let transfer = self.transfer else {
+                        guard let press else {
                             throw WebAdapterError.invalidTarget
                         }
                         // mouseDown already consumed a particular acknowledged browser receiver.
                         let resolved = try await self.selectionAuthority.accept(id: selectionOwner,
                             assetID: id, visibilityRevision: revision, selectedAt: selectedAt, target: press.target) {
                                 self.selectionUIOwners[id] == selectionOwner && !self.userHidden && !self.terminating
-                                    && self.rift?.selectionRevision(for: id) == revision
                             }
                         selection = resolved
                         self.pendingClickTargets[selectionOwner]?.selection = resolved
@@ -507,21 +516,15 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                             self.firstUse.recordClick(assetID: id, bindingID: binding)
                         }
                         if let reattachment {
-                            guard self.reattachmentIntents[id] == reattachment, reattachment.revision == revision else {
+                            guard reattachment.revision == revision else {
                                 throw CancellationError()
                             }
-                            self.reattachmentIntents.removeValue(forKey: id)
-                            try await transfer.reattach(resolved, replacing: reattachment.operationID)
+                            try await transfer.reattach(resolved, replacing: reattachment.operationID, traySelection: ticket)
                         } else {
-                            try await transfer.select(resolved)
+                            try await transfer.select(resolved, traySelection: ticket)
                         }
                     } else {
-                        try await self.transfer?.select(id, visibilityRevision: revision)
-                    }
-                    if let record = try await self.store?.asset(id: id), record.visibility == .visible,
-                       let operationID = record.activeOperationID, record.status == .failed {
-                        let reason = try await self.store?.operationReason(for: operationID)
-                        feedback(ProductStatus.operationFeedback(reason).text, .immediate)
+                        try await transfer.select(ticket)
                     }
                 } catch is CancellationError {
                     self.retireSelectionTicket(selectionOwner)
@@ -556,6 +559,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                         self.offerFirstAttachmentHelp(after: clickIssue, epoch: press.receiverEpoch, bundle: press.bundleID)
                     }
                 }
+                if let ticket = try? await claim.value { await store.endTraySelection(ticket) }
                 self.finishOriginalSelection(id, token: selection, revision: revision, ownerID: selectionOwner)
                 await self.refresh()
             }
@@ -563,23 +567,26 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 Task { await submit(0) }
                 return
             }
+            let cancelQueued: @MainActor () -> Void = { [weak self] in
+                feedback(ProductStatus.AttachmentFeedback.cancelledBeforeInput.text, .immediate)
+                press?.target.cancel()
+                Task {
+                    if let ticket = try? await claim.value { await store.endTraySelection(ticket) }
+                    self?.finishOriginalSelection(id, token: nil, revision: revision, ownerID: selectionOwner)
+                }
+            }
             let waitsForSubmission = self.selectionSubmissions.hasOutstandingSubmission
             let ordinal = self.selectionSubmissions.enqueue(selectionID: selectionOwner, deadline: nil,
-                cancelled: { [weak self] in
-                    feedback(ProductStatus.AttachmentFeedback.cancelledBeforeInput.text, .immediate)
-                    press?.target.cancel()
-                    self?.finishOriginalSelection(id, token: nil, revision: revision, ownerID: selectionOwner)
-                }, run: submit)
+                cancelled: cancelQueued, run: submit)
             if let ordinal {
                 if waitsForSubmission { feedback(ProductStatus.AttachmentFeedback.waiting.text, .waiting) }
                 self.recordAcceptance(["event": "selection_enqueued", "selectionOrdinal": ordinal,
                     "assetID": id.uuidString, "uptime": ProcessInfo.processInfo.systemUptime])
             } else {
-                feedback(ProductStatus.AttachmentFeedback.cancelledBeforeInput.text, .immediate)
-                press?.target.cancel()
-                self.finishOriginalSelection(id, token: nil, revision: revision, ownerID: selectionOwner)
+                cancelQueued()
             }
         }
+        rift?.onRecentHistoryVisibilityChanged = { [weak self] _ in self?.prepareBrowser() }
         rift?.setUserHidden(userHidden)
         if let rift {
             arrivalCapture = ArrivalCaptureBridge(panel: rift,
@@ -688,11 +695,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             // Read-only recovery below uses only recent durable original identities.
             try await store.recoverUndispatchedPreparations()
             originalRecoveryIDs = mode.observesAttachments ? try await store.recentOriginalObservationIDs() : nil
-            startupCompletedIDs = []
         } else {
             try await store.recoverInterruptedOperations()
             originalRecoveryIDs = mode.observesAttachments ? try await store.unresolvedOperations().map(\.id) : nil
-            startupCompletedIDs = mode.observesAttachments ? Set(try await store.successfulOperations().map(\.id)) : []
         }
         recordAcceptance(["event": "local_recovery_complete", "uptime": ProcessInfo.processInfo.systemUptime])
         if mode.usesWebAdapter {
@@ -938,11 +943,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         // Remote observation is original-ID-only and cannot reset newer operations.
         try Task.checkCancellation()
         guard !terminating else { return }
-        watchedCompletions = startupCompletedIDs
         attachmentObservationStarted = true
         startOriginalRecovery()
         guard mode.observesAttachments else { return }
-        completionWatch = Task { [weak self] in
+        pendingObservationTask = Task { [weak self] in
             while !Task.isCancelled {
                 do { try await Task.sleep(nanoseconds: self?.simulation == true ? 400_000_000 : 5_000_000_000) } catch { return }
                 guard let self else { return }
@@ -953,22 +957,6 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     }
                 }
                 catch { self.showIssue("附件结果暂时无法核实；本机图片与原操作仍保留，不会自动重新附加。") }
-                for id in self.watchedCompletions {
-                    if Task.isCancelled { return }
-                    if let backoff = self.observationBackoff[id], backoff.next > Date() { continue }
-                    do {
-                        let keepWatching = try await transfer.observeCompleted(operationID: id) { [weak self] target in
-                            await self?.mayObserveOriginal(target) ?? false
-                        }
-                        if !keepWatching { self.watchedCompletions.remove(id) }
-                        self.observationBackoff.removeValue(forKey: id)
-                    } catch WebAdapterError.invalidTarget {
-                        self.watchedCompletions.remove(id); self.observationBackoff.removeValue(forKey: id)
-                    } catch {
-                        let failures = min(6, (self.observationBackoff[id]?.failures ?? 0) + 1)
-                        self.observationBackoff[id] = (failures, Date().addingTimeInterval(min(300, pow(2, Double(failures)) * 5)))
-                    }
-                }
             }
         }
     }
@@ -1378,9 +1366,14 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         return ChromeProcessIdentity.read(pid: app.processIdentifier, applicationID: id)?.session
     }
 
+    private var hasClickableThumbnails: Bool {
+        !visibleIDs.isEmpty || (hasRecentScreenshots && rift?.isShowingRecentHistory == true)
+    }
+
     private func prepareBrowser(invalidate: Bool = false, arriving: Bool = false) {
         guard let web = clickAdapter else { return }
-        guard !userHidden, !terminating, !drainingForExit, let front = NSWorkspace.shared.frontmostApplication,
+        guard (arriving || hasClickableThumbnails || !hasRecentScreenshots),
+              !userHidden, !terminating, !drainingForExit, let front = NSWorkspace.shared.frontmostApplication,
               let bundle = front.bundleIdentifier, let browser = AttachmentBrowser(rawValue: bundle),
               supportedBrowsers.contains(browser) else {
             preClickActivity.stop()
@@ -1390,7 +1383,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         // The optional AX observer subscribes only with existing consent.
         // Arrival, activation and tray entry work independently of AX.
         preClickActivity.bind(to: front)
-        web.prepareForUpcomingClick(invalidate: invalidate, maintain: arriving || !visibleIDs.isEmpty)
+        web.prepareForUpcomingClick(invalidate: invalidate, maintain: arriving || hasClickableThumbnails)
     }
 
     private func retireSelectionTicket(_ id: UUID) {
@@ -1431,7 +1424,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func inputTransportFinished() {
-        if !visibleIDs.isEmpty { prepareBrowser() }
+        if hasClickableThumbnails { prepareBrowser() }
         recordAcceptance(["event": "input_transport_finished", "observationOnly": true,
             "uptime": ProcessInfo.processInfo.systemUptime])
     }
@@ -1495,6 +1488,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             guard let store else { break }
             do {
                 let active = try await store.assets()
+                let recent = try await store.recentTrayHistory()
                 // A wake-up hint only: QueueStore still decides atomically whether
                 // the row can leave, using its current interaction time and fence.
                 oldestArchiveCandidate = active.lazy.filter {
@@ -1505,8 +1499,13 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 // Include windows still visible during a deferred animation or
                 // held selection, not just the previous backend-visible IDs.
                 let panelIDs = Set(rift?.diagnosticSnapshot.rows.map(\.assetID) ?? [])
+                let recentByID = Dictionary(uniqueKeysWithValues: recent.map { ($0.id, $0) })
                 for id in visibleIDs.union(panelIDs).subtracting(activeIDs) {
-                    if let retired = try await store.asset(id: id) { snapshot.append(retired) }
+                    if let retired = recentByID[id] {
+                        snapshot.append(retired)
+                    } else if let retired = try await store.asset(id: id) {
+                        snapshot.append(retired)
+                    }
                 }
                 let successful = mode.usesWebAdapter ? try await store.successfulOperations() : []
                 let unresolvedPhaseCounts = try await store.unresolvedPhaseCounts()
@@ -1559,16 +1558,17 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     }
                 }
                 let hasNewlyVisible = !activeIDs.isSubset(of: visibleIDs)
-                let emptied = activeIDs.isEmpty && !visibleIDs.isEmpty
+                let hadClickableThumbnails = hasClickableThumbnails
                 visibleIDs = activeIDs
-                if hasNewlyVisible { prepareBrowser() }
-                if emptied { clickAdapter?.retirePreparedTargets() }
+                hasRecentScreenshots = !recent.isEmpty
+                if hasNewlyVisible || (!hadClickableThumbnails && hasClickableThumbnails) { prepareBrowser() }
+                if hadClickableThumbnails && !hasClickableThumbnails {
+                    preClickActivity.stop()
+                    clickAdapter?.retirePreparedTargets()
+                }
                 pendingResultCount = reviewCount
                 acceptCaptureStatus(preferenceIssue: preferenceIssue)
-                if clickAdapter == nil {
-                    watchedCompletions.formUnion(successful.map(\.id))
-                }
-                rift?.render(snapshot)
+                rift?.render(snapshot, recentHistory: recent)
                 screenshotEntry?.configure()
                 // The last observed phase may advance to input before another
                 // refresh. Use neutral text, never claim ongoing no-input status.
@@ -2371,7 +2371,9 @@ private enum SelfCheck {
         let importer = PrivateAssetImporter(privateRoot: privateRoot, store: store)
         let record = try await importer.importFile(at: source, origin: .synthetic)
         let coordinator = TransferCoordinator(store: store, adapter: SimulationAdapter(settlementDelay: 0), mediaDirectory: privateRoot.appendingPathComponent("media"))
-        try await coordinator.select(record.id)
+        let firstClick = try await store.beginTraySelection(assetID: record.id, expectedRevision: record.visibilityRevision, fromHistory: false)
+        try await coordinator.select(firstClick)
+        await store.endTraySelection(firstClick)
         guard let started = try await store.asset(id: record.id), started.visibility == .swallowed,
               started.status != .used, let operationID = started.activeOperationID,
               try await store.uploadStartReceipt(for: operationID) != nil else { throw RiftletError.invalidTransition }
@@ -2380,10 +2382,24 @@ private enum SelfCheck {
         try await reopened.recoverInterruptedOperations()
         guard try await reopened.assets().isEmpty,
               try await reopened.asset(id: record.id)?.status == .used,
+              try await reopened.recentTrayHistory().map(\.id) == [record.id],
               FileManager.default.fileExists(atPath: source.path),
               FileManager.default.fileExists(atPath: privateRoot.appendingPathComponent("media").appendingPathComponent(record.image.fileName).path) else {
             throw RiftletError.invalidTransition
         }
+        // Exercise a fresh history selection of the same original. The simulator's
+        // second input receives a definitive failure when observed.
+        guard let recent = try await store.recentTrayHistory().first else { throw RiftletError.invalidTransition }
+        let historyClick = try await store.beginTraySelection(assetID: recent.id, expectedRevision: recent.visibilityRevision, fromHistory: true)
+        try await coordinator.select(historyClick)
+        await store.endTraySelection(historyClick)
+        try await coordinator.observePending()
+        guard try await store.assets().isEmpty,
+              let failed = try await store.recentTrayHistory().first,
+              failed.image == record.image, let failureID = failed.activeOperationID, failureID != operationID,
+              try await store.operation(id: failureID)?.attempt == 2,
+              try await store.receipt(for: failureID)?.hasError == true,
+              try await store.operation(id: operationID)?.phase == .succeeded else { throw RiftletError.invalidTransition }
         let usage = try PrivateStorageUsage.measure(privateRoot: privateRoot)
         guard usage.isComplete,
               usage.areas.first(where: { $0.area == .media })?.regularFileCount == 1,

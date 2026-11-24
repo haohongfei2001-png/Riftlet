@@ -75,7 +75,7 @@ final class IndependentAttachmentLifecycleTests: XCTestCase {
         return try XCTUnwrap(observed)
     }
 
-    func testPostStartOnlyOriginalFailureCanChangeStateAndOnlyTerminalEvidenceRevives() async throws {
+    func testPostStartOnlyOriginalFailureCanChangeStateAndBothImagesStayInHistory() async throws {
         let store = try store(), adapter = IndependentLifecycleAdapter()
         let owner = coordinator(store, adapter)
         let awaiting = try await asset(store), retired = try await asset(store)
@@ -89,15 +89,55 @@ final class IndependentAttachmentLifecycleTests: XCTestCase {
         await adapter.set(.failed, for: retired.id)
         try await owner.observePending()
         let uncertain = try await operation(awaiting, store), safe = try await operation(retired, store)
-        let hidden = try await store.asset(id: awaiting.id), visible = try await store.asset(id: retired.id)
+        let hidden = try await store.asset(id: awaiting.id), retained = try await store.asset(id: retired.id)
         XCTAssertEqual(uncertain.phase, .unknown); XCTAssertEqual(hidden?.visibility, .swallowed)
-        XCTAssertEqual(safe.phase, .failed); XCTAssertEqual(visible?.visibility, .visible)
+        XCTAssertEqual(safe.phase, .failed); XCTAssertEqual(retained?.visibility, .swallowed)
         let original = try await store.uploadStartReceipt(for: uncertain.id)
         let error = try await store.receipt(for: uncertain.id)
         XCTAssertEqual(original?.outcome, .uploadStarted)
         XCTAssertEqual(error?.attachmentID, original?.attachmentID); XCTAssertEqual(error?.safeToRetry, false)
         let inputs = await adapter.inputs()
         XCTAssertEqual(inputs, [awaiting.id, retired.id])
+    }
+
+    func testExplicitHistorySelectionUsesCurrentDraftAndNeverReplaysOldUnknown() async throws {
+        let store = try store(), adapter = IndependentLifecycleAdapter(), core = coordinator(store, adapter)
+        let image = try await asset(store)
+        func choose(fromHistory: Bool, draft: TargetLease) async throws -> TransferOperation {
+            let record = try await store.asset(id: image.id)
+            let revision = try XCTUnwrap(record?.visibilityRevision)
+            let click = try await store.beginTraySelection(assetID: image.id, expectedRevision: revision, fromHistory: fromHistory)
+            let selection = AcceptedSelection(assetID: image.id, target: draft, visibilityRevision: revision)
+            try await core.select(selection, traySelection: click)
+            let op = try await operation(image, store)
+            _ = try await returnedDispatchCall(op.id, store)
+            while await core.hasInFlightAttachmentWork { await Task.yield() }
+            return op
+        }
+        let first = try await choose(fromHistory: false, draft: target())
+        try await store.markUnknown(first.id, reason: "No conclusive completion")
+        let original = try await store.operation(id: first.id)
+        let receipt = try await store.receipt(for: first.id)
+        let firstInvocation = try await store.dispatchInvocationID(for: first.id)
+        let destination = target(draft: 2, document: "new-document", tab: "2")
+        let second = try await choose(fromHistory: true, draft: destination)
+        let nextInvocation = try await store.dispatchInvocationID(for: second.id)
+        try await core.observePending()
+        let inputs = await adapter.inputs(), reads = await adapter.observations
+        XCTAssertEqual(inputs, [image.id, image.id])
+        XCTAssertEqual(reads, 0, "A handed-off history selection needs no automatic failure watch")
+        XCTAssertEqual(second.target, destination)
+        XCTAssertEqual(second.attempt, first.attempt + 1)
+        XCTAssertNotEqual(first.id, second.id)
+        XCTAssertNotNil(firstInvocation)
+        XCTAssertNotNil(nextInvocation)
+        XCTAssertNotEqual(firstInvocation, nextInvocation)
+        let savedOperation = try await store.operation(id: first.id), savedReceipt = try await store.receipt(for: first.id)
+        XCTAssertEqual(savedOperation, original)
+        XCTAssertEqual(savedReceipt, receipt)
+        let history = try await store.recentTrayHistory(), visible = try await store.assets()
+        XCTAssertEqual(history.map(\.id), [image.id])
+        XCTAssertTrue(visible.isEmpty)
     }
 
     func testIdleOriginalObservationsBackOffAndStopWithoutChangingStartOrWritingUnknown() async throws {

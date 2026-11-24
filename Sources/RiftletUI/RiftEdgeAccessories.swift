@@ -45,15 +45,43 @@ final class RiftLineView: NSView {
         override var canBecomeKey: Bool { false }
         override var canBecomeMain: Bool { false }
     }
+    private final class ScrollButton: NSButton {
+        var onScroll: ((NSEvent) -> Void)?
+        override func scrollWheel(with event: NSEvent) { onScroll?(event) }
+        override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+        override func accessibilityPerformPress() -> Bool {
+            guard isEnabled, window?.isVisible == true, let action else { return false }
+            return sendAction(action, to: target)
+        }
+    }
     private let countPanel = EdgeDecorationPanel()
     private let count = NSTextField(labelWithString: "")
     private var buttons: [NSButton] = []
     private var panels: [NSPanel] = []
+    private let historyPanel = ButtonPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
+    private let historyButton = ScrollButton()
     var onStep: ((Int) -> Void)?
+    var onToggleHistory: (() -> Void)?
+    var onScroll: ((NSEvent) -> Void)?
+    var historyFrame: CGRect? { historyPanel.isVisible ? historyPanel.frame : nil }
     init() {
         count.font = .monospacedDigitSystemFont(ofSize: 11, weight: .regular)
         count.textColor = RiftVisualStyle.secondary; count.alignment = .center
         countPanel.contentView = count
+        historyPanel.isOpaque = false
+        historyPanel.backgroundColor = .clear
+        historyPanel.isReleasedWhenClosed = false
+        historyPanel.hidesOnDeactivate = false
+        historyPanel.collectionBehavior = countPanel.collectionBehavior
+        historyPanel.hasShadow = false
+        historyButton.bezelStyle = .rounded
+        historyButton.controlSize = .small
+        historyButton.imagePosition = .imageOnly
+        historyButton.setAccessibilityIdentifier("riftlet.recentHistory")
+        historyButton.target = self
+        historyButton.action = #selector(toggleHistory)
+        historyButton.onScroll = { [weak self] event in self?.onScroll?(event) }
+        historyPanel.contentView = historyButton
         for index in 0..<2 {
             let p = ButtonPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
             p.isOpaque = false; p.backgroundColor = .clear; p.hasShadow = false
@@ -67,6 +95,24 @@ final class RiftLineView: NSView {
             p.contentView = b; buttons.append(b); panels.append(p)
         }
     }
+    @objc private func toggleHistory() { onToggleHistory?() }
+
+    func updateHistory(frame: CGRect?, showingHistory: Bool, empty: Bool, level: NSWindow.Level) {
+        guard let frame else { historyPanel.orderOut(nil); return }
+        let label = showingHistory ? ProductCopy.text("返回当前截图", "Back to Current Screenshots")
+            : ProductCopy.text("最近截图", "Recent Screenshots")
+        let hint = showingHistory ? ProductCopy.text("下滑返回当前截图", "Swipe down to return to current screenshots")
+            : ProductCopy.text("上滑查看最近截图", "Swipe up to view recent screenshots")
+        historyButton.image = NSImage(systemSymbolName: showingHistory ? "arrow.uturn.down" : "clock", accessibilityDescription: nil)
+        historyButton.imagePosition = empty ? .imageLeading : .imageOnly
+        historyButton.title = empty ? ProductCopy.text("暂无最近截图", "No recent screenshots") : ""
+        historyButton.setAccessibilityLabel(empty ? "\(historyButton.title), \(label)" : label)
+        historyButton.toolTip = hint
+        historyPanel.setFrame(frame, display: true)
+        historyPanel.level = level
+        historyPanel.orderFrontRegardless()
+    }
+
     @objc private func step(_ sender: NSButton) { onStep?(sender.tag) }
     func update(_ layout: RiftLayoutResult, hidden: Bool, level: NSWindow.Level) {
         countPanel.orderOut(nil)
@@ -78,8 +124,8 @@ final class RiftLineView: NSView {
         }
     }
 
-    func hide() { countPanel.orderOut(nil); panels.forEach { $0.orderOut(nil) } }
-    func close() { countPanel.close(); panels.forEach { $0.close() } }
+    func hide() { historyPanel.orderOut(nil); countPanel.orderOut(nil); panels.forEach { $0.orderOut(nil) } }
+    func close() { historyPanel.close(); countPanel.close(); panels.forEach { $0.close() } }
 }
 
 /// Keep the full preview clear of every visible thumbnail/number input island,

@@ -20,7 +20,6 @@ final class RiftInputIslandTests: XCTestCase {
         var configuration = RiftConfiguration()
         configuration.arrivalDuration = 0.01; configuration.pressDuration = 0.01
         configuration.swallowDuration = 0.02; configuration.shiftDuration = 0.01
-        configuration.returnDuration = 0.01
         return RiftPanelController(mediaDirectory: FileManager.default.temporaryDirectory,
             configuration: configuration, arrivalMode: .magnet, onPress: onPress,
             onSelectionBoundary: onBoundary, onSelect: onSelect)

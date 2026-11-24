@@ -68,6 +68,16 @@ final class SQLiteDatabase {
                     try execute("PRAGMA user_version = 4")
                 }
             }
+            try execute("""
+                CREATE INDEX IF NOT EXISTS recent_tray_history ON assets(last_interaction_at DESC,sequence DESC)
+                WHERE visibility IN ('swallowed','archived') AND status!='missing'
+                """)
+            // Earlier versions could return failed screenshots to the active tray.
+            // Preserve the original image, operation and receipt in local history.
+            try execute("""
+                UPDATE assets SET visibility='swallowed',visibility_revision=visibility_revision+1
+                WHERE visibility='visible' AND visibility_reason='safeFailure'
+                """)
             guard try rows("PRAGMA quick_check").first?.first == "ok" else {
                 throw RiftletError.database("Integrity check failed; database preserved")
             }

@@ -175,6 +175,7 @@ final class LateFailureCompensationTests: XCTestCase {
             // This isolated fixture is reconstructing v1, before this extension existed.
             try legacy.execute("DELETE FROM metadata WHERE key='transfer-dispatch-slots-v1'")
             try legacy.execute("DROP TABLE upload_starts")
+            try legacy.execute("DROP INDEX recent_tray_history")
             try legacy.execute("DROP INDEX visible_queue_order")
             for column in ["visibility", "visibility_revision", "visibility_reason", "last_interaction_at"] {
                 try legacy.execute("ALTER TABLE assets DROP COLUMN \(column)")
