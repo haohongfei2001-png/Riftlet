@@ -3,24 +3,26 @@ import RiftletCapture
 
 /// Shared native navigation. This is presentation routing, not another preference store.
 public enum SettingsPage: String, CaseIterable, Sendable {
-    case general, display, capture, motion, history, help
-    /// The two historical routes remain valid deep links into these four pages.
-    public static let allCases: [SettingsPage] = [.general, .display, .capture, .help]
+    case general, attachments, display, capture, motion, history, help
+    /// The two historical routes remain valid deep links into the tray settings.
+    public static let allCases: [SettingsPage] = [.general, .attachments, .display, .capture, .help]
     public var destination: SettingsPage {
-        switch self { case .history: return .capture; case .motion: return .display; default: return self }
+        switch self { case .history, .motion: return .display; default: return self }
     }
     public var title: String {
         switch self {
-        case .motion, .display: return ProductCopy.text("外观", "Appearance")
-        case .capture, .history: return ProductCopy.text("截图", "Screenshots")
+        case .attachments: return ProductCopy.text("附加", "Attachments")
+        case .history, .motion, .display: return ProductCopy.text("截图托盘", "Screenshot Tray")
+        case .capture: return ProductCopy.text("截图", "Screenshots")
         case .general: return ProductCopy.text("通用", "General")
         case .help: return ProductCopy.text("帮助", "Help")
         }
     }
     public var symbol: String {
         switch self {
-        case .motion, .display: return "rectangle.3.group"
-        case .capture, .history: return "camera"
+        case .attachments: return "paperclip"
+        case .history, .motion, .display: return "rectangle.3.group"
+        case .capture: return "camera"
         case .general: return "gearshape"
         case .help: return "questionmark.circle"
         }
@@ -131,7 +133,7 @@ public enum SettingsProductAction: Sendable {
     case appearance(SettingsAppearanceChoice), retryAppearance
     case historyDisplayStyle(HistoryDisplayStyle)
     case loginEnabled(Bool), retryLogin, openLoginSettings
-    case openSettings(SettingsPage), openOnboarding, finishOnboarding
+    case openSettings(SettingsPage), openOnboarding, tryFirstAttachment
     case capture, manageMedia, openHistory, openFeedback, clearVisible
     case recheck, recheckSource, recheckMedia, openSource, chooseSourceAccess, requestAutomation, checkChromeConnection
     case openFilePrivacy, openScreenRecordingPrivacy

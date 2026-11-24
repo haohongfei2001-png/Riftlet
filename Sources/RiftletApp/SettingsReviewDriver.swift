@@ -95,8 +95,9 @@ final class SettingsReviewDriver {
             try self.require(window.isVisible, "settingsWindowNotVisible")
             let content = window.contentRect(forFrameRect: window.frame)
             let titleHeight = window.frame.height - content.height
-            if let screen = window.screen, screen.visibleFrame.width >= 640, screen.visibleFrame.height >= 560 + titleHeight {
-                try self.require(abs(content.width - 640) <= 1 && abs(content.height - 560) <= 1,
+            let standard = SettingsNativeStyle.settingsSize
+            if let screen = window.screen, screen.visibleFrame.width >= standard.width, screen.visibleFrame.height >= standard.height + titleHeight {
+                try self.require(abs(content.width - standard.width) <= 1 && abs(content.height - standard.height) <= 1,
                                  "initialContentSizeMismatch")
             }
             try self.require(!self.host.snapshot.capabilities.canCapture, "reviewCaptureCapabilityEnabled")
@@ -110,7 +111,7 @@ final class SettingsReviewDriver {
         } else {
             await runCase("real-collector-synthetic-fixture") { try await self.collectFixture() }
             await runCase("programmatic-collection-during-recheck") { try await self.collectionDuringRecheck() }
-            await runCase("four-pages-light-and-dark") { try await self.capturePages() }
+            await runCase("settings-pages-light-and-dark") { try await self.capturePages() }
             await runCase("orthogonal-pause-hidden-sqlite") { try await self.pauseAndHide() }
             await runCase("archive-presets-and-inherited-value") { try await self.archiveEditing() }
             await runCase("tray-material-settings-and-legacy-visibility") { try await self.trayAppearanceSettings() }
@@ -449,7 +450,7 @@ final class SettingsReviewDriver {
         try JSONDecoder().decode(type, from: Data(contentsOf: environment.root.appendingPathComponent(name)))
     }
     private func appearance(_ value: SettingsAppearanceChoice) async throws {
-        host.show(page: .display)
+        host.show(page: .general)
         try select("settings.center.appearance", index: SettingsAppearanceChoice.allCases.firstIndex(of: value)!)
         try await wait { self.host.snapshot.appearance.selection == value && self.host.snapshot.appearance.failure == nil }
         let json = try JSONSerialization.jsonObject(with: Data(contentsOf: environment.root.appendingPathComponent("app-presentation-settings.json"))) as? [String: Any]
@@ -605,7 +606,7 @@ final class SettingsReviewDriver {
     }
 
     private func archiveEditing() async throws {
-        host.show(page: .capture)
+        host.show(page: .history)
         // Each selection is saved through the native control and read from the real seconds-based document.
         let presets: [(index: Int, minutes: Double?)] = [(3, 5), (4, 10), (0, nil), (1, 1), (2, 2)]
         for (index, minutes) in presets {
@@ -616,7 +617,7 @@ final class SettingsReviewDriver {
         }
         // Older installations may carry a valid fractional duration.
         await host.perform(.settings(.commitArchive("1.75")))
-        host.show(page: .display); host.show(page: .capture)
+        host.show(page: .capture); host.show(page: .history)
         let preset = try control("settings.center.archive.preset") as? NSPopUpButton
         try require(preset?.indexOfSelectedItem == 5 && preset?.lastItem?.isEnabled == false, "inheritedDurationNotShown")
         try require(try read(ArchiveDocument.self, "lifecycle-settings.json").archiveAfterSeconds == 105, "viewChangedArchiveTime")
@@ -692,7 +693,7 @@ final class SettingsReviewDriver {
     }
 
     private func closeEditing() async throws {
-        host.show(page: .capture)
+        host.show(page: .history)
         try select("settings.center.archive.preset", index: 3)
         try await wait { self.host.snapshot.state.owner.settings.archiveAfterMinutes == 5 }
         host.center.window.performClose(nil)
@@ -711,7 +712,7 @@ final class SettingsReviewDriver {
             try self.require(self.host.snapshot.state.owner.settings.configuration.visibleCountPreference == oldCount,
                              "failedLayoutChangedEffectiveValue")
         }
-        host.show(page: .display)
+        host.show(page: .general)
         let beforeAppearance = host.snapshot.appearance.selection
         let target = beforeAppearance == .dark ? SettingsAppearanceChoice.light : .dark
         try await blockedJSON("app-presentation-settings.json") {
@@ -724,12 +725,12 @@ final class SettingsReviewDriver {
         try require(RiftControlCenterPresentation(host.snapshot).state == .attention, "saveFailureNotVisibleInControl")
         await capture("control-save-failure", window: host.control.window)
         try await closeControl()
-        host.show(page: .capture)
+        host.show(page: .history)
         try select("settings.center.archive.preset", index: 4)
         try await wait { self.host.snapshot.state.owner.settings.archiveAfterMinutes == 10 }
         try require(host.snapshot.appearance.failure != nil && host.snapshot.state.domains[.layout]?.saveFailure != nil,
                     "unrelatedSaveClearedErrors")
-        host.show(page: .display); try click("settings.center.appearance.retry")
+        host.show(page: .general); try click("settings.center.appearance.retry")
         try await wait { self.host.snapshot.appearance.failure == nil && self.host.snapshot.appearance.selection == target }
         try require(host.snapshot.state.domains[.layout]?.saveFailure != nil, "appearanceRetryClearedLayoutError")
         host.show(page: .display); try click("settings.center.retry.layout")

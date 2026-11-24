@@ -95,7 +95,7 @@ final class RiftControlCenterControllerTests: XCTestCase {
             if issue == .targetUnavailable || issue == .unsupportedBrowser {
                 XCTAssertEqual(projection.state, .attention)
                 XCTAssertEqual(projection.detail, issue.text(in: .simplifiedChinese))
-                XCTAssertEqual(projection.recoveryPage, .help)
+                XCTAssertEqual(projection.recoveryPage, .attachments)
             } else if issue == .imageUnavailable {
                 XCTAssertEqual(projection.state, .attention)
                 guard case .recheckMedia? = projection.recovery(fixture(issue: issue))?.1 else { return XCTFail("Missing verification action") }
@@ -108,12 +108,12 @@ final class RiftControlCenterControllerTests: XCTestCase {
         XCTAssertFalse(waiting.detail.contains("仍在收录"))
     }
 
-    @MainActor func testConnectionCheckRefusalLeadsToHelpWithoutPausingCollection() {
+    @MainActor func testConnectionCheckRefusalLeadsToAttachmentsWithoutPausingCollection() {
         var snapshot = fixture()
         snapshot.chromeConnection = .javaScriptDisabled
         let failure = RiftControlCenterPresentation(snapshot, copy: .simplifiedChinese)
         XCTAssertEqual(failure.state, .attention)
-        XCTAssertEqual(failure.recoveryPage, .help)
+        XCTAssertEqual(failure.recoveryPage, .attachments)
         XCTAssertTrue(failure.detail.contains("显示 → 开发者 → 允许 Apple 事件中的 JavaScript"))
         XCTAssertFalse(snapshot.state.owner.collectionPaused)
         snapshot.chromeConnection = .ready
@@ -134,7 +134,7 @@ final class RiftControlCenterControllerTests: XCTestCase {
         value.appearance.unreadable = true
         let projection = RiftControlCenterPresentation(value, copy: .simplifiedChinese)
         XCTAssertEqual(projection.state, .attention)
-        XCTAssertEqual(projection.recoveryPage, .display)
+        XCTAssertEqual(projection.recoveryPage, .general)
         XCTAssertTrue(projection.title.contains("确认保存"))
         XCTAssertFalse(projection.detail.contains("回滚"))
     }
@@ -144,7 +144,7 @@ final class RiftControlCenterControllerTests: XCTestCase {
         XCTAssertEqual(hidden.title, "Desktop Screenshots Hidden")
         XCTAssertEqual(hidden.detail, "New screenshots are still being collected.")
         let denied = RiftControlCenterPresentation(fixture(issue: .permissionDenied), copy: .english)
-        XCTAssertEqual(denied.recoveryPage, .help)
+        XCTAssertEqual(denied.recoveryPage, .attachments)
         XCTAssertEqual(denied.recoveryTitle, "Check Chrome Connection")
         XCTAssertEqual(denied.primaryTitle, "Take Screenshot…")
     }
@@ -303,7 +303,9 @@ final class RiftControlCenterControllerTests: XCTestCase {
                     XCTAssertTrue(hit === control || hit?.isDescendant(of: control) == true)
                 }
             }
-            for (first, second) in zip(controls, controls.dropFirst() + [controls[0]]) {
+            let recoveryButton = try XCTUnwrap(controller.control(identifier: "control.recovery") as? NSButton)
+            let focusOrder = recoveryButton.isHidden ? controls : [recoveryButton] + controls
+            for (first, second) in zip(focusOrder, focusOrder.dropFirst() + [focusOrder[0]]) {
                 XCTAssertTrue(first.nextKeyView === second)
             }
             for removed in ["control.pause", "control.hide", "control.capture"] {

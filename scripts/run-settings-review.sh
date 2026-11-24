@@ -194,7 +194,7 @@ try:
             "environment-and-default-window",
             "real-collector-synthetic-fixture",
             "programmatic-collection-during-recheck",
-            "four-pages-light-and-dark",
+            "settings-pages-light-and-dark",
             "orthogonal-pause-hidden-sqlite",
             "archive-presets-and-inherited-value",
             "tray-material-settings-and-legacy-visibility",

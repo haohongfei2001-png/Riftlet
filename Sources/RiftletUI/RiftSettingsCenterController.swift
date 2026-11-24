@@ -15,7 +15,6 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NSM
     let onAction: SettingsProductActionHandler
     var product: SettingsProductSnapshot
     let scroll = RiftVisualStyle.topAlignedScrollView()
-    let footerStatus = SettingsNativeStyle.label("", role: "secondary")
     var pages: [SettingsPage: NSStackView] = [:]
     var navigation: [SettingsPage: NSButton] = [:]
     var labels: [String: NSTextField] = [:]
@@ -39,6 +38,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NSM
     var legacyUndo: (form: RiftDesktopForm, fields: [SettingsField: Double], theme: RiftTrayTheme?)?
     var captureOptions: NSView!
     var automaticUpdatesRow: NSView!
+    var attachmentBrowserRow: NSView!
     var trayFavorites: NSView!
 
     var windChimeSettings: NSView!
@@ -160,50 +160,63 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NSM
     }
 
     func buildWindow() {
-        let canvas = SettingsWindowCanvas(frame: NSRect(origin: .zero, size: SettingsNativeStyle.settingsSize))
-        let root = canvas.column
+        let canvas = SettingsWindowCanvas(frame: NSRect(origin: .zero, size: SettingsNativeStyle.settingsSize), maximumColumnWidth: .greatestFiniteMagnitude)
         window.contentView = canvas
-        let nav = SettingsNativeStyle.stack([], vertical: false, spacing: 8)
-        for page in SettingsPage.allCases {
-            let button = makeButton(page.title, id: "nav.\(page.rawValue)") { [weak self] in self?.navigate(to: page) }
-            button.bezelStyle = .texturedRounded
-            button.setButtonType(.pushOnPushOff)
-            button.image = NSImage(systemSymbolName: page.symbol, accessibilityDescription: nil)
-            button.imagePosition = .imageLeading
-            button.imageHugsTitle = true
-            button.setAccessibilityLabel(page.title)
+        let root = canvas.column
+        let sidebar = NSVisualEffectView()
+        sidebar.material = .sidebar
+        sidebar.blendingMode = .withinWindow
+        sidebar.setAccessibilityElement(false)
+        let nav = SettingsNativeStyle.stack([], spacing: 3)
+        nav.identifier = .init("settings.center.navigation")
+        nav.setAccessibilityRole(.group)
+        nav.setAccessibilityLabel(ProductCopy.text("设置分类", "Settings Categories"))
+        let categories = SettingsPage.allCases
+        for (index, page) in categories.enumerated() {
+            let button = SettingsSidebarButton(page: page)
+            configure(button, id: "nav.\(page.rawValue)") { [weak self] in self?.navigate(to: page) }
+            button.refusesFirstResponder = false
+            button.moveSelection = { [weak self] offset in
+                guard let self, categories.indices.contains(index + offset) else { return }
+                let next = categories[index + offset]
+                navigate(to: next)
+                window.makeFirstResponder(navigation[next])
+            }
             navigation[page] = button
             nav.addArrangedSubview(button)
+            button.widthAnchor.constraint(equalTo: nav.widthAnchor).isActive = true
+            button.heightAnchor.constraint(equalToConstant: 30).isActive = true
         }
         scroll.identifier = .init("settings.center.scroll")
-        scroll.setAccessibilityLabel(ProductCopy.text("设置页面", "Settings page"))
+        scroll.setAccessibilityLabel(ProductCopy.text("设置页面", "Settings Page"))
         scroll.scrollerStyle = .overlay
         scroll.autohidesScrollers = true
-        pageHeading.font = .systemFont(ofSize: 20, weight: .semibold)
-        footerStatus.identifier = .init("settings.center.footerStatus")
-        footerStatus.maximumNumberOfLines = 2
-        footerStatus.alignment = .right
-        footerStatus.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        pageHeading.font = .systemFont(ofSize: 22, weight: .semibold)
         let rule = NSBox()
         rule.boxType = .separator
-        for view in [nav, rule, pageHeading, scroll, footerStatus] as [NSView] {
+        let detail = SettingsWindowCanvas(frame: .zero)
+        let column = detail.column
+        for (view, parent) in [(sidebar as NSView, root), (nav, sidebar), (rule, root), (detail, root), (pageHeading, column), (scroll, column)] {
             view.translatesAutoresizingMaskIntoConstraints = false
-            root.addSubview(view)
+            parent.addSubview(view)
         }
         NSLayoutConstraint.activate([
-            nav.centerXAnchor.constraint(equalTo: root.centerXAnchor),
-            nav.topAnchor.constraint(equalTo: root.topAnchor, constant: 8),
-            rule.topAnchor.constraint(equalTo: nav.bottomAnchor, constant: 8),
-            rule.leadingAnchor.constraint(equalTo: root.leadingAnchor), rule.trailingAnchor.constraint(equalTo: root.trailingAnchor),
-            pageHeading.leadingAnchor.constraint(equalTo: scroll.leadingAnchor, constant: 24),
-            pageHeading.topAnchor.constraint(equalTo: rule.bottomAnchor, constant: 16),
-            scroll.topAnchor.constraint(equalTo: pageHeading.bottomAnchor, constant: 4),
-            scroll.leadingAnchor.constraint(equalTo: root.leadingAnchor),
-            scroll.trailingAnchor.constraint(equalTo: root.trailingAnchor),
-            scroll.bottomAnchor.constraint(equalTo: root.bottomAnchor),
-            footerStatus.trailingAnchor.constraint(equalTo: scroll.trailingAnchor, constant: -24),
-            footerStatus.leadingAnchor.constraint(greaterThanOrEqualTo: pageHeading.trailingAnchor, constant: 12),
-            footerStatus.centerYAnchor.constraint(equalTo: pageHeading.centerYAnchor)
+            sidebar.leadingAnchor.constraint(equalTo: root.leadingAnchor),
+            sidebar.topAnchor.constraint(equalTo: root.topAnchor), sidebar.bottomAnchor.constraint(equalTo: root.bottomAnchor),
+            sidebar.widthAnchor.constraint(equalToConstant: 174),
+            nav.topAnchor.constraint(equalTo: sidebar.topAnchor, constant: 17),
+            nav.leadingAnchor.constraint(equalTo: sidebar.leadingAnchor, constant: 8),
+            nav.trailingAnchor.constraint(equalTo: sidebar.trailingAnchor, constant: -8),
+            rule.widthAnchor.constraint(equalToConstant: 1), rule.leadingAnchor.constraint(equalTo: sidebar.trailingAnchor),
+            rule.topAnchor.constraint(equalTo: root.topAnchor), rule.bottomAnchor.constraint(equalTo: root.bottomAnchor),
+            detail.leadingAnchor.constraint(equalTo: rule.trailingAnchor),
+            detail.trailingAnchor.constraint(equalTo: root.trailingAnchor),
+            detail.topAnchor.constraint(equalTo: root.topAnchor), detail.bottomAnchor.constraint(equalTo: root.bottomAnchor),
+            pageHeading.leadingAnchor.constraint(equalTo: column.leadingAnchor, constant: 24),
+            pageHeading.topAnchor.constraint(equalTo: column.topAnchor, constant: 20),
+            scroll.topAnchor.constraint(equalTo: pageHeading.bottomAnchor, constant: 3),
+            scroll.leadingAnchor.constraint(equalTo: column.leadingAnchor),
+            scroll.trailingAnchor.constraint(equalTo: column.trailingAnchor), scroll.bottomAnchor.constraint(equalTo: column.bottomAnchor)
         ])
         buildPages()
         mountPage(.general)
@@ -216,7 +229,8 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NSM
             advanced.button.performClick(nil)
         }
         if destination == selectedPage, scroll.documentView != nil {
-            if page == .motion { scrollToMotion() }
+            navigation[destination]?.state = .on
+            scrollToDeepLink(page)
             return
         }
         flushTrayAppearance()
@@ -224,13 +238,19 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NSM
         selectedPage = destination
         mountPage(destination)
         render()
-        if page == .motion { scrollToMotion() }
+        scrollToDeepLink(page)
         window.recalculateKeyViewLoop()
     }
 
-    private func scrollToMotion() {
+    private func scrollToDeepLink(_ page: SettingsPage) {
+        let id: String
+        switch page {
+        case .motion: id = "arrival"
+        case .history: id = "archive.preset"
+        default: return
+        }
         window.contentView?.layoutSubtreeIfNeeded()
-        guard let view = controls["arrival"] else { return }
+        guard let view = controls[id] else { return }
         view.scrollToVisible(view.bounds)
     }
 
@@ -462,10 +482,64 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NSM
 
 
 /// Content can grow vertically while the window size stays under user control.
+@MainActor private final class SettingsSidebarButton: NSButton {
+    var moveSelection: ((Int) -> Void)?
+
+    init(page: SettingsPage) {
+        super.init(frame: .zero)
+        title = ""
+        alternateTitle = ""
+        bezelStyle = .recessed
+        setButtonType(.pushOnPushOff)
+        showsBorderOnlyWhileMouseInside = true
+        setAccessibilityLabel(page.title)
+        // The recessed cell dims its own unselected title even when the control
+        // is enabled. Draw the row with AppKit's semantic label and symbol views.
+        let icon = NSImageView()
+        icon.image = NSImage(systemSymbolName: page.symbol, accessibilityDescription: nil)
+        icon.contentTintColor = .labelColor
+        icon.setAccessibilityElement(false)
+        let label = NSTextField(labelWithString: page.title)
+        label.textColor = .labelColor
+        label.font = .systemFont(ofSize: NSFont.systemFontSize)
+        label.setAccessibilityElement(false)
+        for view in [icon as NSView, label] {
+            view.translatesAutoresizingMaskIntoConstraints = false
+            addSubview(view)
+        }
+        NSLayoutConstraint.activate([
+            icon.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            icon.centerYAnchor.constraint(equalTo: centerYAnchor),
+            icon.widthAnchor.constraint(equalToConstant: 17), icon.heightAnchor.constraint(equalToConstant: 16),
+            label.leadingAnchor.constraint(equalTo: icon.trailingAnchor, constant: 5),
+            label.centerYAnchor.constraint(equalTo: centerYAnchor),
+            label.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -8)
+        ])
+    }
+    required init?(coder: NSCoder) { nil }
+
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        super.hitTest(point) == nil ? nil : self
+    }
+
+    override func keyDown(with event: NSEvent) {
+        if event.modifierFlags.intersection([.command, .control, .option, .shift]).isEmpty {
+            switch event.specialKey {
+            case .upArrow: moveSelection?(-1); return
+            case .downArrow: moveSelection?(1); return
+            default: break
+            }
+        }
+        super.keyDown(with: event)
+    }
+}
+
 @MainActor private final class SettingsWindowCanvas: NSView {
     let column = NSView()
+    let maximumColumnWidth: CGFloat
 
-    override init(frame: NSRect) {
+    init(frame: NSRect, maximumColumnWidth: CGFloat = 768) {
+        self.maximumColumnWidth = maximumColumnWidth
         super.init(frame: frame)
         addSubview(column)
         sizeColumn()
@@ -478,7 +552,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NSM
     }
 
     private func sizeColumn() {
-        let width = min(bounds.width, 768)
+        let width = min(bounds.width, maximumColumnWidth)
         column.frame = NSRect(x: (bounds.width - width) / 2, y: 0, width: width, height: bounds.height)
     }
 }
