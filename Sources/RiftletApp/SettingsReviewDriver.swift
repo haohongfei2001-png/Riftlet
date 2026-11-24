@@ -832,10 +832,31 @@ final class SettingsReviewDriver {
         host.show(page: .display)
         try require(host.center.window.frame.size == size, "reopenLostWindowSize")
         if let screen = host.center.window.screen, screen.visibleFrame.width >= 900 {
-            host.center.window.setContentSize(NSSize(width: 900, height: 580))
-            try await wait { abs((self.host.center.window.contentView?.bounds.width ?? 0) - 900) <= 1 }
-            try require(abs(document.frame.width - 768) <= 1 && abs(scroll.convert(scroll.bounds, to: host.center.window.contentView).midX - 450) <= 1,
-                        "readingColumnWidthDidNotStayBounded")
+            guard let content = host.center.window.contentView,
+                  let sidebar = find("settings.center.navigation", in: content)?.superview else {
+                throw Failure.controlUnavailable("settingsSidebar")
+            }
+            // The reading column is centered in the detail pane beside the sidebar.
+            // Exercise both the shrinking and capped layouts when the display fits.
+            let widest = min(screen.visibleFrame.width, 1040)
+            let widths: [CGFloat] = widest > 900 ? [900, widest] : [900]
+            for width in widths {
+                host.center.window.setContentSize(NSSize(width: width, height: 580))
+                try await wait { abs(content.bounds.width - width) <= 1 }
+                content.layoutSubtreeIfNeeded()
+                let sidebarRect = sidebar.convert(sidebar.bounds, to: content)
+                let detailLeft = sidebarRect.maxX + 1 // native separator
+                let detailWidth = content.bounds.maxX - detailLeft
+                let column = scroll.convert(scroll.bounds, to: content)
+                artifacts.append(["kind": "settingsReadingColumn", "windowWidth": width,
+                    "sidebar": rect(sidebarRect), "column": rect(column), "detailWidth": detailWidth,
+                    "documentWidth": document.bounds.width, "viewportWidth": scroll.contentView.bounds.width])
+                try require(sidebarRect.minX == content.bounds.minX && sidebarRect.width > 0
+                    && abs(column.width - min(768, detailWidth)) <= 1
+                    && abs(column.midX - (detailLeft + detailWidth / 2)) <= 1
+                    && abs(document.bounds.width - scroll.contentView.bounds.width) <= 1,
+                    "readingColumnWidthDidNotStayBounded")
+            }
             await settle(450)
             await capture("settings-wide-reading-column", window: host.center.window)
         }

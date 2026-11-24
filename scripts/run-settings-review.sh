@@ -99,6 +99,10 @@ def verify_case_results(document, section, key, required):
     if any(row.get("status") != "PASS" for row in rows):
         raise ValueError("caseDidNotPass")
 
+def failed_rows(document, section, key):
+    return [{key: row[key], "status": row.get("status"), "reason": row.get("reason")}
+            for row in document.get(section, []) if isinstance(row, dict) and key in row and row.get("status") != "PASS"]
+
 def read_report(result, log, filename, directory_prefix):
     paths = [line[len(prefix):] for line in log.read_text(errors="replace").splitlines() if line.startswith(prefix)]
     if len(paths) != 1:
@@ -188,7 +192,8 @@ result, log = launch("--settings-review-run", "application.log", 180)
 review_root = None
 try:
     review_root, document = read_report(result, log, "report.json", "run-")
-    result.update(caseCount=len(document.get("cases", [])), frameCount=len(document.get("frames", [])))
+    result.update(caseCount=len(document.get("cases", [])), frameCount=len(document.get("frames", [])),
+                  failedCases=failed_rows(document, "cases", "case"))
     if result["status"] == "PASS_SCOPED_NATIVE_REVIEW":
         verify_case_results(document, "cases", "case", {
             "environment-and-default-window",
@@ -249,6 +254,7 @@ try:
     if execution.get("timedOut") or execution.get("exitCode") != 0:
         raise ValueError("restartDidNotExitNormally")
     restarted_root, document = read_report(restart, restart_log, "restart-report.json", "restart-")
+    restart["failedChecks"] = failed_rows(document, "checks", "check")
     if restarted_root != review_root or restart.get("childPID") == result.get("childPID"):
         raise ValueError("restartProcessOrRootMismatch")
     if not restart.get("completed") or document.get("status") != "PASS_SCOPED_NATIVE_RESTART":
