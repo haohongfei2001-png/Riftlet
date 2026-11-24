@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "reviewedBase": "125ab172bd163de966d199ef81f90a6d6e9c66dc",
-  "reviewedSource": "a481b66eeb19d04f435ad2a23540964fd456898c",
-  "reviewedTree": "81fdc3c056622e12edf6e605b941fbfb58d95812",
+  "reviewedBase": "92c6d8d6f78aded80df5cdce65c2a46458d87813",
+  "reviewedSource": "3f7d87ee242463cfc90bf5d600c8ee1d262de69d",
+  "reviewedTree": "ab4b5395fa6c1d179c572a7243d01f6106a06e5e",
   "authorRole": "riftlet_108_product_recovery_integration",
   "reviews": [
     {
-      "reviewer": "Riftlet 1.0.9 independent non-author product and release reviewer",
-      "source": "a481b66eeb19d04f435ad2a23540964fd456898c",
-      "tree": "81fdc3c056622e12edf6e605b941fbfb58d95812",
+      "reviewer": "Independent product source reviewer, review110",
+      "source": "3f7d87ee242463cfc90bf5d600c8ee1d262de69d",
+      "tree": "ab4b5395fa6c1d179c572a7243d01f6106a06e5e",
       "result": "PASS",
-      "sha256": "9100f75332d50b0ccb0084e9cc4de4c7c805b4faca330bf076c098d830b91834",
-      "report": "{\n  \"result\": \"PASS\",\n  \"reviewedBase\": \"125ab172bd163de966d199ef81f90a6d6e9c66dc\",\n  \"reviewedSource\": \"a481b66eeb19d04f435ad2a23540964fd456898c\",\n  \"reviewedTree\": \"81fdc3c056622e12edf6e605b941fbfb58d95812\",\n  \"reviewer\": \"Riftlet 1.0.9 independent non-author product and release reviewer\"\n}\n"
+      "sha256": "1f9ebcd716105fb7d5267541d2cb5bf7e4ea0574e0e3ad55944d4b34390cdeb8",
+      "report": "{\n  \"reviewedBase\": \"92c6d8d6f78aded80df5cdce65c2a46458d87813\",\n  \"reviewedSource\": \"3f7d87ee242463cfc90bf5d600c8ee1d262de69d\",\n  \"reviewedTree\": \"ab4b5395fa6c1d179c572a7243d01f6106a06e5e\",\n  \"reviewer\": \"Independent product source reviewer, review110\",\n  \"result\": \"PASS\",\n  \"scope\": \"Source admission for 1.0.10 build 65. Formal merge CI, Developer ID distribution and public upgrade are separate checks.\",\n  \"changedFiles\": 31,\n  \"findingsResolved\": [\n    \"The first reviewed candidate could convert an unresolved screenshot staged by the library into a different-draft submission after app restart. Final G embeds the predecessor restriction in the active click ticket and verifies it at operation allocation. Explicit recent-history selection remains independent.\"\n  ],\n  \"verification\": {\n    \"exactSourceCoreProbe\": [\n      \"PASS stagedLibraryRestartDifferentDraftRejected=1 previousOperationAndInvocationPreserved=1 imageInHistory=1\",\n      \"PASS scope=isolated_actual_Core_and_SQLite assets=23 recent=20 missingTargetHistory=1 staleClickRejected=1 uniqueInputs=2 targets=draft-A,draft-B phases=unknown,succeeded priorOperationImmutable=1 reopened=1 noAutoRetry=1\"\n    ],\n    \"appkitProbe\": \"Independently reran owned nonactivating AppKit probe over tray, windChime and microSlit. All eleven active and thirteen historical items were reachable in each. Ignored momentum, empty-active history return, distinct manual selections and duplicate suppression passed. Final G leaves these UI files identical.\",\n    \"upgrade\": \"A separate 1.0.9 Core binary created an isolated DB with three synthetic assets and two operations, including a visible failed item. Opening with the successor migration changed only the failed asset visibility and revision, with eight other tables byte-for-byte equal in row data. All three media hashes survived, integrity_check ok, repeat open unchanged. The migration code is identical between both reviewed checkpoints.\",\n    \"readThrough\": [\n      \"Unmodified browser execution and target freeze. User selection still checks original window, tab and draft before a single input.\",\n      \"New operation allocations require an owned revision-bound click. Unresolved predecessors, receipts and PNGs remain on disk. No automatic recovery from an error.\",\n      \"The 20-item history bounds the displayed query. Original images are not deleted on rollover; existing storage retention remains applicable.\",\n      \"Reviewed first-use, routine feedback, old explicit library reattachment and idle archive interactions, removed rebirth-only configuration, AppKit event ownership, and published release-note wording.\"\n    ]\n  }\n}\n"
     }
   ],
   "productionAdmission": {
