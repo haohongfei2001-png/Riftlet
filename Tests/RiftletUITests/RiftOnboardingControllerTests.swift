@@ -116,7 +116,9 @@ final class RiftOnboardingControllerTests: XCTestCase {
         controller.window.contentView?.layoutSubtreeIfNeeded()
         for action in [grant, privacy] {
             let clip = try XCTUnwrap(action.enclosingScrollView?.contentView)
-            XCTAssertTrue(clip.bounds.contains(action.convert(action.bounds, to: clip)))
+            let frame = action.convert(action.bounds, to: clip)
+            XCTAssertTrue(clip.bounds.contains(frame),
+                          "\(action.title) frame \(frame), viewport \(clip.bounds), native insets \(action.alignmentRectInsets)")
         }
         privacy.performClick(nil)
         await assertReceived { actions == ["privacy"] }

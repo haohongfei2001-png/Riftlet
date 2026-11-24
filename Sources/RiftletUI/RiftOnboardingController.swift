@@ -167,6 +167,10 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
         }
         scroll.documentView = content
         scroll.setAccessibilityLabel(copy.scrollLabel)
+        // Stacks align button bezels by their alignment rect. Give the scroll view
+        // room for the rest of the native button frame without shifting the text.
+        let buttonInsets = sourceAccess.alignmentRectInsets
+        content.edgeInsets = NSEdgeInsets(top: 0, left: buttonInsets.left, bottom: 0, right: buttonInsets.right)
         next.identifier = .init("onboarding.next"); next.target = self; next.action = #selector(nextStep)
         next.keyEquivalent = "\r"; next.bezelColor = SettingsNativeStyle.color(.accent)
         back.identifier = .init("onboarding.back"); back.target = self; back.action = #selector(previousStep)
@@ -184,8 +188,8 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
             progress.topAnchor.constraint(equalTo: root.topAnchor, constant: 24),
             progress.leadingAnchor.constraint(equalTo: root.leadingAnchor, constant: 26),
             progress.trailingAnchor.constraint(lessThanOrEqualTo: root.trailingAnchor, constant: -26),
-            scroll.leadingAnchor.constraint(equalTo: root.leadingAnchor, constant: 26),
-            scroll.trailingAnchor.constraint(equalTo: root.trailingAnchor, constant: -26),
+            scroll.leadingAnchor.constraint(equalTo: root.leadingAnchor, constant: 26 - buttonInsets.left),
+            scroll.trailingAnchor.constraint(equalTo: root.trailingAnchor, constant: buttonInsets.right - 26),
             scroll.topAnchor.constraint(equalTo: progress.bottomAnchor, constant: 13),
             scroll.bottomAnchor.constraint(equalTo: footer.topAnchor, constant: -16),
             content.widthAnchor.constraint(equalTo: scroll.contentView.widthAnchor),
@@ -233,7 +237,8 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
         pages = [intro, connections]
         for page in pages {
             content.addArrangedSubview(page)
-            page.widthAnchor.constraint(equalTo: content.widthAnchor).isActive = true
+            page.widthAnchor.constraint(equalTo: content.widthAnchor,
+                                       constant: -buttonInsets.left - buttonInsets.right).isActive = true
         }
         window.initialFirstResponder = next
         root.setAccessibilityLabel(copy.rootLabel)
