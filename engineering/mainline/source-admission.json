@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "reviewedBase": "e73265bf63e17c216e1557845e1f35fe9d3bee70",
-  "reviewedSource": "fc4b5f3c4ad2ea76b48a4636957dbb9403ea0b4c",
-  "reviewedTree": "5b20ba04e68fa2321e2a934dd9cf0d5e78269a92",
+  "reviewedBase": "871df3f81957686f6ec2e3bae78fcc447963113c",
+  "reviewedSource": "af35a472c1668e62deae968a125cc2c7ca9331dc",
+  "reviewedTree": "9e2c9eedddfbb65ff3c929895879d00b6d3a2652",
   "authorRole": "riftlet_108_product_recovery_integration",
   "reviews": [
     {
-      "reviewer": "independent-build62-recovery-and-mainline-source-reviewer",
-      "source": "fc4b5f3c4ad2ea76b48a4636957dbb9403ea0b4c",
-      "tree": "5b20ba04e68fa2321e2a934dd9cf0d5e78269a92",
+      "reviewer": "Riftlet 1.0.9 independent non-author product and release reviewer",
+      "source": "af35a472c1668e62deae968a125cc2c7ca9331dc",
+      "tree": "9e2c9eedddfbb65ff3c929895879d00b6d3a2652",
       "result": "PASS",
-      "sha256": "7df258a61690fe035135296c39ee34f0ffd7bb9b83b8b866c4443de8760fcb00",
-      "report": "{\n  \"reviewedBase\": \"e73265bf63e17c216e1557845e1f35fe9d3bee70\",\n  \"reviewedSource\": \"fc4b5f3c4ad2ea76b48a4636957dbb9403ea0b4c\",\n  \"reviewedTree\": \"5b20ba04e68fa2321e2a934dd9cf0d5e78269a92\",\n  \"reviewer\": \"independent-build62-recovery-and-mainline-source-reviewer\",\n  \"result\": \"PASS\"\n}\n"
+      "sha256": "f88621e011f497ef90db823c17845c1043b50826c299288670596ab65cc6742b",
+      "report": "{\n  \"result\": \"PASS\",\n  \"reviewedBase\": \"871df3f81957686f6ec2e3bae78fcc447963113c\",\n  \"reviewedSource\": \"af35a472c1668e62deae968a125cc2c7ca9331dc\",\n  \"reviewedTree\": \"9e2c9eedddfbb65ff3c929895879d00b6d3a2652\",\n  \"reviewer\": \"Riftlet 1.0.9 independent non-author product and release reviewer\"\n}\n"
     }
   ],
   "productionAdmission": {
