@@ -10,7 +10,7 @@ const map=fs.readFileSync(path.join(root,'sitemap.xml'),'utf8');
 const robots=fs.readFileSync(path.join(root,'robots.txt'),'utf8');
 test('sitemap is public, canonical and recently updated',()=>{
  assert.match(map,/<loc>https:\/\/riftlet\.com\/<\/loc>/);
- assert.match(map,/<lastmod>2026-11-24<\/lastmod>/);
+ assert.match(map,/<lastmod>2026-11-25<\/lastmod>/);
  assert.match(robots,/User-agent: \*/);
  assert.match(robots,/Sitemap: https:\/\/riftlet\.com\/sitemap\.xml/);
  assert.match(html,/<link rel="canonical" href="https:\/\/riftlet\.com\/"/);
@@ -22,10 +22,10 @@ test('Riftlet identity is explicit and there is no false capability claim',()=>{
  const app=JSON.parse(data[1]);
  assert.equal(app.name,'Riftlet');
  assert.equal(app.url,'https://riftlet.com/');
- assert.equal(app.softwareVersion,'1.0.9');
+ assert.equal(app.softwareVersion,'1.0.10');
  assert.match(app.description,/Chrome/);
  assert.match(app.description,/Edge/);
- assert.match(app.downloadUrl,/v1\.0\.9\/Riftlet-1\.0\.9\.dmg$/);
+ assert.match(app.downloadUrl,/v1\.0\.10\/Riftlet-1\.0\.10\.dmg$/);
  assert.equal((html.match(/type="application\/ld\+json"/g)||[]).length,1);
 });
 test('installation dialog identifies the signed disk image in both languages', () => {
@@ -35,8 +35,8 @@ test('installation dialog identifies the signed disk image in both languages', (
  assert.match(dialog[1], /磁盘映像 SHA-256|安装包 SHA-256/);
  const code = dialog[1].match(/<code>([\da-f]+(?:<wbr>[\da-f]+)*)<\/code>/);
  assert.ok(code);
- assert.equal(code[1].replaceAll('<wbr>', ''), 'd176cada3b20d71b8048d6eed485913c2a73f6e0f860ce284ea556c402e37bc4');
- assert.ok(dialog[1].includes('href="https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.9"'));
+ assert.equal(code[1].replaceAll('<wbr>', ''), '036a41733a57810824a830b0090e7360de22cdba3819704484bb01053da7033d');
+ assert.ok(dialog[1].includes('href="https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.10"'));
 });
 test('IndexNow domain ownership file matches key exactly',()=>{
  assert.match(key,/^[a-z0-9]{8,128}$/);
