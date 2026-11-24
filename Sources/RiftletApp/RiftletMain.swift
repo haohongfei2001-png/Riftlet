@@ -170,7 +170,6 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var arrivalCapture: ArrivalCaptureBridge?
     private var root: URL!
     private var visibleIDs = Set<UUID>()
-    private var firstUseClickBindings: [UUID: UUID] = [:]
     private var refreshRunning = false
     private var refreshRequested = false
     private var refreshWaiters: [CheckedContinuation<Void, Never>] = []
@@ -504,8 +503,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                         self.feedback.diagnostics.record(.selectionAccepted)
                         self.recordAcceptance(["event": "click_target_resolved", "assetID": id.uuidString,
                             "selectionID": resolved.id.uuidString, "uptime": ProcessInfo.processInfo.systemUptime])
-                        if self.mode == .capture, self.reviewEnvironment == nil, self.firstUse.awaitingFirstAttachment {
-                            self.firstUseClickBindings[id] = resolved.target.clickBindingID
+                        if self.mode == .capture, self.reviewEnvironment == nil, let binding = resolved.target.clickBindingID {
+                            self.firstUse.recordClick(assetID: id, bindingID: binding)
                         }
                         if let reattachment {
                             guard self.reattachmentIntents[id] == reattachment, reattachment.revision == revision else {
@@ -1533,18 +1532,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     catch { detectedSource = nil; preferenceIssue = .classify(error, context: .locationPreference) }
                 }
                 if refreshRequested { continue }
-                if !firstUseClickBindings.isEmpty {
-                    // Only a click accepted during this run can finish the guide. A
-                    // queued file, a restored historical START or a different click cannot.
-                    for record in snapshot {
-                        guard let binding = firstUseClickBindings[record.id],
-                              let id = record.activeOperationID,
-                              let start = try? await store.uploadStartReceipt(for: id),
-                              firstUse.finishAfterFirstAttachment(start, clickedBinding: binding) else { continue }
-                        settingsHost?.onboarding.closeForTeardown()
-                        break
-                    }
-                    firstUseClickBindings = firstUseClickBindings.filter { firstUse.awaitingFirstAttachment && activeIDs.contains($0.key) }
+                if mode == .capture, reviewEnvironment == nil, await firstUse.reconcileFirstAttachment(in: store) {
+                    settingsHost?.onboarding.closeForTeardown()
                 }
                 if mode.usesWebAdapter, CommandLine.arguments.contains("--acceptance-trace") {
                     for record in snapshot {
