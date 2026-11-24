@@ -70,10 +70,10 @@ test('exactly two official DMG links record distinct placements without URL chan
   assert.equal(downloads.length, 2);
   assert.deepEqual(downloads.map(a => /data-umami-event-placement="([^"]+)"/.exec(a)?.[1]).sort(), ['header', 'primary']);
   for (const a of downloads) {
-    assert.match(a, /data-umami-event-version="1\.0\.8"/);
-    assert.match(a, /href="https:\/\/github\.com\/haohongfei2001-png\/Riftlet\/releases\/download\/v1\.0\.8\/Riftlet-1\.0\.8\.dmg"/);
+    assert.match(a, /data-umami-event-version="1\.0\.9"/);
+    assert.match(a, /href="https:\/\/github\.com\/haohongfei2001-png\/Riftlet\/releases\/download\/v1\.0\.9\/Riftlet-1\.0\.9\.dmg"/);
   }
-  assert.equal(anchors.filter(s => s.includes('Riftlet-1.0.8.dmg')).length, 2);
+  assert.equal(anchors.filter(s => s.includes('Riftlet-1.0.9.dmg')).length, 2);
 });
 test('website includes a single analytics loader and the configured website ID', () => {
   assert.equal((html.match(/src="website-analytics\.js"/g) || []).length, 1);

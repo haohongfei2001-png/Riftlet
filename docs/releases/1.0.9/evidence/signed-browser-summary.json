@@ -1,0 +1,186 @@
+{
+  "actualDurableUniqueStarts": 19,
+  "appKitEventOrigin": "Software-posted real AppKit mouseDown to the original signed process, checked against native callbacks.",
+  "browsers": [
+    "Google Chrome",
+    "Microsoft Edge"
+  ],
+  "build": 64,
+  "cases": [
+    {
+      "case": "rapid",
+      "cleanup": {
+        "additionalKnownQAWindowsAtClose": 0,
+        "allWindowsRestoredToOwnCreationBaseline": true,
+        "closeRequests": 1,
+        "inventoriesSHA256": [
+          "99859da243f0ef59ee1a78918cade7b86ffcf65b22f5183ca47e35f7ecd2a789",
+          "99859da243f0ef59ee1a78918cade7b86ffcf65b22f5183ca47e35f7ecd2a789"
+        ],
+        "listenerExited": true,
+        "nativeCloseReceiptSHA256": "77f15ae43016d43c32373a66bf6494b829ebe3088b60b16dca7ecc8065584ead",
+        "originalPreexistingWindowIDsPreserved": true,
+        "originalWindowClosed": true,
+        "privateCandidateExited": true,
+        "websiteWatcherClosed": true
+      },
+      "family": "chrome",
+      "pairMouseDownMS": [
+        1158.589,
+        1042.806,
+        1138.899
+      ],
+      "persistentUniqueStarts": 7,
+      "priorInconclusiveCase": false,
+      "proof": "chrome-rapid.json",
+      "status": "PASS",
+      "websiteEventCounts": {
+        "fileChange": 7,
+        "fileInput": 7,
+        "formSubmit": 0,
+        "sendButtonClicks": 0
+      }
+    },
+    {
+      "case": "rapid",
+      "cleanup": {
+        "additionalKnownQAWindowsAtClose": 1,
+        "allWindowsRestoredToOwnCreationBaseline": false,
+        "closeRequests": 1,
+        "inventoriesSHA256": [
+          "e8a9cf2417a53aff989b4a3ab4e6a22a2a317d53771df94c45554c7835767b0b",
+          "305e45fbd70f3bf9a38794e07b127a60ca6c798969de08bb6bc9aec700dbbba3"
+        ],
+        "listenerExited": true,
+        "nativeCloseReceiptSHA256": "e148ee30b300dcf304cd7e68b337f09025d911a0f3f13fde9285d63fb5857d77",
+        "originalPreexistingWindowIDsPreserved": true,
+        "originalWindowClosed": true,
+        "privateCandidateExited": true,
+        "websiteWatcherClosed": true
+      },
+      "family": "edge",
+      "pairMouseDownMS": [
+        836.01,
+        899.837,
+        822.982
+      ],
+      "persistentUniqueStarts": 7,
+      "priorInconclusiveCase": false,
+      "proof": "edge-rapid.json",
+      "status": "PASS",
+      "websiteEventCounts": {
+        "fileChange": 7,
+        "fileInput": 7,
+        "formSubmit": 0,
+        "sendButtonClicks": 0
+      }
+    },
+    {
+      "case": "selection",
+      "cleanup": {
+        "additionalKnownQAWindowsAtClose": 0,
+        "allWindowsRestoredToOwnCreationBaseline": true,
+        "closeRequests": 1,
+        "inventoriesSHA256": [
+          "4311dcab1030996a0868f27724c9d068e891fdfc467999787ee105e8beb0728d",
+          "4311dcab1030996a0868f27724c9d068e891fdfc467999787ee105e8beb0728d"
+        ],
+        "listenerExited": true,
+        "nativeCloseReceiptSHA256": "77f15ae43016d43c32373a66bf6494b829ebe3088b60b16dca7ecc8065584ead",
+        "originalPreexistingWindowIDsPreserved": true,
+        "originalWindowClosed": true,
+        "privateCandidateExited": true,
+        "websiteWatcherClosed": true
+      },
+      "family": "chrome",
+      "persistentUniqueStarts": 2,
+      "priorInconclusiveCase": false,
+      "proof": "chrome-selection.json",
+      "status": "PASS",
+      "websiteEventCounts": {
+        "fileChange": 2,
+        "fileInput": 2,
+        "formSubmit": 0,
+        "sendButtonClicks": 0
+      }
+    },
+    {
+      "case": "selection",
+      "cleanup": {
+        "additionalKnownQAWindowsAtClose": 0,
+        "allWindowsRestoredToOwnCreationBaseline": true,
+        "closeRequests": 1,
+        "inventoriesSHA256": [
+          "305e45fbd70f3bf9a38794e07b127a60ca6c798969de08bb6bc9aec700dbbba3",
+          "305e45fbd70f3bf9a38794e07b127a60ca6c798969de08bb6bc9aec700dbbba3"
+        ],
+        "listenerExited": true,
+        "nativeCloseReceiptSHA256": "e148ee30b300dcf304cd7e68b337f09025d911a0f3f13fde9285d63fb5857d77",
+        "originalPreexistingWindowIDsPreserved": true,
+        "originalWindowClosed": true,
+        "privateCandidateExited": true,
+        "websiteWatcherClosed": true
+      },
+      "family": "edge",
+      "persistentUniqueStarts": 2,
+      "priorInconclusiveCase": false,
+      "proof": "edge-selection.json",
+      "status": "PASS",
+      "websiteEventCounts": {
+        "fileChange": 2,
+        "fileInput": 2,
+        "formSubmit": 0,
+        "sendButtonClicks": 0
+      }
+    },
+    {
+      "case": "selection",
+      "cleanup": {
+        "closeRequests": 0,
+        "listenerExited": true,
+        "originalDraftRetained": true,
+        "privateCandidateExited": true,
+        "websiteWatcherClosed": true
+      },
+      "family": "edge",
+      "persistentUniqueStarts": 1,
+      "priorInconclusiveCase": true,
+      "proof": "edge-selection-earlier.json",
+      "status": "PARTIAL_UNKNOWN",
+      "websiteEventCounts": {
+        "fileChange": 2,
+        "fileInput": 2,
+        "formSubmit": 0,
+        "sendButtonClicks": 0
+      }
+    }
+  ],
+  "countsAcrossAllFiveDrafts": {
+    "fileChange": 20,
+    "fileInput": 20,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  },
+  "distinctSystemPNGs": 20,
+  "distinctUnresolvedInputs": 1,
+  "dmgSHA256": "d176cada3b20d71b8048d6eed485913c2a73f6e0f860ce284ea556c402e37bc4",
+  "earlierEdgeSelection": "Original input/change before absent second START. Earlier unsent QA draft and PNGs are retained. Later passing Edge selection used a different draft and two new PNGs.",
+  "evidenceSHA256": {
+    "chrome-rapid.json": "8239fe57c6387fc9e474dbc6f9b054f69919edd894d6411184e62679bb41dada",
+    "chrome-selection.json": "425c1232e5316b56c4b741feefe3ae64047307522ad07a5704a4e4ee6211f326",
+    "edge-rapid.json": "87fddfbb06fa526e21da3e8cc95e2dbde450e917ca7f38ce43f7f3c61a648f35",
+    "edge-selection-earlier.json": "e56d63456f6f7e7ef7c05281d38555d10a8e56f9c11bf53e14be4e3a40a89d00",
+    "edge-selection.json": "1806e197efdc577880a7b1710ee088a1de6534bd49122eec1e0c07d53bcb74dc"
+  },
+  "executableSHA256": "f019dd5d86aed2b1e25396a999bfe8b201492f737a4817356bf99f22b8813942",
+  "independentInstallationSHA256": "7c38961f8c5b4aca4616d59832498e0bc497b9da3c11ff7fa2aee7e251230ece",
+  "login": "Normal signed-in Temporary Chat with exact original document and editor.",
+  "provider": "ChatGPT",
+  "receiptBoundary": "START is an original attachmentAccepted signal, not verification of subsequent server-side upload completion.",
+  "requestedOrdinaryBrowserCases": "PASS",
+  "resourceSHA256": "8bdb088559961534c1ac43ec170e02e77e3dcb4eaf1c711a79e43a0fcf854c93",
+  "source": "af35a472c1668e62deae968a125cc2c7ca9331dc",
+  "successfulCases": 4,
+  "totalAttemptsIncludingEarlierEdgeSelection": 5,
+  "version": "1.0.9"
+}

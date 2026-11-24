@@ -1,27 +1,14 @@
-# Take your first screenshot and attach it
+# Your first screenshot
 
-Riftlet 1.0.8 includes English and Simplified Chinese setup, menu bar controls and screenshot history. Riftlet follows your Mac’s preferred language. If you still use 1.0.1, its earlier interface is primarily Chinese; the Chinese labels below help identify the controls before updating.
+1. Open Riftlet from Applications. Quick Start shows the folder where your Mac saves screenshots. If access is requested, select that folder.
+2. Choose **Try a Screenshot**. Use macOS Screenshot to capture a window or an area and save it as a file. Its thumbnail appears at the edge of the screen.
+3. Bring the ChatGPT draft you want to use to the front in Google Chrome or Microsoft Edge. Click the thumbnail. If the browser needs permission, follow the prompt for that browser. In Chrome, **Allow JavaScript from Apple Events** is under **View → Developer**. Return to your draft and click the screenshot again after setup.
+4. The thumbnail retracts when the draft starts accepting your image. Existing text and attachments stay in place. Add another image or send the message whenever you are ready.
 
-1. Open Riftlet from Applications. In setup, check the displayed screenshot folder. If access is needed, choose **Allow Screenshot Folder Access…** (授权读取系统截图文件夹…) and select the folder shown.
-2. Bring an editable ChatGPT draft to the front in ordinary Google Chrome or Microsoft Edge. Return to Riftlet setup and click **Check Browser Access…**. When macOS asks, allow Riftlet to control the browser you just used. Enable **Allow JavaScript from Apple Events** in the browser menu bar. In Chrome, this is under **View → Developer**. Choose **Check Connection** in Riftlet. For local screenshot history alone, choose **Set Up Later** (稍后设置).
-3. Choose your preferred desktop position, select **Get Started** (开始使用), and use the Mac’s Screenshot app to capture a window, an area or the whole screen. Save the image as a file. Its thumbnail appears at the edge of the desktop.
-4. Bring your intended ChatGPT draft to the front in that browser and click the thumbnail once. The image appears beside the message box alongside your existing text and attachments. The thumbnail retracts when ChatGPT starts receiving the image. You can click another screenshot while the first uploads. Check progress in the draft and send the message yourself.
+**Find an earlier screenshot.** Open **Screenshot Library** from the menu bar and restore the image to the desktop. If an earlier attachment has an unknown result, check the draft before choosing to attach it again.
 
-If macOS denied browser access, choose **Open Automation Settings…**, then **System Settings → Privacy & Security → Automation** (系统设置 → 隐私与安全性 → 自动化). Turn on the selected browser under Riftlet and return to setup. For a folder denial, select the displayed screenshot folder again. Its save location is shown in **Screenshot → Options → Save to** (截屏 → 选项 → 存储到).
+**Make the tray yours.** Open **Settings → Screenshot Tray** to change its position, appearance or idle timeout. Hiding desktop screenshots keeps local collection running.
 
-Open **Settings…** (设置…) from the Riftlet menu bar icon.
+**Reopen the guide.** Choose **Settings → Help → Quick Start**. To update an existing installation, choose **Check for Updates** from the Riftlet menu.
 
-| Page | What you can do |
-| --- | --- |
-| General (通用) | Set login behavior and window appearance, see the current version, check for updates and turn daily checks on or off. You choose when to install an update. |
-| Desktop (桌面) | Choose screenshot tray, wind chime or micro slit, the screen edge and the display. Each form uses the same history. |
-| Screenshots (截图) | Check the screenshot folder or choose **Allow Screenshot Folder Access…** to restore access, configure built-in capture, check local storage, open history or change the idle archive time. The default is two minutes. Choose 1–10 minutes or turn it off. |
-| Help (帮助) | Check the browser connection, reopen setup or send feedback. |
-
-In the earlier 1.0.1 interface, open **外观与布局** for desktop appearance, **使用与历史** for the archive time, or **权限与帮助 → 关于与诊断** for updates.
-
-**Find an earlier screenshot.** Click the Riftlet menu bar icon and open **Screenshot Library** (截图仓库). Select an archived image and choose **Restore to Desktop** (恢复到桌面). Your original file is preserved. To hide thumbnails while continuing to collect screenshots, turn off **Show Desktop Screenshots** in Settings → Screenshots. To stop collecting, choose **Quit Riftlet** from the menu bar.
-
-**Upgrade an older copy.** Choose **Check for Updates…** in the Riftlet menu. To update manually, quit the app, back up your library and replace the old app in its existing location with the new download. [Download Riftlet](https://riftlet.com/)
-
-[Installation and permissions](INSTALL-AND-PERMISSIONS.md) · [Troubleshooting and recovery](RECOVERY-AND-FAQ.md)
+[Download for Mac](https://riftlet.com/) · [Installation and permissions](INSTALL-AND-PERMISSIONS.md) · [Support matrix](SUPPORT-MATRIX.md)

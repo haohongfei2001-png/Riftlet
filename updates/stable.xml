@@ -4,39 +4,29 @@ IMPORTANT: This file was signed by Sparkle. Any modifications to this file requi
     <channel>
         <title>Riftlet</title>
         <item>
-            <title>1.0.8</title>
-            <pubDate>Mon, 23 Nov 2026 21:30:09 +0800</pubDate>
+            <title>1.0.9</title>
+            <pubDate>Tue, 24 Nov 2026 19:06:17 +0800</pubDate>
             <link>https://riftlet.com/</link>
-            <sparkle:version>62</sparkle:version>
-            <sparkle:shortVersionString>1.0.8</sparkle:shortVersionString>
+            <sparkle:version>64</sparkle:version>
+            <sparkle:shortVersionString>1.0.9</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
-            <description sparkle:format="plain-text"><![CDATA[# Riftlet 1.0.8（build 62）发行说明
+            <description sparkle:format="plain-text"><![CDATA[# Riftlet 1.0.9
 
-## 中文
+- 第一次打开时，先确认 Mac 的截图保存位置，即可去试一张截图。需要附加时再连接当前浏览器。首张截图进入草稿后，快速入门自动完成；以后可从帮助重看。
+- 设置改为原生侧边栏。浏览器权限和连接集中在「附加」，桌面位置、样式和闲置时间在「截图托盘」，截图来源和仓库在「截图」。
+- 修复首次授权前保存的系统截图可能漏收，以及旧图库已有完整原图却提示暂缓收录的问题。普通鼠标滚轮一格即可翻页。
+- 安装窗口并排显示 Riftlet 和「应用程序」。可通过应用内「检查更新…」升级，并继续使用原有偏好和截图库。
 
-- 点击桌面边缘的截图时，Riftlet 会核对原来的浏览器窗口、标签和 ChatGPT 草稿。连续点击两张截图时，每张图片分别核对和附加。
-- 上传结果尚未确认时，可以在截图仓库查看原图、返回原草稿或选择「重新附加」。如果草稿中可能已有这张图片，Riftlet 会提示重复风险。只有确认后再次点击桌面的原图，才会发起新的附加。原窗口或草稿已关闭时，仍可在仓库查看原图。
-- 如果原草稿明确报告这张截图上传失败，Riftlet 会让已收起的截图重新出现。关掉并重新打开 Riftlet 后，原图和原操作记录依然保留。
-- 改进了 ChatGPT 将预览显示为 WebP 时对原截图的识别。消息仍由你在 ChatGPT 中发送。
+For Google Chrome and Microsoft Edge with ChatGPT on macOS 13 or later, on Apple silicon and Intel.
 
-适用于 macOS 13 或更高版本的 Apple 芯片和 Intel Mac。网页附加支持普通 Google Chrome 和 Microsoft Edge 中可编辑的 ChatGPT 草稿。可从 Riftlet 菜单选择「检查更新…」。
-
-## English
-
-- Clicking a screenshot at the desktop edge checks its original browser window, tab, and ChatGPT draft. When you select two screenshots in succession, Riftlet checks and attaches each one separately.
-- When an upload result is uncertain, your library lets you view the original, return to the draft or choose **Attach Again**. If the image may already be there, Riftlet warns about a duplicate. Confirm and click the desktop screenshot to attach it again. The original remains available after you close the draft.
-- A screenshot reappears when the original draft reports an identifiable failure for that image. Its saved copy and transfer record survive an app restart.
-- Riftlet recognizes the original screenshot when ChatGPT displays its preview as WebP. You send the message from ChatGPT.
-
-Requires macOS 13 or later on Apple silicon or Intel. Web attachment works in editable ChatGPT drafts in ordinary Google Chrome and Microsoft Edge. Use **Check for Updates…** in the Riftlet menu to update.
-
-**SHA-256** · `Riftlet-1.0.8.dmg`
-
-`66dedf34e9e224e2ba4ff18823e6b274434c205e3ad5f787990404e3859aec49`]]></description>
-            <enclosure url="https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.8/Riftlet-1.0.8.dmg" length="14225854" type="application/octet-stream" sparkle:edSignature="dDekwhQ/b8RQwAP8If4B3NiRlFBGsasWvwEQ3fhBVRQJs0HTwi2hMA84OAOdkOZxPy1tBhi00x4GGhn3CK3wDA=="></enclosure>
+- Try a screenshot before configuring a browser. Quick Start finishes when your first screenshot appears in the draft and is always available in Help.
+- Use the native Settings sidebar for browser access, tray placement and appearance, screenshot collection, or help.
+- Screenshots saved while first granting folder access are collected afterwards. Verified originals from an older library stay quiet. Each mouse-wheel notch now turns a tray page.
+- Drag Riftlet to Applications in the updated installer, or choose Check for Updates in Riftlet to keep your existing library and preferences.]]></description>
+            <enclosure url="https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.9/Riftlet-1.0.9.dmg" length="13858541" type="application/octet-stream" sparkle:edSignature="lvk+wpJ+Q2t079l+QFbYZuvx/MsIKzDDD86Ezh2G+5vS+9PFbVkcbWeW9Be4Gt+LUTfonh1VrhfKSQ1NGEc5Dg=="></enclosure>
         </item>
     </channel>
 </rss><!-- sparkle-signatures:
-edSignature: /g1TBKUGVrNYIaYnH29Fn2a5zc5RN4oyP3ENaYTm7lNvt/NB789Y+1tI1Mc6tA2+Bg3nDCjMX5oAU2E49uMDCQ==
-length: 3344
+edSignature: DWypfTM/G7KPP2V9Rc6353fSuPYLj/wZr2tEY2fmtOJIcACNNVs/SbITaZE8Y9PEYDZvdPSMKJ2/dOiypO6SBg==
+length: 2595
 -->
