@@ -1,0 +1,64 @@
+{
+  "case": "selection",
+  "cleanup": {
+    "closeRequests": 0,
+    "listenerExited": true,
+    "originalDraftRetained": true,
+    "privateCandidateExited": true,
+    "websiteWatcherClosed": true
+  },
+  "endUTC": "2026-11-24T08:43:38.794771+00:00",
+  "execution": "signed native Riftlet with software-targeted AppKit events, ordinary logged-in Temporary Chat",
+  "family": "edge",
+  "newFile": {
+    "automaticRetries": 0,
+    "change": 1,
+    "durableStart": 0,
+    "explicitNamedError": false,
+    "input": 1,
+    "matchingDecodedPreview": false,
+    "matchingRemoveInOriginalScope": 1,
+    "observedQuotaOrLoginError": false,
+    "pngSHA256": "627af49ce8be60b78842e54cb2add118c5dd25e2b599359aad607dc9be263a29"
+  },
+  "oldAttachmentPresent": true,
+  "originalDocument": true,
+  "originalEditor": true,
+  "originalTextAndSelectionCompared": true,
+  "persistentUniqueStarts": 1,
+  "priorInconclusiveCase": true,
+  "rawTerminalSHA256": "d830b727b4477622e51abaeb552073aa0945921b49a4e953e51475286382c91d",
+  "runningProcessSignatureVerified": true,
+  "seed": {
+    "change": 1,
+    "decodedPixelsMatchSource": true,
+    "durableStart": 1,
+    "input": 1,
+    "pngSHA256": "a3846f0de63007fa6689c8a0e8e71942e468999b48e7daccb2c3c2d15a8f550b"
+  },
+  "selectionUTF16": {
+    "anchor": 12,
+    "direction": "forward",
+    "focus": 40
+  },
+  "signedTraceSHA256": "8a0744dd98ab46fbfc0b8c92f08e5f47acef11bf95e23ec34b9d1f727e4c6ccb",
+  "sourceAndDocumentReceiptsSHA256": {
+    "challenge.json": "af7f68c49b629c21d58f845e4490991bfb46358c466be0ba03476baab218f65c",
+    "creation.json": "1340774119dbfc94aa9de0d839d53cda69fdf8e416552a3a26851b39c7e2f0e7",
+    "first-stable-document.json": "870980073668b6e4145b8f0a518878d81f8f8b84e0def13d8c83324dafa1e394",
+    "ready64.json": "9bc41ab945afe09bcbf8b45d77bfd050095fc5ee468bbd8a8e70993a2ea1a7ea"
+  },
+  "sqliteBackupsSHA256": [
+    "5d0010e5adacbd4c08070cc2cfe9f221f0e1025ee101076bce16d57c590f75c7",
+    "5d0010e5adacbd4c08070cc2cfe9f221f0e1025ee101076bce16d57c590f75c7"
+  ],
+  "startUTC": "2026-11-24T08:42:54.376227+00:00",
+  "status": "PARTIAL_UNKNOWN",
+  "websiteEventCounts": {
+    "fileChange": 2,
+    "fileInput": 2,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  },
+  "websiteFinalSHA256": "1da4724aea937708140e034fb1209986ba576bd317f61d95177a1b59c3218d4a"
+}

@@ -1,0 +1,167 @@
+{
+  "audit": {
+    "afterCounts": {
+      "fileChange": 2,
+      "fileInput": 2,
+      "formSubmit": 0,
+      "sendButtonClicks": 0
+    },
+    "beforeCounts": {
+      "fileChange": 1,
+      "fileInput": 1,
+      "formSubmit": 0,
+      "sendButtonClicks": 0
+    },
+    "candidate": {
+      "build": "64",
+      "cdHashes": {
+        "arm64": "979f5f5715f6447704bf9f5fdf96c2d1621346ef",
+        "x86_64": "50f655fab2decad8fbe9866ec48be3b5b090a93e"
+      },
+      "executableSHA256": "f019dd5d86aed2b1e25396a999bfe8b201492f737a4817356bf99f22b8813942",
+      "resourceSHA256": "8bdb088559961534c1ac43ec170e02e77e3dcb4eaf1c711a79e43a0fcf854c93",
+      "sha256": "d176cada3b20d71b8048d6eed485913c2a73f6e0f860ce284ea556c402e37bc4",
+      "source": "af35a472c1668e62deae968a125cc2c7ca9331dc",
+      "version": "1.0.9"
+    },
+    "family": "edge",
+    "inputs": [
+      {
+        "decodedWebsitePixelSHA256": "83dee385a1726681383f881512c7b312005096274a20a4cc3ee6434459a68742",
+        "invocationIDDigest": "3b4f3c62dc63d213830f7f34c3cd87380e04fdd0b5d727460660357038f14b26",
+        "operationIDDigest": "df868cb1add4ddb8f71798db6d26651c7330df97bfa9cc22e67bc0a793a62ee9",
+        "pngSHA256": "45d9f84edbb62ee6ebfaabe7deb70e16394a9a9e91f82820756fff6772304b8a",
+        "startEvidenceIDDigest": "7e96a6ff544425e9e0c7581470d3673a4d131b359fb8841cedd5df216c46db0f"
+      },
+      {
+        "decodedWebsitePixelSHA256": "93a24e98533ba093227252bc4ee225e31b761d76efeecdbd85e693816e8cf491",
+        "invocationIDDigest": "217bdf0756e5cac57d6a8512d4f29858354614b500708bb4f597618f12e361cd",
+        "operationIDDigest": "3e139e448c1bfcdd2055aca79b7d0d63f524415594793cca86f7516f9d887169",
+        "pngSHA256": "3b676a91286e2926a2097fbd1208e851d06cc0eb1f126e157125b64c30bf53a3",
+        "startEvidenceIDDigest": "3643c21d4f4e01f43975f647d424d8da0b2a97339f82ce7244100090f53e577b"
+      }
+    ],
+    "nativePendingACKMatchedConsumedBinding": true,
+    "oldAttachmentNodePreserved": true,
+    "originalEditorAndEndpointNodesPreserved": true,
+    "originalProductDraftEpoch": {
+      "currentPendingSlotDirectlySampledBeforeClick": false,
+      "matchingCommittedEpochSHA256": "480eb092405f351a2d5b1e8652f404b1c886c45ef365b746575863d2312209a7",
+      "sampleSourceBeforeNewInput": "already accepted seed, original SQLite operation",
+      "seedAndNewCommittedEpochEqual": true
+    },
+    "rawSHA256": {
+      "all-previous-capture-content.json": "3756038a66c4d7785453be2f6cb09b92af9e77269d5780276298b67ab00ee3fa",
+      "baseline-1-before.json": "96e0f88a9a2f1f41605985c59f98b3c2ad84df3c79f4a13d6fb5e0822ca606c3",
+      "baseline-1-watcher.json": "39bc8e9a0e98b4379b9f3a21df0ac1f5d63ece818037b1c34905cfdffe7d9d51",
+      "baseline-2-before.json": "522b185459b24bfcfa7107333cf721dadec8600877e81f19cb306b4ae947f0e9",
+      "baseline-2-watcher.json": "193d7e03cba836ec87c02c3d4ab287bffdc90b20b3ab1a9e4d02654ef5422fb2",
+      "before-selection-prep.json": "50e58a99796e7ee7cbf2e4a97baf658643957d20d315bf68b19ba03bb898e0c0",
+      "candidate.stderr": "239b900754e961b3e8e393f4b4cda4135d8102fbf70cfd807c0e44fd2a810c22",
+      "capture-1.json": "5a471aaff7d1b1c7ffda2a357ba75b0f034ef0ba8ba366c6af514838b266d8f9",
+      "capture-2.json": "fe860ea4be464e21e27322b6668cd495bb3cc835ae508e7454c404364830886d",
+      "cards-before-1.json": "39bc8e9a0e98b4379b9f3a21df0ac1f5d63ece818037b1c34905cfdffe7d9d51",
+      "cards-before-2.json": "cf43c9f2b92fe3307b8b0d8ebe15561ee290c352ac5534112dc1356805417371",
+      "checkpoint-after-1.json": "08a0baba0ceec233d4d9a989ad50495287ed94faaed9984b318355f3da62f6e6",
+      "checkpoint-after-2.json": "78de20b053b71e9b363635384b8d6dae07fca058282d0796e817fc3d85464faa",
+      "child.json": "fdf8701ccc7f55588b6d51bfe214c82e3ccc15c7b917efc57303598d2a051612",
+      "click-1.json": "5b6b13ac6974b59cc9a99f32e852cef40e16f0720b479a09693e0cdfc71ce6c2",
+      "click-2.json": "20af5f6e67b57b0d4871a975b5412ab2e0536afc2defb75286eb8813e4bc536a",
+      "db-1.json": "b14435f4ed7545c64c077e1fbdd027e5090f89178761750b87ba568d7e34e205",
+      "db-2.json": "ef9397adece90f50ade89d1e6701c7bd5b76526088412770548ce4b351e95ba7",
+      "final-db.json": "ef9397adece90f50ade89d1e6701c7bd5b76526088412770548ce4b351e95ba7",
+      "final-page.json": "670649da8cc90adf4c9e49a28d5fb917eff8eed1f1d6eb2fc16d8a6b99613062",
+      "native-auth-batch-1.json": "96e0f88a9a2f1f41605985c59f98b3c2ad84df3c79f4a13d6fb5e0822ca606c3",
+      "native-auth-batch-2.json": "522b185459b24bfcfa7107333cf721dadec8600877e81f19cb306b4ae947f0e9",
+      "native-auth-press-1.json": "5dc7729d61102190aace68944e62803720c6e76a8dd7b13d260e542491f77be1",
+      "native-auth-press-2.json": "114fd58f8ec932e3ca3c2dccaca41bdbc65292c907222e8a389d0866d17d50be",
+      "native-auth-startup.json": "866866c5993647cab4d6cdc57bd48f2df7174c43c97c2f3f93d95a81e474c71f",
+      "new-source-and-prepared-target.json": "8fe2a5dc282bdae3b06285b9c46016f07e18366e56049504154f9952e270fdc8",
+      "page-after-1.json": "193d7e03cba836ec87c02c3d4ab287bffdc90b20b3ab1a9e4d02654ef5422fb2",
+      "page-after-2.json": "670649da8cc90adf4c9e49a28d5fb917eff8eed1f1d6eb2fc16d8a6b99613062",
+      "page-baseline.json": "39bc8e9a0e98b4379b9f3a21df0ac1f5d63ece818037b1c34905cfdffe7d9d51",
+      "page-before-1.json": "39bc8e9a0e98b4379b9f3a21df0ac1f5d63ece818037b1c34905cfdffe7d9d51",
+      "page-before-2.json": "03ec4c851c5351cf52e461590e6a83668f14ad18c41ef611467d4ec8f9c1eca8",
+      "positive-1.json": "35bbf17a4a9685b63be233c11afd6cfa318e267581a3070931f4979091905f64",
+      "positive-2.json": "cb6932c96ec5e0fa4627a45eaee4b68952ffbc4c3f80a68661595efe992dd658",
+      "previous-runs.json": "c86596d9b5a337560ae9e6578b8b51cc85e312f0aa7a96994ea2c158a44a1617",
+      "prewatch-scope-before.json": "27e85aa349bf41f5e4d8c6c0de0142bc0d6bfcefa71bfe18a3eda687b2e33760",
+      "prewatch-scope-page-after.json": "7844a4110bcbfbd1c04f774b3b954eeb0db1c260694d719a21d9eff2667a4497",
+      "result.json": "ed32a64f62b8c17a9e1edd1969c73af8ca972ef8a37fe5c738c33f965abdb67b",
+      "route.json": "12a53674aced999d6d57e972717be5f72cffb64bd61621994c7ab839ee014850",
+      "row-1.json": "8109fefd908e91cd6005cdf87de9a049aba9a05993150a267dd70572ecc408fc",
+      "row-2.json": "7fee592bb7f644ccdf2b82c8735de165924978a4f1f9a5a35aeff0f2d6f3f306",
+      "running-signed-identity.json": "6375ef5edeca90ed47fbc4355b9b545d8f6e43153c415dd885b98dc333422916",
+      "selection-before.json": "1ca3d0aceb34908d08c00fde791c7fe153bb0c0750af2cbaad8a8e910bc81f45",
+      "selection-comparison.json": "3acf9b6ddcc0a46508ddf7a7bd64ecb717377b2831f84943ed950b1ec0fb9daf",
+      "selection-final.json": "d687ac28cd73638e796635d5dcc15babda61cfe80f66223db412626f8eae618a",
+      "selection-native-edit.json": "c04a4b2a4baab9410f9ad4e20314de47e4a77211f116fd63c7d44fb054fb7584",
+      "selection-preparation-once.json": "f5354ad17f353117587a4b369421a0bc59e8acf24b79b62e175ceec3076ba063",
+      "selection-prepared.json": "052441a724c3c10a6a867f8c5ecf6a84a7a409e1d97f65bc05c0912a8929fadf",
+      "selection-witness-origin.json": "f775363429d8663e19ea6722a8528194dcee1e976b6bd365a88f9c6e43687981",
+      "signed-before-selection-1.json": "cfc2e4f2a917e5d267be74df066d1a923abaf941421ac60e4aa5df4cba95a5f1",
+      "signed-before-selection-2.json": "615337665d17df547c968619e2e004ab1ba89a32a9bd4c57f2cb69643b5a3a1e",
+      "signed-final-armed-1.json": "cfc2e4f2a917e5d267be74df066d1a923abaf941421ac60e4aa5df4cba95a5f1",
+      "signed-final-armed-2.json": "615337665d17df547c968619e2e004ab1ba89a32a9bd4c57f2cb69643b5a3a1e",
+      "source-pixels-1.json": "2d52b810dc044612bb1a493b18b8d1bfe8ca86717cb9d846ec88862fc4235bc9",
+      "source-pixels-2.json": "f30f218bd8e2a6a6961939418cd93bf030ed4b5f78e5522211a3dcd865aa1c2c",
+      "supplement-intent-1.json": "9fd9ba1f1c5f03f6726fbbd18b581aab07d39b82db51b94fefcedc2ac69a643c",
+      "supplement-intent-2.json": "ecebb6bb610dbad2eccfd2ffd6e7bff2670d06bc3ca03dc232d7ae865430f4d3",
+      "watch-closed.json": "a54ac5bb1f80f63e97d0fdea2ed11b5d547130e28378703d643019b310611f98",
+      "watcher-intent.json": "d3fa2e5e4aa34ab9304ad80147efec67b32cb4992dd76acbf74d89618dab22af"
+    },
+    "selectedText": "preserve this original draft",
+    "selectionUTF16": {
+      "anchor": 12,
+      "direction": "forward",
+      "end": 40,
+      "focus": 40,
+      "start": 12
+    },
+    "textAndSelection": "PASS",
+    "textLength": 64,
+    "textSHA256": "cd8f05688e1c2f02de6687c4ec6283a3f28db17265552ec0283088938098853f"
+  },
+  "case": "selection",
+  "cleanup": {
+    "additionalKnownQAWindowsAtClose": 0,
+    "allWindowsRestoredToOwnCreationBaseline": true,
+    "closeRequests": 1,
+    "inventoriesSHA256": [
+      "305e45fbd70f3bf9a38794e07b127a60ca6c798969de08bb6bc9aec700dbbba3",
+      "305e45fbd70f3bf9a38794e07b127a60ca6c798969de08bb6bc9aec700dbbba3"
+    ],
+    "listenerExited": true,
+    "nativeCloseReceiptSHA256": "e148ee30b300dcf304cd7e68b337f09025d911a0f3f13fde9285d63fb5857d77",
+    "originalPreexistingWindowIDsPreserved": true,
+    "originalWindowClosed": true,
+    "privateCandidateExited": true,
+    "websiteWatcherClosed": true
+  },
+  "endUTC": "2026-11-24T08:52:46.186299+00:00",
+  "execution": "signed native Riftlet with software-targeted AppKit events, ordinary logged-in Temporary Chat",
+  "family": "edge",
+  "originalDocument": true,
+  "originalEditor": true,
+  "persistentUniqueStarts": 2,
+  "priorInconclusiveCase": false,
+  "rawTerminalSHA256": "ed32a64f62b8c17a9e1edd1969c73af8ca972ef8a37fe5c738c33f965abdb67b",
+  "runningProcessSignatureVerified": true,
+  "signedTraceSHA256": "239b900754e961b3e8e393f4b4cda4135d8102fbf70cfd807c0e44fd2a810c22",
+  "sourceAndDocumentReceiptsSHA256": {
+    "challenge.json": "95cc4f3dcf211e8bd431c0926293cb8c30ef7fe91404c1661972d3fa7140ec40",
+    "creation.json": "7982f649afe0c36bab8191ee00d42e4bfbad0c9a99ca196875a9877f745ee5db",
+    "first-stable-document.json": "d802859de71e36085c9f59e03a27120578deb3f6047248151f1390cd80d42182",
+    "ready64.json": "07e508b7736f1c05b605ea94d534b60acbbf07d8bb7e1fd0a682ad9fad8c1037"
+  },
+  "sqliteSHA256": "801028cee53a42de0c50bc555e2a18453d04d62fcb6055d04fc4f9e891602927",
+  "startUTC": "2026-11-24T08:52:19.621864+00:00",
+  "status": "PASS",
+  "websiteEventCounts": {
+    "fileChange": 2,
+    "fileInput": 2,
+    "formSubmit": 0,
+    "sendButtonClicks": 0
+  },
+  "websiteFinalSHA256": "670649da8cc90adf4c9e49a28d5fb917eff8eed1f1d6eb2fc16d8a6b99613062"
+}

@@ -1,30 +1,17 @@
-# 开始使用 Riftlet 1.0.8
+# 开始使用 Riftlet
 
-Riftlet 在桌面边缘呈现新截图。把要用的 ChatGPT 草稿放到 普通 Google Chrome 或 Microsoft Edge 的前台，点一下微图，就能在该草稿中附加这张图片。消息由你发送。
+在 Mac 上截一张图，把要使用的 ChatGPT 草稿放到 Chrome 或 Edge 前台，再点一下桌面边缘的缩略图。消息由你发送。
 
-支持 macOS 13 及以上的 Apple 芯片和 Intel Mac。安装后跟随引导设置截图文件夹与所用浏览器。[官网下载](https://riftlet.com/) · [已发布版本](https://github.com/haohongfei2001-png/Riftlet/releases)
+[下载 Mac 版](https://riftlet.com/) · [中文快速入门](QUICK-START.zh-CN.md) · [English quick start](QUICK-START.en.md)
 
 ## 设置入口
 
-从菜单栏打开「设置…」。当前 1.0.8 使用四页设置。升级前的 1.0.1 入口也列在下表，方便查找。
-
-| 想调整什么 | 较早的 1.0.1 | 当前 1.0.8 |
-| --- | --- | --- |
-| 登录启动、每天检查更新 | 「使用与历史」中的登录项；「权限与帮助 → 关于与诊断」中的更新 | 通用 |
-| 截图呈现方式与桌面位置 | 外观与布局 | 桌面 |
-| 闲置归档、查看存储用量 | 使用与历史 | 截图 → 归档与本机存储 |
-| 在 Finder 打开 Riftlet 数据目录 | 使用与历史 → 存储与恢复 → 在 Finder 中显示 | 帮助 → 诊断 → 在 Finder 中显示数据目录… |
-| 重看引导、检查浏览器连接、反馈 | 权限与帮助 | 帮助 |
-
-两个版本都可以在「截图」页授权截图文件夹、重新检查目录访问，也可以右键点菜单栏图标检查更新。
-
-## 使用指南
-
-| 想做什么 | 从这里开始 |
+| 想做什么 | 打开设置中的 |
 | --- | --- |
-| 安装、识别正确的包、授予或恢复权限 | [安装与权限](INSTALL-AND-PERMISSIONS.md) |
-| 第一次截图、附加和找回图片 | [中文快速开始](QUICK-START.zh-CN.md) · [English quick start](QUICK-START.en.md) |
-| 了解支持的截图、浏览器、三种外观及验证范围 | [支持范围](SUPPORT-MATRIX.md) |
-| 解决问题、更新、回退或卸载 | [恢复与常见问题](RECOVERY-AND-FAQ.md) |
-| 了解本地数据与反馈隐私 | [隐私与数据](PRIVACY.md) |
-| 私下报告问题 | [反馈说明](FEEDBACK-TEMPLATE.md) |
+| 更改登录启动、应用外观或检查更新 | 通用 |
+| 连接浏览器或恢复附加权限 | 附加 |
+| 调整托盘位置、外观和闲置收起时间 | 截图托盘 |
+| 确认系统截图目录、设置内置相机或管理截图库 | 截图 |
+| 重看快速入门、发送反馈或查看诊断 | 帮助 |
+
+[安装与权限](INSTALL-AND-PERMISSIONS.md) · [支持范围](SUPPORT-MATRIX.md) · [更新与恢复](RECOVERY-AND-FAQ.md) · [隐私与数据](PRIVACY.md) · [私下反馈](FEEDBACK-TEMPLATE.md)
