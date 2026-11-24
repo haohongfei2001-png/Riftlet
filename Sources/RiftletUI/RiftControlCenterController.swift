@@ -20,7 +20,7 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
     private var interactionSuspended = false
     private var buttons: [String: NSButton] = [:]
     private let scroll = RiftVisualStyle.topAlignedScrollView()
-    private let problemLabel = SettingsNativeStyle.label("", role: "secondary")
+    private let problemLabel = SettingsNativeStyle.label("", role: "rowTitle")
     private let stack = RiftVisualStyle.documentStack([], spacing: 3)
 
     public var isShown: Bool { popover.isShown }
@@ -161,6 +161,7 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         let history = button(ProductCopy.text("截图仓库", "Screenshot Library"), id: "control.history", symbol: "photo.on.rectangle")
         let update = button(ProductCopy.text("检查更新…", "Check for Updates…"), id: "control.update", symbol: "arrow.down.circle")
         let quit = button(ProductCopy.text("退出 Riftlet", "Quit Riftlet"), id: "control.quit", symbol: "power")
+        problemLabel.identifier = .init("control.status")
         append(problemLabel)
         append(button("", id: "control.recovery", symbol: "arrow.right.circle"))
         [settings, history, update].forEach(append)
@@ -207,6 +208,10 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         buttons["control.recovery"]?.isHidden = recovery == nil
         buttons["control.recovery"]?.title = recovery?.0 ?? ""
         buttons["control.recovery"]?.setAccessibilityLabel(recovery?.0)
+        if let quit = buttons["control.quit"], let action = buttons["control.recovery"], let settings = buttons["control.settings"] {
+            action.nextKeyView = settings
+            quit.nextKeyView = recovery == nil ? settings : action
+        }
         let update = snapshot.updater
         let updateButton = buttons["control.update"]
         updateButton?.title = update?.checkTitle ?? ProductCopy.text("检查更新…", "Check for Updates…")
@@ -223,6 +228,9 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         popover.animates = !snapshot.accessibility.reduceMotion
         if interactionSuspended {
             buttons.values.forEach { $0.isEnabled = false }
+        }
+        for button in buttons.values {
+            button.contentTintColor = button.isEnabled ? .labelColor : nil
         }
         if isShown { fitPopover() }
     }
@@ -294,7 +302,7 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         guard let snapshot else { return }
         let projection = RiftControlCenterPresentation(snapshot)
         if [.attention, .paused, .hidden].contains(projection.state) {
-            contextMenu.addItem(withTitle: projection.title, action: nil, keyEquivalent: "").isEnabled = false
+            contextMenu.addItem(statusHeading(projection.title))
             if let recovery = projection.recovery(snapshot) { addMenu(recovery.0, recovery.1) }
             contextMenu.addItem(.separator())
         }
@@ -304,6 +312,24 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
                 .checkForUpdates, enabled: snapshot.updater?.canCheck == true)
         contextMenu.addItem(.separator())
         addMenu(ProductCopy.text("退出 Riftlet", "Quit Riftlet"), .quit, key: "q")
+    }
+
+    // A status is static text. Drawing it as a disabled command makes a
+    // running application look unavailable, including in a non-key menu.
+    private func statusHeading(_ title: String) -> NSMenuItem {
+        let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
+        let label = NSTextField(labelWithString: title)
+        label.font = .systemFont(ofSize: NSFont.systemFontSize, weight: .medium)
+        label.textColor = .labelColor
+        label.sizeToFit()
+        let inset: CGFloat = 14
+        let view = NSView(frame: NSRect(x: 0, y: 0, width: label.frame.width + 2 * inset,
+                                        height: label.frame.height + 8))
+        label.frame.origin = NSPoint(x: inset, y: 4)
+        view.addSubview(label)
+        item.view = view
+        item.isEnabled = false
+        return item
     }
 
     private func addMenu(_ title: String, _ action: SettingsProductAction, enabled: Bool = true, key: String = "") {

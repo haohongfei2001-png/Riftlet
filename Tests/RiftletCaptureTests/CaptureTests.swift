@@ -196,7 +196,12 @@ final class CaptureTests: XCTestCase {
             do {
                 _ = try await f.importer.importFile(at: url)
                 XCTFail("Changed bytes cannot prove that this is a different source occurrence")
-            } catch CaptureError.historicalSourceUnconfirmed {}
+            } catch let retained as RetainedLegacyContents {
+                XCTAssertEqual(index, 0)
+                XCTAssertTrue(retained.isUnchanged())
+            } catch CaptureError.historicalSourceUnconfirmed {
+                XCTAssertGreaterThan(index, 0)
+            }
         }
         try Data(contentsOf: url).write(to: neighbor); try markScreenshot(neighbor)
         let new = try await f.importer.importFile(at: neighbor)
@@ -230,7 +235,7 @@ final class CaptureTests: XCTestCase {
         XCTAssertEqual(all.count, 1)
     }
 
-    func testHeldLegacyScreenshotRechecksMetadataChangesAndClearsItsWarning() async throws {
+    func testRetainedLegacyContentsStayQuietAndRecheckPrivateBytesAndSourceMetadata() async throws {
         let f = try Fixture(); defer { f.close() }
         let initial = CaptureService(store: f.store, privateRoot: f.privateRoot, sourceDirectory: f.source)
         try await initial.start()
@@ -240,6 +245,24 @@ final class CaptureTests: XCTestCase {
         let signature = try FileSignature.read(at: file)
         let legacy = try journal(file, key: "\(signature.device):\(signature.fileID)", in: f)
         let service = CaptureService(store: f.store, privateRoot: f.privateRoot, sourceDirectory: f.source)
+        // Put a new screenshot beside pre-volume history. It should already be
+        // in SQLite before we finish even the first low-priority legacy hash.
+        let neighbor = f.source.appendingPathComponent("fresh.png")
+        try Data(contentsOf: file).write(to: neighbor)
+        try markScreenshot(neighbor)
+        let newKey = try FileSignature.read(at: neighbor).sourceKey
+        actor Verifications {
+            var count = 0
+            func increment() { count += 1 }
+        }
+        let verifications = Verifications()
+        await service.setLifecycleProbe { point in
+            if point == .legacyContentsVerified {
+                let newAlreadyPresent = try? await f.store.containsSource(key: newKey)
+                XCTAssertEqual(newAlreadyPresent, true)
+                await verifications.increment()
+            }
+        }
         try await service.start()
         func waitForDiagnostic(_ code: CaptureDiagnosticCode?) async throws {
             for _ in 0..<30 {
@@ -249,6 +272,32 @@ final class CaptureTests: XCTestCase {
             }
             XCTFail("The collector did not publish the expected historical-source state")
         }
+        let copy = f.privateRoot.appendingPathComponent("media").appendingPathComponent(legacy.fileName)
+        for _ in 0..<50 {
+            if await verifications.count > 0 { break }
+            try await service.rescan()
+            try await Task.sleep(nanoseconds: 20_000_000)
+        }
+        let initialChecks = await verifications.count
+        XCTAssertGreaterThan(initialChecks, 0)
+        for _ in 0..<3 { try await service.rescan() }
+        let fd = open(f.source.path, O_RDONLY | O_DIRECTORY)
+        defer { if fd >= 0 { Darwin.close(fd) } }
+        if FolderWatcher.localAPFSVolume(fd, volume: signature.volumeUUID) != nil {
+            let repeatedChecks = await verifications.count
+            XCTAssertEqual(repeatedChecks, initialChecks)
+        }
+        let collected = await service.statusSnapshot()
+        XCTAssertNil(collected.latestDiagnostic)
+        let original = try Data(contentsOf: copy)
+        // Change only the private bytes (preserving length), then restore them.
+        var damaged = original
+        damaged[0] ^= 1
+        try damaged.write(to: copy)
+        try await waitForDiagnostic(.historicalSourceUnconfirmed)
+        try original.write(to: copy)
+        try await waitForDiagnostic(nil)
+        try FileManager.default.removeItem(at: copy)
         try await waitForDiagnostic(.historicalSourceUnconfirmed)
         try markScreenshot(file, value: false)
         try await waitForDiagnostic(nil)
@@ -272,8 +321,32 @@ final class CaptureTests: XCTestCase {
         try await waitForDiagnostic(nil)
         XCTAssertEqual(try FileSignature.read(at: file).sourceKey, signature.sourceKey)
         let rows = try await f.store.assets(includeUsed: true)
-        XCTAssertEqual(rows.map(\.id), [legacy.id])
+        XCTAssertEqual(Set(rows.map(\.image.sourceKey)), [legacy.sourceKey, newKey])
         await service.stop()
+    }
+
+    func testMismatchedLegacyJournalCannotSuppressFileWithAnotherDatabaseIdentity() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let file = f.source.appendingPathComponent("candidate.png")
+        let other = f.source.appendingPathComponent("other.png")
+        try makePNG(at: file); try markScreenshot(file)
+        try Data(contentsOf: file).write(to: other); try markScreenshot(other)
+        let signature = try FileSignature.read(at: file)
+        let unrelated = try FileSignature.read(at: other)
+        XCTAssertNotEqual(signature.fileID, unrelated.fileID)
+        let manifest = try journal(file, key: "\(signature.device):\(signature.fileID)", in: f)
+        let record = ImportedAsset(id: manifest.id, sourceKey: "\(unrelated.device):\(unrelated.fileID)",
+            fileName: manifest.fileName, sha256: manifest.sha256, byteCount: manifest.byteCount,
+            pixelWidth: manifest.pixelWidth, pixelHeight: manifest.pixelHeight, mediaType: manifest.mediaType)
+        _ = try await f.store.importAsset(record)
+        let recovered = try await f.importer.recover()
+        XCTAssertEqual(recovered.invalid, [manifest.id])
+        do {
+            _ = try await f.importer.importFile(at: file)
+            XCTFail("A conflicting old journal must not identify these bytes as collected")
+        } catch CaptureError.historicalSourceUnconfirmed {}
+        let rows = try await f.store.assets(includeUsed: true)
+        XCTAssertEqual(rows.map(\.image), [record])
     }
 
     func testHistoricalHoldCachingRequiresLocalAPFS() {
@@ -430,6 +503,31 @@ final class CaptureTests: XCTestCase {
         await service.stop()
         let records = try await f.store.assets()
         XCTAssertEqual(records.count, 1)
+    }
+
+    func testFirstLaunchCollectsScreenshotsFromBeforeFolderPermissionArrivesAfterRestart() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let old = f.source.appendingPathComponent("before-launch.png")
+        try makePNG(at: old); try markScreenshot(old)
+        let launchedAt = Date()
+        let setup = CaptureService(store: f.store, privateRoot: f.privateRoot, sourceDirectory: f.source)
+        try await setup.prepareApplicationStartup(collectionRequestedAt: launchedAt, validate: {})
+        let fresh = f.source.appendingPathComponent("during-onboarding.png")
+        try makePNG(at: fresh); try markScreenshot(fresh)
+        let expectedKey = try FileSignature.read(at: fresh).sourceKey
+        let beforeAccess = try await f.store.assets()
+        XCTAssertTrue(beforeAccess.isEmpty)
+        await setup.stop()
+        let restart = CaptureService(store: f.store, privateRoot: f.privateRoot, sourceDirectory: f.source)
+        try await restart.prepareApplicationStartup(collectionRequestedAt: Date(), validate: {})
+        try await restart.start()
+        for _ in 0..<30 {
+            if try await f.store.assets().count == 1 { break }
+            try await Task.sleep(nanoseconds: 100_000_000)
+        }
+        await restart.stop()
+        let assets = try await f.store.assets()
+        XCTAssertEqual(assets.map { $0.image.sourceKey }, [expectedKey])
     }
 
     func testServiceBaselinesHistoryAndRecoversCaptureMadeWhileStopped() async throws {

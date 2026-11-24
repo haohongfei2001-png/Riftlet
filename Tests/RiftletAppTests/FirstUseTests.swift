@@ -3,6 +3,7 @@ import XCTest
 @testable import RiftletCapture
 import RiftletUI
 import RiftletAdapters
+import RiftletCore
 
 final class FirstUseTests: XCTestCase {
     func testSourceReadabilityNeverTransfersFromOldFolderToNewPreference() {
@@ -30,20 +31,110 @@ final class FirstUseTests: XCTestCase {
             systemCollection: false, paused: false, initialized: true), .notApplicable)
     }
 
-    func testIncompleteSetupResumesAndCompletionIsIsolatedFromDevelopmentModes() throws {
+    func testFirstRunWaitsForOriginalAcceptedAttachmentWithoutPresentingAgain() throws {
         let suite = "Riftlet.FirstUseTests.\(UUID())"
         let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
         defer { defaults.removePersistentDomain(forName: suite) }
         let capture = FirstUsePreferences(defaults: defaults, modeName: "Riftlet")
         XCTAssertTrue(capture.needsAutomaticPresentation)
         capture.recordPresentation()
-        XCTAssertTrue(FirstUsePreferences(defaults: defaults, modeName: "Riftlet").needsAutomaticPresentation)
-        capture.recordCompletion()
+        let relaunched = FirstUsePreferences(defaults: defaults, modeName: "Riftlet")
+        XCTAssertFalse(relaunched.needsAutomaticPresentation)
+        XCTAssertTrue(relaunched.awaitingFirstAttachment)
+        let currentClick = UUID(), assetID = UUID()
+        capture.recordClick(assetID: assetID, bindingID: currentClick)
+        let target = TargetLease(adapterID: "chatgpt-web", surface: .webChat, applicationID: "browser",
+            sessionID: "session", windowID: "window", documentID: "document", composerID: "composer", draftGeneration: "draft",
+            clickBindingID: currentClick)
+        func receipt(_ outcome: ReceiptOutcome, _ signal: UploadStartSignal?, original: Bool = true,
+                     error: Bool = false) -> TransferReceipt {
+            TransferReceipt(operationID: UUID(), assetID: assetID, attempt: 1, assetSHA256: "fixture", target: target,
+                outcome: outcome, profileID: "fixture", attachmentID: "card", belongsToOriginalDraft: original,
+                hasError: error, uploadStartEvidence: signal.map { .init(profileID: "fixture", signal: $0, evidenceID: "fixture") })
+        }
+        XCTAssertFalse(capture.finishAfterFirstAttachment(nil, clickedBinding: currentClick))
+        XCTAssertFalse(capture.finishAfterFirstAttachment(receipt(.inputTriggered, nil), clickedBinding: currentClick))
+        XCTAssertFalse(capture.finishAfterFirstAttachment(receipt(.unknown, nil), clickedBinding: currentClick))
+        XCTAssertFalse(capture.finishAfterFirstAttachment(receipt(.uploadStarted, .correlatedProgress), clickedBinding: currentClick))
+        XCTAssertFalse(capture.finishAfterFirstAttachment(receipt(.uploadStarted, .attachmentAccepted, original: false), clickedBinding: currentClick))
+        XCTAssertFalse(capture.finishAfterFirstAttachment(receipt(.uploadStarted, .attachmentAccepted, error: true), clickedBinding: currentClick))
+        XCTAssertFalse(capture.finishAfterFirstAttachment(receipt(.uploadStarted, .attachmentAccepted), clickedBinding: UUID()),
+                       "A historical START cannot complete the current screenshot attempt")
+        XCTAssertTrue(capture.finishAfterFirstAttachment(receipt(.uploadStarted, .attachmentAccepted), clickedBinding: currentClick))
+        XCTAssertFalse(capture.finishAfterFirstAttachment(receipt(.uploadStarted, .attachmentAccepted), clickedBinding: currentClick))
+        XCTAssertFalse(relaunched.awaitingFirstAttachment)
         capture.recordPresentation() // Opening help later preserves completion.
         XCTAssertFalse(FirstUsePreferences(defaults: defaults, modeName: "Riftlet").needsAutomaticPresentation)
         XCTAssertTrue(FirstUsePreferences(defaults: defaults, modeName: "Riftlet-Simulation").needsAutomaticPresentation)
         XCTAssertEqual(defaults.persistentDomain(forName: suite)?.count, 2,
                        "First-use presentation must not record permission, visibility, or upload admission")
+    }
+
+    @MainActor func testRelaunchReconcilesEitherOriginalClickAfterItsAcceptedRowLeavesTheTray() async throws {
+        for acceptedIndex in 0...1 {
+            let suite = "Riftlet.RelaunchedFirstUse.\(UUID())"
+            let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+            defer { defaults.removePersistentDomain(forName: suite) }
+            let folder = FileManager.default.temporaryDirectory.appendingPathComponent(suite)
+            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            defer { try? FileManager.default.removeItem(at: folder) }
+            let database = folder.appendingPathComponent("queue.sqlite")
+            let store = try QueueStore(databaseURL: database)
+            let first = FirstUsePreferences(defaults: defaults, modeName: "capture")
+            first.recordPresentation()
+            let policy = ReceiptPolicy(syntheticUploadStartProfiles: ["first-use-fixture": .webChat])
+            var receipts: [TransferReceipt] = []
+            for index in 0..<3 {
+                let assetID = UUID(), bindingID = UUID()
+                let asset = ImportedAsset(id: assetID, sourceKey: assetID.uuidString, fileName: "\(assetID).png",
+                    sha256: String(repeating: "a", count: 64), byteCount: 1, pixelWidth: 1, pixelHeight: 1,
+                    mediaType: "image/png", origin: .synthetic)
+                _ = try await store.importAsset(asset)
+                let target = TargetLease(adapterID: "independent-file-fixture", surface: .webChat, applicationID: "com.google.Chrome",
+                    sessionID: "fixture", windowID: "1", tabID: "1", documentID: "document", composerID: "composer",
+                    draftGeneration: "draft", clickBindingID: bindingID)
+                if index < 2 { first.recordClick(assetID: assetID, bindingID: bindingID) }
+                let operation = try await store.prepare(assetID: assetID, target: target)
+                _ = try await store.markIndependentFileInputIntent(operation.id, ownerID: UUID())
+                receipts.append(.init(operationID: operation.id, assetID: assetID, attempt: operation.attempt,
+                    assetSHA256: asset.sha256, target: target, outcome: .uploadStarted, profileID: "fixture",
+                    attachmentID: "card-\(assetID)", belongsToOriginalDraft: true,
+                    uploadStartEvidence: .init(profileID: "first-use-fixture", signal: .attachmentAccepted, evidenceID: "fixture")))
+            }
+            _ = try await store.apply(receipts[2], policy: policy)
+            let unrelated = await first.reconcileFirstAttachment(in: store)
+            XCTAssertFalse(unrelated, "Two pending clicks and an unrelated accepted START must remain pending")
+            _ = try await store.apply(receipts[acceptedIndex], policy: policy)
+            let visible = try await store.assets().map(\.id)
+            XCTAssertFalse(visible.contains(receipts[acceptedIndex].assetID))
+
+            let resumed = FirstUsePreferences(defaults: try XCTUnwrap(UserDefaults(suiteName: suite)), modeName: "capture")
+            let reopened = try QueueStore(databaseURL: database)
+            XCTAssertEqual(resumed.pendingClicks.count, 2)
+            let completed = await resumed.reconcileFirstAttachment(in: reopened)
+            XCTAssertTrue(completed)
+            XCTAssertFalse(resumed.awaitingFirstAttachment)
+            XCTAssertTrue(resumed.pendingClicks.isEmpty)
+            let repeated = await resumed.reconcileFirstAttachment(in: reopened)
+            XCTAssertFalse(repeated)
+        }
+    }
+
+    func testCandidateListStaysBoundedAndCannotReenrollACompletedOrSkippedUser() throws {
+        let suite = "Riftlet.FirstUseClickLimit.\(UUID())"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let prefs = FirstUsePreferences(defaults: defaults, modeName: "capture")
+        prefs.recordPresentation()
+        for _ in 0...FirstUsePreferences.clickLimit { prefs.recordClick(assetID: UUID(), bindingID: UUID()) }
+        let last = try XCTUnwrap(prefs.pendingClicks.last)
+        prefs.recordClick(assetID: last.assetID, bindingID: last.bindingID)
+        XCTAssertEqual(prefs.pendingClicks.count, FirstUsePreferences.clickLimit)
+        XCTAssertEqual(prefs.pendingClicks.last, last)
+        prefs.deferPresentation()
+        prefs.recordClick(assetID: UUID(), bindingID: UUID())
+        XCTAssertTrue(prefs.pendingClicks.isEmpty)
+        XCTAssertFalse(prefs.awaitingFirstAttachment)
     }
 
     func testExplicitDeferralSurvivesReopeningHelpAndRelaunch() throws {
@@ -52,10 +143,14 @@ final class FirstUseTests: XCTestCase {
         defer { defaults.removePersistentDomain(forName: suite) }
         let first = FirstUsePreferences(defaults: defaults, modeName: "Riftlet")
         first.recordPresentation()
-        XCTAssertTrue(first.needsAutomaticPresentation)
+        XCTAssertTrue(first.awaitingFirstAttachment)
+        first.recordClick(assetID: UUID(), bindingID: UUID())
+        XCTAssertEqual(first.pendingClicks.count, 1)
         first.deferPresentation()
         let relaunched = FirstUsePreferences(defaults: defaults, modeName: "Riftlet")
         XCTAssertFalse(relaunched.needsAutomaticPresentation)
+        XCTAssertFalse(relaunched.awaitingFirstAttachment)
+        XCTAssertTrue(relaunched.pendingClicks.isEmpty)
         relaunched.recordPresentation()
         XCTAssertFalse(relaunched.needsAutomaticPresentation)
         XCTAssertTrue(FirstUsePreferences(defaults: defaults, modeName: "Riftlet-Simulation").needsAutomaticPresentation)
@@ -70,6 +165,14 @@ final class FirstUseTests: XCTestCase {
         XCTAssertFalse(prefs.needsAutomaticPresentation)
         prefs.recordPresentation()
         XCTAssertFalse(prefs.needsAutomaticPresentation)
+        for previous in ["started", "deferred", "completed"] {
+            defaults.set(previous, forKey: "Riftlet.firstUse.setup.v2.Riftlet")
+            XCTAssertFalse(prefs.needsAutomaticPresentation)
+            prefs.recordPresentation()
+            prefs.deferPresentation()
+            XCTAssertFalse(prefs.awaitingFirstAttachment)
+            XCTAssertEqual(defaults.string(forKey: "Riftlet.firstUse.setup.v2.Riftlet"), previous)
+        }
     }
 
     func testFolderGrantCannotRedirectScreenshotSource() throws {

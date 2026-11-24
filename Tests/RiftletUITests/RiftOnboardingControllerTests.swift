@@ -79,6 +79,61 @@ final class RiftOnboardingControllerTests: XCTestCase {
         XCTAssertEqual(controller.window.identifier, RiftOnboardingController.windowIdentifier)
     }
 
+    @MainActor func testFolderDiscoveryThenDeniedAccessAndReturnFromPrivacySettings() async throws {
+        try prepareAppKit()
+        var actions: [String] = []
+        let controller = RiftOnboardingController(copy: .english) { action in
+            switch action {
+            case .openFilePrivacy: actions.append("privacy")
+            default: XCTFail("Showing or refreshing guidance cannot request access")
+            }
+        }
+        defer { controller.closeForTeardown() }
+        let state = try model()
+        var startup = fixture(state)
+        startup.setup = .init(source: .notConfigured, collection: .starting, isChecking: true)
+        startup.capabilities.initialized = false
+        controller.update(startup)
+        let status = try XCTUnwrap(controller.control(identifier: "onboarding.sourceStatus") as? NSTextField)
+        let grant = try button(controller, "onboarding.sourceAccess")
+        let privacy = try button(controller, "onboarding.filePrivacy")
+        let recheck = try button(controller, "onboarding.recheck")
+        XCTAssertTrue(status.stringValue.contains("Checking your screenshot folder"))
+        XCTAssertTrue(status.stringValue.contains("choose Allow"))
+        let preview = try XCTUnwrap(controller.control(identifier: "onboarding.workflowPreview"))
+        XCTAssertFalse(preview.isHidden)
+        XCTAssertTrue(grant.isHidden && privacy.isHidden && recheck.isHidden)
+        var denied = fixture(state, revision: 2)
+        denied.setup = .init(sourceLocation: "/fixture/Desktop", source: .unavailable,
+                             collection: .waitingForSource, issue: .sourceAccess)
+        controller.update(denied)
+        XCTAssertTrue(controller.show())
+        XCTAssertTrue(status.stringValue.contains("Files and Folders"))
+        XCTAssertFalse(grant.isHiddenOrHasHiddenAncestor)
+        XCTAssertFalse(privacy.isHiddenOrHasHiddenAncestor)
+        XCTAssertTrue(privacy.isEnabled)
+        XCTAssertTrue(preview.isHidden)
+        controller.window.contentView?.layoutSubtreeIfNeeded()
+        for action in [grant, privacy] {
+            let clip = try XCTUnwrap(action.enclosingScrollView?.contentView)
+            let frame = action.convert(action.bounds, to: clip)
+            XCTAssertTrue(clip.bounds.contains(frame),
+                          "\(action.title) frame \(frame), viewport \(clip.bounds), native insets \(action.alignmentRectInsets)")
+        }
+        privacy.performClick(nil)
+        await assertReceived { actions == ["privacy"] }
+        controller.update(fixture(state, revision: 3, permission: .notRequested, connection: .unchecked))
+        XCTAssertTrue(privacy.isHidden && grant.isHidden)
+        XCTAssertFalse(preview.isHidden)
+        let next = try button(controller, "onboarding.next")
+        XCTAssertTrue(next.isEnabled)
+        try button(controller, "onboarding.browserSetup").performClick(nil)
+        let browser = try button(controller, "onboarding.automation")
+        XCTAssertEqual(browser.title, "Allow Access to Chrome…")
+        XCTAssertTrue(browser.isEnabled)
+        XCTAssertEqual(actions, ["privacy"])
+    }
+
     @MainActor func testReviewGuidanceKeepsProductFlowSeparateFromCurrentNoUploadCapability() throws {
         try prepareAppKit()
         let controller = RiftOnboardingController(copy: .simplifiedChinese) { _ in XCTFail("Reading guidance cannot issue a command") }
@@ -98,6 +153,28 @@ final class RiftOnboardingControllerTests: XCTestCase {
         XCTAssertFalse(controller.isVisible)
     }
 
+    @MainActor func testTryingFirstScreenshotLeavesBrowserAuthorizationToTheFeature() async throws {
+        try prepareAppKit()
+        var tries = 0
+        let controller = RiftOnboardingController(copy: .english) { action in
+            if case .tryFirstAttachment = action { tries += 1 }
+            else { XCTFail("Trying a screenshot cannot request system or browser access") }
+        }
+        defer { controller.closeForTeardown() }
+        controller.update(fixture(try model(), permission: .notRequested, connection: .unchecked))
+        XCTAssertTrue(controller.show())
+        let next = try button(controller, "onboarding.next")
+        XCTAssertTrue(next.isEnabled)
+        XCTAssertEqual(next.title, "Try a Screenshot")
+        XCTAssertTrue(try button(controller, "onboarding.automation").isHiddenOrHasHiddenAncestor)
+        next.performClick(nil)
+        await assertReceived { tries == 1 }
+        controller.closeForTeardown()
+        XCTAssertTrue(controller.show(browserAccess: true))
+        XCTAssertEqual(controller.currentStep, 1)
+        XCTAssertFalse(try button(controller, "onboarding.automation").isHiddenOrHasHiddenAncestor)
+    }
+
     @MainActor func testEdgeScriptInstructionsAppearAfterARealRefusal() throws {
         try prepareAppKit()
         let controller = RiftOnboardingController(copy: .english) { _ in XCTFail("Rendering cannot request permission") }
@@ -107,7 +184,7 @@ final class RiftOnboardingControllerTests: XCTestCase {
                             permissionDetail: ChromeAttachmentSetup.instructions(for: .edge), browser: .edge)
         controller.update(state)
         XCTAssertTrue(controller.show())
-        try button(controller, "onboarding.next").performClick(nil)
+        try button(controller, "onboarding.browserSetup").performClick(nil)
         let label = try XCTUnwrap(controller.control(identifier: "onboarding.scriptStatus") as? NSTextField)
         XCTAssertTrue(label.isHiddenOrHasHiddenAncestor)
         XCTAssertFalse(try button(controller, "onboarding.checkChrome").isHiddenOrHasHiddenAncestor)
@@ -128,7 +205,7 @@ final class RiftOnboardingControllerTests: XCTestCase {
         let state = try model()
         controller.update(fixture(state, source: .accessible, permission: .granted, connection: .unchecked))
         XCTAssertTrue(controller.show())
-        try button(controller, "onboarding.next").performClick(nil)
+        try button(controller, "onboarding.browserSetup").performClick(nil)
         let instructions = try XCTUnwrap(controller.control(identifier: "onboarding.scriptStatus") as? NSTextField)
         controller.window.contentView?.layoutSubtreeIfNeeded()
         XCTAssertFalse(instructions.isHiddenOrHasHiddenAncestor)
@@ -167,7 +244,7 @@ final class RiftOnboardingControllerTests: XCTestCase {
         }
         let presented = controller.window.frame
         controller.update(fixture(try model(), revision: 2, source: .accessible, permission: .granted))
-        try button(controller, "onboarding.next").performClick(nil)
+        try button(controller, "onboarding.browserSetup").performClick(nil)
         XCTAssertEqual(controller.window.frame, presented, "Facts and stack page layout cannot replace the window size")
         controller.closeForTeardown()
         XCTAssertTrue(controller.show())
@@ -187,7 +264,7 @@ final class RiftOnboardingControllerTests: XCTestCase {
         let state = try model()
         let controller = RiftOnboardingController(copy: .simplifiedChinese) { action in
             switch action {
-            case .finishOnboarding: actions.append("finish")
+            case .tryFirstAttachment: actions.append("finish")
             case .chooseSourceAccess: actions.append("folder")
             case .checkChromeConnection: actions.append("chrome")
             default: XCTFail("Navigation must not request consent or change settings")
@@ -203,7 +280,7 @@ final class RiftOnboardingControllerTests: XCTestCase {
         await assertReceived { actions == ["folder"] }
 
         controller.update(fixture(state, revision: 2, connection: .unchecked))
-        next.performClick(nil)
+        try button(controller, "onboarding.browserSetup").performClick(nil)
         XCTAssertEqual(controller.currentStep, 1)
         XCTAssertFalse(next.isEnabled, "macOS Automation alone does not establish Chrome's JavaScript setting")
         let check = try button(controller, "onboarding.checkChrome")
@@ -224,7 +301,7 @@ final class RiftOnboardingControllerTests: XCTestCase {
         XCTAssertEqual(actions, ["folder", "chrome"])
 
         controller.update(fixture(state, revision: 10))
-        next.performClick(nil)
+        try button(controller, "onboarding.browserSetup").performClick(nil)
         XCTAssertEqual(next.title, "开始使用")
         next.performClick(nil); next.performClick(nil)
         await assertReceived { actions == ["folder", "chrome", "finish"] }
@@ -267,7 +344,7 @@ final class RiftOnboardingControllerTests: XCTestCase {
         XCTAssertFalse(controller.isVisible)
         XCTAssertEqual(deferrals, 1)
         XCTAssertTrue(controller.show())
-        try button(controller, "onboarding.next").performClick(nil)
+        try button(controller, "onboarding.browserSetup").performClick(nil)
         let later = try button(controller, "onboarding.later")
         XCTAssertEqual(later.title, "先使用本地截图")
         XCTAssertEqual(later.keyEquivalent, "\u{1b}")
@@ -293,8 +370,8 @@ final class RiftOnboardingControllerTests: XCTestCase {
         let automation = try button(controller, "onboarding.automation")
         XCTAssertTrue(source.isHidden)
         XCTAssertFalse(source.isEnabled)
-        let next = try button(controller, "onboarding.next")
-        next.performClick(nil)
+
+        try button(controller, "onboarding.browserSetup").performClick(nil)
         XCTAssertTrue(automation.isHidden)
         XCTAssertFalse(automation.isEnabled)
         source.performClick(nil); automation.performClick(nil)
@@ -322,7 +399,7 @@ final class RiftOnboardingControllerTests: XCTestCase {
         controller.update(fixture(state, permission: .notRunning, connection: .unchecked))
         XCTAssertTrue(controller.show())
         let next = try button(controller, "onboarding.next")
-        next.performClick(nil)
+        try button(controller, "onboarding.browserSetup").performClick(nil)
         let open = try button(controller, "onboarding.automation")
         XCTAssertEqual(open.title, "Open Chrome")
         XCTAssertFalse(next.isEnabled)
@@ -335,7 +412,7 @@ final class RiftOnboardingControllerTests: XCTestCase {
         await assertReceived { opened == 1 }
         try button(controller, "onboarding.back").performClick(nil)
         XCTAssertEqual(controller.currentStep, 0)
-        next.performClick(nil)
+        try button(controller, "onboarding.browserSetup").performClick(nil)
         XCTAssertTrue(open === controller.control(identifier: "onboarding.automation"))
     }
 
@@ -354,7 +431,7 @@ final class RiftOnboardingControllerTests: XCTestCase {
             switch action {
             case .chooseSourceAccess: actions.append("folder")
             case .requestAutomation: actions.append("automation")
-            case .finishOnboarding: actions.append("finish")
+            case .tryFirstAttachment: actions.append("finish")
             default: XCTFail("Unexpected action")
             }
         }
@@ -374,7 +451,7 @@ final class RiftOnboardingControllerTests: XCTestCase {
         await assertReceived { actions == ["folder"] }
 
         controller.update(fixture(state, revision: 2, permission: .denied, connection: .unchecked))
-        next.performClick(nil)
+        try button(controller, "onboarding.browserSetup").performClick(nil)
         let automation = try button(controller, "onboarding.automation")
         let status = try XCTUnwrap(controller.control(identifier: "onboarding.automationStatus") as? NSTextField)
         let instructions = try XCTUnwrap(controller.control(identifier: "onboarding.scriptStatus") as? NSTextField)
@@ -404,7 +481,7 @@ final class RiftOnboardingControllerTests: XCTestCase {
         XCTAssertTrue(instructions.isHiddenOrHasHiddenAncestor)
         try button(controller, "onboarding.back").performClick(nil)
         XCTAssertEqual(controller.currentStep, 0)
-        next.performClick(nil)
+        try button(controller, "onboarding.browserSetup").performClick(nil)
         next.performClick(nil)
         await assertReceived { actions == ["folder", "automation", "finish"] }
     }

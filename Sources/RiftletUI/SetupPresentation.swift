@@ -85,10 +85,10 @@ public enum SetupIssue: Equatable, Sendable {
                              "Riftlet cannot identify the screenshot disk. In the Mac Screenshot app, choose another save location in Options, then check again.")
         case .fileVolumeUnidentified:
             return copy.text(CaptureDiagnostic(code: .fileVolumeUnidentified).userMessage,
-                             "Riftlet could not identify the disk for this screenshot. The original is safe. Other new screenshots can still be collected.")
+                             "Riftlet could not identify the disk for one screenshot. Check the disk connection, then check again.")
         case .historicalSourceUnconfirmed:
             return copy.text(CaptureDiagnostic(code: .historicalSourceUnconfirmed).userMessage,
-                             "This screenshot may already be in your history. The original and its history are safe. Other new screenshots can still be collected.")
+                             "One screenshot has the same file identity as an older record. Riftlet could not verify the saved copy. The original file and history are still available.")
         case .wrongScreenshotFolder:
             return copy.text("所选文件夹与当前系统截图位置不同。请确认当前系统截图位置，然后授权读取该文件夹。",
                              "Choose the folder where your Mac saves screenshots.")
@@ -310,8 +310,8 @@ public struct SetupPresentation: Equatable, Sendable {
         switch snapshot.collection {
         case .starting: return copy.text("正在准备收录新截图。", "Preparing to collect new screenshots.")
         case .collecting:
-            if let issue = snapshot.issue, [.sourceVolumeUnidentified, .fileVolumeUnidentified, .historicalSourceUnconfirmed].contains(issue) {
-                return issue.text(in: copy, browser: snapshot.browser)
+            if snapshot.issue == .sourceVolumeUnidentified {
+                return SetupIssue.sourceVolumeUnidentified.text(in: copy, browser: snapshot.browser)
             }
             return copy.text("正在收录新截图。", "Collecting new screenshots.")
         case .waitingForSource: return copy.text("收录开关已开启。请确认 Riftlet 可以访问截图文件夹。", "Collection is on. Allow Riftlet to read your screenshot folder.")
@@ -361,13 +361,14 @@ public struct SetupPresentation: Equatable, Sendable {
         guard hasAutomationCapability else { return nil }
         switch snapshot.permission {
         case .notNeeded: return nil
-        case .notChecked: return copy.text("尚未检查 \(snapshot.browser.displayName) 自动化权限。点“检查 \(snapshot.browser.displayName) 权限…”按 macOS 提示操作。", "Choose Check \(snapshot.browser.displayName) Access and follow the macOS prompt.")
-        case .notRequested: return copy.text("点“检查 \(snapshot.browser.displayName) 权限…”，在 macOS 提示中允许 Riftlet 控制 \(snapshot.browser.displayName)。", "Choose Check \(snapshot.browser.displayName) Access, then allow Riftlet to control \(snapshot.browser.displayName) in the macOS prompt.")
+        case .notChecked, .notRequested:
+            return copy.text("点“\(permissionActionTitle)”。如果 macOS 询问是否允许 Riftlet 控制 \(snapshot.browser.applicationName)，请点“允许”。",
+                             "If macOS asks whether Riftlet can control \(snapshot.browser.applicationName), choose Allow to attach screenshots to your draft.")
         case .granted: return copy.text("macOS 已允许 Riftlet 与 \(snapshot.browser.displayName) 通信。", "macOS allows Riftlet to communicate with \(snapshot.browser.displayName).")
-        case .denied: return copy.text("\(snapshot.browser.displayName) 自动化访问被拒绝。打开“系统设置 → 隐私与安全性 → 自动化”，在 Riftlet 下允许 \(snapshot.browser.applicationName)，再回到这里点“重新检查”。", "Open System Settings → Privacy & Security → Automation. Under Riftlet, enable \(snapshot.browser.applicationName), then return and check again.")
-        case .notRunning: return copy.text("\(snapshot.browser.displayName) 尚未运行。请打开 \(snapshot.browser.applicationName)，再点“重新检查”。", "Open \(snapshot.browser.applicationName), then check again.")
+        case .denied: return copy.text("打开“系统设置 → 隐私与安全性 → 自动化”，在 Riftlet 下允许 \(snapshot.browser.applicationName)，再回到这里查看授权状态。", "Open System Settings → Privacy & Security → Automation. Under Riftlet, enable \(snapshot.browser.applicationName), then return to Riftlet to see its access status.")
+        case .notRunning: return copy.text("打开 \(snapshot.browser.applicationName)，再回到 Riftlet 设置连接。", "Open \(snapshot.browser.applicationName), then return to Riftlet to connect it.")
         case .browserUnavailable: return copy.text("没有找到受支持的 \(snapshot.browser.applicationName) 应用。", "A supported \(snapshot.browser.applicationName) installation could not be found.")
-        case .unavailable: return copy.text("打开 \(snapshot.browser.applicationName)，再点“重新检查”查看自动化权限。", "Open \(snapshot.browser.applicationName), then check its automation permission again.")
+        case .unavailable: return copy.text("请将 \(snapshot.browser.applicationName) 切到前台，再回到 Riftlet 检查权限。", "Bring \(snapshot.browser.applicationName) to the front, then return to Riftlet to check access.")
         }
     }
 
@@ -417,7 +418,11 @@ public struct SetupPresentation: Equatable, Sendable {
         return issue.text(in: copy, browser: snapshot.browser)
     }
     public var permissionActionTitle: String {
-        snapshot.permission == .denied ? copy.text("打开自动化设置…", "Open Automation Settings…") : copy.text("检查 \(snapshot.browser.displayName) 权限…", "Check \(snapshot.browser.displayName) Access…")
+        switch snapshot.permission {
+        case .denied: return copy.text("打开自动化设置…", "Open Automation Settings…")
+        case .notRequested: return copy.text("授权连接 \(snapshot.browser.displayName)…", "Allow Access to \(snapshot.browser.displayName)…")
+        default: return copy.text("检查 \(snapshot.browser.displayName) 权限…", "Check \(snapshot.browser.displayName) Access…")
+        }
     }
     public var canRequestPermission: Bool {
         guard hasAutomationCapability else { return false }

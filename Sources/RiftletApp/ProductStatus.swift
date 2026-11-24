@@ -144,23 +144,14 @@ enum ProductStatus {
                 return copy.text("当前页面的附件入口尚不能安全接收下一张图片；本次未上传，图片保留。",
                     "The page cannot safely receive the next image yet. This image was not uploaded and is kept.")
             case .inputExecutingBeforeInput:
-                return copy.text("上一张的文件输入仍在执行；本次尚未附加，图片保留。",
-                    "The previous file is still being handed to the page. This image has not been attached and is kept.")
+                return copy.text("上一张截图还在添加。等它出现在草稿中，再点这张截图。",
+                    "The previous screenshot is still being added. Click this one when the first appears in your draft.")
             case .filePreparationFailedBeforeInput:
                 return copy.text("当前图片未能交给浏览器；本次尚未附加，图片保留。",
                     "The image could not be handed to the browser. It has not been attached and is kept.")
-            case .attachmentEntryUnavailable:
-                return copy.text("未找到当前聊天可执行的附件入口；本次未附加，图片保留。",
-                    "No usable attachment entry was found in this chat. The image was not attached and is kept.")
-            case .attachmentInputNotCreated:
-                return copy.text("已执行附件入口，但页面未提供文件输入；本次未附加，图片保留。",
-                    "The attachment entry opened, but the page provided no file input. The image was not attached and is kept.")
-            case .attachmentInputAmbiguous:
-                return copy.text("附件入口未能确定当前聊天使用的文件控件；本次未附加，图片保留。",
-                    "The file input for this chat could not be identified. The image was not attached and is kept.")
-            case .attachmentEntryFailed:
-                return copy.text("执行当前聊天的附件入口时失败；本次未附加，图片保留。",
-                    "The attachment entry in this chat could not be opened. The image was not attached and is kept.")
+            case .attachmentEntryUnavailable, .attachmentInputNotCreated, .attachmentInputAmbiguous, .attachmentEntryFailed:
+                return copy.text("截图已保留。请确认当前草稿可以添加图片，再点一次截图。",
+                    "Your screenshot is saved. Check that this draft can accept images, then click the screenshot again.")
             case .imageMissingBeforeInput: return copy.text("找不到这张图片的本地副本；本次未上传。",
                     "The local copy of this image could not be found. It was not uploaded.")
             case .resultUnconfirmed: return copy.text("附加结果暂不能确认，图片记录已保留；不会自动再次附加。",

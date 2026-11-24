@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import plistlib
 import shutil
+import struct
 import subprocess
 import sys
 import tempfile
@@ -243,6 +244,37 @@ class OuterImageTests(unittest.TestCase):
 
 
 class NativeImageTests(unittest.TestCase):
+    @unittest.skipUnless(sys.platform == "darwin", "Finder layout uses native file birth times")
+    def test_layout_rejects_changed_entries_background_and_settings(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / R.APP).mkdir()
+            (root / "Applications").symlink_to("/Applications")
+            artwork = root / D.FINDER.BACKGROUND
+            artwork.parent.mkdir()
+            artwork.parent.chmod(0o755)
+            shutil.copyfile(D.FINDER.ARTWORK / "Install.tiff", artwork)
+            artwork.chmod(0o644)
+            # A normal APFS host file may have an inode larger than HFS+'s CNIDs.
+            settings = root / ".DS_Store"
+            settings.write_bytes(b"test settings")
+            settings.chmod(0o644)
+            with patch.object(D.FINDER, "settings", return_value=b"test settings"):
+                D.verify_layout(root)
+                extra = root / "unlisted"
+                extra.touch()
+                with self.assertRaisesRegex(R.ReleaseError, "dmg_unexpected_root_entries"):
+                    D.verify_layout(root)
+                extra.unlink()
+                settings.write_bytes(b"changed")
+                with self.assertRaisesRegex(R.ReleaseError, "dmg_finder_settings_mismatch"):
+                    D.verify_layout(root)
+                settings.write_bytes(b"test settings")
+                artwork.unlink()
+                artwork.symlink_to(D.FINDER.ARTWORK / "Install.tiff")
+                with self.assertRaisesRegex(R.ReleaseError, "dmg_bytes_mismatch"):
+                    D.verify_layout(root)
+
     @unittest.skipUnless(sys.platform == "darwin", "native hdiutil/ditto require macOS")
     def test_real_readonly_image_checks_app_and_link_and_detaches_without_launch(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -261,6 +293,26 @@ class NativeImageTests(unittest.TestCase):
             D.build_image(app, manifest, image, root)
             self.assertEqual(root.stat().st_mode & 0o777, 0o700)
             self.assertEqual((root / "image-source").stat().st_mode & 0o777, 0o755)
+            with D.mounted_image(image, root, readonly=True) as volume:
+                # Extract the actual icvp record independently of the layout writer.
+                data = (volume / ".DS_Store").read_bytes()
+                record = b"\x00\x00\x00\x01\x00.icvpblob"
+                self.assertEqual(data.count(record), 1)
+                start = data.index(record) + len(record)
+                size = struct.unpack_from(">I", data, start)[0]
+                for name, expected in [("Riftlet.app", (155, 202)), ("Applications", (465, 202))]:
+                    icon_record = struct.pack(">I", len(name)) + name.encode("utf-16be") + b"Ilocblob"
+                    self.assertEqual(data.count(icon_record), 1)
+                    offset = data.index(icon_record) + len(icon_record) + 4
+                    self.assertEqual(struct.unpack_from(">II", data, offset), expected)
+                settings = plistlib.loads(data[start + 4:start + 4 + size])
+                self.assertEqual(settings["backgroundType"], 2)
+                self.assertEqual(settings["arrangeBy"], "none")
+                alias = root / "actual-finder-alias"
+                alias.write_bytes(settings["backgroundImageAlias"])
+                subprocess.run(["/usr/bin/xcrun", "swift", Path(__file__).with_name("resolve-dmg-background.swift"),
+                                volume, alias], check=True)
+
             raw = R.run; calls = []
             def run(args, **kwargs):
                 calls.append(tuple(str(v) for v in args))

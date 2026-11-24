@@ -21,6 +21,7 @@ extension RiftSettingsCenterController {
         makePage(.display, views: displayContent())
         makePage(.capture, views: captureContent())
         makePage(.general, views: generalContent())
+        makePage(.attachments, views: attachmentContent())
         makePage(.help, views: helpContent())
     }
 
@@ -49,10 +50,6 @@ extension RiftSettingsCenterController {
     func displayContent() -> [NSView] {
         let visible = nativeSwitch(ProductCopy.text("显示桌面截图", "Show Desktop Screenshots"), id: "desktop.visible") { [weak self] visible in
             self?.dispatch(.settings(.setHidden(!visible)))
-        }
-        let appearance = popup(ProductCopy.text("窗口外观", "Window Appearance"), id: "appearance", titles: SettingsAppearanceChoice.allCases.map(\.title)) { [weak self] popup in
-            guard SettingsAppearanceChoice.allCases.indices.contains(popup.indexOfSelectedItem) else { return }
-            self?.dispatch(.appearance(SettingsAppearanceChoice.allCases[popup.indexOfSelectedItem]))
         }
         geometryPreview.identifier = .init("settings.center.layoutPreview")
         geometryPreview.heightAnchor.constraint(equalToConstant: 140).isActive = true
@@ -92,6 +89,7 @@ extension RiftSettingsCenterController {
             guard let self, let count = Int(popup.titleOfSelectedItem ?? "") else { return }
             dispatch(.settings(.commitField(.visibleCountPreference, String(count), maximumCount: countCapacity(model.snapshot.owner))))
         }
+        trayFavorites = disclosure(ProductCopy.text("自定义三个常用键", "Customize Three Favorites"), id: "tray.favorites", content: trayFavoriteSettings())
         trayAppearanceSection = trayAppearanceControls()
         displayRow = row(ProductCopy.text("显示器", "Display"), control: display)
         let advanced = group([
@@ -100,15 +98,13 @@ extension RiftSettingsCenterController {
         ])
         return [
             preferenceRecoveryRow(.layout),
-            row(ProductCopy.text("显示桌面截图", "Show Desktop Screenshots"), detail: ProductCopy.text("只影响桌面显示，不影响截图收录。", "Only changes desktop visibility, not collection."), control: visible), domainError(.visibility),
-            row(ProductCopy.text("窗口外观", "Window Appearance"), control: appearance), namedLabel("appearance.detail", role: "caption"),
-            makeButton(ProductCopy.text("重试保存外观", "Retry Saving Appearance"), id: "appearance.retry") { [weak self] in self?.dispatch(.retryAppearance) },
+            row(ProductCopy.text("显示桌面截图", "Show Desktop Screenshots"), detail: SettingsNativeStyle.label(ProductCopy.text("隐藏后仍会收录新截图。", "New screenshots are still collected when hidden."), role: "caption"), control: visible), domainError(.visibility),
             row(ProductCopy.text("桌面形态", "Desktop Form"), control: form), domainError(.desktopForm),
             geometryPreview, windChimeSettings!, domainError(.windChimeArrangement),
             row(ProductCopy.text("屏幕边缘", "Screen Edge"), control: buttonRow([edgePreview, placement])), domainError(.placement),
             displayRow!, namedLabel("display.detail", role: "caption"), domainError(.display),
             makeButton(ProductCopy.text("回到已选显示器", "Return to Preferred Display"), id: "display.restore") { [weak self] in self?.dispatch(.restorePreferredDisplay) },
-            trayAppearanceSection!,
+            preferenceRecoveryRow(.archive), archiveSettings(), trayFavorites!, trayAppearanceSection!,
             disclosure(ProductCopy.text("更多", "More"), id: "display.advanced", content: advanced),
             legacySection!, domainError(.layout), namedLabel("diagnostics", role: "caption")
         ]
@@ -145,15 +141,18 @@ extension RiftSettingsCenterController {
         let mode = segmented(ProductCopy.text("默认截图方式", "Default Capture Mode"), id: "captureMode", titles: [ProductCopy.text("窗口", "Window"),ProductCopy.text("区域", "Area"),ProductCopy.text("全屏", "Full Screen")]) { [weak self] in
             self?.dispatch(.settings(.setCaptureMode(modes[$0])))
         }
-        trayFavorites = disclosure(ProductCopy.text("自定义三个常用键", "Customize Three Favorites"), id: "tray.favorites", content: trayFavoriteSettings())
         captureOptions = group([
-            row(ProductCopy.text("默认截图方式", "Default Capture Mode"), control: mode), domainError(.captureMode), trayFavorites!,
+            row(ProductCopy.text("默认截图方式", "Default Capture Mode"), control: mode), domainError(.captureMode),
             namedLabel("screen.capture", role: "caption"),
             makeButton(ProductCopy.text("屏幕录制设置…", "Screen Recording Settings…"), id: "screen.privacy") { [weak self] in self?.dispatch(.openScreenRecordingPrivacy) }
         ])
+        let sourceName = namedLabel("sourcePath.capture", role: "caption")
+        sourceName.maximumNumberOfLines = 1
+        sourceName.lineBreakMode = .byTruncatingMiddle
         return [
-            section(ProductCopy.text("系统截图", "System Screenshots")), row(ProductCopy.text("截图文件夹", "Screenshot Folder"), control: makeButton(ProductCopy.text("在 Finder 中打开", "Open in Finder"), id: "source.open.capture") { [weak self] in self?.dispatch(.openSource) }),
-            namedLabel("sourcePath.capture", role:"caption"), namedLabel("source.capture", role:"caption"),
+            section(ProductCopy.text("系统截图", "System Screenshots")),
+            row(ProductCopy.text("截图文件夹", "Screenshot Folder"), detail: sourceName, control: makeButton(ProductCopy.text("在 Finder 中打开", "Open in Finder"), id: "source.open.capture") { [weak self] in self?.dispatch(.openSource) }),
+            namedLabel("source.capture", role:"body"),
             buttonRow([
                 makeButton(ProductCopy.text("允许访问截图文件夹…", "Allow Screenshot Folder Access…"), id: "source.access.capture") { [weak self] in self?.dispatch(.chooseSourceAccess) },
                 makeButton(ProductCopy.text("重新检查", "Check Again"), id: "source.recheck.capture") { [weak self] in self?.dispatch(.recheckSource) }
@@ -161,12 +160,13 @@ extension RiftSettingsCenterController {
             resumeCollection, domainError(.collection),
             section(ProductCopy.text("内置截图", "Built-in Capture")),
             row(ProductCopy.text("显示内置截图入口", "Show Capture Button"), control: entry), domainError(.entry), captureOptions!,
-            section(ProductCopy.text("截图资料", "Screenshot Storage")), preferenceRecoveryRow(.archive), archiveSettings(),
-            makeButton(ProductCopy.text("管理截图资料…", "Manage Screenshot Storage…"), id: "storage.manage") { [weak self] in self?.dispatch(.manageMedia) },
-            disclosure(ProductCopy.text("本机存储", "Local Storage"), id:"storage", content: group([namedLabel("storage", role:"caption"), makeButton(ProductCopy.text("重新检查用量", "Refresh Usage"), id: "storage.check") { [weak self] in self?.dispatch(.checkStorage) }])),
             section(ProductCopy.text("截图仓库", "Screenshot Library")),
-            makeButton(ProductCopy.text("打开截图仓库…", "Open Screenshot Library…"), id:"history.open") { [weak self] in self?.dispatch(.openHistory) },
-            namedLabel("history.detail", role:"caption")
+            buttonRow([
+                makeButton(ProductCopy.text("打开截图仓库…", "Open Screenshot Library…"), id:"history.open") { [weak self] in self?.dispatch(.openHistory) },
+                makeButton(ProductCopy.text("管理截图资料…", "Manage Screenshot Storage…"), id: "storage.manage") { [weak self] in self?.dispatch(.manageMedia) }
+            ]),
+            namedLabel("history.detail", role:"caption"),
+            disclosure(ProductCopy.text("本机存储", "Local Storage"), id:"storage", content: group([namedLabel("storage", role:"caption"), makeButton(ProductCopy.text("重新检查用量", "Refresh Usage"), id: "storage.check") { [weak self] in self?.dispatch(.checkStorage) }]))
         ]
     }
 
@@ -183,36 +183,49 @@ extension RiftSettingsCenterController {
         preset.autoenablesItems = false
         preset.lastItem?.isEnabled = false
         return group([
-            row(ProductCopy.text("闲置后从桌面收起", "Hide Idle Screenshots"), detail: ProductCopy.text("收起后仍可在截图仓库中查看。", "Hidden screenshots remain in your library."), control: preset), domainError(.archive)
+            row(ProductCopy.text("闲置后从桌面收起", "Hide Idle Screenshots"), detail: SettingsNativeStyle.label(ProductCopy.text("收起后仍可在截图仓库中查看。", "Hidden screenshots remain in your library."), role: "caption"), control: preset), domainError(.archive)
         ])
     }
 
     func generalContent() -> [NSView] {
+        let appearance = popup(ProductCopy.text("窗口外观", "Window Appearance"), id: "appearance", titles: SettingsAppearanceChoice.allCases.map(\.title)) { [weak self] popup in
+            guard SettingsAppearanceChoice.allCases.indices.contains(popup.indexOfSelectedItem) else { return }
+            self?.dispatch(.appearance(SettingsAppearanceChoice.allCases[popup.indexOfSelectedItem]))
+        }
         let login = nativeSwitch(ProductCopy.text("登录时启动 Riftlet", "Launch Riftlet at Login"), id: "login") { [weak self] in self?.dispatch(.loginEnabled($0)) }
         automaticUpdatesRow = row(ProductCopy.text("每天检查更新", "Check Daily for Updates"), control: nativeSwitch(ProductCopy.text("每天检查更新", "Check Daily for Updates"), id: "updates.automatic") { [weak self] enabled in self?.dispatch(.automaticUpdateChecks(enabled)) })
         return [
             row(ProductCopy.text("登录时启动 Riftlet", "Launch Riftlet at Login"), control:login), namedLabel("login.detail", role:"caption"),
             buttonRow([makeButton(ProductCopy.text("重试", "Retry"), id:"login.retry") { [weak self] in self?.dispatch(.retryLogin) },
                        makeButton(ProductCopy.text("打开登录项设置…", "Open Login Items Settings…"), id:"login.system") { [weak self] in self?.dispatch(.openLoginSettings) }]),
-            section(ProductCopy.text("软件更新", "Software Updates")), row(ProductCopy.text("当前版本", "Current Version"), control: namedLabel("version", role:"secondary")),
-            makeButton(ProductCopy.text("检查更新…", "Check for Updates…"), id: "updates.check") { [weak self] in self?.dispatch(.checkForUpdates) },
+            row(ProductCopy.text("窗口外观", "Window Appearance"), control: appearance), namedLabel("appearance.detail", role: "caption"),
+            makeButton(ProductCopy.text("重试保存外观", "Retry Saving Appearance"), id: "appearance.retry") { [weak self] in self?.dispatch(.retryAppearance) },
+            section(ProductCopy.text("软件更新", "Software Updates")),
+            row(ProductCopy.text("当前版本", "Current Version"), detail: namedLabel("version"), control:
+                makeButton(ProductCopy.text("检查更新…", "Check for Updates…"), id: "updates.check") { [weak self] in self?.dispatch(.checkForUpdates) }),
             automaticUpdatesRow,
             namedLabel("updates.failure", role: "caption"),
             makeButton(ProductCopy.text("从官网下载…", "Download from Website…"), id: "updates.website") { [weak self] in self?.dispatch(.openDownloadWebsite) }
         ]
     }
 
-    func helpContent() -> [NSView] {
-        [
-            section(ProductCopy.text("浏览器连接", "Browser Connection")), namedLabel("access.chrome", role: "rowTitle"), namedLabel("automation", role: "secondary"),
+    func attachmentContent() -> [NSView] {
+        attachmentBrowserRow = row(ProductCopy.text("当前浏览器", "Current Browser"), detail: namedLabel("access.chrome", role: "caption"), control: namedLabel("attachment.browser", role: "body"))
+        return [
+            namedLabel("attachment.workflow", role: "secondary"),
+            attachmentBrowserRow!, namedLabel("automation", role: "secondary"),
             namedLabel("chrome.menu", role: "caption"), namedLabel("attachment", role: "caption"),
             makeButton(ProductCopy.text("允许浏览器连接…", "Allow Browser Connection…"), id:"automation.request") { [weak self] in
                 guard let self else { return }
                 dispatch(product.setup.permission == .notRunning ? .openChrome : .requestAutomation)
             },
             makeButton(ProductCopy.text("检查浏览器连接", "Check Browser Connection"), id:"chrome.check") { [weak self] in self?.dispatch(.checkChromeConnection) },
-            section(ProductCopy.text("使用帮助", "Getting Help")), SettingsNativeStyle.label(ProductCopy.text("截一张图，点桌面边缘的缩略图，即可将图片加入当前 Chrome 或 Edge 的 ChatGPT 草稿。确认后由你发送。", "Take a screenshot, then click its thumbnail at the edge of your desktop to attach it to your current ChatGPT draft in Chrome or Edge. You choose when to send."), role: "secondary"),
-            makeButton(ProductCopy.text("重新查看引导…", "Open Setup Guide…"), id:"guide.help") { [weak self] in self?.dispatch(.openOnboarding) },
+        ]
+    }
+
+    func helpContent() -> [NSView] {
+        [
+            makeButton(ProductCopy.text("快速入门…", "Quick Start…"), id:"guide.help") { [weak self] in self?.dispatch(.openOnboarding) },
             makeButton(ProductCopy.text("反馈与建议…", "Send Feedback…"), id:"feedback.help") { [weak self] in self?.dispatch(.openFeedback) },
             disclosure(ProductCopy.text("诊断", "Diagnostics"), id:"diagnostics", content: group([namedLabel("support", role:"caption"), namedLabel("build.detail", role:"caption"),
                 makeButton(ProductCopy.text("复制诊断摘要", "Copy Diagnostic Summary"), id:"diagnostics.copy") { [weak self] in
@@ -289,9 +302,9 @@ extension RiftSettingsCenterController {
         }
         return container
     }
-    func row(_ title: String, detail: String = "", control: NSView) -> NSStackView {
+    func row(_ title: String, detail: NSTextField? = nil, control: NSView) -> NSStackView {
         var copyViews = [SettingsNativeStyle.label(title, role: "rowTitle")]
-        if !detail.isEmpty { copyViews.append(SettingsNativeStyle.label(detail, role: "caption")) }
+        if let detail { copyViews.append(detail) }
         let copy = SettingsNativeStyle.stack(copyViews, spacing: 4)
         copy.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         let stack = SettingsNativeStyle.stack([copy, control], vertical: false, spacing: 16)
@@ -299,7 +312,7 @@ extension RiftSettingsCenterController {
         copy.setContentHuggingPriority(.defaultLow, for: .horizontal)
         control.setContentHuggingPriority(.required, for: .horizontal)
         control.setContentCompressionResistancePriority(.required, for: .horizontal)
-        stack.heightAnchor.constraint(greaterThanOrEqualToConstant: detail.isEmpty ? 36 : 50).isActive = true
+        stack.heightAnchor.constraint(greaterThanOrEqualToConstant: detail == nil ? 36 : 50).isActive = true
         return stack
     }
     func group(_ views: [NSView]) -> NSStackView {

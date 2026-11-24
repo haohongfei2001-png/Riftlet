@@ -275,7 +275,7 @@ final class CaptureSourceBindingTests: XCTestCase {
         await service.stop()
     }
 
-    func testLegacyBaselineAndUnwitnessedHandoffDoNotBlockANeighborAfterRestart() async throws {
+    func testLegacyHandoffDoesNotClaimOrBlockWitnessedActiveScreenshotsAfterRestart() async throws {
         let f = try Fixture(); defer { f.close() }
         let old = f.first.appendingPathComponent("before-installation.png")
         let pending = f.first.appendingPathComponent("unconfirmed-pending.png")
@@ -311,11 +311,11 @@ final class CaptureSourceBindingTests: XCTestCase {
             clock.advance()
             try await service.rescan()
             let rows = try await f.store.assets(includeUsed: true)
-            XCTAssertEqual(rows.map(\.image.sourceKey), [try FileSignature.read(at: neighbor).sourceKey])
+            XCTAssertEqual(Set(rows.map(\.image.sourceKey)), [pendingSignature.sourceKey, try FileSignature.read(at: neighbor).sourceKey])
             let retained = try await f.store.checkpoint(for: "capture-pending-handoffs-v1")
             XCTAssertEqual(retained, handoff)
             let status = await service.statusSnapshot()
-            XCTAssertEqual(status.latestDiagnostic?.code, .historicalSourceUnconfirmed)
+            XCTAssertNil(status.latestDiagnostic)
             if run == 1 {
                 try FileManager.default.moveItem(at: pending, to: f.second.appendingPathComponent("preserved.png"))
                 try await service.rescan()

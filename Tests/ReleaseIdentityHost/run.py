@@ -195,7 +195,7 @@ def run(report):
     marker_ready = prepare_marker(root, nonce)
     (root / "fixture.json").write_text(json.dumps({"nonce": nonce, "markerReady": marker_ready, "markerSHA256": initial_hash}))
     report["syntheticDownloadsMarkerPrepared"] = marker_ready
-    owner = REPO / "Sources/RiftletApp/FirstUsePreferences.swift"
+    owner = REPO / "Sources/RiftletApp/ScreenshotFolderAccess.swift"
     report["productionFolderAccessSourceSHA256"] = sha(owner)
     for name, inputs in (("probe", [owner, HERE / "Probe.swift"]), ("observer", [HERE / "ObserveUI.swift"]),
                          ("preflight", [REPO / "scripts/check-update-identity.swift"])):

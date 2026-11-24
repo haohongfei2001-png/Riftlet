@@ -1,8 +1,14 @@
 import Foundation
-import RiftletUI
+import RiftletCore
 
 /// Presentation only. Never stores permission, upload admission or queue state.
 struct FirstUsePreferences {
+    struct Click: Equatable, Codable {
+        let assetID: UUID
+        let bindingID: UUID
+    }
+
+    static let clickLimit = 16
     private let defaults: UserDefaults
     private let presentedKey: String
     private let progressKey: String
@@ -16,110 +22,71 @@ struct FirstUsePreferences {
     var hasPresented: Bool { defaults.bool(forKey: presentedKey) }
 
     var needsAutomaticPresentation: Bool {
-        if let progress = defaults.string(forKey: progressKey) { return progress != "completed" && progress != "deferred" }
-        // Existing installations already chose how they use Riftlet.
-        return !defaults.bool(forKey: presentedKey)
+        !hasPresented && defaults.object(forKey: progressKey) == nil
+    }
+
+    var awaitingFirstAttachment: Bool {
+        defaults.string(forKey: progressKey) == "awaitingAttachment" || !pendingClicks.isEmpty
+    }
+
+    var pendingClicks: [Click] {
+        guard let data = defaults.data(forKey: progressKey),
+              let clicks = try? PropertyListDecoder().decode([Click].self, from: data) else { return [] }
+        return Array(clicks.suffix(Self.clickLimit))
+    }
+
+    /// One preference owns the phase and its candidates. Completing or skipping
+    /// atomically replaces the candidates with the terminal phase.
+    func recordClick(assetID: UUID, bindingID: UUID) {
+        guard awaitingFirstAttachment else { return }
+        let click = Click(assetID: assetID, bindingID: bindingID)
+        var clicks = pendingClicks
+        guard !clicks.contains(click) else { return }
+        clicks.append(click)
+        guard let data = try? PropertyListEncoder().encode(Array(clicks.suffix(Self.clickLimit))) else { return }
+        defaults.set(data, forKey: progressKey)
+        // Finish writing the identity before the transfer can persist its START.
+        defaults.synchronize()
+    }
+
+    /// Read only the assets selected during first use, including swallowed ones
+    /// that aren't part of the tray snapshot after relaunch.
+    @MainActor func reconcileFirstAttachment(in store: QueueStore) async -> Bool {
+        for click in pendingClicks {
+            guard let asset = try? await store.asset(id: click.assetID),
+                  let id = asset.activeOperationID,
+                  let start = try? await store.uploadStartReceipt(for: id),
+                  start.operationID == id, start.assetID == click.assetID,
+                  finishAfterFirstAttachment(start, clickedBinding: click.bindingID) else { continue }
+            return true
+        }
+        return false
     }
 
     /// Mark when the window is actually presented, not on a background refresh.
     /// Closing it is not consent to any system permission or external input.
     func recordPresentation() {
-        if defaults.object(forKey: progressKey) == nil && !defaults.bool(forKey: presentedKey) {
-            defaults.set("started", forKey: progressKey)
-        }
+        guard needsAutomaticPresentation else { return }
+        defaults.set("awaitingAttachment", forKey: progressKey)
         defaults.set(true, forKey: presentedKey)
     }
 
     func deferPresentation() {
-        guard needsAutomaticPresentation else { return }
+        guard awaitingFirstAttachment else { return }
         defaults.set("deferred", forKey: progressKey)
+        defaults.synchronize()
     }
 
-    func recordCompletion() { defaults.set("completed", forKey: progressKey) }
-}
-
-/// A user-selected folder grants access only to the system's actual screenshot
-/// destination. It cannot silently redirect the collector to a different folder.
-enum SourceAccessSelection {
-    static func matches(selected: URL, actualSource: URL) -> Bool {
-        selected.isFileURL && actualSource.isFileURL &&
-        selected.standardizedFileURL.resolvingSymlinksInPath().path ==
-        actualSource.standardizedFileURL.resolvingSymlinksInPath().path
-    }
-
-    static func validate(selected: URL, actualSource: URL?) throws {
-        guard let actualSource, matches(selected: selected, actualSource: actualSource) else {
-            throw SourceAccessError.differentFolder
-        }
-    }
-}
-
-@MainActor
-final class ScreenshotFolderAccess {
-    enum Restoration { case noApplicableBookmark, matchingBookmark, needsSelection }
-    private var activeURL: URL?
-    private let defaults: UserDefaults
-    private let key: String
-
-    init(defaults: UserDefaults = .standard, modeName: String) {
-        self.defaults = defaults; key = "Riftlet.sourceAccess.v1.\(modeName)"
-    }
-
+    /// The caller reads the original operation's admitted START from QueueStore.
     @discardableResult
-    func restore(for source: URL) -> Restoration {
-        stop()
-        return inspect(source, activate: true)
+    func finishAfterFirstAttachment(_ start: TransferReceipt?, clickedBinding: UUID) -> Bool {
+        guard let start, start.target.clickBindingID == clickedBinding,
+              pendingClicks.contains(Click(assetID: start.assetID, bindingID: clickedBinding)),
+              start.outcome == .uploadStarted,
+              start.uploadStartEvidence?.signal == .attachmentAccepted,
+              start.belongsToOriginalDraft, !start.hasError else { return false }
+        defaults.set("completed", forKey: progressKey)
+        defaults.synchronize()
+        return true
     }
-
-    // Watch callbacks may outlive the directory that was originally selected.
-    // Revalidate before reading, without dropping the active security scope.
-    func permitsRead(of source: URL) -> Bool {
-        inspect(source, activate: false) != .needsSelection
-    }
-
-    private func inspect(_ source: URL, activate: Bool) -> Restoration {
-        guard let stored = defaults.object(forKey: key) else { return .noApplicableBookmark }
-        guard let data = stored as? Data else { return .needsSelection }
-        let savedPath = NSURL.resourceValues(forKeys: [.pathKey], fromBookmarkData: data)?[.pathKey] as? String
-        let wasSelectedPath = savedPath.map {
-            SourceAccessSelection.matches(selected: URL(fileURLWithPath: $0, isDirectory: true), actualSource: source)
-        }
-        var stale = false
-        guard let url = try? URL(resolvingBookmarkData: data,
-                                options: [.withSecurityScope, .withoutUI, .withoutMounting],
-                                relativeTo: nil, bookmarkDataIsStale: &stale) else {
-            return wasSelectedPath == false ? .noApplicableBookmark : .needsSelection
-        }
-        guard SourceAccessSelection.matches(selected: url, actualSource: source) else {
-            return wasSelectedPath == true ? .needsSelection : .noApplicableBookmark
-        }
-        // A stale bookmark can resolve to a new directory at the same path.
-        // Only the user's selection can replace the previously saved bytes.
-        guard !stale else { return .needsSelection }
-        // A false result is not a permission verdict (e.g. an unsandboxed app
-        // may already have access). The collector performs the real read check.
-        if activate && url.startAccessingSecurityScopedResource() { activeURL = url }
-        return .matchingBookmark
-    }
-
-    func accept(_ selected: URL, actualSource: URL) throws {
-        try SourceAccessSelection.validate(selected: selected, actualSource: actualSource)
-        stop()
-        if selected.startAccessingSecurityScopedResource() { activeURL = selected }
-        try save(selected)
-    }
-
-    func stop() { activeURL?.stopAccessingSecurityScopedResource(); activeURL = nil }
-
-    private func save(_ url: URL) throws {
-        let bookmark = try url.bookmarkData(options: [.withSecurityScope, .securityScopeAllowOnlyReadAccess],
-                                           includingResourceValuesForKeys: nil, relativeTo: nil)
-        defaults.set(bookmark, forKey: key)
-    }
-}
-
-enum SourceAccessError: LocalizedError {
-    case differentFolder
-    var errorDescription: String? { ScreenshotFolderPickerCopy.wrongFolder }
-    var recoverySuggestion: String? { ScreenshotFolderPickerCopy.recoverySuggestion }
 }

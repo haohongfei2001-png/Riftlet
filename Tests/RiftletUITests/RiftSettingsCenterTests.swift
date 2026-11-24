@@ -83,23 +83,27 @@ final class RiftSettingsCenterTests: XCTestCase {
         }
     }
 
-    @MainActor func testFourPagesAndLegacyDeepLinksShareOneWindowAndViewingNeverPersists() throws {
+    @MainActor func testTaskPagesAndLegacyDeepLinksShareOneWindowAndViewingNeverPersists() throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
         let window = h.controller.window
         XCTAssertFalse(h.controller.isVisible)
-        XCTAssertEqual(SettingsPage.allCases, [.general, .display, .capture, .help])
-        XCTAssertEqual(h.controller.navigation.count, 4)
+        XCTAssertEqual(SettingsPage.allCases, [.general, .attachments, .display, .capture, .help])
+        XCTAssertEqual(h.controller.navigation.count, 5)
         for page in SettingsPage.allCases {
             h.controller.show(page: page)
             XCTAssertTrue(h.controller.window === window)
             XCTAssertEqual(h.controller.selectedPage, page)
             XCTAssertTrue(h.controller.scroll.documentView === h.controller.pages[page])
+            let sidebarButton = try XCTUnwrap(h.controller.navigation[page])
+            sidebarButton.performClick(nil)
+            XCTAssertEqual(sidebarButton.state, .on, "Choosing the active category keeps it selected")
+            XCTAssertEqual(h.controller.navigation.values.filter { $0.state == .on }.count, 1)
         }
         h.controller.show(page:.motion)
         XCTAssertEqual(h.controller.selectedPage,.display)
         XCTAssertFalse(try XCTUnwrap(h.controller.disclosures["display.advanced"]?.content).isHidden)
         h.controller.show(page:.history)
-        XCTAssertEqual(h.controller.selectedPage,.capture)
+        XCTAssertEqual(h.controller.selectedPage,.display)
         h.publish()
         XCTAssertTrue(h.actions.isEmpty)
         XCTAssertTrue(h.requests.isEmpty)
@@ -107,23 +111,49 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertFalse(h.controller.isVisible, "Background updates do not open a closed settings window")
     }
 
-    @MainActor func testFourPagesExposeWorkingControlsInTheirPrimaryLocation() throws {
+    @MainActor func testSidebarArrowMovesSelectionAndKeyboardFocusWithoutWriting() throws {
+        let h = try host()
+        defer { h.controller.closeForTeardown() }
+        h.controller.show(page: .general)
+        let first = try XCTUnwrap(h.controller.navigation[.general])
+        let next = try XCTUnwrap(h.controller.navigation[.attachments])
+        let down = try XCTUnwrap(NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: [],
+            timestamp: 0, windowNumber: h.controller.window.windowNumber, context: nil,
+            characters: "\u{F701}", charactersIgnoringModifiers: "\u{F701}", isARepeat: false, keyCode: 125))
+        XCTAssertTrue(h.controller.window.makeFirstResponder(first))
+        first.keyDown(with: down)
+        XCTAssertEqual(h.controller.selectedPage, .attachments)
+        XCTAssertTrue(h.controller.window.firstResponder === next)
+        XCTAssertEqual(next.state, .on)
+        XCTAssertTrue(h.actions.isEmpty)
+        XCTAssertTrue(h.requests.isEmpty)
+    }
+
+    @MainActor func testTaskPagesExposeWorkingControlsInTheirPrimaryLocation() throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
         h.controller.show()
         XCTAssertEqual(h.controller.selectedPage, .general)
-        for id in ["login", "updates.check", "updates.automatic"] {
+        for id in ["login", "appearance", "updates.check", "updates.automatic"] {
             let view = try XCTUnwrap(h.controller.controls[id])
             XCTAssertTrue(view.window === h.controller.window)
             XCTAssertFalse(view.isHiddenOrHasHiddenAncestor)
         }
         XCTAssertTrue(h.controller.labels["version"]?.window === h.controller.window)
         h.controller.show(page: .display)
-        for id in ["appearance", "desktop.visible"] {
+        for id in ["desktop.visible", "archive.preset", "trayFavorite1"] {
             XCTAssertTrue(h.controller.controls[id]?.window === h.controller.window)
         }
         for moved in ["paused", "hidden", "history.displayStyle", "configuration.open", "configuration.reload"] {
             XCTAssertNil(h.controller.controls[moved])
         }
+        h.controller.show(page: .attachments)
+        XCTAssertTrue(h.controller.controls["chrome.check"]?.window === h.controller.window)
+        XCTAssertTrue(h.controller.controls["automation.request"]?.window === h.controller.window)
+        XCTAssertTrue(h.controller.controls["guide.help"]?.window == nil)
+        h.controller.show(page: .help)
+        XCTAssertTrue(h.controller.controls["guide.help"]?.window === h.controller.window)
+        XCTAssertTrue(h.controller.controls["feedback.help"]?.window === h.controller.window)
+        XCTAssertTrue(h.controller.controls["chrome.check"]?.window == nil)
         h.controller.show(page: .capture)
         let entry: NSSwitch = try control(h, "entry")
         XCTAssertEqual(entry.accessibilityLabel(), ProductCopy.text("显示内置截图入口", "Show Capture Button"))
@@ -131,7 +161,27 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertTrue(h.requests.isEmpty)
     }
 
-    @MainActor func testControlCenterAndBothSettingsPagesExplainVolumeAndIndividualCaptureProblems() throws {
+    @MainActor func testScreenshotFolderShowsItsLocationAndPreservesTheFullPathAtMinimumWidth() throws {
+        let h = try host()
+        defer { h.controller.closeForTeardown() }
+        var snapshot = h.controller.product
+        let path = NSHomeDirectory() + "/Pictures/" + String(repeating: "Example Folder/", count: 20) + "Screenshots"
+        snapshot.setup = .init(sourceLocation: path, source: .accessible, collection: .collecting)
+        h.controller.update(snapshot)
+        h.controller.show(page: .capture)
+        h.controller.window.setContentSize(SettingsNativeStyle.settingsMinimumSize)
+        h.controller.window.contentView?.layoutSubtreeIfNeeded()
+        let folder = try XCTUnwrap(h.controller.labels["sourcePath.capture"])
+        XCTAssertEqual(folder.stringValue, (path as NSString).abbreviatingWithTildeInPath)
+        XCTAssertEqual(folder.toolTip, path)
+        XCTAssertEqual(folder.lineBreakMode, .byTruncatingMiddle)
+        let open = try XCTUnwrap(h.controller.controls["source.open.capture"])
+        let clip = h.controller.scroll.contentView
+        XCTAssertTrue(clip.bounds.contains(open.convert(open.bounds, to: clip)))
+        XCTAssertLessThanOrEqual(folder.bounds.width, clip.bounds.width)
+    }
+
+    @MainActor func testFolderFailureNeedsRecoveryWhileAnIndividualFileIssueStaysInScreenshotSettings() throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
         for issue in [SetupIssue.sourceVolumeUnidentified, .fileVolumeUnidentified, .historicalSourceUnconfirmed] {
             h.revision += 1
@@ -140,20 +190,22 @@ final class RiftSettingsCenterTests: XCTestCase {
             let snapshot = SettingsProductSnapshot(revision: h.revision, setup: setup, state: h.model.snapshot)
             h.controller.update(snapshot)
             let status = RiftControlCenterPresentation(snapshot)
-            XCTAssertEqual(status.state, .attention)
-            XCTAssertEqual(status.recoveryPage, .capture)
-            XCTAssertEqual(status.detail, issue.text)
+            let setupView = SetupPresentation(snapshot: setup)
             if issue == .sourceVolumeUnidentified {
+                XCTAssertEqual(status.state, .attention)
+                XCTAssertEqual(status.recoveryPage, .capture)
                 XCTAssertEqual(status.title, ProductCopy.text("当前截图位置无法收录", "Can’t Collect from This Location"))
-                XCTAssertTrue(status.detail.contains(ProductCopy.text("选择其他保存位置", "choose another save location")))
+                XCTAssertEqual(status.detail, issue.text)
+                XCTAssertEqual(setupView.collectionText, issue.text)
             } else {
-                XCTAssertEqual(status.title, ProductCopy.text("部分截图暂缓收录", "Some Screenshots Are on Hold"))
-                XCTAssertTrue(status.detail.contains(ProductCopy.text("其他新截图仍可收录", "Other new screenshots can still be collected")))
+                XCTAssertEqual(status.state, .collecting)
+                XCTAssertNil(status.recovery(snapshot))
+                XCTAssertEqual(setupView.collectionText, ProductCopy.text("正在收录新截图。", "Collecting new screenshots."))
             }
-            XCTAssertEqual(h.controller.labels["source.capture"]?.stringValue, issue.text)
+            let source = try XCTUnwrap(h.controller.labels["source.capture"])
+            XCTAssertFalse(source.isHidden)
+            XCTAssertEqual(source.stringValue, issue.text)
             XCTAssertNil(h.controller.labels["source.help"])
-            XCTAssertEqual(SetupPresentation(snapshot: setup).collectionText, issue.text)
-
         }
     }
 
@@ -213,7 +265,7 @@ final class RiftSettingsCenterTests: XCTestCase {
                                permissionDetail: ChromeAttachmentSetup.instructions)
         snapshot.capabilities.canRequestAutomation = true
         h.controller.update(snapshot)
-        h.controller.show(page: .help)
+        h.controller.show(page: .attachments)
         let check: NSButton = try control(h, "chrome.check")
         let grant: NSButton = try control(h, "automation.request")
         XCTAssertTrue(grant.isHidden)
@@ -298,7 +350,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         let window = h.controller.window
         let visible = try XCTUnwrap((window.screen ?? NSScreen.main)?.visibleFrame)
         let available = window.contentRect(forFrameRect: visible).size
-        let expected = NSSize(width: min(640, available.width), height: min(560, available.height))
+        let expected = NSSize(width: min(SettingsNativeStyle.settingsSize.width, available.width), height: min(SettingsNativeStyle.settingsSize.height, available.height))
         h.controller.show()
         window.contentView?.layoutSubtreeIfNeeded()
         let actual = window.contentRect(forFrameRect: window.frame).size
@@ -480,7 +532,6 @@ final class RiftSettingsCenterTests: XCTestCase {
         settings.defaultCaptureMode = .window
         h.receive(settings)
         h.controller.show(page: .display)
-        h.controller.show(page:.capture)
         try click(h, "disclosure.tray.favorites")
         let first: NSPopUpButton = try control(h, "trayFavorite1")
         let third: NSPopUpButton = try control(h, "trayFavorite3")
@@ -521,7 +572,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         var settings = h.owner.settings
         settings.archiveAfterMinutes = 1.75
         h.receive(settings)
-        h.controller.show(page: .capture)
+        h.controller.show(page: .history)
         let preset: NSPopUpButton = try control(h, "archive.preset")
         XCTAssertEqual(preset.indexOfSelectedItem, 5)
         XCTAssertTrue(preset.titleOfSelectedItem?.contains(SettingsStateModel.archiveMinutesText(1.75, decimalSeparator: Locale.current.decimalSeparator ?? ".")) == true)
@@ -529,7 +580,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertTrue(h.requests.isEmpty)
         h.controller.window.performClose(nil)
         XCTAssertNil(h.controller.pendingCloseAlert)
-        h.controller.show(page: .capture)
+        h.controller.show(page: .history)
         try await changeAndWait(h, "archive.preset", index: 3)
         XCTAssertEqual(h.owner.settings.archiveAfterMinutes, 5)
         XCTAssertTrue(preset.lastItem!.isHidden)
@@ -982,7 +1033,7 @@ final class RiftSettingsCenterTests: XCTestCase {
 
     @MainActor func testNoStorageMeasurementNeverShowsInventedZeroAndClearRequestsHostConfirmationOnce() async throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
-        h.controller.show(page: .history)
+        h.controller.show(page: .capture)
         XCTAssertTrue(h.controller.labels["storage"]!.stringValue.contains(ProductCopy.text("尚未检查", "hasn’t been checked")))
         XCTAssertFalse(h.controller.labels["storage"]!.stringValue.contains("0 B"))
         XCTAssertTrue(h.actions.isEmpty)
@@ -1113,7 +1164,9 @@ final class RiftSettingsCenterTests: XCTestCase {
         h.controller.show(page: .general)
         h.controller.window.contentView?.layoutSubtreeIfNeeded()
         let update: NSButton = try control(h, "updates.check")
-        let row = try XCTUnwrap(h.controller.actionContainers["updates.check"])
+        let row = try XCTUnwrap(update.superview as? NSStackView)
+        XCTAssertTrue(try XCTUnwrap(h.controller.labels["version"]).isDescendant(of: row),
+                      "The current version and its update action belong in one row")
         XCTAssertLessThan(update.bounds.width, row.bounds.width - 40, "A short action must not stretch across the page")
         XCTAssertEqual(update.alignmentRect(forFrame: update.frame).midY, row.bounds.midY, accuracy: 1)
         XCTAssertEqual(update.alignmentRect(forFrame: update.frame).maxX, row.bounds.maxX, accuracy: 1)
@@ -1158,7 +1211,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertNotNil(field.accessibilityLabel())
         XCTAssertFalse(field.accessibilityLabel()!.isEmpty)
     }
-    @MainActor func testLocalizedFourPagesKeepReadableNativeControlsAndStableEditors() throws {
+    @MainActor func testLocalizedTaskPagesKeepReadableNativeControlsAndStableEditors() throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
         h.controller.show(page: .general)
         h.controller.window.setContentSize(SettingsNativeStyle.settingsMinimumSize)
@@ -1167,7 +1220,18 @@ final class RiftSettingsCenterTests: XCTestCase {
             h.controller.show(page: page)
             h.controller.window.contentView?.layoutSubtreeIfNeeded()
             XCTAssertEqual(h.controller.pageHeading.stringValue, page.title)
-            XCTAssertEqual(h.controller.navigation[page]?.accessibilityLabel(), page.title)
+            let nav = try XCTUnwrap(h.controller.navigation[page])
+            XCTAssertEqual(nav.accessibilityLabel(), page.title)
+            let label = try XCTUnwrap(nav.subviews.compactMap { $0 as? NSTextField }.first)
+            XCTAssertEqual(label.stringValue, page.title)
+            XCTAssertEqual(label.textColor, .labelColor)
+            XCTAssertEqual(nav.title, "", "The native cell must not draw a second title behind the semantic label")
+            XCTAssertGreaterThanOrEqual(label.bounds.width, label.intrinsicContentSize.width)
+            XCTAssertTrue(nav.bounds.contains(label.convert(label.bounds, to: nav)))
+            if let parent = nav.superview {
+                let hit = nav.hitTest(label.convert(NSPoint(x: label.bounds.midX, y: label.bounds.midY), to: parent))
+                XCTAssertTrue(hit === nav, "The entire label activates its sidebar button")
+            }
             XCTAssertTrue(field === h.controller.controls["layout.defaults.display"])
             for control in h.controller.controls.values where !control.isHiddenOrHasHiddenAncestor {
                 guard let button = control as? NSButton, !(button is NSPopUpButton), button.imagePosition != .imageOnly, button.window != nil else { continue }

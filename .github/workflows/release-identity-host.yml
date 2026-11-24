@@ -45,6 +45,16 @@ jobs:
       - name: Observe first Automation decisions on a disposable Chrome profile
         if: ${{ !cancelled() }}
         run: python3 -B Tests/ReleaseIdentityHost/automation.py --output test-results/automation-consent.json
+      - name: Verify the hosted account uses adjustable window transparency
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The slider is intentionally unavailable while macOS Reduce Transparency is on.
+          # Only the disposable hosted account is prepared for this slider-editing exercise.
+          swift -e 'import AppKit; print("before.reduceTransparency=\(NSWorkspace.shared.accessibilityDisplayShouldReduceTransparency)")' | tee test-results/settings-transparency.log
+          defaults write com.apple.universalaccess reduceTransparency -bool false
+          swift -e 'import AppKit; let reduced = NSWorkspace.shared.accessibilityDisplayShouldReduceTransparency; print("after.reduceTransparency=\(reduced)"); guard !reduced else { fatalError("Expected the ordinary transparency setting in this hosted account") }' | tee -a test-results/settings-transparency.log
       - name: Exercise candidate settings and restart in an isolated profile
         if: ${{ !cancelled() }}
         run: bash scripts/run-settings-review.sh "$RUNNER_TEMP/New.app" "$PWD/test-results/settings-review"
@@ -56,6 +66,7 @@ jobs:
             test-results/ordinary-upgrade.json
             test-results/release-identity-host.json
             test-results/automation-consent.json
+            test-results/settings-transparency.log
             test-results/settings-review/*runner-result.json
           if-no-files-found: error
           retention-days: 14

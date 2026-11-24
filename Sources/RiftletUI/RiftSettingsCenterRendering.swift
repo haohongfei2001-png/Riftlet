@@ -9,7 +9,7 @@ extension RiftSettingsCenterController {
         let presentation = SetupPresentation(snapshot: product.setup)
         for (page, button) in navigation {
             button.state = page == selectedPage ? .on : .off
-            button.contentTintColor = page == selectedPage ? SettingsNativeStyle.color(.accentInk) : .secondaryLabelColor
+            button.setAccessibilitySelected(page == selectedPage)
             button.setAccessibilityValue(page == selectedPage ? ProductCopy.text("已选中", "Selected") : "")
         }
         for (domain, row) in preferenceRecoveryRows {
@@ -38,11 +38,11 @@ extension RiftSettingsCenterController {
         check("entry", settings.entryEnabled, enabled: settings.entryAvailable && product.capabilities.canEditPreferences && !busy(.entry))
         select("captureMode", index: [.window, .region, .fullScreen].firstIndex(of: settings.defaultCaptureMode) ?? 0)
         enable("captureMode", settings.entryAvailable && product.capabilities.canEditPreferences && !busy(.captureMode))
-        captureOptions.isHidden = !settings.entryEnabled && ![SettingsDomain.captureMode, .trayFavorite1, .trayFavorite2, .trayFavorite3].contains { model.snapshot.domains[$0]?.hasIssue == true }
-        trayFavorites.isHidden = settings.configuration.desktopForm != .tray && !RiftTrayFavoriteSlot.allCases.contains { model.snapshot.domains[$0.settingsDomain]?.hasIssue == true }
+        captureOptions.isHidden = !settings.entryEnabled && model.snapshot.domains[.captureMode]?.hasIssue != true
+        trayFavorites.isHidden = (!settings.entryEnabled || settings.configuration.desktopForm != .tray) && !RiftTrayFavoriteSlot.allCases.contains { model.snapshot.domains[$0.settingsDomain]?.hasIssue == true }
         text("source.capture", presentation.sourceText)
-        text("sourcePath.capture", presentation.hasSourceLocation ? URL(fileURLWithPath: presentation.sourcePath).lastPathComponent : "")
-        labels["sourcePath.capture"]?.toolTip = presentation.sourcePath
+        text("sourcePath.capture", presentation.hasSourceLocation ? (presentation.sourcePath as NSString).abbreviatingWithTildeInPath : "")
+        labels["sourcePath.capture"]?.toolTip = presentation.hasSourceLocation ? presentation.sourcePath : nil
         hide("source.access.capture", !presentation.needsSourceAccess)
         enable("source.access.capture", product.capabilities.canChooseSource && presentation.needsSourceAccess)
         text("screen.capture", screenRecordingText)
@@ -73,6 +73,10 @@ extension RiftSettingsCenterController {
             case .unavailable: chromeState = ProductCopy.text("连接未成功", "Connection Failed")
             }
         }
+        text("attachment.workflow", ProductCopy.text("打开 ChatGPT 草稿，点一下桌面边缘的截图即可附加。由你决定何时发送。", "Open a ChatGPT draft and click a screenshot at the edge of your desktop to attach it. You choose when to send."))
+        labels["attachment.workflow"]?.isHidden = !supportsConnectionCheck
+        text("attachment.browser", product.setup.browser.displayName)
+        attachmentBrowserRow.isHidden = !supportsConnectionCheck
         text("access.chrome", chromeState)
         let canTestConnection = supportsConnectionCheck && product.setup.permission == .granted
         hide("chrome.check", !canTestConnection || product.chromeConnection == .ready)

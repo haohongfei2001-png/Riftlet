@@ -149,9 +149,9 @@ final class SettingsProductHost {
         control.close(); login.refresh(); onRefresh(); center.show(page: page)
     }
 
-    @discardableResult func showOnboarding() -> Bool {
+    @discardableResult func showOnboarding(browserAccess: Bool = false) -> Bool {
         guard !isPreparingForTermination else { return false }
-        control.close(); onRefresh(); return onboarding.show()
+        control.close(); onRefresh(); return onboarding.show(browserAccess: browserAccess)
     }
 
     /// Called synchronously after the settings close decision is accepted and
@@ -188,8 +188,8 @@ final class SettingsProductHost {
         case .retryLogin:
             if let target = snapshot.login.failedTarget { _ = await login.setEnabled(target); publish() }
         case .openLoginSettings: control.close(); _ = login.openSystemSettings()
-        case .finishOnboarding:
-            guard onboarding.isVisible, snapshot.onboardingReady else { return }
+        case .tryFirstAttachment:
+            guard onboarding.isVisible, snapshot.canTryFirstAttachment else { return }
             await onAction(action)
         default: await onAction(action)
         }
@@ -202,4 +202,10 @@ final class SettingsProductHost {
         model.onChange = nil; login.onChange = nil
         control.close(); center.closeForTeardown(); onboarding.closeForTeardown()
     }
+}
+
+// NSOpenPanel presents this message when a user chooses a different folder.
+extension SourceAccessError: LocalizedError {
+    var errorDescription: String? { ScreenshotFolderPickerCopy.wrongFolder }
+    var recoverySuggestion: String? { ScreenshotFolderPickerCopy.recoverySuggestion }
 }

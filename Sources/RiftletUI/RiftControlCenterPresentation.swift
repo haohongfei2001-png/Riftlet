@@ -21,12 +21,11 @@ public struct RiftControlCenterPresentation {
         for (domain, state) in snapshot.state.domains where state.saveFailure != nil {
             switch domain {
             case .arrival, .layout, .placement, .display, .desktopForm, .windChimeArrangement, .trayTheme, .trayBackgroundTransparency, .trayCameraBodyColor: pages.insert(.display)
-            case .entry, .captureMode, .trayFavorite1, .trayFavorite2, .trayFavorite3: pages.insert(.capture)
-            case .visibility: pages.insert(.display)
-            case .collection, .archive: pages.insert(.capture)
+            case .entry, .captureMode, .collection: pages.insert(.capture)
+            case .visibility, .archive, .trayFavorite1, .trayFavorite2, .trayFavorite3: pages.insert(.display)
             }
         }
-        if snapshot.appearance.failure != nil || snapshot.appearance.unreadable { pages.insert(.display) }
+        if snapshot.appearance.failure != nil || snapshot.appearance.unreadable { pages.insert(.general) }
         if snapshot.login.errorCode != nil || snapshot.login.notConfirmed { pages.insert(.general) }
         switch snapshot.setup.issue {
         case .screenshotPreferenceUnsaved: pages.insert(.capture)
@@ -115,21 +114,16 @@ public struct RiftControlCenterPresentation {
             detail = SetupIssue.sourceVolumeUnidentified.text(in: copy)
             symbol = "folder.badge.questionmark"
             recoveryTitle = copy.text("检查截图位置", "Check Screenshot Location"); recoveryPage = .capture
-        } else if !owner.collectionPaused, let issue = setup.issue, [.fileVolumeUnidentified, .historicalSourceUnconfirmed].contains(issue) {
-            state = .attention; title = copy.text("部分截图暂缓收录", "Some Screenshots Are on Hold")
-            detail = issue.text(in: copy, browser: setup.browser)
-            symbol = "clock"
-            recoveryTitle = copy.text("查看收录说明", "Show Collection Details"); recoveryPage = .capture
         } else if usesAutomation && (setup.permission == .denied || setup.issue == .permissionDenied) {
             state = .attention; title = copy.text("需要允许 Riftlet 控制 \(setup.browser.displayName)", "Allow Riftlet to Control \(setup.browser.displayName)")
             detail = copy.text("在系统设置中允许访问 \(setup.browser.displayName)，即可继续设置一键附加。", "Allow \(setup.browser.displayName) access in System Settings, then finish setting up one-click attachments.")
             symbol = "exclamationmark.circle"
-            recoveryTitle = copy.text("检查 \(setup.browser.displayName) 连接", "Check \(setup.browser.displayName) Connection"); recoveryPage = .help
+            recoveryTitle = copy.text("检查 \(setup.browser.displayName) 连接", "Check \(setup.browser.displayName) Connection"); recoveryPage = .attachments
         } else if usesAutomation && (setup.issue == .chromeJavaScriptDisabled || snapshot.chromeConnection == .javaScriptDisabled) {
             state = .attention; title = copy.text("需要开启 \(setup.browser.displayName) 的 JavaScript 选项", "Enable JavaScript from Apple Events in \(setup.browser.displayName)")
             detail = setup.issue == .chromeJavaScriptDisabled ? SetupIssue.chromeJavaScriptDisabled.text(in: copy, browser: setup.browser) : ChromeAttachmentSetup.instructions(in: copy, browser: setup.browser)
             symbol = "globe"
-            recoveryTitle = copy.text("检查 \(setup.browser.displayName) 连接", "Check \(setup.browser.displayName) Connection"); recoveryPage = .help
+            recoveryTitle = copy.text("检查 \(setup.browser.displayName) 连接", "Check \(setup.browser.displayName) Connection"); recoveryPage = .attachments
         } else if setup.issue == .imageUnavailable {
             state = .attention; title = copy.text("找不到这张截图的本地副本", "Local Screenshot Copy Unavailable")
             detail = SetupIssue.imageUnavailable.text(in: copy)
@@ -140,7 +134,7 @@ public struct RiftControlCenterPresentation {
                     || setup.issue == .targetUnavailable || setup.issue == .unsupportedBrowser) {
             state = .attention
             symbol = "globe"
-            recoveryPage = .help
+            recoveryPage = .attachments
             if snapshot.chromeConnection == .noWindow {
                 title = copy.text("没有可用的 \(setup.browser.displayName) 窗口", "No \(setup.browser.displayName) Window Available")
                 detail = copy.text("打开要使用的 ChatGPT 草稿。", "Open the ChatGPT draft you want to use.")

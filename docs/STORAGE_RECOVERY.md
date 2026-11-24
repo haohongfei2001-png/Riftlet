@@ -20,7 +20,7 @@
 目录外还有以下状态，**不在这个目录备份内**：
 
 - macOS 原始截图保存位置及其原文件；本工具只覆盖明确选择的数据目录内的文件。
-- `UserDefaults` 中 `Riftlet.firstUse.presented.v1.<mode>` 和 `Riftlet.sourceAccess.v1.<mode>` 的首次展示标记、截图目录书签，见 [FirstUsePreferences](../Sources/RiftletApp/FirstUsePreferences.swift)。
+- `UserDefaults` 中的首次展示标记 `Riftlet.firstUse.presented.v1.<mode>` 和截图目录书签 `Riftlet.sourceAccess.v1.<mode>` 分别由 [FirstUsePreferences](../Sources/RiftletApp/FirstUsePreferences.swift) 和 [ScreenshotFolderAccess](../Sources/RiftletApp/ScreenshotFolderAccess.swift) 保存。
 - Feedback 钥匙串凭据、系统权限、Chrome 设置、其他模式目录，以及若启用相应原生适配器时位于外部稳定作用域的 clipboard coordination journal。
 - 应用二进制、代码签名、系统账户和桌面/窗口状态。
 

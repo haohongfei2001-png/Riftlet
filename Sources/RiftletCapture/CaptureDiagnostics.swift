@@ -23,9 +23,9 @@ public struct CaptureDiagnostic: Equatable, Sendable {
         case .sourceVolumeUnidentified:
             return "无法确认当前截图位置所在的磁盘，暂时无法收录这里的新截图。在 macOS「截屏」的「选项」中选择其他保存位置，再点“重新检查”。"
         case .fileVolumeUnidentified:
-            return "有截图所在的磁盘无法确认，已暂缓添加。原图保留，其他新截图仍可收录。"
+            return "无法识别一张截图所在的磁盘。请检查磁盘连接后重新检查。"
         case .historicalSourceUnconfirmed:
-            return "有截图可能已由旧版收录，已暂缓添加。原图和已有历史都已保留，其他新截图仍可收录。"
+            return "一张截图与旧版记录的文件身份重合，但无法核实原有副本。原文件和历史记录仍保留。"
         case .sourcePreferenceUnreadable:
             return "暂时无法读取系统截图保存位置。请在系统截图工具的“选项”中检查位置，再重新检查。"
         case .unsupportedFormat:
