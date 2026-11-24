@@ -304,6 +304,34 @@ final class RiftTrayLayoutTests: XCTestCase {
         XCTAssertFalse(panel.diagnosticSnapshot.isTransitioning)
     }
 
+    @MainActor func testTrayRespondsToOneWheelNotchAndIgnoresSmallTrackpadMotion() throws {
+        _ = NSApplication.shared
+        guard !NSScreen.screens.isEmpty else { throw XCTSkip("WindowServer required") }
+        var configuration = RiftConfiguration()
+        configuration.desktopForm = .tray
+        let panel = RiftPanelController(mediaDirectory: FileManager.default.temporaryDirectory,
+                                       configuration: configuration, reduceMotionOverride: { true },
+                                       onSelect: { _ in XCTFail("Scrolling must not attach an image") })
+        defer { panel.close() }
+        let records = assets(11)
+        panel.render(records)
+        panel.showLatest()
+        let latest = panel.visibleRange
+        XCTAssertGreaterThan(latest.lowerBound, 0)
+        let surface = try XCTUnwrap(NSApp.windows.first { $0.isVisible && $0.contentView is RiftTraySurfaceView }?.contentView)
+        func scroll(_ units: CGScrollEventUnit, _ amount: Int32) throws {
+            let cg = try XCTUnwrap(CGEvent(scrollWheelEvent2Source: nil, units: units, wheelCount: 1,
+                                           wheel1: amount, wheel2: 0, wheel3: 0))
+            surface.scrollWheel(with: try XCTUnwrap(NSEvent(cgEvent: cg)))
+        }
+        try scroll(.pixel, 1)
+        XCTAssertEqual(panel.visibleRange, latest)
+        try scroll(.line, 1)
+        XCTAssertLessThan(panel.visibleRange.lowerBound, latest.lowerBound)
+        try scroll(.line, -1)
+        XCTAssertEqual(panel.visibleRange, latest)
+    }
+
     @MainActor func testOpeningAndClosingPushesTheFirstExistingUUIDThroughTheTopEdge() throws {
         _ = NSApplication.shared
         guard !NSScreen.screens.isEmpty else { throw XCTSkip("WindowServer required") }

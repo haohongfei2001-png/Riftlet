@@ -1964,12 +1964,19 @@ public final class RiftPanelController {
 
     private func scroll(_ event: NSEvent) {
         guard event.momentumPhase.isEmpty else { return }
+        let delta = event.scrollingDeltaY
+        // A detented wheel reports lines. One notch is already an intentional
+        // step; the distance threshold below applies to continuous pixel input.
+        if !event.hasPreciseScrollingDeltas && event.phase.isEmpty {
+            if delta != 0 { page(delta < 0 ? 1 : -1) }
+            return
+        }
         if event.phase.contains(.began) || (event.phase.isEmpty && event.timestamp - lastWheelTime > 0.35) {
             wheelGestureUsed = false; scrollAccumulator = 0
         }
         lastWheelTime = event.timestamp
         guard !wheelGestureUsed else { return }
-        scrollAccumulator += event.scrollingDeltaY
+        scrollAccumulator += delta
         guard abs(scrollAccumulator) >= 8 else { return }
         wheelGestureUsed = true
         page(scrollAccumulator < 0 ? 1 : -1)
