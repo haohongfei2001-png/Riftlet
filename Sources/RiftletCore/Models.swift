@@ -21,7 +21,7 @@ public enum QueueStatus: String, Codable, Sendable {
 /// Presentation is independent of external upload/completion facts.
 public enum QueueVisibility: String, Codable, Sendable { case visible, swallowed, archived, removed }
 public enum QueueVisibilityReason: String, Codable, Sendable {
-    case capture, uploadStarted, legacyCompletion, automaticArchive, userRemoved, userRestored, safeFailure, traySelection, fileDrop
+    case capture, uploadStarted, legacyCompletion, automaticArchive, userRemoved, userRestored, safeFailure, traySelection
 }
 
 /// Issued by the store for one explicit click on a specific version of a tray row.

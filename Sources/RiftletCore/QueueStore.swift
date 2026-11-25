@@ -178,7 +178,8 @@ public actor QueueStore {
                   record.visibilityRevision == visibilityRevision, record.status != .missing,
                   trayReservations[id] == nil, !selectionReservations.contains(id),
                   try !isRetiredMedia(id) else { return }
-            try setVisibility(record, .swallowed, reason: .fileDrop)
+            // Accepted drag manually removes the active row without recording an upload.
+            try setVisibility(record, .swallowed, reason: .userRemoved)
         }
     }
 

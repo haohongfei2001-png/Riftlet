@@ -59,7 +59,16 @@ final class OrdinaryCaptureConfigurationTests: XCTestCase {
         XCTAssertTrue(ordinary.receiptPolicy.platformCompletionProfiles.isEmpty)
         XCTAssertTrue(ordinary.receiptPolicy.terminationProfiles.isEmpty)
         XCTAssertFalse(SystemScreenshotCandidateConfiguration.completedAttachmentProfiles.isEmpty)
-        XCTAssertTrue(ProductStatus.supportDescription(for: .unifiedProduct, copy: .simplifiedChinese).contains("新聊天及已有聊天"))
+        let support = ProductStatus.supportDescription(for: .unifiedProduct, copy: .simplifiedChinese)
+        XCTAssertTrue(support.contains("Chrome、Edge 或 Safari"))
+        XCTAssertTrue(support.contains("上下滚动时间线"))
+        for provider in ConversationProvider.allCases where provider != .chatgpt {
+            let profile = ConversationPagePrograms.observationProfile(for: provider)
+            let start = try XCTUnwrap(profile.uploadStartProfileID)
+            XCTAssertEqual(ordinary.receiptPolicy.profileOrigins[start], ordinary.productOrigins)
+            XCTAssertEqual(ordinary.receiptPolicy.uploadStartProfiles[start], .webChat)
+            XCTAssertNil(ordinary.receiptPolicy.admittedProfiles[profile.profileID])
+        }
         XCTAssertEqual(ApplicationMode.capture.directoryName, "Riftlet")
         XCTAssertEqual(ApplicationMode.systemScreenshotCandidate.directoryName, "Riftlet-System-Screenshot-Candidate")
         #endif

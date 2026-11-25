@@ -68,7 +68,8 @@ async function run() {
         }
         return receipt;
       }
-      if (mode === 'genericNonChat' || mode === 'gatedEditor') {
+      if (mode === 'genericNonChat' || mode === 'gatedEditor' || mode === 'unlabelledField') {
+        if (mode === 'unlabelledField') await page.evaluate(() => fixture.field.removeAttribute('aria-label'));
         if (mode === 'gatedEditor') await page.evaluate(() => fixture.root.setAttribute('aria-hidden','true'));
         assert.equal((await pin()).state,'refused'); return;
       }
@@ -90,6 +91,12 @@ async function run() {
       assert.ok((await command({action:'validate',target})).valid);
       assert.equal((await command({action:'validate',target:{...target,tabID:'99'}})).valid,false);
       const first = await prepare(target,'red');
+      if (mode === 'unrelatedMount' || mode === 'unrelatedMenu') {
+        const receipt = await first.commit();
+        assert.equal(receipt.observation.preInputRetirement.inputSideEffectEntered,false);
+        assert.deepEqual(await page.evaluate(() => fixture.snapshot().counts),{setter:0,input:0,change:0,send:0,submit:0,avatar:0});
+        return;
+      }
       if (mode === 'routeRoundTrip' || mode === 'fieldABA' || mode === 'editorABA') {
         await page.evaluate(m => {
           if (m === 'routeRoundTrip') {
@@ -143,7 +150,8 @@ async function run() {
     for (const id of ids) {
       await test(id,'pair'); results.push([id,'pair']); console.log('PASS',id,'pair');
     }
-    for (const mode of ['menu','detached','focusTheft','foreign','ambiguous','genericNonChat','gatedEditor','pinABA','fieldABA','editorABA','routeRoundTrip',
+    await test('zai','unlabelledField'); results.push(['zai','unlabelledField']); console.log('PASS zai unlabelledField');
+    for (const mode of ['menu','detached','focusTheft','foreign','ambiguous','linkedMount','unrelatedMount','unrelatedMenu','genericNonChat','gatedEditor','pinABA','fieldABA','editorABA','routeRoundTrip',
       'oldCardABA','memberABA','differentPixels','noCard','failure','progress']) {
       await test('claude',mode); results.push(['semantic',mode]); console.log('PASS',mode);
     }

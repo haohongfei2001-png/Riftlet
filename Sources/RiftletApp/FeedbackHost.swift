@@ -70,7 +70,7 @@ final class FeedbackHost {
         for record in records {
             switch record.visibility {case .visible:add(.visibilityVisible);case .swallowed:add(.visibilitySwallowed);case .archived:add(.visibilityArchived);case .removed:add(.visibilityRemoved)}
             switch record.status {case .pending:add(.queuePending);case .transferring:add(.queueTransferring);case .unknown:add(.queueUnknown);case .failed:add(.queueFailed);case .used:add(.queueUsed);case .missing:add(.queueMissing)}
-            switch record.visibilityReason {case .capture:add(.reasonCapture);case .uploadStarted:add(.reasonUploadStarted);case .legacyCompletion:add(.reasonLegacyCompletion);case .automaticArchive:add(.reasonAutomaticArchive);case .userRemoved:add(.reasonUserRemoved);case .userRestored:add(.reasonUserRestored);case .safeFailure:add(.reasonSafeFailure);case .traySelection,.fileDrop:break}
+            switch record.visibilityReason {case .capture:add(.reasonCapture);case .uploadStarted:add(.reasonUploadStarted);case .legacyCompletion:add(.reasonLegacyCompletion);case .automaticArchive:add(.reasonAutomaticArchive);case .userRemoved:add(.reasonUserRemoved);case .userRestored:add(.reasonUserRestored);case .safeFailure:add(.reasonSafeFailure);case .traySelection:break}
         }
         guard counts != lastAssetCounts else{return}
         let keys = Set(counts.keys).union(lastAssetCounts.keys); lastAssetCounts=counts

@@ -170,7 +170,7 @@ final class IndependentAttachmentLifecycleTests: XCTestCase {
         XCTAssertEqual(pages.map(\.sequence), pages.map(\.sequence).sorted(by: >))
         let record = try XCTUnwrap(second.records.last)
         XCTAssertEqual(record.id, oldest.id)
-        XCTAssertEqual(record.visibilityReason, .fileDrop)
+        XCTAssertEqual(record.visibilityReason, .userRemoved)
         XCTAssertEqual(record.visibilityRevision, 1)
         XCTAssertNil(record.activeOperationID)
         let loaded = try await reopened.loadedTimeline(through: record.sequence)

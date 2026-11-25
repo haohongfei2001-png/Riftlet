@@ -20,7 +20,7 @@ function fixture(id, mode) {
     wenxin:['<div id="ci-main">','<textarea id="chat-textarea"></textarea>','<div class="ci-merge-upload-wrapper"><div id="ci-merge-upload-btn" style="width:26px;height:24px"></div></div>','</div>'],
     zai:['<div class="messageInputContainer">','<form><textarea id="chat-input"></textarea></form>',field,'</div>']
   };
-  const generic = ['<form>',text,['menu','detached','focusTheft'].includes(mode) ? open : field,'</form>'];
+  const generic = ['<form>',text,['menu','detached','focusTheft','linkedMount','unrelatedMount','unrelatedMenu'].includes(mode) ? open : field,'</form>'];
   const [start,editor,entry,end] = examples[id] || generic;
   return '<!doctype html><meta charset="utf-8"><title>Isolated QA draft</title>' +
     '<style>button{display:inline-block;min-width:40px;min-height:20px}input[type=file]{display:none}img{width:28px;height:24px} [contenteditable=true]{min-height:30px}</style>' +
@@ -92,7 +92,19 @@ function installFixture(mode) {
       if (mode === 'focusTheft') { opener.focus(); editor.setSelectionRange(2,2); }
       const input = document.createElement('input'); input.type = 'file'; attach(input); input.click();
     }
-    if (mode === 'menu') {
+    if (mode === 'linkedMount' || mode === 'unrelatedMount') {
+      if (mode === 'linkedMount') opener.setAttribute('aria-controls','fixture-field');
+      opener.onclick = () => setTimeout(() => {
+        const input = document.createElement('input'); input.type = 'file'; input.id = 'fixture-field';
+        root.append(attach(input));
+      },10);
+    } else if (mode === 'unrelatedMenu') {
+      opener.onclick = () => setTimeout(() => {
+        const menu = document.createElement('div'); menu.setAttribute('role','menu');
+        const item = document.createElement('button'); item.type = 'button'; item.textContent = 'Upload file';
+        item.onclick = requestChooser; menu.append(item); root.append(menu);
+      },10);
+    } else if (mode === 'menu') {
       opener.setAttribute('aria-haspopup','menu'); opener.setAttribute('aria-controls','files-menu');
       opener.onclick = () => {
         opener.setAttribute('aria-expanded','true');

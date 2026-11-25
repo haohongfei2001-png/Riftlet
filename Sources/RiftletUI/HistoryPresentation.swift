@@ -59,7 +59,8 @@ public struct RiftHistoryEntry: Identifiable, Equatable, Sendable {
     }
 
     var canRequestReattachment: Bool {
-        guard canReviewOriginal, !isHandled, record.status != .missing else { return false }
+        guard canReviewOriginal, currentOperation?.target.adapterID == ConversationProvider.chatgpt.adapterID,
+              !isHandled, record.status != .missing else { return false }
         return hasRecoveryOptions || (attachmentState == .handedOff && currentOperation?.phase.isUnresolved == true)
     }
 

@@ -28,7 +28,7 @@ function riftletConversationAttachment(command, native, profile) {
     yuanbao: {editor:'#searchbar-editor .ql-editor[contenteditable="true"]', root:'#searchbar-editor', opener:'button[aria-label="Add"],button[aria-label="添加"]'},
     qingyan: {editor:'.chat-sender textarea.el-textarea__inner', root:'.chat-sender,.input-box-wrapper', input:'.upload-attachment-picker input.file-input[type="file"]'},
     wenxin: {editor:'textarea#chat-textarea', root:'#ci-main,.ci-root,#chat-input-home', opener:'.ci-merge-upload-wrapper #ci-merge-upload-btn'},
-    zai: {editor:'textarea#chat-input', root:'.messageInputContainer,form', input:'input[type="file"]', opener:'button#upload-file-button'}
+    zai: {editor:'textarea#chat-input', root:'.messageInputContainer,form', opener:'button#upload-file-button'}
   };
   const site = Object.hasOwn(sites, profile.id) && sites[profile.id];
   if (!site) reject('PAGE_ROUTE_UNSUPPORTED');
@@ -345,8 +345,6 @@ function riftletConversationAttachment(command, native, profile) {
     if (parts.input) return {input:parts.input,valid:() => writable(b) && fileInput(parts.input)};
     if (!opener || !writable(b) || !ownControl(opener)) return {reason:'attachmentEntryUnavailable'};
     const popups = '[role="menu"],[role="listbox"],[popover]';
-    const prior = new Set(all(document,popups).filter(visible));
-    const createdByOpener = new Set();
     function linkedTo(entry,node) {
       for (const key of ['aria-controls','aria-owns','popovertarget']) {
         const ids = (entry.getAttribute(key) || '').split(/\s+/).filter(Boolean);
@@ -356,12 +354,19 @@ function riftletConversationAttachment(command, native, profile) {
     }
     function ownedPopup(node) {
       return visible(node) && !node.closest('nav,aside,article,[role="dialog"]') &&
-        (parts.root.contains(node) || linkedTo(opener,node) || createdByOpener.has(node));
+        linkedTo(opener,node);
     }
-    const beforeFields = new Set(all(parts.root,'input[type="file"]'));
     const rootOriginal = () => original(b) && b.entryCurrent() && document.visibilityState === 'visible' && opener.isConnected && parts.root.contains(opener);
-    const available = () => all(parts.root,'input[type="file"]').filter(field => fileInput(field) && !beforeFields.has(field) &&
-      (!field.form || field.form.contains(parts.editor)) && !field.closest(excluded));
+    function linkedFields(entry) {
+      const nodes = new Set();
+      if (entry instanceof HTMLLabelElement) nodes.add(entry.control);
+      for (const key of ['aria-controls','aria-owns']) {
+        for (const id of (entry.getAttribute(key) || '').split(/\s+/).filter(Boolean))
+          nodes.add(document.getElementById(id));
+      }
+      return Array.from(nodes).filter(field => fileInput(field) && field.ownerDocument === document &&
+        (!field.form || field.form.contains(parts.editor)) && !field.closest(excluded));
+    }
     function fromCall(calls,entry,popup = null) {
       if (!calls.size) return null;
       const [field] = calls;
@@ -374,20 +379,22 @@ function riftletConversationAttachment(command, native, profile) {
     let direct;
     try {
       direct = fromCall(activate(opener,parts),opener);
-      // A unique popup synchronously opened by this known menu opener can be
-      // portalled outside the form. Later unlinked global popups never qualify.
-      const opened = all(document,popups).filter(node => visible(node) && !prior.has(node));
-      if (opened.length === 1 && opener.hasAttribute('aria-haspopup') && opener.getAttribute('aria-expanded') === 'true')
-        createdByOpener.add(opened[0]);
     } catch { return {reason:'attachmentEntryFailed'}; }
     if (direct) return direct;
-    let activatedMenuItem = false;
+    let activatedMenu = null, activatedItem = null;
     const deadline = performance.now() + 1100;
     while (rootOriginal()) {
-      const fields = available();
+      const entry = activatedItem || opener;
+      const entryStillOwned = () => rootOriginal() && (!activatedItem ||
+        (ownedPopup(activatedMenu) && activatedMenu.contains(activatedItem)));
+      if (!entryStillOwned()) return {reason:'attachmentEntryUnavailable'};
+      const fields = linkedFields(entry);
       if (fields.length > 1) return {reason:'attachmentInputAmbiguous'};
-      if (fields.length === 1) return {input:fields[0],valid:() => rootOriginal() && available().length === 1 && available()[0] === fields[0]};
-      if (!activatedMenuItem) {
+      if (fields.length === 1) return {input:fields[0],valid:() => {
+        const current = linkedFields(entry);
+        return entryStillOwned() && current.length === 1 && current[0] === fields[0];
+      }};
+      if (!activatedItem) {
         const menus = all(document,popups).filter(ownedPopup);
         if (menus.length > 1) return {reason:'attachmentInputAmbiguous'};
         if (menus.length === 1) {
@@ -396,7 +403,7 @@ function riftletConversationAttachment(command, native, profile) {
             !(item instanceof HTMLButtonElement && item.form && item.type === 'submit') && !item.closest('a[href]'));
           if (items.length > 1) return {reason:'attachmentInputAmbiguous'};
           if (items.length === 1) {
-            const item = items[0]; activatedMenuItem = true;
+            const item = items[0]; activatedItem = item; activatedMenu = menu;
             if (item instanceof HTMLLabelElement && fileInput(item.control)) {
               const field = item.control;
               return {input:field,valid:() => rootOriginal() && ownedPopup(menu) && item.control === field && fileInput(field)};
@@ -414,7 +421,7 @@ function riftletConversationAttachment(command, native, profile) {
         const observer = new MutationObserver(done);
         const timer = setTimeout(done,remaining);
         function done() { clearTimeout(timer); observer.disconnect(); resolve(); }
-        observer.observe(document,{subtree:true,childList:true,attributes:true,attributeFilter:['aria-expanded','aria-controls','hidden','style','class']});
+        observer.observe(document,{subtree:true,childList:true,attributes:true,attributeFilter:['aria-expanded','aria-controls','aria-owns','aria-labelledby','popovertarget','for','hidden','style','class']});
       });
     }
     return {reason:rootOriginal() ? 'attachmentInputNotCreated' : 'targetInvalidBeforeInput'};
