@@ -100,9 +100,8 @@ final class RiftLineView: NSView {
     func updateHistory(frame: CGRect?, showingHistory: Bool, empty: Bool, level: NSWindow.Level) {
         guard let frame else { historyPanel.orderOut(nil); return }
         let label = showingHistory ? ProductCopy.text("返回当前截图", "Back to Current Screenshots")
-            : ProductCopy.text("最近截图", "Recent Screenshots")
-        let hint = showingHistory ? ProductCopy.text("下滑返回当前截图", "Swipe down to return to current screenshots")
-            : ProductCopy.text("上滑查看最近截图", "Swipe up to view recent screenshots")
+            : ProductCopy.text("截图时间线", "Screenshot Timeline")
+        let hint = ProductCopy.text("上下滚动浏览截图时间线", "Scroll to browse the screenshot timeline")
         historyButton.image = NSImage(systemSymbolName: showingHistory ? "arrow.uturn.down" : "clock", accessibilityDescription: nil)
         historyButton.imagePosition = empty ? .imageLeading : .imageOnly
         historyButton.title = empty ? ProductCopy.text("暂无最近截图", "No recent screenshots") : ""

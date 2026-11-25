@@ -99,6 +99,8 @@ private final class ScreenshotEntryPanel: NSPanel {
 private final class ScreenshotEntryInputView: NSView {
     var onPress: ((Bool) -> Void)?
     var onInvoke: (() -> Void)?
+    var onScroll: ((NSEvent) -> Void)?
+    override func scrollWheel(with event: NSEvent) { onScroll?(event) }
     var isEnabled = true {
         didSet {
             setAccessibilityEnabled(isEnabled)
@@ -343,6 +345,7 @@ private final class ScreenshotEntryRailView: NSView {
 @MainActor
 public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
     private let copy = ScreenshotEntryCopy(language: .current)
+    public var onScroll: ((NSEvent) -> Void)?
     public var onGeometryChange: (() -> Void)?
     public var onBegin: ((ScreenshotMode) -> Void)?
     public var onMode: ((ScreenshotMode) -> Void)?
@@ -426,6 +429,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
                 self.requestFrame()
             }
             view.onInvoke = { [weak self] in self?.perform(slot: slot) }
+            view.onScroll = { [weak self] in self?.onScroll?($0) }
             inputs.append((panel, view))
         }
         updateControls()
@@ -715,7 +719,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
         closePreferences()
         stopObservation()
         for input in inputs {
-            input.view.onPress = nil; input.view.onInvoke = nil
+            input.view.onPress = nil; input.view.onInvoke = nil; input.view.onScroll = nil
             input.view.isEnabled = false; input.panel.close()
         }
         decoration.close()
