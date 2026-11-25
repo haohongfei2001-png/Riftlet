@@ -3,7 +3,7 @@
   "stableRelease": "v1.0.10",
   "stableBuild": 65,
   "stableProductSource": "3f7d87ee242463cfc90bf5d600c8ee1d262de69d",
-  "mainAtChannelCheck": "933a6f32c90908f034137ee32ff05273b615913b",
+  "mainAtChannelCheck": "28d1df45945b425c1961c8a0c0cf9aea340c17bd",
   "main": "https://github.com/haohongfei2001-png/Riftlet/tree/main",
   "publicRelease": "https://github.com/haohongfei2001-png/Riftlet/releases/latest",
   "website": "https://riftlet.com/",
@@ -21,13 +21,18 @@
   "currentWork": {
     "version": "1.0.11",
     "build": 66,
-    "phase": "candidate",
+    "phase": "PARTIAL",
     "fix": "Restore a completed no-target selection from the full library after it leaves recent history.",
     "reproduction": "Confirmed on the 1.0.10 mainline in an isolated SQLite library after 20 newer selections.",
     "reviewDiscussion": "https://github.com/haohongfei2001-png/Riftlet/pull/132#discussion_r4681988609",
     "engineeringEntryIssue": "https://github.com/haohongfei2001-png/Riftlet/issues/91",
-    "runtimeAcceptance": "Pending signed candidate checks on Chrome and Edge.",
-    "nextAction": "Obtain independent source review, formal CI, candidate-specific website, install and updater results."
+    "runtimeAcceptance": "Chrome passed consecutive images and explicit history reattachment; Edge single image passed. Both browsers observed a pre-input failure on a new history click after a no-target selection. Edge consecutive images and reattachment remain NOT_RUN.",
+    "nextAction": "Verify the original file-field identity across the observed ready-state transition in one dedicated draft before adopting a product change. Preserve build 65 on the public channels until the release decision.",
+    "productSource": "6c0af660a8738c673b85155c3169441c524511d7",
+    "productPR": 134,
+    "engineeringEntryIssueStatus": "closed",
+    "report": "docs/releases/1.0.11/VERIFICATION.md",
+    "installation": "Signed, notarized, stapled and independently installed. Public in-app upgrade from build 65 has not run."
   },
   "historicalStatus": "https://github.com/haohongfei2001-png/Riftlet/blob/933a6f32c90908f034137ee32ff05273b615913b/docs/quality/ITERATION_STATUS.json"
 }
