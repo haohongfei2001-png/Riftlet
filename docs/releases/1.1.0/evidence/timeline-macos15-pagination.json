@@ -1,0 +1,281 @@
+{
+  "scope": "One isolated hosted macOS 15 ARM64 WindowServer. Each condition runs the original app layout and scroll view with the same 41 synthetic image records; page arrival timing is controlled by XCTest.",
+  "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45659706956",
+  "diagnosticSource": "f02676ed46d2e571e9e2af170fe0206d05f6483a",
+  "signedProductSource": "be4c20d5036d7bbad78f283633d66c5779a13df5",
+  "artifactSHA256": "bec703489f206fd30dd541058fd334146b2aeadf5acff8a2b7ca1525622bee15",
+  "conditions": {
+    "deferred": {
+      "testResult": "PASS",
+      "logSHA256": "8d9b83e4e610afe4102ee5c769fc481ef34cafdca7784eb84932597a652def94",
+      "forms": {
+        "tray": {
+          "before": {
+            "offset": 556.0,
+            "maximum": 556.0,
+            "visibleSequences": [
+              18,
+              19,
+              20,
+              21
+            ]
+          },
+          "after": {
+            "offset": 556.0,
+            "maximum": 1010.0,
+            "visibleSequences": [
+              16,
+              17,
+              18,
+              19,
+              20,
+              21
+            ]
+          },
+          "uniqueVisibleCount": 41,
+          "missingSequences": []
+        },
+        "windChime": {
+          "before": {
+            "offset": 1452.0,
+            "maximum": 1452.0,
+            "visibleSequences": [
+              18,
+              19,
+              20
+            ]
+          },
+          "after": {
+            "offset": 1452.0,
+            "maximum": 2574.0,
+            "visibleSequences": [
+              18,
+              19,
+              20
+            ]
+          },
+          "uniqueVisibleCount": 41,
+          "missingSequences": []
+        },
+        "microSlit": {
+          "before": {
+            "offset": 1320.0,
+            "maximum": 1320.0,
+            "visibleSequences": [
+              18,
+              19,
+              20
+            ]
+          },
+          "after": {
+            "offset": 1320.0,
+            "maximum": 2340.0,
+            "visibleSequences": [
+              18,
+              19,
+              20
+            ]
+          },
+          "uniqueVisibleCount": 41,
+          "missingSequences": []
+        }
+      }
+    },
+    "deferredSlow": {
+      "testResult": "PASS",
+      "logSHA256": "f7076f8b381fe47abecb3cff3f49ebb9c9e5c30a0926ccdc5cf4cd65ab445678",
+      "forms": {
+        "tray": {
+          "before": {
+            "offset": 506.0,
+            "maximum": 556.0,
+            "visibleSequences": [
+              18,
+              19,
+              20,
+              21,
+              22,
+              23
+            ]
+          },
+          "after": {
+            "offset": 506.0,
+            "maximum": 1010.0,
+            "visibleSequences": [
+              18,
+              19,
+              20,
+              21,
+              22,
+              23
+            ]
+          },
+          "uniqueVisibleCount": 41,
+          "missingSequences": []
+        },
+        "windChime": {
+          "before": {
+            "offset": 1386.0,
+            "maximum": 1452.0,
+            "visibleSequences": [
+              19,
+              20,
+              21
+            ]
+          },
+          "after": {
+            "offset": 1386.0,
+            "maximum": 2574.0,
+            "visibleSequences": [
+              19,
+              20,
+              21
+            ]
+          },
+          "uniqueVisibleCount": 41,
+          "missingSequences": []
+        },
+        "microSlit": {
+          "before": {
+            "offset": 1266.0,
+            "maximum": 1320.0,
+            "visibleSequences": [
+              19,
+              20,
+              21
+            ]
+          },
+          "after": {
+            "offset": 1266.0,
+            "maximum": 2340.0,
+            "visibleSequences": [
+              19,
+              20,
+              21
+            ]
+          },
+          "uniqueVisibleCount": 41,
+          "missingSequences": []
+        }
+      }
+    },
+    "sync": {
+      "testResult": "FAIL",
+      "logSHA256": "313b444b87a009ad964cab9d5e85803a2648cbb031378421885d584ea06f2ee9",
+      "forms": {
+        "tray": {
+          "before": {
+            "offset": 506.0,
+            "maximum": 556.0,
+            "visibleSequences": [
+              18,
+              19,
+              20,
+              21,
+              22,
+              23
+            ]
+          },
+          "after": {
+            "offset": 506.0,
+            "maximum": 1010.0,
+            "visibleSequences": [
+              18,
+              19,
+              20,
+              21,
+              22,
+              23
+            ]
+          },
+          "uniqueVisibleCount": 31,
+          "missingSequences": [
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ]
+        },
+        "windChime": {
+          "before": {
+            "offset": 1386.0,
+            "maximum": 1452.0,
+            "visibleSequences": [
+              19,
+              20,
+              21
+            ]
+          },
+          "after": {
+            "offset": 1386.0,
+            "maximum": 2574.0,
+            "visibleSequences": [
+              19,
+              20,
+              21
+            ]
+          },
+          "uniqueVisibleCount": 28,
+          "missingSequences": [
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18
+          ]
+        },
+        "microSlit": {
+          "before": {
+            "offset": 1266.0,
+            "maximum": 1320.0,
+            "visibleSequences": [
+              19,
+              20,
+              21
+            ]
+          },
+          "after": {
+            "offset": 1266.0,
+            "maximum": 2340.0,
+            "visibleSequences": [
+              19,
+              20,
+              21
+            ]
+          },
+          "uniqueVisibleCount": 28,
+          "missingSequences": [
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18
+          ]
+        }
+      }
+    }
+  },
+  "conclusion": "Synchronous rendering during AppKit scroll notification skipped a sequence interval in the test. The real application requests older rows, awaits SQLite, then renders after the callback. Both deferred delivery schedules preserved the viewport, traversed all 41 images in the forward direction and returned to the original latest items. No product change was necessary for this finding."
+}

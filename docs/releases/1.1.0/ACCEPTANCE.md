@@ -38,4 +38,6 @@ Chrome 和 Edge 均从历史中再次选中原 PNG，创建了新的操作和 in
 
 专用窗口按创建记录核对后关闭。最早一次 Safari 本地探查只记录了窗口数量的变化，无法将新增窗口归属到具体 ID。[逐项清理记录](evidence/qa-window-cleanup.json)
 
+在单台 macOS 15 云端 Mac 上，测试曾在滚轮回调内部同步插入下一页，三种托盘样式分别漏采 10、13、13 张。改用正式 App 的异步分页顺序，快、慢两种滚动节奏下三种样式均可正向浏览全部 41 张，保持分页处原可见截图，并返回最新端。[macOS 15 分页对照](evidence/timeline-macos15-pagination.json)
+
 公开官网、GitHub Release 和 Sparkle 稳定源均继续提供 1.0.11（67）。[官网](https://riftlet.com/) · [公开发行](https://github.com/haohongfei2001-png/Riftlet/releases/latest) · [Sparkle](https://riftlet.com/updates/stable.xml)
