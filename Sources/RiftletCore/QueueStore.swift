@@ -197,7 +197,8 @@ public actor QueueStore {
         """
         SELECT a.sequence,a.image_json,a.status,a.active_operation_id,a.visibility,a.visibility_revision,
                a.visibility_reason,a.last_interaction_at,o.id,o.asset_id,o.attempt,o.target_json,
-               o.phase,o.created_at,o.updated_at,o.receipt_json,s.receipt_json,o.reason,h.operation_id
+               o.phase,o.created_at,o.updated_at,o.receipt_json,s.receipt_json,o.reason,h.operation_id,
+               EXISTS (SELECT 1 FROM operations prior WHERE prior.asset_id=a.id)
         FROM assets a
         LEFT JOIN operations o ON o.id=a.active_operation_id AND o.asset_id=a.id
         LEFT JOIN upload_starts s ON s.operation_id=o.id
@@ -211,8 +212,9 @@ public actor QueueStore {
         func receipt(_ column: Int) throws -> TransferReceipt? {
             try row[column].map { try JSONDecoder().decode(TransferReceipt.self, from: Data($0.utf8)) }
         }
+        let canRestore = canRestoreToQueue(record, operation: operation) { row[19] != "0" }
         return QueueHistoryRecord(record: record, operation: operation, receipt: try receipt(15),
-                                  startReceipt: try receipt(16), canRestore: canRestoreToQueue(record, operation: operation),
+                                  startReceipt: try receipt(16), canRestore: canRestore,
                                   isHandled: row[18] != nil, reason: row[17])
     }
 
@@ -346,10 +348,21 @@ public actor QueueStore {
     public func canRestoreToQueue(_ id: UUID) throws -> Bool {
         guard try !isRetiredMedia(id), let record = try asset(id: id) else { return false }
         let operation = try record.activeOperationID.flatMap { try self.operation(id: $0) }
-        return canRestoreToQueue(record, operation: operation)
+        return try canRestoreToQueue(record, operation: operation) {
+            try !database.rows("SELECT 1 FROM operations WHERE asset_id=? LIMIT 1", [id.uuidString]).isEmpty
+        }
     }
 
-    private func canRestoreToQueue(_ record: AssetRecord, operation: TransferOperation?) -> Bool {
+    private func canRestoreToQueue(_ record: AssetRecord, operation: TransferOperation?,
+                                   hasRecordedOperation: () throws -> Bool) rethrows -> Bool {
+        if record.visibility == .swallowed {
+            // A click shelves the image before target resolution. The same row
+            // can still belong to an in-flight click, or have an older operation.
+            guard record.visibilityReason == .traySelection, record.status == .pending,
+                  record.activeOperationID == nil, trayReservations[record.id] == nil,
+                  !selectionReservations.contains(record.id) else { return false }
+            return try !hasRecordedOperation()
+        }
         guard record.visibility == .archived || record.visibility == .removed,
               record.status == .pending || record.status == .failed else { return false }
         return record.activeOperationID == nil || operation?.phase == .failed

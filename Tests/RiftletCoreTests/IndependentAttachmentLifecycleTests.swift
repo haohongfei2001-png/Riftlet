@@ -100,6 +100,66 @@ final class IndependentAttachmentLifecycleTests: XCTestCase {
         XCTAssertEqual(inputs, [awaiting.id, retired.id])
     }
 
+    func testLibraryRestoresAnEvictedNoTargetClickWithoutIssuingInput() async throws {
+        let url = directory.appendingPathComponent("library.sqlite")
+        let store = try QueueStore(databaseURL: url), adapter = IndependentLifecycleAdapter()
+        let core = coordinator(store, adapter), image = try await asset(store)
+        let file = directory.appendingPathComponent(image.fileName), bytes = try Data(contentsOf: file)
+        let click = try await store.beginTraySelection(assetID: image.id, expectedRevision: 0, fromHistory: false)
+        let waiting = try await store.historySnapshot()
+        XCTAssertEqual(waiting.first?.canRestore, false)
+        do { try await store.restoreToQueue(image.id); XCTFail("Restored a click still resolving its target") }
+        catch RiftletError.invalidTransition {}
+        do { try await core.select(click); XCTFail("Fixture has no capture target") }
+        catch RiftletError.invalidTransition {}
+        await store.endTraySelection(click)
+        for _ in 0..<20 {
+            let later = try await asset(store)
+            let ticket = try await store.beginTraySelection(assetID: later.id, expectedRevision: 0, fromHistory: false)
+            await store.endTraySelection(ticket)
+        }
+
+        let reopened = try QueueStore(databaseURL: url)
+        let recent = try await reopened.recentTrayHistory()
+        XCTAssertEqual(recent.count, 20)
+        XCTAssertFalse(recent.contains { $0.id == image.id })
+        let page = try await reopened.historyPage(query: .init(text: image.fileName), offset: 0, throughSequence: nil)
+        XCTAssertEqual(page.records.map(\.record.id), [image.id])
+        XCTAssertEqual(page.records.first?.canRestore, true)
+        try await reopened.restoreToQueue(image.id)
+        let visible = try await reopened.assets(), inputsBeforeClick = await adapter.inputs()
+        XCTAssertEqual(visible.map(\.id), [image.id])
+        XCTAssertNil(visible.first?.activeOperationID)
+        XCTAssertTrue(inputsBeforeClick.isEmpty)
+        let selected = try await selection(image, reopened)
+        let restored = try XCTUnwrap(visible.first)
+        let next = try await reopened.beginTraySelection(assetID: image.id, expectedRevision: restored.visibilityRevision, fromHistory: false)
+        let afterRestart = coordinator(reopened, adapter)
+        try await afterRestart.select(selected, traySelection: next)
+        let op = try await operation(image, reopened)
+        _ = try await returnedDispatchCall(op.id, reopened)
+        let inputs = await adapter.inputs()
+        XCTAssertEqual(inputs, [image.id])
+        XCTAssertEqual(op.attempt, 1)
+        XCTAssertEqual(try Data(contentsOf: file), bytes)
+    }
+
+    func testDetachedPriorOperationStillBarsLibraryTrayRestore() async throws {
+        let url = directory.appendingPathComponent("detached.sqlite")
+        let store = try QueueStore(databaseURL: url), image = try await asset(store)
+        let op = try await store.prepare(assetID: image.id, target: target())
+        // A missing current pointer is insufficient when the durable history still names the asset.
+        let db = try SQLiteDatabase(url: url)
+        try db.execute("UPDATE assets SET active_operation_id=NULL,status='pending',visibility='swallowed',visibility_reason='traySelection' WHERE id=?", [image.id.uuidString])
+        let page = try await store.historySnapshot(), allowed = try await store.canRestoreToQueue(image.id)
+        XCTAssertEqual(page.first?.canRestore, false)
+        XCTAssertFalse(allowed)
+        do { try await store.restoreToQueue(image.id); XCTFail("Bypassed an existing operation") }
+        catch RiftletError.invalidTransition {}
+        let original = try await store.operation(id: op.id)
+        XCTAssertEqual(original, op)
+    }
+
     func testExplicitHistorySelectionUsesCurrentDraftAndNeverReplaysOldUnknown() async throws {
         let store = try store(), adapter = IndependentLifecycleAdapter(), core = coordinator(store, adapter)
         let image = try await asset(store)

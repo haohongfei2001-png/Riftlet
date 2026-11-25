@@ -1,50 +1,24 @@
-# Current desktop screenshot history — 1.0.10
+# Riftlet engineering
 
-A completed user click moves its screenshot from the active tray into recent history even if the browser target is unavailable or the attachment fails. Scrolling up reaches recent screenshots and scrolling down returns to the active tray. Only an explicit new selection can attach the same image again. Keep the original screenshot and operation receipts, the frozen click target and once-only file input. Upload START remains evidence of actual draft acceptance. This decision supersedes older tray-exit and automatic rebirth rules below.
+Start each change from the actual `main`. Check the latest public Release, riftlet.com and the signed stable appcast for the version users receive. The verified baseline for the November 25 recovery fix is **1.0.10 (65)**, product PR #132 and distribution PR #133. Use the [current release and work status](docs/quality/ITERATION_STATUS.json), [product contract](docs/PRODUCT.md), [decisions](docs/quality/DECISIONS.md) and [mainline process](docs/MAINLINE_GOVERNANCE.md).
 
-# Riftlet — current engineering instructions
+## Screenshot behavior
 
-Riftlet is a publicly released macOS app. Use actual `main` and the latest stable
-GitHub Release; do not resume an old PR because a historical note calls it current.
-The verified 2026-11-18 release is 1.0.5 (31). Recheck all three distribution channels before release.
+- One explicit click takes a screenshot out of the active tray and puts it in recent history, including clicks without an attachment target. Recent history holds up to 20 clicked or archived screenshots. Scroll up for history and down for the active tray.
+- The supported destination is an editable ChatGPT web draft in ordinary Google Chrome or Microsoft Edge. Freeze and revalidate the click-time process, window, tab, document and composer. Preserve the original draft, text, selection, attachments and PNG.
+- Perform at most one file input per selection. A positive START records ChatGPT receiving the attachment. Preserve earlier operations and UNKNOWN receipts. Only another explicit selection can initiate another attachment. Sending is always the user's action.
+- A failure never recreates an active card or schedules a retry. In the full library, “Restore to tray” changes local visibility only. For a shelved click without a target, prove the click has ended and that there is no operation for the asset before offering restoration.
+- Keep approved tray, wind-chime and slit designs, capture controls and the existing settings. Prefer a targeted regression and an existing control over a new permission, observer or workflow.
 
-## Read only what the task needs
+## Historical material
 
-1. This file and [current product contract](docs/PRODUCT.md).
-2. [Issue #118](https://github.com/haohongfei2001-png/Riftlet/issues/118) is the 1.0.7 specification. Continue Draft PR #119 from the inherited build 44 source. Record same-candidate results in [the release directory](docs/releases/1.0.7/README.md).
-3. [Current design decisions](docs/quality/DECISIONS.md) and the relevant source/tests.
-4. [Mainline admission](docs/MAINLINE_GOVERNANCE.md) before committing a formal PR.
-
-Latest explicit user direction wins. Current quality decisions supersede conflicting
-historical phase restrictions. Old files are retained under `docs/quality/history/`;
-`engineering/evidence/` and `research/` remain source-bound historical evidence,
-not new permission or a second work queue. Open candidates are not released features.
-
-Preserve the signed 1.0.5 release, stable feed and review history. Port selected Edge behavior from #69 onto #117’s product lifecycle.
-
-## Product invariants
-
-- Normal system screenshot → visible edge thumbnail → one explicit click attaches
-  that image to the correct click-time Chrome or Edge ChatGPT draft. Never send the message.
-- Freeze and revalidate the exact process/window/tab/document/composer. Do not guess
-  another conversation or let an unowned file input become eligible merely by timeout.
-- Enter the setter/change path at most once per attempt. After possible external input,
-  uncertain replies are observed by original identity; never resubmit automatically.
-- Positively evidenced current-file START permits the fast swallow. START is not READY.
-  Preserve old UNKNOWN, receipts and media. Independent later screenshots stay usable.
-- Confirmed pre-input failures stay/recover clickable. START still permits the fast
-  swallow and truthful “已交给 ChatGPT”; ChatGPT owns upload progress and sending.
-  1.0.5 adds narrowly correlated failure aftercare and visible recovery per its product
-  direction. Never invent completion, late-failure proof or retry rights. UNKNOWN
-  remains non-resubmitting; displaying an image does not grant input authority.
-- Keep approved tray/wind-chime/micro-slit forms, tray 2×2 and capture-button placement,
-  queue identity, previews and accessibility. Scope settings refinement to Issue #115; no destination expansion or unplanned product modules.
+PRs #41, #101, #119 and #122 and the 1.0.5–1.0.8 phase instructions are historical. The old execution board, archived quality plans, research and evidence retain their original scope and commit identities. Begin new work at current main. The five active engineering entry points are tracked in [the quality index](docs/quality/README.md).
 
 ## Data and release safety
 
 - External original screenshots are read-only. Never reset the current SQLite library,
   replay or clear UNKNOWN, replace current data with an old backup, or repurpose production
-  profiles for a test. Apply the explicit media dispositions and verified recovery rules of Issue #115, preserving active/unknown/only-copy recovery and legacy retention promises.
+  profiles for a test. Preserve active media, uncertain operations, sole copies and existing retention choices.
   Audit and tests never delete production media; use isolated synthetic data roots.
 - Preserve journal/media/SQLite recovery ordering, file identity/hash checks, single-instance
   ownership, safe migrations, folder bookmarks, saved preferences and feedback credentials.
@@ -74,5 +48,5 @@ Preserve the signed 1.0.5 release, stable feed and review history. Port selected
   Add focused counterexamples for concrete risks; avoid duplicating implementation in tests.
 - Keep ordinary UI short: effective value + necessary action/error. No audit jargon, debug
   settings, repetitive explanations or new frameworks without a measured product benefit.
-- Update the quality queue, Issue, exact commits and next action at handoff. Do not claim
+- Update the existing quality status and relevant Issue when their state changes. Do not claim
   continuous/background Codex work unless a real executor has actually been launched.
