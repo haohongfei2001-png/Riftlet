@@ -327,9 +327,10 @@ final class PresentationBoundaryTests: XCTestCase {
             let earlier = (1...38).map { record(Int64($0), visibility: .archived, reason: .automaticArchive) }
             let all = earlier + [a, b, c]
             var cursors: [Int64] = []
-            panel.onLoadOlderTimeline = { sequence in
-                cursors.append(sequence)
-                panel.render([a, c], timeline: all, hasOlder: false)
+            var pendingPage: Int64?
+            panel.onLoadOlderTimeline = { cursor in
+                cursors.append(cursor)
+                pendingPage = cursor
             }
             panel.render([a, c], timeline: Array(all.suffix(24)), hasOlder: true)
             XCTAssertEqual(Set(panel.diagnosticSnapshot.rows.map(\.assetID)), [a.id, c.id])
@@ -350,6 +351,20 @@ final class PresentationBoundaryTests: XCTestCase {
                 try wheel(8, in: panel)
                 guard TimelineWheelFixture.wait(until: { panel.timelineOffset > before }, sampling: sampleRows)
                 else { XCTFail("Forward trackpad motion stopped at \(before) of \(panel.maximumTimelineOffset)"); break }
+                if let cursor = pendingPage {
+                    // Main loads the older rows asynchronously from SQLite. Deliver
+                    // them after AppKit returns from the triggering wheel event.
+                    pendingPage = nil
+                    XCTAssertEqual(cursor, 18)
+                    let offset = panel.timelineOffset
+                    let visible = Set(panel.diagnosticSnapshot.rows.map(\.assetID))
+                    let oldMaximum = panel.maximumTimelineOffset
+                    panel.render([a, c], timeline: all, hasOlder: false)
+                    XCTAssertGreaterThan(panel.maximumTimelineOffset, oldMaximum)
+                    XCTAssertEqual(panel.timelineOffset, offset, accuracy: 1)
+                    XCTAssertTrue(visible.isSubset(of: Set(panel.diagnosticSnapshot.rows.map(\.assetID))))
+                    sampleRows()
+                }
                 let rows = panel.diagnosticSnapshot.rows.map(\.assetID)
                 if !checkedOrigins && Set(rows).isSuperset(of: [a.id, b.id, c.id]) {
                     for item in [a, b] {
@@ -361,8 +376,10 @@ final class PresentationBoundaryTests: XCTestCase {
                 }
                 if panel.maximumTimelineOffset - panel.timelineOffset < 1 { break }
             }
+            XCTAssertEqual(panel.timelineOffset, panel.maximumTimelineOffset, accuracy: 1)
             XCTAssertEqual(cursors, [18])
-            XCTAssertEqual(seen, Set(all.map(\.id)))
+            let missingSequences = all.filter { !seen.contains($0.id) }.map(\.sequence)
+            XCTAssertEqual(seen, Set(all.map(\.id)), "\(form.rawValue) missing sequences \(missingSequences)")
             XCTAssertEqual(selections, [a.id, b.id])
             for _ in 0..<500 where panel.timelineOffset > 0 {
                 let before = panel.timelineOffset
