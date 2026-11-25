@@ -1,5 +1,6 @@
 """Run the signed previous version and operate its real Sparkle UI on a fresh hosted Mac."""
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
+import shutil
 from datetime import datetime, timezone
 import hashlib
 import base64
@@ -21,12 +22,15 @@ call, wait, sha = (common[k] for k in ('call', 'wait_for', 'sha'))
 assert common['safe_context']() and os.environ['GITHUB_REF'] == 'refs/heads/codex/riftlet-111-public-upgrade-qa'
 assert call('stat', '-f%Su', '/dev/console').stdout.strip() == call('id', '-un').stdout.strip()
 mode = os.environ['UPGRADE_MODE']
-assert mode in ('preflight', 'upgrade')
-version, build = ('1.0.11', '67') if mode == 'upgrade' else ('1.0.10', '65')
+assert mode in ('preflight', 'upgrade', 'private-upgrade')
+private = mode == 'private-upgrade'
+upgrading = mode != 'preflight'
+local = runpy.run_path(str(testdir/'private_feed.py')) if private else None
+version, build = ('1.0.11', '67') if upgrading else ('1.0.10', '65')
 previous = '036a41733a57810824a830b0090e7360de22cdba3819704484bb01053da7033d'
-candidate = os.environ.get('UPGRADE_DMG_SHA256', '') if mode == 'upgrade' else previous
+candidate = os.environ.get('UPGRADE_DMG_SHA256', '') if upgrading else previous
 assert re.fullmatch(r'[a-f0-9]{64}', candidate)
-assert (mode == 'upgrade') == (candidate != previous)
+assert upgrading == (candidate != previous)
 rooturl = 'https://github.com/haohongfei2001-png/Riftlet/releases/download/'
 feedurl = 'https://riftlet.com/updates/stable.xml'
 app = Path.home() / 'Applications/Riftlet.app'
@@ -38,6 +42,13 @@ out.parent.mkdir(exist_ok=True)
 proof = {'status':'INCOMPLETE', 'mode':mode, 'workflow':os.environ['GITHUB_RUN_ID'],
          'qaSource':os.environ['GITHUB_SHA'], 'system':call('sw_vers','-productVersion').stdout.decode().strip(),
          'scope':'Publicly downloaded, unmodified Developer ID applications and public signed feed. Synthetic PNGs in a fresh hosted account.'}
+
+if private:
+    proof['scope']='Public signed 65, locally signed loopback feed, private draft 67 DMG, disposable hosted Mac and its actual Sparkle UI.'
+
+def open_old():
+    extra=['--args','-SUFeedURL',local['base_url']+'private.xml'] if private else []
+    call('open','-n','-g',app,*extra)
 
 def get(url, dest):
     call('curl', '--proto', '=https', '--proto-redir', '=https', '--fail', '--location',
@@ -103,18 +114,27 @@ def run():
         call('ditto','--rsrc','--extattr',released,app)
     proof['startingApp']=inspect(app,'1.0.10','65')
     info=app/'Contents/Info.plist'
-    feed=work/'live.xml';get(feedurl,feed);call(verifier,info,feed)
+    feed=work/'live.xml'
+    if private:
+        shutil.copyfile(local['private_dir']/'private.xml',feed)
+    else:
+        get(feedurl,feed)
+    call(verifier,info,feed)
     ns='{http://www.andymatuschak.org/xml-namespaces/sparkle}'
     items=ET.parse(feed).findall('./channel/item')
     assert len(items)==1 and items[0].findtext(ns+'version')==build and items[0].findtext(ns+'shortVersionString')==version
     enc=items[0].find('enclosure');archive=work/('Riftlet-'+version+'.dmg')
-    assert enc.get('url')==rooturl+'v'+version+'/'+archive.name
-    if mode=='upgrade': get(enc.get('url'),archive)
+    if private:
+        assert enc.get('url')==local['base_url']+archive.name
+        shutil.copyfile(local['private_dir']/archive.name,archive)
+    else:
+        assert enc.get('url')==rooturl+'v'+version+'/'+archive.name
+        if upgrading: get(enc.get('url'),archive)
     assert sha(archive)==candidate and archive.stat().st_size==int(enc.get('length'))
     call(verifier,info,archive,enc.get(ns+'edSignature'))
-    proof['publicFeed']={'build':build,'sha256':sha(feed),'enclosureSHA256':sha(archive),'oldPublicKeyVerifiedFeedAndEnclosure':True}
+    proof['privateFeed' if private else 'publicFeed']={'build':build,'sha256':sha(feed),'enclosureSHA256':sha(archive),'oldPublicKeyVerifiedFeedAndEnclosure':True}
     expected=proof['startingApp']
-    if mode=='upgrade':
+    if upgrading:
         call('xcrun','stapler','validate',archive)
         call('spctl','--assess','--type','open','--context','context:primary-signature',archive,timeout=80)
         with volume(archive,'candidate-reference') as candidate_app:
@@ -125,7 +145,7 @@ def run():
     call('defaults','write','com.riftlet.app',key,'-bool','true')
     call('defaults','write','com.riftlet.app','SUEnableAutomaticChecks','-bool','false')
     call('defaults','write','com.riftlet.app','historyDisplayStyle','-string','imageGrid')
-    call('open','-n','-g',app)
+    open_old()
     old=waiting_pid()
     wait(lambda:call('lsof','-nP','-a','-p',old,'-Ffn',source,check=False).returncode==0,'old collection folder')
     inputs=[common['collect_fixture'](source,seed,data) for seed in (43,199)]
@@ -146,7 +166,7 @@ def run():
     finally:
         assert not data.exists()
         detached.rename(data)
-    call('open','-n','-g',app)
+    open_old()
     old=waiting_pid(different=first_pid)
     wait(lambda:call('lsof','-nP','-a','-p',old,'-Ffn',source,check=False).returncode==0,'old collector after restoring QA fixture')
     before=common['snapshot'](data)
@@ -185,7 +205,7 @@ def run():
     if attempt.returncode: raise RuntimeError('XCTest exit '+str(attempt.returncode))
     steps={'user-check','up-to-date'} if mode=='preflight' else {'user-check','user-install','user-relaunch'}
     assert set(proof['userSteps'])==steps
-    if mode=='upgrade':
+    if upgrading:
         new=waiting_pid(different=old)
         assert call('ps','-p',old,'-o','comm=',check=False).returncode!=0
     else:
@@ -200,10 +220,19 @@ def run():
     assert [sha(source/name) for name in ('Screenshot-identity-43.png','Screenshot-identity-199.png')]==inputs
     proof['retainedLibrary']={'sqliteSnapshotSHA256':save_database('after.sqlite'),'oldRowsAndMediaExact':True,'preferencesUnchanged':True,
                               'newPID':new,'installed':expected,'retainedHistoricOperation':old_op}
-    proof['status']='PUBLIC_IN_APP_UPGRADE_PASS' if mode=='upgrade' else 'PUBLIC_BUILD_65_UP_TO_DATE_PREFLIGHT_PASS'
+    proof['status']='PRIVATE_LOOPBACK_IN_APP_UPGRADE_PASS' if private else ('PUBLIC_IN_APP_UPGRADE_PASS' if upgrading else 'PUBLIC_BUILD_65_UP_TO_DATE_PREFLIGHT_PASS')
 
 try:
-    run()
+    with (local['serve']() if private else nullcontext()) as requests:
+        run()
+    if private:
+        assert 'private.xml' in requests and local['archive_name'] in requests
+        proof['loopback']={'source':'Signed process launch argument for build 65','requests':requests,'serverStopped':True,
+                           'onlyLocal':True,'persistentFeedOverride':call('defaults','read','com.riftlet.app','SUFeedURL',check=False).returncode==0}
+        assert proof['loopback']['persistentFeedOverride'] is False
+except Exception:
+    proof['status']='INCOMPLETE'
+    raise
 finally:
     if witness.exists():
         proof['userSteps']={f.name:f.read_text() for f in witness.iterdir() if f.name!='mode'}

@@ -5,9 +5,17 @@ on:
       mode:
         required: true
         type: choice
-        options: [preflight, upgrade]
+        options: [preflight, upgrade, private-upgrade]
       candidate_sha256:
-        description: SHA-256 of the publicly released candidate DMG (upgrade only)
+        description: SHA-256 of the candidate DMG for the selected upgrade channel
+        required: false
+        type: string
+      private_release_id:
+        description: Owner-staged draft release ID (private-upgrade)
+        required: false
+        type: string
+      private_feed_b64:
+        description: Signed loopback QA XML only (private-upgrade)
         required: false
         type: string
 permissions:
@@ -20,6 +28,13 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
+      - name: Retrieve owner-staged private inputs
+        if: inputs.mode == 'private-upgrade'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PRIVATE_RELEASE_ID: ${{ inputs.private_release_id }}
+          PRIVATE_FEED_B64: ${{ inputs.private_feed_b64 }}
+        run: python3 -B Tests/PublicSparkleUpgrade/private_feed.py
       - name: Prepare standard XCTest bundle
         working-directory: Tests/PublicSparkleUpgrade
         run: |
