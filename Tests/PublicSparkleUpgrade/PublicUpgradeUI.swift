@@ -1,4 +1,5 @@
 import AppKit
+import Darwin
 import XCTest
 
 final class PublicUpgradeUI: XCTestCase {
@@ -14,11 +15,16 @@ final class PublicUpgradeUI: XCTestCase {
             pattern, pattern, pattern, pattern)).firstMatch
     }
     @MainActor
-    func testOrdinaryUpgrade() throws {
+    func testCurrentVersion() throws { try operate(mode: "preflight") }
+    @MainActor
+    func testPublicUpgrade() throws { try operate(mode: "upgrade") }
+    @MainActor
+    private func operate(mode qaMode: String) throws {
         continueAfterFailure = false
-        let qaMode = try String(contentsOf: witness.appendingPathComponent("mode"), encoding: .utf8)
-        guard ["preflight", "upgrade"].contains(qaMode) else { XCTFail("Invalid target"); return }
-        let expected = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Applications/Riftlet.app").standardizedFileURL
+        try FileManager.default.createDirectory(at: witness, withIntermediateDirectories: false)
+        guard let directory = getpwuid(getuid())?.pointee.pw_dir else { XCTFail("Missing login directory"); return }
+        let expected = URL(fileURLWithPath: String(cString: directory), isDirectory: true)
+            .appendingPathComponent("Applications/Riftlet.app").standardizedFileURL
         let running = NSRunningApplication.runningApplications(withBundleIdentifier: "com.riftlet.app")
         XCTAssertEqual(running.count, 1)
         XCTAssertEqual(running[0].bundleURL?.standardizedFileURL, expected)
@@ -53,7 +59,7 @@ final class PublicUpgradeUI: XCTestCase {
         try record("user-check")
         if qaMode == "preflight" {
             let status = find(app.descendants(matching: .any),
-                              ".*(up.to.date|newest version|latest version|最新版本|最新版本).*")
+                              ".*(up.to.date|newest version|latest version|最新版|最新版本).*")
             XCTAssertTrue(status.waitForExistence(timeout: 50), app.debugDescription)
             try record("up-to-date")
             return

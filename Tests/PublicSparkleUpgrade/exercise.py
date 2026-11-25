@@ -30,7 +30,7 @@ rooturl = 'https://github.com/haohongfei2001-png/Riftlet/releases/download/'
 feedurl = 'https://riftlet.com/updates/stable.xml'
 app = Path.home() / 'Applications/Riftlet.app'
 data = Path.home() / 'Library/Application Support/Riftlet'
-witness = Path.home() / 'RiftletPublicUpgradeWitness'
+witness = Path.home() / 'Library/Containers/com.riftlet.qa.ProductUpgradeUI.xctrunner/Data/RiftletPublicUpgradeWitness'
 work = Path(os.environ['RUNNER_TEMP']) / 'public-sparkle'
 out = repo / 'test-results/public-sparkle.json'
 out.parent.mkdir(exist_ok=True)
@@ -87,8 +87,7 @@ def run():
     assert not any(os.path.lexists(f) for f in (app,data,witness,work))
     assert call('defaults','read','com.riftlet.app',check=False).returncode!=0
     assert call('pgrep','-x','Riftlet',check=False).returncode!=0
-    work.mkdir(mode=0o700); witness.mkdir(mode=0o700)
-    (witness/'mode').write_text(mode)
+    work.mkdir(mode=0o700)
     source=work/'source';source.mkdir()
     process=work/'process'; verifier=work/'verify'
     call('xcrun','swiftc',testdir.parent/'ReleaseUpgradeHost/app-process.swift','-o',process,timeout=100)
@@ -135,9 +134,9 @@ def run():
                          'schema':before['schema'],'assetIDs':[a['id'] for a in before['assets']],'oldPID':old}
     args=['xcodebuild','-project',str(testdir/'ProductUpgrade.xcodeproj'),'-scheme','PublicUpgrade',
           '-destination','platform=macOS,arch=x86_64','-derivedDataPath',str(work/'derived'),
-          '-parallel-testing-enabled','NO','-resultBundlePath',str(work/'UI.xcresult'),'test']
+          '-parallel-testing-enabled','NO','-only-testing:ProductUpgradeUI/PublicUpgradeUI/'+('testCurrentVersion' if mode=='preflight' else 'testPublicUpgrade'),'-resultBundlePath',str(work/'UI.xcresult'),'test']
     attempt=subprocess.run(args,timeout=480)
-    proof['userSteps']={p.name:p.read_text() for p in sorted(witness.iterdir()) if p.name!='mode'}
+    proof['userSteps']={p.name:p.read_text() for p in sorted(witness.iterdir())} if witness.exists() else {}
     if attempt.returncode: raise RuntimeError('XCTest exit '+str(attempt.returncode))
     steps={'user-check','up-to-date'} if mode=='preflight' else {'user-check','user-install','user-relaunch'}
     assert set(proof['userSteps'])==steps
