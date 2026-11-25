@@ -129,8 +129,8 @@
       "status": "NOT_RUN",
       "checks": {
         "originalDraft": "NOT_RUN",
-        "singleClick": "NOT_RUN",
-        "twoImages": "NOT_RUN",
+        "singleClick": "BLOCKED_ENV",
+        "twoImages": "BLOCKED_ENV",
         "draftTextAndPriorAttachments": "NOT_RUN",
         "oneInputPerClick": "NOT_RUN",
         "correctTarget": "NOT_RUN",
@@ -139,9 +139,13 @@
         "historyClick": "NOT_RUN",
         "nativeDragReceived": "NOT_RUN"
       },
-      "account": "notEstablished",
+      "account": "unexamined",
       "clickEnvironment": "Apple Events JavaScript disabled in ordinary Safari (native error 8).",
-      "reason": "Website-native drag requires a separately verified signed-in draft."
+      "reason": "The selected URL left the approved fresh conversation routes.",
+      "landing": "redirectOutsideFreshLandingNoPageRead",
+      "evidence": [
+        "safari-provider-landing-audit.json"
+      ]
     },
     {
       "browser": "chrome",
@@ -193,8 +197,8 @@
       "status": "NOT_RUN",
       "checks": {
         "originalDraft": "NOT_RUN",
-        "singleClick": "NOT_RUN",
-        "twoImages": "NOT_RUN",
+        "singleClick": "BLOCKED_ENV",
+        "twoImages": "BLOCKED_ENV",
         "draftTextAndPriorAttachments": "NOT_RUN",
         "oneInputPerClick": "NOT_RUN",
         "correctTarget": "NOT_RUN",
@@ -203,9 +207,13 @@
         "historyClick": "NOT_RUN",
         "nativeDragReceived": "NOT_RUN"
       },
-      "account": "notEstablished",
+      "account": "unconfirmed",
       "clickEnvironment": "Apple Events JavaScript disabled in ordinary Safari (native error 8).",
-      "reason": "Website-native drag requires a separately verified signed-in draft."
+      "reason": "No unequivocal signed-in account control was visible in the dedicated draft.",
+      "landing": "observedOriginalLanding",
+      "evidence": [
+        "safari-provider-landing-audit.json"
+      ]
     },
     {
       "browser": "chrome",
@@ -257,8 +265,8 @@
       "status": "NOT_RUN",
       "checks": {
         "originalDraft": "NOT_RUN",
-        "singleClick": "NOT_RUN",
-        "twoImages": "NOT_RUN",
+        "singleClick": "BLOCKED_ENV",
+        "twoImages": "BLOCKED_ENV",
         "draftTextAndPriorAttachments": "NOT_RUN",
         "oneInputPerClick": "NOT_RUN",
         "correctTarget": "NOT_RUN",
@@ -267,9 +275,13 @@
         "historyClick": "NOT_RUN",
         "nativeDragReceived": "NOT_RUN"
       },
-      "account": "notEstablished",
+      "account": "unconfirmed",
       "clickEnvironment": "Apple Events JavaScript disabled in ordinary Safari (native error 8).",
-      "reason": "Website-native drag requires a separately verified signed-in draft."
+      "reason": "No unequivocal signed-in account control was visible in the dedicated draft.",
+      "landing": "dedicatedComposerNotIdentified",
+      "evidence": [
+        "safari-provider-landing-audit.json"
+      ]
     },
     {
       "browser": "chrome",
@@ -320,8 +332,8 @@
       "status": "NOT_RUN",
       "checks": {
         "originalDraft": "NOT_RUN",
-        "singleClick": "NOT_RUN",
-        "twoImages": "NOT_RUN",
+        "singleClick": "BLOCKED_ENV",
+        "twoImages": "BLOCKED_ENV",
         "draftTextAndPriorAttachments": "NOT_RUN",
         "oneInputPerClick": "NOT_RUN",
         "correctTarget": "NOT_RUN",
@@ -330,9 +342,13 @@
         "historyClick": "NOT_RUN",
         "nativeDragReceived": "NOT_RUN"
       },
-      "account": "notEstablished",
+      "account": "unconfirmed",
       "clickEnvironment": "Apple Events JavaScript disabled in ordinary Safari (native error 8).",
-      "reason": "Website-native drag requires a separately verified signed-in draft."
+      "reason": "No unequivocal signed-in account control was visible in the dedicated draft.",
+      "landing": "dedicatedComposerNotIdentified",
+      "evidence": [
+        "safari-provider-landing-audit.json"
+      ]
     },
     {
       "browser": "chrome",
@@ -384,8 +400,8 @@
       "status": "NOT_RUN",
       "checks": {
         "originalDraft": "NOT_RUN",
-        "singleClick": "NOT_RUN",
-        "twoImages": "NOT_RUN",
+        "singleClick": "BLOCKED_ENV",
+        "twoImages": "BLOCKED_ENV",
         "draftTextAndPriorAttachments": "NOT_RUN",
         "oneInputPerClick": "NOT_RUN",
         "correctTarget": "NOT_RUN",
@@ -394,9 +410,13 @@
         "historyClick": "NOT_RUN",
         "nativeDragReceived": "NOT_RUN"
       },
-      "account": "notEstablished",
+      "account": "unconfirmed",
       "clickEnvironment": "Apple Events JavaScript disabled in ordinary Safari (native error 8).",
-      "reason": "Website-native drag requires a separately verified signed-in draft."
+      "reason": "No unequivocal signed-in account control was visible in the dedicated draft.",
+      "landing": "dedicatedComposerNotIdentified",
+      "evidence": [
+        "safari-provider-landing-audit.json"
+      ]
     },
     {
       "browser": "chrome",
@@ -448,8 +468,8 @@
       "status": "NOT_RUN",
       "checks": {
         "originalDraft": "NOT_RUN",
-        "singleClick": "NOT_RUN",
-        "twoImages": "NOT_RUN",
+        "singleClick": "BLOCKED_ENV",
+        "twoImages": "BLOCKED_ENV",
         "draftTextAndPriorAttachments": "NOT_RUN",
         "oneInputPerClick": "NOT_RUN",
         "correctTarget": "NOT_RUN",
@@ -458,9 +478,13 @@
         "historyClick": "NOT_RUN",
         "nativeDragReceived": "NOT_RUN"
       },
-      "account": "notEstablished",
+      "account": "unexamined",
       "clickEnvironment": "Apple Events JavaScript disabled in ordinary Safari (native error 8).",
-      "reason": "Website-native drag requires a separately verified signed-in draft."
+      "reason": "The selected URL left the approved fresh conversation routes.",
+      "landing": "redirectOutsideFreshLandingNoPageRead",
+      "evidence": [
+        "safari-provider-landing-audit.json"
+      ]
     },
     {
       "browser": "chrome",
@@ -512,8 +536,8 @@
       "status": "NOT_RUN",
       "checks": {
         "originalDraft": "NOT_RUN",
-        "singleClick": "NOT_RUN",
-        "twoImages": "NOT_RUN",
+        "singleClick": "BLOCKED_ENV",
+        "twoImages": "BLOCKED_ENV",
         "draftTextAndPriorAttachments": "NOT_RUN",
         "oneInputPerClick": "NOT_RUN",
         "correctTarget": "NOT_RUN",
@@ -522,9 +546,13 @@
         "historyClick": "NOT_RUN",
         "nativeDragReceived": "NOT_RUN"
       },
-      "account": "notEstablished",
+      "account": "signInRoute",
       "clickEnvironment": "Apple Events JavaScript disabled in ordinary Safari (native error 8).",
-      "reason": "Website-native drag requires a separately verified signed-in draft."
+      "reason": "The recorded destination hash exactly matches the service sign-in page.",
+      "landing": "confirmedServiceSignInRoute",
+      "evidence": [
+        "safari-provider-landing-audit.json"
+      ]
     },
     {
       "browser": "chrome",
@@ -575,8 +603,8 @@
       "status": "NOT_RUN",
       "checks": {
         "originalDraft": "NOT_RUN",
-        "singleClick": "NOT_RUN",
-        "twoImages": "NOT_RUN",
+        "singleClick": "BLOCKED_ENV",
+        "twoImages": "BLOCKED_ENV",
         "draftTextAndPriorAttachments": "NOT_RUN",
         "oneInputPerClick": "NOT_RUN",
         "correctTarget": "NOT_RUN",
@@ -585,9 +613,13 @@
         "historyClick": "NOT_RUN",
         "nativeDragReceived": "NOT_RUN"
       },
-      "account": "notEstablished",
+      "account": "signInVisible",
       "clickEnvironment": "Apple Events JavaScript disabled in ordinary Safari (native error 8).",
-      "reason": "Website-native drag requires a separately verified signed-in draft."
+      "reason": "The ordinary Safari profile showed a sign-in control.",
+      "landing": "dedicatedComposerNotIdentified",
+      "evidence": [
+        "safari-provider-landing-audit.json"
+      ]
     },
     {
       "browser": "chrome",
@@ -638,8 +670,8 @@
       "status": "NOT_RUN",
       "checks": {
         "originalDraft": "NOT_RUN",
-        "singleClick": "NOT_RUN",
-        "twoImages": "NOT_RUN",
+        "singleClick": "BLOCKED_ENV",
+        "twoImages": "BLOCKED_ENV",
         "draftTextAndPriorAttachments": "NOT_RUN",
         "oneInputPerClick": "NOT_RUN",
         "correctTarget": "NOT_RUN",
@@ -648,9 +680,13 @@
         "historyClick": "NOT_RUN",
         "nativeDragReceived": "NOT_RUN"
       },
-      "account": "notEstablished",
+      "account": "signInVisible",
       "clickEnvironment": "Apple Events JavaScript disabled in ordinary Safari (native error 8).",
-      "reason": "Website-native drag requires a separately verified signed-in draft."
+      "reason": "The ordinary Safari profile showed a sign-in control.",
+      "landing": "dedicatedComposerNotIdentified",
+      "evidence": [
+        "safari-provider-landing-audit.json"
+      ]
     },
     {
       "browser": "chrome",
@@ -701,8 +737,8 @@
       "status": "NOT_RUN",
       "checks": {
         "originalDraft": "NOT_RUN",
-        "singleClick": "NOT_RUN",
-        "twoImages": "NOT_RUN",
+        "singleClick": "BLOCKED_ENV",
+        "twoImages": "BLOCKED_ENV",
         "draftTextAndPriorAttachments": "NOT_RUN",
         "oneInputPerClick": "NOT_RUN",
         "correctTarget": "NOT_RUN",
@@ -711,9 +747,13 @@
         "historyClick": "NOT_RUN",
         "nativeDragReceived": "NOT_RUN"
       },
-      "account": "notEstablished",
+      "account": "unconfirmed",
       "clickEnvironment": "Apple Events JavaScript disabled in ordinary Safari (native error 8).",
-      "reason": "Website-native drag requires a separately verified signed-in draft."
+      "reason": "No unequivocal signed-in account control was visible in the dedicated draft.",
+      "landing": "dedicatedComposerNotIdentified",
+      "evidence": [
+        "safari-provider-landing-audit.json"
+      ]
     },
     {
       "browser": "chrome",
@@ -764,8 +804,8 @@
       "status": "NOT_RUN",
       "checks": {
         "originalDraft": "NOT_RUN",
-        "singleClick": "NOT_RUN",
-        "twoImages": "NOT_RUN",
+        "singleClick": "BLOCKED_ENV",
+        "twoImages": "BLOCKED_ENV",
         "draftTextAndPriorAttachments": "NOT_RUN",
         "oneInputPerClick": "NOT_RUN",
         "correctTarget": "NOT_RUN",
@@ -774,9 +814,13 @@
         "historyClick": "NOT_RUN",
         "nativeDragReceived": "NOT_RUN"
       },
-      "account": "notEstablished",
+      "account": "signInVisible",
       "clickEnvironment": "Apple Events JavaScript disabled in ordinary Safari (native error 8).",
-      "reason": "Website-native drag requires a separately verified signed-in draft."
+      "reason": "The ordinary Safari profile showed a sign-in control.",
+      "landing": "observedOriginalLanding",
+      "evidence": [
+        "safari-provider-landing-audit.json"
+      ]
     },
     {
       "browser": "chrome",
@@ -828,8 +872,8 @@
       "status": "NOT_RUN",
       "checks": {
         "originalDraft": "NOT_RUN",
-        "singleClick": "NOT_RUN",
-        "twoImages": "NOT_RUN",
+        "singleClick": "BLOCKED_ENV",
+        "twoImages": "BLOCKED_ENV",
         "draftTextAndPriorAttachments": "NOT_RUN",
         "oneInputPerClick": "NOT_RUN",
         "correctTarget": "NOT_RUN",
@@ -838,9 +882,13 @@
         "historyClick": "NOT_RUN",
         "nativeDragReceived": "NOT_RUN"
       },
-      "account": "notEstablished",
+      "account": "unexamined",
       "clickEnvironment": "Apple Events JavaScript disabled in ordinary Safari (native error 8).",
-      "reason": "Website-native drag requires a separately verified signed-in draft."
+      "reason": "The selected URL left the approved fresh conversation routes.",
+      "landing": "redirectOutsideFreshLandingNoPageRead",
+      "evidence": [
+        "safari-provider-landing-audit.json"
+      ]
     },
     {
       "browser": "chrome",
@@ -891,8 +939,8 @@
       "status": "NOT_RUN",
       "checks": {
         "originalDraft": "NOT_RUN",
-        "singleClick": "NOT_RUN",
-        "twoImages": "NOT_RUN",
+        "singleClick": "BLOCKED_ENV",
+        "twoImages": "BLOCKED_ENV",
         "draftTextAndPriorAttachments": "NOT_RUN",
         "oneInputPerClick": "NOT_RUN",
         "correctTarget": "NOT_RUN",
@@ -901,9 +949,13 @@
         "historyClick": "NOT_RUN",
         "nativeDragReceived": "NOT_RUN"
       },
-      "account": "notEstablished",
+      "account": "unconfirmed",
       "clickEnvironment": "Apple Events JavaScript disabled in ordinary Safari (native error 8).",
-      "reason": "Website-native drag requires a separately verified signed-in draft."
+      "reason": "No unequivocal signed-in account control was visible in the dedicated draft.",
+      "landing": "dedicatedComposerNotIdentified",
+      "evidence": [
+        "safari-provider-landing-audit.json"
+      ]
     },
     {
       "browser": "chrome",
@@ -954,8 +1006,8 @@
       "status": "NOT_RUN",
       "checks": {
         "originalDraft": "NOT_RUN",
-        "singleClick": "NOT_RUN",
-        "twoImages": "NOT_RUN",
+        "singleClick": "BLOCKED_ENV",
+        "twoImages": "BLOCKED_ENV",
         "draftTextAndPriorAttachments": "NOT_RUN",
         "oneInputPerClick": "NOT_RUN",
         "correctTarget": "NOT_RUN",
@@ -964,9 +1016,13 @@
         "historyClick": "NOT_RUN",
         "nativeDragReceived": "NOT_RUN"
       },
-      "account": "notEstablished",
+      "account": "unconfirmed",
       "clickEnvironment": "Apple Events JavaScript disabled in ordinary Safari (native error 8).",
-      "reason": "Website-native drag requires a separately verified signed-in draft."
+      "reason": "No unequivocal signed-in account control was visible in the dedicated draft.",
+      "landing": "observedOriginalLanding",
+      "evidence": [
+        "safari-provider-landing-audit.json"
+      ]
     },
     {
       "browser": "chrome",
@@ -1017,8 +1073,8 @@
       "status": "NOT_RUN",
       "checks": {
         "originalDraft": "NOT_RUN",
-        "singleClick": "NOT_RUN",
-        "twoImages": "NOT_RUN",
+        "singleClick": "BLOCKED_ENV",
+        "twoImages": "BLOCKED_ENV",
         "draftTextAndPriorAttachments": "NOT_RUN",
         "oneInputPerClick": "NOT_RUN",
         "correctTarget": "NOT_RUN",
@@ -1027,9 +1083,13 @@
         "historyClick": "NOT_RUN",
         "nativeDragReceived": "NOT_RUN"
       },
-      "account": "notEstablished",
+      "account": "unconfirmed",
       "clickEnvironment": "Apple Events JavaScript disabled in ordinary Safari (native error 8).",
-      "reason": "Website-native drag requires a separately verified signed-in draft."
+      "reason": "No unequivocal signed-in account control was visible in the dedicated draft.",
+      "landing": "observedOriginalLanding",
+      "evidence": [
+        "safari-provider-landing-audit.json"
+      ]
     },
     {
       "browser": "chrome",
@@ -1081,8 +1141,8 @@
       "status": "NOT_RUN",
       "checks": {
         "originalDraft": "NOT_RUN",
-        "singleClick": "NOT_RUN",
-        "twoImages": "NOT_RUN",
+        "singleClick": "BLOCKED_ENV",
+        "twoImages": "BLOCKED_ENV",
         "draftTextAndPriorAttachments": "NOT_RUN",
         "oneInputPerClick": "NOT_RUN",
         "correctTarget": "NOT_RUN",
@@ -1091,9 +1151,13 @@
         "historyClick": "NOT_RUN",
         "nativeDragReceived": "NOT_RUN"
       },
-      "account": "notEstablished",
+      "account": "unconfirmed",
       "clickEnvironment": "Apple Events JavaScript disabled in ordinary Safari (native error 8).",
-      "reason": "Website-native drag requires a separately verified signed-in draft."
+      "reason": "No unequivocal signed-in account control was visible in the dedicated draft.",
+      "landing": "observedOriginalLanding",
+      "evidence": [
+        "safari-provider-landing-audit.json"
+      ]
     },
     {
       "browser": "chrome",
@@ -1145,8 +1209,8 @@
       "status": "NOT_RUN",
       "checks": {
         "originalDraft": "NOT_RUN",
-        "singleClick": "NOT_RUN",
-        "twoImages": "NOT_RUN",
+        "singleClick": "BLOCKED_ENV",
+        "twoImages": "BLOCKED_ENV",
         "draftTextAndPriorAttachments": "NOT_RUN",
         "oneInputPerClick": "NOT_RUN",
         "correctTarget": "NOT_RUN",
@@ -1155,9 +1219,13 @@
         "historyClick": "NOT_RUN",
         "nativeDragReceived": "NOT_RUN"
       },
-      "account": "notEstablished",
+      "account": "unconfirmed",
       "clickEnvironment": "Apple Events JavaScript disabled in ordinary Safari (native error 8).",
-      "reason": "Website-native drag requires a separately verified signed-in draft."
+      "reason": "No unequivocal signed-in account control was visible in the dedicated draft.",
+      "landing": "dedicatedComposerNotIdentified",
+      "evidence": [
+        "safari-provider-landing-audit.json"
+      ]
     },
     {
       "browser": "chrome",
@@ -1209,8 +1277,8 @@
       "status": "NOT_RUN",
       "checks": {
         "originalDraft": "NOT_RUN",
-        "singleClick": "NOT_RUN",
-        "twoImages": "NOT_RUN",
+        "singleClick": "BLOCKED_ENV",
+        "twoImages": "BLOCKED_ENV",
         "draftTextAndPriorAttachments": "NOT_RUN",
         "oneInputPerClick": "NOT_RUN",
         "correctTarget": "NOT_RUN",
@@ -1219,9 +1287,13 @@
         "historyClick": "NOT_RUN",
         "nativeDragReceived": "NOT_RUN"
       },
-      "account": "notEstablished",
+      "account": "unconfirmed",
       "clickEnvironment": "Apple Events JavaScript disabled in ordinary Safari (native error 8).",
-      "reason": "Website-native drag requires a separately verified signed-in draft."
+      "reason": "No unequivocal signed-in account control was visible in the dedicated draft.",
+      "landing": "dedicatedComposerNotIdentified",
+      "evidence": [
+        "safari-provider-landing-audit.json"
+      ]
     }
   ]
 }
