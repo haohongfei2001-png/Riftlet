@@ -170,6 +170,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var root: URL!
     private var visibleIDs = Set<UUID>()
     private var hasRecentScreenshots = false
+    private var timelineOldestLoaded: Int64?
+    private var timelinePageRequest: Int64?
+    private var extendedTimeline = false
     private var refreshRunning = false
     private var refreshRequested = false
     private var refreshWaiters: [CheckedContinuation<Void, Never>] = []
@@ -586,7 +589,29 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 cancelQueued()
             }
         }
-        rift?.onRecentHistoryVisibilityChanged = { [weak self] _ in self?.prepareBrowser() }
+        rift?.onRecentHistoryVisibilityChanged = { [weak self] browsing in
+            guard let self else { return }
+            if !browsing, self.extendedTimeline {
+                self.extendedTimeline = false
+                self.timelinePageRequest = nil
+                Task { await self.refresh() }
+            }
+            self.prepareBrowser()
+        }
+        rift?.onLoadOlderTimeline = { [weak self] cursor in
+            guard let self, cursor == self.timelineOldestLoaded, self.timelinePageRequest == nil else { return }
+            self.timelinePageRequest = cursor
+            Task { await self.refresh() }
+        }
+        rift?.onFileDropAccepted = { [weak self] id, revision in
+            guard let self, let store = self.store else { return }
+            Task {
+                do {
+                    try await store.shelveAfterFileDrop(id, visibilityRevision: revision)
+                    await self.refresh()
+                } catch { self.showIssue("无法更新托盘中的截图。原图仍在本机。") }
+            }
+        }
         rift?.setUserHidden(userHidden)
         if let rift {
             arrivalCapture = ArrivalCaptureBridge(panel: rift,
@@ -1488,7 +1513,21 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             guard let store else { break }
             do {
                 let active = try await store.assets()
-                let recent = try await store.recentTrayHistory()
+                if let cursor = timelinePageRequest {
+                    timelinePageRequest = nil
+                    if cursor == timelineOldestLoaded,
+                       let older = try await store.historyPage(beforeSequence: cursor).records.last {
+                        timelineOldestLoaded = older.sequence
+                        extendedTimeline = true
+                    }
+                }
+                let page: (records: [AssetRecord], hasOlder: Bool)
+                if extendedTimeline, let oldest = timelineOldestLoaded {
+                    page = try await store.loadedTimeline(through: oldest)
+                } else {
+                    page = try await store.historyPage(beforeSequence: nil)
+                }
+                let timeline = page.records
                 // A wake-up hint only: QueueStore still decides atomically whether
                 // the row can leave, using its current interaction time and fence.
                 oldestArchiveCandidate = active.lazy.filter {
@@ -1499,7 +1538,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 // Include windows still visible during a deferred animation or
                 // held selection, not just the previous backend-visible IDs.
                 let panelIDs = Set(rift?.diagnosticSnapshot.rows.map(\.assetID) ?? [])
-                let recentByID = Dictionary(uniqueKeysWithValues: recent.map { ($0.id, $0) })
+                let recentByID = Dictionary(uniqueKeysWithValues: timeline.map { ($0.id, $0) })
                 for id in visibleIDs.union(panelIDs).subtracting(activeIDs) {
                     if let retired = recentByID[id] {
                         snapshot.append(retired)
@@ -1560,7 +1599,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 let hasNewlyVisible = !activeIDs.isSubset(of: visibleIDs)
                 let hadClickableThumbnails = hasClickableThumbnails
                 visibleIDs = activeIDs
-                hasRecentScreenshots = !recent.isEmpty
+                timelineOldestLoaded = timeline.last?.sequence
+                hasRecentScreenshots = page.hasOlder || timeline.contains { $0.visibility != .visible }
                 if hasNewlyVisible || (!hadClickableThumbnails && hasClickableThumbnails) { prepareBrowser() }
                 if hadClickableThumbnails && !hasClickableThumbnails {
                     preClickActivity.stop()
@@ -1568,7 +1608,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 }
                 pendingResultCount = reviewCount
                 acceptCaptureStatus(preferenceIssue: preferenceIssue)
-                rift?.render(snapshot, recentHistory: recent)
+                rift?.render(snapshot, timeline: timeline, hasOlder: page.hasOlder)
                 screenshotEntry?.configure()
                 // The last observed phase may advance to input before another
                 // refresh. Use neutral text, never claim ongoing no-input status.

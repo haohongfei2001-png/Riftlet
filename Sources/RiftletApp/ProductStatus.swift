@@ -33,8 +33,8 @@ enum ProductStatus {
         if copy == .english && admission.usesUnifiedProduct {
             return """
             Riftlet collects single-frame PNG, JPEG, HEIC, HEIF and TIFF screenshots saved by macOS. Limits are 128 MiB, 160 million pixels and 50,000 pixels per side. Clipboard-only images, animated images and PDFs are excluded. Originals are preserved. HDR display has not been verified.
-            Open an editable new or existing ChatGPT draft in Chrome or Edge. Click a desktop thumbnail to add its screenshot. The screenshot moves to recent history as soon as you click it. Scroll up over the tray to find it and click it again if needed. You choose when to send. PNG and JPEG are attached as saved. Other supported formats usually become a full-resolution PNG; if it is too large, the original format is offered to the page instead.
-            Check the original draft for an uncertain attachment. Riftlet keeps it in history and never automatically resubmits it. ChatGPT attachment availability can vary by page, account and chat mode.
+            Open your draft in Chrome, Edge or Safari. Click a thumbnail or drag it into the draft. Scroll the timeline to find and reuse earlier screenshots. You choose when to send. PNG and JPEG are attached as saved. Other supported formats usually become a full-resolution PNG; if it is too large, the original format is offered to the page instead.
+            Check the original draft for an uncertain attachment. Riftlet keeps it in history and never automatically resubmits it. Attachment availability can vary by page, account and chat mode.
             Requires macOS 13 or later. Release notes list tested environments. To keep Riftlet out of a screenshot, you can hide desktop thumbnails while collection continues.
             """
         }
@@ -132,8 +132,8 @@ enum ProductStatus {
                     "The original chat draft changed. Attachment cancelled; the image is kept and was not uploaded.")
             case .targetValidationUnavailableBeforeInput: return copy.text("暂时无法核实原聊天草稿；图片保留，本次未上传。",
                     "The original chat draft could not be verified. The image is kept and was not uploaded.")
-            case .noClickTimeTarget: return copy.text("这次点击没有找到可用的聊天草稿，本次未上传。请把要用的 ChatGPT 草稿切到 Chrome 或 Edge 前台，再点边缘截图。",
-                    "No available chat draft was found for this click; the image was not uploaded. Bring your ChatGPT draft to the front in Chrome or Edge, then click the desktop screenshot.")
+            case .noClickTimeTarget: return copy.text("这次点击没有找到可用的聊天草稿，本次未上传。可把能接收附件的草稿切到前台，再从时间线点选或拖入截图。",
+                    "No available chat draft was found for this click; the image was not uploaded. Bring a draft that accepts files to the front, then click or drag the screenshot from the timeline.")
             case .targetUnavailable: return SetupIssue.targetUnavailable.text(in: copy)
             case .unresolvedDraftBeforeInput: return copy.text("原草稿中还有一张图片的附加结果待核实；本次未上传，图片保留。",
                     "Another attachment in the original draft is still unconfirmed. This image was not uploaded and is kept.")

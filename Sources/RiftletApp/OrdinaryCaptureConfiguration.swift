@@ -99,6 +99,12 @@ struct OrdinaryAttachmentAdmission {
         if usesUnifiedProduct {
             var origins: [String: Set<AssetOrigin>] = [:]
             var continuations: [String: TargetSurface] = [:]
+            for provider in ConversationProvider.allCases where provider != .chatgpt {
+                if let start = ConversationPagePrograms.observationProfile(for: provider).uploadStartProfileID {
+                    starts[start] = .webChat
+                    origins[start] = productOrigins
+                }
+            }
             for scope in [SystemScreenshotAdmissionScope.productSystem, .productApplication] where productOrigins.contains(scope.origin) {
                 let profile = scope.admittedProfile
                 if let start = profile.uploadStartProfileID {
@@ -130,7 +136,7 @@ struct OrdinaryAttachmentAdmission {
             return "普通启动仅本地收录；真实附加尚待最终 App 端到端验收及独立审查。授权浏览器不会开启上传。"
         }
         if usesUnifiedProduct {
-            return "支持 Chrome 和 Edge 中可编辑的 ChatGPT 新聊天及已有聊天。打开要用的草稿，再点边缘截图。点过的截图会进入最近历史。在托盘上向上滑动即可找回，点选历史截图可再次附加。发送由你决定。系统和内置截图均可使用。PNG、JPEG 按原文件附加，其他支持格式通常转为相同分辨率的 PNG。如果转换后过大，会改用原文件，由聊天页面决定能否接收。"
+            return "在 Chrome、Edge 或 Safari 打开要用的对话草稿，点选边缘截图或把它拖入草稿。上下滚动时间线可找回并再次使用本机保留的截图。消息由你发送。系统和内置截图均可使用。PNG、JPEG 按原文件附加，其他支持格式通常转为相同分辨率的 PNG。如果转换后过大，会改用原文件，由聊天页面决定能否接收。"
         }
         let scope = purpose == .internalAcceptance ? "内部普通入口验收（非生产准入）" : "普通附加范围"
         let chats = internalCurrentDrafts ? "已识别业务身份的普通新聊天及已有聊天（含本地身份）" : "普通已有聊天"

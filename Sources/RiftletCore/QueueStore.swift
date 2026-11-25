@@ -148,8 +148,7 @@ public actor QueueStore {
             let requiredPredecessor = !fromHistory && original?.phase.isUnresolved == true ? original?.id : nil
             if fromHistory {
                 guard expectedRevision == record.visibilityRevision,
-                      try !database.rows("SELECT 1 WHERE ? IN (SELECT id FROM assets WHERE " + recentTrayPredicate + ")",
-                                         [assetID.uuidString, String(Self.trayHistoryCapacity)]).isEmpty else {
+                      record.visibility != .visible else {
                     throw RiftletError.invalidTransition
                 }
             } else {
@@ -169,6 +168,44 @@ public actor QueueStore {
 
     public func endTraySelection(_ ticket: TraySelection) {
         if trayReservations[ticket.assetID] == ticket { trayReservations.removeValue(forKey: ticket.assetID) }
+    }
+
+    /// The external destination accepted a file copy. This is a local shelf
+    /// change only. It never creates an attachment operation or upload receipt.
+    public func shelveAfterFileDrop(_ id: UUID, visibilityRevision: Int64) throws {
+        try database.transaction {
+            guard let record = try asset(id: id), record.visibility == .visible,
+                  record.visibilityRevision == visibilityRevision, record.status != .missing,
+                  trayReservations[id] == nil, !selectionReservations.contains(id),
+                  try !isRetiredMedia(id) else { return }
+            try setVisibility(record, .swallowed, reason: .fileDrop)
+        }
+    }
+
+    /// The scroll cursor is the immutable capture sequence. A selection,
+    /// archive or new capture cannot shift an item into an older page.
+    public func historyPage(beforeSequence: Int64?, limit: Int = 32) throws -> (records: [AssetRecord], hasOlder: Bool) {
+        guard limit > 0 else { return ([], false) }
+        let count = min(limit, 200)
+        let cursor = beforeSequence == nil ? "" : "AND sequence < ?"
+        let parameters = [beforeSequence.map(String.init), String(count + 1)].compactMap { $0 }
+        let rows = try database.rows("""
+            SELECT \(assetColumns) FROM assets WHERE status!='missing'
+            AND id NOT IN (SELECT asset_id FROM retired_media) \(cursor)
+            ORDER BY sequence DESC LIMIT ?
+            """, parameters)
+        return (try rows.prefix(count).map(decodeAsset), rows.count > count)
+    }
+
+    /// Refresh just the range the user has already scrolled into. This also
+    /// removes media retired by storage maintenance while the panel was open.
+    public func loadedTimeline(through oldest: Int64) throws -> (records: [AssetRecord], hasOlder: Bool) {
+        try database.transaction(readOnly: true) {
+            let retained = "status!='missing' AND id NOT IN (SELECT asset_id FROM retired_media)"
+            let rows = try database.rows("SELECT \(assetColumns) FROM assets WHERE \(retained) AND sequence >= ? ORDER BY sequence DESC", [String(oldest)])
+            let older = try database.rows("SELECT 1 FROM assets WHERE \(retained) AND sequence < ? LIMIT 1", [String(oldest)])
+            return (try rows.map(decodeAsset), !older.isEmpty)
+        }
     }
 
     public func missingAssetIDs() throws -> Set<UUID> {

@@ -169,7 +169,7 @@ public struct RiftControlCenterPresentation {
             } else if let issue = setup.issue, issue.isAttachmentConnectionIssue {
                 detail = issue.text(in: copy, browser: setup.browser)
             } else {
-                detail = setup.visibleCount == 0 ? copy.text("截图后，点一下边缘微图。", "Take a screenshot, then click its thumbnail.") : copy.text("\(setup.visibleCount) 张截图在边缘，打开要用的 Chrome 或 Edge 聊天草稿后点选。", "Screenshots at the edge: \(setup.visibleCount). Open your ChatGPT draft in Chrome or Edge and click one.")
+                detail = setup.visibleCount == 0 ? copy.text("截图后，点一下边缘微图。", "Take a screenshot, then click its thumbnail.") : copy.text("\(setup.visibleCount) 张截图在边缘，打开要用的对话后点选或拖入。", "Screenshots at the edge: \(setup.visibleCount). Open your draft, then click or drag a screenshot.")
             }
             symbol = "checkmark.circle"
             recoveryTitle = nil; recoveryPage = nil

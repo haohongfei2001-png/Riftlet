@@ -78,7 +78,7 @@ final class HistoryPresentationTests: XCTestCase {
             uploadStartEvidence: .init(profileID: "simulation-upload-start-v1", signal: .correlatedProgress, evidenceID: "original"))
         let entry = RiftHistoryEntry(record: record, operation: op, startReceipt: start)
         let pending = RiftHistoryEntry(record: record, operation: op, lastReceipt: start)
-        XCTAssertEqual(HistoryPresentation.localizedState(for: entry, copy: .simplifiedChinese), "已交给 ChatGPT")
+        XCTAssertEqual(HistoryPresentation.localizedState(for: entry, copy: .simplifiedChinese), "已交给对话")
         XCTAssertEqual(HistoryPresentation.detailText(for: entry, copy: .simplifiedChinese), "上传结果见原对话。")
         XCTAssertTrue(RiftHistoryFilter.handedOff.includes(entry))
         XCTAssertFalse(RiftHistoryFilter.attached.includes(entry))

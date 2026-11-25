@@ -65,6 +65,7 @@ public struct TransferRequest: Sendable {
 /// in the same target-side action that appends; a prior validate call alone is insufficient.
 public protocol AttachmentAdapter: Sendable {
     var id: String { get }
+    func handles(_ target: TargetLease) -> Bool
     /// Local-only eligibility checks, before allocating an operation or acquiring
     /// a target lock. Must never capture a target, contact an app, or input bytes.
     func preflight(asset: ImportedAsset, fileURL: URL) async throws
@@ -76,6 +77,7 @@ public protocol AttachmentAdapter: Sendable {
 }
 
 public extension AttachmentAdapter {
+    func handles(_ target: TargetLease) -> Bool { target.adapterID == id }
     func preflight(asset: ImportedAsset, fileURL: URL) async throws {}
 }
 
@@ -224,7 +226,7 @@ public actor TransferCoordinator {
     /// immutable predecessor ID fences delayed and double clicks across attempts.
     public func reattach(_ selection: AcceptedSelection, replacing operationID: UUID, traySelection: TraySelection? = nil) async throws {
         guard adapter is any OriginalAttachmentRecoveryChecking, selection.authorization == .currentClick,
-              selection.target.adapterID == adapter.id, activeAppends[operationID] == nil else {
+              adapter.handles(selection.target), activeAppends[operationID] == nil else {
             throw RiftletError.invalidTransition
         }
         try await accept(selection, replacing: operationID, traySelection: traySelection)
@@ -388,7 +390,7 @@ public actor TransferCoordinator {
             if let frozenTarget { target = frozenTarget }
             else if allowCapture { target = try await adapter.captureTarget() }
             else { throw RiftletError.adapterUnavailable("No verified target existed at selection; image retained") }
-            guard target.adapterID == adapter.id else { throw RiftletError.mismatchedReceipt }
+            guard adapter.handles(target) else { throw RiftletError.mismatchedReceipt }
             var source: AttachmentRecoverySource?
             if let predecessor = replacing {
                 guard let verifier = adapter as? any OriginalAttachmentRecoveryChecking, let accepted else {
@@ -465,7 +467,7 @@ public actor TransferCoordinator {
         }
         try await store.recoverInterruptedOperations()
         await onChange()
-        for op in try await store.unresolvedOperations() where (op.phase == .unknown || op.phase == .compensated) && op.target.adapterID == adapter.id {
+        for op in try await store.unresolvedOperations() where (op.phase == .unknown || op.phase == .compensated) && adapter.handles(op.target) {
             do { try await reconcile(op) }
             catch { try await store.markUnknown(op.id, reason: "Recovery observation unavailable") }
         }
@@ -486,7 +488,7 @@ public actor TransferCoordinator {
             return
         }
         for id in Set(operationIDs) {
-            guard let op = try await store.operation(id: id), op.target.adapterID == adapter.id,
+            guard let op = try await store.operation(id: id), adapter.handles(op.target),
                   op.phase == .unknown || op.phase == .compensated else { continue }
             guard !Task.isCancelled, await authorize(op.target), !Task.isCancelled,
                   try await store.operation(id: op.id) == op else { continue }
@@ -744,7 +746,7 @@ public actor TransferCoordinator {
         inspectAccess: @Sendable (TargetLease) async -> OriginalReceiverAccess) async throws -> OriginalAttachmentCheck {
         guard (adapter as? any IndependentFileInputAdapter)?.supportsOriginalHandoffChecks == true,
               let op = try await store.operation(id: operationID),
-              op.phase.isUnresolved, op.phase != .prepared, op.target.adapterID == adapter.id,
+              op.phase.isUnresolved, op.phase != .prepared, adapter.handles(op.target),
               let asset = try await store.asset(id: op.assetID), asset.activeOperationID == op.id,
               let invocation = try await store.dispatchInvocationID(for: op.id) else { return .unavailable }
         switch await inspectAccess(op.target) {
@@ -786,7 +788,7 @@ public actor TransferCoordinator {
     }
 
     private func reconcile(_ op: TransferOperation) async throws {
-        guard op.target.adapterID == adapter.id else { throw RiftletError.adapterUnavailable("Original adapter is unavailable") }
+        guard adapter.handles(op.target) else { throw RiftletError.adapterUnavailable("Original adapter is unavailable") }
         if usesIndependentFileInput {
             guard currentFileInputs[op.id] != nil, try await !store.isAttachmentHandled(op.id) else { return }
         }
@@ -856,7 +858,7 @@ public actor TransferCoordinator {
             return
         }
         let candidates = try await store.unresolvedOperations().filter {
-            $0.target.adapterID == adapter.id && [.inputTriggered, .attachmentPresent, .unknown, .compensated].contains($0.phase)
+            adapter.handles($0.target) && [.inputTriggered, .attachmentPresent, .unknown, .compensated].contains($0.phase)
         }
         guard !candidates.isEmpty else { observationCursor = 0; return }
         let count = max(0, min(limit, min(32, candidates.count)))
@@ -885,7 +887,7 @@ public actor TransferCoordinator {
         authorize: @Sendable (TargetLease) async -> Bool = { _ in true }) async throws -> Bool {
         guard !usesIndependentFileInput else { return false }
         guard let op = try await store.operation(id: operationID), op.phase == .succeeded,
-              op.target.adapterID == adapter.id else { return false }
+              adapter.handles(op.target) else { return false }
         // Temporary permission loss must retain the late-result watch.
         guard !Task.isCancelled, await authorize(op.target), !Task.isCancelled,
               try await store.operation(id: op.id) == op else { return true }

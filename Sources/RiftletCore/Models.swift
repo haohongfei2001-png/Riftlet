@@ -21,7 +21,7 @@ public enum QueueStatus: String, Codable, Sendable {
 /// Presentation is independent of external upload/completion facts.
 public enum QueueVisibility: String, Codable, Sendable { case visible, swallowed, archived, removed }
 public enum QueueVisibilityReason: String, Codable, Sendable {
-    case capture, uploadStarted, legacyCompletion, automaticArchive, userRemoved, userRestored, safeFailure, traySelection
+    case capture, uploadStarted, legacyCompletion, automaticArchive, userRemoved, userRestored, safeFailure, traySelection, fileDrop
 }
 
 /// Issued by the store for one explicit click on a specific version of a tray row.
@@ -122,16 +122,22 @@ public struct LogicalDraftIdentity: Codable, Equatable, Hashable, Sendable {
             // Recognition never maps a local draft to a persisted conversation.
             guard id.utf8.count == 36 else { return false }
             return UUID(uuidString: id) != nil
+        case "conversation-composer-20261125-v1":
+            let parts = id.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
+            guard parts.count == 2, let provider = ConversationProvider(rawValue: String(parts[0])),
+                  provider != .chatgpt, parts[1].utf8.count == 36 else { return false }
+            return UUID(uuidString: String(parts[1])) != nil
         default:
             return false
         }
     }
 }
 
-/// Bundle identities supported by the ordinary ChatGPT attachment path.
+/// Bundle identities of ordinary browsers supported by the native host layer.
 public enum AttachmentBrowser: String, CaseIterable, Sendable {
     case chrome = "com.google.Chrome"
     case edge = "com.microsoft.edgemac"
+    case safari = "com.apple.Safari"
 }
 
 /// Captured at click time and rechecked atomically with dispatch by the adapter.

@@ -8,6 +8,7 @@ public enum ObservationFailureSignal: Equatable, Sendable { case terminalErrorAn
 
 public enum DevelopmentObservationScope: Sendable {
     case syntheticOnly, systemScreenshotCandidate, ordinarySystemScreenshot
+    case conversationProvider(ConversationProvider)
 }
 
 public struct ObservationProfile: Sendable {
@@ -62,6 +63,17 @@ public struct ObservationNormalizer: Sendable {
               profile.surface == operation.target.surface, !profile.profileID.isEmpty else {
             throw ObservationError.profileTargetMismatch
         }
+        if case .conversationProvider(let provider) = developmentScope {
+            let draft = operation.target.logicalDraftIdentity
+            guard provider != .chatgpt, provider.adapterID == profile.adapterID,
+                  draft?.profileID == "conversation-composer-20261125-v1", draft?.isRecognized == true,
+                  draft?.id.hasPrefix(provider.rawValue + ":") == true,
+                  request.asset.origin == .systemScreenshot || request.asset.origin == .applicationScreenshot,
+                  envelope.provenance.source == .integratedDevelopment, envelope.provenance.evidenceID == ConversationPagePrograms.sourceID,
+                  item.uploadStart == nil || item.uploadStart?.signal == .attachmentAccepted,
+                  item.completionEvidence == nil, item.terminationEvidence == nil, item.continuationEvidence == nil,
+                  item.requestEvidence == nil else { throw ObservationError.profileTargetMismatch }
+        }
         if envelope.provenance.source == .syntheticFixture && request.asset.origin != .synthetic {
             throw ObservationError.syntheticEvidenceForRealAsset
         }
@@ -71,6 +83,8 @@ public struct ObservationNormalizer: Sendable {
             case .syntheticOnly: matches = false
             case .systemScreenshotCandidate: matches = SystemScreenshotWebCandidate.matches(profile)
             case .ordinarySystemScreenshot: matches = OrdinarySystemScreenshotScope.matches(profile)
+            case .conversationProvider(let provider):
+                matches = profile.uploadStartProfileID == ConversationPagePrograms.observationProfile(for: provider).uploadStartProfileID
             }
             guard matches else {
                 throw ObservationError.syntheticEvidenceForRealAsset
