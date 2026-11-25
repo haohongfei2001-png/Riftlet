@@ -11,8 +11,8 @@ final class PublicUpgradeUI: XCTestCase {
     }
     private func find(_ query: XCUIElementQuery, _ pattern: String) -> XCUIElement {
         query.matching(NSPredicate(format:
-            "identifier MATCHES[c] %@ OR label MATCHES[c] %@ OR title MATCHES[c] %@ OR value MATCHES[c] %@",
-            pattern, pattern, pattern, pattern)).firstMatch
+            "identifier MATCHES[c] %@ OR label MATCHES[c] %@ OR title MATCHES[c] %@",
+            pattern, pattern, pattern)).firstMatch
     }
     @MainActor
     func testCurrentVersion() throws { try operate(mode: "preflight") }
@@ -31,25 +31,18 @@ final class PublicUpgradeUI: XCTestCase {
         let app = XCUIApplication(bundleIdentifier: "com.riftlet.app")
         app.activate()
         // Riftlet provides a native application menu as well as a status-item context menu.
-        let menu = app.menuBars.menuBarItems["Riftlet"]
+        let menu = app.menuBars.menuBarItems.matching(identifier: "Riftlet").firstMatch
         let check = find(app.menuItems, "(Check for Updates.*|检查更新.*)")
-        if menu.exists && menu.isHittable {
-            menu.click()
-        } else {
+        if menu.exists && menu.isHittable { menu.click() }
+        let direct = app.buttons["control.update"]
+        if !check.waitForExistence(timeout: 2) && !direct.exists {
+            // A status-bar extra and the application menu can have the same visible title.
             let item = find(app.statusItems, ".*Riftlet.*")
             let extra = find(app.menuBars.menuBarItems, ".*Riftlet.*")
-            if item.exists {
-                item.rightClick()
-            } else if extra.exists {
-                extra.rightClick()
-            } else {
-                XCTFail("No Riftlet status item or application menu: \(app.debugDescription)")
-                return
-            }
+            if item.exists { item.rightClick() }
+            else if extra.exists { extra.rightClick() }
         }
         if !check.waitForExistence(timeout: 3) {
-            // Some OS versions expose the status extra as a menubar item also titled Riftlet.
-            let direct = app.buttons["control.update"]
             guard direct.exists && direct.isEnabled else { XCTFail(app.debugDescription); return }
             direct.click()
         } else {
