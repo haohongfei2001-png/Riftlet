@@ -22,9 +22,10 @@ permissions:
   contents: read
 jobs:
   actual_update:
+    if: inputs.mode != 'private-upgrade'
     runs-on: macos-15-intel
     timeout-minutes: 20
-    steps:
+    steps: &upgrade_steps
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
@@ -48,10 +49,19 @@ jobs:
           UPGRADE_MODE: ${{ inputs.mode }}
           UPGRADE_DMG_SHA256: ${{ inputs.candidate_sha256 }}
         run: python3 -B Tests/PublicSparkleUpgrade/exercise.py
-      - if: ${{ !cancelled() }}
+      - if: ${{ !cancelled() && hashFiles('test-results/public-sparkle.json') != '' }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: public-sparkle-${{ inputs.mode }}-${{ github.run_id }}
           retention-days: 14
           path: test-results/public-sparkle.json
           if-no-files-found: error
+  owner_draft_update:
+    if: inputs.mode == 'private-upgrade' && github.ref == 'refs/heads/codex/riftlet-111-public-upgrade-qa' && github.actor == github.repository_owner
+    runs-on: macos-15-intel
+    timeout-minutes: 20
+    # GitHub requires push access even for a GET on a draft release.
+    # The token is passed only to the scoped GET step; checkout does not persist it.
+    permissions:
+      contents: write
+    steps: *upgrade_steps
