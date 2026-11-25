@@ -22,7 +22,7 @@ assert common['safe_context']() and os.environ['GITHUB_REF'] == 'refs/heads/code
 assert call('stat', '-f%Su', '/dev/console').stdout.strip() == call('id', '-un').stdout.strip()
 mode = os.environ['UPGRADE_MODE']
 assert mode in ('preflight', 'upgrade')
-version, build = ('1.0.11', '66') if mode == 'upgrade' else ('1.0.10', '65')
+version, build = ('1.0.11', '67') if mode == 'upgrade' else ('1.0.10', '65')
 previous = '036a41733a57810824a830b0090e7360de22cdba3819704484bb01053da7033d'
 candidate = os.environ.get('UPGRADE_DMG_SHA256', '') if mode == 'upgrade' else previous
 assert re.fullmatch(r'[a-f0-9]{64}', candidate)
