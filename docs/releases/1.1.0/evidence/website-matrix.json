@@ -68,7 +68,7 @@
         "oneInputPerClick": "NOT_RUN",
         "correctTarget": "PASS",
         "originalsRetained": "PASS",
-        "zeroAutomaticSendOrSubmit": "PASS",
+        "zeroAutomaticSendOrSubmit": "PARTIAL",
         "historyClick": "NOT_RUN",
         "nativeDragReceived": "PASS"
       },
@@ -77,7 +77,13 @@
       "reason": "Native file drop produced one new file-named card in the original Safari ChatGPT composer with nine matching preview samples. JavaScript from Apple Events returned Safari status 8.",
       "evidence": [
         "safari-signed-native-drop.json"
-      ]
+      ],
+      "sendObservation": {
+        "nativeSendOrSubmitActions": 0,
+        "visibleMessageArticlesBefore": 0,
+        "visibleMessageArticlesAfter": 0,
+        "pageEventCounters": "NOT_RUN"
+      }
     },
     {
       "browser": "chrome",
