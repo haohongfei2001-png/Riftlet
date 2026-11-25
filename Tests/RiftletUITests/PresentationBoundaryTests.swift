@@ -303,11 +303,11 @@ final class PresentationBoundaryTests: XCTestCase {
     }
 
     @MainActor func testNativeScrollingKeepsCaptureOrderAndPagesPastTwentyWithoutSelecting() throws {
-        func wheel(_ points: Int32, in panel: RiftPanelController) throws {
-            let cg = try XCTUnwrap(CGEvent(scrollWheelEvent2Source: nil, units: .pixel, wheelCount: 1,
-                wheel1: points, wheel2: 0, wheel3: 0))
-            panel.scrollTimeline(with: try XCTUnwrap(NSEvent(cgEvent: cg)))
-            RunLoop.main.run(until: Date().addingTimeInterval(0.025))
+        func wheel(_ points: Int32, _ phase: CGScrollPhase, in panel: RiftPanelController) throws {
+            let row = try XCTUnwrap(panel.diagnosticSnapshot.rows.first)
+            let window = try XCTUnwrap(NSApp.window(withWindowNumber: row.imageInputWindowNumber))
+            panel.scrollTimeline(with: try TimelineWheelFixture.event(in: window, units: .pixel,
+                                                                       delta: points, phase: phase))
         }
         for form in RiftDesktopForm.allCases where form.isAvailable {
             _ = NSApplication.shared
@@ -331,16 +331,24 @@ final class PresentationBoundaryTests: XCTestCase {
             }
             panel.render([a, c], timeline: Array(all.suffix(24)), hasOlder: true)
             XCTAssertEqual(Set(panel.diagnosticSnapshot.rows.map(\.assetID)), [a.id, c.id])
-            try wheel(2, in: panel)
+            try wheel(0, .began, in: panel)
+            try wheel(2, .changed, in: panel)
+            _ = TimelineWheelFixture.wait(until: { panel.timelineOffset > 0 })
             XCTAssertGreaterThan(panel.timelineOffset, 0)
             XCTAssertLessThan(panel.timelineOffset, 8, "The first scroll must move by pixels")
             var seen = Set(panel.diagnosticSnapshot.rows.map(\.assetID))
-            var checkedOrigins = false
-            for _ in 0..<500 {
-                try wheel(24, in: panel)
+            func sampleRows() {
                 let rows = panel.diagnosticSnapshot.rows.map(\.assetID)
                 XCTAssertEqual(Set(rows).count, rows.count)
                 seen.formUnion(rows)
+            }
+            var checkedOrigins = false
+            for _ in 0..<1200 {
+                let before = panel.timelineOffset
+                try wheel(8, .changed, in: panel)
+                guard TimelineWheelFixture.wait(until: { panel.timelineOffset > before }, sampling: sampleRows)
+                else { XCTFail("Forward trackpad motion stopped at \(before) of \(panel.maximumTimelineOffset)"); break }
+                let rows = panel.diagnosticSnapshot.rows.map(\.assetID)
                 if !checkedOrigins && Set(rows).isSuperset(of: [a.id, b.id, c.id]) {
                     for item in [a, b] {
                         XCTAssertTrue(try rowView(item.id, in: panel).accessibilityPerformPress())
@@ -351,10 +359,18 @@ final class PresentationBoundaryTests: XCTestCase {
                 }
                 if panel.maximumTimelineOffset - panel.timelineOffset < 1 { break }
             }
+            try wheel(0, .ended, in: panel)
             XCTAssertEqual(cursors, [18])
             XCTAssertEqual(seen, Set(all.map(\.id)))
             XCTAssertEqual(selections, [a.id, b.id])
-            for _ in 0..<500 where panel.timelineOffset > 0 { try wheel(-40, in: panel) }
+            try wheel(0, .began, in: panel)
+            for _ in 0..<500 where panel.timelineOffset > 0 {
+                let before = panel.timelineOffset
+                try wheel(-40, .changed, in: panel)
+                guard TimelineWheelFixture.wait(until: { panel.timelineOffset < before })
+                else { XCTFail("Reverse trackpad motion stopped at \(before)"); break }
+            }
+            try wheel(0, .ended, in: panel)
             XCTAssertEqual(panel.timelineOffset, 0)
             XCTAssertEqual(Set(panel.diagnosticSnapshot.rows.map(\.assetID)), [a.id, c.id])
         }

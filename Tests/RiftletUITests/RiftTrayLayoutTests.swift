@@ -320,15 +320,16 @@ final class RiftTrayLayoutTests: XCTestCase {
         XCTAssertGreaterThan(latest.lowerBound, 0)
         let surface = try XCTUnwrap(NSApp.windows.first { $0.isVisible && $0.contentView is RiftTraySurfaceView }?.contentView)
         func scroll(_ units: CGScrollEventUnit, _ amount: Int32) throws {
-            let cg = try XCTUnwrap(CGEvent(scrollWheelEvent2Source: nil, units: units, wheelCount: 1,
-                                           wheel1: amount, wheel2: 0, wheel3: 0))
-            surface.scrollWheel(with: try XCTUnwrap(NSEvent(cgEvent: cg)))
+            let window = try XCTUnwrap(surface.window)
+            surface.scrollWheel(with: try TimelineWheelFixture.event(in: window, units: units, delta: amount))
         }
         try scroll(.pixel, 1)
         XCTAssertEqual(panel.visibleRange, latest)
         try scroll(.line, 1)
+        _ = TimelineWheelFixture.wait(until: { panel.visibleRange.lowerBound < latest.lowerBound })
         XCTAssertLessThan(panel.visibleRange.lowerBound, latest.lowerBound)
         try scroll(.line, -1)
+        _ = TimelineWheelFixture.wait(until: { panel.visibleRange == latest })
         XCTAssertEqual(panel.visibleRange, latest)
     }
 
