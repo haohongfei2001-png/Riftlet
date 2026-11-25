@@ -37,6 +37,11 @@ window.qa = (() => {
   }
   function mutate() {
     switch(mode) {
+    case 'enableOriginalField': case 'moveThenOpenMenu': case 'competingFields':
+      if(mode==='moveThenOpenMenu'){document.body.append(holder);form.append(holder);}
+      if(mode==='competingFields')holder.append(field.cloneNode());
+      for(const input of holder.querySelectorAll('input'))input.disabled=false;
+      break;
     case 'replaceField': case 'invalidReclaim': case 'renewRetired': field.replaceWith(field.cloneNode()); break;
     case 'ancestorRoundTrip': case 'stagedAncestorRoundTrip': {
       const marker = holder.nextSibling;
@@ -100,11 +105,23 @@ window.qa = (() => {
         const bytes=Uint8Array.from(atob(png),s=>s.charCodeAt(0));
         samples.push({base64:png,hash:await digest(bytes),length:bytes.length});
       }
-      if(name==='replaceOpener' || name==='lateFieldAndOriginalMenu') {
+      const hydrating=['enableOriginalField','moveThenOpenMenu','competingFields'].includes(name);
+      if(hydrating) {
+        field.name='files';field.setAttribute('aria-label','Upload files');field.disabled=true;
+        for(let i=0;i<3;i++) {
+          const media=field.cloneNode();media.accept='image/*';
+          if(i===0)media.setAttribute('capture','environment');
+          holder.append(media);
+        }
+        holder.append(field);form.append(holder);
+      }
+      if(hydrating || name==='replaceOpener' || name==='lateFieldAndOriginalMenu') {
         opener=document.createElement('button'); opener.type='button';opener.setAttribute('aria-label','Add files');
         opener.setAttribute('data-testid','composer-plus-button');form.append(opener);
         opener.addEventListener('click',()=>{
-          counts.opened++;const menu=document.createElement('div');menu.setAttribute('role','menu');
+          counts.opened++;
+          if(name==='competingFields')return; // The opener supplied no picker.
+          const menu=document.createElement('div');menu.setAttribute('role','menu');
           const item=document.createElement('button');item.type='button';item.setAttribute('role','menuitem');item.textContent='Upload from computer';
           item.addEventListener('click',()=>{menu.append(field);field.click();});
           menu.append(item);document.body.append(menu);

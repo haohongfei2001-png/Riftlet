@@ -9,7 +9,7 @@ const {cleanupOwnedChrome}=require('../../WebPageProgram/native-chrome-cleanup.c
 const families={chrome:['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome','com.google.Chrome'],
   edge:['/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge','com.microsoft.edgemac']};
 const cases=['fastPair','queuedPairNoEviction','absentBeforeACK','ambiguousBeforeACK','invalidReclaim','expiredPending','renewSameLease','renewRetired','replaceField','ancestorRoundTrip','modeRoundTrip','sameEditorNewDraft','stagedAncestorRoundTrip',
-  'replaceOpener','lateFieldAndOriginalMenu','tabRoundTrip','releaseAndBound','hostRestart','idlePreparedOver60s'];
+  'replaceOpener','lateFieldAndOriginalMenu','enableOriginalField','moveThenOpenMenu','competingFields','tabRoundTrip','releaseAndBound','hostRestart','idlePreparedOver60s'];
 async function until(test) {
   const deadline=performance.now()+5000;
   while (!await test()) {
@@ -141,18 +141,19 @@ async function run(name,resource) {
           }
         }
         Object.assign(row,await qa('summary'));
-        const expected=pair?2:['lateFieldAndOriginalMenu','idlePreparedOver60s','renewSameLease'].includes(mode)?1:0;
+        const expected=pair?2:['lateFieldAndOriginalMenu','idlePreparedOver60s','renewSameLease','enableOriginalField','moveThenOpenMenu'].includes(mode)?1:0;
         assert.deepEqual(row.counts,{setter:expected,input:expected,change:expected,send:0,otherSetter:0,
-          opened:mode==='lateFieldAndOriginalMenu'?1:0});
+          opened:['lateFieldAndOriginalMenu','moveThenOpenMenu','competingFields'].includes(mode)?1:0});
         assert.equal(row.stableDraft,true);
         assert.deepEqual(row.deliveredHashes,expected?row.outcomes.map(o=>o.assetSHA256):[]);
         if(!management) {
           assert.ok(row.presses.length===row.outcomes.length && row.presses.every(e=>e.trusted));
-          assert.equal(row.atPress.write,expected>0 || mode==='stagedAncestorRoundTrip');
+          const retiredAtCommit=mode==='stagedAncestorRoundTrip' || mode==='competingFields';
+          assert.equal(row.atPress.write,expected>0 || retiredAtCommit);
           for(const result of row.outcomes) {
-            if(expected || mode==='stagedAncestorRoundTrip') {
+            if(expected || retiredAtCommit) {
               assert.equal(result.state,expected?'inputTriggered':'invalidated');
-              if(!expected)assert.equal(result.reason,'targetInvalidBeforeInput');
+              if(!expected)assert.equal(result.reason,mode==='competingFields'?'attachmentInputNotCreated':'targetInvalidBeforeInput');
               assert.equal(result.repeated,'COMMIT_REFUSED'); assert.equal(result.releaseAfterBegin,false); assert.equal(result.renewAfterBegin,false);
             } else assert.equal(result.state,'preClickRejected');
           }
