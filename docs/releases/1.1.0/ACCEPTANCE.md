@@ -4,7 +4,7 @@
 
 | 平台 | Chrome 点击 | Chrome 拖放 | Edge 点击 | Edge 拖放 | Safari 点击 | Safari 拖放 |
 | --- | --- | --- | --- | --- | --- | --- |
-| ChatGPT | 单图、双图通过 | 未运行 | 单图、双图通过 | 未运行 | 脚本授权关闭 | 通过 |
+| ChatGPT | 单图、双图通过 | 通过 | 单图、双图通过 | 通过 | 脚本授权关闭 | 通过 |
 | Claude | 登录入口 | 未运行 | 会话未核实 | 未运行 | 脚本授权关闭 | 未运行 |
 | Gemini | 会话未核实 | 未运行 | 会话未核实 | 未运行 | 脚本授权关闭 | 未运行 |
 | Microsoft Copilot | 会话未核实 | 未运行 | 会话未核实 | 未运行 | 脚本授权关闭 | 未运行 |
@@ -27,6 +27,8 @@
 “登录入口”表示独立 QA 页显示登录或跳到了登录路径。“会话未核实”表示这次未能确认专用已登录草稿。Safari 的 JavaScript 准入和原生文件拖放分开测量。
 
 六次已核验的 Chrome 和 Edge 点击均产生一次输入、一次 change 及一条持久 START，且均为原草稿中的新附件。双图时保留了非空正文和旧卡，发送与表单提交合计为零。[签名候选点击收据](evidence/chatgpt-clicks68.json)
+
+Chrome 和 Edge 均从历史中再次选中原 PNG，创建了新的操作和 invocation。在两款浏览器中，一次原生拖入分别得到一个可信 drop 和一张像素吻合的新卡。Esc 取消时没有 drop，原图仍在活动托盘。Safari 在原生编辑器内展示了唯一同名附件，九个预览像素样本与原图吻合。实站非折叠选区在准备环节未能核实，记为 NOT_RUN。[Chrome 与 Edge 读回记录](evidence/real-signed-chatgpt68.json) · [Safari 拖放收据](evidence/safari-signed-native-drop.json)
 
 本机独立 AppKit 接收器还覆盖原生拖放接受、拒绝、取消，以及三种托盘形态分别滚动浏览 41 张截图。受控浏览器的每款 39 项回归记录另附。[本机时间线与拖放收据](evidence/timeline-native.json) · [受控网页回归](../../../Tests/ConversationProviders/controlled-results.json)
 

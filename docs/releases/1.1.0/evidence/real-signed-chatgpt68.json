@@ -1,0 +1,217 @@
+{
+  "version": "1.1.0",
+  "build": 68,
+  "source": "be4c20d5036d7bbad78f283633d66c5779a13df5",
+  "dmgSHA256": "9f654539619b87ead785828e83cde631896089abc055602bed805588544511f1",
+  "executableSHA256": "0b53876713b17d28d5522dfb7c3cf73ce1caf00205936db7bdbdb2f769134231",
+  "scope": "Real macOS system screenshots of isolated QA tile, ordinary signed browsers, dedicated authenticated ChatGPT Temporary Chat, actual signed Riftlet running with an independent private data root. Input uses software mouseDown/mouseUp and native AppKit drag events.",
+  "publicInitialClickReceiptSHA256": "f7343931f37f8ffcb41f71dff9e28a6fe279ce8b9fad5c270df9d589d588f2f3",
+  "families": {
+    "chrome": {
+      "single": "PASS",
+      "twoDistinct": "PASS",
+      "history": {
+        "status": "PASS",
+        "receiptSHA256": "bcc93e91e3203cc186ed764543065faa3c6301c70afa67d106c970324edff893",
+        "nativeScroll": true,
+        "sameImmutablePNGSHA256": "5dfb13c63f5887e86d7b2c256442b3cc7b72cb64e6012dbc0ee864e2c0623ccc",
+        "newOperationAndInvocation": true,
+        "persistentOriginalSTART": 1,
+        "newInputs": 1,
+        "newChanges": 1,
+        "preservedPriorCards": 1,
+        "nonemptyDraftTextPreserved": true,
+        "sends": 0,
+        "submits": 0
+      },
+      "drop": {
+        "status": "PASS",
+        "privateReceiptSHA256": "ef2eea7dc14dd3a38f65cb4786901e7107831f05e2cdf3402205795fe4b97cfb",
+        "sourceSHA256": "3be46bd1295e33e924de0ab9e4b75f94369c7a4601416de10ff5a5af92a61ea9",
+        "changedClickOperations": 0,
+        "trustedDragEnters": 6,
+        "drops": 1,
+        "existingCardsRetained": 2,
+        "newCards": 1,
+        "sourcePNGBytesMatch": true,
+        "renderedOriginalPixelsMatch": true,
+        "originalDraftTextPreserved": true,
+        "nativeSourceRetained": true,
+        "visibilityAfter": "swallowed",
+        "sendButtonClicks": 0,
+        "submits": 0
+      },
+      "cancel": {
+        "status": "PASS",
+        "privateReceiptSHA256": "9230dcc01f1d1950daedab790d572b8425c6eb4feb4a34fb264122d4eb70cfe2",
+        "sourceSHA256": "0595636fa6957aec1bb22cc64acb5ef2560836474c76fa48b5125e9466fc8acc",
+        "changedClickOperations": 0,
+        "trustedDragEnters": 5,
+        "drops": 0,
+        "existingCardsRetained": 2,
+        "newCards": 0,
+        "sourcePNGBytesMatch": false,
+        "renderedOriginalPixelsMatch": false,
+        "originalDraftTextPreserved": true,
+        "nativeSourceRetained": true,
+        "visibilityAfter": "visible",
+        "sendButtonClicks": 0,
+        "submits": 0
+      },
+      "campaigns": [
+        {
+          "originalPrivateReceiptSHA256": "6c1743f093812a0f27939b94b4fddb2c755104c15a329850d8ec18b80ea6dd09",
+          "signedInOriginalTemporaryChat": true,
+          "knownOriginalDraftTextPreserved": true,
+          "lastOriginalDraftCounts": {
+            "fileChange": 2,
+            "fileInput": 2,
+            "formSubmit": 0,
+            "sendButtonClicks": 0
+          },
+          "scopedWindowClosed": true,
+          "privateAppExited": true,
+          "observerRemoved": true,
+          "priorBaselineInAnotherWindow": true,
+          "selectionPreparationStop": "HIT_NOT_ORIGINAL_EDITABLE"
+        },
+        {
+          "originalPrivateReceiptSHA256": "569e32defdf6201e63d0c4b62b9264b4614efd339de3567d0071d24fe124f985",
+          "signedInOriginalTemporaryChat": true,
+          "knownOriginalDraftTextPreserved": true,
+          "lastOriginalDraftCounts": {
+            "fileChange": 3,
+            "fileInput": 3,
+            "formSubmit": 0,
+            "sendButtonClicks": 0
+          },
+          "scopedWindowClosed": true,
+          "privateAppExited": true,
+          "observerRemoved": true,
+          "priorBaselineInAnotherWindow": false,
+          "caseStops": {
+            "C": "python3.14_REFUSED"
+          }
+        },
+        {
+          "originalPrivateReceiptSHA256": "8ebdc52f924b17de6ce8cd2a182de259902e09b2837ab044133d8a80f3c0dd14",
+          "signedInOriginalTemporaryChat": true,
+          "knownOriginalDraftTextPreserved": true,
+          "lastOriginalDraftCounts": {
+            "fileChange": 1,
+            "fileInput": 1,
+            "formSubmit": 0,
+            "sendButtonClicks": 0
+          },
+          "scopedWindowClosed": true,
+          "privateAppExited": true,
+          "observerRemoved": true,
+          "priorBaselineInAnotherWindow": true,
+          "caseStops": {
+            "C": "ORIGINAL_ROW_COVERED"
+          },
+          "nativeStops": {
+            "cancel": "ORIGINAL_ROW_COVERED",
+            "drop": "ORIGINAL_ROW_COVERED"
+          },
+          "selectionPreparationStop": "ORIGINAL_AX_FIELD_UNAVAILABLE"
+        }
+      ],
+      "status": "PASS"
+    },
+    "edge": {
+      "single": "PASS",
+      "twoDistinct": "PASS",
+      "history": {
+        "status": "PASS",
+        "receiptSHA256": "3a674897a6884af957547e4f449b0bd86fa8a82f1e4f2502062adce763e1587e",
+        "nativeScroll": true,
+        "sameImmutablePNGSHA256": "023da61b6723e73b28df9bc366b830cd2bef81537033fc60f777121ea9b23ea8",
+        "newOperationAndInvocation": true,
+        "persistentOriginalSTART": 1,
+        "newInputs": 1,
+        "newChanges": 1,
+        "preservedPriorCards": 1,
+        "nonemptyDraftTextPreserved": true,
+        "sends": 0,
+        "submits": 0
+      },
+      "drop": {
+        "status": "PASS",
+        "privateReceiptSHA256": "797eaf2f0b8c57b22d92e286f211eac3933710e1c515abc249bcec36c1e2acf2",
+        "sourceSHA256": "2edb5e90c4004abb84ab6b9d2402565a0428269e9891ca587def89e39d6931f6",
+        "changedClickOperations": 0,
+        "trustedDragEnters": 8,
+        "drops": 1,
+        "existingCardsRetained": 2,
+        "newCards": 1,
+        "sourcePNGBytesMatch": true,
+        "renderedOriginalPixelsMatch": true,
+        "originalDraftTextPreserved": true,
+        "nativeSourceRetained": true,
+        "visibilityAfter": "swallowed",
+        "sendButtonClicks": 0,
+        "submits": 0
+      },
+      "cancel": {
+        "status": "PASS",
+        "privateReceiptSHA256": "dc6b04ef971d372cb76bc9ef0e90a838d8a3dc9242e1e1125437dec09f5ee00c",
+        "sourceSHA256": "a6a7657c7bb65091130db4ef6ba81f4730b0ef5259a3bd0a3374157f5ed8de2f",
+        "changedClickOperations": 0,
+        "trustedDragEnters": 7,
+        "drops": 0,
+        "existingCardsRetained": 2,
+        "newCards": 0,
+        "sourcePNGBytesMatch": false,
+        "renderedOriginalPixelsMatch": false,
+        "originalDraftTextPreserved": true,
+        "nativeSourceRetained": true,
+        "visibilityAfter": "visible",
+        "sendButtonClicks": 0,
+        "submits": 0
+      },
+      "campaigns": [
+        {
+          "originalPrivateReceiptSHA256": "5dd1c63bfb1d352e8cd008e1136593008798164d78c514fc2eddfa55ab00490d",
+          "signedInOriginalTemporaryChat": true,
+          "knownOriginalDraftTextPreserved": true,
+          "lastOriginalDraftCounts": {
+            "fileChange": 2,
+            "fileInput": 2,
+            "formSubmit": 0,
+            "sendButtonClicks": 0
+          },
+          "scopedWindowClosed": true,
+          "privateAppExited": true,
+          "observerRemoved": true,
+          "priorBaselineInAnotherWindow": true,
+          "selectionPreparationStop": "HIT_NOT_ORIGINAL_EDITABLE"
+        },
+        {
+          "originalPrivateReceiptSHA256": "3898359609e36f2a4f84bb13fc4b76968ede78e4080400e5ebb40a0759d112f9",
+          "signedInOriginalTemporaryChat": true,
+          "knownOriginalDraftTextPreserved": true,
+          "lastOriginalDraftCounts": {
+            "fileChange": 3,
+            "fileInput": 3,
+            "formSubmit": 0,
+            "sendButtonClicks": 0
+          },
+          "scopedWindowClosed": true,
+          "privateAppExited": true,
+          "observerRemoved": true,
+          "priorBaselineInAnotherWindow": false,
+          "caseStops": {
+            "C": "gestures_REFUSED"
+          },
+          "nativeStops": {
+            "cancel": "gestures_REFUSED",
+            "drop": "gestures_REFUSED"
+          }
+        }
+      ],
+      "status": "PASS"
+    }
+  },
+  "status": "PASS"
+}
