@@ -1,33 +1,33 @@
-# 1.1.0 现场验收矩阵
+# Riftlet 1.1.0（68）实站验收
 
-本表覆盖普通 Chrome、Edge、Safari 与 19 个对话平台。表中两列记录系统核验过的普通浏览器、独立新建的单标签窗口和草稿准入情况。首轮两扇窗口均已核实关闭。可见编辑器和 HTTP 成功状态不能证明账户已登录。实际点击、双图、正文和原附件、唯一输入、无错投、零发送、原图找回及站内接收原生拖放分别需要签名候选回执。
+磁盘映像 SHA-256 为 `9f654539619b87ead785828e83cde631896089abc055602bed805588544511f1`。本表覆盖 19 个网站、57 个普通浏览器与网站组合。每个组合的原草稿、输入次数、正文与旧附件、历史重选、原图、发送及拖放结果均可在逐项矩阵中核对。[逐项 JSON](evidence/website-matrix.json) · [签名和独立安装](evidence/signed-candidate.json) · [65 至 68 应用内升级](evidence/upgrade65to68-private.json)
 
-| 平台 | Chrome 专用入口 | Edge 专用入口 | Safari 点击 | 签名候选网站验收 |
-| --- | --- | --- | --- | --- |
-| ChatGPT | Temporary Chat 已登录，有编辑器 | Temporary Chat 已登录，有编辑器 | 浏览器脚本开关关闭 | NOT_RUN |
-| Claude | 重定向至账户或登录入口 | 专用入口发生重定向 | 浏览器脚本开关关闭 | NOT_RUN |
-| Gemini | 专用入口发生重定向 | 专用入口发生重定向 | 浏览器脚本开关关闭 | NOT_RUN |
-| Microsoft Copilot | 专用入口发生重定向 | 专用入口发生重定向 | 浏览器脚本开关关闭 | NOT_RUN |
-| Perplexity | 页面提供登录 | 页面提供登录 | 浏览器脚本开关关闭 | NOT_RUN |
-| Grok | 账户未确认 | 账户未确认 | 浏览器脚本开关关闭 | NOT_RUN |
-| Poe | 重定向至账户或登录入口 | 专用入口发生重定向 | 浏览器脚本开关关闭 | NOT_RUN |
-| DeepSeek | 账户未确认 | 专用入口发生重定向 | 浏览器脚本开关关闭 | NOT_RUN |
-| Kimi | 页面提供登录 | 页面提供登录 | 浏览器脚本开关关闭 | NOT_RUN |
-| 通义千问 | 页面提供登录 | 账户未确认 | 浏览器脚本开关关闭 | NOT_RUN |
-| 国际 Qwen | 页面提供登录 | 页面提供登录 | 浏览器脚本开关关闭 | NOT_RUN |
-| 豆包 | 账户未确认 | 页面提供登录 | 浏览器脚本开关关闭 | NOT_RUN |
-| 腾讯元宝 | 专用入口发生重定向 | 专用入口发生重定向 | 浏览器脚本开关关闭 | NOT_RUN |
-| 智谱清言 | 页面提供登录 | 页面提供登录 | 浏览器脚本开关关闭 | NOT_RUN |
-| 讯飞星火 | 账户未确认 | 账户未确认 | 浏览器脚本开关关闭 | NOT_RUN |
-| Meta AI | 页面提供登录 | 页面提供登录 | 浏览器脚本开关关闭 | NOT_RUN |
-| Mistral Vibe | 页面提供登录 | 专用入口发生重定向 | 浏览器脚本开关关闭 | NOT_RUN |
-| 百度文心 | 账户未确认 | 账户未确认 | 浏览器脚本开关关闭 | NOT_RUN |
-| Z.ai | 账户未确认 | 账户未确认 | 浏览器脚本开关关闭 | NOT_RUN |
+| 平台 | Chrome 点击 | Chrome 拖放 | Edge 点击 | Edge 拖放 | Safari 点击 | Safari 拖放 |
+| --- | --- | --- | --- | --- | --- | --- |
+| ChatGPT | 单图、双图通过 | 未运行 | 单图、双图通过 | 未运行 | 脚本授权关闭 | 未运行 |
+| Claude | 登录入口 | 未运行 | 会话未核实 | 未运行 | 脚本授权关闭 | 未运行 |
+| Gemini | 会话未核实 | 未运行 | 会话未核实 | 未运行 | 脚本授权关闭 | 未运行 |
+| Microsoft Copilot | 会话未核实 | 未运行 | 会话未核实 | 未运行 | 脚本授权关闭 | 未运行 |
+| Perplexity | 登录入口 | 未运行 | 登录入口 | 未运行 | 脚本授权关闭 | 未运行 |
+| Grok | 会话未核实 | 未运行 | 会话未核实 | 未运行 | 脚本授权关闭 | 未运行 |
+| Poe | 登录入口 | 未运行 | 会话未核实 | 未运行 | 脚本授权关闭 | 未运行 |
+| DeepSeek | 会话未核实 | 未运行 | 会话未核实 | 未运行 | 脚本授权关闭 | 未运行 |
+| Kimi | 登录入口 | 未运行 | 登录入口 | 未运行 | 脚本授权关闭 | 未运行 |
+| 通义千问 | 登录入口 | 未运行 | 会话未核实 | 未运行 | 脚本授权关闭 | 未运行 |
+| 国际 Qwen | 登录入口 | 未运行 | 登录入口 | 未运行 | 脚本授权关闭 | 未运行 |
+| 豆包 | 会话未核实 | 未运行 | 登录入口 | 未运行 | 脚本授权关闭 | 未运行 |
+| 腾讯元宝 | 会话未核实 | 未运行 | 会话未核实 | 未运行 | 脚本授权关闭 | 未运行 |
+| 智谱清言 | 登录入口 | 未运行 | 登录入口 | 未运行 | 脚本授权关闭 | 未运行 |
+| 讯飞星火 | 会话未核实 | 未运行 | 会话未核实 | 未运行 | 脚本授权关闭 | 未运行 |
+| Meta AI | 登录入口 | 未运行 | 登录入口 | 未运行 | 脚本授权关闭 | 未运行 |
+| Mistral Vibe | 会话未核实 | 未运行 | 会话未核实 | 未运行 | 脚本授权关闭 | 未运行 |
+| 百度文心 | 会话未核实 | 未运行 | 会话未核实 | 未运行 | 脚本授权关闭 | 未运行 |
+| Z.ai | 会话未核实 | 未运行 | 会话未核实 | 未运行 | 脚本授权关闭 | 未运行 |
 
-普通 Safari 27 收到针对独立本地 QA 标签的 `sfri/dojs` 事件后返回原生错误码 8。系统级 Apple Events 预检返回 0。Safari 的设置位于“设置 → 开发者 → 自动化”，选项名为“允许 Apple 事件中的 JavaScript”。Safari 原生拖放可独立运行，站内接收需另行测量。[Apple 开发者设置](https://developer.apple.com/documentation/safari-developer-tools/developer-settings)
+“登录入口”表示独立 QA 页显示登录或跳到了登录路径。“会话未核实”表示这次未能确认专用已登录草稿。Safari 的 JavaScript 准入和原生文件拖放分开测量。
 
-AppKit 测量覆盖三种托盘外观各 41 张截图，以及四次原生拖放手势。接收器拒绝和取消各零次交付，接受活动图和历史图各收到一次原文件 URL。签名候选的站内输入和网页附件身份另行验收。[本机 AppKit 收据](evidence/timeline-native.json) · [浏览器准入收据](evidence/browser-preflight.json)
+六次已核验的 Chrome 和 Edge 点击均产生一次输入、一次 change 及一条持久 START，且均为原草稿中的新附件。双图时保留了非空正文和旧卡，发送与表单提交合计为零。[签名候选点击收据](evidence/chatgpt-clicks68.json)
 
-Chrome 另核对了 10 个官方入口，专用单标签窗口已关闭。Edge 的同项补查收到 Apple Events 超时（−1712），首轮 19 项结果仍按上表记录。两轮均未选择文件或发送消息。
+本机独立 AppKit 接收器还覆盖原生拖放接受、拒绝、取消，以及三种托盘形态分别滚动浏览 41 张截图。受控浏览器的每款 39 项回归记录另附。[本机时间线与拖放收据](evidence/timeline-native.json) · [受控网页回归](../../../Tests/ConversationProviders/controlled-results.json)
 
-修订后的附件程序在隔离的 Chrome 和 Edge 中各通过 39 项。真实网站与候选的结果由各自的签名包收据判定。[受控浏览器记录](../../../Tests/ConversationProviders/controlled-results.json)
+公开官网、GitHub Release 和 Sparkle 稳定源均继续提供 1.0.11（67）。[官网](https://riftlet.com/) · [公开发行](https://github.com/haohongfei2001-png/Riftlet/releases/latest) · [Sparkle](https://riftlet.com/updates/stable.xml)

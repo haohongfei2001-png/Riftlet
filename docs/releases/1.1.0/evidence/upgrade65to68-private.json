@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "scope": "Isolated hosted Mac private signed loopback in-app 65 to 68, pre-release",
+  "run": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45634687649",
+  "qaSource": "ce4bc1c0b9900f75c1334227744a33bbfbf77e6d",
+  "source": "be4c20d5036d7bbad78f283633d66c5779a13df5",
+  "packageSHA256": "9f654539619b87ead785828e83cde631896089abc055602bed805588544511f1",
+  "receiptSHA256": "4a93909ce9660dd727753a0478577b69dd0b4639cd06d23bcd1385be4bfa7ee2",
+  "publicStableChanged": false,
+  "oldBuild": "65",
+  "newBuild": "68",
+  "sameRetainedOriginals": 2,
+  "sameHistoricalUNKNOWN": true,
+  "sameSettings": true,
+  "ordinaryRelaunchedProcess": true,
+  "persistentOverride": false,
+  "processOnlyLoopback": true,
+  "stableFeedSHA256BeforeAndAfter": "2646c7a60ba6a4de26a865d6c617716a6e26aa7b88e891ad5cc4b0b80e49f91e",
+  "publicStableBuild": "67",
+  "draftStillPrivate": true,
+  "scopeOfUNKNOWN": "Synthetic offline historical operation in a disposable test library",
+  "appBinarySHA256": "0b53876713b17d28d5522dfb7c3cf73ce1caf00205936db7bdbdb2f769134231",
+  "codeDirectories": {
+    "arm64": "72790bd46354b061c94d2257432e860f1a6a2586",
+    "x86_64": "de2c7ea1ae73873803dad6fb32e503517a1c551b"
+  }
+}

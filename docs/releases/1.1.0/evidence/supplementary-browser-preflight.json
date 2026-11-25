@@ -1,0 +1,56 @@
+{
+  "scope": "Read-only supplementary account preflight on dedicated normal-browser windows. No screenshot attachments or form submissions.",
+  "chrome": {
+    "observedAt": "2026-11-25T14:00:22Z",
+    "providers": [
+      {
+        "id": "claude",
+        "state": "accountOrLoginRedirect"
+      },
+      {
+        "id": "gemini",
+        "state": "observedLanding"
+      },
+      {
+        "id": "copilot",
+        "state": "redirectOutsideConfirmedNewDraft"
+      },
+      {
+        "id": "grok",
+        "state": "observedLanding"
+      },
+      {
+        "id": "poe",
+        "state": "accountOrLoginRedirect"
+      },
+      {
+        "id": "deepseek",
+        "state": "observedLanding"
+      },
+      {
+        "id": "yuanbao",
+        "state": "redirectOutsideConfirmedNewDraft"
+      },
+      {
+        "id": "mistral",
+        "state": "observedLanding"
+      },
+      {
+        "id": "wenxin",
+        "state": "observedLanding"
+      },
+      {
+        "id": "zai",
+        "state": "observedLanding"
+      }
+    ],
+    "closed": true,
+    "privateReceiptSHA256": "71d546f2186d84780ff19e8cd87e5f0bfbb3491839c892bce633f0deeef2d7da"
+  },
+  "edge": {
+    "observation": "NATIVE_EVENT_TIMEOUT_-1712",
+    "ownedWindowSubsequentlyAbsent": true,
+    "additionalCloseRequests": 0,
+    "privateCleanupReceiptSHA256": "649e05948c8e580cc39365b7ae71c9266cf7c61defc5748f25fa6a6da6674a68"
+  }
+}

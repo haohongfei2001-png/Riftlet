@@ -1,0 +1,35 @@
+{
+  "utc": "2026-11-25T14:24:27Z",
+  "source": "be4c20d5036d7bbad78f283633d66c5779a13df5",
+  "sourceTree": "c3a55e1c7a9420fb4990e91e39c9bfcd2ae7929c",
+  "version": "1.1.0",
+  "build": "68",
+  "bytes": 14171145,
+  "sha256": "9f654539619b87ead785828e83cde631896089abc055602bed805588544511f1",
+  "teamID": "ZB9D4T66QB",
+  "architectures": {
+    "arm64": "72790bd46354b061c94d2257432e860f1a6a2586",
+    "x86_64": "de2c7ea1ae73873803dad6fb32e503517a1c551b"
+  },
+  "binarySHA256": "0b53876713b17d28d5522dfb7c3cf73ce1caf00205936db7bdbdb2f769134231",
+  "manifestSHA256": "82eee372af3efc83d52b7716e51e500e3b1b1619cd89f797febbab92b3e96de4",
+  "privateDMGReceiptSHA256": "d5504534325c365e257230b6dd8f55cbffacf906b843b44f6302fbee4902ccaf",
+  "appTicket": "VALID",
+  "dmgTicket": "VALID",
+  "appGatekeeperExecute": "ACCEPTED",
+  "dmgGatekeeperOpen": "ACCEPTED",
+  "isolatedInstalledFullSignedInventory": "IDENTICAL",
+  "imageMountedReadonlyAndDetached": true,
+  "productionDataOpened": false,
+  "scope": "Private signed and notarized candidate; independently mounted read-only and installed into a clean test directory.",
+  "status": "PASS",
+  "independentInstallReceiptSHA256": "9fe0653c339fdf5c88ce9d507ac91c2289b81e27d29db73ab4bfd3a5b228b5c4",
+  "packageSelfChecks": {
+    "--self-check": "PASS",
+    "--first-use-self-check": "PASS",
+    "--web-acceptance-self-check": "PASS",
+    "--system-screenshot-candidate-self-check": "PASS"
+  },
+  "appNotaryStatus": "Accepted",
+  "dmgNotaryStatus": "Accepted"
+}
