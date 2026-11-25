@@ -1,0 +1,227 @@
+{
+  "scope": "Ordinary Safari / dedicated fresh conversation landings / native user-interface admission for file drag",
+  "observedUTC": "2026-11-25T14:57:05Z",
+  "browser": "com.apple.Safari 27.0",
+  "method": "One independently created native window and its sole selected tab. Fresh HTTPS routes only. Page reads were limited to existing Accessibility landmarks, public account and attachment controls, and empty-editor checks in a verified original composer.",
+  "websiteNativeDragConsent": "An actual file could be dropped only into a positively identified signed-in empty draft.",
+  "accountNamesOrIdentifiersLogged": false,
+  "transcriptTextRead": false,
+  "javascriptOrDebuggerUsed": false,
+  "settingsChanged": false,
+  "auditStatus": "COMPLETE",
+  "platformsObserved": 18,
+  "websiteNativeDragPasses": 0,
+  "results": [
+    {
+      "provider": "claude",
+      "landing": "redirectOutsideFreshLandingNoPageRead",
+      "account": "unexamined",
+      "websiteNativeDrag": "NOT_RUN",
+      "readyForNativeDrop": false,
+      "reason": "The selected URL left the approved fresh conversation routes."
+    },
+    {
+      "provider": "gemini",
+      "landing": "observedOriginalLanding",
+      "account": "unconfirmed",
+      "websiteNativeDrag": "NOT_RUN",
+      "visibleSignInControls": 0,
+      "visibleAuthenticatedAccountControls": 0,
+      "visibleArticleCount": 0,
+      "visibleEditors": 2,
+      "visibleAttachmentControl": false,
+      "readyForNativeDrop": false,
+      "reason": "No unequivocal signed-in account control was visible in the dedicated draft."
+    },
+    {
+      "provider": "copilot",
+      "landing": "dedicatedComposerNotIdentified",
+      "account": "unconfirmed",
+      "websiteNativeDrag": "NOT_RUN",
+      "visibleSignInControls": 0,
+      "visibleAuthenticatedAccountControls": 0,
+      "visibleArticleCount": 0,
+      "readyForNativeDrop": false,
+      "reason": "No unequivocal signed-in account control was visible in the dedicated draft."
+    },
+    {
+      "provider": "perplexity",
+      "landing": "dedicatedComposerNotIdentified",
+      "account": "unconfirmed",
+      "websiteNativeDrag": "NOT_RUN",
+      "visibleSignInControls": 0,
+      "visibleAuthenticatedAccountControls": 0,
+      "visibleArticleCount": 0,
+      "readyForNativeDrop": false,
+      "reason": "No unequivocal signed-in account control was visible in the dedicated draft."
+    },
+    {
+      "provider": "grok",
+      "landing": "dedicatedComposerNotIdentified",
+      "account": "unconfirmed",
+      "websiteNativeDrag": "NOT_RUN",
+      "visibleSignInControls": 0,
+      "visibleAuthenticatedAccountControls": 0,
+      "visibleArticleCount": 0,
+      "readyForNativeDrop": false,
+      "reason": "No unequivocal signed-in account control was visible in the dedicated draft."
+    },
+    {
+      "provider": "poe",
+      "landing": "redirectOutsideFreshLandingNoPageRead",
+      "account": "unexamined",
+      "websiteNativeDrag": "NOT_RUN",
+      "readyForNativeDrop": false,
+      "reason": "The selected URL left the approved fresh conversation routes."
+    },
+    {
+      "provider": "deepseek",
+      "landing": "confirmedServiceSignInRoute",
+      "account": "signInRoute",
+      "websiteNativeDrag": "NOT_RUN",
+      "readyForNativeDrop": false,
+      "reason": "The recorded destination hash exactly matches the service sign-in page."
+    },
+    {
+      "provider": "kimi",
+      "landing": "dedicatedComposerNotIdentified",
+      "account": "signInVisible",
+      "websiteNativeDrag": "NOT_RUN",
+      "visibleSignInControls": 2,
+      "visibleAuthenticatedAccountControls": 0,
+      "visibleArticleCount": 0,
+      "readyForNativeDrop": false,
+      "reason": "The ordinary Safari profile showed a sign-in control."
+    },
+    {
+      "provider": "qianwen",
+      "landing": "dedicatedComposerNotIdentified",
+      "account": "signInVisible",
+      "websiteNativeDrag": "NOT_RUN",
+      "visibleSignInControls": 1,
+      "visibleAuthenticatedAccountControls": 0,
+      "visibleArticleCount": 0,
+      "readyForNativeDrop": false,
+      "reason": "The ordinary Safari profile showed a sign-in control."
+    },
+    {
+      "provider": "qwen",
+      "landing": "dedicatedComposerNotIdentified",
+      "account": "unconfirmed",
+      "websiteNativeDrag": "NOT_RUN",
+      "visibleSignInControls": 0,
+      "visibleAuthenticatedAccountControls": 0,
+      "visibleArticleCount": 0,
+      "readyForNativeDrop": false,
+      "reason": "No unequivocal signed-in account control was visible in the dedicated draft."
+    },
+    {
+      "provider": "doubao",
+      "landing": "observedOriginalLanding",
+      "account": "signInVisible",
+      "websiteNativeDrag": "NOT_RUN",
+      "visibleSignInControls": 1,
+      "visibleAuthenticatedAccountControls": 0,
+      "visibleArticleCount": 0,
+      "visibleEditors": 1,
+      "visibleAttachmentControl": false,
+      "readyForNativeDrop": false,
+      "reason": "The ordinary Safari profile showed a sign-in control."
+    },
+    {
+      "provider": "yuanbao",
+      "landing": "redirectOutsideFreshLandingNoPageRead",
+      "account": "unexamined",
+      "websiteNativeDrag": "NOT_RUN",
+      "readyForNativeDrop": false,
+      "reason": "The selected URL left the approved fresh conversation routes."
+    },
+    {
+      "provider": "qingyan",
+      "landing": "dedicatedComposerNotIdentified",
+      "account": "unconfirmed",
+      "websiteNativeDrag": "NOT_RUN",
+      "visibleSignInControls": 1,
+      "visibleAuthenticatedAccountControls": 1,
+      "visibleArticleCount": 0,
+      "readyForNativeDrop": false,
+      "reason": "No unequivocal signed-in account control was visible in the dedicated draft."
+    },
+    {
+      "provider": "spark",
+      "landing": "observedOriginalLanding",
+      "account": "unconfirmed",
+      "websiteNativeDrag": "NOT_RUN",
+      "visibleSignInControls": 0,
+      "visibleAuthenticatedAccountControls": 0,
+      "visibleArticleCount": 0,
+      "visibleEditors": 2,
+      "visibleAttachmentControl": false,
+      "readyForNativeDrop": false,
+      "reason": "No unequivocal signed-in account control was visible in the dedicated draft."
+    },
+    {
+      "provider": "meta",
+      "landing": "observedOriginalLanding",
+      "account": "unconfirmed",
+      "websiteNativeDrag": "NOT_RUN",
+      "visibleSignInControls": 0,
+      "visibleAuthenticatedAccountControls": 0,
+      "visibleArticleCount": 0,
+      "visibleEditors": 0,
+      "visibleAttachmentControl": false,
+      "readyForNativeDrop": false,
+      "reason": "No unequivocal signed-in account control was visible in the dedicated draft."
+    },
+    {
+      "provider": "mistral",
+      "landing": "observedOriginalLanding",
+      "account": "unconfirmed",
+      "websiteNativeDrag": "NOT_RUN",
+      "visibleSignInControls": 0,
+      "visibleAuthenticatedAccountControls": 0,
+      "visibleArticleCount": 0,
+      "visibleEditors": 0,
+      "visibleAttachmentControl": false,
+      "readyForNativeDrop": false,
+      "reason": "No unequivocal signed-in account control was visible in the dedicated draft."
+    },
+    {
+      "provider": "wenxin",
+      "landing": "dedicatedComposerNotIdentified",
+      "account": "unconfirmed",
+      "websiteNativeDrag": "NOT_RUN",
+      "visibleSignInControls": 0,
+      "visibleAuthenticatedAccountControls": 0,
+      "visibleArticleCount": 0,
+      "readyForNativeDrop": false,
+      "reason": "No unequivocal signed-in account control was visible in the dedicated draft."
+    },
+    {
+      "provider": "zai",
+      "landing": "dedicatedComposerNotIdentified",
+      "account": "unconfirmed",
+      "websiteNativeDrag": "NOT_RUN",
+      "visibleSignInControls": 0,
+      "visibleAuthenticatedAccountControls": 0,
+      "visibleArticleCount": 0,
+      "readyForNativeDrop": false,
+      "reason": "No unequivocal signed-in account control was visible in the dedicated draft."
+    }
+  ],
+  "cleanup": {
+    "nativeCloseAcknowledged": true,
+    "originalQaWindowAbsent": true,
+    "visibleAfterClose": false
+  },
+  "privateReceiptSHA256": {
+    "provider-window.json": "7ad0e0fbe61f84318c2f5efa39580a3caa6f01404a368d7b2a77c4018faede4b",
+    "provider-audit.json": "13c2133601f9e506cd8a9f539edbc92a1d4e762c5463e41ed6571b690e5ce121",
+    "provider-close.json": "9963030592dd54bd8b4dd4fe3fa51980806aaf73f5ad0a85d43df5ed22c075c3"
+  },
+  "signedSiteScope": {
+    "candidateVersion": "1.1.0 (68)",
+    "testedSafariChatGPTNativeDrop": "safari-signed-native-drop.json",
+    "additionalSiteFileGestures": 0
+  }
+}
