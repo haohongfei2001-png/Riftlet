@@ -1,0 +1,101 @@
+{
+  "case": "Ordinary Safari / signed-in ChatGPT Temporary Chat / native file drag",
+  "status": "PASS",
+  "acceptedAt": "Web attachment card in the original unsent draft",
+  "observedUTC": {
+    "before": "2026-11-25T14:42:39Z",
+    "after": "2026-11-25T14:42:53Z",
+    "cardReadback": "2026-11-25T14:45:02Z"
+  },
+  "candidate": {
+    "version": "1.1.0",
+    "build": 68,
+    "source": "be4c20d5036d7bbad78f283633d66c5779a13df5",
+    "machOSHA256": "0b53876713b17d28d5522dfb7c3cf73ce1caf00205936db7bdbdb2f769134231",
+    "dmgSHA256": "9f654539619b87ead785828e83cde631896089abc055602bed805588544511f1",
+    "runningARM64CDHash": "72790bd46354b061c94d2257432e860f1a6a2586",
+    "signedAppMatchesDMG": true
+  },
+  "nativeDestination": {
+    "bundle": "com.apple.Safari",
+    "version": "27.0",
+    "applePlatformSignatureAndProcessBirthVerified": true,
+    "uniqueNewNativeWindow": true,
+    "originalSoleSelectedTab": 1,
+    "exactURL": "https://chatgpt.com/?temporary-chat=true",
+    "preauthorizedNativeAccessibility": true,
+    "appleEventsPageJavaScriptUsed": false,
+    "visibleSignedInAccountMenu": 1,
+    "signInControls": 0,
+    "originalEmptyComposerCount": 1,
+    "originalAttachmentControlCount": 1
+  },
+  "gesture": {
+    "originalSystemScreenshotSHA256": "628fcac915ce0d288248f0c5a72344eee5145498ab7c4143b0468b65f5e2cf0f",
+    "officialSystemScreenshotMarker": true,
+    "systemScreenshotCapturedOnlyOwnedFixtureWindow": true,
+    "activeRowMatchedSourcePixelsAndSignedProductWindow": true,
+    "nativeMouseDown": 1,
+    "mouseDragPoints": 12,
+    "nativeMouseUp": 1,
+    "otherApplicationEndpointsOrTransit": false,
+    "explicitGestures": 1,
+    "replays": 0
+  },
+  "safariAttachment": {
+    "originalFilenameOccurrencesBefore": 0,
+    "originalFilenameOccurrencesAfter": 1,
+    "axRole": "AXPopUpButton",
+    "axWidthPoints": 123,
+    "axHeightPoints": 122,
+    "originalComposerWebAreaAndEditorPreserved": true,
+    "originalBlankNativeTextPreserved": true,
+    "visibleArticlesBeforeAndAfter": [
+      0,
+      0
+    ],
+    "visibleAXImageElementsAfter": 0,
+    "newCardPixelsMatchOriginal": true,
+    "pixelMethod": "Nine opaque points over a 16-point-square footprint matched the original QA color to within 6 per sRGB channel. Window-filtered screen capture was bounded to the unique file-named attachment control.",
+    "authoritativeServerCompletion": "NOT_OBSERVED",
+    "pageInputAndChangeEventCounts": "NOT_OBSERVED",
+    "directSendOrSubmitActions": 0
+  },
+  "product": {
+    "sourceWasInActiveTray": true,
+    "sourceVisibilityAfter": "swallowed",
+    "sourceVisibilityRevisionAfter": 1,
+    "originalBytesMatchAfterClosedWindow": true,
+    "clickTransferOperationCountBeforeAfter": [
+      0,
+      0
+    ],
+    "originalRemainsInPrivateTimeline": true
+  },
+  "rawObserverNote": "The initial observer only searched AXGraphic and returned PARTIAL. A subsequent read-only check found the one original-filename AXPopUpButton and verified its visible pixels. No second gesture was issued.",
+  "cleanup": {
+    "signedIsolatedQAProcessExited": true,
+    "originallyCreatedTemporaryWindowClosed": true,
+    "nativeWindowAbsentAfterClose": true,
+    "mousePointerRestored": true,
+    "otherBrowserWindowsChanged": false,
+    "browserSettingsChanged": false,
+    "privateMediaAndDatabaseRetained": true
+  },
+  "privateReceiptSHA256": {
+    "preflight.json": "77298501c556570c4f9d485b3f6db94e327089692ff1adc39a6d83d9b69d67ec",
+    "window.json": "a2afb00e0593e2e94bd9ce3113aebc300932903af5a32696fae3ec248fc90373",
+    "fitted-window.json": "ed7cd3c1b68d9eb50b467b0065009f5131c582fa92fdec2563617b577f2ab410",
+    "path.json": "f50aa4d23b32f65e7294fa9c403da6b3381fad0b733e8626bab606ee7ba88ba8",
+    "running.json": "6bd5a483b0df5943cf37dc41433cb2b7794cb19a9df51c1291d2b056aed3d579",
+    "candidate-source.json": "749ddc928901d43966f8061edd191b102a90c3f0a3170d33fae550a194f4c551",
+    "source-surfaces.json": "90be65c223dc41f968e5c542f6d006b92d4a6d90c1fffbdb6fa7d7510f9d9b01",
+    "system-screenshot.json": "6cc1fb2b9309d74666a0bc8d69f5ff24501a483b4adf27a56abb3b1304f30f66",
+    "before.json": "a43f856203aa9b1c1a7256d5b50b6ebae72a7f6e22d84f3b7d3fcd1d0b2f4d30",
+    "gesture-events.json": "d7806cdb28400f405009ab125b13aa4ef49eccce956a15c6b269b28bf1a0bcbc",
+    "after.json": "9d19b98ed79afdc10e9aae7845a64a53084340761d90f1d0d9bb286d67fd1cc7",
+    "named-card.json": "64eba4ae912747204aec0492bc7bd5fd4a03cab7f8e817181852c0882d87a045",
+    "drag-run.json": "43b9a922780a5f8b1c62cde445b1e2650abb3667c1c6d99a2d898dc4c3443045",
+    "close.json": "2c295f5b41319f80086b2c054178c4ec61bbf41d4ed0f93bd31599d22ddfcd59"
+  }
+}
