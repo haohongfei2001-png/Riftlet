@@ -796,7 +796,7 @@ public actor QueueStore {
             try saveCheckpoint(JSONEncoder().encode(call), for: callKey(op.id))
             // The web handoff finished locally. Its unique START remains the
             // user-facing fact while the final remote outcome is unknown.
-            if op.target.adapterID == "chatgpt-web", op.phase == .inputTriggered || op.phase == .attachmentPresent,
+            if ConversationProvider(adapterID: op.target.adapterID) != nil, op.phase == .inputTriggered || op.phase == .attachmentPresent,
                receipt.outcome == .uploadStarted, receipt.uploadStartEvidence?.signal == .attachmentAccepted,
                try uploadStartReceipt(for: op.id) == receipt, try self.receipt(for: op.id) == receipt {
                 try update(op, phase: .unknown, status: .unknown, reason: "Handed to the draft; final outcome unconfirmed")

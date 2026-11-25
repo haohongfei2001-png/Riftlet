@@ -51,7 +51,7 @@ public struct RiftHistoryEntry: Identifiable, Equatable, Sendable {
 
     var canReviewOriginal: Bool {
         guard let target = currentOperation?.target else { return false }
-        return target.adapterID == "chatgpt-web" && target.surface == .webChat && target.attachmentBrowser != nil
+        return ConversationProvider(adapterID: target.adapterID) != nil && target.surface == .webChat && target.attachmentBrowser != nil
     }
 
     var hasRecoveryOptions: Bool {
