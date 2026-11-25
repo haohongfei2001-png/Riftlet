@@ -13,12 +13,14 @@ public struct ChromeProcessIdentity: Equatable, Sendable {
     private let executablePath: String?
 
     public var session: String {
-        let browser = applicationID == AttachmentBrowser.chrome.rawValue ? "chrome" : "edge"
-        return "\(browser)-kernel-v1:\(pid):\(birth.seconds):\(birth.microseconds)"
+        "\(browser.sessionPrefix):\(pid):\(birth.seconds):\(birth.microseconds)"
     }
 
+    let browser: AttachmentBrowser
+
     init?(birth: KernelProcessBirth, applicationID: String?, terminated: Bool, launchDate: Date?, executablePath: String? = nil) {
-        guard let applicationID, Self.supports(applicationID), !terminated else { return nil }
+        guard let applicationID, let browser = AttachmentBrowser(rawValue: applicationID), !terminated else { return nil }
+        self.browser = browser
         self.applicationID = applicationID; pid = birth.pid; self.birth = birth; legacyLaunchDate = launchDate
         self.executablePath = executablePath
     }

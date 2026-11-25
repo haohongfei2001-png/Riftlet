@@ -1,0 +1,79 @@
+{
+  "scope": "Ordinary system Safari native transport on a private localhost QA page, using an independent QA sender",
+  "timeUTC": "2026-11-25T13:06:15Z",
+  "browser": {
+    "bundleIdentifier": "com.apple.Safari",
+    "version": "27.0",
+    "macOS": "27.0",
+    "applePlatformCodeVerified": true,
+    "kernelExecutableAndProcessBirthVerified": true
+  },
+  "nativeRoute": {
+    "newDocumentReceipt": "docu/name",
+    "uniqueCreatedWindowDiffVerified": true,
+    "windowClass": "cwin",
+    "windowKeyForm": "ID  ",
+    "tabClass": "bTab",
+    "tabKeyForm": "indx",
+    "tabPositionDescriptor": "long",
+    "tabPosition": 1,
+    "exactOwnedLoopbackPageLoaded": true,
+    "ownedHTTPGETs": 1,
+    "didReadOtherTabsContent": false
+  },
+  "permissions": {
+    "nonpromptingCoreGetStatus": 0,
+    "nonpromptingJavaScriptStatus": 0,
+    "scriptEvent": "sfri/dojs",
+    "originalTabParameter": "dcnm",
+    "scriptNativeError": 8,
+    "browserSetting": "Allow JavaScript from Apple Events",
+    "browserSettingsChanged": false,
+    "systemPermissionsChanged": false
+  },
+  "acceptance": {
+    "safariProductClick": "BLOCKED_ENV",
+    "signedProductClickOnLiveWebsite": "NOT_RUN",
+    "siteAttachments": 0,
+    "messagesSent": 0,
+    "signedProductDrag": "NOT_RUN_IN_THIS_PROBE"
+  },
+  "cleanup": {
+    "checkedUTC": "2026-11-25T13:55:40Z",
+    "identifiedNewWindows": 2,
+    "exactCloseAcknowledgements": 2,
+    "closedIDsStillOnScreen": 0,
+    "closedIDsRemainingInNativeList": 1,
+    "remainingIdentifiedWindowVisible": false,
+    "earliestFileProbe": "The initial independent file probe recorded a one-window increase without retaining the new ID. Its unique filename matched no tab and the exact creation interval supplied no matching event. Its window ownership and close remain unconfirmed.",
+    "unidentifiedWindowsChangedDuringCleanup": false,
+    "localHTTPListenerStopped": true
+  },
+  "controlledRegression": {
+    "architecture": "arm64",
+    "swiftPMTarget": "RiftletAdapters",
+    "build": "PASS",
+    "runner": "Local assertion runner against the built SwiftPM modules; Xcode XCTest not installed",
+    "testMethods": 29,
+    "result": "PASS",
+    "suites": [
+      "SafariTabHostTests",
+      "ChromePinnedRoutingTests",
+      "NativeCaptureProofTests",
+      "PreClickLeaseTests",
+      "ChromeSetupConnectionProbeTests"
+    ]
+  },
+  "privateEvidenceSHA256": {
+    "ordinary-safari-permission.json": "ca31b87072ae8ddeb621e5d9158b69dd70e8ec4122102f10944315046978bb1b",
+    "ordinary-safari-local-window.json": "cf9e0e2262542f1cc79f69a0836b9648d706bd3b029d316b0a6c44ab684b1324",
+    "bounded-tab-filter.json": "c4db137630879d040eac54c7a4e718283e3a1d1956fb2fc4038f9692ed357f86",
+    "ordinary-safari-native-host.json": "71a3897b230033ca93aa6c90efb2f30cedf7e5773df49d0fb29d3cd47299ffa9",
+    "ordinary-safari-native-host-v2.json": "60f376067c047962dc7890497f18a41c5db8c5c1bb07afcf093a89d25b680d24",
+    "ordinary-safari-native-resumed.json": "930bb55c384a0bf1787eec43a4c5c7ef8165ce4067d3688544b43a14ed318ac8",
+    "loopback-http-resumed.json": "25947efad59f81a45ad4ede0932c6b57fc1eadbcd5c021dc6bbeb10005bf096e",
+    "after-close-native-metadata.json": "d82613465a6d40bbec717eef72df74681849b7d695a455f1c000351d134ffe6b",
+    "original-creation-correlation.json": "e02d7c470a713b37af2cd8ef12ddfc504ab49eeabe5865d334c5264743a130a8",
+    "native-regression.log": "64db1eaadf3f22ead836ee1b773872ed004e050eab0849f058d831db102feb40"
+  }
+}

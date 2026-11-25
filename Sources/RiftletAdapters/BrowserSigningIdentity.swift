@@ -6,13 +6,16 @@ extension ChromeProcessIdentity {
     /// Verify the running code and the kernel executable, including for browsers
     /// installed outside /Applications. Display names and numeric IDs are insufficient.
     func isSignedBrowser() -> Bool {
-        let team: String
+        let rule: String
         let executable: String
         switch applicationID {
         case AttachmentBrowser.chrome.rawValue:
-            team = "EQHXZ8M8AV"; executable = "Google Chrome"
+            rule = developerIDRequirement(team: "EQHXZ8M8AV"); executable = "Google Chrome"
         case AttachmentBrowser.edge.rawValue:
-            team = "UBF8T346G9"; executable = "Microsoft Edge"
+            rule = developerIDRequirement(team: "UBF8T346G9"); executable = "Microsoft Edge"
+        case AttachmentBrowser.safari.rawValue:
+            // The system Safari is Apple platform code and has no Developer ID team.
+            rule = "anchor apple and identifier \"com.apple.Safari\""; executable = "Safari"
         default: return false
         }
         guard isCurrent(), let app = NSRunningApplication(processIdentifier: pid),
@@ -26,7 +29,6 @@ extension ChromeProcessIdentity {
               expected.path == URL(fileURLWithPath: kernelPath).resolvingSymlinksInPath().standardizedFileURL.path else {
             return false
         }
-        let rule = "anchor apple generic and identifier \"\(applicationID)\" and certificate leaf[subject.OU] = \"\(team)\""
         var requirement: SecRequirement?
         var guest: SecCode?
         let flags = SecCSFlags(rawValue: 0)
@@ -35,5 +37,9 @@ extension ChromeProcessIdentity {
               let requirement, SecCodeCopyGuestWithAttributes(nil, attributes, flags, &guest) == errSecSuccess,
               let guest, SecCodeCheckValidity(guest, flags, requirement) == errSecSuccess else { return false }
         return isCurrent()
+    }
+
+    private func developerIDRequirement(team: String) -> String {
+        "anchor apple generic and identifier \"\(applicationID)\" and certificate leaf[subject.OU] = \"\(team)\""
     }
 }
