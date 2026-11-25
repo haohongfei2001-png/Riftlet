@@ -1,9 +1,9 @@
 {
   "updatedAt": "2026-11-25",
-  "stableRelease": "v1.0.10",
-  "stableBuild": 65,
-  "stableProductSource": "3f7d87ee242463cfc90bf5d600c8ee1d262de69d",
-  "mainAtChannelCheck": "28d1df45945b425c1961c8a0c0cf9aea340c17bd",
+  "stableRelease": "v1.0.11",
+  "stableBuild": 67,
+  "stableProductSource": "2598c0004d1f897880951e6c8a38c7503eb61948",
+  "mainAtChannelCheck": "0b572fa7df8089c52fb9f6ec8649f731d0daac73",
   "main": "https://github.com/haohongfei2001-png/Riftlet/tree/main",
   "publicRelease": "https://github.com/haohongfei2001-png/Riftlet/releases/latest",
   "website": "https://riftlet.com/",
@@ -21,22 +21,30 @@
   "currentWork": {
     "version": "1.0.11",
     "build": 67,
-    "phase": "candidate",
+    "phase": "public_release",
     "fix": "Full-library restore after a completed unattempted click, plus attaching through the original form field when it becomes enabled.",
     "reproduction": "Confirmed on the 1.0.10 mainline in an isolated SQLite library after 20 newer selections.",
     "reviewDiscussion": "https://github.com/haohongfei2001-png/Riftlet/pull/132#discussion_r4681988609",
     "engineeringEntryIssue": "https://github.com/haohongfei2001-png/Riftlet/issues/91",
-    "runtimeAcceptance": "Build 66 results are recorded separately. Build 67 requires signed-candidate Chrome and Edge verification.",
-    "nextAction": "Review and test the build 67 candidate, its signed package and the public update from build 65.",
+    "runtimeAcceptance": {
+      "Chrome": "Single image, two images, nonempty text, prior cards, explicit recent history reattachment, and evicted screenshot restoration with a later explicit attachment passed. Some earlier fresh drafts stopped before input or lacked a confirmed preview.",
+      "Edge": "Single image, two images, nonempty text, prior cards, explicit recent history reattachment, and evicted screenshot restoration with a later explicit attachment passed. Some earlier fresh drafts stopped before input or lacked a confirmed preview."
+    },
     "engineeringEntryIssueStatus": "closed",
     "report": "docs/releases/1.0.11/VERIFICATION.md",
-    "installation": "Build 66 was independently installed. Build 67 has separate installation and update verification.",
+    "installation": "Public Developer ID package with stapled App and DMG, Gatekeeper and independent private installation verified. See verification for deployment-stage checks.",
     "previousCandidate": {
       "build": 66,
       "productSource": "6c0af660a8738c673b85155c3169441c524511d7",
       "productPR": 134,
       "acceptance": "PARTIAL: both browsers passed single, pair and explicit reattachment; both also had a pre-input recovery failure."
-    }
+    },
+    "releaseSHA256": "1611fbbd1866d1e686489dece6b8fbc03d7f0dcde4669a0b58c8a9a95c0c8f41",
+    "publicAsset": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.11/Riftlet-1.0.11.dmg",
+    "publicVersion": "https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.11",
+    "verification": "https://github.com/haohongfei2001-png/Riftlet/blob/main/docs/releases/1.0.11/VERIFICATION.md",
+    "productSource": "2598c0004d1f897880951e6c8a38c7503eb61948",
+    "productPR": 135
   },
   "historicalStatus": "https://github.com/haohongfei2001-png/Riftlet/blob/933a6f32c90908f034137ee32ff05273b615913b/docs/quality/ITERATION_STATUS.json"
 }

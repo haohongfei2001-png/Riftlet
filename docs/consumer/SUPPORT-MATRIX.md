@@ -1,10 +1,10 @@
-# Riftlet 1.0.10 支持范围
+# Riftlet 1.0.11 支持范围
 
 Riftlet 在 macOS 上运行。网页附加适用于普通 Google Chrome 和 Microsoft Edge 中可编辑的 ChatGPT 草稿。ChatGPT 调整网页界面可能影响附加功能。
 
 | 场景 | 范围 |
 | --- | --- |
-| Mac 安装 | macOS 13 及以上，Apple 芯片与 Intel 通用安装包。1.0.10 可通过官网下载 DMG 安装。1.0.1 起支持应用内更新，请在 Riftlet 中选择「检查更新…」。 |
+| Mac 安装 | macOS 13 及以上，Apple 芯片与 Intel 通用安装包。1.0.11 可通过官网下载 DMG 安装。1.0.1 起支持应用内更新，请在 Riftlet 中选择「检查更新…」。 |
 | 系统截图 | 从 macOS 实际截图保存目录收录新生成的截图文件。普通下载图片、剪贴板截图和屏幕录像不属于此入口。 |
 | 图片格式 | 识别带系统截图标识的单帧 PNG、JPEG、HEIC、HEIF、TIFF。超大、损坏或不受支持的文件会被跳过；系统原件保留。 |
 | 内置截图 | 经屏幕录制授权后可截窗口、区域、全屏。「更多」进入其他操作。 |
@@ -12,6 +12,8 @@ Riftlet 在 macOS 上运行。网页附加适用于普通 Google Chrome 和 Micr
 | 网页附加 | 支持普通 Google Chrome 或 Microsoft Edge 前台当前可编辑的 ChatGPT 草稿。仅对明确点击的微图发起附加。Safari、Brave、Firefox、桌面 ChatGPT，以及 Claude、Gemini 和 DeepSeek 等其他 AI 网页暂不支持一键附加。 |
 | 接收与发送 | 在草稿附件区查看上传结果。无论成功、失败或结果未知，已点击的截图都留在历史。需要再次附加时由用户点选，消息由用户发送。 |
 | 反馈 | 自愿通过 App 私下提交文字；诊断默认关闭，可在发送前预览。 |
+
+**1.0.11 验收。** [本版安装包、恢复和实站验收记录](../releases/1.0.11/VERIFICATION.md)
 
 **1.0.10 验收。** 同一正式包在离线模拟中验证了成功和失败后保留历史、通过历史点选再次附加，以及连续收录多张截图。[安装包和最近历史验收](../releases/1.0.10/VERIFICATION.md)
 

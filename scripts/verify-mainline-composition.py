@@ -94,6 +94,7 @@ POLICY = Policy(
         ("0878d2f60d8e5c78c5937bf8c1db8ed5ba5fa207", ("index.html", "sitemap.xml", "website/README.md")),
         ("134639f5036d1e7cb88a64ab2e7fd3951dc26c98", ("index.html", "sitemap.xml", "website/README.md")),
         ("9c93e2dc1a5cc4fda746c98979e6d2376aa4bb47", ("index.html", "sitemap.xml", "website/README.md")),
+        ("be08c8e85b7230b6ea08a247d31dd8f888c5023e", ("index.html", "website/README.md")),
     ),
 )
 

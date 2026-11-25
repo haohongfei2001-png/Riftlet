@@ -22,10 +22,10 @@ test('Riftlet identity is explicit and there is no false capability claim',()=>{
  const app=JSON.parse(data[1]);
  assert.equal(app.name,'Riftlet');
  assert.equal(app.url,'https://riftlet.com/');
- assert.equal(app.softwareVersion,'1.0.10');
+ assert.equal(app.softwareVersion,'1.0.11');
  assert.match(app.description,/Chrome/);
  assert.match(app.description,/Edge/);
- assert.match(app.downloadUrl,/v1\.0\.10\/Riftlet-1\.0\.10\.dmg$/);
+ assert.match(app.downloadUrl,/v1\.0\.11\/Riftlet-1\.0\.11\.dmg$/);
  assert.equal((html.match(/type="application\/ld\+json"/g)||[]).length,1);
 });
 test('installation dialog identifies the signed disk image in both languages', () => {
@@ -35,8 +35,8 @@ test('installation dialog identifies the signed disk image in both languages', (
  assert.match(dialog[1], /磁盘映像 SHA-256|安装包 SHA-256/);
  const code = dialog[1].match(/<code>([\da-f]+(?:<wbr>[\da-f]+)*)<\/code>/);
  assert.ok(code);
- assert.equal(code[1].replaceAll('<wbr>', ''), '036a41733a57810824a830b0090e7360de22cdba3819704484bb01053da7033d');
- assert.ok(dialog[1].includes('href="https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.10"'));
+ assert.equal(code[1].replaceAll('<wbr>', ''), '1611fbbd1866d1e686489dece6b8fbc03d7f0dcde4669a0b58c8a9a95c0c8f41');
+ assert.ok(dialog[1].includes('href="https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.11"'));
 });
 test('IndexNow domain ownership file matches key exactly',()=>{
  assert.match(key,/^[a-z0-9]{8,128}$/);

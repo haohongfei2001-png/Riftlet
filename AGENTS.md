@@ -1,6 +1,6 @@
 # Riftlet engineering
 
-Start each change from the actual `main`. Check the latest public Release, riftlet.com and the signed stable appcast for the version users receive. The verified baseline for the November 25 recovery fix is **1.0.10 (65)**, product PR #132 and distribution PR #133. Use the [current release and work status](docs/quality/ITERATION_STATUS.json), [product contract](docs/PRODUCT.md), [decisions](docs/quality/DECISIONS.md) and [mainline process](docs/MAINLINE_GOVERNANCE.md).
+Start each change from the actual `main`. Check the latest public Release, riftlet.com and the signed stable appcast for the version users receive. Use the [current release and work status](docs/quality/ITERATION_STATUS.json), [product contract](docs/PRODUCT.md), [decisions](docs/quality/DECISIONS.md) and [mainline process](docs/MAINLINE_GOVERNANCE.md).
 
 ## Screenshot behavior
 
