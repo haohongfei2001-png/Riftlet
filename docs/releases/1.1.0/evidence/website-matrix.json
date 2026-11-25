@@ -57,22 +57,25 @@
       "browser": "safari",
       "provider": "chatgpt",
       "name": "ChatGPT",
-      "status": "NOT_RUN",
+      "status": "PARTIAL",
       "checks": {
-        "originalDraft": "NOT_RUN",
-        "singleClick": "NOT_RUN",
-        "twoImages": "NOT_RUN",
+        "originalDraft": "PASS",
+        "singleClick": "BLOCKED_ENV",
+        "twoImages": "BLOCKED_ENV",
         "draftTextAndPriorAttachments": "NOT_RUN",
         "oneInputPerClick": "NOT_RUN",
-        "correctTarget": "NOT_RUN",
-        "originalsRetained": "NOT_RUN",
-        "zeroAutomaticSendOrSubmit": "NOT_RUN",
+        "correctTarget": "PASS",
+        "originalsRetained": "PASS",
+        "zeroAutomaticSendOrSubmit": "PASS",
         "historyClick": "NOT_RUN",
-        "nativeDragReceived": "NOT_RUN"
+        "nativeDragReceived": "PASS"
       },
-      "account": "notEstablished",
+      "account": "signedIn",
       "clickEnvironment": "Apple Events JavaScript disabled in ordinary Safari (native error 8).",
-      "reason": "Website-native drag requires a separately verified signed-in draft."
+      "reason": "Native file drop produced one new file-named card in the original Safari ChatGPT composer with nine matching preview samples. JavaScript from Apple Events returned Safari status 8.",
+      "evidence": [
+        "safari-signed-native-drop.json"
+      ]
     },
     {
       "browser": "chrome",
