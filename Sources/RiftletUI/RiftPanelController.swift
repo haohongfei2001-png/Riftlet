@@ -95,6 +95,7 @@ private final class RiftRowView: NSView, NSMenuDelegate {
     var ordinal: Int
     let imageClip = CALayer()
     let imageLayer = CALayer()
+    private(set) var renderedImage: CGImage?
     private var ornament: RiftThumbnailDecoration!
     private var visualHovered = false
     private var visualPressed = false
@@ -108,6 +109,7 @@ private final class RiftRowView: NSView, NSMenuDelegate {
     private var arrivalImageOwner: UUID?
     var onDown: ((NSEvent) -> Bool)?
     var onUp: ((Bool, CGPoint?) -> Void)?
+    var onFileDrag: ((NSView, NSEvent, AssetRecord) -> Void)?
     var onScroll: ((NSEvent) -> Void)?
     var onAccessiblePress: (() -> Bool)?
     var onPreview: (() -> Bool)?
@@ -245,6 +247,7 @@ private final class RiftRowView: NSView, NSMenuDelegate {
             ornament.plane.isHidden = true
             ornament.lip.isHidden = true
         }
+        renderedImage = image
         imageLayer.contents = image
         CATransaction.commit()
         needsDisplay = true
@@ -376,6 +379,8 @@ private final class RiftInputView: NSView {
     weak var rowView: RiftRowView?
     private var approachTracking: NSTrackingArea?
     private var pointerInside = false
+    private var dragOrigin: (point: CGPoint, record: AssetRecord)?
+    private var consumedDrag = false
 
     init(rowView: RiftRowView) {
         self.rowView = rowView
@@ -398,10 +403,28 @@ private final class RiftInputView: NSView {
     }
 
     override func mouseDown(with event: NSEvent) {
-        guard bounds.contains(convert(event.locationInWindow, from: nil)), isInsideOriginalRow(event) else { return }
-        _ = rowView?.onDown?(event)
+        dragOrigin = nil
+        consumedDrag = false
+        guard bounds.contains(convert(event.locationInWindow, from: nil)), isInsideOriginalRow(event),
+              let rowView, let window else { return }
+        if event.clickCount == 1 && rowView.record.status != .missing {
+            dragOrigin = (window.convertPoint(toScreen: event.locationInWindow), rowView.record)
+        }
+        _ = rowView.onDown?(event)
+    }
+    override func mouseDragged(with event: NSEvent) {
+        guard let start = dragOrigin, let window = event.window, window === self.window else { return }
+        let point = window.convertPoint(toScreen: event.locationInWindow)
+        guard hypot(point.x - start.point.x, point.y - start.point.y) >= 4 else { return }
+        // Crossing the drag threshold consumes this gesture, even if the file
+        // has disappeared or the destination subsequently rejects the drop.
+        dragOrigin = nil
+        consumedDrag = true
+        rowView?.onFileDrag?(self, event, start.record)
     }
     override func mouseUp(with event: NSEvent) {
+        dragOrigin = nil
+        guard !consumedDrag else { consumedDrag = false; return }
         // AppKit routes release to the original down window even outside its
         // bounds. Test the union of this original asset's two regions, never a
         // replacement row under the release point.
@@ -581,6 +604,10 @@ public final class RiftPanelController {
     private var lastWheelTime: TimeInterval = 0
     public var onGeometryChange: (() -> Void)?
     private let cache: ThumbnailCache
+    private let mediaDirectory: URL
+    private var activeFileDrag: RiftFileDrag?
+    /// The destination accepted a file copy. This callback has no upload, START or send authority.
+    public var onFileDropAccepted: ((UUID, Int64) -> Void)?
     private let onSelect: (UUID) -> Void
     private let onPress: (UUID, TimeInterval) -> Void
     private let onCancelledPress: (UUID) -> Void
@@ -774,6 +801,7 @@ public final class RiftPanelController {
         self.onInteractionChange = onInteractionChange
         self.holdsSelectionUntilFinished = holdsSelectionUntilFinished
         self.interactionFence = interactionFence
+        self.mediaDirectory = mediaDirectory
         cache = ThumbnailCache(directory: mediaDirectory)
         decoration = RiftPanel(frame: .zero, decorative: true)
         decoration.contentView = RiftLineView(frame: .zero)
@@ -1811,6 +1839,10 @@ public final class RiftPanelController {
     }
 
     private func wire(_ window: RowWindow, id: UUID) {
+        window.view.onFileDrag = { [weak self, weak row = window.view] source, event, record in
+            guard let self, let row else { return }
+            self.beginFileDrag(record: record, row: row, source: source, event: event)
+        }
         window.view.onHover = { [weak self, weak view = window.view] inside in
             guard let self, !self.userHidden, !self.closed else { return }
             // Use both input islands so an exit from one cannot clear a hover
@@ -1938,6 +1970,40 @@ public final class RiftPanelController {
             }
             return true
         }
+    }
+
+    private func beginFileDrag(record: AssetRecord, row: RiftRowView, source: NSView, event: NSEvent) {
+        // A drag must abandon the target captured on mouseDown before exposing
+        // any file on the drag pasteboard. No store selection was made yet.
+        if interaction.heldID == record.id {
+            onCancelledPress(record.id)
+            gate.cancel()
+            pressRegions.removeValue(forKey: record.id)
+            selectionVersions.removeValue(forKey: record.id)
+            historySelections.remove(record.id)
+            mutateInteraction { $0.releasePointer(accepted: false) }
+            row.setVisualState(pressed: false)
+        }
+        guard activeFileDrag == nil, !closed, !userHidden, !captureSuppressed,
+              rowWindows[record.id]?.view === row, row.record == record,
+              row.isDisplayedRecord, record.status != .missing, event.window === source.window,
+              let url = try? RiftFileDrag.file(for: record, in: mediaDirectory) else {
+            flushDeferred()
+            return
+        }
+        peek.cancel()
+        let drag = RiftFileDrag { [weak self] token, result in
+            guard let self, self.activeFileDrag?.id == token else { return }
+            self.activeFileDrag = nil
+            self.mutateInteraction { $0.endAnimation(token) }
+            if !self.closed, result == .copy, record.visibility == .visible {
+                self.onFileDropAccepted?(record.id, record.visibilityRevision)
+            }
+            self.flushDeferred()
+        }
+        activeFileDrag = drag
+        mutateInteraction { $0.beginAnimation(drag.id) }
+        drag.start(url: url, image: row.renderedImage, from: source, event: event)
     }
 
     private func schedulePeek(_ id: UUID, immediate: Bool = false) {
