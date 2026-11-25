@@ -149,6 +149,7 @@ public enum WebAdapterError: Error, Equatable, Sendable {
     case disabled, programUnavailable, syntheticAssetsOnly, invalidTarget, invalidRequest
     case invalidPrivateFile, inputInFlight, invalidReply, browserNotFrontmost, nativeExecutionFailed
     case nativeEventFailed(Int32)
+    case javaScriptDisabled
     case nativeSelectionChanged, captureSuperseded, pageRejected(WebPageRejection)
 
     /// Closed, content-free labels. Never interpolate a generic Error/NSError.
@@ -165,6 +166,7 @@ public enum WebAdapterError: Error, Equatable, Sendable {
         case .captureSuperseded: return "captureSuperseded"
         case .browserNotFrontmost: return "browserNotFrontmost"
         case .nativeExecutionFailed: return "nativeExecutionFailed"
+        case .javaScriptDisabled: return "javaScriptDisabled"
         case .nativeEventFailed(let code): return "nativeEventFailed(\(code))"
         case .nativeSelectionChanged: return "nativeSelectionChanged"
         case .pageRejected(let code): return "pageRejected(\(code.rawValue))"
@@ -174,7 +176,7 @@ public enum WebAdapterError: Error, Equatable, Sendable {
     static func isDiagnosticLabel(_ value: String) -> Bool {
         let labels = ["none", "unclassified", "unclassifiedTransportError", "disabled", "programUnavailable",
             "syntheticAssetsOnly", "invalidTarget", "invalidRequest", "invalidPrivateFile", "inputInFlight",
-            "invalidReply", "captureSuperseded", "browserNotFrontmost", "nativeExecutionFailed", "nativeSelectionChanged"]
+            "invalidReply", "captureSuperseded", "browserNotFrontmost", "nativeExecutionFailed", "nativeSelectionChanged", "javaScriptDisabled"]
         if labels.contains(value) { return true }
         if WebPageRejection.allCases.contains(where: { "pageRejected(\($0.rawValue))" == value }) { return true }
         let prefix = "nativeEventFailed("
@@ -790,6 +792,7 @@ public actor WebAttachmentAdapter: OriginalAttachmentRecoveryChecking {
                 case .captureSuperseded?: label = "captureSuperseded"
                 case .browserNotFrontmost?: label = "browserNotFrontmost"
                 case .nativeExecutionFailed?: label = "nativeExecutionFailed"
+                case .javaScriptDisabled?: label = "javaScriptDisabled"
                 case .nativeEventFailed(let code)?: label = "nativeEventFailed(\(code))"
                 case .nativeSelectionChanged?: label = "nativeSelectionChanged"
                 case .pageRejected(let code)?: label = "pageRejected(\(code.rawValue))"

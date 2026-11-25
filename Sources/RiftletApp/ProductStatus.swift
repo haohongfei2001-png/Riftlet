@@ -96,7 +96,7 @@ enum ProductStatus {
             if web == .invalidPrivateFile { return .imageUnavailable }
             if web == .nativeEventFailed(-1744) { return .permissionNotRequested }
             if web == .nativeEventFailed(-1743) { return .permissionDenied }
-            if web == .nativeEventFailed(12) { return .chromeJavaScriptDisabled }
+            if web == .nativeEventFailed(12) || web == .javaScriptDisabled { return .chromeJavaScriptDisabled }
         }
         if let frontmostBundleID,
            ["org.mozilla.firefox", "com.brave.Browser"]
